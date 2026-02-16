@@ -5,8 +5,8 @@ import { ChartDefinitionWithDataSource } from "../../../../../types";
 import { Checkbox } from "../../../components/checkbox/checkbox";
 import { Section } from "../../../components/section/section";
 import { ChartSidePanelProps, ChartSidePanelPropsObject } from "../../common";
+import { ChartDataSourceSidePanel } from "../data_source_side_panel/data_source_side_panel";
 import { ChartErrorSection } from "../error_section/error_section";
-import { ChartRangeDataSource } from "../range_data_source/range_data_source";
 
 interface GenericChartPanelState {
   errorMessages: string[];
@@ -19,7 +19,7 @@ export class GenericChartConfigPanel<
 > extends Component<P, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-GenericChartConfigPanel";
   static components = {
-    ChartRangeDataSource,
+    ChartDataSourceSidePanel,
     Section,
     Checkbox,
     ChartErrorSection,

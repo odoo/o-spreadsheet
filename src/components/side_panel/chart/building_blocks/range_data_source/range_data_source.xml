@@ -1,5 +1,5 @@
 <templates>
-  <t t-name="o-spreadsheet.ChartRangeDataSource">
+  <t t-name="o-spreadsheet-ChartRangeDataSource">
     <ChartDataSeries
       ranges="this.getDataSeriesRanges()"
       dataSetStyles="this.props.definition.dataSetStyles"

@@ -7,7 +7,7 @@
         updateChart="props.updateChart"
       />
 
-      <ChartRangeDataSource
+      <ChartDataSourceSidePanel
         chartId="props.chartId"
         definition="props.definition"
         updateChart="props.updateChart"

@@ -53,7 +53,7 @@ interface Props {
 }
 
 export class ChartRangeDataSource extends Component<Props, SpreadsheetChildEnv> {
-  static template = "o-spreadsheet.ChartRangeDataSource";
+  static template = "o-spreadsheet-ChartRangeDataSource";
   static components = {
     ChartDataSeries,
     ChartLabelRange,
@@ -82,9 +82,11 @@ export class ChartRangeDataSource extends Component<Props, SpreadsheetChildEnv> 
   protected chartTerms = ChartTerms;
 
   setup() {
-    this.dataSets = this.props.definition.dataSource.dataSets;
+    this.dataSets = this.props.definition.dataSource.dataSets ?? [];
     this.labelRange = this.props.definition.dataSource.labelRange;
-    this.datasetOrientation = this.computeDatasetOrientation();
+    if (this.props.definition.dataSource.type === "range") {
+      this.datasetOrientation = this.computeDatasetOrientation();
+    }
   }
 
   get errorMessages(): string[] {
