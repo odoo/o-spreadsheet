@@ -11,6 +11,7 @@ export const geoJsonService = {
       { id: "africa", label: "Africa", defaultProjection: "mercator" },
       { id: "north_america", label: "North America", defaultProjection: "conicConformal" },
       { id: "south_america", label: "South America", defaultProjection: "mercator" },
+      { id: "oceania", label: "Oceania", defaultProjection: "mercator" },
     ];
   },
   getTopoJson: async function (region) {
