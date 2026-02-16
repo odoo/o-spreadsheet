@@ -350,6 +350,7 @@ import { chartSubtypeRegistry } from "@odoo/o-spreadsheet-engine/registries/char
 import { clipboardHandlersRegistries } from "@odoo/o-spreadsheet-engine/registries/clipboardHandlersRegistries";
 import "./clipboard_handlers";
 import { Composer } from "./components/composer/composer/composer";
+import { Select } from "./components/select/select";
 import { TopBar } from "./components/top_bar/top_bar";
 
 export const helpers = {
@@ -436,6 +437,7 @@ export const links = {
 export const components = {
   Checkbox,
   Section,
+  Select,
   RoundColorPicker,
   ChartDataSeries,
   ChartErrorSection,
