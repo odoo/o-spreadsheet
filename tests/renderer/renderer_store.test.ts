@@ -47,6 +47,7 @@ import {
   paste,
   resizeColumns,
   resizeRows,
+  selectCell,
   setCellContent,
   setCellFormat,
   setFormat,
@@ -72,6 +73,20 @@ function getBoxFromText(gridRenderer: GridRenderer, text: string): Box {
   return gridRenderer["lastRenderBoxes"]
     .values()
     .find((b) => (b.content?.textLines || []).join(" ") === text)!;
+}
+
+function getGridSize(model: Model, args: { cols: number; rows: number; showHeaders: boolean }) {
+  const { cols, rows, showHeaders } = args;
+  let width = showHeaders ? HEADER_WIDTH : 0;
+  const sheetId = model.getters.getActiveSheetId();
+  for (let i = 0; i < cols; i++) {
+    width += model.getters.getColSize(sheetId, i);
+  }
+  let height = showHeaders ? HEADER_HEIGHT : 0;
+  for (let i = 0; i < rows; i++) {
+    height += model.getters.getRowSize(sheetId, i);
+  }
+  return { width, height };
 }
 
 /**
@@ -131,6 +146,7 @@ describe("renderer", () => {
     drawGridRenderer(ctx);
 
     expect(instructions).toMatchSnapshot();
+    expect(ctx.screenshot()).toMatchImageSnapshot();
   });
 
   describe("Headers background color", () => {
@@ -329,30 +345,15 @@ describe("renderer", () => {
 
     setStyle(model, "A1", { fillColor: "#DC6CDF" });
 
-    let fillStyle: any[] = [];
-    let fillStyleColor1Called = false;
-    let fillStyleColor2Called = false;
-    const ctx = new MockGridRenderingContext(model, 1000, 1000, {
-      onSet: (key, value) => {
-        if (key === "fillStyle" && value === "#DC6CDF") {
-          fillStyleColor1Called = true;
-          fillStyleColor2Called = false;
-        }
-        if (key === "fillStyle" && value === "#DC6CDE") {
-          fillStyleColor2Called = true;
-          fillStyleColor1Called = false;
-        }
-      },
-      onFunctionCall: (val, args) => {
-        if (val === "fillRect" && fillStyleColor1Called) {
-          fillStyle.push({ color: "#DC6CDF", x: args[0], y: args[1], w: args[2], h: args[3] });
-          fillStyleColor1Called = false;
-          fillStyleColor2Called = false;
-        }
-        if (val === "fillRect" && fillStyleColor2Called) {
-          fillStyle.push({ color: "#DC6CDE", x: args[0], y: args[1], w: args[2], h: args[3] });
-          fillStyleColor1Called = false;
-          fillStyleColor2Called = false;
+    const fillStyle: any[] = [];
+    const { width, height } = getGridSize(model, { cols: 1, rows: 3, showHeaders: false });
+    const ctx = new MockGridRenderingContext(model, width, height, {
+      onFunctionCall: (val, args, mockCtx) => {
+        if (val === "fillRect") {
+          const color = toHex(mockCtx.ctx.fillStyle as string);
+          if (color === "#DC6CDF") {
+            fillStyle.push({ color, x: args[0], y: args[1], w: args[2], h: args[3] });
+          }
         }
       },
     });
@@ -362,47 +363,25 @@ describe("renderer", () => {
     expect(removeOffsetOfFillStyles(fillStyle)).toEqual([
       { color: "#DC6CDF", h: 23, w: 96, x: 0, y: 0 },
     ]);
-
-    fillStyle = [];
-    setStyle(model, "A1", { fillColor: "#DC6CDE" });
-    drawGridRenderer(ctx);
-
-    expect(removeOffsetOfFillStyles(fillStyle)).toEqual([
-      { color: "#DC6CDE", h: 23, w: 96, x: 0, y: 0 },
-    ]);
+    expect(ctx.screenshot()).toMatchImageSnapshot();
   });
 
   test("fillstyle of merge will be rendered for all cells in merge", () => {
     const { drawGridRenderer, model } = setRenderer(
-      new Model({ sheets: [{ colNumber: 1, rowNumber: 3 }] })
+      new Model({ sheets: [{ colNumber: 2, rowNumber: 4 }] })
     );
     setStyle(model, "A1", { fillColor: "#DC6CDF" });
     merge(model, "A1:A3");
 
-    let fillStyle: any[] = [];
-    let fillStyleColor1Called = false;
-    let fillStyleColor2Called = false;
-    const ctx = new MockGridRenderingContext(model, 1000, 1000, {
-      onSet: (key, value) => {
-        if (key === "fillStyle" && value === "#DC6CDF") {
-          fillStyleColor1Called = true;
-          fillStyleColor2Called = false;
-        }
-        if (key === "fillStyle" && value === "#DC6CDE") {
-          fillStyleColor2Called = true;
-          fillStyleColor1Called = false;
-        }
-      },
-      onFunctionCall: (val, args) => {
-        if (val === "fillRect" && fillStyleColor1Called) {
-          fillStyle.push({ color: "#DC6CDF", x: args[0], y: args[1], w: args[2], h: args[3] });
-          fillStyleColor1Called = false;
-          fillStyleColor2Called = false;
-        }
-        if (val === "fillRect" && fillStyleColor2Called) {
-          fillStyle.push({ color: "#DC6CDE", x: args[0], y: args[1], w: args[2], h: args[3] });
-          fillStyleColor1Called = false;
-          fillStyleColor2Called = false;
+    const fillStyle: any[] = [];
+    const { width, height } = getGridSize(model, { cols: 2, rows: 4, showHeaders: false });
+    const ctx = new MockGridRenderingContext(model, width, height, {
+      onFunctionCall: (val, args, mockCtx) => {
+        if (val === "fillRect") {
+          const color = toHex(mockCtx.ctx.fillStyle as string);
+          if (color === "#DC6CDF") {
+            fillStyle.push({ color, x: args[0], y: args[1], w: args[2], h: args[3] });
+          }
         }
       },
     });
@@ -410,16 +389,9 @@ describe("renderer", () => {
     drawGridRenderer(ctx);
 
     expect(removeOffsetOfFillStyles(fillStyle)).toEqual([
-      { color: "#DC6CDF", h: 3 * 23, w: 96, x: 0, y: 0 },
+      { color: "#DC6CDF", h: 23 * 3, w: 96, x: 0, y: 0 },
     ]);
-
-    fillStyle = [];
-    setStyle(model, "A1", { fillColor: "#DC6CDE" });
-    drawGridRenderer(ctx);
-
-    expect(removeOffsetOfFillStyles(fillStyle)).toEqual([
-      { color: "#DC6CDE", h: 3 * 23, w: 96, x: 0, y: 0 },
-    ]);
+    expect(ctx.screenshot()).toMatchImageSnapshot();
   });
 
   test("fillstyle of cell works with CF", () => {
@@ -434,17 +406,14 @@ describe("renderer", () => {
     });
 
     let fillStyle: any[] = [];
-    let fillStyleColor1Called = false;
-    const ctx = new MockGridRenderingContext(model, 1000, 1000, {
-      onSet: (key, value) => {
-        if (key === "fillStyle" && value === "#DC6CDF") {
-          fillStyleColor1Called = true;
-        }
-      },
-      onFunctionCall: (val, args) => {
-        if (val === "fillRect" && fillStyleColor1Called) {
-          fillStyle.push({ color: "#DC6CDF", x: args[0], y: args[1], w: args[2], h: args[3] });
-          fillStyleColor1Called = false;
+    const { width, height } = getGridSize(model, { cols: 1, rows: 3, showHeaders: false });
+    const ctx = new MockGridRenderingContext(model, width, height, {
+      onFunctionCall: (val, args, mockCtx) => {
+        if (val === "fillRect") {
+          const color = toHex(mockCtx.ctx.fillStyle as string);
+          if (color === "#DC6CDF") {
+            fillStyle.push({ color, x: args[0], y: args[1], w: args[2], h: args[3] });
+          }
         }
       },
     });
@@ -460,6 +429,7 @@ describe("renderer", () => {
     expect(removeOffsetOfFillStyles(fillStyle)).toEqual([
       { color: "#DC6CDF", h: 23, w: 96, x: 0, y: 0 },
     ]);
+    expect(ctx.screenshot()).toMatchImageSnapshot();
   });
 
   test("fill style of hovered clickable cells goes over regular fill style", () => {
@@ -1606,7 +1576,8 @@ describe("renderer", () => {
     const filled: number[][] = [];
     let current: number[] = [0, 0];
 
-    const ctx = new MockGridRenderingContext(model, 1000, 1000, {
+    const { width, height } = getGridSize(model, { cols: 6, rows: 1, showHeaders: false });
+    const ctx = new MockGridRenderingContext(model, width, height, {
       onFunctionCall: (val, args) => {
         if (val === "moveTo") {
           current = [args[0], args[1]];
@@ -1639,6 +1610,7 @@ describe("renderer", () => {
     expect(boxF1.isError).toBeTruthy();
     expect(filled[4][0]).toBe(boxF1.x + boxF1.width - 5);
     expect(filled[4][1]).toBe(boxF1.y);
+    expect(ctx.screenshot()).toMatchImageSnapshot();
   });
 
   test("Do not draw gridLines over colored cells in dashboard mode", () => {
@@ -1654,7 +1626,7 @@ describe("renderer", () => {
     const ctx = new MockGridRenderingContext(model, 1000, 1000, {
       onFunctionCall: (val, _, renderingContext) => {
         if (val === "strokeRect") {
-          strokeColors.push(renderingContext.ctx.strokeStyle as string);
+          strokeColors.push(toHex(renderingContext.ctx.strokeStyle as string));
         }
       },
     });
@@ -1663,8 +1635,8 @@ describe("renderer", () => {
     strokeColors = [];
     drawGridRenderer(ctx);
 
-    expect(strokeColors).toContain(CELL_BORDER_COLOR);
-    expect(strokeColors).toContain(SELECTION_BORDER_COLOR);
+    expect(strokeColors).toContain(toHex(SELECTION_BORDER_COLOR));
+    expect(strokeColors).toContain(toHex(SELECTION_BORDER_COLOR));
 
     // dashboard mode
     model.updateMode("dashboard");
@@ -1685,9 +1657,9 @@ describe("renderer", () => {
 
     let strokeColors: string[];
     const ctx = new MockGridRenderingContext(model, 1000, 1000, {
-      onFunctionCall: (val, _, renderingContext) => {
+      onFunctionCall: function (val, _, renderingContext) {
         if (val === "strokeRect") {
-          strokeColors.push(renderingContext.ctx.strokeStyle as string);
+          strokeColors.push(toHex(renderingContext.ctx.strokeStyle as string));
         }
       },
     });
@@ -1696,8 +1668,8 @@ describe("renderer", () => {
     strokeColors = [];
     drawGridRenderer(ctx);
 
-    expect(strokeColors).toContain(CELL_BORDER_COLOR);
-    expect(strokeColors).toContain(SELECTION_BORDER_COLOR);
+    expect(strokeColors).toContain(toHex(CELL_BORDER_COLOR));
+    expect(strokeColors).toContain(toHex(SELECTION_BORDER_COLOR));
 
     // model without grid lines
     model.dispatch("SET_GRID_LINES_VISIBILITY", { sheetId: "Sheet1", areGridLinesVisible: false });
@@ -1705,8 +1677,8 @@ describe("renderer", () => {
     drawGridRenderer(ctx);
 
     expect(strokeColors).toEqual([
-      SELECTION_BORDER_COLOR, // selection drawGrid
-      SELECTION_BORDER_COLOR, // selection drawGrid
+      toHex(SELECTION_BORDER_COLOR), // selection drawGrid
+      toHex(SELECTION_BORDER_COLOR), // selection drawGrid
     ]);
   });
 
@@ -1985,10 +1957,12 @@ describe("renderer", () => {
         ["A1"]
       );
     }
+    selectCell(model, "A5");
 
     const renderedBorders = {};
     let currentColor = "";
-    const ctx = new MockGridRenderingContext(model, 1000, 1000, {
+    const { width, height } = getGridSize(model, { cols: 2, rows: 2, showHeaders: false });
+    const ctx = new MockGridRenderingContext(model, width, height, {
       onSet: (key, value) => {
         if (key === "strokeStyle") {
           if (Object.values(colors).includes(value)) {
@@ -2025,6 +1999,7 @@ describe("renderer", () => {
         end: [DEFAULT_CELL_WIDTH, DEFAULT_CELL_HEIGHT],
       },
     });
+    expect(ctx.screenshot()).toMatchImageSnapshot();
   });
 
   test("Thin border is correctly rendered", () => {
@@ -2483,7 +2458,8 @@ describe("renderer", () => {
     const { drawGridRenderer } = setRenderer(model);
 
     let strokeRectCalls: string[];
-    const ctx = new MockGridRenderingContext(model, 1000, 1000, {
+    const { width, height } = getGridSize(model, { cols: 4, rows: 4, showHeaders: false });
+    const ctx = new MockGridRenderingContext(model, width, height, {
       onFunctionCall: (key, args) => {
         if (key === "strokeRect") {
           strokeRectCalls.push(`context.${key}(${args.map((a) => JSON.stringify(a)).join(", ")})`);
@@ -2501,5 +2477,6 @@ describe("renderer", () => {
     drawGridRenderer(ctx);
 
     expect(strokeRectCalls.length).toBe(baseNumberOfStrokeRect - 4);
+    expect(ctx.screenshot()).toMatchImageSnapshot();
   });
 });

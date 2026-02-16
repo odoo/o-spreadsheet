@@ -71,7 +71,7 @@ export async function chartToImageFile(
  * Custom chart.js plugin to set the background color of the canvas
  * https://github.com/chartjs/Chart.js/blob/8fdf76f8f02d31684d34704341a5d9217e977491/docs/configuration/canvas-background.md
  */
-const backgroundColorChartJSPlugin = {
+export const backgroundColorChartJSPlugin = {
   id: "customCanvasBackgroundColor",
   beforeDraw: (chart) => {
     const { ctx } = chart;

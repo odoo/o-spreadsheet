@@ -1,9 +1,10 @@
 import { BACKGROUND_CHART_COLOR } from "@odoo/o-spreadsheet-engine/constants";
-import { BarChartRuntime } from "@odoo/o-spreadsheet-engine/types/chart";
+import { BarChartDefinition, BarChartRuntime } from "@odoo/o-spreadsheet-engine/types/chart";
 import { ChartConfiguration } from "chart.js";
 import { ChartCreationContext, Model } from "../../../src";
 import { BarChart } from "../../../src/helpers/figures/charts";
 import {
+  drawChartOnNodeCanvas,
   GENERAL_CHART_CREATION_CONTEXT,
   getChartLegendLabels,
   getChartTooltipValues,
@@ -15,7 +16,8 @@ import {
   setFormat,
   updateChart,
 } from "../../test_helpers/commands_helpers";
-import { createModelFromGrid } from "../../test_helpers/helpers";
+import { createModelFromGrid, setGrid } from "../../test_helpers/helpers";
+import { createModelWithTestPivotDataset } from "../../test_helpers/pivot_helpers";
 
 let model: Model;
 describe("bar chart", () => {
@@ -281,4 +283,23 @@ describe("bar chart", () => {
     expect(config.data.datasets.map((ds) => ds.barPercentage)).toEqual([0.9, 0.9]);
     expect(config.data.datasets.map((ds) => ds.categoryPercentage)).toEqual([0.8, 0.8]);
   });
+});
+
+test("Simple bar chart screenshot", () => {
+  const model = createModelWithTestPivotDataset();
+  setGrid(model, { A1: "1", A2: "2", A3: "3" });
+  const definition: BarChartDefinition = {
+    type: "bar",
+    dataSets: [{ dataRange: "C1:C18" }],
+    labelRange: "A1:A18",
+    dataSetsHaveTitle: true,
+    legendPosition: "top",
+    stacked: false,
+    title: { text: "Bar chart test" },
+  };
+  createChart(model, definition, "chartId");
+
+  const runtime = model.getters.getChartRuntime("chartId") as BarChartRuntime;
+  runtime.chartJsConfig.options!.responsive = false;
+  expect(drawChartOnNodeCanvas(runtime.chartJsConfig)).toMatchImageSnapshot();
 });
