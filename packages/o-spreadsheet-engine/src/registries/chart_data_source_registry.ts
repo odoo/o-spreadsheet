@@ -55,7 +55,13 @@ export interface ChartDataSourceBuilder<T extends ChartDataSourceType> {
     dataSetStyles: DataSetStyle,
     getters: CoreGetters
   ): Pick<ExcelChartDefinition, "dataSets" | "labelRange">;
-  goToDataSet?: (name: string, dataSet: DatasetValues) => void;
+  goToDataSet?: (
+    dataSource: DataSourceType<T, Range>,
+    dataSetName: string,
+    dataSet: DatasetValues,
+    index: number,
+    newWindow: boolean
+  ) => void;
 }
 
 interface ChartDataSourceRegistry extends Registry<ChartDataSourceBuilder<any>> {
