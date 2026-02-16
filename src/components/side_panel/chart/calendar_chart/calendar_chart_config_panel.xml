@@ -8,7 +8,6 @@
         canUpdateChart="props.canUpdateChart"
         onErrorMessagesChanged.bind="onErrorMessagesChanged"
         getLabelRangeOptions.bind="getLabelRangeOptions"
-        maxNumberOfUsedRanges="1"
         labelRangeTitle.translate="Date range"
       />
 
