@@ -1,7 +1,7 @@
 <templates>
   <t t-name="o-spreadsheet-GenericChartConfigPanel">
     <div>
-      <ChartRangeDataSource
+      <ChartDataSourceSidePanel
         chartId="props.chartId"
         definition="props.definition"
         updateChart="props.updateChart"
