@@ -118,7 +118,7 @@ export const TEST_COMMANDS: CommandMapping = {
   },
   UPDATE_CELL_POSITION: {
     type: "UPDATE_CELL_POSITION",
-    cellId: 1,
+    cellId: -1, // Makes this command always rejected in monkey party
     sheetId: "Sheet1",
     row: 0,
     col: 0,
