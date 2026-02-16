@@ -2,6 +2,7 @@ import { isSameColor, toHex } from "@odoo/o-spreadsheet-engine/helpers/color";
 import { toXC } from "@odoo/o-spreadsheet-engine/helpers/coordinates";
 import { deepEquals } from "@odoo/o-spreadsheet-engine/helpers/misc";
 import { positions } from "@odoo/o-spreadsheet-engine/helpers/zones";
+import { configureToMatchImageSnapshot, MatchImageSnapshotOptions } from "jest-image-snapshot";
 import { Model } from "../../src";
 import { CancelledReason, DispatchResult, Zone } from "../../src/types";
 
@@ -41,6 +42,7 @@ declare global {
       toHaveClass(className: string): R;
       toHaveAttribute(attribute: string, value: string): R;
       toHaveStyle(style: Record<string, string>): R;
+      toMatchImageSnapshot(options?: MatchImageSnapshotOptions): R;
     }
     interface Expect {
       toBeBetween(lower: number, upper: number): ExpectResult;
@@ -60,7 +62,12 @@ function getPrettyEvaluatedCells(model: Model, sheetId: string, zone: Zone) {
   });
 }
 
+const toMatchImageSnapshot = configureToMatchImageSnapshot({
+  dumpDiffToConsole: false, // allows to copy-paste the diff from Runbot logs
+});
+
 expect.extend({
+  toMatchImageSnapshot,
   toExport(model: Model, expected: any) {
     const exportData = model.exportData();
     if (
