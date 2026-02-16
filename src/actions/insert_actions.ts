@@ -277,6 +277,7 @@ export const categoriesFunctionListMenuBuilder: ActionBuilder = () => {
     return {
       name: category,
       children: createFormulaFunctions(functionsInCategory),
+      sequence: 60 + i,
     };
   });
 };
