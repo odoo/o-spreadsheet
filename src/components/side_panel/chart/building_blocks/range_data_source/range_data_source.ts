@@ -43,7 +43,6 @@ interface Props {
   onErrorMessagesChanged?: (errorMessages: string[]) => void;
   dataSeriesTitle?: string;
   labelRangeTitle?: string;
-  maxNumberOfUsedRanges?: number;
   getLabelRangeOptions?: () => Array<{
     name: string;
     label: string;
@@ -66,7 +65,6 @@ export class ChartRangeDataSource extends Component<Props, SpreadsheetChildEnv> 
     onErrorMessagesChanged: { type: Function, optional: true },
     dataSeriesTitle: { type: String, optional: true },
     labelRangeTitle: { type: String, optional: true },
-    maxNumberOfUsedRanges: { type: Number, optional: true },
     getLabelRangeOptions: { type: Function, optional: true },
   };
 
@@ -464,9 +462,6 @@ export class ChartRangeDataSource extends Component<Props, SpreadsheetChildEnv> 
   }
 
   get maxNumberOfUsedRanges(): number | undefined {
-    if (this.props.maxNumberOfUsedRanges !== undefined) {
-      return this.props.maxNumberOfUsedRanges;
-    }
     return chartTypeRegistry.get(this.props.definition.type).dataSeriesLimit;
   }
 
