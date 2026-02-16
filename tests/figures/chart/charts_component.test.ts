@@ -1145,6 +1145,24 @@ describe("charts", () => {
     expect(highlightStore.highlights.length).toBe(0);
   });
 
+  test("confirm buttons stay displayed if input is changed and unconfirmed and then selections input are closed and reset when switching tab", async () => {
+    createTestChart("basicChart");
+    await mountChartSidePanel();
+
+    const element = document.querySelector(".o-data-series .o-selection-input input");
+    await simulateClick(element);
+    expect(".o-selection-ok").toHaveCount(1);
+    await setInputValueAndTrigger(element, "C1:C4");
+
+    await simulateClick(".o-data-labels .o-selection-input input");
+    expect(".o-selection-ok").toHaveCount(2);
+
+    await openChartDesignSidePanel(model, env, fixture, chartId);
+    await nextTick(); // the check is done in a `useEffect`, we need to wait for the next render
+
+    expect(".o-selection-ok").toHaveCount(0);
+  });
+
   describe.each(TEST_CHART_TYPES)("selecting other chart will adapt sidepanel", (chartType) => {
     test.each(["click", "SELECT_FIGURE command"])("when using %s", async (selectMethod: string) => {
       createTestChart(chartType);
