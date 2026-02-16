@@ -1,7 +1,7 @@
 import { ChartTerms } from "@odoo/o-spreadsheet-engine/components/translations_terms";
 import { DEFAULT_CHART_COLOR_SCALE } from "@odoo/o-spreadsheet-engine/constants";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
-import { Component, useExternalListener, useRef, useState } from "@odoo/owl";
+import { Component, useRef, useState } from "@odoo/owl";
 import { ColorScale, COLORSCALES, COLORSCHEMES } from "../../../../../helpers";
 import { ChartColorScale, Color, schemeToColorScale } from "../../../../../types";
 import { cssPropertiesToCss } from "../../../../helpers";
@@ -40,9 +40,7 @@ export class ColorScalePicker extends Component<Props, SpreadsheetChildEnv> {
   state = useState<ColorScalePickerState>({ popoverProps: undefined, popoverStyle: "" });
   popoverRef = useRef("popoverRef");
 
-  setup() {
-    useExternalListener(window, "click", this.closePopover);
-  }
+  setup() {}
 
   get currentColorScale(): ChartColorScale {
     return this.props.definition.colorScale || schemeToColorScale("oranges");
@@ -88,6 +86,7 @@ export class ColorScalePicker extends Component<Props, SpreadsheetChildEnv> {
       anchorRect: { x: right, y: bottom, width: 0, height: 0 },
       positioning: "top-right",
       verticalOffset: 0,
+      onClose: () => this.closePopover(),
     };
     this.state.popoverStyle = cssPropertiesToCss({ width: `${width}px` });
   }

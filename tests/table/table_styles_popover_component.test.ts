@@ -3,6 +3,7 @@ import {
   TABLE_PRESETS,
 } from "@odoo/o-spreadsheet-engine/helpers/table_presets";
 import { Model } from "../../src";
+import { PopoverProps } from "../../src/components/popover/popover";
 import {
   TableStylesPopover,
   TableStylesPopoverProps,
@@ -15,19 +16,24 @@ let model: Model;
 let fixture: HTMLElement;
 let openSidePanel: jest.Mock;
 
-async function mountPopover(partialProps: Partial<TableStylesPopoverProps> = {}) {
+async function mountPopover(
+  partialProps: Omit<Partial<TableStylesPopoverProps>, "popoverProps"> & {
+    popoverProps?: Partial<PopoverProps>;
+  } = {}
+) {
   const props: TableStylesPopoverProps = {
     tableConfig: DEFAULT_TABLE_CONFIG,
     closePopover: () => {},
     onStylePicked: () => {},
+    tableStyles: model.getters.getTableStyles(),
+    type: "table",
+    ...partialProps,
     popoverProps: {
       anchorRect: { x: 0, y: 0, width: 0, height: 0 },
       positioning: "top-right",
       verticalOffset: 0,
+      ...partialProps.popoverProps,
     },
-    tableStyles: model.getters.getTableStyles(),
-    type: "table",
-    ...partialProps,
   };
   openSidePanel = jest.fn();
   const env = { openSidePanel };
@@ -122,5 +128,13 @@ describe("Table style popover", () => {
       click(fixture, ".o-menu-item[data-name='deleteTableStyle'");
       expect(Object.keys(model.getters.getTableStyles())).not.toContain("MyStyle");
     });
+  });
+
+  test("Right-click outside close the popover", async () => {
+    const closePopover = jest.fn();
+    await mountPopover({ popoverProps: { onClose: closePopover } });
+    triggerMouseEvent(fixture, "contextmenu");
+    await nextTick();
+    expect(closePopover).toHaveBeenCalled();
   });
 });

@@ -5,9 +5,8 @@ import {
   ChartSubtypeProperties,
 } from "@odoo/o-spreadsheet-engine/types/chart_subtype_properties";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
-import { Component, useExternalListener, useRef, useState } from "@odoo/owl";
+import { Component, useRef, useState } from "@odoo/owl";
 import { ChartDefinition, ChartType, UID } from "../../../../types/index";
-import { isChildEvent } from "../../../helpers/dom_helpers";
 import { Popover, PopoverProps } from "../../../popover";
 import { Section } from "../../components/section/section";
 import { MainChartPanelStore } from "../main_chart_panel/main_chart_panel_store";
@@ -36,8 +35,6 @@ export class ChartTypePicker extends Component<Props, SpreadsheetChildEnv> {
   state = useState<ChartTypePickerState>({ popoverProps: undefined, popoverStyle: "" });
 
   setup(): void {
-    useExternalListener(window, "pointerdown", this.onExternalClick, { capture: true });
-
     for (const subtypeProperties of chartSubtypeRegistry.getAll()) {
       if (this.chartTypeByCategories[subtypeProperties.category]) {
         this.chartTypeByCategories[subtypeProperties.category].push(subtypeProperties);
@@ -45,16 +42,6 @@ export class ChartTypePicker extends Component<Props, SpreadsheetChildEnv> {
         this.chartTypeByCategories[subtypeProperties.category] = [subtypeProperties];
       }
     }
-  }
-
-  onExternalClick(ev: MouseEvent) {
-    if (
-      isChildEvent(this.popoverRef.el?.parentElement, ev) ||
-      isChildEvent(this.selectRef.el, ev)
-    ) {
-      return;
-    }
-    this.closePopover();
   }
 
   onTypeChange(type: ChartType) {
@@ -85,6 +72,8 @@ export class ChartTypePicker extends Component<Props, SpreadsheetChildEnv> {
       anchorRect: { x: right, y: bottom, width: 0, height: 0 },
       positioning: "top-right",
       verticalOffset: 0,
+      onClose: this.closePopover.bind(this),
+      rootElement: this.selectRef.el,
     };
 
     this.state.popoverStyle = cssPropertiesToCss({ width: `${width}px` });

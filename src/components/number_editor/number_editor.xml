@@ -10,7 +10,7 @@
           type="number"
           t-att-min="props.min"
           t-att-max="props.max"
-          class="o-font-size o-number-input bg-transparent border-0"
+          class="o-number-input bg-transparent border-0"
           t-on-keydown="onInputKeydown"
           t-on-wheel.prevent.stop=""
           t-on-click.stop="props.onFocusInput"
@@ -24,7 +24,7 @@
         </span>
       </div>
       <Popover t-if="dropdown.isOpen" t-props="popoverProps">
-        <div class="o-text-options bg-white" t-on-click.stop="" t-ref="numberList">
+        <div class="o-text-options bg-white">
           <t t-foreach="props.valueList" t-as="value" t-key="value">
             <div t-att-data-size="value" t-on-click="() => this.setValueFromList(value)">
               <t t-esc="value"/>

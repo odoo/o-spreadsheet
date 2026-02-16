@@ -23,6 +23,8 @@
         currentBorderPosition="state.currentPosition"
         maxHeight="dropdownMaxHeight"
         anchorRect="borderEditorAnchorRect"
+        onClose="this.topBarToolStore.closeDropdowns"
+        rootElement="borderEditorButtonRef.el"
       />
     </div>
   </t>

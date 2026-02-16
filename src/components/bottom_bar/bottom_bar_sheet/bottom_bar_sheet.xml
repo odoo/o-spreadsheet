@@ -46,7 +46,9 @@
     <ColorPicker
       t-if="state.pickerOpened"
       anchorRect="colorPickerAnchorRect"
+      rootElement="colorPickerRootElement"
       onColorPicked.bind="onColorPicked"
+      onClose.bind="closePicker"
       currentColor="props.currentColor"
     />
   </t>

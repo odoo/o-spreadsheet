@@ -38,6 +38,7 @@ export class TextStyler extends Component<Props, SpreadsheetChildEnv> {
 
   setup() {
     useExternalListener(window, "click", this.onExternalClick);
+    useExternalListener(window, "contextmenu", this.onExternalClick, { capture: true });
   }
 
   state = useState({
