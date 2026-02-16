@@ -16,6 +16,15 @@ import { Validator } from "../types/validator";
 import { ChartDataSourceBuilder } from "./chart_data_source_registry";
 import { Registry } from "./registry";
 
+export type GoToDataSetFunction<T extends ChartType> = (
+  dataSource: ChartTypeDefinition<T, Range>["dataSource"],
+  dataSetName: string,
+  dataSet: DatasetValues,
+  dataSetIndex: number,
+  newWindow: boolean,
+  getters: Getters
+) => void;
+
 /**
  * Instantiate a chart object based on a definition
  */
@@ -88,7 +97,7 @@ export interface ChartTypeBuilder<T extends ChartType> {
     definition: ChartTypeDefinition<T, Range>,
     chartDataExtractors: ChartDataExtractors,
     sheetId: UID,
-    goToDataSet?: (name: string, dataSet: DatasetValues) => void
+    goToDataSet?: GoToDataSetFunction<T>
   ): ChartRuntime;
   allowedDefinitionKeys: readonly string[];
   sequence: number;

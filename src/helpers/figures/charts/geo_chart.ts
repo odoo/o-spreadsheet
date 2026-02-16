@@ -12,8 +12,8 @@ import {
   getGeoChartScales,
   getGeoChartTooltip,
 } from "./runtime";
+import { getGeoChartEventHandlers } from "./runtime/chartjs_event_handlers";
 import { getChartLayout } from "./runtime/chartjs_layout";
-import { isChartJSMiddleClick } from "./runtime/chartjs_misc";
 
 export const GeoChart: ChartTypeBuilder<"geo"> = {
   sequence: 90,
@@ -78,47 +78,7 @@ export const GeoChart: ChartTypeBuilder<"geo"> = {
           legend: { display: false },
           background: { color: definition.background },
         },
-        onHover: (event, items, chart) => {
-          if (!event.native) {
-            return;
-          }
-          if (!items.length) {
-            (event.native.target as HTMLElement).style.cursor = "";
-            return;
-          }
-
-          const item = items[0];
-          const data = chart.data.datasets?.[item.datasetIndex]?.data?.[item.index];
-          if (typeof data === "object" && data && "value" in data && data.value !== undefined) {
-            (event.native.target as HTMLElement).style.cursor = "pointer";
-          } else {
-            (event.native.target as HTMLElement).style.cursor = "";
-          }
-        },
-        onClick: (event, items, chart) => {
-          if (!items.length || !data.dataSetsValues[items[0].datasetIndex]) {
-            return;
-          }
-          if (event.type === "click" || (isChartJSMiddleClick(event) && event.native)) {
-            (event.native as MouseEvent).preventDefault(); // Prevent other click actions
-          } else {
-            return;
-          }
-          // @ts-ignore
-          const label = items[0].element.feature.properties.name;
-          const { dataSetsValues, labelValues } = data;
-          const index = labelValues.indexOf(label);
-          if (index === -1) {
-            return {};
-          }
-          const dataset = dataSetsValues[0];
-          let name = labelValues[index].value;
-          if (dataset.label) {
-            name += ` / ${dataset.label}`;
-          }
-          return goToDataSet?.(name?.toString() ?? "", dataset);
-          // return { name, domain: dataset.domains[index] };
-        },
+        ...getGeoChartEventHandlers(definition, data, getters, goToDataSet),
       },
     };
 
