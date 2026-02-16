@@ -1,7 +1,13 @@
+import {
+  areChartJSExtensionsLoaded,
+  registerChartJSExtensions,
+} from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_js_extension";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
-import { TooltipItem } from "chart.js";
+import { Canvas } from "canvas";
+import { ChartConfiguration, TooltipItem } from "chart.js";
+import Chart from "chart.js/auto";
 import { ChartCreationContext, ChartJSRuntime, Model, UID } from "../../src";
-import { range, toHex } from "../../src/helpers";
+import { deepCopy, range, toHex } from "../../src/helpers";
 import { selectFigure } from "./commands_helpers";
 import { click, simulateClick } from "./dom_helper";
 import { nextTick } from "./helpers";
@@ -139,3 +145,29 @@ export const GENERAL_CHART_CREATION_CONTEXT: Required<ChartCreationContext> = {
   humanize: false,
   slicesColors: [],
 };
+
+export function drawChartOnNodeCanvas(config: ChartConfiguration) {
+  config = deepCopy(config);
+  config.options!.responsive = false;
+  if (!areChartJSExtensionsLoaded()) {
+    registerChartJSExtensions();
+  }
+  const canvas = new Canvas(400, 400);
+  canvas["getAttribute"] = (attribute) => {
+    if (attribute === "height") {
+      return 400;
+    }
+    if (attribute === "width") {
+      return 400;
+    }
+    throw new Error(`Attribute ${attribute} not implemented in mock`);
+  };
+  canvas["style"] = new CSSStyleDeclaration();
+  canvas["addEventListener"] = () => {};
+  const ctx = canvas.getContext("2d")! as unknown as CanvasRenderingContext2D;
+  const chart = new Chart(ctx, config);
+  ctx.fillStyle = "white";
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  chart.draw();
+  return canvas.toBuffer("image/png");
+}
