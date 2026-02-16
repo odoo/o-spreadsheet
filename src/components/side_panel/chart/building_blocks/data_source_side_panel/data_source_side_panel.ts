@@ -15,7 +15,6 @@ interface Props {
   onErrorMessagesChanged?: (errorMessages: string[]) => void;
   dataSeriesTitle?: string;
   labelRangeTitle?: string;
-  maxNumberOfUsedRanges?: number;
   getLabelRangeOptions?: () => Array<{
     name: string;
     label: string;
@@ -38,7 +37,6 @@ export class ChartDataSourceSidePanel extends Component<Props, SpreadsheetChildE
     onErrorMessagesChanged: { type: Function, optional: true },
     dataSeriesTitle: { type: String, optional: true },
     labelRangeTitle: { type: String, optional: true },
-    maxNumberOfUsedRanges: { type: Number, optional: true },
     getLabelRangeOptions: { type: Function, optional: true },
   };
 
