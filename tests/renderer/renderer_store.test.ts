@@ -32,7 +32,6 @@ import {
   Box,
   DataValidationCriterion,
   GridRenderingContext,
-  Viewport,
   Zone,
 } from "../../src/types";
 import { MockCanvasRenderingContext2D } from "../setup/canvas.mock";
@@ -57,7 +56,7 @@ import {
 } from "../test_helpers/commands_helpers";
 import { getCell } from "../test_helpers/getters_helpers";
 import { createEqualCF, getFingerprint, target, toRangesData } from "../test_helpers/helpers";
-import { watchClipboardOutline } from "../test_helpers/renderer_helpers";
+import { MockGridRenderingContext, watchClipboardOutline } from "../test_helpers/renderer_helpers";
 import { makeStoreWithModel } from "../test_helpers/stores";
 
 MockCanvasRenderingContext2D.prototype.measureText = function (text: string) {
@@ -70,16 +69,9 @@ MockCanvasRenderingContext2D.prototype.measureText = function (text: string) {
 };
 
 function getBoxFromText(gridRenderer: GridRenderer, text: string): Box {
-  const sheetId = gridRenderer["getters"].getActiveSheetId();
-  const zone = {
-    left: 0,
-    right: gridRenderer["getters"].getNumberCols(sheetId) - 1,
-    top: 0,
-    bottom: gridRenderer["getters"].getNumberRows(sheetId) - 1,
-  };
-  return (gridRenderer["getGridBoxes"](zone)! as Box[]).find(
-    (b) => (b.content?.textLines || []).join(" ") === text
-  )!;
+  return gridRenderer["lastRenderBoxes"]
+    .values()
+    .find((b) => (b.content?.textLines || []).join(" ") === text)!;
 }
 
 /**
@@ -96,64 +88,19 @@ function removeOffsetOfFillStyles(fillStyles: any[]): any[] {
   }));
 }
 
-interface ContextObserver {
-  onSet?(key, val): void;
-  onGet?(key): void;
-  onFunctionCall?(fn: string, args: any[], renderingContext: MockGridRenderingContext): void;
-}
-
 function setRenderer(model: Model = new Model()) {
   const { container, store: gridRendererStore } = makeStoreWithModel(model, GridRenderer);
-  gridRendererStore["getBoxesWithAnimations"] = (boxes) => boxes;
+  gridRendererStore["getBoxesWithAnimations"] = function (boxes: Box[]) {
+    for (const box of boxes) {
+      this["lastRenderBoxes"].set(box.id, box);
+    }
+    return boxes;
+  };
   const rendererManager = container.get(RendererStore);
   const drawGridRenderer = (ctx: GridRenderingContext) => {
     rendererManager.draw(ctx);
   };
   return { model, gridRendererStore, drawGridRenderer, container };
-}
-
-class MockGridRenderingContext implements GridRenderingContext {
-  _context = document.createElement("canvas").getContext("2d");
-  ctx: CanvasRenderingContext2D;
-  viewport: Viewport;
-  dpr = 1;
-  thinLineWidth = 0.4;
-
-  constructor(model: Model, width: number, height: number, observer: ContextObserver) {
-    model.dispatch("RESIZE_SHEETVIEW", {
-      width: width - HEADER_WIDTH,
-      height: height - HEADER_HEIGHT,
-      gridOffsetX: 0,
-      gridOffsetY: 0,
-    });
-    this.viewport = model.getters.getActiveMainViewport();
-
-    const handler = {
-      get: (target, val) => {
-        // roundRect isn't implemented
-        if (val in (this._context as any).__proto__ || val === "roundRect") {
-          return (...args) => {
-            if (observer.onFunctionCall) {
-              observer.onFunctionCall(val, args, this);
-            }
-          };
-        } else {
-          if (observer.onGet) {
-            observer.onGet(val);
-          }
-        }
-        return target[val];
-      },
-      set: (target, key, val) => {
-        if (observer.onSet) {
-          observer.onSet(key, val);
-        }
-        target[key] = val;
-        return true;
-      },
-    };
-    this.ctx = new Proxy({}, handler);
-  }
 }
 
 describe("renderer", () => {
@@ -173,6 +120,13 @@ describe("renderer", () => {
         instructions.push(`context.${key}(${args.map((a) => JSON.stringify(a)).join(", ")})`);
       },
     });
+    // Resize the sheet view to have headers (by default, the mock context has no headers)
+    ctx.viewports.resizeSheetView(
+      1000 - HEADER_HEIGHT,
+      1000 - HEADER_WIDTH,
+      HEADER_HEIGHT,
+      HEADER_HEIGHT
+    );
 
     drawGridRenderer(ctx);
 
@@ -269,12 +223,12 @@ describe("renderer", () => {
     });
 
     drawGridRenderer(ctx);
-    expect(textAligns).toEqual(["right", "right", "center"]); // center for headers
+    expect(textAligns).toEqual(["right", "right"]);
 
     textAligns = [];
     setCellContent(model, "A1", "asdf");
     drawGridRenderer(ctx);
-    expect(textAligns).toEqual(["left", "left", "center"]); // center for headers
+    expect(textAligns).toEqual(["left", "left"]);
   });
 
   test("formulas referencing an empty cell are properly aligned", () => {
@@ -293,7 +247,7 @@ describe("renderer", () => {
 
     drawGridRenderer(ctx);
 
-    expect(textAligns).toEqual(["right", "center"]); // center for headers
+    expect(textAligns).toEqual(["right"]);
   });
 
   test("numbers are aligned right when overflowing vertically", () => {
@@ -313,7 +267,7 @@ describe("renderer", () => {
 
     drawGridRenderer(ctx);
 
-    expect(textAligns).toEqual(["right", "center"]); // center for headers
+    expect(textAligns).toEqual(["right"]);
   });
 
   test("Cells evaluating to a number are properly aligned on overflow", () => {
@@ -358,14 +312,14 @@ describe("renderer", () => {
 
     drawGridRenderer(ctx);
 
-    expect(textAligns).toEqual(["left", "left", "left", "left", "center"]); // A1-C1-A2-C2 and center for headers
+    expect(textAligns).toEqual(["left", "left", "left", "left"]); // A1-C1-A2-C2
 
     textAligns = [];
     setCellContent(model, "A1", "1");
     setCellContent(model, "C1", "1");
     drawGridRenderer(ctx);
 
-    expect(textAligns).toEqual(["right", "right", "right", "right", "center"]); // A1-C1-A2-C2 and center for headers
+    expect(textAligns).toEqual(["right", "right", "right", "right"]); // A1-C1-A2-C2
   });
 
   test("fillstyle of cell will be rendered", () => {
@@ -644,14 +598,14 @@ describe("renderer", () => {
     });
     drawGridRenderer(ctx);
 
-    expect(textAligns).toEqual(["right", "right", "center"]); // center for headers
+    expect(textAligns).toEqual(["right", "right"]);
 
     setCellContent(model, "A1", "asdf");
 
     textAligns = [];
     drawGridRenderer(ctx);
 
-    expect(textAligns).toEqual(["left", "left", "center"]); // center for headers
+    expect(textAligns).toEqual(["left", "left"]);
   });
 
   test("formulas evaluating to a boolean are properly aligned", () => {
@@ -670,13 +624,13 @@ describe("renderer", () => {
     });
     drawGridRenderer(ctx);
 
-    expect(textAligns).toEqual(["right", "right", "center"]); // center for headers
+    expect(textAligns).toEqual(["right", "right"]);
 
     textAligns = [];
     setCellContent(model, "A1", "true");
     drawGridRenderer(ctx);
 
-    expect(textAligns).toEqual(["center", "center", "center"]); // center for headers
+    expect(textAligns).toEqual(["center", "center"]);
   });
 
   test("Cells in a merge evaluating to a number are properly aligned on overflow", () => {
@@ -727,14 +681,14 @@ describe("renderer", () => {
 
     drawGridRenderer(ctx);
 
-    expect(textAligns).toEqual(["left", "left", "left", "left", "center"]); // A1-C1-A2:B2-C2:D2 and center for headers
+    expect(textAligns).toEqual(["left", "left", "left", "left"]); // A1-C1-A2:B2-C2:D2
 
     textAligns = [];
     setCellContent(model, "A1", "1");
     setCellContent(model, "C1", "1");
     drawGridRenderer(ctx);
 
-    expect(textAligns).toEqual(["right", "left", "right", "right", "center"]); // A1-C1-A2:B2-C2:D2 and center for headers. C1 is stil lin overflow
+    expect(textAligns).toEqual(["right", "left", "right", "right"]); // A1-C1-A2:B2-C2:D2. C1 is still in overflow
   });
 
   test("formulas in a merge, evaluating to a boolean are properly aligned", () => {
@@ -754,14 +708,14 @@ describe("renderer", () => {
     });
     drawGridRenderer(ctx);
 
-    expect(textAligns).toEqual(["right", "right", "center"]); // center for headers
+    expect(textAligns).toEqual(["right", "right"]);
 
     setCellContent(model, "A1", "false");
 
     textAligns = [];
     drawGridRenderer(ctx);
 
-    expect(textAligns).toEqual(["center", "center", "center"]); // center for headers
+    expect(textAligns).toEqual(["center", "center"]);
   });
 
   test("errors are aligned to the center", () => {
@@ -781,7 +735,7 @@ describe("renderer", () => {
     drawGridRenderer(ctx);
 
     // 1 center for headers, 1 for cell content
-    expect(textAligns).toEqual(["center", "center"]);
+    expect(textAligns).toEqual(["center"]);
   });
 
   test("dates are aligned to the right", () => {
@@ -801,7 +755,7 @@ describe("renderer", () => {
     drawGridRenderer(ctx);
 
     // 1 center for headers, 1 for cell content
-    expect(textAligns).toEqual(["right", "center"]);
+    expect(textAligns).toEqual(["right"]);
   });
 
   test("functions are aligned to the left", () => {
@@ -825,7 +779,7 @@ describe("renderer", () => {
     drawGridRenderer(ctx);
 
     // 1 center for headers, 1 for cell content
-    expect(textAligns).toEqual(["left", "center"]);
+    expect(textAligns).toEqual(["left"]);
     expect(getCellTextMock).toHaveBeenLastCalledWith(
       { sheetId: expect.any(String), col: 0, row: 0 },
       { showFormula: true, availableWidth: DEFAULT_CELL_WIDTH - 2 * MIN_CELL_TEXT_MARGIN }
@@ -854,7 +808,7 @@ describe("renderer", () => {
     drawGridRenderer(ctx);
 
     // 1 center for headers, 1 for cell content
-    expect(textAligns).toEqual(["left", "center"]);
+    expect(textAligns).toEqual(["left"]);
     expect(getCellTextMock).toHaveBeenLastCalledWith(
       { sheetId: expect.any(String), col: 0, row: 0 },
       { showFormula: true, availableWidth: DEFAULT_CELL_WIDTH - 2 * MIN_CELL_TEXT_MARGIN }
@@ -1311,7 +1265,7 @@ describe("renderer", () => {
     expect(getBoxFromText(gridRendererStore, overflowingText).clipRect).toEqual({
       x: 0,
       y: 0,
-      width: 952,
+      width: 1000,
       height: Math.floor(fontSizeInPixels(fontSize) / 2),
     });
   });
@@ -2291,7 +2245,7 @@ describe("renderer", () => {
     const { drawGridRenderer, gridRendererStore } = setRenderer(model);
     const ctx = new MockGridRenderingContext(model, 1000, 1000, {});
     drawGridRenderer(ctx);
-    const boxes = gridRendererStore["getGridBoxes"](toZone("A1:B2"));
+    const boxes = gridRendererStore["getGridBoxes"](ctx, toZone("A1:B2"));
     const boxesText = boxes.map((box) => box.content?.textLines.join(""));
     expect(boxesText).toEqual(["=MUNIT(2)", "", "", ""]);
   });
@@ -2370,11 +2324,11 @@ describe("renderer", () => {
       addDataValidation(model, "A1", "id", criterion);
       const ctx = new MockGridRenderingContext(model, 1000, 1000, {});
       drawGridRenderer(ctx);
-      let [box] = gridRendererStore["getGridBoxes"](toZone("A1"));
+      let [box] = gridRendererStore["getGridBoxes"](ctx, toZone("A1"));
       expect(box.chip).toBeUndefined();
       setCellContent(model, "A1", "hello");
       drawGridRenderer(ctx);
-      [box] = gridRendererStore["getGridBoxes"](toZone("A1"));
+      [box] = gridRendererStore["getGridBoxes"](ctx, toZone("A1"));
       expect(box.style.textColor).toBeUndefined();
       expect(box.chip).toEqual({
         color: "#E7E9ED", // default color
@@ -2388,7 +2342,7 @@ describe("renderer", () => {
         colors: { hello: "#FF0000" },
       });
       drawGridRenderer(ctx);
-      [box] = gridRendererStore["getGridBoxes"](toZone("A1"));
+      [box] = gridRendererStore["getGridBoxes"](ctx, toZone("A1"));
       expect(box.style.textColor).toBe("#FFE5E5");
       expect(box.chip).toEqual({
         color: "#FF0000",
@@ -2428,7 +2382,7 @@ describe("renderer", () => {
       setCellContent(model, "A1", "1");
       const ctx = new MockGridRenderingContext(model, 1000, 1000, {});
       drawGridRenderer(ctx);
-      const [box] = gridRendererStore["getGridBoxes"](toZone("A1"));
+      const [box] = gridRendererStore["getGridBoxes"](ctx, toZone("A1"));
       expect(box.chip).toEqual({
         color: "#E7E9ED",
         height: 15,
@@ -2448,13 +2402,13 @@ describe("renderer", () => {
     const ctx = new MockGridRenderingContext(model, 1000, 1000, {});
     drawGridRenderer(ctx);
 
-    let box = gridRendererStore["getGridBoxes"](toZone("A1")).filter((box) => box.content)[0];
+    let box = gridRendererStore["getGridBoxes"](ctx, toZone("A1")).filter((box) => box.content)[0];
     const expectedSpaces = 20 - 2 * MIN_CELL_TEXT_MARGIN;
     expect(box.content?.textLines).toEqual(["1".padStart(expectedSpaces)]);
 
     setFormat(model, "A1", "0*c");
     drawGridRenderer(ctx);
-    box = gridRendererStore["getGridBoxes"](toZone("A1")).filter((box) => box.content)[0];
+    box = gridRendererStore["getGridBoxes"](ctx, toZone("A1")).filter((box) => box.content)[0];
     expect(box.content?.textLines).toEqual(["1".padEnd(expectedSpaces, "c")]);
   });
 
@@ -2468,12 +2422,12 @@ describe("renderer", () => {
     });
 
     drawGridRenderer(ctx);
-    expect(textAligns).toEqual(["right", "center"]); // center for headers
+    expect(textAligns).toEqual(["right"]);
 
     textAligns = [];
     setCellFormat(model, "A1", "dd* ");
     drawGridRenderer(ctx);
-    expect(textAligns).toEqual(["left", "center"]); // center for headers
+    expect(textAligns).toEqual(["left"]);
   });
 
   test("Each frozen pane is clipped in the grid", () => {
@@ -2504,7 +2458,7 @@ describe("renderer", () => {
     expect(spyFn).toHaveBeenNthCalledWith(3, "rect", [
       DEFAULT_CELL_WIDTH * 2,
       0,
-      760,
+      1000 - DEFAULT_CELL_WIDTH * 2,
       DEFAULT_CELL_HEIGHT,
     ]);
     expect(spyFn).toHaveBeenNthCalledWith(4, "clip", []);
@@ -2512,14 +2466,14 @@ describe("renderer", () => {
       0,
       DEFAULT_CELL_HEIGHT,
       DEFAULT_CELL_WIDTH * 2,
-      951,
+      1000 - DEFAULT_CELL_HEIGHT,
     ]);
     expect(spyFn).toHaveBeenNthCalledWith(6, "clip", []);
     expect(spyFn).toHaveBeenNthCalledWith(7, "rect", [
       DEFAULT_CELL_WIDTH * 2,
       DEFAULT_CELL_HEIGHT,
-      760,
-      951,
+      1000 - DEFAULT_CELL_WIDTH * 2,
+      1000 - DEFAULT_CELL_HEIGHT,
     ]);
     expect(spyFn).toHaveBeenNthCalledWith(8, "clip", []);
   });

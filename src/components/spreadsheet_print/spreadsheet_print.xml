@@ -1,0 +1,94 @@
+<templates>
+  <t t-name="o-spreadsheet-SpreadsheetPrint">
+    <div class="o-spreadsheet-print d-flex flex-column h-100 w-100">
+      <t t-set="pages" t-value="this.printPages"/>
+      <div class="o-print-header flex-shrink-0 d-flex align-items-center d-print-none">
+        <h3 class="m-0 p-3 ps-4 text-white">Print Preview</h3>
+        <span class="text-white">
+          <t t-esc="pages.length"/>
+          pages
+        </span>
+        <button class="o-button ms-auto me-2 flex-grow-0" t-on-click="props.onExitPrintMode">
+          Cancel
+        </button>
+        <button class="o-button primary flex-grow-0 me-4" t-on-click="onPrint">Print</button>
+      </div>
+      <div class="o-print-container d-flex flex-grow-1 overflow-hidden">
+        <div class="o-print-preview w-100 overflow-auto">
+          <div
+            t-if="pages.length === 0"
+            class="o-print-page o-empty-print-page m-4 shadow d-flex flex-column align-items-center justify-content-center"
+            t-att-style="pageStyle">
+            <h4 class="fst-italic text-muted">No content to print</h4>
+          </div>
+          <div
+            t-else=""
+            t-foreach="pages"
+            t-as="page"
+            t-key="page_index"
+            class="o-print-page m-4 shadow d-flex justify-content-center"
+            t-att-style="pageStyle">
+            <StandaloneGridCanvas
+              sheetId="page.sheetId"
+              zone="page.zone"
+              renderingCtx="page.renderingCtx"
+            />
+          </div>
+        </div>
+        <div class="o-sidePanel flex-shrink-0 bg-white border-top border-start d-print-none">
+          <div class="o-sidePanelBody pt-4">
+            <Section t-if="!this.env.model.getters.isDashboard()">
+              <div class="o-section-title">Print content</div>
+              <Select
+                selectedValue="state.printSelection"
+                values="printSelectionOptions"
+                class="'o-print-selection'"
+                onChange.bind="this.onPrintSelectionChange"
+              />
+            </Section>
+
+            <Section>
+              <div class="o-section-title">Scale</div>
+              <Select
+                selectedValue="state.printScale"
+                values="printScaleOptions"
+                class="'o-print-scale'"
+                onChange.bind="this.onPrintScaleChange"
+              />
+            </Section>
+
+            <Section>
+              <div class="o-section-title">Paper</div>
+              <Select
+                selectedValue="state.pageLayout"
+                values="layoutOptions"
+                class="'o-print-layout'"
+                onChange.bind="this.onLayoutChange"
+              />
+            </Section>
+
+            <Section>
+              <div class="o-section-title">Orientation</div>
+              <BadgeSelection
+                choices="orientationChoices"
+                onChange.bind="this.changeOrientation"
+                selectedValue="state.orientation"
+              />
+            </Section>
+
+            <Section t-if="!this.env.model.getters.isDashboard()">
+              <div class="o-section-title">Formatting</div>
+              <Checkbox
+                name="'showGridLines'"
+                value="!this.state.hideGridLines"
+                onChange.bind="this.toggleGridLines"
+                className="'mt-2'"
+                label.translate="Show gridlines"
+              />
+            </Section>
+          </div>
+        </div>
+      </div>
+    </div>
+  </t>
+</templates>
