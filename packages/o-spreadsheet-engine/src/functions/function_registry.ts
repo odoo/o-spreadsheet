@@ -6,7 +6,6 @@ import { createComputeFunction } from "./create_compute_function";
 
 import { _t } from "../translation";
 import * as array from "./module_array";
-import * as misc from "./module_custom";
 import * as database from "./module_database";
 import * as date from "./module_date";
 import * as engineering from "./module_engineering";
@@ -69,7 +68,6 @@ export const categories: Category[] = [
   { name: _t("Lookup"), functions: lookup },
   { name: _t("Logical"), functions: logical },
   { name: _t("Math"), functions: math },
-  { name: _t("Misc"), functions: misc },
   { name: _t("Operator"), functions: operators },
   { name: _t("Statistical"), functions: statistical },
   { name: _t("Text"), functions: text },
