@@ -610,7 +610,6 @@ exports[`Spreadsheet pivot side panel It should display only the selection input
                           >
                              Confirm 
                           </button>
-                          
                         </div>
                         
                       </div>
