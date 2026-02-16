@@ -309,6 +309,7 @@ export const registries = {
   sidePanelRegistry,
   figureRegistry,
   chartSidePanelComponentRegistry,
+  chartDataSourceSidePanelComponentRegistry,
   chartComponentRegistry,
   chartRegistry: chartTypeRegistry,
   chartSubtypeRegistry,
@@ -350,6 +351,7 @@ import "./clipboard_handlers";
 import { Composer } from "./components/composer/composer/composer";
 import { Select } from "./components/select/select";
 import { TopBar } from "./components/top_bar/top_bar";
+import { chartDataSourceSidePanelComponentRegistry } from "./registries/chart_data_source_component_registry";
 
 export const helpers = {
   arg,

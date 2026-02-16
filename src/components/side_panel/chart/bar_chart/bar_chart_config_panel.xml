@@ -9,7 +9,7 @@
           onChange.bind="onUpdateStacked"
         />
       </Section>
-      <ChartRangeDataSource
+      <ChartDataSourceSidePanel
         chartId="props.chartId"
         definition="props.definition"
         updateChart="props.updateChart"
