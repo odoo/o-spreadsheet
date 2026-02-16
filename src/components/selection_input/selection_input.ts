@@ -100,7 +100,10 @@ export class SelectionInput extends Component<Props, SpreadsheetChildEnv> {
     );
     useEffect(() => {
       // Check the offsetParent to know if the input or an ancestor is `display: none` (eg. when changing side panel tab)
-      if (this.store.hasFocus && this.selectionRef.el?.offsetParent === null) {
+      if (
+        (this.store.isResettable || this.store.hasFocus) &&
+        this.selectionRef.el?.offsetParent === null
+      ) {
         this.reset();
       }
     });
