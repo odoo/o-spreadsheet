@@ -1,6 +1,11 @@
 import { AddDimensionButton } from "../../src/components/side_panel/pivot/pivot_layout_configurator/add_dimension_button/add_dimension_button";
-import { click, keyDown, setInputValueAndTrigger } from "../test_helpers/dom_helper";
-import { mountComponentWithPortalTarget } from "../test_helpers/helpers";
+import {
+  click,
+  keyDown,
+  setInputValueAndTrigger,
+  triggerMouseEvent,
+} from "../test_helpers/dom_helper";
+import { mountComponentWithPortalTarget, nextTick } from "../test_helpers/helpers";
 
 async function mountAddDimensionButton(
   props: Partial<AddDimensionButton["props"]>
@@ -63,5 +68,23 @@ describe("Add dimension button", () => {
     const options = [...fixture.querySelectorAll(".o-popover .o-autocomplete-dropdown > div")];
     expect(options.length).toBe(1);
     expect(options[0].textContent?.trim()).toBe("Amount");
+  });
+
+  test("closes on right-click", async () => {
+    const fields = [{ name: "Date", string: "Date", type: "date" }];
+
+    const { fixture } = await mountComponentWithPortalTarget(AddDimensionButton, {
+      props: {
+        fields: fields as any,
+        onFieldPicked: () => {},
+      },
+    });
+
+    await click(fixture, ".add-dimension");
+    expect(".o-popover").toHaveCount(1);
+
+    triggerMouseEvent(fixture, "contextmenu");
+    await nextTick();
+    expect(".o-popover").toHaveCount(0);
   });
 });

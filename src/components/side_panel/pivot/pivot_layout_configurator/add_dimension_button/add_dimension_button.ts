@@ -37,12 +37,15 @@ export class AddDimensionButton extends Component<Props, SpreadsheetChildEnv> {
   setup() {
     this.autoComplete = useLocalStore(AutoCompleteStore);
     this.autoComplete.useProvider(this.getProvider());
-    useExternalListener(window, "click", (ev) => {
-      if (ev.target !== this.buttonRef.el) {
-        this.popover.isOpen = false;
-      }
-    });
+    useExternalListener(window, "click", this.closePopover);
+    useExternalListener(window, "contextmenu", this.closePopover, { capture: true });
     useAutofocus({ refName: "autofocus" });
+  }
+
+  private closePopover(ev: MouseEvent) {
+    if (ev.target !== this.buttonRef.el) {
+      this.popover.isOpen = false;
+    }
   }
 
   getProvider(): AutoCompleteProvider {

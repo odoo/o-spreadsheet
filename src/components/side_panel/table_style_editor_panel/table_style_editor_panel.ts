@@ -41,7 +41,7 @@ export class TableStyleEditorPanel extends Component<
   state = useState<State>(this.getInitialState());
 
   setup() {
-    useExternalListener(window as any, "click", () => (this.state.pickerOpened = false));
+    useExternalListener(window, "click", () => (this.state.pickerOpened = false));
   }
 
   getInitialState(): State {

@@ -10,7 +10,7 @@
           type="number"
           t-att-min="props.min"
           t-att-max="props.max"
-          class="o-font-size o-number-input bg-transparent border-0"
+          class="o-number-input bg-transparent border-0"
           t-on-keydown="onInputKeydown"
           t-on-wheel.prevent.stop=""
           t-on-click.stop="props.onFocusInput"
