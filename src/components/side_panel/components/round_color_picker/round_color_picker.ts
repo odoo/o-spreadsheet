@@ -40,7 +40,8 @@ export class RoundColorPicker extends Component<Props, SpreadsheetChildEnv> {
 
   setup() {
     this.state = useState({ pickerOpened: false });
-    useExternalListener(window as any, "click", this.closePicker);
+    useExternalListener(window, "click", this.closePicker);
+    useExternalListener(window, "contextmenu", this.closePicker, { capture: true });
   }
 
   closePicker() {

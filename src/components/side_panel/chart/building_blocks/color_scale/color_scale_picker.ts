@@ -42,6 +42,7 @@ export class ColorScalePicker extends Component<Props, SpreadsheetChildEnv> {
 
   setup() {
     useExternalListener(window, "click", this.closePopover);
+    useExternalListener(window, "contextmenu", this.closePopover, { capture: true });
   }
 
   get currentColorScale(): ChartColorScale {

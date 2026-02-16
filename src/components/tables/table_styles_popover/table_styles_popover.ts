@@ -41,6 +41,7 @@ export class TableStylesPopover extends Component<TableStylesPopoverProps, Sprea
 
   setup(): void {
     useExternalListener(window, "click", this.onExternalClick, { capture: true });
+    useExternalListener(window, "contextmenu", this.onExternalClick, { capture: true });
   }
 
   onExternalClick(ev: CustomTablePopoverMouseEvent) {

@@ -85,6 +85,7 @@ export class TopBar extends Component<Props, SpreadsheetChildEnv> {
     this.fingerprints = useStore(FormulaFingerprintStore);
     this.topBarToolStore = useStore(TopBarToolStore);
     useExternalListener(window, "click", this.onExternalClick);
+    useExternalListener(window, "contextmenu", this.onExternalClick, { capture: true });
     onWillStart(() => this.updateCellState());
     onWillUpdateProps(() => this.updateCellState());
 
