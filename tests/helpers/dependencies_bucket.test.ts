@@ -1,6 +1,12 @@
 // import { DependencyGraph } from "@odoo/o-spreadsheet-engine/plugins/ui_core_views/cell_evaluation/dependencies_buckets";
 // import { toCartesian, toZone } from "../../src/helpers";
 
+import { toZone } from "@odoo/o-spreadsheet-engine/helpers/zones";
+import {
+  Interval,
+  IntervalTree,
+} from "@odoo/o-spreadsheet-engine/plugins/ui_core_views/cell_evaluation/simple_interval_tree";
+
 // describe("DependencyGraph", () => {
 //   let graph: DependencyGraph;
 
@@ -69,3 +75,35 @@
 //     expect(dependents).toEqual([toZone("B1")]);
 //   });
 // });
+
+describe("IntervalTree", () => {
+  test.each([
+    // test with various permutations
+    [
+      { top: 0, bottom: 0, dependents: toZone("C1") },
+      { top: 0, bottom: 0, dependents: toZone("C2") },
+      { top: 0, bottom: 0, dependents: toZone("C3") },
+    ],
+    [
+      { top: 0, bottom: 0, dependents: toZone("C2") },
+      { top: 0, bottom: 0, dependents: toZone("C1") },
+      { top: 0, bottom: 0, dependents: toZone("C3") },
+    ],
+    [
+      { top: 0, bottom: 0, dependents: toZone("C3") },
+      { top: 0, bottom: 0, dependents: toZone("C2") },
+      { top: 0, bottom: 0, dependents: toZone("C1") },
+    ],
+    [
+      { top: 0, bottom: 0, dependents: toZone("C2") },
+      { top: 0, bottom: 0, dependents: toZone("C1") },
+      { top: 0, bottom: 0, dependents: toZone("C3") },
+    ],
+  ])("groups same dependents together", (...intervals: Required<Interval>[]) => {
+    const tree = new IntervalTree();
+    tree.bulkLoad(intervals);
+    const merged = new IntervalTree();
+    merged.bulkLoad([{ top: 0, bottom: 0, dependents: toZone("C1:C3") }]);
+    expect(tree).toEqual(merged);
+  });
+});

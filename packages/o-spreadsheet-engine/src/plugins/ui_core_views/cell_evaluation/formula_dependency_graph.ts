@@ -1,13 +1,12 @@
 import { PositionMap } from "../../../helpers/cells/position_map";
-import { positionToZone } from "../../../helpers/zones";
 import { CellPosition } from "../../../types/misc";
 import { BoundedRange } from "../../../types/range";
-import { DependenciesRTree } from "./dependencies_r_tree";
 import { RTreeBoundingBox, RTreeItem } from "./r_tree";
 import { RangeSet } from "./range_set";
 
 import { UID } from "../../..";
 import { DependencyGraph } from "./dependencies_buckets";
+import { SheetDependencyGraph } from "./simple_interval_tree";
 
 /**
  * Implementation of a dependency Graph.
@@ -18,43 +17,59 @@ import { DependencyGraph } from "./dependencies_buckets";
  */
 export class FormulaDependencyGraphRTree {
   private readonly dependencies: PositionMap<RTreeItem<BoundedRange>[]> = new PositionMap();
-  private readonly rTree: DependenciesRTree;
+  private readonly bySheet: Record<UID, SheetDependencyGraph> = {};
 
   constructor(data: RTreeItem<BoundedRange>[] = []) {
-    this.rTree = new DependenciesRTree(data);
+    for (const item of data) {
+      const { sheetId, zone } = item.data;
+      const graph = this.bySheet[sheetId] || (this.bySheet[sheetId] = new SheetDependencyGraph());
+      graph.addDependencies({ sheetId, col: zone.left, row: zone.top }, [item.boundingBox]);
+      // this.addDependencies({ sheetId, col: zone.left, row: zone.top }, [item.boundingBox]);
+    }
+    // this.bySheet = new DependenciesRTree(data);
   }
 
   removeAllDependencies(formulaPosition: CellPosition) {
-    const ranges = this.dependencies.get(formulaPosition);
-    if (!ranges) {
-      return;
-    }
-    for (const range of ranges) {
-      this.rTree.remove(range);
-    }
-    this.dependencies.delete(formulaPosition);
+    return;
+    // const ranges = this.dependencies.get(formulaPosition);
+    // if (!ranges) {
+    //   return;
+    // }
+    // for (const range of ranges) {
+    //   this.bySheet.remove(range);
+    // }
+    // this.dependencies.delete(formulaPosition);
   }
 
   addDependencies(formulaPosition: CellPosition, dependencies: RTreeBoundingBox[]): void {
-    const rTreeItems = dependencies.map(({ sheetId, zone }) => ({
-      data: {
-        sheetId: formulaPosition.sheetId,
-        zone: positionToZone(formulaPosition),
-      },
-      boundingBox: {
-        zone,
-        sheetId,
-      },
-    }));
-    for (const item of rTreeItems) {
-      this.rTree.insert(item);
+    // const rTreeItems = dependencies.map(({ sheetId, zone }) => ({
+    //   data: {
+    //     sheetId: formulaPosition.sheetId,
+    //     zone: positionToZone(formulaPosition),
+    //   },
+    //   boundingBox: {
+    //     zone,
+    //     sheetId,
+    //   },
+    // }));
+    for (const range of dependencies) {
+      const sheetId = range.sheetId;
+      let graph = this.bySheet[sheetId];
+      if (!graph) {
+        graph = new SheetDependencyGraph();
+        this.bySheet[sheetId] = graph;
+      }
+      graph.addDependencies(formulaPosition, [range]);
     }
-    const existingDependencies = this.dependencies.get(formulaPosition);
-    if (existingDependencies) {
-      existingDependencies.push(...rTreeItems);
-    } else {
-      this.dependencies.set(formulaPosition, rTreeItems);
-    }
+    // for (const item of rTreeItems) {
+    //   this.bySheet.insert(item);
+    // }
+    // const existingDependencies = this.dependencies.get(formulaPosition);
+    // if (existingDependencies) {
+    //   existingDependencies.push(...rTreeItems);
+    // } else {
+    //   this.dependencies.set(formulaPosition, rTreeItems);
+    // }
   }
 
   /**
@@ -66,8 +81,12 @@ export class FormulaDependencyGraphRTree {
     while (queue.length > 0) {
       const range = queue.pop()!;
       visited.add(range);
-      const impactedRanges = this.rTree.search(range);
-      queue.push(...impactedRanges.difference(visited));
+      const graph = this.bySheet[range.sheetId];
+      if (!graph) {
+        continue;
+      }
+      const impactedZones = graph.getRangeDependents([range.zone]);
+      queue.push(...impactedZones.difference(visited));
     }
 
     // remove initial ranges
