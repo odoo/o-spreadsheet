@@ -526,3 +526,18 @@ export function collapseHierarchicalDisplayName(
   const lastPart = displayName.slice(lastIndex);
   return `${firstPart} … ${lastPart}`;
 }
+
+export function getNewMeasureId(
+  definition: PivotRuntimeDefinition,
+  fieldName: string,
+  aggregator?: string
+) {
+  const baseId = fieldName.replaceAll("'", "") + (aggregator ? `:${aggregator}` : "");
+  let id = baseId;
+  let i = 2;
+  while (definition.measures.some((m) => m.id === id)) {
+    id = `${baseId}:${i}`;
+    i++;
+  }
+  return id;
+}

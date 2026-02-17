@@ -196,7 +196,7 @@ export class GridRenderer extends DisposableStore {
         this.zonesWithPreventedAnimationsInNextFrame = {};
         break;
       case "Headers":
-        if (renderingContext.viewports.shouldDisplayHeaders()) {
+        if (renderingContext.viewports.shouldDisplayHeaders() && !renderingContext.hideHeaders) {
           this.drawHeaders(renderingContext);
           this.drawFrozenPanesHeaders(renderingContext);
         }

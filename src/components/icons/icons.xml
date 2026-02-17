@@ -1125,4 +1125,22 @@
       <i class="fa fa-print"/>
     </div>
   </t>
+  <t t-name="o-spreadsheet-Icon.PIVOT_GROUP">
+    <!-- ADRM TODO: extracted from odoo icons. Maybe import the whole font file ? -->
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="-16 -200 1136 1200" class="o-icon">
+      <path
+        fill="currentColor"
+        d="M79 243l483 -274l479 270l34 -118l-498 -281h-15q-7 0 -10.5 0.5t-9.5 3.5l-498 281zM80 467l483 -274l479 270l34 -118l-498 -281h-15q-7 0 -10.5 0.5t-8.5 3.5l-499 281zM561 333q-7 0 -10.5 0.5t-9.5 3.5l-499 273q-14 9 -18 24t2 31q5 11 16 16l499 273q9 6 19 6 t16 -6l500 -273q16 -9 20.5 -24.5t-1.5 -30.5q-5 -11 -16 -16l-499 -273q-8 -4 -19 -4z"
+      />
+    </svg>
+  </t>
+  <t t-name="o-spreadsheet-Icon.CLOSE">
+    <!-- ADRM TODO: extracted from odoo icons. Maybe import the whole font file ? -->
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="-16 -200 1136 1200" class="o-icon">
+      <path
+        fill="currentColor"
+        d="M277 796l283 -283l283 283l113 -113l-283 -283l283 -283l-113 -113l-283 283l-283 -283l-113 113l283 283l-283 283z"
+      />
+    </svg>
+  </t>
 </templates>

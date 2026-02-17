@@ -1,0 +1,17 @@
+<templates>
+  <t t-name="o-spreadsheet-PivotDraggedItem">
+    <div
+      t-if="pivotDragAndDropStore.draggedItem"
+      class="o-pivot-dragged-element position-absolute pe-none"
+      t-att-style="draggedPivotItemStyle">
+      <PivotFacet
+        icon="'group'"
+        label="pivotDragAndDropStore.draggedItem.label"
+        name="pivotDragAndDropStore.draggedItem.id"
+        disableHover="true"
+        onClickIcon="() => {}"
+        onClickRemove="() => {}"
+      />
+    </div>
+  </t>
+</templates>

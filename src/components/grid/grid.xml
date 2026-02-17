@@ -16,7 +16,10 @@
         onGridMoved.bind="moveCanvas"
         gridOverlayDimensions="gridOverlayDimensions"
       />
-      <HeadersOverlay onOpenContextMenu="(type, x, y) => this.toggleContextMenu(type, x, y)"/>
+      <HeadersOverlay
+        onOpenContextMenu="(type, x, y) => this.toggleContextMenu(type, x, y)"
+        t-if="!isFakePivotSheet"
+      />
       <GridComposer
         gridDims="env.model.getters.getSheetViewDimensionWithHeaders()"
         onInputContextMenu.bind="onInputContextMenu"
@@ -60,6 +63,23 @@
       <t t-foreach="staticTables" t-as="table" t-key="table.id">
         <TableResizer table="table"/>
       </t>
+      <t
+        t-foreach="getPivotOverlayIcons()"
+        t-as="pivotIcon"
+        t-key="pivotIcon.pivotId"
+        t-if="!isFakePivotSheet">
+        <div
+          class="o-pivot-overlay-icon position-absolute o-hoverable-button bg-white p-1 rounded border shadow"
+          t-on-click="() => this.onPivotIconClicked(pivotIcon)"
+          t-att-style="pivotIcon.css">
+          <t t-call="o-spreadsheet-Icon.EDIT"/>
+        </div>
+      </t>
+      <PivotOverlay
+        t-if="isFakePivotSheet"
+        pivotId="fakePivotSheetPivotId"
+        onOverlayResized.bind="onPivotOverlayResized"
+      />
       <VerticalScrollBar topOffset="HEADER_HEIGHT"/>
       <HorizontalScrollBar leftOffset="HEADER_WIDTH"/>
       <div class="o-scrollbar corner border-top border-start"/>

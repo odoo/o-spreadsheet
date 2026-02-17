@@ -19,12 +19,17 @@
       </div>
 
       <div class="o-panel-content overflow-y-auto h-100" t-ref="panelContent">
-        <div t-att-class="state.panel !== 'configuration' ? 'd-none' : ''">
-          <t
-            t-component="sidePanelEditor"
-            pivotId="props.pivotId"
-            onCloseSidePanel="props.onCloseSidePanel"
-          />
+        <div class="h-100 d-flex" t-att-class="state.panel !== 'configuration' ? 'd-none' : ''">
+          <div class="o-panel-content-first-column">
+            <t
+              t-component="sidePanelEditor"
+              pivotId="props.pivotId"
+              onCloseSidePanel="props.onCloseSidePanel"
+            />
+          </div>
+          <div class="o-panel-content-second-column border-start h-100">
+            <PivotFieldList pivotId="props.pivotId"/>
+          </div>
         </div>
         <div t-att-class="state.panel !== 'design' ? 'd-none' : ''">
           <PivotDesignPanel pivotId="props.pivotId"/>

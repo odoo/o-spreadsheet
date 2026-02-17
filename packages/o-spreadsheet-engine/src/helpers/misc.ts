@@ -805,3 +805,8 @@ export function getMissingHeadersForSpreadResult(
   const missingCols = col + evaluated.length - numberOfCols;
   return { missingRows, missingCols };
 }
+
+export function isFakePivotSheet(getters: Getters, sheetId: UID): boolean {
+  const sheetName = getters.getSheetName(sheetId);
+  return sheetName.startsWith("FakeSheet");
+}

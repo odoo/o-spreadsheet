@@ -1,5 +1,6 @@
 import {
   AGGREGATORS,
+  getNewMeasureId,
   isDateOrDatetimeField,
 } from "@odoo/o-spreadsheet-engine/helpers/pivot/pivot_helpers";
 import { PivotRuntimeDefinition } from "@odoo/o-spreadsheet-engine/helpers/pivot/pivot_runtime_definition";
@@ -245,14 +246,7 @@ export class PivotLayoutConfigurator extends Component<Props, SpreadsheetChildEn
   }
 
   private getMeasureId(fieldName: string, aggregator?: string) {
-    const baseId = fieldName.replaceAll("'", "") + (aggregator ? `:${aggregator}` : "");
-    let id = baseId;
-    let i = 2;
-    while (this.props.definition.measures.some((m) => m.id === id)) {
-      id = `${baseId}:${i}`;
-      i++;
-    }
-    return id;
+    return getNewMeasureId(this.props.definition, fieldName, aggregator || "count");
   }
 
   private getDefaultMeasureAggregator(fieldName: string): Aggregator | string {
@@ -329,5 +323,23 @@ export class PivotLayoutConfigurator extends Component<Props, SpreadsheetChildEn
           possibleValues.length
         )
       : undefined;
+  }
+
+  onDragOver(ev: DragEvent) {
+    // console.log("onDragOver");
+    // if (ev.dataTransfer?.types.includes(PIVOT_DRAG_AND_DROP_MIMETYPE)) {
+    //   ev.preventDefault();
+    // }
+  }
+
+  onDrop(ev: DragEvent) {
+    // if (!ev.dataTransfer) {
+    //   return;
+    // }
+    // ev.preventDefault();
+    // console.log("onDrop");
+    // const data = ev.dataTransfer.getData(PIVOT_DRAG_AND_DROP_MIMETYPE);
+    // const droppedField: PivotField = JSON.parse(data);
+    // console.log(droppedField);
   }
 }

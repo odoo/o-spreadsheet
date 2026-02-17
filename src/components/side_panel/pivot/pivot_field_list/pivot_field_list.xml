@@ -1,0 +1,27 @@
+<templates>
+  <t t-name="o-spreadsheet-PivotFieldList">
+    <Section class="'o-pivot-field-list py-3 border-bottom'">
+      <div class="o-section-title mb-3">Fields</div>
+      <TextInput
+        value="this.state.searchedString"
+        onChange="() => {}"
+        class="'border rounded-1 p-1'"
+        placeholder.translate="Search..."
+        alwaysShowBorder="true"
+        onInput.bind="onSearchInput"
+      />
+    </Section>
+    <div class="overflow-auto">
+      <div
+        t-foreach="searchedFields"
+        t-as="field"
+        t-key="field_index"
+        class="o-pivot-field p-2 o-hoverable-button border-bottom"
+        t-att-class="isFieldHidden(field) ? 'invisible' : ''"
+        t-on-pointerdown="(ev) => this.onPointerDown(ev, field)">
+        <div class="text-truncate" t-esc="field.string"/>
+        <div class="text-muted" t-esc="field.type"/>
+      </div>
+    </div>
+  </t>
+</templates>

@@ -2,6 +2,7 @@ import {
   AUTOFILL_EDGE_LENGTH,
   HEADER_HEIGHT,
   HEADER_WIDTH,
+  SCROLLBAR_WIDTH,
 } from "@odoo/o-spreadsheet-engine/constants";
 import {
   getOSheetClipboardIdFromHTML,
@@ -14,6 +15,7 @@ import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadshee
 import {
   Component,
   onMounted,
+  onWillUpdateProps,
   useChildSubEnv,
   useEffect,
   useExternalListener,
@@ -29,7 +31,7 @@ import {
   PASTE_AS_VALUE_ACTION,
 } from "../../actions/menu_items_actions";
 import { canUngroupHeaders } from "../../actions/view_actions";
-import { isInside } from "../../helpers/index";
+import { isFakePivotSheet, isInside } from "../../helpers/index";
 import { interactiveCut } from "../../helpers/ui/cut_interactive";
 import {
   handleCopyPasteResult,
@@ -50,6 +52,7 @@ import { ClientFocusStore } from "../../stores/client_focus_store";
 import { HighlightStore } from "../../stores/highlight_store";
 import {
   Align,
+  CSSProperties,
   CellValueType,
   Client,
   ClipboardMIMEType,
@@ -86,6 +89,7 @@ import { ZoomedMouseEvent } from "../helpers/zoom";
 import { Highlight } from "../highlight/highlight/highlight";
 import { MenuPopover, MenuState } from "../menu_popover/menu_popover";
 import { PaintFormatStore } from "../paint_format_button/paint_format_store";
+import { PivotOverlay } from "../pivot_overlay/pivot_overlay/pivot_overlay";
 import { CellPopoverStore } from "../popover";
 import { Popover } from "../popover/popover";
 import { HorizontalScrollBar, VerticalScrollBar } from "../scrollbar/";
@@ -121,10 +125,21 @@ const registries = {
   UNGROUP_HEADERS: unGroupHeadersMenuRegistry,
 };
 
+interface PivotIcon {
+  css: string;
+  pivotId: string;
+}
+
+interface PivotOverlayState {
+  pivotId: string | undefined;
+}
+
 interface Props {
   exposeFocus: (focus: () => void) => void;
   getGridSize: () => DOMDimension;
 }
+
+const PIVOT_EDIT_ICON_WIDTH = 26;
 
 // -----------------------------------------------------------------------------
 // JS
@@ -149,10 +164,12 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     HorizontalScrollBar,
     TableResizer,
     Selection,
+    PivotOverlay,
   };
   readonly HEADER_HEIGHT = HEADER_HEIGHT;
   readonly HEADER_WIDTH = HEADER_WIDTH;
   private menuState!: MenuState;
+  pivotOverlay = useState<PivotOverlayState>({ pivotId: undefined });
   private gridRef!: Ref<HTMLElement>;
   private highlightStore!: Store<HighlightStore>;
   private cellPopovers!: Store<CellPopoverStore>;
@@ -162,6 +179,8 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
   private clientFocusStore!: Store<ClientFocusStore>;
 
   dragNDropGrid = useDragAndDropBeyondTheViewport(this.env);
+
+  private gridOffset = { x: HEADER_WIDTH, y: HEADER_HEIGHT };
 
   onMouseWheel!: (ev: WheelEvent) => void;
   hoveredCell!: Store<DelayedHoveredCellStore>;
@@ -187,9 +206,27 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     useExternalListener(document.body, "cut", this.copy.bind(this, true));
     useExternalListener(document.body, "copy", this.copy.bind(this, false));
     useExternalListener(document.body, "paste", this.paste);
+    useExternalListener(
+      window,
+      "keydown",
+      (ev: KeyboardEvent) => {
+        if (ev.key === "escape" && this.pivotOverlay.pivotId) {
+          this.pivotOverlay.pivotId = undefined;
+        }
+      },
+      { capture: true }
+    );
+
     onMounted(() => this.focusDefaultElement());
     this.props.exposeFocus(() => this.focusDefaultElement());
-    useGridDrawing({ refName: "canvas", model: this.env.model });
+    useGridDrawing({
+      refName: "canvas",
+      model: this.env.model,
+      partialRenderingCtx: () => ({
+        hideHeaders: this.isFakePivotSheet,
+        hideGridLines: this.isFakePivotSheet,
+      }),
+    });
     this.onMouseWheel = useWheelHandler((deltaX, deltaY) => {
       this.moveCanvas(deltaX, deltaY);
       this.hoveredCell.clear();
@@ -219,6 +256,14 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
       getZoom: () => this.env.model.getters.getViewportZoomLevel(),
       setZoom: (zoom: number) => this.env.model.dispatch("SET_ZOOM", { zoom }),
     });
+    let lastSheetId = this.env.model.getters.getActiveSheetId();
+    onWillUpdateProps(() => {
+      const currentSheetId = this.env.model.getters.getActiveSheetId();
+      if (currentSheetId !== lastSheetId) {
+        this.gridOffset = { x: HEADER_WIDTH, y: HEADER_HEIGHT };
+        lastSheetId = currentSheetId;
+      }
+    });
   }
 
   get highlights() {
@@ -228,10 +273,10 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
   get gridOverlayDimensions() {
     const scrollbarWidth = this.env.model.getters.getScrollBarWidth();
     return cssPropertiesToCss({
-      top: `${HEADER_HEIGHT}px`,
-      left: `${HEADER_WIDTH}px`,
-      height: `calc(100% - ${HEADER_HEIGHT + scrollbarWidth}px)`,
-      width: `calc(100% - ${HEADER_WIDTH + scrollbarWidth}px)`,
+      top: `${this.gridOffset.y}px`,
+      left: `${this.gridOffset.x}px`,
+      height: `calc(100% - ${this.gridOffset.y + scrollbarWidth}px)`,
+      width: `calc(100% - ${this.gridOffset.x + scrollbarWidth}px)`,
     });
   }
 
@@ -511,10 +556,10 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
   onGridResized() {
     const { height, width } = this.props.getGridSize();
     this.env.model.dispatch("RESIZE_SHEETVIEW", {
-      width: width - HEADER_WIDTH,
-      height: height - HEADER_HEIGHT,
-      gridOffsetX: HEADER_WIDTH,
-      gridOffsetY: HEADER_HEIGHT,
+      width: width - this.gridOffset.x,
+      height: height - this.gridOffset.y,
+      gridOffsetX: this.gridOffset.x,
+      gridOffsetY: this.gridOffset.y,
     });
   }
 
@@ -906,5 +951,103 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
 
   get displaySelectionHandler() {
     return this.env.isMobile() && this.composerFocusStore.activeComposer.editionMode === "inactive";
+  }
+
+  getPivotOverlayIcons() {
+    const visiblePivotIcons: PivotIcon[] = [];
+    const sheetId = this.env.model.getters.getActiveSheetId();
+    for (const { position, pivotId } of this.env.model.getters.getAllPivotArrayFormulas()) {
+      if (position.sheetId !== sheetId) {
+        continue;
+      }
+      const spread = this.env.model.getters.getSpreadZone(position);
+      if (!spread) {
+        continue;
+      }
+      const rect = this.env.model.getters.getVisibleRect(spread);
+      const sheetViewDim = this.env.model.getters.getSheetViewDimensionWithHeaders();
+      if (rect.width > 0 && rect.height > 0) {
+        const properties: CSSProperties = {
+          width: `${PIVOT_EDIT_ICON_WIDTH}px`,
+          height: `${PIVOT_EDIT_ICON_WIDTH}px`,
+          left: `${rect.x}px`,
+        };
+        if (rect.y + rect.height + PIVOT_EDIT_ICON_WIDTH > sheetViewDim.height) {
+          properties.bottom = SCROLLBAR_WIDTH + "px";
+        } else {
+          properties.top = rect.y + rect.height + "px";
+        }
+        visiblePivotIcons.push({ pivotId, css: cssPropertiesToCss(properties) });
+      }
+    }
+
+    return visiblePivotIcons;
+  }
+
+  onPivotIconClicked(info: PivotIcon) {
+    this.env.openSidePanel("PivotSidePanel", { pivotId: info.pivotId });
+
+    // ADRM TODO: one history step
+    const sheetName = this.env.model.getters.getNextSheetName("FakeSheet Pivot");
+    const sheetId = this.env.model.uuidGenerator.smallUuid();
+    this.env.model.dispatch("CREATE_SHEET", { sheetId, position: 0, name: sheetName });
+    this.env.model.dispatch("ADD_COLUMNS_ROWS", {
+      sheetId,
+      dimension: "COL",
+      base: 0,
+      position: "after",
+      quantity: 1000,
+      sheetName,
+    });
+    this.env.model.dispatch("ADD_COLUMNS_ROWS", {
+      sheetId,
+      dimension: "ROW",
+      base: 0,
+      position: "after",
+      quantity: 1000,
+      sheetName,
+    });
+
+    const activeSheetId = this.env.model.getters.getActiveSheetId();
+    this.env.model.dispatch("ACTIVATE_SHEET", { sheetIdFrom: activeSheetId, sheetIdTo: sheetId });
+    const pivotFormulaId = this.env.model.getters.getPivotFormulaId(info.pivotId);
+    this.env.model.dispatch("UPDATE_CELL", {
+      col: 0,
+      row: 0,
+      sheetId,
+      content: `=PIVOT(${pivotFormulaId})`,
+    });
+
+    this.env.model.dispatch("LOCK_SHEET", { sheetId });
+  }
+
+  get isFakePivotSheet() {
+    return isFakePivotSheet(this.env.model.getters, this.env.model.getters.getActiveSheetId());
+  }
+
+  get fakePivotSheetPivotId() {
+    if (!this.isFakePivotSheet) {
+      return undefined;
+    }
+    const sheetId = this.env.model.getters.getActiveSheetId();
+    const pivotArrayFormula = this.env.model.getters
+      .getAllPivotArrayFormulas()
+      .find(({ position }) => position.sheetId === sheetId);
+    return pivotArrayFormula?.pivotId;
+  }
+
+  onPivotOverlayResized(gridOffsetX: number, gridOffsetY: number) {
+    const currentGridOffset = this.env.model.getters.getGridOffset();
+    if (currentGridOffset.x === gridOffsetX && currentGridOffset.y === gridOffsetY) {
+      return;
+    }
+    const { height, width } = this.props.getGridSize();
+    this.env.model.dispatch("RESIZE_SHEETVIEW", {
+      width: width - gridOffsetX,
+      height: height - gridOffsetY,
+      gridOffsetX: gridOffsetX,
+      gridOffsetY: gridOffsetY,
+    });
+    this.gridOffset = { x: gridOffsetX, y: gridOffsetY };
   }
 }
