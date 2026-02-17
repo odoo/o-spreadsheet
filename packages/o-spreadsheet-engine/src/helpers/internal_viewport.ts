@@ -1,5 +1,5 @@
 import { FOOTER_HEIGHT } from "../constants";
-import { Getters } from "../types/getters";
+import { RenderingGetters } from "../types/getters";
 import { Dimension, HeaderIndex, Pixel, Position, UID, Zone } from "../types/misc";
 import { DOMCoordinates, DOMDimension, Rect } from "../types/rendering";
 import { intersection, isInside } from "./zones";
@@ -19,7 +19,7 @@ export class InternalViewport {
   offsetCorrectionY: Pixel;
 
   constructor(
-    private getters: Getters,
+    private getters: RenderingGetters,
     private sheetId: UID,
     private boundaries: Zone,
     sizeInGrid: DOMDimension,
@@ -188,22 +188,22 @@ export class InternalViewport {
     const scrollDeltaY = this.snapCorrection.y;
     if (targetZone) {
       const x =
-        this.getters.getColRowOffset("COL", this.left, targetZone.left) +
+        this.getters.getColRowOffset("COL", this.left, targetZone.left, this.sheetId) +
         this.offsetCorrectionX -
         (this.left !== targetZone.left ? scrollDeltaX : 0);
 
       const y =
-        this.getters.getColRowOffset("ROW", this.top, targetZone.top) +
+        this.getters.getColRowOffset("ROW", this.top, targetZone.top, this.sheetId) +
         this.offsetCorrectionY -
         (this.top !== targetZone.top ? scrollDeltaY : 0);
 
       const width = Math.min(
-        this.getters.getColRowOffset("COL", targetZone.left, targetZone.right + 1) -
+        this.getters.getColRowOffset("COL", targetZone.left, targetZone.right + 1, this.sheetId) -
           (this.left === targetZone.left ? scrollDeltaX : 0),
         this.viewportWidth
       );
       const height = Math.min(
-        this.getters.getColRowOffset("ROW", targetZone.top, targetZone.bottom + 1) -
+        this.getters.getColRowOffset("ROW", targetZone.top, targetZone.bottom + 1, this.sheetId) -
           (this.top === targetZone.top ? scrollDeltaY : 0),
         this.viewportHeight
       );
@@ -222,11 +222,15 @@ export class InternalViewport {
     const scrollDeltaX = this.snapCorrection.x;
     const scrollDeltaY = this.snapCorrection.y;
     if (targetZone) {
-      const x = this.getters.getColRowOffset("COL", this.left, zone.left) + this.offsetCorrectionX;
-      const y = this.getters.getColRowOffset("ROW", this.top, zone.top) + this.offsetCorrectionY;
-      const width = this.getters.getColRowOffset("COL", zone.left, zone.right + 1);
+      const x =
+        this.getters.getColRowOffset("COL", this.left, zone.left, this.sheetId) +
+        this.offsetCorrectionX;
+      const y =
+        this.getters.getColRowOffset("ROW", this.top, zone.top, this.sheetId) +
+        this.offsetCorrectionY;
+      const width = this.getters.getColRowOffset("COL", zone.left, zone.right + 1, this.sheetId);
 
-      const height = this.getters.getColRowOffset("ROW", zone.top, zone.bottom + 1);
+      const height = this.getters.getColRowOffset("ROW", zone.top, zone.bottom + 1, this.sheetId);
       return { x: x - scrollDeltaX, y: y - scrollDeltaY, width, height };
     }
     return undefined;
@@ -256,7 +260,7 @@ export class InternalViewport {
     let end = headers;
     while (start <= end && start !== headers && end !== -1) {
       const mid: HeaderIndex = Math.floor((start + end) / 2);
-      const offset = this.getters.getColRowOffset(dimension, startIndex, mid);
+      const offset = this.getters.getColRowOffset(dimension, startIndex, mid, this.sheetId);
       const size = this.getters.getHeaderSize(sheetId, dimension, mid);
       if (position >= offset && position < offset + size) {
         return mid;
@@ -366,11 +370,21 @@ export class InternalViewport {
     return {
       x: Math.abs(
         this.offsetX -
-          this.getters.getColRowOffset("COL", this.boundaries.left, Math.max(0, this.left))
+          this.getters.getColRowOffset(
+            "COL",
+            this.boundaries.left,
+            Math.max(0, this.left),
+            this.sheetId
+          )
       ),
       y: Math.abs(
         this.offsetY -
-          this.getters.getColRowOffset("ROW", this.boundaries.top, Math.max(0, this.top))
+          this.getters.getColRowOffset(
+            "ROW",
+            this.boundaries.top,
+            Math.max(0, this.top),
+            this.sheetId
+          )
       ),
     };
   }
