@@ -1,5 +1,4 @@
 import { DEFAULT_NUMBER_STYLE, DEFAULT_STYLE } from "../../constants";
-import { isEvaluationError, toString } from "../../functions/helpers";
 import { PositionMap } from "../../helpers/cells/position_map";
 import {
   getItemId,
@@ -12,7 +11,7 @@ import { toXC } from "../../helpers/coordinates";
 import { CorePlugin } from "../core_plugin";
 
 import { isInside } from "../../helpers/zones";
-import { Cell, FormulaCell, LiteralCell } from "../../types/cells";
+import { Cell } from "../../types/cells";
 import {
   AddColumnsRowsCommand,
   ClearCellCommand,
@@ -26,20 +25,18 @@ import { CellPosition, HeaderIndex, RangeAdapterFunctions, UID } from "../../typ
 
 import { CompiledFormula, SerializedCompiledFormula } from "../../formulas/compiler";
 import { isNumber } from "../../helpers";
-import { parseLiteral } from "../../helpers/cells/cell_evaluation";
 import {
-  detectDateFormat,
-  detectNumberFormat,
-  isExcelCompatible,
-  isTextFormat,
-} from "../../helpers/format/format";
+  createCell,
+  createFormulaCellFromCompiledFormula,
+} from "../../helpers/cells/cell_evaluation";
+import { isExcelCompatible } from "../../helpers/format/format";
 import { recomputeZones } from "../../helpers/recompute_zones";
 import { Format } from "../../types/format";
 import { DEFAULT_LOCALE } from "../../types/locale";
 import { Style, UpdateCellData, Zone } from "../../types/misc";
 import { Range, RangePart } from "../../types/range";
 import { ExcelWorkbookData, WorkbookData } from "../../types/workbook_data";
-import { SquishedCell, Squisher } from "./squisher";
+import { SquishedContent, Squisher } from "./squisher";
 import { Unsquisher } from "./unsquisher";
 
 interface CoreState {
@@ -299,7 +296,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
       const squisher = new Squisher(this.getters);
       const positionsByStyle: Record<number, CellPosition[]> = [];
       const positionsByFormat: Record<number, CellPosition[]> = [];
-      const cells: { [key: string]: SquishedCell } = {};
+      const cells: { [key: string]: SquishedContent } = {};
       const positions = Object.values(this.cells[_sheet.id] || {})
         .map((cell) => this.getters.getCellPosition(cell.id))
         .sort((a, b) => (a.col === b.col ? a.row - b.row : a.col - b.col));
@@ -342,9 +339,9 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
   ): Cell {
     const cellId = this.getNextCellId();
     if (compiledFormula) {
-      return this.createFormulaCellFromCompiledFormula(cellId, compiledFormula, format, style);
+      return createFormulaCellFromCompiledFormula(cellId, compiledFormula, format, style);
     }
-    return this.createCell(cellId, content || "", format, style, sheetId);
+    return createCell(this.getters, cellId, content || "", format, style, sheetId);
   }
 
   exportForExcel(data: ExcelWorkbookData) {
@@ -604,7 +601,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
     const format = after.format !== undefined ? after.format : before && before.format;
 
     /* Read the following IF as:
-     * we need to remove the cell if it is completely empty, but we can know if it completely empty if:
+     * we need to remove the cell if it is completely empty, but we can know if it is completely empty if:
      * - the command says the new content is empty and has no border/format/style
      * - the command has no content property, in this case
      *     - either there wasn't a cell at this place and the command says border/format/style is empty
@@ -629,75 +626,9 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
     }
 
     const cellId = before?.id || this.getNextCellId();
-    const cell = this.createCell(cellId, afterContent, format, style, sheetId);
+    const cell = createCell(this.getters, cellId, afterContent, format, style, sheetId);
     this.history.update("cells", sheetId, cell.id, cell);
     this.dispatch("UPDATE_CELL_POSITION", { cellId: cell.id, col, row, sheetId });
-  }
-
-  private createCell(
-    id: number,
-    content: string,
-    format: Format | undefined,
-    style: Style | undefined,
-    sheetId: UID
-  ): Cell {
-    if (!content.startsWith("=")) {
-      return this.createLiteralCell(id, content, format, style);
-    }
-    return this.createFormulaCell(id, content, format, style, sheetId);
-  }
-
-  private createLiteralCell(
-    id: number,
-    content: string,
-    format: Format | undefined,
-    style: Style | undefined
-  ): LiteralCell {
-    const locale = this.getters.getLocale();
-    const parsedValue = parseLiteral(content, locale);
-
-    format =
-      format ||
-      (typeof parsedValue === "number"
-        ? detectDateFormat(content, locale) || detectNumberFormat(content)
-        : undefined);
-    if (!isTextFormat(format) && !content.startsWith("'") && !isEvaluationError(content)) {
-      content = toString(parsedValue);
-    }
-    return {
-      id,
-      content,
-      style,
-      format,
-      isFormula: false,
-      parsedValue,
-    };
-  }
-
-  private createFormulaCell(
-    id: number,
-    content: string,
-    format: Format | undefined,
-    style: Style | undefined,
-    sheetId: UID
-  ): FormulaCell {
-    const compiledFormula = CompiledFormula.Compile(content, sheetId, this.getters);
-    return this.createFormulaCellFromCompiledFormula(id, compiledFormula, format, style);
-  }
-
-  private createFormulaCellFromCompiledFormula(
-    id: number,
-    compiledFormula: CompiledFormula,
-    format: Format | undefined,
-    style: Style | undefined
-  ): FormulaCell {
-    return {
-      id,
-      format,
-      style,
-      isFormula: true,
-      compiledFormula,
-    };
   }
 
   private checkCellOutOfSheet(cmd: PositionDependentCommand): CommandResult {

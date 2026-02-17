@@ -1,12 +1,26 @@
-import { Model } from "../../src";
+import { CoreCommand, Model } from "../../src";
+import { ICommandSquisher, SquishedCoreCommand } from "../../src/collaborative/command_squisher";
 import { Session } from "../../src/collaborative/session";
-import { MESSAGE_VERSION } from "../../src/constants";
+import { DEFAULT_REVISION_ID, MESSAGE_VERSION } from "../../src/constants";
 import { lazy } from "../../src/helpers";
 import { buildRevisionLog } from "../../src/history/factory";
 import { Client, CommandResult, WorkbookData } from "../../src/types";
 import { MockTransportService } from "../__mocks__/transport_service";
 import { selectCell, setCellContent } from "../test_helpers/commands_helpers";
 import { nextTick } from "../test_helpers/helpers";
+
+class MockCommandSquisher implements ICommandSquisher {
+  public squish(
+    allCommands: readonly (CoreCommand | SquishedCoreCommand)[]
+  ): (CoreCommand | SquishedCoreCommand)[] {
+    return [...allCommands];
+  }
+  public unsquish(
+    commands: (CoreCommand | SquishedCoreCommand)[] | readonly CoreCommand[]
+  ): CoreCommand[] {
+    return commands as CoreCommand[];
+  }
+}
 
 describe("Collaborative session", () => {
   let transport: MockTransportService;
@@ -26,7 +40,7 @@ describe("Collaborative session", () => {
       recordChanges: () => ({ changes: [], commands: [] }),
       dispatch: () => CommandResult.Success,
     });
-    session = new Session(revisionLog, transport);
+    session = new Session(revisionLog, transport, DEFAULT_REVISION_ID, new MockCommandSquisher());
     session.join(client);
   });
 

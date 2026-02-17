@@ -1,6 +1,6 @@
 import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../../src/constants";
 import { isSheetNameEqual, toCartesian, toXC, toZone } from "../../src/helpers";
-import { SquishedCell } from "../../src/plugins/core/squisher";
+import { SquishedContent } from "../../src/plugins/core/squisher";
 import { Border, Color, ConditionalFormat, Style } from "../../src/types";
 import { DataValidationRuleData, SheetData, WorkbookData } from "../../src/types/workbook_data";
 
@@ -12,7 +12,7 @@ export function getWorkbookCell(
   col: number,
   row: number,
   sheet: SheetData
-): string | undefined | SquishedCell {
+): undefined | SquishedContent {
   return sheet.cells[toXC(col, row)];
 }
 
