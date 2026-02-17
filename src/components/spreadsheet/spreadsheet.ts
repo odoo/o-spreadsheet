@@ -43,6 +43,7 @@ import {
 } from "../helpers/dom_helpers";
 import { useSpreadsheetRect } from "../helpers/position_hook";
 import { useScreenWidth } from "../helpers/screen_width_hook";
+import { PivotDraggedItem } from "../side_panel/pivot/pivot_dragged_item/pivot_dragged_item";
 import { DEFAULT_SIDE_PANEL_SIZE, SidePanelStore } from "../side_panel/side_panel/side_panel_store";
 import { SidePanels } from "../side_panel/side_panels/side_panels";
 import { SmallBottomBar } from "../small_bottom_bar/small_bottom_bar";
@@ -85,6 +86,7 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
     HeaderGroupContainer,
     FullScreenFigure,
     SpreadsheetPrint,
+    PivotDraggedItem,
   };
 
   sidePanel!: Store<SidePanelStore>;
@@ -220,6 +222,11 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
 
     const render = batched(this.render.bind(this, true));
     onMounted(() => {
+      const pivotId = this.model.getters.getPivotIds()[0];
+      if (pivotId) {
+        setTimeout(() => this.sidePanel.open("PivotSidePanel", { pivotId }));
+      }
+
       this.bindModelEvents();
       this.checkViewportSize();
       stores.on("store-updated", this, render);

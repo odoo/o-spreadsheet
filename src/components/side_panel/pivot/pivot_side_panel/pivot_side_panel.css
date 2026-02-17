@@ -1,0 +1,10 @@
+.o-spreadsheet {
+  .o-pivot-panel {
+    .o-panel-content-first-column {
+      flex-basis: 66%;
+    }
+    .o-panel-content-second-column {
+      flex-basis: 33%;
+    }
+  }
+}

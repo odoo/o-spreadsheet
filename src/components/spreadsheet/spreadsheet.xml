@@ -37,6 +37,7 @@
           <SmallBottomBar t-if="env.isSmall" onClick="() => this.focusGrid()"/>
           <BottomBar t-else="" onClick="() => this.focusGrid()"/>
         </div>
+        <PivotDraggedItem/>
       </t>
     </div>
   </t>

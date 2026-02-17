@@ -1,0 +1,135 @@
+<templates>
+  <t t-name="o-spreadsheet-PivotOverlay">
+    <div
+      class="o-pivot-overlay position-absolute d-flex flex-column h-100 w-100"
+      t-att-style="overlayStyle"
+      t-ref="pivotOverlay"
+      t-if="hasPivotFormula">
+      <div
+        class="o-pivot-overlay-top d-flex flex-row border-bottom align-items-end top-0 start-0 position-sticky bg-white">
+        <div
+          class="o-pivot-measures o-pivot-overlay-section bg-white p-3 border-end d-flex flex-column"
+          t-ref="measuresContainer">
+          <span class="o-pivot-overlay-title mb-2">Measures</span>
+          <div
+            t-foreach="definition.measures"
+            class="py-1"
+            t-as="measure"
+            t-key="measure_index"
+            t-att-style="dragAndDropMeasures.itemsStyle[measure.id]">
+            <PivotFacet
+              icon="'measure'"
+              label="measure.displayName"
+              name="measure.id"
+              onClickIcon="() => {}"
+              onClickRemove="() => this.onRemoveMeasure(measure)"
+            />
+          </div>
+          <div
+            t-if="dragAndDropMeasures.itemsStyle['placeholder-item']"
+            class="border rounded"
+            t-att-style="dragAndDropMeasures.itemsStyle['placeholder-item']"
+          />
+          <AddDimensionButton
+            onFieldPicked.bind="onAddMeasure"
+            fields="this.pivotStore.measureFields">
+            <t t-set-slot="button">
+              <PivotFacet
+                icon="'add'"
+                class="'o-add-group mt-1'"
+                label.translate="Add measure"
+                onClickIcon="() => {}"
+              />
+            </t>
+          </AddDimensionButton>
+        </div>
+        <div
+          class="o-pivot-columns o-pivot-overlay-section bg-white p-3 d-flex flex-row align-items-center"
+          t-ref="columnsContainer">
+          <div class="o-pivot-overlay-title me-4">Columns</div>
+          <div
+            t-foreach="getDisplayedColumnsGroups()"
+            t-as="column"
+            t-key="column_index"
+            class="d-flex flex-row align-items-center bg-white ps-1"
+            t-att-style="dragAndDropCols.itemsStyle[column.nameWithGranularity]">
+            <PivotFacet
+              icon="'group'"
+              label="column.displayName"
+              name="column.nameWithGranularity"
+              onClickIcon="() => {}"
+              onClickRemove="() => this.onRemoveColumn(column)"
+            />
+            <span class="o-group-separator fw-bold px-2">&gt;</span>
+          </div>
+          <div
+            t-if="dragAndDropCols.itemsStyle['placeholder-item']"
+            class="border rounded"
+            t-att-style="dragAndDropCols.itemsStyle['placeholder-item']"
+          />
+          <AddDimensionButton
+            onFieldPicked.bind="onAddColumn"
+            fields="this.pivotStore.unusedGroupableFields">
+            <t t-set-slot="button">
+              <PivotFacet
+                icon="'add'"
+                class="'o-add-group'"
+                label.translate="Add group"
+                onClickIcon="() => {}"
+              />
+            </t>
+          </AddDimensionButton>
+        </div>
+      </div>
+      <div class="o-pivot-rows h-100 p-3 d-flex flex-column start-0 position-sticky border-end">
+        <span class="o-pivot-overlay-title mb-2">Rows</span>
+        <div
+          class="o-pivot-overlay-section d-flex flex-column align-items-start"
+          t-ref="rowsContainer">
+          <div
+            t-foreach="definition.rows"
+            t-as="row"
+            t-key="row_index"
+            class="d-flex align-items-center bg-white py-1"
+            t-att-style="dragAndDropRows.itemsStyle[row.nameWithGranularity]">
+            <PivotFacet
+              icon="'group'"
+              label="row.displayName"
+              name="row.nameWithGranularity"
+              onClickIcon="() => {}"
+              onClickRemove="() => this.onRemoveRow(row)"
+            />
+            <span class="o-group-separator fw-bold ps-2">&gt;</span>
+          </div>
+          <div
+            t-if="dragAndDropRows.itemsStyle['placeholder-item']"
+            class="border rounded"
+            t-att-style="dragAndDropRows.itemsStyle['placeholder-item']"
+          />
+          <AddDimensionButton
+            onFieldPicked.bind="onAddRow"
+            fields="this.pivotStore.unusedGroupableFields">
+            <t t-set-slot="button">
+              <PivotFacet
+                icon="'add'"
+                class="'o-add-group mt-1'"
+                label.translate="Add group"
+                onClickIcon="() => {}"
+              />
+            </t>
+          </AddDimensionButton>
+        </div>
+      </div>
+
+      <t t-foreach="getPivotsAreasInGrid()" t-as="pivotArea" t-key="pivotArea_index">
+        <div
+          t-att-style="getPivotAreaStyle(pivotArea)"
+          class="o-pivot-area position-absolute"
+          t-on-mouseenter="() => this.onPivotAreaMouseEnter(pivotArea)"
+          t-on-mouseleave="this.onPivotAreaMouseLeave"
+          t-on-pointerup="() => this.onPivotAreaPointerUp(pivotArea)"
+        />
+      </t>
+    </div>
+  </t>
+</templates>

@@ -23,6 +23,8 @@ interface DndPartialArgs {
   onChange?: () => void;
   onCancel?: () => void;
   onDragEnd?: (itemId: UID, indexAtEnd: Pixel) => void;
+  /* Wether the dragged item should move smoothly with the mouse, or only move when swapping position with another item. */
+  dragMode?: "smooth" | "swap";
 }
 
 interface DOMDndHelperArgs extends Omit<Required<DndPartialArgs>, "scrollableContainerEl"> {
@@ -85,6 +87,7 @@ export function useDragAndDropListItems() {
       onChange,
       onDragEnd,
       onCancel: state.cancel,
+      dragMode: args.dragMode || "smooth",
     });
     const stopListening = startDnd(
       dndHelper.onMouseMove.bind(dndHelper),
@@ -113,7 +116,7 @@ export function useDragAndDropListItems() {
   return state;
 }
 
-class DOMDndHelper {
+export class DOMDndHelper {
   draggedItemId: UID;
 
   private items: DragAndDropItems[];
@@ -126,6 +129,7 @@ class DOMDndHelper {
 
   private minPosition: Pixel;
   private maxPosition: Pixel;
+  private dragMode: "smooth" | "swap";
 
   private edgeScrollIntervalId: number | undefined;
 
@@ -144,12 +148,17 @@ class DOMDndHelper {
   private deadZone: { start: Pixel; end: Pixel } | undefined;
 
   constructor(args: DOMDndHelperArgs) {
-    this.items = args.items.map((item) => ({ ...item, positionAtStart: item.position }));
+    this.items = args.items.map((item, i) => ({
+      ...item,
+      positionAtStart: item.position,
+      size: args.items[i + 1] ? args.items[i + 1].position - item.position : item.size, // ADRM TODO: remove siz from args (because it depends on gaps, margins & whatnot)
+    }));
     this.draggedItemId = args.draggedItemId;
     this.container = args.container;
     this.onChange = args.onChange;
     this.onCancel = args.onCancel;
     this.onDragEnd = args.onDragEnd;
+    this.dragMode = args.dragMode;
 
     this.initialMousePosition = args.initialMousePosition;
     this.currentMousePosition = args.initialMousePosition;
@@ -162,14 +171,24 @@ class DOMDndHelper {
   }
 
   getItemStyles(): Record<UID, string> {
-    const styles: Record<UID, string> = {};
+    const styles = this.getItemsStylesObjects();
+    const stylesStr: Record<UID, string> = {};
+    for (const id in styles) {
+      const style = styles[id];
+      stylesStr[id] = cssPropertiesToCss(style);
+    }
+    return stylesStr;
+  }
+
+  getItemsStylesObjects(): Record<UID, CSSProperties> {
+    const styles: Record<UID, CSSProperties> = {};
     for (const item of this.items) {
       styles[item.id] = this.getItemStyle(item.id);
     }
     return styles;
   }
 
-  private getItemStyle(itemId: string) {
+  private getItemStyle(itemId: string): CSSProperties {
     const position = this.container.cssPositionProperty;
     const style: CSSProperties = {};
     style.position = "relative";
@@ -181,7 +200,7 @@ class DOMDndHelper {
       style["z-index"] = "1000";
     }
 
-    return cssPropertiesToCss(style);
+    return style;
   }
 
   onScroll() {
@@ -257,8 +276,9 @@ class DOMDndHelper {
       this.onCancel();
     }
 
-    ev.stopPropagation();
-    ev.preventDefault();
+    // ADRM TODO: see if they were needed. Cannot use pointerup in pivotArea otherwise
+    // ev.stopPropagation();
+    // ev.preventDefault();
     const targetItemIndex = this.items.findIndex((item) => item.id === this.draggedItemId);
     this.onDragEnd(this.draggedItemId, targetItemIndex);
     this.stopEdgeScroll();
@@ -297,18 +317,26 @@ class DOMDndHelper {
 
   private getItemsPositions(): Record<UID, Pixel> {
     const positions: Record<UID, Pixel> = {};
-    for (const item of this.items) {
+    for (let i = 0; i < this.items.length; i++) {
+      const item = this.items[i];
       if (item.id !== this.draggedItemId) {
         positions[item.id] = item.position - item.positionAtStart;
         continue;
       }
 
-      const mouseOffset = this.currentMousePosition - this.initialMousePosition;
-      let start = mouseOffset + this.scrollOffset;
-      start = Math.max(this.minPosition - item.positionAtStart, start);
-      start = Math.min(this.maxPosition - item.positionAtStart - item.size, start);
-
-      positions[item.id] = start;
+      if (this.dragMode === "smooth") {
+        const mouseOffset = this.currentMousePosition - this.initialMousePosition;
+        let start = mouseOffset + this.scrollOffset;
+        start = Math.max(this.minPosition - item.positionAtStart, start);
+        start = Math.min(this.maxPosition - item.positionAtStart - item.size, start);
+        positions[item.id] = start;
+      } else {
+        const previousItem = this.items[i - 1];
+        const start = previousItem
+          ? this.items[i - 1].position + this.items[i - 1].size
+          : this.minPosition;
+        positions[item.id] = start - item.positionAtStart;
+      }
     }
 
     return positions;
@@ -343,7 +371,7 @@ abstract class ContainerWrapper {
   }
 }
 
-class VerticalContainer extends ContainerWrapper {
+export class VerticalContainer extends ContainerWrapper {
   get start(): number {
     return this.containerRect.top;
   }
@@ -364,7 +392,7 @@ class VerticalContainer extends ContainerWrapper {
   }
 }
 
-class HorizontalContainer extends ContainerWrapper {
+export class HorizontalContainer extends ContainerWrapper {
   get start(): number {
     return this.containerRect.left;
   }

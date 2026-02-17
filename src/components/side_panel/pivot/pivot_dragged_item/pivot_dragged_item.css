@@ -1,0 +1,7 @@
+.o-spreadsheet {
+  .o-pivot-dragged-element {
+    z-index: 1000;
+    opacity: 0.9;
+    transform: translate(-50%, -50%);
+  }
+}
