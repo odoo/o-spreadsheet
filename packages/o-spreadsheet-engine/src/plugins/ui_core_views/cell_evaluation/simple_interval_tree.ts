@@ -1,12 +1,13 @@
-import { CellPosition, HeaderIndex, Zone } from "../../..";
+import { CellPosition, HeaderIndex, UID } from "../../..";
 import { positionToZone } from "../../../helpers/zones";
-import { RTreeBoundingBox } from "./r_tree";
-import { ZoneSet } from "./zone_set";
+import { BoundedRange } from "../../../types/range";
+import { RTreeBoundingBox, RTreeItem } from "./r_tree";
+import { RangeSet } from "./range_set";
 
 export interface Interval {
   top: number;
   bottom: number;
-  dependents?: Zone;
+  dependents?: BoundedRange;
 }
 
 class IntervalNode {
@@ -21,53 +22,89 @@ class IntervalNode {
   }
 }
 
-export class SheetDependencyGraph {
+export class ForestDependencyGraph {
   // one interval tree per column. Each tree contains intervals corresponding to the rows of the dependencies in that column.
-  private forest: Record<HeaderIndex, IntervalTree> = {};
+  private forest: Record<UID, Record<HeaderIndex, IntervalTree>> = {};
+
+  constructor(data: RTreeItem<BoundedRange>[] = []) {
+    for (const item of data) {
+      const { sheetId, zone } = item.boundingBox;
+      for (let col = zone.left; col <= zone.right; col++) {
+        let tree = this.forest[sheetId]?.[col];
+        if (!tree) {
+          tree = new IntervalTree();
+          if (!this.forest[sheetId]) {
+            this.forest[sheetId] = {};
+          }
+          this.forest[sheetId][col] = tree;
+        }
+        tree.insert({ top: zone.top, bottom: zone.bottom, dependents: item.data });
+      }
+    }
+  }
+
+  removeAllDependencies(formulaPosition: CellPosition) {
+    // TODO
+  }
 
   addDependencies(formulaPosition: CellPosition, dependencies: RTreeBoundingBox[]): void {
-    const dependentsZone = positionToZone(formulaPosition);
+    const dependentsRange = {
+      zone: positionToZone(formulaPosition),
+      sheetId: formulaPosition.sheetId,
+    };
     for (const { zone, sheetId } of dependencies) {
       for (let col = zone.left; col <= zone.right; col++) {
-        let columnTree = this.forest[col];
+        let columnTree = this.forest[sheetId]?.[col];
         if (!columnTree) {
           columnTree = new IntervalTree();
-          this.forest[col] = columnTree;
+          if (!this.forest[sheetId]) {
+            this.forest[sheetId] = {};
+          }
+          this.forest[sheetId][col] = columnTree;
         }
-        columnTree.insert({ top: zone.top, bottom: zone.bottom, dependents: dependentsZone });
+        columnTree.insert({ top: zone.top, bottom: zone.bottom, dependents: dependentsRange });
       }
     }
   }
 
-  getRangeDependents(zones: Iterable<Zone>): Zone[] {
-    const result: Zone[] = [];
-    for (const zone of zones) {
-      for (let col = zone.left; col <= zone.right; col++) {
-        const tree = this.forest[col];
-        if (!tree) {
-          continue;
-        }
-        const overlappingIntervals = tree.query({ top: zone.top, bottom: zone.bottom });
-        for (const interval of overlappingIntervals) {
-          result.push(interval.dependents);
-        }
-      }
-    }
-    return result;
-  }
+  // getCellsDependingOn(ranges: Iterable<BoundedRange>, visited = new RangeSet()): RangeSet {
+  //   visited = visited.copy();
+  //   const queue: BoundedRange[] = Array.from(ranges).reverse();
+  //   while (queue.length > 0) {
+  //     const range = queue.pop()!;
+  //     visited.add(range);
+  //     const graph = this.forest[range.sheetId];
+  //     if (!graph) {
+  //       continue;
+  //     }
+  //     const impactedZones = graph.getRangeDependents([range.zone]);
+  //     queue.push(...impactedZones.difference(visited));
+  //   }
 
-  getRangeDependentsRecursive(zones: Iterable<Zone>, visited: ZoneSet = new ZoneSet()): ZoneSet {
+  //   // remove initial ranges
+  //   for (const range of ranges) {
+  //     visited.delete(range);
+  //   }
+  //   return visited;
+  // }
+
+  getCellsDependingOn(ranges: Iterable<BoundedRange>, visited = new RangeSet()): RangeSet {
     visited = visited.copy();
-    const queue: Zone[] = Array.from(zones).reverse();
+    const queue: BoundedRange[] = Array.from(ranges).reverse();
     while (queue.length > 0) {
-      const zone = queue.pop()!;
-      visited.add(zone);
+      const range = queue.pop()!;
+      visited.add(range);
+      const zone = range.zone;
+      const graph = this.forest[range.sheetId];
+      if (!graph) {
+        continue;
+      }
       for (let col = zone.left; col <= zone.right; col++) {
-        const tree = this.forest[col];
+        const tree = graph[col];
         if (!tree) {
           continue;
         }
-        const overlappingIntervals = tree.query({ top: zone.top, bottom: zone.bottom });
+        const overlappingIntervals = tree.query(zone);
         for (const interval of overlappingIntervals) {
           // TODO only add the difference between the interval dependents and visited
           if (interval.dependents && !visited.has(interval.dependents)) {
@@ -78,8 +115,8 @@ export class SheetDependencyGraph {
     }
 
     // remove initial zones
-    for (const zone of zones) {
-      visited.delete(zone);
+    for (const range of ranges) {
+      visited.delete(range);
     }
     return visited;
   }
@@ -90,7 +127,7 @@ export class IntervalTree {
   private buffer: Required<Interval>[] = [];
 
   // When the buffer hits this size, we merge it into the main tree
-  private readonly REBUILD_THRESHOLD = 64;
+  private readonly REBUILD_THRESHOLD = 1;
 
   /**
    * Bulk loads data. Completely overwrites current tree and buffer.
@@ -99,16 +136,18 @@ export class IntervalTree {
   bulkLoad(intervals: Required<Interval>[]): void {
     const sorted = [...intervals].sort((a, b) => {
       // Sort intervals by their starting point
-      if (a.bottom !== b.bottom) {
-        return a.bottom - b.bottom;
-      } else if (a.top !== b.top) {
+      if (a.top !== b.top) {
         return a.top - b.top;
+      } else if (a.bottom !== b.bottom) {
+        return a.bottom - b.bottom;
       }
       // If they have the same start and end, sort by dependents to group them together
       // Critical for the compaction step.
-      const zoneA = a.dependents;
-      const zoneB = b.dependents;
-      if (zoneA.left !== zoneB.left) {
+      const { zone: zoneA, sheetId: sheetIdA } = a.dependents;
+      const { zone: zoneB, sheetId: sheetIdB } = b.dependents;
+      if (sheetIdA !== sheetIdB) {
+        return sheetIdA > sheetIdB ? 1 : -1;
+      } else if (zoneA.left !== zoneB.left) {
         return zoneA.left - zoneB.left;
       } else if (zoneA.right !== zoneB.right) {
         return zoneA.right - zoneB.right;
@@ -119,24 +158,26 @@ export class IntervalTree {
       }
     });
     let current = sorted[0];
-    const compacted: Interval[] = [current];
+    const compacted: Interval[] = [];
     for (let i = 1; i < sorted.length; i++) {
       const next = sorted[i];
       const isSameInterval = next.top === current.top && next.bottom === current.bottom;
       if (
         isSameInterval &&
-        // is same column
-        next.dependents.left === current.dependents.left &&
-        next.dependents.right === current.dependents.right &&
+        next.dependents.sheetId === current.dependents.sheetId &&
+        // is same column (but left and right are the same)
+        next.dependents.zone.left === current.dependents.zone.left &&
+        next.dependents.zone.right === current.dependents.zone.right &&
         // are contiguous
-        next.dependents.top - 1 === current.dependents.bottom
+        next.dependents.zone.top - 1 === current.dependents.zone.bottom
       ) {
-        current.dependents.bottom = next.dependents.bottom; // Merge dependents with same interval
+        current.dependents.zone.bottom = next.dependents.zone.bottom; // Merge dependents with same interval
       } else {
         compacted.push(current);
         current = next;
       }
     }
+    compacted.push(current);
     this.root = this.buildBalancedTree(compacted);
     this.buffer = [];
   }
