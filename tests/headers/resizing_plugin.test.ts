@@ -437,18 +437,19 @@ describe("Model resizer", () => {
     test("wrapping long text in a cell does not break the rendering", () => {
       const LONG_TEXT = "This is a very long text that should be wrapped";
 
+      const sheetId = model.getters.getActiveSheetId();
       setCellContent(model, "A1", LONG_TEXT);
-      const initialCellHeight = model.getters.getColRowOffset("ROW", 0, 1);
+      const initialCellHeight = model.getters.getColRowOffset("ROW", 0, 1, sheetId);
       expect(initialCellHeight).toEqual(DEFAULT_CELL_HEIGHT);
 
       setStyle(model, "A1", { wrapping: "wrap" });
-      const wrappedCellHeight = model.getters.getColRowOffset("ROW", 0, 1);
+      const wrappedCellHeight = model.getters.getColRowOffset("ROW", 0, 1, sheetId);
 
       expect(wrappedCellHeight).toBeGreaterThan(initialCellHeight);
       expect(model.getters.getRowSize(sheet.id, 0)).toBe(wrappedCellHeight);
 
       setStyle(model, "A1", { wrapping: undefined });
-      const unwrappedCellHeight = model.getters.getColRowOffset("ROW", 0, 1);
+      const unwrappedCellHeight = model.getters.getColRowOffset("ROW", 0, 1, sheetId);
 
       expect(unwrappedCellHeight).toBe(initialCellHeight);
       expect(model.getters.getRowSize(sheet.id, 0)).toBe(DEFAULT_CELL_HEIGHT);
@@ -488,10 +489,11 @@ describe("Model resizer", () => {
       (wrap: Wrapping) => {
         const LONG_TEXT = "This is a very long text that should be wrapped";
 
+        const sheetId = model.getters.getActiveSheetId();
         setCellContent(model, "A1", LONG_TEXT);
-        const initialCellHeight = model.getters.getColRowOffset("ROW", 0, 1);
+        const initialCellHeight = model.getters.getColRowOffset("ROW", 0, 1, sheetId);
         setStyle(model, "A1", { wrapping: wrap });
-        const wrappedCellHeight = model.getters.getColRowOffset("ROW", 0, 1);
+        const wrappedCellHeight = model.getters.getColRowOffset("ROW", 0, 1, sheetId);
         expect(wrappedCellHeight).toEqual(initialCellHeight);
       }
     );

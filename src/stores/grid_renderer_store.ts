@@ -1,3 +1,4 @@
+import { Model } from "@odoo/o-spreadsheet-engine";
 import { getPath2D } from "@odoo/o-spreadsheet-engine/components/icons/icons";
 import {
   BACKGROUND_HEADER_ACTIVE_COLOR,
@@ -16,7 +17,8 @@ import {
   MIN_CELL_TEXT_MARGIN,
   TEXT_HEADER_COLOR,
 } from "@odoo/o-spreadsheet-engine/constants";
-import { ModelStore, SpreadsheetStore } from ".";
+import { ViewportCollection } from "@odoo/o-spreadsheet-engine/helpers/viewport_collection";
+import { ModelStore } from ".";
 import { HoveredIconStore } from "../components/grid_overlay/hovered_icon_store";
 import { HoveredTableStore } from "../components/tables/hovered_table_store";
 import {
@@ -40,7 +42,7 @@ import {
   zoneToXc,
 } from "../helpers/index";
 import { cellAnimationRegistry } from "../registries/cell_animation_registry";
-import { Get, Store } from "../store_engine";
+import { DisposableStore, Get, Store } from "../store_engine";
 import {
   Align,
   BorderDescrWithOpacity,
@@ -53,11 +55,13 @@ import {
   LayerName,
   Pixel,
   RenderingBox,
+  RenderingGetters,
   UID,
   Viewport,
   Zone,
 } from "../types/index";
 import { FormulaFingerprintStore } from "./formula_fingerprints_store";
+import { RendererStore } from "./renderer_store";
 
 export const CELL_BACKGROUND_GRIDLINE_STROKE_STYLE = "#111";
 export const CELL_ANIMATION_DURATION = 200;
@@ -69,22 +73,35 @@ interface Animation {
   animationTypes: string[];
 }
 
-export class GridRenderer extends SpreadsheetStore {
+export class GridRenderer extends DisposableStore {
   private fingerprints: Store<FormulaFingerprintStore>;
   private hoveredTables: Store<HoveredTableStore>;
   private hoveredIcon: Store<HoveredIconStore>;
 
+  private lastRenderSheetId: UID | undefined = undefined;
   private lastRenderBoxes: Map<string, Box> = new Map();
   private preventNewAnimationsInNextFrame = false;
-  private zonesWithPreventedAnimationsInNextFrame: Zone[] = [];
+  private zonesWithPreventedAnimationsInNextFrame: Record<UID, Zone[]> = {};
   private animations: Map<string, Animation> = new Map();
+  protected getters: RenderingGetters;
 
-  constructor(get: Get) {
+  constructor(get: Get, private renderer: Store<RendererStore> = get(RendererStore)) {
     super(get);
-    this.getters = get(ModelStore).getters;
+    const model = get(ModelStore) as Model;
+    this.getters = model.getters;
     this.fingerprints = get(FormulaFingerprintStore);
     this.hoveredTables = get(HoveredTableStore);
     this.hoveredIcon = get(HoveredIconStore);
+
+    model.on("command-dispatched", this, this.handle);
+    model.on("command-finalized", this, this.finalize);
+    this.renderer.register(this);
+
+    this.onDispose(() => {
+      model.off("command-dispatched", this);
+      model.off("command-finalized", this);
+      this.renderer.unRegister(this);
+    });
   }
 
   handle(cmd: Command) {
@@ -100,7 +117,7 @@ export class GridRenderer extends SpreadsheetStore {
         this.preventNewAnimationsInNextFrame = true;
         break;
       case "REDO":
-        this.zonesWithPreventedAnimationsInNextFrame = [];
+        this.zonesWithPreventedAnimationsInNextFrame = {};
         break;
       case "UNDO":
         for (const command of cmd.commands) {
@@ -119,18 +136,21 @@ export class GridRenderer extends SpreadsheetStore {
         this.preventNewAnimationsInNextFrame = true;
         break;
       case "UPDATE_CELL":
-        if (cmd.sheetId === this.getters.getActiveSheetId()) {
-          const zones = this.getters.getCommandZones(cmd);
-          this.zonesWithPreventedAnimationsInNextFrame.push(...zones);
+        const zones = this.getters.getCommandZones(cmd);
+        if (!this.zonesWithPreventedAnimationsInNextFrame[cmd.sheetId]) {
+          this.zonesWithPreventedAnimationsInNextFrame[cmd.sheetId] = [];
         }
+        this.zonesWithPreventedAnimationsInNextFrame[cmd.sheetId].push(...zones);
         break;
     }
   }
 
   finalize() {
-    this.zonesWithPreventedAnimationsInNextFrame = recomputeZones(
-      this.zonesWithPreventedAnimationsInNextFrame
-    );
+    for (const sheetId in this.zonesWithPreventedAnimationsInNextFrame) {
+      this.zonesWithPreventedAnimationsInNextFrame[sheetId] = recomputeZones(
+        this.zonesWithPreventedAnimationsInNextFrame[sheetId]
+      );
+    }
   }
 
   get renderingLayers() {
@@ -149,16 +169,19 @@ export class GridRenderer extends SpreadsheetStore {
     switch (layer) {
       case "Background":
         this.drawGlobalBackground(renderingContext);
-        const oldBoxes = this.lastRenderBoxes;
+        const oldBoxes =
+          renderingContext.sheetId === this.lastRenderSheetId ? this.lastRenderBoxes : new Map();
+        this.lastRenderSheetId = renderingContext.sheetId;
         this.lastRenderBoxes = new Map();
 
-        for (const { zone, rect } of this.getters.getAllActiveViewportsZonesAndRect()) {
+        const { sheetId, viewports } = renderingContext;
+        for (const { zone, rect } of viewports.getAllSheetViewportsZonesAndRect(sheetId)) {
           const { ctx } = renderingContext;
           ctx.save();
           ctx.beginPath();
           ctx.rect(rect.x, rect.y, rect.width, rect.height);
           ctx.clip();
-          const boxesWithoutAnimations = this.getGridBoxes(zone);
+          const boxesWithoutAnimations = this.getGridBoxes(viewports, sheetId, zone);
           const boxes = this.getBoxesWithAnimations(boxesWithoutAnimations, oldBoxes, timeStamp);
           this.drawBackground(renderingContext, boxes);
           this.drawOverflowingCellBackground(renderingContext, boxes);
@@ -170,20 +193,18 @@ export class GridRenderer extends SpreadsheetStore {
         }
         this.drawFrozenPanes(renderingContext);
         this.preventNewAnimationsInNextFrame = false;
-        this.zonesWithPreventedAnimationsInNextFrame = [];
+        this.zonesWithPreventedAnimationsInNextFrame = {};
         break;
       case "Headers":
-        if (!this.getters.isDashboard()) {
-          this.drawHeaders(renderingContext);
-          this.drawFrozenPanesHeaders(renderingContext);
-        }
+        this.drawHeaders(renderingContext);
+        this.drawFrozenPanesHeaders(renderingContext);
         break;
     }
   }
 
   private drawGlobalBackground(renderingContext: GridRenderingContext) {
-    const { ctx } = renderingContext;
-    const { width, height } = this.getters.getSheetViewDimensionWithHeaders();
+    const { ctx, viewports } = renderingContext;
+    const { width, height } = viewports.getSheetViewDimensionWithHeaders();
 
     // white background
     ctx.fillStyle = "#ffffff";
@@ -194,8 +215,8 @@ export class GridRenderer extends SpreadsheetStore {
     const { ctx, thinLineWidth } = renderingContext;
 
     const areGridLinesVisible =
-      !this.getters.isDashboard() &&
-      this.getters.getGridLinesVisibility(this.getters.getActiveSheetId());
+      !renderingContext.hideGridLines &&
+      this.getters.getGridLinesVisibility(renderingContext.sheetId);
     const inset = areGridLinesVisible ? 0.1 * thinLineWidth : 0;
 
     if (areGridLinesVisible) {
@@ -477,20 +498,19 @@ export class GridRenderer extends SpreadsheetStore {
   }
 
   private drawHeaders(renderingContext: GridRenderingContext) {
-    const { ctx, thinLineWidth } = renderingContext;
-    const visibleCols = this.getters.getSheetViewVisibleCols();
+    const { ctx, thinLineWidth, viewports, sheetId } = renderingContext;
+    const visibleCols = viewports.getSheetViewVisibleCols(sheetId);
     const left = visibleCols[0];
-    const visibleRows = this.getters.getSheetViewVisibleRows();
+    const visibleRows = viewports.getSheetViewVisibleRows(sheetId);
     const top = visibleRows[0];
-    const { width, height } = this.getters.getSheetViewDimensionWithHeaders();
-    const selection = this.getters.getSelectedZones();
+    const { width, height } = viewports.getSheetViewDimensionWithHeaders();
+    const selection = renderingContext.selectedZones;
     const selectedCols = getZonesCols(selection);
     const selectedRows = getZonesRows(selection);
-    const sheetId = this.getters.getActiveSheetId();
     const numberOfCols = this.getters.getNumberCols(sheetId);
     const numberOfRows = this.getters.getNumberRows(sheetId);
-    const activeCols = this.getters.getActiveCols();
-    const activeRows = this.getters.getActiveRows();
+    const activeCols = renderingContext.activeCols;
+    const activeRows = renderingContext.activeRows;
 
     ctx.font = `400 ${HEADER_FONT_SIZE}px ${DEFAULT_FONT}`;
     ctx.textAlign = "center";
@@ -501,7 +521,7 @@ export class GridRenderer extends SpreadsheetStore {
     // Columns headers background
     for (const col of visibleCols) {
       const colZone = { left: col, right: col, top: 0, bottom: numberOfRows - 1 };
-      const { x, width } = this.getters.getVisibleRect(colZone);
+      const { x, width } = viewports.getVisibleRect(sheetId, colZone);
       const isColActive = activeCols.has(col);
       const isColSelected = selectedCols.has(col);
       if (isColActive) {
@@ -517,7 +537,7 @@ export class GridRenderer extends SpreadsheetStore {
     // Rows headers background
     for (const row of visibleRows) {
       const rowZone = { top: row, bottom: row, left: 0, right: numberOfCols - 1 };
-      const { y, height } = this.getters.getVisibleRect(rowZone);
+      const { y, height } = viewports.getVisibleRect(sheetId, rowZone);
 
       const isRowActive = activeRows.has(row);
       const isRowSelected = selectedRows.has(row);
@@ -545,8 +565,8 @@ export class GridRenderer extends SpreadsheetStore {
       const colName = numberToLetters(col);
       ctx.fillStyle = activeCols.has(col) ? "#fff" : TEXT_HEADER_COLOR;
       const zone = { left: col, right: col, top: top, bottom: top };
-      const { x: colStart, width: colSize } = this.getters.getRect(zone);
-      const { x, width } = this.getters.getVisibleRect(zone);
+      const { x: colStart, width: colSize } = viewports.getRect(sheetId, zone);
+      const { x, width } = viewports.getVisibleRect(sheetId, zone);
       ctx.save();
       ctx.beginPath();
       ctx.rect(x, 0, width, HEADER_HEIGHT);
@@ -563,8 +583,8 @@ export class GridRenderer extends SpreadsheetStore {
     for (const row of visibleRows) {
       ctx.fillStyle = activeRows.has(row) ? "#fff" : TEXT_HEADER_COLOR;
       const zone = { top: row, bottom: row, left: left, right: left };
-      const { y: rowStart, height: rowSize } = this.getters.getRect(zone);
-      const { y, height } = this.getters.getVisibleRect(zone);
+      const { y: rowStart, height: rowSize } = viewports.getRect(sheetId, zone);
+      const { y, height } = viewports.getVisibleRect(sheetId, zone);
       ctx.save();
       ctx.beginPath();
       ctx.rect(0, y, HEADER_WIDTH, height);
@@ -579,12 +599,13 @@ export class GridRenderer extends SpreadsheetStore {
   }
 
   private drawFrozenPanesHeaders(renderingContext: GridRenderingContext) {
-    const { ctx, thinLineWidth } = renderingContext;
+    const { ctx, thinLineWidth, sheetId, viewports } = renderingContext;
 
     const { x: offsetCorrectionX, y: offsetCorrectionY } =
-      this.getters.getMainViewportCoordinates();
-    const widthCorrection = this.getters.isDashboard() ? 0 : HEADER_WIDTH;
-    const heightCorrection = this.getters.isDashboard() ? 0 : HEADER_HEIGHT;
+      viewports.getMainViewportCoordinates(sheetId);
+
+    const widthCorrection = viewports.getGridOffsetX();
+    const heightCorrection = viewports.getGridOffsetY();
     ctx.lineWidth = 6 * thinLineWidth;
     ctx.strokeStyle = FROZEN_PANE_HEADER_BORDER_COLOR;
     ctx.beginPath();
@@ -600,22 +621,22 @@ export class GridRenderer extends SpreadsheetStore {
   }
 
   private drawFrozenPanes(renderingContext: GridRenderingContext) {
-    const { ctx, thinLineWidth } = renderingContext;
+    const { ctx, thinLineWidth, sheetId, viewports } = renderingContext;
 
     const { x: offsetCorrectionX, y: offsetCorrectionY } =
-      this.getters.getMainViewportCoordinates();
+      viewports.getMainViewportCoordinates(sheetId);
 
-    const visibleCols = this.getters.getSheetViewVisibleCols();
+    const visibleCols = viewports.getSheetViewVisibleCols(sheetId);
     const left = visibleCols[0];
     const right = visibleCols[visibleCols.length - 1];
-    const visibleRows = this.getters.getSheetViewVisibleRows();
+    const visibleRows = viewports.getSheetViewVisibleRows(sheetId);
     const top = visibleRows[0];
     const bottom = visibleRows[visibleRows.length - 1];
     const viewport = { left, right, top, bottom };
 
-    const rect = this.getters.getVisibleRect(viewport);
-    const widthCorrection = this.getters.isDashboard() ? 0 : HEADER_WIDTH;
-    const heightCorrection = this.getters.isDashboard() ? 0 : HEADER_HEIGHT;
+    const rect = renderingContext.viewports.getVisibleRect(renderingContext.sheetId, viewport);
+    const widthCorrection = viewports.getGridOffsetX();
+    const heightCorrection = viewports.getGridOffsetY();
     ctx.lineWidth = 6 * thinLineWidth;
     ctx.strokeStyle = FROZEN_PANE_BORDER_COLOR;
     ctx.beginPath();
@@ -630,8 +651,12 @@ export class GridRenderer extends SpreadsheetStore {
     ctx.stroke();
   }
 
-  private findNextEmptyCol(base: HeaderIndex, max: HeaderIndex, row: HeaderIndex): HeaderIndex {
-    const sheetId = this.getters.getActiveSheetId();
+  private findNextEmptyCol(
+    sheetId: UID,
+    base: HeaderIndex,
+    max: HeaderIndex,
+    row: HeaderIndex
+  ): HeaderIndex {
     let col: HeaderIndex = base;
     while (col < max) {
       const position = { sheetId, col: col + 1, row };
@@ -651,8 +676,12 @@ export class GridRenderer extends SpreadsheetStore {
     return col;
   }
 
-  private findPreviousEmptyCol(base: HeaderIndex, min: HeaderIndex, row: HeaderIndex): HeaderIndex {
-    const sheetId = this.getters.getActiveSheetId();
+  private findPreviousEmptyCol(
+    sheetId: UID,
+    base: HeaderIndex,
+    min: HeaderIndex,
+    row: HeaderIndex
+  ): HeaderIndex {
     let col: HeaderIndex = base;
     while (col > min) {
       const position = { sheetId, col: col - 1, row };
@@ -688,14 +717,19 @@ export class GridRenderer extends SpreadsheetStore {
     return align || evaluatedCell.defaultAlign;
   }
 
-  private createZoneBox(sheetId: UID, zone: Zone, viewport: Viewport): Box {
+  private createZoneBox(
+    viewports: ViewportCollection,
+    sheetId: UID,
+    zone: Zone,
+    viewport: Viewport
+  ): Box {
     const { left, right } = viewport;
     const col: HeaderIndex = zone.left;
     const row: HeaderIndex = zone.top;
     const position = { sheetId, col, row };
     const cell = this.getters.getEvaluatedCell(position);
     const showFormula = this.getters.shouldShowFormulas();
-    const { x, y, width, height } = this.getters.getRect(zone);
+    const { x, y, width, height } = viewports.getRect(sheetId, zone);
     const chipStyle = this.getters.getDataValidationChipStyle(position);
 
     let style = this.getters.getCellComputedStyle(position);
@@ -730,7 +764,7 @@ export class GridRenderer extends SpreadsheetStore {
         (cell.type === CellValueType.error && !!cell.message) ||
         this.getters.isDataValidationInvalid(position),
       icons: cellIcons,
-      disabledAnimation: this.zonesWithPreventedAnimationsInNextFrame.some(
+      disabledAnimation: this.zonesWithPreventedAnimationsInNextFrame[sheetId]?.some(
         (z) => isZoneInside(zone, z) || overlap(zone, z)
       ),
     };
@@ -818,15 +852,20 @@ export class GridRenderer extends SpreadsheetStore {
         nextColIndex = this.getters.getMerge(position)!.right;
         previousColIndex = col;
       } else {
-        nextColIndex = box.border?.right ? zone.right : this.findNextEmptyCol(col, right, row);
-        previousColIndex = box.border?.left ? zone.left : this.findPreviousEmptyCol(col, left, row);
+        nextColIndex = box.border?.right
+          ? zone.right
+          : this.findNextEmptyCol(sheetId, col, right, row);
+        previousColIndex = box.border?.left
+          ? zone.left
+          : this.findPreviousEmptyCol(sheetId, col, left, row);
         box.isOverflow = true;
       }
 
       switch (align) {
         case "left": {
           const emptyZoneOnTheLeft = positionToZone({ col: nextColIndex, row });
-          const { x, y, width, height } = this.getters.getVisibleRect(
+          const { x, y, width, height } = viewports.getVisibleRect(
+            sheetId,
             union(zone, emptyZoneOnTheLeft)
           );
           if (width < contentWidth || fontSizePX > height || multiLineText.length > 1) {
@@ -836,7 +875,8 @@ export class GridRenderer extends SpreadsheetStore {
         }
         case "right": {
           const emptyZoneOnTheRight = positionToZone({ col: previousColIndex, row });
-          const { x, y, width, height } = this.getters.getVisibleRect(
+          const { x, y, width, height } = viewports.getVisibleRect(
+            sheetId,
             union(zone, emptyZoneOnTheRight)
           );
           if (width < contentWidth || fontSizePX > height || multiLineText.length > 1) {
@@ -850,7 +890,7 @@ export class GridRenderer extends SpreadsheetStore {
             left: previousColIndex,
             right: nextColIndex,
           };
-          const { x, y, height, width } = this.getters.getVisibleRect(emptyZone);
+          const { x, y, height, width } = viewports.getVisibleRect(sheetId, emptyZone);
           const halfContentWidth = contentWidth / 2;
           const boxMiddle = box.x + box.width / 2;
           if (
@@ -878,21 +918,20 @@ export class GridRenderer extends SpreadsheetStore {
     return box;
   }
 
-  private getGridBoxes(zone: Zone): Box[] {
+  private getGridBoxes(viewports: ViewportCollection, sheetId: UID, zone: Zone): Box[] {
     const boxes: Box[] = [];
 
-    const visibleCols = this.getters
-      .getSheetViewVisibleCols()
+    const visibleCols = viewports
+      .getSheetViewVisibleCols(sheetId)
       .filter((col) => col >= zone.left && col <= zone.right);
     const left = visibleCols[0];
     const right = visibleCols[visibleCols.length - 1];
-    const visibleRows = this.getters
-      .getSheetViewVisibleRows()
+    const visibleRows = viewports
+      .getSheetViewVisibleRows(sheetId)
       .filter((row) => row >= zone.top && row <= zone.bottom);
     const top = visibleRows[0];
     const bottom = visibleRows[visibleRows.length - 1];
     const viewport = { left, right, top, bottom };
-    const sheetId = this.getters.getActiveSheetId();
 
     for (const row of visibleRows) {
       for (const col of visibleCols) {
@@ -900,7 +939,7 @@ export class GridRenderer extends SpreadsheetStore {
         if (this.getters.isInMerge(position)) {
           continue;
         }
-        boxes.push(this.createZoneBox(sheetId, positionToZone(position), viewport));
+        boxes.push(this.createZoneBox(viewports, sheetId, positionToZone(position), viewport));
       }
     }
     for (const merge of this.getters.getMerges(sheetId)) {
@@ -908,7 +947,7 @@ export class GridRenderer extends SpreadsheetStore {
         continue;
       }
       if (overlap(merge, viewport)) {
-        const box = this.createZoneBox(sheetId, merge, viewport);
+        const box = this.createZoneBox(viewports, sheetId, merge, viewport);
         const borderBottomRight = this.getters.getCellComputedBorder({
           sheetId,
           col: merge.right,

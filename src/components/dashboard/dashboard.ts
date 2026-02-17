@@ -1,8 +1,9 @@
 import { cssPropertiesToCss } from "@odoo/o-spreadsheet-engine/components/helpers/css";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { Component, toRaw, useChildSubEnv, useRef } from "@odoo/owl";
-import { Store, useStore } from "../../store_engine";
-import { DOMCoordinates, DOMDimension, Pixel, Rect, Ref } from "../../types/index";
+import { Store, useLocalStore, useStore } from "../../store_engine";
+import { RendererStore } from "../../stores/renderer_store";
+import { DOMCoordinates, DOMDimension, OrderedLayers, Pixel, Rect, Ref } from "../../types/index";
 import { DelayedHoveredCellStore } from "../grid/delayed_hovered_cell_store";
 import { GridOverlay } from "../grid_overlay/grid_overlay";
 import { GridPopover } from "../grid_popover/grid_popover";
@@ -45,11 +46,22 @@ export class SpreadsheetDashboard extends Component<Props, SpreadsheetChildEnv> 
     this.hoveredCell = useStore(DelayedHoveredCellStore);
     this.clickableCellsStore = useStore(ClickableCellsStore);
 
+    const layers = OrderedLayers().filter((layer) => layer !== "Headers");
+    const rendererStore = useLocalStore(RendererStore, layers);
     useChildSubEnv({
       getPopoverContainerRect: () =>
         getZoomedRect(this.env.model.getters.getViewportZoomLevel(), this.getGridRect()),
     });
-    useGridDrawing("canvas", this.env.model, () => this.env.model.getters.getSheetViewDimension());
+    useGridDrawing({
+      refName: "canvas",
+      rendererStore,
+      renderingCtx: () => ({
+        dpr: window.devicePixelRatio || 1,
+        viewports: this.env.model.getters.getViewportCollection(),
+        ...this.env.model.getters.getSelectionState(),
+        hideGridLines: true,
+      }),
+    });
     this.onMouseWheel = useWheelHandler((deltaX, deltaY) => {
       this.moveCanvas(deltaX, deltaY);
       this.hoveredCell.clear();
