@@ -117,14 +117,14 @@ class CompilationParametersBuilder {
       const realBottom = zone.bottom + top;
       const realZone = { left: realLeft, top: realTop, right: realRight, bottom: realBottom };
 
-      const cacheKey = `${sheetId}-${realTop}-${realLeft}-${realBottom}-${realRight}`;
-      if (this.mimicMatrixCache.has(cacheKey)) {
-        return this.mimicMatrixCache.get(cacheKey)!;
-      }
-
       const range = this.getters.getRangeFromZone(sheetId, realZone);
       if (this.evalContext.__originCellPosition) {
         this.evalContext.currentFormulaDependencies?.push(range);
+      }
+
+      const cacheKey = `${sheetId}-${realTop}-${realLeft}-${realBottom}-${realRight}`;
+      if (this.mimicMatrixCache.has(cacheKey)) {
+        return this.mimicMatrixCache.get(cacheKey)!;
       }
 
       const partialWidth = zone.right - zone.left + 1;
