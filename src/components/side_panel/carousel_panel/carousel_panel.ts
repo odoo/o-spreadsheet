@@ -7,7 +7,7 @@ import { _t } from "@odoo/o-spreadsheet-engine/translation";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { Component, onWillUpdateProps, useRef } from "@odoo/owl";
 import { ActionSpec } from "../../../actions/action";
-import { deepEquals } from "../../../helpers";
+import { deepEquals, UuidGenerator } from "../../../helpers";
 import { CarouselItem, TitleDesign, UID } from "../../../types";
 import { getBoundingRectAsPOJO } from "../../helpers/dom_helpers";
 import { useDragAndDropListItems } from "../../helpers/drag_and_drop_dom_items_hook";
@@ -82,6 +82,18 @@ export class CarouselPanel extends Component<Props, SpreadsheetChildEnv> {
     this.updateItems([...carousel.items, { type: "carouselDataView" }]);
   }
 
+  addRangeToCarousel() {
+    const carousel = this.env.model.getters.getCarousel(this.props.figureId);
+    const selectedZone = this.env.model.getters.getSelectedZone();
+    const sheetId = this.env.model.getters.getActiveSheetId();
+    const range = this.env.model.getters.getRangeFromZone(sheetId, selectedZone);
+    const rangeString = this.env.model.getters.getRangeString(range, "forceSheetName");
+    this.updateItems([
+      ...carousel.items,
+      { type: "dataRange", range: rangeString, id: new UuidGenerator().smallUuid() },
+    ]);
+  }
+
   activateCarouselItem(item: CarouselItem) {
     this.env.model.dispatch("UPDATE_CAROUSEL_ACTIVE_ITEM", {
       figureId: this.props.figureId,
@@ -95,6 +107,10 @@ export class CarouselPanel extends Component<Props, SpreadsheetChildEnv> {
       this.activateCarouselItem(item);
       this.env.model.dispatch("SELECT_FIGURE", { figureId: this.props.figureId });
       this.env.openSidePanel("ChartPanel", { chartId: item.chartId });
+    } else if (item.type === "dataRange") {
+      this.activateCarouselItem(item);
+      this.env.model.dispatch("SELECT_FIGURE", { figureId: this.props.figureId });
+      this.env.openSidePanel("CarouselDataRangePanel", { carouselId: this.props.figureId });
     }
   }
 
@@ -242,6 +258,12 @@ export class CarouselPanel extends Component<Props, SpreadsheetChildEnv> {
         name: _t("Duplicate chart"),
         execute: () => this.duplicateCarouselChart(item),
         icon: "o-spreadsheet-Icon.COPY",
+      });
+    } else if (item.type === "dataRange") {
+      actions.push({
+        name: _t("Edit range"),
+        execute: () => this.editCarouselItem(item),
+        icon: "o-spreadsheet-Icon.EDIT",
       });
     }
     actions.push({

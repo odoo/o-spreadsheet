@@ -271,6 +271,11 @@ export class CarouselUIPlugin extends UIPlugin {
   }
 
   private getCarouselItemId(item: CarouselItem): UID {
-    return item.type === "chart" ? item.chartId : "carouselDataView";
+    if (item.type === "chart") {
+      return item.chartId;
+    } else if (item.type === "dataRange") {
+      return item.range;
+    }
+    return "carouselDataView";
   }
 }

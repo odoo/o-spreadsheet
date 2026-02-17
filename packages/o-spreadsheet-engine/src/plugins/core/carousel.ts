@@ -62,7 +62,7 @@ export class CarouselPlugin extends CorePlugin<CarouselState> implements Carouse
                 size,
                 definition: {
                   items: carousel.items.map((item): CarouselItem => {
-                    if (item.type === "carouselDataView") {
+                    if (item.type !== "chart") {
                       return { ...item };
                     }
                     const chartIdBase = item.chartId.split(FIGURE_ID_SPLITTER).pop();

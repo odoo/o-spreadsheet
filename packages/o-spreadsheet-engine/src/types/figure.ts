@@ -36,6 +36,14 @@ export interface Carousel {
   readonly title?: TitleDesign;
 }
 
+export interface RangeCarouselItem {
+  type: "dataRange";
+  id: string; // ADRM TODO: remove id ? or use it in carousel_ui
+  range: string;
+  title?: string;
+}
+
 export type CarouselItem =
   | { type: "chart"; chartId: UID; title?: string }
-  | { type: "carouselDataView"; title?: string };
+  | RangeCarouselItem // ADRM TODO: remove id ? or use it un carousel_ui
+  | { type: "carouselDataView"; title?: string }; // ADRM TODO: remove this ?

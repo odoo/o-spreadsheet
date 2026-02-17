@@ -1,6 +1,7 @@
-import { _t } from "@odoo/o-spreadsheet-engine";
+import { _t, GridRenderingContext, UID, Zone } from "@odoo/o-spreadsheet-engine";
 import { DEFAULT_CAROUSEL_TITLE_STYLE } from "@odoo/o-spreadsheet-engine/constants";
 import { getCarouselItemTitle } from "@odoo/o-spreadsheet-engine/helpers/carousel_helpers";
+import { ViewportCollection } from "@odoo/o-spreadsheet-engine/helpers/viewport_collection";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { Component, useEffect, useRef, useState } from "@odoo/owl";
 import { ActionSpec, createActions } from "../../../actions/action";
@@ -19,6 +20,7 @@ import { FullScreenFigureStore } from "../../full_screen_figure/full_screen_figu
 import { cellTextStyleToCss, cssPropertiesToCss } from "../../helpers";
 import { getBoundingRectAsPOJO, getRefBoundingRect } from "../../helpers/dom_helpers";
 import { MenuPopover, MenuState } from "../../menu_popover/menu_popover";
+import { StandaloneGridCanvas } from "../../standalone_grid_canvas/standalone_grid_canvas";
 import { ChartAnimationStore } from "../chart/chartJs/chartjs_animation_store";
 import { ChartDashboardMenu } from "../chart/chart_dashboard_menu/chart_dashboard_menu";
 
@@ -37,7 +39,7 @@ export class CarouselFigure extends Component<Props, SpreadsheetChildEnv> {
     isFullScreen: { type: Boolean, optional: true },
     openContextMenu: { type: Function, optional: true },
   };
-  static components = { ChartDashboardMenu, MenuPopover };
+  static components = { ChartDashboardMenu, MenuPopover, StandaloneGridCanvas };
 
   private carouselTabsRef = useRef("carouselTabs");
   private carouselTabsDropdownRef = useRef("carouselTabsDropdown");
@@ -201,6 +203,65 @@ export class CarouselFigure extends Component<Props, SpreadsheetChildEnv> {
     const target = event.currentTarget as HTMLElement;
     if (target) {
       this.props.openContextMenu?.(getBoundingRectAsPOJO(target));
+    }
+  }
+
+  get carouselRangeProps(): StandaloneGridCanvas["props"] {
+    const item = this.selectedCarouselItem;
+    if (!item || item.type !== "dataRange") {
+      throw new Error("Selected carousel item is not a data range");
+    }
+    const range = this.env.model.getters.getRangeFromSheetXC(
+      this.env.model.getters.getActiveSheetId(),
+      item.range
+    );
+    return {
+      sheetId: range.sheetId,
+      zone: range.zone,
+      renderingCtx: {
+        hideGridLines: this.env.model.getters.isDashboard(),
+        ...this.getZoneRenderingContext(range.sheetId, range.zone, 1),
+      },
+    };
+  }
+
+  // ADRM TODO: this should probably be in StandaloneGridCanvas ?
+  private getZoneRenderingContext(
+    sheetId: UID,
+    zone: Zone,
+    zoom: number
+  ): Partial<GridRenderingContext> {
+    const firstRowStart = this.env.model.getters.getRowDimensions(sheetId, zone.top).start;
+    const lastRowEnd = this.env.model.getters.getRowDimensions(sheetId, zone.bottom).end;
+    const firstColStart = this.env.model.getters.getColDimensions(sheetId, zone.left).start;
+    const lastColEnd = this.env.model.getters.getColDimensions(sheetId, zone.right).end;
+
+    const viewports = new ViewportCollection(this.env.model.getters);
+    viewports.sheetViewWidth = lastColEnd - firstColStart;
+    viewports.sheetViewHeight = lastRowEnd - firstRowStart;
+    viewports.setSheetViewOffset(sheetId, firstColStart, firstRowStart);
+    viewports.zoomLevel = zoom;
+
+    return {
+      selectedZones: [],
+      sheetId,
+      viewports,
+    };
+  }
+
+  onMouseWheel(ev: WheelEvent) {
+    const el = ev.currentTarget as HTMLElement;
+    if (!el) {
+      return;
+    }
+    // check if el is scrollable in the direction of the wheel event
+    const deltaY = ev.deltaY;
+    const deltaX = ev.deltaX;
+    const isScrollableY = deltaY ? el.scrollWidth !== el.clientWidth : false;
+    const isScrollableX = deltaX ? el.scrollHeight !== el.clientHeight : false;
+
+    if (isScrollableY || isScrollableX) {
+      ev.stopPropagation(); // Prevent the event to bubble to the grid
     }
   }
 }

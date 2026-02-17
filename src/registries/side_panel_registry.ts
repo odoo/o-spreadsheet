@@ -2,6 +2,7 @@ import { getTableTopLeft } from "@odoo/o-spreadsheet-engine/helpers/table_helper
 import { Registry } from "@odoo/o-spreadsheet-engine/registries/registry";
 import { _t } from "@odoo/o-spreadsheet-engine/translation";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
+import { CarouselDataRangePanel } from "../components/side_panel/carousel_data_range_panel/carousel_data_range_panel";
 import { CarouselPanel } from "../components/side_panel/carousel_panel/carousel_panel";
 import { ChartPanel } from "../components/side_panel/chart/main_chart_panel/main_chart_panel";
 import { ConditionalFormattingEditor } from "../components/side_panel/conditional_formatting/cf_editor/cf_editor";
@@ -187,5 +188,23 @@ sidePanelRegistry.add("CarouselPanel", {
     }
 
     return { isOpen: true, props: { figureId } };
+  },
+});
+
+sidePanelRegistry.add("CarouselDataRangePanel", {
+  title: _t("Edit range"),
+  Body: CarouselDataRangePanel,
+  computeState: (getters: Getters, initialProps: { carouselId: UID }) => {
+    const carouselId = initialProps.carouselId || getters.getSelectedFigureId();
+    const sheetId = carouselId && getters.getFigureSheetId(carouselId);
+    const isSheetLocked = sheetId ? getters.isSheetLocked(sheetId) : false;
+    if (!carouselId || !getters.doesCarouselExist(carouselId) || isSheetLocked) {
+      return { isOpen: false };
+    }
+    const carouselItem = getters.getSelectedCarouselItem(carouselId);
+    if (!carouselItem || carouselItem.type !== "dataRange") {
+      return { isOpen: false };
+    }
+    return { isOpen: true, props: { carouselId } };
   },
 });

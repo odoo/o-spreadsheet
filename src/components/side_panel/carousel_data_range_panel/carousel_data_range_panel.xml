@@ -1,0 +1,15 @@
+<templates>
+  <t t-name="o-spreadsheet-CarouselDataRangePanel">
+    <Section>
+      Data range
+      <SelectionInput
+        ranges="[this.carouselItem.range]"
+        isInvalid="false"
+        hasSingleRange="true"
+        onSelectionChanged.bind="this.onRangeChange"
+        onSelectionConfirmed.bind="this.onRangeConfirm"
+        required="false"
+      />
+    </Section>
+  </t>
+</templates>

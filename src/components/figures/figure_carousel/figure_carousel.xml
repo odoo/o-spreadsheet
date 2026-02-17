@@ -81,6 +81,13 @@
           t-key="selectedItem.chartId"
         />
       </div>
+      <div
+        t-elif="selectedItem.type === 'dataRange'"
+        class="o-carousel-content w-100 flex-fill position-relative">
+        <div class="o-range-container w-100 h-100 bg-white overflow-auto" t-on-wheel="onMouseWheel">
+          <StandaloneGridCanvas t-props="carouselRangeProps"/>
+        </div>
+      </div>
     </div>
   </t>
 </templates>

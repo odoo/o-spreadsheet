@@ -58,6 +58,11 @@
         + Add chart
       </div>
       <div
+        class="o-button-link o-carousel-add-data-view float-end py-4 pe-4"
+        t-on-click="addRangeToCarousel">
+        + Add range
+      </div>
+      <div
         t-if="!hasDataView"
         class="o-button-link o-carousel-add-data-view float-end py-4 pe-4"
         t-on-click="addDataViewToCarousel"
