@@ -83,6 +83,7 @@ import { ZoomedMouseEvent } from "../helpers/zoom";
 import { Highlight } from "../highlight/highlight/highlight";
 import { MenuPopover, MenuState } from "../menu_popover/menu_popover";
 import { PaintFormatStore } from "../paint_format_button/paint_format_store";
+import { PivotOverlay } from "../pivot_overlay/pivot_overlay";
 import { CellPopoverStore } from "../popover";
 import { Popover } from "../popover/popover";
 import { HorizontalScrollBar, VerticalScrollBar } from "../scrollbar/";
@@ -146,6 +147,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     HorizontalScrollBar,
     TableResizer,
     Selection,
+    PivotOverlay,
   };
   readonly HEADER_HEIGHT = HEADER_HEIGHT;
   readonly HEADER_WIDTH = HEADER_WIDTH;
