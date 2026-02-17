@@ -1,8 +1,12 @@
-import { getDefaultSheetViewSize } from "@odoo/o-spreadsheet-engine/constants";
+import {
+  getDefaultSheetViewSize,
+  HEADER_HEIGHT,
+  HEADER_WIDTH,
+} from "@odoo/o-spreadsheet-engine/constants";
 import { Model } from "../../src";
-import { GridRenderingContext, Viewport, Zone } from "../../src/types";
+import { GridRenderingContext, RenderingGetters, UID, Viewport, Zone } from "../../src/types";
 import { MockCanvasRenderingContext2D } from "../setup/canvas.mock";
-import { setSheetviewSize } from "./commands_helpers";
+import { resizeSheetView } from "./commands_helpers";
 
 MockCanvasRenderingContext2D.prototype.measureText = function () {
   return { width: 100, fontBoundingBoxAscent: 1, fontBoundingBoxDescent: 1 };
@@ -11,7 +15,7 @@ MockCanvasRenderingContext2D.prototype.measureText = function () {
 interface ContextObserver {
   onSet?(key, val): void;
   onGet?(key): void;
-  onFunctionCall?(fn: string, args: any[]): void;
+  onFunctionCall?(fn: string, args: any[], renderingContext: MockGridRenderingContext): void;
 }
 
 export class MockGridRenderingContext implements GridRenderingContext {
@@ -21,16 +25,16 @@ export class MockGridRenderingContext implements GridRenderingContext {
   dpr = 1;
   thinLineWidth = 0.4;
 
-  constructor(model: Model, width: number, height: number, observer: ContextObserver) {
-    setSheetviewSize(model, height, width, false);
+  constructor(private model: Model, width: number, height: number, observer: ContextObserver) {
+    resizeSheetView(model, height - HEADER_HEIGHT, width - HEADER_WIDTH, 0, 0);
     this.viewport = model.getters.getActiveMainViewport();
 
     const handler = {
       get: (target, val) => {
-        if (val in (this._context as any).__proto__) {
+        if (val in (this._context as any).__proto__ || val === "roundRect") {
           return (...args) => {
             if (observer.onFunctionCall) {
-              observer.onFunctionCall(val, args);
+              observer.onFunctionCall(val, args, this);
             }
           };
         } else {
@@ -49,6 +53,39 @@ export class MockGridRenderingContext implements GridRenderingContext {
       },
     };
     this.ctx = new Proxy({}, handler);
+  }
+
+  get getters(): RenderingGetters {
+    return this.model.getters;
+  }
+
+  get sheetId(): UID {
+    return this.model.getters.getActiveSheetId();
+  }
+
+  get viewports() {
+    return this.model.getters.getViewportCollection();
+  }
+
+  get selectedZones(): Zone[] {
+    return this.model.getters.getSelectionState().selectedZones;
+  }
+
+  get activeCols(): Set<number> {
+    return this.model.getters.getSelectionState().activeCols;
+  }
+
+  get activeRows(): Set<number> {
+    return this.model.getters.getSelectionState().activeRows;
+  }
+
+  get activePosition() {
+    return this.model.getters.getSelectionState().activePosition;
+  }
+
+  get hideGridLines(): boolean {
+    // Handled in the rendering context created by the `Dashboard` component in practice
+    return this.model.getters.isDashboard();
   }
 }
 
