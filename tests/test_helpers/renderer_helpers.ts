@@ -1,6 +1,10 @@
-import { getDefaultSheetViewSize } from "@odoo/o-spreadsheet-engine/constants";
+import {
+  getDefaultSheetViewSize,
+  HEADER_HEIGHT,
+  HEADER_WIDTH,
+} from "@odoo/o-spreadsheet-engine/constants";
 import { Model } from "../../src";
-import { GridRenderingContext, Viewport, Zone } from "../../src/types";
+import { GridRenderingContext, RenderingGetters, UID, Viewport, Zone } from "../../src/types";
 import { MockCanvasRenderingContext2D } from "../setup/canvas.mock";
 
 MockCanvasRenderingContext2D.prototype.measureText = function () {
@@ -10,7 +14,7 @@ MockCanvasRenderingContext2D.prototype.measureText = function () {
 interface ContextObserver {
   onSet?(key, val): void;
   onGet?(key): void;
-  onFunctionCall?(fn: string, args: any[]): void;
+  onFunctionCall?(fn: string, args: any[], renderingContext: MockGridRenderingContext): void;
 }
 
 export class MockGridRenderingContext implements GridRenderingContext {
@@ -20,16 +24,21 @@ export class MockGridRenderingContext implements GridRenderingContext {
   dpr = 1;
   thinLineWidth = 0.4;
 
-  constructor(model: Model, width: number, height: number, observer: ContextObserver) {
-    model.dispatch("RESIZE_SHEETVIEW", { width, height, gridOffsetX: 0, gridOffsetY: 0 });
+  constructor(private model: Model, width: number, height: number, observer: ContextObserver) {
+    model.dispatch("RESIZE_SHEETVIEW", {
+      width: width - HEADER_WIDTH,
+      height: height - HEADER_HEIGHT,
+      gridOffsetX: 0,
+      gridOffsetY: 0,
+    });
     this.viewport = model.getters.getActiveMainViewport();
 
     const handler = {
       get: (target, val) => {
-        if (val in (this._context as any).__proto__) {
+        if (val in (this._context as any).__proto__ || val === "roundRect") {
           return (...args) => {
             if (observer.onFunctionCall) {
-              observer.onFunctionCall(val, args);
+              observer.onFunctionCall(val, args, this);
             }
           };
         } else {
@@ -48,6 +57,42 @@ export class MockGridRenderingContext implements GridRenderingContext {
       },
     };
     this.ctx = new Proxy({}, handler);
+  }
+
+  get getters(): RenderingGetters {
+    return this.model.getters;
+  }
+
+  get sheetId(): UID {
+    return this.model.getters.getActiveSheetId();
+  }
+
+  get viewports() {
+    const viewports = this.model.getters.getViewportCollection();
+    // FIXME: normally, the condition to determine if we want to draw the headers or not should be if gridOffsetX/Y are
+    // equal to 0 or not, (ie. if there is space above/left of the grid to draw them, which in practice is equivalent to `isDashboard()`)
+    // But in the renderer tests, we are testing with `isDashboard() === false` but `gridOffsetX/Y === 0`, which is
+    // not supposed to happen. Before this commit we were drawing the headers over the grid in the test, now without this hack
+    // we are not drawing the headers at all since `gridOffsetX/Y === 0`. We should fix the tests.
+    viewports.shouldDisplayHeaders = () => !this.model.getters.isDashboard();
+    return viewports;
+  }
+
+  get selectedZones(): Zone[] {
+    return this.model.getters.getSelectionState().selectedZones;
+  }
+
+  get activeCols(): Set<number> {
+    return this.model.getters.getSelectionState().activeCols;
+  }
+
+  get activeRows(): Set<number> {
+    return this.model.getters.getSelectionState().activeRows;
+  }
+
+  get hideGridLines(): boolean {
+    // Handled in the rendering context created by the `Dashboard` component in practice
+    return this.model.getters.isDashboard();
   }
 }
 

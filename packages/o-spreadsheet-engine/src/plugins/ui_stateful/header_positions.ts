@@ -105,7 +105,7 @@ export class HeaderPositionsUIPlugin extends UIPlugin {
     dimension: Dimension,
     referenceIndex: HeaderIndex,
     index: HeaderIndex,
-    sheetId: UID = this.getters.getActiveSheetId()
+    sheetId: UID
   ): Pixel {
     const referencePosition = this.headerPositions[sheetId][dimension][referenceIndex];
     const position = this.headerPositions[sheetId][dimension][index];
