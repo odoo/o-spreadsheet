@@ -15,6 +15,7 @@ import {
   ClientMovedMessage,
   CollaborationMessage,
   RemoteRevisionMessage,
+  RemoteRevisionsSquishedMessage,
   RevisionRedoneMessage,
   RevisionUndoneMessage,
   SnapshotCreatedMessage,
@@ -26,6 +27,7 @@ import { Command, CoreCommand } from "../types/commands";
 import { HistoryChange } from "../types/history";
 import { Lazy, UID } from "../types/misc";
 import { WorkbookData } from "../types/workbook_data";
+import { ICommandSquisher } from "./command_squisher";
 import { transformAll } from "./ot/ot";
 import { Revision } from "./revisions";
 
@@ -59,6 +61,7 @@ export class Session extends EventBus<CollaborativeEvent> {
     | RevisionUndoneMessage
     | RevisionRedoneMessage
     | RemoteRevisionMessage
+    | RemoteRevisionsSquishedMessage
     | SnapshotCreatedMessage
     | undefined = undefined;
 
@@ -68,19 +71,20 @@ export class Session extends EventBus<CollaborativeEvent> {
    * Manages the collaboration between multiple users on the same spreadsheet.
    * It can forward local state changes to other users to ensure they all eventually
    * reach the same state.
-   * It also manages the positions of each clients in the spreadsheet to provide
+   * It also manages the positions of each client in the spreadsheet to provide
    * a visual indication of what other users are doing in the spreadsheet.
    *
    * @param revisions
    * @param transportService communication channel used to send and receive messages
    * between all connected clients
-   * @param client the client connected locally
    * @param serverRevisionId
+   * @param commandSquisher used to squish and unsquish commands to reduce the size of messages sent to the server
    */
   constructor(
     private revisions: RevisionLog<Revision>,
     private transportService: TransportService<CollaborationMessage>,
-    private serverRevisionId: UID = DEFAULT_REVISION_ID
+    private serverRevisionId: UID = DEFAULT_REVISION_ID,
+    private commandSquisher: ICommandSquisher
   ) {
     super();
   }
@@ -320,11 +324,12 @@ export class Session extends EventBus<CollaborativeEvent> {
         });
         break;
       case "REMOTE_REVISION":
-        const { clientId, commands, timestamp } = message;
+        const { clientId, timestamp } = message;
+        const unsquishedCommands = this.commandSquisher.unsquish(message.commands);
         const revision = new Revision(
           message.nextRevisionId,
           clientId,
-          commands,
+          unsquishedCommands,
           undefined,
           undefined,
           timestamp
@@ -336,7 +341,7 @@ export class Session extends EventBus<CollaborativeEvent> {
             .map((msg) => (msg as RemoteRevisionMessage).commands)
             .flat();
           this.trigger("remote-revision-received", {
-            commands: transformAll(commands, pendingCommands),
+            commands: transformAll(unsquishedCommands, pendingCommands),
           });
         }
         break;
@@ -426,8 +431,7 @@ export class Session extends EventBus<CollaborativeEvent> {
       }
       message = {
         ...message,
-        clientId: revision.clientId,
-        commands: revision.commands,
+        commands: this.commandSquisher.squish(revision.commands),
       };
     }
     if (this.isReplayingInitialRevisions) {
