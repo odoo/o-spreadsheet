@@ -134,7 +134,6 @@ export class IntervalTree {
    * Complexity is O(n log n)
    */
   bulkLoad(intervals: Required<Interval>[]): void {
-    console.time("Building interval tree with " + intervals.length + " intervals");
     const sorted = [...intervals].sort((a, b) => {
       // Sort intervals by their starting point
       if (a.top !== b.top) {
@@ -181,7 +180,6 @@ export class IntervalTree {
     compacted.push(current);
     this.root = this.buildBalancedTree(compacted);
     this.buffer = [];
-    console.timeEnd("Building interval tree with " + intervals.length + " intervals");
   }
 
   /**
