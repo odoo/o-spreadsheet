@@ -30,6 +30,7 @@ import {
 } from "../test_helpers/commands_helpers";
 import { getTable } from "../test_helpers/getters_helpers";
 import { toCellPosition } from "../test_helpers/helpers";
+import { MockGridRenderingContext } from "../test_helpers/renderer_helpers";
 import { makeStoreWithModel } from "../test_helpers/stores";
 
 let model: Model;
@@ -196,7 +197,8 @@ describe("Table style", () => {
       const styleBorderDescr = { style: "thin", color: "#000000" };
 
       const { store: gridRendererStore } = makeStoreWithModel(model, GridRenderer);
-      const boxes = gridRendererStore["getGridBoxes"](toZone("A9"));
+      const ctx = new MockGridRenderingContext(model, 500, 500, {});
+      const boxes = gridRendererStore["getGridBoxes"](ctx, toZone("A9"));
       expect(boxes.find((box) => box.id === "A9")?.border).toEqual({
         bottom: styleBorderDescr,
         left: styleBorderDescr,
