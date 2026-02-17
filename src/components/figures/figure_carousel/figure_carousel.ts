@@ -185,7 +185,7 @@ export class CarouselFigure extends Component<Props, SpreadsheetChildEnv> {
   }
 
   toggleFullScreen() {
-    if (this.selectedCarouselItem?.type === "chart") {
+    if (this.selectedCarouselItem?.type !== "carouselDataView") {
       this.fullScreenFigureStore.toggleFullScreenFigure(this.props.figureUI.id);
     }
   }
