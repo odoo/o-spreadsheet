@@ -1,0 +1,5 @@
+<templates>
+  <t t-name="o-spreadsheet-StandaloneGridCanvas">
+    <canvas t-ref="canvas"/>
+  </t>
+</templates>
