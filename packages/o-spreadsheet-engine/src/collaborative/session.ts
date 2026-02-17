@@ -15,6 +15,7 @@ import {
   ClientMovedMessage,
   CollaborationMessage,
   RemoteRevisionMessage,
+  RemoteRevisionsSquishedMessage,
   RevisionRedoneMessage,
   RevisionUndoneMessage,
   SnapshotCreatedMessage,
@@ -26,6 +27,7 @@ import { Command, CoreCommand } from "../types/commands";
 import { HistoryChange } from "../types/history";
 import { Lazy, UID } from "../types/misc";
 import { WorkbookData } from "../types/workbook_data";
+import { ICommandSquisher } from "./commandSquisher";
 import { transformAll } from "./ot/ot";
 import { Revision } from "./revisions";
 
@@ -59,6 +61,7 @@ export class Session extends EventBus<CollaborativeEvent> {
     | RevisionUndoneMessage
     | RevisionRedoneMessage
     | RemoteRevisionMessage
+    | RemoteRevisionsSquishedMessage
     | SnapshotCreatedMessage
     | undefined = undefined;
 
@@ -80,7 +83,8 @@ export class Session extends EventBus<CollaborativeEvent> {
   constructor(
     private revisions: RevisionLog<Revision>,
     private transportService: TransportService<CollaborationMessage>,
-    private serverRevisionId: UID = DEFAULT_REVISION_ID
+    private serverRevisionId: UID = DEFAULT_REVISION_ID,
+    private commandSquisher: ICommandSquisher
   ) {
     super();
   }
@@ -320,11 +324,12 @@ export class Session extends EventBus<CollaborativeEvent> {
         });
         break;
       case "REMOTE_REVISION":
+        message.commands = this.commandSquisher.unsquish(message.commands);
         const { clientId, commands, timestamp } = message;
         const revision = new Revision(
           message.nextRevisionId,
           clientId,
-          commands,
+          commands as CoreCommand[],
           undefined,
           undefined,
           timestamp
@@ -336,7 +341,7 @@ export class Session extends EventBus<CollaborativeEvent> {
             .map((msg) => (msg as RemoteRevisionMessage).commands)
             .flat();
           this.trigger("remote-revision-received", {
-            commands: transformAll(commands, pendingCommands),
+            commands: transformAll(commands as CoreCommand[], pendingCommands),
           });
         }
         break;
@@ -402,7 +407,10 @@ export class Session extends EventBus<CollaborativeEvent> {
   }
 
   private async sendToTransport(message: CollaborationMessage) {
-    // wrap in an async function to ensure it returns a promise
+    if (message.type === "REMOTE_REVISION") {
+      // wrap in an async function to ensure it returns a promise
+      message.commands = this.commandSquisher.squish(message.commands);
+    }
     return this.transportService.sendMessage(message);
   }
 

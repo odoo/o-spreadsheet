@@ -1,11 +1,34 @@
+import { SquishedFormula } from "../../plugins/core/squisher";
 import { CoreCommand } from "../commands";
-import { UID } from "../misc";
+import { Format } from "../format";
+import { Style, UID } from "../misc";
 import { WorkbookData } from "../workbook_data";
 import { ClientId, ClientWithPosition } from "./session";
 
 interface AbstractMessage {
   version: number;
 }
+
+export interface UpdateCellSquish {
+  type: "UPDATE_CELL_SQUISH";
+  sheetId: string;
+  format?: Format;
+  style?: Style | null;
+  content?: string | SquishedFormula;
+}
+
+export interface UpdateCellSquishMultiCommand extends UpdateCellSquish {
+  targetRange: string; // either a single cell like "A1" or a range like "A1:A5"
+}
+
+// UpdateCellSquishCommand et UpdateCellCommand ont exactement les mêmes propriétés
+// à part le content qui peut être une SquishedFormula dans UpdateCellSquishCommand
+export interface UpdateCellSquishCommand extends UpdateCellSquish {
+  col: number;
+  row: number;
+}
+
+export type SquishedCoreCommand = UpdateCellSquishCommand | UpdateCellSquishMultiCommand;
 
 export interface RemoteRevisionMessage extends AbstractMessage {
   type: "REMOTE_REVISION";
@@ -14,6 +37,10 @@ export interface RemoteRevisionMessage extends AbstractMessage {
   nextRevisionId: UID;
   serverRevisionId: UID;
   timestamp?: number;
+}
+
+export interface RemoteRevisionsSquishedMessage extends Omit<RemoteRevisionMessage, "commands"> {
+  commands: (CoreCommand | SquishedCoreCommand)[];
 }
 
 export interface RevisionUndoneMessage extends AbstractMessage {
@@ -69,6 +96,7 @@ export type CollaborationMessage =
   | RevisionUndoneMessage
   | RevisionRedoneMessage
   | RemoteRevisionMessage
+  | RemoteRevisionsSquishedMessage
   | SnapshotMessage
   | SnapshotCreatedMessage
   | ClientMovedMessage

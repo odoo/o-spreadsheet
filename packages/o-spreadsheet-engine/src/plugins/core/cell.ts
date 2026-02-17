@@ -39,7 +39,7 @@ import { DEFAULT_LOCALE } from "../../types/locale";
 import { AdaptSheetName, Style, UpdateCellData, Zone } from "../../types/misc";
 import { Range, RangePart } from "../../types/range";
 import { ExcelWorkbookData, WorkbookData } from "../../types/workbook_data";
-import { SquishedCell, Squisher } from "./squisher";
+import { SquishedContent, Squisher } from "./squisher";
 import { Unsquisher } from "./unsquisher";
 
 interface CoreState {
@@ -305,7 +305,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
       const squisher = new Squisher(this.getters);
       const positionsByStyle: Record<number, CellPosition[]> = [];
       const positionsByFormat: Record<number, CellPosition[]> = [];
-      const cells: { [key: string]: SquishedCell } = {};
+      const cells: { [key: string]: SquishedContent } = {};
       const positions = Object.values(this.cells[_sheet.id] || {})
         .map((cell) => this.getters.getCellPosition(cell.id))
         .sort((a, b) => (a.col === b.col ? a.row - b.row : a.col - b.col));

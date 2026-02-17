@@ -2,7 +2,7 @@ import { DEFAULT_REVISION_ID } from "../constants";
 import { UuidGenerator } from "../helpers";
 import { isValidLocale } from "../helpers/locale";
 import { getDuplicateSheetName, getNextSheetName } from "../helpers/sheet";
-import { StateUpdateMessage } from "../types/collaborative/transport_service";
+import { SquishedCoreCommand, StateUpdateMessage } from "../types/collaborative/transport_service";
 import { CoreCommand } from "../types/commands";
 import { DEFAULT_LOCALE } from "../types/locale";
 import { UID } from "../types/misc";
@@ -296,7 +296,7 @@ function fixChartDefinitions(data: Partial<WorkbookData>, initialMessages: State
   }
   for (const message of initialMessages) {
     if (message.type === "REMOTE_REVISION") {
-      const commands: CoreCommand[] = [];
+      const commands: (CoreCommand | SquishedCoreCommand)[] = [];
       for (const cmd of message.commands) {
         let command = cmd;
         switch (cmd.type) {
@@ -379,7 +379,7 @@ function fixTranslatedDuplicateSheetName(
   const messages: StateUpdateMessage[] = [];
   for (const message of initialMessages) {
     if (message.type === "REMOTE_REVISION") {
-      const commands: CoreCommand[] = [];
+      const commands: (CoreCommand | SquishedCoreCommand)[] = [];
       for (const cmd of message.commands) {
         switch (cmd.type) {
           case "DUPLICATE_SHEET":

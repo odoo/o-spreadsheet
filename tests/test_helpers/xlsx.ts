@@ -1,5 +1,5 @@
 import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "@odoo/o-spreadsheet-engine/constants";
-import { SquishedCell } from "@odoo/o-spreadsheet-engine/plugins/core/squisher";
+import { SquishedContent } from "@odoo/o-spreadsheet-engine/plugins/core/squisher";
 import {
   DataValidationRuleData,
   SheetData,
@@ -16,7 +16,7 @@ export function getWorkbookCell(
   col: number,
   row: number,
   sheet: SheetData
-): string | undefined | SquishedCell {
+): string | undefined | SquishedContent {
   return sheet.cells[toXC(col, row)];
 }
 
