@@ -58,7 +58,13 @@ export class CarouselPanel extends Component<Props, SpreadsheetChildEnv> {
   }
 
   getItemId(item: CarouselItem): string {
-    return item.type === "chart" ? item.chartId : "transparent-carousel";
+    if (item.type === "chart") {
+      return item.chartId;
+    } else if (item.type === "dataRange") {
+      return item.id;
+    } else {
+      return "carouselDataView";
+    }
   }
 
   addNewChartToCarousel() {

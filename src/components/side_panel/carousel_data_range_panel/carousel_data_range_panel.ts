@@ -1,7 +1,8 @@
-import { UID } from "@odoo/o-spreadsheet-engine";
+import { _t, UID, ValueAndLabel } from "@odoo/o-spreadsheet-engine";
 import { RangeCarouselItem } from "@odoo/o-spreadsheet-engine/types/figure";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { Component, useState } from "@odoo/owl";
+import { Select } from "../../select/select";
 import { SelectionInput } from "../../selection_input/selection_input";
 import { Section } from "../components/section/section";
 
@@ -19,6 +20,7 @@ export class CarouselDataRangePanel extends Component<Props, SpreadsheetChildEnv
   static components = {
     Section,
     SelectionInput,
+    Select,
   };
   static props = { "*": Object }; // ADRM TODO
 
@@ -59,5 +61,17 @@ export class CarouselDataRangePanel extends Component<Props, SpreadsheetChildEnv
       throw new Error("Carousel figure does not have a sheet");
     }
     return sheetId;
+  }
+
+  get scaleOptions(): ValueAndLabel[] {
+    return [
+      { value: "fitToWidth", label: _t("Fit to width") },
+      { value: "fitToHeight", label: _t("Fit to height") },
+      { value: "actualSize", label: _t("Actual size") },
+    ];
+  }
+
+  onScaleChange(value: RangeCarouselItem["scale"]) {
+    this.updateCarouselItem({ scale: value });
   }
 }

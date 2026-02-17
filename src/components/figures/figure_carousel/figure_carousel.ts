@@ -14,6 +14,7 @@ import {
   CSSProperties,
   FigureUI,
   MenuMouseEvent,
+  Range,
   Rect,
 } from "../../../types";
 import { FullScreenFigureStore } from "../../full_screen_figure/full_screen_figure_store";
@@ -220,7 +221,7 @@ export class CarouselFigure extends Component<Props, SpreadsheetChildEnv> {
       zone: range.zone,
       renderingCtx: {
         hideGridLines: this.env.model.getters.isDashboard(),
-        ...this.getZoneRenderingContext(range.sheetId, range.zone, 1),
+        ...this.getZoneRenderingContext(range.sheetId, range.zone, this.getZoom(range)),
       },
     };
   }
@@ -257,11 +258,32 @@ export class CarouselFigure extends Component<Props, SpreadsheetChildEnv> {
     // check if el is scrollable in the direction of the wheel event
     const deltaY = ev.deltaY;
     const deltaX = ev.deltaX;
-    const isScrollableY = deltaY ? el.scrollWidth !== el.clientWidth : false;
-    const isScrollableX = deltaX ? el.scrollHeight !== el.clientHeight : false;
+    const isScrollableY = deltaY ? el.scrollHeight !== el.clientHeight : false;
+    const isScrollableX = deltaX ? el.scrollWidth !== el.clientWidth : false;
 
     if (isScrollableY || isScrollableX) {
       ev.stopPropagation(); // Prevent the event to bubble to the grid
     }
+  }
+
+  private getZoom(range: Range) {
+    const item = this.selectedCarouselItem;
+    if (!item || item.type !== "dataRange") {
+      throw new Error("Selected carousel item is not a data range");
+    }
+    const { sheetId, zone } = range;
+
+    if (item.scale === "fitToWidth") {
+      const startX = this.env.model.getters.getColDimensions(sheetId, zone.left).start;
+      const endX = this.env.model.getters.getColDimensions(sheetId, zone.right).end;
+      const width = endX - startX;
+      return (this.props.figureUI.width - 15) / width; // ADRM TODO: scrollbar messes up everything, so I remove 30 ...
+    } else if (item.scale === "fitToHeight") {
+      const startY = this.env.model.getters.getRowDimensions(sheetId, zone.top).start;
+      const endY = this.env.model.getters.getRowDimensions(sheetId, zone.bottom).end;
+      const height = endY - startY;
+      return (this.props.figureUI.height - 45) / height; // ADRM TODO: real carousel content height + scrollbar
+    }
+    return 1;
   }
 }

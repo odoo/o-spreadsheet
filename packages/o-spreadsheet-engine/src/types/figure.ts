@@ -41,6 +41,7 @@ export interface RangeCarouselItem {
   id: string; // ADRM TODO: remove id ? or use it in carousel_ui
   range: string;
   title?: string;
+  scale?: "fitToWidth" | "fitToHeight" | "actualSize";
 }
 
 export type CarouselItem =
