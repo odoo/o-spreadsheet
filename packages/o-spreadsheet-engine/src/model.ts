@@ -1,3 +1,4 @@
+import { CommandSquisher } from "./collaborative/commandSquisher";
 import { LocalTransportService } from "./collaborative/local_transport_service";
 import { ReadonlyTransportFilter } from "./collaborative/readonly_transport_filter";
 import { Session } from "./collaborative/session";
@@ -162,6 +163,11 @@ export class Model extends EventBus<any> implements CommandDispatcher {
 
     this.config = this.setupConfig(config);
 
+    this.getters = {
+      isReadonly: () => this.config.mode === "readonly" || this.config.mode === "dashboard",
+      isDashboard: () => this.config.mode === "dashboard",
+    } as Getters;
+
     this.session = this.setupSession(workbookData.revisionId);
 
     this.coreGetters = {} as CoreGetters;
@@ -183,11 +189,6 @@ export class Model extends EventBus<any> implements CommandDispatcher {
     this.coreGetters.copyFormulaStringForSheet = this.range.copyFormulaStringForSheet.bind(
       this.range
     );
-
-    this.getters = {
-      isReadonly: () => this.config.mode === "readonly" || this.config.mode === "dashboard",
-      isDashboard: () => this.config.mode === "dashboard",
-    } as Getters;
 
     // Initiate stream processor
     this.selection = new SelectionStreamProcessorImpl(this.getters);
@@ -348,7 +349,8 @@ export class Model extends EventBus<any> implements CommandDispatcher {
         },
       }),
       this.config.transportService,
-      revisionId
+      revisionId,
+      new CommandSquisher(this.getters)
     );
   }
 
