@@ -14,7 +14,7 @@ import {
   NotAvailableError,
 } from "../types/errors";
 import { AddFunctionDescription } from "../types/functions";
-import { Arg, FunctionResultObject, Maybe } from "../types/misc";
+import { Arg, FunctionResultObject, Matrix, Maybe } from "../types/misc";
 import { arg } from "./arguments";
 import { generateMimicMatrix, MimicMatrix, toMimicMatrix } from "./helper_arg";
 import { expectNumberGreaterThanOrEqualToOne } from "./helper_assert";
@@ -223,13 +223,20 @@ export const HLOOKUP = {
       return new EvaluationError(_t("[[FUNCTION_NAME]] evaluates to an out of bounds range."));
     }
 
-    const getValueFromRange = (r: MimicMatrix, index: number) => r.get(index, 0).value;
+    const getValueFromRange = (r: Matrix<FunctionResultObject>, index: number) => r[index][0].value;
 
     const _isSorted = toBoolean(isSorted.value);
     const colIndex = _isSorted
-      ? dichotomicSearch(_range, searchKey, "nextSmaller", "asc", _range.width, getValueFromRange)
+      ? dichotomicSearch(
+          _range.getRow(0).getAll(),
+          searchKey,
+          "nextSmaller",
+          "asc",
+          _range.width,
+          getValueFromRange
+        )
       : linearSearch(
-          _range,
+          _range.getRow(0).getAll(),
           searchKey,
           "wildcard",
           _range.width,
@@ -362,11 +369,11 @@ export const LOOKUP = {
 
     const verticalSearch = nbRow >= nbCol;
     const getElement = verticalSearch
-      ? (range: MimicMatrix, index: number) => range.get(0, index).value
-      : (range: MimicMatrix, index: number) => range.get(index, 0).value;
+      ? (range: Matrix<FunctionResultObject>, index: number) => range[0][index].value
+      : (range: Matrix<FunctionResultObject>, index: number) => range[index][0].value;
     const rangeLength = verticalSearch ? nbRow : nbCol;
     const index = dichotomicSearch(
-      _searchArray,
+      verticalSearch ? _searchArray.getCol(0).getAll() : _searchArray.getRow(0).getAll(),
       searchKey,
       "nextSmaller",
       "asc",
@@ -588,13 +595,21 @@ export const VLOOKUP = {
       return new EvaluationError(_t("[[FUNCTION_NAME]] evaluates to an out of bounds range."));
     }
 
-    const getValueFromRange = (range: MimicMatrix, index: number) => range.get(0, index).value;
+    const getValueFromRange = (range: Matrix<FunctionResultObject>, index: number) =>
+      range[0][index].value;
 
     const _isSorted = toBoolean(isSorted.value);
     const rowIndex = _isSorted
-      ? dichotomicSearch(_range, searchKey, "nextSmaller", "asc", _range.height, getValueFromRange)
+      ? dichotomicSearch(
+          _range.getCol(0).getAll(),
+          searchKey,
+          "nextSmaller",
+          "asc",
+          _range.height,
+          getValueFromRange
+        )
       : linearSearch(
-          _range,
+          _range.getCol(0).getAll(),
           searchKey,
           "wildcard",
           _range.height,
@@ -698,10 +713,11 @@ export const XLOOKUP = {
         _t("return_range should have the same dimensions as lookup_range.")
       );
     }
+
     const getElement =
       lookupDirection === "col"
-        ? (range: MimicMatrix, index: number) => range.get(0, index).value
-        : (range: MimicMatrix, index: number) => range.get(index, 0).value;
+        ? (range: Matrix<FunctionResultObject>, index: number) => range[0][index].value
+        : (range: Matrix<FunctionResultObject>, index: number) => range[index][0].value;
 
     const rangeLen = lookupDirection === "col" ? _lookupRange.height : _lookupRange.width;
     const mode = MATCH_MODE[_matchMode];
@@ -710,7 +726,7 @@ export const XLOOKUP = {
     const index =
       _searchMode === 2 || _searchMode === -2
         ? dichotomicSearch(
-            _lookupRange,
+            _lookupRange.getAll(),
             searchKey,
             mode as "strict" | "nextGreater" | "nextSmaller",
             _searchMode === 2 ? "asc" : "desc",
@@ -718,7 +734,7 @@ export const XLOOKUP = {
             getElement
           )
         : linearSearch(
-            _lookupRange,
+            _lookupRange.getAll(),
             searchKey,
             mode,
             rangeLen,
