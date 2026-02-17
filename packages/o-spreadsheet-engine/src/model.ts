@@ -162,6 +162,11 @@ export class Model extends EventBus<any> implements CommandDispatcher {
 
     this.config = this.setupConfig(config);
 
+    this.getters = {
+      isReadonly: () => this.config.mode === "readonly" || this.config.mode === "dashboard",
+      isDashboard: () => this.config.mode === "dashboard",
+    } as Getters;
+
     this.session = this.setupSession(workbookData.revisionId);
 
     this.coreGetters = {} as CoreGetters;
@@ -183,11 +188,6 @@ export class Model extends EventBus<any> implements CommandDispatcher {
     this.coreGetters.copyFormulaStringForSheet = this.range.copyFormulaStringForSheet.bind(
       this.range
     );
-
-    this.getters = {
-      isReadonly: () => this.config.mode === "readonly" || this.config.mode === "dashboard",
-      isDashboard: () => this.config.mode === "dashboard",
-    } as Getters;
 
     // Initiate stream processor
     this.selection = new SelectionStreamProcessorImpl(this.getters);
@@ -347,7 +347,8 @@ export class Model extends EventBus<any> implements CommandDispatcher {
         },
       }),
       this.config.transportService,
-      revisionId
+      revisionId,
+      this.getters
     );
   }
 

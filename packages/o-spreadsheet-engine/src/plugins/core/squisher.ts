@@ -2,7 +2,8 @@ import { CompiledFormula } from "../../formulas/compiler";
 import { deepCopy, deepEquals } from "../../helpers";
 import { toCartesian, toXC } from "../../helpers/coordinates";
 import { getRangeString } from "../../helpers/range";
-import { Cell } from "../../types/cells";
+import { Cell, FormulaCell } from "../../types/cells";
+import { UpdateCellCommand } from "../../types/commands";
 import { CoreGetters } from "../../types/core_getters";
 import { UID } from "../../types/misc";
 import { Range } from "../../types/range";
@@ -26,7 +27,7 @@ export interface SquishedFormula {
   R?: string | string[]; // the references used in the formula, ordered by position, converted to string, separated by | if needed
 }
 
-export type SquishedCell = string | SquishedFormula;
+export type SquishedContent = string | SquishedFormula;
 
 export const SEPARATOR = "|";
 export const NO_CHANGE = "=";
@@ -112,7 +113,8 @@ export class Squisher {
    *     - for strings: returns the full string if changed, else "="
    *     - for references: returns a relative change (+Ck or +Rk) if possible, else the full reference or "=" if unchanged
    * */
-  squish(cell: Cell, forSheetId: UID): SquishedCell {
+
+  squish(cell: Cell, forSheetId: UID): SquishedContent {
     if (!cell.isFormula && typeof cell.parsedValue !== "number") {
       this.resetBase();
       this.baseNumber = undefined;
@@ -170,18 +172,31 @@ export class Squisher {
     return cell.content;
   }
 
+  public squishContent(command: UpdateCellCommand): string | SquishedFormula | undefined {
+    if (typeof command.content === "string") {
+      const compiledFormula = CompiledFormula.Compile(
+        command.content,
+        command.sheetId,
+        this.getters
+      );
+      return this.squish({ isFormula: true, compiledFormula } as FormulaCell, command.sheetId);
+    }
+    return command.content;
+  }
+
   /**
    * Read all the consecutive cells with either the same content or the same transformation and merge their key into one zone
    * Do not join cells from different columns
    * */
+
   squishSheet(
-    cells: { [key: string]: string | SquishedCell },
+    cells: { [key: string]: string | SquishedContent },
     sheetId: UID
   ): {
-    [key: string]: string | SquishedCell;
+    [key: string]: string | SquishedContent;
   } {
     const allKeys = Object.keys(cells);
-    const result: { [key: string]: string | SquishedCell } = {};
+    const result: { [key: string]: string | SquishedContent } = {};
     for (let startIndex = 0; startIndex < allKeys.length; startIndex++) {
       const startKey = toCartesian(allKeys[startIndex]);
       let offset = 0;

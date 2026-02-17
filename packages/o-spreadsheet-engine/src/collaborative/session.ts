@@ -3,6 +3,7 @@ import { UuidGenerator } from "../helpers";
 import { EventBus } from "../helpers/event_bus";
 import { isDefined } from "../helpers/misc";
 import { SelectiveHistory as RevisionLog } from "../history/selective_history";
+import { Unsquisher } from "../plugins/core/unsquisher";
 import {
   Client,
   ClientId,
@@ -15,6 +16,7 @@ import {
   ClientMovedMessage,
   CollaborationMessage,
   RemoteRevisionMessage,
+  RemoteRevisionsSquishedMessage,
   RevisionRedoneMessage,
   RevisionUndoneMessage,
   SnapshotCreatedMessage,
@@ -22,10 +24,12 @@ import {
   TransportService,
 } from "../types/collaborative/transport_service";
 import { Command, CoreCommand } from "../types/commands";
+import { CoreGetters } from "../types/core_getters";
 
 import { HistoryChange } from "../types/history";
 import { Lazy, UID } from "../types/misc";
 import { WorkbookData } from "../types/workbook_data";
+import { squish } from "./commandSquisher";
 import { transformAll } from "./ot/ot";
 import { Revision } from "./revisions";
 
@@ -59,6 +63,7 @@ export class Session extends EventBus<CollaborativeEvent> {
     | RevisionUndoneMessage
     | RevisionRedoneMessage
     | RemoteRevisionMessage
+    | RemoteRevisionsSquishedMessage
     | SnapshotCreatedMessage
     | undefined = undefined;
 
@@ -80,7 +85,8 @@ export class Session extends EventBus<CollaborativeEvent> {
   constructor(
     private revisions: RevisionLog<Revision>,
     private transportService: TransportService<CollaborationMessage>,
-    private serverRevisionId: UID = DEFAULT_REVISION_ID
+    private serverRevisionId: UID = DEFAULT_REVISION_ID,
+    private getters: CoreGetters
   ) {
     super();
   }
@@ -320,11 +326,12 @@ export class Session extends EventBus<CollaborativeEvent> {
         });
         break;
       case "REMOTE_REVISION":
+        message.commands = [...new Unsquisher().unsquishCommands(message.commands, this.getters)];
         const { clientId, commands, timestamp } = message;
         const revision = new Revision(
           message.nextRevisionId,
           clientId,
-          commands,
+          commands as CoreCommand[],
           undefined,
           undefined,
           timestamp
@@ -336,7 +343,7 @@ export class Session extends EventBus<CollaborativeEvent> {
             .map((msg) => (msg as RemoteRevisionMessage).commands)
             .flat();
           this.trigger("remote-revision-received", {
-            commands: transformAll(commands, pendingCommands),
+            commands: transformAll(commands as CoreCommand[], pendingCommands),
           });
         }
         break;
@@ -402,8 +409,11 @@ export class Session extends EventBus<CollaborativeEvent> {
   }
 
   private async sendToTransport(message: CollaborationMessage) {
-    // wrap in an async function to ensure it returns a promise
-    return this.transportService.sendMessage(message);
+    if (message.type === "REMOTE_REVISION") {
+      // wrap in an async function to ensure it returns a promise
+      message.commands = squish(message.commands, this.getters);
+    }
+    this.transportService.sendMessage(message);
   }
 
   /**
