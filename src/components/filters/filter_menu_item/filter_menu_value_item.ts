@@ -38,7 +38,7 @@ export class FilterMenuValueItem extends Component<Props, SpreadsheetChildEnv> {
       return;
     }
     this.itemRef.el.scrollIntoView?.({
-      block: this.props.scrolledTo === "bottom" ? "end" : "start",
+      block: "nearest",
     });
   }
 }
