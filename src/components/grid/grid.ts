@@ -436,7 +436,10 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     },
     PageDown: () => this.env.model.dispatch("SHIFT_VIEWPORT_DOWN"),
     PageUp: () => this.env.model.dispatch("SHIFT_VIEWPORT_UP"),
-    "Ctrl+K": () => INSERT_LINK(this.env),
+    "Ctrl+K": () => {
+      this.closeMenu();
+      INSERT_LINK(this.env);
+    },
     "Alt+Shift+ArrowRight": () => this.processHeaderGroupingKey("right"),
     "Alt+Shift+ArrowLeft": () => this.processHeaderGroupingKey("left"),
     "Alt+Shift+ArrowUp": () => this.processHeaderGroupingKey("up"),

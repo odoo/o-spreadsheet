@@ -5,7 +5,14 @@ import { CommandResult } from "../types/commands";
 import { CoreGetters } from "../types/core_getters";
 import { Link } from "../types/misc";
 import { SpreadsheetChildEnv } from "../types/spreadsheet_env";
-import { isMarkdownLink, isSheetUrl, isWebLink, parseMarkdownLink, parseSheetUrl } from "./misc";
+import {
+  buildSheetLink,
+  isMarkdownLink,
+  isSheetUrl,
+  isWebLink,
+  parseMarkdownLink,
+  parseSheetUrl,
+} from "./misc";
 
 /**
  * Add the `https` prefix to the url if it's missing
@@ -30,6 +37,9 @@ export interface LinkSpec {
   readonly urlRepresentation: (url: string, getters: CoreGetters) => string;
   readonly open: (url: string, env: SpreadsheetChildEnv, isMiddleClick?: boolean) => void;
   readonly sequence: number;
+  readonly title: string;
+  readonly icon?: string;
+  readonly getLinkProposals?: (env: SpreadsheetChildEnv) => (Link & { icon: string })[];
 }
 
 export const urlRegistry = new Registry<LinkSpec>();
@@ -73,6 +83,16 @@ urlRegistry.add("sheet_URL", {
     }
   },
   sequence: 0,
+  title: _t("Sheets"),
+  getLinkProposals(env) {
+    return env.model.getters.getSheetIds().map((sheetId) => {
+      const sheet = env.model.getters.getSheet(sheetId);
+      return {
+        ...this.createLink(buildSheetLink(sheetId), sheet.name),
+        icon: "o-spreadsheet-Icon.INSERT_SHEET",
+      };
+    });
+  },
 });
 
 const WebUrlSpec: LinkSpec = {
@@ -81,6 +101,7 @@ const WebUrlSpec: LinkSpec = {
   open: (url) => window.open(url, "_blank"),
   urlRepresentation: (url) => url,
   sequence: 0,
+  title: _t("Web"),
 };
 
 function findMatchingSpec(url: string): LinkSpec {

@@ -193,7 +193,6 @@ import { inverseCommandRegistry } from "./registries/inverse_command_registry";
 import {
   cellMenuRegistry,
   colMenuRegistry,
-  linkMenuRegistry,
   numberFormatMenuRegistry,
   rowMenuRegistry,
   topbarMenuRegistry,
@@ -292,7 +291,6 @@ export const registries = {
   cellMenuRegistry,
   colMenuRegistry,
   errorTypes,
-  linkMenuRegistry,
   functionRegistry,
   featurePluginRegistry,
   iconsOnCellRegistry,
