@@ -1,14 +1,16 @@
 import { BACKGROUND_CHART_COLOR } from "@odoo/o-spreadsheet-engine/constants";
 import { _t } from "@odoo/o-spreadsheet-engine/translation";
+import { GeoChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/geo_chart";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { Component, useState } from "@odoo/owl";
 import { getChartMenuActions } from "../../../../actions/figure_menu_actions";
 import { isDefined } from "../../../../helpers";
 import { Store, useStore } from "../../../../store_engine";
-import { UID } from "../../../../types";
+import { UID, ValueAndLabel } from "../../../../types";
 import { FullScreenFigureStore } from "../../../full_screen_figure/full_screen_figure_store";
 import { getBoundingRectAsPOJO } from "../../../helpers/dom_helpers";
 import { MenuPopover, MenuState } from "../../../menu_popover/menu_popover";
+import { Select } from "../../../select/select";
 
 interface Props {
   chartId: UID;
@@ -25,7 +27,7 @@ interface MenuItem {
 
 export class ChartDashboardMenu extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-ChartDashboardMenu";
-  static components = { MenuPopover };
+  static components = { MenuPopover, Select };
   static props = { chartId: String, hasFullScreenButton: { type: Boolean, optional: true } };
   static defaultProps = { hasFullScreenButton: true };
 
@@ -71,5 +73,28 @@ export class ChartDashboardMenu extends Component<Props, SpreadsheetChildEnv> {
         this.fullScreenFigureStore.toggleFullScreenFigure(figureId);
       },
     };
+  }
+
+  get regionOptions(): ValueAndLabel[] {
+    return this.env.model.getters
+      .getAvailableChartRegions(this.props.chartId)
+      .map((r) => ({ value: r.id, label: r.label }));
+  }
+
+  get selectedRegion(): string {
+    const definition = this.env.model.getters.getChartDefinition(this.props.chartId);
+    if (!definition.type.includes("geo")) {
+      return "";
+    }
+    const geoDef = definition as GeoChartDefinition;
+    const availableRegions = this.env.model.getters.getGeoChartAvailableRegions();
+    return geoDef.region || availableRegions[0]?.id || "";
+  }
+
+  onRegionSelected(region: string) {
+    this.env.model.dispatch("UPDATE_CHART_REGION", {
+      chartId: this.props.chartId,
+      region,
+    });
   }
 }
