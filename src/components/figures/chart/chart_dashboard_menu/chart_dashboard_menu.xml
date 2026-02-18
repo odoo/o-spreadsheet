@@ -2,6 +2,15 @@
   <t t-name="o-spreadsheet-ChartDashboardMenu">
     <div class="o-dashboard-chart-select position-absolute top-0 end-0" t-on-click.stop="">
       <div class="d-flex align-items-center gap-1 p-1 rounded" t-att-style="backgroundColor">
+        <t t-if="regionOptions.length > 1">
+          <Select
+            class="'o-chart-dashboard-item w-auto py-0 px-1 text-muted text-nowrap rounded border-0'"
+            popoverClass="'w-auto'"
+            values="regionOptions"
+            selectedValue="selectedRegion"
+            onChange.bind="onRegionSelected"
+          />
+        </t>
         <t t-foreach="getMenuItems()" t-as="item" t-key="item.id">
           <div
             t-attf-class=" {{item.class}}"
