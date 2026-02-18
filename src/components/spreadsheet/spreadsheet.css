@@ -149,11 +149,12 @@
       content: "";
       background-color: currentColor;
       mask: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='7' height='4' viewBox='0 0 7 4'><polygon fill='currentColor' points='3.5 4 7 0 0 0'/></svg>")
-        no-repeat;
+        no-repeat right;
       width: 7px;
       height: 4px;
       margin-left: auto;
-      margin-right: 2px;
+      margin-right: 1px;
+      padding-left: 10px;
     }
     background: transparent;
     text-overflow: ellipsis;
