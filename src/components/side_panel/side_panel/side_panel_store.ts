@@ -106,7 +106,13 @@ export class SidePanelStore extends SpreadsheetStore {
       return;
     }
 
-    const newPanelInfo = { currentPanelProps, componentTag, size: DEFAULT_SIDE_PANEL_SIZE };
+    const openedPanelSize = this.getDefaultPanelSize(componentTag);
+
+    const newPanelInfo = {
+      currentPanelProps,
+      componentTag,
+      size: openedPanelSize,
+    };
     const state = this.computeState(newPanelInfo);
     if (!state.isOpen) {
       return;
@@ -119,12 +125,9 @@ export class SidePanelStore extends SpreadsheetStore {
 
     // Try to open secondary panel if main panel is pinned
     const nonCollapsedPanelSize = this.mainPanel.isCollapsed
-      ? DEFAULT_SIDE_PANEL_SIZE
+      ? openedPanelSize
       : this.mainPanel.size;
-    if (
-      !this.secondaryPanel &&
-      nonCollapsedPanelSize + DEFAULT_SIDE_PANEL_SIZE > this.availableWidth
-    ) {
+    if (!this.secondaryPanel && nonCollapsedPanelSize + openedPanelSize > this.availableWidth) {
       this.get(NotificationStore).notifyUser({
         sticky: false,
         type: "warning",
@@ -141,7 +144,11 @@ export class SidePanelStore extends SpreadsheetStore {
     currentPanelKey: string,
     currentPanelProps: SidePanelComponentProps = {}
   ) {
-    const newPanelInfo = { currentPanelProps, componentTag, size: DEFAULT_SIDE_PANEL_SIZE };
+    const newPanelInfo = {
+      currentPanelProps,
+      componentTag,
+      size: this.getDefaultPanelSize(componentTag),
+    };
     const state = this.computeState(newPanelInfo);
     if (!state.isOpen) {
       return;
@@ -188,6 +195,7 @@ export class SidePanelStore extends SpreadsheetStore {
       isCollapsed: currentPanel?.isCollapsed || false,
       isPinned: currentPanel && "isPinned" in currentPanel ? currentPanel.isPinned : false,
     };
+    this.changePanelSize(panel, this.getDefaultPanelSize(newPanel.componentTag));
     if (this[panel].isCollapsed) {
       this.toggleCollapsePanel(panel);
     }
@@ -243,7 +251,7 @@ export class SidePanelStore extends SpreadsheetStore {
 
   resetPanelSize(panel: "mainPanel" | "secondaryPanel") {
     if (this[panel]) {
-      this[panel].size = DEFAULT_SIDE_PANEL_SIZE;
+      this[panel].size = this.getDefaultPanelSize(this[panel].componentTag);
     }
   }
 
@@ -266,7 +274,7 @@ export class SidePanelStore extends SpreadsheetStore {
     }
     if (panelInfo.isCollapsed) {
       panelInfo.isCollapsed = false;
-      this.changePanelSize(panel, DEFAULT_SIDE_PANEL_SIZE);
+      this.changePanelSize(panel, this.getDefaultPanelSize(panelInfo.componentTag));
     } else {
       panelInfo.isCollapsed = true;
       panelInfo.size = COLLAPSED_SIDE_PANEL_SIZE;
@@ -291,7 +299,14 @@ export class SidePanelStore extends SpreadsheetStore {
       this.secondaryPanel = undefined;
     }
     if (this.mainPanel && width - this.totalPanelSize < MIN_SHEET_VIEW_WIDTH) {
-      this.mainPanel.size = Math.max(width - MIN_SHEET_VIEW_WIDTH, DEFAULT_SIDE_PANEL_SIZE);
+      this.mainPanel.size = Math.max(
+        width - MIN_SHEET_VIEW_WIDTH,
+        this.getDefaultPanelSize(this.mainPanel.componentTag)
+      );
     }
+  }
+
+  private getDefaultPanelSize(componentTag: string): number {
+    return sidePanelRegistry.get(componentTag).defaultSize || DEFAULT_SIDE_PANEL_SIZE;
   }
 }

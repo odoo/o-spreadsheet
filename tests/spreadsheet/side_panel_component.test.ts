@@ -362,6 +362,30 @@ describe("Side Panel", () => {
     });
   });
 
+  test("Can open a side panel with a different size than the default", async () => {
+    addToRegistry(sidePanelRegistry, "CUSTOM_PANEL_2", {
+      title: "title",
+      Body: Body,
+      defaultSize: 500,
+    });
+    parent.env.openSidePanel("CUSTOM_PANEL_2");
+    await nextTick();
+
+    expect(sidePanelStore.mainPanel?.size).toBe(500);
+  });
+
+  test("Default side panel size is limited by the size of the sheet", async () => {
+    addToRegistry(sidePanelRegistry, "CUSTOM_PANEL_2", {
+      title: "title",
+      Body: Body,
+      defaultSize: 99999,
+    });
+    parent.env.openSidePanel("CUSTOM_PANEL_2");
+    await nextTick();
+
+    expect(sidePanelStore.mainPanel?.size).toBe(spreadsheetWidth - MIN_SHEET_VIEW_WIDTH);
+  });
+
   describe("Pin & collapse side panel", () => {
     beforeEach(async () => {
       addToRegistry(sidePanelRegistry, "CUSTOM_PANEL", { title: "Custom Panel", Body: Body });
