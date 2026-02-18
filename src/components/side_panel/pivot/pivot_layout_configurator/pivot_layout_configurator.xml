@@ -12,6 +12,8 @@
       <t t-foreach="props.definition.columns" t-as="col" t-key="col_index">
         <div
           t-on-pointerdown="(ev) => this.startDragAndDrop(col, ev)"
+          t-on-dragover="onDragOver"
+          t-on-drop="onDrop"
           t-att-style="dragAndDrop.itemsStyle[col.nameWithGranularity]"
           class="pt-1">
           <PivotDimension dimension="col" onRemoved.bind="removeDimension">

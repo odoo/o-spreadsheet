@@ -222,7 +222,7 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
     onMounted(() => {
       const pivotId = this.model.getters.getPivotIds()[0];
       if (pivotId) {
-        this.sidePanel.open("PivotSidePanel", { pivotId });
+        setTimeout(() => this.sidePanel.open("PivotSidePanel", { pivotId }));
       }
 
       this.bindModelEvents();

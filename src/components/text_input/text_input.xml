@@ -8,6 +8,7 @@
         t-att-id="props.id"
         t-att-placeholder="props.placeholder"
         t-on-change="save"
+        t-on-input="onInput"
         t-on-blur="save"
         t-on-pointerdown="onMouseDown"
         t-on-pointerup="onMouseUp"
