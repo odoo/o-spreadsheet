@@ -1,7 +1,0 @@
-<templates>
-  <t t-name="o-spreadsheet-PivotOverlay">
-    <div class="position-absolute" t-att-style="overlayStyle" t-if="pivotFormulaPosition">
-      Hello
-    </div>
-  </t>
-</templates>

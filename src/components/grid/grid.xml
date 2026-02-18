@@ -21,7 +21,6 @@
         gridDims="env.model.getters.getSheetViewDimensionWithHeaders()"
         onInputContextMenu.bind="onInputContextMenu"
       />
-      <PivotOverlay/>
       <canvas t-ref="canvas"/>
       <t t-set="focused" t-value="focusedClients"/>
       <t
@@ -61,6 +60,7 @@
       <t t-foreach="staticTables" t-as="table" t-key="table.id">
         <TableResizer table="table"/>
       </t>
+      <PivotOverlay/>
       <VerticalScrollBar topOffset="HEADER_HEIGHT"/>
       <HorizontalScrollBar leftOffset="HEADER_WIDTH"/>
       <div class="o-scrollbar corner border-top border-start"/>

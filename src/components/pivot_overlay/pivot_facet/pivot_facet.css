@@ -1,0 +1,38 @@
+.o-spreadsheet {
+  .o-pivot-facet {
+    position: relative;
+    background: var(--os-gray-200);
+    width: fit-content;
+
+    .o-hover-content {
+      display: none;
+    }
+    &:hover .o-hover-content {
+      display: block;
+    }
+
+    .o-pivot-facet-icon {
+      height: 24px;
+      background: var(--os-action-color);
+      color: var(--os-white);
+      .o-icon {
+        width: 15px;
+        height: 15px;
+      }
+    }
+
+    .o-pivot-facet-remove {
+      color: var(--os-gray-600);
+      padding: 0 8px 0 8px !important;
+      cursor: pointer;
+
+      &:hover {
+        color: var(--os-gray-800);
+      }
+    }
+
+    .o-pivot-facet-value {
+      font-size: 13px;
+    }
+  }
+}

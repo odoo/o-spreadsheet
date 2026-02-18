@@ -1,0 +1,28 @@
+.o-spreadsheet .o-pivot-overlay {
+  .o-pivot-overlay-section {
+    height: fit-content;
+    width: fit-content;
+  }
+
+  .o-pivot-overlay-title {
+    font-weight: 500;
+  }
+
+  .o-group-separator {
+    font-size: 18px;
+    line-height: 18px;
+  }
+
+  .o-pivot-rows {
+    .o-group-separator {
+      writing-mode: vertical-rl;
+    }
+
+    .o-pivot-facet {
+      /* .o-pivot-facet-icon svg{
+        transform-origin: center;
+        transform: rotate(-90deg);
+      } */
+    }
+  }
+}

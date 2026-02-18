@@ -220,6 +220,11 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
 
     const render = batched(this.render.bind(this, true));
     onMounted(() => {
+      const pivotId = this.model.getters.getPivotIds()[0];
+      if (pivotId) {
+        this.sidePanel.open("PivotSidePanel", { pivotId });
+      }
+
       this.bindModelEvents();
       this.checkViewportSize();
       stores.on("store-updated", this, render);

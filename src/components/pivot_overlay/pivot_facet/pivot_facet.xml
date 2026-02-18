@@ -1,0 +1,26 @@
+<templates>
+  <t t-name="o-spreadsheet-PivotFacet">
+    <div>
+      <div class="o-pivot-facet d-flex align-items-center rounded-2 user-select-none" t-ref="facet">
+        <div
+          class="o-hover-content position-absolute border user-select-none h-100 w-100 rounded-2 shadow bg-white"
+        />
+        <div
+          class="o-pivot-facet-icon position-relative d-flex align-items-center rounded-start-2 rounded-end-0 px-2"
+          t-on-click="this.props.onClickIcon">
+          <t t-call="{{icon}}"/>
+        </div>
+        <div
+          class="o-pivot-facet-value position-relative flex-grow-1 px-2 text-truncate"
+          t-esc="this.props.label"
+        />
+        <div
+          t-if="this.props.canRemove"
+          class="o-pivot-facet-remove position-relative pe-2 rounded-end-2 rounded-start-0"
+          t-on-click="this.props.onClickRemove">
+          <t t-call="o-spreadsheet-Icon.CLOSE"/>
+        </div>
+      </div>
+    </div>
+  </t>
+</templates>
