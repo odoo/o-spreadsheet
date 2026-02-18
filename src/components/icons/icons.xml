@@ -289,7 +289,7 @@
     </svg>
   </t>
   <t t-name="o-spreadsheet-Icon.INSERT_SHEET">
-    <svg class="o-icon" fill="currentColor">
+    <svg class="o-icon" fill="currentColor" viewBox="0 0 18 18">
       <path
         d="M17.5 5.5V16a1.5 1.5 0 0 1-1.5 1.5H2A1.5 1.5 0 0 1 .5 16V2A1.5 1.5 0 0 1 2 .5h10.5M2 5.5h3.5V2H2m5.25 3.5h3.5V2h-3.5M2 10.75h3.5v-3.5H2m5.25 3.5h3.5v-3.5h-3.5m5.25 3.5H16v-3.5h-3.5M2 16h3.5v-3.5H2M7.25 16h3.5v-3.5h-3.5M12.5 16H16v-3.5h-3.5"
       />
@@ -963,7 +963,7 @@
     </div>
   </t>
   <t t-name="o-spreadsheet-Icon.INSERT_PIVOT">
-    <svg class="o-icon">
+    <svg class="o-icon" viewBox="0 0 18 18">
       <defs>
         <mask id="a">
           <path fill="#fff" d="M0 0h18v18H0z"/>

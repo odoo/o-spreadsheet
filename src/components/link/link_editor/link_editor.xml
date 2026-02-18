@@ -1,10 +1,11 @@
 <templates>
   <t t-name="o-spreadsheet-LinkEditor">
     <div
-      class="o-link-editor bg-white rounded"
-      t-on-click.stop="() => this.menu.isOpen=false"
+      class="o-link-editor bg-white rounded h-100"
+      t-on-scroll.stop=""
+      t-on-wheel.stop=""
       t-on-keydown="onKeyDown">
-      <div class="o-section">
+      <div class="o-section mb-4 h-100">
         <div class="o-section-title">Text</div>
         <div class="d-flex">
           <input
@@ -12,20 +13,25 @@
             title="Link label"
             placeholder="e.g. 'Link label'"
             class="o-input"
-            t-model="link.label"
+            t-model="state.label"
           />
         </div>
 
         <div class="o-section-title mt-3">Link</div>
-        <div class="o-link-url">
-          <t t-if="link.isUrlEditable">
+        <div
+          class="o-link-url"
+          t-ref="urlInputContainer"
+          tabindex="-1"
+          t-on-keydown="onInputKeyDown">
+          <t t-if="state.isUrlEditable">
             <input
               class="o-input"
               type="text"
               placeholder="e.g. 'http://www.odoo.com'"
               title="Link URL"
               t-ref="urlInput"
-              t-model="link.url"
+              t-model="state.url"
+              t-on-input="computeLinks"
             />
           </t>
           <t t-else="">
@@ -33,32 +39,42 @@
               type="text"
               class="o-input"
               title="Link URL"
-              t-att-value="getUrlRepresentation(link)"
+              t-att-value="getUrlRepresentation(state)"
               disabled="1"
             />
           </t>
-          <button t-if="link.url" t-on-click="removeLink" class="o-remove-url o-button-icon">
+          <button t-if="state.url" t-on-click="removeLink" class="o-remove-url o-button-icon">
             ✖
-          </button>
-          <button
-            t-if="!link.url"
-            t-on-click.stop="openMenu"
-            class="o-special-link o-button-icon bg-white"
-            t-ref="linkEditorMenuButton">
-            <t t-call="o-spreadsheet-Icon.LIST"/>
           </button>
         </div>
       </div>
-      <MenuPopover
-        t-if="menu.isOpen"
-        anchorRect="menuButtonRect"
-        menuItems="menuItems"
-        onMenuClicked="(ev) => this.onSpecialLink(ev)"
-        onClose="() => this.menu.isOpen=false"
-      />
+
+      <div class="suggestions border rounded" t-ref="suggestionList">
+        <t
+          t-foreach="Object.entries(this.state.linksByCategory)"
+          t-as="proposalCategory"
+          t-key="proposalCategory[0]">
+          <t t-set="categoryTitle" t-value="proposalCategory[0]"/>
+          <t t-set="proposals" t-value="proposalCategory[1]"/>
+          <div class="o-section my-1">
+            <div class="o-section-title ps-2" t-esc="categoryTitle"/>
+            <div
+              t-foreach="proposals"
+              t-as="proposal"
+              t-key="categoryTitle + proposal_index"
+              t-att-data-index="proposal.index"
+              class="suggestion-item ps-3 d-flex align-items-center justify-content-start"
+              t-att-class="{ 'selected' : proposal.index === state.selectedIndex }"
+              t-on-click="proposal.onSelect">
+              <span class="me-1" t-if="proposal.icon" t-call="{{proposal.icon}}"/>
+              <span class="text-truncate" t-esc="proposal.text"/>
+            </div>
+          </div>
+        </t>
+      </div>
       <div class="o-buttons">
         <button t-on-click="cancel" class="o-button o-cancel me-2">Discard</button>
-        <button t-on-click="save" class="o-button primary o-save" t-att-disabled="!link.url">
+        <button t-on-click="save" class="o-button primary o-save" t-att-disabled="!state.url">
           Confirm
         </button>
       </div>

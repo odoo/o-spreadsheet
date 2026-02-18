@@ -203,7 +203,6 @@ import "./registries/interactive_icon_on_cell_registry";
 import {
   cellMenuRegistry,
   colMenuRegistry,
-  linkMenuRegistry,
   numberFormatMenuRegistry,
   rowMenuRegistry,
   topbarMenuRegistry,
@@ -303,7 +302,6 @@ export const registries = {
   cellMenuRegistry,
   colMenuRegistry,
   errorTypes,
-  linkMenuRegistry,
   functionRegistry,
   featurePluginRegistry,
   iconsOnCellRegistry,
