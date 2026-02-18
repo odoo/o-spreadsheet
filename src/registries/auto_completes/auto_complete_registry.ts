@@ -18,6 +18,7 @@ export interface AutoCompleteProposal {
    */
   fuzzySearchKey?: string;
   alwaysExpanded?: boolean;
+  icon?: string;
 }
 
 export interface AutoCompleteProvider {

@@ -1,6 +1,6 @@
 .o-spreadsheet {
   .o-link-editor {
-    font-size: 13px;
+    width: 330px;
     box-shadow: 0 1px 4px 3px rgba(60, 64, 67, 0.15);
     padding: 12px;
     display: flex;
@@ -13,6 +13,21 @@
         margin-bottom: 5px;
       }
     }
+    .o-icon {
+      --os-icon-edge-length: 15px;
+    }
+    .suggestions {
+      height: 150px;
+      overflow-y: auto;
+    }
+    .suggestion-item {
+      &:hover,
+      &.selected {
+        background-color: var(--os-button-hover-bg);
+      }
+      cursor: pointer;
+    }
+
     .o-buttons {
       padding-left: 16px;
       padding-top: 16px;
@@ -23,6 +38,7 @@
       padding: 0 23px 4px 0;
     }
     .o-link-url {
+      outline: none;
       position: relative;
       flex-grow: 1;
       button {
@@ -35,8 +51,6 @@
         background-color: var(--os-white-bg);
         margin: 2px 3px 1px 0px;
         padding: 0px 1px 0px 0px;
-      }
-      button:hover {
         cursor: pointer;
       }
     }
