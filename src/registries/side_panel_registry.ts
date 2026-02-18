@@ -36,6 +36,7 @@ export interface SidePanelContent {
    * based on the current state of the spreadsheet model, using the getters.
    */
   computeState?: (getters: Getters, initialProps: object) => SidePanelState;
+  defaultSize?: number;
 }
 
 export const sidePanelRegistry = new Registry<SidePanelContent>();
