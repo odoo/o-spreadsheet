@@ -1,6 +1,12 @@
 import { GeoChartRuntime } from "@odoo/o-spreadsheet-engine/types/chart/geo_chart";
 import { Model } from "../../../../src";
-import { createGeoChart, setCellContent, setFormat, updateChart } from "../../../test_helpers";
+import {
+  createChart,
+  createGeoChart,
+  setCellContent,
+  setFormat,
+  updateChart,
+} from "../../../test_helpers";
 import { getChartTooltipValues } from "../../../test_helpers/chart_helpers";
 import { mockChart, mockGeoJsonService, nextTick } from "../../../test_helpers/helpers";
 
@@ -135,5 +141,67 @@ describe("Geo charts plugin tests", () => {
 
     // The countries that have no data should still be in the runtime, otherwise the missing color won't be applied
     expect(runtime.chartJsConfig.data.datasets[0].data.length).toBe(3);
+  });
+
+  describe("UPDATE_CHART_REGION", () => {
+    test("dispatching UPDATE_CHART_REGION changes the chart region", () => {
+      createGeoChart(model, { region: "world" });
+      expect(model.getters.getChartDefinition("chartId")).toMatchObject({ region: "world" });
+
+      model.dispatch("UPDATE_CHART_REGION", { chartId: "chartId", region: "usa" });
+      expect(model.getters.getChartDefinition("chartId")).toMatchObject({ region: "usa" });
+    });
+
+    test("getAvailableChartRegions returns alternatives for a world chart", () => {
+      createGeoChart(model, { region: "world" });
+      const regions = model.getters.getAvailableChartRegions("chartId");
+      expect(regions.map((r) => r.id)).toEqual(["world"]);
+      expect(regions.find((r) => r.id === "usa")).toBeUndefined();
+    });
+
+    test("getAvailableChartRegions returns empty array for a usa chart", () => {
+      createGeoChart(model, { region: "usa" });
+      expect(model.getters.getAvailableChartRegions("chartId")).toEqual([]);
+    });
+
+    test("getAvailableChartRegions still uses the initial region after switching", () => {
+      createGeoChart(model, { region: "world" });
+      model.dispatch("UPDATE_CHART_REGION", { chartId: "chartId", region: "world" });
+      // After switching, the initial region ("world") still allows alternatives
+      const regions = model.getters.getAvailableChartRegions("chartId");
+      expect(regions.length).toBeGreaterThan(0);
+      expect(regions.find((r) => r.id === "usa")).toBeUndefined();
+    });
+
+    test("UPDATE_CHART_REGION is allowed in readonly mode", () => {
+      createGeoChart(model, { region: "world" });
+      const readonlyModel = new Model(model.exportData(), {
+        mode: "readonly",
+        external: { geoJsonService: mockGeoJsonService },
+      });
+      const result = readonlyModel.dispatch("UPDATE_CHART_REGION", {
+        chartId: "chartId",
+        region: "world",
+      });
+      expect(result.isSuccessful).toBe(true);
+    });
+
+    test("UPDATE_CHART_REGION is allowed in dashboard mode", () => {
+      createGeoChart(model, { region: "world" });
+      const dashboardModel = new Model(model.exportData(), {
+        mode: "dashboard",
+        external: { geoJsonService: mockGeoJsonService },
+      });
+      const result = dashboardModel.dispatch("UPDATE_CHART_REGION", {
+        chartId: "chartId",
+        region: "world",
+      });
+      expect(result.isSuccessful).toBe(true);
+    });
+
+    test("getAvailableChartRegions returns empty array for non-geo chart", () => {
+      createChart(model, { type: "bar" }, "barChartId");
+      expect(model.getters.getAvailableChartRegions("barChartId")).toEqual([]);
+    });
   });
 });

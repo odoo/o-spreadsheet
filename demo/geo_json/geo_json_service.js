@@ -28,6 +28,12 @@ export const geoJsonService = {
     const mapping = region === "usa" ? mappingUsa : mappingWorld;
     return mapping[name.toLowerCase()];
   },
+  getAlternativeRegions: function (initialRegion) {
+    if (initialRegion !== "world") {
+      return [];
+    }
+    return this.getAvailableRegions().filter((r) => r.id !== "usa");
+  },
 };
 
 function inverseMapping(mapping) {
