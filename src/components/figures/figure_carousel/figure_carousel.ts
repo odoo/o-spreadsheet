@@ -112,8 +112,25 @@ export class CarouselFigure extends Component<Props, SpreadsheetChildEnv> {
   get headerStyle(): string {
     const cssProperties: CSSProperties = {};
     if (this.selectedCarouselItem?.type === "chart") {
-      const chart = this.env.model.getters.getChartRuntime(this.selectedCarouselItem.chartId);
-      cssProperties["background-color"] = chart.background;
+      const chartId = this.selectedCarouselItem.chartId;
+      const chartRuntime = this.env.model.getters.getChartRuntime(chartId);
+      if ("chartJsConfig" in chartRuntime) {
+        cssProperties["background-color"] = chartRuntime.background;
+      } else {
+        // For scorecard and gauge charts, get the style from the cell
+        const chart = this.env.model.getters.getChart(chartId) as any; //TODOPRO Move it to the registry ?
+        const mainRange =
+          chart?.type === "scorecard"
+            ? chart.keyValue
+            : chart?.type === "gauge"
+            ? chart.dataRange
+            : undefined;
+        const style = this.env.model.getters.getStyleOfSingleCellChart(
+          chart?.background,
+          mainRange
+        );
+        cssProperties["background-color"] = style.background;
+      }
     } else {
       cssProperties["background-color"] = "#ffffff";
     }

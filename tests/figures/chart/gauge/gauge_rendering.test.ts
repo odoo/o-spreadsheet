@@ -4,7 +4,11 @@ import {
   GAUGE_LABELS_FONT_SIZE,
   getGaugeRenderingConfig,
 } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/gauge_chart_rendering";
-import { GaugeAnimatedRuntime, GaugeChartRuntime } from "@odoo/o-spreadsheet-engine/types/chart";
+import {
+  GaugeAnimatedRuntime,
+  GaugeChartRuntime,
+  GaugeChartStyle,
+} from "@odoo/o-spreadsheet-engine/types/chart";
 import { Model } from "../../../../src";
 import { GaugeChartComponent } from "../../../../src/components/figures/chart/gauge/gauge_chart_component";
 import { chartMutedFontColor } from "../../../../src/helpers/figures/charts";
@@ -14,7 +18,6 @@ import { createGaugeChart, setCellContent } from "../../../test_helpers/commands
 import { mountSpreadsheet, nextTick } from "../../../test_helpers/helpers";
 
 const testRuntime: GaugeChartRuntime = {
-  background: "#FFFFFF",
   title: { text: "This is a title" },
   minValue: { value: 0, label: "0" },
   maxValue: { value: 100, label: "100" },
@@ -26,6 +29,10 @@ const testRuntime: GaugeChartRuntime = {
   colors: ["#FF0000", "#FF9900", "#007000"],
 };
 
+const testStyle: GaugeChartStyle = {
+  background: "#FFFFFF",
+};
+
 const testChartRect: Rect = {
   x: 0,
   y: 0,
@@ -35,15 +42,21 @@ const testChartRect: Rect = {
 
 function getRenderingConfig(
   runtime: GaugeAnimatedRuntime,
+  style = testStyle,
   boundingRect = testChartRect,
   ctx = new MockCanvasRenderingContext2D()
 ) {
-  return getGaugeRenderingConfig(boundingRect, runtime, ctx as unknown as CanvasRenderingContext2D);
+  return getGaugeRenderingConfig(
+    boundingRect,
+    runtime,
+    style,
+    ctx as unknown as CanvasRenderingContext2D
+  );
 }
 
 describe("Gauge rendering config", () => {
   test("Background color is propagated", () => {
-    expect(getRenderingConfig(testRuntime).backgroundColor).toEqual(testRuntime.background);
+    expect(getRenderingConfig(testRuntime).backgroundColor).toEqual(testStyle.background);
   });
 
   test("Chart size is propagated", () => {
@@ -64,7 +77,7 @@ describe("Gauge rendering config", () => {
         x: CHART_PADDING,
         y: 23,
       },
-      color: chartMutedFontColor(testRuntime.background),
+      color: chartMutedFontColor(testStyle.background),
     });
   });
 
@@ -77,7 +90,7 @@ describe("Gauge rendering config", () => {
         y: config.gauge.rect.y + config.gauge.rect.height + GAUGE_LABELS_FONT_SIZE, // below the gauge
       },
       fontSize: GAUGE_LABELS_FONT_SIZE,
-      color: chartMutedFontColor(testRuntime.background),
+      color: chartMutedFontColor(testStyle.background),
     });
   });
 
@@ -90,7 +103,7 @@ describe("Gauge rendering config", () => {
         y: config.gauge.rect.y + config.gauge.rect.height + GAUGE_LABELS_FONT_SIZE, // below the gauge
       },
       fontSize: GAUGE_LABELS_FONT_SIZE,
-      color: chartMutedFontColor(testRuntime.background),
+      color: chartMutedFontColor(testStyle.background),
     });
   });
 
@@ -173,14 +186,14 @@ describe("Gauge rendering config", () => {
         rotation: Math.PI * (1 - 0.25),
         label: "25",
         fontSize: GAUGE_LABELS_FONT_SIZE,
-        color: chartMutedFontColor(testRuntime.background),
+        color: chartMutedFontColor(testStyle.background),
         offset: 0,
       },
       {
         rotation: Math.PI * (1 - 0.75),
         label: "75",
         fontSize: GAUGE_LABELS_FONT_SIZE,
-        color: chartMutedFontColor(testRuntime.background),
+        color: chartMutedFontColor(testStyle.background),
         offset: 0,
       },
     ]);
@@ -209,12 +222,12 @@ describe("Gauge rendering config", () => {
         y: config.gauge.rect.y + config.gauge.rect.height - config.gauge.rect.height / 12,
       },
       fontSize: GAUGE_DEFAULT_VALUE_FONT_SIZE,
-      color: chartMutedFontColor(testRuntime.background),
+      color: chartMutedFontColor(testStyle.background),
     });
   });
 
   test("Gauge value is scaled down for small charts", () => {
-    const config = getRenderingConfig(testRuntime, { ...testChartRect, height: 150 });
+    const config = getRenderingConfig(testRuntime, testStyle, { ...testChartRect, height: 150 });
     expect(config.gaugeValue.fontSize).toBeLessThan(GAUGE_DEFAULT_VALUE_FONT_SIZE);
   });
 
@@ -227,7 +240,8 @@ describe("Gauge rendering config", () => {
   });
 
   test("Text colors are contrasted on dark backgrounds", () => {
-    const config = getRenderingConfig({ ...testRuntime, background: "#000000" });
+    const darkStyle = { background: "#000000" };
+    const config = getRenderingConfig(testRuntime, darkStyle);
     expect(config.title.color).toEqual(chartMutedFontColor("#000000"));
     expect(config.minLabel.color).toEqual(chartMutedFontColor("#000000"));
     expect(config.maxLabel.color).toEqual(chartMutedFontColor("#000000"));

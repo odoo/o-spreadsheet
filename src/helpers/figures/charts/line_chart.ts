@@ -8,6 +8,7 @@ import {
   createDataSets,
   duplicateDataSetsInDuplicatedSheet,
   duplicateLabelRangeInDuplicatedSheet,
+  getChartDatasetDependencies,
   getDefinedAxis,
   shouldRemoveFirstLabel,
   transformChartDefinitionWithDataSetsWithZone,
@@ -28,7 +29,15 @@ import { LegendPosition } from "@odoo/o-spreadsheet-engine/types/chart/common_ch
 import { LineChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/line_chart";
 import { toXlsxHexColor } from "@odoo/o-spreadsheet-engine/xlsx/helpers/colors";
 import { ChartConfiguration } from "chart.js";
-import { Color, CommandResult, Getters, Range, RangeAdapter, UID } from "../../../types";
+import {
+  BoundedRange,
+  Color,
+  CommandResult,
+  Getters,
+  Range,
+  RangeAdapter,
+  UID,
+} from "../../../types";
 import {
   getChartShowValues,
   getChartTitle,
@@ -173,6 +182,10 @@ export class LineChart extends AbstractChart {
         ? this.getters.getRangeString(this.labelRange, this.sheetId)
         : undefined,
     };
+  }
+
+  getDependencies(): BoundedRange[] {
+    return getChartDatasetDependencies(this.dataSets, this.labelRange);
   }
 
   updateRanges({ applyChange }: RangeAdapterFunctions): LineChart {

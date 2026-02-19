@@ -6,7 +6,11 @@ import {
   DEFAULT_SCORECARD_KEY_VALUE_FONT_SIZE,
   SCORECARD_CHART_TITLE_FONT_SIZE,
 } from "../../../constants";
-import { BaselineArrowDirection, ScorecardChartRuntime } from "../../../types/chart";
+import {
+  BaselineArrowDirection,
+  ScorecardChartRuntime,
+  ScorecardChartStyle,
+} from "../../../types/chart";
 import { Color, Pixel, PixelPosition } from "../../../types/misc";
 import { DOMDimension } from "../../../types/rendering";
 import { getDefaultContextFont } from "../../text_helper";
@@ -65,9 +69,10 @@ export function formatBaselineDescr(
 
 export function getScorecardConfiguration(
   { width, height }: DOMDimension,
-  runtime: ScorecardChartRuntime
+  runtime: ScorecardChartRuntime,
+  style: ScorecardChartStyle
 ): ScorecardChartConfig {
-  const designer = new ScorecardChartConfigBuilder({ width, height }, runtime);
+  const designer = new ScorecardChartConfigBuilder({ width, height }, runtime, style);
   return designer.computeDesign();
 }
 
@@ -76,7 +81,11 @@ class ScorecardChartConfigBuilder {
   private width: number;
   private height: number;
 
-  constructor({ width, height }: DOMDimension, readonly runtime: ScorecardChartRuntime) {
+  constructor(
+    { width, height }: DOMDimension,
+    readonly runtime: ScorecardChartRuntime,
+    readonly style: ScorecardChartStyle
+  ) {
     this.width = width;
     this.height = height;
     if (typeof OffscreenCanvas === "undefined") {
@@ -284,7 +293,11 @@ class ScorecardChartConfigBuilder {
   }
 
   private get backgroundColor() {
-    return this.runtime.background;
+    return this.style.background;
+  }
+
+  private get fontColor() {
+    return this.style.fontColor;
   }
 
   private get secondaryFontColor() {
@@ -330,7 +343,7 @@ class ScorecardChartConfigBuilder {
         color: this.runtime.title.color ?? this.secondaryFontColor,
       },
       keyValue: {
-        color: this.runtime.keyValueStyle?.textColor || this.runtime.fontColor,
+        color: this.runtime.keyValueStyle?.textColor || this.fontColor,
         font: getDefaultContextFont(
           keyValueFontSize,
           this.runtime.keyValueStyle?.bold,
@@ -340,7 +353,7 @@ class ScorecardChartConfigBuilder {
         underline: this.runtime.keyValueStyle?.underline,
       },
       keyDescr: {
-        color: this.runtime.keyValueDescrStyle?.textColor || this.runtime.fontColor,
+        color: this.runtime.keyValueDescrStyle?.textColor || this.fontColor,
         font: getDefaultContextFont(
           keyValueDescrFontSize,
           this.runtime.keyValueDescrStyle?.bold,

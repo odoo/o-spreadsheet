@@ -8,6 +8,7 @@ import {
   createDataSets,
   duplicateDataSetsInDuplicatedSheet,
   duplicateLabelRangeInDuplicatedSheet,
+  getChartDatasetDependencies,
   shouldRemoveFirstLabel,
   transformChartDefinitionWithDataSetsWithZone,
   updateChartRangesWithDataSets,
@@ -26,7 +27,15 @@ import {
 } from "@odoo/o-spreadsheet-engine/types/chart/pie_chart";
 import { toXlsxHexColor } from "@odoo/o-spreadsheet-engine/xlsx/helpers/colors";
 import type { ChartConfiguration } from "chart.js";
-import { Color, CommandResult, Getters, Range, RangeAdapter, UID } from "../../../types";
+import {
+  BoundedRange,
+  Color,
+  CommandResult,
+  Getters,
+  Range,
+  RangeAdapter,
+  UID,
+} from "../../../types";
 import {
   getChartShowValues,
   getChartTitle,
@@ -173,6 +182,10 @@ export class PieChart extends AbstractChart {
       dataSets,
       labelRange,
     };
+  }
+
+  getDependencies(): BoundedRange[] {
+    return getChartDatasetDependencies(this.dataSets, this.labelRange);
   }
 
   updateRanges({ applyChange }: RangeAdapterFunctions): PieChart {

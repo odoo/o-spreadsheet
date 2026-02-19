@@ -8,6 +8,7 @@ import {
   createDataSets,
   duplicateDataSetsInDuplicatedSheet,
   duplicateLabelRangeInDuplicatedSheet,
+  getChartDatasetDependencies,
   getDefinedAxis,
   shouldRemoveFirstLabel,
   transformChartDefinitionWithDataSetsWithZone,
@@ -30,7 +31,15 @@ import {
 } from "@odoo/o-spreadsheet-engine/types/chart/pyramid_chart";
 import { toXlsxHexColor } from "@odoo/o-spreadsheet-engine/xlsx/helpers/colors";
 import { ChartConfiguration } from "chart.js";
-import { Color, CommandResult, Getters, Range, RangeAdapter, UID } from "../../../types";
+import {
+  BoundedRange,
+  Color,
+  CommandResult,
+  Getters,
+  Range,
+  RangeAdapter,
+  UID,
+} from "../../../types";
 import {
   getBarChartDatasets,
   getBarChartLegend,
@@ -201,6 +210,10 @@ export class PyramidChart extends AbstractChart {
       verticalAxis: getDefinedAxis(definition),
       maxValue,
     };
+  }
+
+  getDependencies(): BoundedRange[] {
+    return getChartDatasetDependencies(this.dataSets, this.labelRange);
   }
 
   updateRanges({ applyChange }: RangeAdapterFunctions): PyramidChart {

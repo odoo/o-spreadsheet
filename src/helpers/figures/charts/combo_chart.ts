@@ -8,6 +8,7 @@ import {
   createDataSets,
   duplicateDataSetsInDuplicatedSheet,
   duplicateLabelRangeInDuplicatedSheet,
+  getChartDatasetDependencies,
   getDefinedAxis,
   shouldRemoveFirstLabel,
   transformChartDefinitionWithDataSetsWithZone,
@@ -28,6 +29,7 @@ import {
 import { toXlsxHexColor } from "@odoo/o-spreadsheet-engine/xlsx/helpers/colors";
 import { ChartConfiguration } from "chart.js";
 import {
+  BoundedRange,
   ChartCreationContext,
   Color,
   CommandResult,
@@ -166,6 +168,10 @@ export class ComboChart extends AbstractChart {
       labelRange,
       verticalAxis: getDefinedAxis(definition),
     };
+  }
+
+  getDependencies(): BoundedRange[] {
+    return getChartDatasetDependencies(this.dataSets, this.labelRange);
   }
 
   updateRanges({ applyChange }: RangeAdapterFunctions): ComboChart {
