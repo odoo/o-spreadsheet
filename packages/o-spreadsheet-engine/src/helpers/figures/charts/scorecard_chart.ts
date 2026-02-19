@@ -254,6 +254,10 @@ export class ScorecardChart extends AbstractChart {
     return this.getDefinitionWithSpecificRanges(this.baseline, this.keyValue);
   }
 
+  getDataRanges(): Range[] {
+    return [this.keyValue, this.baseline].filter((r): r is Range => r !== undefined);
+  }
+
   getContextCreation(): ChartCreationContext {
     return {
       ...this,

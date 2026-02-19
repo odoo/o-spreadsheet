@@ -108,6 +108,12 @@ export class FunnelChart extends AbstractChart {
     };
   }
 
+  getDataRanges(): Range[] {
+    return [this.labelRange, ...this.dataSets.map((ds) => ds.dataRange)].filter(
+      (r): r is Range => r !== undefined
+    );
+  }
+
   getContextCreation(): ChartCreationContext {
     const range: CustomizedDataSet[] = [];
     for (const [i, dataSet] of this.dataSets.entries()) {

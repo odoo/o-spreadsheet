@@ -21,7 +21,7 @@ import {
   UID,
   Zone,
 } from "../../../types/misc";
-import { Range } from "../../../types/range";
+import { BoundedRange, Range } from "../../../types/range";
 import { ExcelWorkbookData } from "../../../types/workbook_data";
 import { FormulaCellWithDependencies } from "../../core/cell";
 import { CoreViewPlugin, CoreViewPluginConfig } from "../../core_view_plugin";
@@ -159,12 +159,15 @@ export class EvaluationPlugin extends CoreViewPlugin {
     "getArrayFormulaSpreadingOn",
     "isArrayFormulaSpillBlocked",
     "isEmpty",
+    "getLastEvaluatedRanges",
   ] as const;
 
   private shouldRebuildDependenciesGraph = true;
+  private fullEvaluationDone = false;
 
   private evaluator: Evaluator;
   private positionsToUpdate: CellPosition[] = [];
+  private lastEvaluatedRanges: BoundedRange[] | null = [];
 
   constructor(config: CoreViewPluginConfig) {
     super(config);
@@ -204,6 +207,7 @@ export class EvaluationPlugin extends CoreViewPlugin {
           }
         } else {
           this.evaluator.evaluateAllCells();
+          this.fullEvaluationDone = true;
         }
         break;
     }
@@ -213,10 +217,17 @@ export class EvaluationPlugin extends CoreViewPlugin {
     if (this.shouldRebuildDependenciesGraph) {
       this.evaluator.buildDependencyGraph();
       this.evaluator.evaluateAllCells();
+      this.lastEvaluatedRanges = null; // full re-evaluation
       this.shouldRebuildDependenciesGraph = false;
+    } else if (this.fullEvaluationDone) {
+      this.lastEvaluatedRanges = null; // full re-evaluation (EVALUATE_CELLS without cellIds)
     } else if (this.positionsToUpdate.length) {
-      this.evaluator.evaluateCells(this.positionsToUpdate);
+      const computed = this.evaluator.evaluateCells(this.positionsToUpdate);
+      this.lastEvaluatedRanges = [...computed];
+    } else {
+      this.lastEvaluatedRanges = []; // nothing was evaluated
     }
+    this.fullEvaluationDone = false;
     this.positionsToUpdate = [];
   }
 
@@ -313,6 +324,16 @@ export class EvaluationPlugin extends CoreViewPlugin {
 
   isArrayFormulaSpillBlocked(position: CellPosition): boolean {
     return this.evaluator.isArrayFormulaSpillBlocked(position);
+  }
+
+  /**
+   * Returns the ranges that were re-evaluated during the last evaluation cycle,
+   * or null if all cells were re-evaluated (full evaluation).
+   * An empty array means nothing was evaluated.
+   * Used by EvaluationChartPlugin to selectively invalidate chart runtimes.
+   */
+  getLastEvaluatedRanges(): BoundedRange[] | null {
+    return this.lastEvaluatedRanges;
   }
 
   /**
