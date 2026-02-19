@@ -1,13 +1,13 @@
 <templates>
   <t t-name="o-spreadsheet-PivotOverlay">
     <div
-      class="o-pivot-overlay position-absolute pe-none d-flex flex-column gap-2"
+      class="o-pivot-overlay position-absolute bg-white d-flex flex-column rounded shadow border p-3"
       t-att-style="overlayStyle"
       t-ref="pivotOverlay"
       t-if="pivotFormulaPosition">
-      <div class="d-flex flex-row gap-2">
+      <div class="d-flex flex-row gap-2 border-bottom align-items-end">
         <div
-          class="o-pivot-measures o-pivot-overlay-section bg-white p-3 rounded shadow border pe-auto d-flex flex-column gap-2">
+          class="o-pivot-measures o-pivot-overlay-section bg-white p-3 border-end d-flex flex-column gap-2">
           <t t-foreach="definition.measures" t-as="measure" t-key="measure_index">
             <PivotFacet
               icon="'measure'"
@@ -25,7 +25,7 @@
           />
         </div>
         <div
-          class="o-pivot-columns o-pivot-overlay-section bg-white p-3 rounded shadow border pe-auto d-flex flex-row align-items-center gap-2">
+          class="o-pivot-columns o-pivot-overlay-section bg-white p-3 d-flex flex-row align-items-center gap-2">
           <div class="o-pivot-overlay-title me-4">Columns</div>
           <t t-foreach="definition.columns" t-as="column" t-key="column_index">
             <PivotFacet
@@ -45,28 +45,33 @@
           />
         </div>
       </div>
-      <div
-        class="o-pivot-rows o-pivot-overlay-section bg-white p-3 rounded shadow border pe-auto d-flex flex-column align-items-center">
-        <span class="o-pivot-overlay-title mb-4">Rows</span>
-        <div class="o-rotated d-flex flex-column align-items-center gap-2">
-          <t t-foreach="definition.rows" t-as="row" t-key="row_index">
+      <div class="d-flex flex-row">
+        <div
+          class="o-pivot-rows o-pivot-overlay-section bg-white p-3 d-flex flex-column align-items-center">
+          <span class="o-pivot-overlay-title mb-4">Rows</span>
+          <div class="o-rotated d-flex flex-column align-items-center gap-2">
+            <t t-foreach="definition.rows" t-as="row" t-key="row_index">
+              <PivotFacet
+                icon="'group'"
+                label="row.displayName"
+                onClickIcon="() => {}"
+                onClickRemove="() => {}"
+                vertical="true"
+              />
+              <span class="o-group-separator fw-bold ps-2 pb-2">&gt;</span>
+            </t>
             <PivotFacet
-              icon="'group'"
-              label="row.displayName"
+              icon="'add'"
+              label.translate="Add group"
               onClickIcon="() => {}"
               onClickRemove="() => {}"
+              canRemove="false"
               vertical="true"
             />
-            <span class="o-group-separator fw-bold ps-2 pb-2">&gt;</span>
-          </t>
-          <PivotFacet
-            icon="'add'"
-            label.translate="Add group"
-            onClickIcon="() => {}"
-            onClickRemove="() => {}"
-            canRemove="false"
-            vertical="true"
-          />
+          </div>
+        </div>
+        <div class="p-3 border-start">
+          <StandaloneGridCanvas t-props="pivotGridProps"/>
         </div>
       </div>
     </div>
