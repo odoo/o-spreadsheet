@@ -1,3 +1,6 @@
+import { Pixel } from "@odoo/o-spreadsheet-engine";
+import { ViewportCollection } from "@odoo/o-spreadsheet-engine/helpers/viewport_collection";
+import { SelectionState } from "@odoo/o-spreadsheet-engine/plugins/ui_stateful/selection";
 import { SpreadsheetRenderingMachinEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { Component, xml } from "@odoo/owl";
 import { isBrowserFirefox } from "../helpers/dom_helpers";
@@ -5,12 +8,17 @@ import { ScrollBar } from "./scrollbar";
 
 interface Props {
   topOffset: number;
-  changeViewPortOffset: (offsetX: number, offsetY: number) => void;
+  onScroll: (offsetX: number, offsetY: number) => void;
+  viewports: ViewportCollection;
+  selectionState: SelectionState;
 }
 
 export class VerticalScrollBar extends Component<Props, SpreadsheetRenderingMachinEnv> {
   static props = {
     topOffset: { type: Number, optional: true },
+    onScroll: Function,
+    viewports: Object,
+    selectionState: Object,
   };
   static components = { ScrollBar };
   static template = xml/*xml*/ `
@@ -27,23 +35,23 @@ export class VerticalScrollBar extends Component<Props, SpreadsheetRenderingMach
   };
 
   get offset() {
-    return this.env.model.getters.getActiveSheetScrollInfo().scrollY;
+    return this.props.viewports.getSheetScrollInfo(this.props.selectionState.sheetId).scrollY;
   }
 
   get height() {
-    return this.env.model.getters.getMainViewportRect().height;
+    return this.props.viewports.getMainViewportRect(this.props.selectionState.sheetId).height;
   }
 
   get isDisplayed() {
-    const { yRatio } = this.env.model.getters.getFrozenSheetViewRatio(
-      this.env.model.getters.getActiveSheetId()
+    const { yRatio } = this.props.viewports.getFrozenSheetViewRatio(
+      this.props.selectionState.sheetId
     );
     return yRatio < 1;
   }
 
   get position() {
-    const { y } = this.env.model.getters.getMainViewportRect();
-    const scrollbarWidth = this.env.model.getters.getScrollBarWidth();
+    const { y } = this.props.viewports.getMainViewportRect(this.props.selectionState.sheetId);
+    const scrollbarWidth = this.props.viewports.getScrollBarWidth();
     return {
       top: `${this.props.topOffset + y}px`,
       right: "0px",
@@ -52,12 +60,8 @@ export class VerticalScrollBar extends Component<Props, SpreadsheetRenderingMach
     };
   }
 
-  onScroll(offset) {
-    const { scrollX } = this.env.model.getters.getActiveSheetScrollInfo();
-    this.env.model.dispatch("SET_VIEWPORT_OFFSET", {
-      offsetX: scrollX, // offsetX is the same
-      offsetY: offset,
-    });
-    this.props.changeViewPortOffset(scrollX, offset);
+  onScroll(offset: Pixel) {
+    const { scrollX } = this.props.viewports.getSheetScrollInfo(this.props.selectionState.sheetId);
+    this.props.onScroll(scrollX, offset);
   }
 }

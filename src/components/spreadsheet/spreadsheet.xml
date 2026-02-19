@@ -39,7 +39,7 @@
         </div>
         <div
           class="position-absolute overflow-hidden shadow border bg-white"
-          style="top: 200px; left: 200px; width:500px; height: 500px;">
+          t-att-style="testStyle">
           <StandaloneGridCanvas t-props="testProps"/>
         </div>
       </t>

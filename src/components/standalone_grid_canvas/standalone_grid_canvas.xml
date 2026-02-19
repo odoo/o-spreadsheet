@@ -1,8 +1,8 @@
 <templates>
   <t t-name="o-spreadsheet-StandaloneGridCanvas">
-    <canvas t-ref="canvas"/>
-    <VerticalScrollBar topOffset="HEADER_HEIGHT"/>
-    <HorizontalScrollBar leftOffset="HEADER_WIDTH"/>
+    <canvas t-ref="canvas" t-on-wheel="onMouseWheel"/>
+    <VerticalScrollBar topOffset="0" t-props="scrollBarProps"/>
+    <HorizontalScrollBar leftOffset="0" t-props="scrollBarProps"/>
     <div class="o-scrollbar corner border-top border-start"/>
   </t>
 </templates>

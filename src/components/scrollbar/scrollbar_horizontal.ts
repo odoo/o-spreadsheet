@@ -1,15 +1,24 @@
-import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
+import { Pixel } from "@odoo/o-spreadsheet-engine";
+import { ViewportCollection } from "@odoo/o-spreadsheet-engine/helpers/viewport_collection";
+import { SelectionState } from "@odoo/o-spreadsheet-engine/plugins/ui_stateful/selection";
+import { SpreadsheetRenderingMachinEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { Component, xml } from "@odoo/owl";
 import { isBrowserFirefox } from "../helpers/dom_helpers";
 import { ScrollBar } from "./scrollbar";
 
 interface Props {
   leftOffset: number;
+  onScroll: (offsetX: number, offsetY: number) => void;
+  viewports: ViewportCollection;
+  selectionState: SelectionState;
 }
 
-export class HorizontalScrollBar extends Component<Props, SpreadsheetChildEnv> {
+export class HorizontalScrollBar extends Component<Props, SpreadsheetRenderingMachinEnv> {
   static props = {
     leftOffset: { type: Number, optional: true },
+    onScroll: Function,
+    viewports: Object,
+    selectionState: Object,
   };
   static components = { ScrollBar };
   static template = xml/*xml*/ `
@@ -26,23 +35,23 @@ export class HorizontalScrollBar extends Component<Props, SpreadsheetChildEnv> {
   };
 
   get offset() {
-    return this.env.model.getters.getActiveSheetScrollInfo().scrollX;
+    return this.props.viewports.getSheetScrollInfo(this.props.selectionState.sheetId).scrollX;
   }
 
   get width() {
-    return this.env.model.getters.getMainViewportRect().width;
+    return this.props.viewports.getMainViewportRect(this.props.selectionState.sheetId).width;
   }
 
   get isDisplayed() {
-    const { xRatio } = this.env.model.getters.getFrozenSheetViewRatio(
-      this.env.model.getters.getActiveSheetId()
+    const { xRatio } = this.props.viewports.getFrozenSheetViewRatio(
+      this.props.selectionState.sheetId
     );
     return xRatio < 1;
   }
 
   get position() {
-    const { x } = this.env.model.getters.getMainViewportRect();
-    const scrollbarWidth = this.env.model.getters.getScrollBarWidth();
+    const { x } = this.props.viewports.getMainViewportRect(this.props.selectionState.sheetId);
+    const scrollbarWidth = this.props.viewports.getScrollBarWidth();
     return {
       left: `${this.props.leftOffset + x}px`,
       bottom: "0px",
@@ -51,11 +60,8 @@ export class HorizontalScrollBar extends Component<Props, SpreadsheetChildEnv> {
     };
   }
 
-  onScroll(offset) {
-    const { scrollY } = this.env.model.getters.getActiveSheetScrollInfo();
-    this.env.model.dispatch("SET_VIEWPORT_OFFSET", {
-      offsetX: offset,
-      offsetY: scrollY, // offsetY is the same
-    });
+  onScroll(offset: Pixel) {
+    const { scrollY } = this.props.viewports.getSheetScrollInfo(this.props.selectionState.sheetId);
+    this.props.onScroll(offset, scrollY);
   }
 }

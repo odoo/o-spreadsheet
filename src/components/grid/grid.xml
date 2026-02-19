@@ -60,8 +60,8 @@
       <t t-foreach="staticTables" t-as="table" t-key="table.id">
         <TableResizer table="table"/>
       </t>
-      <VerticalScrollBar topOffset="HEADER_HEIGHT"/>
-      <HorizontalScrollBar leftOffset="HEADER_WIDTH"/>
+      <VerticalScrollBar topOffset="HEADER_HEIGHT" t-props="scrollBarProps"/>
+      <HorizontalScrollBar leftOffset="HEADER_WIDTH" t-props="scrollBarProps"/>
       <div class="o-scrollbar corner border-top border-start"/>
     </div>
   </t>

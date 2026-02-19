@@ -82,12 +82,16 @@ export class ViewportCollection {
    */
   sheetViewWidth: Pixel = getDefaultSheetViewSize();
   sheetViewHeight: Pixel = getDefaultSheetViewSize();
-  gridOffsetX: Pixel = 0;
+  _gridOffsetX: Pixel = 0;
   gridOffsetY: Pixel = 0;
   zoomLevel: number = 1;
 
-  constructor(getters: RenderingGetters) {
+  constructor(getters: RenderingGetters, public id = "main") {
     this.getters = getters;
+  }
+
+  get gridOffsetX() {
+    return this._gridOffsetX - 96 * 3;
   }
 
   /**
@@ -407,10 +411,11 @@ export class ViewportCollection {
 
   getAllSheetViewportsZonesAndRect(sheetId: UID): { zone: Zone; rect: Rect }[] {
     return this.getSubViewports(sheetId).map((viewport) => {
+      console.log(viewport.offsetCorrectionX + this.gridOffsetX, viewport);
       return {
         zone: viewport,
         rect: {
-          x: viewport.offsetCorrectionX + this.gridOffsetX,
+          x: Math.max(0, viewport.offsetCorrectionX + this.gridOffsetX),
           y: viewport.offsetCorrectionY + this.gridOffsetY,
           ...viewport.getMaxSize(),
         },
@@ -509,7 +514,7 @@ export class ViewportCollection {
   resizeSheetView(height: Pixel, width: Pixel, gridOffsetX: Pixel = 0, gridOffsetY: Pixel = 0) {
     this.sheetViewHeight = height;
     this.sheetViewWidth = width;
-    this.gridOffsetX = gridOffsetX;
+    this._gridOffsetX = gridOffsetX;
     this.gridOffsetY = gridOffsetY;
     this.recomputeViewports();
   }

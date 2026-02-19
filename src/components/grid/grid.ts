@@ -902,4 +902,14 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
   get displaySelectionHandler() {
     return this.env.isMobile() && this.composerFocusStore.activeComposer.editionMode === "inactive";
   }
+
+  get scrollBarProps() {
+    return {
+      viewports: this.env.model.getters.getViewportCollection(),
+      selectionState: this.env.model.getters.getSelectionState(),
+      onScroll: (offsetX: number, offsetY: number) => {
+        this.env.model.dispatch("SET_VIEWPORT_OFFSET", { offsetX, offsetY });
+      },
+    };
+  }
 }
