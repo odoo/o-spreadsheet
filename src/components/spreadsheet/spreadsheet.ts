@@ -1,6 +1,7 @@
 import { cssPropertiesToCss } from "@odoo/o-spreadsheet-engine/components/helpers/css";
 import { GROUP_LAYER_WIDTH, MAXIMAL_FREEZABLE_RATIO } from "@odoo/o-spreadsheet-engine/constants";
 import { unregisterChartJsExtensions } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_js_extension";
+import { ViewportCollection } from "@odoo/o-spreadsheet-engine/helpers/viewport_collection";
 import { Model } from "@odoo/o-spreadsheet-engine/model";
 import { _t } from "@odoo/o-spreadsheet-engine/translation";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
@@ -26,6 +27,7 @@ import { ScreenWidthStore } from "../../stores/screen_width_store";
 import {
   CommandResult,
   CSSProperties,
+  GridRenderingContext,
   HeaderGroup,
   InformationNotification,
   Pixel,
@@ -47,6 +49,7 @@ import { DEFAULT_SIDE_PANEL_SIZE, SidePanelStore } from "../side_panel/side_pane
 import { SidePanels } from "../side_panel/side_panels/side_panels";
 import { SmallBottomBar } from "../small_bottom_bar/small_bottom_bar";
 import { SpreadsheetPrint } from "../spreadsheet_print/spreadsheet_print";
+import { StandaloneGridCanvas } from "../standalone_grid_canvas/standalone_grid_canvas";
 import { TopBar } from "../top_bar/top_bar";
 import { instantiateClipboard } from "./../../helpers/clipboard/navigator_clipboard_wrapper";
 
@@ -85,6 +88,7 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
     HeaderGroupContainer,
     FullScreenFigure,
     SpreadsheetPrint,
+    StandaloneGridCanvas,
   };
 
   sidePanel!: Store<SidePanelStore>;
@@ -167,6 +171,7 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
       raiseError: (text, cb) => this.notificationStore.raiseError(text, cb),
       isMobile: isMobileOS,
       printSpreadsheet: () => (this.state.printModeEnabled = true),
+      viewports: this.model.getters.getViewportCollection(),
     } satisfies Partial<SpreadsheetChildEnv>);
 
     this.notificationStore.updateNotificationCallbacks({ ...this.props });
@@ -360,5 +365,23 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
 
   exitPrintMode() {
     this.state.printModeEnabled = false;
+  }
+
+  get testProps(): StandaloneGridCanvas["props"] {
+    const sheetId = this.env.model.getters.getActiveSheetId();
+    const zone = { left: 0, right: 2, bottom: 2, top: 0 };
+    const firstRowStart = this.env.model.getters.getRowDimensions(sheetId, zone.top).start;
+    const lastRowEnd = this.env.model.getters.getRowDimensions(sheetId, zone.bottom).end;
+    const firstColStart = this.env.model.getters.getColDimensions(sheetId, zone.left).start;
+    const lastColEnd = this.env.model.getters.getColDimensions(sheetId, zone.right).end;
+
+    const viewports = new ViewportCollection(this.env.model.getters);
+    viewports.sheetViewWidth = lastColEnd - firstColStart;
+    viewports.sheetViewHeight = lastRowEnd - firstRowStart;
+    viewports.setSheetViewOffset(sheetId, firstColStart, firstRowStart);
+
+    const renderingCtx: Partial<GridRenderingContext> = { selectedZones: [], sheetId, viewports };
+
+    return { sheetId, zone, renderingCtx };
   }
 }

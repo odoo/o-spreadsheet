@@ -1,7 +1,10 @@
+import { ViewportCollection } from "../helpers/viewport_collection";
 import { Model } from "../model";
+import { SelectionState } from "../plugins/ui_stateful/selection";
 import { ClipboardInterface } from "./clipboard/clipboard_interface";
 import { Currency } from "./currency";
 import { ImageProviderInterface } from "./files";
+import { RenderingGetters } from "./getters";
 import { Locale } from "./locale";
 import { Get } from "./store_engine";
 import { NotificationStoreMethods } from "./stores/notification_store_methods";
@@ -21,4 +24,14 @@ export interface SpreadsheetChildEnv extends NotificationStoreMethods {
   isSmall: boolean;
   isMobile: () => boolean;
   printSpreadsheet: () => void;
+}
+
+interface RenderingModel extends Omit<Model, "getters"> {
+  getters: RenderingGetters;
+}
+
+export interface SpreadsheetRenderingMachinEnv extends Omit<SpreadsheetChildEnv, "model"> {
+  model: RenderingModel;
+  viewports: ViewportCollection;
+  selectionState: SelectionState;
 }

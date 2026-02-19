@@ -1,13 +1,14 @@
-import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
+import { SpreadsheetRenderingMachinEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { Component, xml } from "@odoo/owl";
 import { isBrowserFirefox } from "../helpers/dom_helpers";
 import { ScrollBar } from "./scrollbar";
 
 interface Props {
   topOffset: number;
+  changeViewPortOffset: (offsetX: number, offsetY: number) => void;
 }
 
-export class VerticalScrollBar extends Component<Props, SpreadsheetChildEnv> {
+export class VerticalScrollBar extends Component<Props, SpreadsheetRenderingMachinEnv> {
   static props = {
     topOffset: { type: Number, optional: true },
   };
@@ -57,5 +58,6 @@ export class VerticalScrollBar extends Component<Props, SpreadsheetChildEnv> {
       offsetX: scrollX, // offsetX is the same
       offsetY: offset,
     });
+    this.props.changeViewPortOffset(scrollX, offset);
   }
 }

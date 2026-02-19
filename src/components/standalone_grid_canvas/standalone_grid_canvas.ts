@@ -1,9 +1,11 @@
 import { GridRenderingContext, UID, Zone } from "@odoo/o-spreadsheet-engine";
+import { ViewportCollection } from "@odoo/o-spreadsheet-engine/helpers/viewport_collection";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { Component, onWillStart, onWillUpdateProps, useRef } from "@odoo/owl";
 import { Store, useLocalStore } from "../../store_engine";
 import { RendererStore } from "../../stores/renderer_store";
 import { useGridDrawing } from "../helpers/draw_grid_hook";
+import { HorizontalScrollBar, VerticalScrollBar } from "../scrollbar/";
 import { FigureRendererStore } from "./figure_renderer_store";
 
 interface Props {
@@ -23,6 +25,7 @@ export class StandaloneGridCanvas extends Component<Props, SpreadsheetChildEnv> 
     dpr: { type: Number, optional: true },
     drawFiguresOnCanvas: { type: Boolean, optional: true },
   };
+  static components = { VerticalScrollBar, HorizontalScrollBar };
 
   canvasRef = useRef("canvas");
 
@@ -64,5 +67,9 @@ export class StandaloneGridCanvas extends Component<Props, SpreadsheetChildEnv> 
         this.figureRendererStore.addLoadedImage(path, await createImageBitmap(blob));
       })
     );
+  }
+
+  get viewports(): ViewportCollection {
+    return this.props.renderingCtx.viewports || this.env.model.getters.getViewportCollection();
   }
 }
