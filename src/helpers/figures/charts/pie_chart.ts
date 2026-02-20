@@ -18,6 +18,7 @@ import {
   getPieChartLegend,
   getPieChartTooltip,
 } from "./runtime";
+import { getChartJsEventHandlers } from "./runtime/chartjs_event_handlers";
 import { getChartLayout } from "./runtime/chartjs_layout";
 
 export const PieChart: ChartTypeBuilder<"pie"> = {
@@ -75,7 +76,7 @@ export const PieChart: ChartTypeBuilder<"pie"> = {
     };
   },
 
-  getRuntime(getters, definition, { extractData }): PieChartRuntime {
+  getRuntime(getters, definition, { extractData }, sheetId, goToDataSet): PieChartRuntime {
     const data = extractData();
     const chartData = getPieChartData(definition, data, getters);
 
@@ -99,9 +100,10 @@ export const PieChart: ChartTypeBuilder<"pie"> = {
           chartShowValuesPlugin: getChartShowValues(definition, chartData),
           background: { color: definition.background },
         },
+        ...getChartJsEventHandlers(definition, data, getters, goToDataSet),
       },
     };
 
     return { chartJsConfig: config };
-  }
-}
+  },
+};
