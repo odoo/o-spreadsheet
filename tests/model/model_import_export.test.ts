@@ -981,3 +981,15 @@ test("Can import spreadsheet with only version", () => {
   // We expect the model to be loaded without traceback
   expect(true).toBeTruthy();
 });
+
+test("Reject data import from data with a subsequent version", () => {
+  const futureVersion = (parseFloat(getCurrentVersion()) + 1).toString();
+  expect(() => new Model({ version: futureVersion })).toThrow(
+    `Data version ${futureVersion} postdates the current version of o-spreadsheet (version ${getCurrentVersion()}). It cannot be loaded.`
+  );
+});
+
+test("Accept data that predates the latest version while not being present in the migration steps", () => {
+  const previousVersion = "16.3.1";
+  expect(() => new Model({ version: previousVersion })).not.toThrow();
+});
