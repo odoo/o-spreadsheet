@@ -54,8 +54,7 @@ describe("squish - unsquish", () => {
           A5: '=IF(AND(F20819<=Sheet1!$M$1,F20819>=Sheet1!$L$1),IFERROR(MID(C20819,SEARCH("(",C20819)+1,SEARCH(")",C20819)-SEARCH("(",C20819)-1),""))',
           "A6:A7": { N: "=|=", R: "+R1|=|+R1|=|+R1|+R1|+R1|+R1", S: ["=", "=", "=", "="] },
           B1: "1",
-          B2: "2",
-          B3: "3",
+          "B2:B3": { N: "+1" },
           C1: "=B1",
           "C2:C3": { R: "+R1" },
           C4: "=B4+2",
@@ -426,6 +425,115 @@ describe("squish - unsquish specific cases", () => {
     ],
   ])(
     "same formulas at following positions are grouped on the same range %s",
+    (sheetContent, squishedContent) => {
+      const model = createModelFromGrid(sheetContent);
+      const exportSquished = model._exportData(true);
+      expect(exportSquished.sheets[0].cells).toEqual(squishedContent);
+
+      const importedFromSquished = new Model(exportSquished);
+      const exportUnSquished = importedFromSquished._exportData(false);
+      expect(exportUnSquished.sheets[0].cells).toEqual(sheetContent);
+    }
+  );
+
+  test.each([
+    // identical numbers
+    [
+      { A1: "14", A2: "14", A3: "14", B1: "14" },
+      { "A1:A3": "14", B1: "14" },
+    ],
+    // identical transformations
+    [
+      { A1: "14", A2: "15", A3: "16" },
+      { A1: "14", "A2:A3": { N: "+1" } },
+    ],
+    // identical transformations and positions not following each other
+    [
+      { A1: "14", A2: "15", A4: "16", A5: "17" },
+      { A1: "14", A2: "15", "A4:A5": { N: "+1" } },
+    ],
+
+    // numbers followed by string (not formula) followed by same formula interrupt squishing
+    [
+      { A1: "14", A2: "coucou", A3: "15" },
+      { A1: "14", A2: "coucou", A3: "15" },
+    ],
+    [
+      { A1: "=14", A2: "coucou", A3: "=15" },
+      { A1: "=14", A2: "coucou", A3: "=15" },
+    ],
+    [
+      { A1: "14", A2: "coucou", B1: "14" },
+      { A1: "14", A2: "coucou", B1: "14" },
+    ],
+    [
+      { A1: "14", B1: "coucou", B2: "15" },
+      { A1: "14", B1: "coucou", B2: "15" },
+    ],
+
+    // numbers followed by formula followed by same number should not be squished
+    [
+      { A1: "14", A2: "=SUM(B1)", A3: "14" },
+      { A1: "14", A2: "=SUM(B1)", A3: "14" },
+    ],
+    [
+      { A1: "14", B1: "=SUM(B1)", B2: "14" },
+      { A1: "14", B1: "=SUM(B1)", B2: "14" },
+    ],
+    [
+      { A1: "=1", A2: "=2", A3: "=3", A4: "=4" },
+      { A1: "=1", "A2:A4": { N: "+1" } },
+    ],
+    // numbers who are not formulas are also squished if there is a pattern
+    [
+      { A1: "1", A2: "2", A3: "3", A4: "4" },
+      { A1: "1", "A2:A4": { N: "+1" } },
+    ],
+    // numbers that would be squished on only 1 cell are not squished
+    [
+      { A1: "1", A2: "2", A3: "5", A4: "10" },
+      { A1: "1", A2: "2", A3: "5", A4: "10" },
+    ],
+    // numbers interleaved with formulas are not squished
+    [
+      { A1: "1", A2: "=2", A3: "3", A4: "=4" },
+      { A1: "1", A2: "=2", A3: "3", A4: "=4" },
+    ],
+    // numbers interleaved with strings are not squished
+    [
+      { A1: "1", A2: "hello", A3: "3", A4: "4" },
+      { A1: "1", A2: "hello", A3: "3", A4: "4" },
+    ],
+    // formulas that are numbers followed by actual numbers are not mixed together
+    [
+      { A1: "=1", A2: "=2", A3: "3", A4: "4", A5: "5" },
+      { A1: "=1", A2: { N: "+1" }, A3: "3", "A4:A5": { N: "+1" } },
+    ],
+    // decimal numbers are not squished
+    [
+      { A1: "1", A2: "1.25", A3: "1.5", A4: "1.75" },
+      { A1: "1", A2: "1.25", A3: "1.5", A4: "1.75" },
+    ],
+    [
+      { A1: "=1", A2: "1.25", A3: "=2" },
+      { A1: "=1", A2: "1.25", A3: "=2" },
+    ],
+    // number squishing with 0
+    [
+      { A1: "0", A2: "1", A3: "2", A4: "3" },
+      { A1: "0", "A2:A4": { N: "+1" } },
+    ],
+    [
+      { A1: "-2", A2: "0", A3: "2", A4: "4" },
+      { A1: "-2", "A2:A4": { N: "+2" } },
+    ],
+    // number followed by decimal followed by numbers that would be squished should not squish
+    [
+      { A1: "1", A2: "1.5", A3: "2", A4: "3" },
+      { A1: "1", A2: "1.5", A3: "2", A4: "3" }, // No squish, A2 split the sequence
+    ],
+  ])(
+    "compress numbers at following positions are grouped on the same range %s",
     (sheetContent, squishedContent) => {
       const model = createModelFromGrid(sheetContent);
       const exportSquished = model._exportData(true);

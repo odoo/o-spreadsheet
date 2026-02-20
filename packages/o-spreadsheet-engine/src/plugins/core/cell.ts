@@ -333,7 +333,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
       }
       _sheet.styles = groupItemIdsByZones(positionsByStyle);
       _sheet.formats = groupItemIdsByZones(positionsByFormat);
-      _sheet.cells = shouldSquish ? squisher.squishSheet(cells) : cells;
+      _sheet.cells = shouldSquish ? squisher.squishSheet(cells, _sheet.id) : cells;
     }
     data.styles = styles;
     data.formats = formats;
