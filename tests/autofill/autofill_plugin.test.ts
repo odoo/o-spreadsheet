@@ -17,6 +17,7 @@ import {
   selectCell,
   setBorders,
   setCellContent,
+  setFormat,
   setSelection,
   updateCell,
 } from "../test_helpers/commands_helpers";
@@ -899,5 +900,13 @@ describe("Autofill", () => {
   test("link tooltip is formatted", () => {
     setCellContent(model, "A1", "[label](url)");
     expect(autofillTooltip("A1", "A2")).toBe("label");
+  });
+
+  test("Autofill that triggers no change does not crash", () => {
+    addDataValidation(model, "A1:A2", "1", { type: "isBoolean", values: [] });
+    setCellContent(model, "A1", "FALSE");
+    setCellContent(model, "A2", "FALSE");
+    setFormat(model, "A1:A2", "0.00%");
+    autofill(model, "A1", "A2"); // A1 and A2 are exactly the same
   });
 });
