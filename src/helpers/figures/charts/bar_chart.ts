@@ -20,6 +20,7 @@ import {
   getChartShowValues,
   getChartTitle,
 } from "./runtime";
+import { getChartJsEventHandlers } from "./runtime/chartjs_event_handlers";
 import { getChartLayout } from "./runtime/chartjs_layout";
 
 export const BarChart: ChartTypeBuilder<"bar"> = {
@@ -85,7 +86,7 @@ export const BarChart: ChartTypeBuilder<"bar"> = {
     };
   },
 
-  getRuntime(getters, definition, { extractData }): BarChartRuntime {
+  getRuntime(getters, definition, { extractData }, sheetId, goToDataSet): BarChartRuntime {
     const data = extractData();
     const chartData = getBarChartData(definition, data, getters);
 
@@ -107,6 +108,7 @@ export const BarChart: ChartTypeBuilder<"bar"> = {
           chartShowValuesPlugin: getChartShowValues(definition, chartData),
           background: { color: definition.background },
         },
+        ...getChartJsEventHandlers(definition, data, getters, goToDataSet),
       },
     };
 

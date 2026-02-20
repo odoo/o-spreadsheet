@@ -14,6 +14,7 @@ import {
   getFunnelChartScales,
   getFunnelChartTooltip,
 } from "./runtime";
+import { getChartJsEventHandlers } from "./runtime/chartjs_event_handlers";
 import { getChartLayout } from "./runtime/chartjs_layout";
 
 export const FunnelChart: ChartTypeBuilder<"funnel"> = {
@@ -68,7 +69,7 @@ export const FunnelChart: ChartTypeBuilder<"funnel"> = {
 
   getDefinitionForExcel: () => undefined,
 
-  getRuntime(getters, definition, { extractData }): FunnelChartRuntime {
+  getRuntime(getters, definition, { extractData }, sheetId, goToDataSet): FunnelChartRuntime {
     const data = extractData();
     const chartData = getFunnelChartData(definition, data, getters);
 
@@ -90,9 +91,10 @@ export const FunnelChart: ChartTypeBuilder<"funnel"> = {
           chartShowValuesPlugin: getChartShowValues(definition, chartData),
           background: { color: definition.background },
         },
+        ...getChartJsEventHandlers(definition, data, getters, goToDataSet),
       },
     };
 
     return { chartJsConfig: config };
-  }
-}
+  },
+};

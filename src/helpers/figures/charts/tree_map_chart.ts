@@ -11,6 +11,7 @@ import {
   getTreeMapChartDatasets,
   getTreeMapChartTooltip,
 } from "./runtime";
+import { getChartJsEventHandlers } from "./runtime/chartjs_event_handlers";
 import { getChartLayout } from "./runtime/chartjs_layout";
 
 export const TreeMapChart: ChartTypeBuilder<"treemap"> = {
@@ -84,7 +85,13 @@ export const TreeMapChart: ChartTypeBuilder<"treemap"> = {
 
   getDefinitionForExcel: () => undefined,
 
-  getRuntime(getters, definition, { extractHierarchicalData }): TreeMapChartRuntime {
+  getRuntime(
+    getters,
+    definition,
+    { extractHierarchicalData },
+    sheetId,
+    goToDataSet
+  ): TreeMapChartRuntime {
     const data = extractHierarchicalData();
     const chartData = getHierarchalChartData(definition, data, getters);
 
@@ -103,9 +110,10 @@ export const TreeMapChart: ChartTypeBuilder<"treemap"> = {
           tooltip: getTreeMapChartTooltip(definition, chartData),
           background: { color: definition.background },
         },
+        ...getChartJsEventHandlers(definition, data, getters, goToDataSet),
       },
     };
 
     return { chartJsConfig: config };
-  }
-}
+  },
+};

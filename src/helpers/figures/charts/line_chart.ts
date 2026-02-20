@@ -21,6 +21,7 @@ import {
   getLineChartScales,
   getLineChartTooltip,
 } from "./runtime";
+import { getChartJsEventHandlers } from "./runtime/chartjs_event_handlers";
 import { getChartLayout } from "./runtime/chartjs_layout";
 
 export const LineChart: ChartTypeBuilder<"line"> = {
@@ -90,7 +91,7 @@ export const LineChart: ChartTypeBuilder<"line"> = {
     };
   },
 
-  getRuntime(getters, definition, { extractData }): LineChartRuntime {
+  getRuntime(getters, definition, { extractData }, sheetId, goToDataSet): LineChartRuntime {
     const data = extractData();
     const chartData = getLineChartData(definition, data, getters);
 
@@ -111,6 +112,7 @@ export const LineChart: ChartTypeBuilder<"line"> = {
           chartShowValuesPlugin: getChartShowValues(definition, chartData),
           background: { color: definition.background },
         },
+        ...getChartJsEventHandlers(definition, data, getters, goToDataSet),
       },
     };
 
