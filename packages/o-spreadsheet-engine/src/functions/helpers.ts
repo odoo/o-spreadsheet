@@ -1018,7 +1018,7 @@ export function linearSearch<T>(
       return reverseSearch ? numberOfValues - resultIndex - 1 : resultIndex;
     }
 
-    if (mode === "strict") {
+    if (mode === "strict" || mode === "wildcard") {
       return -1;
     }
   }
