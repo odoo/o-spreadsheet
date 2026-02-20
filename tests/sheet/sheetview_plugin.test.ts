@@ -888,7 +888,18 @@ describe("Viewport of Simple sheet", () => {
       right: 10,
       top: 0,
     });
-    setFormatting(model, "A1:A20", { fontSize: 8 });
+    setFormatting(model, "A1:A20", { fontSize: 24 });
+    expect(model.getters.getActiveMainViewport()).toEqual({
+      bottom: 30,
+      left: 0,
+      right: 10,
+      top: 0,
+    });
+
+    const sheetId = model.getters.getActiveSheetId();
+    for (let i = 0; i < 20; ++i) {
+      model.dispatch("UPDATE_CELL", { sheetId, col: 0, row: i, style: {} });
+    }
     expect(model.getters.getActiveMainViewport()).toEqual({
       bottom: 43,
       left: 0,

@@ -258,12 +258,12 @@ export class SheetViewPlugin extends UIPlugin {
       case "FOLD_ALL_HEADER_GROUPS":
         this.sheetsWithDirtyViewports.add(cmd.sheetId);
         break;
+      // Either the content, format or style can impact the header sizes of a sheet
+      // As such, every command can have a potential effect on the viewport
       case "UPDATE_CELL":
-        // update cell content or format can change hidden rows because of data filters
-        if ("content" in cmd || "format" in cmd || cmd.style?.fontSize !== undefined) {
-          for (const sheetId of this.getters.getSheetIds()) {
-            this.sheetsWithDirtyViewports.add(sheetId);
-          }
+      case "SET_FORMATTING":
+        for (const sheetId of this.getters.getSheetIds()) {
+          this.sheetsWithDirtyViewports.add(sheetId);
         }
         break;
       case "DELETE_SHEET":
