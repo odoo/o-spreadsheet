@@ -23,8 +23,8 @@ export function getChartJsEventHandlers(
   definition: ChartDefinitionWithDataSource,
   data: ChartData,
   getters: Getters,
-  goToDataSet: GoToDataSetFunction<"geo"> | undefined
-): ChartConfiguration["options"] {
+  goToDataSet: GoToDataSetFunction<any> | undefined
+) {
   return {
     onHover: (event, items, chart) => {
       if (!goToDataSet || !event.native) {
@@ -60,6 +60,33 @@ export function getChartJsEventHandlers(
         isChartJSMiddleClick(event),
         getters
       );
+    },
+  } satisfies ChartConfiguration["options"];
+}
+
+export function getSunburstChartJsEventHandlers(
+  definition: ChartDefinitionWithDataSource,
+  data: ChartData,
+  getters: Getters,
+  goToDataSet: GoToDataSetFunction<any> | undefined
+) {
+  return {
+    onHover: (event, items, chart) => {
+      if (!goToDataSet || !event.native) {
+        return;
+      }
+      if (items.length > 0) {
+        (event.native.target as HTMLElement).style.cursor = "pointer";
+      } else {
+        (event.native.target as HTMLElement).style.cursor = "";
+      }
+    },
+    onClick: (event, items, chart) => {
+      if (!goToDataSet || !items.length || !data.dataSetsValues[items[0].datasetIndex]) {
+        return;
+      }
+      const { datasetIndex, index } = items[0];
+      const rawItem = chart.data.datasets[datasetIndex].data[index];
     },
   };
 }

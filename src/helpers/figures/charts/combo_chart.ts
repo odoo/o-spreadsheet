@@ -23,6 +23,7 @@ import {
   getComboChartDatasets,
   getComboChartLegend,
 } from "./runtime";
+import { getChartJsEventHandlers } from "./runtime/chartjs_event_handlers";
 import { getChartLayout } from "./runtime/chartjs_layout";
 
 export const ComboChart: ChartTypeBuilder<"combo"> = {
@@ -91,7 +92,7 @@ export const ComboChart: ChartTypeBuilder<"combo"> = {
     };
   },
 
-  getRuntime(getters, definition, { extractData }): ComboChartRuntime {
+  getRuntime(getters, definition, { extractData }, sheetId, goToDataSet): ComboChartRuntime {
     const data = extractData();
     const chartData = getBarChartData(definition, data, getters);
 
@@ -112,6 +113,7 @@ export const ComboChart: ChartTypeBuilder<"combo"> = {
           chartShowValuesPlugin: getChartShowValues(definition, chartData),
           background: { color: definition.background },
         },
+        ...getChartJsEventHandlers(definition, data, getters, goToDataSet),
       },
     };
 
