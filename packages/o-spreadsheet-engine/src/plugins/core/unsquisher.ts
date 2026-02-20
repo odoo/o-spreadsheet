@@ -1,7 +1,9 @@
 import { CompiledFormula } from "../../formulas/compiler";
 import { toCartesian } from "../../helpers/coordinates";
 import { expandRange, expandXc } from "../../helpers/expand_range";
+import { isNumber, parseNumber } from "../../helpers/numbers";
 import { CoreGetters } from "../../types/core_getters";
+import { DEFAULT_LOCALE } from "../../types/locale";
 import { Position, UID } from "../../types/misc";
 import { Range } from "../../types/range";
 import { NO_CHANGE, SEPARATOR, SquishedCell, SquishedFormula } from "./squisher";
@@ -9,9 +11,10 @@ import { NO_CHANGE, SEPARATOR, SquishedCell, SquishedFormula } from "./squisher"
 type UnsquishMethod =
   | "NOT_A_FORMULA"
   | "NEW_FORMULA"
-  | "COMBINE_OFFSET"
+  | "NEW_NUMBER"
   | "FIRST_OFFSET"
-  | "NO_CHANGE";
+  | "COMBINE_OFFSET"
+  | "OFFSET_NUMBER";
 
 export class Unsquisher {
   private previousCell: CompiledFormula | undefined;
@@ -19,6 +22,16 @@ export class Unsquisher {
   private previousString: string[] = [];
   private alreadyAppliedReferenceOffset: Range[] = [];
   private previousOffset: SquishedFormula | undefined = undefined;
+  private previousNumber: number | undefined = undefined;
+
+  rebase() {
+    this.previousCell = undefined;
+    this.alreadyAppliedNumberOffset = [];
+    this.previousString = [];
+    this.alreadyAppliedReferenceOffset = [];
+    this.previousOffset = undefined;
+    this.previousNumber = undefined;
+  }
 
   /**
    * Expands a squished sheet object back to a full cell map.
@@ -67,19 +80,34 @@ export class Unsquisher {
           this.previousString = compiled.literalValues.strings.map((s) => s.value);
           this.alreadyAppliedReferenceOffset = [...compiled.rangeDependencies];
           this.previousOffset = undefined;
+          this.previousNumber = undefined;
+        } else if (isNumber(current, DEFAULT_LOCALE)) {
+          strategy = "NEW_NUMBER";
+          this.rebase();
+          this.previousNumber = parseNumber(current, DEFAULT_LOCALE);
         } else {
+          this.rebase();
           strategy = "NOT_A_FORMULA";
         }
       } else {
         // the current cell is an object, let's see if there is a transformation
         if (current.N || current.S || current.R) {
-          if (!strategy || strategy === "NEW_FORMULA") {
-            strategy = "FIRST_OFFSET";
-          } else {
-            strategy = "COMBINE_OFFSET";
+          switch (strategy) {
+            case "NEW_FORMULA":
+              strategy = "FIRST_OFFSET";
+              break;
+            case "NEW_NUMBER":
+              if (current.R || current.S) {
+                throw new Error(
+                  "Invalid squished format: cannot have string or reference offsets for a number"
+                );
+              }
+              strategy = "OFFSET_NUMBER";
+              break;
+            case "FIRST_OFFSET":
+              strategy = "COMBINE_OFFSET";
+              break;
           }
-        } else {
-          strategy = "NO_CHANGE";
         }
       }
 
@@ -87,7 +115,6 @@ export class Unsquisher {
       const positionsOfKey = parts.length === 1 ? expandXc(key) : expandRange(parts[0], parts[1]);
       switch (strategy) {
         case "NEW_FORMULA":
-        case "NO_CHANGE":
           for (const position of positionsOfKey) {
             yield { position, compiled: this.previousCell };
           }
@@ -118,6 +145,30 @@ export class Unsquisher {
           for (const position of positionsOfKey) {
             const result = this.unsquish(this.previousOffset, sheetId, getters);
             yield { position, compiled: result };
+          }
+          break;
+        case "NEW_NUMBER":
+          for (const position of positionsOfKey) {
+            yield { position, content: current as string | undefined };
+          }
+          break;
+        case "OFFSET_NUMBER":
+          /*A2:A15 : {N: "+1"}*/
+          const offset = (current as SquishedFormula).N;
+          if (offset === undefined || this.previousNumber === undefined) {
+            throw new Error(
+              `No ${offset} provided for OFFSET_NUMBER strategy, previous ${
+                this.previousNumber
+              } for ${JSON.stringify(current)} ${sheetId} ${key}`
+            );
+          }
+          const offsetValue = parseFloat(offset);
+
+          for (const position of positionsOfKey) {
+            yield {
+              position,
+              content: (this.previousNumber += offsetValue).toString(),
+            };
           }
           break;
       }
