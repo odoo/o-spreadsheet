@@ -42,6 +42,8 @@ export class Squisher {
   // whether the base formula was already transformed. Formulas that have already been transformed must continue to be transformed
   private baseFormulaWasTransformed: boolean = false;
 
+  private baseNumber: number | undefined = undefined;
+
   constructor(getters: CoreGetters) {
     this.getters = getters;
   }
@@ -84,6 +86,7 @@ export class Squisher {
     this.alreadyAppliedNumberOffsets = formula.literalValues.numbers.map((_) => 0);
     this.previousStrings = formula.literalValues.strings.map((x) => x.value);
     this.baseFormulaWasTransformed = false;
+    this.baseNumber = undefined;
   }
 
   /** Reset the base formula to undefined, resetting all offsets */
@@ -110,42 +113,66 @@ export class Squisher {
    *     - for references: returns a relative change (+Ck or +Rk) if possible, else the full reference or "=" if unchanged
    * */
   squish(cell: Cell, forSheetId: UID): SquishedCell {
-    if (!cell.isFormula) {
+    if (!cell.isFormula && (typeof cell.parsedValue !== "number" || cell.parsedValue % 1 !== 0)) {
       this.resetBase();
+      this.baseNumber = undefined;
       return cell.content;
     }
+    if (cell.isFormula) {
+      let numbers: string[] = [];
+      let strings: string[] = [];
+      let references: string[] = [];
 
-    let numbers: string[] = [];
-    let strings: string[] = [];
-    let references: string[] = [];
-
-    if (
-      !this.baseFormula ||
-      this.baseFormula.normalizedFormula !== cell.compiledFormula.normalizedFormula
-    ) {
-      this.resetBaseTo(cell.compiledFormula);
-      return cell.compiledFormula.toFormulaString(this.getters);
-    } else {
       if (
-        !this.baseFormulaWasTransformed &&
-        deepEquals(cell.compiledFormula.literalValues, this.baseFormula.literalValues) &&
-        deepEquals(cell.compiledFormula.rangeDependencies, this.baseFormula.rangeDependencies)
+        !this.baseFormula ||
+        this.baseFormula.normalizedFormula !== cell.compiledFormula.normalizedFormula
       ) {
+        this.resetBaseTo(cell.compiledFormula);
         return cell.compiledFormula.toFormulaString(this.getters);
+      } else {
+        if (
+          !this.baseFormulaWasTransformed &&
+          deepEquals(cell.compiledFormula.literalValues, this.baseFormula.literalValues) &&
+          deepEquals(cell.compiledFormula.rangeDependencies, this.baseFormula.rangeDependencies)
+        ) {
+          return cell.compiledFormula.toFormulaString(this.getters);
+        }
+        numbers = this.squishNumbers(cell.compiledFormula.literalValues.numbers);
+        strings = this.squishStrings(cell.compiledFormula.literalValues.strings);
+        references = this.squishReferences(cell.compiledFormula.rangeDependencies, forSheetId);
+        this.baseFormulaWasTransformed = true;
       }
-      numbers = this.squishNumbers(cell.compiledFormula.literalValues.numbers);
-      strings = this.squishStrings(cell.compiledFormula.literalValues.strings);
-      references = this.squishReferences(cell.compiledFormula.rangeDependencies, forSheetId);
-      this.baseFormulaWasTransformed = true;
+      return this.buildResult(numbers, strings, references);
     }
-    return this.buildResult(numbers, strings, references);
+
+    if (typeof cell.parsedValue === "number") {
+      this.resetBase();
+      // for number cells, we can also apply squishing to get relative change if needed. We will treat them as formulas with only one number and no references or strings, and we will not set them as the base formula because they are not formulas.
+      const numberValue = cell.parsedValue;
+      if (this.baseNumber === undefined) {
+        this.baseNumber = numberValue;
+        return cell.content;
+      }
+      const numberOffset = numberValue - this.baseNumber;
+      if (numberOffset === 0) {
+        return cell.content;
+      } else {
+        this.baseNumber = numberValue;
+        return { N: (numberOffset > 0 ? "+" : "") + numberOffset.toString() };
+      }
+    }
+    this.resetBase();
+    return cell.content;
   }
 
   /**
    * Read all the consecutive cells with either the same content or the same transformation and merge their key into one zone
    * Do not join cells from different columns
    * */
-  squishSheet(cells: { [key: string]: string | SquishedCell }): {
+  squishSheet(
+    cells: { [key: string]: string | SquishedCell },
+    sheetId: UID
+  ): {
     [key: string]: string | SquishedCell;
   } {
     const allKeys = Object.keys(cells);
@@ -171,7 +198,16 @@ export class Squisher {
         result[rangeKey] = cells[allKeys[startIndex]];
         startIndex += offset;
       } else {
-        result[allKeys[startIndex]] = cells[allKeys[startIndex]];
+        const originalCell = this.getters.getCell({
+          sheetId,
+          col: startKey.col,
+          row: startKey.row,
+        });
+        if (!originalCell?.isFormula && typeof originalCell?.parsedValue === "number") {
+          result[allKeys[startIndex]] = originalCell.content;
+        } else {
+          result[allKeys[startIndex]] = cells[allKeys[startIndex]];
+        }
       }
     }
 
@@ -269,14 +305,13 @@ export class Squisher {
   private squishNumbers(numbers: { value: number }[]) {
     const result: string[] = numbers.map((x) => NO_CHANGE);
     for (let i = 0; i < numbers.length; i++) {
-      const diff =
-        numbers[i].value -
-        (this.baseFormula!.literalValues.numbers[i].value + this.alreadyAppliedNumberOffsets[i] ||
-          0);
-
+      const previousValue = this.baseFormula!.literalValues.numbers[i].value;
+      const currentValue = numbers[i].value;
+      const previousOffset = this.alreadyAppliedNumberOffsets[i] || 0;
+      const diff = currentValue - (previousValue + previousOffset);
       if (diff !== 0) {
         result[i] = "+" + diff.toString();
-        this.alreadyAppliedNumberOffsets[i] = (this.alreadyAppliedNumberOffsets[i] || 0) + diff;
+        this.alreadyAppliedNumberOffsets[i] = previousOffset + diff;
       }
     }
     return result;
