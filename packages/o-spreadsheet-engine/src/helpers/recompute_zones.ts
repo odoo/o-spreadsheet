@@ -410,7 +410,7 @@ function binaryPredecessorSearch(arr: number[], val: number, start = 0, matchEqu
   let result = -1;
 
   while (start <= end) {
-    const mid = Math.floor((start + end) / 2);
+    const mid = start + ((end - start) >> 1); // same as (start + end) // 2 but faster and without risk of overflow
     if (arr[mid] === val && matchEqual) {
       return mid;
     } else if (arr[mid] < val) {
@@ -428,7 +428,7 @@ function binarySuccessorSearch(arr: number[], val: number, start = 0, matchEqual
   let end = arr.length - 1;
   let result = arr.length;
   while (start <= end) {
-    const mid = Math.floor((start + end) / 2);
+    const mid = start + ((end - start) >> 1); // same as (start + end) // 2 but faster and without risk of overflow
     if (arr[mid] === val && matchEqual) {
       return mid;
     } else if (arr[mid] > val) {
