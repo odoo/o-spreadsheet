@@ -56,6 +56,8 @@ const NO_REAL_VALUE = "__NO_REAL_VALUE__";
 // It is only exported for testing purposes
 export const functionCache: { [key: string]: FormulaToExecute } = {};
 
+const collator = new Intl.Collator("en", { sensitivity: "accent" });
+
 /**
  * A compiled formula is the result of the compilation of a formula string.
  * It contains all the information needed to execute the formula, as well as some metadata
@@ -134,13 +136,7 @@ export class CompiledFormula implements Omit<ICompiledFormula, "tokens" | "depen
   }
 
   usesSymbol(symbol: string) {
-    return this.tokens.some(
-      (t) =>
-        t.type === "SYMBOL" &&
-        t.value.localeCompare(symbol, "en", {
-          sensitivity: "accent",
-        }) === 0
-    );
+    return this.symbols.some((s) => collator.compare(s, symbol) === 0);
   }
 
   areAllFunctionsExportableToExcel(): boolean {
