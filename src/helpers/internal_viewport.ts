@@ -264,7 +264,7 @@ export class InternalViewport {
     let start = startIndex;
     let end = headers;
     while (start <= end && start !== headers && end !== -1) {
-      const mid: HeaderIndex = Math.floor((start + end) / 2);
+      const mid: HeaderIndex = start + ((end - start) >> 1); // same as (start + end) / 2 but faster and without risk of overflow
       const offset = this.getters.getColRowOffset(dimension, startIndex, mid);
       const size = this.getters.getHeaderSize(sheetId, dimension, mid);
       if (position >= offset && position < offset + size) {
