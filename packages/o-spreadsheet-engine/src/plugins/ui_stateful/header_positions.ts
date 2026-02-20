@@ -21,6 +21,8 @@ export class HeaderPositionsUIPlugin extends UIPlugin {
           this.headerPositions[sheetId] = this.computeHeaderPositionsOfSheet(sheetId);
         }
         break;
+      // Either the content, format or style can impact the header sizes of a sheet
+      // As such, every command can have a potential effect on the viewport
       case "UPDATE_CELL":
       case "SET_FORMATTING":
       case "CLEAR_FORMATTING":
