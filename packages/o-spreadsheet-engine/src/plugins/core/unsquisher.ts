@@ -168,18 +168,12 @@ export class Unsquisher {
             if (refStr[1] === "R") {
               const adjustedOffset =
                 this.alreadyAppliedReferenceOffset[index].zone.top + offset * sign;
-              const updatedRange: Range = Object.assign(
-                {},
-                this.alreadyAppliedReferenceOffset[index]
-              );
-              updatedRange.zone = updatedRange.unboundedZone = Object.assign(
-                {},
-                updatedRange.zone,
-                {
-                  top: adjustedOffset,
-                  bottom: adjustedOffset,
-                }
-              );
+              const updatedRange: Range = { ...this.alreadyAppliedReferenceOffset[index] };
+              updatedRange.zone = updatedRange.unboundedZone = {
+                ...updatedRange.zone,
+                top: adjustedOffset,
+                bottom: adjustedOffset,
+              };
               this.alreadyAppliedReferenceOffset[index] = updatedRange;
               return updatedRange;
             } else if (refStr[1] === "C") {
