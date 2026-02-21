@@ -295,7 +295,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
         }
       }
     }
-    console.debug("cells imported in ", performance.now() - start);
+    console.debug("cells imported in", performance.now() - start, "ms");
   }
 
   export(data: WorkbookData, shouldSquish: boolean) {
