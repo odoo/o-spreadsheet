@@ -81,6 +81,7 @@ export class TableStylePreview extends Component<Props, SpreadsheetChildEnv> {
       ...tableMetaData,
       colWidth: (width - 1) / tableMetaData.numberOfCols,
       rowHeight: (height - 1) / tableMetaData.numberOfRows,
+      adaptColor: this.env.model.getters.getAdaptedColor.bind(this.env.model.getters),
     });
   }
 

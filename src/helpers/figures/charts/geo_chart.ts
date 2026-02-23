@@ -196,10 +196,10 @@ export function createGeoChartRuntime(chart: GeoChart, getters: Getters): GeoCha
       layout: getChartLayout(definition, chartData),
       scales: getGeoChartScales(definition, chartData),
       plugins: {
-        title: getChartTitle(definition, getters),
+        title: getChartTitle(definition, chartData, getters),
         tooltip: getGeoChartTooltip(definition, chartData),
         legend: { display: false },
-        background: { color: chart.background },
+        background: { color: chartData.background },
       },
     },
   };

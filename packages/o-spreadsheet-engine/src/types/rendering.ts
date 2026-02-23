@@ -91,10 +91,24 @@ export interface SheetDOMScrollInfo {
   scrollY: Pixel;
 }
 
+export interface GridRenderingTheme {
+  backgroundColor: string;
+  textColor: string;
+  gridBorderColor: string;
+  headerBackgroundColor: string;
+  headerActiveBackgroundColor: string;
+  headerSelectedBackgroundColor: string;
+  headerTextColor: string;
+  headerBorderColor: string;
+  frozenPaneBorderColor: string;
+  frozenPaneHeaderBorderColor: string;
+}
+
 export interface GridRenderingContext {
   ctx: CanvasRenderingContext2D;
   dpr: number;
   thinLineWidth: number;
+  theme: GridRenderingTheme;
 }
 
 const LAYERS = {

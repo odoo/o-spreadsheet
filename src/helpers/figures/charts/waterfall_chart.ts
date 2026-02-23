@@ -238,12 +238,12 @@ export function createWaterfallChartRuntime(
       layout: getChartLayout(definition, chartData),
       scales: getWaterfallChartScales(definition, chartData),
       plugins: {
-        title: getChartTitle(definition, getters),
+        title: getChartTitle(definition, chartData, getters),
         legend: getWaterfallChartLegend(definition, chartData),
         tooltip: getWaterfallChartTooltip(definition, chartData),
         chartShowValuesPlugin: getWaterfallChartShowValues(definition, chartData),
         waterfallLinesPlugin: { showConnectorLines: definition.showConnectorLines },
-        background: { color: chart.background },
+        background: { color: chartData.background },
       },
     },
   };

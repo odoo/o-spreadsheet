@@ -242,11 +242,11 @@ export function createLineChartRuntime(chart: LineChart, getters: Getters): Char
       layout: getChartLayout(definition, chartData),
       scales: getLineChartScales(definition, chartData),
       plugins: {
-        title: getChartTitle(definition, getters),
+        title: getChartTitle(definition, chartData, getters),
         legend: getLineChartLegend(definition, chartData),
         tooltip: getLineChartTooltip(definition, chartData),
         chartShowValuesPlugin: getChartShowValues(definition, chartData),
-        background: { color: chart.background },
+        background: { color: chartData.background },
       },
     },
   };

@@ -11,7 +11,7 @@
             class="o-color-picker-line-item"
             t-att-data-color="color"
             t-on-click="() => this.onColorClick(color)"
-            t-attf-style="background-color:{{color}};">
+            t-attf-style="background-color:{{this.adaptColor(color)}};">
             <div
               t-if="isSameColor(props.currentColor, color)"
               align="center"
@@ -38,7 +38,7 @@
             t-key="color"
             class="o-color-picker-line-item"
             t-att-data-color="color"
-            t-attf-style="background-color:{{color}};"
+            t-attf-style="background-color:{{this.adaptColor(color)}};"
             t-on-click="() => this.onColorClick(color)">
             <div
               t-if="isSameColor(props.currentColor, color)"

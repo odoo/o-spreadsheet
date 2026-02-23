@@ -248,6 +248,7 @@ export interface ChartRuntimeGenerationArgs {
   trendDataSetsValues?: (Point[] | undefined)[];
   axisType?: AxisType;
   topPadding?: number;
+  background: Color;
 }
 
 /** Generic definition of chart to create a runtime: omit the chart type and the dataRange of the dataSets*/

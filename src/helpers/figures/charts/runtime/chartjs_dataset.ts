@@ -1,6 +1,5 @@
 import { isDefined, range } from "@odoo/o-spreadsheet-engine";
 import {
-  BACKGROUND_CHART_COLOR,
   CHART_WATERFALL_NEGATIVE_COLOR,
   CHART_WATERFALL_POSITIVE_COLOR,
   CHART_WATERFALL_SUBTOTAL_COLOR,
@@ -83,7 +82,7 @@ export function getBarChartDatasets(
       label,
       data,
       hidden,
-      borderColor: definition.background || BACKGROUND_CHART_COLOR,
+      borderColor: args.background,
       borderWidth: definition.stacked ? 1 : 0,
       backgroundColor,
       yAxisID: definition.horizontal ? "y" : definition.dataSets?.[index].yAxisId || "y",
@@ -137,7 +136,7 @@ export function getCalendarChartDatasetAndLabels(
       backgroundColor: dataSetValues.data.map((v) =>
         v !== undefined ? colorMap(v) : definition.missingValueColor || COLOR_TRANSPARENT
       ),
-      borderColor: definition.background || BACKGROUND_CHART_COLOR,
+      borderColor: args.background,
       borderSkipped: false,
       borderWidth: 1,
       barPercentage: 1,
@@ -285,7 +284,7 @@ export function getPieChartDatasets(
     const dataset: ChartDataset<"pie"> = {
       label,
       data,
-      borderColor: definition.background || "#FFFFFF",
+      borderColor: args.background,
       backgroundColor,
       hoverOffset: 10,
     };
@@ -447,7 +446,7 @@ export function getFunnelChartDatasets(
     xAxisID: "x",
     barPercentage: 1,
     categoryPercentage: 1,
-    borderColor: definition.background || BACKGROUND_CHART_COLOR,
+    borderColor: args.background,
     borderWidth: 3,
   };
 
@@ -486,7 +485,7 @@ export function getSunburstChartDatasets(
         if (!data || data.label === GHOST_SUNBURST_VALUE) {
           return COLOR_TRANSPARENT;
         }
-        return definition.background || BACKGROUND_CHART_COLOR;
+        return args.background;
       },
       backgroundColor: (ctx) => {
         const data = ctx.type === "data" ? (ctx.raw as SunburstChartRawData) : undefined;

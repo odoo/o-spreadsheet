@@ -12,6 +12,7 @@ import {
   MOVING_AVERAGE_TREND_LINE_XAXIS_ID,
   TREND_LINE_XAXIS_ID,
   chartFontColor,
+  chartGridColor,
   formatTickValue,
   getDefinedAxis,
   truncateLabel,
@@ -52,8 +53,8 @@ export function getBarChartScales(
   args: ChartRuntimeGenerationArgs
 ): DeepPartial<ScaleChartOptions<"line" | "bar">["scales"]> {
   let scales: DeepPartial<ScaleChartOptions<"line" | "bar">["scales"]> = {};
-  const { trendDataSetsValues: trendDatasets, locale, axisFormats } = args;
-  const options = { stacked: definition.stacked, locale: locale };
+  const { trendDataSetsValues: trendDatasets, locale, axisFormats, background } = args;
+  const options = { stacked: definition.stacked, locale: locale, background };
   if (definition.horizontal) {
     scales.x = getChartAxis(definition, "bottom", "values", { ...options, format: axisFormats?.x });
     scales.y = getChartAxis(definition, "left", "labels", options);
@@ -89,10 +90,12 @@ export function getBarChartScales(
 
 export function getCalendarChartScales(
   definition: GenericDefinition<BarChartDefinition>,
+  args: ChartRuntimeGenerationArgs,
+
   datasets: ChartDataset[]
 ): DeepPartial<ScaleChartOptions<"calendar">["scales"]> {
   const yLabels = datasets.map((dataset) => dataset.label || "");
-  const fontColor = chartFontColor(definition.background);
+  const fontColor = chartFontColor(args.background);
   return {
     y: {
       title: getChartAxisTitleRuntime(definition.axesDesign?.y),
@@ -155,7 +158,7 @@ export function getCalendarColorScale(
   return {
     position: definition.legendPosition === "right" ? "right" : "left",
     colorScale,
-    fontColor: chartFontColor(definition.background),
+    fontColor: chartFontColor(args.background),
     minValue,
     maxValue,
     locale: args.locale,
@@ -166,14 +169,31 @@ export function getLineChartScales(
   definition: GenericDefinition<LineChartDefinition>,
   args: ChartRuntimeGenerationArgs
 ): DeepPartial<ScaleChartOptions<"line">["scales"]> {
-  const { locale, axisType, trendDataSetsValues: trendDatasets, labels, axisFormats } = args;
+  const {
+    locale,
+    axisType,
+    trendDataSetsValues: trendDatasets,
+    labels,
+    axisFormats,
+    background,
+  } = args;
   const labelFormat = axisFormats?.x;
   const stacked = definition.stacked;
 
   let scales: DeepPartial<ScaleChartOptions<"line">["scales"]> = {
-    x: getChartAxis(definition, "bottom", "labels", { locale }),
-    y: getChartAxis(definition, "left", "values", { locale, stacked, format: axisFormats?.y }),
-    y1: getChartAxis(definition, "right", "values", { locale, stacked, format: axisFormats?.y1 }),
+    x: getChartAxis(definition, "bottom", "labels", { locale, background }),
+    y: getChartAxis(definition, "left", "values", {
+      locale,
+      stacked,
+      format: axisFormats?.y,
+      background,
+    }),
+    y1: getChartAxis(definition, "right", "values", {
+      locale,
+      stacked,
+      format: axisFormats?.y1,
+      background,
+    }),
   };
   scales = removeFalsyAttributes(scales);
 
@@ -229,7 +249,7 @@ export function getScatterChartScales(
     ...lineScales,
     x: {
       ...lineScales!.x,
-      grid: { display: true },
+      grid: { display: true, color: chartGridColor(args.background) },
     },
   };
 }
@@ -238,12 +258,12 @@ export function getWaterfallChartScales(
   definition: WaterfallChartDefinition,
   args: ChartRuntimeGenerationArgs
 ): ChartScales {
-  const { locale, axisFormats } = args;
+  const { locale, axisFormats, background } = args;
   const format = axisFormats?.y || axisFormats?.y1;
   definition.dataSets;
   const scales: ChartScales = {
     x: {
-      ...getChartAxis(definition, "bottom", "labels", { locale }),
+      ...getChartAxis(definition, "bottom", "labels", { locale, background }),
       grid: { display: false },
     },
     y: {
@@ -253,11 +273,12 @@ export function getWaterfallChartScales(
       // on the axis to the right.
       position: definition.verticalAxisPosition,
       ticks: {
-        color: chartFontColor(definition.background),
+        color: chartFontColor(args.background),
         callback: formatTickValue({ locale, format }, definition.humanize),
       },
       grid: {
         lineWidth: (context) => (context.tick.value === 0 ? 2 : 1),
+        color: chartGridColor(args.background),
       },
       title: getChartAxisTitleRuntime(definition.axesDesign?.y),
     },
@@ -302,11 +323,15 @@ export function getRadarChartScales(
       beginAtZero: true,
       ticks: {
         callback: formatTickValue({ format: axisFormats?.r, locale }, definition.humanize),
-        backdropColor: definition.background || "#FFFFFF",
+        backdropColor: args.background,
+        color: chartFontColor(args.background),
       },
       pointLabels: {
-        color: chartFontColor(definition.background),
+        color: chartFontColor(args.background),
         callback: (label: string) => truncateLabel(label),
+      },
+      grid: {
+        color: chartGridColor(args.background),
       },
       suggestedMin: minValue < 0 ? minValue - 1 : 0,
     },
@@ -335,9 +360,9 @@ export function getGeoChartScales(
       axis: "x",
       display: definition.legendPosition !== "none",
       border: { color: GRAY_300 },
-      grid: { color: GRAY_300 },
+      grid: { color: chartGridColor(args.background) },
       ticks: {
-        color: chartFontColor(definition.background),
+        color: chartFontColor(args.background),
         callback: formatTickValue({ locale, format }, definition.humanize),
       },
       legend: {
@@ -361,8 +386,9 @@ export function getFunnelChartScales(
       display: false,
     },
     y: {
-      grid: { offset: false }, // bar charts grid is offset by default
+      grid: { offset: false, color: chartGridColor(args.background) }, // bar charts grid is offset by default
       ticks: {
+        color: chartFontColor(args.background),
         callback: function (tickValue: number) {
           return truncateLabel(this.getLabelForValue(tickValue));
         },
@@ -373,6 +399,7 @@ export function getFunnelChartScales(
       position: "right",
       border: { display: false },
       ticks: {
+        color: chartFontColor(args.background),
         callback: function (tickValue, index, ticks) {
           const value = dataSet.data?.[index];
           const baseValue = dataSet.data?.[0];
@@ -428,14 +455,14 @@ function getChartAxis(
   definition: GenericDefinition<ChartWithAxisDefinition>,
   position: "left" | "right" | "bottom",
   type: "values" | "labels",
-  options: LocaleFormat & { stacked?: boolean }
+  options: LocaleFormat & { stacked?: boolean; background: Color }
 ): DeepPartial<LinearScaleOptions> | undefined {
   const { useLeftAxis, useRightAxis } = getDefinedAxis(definition);
   if ((position === "left" && !useLeftAxis) || (position === "right" && !useRightAxis)) {
     return undefined;
   }
 
-  const fontColor = chartFontColor(definition.background);
+  const fontColor = chartFontColor(options.background);
   let design: AxisDesign | undefined;
   if (position === "bottom") {
     design = definition.axesDesign?.x;
@@ -453,6 +480,7 @@ function getChartAxis(
       title: getChartAxisTitleRuntime(design),
       grid: {
         display: displayGridLines,
+        color: chartGridColor(options.background),
       },
       beginAtZero: true,
       stacked: options?.stacked,

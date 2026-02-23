@@ -187,6 +187,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
     this.getters = {
       isReadonly: () => this.config.mode === "readonly" || this.config.mode === "dashboard",
       isDashboard: () => this.config.mode === "dashboard",
+      isDarkMode: () => this.config.colorScheme === "dark",
     } as Getters;
 
     // Initiate stream processor
@@ -675,6 +676,12 @@ export class Model extends EventBus<any> implements CommandDispatcher {
   updateMode(mode: Mode) {
     // @ts-ignore For testing purposes only
     this.config.mode = mode;
+    this.trigger("update");
+  }
+
+  updateColorScheme(colorScheme: "light" | "dark") {
+    // @ts-ignore For testing purposes only
+    this.config.colorScheme = colorScheme;
     this.trigger("update");
   }
 

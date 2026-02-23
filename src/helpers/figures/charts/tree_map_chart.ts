@@ -217,10 +217,10 @@ export function createTreeMapChartRuntime(
       ...CHART_COMMON_OPTIONS,
       layout: getChartLayout(definition, chartData),
       plugins: {
-        title: getChartTitle(definition, getters),
+        title: getChartTitle(definition, chartData, getters),
         legend: { display: false },
         tooltip: getTreeMapChartTooltip(definition, chartData),
-        background: { color: chart.background },
+        background: { color: chartData.background },
       },
     },
   };

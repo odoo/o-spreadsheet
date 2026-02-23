@@ -10,7 +10,7 @@ import { BaselineArrowDirection, ScorecardChartRuntime } from "../../../types/ch
 import { Color, Pixel, PixelPosition } from "../../../types/misc";
 import { DOMDimension } from "../../../types/rendering";
 import { getDefaultContextFont } from "../../text_helper";
-import { chartMutedFontColor } from "./chart_common";
+import { figureMutedFontColor } from "../figure/figure";
 
 const BOTTOM_PADDING_RATIO = 0.05;
 
@@ -288,7 +288,7 @@ class ScorecardChartConfigBuilder {
   }
 
   private get secondaryFontColor() {
-    return chartMutedFontColor(this.backgroundColor);
+    return figureMutedFontColor(this.backgroundColor);
   }
 
   private getTextDimensions(text: string, font: string) {

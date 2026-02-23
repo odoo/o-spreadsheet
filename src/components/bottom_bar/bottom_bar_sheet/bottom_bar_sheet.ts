@@ -282,8 +282,11 @@ export class BottomBarSheet extends Component<Props, SpreadsheetChildEnv> {
   }
 
   get sheetColorStyle() {
-    const color = this.env.model.getters.getSheet(this.props.sheetId).color || "";
-    return cssPropertiesToCss({ background: color });
+    const color = this.env.model.getters.getSheet(this.props.sheetId).color;
+    if (!color) {
+      return "";
+    }
+    return cssPropertiesToCss({ background: this.env.model.getters.getAdaptedColor(color) });
   }
 
   get isSheetLocked() {

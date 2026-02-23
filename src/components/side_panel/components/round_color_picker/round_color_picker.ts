@@ -1,6 +1,6 @@
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { Component, useExternalListener, useRef, useState } from "@odoo/owl";
-import { Rect } from "../../../../types";
+import { Color, Rect } from "../../../../types";
 import { ColorPicker } from "../../../color_picker/color_picker";
 import { cssPropertiesToCss } from "../../../helpers";
 import { getBoundingRectAsPOJO } from "../../../helpers/dom_helpers";
@@ -11,8 +11,8 @@ interface State {
 }
 
 interface Props {
-  currentColor?: string;
-  onColorPicked: (color: string) => void;
+  currentColor?: Color;
+  onColorPicked: (color: Color) => void;
   title?: string;
   disableNoColor?: boolean;
 }
@@ -62,8 +62,12 @@ export class RoundColorPicker extends Component<Props, SpreadsheetChildEnv> {
   }
 
   get buttonStyle() {
+    const color = this.props.currentColor;
+    if (!color) {
+      return "";
+    }
     return cssPropertiesToCss({
-      background: this.props.currentColor,
+      background: this.env.model.getters.getAdaptedColor(color) ?? color,
     });
   }
 }

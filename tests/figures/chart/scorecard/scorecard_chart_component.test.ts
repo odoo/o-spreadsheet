@@ -2,10 +2,12 @@ import {
   DEFAULT_SCORECARD_BASELINE_COLOR_DOWN,
   DEFAULT_SCORECARD_BASELINE_COLOR_UP,
 } from "@odoo/o-spreadsheet-engine/constants";
+import { drawScoreChart } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/scorecard_chart";
 import {
   ScorecardChartConfig,
   getScorecardConfiguration,
 } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/scorecard_chart_config_builder";
+import { figureMutedFontColor } from "@odoo/o-spreadsheet-engine/helpers/figures/figure/figure";
 import {
   ScorecardChartDefinition,
   ScorecardChartRuntime,
@@ -14,7 +16,6 @@ import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadshee
 import { Model } from "../../../../src";
 import { SidePanels } from "../../../../src/components/side_panel/side_panels/side_panels";
 import { getContextFontSize } from "../../../../src/helpers";
-import { chartMutedFontColor, drawScoreChart } from "../../../../src/helpers/figures/charts";
 import { Pixel, UID } from "../../../../src/types";
 import { MockCanvasRenderingContext2D } from "../../../setup/canvas.mock";
 import { click } from "../../../test_helpers";
@@ -41,7 +42,7 @@ let sheetId: string;
 let fixture: HTMLElement;
 let env: SpreadsheetChildEnv;
 
-const mutedFontColor = chartMutedFontColor("#fff");
+const mutedFontColor = figureMutedFontColor("#fff");
 
 function updateScorecardChartSize(width: Pixel, height: Pixel) {
   const figureId = model.getters.getFigureIdFromChartId(chartId);

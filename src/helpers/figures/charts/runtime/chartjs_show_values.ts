@@ -26,7 +26,7 @@ export function getChartShowValues(
     type: definition.type,
     horizontal: "horizontal" in definition && definition.horizontal,
     showValues: "showValues" in definition ? !!definition.showValues : false,
-    background: () => definition.background,
+    background: () => args.background,
     callback: (value: number | string, dataset: ChartMeta) => {
       const axisId = getDatasetAxisId(definition, dataset);
       return formatChartDatasetValue(axisFormats, locale, definition.humanize)(value, axisId);
@@ -39,7 +39,7 @@ export function getCalendarChartShowValues(
   args: ChartRuntimeGenerationArgs
 ): ChartShowValuesPluginOptions {
   const { locale, axisFormats } = args;
-  let background = (_value, dataset, index) => definition.background;
+  let background = (_value, dataset, index) => args.background;
   const values =
     args.dataSetsValues
       .flat()
@@ -56,7 +56,7 @@ export function getCalendarChartShowValues(
     background = (_value: number | string, dataset: ChartMeta<any>, index) => {
       const value = dataset._dataset.values[index];
       if (value === undefined) {
-        return definition.background;
+        return args.background;
       }
       return chartFontColor(colorScale(value));
     };
@@ -101,7 +101,7 @@ export function getPyramidChartShowValues(
     type: "pyramid",
     horizontal: true,
     showValues: "showValues" in definition ? !!definition.showValues : false,
-    background: () => definition.background,
+    background: () => args.background,
     callback: (value: number | string, dataset: ChartMeta) => {
       value = Math.abs(Number(value));
       return value === 0
@@ -125,7 +125,7 @@ export function getWaterfallChartShowValues(
   return {
     type: "waterfall",
     showValues: "showValues" in definition ? !!definition.showValues : false,
-    background: () => definition.background,
+    background: () => args.background,
     callback: (value: number | string, dataset: any, index: number) => {
       const raw = dataset._dataset.data[index];
       const delta = raw[1] - raw[0];

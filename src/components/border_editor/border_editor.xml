@@ -27,7 +27,7 @@
         <div class="o-divider border-end"/>
         <div class="o-border-selector-section">
           <div
-            class="m-0 p-0 d-flex align-items-center justify-content-center o-with-color o-hoverable-button"
+            class="m-0 p-0 d-flex align-items-center justify-content-center o-hoverable-button"
             title="Border color"
             t-on-click.stop="(ev) => this.toggleDropdownTool('borderColorTool')">
             <ColorPickerWidget

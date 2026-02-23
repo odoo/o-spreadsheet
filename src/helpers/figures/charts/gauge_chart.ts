@@ -46,6 +46,7 @@ import {
   UID,
 } from "../../../types";
 import { clip, formatOrHumanizeValue, humanizeNumber } from "../../index";
+import { getStyleOfSingleCellChart } from "./runtime/chart_colors";
 
 type RangeLimitsValidation = (rangeLimit: string, rangeLimitName: string) => CommandResult;
 type InflectionPointValueValidation = (
@@ -372,7 +373,7 @@ export function createGaugeChartRuntime(chart: GaugeChart, getters: Getters): Ga
   colors.push(chartColors.upperColor);
 
   return {
-    background: getters.getStyleOfSingleCellChart(chart.background, dataRange).background,
+    background: getStyleOfSingleCellChart(chart.background, dataRange, getters).background,
     title: {
       ...chart.title,
       text: chart.title.text ? getters.dynamicTranslate(chart.title.text) : "",
@@ -426,7 +427,7 @@ function getFormulaNumberValue(sheetId: UID, formula: string, getters: Getters) 
 
 function getInvalidGaugeRuntime(chart: GaugeChart, getters: Getters): GaugeChartRuntime {
   return {
-    background: getters.getStyleOfSingleCellChart(chart.background, chart.dataRange).background,
+    background: getStyleOfSingleCellChart(chart.background, chart.dataRange, getters).background,
     title: chart.title ?? { text: "" },
     minValue: { value: 0, label: "" },
     maxValue: { value: 100, label: "" },

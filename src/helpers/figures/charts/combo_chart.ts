@@ -240,11 +240,11 @@ export function createComboChartRuntime(chart: ComboChart, getters: Getters): Co
       layout: getChartLayout(definition, chartData),
       scales: getBarChartScales(definition, chartData),
       plugins: {
-        title: getChartTitle(definition, getters),
+        title: getChartTitle(definition, chartData, getters),
         legend: getComboChartLegend(definition, chartData),
         tooltip: getBarChartTooltip(definition, chartData),
         chartShowValuesPlugin: getChartShowValues(definition, chartData),
-        background: { color: chart.background },
+        background: { color: chartData.background },
       },
     },
   };

@@ -45,7 +45,7 @@ export function getBarChartLegend(
   return {
     ...INTERACTIVE_LEGEND_CONFIG,
     ...getLegendDisplayOptions(definition, args),
-    ...getCustomLegendLabels(chartFontColor(definition.background), {
+    ...getCustomLegendLabels(chartFontColor(args.background), {
       pointStyle: "rect",
       lineWidth: 3,
     }),
@@ -62,7 +62,7 @@ export function getLineChartLegend(
   return {
     ...INTERACTIVE_LEGEND_CONFIG,
     ...getLegendDisplayOptions(definition, args),
-    ...getCustomLegendLabels(chartFontColor(definition.background), {
+    ...getCustomLegendLabels(chartFontColor(args.background), {
       pointStyle,
       lineWidth,
     }),
@@ -76,7 +76,7 @@ export function getPieChartLegend(
   const { dataSetsValues } = args;
   const dataSetsLength = Math.max(0, ...dataSetsValues.map((ds) => ds?.data?.length ?? 0));
   const colors = getPieColors(new ColorGenerator(dataSetsLength), dataSetsValues);
-  const fontColor = chartFontColor(definition.background);
+  const fontColor = chartFontColor(args.background);
   return {
     ...getLegendDisplayOptions(definition, args),
     labels: {
@@ -108,10 +108,10 @@ export function getScatterChartLegend(
   return {
     ...INTERACTIVE_LEGEND_CONFIG,
     ...getLegendDisplayOptions(definition, args),
-    ...getCustomLegendLabels(chartFontColor(definition.background), {
+    ...getCustomLegendLabels(chartFontColor(args.background), {
       pointStyle: "circle",
       // the stroke is the border around the circle, so increasing its size with the chart's color reduce the size of the circle
-      strokeStyle: definition.background || "#ffffff",
+      strokeStyle: args.background || "#ffffff",
       lineWidth: 8,
     }),
   };
@@ -124,7 +124,7 @@ export function getComboChartLegend(
   return {
     ...INTERACTIVE_LEGEND_CONFIG,
     ...getLegendDisplayOptions(definition, args),
-    ...getCustomLegendLabels(chartFontColor(definition.background), {
+    ...getCustomLegendLabels(chartFontColor(args.background), {
       lineWidth: 3,
     }),
   };
@@ -134,7 +134,7 @@ export function getWaterfallChartLegend(
   definition: WaterfallChartDefinition,
   args: ChartRuntimeGenerationArgs
 ): ChartLegend {
-  const fontColor = chartFontColor(definition.background);
+  const fontColor = chartFontColor(args.background);
   const negativeColor = definition.negativeValuesColor || CHART_WATERFALL_NEGATIVE_COLOR;
   const positiveColor = definition.positiveValuesColor || CHART_WATERFALL_POSITIVE_COLOR;
   const subTotalColor = definition.subTotalValuesColor || CHART_WATERFALL_SUBTOTAL_COLOR;
@@ -191,7 +191,7 @@ export function getRadarChartLegend(
   return {
     ...INTERACTIVE_LEGEND_CONFIG,
     ...getLegendDisplayOptions(definition, args),
-    ...getCustomLegendLabels(chartFontColor(definition.background), {
+    ...getCustomLegendLabels(chartFontColor(args.background), {
       pointStyle,
       lineWidth,
     }),
@@ -202,7 +202,7 @@ export function getSunburstChartLegend(
   definition: SunburstChartDefinition,
   args: ChartRuntimeGenerationArgs
 ): ChartLegend {
-  const fontColor = chartFontColor(definition.background);
+  const fontColor = chartFontColor(args.background);
 
   return {
     ...getLegendDisplayOptions(definition, args),

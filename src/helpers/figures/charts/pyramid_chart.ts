@@ -237,11 +237,11 @@ export function createPyramidChartRuntime(
       layout: getChartLayout(definition, chartData),
       scales: getPyramidChartScales(definition, chartData),
       plugins: {
-        title: getChartTitle(definition, getters),
+        title: getChartTitle(definition, chartData, getters),
         legend: getBarChartLegend(definition, chartData),
         tooltip: getPyramidChartTooltip(definition, chartData),
         chartShowValuesPlugin: getPyramidChartShowValues(definition, chartData),
-        background: { color: chart.background },
+        background: { color: chartData.background },
       },
     },
   };

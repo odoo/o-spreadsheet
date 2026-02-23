@@ -23,6 +23,7 @@ import {
   toHex,
   toZone,
 } from "../../src/helpers";
+import { getSpreadsheetTheme } from "../../src/helpers/rendering";
 import { FormulaFingerprintStore } from "../../src/stores/formula_fingerprints_store";
 import { GridRenderer } from "../../src/stores/grid_renderer_store";
 import { RendererStore } from "../../src/stores/renderer_store";
@@ -118,6 +119,7 @@ class MockGridRenderingContext implements GridRenderingContext {
   viewport: Viewport;
   dpr = 1;
   thinLineWidth = 0.4;
+  theme = getSpreadsheetTheme(false);
 
   constructor(model: Model, width: number, height: number, observer: ContextObserver) {
     model.dispatch("RESIZE_SHEETVIEW", {

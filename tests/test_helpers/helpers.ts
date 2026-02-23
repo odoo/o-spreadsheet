@@ -9,7 +9,7 @@ import { SheetUIPlugin } from "@odoo/o-spreadsheet-engine/plugins/ui_feature/ui_
 import { UIPluginConstructor } from "@odoo/o-spreadsheet-engine/plugins/ui_plugin";
 import { Registry } from "@odoo/o-spreadsheet-engine/registries/registry";
 import { Image } from "@odoo/o-spreadsheet-engine/types/image";
-import { ModelExternalConfig } from "@odoo/o-spreadsheet-engine/types/model";
+import { ModelConfig, ModelExternalConfig } from "@odoo/o-spreadsheet-engine/types/model";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { XLSXExport } from "@odoo/o-spreadsheet-engine/types/xlsx";
 import { isXLSXExportXMLFile } from "@odoo/o-spreadsheet-engine/xlsx/helpers/xlsx_helper";
@@ -552,8 +552,8 @@ export function getRangeCellsAsMatrix(
   return rangeValue;
 }
 
-export function createModelFromGrid(grid: GridDescr): Model {
-  const model = new Model();
+export function createModelFromGrid(grid: GridDescr, config: Partial<ModelConfig> = {}): Model {
+  const model = new Model({}, config);
   for (const xc in grid) {
     if (grid[xc] !== undefined) {
       setCellContent(model, xc, grid[xc]!);

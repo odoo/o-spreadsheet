@@ -230,14 +230,14 @@ export function createCalendarChartRuntime(
       ...CHART_COMMON_OPTIONS,
       indexAxis: "x",
       layout: getCalendarChartLayout(definition, chartData),
-      scales: getCalendarChartScales(definition, datasets),
+      scales: getCalendarChartScales(definition, chartData, datasets),
       plugins: {
-        title: getChartTitle(definition, getters),
+        title: getChartTitle(definition, chartData, getters),
         legend: { display: false },
         tooltip: getCalendarChartTooltip(definition, chartData),
         chartShowValuesPlugin: getCalendarChartShowValues(definition, chartData),
         chartColorScalePlugin: getCalendarColorScale(definition, chartData),
-        background: { color: chart.background },
+        background: { color: chartData.background },
       },
     },
   };

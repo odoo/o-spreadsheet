@@ -1,6 +1,6 @@
 import { getDefaultSheetViewSize } from "@odoo/o-spreadsheet-engine/constants";
 import { Model } from "../../src";
-import { GridRenderingContext, Viewport, Zone } from "../../src/types";
+import { GridRenderingContext, GridRenderingTheme, Viewport, Zone } from "../../src/types";
 import { MockCanvasRenderingContext2D } from "../setup/canvas.mock";
 
 MockCanvasRenderingContext2D.prototype.measureText = function () {
@@ -19,6 +19,18 @@ export class MockGridRenderingContext implements GridRenderingContext {
   viewport: Viewport;
   dpr = 1;
   thinLineWidth = 0.4;
+  theme: GridRenderingTheme = {
+    backgroundColor: "#ffffff",
+    textColor: "#000000",
+    gridBorderColor: "#E2E3E3",
+    headerBackgroundColor: "#F8F9FA",
+    headerActiveBackgroundColor: "#595959",
+    headerSelectedBackgroundColor: "#E8EAED",
+    headerTextColor: "#666666",
+    headerBorderColor: "#C0C0C0",
+    frozenPaneBorderColor: "#DADFE8",
+    frozenPaneHeaderBorderColor: "#BCBCBC",
+  };
 
   constructor(model: Model, width: number, height: number, observer: ContextObserver) {
     model.dispatch("RESIZE_SHEETVIEW", { width, height, gridOffsetX: 0, gridOffsetY: 0 });
