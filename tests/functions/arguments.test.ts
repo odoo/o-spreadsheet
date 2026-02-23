@@ -128,7 +128,7 @@ describe("args", () => {
 describe("arguments validation", () => {
   const aRandomFunction: Omit<AddFunctionDescription, "args"> = {
     description: "a random function",
-    compute: () => 0,
+    compute: () => ({ value: 0 }),
   };
 
   function validateArgsDefinition(definitions: string[]) {
@@ -136,18 +136,6 @@ describe("arguments validation", () => {
     const descr = addMetaInfoFromArg("functionName", { ...aRandomFunction, args });
     return validateArguments(descr);
   }
-
-  test("'META' type can only be declared alone", () => {
-    expect(() => validateArgsDefinition(["metaArg (meta)"])).not.toThrow();
-    expect(() => validateArgsDefinition(["metaArg (meta, optional)"])).not.toThrow();
-    expect(() => validateArgsDefinition(["metaArg (meta, repeating)"])).not.toThrow();
-
-    expect(() => validateArgsDefinition(["metaArg (meta, any)"])).toThrow();
-    expect(() => validateArgsDefinition(["metaArg (meta, range)"])).toThrow();
-    expect(() => validateArgsDefinition(["metaArg (meta, number)"])).toThrow();
-    expect(() => validateArgsDefinition(["metaArg (meta, string)"])).toThrow();
-    expect(() => validateArgsDefinition(["metaArg (meta, boolean)"])).toThrow();
-  });
 
   test("All repeatable arguments must be declared consecutively", () => {
     expect(() => validateArgsDefinition(["arg1 (any)", "arg2 (any, repeating)"])).not.toThrow();
@@ -191,7 +179,7 @@ describe("function addMetaInfoFromArg", () => {
     const basicFunction = {
       description: "basic function",
       compute: () => {
-        return true;
+        return { value: true };
       },
       args: [
         { name: "arg1", description: "", type: ["ANY"] },
@@ -214,7 +202,7 @@ describe("function addMetaInfoFromArg", () => {
     const useOptional = {
       description: "function with optional argument",
       compute: (arg) => {
-        return true;
+        return { value: true };
       },
       args: [
         { name: "arg1", description: "", type: ["ANY"] },
@@ -240,7 +228,7 @@ describe("function addMetaInfoFromArg", () => {
     const useRepeatable = {
       description: "function with repeatable argument",
       compute: (arg) => {
-        return true;
+        return { value: true };
       },
       args: [
         { name: "arg1", description: "", type: ["ANY"] },
@@ -271,7 +259,7 @@ describe("function addMetaInfoFromArg", () => {
     const useRepeatables = {
       description: "function with many repeatable argument",
       compute: (arg) => {
-        return true;
+        return { value: true };
       },
       args: [
         { name: "arg1", description: "", type: ["ANY"] },
@@ -303,7 +291,7 @@ describe("function addMetaInfoFromArg", () => {
     const useRepeatables = {
       description: "function with many repeatable argument",
       compute: (arg) => {
-        return true;
+        return { value: true };
       },
       args: [
         { name: "arg1", description: "", type: ["ANY"] },
@@ -351,7 +339,7 @@ describe("function addMetaInfoFromArg", () => {
     const useRepeatables = {
       description: "function with many repeatable argument",
       compute: (arg) => {
-        return true;
+        return { value: true };
       },
       args: [
         { name: "arg1", description: "", type: ["ANY"] },
@@ -401,7 +389,7 @@ describe("function addMetaInfoFromArg", () => {
     const useRepeatables = {
       description: "function with many repeatable argument",
       compute: (arg) => {
-        return true;
+        return { value: true };
       },
       args: [
         { name: "arg1", description: "", type: ["ANY"] },
@@ -447,7 +435,7 @@ describe("function addMetaInfoFromArg", () => {
     const useRepeatables = {
       description: "function with many repeatable argument",
       compute: (arg) => {
-        return true;
+        return { value: true };
       },
       args: [
         { name: "arg1", description: "", type: ["ANY"] },
@@ -484,7 +472,7 @@ describe("function addMetaInfoFromArg", () => {
     const useRepeatables = {
       description: "function with many repeatable argument",
       compute: (arg) => {
-        return true;
+        return { value: true };
       },
       args: [
         { name: "arg1", description: "", type: ["ANY"], optional: true },

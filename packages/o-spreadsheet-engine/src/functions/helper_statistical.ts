@@ -6,18 +6,13 @@ import { range } from "../helpers/misc";
 import { _t } from "../translation";
 import { EvaluationError } from "../types/errors";
 import { Locale } from "../types/locale";
-import { Arg, isMatrix, Matrix } from "../types/misc";
+import { Arg, Matrix } from "../types/misc";
+import { isMimicMatrix } from "./helper_arg";
 import { assert, assertNotZero } from "./helper_assert";
-import { invertMatrix, multiplyMatrices } from "./helper_matrices";
-import {
-  isEvaluationError,
-  reduceAny,
-  reduceNumbers,
-  transposeMatrix,
-  visitNumbers,
-} from "./helpers";
+import { invertMatrix, multiplyMatrices, transposeMatrix } from "./helper_matrices";
+import { isEvaluationError, reduceAny, reduceNumbers, visitNumbers } from "./helpers";
 
-export function assertSameNumberOfElements(...args: any[][]) {
+export function assertSameNumberOfElements(...args: Matrix<any>) {
   const dims = args[0].length;
   args.forEach((arg, i) =>
     assert(
@@ -50,14 +45,12 @@ export function average(values: Arg[], locale: Locale) {
 export function countNumbers(values: Arg[], locale: Locale) {
   let count = 0;
   for (const n of values) {
-    if (isMatrix(n)) {
-      for (const i of n) {
-        for (const j of i) {
-          if (typeof j.value === "number") {
-            count += 1;
-          }
+    if (isMimicMatrix(n)) {
+      n.visit((obj) => {
+        if (typeof obj.value === "number") {
+          count += 1;
         }
-      }
+      });
     } else {
       const value = n?.value;
       if (
@@ -196,7 +189,7 @@ export function fullLinearRegression(
     const dot3 = multiplyMatrices(transposeMatrix([avgX]), dot2);
     deltaCoeffs.push(RMSE * Math.sqrt(dot3[0][0] + 1 / y.length));
   }
-  const returned: (number | string)[][] = [
+  const returned: Matrix<number | string> = [
     [coeffs[0][0], deltaCoeffs[0], r2, f_stat, SSR],
     [coeffs[1][0], deltaCoeffs[1], RMSE, nDeg, SSE],
   ];

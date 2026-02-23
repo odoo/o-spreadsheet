@@ -35,7 +35,7 @@ export function evaluateLiteral(
       ? literalCell.content
       : literalCell.parsedValue;
   const functionResult = { value, format: localeFormat.format, origin: position };
-  return createEvaluatedCell(functionResult, localeFormat.locale);
+  return createEvaluatedCell(functionResult, localeFormat.locale, position);
 }
 
 export function parseLiteral(content: string, locale: Locale): CellValue {
@@ -67,12 +67,13 @@ export function parseLiteral(content: string, locale: Locale): CellValue {
 export function createEvaluatedCell(
   functionResult: FunctionResultObject,
   locale: Locale = DEFAULT_LOCALE,
+  position?: CellPosition,
   cell?: Cell,
   origin?: CellPosition
 ): EvaluatedCell {
   const link = detectLink(functionResult.value);
   if (!link) {
-    const evaluateCell = _createEvaluatedCell(functionResult, locale, cell);
+    const evaluateCell = _createEvaluatedCell(functionResult, locale, position, cell);
     return addOrigin(evaluateCell, functionResult.origin ?? origin);
   }
   const value = parseLiteral(link.label, locale);
@@ -87,7 +88,7 @@ export function createEvaluatedCell(
   };
   return addOrigin(
     {
-      ..._createEvaluatedCell(linkPayload, locale, cell),
+      ..._createEvaluatedCell(linkPayload, locale, position, cell),
       link,
     },
     functionResult.origin ?? origin
@@ -97,6 +98,7 @@ export function createEvaluatedCell(
 function _createEvaluatedCell(
   functionResult: FunctionResultObject,
   locale: Locale,
+  position?: CellPosition,
   cell?: Cell
 ): EvaluatedCell {
   let { value, format, message } = functionResult;
@@ -104,7 +106,7 @@ function _createEvaluatedCell(
 
   const formattedValue = formatValue(value, { format, locale });
   if (isEvaluationError(value)) {
-    return errorCell(value, message);
+    return errorCell(value, message, position);
   }
   if (value === null) {
     return emptyCell(format);
@@ -114,47 +116,56 @@ function _createEvaluatedCell(
     // with the next line, the value of the cell is transformed depending on the format.
     // This shouldn't happen, by doing this, the formulas handling numbers are not able
     // to interpret the value as a number.
-    return textCell(toString(value), format, formattedValue);
+    return textCell(toString(value), format, formattedValue, position);
   }
 
   if (typeof value === "number") {
     if (isDateTimeFormat(format || "")) {
-      return dateTimeCell(value, format, formattedValue);
+      return dateTimeCell(value, format, formattedValue, position);
     }
-    return numberCell(value, format, formattedValue);
+    return numberCell(value, format, formattedValue, position);
   }
   if (typeof value === "boolean") {
-    return booleanCell(value, format, formattedValue);
+    return booleanCell(value, format, formattedValue, position);
   }
-  return textCell(value, format, formattedValue);
+  return textCell(value, format, formattedValue, position);
 }
 
 function textCell(
   value: string,
   format: string | undefined,
-  formattedValue: string
+  formattedValue: string,
+  position?: CellPosition
 ): EvaluatedCell {
   return {
     value,
     format,
     formattedValue,
+    position,
     type: CellValueType.text,
     isAutoSummable: true,
     defaultAlign: "left",
   };
 }
 
-function numberCell(value: number, format: string | undefined, formattedValue: string): NumberCell {
+function numberCell(
+  value: number,
+  format: string | undefined,
+  formattedValue: string,
+  position?: CellPosition
+): NumberCell {
   return {
     value: value || 0, // necessary to avoid "-0" and NaN values,
     format,
     formattedValue,
+    position,
     type: CellValueType.number,
     isAutoSummable: true,
     defaultAlign: "right",
   };
 }
 
+// do not create empty cells based on their position to allow memoization
 const emptyCell = memoize(function emptyCell(format: string | undefined): EmptyCell {
   return {
     value: null,
@@ -169,12 +180,14 @@ const emptyCell = memoize(function emptyCell(format: string | undefined): EmptyC
 function dateTimeCell(
   value: number,
   format: string | undefined,
-  formattedValue: string
+  formattedValue: string,
+  position?: CellPosition
 ): NumberCell {
   return {
     value,
     format,
     formattedValue,
+    position,
     type: CellValueType.number,
     isAutoSummable: false,
     defaultAlign: "right",
@@ -184,23 +197,26 @@ function dateTimeCell(
 function booleanCell(
   value: boolean,
   format: string | undefined,
-  formattedValue: string
+  formattedValue: string,
+  position?: CellPosition
 ): BooleanCell {
   return {
     value,
     format,
     formattedValue,
+    position,
     type: CellValueType.boolean,
     isAutoSummable: false,
     defaultAlign: "center",
   };
 }
 
-function errorCell(value: string, message?: string): ErrorCell {
+function errorCell(value: string, message?: string, position?: CellPosition): ErrorCell {
   return {
     value,
     formattedValue: value,
     message,
+    position,
     type: CellValueType.error,
     isAutoSummable: false,
     defaultAlign: "center",

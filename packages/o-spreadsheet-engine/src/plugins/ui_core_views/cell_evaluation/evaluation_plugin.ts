@@ -1,5 +1,5 @@
 import { CompiledFormula } from "../../../formulas/compiler";
-import { matrixMap } from "../../../functions/helpers";
+import { matrixMap } from "../../../functions/helper_matrices";
 import { toXC } from "../../../helpers/coordinates";
 import { getItemId } from "../../../helpers/data_normalization";
 import { positions } from "../../../helpers/zones";
@@ -193,7 +193,7 @@ export class EvaluationPlugin extends CoreViewPlugin {
         this.positionsToUpdate.push(position);
 
         if ("content" in cmd) {
-          this.evaluator.updateDependencies(position);
+          this.evaluator.removeDependencies(position);
         }
         break;
       case "EVALUATE_CELLS":

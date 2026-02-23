@@ -1,10 +1,11 @@
-import { getFullReference, setXcToFixedReferenceType, splitReference } from "../helpers/references";
+import { toXC } from "../helpers/coordinates";
 import { _t } from "../translation";
-import { CellValueType } from "../types/cells";
+import { CellValue } from "../types/cells";
 import { CellErrorType, EvaluationError } from "../types/errors";
 import { AddFunctionDescription } from "../types/functions";
-import { FunctionResultObject, Matrix, Maybe } from "../types/misc";
+import { Arg, FunctionResultObject, Maybe } from "../types/misc";
 import { arg } from "./arguments";
+import { toMimicMatrix } from "./helper_arg";
 import { isEvaluationError, toString } from "./helpers";
 
 // -----------------------------------------------------------------------------
@@ -35,9 +36,9 @@ export const CELL = {
   description: _t("Gets information about a cell."),
   args: [
     arg("info_type (string)", _t("The type of information requested."), CELL_INFO_TYPES),
-    arg("reference (meta, range<meta>)", _t("The reference to the cell.")),
+    arg("reference (any, range<any>)", _t("The reference to the cell.")),
   ],
-  compute: function (info: Maybe<FunctionResultObject>, reference: Matrix<{ value: string }>) {
+  compute: function (info: Maybe<FunctionResultObject>, reference: Arg) {
     const _info = toString(info).toLowerCase();
     if (!CELL_INFO_TYPES.map((type) => type.value).includes(_info)) {
       return new EvaluationError(
@@ -45,43 +46,48 @@ export const CELL = {
       );
     }
 
-    const sheetId = this.__originSheetId;
-    const _reference = reference[0][0].value;
-    let { sheetName, xc } = splitReference(_reference);
-    // only put the sheet name if the referenced range is in another sheet than the cell the formula is on
-    sheetName = sheetName === this.getters.getSheetName(sheetId) ? undefined : sheetName;
-    const fixedRef = getFullReference(sheetName, setXcToFixedReferenceType(xc, "colrow"));
-    const range = this.getters.getRangeFromSheetXC(sheetId, fixedRef);
+    const firstReference = toMimicMatrix(reference).get(0, 0);
+    const position = firstReference.position;
+    if (position === undefined) {
+      return new EvaluationError(_t("The reference is invalid."));
+    }
 
+    let result: CellValue = "";
     switch (_info) {
       case "address":
-        return this.getters.getRangeString(range, sheetId);
+        const sheetName =
+          this.__originSheetId === position.sheetId
+            ? ""
+            : this.getters.getSheetName(position.sheetId) + "!";
+        result = sheetName + toXC(position.col, position.row, { colFixed: true, rowFixed: true });
+        break;
       case "col":
-        return range.zone.left + 1;
+        result = position.col + 1;
+        break;
       case "contents": {
-        const position = { sheetId: range.sheetId, col: range.zone.left, row: range.zone.top };
-        return this.getters.getEvaluatedCell(position).value;
+        result = firstReference.value;
+        break;
       }
       case "format": {
-        const position = { sheetId: range.sheetId, col: range.zone.left, row: range.zone.top };
-        return this.getters.getEvaluatedCell(position).format || "";
+        result = firstReference.format || "";
+        break;
       }
       case "row":
-        return range.zone.top + 1;
+        result = position.row + 1;
+        break;
       case "type": {
-        const position = { sheetId: range.sheetId, col: range.zone.left, row: range.zone.top };
-        const type = this.getters.getEvaluatedCell(position).type;
-        if (type === CellValueType.empty) {
-          return "b"; // blank
-        } else if (type === CellValueType.text) {
-          return "l"; // label
+        if (firstReference.type === "empty") {
+          result = "b"; // blank
+        } else if (firstReference.type === "text") {
+          result = "l"; // label
         } else {
-          return "v"; // value
+          result = "v"; // value
         }
+        break;
       }
     }
 
-    return "";
+    return { value: result };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -92,9 +98,9 @@ export const CELL = {
 export const ISERR = {
   description: _t("Whether a value is an error other than #N/A."),
   args: [arg("value (any)", _t("The value to be verified as an error type."))],
-  compute: function (data: Maybe<FunctionResultObject>): boolean {
+  compute: function (data: Maybe<FunctionResultObject>) {
     const value = data?.value;
-    return isEvaluationError(value) && value !== CellErrorType.NotAvailable;
+    return { value: isEvaluationError(value) && value !== CellErrorType.NotAvailable };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -105,9 +111,9 @@ export const ISERR = {
 export const ISERROR = {
   description: _t("Whether a value is an error."),
   args: [arg("value (any)", _t("The value to be verified as an error type."))],
-  compute: function (data: Maybe<FunctionResultObject>): boolean {
+  compute: function (data: Maybe<FunctionResultObject>) {
     const value = data?.value;
-    return isEvaluationError(value);
+    return { value: isEvaluationError(value) };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -118,8 +124,8 @@ export const ISERROR = {
 export const ISLOGICAL = {
   description: _t("Whether a value is `true` or `false`."),
   args: [arg("value (any)", _t("The value to be verified as a logical TRUE or FALSE."))],
-  compute: function (value: Maybe<FunctionResultObject>): boolean {
-    return typeof value?.value === "boolean";
+  compute: function (value: Maybe<FunctionResultObject>) {
+    return { value: typeof value?.value === "boolean" };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -130,8 +136,8 @@ export const ISLOGICAL = {
 export const ISNA = {
   description: _t("Whether a value is the error #N/A."),
   args: [arg("value (any)", _t("The value to be verified as an error type."))],
-  compute: function (data: Maybe<FunctionResultObject>): boolean {
-    return data?.value === CellErrorType.NotAvailable;
+  compute: function (data: Maybe<FunctionResultObject>) {
+    return { value: data?.value === CellErrorType.NotAvailable };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -142,8 +148,8 @@ export const ISNA = {
 export const ISNONTEXT = {
   description: _t("Whether a value is non-textual."),
   args: [arg("value (any)", _t("The value to be checked."))],
-  compute: function (value: Maybe<FunctionResultObject>): boolean {
-    return !ISTEXT.compute.bind(this)(value);
+  compute: function (value: Maybe<FunctionResultObject>) {
+    return { value: ISTEXT.compute.bind(this)(value).value === false };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -155,8 +161,8 @@ export const ISNONTEXT = {
 export const ISNUMBER = {
   description: _t("Whether a value is a number."),
   args: [arg("value (any)", _t("The value to be verified as a number."))],
-  compute: function (value: Maybe<FunctionResultObject>): boolean {
-    return typeof value?.value === "number";
+  compute: function (value: Maybe<FunctionResultObject>) {
+    return { value: typeof value?.value === "number" };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -167,8 +173,8 @@ export const ISNUMBER = {
 export const ISTEXT = {
   description: _t("Whether a value is text."),
   args: [arg("value (any)", _t("The value to be verified as text."))],
-  compute: function (value: Maybe<FunctionResultObject>): boolean {
-    return typeof value?.value === "string" && isEvaluationError(value?.value) === false;
+  compute: function (value: Maybe<FunctionResultObject>) {
+    return { value: typeof value?.value === "string" && isEvaluationError(value?.value) === false };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -179,8 +185,8 @@ export const ISTEXT = {
 export const ISBLANK = {
   description: _t("Whether the referenced cell is empty"),
   args: [arg("value (any)", _t("Reference to the cell that will be checked for emptiness."))],
-  compute: function (value: Maybe<FunctionResultObject>): boolean {
-    return value?.value === null;
+  compute: function (value: Maybe<FunctionResultObject>) {
+    return { value: value?.value === null };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -191,7 +197,7 @@ export const ISBLANK = {
 export const NA = {
   description: _t("Returns the error value #N/A."),
   args: [],
-  compute: function (): FunctionResultObject {
+  compute: function () {
     return { value: CellErrorType.NotAvailable };
   },
   isExported: true,

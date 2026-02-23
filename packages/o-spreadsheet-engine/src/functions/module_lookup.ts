@@ -1,13 +1,11 @@
 import { getPivotTooBigErrorMessage } from "../components/translations_terms";
 import { PIVOT_MAX_NUMBER_OF_CELLS } from "../constants";
-import { getFullReference, splitReference } from "../helpers/";
-import { toCartesian, toXC } from "../helpers/coordinates";
-import { range } from "../helpers/misc";
+import { getFullReference } from "../helpers/";
+import { toXC } from "../helpers/coordinates";
 import {
   addAlignFormatToPivotHeader,
   getPivotStyleFromFnArgs,
 } from "../helpers/pivot/pivot_helpers";
-import { toZone } from "../helpers/zones";
 import { _t } from "../translation";
 import {
   CellErrorType,
@@ -16,8 +14,9 @@ import {
   NotAvailableError,
 } from "../types/errors";
 import { AddFunctionDescription } from "../types/functions";
-import { Arg, FunctionResultObject, Matrix, Maybe, UID, Zone } from "../types/misc";
+import { Arg, FunctionResultObject, Matrix, Maybe } from "../types/misc";
 import { arg } from "./arguments";
+import { generateMimicMatrix, MimicMatrix, toMimicMatrix } from "./helper_arg";
 import { expectNumberGreaterThanOrEqualToOne } from "./helper_assert";
 import {
   addPivotDependencies,
@@ -28,13 +27,11 @@ import {
 import {
   dichotomicSearch,
   expectNumberRangeError,
-  generateMatrix,
-  isEvaluationError,
+  expectReferenceError,
   linearSearch,
   LinearSearchMode,
   strictToInteger,
   toBoolean,
-  toMatrix,
   toNumber,
   toString,
   valueNotAvailable,
@@ -119,9 +116,9 @@ export const ADDRESS = {
       cellReference = rowPart + colPart;
     }
     if (sheet !== undefined) {
-      return getFullReference(toString(sheet), cellReference);
+      return { value: getFullReference(toString(sheet), cellReference) };
     }
-    return cellReference;
+    return { value: cellReference };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -134,37 +131,32 @@ export const COLUMN = {
   description: _t("Column number of a specified cell."),
   args: [
     arg(
-      "cell_reference (meta, range<meta>, default='this cell')",
+      "cell_reference (any, range<any>, default='this cell')",
       _t(
         "The cell whose column number will be returned. Column A corresponds to 1. By default, the function use the cell in which the formula is entered."
       )
     ),
   ],
-  compute: function (cellReference: Matrix<{ value: string }> | undefined) {
+  compute: function (cellReference: Arg) {
     if (cellReference === undefined) {
-      if (this.__originCellPosition?.col === undefined) {
+      if (this.__originCellPosition === undefined) {
         return new EvaluationError(
           _t(
             "In this context, the function [[FUNCTION_NAME]] needs to have a cell or range in parameter."
           )
         );
       }
-      return this.__originCellPosition.col + 1;
+      return { value: this.__originCellPosition.col + 1 };
     }
-    if (cellReference[0][0] === undefined) {
-      return new EvaluationError(_t("The range is out of bounds."));
+    const _cellReference = toMimicMatrix(cellReference);
+    const firstCell = _cellReference.get(0, 0);
+    if (firstCell.position === undefined) {
+      return new InvalidReferenceError(expectReferenceError);
     }
-    if (cellReference[0][0].value === CellErrorType.InvalidReference) {
-      return cellReference[0][0]; // return the same error
-    }
-    const left = this.getters.getRangeFromSheetXC(
-      this.getters.getActiveSheetId(),
-      cellReference[0][0].value
-    ).zone.left;
-    if (cellReference.length === 1) {
-      return left + 1;
-    }
-    return generateMatrix(cellReference.length, 1, (col, row) => ({ value: left + col + 1 }));
+    const left = firstCell.position.col;
+    return generateMimicMatrix(_cellReference.width, 1, (col, row) => {
+      return { value: left + col + 1 };
+    });
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -177,14 +169,14 @@ export const COLUMNS = {
   description: _t("Number of columns in a specified array or range."),
   args: [arg("range (any, range<any>)", _t("The range whose column count will be returned."))],
   compute: function (range: Arg) {
-    const _range = toMatrix(range);
-    if (_range[0][0] === undefined) {
+    const _range = toMimicMatrix(range);
+    if (_range.get(0, 0) === undefined) {
       return new EvaluationError(_t("The range is out of bounds."));
     }
-    if (_range[0][0].value === CellErrorType.InvalidReference) {
-      return _range[0][0];
+    if (_range.get(0, 0).value === CellErrorType.InvalidReference) {
+      return _range.get(0, 0);
     }
-    return _range.length;
+    return { value: _range.width };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -225,31 +217,36 @@ export const HLOOKUP = {
     isSorted: Maybe<FunctionResultObject> = { value: DEFAULT_IS_SORTED }
   ): FunctionResultObject {
     const _index = Math.trunc(toNumber(index?.value, this.locale));
-    const _range = toMatrix(range);
+    const _range = toMimicMatrix(range);
 
-    if (1 > _index || _index > _range[0].length) {
+    if (1 > _index || _index > _range.height) {
       return new EvaluationError(_t("[[FUNCTION_NAME]] evaluates to an out of bounds range."));
     }
 
-    const getValueFromRange = (range: Matrix<FunctionResultObject>, index: number) =>
-      range[index][0].value;
+    const getValueFromRange = (r: Matrix<FunctionResultObject>, index: number) => r[index][0].value;
 
     const _isSorted = toBoolean(isSorted.value);
     const colIndex = _isSorted
-      ? dichotomicSearch(_range, searchKey, "nextSmaller", "asc", _range.length, getValueFromRange)
+      ? dichotomicSearch(
+          _range.getRow(0).getAll(),
+          searchKey,
+          "nextSmaller",
+          "asc",
+          _range.width,
+          getValueFromRange
+        )
       : linearSearch(
-          _range,
+          _range.getRow(0).getAll(),
           searchKey,
           "wildcard",
-          _range.length,
+          _range.width,
           getValueFromRange,
           this.lookupCaches
         );
-    const col = _range[colIndex];
-    if (col === undefined) {
+    if (colIndex === -1) {
       return valueNotAvailable(searchKey);
     }
-    return col[_index - 1];
+    return _range.get(colIndex, _index - 1);
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -274,15 +271,15 @@ export const INDEX: AddFunctionDescription = {
     reference: Arg,
     row: Maybe<FunctionResultObject> = { value: 0 },
     column: Maybe<FunctionResultObject> = { value: 0 }
-  ): FunctionResultObject | Matrix<FunctionResultObject> {
-    const _reference = toMatrix(reference);
+  ) {
+    const _reference = toMimicMatrix(reference);
     const _row = toNumber(row.value, this.locale);
     const _column = toNumber(column.value, this.locale);
     if (
       _column < 0 ||
-      _column - 1 >= _reference.length ||
+      _column - 1 >= _reference.width ||
       _row < 0 ||
-      _row - 1 >= _reference[0].length
+      _row - 1 >= _reference.height
     ) {
       return new EvaluationError(_t("Index out of range."));
     }
@@ -290,12 +287,12 @@ export const INDEX: AddFunctionDescription = {
       return _reference;
     }
     if (_row === 0) {
-      return [_reference[_column - 1]];
+      return _reference.getCol(_column - 1);
     }
     if (_column === 0) {
-      return _reference.map((col) => [col[_row - 1]]);
+      return _reference.getRow(_row - 1);
     }
-    return _reference[_column - 1][_row - 1];
+    return _reference.get(_column - 1, _row - 1);
   },
   isExported: true,
 };
@@ -318,7 +315,7 @@ export const INDIRECT: AddFunctionDescription = {
   compute: function (
     reference: Maybe<FunctionResultObject>,
     useA1Notation: Maybe<FunctionResultObject> = { value: true }
-  ): FunctionResultObject | Matrix<FunctionResultObject> {
+  ) {
     const _reference = reference?.value?.toString();
     if (!_reference) {
       return new InvalidReferenceError(_t("Reference should be defined."));
@@ -328,32 +325,13 @@ export const INDIRECT: AddFunctionDescription = {
       return new EvaluationError(_t("R1C1 notation is not supported."));
     }
     const sheetId = this.__originSheetId;
-    const originPosition = this.__originCellPosition;
-    if (originPosition) {
-      // The following line is used to reset the dependencies of the cell, to avoid
-      // keeping dependencies from previous evaluation of the INDIRECT formula (i.e.
-      // in case the reference has been changed).
-      this.updateDependencies?.(originPosition);
-    }
 
     const range = this.getters.getRangeFromSheetXC(sheetId, _reference);
     if (range === undefined || range.invalidXc || range.invalidSheetName) {
       return new InvalidReferenceError();
     }
-    if (originPosition) {
-      this.addDependencies?.(originPosition, [range]);
-    }
 
-    const values: FunctionResultObject[][] = [];
-    for (let col = range.zone.left; col <= range.zone.right; col++) {
-      const colValues: FunctionResultObject[] = [];
-      for (let row = range.zone.top; row <= range.zone.bottom; row++) {
-        const position = { sheetId: range.sheetId, col, row };
-        colValues.push(this.getters.getEvaluatedCell(position));
-      }
-      values.push(colValues);
-    }
-    return values.length === 1 && values[0].length === 1 ? values[0][0] : values;
+    return this.getRange(range.zone, range.sheetId);
   },
   isExported: true,
 };
@@ -382,16 +360,12 @@ export const LOOKUP = {
       )
     ),
   ],
-  compute: function (
-    searchKey: Maybe<FunctionResultObject>,
-    searchArray: Arg,
-    resultRange: Arg
-  ): FunctionResultObject {
-    const _searchArray = toMatrix(searchArray);
-    const _resultRange = toMatrix(resultRange);
+  compute: function (searchKey: Maybe<FunctionResultObject>, searchArray: Arg, resultRange: Arg) {
+    const _searchArray = toMimicMatrix(searchArray);
+    const _resultRange = toMimicMatrix(resultRange);
 
-    let nbCol = _searchArray.length;
-    let nbRow = _searchArray[0].length;
+    let nbCol = _searchArray.width;
+    let nbRow = _searchArray.height;
 
     const verticalSearch = nbRow >= nbCol;
     const getElement = verticalSearch
@@ -399,7 +373,7 @@ export const LOOKUP = {
       : (range: Matrix<FunctionResultObject>, index: number) => range[index][0].value;
     const rangeLength = verticalSearch ? nbRow : nbCol;
     const index = dichotomicSearch(
-      _searchArray,
+      verticalSearch ? _searchArray.getCol(0).getAll() : _searchArray.getRow(0).getAll(),
       searchKey,
       "nextSmaller",
       "asc",
@@ -409,18 +383,20 @@ export const LOOKUP = {
 
     if (
       index === -1 ||
-      (verticalSearch && _searchArray[0][index] === undefined) ||
-      (!verticalSearch && _searchArray[index][nbRow - 1] === undefined)
+      (verticalSearch && _searchArray.get(0, index) === undefined) ||
+      (!verticalSearch && _searchArray.get(index, nbRow - 1) === undefined)
     ) {
       return valueNotAvailable(searchKey);
     }
 
-    if (_resultRange[0].length === 0) {
-      return verticalSearch ? _searchArray[nbCol - 1][index] : _searchArray[index][nbRow - 1];
+    if (_resultRange.height === 0) {
+      return verticalSearch
+        ? _searchArray.get(nbCol - 1, index)
+        : _searchArray.get(index, nbRow - 1);
     }
 
-    nbCol = _resultRange.length;
-    nbRow = _resultRange[0].length;
+    nbCol = _resultRange.width;
+    nbRow = _resultRange.height;
     if (nbCol !== 1 && nbRow !== 1) {
       return new EvaluationError(_t("The result_range must be a single row or a single column."));
     }
@@ -431,7 +407,7 @@ export const LOOKUP = {
           _t("[[FUNCTION_NAME]] evaluates to an out of range row value %s.", index + 1)
         );
       }
-      return _resultRange[index][0];
+      return _resultRange.get(index, 0);
     }
 
     if (index > nbRow - 1) {
@@ -439,7 +415,7 @@ export const LOOKUP = {
         _t("[[FUNCTION_NAME]] evaluates to an out of range column value %s.", index + 1)
       );
     }
-    return _resultRange[0][index];
+    return _resultRange.get(0, index);
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -474,9 +450,9 @@ export const MATCH = {
     searchType: Maybe<FunctionResultObject> = { value: DEFAULT_SEARCH_TYPE }
   ) {
     let _searchType = toNumber(searchType, this.locale);
-    const _range = toMatrix(range);
-    const nbCol = _range.length;
-    const nbRow = _range[0].length;
+    const _range = toMimicMatrix(range);
+    const nbCol = _range.width;
+    const nbRow = _range.height;
 
     if (nbCol !== 1 && nbRow !== 1) {
       return new EvaluationError(_t("The range must be a single row or a single column."));
@@ -486,10 +462,10 @@ export const MATCH = {
 
     const getElement =
       nbCol === 1
-        ? (_range: Matrix<FunctionResultObject>, index: number) => _range[0][index].value
-        : (_range: Matrix<FunctionResultObject>, index: number) => _range[index][0].value;
+        ? (_range: MimicMatrix, index: number) => _range.get(0, index).value
+        : (_range: MimicMatrix, index: number) => _range.get(index, 0).value;
 
-    const rangeLen = nbCol === 1 ? _range[0].length : _range.length;
+    const rangeLen = nbCol === 1 ? _range.height : _range.width;
     _searchType = Math.sign(_searchType);
     switch (_searchType) {
       case 1:
@@ -510,12 +486,12 @@ export const MATCH = {
         break;
     }
     if (
-      (nbCol === 1 && _range[0][index] === undefined) ||
-      (nbCol !== 1 && _range[index] === undefined)
+      (nbCol === 1 && (index < 0 || index >= _range.height)) ||
+      (nbCol !== 1 && (index < 0 || index >= _range.width))
     ) {
       return valueNotAvailable(searchKey);
     }
-    return index + 1;
+    return { value: index + 1 };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -528,13 +504,13 @@ export const ROW = {
   description: _t("Row number of a specified cell."),
   args: [
     arg(
-      "cell_reference (meta, range<meta>, default='this cell')",
+      "cell_reference (any, range<any>, default='this cell')",
       _t(
         "The cell whose row number will be returned. By default, this function uses the cell in which the formula is entered."
       )
     ),
   ],
-  compute: function (cellReference: Matrix<{ value: string }> | undefined) {
+  compute: function (cellReference: Arg) {
     if (cellReference === undefined) {
       if (this.__originCellPosition?.row === undefined) {
         return new EvaluationError(
@@ -543,22 +519,18 @@ export const ROW = {
           )
         );
       }
-      return this.__originCellPosition.row + 1;
+      return { value: this.__originCellPosition.row + 1 };
     }
-    if (cellReference[0][0] === undefined) {
-      return new EvaluationError(_t("The range is out of bounds."));
+    const _cellReference = toMimicMatrix(cellReference);
+    const firstCell = _cellReference.get(0, 0);
+    if (firstCell.position === undefined) {
+      return new InvalidReferenceError(expectReferenceError);
     }
-    if (cellReference[0][0].value === CellErrorType.InvalidReference) {
-      return cellReference[0][0]; // return the same error
-    }
-    const top = this.getters.getRangeFromSheetXC(
-      this.getters.getActiveSheetId(),
-      cellReference[0][0].value
-    ).zone.top;
-    if (cellReference[0].length === 1) {
-      return top + 1;
-    }
-    return generateMatrix(1, cellReference[0].length, (col, row) => ({ value: top + row + 1 }));
+    const top = firstCell.position.row;
+
+    return generateMimicMatrix(1, _cellReference.height, (col, row) => {
+      return { value: top + row + 1 };
+    });
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -571,14 +543,11 @@ export const ROWS = {
   description: _t("Number of rows in a specified array or range."),
   args: [arg("range (any, range<any>)", _t("The range whose row count will be returned."))],
   compute: function (range: Arg) {
-    const _range = toMatrix(range);
-    if (_range[0][0] === undefined) {
-      return new EvaluationError(_t("The range is out of bounds."));
+    const _range = toMimicMatrix(range);
+    if (_range.get(0, 0).value === CellErrorType.InvalidReference) {
+      return _range.get(0, 0);
     }
-    if (_range[0][0].value === CellErrorType.InvalidReference) {
-      return _range[0][0];
-    }
-    return _range[0].length;
+    return { value: _range.height };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -621,8 +590,8 @@ export const VLOOKUP = {
     isSorted: Maybe<FunctionResultObject> = { value: DEFAULT_IS_SORTED }
   ): FunctionResultObject {
     const _index = Math.trunc(toNumber(index?.value, this.locale));
-    const _range = toMatrix(range);
-    if (1 > _index || _index > _range.length) {
+    const _range = toMimicMatrix(range);
+    if (1 > _index || _index > _range.width) {
       return new EvaluationError(_t("[[FUNCTION_NAME]] evaluates to an out of bounds range."));
     }
 
@@ -632,27 +601,26 @@ export const VLOOKUP = {
     const _isSorted = toBoolean(isSorted.value);
     const rowIndex = _isSorted
       ? dichotomicSearch(
-          _range,
+          _range.getCol(0).getAll(),
           searchKey,
           "nextSmaller",
           "asc",
-          _range[0].length,
+          _range.height,
           getValueFromRange
         )
       : linearSearch(
-          _range,
+          _range.getCol(0).getAll(),
           searchKey,
           "wildcard",
-          _range[0].length,
+          _range.height,
           getValueFromRange,
           this.lookupCaches
         );
 
-    const value = _range[_index - 1][rowIndex];
-    if (value === undefined) {
+    if (rowIndex === -1) {
       return valueNotAvailable(searchKey);
     }
-    return value;
+    return _range.get(_index - 1, rowIndex);
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -714,9 +682,9 @@ export const XLOOKUP = {
   ) {
     const _matchMode = Math.trunc(toNumber(matchMode.value, this.locale));
     const _searchMode = Math.trunc(toNumber(searchMode.value, this.locale));
-    const _lookupRange = toMatrix(lookupRange);
-    const _returnRange = toMatrix(returnRange);
-    if (_lookupRange.length !== 1 && _lookupRange[0].length !== 1) {
+    const _lookupRange = toMimicMatrix(lookupRange);
+    const _returnRange = toMimicMatrix(returnRange);
+    if (_lookupRange.width !== 1 && _lookupRange.height !== 1) {
       return new EvaluationError(
         _t("lookup_range should be either a single row or single column.")
       );
@@ -728,7 +696,7 @@ export const XLOOKUP = {
       return new EvaluationError(_t("match_mode should be a value in [-1, 0, 1, 2]."));
     }
 
-    const lookupDirection = _lookupRange.length === 1 ? "col" : "row";
+    const lookupDirection = _lookupRange.width === 1 ? "col" : "row";
 
     if (_matchMode === 2 && [-2, 2].includes(_searchMode)) {
       return new EvaluationError(
@@ -738,26 +706,27 @@ export const XLOOKUP = {
 
     if (
       lookupDirection === "col"
-        ? _returnRange[0].length !== _lookupRange[0].length
-        : _returnRange.length !== _lookupRange.length
+        ? _returnRange.height !== _lookupRange.height
+        : _returnRange.width !== _lookupRange.width
     ) {
       return new EvaluationError(
         _t("return_range should have the same dimensions as lookup_range.")
       );
     }
+
     const getElement =
       lookupDirection === "col"
         ? (range: Matrix<FunctionResultObject>, index: number) => range[0][index].value
         : (range: Matrix<FunctionResultObject>, index: number) => range[index][0].value;
 
-    const rangeLen = lookupDirection === "col" ? _lookupRange[0].length : _lookupRange.length;
+    const rangeLen = lookupDirection === "col" ? _lookupRange.height : _lookupRange.width;
     const mode = MATCH_MODE[_matchMode];
     const reverseSearch = _searchMode === -1;
 
     const index =
       _searchMode === 2 || _searchMode === -2
         ? dichotomicSearch(
-            _lookupRange,
+            _lookupRange.getAll(),
             searchKey,
             mode as "strict" | "nextGreater" | "nextSmaller",
             _searchMode === 2 ? "asc" : "desc",
@@ -765,7 +734,7 @@ export const XLOOKUP = {
             getElement
           )
         : linearSearch(
-            _lookupRange,
+            _lookupRange.getAll(),
             searchKey,
             mode,
             rangeLen,
@@ -775,14 +744,12 @@ export const XLOOKUP = {
           );
 
     if (index !== -1) {
-      return lookupDirection === "col"
-        ? _returnRange.map((col) => [col[index]])
-        : [_returnRange[index]];
+      return lookupDirection === "col" ? _returnRange.getRow(index) : _returnRange.getCol(index);
     }
     if (defaultValue === undefined) {
       return valueNotAvailable(searchKey);
     }
-    return [[defaultValue]];
+    return defaultValue;
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -895,6 +862,8 @@ export const PIVOT_HEADER = {
   },
 } satisfies AddFunctionDescription;
 
+// PIVOT
+
 export const PIVOT = {
   description: _t("Get a pivot table."),
   args: [
@@ -961,36 +930,34 @@ export const PIVOT = {
       headerRows++;
     }
     const pivotTitle = this.getters.getPivotName(pivotId);
-    const { numberOfCols, numberOfRows } = table.getPivotTableDimensions(pivotStyle);
-    if (numberOfRows === 0) {
-      return [[{ value: pivotTitle }]];
+
+    const tableHeight = Math.min(headerRows + pivotStyle.numberOfRows, cells[0].length);
+    if (tableHeight === 0) {
+      return { value: pivotTitle };
     }
-    const result: Matrix<FunctionResultObject> = [];
-    for (const col of range(0, numberOfCols)) {
-      result[col] = [];
-      for (const row of range(0, numberOfRows)) {
-        const pivotCell = cells[col][row];
-        switch (pivotCell.type) {
-          case "EMPTY":
-            result[col].push({ value: "" });
-            break;
-          case "HEADER":
-            const valueAndFormat = pivot.getPivotHeaderValueAndFormat(pivotCell.domain);
-            result[col].push(addAlignFormatToPivotHeader(pivotCell.domain, valueAndFormat));
-            break;
-          case "MEASURE_HEADER":
-            result[col].push(pivot.getPivotMeasureValue(pivotCell.measure, pivotCell.domain));
-            break;
-          case "VALUE":
-            result[col].push(pivot.getPivotCellValueAndFormat(pivotCell.measure, pivotCell.domain));
-            break;
-        }
+    const tableWidth = Math.min(1 + pivotStyle.numberOfColumns, cells.length);
+
+    return generateMimicMatrix(tableWidth, tableHeight, (col, row) => {
+      const pivotCell = cells[col][row];
+      if (
+        col === 0 &&
+        row === 0 &&
+        (pivotStyle.displayColumnHeaders || pivotStyle.displayMeasuresRow)
+      ) {
+        return { value: pivotTitle };
       }
-    }
-    if (pivotStyle.displayColumnHeaders || pivotStyle.displayMeasuresRow) {
-      result[0][0] = { value: pivotTitle };
-    }
-    return result;
+      switch (pivotCell.type) {
+        case "EMPTY":
+          return { value: "" };
+        case "HEADER":
+          const valueAndFormat = pivot.getPivotHeaderValueAndFormat(pivotCell.domain);
+          return addAlignFormatToPivotHeader(pivotCell.domain, valueAndFormat);
+        case "MEASURE_HEADER":
+          return pivot.getPivotMeasureValue(pivotCell.measure, pivotCell.domain);
+        case "VALUE":
+          return pivot.getPivotCellValueAndFormat(pivotCell.measure, pivotCell.domain);
+      }
+    });
   },
 } satisfies AddFunctionDescription;
 
@@ -1004,7 +971,7 @@ export const OFFSET = {
   ),
   args: [
     arg(
-      "cell_reference (meta, range<meta>)",
+      "cell_reference (any, range<any>)",
       _t("The starting point from which to count the offset rows and columns.")
     ),
     arg("offset_rows (number)", _t("The number of rows to offset by.")),
@@ -1019,26 +986,23 @@ export const OFFSET = {
     ),
   ],
   compute: function (
-    cellReference: Matrix<{ value: string }>,
+    cellReference: Arg,
     offsetRows: Maybe<FunctionResultObject>,
     offsetColumns: Maybe<FunctionResultObject>,
     height: Maybe<FunctionResultObject>,
     width: Maybe<FunctionResultObject>
   ) {
-    if (isEvaluationError(cellReference[0][0].value)) {
-      return cellReference[0][0];
+    if (cellReference === undefined) {
+      return new InvalidReferenceError(expectReferenceError);
+    }
+    const _cellReference = toMimicMatrix(cellReference);
+    const firstCell = _cellReference.get(0, 0);
+    if (firstCell.position === undefined) {
+      return new InvalidReferenceError(expectReferenceError);
     }
 
-    const ref0 = cellReference[0][0].value;
-    if (!ref0) {
-      return new EvaluationError(
-        "In this context, the function OFFSET needs to have a cell or range in parameter."
-      );
-    }
-    const zone = toZone(ref0);
-
-    let offsetHeight = cellReference[0].length;
-    let offsetWidth = cellReference.length;
+    let offsetHeight = _cellReference.height;
+    let offsetWidth = _cellReference.width;
 
     if (height) {
       const _height = toNumber(height, this.locale);
@@ -1060,50 +1024,24 @@ export const OFFSET = {
       offsetWidth = _width;
     }
 
-    const { sheetName } = splitReference(ref0);
-
-    const sheetId =
-      (sheetName && this.getters.getSheetIdByName(sheetName)) || this.getters.getActiveSheetId();
-
     const _offsetRows = toNumber(offsetRows, this.locale);
     const _offsetColumns = toNumber(offsetColumns, this.locale);
 
-    const originPosition = this.__originCellPosition;
-    if (originPosition) {
-      this.updateDependencies?.(originPosition);
-    }
-
-    const startingCol = zone.left + _offsetColumns;
-    const startingRow = zone.top + _offsetRows;
+    const startingCol = firstCell.position.col + _offsetColumns;
+    const startingRow = firstCell.position.row + _offsetRows;
 
     if (startingCol < 0 || startingRow < 0) {
       return new InvalidReferenceError(_t("OFFSET evaluates to an out of bounds range."));
     }
 
-    const dependencyZone: Zone = {
-      left: startingCol,
-      top: startingRow,
-      right: startingCol + offsetWidth - 1,
-      bottom: startingRow + offsetHeight - 1,
-    };
-
-    const range = this.getters.getRangeFromZone(sheetId, dependencyZone);
-    if (range.invalidXc || range.invalidSheetName) {
-      return new InvalidReferenceError();
-    }
-    if (originPosition) {
-      this.addDependencies?.(originPosition, [range]);
-    }
-
-    return generateMatrix(
-      offsetWidth,
-      offsetHeight,
-      (col: number, row: number): FunctionResultObject =>
-        this.getters.getEvaluatedCell({
-          sheetId,
-          col: startingCol + col,
-          row: startingRow + row,
-        })
+    return this.getRange(
+      {
+        left: startingCol,
+        top: startingRow,
+        right: startingCol + offsetWidth - 1,
+        bottom: startingRow + offsetHeight - 1,
+      },
+      firstCell.position.sheetId
     );
   },
 } satisfies AddFunctionDescription;
@@ -1154,31 +1092,32 @@ export const DROP = {
     ),
   ],
   compute: function (
-    array: Matrix<{ value: string }>,
+    array: MimicMatrix,
     rows: Maybe<FunctionResultObject>,
     columns: Maybe<FunctionResultObject>
   ) {
     const _rows = toNumber(rows, this.locale);
     const _columns = toNumber(columns, this.locale);
-    let result = array;
-    if (Math.abs(_columns) >= array.length || Math.abs(_rows) >= array[0].length) {
+    if (Math.abs(_columns) >= array.width || Math.abs(_rows) >= array.height) {
       return new EvaluationError(
         _t(
           "The number of rows or column to exclude must be smaller than the number of elements in the array."
         )
       );
     }
+    let colsResult = array;
+
     if (_columns >= 0) {
-      result = result.slice(_columns);
+      colsResult = array.sliceCols(_columns);
     } else {
-      result = result.slice(0, result.length + _columns);
+      colsResult = array.sliceCols(0, array.width + _columns);
     }
-    for (let i = 0; i < result.length; i++) {
-      if (_rows >= 0) {
-        result[i] = result[i].slice(_rows);
-      } else {
-        result[i] = result[i].slice(0, result[i].length + _rows);
-      }
+
+    let result = colsResult;
+    if (_rows >= 0) {
+      result = colsResult.sliceRows(_rows);
+    } else {
+      result = colsResult.sliceRows(0, colsResult.height + _rows);
     }
     return result;
   },
@@ -1205,34 +1144,36 @@ export const TAKE = {
     ),
   ],
   compute: function (
-    array: Matrix<{ value: string }>,
+    array: MimicMatrix,
     rows: Maybe<FunctionResultObject>,
     columns: Maybe<FunctionResultObject>
   ) {
-    let _rows = !rows ? array[0].length : toNumber(rows, this.locale);
+    let _rows = !rows ? array.height : toNumber(rows, this.locale);
     let _columns = toNumber(columns, this.locale);
-    let result = array;
-    if (Math.abs(_columns) >= array.length || _columns === 0) {
-      _columns = array.length;
+    let colsResult = array;
+    if (Math.abs(_columns) >= array.width || _columns === 0) {
+      _columns = array.width;
     }
-    if (Math.abs(_rows) >= array[0].length) {
-      _rows = array[0].length;
+    if (Math.abs(_rows) >= array.height) {
+      _rows = array.height;
     }
     if (_columns >= 0) {
-      result = result.slice(0, _columns);
+      colsResult = array.sliceCols(0, _columns);
     } else {
-      result = result.slice(result.length + _columns, result.length);
+      colsResult = array.sliceCols(array.width + _columns, array.width);
     }
     if (_rows === 0) {
       return new EvaluationError(_t("The number of rows can not be zero."));
     }
-    for (let i = 0; i < result.length; i++) {
-      if (_rows > 0) {
-        result[i] = result[i].slice(0, _rows);
-      } else {
-        result[i] = result[i].slice(result[i].length + _rows, result[i].length);
-      }
+
+    let result = colsResult;
+
+    if (_rows > 0) {
+      result = colsResult.sliceRows(0, _rows);
+    } else {
+      result = colsResult.sliceRows(result.height + _rows, result.height);
     }
+
     return result;
   },
   isExported: true,
@@ -1244,15 +1185,14 @@ export const TAKE = {
 
 export const FORMULATEXT = {
   description: _t("Returns a formula as a string."),
-  args: [arg("cell_reference (meta)", _t("A reference to a cell."))],
-  compute: function (cellReference: { value: string }) {
-    const { sheetName, xc } = splitReference(cellReference.value);
-    const { col, row } = toCartesian(xc);
-    const sheetId: UID =
-      (sheetName && this.getters.getSheetIdByName(sheetName)) ?? this.__originSheetId;
-    const cell = this.getters.getCell({ sheetId, col, row });
+  args: [arg("cell_reference (any)", _t("A reference to a cell."))],
+  compute: function (cellReference: Maybe<FunctionResultObject>) {
+    if (cellReference?.position === undefined) {
+      return new InvalidReferenceError(expectReferenceError);
+    }
+    const cell = this.getters.getCell(cellReference.position);
     if (cell?.isFormula) {
-      return cell.compiledFormula.toFormulaString(this.getters);
+      return { value: cell.compiledFormula.toFormulaString(this.getters) };
     } else {
       return new NotAvailableError(_t("The cell does not contain a formula."));
     }

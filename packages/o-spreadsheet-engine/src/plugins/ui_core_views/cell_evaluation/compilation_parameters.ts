@@ -1,7 +1,7 @@
 import { functionRegistry } from "../../../functions/function_registry";
-import { getFullReference } from "../../../helpers";
-import { toXC } from "../../../helpers/coordinates";
-import { intersection, isZoneValid, zoneToXc } from "../../../helpers/zones";
+import { MimicMatrix } from "../../../functions/helper_arg";
+import { generateMatrix } from "../../../functions/helper_matrices";
+import { isZoneValid } from "../../../helpers/zones";
 import { _t } from "../../../translation";
 import { EvaluatedCell } from "../../../types/cells";
 import { EvaluationError, InvalidReferenceError } from "../../../types/errors";
@@ -13,6 +13,7 @@ import {
   FunctionResultObject,
   Matrix,
   ReferenceDenormalizer,
+  Zone,
 } from "../../../types/misc";
 import { ModelConfig } from "../../../types/model";
 import { Range } from "../../../types/range";
@@ -42,7 +43,7 @@ export function buildCompilationParameters(
 class CompilationParametersBuilder {
   evalContext: EvalContext;
 
-  private rangeCache: Record<string, Matrix<FunctionResultObject>> = {};
+  private mimicMatrixCache: Map<string, Matrix<FunctionResultObject>> = new Map();
 
   constructor(
     context: ModelConfig["custom"],
@@ -52,6 +53,8 @@ class CompilationParametersBuilder {
     this.evalContext = Object.assign(Object.create(functionMap), context, {
       getters: this.getters,
       locale: this.getters.getLocale(),
+      getRef: this.getRef.bind(this),
+      getRange: this.getRange.bind(this),
     });
   }
 
@@ -67,24 +70,23 @@ class CompilationParametersBuilder {
    * Returns the value of the cell(s) used in reference
    *
    * @param range the references used
-   * @param isMeta if a reference is supposed to be used in a `meta` parameter as described in the
-   *        function for which this parameter is used, we just return the string of the parameter.
-   *        The `compute` of the formula's function must process it completely
    */
-  private refFn(range: Range, isMeta: boolean): FunctionResultObject {
+  private refFn(range: Range): FunctionResultObject {
     const rangeError = this.getRangeError(range);
     if (rangeError) {
       return rangeError;
     }
+
+    if (this.evalContext?.__originCellPosition) {
+      this.evalContext.currentFormulaDependencies?.push(range);
+    }
     // the compiler guarantees only single cell ranges reach this part of the code
     const position = { sheetId: range.sheetId, col: range.zone.left, row: range.zone.top };
-    if (isMeta) {
-      this.computeCell(position); // ensure the cell is computed if the function using the meta parameter uses the value
-      // Use zoneToXc of zone instead of getRangeString to avoid sending unbounded ranges
-      const sheetName = this.getters.getSheetName(range.sheetId);
-      return { value: getFullReference(sheetName, zoneToXc(range.zone)) };
+    const result = this.computeCell(position);
+    if (!result.position) {
+      return { ...result, position };
     }
-    return this.computeCell(position);
+    return result;
   }
 
   /**
@@ -95,47 +97,69 @@ class CompilationParametersBuilder {
    * Note that each col is possibly sparse: it only contain the values of cells
    * that are actually present in the grid.
    */
-  private range(range: Range, isMeta: boolean): Matrix<FunctionResultObject> {
+  private range(range: Range): MimicMatrix {
+    // TO DO: see if we keep this check
+    // si if wee use a cache at this step
     const rangeError = this.getRangeError(range);
     if (rangeError) {
-      return [[rangeError]];
+      return new MimicMatrix(1, 1, () => [[rangeError]]);
     }
     const sheetId = range.sheetId;
-    const zone = range.zone;
+    const { top, left, bottom, right } = range.zone;
+    const height = bottom - top + 1;
+    const width = right - left + 1;
 
-    // Performance issue: Avoid fetching data on positions that are out of the spreadsheet
-    // e.g. A1:ZZZ9999 in a sheet with 10 cols and 10 rows should ignore everything past J10 and return a 10x10 array
-    const sheetZone = this.getters.getSheetZone(sheetId);
-    const _zone = intersection(zone, sheetZone);
-    if (!_zone) {
-      return [[]];
-    }
-    const { top, left, bottom, right } = zone;
-    const cacheKey = `${sheetId}-${top}-${left}-${bottom}-${right}-${isMeta}`;
-    if (cacheKey in this.rangeCache) {
-      return this.rangeCache[cacheKey];
-    }
+    return new MimicMatrix(width, height, (zone: Zone) => {
+      // Zone starts at 0,0 for the top left corner of the range, so we need to shift it by the top and left of the range to get the actual position in the sheet
+      const realLeft = zone.left + left;
+      const realTop = zone.top + top;
+      const realRight = zone.right + left;
+      const realBottom = zone.bottom + top;
+      const realZone = { left: realLeft, top: realTop, right: realRight, bottom: realBottom };
 
-    const height = _zone.bottom - _zone.top + 1;
-    const width = _zone.right - _zone.left + 1;
-    const matrix: Matrix<FunctionResultObject> = new Array(width);
-    const sheetName = this.getters.getSheetName(range.sheetId);
-
-    // Performance issue: nested loop is faster than a map here
-    for (let col = _zone.left; col <= _zone.right; col++) {
-      const colIndex = col - _zone.left;
-      matrix[colIndex] = new Array(height);
-      for (let row = _zone.top; row <= _zone.bottom; row++) {
-        const rowIndex = row - _zone.top;
-        const computedCell = this.computeCell({ sheetId, col, row });
-        matrix[colIndex][rowIndex] = isMeta
-          ? { value: getFullReference(sheetName, toXC(col, row)) }
-          : computedCell;
+      const range = this.getters.getRangeFromZone(sheetId, realZone);
+      if (this.evalContext.__originCellPosition) {
+        this.evalContext.currentFormulaDependencies?.push(range);
       }
-    }
 
-    this.rangeCache[cacheKey] = matrix;
-    return matrix;
+      const cacheKey = `${sheetId}-${realTop}-${realLeft}-${realBottom}-${realRight}`;
+      if (this.mimicMatrixCache.has(cacheKey)) {
+        return this.mimicMatrixCache.get(cacheKey)!;
+      }
+
+      const partialWidth = zone.right - zone.left + 1;
+      const partialHeight = zone.bottom - zone.top + 1;
+      // TO DO: create a cache when reading a column ?
+      const matrix = generateMatrix(partialWidth, partialHeight, (col, row) => {
+        const realCol = col + realLeft;
+        const realRow = row + realTop;
+        const position = { sheetId: range.sheetId, col: realCol, row: realRow };
+
+        const result = this.computeCell(position);
+        if (!result.position) {
+          return { ...result, position };
+        }
+        return result;
+      });
+      this.mimicMatrixCache.set(cacheKey, matrix);
+      return matrix;
+    });
+  }
+
+  private getRef(position: CellPosition): FunctionResultObject {
+    const range = this.getters.getRangeFromZone(position.sheetId, {
+      top: position.row,
+      left: position.col,
+      bottom: position.row,
+      right: position.col,
+    });
+
+    return this.refFn(range);
+  }
+
+  private getRange(zone: Zone, sheetId: string): MimicMatrix {
+    const range = this.getters.getRangeFromZone(sheetId, zone);
+    return this.range(range);
   }
 
   private getRangeError(range: Range): EvaluationError | undefined {
