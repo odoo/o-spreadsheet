@@ -44,10 +44,15 @@ export class InternalViewport {
       this.sheetId,
       this.boundaries.left
     ).start;
+    this.offsetCorrectionX = 0;
     this.offsetCorrectionY = this.getters.getRowDimensions(this.sheetId, this.boundaries.top).start;
 
     this.adjustViewportOffsetX();
     this.adjustViewportOffsetY();
+  }
+
+  get startX() {
+    return this.getters.getColDimensions(this.sheetId, this.boundaries.left).start;
   }
 
   // PUBLIC
@@ -69,7 +74,7 @@ export class InternalViewport {
     const { end: lastColEnd } = this.getters.getColDimensions(this.sheetId, lastCol);
     const { end: lastRowEnd } = this.getters.getRowDimensions(this.sheetId, lastRow);
 
-    let width = lastColEnd - this.offsetCorrectionX;
+    let width = lastColEnd - this.startX;
     if (this.canScrollHorizontally) {
       width = Math.max(width, this.viewportWidth); // if the viewport grid size is smaller than its client width, return client width
     }
@@ -141,10 +146,11 @@ export class InternalViewport {
     const sheetId = this.sheetId;
     const { start, end } = this.getters.getColDimensions(sheetId, targetCol);
 
-    if (this.offsetX + this.viewportWidth + this.offsetCorrectionX < end) {
-      this.offsetX = end - this.viewportWidth;
-    } else if (this.offsetX + this.offsetCorrectionX > start) {
-      this.offsetX = start - this.offsetCorrectionX;
+    console.log(this.offsetX, this.viewportWidth);
+    if (this.offsetX + this.viewportWidth + this.startX < end) {
+      this.offsetX = end - this.viewportWidth - this.startX;
+    } else if (this.offsetX + this.startX > start) {
+      this.offsetX = start - this.startX;
     }
     this.adjustViewportZoneX();
   }
