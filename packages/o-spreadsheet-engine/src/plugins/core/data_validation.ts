@@ -34,8 +34,10 @@ export class DataValidationPlugin
 
   readonly rules: { [sheet: string]: DataValidationRule[] } = {};
 
-  adaptRanges(rangeAdapters: RangeAdapterFunctions, sheetId: UID) {
-    this.adaptDVRanges(sheetId, rangeAdapters);
+  adaptRanges(rangeAdapters: RangeAdapterFunctions) {
+    for (const sheetId in this.rules) {
+      this.adaptDVRanges(sheetId, rangeAdapters);
+    }
     this.adaptDVFormulas(rangeAdapters);
   }
 

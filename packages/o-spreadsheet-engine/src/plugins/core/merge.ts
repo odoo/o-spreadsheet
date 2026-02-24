@@ -117,8 +117,10 @@ export class MergePlugin extends CorePlugin<MergeState> implements MergeState {
     }
   }
 
-  adaptRanges(rangeAdapters: RangeAdapterFunctions, sheetId: UID) {
-    this.applyRangeChangeOnSheet(sheetId, rangeAdapters);
+  adaptRanges(rangeAdapters: RangeAdapterFunctions) {
+    for (const sheetId in this.merges) {
+      this.applyRangeChangeOnSheet(sheetId, rangeAdapters);
+    }
   }
 
   // ---------------------------------------------------------------------------
