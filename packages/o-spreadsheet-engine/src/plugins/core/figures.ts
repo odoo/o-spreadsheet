@@ -27,7 +27,13 @@ export class FigurePlugin extends CorePlugin<FigureState> implements FigureState
   // Command Handling
   // ---------------------------------------------------------------------------
 
-  adaptRanges({ applyChange }: RangeAdapterFunctions, sheetId: UID) {
+  adaptRanges(rangeAdapterFunctions: RangeAdapterFunctions): void {
+    for (const sheetId in this.figures) {
+      this.adaptRangesOnSheet(rangeAdapterFunctions, sheetId);
+    }
+  }
+
+  adaptRangesOnSheet({ applyChange }: RangeAdapterFunctions, sheetId: UID) {
     for (const figure of this.getFigures(sheetId)) {
       const change = applyChange(
         this.getters.getRangeFromZone(sheetId, {
