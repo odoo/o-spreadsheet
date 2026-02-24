@@ -12,7 +12,6 @@ import {
   getGeoChartScales,
   getGeoChartTooltip,
 } from "./runtime";
-import { getGeoChartEventHandlers } from "./runtime/chartjs_event_handlers";
 import { getChartLayout } from "./runtime/chartjs_layout";
 
 export const GeoChart: ChartTypeBuilder<"geo"> = {
@@ -59,7 +58,7 @@ export const GeoChart: ChartTypeBuilder<"geo"> = {
 
   getDefinitionForExcel: () => undefined,
 
-  getRuntime(getters, definition, { extractData }, sheetId, goToDataSet): GeoChartRuntime {
+  getRuntime(getters, definition, { extractData }, sheetId, eventHandlers): GeoChartRuntime {
     const data = extractData();
     const chartData = getGeoChartData(definition, data, getters);
 
@@ -78,7 +77,7 @@ export const GeoChart: ChartTypeBuilder<"geo"> = {
           legend: { display: false },
           background: { color: definition.background },
         },
-        ...getGeoChartEventHandlers(definition, data, getters, goToDataSet),
+        ...eventHandlers,
       },
     };
 

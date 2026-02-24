@@ -19,6 +19,7 @@ function isChartJSMiddleClick(event) {
   );
 }
 
+// TODO remove
 export function getChartJsEventHandlers(
   definition: ChartDefinitionWithDataSource,
   data: ChartData,
@@ -82,11 +83,11 @@ export function getSunburstChartJsEventHandlers(
       }
     },
     onClick: (event, items, chart) => {
-      if (!goToDataSet || !items.length || !data.dataSetsValues[items[0].datasetIndex]) {
-        return;
-      }
-      const { datasetIndex, index } = items[0];
-      const rawItem = chart.data.datasets[datasetIndex].data[index];
+      // if (!goToDataSet || !items.length || !data.dataSetsValues[items[0].datasetIndex]) {
+      //   return;
+      // }
+      // const { datasetIndex, index } = items[0];
+      // const rawItem = chart.data.datasets[datasetIndex].data[index];
     },
   };
 }

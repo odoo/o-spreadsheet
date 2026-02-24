@@ -13,7 +13,6 @@ import {
   getSunburstChartTooltip,
   getSunburstShowValues,
 } from "./runtime";
-import { getChartJsEventHandlers } from "./runtime/chartjs_event_handlers";
 import { getChartLayout } from "./runtime/chartjs_layout";
 
 export const SunburstChart: ChartTypeBuilder<"sunburst"> = {
@@ -95,7 +94,7 @@ export const SunburstChart: ChartTypeBuilder<"sunburst"> = {
     definition,
     { extractHierarchicalData },
     sheetId,
-    goToDataSet
+    eventHandlers
   ): SunburstChartRuntime {
     const data = extractHierarchicalData();
     const chartData = getHierarchalChartData(definition, data, getters);
@@ -118,7 +117,7 @@ export const SunburstChart: ChartTypeBuilder<"sunburst"> = {
           sunburstHoverPlugin: { enabled: true },
           background: { color: definition.background },
         },
-        ...getChartJsEventHandlers(definition, data, getters, goToDataSet),
+        ...eventHandlers,
       },
     };
 

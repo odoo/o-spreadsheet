@@ -97,7 +97,7 @@ export interface ChartTypeBuilder<T extends ChartType> {
     definition: ChartTypeDefinition<T, Range>,
     chartDataExtractors: ChartDataExtractors,
     sheetId: UID,
-    goToDataSet?: GoToDataSetFunction<T>
+    eventHandlers: ChartJsEventHandlers
   ): ChartRuntime;
   allowedDefinitionKeys: readonly string[];
   sequence: number;
@@ -107,6 +107,21 @@ export interface ChartTypeBuilder<T extends ChartType> {
 interface ChartDataExtractors {
   extractData(): ChartData;
   extractHierarchicalData(): ChartData;
+}
+
+interface ChartJsEventHandlers {
+  onClick?: (
+    // chartjs internals
+    event: unknown,
+    items: unknown,
+    chartJsChart: unknown,
+  ) => void;
+  onHover?: (
+    // chartjs internals
+    event: unknown,
+    items: unknown,
+    chartJsChart: unknown,
+  ) => void;
 }
 
 interface ChartTypeRegistry extends Registry<ChartTypeBuilder<any>> {

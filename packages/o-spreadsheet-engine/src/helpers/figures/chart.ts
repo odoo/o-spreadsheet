@@ -24,7 +24,7 @@ export class MyChart {
     private readonly dataSource: ChartDataSource<Range> | undefined,
     private readonly chartTypeBuilder: ChartTypeBuilder<ChartType>, // e.g., BarChart
     private readonly dataSourceBuilder: ChartDataSourceBuilder<ChartDataSourceType> // from registry
-  ) {}
+  ) { }
 
   static fromStrDefinition(
     getters: CoreGetters,
@@ -189,24 +189,29 @@ export class MyChart {
       : { dataSetsValues: [], labelValues: [] };
   }
 
-  getRuntime(getters: Getters) {
+  getRuntime(getters: Getters, chartId: UID) {
     const dataSource = this.dataSource;
     const dataExtractors = dataSource
       ? {
-          extractData: () => this.dataSourceBuilder.extractData(dataSource, getters),
-          extractHierarchicalData: () =>
-            this.dataSourceBuilder.extractHierarchicalData(dataSource, getters),
-        }
+        extractData: () => this.dataSourceBuilder.extractData(dataSource, getters),
+        extractHierarchicalData: () =>
+          this.dataSourceBuilder.extractHierarchicalData(dataSource, getters),
+      }
       : {
-          extractData: () => ({ dataSetsValues: [], labelValues: [] }),
-          extractHierarchicalData: () => ({ dataSetsValues: [], labelValues: [] }),
-        };
+        extractData: () => ({ dataSetsValues: [], labelValues: [] }),
+        extractHierarchicalData: () => ({ dataSetsValues: [], labelValues: [] }),
+      };
+    const eventHandlers = {
+      onClick: (event, items, chartJsChart) => {
+        return this.dataSourceBuilder.onDataSetClick?.(this.definition.type, chartId, event, items, chartJsChart, getters);
+      },
+    }
     return this.chartTypeBuilder.getRuntime(
       getters,
       this.definition,
       dataExtractors,
       this.sheetId,
-      this.dataSourceBuilder.goToDataSet
+      eventHandlers
     );
   }
 }
