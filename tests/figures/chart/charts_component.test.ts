@@ -18,8 +18,7 @@ import { App } from "@odoo/owl";
 import { CommandResult, Model, Spreadsheet } from "../../../src";
 import { ChartPanel } from "../../../src/components/side_panel/chart/main_chart_panel/main_chart_panel";
 import { SidePanelStore } from "../../../src/components/side_panel/side_panel/side_panel_store";
-import { toHex, toZone } from "../../../src/helpers";
-import { getChartColorsGenerator } from "../../../src/helpers/figures/charts/runtime";
+import { ColorGenerator, toHex, toZone } from "../../../src/helpers";
 import { HighlightStore } from "../../../src/stores/highlight_store";
 import {
   CHART_TYPES,
@@ -1131,7 +1130,7 @@ describe("charts", () => {
         chartId
       );
       let definition = model.getters.getChartDefinition(chartId) as LineChartDefinition<string>;
-      const colorsGenerator = getChartColorsGenerator(definition, 2);
+      const colorsGenerator = new ColorGenerator(2); // default colors
       const firstColor = colorsGenerator.next();
       const secondColor = colorsGenerator.next();
       await openChartConfigSidePanel(model, env, chartId);
@@ -1465,8 +1464,7 @@ describe("charts", () => {
         ],
       }),
     });
-    const definition = model.getters.getChartDefinition(chartId) as BarChartDefinition<string>;
-    const colorsGenerator = getChartColorsGenerator(definition, 2);
+    const colorsGenerator = new ColorGenerator(2); // default colors
     colorsGenerator.next(); // Skip the first color as it should be removed
     const secondColor = colorsGenerator.next();
 

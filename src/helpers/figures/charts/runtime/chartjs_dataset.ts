@@ -30,7 +30,7 @@ import { formatValue } from "@odoo/o-spreadsheet-engine/helpers/format/format";
 import { _t } from "@odoo/o-spreadsheet-engine/translation";
 import {
   BarChartDefinition,
-  ChartDefinitionWithDataSource,
+  DataSetStyle,
   DatasetValues,
   FunnelChartColors,
   FunnelChartDefinition,
@@ -61,7 +61,7 @@ import {
   TreeMapGroupColor,
 } from "@odoo/o-spreadsheet-engine/types/chart/tree_map_chart";
 import { ChartDataset, Point } from "chart.js";
-import { ChartRuntimeGenerationArgs, Color, GenericDefinition, Range } from "../../../../types";
+import { ChartRuntimeGenerationArgs, Color, GenericDefinition } from "../../../../types";
 import { getRuntimeColorScale } from "./chartjs_scales";
 
 export const GHOST_SUNBURST_VALUE = "nullValue";
@@ -73,7 +73,7 @@ export function getBarChartDatasets(
   const { dataSetsValues } = args;
 
   const dataSets: ChartDataset<"bar" | "line">[] = [];
-  const colors = getChartColorsGenerator(definition, dataSetsValues.length);
+  const colors = getChartColorsGenerator(definition.dataSetStyles, dataSetsValues);
   const trendDatasets: ChartDataset<"line">[] = [];
 
   for (const index in dataSetsValues) {
@@ -222,7 +222,7 @@ export function getLineChartDatasets(
 
   const trendDatasets: any[] = [];
 
-  const colors = getChartColorsGenerator(definition, dataSetsValues.length);
+  const colors = getChartColorsGenerator(definition.dataSetStyles, dataSetsValues);
   for (let index = 0; index < dataSetsValues.length; index++) {
     let { label, data, hidden, dataSetId } = dataSetsValues[index];
     label = definition.dataSetStyles?.[dataSetId]?.label ?? label;
@@ -310,7 +310,7 @@ export function getComboChartDatasets(
   const { dataSetsValues } = args;
 
   const dataSets: ChartDataset<"bar" | "line">[] = [];
-  const colors = getChartColorsGenerator(definition, dataSetsValues.length);
+  const colors = getChartColorsGenerator(definition.dataSetStyles, dataSetsValues);
   const trendDatasets: ChartDataset<"line">[] = [];
   const barDatasets = dataSetsValues.filter(
     ({ dataSetId }) => (definition.dataSetStyles?.[dataSetId]?.type ?? "line") === "bar"
@@ -365,7 +365,7 @@ export function getRadarChartDatasets(
 
   const fill = definition.fillArea ?? false;
 
-  const colors = getChartColorsGenerator(definition, dataSetsValues.length);
+  const colors = getChartColorsGenerator(definition.dataSetStyles, dataSetsValues);
   for (let i = 0; i < dataSetsValues.length; i++) {
     let { label, data, hidden } = dataSetsValues[i];
     if (definition.dataSetStyles?.[i]?.label) {
@@ -746,12 +746,11 @@ function getFillingMode(index: number, stackedChart: boolean): string {
 }
 
 export function getChartColorsGenerator(
-  definition: Partial<ChartDefinitionWithDataSource<string | Range>>,
-  dataSetsSize: number
+  dataSetStyles: DataSetStyle | undefined,
+  dataSetValues: Pick<DatasetValues, "dataSetId">[]
 ) {
-  const colors = definition.dataSource?.dataSets?.map(
-    (ds) => definition.dataSetStyles?.[ds.dataSetId]?.backgroundColor
-  );
+  const colors = dataSetValues.map((ds) => dataSetStyles?.[ds.dataSetId]?.backgroundColor);
+  const dataSetsSize = dataSetValues.length;
   return new ColorGenerator(dataSetsSize, colors);
 }
 
