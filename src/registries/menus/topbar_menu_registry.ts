@@ -487,33 +487,41 @@ topbarMenuRegistry
     sequence: 40,
     separator: true,
   })
-  .addChild("pivot_data_sources", ["data"], (env) => {
-    const sequence = 50;
-    const numberOfPivots = env.model.getters.getPivotIds().length;
-    return env.model.getters.getPivotIds().map((pivotId, index) => {
-      const highlightProvider = {
-        get highlights() {
-          return getPivotHighlights(env.model.getters, pivotId);
-        },
-      };
-      return {
-        id: `item_pivot_${env.model.getters.getPivotFormulaId(pivotId)}`,
-        name: env.model.getters.getPivotDisplayName(pivotId),
-        sequence: sequence + index / numberOfPivots,
-        isReadonlyAllowed: true,
-        isEnabledOnLockedSheet: true,
-        execute: (env) => env.openSidePanel("PivotSidePanel", { pivotId }),
-        isEnabled: (env) => !env.isSmall,
-        onStartHover: (env) => env.getStore(HighlightStore).register(highlightProvider),
-        onStopHover: (env) => env.getStore(HighlightStore).unRegister(highlightProvider),
-        icon: "o-spreadsheet-Icon.PIVOT",
-        separator: index === env.model.getters.getPivotIds().length - 1,
-        secondaryIcon: (env) =>
-          env.model.getters.isPivotUnused(pivotId)
-            ? "o-spreadsheet-Icon.UNUSED_PIVOT_WARNING"
-            : undefined,
-      };
-    });
+  .addChild("pivot_data_sources", ["data"], {
+    name: _t("Pivot"),
+    sequence: 50,
+    icon: "o-spreadsheet-Icon.PIVOT",
+    secondaryIcon: (env) =>
+      env.model.getters.getPivotIds().some((pivotId) => env.model.getters.isPivotUnused(pivotId))
+        ? "o-spreadsheet-Icon.UNUSED_PIVOT_WARNING"
+        : "",
+    children: [
+      (env) => {
+        const { getters } = env.model;
+        return getters.getPivotIds().map((pivotId, sequence) => {
+          const highlightProvider = {
+            get highlights() {
+              return getPivotHighlights(getters, pivotId);
+            },
+          };
+          return {
+            id: `item_pivot_${getters.getPivotFormulaId(pivotId)}`,
+            name: getters.getPivotDisplayName(pivotId),
+            sequence,
+            isReadonlyAllowed: true,
+            isEnabledOnLockedSheet: true,
+            execute: () => env.openSidePanel("PivotSidePanel", { pivotId }),
+            isEnabled: () => !env.isSmall,
+            onStartHover: () => env.getStore(HighlightStore).register(highlightProvider),
+            onStopHover: () => env.getStore(HighlightStore).unRegister(highlightProvider),
+            secondaryIcon: () =>
+              getters.isPivotUnused(pivotId)
+                ? "o-spreadsheet-Icon.UNUSED_PIVOT_WARNING"
+                : undefined,
+          };
+        });
+      },
+    ],
   })
   .addChild("reinsert_dynamic_pivot", ["data"], ACTION_DATA.reinsertDynamicPivotMenu)
   .addChild("reinsert_static_pivot", ["data"], ACTION_DATA.reinsertStaticPivotMenu);
