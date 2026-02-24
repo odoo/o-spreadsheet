@@ -254,7 +254,7 @@ export function getLineChartDatasets(
     dataSets.push(dataset);
 
     const trendConfig = dataSetStyle?.trend;
-    const trendData = args.trendDataSetsValues?.[dataSetId];
+    const trendData = args.trendDataSetsValues?.[index];
     if (!trendConfig?.display || !trendData) {
       continue;
     }
