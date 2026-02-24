@@ -30,6 +30,7 @@ import {
   addColumns,
   addDataValidation,
   copy,
+  createSheet,
   deleteColumns,
   freezeColumns,
   freezeRows,
@@ -45,6 +46,7 @@ import {
 } from "./test_helpers/commands_helpers";
 import { getCell } from "./test_helpers/getters_helpers";
 import { createEqualCF, target, toRangesData } from "./test_helpers/helpers";
+import { createModelWithTestPivot } from "./test_helpers/pivot_helpers";
 import { watchClipboardOutline } from "./test_helpers/renderer_helpers";
 import { makeStoreWithModel } from "./test_helpers/stores";
 
@@ -736,7 +738,7 @@ describe("renderer", () => {
     expect(textAligns).toEqual(["left", "center"]);
     expect(getCellTextMock).toHaveBeenLastCalledWith(
       { sheetId: expect.any(String), col: 0, row: 0 },
-      { showFormula: true, availableWidth: DEFAULT_CELL_WIDTH - 2 * MIN_CELL_TEXT_MARGIN }
+      { showFormula: true, availableWidth: 0 }
     );
   });
 
@@ -782,6 +784,20 @@ describe("renderer", () => {
     drawGridRenderer(ctx);
 
     expect(fillStyle).toEqual([{ color: "#DC6CDF", h: 23, w: 96, x: 0, y: 0 }]);
+  });
+
+  test("horizontal align on pivot header", () => {
+    let box: Box;
+    const pivotModel = createModelWithTestPivot();
+    createSheet(pivotModel, { sheetId: "2", activate: true });
+    setCellContent(pivotModel, "A1", "=PIVOT(1)");
+    const { drawGridRenderer, model, gridRendererStore } = setRenderer(pivotModel);
+    setStyle(model, "B1", { align: "right" });
+    let contex2D = new MockGridRenderingContext(model, 1000, 1000, {});
+    drawGridRenderer(contex2D);
+    box = getBoxFromText(gridRendererStore, "Alice");
+    expect(box.x).toBeDefined();
+    expect(box?.content?.align).toEqual("right");
   });
 
   test.each(["I am a very long text", "100000000000000"])(
