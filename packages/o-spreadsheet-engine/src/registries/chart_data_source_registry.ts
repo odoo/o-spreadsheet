@@ -3,8 +3,8 @@ import {
   ChartData,
   ChartDataSource,
   ChartDataSourceType,
+  ChartType,
   DataSetStyle,
-  DatasetValues,
   DataSourceType,
   ExcelChartDefinition,
 } from "../types/chart";
@@ -55,12 +55,14 @@ export interface ChartDataSourceBuilder<T extends ChartDataSourceType> {
     dataSetStyles: DataSetStyle,
     getters: CoreGetters
   ): Pick<ExcelChartDefinition, "dataSets" | "labelRange">;
-  goToDataSet?: (
-    dataSource: DataSourceType<T, Range>,
-    dataSetName: string,
-    dataSet: DatasetValues,
-    index: number,
-    newWindow: boolean
+  onDataSetClick?: (
+    chartType: ChartType,
+    chartId: UID,
+    // chartjs internals
+    event: unknown,
+    items: unknown,
+    chartJsChart: unknown,
+    getters: Getters
   ) => void;
 }
 

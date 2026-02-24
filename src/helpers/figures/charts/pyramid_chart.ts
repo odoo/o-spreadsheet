@@ -22,7 +22,6 @@ import {
   getPyramidChartShowValues,
   getPyramidChartTooltip,
 } from "./runtime";
-import { getChartJsEventHandlers } from "./runtime/chartjs_event_handlers";
 import { getChartLayout } from "./runtime/chartjs_layout";
 
 export const PyramidChart: ChartTypeBuilder<"pyramid"> = {
@@ -100,7 +99,7 @@ export const PyramidChart: ChartTypeBuilder<"pyramid"> = {
     };
   },
 
-  getRuntime(getters, definition, { extractData }, sheetId, goToDataSet): PyramidChartRuntime {
+  getRuntime(getters, definition, { extractData }, sheetId, eventHandlers): PyramidChartRuntime {
     const data = extractData();
     const chartData = getPyramidChartData(definition, data, getters);
 
@@ -122,7 +121,7 @@ export const PyramidChart: ChartTypeBuilder<"pyramid"> = {
           chartShowValuesPlugin: getPyramidChartShowValues(definition, chartData),
           background: { color: definition.background },
         },
-        ...getChartJsEventHandlers(definition, data, getters, goToDataSet),
+        ...eventHandlers,
       },
     };
 

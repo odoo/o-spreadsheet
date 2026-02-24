@@ -20,7 +20,6 @@ import {
   getScatterChartLegend,
   getScatterChartScales,
 } from "./runtime";
-import { getChartJsEventHandlers } from "./runtime/chartjs_event_handlers";
 import { getChartLayout } from "./runtime/chartjs_layout";
 
 export const ScatterChart: ChartTypeBuilder<"scatter"> = {
@@ -81,7 +80,7 @@ export const ScatterChart: ChartTypeBuilder<"scatter"> = {
     };
   },
 
-  getRuntime(getters, definition, { extractData }, sheetId, goToDataSet): ScatterChartRuntime {
+  getRuntime(getters, definition, { extractData }, sheetId, eventHandlers): ScatterChartRuntime {
     const data = extractData();
     const chartData = getLineChartData(definition, data, getters);
 
@@ -104,7 +103,7 @@ export const ScatterChart: ChartTypeBuilder<"scatter"> = {
           chartShowValuesPlugin: getChartShowValues(definition, chartData),
           background: { color: definition.background },
         },
-        ...getChartJsEventHandlers(definition, data, getters, goToDataSet),
+        ...eventHandlers,
       },
     };
 
