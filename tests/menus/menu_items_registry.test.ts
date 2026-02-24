@@ -42,6 +42,11 @@ import {
   spyModelDispatch,
   target,
 } from "../test_helpers/helpers";
+import {
+  addPivot,
+  createModelWithPivot,
+  createModelWithTestPivotDataset,
+} from "../test_helpers/pivot_helpers";
 
 import { Currency, Model } from "../../src";
 
@@ -257,6 +262,37 @@ describe("Menu Item actions", () => {
   test("Edit -> paste_special should be hidden after a CUT ", () => {
     model.dispatch("CUT");
     expect(getNode(["edit", "paste_special"], env).isVisible(env)).toBeFalsy();
+  });
+
+  test("Data -> Pivot groups pivot data sources in a submenu", () => {
+    const pivotModel = createModelWithPivot("A1:I22");
+    const pivotEnv = makeTestEnv({ model: pivotModel });
+
+    const pivotSubmenu = getNode(["data", "pivot_data_sources"], pivotEnv);
+    const pivotIds = pivotModel.getters.getPivotIds();
+    const firstPivotId = pivotIds[0];
+    const pivotItem = getNode(
+      [
+        "data",
+        "pivot_data_sources",
+        `item_pivot_${pivotModel.getters.getPivotFormulaId(firstPivotId)}`,
+      ],
+      pivotEnv
+    );
+
+    expect(getName(["data", "pivot_data_sources"], pivotEnv)).toBe("Pivot");
+    expect(pivotSubmenu.isVisible(pivotEnv)).toBeTruthy();
+    expect(pivotSubmenu.children(pivotEnv)).toHaveLength(pivotIds.length);
+    expect(pivotItem.name(pivotEnv)).toBe(pivotModel.getters.getPivotDisplayName(firstPivotId));
+  });
+
+  test("Data -> Pivot submenu shows a warning icon when at least one pivot is unused", () => {
+    const pivotModel = createModelWithTestPivotDataset();
+    addPivot(pivotModel, "A1:E18", { name: "Unused pivot" }, "2");
+    const pivotEnv = makeTestEnv({ model: pivotModel });
+
+    const pivotSubmenu = getNode(["data", "pivot_data_sources"], pivotEnv);
+    expect(pivotSubmenu.secondaryIcon(pivotEnv)).toBe("o-spreadsheet-Icon.UNUSED_PIVOT_WARNING");
   });
 
   test("Edit -> paste_special should not be hidden after a COPY ", () => {
