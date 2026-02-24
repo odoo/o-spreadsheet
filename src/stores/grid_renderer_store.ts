@@ -677,7 +677,7 @@ export class GridRenderer extends SpreadsheetStore {
     }
     const { align } = this.getters.getCellStyle(position);
     const evaluatedCell = this.getters.getEvaluatedCell(position);
-    if (formatHasRepeatedChar(evaluatedCell.value, evaluatedCell.format)) {
+    if (!align && formatHasRepeatedChar(evaluatedCell.value, evaluatedCell.format)) {
       return "left";
     }
     if (isOverflowing && evaluatedCell.type === CellValueType.number) {
@@ -742,7 +742,8 @@ export class GridRenderer extends SpreadsheetStore {
     /** Content */
     const wrapping = style.wrapping || "overflow";
     const wrapText = wrapping === "wrap" && !showFormula;
-    const maxWidth = width - 2 * MIN_CELL_TEXT_MARGIN;
+    // we want to give priority to the style, so if there is one we don't fill with white spaces
+    const maxWidth = style.align ? 0 : width - 2 * MIN_CELL_TEXT_MARGIN;
     const multiLineText = this.getters.getCellMultiLineText(position, { maxWidth, wrapText });
     const noRotatationStyle = { ...style, align: "left" as const, rotation: 0 };
     const textWidth =
