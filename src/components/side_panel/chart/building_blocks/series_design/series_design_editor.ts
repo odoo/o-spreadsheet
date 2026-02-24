@@ -45,8 +45,8 @@ export class SeriesDesignEditor extends Component<Props, SpreadsheetChildEnv> {
     return this.getRuntime().customisableSeries;
   }
 
-  updateEditedSeries(index: string) {
-    this.state.dataSetId = this.selectOptions[index];
+  updateEditedSeries(dataSetId: string) {
+    this.state.dataSetId = dataSetId;
   }
 
   updateDataSeriesColor(color: string) {
