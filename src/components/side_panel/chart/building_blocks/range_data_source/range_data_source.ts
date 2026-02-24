@@ -254,11 +254,8 @@ export class ChartRangeDataSource extends Component<Props, SpreadsheetChildEnv> 
 
   onDataSeriesReordered(indexes: number[]) {
     const colorGenerator = getChartColorsGenerator(
-      {
-        dataSetStyles: this.props.definition.dataSetStyles,
-        dataSource: { ...this.props.definition.dataSource, dataSets: this.dataSets },
-      },
-      this.dataSets.length
+      this.props.definition.dataSetStyles,
+      this.dataSets
     );
     this.datasetOrientation = undefined;
     const dataSetStyles = this.props.definition.dataSetStyles;
@@ -276,11 +273,8 @@ export class ChartRangeDataSource extends Component<Props, SpreadsheetChildEnv> 
 
   onDataSeriesRemoved(index: number) {
     const colorGenerator = getChartColorsGenerator(
-      {
-        dataSetStyles: this.props.definition.dataSetStyles,
-        dataSource: { ...this.props.definition.dataSource, dataSets: this.dataSets },
-      },
-      this.dataSets.length
+      this.props.definition.dataSetStyles,
+      this.dataSets
     );
     const dataSetStyles = this.props.definition.dataSetStyles;
     for (const ds of this.dataSets) {
