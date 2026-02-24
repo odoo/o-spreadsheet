@@ -105,7 +105,7 @@ export class RangeAdapterPlugin implements CommandHandler<CoreCommand> {
         adaptFormulaStringRanges(defaultSheetId, formula, rangeAdapter),
     };
     for (const provider of this.providers) {
-      provider(adapterFunctions, rangeAdapter.sheetId, rangeAdapter.sheetName);
+      provider(adapterFunctions);
     }
     this.isAdaptingRanges = false;
   }

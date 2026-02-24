@@ -307,11 +307,7 @@ export type Dimension = "COL" | "ROW";
 export type ConsecutiveIndexes = HeaderIndex[];
 
 export interface RangeProvider {
-  adaptRanges: (
-    adapterFunctions: RangeAdapterFunctions,
-    sheetId: UID,
-    sheetName: AdaptSheetName
-  ) => void;
+  adaptRanges: (adapterFunctions: RangeAdapterFunctions) => void;
 }
 
 export type Validation<T> = (toValidate: T) => CommandResult | CommandResult[];
