@@ -36,7 +36,7 @@ import {
 import { recomputeZones } from "../../helpers/recompute_zones";
 import { Format } from "../../types/format";
 import { DEFAULT_LOCALE } from "../../types/locale";
-import { AdaptSheetName, Style, UpdateCellData, Zone } from "../../types/misc";
+import { Style, UpdateCellData, Zone } from "../../types/misc";
 import { Range, RangePart } from "../../types/range";
 import { ExcelWorkbookData, WorkbookData } from "../../types/workbook_data";
 import { SquishedCell, Squisher } from "./squisher";
@@ -67,24 +67,22 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
   readonly nextId = 1;
   public readonly cells: { [sheetId: string]: { [id: string]: Cell } } = {};
 
-  adaptRanges({ applyChange }: RangeAdapterFunctions, sheetId: UID, sheetName: AdaptSheetName) {
+  adaptRanges({ applyChange }: RangeAdapterFunctions) {
     for (const sheet of Object.keys(this.cells)) {
       for (const cell of Object.values(this.cells[sheet] || {})) {
         if (cell.isFormula) {
           for (const range of cell.compiledFormula.rangeDependencies) {
-            if (range.sheetId === sheetId || range.invalidSheetName === sheetName.old) {
-              const change = applyChange(range);
-              if (change.changeType !== "NONE") {
-                this.history.update(
-                  "cells",
-                  sheet,
-                  cell.id,
-                  "compiledFormula" as any,
-                  "rangeDependencies",
-                  cell.compiledFormula.rangeDependencies.indexOf(range),
-                  change.range
-                );
-              }
+            const change = applyChange(range);
+            if (change.changeType !== "NONE") {
+              this.history.update(
+                "cells",
+                sheet,
+                cell.id,
+                "compiledFormula" as any,
+                "rangeDependencies",
+                cell.compiledFormula.rangeDependencies.indexOf(range),
+                change.range
+              );
             }
           }
         }

@@ -130,7 +130,13 @@ export class BordersPlugin extends CorePlugin<BordersPluginState> implements Bor
     }
   }
 
-  adaptRanges({ applyChange }: RangeAdapterFunctions, sheetId: UID) {
+  adaptRanges(adapters: RangeAdapterFunctions) {
+    for (const sheetId in this.borders) {
+      this.adaptRangesOnSheet(adapters, sheetId);
+    }
+  }
+
+  private adaptRangesOnSheet({ applyChange }: RangeAdapterFunctions, sheetId: UID) {
     const newBorders: ZoneBorder[] = [];
     for (const border of this.borders[sheetId] ?? []) {
       const change = applyChange(this.getters.getRangeFromZone(sheetId, border.zone));

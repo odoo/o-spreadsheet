@@ -52,9 +52,11 @@ export class TablePlugin extends CorePlugin<TableState> implements TableState {
   readonly tables: Record<UID, Record<TableId, CoreTable | undefined>> = {};
   readonly nextTableId: number = 1;
 
-  adaptRanges({ applyChange }: RangeAdapterFunctions, sheetId: UID) {
-    for (const table of this.getCoreTables(sheetId)) {
-      this.applyRangeChangeOnTable(sheetId, table, applyChange);
+  adaptRanges({ applyChange }: RangeAdapterFunctions) {
+    for (const sheetId in this.tables) {
+      for (const table of this.getCoreTables(sheetId)) {
+        this.applyRangeChangeOnTable(sheetId, table, applyChange);
+      }
     }
   }
 
