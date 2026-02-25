@@ -10,6 +10,7 @@ import { _t } from "@odoo/o-spreadsheet-engine/translation";
 import {
   detectDateFormat,
   formatValue,
+  getMissingHeadersForSpreadResult,
   isDateTimeFormat,
   isFormula,
   markdownLink,
@@ -32,7 +33,6 @@ import {
   FormulaCell,
   Locale,
   RemoveColumnsRowsCommand,
-  isMatrix,
 } from "../../../types";
 import { moveAnchorWithinSelection } from "../../helpers/selection_helpers";
 import { AbstractComposerStore, ComposerSelection } from "./abstract_composer_store";
@@ -308,43 +308,33 @@ export class CellComposerStore extends AbstractComposerStore {
 
   /** Add headers at the end of the sheet so the formula in the composer has enough space to spread */
   private addHeadersForSpreadingFormula(content: string) {
-    if (!isFormula(content)) {
+    const missingHeaders = getMissingHeadersForSpreadResult(
+      this.getters,
+      this.currentEditedCell,
+      content
+    );
+    if (!missingHeaders) {
       return;
     }
 
-    const evaluated = this.getters.evaluateFormula(this.sheetId, content, {
-      sheetId: this.sheetId,
-      col: this.col,
-      row: this.row,
-    });
-    if (!isMatrix(evaluated)) {
-      return;
-    }
-
-    const numberOfRows = this.getters.getNumberRows(this.sheetId);
-    const numberOfCols = this.getters.getNumberCols(this.sheetId);
-
-    const missingRows = this.row + evaluated[0].length - numberOfRows;
-    const missingCols = this.col + evaluated.length - numberOfCols;
-
-    if (missingCols > 0) {
+    if (missingHeaders.missingCols > 0) {
       this.model.dispatch("ADD_COLUMNS_ROWS", {
         sheetId: this.sheetId,
         sheetName: this.getters.getSheetName(this.sheetId),
         dimension: "COL",
-        base: numberOfCols - 1,
+        base: this.getters.getNumberCols(this.sheetId) - 1,
         position: "after",
-        quantity: missingCols + 20,
+        quantity: missingHeaders.missingCols + 20,
       });
     }
-    if (missingRows > 0) {
+    if (missingHeaders.missingRows > 0) {
       this.model.dispatch("ADD_COLUMNS_ROWS", {
         sheetId: this.sheetId,
         sheetName: this.getters.getSheetName(this.sheetId),
         dimension: "ROW",
-        base: numberOfRows - 1,
+        base: this.getters.getNumberRows(this.sheetId) - 1,
         position: "after",
-        quantity: missingRows + 50,
+        quantity: missingHeaders.missingRows + 50,
       });
     }
   }

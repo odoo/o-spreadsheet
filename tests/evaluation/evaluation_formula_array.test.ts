@@ -474,25 +474,19 @@ describe("evaluate formulas that use/return an array", () => {
     test("throw error message concerning the column encountered horizontally", () => {
       setCellContent(model, "B1", "=MFILL(3,3, 42)");
       expect(getEvaluatedCell(model, "B1").value).toBe("#SPILL!");
-      expect(getCellError(model, "B1")).toBe(
-        "Result couldn't be automatically expanded. Please insert more columns."
-      );
+      expect(getCellError(model, "B1")).toBe("Result couldn't be automatically expanded.");
     });
 
     test("throw error message concerning the row encountered verticaly", () => {
       setCellContent(model, "A2", "=MFILL(3,3, 42)");
       expect(getEvaluatedCell(model, "A2").value).toBe("#SPILL!");
-      expect(getCellError(model, "A2")).toBe(
-        "Result couldn't be automatically expanded. Please insert more rows."
-      );
+      expect(getCellError(model, "A2")).toBe("Result couldn't be automatically expanded.");
     });
 
     test("throw error message concerning the row and column encountered", () => {
       setCellContent(model, "B2", "=MFILL(3,3, 42)");
       expect(getEvaluatedCell(model, "B2").value).toBe("#SPILL!");
-      expect(getCellError(model, "B2")).toBe(
-        "Result couldn't be automatically expanded. Please insert more columns and rows."
-      );
+      expect(getCellError(model, "B2")).toBe("Result couldn't be automatically expanded.");
     });
 
     test("do not spread result when collide", () => {
