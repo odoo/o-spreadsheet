@@ -23,7 +23,6 @@ import {
 } from "../../../functions/create_compute_function";
 import { matrixMap } from "../../../functions/helpers";
 import { PositionMap } from "../../../helpers/cells/position_map";
-import { toXC } from "../../../helpers/coordinates";
 import { lazy } from "../../../helpers/misc";
 import { excludeTopLeft, positionToZone, union } from "../../../helpers/zones";
 import { onIterationEndEvaluationRegistry } from "../../../registries/evaluation_registry";
@@ -371,6 +370,7 @@ export class Evaluator {
       e.value = e?.value || CellErrorType.GenericError;
       e.message = e?.message || implementationErrorMessage;
       e.origin = position;
+      e.errorOriginPosition = e?.errorOriginPosition;
       return createEvaluatedCell(e);
     } finally {
       this.cellsBeingComputed.delete(cellId);
@@ -517,10 +517,8 @@ export class Evaluator {
       ) {
         this.blockedArrayFormulas.add(formulaPosition);
         throw new SplillBlockedError(
-          _t(
-            "Array result was not expanded because it would overwrite data in %s.",
-            toXC(position.col, position.row)
-          )
+          _t("Array result was not expanded because it would overwrite data."),
+          position
         );
       }
       this.blockedArrayFormulas.delete(formulaPosition);
