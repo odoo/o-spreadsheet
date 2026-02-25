@@ -350,6 +350,7 @@ import { clipboardHandlersRegistries } from "@odoo/o-spreadsheet-engine/registri
 import "./clipboard_handlers";
 import { Composer } from "./components/composer/composer/composer";
 import { Select } from "./components/select/select";
+import { ChartRangeDataSource } from "./components/side_panel/chart/building_blocks/range_data_source/range_data_source";
 import { TopBar } from "./components/top_bar/top_bar";
 import { chartDataSourceSidePanelComponentRegistry } from "./registries/chart_data_source_component_registry";
 
@@ -441,6 +442,7 @@ export const components = {
   ChartDataSeries,
   ChartErrorSection,
   ChartLabelRange,
+  ChartRangeDataSource,
   ChartTitle,
   ChartPanel,
   ChartFigure,
