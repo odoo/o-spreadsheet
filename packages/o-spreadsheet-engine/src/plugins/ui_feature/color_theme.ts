@@ -9,7 +9,7 @@ const darkColors: Map<Color, Color> = new Map();
  * while ensuring that very light colors (close to white) are transformed into a specific dark blue color to
  * maintain contrast and readability without having black background.
  */
-function transformToDarkMode(color: HSLA): HSLA {
+export function transformToDarkMode(color: HSLA): HSLA {
   const { h, s, l } = color;
   const darkest = { h: 229, s: 17, l: 13 }; // #1b1d26
 

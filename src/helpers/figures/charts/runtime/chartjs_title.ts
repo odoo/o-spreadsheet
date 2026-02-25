@@ -14,11 +14,16 @@ export function getChartTitle(
   getters: Getters
 ): _DeepPartialObject<TitleOptions> {
   const chartTitle = definition.title;
-  const fontColor = figureMutedFontColor(args.background);
+  let color = chartTitle.color;
+  if (args.colorAdapter && color) {
+    color = args.colorAdapter(color);
+  } else if (!color) {
+    color = figureMutedFontColor(args.background);
+  }
   return {
     display: !!chartTitle.text,
     text: chartTitle.text ? getters.dynamicTranslate(chartTitle.text) : "",
-    color: chartTitle?.color ?? fontColor,
+    color,
     align:
       chartTitle.align === "center" ? "center" : chartTitle.align === "right" ? "end" : "start",
     font: {

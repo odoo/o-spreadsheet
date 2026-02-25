@@ -75,7 +75,10 @@ export function getPieChartLegend(
 ): ChartLegend {
   const { dataSetsValues } = args;
   const dataSetsLength = Math.max(0, ...dataSetsValues.map((ds) => ds?.data?.length ?? 0));
-  const colors = getPieColors(new ColorGenerator(dataSetsLength), dataSetsValues);
+  let colors = getPieColors(new ColorGenerator(dataSetsLength), dataSetsValues);
+  if (args.colorAdapter) {
+    colors = colors.map(args.colorAdapter);
+  }
   const fontColor = chartFontColor(args.background);
   return {
     ...getLegendDisplayOptions(definition, args),
@@ -135,9 +138,15 @@ export function getWaterfallChartLegend(
   args: ChartRuntimeGenerationArgs
 ): ChartLegend {
   const fontColor = chartFontColor(args.background);
-  const negativeColor = definition.negativeValuesColor || CHART_WATERFALL_NEGATIVE_COLOR;
-  const positiveColor = definition.positiveValuesColor || CHART_WATERFALL_POSITIVE_COLOR;
-  const subTotalColor = definition.subTotalValuesColor || CHART_WATERFALL_SUBTOTAL_COLOR;
+  let negativeColor = definition.negativeValuesColor || CHART_WATERFALL_NEGATIVE_COLOR;
+  let positiveColor = definition.positiveValuesColor || CHART_WATERFALL_POSITIVE_COLOR;
+  let subTotalColor = definition.subTotalValuesColor || CHART_WATERFALL_SUBTOTAL_COLOR;
+
+  if (args.colorAdapter) {
+    negativeColor = args.colorAdapter(negativeColor);
+    positiveColor = args.colorAdapter(positiveColor);
+    subTotalColor = args.colorAdapter(subTotalColor);
+  }
 
   return {
     ...getLegendDisplayOptions(definition, args),

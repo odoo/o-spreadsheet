@@ -67,7 +67,7 @@ export function getBarChartDatasets(
   definition: GenericDefinition<BarChartDefinition>,
   args: ChartRuntimeGenerationArgs
 ): ChartDataset<"bar" | "line">[] {
-  const { dataSetsValues } = args;
+  const { dataSetsValues, colorAdapter } = args;
 
   const dataSets: ChartDataset<"bar" | "line">[] = [];
   const colors = getChartColorsGenerator(definition, dataSetsValues.length);
@@ -77,7 +77,10 @@ export function getBarChartDatasets(
     let { label, data, hidden } = dataSetsValues[index];
     label = definition.dataSets?.[index].label || label;
 
-    const backgroundColor = colors.next();
+    let backgroundColor = colors.next();
+    if (colorAdapter) {
+      backgroundColor = colorAdapter(backgroundColor);
+    }
     const dataset: ChartDataset<"bar"> = {
       label,
       data,
@@ -113,7 +116,7 @@ export function getCalendarChartDatasetAndLabels(
   datasets: ChartDataset<"calendar">[];
   labels: string[];
 } {
-  const { labels, dataSetsValues } = args;
+  const { labels, dataSetsValues, colorAdapter } = args;
 
   const values = dataSetsValues
     .map((ds) => ds.data)
@@ -133,9 +136,11 @@ export function getCalendarChartDatasetAndLabels(
     dataSets.push({
       label: dataSetValues.label,
       data: dataSetValues.data.map((v) => 1),
-      backgroundColor: dataSetValues.data.map((v) =>
-        v !== undefined ? colorMap(v) : definition.missingValueColor || COLOR_TRANSPARENT
-      ),
+      backgroundColor: dataSetValues.data.map((v) => {
+        const color =
+          v !== undefined ? colorMap(v) : definition.missingValueColor || COLOR_TRANSPARENT;
+        return colorAdapter?.(color) ?? color;
+      }),
       borderColor: args.background,
       borderSkipped: false,
       borderWidth: 1,
@@ -158,7 +163,7 @@ export function getWaterfallDatasetAndLabels(
   datasets: ChartDataset[];
   labels: string[];
 } {
-  const { dataSetsValues, labels } = args;
+  const { dataSetsValues, labels, colorAdapter } = args;
 
   const negativeColor = definition.negativeValuesColor || CHART_WATERFALL_NEGATIVE_COLOR;
   const positiveColor = definition.positiveValuesColor || CHART_WATERFALL_POSITIVE_COLOR;
@@ -190,6 +195,9 @@ export function getWaterfallDatasetAndLabels(
       if (i === 0 && dataSetsValue === dataSetsValues[0] && definition.firstValueAsSubtotal) {
         color = subTotalColor;
       }
+      if (colorAdapter) {
+        color = colorAdapter(color);
+      }
       backgroundColor.push(color);
       lastValue += data;
     }
@@ -210,7 +218,7 @@ export function getLineChartDatasets(
   definition: GenericDefinition<LineChartDefinition>,
   args: ChartRuntimeGenerationArgs
 ): ChartDataset<"line">[] {
-  const { dataSetsValues, axisType, labels } = args;
+  const { dataSetsValues, axisType, labels, colorAdapter } = args;
   const dataSets: ChartDataset<"line">[] = [];
 
   const areaChart = !!definition.fillArea;
@@ -223,7 +231,10 @@ export function getLineChartDatasets(
     let { label, data, hidden } = dataSetsValues[index];
     label = definition.dataSets?.[index].label || label;
 
-    const color = colors.next();
+    let color = colors.next();
+    if (colorAdapter) {
+      color = colorAdapter(color);
+    }
     if (axisType && ["linear", "time"].includes(axisType)) {
       // Replace empty string labels by undefined to make sure chartJS doesn't decide that "" is the same as 0
       data = data.map((y, index) => ({ x: labels[index] || undefined, y }));
@@ -273,10 +284,13 @@ export function getPieChartDatasets(
   definition: GenericDefinition<PieChartDefinition>,
   args: ChartRuntimeGenerationArgs
 ): ChartDataset<"pie">[] {
-  const { dataSetsValues } = args;
+  const { dataSetsValues, colorAdapter } = args;
   const dataSets: ChartDataset<"pie">[] = [];
   const dataSetsLength = Math.max(0, ...dataSetsValues.map((ds) => ds?.data?.length ?? 0));
-  const backgroundColor = getPieColors(new ColorGenerator(dataSetsLength), dataSetsValues);
+  let backgroundColor = getPieColors(new ColorGenerator(dataSetsLength), dataSetsValues);
+  if (colorAdapter) {
+    backgroundColor = backgroundColor.map(colorAdapter);
+  }
   for (const { label, data, hidden } of dataSetsValues) {
     if (hidden) {
       continue;
@@ -297,7 +311,7 @@ export function getComboChartDatasets(
   definition: GenericDefinition<ComboChartDefinition>,
   args: ChartRuntimeGenerationArgs
 ): ChartDataset<"bar" | "line">[] {
-  const { dataSetsValues } = args;
+  const { dataSetsValues, colorAdapter } = args;
 
   const dataSets: ChartDataset<"bar" | "line">[] = [];
   const colors = getChartColorsGenerator(definition, dataSetsValues.length);
@@ -311,7 +325,10 @@ export function getComboChartDatasets(
     label = definition.dataSets?.[index].label || label;
 
     const design = definition.dataSets?.[index];
-    const color = colors.next();
+    let color = colors.next();
+    if (colorAdapter) {
+      color = colorAdapter(color);
+    }
 
     const type = design?.type ?? "line";
     const dataset: ChartDataset<"bar" | "line"> = {
@@ -350,7 +367,7 @@ export function getRadarChartDatasets(
   definition: GenericDefinition<RadarChartDefinition>,
   args: ChartRuntimeGenerationArgs
 ): ChartDataset<"radar">[] {
-  const { dataSetsValues } = args;
+  const { dataSetsValues, colorAdapter } = args;
   const datasets: ChartDataset<"radar">[] = [];
 
   const fill = definition.fillArea ?? false;
@@ -361,7 +378,10 @@ export function getRadarChartDatasets(
     if (definition.dataSets?.[i]?.label) {
       label = definition.dataSets[i].label;
     }
-    const borderColor = colors.next();
+    let borderColor = colors.next();
+    if (colorAdapter) {
+      borderColor = colorAdapter(borderColor);
+    }
     const dataset: ChartDataset<"radar"> = {
       label,
       data,
@@ -441,7 +461,7 @@ export function getFunnelChartDatasets(
   const dataset: ChartDataset<"bar"> = {
     label: datasetLabel,
     data: data.map((value) => (value <= 0 ? [0, 0] : [-value, value])),
-    backgroundColor: getFunnelLabelColors(labels, definition.funnelColors),
+    backgroundColor: getFunnelLabelColors(labels, definition.funnelColors, args.colorAdapter),
     yAxisID: "y",
     xAxisID: "x",
     barPercentage: 1,
@@ -453,26 +473,39 @@ export function getFunnelChartDatasets(
   return [dataset];
 }
 
-export function getFunnelLabelColors(labels: string[], colors?: FunnelChartColors): Color[] {
+export function getFunnelLabelColors(
+  labels: string[],
+  colors?: FunnelChartColors,
+  colorAdapter?: (color: Color) => Color
+): Color[] {
   const colorGenerator = new ColorGenerator(labels.length, colors);
-  return labels.map(() => colorGenerator.next());
+  return labels.map(() => {
+    const color = colorGenerator.next();
+    return colorAdapter ? colorAdapter(color) : color;
+  });
 }
 
 export function getSunburstChartDatasets(
   definition: GenericDefinition<SunburstChartDefinition>,
   args: ChartRuntimeGenerationArgs
 ): SunburstChartJSDataset[] {
-  const { dataSetsValues, labels } = args;
+  const { dataSetsValues, labels, colorAdapter } = args;
 
   const tree = getSunburstTree(dataSetsValues, labels);
   const data = pyramidizeTree(tree);
 
   const rootData = data[0] || [];
   const colorGenerator = new ColorGenerator(rootData.length, definition.groupColors || []);
-  const groupColors = rootData.map((rawValue) => ({
-    label: rawValue.label,
-    color: colorGenerator.next(),
-  }));
+  const groupColors = rootData.map((rawValue) => {
+    let color = colorGenerator.next();
+    if (colorAdapter) {
+      color = colorAdapter(color);
+    }
+    return {
+      label: rawValue.label,
+      color,
+    };
+  });
 
   const dataSets: SunburstChartJSDataset[] = [];
   for (let i = data.length - 1; i >= 0; i--) {
@@ -588,7 +621,7 @@ export function getTreeMapChartDatasets(
   definition: TreeMapChartDefinition,
   args: ChartRuntimeGenerationArgs
 ): ChartDataset<"treemap">[] {
-  const { dataSetsValues, labels, locale, axisFormats } = args;
+  const { dataSetsValues, labels, locale, axisFormats, colorAdapter } = args;
   const localeFormat = { locale, format: axisFormats?.y };
 
   if (dataSetsValues.length === 0) {
@@ -596,7 +629,7 @@ export function getTreeMapChartDatasets(
   }
 
   const tree = getSunburstTree(dataSetsValues, labels).sort((a, b) => b.value - a.value);
-  const groupColors = getTreeMapGroupColors(definition, tree);
+  const groupColors = getTreeMapGroupColors(definition, tree, colorAdapter);
 
   const datasetEntries: TreeMapDataset = [];
   const maxDatasetLength = Math.max(...dataSetsValues.map((ds) => ds.data.length));
@@ -616,7 +649,7 @@ export function getTreeMapChartDatasets(
   const coloringOption = definition.coloringOptions || TreeMapChartDefaults.coloringOptions;
   let colorScale: ((value: number) => string) | undefined;
   if (coloringOption?.type === "colorScale") {
-    colorScale = getTreeMapColorScale(tree, coloringOption);
+    colorScale = getTreeMapColorScale(tree, coloringOption, colorAdapter);
   }
 
   const dataSets: ChartDataset<"treemap">[] = [
@@ -739,19 +772,30 @@ export function getChartColorsGenerator(
 
 function getTreeMapGroupColors(
   definition: TreeMapChartDefinition,
-  tree: SunburstTreeNode[]
+  tree: SunburstTreeNode[],
+  colorAdapter?: (color: Color) => Color
 ): TreeMapGroupColor[] {
   const colors =
     definition.coloringOptions?.type === "categoryColor" ? definition.coloringOptions.colors : [];
   const colorGenerator = new ColorGenerator(tree.length, colors);
 
-  return tree.map((node) => ({
-    label: node.label,
-    color: colorGenerator.next(),
-  }));
+  return tree.map((node) => {
+    let color = colorGenerator.next();
+    if (colorAdapter) {
+      color = colorAdapter(color);
+    }
+    return {
+      label: node.label,
+      color,
+    };
+  });
 }
 
-function getTreeMapColorScale(tree: SunburstTreeNode[], coloringOption: TreeMapColorScaleOptions) {
+function getTreeMapColorScale(
+  tree: SunburstTreeNode[],
+  coloringOption: TreeMapColorScaleOptions,
+  colorAdapter?: (color: Color) => Color
+) {
   if (tree.length === 0) {
     return undefined;
   }
@@ -760,12 +804,15 @@ function getTreeMapColorScale(tree: SunburstTreeNode[], coloringOption: TreeMapC
   const minValue = Math.min(...nodes.map((node) => node.value));
   const maxValue = Math.max(...nodes.map((node) => node.value));
   if (Number.isFinite(minValue) && Number.isFinite(maxValue)) {
-    const colorThresholds = [{ value: minValue, color: coloringOption.minColor }];
+    const minColor = colorAdapter?.(coloringOption.minColor) ?? coloringOption.minColor;
+    const maxColor = colorAdapter?.(coloringOption.maxColor) ?? coloringOption.maxColor;
+    const colorThresholds = [{ value: minValue, color: minColor }];
     if (coloringOption.midColor) {
+      const midColor = colorAdapter?.(coloringOption.midColor) ?? coloringOption.midColor;
       const midValue = (minValue + maxValue) / 2;
-      colorThresholds.push({ value: midValue, color: coloringOption.midColor });
+      colorThresholds.push({ value: midValue, color: midColor });
     }
-    colorThresholds.push({ value: maxValue, color: coloringOption.maxColor });
+    colorThresholds.push({ value: maxValue, color: maxColor });
     return getColorScale(colorThresholds);
   }
   return undefined;

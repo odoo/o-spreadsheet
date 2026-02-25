@@ -97,6 +97,7 @@ export function getBarChartData(
     locale: getters.getLocale(),
     topPadding: getTopPaddingForDashboard(definition, getters),
     background: resolveFigureBackgroundColor(definition.background, getters.isDarkMode()),
+    colorAdapter: definition.background ? undefined : getters.getAdaptedColor,
   };
 }
 
@@ -216,6 +217,7 @@ export function getCalendarChartData(
     locale: getters.getLocale(),
     topPadding: getTopPaddingForDashboard(definition, getters),
     background: resolveFigureBackgroundColor(definition.background, getters.isDarkMode()),
+    colorAdapter: definition.background ? undefined : getters.getAdaptedColor,
   };
 }
 
@@ -302,6 +304,7 @@ export function getLineChartData(
     axisType,
     topPadding: getTopPaddingForDashboard(definition, getters),
     background: resolveFigureBackgroundColor(definition.background, getters.isDarkMode()),
+    colorAdapter: definition.background ? undefined : getters.getAdaptedColor,
   };
 }
 
@@ -367,6 +370,7 @@ export function getRadarChartData(
     labels,
     locale: getters.getLocale(),
     background: resolveFigureBackgroundColor(definition.background, getters.isDarkMode()),
+    colorAdapter: definition.background ? undefined : getters.getAdaptedColor,
   };
 }
 
@@ -398,6 +402,7 @@ export function getGeoChartData(
     geoFeatureNameToId: getters.geoFeatureNameToId,
     getGeoJsonFeatures: getters.getGeoJsonFeatures,
     background: resolveFigureBackgroundColor(definition.background, getters.isDarkMode()),
+    colorAdapter: definition.background ? undefined : getters.getAdaptedColor,
   };
 }
 
@@ -432,6 +437,7 @@ export function getFunnelChartData(
     labels,
     locale: getters.getLocale(),
     background: resolveFigureBackgroundColor(definition.background, getters.isDarkMode()),
+    colorAdapter: definition.background ? undefined : getters.getAdaptedColor,
   };
 }
 
@@ -461,6 +467,7 @@ export function getHierarchalChartData(
     labels,
     locale: getters.getLocale(),
     background: resolveFigureBackgroundColor(definition.background, getters.isDarkMode()),
+    colorAdapter: definition.background ? undefined : getters.getAdaptedColor,
   };
 }
 

@@ -197,7 +197,47 @@ describe("UI of conditional formats", () => {
 
       // --> should be a nothing of color gradient for ColorScaleRule
       expect(previews[1].querySelector(selectors.description.range)!.textContent).toBe("B1:B5");
-      // TODO VSC: see how we can test the gradient background image
+    });
+
+    test("the list of CF has a correct preview in dark mode", async () => {
+      const darkModel = new Model({}, { colorScheme: "dark" });
+      const sheetId = darkModel.getters.getActiveSheetId();
+      darkModel.dispatch("ADD_CONDITIONAL_FORMAT", {
+        cf: createEqualCF("2", { fillColor: "#FF0000" }, "1"),
+        sheetId,
+        ranges: toRangesData(sheetId, "A1:A2"),
+      });
+      darkModel.dispatch("ADD_CONDITIONAL_FORMAT", {
+        cf: createColorScale(
+          "2",
+          { type: "value", color: 0xff00ff, value: "" },
+          { type: "value", color: 0x123456, value: "" }
+        ),
+        ranges: toRangesData(sheetId, "B1:B5"),
+        sheetId,
+      });
+
+      const { fixture: darkFixture } = await mountComponentWithPortalTarget(
+        ConditionalFormatPreviewList,
+        { props: { onCloseSidePanel: () => {} }, model: darkModel }
+      );
+      await nextTick();
+
+      const previews = darkFixture.querySelectorAll(selectors.listPreview);
+      expect(previews).toHaveLength(2);
+
+      const cellIsPreview = previews[0].querySelector(selectors.previewImage) as HTMLElement;
+      expect(cellIsPreview.getAttribute("style")).toContain(
+        darkModel.getters.getAdaptedColor("#FF0000")
+      );
+
+      const colorScalePreview = previews[1].querySelector(selectors.previewImage) as HTMLElement;
+      expect(colorScalePreview.getAttribute("style")).toContain(
+        darkModel.getters.getAdaptedColor("#ff00ff")
+      );
+      expect(colorScalePreview.getAttribute("style")).toContain(
+        darkModel.getters.getAdaptedColor("#123456")
+      );
     });
 
     test("previews are localized", async () => {

@@ -343,13 +343,15 @@ export function createGaugeChartRuntime(chart: GaugeChart, getters: Getters): Ga
   const inflectionValues: GaugeInflectionValue[] = [];
   const colors: Color[] = [];
 
+  const colorAdapter = chart.background ? (c: Color) => c : getters.getAdaptedColor;
+
   if (lowerPointValue !== undefined) {
     inflectionValues.push({
       value: lowerPointValue,
       label: formatOrHumanizeValue(lowerPointValue, format, locale, chart.humanize),
       operator: lowerPoint.operator,
     });
-    colors.push(chartColors.lowerColor);
+    colors.push(colorAdapter(chartColors.lowerColor));
   }
 
   if (upperPointValue !== undefined && upperPointValue !== lowerPointValue) {
@@ -358,7 +360,7 @@ export function createGaugeChartRuntime(chart: GaugeChart, getters: Getters): Ga
       label: formatOrHumanizeValue(upperPointValue, format, locale, chart.humanize),
       operator: upperPoint.operator,
     });
-    colors.push(chartColors.middleColor);
+    colors.push(colorAdapter(chartColors.middleColor));
   }
 
   if (
@@ -370,7 +372,7 @@ export function createGaugeChartRuntime(chart: GaugeChart, getters: Getters): Ga
     colors.reverse();
   }
 
-  colors.push(chartColors.upperColor);
+  colors.push(colorAdapter(chartColors.upperColor));
 
   return {
     background: getStyleOfSingleCellChart(chart.background, dataRange, getters).background,

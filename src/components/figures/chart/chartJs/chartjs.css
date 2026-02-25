@@ -1,7 +1,8 @@
 .o-spreadsheet {
   .o-chart-custom-tooltip {
     font-size: 12px;
-    background-color: #fff;
+    background-color: var(--os-white-bg);
+    color: var(--os-text-body);
     z-index: var(--os-components-importance-figure-tooltip);
   }
 }

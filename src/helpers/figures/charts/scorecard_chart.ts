@@ -356,8 +356,8 @@ export function createScorecardChartRuntime(
       baselineCell,
       chart.baselineMode,
       keyValueCell,
-      chart.baselineColorUp,
-      chart.baselineColorDown
+      chart.background ? chart.baselineColorUp : getters.getAdaptedColor(chart.baselineColorUp),
+      chart.background ? chart.baselineColorDown : getters.getAdaptedColor(chart.baselineColorDown)
     ),
     baselineDescr:
       chart.baselineMode !== "progress" && chart.baselineDescr?.text

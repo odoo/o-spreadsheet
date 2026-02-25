@@ -133,12 +133,40 @@ describe("Color Picker buttons", () => {
     expect(color?.textContent).toBe(" ✓ ");
   });
 
+  test("dark mode adapts standard color list preview", async () => {
+    const model = new Model({}, { colorScheme: "dark" });
+    const standardColor = "#45818e";
+    const adaptedColor = model.getters.getAdaptedColor(standardColor);
+    await mountColorPicker({ currentColor: standardColor }, model);
+
+    const colorElement = fixture.querySelector("div[data-color='#45818E']") as HTMLElement;
+    expect(toHex(colorElement.style.backgroundColor)).toBe(adaptedColor);
+  });
+
   test("initial custom color", async () => {
     const model = new Model();
     setStyle(model, "A1", { fillColor: "#123456" });
     await mountColorPicker({ currentColor: "#123456" }, model);
     const color = fixture.querySelector("div[data-color='#123456']") as HTMLElement;
     expect(color?.textContent).toBe(" ✓ ");
+  });
+
+  test("dark mode adapts custom color preview", async () => {
+    const model = new Model({}, { colorScheme: "dark" });
+    const customColor = "#FF0000";
+    const adaptedColor = model.getters.getAdaptedColor(customColor);
+    await mountColorPicker({ currentColor: customColor }, model);
+
+    await simulateClick(".o-color-picker-toggler");
+
+    const previewColor = toHex(
+      getElComputedStyle(fixture.querySelector(".o-color-preview")!, "backgroundColor")
+    );
+    expect(previewColor).toBe(adaptedColor);
+
+    const pointer = fixture.querySelector(".magnifier") as HTMLElement;
+    const pointerColor = toHex(getElComputedStyle(pointer, "backgroundColor"));
+    expect(pointerColor).toBe(adaptedColor);
   });
 
   test("wrong initial color", async () => {
