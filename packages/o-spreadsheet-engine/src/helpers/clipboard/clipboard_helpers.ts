@@ -100,6 +100,15 @@ export function parseOSClipboardContent(content: OSClipboardContent): ParsedOSCl
   return osClipboardContent;
 }
 
+/**
+ * Fast-path extraction used to detect an internal o-spreadsheet paste without
+ * instantiating a DOMParser on large HTML payloads. Reads the dedicated
+ * `data-osheet-clipboard-id` marker instead of parsing the embedded JSON.
+ */
+export function getOSheetClipboardIdFromHTML(htmlContent: string | undefined): string | undefined {
+  return htmlContent?.match(/<div data-osheet-clipboard-id=(['"])([^'"]+)\1/)?.[2];
+}
+
 function getOSheetDataFromHTML(htmlDocument: Document) {
   const attributes = [...htmlDocument.documentElement.attributes];
   // Check if it's a Microsoft Office clipboard data (it will have some namespaces defined in the root element)

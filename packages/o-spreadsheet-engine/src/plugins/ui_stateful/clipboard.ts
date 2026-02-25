@@ -532,7 +532,6 @@ export class ClipboardPlugin extends UIPlugin {
   private getSheetData(): SpreadsheetClipboardData {
     const data = {
       version: getCurrentVersion(),
-      clipboardId: this.clipboardId,
     };
     if (this.copiedData && "figureId" in this.copiedData) {
       return data;
@@ -602,7 +601,9 @@ export class ClipboardPlugin extends UIPlugin {
       innerHTML = htmlTable;
     }
     const serializedData = JSON.stringify(this.getSheetData());
-    return `<div data-osheet-clipboard='${xmlEscape(serializedData)}'>${innerHTML}</div>`;
+    return `<div data-osheet-clipboard-id='${this.clipboardId}' data-osheet-clipboard='${xmlEscape(
+      serializedData
+    )}'>${innerHTML}</div>`;
   }
 
   private readFileAsDataURL(blob: Blob) {
