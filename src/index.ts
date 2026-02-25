@@ -221,7 +221,7 @@ import { HighlightStore } from "./stores/highlight_store";
 import { ModelStore } from "./stores/model_store";
 import { NotificationStore } from "./stores/notification_store";
 import { RendererStore } from "./stores/renderer_store";
-import { AddFunctionDescription, isMatrix, schemeToColorScale } from "./types";
+import { AddFunctionDescription, CHART_TYPES, isMatrix, schemeToColorScale } from "./types";
 
 /**
  * We export here all entities that needs to be accessed publicly by Odoo.
@@ -311,7 +311,7 @@ export const registries = {
   chartSidePanelComponentRegistry,
   chartDataSourceSidePanelComponentRegistry,
   chartComponentRegistry,
-  chartRegistry: chartTypeRegistry,
+  chartTypeRegistry,
   chartSubtypeRegistry,
   chartDataSourceRegistry,
   topbarMenuRegistry,
@@ -350,6 +350,7 @@ import { clipboardHandlersRegistries } from "@odoo/o-spreadsheet-engine/registri
 import "./clipboard_handlers";
 import { Composer } from "./components/composer/composer/composer";
 import { Select } from "./components/select/select";
+import { ChartRangeDataSource } from "./components/side_panel/chart/building_blocks/range_data_source/range_data_source";
 import { TopBar } from "./components/top_bar/top_bar";
 import { chartDataSourceSidePanelComponentRegistry } from "./registries/chart_data_source_component_registry";
 
@@ -441,6 +442,7 @@ export const components = {
   ChartDataSeries,
   ChartErrorSection,
   ChartLabelRange,
+  ChartRangeDataSource,
   ChartTitle,
   ChartPanel,
   ChartFigure,
@@ -548,6 +550,7 @@ export const constants = {
   FIGURE_ID_SPLITTER,
   GRID_ICON_EDGE_LENGTH,
   GRID_ICON_MARGIN,
+  CHART_TYPES,
 };
 
 export const chartHelpers = { ...CHART_HELPERS, ...CHART_RUNTIME_HELPERS };

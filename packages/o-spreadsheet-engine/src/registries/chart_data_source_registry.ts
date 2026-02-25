@@ -17,6 +17,7 @@ import { Validator } from "../types/validator";
 import { Registry } from "./registry";
 
 export interface ChartDataSourceBuilder<T extends ChartDataSourceType> {
+  supportedChartTypes: readonly ChartType[];
   fromRangeStr: (
     dataSource: DataSourceType<T, string>,
     defaultSheetId: UID,

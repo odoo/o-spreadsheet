@@ -88,7 +88,6 @@ export const BarChart: ChartTypeBuilder<"bar"> = {
   getRuntime(getters, definition, { extractData }, sheetId, eventHandlers): BarChartRuntime {
     const data = extractData();
     const chartData = getBarChartData(definition, data, getters);
-    debugger;
     const config: ChartConfiguration<"bar" | "line"> = {
       type: "bar",
       data: {
