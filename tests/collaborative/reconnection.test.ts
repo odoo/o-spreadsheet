@@ -15,6 +15,7 @@ describe("reconnection recovery", () => {
   });
 
   test("disconnecting than reconnecting re-send all messages and swallows the error", async () => {
+    //TODO : fix that test (or what makes that test fail) MATHO VSC
     const commandWhileOnline: CoreCommand = {
       type: "UPDATE_CELL",
       sheetId: alice.getters.getActiveSheetId(),

@@ -319,7 +319,7 @@ describe("Collaborative session", () => {
         {
           border: {},
           sheetId: "Sheet1",
-          target: [{ bottom: 4, left: 0, right: 0, top: 1 }],
+          target: [{ bottom: 4, left: 0, right: 0, top: 2 }],
           type: "SET_BORDERS_ON_TARGET",
         },
       ],

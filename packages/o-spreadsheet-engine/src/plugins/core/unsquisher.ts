@@ -165,13 +165,12 @@ soltuion 3: copy evetyting and change what we want
         break;
       }
       case "OFFSET_NUMBER": {
-        /*A2:A15 : {N: "+1"}*/
         const offset = (current as SquishedFormula).N;
         if (offset === undefined || this.previousNumber === undefined) {
           throw new Error(
             `No ${offset} provided for OFFSET_NUMBER strategy, previous ${
               this.previousNumber
-            } for ${JSON.stringify(current)} ${sheetId} ${key}`
+            } for ${JSON.stringify(current)} ${sheetId}`
           );
         }
         const offsetValue = parseFloat(offset);

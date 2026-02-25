@@ -209,6 +209,7 @@ describe("Collaborative session", () => {
   });
 
   test("remote client joins", () => {
+    //TODO : fix that test (or what makes that test fail) MATHO VSC
     session.move({ sheetId: "sheetId", col: 0, row: 0 });
     const spy = jest.spyOn(transport, "sendMessage");
     transport.sendMessage({
