@@ -17,6 +17,7 @@
           <t t-set="missingHeadersForSpread" t-value="getMissingHeadersForSpread()"/>
           <div
             t-if="missingHeadersForSpread"
+            id="missing-headers"
             class="o-button-link mt-4"
             t-on-click="() => this.addMissingHeaders(missingHeadersForSpread)"
             t-out="getAddMissingHeadersButtonText(missingHeadersForSpread)"
