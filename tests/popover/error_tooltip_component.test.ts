@@ -77,6 +77,14 @@ describe("Error tooltip component", () => {
     expect(".fst-italic").toHaveText(" Caused by A1");
   });
 
+  test("can display error origin position on a spill error", async () => {
+    const model = new Model();
+    setCellContent(model, "A1", "=RANDARRAY(2,2)");
+    setCellContent(model, "A2", "2");
+    await mountErrorTooltip(model, "A1");
+    expect(".fst-italic").toHaveText(" Caused by A2");
+  });
+
   test("Do not display error origin position in dashboard", async () => {
     const model = new Model();
     setCellContent(model, "A1", "=1/0");
@@ -116,7 +124,7 @@ describe("Error tooltip component", () => {
     const model = new Model({ sheets: [{ id: "sheet1", colNumber: 1, rowNumber: 1 }] });
     setCellContent(model, "A1", "=MUNIT(3)");
     await mountErrorTooltip(model, "A1");
-    await click(fixture, ".o-button-link");
+    await click(fixture, "#missing-headers");
     expect(model.getters.getNumberRows("sheet1")).toBe(3 + 50); // +50/+20 because we add some padding
     expect(model.getters.getNumberCols("sheet1")).toBe(3 + 20);
   });
@@ -128,7 +136,7 @@ describe("Error tooltip component", () => {
     expect(getCellContent(model, "A1")).toBe("#SPILL!");
 
     await mountErrorTooltip(model, "A1");
-    expect(".o-button-link").toHaveCount(0);
+    expect("#missing-headers").toHaveCount(0);
   });
 
   test("Button to add missing header is not there for #SPILL of referenced cell", async () => {
@@ -138,7 +146,7 @@ describe("Error tooltip component", () => {
 
     setCellContent(model, "F1", "=A1");
     await mountErrorTooltip(model, "F1");
-    expect(".o-button-link").toHaveCount(0);
+    expect("#missing-headers").toHaveCount(0);
   });
 });
 
