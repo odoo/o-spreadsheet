@@ -45,6 +45,7 @@ export const TreeMapChart: ChartTypeBuilder<"treemap"> = {
   getDefinitionFromContextCreation(context) {
     let dataSource: ChartRangeDataSource<string> = {
       type: "range",
+      ...context.dataSource,
       dataSets: [],
       dataSetsHaveTitle: context.dataSource?.dataSetsHaveTitle ?? false,
       labelRange: context.dataSource?.dataSets?.[0]?.dataRange,
