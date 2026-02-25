@@ -75,6 +75,14 @@ describe("Error tooltip component", () => {
     expect(".fst-italic").toHaveText(" Caused by A1");
   });
 
+  test("can display error origin position on a spill error", async () => {
+    const model = new Model();
+    setCellContent(model, "A1", "=RANDARRAY(2,2)");
+    setCellContent(model, "A2", "2");
+    await mountErrorTooltip(model, "A1");
+    expect(".fst-italic").toHaveText(" Caused by A2");
+  });
+
   test("Do not display error origin position in dashboard", async () => {
     const model = new Model();
     setCellContent(model, "A1", "=1/0");
