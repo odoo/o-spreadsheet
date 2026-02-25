@@ -107,7 +107,7 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
       : "auto";
     properties["grid-template-columns"] = `auto ${columnWidth}`;
     properties["--os-scrollbar-width"] = `${scrollbarWidth}px`;
-    properties["color-scheme"] = this.props.colorScheme;
+    properties["color-scheme"] = this.props.colorScheme || "light";
 
     return cssPropertiesToCss(properties);
   }

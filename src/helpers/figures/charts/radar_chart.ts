@@ -232,11 +232,11 @@ export function createRadarChartRuntime(chart: RadarChart, getters: Getters): Ra
       layout: getChartLayout(definition, chartData),
       scales: getRadarChartScales(definition, chartData),
       plugins: {
-        title: getChartTitle(definition, getters),
+        title: getChartTitle(definition, chartData, getters),
         legend: getRadarChartLegend(definition, chartData),
         tooltip: getRadarChartTooltip(definition, chartData),
         chartShowValuesPlugin: getChartShowValues(definition, chartData),
-        background: { color: chart.background },
+        background: { color: chartData.background },
       },
     },
   };

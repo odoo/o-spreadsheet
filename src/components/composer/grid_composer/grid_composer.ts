@@ -10,6 +10,7 @@ import {
   positionToZone,
   toXC,
 } from "../../../helpers";
+import { getSpreadsheetTheme } from "../../../helpers/rendering";
 import { Store, useStore } from "../../../store_engine";
 import { CellPosition, ComposerFocusType, DOMDimension, Rect } from "../../../types/index";
 import { getTextDecoration } from "../../helpers";
@@ -135,17 +136,19 @@ export class GridComposer extends Component<Props, SpreadsheetChildEnv> {
     if (this.composerStore.editionMode === "inactive" || this.env.isMobile()) {
       return `z-index: -1000; opacity: 0;`; // opacity 0 for safari on ios
     }
+    const getters = this.env.model.getters;
     const _isFormula = isFormula(this.composerStore.currentContent);
-    const cell = this.env.model.getters.getActiveCell();
-    const position = this.env.model.getters.getActivePosition();
-    const style = this.env.model.getters.getCellComputedStyle(position);
+    const cell = getters.getActiveCell();
+    const position = getters.getActivePosition();
+    const style = getters.getCellComputedStyle(position);
 
     // position style
     const { x: left, y: top, width, height } = this.rect;
 
     // color style
-    const background = (!_isFormula && style.fillColor) || "#ffffff";
-    const color = (!_isFormula && style.textColor) || "#000000";
+    const theme = getSpreadsheetTheme(getters.isDarkMode());
+    const background = (!_isFormula && style.fillColor) || theme.backgroundColor;
+    const color = (!_isFormula && style.textColor) || theme.textColor;
 
     // font style
     const fontSize = (!_isFormula && style.fontSize) || 10;

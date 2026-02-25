@@ -15,7 +15,9 @@ import {
   getDefaultContextFont,
   getFontSizeMatchingWidth,
 } from "../../text_helper";
-import { chartMutedFontColor } from "./chart_common";
+
+import { relativeLuminance } from "../../color";
+import { figureMutedFontColor } from "../figure/figure";
 
 export const GAUGE_PADDING_SIDE = 30;
 export const GAUGE_PADDING_TOP = 10;
@@ -43,6 +45,7 @@ interface RenderingParams {
   gaugeValue: TextProperties;
   minLabel: TextProperties;
   maxLabel: TextProperties;
+  gaugeTrackColor: Color;
 }
 
 interface TextProperties {
@@ -121,7 +124,7 @@ function drawGauge(ctx: CanvasRenderingContext2D, config: RenderingParams) {
   const gaugeAngle = gauge.percentage === 1 ? 0 : Math.PI * (1 + gauge.percentage);
 
   // Gauge background
-  ctx.strokeStyle = GAUGE_BACKGROUND_COLOR;
+  ctx.strokeStyle = config.gaugeTrackColor;
   ctx.beginPath();
   ctx.lineWidth = gauge.arcWidth;
   ctx.arc(arcCenterX, arcCenterY, arcRadius, gaugeAngle, 0);
@@ -162,7 +165,7 @@ function drawInflectionValues(ctx: CanvasRenderingContext2D, config: RenderingPa
     ctx.rotate(Math.PI / 2 - inflectionValue.rotation);
 
     ctx.lineWidth = 2;
-    ctx.strokeStyle = chartMutedFontColor(config.backgroundColor) + "aa";
+    ctx.strokeStyle = figureMutedFontColor(config.backgroundColor) + "aa";
     ctx.beginPath();
     ctx.moveTo(0, -(height - config.gauge.arcWidth));
     ctx.lineTo(0, -height - 3);
@@ -235,7 +238,7 @@ export function getGaugeRenderingConfig(
     y: gaugeRect.y + gaugeRect.height + GAUGE_LABELS_FONT_SIZE,
   };
 
-  const textColor = chartMutedFontColor(runtime.background);
+  const textColor = figureMutedFontColor(runtime.background);
 
   const inflectionValues = getInflectionValues(runtime, gaugeRect, textColor, ctx);
 
@@ -303,6 +306,8 @@ export function getGaugeRenderingConfig(
       fontSize: GAUGE_LABELS_FONT_SIZE,
       color: textColor,
     },
+    gaugeTrackColor:
+      relativeLuminance(runtime.background) < 0.3 ? "#3c3e4b" : GAUGE_BACKGROUND_COLOR,
   };
 }
 

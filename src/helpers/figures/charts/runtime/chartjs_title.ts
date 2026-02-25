@@ -1,20 +1,29 @@
 import { CHART_PADDING, CHART_TITLE_FONT_SIZE } from "@odoo/o-spreadsheet-engine/constants";
-import { chartMutedFontColor } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_common";
-import { ChartWithDataSetDefinition } from "@odoo/o-spreadsheet-engine/types/chart";
+import { figureMutedFontColor } from "@odoo/o-spreadsheet-engine/helpers/figures/figure/figure";
+import {
+  ChartRuntimeGenerationArgs,
+  ChartWithDataSetDefinition,
+} from "@odoo/o-spreadsheet-engine/types/chart";
 import { Getters } from "@odoo/o-spreadsheet-engine/types/getters";
 import { TitleOptions } from "chart.js";
 import { _DeepPartialObject } from "chart.js/dist/types/utils";
 
 export function getChartTitle(
   definition: ChartWithDataSetDefinition,
+  args: ChartRuntimeGenerationArgs,
   getters: Getters
 ): _DeepPartialObject<TitleOptions> {
   const chartTitle = definition.title;
-  const fontColor = chartMutedFontColor(definition.background);
+  let color = chartTitle.color;
+  if (args.colorAdapter && color) {
+    color = args.colorAdapter(color);
+  } else if (!color) {
+    color = figureMutedFontColor(args.background);
+  }
   return {
     display: !!chartTitle.text,
     text: chartTitle.text ? getters.dynamicTranslate(chartTitle.text) : "",
-    color: chartTitle?.color ?? fontColor,
+    color,
     align:
       chartTitle.align === "center" ? "center" : chartTitle.align === "right" ? "end" : "start",
     font: {

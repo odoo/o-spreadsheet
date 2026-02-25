@@ -1,13 +1,15 @@
-import { _t } from "@odoo/o-spreadsheet-engine";
+import { _t, Color } from "@odoo/o-spreadsheet-engine";
 import {
   BACKGROUND_CHART_COLOR,
   DEFAULT_CAROUSEL_TITLE_STYLE,
 } from "@odoo/o-spreadsheet-engine/constants";
 import { getCarouselItemTitle } from "@odoo/o-spreadsheet-engine/helpers/carousel_helpers";
+import { figureMutedFontColor } from "@odoo/o-spreadsheet-engine/helpers/figures/figure/figure";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { Component, useEffect, useRef, useState } from "@odoo/owl";
 import { ActionSpec, createActions } from "../../../actions/action";
 import { chartStyleToCellStyle, deepEquals } from "../../../helpers";
+import { resolveFigureBackgroundColor } from "../../../helpers/figures/figures_common";
 import { chartComponentRegistry } from "../../../registries/chart_component_registry";
 import { Store, useStore } from "../../../store_engine";
 import {
@@ -112,7 +114,7 @@ export class CarouselFigure extends Component<Props, SpreadsheetChildEnv> {
     }
   }
 
-  get headerStyle(): string {
+  get backgroundColor(): Color {
     const cssProperties: CSSProperties = {};
     if (this.selectedCarouselItem?.type === "chart") {
       const chart = this.env.model.getters.getChartRuntime(this.selectedCarouselItem.chartId);
@@ -125,6 +127,15 @@ export class CarouselFigure extends Component<Props, SpreadsheetChildEnv> {
     } else {
       cssProperties["background-color"] = BACKGROUND_CHART_COLOR;
     }
+    return (
+      cssProperties["background-color"] ??
+      resolveFigureBackgroundColor("#ffffff", this.env.model.getters.isDarkMode())
+    );
+  }
+
+  get headerStyle(): string {
+    const cssProperties: CSSProperties = {};
+    cssProperties["background-color"] = this.backgroundColor;
     return cssPropertiesToCss(cssProperties);
   }
 
@@ -133,7 +144,8 @@ export class CarouselFigure extends Component<Props, SpreadsheetChildEnv> {
   }
 
   get titleStyle(): string {
-    const style = { ...DEFAULT_CAROUSEL_TITLE_STYLE, ...this.carousel.title };
+    const color = figureMutedFontColor(this.backgroundColor);
+    const style = { ...DEFAULT_CAROUSEL_TITLE_STYLE, ...this.carousel.title, color };
     return cssPropertiesToCss(cellTextStyleToCss(chartStyleToCellStyle(style)));
   }
 

@@ -1,5 +1,7 @@
+import { Color } from "../../..";
 import { AnchorOffset, FigureSize } from "../../../types/figure";
 import { Getters } from "../../../types/getters";
+import { relativeLuminance } from "../../color";
 import { deepCopy } from "../../misc";
 
 export function centerFigurePosition(getters: Getters, size: FigureSize): AnchorOffset {
@@ -27,4 +29,11 @@ export function getMaxFigureSize(getters: Getters, figureSize: FigureSize): Figu
     size.width = size.width * ratio;
   }
   return size;
+}
+
+export function figureMutedFontColor(backgroundColor: Color | undefined): Color {
+  if (!backgroundColor) {
+    return "#666666";
+  }
+  return relativeLuminance(backgroundColor) < 0.3 ? "#C8C8C8" : "#666666";
 }

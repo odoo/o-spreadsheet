@@ -1,5 +1,3 @@
-import { BACKGROUND_CHART_COLOR } from "../../constants";
-import { chartFontColor } from "../../helpers/figures/charts/chart_common";
 import { chartRuntimeFactory } from "../../helpers/figures/charts/chart_factory";
 import { chartToImageUrl } from "../../helpers/figures/charts/chart_ui_common";
 import { ChartRuntime, ExcelChartDefinition } from "../../types/chart";
@@ -9,22 +7,16 @@ import {
   invalidateChartEvaluationCommands,
   invalidateEvaluationCommands,
 } from "../../types/commands";
-import { Color, UID } from "../../types/misc";
-import { Range } from "../../types/range";
+import { UID } from "../../types/misc";
 import { ExcelWorkbookData, FigureData } from "../../types/workbook_data";
 import { CoreViewPlugin } from "../core_view_plugin";
-
-interface EvaluationChartStyle {
-  background: Color;
-  fontColor: Color;
-}
 
 interface EvaluationChartState {
   charts: Record<UID, ChartRuntime | undefined>;
 }
 
 export class EvaluationChartPlugin extends CoreViewPlugin<EvaluationChartState> {
-  static getters = ["getChartRuntime", "getStyleOfSingleCellChart"] as const;
+  static getters = ["getChartRuntime"] as const;
 
   charts: Record<UID, ChartRuntime | undefined> = {};
 
@@ -68,33 +60,6 @@ export class EvaluationChartPlugin extends CoreViewPlugin<EvaluationChartState> 
       this.charts[chartId] = this.createRuntimeChart(chart);
     }
     return this.charts[chartId] as ChartRuntime;
-  }
-
-  /**
-   * Get the background and textColor of a chart based on the color of the first cell of the main range of the chart.
-   */
-  getStyleOfSingleCellChart(
-    chartBackground: Color | undefined,
-    mainRange: Range | undefined
-  ): EvaluationChartStyle {
-    if (chartBackground) {
-      return { background: chartBackground, fontColor: chartFontColor(chartBackground) };
-    }
-    if (!mainRange) {
-      return {
-        background: BACKGROUND_CHART_COLOR,
-        fontColor: chartFontColor(BACKGROUND_CHART_COLOR),
-      };
-    }
-    const col = mainRange.zone.left;
-    const row = mainRange.zone.top;
-    const sheetId = mainRange.sheetId;
-    const style = this.getters.getCellComputedStyle({ sheetId, col, row });
-    const background = style.fillColor || BACKGROUND_CHART_COLOR;
-    return {
-      background,
-      fontColor: style.textColor || chartFontColor(background),
-    };
   }
 
   async exportForExcel(data: ExcelWorkbookData) {

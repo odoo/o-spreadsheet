@@ -461,7 +461,7 @@ exports[`Color Picker buttons Full component rendering 1`] = `
   >
     <div
       class="o-gradient"
-      style="background:hsl(0 100% 50%); "
+      style="background:#FF0000; "
     >
       <div
         class="saturation w-100 h-100 position-absolute pe-none"

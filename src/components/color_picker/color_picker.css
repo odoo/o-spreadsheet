@@ -36,7 +36,7 @@
       height: calc(var(--os-item-edge-length) + (2 * var(--os-item-border-width)));
       margin: 0px;
       border-radius: 50px;
-      border: var(--os-item-border-width) solid light-dark(var(--os-gray-600), transparent);
+      border: var(--os-item-border-width) solid light-dark(var(--os-gray-600), var(--os-gray-400));
       padding: 0px;
       font-size: 16px;
       &:hover {
@@ -90,7 +90,7 @@
         background: linear-gradient(to right, var(--os-white) 0%, transparent 100%);
       }
       .lightness {
-        background: linear-gradient(to top, #000 0%, transparent 100%);
+        background: linear-gradient(to top, var(--os-black) 0%, transparent 100%);
       }
       .o-hue-picker {
         width: 100%;

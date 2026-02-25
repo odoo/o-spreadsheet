@@ -1,20 +1,12 @@
 import { getPath2D } from "@odoo/o-spreadsheet-engine/components/icons/icons";
 import {
-  BACKGROUND_HEADER_ACTIVE_COLOR,
-  BACKGROUND_HEADER_COLOR,
-  BACKGROUND_HEADER_SELECTED_COLOR,
   CANVAS_SHIFT,
-  CELL_BORDER_COLOR,
   DATA_VALIDATION_CHIP_MARGIN,
   DEFAULT_FONT,
-  FROZEN_PANE_BORDER_COLOR,
-  FROZEN_PANE_HEADER_BORDER_COLOR,
-  HEADER_BORDER_COLOR,
   HEADER_FONT_SIZE,
   HEADER_HEIGHT,
   HEADER_WIDTH,
   MIN_CELL_TEXT_MARGIN,
-  TEXT_HEADER_COLOR,
 } from "@odoo/o-spreadsheet-engine/constants";
 import { ModelStore, SpreadsheetStore } from ".";
 import { HoveredIconStore } from "../components/grid_overlay/hovered_icon_store";
@@ -184,7 +176,7 @@ export class GridRenderer extends SpreadsheetStore {
     const { width, height } = this.getters.getSheetViewDimensionWithHeaders();
 
     // white background
-    ctx.fillStyle = "#ffffff";
+    ctx.fillStyle = renderingContext.theme.backgroundColor;
     ctx.fillRect(0, 0, width + CANVAS_SHIFT, height + CANVAS_SHIFT);
   }
 
@@ -201,7 +193,7 @@ export class GridRenderer extends SpreadsheetStore {
         if (box.style.hideGridLines) {
           continue;
         }
-        ctx.strokeStyle = CELL_BORDER_COLOR;
+        ctx.strokeStyle = renderingContext.theme.gridBorderColor;
         ctx.lineWidth = thinLineWidth;
         ctx.strokeRect(box.x + inset, box.y + inset, box.width - 2 * inset, box.height - 2 * inset);
       }
@@ -212,8 +204,11 @@ export class GridRenderer extends SpreadsheetStore {
     const { ctx } = renderingContext;
     for (const box of boxes) {
       const style = box.style;
-      if (style.fillColor && style.fillColor !== "#ffffff") {
-        ctx.fillStyle = style.fillColor || "#ffffff";
+      const fillColor = style.fillColor
+        ? this.getters.getAdaptedColor(style.fillColor)
+        : renderingContext.theme.backgroundColor;
+      if (fillColor !== renderingContext.theme.backgroundColor) {
+        ctx.fillStyle = fillColor;
         // We shift the canvas by CANVAS_SHIFT to avoid blurry lines (lines are drawn between pixels), but fillRect
         // are drawn at the exact pixel position, so we need to compensate this shift here. We also want to extend
         // the fill by 1px to draw over the gridLines.
@@ -225,13 +220,13 @@ export class GridRenderer extends SpreadsheetStore {
         );
       }
       if (box.dataBarFill) {
-        ctx.fillStyle = box.dataBarFill.color;
+        ctx.fillStyle = this.getters.getAdaptedColor(box.dataBarFill.color);
         const percentage = box.dataBarFill.percentage;
         const width = box.width * (percentage / 100);
         ctx.fillRect(box.x, box.y, width, box.height);
       }
       if (box.overlayColor) {
-        ctx.fillStyle = blendColors(style.fillColor || "#ffffff", box.overlayColor);
+        ctx.fillStyle = blendColors(fillColor, box.overlayColor);
         ctx.fillRect(
           box.x - CANVAS_SHIFT,
           box.y - CANVAS_SHIFT,
@@ -284,7 +279,7 @@ export class GridRenderer extends SpreadsheetStore {
             (box.clipRect?.x || box.x + box.width / 2 - box.content.width / 2) + thinLineWidth / 2;
           width = clipWidth - 2 * thinLineWidth;
         }
-        ctx.fillStyle = "#ffffff";
+        ctx.fillStyle = renderingContext.theme.backgroundColor;
         ctx.fillRect(x, y, width, height);
       }
     }
@@ -292,6 +287,7 @@ export class GridRenderer extends SpreadsheetStore {
 
   private drawBorders(renderingContext: GridRenderingContext, boxes: Box[]) {
     const { ctx } = renderingContext;
+    const adaptColor = this.getters.getAdaptedColor.bind(this.getters);
     for (const box of boxes) {
       const border = box.border;
       if (border) {
@@ -331,7 +327,7 @@ export class GridRenderer extends SpreadsheetStore {
       y2: Pixel
     ) {
       ctx.globalAlpha = opacity ?? 1;
-      ctx.strokeStyle = color;
+      ctx.strokeStyle = adaptColor(color);
       switch (style) {
         case "medium":
           ctx.lineWidth = 2;
@@ -400,7 +396,9 @@ export class GridRenderer extends SpreadsheetStore {
           currentFont = font;
           ctx.font = font;
         }
-        ctx.fillStyle = style.textColor || "#000";
+        ctx.fillStyle = style.textColor
+          ? this.getters.getAdaptedColor(style.textColor)
+          : renderingContext.theme.textColor;
 
         // horizontal align text direction
         ctx.textAlign = align;
@@ -466,7 +464,7 @@ export class GridRenderer extends SpreadsheetStore {
         ctx.translate(x, y);
         ctx.scale(iconSize / svg.width, iconSize / svg.height);
         for (const path of svg.paths) {
-          ctx.fillStyle = path.fillColor;
+          ctx.fillStyle = this.getters.getAdaptedColor(path.fillColor);
           ctx.fill(getPath2D(path.path));
         }
         ctx.restore();
@@ -494,7 +492,7 @@ export class GridRenderer extends SpreadsheetStore {
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
     ctx.lineWidth = thinLineWidth;
-    ctx.strokeStyle = "#333";
+    ctx.strokeStyle = renderingContext.theme.headerBorderColor;
 
     // Columns headers background
     for (const col of visibleCols) {
@@ -503,11 +501,11 @@ export class GridRenderer extends SpreadsheetStore {
       const isColActive = activeCols.has(col);
       const isColSelected = selectedCols.has(col);
       if (isColActive) {
-        ctx.fillStyle = BACKGROUND_HEADER_ACTIVE_COLOR;
+        ctx.fillStyle = renderingContext.theme.headerActiveBackgroundColor;
       } else if (isColSelected) {
-        ctx.fillStyle = BACKGROUND_HEADER_SELECTED_COLOR;
+        ctx.fillStyle = renderingContext.theme.headerSelectedBackgroundColor;
       } else {
-        ctx.fillStyle = BACKGROUND_HEADER_COLOR;
+        ctx.fillStyle = renderingContext.theme.headerBackgroundColor;
       }
       ctx.fillRect(x, 0, width, HEADER_HEIGHT);
     }
@@ -520,11 +518,11 @@ export class GridRenderer extends SpreadsheetStore {
       const isRowActive = activeRows.has(row);
       const isRowSelected = selectedRows.has(row);
       if (isRowActive) {
-        ctx.fillStyle = BACKGROUND_HEADER_ACTIVE_COLOR;
+        ctx.fillStyle = renderingContext.theme.headerActiveBackgroundColor;
       } else if (isRowSelected) {
-        ctx.fillStyle = BACKGROUND_HEADER_SELECTED_COLOR;
+        ctx.fillStyle = renderingContext.theme.headerSelectedBackgroundColor;
       } else {
-        ctx.fillStyle = BACKGROUND_HEADER_COLOR;
+        ctx.fillStyle = renderingContext.theme.headerBackgroundColor;
       }
       ctx.fillRect(0, y, HEADER_WIDTH, height);
     }
@@ -535,13 +533,15 @@ export class GridRenderer extends SpreadsheetStore {
     ctx.lineTo(HEADER_WIDTH, height);
     ctx.moveTo(0, HEADER_HEIGHT);
     ctx.lineTo(width, HEADER_HEIGHT);
-    ctx.strokeStyle = HEADER_BORDER_COLOR;
+    ctx.strokeStyle = renderingContext.theme.headerBorderColor;
     ctx.stroke();
 
     // column text + separator
     for (const col of visibleCols) {
       const colName = numberToLetters(col);
-      ctx.fillStyle = activeCols.has(col) ? "#fff" : TEXT_HEADER_COLOR;
+      ctx.fillStyle = activeCols.has(col)
+        ? renderingContext.theme.backgroundColor
+        : renderingContext.theme.headerTextColor;
       const zone = { left: col, right: col, top: top, bottom: top };
       const { x: colStart, width: colSize } = this.getters.getRect(zone);
       const { x, width } = this.getters.getVisibleRect(zone);
@@ -559,7 +559,9 @@ export class GridRenderer extends SpreadsheetStore {
 
     // row text + separator
     for (const row of visibleRows) {
-      ctx.fillStyle = activeRows.has(row) ? "#fff" : TEXT_HEADER_COLOR;
+      ctx.fillStyle = activeRows.has(row)
+        ? renderingContext.theme.backgroundColor
+        : renderingContext.theme.headerTextColor;
       const zone = { top: row, bottom: row, left: left, right: left };
       const { y: rowStart, height: rowSize } = this.getters.getRect(zone);
       const { y, height } = this.getters.getVisibleRect(zone);
@@ -584,7 +586,7 @@ export class GridRenderer extends SpreadsheetStore {
     const widthCorrection = this.getters.isDashboard() ? 0 : HEADER_WIDTH;
     const heightCorrection = this.getters.isDashboard() ? 0 : HEADER_HEIGHT;
     ctx.lineWidth = 6 * thinLineWidth;
-    ctx.strokeStyle = FROZEN_PANE_HEADER_BORDER_COLOR;
+    ctx.strokeStyle = renderingContext.theme.frozenPaneHeaderBorderColor;
     ctx.beginPath();
     if (offsetCorrectionX) {
       ctx.moveTo(widthCorrection + offsetCorrectionX, 0);
@@ -615,7 +617,7 @@ export class GridRenderer extends SpreadsheetStore {
     const widthCorrection = this.getters.isDashboard() ? 0 : HEADER_WIDTH;
     const heightCorrection = this.getters.isDashboard() ? 0 : HEADER_HEIGHT;
     ctx.lineWidth = 6 * thinLineWidth;
-    ctx.strokeStyle = FROZEN_PANE_BORDER_COLOR;
+    ctx.strokeStyle = renderingContext.theme.frozenPaneBorderColor;
     ctx.beginPath();
     if (offsetCorrectionX) {
       ctx.moveTo(widthCorrection + offsetCorrectionX, heightCorrection);
@@ -790,7 +792,7 @@ export class GridRenderer extends SpreadsheetStore {
       const chipMarginLeft = leftMargin;
       const chipMarginRight = DATA_VALIDATION_CHIP_MARGIN;
       box.chip = {
-        color: chipStyle.fillColor,
+        color: this.getters.getAdaptedColor(chipStyle.fillColor),
         width: box.width - chipMarginLeft - chipMarginRight,
         height: textHeight + 2,
         x: box.x + chipMarginLeft,

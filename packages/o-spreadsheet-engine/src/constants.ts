@@ -28,8 +28,10 @@ export const CHART_WATERFALL_NEGATIVE_COLOR = "#EA6175";
 export const CHART_WATERFALL_SUBTOTAL_COLOR = "#AAAAAA";
 
 export const GRAY_900 = "#111827";
+export const GRAY_700 = "#3C3E4B";
 export const GRAY_300 = "#D8DADD";
 export const GRAY_200 = "#E7E9ED";
+export const GRAY_200_DARK = "#262A36";
 export const TEXT_BODY = "#374151";
 export const TEXT_BODY_MUTED = TEXT_BODY + "C2";
 export const ACTION_COLOR = HIGHLIGHT_COLOR;

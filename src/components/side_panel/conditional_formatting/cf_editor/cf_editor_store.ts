@@ -5,6 +5,7 @@ import { canonicalizeCFRule } from "@odoo/o-spreadsheet-engine/helpers/locale";
 import { hexaToInt } from "@odoo/o-spreadsheet-engine/xlsx/conversion";
 import { ComponentConstructor, useState } from "@odoo/owl";
 import { colorNumberToHex, colorToNumber, isColorValid, rangeReference } from "../../../../helpers";
+import { getSpreadsheetTheme } from "../../../../helpers/rendering";
 import {
   criterionComponentRegistry,
   getCriterionValueAndLabels,
@@ -214,15 +215,33 @@ export class ConditionalFormattingEditorStore extends SpreadsheetStore {
     this.closeMenus();
   }
 
+  get cellIsRulePreviewStyle() {
+    const style = { ...this.state.rules.cellIs.style };
+    const theme = getSpreadsheetTheme(this.getters.isDarkMode());
+    if (style.fillColor) {
+      style.fillColor = this.getters.getAdaptedColor(style.fillColor);
+    } else {
+      style.fillColor = theme.backgroundColor;
+    }
+    if (style.textColor) {
+      style.textColor = this.getters.getAdaptedColor(style.textColor);
+    } else {
+      style.textColor = theme.textColor;
+    }
+    return style;
+  }
+
   /*****************************************************************************
    * Color Scale Rule
    ****************************************************************************/
 
   get previewGradient() {
     const rule = this.state.rules.colorScale;
-    const minColor = colorNumberToHex(rule.minimum.color);
-    const midColor = colorNumberToHex(rule.midpoint?.color || DEFAULT_COLOR_SCALE_MIDPOINT_COLOR);
-    const maxColor = colorNumberToHex(rule.maximum.color);
+    const minColor = this.getters.getAdaptedColor(colorNumberToHex(rule.minimum.color));
+    const midColor = this.getters.getAdaptedColor(
+      colorNumberToHex(rule.midpoint?.color || DEFAULT_COLOR_SCALE_MIDPOINT_COLOR)
+    );
+    const maxColor = this.getters.getAdaptedColor(colorNumberToHex(rule.maximum.color));
     const baseString = "linear-gradient(to right, ";
     const backgroundImage =
       rule.midpoint === undefined
@@ -230,7 +249,7 @@ export class ConditionalFormattingEditorStore extends SpreadsheetStore {
         : baseString + minColor + ", " + midColor + ", " + maxColor + ")";
     return cssPropertiesToCss({
       "background-image": backgroundImage,
-      color: "#000",
+      color: getSpreadsheetTheme(this.getters.isDarkMode()).textColor,
     });
   }
 

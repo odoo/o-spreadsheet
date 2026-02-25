@@ -147,6 +147,8 @@ export class ChartJsComponent extends Component<Props, SpreadsheetChildEnv> {
       }
     }
 
+    this.applyTheme(chartData);
+
     const canvas = this.canvas.el as HTMLCanvasElement;
     const ctx = canvas.getContext("2d")!;
     this.chart = new globalThis.Chart(ctx, chartData);
@@ -162,6 +164,8 @@ export class ChartJsComponent extends Component<Props, SpreadsheetChildEnv> {
       }
     }
 
+    this.applyTheme(chartData);
+
     if (chartData.data && chartData.data.datasets) {
       this.chart!.data = chartData.data;
       if (chartData.options?.plugins?.title) {
@@ -172,6 +176,56 @@ export class ChartJsComponent extends Component<Props, SpreadsheetChildEnv> {
     }
     this.chart!.config.options = chartData.options;
     this.chart!.update();
+  }
+
+  private applyTheme(chartData: ChartConfiguration<any>) {
+    if (!this.canvas.el) {
+      return;
+    }
+    const style = window.getComputedStyle(this.canvas.el);
+    const textColor = style.getPropertyValue("--os-cell-text-color").trim();
+    const gridColor = style.getPropertyValue("--os-grid-line-color").trim();
+    if (!textColor || !gridColor) {
+      return;
+    }
+
+    if (!this.env.model.getters.isDarkMode()) {
+      return;
+    }
+
+    if (!chartData.options) {
+      chartData.options = {};
+    }
+    const options = chartData.options;
+
+    options.color = textColor;
+    if (options.scales) {
+      Object.values(options.scales).forEach((scale: any) => {
+        if (scale.grid) {
+          scale.grid.color = gridColor;
+        }
+        if (scale.ticks) {
+          scale.ticks.color = textColor;
+        }
+        if (scale.title) {
+          scale.title.color = textColor;
+        }
+      });
+    }
+    options.plugins = {
+      ...options.plugins,
+      legend: {
+        ...options.plugins?.legend,
+        labels: {
+          ...options.plugins?.legend?.labels,
+          color: textColor,
+        },
+        title: {
+          ...options.plugins?.legend?.title,
+          color: textColor,
+        },
+      },
+    };
   }
 
   private hasChartDataChanged() {

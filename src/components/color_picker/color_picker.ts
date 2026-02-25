@@ -50,6 +50,7 @@ export class ColorPicker extends Component<ColorPickerProps, SpreadsheetChildEnv
     maxHeight: { type: Number, optional: true },
     anchorRect: Object,
     disableNoColor: { type: Boolean, optional: true },
+    colorRenderer: { type: Object, optional: true },
   };
   static defaultProps = { currentColor: "" };
   static components = { Popover };
@@ -82,9 +83,8 @@ export class ColorPicker extends Component<ColorPickerProps, SpreadsheetChildEnv
 
   get gradientHueStyle(): string {
     const hue = this.state.currentHslaColor?.h || 0;
-    return cssPropertiesToCss({
-      background: `hsl(${hue} 100% 50%)`,
-    });
+    const color = hslaToHex({ h: hue, s: 100, l: 50, a: 1 });
+    return cssPropertiesToCss({ background: this.adaptColor(color) });
   }
 
   get sliderStyle(): string {
@@ -101,25 +101,35 @@ export class ColorPicker extends Component<ColorPickerProps, SpreadsheetChildEnv
     const left = Math.round(INNER_GRADIENT_WIDTH * clip(s / 100, 0, 1));
     const top = Math.round(INNER_GRADIENT_HEIGHT * clip(1 - (2 * l) / (200 - s), 0, 1));
 
+    const color = hslaToHex(this.state.currentHslaColor);
     return cssPropertiesToCss({
       left: `${-MAGNIFIER_EDGE / 2 + left}px`,
       top: `${-MAGNIFIER_EDGE / 2 + top}px`,
-      background: hslaToHex(this.state.currentHslaColor),
+      background: this.adaptColor(color),
     });
   }
 
   get colorPreviewStyle(): string {
+    const color = hslaToHex(this.state.currentHslaColor);
     return cssPropertiesToCss({
-      "background-color": hslaToHex(this.state.currentHslaColor),
+      "background-color": this.adaptColor(color),
     });
   }
 
   get checkmarkColor(): Color {
-    return chartFontColor(this.props.currentColor);
+    return chartFontColor(this.adaptColor(this.props.currentColor));
   }
 
   get isHexColorInputValid(): boolean {
     return !this.state.customHexColor || isColorValid(this.state.customHexColor);
+  }
+
+  get isDarkMode(): boolean {
+    return this.env.model.getters.isDarkMode();
+  }
+
+  adaptColor(color: Color): Color {
+    return this.env.model.getters.getAdaptedColor(color);
   }
 
   private setCustomGradient({ x, y }: PixelPosition) {

@@ -37,7 +37,7 @@
       <div class="o-section-subtitle pt-3">Formatting style</div>
 
       <t t-call="o-spreadsheet-CellIsRuleEditorPreview">
-        <t t-set="currentStyle" t-value="rule.style"/>
+        <t t-set="currentStyle" t-value="store.cellIsRulePreviewStyle"/>
       </t>
       <div class="o-sidePanel-tools d-flex">
         <div

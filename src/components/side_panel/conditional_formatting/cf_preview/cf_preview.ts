@@ -1,10 +1,11 @@
 import { ICONS } from "@odoo/o-spreadsheet-engine/components/icons/icons";
 import { CfTerms } from "@odoo/o-spreadsheet-engine/components/translations_terms";
-import { HIGHLIGHT_COLOR, TEXT_BODY } from "@odoo/o-spreadsheet-engine/constants";
+import { HIGHLIGHT_COLOR } from "@odoo/o-spreadsheet-engine/constants";
 import { criterionEvaluatorRegistry } from "@odoo/o-spreadsheet-engine/registries/criterion_registry";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { Component, useRef } from "@odoo/owl";
 import { colorNumberToHex } from "../../../../helpers";
+import { getSpreadsheetTheme } from "../../../../helpers/rendering";
 import { ConditionalFormat, Highlight } from "../../../../types";
 import { cellStyleToCss, cssPropertiesToCss } from "../../../helpers";
 import { useHighlightsOnHover } from "../../../helpers/highlight_hook";
@@ -31,20 +32,29 @@ export class ConditionalFormatPreview extends Component<Props, SpreadsheetChildE
 
   get previewImageStyle(): string {
     const rule = this.props.conditionalFormat.rule;
+    const adaptColor = this.env.model.getters.getAdaptedColor.bind(this.env.model.getters);
     if (rule.type === "CellIsRule") {
-      return cssPropertiesToCss(cellStyleToCss(rule.style));
+      const style = { ...rule.style };
+      if (style.fillColor) {
+        style.fillColor = adaptColor(style.fillColor);
+      }
+      if (style.textColor) {
+        style.textColor = adaptColor(style.textColor);
+      }
+      return cssPropertiesToCss(cellStyleToCss(style));
     } else if (rule.type === "ColorScaleRule") {
-      const minColor = colorNumberToHex(rule.minimum.color);
-      const midColor = rule.midpoint ? colorNumberToHex(rule.midpoint.color) : null;
-      const maxColor = colorNumberToHex(rule.maximum.color);
+      const minColor = adaptColor(colorNumberToHex(rule.minimum.color));
+      const midColor = rule.midpoint ? adaptColor(colorNumberToHex(rule.midpoint.color)) : null;
+      const maxColor = adaptColor(colorNumberToHex(rule.maximum.color));
       const baseString = "background-image: linear-gradient(to right, ";
       return midColor
         ? baseString + minColor + ", " + midColor + ", " + maxColor + ")"
         : baseString + minColor + ", " + maxColor + ")";
     } else if (rule.type === "DataBarRule") {
-      const barColor = colorNumberToHex(rule.color);
-      const gradient = `background-image: linear-gradient(to right, ${barColor} 50%, white 50%)`;
-      return `${gradient}; color: ${TEXT_BODY};`;
+      const theme = getSpreadsheetTheme(this.env.model.getters.isDarkMode());
+      const barColor = adaptColor(colorNumberToHex(rule.color));
+      const gradient = `background-image: linear-gradient(to right, ${barColor} 50%, ${theme.backgroundColor} 50%)`;
+      return `${gradient}; color: ${theme.textColor};`;
     }
     return "";
   }

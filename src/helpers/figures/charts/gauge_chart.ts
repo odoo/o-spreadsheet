@@ -46,6 +46,7 @@ import {
   UID,
 } from "../../../types";
 import { clip, formatOrHumanizeValue, humanizeNumber } from "../../index";
+import { getStyleOfSingleCellChart } from "./runtime/chart_colors";
 
 type RangeLimitsValidation = (rangeLimit: string, rangeLimitName: string) => CommandResult;
 type InflectionPointValueValidation = (
@@ -342,13 +343,15 @@ export function createGaugeChartRuntime(chart: GaugeChart, getters: Getters): Ga
   const inflectionValues: GaugeInflectionValue[] = [];
   const colors: Color[] = [];
 
+  const colorAdapter = chart.background ? (c: Color) => c : getters.getAdaptedColor;
+
   if (lowerPointValue !== undefined) {
     inflectionValues.push({
       value: lowerPointValue,
       label: formatOrHumanizeValue(lowerPointValue, format, locale, chart.humanize),
       operator: lowerPoint.operator,
     });
-    colors.push(chartColors.lowerColor);
+    colors.push(colorAdapter(chartColors.lowerColor));
   }
 
   if (upperPointValue !== undefined && upperPointValue !== lowerPointValue) {
@@ -357,7 +360,7 @@ export function createGaugeChartRuntime(chart: GaugeChart, getters: Getters): Ga
       label: formatOrHumanizeValue(upperPointValue, format, locale, chart.humanize),
       operator: upperPoint.operator,
     });
-    colors.push(chartColors.middleColor);
+    colors.push(colorAdapter(chartColors.middleColor));
   }
 
   if (
@@ -369,10 +372,10 @@ export function createGaugeChartRuntime(chart: GaugeChart, getters: Getters): Ga
     colors.reverse();
   }
 
-  colors.push(chartColors.upperColor);
+  colors.push(colorAdapter(chartColors.upperColor));
 
   return {
-    background: getters.getStyleOfSingleCellChart(chart.background, dataRange).background,
+    background: getStyleOfSingleCellChart(chart.background, dataRange, getters).background,
     title: {
       ...chart.title,
       text: chart.title.text ? getters.dynamicTranslate(chart.title.text) : "",
@@ -426,7 +429,7 @@ function getFormulaNumberValue(sheetId: UID, formula: string, getters: Getters) 
 
 function getInvalidGaugeRuntime(chart: GaugeChart, getters: Getters): GaugeChartRuntime {
   return {
-    background: getters.getStyleOfSingleCellChart(chart.background, chart.dataRange).background,
+    background: getStyleOfSingleCellChart(chart.background, chart.dataRange, getters).background,
     title: chart.title ?? { text: "" },
     minValue: { value: 0, label: "" },
     maxValue: { value: 100, label: "" },

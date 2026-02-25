@@ -1,6 +1,6 @@
 import { CHART_AXIS_TITLE_FONT_SIZE, CHART_TITLE_FONT_SIZE } from "../../constants";
 import { ColorGenerator, lightenColor } from "../../helpers/color";
-import { chartMutedFontColor } from "../../helpers/figures/charts/chart_common";
+import { figureMutedFontColor } from "../../helpers/figures/figure/figure";
 import { largeMax, range } from "../../helpers/misc";
 import { ExcelChartDataset, ExcelChartDefinition, TitleDesign } from "../../types/chart";
 import { Color } from "../../types/misc";
@@ -64,7 +64,7 @@ export function createChart(
   // <manualLayout/> to manually position the chart in the figure container
   let title = escapeXml``;
   if (chart.data.title?.text) {
-    const titleColor = toXlsxHexColor(chartMutedFontColor(chart.data.backgroundColor));
+    const titleColor = toXlsxHexColor(figureMutedFontColor(chart.data.backgroundColor));
     const fontSize = chart.data.title.fontSize ?? CHART_TITLE_FONT_SIZE;
     title = escapeXml/*xml*/ `
       <c:title>

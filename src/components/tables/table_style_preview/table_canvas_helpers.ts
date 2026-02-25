@@ -1,9 +1,10 @@
-import { Pixel } from "@odoo/o-spreadsheet-engine";
+import { Color, Pixel } from "@odoo/o-spreadsheet-engine";
 import { ComputedTableStyle, TableMetaData } from "@odoo/o-spreadsheet-engine/types/table";
 
 interface DrawTableParams extends TableMetaData {
   colWidth: Pixel;
   rowHeight: Pixel;
+  adaptColor: (color: Color) => Color;
 }
 
 export function drawPreviewTable(
@@ -22,11 +23,11 @@ function drawBackgrounds(
   tableStyle: ComputedTableStyle,
   params: DrawTableParams
 ) {
-  const { colWidth, rowHeight, numberOfCols, numberOfRows } = params;
+  const { colWidth, rowHeight, numberOfCols, numberOfRows, adaptColor } = params;
   ctx.save();
   for (let col = 0; col < numberOfCols; col++) {
     for (let row = 0; row < numberOfRows; row++) {
-      ctx.fillStyle = tableStyle.styles[col][row].fillColor || "#fff";
+      ctx.fillStyle = adaptColor(tableStyle.styles[col][row].fillColor || "#fff");
 
       // We also want to fill the last pixel corresponding to the outside border if there is no border
       const width = col === numberOfCols - 1 ? colWidth + 1 : colWidth;
@@ -42,7 +43,7 @@ function drawBorders(
   tableStyle: ComputedTableStyle,
   params: DrawTableParams
 ) {
-  const { colWidth, rowHeight, numberOfCols, numberOfRows } = params;
+  const { colWidth, rowHeight, numberOfCols, numberOfRows, adaptColor } = params;
   ctx.save();
   ctx.translate(0, 0.5);
   ctx.lineWidth = 1;
@@ -51,14 +52,14 @@ function drawBorders(
     for (let row = 0; row < numberOfRows; row++) {
       const borders = tableStyle.borders[col][row];
       if (borders.top) {
-        ctx.strokeStyle = borders.top.color;
+        ctx.strokeStyle = adaptColor(borders.top.color);
         ctx.beginPath();
         ctx.moveTo(col * colWidth, row * rowHeight);
         ctx.lineTo(col * colWidth + colWidth, row * rowHeight);
         ctx.stroke();
       }
       if (borders.bottom) {
-        ctx.strokeStyle = borders.bottom.color;
+        ctx.strokeStyle = adaptColor(borders.bottom.color);
         ctx.beginPath();
         ctx.moveTo(col * colWidth, row * rowHeight + rowHeight);
         ctx.lineTo(col * colWidth + colWidth, row * rowHeight + rowHeight);
@@ -74,14 +75,14 @@ function drawBorders(
     for (let row = 0; row < numberOfRows; row++) {
       const borders = tableStyle.borders[col][row];
       if (borders.left) {
-        ctx.strokeStyle = borders.left.color;
+        ctx.strokeStyle = adaptColor(borders.left.color);
         ctx.beginPath();
         ctx.moveTo(col * colWidth, row * rowHeight);
         ctx.lineTo(col * colWidth, row * rowHeight + rowHeight);
         ctx.stroke();
       }
       if (borders.right) {
-        ctx.strokeStyle = borders.right.color;
+        ctx.strokeStyle = adaptColor(borders.right.color);
         ctx.beginPath();
         ctx.moveTo(col * colWidth + colWidth, row * rowHeight);
         ctx.lineTo(col * colWidth + colWidth, row * rowHeight + rowHeight + 1); // +1 to draw on the bottom-right pixel of the table
@@ -97,7 +98,7 @@ function drawTexts(
   tableStyle: ComputedTableStyle,
   params: DrawTableParams
 ) {
-  const { colWidth, rowHeight, numberOfCols, numberOfRows } = params;
+  const { colWidth, rowHeight, numberOfCols, numberOfRows, adaptColor } = params;
   ctx.save();
   ctx.translate(0, 0.5);
   ctx.lineWidth = 1;
@@ -106,7 +107,7 @@ function drawTexts(
 
   for (let col = 0; col < numberOfCols; col++) {
     for (let row = 0; row < numberOfRows; row++) {
-      ctx.strokeStyle = tableStyle.styles[col][row].textColor || "#000";
+      ctx.strokeStyle = adaptColor(tableStyle.styles[col][row].textColor || "#000");
 
       ctx.beginPath();
       ctx.moveTo(col * colWidth + xPadding + 1, row * rowHeight + yPadding);

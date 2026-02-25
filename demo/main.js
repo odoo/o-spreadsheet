@@ -108,9 +108,11 @@ class Demo extends Component {
       name: "Toggle dark mode",
       sequence: 12.5,
       isReadonlyAllowed: true,
-      execute: () =>
-        (this.state.colorScheme = this.state.colorScheme === "dark" ? "light" : "dark"),
-
+      execute: () => {
+        this.state.colorScheme = this.state.colorScheme === "dark" ? "light" : "dark";
+        this.model.updateColorScheme(this.state.colorScheme);
+        this.model.dispatch("EVALUATE_CHARTS");
+      },
       icon: "o-spreadsheet-Icon.DARK_MODE",
       isEnabledOnLockedSheet: true,
     });
@@ -339,6 +341,7 @@ class Demo extends Component {
         transportService: this.transportService,
         client: this.client,
         mode: "normal",
+        colorScheme: this.state.colorScheme,
       },
       this.stateUpdateMessages
     );

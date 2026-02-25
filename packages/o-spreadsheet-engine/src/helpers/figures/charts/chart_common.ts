@@ -1,4 +1,4 @@
-import { DEFAULT_WINDOW_SIZE, MAX_CHAR_LABEL } from "../../../constants";
+import { DEFAULT_WINDOW_SIZE, GRAY_300, GRAY_700, MAX_CHAR_LABEL } from "../../../constants";
 import { _t } from "../../../translation";
 import {
   ChartAxisFormats,
@@ -373,11 +373,11 @@ export function chartFontColor(backgroundColor: Color | undefined): Color {
   return relativeLuminance(backgroundColor) < 0.3 ? "#FFFFFF" : "#000000";
 }
 
-export function chartMutedFontColor(backgroundColor: Color | undefined): Color {
+export function chartGridColor(backgroundColor: Color | undefined): Color {
   if (!backgroundColor) {
-    return "#666666";
+    return GRAY_300;
   }
-  return relativeLuminance(backgroundColor) < 0.3 ? "#C8C8C8" : "#666666";
+  return relativeLuminance(backgroundColor) < 0.3 ? GRAY_700 : GRAY_300;
 }
 
 export function checkDataset(definition: ChartWithDataSetDefinition): CommandResult {
