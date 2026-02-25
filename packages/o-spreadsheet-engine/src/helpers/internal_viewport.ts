@@ -146,7 +146,6 @@ export class InternalViewport {
     const sheetId = this.sheetId;
     const { start, end } = this.getters.getColDimensions(sheetId, targetCol);
 
-    console.log(this.offsetX, this.viewportWidth);
     if (this.offsetX + this.viewportWidth + this.startX < end) {
       this.offsetX = end - this.viewportWidth - this.startX;
     } else if (this.offsetX + this.startX > start) {

@@ -1,4 +1,5 @@
 import { DOMDimension, GridRenderingContext, UID, Zone } from "@odoo/o-spreadsheet-engine";
+import { SCROLLBAR_WIDTH } from "@odoo/o-spreadsheet-engine/constants";
 import { ViewportCollection } from "@odoo/o-spreadsheet-engine/helpers/viewport_collection";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { Component, onWillStart, onWillUpdateProps, useRef, useState } from "@odoo/owl";
@@ -72,9 +73,11 @@ export class StandaloneGridCanvas extends Component<Props, SpreadsheetChildEnv> 
     const firstColStart = this.env.model.getters.getColDimensions(sheetId, zone.left).start;
     const lastColEnd = this.env.model.getters.getColDimensions(sheetId, zone.right).end;
 
-    const viewports = new ViewportCollection(this.env.model.getters, "standalone");
-    viewports.sheetViewWidth = this.props.canvasSize?.width || lastColEnd - firstColStart;
-    viewports.sheetViewHeight = this.props.canvasSize?.height || lastRowEnd - firstRowStart;
+    const viewports = new ViewportCollection(this.env.model.getters, "standalone", this.props.zone);
+    viewports.sheetViewWidth =
+      (this.props.canvasSize?.width || lastColEnd - firstColStart) - SCROLLBAR_WIDTH;
+    viewports.sheetViewHeight =
+      (this.props.canvasSize?.height || lastRowEnd - firstRowStart) - SCROLLBAR_WIDTH;
     viewports.setSheetViewOffset(sheetId, firstColStart, firstRowStart);
     this.viewports = viewports;
   }

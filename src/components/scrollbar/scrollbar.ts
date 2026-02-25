@@ -56,6 +56,7 @@ export class ScrollBar extends Component<Props> {
   }
 
   get sizeCss() {
+    console.log(this.props.width, this.props.height);
     return cssPropertiesToCss({
       width: `${this.props.width}px`,
       height: `${this.props.height}px`,

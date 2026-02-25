@@ -375,7 +375,7 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
 
   get testProps(): StandaloneGridCanvas["props"] {
     const sheetId = this.env.model.getters.getActiveSheetId();
-    const zone = { left: 0, right: 2, bottom: 50, top: 5 };
+    const zone = { left: 2, right: 4, bottom: 30, top: 0 };
     // const firstRowStart = this.env.model.getters.getRowDimensions(sheetId, zone.top).start;
     // const lastRowEnd = this.env.model.getters.getRowDimensions(sheetId, zone.bottom).end;
     // const firstColStart = this.env.model.getters.getColDimensions(sheetId, zone.left).start;

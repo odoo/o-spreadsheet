@@ -25,7 +25,7 @@ import {
 } from "../types/rendering";
 import { scrollDelay } from "./edge_scrolling";
 import { InternalViewport } from "./internal_viewport";
-import { positionToZone } from "./zones";
+import { intersection, positionToZone } from "./zones";
 
 type SheetViewports = {
   topLeft: InternalViewport | undefined;
@@ -85,9 +85,11 @@ export class ViewportCollection {
   gridOffsetX: Pixel = 0;
   gridOffsetY: Pixel = 0;
   zoomLevel: number = 1;
+  viewZone?: Zone;
 
-  constructor(getters: RenderingGetters, public id = "main") {
+  constructor(getters: RenderingGetters, public id = "main", viewZone?: Zone) {
     this.getters = getters;
+    this.viewZone = viewZone;
   }
 
   /**
@@ -276,7 +278,6 @@ export class ViewportCollection {
       direction = "reset";
     }
 
-    console.log({ canEdgeScroll, direction, delay });
     return { canEdgeScroll, direction, delay };
   }
 
@@ -557,6 +558,7 @@ export class ViewportCollection {
     const canScrollHorizontally = xRatio < 1.0;
     const canScrollVertically = yRatio < 1.0;
     const previousOffset = this.getViewportOffset(sheetId);
+    const viewZone = this.viewZone || this.getters.getSheetZone(sheetId);
 
     const sheetViewports: SheetViewports = {
       topLeft:
@@ -565,7 +567,7 @@ export class ViewportCollection {
           new InternalViewport(
             this.getters,
             sheetId,
-            { left: 0, right: xSplit - 1, top: 0, bottom: ySplit - 1 },
+            intersection({ left: 0, right: xSplit - 1, top: 0, bottom: ySplit - 1 }, viewZone)!, // ADRM TODO
             { width: colOffset, height: rowOffset },
             { canScrollHorizontally: false, canScrollVertically: false },
             { x: 0, y: 0 }
@@ -596,7 +598,7 @@ export class ViewportCollection {
       bottomRight: new InternalViewport(
         this.getters,
         sheetId,
-        { left: 3, right: nCols - 1, top: ySplit, bottom: nRows - 1 },
+        intersection({ left: xSplit, right: nCols - 1, top: ySplit, bottom: nRows - 1 }, viewZone)!,
         {
           width: unfrozenWidth,
           height: unfrozenHeight,
