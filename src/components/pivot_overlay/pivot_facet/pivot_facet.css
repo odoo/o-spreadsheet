@@ -6,6 +6,7 @@
 
     .o-hover-content {
       display: none;
+      /* z-index: 1; */
     }
     &:hover .o-hover-content {
       display: block;

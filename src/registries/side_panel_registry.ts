@@ -153,7 +153,7 @@ sidePanelRegistry.add("PivotSidePanel", {
       key: `pivot_key_${props.pivotId}`,
     };
   },
-  defaultSize: 700,
+  defaultSize: 500,
 });
 
 sidePanelRegistry.add("PivotMeasureDisplayPanel", {

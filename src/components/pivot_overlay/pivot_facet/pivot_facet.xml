@@ -1,7 +1,11 @@
 <templates>
   <t t-name="o-spreadsheet-PivotFacet">
     <div>
-      <div class="o-pivot-facet d-flex align-items-center rounded-2 user-select-none" t-ref="facet">
+      <div
+        class="o-pivot-facet d-flex align-items-center rounded-2 user-select-none"
+        t-att-class="props.class"
+        t-ref="facet"
+        t-att-data-id="props.name">
         <div
           class="o-hover-content position-absolute border user-select-none h-100 w-100 rounded-2 shadow bg-white"
         />
@@ -15,8 +19,9 @@
           t-esc="this.props.label"
         />
         <div
-          t-if="this.props.canRemove"
+          t-if="this.props.onClickRemove"
           class="o-pivot-facet-remove position-relative pe-2 rounded-end-2 rounded-start-0"
+          t-on-pointerdown.stop=""
           t-on-click="this.props.onClickRemove">
           <t t-call="o-spreadsheet-Icon.CLOSE"/>
         </div>

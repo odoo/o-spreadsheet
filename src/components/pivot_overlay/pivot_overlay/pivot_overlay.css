@@ -1,4 +1,5 @@
 .o-spreadsheet .o-pivot-overlay {
+  background-color: #fff !important; /* ADRM TODO */
   .o-pivot-overlay-section {
     height: fit-content;
     width: fit-content;
@@ -24,5 +25,9 @@
         transform: rotate(-90deg);
       } */
     }
+  }
+
+  .o-add-group {
+    cursor: pointer;
   }
 }

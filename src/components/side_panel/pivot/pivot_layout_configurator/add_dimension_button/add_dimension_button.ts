@@ -11,6 +11,7 @@ import { Store, useLocalStore } from "../../../../../store_engine";
 import { TextValueProvider } from "../../../../composer/autocomplete_dropdown/autocomplete_dropdown";
 import { AutoCompleteStore } from "../../../../composer/autocomplete_dropdown/autocomplete_dropdown_store";
 import { useAutofocus } from "../../../../helpers/autofocus_hook";
+import { isChildEvent } from "../../../../helpers/dom_helpers";
 import { getHtmlContentFromPattern } from "../../../../helpers/html_content_helpers";
 import { Popover } from "../../../../popover";
 
@@ -38,7 +39,7 @@ export class AddDimensionButton extends Component<Props, SpreadsheetChildEnv> {
     this.autoComplete = useLocalStore(AutoCompleteStore);
     this.autoComplete.useProvider(this.getProvider());
     useExternalListener(window, "click", (ev) => {
-      if (ev.target !== this.buttonRef.el) {
+      if (!isChildEvent(this.buttonRef.el, ev)) {
         this.popover.isOpen = false;
       }
     });

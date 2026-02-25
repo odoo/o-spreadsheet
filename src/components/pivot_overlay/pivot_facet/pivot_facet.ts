@@ -5,10 +5,11 @@ import { getBoundingRectAsPOJO } from "../../helpers/dom_helpers";
 interface Props {
   icon: "group" | "measure" | "add";
   label: string;
+  name?: string;
+  class?: string;
   onClickIcon: () => void;
-  onClickRemove: () => void;
+  onClickRemove?: () => void;
   vertical: boolean;
-  canDelete: boolean;
 }
 
 export class PivotFacet extends Component<Props, SpreadsheetChildEnv> {
@@ -16,14 +17,14 @@ export class PivotFacet extends Component<Props, SpreadsheetChildEnv> {
   static props = {
     icon: String,
     label: String,
+    name: { type: String, optional: true },
+    class: { type: String, optional: true },
     onClickIcon: Function,
-    onClickRemove: Function,
+    onClickRemove: { type: Function, optional: true },
     vertical: { type: Boolean, optional: true },
-    canRemove: { type: Boolean, optional: true },
   };
   static defaultProps = {
     vertical: false,
-    canRemove: true,
   };
 
   setup() {

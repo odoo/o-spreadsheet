@@ -144,7 +144,12 @@ class DOMDndHelper {
   private deadZone: { start: Pixel; end: Pixel } | undefined;
 
   constructor(args: DOMDndHelperArgs) {
-    this.items = args.items.map((item) => ({ ...item, positionAtStart: item.position }));
+    this.items = args.items.map((item, i) => ({
+      ...item,
+      positionAtStart: item.position,
+      size: args.items[i + 1] ? args.items[i + 1].position - item.position : item.size, // ADRM TODO: remove siz from args (because it depends on gaps, margins & whatnot)
+    }));
+    console.log(this.items);
     this.draggedItemId = args.draggedItemId;
     this.container = args.container;
     this.onChange = args.onChange;

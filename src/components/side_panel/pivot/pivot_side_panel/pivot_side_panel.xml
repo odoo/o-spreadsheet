@@ -20,14 +20,14 @@
 
       <div class="o-panel-content overflow-y-auto h-100" t-ref="panelContent">
         <div class="h-100 d-flex" t-att-class="{ 'd-none': state.panel !== 'configuration' }">
-          <div class="w-100">
+          <div class="o-panel-content-first-column">
             <t
               t-component="sidePanelEditor"
               pivotId="props.pivotId"
               onCloseSidePanel="props.onCloseSidePanel"
             />
           </div>
-          <div class="w-75 border-start h-100">
+          <div class="o-panel-content-second-column border-start h-100">
             <PivotFieldList pivotId="props.pivotId"/>
           </div>
         </div>

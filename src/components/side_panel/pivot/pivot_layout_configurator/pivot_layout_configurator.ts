@@ -22,7 +22,6 @@ import { SortDirection, UID } from "../../../../types";
 import { ComposerFocusStore } from "../../../composer/composer_focus_store";
 import { useDragAndDropListItems } from "../../../helpers/drag_and_drop_dom_items_hook";
 import { PivotCustomGroupsCollapsible } from "../pivot_custom_groups_collapsible/pivot_custom_groups_collapsible";
-import { PIVOT_DRAG_AND_DROP_MIMETYPE } from "../pivot_field_list/pivot_field_list";
 import { AddDimensionButton } from "./add_dimension_button/add_dimension_button";
 import { PivotDimension } from "./pivot_dimension/pivot_dimension";
 import { PivotDimensionGranularity } from "./pivot_dimension_granularity/pivot_dimension_granularity";
@@ -333,20 +332,20 @@ export class PivotLayoutConfigurator extends Component<Props, SpreadsheetChildEn
   }
 
   onDragOver(ev: DragEvent) {
-    console.log("onDragOver");
-    if (ev.dataTransfer?.types.includes(PIVOT_DRAG_AND_DROP_MIMETYPE)) {
-      ev.preventDefault();
-    }
+    // console.log("onDragOver");
+    // if (ev.dataTransfer?.types.includes(PIVOT_DRAG_AND_DROP_MIMETYPE)) {
+    //   ev.preventDefault();
+    // }
   }
 
   onDrop(ev: DragEvent) {
-    if (!ev.dataTransfer) {
-      return;
-    }
-    ev.preventDefault();
-    console.log("onDrop");
-    const data = ev.dataTransfer.getData(PIVOT_DRAG_AND_DROP_MIMETYPE);
-    const droppedField: PivotField = JSON.parse(data);
-    console.log(droppedField);
+    // if (!ev.dataTransfer) {
+    //   return;
+    // }
+    // ev.preventDefault();
+    // console.log("onDrop");
+    // const data = ev.dataTransfer.getData(PIVOT_DRAG_AND_DROP_MIMETYPE);
+    // const droppedField: PivotField = JSON.parse(data);
+    // console.log(droppedField);
   }
 }
