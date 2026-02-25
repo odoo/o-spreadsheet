@@ -27,7 +27,7 @@
       <InfoPopover
         t-if="state.isOpen and state.openedPopover === 'info'"
         anchorRect="state.anchorRect"
-        onClose="() => this.state.isOpen=false"
+        onClose.bind="onClose"
         annotationText="getAnnotationText()"
         annotationLink="getAnnotationLink()"
       />
@@ -35,7 +35,7 @@
         t-if="state.isOpen and state.openedPopover === 'menu'"
         anchorRect="state.anchorRect"
         menuItems="state.menuItems"
-        onClose="() => this.state.isOpen=false"
+        onClose.bind="onClose"
       />
     </div>
   </t>

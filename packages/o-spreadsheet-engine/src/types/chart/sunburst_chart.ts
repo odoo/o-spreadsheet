@@ -1,10 +1,13 @@
 import type { ChartConfiguration, ChartDataset } from "chart.js";
 import { Color } from "../misc";
-import { ChartStyle, CustomizedDataSet } from "./chart";
-import { LegendPosition, MinimalChartDefinition } from "./common_chart";
+import { ChartStyle, CustomizedDataSet, TitleDesign } from "./chart";
+import { LegendPosition } from "./common_chart";
 
-export interface SunburstChartDefinition extends MinimalChartDefinition {
+export interface SunburstChartDefinition {
   readonly type: "sunburst";
+  readonly title: TitleDesign;
+  readonly background?: Color;
+  readonly humanize?: boolean;
   readonly dataSets: CustomizedDataSet[];
   readonly dataSetsHaveTitle: boolean;
   readonly labelRange?: string;
@@ -14,6 +17,8 @@ export interface SunburstChartDefinition extends MinimalChartDefinition {
   readonly valuesDesign?: ChartStyle;
   readonly groupColors?: (Color | undefined | null)[];
   readonly pieHolePercentage?: number;
+  readonly annotationText?: string;
+  readonly annotationLink?: string;
 }
 
 export type SunburstChartRuntime = {

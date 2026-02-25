@@ -19,7 +19,6 @@
       <InfoPopover
         t-if="infoState.isOpen"
         anchorRect="infoState.anchorRect"
-        width="props.figureUI.width/2"
         onClose="() => this.infoState.isOpen=false"
         annotationText="getAnnotationText()"
         annotationLink="getAnnotationLink()"

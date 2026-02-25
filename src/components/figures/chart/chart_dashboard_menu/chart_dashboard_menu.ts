@@ -65,6 +65,13 @@ export class ChartDashboardMenu extends Component<Props, SpreadsheetChildEnv> {
     return "background-color: " + (color || BACKGROUND_CHART_COLOR);
   }
 
+  onClose() {
+    this.state.isOpen = false;
+    this.state.openedPopover = undefined;
+    this.state.anchorRect = null;
+    this.state.menuItems = [];
+  }
+
   openContextMenu(ev: MouseEvent) {
     this.state.isOpen = true;
     this.state.openedPopover = "menu";

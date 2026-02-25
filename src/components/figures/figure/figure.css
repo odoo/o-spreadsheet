@@ -18,7 +18,7 @@
     width: 15px;
     height: 15px;
     cursor: pointer;
-    margin-right: 25px;
+    margin-right: 25px; /* TODO : we should improve that in the future */
   }
 
   div.o-figure-border {

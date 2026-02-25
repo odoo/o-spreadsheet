@@ -298,8 +298,8 @@ describe("charts", () => {
         expect(fixture.querySelector("[data-test-id='annotation-text']")).toHaveText(
           "This is an annotation text"
         );
-        expect(fixture.querySelector(".o-link-info")).toHaveText(" See more ");
-        expect(fixture.querySelector(".o-link-info")).toHaveAttribute(
+        expect(fixture.querySelector(".o-button-link")).toHaveText(" See more ");
+        expect(fixture.querySelector(".o-button-link")).toHaveAttribute(
           "href",
           "https://www.odoo.com"
         );
@@ -314,8 +314,8 @@ describe("charts", () => {
         await nextTick();
         await click(fixture.querySelector(".o-figure-info-icon")!);
         expect(fixture.querySelector("[data-test-id='annotation-text']")).toBeNull();
-        expect(fixture.querySelector(".o-link-info")).toHaveText(" See more ");
-        expect(fixture.querySelector(".o-link-info")).toHaveAttribute(
+        expect(fixture.querySelector(".o-button-link")).toHaveText(" See more ");
+        expect(fixture.querySelector(".o-button-link")).toHaveAttribute(
           "href",
           "https://www.odoo.com"
         );
@@ -332,7 +332,7 @@ describe("charts", () => {
         expect(fixture.querySelector("[data-test-id='annotation-text']")).toHaveText(
           "This is an annotation text"
         );
-        expect(fixture.querySelector(".o-link-info")).toBeNull();
+        expect(fixture.querySelector(".o-button-link")).toBeNull();
       }
     );
   });
@@ -342,7 +342,7 @@ describe("charts", () => {
     createTestChart("funnel");
     await nextTick();
     await click(fixture.querySelector(".o-figure-info-icon")!);
-    expect(fixture.querySelector(".o-link-info")).toHaveAttribute(
+    expect(fixture.querySelector(".o-button-link")).toHaveAttribute(
       "href",
       "https://javascript:alert('hello world')"
     );

@@ -1,0 +1,6 @@
+.o-spreadsheet {
+  .o-input-infotext {
+    max-height: 200px;
+    height: fit-content;
+  }
+}

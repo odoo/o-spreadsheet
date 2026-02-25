@@ -1,9 +1,11 @@
 import { Color, Style } from "../misc";
 import { TitleDesign } from "./chart";
-import { MinimalChartDefinition } from "./common_chart";
 
-export interface ScorecardChartDefinition extends MinimalChartDefinition {
+export interface ScorecardChartDefinition {
   readonly type: "scorecard";
+  readonly title: TitleDesign;
+  readonly background?: Color;
+  readonly humanize?: boolean;
   readonly keyValue?: string;
   readonly keyDescr?: TitleDesign;
   readonly baseline?: string;
@@ -11,6 +13,8 @@ export interface ScorecardChartDefinition extends MinimalChartDefinition {
   readonly baselineDescr?: TitleDesign;
   readonly baselineColorUp: Color;
   readonly baselineColorDown: Color;
+  readonly annotationText?: string;
+  readonly annotationLink?: string;
 }
 
 export type BaselineMode = "text" | "difference" | "percentage" | "progress";

@@ -3,16 +3,14 @@ import { MENU_WIDTH } from "@odoo/o-spreadsheet-engine/constants";
 import { withHttps } from "@odoo/o-spreadsheet-engine/helpers/links";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { Component, useExternalListener, useRef } from "@odoo/owl";
-import { PopoverPropsPosition } from "../../types/cell_popovers";
 import { cssPropertiesToCss } from "../helpers";
 import { isChildEvent } from "../helpers/dom_helpers";
 import { Popover, PopoverProps } from "../popover";
 
 interface Props {
   anchorRect: Rect;
-  popoverPositioning: PopoverPropsPosition;
   maxHeight?: Pixel;
-  width?: number;
+  width: number;
   onClose: () => void;
   annotationText?: string;
   annotationLink?: string;
@@ -27,7 +25,6 @@ export class InfoPopover extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-Info-Popover";
   static props = {
     anchorRect: Object,
-    popoverPositioning: { type: String, optional: true },
     maxHeight: { type: Number, optional: true },
     width: { type: Number, optional: true },
     onClose: Function,
@@ -37,7 +34,6 @@ export class InfoPopover extends Component<Props, SpreadsheetChildEnv> {
 
   static components = { Popover };
   static defaultProps = {
-    popoverPositioning: "top-right",
     width: MENU_WIDTH,
   };
 
