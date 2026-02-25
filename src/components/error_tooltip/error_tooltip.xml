@@ -14,6 +14,13 @@
               title="Click to select the cell"
             />
           </div>
+          <t t-set="missingHeadersForSpread" t-value="getMissingHeadersForSpread()"/>
+          <div
+            t-if="missingHeadersForSpread"
+            class="o-button-link mt-4"
+            t-on-click="() => this.addMissingHeaders(missingHeadersForSpread)"
+            t-esc="getAddMissingHeadersButtonText(missingHeadersForSpread)"
+          />
         </div>
       </t>
       <t t-if="dataValidationErrorMessage">

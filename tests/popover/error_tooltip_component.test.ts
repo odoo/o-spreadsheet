@@ -1,6 +1,7 @@
 import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "@odoo/o-spreadsheet-engine/constants";
 import { Model } from "../../src";
 import { ErrorToolTip } from "../../src/components/error_tooltip/error_tooltip";
+import { getCellContent } from "../test_helpers";
 import {
   addDataValidation,
   createChart,
@@ -108,6 +109,35 @@ describe("Error tooltip component", () => {
     setCellContent(model, "A1", "=1/0");
     await mountErrorTooltip(model, "A1");
     expect(".fst-italic").toHaveCount(0);
+  });
+
+  test("Can add missing headers if the formula is #SPILL", async () => {
+    const model = new Model({ sheets: [{ id: "sheet1", colNumber: 1, rowNumber: 1 }] });
+    setCellContent(model, "A1", "=MUNIT(3)");
+    await mountErrorTooltip(model, "A1");
+    await click(fixture, ".o-button-link");
+    expect(model.getters.getNumberRows("sheet1")).toBe(3 + 50); // +50/+20 because we add some padding
+    expect(model.getters.getNumberCols("sheet1")).toBe(3 + 20);
+  });
+
+  test("Button to add missing header is not there for #SPILL not caused by too few headers", async () => {
+    const model = new Model();
+    setCellContent(model, "A1", "=MUNIT(3)");
+    setCellContent(model, "B1", "BlockingSpill");
+    expect(getCellContent(model, "A1")).toBe("#SPILL!");
+
+    await mountErrorTooltip(model, "A1");
+    expect(".o-button-link").toHaveCount(0);
+  });
+
+  test("Button to add missing header is not there for #SPILL of referenced cell", async () => {
+    const model = new Model({ sheets: [{ id: "sheet1", colNumber: 10, rowNumber: 1 }] });
+    setCellContent(model, "A1", "=MUNIT(3)");
+    expect(getCellContent(model, "A1")).toBe("#SPILL!");
+
+    setCellContent(model, "F1", "=A1");
+    await mountErrorTooltip(model, "F1");
+    expect(".o-button-link").toHaveCount(0);
   });
 });
 

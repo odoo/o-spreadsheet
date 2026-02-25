@@ -456,21 +456,7 @@ export class Evaluator {
       return;
     }
 
-    if (enoughCols) {
-      throw new SplillBlockedError(
-        _t("Result couldn't be automatically expanded. Please insert more rows.")
-      );
-    }
-
-    if (enoughRows) {
-      throw new SplillBlockedError(
-        _t("Result couldn't be automatically expanded. Please insert more columns.")
-      );
-    }
-
-    throw new SplillBlockedError(
-      _t("Result couldn't be automatically expanded. Please insert more columns and rows.")
-    );
+    throw new SplillBlockedError(_t("Result couldn't be automatically expanded."));
   }
 
   private assertNoMergedCellsInSpreadZone(
