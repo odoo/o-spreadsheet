@@ -4,25 +4,27 @@ exports[`Filter menu component Filter Tests Filter menu is correctly rendered 1`
 <div
   class="o-filter-menu d-flex flex-column bg-white"
 >
-  <div>
+  <div
+    class="o-filter-menu-content"
+  >
     <div
-      class="o-filter-menu-item o-sort-item py-2 mb-1"
+      class="o-filter-menu-item py-2 ps-4 mb-1"
     >
        Sort ascending (A ⟶ Z) 
     </div>
     <div
-      class="o-filter-menu-item o-sort-item py-2"
+      class="o-filter-menu-item py-2 ps-4"
     >
        Sort descending (Z ⟶ A) 
     </div>
+    <div
+      class="o-separator border-bottom"
+    />
   </div>
   
   <div
     class="o-filter-menu-content"
   >
-    <div
-      class="o-separator border-bottom"
-    />
     <div>
       <div
         class="o_side_panel_collapsible_title o-fw-bold d-flex align-items-center"
