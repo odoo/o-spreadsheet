@@ -1,4 +1,5 @@
 import { _t } from "../translation";
+import { CellPosition } from "./misc";
 
 export const CellErrorType = {
   NotAvailable: "#N/A",
@@ -55,7 +56,10 @@ export class UnknownFunctionError extends EvaluationError {
 }
 
 export class SplillBlockedError extends EvaluationError {
-  constructor(message = _t("Spill range is not empty")) {
+  constructor(
+    message = _t("Spill range is not empty"),
+    readonly errorOriginPosition?: CellPosition
+  ) {
     super(message, CellErrorType.SpilledBlocked);
   }
 }
