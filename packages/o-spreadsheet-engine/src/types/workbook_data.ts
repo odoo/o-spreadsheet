@@ -87,6 +87,7 @@ export interface WorkbookData {
   settings: WorkbookSettings;
   customTableStyles: { [key: string]: TableStyleData };
   isNotSquishable?: boolean;
+  namedRanges: { [name: string]: string };
 }
 
 export interface ExcelWorkbookData extends WorkbookData {

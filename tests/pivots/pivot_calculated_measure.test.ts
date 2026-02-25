@@ -1,6 +1,8 @@
+import { zoneToXc } from "@odoo/o-spreadsheet-engine/helpers/zones";
 import {
   activateSheet,
   addRows,
+  createNamedRange,
   createSheet,
   deleteSheet,
   redo,
@@ -8,6 +10,7 @@ import {
   setCellContent,
   setFormat,
   undo,
+  updateNamedRange,
 } from "../test_helpers/commands_helpers";
 import { getEvaluatedCell, getEvaluatedGrid } from "../test_helpers/getters_helpers";
 import { createModelFromGrid } from "../test_helpers/helpers";
@@ -1283,6 +1286,92 @@ describe("Pivot calculated measure", () => {
     expect(getEvaluatedCell(model, "A4").value).toEqual("");
     expect(getEvaluatedCell(model, "A5").value).toEqual("");
     expect(getEvaluatedCell(model, "A6").value).toEqual(0);
+  });
+
+  test("can use named ranges", () => {
+    // prettier-ignore
+    const grid = {
+      A1: "Customer", B1: "Price",  C1: "=PIVOT(1)",
+      A2: "Alice",    B2: "10",
+      A5: "2",
+    };
+    const model = createModelFromGrid(grid);
+    createNamedRange(model, "MyNamedRange", "A5");
+    const sheetId = model.getters.getActiveSheetId();
+    addPivot(model, "A1:B2", {
+      measures: [
+        {
+          id: "MyMeasure",
+          fieldName: "MyMeasure",
+          aggregator: "sum",
+          computedBy: { formula: "=MyNamedRange", sheetId },
+        },
+      ],
+    });
+
+    expect(getEvaluatedCell(model, "D3").value).toEqual(2);
+    setCellContent(model, "A5", "3");
+    expect(getEvaluatedCell(model, "D3").value).toEqual(3);
+
+    updateNamedRange(model, "MyNamedRange", "NewRangeName", "A5");
+    expect(getEvaluatedCell(model, "D3").value).toEqual(3);
+    expect(model.getters.getPivotCoreDefinition("1").measures[0]).toMatchObject({
+      computedBy: { formula: "=NewRangeName", sheetId },
+    });
+  });
+
+  test("pivot dependencies are correct with name ranges", () => {
+    // prettier-ignore
+    const grid = {
+      A1: "Customer", B1: "Price",  C1: "=PIVOT(1)",
+      A2: "Alice",    B2: "10",
+    };
+    const model = createModelFromGrid(grid);
+    createNamedRange(model, "MyNamedRange", "A10");
+    createNamedRange(model, "AnotherNamedRange", "A11");
+    const sheetId = model.getters.getActiveSheetId();
+    addPivot(model, "A1:B2", {
+      measures: [
+        {
+          id: "Measure1",
+          fieldName: "Measure1",
+          aggregator: "sum",
+          computedBy: { formula: "=MyNamedRange+B9", sheetId },
+        },
+        {
+          id: "Measure2",
+          fieldName: "Measure2",
+          aggregator: "sum",
+          computedBy: { formula: "=SUM(AnotherNamedRange, Measure1)", sheetId },
+        },
+      ],
+    });
+
+    const pivot = model.getters.getPivot("1");
+    const getMeasureDependencies = (measureId: string) => {
+      const measure = pivot.definition.getMeasure(measureId);
+      return model.getters
+        .getMeasureFullDependencies("1", measure)
+        .map((range) => zoneToXc(range.zone))
+        .sort();
+    };
+
+    expect(getMeasureDependencies("Measure1")).toEqual(["A10", "B9"]);
+    expect(getMeasureDependencies("Measure2")).toEqual(["A10", "A11", "B9"]);
+
+    // Change named range reference
+    updateNamedRange(model, "MyNamedRange", "MyNamedRange", "A9");
+    expect(getMeasureDependencies("Measure1")).toEqual(["A9", "B9"]);
+    expect(getMeasureDependencies("Measure2")).toEqual(["A11", "A9", "B9"]);
+
+    // Change named range name
+    updateNamedRange(model, "MyNamedRange", "NewRangeName", "A9");
+    expect(getMeasureDependencies("Measure1")).toEqual(["A9", "B9"]);
+    expect(getMeasureDependencies("Measure2")).toEqual(["A11", "A9", "B9"]);
+
+    const definition = model.getters.getPivotCoreDefinition("1");
+    expect(definition.measures[0].computedBy?.formula).toEqual("=NewRangeName+B9");
+    expect(definition.measures[1].computedBy?.formula).toEqual("=SUM(AnotherNamedRange, Measure1)");
   });
 });
 
