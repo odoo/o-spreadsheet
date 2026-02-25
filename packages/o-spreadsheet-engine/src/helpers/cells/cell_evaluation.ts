@@ -99,12 +99,12 @@ function _createEvaluatedCell(
   locale: Locale,
   cell?: Cell
 ): EvaluatedCell {
-  let { value, format, message } = functionResult;
+  let { value, format, message, errorOriginPosition } = functionResult;
   format = cell?.format || format;
 
   const formattedValue = formatValue(value, { format, locale });
   if (isEvaluationError(value)) {
-    return errorCell(value, message);
+    return errorCell(value, message, errorOriginPosition);
   }
   if (value === null) {
     return emptyCell(format);
@@ -196,7 +196,7 @@ function booleanCell(
   };
 }
 
-function errorCell(value: string, message?: string): ErrorCell {
+function errorCell(value: string, message?: string, errorOriginPosition?: CellPosition): ErrorCell {
   return {
     value,
     formattedValue: value,
@@ -204,6 +204,7 @@ function errorCell(value: string, message?: string): ErrorCell {
     type: CellValueType.error,
     isAutoSummable: false,
     defaultAlign: "center",
+    errorOriginPosition,
   };
 }
 
