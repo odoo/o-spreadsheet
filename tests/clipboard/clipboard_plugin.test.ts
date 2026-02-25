@@ -1,6 +1,7 @@
 import { DEFAULT_BORDER_DESC, LINK_COLOR } from "@odoo/o-spreadsheet-engine/constants";
 import {
   getClipboardDataPositions,
+  getOSheetClipboardIdFromHTML,
   parseOSClipboardContent,
 } from "@odoo/o-spreadsheet-engine/helpers/clipboard/clipboard_helpers";
 import { urlRepresentation } from "@odoo/o-spreadsheet-engine/helpers/links";
@@ -580,8 +581,9 @@ describe("clipboard", () => {
       const osClipboardContent = await model.getters.getClipboardTextAndImageContent();
       const htmlContent = osClipboardContent[ClipboardMIMEType.Html]!;
       const cbPlugin = getPlugin(model, ClipboardPlugin);
+      const clipboardId = model.getters.getClipboardId();
       const clipboardData = JSON.stringify(cbPlugin["getSheetData"]());
-      const expectedHtmlContent = `<div data-osheet-clipboard='${xmlEscape(
+      const expectedHtmlContent = `<div data-osheet-clipboard-id='${clipboardId}' data-osheet-clipboard='${xmlEscape(
         clipboardData
       )}'><table border="1" style="border-collapse:collapse"><tr><td style="">1</td><td style="">2</td></tr><tr><td style="">3</td><td style=""></td></tr></table></div>`;
       expect(htmlContent).toBe(expectedHtmlContent);
@@ -656,10 +658,13 @@ describe("clipboard", () => {
       setCellContent(model, "A1", "1");
       copy(model, "A1");
       const cbPlugin = getPlugin(model, ClipboardPlugin);
+      const clipboardId = model.getters.getClipboardId();
       const clipboardData = JSON.stringify(cbPlugin["getSheetData"]());
       const osClipboardContent = await model.getters.getClipboardTextAndImageContent();
       expect(osClipboardContent[ClipboardMIMEType.Html]).toBe(
-        `<div data-osheet-clipboard='${xmlEscape(clipboardData)}'>1</div>`
+        `<div data-osheet-clipboard-id='${clipboardId}' data-osheet-clipboard='${xmlEscape(
+          clipboardData
+        )}'>1</div>`
       );
     });
   });
@@ -3175,6 +3180,16 @@ describe("cross spreadsheet copy/paste", () => {
     });
     pasteFromOSClipboard(modelB, "D2", content);
     expect(getCellContent(modelB, "D2")).toBe("newContent");
+  });
+
+  test("can extract o-spreadsheet clipboard id from HTML without parsing DOM", () => {
+    const clipboardId = "1234-uuid";
+    expect(
+      getOSheetClipboardIdFromHTML(
+        `<div data-osheet-clipboard-id='${clipboardId}' data-osheet-clipboard='{}'>x</div>`
+      )
+    ).toBe(clipboardId);
+    expect(getOSheetClipboardIdFromHTML(`<div data-osheet-clipboard='{}'>x</div>`)).toBeUndefined();
   });
 });
 

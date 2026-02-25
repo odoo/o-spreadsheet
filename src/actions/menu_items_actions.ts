@@ -4,7 +4,10 @@ import {
   DEFAULT_FIGURE_WIDTH,
   PIVOT_MAX_NUMBER_OF_CELLS,
 } from "@odoo/o-spreadsheet-engine/constants";
-import { parseOSClipboardContent } from "@odoo/o-spreadsheet-engine/helpers/clipboard/clipboard_helpers";
+import {
+  getOSheetClipboardIdFromHTML,
+  parseOSClipboardContent,
+} from "@odoo/o-spreadsheet-engine/helpers/clipboard/clipboard_helpers";
 import {
   centerFigurePosition,
   getMaxFigureSize,
@@ -64,15 +67,15 @@ async function paste(env: SpreadsheetChildEnv, pasteOption?: ClipboardPasteOptio
   switch (osClipboard.status) {
     case "ok":
       const clipboardId = env.model.getters.getClipboardId();
-      const osClipboardContent = parseOSClipboardContent(osClipboard.content);
-      const osClipboardId = osClipboardContent.data?.clipboardId;
-
       const target = env.model.getters.getSelectedZones();
-
-      if (clipboardId !== osClipboardId) {
-        await interactivePasteFromOS(env, target, osClipboardContent, pasteOption);
-      } else {
+      const htmlClipboardId = getOSheetClipboardIdFromHTML(
+        osClipboard.content[ClipboardMIMEType.Html]
+      );
+      if (clipboardId === htmlClipboardId) {
         interactivePaste(env, target, pasteOption);
+      } else {
+        const osClipboardContent = parseOSClipboardContent(osClipboard.content);
+        await interactivePasteFromOS(env, target, osClipboardContent, pasteOption);
       }
       if (env.model.getters.isCutOperation() && pasteOption !== "asValue") {
         await env.clipboard.write({ [ClipboardMIMEType.PlainText]: "" });

@@ -1908,9 +1908,12 @@ describe("Copy paste keyboard shortcut", () => {
     const cbPlugin = getPlugin(model, ClipboardPlugin);
     //@ts-ignore
     const clipboardHtmlData = JSON.stringify(cbPlugin.getSheetData());
+    const clipboardId = model.getters.getClipboardId();
     expect(clipboardContent).toMatchObject({
       "text/plain": "things",
-      "text/html": `<div data-osheet-clipboard='${xmlEscape(clipboardHtmlData)}'>things</div>`,
+      "text/html": `<div data-osheet-clipboard-id='${clipboardId}' data-osheet-clipboard='${xmlEscape(
+        clipboardHtmlData
+      )}'>things</div>`,
     });
     selectCell(model, "A2");
     document.body.dispatchEvent(getClipboardEvent("paste", clipboardData));
@@ -1931,9 +1934,12 @@ describe("Copy paste keyboard shortcut", () => {
     const cbPlugin = getPlugin(model, ClipboardPlugin);
     //@ts-ignore
     const clipboardHtmlData = JSON.stringify(cbPlugin.getSheetData());
+    const clipboardId = model.getters.getClipboardId();
     expect(clipboardContent).toMatchObject({
       "text/plain": "things",
-      "text/html": `<div data-osheet-clipboard='${xmlEscape(clipboardHtmlData)}'>things</div>`,
+      "text/html": `<div data-osheet-clipboard-id='${clipboardId}' data-osheet-clipboard='${xmlEscape(
+        clipboardHtmlData
+      )}'>things</div>`,
     });
     selectCell(model, "A2");
     document.body.dispatchEvent(getClipboardEvent("paste", clipboardData));
@@ -2215,10 +2221,13 @@ describe("Copy paste keyboard shortcut", () => {
       const cbPlugin = getPlugin(model, ClipboardPlugin);
       //@ts-ignore
       const clipboardHtmlData = JSON.stringify(cbPlugin.getSheetData());
+      const clipboardId = model.getters.getClipboardId();
 
       expect(clipboardContent).toMatchObject({
         "text/plain": "\t",
-        "text/html": `<div data-osheet-clipboard='${xmlEscape(clipboardHtmlData)}'>\t</div>`,
+        "text/html": `<div data-osheet-clipboard-id='${clipboardId}' data-osheet-clipboard='${xmlEscape(
+          clipboardHtmlData
+        )}'>\t</div>`,
       });
     }
   );
@@ -2245,6 +2254,7 @@ describe("Copy paste keyboard shortcut", () => {
       const cbPlugin = getPlugin(model, ClipboardPlugin);
       //@ts-ignore
       const clipboardHtmlData = JSON.stringify(cbPlugin.getSheetData());
+      const clipboardId = model.getters.getClipboardId();
       //@ts-ignore
       const imgData = (await cbPlugin.readFileAsDataURL(
         new Blob([], { type: "image/png" })
@@ -2252,7 +2262,7 @@ describe("Copy paste keyboard shortcut", () => {
 
       expect(clipboardContent).toMatchObject({
         "text/plain": "\t",
-        "text/html": `<div data-osheet-clipboard='${xmlEscape(
+        "text/html": `<div data-osheet-clipboard-id='${clipboardId}' data-osheet-clipboard='${xmlEscape(
           clipboardHtmlData
         )}'><img src="${xmlEscape(imgData)}" /></div>`,
         "image/png": expect.any(Blob),

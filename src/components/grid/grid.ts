@@ -3,7 +3,10 @@ import {
   HEADER_HEIGHT,
   HEADER_WIDTH,
 } from "@odoo/o-spreadsheet-engine/constants";
-import { parseOSClipboardContent } from "@odoo/o-spreadsheet-engine/helpers/clipboard/clipboard_helpers";
+import {
+  getOSheetClipboardIdFromHTML,
+  parseOSClipboardContent,
+} from "@odoo/o-spreadsheet-engine/helpers/clipboard/clipboard_helpers";
 import { openLink } from "@odoo/o-spreadsheet-engine/helpers/links";
 import { isStaticTable } from "@odoo/o-spreadsheet-engine/helpers/table_helpers";
 import { AllowedImageMimeTypes } from "@odoo/o-spreadsheet-engine/types/image";
@@ -757,11 +760,13 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     const isCutOperation = this.env.model.getters.isCutOperation();
 
     const clipboardId = this.env.model.getters.getClipboardId();
-    const osClipboardContent = parseOSClipboardContent(osClipboard.content);
-    const osClipboardId = osClipboardContent.data?.clipboardId;
-    if (clipboardId === osClipboardId) {
+    const htmlClipboardId = getOSheetClipboardIdFromHTML(
+      osClipboard.content[ClipboardMIMEType.Html]
+    );
+    if (clipboardId === htmlClipboardId) {
       interactivePaste(this.env, target);
     } else {
+      const osClipboardContent = parseOSClipboardContent(osClipboard.content);
       await interactivePasteFromOS(this.env, target, osClipboardContent);
     }
     if (isCutOperation) {
