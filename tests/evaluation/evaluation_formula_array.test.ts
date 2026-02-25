@@ -19,7 +19,7 @@ import {
   unMerge,
 } from "../test_helpers/commands_helpers";
 import { getCellContent, getCellError, getEvaluatedCell } from "../test_helpers/getters_helpers";
-import { addToRegistry } from "../test_helpers/helpers";
+import { addToRegistry, toCellPosition } from "../test_helpers/helpers";
 
 let model: Model;
 let sheetId: UID;
@@ -247,18 +247,25 @@ describe("evaluate formulas that use/return an array", () => {
 
   describe("result array can collides with other cell", () => {
     test("throw error on the formula when collide with cell having content", () => {
+      const sheetId = model.getters.getActiveSheetId();
       setCellContent(model, "B2", "kikou");
       setCellContent(model, "A1", "=MFILL(2,2, 42)");
       expect(getEvaluatedCell(model, "A1").value).toBe("#SPILL!");
       expect(getCellError(model, "A1")).toBe(
-        "Array result was not expanded because it would overwrite data in B2."
+        "Array result was not expanded because it would overwrite data."
+      );
+      expect(getEvaluatedCell(model, "A1").errorOriginPosition).toStrictEqual(
+        toCellPosition(sheetId, "B2")
       );
 
       setCellContent(model, "A4", "kikou");
       setCellContent(model, "A3", "=MFILL(2,2, 42)");
       expect(getEvaluatedCell(model, "A3").value).toBe("#SPILL!");
       expect(getCellError(model, "A3")).toBe(
-        "Array result was not expanded because it would overwrite data in A4."
+        "Array result was not expanded because it would overwrite data."
+      );
+      expect(getEvaluatedCell(model, "A1").errorOriginPosition).toStrictEqual(
+        toCellPosition(sheetId, "B2")
       );
     });
 
@@ -267,7 +274,10 @@ describe("evaluate formulas that use/return an array", () => {
       setCellContent(model, "A1", "=MFILL(2,2, 42)");
       expect(getEvaluatedCell(model, "A1").value).toBe("#SPILL!");
       expect(getCellError(model, "A1")).toBe(
-        "Array result was not expanded because it would overwrite data in B2."
+        "Array result was not expanded because it would overwrite data."
+      );
+      expect(getEvaluatedCell(model, "A1").errorOriginPosition).toStrictEqual(
+        toCellPosition(sheetId, "B2")
       );
       expect(getEvaluatedCell(model, "A2").value).toBe(null);
       expect(getEvaluatedCell(model, "B1").value).toBe(null);
@@ -280,7 +290,10 @@ describe("evaluate formulas that use/return an array", () => {
       setCellContent(model, "A3", "kikou");
       expect(getEvaluatedCell(model, "A1").value).toBe("#SPILL!");
       expect(getCellError(model, "A1")).toBe(
-        "Array result was not expanded because it would overwrite data in A2."
+        "Array result was not expanded because it would overwrite data."
+      );
+      expect(getEvaluatedCell(model, "A1").errorOriginPosition).toStrictEqual(
+        toCellPosition(sheetId, "A2")
       );
     });
 
@@ -290,7 +303,10 @@ describe("evaluate formulas that use/return an array", () => {
       setCellContent(model, "C1", "kikou");
       expect(getEvaluatedCell(model, "A1").value).toBe("#SPILL!");
       expect(getCellError(model, "A1")).toBe(
-        "Array result was not expanded because it would overwrite data in B1."
+        "Array result was not expanded because it would overwrite data."
+      );
+      expect(getEvaluatedCell(model, "A1").errorOriginPosition).toStrictEqual(
+        toCellPosition(sheetId, "B1")
       );
     });
 
@@ -815,7 +831,10 @@ describe("evaluate formulas that use/return an array", () => {
       expect(getEvaluatedCell(model, "B1").value).toBe(42);
       expect(getEvaluatedCell(model, "A2").value).toBe("#SPILL!");
       expect(getCellError(model, "A2")).toBe(
-        "Array result was not expanded because it would overwrite data in B2."
+        "Array result was not expanded because it would overwrite data."
+      );
+      expect(getEvaluatedCell(model, "A2").errorOriginPosition).toStrictEqual(
+        toCellPosition(sheetId, "B2")
       );
     });
 
@@ -825,7 +844,10 @@ describe("evaluate formulas that use/return an array", () => {
       expect(getEvaluatedCell(model, "B1").value).toBe("#SPILL!");
       expect(getEvaluatedCell(model, "A2").value).toBe(42);
       expect(getCellError(model, "B1")).toBe(
-        "Array result was not expanded because it would overwrite data in B2."
+        "Array result was not expanded because it would overwrite data."
+      );
+      expect(getEvaluatedCell(model, "B1").errorOriginPosition).toStrictEqual(
+        toCellPosition(sheetId, "B2")
       );
     });
 
@@ -835,7 +857,10 @@ describe("evaluate formulas that use/return an array", () => {
       expect(getEvaluatedCell(model, "B1").value).toBe("#SPILL!");
       expect(getEvaluatedCell(model, "A2").value).toBe(42);
       expect(getCellError(model, "B1")).toBe(
-        "Array result was not expanded because it would overwrite data in B2."
+        "Array result was not expanded because it would overwrite data."
+      );
+      expect(getEvaluatedCell(model, "B1").errorOriginPosition).toStrictEqual(
+        toCellPosition(sheetId, "B2")
       );
     });
 
