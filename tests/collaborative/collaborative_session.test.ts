@@ -1,12 +1,27 @@
+import { ICommandSquisher } from "@odoo/o-spreadsheet-engine/collaborative/commandSquisher";
 import { Session } from "@odoo/o-spreadsheet-engine/collaborative/session";
-import { MESSAGE_VERSION } from "@odoo/o-spreadsheet-engine/constants";
+import { DEFAULT_REVISION_ID, MESSAGE_VERSION } from "@odoo/o-spreadsheet-engine/constants";
 import { buildRevisionLog } from "@odoo/o-spreadsheet-engine/history/factory";
+import { SquishedCoreCommand } from "@odoo/o-spreadsheet-engine/types/collaborative/transport_service";
 import { Model } from "../../src";
 import { lazy } from "../../src/helpers";
-import { Client, CommandResult, WorkbookData } from "../../src/types";
+import { Client, CommandResult, CoreCommand, WorkbookData } from "../../src/types";
 import { MockTransportService } from "../__mocks__/transport_service";
 import { selectCell, setCellContent } from "../test_helpers/commands_helpers";
 import { nextTick } from "../test_helpers/helpers";
+
+class MockCommandSquisher implements ICommandSquisher {
+  public squish(
+    allCommands: readonly (CoreCommand | SquishedCoreCommand)[]
+  ): (CoreCommand | SquishedCoreCommand)[] {
+    return [...allCommands];
+  }
+  public unsquish(
+    commands: (CoreCommand | SquishedCoreCommand)[] | readonly CoreCommand[]
+  ): CoreCommand[] {
+    return commands as CoreCommand[];
+  }
+}
 
 describe("Collaborative session", () => {
   let transport: MockTransportService;
@@ -26,7 +41,7 @@ describe("Collaborative session", () => {
       recordChanges: () => ({ changes: [], commands: [] }),
       dispatch: () => CommandResult.Success,
     });
-    session = new Session(revisionLog, transport);
+    session = new Session(revisionLog, transport, DEFAULT_REVISION_ID, new MockCommandSquisher());
     session.join(client);
   });
 
@@ -209,7 +224,6 @@ describe("Collaborative session", () => {
   });
 
   test("remote client joins", () => {
-    //TODO : fix that test (or what makes that test fail) MATHO VSC
     session.move({ sheetId: "sheetId", col: 0, row: 0 });
     const spy = jest.spyOn(transport, "sendMessage");
     transport.sendMessage({

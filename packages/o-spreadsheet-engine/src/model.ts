@@ -1,3 +1,4 @@
+import { CommandSquisher } from "./collaborative/commandSquisher";
 import { LocalTransportService } from "./collaborative/local_transport_service";
 import { ReadonlyTransportFilter } from "./collaborative/readonly_transport_filter";
 import { Session } from "./collaborative/session";
@@ -348,7 +349,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
       }),
       this.config.transportService,
       revisionId,
-      this.getters
+      new CommandSquisher(this.getters)
     );
   }
 

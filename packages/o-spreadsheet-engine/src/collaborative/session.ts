@@ -3,7 +3,6 @@ import { UuidGenerator } from "../helpers";
 import { EventBus } from "../helpers/event_bus";
 import { isDefined } from "../helpers/misc";
 import { SelectiveHistory as RevisionLog } from "../history/selective_history";
-import { Unsquisher } from "../plugins/core/unsquisher";
 import {
   Client,
   ClientId,
@@ -24,12 +23,11 @@ import {
   TransportService,
 } from "../types/collaborative/transport_service";
 import { Command, CoreCommand } from "../types/commands";
-import { CoreGetters } from "../types/core_getters";
 
 import { HistoryChange } from "../types/history";
 import { Lazy, UID } from "../types/misc";
 import { WorkbookData } from "../types/workbook_data";
-import { squish } from "./commandSquisher";
+import { ICommandSquisher } from "./commandSquisher";
 import { transformAll } from "./ot/ot";
 import { Revision } from "./revisions";
 
@@ -86,7 +84,7 @@ export class Session extends EventBus<CollaborativeEvent> {
     private revisions: RevisionLog<Revision>,
     private transportService: TransportService<CollaborationMessage>,
     private serverRevisionId: UID = DEFAULT_REVISION_ID,
-    private getters: CoreGetters
+    private commandSquisher: ICommandSquisher
   ) {
     super();
   }
@@ -326,7 +324,7 @@ export class Session extends EventBus<CollaborativeEvent> {
         });
         break;
       case "REMOTE_REVISION":
-        message.commands = [...new Unsquisher().unsquishCommands(message.commands, this.getters)];
+        message.commands = this.commandSquisher.unsquish(message.commands);
         const { clientId, commands, timestamp } = message;
         const revision = new Revision(
           message.nextRevisionId,
@@ -411,7 +409,7 @@ export class Session extends EventBus<CollaborativeEvent> {
   private async sendToTransport(message: CollaborationMessage) {
     if (message.type === "REMOTE_REVISION") {
       // wrap in an async function to ensure it returns a promise
-      message.commands = squish(message.commands, this.getters);
+      message.commands = this.commandSquisher.squish(message.commands);
     }
     this.transportService.sendMessage(message);
   }

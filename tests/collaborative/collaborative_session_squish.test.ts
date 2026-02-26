@@ -1,5 +1,7 @@
-import { Model } from "../../src";
-import { toCartesian } from "../../src/helpers";
+import { CommandSquisher } from "@odoo/o-spreadsheet-engine/collaborative/commandSquisher";
+import { SquishedCoreCommand } from "@odoo/o-spreadsheet-engine/types/collaborative/transport_service";
+import { CoreCommand, Model } from "../../src";
+import { toCartesian, toZone } from "../../src/helpers";
 import { MockTransportService } from "../__mocks__/transport_service";
 import { getCellContent } from "../test_helpers";
 import { setCellContent, setSelection } from "../test_helpers/commands_helpers";
@@ -38,14 +40,7 @@ describe("Collaborative session", () => {
         {
           border: {},
           sheetId: "sheet1",
-          target: [
-            {
-              bottom: 4,
-              left: 0,
-              right: 0,
-              top: 1,
-            },
-          ],
+          target: [toZone("A2:A5")],
           type: "SET_BORDERS_ON_TARGET",
         },
       ],
@@ -67,7 +62,7 @@ describe("Collaborative session", () => {
             {
               border: {},
               sheetId: "sheet1",
-              target: [{ bottom: 4, left: 0, right: 0, top: 1 }],
+              target: [toZone("A2:A5")],
               type: "SET_BORDERS_ON_TARGET",
             },
             {
@@ -148,7 +143,7 @@ describe("Collaborative session", () => {
         {
           border: {},
           sheetId: "Sheet1",
-          target: [{ bottom: 4, left: 0, right: 0, top: 2 }],
+          target: [toZone("A3:A5")],
           type: "SET_BORDERS_ON_TARGET",
         },
       ],
@@ -213,7 +208,7 @@ describe("Collaborative session", () => {
         {
           border: {},
           sheetId: "Sheet1",
-          target: [{ bottom: 4, left: 0, right: 0, top: 2 }],
+          target: [toZone("A3:A5")],
           type: "SET_BORDERS_ON_TARGET",
         },
       ],
@@ -266,7 +261,7 @@ describe("Collaborative session", () => {
         {
           border: {},
           sheetId: "Sheet1",
-          target: [{ bottom: 4, left: 0, right: 0, top: 1 }],
+          target: [toZone("A2:A5")],
           type: "SET_BORDERS_ON_TARGET",
         },
       ],
@@ -319,7 +314,7 @@ describe("Collaborative session", () => {
         {
           border: {},
           sheetId: "Sheet1",
-          target: [{ bottom: 4, left: 0, right: 0, top: 2 }],
+          target: [toZone("A3:A5")],
           type: "SET_BORDERS_ON_TARGET",
         },
       ],
@@ -329,17 +324,141 @@ describe("Collaborative session", () => {
       version: 1,
     });
   });
+});
 
-  test("squish does not change the order of commands", () => {});
-  test("squish should stop if a serie of update_cell is interrupted by a different command", () => {});
+describe("commands", () => {
+  test("squish does not change the order of commands and should stop if a serie of update_cell is interrupted by a different command", () => {
+    const commands: readonly CoreCommand[] = [
+      { sheetId: "Sheet1", col: 0, row: 1, content: "hello", type: "UPDATE_CELL" },
+      { sheetId: "Sheet1", col: 0, row: 0, content: "hello", type: "UPDATE_CELL" },
+      {
+        sheetId: "Sheet1",
+        target: [{ left: 0, right: 0, top: 1, bottom: 1 }],
+        style: { bold: true },
+        type: "SET_FORMATTING",
+      },
+      { sheetId: "Sheet1", col: 0, row: 2, content: "hello", type: "UPDATE_CELL" },
+      {
+        sheetId: "Sheet1",
+        target: [{ left: 0, right: 0, top: 3, bottom: 3 }],
+        style: { bold: true },
+        type: "SET_FORMATTING",
+      },
+      { sheetId: "Sheet1", col: 0, row: 3, content: "hello", type: "UPDATE_CELL" },
+    ];
+    const result = [
+      { sheetId: "Sheet1", targetRange: "A1:A2", content: "hello", type: "UPDATE_CELL_SQUISH" },
+      {
+        sheetId: "Sheet1",
+        target: [{ left: 0, right: 0, top: 1, bottom: 1 }],
+        style: { bold: true },
+        type: "SET_FORMATTING",
+      },
+      { sheetId: "Sheet1", col: 0, row: 2, content: "hello", type: "UPDATE_CELL" },
+      {
+        sheetId: "Sheet1",
+        target: [{ left: 0, right: 0, top: 3, bottom: 3 }],
+        style: { bold: true },
+        type: "SET_FORMATTING",
+      },
+      { sheetId: "Sheet1", col: 0, row: 3, content: "hello", type: "UPDATE_CELL" },
+    ];
+    const model = new Model();
+    expect(new CommandSquisher(model.getters).squish(commands)).toStrictEqual(result);
+  });
+  test("squish should only merge consecutive cells", () => {
+    const commands: readonly CoreCommand[] = [
+      { sheetId: "Sheet1", col: 0, row: 0, content: "hello", type: "UPDATE_CELL" },
+      { sheetId: "Sheet1", col: 0, row: 1, content: "hello", type: "UPDATE_CELL" },
+      { sheetId: "Sheet1", col: 0, row: 3, content: "hello", type: "UPDATE_CELL" },
+    ];
+    const result = [
+      { sheetId: "Sheet1", targetRange: "A1:A2", content: "hello", type: "UPDATE_CELL_SQUISH" },
+      { sheetId: "Sheet1", col: 0, row: 3, content: "hello", type: "UPDATE_CELL" },
+    ];
+    const model = new Model();
+    expect(new CommandSquisher(model.getters).squish(commands)).toStrictEqual(result);
+  });
 
-  test("squish should only merge consecutive cells", () => {});
+  test("squish should restart on a different column", () => {
+    const commands: readonly CoreCommand[] = [
+      { sheetId: "Sheet1", col: 0, row: 0, content: "hello", type: "UPDATE_CELL" },
+      { sheetId: "Sheet1", col: 0, row: 1, content: "hello", type: "UPDATE_CELL" },
+      { sheetId: "Sheet1", col: 1, row: 0, content: "hello", type: "UPDATE_CELL" },
+      { sheetId: "Sheet1", col: 1, row: 1, content: "hello", type: "UPDATE_CELL" },
+    ];
+    const result = [
+      { sheetId: "Sheet1", targetRange: "A1:A2", content: "hello", type: "UPDATE_CELL_SQUISH" },
+      { sheetId: "Sheet1", targetRange: "B1:B2", content: "hello", type: "UPDATE_CELL_SQUISH" },
+    ];
+    const model = new Model();
+    expect(new CommandSquisher(model.getters).squish(commands)).toStrictEqual(result);
+  });
 
-  test("squish should restart on a different column", () => {});
+  test("squish should restart on a different column with formulas", () => {
+    const commands: readonly CoreCommand[] = [
+      { sheetId: "Sheet1", col: 0, row: 0, content: "=1", type: "UPDATE_CELL" },
+      { sheetId: "Sheet1", col: 0, row: 1, content: "=2", type: "UPDATE_CELL" },
+      { sheetId: "Sheet1", col: 0, row: 2, content: "=3", type: "UPDATE_CELL" },
+      { sheetId: "Sheet1", col: 1, row: 0, content: "=4", type: "UPDATE_CELL" },
+      { sheetId: "Sheet1", col: 1, row: 1, content: "=5", type: "UPDATE_CELL" },
+      { sheetId: "Sheet1", col: 1, row: 2, content: "=6", type: "UPDATE_CELL" },
+    ];
+    const result = [
+      { sheetId: "Sheet1", col: 0, row: 0, content: "=1", type: "UPDATE_CELL" },
+      {
+        sheetId: "Sheet1",
+        targetRange: "A2:A3",
+        content: { N: "+1" },
+        type: "UPDATE_CELL_SQUISH",
+      },
+      {
+        sheetId: "Sheet1",
+        targetRange: "B1:B3",
+        content: { N: "+1" },
+        type: "UPDATE_CELL_SQUISH",
+      },
+    ];
+    const model = new Model();
+    expect(new CommandSquisher(model.getters).squish(commands)).toStrictEqual(result);
+  });
 
-  test("squish a block of update_cell can sort the commands by sheet/col/row", () => {});
+  test("", () => {
+    //ce test ne passe pas
+    const commands: readonly CoreCommand[] | (CoreCommand | SquishedCoreCommand)[] = [
+      {
+        sheetId: "Sheet1",
+        targetRange: "B1:B3",
+        content: { N: "+1" },
+        type: "UPDATE_CELL_SQUISH",
+      },
+      { sheetId: "Sheet1", col: 0, row: 0, content: "=1", type: "UPDATE_CELL" },
+      {
+        sheetId: "Sheet1",
+        targetRange: "A2:A3",
+        content: { N: "+1" },
+        type: "UPDATE_CELL_SQUISH",
+      },
+    ];
+    const result = [
+      { sheetId: "Sheet1", col: 0, row: 0, content: "=1", type: "UPDATE_CELL" },
+      { sheetId: "Sheet1", col: 0, row: 1, content: "=2", type: "UPDATE_CELL" },
+      { sheetId: "Sheet1", col: 0, row: 2, content: "=3", type: "UPDATE_CELL" },
+      { sheetId: "Sheet1", col: 1, row: 0, content: "=4", type: "UPDATE_CELL" },
+      { sheetId: "Sheet1", col: 1, row: 1, content: "=5", type: "UPDATE_CELL" },
+      { sheetId: "Sheet1", col: 1, row: 2, content: "=6", type: "UPDATE_CELL" },
+    ];
+    const model = new Model();
+    expect(new CommandSquisher(model.getters).unsquish(commands)).toStrictEqual(result);
+  });
 
-  test("does not squish if any update cell position appear more than once in a block of update_cell", () => {});
+  test("squish a block of update_cell can sort the commands by sheet/col/row", () => {
+    //idem (ne va peutetre pas marcher)
+  });
+
+  test("does not squish if any update cell position appear more than once in a block of update_cell", () => {
+    //idem
+  });
 
   test("does not squish a single update_cell command", () => {
     const transport = new MockTransportService();
@@ -369,7 +488,6 @@ describe("Collaborative session", () => {
     });
   });
 });
-
 /*
   { "sheetId": "sheet1", "target":"A7:A9", "content": {R: "+1"}, "format": "", "style": null, "type": "UPDATE_CELL", }
   { "sheetId": "sheet1", "target":"A6", "content": "=sum(b6)", "format": "", "style": null, "type": "UPDATE_CELL", }
