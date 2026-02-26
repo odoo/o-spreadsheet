@@ -9,6 +9,7 @@ import {
 } from "../types/collaborative/transport_service";
 import { CoreCommand, UpdateCellCommand } from "../types/commands";
 import { CoreGetters } from "../types/core_getters";
+import { UID } from "../types/misc";
 // TODO VSC: see if we can make this generic
 
 // for each block of update cell or bock of anything else
@@ -91,23 +92,31 @@ export class CommandSquisher implements ICommandSquisher {
   private sortAndSquishUpdateCells(
     commands: UpdateCellCommand[]
   ): (CoreCommand | SquishedCoreCommand)[] {
-    const copy = [...commands];
-    copy.sort((a, b) => {
-      if (a.sheetId !== b.sheetId) {
-        return a.sheetId.localeCompare(b.sheetId);
-      }
+    // { "Sheet1": [UPDATE_CELL, UPDATE_CELL],
+    //   "Sheet2": [UPDATE_CELL]
+    // }
+    const commandsBySheet: Record<UID, UpdateCellCommand[]> = {};
+    for (const command of commands) {
+      commandsBySheet[command.sheetId] ??= [];
+      commandsBySheet[command.sheetId].push(command);
+    }
+
+    return Object.values(commandsBySheet).reduce(this.sortAndSquishUpdateCellsBySheet, []);
+  }
+
+  private sortAndSquishUpdateCellsBySheet(
+    allUpdateCellCommands: (CoreCommand | SquishedCoreCommand)[],
+    commands: UpdateCellCommand[]
+  ): (CoreCommand | SquishedCoreCommand)[] {
+    commands.sort((a, b) => {
       if (a.col !== b.col) {
         return a.col - b.col;
       }
       return a.row - b.row;
     });
 
-    const squishedUpdateCellCommands: (CoreCommand | SquishedCoreCommand)[] = [];
-
-    // TODO VSC: break on sheets
-
     const s = new Squisher(this.getters);
-    const squishedCommands: SquishedCoreCommand[] = copy.map((command) => ({
+    const squishedCommands: SquishedCoreCommand[] = commands.map((command) => ({
       ...command,
       content: s.squishContent(command),
       type: "UPDATE_CELL_SQUISH",
@@ -157,13 +166,13 @@ export class CommandSquisher implements ICommandSquisher {
         if ("style" in currentCommand) {
           updateCellSquished.style = currentCommand.style;
         }
-        squishedUpdateCellCommands.push(updateCellSquished);
+        allUpdateCellCommands.push(updateCellSquished);
         startIndex += offset;
       } else {
-        squishedUpdateCellCommands.push(copy[startIndex]);
+        allUpdateCellCommands.push(commands[startIndex]);
       }
     }
-    return squishedUpdateCellCommands;
+    return allUpdateCellCommands;
   }
 
   private compareUpdateCell(base: SquishedCoreCommand, other: SquishedCoreCommand): boolean {

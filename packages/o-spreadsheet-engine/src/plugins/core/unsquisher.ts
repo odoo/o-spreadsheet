@@ -89,6 +89,9 @@ soltuion 3: copy evetyting and change what we want
     } else {
       // the current cell is an object, let's see if there is a transformation
       if (current.N || current.S || current.R) {
+        if (!strategy) {
+          throw new Error("Incorrect order of commands, cannot unsquish");
+        }
         switch (strategy) {
           case "NEW_FORMULA":
             strategy = "FIRST_OFFSET";
@@ -196,7 +199,7 @@ soltuion 3: copy evetyting and change what we want
         continue;
       }
 
-      // VSC: should we still sort the commands ? probably not
+      // VSC: should we still sort the commands ? YES
       const current = command.content;
       if (current === undefined || current === null || current === "") {
         strategy = "NOT_A_FORMULA";

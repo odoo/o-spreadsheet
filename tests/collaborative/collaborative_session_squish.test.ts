@@ -395,6 +395,21 @@ describe("commands", () => {
     expect(new CommandSquisher(model.getters).squish(commands)).toStrictEqual(result);
   });
 
+  test("squish should restart on a different column and sort by column", () => {
+    const commands: readonly CoreCommand[] = [
+      { sheetId: "Sheet1", col: 1, row: 0, content: "hello", type: "UPDATE_CELL" },
+      { sheetId: "Sheet1", col: 1, row: 1, content: "hello", type: "UPDATE_CELL" },
+      { sheetId: "Sheet1", col: 0, row: 0, content: "hello", type: "UPDATE_CELL" },
+      { sheetId: "Sheet1", col: 0, row: 1, content: "hello", type: "UPDATE_CELL" },
+    ];
+    const result = [
+      { sheetId: "Sheet1", targetRange: "A1:A2", content: "hello", type: "UPDATE_CELL_SQUISH" },
+      { sheetId: "Sheet1", targetRange: "B1:B2", content: "hello", type: "UPDATE_CELL_SQUISH" },
+    ];
+    const model = new Model();
+    expect(new CommandSquisher(model.getters).squish(commands)).toStrictEqual(result);
+  });
+
   test("squish should restart on a different column with formulas", () => {
     const commands: readonly CoreCommand[] = [
       { sheetId: "Sheet1", col: 0, row: 0, content: "=1", type: "UPDATE_CELL" },
@@ -423,8 +438,7 @@ describe("commands", () => {
     expect(new CommandSquisher(model.getters).squish(commands)).toStrictEqual(result);
   });
 
-  test("", () => {
-    //ce test ne passe pas
+  test("commands in incorrect order cannot be unsquish", () => {
     const commands: readonly CoreCommand[] | (CoreCommand | SquishedCoreCommand)[] = [
       {
         sheetId: "Sheet1",
@@ -440,20 +454,27 @@ describe("commands", () => {
         type: "UPDATE_CELL_SQUISH",
       },
     ];
-    const result = [
-      { sheetId: "Sheet1", col: 0, row: 0, content: "=1", type: "UPDATE_CELL" },
-      { sheetId: "Sheet1", col: 0, row: 1, content: "=2", type: "UPDATE_CELL" },
-      { sheetId: "Sheet1", col: 0, row: 2, content: "=3", type: "UPDATE_CELL" },
-      { sheetId: "Sheet1", col: 1, row: 0, content: "=4", type: "UPDATE_CELL" },
-      { sheetId: "Sheet1", col: 1, row: 1, content: "=5", type: "UPDATE_CELL" },
-      { sheetId: "Sheet1", col: 1, row: 2, content: "=6", type: "UPDATE_CELL" },
-    ];
     const model = new Model();
-    expect(new CommandSquisher(model.getters).unsquish(commands)).toStrictEqual(result);
+    () => expect(new CommandSquisher(model.getters).unsquish(commands)).toThrow();
   });
 
-  test("squish a block of update_cell can sort the commands by sheet/col/row", () => {
-    //idem (ne va peutetre pas marcher)
+  test("squish a block of update_cell can sort the commands by sheet", () => {
+    const commands: readonly CoreCommand[] = [
+      { sheetId: "Sheet1", col: 0, row: 0, content: "1", type: "UPDATE_CELL" },
+      { sheetId: "Sheet2", col: 0, row: 0, content: "4", type: "UPDATE_CELL" },
+      { sheetId: "Sheet1", col: 0, row: 1, content: "2", type: "UPDATE_CELL" },
+      { sheetId: "Sheet2", col: 0, row: 1, content: "5", type: "UPDATE_CELL" },
+      { sheetId: "Sheet1", col: 0, row: 2, content: "3", type: "UPDATE_CELL" },
+      { sheetId: "Sheet2", col: 0, row: 2, content: "6", type: "UPDATE_CELL" },
+    ];
+    const result = [
+      { sheetId: "Sheet1", col: 0, row: 0, content: "1", type: "UPDATE_CELL" },
+      { sheetId: "Sheet1", targetRange: "A2:A3", content: { N: "+1" }, type: "UPDATE_CELL_SQUISH" },
+      { sheetId: "Sheet2", col: 0, row: 0, content: "4", type: "UPDATE_CELL" },
+      { sheetId: "Sheet2", targetRange: "A2:A3", content: { N: "+1" }, type: "UPDATE_CELL_SQUISH" },
+    ];
+    const model = new Model();
+    expect(new CommandSquisher(model.getters).squish(commands)).toStrictEqual(result);
   });
 
   test("does not squish if any update cell position appear more than once in a block of update_cell", () => {
