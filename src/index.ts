@@ -221,7 +221,7 @@ import { HighlightStore } from "./stores/highlight_store";
 import { ModelStore } from "./stores/model_store";
 import { NotificationStore } from "./stores/notification_store";
 import { RendererStore } from "./stores/renderer_store";
-import { AddFunctionDescription, isMatrix, schemeToColorScale } from "./types";
+import { AddFunctionDescription, CHART_TYPES, isMatrix, schemeToColorScale } from "./types";
 
 /**
  * We export here all entities that needs to be accessed publicly by Odoo.
@@ -550,6 +550,7 @@ export const constants = {
   FIGURE_ID_SPLITTER,
   GRID_ICON_EDGE_LENGTH,
   GRID_ICON_MARGIN,
+  CHART_TYPES,
 };
 
 export const chartHelpers = { ...CHART_HELPERS, ...CHART_RUNTIME_HELPERS };
