@@ -115,7 +115,7 @@ export const FILTER = {
       _t("Column or row containing true or false values corresponding to the range.")
     ),
   ],
-  compute: function (range: Arg, ...conditions: Arg[]) {
+  mimicCompute: function (range: Arg, ...conditions: Arg[]) {
     const _array = toMimicMatrix(range);
     const _conditions = conditions.map((cond) => toMimicMatrix(cond));
 
@@ -226,7 +226,7 @@ export const SORT: AddFunctionDescription = {
       ]
     ),
   ],
-  compute: function (range: MimicMatrix, ...sortingCriteria: Arg[]) {
+  mimicCompute: function (range: MimicMatrix, ...sortingCriteria: Arg[]) {
     const _range = range.transpose();
     return sortMatrix(_range, this.locale, ...sortingCriteria).transpose();
   },
@@ -397,7 +397,7 @@ export const UNIQUE = {
       ]
     ),
   ],
-  compute: function (
+  mimicCompute: function (
     range: Arg,
     byColumn: Maybe<FunctionResultObject>,
     exactlyOnce: Maybe<FunctionResultObject>

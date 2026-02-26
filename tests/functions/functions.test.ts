@@ -172,7 +172,7 @@ describe("functions", () => {
     addToRegistry(functionRegistry, "GET.VALUE", {
       args: [arg("cell (any)", "blabla")],
       description: "Get the value of a cell",
-      compute: function (arg) {
+      mimicCompute: function (arg) {
         return arg || { value: 0 };
       },
     });
@@ -257,7 +257,7 @@ describe("functions", () => {
 
       addToRegistry(functionRegistry, "FORMULA_RETURNING_RANGE", {
         description: "function returning range",
-        compute: () => {
+        mimicCompute: () => {
           return matrixToMimicMatrix([["cucumber"]]);
         },
         args: [],
@@ -289,7 +289,7 @@ describe("functions", () => {
 
       addToRegistry(functionRegistry, "FORMULA_RETURNING_RANGE_WITH_ERROR", {
         description: "function returning range",
-        compute: () => {
+        mimicCompute: () => {
           return matrixToMimicMatrix([["#ERROR"]]);
         },
         args: [],

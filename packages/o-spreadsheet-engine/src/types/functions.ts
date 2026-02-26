@@ -36,14 +36,19 @@ export type ArgProposal = { value: CellValue; label?: string };
 
 export type ComputeFunction<R> = (this: EvalContext, ...args: Arg[]) => R;
 
-export interface AddFunctionDescription {
-  compute: ComputeFunction<FunctionResultObject | MimicMatrix>;
+export interface AddFunctionDescriptionBase {
   description: string;
   category?: string;
   args: ArgDefinition[];
   isExported?: boolean;
   hidden?: boolean;
 }
+
+export type AddFunctionDescription =
+  | (AddFunctionDescriptionBase & { compute: ComputeFunction<FunctionResultObject> })
+  | (AddFunctionDescriptionBase & {
+      mimicCompute: ComputeFunction<MimicMatrix | FunctionResultObject>;
+    });
 
 export type FunctionDescription = AddFunctionDescription & {
   name: string;

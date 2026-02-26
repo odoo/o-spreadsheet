@@ -540,7 +540,7 @@ export const FORECAST: AddFunctionDescription = {
       _t("The range representing the array or matrix of independent data.")
     ),
   ],
-  compute: function (x: Arg, dataY: MimicMatrix, dataX: MimicMatrix) {
+  mimicCompute: function (x: Arg, dataY: MimicMatrix, dataX: MimicMatrix) {
     const { flatDataX, flatDataY } = filterAndFlatData(dataY, dataX);
     if (flatDataX.length === 0 || flatDataY.length === 0) {
       return new NotAvailableError(noValidInputErrorMessage);
@@ -587,7 +587,7 @@ export const GROWTH: AddFunctionDescription = {
       CALCULATE_B_OPTIONS
     ),
   ],
-  compute: function (
+  mimicCompute: function (
     knownDataY: MimicMatrix,
     knownDataX: Maybe<MimicMatrix>, // "Maybe<MimicMatrix>" and not "MimicMatrix" because default value in the definition
     newDataX: Arg,
@@ -711,7 +711,7 @@ export const LINEST: AddFunctionDescription = {
       RETURN_VERBOSE_OPTIONS
     ),
   ],
-  compute: function (
+  mimicCompute: function (
     dataY: MimicMatrix,
     dataX: Maybe<MimicMatrix>, // Maybe<MimicMatrix> and not MimicMatrix because default value in the definition
     calculateB: Maybe<FunctionResultObject> = { value: true },
@@ -761,7 +761,7 @@ export const LOGEST: AddFunctionDescription = {
       RETURN_VERBOSE_OPTIONS
     ),
   ],
-  compute: function (
+  mimicCompute: function (
     dataY: MimicMatrix,
     dataX: Maybe<MimicMatrix>, // Maybe<MimicMatrix> and not MimicMatrix because default value in the definition
     calculateB: Maybe<FunctionResultObject> = { value: true },
@@ -1138,7 +1138,7 @@ export const POLYFIT_COEFFS: AddFunctionDescription = {
       COMPUTE_INTERCEPT_OPTIONS
     ),
   ],
-  compute: function (
+  mimicCompute: function (
     dataY: MimicMatrix,
     dataX: MimicMatrix,
     order: Maybe<FunctionResultObject>,
@@ -1181,7 +1181,7 @@ export const POLYFIT_FORECAST: AddFunctionDescription = {
       COMPUTE_INTERCEPT_OPTIONS
     ),
   ],
-  compute: function (
+  mimicCompute: function (
     x: Arg,
     dataY: MimicMatrix,
     dataX: MimicMatrix,
@@ -1590,7 +1590,7 @@ export const TREND: AddFunctionDescription = {
       CALCULATE_B_OPTIONS
     ),
   ],
-  compute: function (
+  mimicCompute: function (
     knownDataY: Arg,
     knownDataX: Arg,
     newDataX: Arg,

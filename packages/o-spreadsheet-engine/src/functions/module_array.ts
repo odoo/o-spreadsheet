@@ -110,7 +110,7 @@ export const ARRAY_CONSTRAIN = {
     arg("rows (number)", _t("The number of rows in the constrained array.")),
     arg("columns (number)", _t("The number of columns in the constrained array.")),
   ],
-  compute: function (
+  mimicCompute: function (
     array: Arg,
     rows: Maybe<FunctionResultObject>,
     columns: Maybe<FunctionResultObject>
@@ -146,7 +146,7 @@ export const ARRAY_LITERAL = {
     "Appends ranges vertically and in sequence to return a larger array. All ranges must have the same number of columns."
   ),
   args: [arg("range (any, range<any>, repeating)", _t("The range to be appended."))],
-  compute: function (...ranges: Arg[]) {
+  mimicCompute: function (...ranges: Arg[]) {
     return stackVertically(ranges, { requireSameColCount: true });
   },
   isExported: false,
@@ -161,7 +161,7 @@ export const ARRAY_ROW = {
     "Appends ranges horizontally and in sequence to return a larger array. All ranges must have the same number of rows."
   ),
   args: [arg("range (any, range<any>, repeating)", _t("The range to be appended."))],
-  compute: function (...ranges: Arg[]) {
+  mimicCompute: function (...ranges: Arg[]) {
     return stackHorizontally(ranges, { requireSameRowCount: true });
   },
   isExported: false,
@@ -180,7 +180,7 @@ export const CHOOSECOLS = {
       _t("The column index of the column to be returned.")
     ),
   ],
-  compute: function (array: Arg, ...columns: Arg[]) {
+  mimicCompute: function (array: Arg, ...columns: Arg[]) {
     const _array = toMimicMatrix(array);
 
     const _columns = columns
@@ -232,7 +232,7 @@ export const CHOOSEROWS = {
       _t("The row index of the row to be returned.")
     ),
   ],
-  compute: function (array: Arg, ...rows: Arg[]) {
+  mimicCompute: function (array: Arg, ...rows: Arg[]) {
     const _array = toMimicMatrix(array);
     const _rows = rows
       .flatMap((arg) => (isMimicMatrix(arg) ? arg.flatten("rowFirst") : [arg]))
@@ -295,7 +295,7 @@ export const EXPAND = {
     ),
     arg("pad_with (any, default=0)", _t("The value with which to pad.")), // @compatibility: on Excel, pad with #N/A
   ],
-  compute: function (
+  mimicCompute: function (
     arg: Arg,
     rows: Maybe<FunctionResultObject>,
     columns?: Maybe<FunctionResultObject>,
@@ -348,7 +348,7 @@ export const EXPAND = {
 export const FLATTEN = {
   description: _t("Flattens all the values from one or more ranges into a single column."),
   args: [arg("range (any, range<any>, repeating)", _t("The range to flatten."))],
-  compute: function (...ranges: Arg[]) {
+  mimicCompute: function (...ranges: Arg[]) {
     return stackVertically(
       ranges.map((range) => toMimicMatrix(range).trueFlatten("rowFirst")),
       { requireSameColCount: false }
@@ -413,7 +413,7 @@ export const FREQUENCY = {
     arg("data (range<number>)", _t("The array of ranges containing the values to be counted.")),
     arg("classes (number, range<number>)", _t("The range containing the set of classes.")),
   ],
-  compute: function (data: MimicMatrix, classes: Arg) {
+  mimicCompute: function (data: MimicMatrix, classes: Arg) {
     // TO DO: use reduceNumber here
     const _data = data
       .flatten("rowFirst")
@@ -472,7 +472,7 @@ export const FREQUENCY = {
 export const HSTACK = {
   description: _t("Appends ranges horizontally and in sequence to return a larger array."),
   args: [arg("range (any, range<any>, repeating)", _t("The range to be appended."))],
-  compute: function (...ranges: Arg[]) {
+  mimicCompute: function (...ranges: Arg[]) {
     return stackHorizontally(ranges);
   },
   isExported: true,
@@ -516,7 +516,7 @@ export const MINVERSE = {
       )
     ),
   ],
-  compute: function (matrix: Arg) {
+  mimicCompute: function (matrix: Arg) {
     const _matrix = toNumberMatrix(matrix, "square_matrix");
     if (!isSquareMatrix(_matrix)) {
       return new EvaluationError(
@@ -547,7 +547,7 @@ export const MMULT = {
       _t("The second matrix in the matrix multiplication operation.")
     ),
   ],
-  compute: function (matrix1: Arg, matrix2: Arg) {
+  mimicCompute: function (matrix1: Arg, matrix2: Arg) {
     const _matrix1 = toNumberMatrix(matrix1, "matrix1");
     const _matrix2 = toNumberMatrix(matrix2, "matrix2");
 
@@ -786,7 +786,7 @@ function shouldKeepValue(ignore: number): (data: FunctionResultObject) => boolea
 export const TOCOL = {
   description: _t("Transforms a range of cells into a single column."),
   args: TO_COL_ROW_ARGS,
-  compute: function (
+  mimicCompute: function (
     array: Arg,
     ignore: Maybe<FunctionResultObject> = { value: TO_COL_ROW_DEFAULT_IGNORE },
     scanByColumn: Maybe<FunctionResultObject> = { value: TO_COL_ROW_DEFAULT_SCAN }
@@ -816,7 +816,7 @@ export const TOCOL = {
 export const TOROW = {
   description: _t("Transforms a range of cells into a single row."),
   args: TO_COL_ROW_ARGS,
-  compute: function (
+  mimicCompute: function (
     array: Arg,
     ignore: Maybe<FunctionResultObject> = { value: TO_COL_ROW_DEFAULT_IGNORE },
     scanByColumn: Maybe<FunctionResultObject> = { value: TO_COL_ROW_DEFAULT_SCAN }
@@ -845,7 +845,7 @@ export const TOROW = {
 export const TRANSPOSE = {
   description: _t("Transposes the rows and columns of a range."),
   args: [arg("range (any, range<any>)", _t("The range to be transposed."))],
-  compute: function (arg: Arg) {
+  mimicCompute: function (arg: Arg) {
     return toMimicMatrix(arg).transpose();
   },
   isExported: true,
@@ -857,7 +857,7 @@ export const TRANSPOSE = {
 export const VSTACK = {
   description: _t("Appends ranges vertically and in sequence to return a larger array."),
   args: [arg("range (any, range<any>, repeating)", _t("The range to be appended."))],
-  compute: function (...ranges: Arg[]) {
+  mimicCompute: function (...ranges: Arg[]) {
     return stackVertically(ranges);
   },
   isExported: true,
@@ -881,7 +881,7 @@ export const WRAPCOLS = {
       _t("The value with which to fill the extra cells in the range.")
     ),
   ],
-  compute: function (
+  mimicCompute: function (
     range: Arg,
     wrapCount: Maybe<FunctionResultObject>,
     padWith: Maybe<FunctionResultObject> = { value: 0 }
@@ -968,7 +968,7 @@ export const WRAPROWS = {
       _t("The value with which to fill the extra cells in the range.")
     ),
   ],
-  compute: function (
+  mimicCompute: function (
     range: Arg,
     wrapCount: Maybe<FunctionResultObject>,
     padWith: Maybe<FunctionResultObject> = { value: 0 }

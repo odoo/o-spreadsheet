@@ -389,7 +389,7 @@ export const REGEXEXTRACT = {
       ]
     ),
   ],
-  compute: function (
+  mimicCompute: function (
     text: Maybe<FunctionResultObject>,
     pattern: Maybe<FunctionResultObject>,
     return_mode: Maybe<FunctionResultObject> = { value: REGEXEXTRACT_DEFAULT_MODE },
@@ -641,7 +641,7 @@ export const SPLIT = {
       )
     ),
   ],
-  compute: function (
+  mimicCompute: function (
     text: Maybe<FunctionResultObject>,
     delimiter: Maybe<FunctionResultObject>,
     splitByEach: Maybe<FunctionResultObject> = { value: SPLIT_DEFAULT_SPLIT_BY_EACH },
@@ -801,7 +801,7 @@ export const TEXTSPLIT = {
       _t("The value to use for padding empty cells.")
     ),
   ],
-  compute: function (
+  mimicCompute: function (
     text: Maybe<FunctionResultObject>,
     colDelimiter: Arg,
     rowDelimiter: Arg,

@@ -72,7 +72,13 @@ export function createComputeFunction(
         // eslint-disable-next-line no-debugger
         debugger;
       }
-      return descr.compute.apply(this, args);
+      if ("mimicCompute" in descr) {
+        return descr.mimicCompute.apply(this, args);
+      }
+
+      return new MimicMatrix(1, 1, () => {
+        return [[descr.compute.apply(this, args)]];
+      });
     } catch (e) {
       return handleError(e, descr.name);
     }

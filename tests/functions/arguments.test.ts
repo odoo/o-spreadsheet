@@ -126,7 +126,7 @@ describe("args", () => {
 });
 
 describe("arguments validation", () => {
-  const aRandomFunction: Omit<AddFunctionDescription, "args"> = {
+  const aRandomFunction = {
     description: "a random function",
     compute: () => ({ value: 0 }),
   };

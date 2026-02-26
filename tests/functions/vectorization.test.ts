@@ -37,7 +37,7 @@ describe("vectorization", () => {
     addToRegistry(functionRegistry, "FUNCTION.THAT.SPREADS", {
       description: "a function that spreads a matrix",
       args: [{ name: "arg1", description: "", type: ["ANY"] }],
-      compute: function (arg1) {
+      mimicCompute: function (arg1) {
         const value = toString(toScalarMimicMatrix(arg1));
         return matrixToMimicMatrix([
           [value, value],

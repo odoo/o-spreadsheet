@@ -822,7 +822,7 @@ describe("Autofill", () => {
     addToRegistry(functionRegistry, "SPREAD.EMPTY", {
       description: "spreads empty values",
       args: [],
-      compute: function () {
+      mimicCompute: function () {
         return matrixToMimicMatrix([
           [null, null, null], // return 2 col, 3 row matrix
           [null, null, null],

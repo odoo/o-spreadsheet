@@ -341,6 +341,10 @@ export function matrixToMimicMatrix(matrix: Matrix<FunctionResultObject | CellVa
   });
 }
 
+export function scalarToMimicMatrix(value: CellValue): MimicMatrix {
+  return toMimicMatrix({ value });
+}
+
 export function generateMimicMatrix(
   width: number,
   height: number,

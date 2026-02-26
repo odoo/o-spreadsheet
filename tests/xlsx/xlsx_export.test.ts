@@ -1090,7 +1090,7 @@ describe("Test XLSX export", () => {
       });
       addToRegistry(functionRegistry, "RANDARRAY", {
         ...RANDARRAY,
-        compute: () =>
+        mimicCompute: () =>
           matrixToMimicMatrix([
             [1, 1],
             [1, 1],
@@ -1151,7 +1151,7 @@ describe("Test XLSX export", () => {
       addToRegistry(functionRegistry, "NON.EXPORTABLE.ARRAY.FORMULA", {
         description: "a non exportable formula that spread",
         args: [],
-        compute: function () {
+        mimicCompute: function () {
           return matrixToMimicMatrix([
             [
               { value: 1, format: "0.00%" },
