@@ -4,6 +4,7 @@ import {
   chartDataSourceRegistry,
 } from "../../../registries/chart_data_source_registry";
 import {
+  CHART_TYPES,
   ChartData,
   ChartRangeDataSource,
   DataSet,
@@ -35,6 +36,7 @@ const EMPTY = Object.freeze({ value: null });
 const ONE = Object.freeze({ value: 1 });
 
 export const ChartRangeDataSourceHandler: ChartDataSourceBuilder<"range"> = {
+  supportedChartTypes: CHART_TYPES,
   fromRangeStr(dataSource, defaultSheetId, getters) {
     const dataSets = createDataSets(getters, defaultSheetId, dataSource);
     const labelRange = createValidRange(getters, defaultSheetId, dataSource.labelRange);
@@ -349,6 +351,7 @@ export function getData(getters: Getters, ds: DataSet): FunctionResultObject[] {
 }
 
 const ChartNeverDataSourceHandler: ChartDataSourceBuilder<"never"> = {
+  supportedChartTypes: [],
   fromRangeStr: () => ({ type: "never" }),
   validate: () => CommandResult.Success,
   transform: () => ({ type: "never" }),
