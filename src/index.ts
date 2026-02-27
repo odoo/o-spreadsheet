@@ -311,7 +311,7 @@ export const registries = {
   chartSidePanelComponentRegistry,
   chartDataSourceSidePanelComponentRegistry,
   chartComponentRegistry,
-  chartRegistry: chartTypeRegistry,
+  chartTypeRegistry,
   chartSubtypeRegistry,
   chartDataSourceRegistry,
   topbarMenuRegistry,
