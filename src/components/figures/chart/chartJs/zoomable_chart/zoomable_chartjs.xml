@@ -13,7 +13,7 @@
           t-ref="masterChartCanvas"
           t-on-dblclick="onMasterChartDoubleClick"
           t-on-pointerdown="onMasterChartPointerDown"
-          t-on-pointermove="onMasterChartPointerMove"
+          t-on-pointermove="updateMasterChartCursor"
           t-on-mouseleave="onMasterChartMouseLeave"
         />
       </div>
