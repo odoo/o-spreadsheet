@@ -37,8 +37,13 @@ export class ChartTypePicker extends Component<Props, SpreadsheetChildEnv> {
 
   setup(): void {
     useExternalListener(window, "pointerdown", this.onExternalClick, { capture: true });
+    const chart = this.env.model.getters.getChart(this.props.chartId);
+    const supportedTypes = chart?.getSupportedChartTypes() ?? new Set<ChartType>();
 
     for (const subtypeProperties of chartSubtypeRegistry.getAll()) {
+      if (!supportedTypes.has(subtypeProperties.chartType)) {
+        continue;
+      }
       if (this.chartTypeByCategories[subtypeProperties.category]) {
         this.chartTypeByCategories[subtypeProperties.category].push(subtypeProperties);
       } else {
