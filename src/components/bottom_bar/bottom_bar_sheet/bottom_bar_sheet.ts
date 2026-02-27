@@ -6,7 +6,6 @@ import {
   onPatched,
   onWillUnmount,
   useEffect,
-  useExternalListener,
   useRef,
   useState,
 } from "@odoo/owl";
@@ -78,8 +77,6 @@ export class BottomBarSheet extends Component<Props, SpreadsheetChildEnv> {
       }
     });
     this.DOMFocusableElementStore = useStore(DOMFocusableElementStore);
-    useExternalListener(window, "click", this.closePicker);
-    useExternalListener(window, "contextmenu", this.closePicker);
 
     useEffect(
       (sheetId) => {
@@ -121,9 +118,9 @@ export class BottomBarSheet extends Component<Props, SpreadsheetChildEnv> {
     });
   }
 
-  private closePicker = () => {
+  closePicker() {
     this.state.pickerOpened = false;
-  };
+  }
 
   private focusInputAndSelectContent() {
     if (!this.state.isEditing || !this.sheetNameRef.el) {
@@ -264,6 +261,10 @@ export class BottomBarSheet extends Component<Props, SpreadsheetChildEnv> {
   get colorPickerAnchorRect(): Rect {
     const button = this.sheetDivRef.el!;
     return getBoundingRectAsPOJO(button);
+  }
+
+  get colorPickerIgnoreClickTargets() {
+    return [this.sheetDivRef.el];
   }
 
   get contextMenuRegistry() {
