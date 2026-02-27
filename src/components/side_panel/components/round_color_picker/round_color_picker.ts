@@ -1,5 +1,5 @@
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
-import { Component, useExternalListener, useRef, useState } from "@odoo/owl";
+import { Component, useRef, useState } from "@odoo/owl";
 import { Rect } from "../../../../types";
 import { ColorPicker } from "../../../color_picker/color_picker";
 import { cssPropertiesToCss } from "../../../helpers";
@@ -13,8 +13,8 @@ interface State {
 interface Props {
   currentColor?: string;
   onColorPicked: (color: string) => void;
-  title?: string;
   disableNoColor?: boolean;
+  onClose?: () => void;
 }
 
 // FIXME Encoding version used in css
@@ -32,6 +32,7 @@ export class RoundColorPicker extends Component<Props, SpreadsheetChildEnv> {
     title: { type: String, optional: true },
     onColorPicked: Function,
     disableNoColor: { type: Boolean, optional: true },
+    onClose: { type: Function, optional: true },
   };
 
   colorPickerButtonRef = useRef("colorPickerButton");
@@ -40,8 +41,6 @@ export class RoundColorPicker extends Component<Props, SpreadsheetChildEnv> {
 
   setup() {
     this.state = useState({ pickerOpened: false });
-    useExternalListener(window, "click", this.closePicker);
-    useExternalListener(window, "contextmenu", this.closePicker, { capture: true });
   }
 
   closePicker() {

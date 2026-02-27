@@ -42,6 +42,7 @@ export interface BorderEditorProps {
   onBorderPositionPicked: (position: BorderPosition) => void;
   maxHeight?: Pixel;
   anchorRect: Rect;
+  onClose?: (ev: MouseEvent) => void;
 }
 
 // -----------------------------------------------------------------------------
@@ -60,6 +61,7 @@ export class BorderEditor extends Component<BorderEditorProps, SpreadsheetChildE
     onBorderPositionPicked: Function,
     maxHeight: { type: Number, optional: true },
     anchorRect: Object,
+    onClose: { type: Function, optional: true },
   };
   static components = { ColorPickerWidget, Popover };
   BORDER_POSITIONS = BORDER_POSITIONS;
@@ -99,6 +101,7 @@ export class BorderEditor extends Component<BorderEditorProps, SpreadsheetChildE
       anchorRect: this.lineStylePickerAnchorRect,
       positioning: "bottom-left",
       verticalOffset: 0,
+      onClose: this.closeDropdown.bind(this),
     };
   }
 
@@ -108,6 +111,7 @@ export class BorderEditor extends Component<BorderEditorProps, SpreadsheetChildE
       maxHeight: this.props.maxHeight,
       positioning: "bottom-left",
       verticalOffset: 0,
+      onClose: this.props.onClose,
     };
   }
 

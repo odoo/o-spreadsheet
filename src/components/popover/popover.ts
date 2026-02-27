@@ -1,6 +1,13 @@
 import { CSSProperties } from "@odoo/o-spreadsheet-engine/types/misc";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
-import { Component, onMounted, onWillUnmount, useEffect, useRef } from "@odoo/owl";
+import {
+  Component,
+  onMounted,
+  onWillUnmount,
+  useEffect,
+  useExternalListener,
+  useRef,
+} from "@odoo/owl";
 import { rectIntersection } from "../../helpers/rectangle";
 import { DOMCoordinates, DOMDimension, Pixel, Rect } from "../../types";
 import { PopoverPropsPosition } from "../../types/cell_popovers";
@@ -29,6 +36,15 @@ export interface PopoverProps {
   onPopoverMoved?: () => void;
   onPopoverHidden?: () => void;
 
+  /** Callback to be called when the popover should be closed (e.g. click outside) */
+  onClose?: (ev: MouseEvent) => void;
+
+  /**
+   * List of elements that should not trigger the onClose callback when clicked.
+   * Useful to prevent the toggle button from triggering an outside click.
+   */
+  ignoreClickTargets?: (HTMLElement | null)[];
+
   class?: string;
 }
 
@@ -44,6 +60,8 @@ export class Popover extends Component<PopoverProps, SpreadsheetChildEnv> {
     onMouseWheel: { type: Function, optional: true },
     onPopoverHidden: { type: Function, optional: true },
     onPopoverMoved: { type: Function, optional: true },
+    onClose: { type: Function, optional: true },
+    ignoreClickTargets: { type: Array, optional: true },
     zIndex: { type: Number, optional: true },
     class: { type: String, optional: true },
     slots: Object,
@@ -54,6 +72,7 @@ export class Popover extends Component<PopoverProps, SpreadsheetChildEnv> {
     onMouseWheel: () => {},
     onPopoverMoved: () => {},
     onPopoverHidden: () => {},
+    onClose: () => {},
   };
 
   private popoverRef = useRef("popover");
@@ -67,6 +86,9 @@ export class Popover extends Component<PopoverProps, SpreadsheetChildEnv> {
   setup() {
     this.containerRect = usePopoverContainer();
 
+    useExternalListener(window, "click", this.onExternalClick, { capture: true });
+    useExternalListener(window, "contextmenu", this.onExternalClick, { capture: true });
+
     const resizeObserver = new ResizeObserver(this.computePopoverPosition.bind(this));
     onMounted(() => {
       resizeObserver.observe(this.popoverContentRef.el!);
@@ -78,6 +100,34 @@ export class Popover extends Component<PopoverProps, SpreadsheetChildEnv> {
     // useEffect occurs after the DOM is created and the element width/height are computed, but before
     // the element in rendered, so we can still set its position
     useEffect(this.computePopoverPosition.bind(this));
+  }
+
+  private onExternalClick(ev: MouseEvent) {
+    if (!this.popoverRef.el) {
+      return;
+    }
+    const target = ev.target as HTMLElement;
+    if (this.popoverRef.el.contains(target)) {
+      return;
+    }
+
+    if (this.props.ignoreClickTargets !== undefined) {
+      if (this.props.ignoreClickTargets.some((el) => el?.contains(target))) {
+        return;
+      }
+      this.props.onClose?.(ev);
+      return;
+    }
+
+    const { x, y, width, height } = this.props.anchorRect;
+    if (width === 0 && height === 0 && ev.clientX === 0 && ev.clientY === 0) {
+      this.props.onClose?.(ev);
+      return;
+    }
+    if (ev.clientX >= x && ev.clientX <= x + width && ev.clientY >= y && ev.clientY <= y + height) {
+      return;
+    }
+    this.props.onClose?.(ev);
   }
 
   private computePopoverPosition() {

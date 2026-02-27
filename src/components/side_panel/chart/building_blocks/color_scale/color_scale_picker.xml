@@ -2,9 +2,7 @@
   <t t-name="o-spreadsheet-ColorScalePicker">
     <Section class="'pt-0 o-color-scale'" title.translate="Color Scale">
       <div class="w-100" style="position:relative">
-        <div
-          class="color-scale-container d-flex justify-content-end"
-          t-on-click.stop="onPointerDown">
+        <div class="color-scale-container d-flex justify-content-end" t-on-click="onPointerDown">
           <span class="color-scale-label">
             <t t-esc="currentColorScaleLabel"/>
           </span>
