@@ -84,9 +84,10 @@
         <Checkbox
           label="getCheckboxLabel('automaticAutofill')"
           name="'automaticAutofill'"
-          value="tableConfig.automaticAutofill"
+          value="tableConfig.automaticAutofill and props.table.type !== 'dynamic'"
           onChange="(val) => this.updateTableConfig('automaticAutofill', val)"
           className="'mb-1'"
+          disabled="props.table.type === 'dynamic'"
         />
         <div class="d-flex flex-row align-items-center">
           <Checkbox
