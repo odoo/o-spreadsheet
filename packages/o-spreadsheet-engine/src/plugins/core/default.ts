@@ -87,7 +87,7 @@ export class DefaultPlugin extends CorePlugin<defaultState> implements defaultSt
         break;
       case "DUPLICATE_SHEET":
         this.history.update("style", cmd.sheetIdTo, deepCopy(this.style[cmd.sheetId]));
-        this.history.update("format", cmd.sheetIdTo, this.format[cmd.sheetId]);
+        this.history.update("format", cmd.sheetIdTo, deepCopy(this.format[cmd.sheetId]));
         break;
     }
   }
@@ -227,12 +227,9 @@ export class DefaultPlugin extends CorePlugin<defaultState> implements defaultSt
       col: true,
     });
     const rowOverlap = Object.keys(this.format[sheetId]?.rowDefault ?? {});
+    const colFormat = format !== (this.format[sheetId]?.sheetDefault ?? "") ? format : undefined;
     for (let col = zone.left; col <= zone.right; col++) {
-      if (format !== (this.format[sheetId]?.sheetDefault ?? "")) {
-        this.history.update("format", sheetId, "colDefault", col, format);
-      } else {
-        this.history.update("format", sheetId, "colDefault", col, undefined);
-      }
+      this.history.update("format", sheetId, "colDefault", col, colFormat);
       for (const rowIndex of rowOverlap) {
         const row = parseInt(rowIndex);
         if (zone.top <= row && row <= zone.bottom) {
@@ -421,12 +418,12 @@ export class DefaultPlugin extends CorePlugin<defaultState> implements defaultSt
     const overlapUpdate = new PositionMap<Style>();
     for (const key in style) {
       const rowOverlap = Object.keys(this.style[sheetId]?.[key]?.rowDefault ?? {});
+      const colStyle =
+        style[key] !== (this.style[sheetId]?.[key]?.sheetDefault ?? DEFAULT_STYLE[key])
+          ? style[key]
+          : undefined;
       for (let col = zone.left; col <= zone.right; col++) {
-        if (style[key] !== (this.style[sheetId]?.[key]?.sheetDefault ?? DEFAULT_STYLE[key])) {
-          this.history.update("style", sheetId, key as keyof Style, "colDefault", col, style[key]);
-        } else {
-          this.history.update("style", sheetId, key as keyof Style, "colDefault", col, undefined);
-        }
+        this.history.update("style", sheetId, key as keyof Style, "colDefault", col, colStyle);
         for (const rowIndex of rowOverlap) {
           const row = parseInt(rowIndex);
           if (zone.top <= row && row <= zone.bottom) {
