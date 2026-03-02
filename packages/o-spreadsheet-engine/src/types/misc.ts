@@ -169,6 +169,11 @@ export interface Border {
   right?: BorderDescr;
 }
 
+export interface BorderTopLeft {
+  top?: BorderDescr;
+  left?: BorderDescr;
+}
+
 export type ReferenceDenormalizer = (
   range: Range,
   isMeta: boolean,
