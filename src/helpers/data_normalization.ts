@@ -1,7 +1,8 @@
 import { defaultValue, sparseDefaultValue } from "../plugins/core/default";
 import { Format } from "../types/format";
-import { Border, CellPosition, Position, Style, UID } from "../types/misc";
+import { BorderOrNull, CellPosition, Position, Style, UID } from "../types/misc";
 import { WorkbookData } from "../types/workbook_data";
+import { isObjectFalsyRecursively } from "./misc";
 import { recomputeZones } from "./recompute_zones";
 import { isZoneInside, positionToZone, toZone, zoneToXc } from "./zones";
 
@@ -102,7 +103,7 @@ export function addStyleToWorkbookData(
   workbookData: WorkbookData,
   key: "borders" | "formats" | "styles",
   position: CellPosition,
-  newItem: Border | Format | Style
+  newItem: BorderOrNull | Format | Style
 ) {
   const sheetData = workbookData.sheets.find((sheet) => sheet.id === position.sheetId);
   if (!sheetData) {
@@ -137,13 +138,21 @@ export function mapToId<T>(
     colDefault: {},
     rowDefault: {},
   };
-  if (defaults.sheetDefault) {
+  if (!isObjectFalsyRecursively(defaults.sheetDefault)) {
     defaultsIds.sheetDefault = getItemId(defaults.sheetDefault, dict);
   }
   for (const colIndex in defaults.colDefault) {
+    const colValue = defaults.colDefault[colIndex];
+    if (isObjectFalsyRecursively(colValue)) {
+      continue;
+    }
     defaultsIds.colDefault![colIndex] = getItemId(defaults.colDefault[colIndex], dict);
   }
   for (const rowIndex in defaults.rowDefault) {
+    const rowValue = defaults.rowDefault[rowIndex];
+    if (isObjectFalsyRecursively(rowValue)) {
+      continue;
+    }
     defaultsIds.rowDefault![rowIndex] = getItemId(defaults.rowDefault[rowIndex], dict);
   }
   return defaultsIds;
