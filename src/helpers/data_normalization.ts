@@ -1,5 +1,6 @@
 import { defaultValue, sparseDefaultValue } from "../plugins/core/default";
 import { Position, UID } from "../types/misc";
+import { isObjectFalsyRecursively } from "./misc";
 import { recomputeZones } from "./recompute_zones";
 import { positionToZone, toZone, zoneToXc } from "./zones";
 
@@ -100,13 +101,21 @@ export function mapToId<T>(
     colDefault: {},
     rowDefault: {},
   };
-  if (defaults.sheetDefault) {
+  if (!isObjectFalsyRecursively(defaults.sheetDefault)) {
     defaultsIds.sheetDefault = getItemId(defaults.sheetDefault, dict);
   }
   for (const colIndex in defaults.colDefault) {
+    const colValue = defaults.colDefault[colIndex];
+    if (isObjectFalsyRecursively(colValue)) {
+      continue;
+    }
     defaultsIds.colDefault![colIndex] = getItemId(defaults.colDefault[colIndex], dict);
   }
   for (const rowIndex in defaults.rowDefault) {
+    const rowValue = defaults.rowDefault[rowIndex];
+    if (isObjectFalsyRecursively(rowValue)) {
+      continue;
+    }
     defaultsIds.rowDefault![rowIndex] = getItemId(defaults.rowDefault[rowIndex], dict);
   }
   return defaultsIds;
