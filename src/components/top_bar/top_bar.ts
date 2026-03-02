@@ -12,7 +12,11 @@ import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 import { Store } from "../../types/store_engine";
 import { ComposerFocusStore } from "../composer/composer_focus_store";
 import { TopBarComposer } from "../composer/top_bar_composer/top_bar_composer";
-import { getBoundingRectAsPOJO, getRefBoundingRect } from "../helpers/dom_helpers";
+import {
+  getBoundingRectAsPOJO,
+  getRefBoundingRect,
+  keyboardEventToShortcutString,
+} from "../helpers/dom_helpers";
 import { useSpreadsheetRect } from "../helpers/position_hook";
 import { MenuPopover, MenuState } from "../menu_popover/menu_popover";
 import { NamedRangeSelector } from "../named_range_selector/named_range_selector";
@@ -83,6 +87,7 @@ export class TopBar extends Component<Props, SpreadsheetChildEnv> {
     this.topBarToolStore = useStore(TopBarToolStore);
 
     useExternalListener(window, "click", this.onExternalClick);
+    useExternalListener(window, "keydown", this.onKeydown);
     this.menus = topbarMenuRegistry.getMenuItems();
 
     useEffect(
@@ -156,6 +161,26 @@ export class TopBar extends Component<Props, SpreadsheetChildEnv> {
     }
     this.closeMenus();
   }
+
+  onKeydown(ev: KeyboardEvent) {
+    const keyDownString = keyboardEventToShortcutString(ev, "code");
+    const menu = this.menus.find((m) => m.id === this.shortcutToMenuId[keyDownString]);
+    if (menu) {
+      ev.preventDefault();
+      ev.stopPropagation();
+      this.openMenu(menu, this.getMenuItemEl(menu.id));
+      return;
+    }
+  }
+
+  private shortcutToMenuId: Record<string, string> = {
+    "Alt+Shift+KeyF": "file",
+    "Alt+Shift+KeyE": "edit",
+    "Alt+Shift+KeyV": "view",
+    "Alt+Shift+KeyI": "insert",
+    "Alt+Shift+KeyO": "format",
+    "Alt+Shift+KeyD": "data",
+  };
 
   onClick() {
     this.props.onClick();
