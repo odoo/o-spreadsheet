@@ -11,7 +11,7 @@ import { FormulaFingerprintStore } from "../../stores/formula_fingerprints_store
 import { Color, Pixel, UID } from "../../types/index";
 import { ComposerFocusStore } from "../composer/composer_focus_store";
 import { TopBarComposer } from "../composer/top_bar_composer/top_bar_composer";
-import { getBoundingRectAsPOJO } from "../helpers/dom_helpers";
+import { getBoundingRectAsPOJO, keyboardEventToShortcutString } from "../helpers/dom_helpers";
 import { useSpreadsheetRect } from "../helpers/position_hook";
 import { MenuPopover, MenuState } from "../menu_popover/menu_popover";
 import { Popover, PopoverProps } from "../popover";
@@ -79,6 +79,7 @@ export class TopBar extends Component<Props, SpreadsheetChildEnv> {
     this.topBarToolStore = useStore(TopBarToolStore);
 
     useExternalListener(window, "click", this.onExternalClick);
+    useExternalListener(window, "keydown", this.onKeydown);
     this.menus = topbarMenuRegistry.getMenuItems();
 
     useEffect(
@@ -149,6 +150,26 @@ export class TopBar extends Component<Props, SpreadsheetChildEnv> {
     }
     this.closeMenus();
   }
+
+  onKeydown(ev: KeyboardEvent) {
+    const keyDownString = keyboardEventToShortcutString(ev);
+    const handler = this.keyDownMapping[keyDownString];
+    if (handler) {
+      ev.preventDefault();
+      ev.stopPropagation();
+      handler();
+      return;
+    }
+  }
+
+  private keyDownMapping: { [key: string]: Function } = {
+    "Alt+Shift+F": () => this.openMenu(this.menus[0], this.getMenuItemEl(this.menus[0].id)),
+    "Alt+Shift+E": () => this.openMenu(this.menus[1], this.getMenuItemEl(this.menus[1].id)),
+    "Alt+Shift+V": () => this.openMenu(this.menus[2], this.getMenuItemEl(this.menus[2].id)),
+    "Alt+Shift+I": () => this.openMenu(this.menus[3], this.getMenuItemEl(this.menus[3].id)),
+    "Alt+Shift+O": () => this.openMenu(this.menus[4], this.getMenuItemEl(this.menus[4].id)),
+    "Alt+Shift+D": () => this.openMenu(this.menus[5], this.getMenuItemEl(this.menus[5].id)),
+  };
 
   onClick() {
     this.props.onClick();

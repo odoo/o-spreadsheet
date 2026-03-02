@@ -625,6 +625,24 @@ describe("TopBar component", () => {
     expect(fixture.querySelectorAll(".o-menu")).toHaveLength(1);
   });
 
+  test.each([
+    ["file", "F"],
+    ["edit", "E"],
+    ["edit", "E"],
+    ["view", "V"],
+    ["insert", "I"],
+    ["format", "O"],
+    ["data", "D"],
+  ])("Can open the %s topbar menu with shortcut Alt+Shift+%s", async (menu, letter) => {
+    const { parent } = await mountParent();
+    const env = parent.env;
+    await keyDown({ key: letter, shiftKey: true, altKey: true });
+    const edit = getNode([menu], env, topbarMenuRegistry);
+    const numberChild = edit.children(env).filter((item) => item.isVisible(env)).length;
+    expect(fixture.querySelectorAll(".o-menu-item")).toHaveLength(numberChild);
+    expect(fixture.querySelectorAll(".o-menu")).toHaveLength(1);
+  });
+
   test("Can click on a menuItem do execute action and close menus", async () => {
     const menuDefinitions = Object.assign({}, topbarMenuRegistry.content);
     let number = 0;
