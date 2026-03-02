@@ -4,6 +4,7 @@ import { CellPlugin } from "../plugins/core/cell";
 import { ChartPlugin } from "../plugins/core/chart";
 import { ConditionalFormatPlugin } from "../plugins/core/conditional_format";
 import { DataValidationPlugin } from "../plugins/core/data_validation";
+import { DefaultPlugin } from "../plugins/core/default";
 import { FigurePlugin } from "../plugins/core/figures";
 import { HeaderGroupingPlugin } from "../plugins/core/header_grouping";
 import { HeaderSizePlugin } from "../plugins/core/header_size";
@@ -71,6 +72,7 @@ export type CoreGetters = PluginGetters<typeof SheetPlugin> &
   PluginGetters<typeof HeaderSizePlugin> &
   PluginGetters<typeof HeaderVisibilityPlugin> &
   PluginGetters<typeof CellPlugin> &
+  PluginGetters<typeof DefaultPlugin> &
   PluginGetters<typeof MergePlugin> &
   PluginGetters<typeof BordersPlugin> &
   PluginGetters<typeof ChartPlugin> &

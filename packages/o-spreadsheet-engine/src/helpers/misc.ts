@@ -767,3 +767,31 @@ export function chartStyleToCellStyle(style: ChartStyle): Style {
 export function doesCellContainFunction(cell: Cell, formula: string): boolean {
   return cell.isFormula && cell.compiledFormula.usesSymbol(formula);
 }
+
+export function isObjectEmpty(obj: Object) {
+  if (Object.keys(obj).length === 0) {
+    return true;
+  }
+  for (const value of Object.values(obj)) {
+    if (value !== undefined && (typeof value !== "object" || !isObjectEmpty(value))) {
+      return false;
+    }
+  }
+  return true;
+}
+
+export function defaultDict<T>(def: T) {
+  const state: Record<string, T> = {};
+  return {
+    state,
+    get: (key: string): T => {
+      if (!(key in state)) {
+        state[key] = deepCopy(def);
+      }
+      return state[key];
+    },
+    set: (key: string, value: T) => {
+      state[key] = value;
+    },
+  };
+}
