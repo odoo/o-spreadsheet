@@ -68,4 +68,23 @@ describe("Menu component", () => {
 
     expect(".o-popover").toHaveCount(0);
   });
+
+  test("A root menu item can display both secondary icon and caret", async () => {
+    const menuItems = createActions([
+      {
+        id: "root",
+        name: "Root",
+        secondaryIcon: "o-spreadsheet-Icon.SEARCH",
+        children: [{ id: "child", name: "Child", execute: () => {} }],
+      },
+    ]);
+
+    const { fixture } = await mountComponent(Menu, {
+      props: { menuItems, onClose: () => {} },
+    });
+
+    const rootItem = fixture.querySelector(".o-menu div[data-name='root']")!;
+    expect(rootItem.querySelector(".fa-search")).not.toBeNull();
+    expect(rootItem.querySelector(".fa-caret-right")).not.toBeNull();
+  });
 });

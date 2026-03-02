@@ -42,7 +42,6 @@ exports[`Context MenuPopover integration tests context menu simple rendering 1`]
       </div>
       
       
-      
     </div>
   </div>
   
@@ -78,7 +77,6 @@ exports[`Context MenuPopover integration tests context menu simple rendering 1`]
       >
         Ctrl+C
       </div>
-      
       
       
     </div>
@@ -120,7 +118,6 @@ exports[`Context MenuPopover integration tests context menu simple rendering 1`]
       </div>
       
       
-      
     </div>
   </div>
   
@@ -155,8 +152,9 @@ exports[`Context MenuPopover integration tests context menu simple rendering 1`]
       </div>
       
       <div
-        class="o-menu-item-root ms-auto align-items-center d-flex"
+        class="o-menu-item-root ms-auto align-items-center d-flex gap-1"
       >
+        
         <div
           class="o-icon fa-small"
         >
@@ -164,8 +162,8 @@ exports[`Context MenuPopover integration tests context menu simple rendering 1`]
             class="fa fa-caret-right"
           />
         </div>
+        
       </div>
-      
       
     </div>
   </div>
@@ -205,7 +203,6 @@ exports[`Context MenuPopover integration tests context menu simple rendering 1`]
       </div>
       
       
-      
     </div>
   </div>
   
@@ -238,7 +235,6 @@ exports[`Context MenuPopover integration tests context menu simple rendering 1`]
       >
         Insert column
       </div>
-      
       
       
     </div>
@@ -275,8 +271,9 @@ exports[`Context MenuPopover integration tests context menu simple rendering 1`]
       </div>
       
       <div
-        class="o-menu-item-root ms-auto align-items-center d-flex"
+        class="o-menu-item-root ms-auto align-items-center d-flex gap-1"
       >
+        
         <div
           class="o-icon fa-small"
         >
@@ -284,8 +281,8 @@ exports[`Context MenuPopover integration tests context menu simple rendering 1`]
             class="fa fa-caret-right"
           />
         </div>
+        
       </div>
-      
       
     </div>
   </div>
@@ -323,7 +320,6 @@ exports[`Context MenuPopover integration tests context menu simple rendering 1`]
       </div>
       
       
-      
     </div>
   </div>
   
@@ -354,7 +350,6 @@ exports[`Context MenuPopover integration tests context menu simple rendering 1`]
       >
         Delete column C
       </div>
-      
       
       
     </div>
@@ -389,8 +384,9 @@ exports[`Context MenuPopover integration tests context menu simple rendering 1`]
       </div>
       
       <div
-        class="o-menu-item-root ms-auto align-items-center d-flex"
+        class="o-menu-item-root ms-auto align-items-center d-flex gap-1"
       >
+        
         <div
           class="o-icon fa-small"
         >
@@ -398,8 +394,8 @@ exports[`Context MenuPopover integration tests context menu simple rendering 1`]
             class="fa fa-caret-right"
           />
         </div>
+        
       </div>
-      
       
     </div>
   </div>
@@ -440,7 +436,6 @@ exports[`Context MenuPopover integration tests context menu simple rendering 1`]
       >
         Ctrl+K
       </div>
-      
       
       
     </div>

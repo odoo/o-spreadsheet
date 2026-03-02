@@ -41,15 +41,11 @@
               />
               <t t-set="secondaryIcon" t-value="menuItem.secondaryIcon(env)"/>
               <div
-                t-if="isMenuRoot"
-                class="o-menu-item-root ms-auto align-items-center d-flex"
-                t-call="o-spreadsheet-Icon.CARET_RIGHT"
-              />
-              <div
-                t-elif="secondaryIcon"
-                class="o-menu-item-root ms-auto align-items-center d-flex"
-                t-call="{{secondaryIcon}}"
-              />
+                t-if="isMenuRoot || secondaryIcon"
+                class="o-menu-item-root ms-auto align-items-center d-flex gap-1">
+                <t t-if="secondaryIcon" t-call="{{secondaryIcon}}"/>
+                <t t-if="isMenuRoot" t-call="o-spreadsheet-Icon.CARET_RIGHT"/>
+              </div>
             </div>
           </div>
         </t>
