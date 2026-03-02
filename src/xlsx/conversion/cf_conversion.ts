@@ -1,5 +1,4 @@
 import { ICON_SETS } from "../../components/icons/icons";
-import { tokenize } from "../../formulas";
 import {
   ColorScaleMidPointThreshold,
   ColorScaleThreshold,
@@ -8,6 +7,7 @@ import {
   IconThreshold,
 } from "../../types";
 import { ExcelIconSet, XLSXConditionalFormat, XLSXDxf } from "../../types/xlsx";
+import { prefixFormulaWithEqual } from "../helpers/misc";
 import { WarningTypes, XLSXImportWarningManager } from "../helpers/xlsx_parser_error_manager";
 import { convertColor, hexaToInt } from "./color_conversion";
 import {
@@ -76,9 +76,9 @@ export function convertConditionalFormats(
       case "cellIs":
         if (!rule.operator || !rule.formula || rule.formula.length === 0) continue;
         operator = convertCFCellIsOperator(rule.operator);
-        values.push(prefixFormula(rule.formula[0]));
+        values.push(prefixFormulaWithEqual(rule.formula[0]));
         if (rule.formula.length === 2) {
-          values.push(prefixFormula(rule.formula[1]));
+          values.push(prefixFormulaWithEqual(rule.formula[1]));
         }
         break;
     }
@@ -242,12 +242,6 @@ function convertIcons(xlsxIconSet: ExcelIconSet, index: number): string {
     : index === 1
     ? ICON_SETS[iconSet].neutral
     : ICON_SETS[iconSet].good;
-}
-
-/** Prefix the string by "=" if the string looks like a formula */
-function prefixFormula(formula: string): string {
-  const tokens = tokenize(formula);
-  return tokens.length === 1 && tokens[0].type !== "REFERENCE" ? formula : "=" + formula;
 }
 
 // ---------------------------------------------------------------------------
