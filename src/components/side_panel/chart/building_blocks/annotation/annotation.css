@@ -1,6 +1,19 @@
 .o-spreadsheet {
   .o-input-infotext {
-    max-height: 200px;
     height: fit-content;
+    max-height: 200px;
+    min-height: 1.2em;
+    overflow-y: auto;
+    outline: none;
+    position: relative;
+    cursor: text;
+    border-bottom: 1px solid var(--os-border-color);
+  }
+
+  .o-input-infotext:empty:before {
+    content: attr(data-placeholder);
+    color: #adb5bd;
+    pointer-events: none;
+    position: absolute;
   }
 }

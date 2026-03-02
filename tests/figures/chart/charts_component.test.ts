@@ -924,7 +924,12 @@ describe("charts", () => {
     );
     await mountChartSidePanel();
     await openChartDesignSidePanel(model, env, fixture, chartId);
-    setInputValueAndTrigger("[data-test-id='annotation-text']", "coucou");
+    const annotationText = fixture.querySelector<HTMLElement>("[data-test-id='annotation-text']");
+    if (annotationText) {
+      annotationText.innerText = "coucou";
+      annotationText.dispatchEvent(new Event("input"));
+      await nextTick();
+    }
     setInputValueAndTrigger("[data-test-id='annotation-link']", "https://www.google.com");
 
     //@ts-ignore

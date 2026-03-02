@@ -3,14 +3,12 @@
     <SidePanelCollapsible isInitiallyCollapsed="false" title.translate="Annotation">
       <t t-set-slot="content">
         <Section class="'pt-0 px-4'" title.translate="Text">
-          <textarea
-            class="o-input"
+          <div
+            class="o-input o-input-infotext"
             t-ref="annotationTextarea"
-            rows="1"
+            data-placeholder="Add a description text"
             data-test-id="annotation-text"
-            type="text"
-            placeholder="Add a description text"
-            t-att-value="this.props.definition.annotationText"
+            t-att-contenteditable="'plaintext-only'"
             t-on-input="(ev) => this.updateAnnotationText(ev)"
           />
         </Section>
