@@ -14,7 +14,7 @@ import {
 } from "../types/xlsx";
 import { CONTENT_TYPES } from "./constants";
 import { convertNamedRanges } from "./conversion/named_ranges_conversion";
-import { convertSheets } from "./conversion/sheet_conversion";
+import { convertCellBordersOverridingDefaults, convertSheets } from "./conversion/sheet_conversion";
 import { convertBorders, convertFormats, convertStyles } from "./conversion/style_conversion";
 import { convertTables } from "./conversion/table_conversion";
 import { XlsxExternalBookExtractor } from "./extraction/external_book_extractor";
@@ -169,6 +169,7 @@ export class XlsxReader {
     } as WorkbookData;
 
     convertTables(convertedData, data);
+    convertCellBordersOverridingDefaults(convertedData);
 
     // Remove falsy attributes in styles. Not mandatory, but make objects more readable when debugging
     Object.keys(data.styles).map((key) => {
