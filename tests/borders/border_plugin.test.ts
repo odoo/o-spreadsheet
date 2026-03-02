@@ -1028,10 +1028,10 @@ describe("Border continuity", () => {
     right: DEFAULT_BORDER_DESC,
     bottom: DEFAULT_BORDER_DESC,
   };
+
   test("border continuity is preserved when adding a row before", () => {
     const model = new Model();
-    setZoneBorders(model, { position: "external" }, ["A1"]);
-    setZoneBorders(model, { position: "external" }, ["A2"]);
+    setZoneBorders(model, { position: "all" }, ["A1:A2"]);
     expect(getBorder(model, "A1")).toEqual(border);
     expect(getBorder(model, "A2")).toEqual(border);
     expect(getBorder(model, "A3")).toBeNull();
@@ -1043,8 +1043,7 @@ describe("Border continuity", () => {
 
   test("border continuity is preserved when adding a row after", () => {
     const model = new Model();
-    setZoneBorders(model, { position: "external" }, ["A1"]);
-    setZoneBorders(model, { position: "external" }, ["A2"]);
+    setZoneBorders(model, { position: "all" }, ["A1:A2"]);
     expect(getBorder(model, "A1")).toEqual(border);
     expect(getBorder(model, "A2")).toEqual(border);
     expect(getBorder(model, "A3")).toBeNull();
@@ -1056,8 +1055,7 @@ describe("Border continuity", () => {
 
   test("border continuity is preserved when adding a column before", () => {
     const model = new Model();
-    setZoneBorders(model, { position: "external" }, ["A1"]);
-    setZoneBorders(model, { position: "external" }, ["B1"]);
+    setZoneBorders(model, { position: "all" }, ["A1:B1"]);
     expect(getBorder(model, "A1")).toEqual(border);
     expect(getBorder(model, "B1")).toEqual(border);
     expect(getBorder(model, "C1")).toBeNull();
@@ -1069,8 +1067,7 @@ describe("Border continuity", () => {
 
   test("border continuity is preserved when adding a column after", () => {
     const model = new Model();
-    setZoneBorders(model, { position: "external" }, ["A1"]);
-    setZoneBorders(model, { position: "external" }, ["B1"]);
+    setZoneBorders(model, { position: "all" }, ["A1:B1"]);
     expect(getBorder(model, "A1")).toEqual(border);
     expect(getBorder(model, "B1")).toEqual(border);
     expect(getBorder(model, "C1")).toBeNull();

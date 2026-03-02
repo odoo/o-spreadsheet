@@ -2,6 +2,7 @@ import { Format } from "./format";
 import {
   Border,
   BorderData,
+  BorderOrNull,
   CellPosition,
   Color,
   Dimension,
@@ -729,12 +730,12 @@ export interface SetZoneBordersCommand extends TargetDependentCommand {
 
 export interface SetBorderCommand extends PositionDependentCommand {
   type: "SET_BORDER";
-  border: Border | undefined;
+  border: BorderOrNull | undefined;
 }
 
 export interface SetBorderTargetCommand extends TargetDependentCommand {
   type: "SET_BORDERS_ON_TARGET";
-  border: Border | undefined;
+  border: BorderOrNull | undefined;
 }
 
 export interface ClearFormattingCommand extends TargetDependentCommand {
