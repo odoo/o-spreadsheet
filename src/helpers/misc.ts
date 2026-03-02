@@ -806,8 +806,8 @@ export function getMissingHeadersForSpreadResult(
   return { missingRows, missingCols };
 }
 
-export function isObjectEmpty(obj: Object) {
-  if (Object.keys(obj).length === 0) {
+export function isObjectEmpty(obj: any) {
+  if (!obj || Object.keys(obj).length === 0) {
     return true;
   }
   for (const value of Object.values(obj)) {

@@ -8,7 +8,7 @@ import { Format } from "./format";
 import { Image } from "./image";
 import { Locale } from "./locale";
 import {
-  Border,
+  BorderOrNull,
   Color,
   Dimension,
   HeaderGroup,
@@ -55,6 +55,7 @@ export interface SheetData {
   formats: { [zone: string]: number };
   defaultFormat?: defaultValue<number>;
   borders: { [zone: string]: number };
+  defaultBorder?: defaultValue<number>;
   merges: string[];
   figures: FigureData<any>[];
   cols: { [key: number]: HeaderData };
@@ -82,7 +83,7 @@ export interface WorkbookData {
   sheets: SheetData[];
   styles: { [key: number]: Style };
   formats: { [key: number]: Format };
-  borders: { [key: number]: Border };
+  borders: { [key: number]: BorderOrNull };
   pivots: { [key: string]: PivotData };
   pivotNextId: number;
   revisionId: UID;

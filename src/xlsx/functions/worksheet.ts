@@ -33,6 +33,7 @@ export function addColumns(
   }
   const colNodes: XMLString[] = [];
   const sheetStyle = sheet.defaultStyle?.sheetDefault;
+  const sheetBorder = sheet.defaultBorder?.sheetDefault;
   const sheetFormat = sheet.defaultFormat?.sheetDefault;
   for (const [id, col] of Object.entries(cols)) {
     // Always force our own col width
@@ -50,11 +51,12 @@ export function addColumns(
       attributes.push(["collapsed", 1]);
     }
     const colStyle = sheet.defaultStyle?.colDefault?.[id] ?? sheetStyle;
+    const colBorder = sheet.defaultBorder?.colDefault?.[id] ?? sheetBorder;
     const colFormat = sheet.defaultFormat?.colDefault?.[id] ?? sheetFormat;
-    if (colStyle || colFormat) {
+    if (colStyle || colFormat || colBorder) {
       const styleId = normalizeStyle(
         construct,
-        extractStyle(data, undefined, colStyle, colFormat, undefined)
+        extractStyle(data, undefined, colStyle, colFormat, colBorder)
       );
       if (styleId) {
         attributes.push(["style", styleId]);
@@ -92,11 +94,12 @@ export function addRows(
       rowAttrs.push(["collapsed", 1]);
     }
     const rowStyle = sheet.defaultStyle?.rowDefault?.[r];
+    const rowBorder = sheet.defaultBorder?.rowDefault?.[r];
     const rowFormat = sheet.defaultFormat?.rowDefault?.[r];
-    if (rowStyle || rowFormat) {
+    if (rowStyle || rowFormat || rowBorder) {
       const id = normalizeStyle(
         construct,
-        extractStyle(data, undefined, rowStyle, rowFormat, undefined)
+        extractStyle(data, undefined, rowStyle, rowFormat, rowBorder)
       );
       if (id) {
         rowAttrs.push(["s", id]);
