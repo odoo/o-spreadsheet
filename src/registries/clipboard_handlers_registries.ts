@@ -9,6 +9,8 @@ import { Registry } from "./registry";
 export const clipboardHandlersRegistries = {
   figureHandlers: new Registry<ClipboardHandlerConstructor<AbstractFigureClipboardHandler<any>>>(),
   sheetHandlers: new Registry<ClipboardHandlerConstructor<ClipboardHandler<any>>>(),
-  cellHandlers: new Registry<ClipboardHandlerConstructor<AbstractCellClipboardHandler<any, any>>>(),
+  cellHandlers: new Registry<
+    ClipboardHandlerConstructor<AbstractCellClipboardHandler<any, any, any>>
+  >(),
   rangeHandlers: new Registry<ClipboardHandlerConstructor<ClipboardHandler<any>>>(),
 };
