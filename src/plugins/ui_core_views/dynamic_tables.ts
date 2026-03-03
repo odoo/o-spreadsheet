@@ -1,12 +1,15 @@
 import {
   areZonesContinuous,
   deepEquals,
+  getItemId,
   getZoneArea,
   isInside,
+  isObjectEmptyRecursive,
   overlap,
+  positions,
+  toXC,
   toZone,
   union,
-  zoneToXc,
 } from "../../helpers";
 import { createFilter } from "../../helpers/table_helpers";
 import { CellErrorType } from "../../types/errors";
@@ -15,6 +18,7 @@ import {
   Command,
   CoreTable,
   DynamicTable,
+  ExcelTableData,
   ExcelWorkbookData,
   Filter,
   FilterId,
@@ -224,19 +228,51 @@ export class DynamicTablesPlugin extends CoreViewPlugin {
     return tableId + "_" + tableCol;
   }
 
+  /** Check if a table contains array formula, as we cannot have them in a table in Excel */
+  private isTableExcelExportable(sheetId: UID, table: CoreTable): boolean {
+    if (table.type === "dynamic") {
+      return false;
+    }
+
+    return !positions(table.range.zone).some((position) =>
+      this.getters.getArrayFormulaSpreadingOn({ sheetId, ...position })
+    );
+  }
+
   exportForExcel(data: ExcelWorkbookData) {
     for (const sheet of data.sheets) {
+      const exportedTables: ExcelTableData[] = [];
       for (const tableData of sheet.tables) {
         const zone = toZone(tableData.range);
         const topLeft = { sheetId: sheet.id, col: zone.left, row: zone.top };
         const coreTable = this.getters.getCoreTable(topLeft);
         const table = this.getTable(topLeft);
 
-        if (coreTable?.type !== "dynamic" || !table) {
+        if (!coreTable || !table || this.isTableExcelExportable(sheet.id, coreTable)) {
+          exportedTables.push(tableData);
           continue;
         }
-        tableData.range = zoneToXc(table.range.zone);
+        sheet.styles = sheet.styles || {};
+        sheet.borders = sheet.borders || {};
+
+        // If the table is not exportable to excel, we apply the cell styles to individual cells instead
+        for (const position of positions(table.range.zone)) {
+          const cellPosition = { sheetId: sheet.id, ...position };
+          const style = this.getters.getCellComputedStyle(cellPosition);
+          const border = this.getters.getCellComputedBorder(cellPosition);
+          const xc = toXC(position.col, position.row);
+          if (!isObjectEmptyRecursive(style)) {
+            const styleId = getItemId(style, data.styles);
+            sheet.styles[xc] = styleId;
+          }
+
+          if (border) {
+            const borderId = getItemId(border, data.borders);
+            sheet.borders[xc] = borderId;
+          }
+        }
       }
+      sheet.tables = exportedTables;
     }
   }
 }
