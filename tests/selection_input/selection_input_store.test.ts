@@ -92,6 +92,15 @@ describe("selection input plugin", () => {
     expect(highlightedZones(container)).toStrictEqual(["A2:A4"]);
   });
 
+  test("selecting the range of a spilled formula does not create a spill reference", () => {
+    const { store, model } = makeStore(SelectionInputStore);
+    setCellContent(model, "A1", "=MUNIT(2)");
+    store.focusById(idOfRange(store, 0));
+    setSelection(model, ["A1:B2"]);
+    expect(store.selectionInputs[0].xc).not.toBe("A1#");
+    expect(store.selectionInputs[0].xc).toBe("A1:B2");
+  });
+
   test("focus input which is already focused", () => {
     const { store } = makeStore(SelectionInputStore);
     store.focusById(idOfRange(store, 0));
