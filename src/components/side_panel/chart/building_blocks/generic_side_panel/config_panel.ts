@@ -56,7 +56,7 @@ export class GenericChartConfigPanel<
 
   protected dataSets: CustomizedDataSet[] = [];
   private labelRange: string | undefined;
-  private datasetOrientation: ChartDatasetOrientation | undefined = undefined;
+  protected datasetOrientation: ChartDatasetOrientation | undefined = undefined;
 
   protected chartTerms = ChartTerms;
 
@@ -159,8 +159,8 @@ export class GenericChartConfigPanel<
   }
 
   private computeDatasetOrientation(): ChartDatasetOrientation | undefined {
-    let anyRow = false;
-    let anyColumn = false;
+    const anyRow = false;
+    const anyColumn = false;
     for (const dataSet of this.dataSets) {
       if (!isXcRepresentation(dataSet.dataRange)) {
         return undefined;
@@ -168,12 +168,6 @@ export class GenericChartConfigPanel<
       const zone = toUnboundedZone(dataSet.dataRange);
       if (zone.bottom === undefined || zone.right === undefined) {
         return undefined;
-      }
-      if (zone.top === zone.bottom) {
-        anyRow = true;
-      }
-      if (zone.left === zone.right) {
-        anyColumn = true;
       }
     }
     if (anyRow && !anyColumn) {

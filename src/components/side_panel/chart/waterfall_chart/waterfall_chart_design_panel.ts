@@ -4,6 +4,7 @@ import {
   CHART_WATERFALL_SUBTOTAL_COLOR,
 } from "@odoo/o-spreadsheet-engine/constants";
 import { _t } from "@odoo/o-spreadsheet-engine/translation";
+import { VerticalAxisPosition } from "@odoo/o-spreadsheet-engine/types/chart";
 import { WaterfallChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/waterfall_chart";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { Component } from "@odoo/owl";
@@ -89,7 +90,7 @@ export class WaterfallChartDesignPanel extends Component<
     );
   }
 
-  updateVerticalAxisPosition(value: "left" | "right") {
+  updateVerticalAxisPosition(value: VerticalAxisPosition) {
     this.props.updateChart(this.props.chartId, {
       verticalAxisPosition: value,
     });
