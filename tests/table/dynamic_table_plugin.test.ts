@@ -1,6 +1,6 @@
 import { Model } from "../../src";
 import { toZone } from "../../src/helpers";
-import { UID } from "../../src/types";
+import { BorderDescr, UID } from "../../src/types";
 import {
   copy,
   createDynamicTable,
@@ -235,12 +235,37 @@ describe("Dynamic tables", () => {
       expect(getTables(model, sheetId)).toMatchObject([{ zone: "A1:B2" }]);
     });
 
-    test("Dynamic tables are transformed into static tables when exporting for excel", async () => {
-      setCellContent(model, "A1", "=MUNIT(3)");
-      createDynamicTable(model, "A1");
+    test("Dynamic table is exported as individual cell style to Excel", async () => {
+      setCellContent(model, "A1", "=MUNIT(2)");
+      createDynamicTable(model, "A1", { styleId: "TableStyleLight8" });
 
       const exported = await getExportedExcelData(model);
-      expect(exported.sheets[0].tables).toMatchObject([{ range: "A1:C3" }]);
+      const sheetData = exported.sheets[0];
+      expect(sheetData.tables).toHaveLength(0);
+      expect(exported.styles).toEqual({
+        "1": { fillColor: "#000000", textColor: "#FFFFFF", bold: true },
+      });
+      const border: BorderDescr = { color: "#000000", style: "thin" };
+      expect(exported.borders).toEqual({
+        "1": { top: border, left: border, bottom: border },
+        "2": { top: border, bottom: border, right: border },
+      });
+      expect(sheetData.borders).toEqual({ A1: 1, A2: 1, B1: 2, B2: 2 });
+      expect(sheetData.styles).toEqual({ A1: 1, B1: 1 });
+    });
+
+    test("Tables that contains an array formula are also exported as individual cell styles", async () => {
+      setCellContent(model, "A2", "=MUNIT(2)");
+      createTable(model, "A1:B3", { styleId: "TableStyleLight8" });
+
+      const exported = await getExportedExcelData(model);
+      const sheetData = exported.sheets[0];
+      expect(sheetData.tables).toHaveLength(0);
+      expect(exported.styles).toEqual({
+        "1": { fillColor: "#000000", textColor: "#FFFFFF", bold: true },
+      });
+
+      expect(sheetData.styles).toEqual({ A1: 1, B1: 1 });
     });
   });
 
