@@ -10,7 +10,7 @@ export class LineConfigPanel extends GenericChartConfigPanel {
     const definition = chart?.getRangeDefinition();
     const sheetId = chart?.sheetId;
     if (sheetId && definition?.type === "line") {
-      return canChartParseLabels(chart.getData(this.env.model.getters));
+      return canChartParseLabels(chart.getData(this.env.model.getters, this.props.chartId));
     }
     return false;
   }
