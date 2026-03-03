@@ -1054,7 +1054,7 @@ describe("Rows", () => {
     });
   });
 
-  describe("Correctly update border and style", () => {
+  describe("Update border and style correctly", () => {
     beforeEach(() => {
       model = new Model({
         sheets: [
