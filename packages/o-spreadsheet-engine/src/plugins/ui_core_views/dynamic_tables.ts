@@ -49,6 +49,7 @@ export class DynamicTablesPlugin extends CoreViewPlugin {
       case "REMOVE_TABLE":
       case "UPDATE_TABLE":
       case "DELETE_CONTENT":
+      case "REFRESH_PIVOT":
         this.tables = {};
         break;
     }
@@ -122,6 +123,10 @@ export class DynamicTablesPlugin extends CoreViewPlugin {
   private getTablesFromPivots(sheetId: UID): DynamicTable[] {
     const tables: DynamicTable[] = [];
     for (const { position, pivotStyle, pivotId } of this.getters.getAllPivotArrayFormulas()) {
+      const pivot = this.getters.getPivot(pivotId);
+      if (!pivot.isValid()) {
+        continue;
+      }
       const spreadZone = this.getters.getSpreadZone(position);
       const cell = this.getters.getCell(position);
       if (
