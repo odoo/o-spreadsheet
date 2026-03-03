@@ -452,9 +452,13 @@ export class GridSelectionPlugin extends UIPlugin {
   /**
    * Same as `getRangeString` but add:
    * - all necessary merge to the range to make it a valid selection
-   * - the "#" suffix if the range is a spilled reference
+   * - the "#" suffix if the range is a spilled reference if `allowSpilledReferences` is true
    */
-  getSelectionRangeString(range: Range, forSheetId: UID): string {
+  getSelectionRangeString(
+    range: Range,
+    forSheetId: UID,
+    { allowSpilledReferences } = { allowSpilledReferences: false }
+  ): string {
     const expandedZone = this.getters.expandZone(range.sheetId, range.zone);
     const expandedRange = createRange(
       {
@@ -473,17 +477,20 @@ export class GridSelectionPlugin extends UIPlugin {
       return getFullReference(sheetName, xc.split(":")[0]);
     }
 
-    const spreaderPosition = this.getters.getArrayFormulaSpreadingOn({
-      sheetId: expandedRange.sheetId,
-      col: expandedRange.zone.left,
-      row: expandedRange.zone.top,
-    });
+    if (allowSpilledReferences) {
+      const spreaderPosition = this.getters.getArrayFormulaSpreadingOn({
+        sheetId: expandedRange.sheetId,
+        col: expandedRange.zone.left,
+        row: expandedRange.zone.top,
+      });
 
-    const spreadZone =
-      spreaderPosition && this.getters.getSpreadZone(spreaderPosition, { ignoreSpillError: true });
-    if (spreadZone && isEqual(spreadZone, expandedRange.zone)) {
-      const { sheetName, xc } = splitReference(rangeString);
-      return getFullReference(sheetName, xc.split(":")[0]) + "#";
+      const spreadZone =
+        spreaderPosition &&
+        this.getters.getSpreadZone(spreaderPosition, { ignoreSpillError: true });
+      if (spreadZone && isEqual(spreadZone, expandedRange.zone)) {
+        const { sheetName, xc } = splitReference(rangeString);
+        return getFullReference(sheetName, xc.split(":")[0]) + "#";
+      }
     }
 
     return rangeString;
