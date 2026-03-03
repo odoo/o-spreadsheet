@@ -76,9 +76,9 @@ export const ChartRangeDataSourceHandler: ChartDataSourceBuilder<"range"> = {
     };
   },
 
-  extractData: (dataSource, getters) => getChartData(getters, dataSource),
+  extractData: (dataSource, chartId, getters) => getChartData(getters, dataSource),
 
-  extractHierarchicalData(dataSource, getters) {
+  extractHierarchicalData(dataSource, chartId, getters) {
     const dataSets = dataSource.dataSets;
     const labelRange = dataSource.labelRange;
     const labelValues = getChartLabelValues(getters, dataSets, labelRange);
@@ -209,10 +209,7 @@ export const ChartRangeDataSourceHandler: ChartDataSourceBuilder<"range"> = {
   },
 };
 
-export function getChartData(
-  getters: Getters,
-  dataSource: ChartRangeDataSource
-): ChartData {
+export function getChartData(getters: Getters, dataSource: ChartRangeDataSource): ChartData {
   const dataSets = dataSource.dataSets;
   const labelRange = dataSource.labelRange;
   const labelValues = getChartLabelValues(getters, dataSets, labelRange);
@@ -279,7 +276,7 @@ function getChartLabelValues(
   }
   if (dataSets[0]) {
     const dataLength = getData(getters, dataSets[0]).length;
-    return Array.from({ length: dataLength }, () => ({ value: "" }))
+    return Array.from({ length: dataLength }, () => ({ value: "" }));
   }
   return [];
 }
