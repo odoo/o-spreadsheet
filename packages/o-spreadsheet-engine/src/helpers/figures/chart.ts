@@ -186,10 +186,10 @@ export class MyChart {
     );
   }
 
-  getData(getters: Getters): ChartData {
+  getData(getters: Getters, chartId: UID): ChartData {
     const dataSource = this.dataSource;
     return dataSource
-      ? this.dataSourceBuilder.extractData(dataSource, getters)
+      ? this.dataSourceBuilder.extractData(dataSource, chartId, getters)
       : { dataSetsValues: [], labelValues: [] };
   }
 
@@ -197,9 +197,9 @@ export class MyChart {
     const dataSource = this.dataSource;
     const dataExtractors = dataSource
       ? {
-          extractData: () => this.dataSourceBuilder.extractData(dataSource, getters),
+          extractData: () => this.dataSourceBuilder.extractData(dataSource, chartId, getters),
           extractHierarchicalData: () =>
-            this.dataSourceBuilder.extractHierarchicalData(dataSource, getters),
+            this.dataSourceBuilder.extractHierarchicalData(dataSource, chartId, getters),
         }
       : {
           extractData: () => ({ dataSetsValues: [], labelValues: [] }),

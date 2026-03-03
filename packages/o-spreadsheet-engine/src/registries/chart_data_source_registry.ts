@@ -32,8 +32,12 @@ export interface ChartDataSourceBuilder<T extends ChartDataSourceType> {
     defaultSheetId: UID,
     rangeAdapters: RangeAdapterFunctions
   ): ChartDataSource<string>;
-  extractData(dataSource: DataSourceType<T, Range>, getters: Getters): ChartData;
-  extractHierarchicalData(dataSource: DataSourceType<T, Range>, getters: Getters): ChartData;
+  extractData(dataSource: DataSourceType<T, Range>, chartId: UID, getters: Getters): ChartData;
+  extractHierarchicalData(
+    dataSource: DataSourceType<T, Range>,
+    chartId: UID,
+    getters: Getters
+  ): ChartData;
   adaptRanges(
     dataSource: DataSourceType<T, Range>,
     rangeAdapters: RangeAdapterFunctions
