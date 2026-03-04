@@ -60,7 +60,15 @@
       <t t-foreach="staticTables" t-as="table" t-key="table.id">
         <TableResizer table="table"/>
       </t>
-      <PivotOverlay/>
+      <t t-foreach="getPivotOverlayIcons()" t-as="pivotInfo" t-key="pivotInfo.pivotId">
+        <div
+          class="o-pivot-overlay-icon position-absolute o-hoverable-button bg-white p-1 rounded border shadow"
+          t-on-click="() => this.onPivotIconClicked(pivotInfo)"
+          t-att-style="getPivotIconStyle(pivotInfo)">
+          <t t-call="o-spreadsheet-Icon.EDIT"/>
+        </div>
+      </t>
+      <PivotOverlay t-if="pivotOverlay.pivotId" pivotId="pivotOverlay.pivotId"/>
       <VerticalScrollBar topOffset="HEADER_HEIGHT"/>
       <HorizontalScrollBar leftOffset="HEADER_WIDTH"/>
       <div class="o-scrollbar corner border-top border-start"/>

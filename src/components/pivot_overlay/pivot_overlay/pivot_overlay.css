@@ -1,5 +1,8 @@
 .o-spreadsheet .o-pivot-overlay {
-  background-color: #fff !important; /* ADRM TODO */
+  .o-pivot-overlay-top {
+    z-index: 1;
+  }
+
   .o-pivot-overlay-section {
     height: fit-content;
     width: fit-content;

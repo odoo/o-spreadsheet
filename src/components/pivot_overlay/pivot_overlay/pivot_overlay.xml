@@ -1,11 +1,12 @@
 <templates>
   <t t-name="o-spreadsheet-PivotOverlay">
     <div
-      class="o-pivot-overlay position-absolute bg-white d-flex flex-column rounded shadow border p-3 overflow-auto"
+      class="o-pivot-overlay position-absolute bg-white d-flex flex-column rounded shadow border overflow-auto"
       t-att-style="overlayStyle"
       t-ref="pivotOverlay"
       t-if="hasPivotFormula">
-      <div class="d-flex flex-row gap-2 border-bottom align-items-end">
+      <div
+        class="o-pivot-overlay-top d-flex flex-row gap-2 border-bottom align-items-end top-0 start-0 position-sticky bg-white">
         <div
           class="o-pivot-measures o-pivot-overlay-section bg-white p-3 border-end d-flex flex-column gap-2">
           <t t-foreach="definition.measures" t-as="measure" t-key="measure_index">
@@ -61,7 +62,7 @@
       </div>
       <div class="d-flex flex-row">
         <div
-          class="o-pivot-rows o-pivot-overlay-section bg-white p-3 d-flex flex-column align-items-center">
+          class="o-pivot-rows o-pivot-overlay-section bg-white p-3 d-flex flex-column align-items-center start-0 position-sticky bg-white">
           <span class="o-pivot-overlay-title mb-4">Rows</span>
           <div class="o-rotated d-flex flex-column align-items-center gap-2">
             <t t-foreach="definition.rows" t-as="row" t-key="row_index">

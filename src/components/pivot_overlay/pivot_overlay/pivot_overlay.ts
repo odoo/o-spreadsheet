@@ -12,7 +12,9 @@ import { PivotSidePanelStore } from "../../side_panel/pivot/pivot_side_panel/piv
 import { StandaloneGridCanvas } from "../../standalone_grid_canvas/standalone_grid_canvas";
 import { PivotFacet } from "../pivot_facet/pivot_facet";
 
-interface Props {}
+interface Props {
+  pivotId: string;
+}
 
 type DimensionType = "rows" | "columns" | "measures";
 
@@ -98,7 +100,7 @@ export class PivotOverlay extends Component<Props, SpreadsheetChildEnv> {
   }
 
   get pivotId() {
-    return "1"; // ADRM TODO props
+    return this.props.pivotId;
   }
 
   get definition() {

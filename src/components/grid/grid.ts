@@ -119,6 +119,16 @@ const registries = {
   UNGROUP_HEADERS: unGroupHeadersMenuRegistry,
 };
 
+interface PivotThing {
+  x: Pixel;
+  y: Pixel;
+  pivotId: string;
+}
+
+interface PivotOverlayState {
+  pivotId: string | undefined;
+}
+
 interface Props {
   exposeFocus: (focus: () => void) => void;
   getGridSize: () => DOMDimension;
@@ -152,6 +162,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
   readonly HEADER_HEIGHT = HEADER_HEIGHT;
   readonly HEADER_WIDTH = HEADER_WIDTH;
   private menuState!: MenuState;
+  pivotOverlay = useState<PivotOverlayState>({ pivotId: undefined });
   private gridRef!: Ref<HTMLElement>;
   private highlightStore!: Store<HighlightStore>;
   private cellPopovers!: Store<CellPopoverStore>;
@@ -186,6 +197,18 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     useExternalListener(document.body, "cut", this.copy.bind(this, true));
     useExternalListener(document.body, "copy", this.copy.bind(this, false));
     useExternalListener(document.body, "paste", this.paste);
+    useExternalListener(
+      window,
+      "keydown",
+      (ev: KeyboardEvent) => {
+        console.log("onKeyDown", ev.key);
+        if (ev.key === "escape" && this.pivotOverlay.pivotId) {
+          this.pivotOverlay.pivotId = undefined;
+        }
+      },
+      { capture: true }
+    );
+
     onMounted(() => this.focusDefaultElement());
     this.props.exposeFocus(() => this.focusDefaultElement());
     useGridDrawing({ refName: "canvas", model: this.env.model });
@@ -903,5 +926,49 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
 
   get displaySelectionHandler() {
     return this.env.isMobile() && this.composerFocusStore.activeComposer.editionMode === "inactive";
+  }
+
+  getPivotOverlayIcons() {
+    const visibleThings: PivotThing[] = [];
+    const sheetId = this.env.model.getters.getActiveSheetId();
+    for (const { position, pivotId } of this.env.model.getters.getAllPivotArrayFormulas()) {
+      if (position.sheetId !== sheetId) {
+        continue;
+      }
+      const spread = this.env.model.getters.getSpreadZone(position);
+      if (!spread) {
+        continue;
+      }
+      const bottomLeftZone = {
+        left: spread.left,
+        right: spread.left,
+        top: spread.bottom,
+        bottom: spread.bottom,
+      };
+      const rect = this.env.model.getters.getVisibleRect(bottomLeftZone);
+      const isBottomLeftVisible = rect.width > 0 && rect.height > 0;
+      if (isBottomLeftVisible) {
+        visibleThings.push({ x: rect.x, y: rect.y + rect.height, pivotId });
+      }
+    }
+
+    // ADRM TODO remove this
+    // if (visibleThings.length && !this.pivotOverlay.pivotId) {
+    //   this.pivotOverlay.pivotId = visibleThings[0].pivotId;
+    // }
+
+    return visibleThings;
+  }
+
+  getPivotIconStyle(info: PivotThing) {
+    return cssPropertiesToCss({
+      left: `${info.x}px`,
+      top: `${info.y}px`,
+    });
+  }
+
+  onPivotIconClicked(info: PivotThing) {
+    this.pivotOverlay.pivotId = info.pivotId;
+    this.env.openSidePanel("PivotSidePanel", { pivotId: info.pivotId });
   }
 }
