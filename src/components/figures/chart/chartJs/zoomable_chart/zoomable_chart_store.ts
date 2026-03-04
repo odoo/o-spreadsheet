@@ -7,7 +7,7 @@ import { SpreadsheetStore } from "../../../../../stores";
 
 const TREND_LINE_AXES_IDS = [TREND_LINE_XAXIS_ID, MOVING_AVERAGE_TREND_LINE_XAXIS_ID] as const;
 const ZOOMABLE_AXIS_IDS = ["x", ...TREND_LINE_AXES_IDS] as const;
-export type AxisId = (typeof ZOOMABLE_AXIS_IDS)[number];
+type AxisId = (typeof ZOOMABLE_AXIS_IDS)[number];
 
 export interface Boundaries {
   min: number;

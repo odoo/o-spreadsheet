@@ -1,4 +1,4 @@
-import { LineChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart";
+import { AxesDesign, LineChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart";
 import { LineChart } from "../../../../helpers/figures/charts";
 import { canChartParseLabels } from "../../../../helpers/figures/charts/runtime";
 import { GenericChartConfigPanel } from "../building_blocks/generic_side_panel/config_panel";
@@ -40,8 +40,22 @@ export class LineConfigPanel extends GenericChartConfigPanel {
   }
 
   onUpdateLabelsAsText(labelsAsText: boolean) {
+    // We reset the axesDesign because there would be nonsense in keeping the min
+    // and max values if we have to tread the label as text.
+    let axesDesign: AxesDesign | undefined = undefined;
+    if ("axesDesign" in this.props.definition) {
+      axesDesign = {
+        ...this.props.definition.axesDesign,
+        x: {
+          ...this.props.definition.axesDesign?.x,
+          min: undefined,
+          max: undefined,
+        },
+      };
+    }
     this.props.updateChart(this.props.chartId, {
       labelsAsText,
+      axesDesign,
     });
   }
 
