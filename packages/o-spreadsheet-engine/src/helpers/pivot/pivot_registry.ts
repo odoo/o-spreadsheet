@@ -57,12 +57,19 @@ const dateGranularities = [
   "day_of_week",
 ];
 
+export const datetimeGranularities = [
+  ...dateGranularities,
+  "hour_number",
+  "minute_number",
+  "second_number",
+];
+
 pivotRegistry.add("SPREADSHEET", {
   ui: SpreadsheetPivot,
   definition: SpreadsheetPivotRuntimeDefinition,
   dateGranularities: [...dateGranularities],
-  datetimeGranularities: [...dateGranularities, "hour_number", "minute_number", "second_number"],
   isMeasureCandidate: (field: PivotField) => field.type !== "boolean",
+  datetimeGranularities: [...datetimeGranularities],
   isGroupable: () => true,
   canHaveCustomGroup: (field: PivotField) => field.type === "char" && !field.isCustomField,
   isPivotUnused: () => true,
