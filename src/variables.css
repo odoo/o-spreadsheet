@@ -37,7 +37,7 @@
   --os-composer-placeholder-color: light-dark(#bdbdbd, #757a89);
   --os-composer-assistant-color: #9b359b; /* COMPOSER_ASSISTANT_COLOR */
   --os-composer-assistant-background: light-dark(#f2f2f2, var(--os-gray-200));
-  --os-composer-highlight-flag-color: #e6edf3;
+  --os-composer-highlight-flag-color: light-dark(var(--os-gray-200), var(--os-gray-400));
   --os-composer-selector-flag-color: #a9a9a9;
 
   --os-selection-border-color: #3266ca; /* SELECTION_BORDER_COLOR */
