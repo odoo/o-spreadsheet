@@ -4,12 +4,13 @@ import {
   PIVOT_TABLE_CONFIG,
   PIVOT_TOKEN_COLOR,
 } from "@odoo/o-spreadsheet-engine/constants";
+import { datetimeGranularities } from "@odoo/o-spreadsheet-engine/helpers/pivot/pivot_registry";
 import { SpreadsheetPivot } from "@odoo/o-spreadsheet-engine/helpers/pivot/spreadsheet_pivot/spreadsheet_pivot";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { Model, PivotSortedColumn, SpreadsheetPivotTable } from "../../../src";
 import { SidePanels } from "../../../src/components/side_panel/side_panels/side_panels";
 import { toXC, toZone } from "../../../src/helpers";
-import { topbarMenuRegistry } from "../../../src/registries/menus";
+import { topbarMenuRegistry } from "../../../src/registries/menus/topbar_menu_registry";
 import { NotificationStore } from "../../../src/stores/notification_store";
 import {
   activateSheet,
@@ -570,6 +571,43 @@ describe("Spreadsheet pivot side panel", () => {
       { fieldName: "Date", granularity: "year" },
       { fieldName: "Date", granularity: "quarter_number" },
     ]);
+  });
+
+  test("All granularities are displayed in order and not more than once", async () => {
+    setCellContent(model, "G1", "=PIVOT(1)"); // TODO: remove once task 4781740 is done
+    setCellContent(model, "A1", "Date");
+    setCellContent(model, "A2", "2023-01-01");
+    setCellContent(model, "A3", "2023-01-02");
+    updatePivot(model, "1", {
+      columns: [],
+      measures: [{ id: "Amount:sum", fieldName: "Amount", aggregator: "sum" }],
+    });
+    await nextTick();
+
+    for (let i = 0; i < datetimeGranularities.length; i++) {
+      await click(fixture.querySelector(".add-dimension")!);
+      await click(fixture.querySelectorAll(".o-autocomplete-value")[0]);
+    }
+
+    expect(model.getters.getPivotCoreDefinition("1").columns).toMatchObject([
+      { fieldName: "Date", granularity: "year" },
+      { fieldName: "Date", granularity: "quarter_number" },
+      { fieldName: "Date", granularity: "month_number" },
+      { fieldName: "Date", granularity: "month" },
+      { fieldName: "Date", granularity: "iso_week_number" },
+      { fieldName: "Date", granularity: "day_of_month" },
+      { fieldName: "Date", granularity: "day" },
+      { fieldName: "Date", granularity: "day_of_week" },
+      { fieldName: "Date", granularity: "hour_number" },
+      { fieldName: "Date", granularity: "minute_number" },
+      { fieldName: "Date", granularity: "second_number" },
+    ]);
+
+    await click(fixture.querySelector(".add-dimension")!);
+    const availableFields = [...fixture.querySelectorAll(".o-autocomplete-value")].map(
+      (el) => el.textContent
+    );
+    expect(availableFields).not.toContain("Date");
   });
 
   test("Date dimensions with undefined granularity is correctly displayed as month", async () => {
