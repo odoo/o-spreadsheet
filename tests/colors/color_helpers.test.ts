@@ -7,6 +7,7 @@ import {
   rgba,
   rgbaToHex,
   rgbaToHSLA,
+  setColorAlpha,
   toHex,
 } from "@odoo/o-spreadsheet-engine/helpers/color";
 import { Color, HSLA, RGBA } from "../../src/types";
@@ -248,4 +249,16 @@ describe("getColorScale", () => {
     expect(colorToNumber("#12345678")).toBe(0x123456);
     expect(colorToNumber(0x123456)).toBe(0x123456);
   });
+});
+
+test("setColorAlpha", () => {
+  expect(setColorAlpha("#111111", 0.4)).toBeSameColorAs("#11111166");
+  expect(setColorAlpha("#11111180", 0.4)).toBeSameColorAs("#11111166");
+  expect(setColorAlpha("#fff", 0.8)).toBeSameColorAs("#FFFFFFCC");
+  expect(setColorAlpha("rgb(0,0,0)", 0.8)).toBeSameColorAs("#000000CC");
+  expect(setColorAlpha("rgba(255,255,255,0.5)", 0.8)).toBeSameColorAs("#FFFFFFCC");
+  expect(setColorAlpha("light-dark(#aaa, #bbb)", 0.8)).toEqual("light-dark(#AAAAAACC, #BBBBBBCC)");
+  expect(setColorAlpha("light-dark(rgb(0,0,0),    rgba(0,255,255,0.5))", 0.4)).toEqual(
+    "light-dark(#00000066, #00FFFF66)"
+  );
 });
