@@ -1,6 +1,6 @@
 import { NEWLINE, SCROLLBAR_WIDTH } from "@odoo/o-spreadsheet-engine/constants";
 import { Component, onMounted, onWillUnmount, useEffect, useRef, useState } from "@odoo/owl";
-import { debounce, deepEquals, isFormula } from "../../../helpers/index";
+import { debounce, deepEquals, isFormula, setColorAlpha } from "../../../helpers/index";
 
 import { cssPropertiesToCss } from "@odoo/o-spreadsheet-engine/components/helpers/css";
 import { DEFAULT_TOKEN_COLOR } from "@odoo/o-spreadsheet-engine/constants";
@@ -42,7 +42,6 @@ export type HtmlContent = {
   onHover?: (rect: Rect) => void;
   onStopHover?: () => void;
   color?: Color;
-  opacity?: number;
   backgroundColor?: Color;
   classes?: string[];
 };
@@ -644,6 +643,10 @@ export class Composer extends Component<CellComposerProps, SpreadsheetChildEnv> 
     const { end, start } = this.props.composerStore.composerSelection;
     for (let index = 0; index < tokens.length; index++) {
       const token = tokens[index];
+      let color = token.color || DEFAULT_TOKEN_COLOR;
+      if (token.isBlurred) {
+        color = setColorAlpha(color, 0.5);
+      }
       const classes: string[] = [];
       if (
         token.type === "REFERENCE" &&
@@ -667,8 +670,7 @@ export class Composer extends Component<CellComposerProps, SpreadsheetChildEnv> 
 
       result.push({
         value: token.value,
-        color: token.color || DEFAULT_TOKEN_COLOR,
-        opacity: token.isBlurred ? 0.5 : 1,
+        color,
         classes,
         onHover: (rect) => this.onTokenHover(index, rect),
         onStopHover: () => this.onTokenHover(undefined),

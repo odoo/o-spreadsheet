@@ -4,6 +4,8 @@ import { concat } from "./misc";
 
 const RBA_REGEX = /rgba?\(|\s+|\)/gi;
 const HEX_MATCH = /^#([A-F\d]{2}){3,4}$/;
+const LIGHT_DARK_REGEX =
+  /^light-dark\(\s*(rgba?\([0-9.,\s]+\)|#[a-f0-9]+)\s*,\s*(rgba?\([0-9.,\s]+\)|#[a-f0-9]+)\s*\)$/i;
 
 export const colors = [
   "#eb6d00",
@@ -375,7 +377,19 @@ export function isSameColor(color1: Color, color2: Color, tolerance: number = 0)
   return diff <= tolerance;
 }
 
+/**
+ * Set the alpha of a color.
+ *
+ * Accepts `light-dark(...)` color strings and will apply the alpha to both light and dark colors.
+ */
 export function setColorAlpha(color: Color, alpha: number): string {
+  if (color.startsWith("light-dark")) {
+    const match = color.match(LIGHT_DARK_REGEX);
+    if (!match) {
+      throw new Error(`Invalid light-dark color: ${color}`);
+    }
+    return `light-dark(${setColorAlpha(match[1], alpha)}, ${setColorAlpha(match[2], alpha)})`;
+  }
   return alpha === 1 ? toHex(color).slice(0, 7) : rgbaToHex({ ...colorToRGBA(color), a: alpha });
 }
 
