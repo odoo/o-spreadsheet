@@ -241,8 +241,7 @@ export class PivotSidePanelStore extends SpreadsheetStore {
     for (const dimension of columnsWithGranularity.concat(rowsWithGranularity)) {
       const fieldType = fields[dimension.fieldName]?.type;
       if ((fieldType === "date" || fieldType === "datetime") && !dimension.granularity) {
-        const granularity =
-          unusedGranularities[dimension.fieldName]?.values().next().value || "year";
+        const granularity = unusedGranularities[dimension.fieldName]?.values().next().value;
         unusedGranularities[dimension.fieldName]?.delete(granularity);
         dimension.granularity = granularity;
       }
@@ -272,7 +271,7 @@ export class PivotSidePanelStore extends SpreadsheetStore {
       );
     }
     for (const field of dateFields) {
-      granularitiesPerFields[field.fieldName].delete(field.granularity || "month");
+      granularitiesPerFields[field.fieldName].delete(field.granularity);
     }
     return granularitiesPerFields;
   }
