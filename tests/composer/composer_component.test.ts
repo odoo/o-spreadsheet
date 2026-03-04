@@ -1348,21 +1348,21 @@ describe("Composer blurs formula parts not affected by cursor position.", () => 
     ]);
   });
 
-  test("blurred tokens have reduced opacity", async () => {
+  test("blurred tokens have reduced color alpha", async () => {
     const str = "=SUM(COS(";
     await typeInComposer(str);
     composerStore.changeComposerCursorSelection(str.length, str.length);
     await nextTick();
     const spans = [...fixture.querySelectorAll<HTMLElement>("div.o-composer span")].map((el) => ({
       value: el.textContent || "",
-      opacity: el.style.opacity || "1",
+      color: el.style.color || "",
     }));
     expect(spans).toEqual([
-      { value: "=", opacity: "0.5" },
-      { value: "SUM", opacity: "0.5" },
-      { value: "(", opacity: "0.5" },
-      { value: "COS", opacity: "1" },
-      { value: "(", opacity: "1" },
+      { value: "=", color: "#3DA4AB80" },
+      { value: "SUM", color: "light-dark(#00000080, #FFFFFF80)" },
+      { value: "(", color: "light-dark(#00000080, #FFFFFF80)" },
+      { value: "COS", color: "light-dark(#000000, #ffffff)" },
+      { value: "(", color: "light-dark(#000000, #ffffff)" },
     ]);
   });
 
