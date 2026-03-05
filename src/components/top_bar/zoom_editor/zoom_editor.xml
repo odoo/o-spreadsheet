@@ -1,5 +1,5 @@
 <templates>
-  <div t-name="o-spreadsheet-TopBarZoom" t-ref="buttonRef" t-on-click.stop="">
+  <div t-name="o-spreadsheet-TopBarZoom" t-custom-ref="buttonRef" t-on-click.stop="">
     <NumberEditor
       currentValue="currentFontSize"
       onValueChange.bind="this.setZoom"

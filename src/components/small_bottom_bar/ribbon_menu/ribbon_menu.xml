@@ -1,6 +1,6 @@
 <templates>
   <div t-name="o-spreadsheet-RibbonMenu">
-    <div class="o-ribbon-menu d-flex flex-column" t-ref="menu">
+    <div class="o-ribbon-menu d-flex flex-column" t-custom-ref="menu">
       <div class="o-ribbon-title d-flex py-2 fw-bold">
         <div
           class="o-previous-button px-3 py-1 mx-2 rounded"
@@ -12,7 +12,7 @@
       </div>
       <div
         class="o-ribbon-menu-wrapper overflow-auto"
-        t-ref="container"
+        t-custom-ref="container"
         t-on-scroll="updateShadows">
         <Menu t-props="menuProps"/>
       </div>

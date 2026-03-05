@@ -2,7 +2,7 @@
   <t t-name="o-spreadsheet-NumberInput">
     <input
       type="number"
-      t-ref="{{refName}}"
+      t-custom-ref="{{refName}}"
       t-att-class="inputClass"
       t-att-id="props.id"
       t-att-placeholder="props.placeholder"

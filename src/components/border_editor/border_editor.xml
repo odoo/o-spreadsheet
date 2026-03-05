@@ -45,7 +45,7 @@
           <div
             class="o-border-style-tool d-flex align-items-center justify-content-center o-hoverable-button"
             title="Line style"
-            t-ref="lineStyleButton"
+            t-custom-ref="lineStyleButton"
             t-on-click.stop="(ev) => this.toggleDropdownTool('borderTypeTool')">
             <t t-call="o-spreadsheet-Icon.BORDER_TYPE"/>
             <t t-call="o-spreadsheet-Icon.CARET_DOWN"/>

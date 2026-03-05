@@ -5,7 +5,7 @@
         <div class="o-input-search-container">
           <input
             type="text"
-            t-ref="searchInput"
+            t-custom-ref="searchInput"
             class="o-input o-input-with-count o-search"
             t-on-input="onSearchInput"
             t-on-focus="onFocusSearch"

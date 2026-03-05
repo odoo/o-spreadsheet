@@ -3,7 +3,7 @@
     <div class="o-color-picker-widget">
       <span
         class="o-color-picker-button"
-        t-ref="colorPickerButton"
+        t-custom-ref="colorPickerButton"
         t-on-click.stop="props.toggleColorPicker"
         t-att-title="props.title"
         t-att-class="props.class ? props.class : 'o-color-picker-button-style'"

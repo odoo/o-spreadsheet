@@ -9,7 +9,7 @@
           <RippleEffect t-props="getRippleEffectProps(ripple.id)"/>
         </t>
       </div>
-      <div class="position-relative" t-ref="childContainer">
+      <div class="position-relative" t-custom-ref="childContainer">
         <t t-slot="default"/>
       </div>
     </div>
@@ -20,7 +20,11 @@
       class="position-absolute"
       t-att-class="{ 'overflow-hidden': !props.allowOverflow }"
       t-att-style="props.style">
-      <div class="o-ripple position-relative pe-none" t-ref="ripple" t-att-style="rippleStyle"/>
+      <div
+        class="o-ripple position-relative pe-none"
+        t-custom-ref="ripple"
+        t-att-style="rippleStyle"
+      />
     </div>
   </t>
 </templates>

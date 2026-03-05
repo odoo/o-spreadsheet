@@ -3,7 +3,7 @@
     <div class="position-relative">
       <input
         type="text"
-        t-ref="{{refName}}"
+        t-custom-ref="{{refName}}"
         t-att-class="inputClass"
         t-att-id="props.id"
         t-att-placeholder="props.placeholder"

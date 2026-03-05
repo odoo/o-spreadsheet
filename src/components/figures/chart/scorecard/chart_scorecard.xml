@@ -2,7 +2,7 @@
   <t t-name="o-spreadsheet-ScorecardChart">
     <canvas
       class="o-figure-canvas o-scorecard w-100 h-100 d-block"
-      t-ref="chartContainer"
+      t-custom-ref="chartContainer"
       t-att-title="title"
     />
   </t>

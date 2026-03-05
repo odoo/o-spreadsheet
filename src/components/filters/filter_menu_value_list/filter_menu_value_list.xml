@@ -7,7 +7,7 @@
     <div class="position-relative">
       <input
         class="w-100 o-input my-2"
-        t-ref="filterMenuSearchBar"
+        t-custom-ref="filterMenuSearchBar"
         type="text"
         t-on-input="updateSearch"
         placeholder="Search..."
@@ -19,7 +19,7 @@
     </div>
     <div
       class="o-filter-menu-list d-flex flex-column border"
-      t-ref="filterValueList"
+      t-custom-ref="filterValueList"
       t-on-click="this.clearScrolledToValue"
       t-on-scroll="this.clearScrolledToValue">
       <t t-foreach="state.displayedValues" t-as="value" t-key="value.string">

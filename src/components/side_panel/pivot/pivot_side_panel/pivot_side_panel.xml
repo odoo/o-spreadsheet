@@ -18,7 +18,7 @@
         </div>
       </div>
 
-      <div class="o-panel-content overflow-y-auto h-100" t-ref="panelContent">
+      <div class="o-panel-content overflow-y-auto h-100" t-custom-ref="panelContent">
         <div t-att-class="state.panel !== 'configuration' ? 'd-none' : ''">
           <t
             t-component="sidePanelEditor"

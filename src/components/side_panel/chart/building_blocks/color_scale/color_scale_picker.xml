@@ -18,7 +18,7 @@
           </span>
         </div>
         <Popover t-if="state.popoverProps" t-props="state.popoverProps">
-          <table t-ref="popoverRef" class="bg-white" t-att-style="state.popoverStyle">
+          <table t-custom-ref="popoverRef" class="bg-white" t-att-style="state.popoverStyle">
             <tr
               class="color-scale-container custom-color-scale-container"
               t-on-click="() => this.onColorScaleChange('custom')">

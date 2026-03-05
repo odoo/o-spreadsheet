@@ -2,11 +2,11 @@
   <t t-name="o-spreadsheet-SpreadsheetDashboard">
     <div
       class="o-grid o-two-columns o-zoomable"
-      t-ref="dashboard"
+      t-custom-ref="dashboard"
       tabindex="-1"
       t-on-wheel="onMouseWheel"
       t-att-style="dashboardStyle">
-      <div class="mx-auto h-100 position-relative" t-ref="grid" t-att-style="gridContainer">
+      <div class="mx-auto h-100 position-relative" t-custom-ref="grid" t-att-style="gridContainer">
         <GridOverlay
           onGridResized.bind="onGridResized"
           onGridMoved.bind="moveCanvas"
@@ -28,7 +28,7 @@
             />
           </div>
         </GridOverlay>
-        <canvas t-ref="canvas"/>
+        <canvas t-custom-ref="canvas"/>
         <GridPopover
           gridRect="getGridRect()"
           onMouseWheel.bind="onMouseWheel"

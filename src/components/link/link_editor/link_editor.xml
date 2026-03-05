@@ -24,7 +24,7 @@
               type="text"
               placeholder="e.g. 'http://www.odoo.com'"
               title="Link URL"
-              t-ref="urlInput"
+              t-custom-ref="urlInput"
               t-custom-model="link.url"
             />
           </t>
@@ -44,7 +44,7 @@
             t-if="!link.url"
             t-on-click.stop="openMenu"
             class="o-special-link o-button-icon bg-white"
-            t-ref="linkEditorMenuButton">
+            t-custom-ref="linkEditorMenuButton">
             <t t-call="o-spreadsheet-Icon.LIST"/>
           </button>
         </div>
