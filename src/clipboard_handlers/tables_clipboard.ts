@@ -92,6 +92,13 @@ export class TableClipboardHandler extends AbstractCellClipboardHandler<
             type: coreTable.type,
           };
         }
+        if (table.isPivotTable) {
+          const isTopLeft = table.range.zone.top === row && table.range.zone.left === col;
+          const isWholePivotSelected = zones.some((z) => isZoneInside(table.range.zone, z));
+          if (isTopLeft || isWholePivotSelected) {
+            copiedTablesIds.add(table.id);
+          }
+        }
         if (mode !== "shiftCells") {
           tableCellsInRow.push({
             table: copiedTable,
