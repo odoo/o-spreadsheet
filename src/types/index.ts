@@ -8,8 +8,6 @@
  * - interface GridState: the internal type of the state managed by the model
  */
 
-import * as ChartGeo from "chartjs-chart-geo";
-
 export {
   CreateRevisionOptions,
   HistoryChange,
@@ -43,9 +41,3 @@ export * from "@odoo/o-spreadsheet-engine/types/range";
 export * from "@odoo/o-spreadsheet-engine/types/rendering";
 export * from "@odoo/o-spreadsheet-engine/types/table";
 export * from "@odoo/o-spreadsheet-engine/types/workbook_data";
-
-declare global {
-  interface Window {
-    ChartGeo: typeof ChartGeo;
-  }
-}
