@@ -87,7 +87,7 @@
         z-index: 2;
       }
       .saturation {
-        background: linear-gradient(to right, var(--os-white) 0%, transparent 100%);
+        background: linear-gradient(to right, #fff 0%, transparent 100%);
       }
       .lightness {
         background: linear-gradient(to top, #000 0%, transparent 100%);
