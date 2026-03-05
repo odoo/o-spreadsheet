@@ -76,7 +76,8 @@ export default (commandLineArgs) => {
       {
         input: "./build/js/o-spreadsheet-engine/src/index.d.ts",
         output: [{ file: "../../dist/o-spreadsheet-engine.d.ts", format: "es" }],
-        plugins: [dts(), nodeResolve()],
+        external: ["chart.js"],
+        plugins: [dts({ respectExternal: true }), nodeResolve()],
       },
     ];
   }

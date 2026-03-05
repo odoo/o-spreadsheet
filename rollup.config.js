@@ -125,8 +125,9 @@ export default (commandLineArgs) => {
       {
         input: "dist/types/index.d.ts",
         output: [{ file: "dist/o-spreadsheet.d.ts", format: "es" }],
+        external: ["chart.js"],
         plugins: [
-          dts(),
+          dts({ respectExternal: true }),
           nodeResolve(),
           alias({
             entries: [
