@@ -27064,9 +27064,12 @@ exports[`Test XLSX export Generic sheets (style, hidden, size, cf) Simple model 
             </c>
         </row>
         <row r="39">
-            <c r="A39" t="s">
+            <c r="A39" cm="1" t="str">
+                <f t="array" ref="A39">
+                    A39
+                </f>
                 <v>
-                    31
+                    #CYCLE
                 </v>
             </c>
         </row>
@@ -27081,9 +27084,12 @@ exports[`Test XLSX export Generic sheets (style, hidden, size, cf) Simple model 
             </c>
         </row>
         <row r="41">
-            <c r="A41" t="s">
+            <c r="A41" cm="1" t="str">
+                <f t="array" ref="A41">
+                    #REF!+5
+                </f>
                 <v>
-                    32
+                    #REF!
                 </v>
             </c>
         </row>
@@ -27362,7 +27368,7 @@ exports[`Test XLSX export Generic sheets (style, hidden, size, cf) Simple model 
       "path": "xl/styles.xml",
     },
     {
-      "content": "<sst xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" count="33" uniqueCount="33">
+      "content": "<sst xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" count="31" uniqueCount="31">
     <si>
         <t>
             Owl is awesome
@@ -27516,16 +27522,6 @@ exports[`Test XLSX export Generic sheets (style, hidden, size, cf) Simple model 
     <si>
         <t>
             test 'single quot'
-        </t>
-    </si>
-    <si>
-        <t>
-            =A39
-        </t>
-    </si>
-    <si>
-        <t>
-            =#REF + 5
         </t>
     </si>
 </sst>",
@@ -32669,9 +32665,12 @@ exports[`Test XLSX export formulas All exportable formulas 1`] = `
             </c>
         </row>
         <row r="162">
-            <c r="A162" t="s">
+            <c r="A162" cm="1" t="str">
+                <f t="array" ref="A162">
+                    NA()
+                </f>
                 <v>
-                    20
+                    #N/A
                 </v>
             </c>
         </row>
@@ -32814,7 +32813,7 @@ exports[`Test XLSX export formulas All exportable formulas 1`] = `
       "path": "xl/styles.xml",
     },
     {
-      "content": "<sst xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" count="21" uniqueCount="21">
+      "content": "<sst xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" count="20" uniqueCount="20">
     <si>
         <t>
             evaluation
@@ -32913,11 +32912,6 @@ exports[`Test XLSX export formulas All exportable formulas 1`] = `
     <si>
         <t>
             &gt;25
-        </t>
-    </si>
-    <si>
-        <t>
-            =NA()
         </t>
     </si>
 </sst>",
@@ -33223,9 +33217,12 @@ exports[`Test XLSX export formulas All non-exportable formulas 1`] = `
             </c>
         </row>
         <row r="23">
-            <c r="A23" t="s">
+            <c r="A23" cm="1" t="str">
+                <f t="array" ref="A23">
+                    SUM(A3:A100)
+                </f>
                 <v>
-                    0
+                    #CYCLE
                 </v>
             </c>
         </row>
@@ -33613,12 +33610,7 @@ exports[`Test XLSX export formulas All non-exportable formulas 1`] = `
       "path": "xl/styles.xml",
     },
     {
-      "content": "<sst xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" count="1" uniqueCount="1">
-    <si>
-        <t>
-            =SUM(A3:A100)
-        </t>
-    </si>
+      "content": "<sst xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" count="0" uniqueCount="0">
 </sst>",
       "contentType": "sharedStrings",
       "path": "xl/sharedStrings.xml",
@@ -36064,9 +36056,12 @@ exports[`Test XLSX export formulas Multi-Sheets exportable functions 1`] = `
             </c>
         </row>
         <row r="162">
-            <c r="A162" t="s">
+            <c r="A162" cm="1" t="str">
+                <f t="array" ref="A162">
+                    NA()
+                </f>
                 <v>
-                    20
+                    #N/A
                 </v>
             </c>
         </row>
@@ -36260,7 +36255,7 @@ exports[`Test XLSX export formulas Multi-Sheets exportable functions 1`] = `
       "path": "xl/styles.xml",
     },
     {
-      "content": "<sst xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" count="21" uniqueCount="21">
+      "content": "<sst xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" count="20" uniqueCount="20">
     <si>
         <t>
             evaluation
@@ -36359,11 +36354,6 @@ exports[`Test XLSX export formulas Multi-Sheets exportable functions 1`] = `
     <si>
         <t>
             &gt;25
-        </t>
-    </si>
-    <si>
-        <t>
-            =NA()
         </t>
     </si>
 </sst>",

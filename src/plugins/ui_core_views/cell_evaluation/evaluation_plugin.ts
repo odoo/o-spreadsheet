@@ -3,6 +3,7 @@ import { matrixMap } from "../../../functions/helpers";
 import { toXC } from "../../../helpers/coordinates";
 import { getItemId } from "../../../helpers/data_normalization";
 import { cellPositions, positions } from "../../../helpers/zones";
+import { CellErrorType } from "../../../types";
 import { CellValue, CellValueType, EvaluatedCell, FormulaCell } from "../../../types/cells";
 import {
   Command,
@@ -396,7 +397,10 @@ export class EvaluationPlugin extends CoreViewPlugin {
         content = !isExported ? newContent : exportedCellData;
       }
       exportedSheetData.cells[xc] = content;
-      exportedSheetData.cellValues[xc] = evaluatedCell.type !== "error" ? value : undefined;
+      // Don't export #BAD_EXPR as a formula because it's not a valid formula.
+      // Export it as a string instead, which is also what Excel will do when
+      // it encounters a formula with a syntax error.
+      exportedSheetData.cellValues[xc] = value === CellErrorType.BadExpression ? undefined : value;
       const spillZone = this.getSpreadZone(position);
       if (spillZone) {
         exportedSheetData.formulaSpillRanges[xc] = this.getters.getRangeString(
