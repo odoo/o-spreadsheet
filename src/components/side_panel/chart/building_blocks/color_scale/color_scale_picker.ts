@@ -1,9 +1,9 @@
 import { ChartTerms } from "@odoo/o-spreadsheet-engine/components/translations_terms";
 import { DEFAULT_CHART_COLOR_SCALE } from "@odoo/o-spreadsheet-engine/constants";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
-import { Component, useExternalListener, useRef } from "@odoo/owl";
+import { Component, useExternalListener } from "@odoo/owl";
 import { ColorScale, COLORSCALES, COLORSCHEMES } from "../../../../../helpers";
-import { useState } from "../../../../../owl2";
+import { useRef, useState } from "../../../../../owl2";
 import { ChartColorScale, Color, schemeToColorScale } from "../../../../../types";
 import { cssPropertiesToCss } from "../../../../helpers";
 import { Popover, PopoverProps } from "../../../../popover";

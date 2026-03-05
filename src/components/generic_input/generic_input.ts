@@ -1,5 +1,6 @@
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
-import { Component, onMounted, onWillUpdateProps, useExternalListener, useRef } from "@odoo/owl";
+import { Component, onMounted, onWillUpdateProps, useExternalListener } from "@odoo/owl";
+import { useRef } from "../../owl2";
 import { Ref } from "../../types";
 import { useAutofocus } from "../helpers/autofocus_hook";
 
@@ -29,7 +30,7 @@ export class GenericInput<T extends GenericInputProps> extends Component<T, Spre
   protected inputRef!: Ref<HTMLInputElement>;
 
   setup() {
-    this.inputRef = useRef(this.refName);
+    this.inputRef = useRef<HTMLInputElement>(this.refName);
     useExternalListener(
       window,
       "click",

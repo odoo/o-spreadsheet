@@ -5,10 +5,10 @@ import {
 } from "@odoo/o-spreadsheet-engine/constants";
 import { getCarouselItemTitle } from "@odoo/o-spreadsheet-engine/helpers/carousel_helpers";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
-import { Component, useRef } from "@odoo/owl";
+import { Component } from "@odoo/owl";
 import { ActionSpec, createActions } from "../../../actions/action";
 import { chartStyleToCellStyle, deepEquals } from "../../../helpers";
-import { useLayoutEffect, useState } from "../../../owl2";
+import { useLayoutEffect, useRef, useState } from "../../../owl2";
 import { chartComponentRegistry } from "../../../registries/chart_component_registry";
 import { Store, useStore } from "../../../store_engine";
 import {

@@ -1,6 +1,6 @@
 import { cssPropertiesToCss } from "@odoo/o-spreadsheet-engine/components/helpers/css";
-import { Component, useRef } from "@odoo/owl";
-import { useLayoutEffect } from "../../../owl2";
+import { Component } from "@odoo/owl";
+import { useLayoutEffect, useRef } from "../../../owl2";
 import { AutoCompleteProposal } from "../../../registries/auto_completes";
 import { HtmlContent } from "../composer/composer";
 

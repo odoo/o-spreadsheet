@@ -12,11 +12,10 @@ import {
   onWillUnmount,
   onWillUpdateProps,
   useExternalListener,
-  useRef,
 } from "@odoo/owl";
 import { batched } from "../../helpers";
 import { ImageProvider } from "../../helpers/figures/images/image_provider";
-import { useLayoutEffect, useSubEnv } from "../../owl2";
+import { useLayoutEffect, useRef, useSubEnv } from "../../owl2";
 import { Store, useStore, useStoreProvider } from "../../store_engine";
 import { ModelStore } from "../../stores";
 import { NotificationStore } from "../../stores/notification_store";

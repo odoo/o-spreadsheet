@@ -1,6 +1,7 @@
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
-import { Component, useRef } from "@odoo/owl";
+import { Component } from "@odoo/owl";
 import { ActionSpec } from "../../../actions/action";
+import { useRef } from "../../../owl2";
 import { ActionButton } from "../../action_button/action_button";
 import { ToolBarDropdownStore, useToolBarDropdownStore } from "../../helpers/top_bar_tool_hook";
 import { Popover, PopoverProps } from "../../popover";

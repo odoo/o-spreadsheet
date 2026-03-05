@@ -15,8 +15,9 @@ import {
   PivotMeasure,
 } from "@odoo/o-spreadsheet-engine/types/pivot";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
-import { Component, useRef } from "@odoo/owl";
+import { Component } from "@odoo/owl";
 import { isDefined } from "../../../../helpers";
+import { useRef } from "../../../../owl2";
 import { Store, useStore } from "../../../../store_engine";
 import { SortDirection, UID } from "../../../../types";
 import { ComposerFocusStore } from "../../../composer/composer_focus_store";

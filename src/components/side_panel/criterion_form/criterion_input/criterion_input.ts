@@ -2,8 +2,8 @@ import { canonicalizeContent } from "@odoo/o-spreadsheet-engine/helpers/locale";
 import { criterionEvaluatorRegistry } from "@odoo/o-spreadsheet-engine/registries/criterion_registry";
 import { _t } from "@odoo/o-spreadsheet-engine/translation";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
-import { Component, useRef } from "@odoo/owl";
-import { useLayoutEffect, useState } from "../../../../owl2";
+import { Component } from "@odoo/owl";
+import { useLayoutEffect, useRef, useState } from "../../../../owl2";
 import { DataValidationCriterionType } from "../../../../types";
 import { StandaloneComposer } from "../../../composer/standalone_composer/standalone_composer";
 

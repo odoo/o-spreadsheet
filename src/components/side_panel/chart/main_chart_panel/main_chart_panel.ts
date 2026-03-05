@@ -1,7 +1,7 @@
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
-import { Component, useRef } from "@odoo/owl";
+import { Component } from "@odoo/owl";
 import { ChartSidePanel, chartSidePanelComponentRegistry } from "..";
-import { useLayoutEffect } from "../../../../owl2";
+import { useLayoutEffect, useRef } from "../../../../owl2";
 import { Store, useLocalStore } from "../../../../store_engine";
 import { ChartDefinition, ChartType, Pixel, Ref, UID } from "../../../../types/index";
 import { Section } from "../../components/section/section";

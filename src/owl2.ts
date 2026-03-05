@@ -72,10 +72,7 @@ export function onRendered(cb) {
   };
 }
 
-/**
- * @param {string} name
- */
-export function useRef(name) {
+export function useRef<T extends HTMLElement>(name: string): { el: T | null } {
   return owl.useRef(name);
 }
 

@@ -1,6 +1,7 @@
-import { Component, onMounted, onWillUpdateProps, useRef } from "@odoo/owl";
+import { Component, onMounted, onWillUpdateProps } from "@odoo/owl";
 
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
+import { useRef } from "../../../../owl2";
 
 interface Props {
   isCollapsed: boolean;

@@ -1,14 +1,8 @@
 import { Ref } from "@odoo/o-spreadsheet-engine";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
-import {
-  Component,
-  onMounted,
-  onWillUpdateProps,
-  useExternalListener,
-  useRef,
-  useState,
-} from "@odoo/owl";
+import { Component, onMounted, onWillUpdateProps, useExternalListener } from "@odoo/owl";
 import { clip } from "../../helpers/index";
+import { useRef, useState } from "../../owl2";
 import { Store, useStore } from "../../store_engine";
 import { DOMFocusableElementStore } from "../../stores/DOM_focus_store";
 import { isChildEvent } from "../helpers/dom_helpers";

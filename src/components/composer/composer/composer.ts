@@ -1,7 +1,7 @@
 import { NEWLINE, SCROLLBAR_WIDTH } from "@odoo/o-spreadsheet-engine/constants";
-import { Component, onMounted, onWillUnmount, useRef } from "@odoo/owl";
+import { Component, onMounted, onWillUnmount } from "@odoo/owl";
 import { debounce, deepEquals, isFormula } from "../../../helpers/index";
-import { useLayoutEffect } from "../../../owl2";
+import { useLayoutEffect, useRef } from "../../../owl2";
 
 import { cssPropertiesToCss } from "@odoo/o-spreadsheet-engine/components/helpers/css";
 import { DEFAULT_TOKEN_COLOR } from "@odoo/o-spreadsheet-engine/constants";

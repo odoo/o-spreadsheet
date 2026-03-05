@@ -1,8 +1,8 @@
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
-import { Component, onWillUpdateProps, useRef } from "@odoo/owl";
+import { Component, onWillUpdateProps } from "@odoo/owl";
 import { getPivotHighlights } from "../../../../helpers/pivot/pivot_highlight";
 import { pivotSidePanelRegistry } from "../../../../helpers/pivot/pivot_side_panel_registry";
-import { useLayoutEffect, useState } from "../../../../owl2";
+import { useLayoutEffect, useRef, useState } from "../../../../owl2";
 import { Pixel, UID } from "../../../../types";
 import { useHighlights } from "../../../helpers/highlight_hook";
 import { Section } from "../../components/section/section";

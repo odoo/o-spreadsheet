@@ -1,5 +1,4 @@
-import { useRef } from "@odoo/owl";
-import { useLayoutEffect } from "../../owl2";
+import { useLayoutEffect, useRef } from "../../owl2";
 
 export function useAutofocus({ refName }: { refName: string }) {
   const ref = useRef(refName);

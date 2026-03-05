@@ -1,6 +1,6 @@
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
-import { Component, useRef } from "@odoo/owl";
-import { useLayoutEffect } from "../../../owl2";
+import { Component } from "@odoo/owl";
+import { useLayoutEffect, useRef } from "../../../owl2";
 import { Rect } from "../../../types";
 import { getBoundingRectAsPOJO } from "../../helpers/dom_helpers";
 import { useSpreadsheetRect } from "../../helpers/position_hook";

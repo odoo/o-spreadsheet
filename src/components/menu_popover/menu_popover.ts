@@ -5,15 +5,9 @@ import {
   MENU_WIDTH,
 } from "@odoo/o-spreadsheet-engine/constants";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
-import {
-  Component,
-  onWillUnmount,
-  onWillUpdateProps,
-  useExternalListener,
-  useRef,
-  useState,
-} from "@odoo/owl";
+import { Component, onWillUnmount, onWillUpdateProps, useExternalListener } from "@odoo/owl";
 import { Action, getMenuItemsAndSeparators } from "../../actions/action";
+import { useRef, useState } from "../../owl2";
 import { MenuMouseEvent, Pixel, Rect, UID } from "../../types";
 import { PopoverPropsPosition } from "../../types/cell_popovers";
 import {

@@ -1,7 +1,7 @@
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
-import { Component, useRef } from "@odoo/owl";
+import { Component } from "@odoo/owl";
 import { Action, createAction } from "../../../actions/action";
-import { useState } from "../../../owl2";
+import { useRef, useState } from "../../../owl2";
 import { formatNumberMenuItemSpec } from "../../../registries/menus";
 import { Rect } from "../../../types";
 import { ActionButton } from "../../action_button/action_button";

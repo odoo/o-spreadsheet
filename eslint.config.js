@@ -29,6 +29,7 @@ export default tseslint.config(
                 "useEnv",
                 "useSubEnv",
                 "useChildSubEnv",
+                "useRef",
               ],
               message: "Import useState from 'owl2.ts' instead.",
             },

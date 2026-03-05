@@ -1,6 +1,6 @@
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
-import { Component, useExternalListener, useRef } from "@odoo/owl";
-import { useState } from "../../../../owl2";
+import { Component, useExternalListener } from "@odoo/owl";
+import { useRef, useState } from "../../../../owl2";
 import { Rect } from "../../../../types";
 import { ColorPicker } from "../../../color_picker/color_picker";
 import { cssPropertiesToCss } from "../../../helpers";
