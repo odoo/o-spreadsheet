@@ -383,7 +383,7 @@ export class EvaluationPlugin extends CoreViewPlugin {
         content = !isExported ? newContent : exportedCellData;
       }
       exportedSheetData.cells[xc] = content;
-      exportedSheetData.cellValues[xc] = evaluatedCell.type !== "error" ? value : undefined;
+      exportedSheetData.cellValues[xc] = value;
       const spillZone = this.getSpreadZone(position);
       if (spillZone) {
         exportedSheetData.formulaSpillRanges[xc] = this.getters.getRangeString(
