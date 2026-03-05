@@ -30,6 +30,7 @@ export default tseslint.config(
                 "useSubEnv",
                 "useChildSubEnv",
                 "useRef",
+                "useExternalListener",
               ],
               message: "Import useState from 'owl2.ts' instead.",
             },

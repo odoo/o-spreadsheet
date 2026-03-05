@@ -1,9 +1,9 @@
 import { COMPOSER_ASSISTANT_COLOR } from "@odoo/o-spreadsheet-engine/constants";
 import { PivotField } from "@odoo/o-spreadsheet-engine/types/pivot";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
-import { Component, useExternalListener } from "@odoo/owl";
+import { Component } from "@odoo/owl";
 import { fuzzyLookup } from "../../../../../helpers";
-import { useRef, useState } from "../../../../../owl2";
+import { useExternalListener, useRef, useState } from "../../../../../owl2";
 import {
   AutoCompleteProposal,
   AutoCompleteProvider,
@@ -38,11 +38,16 @@ export class AddDimensionButton extends Component<Props, SpreadsheetChildEnv> {
   setup() {
     this.autoComplete = useLocalStore(AutoCompleteStore);
     this.autoComplete.useProvider(this.getProvider());
-    useExternalListener(window, "click", (ev) => {
-      if (ev.target !== this.buttonRef.el) {
-        this.popover.isOpen = false;
-      }
-    });
+    useExternalListener(
+      window,
+      "click",
+      (ev) => {
+        if (ev.target !== this.buttonRef.el) {
+          this.popover.isOpen = false;
+        }
+      },
+      undefined
+    );
     useAutofocus({ refName: "autofocus" });
   }
 

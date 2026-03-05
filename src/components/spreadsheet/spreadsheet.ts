@@ -5,17 +5,10 @@ import { Model } from "@odoo/o-spreadsheet-engine/model";
 import { _t } from "@odoo/o-spreadsheet-engine/translation";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { NotificationStoreMethods } from "@odoo/o-spreadsheet-engine/types/stores/notification_store_methods";
-import {
-  Component,
-  onMounted,
-  onPatched,
-  onWillUnmount,
-  onWillUpdateProps,
-  useExternalListener,
-} from "@odoo/owl";
+import { Component, onMounted, onPatched, onWillUnmount, onWillUpdateProps } from "@odoo/owl";
 import { batched } from "../../helpers";
 import { ImageProvider } from "../../helpers/figures/images/image_provider";
-import { render, useLayoutEffect, useRef, useSubEnv } from "../../owl2";
+import { render, useExternalListener, useLayoutEffect, useRef, useSubEnv } from "../../owl2";
 import { Store, useStore, useStoreProvider } from "../../store_engine";
 import { ModelStore } from "../../stores";
 import { NotificationStore } from "../../stores/notification_store";
@@ -169,11 +162,11 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
       }
     });
 
-    useExternalListener(window, "resize", () => render(this, true));
+    useExternalListener(window, "resize", () => render(this, true), undefined);
     // For some reason, the wheel event is not properly registered inside templates
     // in Chromium-based browsers based on chromium 125
     // This hack ensures the event declared in the template is properly registered/working
-    useExternalListener(document.body, "wheel", () => {});
+    useExternalListener(document.body, "wheel", () => {}, undefined);
 
     onWillUpdateProps((nextProps: SpreadsheetProps) => {
       if (nextProps.model !== this.props.model) {

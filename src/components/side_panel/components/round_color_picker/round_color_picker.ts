@@ -1,6 +1,6 @@
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
-import { Component, useExternalListener } from "@odoo/owl";
-import { useRef, useState } from "../../../../owl2";
+import { Component } from "@odoo/owl";
+import { useExternalListener, useRef, useState } from "../../../../owl2";
 import { Rect } from "../../../../types";
 import { ColorPicker } from "../../../color_picker/color_picker";
 import { cssPropertiesToCss } from "../../../helpers";
@@ -41,7 +41,7 @@ export class RoundColorPicker extends Component<Props, SpreadsheetChildEnv> {
 
   setup() {
     this.state = useState({ pickerOpened: false });
-    useExternalListener(window as any, "click", this.closePicker);
+    useExternalListener(window as any, "click", this.closePicker, undefined);
   }
 
   closePicker() {
