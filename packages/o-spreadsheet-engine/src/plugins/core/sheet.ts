@@ -112,6 +112,9 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
         return CommandResult.Success;
       }
       case "CREATE_SHEET": {
+        if (cmd.name === undefined) {
+          console.warn("Sheet name is missing in the command CREATE_SHEET payload.");
+        }
         return this.checkValidations(cmd, this.checkSheetName, this.checkSheetPosition);
       }
       case "DUPLICATE_SHEET": {
