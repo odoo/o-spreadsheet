@@ -667,6 +667,9 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
   private checkSheetName(cmd: RenameSheetCommand | CreateSheetCommand): CommandResult {
     const originalSheetName = this.getters.tryGetSheetName(cmd.sheetId);
     const sheetName = cmd.type === "RENAME_SHEET" ? cmd.newName : cmd.name;
+    if (!sheetName) {
+      console.warn("Sheet name is missing in the command %s payload.", cmd.type);
+    }
     if (originalSheetName !== undefined && sheetName === originalSheetName) {
       return CommandResult.UnchangedSheetName;
     }
