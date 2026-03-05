@@ -1172,6 +1172,18 @@ export interface ToggleCheckboxCommand extends TargetDependentCommand {
   type: "TOGGLE_CHECKBOX";
 }
 
+export interface UpdateChartCommand extends SheetDependentCommand {
+  type: "UPDATE_CHART";
+  figureId: UID;
+  chartId: UID;
+  definition: ChartDefinition;
+}
+
+export interface UpdateColorSchemeCommand {
+  type: "UPDATE_COLOR_SCHEME";
+  colorScheme: "light" | "dark";
+}
+
 export type CoreCommand =
   // /** History */
   // | SelectiveUndoCommand
@@ -1338,7 +1350,8 @@ export type LocalCommand =
   | AddFigureChartToCarouselCommand
   | DuplicateCarouselChartCommand
   | UpdateCarouselActiveItemCommand
-  | PopOutChartFromCarouselCommand;
+  | PopOutChartFromCarouselCommand
+  | UpdateColorSchemeCommand;
 
 export type Command = CoreCommand | LocalCommand;
 
