@@ -1085,6 +1085,20 @@ describe("Test XLSX export", () => {
       });
       expect(await exportPrettifiedXlsx(model)).toMatchSnapshot();
     });
+
+    test("#BAD_EXPR formula is exported as a string, not a formula", async () => {
+      const model = new Model();
+      setCellContent(model, "A1", "=THISISBAD())))");
+      const xlsx = await exportPrettifiedXlsx(model);
+      const sheetFile = xlsx.files.find((file) => file.path === "xl/worksheets/sheet0.xml");
+      const stringsFile = xlsx.files.find((file) => file.path === "xl/sharedStrings.xml");
+      const sheetXml = parseXML(new XMLString((sheetFile as XLSXExportXMLFile)?.content));
+      const sharedStringsXml = parseXML(new XMLString((stringsFile as XLSXExportXMLFile)?.content));
+      expect(sheetXml.querySelector("c[r='A1'] v")?.textContent?.trim()).toBe("0"); // 1st string = index 0
+      expect(sharedStringsXml.querySelectorAll("si t")[0].textContent?.trim()).toBe(
+        "=THISISBAD())))"
+      );
+    });
   });
 
   describe("Charts", () => {
