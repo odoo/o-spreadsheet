@@ -19,7 +19,7 @@ export function createComputeFunction(
     const getArgToFocus = argTargeting(descr, args.length);
     //#region Compute vectorisation limits
     for (let i = 0; i < args.length; i++) {
-      const argIndex = getArgToFocus(i).index ?? -1;
+      const argIndex = getArgToFocus(i).index;
       const argDefinition = descr.args[argIndex];
       const arg = args[i];
       if (!isMatrix(arg) && argDefinition.acceptMatrixOnly) {
@@ -57,7 +57,7 @@ export function createComputeFunction(
     const getArgToFocus = argTargeting(descr, args.length);
     for (let i = 0; i < args.length; i++) {
       const arg = args[i];
-      const argDefinition = descr.args[getArgToFocus(i).index ?? i];
+      const argDefinition = descr.args[getArgToFocus(i).index];
 
       // Early exit if the argument is an error and the function does not accept errors
       // We only check scalar arguments, not matrix arguments for performance reasons.

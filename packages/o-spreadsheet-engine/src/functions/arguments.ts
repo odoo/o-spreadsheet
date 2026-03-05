@@ -129,7 +129,7 @@ export function addMetaInfoFromArg(
 }
 
 type ArgToFocus = (argPosition: number) => {
-  index: number | undefined;
+  index: number;
   repeatingGroupIndex?: number;
 };
 const cacheArgTargeting: Record<string, Record<number, ArgToFocus>> = {};
@@ -231,10 +231,8 @@ export function _argTargeting(
   functionDescription: FunctionDescription,
   nbrArgSupplied: number
 ): ArgToFocus {
-  const valueIndexToArgPosition: Record<
-    number,
-    { index: number | undefined; repeatingGroupIndex?: number }
-  > = {};
+  const valueIndexToArgPosition: Record<number, { index: number; repeatingGroupIndex?: number }> =
+    {};
   const groupsOfOptionalRepeatingValues = functionDescription.nbrArgRepeating
     ? Math.floor(
         (nbrArgSupplied - functionDescription.minArgRequired) / functionDescription.nbrArgRepeating

@@ -250,7 +250,7 @@ function astToDoc(ast: AST): Doc {
       const docs: Doc[] = [];
       let i = 0;
       while (i < ast.args.length) {
-        const isRepeating = functionDescription.args[getArgToFocus(i).index ?? -1]?.repeating;
+        const isRepeating = functionDescription.args[getArgToFocus(i).index]?.repeating;
         if (isRepeating) {
           const repeatingArgSeries = ast.args.slice(i, i + functionDescription.nbrArgRepeating);
           const docsSeries = repeatingArgSeries.map((arg) => astToDoc(arg));
