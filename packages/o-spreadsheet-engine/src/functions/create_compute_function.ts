@@ -54,9 +54,9 @@ export function createComputeFunction(
     this: EvalContext,
     ...args: Arg[]
   ): Matrix<FunctionResultObject> | FunctionResultObject {
+    const getArgToFocus = argTargeting(descr, args.length);
     for (let i = 0; i < args.length; i++) {
       const arg = args[i];
-      const getArgToFocus = argTargeting(descr, args.length);
       const argDefinition = descr.args[getArgToFocus(i).index ?? i];
 
       // Early exit if the argument is an error and the function does not accept errors
