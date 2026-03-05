@@ -6,6 +6,8 @@ import {
   createRange,
   createRangeFromXc,
   duplicateRangeInDuplicatedSheet,
+  getIdentityRangeAdapter,
+  getNamedRangeAdapter,
   getRangeAdapter,
   getRangeString,
   isFullColRange,
@@ -79,23 +81,12 @@ export class RangeAdapterPlugin implements CommandHandler<CoreCommand> {
 
     switch (cmd.type) {
       case "UPDATE_NAMED_RANGE":
-        rangeAdapter = {
-          applyChange: (range) => ({ changeType: "NONE", range }),
-          sheetId: cmd.ranges[0]._sheetId,
-          sheetName: { old: "ADRM TODO", current: "ADRM TODO" },
-        };
-        const lowerCaseOldName = cmd.oldRangeName.toLowerCase();
-        applyRenameNamedRange = (currentRangeName: string) => {
-          return currentRangeName.toLowerCase() === lowerCaseOldName
-            ? cmd.newRangeName
-            : currentRangeName;
-        };
+        rangeAdapter = getIdentityRangeAdapter();
+        applyRenameNamedRange = getNamedRangeAdapter(cmd);
         break;
       default: {
         rangeAdapter = getRangeAdapter(cmd);
-        if (rangeAdapter) {
-          applyRenameNamedRange = (name) => name;
-        }
+        applyRenameNamedRange = (name) => name;
       }
     }
 

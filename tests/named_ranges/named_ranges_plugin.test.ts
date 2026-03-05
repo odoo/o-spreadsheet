@@ -28,28 +28,27 @@ describe("Named range plugin", () => {
       );
     });
 
-    test.each([
-      ["Invalid Name", false],
-      ["InvalidName!", false],
-      ["InvalidName:", false],
-      ["InvalidName'", false],
-      ["a+b'", false],
-      ["122", false],
-      ["AB12", false],
-      ["A1#", false],
-      ["$A$1", false],
-      ["Valid_Name.123", true],
-      ["こんにちは", true],
-      ["안녕하세요", true],
-      ["你好", true],
-      ["éàö", true],
-    ])("Valid range names %s", (name, isValid) => {
-      const result = createNamedRange(model, name, "A1");
-      if (isValid) {
+    test.each(["Valid_Name.123", "こんにちは", "안녕하세요", "你好", "éàö"])(
+      "Valid range names %s",
+      (name) => {
+        const result = createNamedRange(model, name, "A1");
         expect(result).toBeSuccessfullyDispatched();
-      } else {
-        expect(result).not.toBeSuccessfullyDispatched();
       }
+    );
+
+    test.each([
+      "Invalid Name",
+      "InvalidName!",
+      "InvalidName:",
+      "InvalidName'",
+      "a+b'",
+      "122",
+      "AB12",
+      "A1#",
+      "$A$1",
+    ])("Invalid range names %s", (name) => {
+      const result = createNamedRange(model, name, "A1");
+      expect(result).not.toBeSuccessfullyDispatched();
     });
 
     test("Cannot update a named range that does not exist", () => {

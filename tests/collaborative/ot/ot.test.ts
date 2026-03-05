@@ -8,7 +8,9 @@ import {
   UpdateCellCommand,
   UpdateChartCommand,
   UpdateFigureCommand,
+  UpdateNamedRangeCommand,
 } from "../../../src/types";
+import { toRangeData } from "../../test_helpers/helpers";
 
 describe("OT with figures commands", () => {
   const deleteFigure: DeleteFigureCommand = {
@@ -105,5 +107,25 @@ test("OT supports case-insensitive sheetname", () => {
   expect(transform(UpdateCellCommand, AddColumnCommand)).toEqual({
     ...UpdateCellCommand,
     content: "=Sheet1!D5",
+  });
+});
+
+test("OT supports named range renaming", () => {
+  const UpdateCellCommand: UpdateCellCommand = {
+    type: "UPDATE_CELL",
+    sheetId: "sh1",
+    col: 0,
+    row: 0,
+    content: "=MyNamedRange + 5",
+  };
+  const UpdateNamedRange: UpdateNamedRangeCommand = {
+    type: "UPDATE_NAMED_RANGE",
+    oldRangeName: "MyNamedRange",
+    newRangeName: "MyRenamedRange",
+    ranges: [toRangeData("sheetId", "A1:B3")],
+  };
+  expect(transform(UpdateCellCommand, UpdateNamedRange)).toEqual({
+    ...UpdateCellCommand,
+    content: "=MyRenamedRange + 5",
   });
 });

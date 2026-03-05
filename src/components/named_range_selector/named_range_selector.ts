@@ -130,14 +130,16 @@ export class NamedRangeSelector extends Component<Props, SpreadsheetChildEnv> {
       actionsSpecs.at(-1)!.separator = true;
     }
 
-    actionsSpecs.push({
-      name: _t("Manage named ranges"),
-      execute: () => {
-        this.env.openSidePanel("NamedRangesPanel", {});
-        this.stopEditingNamedRange();
-      },
-      icon: "o-spreadsheet-Icon.COG",
-    });
+    if (!this.env.isSmall) {
+      actionsSpecs.push({
+        name: _t("Manage named ranges"),
+        execute: () => {
+          this.env.openSidePanel("NamedRangesPanel", {});
+          this.stopEditingNamedRange();
+        },
+        icon: "o-spreadsheet-Icon.COG",
+      });
+    }
 
     return createActions(actionsSpecs);
   }

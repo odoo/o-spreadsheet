@@ -76,9 +76,7 @@ export class NamedRangesPlugin extends CorePlugin<NamedRangeState> implements Na
         const index = this.getNamedRangeIndex(cmd.oldRangeName);
         if (index !== -1) {
           const range = this.getters.getRangeFromRangeData(cmd.ranges[0]);
-          const newNamedRanges = [...this.namedRanges];
-          newNamedRanges[index] = { name: cmd.newRangeName, range };
-          this.history.update("namedRanges", newNamedRanges);
+          this.history.update("namedRanges", index, { name: cmd.newRangeName, range });
         }
         break;
       }
@@ -128,7 +126,7 @@ export class NamedRangesPlugin extends CorePlugin<NamedRangeState> implements Na
   export(data: WorkbookData) {
     data.namedRanges = {};
     for (const namedRange of this.namedRanges) {
-      const xc = this.getters.getRangeString(namedRange.range, "forceSheetReference");
+      const xc = this.getters.getRangeString(namedRange.range);
       data.namedRanges[namedRange.name] = xc;
     }
   }

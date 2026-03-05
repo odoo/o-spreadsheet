@@ -3,7 +3,7 @@ import { ChartCreationContext, ChartDefinition, ChartRuntime, ChartType } from "
 import { CommandResult } from "../types/commands";
 import { CoreGetters } from "../types/core_getters";
 import { Getters } from "../types/getters";
-import { RangeAdapter, UID } from "../types/misc";
+import { ApplyRenameNamedRange, RangeAdapter, UID } from "../types/misc";
 import { Validator } from "../types/validator";
 import { Registry } from "./registry";
 
@@ -24,7 +24,8 @@ export interface ChartBuilder {
   transformDefinition(
     chartSheetId: UID,
     definition: ChartDefinition,
-    applyRange: RangeAdapter
+    applyRange: RangeAdapter,
+    namedRangeAdapter: ApplyRenameNamedRange
   ): ChartDefinition;
   getChartDefinitionFromContextCreation(context: ChartCreationContext): ChartDefinition;
   sequence: number;

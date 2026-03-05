@@ -203,22 +203,33 @@ export class CompiledFormula implements Omit<ICompiledFormula, "tokens" | "depen
     let hasChanges = false;
     for (const range of this.rangeDependencies) {
       const change = applyChange(range);
-      if (change.changeType === "NONE") {
-        newDependencies.push(range);
-      } else {
+      newDependencies.push(change.range);
+      if (change.changeType !== "NONE") {
         hasChanges = true;
-        newDependencies.push(change.range);
       }
     }
 
-    const compiledFormula = hasChanges
-      ? CompiledFormula.CopyWithDependencies(this, this.sheetId, newDependencies)
-      : this;
+    const tokenChanges = this.renameNamedRangeTokens(applyUpdateNamedRange);
 
-    return compiledFormula.renameNamedRangeTokens(applyUpdateNamedRange);
+    if (hasChanges || tokenChanges) {
+      return new CompiledFormula(
+        this.sheetId,
+        tokenChanges?.newTokens || this.tokens,
+        this.literalValues,
+        tokenChanges?.newSymbols || this.symbols,
+        newDependencies,
+        this.isBadExpression,
+        this.normalizedFormula,
+        this.execute
+      );
+    }
+    return this;
   }
 
-  private renameNamedRangeTokens(applyUpdateNamedRange: ApplyRenameNamedRange): CompiledFormula {
+  /** Change the symbols and tokens on a named range change. Return undefined if nothing has changed. */
+  private renameNamedRangeTokens(
+    applyUpdateNamedRange: ApplyRenameNamedRange
+  ): { newSymbols: string[]; newTokens: Token[] } | undefined {
     let hasChanged = false;
     const newTokens: Token[] = [];
     const newSymbols: string[] = [];
@@ -239,18 +250,7 @@ export class CompiledFormula implements Omit<ICompiledFormula, "tokens" | "depen
       }
     }
 
-    return hasChanged
-      ? new CompiledFormula(
-          this.sheetId,
-          newTokens,
-          this.literalValues,
-          newSymbols,
-          this.rangeDependencies,
-          this.isBadExpression,
-          this.normalizedFormula,
-          this.execute
-        )
-      : this;
+    return hasChanged ? { newSymbols, newTokens } : undefined;
   }
 
   static IsBadExpression(formula: string): boolean {

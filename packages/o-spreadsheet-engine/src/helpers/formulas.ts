@@ -19,7 +19,7 @@ export function adaptFormulaString(
   return adaptFormulaStringNamedRanges(adaptedFormulaStringRanges, namedRangeAdapter);
 }
 
-export function adaptFormulaStringRanges(
+function adaptFormulaStringRanges(
   defaultSheetId: string,
   formula: string,
   applyChange: RangeAdapter
@@ -59,7 +59,7 @@ export function canBeNamedRangeToken(tokens: Token[], tokenIndex: number): boole
   return token.type === "SYMBOL" && !isFuncallToken(token, nextNonSpaceToken);
 }
 
-export function adaptFormulaStringNamedRanges(
+function adaptFormulaStringNamedRanges(
   formula: string,
   namedRangeAdapter: ApplyRenameNamedRange
 ): string {
