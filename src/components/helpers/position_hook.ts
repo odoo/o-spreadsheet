@@ -1,5 +1,5 @@
-import { onMounted, onPatched, useComponent } from "@odoo/owl";
-import { useState } from "../../owl2";
+import { onMounted, onPatched } from "@odoo/owl";
+import { useComponent, useState } from "../../owl2";
 import { Rect } from "../../types";
 
 /**
