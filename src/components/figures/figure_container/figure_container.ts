@@ -3,7 +3,7 @@ import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadshee
 import { Component, onMounted, onWillUpdateProps } from "@odoo/owl";
 import { isDefined } from "../../../helpers";
 import { rectUnion } from "../../../helpers/rectangle";
-import { useState } from "../../../owl2";
+import { render, useState } from "../../../owl2";
 import { figureRegistry } from "../../../registries/figures_registry";
 import { AnchorOffset, Figure, FigureUI, Rect, ResizeDirection, UID } from "../../../types/index";
 import { cssPropertiesToCss } from "../../helpers";
@@ -125,7 +125,7 @@ export class FiguresContainer extends Component<Props, SpreadsheetChildEnv> {
       // first owl rendering is done with an empty viewport.  Only then we can
       // compute which figures should be displayed, so we have to force a
       // new rendering
-      this.render();
+      render(this);
     });
     onWillUpdateProps(() => {
       const sheetId = this.env.model.getters.getActiveSheetId();
