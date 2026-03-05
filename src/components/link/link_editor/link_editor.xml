@@ -12,7 +12,7 @@
             title="Link label"
             placeholder="e.g. 'Link label'"
             class="o-input"
-            t-model="link.label"
+            t-custom-model="link.label"
           />
         </div>
 
@@ -25,7 +25,7 @@
               placeholder="e.g. 'http://www.odoo.com'"
               title="Link URL"
               t-ref="urlInput"
-              t-model="link.url"
+              t-custom-model="link.url"
             />
           </t>
           <t t-else="">

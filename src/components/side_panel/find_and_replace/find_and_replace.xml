@@ -83,7 +83,7 @@
               type="text"
               class="o-input o-input-without-count o-replace"
               t-on-keydown="onKeydownReplace"
-              t-model="store.toReplace"
+              t-custom-model="store.toReplace"
               placeholder="e.g. 'replace me'"
             />
           </div>
