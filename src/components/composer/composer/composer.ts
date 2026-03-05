@@ -1,5 +1,5 @@
 import { NEWLINE, SCROLLBAR_WIDTH } from "@odoo/o-spreadsheet-engine/constants";
-import { Component, onMounted, onWillUnmount, useEffect, useRef, useState } from "@odoo/owl";
+import { Component, onMounted, onWillUnmount, useEffect, useRef } from "@odoo/owl";
 import { debounce, deepEquals, isFormula } from "../../../helpers/index";
 
 import { cssPropertiesToCss } from "@odoo/o-spreadsheet-engine/components/helpers/css";
@@ -8,6 +8,7 @@ import { EnrichedToken } from "@odoo/o-spreadsheet-engine/formulas/composer_toke
 import { argTargeting } from "@odoo/o-spreadsheet-engine/functions/arguments";
 import { functionRegistry } from "@odoo/o-spreadsheet-engine/functions/function_registry";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
+import { useState } from "../../../owl2";
 import { Store, useStore } from "../../../store_engine";
 import { DOMFocusableElementStore } from "../../../stores/DOM_focus_store";
 import {

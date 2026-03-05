@@ -5,7 +5,8 @@ import {
 } from "@odoo/o-spreadsheet-engine/components/translations_terms";
 import { MIN_COL_WIDTH, MIN_ROW_HEIGHT } from "@odoo/o-spreadsheet-engine/constants";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
-import { Component, useRef, useState } from "@odoo/owl";
+import { Component, useRef } from "@odoo/owl";
+import { useState } from "../../owl2";
 import { Store, useStore } from "../../store_engine";
 import {
   CommandResult,

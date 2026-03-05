@@ -1,5 +1,6 @@
 import { cssPropertiesToCss } from "@odoo/o-spreadsheet-engine/components/helpers/css";
-import { onWillUnmount, useState } from "@odoo/owl";
+import { onWillUnmount } from "@odoo/owl";
+import { useState } from "../../owl2";
 import { CSSProperties, Pixel, UID } from "../../types";
 import { startDnd } from "./drag_and_drop";
 
@@ -103,7 +104,7 @@ export function useDragAndDropListItems() {
     cleanUp();
   });
 
-  const state = useState<State>({
+  const state: State = useState({
     itemsStyle: {},
     draggedItemId: undefined,
     start,

@@ -5,7 +5,8 @@ import {
   ChartSubtypeProperties,
 } from "@odoo/o-spreadsheet-engine/types/chart_subtype_properties";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
-import { Component, useExternalListener, useRef, useState } from "@odoo/owl";
+import { Component, useExternalListener, useRef } from "@odoo/owl";
+import { useState } from "../../../../owl2";
 import { ChartDefinition, ChartType, UID } from "../../../../types/index";
 import { isChildEvent } from "../../../helpers/dom_helpers";
 import { Popover, PopoverProps } from "../../../popover";
@@ -33,7 +34,7 @@ export class ChartTypePicker extends Component<Props, SpreadsheetChildEnv> {
   popoverRef = useRef("popoverRef");
   selectRef = useRef("selectRef");
 
-  state = useState<ChartTypePickerState>({ popoverProps: undefined, popoverStyle: "" });
+  state: ChartTypePickerState = useState({ popoverProps: undefined, popoverStyle: "" });
 
   setup(): void {
     useExternalListener(window, "pointerdown", this.onExternalClick, { capture: true });

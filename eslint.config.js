@@ -16,6 +16,24 @@ export default tseslint.config(
       eqeqeq: "error", // ban non-strict equal
       "@typescript-eslint/no-non-null-asserted-optional-chain": "error", // ban non-null assertion in optional chain
       curly: ["error", "all"], // enforce curly braces for all control statements
+      "no-restricted-imports": [
+        "error",
+        {
+          paths: [
+            {
+              name: "@odoo/owl",
+              importNames: ["useState"],
+              message: "Import useState from 'owl2.ts' instead.",
+            },
+          ],
+        },
+      ],
+    },
+  },
+  {
+    files: ["src/owl2.ts"],
+    rules: {
+      "no-restricted-imports": "off",
     },
   }
 );

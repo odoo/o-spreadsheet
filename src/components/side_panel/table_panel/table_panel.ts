@@ -1,10 +1,11 @@
-import { Component, useState } from "@odoo/owl";
+import { Component } from "@odoo/owl";
 import { getZoneArea, positionToZone } from "../../../helpers";
 import { CommandResult, CoreTable, DispatchResult, Range, TableConfig, Zone } from "../../../types";
 
 import { TableTerms } from "@odoo/o-spreadsheet-engine/components/translations_terms";
 import { getTableTopLeft } from "@odoo/o-spreadsheet-engine/helpers/table_helpers";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
+import { useState } from "../../../owl2";
 import { NumberInput } from "../../number_input/number_input";
 import { SelectionInput } from "../../selection_input/selection_input";
 import { TableStylePicker } from "../../tables/table_style_picker/table_style_picker";

@@ -1,4 +1,5 @@
-import { useEffect, useState } from "@odoo/owl";
+import { useEffect } from "@odoo/owl";
+import { useState } from "../../owl2";
 import { Ref } from "../../types";
 
 /**

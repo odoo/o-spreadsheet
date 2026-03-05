@@ -3,7 +3,8 @@ import {
   getElementMargins,
 } from "@odoo/o-spreadsheet-engine/components/helpers/css";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
-import { Component, onMounted, onWillUnmount, useRef, useState } from "@odoo/owl";
+import { Component, onMounted, onWillUnmount, useRef } from "@odoo/owl";
+import { useState } from "../../owl2";
 import { Rect } from "../../types";
 import { getBoundingRectAsPOJO } from "../helpers/dom_helpers";
 
@@ -141,7 +142,7 @@ export class Ripple extends Component<RippleProps, SpreadsheetChildEnv> {
 
   private childContainer = useRef("childContainer");
 
-  private state = useState<RippleState>({ ripples: [] });
+  private state: RippleState = useState({ ripples: [] });
 
   private currentId = 1;
 

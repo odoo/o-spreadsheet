@@ -6,8 +6,9 @@ import {
 } from "@odoo/o-spreadsheet-engine/helpers/locale";
 import { criterionEvaluatorRegistry } from "@odoo/o-spreadsheet-engine/registries/criterion_registry";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
-import { Component, ComponentConstructor, useState } from "@odoo/owl";
+import { Component, ComponentConstructor } from "@odoo/owl";
 import { zoneToXc } from "../../../../helpers";
+import { useState } from "../../../../owl2";
 import {
   criterionComponentRegistry,
   getCriterionValueAndLabels,
@@ -48,7 +49,7 @@ export class DataValidationEditor extends Component<Props, SpreadsheetChildEnv> 
     onCloseSidePanel: Function,
   };
 
-  state = useState<State>({
+  state: State = useState({
     rule: this.defaultDataValidationRule,
     errors: [],
     isTypeUpdated: false,
