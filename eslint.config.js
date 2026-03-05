@@ -22,7 +22,14 @@ export default tseslint.config(
           paths: [
             {
               name: "@odoo/owl",
-              importNames: ["useState", "useEffect", "useComponent", "useEnv", "useSubEnv"],
+              importNames: [
+                "useState",
+                "useEffect",
+                "useComponent",
+                "useEnv",
+                "useSubEnv",
+                "useChildSubEnv",
+              ],
               message: "Import useState from 'owl2.ts' instead.",
             },
           ],
