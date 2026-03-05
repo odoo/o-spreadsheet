@@ -391,6 +391,14 @@ export class SpreadsheetPivot implements Pivot<SpreadsheetPivotRuntimeDefinition
     if (!sheetId) {
       return [];
     }
+    dataEntries = dataEntries.filter((dataEntry) => {
+      for (const field in dataEntry) {
+        if (field !== "__count" && dataEntry[field].value !== null) {
+          return true;
+        }
+      }
+      return false;
+    });
     if (this._definition && this._definition.filters) {
       dataEntries = dataEntries.filter((dataEntry) => {
         let passesAllFilters = true;

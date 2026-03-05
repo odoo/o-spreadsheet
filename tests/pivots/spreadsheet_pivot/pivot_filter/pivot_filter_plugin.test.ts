@@ -163,6 +163,31 @@ describe("pivot table with filters", () => {
       ["Total", "10"]
     ]);
   });
+
+  test("Filter empty rows", () => {
+    // prettier-ignore
+    const grid = {
+      A1: "Customer", B1: "Price", C1: "=PIVOT(1)",
+      A2: "Alice", B2: "10",
+      A3: "", B3: "",
+      A4: "Olaf", B4: "30",
+    };
+    const model = createModelFromGrid(grid);
+    addPivot(model, "A1:B4", {
+      rows: [{ fieldName: "Customer", order: "asc" }],
+      columns: [],
+      measures: [{ id: "price", fieldName: "Price", aggregator: "sum" }],
+      filters: [],
+    });
+    // prettier-ignore
+    expect(getEvaluatedGrid(model, "C1:C5")).toEqual([
+      ["Pivot"],
+      [""],
+      ["Alice"],
+      ["Olaf"],
+      ["Total"],
+    ]);
+  });
 });
 
 test("migration", () => {
