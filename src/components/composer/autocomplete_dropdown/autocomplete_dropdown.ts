@@ -1,5 +1,6 @@
 import { cssPropertiesToCss } from "@odoo/o-spreadsheet-engine/components/helpers/css";
-import { Component, useEffect, useRef } from "@odoo/owl";
+import { Component, useRef } from "@odoo/owl";
+import { useLayoutEffect } from "../../../owl2";
 import { AutoCompleteProposal } from "../../../registries/auto_completes";
 import { HtmlContent } from "../composer/composer";
 
@@ -21,7 +22,7 @@ export class TextValueProvider extends Component<Props> {
   private autoCompleteListRef = useRef("autoCompleteList");
 
   setup() {
-    useEffect(
+    useLayoutEffect(
       () => {
         const selectedIndex = this.props.selectedIndex;
         if (selectedIndex === undefined) {

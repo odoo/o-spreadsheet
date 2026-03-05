@@ -1,16 +1,9 @@
 import { DEFAULT_FONT_SIZE } from "@odoo/o-spreadsheet-engine/constants";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
-import {
-  Component,
-  onWillStart,
-  onWillUpdateProps,
-  useEffect,
-  useExternalListener,
-  useRef,
-  useState,
-} from "@odoo/owl";
+import { Component, onWillStart, onWillUpdateProps, useExternalListener, useRef } from "@odoo/owl";
 import { Action } from "../../actions/action";
 import { setStyle } from "../../actions/menu_items_actions";
+import { useLayoutEffect, useState } from "../../owl2";
 import { formatNumberMenuItemSpec } from "../../registries/menus";
 import { topbarMenuRegistry } from "../../registries/menus/topbar_menu_registry";
 import { topbarComponentRegistry } from "../../registries/topbar_component_registry";
@@ -88,7 +81,7 @@ export class TopBar extends Component<Props, SpreadsheetChildEnv> {
     onWillStart(() => this.updateCellState());
     onWillUpdateProps(() => this.updateCellState());
 
-    useEffect(
+    useLayoutEffect(
       () => {
         this.state.toolsPopoverState.isOpen = false;
         this.setVisibilityToolsGroups();

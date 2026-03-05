@@ -2,7 +2,8 @@ import { drawScoreChart } from "@odoo/o-spreadsheet-engine/helpers/figures/chart
 import { getScorecardConfiguration } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/scorecard_chart_config_builder";
 import { ScorecardChartRuntime } from "@odoo/o-spreadsheet-engine/types/chart/scorecard_chart";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
-import { Component, useEffect, useRef } from "@odoo/owl";
+import { Component, useRef } from "@odoo/owl";
+import { useLayoutEffect } from "../../../../owl2";
 import { UID } from "../../../../types";
 import { getZoomedRect } from "../../../helpers/zoom";
 
@@ -29,7 +30,7 @@ export class ScorecardChart extends Component<Props, SpreadsheetChildEnv> {
   }
 
   setup() {
-    useEffect(this.createChart.bind(this), () => {
+    useLayoutEffect(this.createChart.bind(this), () => {
       const canvas = this.canvas.el as HTMLCanvasElement;
       const rect = canvas.getBoundingClientRect();
       return [rect.width, rect.height, this.runtime, this.canvas.el, window.devicePixelRatio];

@@ -1,5 +1,4 @@
-import { useEffect } from "@odoo/owl";
-import { useState } from "../../owl2";
+import { useLayoutEffect, useState } from "../../owl2";
 import { Ref } from "../../types";
 
 /**
@@ -14,7 +13,7 @@ export function useRefListener(
   ref: Ref<HTMLElement>,
   ...listener: Parameters<typeof addEventListener>
 ) {
-  useEffect(
+  useLayoutEffect(
     (el: HTMLElement | null) => {
       el?.addEventListener(...listener);
       return () => el?.removeEventListener(...listener);

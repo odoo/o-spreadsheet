@@ -5,10 +5,10 @@ import {
 } from "@odoo/o-spreadsheet-engine/constants";
 import { getCarouselItemTitle } from "@odoo/o-spreadsheet-engine/helpers/carousel_helpers";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
-import { Component, useEffect, useRef } from "@odoo/owl";
+import { Component, useRef } from "@odoo/owl";
 import { ActionSpec, createActions } from "../../../actions/action";
 import { chartStyleToCellStyle, deepEquals } from "../../../helpers";
-import { useState } from "../../../owl2";
+import { useLayoutEffect, useState } from "../../../owl2";
 import { chartComponentRegistry } from "../../../registries/chart_component_registry";
 import { Store, useStore } from "../../../store_engine";
 import {
@@ -56,7 +56,7 @@ export class CarouselFigure extends Component<Props, SpreadsheetChildEnv> {
     this.animationStore = useStore(ChartAnimationStore);
     this.fullScreenFigureStore = useStore(FullScreenFigureStore);
 
-    useEffect(() => {
+    useLayoutEffect(() => {
       if (this.selectedCarouselItem?.type === "carouselDataView") {
         this.props.editFigureStyle?.({ "pointer-events": "none" });
       } else {

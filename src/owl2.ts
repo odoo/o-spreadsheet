@@ -122,7 +122,7 @@ export function reactive(data, callback) {
  * @param {Function} effect
  * @param {() => any[]} computeDependencies
  */
-export function useLayoutEffect(effect, computeDependencies = () => [NaN]) {
+export function useLayoutEffect(effect, computeDependencies: () => any[] = () => [NaN]) {
   /** @type {Function} */
   let cleanup;
   /** @type {any[]} */

@@ -11,15 +11,7 @@ import { openLink } from "@odoo/o-spreadsheet-engine/helpers/links";
 import { isStaticTable } from "@odoo/o-spreadsheet-engine/helpers/table_helpers";
 import { AllowedImageMimeTypes } from "@odoo/o-spreadsheet-engine/types/image";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
-import {
-  Component,
-  onMounted,
-  useChildSubEnv,
-  useEffect,
-  useExternalListener,
-  useRef,
-  useState,
-} from "@odoo/owl";
+import { Component, onMounted, useChildSubEnv, useExternalListener, useRef } from "@odoo/owl";
 import { insertSheet, insertTable } from "../../actions/insert_actions";
 import {
   CREATE_IMAGE,
@@ -36,6 +28,7 @@ import {
   interactivePaste,
   interactivePasteFromOS,
 } from "../../helpers/ui/paste_interactive";
+import { useLayoutEffect, useState } from "../../owl2";
 import { cellMenuRegistry } from "../../registries/menus/cell_menu_registry";
 import { colMenuRegistry } from "../../registries/menus/col_menu_registry";
 import {
@@ -198,7 +191,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     });
     this.cellPopovers = useStore(CellPopoverStore);
 
-    useEffect(
+    useLayoutEffect(
       (isMainPanelOpen, isSecondaryPanelOpen) => {
         if (!isMainPanelOpen && !isSecondaryPanelOpen) {
           this.DOMFocusableElementStore.focus();
