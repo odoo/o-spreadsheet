@@ -797,7 +797,7 @@ export class Composer extends Component<CellComposerProps, SpreadsheetChildEnv> 
       argTargeting(
         description,
         Math.max(Math.min(maxArgPossible, nbrArgSuppliedRoundedToGroupOfRepeating), minArgRequired)
-      )(argPosition).repeatingGroupIndex ?? 0
+      )[argPosition].repeatingGroupIndex ?? 0
     );
   }
 
@@ -824,7 +824,7 @@ export class Composer extends Component<CellComposerProps, SpreadsheetChildEnv> 
       const focusedArg = argTargeting(
         description,
         Math.max(Math.min(maxArgPossible, nbrArgSupplied), minArgRequired)
-      )(argPosition)?.index;
+      )[argPosition]?.index;
       return focusedArg !== undefined ? [focusedArg] : [];
     }
 
@@ -839,7 +839,7 @@ export class Composer extends Component<CellComposerProps, SpreadsheetChildEnv> 
 
     const argsToFocus: number[] = [];
     for (let i = minArgsNumberPossibility; i <= maxArgsNumberPossibility; i++) {
-      const focusedArg = argTargeting(description, i)(argPosition)?.index;
+      const focusedArg = argTargeting(description, i)[argPosition]?.index;
       if (focusedArg !== undefined) {
         argsToFocus.push(focusedArg);
       }

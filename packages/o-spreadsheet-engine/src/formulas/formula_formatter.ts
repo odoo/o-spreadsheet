@@ -246,11 +246,11 @@ function astToDoc(ast: AST): Doc {
 
     case "FUNCALL":
       const functionDescription = functionRegistry.get(ast.value.toUpperCase());
-      const getArgToFocus = argTargeting(functionDescription, ast.args.length);
+      const argsToFocus = argTargeting(functionDescription, ast.args.length);
       const docs: Doc[] = [];
       let i = 0;
       while (i < ast.args.length) {
-        const isRepeating = functionDescription.args[getArgToFocus(i).index]?.repeating;
+        const isRepeating = functionDescription.args[argsToFocus[i].index]?.repeating;
         if (isRepeating) {
           const repeatingArgSeries = ast.args.slice(i, i + functionDescription.nbrArgRepeating);
           const docsSeries = repeatingArgSeries.map((arg) => astToDoc(arg));

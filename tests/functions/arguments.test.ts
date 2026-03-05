@@ -205,9 +205,9 @@ describe("function addMetaInfoFromArg", () => {
     expect(descr.nbrArgRepeating).toBe(0);
     expect(descr.nbrOptionalNonRepeatingArgs).toBe(0);
 
-    const getArgToFocus = argTargeting(descr, 2);
-    expect(getArgToFocus(0).index).toBe(0);
-    expect(getArgToFocus(1).index).toBe(1);
+    const argsToFocus = argTargeting(descr, 2);
+    expect(argsToFocus[0].index).toBe(0);
+    expect(argsToFocus[1].index).toBe(1);
   });
 
   test("with optional arguments", () => {
@@ -228,12 +228,12 @@ describe("function addMetaInfoFromArg", () => {
     expect(descr.nbrArgRepeating).toBe(0);
     expect(descr.nbrOptionalNonRepeatingArgs).toBe(1);
 
-    const getArgToFocusOnOneArg = argTargeting(descr, 1);
-    expect(getArgToFocusOnOneArg(0).index).toBe(0);
+    const argsToFocusOnOneArg = argTargeting(descr, 1);
+    expect(argsToFocusOnOneArg[0].index).toBe(0);
 
-    const getArgToFocusOnTwoArgs = argTargeting(descr, 2);
-    expect(getArgToFocusOnTwoArgs(0).index).toBe(0);
-    expect(getArgToFocusOnTwoArgs(1).index).toBe(1);
+    const argsToFocusOnTwoArgs = argTargeting(descr, 2);
+    expect(argsToFocusOnTwoArgs[0].index).toBe(0);
+    expect(argsToFocusOnTwoArgs[1].index).toBe(1);
   });
 
   test("with repeatable argument", () => {
@@ -254,17 +254,17 @@ describe("function addMetaInfoFromArg", () => {
     expect(descr.nbrArgRepeating).toBe(1);
     expect(descr.nbrOptionalNonRepeatingArgs).toBe(0);
 
-    const getArgToFocusOnOneArg = argTargeting(descr, 1);
-    expect(getArgToFocusOnOneArg(0).index).toBe(0);
+    const argsToFocusOnOneArg = argTargeting(descr, 1);
+    expect(argsToFocusOnOneArg[0].index).toBe(0);
 
-    const getArgToFocusOnSeveralArgs = argTargeting(descr, 42);
-    expect(getArgToFocusOnSeveralArgs(0).index).toBe(0);
-    expect(getArgToFocusOnSeveralArgs(1).index).toBe(1);
-    expect(getArgToFocusOnSeveralArgs(1).repeatingGroupIndex).toBe(0);
-    expect(getArgToFocusOnSeveralArgs(20).index).toBe(1);
-    expect(getArgToFocusOnSeveralArgs(20).repeatingGroupIndex).toBe(19);
-    expect(getArgToFocusOnSeveralArgs(41).index).toBe(1);
-    expect(getArgToFocusOnSeveralArgs(41).repeatingGroupIndex).toBe(40);
+    const argsToFocusOnSeveralArgs = argTargeting(descr, 42);
+    expect(argsToFocusOnSeveralArgs[0].index).toBe(0);
+    expect(argsToFocusOnSeveralArgs[1].index).toBe(1);
+    expect(argsToFocusOnSeveralArgs[1].repeatingGroupIndex).toBe(0);
+    expect(argsToFocusOnSeveralArgs[20].index).toBe(1);
+    expect(argsToFocusOnSeveralArgs[20].repeatingGroupIndex).toBe(19);
+    expect(argsToFocusOnSeveralArgs[41].index).toBe(1);
+    expect(argsToFocusOnSeveralArgs[41].repeatingGroupIndex).toBe(40);
   });
 
   test("with more than one repeatable argument", () => {
@@ -286,16 +286,16 @@ describe("function addMetaInfoFromArg", () => {
     expect(descr.nbrArgRepeating).toBe(2);
     expect(descr.nbrOptionalNonRepeatingArgs).toBe(0);
 
-    const getArgToFocus = argTargeting(descr, 42);
-    expect(getArgToFocus(0).index).toBe(0);
-    expect(getArgToFocus(1).index).toBe(1);
-    expect(getArgToFocus(1).repeatingGroupIndex).toBe(0);
-    expect(getArgToFocus(2).index).toBe(2);
-    expect(getArgToFocus(2).repeatingGroupIndex).toBe(0);
-    expect(getArgToFocus(4).index).toBe(2);
-    expect(getArgToFocus(4).repeatingGroupIndex).toBe(1);
-    expect(getArgToFocus(7).index).toBe(1);
-    expect(getArgToFocus(7).repeatingGroupIndex).toBe(3);
+    const argsToFocus = argTargeting(descr, 42);
+    expect(argsToFocus[0].index).toBe(0);
+    expect(argsToFocus[1].index).toBe(1);
+    expect(argsToFocus[1].repeatingGroupIndex).toBe(0);
+    expect(argsToFocus[2].index).toBe(2);
+    expect(argsToFocus[2].repeatingGroupIndex).toBe(0);
+    expect(argsToFocus[4].index).toBe(2);
+    expect(argsToFocus[4].repeatingGroupIndex).toBe(1);
+    expect(argsToFocus[7].index).toBe(1);
+    expect(argsToFocus[7].repeatingGroupIndex).toBe(3);
   });
 
   test("with optional arg after repeatable argument", () => {
@@ -319,31 +319,31 @@ describe("function addMetaInfoFromArg", () => {
     expect(descr.nbrArgRepeating).toBe(2);
     expect(descr.nbrOptionalNonRepeatingArgs).toBe(1);
 
-    const getArgToFocus_3 = argTargeting(descr, 3);
-    expect(getArgToFocus_3(0).index).toBe(0);
-    expect(getArgToFocus_3(1).index).toBe(1);
-    expect(getArgToFocus_3(1).repeatingGroupIndex).toBe(0);
-    expect(getArgToFocus_3(2).index).toBe(2);
-    expect(getArgToFocus_3(2).repeatingGroupIndex).toBe(0);
+    const argsToFocus_3 = argTargeting(descr, 3);
+    expect(argsToFocus_3[0].index).toBe(0);
+    expect(argsToFocus_3[1].index).toBe(1);
+    expect(argsToFocus_3[1].repeatingGroupIndex).toBe(0);
+    expect(argsToFocus_3[2].index).toBe(2);
+    expect(argsToFocus_3[2].repeatingGroupIndex).toBe(0);
 
-    const getArgToFocus_4 = argTargeting(descr, 4);
-    expect(getArgToFocus_4(0).index).toBe(0);
-    expect(getArgToFocus_4(1).index).toBe(1);
-    expect(getArgToFocus_4(1).repeatingGroupIndex).toBe(0);
-    expect(getArgToFocus_4(2).index).toBe(2);
-    expect(getArgToFocus_4(2).repeatingGroupIndex).toBe(0);
-    expect(getArgToFocus_4(3).index).toBe(3);
+    const argsToFocus_4 = argTargeting(descr, 4);
+    expect(argsToFocus_4[0].index).toBe(0);
+    expect(argsToFocus_4[1].index).toBe(1);
+    expect(argsToFocus_4[1].repeatingGroupIndex).toBe(0);
+    expect(argsToFocus_4[2].index).toBe(2);
+    expect(argsToFocus_4[2].repeatingGroupIndex).toBe(0);
+    expect(argsToFocus_4[3].index).toBe(3);
 
-    const getArgToFocus_5 = argTargeting(descr, 5);
-    expect(getArgToFocus_5(0).index).toBe(0);
-    expect(getArgToFocus_5(1).index).toBe(1);
-    expect(getArgToFocus_5(1).repeatingGroupIndex).toBe(0);
-    expect(getArgToFocus_5(2).index).toBe(2);
-    expect(getArgToFocus_5(2).repeatingGroupIndex).toBe(0);
-    expect(getArgToFocus_5(3).index).toBe(1);
-    expect(getArgToFocus_5(3).repeatingGroupIndex).toBe(1);
-    expect(getArgToFocus_5(4).index).toBe(2);
-    expect(getArgToFocus_5(4).repeatingGroupIndex).toBe(1);
+    const argsToFocus_5 = argTargeting(descr, 5);
+    expect(argsToFocus_5[0].index).toBe(0);
+    expect(argsToFocus_5[1].index).toBe(1);
+    expect(argsToFocus_5[1].repeatingGroupIndex).toBe(0);
+    expect(argsToFocus_5[2].index).toBe(2);
+    expect(argsToFocus_5[2].repeatingGroupIndex).toBe(0);
+    expect(argsToFocus_5[3].index).toBe(1);
+    expect(argsToFocus_5[3].repeatingGroupIndex).toBe(1);
+    expect(argsToFocus_5[4].index).toBe(2);
+    expect(argsToFocus_5[4].repeatingGroupIndex).toBe(1);
   });
 
   test("with 2 optionals arg after 3 repeatable arguments", () => {
@@ -369,31 +369,31 @@ describe("function addMetaInfoFromArg", () => {
     expect(descr.nbrArgRepeating).toBe(3);
     expect(descr.nbrOptionalNonRepeatingArgs).toBe(2);
 
-    const getArgToFocus_5 = argTargeting(descr, 5);
-    expect(getArgToFocus_5(0).index).toBe(0);
-    expect(getArgToFocus_5(1).index).toBe(1);
-    expect(getArgToFocus_5(1).repeatingGroupIndex).toBe(0);
-    expect(getArgToFocus_5(2).index).toBe(2);
-    expect(getArgToFocus_5(2).repeatingGroupIndex).toBe(0);
-    expect(getArgToFocus_5(3).index).toBe(3);
-    expect(getArgToFocus_5(3).repeatingGroupIndex).toBe(0);
-    expect(getArgToFocus_5(4).index).toBe(4);
+    const argsToFocus_5 = argTargeting(descr, 5);
+    expect(argsToFocus_5[0].index).toBe(0);
+    expect(argsToFocus_5[1].index).toBe(1);
+    expect(argsToFocus_5[1].repeatingGroupIndex).toBe(0);
+    expect(argsToFocus_5[2].index).toBe(2);
+    expect(argsToFocus_5[2].repeatingGroupIndex).toBe(0);
+    expect(argsToFocus_5[3].index).toBe(3);
+    expect(argsToFocus_5[3].repeatingGroupIndex).toBe(0);
+    expect(argsToFocus_5[4].index).toBe(4);
 
-    const getArgToFocus_8 = argTargeting(descr, 8);
-    expect(getArgToFocus_8(0).index).toBe(0);
-    expect(getArgToFocus_8(1).index).toBe(1);
-    expect(getArgToFocus_8(1).repeatingGroupIndex).toBe(0);
-    expect(getArgToFocus_8(2).index).toBe(2);
-    expect(getArgToFocus_8(2).repeatingGroupIndex).toBe(0);
-    expect(getArgToFocus_8(3).index).toBe(3);
-    expect(getArgToFocus_8(3).repeatingGroupIndex).toBe(0);
-    expect(getArgToFocus_8(4).index).toBe(1);
-    expect(getArgToFocus_8(4).repeatingGroupIndex).toBe(1);
-    expect(getArgToFocus_8(5).index).toBe(2);
-    expect(getArgToFocus_8(5).repeatingGroupIndex).toBe(1);
-    expect(getArgToFocus_8(6).index).toBe(3);
-    expect(getArgToFocus_8(6).repeatingGroupIndex).toBe(1);
-    expect(getArgToFocus_8(7).index).toBe(4);
+    const argsToFocus_8 = argTargeting(descr, 8);
+    expect(argsToFocus_8[0].index).toBe(0);
+    expect(argsToFocus_8[1].index).toBe(1);
+    expect(argsToFocus_8[1].repeatingGroupIndex).toBe(0);
+    expect(argsToFocus_8[2].index).toBe(2);
+    expect(argsToFocus_8[2].repeatingGroupIndex).toBe(0);
+    expect(argsToFocus_8[3].index).toBe(3);
+    expect(argsToFocus_8[3].repeatingGroupIndex).toBe(0);
+    expect(argsToFocus_8[4].index).toBe(1);
+    expect(argsToFocus_8[4].repeatingGroupIndex).toBe(1);
+    expect(argsToFocus_8[5].index).toBe(2);
+    expect(argsToFocus_8[5].repeatingGroupIndex).toBe(1);
+    expect(argsToFocus_8[6].index).toBe(3);
+    expect(argsToFocus_8[6].repeatingGroupIndex).toBe(1);
+    expect(argsToFocus_8[7].index).toBe(4);
   });
 
   test("with required arg after repeatable argument", () => {
@@ -417,29 +417,29 @@ describe("function addMetaInfoFromArg", () => {
     expect(descr.nbrArgRepeating).toBe(2);
     expect(descr.nbrOptionalNonRepeatingArgs).toBe(0);
 
-    const getArgToFocus_2 = argTargeting(descr, 2);
-    expect(getArgToFocus_2(0).index).toBe(0);
-    expect(getArgToFocus_2(1).index).toBe(3);
+    const argsToFocus_2 = argTargeting(descr, 2);
+    expect(argsToFocus_2[0].index).toBe(0);
+    expect(argsToFocus_2[1].index).toBe(3);
 
-    const getArgToFocus_4 = argTargeting(descr, 4);
-    expect(getArgToFocus_4(0).index).toBe(0);
-    expect(getArgToFocus_4(1).index).toBe(1);
-    expect(getArgToFocus_4(1).repeatingGroupIndex).toBe(0);
-    expect(getArgToFocus_4(2).index).toBe(2);
-    expect(getArgToFocus_4(2).repeatingGroupIndex).toBe(0);
-    expect(getArgToFocus_4(3).index).toBe(3);
+    const argsToFocus_4 = argTargeting(descr, 4);
+    expect(argsToFocus_4[0].index).toBe(0);
+    expect(argsToFocus_4[1].index).toBe(1);
+    expect(argsToFocus_4[1].repeatingGroupIndex).toBe(0);
+    expect(argsToFocus_4[2].index).toBe(2);
+    expect(argsToFocus_4[2].repeatingGroupIndex).toBe(0);
+    expect(argsToFocus_4[3].index).toBe(3);
 
-    const getArgToFocus_6 = argTargeting(descr, 6);
-    expect(getArgToFocus_6(0).index).toBe(0);
-    expect(getArgToFocus_6(1).index).toBe(1);
-    expect(getArgToFocus_6(1).repeatingGroupIndex).toBe(0);
-    expect(getArgToFocus_6(2).index).toBe(2);
-    expect(getArgToFocus_6(2).repeatingGroupIndex).toBe(0);
-    expect(getArgToFocus_6(3).index).toBe(1);
-    expect(getArgToFocus_6(3).repeatingGroupIndex).toBe(1);
-    expect(getArgToFocus_6(4).index).toBe(2);
-    expect(getArgToFocus_6(4).repeatingGroupIndex).toBe(1);
-    expect(getArgToFocus_6(5).index).toBe(3);
+    const argsToFocus_6 = argTargeting(descr, 6);
+    expect(argsToFocus_6[0].index).toBe(0);
+    expect(argsToFocus_6[1].index).toBe(1);
+    expect(argsToFocus_6[1].repeatingGroupIndex).toBe(0);
+    expect(argsToFocus_6[2].index).toBe(2);
+    expect(argsToFocus_6[2].repeatingGroupIndex).toBe(0);
+    expect(argsToFocus_6[3].index).toBe(1);
+    expect(argsToFocus_6[3].repeatingGroupIndex).toBe(1);
+    expect(argsToFocus_6[4].index).toBe(2);
+    expect(argsToFocus_6[4].repeatingGroupIndex).toBe(1);
+    expect(argsToFocus_6[5].index).toBe(3);
   });
 
   test("with required arg after optional argument", () => {
@@ -463,20 +463,20 @@ describe("function addMetaInfoFromArg", () => {
     expect(descr.nbrArgRepeating).toBe(0);
     expect(descr.nbrOptionalNonRepeatingArgs).toBe(2);
 
-    const getArgToFocus_2 = argTargeting(descr, 2);
-    expect(getArgToFocus_2(0).index).toBe(0);
-    expect(getArgToFocus_2(1).index).toBe(3);
+    const argsToFocus_2 = argTargeting(descr, 2);
+    expect(argsToFocus_2[0].index).toBe(0);
+    expect(argsToFocus_2[1].index).toBe(3);
 
-    const getArgToFocus_3 = argTargeting(descr, 3);
-    expect(getArgToFocus_3(0).index).toBe(0);
-    expect(getArgToFocus_3(1).index).toBe(1);
-    expect(getArgToFocus_3(2).index).toBe(3);
+    const argsToFocus_3 = argTargeting(descr, 3);
+    expect(argsToFocus_3[0].index).toBe(0);
+    expect(argsToFocus_3[1].index).toBe(1);
+    expect(argsToFocus_3[2].index).toBe(3);
 
-    const getArgToFocus_4 = argTargeting(descr, 4);
-    expect(getArgToFocus_4(0).index).toBe(0);
-    expect(getArgToFocus_4(1).index).toBe(1);
-    expect(getArgToFocus_4(2).index).toBe(2);
-    expect(getArgToFocus_4(3).index).toBe(3);
+    const argsToFocus_4 = argTargeting(descr, 4);
+    expect(argsToFocus_4[0].index).toBe(0);
+    expect(argsToFocus_4[1].index).toBe(1);
+    expect(argsToFocus_4[2].index).toBe(2);
+    expect(argsToFocus_4[3].index).toBe(3);
   });
 
   test("a random case", () => {
@@ -506,39 +506,39 @@ describe("function addMetaInfoFromArg", () => {
     expect(descr.nbrArgRepeating).toBe(4);
     expect(descr.nbrOptionalNonRepeatingArgs).toBe(3);
 
-    const getArgToFocus_3 = argTargeting(descr, 3);
-    expect(getArgToFocus_3(0).index).toBe(1);
-    expect(getArgToFocus_3(1).index).toBe(3);
-    expect(getArgToFocus_3(2).index).toBe(9);
+    const argsToFocus_3 = argTargeting(descr, 3);
+    expect(argsToFocus_3[0].index).toBe(1);
+    expect(argsToFocus_3[1].index).toBe(3);
+    expect(argsToFocus_3[2].index).toBe(9);
 
-    const getArgToFocus_4 = argTargeting(descr, 4);
-    expect(getArgToFocus_4(0).index).toBe(0);
-    expect(getArgToFocus_4(1).index).toBe(1);
-    expect(getArgToFocus_4(2).index).toBe(3);
-    expect(getArgToFocus_4(3).index).toBe(9);
+    const argsToFocus_4 = argTargeting(descr, 4);
+    expect(argsToFocus_4[0].index).toBe(0);
+    expect(argsToFocus_4[1].index).toBe(1);
+    expect(argsToFocus_4[2].index).toBe(3);
+    expect(argsToFocus_4[3].index).toBe(9);
 
-    const getArgToFocus_5 = argTargeting(descr, 5);
-    expect(getArgToFocus_5(0).index).toBe(0);
-    expect(getArgToFocus_5(1).index).toBe(1);
-    expect(getArgToFocus_5(2).index).toBe(2);
-    expect(getArgToFocus_5(3).index).toBe(3);
-    expect(getArgToFocus_5(4).index).toBe(9);
+    const argsToFocus_5 = argTargeting(descr, 5);
+    expect(argsToFocus_5[0].index).toBe(0);
+    expect(argsToFocus_5[1].index).toBe(1);
+    expect(argsToFocus_5[2].index).toBe(2);
+    expect(argsToFocus_5[3].index).toBe(3);
+    expect(argsToFocus_5[4].index).toBe(9);
 
-    const getArgToFocus_6 = argTargeting(descr, 6);
-    expect(getArgToFocus_6(0).index).toBe(0);
-    expect(getArgToFocus_6(1).index).toBe(1);
-    expect(getArgToFocus_6(2).index).toBe(2);
-    expect(getArgToFocus_6(3).index).toBe(3);
-    expect(getArgToFocus_6(4).index).toBe(8);
-    expect(getArgToFocus_6(5).index).toBe(9);
+    const argsToFocus_6 = argTargeting(descr, 6);
+    expect(argsToFocus_6[0].index).toBe(0);
+    expect(argsToFocus_6[1].index).toBe(1);
+    expect(argsToFocus_6[2].index).toBe(2);
+    expect(argsToFocus_6[3].index).toBe(3);
+    expect(argsToFocus_6[4].index).toBe(8);
+    expect(argsToFocus_6[5].index).toBe(9);
 
-    const getArgToFocus_7 = argTargeting(descr, 7);
-    expect(getArgToFocus_7(0).index).toBe(1);
-    expect(getArgToFocus_7(1).index).toBe(3);
-    expect(getArgToFocus_7(2).index).toBe(4);
-    expect(getArgToFocus_7(3).index).toBe(5);
-    expect(getArgToFocus_7(4).index).toBe(6);
-    expect(getArgToFocus_7(5).index).toBe(7);
-    expect(getArgToFocus_7(6).index).toBe(9);
+    const argsToFocus_7 = argTargeting(descr, 7);
+    expect(argsToFocus_7[0].index).toBe(1);
+    expect(argsToFocus_7[1].index).toBe(3);
+    expect(argsToFocus_7[2].index).toBe(4);
+    expect(argsToFocus_7[3].index).toBe(5);
+    expect(argsToFocus_7[4].index).toBe(6);
+    expect(argsToFocus_7[5].index).toBe(7);
+    expect(argsToFocus_7[6].index).toBe(9);
   });
 });

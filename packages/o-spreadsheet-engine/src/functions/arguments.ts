@@ -1,3 +1,4 @@
+import { Immutable } from "..";
 import {
   AddFunctionDescription,
   ArgDefinition,
@@ -128,10 +129,7 @@ export function addMetaInfoFromArg(
   return descr;
 }
 
-type ArgToFocus = (argPosition: number) => {
-  index: number;
-  repeatingGroupIndex?: number;
-};
+type ArgToFocus = Immutable<Record<number, { index: number; repeatingGroupIndex?: number }>>;
 const cacheArgTargeting: Record<string, Record<number, ArgToFocus>> = {};
 
 /**
@@ -278,9 +276,7 @@ export function _argTargeting(
     countValueSupplied++;
   }
 
-  return (argPosition: number) => {
-    return valueIndexToArgPosition[argPosition];
-  };
+  return valueIndexToArgPosition;
 }
 
 //------------------------------------------------------------------------------
