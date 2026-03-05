@@ -148,6 +148,8 @@ export interface CellPosition {
   sheetId: UID;
 }
 
+export type Column<T> = (T | undefined)[] | undefined;
+
 export const borderStyles = ["thin", "medium", "thick", "dashed", "dotted"] as const;
 export type BorderStyle = (typeof borderStyles)[number];
 // A complete border description is a pair [style, color]

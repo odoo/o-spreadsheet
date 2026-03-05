@@ -1,19 +1,27 @@
 import { AbstractCellClipboardHandler } from "@odoo/o-spreadsheet-engine/clipboard_handlers/abstract_cell_clipboard_handler";
-import { positionToZone, recomputeZones } from "../helpers";
+import { BorderDescrInternal } from "@odoo/o-spreadsheet-engine/plugins/core/borders";
+import { defaultValue } from "@odoo/o-spreadsheet-engine/plugins/core/default";
+import { groupConsecutive, positionToZone, recomputeZones } from "../helpers";
 import {
   Border,
   CellPosition,
   ClipboardCellData,
   ClipboardOptions,
   ClipboardPasteTarget,
+  Column,
   HeaderIndex,
   UID,
   Zone,
 } from "../types";
 
 type ClipboardContent = {
-  borders: (Border | null)[][];
-};
+  left: HeaderIndex;
+  top: HeaderIndex;
+  bordersTop: Column<BorderDescrInternal>[];
+  bordersLeft: Column<BorderDescrInternal>[];
+  defaultTop: defaultValue<BorderDescrInternal>;
+  defaultLeft: defaultValue<BorderDescrInternal>;
+}[];
 
 export class BorderClipboardHandler extends AbstractCellClipboardHandler<
   ClipboardContent,
@@ -26,18 +34,26 @@ export class BorderClipboardHandler extends AbstractCellClipboardHandler<
     if (data.zones.length === 0) {
       return;
     }
-    const { rowsIndexes, columnsIndexes } = data;
-    const borders: (Border | null)[][] = [];
+    const content: ClipboardContent = [];
 
-    for (const row of rowsIndexes) {
-      const bordersInRow: (Border | null)[] = [];
-      for (const col of columnsIndexes) {
-        const position = { col, row, sheetId };
-        bordersInRow.push(this.getters.getCellBorder(position));
+    let topIndex = 0;
+    for (const row of groupConsecutive(data.rowsIndexes)) {
+      const top = row[0];
+      const bottom = row[row.length - 1];
+      let leftIndex = 0;
+      for (const col of groupConsecutive(data.columnsIndexes)) {
+        const left = col[0];
+        const right = col[col.length - 1];
+        content.push({
+          left: leftIndex,
+          top: topIndex,
+          ...this.getters.getBorderClipboardData(sheetId, { left, right, top, bottom }),
+        });
+        leftIndex += col.length;
       }
-      borders.push(bordersInRow);
+      topIndex += row.length;
     }
-    return { borders };
+    return content;
   }
 
   paste(target: ClipboardPasteTarget, content: ClipboardContent, options: ClipboardOptions) {
@@ -47,10 +63,15 @@ export class BorderClipboardHandler extends AbstractCellClipboardHandler<
     }
     const zones = target.zones;
     if (!options.isCutOperation) {
-      this.pasteFromCopy(sheetId, zones, content.borders);
+      for (const zone of zones) {
+        for (const pasteZone of splitZoneForPaste(zone, content.width, content.height)) {
+        }
+      }
     } else {
+      this.clearClippedZones(content);
       const { left, top } = zones[0];
-      this.pasteZone(sheetId, left, top, content.borders);
+      this.pasteStyle(sheetId, left, top, content.width, content.height, content.style);
+      this.pasteFormat(sheetId, left, top, content.width, content.height, content.format);
     }
 
     this.executeQueuedChanges(sheetId);
