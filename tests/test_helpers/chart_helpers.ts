@@ -1,4 +1,3 @@
-import { ComboChartDataSetStyle } from "@odoo/o-spreadsheet-engine/types/chart/combo_chart";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { TooltipItem } from "chart.js";
 import {
@@ -6,7 +5,6 @@ import {
   ChartJSRuntime,
   ChartRangeDataSource,
   CustomizedDataSet,
-  DataSetStyle,
   Model,
   UID,
 } from "../../src";
@@ -47,63 +45,41 @@ export function getCategoryAxisTickLabels(model: Model, chartId: UID) {
   );
 }
 
-interface CoucouInput {
+interface ChartDataInput {
   dataSets: (CustomizedDataSet & {
     dataRange: string;
     dataSetId?: UID;
     type?: "bar" | "line"; // for combo charts
   })[];
   labelRange?: string;
+  dataSetsHaveTitle?: boolean;
 }
 
-interface CoucouInputWithTitle extends CoucouInput {
-  dataSetsHaveTitle: boolean;
-}
-
-interface CoucouOutput {
+interface ChartDataOutput {
   dataSource: ChartRangeDataSource<string>;
   dataSetStyles: Record<string, CustomizedDataSet>;
 }
 
-interface CoucouOutputWithTitle {
-  dataSource: ChartRangeDataSource<string>;
-  dataSetStyles: DataSetStyle | ComboChartDataSetStyle;
-}
-
-export function toChartDataSource(args: CoucouInput): CoucouOutput;
-export function toChartDataSource(args: CoucouInputWithTitle): CoucouOutputWithTitle;
-export function toChartDataSource(
-  args: CoucouInput | CoucouInputWithTitle
-): CoucouOutput | CoucouOutputWithTitle {
-  const { dataSets, labelRange } = args;
-  for (let i = 0; i < dataSets.length; i++) {
-    if (!dataSets[i].dataSetId) {
-      dataSets[i].dataSetId = i.toString();
-    }
-  }
+export function toChartDataSource(args: ChartDataInput): ChartDataOutput {
+  const { labelRange } = args;
+  const dataSets = args.dataSets.map((dataSet, i) => ({
+    ...dataSet,
+    dataSetId: dataSet.dataSetId ?? `${i}`,
+  }));
   const dataSetStyles: Record<string, CustomizedDataSet> = {};
   for (const { dataSetId, dataRange, ...style } of dataSets) {
     if (Object.keys(style).length !== 0) {
-      dataSetStyles[dataSetId!] = style;
+      dataSetStyles[dataSetId] = style;
     }
   }
-  const result: CoucouOutput | CoucouOutputWithTitle = {
+  const result: ChartDataOutput = {
     dataSource: {
       type: "range",
-      // @ts-ignore
-      dataSets: dataSets.map(({ dataRange, dataSetId }) => ({
-        dataRange,
-        dataSetId,
-      })),
+      dataSets: dataSets.map(({ dataRange, dataSetId }) => ({ dataRange, dataSetId })),
+      dataSetsHaveTitle: args.dataSetsHaveTitle ?? true,
     },
     dataSetStyles,
   };
-  if ("dataSetsHaveTitle" in args && args.dataSetsHaveTitle !== undefined) {
-    result.dataSource = {
-      ...result.dataSource,
-      dataSetsHaveTitle: args.dataSetsHaveTitle,
-    };
-  }
   if ("labelRange" in args) {
     result.dataSource = {
       ...result.dataSource,
@@ -112,47 +88,6 @@ export function toChartDataSource(
   }
   return result;
 }
-// export function toChartDataSource({
-//   dataSets,
-//   labelRange,
-// }: {
-//   dataSets: (CustomizedDataSet | ComboChartDataSet)[];
-//   labelRange?: string;
-// }): {
-//   dataSets: (CustomizedDataSet | ComboChartDataSet)[];
-//   labelRange?: string;
-// };
-// export function toChartDataSource({
-//   dataSets,
-//   labelRange,
-// }: {
-//   dataSets: (CustomizedDataSet | ComboChartDataSet)[];
-//   labelRange?: string;
-//   dataSetsHaveTitle: boolean;
-// }): {
-//   dataSets: (CustomizedDataSet | ComboChartDataSet)[];
-//   labelRange?: string;
-//   dataSetsHaveTitle: boolean;
-// };
-// export function toChartDataSource({
-//   dataSets,
-//   labelRange,
-//   dataSetsHaveTitle,
-// }: {
-//   dataSets: (CustomizedDataSet | ComboChartDataSet)[];
-//   labelRange?: string;
-//   dataSetsHaveTitle: boolean;
-// }) {
-//   const result = { dataSets, dataSetsHaveTitle, labelRange };
-//   if (labelRange === undefined) {
-//     delete result.labelRange;
-//   }
-//   if (dataSetsHaveTitle === undefined) {
-//     // @ts-ignore
-//     delete result.dataSetsHaveTitle;
-//   }
-//   return result;
-// }
 
 export async function openChartConfigSidePanel(
   model: Model,

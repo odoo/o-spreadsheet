@@ -305,6 +305,7 @@ describe("datasource tests", function () {
       ...toChartDataSource({
         dataSets: [{ dataRange: "B8:D8" }, { dataRange: "B9:D9" }],
         labelRange: "B7:D7",
+        dataSetsHaveTitle: false,
       }),
       title: { text: "test" },
       type: "line",
@@ -415,6 +416,7 @@ describe("datasource tests", function () {
     expect(model.getters.getChartDefinition("1")).toMatchObject({
       ...toChartDataSource({
         dataSets: [{ dataRange: "B1" }],
+        dataSetsHaveTitle: false,
       }),
       type: "line",
     });
@@ -3867,6 +3869,7 @@ describe("trending line", () => {
       ...toChartDataSource({
         dataSets: [{ dataRange: "B1:B10", trend: { display: true, type: "polynomial", order: 2 } }],
         labelRange: "C1:C10",
+        dataSetsHaveTitle: false,
       }),
     });
     const step = (10 - 1) / 50;
@@ -4001,6 +4004,7 @@ describe("trending line", () => {
             trend: { display: true, type: "polynomial", order: 2, color: "#FF0000" },
           },
         ],
+        dataSetsHaveTitle: false,
       }),
     });
 
@@ -4055,6 +4059,7 @@ test("moving average trend line", () => {
       dataSets: [
         { dataRange: "C1:C5", trend: { display: true, type: "trailingMovingAverage", window: 2 } },
       ],
+      dataSetsHaveTitle: false,
     }),
   });
   runtime = model.getters.getChartRuntime("1") as LineChartRuntime;

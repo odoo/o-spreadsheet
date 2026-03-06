@@ -615,6 +615,7 @@ describe("Smart chart type detection", () => {
       ...toChartDataSource({
         dataSets: [{ dataRange: "C1:C6" }],
         labelRange: "A1:A6",
+        dataSetsHaveTitle: false,
       }),
     });
   });

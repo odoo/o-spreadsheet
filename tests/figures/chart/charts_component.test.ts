@@ -2219,6 +2219,7 @@ describe("charts", () => {
       expect(model.getters.getChartDefinition(chartId)).toMatchObject({
         ...toChartDataSource({
           dataSets: [{ dataRange: "A1:A2" }, { dataRange: "A1" }],
+          dataSetsHaveTitle: false,
         }),
       });
 
@@ -2227,6 +2228,7 @@ describe("charts", () => {
       expect(model.getters.getChartDefinition(chartId)).toMatchObject({
         ...toChartDataSource({
           dataSets: [{ dataRange: "A1:A2" }, { dataRange: "A1" }],
+          dataSetsHaveTitle: true,
         }),
       });
 
@@ -2235,6 +2237,7 @@ describe("charts", () => {
       expect(model.getters.getChartDefinition(chartId)).toMatchObject({
         ...toChartDataSource({
           dataSets: [{ dataRange: "A1:A2" }, { dataRange: "A1" }],
+          dataSetsHaveTitle: false,
         }),
       });
     });

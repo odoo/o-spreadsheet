@@ -797,23 +797,29 @@ describe("Import xlsx data", () => {
   test.each([
     [
       "line",
-      [
-        { dataRange: "Sheet1!B26:B35", backgroundColor: "#7030A0" },
-        { dataRange: "Sheet1!C26:C35", backgroundColor: "#C65911" },
-      ],
+      toChartDataSource({
+        dataSets: [
+          { dataRange: "Sheet1!B26:B35", backgroundColor: "#7030A0" },
+          { dataRange: "Sheet1!C26:C35", backgroundColor: "#C65911" },
+        ],
+        dataSetsHaveTitle: true,
+      }),
     ],
     [
       "bar",
-      [
-        { dataRange: "Sheet1!B27:B35", backgroundColor: "#7030A0" },
-        { dataRange: "Sheet1!C27:C35", backgroundColor: "#C65911" },
-      ],
+      toChartDataSource({
+        dataSets: [
+          { dataRange: "Sheet1!B27:B35", backgroundColor: "#7030A0" },
+          { dataRange: "Sheet1!C27:C35", backgroundColor: "#C65911" },
+        ],
+        dataSetsHaveTitle: false,
+      }),
     ],
-  ])("Can import charts %s with dataset colors", (chartType, chartDatasets) => {
+  ])("Can import charts %s with dataset colors", (chartType, dataSource) => {
     const testSheet = getWorkbookSheet("jestCharts", convertedData)!;
     const figure = testSheet.figures.find((figure) => figure.data.type === chartType);
     const chartData = figure!.data as LineChartDefinition | BarChartDefinition;
-    expect(chartData).toMatchObject(toChartDataSource({ dataSets: chartDatasets }));
+    expect(chartData).toMatchObject(dataSource);
   });
 
   test.each([
