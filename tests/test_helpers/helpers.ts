@@ -8,6 +8,7 @@ import { CorePluginConstructor } from "@odoo/o-spreadsheet-engine/plugins/core_p
 import { SheetUIPlugin } from "@odoo/o-spreadsheet-engine/plugins/ui_feature/ui_sheet";
 import { UIPluginConstructor } from "@odoo/o-spreadsheet-engine/plugins/ui_plugin";
 import { Registry } from "@odoo/o-spreadsheet-engine/registries/registry";
+import { GeoChartRegion } from "@odoo/o-spreadsheet-engine/types/chart/geo_chart";
 import { Image } from "@odoo/o-spreadsheet-engine/types/image";
 import { ModelExternalConfig } from "@odoo/o-spreadsheet-engine/types/model";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
@@ -963,11 +964,13 @@ export const mockChart = (options: any = {}) => {
   return mockChartData;
 };
 
+const getAvailableRegions: () => GeoChartRegion[] = () => [
+  { id: "world", label: "World", defaultProjection: "mercator" },
+  { id: "usa", label: "United States", defaultProjection: "albersUsa" },
+];
+
 export const mockGeoJsonService: ModelExternalConfig["geoJsonService"] = {
-  getAvailableRegions: () => [
-    { id: "world", label: "World", defaultProjection: "mercator" },
-    { id: "usa", label: "United States", defaultProjection: "albersUsa" },
-  ],
+  getAvailableRegions,
   getTopoJson: async () => ({
     type: "FeatureCollection",
     features: [
@@ -987,6 +990,13 @@ export const mockGeoJsonService: ModelExternalConfig["geoJsonService"] = {
       return "ES";
     }
     return "";
+  },
+  getAlternativeRegions: (initialRegion: string) => {
+    if (initialRegion !== "world") {
+      return [];
+    }
+    const allRegions = getAvailableRegions();
+    return allRegions.filter((r) => r.id !== "usa");
   },
 };
 

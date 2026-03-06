@@ -43,5 +43,7 @@ export interface ModelExternalConfig {
     getTopoJson: (region: string) => Promise<any>;
     /**  Convert the name of a geographical feature (eg. France) to the id of the corresponding feature in the TopoJSON */
     geoFeatureNameToId: (region: string, territory: string) => string | undefined;
+    /** Returns the regions that can be selected as an alternative when the chart was initially configured with the given region */
+    getAlternativeRegions?: (region: string) => GeoChartRegion[];
   };
 }
