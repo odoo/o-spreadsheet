@@ -8,6 +8,22 @@
         isFullScreen="props.isFullScreen"
       />
     </div>
+    <div class="o-figure-menu position-absolute m-2" t-if="!env.isDashboard()">
+      <div
+        class="o-figure-info-icon d-flex flex-row align-items-center align-middle"
+        t-if="getAnnotationText() or getAnnotationLink()"
+        t-on-click="showInfo"
+        t-ref="infoButton">
+        <t t-call="o-spreadsheet-Icon.CIRCLE_INFO"/>
+      </div>
+      <InfoPopover
+        t-if="infoState.isOpen"
+        anchorRect="infoState.anchorRect"
+        onClose="() => this.infoState.isOpen=false"
+        annotationText="getAnnotationText()"
+        annotationLink="getAnnotationLink()"
+      />
+    </div>
     <div t-if="env.isDashboard()" class="position-absolute top-0 end-0">
       <ChartDashboardMenu chartId="chartId"/>
     </div>

@@ -13,6 +13,14 @@
     }
   }
 
+  .o-figure-info-icon {
+    margin-top: 2px;
+    width: 15px;
+    height: 15px;
+    cursor: pointer;
+    margin-right: 25px; /* TODO : we should improve that in the future */
+  }
+
   div.o-figure-border {
     z-index: 1;
     border: 0px solid var(--os-figure-border-color);

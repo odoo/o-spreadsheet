@@ -34,6 +34,8 @@ describe("population pyramid chart", () => {
       horizontal: true,
       showValues: false,
       humanize: false,
+      annotationText: "This is an annotation text",
+      annotationLink: "https://www.odoo.com",
     });
   });
 

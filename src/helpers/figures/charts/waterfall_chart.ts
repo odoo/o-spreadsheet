@@ -118,6 +118,8 @@ export class WaterfallChart extends AbstractChart {
       showValues: context.showValues,
       zoomable: context.zoomable ?? false,
       humanize: context.humanize,
+      annotationLink: context.annotationLink,
+      annotationText: context.annotationText,
     };
   }
 
@@ -196,6 +198,8 @@ export class WaterfallChart extends AbstractChart {
       showValues: this.showValues,
       zoomable: this.zoomable,
       humanize: this.humanize,
+      annotationText: this.annotationText,
+      annotationLink: this.annotationLink,
     };
   }
 
