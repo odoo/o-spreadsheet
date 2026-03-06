@@ -18,7 +18,7 @@ const { exec } = require("child_process");
 const watch = require("node-watch");
 
 const PORT = 8080;
-const ROOT = path.resolve(__dirname, "../..");
+const ROOT = path.resolve(__dirname, "..");
 const OPEN_PATH = "/demo";
 const WATCH_PATHS = [
   path.join(ROOT, "build/o_spreadsheet.iife.js"),
@@ -53,7 +53,7 @@ const sseClients = new Set();
 const RELOAD_SNIPPET = `<script>
 (function () {
   function connect() {
-    var es = new EventSource("/__livereload");
+    const es = new EventSource("/__livereload");
     es.onmessage = function () { location.reload(); };
     es.onerror = function () {
       es.close();
@@ -79,6 +79,7 @@ function serveFile(filePath, res) {
     if (err) {
       res.writeHead(500);
       res.end("Internal server error");
+      process.stderr.write(err);
       return;
     }
     const mime = getMime(filePath);
@@ -128,6 +129,7 @@ const server = http.createServer((req, res) => {
       return;
     }
     if (!err && stat.isFile()) {
+      process.stdout.write(`[live-server] serving: ${urlPath}\n`);
       serveFile(filePath, res);
       return;
     }
@@ -144,7 +146,7 @@ watch(WATCH_PATHS, { recursive: true }, (evt, name) => {
 
 server.listen(PORT, () => {
   const url = `http://localhost:${PORT}${OPEN_PATH}`;
-  process.stdout.write(`[live-server] http://localhost:${PORT} — opening ${url}\n`);
+  process.stdout.write(`[live-server] opening ${url}\n`);
   const open =
     process.platform === "darwin"
       ? `open "${url}"`

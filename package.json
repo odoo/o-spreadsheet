@@ -38,7 +38,7 @@
     "bundle:xml:watch": "node tools/bundle_xml/watch_xml_templates.cjs",
     "bundle:css": "node tools/bundle_css/main.cjs",
     "bundle:css:watch": "node tools/bundle_css/watch_css_files.cjs",
-    "serve-static": "node tools/live_server/main.cjs",
+    "serve-static": "node tools/live-server.cjs",
     "serve-static:wait": "wait-on build/o_spreadsheet.iife.js build/o_spreadsheet.xml build/o_spreadsheet.css && npm run serve-static",
     "server": "node tools/server/main.cjs",
     "predist": "npm run dist --workspaces --if-present",
