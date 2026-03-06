@@ -89,12 +89,12 @@ describe("Sunburst chart chart", () => {
       auxiliaryRange: "Sheet1!A1:A4",
     };
     const definition = createChartDefinitionFromContext("sunburst", context);
-    expect(definition).toMatchObject({
-      ...toChartDataSource({
+    expect(definition).toMatchObject(
+      toChartDataSource({
         dataSets: [{ dataRange: "Sheet1!A1:A4" }],
         labelRange: "Sheet1!B1:B4",
-      }),
-    });
+      })
+    );
     const chartId = createSunburstChart(model, definition);
     expect(model.getters.getChart(chartId)?.getContextCreation()).toMatchObject({
       hierarchicalDataSource: {
@@ -115,12 +115,12 @@ describe("Sunburst chart chart", () => {
     });
     const context = model.getters.getChart(chartId)!.getContextCreation();
     const definition = SunburstChart.getDefinitionFromContextCreation(context);
-    expect(definition).toMatchObject({
-      ...toChartDataSource({
+    expect(definition).toMatchObject(
+      toChartDataSource({
         dataSets: [{ dataRange: "A1:A4" }],
         labelRange: "B1:B4",
-      }),
-    });
+      })
+    );
   });
 
   test("Simple single-level sunburst", () => {

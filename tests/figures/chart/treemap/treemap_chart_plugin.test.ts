@@ -80,12 +80,12 @@ describe("TreeMap chart", () => {
       auxiliaryRange: "Sheet1!A1:A4",
     };
     const definition = createChartDefinitionFromContext("treemap", context);
-    expect(definition).toMatchObject({
-      ...toChartDataSource({
+    expect(definition).toMatchObject(
+      toChartDataSource({
         dataSets: [{ dataRange: "Sheet1!A1:A4" }],
         labelRange: "Sheet1!B1:B4",
-      }),
-    });
+      })
+    );
     const chartId = createTreeMapChart(model, definition);
     expect(model.getters.getChart(chartId)?.getContextCreation()).toMatchObject({
       hierarchicalDataSource: {
@@ -108,12 +108,12 @@ describe("TreeMap chart", () => {
     });
     const context = model.getters.getChart(chartId)!.getContextCreation();
     const definition = createChartDefinitionFromContext("treemap", context);
-    expect(definition).toMatchObject({
-      ...toChartDataSource({
+    expect(definition).toMatchObject(
+      toChartDataSource({
         dataSets: [{ dataRange: "A1:A4" }],
         labelRange: "B1:B4",
-      }),
-    });
+      })
+    );
   });
 
   test("create TreeMap chart from creation context", () => {
