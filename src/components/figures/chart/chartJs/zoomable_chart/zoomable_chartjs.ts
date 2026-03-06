@@ -455,6 +455,7 @@ export class ZoomableChartJsComponent extends ChartJsComponent {
       }
       this.updateAxisLimits(min, max);
       this.mode = undefined;
+      this.updateMasterChartCursor(ev);
     };
     this.removeEventListeners = () => {
       window.removeEventListener("pointermove", onMasterChartDrag, true);
@@ -465,7 +466,7 @@ export class ZoomableChartJsComponent extends ChartJsComponent {
     window.addEventListener("pointerup", onMasterChartPointerUp, true);
   }
 
-  onMasterChartPointerMove(ev: PointerEvent) {
+  updateMasterChartCursor(ev: PointerEvent) {
     const { offsetX: x, offsetY: y, target } = ev;
     if (!target || !this.isMasterChartAllowed) {
       return;
