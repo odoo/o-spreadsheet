@@ -1,9 +1,10 @@
+import { toCartesian } from "../helpers/coordinates";
 import { getFullReference, setXcToFixedReferenceType, splitReference } from "../helpers/references";
 import { _t } from "../translation";
 import { CellValueType } from "../types/cells";
 import { CellErrorType, EvaluationError } from "../types/errors";
 import { AddFunctionDescription } from "../types/functions";
-import { FunctionResultObject, Matrix, Maybe } from "../types/misc";
+import { FunctionResultObject, Matrix, Maybe, UID } from "../types/misc";
 import { arg } from "./arguments";
 import { isEvaluationError, toString } from "./helpers";
 
@@ -193,6 +194,25 @@ export const NA = {
   args: [],
   compute: function (): FunctionResultObject {
     return { value: CellErrorType.NotAvailable };
+  },
+  isExported: true,
+} satisfies AddFunctionDescription;
+
+//--------------------------------------------------------------------------
+// ISFORMULA
+//--------------------------------------------------------------------------
+export const ISFORMULA = {
+  description: _t(
+    "Checks whether there is a reference to a cell that contains a formula, and returns TRUE or FALSE."
+  ),
+  args: [arg("cell_reference (meta)", _t("A reference to a cell."))],
+  compute: function (cellReference: { value: string }) {
+    const { sheetName, xc } = splitReference(cellReference.value);
+    const { col, row } = toCartesian(xc);
+    const sheetId: UID =
+      (sheetName && this.getters.getSheetIdByName(sheetName)) ?? this.__originSheetId;
+    const cell = this.getters.getCell({ sheetId, col, row });
+    return cell?.isFormula ?? false;
   },
   isExported: true,
 } satisfies AddFunctionDescription;
