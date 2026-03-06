@@ -39,6 +39,7 @@
               icon="props.currentBorderColor === '' ? 'o-spreadsheet-Icon.BORDER_NO_COLOR' : 'o-spreadsheet-Icon.BORDER_COLOR'"
               dropdownMaxHeight="this.props.dropdownMaxHeight"
               class="'o-dropdown-button o-border-picker-button'"
+              onClose="() => this.closeDropdown()"
             />
             <t t-call="o-spreadsheet-Icon.CARET_DOWN"/>
           </div>

@@ -1,9 +1,8 @@
 <templates>
   <t t-name="o-spreadsheet-TableStylesPopover">
-    <Popover t-if="props.popoverProps" t-props="props.popoverProps">
+    <Popover t-if="props.popoverProps" t-props="popoverProps">
       <div
         class="o-table-style-popover d-flex flex-column py-3 bg-white"
-        t-ref="tableStyleList"
         t-on-contextmenu.prevent="">
         <div class="d-flex o-notebook ps-4 mb-3">
           <div

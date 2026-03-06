@@ -13,6 +13,7 @@
       onColorPicked.bind="onColorPicked"
       currentColor="props.currentColor"
       disableNoColor="props.disableNoColor"
+      onClose="props.onClose || (() => this.closePicker())"
     />
   </t>
 </templates>

@@ -13,6 +13,8 @@ interface Props {
   disabled?: boolean;
   dropdownMaxHeight?: Pixel;
   class?: string;
+  onClose?: () => void;
+  ignoreClickTargets?: (HTMLElement | null)[];
 }
 
 export class ColorPickerWidget extends Component<Props, SpreadsheetChildEnv> {
@@ -27,6 +29,8 @@ export class ColorPickerWidget extends Component<Props, SpreadsheetChildEnv> {
     disabled: { type: Boolean, optional: true },
     dropdownMaxHeight: { type: Number, optional: true },
     class: { type: String, optional: true },
+    onClose: { type: Function, optional: true },
+    ignoreClickTargets: { type: Array, optional: true },
   };
   static components = { ColorPicker };
 
@@ -47,5 +51,9 @@ export class ColorPickerWidget extends Component<Props, SpreadsheetChildEnv> {
       width: buttonRect.width,
       height: buttonRect.height,
     };
+  }
+
+  get colorPickerIgnoreClickTargets() {
+    return [this.colorPickerButtonRef.el];
   }
 }

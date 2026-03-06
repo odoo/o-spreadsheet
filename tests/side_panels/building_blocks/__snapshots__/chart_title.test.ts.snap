@@ -122,7 +122,7 @@ exports[`Chart title Can render a chart title component 1`] = `
             title="Font Size"
           >
             <input
-              class="o-font-size o-number-input bg-transparent border-0"
+              class="o-number-input bg-transparent border-0"
               max="400"
               min="1"
               type="number"

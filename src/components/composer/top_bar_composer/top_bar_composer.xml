@@ -8,7 +8,7 @@
           'o-topbar-composer-active': focus !== 'inactive',
           'o-topbar-composer-inactive': focus === 'inactive',
         }"
-        t-on-click.stop="">
+        t-on-click="">
         <Composer
           focus="focus"
           inputStyle="composerStyle"

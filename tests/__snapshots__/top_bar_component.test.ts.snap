@@ -158,7 +158,7 @@ exports[`TopBar component simple rendering 1`] = `
                 title="Zoom"
               >
                 <input
-                  class="o-font-size o-number-input bg-transparent border-0"
+                  class="o-number-input bg-transparent border-0"
                   max="300"
                   min="25"
                   type="number"
@@ -286,7 +286,7 @@ exports[`TopBar component simple rendering 1`] = `
               title="Font Size"
             >
               <input
-                class="o-font-size o-number-input bg-transparent border-0"
+                class="o-number-input bg-transparent border-0"
                 max="400"
                 min="1"
                 type="number"

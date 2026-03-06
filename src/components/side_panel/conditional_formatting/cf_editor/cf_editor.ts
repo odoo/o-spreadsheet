@@ -69,7 +69,8 @@ export class ConditionalFormattingEditor extends Component<Props, SpreadsheetChi
       },
       () => [this.env.model.getters.getActiveSheetId(), this.isEditedCfRemoved]
     );
-    useExternalListener(window as any, "click", () => this.store.closeMenus());
+    useExternalListener(window, "click", () => this.store.closeMenus());
+    useExternalListener(window, "contextmenu", () => this.store.closeMenus(), { capture: true });
   }
 
   get isEditedCfRemoved() {
