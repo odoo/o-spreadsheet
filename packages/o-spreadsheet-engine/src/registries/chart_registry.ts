@@ -82,7 +82,10 @@ export interface ChartTypeBuilder<T extends ChartType> {
     dataSourceBuilder: ChartDataSourceBuilder<any>,
     dataSource: ChartTypeDefinition<T, string>["dataSource"]
   ): ChartCreationContext;
-  getDefinitionFromContextCreation(context: ChartCreationContext): ChartTypeDefinition<T, string>;
+  getDefinitionFromContextCreation(
+    context: ChartCreationContext,
+    dataSourceBuilder: ChartDataSourceBuilder<any>
+  ): ChartTypeDefinition<T, string>;
   /**
    * Get the definition of the chart used for excel export.
    * If the chart is not supported by Excel, this function returns undefined.
@@ -114,17 +117,17 @@ interface ChartJsEventHandlers {
     // chartjs internals
     event: unknown,
     items: unknown,
-    chartJsChart: unknown,
+    chartJsChart: unknown
   ) => void;
   onHover?: (
     // chartjs internals
     event: unknown,
     items: unknown,
-    chartJsChart: unknown,
+    chartJsChart: unknown
   ) => void;
 }
 
-interface ChartTypeRegistry extends Registry<ChartTypeBuilder<any>> {
+export interface ChartTypeRegistry extends Registry<ChartTypeBuilder<any>> {
   add<T extends ChartType>(type: T, builder: ChartTypeBuilder<T>): this;
 }
 

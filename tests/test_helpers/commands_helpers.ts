@@ -49,6 +49,7 @@ import {
 import { createEqualCF, target, toRangeData, toRangesData } from "./helpers";
 
 import { ICON_SETS } from "@odoo/o-spreadsheet-engine/components/icons/icons";
+import { chartDataSourceRegistry } from "@odoo/o-spreadsheet-engine/registries/chart_data_source_registry";
 import { chartTypeRegistry } from "@odoo/o-spreadsheet-engine/registries/chart_registry";
 import {
   ChartCreationContext,
@@ -263,15 +264,7 @@ export function createChart(
     showConnectorLines: false,
     title: { text: "test" },
     ...data,
-    ...toChartDataSource({
-      dataSets: [],
-      dataSetsHaveTitle:
-        "dataSource" in data && data.dataSource?.dataSetsHaveTitle !== undefined
-          ? data.dataSource?.dataSetsHaveTitle
-          : true,
-      labelRange: "dataSource" in data ? data.dataSource?.labelRange : undefined,
-      ...data.dataSource,
-    }),
+    dataSource: data.dataSource ?? { type: "range", dataSets: [], dataSetsHaveTitle: false },
     dataSetStyles: data.dataSetStyles ?? {},
   };
 
@@ -351,14 +344,7 @@ export function createRadarChart(
     ...figureData,
     definition: {
       title: data.title || { text: "test" },
-      ...toChartDataSource({
-        dataSets: data.dataSource?.dataSets ?? [],
-        dataSetsHaveTitle:
-          data.dataSource?.dataSetsHaveTitle !== undefined
-            ? data.dataSource?.dataSetsHaveTitle
-            : true,
-        labelRange: data.dataSource?.labelRange,
-      }),
+      dataSource: data.dataSource ?? { type: "range", dataSets: [], dataSetsHaveTitle: false },
       dataSetStyles: data.dataSetStyles ?? {},
       type: "radar",
       background: data.background,
@@ -392,14 +378,7 @@ export function createCalendarChart(
     ...figureData,
     definition: {
       title: data.title || { text: "test" },
-      ...toChartDataSource({
-        dataSets: data.dataSource?.dataSets ?? [],
-        dataSetsHaveTitle:
-          data.dataSource?.dataSetsHaveTitle !== undefined
-            ? data.dataSource?.dataSetsHaveTitle
-            : true,
-        labelRange: data.dataSource?.labelRange,
-      }),
+      dataSource: data.dataSource ?? { type: "range", dataSets: [], dataSetsHaveTitle: false },
       dataSetStyles: data.dataSetStyles ?? {},
       type: "calendar",
       background: data.background,
@@ -546,14 +525,7 @@ export function createGeoChart(
     ...figureData,
     definition: {
       title: data.title || { text: "test" },
-      ...toChartDataSource({
-        dataSets: data.dataSource?.dataSets ?? [],
-        dataSetsHaveTitle:
-          data.dataSource?.dataSetsHaveTitle !== undefined
-            ? data.dataSource?.dataSetsHaveTitle
-            : true,
-        labelRange: data.dataSource?.labelRange,
-      }),
+      dataSource: data.dataSource ?? { type: "range", dataSets: [], dataSetsHaveTitle: false },
       dataSetStyles: data.dataSetStyles ?? {},
       type: "geo",
       background: data.background,
@@ -570,9 +542,13 @@ export function createChartDefinitionFromContext<TType extends ChartType>(
   type: TType,
   context: ChartCreationContext
 ): ChartTypeDefinition<TType, string> {
+  const DataSourceBuilder = chartDataSourceRegistry.get("range");
   return chartTypeRegistry
     .get(type)
-    ?.getDefinitionFromContextCreation(context) as ChartTypeDefinition<TType, string>;
+    ?.getDefinitionFromContextCreation(context, DataSourceBuilder) as ChartTypeDefinition<
+    TType,
+    string
+  >;
 }
 
 /**
@@ -588,9 +564,7 @@ export function updateChart(
   let updatedDef: ChartDefinition;
   if (definition.type && definition.type !== currentDefinition.type) {
     const context = model.getters.getContextCreationChart(chartId);
-    const converted = chartTypeRegistry
-      .get(definition.type!)
-      .getDefinitionFromContextCreation(context ?? {});
+    const converted = createChartDefinitionFromContext(definition.type, context ?? {});
     updatedDef = { ...converted, ...definition } as ChartDefinition;
   } else {
     updatedDef = {

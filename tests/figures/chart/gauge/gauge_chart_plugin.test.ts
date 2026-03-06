@@ -5,12 +5,12 @@ import {
 } from "@odoo/o-spreadsheet-engine/types/chart/gauge_chart";
 import { CellErrorType, CommandResult, Model } from "../../../../src";
 import { deepCopy } from "../../../../src/helpers";
-import { GaugeChart } from "../../../../src/helpers/figures/charts";
 import { GENERAL_CHART_CREATION_CONTEXT } from "../../../test_helpers/chart_helpers";
 import {
   activateSheet,
   addColumns,
   copy,
+  createChartDefinitionFromContext,
   createGaugeChart,
   createSheet,
   deleteFigure,
@@ -108,7 +108,7 @@ describe("datasource tests", function () {
   });
 
   test("create gauge from creation context", () => {
-    const definition = GaugeChart.getDefinitionFromContextCreation(GENERAL_CHART_CREATION_CONTEXT);
+    const definition = createChartDefinitionFromContext("gauge", GENERAL_CHART_CREATION_CONTEXT);
     expect(definition).toEqual({
       type: "gauge",
       background: "#123456",

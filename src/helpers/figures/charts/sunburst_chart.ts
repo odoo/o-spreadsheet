@@ -2,7 +2,6 @@ import { AbstractChart } from "@odoo/o-spreadsheet-engine/helpers/figures/charts
 import { CHART_COMMON_OPTIONS } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_ui_common";
 import { ChartTypeBuilder } from "@odoo/o-spreadsheet-engine/registries/chart_registry";
 import { SunburstChartRuntime } from "@odoo/o-spreadsheet-engine/types/chart";
-import { ChartRangeDataSource } from "@odoo/o-spreadsheet-engine/types/chart/chart";
 import type { ChartConfiguration, ChartOptions } from "chart.js";
 import { CommandResult } from "../../../types";
 import {
@@ -43,27 +42,11 @@ export const SunburstChart: ChartTypeBuilder<"sunburst"> = {
 
   updateRanges: (definition) => definition,
 
-  getDefinitionFromContextCreation(context) {
-    let dataSource: ChartRangeDataSource<string> = {
-      type: "range",
-      ...context.dataSource,
-      dataSets: [],
-      dataSetsHaveTitle: context.dataSource?.dataSetsHaveTitle ?? false,
-      labelRange: context.dataSource?.dataSets?.[0]?.dataRange,
-    };
-    if (context.hierarchicalDataSource?.dataSets.length) {
-      dataSource = context.hierarchicalDataSource;
-    } else if (context.auxiliaryRange) {
-      dataSource = {
-        ...dataSource,
-        dataSets: [{ dataRange: context.auxiliaryRange, dataSetId: "0" }],
-      };
-    }
-
+  getDefinitionFromContextCreation(context, dataSourceBuilder) {
     return {
       background: context.background,
       dataSetStyles: context.dataSetStyles ?? {},
-      dataSource,
+      dataSource: dataSourceBuilder.fromHierarchicalContextCreation(context),
       legendPosition: context.legendPosition ?? "top",
       title: context.title || { text: "" },
       type: "sunburst",
@@ -76,10 +59,10 @@ export const SunburstChart: ChartTypeBuilder<"sunburst"> = {
     };
   },
 
-  getContextCreation(definition, dataSourceHandler, dataSource) {
+  getContextCreation(definition, dataSourceBuilder, dataSource) {
     return {
       ...definition,
-      ...dataSourceHandler.getHierarchicalContextCreation(dataSource),
+      ...dataSourceBuilder.getHierarchicalContextCreation(dataSource),
     };
   },
 

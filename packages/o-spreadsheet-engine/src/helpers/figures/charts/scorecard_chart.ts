@@ -181,11 +181,14 @@ export const ScorecardChart: ChartTypeBuilder<"scorecard"> = {
 
   copyInSheetId: (definition) => definition,
 
-  getDefinitionFromContextCreation(context) {
+  getDefinitionFromContextCreation(context, dataSourceBuilder) {
     return {
       background: context.background,
       type: "scorecard",
-      keyValue: context.dataSource?.dataSets?.[0]?.dataRange,
+      keyValue:
+        context.dataSource?.type === "range"
+          ? context.dataSource?.dataSets?.[0]?.dataRange
+          : undefined,
       title: context.title || { text: "" },
       baselineMode: DEFAULT_SCORECARD_BASELINE_MODE,
       baselineColorUp: DEFAULT_SCORECARD_BASELINE_COLOR_UP,
@@ -253,6 +256,7 @@ export const ScorecardChart: ChartTypeBuilder<"scorecard"> = {
     return {
       ...definition,
       dataSource: {
+        type: "range",
         dataSets: definition.keyValue ? [{ dataRange: definition.keyValue, dataSetId: "0" }] : [],
       },
       auxiliaryRange: definition.baseline,

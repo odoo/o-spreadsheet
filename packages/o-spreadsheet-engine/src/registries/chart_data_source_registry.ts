@@ -23,6 +23,8 @@ export interface ChartDataSourceBuilder<T extends ChartDataSourceType> {
     defaultSheetId: UID,
     getters: CoreGetters
   ) => ChartDataSource<Range>;
+  fromContextCreation: (context: ChartCreationContext) => ChartDataSource<string>;
+  fromHierarchicalContextCreation: (context: ChartCreationContext) => ChartDataSource<string>;
   validate: (
     dataSource: DataSourceType<T, string>,
     validator: Validator
@@ -71,7 +73,7 @@ export interface ChartDataSourceBuilder<T extends ChartDataSourceType> {
   ) => void;
 }
 
-interface ChartDataSourceRegistry extends Registry<ChartDataSourceBuilder<any>> {
+export interface ChartDataSourceRegistry extends Registry<ChartDataSourceBuilder<any>> {
   add<T extends ChartDataSourceType>(type: T, builder: ChartDataSourceBuilder<T>): this;
 }
 

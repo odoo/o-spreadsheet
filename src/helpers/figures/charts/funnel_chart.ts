@@ -1,5 +1,4 @@
 import { AbstractChart } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/abstract_chart";
-import { getDataSourceFromContextCreation } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_common";
 import { CHART_COMMON_OPTIONS } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_ui_common";
 import { FunnelChartRuntime } from "@odoo/o-spreadsheet-engine/types/chart";
 
@@ -48,10 +47,10 @@ export const FunnelChart: ChartTypeBuilder<"funnel"> = {
 
   getContextCreation: (definition) => definition,
 
-  getDefinitionFromContextCreation(context) {
+  getDefinitionFromContextCreation(context, dataSourceBuilder) {
     return {
       background: context.background,
-      dataSource: getDataSourceFromContextCreation(context),
+      dataSource: dataSourceBuilder.fromContextCreation(context),
       dataSetStyles: context.dataSetStyles ?? {},
       aggregated: context.aggregated ?? false,
       legendPosition: "none",

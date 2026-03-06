@@ -8,10 +8,10 @@ import {
   ScorecardChartRuntime,
 } from "@odoo/o-spreadsheet-engine/types/chart/scorecard_chart";
 import { CommandResult, Model } from "../../../../src";
-import { ScorecardChart } from "../../../../src/helpers/figures/charts";
 import { GENERAL_CHART_CREATION_CONTEXT } from "../../../test_helpers/chart_helpers";
 import {
   addColumns,
+  createChartDefinitionFromContext,
   createScorecardChart,
   createSheet,
   deleteFigure,
@@ -82,7 +82,8 @@ describe("datasource tests", function () {
   });
 
   test("create scorecard from creation context", () => {
-    const definition = ScorecardChart.getDefinitionFromContextCreation(
+    const definition = createChartDefinitionFromContext(
+      "scorecard",
       GENERAL_CHART_CREATION_CONTEXT
     );
     expect(definition).toEqual({

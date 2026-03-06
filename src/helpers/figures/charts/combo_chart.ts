@@ -2,7 +2,6 @@ import { BACKGROUND_CHART_COLOR } from "@odoo/o-spreadsheet-engine/constants";
 import { AbstractChart } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/abstract_chart";
 import {
   chartFontColor,
-  getDataSourceFromContextCreation,
   getDefinedAxis,
 } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_common";
 import { CHART_COMMON_OPTIONS } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_ui_common";
@@ -66,18 +65,20 @@ export const ComboChart: ChartTypeBuilder<"combo"> = {
     };
   },
 
-  getDefinitionFromContextCreation(context) {
-    const dataSetStyles: ComboChartDataSetStyle = {};
-    const firstDataSetId = context.dataSource?.dataSets?.[0]?.dataSetId;
-    for (const dataSet of context.dataSource?.dataSets || []) {
-      dataSetStyles[dataSet.dataSetId] = {
-        ...(context.dataSetStyles?.[dataSet.dataSetId] || {}),
-        type: dataSet.dataSetId === firstDataSetId ? "bar" : "line",
-      };
+  getDefinitionFromContextCreation(context, dataSourceBuilder) {
+    const dataSetStyles: ComboChartDataSetStyle = context.dataSetStyles ?? {};
+    if (context.dataSource?.type === "range") {
+      const firstDataSetId = context.dataSource?.dataSets?.[0]?.dataSetId;
+      for (const dataSet of context.dataSource?.dataSets || []) {
+        dataSetStyles[dataSet.dataSetId] = {
+          ...(context.dataSetStyles?.[dataSet.dataSetId] || {}),
+          type: dataSet.dataSetId === firstDataSetId ? "bar" : "line",
+        };
+      }
     }
     return {
       background: context.background,
-      dataSource: getDataSourceFromContextCreation(context),
+      dataSource: dataSourceBuilder.fromContextCreation(context),
       dataSetStyles,
       aggregated: context.aggregated,
       legendPosition: context.legendPosition ?? "top",

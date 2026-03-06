@@ -4,7 +4,6 @@ import { isNumberCell } from "@odoo/o-spreadsheet-engine/helpers/cells/cell_eval
 import { AbstractChart } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/abstract_chart";
 import {
   chartFontColor,
-  getDataSourceFromContextCreation,
   getDefinedAxis,
 } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_common";
 import { CHART_COMMON_OPTIONS } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_ui_common";
@@ -59,10 +58,10 @@ export const PyramidChart: ChartTypeBuilder<"pyramid"> = {
 
   getContextCreation: (definition) => definition,
 
-  getDefinitionFromContextCreation(context) {
+  getDefinitionFromContextCreation(context, dataSourceBuilder) {
     return {
       background: context.background,
-      dataSource: getDataSourceFromContextCreation(context),
+      dataSource: dataSourceBuilder.fromContextCreation(context),
       dataSetStyles: context.dataSetStyles ?? {},
       aggregated: context.aggregated ?? false,
       legendPosition: context.legendPosition ?? "top",
@@ -77,6 +76,9 @@ export const PyramidChart: ChartTypeBuilder<"pyramid"> = {
   },
 
   getDefinitionForExcel(getters, definition, { dataSets, labelRange }) {
+    if (definition.dataSource.type !== "range") {
+      return undefined;
+    }
     const data = getChartData(getters, definition.dataSource);
     const chartData = getPyramidChartData(definition, data, getters);
     const { dataSetsValues } = chartData;

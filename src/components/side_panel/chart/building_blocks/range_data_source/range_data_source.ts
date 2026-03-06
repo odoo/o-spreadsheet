@@ -38,6 +38,7 @@ interface ChartRangeDataSourceState {
 interface Props {
   chartId: UID;
   definition: ChartDefinitionWithDataSource<string>;
+  dataSource: ChartRangeDataSourceType<string>;
   updateChart: ChartSidePanelProps<ChartDefinitionWithDataSource<string>>["updateChart"];
   canUpdateChart: ChartSidePanelProps<ChartDefinitionWithDataSource<string>>["canUpdateChart"];
   onErrorMessagesChanged?: (errorMessages: string[]) => void;
@@ -60,6 +61,7 @@ export class ChartRangeDataSource extends Component<Props, SpreadsheetChildEnv> 
   static props = {
     chartId: String,
     definition: Object,
+    dataSource: Object,
     updateChart: Function,
     canUpdateChart: Function,
     onErrorMessagesChanged: { type: Function, optional: true },
@@ -80,9 +82,9 @@ export class ChartRangeDataSource extends Component<Props, SpreadsheetChildEnv> 
   protected chartTerms = ChartTerms;
 
   setup() {
-    this.dataSets = this.props.definition.dataSource.dataSets ?? [];
-    this.labelRange = this.props.definition.dataSource.labelRange;
-    if (this.props.definition.dataSource.type === "range") {
+    this.dataSets = this.props.dataSource.dataSets ?? [];
+    this.labelRange = this.props.dataSource.labelRange;
+    if (this.props.dataSource.type === "range") {
       this.datasetOrientation = this.computeDatasetOrientation();
     }
   }
@@ -121,7 +123,7 @@ export class ChartRangeDataSource extends Component<Props, SpreadsheetChildEnv> 
       options.push({
         name: "dataSetsHaveTitle",
         label: this.dataSetsHaveTitleLabel,
-        value: this.props.definition.dataSource.dataSetsHaveTitle,
+        value: this.props.dataSource.dataSetsHaveTitle,
         onChange: this.onUpdateDataSetsHaveTitle.bind(this),
       });
       return options;
@@ -137,7 +139,7 @@ export class ChartRangeDataSource extends Component<Props, SpreadsheetChildEnv> 
       {
         name: "dataSetsHaveTitle",
         label: this.dataSetsHaveTitleLabel,
-        value: definition.dataSource.dataSetsHaveTitle,
+        value: this.props.dataSource.dataSetsHaveTitle,
         onChange: this.onUpdateDataSetsHaveTitle.bind(this),
       },
     ];
@@ -145,7 +147,7 @@ export class ChartRangeDataSource extends Component<Props, SpreadsheetChildEnv> 
 
   onUpdateDataSetsHaveTitle(dataSetsHaveTitle: boolean) {
     this.props.updateChart(this.props.chartId, {
-      dataSource: { ...this.props.definition.dataSource, dataSetsHaveTitle },
+      dataSource: { ...this.props.dataSource, dataSetsHaveTitle },
     });
   }
 
@@ -216,7 +218,7 @@ export class ChartRangeDataSource extends Component<Props, SpreadsheetChildEnv> 
   }
 
   setDatasetOrientation(datasetOrientation: ChartDatasetOrientation) {
-    const dataSource = this.props.definition.dataSource;
+    const dataSource = this.props.dataSource;
     const oldDataSets = dataSource.dataSets;
     const dataRanges = oldDataSets.map((d) => d.dataRange);
     const dataSets = this.transposeDataSet(
@@ -247,7 +249,7 @@ export class ChartRangeDataSource extends Component<Props, SpreadsheetChildEnv> 
       dataRange,
     }));
     this.state.datasetDispatchResult = this.props.canUpdateChart(this.props.chartId, {
-      dataSource: { ...this.props.definition.dataSource, dataSets: this.dataSets },
+      dataSource: { ...this.props.dataSource, dataSets: this.dataSets },
     });
     this.props.onErrorMessagesChanged?.(this.errorMessages);
   }
@@ -265,7 +267,7 @@ export class ChartRangeDataSource extends Component<Props, SpreadsheetChildEnv> 
     }
     this.dataSets = indexes.map((i) => this.dataSets[i]);
     this.state.datasetDispatchResult = this.props.updateChart(this.props.chartId, {
-      dataSource: { ...this.props.definition.dataSource, dataSets: this.dataSets },
+      dataSource: { ...this.props.dataSource, dataSets: this.dataSets },
       dataSetStyles,
     });
     this.props.onErrorMessagesChanged?.(this.errorMessages);
@@ -285,7 +287,7 @@ export class ChartRangeDataSource extends Component<Props, SpreadsheetChildEnv> 
     delete dataSetStyles[removedDataSetId];
     this.dataSets = this.dataSets.filter((_, i) => i !== index);
     this.state.datasetDispatchResult = this.props.updateChart(this.props.chartId, {
-      dataSource: { ...this.props.definition.dataSource, dataSets: this.dataSets },
+      dataSource: { ...this.props.dataSource, dataSets: this.dataSets },
       dataSetStyles,
     });
     this.props.onErrorMessagesChanged?.(this.errorMessages);
@@ -296,15 +298,16 @@ export class ChartRangeDataSource extends Component<Props, SpreadsheetChildEnv> 
     this.dataSets = dataSets;
     this.datasetOrientation = this.computeDatasetOrientation();
     this.state.datasetDispatchResult = this.props.updateChart(this.props.chartId, {
-      dataSource: { ...this.props.definition.dataSource, dataSets: this.dataSets },
+      dataSource: { ...this.props.dataSource, dataSets: this.dataSets },
       dataSetStyles,
     });
     if (this.state.datasetDispatchResult.isSuccessful) {
-      this.dataSets = (
-        this.env.model.getters.getChartDefinition(
-          this.props.chartId
-        ) as ChartDefinitionWithDataSource<string>
-      ).dataSource.dataSets;
+      const newDefinition = this.env.model.getters.getChartDefinition(
+        this.props.chartId
+      ) as ChartDefinitionWithDataSource<string>;
+      if (newDefinition.dataSource.type === "range") {
+        this.dataSets = newDefinition.dataSource.dataSets;
+      }
     }
     this.props.onErrorMessagesChanged?.(this.errorMessages);
   }
@@ -423,13 +426,13 @@ export class ChartRangeDataSource extends Component<Props, SpreadsheetChildEnv> 
   onLabelRangeChanged(ranges: string[]) {
     this.labelRange = ranges[0];
     this.state.labelsDispatchResult = this.props.canUpdateChart(this.props.chartId, {
-      dataSource: { ...this.props.definition.dataSource, labelRange: this.labelRange },
+      dataSource: { ...this.props.dataSource, labelRange: this.labelRange },
     });
   }
 
   onLabelRangeConfirmed() {
     this.state.labelsDispatchResult = this.props.updateChart(this.props.chartId, {
-      dataSource: { ...this.props.definition.dataSource, labelRange: this.labelRange },
+      dataSource: { ...this.props.dataSource, labelRange: this.labelRange },
     });
   }
 
@@ -450,7 +453,7 @@ export class ChartRangeDataSource extends Component<Props, SpreadsheetChildEnv> 
     const getters = this.env.model.getters;
     const sheetId = getters.getActiveSheetId();
     const labelRange = createValidRange(getters, sheetId, this.labelRange);
-    const dataSets = createDataSets(getters, sheetId, this.props.definition.dataSource);
+    const dataSets = createDataSets(getters, sheetId, this.props.dataSource);
     if (dataSets.length) {
       return this.datasetOrientation === "rows"
         ? dataSets[0].dataRange.zone.left
