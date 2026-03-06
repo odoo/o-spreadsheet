@@ -1,7 +1,7 @@
 import { Model } from "../../src";
 import { createSheet, setCellContent, setFormat } from "../test_helpers/commands_helpers";
 import { getCellContent } from "../test_helpers/getters_helpers";
-import { createModelFromGrid, evaluateCell, setGrid } from "../test_helpers/helpers";
+import { createModelFromGrid, evaluateCell, evaluateGrid, setGrid } from "../test_helpers/helpers";
 
 describe("CELL formula", () => {
   test("CELL takes 2 arguments", () => {
@@ -393,5 +393,31 @@ describe("NA formula", () => {
   test("functional tests on simple arguments", () => {
     expect(evaluateCell("A1", { A1: "=NA(0)" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
     expect(evaluateCell("A1", { A1: "=NA()" })).toBe("#N/A");
+  });
+});
+
+describe("ISFORMULA formula", () => {
+  test("test All different types", () => {
+    //prettier-ignore
+    const grid = {
+      A1: "=SUM(B1:B2)",     B1: "=ISFORMULA(A1)",
+      A2: "",                B2: "=ISFORMULA(A2)",
+      A3: "just text",       B3: "=ISFORMULA(A3)",
+      A4: "42",              B4: "=ISFORMULA(A4)",
+      A5: "=1/0",            B5: "=ISFORMULA(A5)",
+      A6: "=#REF",           B6: "=ISFORMULA(A6)",
+                             B7: "=ISFORMULA(A7, 1)",
+                             B8: "=ISFORMULA(sum(1,2))",
+
+    };
+    const gridResult = evaluateGrid(grid);
+    expect(gridResult.B1).toBe(true);
+    expect(gridResult.B2).toBe(false);
+    expect(gridResult.B3).toBe(false);
+    expect(gridResult.B4).toBe(false);
+    expect(gridResult.B5).toBe(true);
+    expect(gridResult.B6).toBe(true);
+    expect(gridResult.B7).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+    expect(gridResult.B8).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
   });
 });
