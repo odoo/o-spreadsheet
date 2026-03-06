@@ -134,7 +134,14 @@ function compareVersions(v1: string, v2: string): number {
 function migrate(data: any): WorkbookData {
   const start = performance.now();
   const versions = getSortedVersions();
-  const index = versions.findIndex((v) => v === data.version);
+  const index = versions.findIndex((v) => v >= data.version);
+  if (index === -1) {
+    throw new Error(
+      `Data version ${
+        data.version
+      } postdates the current version of o-spreadsheet (version ${getCurrentVersion()}). It cannot be loaded.`
+    );
+  }
   for (let i = index + 1; i < versions.length; i++) {
     const nextVersion = versions[i];
     data = migrationStepRegistry.get(nextVersion).migrate(data);
