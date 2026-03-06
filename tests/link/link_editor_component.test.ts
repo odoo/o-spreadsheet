@@ -150,22 +150,39 @@ describe("link editor component", () => {
     const sheetId = "42";
     createSheet(model, { sheetId });
     await openLinkEditor(model, "A1");
-    await simulateClick("button.o-special-link");
-    await simulateClick(".o-menu-item[data-name='sheet']");
-    await simulateClick(`.o-menu-item[data-name='${sheetId}']`);
+    await simulateClick(".suggestion-item[data-index='1']"); // click on the first proposal which should be the sheet link
     expect(labelInput().value).toBe("Sheet2");
     expect(urlInput().value).toBe("Sheet2");
     expect(urlInput().disabled).toBe(true);
   });
 
-  test("special link menu position", async () => {
+  test("Can filter link proposals", async () => {
     const sheetId = "42";
-    createSheet(model, { sheetId });
+    const sheetName = "tabouret";
+    createSheet(model, { sheetId, name: sheetName });
     await openLinkEditor(model, "A1");
-    await simulateClick("button.o-special-link");
-    const popover = fixture.querySelector(".o-menu")!.closest<HTMLElement>(".o-popover")!;
-    expect(popover.style.top).toBe("100px");
-    expect(popover.style.left).toBe("150px");
+    expect(fixture.querySelectorAll(".suggestion-item").length).toBe(2);
+    await setInputValueAndTrigger(urlInput(), "tabou");
+    expect(fixture.querySelectorAll(".suggestion-item").length).toBe(1);
+  });
+
+  test("Can select a proposal with arrow keys", async () => {
+    const sheetId = "42";
+    const sheetName = "tabouret";
+    createSheet(model, { sheetId, name: sheetName });
+    await openLinkEditor(model, "A1");
+    await keyDown({ key: "ArrowDown" });
+    expect(labelInput().value).toBe("");
+    expect(urlInput().value).toBe("");
+    await keyDown({ key: "Enter" });
+    expect(labelInput().value).toBe("Sheet1");
+    expect(urlInput().value).toBe("Sheet1");
+    expect(urlInput().disabled).toBe(true);
+    await keyDown({ key: "ArrowDown" });
+    await keyDown({ key: "Enter" });
+    expect(labelInput().value).toBe("tabouret");
+    expect(urlInput().value).toBe("tabouret");
+    expect(urlInput().disabled).toBe(true);
   });
 
   test("label is changed to canonical form in model", async () => {
@@ -191,17 +208,6 @@ describe("link editor component", () => {
     });
   });
 
-  test("clicking the main popover closes the special link menus", async () => {
-    const sheetId = "42";
-    createSheet(model, { sheetId });
-    await openLinkEditor(model, "A1");
-    await simulateClick("button.o-special-link");
-    await simulateClick(".o-menu-item[data-name='sheet']");
-    expect(fixture.querySelector(".o-menu")).not.toBeNull();
-    await simulateClick(".o-link-editor");
-    expect(fixture.querySelector(".o-menu")).toBeNull();
-  });
-
   test("remove current link", async () => {
     setCellContent(model, "A1", "[label](url.com)");
     await openLinkEditor(model, "A1");
@@ -216,6 +222,19 @@ describe("link editor component", () => {
     expect(urlInput().value).toBe("https://url.com");
     await simulateClick(".o-remove-url");
     expect(urlInput().value).toBe("");
+  });
+
+  test("removing the link resets the proposals", async () => {
+    const sheetId = "42";
+    const sheetName = "tabouret";
+    createSheet(model, { sheetId, name: sheetName });
+    await openLinkEditor(model, "A1");
+    expect(fixture.querySelectorAll(".suggestion-item").length).toBe(2);
+    await setInputValueAndTrigger(urlInput(), "tabou");
+    expect(fixture.querySelectorAll(".suggestion-item").length).toBe(1);
+    await simulateClick(".suggestion-item");
+    await simulateClick(".o-remove-url");
+    expect(fixture.querySelectorAll(".suggestion-item").length).toBe(2);
   });
 
   test("save button is disabled while url input is empty", async () => {
