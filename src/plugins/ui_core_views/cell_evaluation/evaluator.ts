@@ -6,7 +6,6 @@ import {
   excludeTopLeft,
   lazy,
   positionToZone,
-  toXC,
   union,
 } from "../../../helpers";
 import { createEvaluatedCell, evaluateLiteral } from "../../../helpers/cells";
@@ -358,6 +357,7 @@ export class Evaluator {
     } catch (e) {
       e.value = e?.value || CellErrorType.GenericError;
       e.message = e?.message || implementationErrorMessage;
+      e.errorOriginPosition = e?.errorOriginPosition;
       return createEvaluatedCell(e);
     } finally {
       this.cellsBeingComputed.delete(cellId);
@@ -504,10 +504,8 @@ export class Evaluator {
       ) {
         this.blockedArrayFormulas.add(formulaPosition);
         throw new SplillBlockedError(
-          _t(
-            "Array result was not expanded because it would overwrite data in %s.",
-            toXC(position.col, position.row)
-          )
+          _t("Array result was not expanded because it would overwrite data."),
+          position
         );
       }
       this.blockedArrayFormulas.delete(formulaPosition);
