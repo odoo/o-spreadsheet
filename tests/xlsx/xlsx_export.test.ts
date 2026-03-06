@@ -1066,6 +1066,17 @@ describe("Test XLSX export", () => {
       });
       expect(await exportPrettifiedXlsx(model)).toMatchSnapshot();
     });
+
+    test("formula whose value is an error", async () => {
+      const model = new Model({
+        sheets: [
+          {
+            cells: { A1: "hello", B2: "=A1 + 2" },
+          },
+        ],
+      });
+      expect(await exportPrettifiedXlsx(model)).toMatchSnapshot();
+    });
   });
 
   describe("Charts", () => {

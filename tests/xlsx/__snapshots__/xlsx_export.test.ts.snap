@@ -24872,9 +24872,12 @@ exports[`Test XLSX export Generic sheets (style, hidden, size, cf) Simple model 
             </c>
         </row>
         <row r="39">
-            <c r="A39" t="s">
+            <c r="A39" cm="1" t="str">
+                <f t="array" ref="A39">
+                    A39
+                </f>
                 <v>
-                    27
+                    #CYCLE
                 </v>
             </c>
         </row>
@@ -24889,9 +24892,12 @@ exports[`Test XLSX export Generic sheets (style, hidden, size, cf) Simple model 
             </c>
         </row>
         <row r="41">
-            <c r="A41" t="s">
+            <c r="A41" cm="1" t="str">
+                <f t="array" ref="A41">
+                    #REF!+5
+                </f>
                 <v>
-                    28
+                    #REF!
                 </v>
             </c>
         </row>
@@ -25156,7 +25162,7 @@ exports[`Test XLSX export Generic sheets (style, hidden, size, cf) Simple model 
       "path": "xl/styles.xml",
     },
     {
-      "content": "<sst xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" count="29" uniqueCount="29">
+      "content": "<sst xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" count="27" uniqueCount="27">
     <si>
         <t>
             Owl is awesome
@@ -25290,16 +25296,6 @@ exports[`Test XLSX export Generic sheets (style, hidden, size, cf) Simple model 
     <si>
         <t>
             test 'single quot'
-        </t>
-    </si>
-    <si>
-        <t>
-            =A39
-        </t>
-    </si>
-    <si>
-        <t>
-            =#REF + 5
         </t>
     </si>
 </sst>",
@@ -30275,9 +30271,12 @@ exports[`Test XLSX export formulas All exportable formulas 1`] = `
             </c>
         </row>
         <row r="162">
-            <c r="A162" t="s">
+            <c r="A162" cm="1" t="str">
+                <f t="array" ref="A162">
+                    NA()
+                </f>
                 <v>
-                    20
+                    #N/A
                 </v>
             </c>
         </row>
@@ -30420,7 +30419,7 @@ exports[`Test XLSX export formulas All exportable formulas 1`] = `
       "path": "xl/styles.xml",
     },
     {
-      "content": "<sst xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" count="21" uniqueCount="21">
+      "content": "<sst xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" count="20" uniqueCount="20">
     <si>
         <t>
             evaluation
@@ -30519,11 +30518,6 @@ exports[`Test XLSX export formulas All exportable formulas 1`] = `
     <si>
         <t>
             &gt;25
-        </t>
-    </si>
-    <si>
-        <t>
-            =NA()
         </t>
     </si>
 </sst>",
@@ -30829,9 +30823,12 @@ exports[`Test XLSX export formulas All non-exportable formulas 1`] = `
             </c>
         </row>
         <row r="23">
-            <c r="A23" t="s">
+            <c r="A23" cm="1" t="str">
+                <f t="array" ref="A23">
+                    SUM(A3:A100)
+                </f>
                 <v>
-                    0
+                    #CYCLE
                 </v>
             </c>
         </row>
@@ -31219,12 +31216,7 @@ exports[`Test XLSX export formulas All non-exportable formulas 1`] = `
       "path": "xl/styles.xml",
     },
     {
-      "content": "<sst xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" count="1" uniqueCount="1">
-    <si>
-        <t>
-            =SUM(A3:A100)
-        </t>
-    </si>
+      "content": "<sst xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" count="0" uniqueCount="0">
 </sst>",
       "contentType": "sharedStrings",
       "path": "xl/sharedStrings.xml",
@@ -33502,9 +33494,12 @@ exports[`Test XLSX export formulas Multi-Sheets exportable functions 1`] = `
             </c>
         </row>
         <row r="162">
-            <c r="A162" t="s">
+            <c r="A162" cm="1" t="str">
+                <f t="array" ref="A162">
+                    NA()
+                </f>
                 <v>
-                    20
+                    #N/A
                 </v>
             </c>
         </row>
@@ -33698,7 +33693,7 @@ exports[`Test XLSX export formulas Multi-Sheets exportable functions 1`] = `
       "path": "xl/styles.xml",
     },
     {
-      "content": "<sst xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" count="21" uniqueCount="21">
+      "content": "<sst xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" count="20" uniqueCount="20">
     <si>
         <t>
             evaluation
@@ -33797,11 +33792,6 @@ exports[`Test XLSX export formulas Multi-Sheets exportable functions 1`] = `
     <si>
         <t>
             &gt;25
-        </t>
-    </si>
-    <si>
-        <t>
-            =NA()
         </t>
     </si>
 </sst>",
@@ -34141,6 +34131,195 @@ exports[`Test XLSX export formulas Non exportable functions that is evaluated as
     },
     {
       "content": "<sst xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" count="0" uniqueCount="0">
+</sst>",
+      "contentType": "sharedStrings",
+      "path": "xl/sharedStrings.xml",
+    },
+    {
+      "content": "<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
+    <Relationship Id="rId1" Target="worksheets/sheet0.xml" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet"/>
+    <Relationship Id="rId2" Target="sharedStrings.xml" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/sharedStrings"/>
+    <Relationship Id="rId3" Target="styles.xml" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles"/>
+    <Relationship Id="rId4" Target="metadata.xml" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/sheetMetadata"/>
+</Relationships>",
+      "contentType": undefined,
+      "path": "xl/_rels/workbook.xml.rels",
+    },
+    {
+      "content": "<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">
+    <Default Extension="avif" ContentType="image/avif"/>
+    <Default Extension="bmp" ContentType="image/bmp"/>
+    <Default Extension="gif" ContentType="image/gif"/>
+    <Default Extension="ico" ContentType="image/vnd.microsoft.icon"/>
+    <Default Extension="jpeg" ContentType="image/jpeg"/>
+    <Default Extension="png" ContentType="image/png"/>
+    <Default Extension="tiff" ContentType="image/tiff"/>
+    <Default Extension="webp" ContentType="image/webp"/>
+    <Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>
+    <Default Extension="xml" ContentType="application/xml"/>
+    <Override ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml" PartName="/xl/workbook.xml"/>
+    <Override ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml" PartName="/xl/worksheets/sheet0.xml"/>
+    <Override ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheetMetadata+xml" PartName="/xl/metadata.xml"/>
+    <Override ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml" PartName="/xl/styles.xml"/>
+    <Override ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sharedStrings+xml" PartName="/xl/sharedStrings.xml"/>
+</Types>",
+      "contentType": undefined,
+      "path": "[Content_Types].xml",
+    },
+    {
+      "content": "<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
+    <Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/>
+</Relationships>",
+      "contentType": undefined,
+      "path": "_rels/.rels",
+    },
+  ],
+  "name": "my_spreadsheet.xlsx",
+}
+`;
+
+exports[`Test XLSX export formulas formula whose value is an error 1`] = `
+{
+  "files": [
+    {
+      "content": "<workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">
+    <sheets>
+        <sheet state="visible" name="Sheet1" sheetId="1" r:id="rId1"/>
+    </sheets>
+</workbook>",
+      "contentType": "workbook",
+      "path": "xl/workbook.xml",
+    },
+    {
+      "content": "<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">
+    <sheetViews>
+        <sheetView showGridLines="1" workbookViewId="0">
+        </sheetView>
+    </sheetViews>
+    <sheetFormatPr defaultRowHeight="17.25" defaultColWidth="13.73"/>
+    <cols>
+        <col min="1" max="1" width="13.73" customWidth="1" hidden="0"/>
+        <col min="2" max="2" width="13.73" customWidth="1" hidden="0"/>
+        <col min="3" max="3" width="13.73" customWidth="1" hidden="0"/>
+        <col min="4" max="4" width="13.73" customWidth="1" hidden="0"/>
+        <col min="5" max="5" width="13.73" customWidth="1" hidden="0"/>
+        <col min="6" max="6" width="13.73" customWidth="1" hidden="0"/>
+        <col min="7" max="7" width="13.73" customWidth="1" hidden="0"/>
+        <col min="8" max="8" width="13.73" customWidth="1" hidden="0"/>
+        <col min="9" max="9" width="13.73" customWidth="1" hidden="0"/>
+        <col min="10" max="10" width="13.73" customWidth="1" hidden="0"/>
+        <col min="11" max="11" width="13.73" customWidth="1" hidden="0"/>
+        <col min="12" max="12" width="13.73" customWidth="1" hidden="0"/>
+        <col min="13" max="13" width="13.73" customWidth="1" hidden="0"/>
+        <col min="14" max="14" width="13.73" customWidth="1" hidden="0"/>
+        <col min="15" max="15" width="13.73" customWidth="1" hidden="0"/>
+        <col min="16" max="16" width="13.73" customWidth="1" hidden="0"/>
+        <col min="17" max="17" width="13.73" customWidth="1" hidden="0"/>
+        <col min="18" max="18" width="13.73" customWidth="1" hidden="0"/>
+        <col min="19" max="19" width="13.73" customWidth="1" hidden="0"/>
+        <col min="20" max="20" width="13.73" customWidth="1" hidden="0"/>
+        <col min="21" max="21" width="13.73" customWidth="1" hidden="0"/>
+        <col min="22" max="22" width="13.73" customWidth="1" hidden="0"/>
+        <col min="23" max="23" width="13.73" customWidth="1" hidden="0"/>
+        <col min="24" max="24" width="13.73" customWidth="1" hidden="0"/>
+        <col min="25" max="25" width="13.73" customWidth="1" hidden="0"/>
+        <col min="26" max="26" width="13.73" customWidth="1" hidden="0"/>
+    </cols>
+    <sheetData>
+        <row r="1">
+            <c r="A1" t="s">
+                <v>
+                    0
+                </v>
+            </c>
+        </row>
+        <row r="2">
+            <c r="B2" cm="1" t="str">
+                <f t="array" ref="B2">
+                    A1+2
+                </f>
+                <v>
+                    #ERROR
+                </v>
+            </c>
+        </row>
+    </sheetData>
+</worksheet>",
+      "contentType": "sheet",
+      "path": "xl/worksheets/sheet0.xml",
+    },
+    {
+      "content": "<metadata xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:xda="http://schemas.microsoft.com/office/spreadsheetml/2017/dynamicarray">
+    <metadataTypes count="1">
+        <metadataType name="XLDAPR" minSupportedVersion="120000" copy="1" pasteAll="1" pasteValues="1" merge="1" splitFirst="1" rowColShift="1" clearFormats="1" clearComments="1" assign="1" coerce="1" cellMeta="1"/>
+    </metadataTypes>
+    <futureMetadata name="XLDAPR" count="1">
+        <bk>
+            <extLst>
+                <ext uri="{bdbb8cdc-fa1e-496e-a857-3c3f30c029c3}">
+                    <xda:dynamicArrayProperties fDynamic="1" fCollapsed="0"/>
+                </ext>
+            </extLst>
+        </bk>
+    </futureMetadata>
+    <cellMetadata count="1">
+        <bk>
+            <rc t="1" v="0"/>
+        </bk>
+    </cellMetadata>
+</metadata>",
+      "contentType": "metadata",
+      "path": "xl/metadata.xml",
+    },
+    {
+      "content": "<styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">
+    <numFmts count="0">
+    </numFmts>
+    <fonts count="1">
+        <font>
+            <sz val="10"/>
+            <color rgb="000000"/>
+            <name val="Arial"/>
+        </font>
+    </fonts>
+    <fills count="2">
+        <fill>
+            <patternFill patternType="none"/>
+        </fill>
+        <fill>
+            <patternFill patternType="gray125"/>
+        </fill>
+    </fills>
+    <borders count="1">
+        <border>
+            <left>
+            </left>
+            <right>
+            </right>
+            <top>
+            </top>
+            <bottom>
+            </bottom>
+            <diagonal>
+            </diagonal>
+        </border>
+    </borders>
+    <cellXfs count="1">
+        <xf numFmtId="0" fillId="0" fontId="0" borderId="0"/>
+    </cellXfs>
+    <dxfs count="0">
+    </dxfs>
+</styleSheet>",
+      "contentType": "styles",
+      "path": "xl/styles.xml",
+    },
+    {
+      "content": "<sst xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" count="1" uniqueCount="1">
+    <si>
+        <t>
+            hello
+        </t>
+    </si>
 </sst>",
       "contentType": "sharedStrings",
       "path": "xl/sharedStrings.xml",
