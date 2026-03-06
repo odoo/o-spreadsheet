@@ -1,9 +1,6 @@
 import { BACKGROUND_CHART_COLOR } from "@odoo/o-spreadsheet-engine/constants";
 import { AbstractChart } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/abstract_chart";
-import {
-  chartFontColor,
-  getDataSourceFromContextCreation,
-} from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_common";
+import { chartFontColor } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_common";
 import { CHART_COMMON_OPTIONS } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_ui_common";
 import { ChartTypeBuilder } from "@odoo/o-spreadsheet-engine/registries/chart_registry";
 import { RadarChartRuntime } from "@odoo/o-spreadsheet-engine/types/chart/radar_chart";
@@ -51,10 +48,10 @@ export const RadarChart: ChartTypeBuilder<"radar"> = {
 
   getContextCreation: (definition) => definition,
 
-  getDefinitionFromContextCreation(context) {
+  getDefinitionFromContextCreation(context, dataSourceBuilder) {
     return {
       background: context.background,
-      dataSource: getDataSourceFromContextCreation(context),
+      dataSource: dataSourceBuilder.fromContextCreation(context),
       dataSetStyles: context.dataSetStyles ?? {},
       stacked: context.stacked ?? false,
       aggregated: context.aggregated ?? false,

@@ -168,12 +168,15 @@ export const GaugeChart: ChartTypeBuilder<"gauge"> = {
     };
   },
 
-  getDefinitionFromContextCreation(context) {
+  getDefinitionFromContextCreation(context, dataSourceBuilder) {
     return {
       background: context.background,
       title: context.title || { text: "" },
       type: "gauge",
-      dataRange: context.dataSource?.dataSets?.[0]?.dataRange,
+      dataRange:
+        context.dataSource?.type === "range"
+          ? context.dataSource.dataSets?.[0]?.dataRange
+          : undefined,
       sectionRule: {
         colors: {
           lowerColor: DEFAULT_GAUGE_LOWER_COLOR,
@@ -229,6 +232,7 @@ export const GaugeChart: ChartTypeBuilder<"gauge"> = {
     return {
       ...definition,
       dataSource: {
+        type: "range",
         dataSets: definition.dataRange ? [{ dataRange: definition.dataRange, dataSetId: "1" }] : [],
       },
     };

@@ -158,10 +158,6 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
   // ---------------------------------------------------------------------------
 
   getContextCreationChart(chartId: UID): ChartCreationContext | undefined {
-    const chart = this.charts[chartId]?.chart;
-    if (!chart) {
-      return undefined;
-    }
     return this.charts[chartId]?.chart.getContextCreation();
   }
 

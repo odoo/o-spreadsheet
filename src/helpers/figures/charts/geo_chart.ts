@@ -1,5 +1,4 @@
 import { AbstractChart } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/abstract_chart";
-import { getDataSourceFromContextCreation } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_common";
 import { CHART_COMMON_OPTIONS } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_ui_common";
 import { ChartTypeBuilder } from "@odoo/o-spreadsheet-engine/registries/chart_registry";
 import { GeoChartRuntime } from "@odoo/o-spreadsheet-engine/types/chart/geo_chart";
@@ -44,10 +43,10 @@ export const GeoChart: ChartTypeBuilder<"geo"> = {
 
   getContextCreation: (definition) => definition,
 
-  getDefinitionFromContextCreation(context) {
+  getDefinitionFromContextCreation(context, dataSourceBuilder) {
     return {
       background: context.background,
-      dataSource: getDataSourceFromContextCreation(context),
+      dataSource: dataSourceBuilder.fromContextCreation(context),
       dataSetStyles: context.dataSetStyles ?? {},
       legendPosition: context.legendPosition ?? "top",
       title: context.title || { text: "" },
@@ -82,5 +81,5 @@ export const GeoChart: ChartTypeBuilder<"geo"> = {
     };
 
     return { chartJsConfig: config };
-  }
-}
+  },
+};

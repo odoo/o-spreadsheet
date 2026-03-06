@@ -43,6 +43,40 @@ export const ChartRangeDataSourceHandler: ChartDataSourceBuilder<"range"> = {
     return { ...dataSource, dataSets, labelRange };
   },
 
+  fromContextCreation(context) {
+    return {
+      type: "range",
+      dataSets: [],
+      dataSetsHaveTitle: false,
+      ...context.dataSource,
+    };
+  },
+
+  fromHierarchicalContextCreation(context) {
+    if (context.dataSource?.type !== "range" || context.hierarchicalDataSource?.type !== "range") {
+      return {
+        type: "range",
+        dataSets: [],
+        dataSetsHaveTitle: false,
+      };
+    }
+    let dataSource: ChartRangeDataSource<string> = {
+      type: "range",
+      dataSets: [],
+      dataSetsHaveTitle: context.dataSource?.dataSetsHaveTitle ?? false,
+      labelRange: context.dataSource?.dataSets?.[0]?.dataRange,
+    };
+    if (context.hierarchicalDataSource?.dataSets.length) {
+      dataSource = context.hierarchicalDataSource;
+    } else if (context.auxiliaryRange) {
+      dataSource = {
+        ...dataSource,
+        dataSets: [{ dataRange: context.auxiliaryRange, dataSetId: "0" }],
+      };
+    }
+    return dataSource;
+  },
+
   validate: (dataSource, validator) =>
     validator.checkValidations(dataSource, checkDataset, checkLabelRange),
 
@@ -172,7 +206,10 @@ export const ChartRangeDataSourceHandler: ChartDataSourceBuilder<"range"> = {
     };
   },
 
-  getContextCreation: (dataSource) => ({ auxiliaryRange: dataSource.labelRange }),
+  getContextCreation: (dataSource) => ({
+    auxiliaryRange: dataSource.labelRange,
+    dataSource,
+  }),
 
   getHierarchicalContextCreation(dataSource) {
     const leafRange = dataSource.dataSets.at(-1)?.dataRange;
@@ -350,6 +387,8 @@ export function getData(getters: Getters, ds: DataSet): FunctionResultObject[] {
 const ChartNeverDataSourceHandler: ChartDataSourceBuilder<"never"> = {
   supportedChartTypes: [],
   fromRangeStr: () => ({ type: "never" }),
+  fromContextCreation: () => ({ type: "never" }),
+  fromHierarchicalContextCreation: () => ({ type: "never" }),
   validate: () => CommandResult.Success,
   transform: () => ({ type: "never" }),
   extractData: () => ({ dataSetsValues: [], labelValues: [] }),

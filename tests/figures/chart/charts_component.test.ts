@@ -64,7 +64,7 @@ import {
   simulateClick,
   triggerMouseEvent,
 } from "../../test_helpers/dom_helper";
-import { getCellContent } from "../../test_helpers/getters_helpers";
+import { getCellContent, getChartDataSource } from "../../test_helpers/getters_helpers";
 import {
   createModelFromGrid,
   mockChart,
@@ -1123,18 +1123,12 @@ describe("charts", () => {
       createTestChart(chartType);
       await mountChartSidePanel();
 
-      expect(
-        (model.getters.getChartDefinition(chartId) as ChartDefinitionWithDataSource<string>)
-          ?.dataSource.labelRange
-      ).not.toBeUndefined();
+      expect(getChartDataSource(model, chartId)?.labelRange).not.toBeUndefined();
 
       await simulateClick(".o-data-labels input");
       await setInputValueAndTrigger(".o-data-labels input", "");
       await simulateClick(".o-data-labels .o-selection-ok");
-      expect(
-        (model.getters.getChartDefinition(chartId) as ChartDefinitionWithDataSource<string>)
-          ?.dataSource.labelRange
-      ).toBeUndefined();
+      expect(getChartDataSource(model, chartId)?.labelRange).toBeUndefined();
     }
   );
 
@@ -1545,7 +1539,7 @@ describe("charts", () => {
     const { dataSource, dataSetStyles } = model.getters.getChartDefinition(
       chartId
     ) as BarChartDefinition<string>;
-    const dataSetIds = dataSource.dataSets.map((ds) => ds.dataSetId);
+    const dataSetIds = getChartDataSource(model, chartId)?.dataSets.map((ds) => ds.dataSetId) ?? [];
     expect(dataSource).toMatchObject({
       dataSets: [
         { dataRange: "B1:B4", dataSetId: dataSetIds[0] },
@@ -1689,8 +1683,7 @@ describe("charts", () => {
     const element = document.querySelectorAll(".o-data-series input")[1];
     await setInputValueAndTrigger(element, "C1:D4");
     await simulateClick(".o-data-series .o-selection-ok");
-    const definition = model.getters.getChartDefinition(chartId) as BarChartDefinition<string>;
-    const dataSetIds = definition.dataSource.dataSets.map((ds) => ds.dataSetId);
+    const dataSetIds = getChartDataSource(model, chartId)?.dataSets.map((ds) => ds.dataSetId) ?? [];
     expect(model.getters.getChartDefinition(chartId)).toMatchObject(
       toChartDataSource({
         dataSets: [
@@ -1761,7 +1754,7 @@ describe("charts", () => {
     await setInputValueAndTrigger(element, "A:B");
     await simulateClick(".o-data-series .o-selection-ok");
     const definition = model.getters.getChartDefinition(chartId) as BarChartDefinition<string>;
-    const dataSetIds = definition.dataSource.dataSets.map((ds) => ds.dataSetId);
+    const dataSetIds = getChartDataSource(model, chartId)?.dataSets.map((ds) => ds.dataSetId) ?? [];
     expect(definition).toMatchObject(
       toChartDataSource({
         dataSets: [
@@ -1950,7 +1943,7 @@ describe("charts", () => {
     await setInputValueAndTrigger(".o-data-series input", "B2:C4");
     await simulateClick(".o-data-series .o-selection-ok");
     const definition = model.getters.getChartDefinition(chartId) as BarChartDefinition<string>;
-    const dataSetIds = definition.dataSource.dataSets.map((ds) => ds.dataSetId);
+    const dataSetIds = getChartDataSource(model, chartId)?.dataSets.map((ds) => ds.dataSetId) ?? [];
     expect(definition).toMatchObject(
       toChartDataSource({
         dataSets: [
@@ -2292,12 +2285,10 @@ describe("charts", () => {
     });
     await mountChartSidePanel();
 
-    const initialDefinition = model.getters.getChartDefinition(
-      chartId
-    ) as LineChartDefinition<string>;
+    const initialDataSource = getChartDataSource(model, chartId);
 
     await simulateClick(".o-split-by-rows");
-    let definition = model.getters.getChartDefinition(chartId) as LineChartDefinition<string>;
+    const definition = model.getters.getChartDefinition(chartId) as LineChartDefinition<string>;
     expect(definition).toMatchObject(
       toChartDataSource({
         labelRange: "B2:F2",
@@ -2305,11 +2296,10 @@ describe("charts", () => {
       })
     );
     await simulateClick(".o-split-by-columns");
-    definition = model.getters.getChartDefinition(chartId) as LineChartDefinition<string>;
     // compare only dataSets dataRange to avoid dataSetId mismatch
-    expect(definition.dataSource.dataSets.map(({ dataRange }) => ({ dataRange }))).toEqual(
-      initialDefinition.dataSource.dataSets.map(({ dataRange }) => ({ dataRange }))
-    );
+    expect(
+      getChartDataSource(model, chartId)?.dataSets.map(({ dataRange }) => ({ dataRange }))
+    ).toEqual(initialDataSource?.dataSets.map(({ dataRange }) => ({ dataRange })));
   });
 
   test("Transposed dataset with only one series empties the chart label and keep the series", async () => {
@@ -2354,7 +2344,7 @@ describe("charts", () => {
 
     await simulateClick(".o-split-by-rows");
     let definition = model.getters.getChartDefinition(chartId) as LineChartDefinition<string>;
-    let dataSetIds = definition.dataSource.dataSets.map((ds) => ds.dataSetId);
+    let dataSetIds = getChartDataSource(model, chartId)?.dataSets.map((ds) => ds.dataSetId) ?? [];
     expect(definition).toMatchObject(
       toChartDataSource({
         dataSets: [
@@ -2369,7 +2359,7 @@ describe("charts", () => {
     await setInputValueAndTrigger(element, "D2:E4");
     await simulateClick(".o-data-series .o-selection-ok");
     definition = model.getters.getChartDefinition(chartId) as LineChartDefinition<string>;
-    dataSetIds = definition.dataSource.dataSets.map((ds) => ds.dataSetId);
+    dataSetIds = getChartDataSource(model, chartId)?.dataSets.map((ds) => ds.dataSetId) ?? [];
     expect(definition).toMatchObject(
       toChartDataSource({
         dataSets: [
