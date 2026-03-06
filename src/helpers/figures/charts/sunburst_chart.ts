@@ -44,16 +44,12 @@ export const SunburstChart: ChartTypeBuilder<"sunburst"> = {
   updateRanges: (definition) => definition,
 
   getDefinitionFromContextCreation(context) {
-    let labelRange = context.dataSource?.dataSets?.[0]?.dataRange;
-    if (!labelRange) {
-      labelRange = context.auxiliaryRange;
-    }
     let dataSource: ChartRangeDataSource<string> = {
       type: "range",
-      dataSetsHaveTitle: false,
       ...context.dataSource,
       dataSets: [],
-      labelRange,
+      dataSetsHaveTitle: context.dataSource?.dataSetsHaveTitle ?? false,
+      labelRange: context.dataSource?.dataSets?.[0]?.dataRange,
     };
     if (context.hierarchicalDataSource?.dataSets.length) {
       dataSource = context.hierarchicalDataSource;
