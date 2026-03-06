@@ -8,7 +8,6 @@ import {
 import { Model, UID } from "../../../../src";
 import { ColorGenerator } from "../../../../src/helpers";
 import { GHOST_SUNBURST_VALUE } from "../../../../src/helpers/figures/charts/runtime";
-import { SunburstChart } from "../../../../src/helpers/figures/charts/sunburst_chart";
 import {
   GENERAL_CHART_CREATION_CONTEXT,
   toChartDataSource,
@@ -114,7 +113,7 @@ describe("Sunburst chart chart", () => {
       }),
     });
     const context = model.getters.getChart(chartId)!.getContextCreation();
-    const definition = SunburstChart.getDefinitionFromContextCreation(context);
+    const definition = createChartDefinitionFromContext("sunburst", context);
     expect(definition).toMatchObject(
       toChartDataSource({
         dataSets: [{ dataRange: "A1:A4" }],

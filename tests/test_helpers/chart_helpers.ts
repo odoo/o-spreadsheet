@@ -45,7 +45,7 @@ export function getCategoryAxisTickLabels(model: Model, chartId: UID) {
 }
 
 interface ChartDataInput {
-  dataSets: (CustomizedDataSet & {
+  dataSets?: (CustomizedDataSet & {
     dataRange: string;
     dataSetId?: UID;
     type?: "bar" | "line"; // for combo charts
@@ -61,10 +61,11 @@ interface ChartDataOutput {
 
 export function toChartDataSource(args: ChartDataInput): ChartDataOutput {
   const { labelRange } = args;
-  const dataSets = args.dataSets.map((dataSet, i) => ({
-    ...dataSet,
-    dataSetId: dataSet.dataSetId ?? `${i}`,
-  }));
+  const dataSets =
+    args.dataSets?.map((dataSet, i) => ({
+      ...dataSet,
+      dataSetId: dataSet.dataSetId ?? `${i}`,
+    })) ?? [];
   const dataSetStyles: Record<string, CustomizedDataSet> = {};
   for (const { dataSetId, dataRange, ...style } of dataSets) {
     if (Object.keys(style).length !== 0) {

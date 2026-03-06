@@ -3,7 +3,6 @@ import {
   BarChartRuntime,
   ChartDefinitionWithDataSource,
   ChartWithAxisDefinition,
-  LineChartDefinition,
   LineChartRuntime,
   PieChartDefinition,
   PieChartRuntime,
@@ -71,6 +70,7 @@ import {
   toChartDataSource,
 } from "../../test_helpers/chart_helpers";
 import { FR_LOCALE } from "../../test_helpers/constants";
+import { getChartDataSource } from "../../test_helpers";
 
 let model: Model;
 
@@ -280,9 +280,11 @@ describe("datasource tests", function () {
       },
       "1"
     );
-    expect(
-      (model.getters.getChartDefinition("1") as LineChartDefinition<string>)?.dataSource.dataSets
-    ).toMatchObject([{ dataRange: "8:8" }, { dataRange: "A:A" }, { dataRange: "B:B" }]);
+    expect(getChartDataSource(model, "1")?.dataSets).toMatchObject([
+      { dataRange: "8:8" },
+      { dataRange: "A:A" },
+      { dataRange: "B:B" },
+    ]);
   });
 
   test("create chart with row datasets without series title", () => {
@@ -705,9 +707,7 @@ describe("datasource tests", function () {
       "1"
     );
     updateChartDataSource(model, "1", { labelRange: undefined });
-    expect(
-      (model.getters.getChartDefinition("1") as LineChartDefinition<string>).dataSource.labelRange
-    ).toBeUndefined();
+    expect(getChartDataSource(model, "1")?.labelRange).toBeUndefined();
   });
 
   test("deleting a random sheet does not affect a chart", () => {
@@ -2021,6 +2021,7 @@ describe("Chart without labels", () => {
 
   test("The legend is displayed even when there is only one dataSet or no label", () => {
     createChart(model, defaultChart, "42");
+    const defaultDataSource = getChartDataSource(model, "42");
     expect(getChartConfiguration(model, "42").options?.plugins?.legend?.position).toBe("top");
 
     createChart(
@@ -2041,7 +2042,7 @@ describe("Chart without labels", () => {
       {
         ...defaultChart,
         ...toChartDataSource({
-          dataSets: defaultChart.dataSource.dataSets,
+          dataSets: defaultDataSource?.dataSets,
           labelRange: "B1:B2",
           dataSetsHaveTitle: false,
         }),
@@ -2077,6 +2078,7 @@ describe("Chart without labels", () => {
     setCellContent(model, "A1", "1");
     setCellContent(model, "A2", "2");
     createChart(model, defaultChart, "42");
+    const defaultDataSource = getChartDataSource(model, "42");
     expect(getChartConfiguration(model, "42").data?.labels).toEqual(["", ""]);
 
     createChart(
@@ -2102,7 +2104,7 @@ describe("Chart without labels", () => {
         ...defaultChart,
         type: "bar",
         ...toChartDataSource({
-          dataSets: defaultChart.dataSource.dataSets,
+          dataSets: defaultDataSource?.dataSets,
           labelRange: "B1:B2",
           dataSetsHaveTitle: false,
         }),

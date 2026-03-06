@@ -240,8 +240,8 @@ export interface ExcelChartDefinition {
 
 export interface ChartCreationContext {
   readonly dataSetStyles?: DataSetStyle;
-  readonly hierarchicalDataSource?: ChartRangeDataSource<string>;
-  readonly dataSource?: Partial<ChartRangeDataSource<string>>;
+  readonly hierarchicalDataSource?: ChartDataSource<string>;
+  readonly dataSource?: Partial<ChartDataSource<string>> & { type: ChartDataSource["type"] };
   readonly title?: TitleDesign;
   readonly background?: Color;
   readonly auxiliaryRange?: string;

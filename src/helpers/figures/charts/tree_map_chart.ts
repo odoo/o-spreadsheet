@@ -1,7 +1,6 @@
 import { AbstractChart } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/abstract_chart";
 import { CHART_COMMON_OPTIONS } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_ui_common";
 import { ChartTypeBuilder } from "@odoo/o-spreadsheet-engine/registries/chart_registry";
-import { ChartRangeDataSource } from "@odoo/o-spreadsheet-engine/types/chart/chart";
 import { TreeMapChartRuntime } from "@odoo/o-spreadsheet-engine/types/chart/tree_map_chart";
 import { ChartConfiguration } from "chart.js";
 import { CommandResult } from "../../../types";
@@ -42,26 +41,11 @@ export const TreeMapChart: ChartTypeBuilder<"treemap"> = {
 
   updateRanges: (definition) => definition,
 
-  getDefinitionFromContextCreation(context) {
-    let dataSource: ChartRangeDataSource<string> = {
-      type: "range",
-      ...context.dataSource,
-      dataSets: [],
-      dataSetsHaveTitle: context.dataSource?.dataSetsHaveTitle ?? false,
-      labelRange: context.dataSource?.dataSets?.[0]?.dataRange,
-    };
-    if (context.hierarchicalDataSource?.dataSets.length) {
-      dataSource = context.hierarchicalDataSource;
-    } else if (context.auxiliaryRange) {
-      dataSource = {
-        ...dataSource,
-        dataSets: [{ dataRange: context.auxiliaryRange, dataSetId: "0" }],
-      };
-    }
+  getDefinitionFromContextCreation(context, dataSourceBuilder) {
     return {
       background: context.background,
       dataSetStyles: context.dataSetStyles ?? {},
-      dataSource,
+      dataSource: dataSourceBuilder.fromHierarchicalContextCreation(context),
       legendPosition: context.legendPosition ?? "top",
       title: context.title || { text: "" },
       type: "treemap",
@@ -75,11 +59,11 @@ export const TreeMapChart: ChartTypeBuilder<"treemap"> = {
     };
   },
 
-  getContextCreation(definition, dataSourceHandler, dataSource) {
+  getContextCreation(definition, dataSourceBuilder, dataSource) {
     return {
       ...definition,
       treemapColoringOptions: definition.coloringOptions,
-      ...dataSourceHandler.getHierarchicalContextCreation(dataSource),
+      ...dataSourceBuilder.getHierarchicalContextCreation(dataSource),
     };
   },
 

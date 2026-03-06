@@ -1,6 +1,5 @@
 import { Validator } from "@odoo/o-spreadsheet-engine";
 import { AbstractChart } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/abstract_chart";
-import { getDataSourceFromContextCreation } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_common";
 import { CHART_COMMON_OPTIONS } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_ui_common";
 import { ChartTypeBuilder } from "@odoo/o-spreadsheet-engine/registries/chart_registry";
 import { LegendPosition } from "@odoo/o-spreadsheet-engine/types/chart";
@@ -69,14 +68,14 @@ export const CalendarChart: ChartTypeBuilder<"calendar"> = {
 
   getContextCreation: (definition) => definition,
 
-  getDefinitionFromContextCreation(context) {
+  getDefinitionFromContextCreation(context, dataSourceBuilder) {
     let legendPosition: LegendPosition = "left";
     if (context.legendPosition === "right") {
       legendPosition = "right";
     }
     return {
       background: context.background,
-      dataSource: getDataSourceFromContextCreation(context),
+      dataSource: dataSourceBuilder.fromContextCreation(context),
       dataSetStyles: context.dataSetStyles ?? {},
       title: context.title || { text: "" },
       type: "calendar",
@@ -118,5 +117,5 @@ export const CalendarChart: ChartTypeBuilder<"calendar"> = {
     };
 
     return { chartJsConfig: config };
-  }
-}
+  },
+};

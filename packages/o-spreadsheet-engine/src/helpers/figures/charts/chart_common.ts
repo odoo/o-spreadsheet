@@ -2,7 +2,6 @@ import { DEFAULT_WINDOW_SIZE, MAX_CHAR_LABEL } from "../../../constants";
 import { _t } from "../../../translation";
 import {
   ChartAxisFormats,
-  ChartCreationContext,
   ChartDefinitionWithDataSource,
   ChartRangeDataSource,
   DataSet,
@@ -51,18 +50,6 @@ export function duplicateLabelRangeInDuplicatedSheet(
   range?: Range
 ): Range | undefined {
   return range ? duplicateRangeInDuplicatedSheet(sheetIdFrom, sheetIdTo, range) : undefined;
-}
-
-export function getDataSourceFromContextCreation(
-  context: ChartCreationContext
-): ChartRangeDataSource<string> {
-  const dataSource = context.dataSource ?? {
-    type: "range",
-    dataSets: [],
-    dataSetsHaveTitle: false,
-  };
-  // @ts-ignore TODO remove when definitions accept ChartDataSource
-  return dataSource;
 }
 
 /**

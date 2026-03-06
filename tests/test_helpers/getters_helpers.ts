@@ -6,6 +6,7 @@ import {
   Cell,
   CellValue,
   CellValueType,
+  ChartRangeDataSource,
   EvaluatedCell,
   FormattedValue,
   Merge,
@@ -280,4 +281,15 @@ export function getTables(model: Model, sheetId: UID) {
   return model.getters
     .getTables(sheetId)
     .map((table) => ({ ...table, zone: zoneToXc(table.range.zone) }));
+}
+
+export function getChartDataSource(
+  model: Model,
+  chartId: UID
+): ChartRangeDataSource<string> | undefined {
+  const definition = model.getters.getChartDefinition(chartId);
+  if (!definition?.dataSource || definition.dataSource.type !== "range") {
+    return undefined;
+  }
+  return definition.dataSource;
 }

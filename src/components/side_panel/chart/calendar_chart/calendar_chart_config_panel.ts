@@ -9,7 +9,7 @@ import {
   CalendarChartGranularity,
 } from "@odoo/o-spreadsheet-engine/types/chart/calendar_chart";
 import { getBarChartData } from "../../../../helpers/figures/charts/runtime";
-import { DEFAULT_LOCALE, ValueAndLabel } from "../../../../types";
+import { ChartRangeDataSource, DEFAULT_LOCALE, ValueAndLabel } from "../../../../types";
 import { Select } from "../../../select/select";
 import { GenericChartConfigPanel } from "../building_blocks/generic_side_panel/config_panel";
 import { ChartSidePanelProps } from "../common";
@@ -36,7 +36,7 @@ export class CalendarChartConfigPanel extends GenericChartConfigPanel<
     ).getRangeDefinition() as CalendarChartDefinition;
     const data = getBarChartData(
       definition,
-      getChartData(this.env.model.getters, definition.dataSource),
+      getChartData(this.env.model.getters, definition.dataSource as ChartRangeDataSource),
       this.env.model.getters
     );
     const labels = data.labels.filter((l) => isDateTime(l, DEFAULT_LOCALE));
