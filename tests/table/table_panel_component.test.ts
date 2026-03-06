@@ -258,6 +258,18 @@ describe("Table side panel", () => {
     expect(fixture.querySelector(".o-table-panel")).toBeNull();
   });
 
+  test("automaticAutofill checkbox is disabled when the table is dynamic", async () => {
+    setCellContent(model, "A1", "=MUNIT(3)");
+    await nextTick();
+    expect(
+      fixture.querySelector<HTMLInputElement>(`input[name="automaticAutofill"]`)?.disabled
+    ).toBeFalsy();
+    await click(fixture, "input[name='isDynamic']");
+    expect(
+      fixture.querySelector<HTMLInputElement>(`input[name="automaticAutofill"]`)?.disabled
+    ).toBeTruthy();
+  });
+
   test("IsDynamic checkbox is disabled when the table cannot be dynamic", async () => {
     expect(
       fixture.querySelector<HTMLInputElement>(`input[name="isDynamic"]`)?.disabled
