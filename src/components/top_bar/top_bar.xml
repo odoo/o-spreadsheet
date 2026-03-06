@@ -5,7 +5,7 @@
       t-on-click="props.onClick">
       <div t-if="!env.isSmall" class="o-topbar-top d-flex justify-content-between border-bottom">
         <!-- Menus -->
-        <div class="o-topbar-topleft d-flex">
+        <div class="o-topbar-topleft d-flex" t-ref="topBarTop">
           <t t-foreach="menus" t-as="menu" t-key="menu_index">
             <div
               t-if="menu.children.length !== 0"
@@ -97,11 +97,15 @@
     </div>
     <MenuPopover
       t-if="state.menuState.isOpen"
+      t-key="state.menuState.parentMenu.id"
       anchorRect="state.menuState.anchorRect"
       menuItems="state.menuState.menuItems"
       onClose="() => this.closeMenus()"
       onMenuClicked="() => this.props.onClick()"
       popoverPositioning="'bottom-left'"
+      menuId="state.menuState.parentMenu.id"
+      autoSelectFirstItem="state.menuState.autoSelectFirstItem"
+      onKeyboardNavigation.bind="this.onKeyboardNavigation"
     />
     <Popover t-if="state.toolsPopoverState.isOpen" t-props="toolsPopoverProps">
       <div class="d-flex px-2 py-1 flex-wrap align-items-center bg-white">
