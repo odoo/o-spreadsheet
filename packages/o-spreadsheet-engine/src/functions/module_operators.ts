@@ -1,9 +1,16 @@
 import { _t } from "../translation";
 import { DivisionByZeroError, EvaluationError, InvalidReferenceError } from "../types/errors";
 import { AddFunctionDescription } from "../types/functions";
-import { FunctionResultNumber, FunctionResultObject, Matrix, Maybe } from "../types/misc";
+import { Arg, FunctionResultNumber, FunctionResultObject, Maybe } from "../types/misc";
 import { arg } from "./arguments";
-import { generateMatrix, isEvaluationError, toNumber, toString } from "./helpers";
+import {
+  expectReferenceError,
+  generateMatrix,
+  isEvaluationError,
+  toMatrix,
+  toNumber,
+  toString,
+} from "./helpers";
 import { POWER } from "./module_math";
 
 // -----------------------------------------------------------------------------
@@ -300,27 +307,27 @@ export const POW = {
  **/
 export const SPILLED_RANGE = {
   description: _t("Gets the spilled range of an array formula."),
-  args: [arg("ref (meta  , range<meta>)", _t("The reference to get the spilled range from."))],
-  compute: function (ref: Matrix<{ value: string }> | undefined) {
+  args: [arg("ref (any, range<any>)", _t("The reference to get the spilled range from."))],
+  compute: function (ref: Arg | undefined) {
     if (ref === undefined) {
-      return new EvaluationError(_t("The range is out of bounds."));
+      return new InvalidReferenceError(expectReferenceError);
     }
-    if (ref.length !== 1 || ref[0].length !== 1) {
+
+    const _ref = toMatrix(ref);
+    if (_ref.length !== 1 || _ref[0].length !== 1) {
       return new EvaluationError(
         _t("Only single-cell references are allowed to get the spilled range.")
       );
     }
-    const _ref = ref[0][0];
-    if (isEvaluationError(_ref.value)) {
-      return _ref;
+    const firstCell = _ref[0][0];
+
+    if (isEvaluationError(firstCell.value)) {
+      return firstCell;
     }
 
-    const initialRange = this.getters.getRangeFromSheetXC(this.__originSheetId, _ref.value);
-    const cellPosition = {
-      col: initialRange.zone.left,
-      row: initialRange.zone.top,
-      sheetId: initialRange.sheetId,
-    };
+    if (firstCell.position === undefined) {
+      return new InvalidReferenceError(expectReferenceError);
+    }
 
     const originPosition = this.__originCellPosition;
     if (originPosition) {
@@ -330,11 +337,11 @@ export const SPILLED_RANGE = {
       this.updateDependencies?.(originPosition);
     }
 
-    const spilledZone = this.getters.getSpreadZone(cellPosition);
+    const spilledZone = this.getters.getSpreadZone(firstCell.position);
     if (spilledZone === undefined) {
       return new InvalidReferenceError();
     }
-    const spilledRange = this.getters.getRangeFromZone(initialRange.sheetId, spilledZone);
+    const spilledRange = this.getters.getRangeFromZone(this.__originSheetId, spilledZone);
     if (originPosition) {
       this.addDependencies?.(originPosition, [spilledRange]);
     }
@@ -343,7 +350,7 @@ export const SPILLED_RANGE = {
       spilledZone.right - spilledZone.left + 1,
       spilledZone.bottom - spilledZone.top + 1,
       (col: number, row: number): FunctionResultObject =>
-        this.getters.getEvaluatedCell({
+        this.getRef({
           sheetId: spilledRange.sheetId,
           col: spilledZone.left + col,
           row: spilledZone.top + row,
