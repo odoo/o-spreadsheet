@@ -106,6 +106,12 @@ export class PieChart extends AbstractChart {
     return this.getDefinitionWithSpecificDataSets(this.dataSets, this.labelRange);
   }
 
+  getDataRanges(): Range[] {
+    return [this.labelRange, ...this.dataSets.map((ds) => ds.dataRange)].filter(
+      (r): r is Range => r !== undefined
+    );
+  }
+
   getContextCreation(): ChartCreationContext {
     return {
       ...this,
