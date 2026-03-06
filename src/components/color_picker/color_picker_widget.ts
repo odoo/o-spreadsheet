@@ -34,7 +34,7 @@ export class ColorPickerWidget extends Component<Props, SpreadsheetChildEnv> {
 
   get iconStyle() {
     return this.props.currentColor
-      ? `border-color: ${this.props.currentColor}`
+      ? `border-color: ${this.env.model.getters.getAdaptedColor(this.props.currentColor)}`
       : "border-bottom-style: hidden";
   }
 

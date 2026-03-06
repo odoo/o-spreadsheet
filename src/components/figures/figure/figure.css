@@ -83,4 +83,7 @@
       }
     }
   }
+  .o-figure-wrapper.os-theme-dependant {
+    filter: invert(1) hue-rotate(180deg) contrast(0.9) brightness(1.5);
+  }
 }

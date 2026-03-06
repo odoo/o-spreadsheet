@@ -907,6 +907,7 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
         </div>
         
         <canvas
+          class="os-theme-dependant pe-none"
           height="985"
           style="width:985px;height:985px;zoom:1;"
           width="985"
@@ -1916,6 +1917,7 @@ exports[`components take the small screen into account 1`] = `
         </div>
         
         <canvas
+          class="os-theme-dependant pe-none"
           height="985"
           style="width:485px;height:985px;zoom:1;"
           width="485"
