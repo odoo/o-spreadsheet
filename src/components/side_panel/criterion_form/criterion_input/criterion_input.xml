@@ -1,29 +1,29 @@
 <templates>
   <t t-name="o-spreadsheet-CriterionInput">
     <div class="o-dv-input position-relative w-100 p-1">
-      <t t-if="allowedValues === 'onlyLiterals'">
+      <t t-if="this.allowedValues === 'onlyLiterals'">
         <input
           type="text"
           t-custom-ref="input"
-          t-on-input="onInputValueChanged"
-          t-att-value="props.value"
+          t-on-input="this.onInputValueChanged"
+          t-att-value="this.props.value"
           class="o-input"
           t-att-class="{
-              'o-invalid border-danger position-relative': errorMessage,
+              'o-invalid border-danger position-relative': this.errorMessage,
             }"
-          t-att-title="errorMessage"
-          t-att-placeholder="placeholder"
-          t-on-keydown="props.onKeyDown"
-          t-on-blur="props.onBlur"
+          t-att-title="this.errorMessage"
+          t-att-placeholder="this.placeholder"
+          t-on-keydown="this.props.onKeyDown"
+          t-on-blur="this.props.onBlur"
         />
       </t>
       <t t-else="">
-        <StandaloneComposer t-props="getDataValidationRuleInputComposerProps()"/>
+        <StandaloneComposer t-props="this.getDataValidationRuleInputComposerProps()"/>
       </t>
       <span
-        t-if="errorMessage"
+        t-if="this.errorMessage"
         class="error-icon text-danger position-absolute d-flex align-items-center"
-        t-att-title="errorMessage">
+        t-att-title="this.errorMessage">
         <t t-call="o-spreadsheet-Icon.ERROR"/>
       </span>
     </div>

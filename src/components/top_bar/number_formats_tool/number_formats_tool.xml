@@ -1,15 +1,15 @@
 <templates>
   <div t-name="o-spreadsheet-NumberFormatsTool" t-custom-ref="buttonRef" t-on-click.stop="">
     <ActionButton
-      action="formatNumberMenuItemSpec"
+      action="this.formatNumberMenuItemSpec"
       hasTriangleDownIcon="true"
-      onClick.bind="toggleMenu"
-      class="props.class"
+      onClick.bind="this.toggleMenu"
+      class="this.props.class"
     />
     <MenuPopover
-      t-if="isActive"
-      anchorRect="state.anchorRect"
-      menuItems="state.menuItems"
+      t-if="this.isActive"
+      anchorRect="this.state.anchorRect"
+      menuItems="this.state.menuItems"
       onClose="() => {}"
       popoverPositioning="'bottom-left'"
     />

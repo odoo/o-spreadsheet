@@ -1,9 +1,9 @@
 <templates>
   <t t-name="o-spreadsheet-HeadersOverlay">
     <div class="o-overlay">
-      <ColResizer onOpenContextMenu="props.onOpenContextMenu"/>
-      <RowResizer onOpenContextMenu="props.onOpenContextMenu"/>
-      <div class="all" t-on-pointerdown.self="selectAll"/>
+      <ColResizer onOpenContextMenu="this.props.onOpenContextMenu"/>
+      <RowResizer onOpenContextMenu="this.props.onOpenContextMenu"/>
+      <div class="all" t-on-pointerdown.self="this.selectAll"/>
     </div>
   </t>
 
@@ -11,40 +11,42 @@
     <div
       class="o-row-resizer o-zoomable"
       t-custom-ref="rowResizer"
-      t-on-pointermove.self="onMouseMove"
-      t-on-mouseleave="onMouseLeave"
-      t-on-pointerdown.self.prevent="select"
-      t-on-click="onClick"
-      t-on-contextmenu.self="onContextMenu"
-      t-att-class="{'o-grab': state.waitingForMove, 'o-dragging': state.isMoving}">
+      t-on-pointermove.self="this.onMouseMove"
+      t-on-mouseleave="this.onMouseLeave"
+      t-on-pointerdown.self.prevent="this.select"
+      t-on-click="this.onClick"
+      t-on-contextmenu.self="this.onContextMenu"
+      t-att-class="{'o-grab': this.state.waitingForMove, 'o-dragging': this.state.isMoving}">
       <div
-        t-if="state.isMoving"
+        t-if="this.state.isMoving"
         class="dragging-row-line"
-        t-attf-style="top:{{state.draggerLinePosition}}px;"
+        t-attf-style="top:{{this.state.draggerLinePosition}}px;"
       />
       <div
-        t-if="state.isMoving"
+        t-if="this.state.isMoving"
         class="dragging-row-shadow"
-        t-attf-style="top:{{state.draggerShadowPosition}}px; height:{{state.draggerShadowThickness}}px;"
+        t-attf-style="top:{{this.state.draggerShadowPosition}}px; height:{{this.state.draggerShadowThickness}}px;"
       />
-      <t t-if="state.resizerIsActive">
+      <t t-if="this.state.resizerIsActive">
         <div
           class="o-handle"
-          t-on-pointerdown="onMouseDown"
-          t-on-dblclick="onDblClick"
+          t-on-pointerdown="this.onMouseDown"
+          t-on-dblclick="this.onDblClick"
           t-on-contextmenu.prevent=""
-          t-attf-style="top:{{state.draggerLinePosition - 2}}px;">
-          <div class="dragging-resizer" t-if="state.isResizing"/>
+          t-attf-style="top:{{this.state.draggerLinePosition - 2}}px;">
+          <div class="dragging-resizer" t-if="this.state.isResizing"/>
         </div>
       </t>
-      <t t-if="env.model.getters.getHiddenRowsGroups(sheetId).length">
-        <t t-if="hasFrozenPane">
-          <div class="position-relative pe-none overflow-hidden" t-att-style="frozenContainerStyle">
-            <UnhideRowHeaders t-props="frozenUnhideHeadersProps"/>
+      <t t-if="this.env.model.getters.getHiddenRowsGroups(this.sheetId).length">
+        <t t-if="this.hasFrozenPane">
+          <div
+            class="position-relative pe-none overflow-hidden"
+            t-att-style="this.frozenContainerStyle">
+            <UnhideRowHeaders t-props="this.frozenUnhideHeadersProps"/>
           </div>
         </t>
         <div class="pe-none overflow-hidden flex-shrink-0 position-relative h-100">
-          <UnhideRowHeaders t-props="mainUnhideHeadersProps"/>
+          <UnhideRowHeaders t-props="this.mainUnhideHeadersProps"/>
         </div>
       </t>
     </div>
@@ -54,42 +56,42 @@
     <div
       class="o-col-resizer d-flex o-zoomable"
       t-custom-ref="colResizer"
-      t-on-pointermove.self="onMouseMove"
-      t-on-mouseleave="onMouseLeave"
-      t-on-pointerdown.self.prevent="select"
-      t-on-click="onClick"
-      t-on-contextmenu.self="onContextMenu"
-      t-att-class="{'o-grab': state.waitingForMove, 'o-dragging': state.isMoving, }">
+      t-on-pointermove.self="this.onMouseMove"
+      t-on-mouseleave="this.onMouseLeave"
+      t-on-pointerdown.self.prevent="this.select"
+      t-on-click="this.onClick"
+      t-on-contextmenu.self="this.onContextMenu"
+      t-att-class="{'o-grab': this.state.waitingForMove, 'o-dragging': this.state.isMoving, }">
       <div
-        t-if="state.isMoving"
+        t-if="this.state.isMoving"
         class="dragging-col-line"
-        t-attf-style="left:{{state.draggerLinePosition}}px;"
+        t-attf-style="left:{{this.state.draggerLinePosition}}px;"
       />
       <div
-        t-if="state.isMoving"
+        t-if="this.state.isMoving"
         class="dragging-col-shadow"
-        t-attf-style="left:{{state.draggerShadowPosition}}px; width:{{state.draggerShadowThickness}}px"
+        t-attf-style="left:{{this.state.draggerShadowPosition}}px; width:{{this.state.draggerShadowThickness}}px"
       />
-      <t t-if="state.resizerIsActive">
+      <t t-if="this.state.resizerIsActive">
         <div
           class="o-handle"
-          t-on-pointerdown="onMouseDown"
-          t-on-dblclick="onDblClick"
+          t-on-pointerdown="this.onMouseDown"
+          t-on-dblclick="this.onDblClick"
           t-on-contextmenu.prevent=""
-          t-attf-style="left:{{state.draggerLinePosition - 2}}px;">
-          <div class="dragging-resizer" t-if="state.isResizing"/>
+          t-attf-style="left:{{this.state.draggerLinePosition - 2}}px;">
+          <div class="dragging-resizer" t-if="this.state.isResizing"/>
         </div>
       </t>
-      <t t-if="env.model.getters.getHiddenColsGroups(sheetId).length">
-        <t t-if="hasFrozenPane">
+      <t t-if="this.env.model.getters.getHiddenColsGroups(this.sheetId).length">
+        <t t-if="this.hasFrozenPane">
           <div
             class="position-relative pe-none h-100 flex-shrink-0"
-            t-att-style="frozenContainerStyle">
-            <UnhideColumnHeaders t-props="frozenUnhideHeadersProps"/>
+            t-att-style="this.frozenContainerStyle">
+            <UnhideColumnHeaders t-props="this.frozenUnhideHeadersProps"/>
           </div>
         </t>
         <div class="pe-none overflow-hidden flex-shrink-0 position-relative w-100">
-          <UnhideColumnHeaders t-props="mainUnhideHeadersProps"/>
+          <UnhideColumnHeaders t-props="this.mainUnhideHeadersProps"/>
         </div>
       </t>
     </div>

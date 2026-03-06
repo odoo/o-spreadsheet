@@ -2,27 +2,27 @@
   <t t-name="o-spreadsheet-BorderEditorWidget">
     <div
       class="d-flex position-relative"
-      t-att-class="{'o-disabled': env.model.getters.isCurrentSheetLocked()}"
+      t-att-class="{'o-disabled': this.env.model.getters.isCurrentSheetLocked()}"
       title="Borders">
       <span
         t-custom-ref="borderEditorButton"
-        t-on-click.stop="toggleBorderEditor"
-        t-att-class="props.class ? props.class : ''"
-        t-att-disabled="props.disabled">
-        <span t-att-style="iconStyle">
+        t-on-click.stop="this.toggleBorderEditor"
+        t-att-class="this.props.class ? this.props.class : ''"
+        t-att-disabled="this.props.disabled">
+        <span t-att-style="this.iconStyle">
           <t t-call="o-spreadsheet-Icon.BORDERS"/>
         </span>
       </span>
       <BorderEditor
-        t-if="isActive"
-        onBorderColorPicked.bind="onBorderColorPicked"
-        onBorderStylePicked.bind="onBorderStylePicked"
-        onBorderPositionPicked.bind="onBorderPositionPicked"
-        currentBorderColor="state.currentColor"
-        currentBorderStyle="state.currentStyle"
-        currentBorderPosition="state.currentPosition"
-        maxHeight="dropdownMaxHeight"
-        anchorRect="borderEditorAnchorRect"
+        t-if="this.isActive"
+        onBorderColorPicked.bind="this.onBorderColorPicked"
+        onBorderStylePicked.bind="this.onBorderStylePicked"
+        onBorderPositionPicked.bind="this.onBorderPositionPicked"
+        currentBorderColor="this.state.currentColor"
+        currentBorderStyle="this.state.currentStyle"
+        currentBorderPosition="this.state.currentPosition"
+        maxHeight="this.dropdownMaxHeight"
+        anchorRect="this.borderEditorAnchorRect"
       />
     </div>
   </t>

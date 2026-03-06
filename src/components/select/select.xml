@@ -4,23 +4,23 @@
       tabIndex="0"
       t-custom-ref="selectRef"
       class="o-input o-select"
-      t-att-class="props.class"
-      t-att-name="props.name"
-      t-on-pointerdown="onMouseDown"
-      t-on-keydown="onKeyDown"
-      t-esc="selectedLabel"
+      t-att-class="this.props.class"
+      t-att-name="this.props.name"
+      t-on-pointerdown="this.onMouseDown"
+      t-on-keydown="this.onKeyDown"
+      t-esc="this.selectedLabel"
     />
 
-    <Popover t-if="state.isPopoverOpen" t-props="popoverProps">
+    <Popover t-if="this.state.isPopoverOpen" t-props="this.popoverProps">
       <div
         class="o-select-dropdown bg-white overflow-hidden py-2"
-        t-att-class="props.popoverClass"
+        t-att-class="this.props.popoverClass"
         t-custom-ref="dropdownRef">
-        <t t-foreach="props.values" t-as="value" t-key="value_index">
+        <t t-foreach="this.props.values" t-as="value" t-key="value_index">
           <div
             class="o-select-option"
             t-att-class="{
-              'o-active': value.value === activeValue
+              'o-active': value.value === this.activeValue
             }"
             t-att-data-id="value.value"
             t-esc="value.label"

@@ -4,19 +4,19 @@
       <input
         type="text"
         t-custom-ref="{{refName}}"
-        t-att-class="inputClass"
-        t-att-id="props.id"
-        t-att-placeholder="props.placeholder"
-        t-on-change="save"
-        t-on-blur="save"
-        t-on-pointerdown="onMouseDown"
-        t-on-pointerup="onMouseUp"
-        t-on-keydown="onKeyDown"
+        t-att-class="this.inputClass"
+        t-att-id="this.props.id"
+        t-att-placeholder="this.props.placeholder"
+        t-on-change="this.save"
+        t-on-blur="this.save"
+        t-on-pointerdown="this.onMouseDown"
+        t-on-pointerup="this.onMouseUp"
+        t-on-keydown="this.onKeyDown"
       />
       <span
-        t-if="props.errorMessage"
+        t-if="this.props.errorMessage"
         class="os-input-error-icon text-danger position-absolute d-flex align-items-center"
-        t-att-title="props.errorMessage">
+        t-att-title="this.props.errorMessage">
         <t t-call="o-spreadsheet-Icon.ERROR"/>
       </span>
     </div>

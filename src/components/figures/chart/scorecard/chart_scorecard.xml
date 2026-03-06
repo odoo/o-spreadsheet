@@ -3,7 +3,7 @@
     <canvas
       class="o-figure-canvas o-scorecard w-100 h-100 d-block"
       t-custom-ref="chartContainer"
-      t-att-title="title"
+      t-att-title="this.title"
     />
   </t>
 </templates>

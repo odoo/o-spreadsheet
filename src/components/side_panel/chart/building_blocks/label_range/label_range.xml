@@ -1,14 +1,14 @@
 <templates>
   <t t-name="o-spreadsheet.ChartLabelRange">
-    <Section class="'o-data-labels'" title="props.title">
+    <Section class="'o-data-labels'" title="this.props.title">
       <SelectionInput
-        ranges="[props.range]"
-        isInvalid="props.isInvalid"
+        ranges="[this.props.range]"
+        isInvalid="this.props.isInvalid"
         hasSingleRange="true"
-        onSelectionChanged="(ranges) => props.onSelectionChanged(ranges)"
-        onSelectionConfirmed="() => props.onSelectionConfirmed()"
+        onSelectionChanged="(ranges) => this.props.onSelectionChanged(ranges)"
+        onSelectionConfirmed="() => this.props.onSelectionConfirmed()"
       />
-      <t t-foreach="props.options" t-as="option" t-key="option.name">
+      <t t-foreach="this.props.options" t-as="option" t-key="option.name">
         <Checkbox
           name="option.name"
           label="option.label"

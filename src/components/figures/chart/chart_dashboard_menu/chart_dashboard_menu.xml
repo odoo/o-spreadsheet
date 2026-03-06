@@ -1,8 +1,8 @@
 <templates>
   <t t-name="o-spreadsheet-ChartDashboardMenu">
     <div class="o-dashboard-chart-select position-absolute top-0 end-0" t-on-click.stop="">
-      <div class="d-flex align-items-center gap-1 p-1 rounded" t-att-style="backgroundColor">
-        <t t-foreach="getMenuItems()" t-as="item" t-key="item.id">
+      <div class="d-flex align-items-center gap-1 p-1 rounded" t-att-style="this.backgroundColor">
+        <t t-foreach="this.getMenuItems()" t-as="item" t-key="item.id">
           <div
             t-attf-class=" {{item.class}}"
             class="o-chart-dashboard-item btn border-0 lh-1 p-1 d-flex align-items-center justify-content-center"
@@ -14,13 +14,13 @@
         </t>
         <button
           class="o-chart-dashboard-item btn text-muted lh-1 p-1 fa fa-ellipsis-v"
-          t-on-click="openContextMenu"
+          t-on-click="this.openContextMenu"
         />
       </div>
       <MenuPopover
-        t-if="menuState.isOpen"
-        anchorRect="menuState.anchorRect"
-        menuItems="menuState.menuItems"
+        t-if="this.menuState.isOpen"
+        anchorRect="this.menuState.anchorRect"
+        menuItems="this.menuState.menuItems"
         onClose="() => this.menuState.isOpen=false"
       />
     </div>

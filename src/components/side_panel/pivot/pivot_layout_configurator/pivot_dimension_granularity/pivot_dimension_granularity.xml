@@ -2,13 +2,13 @@
   <t t-name="o-spreadsheet-PivotDimensionGranularity">
     <div class="d-flex flex-row">
       <div class="d-flex flex-row py-1 px-2 w-100 small">
-        <t t-set="granularityProps" t-value="props.dimension.granularity || 'month'"/>
+        <t t-set="granularityProps" t-value="this.props.dimension.granularity || 'month'"/>
         <div class="pivot-dim-operator-label">Granularity</div>
         <Select
           class="'flex-grow-1'"
-          values="granularityOptions"
-          selectedValue="props.dimension.granularity || 'month'"
-          onChange="(value) => props.onUpdated(props.dimension, value)"
+          values="this.granularityOptions"
+          selectedValue="this.props.dimension.granularity || 'month'"
+          onChange="(value) => this.props.onUpdated(this.props.dimension, value)"
         />
       </div>
     </div>

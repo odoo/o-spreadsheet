@@ -2,10 +2,12 @@
   <t t-name="o-spreadsheet-ScorecardChartDesignPanel">
     <t t-set="color_up">Color Up</t>
     <t t-set="color_down">Color Down</t>
-    <GeneralDesignEditor t-props="props" defaultChartTitleFontSize="defaultScorecardTitleFontSize">
+    <GeneralDesignEditor
+      t-props="this.props"
+      defaultChartTitleFontSize="this.defaultScorecardTitleFontSize">
       <t t-set-slot="general-extension">
         <Section class="'pt-0'" title.translate="Number formatting">
-          <ChartHumanizeNumbers t-props="props"/>
+          <ChartHumanizeNumbers t-props="this.props"/>
         </Section>
       </t>
     </GeneralDesignEditor>
@@ -14,8 +16,8 @@
       updateTitle="(text) => this.setKeyText(text)"
       name.translate="Key Value Style"
       placeholder.translate="Add a key value description"
-      updateStyle.bind="updateKeyStyle"
-      style="keyStyle"
+      updateStyle.bind="this.updateKeyStyle"
+      style="this.keyStyle"
     />
     <SidePanelCollapsible isInitiallyCollapsed="false" title.translate="Baseline">
       <t t-set-slot="content">
@@ -24,13 +26,13 @@
           updateTitle="(text) => this.setBaselineText(text)"
           name.translate="Baseline Style"
           placeholder.translate="Add a baseline description"
-          updateStyle.bind="updateBaselineStyle"
-          style="baselineStyle"
+          updateStyle.bind="this.updateBaselineStyle"
+          style="this.baselineStyle"
         />
-        <Section class="'o-chart-baseline-color pt-0'" title="colorsSectionTitle">
+        <Section class="'o-chart-baseline-color pt-0'" title="this.colorsSectionTitle">
           <div class="d-flex align-items-center mb-2">
             <RoundColorPicker
-              currentColor="props.definition.baselineColorUp"
+              currentColor="this.props.definition.baselineColorUp"
               onColorPicked="(color) => this.setColor(color, 'baselineColorUp')"
               title="color_up"
             />
@@ -38,7 +40,7 @@
           </div>
           <div class="d-flex align-items-center">
             <RoundColorPicker
-              currentColor="props.definition.baselineColorDown"
+              currentColor="this.props.definition.baselineColorDown"
               onColorPicked="(color) => this.setColor(color, 'baselineColorDown')"
               title="color_down"
             />

@@ -4,37 +4,37 @@
       <Section class="'pt-0'">
         <Checkbox
           name="'stacked'"
-          label="stackedLabel"
-          value="props.definition.stacked"
-          onChange.bind="onUpdateStacked"
+          label="this.stackedLabel"
+          value="this.props.definition.stacked"
+          onChange.bind="this.onUpdateStacked"
           className="'mb-2'"
         />
         <Checkbox
           name="'cumulative'"
-          label="chartTerms.CumulativeData"
-          value="props.definition.cumulative"
-          onChange.bind="onUpdateCumulative"
+          label="this.chartTerms.CumulativeData"
+          value="this.props.definition.cumulative"
+          onChange.bind="this.onUpdateCumulative"
         />
       </Section>
       <ChartDataSeries
         ranges="this.getDataSeriesRanges()"
-        onSelectionChanged.bind="onDataSeriesRangesChanged"
-        onSelectionConfirmed.bind="onDataSeriesConfirmed"
-        onSelectionReordered.bind="onDataSeriesReordered"
-        onSelectionRemoved.bind="onDataSeriesRemoved"
-        canChangeDatasetOrientation="canChangeDatasetOrientation"
-        datasetOrientation="datasetOrientation"
-        onFlipAxis.bind="setDatasetOrientation"
+        onSelectionChanged.bind="this.onDataSeriesRangesChanged"
+        onSelectionConfirmed.bind="this.onDataSeriesConfirmed"
+        onSelectionReordered.bind="this.onDataSeriesReordered"
+        onSelectionRemoved.bind="this.onDataSeriesRemoved"
+        canChangeDatasetOrientation="this.canChangeDatasetOrientation"
+        datasetOrientation="this.datasetOrientation"
+        onFlipAxis.bind="this.setDatasetOrientation"
       />
       <ChartLabelRange
         range="this.getLabelRange()"
-        isInvalid="isLabelInvalid"
-        onSelectionChanged.bind="onLabelRangeChanged"
-        onSelectionConfirmed.bind="onLabelRangeConfirmed"
+        isInvalid="this.isLabelInvalid"
+        onSelectionChanged.bind="this.onLabelRangeChanged"
+        onSelectionConfirmed.bind="this.onLabelRangeConfirmed"
         options="this.getLabelRangeOptions()"
       />
 
-      <ChartErrorSection t-if="errorMessages.length" messages="errorMessages"/>
+      <ChartErrorSection t-if="this.errorMessages.length" messages="this.errorMessages"/>
     </div>
   </t>
 </templates>

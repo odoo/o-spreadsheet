@@ -2,36 +2,39 @@
   <t t-name="o-spreadsheet-Spreadsheet">
     <div
       class="o-spreadsheet h-100 w-100"
-      t-att-class="getSpreadSheetClasses()"
+      t-att-class="this.getSpreadSheetClasses()"
       t-custom-ref="spreadsheet"
-      t-att-style="getStyle()">
-      <t t-if="env.isDashboard()">
-        <SpreadsheetDashboard getGridSize.bind="getGridSize"/>
+      t-att-style="this.getStyle()">
+      <t t-if="this.env.isDashboard()">
+        <SpreadsheetDashboard getGridSize.bind="this.getGridSize"/>
         <FullScreenFigure/>
       </t>
       <t t-else="">
         <div class="o-spreadsheet-topbar-wrapper o-two-columns">
-          <TopBar onClick="() => this.focusGrid()" dropdownMaxHeight="gridHeight"/>
+          <TopBar onClick="() => this.focusGrid()" dropdownMaxHeight="this.gridHeight"/>
         </div>
         <div
           class="o-grid-container"
-          t-att-class="{'o-two-columns': !sidePanel.isMainPanelOpen}"
-          t-att-style="gridContainerStyle"
+          t-att-class="{'o-two-columns': !this.sidePanel.isMainPanelOpen}"
+          t-att-style="this.gridContainerStyle"
           t-on-click="this.focusGrid">
           <div class="o-top-left"/>
           <div class="o-column-groups o-zoomable">
-            <HeaderGroupContainer layers="colLayers" dimension="'COL'"/>
+            <HeaderGroupContainer layers="this.colLayers" dimension="'COL'"/>
           </div>
           <div class="o-row-groups o-zoomable">
-            <HeaderGroupContainer layers="rowLayers" dimension="'ROW'"/>
+            <HeaderGroupContainer layers="this.rowLayers" dimension="'ROW'"/>
           </div>
           <div class="o-group-grid overflow-hidden">
-            <Grid exposeFocus="(focus) => this._focusGrid = focus" getGridSize.bind="getGridSize"/>
+            <Grid
+              exposeFocus="(focus) => this._focusGrid = focus"
+              getGridSize.bind="this.getGridSize"
+            />
           </div>
         </div>
         <SidePanels/>
         <div class="o-spreadsheet-bottombar-wrapper o-two-columns overflow-hidden">
-          <SmallBottomBar t-if="env.isSmall" onClick="() => this.focusGrid()"/>
+          <SmallBottomBar t-if="this.env.isSmall" onClick="() => this.focusGrid()"/>
           <BottomBar t-else="" onClick="() => this.focusGrid()"/>
         </div>
       </t>

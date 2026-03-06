@@ -1,10 +1,12 @@
 <templates>
   <t t-name="o-spreadsheet-ClickableCellSortIcon">
-    <div class="w-100 h-100 d-flex flex-column align-items-end" t-att-class="verticalJustifyClass">
+    <div
+      class="w-100 h-100 d-flex flex-column align-items-end"
+      t-att-class="this.verticalJustifyClass">
       <span
-        t-if="props.sortDirection === 'none'"
+        t-if="this.props.sortDirection === 'none'"
         class="o-icon sorting-icon mb-1"
-        t-att-style="style">
+        t-att-style="this.style">
         <t t-call="o-spreadsheet-Icon.CARET_SORT"/>
       </span>
     </div>

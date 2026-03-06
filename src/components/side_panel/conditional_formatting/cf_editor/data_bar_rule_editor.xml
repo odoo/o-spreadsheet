@@ -3,18 +3,18 @@
     <div class="o-cf-data-bar-editor">
       <div class="o-section-subtitle">Color</div>
       <RoundColorPicker
-        currentColor="colorNumberToHex(rule.color)"
-        onColorPicked="(color) => store.updateDataBarColor(color)"
+        currentColor="this.colorNumberToHex(rule.color)"
+        onColorPicked="(color) => this.store.updateDataBarColor(color)"
         disableNoColor="true"
       />
       <div class="o-section-subtitle">Range of values</div>
       <SelectionInput
-        ranges="store.rangeValues"
+        ranges="this.store.rangeValues"
         class="'o-range'"
         isInvalid="false"
         hasSingleRange="true"
-        onSelectionChanged="(ranges) => store.onDataBarRangeUpdate(ranges)"
-        onSelectionConfirmed="() => store.onDataBarRangeChange()"
+        onSelectionChanged="(ranges) => this.store.onDataBarRangeUpdate(ranges)"
+        onSelectionConfirmed="() => this.store.onDataBarRangeChange()"
         required="false"
       />
     </div>

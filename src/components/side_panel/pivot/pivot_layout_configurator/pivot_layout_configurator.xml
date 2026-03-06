@@ -5,18 +5,18 @@
         class="o-fw-bold py-1 d-flex flex-row justify-content-between align-items-center o-section-title">
         Columns
         <AddDimensionButton
-          onFieldPicked.bind="addColumnDimension"
-          fields="props.unusedGroupableFields"
+          onFieldPicked.bind="this.addColumnDimension"
+          fields="this.props.unusedGroupableFields"
         />
       </div>
-      <t t-foreach="props.definition.columns" t-as="col" t-key="col_index">
+      <t t-foreach="this.props.definition.columns" t-as="col" t-key="col_index">
         <div
           t-on-pointerdown="(ev) => this.startDragAndDrop(col, ev)"
-          t-att-style="dragAndDrop.itemsStyle[col.nameWithGranularity]"
+          t-att-style="this.dragAndDrop.itemsStyle[col.nameWithGranularity]"
           class="pt-1">
-          <PivotDimension dimension="col" onRemoved.bind="removeDimension">
+          <PivotDimension dimension="col" onRemoved.bind="this.removeDimension">
             <t t-set-slot="upper-right-icons">
-              <t t-set="errorMessage" t-value="getHugeDimensionErrorMessage(col)"/>
+              <t t-set="errorMessage" t-value="this.getHugeDimensionErrorMessage(col)"/>
               <i
                 t-if="errorMessage"
                 class="text-warning fa fa-exclamation-triangle"
@@ -25,39 +25,39 @@
             </t>
 
             <PivotDimensionGranularity
-              t-if="isDateOrDatetimeField(col)"
+              t-if="this.isDateOrDatetimeField(col)"
               dimension="col"
               onUpdated.bind="this.updateGranularity"
-              availableGranularities="props.unusedGranularities[col.fieldName]"
-              allGranularities="getGranularitiesFor(col)"
+              availableGranularities="this.props.unusedGranularities[col.fieldName]"
+              allGranularities="this.getGranularitiesFor(col)"
             />
             <PivotDimensionOrder dimension="col" onUpdated.bind="this.updateOrder"/>
             <PivotCustomGroupsCollapsible
               t-if="col.isCustomField"
-              pivotId="props.pivotId"
-              customField="getCustomField(col)"
-              onCustomFieldUpdated="props.onDimensionsUpdated"
+              pivotId="this.props.pivotId"
+              customField="this.getCustomField(col)"
+              onCustomFieldUpdated="this.props.onDimensionsUpdated"
             />
           </PivotDimension>
         </div>
       </t>
       <div
         class="o-fw-bold pt-4 pb-1 d-flex flex-row justify-content-between align-items-center o-section-title"
-        t-att-style="dragAndDrop.itemsStyle['__rows_title__']">
+        t-att-style="this.dragAndDrop.itemsStyle['__rows_title__']">
         Rows
         <AddDimensionButton
-          onFieldPicked.bind="addRowDimension"
-          fields="props.unusedGroupableFields"
+          onFieldPicked.bind="this.addRowDimension"
+          fields="this.props.unusedGroupableFields"
         />
       </div>
-      <t t-foreach="props.definition.rows" t-as="row" t-key="row_index">
+      <t t-foreach="this.props.definition.rows" t-as="row" t-key="row_index">
         <div
           t-on-pointerdown="(ev) => this.startDragAndDrop(row, ev)"
-          t-att-style="dragAndDrop.itemsStyle[row.nameWithGranularity]"
+          t-att-style="this.dragAndDrop.itemsStyle[row.nameWithGranularity]"
           class="pt-1">
-          <PivotDimension dimension="row" onRemoved.bind="removeDimension">
+          <PivotDimension dimension="row" onRemoved.bind="this.removeDimension">
             <t t-set-slot="upper-right-icons">
-              <t t-set="errorMessage" t-value="getHugeDimensionErrorMessage(row)"/>
+              <t t-set="errorMessage" t-value="this.getHugeDimensionErrorMessage(row)"/>
               <i
                 t-if="errorMessage"
                 class="text-warning fa fa-exclamation-triangle"
@@ -66,18 +66,18 @@
             </t>
 
             <PivotDimensionGranularity
-              t-if="isDateOrDatetimeField(row)"
+              t-if="this.isDateOrDatetimeField(row)"
               dimension="row"
               onUpdated.bind="this.updateGranularity"
-              availableGranularities="props.unusedGranularities[row.fieldName]"
-              allGranularities="getGranularitiesFor(row)"
+              availableGranularities="this.props.unusedGranularities[row.fieldName]"
+              allGranularities="this.getGranularitiesFor(row)"
             />
             <PivotDimensionOrder dimension="row" onUpdated.bind="this.updateOrder"/>
             <PivotCustomGroupsCollapsible
               t-if="row.isCustomField"
-              pivotId="props.pivotId"
-              customField="getCustomField(row)"
-              onCustomFieldUpdated="props.onDimensionsUpdated"
+              pivotId="this.props.pivotId"
+              customField="this.getCustomField(row)"
+              onCustomFieldUpdated="this.props.onDimensionsUpdated"
             />
           </PivotDimension>
         </div>
@@ -85,9 +85,11 @@
       <div
         class="o-fw-bold pt-4 pb-1 d-flex flex-row justify-content-between align-items-center o-section-title o-pivot-measure">
         Measures
-        <AddDimensionButton onFieldPicked.bind="addMeasureDimension" fields="props.measureFields">
+        <AddDimensionButton
+          onFieldPicked.bind="this.addMeasureDimension"
+          fields="this.props.measureFields">
           <div
-            t-on-click="addCalculatedMeasure"
+            t-on-click="this.addCalculatedMeasure"
             class="p-2 bg-white border-top d-flex align-items-center sticky-bottom add-calculated-measure">
             <i class="pe-1">
               <t t-call="o-spreadsheet-Icon.FORMULA"/>
@@ -96,24 +98,24 @@
           </div>
         </AddDimensionButton>
       </div>
-      <t t-foreach="props.definition.measures" t-as="measure" t-key="measure.id">
+      <t t-foreach="this.props.definition.measures" t-as="measure" t-key="measure.id">
         <div
           t-on-pointerdown="(ev) => this.startDragAndDropMeasures(measure, ev)"
-          t-att-style="dragAndDrop.itemsStyle[measure.id]"
+          t-att-style="this.dragAndDrop.itemsStyle[measure.id]"
           t-att-class="measure.isHidden ? 'opacity-50' : ''"
           class="pt-1 pivot-measure">
           <PivotMeasureEditor
-            pivotId="props.pivotId"
-            definition="props.definition"
+            pivotId="this.props.pivotId"
+            definition="this.props.definition"
             measure="measure"
-            aggregators="AGGREGATORS"
+            aggregators="this.AGGREGATORS"
             onRemoved="() => this.removeMeasureDimension(measure)"
             onMeasureUpdated="(newMeasure) => this.updateMeasure(measure, newMeasure)"
-            generateMeasureId.bind="getMeasureId"
+            generateMeasureId.bind="this.getMeasureId"
           />
         </div>
       </t>
     </div>
-    <PivotSortSection definition="props.definition" pivotId="props.pivotId"/>
+    <PivotSortSection definition="this.props.definition" pivotId="this.props.pivotId"/>
   </t>
 </templates>

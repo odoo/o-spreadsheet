@@ -2,12 +2,12 @@
   <t t-name="o-spreadsheet-GridComposer">
     <div
       class="o-cell-reference rounded"
-      t-if="shouldDisplayCellReference"
-      t-att-style="cellReferenceStyle"
-      t-esc="cellReference"
+      t-if="this.shouldDisplayCellReference"
+      t-att-style="this.cellReferenceStyle"
+      t-esc="this.cellReference"
     />
-    <div class="o-grid-composer" t-att-style="containerStyle" t-custom-ref="gridComposer">
-      <Composer t-props="composerProps"/>
+    <div class="o-grid-composer" t-att-style="this.containerStyle" t-custom-ref="gridComposer">
+      <Composer t-props="this.composerProps"/>
     </div>
   </t>
 </templates>

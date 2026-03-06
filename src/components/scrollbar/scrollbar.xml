@@ -2,10 +2,10 @@
   <t t-name="o-spreadsheet-ScrollBar">
     <div
       class="o-scrollbar"
-      t-on-scroll="onScroll"
+      t-on-scroll="this.onScroll"
       t-custom-ref="scrollbar"
-      t-att-style="positionCss">
-      <div t-att-style="sizeCss"/>
+      t-att-style="this.positionCss">
+      <div t-att-style="this.sizeCss"/>
     </div>
   </t>
 </templates>

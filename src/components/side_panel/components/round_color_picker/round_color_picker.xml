@@ -3,16 +3,16 @@
     <div
       class="o-round-color-picker-button rounded-circle border"
       t-custom-ref="colorPickerButton"
-      t-on-click.stop="togglePicker"
-      t-att-title="props.title"
-      t-att-style="buttonStyle"
+      t-on-click.stop="this.togglePicker"
+      t-att-title="this.props.title"
+      t-att-style="this.buttonStyle"
     />
     <ColorPicker
-      t-if="state.pickerOpened"
-      anchorRect="colorPickerAnchorRect"
-      onColorPicked.bind="onColorPicked"
-      currentColor="props.currentColor"
-      disableNoColor="props.disableNoColor"
+      t-if="this.state.pickerOpened"
+      anchorRect="this.colorPickerAnchorRect"
+      onColorPicked.bind="this.onColorPicked"
+      currentColor="this.props.currentColor"
+      disableNoColor="this.props.disableNoColor"
     />
   </t>
 </templates>

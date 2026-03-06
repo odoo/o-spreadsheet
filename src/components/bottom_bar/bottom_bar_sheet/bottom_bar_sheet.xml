@@ -6,28 +6,28 @@
         tabindex="-1"
         composerFocusableElement="true"
         t-on-pointerdown="(ev) => this.onMouseDown(ev)"
-        t-on-click="onClick"
+        t-on-click="this.onClick"
         t-on-contextmenu.prevent="(ev) => this.onContextMenu(ev)"
         t-custom-ref="sheetDiv"
-        t-key="sheetName"
-        t-att-style="props.style"
-        t-att-title="sheetName"
-        t-att-data-id="props.sheetId"
-        t-att-class="{active: isSheetActive}">
-        <span t-if="isSheetLocked" class="me-1">
+        t-key="this.sheetName"
+        t-att-style="this.props.style"
+        t-att-title="this.sheetName"
+        t-att-data-id="this.props.sheetId"
+        t-att-class="{active: this.isSheetActive}">
+        <span t-if="this.isSheetLocked" class="me-1">
           <t t-call="o-spreadsheet-Icon.LOCK"/>
         </span>
         <span
           class="o-sheet-name"
-          t-att-class="{'o-sheet-name-editable': state.isEditing }"
+          t-att-class="{'o-sheet-name-editable': this.state.isEditing }"
           t-custom-ref="sheetNameSpan"
-          t-esc="sheetName"
+          t-esc="this.sheetName"
           t-on-pointerdown="(ev) => this.onMouseEventSheetName(ev)"
           t-on-click="(ev) => this.onMouseEventSheetName(ev)"
           t-on-dblclick="() => this.onDblClick()"
           t-on-focusout="() => this.onFocusOut()"
           t-on-keydown="(ev) => this.onKeyDown(ev)"
-          t-att-contenteditable="state.isEditing ? 'plaintext-only': 'false'"
+          t-att-contenteditable="this.state.isEditing ? 'plaintext-only': 'false'"
         />
         <span
           class="o-sheet-icon ms-1 rounded"
@@ -37,17 +37,17 @@
           <t t-call="o-spreadsheet-Icon.CARET_DOWN"/>
         </span>
         <div
-          t-if="sheetColorStyle"
+          t-if="this.sheetColorStyle"
           class="o-sheet-color position-absolute"
-          t-att-style="sheetColorStyle"
+          t-att-style="this.sheetColorStyle"
         />
       </div>
     </Ripple>
     <ColorPicker
-      t-if="state.pickerOpened"
-      anchorRect="colorPickerAnchorRect"
-      onColorPicked.bind="onColorPicked"
-      currentColor="props.currentColor"
+      t-if="this.state.pickerOpened"
+      anchorRect="this.colorPickerAnchorRect"
+      onColorPicked.bind="this.onColorPicked"
+      currentColor="this.props.currentColor"
     />
   </t>
 </templates>
