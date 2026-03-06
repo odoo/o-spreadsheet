@@ -36,10 +36,10 @@ import {
 import { recomputeZones } from "../../helpers/recompute_zones";
 import { Format } from "../../types/format";
 import { DEFAULT_LOCALE } from "../../types/locale";
-import { AdaptSheetName, Style, UpdateCellData, Zone } from "../../types/misc";
+import { AdaptSheetName, Style, Zone } from "../../types/misc";
 import { Range, RangePart } from "../../types/range";
 import { ExcelWorkbookData, WorkbookData } from "../../types/workbook_data";
-import { SquishedCell, Squisher } from "./squisher";
+import { SquishedContent, Squisher } from "./squisher";
 import { Unsquisher } from "./unsquisher";
 
 interface CoreState {
@@ -305,7 +305,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
       const squisher = new Squisher(this.getters);
       const positionsByStyle: Record<number, CellPosition[]> = [];
       const positionsByFormat: Record<number, CellPosition[]> = [];
-      const cells: { [key: string]: SquishedCell } = {};
+      const cells: { [key: string]: SquishedContent } = {};
       const positions = Object.values(this.cells[_sheet.id] || {})
         .map((cell) => this.getters.getCellPosition(cell.id))
         .sort((a, b) => (a.col === b.col ? a.row - b.row : a.col - b.col));
@@ -333,7 +333,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
       }
       _sheet.styles = groupItemIdsByZones(positionsByStyle);
       _sheet.formats = groupItemIdsByZones(positionsByFormat);
-      _sheet.cells = shouldSquish ? squisher.squishSheet(cells) : cells;
+      _sheet.cells = shouldSquish ? squisher.squishSheet(cells, _sheet.id) : cells;
     }
     data.styles = styles;
     data.formats = formats;
@@ -588,9 +588,9 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
     return id;
   }
 
-  private updateCell(sheetId: UID, col: HeaderIndex, row: HeaderIndex, after: UpdateCellData) {
+  private updateCell(sheetId: UID, col: HeaderIndex, row: HeaderIndex, after: UpdateCellCommand) {
     const before = this.getters.getCell({ sheetId, col, row });
-    const hasContent = after.content !== undefined || "formula" in after;
+    const hasContent = after.content !== undefined;
 
     // Compute the new cell properties
     let afterContent: string;
@@ -617,7 +617,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
      *     - or there was a cell at this place, but it's an empty cell and the command says border/format/style is empty
      *  */
     if (
-      ((hasContent && !afterContent && !after.formula) ||
+      ((hasContent && !afterContent) ||
         (!hasContent && (!before || (!before.isFormula && before.content === "")))) &&
       !style &&
       !format
@@ -636,6 +636,9 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
 
     const cellId = before?.id || this.getNextCellId();
     const cell = this.createCell(cellId, afterContent, format, style, sheetId);
+    if (cell.isFormula) {
+      after.compiledFormula = cell.compiledFormula;
+    }
     this.history.update("cells", sheetId, cell.id, cell);
     this.dispatch("UPDATE_CELL_POSITION", { cellId: cell.id, col, row, sheetId });
   }
