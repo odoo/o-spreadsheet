@@ -2323,6 +2323,10 @@ export const demoData = {
         B228: '=REGEXEXTRACT("Hello there; General Kenobi", "General (.*)", 2)',
         C228: "Kenobi",
         D228: "=IF(B228=C228,1, 0)",
+        A229: "ISFORMULA",
+        B229: "=ISFORMULA(D228)",
+        C229: "TRUE",
+        D229: "=IF(B229=C229,1, 0)",
       },
       styles: {
         "H24:J24": 10,
