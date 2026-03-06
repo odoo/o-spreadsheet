@@ -2076,7 +2076,7 @@ describe("Spreadsheet Pivot", () => {
       columns: [{ fieldName: "Date", granularity: "month_number" }],
       measures: [{ id: "__count:sum", fieldName: "__count", aggregator: "sum" }],
     });
-    expect(getEvaluatedGrid(model, "B4:E4")).toEqual([["March", "(Undefined)", "Total", ""]]);
+    expect(getEvaluatedGrid(model, "B4:D4")).toEqual([["March", "Total", ""]]);
   });
 
   test("fieldsType is not mandatory in INSERT_PIVOT command", () => {
