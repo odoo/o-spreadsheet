@@ -595,13 +595,17 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
     const inputSheetId = this.sheetId;
     const sheetId = this.getters.getActiveSheetId();
     const range = this.getters.getRangeFromZone(sheetId, zone);
-    return this.getters.getSelectionRangeString(range, inputSheetId);
+    return this.getters.getSelectionRangeString(range, inputSheetId, {
+      allowSpilledReferences: true,
+    });
   }
 
   private getRangeReference(range: Range, fixedParts: Readonly<RangePart[]>) {
     const _fixedParts = [...fixedParts];
     const newRange = { ...range, parts: _fixedParts };
-    return this.getters.getSelectionRangeString(newRange, this.sheetId);
+    return this.getters.getSelectionRangeString(newRange, this.sheetId, {
+      allowSpilledReferences: true,
+    });
   }
 
   /**
