@@ -16,11 +16,6 @@ interface Props {
   annotationLink?: string;
 }
 
-export interface InfoState {
-  isOpen: boolean;
-  anchorRect: null | Rect;
-}
-
 export class InfoPopover extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-Info-Popover";
   static props = {

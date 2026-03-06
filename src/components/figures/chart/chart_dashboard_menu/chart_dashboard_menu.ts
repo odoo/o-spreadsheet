@@ -26,7 +26,6 @@ interface MenuItem {
 }
 
 interface ChartMenuState {
-  isOpen: boolean;
   openedPopover?: "menu" | "info";
   anchorRect: null | Rect;
   menuItems: Action[];
@@ -41,7 +40,6 @@ export class ChartDashboardMenu extends Component<Props, SpreadsheetChildEnv> {
   private fullScreenFigureStore!: Store<FullScreenFigureStore>;
 
   private state: ChartMenuState = useState({
-    isOpen: false,
     openedPopover: undefined,
     anchorRect: null,
     menuItems: [],
@@ -66,14 +64,12 @@ export class ChartDashboardMenu extends Component<Props, SpreadsheetChildEnv> {
   }
 
   onClose() {
-    this.state.isOpen = false;
     this.state.openedPopover = undefined;
     this.state.anchorRect = null;
     this.state.menuItems = [];
   }
 
   openContextMenu(ev: MouseEvent) {
-    this.state.isOpen = true;
     this.state.openedPopover = "menu";
     this.state.anchorRect = getBoundingRectAsPOJO(ev.currentTarget as HTMLElement);
     const figureId = this.env.model.getters.getFigureIdFromChartId(this.props.chartId);
@@ -81,7 +77,6 @@ export class ChartDashboardMenu extends Component<Props, SpreadsheetChildEnv> {
   }
 
   showInfo(ev: MouseEvent) {
-    this.state.isOpen = true;
     this.state.openedPopover = "info";
     this.state.anchorRect = getBoundingRectAsPOJO(ev.currentTarget as HTMLElement);
   }

@@ -3,7 +3,7 @@ import { Component, useRef, useState } from "@odoo/owl";
 import { chartComponentRegistry } from "../../../registries/chart_component_registry";
 import { ChartType, CSSProperties, FigureUI, MenuMouseEvent, Rect, UID } from "../../../types";
 import { getRefBoundingRect } from "../../helpers/dom_helpers";
-import { InfoPopover, InfoState } from "../../info_popover/info_popover";
+import { InfoPopover } from "../../info_popover/info_popover";
 import { ChartDashboardMenu } from "../chart/chart_dashboard_menu/chart_dashboard_menu";
 
 interface Props {
@@ -13,6 +13,11 @@ interface Props {
   editFigureStyle?: (properties: CSSProperties) => void;
   isFullScreen?: boolean;
   openContextMenu?: (anchorRect: Rect, onClose?: () => void) => void;
+}
+
+export interface InfoState {
+  isOpen: boolean;
+  anchorRect: null | Rect;
 }
 
 export class ChartFigure extends Component<Props, SpreadsheetChildEnv> {

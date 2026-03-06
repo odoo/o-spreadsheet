@@ -25,14 +25,14 @@
         />
       </div>
       <InfoPopover
-        t-if="state.isOpen and state.openedPopover === 'info'"
+        t-if="state.openedPopover === 'info'"
         anchorRect="state.anchorRect"
         onClose.bind="onClose"
         annotationText="getAnnotationText()"
         annotationLink="getAnnotationLink()"
       />
       <MenuPopover
-        t-if="state.isOpen and state.openedPopover === 'menu'"
+        t-if="state.openedPopover === 'menu'"
         anchorRect="state.anchorRect"
         menuItems="state.menuItems"
         onClose.bind="onClose"
