@@ -129,6 +129,25 @@ describe("Sunburst chart chart", () => {
     ]);
   });
 
+  test("Sunburst chart display dataset labels in formatted form", () => {
+    // prettier-ignore
+    setGrid(model, {
+      A2: "2/3/2010",   B2: "10",
+      A3: "5/8/2015",   B3: "40",
+    })
+    const chartId = createSunburstChart(model, {
+      dataSets: [{ dataRange: "A1:A3" }],
+      labelRange: "B1:B3",
+    });
+
+    const config = getSunburstRuntime(chartId).chartJsConfig;
+    expect(config.data.datasets).toHaveLength(1);
+    expect(config.data.datasets[0].data).toMatchObject([
+      { value: 40, label: "5/8/2015", groups: ["5/8/2015"] },
+      { value: 10, label: "2/3/2010", groups: ["2/3/2010"] },
+    ]);
+  });
+
   test("Sunburst data is sorted", () => {
     // prettier-ignore
     setGrid(model, {
