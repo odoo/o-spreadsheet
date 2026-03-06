@@ -10,10 +10,12 @@ const watcher = watch("./src", { filter: /\.css$/, recursive: true }, (ev, name)
   }
 });
 
-try {
-  createCSSBundle("build");
-} catch (error) {
-  console.error("Error creating CSS bundle:", error.message);
+if (!process.env.DEV_INITIAL_BUILD_DONE) {
+  try {
+    createCSSBundle("build");
+  } catch (error) {
+    console.error("Error creating CSS bundle:", error.message);
+  }
 }
 
 watcher.on("ready", () => console.log("Watching .css files..."));

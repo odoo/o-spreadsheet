@@ -36,10 +36,13 @@ process.on("exit", restore);
 process.on("SIGINT", () => process.exit(0));
 process.on("SIGTERM", () => process.exit(0));
 
+const initial = spawnSync("npm", ["run", "build:dev"], { stdio: "inherit", shell: false });
+if (initial.status !== 0) process.exit(initial.status ?? 1);
+
 const child = spawn(
   "npm-run-all",
-  ["--print-label", "--parallel", "build:watch", "server", "serve-static:wait"],
-  { stdio: "inherit", shell: false }
+  ["--print-label", "--parallel", "build:watch", "server", "serve-static"],
+  { stdio: "inherit", shell: false, env: { ...process.env, DEV_INITIAL_BUILD_DONE: "1" } }
 );
 
 child.on("exit", (code) => process.exit(code ?? 0));
