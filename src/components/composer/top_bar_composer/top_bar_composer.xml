@@ -4,19 +4,21 @@
       <div
         class="o-topbar-composer position-relative bg-white user-select-text d-flex border"
         t-att-class="{
-          'o-topbar-composer-readonly': env.model.getters.isReadonly(),
-          'o-topbar-composer-active': focus !== 'inactive',
-          'o-topbar-composer-inactive': focus === 'inactive',
+          'o-topbar-composer-readonly': this.env.model.getters.isReadonly(),
+          'o-topbar-composer-active': this.focus !== 'inactive',
+          'o-topbar-composer-inactive': this.focus === 'inactive',
         }"
         t-on-click.stop="">
         <Composer
-          focus="focus"
-          inputStyle="composerStyle"
-          onComposerContentFocused.bind="onFocus"
-          composerStore="composerStore"
-          placeholder="composerStore.placeholder"
+          focus="this.focus"
+          inputStyle="this.composerStyle"
+          onComposerContentFocused.bind="this.onFocus"
+          composerStore="this.composerStore"
+          placeholder="this.composerStore.placeholder"
         />
-        <span t-if="showFxIcon" class="position-absolute top-50 translate-middle-y ps-2 pe-none">
+        <span
+          t-if="this.showFxIcon"
+          class="position-absolute top-50 translate-middle-y ps-2 pe-none">
           <t t-call="o-spreadsheet-Icon.FX_SVG"/>
         </span>
       </div>

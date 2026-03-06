@@ -3,9 +3,9 @@ import {
   MOVING_AVERAGE_TREND_LINE_XAXIS_ID,
   TREND_LINE_XAXIS_ID,
 } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_common";
-import { useRef } from "@odoo/owl";
 import { Chart, ChartConfiguration } from "chart.js/auto";
 import { clip } from "../../../../../helpers";
+import { useRef } from "../../../../../owl2";
 import { Store, useStore } from "../../../../../store_engine";
 import { ChartJSRuntime } from "../../../../../types";
 import { withZoom } from "../../../../helpers/zoom";

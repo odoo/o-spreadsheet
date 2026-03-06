@@ -1,6 +1,7 @@
 import { NEWLINE, SCROLLBAR_WIDTH } from "@odoo/o-spreadsheet-engine/constants";
-import { Component, onMounted, onWillUnmount, useEffect, useRef, useState } from "@odoo/owl";
+import { Component, onMounted, onWillUnmount } from "@odoo/owl";
 import { debounce, deepEquals, isFormula } from "../../../helpers/index";
+import { useLayoutEffect, useRef } from "../../../owl2";
 
 import { cssPropertiesToCss } from "@odoo/o-spreadsheet-engine/components/helpers/css";
 import { DEFAULT_TOKEN_COLOR } from "@odoo/o-spreadsheet-engine/constants";
@@ -8,6 +9,7 @@ import { EnrichedToken } from "@odoo/o-spreadsheet-engine/formulas/composer_toke
 import { argTargeting } from "@odoo/o-spreadsheet-engine/functions/arguments";
 import { functionRegistry } from "@odoo/o-spreadsheet-engine/functions/function_registry";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
+import { useState } from "../../../owl2";
 import { Store, useStore } from "../../../store_engine";
 import { DOMFocusableElementStore } from "../../../stores/DOM_focus_store";
 import {
@@ -229,7 +231,7 @@ export class Composer extends Component<CellComposerProps, SpreadsheetChildEnv> 
     onWillUnmount(() => {
       this.debouncedHover.stopDebounce();
     });
-    useEffect(() => {
+    useLayoutEffect(() => {
       this.processContent();
       if (
         document.activeElement === this.contentHelper.el &&
@@ -240,14 +242,14 @@ export class Composer extends Component<CellComposerProps, SpreadsheetChildEnv> 
       }
     });
 
-    useEffect(
+    useLayoutEffect(
       () => {
         this.processTokenAtCursor();
       },
       () => [this.props.composerStore.editionMode !== "inactive"]
     );
 
-    useEffect(
+    useLayoutEffect(
       () => {
         this.contentHelper.scrollSelectionIntoView();
       },

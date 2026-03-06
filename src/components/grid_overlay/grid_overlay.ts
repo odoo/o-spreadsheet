@@ -1,7 +1,8 @@
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
-import { Component, onMounted, onWillUnmount, useExternalListener, useRef } from "@odoo/owl";
+import { Component, onMounted, onWillUnmount } from "@odoo/owl";
 import { deepEquals, positionToZone } from "../../helpers";
 import { isPointInsideRect } from "../../helpers/rectangle";
+import { useExternalListener, useRef } from "../../owl2";
 import { Store, useStore } from "../../store_engine";
 import { DOMCoordinates, GridClickModifiers, HeaderIndex, Pixel, Position, Ref } from "../../types";
 import { FiguresContainer } from "../figures/figure_container/figure_container";
@@ -109,7 +110,7 @@ function useCellHovered(env: SpreadsheetChildEnv, gridRef: Ref<HTMLElement>): Pa
     (ev: MouseEvent) => env.isMobile() && updateMousePosition(withZoom(env, ev))
   );
 
-  useExternalListener(window, "click", handleGlobalClick);
+  useExternalListener(window, "click", handleGlobalClick, undefined);
   function handleGlobalClick(e: MouseEvent) {
     const target = e.target as HTMLElement;
     const grid = gridRef.el!;

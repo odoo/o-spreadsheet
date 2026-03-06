@@ -3,19 +3,19 @@
     <t t-set="editor_label">Axis title</t>
     <Section class="'py-0'">
       <BadgeSelection
-        choices="badgeAxes"
-        onChange.bind="(value) => state.currentAxis = value"
-        selectedValue="state.currentAxis"
+        choices="this.badgeAxes"
+        onChange.bind="(value) => this.state.currentAxis = value"
+        selectedValue="this.state.currentAxis"
       />
     </Section>
     <ChartTitle
       title="this.getAxisTitle()"
-      updateTitle.bind="updateAxisTitle"
-      updateStyle.bind="updateAxisTitleStyle"
+      updateTitle.bind="this.updateAxisTitle"
+      updateStyle.bind="this.updateAxisTitleStyle"
       name="editor_label"
-      style="axisTitleStyle"
+      style="this.axisTitleStyle"
       placeholder.translate="Add a Title"
-      defaultStyle="{align: 'center', color: '', fontSize: defaultFontSize}"
+      defaultStyle="{align: 'center', color: '', fontSize: this.defaultFontSize}"
     />
   </t>
 </templates>

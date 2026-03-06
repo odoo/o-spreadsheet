@@ -1,21 +1,21 @@
 <templates>
   <t t-name="o-spreadsheet-Menu">
     <div
-      t-ref="menu"
+      t-custom-ref="menu"
       class="o-menu bg-white"
-      t-att-style="menuStyle"
-      t-on-scroll="props.onScroll"
+      t-att-style="this.menuStyle"
+      t-on-scroll="this.props.onScroll"
       t-on-wheel.stop=""
       t-on-pointerdown.prevent=""
       t-on-click.stop=""
       t-on-contextmenu.prevent="">
-      <t t-foreach="props.menuItems" t-as="menuItem" t-key="menuItem_index">
+      <t t-foreach="this.props.menuItems" t-as="menuItem" t-key="menuItem_index">
         <div t-if="menuItem === 'separator'" class="o-separator border-bottom"/>
         <t t-else="">
-          <t t-set="isMenuRoot" t-value="isRoot(menuItem)"/>
-          <t t-set="isMenuEnabled" t-value="isEnabled(menuItem)"/>
+          <t t-set="isMenuRoot" t-value="this.isRoot(menuItem)"/>
+          <t t-set="isMenuEnabled" t-value="this.isEnabled(menuItem)"/>
           <div
-            t-att-title="getName(menuItem)"
+            t-att-title="this.getName(menuItem)"
             t-att-data-name="menuItem.id"
             t-on-click="(ev) => this.onClickMenu(menuItem, ev)"
             t-on-auxclick="(ev) => this.onClickMenu(menuItem, ev)"
@@ -23,23 +23,26 @@
             t-on-mouseenter="(ev) => this.onMouseEnter?.(menuItem, ev)"
             t-on-mouseleave="(ev) => this.onMouseLeave?.(menuItem)"
             class="o-menu-item d-flex justify-content-between align-items-center"
-            t-att-class="{'disabled': !isMenuEnabled, 'o-menu-item-active': props.isActive?.(menuItem)}"
-            t-att-style="getColor(menuItem)">
+            t-att-class="{'disabled': !isMenuEnabled, 'o-menu-item-active': this.props.isActive?.(menuItem)}"
+            t-att-style="this.getColor(menuItem)">
             <div class="d-flex w-100">
               <div
-                t-if="childrenHaveIcon"
+                t-if="this.childrenHaveIcon"
                 class="o-menu-item-icon d-flex align-items-center flex-shrink-0"
-                t-att-style="getIconColor(menuItem)">
-                <t t-if="getIconName(menuItem)" t-call="{{getIconName(menuItem)}}"/>
+                t-att-style="this.getIconColor(menuItem)">
+                <t t-if="this.getIconName(menuItem)" t-call="{{this.getIconName(menuItem)}}"/>
               </div>
-              <div class="o-menu-item-name align-middle text-truncate" t-esc="getName(menuItem)"/>
-              <t t-set="description" t-value="menuItem.description(env) or menuItem.shortcut"/>
+              <div
+                class="o-menu-item-name align-middle text-truncate"
+                t-esc="this.getName(menuItem)"
+              />
+              <t t-set="description" t-value="menuItem.description(this.env) or menuItem.shortcut"/>
               <div
                 t-if="description"
                 class="o-menu-item-description ms-auto text-truncate"
                 t-esc="description"
               />
-              <t t-set="secondaryIcon" t-value="menuItem.secondaryIcon(env)"/>
+              <t t-set="secondaryIcon" t-value="menuItem.secondaryIcon(this.env)"/>
               <div
                 t-if="isMenuRoot"
                 class="o-menu-item-root ms-auto align-items-center d-flex"

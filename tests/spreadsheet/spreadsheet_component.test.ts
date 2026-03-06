@@ -5,12 +5,13 @@ import {
 } from "@odoo/o-spreadsheet-engine/constants";
 import { functionRegistry } from "@odoo/o-spreadsheet-engine/functions/function_registry";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
-import { Component, useSubEnv, xml } from "@odoo/owl";
+import { Component, xml } from "@odoo/owl";
 import { CommandResult, Model, setDefaultSheetViewSize, Spreadsheet } from "../../src";
 import { OPEN_CF_SIDEPANEL_ACTION } from "../../src/actions/menu_items_actions";
 import { CellComposerStore } from "../../src/components/composer/composer/cell_composer_store";
 import { useScreenWidth } from "../../src/components/helpers/screen_width_hook";
 import { toZone } from "../../src/helpers";
+import { useSubEnv } from "../../src/owl2";
 import { HighlightStore } from "../../src/stores/highlight_store";
 import {
   addDataValidation,

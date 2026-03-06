@@ -1,29 +1,31 @@
 <templates>
   <t t-name="o-spreadsheet-FullScreenFigure">
-    <div class="position-absolute o-fullscreen-figure-overlay w-100 h-100 d-flex" t-if="figureUI">
+    <div
+      class="position-absolute o-fullscreen-figure-overlay w-100 h-100 d-flex"
+      t-if="this.figureUI">
       <div
         class="position-absolute top-0 start-0 end-0 bottom-0"
-        t-on-click="exitFullScreen"
+        t-on-click="this.exitFullScreen"
         aria-hidden="true"
       />
       <button
         class="o-exit top-0 end-0 position-absolute o-button primary m-1 shadow"
-        t-on-click="exitFullScreen">
+        t-on-click="this.exitFullScreen">
         Exit fullscreen
       </button>
       <div class="flex-fill">
         <div
           class="o-fullscreen-figure o-figure position-relative border rounded shadow"
           tabindex="1"
-          t-ref="fullScreenFigure"
+          t-custom-ref="fullScreenFigure"
           t-on-click.stop=""
           t-on-keydown="(ev) => this.onKeyDown(ev)">
           <t>
             <t
-              t-component="figureComponent"
-              figureUI="figureUI"
+              t-component="this.figureComponent"
+              figureUI="this.figureUI"
               isFullScreen="true"
-              t-key="figureUI.id"
+              t-key="this.figureUI.id"
             />
           </t>
         </div>

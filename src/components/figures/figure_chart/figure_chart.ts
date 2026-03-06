@@ -6,7 +6,7 @@ import { ChartDashboardMenu } from "../chart/chart_dashboard_menu/chart_dashboar
 
 interface Props {
   // props figure is currently necessary scorecards, we need the chart dimension at render to avoid having to force the
-  // style by hand in the useEffect()
+  // style by hand in the useLayoutEffect()
   figureUI: FigureUI;
   editFigureStyle?: (properties: CSSProperties) => void;
   isFullScreen?: boolean;

@@ -118,6 +118,7 @@ import {
   makeFieldProposal,
 } from "./helpers/pivot/pivot_composer_helpers";
 import { supportedPivotPositionalFormulaRegistry } from "./helpers/pivot/pivot_positional_formula_registry";
+import "./owl2";
 
 import { ChartTerms } from "@odoo/o-spreadsheet-engine/components/translations_terms";
 import { arg } from "@odoo/o-spreadsheet-engine/functions/arguments";

@@ -7,7 +7,7 @@
       <t t-set-slot="content">
         <div class="ps-4">
           <div
-            t-foreach="groups"
+            t-foreach="this.groups"
             t-as="group"
             t-key="group_index"
             class="o-pivot-custom-group pb-1">
@@ -26,7 +26,7 @@
             </div>
           </div>
           <div
-            t-if="!hasOthersGroup"
+            t-if="!this.hasOthersGroup"
             class="o-button-link o-add-others-group small pb-1"
             t-on-click="() => this.addOthersGroup()">
             <span>+ &quot;Others&quot; group</span>

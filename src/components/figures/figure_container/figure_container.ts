@@ -1,8 +1,9 @@
 import { DRAG_THRESHOLD, MIN_FIG_SIZE } from "@odoo/o-spreadsheet-engine/constants";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
-import { Component, onMounted, onWillUpdateProps, useState } from "@odoo/owl";
+import { Component, onMounted, onWillUpdateProps } from "@odoo/owl";
 import { isDefined } from "../../../helpers";
 import { rectUnion } from "../../../helpers/rectangle";
+import { render, useState } from "../../../owl2";
 import { figureRegistry } from "../../../registries/figures_registry";
 import { AnchorOffset, Figure, FigureUI, Rect, ResizeDirection, UID } from "../../../types/index";
 import { cssPropertiesToCss } from "../../helpers";
@@ -107,7 +108,7 @@ export class FiguresContainer extends Component<Props, SpreadsheetChildEnv> {
   static props = {};
   static components = { FigureComponent };
 
-  dnd = useState<DndState>({
+  dnd: DndState = useState({
     draggedFigure: undefined,
     horizontalSnap: undefined,
     verticalSnap: undefined,
@@ -124,7 +125,7 @@ export class FiguresContainer extends Component<Props, SpreadsheetChildEnv> {
       // first owl rendering is done with an empty viewport.  Only then we can
       // compute which figures should be displayed, so we have to force a
       // new rendering
-      this.render();
+      render(this);
     });
     onWillUpdateProps(() => {
       const sheetId = this.env.model.getters.getActiveSheetId();

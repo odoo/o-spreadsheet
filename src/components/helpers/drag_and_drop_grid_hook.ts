@@ -1,7 +1,8 @@
 import { HeaderIndex, Pixel } from "@odoo/o-spreadsheet-engine/types/misc";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
-import { onWillUnmount, useEffect } from "@odoo/owl";
+import { onWillUnmount } from "@odoo/owl";
 import { MAX_DELAY } from "../../helpers";
+import { useLayoutEffect } from "../../owl2";
 import { gridOverlayPosition } from "./dom_helpers";
 import { startDnd } from "./drag_and_drop";
 import { withZoom } from "./zoom";
@@ -171,7 +172,7 @@ export function useDragAndDropBeyondTheViewport(env: SpreadsheetChildEnv) {
     cleanUp();
   });
 
-  useEffect(
+  useLayoutEffect(
     () => {
       cleanUp();
     },

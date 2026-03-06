@@ -1,7 +1,7 @@
 <templates>
-  <t t-name="o-spreadsheet-SidePanels" t-if="sidePanelStore.isMainPanelOpen">
+  <t t-name="o-spreadsheet-SidePanels" t-if="this.sidePanelStore.isMainPanelOpen">
     <div class="o-sidePanels d-flex overflow-hidden">
-      <t t-foreach="panelList" t-as="panel" t-key="panel.key">
+      <t t-foreach="this.panelList" t-as="panel" t-key="panel.key">
         <div t-att-style="panel.style">
           <SidePanel t-key="panel.key" t-props="panel.props"/>
         </div>

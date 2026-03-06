@@ -3,24 +3,24 @@
     <Section title.translate="Show measure as:">
       <Select
         class="'o-pivot-measure-display-type'"
-        values="measureDisplayTypeOptions"
-        selectedValue="store.measureDisplay.type"
+        values="this.measureDisplayTypeOptions"
+        selectedValue="this.store.measureDisplay.type"
         onChange="(value) => this.store.updateMeasureDisplayType(value)"
       />
       <div
         class="o-pivot-measure-display-description mt-3 ps-3 border-start"
-        t-esc="measureDisplayDescription[store.measureDisplay.type]"
+        t-esc="this.measureDisplayDescription[this.store.measureDisplay.type]"
       />
     </Section>
 
-    <Section t-if="store.doesDisplayNeedsField" title.translate="Base field:">
+    <Section t-if="this.store.doesDisplayNeedsField" title.translate="Base field:">
       <div class="o-pivot-measure-display-field w-100 py-1 px-3 border">
-        <t t-if="store.fields.length">
+        <t t-if="this.store.fields.length">
           <RadioSelection
-            choices="fieldChoices"
-            selectedValue="store.measureDisplay.fieldNameWithGranularity"
+            choices="this.fieldChoices"
+            selectedValue="this.store.measureDisplay.fieldNameWithGranularity"
             name="'baseField'"
-            onChange.bind="(val) => store.updateMeasureDisplayField(val)"
+            onChange.bind="(val) => this.store.updateMeasureDisplayField(val)"
             direction="'vertical'"
           />
         </t>
@@ -30,14 +30,14 @@
       </div>
     </Section>
 
-    <t t-set="values" t-value="store.values"/>
-    <Section t-if="store.doesDisplayNeedsValue and values.length" title.translate="Base item:">
+    <t t-set="values" t-value="this.store.values"/>
+    <Section t-if="this.store.doesDisplayNeedsValue and values.length" title.translate="Base item:">
       <div class="o-pivot-measure-display-value w-100 py-1 px-3 border">
         <RadioSelection
           choices="values"
-          selectedValue="store.measureDisplay.value"
+          selectedValue="this.store.measureDisplay.value"
           name="'baseValue'"
-          onChange.bind="(val) => store.updateMeasureDisplayValue(val)"
+          onChange.bind="(val) => this.store.updateMeasureDisplayValue(val)"
           direction="'vertical'"
         />
       </div>
@@ -45,8 +45,8 @@
 
     <Section>
       <div class="o-sidePanelButtons">
-        <button t-on-click="onCancel" class="o-pivot-measure-cancel o-button">Discard</button>
-        <button t-on-click="onSave" class="o-pivot-measure-save o-button primary">Save</button>
+        <button t-on-click="this.onCancel" class="o-pivot-measure-cancel o-button">Discard</button>
+        <button t-on-click="this.onSave" class="o-pivot-measure-save o-button primary">Save</button>
       </div>
     </Section>
   </t>

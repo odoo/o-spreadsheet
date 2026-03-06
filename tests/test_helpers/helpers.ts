@@ -17,7 +17,7 @@ import {
   fixLengthySheetNames,
   purgeSingleRowTables,
 } from "@odoo/o-spreadsheet-engine/xlsx/xlsx_writer";
-import { App, Component, ComponentConstructor, useState, xml } from "@odoo/owl";
+import { App, Component, ComponentConstructor, xml } from "@odoo/owl";
 import { type ChartConfiguration } from "chart.js";
 import format from "xml-formatter";
 import { functionCache } from "../../src";
@@ -41,6 +41,7 @@ import {
   toZone,
   zoneToXc,
 } from "../../src/helpers/index";
+import { useState } from "../../src/owl2";
 import { MenuItemRegistry } from "../../src/registries/menu_items_registry";
 import { topbarMenuRegistry } from "../../src/registries/menus";
 import {

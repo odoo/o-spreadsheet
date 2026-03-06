@@ -1,17 +1,9 @@
 import { cssPropertiesToCss } from "@odoo/o-spreadsheet-engine/components/helpers/css";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
-import {
-  Component,
-  onMounted,
-  onPatched,
-  onWillUnmount,
-  useEffect,
-  useExternalListener,
-  useRef,
-  useState,
-} from "@odoo/owl";
+import { Component, onMounted, onPatched, onWillUnmount } from "@odoo/owl";
 import { throttle } from "../../../helpers";
 import { interactiveRenameSheet } from "../../../helpers/ui/sheet_interactive";
+import { useExternalListener, useLayoutEffect, useRef, useState } from "../../../owl2";
 import { MenuItemRegistry } from "../../../registries/menu_items_registry";
 import { getSheetMenuRegistry } from "../../../registries/menus";
 import { Store, useStore } from "../../../store_engine";
@@ -61,7 +53,7 @@ export class BottomBarSheet extends Component<Props, SpreadsheetChildEnv> {
     style: "",
   };
 
-  private state = useState<State>({ isEditing: false, pickerOpened: false });
+  private state: State = useState({ isEditing: false, pickerOpened: false });
 
   private sheetDivRef = useRef("sheetDiv");
   private iconRef = useRef("icon");
@@ -78,9 +70,9 @@ export class BottomBarSheet extends Component<Props, SpreadsheetChildEnv> {
       }
     });
     this.DOMFocusableElementStore = useStore(DOMFocusableElementStore);
-    useExternalListener(window, "click", () => (this.state.pickerOpened = false));
+    useExternalListener(window, "click", () => (this.state.pickerOpened = false), undefined);
 
-    useEffect(
+    useLayoutEffect(
       (sheetId) => {
         if (this.props.sheetId === sheetId) {
           this.scrollToSheet();

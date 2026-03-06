@@ -5,19 +5,10 @@ import { Model } from "@odoo/o-spreadsheet-engine/model";
 import { _t } from "@odoo/o-spreadsheet-engine/translation";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { NotificationStoreMethods } from "@odoo/o-spreadsheet-engine/types/stores/notification_store_methods";
-import {
-  Component,
-  onMounted,
-  onPatched,
-  onWillUnmount,
-  onWillUpdateProps,
-  useEffect,
-  useExternalListener,
-  useRef,
-  useSubEnv,
-} from "@odoo/owl";
+import { Component, onMounted, onPatched, onWillUnmount, onWillUpdateProps } from "@odoo/owl";
 import { batched } from "../../helpers";
 import { ImageProvider } from "../../helpers/figures/images/image_provider";
+import { render, useExternalListener, useLayoutEffect, useRef, useSubEnv } from "../../owl2";
 import { Store, useStore, useStoreProvider } from "../../store_engine";
 import { ModelStore } from "../../stores";
 import { NotificationStore } from "../../stores/notification_store";
@@ -156,7 +147,7 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
 
     this.notificationStore.updateNotificationCallbacks({ ...this.props });
 
-    useEffect(() => {
+    useLayoutEffect(() => {
       /**
        * Only refocus the grid if the active element is not a child of the spreadsheet
        * (i.e. activeElement is outside of the spreadsheetRef component)
@@ -171,11 +162,11 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
       }
     });
 
-    useExternalListener(window, "resize", () => this.render(true));
+    useExternalListener(window, "resize", () => render(this, true), undefined);
     // For some reason, the wheel event is not properly registered inside templates
     // in Chromium-based browsers based on chromium 125
     // This hack ensures the event declared in the template is properly registered/working
-    useExternalListener(document.body, "wheel", () => {});
+    useExternalListener(document.body, "wheel", () => {}, undefined);
 
     onWillUpdateProps((nextProps: SpreadsheetProps) => {
       if (nextProps.model !== this.props.model) {
@@ -190,11 +181,11 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
       }
     });
 
-    const render = batched(this.render.bind(this, true));
+    const batchedRender = batched(() => render(this, true));
     onMounted(() => {
       this.bindModelEvents();
       this.checkViewportSize();
-      stores.on("store-updated", this, render);
+      stores.on("store-updated", this, batchedRender);
       resizeObserver.observe(this.spreadsheetRef.el!);
     });
     onWillUnmount(() => {
@@ -212,7 +203,7 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
   }
 
   private bindModelEvents() {
-    this.model.on("update", this, () => this.render(true));
+    this.model.on("update", this, () => render(this, true));
     this.model.on("command-rejected", this, ({ result }) => {
       if (result.isCancelledBecause(CommandResult.SheetLocked)) {
         this.notificationStore.notifyUser({

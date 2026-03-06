@@ -1,7 +1,8 @@
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
-import { Component, useState } from "@odoo/owl";
+import { Component } from "@odoo/owl";
 import { getColorsPalette, getNthColor, toHex } from "../../../../../helpers";
 import { isTrendLineAxis } from "../../../../../helpers/figures/charts";
+import { useState } from "../../../../../owl2";
 import { ChartWithDataSetDefinition, ValueAndLabel } from "../../../../../types";
 import { Select } from "../../../../select/select";
 import { SidePanelCollapsible } from "../../../components/collapsible/side_panel_collapsible";

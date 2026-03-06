@@ -1,4 +1,4 @@
-import { useExternalListener } from "@odoo/owl";
+import { useExternalListener } from "../../owl2";
 import { Ref } from "../../types";
 import { useRefListener } from "./listener_hook";
 

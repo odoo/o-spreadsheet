@@ -4,10 +4,11 @@ import {
   getDefaultSheetViewSize,
   ZOOM_VALUES,
 } from "@odoo/o-spreadsheet-engine/constants";
-import { Component, useSubEnv, xml } from "@odoo/owl";
+import { Component, xml } from "@odoo/owl";
 import { Model } from "../../src";
 import { Highlight } from "../../src/components/highlight/highlight/highlight";
 import { toHex, toZone } from "../../src/helpers";
+import { useSubEnv } from "../../src/owl2";
 import { Color, Pixel, Range } from "../../src/types";
 import { merge } from "../test_helpers/commands_helpers";
 import { edgeScrollDelay, triggerMouseEvent } from "../test_helpers/dom_helper";

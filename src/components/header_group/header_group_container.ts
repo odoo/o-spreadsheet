@@ -10,8 +10,9 @@ import {
   Pixel,
 } from "@odoo/o-spreadsheet-engine/types/misc";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
-import { Component, useState } from "@odoo/owl";
+import { Component } from "@odoo/owl";
 import { Action } from "../../actions/action";
+import { useState } from "../../owl2";
 import { createHeaderGroupContainerContextMenu } from "../../registries/menus/header_group_registry";
 import { DOMCoordinates } from "../../types";
 import { cssPropertiesToCss } from "../helpers";

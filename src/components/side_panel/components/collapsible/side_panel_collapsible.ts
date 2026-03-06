@@ -1,4 +1,5 @@
-import { Component, useState } from "@odoo/owl";
+import { Component } from "@odoo/owl";
+import { useState } from "../../../../owl2";
 import { Collapse } from "../collapse/collapse";
 
 export class SidePanelCollapsible extends Component {

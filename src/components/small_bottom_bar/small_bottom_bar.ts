@@ -1,5 +1,6 @@
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
-import { Component, useEffect, useRef, useState } from "@odoo/owl";
+import { Component } from "@odoo/owl";
+import { useLayoutEffect, useRef, useState } from "../../owl2";
 import { Store, useStore } from "../../store_engine";
 import { ComposerFocusType, Rect } from "../../types";
 import { Ripple } from "../animation/ripple";
@@ -45,7 +46,7 @@ export class SmallBottomBar extends Component<Props, SpreadsheetChildEnv> {
       stopEdition: this.composerStore.stopEdition,
     };
 
-    useEffect(() => {
+    useLayoutEffect(() => {
       if (
         // we hide the grid composer on mobile so we need to autofocus this composer
         this.env.isMobile() &&

@@ -1,7 +1,8 @@
 import { _t } from "@odoo/o-spreadsheet-engine/translation";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
-import { Component, onWillUpdateProps, useRef, useState } from "@odoo/owl";
+import { Component, onWillUpdateProps } from "@odoo/owl";
 import { deepEquals } from "../../helpers";
+import { useRef, useState } from "../../owl2";
 import { MenuItemRegistry } from "../../registries/menu_items_registry";
 import { MenuMouseEvent, Pixel, Rect, UID } from "../../types";
 import { Ripple } from "../animation/ripple";

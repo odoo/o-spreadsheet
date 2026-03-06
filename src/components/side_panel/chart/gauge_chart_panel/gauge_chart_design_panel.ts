@@ -10,8 +10,9 @@ import {
   SectionRule,
 } from "@odoo/o-spreadsheet-engine/types/chart/gauge_chart";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
-import { Component, useState } from "@odoo/owl";
+import { Component } from "@odoo/owl";
 import { deepCopy } from "../../../../helpers/index";
+import { useState } from "../../../../owl2";
 import { Color, CommandResult, ValueAndLabel } from "../../../../types/index";
 import { StandaloneComposer } from "../../../composer/standalone_composer/standalone_composer";
 import { Select } from "../../../select/select";
@@ -48,7 +49,7 @@ export class GaugeChartDesignPanel extends Component<
   protected state!: PanelState;
 
   setup() {
-    this.state = useState<PanelState>({
+    this.state = useState({
       sectionRuleCancelledReasons: this.checkSectionRuleFormulasAreValid(
         this.props.definition.sectionRule
       ),

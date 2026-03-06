@@ -1,6 +1,6 @@
 import { CANVAS_SHIFT } from "@odoo/o-spreadsheet-engine/constants";
 import { Model } from "@odoo/o-spreadsheet-engine/model";
-import { useEffect, useRef } from "@odoo/owl";
+import { useLayoutEffect, useRef } from "../../owl2";
 import { useStore } from "../../store_engine";
 import { GridRenderer } from "../../stores/grid_renderer_store";
 import { RendererStore } from "../../stores/renderer_store";
@@ -8,7 +8,7 @@ import { DOMDimension } from "../../types";
 
 export function useGridDrawing(refName: string, model: Model, canvasSize: () => DOMDimension) {
   const canvasRef = useRef(refName);
-  useEffect(drawGrid);
+  useLayoutEffect(drawGrid);
   const rendererStore = useStore(RendererStore);
   useStore(GridRenderer);
 

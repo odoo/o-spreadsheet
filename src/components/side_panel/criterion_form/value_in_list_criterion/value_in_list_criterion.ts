@@ -1,5 +1,6 @@
 import { _t } from "@odoo/o-spreadsheet-engine";
-import { onWillStart, onWillUpdateProps, useState } from "@odoo/owl";
+import { onWillStart, onWillUpdateProps } from "@odoo/owl";
+import { useState } from "../../../../owl2";
 import { Color, IsValueInListCriterion, ValueAndLabel } from "../../../../types";
 import { Select } from "../../../select/select";
 import { RoundColorPicker } from "../../components/round_color_picker/round_color_picker";
@@ -15,7 +16,7 @@ export class ListCriterionForm extends CriterionForm<IsValueInListCriterion> {
   static template = "o-spreadsheet-ListCriterionForm";
   static components = { CriterionInput, RoundColorPicker, Select };
 
-  state = useState<State>({
+  state: State = useState({
     numberOfValues: Math.max(this.props.criterion.values.length, 2),
     focusedValueIndex: this.props.autofocus ? 0 : undefined,
   });

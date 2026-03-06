@@ -1,12 +1,12 @@
 <templates>
   <t t-name="o-spreadsheet-ChartTypePicker">
-    <t t-set="selectedChartProperties" t-value="getSelectedChartSubtypeProperties()"/>
+    <t t-set="selectedChartProperties" t-value="this.getSelectedChartSubtypeProperties()"/>
     <Section title.translate="Chart type">
       <div class="position-relative">
         <select
           class="o-input o-type-selector"
-          t-ref="selectRef"
-          t-on-pointerdown.prevent="onPointerDown">
+          t-custom-ref="selectRef"
+          t-on-pointerdown.prevent="this.onPointerDown">
           <option
             t-esc="selectedChartProperties.displayName"
             t-att-value="selectedChartProperties.chartSubtype"
@@ -17,17 +17,17 @@
         </div>
       </div>
     </Section>
-    <Popover t-if="state.popoverProps" t-props="state.popoverProps">
+    <Popover t-if="this.state.popoverProps" t-props="this.state.popoverProps">
       <div
-        t-ref="popoverRef"
+        t-custom-ref="popoverRef"
         class="o-chart-select-popover px-3 pb-4 bg-white"
-        t-att-style="state.popoverStyle">
-        <t t-foreach="categories" t-as="category" t-key="category">
-          <t t-if="chartTypeByCategories[category]">
+        t-att-style="this.state.popoverStyle">
+        <t t-foreach="this.categories" t-as="category" t-key="category">
+          <t t-if="this.chartTypeByCategories[category]">
             <h5 class="my-3" t-esc="category_value"/>
             <div class="d-flex flex-wrap">
               <t
-                t-foreach="chartTypeByCategories[category]"
+                t-foreach="this.chartTypeByCategories[category]"
                 t-as="properties"
                 t-key="properties.chartSubtype">
                 <div

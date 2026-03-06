@@ -1,7 +1,8 @@
 import { cssPropertiesToCss } from "@odoo/o-spreadsheet-engine/components/helpers/css";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
-import { Component, onWillUpdateProps, useEffect, useRef, useState } from "@odoo/owl";
+import { Component, onWillUpdateProps } from "@odoo/owl";
 import { deepEquals, range } from "../../helpers";
+import { useLayoutEffect, useRef, useState } from "../../owl2";
 import { Store, useLocalStore, useStore } from "../../store_engine";
 import { DOMFocusableElementStore } from "../../stores/DOM_focus_store";
 import { Color } from "../../types";
@@ -94,11 +95,11 @@ export class SelectionInput extends Component<Props, SpreadsheetChildEnv> {
   }
 
   setup() {
-    useEffect(
+    useLayoutEffect(
       () => this.focusedInput.el?.focus(),
       () => [this.focusedInput.el]
     );
-    useEffect(() => {
+    useLayoutEffect(() => {
       // Check the offsetParent to know if the input or an ancestor is `display: none` (eg. when changing side panel tab)
       if (
         (this.store.isResettable || this.store.hasFocus) &&

@@ -4,7 +4,8 @@ import {
   StoreConstructor,
   StoreParams,
 } from "@odoo/o-spreadsheet-engine/types/store_engine";
-import { onWillUnmount, status, useComponent, useEnv, useSubEnv } from "@odoo/owl";
+import { onWillUnmount, status } from "@odoo/owl";
+import { useComponent, useEnv, useSubEnv } from "../owl2";
 import { DependencyContainer } from "./dependency_container";
 
 /**
