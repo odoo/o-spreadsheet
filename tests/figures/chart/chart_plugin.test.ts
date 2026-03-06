@@ -561,12 +561,12 @@ describe("datasource tests", function () {
     );
     addColumns(model, "before", "A", 2);
     const chart = model.getters.getChartDefinition("1");
-    expect(chart).toMatchObject({
-      ...toChartDataSource({
+    expect(chart).toMatchObject(
+      toChartDataSource({
         dataSets: [{ dataRange: "D1:D4" }, { dataRange: "E1:E4" }],
         labelRange: "Sheet1!C2:C4",
-      }),
-    });
+      })
+    );
   });
 
   test("pie chart tooltip title display the correct dataset", () => {
@@ -1425,12 +1425,12 @@ describe("datasource tests", function () {
     );
     deleteColumns(model, ["A", "B"]);
     const def = model.getters.getChartDefinition("1");
-    expect(def).toMatchObject({
-      ...toChartDataSource({
+    expect(def).toMatchObject(
+      toChartDataSource({
         dataSets: [{ dataRange: "A1:A4", dataSetId: "1" }],
         labelRange: undefined,
-      }),
-    });
+      })
+    );
   });
 });
 
@@ -1764,11 +1764,11 @@ describe("multiple sheets", function () {
     const chartDefinition = model.getters.getChartDefinition("1");
     expect(dataSets[0].data).toEqual([10, 11, 12]);
     expect(dataSets[1].data).toEqual([20, 19, 18]);
-    expect(chartDefinition).toMatchObject({
-      ...toChartDataSource({
+    expect(chartDefinition).toMatchObject(
+      toChartDataSource({
         dataSets: [{ dataRange: "Sheet1!B1:B4" }, { dataRange: "Sheet1!C1:C4" }],
-      }),
-    });
+      })
+    );
   });
   test("create a chart with dataset label from another sheet", () => {
     createSheet(model, { sheetId: "42", activate: true });
@@ -1855,11 +1855,11 @@ describe("multiple sheets", function () {
     const chartDefinition = model.getters.getChartDefinition("28");
     expect(dataSets[0].data).toEqual([10, 11, 12]);
     expect(dataSets[1].data).toEqual([20, 19, 18]);
-    expect(chartDefinition).toMatchObject({
-      ...toChartDataSource({
+    expect(chartDefinition).toMatchObject(
+      toChartDataSource({
         dataSets: [{ dataRange: "Sheet1!B1:B4" }, { dataRange: "Sheet1!C1:C4" }],
-      }),
-    });
+      })
+    );
   });
   describe("multiple sheets with formulas", function () {
     beforeEach(() => {
@@ -2054,12 +2054,19 @@ describe("Chart without labels", () => {
 
     createChart(
       model,
-      { ...pieChart, ...toChartDataSource({ dataSets: [{ dataRange: "A1:A2" }, { dataRange: "A3:A4" }] }) },
+      {
+        ...pieChart,
+        ...toChartDataSource({ dataSets: [{ dataRange: "A1:A2" }, { dataRange: "A3:A4" }] }),
+      },
       "43"
     );
     expect(getChartConfiguration(model, "43").options?.plugins?.legend?.position).toBe(undefined);
 
-    createChart(model, { ...pieChart, ...toChartDataSource({ ...pieChart.dataSource, labelRange: "B1:B2" }) }, "44");
+    createChart(
+      model,
+      { ...pieChart, ...toChartDataSource({ ...pieChart.dataSource, labelRange: "B1:B2" }) },
+      "44"
+    );
     expect(getChartConfiguration(model, "44").options?.plugins?.legend?.position).toBe(undefined);
   });
 

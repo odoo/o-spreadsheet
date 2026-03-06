@@ -190,12 +190,12 @@ describe.each(["chart", "image"])("Clipboard for %s figures", (type: string) => 
     paste(model, "A1");
     expect(model.getters.getFigures("sheet2Id")).toHaveLength(1);
     const newChartId = model.getters.getChartIds("sheet2Id")[0];
-    expect(model.getters.getChartDefinition(newChartId)).toMatchObject({
-      ...toChartDataSource({
+    expect(model.getters.getChartDefinition(newChartId)).toMatchObject(
+      toChartDataSource({
         dataSets: [{ dataRange: "B1:B5", dataSetId: "1" }],
         labelRange: undefined,
-      }),
-    });
+      })
+    );
   });
 
   test("Chart clipboard content is not serialized at copy", async () => {
