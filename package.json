@@ -25,7 +25,7 @@
     "check-formatting": "prettier . --check && eslint",
     "lint": "eslint --fix",
     "predev": "node tools/clean_build_files.cjs",
-    "dev": "npm-run-all --print-label --parallel build:watch server serve-static:wait",
+    "dev": "node tools/dev.cjs",
     "build": "npm-run-all transpile-js bundle:esm bundle:iife \"bundle:xml -- --outDir build\" \"bundle:css -- --out build\"",
     "build:watch": "npm-run-all --parallel transpile-js:watch bundle:iife:watch bundle:xml:watch bundle:css:watch",
     "transpile-js": "tsc --build --incremental --preserveWatchOutput",
