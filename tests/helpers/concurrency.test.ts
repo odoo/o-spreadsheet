@@ -13,8 +13,8 @@ describe("KeepLast", () => {
 
     keepLast.add(Promise.resolve(1)).then(resolveFn).catch(catchFn);
     await nextTick();
-    expect(resolveFn).toBeCalledWith(1);
-    expect(catchFn).not.toBeCalled();
+    expect(resolveFn).toHaveBeenCalledWith(1);
+    expect(catchFn).not.toHaveBeenCalled();
   });
 
   test("rejected promise", async () => {
@@ -24,8 +24,8 @@ describe("KeepLast", () => {
 
     keepLast.add(Promise.reject(1)).then(resolveFn).catch(catchFn);
     await nextTick();
-    expect(catchFn).toBeCalledWith(1);
-    expect(resolveFn).not.toBeCalled();
+    expect(catchFn).toHaveBeenCalledWith(1);
+    expect(resolveFn).not.toHaveBeenCalled();
   });
 
   test("two promise resolved in order", async () => {
@@ -37,12 +37,12 @@ describe("KeepLast", () => {
     keepLast.add(new Promise((resolve) => setTimeout(resolve, 20))).then(resolveFn2);
     jest.advanceTimersByTime(15);
     await nextTick();
-    expect(resolveFn1).not.toBeCalled();
-    expect(resolveFn2).not.toBeCalled();
+    expect(resolveFn1).not.toHaveBeenCalled();
+    expect(resolveFn2).not.toHaveBeenCalled();
     jest.advanceTimersByTime(15);
     await nextTick();
-    expect(resolveFn1).not.toBeCalled();
-    expect(resolveFn2).toBeCalled();
+    expect(resolveFn1).not.toHaveBeenCalled();
+    expect(resolveFn2).toHaveBeenCalled();
   });
 
   test("two promise resolved in reverse order", async () => {
@@ -54,11 +54,11 @@ describe("KeepLast", () => {
     keepLast.add(new Promise((resolve) => setTimeout(resolve, 10))).then(resolveFn2);
     jest.advanceTimersByTime(15);
     await nextTick();
-    expect(resolveFn1).not.toBeCalled();
-    expect(resolveFn2).toBeCalledTimes(1);
+    expect(resolveFn1).not.toHaveBeenCalled();
+    expect(resolveFn2).toHaveBeenCalledTimes(1);
     jest.advanceTimersByTime(15);
     await nextTick();
-    expect(resolveFn1).not.toBeCalled();
-    expect(resolveFn2).toBeCalledTimes(1);
+    expect(resolveFn1).not.toHaveBeenCalled();
+    expect(resolveFn2).toHaveBeenCalledTimes(1);
   });
 });
