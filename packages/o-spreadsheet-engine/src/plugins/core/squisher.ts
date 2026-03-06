@@ -168,11 +168,9 @@ export class Squisher {
 
   public squishContent(command: UpdateCellCommand): string | SquishedFormula | undefined {
     if (typeof command.content === "string") {
-      const compiledFormula = CompiledFormula.Compile(
-        command.content,
-        command.sheetId,
-        this.getters
-      );
+      const compiledFormula =
+        command.compiledFormula ??
+        CompiledFormula.Compile(command.content, command.sheetId, this.getters);
       return this.squish({ isFormula: true, compiledFormula } as FormulaCell, command.sheetId);
     }
     return command.content;

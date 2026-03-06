@@ -1,3 +1,4 @@
+import { CoreCommand } from "../types/commands";
 import { TransformationFactory } from "../types/history";
 import { UID } from "../types/misc";
 import { Branch } from "./branch";
@@ -67,6 +68,14 @@ export class SelectiveHistory<T = unknown> {
    */
   append(operationId: UID, data: T) {
     const operation = new Operation(operationId, data);
+    //@ts-ignore
+    operation.data?._commands?.forEach((element: CoreCommand) => {
+      if (element.type === "UPDATE_CELL" && element.compiledFormula) {
+        throw new Error(
+          "SELECTIVE_HISTORY - Branch cannot be initialized with operations containing UPDATE_CELL commands with compiledFormula. This field is local-only and should never be stored in the history."
+        );
+      }
+    });
     const branch = this.tree.getLastBranch();
     this.tree.insertOperationLast(branch, operation);
     this.HEAD_BRANCH = branch;
@@ -80,6 +89,14 @@ export class SelectiveHistory<T = unknown> {
    */
   insert(operationId: UID, data: T, insertAfter: UID) {
     const operation = new Operation<T>(operationId, data);
+    //@ts-ignore
+    operation.data?._commands?.forEach((element: CoreCommand) => {
+      if (element.type === "UPDATE_CELL" && element.compiledFormula) {
+        throw new Error(
+          "SELECTIVE_HISTORY - Branch cannot be initialized with operations containing UPDATE_CELL commands with compiledFormula. This field is local-only and should never be stored in the history."
+        );
+      }
+    });
     this.revertTo(insertAfter);
     this.tree.insertOperationAfter(this.HEAD_BRANCH, operation, insertAfter);
     this.fastForward();

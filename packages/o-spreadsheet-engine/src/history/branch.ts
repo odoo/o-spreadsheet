@@ -1,3 +1,4 @@
+import { CoreCommand } from "../types/commands";
 import { Transformation, TransformationFactory } from "../types/history";
 import { UID } from "../types/misc";
 import { Operation } from "./operation";
@@ -14,7 +15,21 @@ export class Branch<T> {
   constructor(
     private readonly buildTransformation: TransformationFactory<T>,
     private operations: Operation<T>[] = []
-  ) {}
+  ) {
+    // TODO VSC remove this check
+    if (operations.length > 1) {
+      operations.forEach((operation) => {
+        // @ts-ignore
+        operation?.data?._commands?.forEach((element: CoreCommand) => {
+          if (element.type === "UPDATE_CELL" && element.compiledFormula) {
+            throw new Error(
+              "BRANCH - Branch cannot be initialized with operations containing UPDATE_CELL commands with compiledFormula. This field is local-only and should never be stored in the history."
+            );
+          }
+        });
+      });
+    }
+  }
 
   getOperations(): readonly Operation<T>[] {
     return this.operations;

@@ -134,11 +134,14 @@ export class CommandSquisher implements ICommandSquisher {
       return allUpdateCellCommands;
     }
     const s = new Squisher(this.getters);
-    const squishedCommands: SquishedCoreCommand[] = commands.map((command) => ({
-      ...command,
-      content: s.squishContent(command),
-      type: "UPDATE_CELL_SQUISH",
-    }));
+    const squishedCommands: SquishedCoreCommand[] = commands.map((command) => {
+      const { compiledFormula, ...rest } = command;
+      return {
+        ...rest,
+        content: s.squishContent(command),
+        type: "UPDATE_CELL_SQUISH",
+      };
+    });
 
     for (let startIndex = 0; startIndex < squishedCommands.length; startIndex++) {
       const currentCommand = squishedCommands[startIndex] as UpdateCellSquishCommand;

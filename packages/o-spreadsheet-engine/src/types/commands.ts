@@ -1,3 +1,4 @@
+import { CompiledFormula } from "../formulas/compiler";
 import { Format } from "./format";
 import {
   Border,
@@ -365,6 +366,11 @@ export interface UpdateCellCommand extends PositionDependentCommand {
   content?: string;
   style?: Style | null;
   format?: Format;
+  /**
+   * Pre-compiled formula for the content. Local only - never sent over the network.
+   * Set automatically when handling the command to avoid re-compilation in squishContent.
+   */
+  compiledFormula?: CompiledFormula;
 }
 
 /**

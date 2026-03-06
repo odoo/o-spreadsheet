@@ -104,7 +104,14 @@ export class Session extends EventBus<CollaborativeEvent> {
     const revision = new Revision(
       this.uuidGenerator.uuidv4(),
       this.clientId,
-      commands,
+      // Strip compiledFormula: it is a local-only field and must never store in revision history
+      commands.map((cmd) => {
+        if (cmd.type === "UPDATE_CELL") {
+          const { compiledFormula, ...rest } = cmd;
+          return rest;
+        }
+        return cmd;
+      }),
       rootCommand,
       changes,
       Date.now()
@@ -122,7 +129,7 @@ export class Session extends EventBus<CollaborativeEvent> {
       serverRevisionId: this.serverRevisionId,
       nextRevisionId: revision.id,
       clientId: revision.clientId,
-      commands: revision.commands,
+      commands: commands,
     });
   }
 
@@ -305,9 +312,21 @@ export class Session extends EventBus<CollaborativeEvent> {
           message.nextRevisionId,
           message.serverRevisionId
         );
+
+        const commandsToRedo = this.revisions.get(message.redoneRevisionId).commands;
+        commandsToRedo.forEach((cmd) => {
+          if (cmd.type === "UPDATE_CELL") {
+            if (cmd.compiledFormula) {
+              throw new Error(
+                "SESSION - Compiled formulas should not be stored in revisions. This can lead to issues with undo/redo and collaborative sessions. Please make sure to strip the compiledFormula field from UPDATE_CELL commands before storing them in revisions."
+              );
+            }
+          }
+        });
+
         this.trigger("revision-redone", {
           revisionId: message.redoneRevisionId,
-          commands: this.revisions.get(message.redoneRevisionId).commands,
+          commands: commandsToRedo,
         });
         break;
       }
@@ -409,7 +428,14 @@ export class Session extends EventBus<CollaborativeEvent> {
   private async sendToTransport(message: CollaborationMessage) {
     if (message.type === "REMOTE_REVISION") {
       // wrap in an async function to ensure it returns a promise
-      message.commands = this.commandSquisher.squish(message.commands);
+      message.commands = this.commandSquisher.squish(message.commands).map((cmd) => {
+        if (cmd.type !== "UPDATE_CELL") {
+          return cmd;
+        }
+        // Strip compiledFormula: it is a local-only field and must never be sent over the network
+        const { compiledFormula, ...rest } = cmd;
+        return rest;
+      });
     }
     return this.transportService.sendMessage(message);
   }
