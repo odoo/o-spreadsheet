@@ -62,6 +62,7 @@ export class FilterMenuCriterion extends Component<Props, SpreadsheetChildEnv> {
       id: "none",
       separator: true,
       execute: () => this.onCriterionTypeChange("none"),
+      isReadonlyAllowed: true,
     });
     return [
       noCriterionMenuItem,
