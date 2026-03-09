@@ -273,8 +273,8 @@ export function triggerMouseEvent(
     bubbles: true,
     ...extra,
   });
-  (ev as any).offsetX = offsetX;
-  (ev as any).offsetY = offsetY;
+  Object.defineProperty(ev, "offsetX", { value: offsetX });
+  Object.defineProperty(ev, "offsetY", { value: offsetY });
   const target = getTarget(selector);
   target.dispatchEvent(ev);
   return ev;
@@ -321,8 +321,8 @@ export function triggerPointerEvent(
     bubbles: true,
     ...extra,
   });
-  (ev as any).offsetX = offsetX;
-  (ev as any).offsetY = offsetY;
+  Object.defineProperty(ev, "offsetX", { value: offsetX });
+  Object.defineProperty(ev, "offsetY", { value: offsetY });
   const target = getTarget(selector);
   target.dispatchEvent(ev);
   return ev;
@@ -474,7 +474,7 @@ export function getComposerColors(composerEl: Element) {
     const _el = el as HTMLElement;
     if (_el.tagName === "SPAN") {
       const color = getElComputedStyle(_el, "color");
-      colors[_el.textContent!] = color;
+      colors[_el.textContent!] = color.startsWith("light-dark") ? color : toHex(color);
     }
   }
   return colors;

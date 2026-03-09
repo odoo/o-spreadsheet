@@ -756,5 +756,5 @@ test("Plugins cannot dispatch a command during adaptRanges", () => {
   const model = new Model({});
   expect(() => {
     addColumns(model, "before", "A", 1);
-  }).toThrowError("Plugins cannot dispatch commands during adaptRanges phase");
+  }).toThrow("Plugins cannot dispatch commands during adaptRanges phase");
 });
