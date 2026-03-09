@@ -455,6 +455,22 @@ describe("Filter menu component", () => {
       });
     });
 
+    test("Can edit filter criterion in dashboard", async () => {
+      model.updateMode("dashboard");
+      await openFilterMenu();
+
+      await simulateClick(".o-filter-criterion-type");
+      await simulateClick(".o-menu-item[data-name='containsText']");
+      await setInputValueAndTrigger(".o-dv-input input", "hello");
+      await simulateClick(".o-filter-menu-confirm");
+
+      expect(model.getters.getFilterValue({ sheetId, col: 0, row: 0 })).toEqual({
+        filterType: "criterion",
+        type: "containsText",
+        values: ["hello"],
+      });
+    });
+
     test("Criterion type depend on the values in the filtered ranges", async () => {
       const getAvailableCriterionTypes = () =>
         [...fixture.querySelectorAll(".o-menu-item")].map((el) => el["dataset"].name).sort();
