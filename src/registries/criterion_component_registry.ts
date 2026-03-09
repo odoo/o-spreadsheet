@@ -251,6 +251,7 @@ export function getCriterionMenuItems(
       id: item.type,
       separator: item.category !== items[index + 1]?.category,
       execute: () => callback(item.type),
+      isReadonlyAllowed: true,
     };
   });
   return createActions(actionSpecs);
