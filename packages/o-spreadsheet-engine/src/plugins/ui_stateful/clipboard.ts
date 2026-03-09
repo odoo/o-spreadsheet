@@ -520,9 +520,19 @@ export class ClipboardPlugin extends UIPlugin {
     const file = await this.getImageContent();
     const mime = file?.type;
     const content: OSClipboardContent = {
-      [ClipboardMIMEType.PlainText]: this.getPlainTextContent(),
-      [ClipboardMIMEType.Html]: await this.getHTMLContent(),
+      [ClipboardMIMEType.PlainText]: "",
+      [ClipboardMIMEType.Html]: "",
     };
+    try {
+      content[ClipboardMIMEType.PlainText] = this.getPlainTextContent();
+      content[ClipboardMIMEType.Html] = await this.getHTMLContent();
+    } catch (error) {
+      this.ui.notifyUI({
+        type: "danger",
+        text: "Your selection was too large for the browser to copy it.\nPlease select a smaller zone.",
+        sticky: true,
+      });
+    }
     if (mime && file) {
       content[mime] = file;
     }
