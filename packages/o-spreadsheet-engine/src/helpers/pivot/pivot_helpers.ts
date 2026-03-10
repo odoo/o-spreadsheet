@@ -1,3 +1,4 @@
+import { tokenize } from "../../formulas/tokenizer";
 import { boolAnd, boolOr } from "../../functions/helper_logical";
 import { countUnique, sum } from "../../functions/helper_math";
 import { average, countAny, max, min } from "../../functions/helper_statistical";
@@ -19,6 +20,7 @@ import {
   Granularity,
   PivotCoreDefinition,
   PivotCoreDimension,
+  PivotCoreMeasure,
   PivotCustomGroupedField,
   PivotDimension,
   PivotDomain,
@@ -30,7 +32,7 @@ import {
 } from "../../types/pivot";
 import { Pivot } from "../../types/pivot_runtime";
 import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
-import { deepEquals, getUniqueText, isDefined } from "../misc";
+import { deepEquals, getCanonicalSymbolName, getUniqueText, isDefined } from "../misc";
 import { PivotRuntimeDefinition } from "./pivot_runtime_definition";
 import { pivotTimeAdapter } from "./pivot_time_adapter";
 
@@ -525,4 +527,34 @@ export function collapseHierarchicalDisplayName(
   const firstPart = displayName.slice(0, firstIndex + 1);
   const lastPart = displayName.slice(lastIndex);
   return `${firstPart} … ${lastPart}`;
+}
+
+/**
+ * Change the pivot measures when a measure changes. This helper will replace the old measure by the new one in the
+ * measure list, and adapt the formulas of the related calculated that were using the old measure.
+ */
+export function changeCalculatedMeasuresOnMeasureChange(
+  oldMeasure: PivotCoreMeasure,
+  newMeasure: PivotCoreMeasure,
+  measures: PivotCoreMeasure[]
+): PivotCoreMeasure[] {
+  return measures.map((measure) => {
+    if (measure.id === oldMeasure.id) {
+      return newMeasure;
+    } else if (!measure.computedBy || oldMeasure.id === newMeasure.id) {
+      return measure;
+    }
+    const newFormula = tokenize(measure.computedBy.formula)
+      .map((token) =>
+        token.type === "SYMBOL" && token.value === getCanonicalSymbolName(oldMeasure.id)
+          ? getCanonicalSymbolName(newMeasure.id)
+          : token.value
+      )
+      .join("");
+
+    return {
+      ...measure,
+      computedBy: { ...measure.computedBy, formula: newFormula },
+    };
+  });
 }
