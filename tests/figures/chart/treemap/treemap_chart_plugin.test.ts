@@ -160,8 +160,8 @@ describe("TreeMap chart", () => {
     // prettier-ignore
     setGrid(model, {
       A1: "Year", B1: "Quarter", C1: "Sales",
-      A2: "2024", B2: "Q1", C2: "100",
-      A3: "2024", B3: "Q2", C3: "200",
+      A2: "2024", B2: "Q1",      C2: "100",
+      A3: "2024", B3: "Q2",      C3: "200",
     });
 
     const chartId = createTreeMapChart(model, {
@@ -186,10 +186,10 @@ describe("TreeMap chart", () => {
     // prettier-ignore
     setGrid(model, {
       A1: "Year", B1: "Quarter", C1: "Sales",
-      A2: "2024", B2: "Q1", C2: "100",
-      A3: "2024", B3: "Q2", C3: "200",
-      A4: "2024", B4: "Q3", C4: "300",
-      A5: "2025", B5: "", C5: "600",
+      A2: "2024", B2: "Q1",      C2: "100",
+      A3: "2024", B3: "Q2",      C3: "200",
+      A4: "2024", B4: "Q3",      C4: "300",
+      A5: "2025", B5: "",        C5: "600",
     });
 
     const chartId = createTreeMapChart(model, {
@@ -216,12 +216,12 @@ describe("TreeMap chart", () => {
     // prettier-ignore
     const grid = {
       A1: "Year", B1: "Quarter", C1: "Week", D1: "Sales",
-      A2: "2024", B2: "Q1", C2: "W1", D2: "100",
-      C3: "W2", D3: "200",
-      B4: "Q2", C4: "W1", D4: "300",
-      C5: "W2", D5: "400",
-      A6: "2025", B6: "Q1", C6: "W1", D6: "500",
-      C7: "W2", D7: "600",
+      A2: "2024", B2: "Q1",      C2: "W1",   D2: "100",
+                                 C3: "W2",   D3: "200",
+                  B4: "Q2",      C4: "W1",   D4: "300",
+                                 C5: "W2",   D5: "400",
+      A6: "2025", B6: "Q1",      C6: "W1",   D6: "500",
+                                 C7: "W2",   D7: "600",
     };
     setGrid(model, grid);
 
@@ -248,11 +248,11 @@ describe("TreeMap chart", () => {
   test("Invalid values are filtered out", () => {
     // prettier-ignore
     const grid = {
-      A1: "", B1: "Q1", C1: "", D1: "50",         // No root group value
-      A2: "2024", B2: "Q1", C2: "W1", D2: "100",
-      B4: "Q2", C4: "W1", D4: "notANumber", // Invalid value
-      C5: "W2", D5: "400",
-      A7: "2025", B7: "Q1", C7: "W1", D7: "",           // No data value
+      A1: "",     B1: "Q1",      C1: "",     D1: "50",         // No root group value
+      A2: "2024", B2: "Q1",      C2: "W1",   D2: "100",
+                  B4: "Q2",      C4: "W1",   D4: "notANumber", // Invalid value
+                                 C5: "W2",   D5: "400",
+      A7: "2025", B7: "Q1",      C7: "W1",   D7: "",           // No data value
     };
     setGrid(model, grid);
 
@@ -303,8 +303,8 @@ describe("TreeMap chart", () => {
     // prettier-ignore
     const grid = {
       A1: "Year", B1: "Quarter", C1: "Week", D1: "Sales",
-      A2: "2024", B2: "Q1", C2: "W1", D2: "100",
-      A3: "2024", B3: "Q2", C3: "W2", D3: "200",
+      A2: "2024", B2: "Q1",      C2: "W1",   D2: "100",
+      A3: "2024", B3: "Q2",      C3: "W2",   D3: "200",
     };
     setGrid(model, grid);
     setFormat(model, "D1:D3", "#,##0[$€]");
@@ -335,8 +335,8 @@ describe("TreeMap chart", () => {
     // prettier-ignore
     setGrid(model, {
       A1: "Year", B1: "Quarter", C1: "Sales",
-      A2: "2024", B2: "Q1", C2: "100",
-      A3: "2024", B3: "Q2", C3: "200",
+      A2: "2024", B2: "Q1",      C2: "100",
+      A3: "2024", B3: "Q2",      C3: "200",
     });
 
     const chartId = createTreeMapChart(model, {
@@ -380,10 +380,10 @@ describe("TreeMap chart", () => {
     test("TreeMap category colors without highlight", () => {
       // prettier-ignore
       const grid = {
-        A1: "Year", B1: "Quarter", C1: "Sales",
-        A2: "2023", B2: "Q1", C2: "20",
-        A3: "2024", B3: "Q2", C3: "100",
-        A4: "2025", B4: "Q2", C4: "200",
+            A1: "Year", B1: "Quarter", C1: "Sales",
+            A2: "2023", B2: "Q1",      C2: "20",
+            A3: "2024", B3: "Q2",      C3: "100",
+            A4: "2025", B4: "Q2",      C4: "200",
       };
       setGrid(model, grid);
       const chartId = createTreeMapChart(model, {
@@ -415,10 +415,10 @@ describe("TreeMap chart", () => {
     test("TreeMap category colors with highlight of bigger values", () => {
       // prettier-ignore
       const grid = {
-        A1: "Year", B1: "Quarter", C1: "Sales",
-        A2: "2023", B2: "Q1", C2: "100",
-        A3: "2023", B3: "Q2", C3: "200",
-        A4: "2023", B4: "Q3", C4: "300",
+            A1: "Year", B1: "Quarter", C1: "Sales",
+            A2: "2023", B2: "Q1",      C2: "100",
+            A3: "2023", B3: "Q2",      C3: "200",
+            A4: "2023", B4: "Q3",      C4: "300",
       };
       setGrid(model, grid);
       const chartId = createTreeMapChart(model, {
@@ -448,10 +448,10 @@ describe("TreeMap chart", () => {
     test("TreeMap color scale", () => {
       // prettier-ignore
       const grid = {
-        A1: "Year", B1: "Quarter", C1: "Sales",
-        A2: "2024", B2: "Q1", C2: "100",
-        A3: "2024", B3: "Q2", C3: "200",
-        A4: "2025", B4: "Q2", C4: "300",
+            A1: "Year", B1: "Quarter", C1: "Sales",
+            A2: "2024", B2: "Q1",      C2: "100",
+            A3: "2024", B3: "Q2",      C3: "200",
+            A4: "2025", B4: "Q2",      C4: "300",
       };
       setGrid(model, grid);
       const chartId = createTreeMapChart(model, {
@@ -505,9 +505,9 @@ describe("TreeMap chart", () => {
     test("TreeMap category colors with single level", () => {
       // prettier-ignore
       const grid = {
-        A1: "Year", C1: "Sales",
-        A2: "2023", C2: "20",
-        A3: "2024", C3: "100",
+            A1: "Year", C1: "Sales",
+            A2: "2023", C2: "20",
+            A3: "2024", C3: "100",
       };
       setGrid(model, grid);
       const chartId = createTreeMapChart(model, {

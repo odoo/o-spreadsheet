@@ -964,7 +964,6 @@ describe("charts", () => {
     await openChartDesignSidePanel(model, env, fixture, chartId);
     await click(fixture, ".o-vertical-axis-selection input[value=right]");
 
-    //@ts-ignore
     expect(model.getters.getChartDefinition(chartId)).toMatchObject(
       toChartDataSource({
         dataSets: [
