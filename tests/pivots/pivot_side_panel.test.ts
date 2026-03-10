@@ -3,7 +3,12 @@ import { Model, SpreadsheetPivotCoreDefinition } from "../../src";
 import { toZone, zoneToXc } from "../../src/helpers";
 import { HighlightStore } from "../../src/stores/highlight_store";
 import { createSheet, deleteSheet } from "../test_helpers/commands_helpers";
-import { click, setInputValueAndTrigger, simulateClick } from "../test_helpers/dom_helper";
+import {
+  click,
+  editSelectComponent,
+  setInputValueAndTrigger,
+  simulateClick,
+} from "../test_helpers/dom_helper";
 import {
   getHighlightsFromStore,
   mountSpreadsheet,
@@ -297,5 +302,87 @@ describe("Pivot side panel", () => {
     env.openSidePanel("PivotSidePanel", { pivotId: "1" });
     await nextTick();
     expect(".o-measure-description").toHaveText(`Displayed as % of previous "Customer"`);
+  });
+
+  test("Changing a measure aggregator also changes the related calculated measures", async () => {
+    // prettier-ignore
+    setGrid(model, {
+      A1: "Partner", B1: "Amount",
+      A2: "Alice", B2: "10",
+      A5: "=PIVOT(1)"
+    });
+
+    const sheetId = model.getters.getActiveSheetId();
+    updatePivot(model, "1", {
+      measures: [
+        { id: "Amount:sum", fieldName: "Amount", aggregator: "sum" },
+        {
+          id: "m1:avg",
+          fieldName: "m1",
+          aggregator: "avg",
+          computedBy: { formula: "='Amount:sum'*2", sheetId },
+        },
+        {
+          id: "m2",
+          fieldName: "m1",
+          aggregator: "avg",
+          computedBy: { formula: "='Amount:sum'+3*'m1:avg'", sheetId },
+        },
+      ],
+    });
+    env.openSidePanel("PivotSidePanel", { pivotId: "1" });
+    await nextTick();
+
+    const priceMeasureEl = fixture.querySelectorAll(".pivot-measure")[0];
+    await editSelectComponent(priceMeasureEl.querySelector(".o-select"), "count");
+
+    let definition = model.getters.getPivotCoreDefinition("1") as SpreadsheetPivotCoreDefinition;
+    expect(definition.measures[0].id).toBe("Amount:count");
+    expect(definition.measures[1].computedBy?.formula).toBe("='Amount:count'*2");
+    expect(definition.measures[2].computedBy?.formula).toBe("='Amount:count'+3*'m1:avg'");
+
+    const m1MeasureEl = fixture.querySelectorAll(".pivot-measure")[1];
+    await editSelectComponent(m1MeasureEl.querySelector(".o-select"), "sum");
+
+    definition = model.getters.getPivotCoreDefinition("1") as SpreadsheetPivotCoreDefinition;
+    expect(definition.measures[1].id).toBe("m1:sum");
+    expect(definition.measures[1].computedBy?.formula).toBe("='Amount:count'*2");
+    expect(definition.measures[2].computedBy?.formula).toBe("='Amount:count'+3*'m1:sum'");
+  });
+
+  test("Changing a calculated measure name also changes the related calculated measures", async () => {
+    // prettier-ignore
+    setGrid(model, {
+      A1: "Partner", B1: "Amount",
+      A2: "Alice", B2: "10",
+      A5: "=PIVOT(1)"
+    });
+
+    const sheetId = model.getters.getActiveSheetId();
+    updatePivot(model, "1", {
+      measures: [
+        {
+          id: "m1:avg",
+          fieldName: "m1",
+          aggregator: "avg",
+          computedBy: { formula: "=6", sheetId },
+        },
+        {
+          id: "m2",
+          fieldName: "m2",
+          aggregator: "avg",
+          computedBy: { formula: "='m1:avg'*25", sheetId },
+        },
+      ],
+    });
+    env.openSidePanel("PivotSidePanel", { pivotId: "1" });
+    await nextTick();
+
+    const priceMeasureEl = fixture.querySelectorAll(".pivot-measure")[0];
+    await setInputValueAndTrigger(priceMeasureEl.querySelector(".os-input"), "renamed");
+
+    const definition = model.getters.getPivotCoreDefinition("1") as SpreadsheetPivotCoreDefinition;
+    expect(definition.measures[0].id).toBe("renamed:avg");
+    expect(definition.measures[1].computedBy?.formula).toBe("='renamed:avg'*25");
   });
 });

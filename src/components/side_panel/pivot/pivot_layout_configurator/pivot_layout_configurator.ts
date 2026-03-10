@@ -1,5 +1,6 @@
 import {
   AGGREGATORS,
+  changeCalculatedMeasuresOnMeasureChange,
   isDateOrDatetimeField,
 } from "@odoo/o-spreadsheet-engine/helpers/pivot/pivot_helpers";
 import { PivotRuntimeDefinition } from "@odoo/o-spreadsheet-engine/helpers/pivot/pivot_runtime_definition";
@@ -235,9 +236,8 @@ export class PivotLayoutConfigurator extends Component<Props, SpreadsheetChildEn
   updateMeasure(measure: PivotMeasure, newMeasure: PivotMeasure) {
     const { measures }: { measures: PivotCoreMeasure[] } = this.props.definition;
 
-    const update: Partial<PivotCoreDefinition> = {
-      measures: measures.map((m) => (m.id === measure.id ? newMeasure : m)),
-    };
+    const newMeasures = changeCalculatedMeasuresOnMeasureChange(measure, newMeasure, measures);
+    const update: Partial<PivotCoreDefinition> = { measures: newMeasures };
     if (this.props.definition.sortedColumn?.measure === measure.id) {
       update.sortedColumn = { ...this.props.definition.sortedColumn, measure: newMeasure.id };
     }
