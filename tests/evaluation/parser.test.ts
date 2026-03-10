@@ -479,6 +479,13 @@ describe("Converting AST to string", () => {
     expect(astToFormula(parse("SUM(5,9,8)"))).toBe("SUM(5,9,8)");
     expect(astToFormula(parse("-SUM(5,9,SUM(5,9,8))"))).toBe("-SUM(5,9,SUM(5,9,8))");
   });
+  test("convert formula with a debugger statement", () => {
+    expect(astToFormula(parse(`?SUM(1)`))).toBe(`?SUM(1)`);
+    expect(astToFormula(parse(`=?SUM(1)`))).toBe(`?SUM(1)`);
+    expect(astToFormula(parse(`=?SUM(1)`))).toBe(`?SUM(1)`);
+    expect(astToFormula(parse(`=SUM(?1)`))).toBe(`SUM(?1)`);
+    expect(astToFormula(parse(`=SUM(1,?2,3)`))).toBe(`SUM(1,?2,3)`);
+  });
   test("Convert references", () => {
     expect(astToFormula(parse("A10"))).toBe("A10");
     expect(astToFormula(parse("Sheet1!A10"))).toBe("Sheet1!A10");
