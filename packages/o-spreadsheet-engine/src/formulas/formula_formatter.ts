@@ -3,6 +3,7 @@ import { argTargeting } from "../functions/arguments";
 import { functionRegistry } from "../functions/function_registry";
 
 import { memoize } from "../helpers/misc";
+import { DEBUGGER_CHAR } from "./tokenizer";
 
 const ASSOCIATIVE_OPERATORS = ["*", "+", "&"];
 
@@ -229,18 +230,16 @@ function fits(width: number, linkedString: LinkedString | null): boolean {
 }
 
 function astToDoc(ast: AST): Doc {
+  const debugPrefix = ast.debug ? `${DEBUGGER_CHAR}` : "";
   switch (ast.type) {
     case "NUMBER":
-      return String(ast.value);
+      return debugPrefix + String(ast.value);
 
     case "STRING":
-      return `"${ast.value}"`;
+      return debugPrefix + `"${ast.value}"`;
 
     case "BOOLEAN":
-      return ast.value ? "TRUE" : "FALSE";
-
-    case "REFERENCE":
-      return ast.value;
+      return debugPrefix + (ast.value ? "TRUE" : "FALSE");
 
     case "FUNCALL":
       const functionDescription = functionRegistry.get(ast.value.toUpperCase());
@@ -259,7 +258,7 @@ function astToDoc(ast: AST): Doc {
           i++;
         }
       }
-      return wrapInParentheses(concat(splitArgsWithCommas(docs)), ast.value);
+      return wrapInParentheses(concat(splitArgsWithCommas(docs)), debugPrefix + ast.value);
 
     case "ARRAY": {
       const rowDocs = ast.value.map((row) =>
@@ -283,8 +282,8 @@ function astToDoc(ast: AST): Doc {
       const finalOperandDoc = needParenthesis ? wrapInParentheses(operandDoc) : operandDoc;
 
       return ast.postfix
-        ? concat([finalOperandDoc, ast.value])
-        : concat([ast.value, finalOperandDoc]);
+        ? concat([finalOperandDoc, debugPrefix + ast.value])
+        : concat([debugPrefix + ast.value, finalOperandDoc]);
 
     case "BIN_OPERATION": {
       const leftDoc = astToDoc(ast.left);
@@ -295,15 +294,11 @@ function astToDoc(ast: AST): Doc {
       const needParenthesisRightDoc = rightOperandNeedsParenthesis(ast);
       const finalRightDoc = needParenthesisRightDoc ? wrapInParentheses(rightDoc) : rightDoc;
 
-      const operator = `${ast.value}`;
+      const operator = `${debugPrefix}${ast.value}`;
       return group(concat([finalLeftDoc, operator, nest(1, concat([line(), finalRightDoc]))]));
     }
-
-    case "SYMBOL":
-      return ast.value;
-
-    case "EMPTY":
-      return "";
+    default:
+      return debugPrefix + ast.value;
   }
 }
 
@@ -335,32 +330,32 @@ function wrapInBraces(doc: Doc): Doc {
  * Converts an ast formula to the corresponding string
  */
 export function astToFormula(ast: AST): string {
+  const debugPrefix = ast.debug ? `${DEBUGGER_CHAR}` : "";
   switch (ast.type) {
     case "FUNCALL":
       const args = ast.args.map((arg) => astToFormula(arg));
-      return `${ast.value}(${args.join(",")})`;
+      return `${debugPrefix}${ast.value}(${args.join(",")})`;
     case "NUMBER":
-      return ast.value.toString();
-    case "REFERENCE":
-      return ast.value;
+      return debugPrefix + ast.value.toString();
     case "STRING":
-      return `"${ast.value}"`;
+      return debugPrefix + `"${ast.value}"`;
     case "BOOLEAN":
-      return ast.value ? "TRUE" : "FALSE";
+      return debugPrefix + (ast.value ? "TRUE" : "FALSE");
     case "UNARY_OPERATION":
       if (ast.postfix) {
         const leftOperand = leftOperandNeedsParenthesis(ast)
           ? `(${astToFormula(ast.operand)})`
           : astToFormula(ast.operand);
-        return leftOperand + ast.value;
+        return leftOperand + debugPrefix + ast.value;
       }
       const rightOperand = rightOperandNeedsParenthesis(ast)
         ? `(${astToFormula(ast.operand)})`
         : astToFormula(ast.operand);
-      return ast.value + rightOperand;
+      return debugPrefix + ast.value + rightOperand;
     case "ARRAY":
       return (
         "{" +
+        debugPrefix +
         ast.value.map((row) => row.map((cell) => astToFormula(cell)).join(",")).join(";") +
         "}"
       );
@@ -371,9 +366,9 @@ export function astToFormula(ast: AST): string {
       const rightOperation = rightOperandNeedsParenthesis(ast)
         ? `(${astToFormula(ast.right)})`
         : astToFormula(ast.right);
-      return leftOperation + ast.value + rightOperation;
+      return leftOperation + debugPrefix + ast.value + rightOperation;
     default:
-      return ast.value;
+      return debugPrefix + ast.value;
   }
 }
 

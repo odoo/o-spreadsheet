@@ -135,4 +135,10 @@ describe("formula formatter", () => {
         "}"
     );
   });
+
+  test("debugger statement of a formula is kept in the prettified formula", () => {
+    expect(prettifyContent(`=?SUM(1)`)).toBe(`=?SUM(1)`);
+    expect(prettifyContent(`=SUM(?1)`)).toBe(`=SUM(?1)`);
+    expect(prettifyContent(`=SUM(1, ?2, 3)`)).toBe(`=SUM(1, ?2, 3)`);
+  });
 });

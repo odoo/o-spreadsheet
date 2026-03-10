@@ -28,6 +28,7 @@ import { NEWLINE } from "../constants";
  */
 
 export const POSTFIX_UNARY_OPERATORS = ["%"];
+export const DEBUGGER_CHAR = "?";
 const OPERATORS = "+,-,*,/,:,=,<>,>=,>,<=,<,^,&".split(",").concat(POSTFIX_UNARY_OPERATORS);
 
 type TokenType =
@@ -85,9 +86,9 @@ export function tokenize(str: string, locale = DEFAULT_LOCALE): Token[] {
 }
 
 function tokenizeDebugger(chars: TokenizingChars): Token | null {
-  if (chars.current === "?") {
+  if (chars.current === DEBUGGER_CHAR) {
     chars.shift();
-    return { type: "DEBUGGER", value: "?" };
+    return { type: "DEBUGGER", value: DEBUGGER_CHAR };
   }
   return null;
 }
