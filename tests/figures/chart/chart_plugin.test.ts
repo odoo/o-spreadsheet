@@ -3910,10 +3910,10 @@ describe("trending line", () => {
   test("empty labels are correctly predicted", () => {
     // prettier-ignore
     setGrid(model, {
-      B6: "", C6: "6",
-      B7: "", C7: "7",
-      B8: "", C8: "8",
-      B9: "", C9: "9",
+      B6:  "", C6:  "6",
+      B7:  "", C7:  "7",
+      B8:  "", C8:  "8",
+      B9:  "", C9:  "9",
       B10: "", C10: "10",
     });
     updateChart(model, "1", {
@@ -4365,14 +4365,14 @@ test("logarithmic trending line with negative values", () => {
 test("logarithmic trending line with values between 0 and 1", () => {
   // prettier-ignore
   setGrid(model, {
-    B1: "0.25", C1: "=LN(B1)",
-    B2: "0.3", C2: "=LN(B2)",
-    B3: "0.35", C3: "=LN(B3)",
-    B4: "0.4", C4: "=LN(B4",
-    B5: "0.45", C5: "=LN(B5)",
-    B6: "0.5", C6: "=LN(B6)",
-    B7: "0.6", C7: "=LN(B7)",
-    B8: "0.75", C8: "=LN(B8)",
+      B1: "0.25", C1: "=LN(B1)",
+      B2: "0.3",  C2: "=LN(B2)",
+      B3: "0.35", C3: "=LN(B3)",
+      B4: "0.4",  C4: "=LN(B4",
+      B5: "0.45", C5: "=LN(B5)",
+      B6: "0.5",  C6: "=LN(B6)",
+      B7: "0.6",  C7: "=LN(B7)",
+      B8: "0.75", C8: "=LN(B8)",
   });
   createChart(
     model,

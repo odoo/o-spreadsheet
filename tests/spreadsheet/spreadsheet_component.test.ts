@@ -12,6 +12,7 @@ import { CellComposerStore } from "../../src/components/composer/composer/cell_c
 import { useScreenWidth } from "../../src/components/helpers/screen_width_hook";
 import { toZone } from "../../src/helpers";
 import { HighlightStore } from "../../src/stores/highlight_store";
+import { toChartDataSource } from "../test_helpers/chart_helpers";
 import {
   addDataValidation,
   addRows,
@@ -44,7 +45,6 @@ import {
   typeInComposerTopBar,
 } from "../test_helpers/helpers";
 import { extendMockGetBoundingClientRect } from "../test_helpers/mock_helpers";
-import { toChartDataSource } from "../test_helpers/chart_helpers";
 
 let fixture: HTMLElement;
 let parent: Spreadsheet;

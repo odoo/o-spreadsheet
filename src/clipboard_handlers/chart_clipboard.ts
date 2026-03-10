@@ -64,7 +64,6 @@ export class ChartClipboardHandler extends AbstractFigureClipboardHandler<Clipbo
       copy.copyInSheetId(sheetId)
     ).getDefinition();
 
-    // clean invalid ranges TODO improve this.
     copiedDefinition = MyChart.fromStrDefinition(
       this.getters,
       sheetId,
