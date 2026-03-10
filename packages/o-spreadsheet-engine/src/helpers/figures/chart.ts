@@ -38,13 +38,15 @@ export class MyChart {
       sheetId,
       getters
     );
+    const rangeDefinition = {
+      ...chartTypeBuilder.fromStrDefinition(definition, sheetId, getters),
+      dataSource,
+    } as ChartDefinition<Range>;
+    MyChart.deleteInvalidKeys(rangeDefinition);
     return new MyChart(
       getters,
       sheetId,
-      {
-        ...chartTypeBuilder.fromStrDefinition(definition, sheetId, getters),
-        dataSource,
-      } as ChartDefinition<Range>,
+      rangeDefinition,
       dataSource,
       chartTypeBuilder,
       dataSourceBuilder
@@ -224,5 +226,14 @@ export class MyChart {
       this.sheetId,
       eventHandlers
     );
+  }
+
+  static deleteInvalidKeys(definition: ChartDefinition<any>) {
+    const keys = new Set(chartTypeRegistry.get(definition.type).allowedDefinitionKeys);
+    for (const key of Object.keys(definition)) {
+      if (!keys.has(key)) {
+        delete definition[key];
+      }
+    }
   }
 }
