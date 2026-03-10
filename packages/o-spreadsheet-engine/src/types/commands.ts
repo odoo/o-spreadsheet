@@ -211,6 +211,7 @@ export const readonlyAllowedCommands = new Set<CommandTypes>([
 
   "UPDATE_FILTER",
   "UPDATE_CHART",
+  "UPDATE_CHART_REGION",
   "UPDATE_CAROUSEL_ACTIVE_ITEM",
 
   "UPDATE_PIVOT",
@@ -605,6 +606,12 @@ export interface UpdateChartCommand extends SheetDependentCommand {
 export interface DeleteChartCommand extends SheetDependentCommand {
   type: "DELETE_CHART";
   chartId: UID;
+}
+
+export interface UpdateChartRegionCommand {
+  type: "UPDATE_CHART_REGION";
+  chartId: UID;
+  region: string;
 }
 
 export interface CreateCarouselCommand extends BaseFigureCommand {
@@ -1338,7 +1345,8 @@ export type LocalCommand =
   | AddFigureChartToCarouselCommand
   | DuplicateCarouselChartCommand
   | UpdateCarouselActiveItemCommand
-  | PopOutChartFromCarouselCommand;
+  | PopOutChartFromCarouselCommand
+  | UpdateChartRegionCommand;
 
 export type Command = CoreCommand | LocalCommand;
 
