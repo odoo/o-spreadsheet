@@ -577,7 +577,7 @@ migrationStepRegistry
       return data;
     },
   })
-  .add("19.2.1", {
+  .add("19.3.1", {
     migrate(data: WorkbookData): any {
       for (const sheet of data.sheets || []) {
         for (const figure of sheet.figures || []) {
@@ -589,7 +589,7 @@ migrationStepRegistry
       return data;
     },
   })
-  .add("19.2.2", {
+  .add("19.3.2", {
     migrate(data: WorkbookData): any {
       function upgrade(definition: any): any {
         if (!("dataSets" in definition)) {
@@ -630,29 +630,6 @@ migrationStepRegistry
         }
       }
       return data;
-    },
-  })
-  .add("19.2.3", {
-    migrate(data: WorkbookData): any {
-      return data;
-      // for (const sheet of data.sheets || []) {
-      //   for (const figure of sheet.figures || []) {
-      //     if (figure.tag === "chart") {
-      //       const definition = figure.data;
-      //       const allowedDefinitionKeys = new Set(
-      //         chartTypeRegistry.get(definition.type).allowedDefinitionKeys
-      //       );
-      //       allowedDefinitionKeys.add("chartId");
-      //       allowedDefinitionKeys.add("dataSets");
-      //       for (const key in definition) {
-      //         if (!allowedDefinitionKeys.has(key)) {
-      //           delete definition[key];
-      //         }
-      //       }
-      //     }
-      //   }
-      // }
-      // return data;
     },
   });
 

@@ -842,40 +842,65 @@ test("migrate version 19.1.0: colorScale is changed to a colorScale", () => {
   expect(model.getters.getChartRuntime(chartIds[1])).toBeDefined();
 });
 
-test("migrate version 19.2.1: remove extra keys from chart definition", () => {
-  const definition = {
-    type: "line",
-    title: "demo chart",
-    humanize: true,
-    dataSource: {
-      type: "range",
-      labelRange: "A1:A4",
-      dataSets: [],
-      dataSetsHaveTitle: false,
-    },
-  };
-  const data = {
-    version: "18.5.1",
+test("migrate version 19.3.2: change datasets to dataSource", () => {
+  const model = new Model({
+    version: "19.3.1",
     sheets: [
       {
         id: "sh1",
         figures: [
           {
-            id: "someuuid",
+            id: "chartFigure1",
             tag: "chart",
             data: {
-              ...definition,
-              chartId: "someuuid",
-              extraKey1: "extraValue1",
-              extraKey2: "extraValue2",
+              chartId: "chartFigure1",
+              type: "bar",
+              dataSets: [{ dataRange: "A1:A3" }, { dataRange: "B1:B3", yAxisId: "y2" }],
+              dataSetsHaveTitle: true,
+              labelRange: "Sheet1!C1:C3",
+              title: { text: "Test Chart" },
+              background: "#FFFFFF",
+            },
+          },
+          {
+            id: "carouselFigure",
+            tag: "carousel",
+            data: {
+              chartDefinitions: {
+                carouselChart: {
+                  chartId: "carouselChart",
+                  type: "line",
+                  dataSets: [{ dataRange: "D1:D3" }],
+                  dataSetsHaveTitle: false,
+                  labelRange: "Sheet1!E1:E3",
+                },
+              },
             },
           },
         ],
       },
     ],
-  };
-  const model = new Model(data);
-  expect(model.getters.getChartDefinition("someuuid")).toEqual(definition);
+  });
+  const exportedData = model.exportData();
+
+  expect(exportedData.sheets[0].figures[0].data).toMatchObject(
+    toChartDataSource({
+      dataSets: [{ dataRange: "A1:A3" }, { dataRange: "B1:B3", yAxisId: "y2" }],
+      dataSetsHaveTitle: true,
+      labelRange: "Sheet1!C1:C3",
+    })
+  );
+  expect(exportedData.sheets[0].figures[0].data.dataSets).toBeUndefined();
+  expect(exportedData.sheets[0].figures[0].data.dataSetsHaveTitle).toBeUndefined();
+  expect(exportedData.sheets[0].figures[0].data.labelRange).toBeUndefined();
+
+  expect(exportedData.sheets[0].figures[1].data.chartDefinitions["carouselChart"]).toMatchObject(
+    toChartDataSource({
+      dataSets: [{ dataRange: "D1:D3" }],
+      dataSetsHaveTitle: false,
+      labelRange: "Sheet1!E1:E3",
+    })
+  );
 });
 
 describe("Import", () => {
