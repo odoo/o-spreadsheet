@@ -49,6 +49,7 @@ import {
 import { createEqualCF, target, toRangeData, toRangesData } from "./helpers";
 
 import { ICON_SETS } from "@odoo/o-spreadsheet-engine/components/icons/icons";
+import { MyChart } from "@odoo/o-spreadsheet-engine/helpers/figures/chart";
 import { chartDataSourceRegistry } from "@odoo/o-spreadsheet-engine/registries/chart_data_source_registry";
 import { chartTypeRegistry } from "@odoo/o-spreadsheet-engine/registries/chart_registry";
 import {
@@ -267,13 +268,7 @@ export function createChart(
     dataSource: data.dataSource ?? { type: "range", dataSets: [], dataSetsHaveTitle: false },
     dataSetStyles: data.dataSetStyles ?? {},
   };
-
-  const keys = new Set(chartTypeRegistry.get(data.type).allowedDefinitionKeys);
-  for (const key of Object.keys(definition)) {
-    if (!keys.has(key)) {
-      delete definition[key];
-    }
-  }
+  MyChart.deleteInvalidKeys(definition);
   return model.dispatch("CREATE_CHART", {
     figureId: figureData.figureId || model.uuidGenerator.smallUuid(),
     chartId: id,
