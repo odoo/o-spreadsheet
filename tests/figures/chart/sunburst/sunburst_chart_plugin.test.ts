@@ -33,15 +33,15 @@ function toChartJSCtx(data: SunburstChartRawData) {
 
 // prettier-ignore
 const SUNBURST_DATASET = {
-  A2: "Q1", B2: "January", C2: "", D2: "10",
-  A3: "Q1", B3: "February", C3: "", D3: "20",
-  A4: "Q1", B4: "March", C4: "W1", D4: "30",
-  A5: "Q1", B5: "March", C5: "W2", D5: "40",
-  A6: "Q1", B6: "March", C6: "W3", D6: "50",
-  A7: "Q2", B7: "April", C7: "", D7: "60",
-  A8: "Q2", B8: "May", C8: "", D8: "70",
-  A9: "Q2", B9: "June", C9: "", D9: "80",
-  A10: "Q3", B10: "", C10: "", D10: "200",
+  A2:  "Q1", B2: "January",  C2: "",    D2: "10",
+  A3:  "Q1", B3: "February", C3: "",    D3: "20",
+  A4:  "Q1", B4: "March",    C4: "W1",  D4: "30",
+  A5:  "Q1", B5: "March",    C5: "W2",  D5: "40",
+  A6:  "Q1", B6: "March",    C6: "W3",  D6: "50",
+  A7:  "Q2", B7: "April",    C7: "",    D7: "60",
+  A8:  "Q2", B8: "May",      C8: "",    D8: "70",
+  A9:  "Q2", B9: "June",     C9: "",    D9: "80",
+  A10: "Q3", B10: "",        C10: "",   D10: "200",
 };
 
 describe("Sunburst chart chart", () => {
@@ -213,12 +213,12 @@ describe("Sunburst chart chart", () => {
   test("Can define groups in a tree-like structure", () => {
     // prettier-ignore
     const grid = {
-      A2: "Q1", B2: "January", C2: "W1", D2: "10",
-      A5: "", B5: "", C5: "W2", D5: "20",
-      A6: "", B6: "February", C6: "W1", D6: "30",
-      A7: "", B7: "", C7: "W2", D7: "40",
-      A8: "Q2", B8: "April", C8: "W1", D8: "50",
-      A9: "", B9: "", C9: "W2", D9: "60",
+      A2:  "Q1", B2: "January",  C2: "W1",  D2: "10",
+      A5:  "",   B5: "",         C5: "W2",  D5: "20",
+      A6:  "",   B6: "February", C6: "W1",  D6: "30",
+      A7:  "",   B7: "",         C7: "W2",  D7: "40",
+      A8:  "Q2", B8: "April",    C8: "W1",  D8: "50",
+      A9:  "",   B9: "",         C9: "W2",  D9: "60",
     };
     setGrid(model, grid);
     const chartId = createSunburstChart(model, {
@@ -252,10 +252,10 @@ describe("Sunburst chart chart", () => {
   test("Invalid points are ignored", () => {
     // prettier-ignore
     const grid = {
-      A1: "", B1: "RandomMonth", C1: "W1", D1: "10", // No root group
-      A2: "Q1", B2: "January", C2: "W1", D2: "NotANumber", // Invalid value
-      A5: "Q2", B5: "", C5: "W2", D5: "20", // Week is defined but bit the month
-      A6: "Q3", B6: "September", C6: "W1", D6: "30", // Valid
+      A1: "",    B1: "RandomMonth", C1: "W1", D1: "10", // No root group
+      A2:  "Q1", B2: "January",     C2: "W1",  D2: "NotANumber", // Invalid value
+      A5:  "Q2", B5: "",            C5: "W2",  D5: "20", // Week is defined but bit the month
+      A6:  "Q3",   B6: "September", C6: "W1",  D6: "30", // Valid
     };
     setGrid(model, grid);
     const chartId = createSunburstChart(model, {
@@ -281,8 +281,8 @@ describe("Sunburst chart chart", () => {
   test("Cannot mix positive and negative values", () => {
     // prettier-ignore
     const grid = {
-      A2: "G1", B2: "20",
-      A3: "G2", B3: "-10",
+        A2: "G1",    B2: "20",
+        A3: "G2",    B3: "-10",
     };
     setGrid(model, grid);
     const chartId = createSunburstChart(model, {

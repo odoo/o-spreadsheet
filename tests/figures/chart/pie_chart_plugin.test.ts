@@ -80,8 +80,8 @@ describe("pie chart", () => {
   test("Empty legend items are filtered out", () => {
     // prettier-ignore
     const model = createModelFromGrid({
-      A1: "", B1: "1",
-      A2: "P2", B2: "2",
+      A1: "",    B1: "1",
+      A2: "P2",  B2: "2",
     });
 
     createChart(

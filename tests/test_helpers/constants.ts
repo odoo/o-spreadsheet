@@ -13,8 +13,8 @@ import {
   Locale,
   TableStyle,
 } from "../../src/types";
-import { target, toRangesData } from "./helpers";
 import { toChartDataSource } from "./chart_helpers";
+import { target, toRangesData } from "./helpers";
 
 export const TEST_CHART_DATA = {
   basicChart: {

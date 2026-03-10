@@ -883,12 +883,12 @@ export function getChartLabelFormat(labelValues: LabelValues): Format | undefine
  * found in the dataset ranges that isn't a date format.
  */
 function getChartDatasetFormat(
-  DataSetStyle: DataSetStyle | undefined,
+  dataSetStyle: DataSetStyle | undefined,
   dataSetValues: DatasetValues[],
   axis: "left" | "right"
 ): Format | undefined {
   const dataSets = dataSetValues.filter(
-    (ds) => (axis === "right") === (DataSetStyle?.[ds.dataSetId]?.yAxisId === "y1")
+    (ds) => (axis === "right") === (dataSetStyle?.[ds.dataSetId]?.yAxisId === "y1")
   );
   for (const ds of dataSets) {
     const cell = ds.data.find(({ format }) => format !== undefined && !isDateTimeFormat(format));
