@@ -47,22 +47,19 @@ export class StandaloneComposerStore extends AbstractComposerStore {
   }
 
   protected getComposerContent() {
-    let content = this._currentContent;
-    if (this.editionMode === "inactive") {
-      // References in the content might not be linked to the current active sheet
-      // We here force the sheet name prefix for all references that are not in
-      // the current active sheet
-      const defaultRangeSheetId = this.args().defaultRangeSheetId;
-      content = rangeTokenize(this.args().content)
-        .map((token) => {
-          if (token.type === "REFERENCE") {
-            const range = this.getters.getRangeFromSheetXC(defaultRangeSheetId, token.value);
-            return this.getters.getRangeString(range, this.getters.getActiveSheetId());
-          }
-          return token.value;
-        })
-        .join("");
-    }
+    // References in the content might not be linked to the current active sheet
+    // We here force the sheet name prefix for all references that are not in
+    // the current active sheet
+    const defaultRangeSheetId = this.args().defaultRangeSheetId;
+    const content = rangeTokenize(this.args().content)
+      .map((token) => {
+        if (token.type === "REFERENCE") {
+          const range = this.getters.getRangeFromSheetXC(defaultRangeSheetId, token.value);
+          return this.getters.getRangeString(range, this.getters.getActiveSheetId());
+        }
+        return token.value;
+      })
+      .join("");
     return { text: localizeContent(content, this.getters.getLocale()) };
   }
 
