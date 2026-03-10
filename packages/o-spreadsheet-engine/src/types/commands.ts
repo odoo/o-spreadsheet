@@ -947,6 +947,12 @@ export interface AutoresizeRowsCommand {
   rows: HeaderIndex[];
 }
 
+export interface AddSpillMissingHeadersCommand extends SheetDependentCommand {
+  type: "ADD_SPILL_MISSING_HEADERS";
+  missingCols: number;
+  missingRows: number;
+}
+
 export interface ActivateSheetCommand {
   type: "ACTIVATE_SHEET";
   sheetIdFrom: UID;
@@ -1292,6 +1298,7 @@ export type LocalCommand =
   | PasteFromOSClipboardCommand
   | AutoresizeColumnsCommand
   | AutoresizeRowsCommand
+  | AddSpillMissingHeadersCommand
   | MoveColumnsRowsCommand
   | ActivateSheetCommand
   | EvaluateCellsCommand

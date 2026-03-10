@@ -316,27 +316,7 @@ export class CellComposerStore extends AbstractComposerStore {
     if (!missingHeaders) {
       return;
     }
-
-    if (missingHeaders.missingCols > 0) {
-      this.model.dispatch("ADD_COLUMNS_ROWS", {
-        sheetId: this.sheetId,
-        sheetName: this.getters.getSheetName(this.sheetId),
-        dimension: "COL",
-        base: this.getters.getNumberCols(this.sheetId) - 1,
-        position: "after",
-        quantity: missingHeaders.missingCols + 20,
-      });
-    }
-    if (missingHeaders.missingRows > 0) {
-      this.model.dispatch("ADD_COLUMNS_ROWS", {
-        sheetId: this.sheetId,
-        sheetName: this.getters.getSheetName(this.sheetId),
-        dimension: "ROW",
-        base: this.getters.getNumberRows(this.sheetId) - 1,
-        position: "after",
-        quantity: missingHeaders.missingRows + 50,
-      });
-    }
+    this.model.dispatch("ADD_SPILL_MISSING_HEADERS", { sheetId: this.sheetId, ...missingHeaders });
   }
 
   private checkDataValidation(): boolean {
