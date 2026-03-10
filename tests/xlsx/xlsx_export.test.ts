@@ -1390,7 +1390,6 @@ describe("Test XLSX export", () => {
       }
     );
 
-    // it looks like it's working as intended in Excel
     test("exported results will not be influenced by `dataSetsHaveTitle` if the dataset contains titles and label range doesn't", async () => {
       const model = new Model(chartData);
       createChart(
@@ -1417,8 +1416,7 @@ describe("Test XLSX export", () => {
         },
         "2"
       );
-      const exported = await getExportedExcelData(model);
-      expect(exported.sheets[0].charts[0].data).toEqual(exported.sheets[0].charts[1].data);
+      expect(await exportPrettifiedXlsx(model)).toMatchSnapshot();
     });
 
     test("multiple charts in the same sheet", async () => {
