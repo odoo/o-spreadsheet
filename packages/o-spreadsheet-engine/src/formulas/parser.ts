@@ -265,13 +265,24 @@ function parseFunctionArgs(tokens: TokenList) {
 
 function parseOneFunctionArg(tokens: TokenList): AST {
   const nextToken = tokens.current;
-  if (nextToken?.type === "ARG_SEPARATOR" || nextToken?.type === "RIGHT_PAREN") {
-    // arg is empty: "sum(1,,2)" "sum(,1)" "sum(1,)"
+  if (nextToken?.type === "ARG_SEPARATOR") {
+    // arg is empty: "sum(1,,2)" "sum(,1)"
     return {
       type: "EMPTY",
       value: "",
       tokenStartIndex: nextToken.tokenIndex,
       tokenEndIndex: nextToken.tokenIndex,
+    };
+  }
+  if (nextToken?.type === "RIGHT_PAREN") {
+    // arg is empty: "sum(1,)"
+    // we return the previous token to ensure that the right parenthesis
+    // is not matched to this token
+    return {
+      type: "EMPTY",
+      value: "",
+      tokenStartIndex: nextToken.tokenIndex - 1,
+      tokenEndIndex: nextToken.tokenIndex - 1,
     };
   }
   return parseExpression(tokens);

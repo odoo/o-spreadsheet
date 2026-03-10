@@ -1,4 +1,5 @@
 import { astToFormula } from "@odoo/o-spreadsheet-engine/formulas/formula_formatter";
+import { ASTFuncall, parseTokens } from "@odoo/o-spreadsheet-engine/formulas/parser";
 import { CellErrorType, parse, tokenize } from "../../src";
 
 describe("parser", () => {
@@ -597,4 +598,19 @@ describe("Converting AST to string", () => {
     expect(astToFormula(parse("5+4"))).toBe("5+4");
     expect(astToFormula(parse("+5"))).toBe("+5");
   });
+
+  test.each(["=SUM(1, 2)", "=SUM(1,)", "=SUM(,2)", "=SUM(,)"])(
+    "Parsed function args always matched to ARG_SEPARATORS when possible",
+    (string) => {
+      const tokens = tokenize(string);
+      const parsedTokens = parseTokens(tokens) as ASTFuncall;
+
+      expect(["RIGHT_PAREN", "LEFT_PAREN"]).not.toContain(
+        tokens[parsedTokens.args[0].tokenStartIndex].type
+      );
+      expect(["RIGHT_PAREN", "LEFT_PAREN"]).not.toContain(
+        tokens[parsedTokens.args[1].tokenStartIndex].type
+      );
+    }
+  );
 });
