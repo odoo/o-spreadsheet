@@ -1,3 +1,4 @@
+import { MyChart } from "@odoo/o-spreadsheet-engine/helpers/figures/chart";
 import { chartDataSourceRegistry } from "@odoo/o-spreadsheet-engine/registries/chart_data_source_registry";
 import { chartTypeRegistry } from "@odoo/o-spreadsheet-engine/registries/chart_registry";
 import { chartSubtypeRegistry } from "@odoo/o-spreadsheet-engine/registries/chart_subtype_registry";
@@ -87,9 +88,11 @@ export class MainChartPanelStore extends SpreadsheetStore {
     const DataSourceBuilder = chartDataSourceRegistry.get(
       creationContext.dataSource?.type ?? "range"
     );
-    return {
+    const definition = {
       ...ChartTypeBuilder.getDefinitionFromContextCreation(creationContext, DataSourceBuilder),
       ...newChartInfo.subtypeDefinition,
     } as ChartDefinition;
+    MyChart.deleteInvalidKeys(definition);
+    return definition;
   }
 }
