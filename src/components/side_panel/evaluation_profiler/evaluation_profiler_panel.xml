@@ -1,0 +1,65 @@
+<templates>
+  <t t-name="o-spreadsheet-EvaluationProfilerPanel">
+    <div class="o-evaluation-profiler">
+      <Section>
+        <div class="o-sidePanelButtons">
+          <button class="o-button o-primary" t-on-click="runProfiling">Profile evaluation</button>
+        </div>
+      </Section>
+      <t t-if="state.hasResults">
+        <Section title.translate="Results">
+          <div class="o-profiler-sort-buttons d-flex gap-2 mb-2">
+            <button
+              t-att-class="'o-button' + (state.sortKey === 'totalTime' ? ' active' : '')"
+              t-on-click="() => this.setSortKey('totalTime')">
+              Sort by total time
+            </button>
+            <button
+              t-att-class="'o-button' + (state.sortKey === 'selfTime' ? ' active' : '')"
+              t-on-click="() => this.setSortKey('selfTime')">
+              Sort by self time
+            </button>
+          </div>
+          <table class="o-profiler-table w-100">
+            <thead>
+              <tr>
+                <th>Sheet</th>
+                <th>Cell</th>
+                <th>Self time</th>
+                <th>Total time</th>
+              </tr>
+            </thead>
+            <tbody>
+              <t t-foreach="sortedTimings" t-as="row" t-key="row.sheetName + '!' + row.xc">
+                <tr class="o-profiler-row" t-on-click="() => this.selectCell(row.position)">
+                  <td class="o-profiler-sheet-name">
+                    <t t-esc="row.sheetName"/>
+                  </td>
+                  <td class="o-profiler-cell-ref">
+                    <t t-esc="row.xc"/>
+                  </td>
+                  <td class="o-profiler-time">
+                    <t t-esc="formatTime(row.selfTime)"/>
+                  </td>
+                  <td class="o-profiler-time">
+                    <t t-esc="formatTime(row.totalTime)"/>
+                  </td>
+                </tr>
+              </t>
+            </tbody>
+          </table>
+          <div t-if="sortedTimings.length === 0" class="o-profiler-empty">
+            No formula cells found.
+          </div>
+          <div t-elif="state.totalCount > maxVisibleRows" class="o-profiler-truncated">
+            Showing top
+            <t t-esc="maxVisibleRows"/>
+            of
+            <t t-esc="state.totalCount"/>
+            cells.
+          </div>
+        </Section>
+      </t>
+    </div>
+  </t>
+</templates>

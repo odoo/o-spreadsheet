@@ -363,3 +363,19 @@ export const DVARP = {
   },
   isExported: true,
 } satisfies AddFunctionDescription;
+
+export const SLOW = {
+  description: _t("Slow a cell"),
+  args: [arg("ms (number, optional)", "ms to wait.")],
+  compute: function (ms: Maybe<FunctionResultNumber>): FunctionResultNumber {
+    const start = performance.now();
+    const delay = ms?.value || 1;
+    while (performance.now() < start + delay) {
+      continue;
+    }
+    return {
+      value: delay,
+    };
+  },
+  isExported: true,
+} satisfies AddFunctionDescription;

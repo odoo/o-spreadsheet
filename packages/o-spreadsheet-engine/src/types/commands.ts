@@ -958,6 +958,10 @@ export interface EvaluateCellsCommand {
   cellIds?: number[];
 }
 
+export interface ProfileCellsCommand {
+  type: "PROFILE_CELLS";
+}
+
 export interface EvaluateChartsCommand {
   type: "EVALUATE_CHARTS";
 }
@@ -1338,7 +1342,8 @@ export type LocalCommand =
   | AddFigureChartToCarouselCommand
   | DuplicateCarouselChartCommand
   | UpdateCarouselActiveItemCommand
-  | PopOutChartFromCarouselCommand;
+  | PopOutChartFromCarouselCommand
+  | ProfileCellsCommand;
 
 export type Command = CoreCommand | LocalCommand;
 
@@ -1552,6 +1557,7 @@ export type CoreViewCommand =
   | CoreCommand
   | EvaluateCellsCommand
   | EvaluateChartsCommand
+  | ProfileCellsCommand
   | UndoCommand
   | RedoCommand;
 export type CoreViewCommandTypes = CoreViewCommand["type"];
