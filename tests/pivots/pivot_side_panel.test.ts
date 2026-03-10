@@ -195,6 +195,38 @@ describe("Pivot side panel", () => {
     expect(definition.collapsedDomains?.ROW).toHaveLength(0);
   });
 
+  test("External update of the calulated formula impacts the side panel", async () => {
+    // prettier-ignore
+    setGrid(model, {
+      A1: "Partner", B1: "Amount",
+      A2: "Alice", B2: "10",
+      A5: "=PIVOT(1)"
+    });
+
+    const sheetId = model.getters.getActiveSheetId();
+    const calculatedMeasure = {
+      id: "calc",
+      fieldName: "calc",
+      aggregator: "sum",
+      computedBy: { formula: "=25", sheetId },
+    };
+    updatePivot(model, "1", { measures: [calculatedMeasure] });
+    env.openSidePanel("PivotSidePanel", { pivotId: "1" });
+    await nextTick();
+
+    expect(".o-sidePanel .o-composer").toHaveText("=25");
+
+    updatePivot(model, "1", {
+      measures: [{ ...calculatedMeasure, computedBy: { formula: "=50", sheetId } }],
+    });
+    await nextTick();
+    expect(".o-sidePanel .o-composer").toHaveText("=50");
+
+    // Focus the composer. It should stay the same value
+    await simulateClick(".o-sidePanel .o-composer");
+    expect(".o-sidePanel .o-composer").toHaveText("=50");
+  });
+
   test("Collapsed dimension with correct field but wrong value is not filtered out at pivot update", async () => {
     // Note: we don't want to remove those, because different users may have different value,
     // and a domain might be valid for one user and not for another
