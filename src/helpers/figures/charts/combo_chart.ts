@@ -60,6 +60,7 @@ export class ComboChart extends AbstractChart {
   readonly axesDesign?: AxesDesign;
   readonly type = "combo";
   readonly showValues?: boolean;
+  readonly showTotals?: boolean;
   readonly hideDataMarkers?: boolean;
   readonly zoomable?: boolean;
 
@@ -79,6 +80,7 @@ export class ComboChart extends AbstractChart {
     this.dataSetDesign = definition.dataSets;
     this.axesDesign = definition.axesDesign;
     this.showValues = definition.showValues;
+    this.showTotals = definition.showTotals;
     this.hideDataMarkers = definition.hideDataMarkers;
     this.zoomable = definition.zoomable;
   }
@@ -145,6 +147,7 @@ export class ComboChart extends AbstractChart {
       aggregated: this.aggregated,
       axesDesign: this.axesDesign,
       showValues: this.showValues,
+      showTotals: this.showTotals,
       hideDataMarkers: this.hideDataMarkers,
       zoomable: this.zoomable,
       humanize: this.humanize,
@@ -198,6 +201,7 @@ export class ComboChart extends AbstractChart {
       type: "combo",
       axesDesign: context.axesDesign,
       showValues: context.showValues,
+      showTotals: context.showTotals,
       hideDataMarkers: context.hideDataMarkers,
       zoomable: context.zoomable,
       humanize: context.humanize,

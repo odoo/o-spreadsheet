@@ -1,0 +1,10 @@
+<templates>
+  <t t-name="o-spreadsheet-ChartShowTotals">
+    <Checkbox
+      name="'showTotals'"
+      label.translate="Show totals"
+      value="this.props.definition.showTotals"
+      onChange="(showTotals) => this.props.updateChart(this.props.chartId, { showTotals })"
+    />
+  </t>
+</templates>

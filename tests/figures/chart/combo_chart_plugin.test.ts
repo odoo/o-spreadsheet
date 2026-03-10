@@ -38,6 +38,7 @@ describe("combo chart", () => {
       aggregated: true,
       axesDesign: {},
       showValues: false,
+      showTotals: false,
       hideDataMarkers: false,
       zoomable: true,
       humanize: false,
