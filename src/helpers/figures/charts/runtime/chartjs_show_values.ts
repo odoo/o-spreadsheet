@@ -26,6 +26,8 @@ export function getChartShowValues(
     type: definition.type,
     horizontal: "horizontal" in definition && definition.horizontal,
     showValues: "showValues" in definition ? !!definition.showValues : false,
+    showTotals: "showTotals" in definition ? !!definition.showTotals : false,
+    stacked: "stacked" in definition ? !!definition.stacked : false,
     background: () => definition.background,
     callback: (value: number | string, dataset: ChartMeta) => {
       const axisId = getDatasetAxisId(definition, dataset);
