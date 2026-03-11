@@ -92,7 +92,6 @@ export class MainChartPanelStore extends SpreadsheetStore {
       ...ChartTypeBuilder.getDefinitionFromContextCreation(creationContext, DataSourceBuilder),
       ...newChartInfo.subtypeDefinition,
     } as ChartDefinition;
-    MyChart.deleteInvalidKeys(definition);
-    return definition;
+    return MyChart.deleteInvalidKeys(definition);
   }
 }

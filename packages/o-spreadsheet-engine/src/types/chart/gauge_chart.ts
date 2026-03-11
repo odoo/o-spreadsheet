@@ -10,7 +10,7 @@ export interface GaugeChartDefinition<T extends string | Range = string> {
   readonly sectionRule: SectionRule;
   readonly background?: Color;
   readonly humanize?: boolean;
-  readonly dataSource?: { type: "never" };
+  readonly dataSource?: { type: "none" };
 }
 
 export interface SectionRule {

@@ -134,7 +134,7 @@ export const ChartRangeDataSourceHandler: ChartDataSourceBuilder<"range"> = {
 
   adaptRanges(dataSource, { applyChange }) {
     const dataSetsWithUndefined = dataSource.dataSets
-      // FIXME: I'm cheating here. ds is not supposed to be a DataSet, but a dataSet from definition
+      // FIXME: we are cheating here. `ds` is not supposed to be a DataSet, but a dataSet from definition
       .map((ds: DataSet) => {
         const { range: adaptedRangeStr, changeType } = applyChange(ds.dataRange);
         if (changeType === "REMOVE") {
@@ -384,13 +384,13 @@ export function getData(getters: Getters, ds: DataSet): FunctionResultObject[] {
   return [];
 }
 
-const ChartNeverDataSourceHandler: ChartDataSourceBuilder<"never"> = {
+const ChartNeverDataSourceHandler: ChartDataSourceBuilder<"none"> = {
   supportedChartTypes: [],
-  fromRangeStr: () => ({ type: "never" }),
-  fromContextCreation: () => ({ type: "never" }),
-  fromHierarchicalContextCreation: () => ({ type: "never" }),
+  fromRangeStr: () => ({ type: "none" }),
+  fromContextCreation: () => ({ type: "none" }),
+  fromHierarchicalContextCreation: () => ({ type: "none" }),
   validate: () => CommandResult.Success,
-  transform: () => ({ type: "never" }),
+  transform: () => ({ type: "none" }),
   extractData: () => ({ dataSetsValues: [], labelValues: [] }),
   extractHierarchicalData: () => ({ dataSetsValues: [], labelValues: [] }),
   adaptRanges: (dataSource) => dataSource,
@@ -398,9 +398,8 @@ const ChartNeverDataSourceHandler: ChartDataSourceBuilder<"never"> = {
   duplicateInDuplicatedSheet: (dataSource) => dataSource,
   getContextCreation: () => ({}),
   getHierarchicalContextCreation: () => ({}),
-  toExcelDataSets: () => ({ dataSets: [], labelRange: "" }),
+  toExcelDataSets: () => ({ dataSets: [], labelRange: undefined }),
 };
 
 chartDataSourceRegistry.add("range", ChartRangeDataSourceHandler);
-chartDataSourceRegistry.add("never", ChartNeverDataSourceHandler);
-// allowedKeys: ["type", "dataSets", "dataSetsHaveTitle", "labelRange"],
+chartDataSourceRegistry.add("none", ChartNeverDataSourceHandler);

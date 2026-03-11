@@ -1307,7 +1307,7 @@ describe("charts", () => {
         },
         chartId
       );
-      let definition = model.getters.getChartDefinition(chartId) as LineChartDefinition<string>;
+      const definition = model.getters.getChartDefinition(chartId) as LineChartDefinition<string>;
       const colorsGenerator = new ColorGenerator(2); // default colors
       const firstColor = colorsGenerator.next();
       const secondColor = colorsGenerator.next();
@@ -1318,8 +1318,10 @@ describe("charts", () => {
         undefined,
         true
       );
-      definition = model.getters.getChartDefinition(chartId) as LineChartDefinition<string>;
-      expect(definition).toMatchObject(
+      const newDefinition = model.getters.getChartDefinition(
+        chartId
+      ) as LineChartDefinition<string>;
+      expect(newDefinition).toMatchObject(
         toChartDataSource({
           dataSets: [
             {
@@ -1337,6 +1339,11 @@ describe("charts", () => {
           ],
         })
       );
+      undo(model);
+      const undoneDefinition = model.getters.getChartDefinition(
+        chartId
+      ) as LineChartDefinition<string>;
+      expect(undoneDefinition).toEqual(definition);
     });
   });
 

@@ -31,10 +31,10 @@ export class MyChart {
     sheetId: UID,
     definition: ChartDefinition<string>
   ) {
-    const dataSourceBuilder = chartDataSourceRegistry.get(definition.dataSource?.type ?? "never");
+    const dataSourceBuilder = chartDataSourceRegistry.get(definition.dataSource?.type ?? "none");
     const chartTypeBuilder = chartTypeRegistry.get(definition.type);
     const dataSource = dataSourceBuilder.fromRangeStr(
-      definition.dataSource ?? { type: "never" },
+      definition.dataSource ?? { type: "none" },
       sheetId,
       getters
     );
@@ -42,11 +42,10 @@ export class MyChart {
       ...chartTypeBuilder.fromStrDefinition(definition, sheetId, getters),
       dataSource,
     } as ChartDefinition<Range>;
-    MyChart.deleteInvalidKeys(rangeDefinition);
     return new MyChart(
       getters,
       sheetId,
-      rangeDefinition,
+      MyChart.deleteInvalidKeys(rangeDefinition),
       dataSource,
       chartTypeBuilder,
       dataSourceBuilder
@@ -54,7 +53,7 @@ export class MyChart {
   }
 
   static fromDefinition(getters: CoreGetters, sheetId: UID, definition: ChartDefinition<Range>) {
-    const dataSourceBuilder = chartDataSourceRegistry.get(definition.dataSource?.type ?? "never");
+    const dataSourceBuilder = chartDataSourceRegistry.get(definition.dataSource?.type ?? "none");
     const chartTypeBuilder = chartTypeRegistry.get(definition.type);
     return new MyChart(
       getters,
@@ -68,10 +67,10 @@ export class MyChart {
 
   static validate(validator: Validator, definition: ChartDefinition<string>) {
     const chartTypeBuilder = chartTypeRegistry.get(definition.type);
-    const dataSourceBuilder = chartDataSourceRegistry.get(definition.dataSource?.type ?? "never");
+    const dataSourceBuilder = chartDataSourceRegistry.get(definition.dataSource?.type ?? "none");
     return validator.batchValidations(
       () => chartTypeBuilder.validateDefinition(validator, definition),
-      () => dataSourceBuilder.validate(definition.dataSource ?? { type: "never" }, validator)
+      () => dataSourceBuilder.validate(definition.dataSource ?? { type: "none" }, validator)
     )(undefined); // Typescript requires a parameter but we don't use it (`definition` is captured by closure)
   }
 
@@ -84,7 +83,7 @@ export class MyChart {
     if (!definition.dataSource) {
       return chartTypeBuilder.transformDefinition(definition, chartSheetId, rangeAdapters);
     }
-    const dataSourceBuilder = chartDataSourceRegistry.get(definition.dataSource?.type ?? "never");
+    const dataSourceBuilder = chartDataSourceRegistry.get(definition.dataSource?.type ?? "none");
     const newDataSource = dataSourceBuilder.transform(
       definition.dataSource,
       chartSheetId,
@@ -161,15 +160,12 @@ export class MyChart {
 
   getContextCreation(): ChartCreationContext {
     const definition = this.getDefinition();
-    const dataSourceDefinition =
-      this.dataSource &&
-      this.dataSourceBuilder.getDefinition(this.dataSource, this.sheetId, this.getters);
     return {
-      ...this.dataSourceBuilder.getContextCreation(definition.dataSource ?? { type: "never" }),
+      ...this.dataSourceBuilder.getContextCreation(definition.dataSource ?? { type: "none" }),
       ...this.chartTypeBuilder.getContextCreation(
         definition,
         this.dataSourceBuilder,
-        dataSourceDefinition
+        definition.dataSource
       ),
     };
   }
@@ -229,11 +225,13 @@ export class MyChart {
   }
 
   static deleteInvalidKeys(definition: ChartDefinition<any>) {
+    definition = { ...definition };
     const keys = new Set(chartTypeRegistry.get(definition.type).allowedDefinitionKeys);
     for (const key of Object.keys(definition)) {
       if (!keys.has(key)) {
         delete definition[key];
       }
     }
+    return definition;
   }
 }
