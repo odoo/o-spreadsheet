@@ -10,6 +10,7 @@ exports[`Context MenuPopover integration tests context menu simple rendering 1`]
     class="o-menu-item d-flex justify-content-between align-items-center"
     data-name="cut"
     style=""
+    tabindex="-1"
     title="Cut"
   >
     <div
@@ -49,6 +50,7 @@ exports[`Context MenuPopover integration tests context menu simple rendering 1`]
     class="o-menu-item d-flex justify-content-between align-items-center"
     data-name="copy"
     style=""
+    tabindex="-1"
     title="Copy"
   >
     <div
@@ -86,6 +88,7 @@ exports[`Context MenuPopover integration tests context menu simple rendering 1`]
     class="o-menu-item d-flex justify-content-between align-items-center"
     data-name="paste"
     style=""
+    tabindex="-1"
     title="Paste"
   >
     <div
@@ -125,6 +128,7 @@ exports[`Context MenuPopover integration tests context menu simple rendering 1`]
     class="o-menu-item d-flex justify-content-between align-items-center"
     data-name="paste_special"
     style=""
+    tabindex="-1"
     title="Paste special"
   >
     <div
@@ -176,6 +180,7 @@ exports[`Context MenuPopover integration tests context menu simple rendering 1`]
     class="o-menu-item d-flex justify-content-between align-items-center"
     data-name="add_row_before"
     style=""
+    tabindex="-1"
     title="Insert row"
   >
     <div
@@ -210,6 +215,7 @@ exports[`Context MenuPopover integration tests context menu simple rendering 1`]
     class="o-menu-item d-flex justify-content-between align-items-center"
     data-name="add_column_before"
     style=""
+    tabindex="-1"
     title="Insert column"
   >
     <div
@@ -244,6 +250,7 @@ exports[`Context MenuPopover integration tests context menu simple rendering 1`]
     class="o-menu-item d-flex justify-content-between align-items-center"
     data-name="insert_cell"
     style=""
+    tabindex="-1"
     title="Insert cells"
   >
     <div
@@ -295,6 +302,7 @@ exports[`Context MenuPopover integration tests context menu simple rendering 1`]
     class="o-menu-item d-flex justify-content-between align-items-center"
     data-name="delete_row"
     style=""
+    tabindex="-1"
     title="Delete row 8"
   >
     <div
@@ -327,6 +335,7 @@ exports[`Context MenuPopover integration tests context menu simple rendering 1`]
     class="o-menu-item d-flex justify-content-between align-items-center"
     data-name="delete_column"
     style=""
+    tabindex="-1"
     title="Delete column C"
   >
     <div
@@ -359,6 +368,7 @@ exports[`Context MenuPopover integration tests context menu simple rendering 1`]
     class="o-menu-item d-flex justify-content-between align-items-center"
     data-name="delete_cell"
     style=""
+    tabindex="-1"
     title="Delete cells"
   >
     <div
@@ -408,6 +418,7 @@ exports[`Context MenuPopover integration tests context menu simple rendering 1`]
     class="o-menu-item d-flex justify-content-between align-items-center"
     data-name="insert_link"
     style=""
+    tabindex="-1"
     title="Insert link"
   >
     <div
