@@ -6,6 +6,7 @@ import { _t } from "../translation";
 import { SpreadsheetChildEnv } from "../types/spreadsheet_env";
 import { ActionSpec } from "./action";
 import * as ACTIONS from "./menu_items_actions";
+import { FIRST_TABLE_IN_SELECTION } from "./menu_items_actions";
 
 export const undo: ActionSpec = {
   name: _t("Undo"),
@@ -159,7 +160,12 @@ export const mergeCells: ActionSpec = {
 
 export const editTable: ActionSpec = {
   name: () => _t("Edit table"),
-  execute: (env) => env.openSidePanel("TableSidePanel", {}),
+  execute: (env) => {
+    const table = FIRST_TABLE_IN_SELECTION(env);
+    if (table) {
+      env.openSidePanel("TableSidePanel", { table });
+    }
+  },
   icon: "o-spreadsheet-Icon.EDIT_TABLE",
 };
 
