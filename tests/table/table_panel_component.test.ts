@@ -37,8 +37,9 @@ describe("Table side panel", () => {
     model = new Model();
     sheetId = model.getters.getActiveSheetId();
     createTable(model, "A1:C3");
+    const table = model.getters.getFirstTableInSelection();
     ({ fixture, env } = await mountComponentWithPortalTarget(SidePanels, { model }));
-    env.openSidePanel("TableSidePanel", {});
+    env.openSidePanel("TableSidePanel", { table });
     await nextTick();
   });
 
@@ -169,7 +170,7 @@ describe("Table side panel", () => {
     expect(getTable(model, sheetId).range.zone).toEqual(toZone("A1"));
   });
 
-  test("Changing the selection changes the edited table", async () => {
+  test("Changing the selection does not change the edited table", async () => {
     createTable(model, "D1:D2");
     updateTableConfig(model, "D1:D2", { numberOfHeaders: 0 });
 
@@ -178,22 +179,22 @@ describe("Table side panel", () => {
 
     setSelection(model, ["D1"]);
     await nextTick();
-    expect(fixture.querySelector<HTMLInputElement>("input[name='headerRow']")!.checked).toBe(false);
-    expect(fixture.querySelector<HTMLInputElement>(".o-selection input")!.value).toBe("D1:D2");
+    expect(fixture.querySelector<HTMLInputElement>("input[name='headerRow']")!.checked).toBe(true);
+    expect(fixture.querySelector<HTMLInputElement>(".o-selection input")!.value).toBe("A1:C3");
   });
 
-  test("Selecting a cell without a table closes the side panel", async () => {
+  test("Selecting a cell without a table does not close the side panel", async () => {
     setSelection(model, ["D1"]);
     await nextTick();
-    expect(fixture.querySelector(".o-table-panel")).toBeNull();
+    expect(fixture.querySelector(".o-table-panel")).not.toBeNull();
   });
 
-  test("Selecting a cell with a pivot table closes the table panel", async () => {
+  test("Selecting a cell with a pivot table does not close the table panel", async () => {
     setGrid(model, { A1: "Header1", B1: "Header2", A2: "Data1", B2: "Data2", F1: "=PIVOT(1)" });
     addPivot(model, "A1:B2", { style: { tableStyleId: "PivotTableStyleMedium9" } });
     setSelection(model, ["F1"]);
     await nextTick();
-    expect(fixture.querySelector(".o-table-panel")).toBeNull();
+    expect(fixture.querySelector(".o-table-panel")).not.toBeNull();
   });
 
   test("Can edit the table style", async () => {
