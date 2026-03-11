@@ -14,7 +14,7 @@ export interface ScorecardChartDefinition<T extends string | Range = string> {
   readonly baselineColorUp: Color;
   readonly baselineColorDown: Color;
   readonly humanize?: boolean;
-  readonly dataSource?: { type: "never" };
+  readonly dataSource?: { type: "none" };
 }
 
 export type BaselineMode = "text" | "difference" | "percentage" | "progress";

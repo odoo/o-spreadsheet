@@ -252,7 +252,6 @@ export function createChart(
     dataSource: data.dataSource ?? { type: "range", dataSets: [], dataSetsHaveTitle: false },
     dataSetStyles: data.dataSetStyles ?? {},
   };
-  MyChart.deleteInvalidKeys(definition);
   return model.dispatch("CREATE_CHART", {
     figureId: figureData.figureId || model.uuidGenerator.smallUuid(),
     chartId: id,
@@ -262,7 +261,7 @@ export function createChart(
     size: { width: 536, height: 335 },
     offset: { x: 0, y: 0 },
     ...figureData,
-    definition,
+    definition: MyChart.deleteInvalidKeys(definition),
   });
 }
 
