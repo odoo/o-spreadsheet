@@ -182,10 +182,10 @@ describe("Table side panel", () => {
     expect(fixture.querySelector<HTMLInputElement>(".o-selection input")!.value).toBe("D1:D2");
   });
 
-  test("Selecting a cell without a table closes the side panel", async () => {
+  test("Selecting a cell without a table does not close the side panel", async () => {
     setSelection(model, ["D1"]);
     await nextTick();
-    expect(fixture.querySelector(".o-table-panel")).toBeNull();
+    expect(fixture.querySelector(".o-table-panel")).not.toBeNull();
   });
 
   test("Selecting a cell with a pivot table closes the table panel", async () => {

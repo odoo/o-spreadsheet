@@ -17,7 +17,7 @@ import { RemoveDuplicatesPanel } from "../components/side_panel/remove_duplicate
 import { SettingsPanel } from "../components/side_panel/settings/settings_panel";
 import { SidePanelState } from "../components/side_panel/side_panel/side_panel_store";
 import { SplitIntoColumnsPanel } from "../components/side_panel/split_to_columns_panel/split_to_columns_panel";
-import { TablePanel } from "../components/side_panel/table_panel/table_panel";
+import { TablePanel, TablePanelProps } from "../components/side_panel/table_panel/table_panel";
 import {
   TableStyleEditorPanel,
   TableStyleEditorPanelProps,
@@ -123,10 +123,21 @@ sidePanelRegistry.add("ColumnStats", {
 sidePanelRegistry.add("TableSidePanel", {
   title: _t("Edit table"),
   Body: TablePanel,
-  computeState: (getters: Getters) => {
+  computeState: (getters: Getters, props: TablePanelProps) => {
     const table = getters.getFirstTableInSelection();
-    if (!table || table.isPivotTable) {
+    if (table && table.isPivotTable) {
       return { isOpen: false };
+    }
+    if (!table) {
+      const table = getters.getTable({
+        sheetId: props.table.range.sheetId,
+        col: props.table.range.zone.left,
+        row: props.table.range.zone.top,
+      });
+      if (!table) {
+        return { isOpen: false };
+      }
+      return { isOpen: true, props, key: props.table.id };
     }
 
     const coreTable = getters.getCoreTable(getTableTopLeft(table));
