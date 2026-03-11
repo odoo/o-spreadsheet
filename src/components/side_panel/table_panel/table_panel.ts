@@ -1,4 +1,4 @@
-import { proxy, useProps } from "@odoo/owl";
+import { onWillUpdateProps, proxy, useProps } from "@odoo/owl";
 import { getZoneArea, positionToZone } from "../../../helpers/zones";
 import { Component } from "../../../owl3_compatibility_layer";
 import { CommandResult, DispatchResult } from "../../../types/commands";
@@ -6,6 +6,7 @@ import { Zone } from "../../../types/misc";
 import { Range } from "../../../types/range";
 import { TableConfig } from "../../../types/table";
 
+import { deepEquals } from "../../../helpers/misc";
 import { getTableTopLeft } from "../../../helpers/table_helpers";
 import { useStore } from "../../../store_engine/store_hooks";
 import { TableResizeStore } from "../../../stores/table_resize_store";
@@ -52,6 +53,13 @@ export class TablePanel extends Component<SpreadsheetChildEnv> {
       filtersEnabledIfPossible: this.props.table.config.hasFilters,
     });
     useStore(TableResizeStore);
+    onWillUpdateProps((nextProps) => {
+      if (!deepEquals(nextProps.table.range, this.props.table.range)) {
+        this.state.tableXc = this.env.model.getters.getRangeString(nextProps.table.range, sheetId);
+        this.state.tableZoneErrors = [];
+        this.state.filtersEnabledIfPossible = nextProps.table.config.hasFilters;
+      }
+    });
   }
 
   updateHasFilters(hasFilters: boolean) {

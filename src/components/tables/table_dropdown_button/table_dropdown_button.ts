@@ -43,7 +43,10 @@ export class TableDropdownButton extends Component<SpreadsheetChildEnv> {
     const tableConfig = { ...this.tableConfig, styleId };
     const result = interactiveCreateTable(this.env, sheetId, tableConfig);
     if (result.isSuccessful) {
-      this.env.openSidePanel("TableSidePanel", {});
+      const table = FIRST_TABLE_IN_SELECTION(this.env);
+      if (table) {
+        this.env.openSidePanel("TableSidePanel", { table });
+      }
     }
     this.closePopover();
   }
@@ -58,9 +61,10 @@ export class TableDropdownButton extends Component<SpreadsheetChildEnv> {
       this.env.openSidePanel("PivotSidePanel", { pivotId, openTab: "design" });
       return;
     }
-    if (FIRST_TABLE_IN_SELECTION(this.env)) {
+    const table = FIRST_TABLE_IN_SELECTION(this.env);
+    if (table) {
       this.topBarToolStore.closeDropdowns();
-      this.env.toggleSidePanel("TableSidePanel", {});
+      this.env.toggleSidePanel("TableSidePanel", { table });
       return;
     }
 
