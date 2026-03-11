@@ -398,7 +398,6 @@ export function getFunnelChartData(
   if (definition.cumulative) {
     dataSetsValues = makeDatasetsCumulative(dataSetsValues, "desc");
   }
-  definition.dataSetStyles;
   const format =
     getChartDatasetFormat(definition.dataSetStyles, dataSetsValues, "left") ||
     getChartDatasetFormat(definition.dataSetStyles, dataSetsValues, "right");

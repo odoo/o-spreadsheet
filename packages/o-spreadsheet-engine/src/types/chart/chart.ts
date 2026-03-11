@@ -178,8 +178,7 @@ export interface ChartPivotDataSource {
 
 export type ChartDataSource<T extends string | Range = Range> =
   | ChartRangeDataSource<T>
-  | { type: "never" };
-// | ChartPivotDataSource;
+  | { type: "none" };
 
 export type DataSourceType<T extends ChartDataSourceType, R extends string | Range> = Extract<
   ChartDataSource<R>,

@@ -225,7 +225,6 @@ export class ChartRangeDataSource extends Component<Props, SpreadsheetChildEnv> 
       [dataSource.labelRange, ...dataRanges],
       datasetOrientation
     );
-    // TODO: kill design
     if (dataSets.length === 0) {
       return;
     }
@@ -260,7 +259,7 @@ export class ChartRangeDataSource extends Component<Props, SpreadsheetChildEnv> 
       this.dataSets
     );
     this.datasetOrientation = undefined;
-    const dataSetStyles = this.props.definition.dataSetStyles;
+    const dataSetStyles = { ...this.props.definition.dataSetStyles };
     for (const ds of this.dataSets) {
       const color = colorGenerator.next();
       dataSetStyles[ds.dataSetId] = { backgroundColor: color, ...dataSetStyles[ds.dataSetId] };
@@ -315,7 +314,10 @@ export class ChartRangeDataSource extends Component<Props, SpreadsheetChildEnv> 
   splitRanges() {
     const postProcessedRanges: ChartRangeDataSourceType<string>["dataSets"] = [];
     const postProcessedStyles: DataSetStyle = {};
-    const dataSetStyles = this.props.definition.dataSetStyles;
+    const definition = this.env.model.getters.getChartDefinition(
+      this.props.chartId
+    ) as ChartDefinitionWithDataSource<string>;
+    const dataSetStyles = definition.dataSetStyles || {};
     for (const dataSet of this.dataSets) {
       const range = dataSet.dataRange;
       if (!this.env.model.getters.isRangeValid(range)) {
