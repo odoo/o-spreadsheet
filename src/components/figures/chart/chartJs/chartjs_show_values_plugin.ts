@@ -1,4 +1,4 @@
-import { ChartDataset, ChartType, Plugin } from "chart.js";
+import { Chart, ChartDataset, ChartType, Plugin } from "chart.js";
 import { computeTextWidth } from "../../../../helpers";
 import {
   TREND_LINE_XAXIS_ID,
@@ -79,17 +79,25 @@ function drawLineOrBarChartValues(
       return; // ignore trend lines
     }
 
+    const yAxisScale = chart.scales[dataset.yAxisID];
     for (let i = 0; i < dataset._parsed.length; i++) {
       const value = dataset._parsed[i].y;
       const point = dataset.data[i];
-
       const xPosition = point.x;
 
       let yPosition = 0;
       if (chart.config.type === "line") {
         yPosition = point.y - 10;
       } else {
-        yPosition = value < 0 ? point.y - point.height / 2 : point.y + point.height / 2;
+        const yZeroLine = yAxisScale.getPixelForValue(0);
+        const textHeight = Chart.defaults.font.size ?? 12;
+        const distanceFromAxisOrigin = Math.abs(yZeroLine - point.y);
+
+        if (distanceFromAxisOrigin < textHeight) {
+          yPosition = value < 0 ? yZeroLine + textHeight / 2 : yZeroLine - textHeight / 2;
+        } else {
+          yPosition = value < 0 ? point.y - point.height / 2 : point.y + point.height / 2;
+        }
       }
       yPosition = Math.min(yPosition, yMax);
       yPosition = Math.max(yPosition, yMin);
@@ -100,7 +108,7 @@ function drawLineOrBarChartValues(
       }
       for (const otherPosition of textsPositions[xPosition] || []) {
         if (Math.abs(otherPosition - yPosition) < 13) {
-          yPosition = otherPosition - 13;
+          yPosition = value < 0 ? otherPosition + 13 : otherPosition - 13;
         }
       }
       textsPositions[xPosition].push(yPosition);
@@ -127,24 +135,37 @@ function drawHorizontalBarChartValues(
       return; // ignore trend lines
     }
 
+    const xAxisScale = chart.scales[dataset.xAxisID];
+    const xZeroLine = xAxisScale.getPixelForValue(0);
     for (let i = 0; i < dataset._parsed.length; i++) {
       const value = dataset._parsed[i].x;
       const displayValue = options.callback(value, dataset, i);
-      const point = dataset.data[i];
+      const textHeight = Chart.defaults.font.size ?? 12;
+      const textWidth = computeTextWidth(ctx, displayValue, { fontSize: textHeight }, "px");
 
+      const point = dataset.data[i];
       const yPosition = point.y;
-      let xPosition = value < 0 ? point.x + point.width / 2 : point.x - point.width / 2;
-      xPosition = Math.min(xPosition, xMax);
-      xPosition = Math.max(xPosition, xMin);
+      const distanceFromAxisOrigin = Math.abs(point.x - xZeroLine);
+      const PADDING = 3;
+
+      let xPosition: number;
+      if (distanceFromAxisOrigin < textWidth) {
+        xPosition =
+          value < 0 ? xZeroLine - textWidth / 2 - PADDING : xZeroLine + textWidth / 2 + PADDING;
+      } else {
+        xPosition = value < 0 ? point.x + point.width / 2 : point.x - point.width / 2;
+        xPosition = Math.min(xPosition, xMax);
+        xPosition = Math.max(xPosition, xMin);
+      }
 
       // Avoid overlapping texts with same Y
       if (!textsPositions[yPosition]) {
         textsPositions[yPosition] = [];
       }
-      const textWidth = computeTextWidth(ctx, displayValue, { fontSize: 12 }, "px");
       for (const otherPosition of textsPositions[yPosition]) {
         if (Math.abs(otherPosition - xPosition) < textWidth) {
-          xPosition = otherPosition + textWidth + 3;
+          xPosition =
+            value < 0 ? otherPosition - textWidth - PADDING : otherPosition + textWidth + PADDING;
         }
       }
       textsPositions[yPosition].push(xPosition);
