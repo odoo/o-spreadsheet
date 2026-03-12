@@ -28,7 +28,11 @@ export interface LinkSpec {
    * - a link to a sheet displays the sheet name
    */
   readonly urlRepresentation: (url: string, getters: CoreGetters) => string;
-  readonly open: (url: string, env: SpreadsheetChildEnv, isMiddleClick?: boolean) => void;
+  readonly open: (
+    url: string,
+    env: SpreadsheetChildEnv,
+    isMiddleClick?: boolean
+  ) => void | Promise<void>;
   readonly sequence: number;
 }
 
@@ -58,9 +62,9 @@ urlRegistry.add("sheet_URL", {
     const sheetId = parseSheetUrl(url);
     return getters.tryGetSheetName(sheetId) || _t("Invalid sheet");
   },
-  open(url, env) {
+  async open(url, env) {
     const sheetId = parseSheetUrl(url);
-    const result = env.model.dispatch("ACTIVATE_SHEET", {
+    const result = await env.model.dispatch("ACTIVATE_SHEET", {
       sheetIdFrom: env.model.getters.getActiveSheetId(),
       sheetIdTo: sheetId,
     });
@@ -78,7 +82,9 @@ urlRegistry.add("sheet_URL", {
 const WebUrlSpec: LinkSpec = {
   createLink: createWebLink,
   match: (url) => isWebLink(url),
-  open: (url) => window.open(url, "_blank"),
+  open: (url) => {
+    window.open(url, "_blank");
+  },
   urlRepresentation: (url) => url,
   sequence: 0,
 };

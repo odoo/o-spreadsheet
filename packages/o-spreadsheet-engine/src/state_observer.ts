@@ -13,11 +13,22 @@ export class StateObserver {
    * Record the changes which could happen in the given callback, save them in a
    * new revision with the given id and userId.
    */
-  recordChanges(callback: () => void): { changes: HistoryChange[]; commands: CoreCommand[] } {
+  recordChanges(
+    callback: () => Promise<void>
+  ): Promise<{ changes: HistoryChange[]; commands: CoreCommand[] }>;
+  recordChanges(callback: () => void): { changes: HistoryChange[]; commands: CoreCommand[] };
+  recordChanges(
+    callback: () => void | Promise<void>
+  ):
+    | { changes: HistoryChange[]; commands: CoreCommand[] }
+    | Promise<{ changes: HistoryChange[]; commands: CoreCommand[] }> {
     this.changes = [];
     this.commands = [];
-    callback();
-    return { changes: this.changes, commands: this.commands };
+    const result = callback();
+    if (result instanceof Promise) {
+      return result.then(() => ({ changes: this.changes!, commands: this.commands }));
+    }
+    return { changes: this.changes!, commands: this.commands };
   }
 
   addCommand(command: CoreCommand) {

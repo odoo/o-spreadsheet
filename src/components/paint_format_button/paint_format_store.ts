@@ -77,7 +77,8 @@ export class PaintFormatStore extends SpreadsheetStore {
       const HandlerClass = clipboardHandlersRegistries.cellHandlers.get(handlerName);
       return {
         handlerName,
-        handler: new HandlerClass(this.getters, this.model.dispatch),
+        //@ts-ignore TODOPRO Synchronous dispatch should be enough.
+        handler: new HandlerClass(this.getters, this.model.dispatchForPlugin),
       };
     });
   }

@@ -420,14 +420,14 @@ export class ColResizer extends AbstractResizer {
     });
   }
 
-  _moveElements(): void {
+  async _moveElements(): Promise<void> {
     const elements: HeaderIndex[] = [];
     const start = this._getSelectedZoneStart();
     const end = this._getSelectedZoneEnd();
     for (let colIndex = start; colIndex <= end; colIndex++) {
       elements.push(colIndex);
     }
-    const result = this.env.model.dispatch("MOVE_COLUMNS_ROWS", {
+    const result = await this.env.model.dispatch("MOVE_COLUMNS_ROWS", {
       sheetId: this.sheetId,
       sheetName: this.env.model.getters.getActiveSheetName(),
       dimension: "COL",
@@ -593,14 +593,14 @@ export class RowResizer extends AbstractResizer {
     });
   }
 
-  _moveElements(): void {
+  async _moveElements(): Promise<void> {
     const elements: HeaderIndex[] = [];
     const start = this._getSelectedZoneStart();
     const end = this._getSelectedZoneEnd();
     for (let rowIndex = start; rowIndex <= end; rowIndex++) {
       elements.push(rowIndex);
     }
-    const result = this.env.model.dispatch("MOVE_COLUMNS_ROWS", {
+    const result = await this.env.model.dispatch("MOVE_COLUMNS_ROWS", {
       sheetId: this.sheetId,
       sheetName: this.env.model.getters.getActiveSheetName(),
       dimension: "ROW",

@@ -68,7 +68,7 @@ export class BasePlugin<State = any, C = any> implements CommandHandler<C>, Vali
    * subcommands) has been completely handled. For example, when we paste
    * multiple cells, we only want to reevaluate the cell values once at the end.
    */
-  finalize(): void {}
+  finalize() {}
 
   /**
    * Combine multiple validation functions into a single function

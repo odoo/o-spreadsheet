@@ -7,7 +7,7 @@ export const ToggleGroupInteractiveContent = {
   CannotHideAllColumns: _t("Cannot hide all the columns of a sheet."),
 };
 
-export function interactiveToggleGroup(
+export async function interactiveToggleGroup(
   env: SpreadsheetChildEnv,
   sheetId: UID,
   dimension: Dimension,
@@ -19,7 +19,7 @@ export function interactiveToggleGroup(
     return;
   }
   const command = group.isFolded ? "UNFOLD_HEADER_GROUP" : "FOLD_HEADER_GROUP";
-  const result = env.model.dispatch(command, {
+  const result = await env.model.dispatch(command, {
     sheetId,
     dimension,
     start: group.start,

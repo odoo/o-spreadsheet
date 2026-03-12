@@ -156,10 +156,10 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
     }
   }
 
-  startEdition(text?: string, selection?: ComposerSelection) {
+  async startEdition(text?: string, selection?: ComposerSelection) {
     const { col, row } = this.getters.getActivePosition();
-    this.model.dispatch("SELECT_FIGURE", { figureId: null });
-    this.model.dispatch("SCROLL_TO_CELL", { col, row });
+    await this.model.dispatch("SELECT_FIGURE", { figureId: null });
+    await this.model.dispatch("SCROLL_TO_CELL", { col, row });
 
     if (this.editionMode !== "inactive" && text) {
       this.setContent(text, selection);
@@ -279,7 +279,7 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
     this.setCurrentContent(updated.content, updated.selection);
   }
 
-  toggleEditionMode() {
+  async toggleEditionMode() {
     if (this.editionMode === "inactive") {
       return;
     }
@@ -294,7 +294,10 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
       const { sheetName, xc } = splitReference(refToken.value);
       const sheetId = this.getters.getSheetIdByName(sheetName);
       if (sheetId && sheetId !== currentSheetId) {
-        this.model.dispatch("ACTIVATE_SHEET", { sheetIdFrom: currentSheetId, sheetIdTo: sheetId });
+        await this.model.dispatch("ACTIVATE_SHEET", {
+          sheetIdFrom: currentSheetId,
+          sheetIdTo: sheetId,
+        });
       }
       // move cursor to the right part of the token
       this.selectionStart = this.selectionEnd = refToken.end;
@@ -465,14 +468,14 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
     return canonicalizeNumberContent(this._currentContent, this.getters.getLocale());
   }
 
-  protected cancelEditionAndActivateSheet() {
+  protected async cancelEditionAndActivateSheet() {
     if (this.editionMode === "inactive") {
       return;
     }
     this._cancelEdition();
     const sheetId = this.getters.getActiveSheetId();
     if (sheetId !== this.sheetId) {
-      this.model.dispatch("ACTIVATE_SHEET", {
+      await this.model.dispatch("ACTIVATE_SHEET", {
         sheetIdFrom: this.getters.getActiveSheetId(),
         sheetIdTo: this.sheetId,
       });

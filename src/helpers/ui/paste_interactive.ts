@@ -17,11 +17,11 @@ import {
   Zone,
 } from "../../types";
 
-export const handleCopyPasteResult = (
+export const handleCopyPasteResult = async (
   env: SpreadsheetChildEnv,
   command: CopyPasteCellsAboveCommand | CopyPasteCellsOnLeftCommand | CopyPasteCellsOnZoneCommand
 ) => {
-  const result = env.model.dispatch(command.type);
+  const result = await env.model.dispatch(command.type);
   if (result.isCancelledBecause(CommandResult.WillRemoveExistingMerge)) {
     env.raiseError(MergeErrorMessage);
   }
@@ -48,12 +48,12 @@ export function handlePasteResult(env: SpreadsheetChildEnv, result: DispatchResu
   }
 }
 
-export function interactivePaste(
+export async function interactivePaste(
   env: SpreadsheetChildEnv,
   target: Zone[],
   pasteOption?: ClipboardPasteOptions
 ) {
-  const result = env.model.dispatch("PASTE", { target, pasteOption });
+  const result = await env.model.dispatch("PASTE", { target, pasteOption });
   handlePasteResult(env, result);
 }
 
@@ -82,7 +82,7 @@ export async function interactivePasteFromOS(
       delete parsedClipboardContent.imageBlob;
     }
 
-    result = env.model.dispatch("PASTE_FROM_OS_CLIPBOARD", {
+    result = await env.model.dispatch("PASTE_FROM_OS_CLIPBOARD", {
       target,
       clipboardContent: parsedClipboardContent,
       pasteOption,
@@ -106,7 +106,7 @@ export async function interactivePasteFromOS(
       );
       console.error(error);
     }
-    result = env.model.dispatch("PASTE_FROM_OS_CLIPBOARD", {
+    result = await env.model.dispatch("PASTE_FROM_OS_CLIPBOARD", {
       target,
       clipboardContent: {
         text: parsedClipboardContent.text,

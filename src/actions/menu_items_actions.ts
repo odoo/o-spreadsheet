@@ -403,7 +403,7 @@ export const HIDE_ROWS_NAME = (env: SpreadsheetChildEnv) => {
 // Charts
 //------------------------------------------------------------------------------
 
-export const CREATE_CHART = (env: SpreadsheetChildEnv) => {
+export const CREATE_CHART = async (env: SpreadsheetChildEnv) => {
   const getters = env.model.getters;
   const figureId = env.model.uuidGenerator.smallUuid();
   const sheetId = getters.getActiveSheetId();
@@ -417,7 +417,7 @@ export const CREATE_CHART = (env: SpreadsheetChildEnv) => {
   const size = { width: DEFAULT_FIGURE_WIDTH, height: DEFAULT_FIGURE_HEIGHT };
   const { col, row, offset } = centerFigurePosition(getters, size);
 
-  const result = env.model.dispatch("CREATE_CHART", {
+  const result = await env.model.dispatch("CREATE_CHART", {
     sheetId,
     figureId,
     chartId: env.model.uuidGenerator.smallUuid(),
@@ -433,7 +433,7 @@ export const CREATE_CHART = (env: SpreadsheetChildEnv) => {
   }
 };
 
-export const CREATE_CAROUSEL = (env: SpreadsheetChildEnv) => {
+export const CREATE_CAROUSEL = async (env: SpreadsheetChildEnv) => {
   const getters = env.model.getters;
   const figureId = env.model.uuidGenerator.smallUuid();
   const sheetId = getters.getActiveSheetId();
@@ -441,7 +441,7 @@ export const CREATE_CAROUSEL = (env: SpreadsheetChildEnv) => {
   const size = { width: DEFAULT_FIGURE_WIDTH, height: DEFAULT_FIGURE_HEIGHT };
   const { col, row, offset } = centerFigurePosition(getters, size);
 
-  const result = env.model.dispatch("CREATE_CAROUSEL", {
+  const result = await env.model.dispatch("CREATE_CAROUSEL", {
     sheetId,
     figureId,
     col,
@@ -460,10 +460,10 @@ export const CREATE_CAROUSEL = (env: SpreadsheetChildEnv) => {
 // Pivots
 //------------------------------------------------------------------------------
 
-export const CREATE_PIVOT = (env: SpreadsheetChildEnv) => {
+export const CREATE_PIVOT = async (env: SpreadsheetChildEnv) => {
   const pivotId = env.model.uuidGenerator.smallUuid();
   const newSheetId = env.model.uuidGenerator.smallUuid();
-  const result = env.model.dispatch("INSERT_NEW_PIVOT", { pivotId, newSheetId });
+  const result = await env.model.dispatch("INSERT_NEW_PIVOT", { pivotId, newSheetId });
   if (result.isSuccessful) {
     env.openSidePanel("PivotSidePanel", { pivotId });
   }
@@ -631,10 +631,10 @@ export const REMOVE_DATA_FILTER = (env: SpreadsheetChildEnv) => {
   });
 };
 
-export const INSERT_TABLE = (env: SpreadsheetChildEnv) => {
+export const INSERT_TABLE = async (env: SpreadsheetChildEnv) => {
   const sheetId = env.model.getters.getActiveSheetId();
 
-  const result = interactiveCreateTable(env, sheetId);
+  const result = await interactiveCreateTable(env, sheetId);
   if (result.isSuccessful) {
     env.openSidePanel("TableSidePanel", {});
   }

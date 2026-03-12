@@ -156,9 +156,9 @@ export const insertCell: ActionSpec = {
 
 export const insertCellShiftDown: ActionSpec = {
   name: _t("Insert cells and shift down"),
-  execute: (env) => {
+  execute: async (env) => {
     const zone = env.model.getters.getSelectedZone();
-    const result = env.model.dispatch("INSERT_CELL", { zone, shiftDimension: "ROW" });
+    const result = await env.model.dispatch("INSERT_CELL", { zone, shiftDimension: "ROW" });
     handlePasteResult(env, result);
   },
   isVisible: (env) =>
@@ -168,9 +168,9 @@ export const insertCellShiftDown: ActionSpec = {
 
 export const insertCellShiftRight: ActionSpec = {
   name: _t("Insert cells and shift right"),
-  execute: (env) => {
+  execute: async (env) => {
     const zone = env.model.getters.getSelectedZone();
-    const result = env.model.dispatch("INSERT_CELL", { zone, shiftDimension: "COL" });
+    const result = await env.model.dispatch("INSERT_CELL", { zone, shiftDimension: "COL" });
     handlePasteResult(env, result);
   },
   isVisible: (env) =>

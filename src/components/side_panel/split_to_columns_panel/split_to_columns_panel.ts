@@ -73,8 +73,8 @@ export class SplitIntoColumnsPanel extends Component<Props, SpreadsheetChildEnv>
     this.state.addNewColumns = addNewColumns;
   }
 
-  confirm() {
-    const result = interactiveSplitToColumns(
+  async confirm() {
+    const result = await interactiveSplitToColumns(
       this.env,
       this.separatorValue,
       this.state.addNewColumns

@@ -1522,7 +1522,7 @@ export interface CommandHandler<T> {
   allowDispatch(command: T): CommandResult | CommandResult[];
   beforeHandle(command: T): void;
   handle(command: T): void;
-  finalize(): void;
+  finalize(): Promise<void> | void;
 }
 
 export interface CommandDispatcher {
@@ -1543,6 +1543,16 @@ export interface CoreCommandDispatcher {
     type: T,
     r: Omit<C, "type">
   ): DispatchResult;
+}
+
+export interface AsyncCommandDispatcher {
+  dispatch<T extends CommandTypes, C extends Extract<Command, { type: T }>>(
+    type: {} extends Omit<C, "type"> ? T : never
+  ): Promise<DispatchResult>;
+  dispatch<T extends CommandTypes, C extends Extract<Command, { type: T }>>(
+    type: T,
+    r: Omit<C, "type">
+  ): Promise<DispatchResult>;
 }
 
 export type CommandTypes = Command["type"];

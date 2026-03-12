@@ -133,18 +133,18 @@ export const deleteCells: ActionSpec = {
 
 export const deleteCellShiftUp: ActionSpec = {
   name: _t("Delete cell and shift up"),
-  execute: (env) => {
+  execute: async (env) => {
     const zone = env.model.getters.getSelectedZone();
-    const result = env.model.dispatch("DELETE_CELL", { zone, shiftDimension: "ROW" });
+    const result = await env.model.dispatch("DELETE_CELL", { zone, shiftDimension: "ROW" });
     handlePasteResult(env, result);
   },
 };
 
 export const deleteCellShiftLeft: ActionSpec = {
   name: _t("Delete cell and shift left"),
-  execute: (env) => {
+  execute: async (env) => {
     const zone = env.model.getters.getSelectedZone();
-    const result = env.model.dispatch("DELETE_CELL", { zone, shiftDimension: "COL" });
+    const result = await env.model.dispatch("DELETE_CELL", { zone, shiftDimension: "COL" });
     handlePasteResult(env, result);
   },
 };

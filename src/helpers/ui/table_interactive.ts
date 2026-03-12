@@ -10,11 +10,11 @@ import { TableConfig } from "@odoo/o-spreadsheet-engine/types/table";
  * Create a table on the selected zone, with UI warnings to the user if the creation fails.
  * If a single cell is selected, expand the selection to non-empty adjacent cells to create a table.
  */
-export function interactiveCreateTable(
+export async function interactiveCreateTable(
   env: SpreadsheetChildEnv,
   sheetId: UID,
   tableConfig: TableConfig = DEFAULT_TABLE_CONFIG
-): DispatchResult {
+): Promise<DispatchResult> {
   let target = env.model.getters.getSelectedZones();
   let isDynamic = env.model.getters.canCreateDynamicTableOnZones(sheetId, target);
 
@@ -25,7 +25,7 @@ export function interactiveCreateTable(
   }
 
   const ranges = target.map((zone) => env.model.getters.getRangeDataFromZone(sheetId, zone));
-  const result = env.model.dispatch("CREATE_TABLE", {
+  const result = await env.model.dispatch("CREATE_TABLE", {
     ranges,
     sheetId,
     config: tableConfig,

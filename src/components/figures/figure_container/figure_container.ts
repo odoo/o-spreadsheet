@@ -269,12 +269,12 @@ export class FiguresContainer extends Component<Props, SpreadsheetChildEnv> {
     return bottomRightFigure;
   }
 
-  startDraggingFigure(figureUI: FigureUI, ev: MouseEvent) {
+  async startDraggingFigure(figureUI: FigureUI, ev: MouseEvent) {
     if (ev.button > 0 || this.env.model.getters.isReadonly()) {
       // not main button, probably a context menu and no d&d in readonly mode
       return;
     }
-    const selectResult = this.env.model.dispatch("SELECT_FIGURE", { figureId: figureUI.id });
+    const selectResult = await this.env.model.dispatch("SELECT_FIGURE", { figureId: figureUI.id });
     if (!selectResult.isSuccessful) {
       return;
     }
