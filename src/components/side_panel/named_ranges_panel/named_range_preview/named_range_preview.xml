@@ -1,0 +1,37 @@
+<templates>
+  <t t-name="o-spreadsheet-NamedRangePreview">
+    <t>
+      <div
+        class="o-named-range-preview p-3 pb-1 border-bottom"
+        t-att-class="{
+          'o-focused': state.isSelectionInputFocused
+        }"
+        t-ref="namedRangePreview">
+        <div class="d-flex justify-content-between">
+          <div class="o-named-range-container w-100 d-flex flex-column">
+            <TextInput
+              class="'o-fw-bold'"
+              value="props.namedRange.name"
+              onChange.bind="updateNamedRangeName"
+              selectContentOnFocus="true"
+            />
+            <SelectionInput
+              ranges="[rangeString]"
+              hasSingleRange="true"
+              required="true"
+              onSelectionChanged.bind="onSelectionInputChanged"
+              onSelectionConfirmed.bind="onSelectionInputConfirmed"
+              onInputFocused.bind="onSelectionInputFocused"
+            />
+          </div>
+          <div
+            class="o-named-range-edit d-none align-items-center o-button-icon px-3"
+            title="Delete named range"
+            t-on-click.stop="deleteNamedRange">
+            <t t-call="o-spreadsheet-Icon.TRASH_FILLED"/>
+          </div>
+        </div>
+      </div>
+    </t>
+  </t>
+</templates>

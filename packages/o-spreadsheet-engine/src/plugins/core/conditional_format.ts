@@ -175,9 +175,8 @@ export class ConditionalFormatPlugin
     }
   }
 
-  adaptRanges(rangeAdapters: RangeAdapterFunctions, sheetId: UID) {
-    const sheetIds = sheetId ? [sheetId] : Object.keys(this.cfRules);
-    for (const sheetId of sheetIds) {
+  adaptRanges(rangeAdapters: RangeAdapterFunctions) {
+    for (const sheetId of Object.keys(this.cfRules)) {
       this.adaptCFRanges(sheetId, rangeAdapters);
     }
     this.adaptCFFormulas(rangeAdapters);

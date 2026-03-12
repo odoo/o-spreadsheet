@@ -6,7 +6,7 @@ import { HtmlContent } from "../composer/composer";
 interface Props {
   proposals: AutoCompleteProposal[];
   selectedIndex: number | undefined;
-  onValueSelected: (value: string) => void;
+  onValueSelected: (proposal: AutoCompleteProposal) => void;
   onValueHovered: (index: string) => void;
 }
 

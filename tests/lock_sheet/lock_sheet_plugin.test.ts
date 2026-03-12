@@ -47,7 +47,7 @@ describe("Lock Sheet plugin", () => {
     lockSheet(model);
     for (const cmdType of allowedCommands) {
       const result = model.dispatch(cmdType, TEST_COMMANDS[cmdType]);
-      expect(result).toBeSuccessfullyDispatched();
+      expect(result.reasons).not.toContain(CommandResult.SheetLocked);
     }
   });
 

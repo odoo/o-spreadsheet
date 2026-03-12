@@ -1,36 +1,57 @@
+import { isFuncallToken } from "../formulas/parser";
 import { rangeTokenize } from "../formulas/range_tokenizer";
+import { Token } from "../formulas/tokenizer";
 import { CellErrorType } from "../types/errors";
-import { ApplyRangeChangeResult, RangeAdapter, UID } from "../types/misc";
+import { ApplyRangeChangeResult, ApplyRenameNamedRange, RangeAdapter, UID } from "../types/misc";
 import { Range } from "../types/range";
 import { concat } from "./misc";
 import { createInvalidRange, createRangeFromXc, getRangeString } from "./range";
 import { rangeReference, splitReference } from "./references";
 import { isSheetNameEqual } from "./sheet";
 
-export function adaptFormulaStringRanges(
+export function adaptFormulaString(
   defaultSheetId: string,
   formula: string,
-  applyChange: RangeAdapter
+  applyChange: RangeAdapter,
+  namedRangeAdapter: ApplyRenameNamedRange
 ): string {
   if (!formula.startsWith("=")) {
     return formula;
   }
   const tokens = rangeTokenize(formula);
   for (let tokenIdx = 1; tokenIdx < tokens.length; tokenIdx++) {
-    if (tokens[tokenIdx].type !== "REFERENCE") {
-      continue;
-    }
-    const sheetXC = tokens[tokenIdx].value;
-    const newSheetXC = adaptStringRange(defaultSheetId, sheetXC, applyChange).range;
+    if (tokens[tokenIdx].type === "REFERENCE") {
+      const sheetXC = tokens[tokenIdx].value;
+      const newSheetXC = adaptStringRange(defaultSheetId, sheetXC, applyChange).range;
 
-    if (sheetXC !== newSheetXC) {
-      tokens[tokenIdx] = {
-        value: newSheetXC,
-        type: "REFERENCE",
-      };
+      if (sheetXC !== newSheetXC) {
+        tokens[tokenIdx] = {
+          value: newSheetXC,
+          type: "REFERENCE",
+        };
+      }
+    } else if (canBeNamedRangeToken(tokens, tokenIdx)) {
+      const newName = namedRangeAdapter(tokens[tokenIdx].value);
+      if (newName !== tokens[tokenIdx].value) {
+        tokens[tokenIdx] = { ...tokens[tokenIdx], value: newName };
+      }
     }
   }
   return concat(tokens.map((token) => token.value));
+}
+
+export function canBeNamedRangeToken(tokens: Token[], tokenIndex: number): boolean {
+  const token = tokens[tokenIndex];
+
+  let nextNonSpaceToken: Token | undefined = undefined;
+  for (let i = tokenIndex + 1; i < tokens.length; i++) {
+    if (tokens[i].type !== "SPACE") {
+      nextNonSpaceToken = tokens[i];
+      break;
+    }
+  }
+
+  return token.type === "SYMBOL" && !isFuncallToken(token, nextNonSpaceToken);
 }
 
 export function adaptStringRange(

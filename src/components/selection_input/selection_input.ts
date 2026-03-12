@@ -20,6 +20,7 @@ interface Props {
   onSelectionReordered?: (indexes: number[]) => void;
   onSelectionRemoved?: (index: number) => void;
   onSelectionConfirmed?: () => void;
+  onInputFocused?: () => void;
   colors?: Color[];
   disabledRanges?: boolean[];
   disabledRangeTitle?: string;
@@ -56,6 +57,7 @@ export class SelectionInput extends Component<Props, SpreadsheetChildEnv> {
     onSelectionConfirmed: { type: Function, optional: true },
     onSelectionReordered: { type: Function, optional: true },
     onSelectionRemoved: { type: Function, optional: true },
+    onInputFocused: { type: Function, optional: true },
     colors: { type: Array, optional: true, default: [] },
     disabledRanges: { type: Array, optional: true, default: [] },
     disabledRangeTitle: { type: String, optional: true },
@@ -118,6 +120,7 @@ export class SelectionInput extends Component<Props, SpreadsheetChildEnv> {
     );
     if (this.props.autofocus) {
       this.store.focusById(this.store.selectionInputs[0]?.id);
+      this.props.onInputFocused?.();
     }
     onWillUpdateProps((nextProps) => {
       if (nextProps.ranges.join() !== this.store.selectionInputValues.join()) {
@@ -226,6 +229,7 @@ export class SelectionInput extends Component<Props, SpreadsheetChildEnv> {
   focus(rangeId: number) {
     this.state.isMissing = false;
     this.store.focusById(rangeId);
+    this.props.onInputFocused?.();
   }
 
   addEmptyInput() {

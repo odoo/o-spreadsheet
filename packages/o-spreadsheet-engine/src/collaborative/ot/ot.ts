@@ -1,5 +1,10 @@
 import { getAddHeaderStartIndex, isDefined } from "../../helpers/misc";
-import { getRangeAdapter, rangeAdapterRegistry } from "../../helpers/range";
+import {
+  getIdentityRangeAdapter,
+  getNamedRangeAdapter,
+  getRangeAdapter,
+  rangeAdapterRegistry,
+} from "../../helpers/range";
 import {
   moveHeaderIndexesOnHeaderAddition,
   moveHeaderIndexesOnHeaderDeletion,
@@ -77,9 +82,12 @@ function adaptTransform(toTransform: CoreCommand, executed: CoreCommand): CoreCo
   if (!adaptFn) {
     return toTransform;
   }
-  const rangeAdapter = getRangeAdapter(executed);
-  if (rangeAdapter) {
-    return adaptFn(toTransform, rangeAdapter);
+  let rangeAdapter = getRangeAdapter(executed);
+  let namedRangeAdapter = getNamedRangeAdapter(executed);
+  if (rangeAdapter || namedRangeAdapter) {
+    rangeAdapter = rangeAdapter || getIdentityRangeAdapter();
+    namedRangeAdapter = namedRangeAdapter || ((name) => name);
+    return adaptFn(toTransform, rangeAdapter, namedRangeAdapter);
   }
   return toTransform;
 }
