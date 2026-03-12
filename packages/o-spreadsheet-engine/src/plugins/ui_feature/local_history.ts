@@ -8,7 +8,7 @@ import { UIPlugin, UIPluginConfig } from "../ui_plugin";
 /**
  * Local History
  *
- * The local history is responsible of tracking the locally state updates
+ * The local history is responsible for tracking the locally state updates
  * It maintains the local undo and redo stack to allow to undo/redo only local
  * changes
  */
