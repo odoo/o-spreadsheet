@@ -1283,7 +1283,7 @@ describe("clipboard", () => {
     expect(getBorder(model, "C4")).toBeNull();
   });
 
-  test("paste as value does not remove number format", () => {
+  test("paste as value does remove number format", () => {
     const model = new Model();
     setCellContent(model, "B2", "0.451");
     setFormat(model, "B2", "0.00%");
@@ -1295,7 +1295,7 @@ describe("clipboard", () => {
 
     copy(model, "B2");
     paste(model, "C3", "asValue");
-    expect(getCellContent(model, "C3")).toBe("45.10%");
+    expect(getCellContent(model, "C3")).toBe("0.45");
   });
 
   test("paste as value works with both no core format and empty string core format", () => {
@@ -1304,14 +1304,49 @@ describe("clipboard", () => {
 
     copy(model, "D4");
     paste(model, "E4", "asValue");
-    expect(getCell(model, "E4")).toMatchObject({ content: "45448", format: "m/d/yyyy" });
+    expect(getCell(model, "E4")).toMatchObject({ content: "45448", format: undefined });
 
     setFormat(model, "D4", ""); // An empty string format is equivalent to no format
     expect(getCellContent(model, "D4")).toBe("6/5/2024");
 
     copy(model, "D4");
     paste(model, "E5", "asValue");
-    expect(getCell(model, "E5")).toMatchObject({ content: "45448", format: "m/d/yyyy" });
+    expect(getCell(model, "E5")).toMatchObject({ content: "45448", format: undefined });
+  });
+
+  test.each([
+    ["1", "0.00%", "100.00%"],
+    ["46023", "m/d/yyyy", "1/1/2026"],
+  ])(
+    "can copy a cell with a format and paste as value",
+    (originalContent, format, formatedContent) => {
+      const model = new Model();
+      setCellContent(model, "B2", originalContent);
+      setFormat(model, "B2", format);
+      expect(getCellContent(model, "B2")).toBe(formatedContent);
+      expect(getCell(model, "B2")!.format).toEqual(format);
+
+      copy(model, "B2");
+      paste(model, "C2", "asValue");
+
+      expect(getCellContent(model, "C2")).toBe(originalContent);
+      expect(getCell(model, "C2")!.format).not.toBeDefined();
+    }
+  );
+
+  test("copy as value : the cell take the format of the target cell", () => {
+    const model = new Model();
+    setCellContent(model, "B2", "46023");
+    setFormat(model, "B2", "0.00%");
+    expect(getCellContent(model, "B2")).toBe("4602300.00%");
+    expect(getCell(model, "B2")!.format).toEqual("0.00%");
+
+    setFormat(model, "C2", "m/d/yyyy");
+    copy(model, "B2");
+    paste(model, "C2", "asValue");
+
+    expect(getCellContent(model, "C2")).toBe("1/1/2026");
+    expect(getCell(model, "C2")!.format).toEqual("m/d/yyyy");
   });
 
   test("can copy a formula and paste as value", () => {
