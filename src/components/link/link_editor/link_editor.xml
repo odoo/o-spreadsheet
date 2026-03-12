@@ -37,7 +37,11 @@
               disabled="1"
             />
           </t>
-          <button t-if="link.url" t-on-click="removeLink" class="o-remove-url o-button-icon">
+          <button
+            t-if="link.url"
+            t-on-click="removeLink"
+            class="o-remove-url o-button-icon"
+            t-translation="off">
             ✖
           </button>
           <button
