@@ -244,7 +244,6 @@ export class CellClipboardHandler extends AbstractCellClipboardHandler<
       this.dispatch("UPDATE_CELL", {
         ...target,
         content: origin.evaluatedCell.value?.toString() || "",
-        format: originFormat,
       });
       return;
     }
