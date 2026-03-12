@@ -1,4 +1,4 @@
-import { MyChart } from "@odoo/o-spreadsheet-engine/helpers/figures/chart";
+import { Chart } from "@odoo/o-spreadsheet-engine/helpers/figures/chart";
 import { chartDataSourceRegistry } from "@odoo/o-spreadsheet-engine/registries/chart_data_source_registry";
 import { chartTypeRegistry } from "@odoo/o-spreadsheet-engine/registries/chart_registry";
 import { chartSubtypeRegistry } from "@odoo/o-spreadsheet-engine/registries/chart_subtype_registry";
@@ -92,6 +92,6 @@ export class MainChartPanelStore extends SpreadsheetStore {
       ...ChartTypeBuilder.getDefinitionFromContextCreation(creationContext, DataSourceBuilder),
       ...newChartInfo.subtypeDefinition,
     } as ChartDefinition;
-    return MyChart.deleteInvalidKeys(definition);
+    return Chart.deleteInvalidKeys(definition);
   }
 }

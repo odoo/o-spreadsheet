@@ -1,6 +1,6 @@
 import { ChartConfiguration } from "chart.js";
 import { BACKGROUND_CHART_COLOR } from "../../constants";
-import { MyChart } from "../../helpers/figures/chart";
+import { Chart } from "../../helpers/figures/chart";
 import { chartFontColor } from "../../helpers/figures/charts/chart_common";
 import { chartToImageUrl } from "../../helpers/figures/charts/chart_ui_common";
 import { generateMasterChartConfig } from "../../helpers/figures/charts/runtime/chart_zoom";
@@ -145,7 +145,7 @@ export class EvaluationChartPlugin extends CoreViewPlugin<EvaluationChartState> 
     }
   }
 
-  private createRuntimeChart(chartId: UID, chart: MyChart): ChartRuntime {
+  private createRuntimeChart(chartId: UID, chart: Chart): ChartRuntime {
     const definition = chart.getRangeDefinition();
     const runtime = chart.getRuntime(this.getters, chartId);
     if ("chartJsConfig" in runtime && /line|combo|bar|scatter|waterfall/.test(definition.type)) {

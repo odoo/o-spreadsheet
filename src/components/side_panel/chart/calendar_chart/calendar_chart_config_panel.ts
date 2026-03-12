@@ -1,7 +1,7 @@
 import { getChartData } from "@odoo/o-spreadsheet-engine";
 import { toJsDate } from "@odoo/o-spreadsheet-engine/functions/helpers";
 import { isDateTime } from "@odoo/o-spreadsheet-engine/helpers/dates";
-import { MyChart } from "@odoo/o-spreadsheet-engine/helpers/figures/chart";
+import { Chart } from "@odoo/o-spreadsheet-engine/helpers/figures/chart";
 import { ALL_PERIODS } from "@odoo/o-spreadsheet-engine/helpers/pivot/pivot_helpers";
 import {
   CALENDAR_CHART_GRANULARITIES,
@@ -29,7 +29,7 @@ export class CalendarChartConfigPanel extends GenericChartConfigPanel<
     const sheetId = this.env.model.getters.getFigureSheetId(
       this.env.model.getters.getFigureIdFromChartId(this.props.chartId)
     )!;
-    const definition = MyChart.fromStrDefinition(
+    const definition = Chart.fromStrDefinition(
       this.env.model.getters,
       sheetId,
       this.props.definition
