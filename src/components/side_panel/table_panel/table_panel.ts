@@ -19,7 +19,7 @@ import { ValidationMessages } from "../../validation_messages/validation_message
 import { Checkbox } from "../components/checkbox/checkbox";
 import { Section } from "../components/section/section";
 
-interface Props {
+export interface TablePanelProps {
   table: CoreTable;
   onCloseSidePanel: () => void;
 }
@@ -46,7 +46,7 @@ css/* scss */ `
   }
 `;
 
-export class TablePanel extends Component<Props, SpreadsheetChildEnv> {
+export class TablePanel extends Component<TablePanelProps, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-TablePanel";
   static components = { TableStylePicker, SelectionInput, ValidationMessages, Checkbox, Section };
   static props = { onCloseSidePanel: Function, table: Object };
