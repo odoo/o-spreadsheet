@@ -1,5 +1,5 @@
 import { AbstractFigureClipboardHandler } from "@odoo/o-spreadsheet-engine/clipboard_handlers/abstract_figure_clipboard_handler";
-import { MyChart } from "@odoo/o-spreadsheet-engine/helpers/figures/chart";
+import { Chart } from "@odoo/o-spreadsheet-engine/helpers/figures/chart";
 import { UuidGenerator } from "../helpers";
 import {
   ClipboardFigureData,
@@ -14,7 +14,7 @@ import {
 type ClipboardContent = {
   figureId: UID;
   copiedFigure: Figure;
-  copiedChart: MyChart;
+  copiedChart: Chart;
 };
 
 export class ChartClipboardHandler extends AbstractFigureClipboardHandler<ClipboardContent> {
@@ -58,13 +58,13 @@ export class ChartClipboardHandler extends AbstractFigureClipboardHandler<Clipbo
     const sheetId = target.sheetId;
     const { width, height } = clippedContent.copiedFigure;
     const copy = clippedContent.copiedChart;
-    let copiedDefinition = MyChart.fromDefinition(
+    let copiedDefinition = Chart.fromDefinition(
       this.getters,
       sheetId,
       copy.copyInSheetId(sheetId)
     ).getDefinition();
 
-    copiedDefinition = MyChart.fromStrDefinition(
+    copiedDefinition = Chart.fromStrDefinition(
       this.getters,
       sheetId,
       copiedDefinition

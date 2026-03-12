@@ -16,7 +16,7 @@ import { CoreGetters } from "../../types/core_getters";
 import { Getters } from "../../types/getters";
 import { Range } from "../../types/range";
 
-export class MyChart {
+export class Chart {
   private constructor(
     private readonly getters: CoreGetters,
     readonly sheetId: UID,
@@ -42,10 +42,10 @@ export class MyChart {
       ...chartTypeBuilder.fromStrDefinition(definition, sheetId, getters),
       dataSource,
     } as ChartDefinition<Range>;
-    return new MyChart(
+    return new Chart(
       getters,
       sheetId,
-      MyChart.deleteInvalidKeys(rangeDefinition),
+      Chart.deleteInvalidKeys(rangeDefinition),
       dataSource,
       chartTypeBuilder,
       dataSourceBuilder
@@ -55,7 +55,7 @@ export class MyChart {
   static fromDefinition(getters: CoreGetters, sheetId: UID, definition: ChartDefinition<Range>) {
     const dataSourceBuilder = chartDataSourceRegistry.get(definition.dataSource?.type ?? "none");
     const chartTypeBuilder = chartTypeRegistry.get(definition.type);
-    return new MyChart(
+    return new Chart(
       getters,
       sheetId,
       definition,
@@ -142,7 +142,7 @@ export class MyChart {
       ...newChartTypeDef,
       dataSource: newDataSource,
     } as ChartDefinition<Range>;
-    return MyChart.fromDefinition(this.getters, sheetIdTo, definition).getDefinition();
+    return Chart.fromDefinition(this.getters, sheetIdTo, definition).getDefinition();
   }
 
   copyInSheetId(sheetIdTo: UID): ChartDefinition<Range> {

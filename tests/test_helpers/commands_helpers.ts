@@ -45,7 +45,7 @@ import {
 import { createEqualCF, target, toRangeData, toRangesData } from "./helpers";
 
 import { ICON_SETS } from "@odoo/o-spreadsheet-engine/components/icons/icons";
-import { MyChart } from "@odoo/o-spreadsheet-engine/helpers/figures/chart";
+import { Chart } from "@odoo/o-spreadsheet-engine/helpers/figures/chart";
 import { chartDataSourceRegistry } from "@odoo/o-spreadsheet-engine/registries/chart_data_source_registry";
 import { chartTypeRegistry } from "@odoo/o-spreadsheet-engine/registries/chart_registry";
 import {
@@ -261,7 +261,7 @@ export function createChart(
     size: { width: 536, height: 335 },
     offset: { x: 0, y: 0 },
     ...figureData,
-    definition: MyChart.deleteInvalidKeys(definition),
+    definition: Chart.deleteInvalidKeys(definition),
   });
 }
 
