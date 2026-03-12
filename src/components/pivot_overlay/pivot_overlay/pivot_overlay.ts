@@ -1,18 +1,16 @@
-import {
-  _t,
-  deepCopy,
-  GridRenderingContext,
-  isDefined,
-  Rect,
-  Zone,
-} from "@odoo/o-spreadsheet-engine";
+import { _t, deepCopy, Highlight, isDefined, Rect, Zone } from "@odoo/o-spreadsheet-engine";
 import { getNewMeasureId } from "@odoo/o-spreadsheet-engine/helpers/pivot/pivot_helpers";
-import { ViewportCollection } from "@odoo/o-spreadsheet-engine/helpers/viewport_collection";
 import { Aggregator, PivotDimension, PivotMeasure } from "@odoo/o-spreadsheet-engine/types/pivot";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { Store } from "@odoo/o-spreadsheet-engine/types/store_engine";
 import { Component, useEffect, useRef, useState } from "@odoo/owl";
-import { cellPositions, positionToZone, setColorAlpha, union } from "../../../helpers";
+import {
+  cellPositions,
+  positionToZone,
+  recomputeZones,
+  setColorAlpha,
+  union,
+} from "../../../helpers";
 import { useLocalStore, useStore } from "../../../store_engine";
 import {
   PivotDragAndDropState,
@@ -28,7 +26,6 @@ import { cssPropertiesToCss } from "../../helpers";
 import { getBoundingRectAsPOJO } from "../../helpers/dom_helpers";
 import { AddDimensionButton } from "../../side_panel/pivot/pivot_layout_configurator/add_dimension_button/add_dimension_button";
 import { PivotSidePanelStore } from "../../side_panel/pivot/pivot_side_panel/pivot_side_panel_store";
-import { StandaloneGridCanvas } from "../../standalone_grid_canvas/standalone_grid_canvas";
 import { PivotFacet } from "../pivot_facet/pivot_facet";
 
 interface Props {
@@ -76,7 +73,7 @@ interface State {
 export class PivotOverlay extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-PivotOverlay";
   static props = { "*": Object }; // ADRM TODO
-  static components = { PivotFacet, StandaloneGridCanvas, AddDimensionButton };
+  static components = { PivotFacet, AddDimensionButton };
 
   state = useState<State>({ hoveredPivotArea: undefined });
 
@@ -164,7 +161,8 @@ export class PivotOverlay extends Component<Props, SpreadsheetChildEnv> {
     const sheetId = this.env.model.getters.getActiveSheetId();
     for (const { position, pivotId } of this.env.model.getters.getAllPivotArrayFormulas()) {
       if (position.sheetId === sheetId && pivotId === this.pivotId) {
-        return position;
+        const pivot = this.env.model.getters.getPivot(pivotId);
+        return pivot.isValid() ? position : undefined;
       }
     }
     return undefined;
@@ -187,25 +185,6 @@ export class PivotOverlay extends Component<Props, SpreadsheetChildEnv> {
 
   get definition() {
     return this.env.model.getters.getPivot(this.pivotId).definition;
-  }
-
-  get pivotGridProps(): StandaloneGridCanvas["props"] {
-    const sheetId = this.env.model.getters.getActiveSheetId();
-    const position = this.pivotFormulaPosition;
-    const zone = this.env.model.getters.getSpreadZone(position) || positionToZone(position);
-    const firstRowStart = this.env.model.getters.getRowDimensions(sheetId, zone.top).start;
-    const lastRowEnd = this.env.model.getters.getRowDimensions(sheetId, zone.bottom).end;
-    const firstColStart = this.env.model.getters.getColDimensions(sheetId, zone.left).start;
-    const lastColEnd = this.env.model.getters.getColDimensions(sheetId, zone.right).end;
-
-    const viewports = new ViewportCollection(this.env.model.getters);
-    viewports.sheetViewWidth = lastColEnd - firstColStart;
-    viewports.sheetViewHeight = lastRowEnd - firstRowStart;
-    viewports.setSheetViewOffset(sheetId, firstColStart, firstRowStart);
-
-    const renderingCtx: Partial<GridRenderingContext> = { selectedZones: [], sheetId, viewports };
-
-    return { sheetId, zone, renderingCtx };
   }
 
   getDisplayedColumnsGroups() {
@@ -488,5 +467,57 @@ export class PivotOverlay extends Component<Props, SpreadsheetChildEnv> {
       return;
     }
     this.insertNewItemInPivot(area.type, this.draggedItemOverPivotArea);
+  }
+
+  getHighlightsForMeasure(measure: PivotMeasure): Highlight[] {
+    const sheetId = this.env.model.getters.getActiveSheetId();
+    const spread = this.env.model.getters.getSpreadZone(this.pivotFormulaPosition);
+    if (!spread) {
+      return [];
+    }
+    const zones: Zone[] = [];
+    for (const position of cellPositions(sheetId, spread)) {
+      const pivotCell = this.env.model.getters.getPivotCellFromPosition(position);
+      if (pivotCell.type === "MEASURE_HEADER" && pivotCell.measure === measure.id) {
+        zones.push(positionToZone(position));
+      } else if (pivotCell.type === "VALUE" && pivotCell.measure === measure.id) {
+        zones.push(positionToZone(position));
+      }
+    }
+    return recomputeZones(zones).map((zone) => ({
+      color: PIVOT_AREA_COLORS["measures"],
+      fillAlpha: 0.3,
+      range: this.env.model.getters.getRangeFromZone(sheetId, zone),
+    }));
+  }
+
+  // ADRM TODO: the code to loop on all pivot cells is repeated thrice. Create mapOnPivotCells ?
+  getHighlightsForDimension(dimensionType: DimensionType, dimension: PivotDimension): Highlight[] {
+    const sheetId = this.env.model.getters.getActiveSheetId();
+    const spread = this.env.model.getters.getSpreadZone(this.pivotFormulaPosition);
+    if (!spread) {
+      return [];
+    }
+    const zones: Zone[] = [];
+    for (const position of cellPositions(sheetId, spread)) {
+      const pivotCell = this.env.model.getters.getPivotCellFromPosition(position);
+      if (
+        pivotCell.type === "HEADER" &&
+        pivotCell.domain.at(-1)?.field === dimension.nameWithGranularity
+      ) {
+        zones.push(positionToZone(position));
+      } else if (
+        pivotCell.type === "ROW_GROUP_NAME" &&
+        dimensionType === "rows" &&
+        pivotCell.rowField === dimension.nameWithGranularity
+      ) {
+        zones.push(positionToZone(position));
+      }
+    }
+    return recomputeZones(zones).map((zone) => ({
+      color: PIVOT_AREA_COLORS[dimensionType],
+      fillAlpha: 0.3,
+      range: this.env.model.getters.getRangeFromZone(sheetId, zone),
+    }));
   }
 }

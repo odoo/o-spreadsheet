@@ -22,6 +22,7 @@
               label="measure.displayName"
               name="measure.id"
               onClickIcon="() => {}"
+              getHighlightsOnHover="() => this.getHighlightsForMeasure(measure)"
               onClickRemove="() => this.onRemoveMeasure(measure)"
             />
           </div>
@@ -58,6 +59,7 @@
               label="column.displayName"
               name="column.nameWithGranularity"
               onClickIcon="() => {}"
+              getHighlightsOnHover="() => this.getHighlightsForDimension('columns', column)"
               onClickRemove="() => this.onRemoveColumn(column)"
             />
             <span class="o-group-separator fw-bold px-2">&gt;</span>
@@ -97,6 +99,7 @@
               label="row.displayName"
               name="row.nameWithGranularity"
               onClickIcon="() => {}"
+              getHighlightsOnHover="() => this.getHighlightsForDimension('rows', row)"
               onClickRemove="() => this.onRemoveRow(row)"
             />
             <span class="o-group-separator fw-bold ps-2">&gt;</span>
