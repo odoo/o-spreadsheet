@@ -1,5 +1,5 @@
 import { DEFAULT_FIGURE_HEIGHT, DEFAULT_FIGURE_WIDTH, FIGURE_ID_SPLITTER } from "../../constants";
-import { MyChart } from "../../helpers/figures/chart";
+import { Chart } from "../../helpers/figures/chart";
 import { deepEquals } from "../../helpers/misc";
 import { ChartCreationContext, ChartDefinition, ChartType } from "../../types/chart";
 import {
@@ -17,7 +17,7 @@ import { CorePlugin } from "../core_plugin";
 
 interface FigureChart {
   figureId: UID;
-  chart: MyChart;
+  chart: Chart;
 }
 
 interface ChartState {
@@ -42,7 +42,7 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
       if (!chart) {
         continue;
       }
-      const newChart = MyChart.fromDefinition(
+      const newChart = Chart.fromDefinition(
         this.getters,
         chart.chart.sheetId,
         chart.chart.updateRanges(rangeAdapters)
@@ -161,7 +161,7 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
     return this.charts[chartId]?.chart.getContextCreation();
   }
 
-  getChart(chartId: UID): MyChart | undefined {
+  getChart(chartId: UID): Chart | undefined {
     return this.charts[chartId]?.chart;
   }
 
@@ -213,12 +213,12 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
             const chartId = figure.data.chartId;
             const definition = { ...figure.data };
             delete definition.chartId;
-            const chart = MyChart.fromStrDefinition(this.getters, sheet.id, definition);
+            const chart = Chart.fromStrDefinition(this.getters, sheet.id, definition);
             this.charts[chartId] = { chart, figureId: figure.id };
           } else if (figure.tag === "carousel") {
             for (const chartId in figure.data.chartDefinitions || {}) {
               const chartDefinition = figure.data.chartDefinitions[chartId];
-              const chart = MyChart.fromStrDefinition(this.getters, sheet.id, chartDefinition);
+              const chart = Chart.fromStrDefinition(this.getters, sheet.id, chartDefinition);
               this.charts[chartId] = { chart, figureId: figure.id };
             }
           }
@@ -299,7 +299,7 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
   private addChart(figureId: UID, chartId: UID, definition: ChartDefinition) {
     const sheetId = this.getters.getFigureSheetId(figureId);
     if (sheetId) {
-      const chart = MyChart.fromStrDefinition(this.getters, sheetId, definition);
+      const chart = Chart.fromStrDefinition(this.getters, sheetId, definition);
       this.history.update("charts", chartId, { figureId, chart });
     }
   }
@@ -311,7 +311,7 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
   }
 
   private checkChartDefinition(cmd: UpdateChartCommand | CreateChartCommand) {
-    return MyChart.validate(this, cmd.definition);
+    return Chart.validate(this, cmd.definition);
   }
 
   private checkChartExists(
