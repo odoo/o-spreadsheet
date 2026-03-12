@@ -1,5 +1,6 @@
 import { CompiledFormula } from "../../../formulas/compiler";
 import { matrixMap } from "../../../functions/helpers";
+import { getMissingHeadersForSpreadResult } from "../../../helpers";
 import { toXC } from "../../../helpers/coordinates";
 import { getItemId } from "../../../helpers/data_normalization";
 import { positions } from "../../../helpers/zones";
@@ -10,6 +11,7 @@ import {
   invalidateDependenciesCommands,
   invalidateEvaluationCommands,
 } from "../../../types/commands";
+import { CellErrorType } from "../../../types/errors";
 import { Format, FormattedValue } from "../../../types/format";
 import {
   CellPosition,
@@ -156,8 +158,10 @@ export class EvaluationPlugin extends CoreViewPlugin {
     "getEvaluatedCellsPositions",
     "getSpreadZone",
     "getArrayFormulaSpreadingOn",
+    "getSpillMissingHeaders",
     "isArrayFormulaSpillBlocked",
     "isEmpty",
+    "isSpillErrorBecauseOfMissingHeaders",
   ] as const;
 
   private shouldRebuildDependenciesGraph = true;
@@ -315,6 +319,20 @@ export class EvaluationPlugin extends CoreViewPlugin {
     return this.evaluator.getArrayFormulaSpreadingOn(position);
   }
 
+  getSpillMissingHeaders(
+    position: CellPosition
+  ): { missingCols: number; missingRows: number } | undefined {
+    if (!this.isSpillErrorBecauseOfMissingHeaders(position)) {
+      return;
+    }
+    const cell = this.getters.getCell(position);
+    if (!cell || !cell.isFormula) {
+      return;
+    }
+    const formula = cell.compiledFormula.toFormulaString(this.getters);
+    return getMissingHeadersForSpreadResult(this.getters, position, formula);
+  }
+
   isArrayFormulaSpillBlocked(position: CellPosition): boolean {
     return this.evaluator.isArrayFormulaSpillBlocked(position);
   }
@@ -326,6 +344,16 @@ export class EvaluationPlugin extends CoreViewPlugin {
     return positions(zone)
       .map(({ col, row }) => this.getEvaluatedCell({ sheetId, col, row }))
       .every((cell) => cell.type === CellValueType.empty);
+  }
+
+  isSpillErrorBecauseOfMissingHeaders(position: CellPosition): boolean {
+    const cell = this.getters.getEvaluatedCell(position);
+    return (
+      cell?.type === CellValueType.error &&
+      cell?.value === CellErrorType.SpilledBlocked &&
+      !cell.errorOriginPosition &&
+      !this.getters.getSpreadZone(position, { ignoreSpillError: true })
+    );
   }
 
   /**

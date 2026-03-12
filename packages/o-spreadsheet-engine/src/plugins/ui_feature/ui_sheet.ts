@@ -18,7 +18,12 @@ import {
 } from "../../helpers/text_helper";
 import { isEqual, positions } from "../../helpers/zones";
 import { CellValueType } from "../../types/cells";
-import { Command, CommandResult, LocalCommand } from "../../types/commands";
+import {
+  AddSpillMissingHeadersCommand,
+  Command,
+  CommandResult,
+  LocalCommand,
+} from "../../types/commands";
 import {
   CellPosition,
   HeaderIndex,
@@ -69,6 +74,9 @@ export class SheetUIPlugin extends UIPlugin {
         break;
       case "AUTORESIZE_ROWS":
         this.autoResizeRows(cmd.sheetId, cmd.rows);
+        break;
+      case "ADD_SPILL_MISSING_HEADERS":
+        this.addMissingHeaders(cmd);
         break;
       case "DELETE_UNFILTERED_CONTENT":
         const newTarget: Zone[] = [];
@@ -329,6 +337,29 @@ export class SheetUIPlugin extends UIPlugin {
         dimension: "ROW",
         size,
         sheetId,
+      });
+    }
+  }
+
+  private addMissingHeaders({ missingCols, missingRows, sheetId }: AddSpillMissingHeadersCommand) {
+    if (missingCols > 0) {
+      this.dispatch("ADD_COLUMNS_ROWS", {
+        sheetId,
+        sheetName: this.getters.getSheetName(sheetId),
+        dimension: "COL",
+        base: this.getters.getNumberCols(sheetId) - 1,
+        position: "after",
+        quantity: missingCols + 20,
+      });
+    }
+    if (missingRows > 0) {
+      this.dispatch("ADD_COLUMNS_ROWS", {
+        sheetId,
+        sheetName: this.getters.getSheetName(sheetId),
+        dimension: "ROW",
+        base: this.getters.getNumberRows(sheetId) - 1,
+        position: "after",
+        quantity: missingRows + 50,
       });
     }
   }

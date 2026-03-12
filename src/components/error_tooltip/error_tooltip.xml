@@ -14,7 +14,7 @@
               title="Click to select the cell"
             />
           </div>
-          <t t-set="missingHeadersForSpread" t-value="getMissingHeadersForSpread()"/>
+          <t t-set="missingHeadersForSpread" t-value="getSpillMissingHeaders()"/>
           <div
             t-if="missingHeadersForSpread"
             class="o-button-link mt-4"

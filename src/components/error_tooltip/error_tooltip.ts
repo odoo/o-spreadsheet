@@ -1,8 +1,8 @@
 import { _t } from "@odoo/o-spreadsheet-engine";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { Component } from "@odoo/owl";
-import { deepEquals, getMissingHeadersForSpreadResult, positionToZone } from "../../helpers";
-import { CellErrorType, CellPosition, CellValueType } from "../../types";
+import { deepEquals, positionToZone } from "../../helpers";
+import { CellPosition, CellValueType } from "../../types";
 import { CellPopoverComponent, PopoverBuilders } from "../../types/cell_popovers";
 
 const ERROR_TOOLTIP_MAX_HEIGHT = 80;
@@ -64,52 +64,19 @@ export class ErrorToolTip extends Component<ErrorToolTipProps, SpreadsheetChildE
   }
 
   get isSpillErrorBecauseOfMissingHeaders() {
-    const evaluationError = this.evaluationError;
-    return (
-      evaluationError?.value === CellErrorType.SpilledBlocked &&
-      !evaluationError.errorOriginPosition &&
-      !this.env.model.getters.getSpreadZone(this.props.cellPosition, { ignoreSpillError: true })
-    );
+    return this.env.model.getters.isSpillErrorBecauseOfMissingHeaders(this.props.cellPosition);
   }
 
-  getMissingHeadersForSpread() {
-    if (!this.isSpillErrorBecauseOfMissingHeaders) {
-      return;
-    }
-    const cell = this.env.model.getters.getCell(this.props.cellPosition);
-    if (!cell || !cell.isFormula) {
-      return;
-    }
-    const formula = cell.compiledFormula.toFormulaString(this.env.model.getters);
-    return getMissingHeadersForSpreadResult(
-      this.env.model.getters,
-      this.props.cellPosition,
-      formula
-    );
+  getSpillMissingHeaders() {
+    return this.env.model.getters.getSpillMissingHeaders(this.props.cellPosition);
   }
 
   addMissingHeaders({ missingCols, missingRows }: { missingCols: number; missingRows: number }) {
-    const sheetId = this.props.cellPosition.sheetId;
-    if (missingCols > 0) {
-      this.env.model.dispatch("ADD_COLUMNS_ROWS", {
-        sheetId,
-        sheetName: this.env.model.getters.getSheetName(sheetId),
-        dimension: "COL",
-        base: this.env.model.getters.getNumberCols(sheetId) - 1,
-        position: "after",
-        quantity: missingCols + 20,
-      });
-    }
-    if (missingRows > 0) {
-      this.env.model.dispatch("ADD_COLUMNS_ROWS", {
-        sheetId,
-        sheetName: this.env.model.getters.getSheetName(sheetId),
-        dimension: "ROW",
-        base: this.env.model.getters.getNumberRows(sheetId) - 1,
-        position: "after",
-        quantity: missingRows + 50,
-      });
-    }
+    this.env.model.dispatch("ADD_SPILL_MISSING_HEADERS", {
+      sheetId: this.props.cellPosition.sheetId,
+      missingCols,
+      missingRows,
+    });
   }
 
   getAddMissingHeadersButtonText(missingHeaders: { missingCols: number; missingRows: number }) {
@@ -123,22 +90,28 @@ export class ErrorToolTip extends Component<ErrorToolTipProps, SpreadsheetChildE
   }
 }
 
+const popoverBuilder: PopoverBuilders["onHover"] = (
+  position,
+  getters
+): CellPopoverComponent<typeof ErrorToolTip> => {
+  const cell = getters.getEvaluatedCell(position);
+  if (
+    (cell.type === CellValueType.error && !!cell.message) ||
+    getters.getInvalidDataValidationMessage(position)
+  ) {
+    return {
+      isOpen: true,
+      props: {
+        cellPosition: position,
+      },
+      Component: ErrorToolTip,
+      cellCorner: "top-right",
+    };
+  }
+  return { isOpen: false };
+};
+
 export const ErrorToolTipPopoverBuilder: PopoverBuilders = {
-  onHover: (position, getters): CellPopoverComponent<typeof ErrorToolTip> => {
-    const cell = getters.getEvaluatedCell(position);
-    if (
-      (cell.type === CellValueType.error && !!cell.message) ||
-      getters.getInvalidDataValidationMessage(position)
-    ) {
-      return {
-        isOpen: true,
-        props: {
-          cellPosition: position,
-        },
-        Component: ErrorToolTip,
-        cellCorner: "top-right",
-      };
-    }
-    return { isOpen: false };
-  },
+  onOpen: popoverBuilder,
+  onHover: popoverBuilder,
 };

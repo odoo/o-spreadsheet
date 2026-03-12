@@ -7,13 +7,17 @@ import {
 import { SpreadsheetPivot } from "@odoo/o-spreadsheet-engine/helpers/pivot/spreadsheet_pivot/spreadsheet_pivot";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { Model, PivotSortedColumn, SpreadsheetPivotTable } from "../../../src";
+import { CellPopoverStore } from "../../../src/components/popover";
+import { PivotSidePanelStore } from "../../../src/components/side_panel/pivot/pivot_side_panel/pivot_side_panel_store";
 import { SidePanels } from "../../../src/components/side_panel/side_panels/side_panels";
-import { toXC, toZone } from "../../../src/helpers";
+import { range, toXC, toZone } from "../../../src/helpers";
 import { topbarMenuRegistry } from "../../../src/registries/menus";
 import { NotificationStore } from "../../../src/stores/notification_store";
+import { registerCleanup } from "../../setup/jest.setup";
 import {
   activateSheet,
   createSheet,
+  deleteRows,
   selectCell,
   setCellContent,
   setViewportOffset,
@@ -27,7 +31,12 @@ import {
   keyDown,
   setInputValueAndTrigger,
 } from "../../test_helpers/dom_helper";
-import { getCellText, getEvaluatedCell, getTable } from "../../test_helpers/getters_helpers";
+import {
+  getCellError,
+  getCellText,
+  getEvaluatedCell,
+  getTable,
+} from "../../test_helpers/getters_helpers";
 import {
   doAction,
   editStandaloneComposer,
@@ -863,6 +872,54 @@ describe("Spreadsheet pivot side panel", () => {
     env.openSidePanel("PivotSidePanel", { pivotId: "1" });
     await nextTick();
     expect(1).toBe(1);
+  });
+
+  test("add missing headers when pivot is updated", async () => {
+    const sheetId = model.getters.getActiveSheetId();
+    setCellContent(model, "A4", "=PIVOT(1)");
+    // delete all empty rows after the pivot
+    deleteRows(model, range(6, model.getters.getNumberRows(sheetId)));
+    const initialNumberOfRows = model.getters.getNumberRows(sheetId);
+    const popoverCellStore = env.getStore(CellPopoverStore);
+    expect(popoverCellStore.isOpen).toBe(false);
+
+    // add a row groupby to make the pivot bigger than the available space
+    await click(fixture.querySelectorAll(".add-dimension")[1]);
+    await click(fixture.querySelectorAll(".o-autocomplete-value")[0]);
+    expect(popoverCellStore.isOpen).toBe(false);
+    expect(model.getters.getNumberRows(sheetId)).toBeGreaterThan(initialNumberOfRows);
+    expect(getCellError(model, "A4")).toBeUndefined();
+
+    // technical limitation: it creates to history steps.
+    undo(model);
+    expect(model.getters.getNumberRows(sheetId)).toBe(initialNumberOfRows);
+    expect(model.getters.getPivotCoreDefinition("1").rows).toHaveLength(1);
+    undo(model);
+    expect(model.getters.getPivotCoreDefinition("1").rows).toHaveLength(0);
+  });
+
+  test("show #SPILL error message when pivot is updated with too many cells", async () => {
+    // patch the threshold
+    const originalThreshold = PivotSidePanelStore.missingHeadersThreshold;
+    PivotSidePanelStore.missingHeadersThreshold = 2;
+    registerCleanup(() => {
+      PivotSidePanelStore.missingHeadersThreshold = originalThreshold;
+    });
+    const sheetId = model.getters.getActiveSheetId();
+    setCellContent(model, "A4", "=PIVOT(1)");
+    // delete all empty rows after the pivot
+    deleteRows(model, range(6, model.getters.getNumberRows(sheetId)));
+    expect(getEvaluatedCell(model, "A4").value).not.toBe("#SPILL!");
+    const initialNumberOfRows = model.getters.getNumberRows(sheetId);
+    const popoverCellStore = env.getStore(CellPopoverStore);
+    expect(popoverCellStore.isOpen).toBe(false);
+
+    // add a row groupby to make the pivot bigger than the available space
+    await click(fixture.querySelectorAll(".add-dimension")[1]);
+    await click(fixture.querySelectorAll(".o-autocomplete-value")[0]);
+    expect(popoverCellStore.isOpen).toBe(true);
+    expect(model.getters.getNumberRows(sheetId)).toBe(initialNumberOfRows);
+    expect(getEvaluatedCell(model, "A4").value).toBe("#SPILL!");
   });
 
   describe("Pivot sorting", () => {
