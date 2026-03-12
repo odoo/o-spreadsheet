@@ -2,12 +2,13 @@ import {
   CommandSquisher,
   SquishedCoreCommand,
 } from "@odoo/o-spreadsheet-engine/collaborative/commandSquisher";
-import { CoreCommand, Model } from "../../src";
+import { CoreCommand, Model, RemoteRevisionMessage } from "../../src";
 import { toZone } from "../../src/helpers";
 import { MockTransportService } from "../__mocks__/transport_service";
 import { getCellContent } from "../test_helpers";
 import { autofill } from "../test_helpers/autofill_helpers";
-import { setCellContent } from "../test_helpers/commands_helpers";
+import { addRows, deleteRows, setCellContent, undo } from "../test_helpers/commands_helpers";
+import { setupCollaborativeEnv } from "./collaborative_helpers";
 
 describe("Collaborative session", () => {
   test("Update_cell on same value and contiguous cells", () => {
@@ -532,5 +533,90 @@ describe("commands", () => {
       type: "REMOTE_REVISION",
       version: 1,
     });
+  });
+});
+
+describe("Collaborative session - clientId preservation", () => {
+  /**
+   * This test verifies that the clientId in a REMOTE_REVISION message sent by a client
+   * always matches the original sender, even after the revision is OT-transformed and
+   * rebased.
+   *
+   * The scenario exercises the `revision.commands.length === 0` branch in
+   * `sendPendingMessage`: when bob's autofill commands target rows that alice concurrently
+   * removes (via undo), OT-transformation drops those commands (empty array), triggering a
+   * rebase.  The resent message MUST still carry `clientId: "bob"` so that bob's own session
+   * recognizes the server echo as its own revision and does not re-apply it, which would
+   * corrupt the shared state.
+   */
+  test("clientId is preserved in resent REMOTE_REVISION after OT-transformation to empty commands", () => {
+    const { network, alice, bob } = setupCollaborativeEnv({
+      sheets: [{ id: "sheet1", cells: { A1: { content: "hello" } } }],
+    });
+
+    // Alice adds 4 rows sequentially — all clients now have 5 rows (rows 0–4).
+    addRows(alice, "after", 0, 4);
+
+    // Capture every message that hits the transport from this point onward.
+    const spy = jest.spyOn(network, "sendMessage");
+
+    // Concurrent block:
+    //   - Alice's REVISION_UNDONE is sent first and accepted by the server.
+    //     This removes the 4 added rows from the shared state.
+    //   - Bob's REMOTE_REVISION (autofill A1→A5, targeting rows 1–4) is sent
+    //     second and rejected by the server because the serverRevisionId no
+    //     longer matches.
+    //
+    // After the block the mock broadcasts Alice's undo to all listeners.
+    // Bob's session processes it, OT-transforms his pending autofill revision
+    // (rows 1–4 no longer exist → commands become []), and then rebases and
+    // resends the revision.
+    network.concurrent(() => {
+      undo(alice); // accepted first — undoes addRows, deletes rows 1–4
+      autofill(bob, "A1", "A5"); // targets the now-deleted rows 1–4
+    });
+
+    // Every REMOTE_REVISION sent by bob must carry clientId: "bob".
+    // If the clientId were wrong (e.g. "empty" from the internal buildEmpty
+    // placeholder), bob's session would fail to recognize the server echo as
+    // its own revision and would re-apply it, duplicating the changes.
+    const bobRevisions = spy.mock.calls
+      .map(([msg]) => msg)
+      .filter((msg) => msg.type === "REMOTE_REVISION" && msg.clientId === "bob");
+
+    expect(bobRevisions.length).toBeGreaterThan(0);
+    for (const msg of bobRevisions) {
+      expect((msg as RemoteRevisionMessage).clientId).toBe("bob");
+    }
+
+    // Both clients must converge to the same exported state.
+    expect([alice, bob]).toHaveSynchronizedExportedData();
+  });
+
+  test("clientId is preserved when a pending revision is resent after concurrent row deletion", () => {
+    const { network, alice, bob } = setupCollaborativeEnv({
+      sheets: [{ id: "sheet1", cells: { A1: { content: "1" }, A2: { content: "2" } } }],
+    });
+
+    const spy = jest.spyOn(network, "sendMessage");
+
+    // Bob autofills concurrently while Alice deletes a row that overlaps with
+    // Bob's autofill target.  Alice is accepted first, so Bob must resend his
+    // revision after OT.  The resent message must still carry clientId: "bob".
+    network.concurrent(() => {
+      deleteRows(alice, [1]); // delete row 1 (A2); accepted first
+      autofill(bob, "A1:A2", "A5"); // targets rows 2–4; gets OT-transformed
+    });
+
+    const bobRevisions = spy.mock.calls
+      .map(([msg]) => msg)
+      .filter((msg) => msg.type === "REMOTE_REVISION" && msg.clientId === "bob");
+
+    expect(bobRevisions.length).toBeGreaterThan(0);
+    for (const msg of bobRevisions) {
+      expect((msg as RemoteRevisionMessage).clientId).toBe("bob");
+    }
+
+    expect([alice, bob]).toHaveSynchronizedExportedData();
   });
 });
