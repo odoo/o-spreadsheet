@@ -161,6 +161,31 @@ export const CHECKBOX_CHECKED: ImageSVG = {
   ],
 };
 
+// Dark mode variants of the ckeckbox icons, as the applied CSS filter make them alsmost invisible.
+export const CHECKBOX_UNCHECKED_DARK: ImageSVG = {
+  name: "CHECKBOX_UNCHECKED",
+  width: 512,
+  height: 512,
+  paths: [{ fillColor: "#91959d", path: "M45,45 h422 v422 h-422 v-422 m30,30 v362 h362 v-362" }],
+};
+
+export const CHECKBOX_UNCHECKED_HOVERED_DARK: ImageSVG = {
+  name: "CHECKBOX_UNCHECKED",
+  width: 512,
+  height: 512,
+  paths: [{ fillColor: "#82d1d5", path: "M45,45 h422 v422 h-422 v-422 m30,30 v362 h362 v-362" }],
+};
+
+export const CHECKBOX_CHECKED_DARK: ImageSVG = {
+  name: "CHECKBOX_CHECKED",
+  width: 512,
+  height: 512,
+  paths: [
+    { fillColor: "#82d1d5", path: "M45,45 h422 v422 h-422 v-422" },
+    { fillColor: "#505050", path: "M165,240 l45,45 l135,-135 h60 l-195,195 l-105,-105" },
+  ],
+};
+
 export function getPivotIconSvg(isCollapsed: boolean, isHovered: boolean): ImageSVG {
   const symbolPath = isCollapsed
     ? "M149,235 h213 v43 h-213 M235,149 h43 v213 h-43" // +

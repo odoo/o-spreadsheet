@@ -1,8 +1,5 @@
 import {
-  BACKGROUND_HEADER_ACTIVE_COLOR,
-  BACKGROUND_HEADER_SELECTED_COLOR,
   CANVAS_SHIFT,
-  CELL_BORDER_COLOR,
   DEFAULT_CELL_HEIGHT,
   DEFAULT_CELL_WIDTH,
   HEADER_HEIGHT,
@@ -13,16 +10,15 @@ import {
   SELECTION_BORDER_COLOR,
   TABLE_HOVER_BACKGROUND_COLOR,
 } from "@odoo/o-spreadsheet-engine/constants";
+import {
+  BACKGROUND_HEADER_ACTIVE_COLOR,
+  BACKGROUND_HEADER_SELECTED_COLOR,
+  CELL_BORDER_COLOR,
+} from "@odoo/o-spreadsheet-engine/plugins/ui_feature/color_theme";
 import { Mode } from "@odoo/o-spreadsheet-engine/types/model";
 import { LiteralCell, Model } from "../../src";
 import { HoveredTableStore } from "../../src/components/tables/hovered_table_store";
-import {
-  blendColors,
-  fontSizeInPixels,
-  getContextFontSize,
-  toHex,
-  toZone,
-} from "../../src/helpers";
+import { blendColors, fontSizeInPixels, getContextFontSize, toZone } from "../../src/helpers";
 import { FormulaFingerprintStore } from "../../src/stores/formula_fingerprints_store";
 import { GridRenderer } from "../../src/stores/grid_renderer_store";
 import { RendererStore } from "../../src/stores/renderer_store";
@@ -1867,14 +1863,14 @@ describe("renderer", () => {
 
   describe("Overflowing cells background", () => {
     let model: Model;
-    let fillWhiteRectInstructions: number[][];
+    let clearRectInstructions: number[][];
     let ctx: MockGridRenderingContext;
     let drawGridRenderer: (ctx: GridRenderingContext) => void;
     let gridRendererStore: GridRenderer;
 
     function getCellOverflowingBackgroundDims() {
       // first draw of white rectangle is the spreadsheet's background
-      const instruction = fillWhiteRectInstructions[1];
+      const instruction = clearRectInstructions[0];
       if (!instruction) {
         return undefined;
       }
@@ -1890,17 +1886,13 @@ describe("renderer", () => {
       ({ drawGridRenderer, model, gridRendererStore } = setRenderer(
         new Model({ sheets: [{ colNumber: 10, rowNumber: 10 }] })
       ));
-      fillWhiteRectInstructions = [];
-      let drawingWhiteBackground = false;
+      clearRectInstructions = [];
       ctx = new MockGridRenderingContext(model, 1000, 1000, {
-        onSet: (key, value) => {
-          drawingWhiteBackground = key === "fillStyle" && toHex(value) === "#FFFFFF";
-        },
         onFunctionCall: (key, args) => {
-          if (key !== "fillRect" || !drawingWhiteBackground) {
+          if (key !== "clearRect") {
             return;
           }
-          fillWhiteRectInstructions.push(args);
+          clearRectInstructions.push(args);
         },
       });
     });

@@ -13,7 +13,7 @@
       </div>
       <t t-if="cf.rule.type==='IconSetRule'">
         <div
-          class="o-cf-preview-icon d-flex justify-content-around align-items-center me-3 bg-white border">
+          class="o-cf-preview-icon d-flex justify-content-around align-items-center me-3 border os-theme-dependant">
           <t t-call="o-spreadsheet-Icon.{{icons[cf.rule.icons.upper].template}}"/>
           <t t-call="o-spreadsheet-Icon.{{icons[cf.rule.icons.middle].template}}"/>
           <t t-call="o-spreadsheet-Icon.{{icons[cf.rule.icons.lower].template}}"/>
@@ -22,7 +22,7 @@
       <t t-else="">
         <div
           t-att-style="previewImageStyle"
-          class="o-cf-preview-icon d-flex justify-content-around align-items-center me-3 flex-shrink-0 border">
+          class="o-cf-preview-icon d-flex justify-content-around align-items-center me-3 flex-shrink-0 border os-theme-dependant">
           123
         </div>
       </t>

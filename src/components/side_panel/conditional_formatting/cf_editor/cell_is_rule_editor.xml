@@ -1,7 +1,7 @@
 <templates>
   <t t-name="o-spreadsheet-CellIsRuleEditorPreview">
     <div
-      class="o-cf-preview-display border"
+      class="o-cf-preview-display border os-theme-dependant"
       t-attf-style="font-weight:{{currentStyle.bold ?'bold':'normal'}};
                        text-decoration:{{getTextDecoration(currentStyle)}};
                        font-style:{{currentStyle.italic?'italic':'normal'}};
