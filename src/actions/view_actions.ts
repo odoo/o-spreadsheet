@@ -12,7 +12,7 @@ export const hideCols: ActionSpec = {
   name: ACTIONS.HIDE_COLUMNS_NAME,
   execute: (env) => {
     const columns = env.model.getters.getElementsFromSelection("COL");
-    env.model.dispatch("HIDE_COLUMNS_ROWS", {
+    env.model.dispatchFromOutside("HIDE_COLUMNS_ROWS", {
       sheetId: env.model.getters.getActiveSheetId(),
       dimension: "COL",
       elements: columns,
@@ -27,7 +27,7 @@ export const unhideCols: ActionSpec = {
   name: _t("Unhide columns"),
   execute: (env) => {
     const columns = env.model.getters.getElementsFromSelection("COL");
-    env.model.dispatch("UNHIDE_COLUMNS_ROWS", {
+    env.model.dispatchFromOutside("UNHIDE_COLUMNS_ROWS", {
       sheetId: env.model.getters.getActiveSheetId(),
       dimension: "COL",
       elements: columns,
@@ -48,7 +48,7 @@ export const unhideAllCols: ActionSpec = {
   name: _t("Unhide all columns"),
   execute: (env) => {
     const sheetId = env.model.getters.getActiveSheetId();
-    env.model.dispatch("UNHIDE_COLUMNS_ROWS", {
+    env.model.dispatchFromOutside("UNHIDE_COLUMNS_ROWS", {
       sheetId,
       dimension: "COL",
       elements: Array.from(Array(env.model.getters.getNumberCols(sheetId)).keys()),
@@ -64,7 +64,7 @@ export const hideRows: ActionSpec = {
   name: ACTIONS.HIDE_ROWS_NAME,
   execute: (env) => {
     const rows = env.model.getters.getElementsFromSelection("ROW");
-    env.model.dispatch("HIDE_COLUMNS_ROWS", {
+    env.model.dispatchFromOutside("HIDE_COLUMNS_ROWS", {
       sheetId: env.model.getters.getActiveSheetId(),
       dimension: "ROW",
       elements: rows,
@@ -79,7 +79,7 @@ export const unhideRows: ActionSpec = {
   name: _t("Unhide rows"),
   execute: (env) => {
     const columns = env.model.getters.getElementsFromSelection("ROW");
-    env.model.dispatch("UNHIDE_COLUMNS_ROWS", {
+    env.model.dispatchFromOutside("UNHIDE_COLUMNS_ROWS", {
       sheetId: env.model.getters.getActiveSheetId(),
       dimension: "ROW",
       elements: columns,
@@ -100,7 +100,7 @@ export const unhideAllRows: ActionSpec = {
   name: _t("Unhide all rows"),
   execute: (env) => {
     const sheetId = env.model.getters.getActiveSheetId();
-    env.model.dispatch("UNHIDE_COLUMNS_ROWS", {
+    env.model.dispatchFromOutside("UNHIDE_COLUMNS_ROWS", {
       sheetId,
       dimension: "ROW",
       elements: Array.from(Array(env.model.getters.getNumberRows(sheetId)).keys()),
@@ -121,7 +121,7 @@ export const unFreezePane: ActionSpec = {
     return xSplit + ySplit > 0;
   },
   execute: (env) =>
-    env.model.dispatch("UNFREEZE_COLUMNS_ROWS", {
+    env.model.dispatchFromOutside("UNFREEZE_COLUMNS_ROWS", {
       sheetId: env.model.getters.getActiveSheetId(),
     }),
 
@@ -136,7 +136,7 @@ export const freezePane: ActionSpec = {
 export const unFreezeRows: ActionSpec = {
   name: _t("No rows"),
   execute: (env) =>
-    env.model.dispatch("UNFREEZE_ROWS", {
+    env.model.dispatchFromOutside("UNFREEZE_ROWS", {
       sheetId: env.model.getters.getActiveSheetId(),
     }),
   isVisible: (env) =>
@@ -164,7 +164,7 @@ export const freezeCurrentRow: ActionSpec = {
 export const unFreezeCols: ActionSpec = {
   name: _t("No columns"),
   execute: (env) =>
-    env.model.dispatch("UNFREEZE_COLUMNS", {
+    env.model.dispatchFromOutside("UNFREEZE_COLUMNS", {
       sheetId: env.model.getters.getActiveSheetId(),
     }),
   isVisible: (env) =>
@@ -193,7 +193,7 @@ export const viewGridlines: ActionSpec = {
   name: _t("Gridlines"),
   execute: (env) => {
     const sheetId = env.model.getters.getActiveSheetId();
-    env.model.dispatch("SET_GRID_LINES_VISIBILITY", {
+    env.model.dispatchFromOutside("SET_GRID_LINES_VISIBILITY", {
       sheetId,
       areGridLinesVisible: !env.model.getters.getGridLinesVisibility(sheetId),
     });
@@ -223,7 +223,7 @@ export function zoomAction(zoom: number): ActionSpec {
   return {
     name: _t("%(zoom_percentage)s%", { zoom_percentage: zoom }),
     execute: (env) => {
-      env.model.dispatch("SET_ZOOM", { zoom: zoom / 100 });
+      env.model.dispatchFromOutside("SET_ZOOM", { zoom: zoom / 100 });
     },
     isActive: (env: SpreadsheetChildEnv) => env.model.getters.getViewportZoomLevel() === zoom / 100,
     isReadonlyAllowed: true,
@@ -236,7 +236,9 @@ export const viewFormulas: ActionSpec = {
   name: _t("Formulas"),
   isActive: (env: SpreadsheetChildEnv) => env.model.getters.shouldShowFormulas(),
   execute: (env) =>
-    env.model.dispatch("SET_FORMULA_VISIBILITY", { show: !env.model.getters.shouldShowFormulas() }),
+    env.model.dispatchFromOutside("SET_FORMULA_VISIBILITY", {
+      show: !env.model.getters.shouldShowFormulas(),
+    }),
   isReadonlyAllowed: true,
   isEnabledOnLockedSheet: true,
 };
@@ -324,7 +326,7 @@ export const ungroupRows: ActionSpec = {
 function groupHeadersAction(env: SpreadsheetChildEnv, dim: Dimension) {
   const selection = env.model.getters.getSelectedZone();
   const sheetId = env.model.getters.getActiveSheetId();
-  env.model.dispatch("GROUP_HEADERS", {
+  env.model.dispatchFromOutside("GROUP_HEADERS", {
     sheetId,
     dimension: dim,
     start: dim === "COL" ? selection.left : selection.top,
@@ -335,7 +337,7 @@ function groupHeadersAction(env: SpreadsheetChildEnv, dim: Dimension) {
 function ungroupHeaders(env: SpreadsheetChildEnv, dim: Dimension) {
   const selection = env.model.getters.getSelectedZone();
   const sheetId = env.model.getters.getActiveSheetId();
-  env.model.dispatch("UNGROUP_HEADERS", {
+  env.model.dispatchFromOutside("UNGROUP_HEADERS", {
     sheetId,
     dimension: dim,
     start: dim === "COL" ? selection.left : selection.top,

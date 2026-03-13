@@ -62,7 +62,7 @@ export class CarouselPanel extends Component<Props, SpreadsheetChildEnv> {
   }
 
   addNewChartToCarousel() {
-    this.env.model.dispatch("ADD_NEW_CHART_TO_CAROUSEL", {
+    this.env.model.dispatchFromOutside("ADD_NEW_CHART_TO_CAROUSEL", {
       figureId: this.props.figureId,
       sheetId: this.carouselSheetId,
     });
@@ -83,7 +83,7 @@ export class CarouselPanel extends Component<Props, SpreadsheetChildEnv> {
   }
 
   activateCarouselItem(item: CarouselItem) {
-    this.env.model.dispatch("UPDATE_CAROUSEL_ACTIVE_ITEM", {
+    this.env.model.dispatchFromOutside("UPDATE_CAROUSEL_ACTIVE_ITEM", {
       figureId: this.props.figureId,
       sheetId: this.carouselSheetId,
       item,
@@ -93,7 +93,7 @@ export class CarouselPanel extends Component<Props, SpreadsheetChildEnv> {
   editCarouselItem(item: CarouselItem) {
     if (item.type === "chart") {
       this.activateCarouselItem(item);
-      this.env.model.dispatch("SELECT_FIGURE", { figureId: this.props.figureId });
+      this.env.model.dispatchFromOutside("SELECT_FIGURE", { figureId: this.props.figureId });
       this.env.openSidePanel("ChartPanel", { chartId: item.chartId });
     }
   }
@@ -121,7 +121,7 @@ export class CarouselPanel extends Component<Props, SpreadsheetChildEnv> {
     if (item.type !== "chart") {
       return;
     }
-    this.env.model.dispatch("POPOUT_CHART_FROM_CAROUSEL", {
+    this.env.model.dispatchFromOutside("POPOUT_CHART_FROM_CAROUSEL", {
       sheetId: this.carouselSheetId,
       carouselId: this.props.figureId,
       chartId: item.chartId,
@@ -132,7 +132,7 @@ export class CarouselPanel extends Component<Props, SpreadsheetChildEnv> {
     if (item.type !== "chart") {
       return;
     }
-    this.env.model.dispatch("DUPLICATE_CAROUSEL_CHART", {
+    this.env.model.dispatchFromOutside("DUPLICATE_CAROUSEL_CHART", {
       sheetId: this.carouselSheetId,
       carouselId: this.props.figureId,
       chartId: item.chartId,
@@ -182,7 +182,7 @@ export class CarouselPanel extends Component<Props, SpreadsheetChildEnv> {
   }
 
   updateItems(items: CarouselItem[]) {
-    this.env.model.dispatch("UPDATE_CAROUSEL", {
+    this.env.model.dispatchFromOutside("UPDATE_CAROUSEL", {
       figureId: this.props.figureId,
       sheetId: this.carouselSheetId,
       definition: { ...this.carousel, items },
@@ -191,7 +191,7 @@ export class CarouselPanel extends Component<Props, SpreadsheetChildEnv> {
 
   updateTitleText(title: string) {
     const carousel = this.env.model.getters.getCarousel(this.props.figureId);
-    this.env.model.dispatch("UPDATE_CAROUSEL", {
+    this.env.model.dispatchFromOutside("UPDATE_CAROUSEL", {
       figureId: this.props.figureId,
       sheetId: this.carouselSheetId,
       definition: {
@@ -206,7 +206,7 @@ export class CarouselPanel extends Component<Props, SpreadsheetChildEnv> {
 
   updateTitleStyle(style: TitleDesign) {
     const carousel = this.env.model.getters.getCarousel(this.props.figureId);
-    this.env.model.dispatch("UPDATE_CAROUSEL", {
+    this.env.model.dispatchFromOutside("UPDATE_CAROUSEL", {
       figureId: this.props.figureId,
       sheetId: this.carouselSheetId,
       definition: {

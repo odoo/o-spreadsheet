@@ -58,7 +58,7 @@ export class TablePanel extends Component<Props, SpreadsheetChildEnv> {
     value: boolean | string | number
   ): Promise<DispatchResult> {
     const sheetId = this.env.model.getters.getActiveSheetId();
-    return await this.env.model.dispatch("UPDATE_TABLE", {
+    return await this.env.model.dispatchFromOutside("UPDATE_TABLE", {
       sheetId,
       zone: this.props.table.range.zone,
       config: { [attName]: value },
@@ -80,7 +80,7 @@ export class TablePanel extends Component<Props, SpreadsheetChildEnv> {
       return;
     }
     const sheetId = this.env.model.getters.getActiveSheetId();
-    const result = await this.env.model.dispatch("UPDATE_TABLE", {
+    const result = await this.env.model.dispatchFromOutside("UPDATE_TABLE", {
       sheetId,
       zone: this.props.table.range.zone,
       newTableRange: this.env.model.getters.getRangeData(uiTable.range),
@@ -102,7 +102,7 @@ export class TablePanel extends Component<Props, SpreadsheetChildEnv> {
   private updateNumberOfHeaders(numberOfHeaders: number) {
     const hasFilters =
       numberOfHeaders > 0 && (this.tableConfig.hasFilters || this.state.filtersEnabledIfPossible);
-    return this.env.model.dispatch("UPDATE_TABLE", {
+    return this.env.model.dispatchFromOutside("UPDATE_TABLE", {
       sheetId: this.env.model.getters.getActiveSheetId(),
       zone: this.props.table.range.zone,
       config: { numberOfHeaders, hasFilters },
@@ -135,7 +135,7 @@ export class TablePanel extends Component<Props, SpreadsheetChildEnv> {
       newTableZone.top === oldTableZone.top && newTableZone.left === oldTableZone.left
         ? "RESIZE_TABLE"
         : "UPDATE_TABLE";
-    const result = await this.env.model.dispatch(cmdToCall, {
+    const result = await this.env.model.dispatchFromOutside(cmdToCall, {
       sheetId,
       zone: this.props.table.range.zone,
       newTableRange: this.env.model.getters.getRangeData(newRange),
@@ -158,7 +158,7 @@ export class TablePanel extends Component<Props, SpreadsheetChildEnv> {
 
   onStylePicked(styleId: string) {
     const sheetId = this.env.model.getters.getActiveSheetId();
-    this.env.model.dispatch("UPDATE_TABLE", {
+    this.env.model.dispatchFromOutside("UPDATE_TABLE", {
       sheetId,
       zone: this.props.table.range.zone,
       config: { styleId: styleId },
@@ -167,7 +167,7 @@ export class TablePanel extends Component<Props, SpreadsheetChildEnv> {
 
   deleteTable() {
     const sheetId = this.env.model.getters.getActiveSheetId();
-    this.env.model.dispatch("REMOVE_TABLE", {
+    this.env.model.dispatchFromOutside("REMOVE_TABLE", {
       sheetId,
       target: [this.props.table.range.zone],
     });

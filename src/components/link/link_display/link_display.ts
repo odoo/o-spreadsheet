@@ -61,7 +61,7 @@ export class LinkDisplay extends Component<LinkDisplayProps, SpreadsheetChildEnv
     const { col, row } = this.props.cellPosition;
     const style = this.env.model.getters.getCellComputedStyle({ sheetId, col, row });
     const textColor = style?.textColor === LINK_COLOR ? undefined : style?.textColor;
-    this.env.model.dispatch("UPDATE_CELL", {
+    this.env.model.dispatchFromOutside("UPDATE_CELL", {
       col,
       row,
       sheetId,

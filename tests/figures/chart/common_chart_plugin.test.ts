@@ -32,7 +32,7 @@ describe("Single cell chart background color", () => {
   });
 
   function addCfToA1(color: Color) {
-    model.dispatch("ADD_CONDITIONAL_FORMAT", {
+    model.dispatchFromOutside("ADD_CONDITIONAL_FORMAT", {
       cf: createEqualCF("1", { fillColor: color }, "cfId"),
       ranges: toRangesData(sheetId, "A1"),
       sheetId,
@@ -98,7 +98,7 @@ describe("Single cell chart background color", () => {
       createSheet(model, { sheetId: "sheet2" });
       activateSheet(model, "sheet2");
       setCellContent(model, "A1", "1", sheetId);
-      model.dispatch("ADD_CONDITIONAL_FORMAT", {
+      model.dispatchFromOutside("ADD_CONDITIONAL_FORMAT", {
         cf: createEqualCF("1", { fillColor: "#000FFF" }, "cfId"),
         ranges: toRangesData(sheetId, "A1"),
         sheetId,
@@ -115,7 +115,7 @@ describe("Single cell chart background color", () => {
     createChart(model, { type: "bar" });
     const firstSheetFigures = model.getters.getFigures(firstSheetId);
     expect(firstSheetFigures.length).toBe(1);
-    model.dispatch("UPDATE_FIGURE", {
+    model.dispatchFromOutside("UPDATE_FIGURE", {
       sheetId,
       figureId: firstSheetFigures[0].id,
       offset: {
@@ -127,7 +127,7 @@ describe("Single cell chart background color", () => {
       col: 0,
       row: 0,
     });
-    model.dispatch("DUPLICATE_SHEET", {
+    model.dispatchFromOutside("DUPLICATE_SHEET", {
       sheetIdTo: secondSheetId,
       sheetId: firstSheetId,
       sheetNameTo: "Copy of Sheet1",

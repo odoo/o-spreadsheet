@@ -20,7 +20,8 @@ export function createTableStyleContextMenuActions(
     {
       id: "deleteTableStyle",
       name: _t("Delete table style"),
-      execute: (env) => env.model.dispatch("REMOVE_TABLE_STYLE", { tableStyleId: styleId }),
+      execute: (env) =>
+        env.model.dispatchFromOutside("REMOVE_TABLE_STYLE", { tableStyleId: styleId }),
       icon: "o-spreadsheet-Icon.TRASH",
     },
   ]);

@@ -47,7 +47,7 @@ export class RemoveDuplicatesPanel extends Component<Props, SpreadsheetChildEnv>
   }
 
   onRemoveDuplicates() {
-    this.env.model.dispatch("REMOVE_DUPLICATES", {
+    this.env.model.dispatchFromOutside("REMOVE_DUPLICATES", {
       hasHeader: this.state.hasHeader,
       columns: this.getColsToAnalyze(),
     });

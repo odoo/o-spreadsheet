@@ -58,7 +58,7 @@ iconsOnCellRegistry.add("data_validation_checkbox", (getters, position) => {
       margin: GRID_ICON_MARGIN,
       position,
       type: "data_validation_checkbox",
-      onClick: (position, env) => {
+      onClick: async (position, env) => {
         const cell = env.model.getters.getCell(position);
         const isDisabled = env.model.getters.isReadonly() || !!cell?.isFormula;
         if (isDisabled) {
@@ -66,7 +66,7 @@ iconsOnCellRegistry.add("data_validation_checkbox", (getters, position) => {
         }
 
         const cellContent = value ? "FALSE" : "TRUE";
-        env.model.dispatch("UPDATE_CELL", { ...position, content: cellContent });
+        await env.model.dispatchFromOutside("UPDATE_CELL", { ...position, content: cellContent });
       },
     };
   }

@@ -21,7 +21,12 @@ export class MockGridRenderingContext implements GridRenderingContext {
   thinLineWidth = 0.4;
 
   constructor(model: Model, width: number, height: number, observer: ContextObserver) {
-    model.dispatch("RESIZE_SHEETVIEW", { width, height, gridOffsetX: 0, gridOffsetY: 0 });
+    model.dispatchFromOutside("RESIZE_SHEETVIEW", {
+      width,
+      height,
+      gridOffsetX: 0,
+      gridOffsetY: 0,
+    });
     this.viewport = model.getters.getActiveMainViewport();
 
     const handler = {

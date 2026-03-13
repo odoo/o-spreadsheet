@@ -259,7 +259,7 @@ export function makeTestEnv(
 
 export function testUndoRedo(model: Model, expect: jest.Expect, command: CommandTypes, args: any) {
   const before = model.exportData();
-  model.dispatch(command, args);
+  model.dispatchFromOutside(command, args);
   const after = model.exportData();
   undo(model);
   expect(model).toExport(before);
@@ -895,7 +895,7 @@ export async function exportPrettifiedXlsx(model: Model): Promise<XLSXExport> {
 }
 
 export async function getExportedExcelData(model: Model): Promise<ExcelWorkbookData> {
-  model.dispatch("EVALUATE_CELLS");
+  model.dispatchFromOutside("EVALUATE_CELLS");
   let data = createEmptyExcelWorkbookData();
   for (const handler of model["handlers"]) {
     if (handler instanceof BasePlugin) {

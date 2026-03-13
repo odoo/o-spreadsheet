@@ -62,7 +62,10 @@ export class PaintFormatStore extends SpreadsheetStore {
   }
 
   pasteFormat(target: Zone[]) {
-    this.model.dispatch("PAINT_FORMAT", { target, sheetId: this.getters.getActiveSheetId() });
+    this.model.dispatchFromOutside("PAINT_FORMAT", {
+      target,
+      sheetId: this.getters.getActiveSheetId(),
+    });
   }
 
   get isActive() {

@@ -40,7 +40,7 @@ export function addPivot(
   if (zone) {
     pivot.dataSet!.zone = toZone(zone);
   }
-  const result = model.dispatch("ADD_PIVOT", { pivot, pivotId });
+  const result = model.dispatchFromOutside("ADD_PIVOT", { pivot, pivotId });
   if (!result.isSuccessful) {
     return result;
   }
@@ -58,11 +58,11 @@ export function updatePivot(
     ...model.getters.getPivotCoreDefinition(pivotId),
     ...pivotData,
   };
-  return model.dispatch("UPDATE_PIVOT", { pivotId, pivot });
+  return model.dispatchFromOutside("UPDATE_PIVOT", { pivotId, pivot });
 }
 
 export function removePivot(model: Model, pivotId: UID) {
-  return model.dispatch("REMOVE_PIVOT", { pivotId });
+  return model.dispatchFromOutside("REMOVE_PIVOT", { pivotId });
 }
 
 export const SELECTORS = {

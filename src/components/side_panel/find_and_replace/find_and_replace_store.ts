@@ -66,7 +66,9 @@ export class FindAndReplaceStore extends SpreadsheetStore implements HighlightPr
     const highlightStore = get(HighlightStore);
     highlightStore.register(this);
     this.onDispose(() => {
-      this.model.dispatch("SET_FORMULA_VISIBILITY", { show: this.initialShowFormulaState });
+      this.model.dispatchFromOutside("SET_FORMULA_VISIBILITY", {
+        show: this.initialShowFormulaState,
+      });
       highlightStore.unRegister(this);
     });
   }
@@ -91,7 +93,7 @@ export class FindAndReplaceStore extends SpreadsheetStore implements HighlightPr
   }
 
   searchFormulas(showFormula: boolean) {
-    this.model.dispatch("SET_FORMULA_VISIBILITY", { show: showFormula });
+    this.model.dispatchFromOutside("SET_FORMULA_VISIBILITY", { show: showFormula });
     this.updateSearchOptions({ searchFormulas: showFormula });
   }
 
@@ -317,7 +319,7 @@ export class FindAndReplaceStore extends SpreadsheetStore implements HighlightPr
       // that, when we automatically go back to previous sheet while performing a search, the
       // search index is reset to the first occurrence each time.
       this.preserveSelectedMatchIndex = true;
-      this.model.dispatch("ACTIVATE_SHEET", {
+      this.model.dispatchFromOutside("ACTIVATE_SHEET", {
         sheetIdFrom: this.getters.getActiveSheetId(),
         sheetIdTo: selectedMatch.sheetId,
       });
@@ -341,7 +343,7 @@ export class FindAndReplaceStore extends SpreadsheetStore implements HighlightPr
     }
     this.preserveSelectedMatchIndex = true;
     this.shouldFinalizeUpdateSelection = true;
-    this.model.dispatch("REPLACE_SEARCH", {
+    this.model.dispatchFromOutside("REPLACE_SEARCH", {
       searchString: this.toSearch,
       replaceWith: this.toReplace,
       matches: [this.searchMatches[this.selectedMatchIndex]],
@@ -353,7 +355,7 @@ export class FindAndReplaceStore extends SpreadsheetStore implements HighlightPr
    * Apply the replace function to all the matches one time.
    */
   replaceAll() {
-    this.model.dispatch("REPLACE_SEARCH", {
+    this.model.dispatchFromOutside("REPLACE_SEARCH", {
       searchString: this.toSearch,
       replaceWith: this.toReplace,
       matches: this.searchMatches,
@@ -417,7 +419,7 @@ export class FindAndReplaceStore extends SpreadsheetStore implements HighlightPr
     });
     const content = toReplace.replace(replaceRegex, replaceWith);
     const canonicalContent = canonicalizeNumberContent(content, this.getters.getLocale());
-    this.model.dispatch("UPDATE_CELL", { ...selectedMatch, content: canonicalContent });
+    this.model.dispatchFromOutside("UPDATE_CELL", { ...selectedMatch, content: canonicalContent });
   }
 
   private getSearchableString(position: CellPosition): string {

@@ -58,7 +58,7 @@ export async function interactiveSort(
   sortDirection: SortDirection,
   sortOptions?: SortOptions
 ) {
-  const result = await env.model.dispatch("SORT_CELLS", {
+  const result = await env.model.dispatchFromOutside("SORT_CELLS", {
     sheetId,
     col: anchor.col,
     row: anchor.row,

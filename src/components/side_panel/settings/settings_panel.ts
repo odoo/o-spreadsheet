@@ -28,7 +28,7 @@ export class SettingsPanel extends Component<Props, SpreadsheetChildEnv> {
     if (!locale) {
       return;
     }
-    this.env.model.dispatch("UPDATE_LOCALE", { locale });
+    this.env.model.dispatchFromOutside("UPDATE_LOCALE", { locale });
   }
 
   private async loadLocales() {

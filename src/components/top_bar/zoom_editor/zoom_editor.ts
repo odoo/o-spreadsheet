@@ -26,7 +26,7 @@ export class ToolBarZoom extends Component<Props, SpreadsheetChildEnv> {
   }
 
   setZoom(fontSize: number) {
-    this.env.model.dispatch("SET_ZOOM", { zoom: fontSize / 100 });
+    this.env.model.dispatchFromOutside("SET_ZOOM", { zoom: fontSize / 100 });
   }
 
   toggle() {

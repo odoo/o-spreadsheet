@@ -45,7 +45,7 @@ const mutedFontColor = chartMutedFontColor("#fff");
 
 function updateScorecardChartSize(width: Pixel, height: Pixel) {
   const figureId = model.getters.getFigureIdFromChartId(chartId);
-  model.dispatch("UPDATE_FIGURE", {
+  model.dispatchFromOutside("UPDATE_FIGURE", {
     sheetId,
     figureId,
     offset: {
@@ -432,7 +432,7 @@ describe("Scorecard charts computation", () => {
   });
 
   test("Scorecard chart adapts CF font color", async () => {
-    model.dispatch("ADD_CONDITIONAL_FORMAT", {
+    model.dispatchFromOutside("ADD_CONDITIONAL_FORMAT", {
       cf: {
         rule: {
           type: "CellIsRule",

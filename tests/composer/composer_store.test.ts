@@ -83,7 +83,7 @@ describe("edition", () => {
     // removing
     expect(getCellContent(model, "A2")).toBe("a2");
     selectCell(model, "A2");
-    model.dispatch("DELETE_CONTENT", {
+    model.dispatchFromOutside("DELETE_CONTENT", {
       sheetId: model.getters.getActiveSheetId(),
       target: model.getters.getSelectedZones(),
     });
@@ -691,7 +691,7 @@ describe("edition", () => {
     setCellContent(model, "A1", "0.123456789123");
     selectCell(model, "A1");
     expect(composerStore.currentContent).toBe("0.123456789123");
-    model.dispatch("UPDATE_CELL", {
+    model.dispatchFromOutside("UPDATE_CELL", {
       sheetId: model.getters.getActiveSheetId(),
       col: 0,
       row: 0,
@@ -718,7 +718,7 @@ describe("edition", () => {
   test("set a number format on a date displays the raw number", () => {
     setCellContent(model, "A1", "2020/10/20");
     expect(composerStore.currentContent).toBe("2020/10/20");
-    model.dispatch("UPDATE_CELL", {
+    model.dispatchFromOutside("UPDATE_CELL", {
       sheetId: model.getters.getActiveSheetId(),
       col: 0,
       row: 0,
@@ -730,7 +730,7 @@ describe("edition", () => {
   test("set a date format on a number displays the date", () => {
     setCellContent(model, "A1", "42736");
     expect(composerStore.currentContent).toBe("42736");
-    model.dispatch("UPDATE_CELL", {
+    model.dispatchFromOutside("UPDATE_CELL", {
       sheetId: model.getters.getActiveSheetId(),
       col: 0,
       row: 0,
@@ -742,7 +742,7 @@ describe("edition", () => {
   test("set a number format on a time displays the number", () => {
     setCellContent(model, "A1", "12:00:00 AM");
     expect(composerStore.currentContent).toBe("12:00:00 AM");
-    model.dispatch("UPDATE_CELL", {
+    model.dispatchFromOutside("UPDATE_CELL", {
       sheetId: model.getters.getActiveSheetId(),
       col: 0,
       row: 0,
@@ -754,7 +754,7 @@ describe("edition", () => {
   test("set a time format on a number displays the time", () => {
     setCellContent(model, "A1", "1");
     expect(composerStore.currentContent).toBe("1");
-    model.dispatch("UPDATE_CELL", {
+    model.dispatchFromOutside("UPDATE_CELL", {
       sheetId: model.getters.getActiveSheetId(),
       col: 0,
       row: 0,

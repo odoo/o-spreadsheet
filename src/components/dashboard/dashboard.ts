@@ -68,7 +68,7 @@ export class SpreadsheetDashboard extends Component<Props, SpreadsheetChildEnv> 
         return scrollY < maxOffsetY;
       },
       getZoom: () => this.env.model.getters.getViewportZoomLevel(),
-      setZoom: (zoom: number) => this.env.model.dispatch("SET_ZOOM", { zoom }),
+      setZoom: (zoom: number) => this.env.model.dispatchFromOutside("SET_ZOOM", { zoom }),
     });
   }
 
@@ -104,6 +104,7 @@ export class SpreadsheetDashboard extends Component<Props, SpreadsheetChildEnv> 
   }
 
   selectClickableCell(ev: MouseEvent, clickableCell: ClickableCell) {
+    //TODOPRO Check if action can be async and if we need to await it
     const { position, action } = clickableCell;
     action(position, this.env, isMiddleClickOrCtrlClick(ev));
   }
@@ -115,7 +116,7 @@ export class SpreadsheetDashboard extends Component<Props, SpreadsheetChildEnv> 
   onGridResized() {
     const { height, width } = this.props.getGridSize();
     const maxWidth = this.getMaxSheetWidth();
-    this.env.model.dispatch("RESIZE_SHEETVIEW", {
+    this.env.model.dispatchFromOutside("RESIZE_SHEETVIEW", {
       width: Math.min(maxWidth, width),
       height,
       gridOffsetX: 0,
@@ -125,7 +126,7 @@ export class SpreadsheetDashboard extends Component<Props, SpreadsheetChildEnv> 
 
   private moveCanvas(deltaX: Pixel, deltaY: Pixel) {
     const { scrollX, scrollY } = this.env.model.getters.getActiveSheetScrollInfo();
-    this.env.model.dispatch("SET_VIEWPORT_OFFSET", {
+    this.env.model.dispatchFromOutside("SET_VIEWPORT_OFFSET", {
       offsetX: scrollX + deltaX,
       offsetY: scrollY + deltaY,
     });

@@ -107,7 +107,7 @@ export class ConditionalFormattingEditorStore extends SpreadsheetStore {
     const sheetId = this.model.getters.getActiveSheetId();
     const locale = this.model.getters.getLocale();
     const rule = newCf.rule || this.getEditedRule(this.state.currentCFType);
-    const result = await this.model.dispatch("ADD_CONDITIONAL_FORMAT", {
+    const result = await this.model.dispatchFromOutside("ADD_CONDITIONAL_FORMAT", {
       cf: {
         id: this.cfId,
         rule: canonicalizeCFRule(rule, locale),

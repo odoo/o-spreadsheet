@@ -55,7 +55,7 @@ export class ErrorToolTip extends Component<ErrorToolTipProps, SpreadsheetChildE
     }
     const activeSheetId = this.env.model.getters.getActiveSheetId();
     if (position.sheetId !== activeSheetId) {
-      this.env.model.dispatch("ACTIVATE_SHEET", {
+      this.env.model.dispatchFromOutside("ACTIVATE_SHEET", {
         sheetIdFrom: activeSheetId,
         sheetIdTo: position.sheetId,
       });
@@ -91,7 +91,7 @@ export class ErrorToolTip extends Component<ErrorToolTipProps, SpreadsheetChildE
   addMissingHeaders({ missingCols, missingRows }: { missingCols: number; missingRows: number }) {
     const sheetId = this.props.cellPosition.sheetId;
     if (missingCols > 0) {
-      this.env.model.dispatch("ADD_COLUMNS_ROWS", {
+      this.env.model.dispatchFromOutside("ADD_COLUMNS_ROWS", {
         sheetId,
         sheetName: this.env.model.getters.getSheetName(sheetId),
         dimension: "COL",
@@ -101,7 +101,7 @@ export class ErrorToolTip extends Component<ErrorToolTipProps, SpreadsheetChildE
       });
     }
     if (missingRows > 0) {
-      this.env.model.dispatch("ADD_COLUMNS_ROWS", {
+      this.env.model.dispatchFromOutside("ADD_COLUMNS_ROWS", {
         sheetId,
         sheetName: this.env.model.getters.getSheetName(sheetId),
         dimension: "ROW",

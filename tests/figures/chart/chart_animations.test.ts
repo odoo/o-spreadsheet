@@ -42,11 +42,11 @@ describe("Chart animations in dashboard", () => {
     expect(mockedChart.config.options.animation.animateRotate).toBe(true);
 
     // Scroll the figure out of the viewport and back in
-    model.dispatch("SET_VIEWPORT_OFFSET", { offsetX: 0, offsetY: 500 });
+    model.dispatchFromOutside("SET_VIEWPORT_OFFSET", { offsetX: 0, offsetY: 500 });
     await nextTick();
     expect(".o-figure").toHaveCount(0);
 
-    model.dispatch("SET_VIEWPORT_OFFSET", { offsetX: 0, offsetY: 0 });
+    model.dispatchFromOutside("SET_VIEWPORT_OFFSET", { offsetX: 0, offsetY: 0 });
     await nextTick();
     expect(".o-figure").toHaveCount(1);
     expect(mockedChart.config.options.animation).toBe(false);
@@ -99,7 +99,7 @@ describe("Chart animations in dashboard", () => {
     model.updateMode("dashboard");
     await mountSpreadsheet({ model });
 
-    model.dispatch("EVALUATE_CELLS");
+    model.dispatchFromOutside("EVALUATE_CELLS");
     await nextTick();
     expect(mockedChart.config.options.animation).toBe(false);
 

@@ -234,7 +234,7 @@ export class Model extends EventBus<any> implements AsyncCommandDispatcher {
 
     if (this.config.mode !== "export_verification") {
       // starting plugins
-      this.dispatch("START");
+      this.dispatchFromOutside("START"); //TODOPRO Il faudra régler ca, là le constructeur devrait être async
       // Model should be the last permanent subscriber in the list since he should render
       // after all changes have been applied to the other subscribers (plugins)
       this.selection.observe(this, {
@@ -532,7 +532,7 @@ export class Model extends EventBus<any> implements AsyncCommandDispatcher {
    *    component)
    * 2. This allows us to define its type by using the interface AsyncCommandDispatcher
    */
-  dispatch: AsyncCommandDispatcher["dispatch"] = async (
+  dispatchFromOutside: AsyncCommandDispatcher["dispatchFromOutside"] = async (
     type: CommandTypes,
     payload?: any
   ): Promise<DispatchResult> => {
@@ -734,7 +734,7 @@ export class Model extends EventBus<any> implements AsyncCommandDispatcher {
    * (e.g. open a document with several sheet and click on download before visiting each sheet)
    */
   async exportXLSX(): Promise<XLSXExport> {
-    this.dispatch("EVALUATE_CELLS");
+    await this.dispatchFromOutside("EVALUATE_CELLS");
     let data = createEmptyExcelWorkbookData();
     for (const handler of this.handlers) {
       if (handler instanceof BasePlugin) {

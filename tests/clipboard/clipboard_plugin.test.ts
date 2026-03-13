@@ -162,7 +162,7 @@ describe("clipboard", () => {
     const model = new Model();
     setCellContent(model, "B2", "b2");
     setSelection(model, ["B2"]);
-    model.dispatch("CUT");
+    model.dispatchFromOutside("CUT");
     paste(model, "D2");
     expect(getCellRawContent(model, "D2")).toBe("b2");
   });
@@ -626,7 +626,7 @@ describe("clipboard", () => {
       setCellContent(model, "A1", "1");
       setCellContent(model, "A2", "3");
       setStyle(model, "A1", { bold: true });
-      model.dispatch("ADD_CONDITIONAL_FORMAT", {
+      model.dispatchFromOutside("ADD_CONDITIONAL_FORMAT", {
         cf: createEqualCF("1", { fillColor: "#123456" }, "id"),
         ranges: toRangesData(sheetId, "A1"),
         sheetId,
@@ -1239,7 +1239,7 @@ describe("clipboard", () => {
     setCellContent(model, "C1", "1");
     setCellContent(model, "C2", "2");
     const sheetId = model.getters.getActiveSheetId();
-    const result = model.dispatch("ADD_CONDITIONAL_FORMAT", {
+    const result = model.dispatchFromOutside("ADD_CONDITIONAL_FORMAT", {
       cf: createEqualCF("1", { fillColor: "#FF0000" }, "1"),
       ranges: toRangesData(sheetId, "A1,A2"),
       sheetId,
@@ -1655,7 +1655,7 @@ describe("clipboard", () => {
     const model = new Model();
     setCellContent(model, "A1", value);
     copy(model, "A1");
-    model.dispatch("PASTE", { target: target("B2") });
+    model.dispatchFromOutside("PASTE", { target: target("B2") });
     expect(getCellText(model, "B2")).toBe(expected);
   });
 
@@ -1685,7 +1685,7 @@ describe("clipboard", () => {
     setCellContent(model, "C1", "1");
     setCellContent(model, "C2", "2");
     const sheetId = model.getters.getActiveSheetId();
-    model.dispatch("ADD_CONDITIONAL_FORMAT", {
+    model.dispatchFromOutside("ADD_CONDITIONAL_FORMAT", {
       cf: createEqualCF("1", { fillColor: "#FF0000" }, "1"),
       sheetId,
       ranges: toRangesData(sheetId, "A1,A2"),
@@ -1710,7 +1710,7 @@ describe("clipboard", () => {
     setCellContent(model, "C1", "1");
     setCellContent(model, "C2", "2");
     const sheetId = model.getters.getActiveSheetId();
-    model.dispatch("ADD_CONDITIONAL_FORMAT", {
+    model.dispatchFromOutside("ADD_CONDITIONAL_FORMAT", {
       cf: createEqualCF("1", { fillColor: "#FF0000" }, "1"),
       ranges: toRangesData(sheetId, "A1,A2"),
       sheetId,
@@ -1732,7 +1732,7 @@ describe("clipboard", () => {
     const sheet1Id = model.getters.getActiveSheetId();
     createSheet(model, { sheetId: "sheet2Id" });
     const sheetId = model.getters.getActiveSheetId();
-    model.dispatch("ADD_CONDITIONAL_FORMAT", {
+    model.dispatchFromOutside("ADD_CONDITIONAL_FORMAT", {
       cf: createEqualCF("1", { fillColor: "#FF0000" }, "1"),
       ranges: toRangesData(sheetId, "A1:A2"),
       sheetId,
@@ -1750,13 +1750,13 @@ describe("clipboard", () => {
     const model = new Model();
     const sheetId = model.getters.getActiveSheetId();
     const cf = createEqualCF("1", { fillColor: "#00FF00" }, "cfId");
-    model.dispatch("ADD_CONDITIONAL_FORMAT", {
+    model.dispatchFromOutside("ADD_CONDITIONAL_FORMAT", {
       cf,
       sheetId,
       ranges: toRangesData(sheetId, "A1:A3"),
     });
     copy(model, "A1:A3");
-    model.dispatch("REMOVE_CONDITIONAL_FORMAT", {
+    model.dispatchFromOutside("REMOVE_CONDITIONAL_FORMAT", {
       id: "cfId",
       sheetId,
     });
@@ -1771,22 +1771,22 @@ describe("clipboard", () => {
     const sheetId = model.getters.getActiveSheetId();
     const cf1 = createEqualCF("1", { fillColor: "#00FF00" }, "cf1");
     const cf2 = createEqualCF("1", { fillColor: "#0000FF" }, "cf2");
-    model.dispatch("ADD_CONDITIONAL_FORMAT", {
+    model.dispatchFromOutside("ADD_CONDITIONAL_FORMAT", {
       cf: cf1,
       sheetId,
       ranges: toRangesData(sheetId, "A1:A3"),
     });
-    model.dispatch("ADD_CONDITIONAL_FORMAT", {
+    model.dispatchFromOutside("ADD_CONDITIONAL_FORMAT", {
       cf: cf2,
       sheetId,
       ranges: toRangesData(sheetId, "C1:C3"),
     });
     copy(model, "A1:C3");
-    model.dispatch("REMOVE_CONDITIONAL_FORMAT", {
+    model.dispatchFromOutside("REMOVE_CONDITIONAL_FORMAT", {
       id: "cf1",
       sheetId,
     });
-    model.dispatch("REMOVE_CONDITIONAL_FORMAT", {
+    model.dispatchFromOutside("REMOVE_CONDITIONAL_FORMAT", {
       id: "cf2",
       sheetId,
     });
@@ -1802,12 +1802,12 @@ describe("clipboard", () => {
     const sheetId = model.getters.getActiveSheetId();
     const cf1 = createEqualCF("1", { fillColor: "#00FF00" }, "cf1");
     const cf2 = createEqualCF("1", { fillColor: "#0000FF" }, "cf2");
-    model.dispatch("ADD_CONDITIONAL_FORMAT", {
+    model.dispatchFromOutside("ADD_CONDITIONAL_FORMAT", {
       cf: cf1,
       sheetId,
       ranges: toRangesData(sheetId, "A1:A3"),
     });
-    model.dispatch("ADD_CONDITIONAL_FORMAT", {
+    model.dispatchFromOutside("ADD_CONDITIONAL_FORMAT", {
       cf: cf2,
       sheetId,
       ranges: toRangesData(sheetId, "C1:C3"),
@@ -1829,7 +1829,7 @@ describe("clipboard", () => {
     setCellContent(model, "A1", "1");
     setCellContent(model, "A2", "2");
     const sheetId = model.getters.getActiveSheetId();
-    model.dispatch("ADD_CONDITIONAL_FORMAT", {
+    model.dispatchFromOutside("ADD_CONDITIONAL_FORMAT", {
       cf: createEqualCF("1", { fillColor: "#FF0000" }, "1"),
       ranges: toRangesData(sheetId, "A1,A2"),
       sheetId,
@@ -1862,7 +1862,7 @@ describe("clipboard", () => {
     setCellContent(model, "A1", "1");
     setCellContent(model, "A2", "2");
     const sheetId = model.getters.getActiveSheetId();
-    model.dispatch("ADD_CONDITIONAL_FORMAT", {
+    model.dispatchFromOutside("ADD_CONDITIONAL_FORMAT", {
       cf: createEqualCF("1", { fillColor: "#FF0000" }, "1"),
       ranges: toRangesData(sheetId, "A1,A2"),
       sheetId,
@@ -1893,7 +1893,7 @@ describe("clipboard", () => {
     setCellContent(model, "A1", "1");
     setCellContent(model, "A2", "2");
     const sheetId = model.getters.getActiveSheetId();
-    model.dispatch("ADD_CONDITIONAL_FORMAT", {
+    model.dispatchFromOutside("ADD_CONDITIONAL_FORMAT", {
       cf: createEqualCF("1", { fillColor: "#FF0000" }, "1"),
       ranges: toRangesData(sheetId, "A1,A2"),
       sheetId,
@@ -1916,7 +1916,7 @@ describe("clipboard", () => {
   test("can cut and paste a conditional formatted zone to another page", () => {
     const model = new Model({ sheets: [{ id: "sheet1" }, { id: "sheet2" }] });
     const cf = createEqualCF("1", { fillColor: "#FF0000" }, "id");
-    model.dispatch("ADD_CONDITIONAL_FORMAT", {
+    model.dispatchFromOutside("ADD_CONDITIONAL_FORMAT", {
       cf,
       ranges: toRangesData("sheet1", "A1:A2"),
       sheetId: "sheet1",
@@ -1939,7 +1939,7 @@ describe("clipboard", () => {
     const sheet2Id = model.getters.getSheetIds()[1];
 
     const cf = createEqualCF("2", { fillColor: "#00FF00" }, "cfId");
-    model.dispatch("ADD_CONDITIONAL_FORMAT", {
+    model.dispatchFromOutside("ADD_CONDITIONAL_FORMAT", {
       cf,
       ranges: toRangesData(sheet1Id, "A1"),
       sheetId: sheet1Id,
@@ -1947,12 +1947,12 @@ describe("clipboard", () => {
 
     copy(model, "A1");
     activateSheet(model, sheet2Id);
-    model.dispatch("PASTE", { target: target("A1") });
+    model.dispatchFromOutside("PASTE", { target: target("A1") });
     expect(model.getters.getConditionalFormats(sheet2Id)).toMatchObject([
       { ranges: ["A1"], rule: { style: { fillColor: "#00FF00" } } },
     ]);
 
-    model.dispatch("ADD_CONDITIONAL_FORMAT", {
+    model.dispatchFromOutside("ADD_CONDITIONAL_FORMAT", {
       cf: createEqualCF("2", { fillColor: "#FF0000" }, "cfId"),
       ranges: toRangesData(sheet1Id, "A1"),
       sheetId: sheet1Id,
@@ -1960,7 +1960,7 @@ describe("clipboard", () => {
     activateSheet(model, sheet1Id);
     copy(model, "A1");
     activateSheet(model, sheet2Id);
-    model.dispatch("PASTE", { target: target("B2") });
+    model.dispatchFromOutside("PASTE", { target: target("B2") });
     expect(model.getters.getConditionalFormats(sheet2Id)).toMatchObject([
       { ranges: ["A1"], rule: { style: { fillColor: "#00FF00" } } },
       { ranges: ["B2"], rule: { style: { fillColor: "#FF0000" } } },
@@ -1976,7 +1976,7 @@ describe("clipboard", () => {
 
     const model = new Model({ sheets: [{ colNumber: 5, rowNumber: 5 }] });
     const sheetId = model.getters.getActiveSheetId();
-    model.dispatch("ADD_CONDITIONAL_FORMAT", {
+    model.dispatchFromOutside("ADD_CONDITIONAL_FORMAT", {
       cf: createEqualCF("1", { fillColor: "#FF0000" }, "1"),
       ranges: toRangesData(sheetId, "A1,A2"),
       sheetId,
@@ -2188,7 +2188,7 @@ describe("clipboard", () => {
     // copy part of pivot
     copy(model, "C1:D4");
     paste(model, "G4");
-    model.dispatch("SET_FORMULA_VISIBILITY", { show: true });
+    model.dispatchFromOutside("SET_FORMULA_VISIBILITY", { show: true });
     // prettier-ignore
     expect(getEvaluatedGrid(model, "G4:H7")).toEqual([
       ["",                                      "=PIVOT.HEADER(1)"],
@@ -2290,7 +2290,7 @@ describe("clipboard", () => {
 
     copy(model, "C1:D4");
     paste(model, "G4");
-    model.dispatch("SET_FORMULA_VISIBILITY", { show: true });
+    model.dispatchFromOutside("SET_FORMULA_VISIBILITY", { show: true });
     // prettier-ignore
     expect(getEvaluatedGrid(model, "G4:H7")).toEqual([
       ["",                                      "=PIVOT.HEADER(1)"],
@@ -2667,8 +2667,8 @@ describe("clipboard: pasting outside of sheet", () => {
     model.on("notify-ui", this, spyNotifyUI);
 
     createImage(model, { figureId: "test" });
-    model.dispatch("SELECT_FIGURE", { figureId: "test" });
-    model.dispatch("COPY");
+    model.dispatchFromOutside("SELECT_FIGURE", { figureId: "test" });
+    model.dispatchFromOutside("COPY");
     await model.getters.getClipboardTextAndImageContent();
     expect(spyNotifyUI).toHaveBeenCalledWith({
       sticky: false,
@@ -3200,12 +3200,16 @@ test("Can use clipboard handlers to paste in a sheet other than the active sheet
 
   setCellContent(model, "A1", "1");
   const cf = createEqualCF("1", { fillColor: "#FF0000" }, "1");
-  model.dispatch("ADD_CONDITIONAL_FORMAT", { cf, ranges: toRangesData(sheetId, "A1"), sheetId });
+  model.dispatchFromOutside("ADD_CONDITIONAL_FORMAT", {
+    cf,
+    ranges: toRangesData(sheetId, "A1"),
+    sheetId,
+  });
   createTable(model, "A1");
 
   const handlers = clipboardHandlersRegistries.cellHandlers
     .getAll()
-    .map((handler) => new handler(model.getters, model.dispatch));
+    .map((handler) => new handler(model.getters, model.dispatchFromOutside));
 
   let copiedData = {};
   const clipboardData = getClipboardDataPositions(sheetId, [toZone("A1")]);

@@ -12,10 +12,13 @@ export async function interactiveSplitToColumns(
   separator: string,
   addNewColumns: boolean
 ): Promise<DispatchResult> {
-  const result = await env.model.dispatch("SPLIT_TEXT_INTO_COLUMNS", { separator, addNewColumns });
+  const result = await env.model.dispatchFromOutside("SPLIT_TEXT_INTO_COLUMNS", {
+    separator,
+    addNewColumns,
+  });
   if (result.isCancelledBecause(CommandResult.SplitWillOverwriteContent)) {
     env.askConfirmation(SplitToColumnsInteractiveContent.SplitIsDestructive, () => {
-      env.model.dispatch("SPLIT_TEXT_INTO_COLUMNS", {
+      env.model.dispatchFromOutside("SPLIT_TEXT_INTO_COLUMNS", {
         separator,
         addNewColumns,
         force: true,

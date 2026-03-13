@@ -435,7 +435,7 @@ export function getCustomFieldWithParentField(
   );
 }
 
-export function togglePivotCollapse(position: CellPosition, env: SpreadsheetChildEnv) {
+export async function togglePivotCollapse(position: CellPosition, env: SpreadsheetChildEnv) {
   const pivotCell = env.model.getters.getPivotCellFromPosition(position);
   const pivotId = env.model.getters.getPivotIdFromPosition(position);
   if (!pivotId || pivotCell.type !== "HEADER") {
@@ -457,7 +457,7 @@ export function togglePivotCollapse(position: CellPosition, env: SpreadsheetChil
     ? { ...definition.collapsedDomains }
     : { COL: [], ROW: [] };
   newDomains[pivotCell.dimension] = collapsedDomains;
-  env.model.dispatch("UPDATE_PIVOT", {
+  await env.model.dispatchFromOutside("UPDATE_PIVOT", {
     pivotId,
     pivot: { ...definition, collapsedDomains: newDomains },
   });

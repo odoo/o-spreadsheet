@@ -158,8 +158,8 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
 
   async startEdition(text?: string, selection?: ComposerSelection) {
     const { col, row } = this.getters.getActivePosition();
-    await this.model.dispatch("SELECT_FIGURE", { figureId: null });
-    await this.model.dispatch("SCROLL_TO_CELL", { col, row });
+    await this.model.dispatchFromOutside("SELECT_FIGURE", { figureId: null });
+    await this.model.dispatchFromOutside("SCROLL_TO_CELL", { col, row });
 
     if (this.editionMode !== "inactive" && text) {
       this.setContent(text, selection);
@@ -294,7 +294,7 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
       const { sheetName, xc } = splitReference(refToken.value);
       const sheetId = this.getters.getSheetIdByName(sheetName);
       if (sheetId && sheetId !== currentSheetId) {
-        await this.model.dispatch("ACTIVATE_SHEET", {
+        await this.model.dispatchFromOutside("ACTIVATE_SHEET", {
           sheetIdFrom: currentSheetId,
           sheetIdTo: sheetId,
         });
@@ -475,7 +475,7 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
     this._cancelEdition();
     const sheetId = this.getters.getActiveSheetId();
     if (sheetId !== this.sheetId) {
-      await this.model.dispatch("ACTIVATE_SHEET", {
+      await this.model.dispatchFromOutside("ACTIVATE_SHEET", {
         sheetIdFrom: this.getters.getActiveSheetId(),
         sheetIdTo: this.sheetId,
       });

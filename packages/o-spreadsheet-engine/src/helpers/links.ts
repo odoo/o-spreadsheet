@@ -64,7 +64,7 @@ urlRegistry.add("sheet_URL", {
   },
   async open(url, env) {
     const sheetId = parseSheetUrl(url);
-    const result = await env.model.dispatch("ACTIVATE_SHEET", {
+    const result = await env.model.dispatchFromOutside("ACTIVATE_SHEET", {
       sheetIdFrom: env.model.getters.getActiveSheetId(),
       sheetIdTo: sheetId,
     });

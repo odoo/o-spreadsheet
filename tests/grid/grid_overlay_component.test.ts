@@ -162,7 +162,7 @@ describe("Resizer component", () => {
   });
 
   test.each(ZOOM_VALUES)("can click on a header to select a column", async (zoom) => {
-    model.dispatch("SET_ZOOM", { zoom: zoom / 100 });
+    model.dispatchFromOutside("SET_ZOOM", { zoom: zoom / 100 });
     await selectColumn("C");
     expect(model.getters.getSelectedZones()[0]).toEqual({ left: 2, top: 0, right: 2, bottom: 9 });
     expect(getSelectionAnchorCellXc(model)).toBe("C1");
@@ -194,7 +194,7 @@ describe("Resizer component", () => {
   });
 
   test.each(ZOOM_VALUES)("can click on a row-header to select a row", async (zoom) => {
-    model.dispatch("SET_ZOOM", { zoom: zoom / 100 });
+    model.dispatchFromOutside("SET_ZOOM", { zoom: zoom / 100 });
     await selectRow(2, {}, zoom / 100);
     expect(model.getters.getSelectedZones()[0]).toEqual({ left: 0, top: 2, right: 9, bottom: 2 });
     expect(getSelectionAnchorCellXc(model)).toBe("A3");

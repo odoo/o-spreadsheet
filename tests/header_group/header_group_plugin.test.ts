@@ -71,11 +71,16 @@ describe("Header grouping plugin", () => {
     });
 
     test("Cannot remove group with invalid header indexes", () => {
-      let result = model.dispatch("UNGROUP_HEADERS", { sheetId, dimension, start: -1, end: 5 });
+      let result = model.dispatchFromOutside("UNGROUP_HEADERS", {
+        sheetId,
+        dimension,
+        start: -1,
+        end: 5,
+      });
       expect(result).toBeCancelledBecause(CommandResult.InvalidHeaderGroupStartEnd);
 
       const numberHeaders = model.getters.getNumberHeaders(sheetId, dimension);
-      result = model.dispatch("UNGROUP_HEADERS", {
+      result = model.dispatchFromOutside("UNGROUP_HEADERS", {
         sheetId,
         dimension,
         start: 0,
@@ -83,16 +88,21 @@ describe("Header grouping plugin", () => {
       });
       expect(result).toBeCancelledBecause(CommandResult.InvalidHeaderGroupStartEnd);
 
-      result = model.dispatch("UNGROUP_HEADERS", { sheetId, dimension, start: 5, end: 0 });
+      result = model.dispatchFromOutside("UNGROUP_HEADERS", {
+        sheetId,
+        dimension,
+        start: 5,
+        end: 0,
+      });
       expect(result).toBeCancelledBecause(CommandResult.InvalidHeaderGroupStartEnd);
     });
 
     test("Cannot toggle unknown group", () => {
       const cmdParams = { sheetId, dimension, start: 0, end: 1 };
-      let result = model.dispatch("UNFOLD_HEADER_GROUP", cmdParams);
+      let result = model.dispatchFromOutside("UNFOLD_HEADER_GROUP", cmdParams);
       expect(result).toBeCancelledBecause(CommandResult.UnknownHeaderGroup);
 
-      result = model.dispatch("FOLD_HEADER_GROUP", cmdParams);
+      result = model.dispatchFromOutside("FOLD_HEADER_GROUP", cmdParams);
       expect(result).toBeCancelledBecause(CommandResult.UnknownHeaderGroup);
     });
 

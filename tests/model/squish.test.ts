@@ -549,7 +549,7 @@ describe("squish - unsquish specific cases", () => {
     const sheetContent = {};
     const squishedContent = {};
     const model = createModelFromGrid(sheetContent);
-    model.dispatch("SET_FORMATTING", {
+    model.dispatchFromOutside("SET_FORMATTING", {
       sheetId: model.getters.getActiveSheetId(),
       target: [{ top: 0, left: 0, bottom: 2, right: 2 }],
       style: { bold: true },
@@ -603,7 +603,7 @@ describe("Models created from squished data behavior", () => {
       ],
     };
     const model = new Model(squishedData);
-    model.dispatch("ADD_COLUMNS_ROWS", {
+    model.dispatchFromOutside("ADD_COLUMNS_ROWS", {
       sheetId: "Sheet1",
       sheetName: "Sheet1",
       dimension: "ROW",

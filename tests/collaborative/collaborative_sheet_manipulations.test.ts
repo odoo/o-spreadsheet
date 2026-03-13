@@ -193,7 +193,7 @@ describe("Collaborative Sheet manipulation", () => {
     });
     await network.concurrent(async () => {
       deleteSheet(alice, sheetId);
-      bob.dispatch("UPDATE_FIGURE", {
+      bob.dispatchFromOutside("UPDATE_FIGURE", {
         figureId: "456",
         sheetId,
         col: 0,
@@ -531,7 +531,7 @@ describe("Collaborative Sheet manipulation", () => {
       const cf = createEqualCF("1", { fillColor: "#FF0000" }, "1");
       await network.concurrent(async () => {
         addColumns(alice, "before", "D", 2);
-        bob.dispatch("ADD_CONDITIONAL_FORMAT", {
+        bob.dispatchFromOutside("ADD_CONDITIONAL_FORMAT", {
           sheetId,
           cf,
           ranges: toRangesData(sheetId, "A1:A3,C1:D3,F1:F3"),
@@ -554,7 +554,7 @@ describe("Collaborative Sheet manipulation", () => {
       const cf = createEqualCF("1", { fillColor: "#FF0000" }, "1");
       await network.concurrent(async () => {
         deleteColumns(alice, ["C", "D", "F"]);
-        bob.dispatch("ADD_CONDITIONAL_FORMAT", {
+        bob.dispatchFromOutside("ADD_CONDITIONAL_FORMAT", {
           sheetId,
           cf,
           ranges: toRangesData(sheetId, "A1:A3,C1:D3,F1:G3"),
@@ -577,7 +577,7 @@ describe("Collaborative Sheet manipulation", () => {
       const cf = createEqualCF("1", { fillColor: "#FF0000" }, "1");
       await network.concurrent(async () => {
         addRows(alice, "before", 9, 2);
-        bob.dispatch("ADD_CONDITIONAL_FORMAT", {
+        bob.dispatchFromOutside("ADD_CONDITIONAL_FORMAT", {
           sheetId,
           cf,
           ranges: toRangesData(sheetId, "A1:A3,A4:A10,A11:A12"),
@@ -600,7 +600,7 @@ describe("Collaborative Sheet manipulation", () => {
       const cf = createEqualCF("1", { fillColor: "#FF0000" }, "1");
       await network.concurrent(async () => {
         deleteRows(alice, [3, 4, 10]);
-        bob.dispatch("ADD_CONDITIONAL_FORMAT", {
+        bob.dispatchFromOutside("ADD_CONDITIONAL_FORMAT", {
           sheetId,
           cf,
           ranges: toRangesData(sheetId, "A1:A3,A4:A5,A11:A12"),
@@ -625,7 +625,7 @@ describe("Collaborative Sheet manipulation", () => {
       const cf = createEqualCF(`=${sheetName}!A1`, { fillColor: "#FF0000" }, "1");
       await network.concurrent(async () => {
         renameSheet(alice, sheetId, newSheetName);
-        bob.dispatch("ADD_CONDITIONAL_FORMAT", {
+        bob.dispatchFromOutside("ADD_CONDITIONAL_FORMAT", {
           sheetId,
           cf,
           ranges: toRangesData(sheetId, "A2"),
@@ -668,7 +668,7 @@ describe("Collaborative Sheet manipulation", () => {
       const cf = createEqualCF(`=${secondSheetName}!A1`, { fillColor: "#FF0000" }, "1");
       await network.concurrent(async () => {
         deleteSheet(alice, secondSheetId);
-        bob.dispatch("ADD_CONDITIONAL_FORMAT", {
+        bob.dispatchFromOutside("ADD_CONDITIONAL_FORMAT", {
           sheetId,
           cf,
           ranges: toRangesData(sheetId, "A2"),
@@ -830,7 +830,10 @@ describe("Collaborative Sheet manipulation", () => {
         (user) => user.getters.getGridLinesVisibility("42"),
         true
       );
-      alice.dispatch("SET_GRID_LINES_VISIBILITY", { sheetId: "42", areGridLinesVisible: false });
+      alice.dispatchFromOutside("SET_GRID_LINES_VISIBILITY", {
+        sheetId: "42",
+        areGridLinesVisible: false,
+      });
       expect([alice, bob, charlie]).toHaveSynchronizedValue(
         (user) => user.getters.getGridLinesVisibility("42"),
         false
@@ -841,7 +844,10 @@ describe("Collaborative Sheet manipulation", () => {
       createSheet(alice, { sheetId: "42" });
       await network.concurrent(async () => {
         deleteSheet(bob, "42");
-        alice.dispatch("SET_GRID_LINES_VISIBILITY", { sheetId: "42", areGridLinesVisible: false });
+        alice.dispatchFromOutside("SET_GRID_LINES_VISIBILITY", {
+          sheetId: "42",
+          areGridLinesVisible: false,
+        });
       });
       expect([alice, bob, charlie]).toHaveSynchronizedValue(
         (user) => user.getters.tryGetSheet("42"),

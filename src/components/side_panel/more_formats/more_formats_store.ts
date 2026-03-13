@@ -257,7 +257,7 @@ export class MoreFormatsStore extends SpreadsheetStore {
     if (!this.invalidFormat) {
       this.lastFormatInSelection = format;
       this.isApplyingFormatFromPanel = true;
-      this.model.dispatch("SET_FORMATTING_WITH_PIVOT", {
+      this.model.dispatchFromOutside("SET_FORMATTING_WITH_PIVOT", {
         sheetId: this.getters.getActiveSheetId(),
         target: this.getters.getSelectedZones(),
         format: format || "",

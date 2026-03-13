@@ -63,7 +63,7 @@ export class PivotMeasureDisplayPanelStore extends SpreadsheetStore {
     const measureIndex = this.getMeasureIndex(this.initialMeasure.id, pivotDefinition);
     const newMeasure = { ...pivotDefinition.measures[measureIndex], display: newDisplay };
     pivotDefinition.measures[measureIndex] = newMeasure;
-    const result = await this.model.dispatch("UPDATE_PIVOT", {
+    const result = await this.model.dispatchFromOutside("UPDATE_PIVOT", {
       pivot: pivotDefinition,
       pivotId: this.pivotId,
     });
@@ -173,7 +173,7 @@ export class PivotMeasureDisplayPanelStore extends SpreadsheetStore {
       ...pivotDefinition.measures[measureIndex],
       display: this.initialMeasure.display,
     };
-    this.model.dispatch("UPDATE_PIVOT", {
+    this.model.dispatchFromOutside("UPDATE_PIVOT", {
       pivot: pivotDefinition,
       pivotId: this.pivotId,
     });

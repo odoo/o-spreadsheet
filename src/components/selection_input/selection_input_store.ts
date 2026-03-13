@@ -192,7 +192,7 @@ export class SelectionInputStore extends SpreadsheetStore {
     }
     const activeSheetId = this.getters.getActiveSheetId();
     if (this.inputSheetId !== activeSheetId) {
-      this.model.dispatch("ACTIVATE_SHEET", {
+      this.model.dispatchFromOutside("ACTIVATE_SHEET", {
         sheetIdFrom: activeSheetId,
         sheetIdTo: this.inputSheetId,
       });

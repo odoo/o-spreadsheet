@@ -1671,7 +1671,7 @@ describe("Measure display", () => {
       ],
     });
     const pivot = model.getters.getPivot(pivotId);
-    model.dispatch("INSERT_PIVOT", {
+    model.dispatchFromOutside("INSERT_PIVOT", {
       sheetId: model.getters.getActiveSheetId(),
       col: 0,
       row: 19,

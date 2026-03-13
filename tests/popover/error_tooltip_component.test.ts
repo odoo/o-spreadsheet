@@ -218,7 +218,7 @@ describe("Grid integration", () => {
 
   test("Hovering over a figure should not open popovers", async () => {
     createChart(model, { ...TEST_CHART_DATA.basicChart }, "figureId");
-    model.dispatch("UPDATE_FIGURE", {
+    model.dispatchFromOutside("UPDATE_FIGURE", {
       figureId: "figureId",
       offset: {
         y: 200,

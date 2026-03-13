@@ -851,7 +851,7 @@ describe("TopBar - CF", () => {
       },
     };
     const sheetId = model.getters.getActiveSheetId();
-    model.dispatch("ADD_CONDITIONAL_FORMAT", {
+    model.dispatchFromOutside("ADD_CONDITIONAL_FORMAT", {
       cf: cfRule,
       sheetId,
       ranges: toRangesData(sheetId, cfRule.ranges.join(",")),
@@ -888,12 +888,12 @@ describe("TopBar - CF", () => {
       },
     };
     const sheetId = model.getters.getActiveSheetId();
-    model.dispatch("ADD_CONDITIONAL_FORMAT", {
+    model.dispatchFromOutside("ADD_CONDITIONAL_FORMAT", {
       cf: cfRule1,
       sheetId,
       ranges: toRangesData(sheetId, cfRule1.ranges.join(",")),
     });
-    model.dispatch("ADD_CONDITIONAL_FORMAT", {
+    model.dispatchFromOutside("ADD_CONDITIONAL_FORMAT", {
       cf: cfRule2,
       sheetId,
       ranges: toRangesData(sheetId, cfRule2.ranges.join(",")),
@@ -920,12 +920,12 @@ describe("TopBar - CF", () => {
       },
     };
     const sheetId = model.getters.getActiveSheetId();
-    model.dispatch("ADD_CONDITIONAL_FORMAT", {
+    model.dispatchFromOutside("ADD_CONDITIONAL_FORMAT", {
       cf: cfRule1,
       sheetId,
       ranges: toRangesData(sheetId, cfRule1.ranges.join(",")),
     });
-    model.dispatch("ADD_CONDITIONAL_FORMAT", {
+    model.dispatchFromOutside("ADD_CONDITIONAL_FORMAT", {
       cf: { ...cfRule1, id: "2" },
       sheetId,
       ranges: toRangesData(sheetId, "F1"),
@@ -963,7 +963,7 @@ describe("Topbar - menu item resizing with viewport", () => {
     expect(parseInt(height)).toBe(
       model.getters.getVisibleRect(model.getters.getActiveMainViewport()).height
     );
-    model.dispatch("RESIZE_SHEETVIEW", { width: 300, height: 100 });
+    model.dispatchFromOutside("RESIZE_SHEETVIEW", { width: 300, height: 100 });
     spreadsheetHeight = 100;
     window.resizers.resize();
     await nextTick();
@@ -980,7 +980,7 @@ describe("Topbar - menu item resizing with viewport", () => {
     expect(parseInt(height)).toBe(
       model.getters.getVisibleRect(model.getters.getActiveMainViewport()).height
     );
-    model.dispatch("RESIZE_SHEETVIEW", { width: 300, height: 100 });
+    model.dispatchFromOutside("RESIZE_SHEETVIEW", { width: 300, height: 100 });
     spreadsheetHeight = 100;
     window.resizers.resize();
     await nextTick();

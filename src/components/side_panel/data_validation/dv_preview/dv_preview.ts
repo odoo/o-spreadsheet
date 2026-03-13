@@ -29,7 +29,10 @@ export class DataValidationPreview extends Component<Props, SpreadsheetChildEnv>
 
   deleteDataValidation() {
     const sheetId = this.env.model.getters.getActiveSheetId();
-    this.env.model.dispatch("REMOVE_DATA_VALIDATION_RULE", { sheetId, id: this.props.rule.id });
+    this.env.model.dispatchFromOutside("REMOVE_DATA_VALIDATION_RULE", {
+      sheetId,
+      id: this.props.rule.id,
+    });
   }
 
   get highlights(): Highlight[] {

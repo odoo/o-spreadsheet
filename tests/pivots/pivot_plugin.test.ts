@@ -67,7 +67,7 @@ describe("Pivot plugin", () => {
     });
     const pivot = model.getters.getPivotCoreDefinition("1");
     expect(
-      model.dispatch("UPDATE_PIVOT", { pivotId: "1", pivot: { ...pivot, name: "" } })
+      model.dispatchFromOutside("UPDATE_PIVOT", { pivotId: "1", pivot: { ...pivot, name: "" } })
     ).toBeCancelledBecause(CommandResult.EmptyName);
   });
 
@@ -234,7 +234,7 @@ describe("Pivot plugin", () => {
 
   test("cannot update a pivot with a wrong id", () => {
     const model = new Model();
-    const updateResult = model.dispatch("UPDATE_PIVOT", {
+    const updateResult = model.dispatchFromOutside("UPDATE_PIVOT", {
       pivotId: "9999",
       pivot: {
         columns: [],
@@ -257,7 +257,7 @@ describe("Pivot plugin", () => {
 
   test("cannot duplicate a pivot with a wrong id", () => {
     const model = new Model();
-    const updateResult = model.dispatch("DUPLICATE_PIVOT", {
+    const updateResult = model.dispatchFromOutside("DUPLICATE_PIVOT", {
       pivotId: "9999",
       newPivotId: "1",
     });
@@ -266,7 +266,7 @@ describe("Pivot plugin", () => {
 
   test("cannot remove a pivot with a wrong id", () => {
     const model = new Model();
-    const updateResult = model.dispatch("REMOVE_PIVOT", {
+    const updateResult = model.dispatchFromOutside("REMOVE_PIVOT", {
       pivotId: "9999",
     });
     expect(updateResult).toBeCancelledBecause(CommandResult.PivotIdNotFound);
@@ -319,7 +319,7 @@ describe("Pivot plugin", () => {
     };
     const model = createModelFromGrid(grid);
     addPivot(model, "A1:A2", { name: `forbidden: ${FORBIDDEN_SHEETNAME_CHARS}` }, "pivot1");
-    model.dispatch("DUPLICATE_PIVOT_IN_NEW_SHEET", {
+    model.dispatchFromOutside("DUPLICATE_PIVOT_IN_NEW_SHEET", {
       newPivotId: "pivot2",
       newSheetId: "Sheet2",
       pivotId: "pivot1",
@@ -340,7 +340,7 @@ describe("Pivot plugin", () => {
     const name = "forbidden: /";
     renameSheet(model, sheetId, "forbidden:   (copy) (Pivot #2)");
     addPivot(model, "A1:A2", { name }, "pivot1");
-    model.dispatch("DUPLICATE_PIVOT_IN_NEW_SHEET", {
+    model.dispatchFromOutside("DUPLICATE_PIVOT_IN_NEW_SHEET", {
       newPivotId: "pivot2",
       newSheetId: "Sheet2",
       pivotId: "pivot1",
@@ -435,7 +435,7 @@ describe("Pivot plugin", () => {
   test("DUPLICATE_PIVOT_IN_NEW_SHEET is prevented if the pivot is in error", () => {
     const model = new Model();
     addPivot(model, "A1:A2", {}, "pivot1");
-    const result = model.dispatch("DUPLICATE_PIVOT_IN_NEW_SHEET", {
+    const result = model.dispatchFromOutside("DUPLICATE_PIVOT_IN_NEW_SHEET", {
       newPivotId: "pivot2",
       newSheetId: "Sheet2",
       pivotId: "pivot1",

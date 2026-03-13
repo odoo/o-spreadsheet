@@ -122,7 +122,7 @@ class MockGridRenderingContext implements GridRenderingContext {
   thinLineWidth = 0.4;
 
   constructor(model: Model, width: number, height: number, observer: ContextObserver) {
-    model.dispatch("RESIZE_SHEETVIEW", {
+    model.dispatchFromOutside("RESIZE_SHEETVIEW", {
       width: width - HEADER_WIDTH,
       height: height - HEADER_HEIGHT,
       gridOffsetX: 0,
@@ -226,7 +226,7 @@ describe("renderer", () => {
           instructions.push(`ctx.${key}(${args.map((a) => JSON.stringify(a)).join(", ")})`);
         },
       });
-      model.dispatch("RESIZE_SHEETVIEW", {
+      model.dispatchFromOutside("RESIZE_SHEETVIEW", {
         width,
         height,
         gridOffsetX: HEADER_WIDTH,
@@ -475,7 +475,7 @@ describe("renderer", () => {
       new Model({ sheets: [{ colNumber: 1, rowNumber: 3 }] })
     );
     const sheetId = model.getters.getActiveSheetId();
-    model.dispatch("ADD_CONDITIONAL_FORMAT", {
+    model.dispatchFromOutside("ADD_CONDITIONAL_FORMAT", {
       cf: createEqualCF("1", { fillColor: "#DC6CDF" }, "1"),
       sheetId,
       ranges: toRangesData(sheetId, "A1"),
@@ -559,7 +559,7 @@ describe("renderer", () => {
       new Model({ sheets: [{ colNumber: 1, rowNumber: 3 }] })
     );
     const sheetId = model.getters.getActiveSheetId();
-    model.dispatch("ADD_CONDITIONAL_FORMAT", {
+    model.dispatchFromOutside("ADD_CONDITIONAL_FORMAT", {
       cf: createEqualCF("1", { fillColor: "#DC6CDF" }, "1"),
       ranges: toRangesData(sheetId, "A1"),
       sheetId,
@@ -810,7 +810,7 @@ describe("renderer", () => {
     const { drawGridRenderer, model } = setRenderer();
 
     setCellContent(model, "A1", "=SUM(1,2)");
-    model.dispatch("SET_FORMULA_VISIBILITY", { show: true });
+    model.dispatchFromOutside("SET_FORMULA_VISIBILITY", { show: true });
     const textAligns: string[] = [];
 
     const ctx = new MockGridRenderingContext(model, 1000, 1000, {
@@ -839,7 +839,7 @@ describe("renderer", () => {
     setStyle(model, "A1", { align: "center" });
 
     setCellContent(model, "A1", "=SUM(1,2)");
-    model.dispatch("SET_FORMULA_VISIBILITY", { show: true });
+    model.dispatchFromOutside("SET_FORMULA_VISIBILITY", { show: true });
     const textAligns: string[] = [];
 
     const ctx = new MockGridRenderingContext(model, 1000, 1000, {
@@ -888,7 +888,7 @@ describe("renderer", () => {
     expect(removeOffsetOfFillStyles(fillStyle)).toEqual([]);
     fillStyle = [];
     const sheetId = model.getters.getActiveSheetId();
-    const result = model.dispatch("ADD_CONDITIONAL_FORMAT", {
+    const result = model.dispatchFromOutside("ADD_CONDITIONAL_FORMAT", {
       cf: {
         id: "1",
         rule: {
@@ -1761,7 +1761,10 @@ describe("renderer", () => {
     expect(strokeColors).toContain(SELECTION_BORDER_COLOR);
 
     // model without grid lines
-    model.dispatch("SET_GRID_LINES_VISIBILITY", { sheetId: "Sheet1", areGridLinesVisible: false });
+    model.dispatchFromOutside("SET_GRID_LINES_VISIBILITY", {
+      sheetId: "Sheet1",
+      areGridLinesVisible: false,
+    });
     strokeColors = [];
     drawGridRenderer(ctx);
 
@@ -2301,7 +2304,7 @@ describe("renderer", () => {
 
   test("Cells of splilled formula are empty is we display the formulas", () => {
     const model = new Model({ sheets: [{ colNumber: 2, rowNumber: 2 }] });
-    model.dispatch("SET_FORMULA_VISIBILITY", { show: true });
+    model.dispatchFromOutside("SET_FORMULA_VISIBILITY", { show: true });
     setCellContent(model, "A1", "=MUNIT(2)");
     const { drawGridRenderer, gridRendererStore } = setRenderer(model);
     const ctx = new MockGridRenderingContext(model, 1000, 1000, {});
@@ -2422,7 +2425,7 @@ describe("renderer", () => {
         displayStyle: "chip",
       };
       const sheetId = model.getters.getActiveSheetId();
-      model.dispatch("ADD_CONDITIONAL_FORMAT", {
+      model.dispatchFromOutside("ADD_CONDITIONAL_FORMAT", {
         cf: {
           id: "1",
           rule: {

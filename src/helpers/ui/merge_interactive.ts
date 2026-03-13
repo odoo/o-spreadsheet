@@ -10,12 +10,12 @@ export const AddMergeInteractiveContent = {
 };
 
 export async function interactiveAddMerge(env: SpreadsheetChildEnv, sheetId: UID, target: Zone[]) {
-  const result = await env.model.dispatch("ADD_MERGE", { sheetId, target });
+  const result = await env.model.dispatchFromOutside("ADD_MERGE", { sheetId, target });
   if (result.isCancelledBecause(CommandResult.MergeInTable)) {
     env.raiseError(AddMergeInteractiveContent.MergeInFilter);
   } else if (result.isCancelledBecause(CommandResult.MergeIsDestructive)) {
     env.askConfirmation(AddMergeInteractiveContent.MergeIsDestructive, () => {
-      env.model.dispatch("ADD_MERGE", { sheetId, target, force: true });
+      env.model.dispatchFromOutside("ADD_MERGE", { sheetId, target, force: true });
     });
   }
 }

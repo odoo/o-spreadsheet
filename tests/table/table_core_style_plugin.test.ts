@@ -55,7 +55,7 @@ describe("Table core style plugin", () => {
 
     expect(model.getters.getTableStyles()["MyStyle"]).toMatchObject(customStyle);
 
-    model.dispatch("REMOVE_TABLE_STYLE", { tableStyleId: "MyStyle" });
+    model.dispatchFromOutside("REMOVE_TABLE_STYLE", { tableStyleId: "MyStyle" });
     expect(model.getters.getTableStyles()["MyStyle"]).toBeUndefined();
   });
 
@@ -70,7 +70,7 @@ describe("Table core style plugin", () => {
     });
     expect(getStyle(model, "A1")).toMatchObject({ fillColor: "#00FF00" });
 
-    model.dispatch("REMOVE_TABLE_STYLE", { tableStyleId: "MyStyle" });
+    model.dispatchFromOutside("REMOVE_TABLE_STYLE", { tableStyleId: "MyStyle" });
     expect(getStyle(model, "A1")).toMatchObject({ fillColor: "#346B90" }); // default table style
   });
 
@@ -80,7 +80,7 @@ describe("Table core style plugin", () => {
     createTable(model, "A1", { styleId: "MyStyle" });
     expect(model.getters.getTables(sheetId)[0].config.styleId).toEqual("MyStyle");
 
-    model.dispatch("REMOVE_TABLE_STYLE", { tableStyleId: "MyStyle" });
+    model.dispatchFromOutside("REMOVE_TABLE_STYLE", { tableStyleId: "MyStyle" });
     expect(model.getters.getTables(sheetId)[0].config.styleId).toEqual(
       DEFAULT_TABLE_CONFIG.styleId
     );

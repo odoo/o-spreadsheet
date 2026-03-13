@@ -412,7 +412,7 @@ export class ColResizer extends AbstractResizer {
     const index = this.state.activeElement;
     const size = this.state.delta + this._getElementSize(index);
     const cols = this.env.model.getters.getActiveCols();
-    this.env.model.dispatch("RESIZE_COLUMNS_ROWS", {
+    this.env.model.dispatchFromOutside("RESIZE_COLUMNS_ROWS", {
       dimension: "COL",
       sheetId: this.sheetId,
       elements: cols.has(index) ? [...cols] : [index],
@@ -427,7 +427,7 @@ export class ColResizer extends AbstractResizer {
     for (let colIndex = start; colIndex <= end; colIndex++) {
       elements.push(colIndex);
     }
-    const result = await this.env.model.dispatch("MOVE_COLUMNS_ROWS", {
+    const result = await this.env.model.dispatchFromOutside("MOVE_COLUMNS_ROWS", {
       sheetId: this.sheetId,
       sheetName: this.env.model.getters.getActiveSheetName(),
       dimension: "COL",
@@ -453,7 +453,7 @@ export class ColResizer extends AbstractResizer {
 
   _fitElementSize(index: HeaderIndex): void {
     const cols = this.env.model.getters.getActiveCols();
-    this.env.model.dispatch("AUTORESIZE_COLUMNS", {
+    this.env.model.dispatchFromOutside("AUTORESIZE_COLUMNS", {
       sheetId: this.sheetId,
       cols: cols.has(index) ? [...cols] : [index],
     });
@@ -479,7 +479,7 @@ export class ColResizer extends AbstractResizer {
   }
 
   unhide(hiddenElements: HeaderIndex[]) {
-    this.env.model.dispatch("UNHIDE_COLUMNS_ROWS", {
+    this.env.model.dispatchFromOutside("UNHIDE_COLUMNS_ROWS", {
       sheetId: this.sheetId,
       elements: hiddenElements,
       dimension: "COL",
@@ -585,7 +585,7 @@ export class RowResizer extends AbstractResizer {
     const index = this.state.activeElement;
     const size = this.state.delta + this._getElementSize(index);
     const rows = this.env.model.getters.getActiveRows();
-    this.env.model.dispatch("RESIZE_COLUMNS_ROWS", {
+    this.env.model.dispatchFromOutside("RESIZE_COLUMNS_ROWS", {
       dimension: "ROW",
       sheetId: this.sheetId,
       elements: rows.has(index) ? [...rows] : [index],
@@ -600,7 +600,7 @@ export class RowResizer extends AbstractResizer {
     for (let rowIndex = start; rowIndex <= end; rowIndex++) {
       elements.push(rowIndex);
     }
-    const result = await this.env.model.dispatch("MOVE_COLUMNS_ROWS", {
+    const result = await this.env.model.dispatchFromOutside("MOVE_COLUMNS_ROWS", {
       sheetId: this.sheetId,
       sheetName: this.env.model.getters.getActiveSheetName(),
       dimension: "ROW",
@@ -631,7 +631,7 @@ export class RowResizer extends AbstractResizer {
 
   _fitElementSize(index: HeaderIndex): void {
     const rows = this.env.model.getters.getActiveRows();
-    this.env.model.dispatch("AUTORESIZE_ROWS", {
+    this.env.model.dispatchFromOutside("AUTORESIZE_ROWS", {
       sheetId: this.sheetId,
       rows: rows.has(index) ? [...rows] : [index],
     });

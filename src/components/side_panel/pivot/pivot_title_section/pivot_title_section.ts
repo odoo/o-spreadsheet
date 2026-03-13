@@ -54,7 +54,7 @@ export class PivotTitleSection extends Component<Props, SpreadsheetChildEnv> {
   async duplicatePivot() {
     const newPivotId = this.env.model.uuidGenerator.smallUuid();
     const newSheetId = this.env.model.uuidGenerator.smallUuid();
-    const result = await this.env.model.dispatch("DUPLICATE_PIVOT_IN_NEW_SHEET", {
+    const result = await this.env.model.dispatchFromOutside("DUPLICATE_PIVOT_IN_NEW_SHEET", {
       pivotId: this.props.pivotId,
       newPivotId,
       newSheetId,
@@ -80,13 +80,13 @@ export class PivotTitleSection extends Component<Props, SpreadsheetChildEnv> {
 
   delete() {
     this.env.askConfirmation(_t("Are you sure you want to delete this pivot?"), () => {
-      this.env.model.dispatch("REMOVE_PIVOT", { pivotId: this.props.pivotId });
+      this.env.model.dispatchFromOutside("REMOVE_PIVOT", { pivotId: this.props.pivotId });
     });
   }
 
   onNameChanged(name: string) {
     const pivot = this.env.model.getters.getPivotCoreDefinition(this.props.pivotId);
-    this.env.model.dispatch("UPDATE_PIVOT", {
+    this.env.model.dispatchFromOutside("UPDATE_PIVOT", {
       pivotId: this.props.pivotId,
       pivot: {
         ...pivot,

@@ -87,7 +87,7 @@ export class CarouselFigure extends Component<Props, SpreadsheetChildEnv> {
   }
 
   onCarouselDoubleClick() {
-    this.env.model.dispatch("SELECT_FIGURE", { figureId: this.props.figureUI.id });
+    this.env.model.dispatchFromOutside("SELECT_FIGURE", { figureId: this.props.figureUI.id });
     this.env.openSidePanel("CarouselPanel", { figureId: this.props.figureUI.id });
   }
 
@@ -101,7 +101,7 @@ export class CarouselFigure extends Component<Props, SpreadsheetChildEnv> {
   }
 
   onCarouselTabClick(item: CarouselItem) {
-    this.env.model.dispatch("UPDATE_CAROUSEL_ACTIVE_ITEM", {
+    this.env.model.dispatchFromOutside("UPDATE_CAROUSEL_ACTIVE_ITEM", {
       figureId: this.props.figureUI.id,
       sheetId: this.env.model.getters.getActiveSheetId(),
       item,

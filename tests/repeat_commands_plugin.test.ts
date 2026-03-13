@@ -274,7 +274,7 @@ describe("Repeat command transform specifics", () => {
       sheetId: expect.not.stringMatching("sheetId"),
       name: "sheetName1",
     });
-    model.dispatch("CREATE_SHEET", { ...repeated });
+    model.dispatchFromOutside("CREATE_SHEET", { ...repeated });
 
     expect(repeatCoreCommand(model.getters, repeated)).toEqual({
       ...command,
@@ -390,7 +390,7 @@ describe("Repeat local commands", () => {
     setCellContent(model, "A1", "A1");
     setCellContent(model, "A2", "A2");
     setStyle(model, "A2", { fillColor: "red" });
-    model.dispatch("ADD_CONDITIONAL_FORMAT", {
+    model.dispatchFromOutside("ADD_CONDITIONAL_FORMAT", {
       ...TEST_COMMANDS.ADD_CONDITIONAL_FORMAT,
       ranges: toRangesData(sheetId, "A1:A2"),
     });
@@ -489,7 +489,7 @@ describe("Repeat local commands", () => {
   test("Repeat set decimal", () => {
     setSelection(model, ["A1"]);
     setCellContent(model, "A1", "1");
-    model.dispatch("SET_DECIMAL", { target: target("A1"), step: 1, sheetId });
+    model.dispatchFromOutside("SET_DECIMAL", { target: target("A1"), step: 1, sheetId });
     expect(getEvaluatedCell(model, "A1").formattedValue).toEqual("1.0");
 
     redo(model);
@@ -498,7 +498,7 @@ describe("Repeat local commands", () => {
 
   test("Repeat autoresize rows", () => {
     resizeRows(model, [0, 2, 3], 100);
-    model.dispatch("AUTORESIZE_ROWS", {
+    model.dispatchFromOutside("AUTORESIZE_ROWS", {
       sheetId,
       rows: [0],
     });
@@ -515,7 +515,7 @@ describe("Repeat local commands", () => {
     setCellContent(model, "C1", "C1");
     setCellContent(model, "D1", "D1");
     resizeColumns(model, ["A", "C", "D"], 50);
-    model.dispatch("AUTORESIZE_COLUMNS", {
+    model.dispatchFromOutside("AUTORESIZE_COLUMNS", {
       sheetId,
       cols: [0],
     });
@@ -553,7 +553,7 @@ describe("Repeat local commands", () => {
     setCellContent(model, "A2", "2");
 
     setSelection(model, ["B1:B2"]);
-    model.dispatch("SUM_SELECTION");
+    model.dispatchFromOutside("SUM_SELECTION");
 
     setSelection(model, ["A1:A2"]);
     redo(model);
@@ -564,7 +564,7 @@ describe("Repeat local commands", () => {
     setCellContent(model, "A1", "1");
     setCellContent(model, "A2", "2");
 
-    model.dispatch("DELETE_UNFILTERED_CONTENT", { sheetId, target: target("A1") });
+    model.dispatchFromOutside("DELETE_UNFILTERED_CONTENT", { sheetId, target: target("A1") });
     expect(getCellContent(model, "A1")).toEqual("");
     expect(getCellContent(model, "A2")).toEqual("2");
 

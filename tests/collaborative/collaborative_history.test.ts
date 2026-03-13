@@ -779,7 +779,7 @@ describe("Collaborative local history", () => {
     };
     await network.concurrent(async () => {
       addColumns(alice, "before", "A", 1);
-      david.dispatch(command.type, command);
+      david.dispatchFromOutside(command.type, command);
     });
     const davidPluginHandle = spyUiPluginHandle(david);
     const elisePluginHandle = spyUiPluginHandle(elisa);
@@ -877,7 +877,7 @@ describe("Collaborative local history", () => {
   test("Replay a REMOVE_TABLE in empty sheet after a local CREATE_TABLE", async () => {
     const { network, alice, bob, charlie } = setupCollaborativeEnv();
     setCellContent(charlie, "A1", "Hello", "Sheet1");
-    alice.dispatch("REMOVE_TABLE", {
+    alice.dispatchFromOutside("REMOVE_TABLE", {
       target: [
         { left: 4, right: 7, top: 4, bottom: 5 },
         { left: 5, right: 7, top: 3, bottom: 8 },
@@ -911,7 +911,7 @@ describe("Collaborative local history", () => {
     await network.concurrent(async () => {
       setCellContent(alice, "A1", "hello");
       addPivot(charlie, "A1:A2", { name: "pivot" }, "1");
-      charlie.dispatch("RENAME_PIVOT", { pivotId: "1", name: "newName" });
+      charlie.dispatchFromOutside("RENAME_PIVOT", { pivotId: "1", name: "newName" });
     });
     undo(charlie);
     expect([alice, bob, charlie]).toHaveSynchronizedEvaluation();
@@ -928,7 +928,7 @@ describe("Collaborative local history", () => {
       updatePivot(alice, "1", {
         dataSet: { sheetId: alice.getters.getActiveSheetId(), zone: toZone("A1:B1") },
       });
-      alice.dispatch("RENAME_PIVOT", { pivotId: "1", name: "newName" });
+      alice.dispatchFromOutside("RENAME_PIVOT", { pivotId: "1", name: "newName" });
       undo(alice);
     });
     expect([alice, bob, charlie]).toHaveSynchronizedEvaluation();
@@ -1017,7 +1017,7 @@ describe("Collaborative local history", () => {
   test("do not transformed revisions with concurrently rejected commands", async () => {
     const { network, alice, bob, charlie } = setupCollaborativeEnv();
     const initialCols = alice.getters.getNumberCols("Sheet1");
-    charlie.dispatch("DUPLICATE_SHEET", {
+    charlie.dispatchFromOutside("DUPLICATE_SHEET", {
       sheetId: "Sheet1",
       sheetIdTo: "duplicateSheetId",
       sheetNameTo: "Copy of Sheet1",
@@ -1034,7 +1034,7 @@ describe("Collaborative local history", () => {
 
       // ADD_COLUMNS_ROWS no longer makes sense because the sheet has been finally deleted
       // and the transformation drops the command
-      alice.dispatch("ADD_COLUMNS_ROWS", {
+      alice.dispatchFromOutside("ADD_COLUMNS_ROWS", {
         position: "after",
         dimension: "ROW",
         base: 0,

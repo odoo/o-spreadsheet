@@ -8,7 +8,7 @@ describe("trim whitespace", () => {
     const model = new Model();
     setCellContent(model, "A2", "   Alo         ");
     selectCell(model, "A2");
-    model.dispatch("TRIM_WHITESPACE");
+    model.dispatchFromOutside("TRIM_WHITESPACE");
     expect(getCellContent(model, "A2")).toBe("Alo");
   });
 
@@ -16,7 +16,7 @@ describe("trim whitespace", () => {
     const model = new Model();
     setCellContent(model, "A2", "  Alo        salut     sunt  eu    un haiduc  ");
     selectCell(model, "A2");
-    model.dispatch("TRIM_WHITESPACE");
+    model.dispatchFromOutside("TRIM_WHITESPACE");
     expect(getCellContent(model, "A2")).toBe("Alo salut sunt eu un haiduc");
   });
 
@@ -30,7 +30,7 @@ describe("trim whitespace", () => {
     const notifyUserTextSpy = jest.fn();
     jest.spyOn(model.config, "notifyUI").mockImplementation(notifyUserTextSpy);
     setSelection(model, ["A1:A2", "A2:A3", "A4"]);
-    model.dispatch("TRIM_WHITESPACE");
+    model.dispatchFromOutside("TRIM_WHITESPACE");
     expect(getCellContent(model, "A1")).toBe("Space Opera");
     expect(getCellContent(model, "A2")).toBe("Space Marine");
     expect(getCellContent(model, "A3")).toBe("Space Cowboys");
@@ -41,7 +41,7 @@ describe("trim whitespace", () => {
     const model = new Model();
     setCellContent(model, "A2", "\tAlo   \t     salut\tsunt eu \tun haiduc  \t");
     selectCell(model, "A2");
-    model.dispatch("TRIM_WHITESPACE");
+    model.dispatchFromOutside("TRIM_WHITESPACE");
     expect(getCellContent(model, "A2")).toBe("Alo salut sunt eu un haiduc");
   });
 
@@ -50,7 +50,7 @@ describe("trim whitespace", () => {
     const model = new Model();
     setCellContent(model, "A2", "  Alo        salut   \n   sunt  eu  \n  un haiduc  ");
     selectCell(model, "A2");
-    model.dispatch("TRIM_WHITESPACE");
+    model.dispatchFromOutside("TRIM_WHITESPACE");
     expect(getCellContent(model, "A2")).toBe("Alo salut\nsunt eu\nun haiduc");
   });
 
@@ -59,14 +59,14 @@ describe("trim whitespace", () => {
     const model = new Model();
     setCellContent(model, "A2", "  Alo        salut   \n\n   sunt  eu  \n     \n  un haiduc  ");
     selectCell(model, "A2");
-    model.dispatch("TRIM_WHITESPACE");
+    model.dispatchFromOutside("TRIM_WHITESPACE");
     expect(getCellContent(model, "A2")).toBe("Alo salut\n\nsunt eu\n\nun haiduc");
   });
 
   test("apply it on all selected cells", () => {
     const model = createModelFromGrid({ A2: " a ", A3: " b ", A4: " c " });
     setSelection(model, ["A2:A3", "A3:A4"]);
-    model.dispatch("TRIM_WHITESPACE");
+    model.dispatchFromOutside("TRIM_WHITESPACE");
     expect(getRangeValuesAsMatrix(model, "A2:A4")).toEqual([["a"], ["b"], ["c"]]);
   });
 });
@@ -81,7 +81,7 @@ describe("notify user", () => {
     const notifyUserTextSpy = jest.fn();
     jest.spyOn(model.config, "notifyUI").mockImplementation(notifyUserTextSpy);
     setSelection(model, ["A1:A3"]);
-    model.dispatch("TRIM_WHITESPACE");
+    model.dispatchFromOutside("TRIM_WHITESPACE");
     expect(notifyUserTextSpy).toHaveBeenCalledWith({
       text: "Trimmed whitespace from 2 cells.",
       type: "info",
@@ -98,7 +98,7 @@ describe("notify user", () => {
     const notifyUserTextSpy = jest.fn();
     jest.spyOn(model.config, "notifyUI").mockImplementation(notifyUserTextSpy);
     setSelection(model, ["A1:A3"]);
-    model.dispatch("TRIM_WHITESPACE");
+    model.dispatchFromOutside("TRIM_WHITESPACE");
     expect(notifyUserTextSpy).toHaveBeenCalledWith({
       text: "No selected cells had whitespace trimmed.",
       type: "info",

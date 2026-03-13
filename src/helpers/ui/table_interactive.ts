@@ -25,7 +25,7 @@ export async function interactiveCreateTable(
   }
 
   const ranges = target.map((zone) => env.model.getters.getRangeDataFromZone(sheetId, zone));
-  const result = await env.model.dispatch("CREATE_TABLE", {
+  const result = await env.model.dispatchFromOutside("CREATE_TABLE", {
     ranges,
     sheetId,
     config: tableConfig,

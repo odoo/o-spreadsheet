@@ -19,7 +19,7 @@ export async function interactiveToggleGroup(
     return;
   }
   const command = group.isFolded ? "UNFOLD_HEADER_GROUP" : "FOLD_HEADER_GROUP";
-  const result = await env.model.dispatch(command, {
+  const result = await env.model.dispatchFromOutside(command, {
     sheetId,
     dimension,
     start: group.start,

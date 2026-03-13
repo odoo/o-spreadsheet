@@ -274,7 +274,9 @@ export class FiguresContainer extends Component<Props, SpreadsheetChildEnv> {
       // not main button, probably a context menu and no d&d in readonly mode
       return;
     }
-    const selectResult = await this.env.model.dispatch("SELECT_FIGURE", { figureId: figureUI.id });
+    const selectResult = await this.env.model.dispatchFromOutside("SELECT_FIGURE", {
+      figureId: figureUI.id,
+    });
     if (!selectResult.isSuccessful) {
       return;
     }
@@ -347,7 +349,7 @@ export class FiguresContainer extends Component<Props, SpreadsheetChildEnv> {
         this.dnd.draggedFigure
       );
       if (!this.dnd.overlappingCarousel) {
-        this.env.model.dispatch("UPDATE_FIGURE", {
+        this.env.model.dispatchFromOutside("UPDATE_FIGURE", {
           sheetId,
           figureId: figureUI.id,
           offset,
@@ -355,7 +357,7 @@ export class FiguresContainer extends Component<Props, SpreadsheetChildEnv> {
           row,
         });
       } else {
-        this.env.model.dispatch("ADD_FIGURE_CHART_TO_CAROUSEL", {
+        this.env.model.dispatchFromOutside("ADD_FIGURE_CHART_TO_CAROUSEL", {
           sheetId,
           carouselFigureId: this.dnd.overlappingCarousel.id,
           chartFigureId: figureUI.id,
@@ -443,7 +445,7 @@ export class FiguresContainer extends Component<Props, SpreadsheetChildEnv> {
       if (dirY) {
         update.height = this.dnd.draggedFigure.height;
       }
-      this.env.model.dispatch("UPDATE_FIGURE", {
+      this.env.model.dispatchFromOutside("UPDATE_FIGURE", {
         sheetId: this.env.model.getters.getActiveSheetId(),
         figureId: figureUI.id,
         ...update,

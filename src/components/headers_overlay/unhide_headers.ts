@@ -37,7 +37,7 @@ export class UnhideRowHeaders extends Component<Props, SpreadsheetChildEnv> {
   }
 
   unhide(hiddenElements: HeaderIndex[]) {
-    this.env.model.dispatch("UNHIDE_COLUMNS_ROWS", {
+    this.env.model.dispatchFromOutside("UNHIDE_COLUMNS_ROWS", {
       sheetId: this.sheetId,
       dimension: "ROW",
       elements: hiddenElements,
@@ -75,7 +75,7 @@ export class UnhideColumnHeaders extends Component<Props, SpreadsheetChildEnv> {
   }
 
   unhide(hiddenElements: HeaderIndex[]) {
-    this.env.model.dispatch("UNHIDE_COLUMNS_ROWS", {
+    this.env.model.dispatchFromOutside("UNHIDE_COLUMNS_ROWS", {
       sheetId: this.sheetId,
       dimension: "COL",
       elements: hiddenElements,

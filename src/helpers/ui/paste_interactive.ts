@@ -21,7 +21,7 @@ export const handleCopyPasteResult = async (
   env: SpreadsheetChildEnv,
   command: CopyPasteCellsAboveCommand | CopyPasteCellsOnLeftCommand | CopyPasteCellsOnZoneCommand
 ) => {
-  const result = await env.model.dispatch(command.type);
+  const result = await env.model.dispatchFromOutside(command.type);
   if (result.isCancelledBecause(CommandResult.WillRemoveExistingMerge)) {
     env.raiseError(MergeErrorMessage);
   }
@@ -53,7 +53,7 @@ export async function interactivePaste(
   target: Zone[],
   pasteOption?: ClipboardPasteOptions
 ) {
-  const result = await env.model.dispatch("PASTE", { target, pasteOption });
+  const result = await env.model.dispatchFromOutside("PASTE", { target, pasteOption });
   handlePasteResult(env, result);
 }
 
@@ -82,7 +82,7 @@ export async function interactivePasteFromOS(
       delete parsedClipboardContent.imageBlob;
     }
 
-    result = await env.model.dispatch("PASTE_FROM_OS_CLIPBOARD", {
+    result = await env.model.dispatchFromOutside("PASTE_FROM_OS_CLIPBOARD", {
       target,
       clipboardContent: parsedClipboardContent,
       pasteOption,
@@ -106,7 +106,7 @@ export async function interactivePasteFromOS(
       );
       console.error(error);
     }
-    result = await env.model.dispatch("PASTE_FROM_OS_CLIPBOARD", {
+    result = await env.model.dispatchFromOutside("PASTE_FROM_OS_CLIPBOARD", {
       target,
       clipboardContent: {
         text: parsedClipboardContent.text,

@@ -230,7 +230,7 @@ export function automaticSumMulti(
   sheetId?: UID
 ) {
   setSelection(model, xcs, { anchor });
-  return model.dispatch("SUM_SELECTION");
+  return model.dispatchFromOutside("SUM_SELECTION");
 }
 
 export function getTable(

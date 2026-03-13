@@ -1174,7 +1174,7 @@ describe("Grid component", () => {
 
     test("Paste format works with conditional format", () => {
       const sheetId = model.getters.getActiveSheetId();
-      model.dispatch("ADD_CONDITIONAL_FORMAT", {
+      model.dispatchFromOutside("ADD_CONDITIONAL_FORMAT", {
         cf: createEqualCF("1", { fillColor: "#0000FF" }, "cf2"),
         sheetId,
         ranges: toRangesData(sheetId, "A1"),
@@ -1969,7 +1969,7 @@ describe("Copy paste keyboard shortcut", () => {
   });
 
   test("Cut of a formula cell, and enabling showFormulas should return content", async () => {
-    model.dispatch("SET_FORMULA_VISIBILITY", { show: true });
+    model.dispatchFromOutside("SET_FORMULA_VISIBILITY", { show: true });
     setCellContent(model, "A1", "1");
     setCellFormat(model, "A1", "m/d/yyyy");
     document.body.dispatchEvent(getClipboardEvent("cut", clipboardData));
@@ -1980,7 +1980,7 @@ describe("Copy paste keyboard shortcut", () => {
     }
     const clipboardContent = clipboardData.content;
     expect(clipboardContent[ClipboardMIMEType.PlainText]).toEqual(getCellContent(model, "A1"));
-    model.dispatch("SET_FORMULA_VISIBILITY", { show: false });
+    model.dispatchFromOutside("SET_FORMULA_VISIBILITY", { show: false });
     selectCell(model, "A2");
     document.body.dispatchEvent(getClipboardEvent("paste", clipboardData));
     await nextTick();
@@ -2005,7 +2005,7 @@ describe("Copy paste keyboard shortcut", () => {
     await nextTick();
     expect(getCellContent(model, "A2")).toEqual("12/31/1899");
 
-    model.dispatch("SET_FORMULA_VISIBILITY", { show: true });
+    model.dispatchFromOutside("SET_FORMULA_VISIBILITY", { show: true });
     setCellContent(model, "B1", "1");
     selectCell(model, "B1");
     document.body.dispatchEvent(getClipboardEvent("cut", clipboardData));
@@ -2018,7 +2018,7 @@ describe("Copy paste keyboard shortcut", () => {
     expect(clipboardContent[ClipboardMIMEType.PlainText]).toEqual(
       getEvaluatedCell(model, "B1").formattedValue
     );
-    model.dispatch("SET_FORMULA_VISIBILITY", { show: false });
+    model.dispatchFromOutside("SET_FORMULA_VISIBILITY", { show: false });
     selectCell(model, "B2");
     document.body.dispatchEvent(getClipboardEvent("paste", clipboardData));
     await nextTick();
@@ -2166,7 +2166,7 @@ describe("Copy paste keyboard shortcut", () => {
   test("Can copy/paste chart", async () => {
     selectCell(model, "A1");
     createChart(model, { type: "bar" }, "chartId", undefined, { figureId: "figureId" });
-    model.dispatch("SELECT_FIGURE", { figureId: "figureId" });
+    model.dispatchFromOutside("SELECT_FIGURE", { figureId: "figureId" });
     document.body.dispatchEvent(getClipboardEvent("copy", clipboardData));
     await nextTick();
     const clipboard = await parent.env.clipboard.read!();
@@ -2185,7 +2185,7 @@ describe("Copy paste keyboard shortcut", () => {
   test("Can cut/paste chart", async () => {
     selectCell(model, "A1");
     createChart(model, { type: "bar" }, "chartId", undefined, { figureId: "figureId" });
-    model.dispatch("SELECT_FIGURE", { figureId: "figureId" });
+    model.dispatchFromOutside("SELECT_FIGURE", { figureId: "figureId" });
     document.body.dispatchEvent(getClipboardEvent("cut", clipboardData));
     await nextTick();
     const clipboard = await parent.env.clipboard.read!();
@@ -2209,7 +2209,7 @@ describe("Copy paste keyboard shortcut", () => {
       mockChart();
       selectCell(model, "A1");
       createChart(model, { type: "bar" }, "chartId", undefined, { figureId: "figId" });
-      model.dispatch("SELECT_FIGURE", { figureId: "figId" });
+      model.dispatchFromOutside("SELECT_FIGURE", { figureId: "figId" });
       document.body.dispatchEvent(getClipboardEvent(operation, clipboardData));
       await nextTick();
       const clipboard = await parent.env.clipboard.read!();
@@ -2237,7 +2237,7 @@ describe("Copy paste keyboard shortcut", () => {
     async (operation) => {
       selectCell(model, "A1");
       createImage(model, { figureId: "imageId" });
-      model.dispatch("SELECT_FIGURE", { figureId: "imageId" });
+      model.dispatchFromOutside("SELECT_FIGURE", { figureId: "imageId" });
       document.body.dispatchEvent(getClipboardEvent(operation, clipboardData));
       await nextTick();
       // copying to the clipboard might take more than one tick

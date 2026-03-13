@@ -155,7 +155,7 @@ export class PivotSidePanelStore extends SpreadsheetStore {
 
   applyUpdate() {
     if (this.draft) {
-      this.model.dispatch("UPDATE_PIVOT", {
+      this.model.dispatchFromOutside("UPDATE_PIVOT", {
         pivotId: this.pivotId,
         pivot: this.draft,
       });

@@ -204,19 +204,19 @@ export class CellComposerStore extends AbstractComposerStore {
           ? undefined
           : detectDateFormat(content, this.getters.getLocale());
       this.addHeadersForSpreadingFormula(content);
-      result = await this.model.dispatch("UPDATE_CELL", {
+      result = await this.model.dispatchFromOutside("UPDATE_CELL", {
         ...this.currentEditedCell,
         content,
         format: afterFormat,
       });
     } else {
-      result = await this.model.dispatch("UPDATE_CELL", {
+      result = await this.model.dispatchFromOutside("UPDATE_CELL", {
         ...this.currentEditedCell,
         content: "",
       });
     }
     if (result.isSuccessful) {
-      await this.model.dispatch("AUTOFILL_TABLE_COLUMN", { ...this.currentEditedCell });
+      await this.model.dispatchFromOutside("AUTOFILL_TABLE_COLUMN", { ...this.currentEditedCell });
     }
     this.setContent("");
   }
@@ -318,7 +318,7 @@ export class CellComposerStore extends AbstractComposerStore {
     }
 
     if (missingHeaders.missingCols > 0) {
-      await this.model.dispatch("ADD_COLUMNS_ROWS", {
+      await this.model.dispatchFromOutside("ADD_COLUMNS_ROWS", {
         sheetId: this.sheetId,
         sheetName: this.getters.getSheetName(this.sheetId),
         dimension: "COL",
@@ -328,7 +328,7 @@ export class CellComposerStore extends AbstractComposerStore {
       });
     }
     if (missingHeaders.missingRows > 0) {
-      await this.model.dispatch("ADD_COLUMNS_ROWS", {
+      await this.model.dispatchFromOutside("ADD_COLUMNS_ROWS", {
         sheetId: this.sheetId,
         sheetName: this.getters.getSheetName(this.sheetId),
         dimension: "ROW",

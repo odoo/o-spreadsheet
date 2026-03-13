@@ -1546,10 +1546,10 @@ export interface CoreCommandDispatcher {
 }
 
 export interface AsyncCommandDispatcher {
-  dispatch<T extends CommandTypes, C extends Extract<Command, { type: T }>>(
+  dispatchFromOutside<T extends CommandTypes, C extends Extract<Command, { type: T }>>(
     type: {} extends Omit<C, "type"> ? T : never
   ): Promise<DispatchResult>;
-  dispatch<T extends CommandTypes, C extends Extract<Command, { type: T }>>(
+  dispatchFromOutside<T extends CommandTypes, C extends Extract<Command, { type: T }>>(
     type: T,
     r: Omit<C, "type">
   ): Promise<DispatchResult>;

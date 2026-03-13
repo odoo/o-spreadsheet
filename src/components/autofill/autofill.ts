@@ -78,7 +78,7 @@ export class Autofill extends Component<Props, SpreadsheetChildEnv> {
     const onMouseUp = () => {
       this.state.handler = false;
       this.state.position = { ...this.props.position };
-      this.env.model.dispatch("AUTOFILL");
+      this.env.model.dispatchFromOutside("AUTOFILL");
     };
 
     const onMouseMove = (col: HeaderIndex, row: HeaderIndex, ev: MouseEvent) => {
@@ -93,7 +93,7 @@ export class Autofill extends Component<Props, SpreadsheetChildEnv> {
         lastCol = col === -1 ? lastCol : clip(col, 0, numberOfCols);
         lastRow = row === -1 ? lastRow : clip(row, 0, numberOfRows);
         if (lastCol !== undefined && lastRow !== undefined) {
-          this.env.model.dispatch("AUTOFILL_SELECT", { col: lastCol, row: lastRow });
+          this.env.model.dispatchFromOutside("AUTOFILL_SELECT", { col: lastCol, row: lastRow });
         }
       }
     };
@@ -101,7 +101,7 @@ export class Autofill extends Component<Props, SpreadsheetChildEnv> {
   }
 
   onDblClick() {
-    this.env.model.dispatch("AUTOFILL_AUTO");
+    this.env.model.dispatchFromOutside("AUTOFILL_AUTO");
   }
 }
 

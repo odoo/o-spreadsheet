@@ -9,7 +9,7 @@ export async function interactiveRenameSheet(
   name: string,
   errorCallback: () => void
 ) {
-  const result = await env.model.dispatch("RENAME_SHEET", {
+  const result = await env.model.dispatchFromOutside("RENAME_SHEET", {
     sheetId,
     newName: name,
     oldName: env.model.getters.getSheetName(sheetId),

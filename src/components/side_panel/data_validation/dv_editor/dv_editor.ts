@@ -95,7 +95,10 @@ export class DataValidationEditor extends Component<Props, SpreadsheetChildEnv> 
   }
 
   async onSave() {
-    const result = await this.env.model.dispatch("ADD_DATA_VALIDATION_RULE", this.dispatchPayload);
+    const result = await this.env.model.dispatchFromOutside(
+      "ADD_DATA_VALIDATION_RULE",
+      this.dispatchPayload
+    );
     if (!result.isSuccessful) {
       this.state.errors = result.reasons;
       return;

@@ -273,7 +273,7 @@ describe("Model history", () => {
     const model = new Model();
     const sheetId = model.getters.getActiveSheetId();
     createSheet(model, { sheetId: "42", position: 1 });
-    model.dispatch("ACTIVATE_SHEET", { sheetIdFrom: sheetId, sheetIdTo: "42" });
+    model.dispatchFromOutside("ACTIVATE_SHEET", { sheetIdFrom: sheetId, sheetIdTo: "42" });
     undo(model);
     expect(model.getters.getActiveSheetId()).toBe(sheetId);
   });
@@ -317,7 +317,7 @@ describe("Model history", () => {
       sheetId: model.getters.getActiveSheetId(),
       content: "hello",
     };
-    model.dispatch(command.type, command);
+    model.dispatchFromOutside(command.type, command);
     undo(model);
     expect(pluginHandle).toHaveBeenCalledWith({
       type: "UNDO",

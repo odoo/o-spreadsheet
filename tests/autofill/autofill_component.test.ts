@@ -241,7 +241,7 @@ describe("Autofill component", () => {
 
   test("Autofill does not reset the viewport position if not near the viewport edge", async () => {
     setSelection(parent.model, ["A1:A100"]);
-    parent.model.dispatch("SET_VIEWPORT_OFFSET", { offsetX: 400, offsetY: 400 });
+    parent.model.dispatchFromOutside("SET_VIEWPORT_OFFSET", { offsetX: 400, offsetY: 400 });
     const firstViewport = parent.model.getters.getActiveMainViewport();
     const autofill = fixture.querySelector(".o-autofill");
     triggerMouseEvent(autofill, "pointerdown", 4, 4);

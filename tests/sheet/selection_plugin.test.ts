@@ -498,7 +498,7 @@ describe("simple selection", () => {
       height: 100,
     });
     expect(model.getters.getSelectedFigureId()).toBe(null);
-    model.dispatch("SELECT_FIGURE", { figureId: "someuuid" });
+    model.dispatchFromOutside("SELECT_FIGURE", { figureId: "someuuid" });
     expect(model.getters.getSelectedFigureId()).toBe("someuuid");
     undo(model);
     expect(model.getters.getSelectedFigureId()).toBe(null);
@@ -1165,7 +1165,7 @@ describe("move elements(s)", () => {
     expect(result).toBeCancelledBecause(CommandResult.InvalidHeaderIndex);
     result = moveColumns(model, "A", ["AAA"]);
     expect(result).toBeCancelledBecause(CommandResult.InvalidHeaderIndex);
-    result = model.dispatch("MOVE_COLUMNS_ROWS", {
+    result = model.dispatchFromOutside("MOVE_COLUMNS_ROWS", {
       sheetId: model.getters.getActiveSheetId(),
       sheetName: model.getters.getActiveSheetName(),
       base: -1,

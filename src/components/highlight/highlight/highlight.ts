@@ -68,7 +68,7 @@ export class Highlight extends Component<HighlightProps, SpreadsheetChildEnv> {
       scrollDirection = dirX === 0 ? "vertical" : dirY === 0 ? "horizontal" : "all";
     }
 
-    this.env.model.dispatch("START_CHANGE_HIGHLIGHT", { zone: currentZone });
+    this.env.model.dispatchFromOutside("START_CHANGE_HIGHLIGHT", { zone: currentZone });
 
     const mouseMove = (col: HeaderIndex, row: HeaderIndex) => {
       if (lastCol !== col || lastRow !== row) {
@@ -134,7 +134,7 @@ export class Highlight extends Component<HighlightProps, SpreadsheetChildEnv> {
     const deltaRowMax = this.env.model.getters.getNumberRows(activeSheetId) - z.bottom - 1;
 
     let currentZone = z;
-    this.env.model.dispatch("START_CHANGE_HIGHLIGHT", { zone: currentZone });
+    this.env.model.dispatchFromOutside("START_CHANGE_HIGHLIGHT", { zone: currentZone });
 
     let lastCol = initCol;
     let lastRow = initRow;

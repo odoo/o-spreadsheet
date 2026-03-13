@@ -30,7 +30,7 @@ describe("image plugin", function () {
     const sheetId = model.getters.getActiveSheetId();
     const imageId = "Image1";
     createImage(model, { sheetId: sheetId, figureId: imageId });
-    model.dispatch("DELETE_FIGURE", { sheetId, figureId: imageId });
+    model.dispatchFromOutside("DELETE_FIGURE", { sheetId, figureId: imageId });
     const images = getFigureIds(model, sheetId);
     expect(images).toHaveLength(0);
   });
@@ -46,8 +46,8 @@ describe("image plugin", function () {
       mimetype: "image/jpeg",
     };
     createImage(model, { figureId: imageId, definition });
-    model.dispatch("SELECT_FIGURE", { figureId: imageId });
-    model.dispatch("COPY");
+    model.dispatchFromOutside("SELECT_FIGURE", { figureId: imageId });
+    model.dispatchFromOutside("COPY");
     paste(model, "D4");
     const images = getFigureIds(model, sheetId);
     expect(images).toHaveLength(2);
@@ -67,8 +67,8 @@ describe("image plugin", function () {
       mimetype: "image/jpeg",
     };
     createImage(model, { figureId: imageId, definition });
-    model.dispatch("SELECT_FIGURE", { figureId: imageId });
-    model.dispatch("CUT");
+    model.dispatchFromOutside("SELECT_FIGURE", { figureId: imageId });
+    model.dispatchFromOutside("CUT");
     paste(model, "D4");
     const images = getFigureIds(model, sheetId);
     expect(images).toHaveLength(1);
@@ -84,7 +84,7 @@ describe("test image in sheet", function () {
     const imageId = "Image1";
     createImage(model, { sheetId: sheetId, figureId: imageId });
     const newSheetId = "Sheet2";
-    model.dispatch("DUPLICATE_SHEET", {
+    model.dispatchFromOutside("DUPLICATE_SHEET", {
       sheetId,
       sheetIdTo: newSheetId,
       sheetNameTo: "Copy of Sheet1",
@@ -113,13 +113,13 @@ describe("test image in sheet", function () {
     const secondSheetId = "42";
     const thirdSheetId = "third";
     createImage(model, { sheetId: firstSheetId, figureId: "myImage" });
-    model.dispatch("DUPLICATE_SHEET", {
+    model.dispatchFromOutside("DUPLICATE_SHEET", {
       sheetId: firstSheetId,
       sheetIdTo: secondSheetId,
       sheetNameTo: "Copy of Sheet1",
     });
     const newModel = new Model(model.exportData());
-    newModel.dispatch("DUPLICATE_SHEET", {
+    newModel.dispatchFromOutside("DUPLICATE_SHEET", {
       sheetId: secondSheetId,
       sheetIdTo: thirdSheetId,
       sheetNameTo: "Copy of Copy of Sheet1",
@@ -202,7 +202,7 @@ describe("test image undo/redo", () => {
     const imageId = "Image1";
     createImage(model, { sheetId, figureId: imageId });
     const before = model.exportData();
-    model.dispatch("DELETE_FIGURE", { sheetId, figureId: imageId });
+    model.dispatchFromOutside("DELETE_FIGURE", { sheetId, figureId: imageId });
     const after = model.exportData();
     undo(model);
     expect(model).toExport(before);
@@ -215,8 +215,8 @@ describe("test image undo/redo", () => {
     const imageId = "Image1";
     createImage(model, { figureId: imageId });
     const before = model.exportData();
-    model.dispatch("SELECT_FIGURE", { figureId: imageId });
-    model.dispatch("CUT");
+    model.dispatchFromOutside("SELECT_FIGURE", { figureId: imageId });
+    model.dispatchFromOutside("CUT");
     paste(model, "D4");
     const after = model.exportData();
     undo(model);
@@ -232,7 +232,7 @@ describe("test image undo/redo", () => {
     createImage(model, { sheetId, figureId: imageId });
     const before = model.exportData();
     const newSheetId = "Sheet2";
-    model.dispatch("DUPLICATE_SHEET", {
+    model.dispatchFromOutside("DUPLICATE_SHEET", {
       sheetId,
       sheetIdTo: newSheetId,
       sheetNameTo: "Copy of Sheet1",

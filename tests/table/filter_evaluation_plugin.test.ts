@@ -90,7 +90,7 @@ describe("Simple filter test", () => {
     updateFilter(model, "B1", ["C"]);
 
     const sheet2Id = "42";
-    model.dispatch("DUPLICATE_SHEET", {
+    model.dispatchFromOutside("DUPLICATE_SHEET", {
       sheetId: sheetId,
       sheetIdTo: sheet2Id,
       sheetNameTo: "Copy of Sheet1",
@@ -259,7 +259,7 @@ describe("Filter Evaluation", () => {
     });
     expect(model.getters.getFilter({ sheetId: "sh1", col: 0, row: 0 })).toBeTruthy();
 
-    model.dispatch("DUPLICATE_SHEET", {
+    model.dispatchFromOutside("DUPLICATE_SHEET", {
       sheetId: "sh1",
       sheetIdTo: "sh2",
       sheetNameTo: "Copy of Sheet1",

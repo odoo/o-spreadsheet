@@ -33,7 +33,7 @@ export class MainChartPanelStore extends SpreadsheetStore {
       return;
     }
     const definition = this.getChartDefinitionFromContextCreation(chartId, newDisplayType);
-    this.model.dispatch("UPDATE_CHART", {
+    this.model.dispatchFromOutside("UPDATE_CHART", {
       definition,
       chartId,
       figureId,

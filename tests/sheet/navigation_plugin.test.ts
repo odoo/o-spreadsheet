@@ -18,7 +18,7 @@ function getViewport(
   offsetX: number,
   offsetY: number
 ): Viewport {
-  model.dispatch("RESIZE_SHEETVIEW", { width, height, gridOffsetX: 0, gridOffsetY: 0 });
+  model.dispatchFromOutside("RESIZE_SHEETVIEW", { width, height, gridOffsetX: 0, gridOffsetY: 0 });
   setViewportOffset(model, offsetX, offsetY);
   return model.getters.getActiveMainViewport();
 }
@@ -73,7 +73,7 @@ describe("navigation", () => {
     const model = new Model();
     const activeSheetId = model.getters.getActiveSheetId();
     const rowNumber = model.getters.getNumberRows(activeSheetId);
-    model.dispatch("ADD_MERGE", {
+    model.dispatchFromOutside("ADD_MERGE", {
       sheetId: activeSheetId,
       target: [{ top: rowNumber - 2, bottom: rowNumber - 1, left: 0, right: 0 }],
     });
@@ -88,11 +88,11 @@ describe("navigation", () => {
     const model = new Model();
     const activeSheetId = model.getters.getActiveSheetId();
     const rowNumber = model.getters.getNumberRows(activeSheetId);
-    model.dispatch("ADD_MERGE", {
+    model.dispatchFromOutside("ADD_MERGE", {
       sheetId: activeSheetId,
       target: [{ top: rowNumber - 3, bottom: rowNumber - 2, left: 0, right: 0 }],
     });
-    model.dispatch("HIDE_COLUMNS_ROWS", {
+    model.dispatchFromOutside("HIDE_COLUMNS_ROWS", {
       sheetId: activeSheetId,
       dimension: "ROW",
       elements: [rowNumber - 1],
@@ -108,7 +108,7 @@ describe("navigation", () => {
     const model = new Model();
     const activeSheetId = model.getters.getActiveSheetId();
     const colNumber = model.getters.getNumberCols(activeSheetId);
-    model.dispatch("ADD_MERGE", {
+    model.dispatchFromOutside("ADD_MERGE", {
       sheetId: activeSheetId,
       target: [{ top: 0, bottom: 0, left: colNumber - 2, right: colNumber - 1 }],
     });

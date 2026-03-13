@@ -50,7 +50,7 @@ import {
 import { addPivot } from "../test_helpers/pivot_helpers";
 
 function setDecimal(model: Model, targetXc: string, step: SetDecimalStep) {
-  model.dispatch("SET_DECIMAL", {
+  model.dispatchFromOutside("SET_DECIMAL", {
     sheetId: model.getters.getActiveSheetId(),
     target: target(targetXc),
     step: step,
@@ -58,7 +58,7 @@ function setDecimal(model: Model, targetXc: string, step: SetDecimalStep) {
 }
 
 function setContextualFormat(model: Model, targetXc: string, format: Format) {
-  model.dispatch("SET_FORMATTING_WITH_PIVOT", {
+  model.dispatchFromOutside("SET_FORMATTING_WITH_PIVOT", {
     sheetId: model.getters.getActiveSheetId(),
     target: target(targetXc),
     format,
@@ -272,7 +272,7 @@ describe("formatting values (with formatters)", () => {
     expect(getEvaluatedCell(model, "A1").value).toEqual(10.123456789123);
 
     const sheetId = model.getters.getActiveSheetId();
-    model.dispatch("UPDATE_CELL", {
+    model.dispatchFromOutside("UPDATE_CELL", {
       col: 0,
       row: 0,
       sheetId,
@@ -451,7 +451,7 @@ describe("formatting values (when change decimal)", () => {
     const model = new Model();
     setCellContent(model, "A1", "42%");
     selectCell(model, "A1");
-    model.dispatch("DELETE_CONTENT", {
+    model.dispatchFromOutside("DELETE_CONTENT", {
       sheetId: model.getters.getActiveSheetId(),
       target: model.getters.getSelectedZones(),
     });
@@ -648,14 +648,14 @@ describe("Autoresize", () => {
   test("Can autoresize a column", () => {
     setCellContent(model, "A1", TEXT);
     const initCellWidth = sizes[0] + hPadding;
-    model.dispatch("AUTORESIZE_COLUMNS", { sheetId, cols: [0] });
+    model.dispatchFromOutside("AUTORESIZE_COLUMNS", { sheetId, cols: [0] });
     expect(model.getters.getColSize(sheetId, 0)).toBe(initCellWidth);
   });
 
   test("Can autoresize a column with multiline content", () => {
     const content = `Hello this is \nmultiline content for test`;
     setCellContent(model, "A1", content);
-    model.dispatch("AUTORESIZE_COLUMNS", { sheetId, cols: [0] });
+    model.dispatchFromOutside("AUTORESIZE_COLUMNS", { sheetId, cols: [0] });
     const position = { sheetId, ...toCartesian("A1") };
     const style = model.getters.getCellComputedStyle(position);
     const multiLineText = content.split(NEWLINE);
@@ -670,7 +670,7 @@ describe("Autoresize", () => {
     const newCellWidth = initCellWidth * 2;
     resizeColumns(model, ["A"], newCellWidth);
     expect(model.getters.getColSize(sheetId, 0)).toBe(newCellWidth);
-    model.dispatch("AUTORESIZE_COLUMNS", { sheetId, cols: [0] });
+    model.dispatchFromOutside("AUTORESIZE_COLUMNS", { sheetId, cols: [0] });
     expect(model.getters.getColSize(sheetId, 0)).toBe(initCellWidth);
   });
 
@@ -681,7 +681,7 @@ describe("Autoresize", () => {
     resizeColumns(model, ["A"], newCellWidth);
     setStyle(model, "A1", { wrapping: "wrap" });
     expect(model.getters.getColSize(sheetId, 0)).toBe(newCellWidth);
-    model.dispatch("AUTORESIZE_COLUMNS", { sheetId, cols: [0] });
+    model.dispatchFromOutside("AUTORESIZE_COLUMNS", { sheetId, cols: [0] });
     expect(model.getters.getColSize(sheetId, 0)).toBe(initCellWidth);
   });
 
@@ -691,7 +691,7 @@ describe("Autoresize", () => {
     const newCellWidth = initCellWidth / 2;
     resizeColumns(model, ["A"], newCellWidth);
     expect(model.getters.getColSize(sheetId, 0)).toBe(newCellWidth);
-    model.dispatch("AUTORESIZE_COLUMNS", { sheetId, cols: [0] });
+    model.dispatchFromOutside("AUTORESIZE_COLUMNS", { sheetId, cols: [0] });
     expect(model.getters.getColSize(sheetId, 0)).toBe(initCellWidth);
   });
 
@@ -702,14 +702,14 @@ describe("Autoresize", () => {
     resizeColumns(model, ["A"], newCellWidth);
     setStyle(model, "A1", { wrapping: "wrap" });
     expect(model.getters.getColSize(sheetId, 0)).toBe(newCellWidth);
-    model.dispatch("AUTORESIZE_COLUMNS", { sheetId, cols: [0] });
+    model.dispatchFromOutside("AUTORESIZE_COLUMNS", { sheetId, cols: [0] });
     expect(model.getters.getColSize(sheetId, 0)).toBe(newCellWidth);
   });
 
   test("Can autoresize two columns", () => {
     setCellContent(model, "A1", TEXT);
     setCellContent(model, "C1", LONG_TEXT);
-    model.dispatch("AUTORESIZE_COLUMNS", { sheetId, cols: [0, 2] });
+    model.dispatchFromOutside("AUTORESIZE_COLUMNS", { sheetId, cols: [0, 2] });
     expect(model.getters.getColSize(sheetId, 0)).toBe(sizes[0] + hPadding);
     expect(model.getters.getColSize(sheetId, 2)).toBe(sizes[1] + hPadding);
   });
@@ -717,7 +717,7 @@ describe("Autoresize", () => {
   test("Autoresize includes filter icon to compute the size", () => {
     setCellContent(model, "A1", TEXT);
     createTableWithFilter(model, "A1");
-    model.dispatch("AUTORESIZE_COLUMNS", { sheetId, cols: [0] });
+    model.dispatchFromOutside("AUTORESIZE_COLUMNS", { sheetId, cols: [0] });
     expect(model.getters.getColSize(sheetId, 0)).toBe(
       sizes[0] + hPadding + GRID_ICON_EDGE_LENGTH + GRID_ICON_MARGIN
     );
@@ -725,7 +725,7 @@ describe("Autoresize", () => {
 
   test("Autoresize includes cells with only a filter icon", () => {
     createTableWithFilter(model, "A1");
-    model.dispatch("AUTORESIZE_COLUMNS", { sheetId, cols: [0] });
+    model.dispatchFromOutside("AUTORESIZE_COLUMNS", { sheetId, cols: [0] });
     expect(model.getters.getColSize(sheetId, 0)).toBe(
       hPadding + GRID_ICON_EDGE_LENGTH + GRID_ICON_MARGIN
     );
@@ -734,7 +734,7 @@ describe("Autoresize", () => {
   test("Can autoresize a row", () => {
     resizeRows(model, [0], DEFAULT_CELL_HEIGHT + 42);
     setCellContent(model, "A1", "test");
-    model.dispatch("AUTORESIZE_ROWS", { sheetId, rows: [0] });
+    model.dispatchFromOutside("AUTORESIZE_ROWS", { sheetId, rows: [0] });
     expect(model.getters.getRowSize(sheetId, 0)).toBe(DEFAULT_CELL_HEIGHT);
   });
 
@@ -743,7 +743,7 @@ describe("Autoresize", () => {
     setCellContent(model, "A1", "test");
     setCellContent(model, "A3", "test");
     setStyle(model, "A3", { fontSize: 24 });
-    model.dispatch("AUTORESIZE_ROWS", { sheetId, rows: [0, 2] });
+    model.dispatchFromOutside("AUTORESIZE_ROWS", { sheetId, rows: [0, 2] });
     expect(model.getters.getRowSize(sheetId, 0)).toBe(DEFAULT_CELL_HEIGHT);
     expect(model.getters.getRowSize(sheetId, 2)).toBe(fontSizeInPixels(24) + vPadding);
   });
@@ -752,7 +752,7 @@ describe("Autoresize", () => {
     const rows = [0, 1, 2];
     resizeRows(model, rows, DEFAULT_CELL_HEIGHT + 30);
     const handleCmd = spyUiPluginHandle(model);
-    model.dispatch("AUTORESIZE_ROWS", { sheetId, rows: [0, 1, 2] });
+    model.dispatchFromOutside("AUTORESIZE_ROWS", { sheetId, rows: [0, 1, 2] });
     expect(handleCmd).toHaveBeenCalledTimes(2);
     expect(handleCmd).toHaveBeenNthCalledWith(1, { type: "AUTORESIZE_ROWS", sheetId, rows });
     expect(handleCmd).toHaveBeenNthCalledWith(2, {
@@ -767,7 +767,7 @@ describe("Autoresize", () => {
   test("Can autoresize a row with evaluated multi-line content", () => {
     setCellContent(model, "A1", '="Hello\nThere"');
     expect(model.getters.getRowSize(sheetId, 0)).toBe(DEFAULT_CELL_HEIGHT);
-    model.dispatch("AUTORESIZE_ROWS", { sheetId, rows: [0] });
+    model.dispatchFromOutside("AUTORESIZE_ROWS", { sheetId, rows: [0] });
     const numberOfLines = 2;
     const lineHeight = 13; // default font size in px
     const expectedHeight =
@@ -781,15 +781,15 @@ describe("Autoresize", () => {
     setCellContent(model, "A1", '="Hello\nThere"');
 
     setCellContent(model, "B1", "Hello\nThere\nGeneral");
-    model.dispatch("AUTORESIZE_ROWS", { sheetId, rows: [0] });
+    model.dispatchFromOutside("AUTORESIZE_ROWS", { sheetId, rows: [0] });
     expect(model.getters.getUserRowSize(sheetId, 0)).toBe(undefined);
 
     setCellContent(model, "B1", "Hello\nThere");
-    model.dispatch("AUTORESIZE_ROWS", { sheetId, rows: [0] });
+    model.dispatchFromOutside("AUTORESIZE_ROWS", { sheetId, rows: [0] });
     expect(model.getters.getUserRowSize(sheetId, 0)).toBe(undefined);
 
     setCellContent(model, "B1", "Hello");
-    model.dispatch("AUTORESIZE_ROWS", { sheetId, rows: [0] });
+    model.dispatchFromOutside("AUTORESIZE_ROWS", { sheetId, rows: [0] });
     expect(model.getters.getUserRowSize(sheetId, 0)).toBe(36);
   });
 
@@ -797,7 +797,7 @@ describe("Autoresize", () => {
     setCellContent(model, "A1", "=RANDARRAY(2, 2)");
     expect(model.getters.getRowSize(sheetId, 1)).toBe(DEFAULT_CELL_HEIGHT);
     setStyle(model, "A2", { fontSize: 40 });
-    model.dispatch("AUTORESIZE_ROWS", { sheetId, rows: [1] });
+    model.dispatchFromOutside("AUTORESIZE_ROWS", { sheetId, rows: [1] });
     const position = { sheetId, ...toCartesian("A2") };
     const evaluatedSize = getCellContentHeight(
       ctx,
@@ -813,7 +813,7 @@ describe("Autoresize", () => {
     const newSheetId = "42";
     createSheet(model, { sheetId: newSheetId });
     setCellContent(model, "A1", TEXT, newSheetId);
-    model.dispatch("AUTORESIZE_COLUMNS", { sheetId: newSheetId, cols: [0] });
+    model.dispatchFromOutside("AUTORESIZE_COLUMNS", { sheetId: newSheetId, cols: [0] });
     expect(model.getters.getColSize(sheetId, 0)).toBe(initialSize);
     expect(model.getters.getColSize(newSheetId, 0)).toBe(sizes[0] + hPadding);
   });
@@ -824,17 +824,17 @@ describe("Autoresize", () => {
     createSheet(model, { sheetId: newSheetId });
     resizeRows(model, [0], DEFAULT_CELL_HEIGHT + 30, "42");
     setCellContent(model, "A1", "test", newSheetId);
-    model.dispatch("AUTORESIZE_ROWS", { sheetId: newSheetId, rows: [0] });
+    model.dispatchFromOutside("AUTORESIZE_ROWS", { sheetId: newSheetId, rows: [0] });
     expect(model.getters.getRowSize(sheetId, 0)).toBe(initialSize);
     expect(model.getters.getRowSize(newSheetId, 0)).toBe(DEFAULT_CELL_HEIGHT);
   });
 
   test("Autoresizing empty cols has no effect", () => {
     const initialSize = model.getters.getColSize(sheetId, 0);
-    model.dispatch("AUTORESIZE_COLUMNS", { sheetId, cols: [0] });
+    model.dispatchFromOutside("AUTORESIZE_COLUMNS", { sheetId, cols: [0] });
     expect(model.getters.getColSize(sheetId, 0)).toBe(initialSize);
     setCellContent(model, "A1", '=""');
-    model.dispatch("AUTORESIZE_COLUMNS", { sheetId, cols: [0] });
+    model.dispatchFromOutside("AUTORESIZE_COLUMNS", { sheetId, cols: [0] });
     expect(model.getters.getColSize(sheetId, 0)).toBe(initialSize);
   });
 
@@ -850,7 +850,7 @@ describe("Autoresize", () => {
     (rotation) => {
       const noRotationStyle = { fontSize: 20 };
 
-      model.dispatch("SET_FORMATTING", {
+      model.dispatchFromOutside("SET_FORMATTING", {
         sheetId,
         target: [positionToZone(toCartesian("A1"))],
         style: { rotation, ...noRotationStyle },
@@ -862,33 +862,33 @@ describe("Autoresize", () => {
 
       setCellContent(model, "A1", "ABC");
       ({ width, height } = model.getters.getMultilineTextSize(["ABC"], noRotationStyle));
-      model.dispatch("AUTORESIZE_COLUMNS", { sheetId, cols: [0] });
+      model.dispatchFromOutside("AUTORESIZE_COLUMNS", { sheetId, cols: [0] });
       expect(model.getters.getColSize(sheetId, 0)).toEqual(
         Math.round(cos * width + sin * height + 2 * PADDING_AUTORESIZE_HORIZONTAL)
       );
-      model.dispatch("AUTORESIZE_ROWS", { sheetId, rows: [0] });
+      model.dispatchFromOutside("AUTORESIZE_ROWS", { sheetId, rows: [0] });
       expect(model.getters.getRowSize(sheetId, 0)).toEqual(
         Math.round(sin * width + cos * height + 2 * PADDING_AUTORESIZE_VERTICAL)
       );
 
       setCellContent(model, "A1", "ABC\n123");
       ({ width, height } = model.getters.getMultilineTextSize(["ABC", "123"], noRotationStyle));
-      model.dispatch("AUTORESIZE_COLUMNS", { sheetId, cols: [0] });
+      model.dispatchFromOutside("AUTORESIZE_COLUMNS", { sheetId, cols: [0] });
       expect(model.getters.getColSize(sheetId, 0)).toEqual(
         Math.round(cos * width + sin * height + 2 * PADDING_AUTORESIZE_HORIZONTAL)
       );
-      model.dispatch("AUTORESIZE_ROWS", { sheetId, rows: [0] });
+      model.dispatchFromOutside("AUTORESIZE_ROWS", { sheetId, rows: [0] });
       expect(model.getters.getRowSize(sheetId, 0)).toEqual(
         Math.round(sin * width + cos * height + 2 * PADDING_AUTORESIZE_VERTICAL)
       );
 
       setCellContent(model, "A1", "ABC-123");
       ({ width, height } = model.getters.getMultilineTextSize(["ABC-123"], noRotationStyle));
-      model.dispatch("AUTORESIZE_COLUMNS", { sheetId, cols: [0] });
+      model.dispatchFromOutside("AUTORESIZE_COLUMNS", { sheetId, cols: [0] });
       expect(model.getters.getColSize(sheetId, 0)).toEqual(
         Math.round(cos * width + sin * height + 2 * PADDING_AUTORESIZE_HORIZONTAL)
       );
-      model.dispatch("AUTORESIZE_ROWS", { sheetId, rows: [0] });
+      model.dispatchFromOutside("AUTORESIZE_ROWS", { sheetId, rows: [0] });
       expect(model.getters.getRowSize(sheetId, 0)).toEqual(
         Math.round(sin * width + cos * height + 2 * PADDING_AUTORESIZE_VERTICAL)
       );

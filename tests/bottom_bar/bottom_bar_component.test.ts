@@ -682,9 +682,9 @@ describe("BottomBar component", () => {
 
   test("Can open the list of statistics if another menu is already open", async () => {
     const model = new Model();
-    const nonMockedDispatch = model.dispatch;
+    const nonMockedDispatch = model.dispatchFromOutside;
     await mountBottomBar(model);
-    model.dispatch = nonMockedDispatch;
+    model.dispatchFromOutside = nonMockedDispatch;
     setCellContent(model, "A2", "24");
     selectCell(model, "A2");
     await nextTick();
@@ -1045,7 +1045,7 @@ describe("BottomBar component", () => {
   test("Attempt to modify a locked sheet will trigger an animation", async () => {
     const { model } = await mountBottomBar();
     const sheetId = model.getters.getActiveSheetId();
-    model.dispatch("LOCK_SHEET", { sheetId });
+    model.dispatchFromOutside("LOCK_SHEET", { sheetId });
 
     model.trigger("command-rejected", { result: new DispatchResult(CommandResult.SheetLocked) });
     expect(HTMLDivElement.prototype.animate).toHaveBeenCalled();

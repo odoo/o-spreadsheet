@@ -96,7 +96,7 @@ function createFigure(
     ...figureParameters.anchor,
   };
 
-  return model.dispatch("CREATE_FIGURE", {
+  return model.dispatchFromOutside("CREATE_FIGURE", {
     sheetId,
     col: params.col,
     row: params.row,
@@ -281,14 +281,14 @@ describe("figures", () => {
   test("figure is focused after a SELECT_FIGURE", async () => {
     createFigure(model);
     await nextTick();
-    model.dispatch("SELECT_FIGURE", { figureId: "someuuid" });
+    model.dispatchFromOutside("SELECT_FIGURE", { figureId: "someuuid" });
     await nextTick();
     expect(document.activeElement?.classList).toContain("o-figure");
   });
 
   test("select a figure, it should have the  resize handles", async () => {
     createFigure(model);
-    model.dispatch("SELECT_FIGURE", { figureId: "someuuid" });
+    model.dispatchFromOutside("SELECT_FIGURE", { figureId: "someuuid" });
     await nextTick();
     const anchors = fixture.querySelectorAll(".o-fig-anchor");
     expect(anchors).toHaveLength(8);
@@ -296,7 +296,7 @@ describe("figures", () => {
 
   test("selected figure snapshot", async () => {
     createFigure(model);
-    model.dispatch("SELECT_FIGURE", { figureId: "someuuid" });
+    model.dispatchFromOutside("SELECT_FIGURE", { figureId: "someuuid" });
     await nextTick();
     expect(fixture.querySelector(".o-figure-wrapper")).toMatchSnapshot();
   });
@@ -341,7 +341,7 @@ describe("figures", () => {
           height: 100,
         },
       });
-      model.dispatch("SELECT_FIGURE", { figureId });
+      model.dispatchFromOutside("SELECT_FIGURE", { figureId });
       await nextTick();
       await dragAnchor(anchor, mouseMove.mouseOffsetX, mouseMove.mouseOffsetY, true);
       expect(model.getters.getFigure(sheetId, figureId)).toMatchObject(expectedSize);
@@ -379,7 +379,7 @@ describe("figures", () => {
           height: 20,
         },
       });
-      model.dispatch("SELECT_FIGURE", { figureId });
+      model.dispatchFromOutside("SELECT_FIGURE", { figureId });
       await nextTick();
       await dragAnchor(anchor, mouseMove.mouseOffsetX, mouseMove.mouseOffsetY, true);
       expect(model.getters.getFigure(sheetId, figureId)).toMatchObject(expectedSize);
@@ -402,7 +402,7 @@ describe("figures", () => {
         offset: { x: 0, y: 0 },
         ...figure,
       });
-      model.dispatch("SELECT_FIGURE", { figureId });
+      model.dispatchFromOutside("SELECT_FIGURE", { figureId });
       await nextTick();
       await dragAnchor(anchor, mouseMove.mouseOffsetX, mouseMove.mouseOffsetY, true);
       expect(model.getters.getFigure(sheetId, figureId)).toMatchObject(figure);
@@ -447,7 +447,7 @@ describe("figures", () => {
       beforeEach(async () => {
         freezeRows(model, 5);
         freezeColumns(model, 5);
-        model.dispatch("SET_VIEWPORT_OFFSET", {
+        model.dispatchFromOutside("SET_VIEWPORT_OFFSET", {
           offsetX: 10 * cellWidth,
           offsetY: 10 * cellHeight,
         });
@@ -620,7 +620,7 @@ describe("figures", () => {
       });
       await nextTick();
       await clickAndDrag(".o-figure", { x: 150, y: 100 }, undefined, false);
-      model.dispatch("DELETE_FIGURE", { figureId: "someuuid", sheetId });
+      model.dispatchFromOutside("DELETE_FIGURE", { figureId: "someuuid", sheetId });
       await nextTick();
       expect(model.getters.getFigure(sheetId, "someuuid")).toEqual(undefined);
     });
@@ -651,7 +651,7 @@ describe("figures", () => {
 
     test("Border for selected figure", async () => {
       createFigure(model, { id: "figureId" });
-      model.dispatch("SELECT_FIGURE", { figureId: "figureId" });
+      model.dispatchFromOutside("SELECT_FIGURE", { figureId: "figureId" });
       await nextTick();
       expect(getElStyle(".o-figure-border", "border-top-width")).toEqual(`2px`);
       expect(".o-figure-border").toHaveClass("o-selected");
@@ -665,7 +665,7 @@ describe("figures", () => {
 
     test("Border for selected image figure", async () => {
       createImage(model, { figureId: "figureId" });
-      model.dispatch("SELECT_FIGURE", { figureId: "figureId" });
+      model.dispatchFromOutside("SELECT_FIGURE", { figureId: "figureId" });
       await nextTick();
       expect(getElStyle(".o-figure-border", "border-top-width")).toEqual(`2px`);
       expect(".o-figure-border").toHaveClass("o-selected");
@@ -683,7 +683,7 @@ describe("figures", () => {
 
   test("Selected figure isn't removed by scroll", async () => {
     createFigure(model);
-    model.dispatch("SELECT_FIGURE", { figureId: "someuuid" });
+    model.dispatchFromOutside("SELECT_FIGURE", { figureId: "someuuid" });
     await nextTick();
     triggerWheelEvent(".o-grid", { deltaY: 1500 });
     fixture.querySelector(".o-scrollbar.vertical")!.dispatchEvent(new Event("scroll"));
@@ -951,7 +951,7 @@ describe("figures", () => {
     expect(document.activeElement).toBe(panelInput);
 
     const figureId = model.getters.getFigures(sheetId)[0].id;
-    model.dispatch("DELETE_FIGURE", { sheetId, figureId });
+    model.dispatchFromOutside("DELETE_FIGURE", { sheetId, figureId });
     await nextTick();
 
     expect(document.activeElement).toBe(panelInput);
@@ -1068,7 +1068,7 @@ describe("figures", () => {
               width: 100,
               height: 100,
             });
-            model.dispatch("SELECT_FIGURE", { figureId: "f1" });
+            model.dispatchFromOutside("SELECT_FIGURE", { figureId: "f1" });
             await nextTick();
             await dragAnchor(anchor, mouseMove, 0, true);
             const figure = model.getters.getFigure(sheetId, "f1")!;
@@ -1108,7 +1108,7 @@ describe("figures", () => {
               width: 100,
               height: 100,
             });
-            model.dispatch("SELECT_FIGURE", { figureId: "f1" });
+            model.dispatchFromOutside("SELECT_FIGURE", { figureId: "f1" });
             await nextTick();
             await dragAnchor(anchor, mouseMove, 0, true);
             const figure = model.getters.getFigure(sheetId, "f1")!;
@@ -1134,7 +1134,7 @@ describe("figures", () => {
                 width: 120,
                 height: 120,
               });
-              model.dispatch("SELECT_FIGURE", { figureId: "f1" });
+              model.dispatchFromOutside("SELECT_FIGURE", { figureId: "f1" });
               await nextTick();
 
               triggerMouseEvent(anchorSelectors[anchor], "pointerdown");
@@ -1179,7 +1179,7 @@ describe("figures", () => {
               width: 100,
               height: 100,
             });
-            model.dispatch("SELECT_FIGURE", { figureId: "f1" });
+            model.dispatchFromOutside("SELECT_FIGURE", { figureId: "f1" });
             await nextTick();
             await dragAnchor(anchor, 0, mouseMove, true);
             const figure = model.getters.getFigure(sheetId, "f1")!;
@@ -1213,7 +1213,7 @@ describe("figures", () => {
                 width: 120,
                 height: 120,
               });
-              model.dispatch("SELECT_FIGURE", { figureId: "f1" });
+              model.dispatchFromOutside("SELECT_FIGURE", { figureId: "f1" });
               await nextTick();
 
               triggerMouseEvent(anchorSelectors[anchor], "pointerdown");
@@ -1245,7 +1245,7 @@ describe("figures", () => {
                 width: 120,
                 height: 120,
               });
-              model.dispatch("SELECT_FIGURE", { figureId: "f1" });
+              model.dispatchFromOutside("SELECT_FIGURE", { figureId: "f1" });
               await nextTick();
               triggerMouseEvent(anchorSelectors[anchor], "pointerdown");
               triggerWheelEvent(anchorSelectors[anchor], {
@@ -1289,7 +1289,7 @@ describe("figures", () => {
               width: 100,
               height: 100,
             });
-            model.dispatch("SELECT_FIGURE", { figureId: "f1" });
+            model.dispatchFromOutside("SELECT_FIGURE", { figureId: "f1" });
             await nextTick();
             await dragAnchor(anchor, 0, mouseMove, true);
             const figure = model.getters.getFigure(sheetId, "f1")!;
@@ -1864,7 +1864,7 @@ describe.each(ZOOM_VALUES.map((zoom) => zoom / 100))("figures with zoom %s", (zo
     mockFigureMenuItemRect = { top: 500, left: 500 };
     ({ model, parent, fixture, env } = await mountSpreadsheet(undefined, { notifyUser }));
     sheetId = model.getters.getActiveSheetId();
-    model.dispatch("SET_ZOOM", { zoom: zoom });
+    model.dispatchFromOutside("SET_ZOOM", { zoom: zoom });
   });
 
   test("focus a figure", async () => {
@@ -1877,7 +1877,7 @@ describe.each(ZOOM_VALUES.map((zoom) => zoom / 100))("figures with zoom %s", (zo
 
   test("select a figure, it should have the  resize handles", async () => {
     createFigure(model);
-    model.dispatch("SELECT_FIGURE", { figureId: "someuuid" });
+    model.dispatchFromOutside("SELECT_FIGURE", { figureId: "someuuid" });
     await nextTick();
     const anchors = fixture.querySelectorAll(".o-fig-anchor");
     expect(anchors).toHaveLength(8);
@@ -1934,7 +1934,7 @@ describe.each(ZOOM_VALUES.map((zoom) => zoom / 100))("figures with zoom %s", (zo
       width: 100,
       height: 100,
     });
-    model.dispatch("SELECT_FIGURE", { figureId });
+    model.dispatchFromOutside("SELECT_FIGURE", { figureId });
     await nextTick();
     await dragAnchor(anchor, mouseMove.mouseOffsetX, mouseMove.mouseOffsetY, true);
     expect(model.getters.getFigure(sheetId, figureId)).toMatchObject(expectedSize);
