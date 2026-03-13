@@ -61,6 +61,7 @@ import { ChartPlugin } from "@odoo/o-spreadsheet-engine/plugins/core/chart";
 import { FigurePlugin } from "@odoo/o-spreadsheet-engine/plugins/core/figures";
 import { ScatterChartRuntime } from "@odoo/o-spreadsheet-engine/types/chart/scatter_chart";
 import { convertDateFormatForLuxon } from "../../../src/helpers/chart_date";
+import { getChartDataSource } from "../../test_helpers";
 import {
   getCategoryAxisTickLabels,
   getChartConfiguration,
@@ -70,7 +71,6 @@ import {
   toChartDataSource,
 } from "../../test_helpers/chart_helpers";
 import { FR_LOCALE } from "../../test_helpers/constants";
-import { getChartDataSource } from "../../test_helpers";
 
 let model: Model;
 
@@ -2769,7 +2769,9 @@ describe("Chart design configuration", () => {
       createChart(
         model,
         {
-          dataSets: [{ dataRange: "A1:A2", yAxisId: "y" }],
+          ...toChartDataSource({
+            dataSets: [{ dataRange: "A1:A2", yAxisId: "y" }],
+          }),
           type: chartType,
         },
         chartId

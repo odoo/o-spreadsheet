@@ -199,12 +199,14 @@ describe("combo chart", () => {
       model,
       {
         type: "combo",
-        labelRange: "A2",
-        dataSets: [
-          { dataRange: "B2", yAxisId: "y" },
-          { dataRange: "C2", yAxisId: "y1" },
-        ],
-        dataSetsHaveTitle: false,
+        ...toChartDataSource({
+          labelRange: "A2",
+          dataSets: [
+            { dataRange: "B2", yAxisId: "y" },
+            { dataRange: "C2", yAxisId: "y1" },
+          ],
+          dataSetsHaveTitle: false,
+        }),
       },
       "1"
     );
