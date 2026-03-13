@@ -571,7 +571,8 @@ function formatJSDatePart(jsDate: DateTime, tokenValue: string, isMeridian: bool
       const fullYear = String(jsDate.getFullYear()).replace("-", "").padStart(2, "0");
       return fullYear.slice(fullYear.length - 2);
     case "yyyy":
-      return jsDate.getFullYear();
+      const year = String(jsDate.getFullYear()).replace("-", "");
+      return year.padStart(4, "0");
     case "hhhh":
       const elapsedHours = Math.floor(
         (jsDate.getTime() - INITIAL_1900_DAY.getTime()) / (60 * 60 * 1000)
