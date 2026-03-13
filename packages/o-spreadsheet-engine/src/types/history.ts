@@ -77,6 +77,37 @@ export interface WorkbookHistory<Plugin> {
   ): void;
 }
 
+export interface DerivedState<Plugin> {
+  update<T extends keyof Plugin>(key: T, val: Plugin[T]): void;
+  update<T extends keyof Plugin, U extends keyof NonNullable<Plugin[T]>>(
+    key1: T,
+    key2: U,
+    val: NonNullable<Plugin[T]>[U]
+  ): void;
+  update<
+    T extends keyof Plugin,
+    U extends keyof NonNullable<Plugin[T]>,
+    K extends keyof NonNullable<NonNullable<Plugin[T]>[U]>
+  >(
+    key1: T,
+    key2: U,
+    key3: K,
+    val: NonNullable<NonNullable<Plugin[T]>[U]>[K]
+  ): void;
+  update<
+    T extends keyof Plugin,
+    U extends keyof NonNullable<Plugin[T]>,
+    K extends keyof NonNullable<NonNullable<Plugin[T]>[U]>,
+    V extends keyof NonNullable<NonNullable<NonNullable<Plugin[T]>[U]>[K]>
+  >(
+    key1: T,
+    key2: U,
+    key3: K,
+    key4: V,
+    val: NonNullable<NonNullable<NonNullable<Plugin[T]>[U]>[K]>[V]
+  ): void;
+}
+
 export type Transformation<T = unknown> = (dataToTransform: T) => T;
 
 export interface TransformationFactory<T = unknown> {

@@ -41,7 +41,7 @@ export class DynamicTablesPlugin extends CoreViewPlugin {
       (cmd.type === "UPDATE_CELL" && ("content" in cmd || "format" in cmd)) ||
       cmd.type === "EVALUATE_CELLS"
     ) {
-      this.tables = {};
+      this.derived.update("tables", {});
       return;
     }
     switch (cmd.type) {
@@ -50,7 +50,7 @@ export class DynamicTablesPlugin extends CoreViewPlugin {
       case "UPDATE_TABLE":
       case "DELETE_CONTENT":
       case "REFRESH_PIVOT":
-        this.tables = {};
+        this.derived.update("tables", {});
         break;
     }
   }
@@ -58,7 +58,7 @@ export class DynamicTablesPlugin extends CoreViewPlugin {
   finalize() {
     for (const sheetId of this.getters.getSheetIds()) {
       if (!this.tables[sheetId]) {
-        this.tables[sheetId] = this.computeTables(sheetId);
+        this.derived.update("tables", sheetId, this.computeTables(sheetId));
       }
     }
   }

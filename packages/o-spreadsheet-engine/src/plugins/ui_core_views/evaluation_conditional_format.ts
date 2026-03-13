@@ -52,7 +52,7 @@ export class EvaluationConditionalFormatPlugin extends CoreViewPlugin {
       invalidateCFEvaluationCommands.has(cmd.type) ||
       (cmd.type === "UPDATE_CELL" && ("content" in cmd || "format" in cmd))
     ) {
-      this.isStale = true;
+      this.derived.update("isStale", true);
     }
   }
 
@@ -63,7 +63,7 @@ export class EvaluationConditionalFormatPlugin extends CoreViewPlugin {
         this.computedIcons[sheetId] = lazy(() => this.getComputedIcons(sheetId));
         this.computedDataBars[sheetId] = lazy(() => this.getComputedDataBars(sheetId));
       }
-      this.isStale = false;
+      this.derived.update("isStale", false);
     }
   }
 

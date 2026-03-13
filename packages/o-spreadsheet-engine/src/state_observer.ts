@@ -8,6 +8,7 @@ type HistoryPath = [any, ...(number | string)[]];
 export class StateObserver {
   private changes: HistoryChange[] | undefined;
   private commands: CoreCommand[] = [];
+  private onChangeCallback?: (target: any, key: string, before: any) => void;
 
   /**
    * Record the changes which could happen in the given callback, save them in a
@@ -31,6 +32,10 @@ export class StateObserver {
     return { changes: this.changes!, commands: this.commands };
   }
 
+  setOnChange(callback: (target: any, key: string, before: any) => void) {
+    this.onChangeCallback = callback;
+  }
+
   addCommand(command: CoreCommand) {
     this.commands.push(command);
   }
@@ -52,11 +57,13 @@ export class StateObserver {
     if (value[key] === val) {
       return;
     }
+    const before = value[key];
     this.changes?.push({
       key,
       target: value,
-      before: value[key],
+      before,
     });
+    this.onChangeCallback?.(value, key, before);
     if (val === undefined) {
       delete value[key];
     } else {

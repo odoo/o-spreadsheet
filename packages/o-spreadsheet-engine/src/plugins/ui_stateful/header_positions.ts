@@ -11,25 +11,29 @@ export class HeaderPositionsUIPlugin extends UIPlugin {
 
   handle(cmd: Command) {
     if (invalidateEvaluationCommands.has(cmd.type)) {
-      this.headerPositions = {};
-      this.isDirty = true;
+      this.derived.update("headerPositions", {});
+      this.derived.update("isDirty", true);
     }
 
     switch (cmd.type) {
       case "START":
         for (const sheetId of this.getters.getSheetIds()) {
-          this.headerPositions[sheetId] = this.computeHeaderPositionsOfSheet(sheetId);
+          this.derived.update(
+            "headerPositions",
+            sheetId,
+            this.computeHeaderPositionsOfSheet(sheetId)
+          );
         }
         break;
       case "UPDATE_CELL":
-        this.headerPositions = {};
-        this.isDirty = true;
+        this.derived.update("headerPositions", {});
+        this.derived.update("isDirty", true);
         break;
       case "UPDATE_FILTER":
       case "UPDATE_TABLE":
       case "REMOVE_TABLE":
-        this.headerPositions = {};
-        this.isDirty = true;
+        this.derived.update("headerPositions", {});
+        this.derived.update("isDirty", true);
         break;
       case "REMOVE_COLUMNS_ROWS":
       case "RESIZE_COLUMNS_ROWS":
@@ -46,11 +50,19 @@ export class HeaderPositionsUIPlugin extends UIPlugin {
       case "GROUP_HEADERS":
       case "CREATE_SHEET":
         if (this.getters.tryGetSheet(cmd.sheetId)) {
-          this.headerPositions[cmd.sheetId] = this.computeHeaderPositionsOfSheet(cmd.sheetId);
+          this.derived.update(
+            "headerPositions",
+            cmd.sheetId,
+            this.computeHeaderPositionsOfSheet(cmd.sheetId)
+          );
         }
         break;
       case "DUPLICATE_SHEET":
-        this.headerPositions[cmd.sheetIdTo] = deepCopy(this.headerPositions[cmd.sheetId]);
+        this.derived.update(
+          "headerPositions",
+          cmd.sheetIdTo,
+          deepCopy(this.headerPositions[cmd.sheetId])
+        );
         break;
     }
   }
@@ -60,10 +72,14 @@ export class HeaderPositionsUIPlugin extends UIPlugin {
       // sheets can be created without this plugin being aware of it
       // in concurrent situations.
       if (this.isDirty || !this.headerPositions[sheetId]) {
-        this.headerPositions[sheetId] = this.computeHeaderPositionsOfSheet(sheetId);
+        this.derived.update(
+          "headerPositions",
+          sheetId,
+          this.computeHeaderPositionsOfSheet(sheetId)
+        );
       }
     }
-    this.isDirty = false;
+    this.derived.update("isDirty", false);
   }
 
   /**

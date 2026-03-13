@@ -2,6 +2,7 @@ import { LocalTransportService } from "./collaborative/local_transport_service";
 import { ReadonlyTransportFilter } from "./collaborative/readonly_transport_filter";
 import { Session } from "./collaborative/session";
 import { DEFAULT_REVISION_ID } from "./constants";
+import { FinalizeStateObserver } from "./finalize_state_observer";
 import { deepEquals, UuidGenerator } from "./helpers";
 import { EventBus } from "./helpers/event_bus";
 import { deepCopy, lazy } from "./helpers/misc";
@@ -119,6 +120,7 @@ export class Model extends EventBus<any> implements AsyncCommandDispatcher {
   private uiPluginConfig: UIPluginConfig;
 
   private state: StateObserver;
+  private finalizeState: FinalizeStateObserver;
 
   readonly selection: SelectionStreamProcessor;
 
@@ -158,6 +160,10 @@ export class Model extends EventBus<any> implements AsyncCommandDispatcher {
     const workbookData = load(data, verboseImport);
 
     this.state = new StateObserver();
+    this.finalizeState = new FinalizeStateObserver();
+    this.state.setOnChange((target, key, before) => {
+      this.finalizeState.trackChange(target, key, before);
+    });
 
     this.uuidGenerator = uuidGenerator;
 
@@ -318,6 +324,7 @@ export class Model extends EventBus<any> implements AsyncCommandDispatcher {
   }
 
   private async onRemoteRevisionReceived({ commands }: { commands: readonly CoreCommand[] }) {
+    this.finalizeState.begin();
     for (const command of commands) {
       const previousStatus = this.status;
       this.status = Status.RunningCore;
@@ -325,6 +332,7 @@ export class Model extends EventBus<any> implements AsyncCommandDispatcher {
       this.status = previousStatus;
     }
     await this.finalize();
+    this.finalizeState.commit();
     this.trigger("update");
   }
 
@@ -356,13 +364,17 @@ export class Model extends EventBus<any> implements AsyncCommandDispatcher {
   private setupSessionEvents() {
     this.session.on("remote-revision-received", this, this.onRemoteRevisionReceived);
     this.session.on("revision-undone", this, async ({ commands }) => {
+      this.finalizeState.begin();
       this.dispatchFromCorePlugin("UNDO", { commands });
       await this.finalize();
+      this.finalizeState.commit();
       this.trigger("update");
     });
     this.session.on("revision-redone", this, async ({ commands }) => {
+      this.finalizeState.begin();
       this.dispatchFromCorePlugin("REDO", { commands });
       await this.finalize();
+      this.finalizeState.commit();
       this.trigger("update");
     });
     // How could we improve communication between the session and UI?
@@ -424,6 +436,7 @@ export class Model extends EventBus<any> implements AsyncCommandDispatcher {
     return {
       getters: this.getters,
       stateObserver: this.state,
+      finalizeStateObserver: this.finalizeState,
       custom: this.config.custom,
       session: this.session,
       defaultCurrency: this.config.defaultCurrency,
@@ -436,6 +449,7 @@ export class Model extends EventBus<any> implements AsyncCommandDispatcher {
     return {
       getters: this.getters,
       stateObserver: this.state,
+      finalizeStateObserver: this.finalizeState,
       dispatch: this.dispatchForPlugins,
       canDispatch: this.canDispatch,
       selection: this.selection,
@@ -488,7 +502,9 @@ export class Model extends EventBus<any> implements AsyncCommandDispatcher {
     for (const h of this.handlers) {
       const maybePromise = h.finalize();
       if (maybePromise instanceof Promise) {
+        this.finalizeState.suspend();
         await maybePromise;
+        this.finalizeState.resume();
       }
     }
     this.status = Status.Ready;
@@ -534,6 +550,7 @@ export class Model extends EventBus<any> implements AsyncCommandDispatcher {
       return Promise.resolve(result);
     }
     this.status = Status.Running;
+    this.finalizeState.begin();
     let finalizePromise: Promise<void>;
     const start = performance.now();
     const { changes, commands } = this.state.recordChanges(() => {
@@ -544,6 +561,7 @@ export class Model extends EventBus<any> implements AsyncCommandDispatcher {
       finalizePromise = this.finalize();
     });
     await finalizePromise!;
+    this.finalizeState.commit();
     const time = performance.now() - start;
     if (time > 5) {
       console.debug(type, time, "ms");

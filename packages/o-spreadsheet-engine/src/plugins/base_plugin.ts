@@ -1,6 +1,7 @@
+import { FinalizeStateObserver } from "../finalize_state_observer";
 import { StateObserver } from "../state_observer";
 import { CommandHandler, CommandResult } from "../types/commands";
-import type { WorkbookHistory } from "../types/history";
+import type { DerivedState, WorkbookHistory } from "../types/history";
 import { Validation } from "../types/misc";
 import type { Validator } from "../types/validator";
 import { ExcelWorkbookData } from "../types/workbook_data";
@@ -20,12 +21,23 @@ export class BasePlugin<State = any, C = any> implements CommandHandler<C>, Vali
   static getters: readonly string[] = [];
 
   protected history: WorkbookHistory<State>;
+  protected derived: DerivedState<State>;
 
-  constructor(stateObserver: StateObserver) {
+  constructor(stateObserver: StateObserver, finalizeStateObserver?: FinalizeStateObserver) {
     this.history = Object.assign(Object.create(stateObserver), {
       update: stateObserver.addChange.bind(stateObserver, this),
       selectCell: () => {},
     });
+    if (finalizeStateObserver) {
+      this.derived = {
+        update: finalizeStateObserver.addChange.bind(finalizeStateObserver, this),
+      } as DerivedState<State>;
+    } else {
+      // Fallback: derived.update() directly mutates without tracking
+      this.derived = {
+        update: stateObserver.addChange.bind(stateObserver, this),
+      } as DerivedState<State>;
+    }
   }
 
   /**

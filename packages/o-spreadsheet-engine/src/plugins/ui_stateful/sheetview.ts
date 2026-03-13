@@ -193,9 +193,7 @@ export class SheetViewPlugin extends UIPlugin {
   handle(cmd: Command) {
     // changing the evaluation can hide/show rows because of data filters
     if (invalidateEvaluationCommands.has(cmd.type)) {
-      for (const sheetId of this.getters.getSheetIds()) {
-        this.sheetsWithDirtyViewports.add(sheetId);
-      }
+      this.markAllViewportsDirty();
     }
 
     switch (cmd.type) {
@@ -208,10 +206,8 @@ export class SheetViewPlugin extends UIPlugin {
       case "UNDO":
       case "REDO":
         this.cleanViewports();
-        for (const sheetId of this.getters.getSheetIds()) {
-          this.sheetsWithDirtyViewports.add(sheetId);
-        }
-        this.shouldAdjustViewports = true;
+        this.markAllViewportsDirty();
+        this.derived.update("shouldAdjustViewports", true);
         break;
       case "RESIZE_SHEETVIEW":
         this.resizeSheetView(cmd.height, cmd.width, cmd.gridOffsetX, cmd.gridOffsetY);
@@ -256,22 +252,20 @@ export class SheetViewPlugin extends UIPlugin {
       case "UNFOLD_HEADER_GROUPS_IN_ZONE":
       case "UNFOLD_ALL_HEADER_GROUPS":
       case "FOLD_ALL_HEADER_GROUPS":
-        this.sheetsWithDirtyViewports.add(cmd.sheetId);
+        this.markViewportDirty(cmd.sheetId);
         break;
       case "UPDATE_CELL":
         // update cell content or format can change hidden rows because of data filters
         if ("content" in cmd || "format" in cmd || cmd.style?.fontSize !== undefined) {
-          for (const sheetId of this.getters.getSheetIds()) {
-            this.sheetsWithDirtyViewports.add(sheetId);
-          }
+          this.markAllViewportsDirty();
         }
         break;
       case "DELETE_SHEET":
         this.cleanViewports();
-        this.sheetsWithDirtyViewports.delete(cmd.sheetId);
+        this.removeViewportDirty(cmd.sheetId);
         break;
       case "ACTIVATE_SHEET":
-        this.sheetsWithDirtyViewports.add(cmd.sheetIdTo);
+        this.markViewportDirty(cmd.sheetIdTo);
         break;
       case "SCROLL_TO_CELL":
         this.refreshViewport(this.getters.getActiveSheetId(), { col: cmd.col, row: cmd.row });
@@ -289,8 +283,8 @@ export class SheetViewPlugin extends UIPlugin {
         });
       }
     }
-    this.sheetsWithDirtyViewports = new Set();
-    this.shouldAdjustViewports = false;
+    this.derived.update("sheetsWithDirtyViewports", new Set());
+    this.derived.update("shouldAdjustViewports", false);
     this.setViewports();
   }
 
@@ -651,6 +645,26 @@ export class SheetViewPlugin extends UIPlugin {
   // ---------------------------------------------------------------------------
   // Private
   // ---------------------------------------------------------------------------
+
+  private markViewportDirty(sheetId: UID) {
+    const newSet = new Set(this.sheetsWithDirtyViewports);
+    newSet.add(sheetId);
+    this.derived.update("sheetsWithDirtyViewports", newSet);
+  }
+
+  private markAllViewportsDirty() {
+    const newSet = new Set(this.sheetsWithDirtyViewports);
+    for (const sheetId of this.getters.getSheetIds()) {
+      newSet.add(sheetId);
+    }
+    this.derived.update("sheetsWithDirtyViewports", newSet);
+  }
+
+  private removeViewportDirty(sheetId: UID) {
+    const newSet = new Set(this.sheetsWithDirtyViewports);
+    newSet.delete(sheetId);
+    this.derived.update("sheetsWithDirtyViewports", newSet);
+  }
 
   private ensureMainViewportExist(sheetId: UID) {
     if (!this.viewports[sheetId]) {

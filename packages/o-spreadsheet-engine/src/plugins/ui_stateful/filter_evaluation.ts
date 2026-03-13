@@ -52,7 +52,7 @@ export class FilterEvaluationPlugin extends UIPlugin {
       case "ADD_COLUMNS_ROWS":
       case "REMOVE_COLUMNS_ROWS":
       case "UPDATE_TABLE":
-        this.isEvaluationDirty = true;
+        this.derived.update("isEvaluationDirty", true);
         break;
       case "START":
         for (const sheetId of this.getters.getSheetIds()) {
@@ -91,7 +91,7 @@ export class FilterEvaluationPlugin extends UIPlugin {
       for (const sheetId of this.getters.getSheetIds()) {
         this.updateHiddenRows(sheetId);
       }
-      this.isEvaluationDirty = false;
+      this.derived.update("isEvaluationDirty", false);
     }
   }
 
