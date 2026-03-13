@@ -323,8 +323,10 @@ describe("bar chart", () => {
       model,
       {
         type: "bar",
-        labelRange: "A2",
-        dataSets: [{ dataRange: "B2" }],
+        ...toChartDataSource({
+          labelRange: "A2",
+          dataSets: [{ dataRange: "B2" }],
+        }),
       },
       "1"
     );

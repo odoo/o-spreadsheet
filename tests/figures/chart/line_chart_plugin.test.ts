@@ -245,8 +245,10 @@ describe("line chart", () => {
       model,
       {
         type: "line",
-        labelRange: "A2",
-        dataSets: [{ dataRange: "B2" }],
+        ...toChartDataSource({
+          labelRange: "A2",
+          dataSets: [{ dataRange: "B2" }],
+        }),
       },
       "1"
     );
