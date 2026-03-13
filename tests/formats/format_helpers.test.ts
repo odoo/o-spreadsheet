@@ -973,6 +973,15 @@ describe("formatValue on date and time", () => {
     });
 
     test.each([
+      [44927 /* 01/01/2023 */, "2023"],
+      [-401765 /* 01/01/0800 */, "0800"],
+      [-715508 /* 01/01/-0059 */, "0059"],
+      [-737422 /* 01/01/-0119 */, "0119"],
+    ])("All digits of the year (yyyy) %s", (value, result) => {
+      expect(formatValue(value, { format: "yyyy", locale })).toBe(result);
+    });
+
+    test.each([
       ["d", "1"],
       ["dd", "01"],
       ["ddd", "Sun"],
