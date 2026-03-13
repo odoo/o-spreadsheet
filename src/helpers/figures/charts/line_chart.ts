@@ -116,6 +116,8 @@ export class LineChart extends AbstractChart {
       hideDataMarkers: context.hideDataMarkers,
       zoomable: context.zoomable,
       humanize: context.humanize,
+      annotationLink: context.annotationLink,
+      annotationText: context.annotationText,
     };
   }
 
@@ -155,6 +157,8 @@ export class LineChart extends AbstractChart {
       hideDataMarkers: this.hideDataMarkers,
       zoomable: this.zoomable,
       humanize: this.humanize,
+      annotationText: this.annotationText,
+      annotationLink: this.annotationLink,
     };
   }
 

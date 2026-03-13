@@ -566,6 +566,16 @@
     </svg>
   </t>
 
+  <t t-name="o-spreadsheet-Icon.FULLSCREEN_OUT">
+    <div class="o-icon">
+      <i class="fa fa-compress"/>
+    </div>
+  </t>
+  <t t-name="o-spreadsheet-Icon.FULLSCREEN_IN">
+    <div class="o-icon">
+      <i class="fa fa-expand"/>
+    </div>
+  </t>
   <t t-name="o-spreadsheet-Icon.EDIT">
     <div class="o-icon">
       <i class="fa fa-pencil-square-o"/>
@@ -935,6 +945,14 @@
       <path
         fill="currentColor"
         d="M9 .55a8.4 8.4 0 1 0 8.4 8.4A8.4 8.4 0 0 0 9 .55M7.6 4.155a1.4 1.4 0 1 1 1.4 1.4 1.4 1.4 0 0 1-1.4-1.4m4.9 8.995a.7.7 0 0 1-.7.7H6.9a.7.7 0 1 1 0-1.4h1.4v-4.2h-.7a.7.7 0 0 1 0-1.4h2.8v5.6h1.4a.7.7 0 0 1 .7.7"
+      />
+    </svg>
+  </t>
+  <t t-name="o-spreadsheet-Icon.SQUARE_INFO">
+    <svg class="o-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960">
+      <path
+        fill="currentColor"
+        d="M480-680q17 0 28.5-11.5T520-720q0-17-11.5-28.5T480-760q-17 0-28.5 11.5T440-720q0 17 11.5 28.5T480-680Zm-40 320h80v-240h-80v240ZM80-80v-720q0-33 23.5-56.5T160-880h640q33 0 56.5 23.5T880-800v480q0 33-23.5 56.5T800-240H240L80-80Zm126-240h594v-480H160v525l46-45Zm-46 0v-480 480Z"
       />
     </svg>
   </t>

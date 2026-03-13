@@ -39,6 +39,8 @@ describe("radar chart", () => {
       showValues: true,
       hideDataMarkers: false,
       humanize: false,
+      annotationText: "This is an annotation text",
+      annotationLink: "https://www.odoo.com",
     });
   });
 

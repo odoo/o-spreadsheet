@@ -1,0 +1,36 @@
+<templates>
+  <t t-name="o-spreadsheet-ChartMenu">
+    <div class="o-dashboard-chart-select position-absolute top-0 end-0" t-on-click.stop="">
+      <div class="d-flex align-items-center gap-1 p-1 rounded" t-att-style="backgroundColor">
+        <t t-foreach="getMenuItems()" t-as="item" t-key="item.id">
+          <div
+            class="o-chart-item border-0 lh-1 p-1 d-flex align-items-center justify-content-center rounded"
+            t-att-title="item.label"
+            t-on-click="item.onClick"
+            t-att-data-id="item.id">
+            <t t-call="{{item.icon}}"/>
+          </div>
+        </t>
+        <t t-if="isMenuAvailable()">
+          <button
+            class="o-chart-menu-item btn text-muted lh-1 p-1 fa fa-ellipsis-v"
+            t-on-click="openContextMenu"
+          />
+        </t>
+      </div>
+      <InfoPopover
+        t-if="state.openedPopover === 'info'"
+        anchorRect="state.anchorRect"
+        onClose.bind="onClose"
+        annotationText="getAnnotationText()"
+        annotationLink="getAnnotationLink()"
+      />
+      <MenuPopover
+        t-if="state.openedPopover === 'menu'"
+        anchorRect="state.anchorRect"
+        menuItems="state.menuItems"
+        onClose.bind="onClose"
+      />
+    </div>
+  </t>
+</templates>
