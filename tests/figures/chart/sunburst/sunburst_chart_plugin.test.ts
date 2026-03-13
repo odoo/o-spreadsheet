@@ -8,9 +8,12 @@ import {
 import { Model, UID } from "../../../../src";
 import { ColorGenerator } from "../../../../src/helpers";
 import { GHOST_SUNBURST_VALUE } from "../../../../src/helpers/figures/charts/runtime";
-import { SunburstChart } from "../../../../src/helpers/figures/charts/sunburst_chart";
-import { GENERAL_CHART_CREATION_CONTEXT } from "../../../test_helpers/chart_helpers";
 import {
+  GENERAL_CHART_CREATION_CONTEXT,
+  toChartDataSource,
+} from "../../../test_helpers/chart_helpers";
+import {
+  createChartDefinitionFromContext,
   createSunburstChart,
   createTreeMapChart,
   setCellContent,
@@ -54,19 +57,23 @@ describe("Sunburst chart chart", () => {
       valuesDesign: { italic: true },
       groupColors: ["#123456", "#654321"],
     };
-    expect(SunburstChart.getDefinitionFromContextCreation(context)).toEqual({
+    const definition = createChartDefinitionFromContext("sunburst", context);
+    expect(definition).toEqual({
       type: "sunburst",
       background: "#123456",
       title: { text: "hello there" },
-      dataSets: [{ dataRange: "Sheet1!A1:A4" }],
-      labelRange: "Sheet1!B1:B4",
+      ...toChartDataSource({
+        dataSets: [{ dataRange: "Sheet1!A1:A4" }],
+        labelRange: "Sheet1!B1:B4",
+        dataSetsHaveTitle: true,
+      }),
       legendPosition: "bottom",
-      dataSetsHaveTitle: true,
       showValues: true,
       showLabels: true,
       valuesDesign: { italic: true },
       groupColors: ["#123456", "#654321"],
       humanize: false,
+      pieHolePercentage: 0,
     });
   });
 
@@ -75,17 +82,24 @@ describe("Sunburst chart chart", () => {
     // of the usual chart structure.
     const context: Required<ChartCreationContext> = {
       ...GENERAL_CHART_CREATION_CONTEXT,
-      range: [{ dataRange: "Sheet1!B1:B4" }, { dataRange: "Sheet1!C1:C4" }],
+      ...toChartDataSource({
+        dataSets: [{ dataRange: "Sheet1!B1:B4" }, { dataRange: "Sheet1!C1:C4" }],
+      }),
       auxiliaryRange: "Sheet1!A1:A4",
     };
-    const definition = SunburstChart.getDefinitionFromContextCreation(context);
-    expect(definition).toMatchObject({
-      dataSets: [{ dataRange: "Sheet1!A1:A4" }],
-      labelRange: "Sheet1!B1:B4",
-    });
-    const chart = new SunburstChart(definition, "Sheet1", model.getters);
-    expect(chart.getContextCreation()).toMatchObject({
-      range: [{ dataRange: "Sheet1!B1:B4" }],
+    const definition = createChartDefinitionFromContext("sunburst", context);
+    expect(definition).toMatchObject(
+      toChartDataSource({
+        dataSets: [{ dataRange: "Sheet1!A1:A4" }],
+        labelRange: "Sheet1!B1:B4",
+      })
+    );
+    const chartId = createSunburstChart(model, definition);
+    expect(model.getters.getChart(chartId)?.getContextCreation()).toMatchObject({
+      hierarchicalDataSource: {
+        dataSets: [{ dataRange: "A1:A4" }],
+      },
+      dataSource: { dataSets: [{ dataRange: "Sheet1!B1:B4" }] },
       auxiliaryRange: "A1:A4",
     });
   });
@@ -93,27 +107,33 @@ describe("Sunburst chart chart", () => {
   test("Labels and datasets are not swapped from a TreeMap chart creation context", () => {
     const model = new Model();
     const chartId = createTreeMapChart(model, {
-      dataSets: [{ dataRange: "A1:A4" }],
-      labelRange: "B1:B4",
+      ...toChartDataSource({
+        dataSets: [{ dataRange: "A1:A4" }],
+        labelRange: "B1:B4",
+      }),
     });
     const context = model.getters.getChart(chartId)!.getContextCreation();
-    const definition = SunburstChart.getDefinitionFromContextCreation(context);
-    expect(definition).toMatchObject({
-      dataSets: [{ dataRange: "A1:A4" }],
-      labelRange: "B1:B4",
-    });
+    const definition = createChartDefinitionFromContext("sunburst", context);
+    expect(definition).toMatchObject(
+      toChartDataSource({
+        dataSets: [{ dataRange: "A1:A4" }],
+        labelRange: "B1:B4",
+      })
+    );
   });
 
   test("Simple single-level sunburst", () => {
     // prettier-ignore
     setGrid(model, {
-      A2: "Group1",   B2: "10",
-      A3: "Group1",   B3: "40",
-      A4: "Group2",   B4: "30",
+      A2: "Group1", B2: "10",
+      A3: "Group1", B3: "40",
+      A4: "Group2", B4: "30",
     })
     const chartId = createSunburstChart(model, {
-      dataSets: [{ dataRange: "A1:A4" }],
-      labelRange: "B1:B4",
+      ...toChartDataSource({
+        dataSets: [{ dataRange: "A1:A4" }],
+        labelRange: "B1:B4",
+      }),
     });
 
     const config = getSunburstRuntime(chartId).chartJsConfig;
@@ -133,13 +153,15 @@ describe("Sunburst chart chart", () => {
   test("Sunburst data is sorted", () => {
     // prettier-ignore
     setGrid(model, {
-      A2: "Group1",   B2: "10",
-      A3: "Group2",   B3: "30",
+      A2: "Group1", B2: "10",
+      A3: "Group2", B3: "30",
     });
 
     const chartId = createSunburstChart(model, {
-      dataSets: [{ dataRange: "A1:A3" }],
-      labelRange: "B1:B3",
+      ...toChartDataSource({
+        dataSets: [{ dataRange: "A1:A3" }],
+        labelRange: "B1:B3",
+      }),
     });
 
     const config = getSunburstRuntime(chartId).chartJsConfig;
@@ -153,8 +175,10 @@ describe("Sunburst chart chart", () => {
   test("Multi-level sunburst", () => {
     setGrid(model, SUNBURST_DATASET);
     const chartId = createSunburstChart(model, {
-      dataSets: [{ dataRange: "A1:C10" }],
-      labelRange: "D1:D10",
+      ...toChartDataSource({
+        dataSets: [{ dataRange: "A1:C10" }],
+        labelRange: "D1:D10",
+      }),
     });
 
     const config = getSunburstRuntime(chartId).chartJsConfig;
@@ -198,8 +222,10 @@ describe("Sunburst chart chart", () => {
     };
     setGrid(model, grid);
     const chartId = createSunburstChart(model, {
-      dataSets: [{ dataRange: "A1:C10" }],
-      labelRange: "D1:D10",
+      ...toChartDataSource({
+        dataSets: [{ dataRange: "A1:C10" }],
+        labelRange: "D1:D10",
+      }),
     });
 
     const config = getSunburstRuntime(chartId).chartJsConfig;
@@ -233,8 +259,10 @@ describe("Sunburst chart chart", () => {
     };
     setGrid(model, grid);
     const chartId = createSunburstChart(model, {
-      dataSets: [{ dataRange: "A1:C10" }],
-      labelRange: "D1:D10",
+      ...toChartDataSource({
+        dataSets: [{ dataRange: "A1:C10" }],
+        labelRange: "D1:D10",
+      }),
     });
 
     const config = getSunburstRuntime(chartId).chartJsConfig;
@@ -258,8 +286,10 @@ describe("Sunburst chart chart", () => {
     };
     setGrid(model, grid);
     const chartId = createSunburstChart(model, {
-      dataSets: [{ dataRange: "A1:A3" }],
-      labelRange: "B1:B3",
+      ...toChartDataSource({
+        dataSets: [{ dataRange: "A1:A3" }],
+        labelRange: "B1:B3",
+      }),
     });
 
     let config = getSunburstRuntime(chartId).chartJsConfig;
@@ -278,8 +308,10 @@ describe("Sunburst chart chart", () => {
   test("Empty hierarchical levels are dropped", () => {
     setGrid(model, { B2: "Group1", B3: "Group2", D2: "10", D3: "25" });
     const chartId = createSunburstChart(model, {
-      dataSets: [{ dataRange: "A1:A3" }, { dataRange: "B1:B3" }, { dataRange: "C1:C3" }],
-      labelRange: "D1:D3",
+      ...toChartDataSource({
+        dataSets: [{ dataRange: "A1:A3" }, { dataRange: "B1:B3" }, { dataRange: "C1:C3" }],
+        labelRange: "D1:D3",
+      }),
     });
     const config = getSunburstRuntime(chartId).chartJsConfig;
     expect(config.data.datasets).toHaveLength(1);
@@ -292,9 +324,11 @@ describe("Sunburst chart chart", () => {
   test("Sunburst items background color", () => {
     setGrid(model, SUNBURST_DATASET);
     const chartId = createSunburstChart(model, {
-      dataSets: [{ dataRange: "A1:C10" }],
-      labelRange: "D1:D10",
-      dataSetsHaveTitle: false,
+      ...toChartDataSource({
+        dataSets: [{ dataRange: "A1:C10" }],
+        labelRange: "D1:D10",
+        dataSetsHaveTitle: false,
+      }),
       groupColors: ["#FF0000", undefined, "#0000FF"],
     });
     const config = getSunburstRuntime(chartId).chartJsConfig;
@@ -326,8 +360,10 @@ describe("Sunburst chart chart", () => {
   test("Sunburst ghost items do not have a background/border", () => {
     setGrid(model, { B2: "Group1", C2: "SubGroup1", D2: "10" });
     const chartId = createSunburstChart(model, {
-      dataSets: [{ dataRange: "B1:C2" }],
-      labelRange: "D1:D2",
+      ...toChartDataSource({
+        dataSets: [{ dataRange: "B1:C2" }],
+        labelRange: "D1:D2",
+      }),
     });
 
     const datasets = getSunburstRuntime(chartId).chartJsConfig.data.datasets as any;
@@ -346,8 +382,10 @@ describe("Sunburst chart chart", () => {
     setGrid(model, { A2: "Group1", B2: "10" });
     setFormat(model, "B2", "0.0$");
     const chartId = createSunburstChart(model, {
-      dataSets: [{ dataRange: "A1:A2" }],
-      labelRange: "B1:B2",
+      ...toChartDataSource({
+        dataSets: [{ dataRange: "A1:A2" }],
+        labelRange: "B1:B2",
+      }),
       humanize: false,
     });
 
@@ -368,8 +406,10 @@ describe("Sunburst chart chart", () => {
   test("Ghost sunburst values do not have a tooltip", () => {
     setGrid(model, { A2: "Group1", B2: "10" });
     const chartId = createSunburstChart(model, {
-      dataSets: [{ dataRange: "A1:A2" }],
-      labelRange: "B1:B2",
+      ...toChartDataSource({
+        dataSets: [{ dataRange: "A1:A2" }],
+        labelRange: "B1:B2",
+      }),
     });
 
     const tooltip = getSunburstRuntime(chartId).chartJsConfig.options?.plugins?.tooltip as any;
@@ -383,8 +423,10 @@ describe("Sunburst chart chart", () => {
   test("Sunburst chart legend", () => {
     setGrid(model, SUNBURST_DATASET);
     const chartId = createSunburstChart(model, {
-      dataSets: [{ dataRange: "A1:C10" }],
-      labelRange: "D1:D10",
+      ...toChartDataSource({
+        dataSets: [{ dataRange: "A1:C10" }],
+        labelRange: "D1:D10",
+      }),
       groupColors: ["#FF0000", "#00FF00", "#0000FF"],
     });
 
@@ -408,8 +450,10 @@ describe("Sunburst chart chart", () => {
   test("Legend labels are truncated", () => {
     setGrid(model, { A2: "GroupWithAVeryVeryVeryVeryLongLabel", B2: "10" });
     const chartId = createSunburstChart(model, {
-      dataSets: [{ dataRange: "A1:A2" }],
-      labelRange: "B1:B2",
+      ...toChartDataSource({
+        dataSets: [{ dataRange: "A1:A2" }],
+        labelRange: "B1:B2",
+      }),
     });
 
     const config = getSunburstRuntime(chartId).chartJsConfig;
@@ -422,8 +466,10 @@ describe("Sunburst chart chart", () => {
     setGrid(model, { A2: "Group1", B2: "10" });
     setFormat(model, "B2", '0 "( •⩊• )"');
     const chartId = createSunburstChart(model, {
-      dataSets: [{ dataRange: "A1:A2" }],
-      labelRange: "B1:B2",
+      ...toChartDataSource({
+        dataSets: [{ dataRange: "A1:A2" }],
+        labelRange: "B1:B2",
+      }),
       showLabels: true,
       showValues: true,
       valuesDesign: { fontSize: 12, bold: true, italic: true, color: "#FF0000" },

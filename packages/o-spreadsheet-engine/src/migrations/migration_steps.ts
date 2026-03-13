@@ -576,6 +576,68 @@ migrationStepRegistry
       }
       return data;
     },
+  })
+  .add("19.3.1", {
+    migrate(data: WorkbookData): any {
+      for (const sheet of data.sheets || []) {
+        for (const figure of sheet.figures || []) {
+          if (figure.tag === "chart" && !("humanize" in figure.data)) {
+            figure.data.humanize = true;
+          } else if (figure.tag === "carousel") {
+            for (const chartId in figure.data.chartDefinitions) {
+              const definition = figure.data.chartDefinitions[chartId];
+              if (!("humanize" in definition)) {
+                definition.humanize = true;
+              }
+            }
+          }
+        }
+      }
+      return data;
+    },
+  })
+  .add("19.3.2", {
+    migrate(data: WorkbookData): any {
+      function upgrade(definition: any): any {
+        if (!("dataSets" in definition)) {
+          return definition;
+        }
+        definition = { ...definition };
+        const styles = {};
+        definition.dataSource = {
+          type: "range",
+          dataSetsHaveTitle: definition.dataSetsHaveTitle,
+          labelRange: definition.labelRange,
+          dataSets: definition.dataSets.map((ds, i) => {
+            const dataSetId = i.toString();
+            const dataRange = ds.dataRange;
+            delete ds.dataRange;
+            if (Object.keys(ds).length) {
+              styles[dataSetId] = { ...ds };
+            }
+            return { dataRange, dataSetId };
+          }),
+        };
+        delete definition.dataSetsHaveTitle;
+        delete definition.labelRange;
+        delete definition.dataSets;
+        definition.dataSetStyles = styles;
+        return definition;
+      }
+      for (const sheet of data.sheets || []) {
+        for (const figure of sheet.figures || []) {
+          if (figure.tag === "chart" && "dataSets" in figure.data) {
+            figure.data = upgrade(figure.data);
+          } else if (figure.tag === "carousel") {
+            for (const chartId in figure.data.chartDefinitions) {
+              const definition = figure.data.chartDefinitions[chartId];
+              figure.data.chartDefinitions[chartId] = upgrade(definition);
+            }
+          }
+        }
+      }
+      return data;
+    },
   });
 
 function fixOverlappingFilters(data: any): any {

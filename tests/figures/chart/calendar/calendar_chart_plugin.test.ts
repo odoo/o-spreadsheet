@@ -4,9 +4,17 @@ import {
 } from "@odoo/o-spreadsheet-engine/types/chart/calendar_chart";
 import { ScaleChartOptions } from "chart.js";
 import { ChartCreationContext, Model } from "../../../../src";
-import { CalendarChart } from "../../../../src/helpers/figures/charts/calendar_chart";
-import { createCalendarChart, createSheet, setCellContent, setFormat } from "../../../test_helpers";
-import { GENERAL_CHART_CREATION_CONTEXT } from "../../../test_helpers/chart_helpers";
+import {
+  createCalendarChart,
+  createChartDefinitionFromContext,
+  createSheet,
+  setCellContent,
+  setFormat,
+} from "../../../test_helpers";
+import {
+  GENERAL_CHART_CREATION_CONTEXT,
+  toChartDataSource,
+} from "../../../test_helpers/chart_helpers";
 
 const STAMPS_AND_LABELS: { stamp: CalendarChartGranularity; labels: string[] }[] = [
   {
@@ -163,17 +171,23 @@ describe("calendar chart", () => {
   test("create calendar chart from creation context", () => {
     const context: Required<ChartCreationContext> = {
       ...GENERAL_CHART_CREATION_CONTEXT,
-      range: [{ dataRange: "Sheet1!B1:B4", yAxisId: "y1" }],
+      ...toChartDataSource({
+        dataSets: [{ dataRange: "Sheet1!B1:B4", yAxisId: "y1" }],
+        labelRange: "Sheet1!A1:A4",
+        dataSetsHaveTitle: true,
+      }),
     };
-    const definition = CalendarChart.getDefinitionFromContextCreation(context);
+    const definition = createChartDefinitionFromContext("calendar", context);
     expect(definition).toEqual({
       type: "calendar",
       background: "#123456",
       title: { text: "hello there" },
-      dataSets: [{ dataRange: "Sheet1!B1:B4", yAxisId: "y1" }],
-      dataSetsHaveTitle: true,
+      ...toChartDataSource({
+        dataSets: [{ dataRange: "Sheet1!B1:B4", yAxisId: "y1" }],
+        dataSetsHaveTitle: true,
+        labelRange: "Sheet1!A1:A4",
+      }),
       legendPosition: "left",
-      labelRange: "Sheet1!A1:A4",
       showValues: false,
       horizontalGroupBy: "day_of_week",
       verticalGroupBy: "month_number",
@@ -194,8 +208,10 @@ describe("calendar chart", () => {
         model,
         {
           type: "calendar" as const,
-          dataSets: [{ dataRange: "B1:B365" }],
-          labelRange: "A1:A365",
+          ...toChartDataSource({
+            dataSets: [{ dataRange: "B1:B365" }],
+            labelRange: "A1:A365",
+          }),
           verticalGroupBy: grouping.stamp,
         },
         chartId,
@@ -221,8 +237,10 @@ describe("calendar chart", () => {
         model,
         {
           type: "calendar" as const,
-          dataSets: [{ dataRange: "B1:B365" }],
-          labelRange: "A1:A365",
+          ...toChartDataSource({
+            dataSets: [{ dataRange: "B1:B365" }],
+            labelRange: "A1:A365",
+          }),
           horizontalGroupBy: grouping.stamp,
         },
         chartId,
@@ -237,7 +255,7 @@ describe("calendar chart", () => {
     const model = new Model();
     createCalendarChart(
       model,
-      { type: "calendar", dataSets: [{ dataRange: "B1:B365" }] },
+      { type: "calendar", ...toChartDataSource({ dataSets: [{ dataRange: "B1:B365" }] }) },
       "chartId"
     );
     const runtime = model.getters.getChartRuntime("chartId") as CalendarChartRuntime;

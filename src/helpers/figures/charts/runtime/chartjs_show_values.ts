@@ -1,11 +1,12 @@
+import { isNumberCell } from "@odoo/o-spreadsheet-engine/helpers/cells/cell_evaluation";
 import {
   chartFontColor,
   formatChartDatasetValue,
 } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_common";
 import { humanizeNumber } from "@odoo/o-spreadsheet-engine/helpers/format/format";
 import {
+  ChartDefinitionWithDataSource,
   ChartRuntimeGenerationArgs,
-  ChartWithDataSetDefinition,
   schemeToColorScale,
   SunburstChartDefaults,
   SunburstChartDefinition,
@@ -18,7 +19,7 @@ import { ChartSunburstLabelsPluginOptions } from "../../../../components/figures
 import { getRuntimeColorScale } from "./chartjs_scales";
 
 export function getChartShowValues(
-  definition: ChartWithDataSetDefinition,
+  definition: ChartDefinitionWithDataSource,
   args: ChartRuntimeGenerationArgs
 ): ChartShowValuesPluginOptions {
   const { axisFormats, locale } = args;
@@ -40,11 +41,10 @@ export function getCalendarChartShowValues(
 ): ChartShowValuesPluginOptions {
   const { locale, axisFormats } = args;
   let background = (_value, dataset, index) => definition.background;
-  const values =
-    args.dataSetsValues
-      .flat()
-      .map((dsv) => dsv?.data.filter((v) => v !== null && v !== undefined))
-      .flat() || [];
+  const values = args.dataSetsValues
+    .flat()
+    .flatMap((dsv) => dsv?.data.filter(isNumberCell))
+    .map((cell) => cell.value);
   if (values.length) {
     const min = Math.min(...values);
     const max = Math.max(...values);
@@ -93,7 +93,7 @@ export function getSunburstShowValues(
 }
 
 export function getPyramidChartShowValues(
-  definition: ChartWithDataSetDefinition,
+  definition: ChartDefinitionWithDataSource,
   args: ChartRuntimeGenerationArgs
 ): ChartShowValuesPluginOptions {
   const { axisFormats, locale } = args;
@@ -142,7 +142,7 @@ export function getWaterfallChartShowValues(
   };
 }
 
-function getDatasetAxisId(definition: ChartWithDataSetDefinition, dataset: ChartMeta): string {
+function getDatasetAxisId(definition: ChartDefinitionWithDataSource, dataset: ChartMeta): string {
   if (dataset.rAxisID) {
     return dataset.rAxisID;
   }

@@ -1,11 +1,4 @@
-import {
-  BasePlugin,
-  CoreGetters,
-  RangeAdapterFunctions,
-  rangeReference,
-  Validation,
-  Validator,
-} from "@odoo/o-spreadsheet-engine";
+import { BasePlugin, rangeReference, Validation } from "@odoo/o-spreadsheet-engine";
 import {
   DEFAULT_GAUGE_LOWER_COLOR,
   DEFAULT_GAUGE_MIDDLE_COLOR,
@@ -21,12 +14,8 @@ import {
   adaptChartRange,
   duplicateLabelRangeInDuplicatedSheet,
 } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_common";
-import {
-  adaptFormulaStringRanges,
-  adaptStringRange,
-} from "@odoo/o-spreadsheet-engine/helpers/formulas";
 import { createValidRange } from "@odoo/o-spreadsheet-engine/helpers/range";
-import { ChartCreationContext } from "@odoo/o-spreadsheet-engine/types/chart/chart";
+import { ChartTypeBuilder } from "@odoo/o-spreadsheet-engine/registries/chart_registry";
 import {
   GaugeChartDefinition,
   GaugeChartRuntime,
@@ -35,16 +24,7 @@ import {
   SectionThreshold,
 } from "@odoo/o-spreadsheet-engine/types/chart/gauge_chart";
 import { CellErrorType } from "@odoo/o-spreadsheet-engine/types/errors";
-import {
-  CellValueType,
-  Color,
-  CommandResult,
-  Format,
-  Getters,
-  Range,
-  RangeAdapter,
-  UID,
-} from "../../../types";
+import { CellValueType, Color, CommandResult, Format, Getters, Range, UID } from "../../../types";
 import { clip, formatOrHumanizeValue, humanizeNumber } from "../../index";
 
 type RangeLimitsValidation = (rangeLimit: string, rangeLimitName: string) => CommandResult;
@@ -136,23 +116,25 @@ function checkValueIsNumberOrFormula(value: string, valueName: string) {
   return CommandResult.Success;
 }
 
-export class GaugeChart extends AbstractChart {
-  readonly dataRange?: Range;
-  readonly sectionRule: SectionRule;
-  readonly background?: Color;
-  readonly type = "gauge";
+export const GaugeChart: ChartTypeBuilder<"gauge"> = {
+  sequence: 50,
+  allowedDefinitionKeys: [...AbstractChart.commonKeys, "dataRange", "sectionRule"],
 
-  constructor(definition: GaugeChartDefinition, sheetId: UID, getters: CoreGetters) {
-    super(definition, sheetId, getters);
-    this.dataRange = createValidRange(this.getters, this.sheetId, definition.dataRange);
-    this.sectionRule = definition.sectionRule;
-    this.background = definition.background;
-  }
+  fromStrDefinition(definition, sheetId, getters) {
+    const dataRange = createValidRange(getters, sheetId, definition.dataRange);
+    return { ...definition, dataRange };
+  },
 
-  static validateChartDefinition(
-    validator: Validator,
-    definition: GaugeChartDefinition
-  ): CommandResult | CommandResult[] {
+  toStrDefinition(definition, sheetId, getters) {
+    return {
+      ...definition,
+      dataRange: definition.dataRange
+        ? getters.getRangeString(definition.dataRange, sheetId)
+        : undefined,
+    };
+  },
+
+  validateDefinition(validator, definition) {
     return validator.checkValidations(
       definition,
       isDataRangeValid,
@@ -164,40 +146,37 @@ export class GaugeChart extends AbstractChart {
         checkInflectionPointsValue(checkValueIsNumberOrFormula, validator.batchValidations)
       )
     );
-  }
+  },
 
-  static transformDefinition(
-    chartSheetId: UID,
-    definition: GaugeChartDefinition,
-    applyChange: RangeAdapter
-  ): GaugeChartDefinition {
+  transformDefinition(definition, chartSheetId, { adaptRangeString, adaptFormulaString }) {
     let dataRange: string | undefined;
     if (definition.dataRange) {
-      const { changeType, range: adaptedRange } = adaptStringRange(
+      const { changeType, range: adaptedRange } = adaptRangeString(
         chartSheetId,
-        definition.dataRange,
-        applyChange
+        definition.dataRange
       );
       if (changeType !== "REMOVE") {
         dataRange = adaptedRange;
       }
     }
-    const adaptFormula = (formula: string) =>
-      adaptFormulaStringRanges(chartSheetId, formula, applyChange);
+    const adaptFormula = (formula: string) => adaptFormulaString(chartSheetId, formula);
     const sectionRule = adaptSectionRuleFormulas(definition.sectionRule, adaptFormula);
     return {
       ...definition,
       dataRange,
       sectionRule,
     };
-  }
+  },
 
-  static getDefinitionFromContextCreation(context: ChartCreationContext): GaugeChartDefinition {
+  getDefinitionFromContextCreation(context, dataSourceBuilder) {
     return {
       background: context.background,
       title: context.title || { text: "" },
       type: "gauge",
-      dataRange: context.range?.[0]?.dataRange,
+      dataRange:
+        context.dataSource?.type === "range"
+          ? context.dataSource.dataSets?.[0]?.dataRange
+          : undefined,
       sectionRule: {
         colors: {
           lowerColor: DEFAULT_GAUGE_LOWER_COLOR,
@@ -219,185 +198,165 @@ export class GaugeChart extends AbstractChart {
       },
       humanize: context.humanize,
     };
-  }
+  },
 
-  duplicateInDuplicatedSheet(newSheetId: UID): GaugeChart {
+  duplicateInDuplicatedSheet(
+    definition,
+    sheetIdFrom,
+    sheetIdTo,
+    coreGetters
+  ): GaugeChartDefinition<Range> {
     const dataRange = duplicateLabelRangeInDuplicatedSheet(
-      this.sheetId,
-      newSheetId,
-      this.dataRange
+      sheetIdFrom,
+      sheetIdTo,
+      definition.dataRange
     );
 
     const adaptFormula = (formula: string) =>
-      this.getters.copyFormulaStringForSheet(this.sheetId, newSheetId, formula, "moveReference");
+      coreGetters.copyFormulaStringForSheet(sheetIdFrom, sheetIdTo, formula, "moveReference");
+    const sectionRule = adaptSectionRuleFormulas(definition.sectionRule, adaptFormula);
+    return { ...definition, dataRange, sectionRule };
+  },
 
-    const sectionRule = adaptSectionRuleFormulas(this.sectionRule, adaptFormula);
-
-    const definition = this.getDefinitionWithSpecificRanges(dataRange, sectionRule, newSheetId);
-    return new GaugeChart(definition, newSheetId, this.getters);
-  }
-
-  copyInSheetId(sheetId: UID): GaugeChart {
+  copyInSheetId(definition, sheetIdFrom, sheetIdTo, coreGetters) {
     const adaptFormula = (formula: string) =>
-      this.getters.copyFormulaStringForSheet(this.sheetId, sheetId, formula, "keepSameReference");
+      coreGetters.copyFormulaStringForSheet(sheetIdFrom, sheetIdTo, formula, "keepSameReference");
 
-    const sectionRule = adaptSectionRuleFormulas(this.sectionRule, adaptFormula);
-    const definition = this.getDefinitionWithSpecificRanges(this.dataRange, sectionRule, sheetId);
-    return new GaugeChart(definition, sheetId, this.getters);
-  }
+    const sectionRule = adaptSectionRuleFormulas(definition.sectionRule, adaptFormula);
+    return { ...definition, sectionRule };
+  },
 
-  getDefinition(): GaugeChartDefinition {
-    return this.getDefinitionWithSpecificRanges(this.dataRange, this.sectionRule);
-  }
+  getDefinitionForExcel: () => undefined,
 
-  private getDefinitionWithSpecificRanges(
-    dataRange: Range | undefined,
-    sectionRule: SectionRule,
-    targetSheetId?: UID
-  ): GaugeChartDefinition {
+  getContextCreation(definition) {
     return {
-      background: this.background,
-      sectionRule: sectionRule,
-      title: this.title,
-      type: "gauge",
-      dataRange: dataRange
-        ? this.getters.getRangeString(dataRange, targetSheetId || this.sheetId)
-        : undefined,
-      humanize: this.humanize,
+      ...definition,
+      dataSource: {
+        type: "range",
+        dataSets: definition.dataRange ? [{ dataRange: definition.dataRange, dataSetId: "1" }] : [],
+      },
     };
-  }
+  },
 
-  getDefinitionForExcel() {
-    // This kind of graph is not exportable in Excel
-    return undefined;
-  }
+  updateRanges(definition, adapterFunctions, sheetId) {
+    const { adaptFormulaString } = adapterFunctions;
+    const dataRange = adaptChartRange(definition.dataRange, adapterFunctions);
 
-  getContextCreation(): ChartCreationContext {
-    return {
-      ...this,
-      range: this.dataRange
-        ? [{ dataRange: this.getters.getRangeString(this.dataRange, this.sheetId) }]
-        : undefined,
-    };
-  }
+    const adaptFormula = (formula: string) => adaptFormulaString(sheetId, formula);
+    const sectionRule = adaptSectionRuleFormulas(definition.sectionRule, adaptFormula);
+    return { ...definition, dataRange, sectionRule };
+  },
 
-  updateRanges({ applyChange, adaptFormulaString }: RangeAdapterFunctions): GaugeChart {
-    const dataRange = adaptChartRange(this.dataRange, applyChange);
+  getRuntime(getters: Getters, definition, dataSource, sheetId): GaugeChartRuntime {
+    const locale = getters.getLocale();
+    const chartColors = definition.sectionRule.colors;
 
-    const adaptFormula = (formula: string) => adaptFormulaString(this.sheetId, formula);
-    const sectionRule = adaptSectionRuleFormulas(this.sectionRule, adaptFormula);
-    const definition = this.getDefinitionWithSpecificRanges(dataRange, sectionRule);
-    return new GaugeChart(definition, this.sheetId, this.getters);
-  }
-}
+    let gaugeValue: number | undefined = undefined;
+    let formattedValue: string | undefined = undefined;
+    let format: Format | undefined = undefined;
 
-export function createGaugeChartRuntime(chart: GaugeChart, getters: Getters): GaugeChartRuntime {
-  const locale = getters.getLocale();
-  const chartColors = chart.sectionRule.colors;
-
-  let gaugeValue: number | undefined = undefined;
-  let formattedValue: string | undefined = undefined;
-  let format: Format | undefined = undefined;
-
-  const dataRange = chart.dataRange;
-  if (dataRange !== undefined) {
-    const cell = getters.getEvaluatedCell({
-      sheetId: dataRange.sheetId,
-      col: dataRange.zone.left,
-      row: dataRange.zone.top,
-    });
-    if (cell.type === CellValueType.number) {
-      gaugeValue = cell.value;
-      formattedValue = cell.formattedValue;
-      format = cell.format;
+    const dataRange = definition.dataRange;
+    if (dataRange !== undefined) {
+      const cell = getters.getEvaluatedCell({
+        sheetId: dataRange.sheetId,
+        col: dataRange.zone.left,
+        row: dataRange.zone.top,
+      });
+      if (cell.type === CellValueType.number) {
+        gaugeValue = cell.value;
+        formattedValue = cell.formattedValue;
+        format = cell.format;
+      }
     }
-  }
 
-  let minValue = getFormulaNumberValue(chart.sheetId, chart.sectionRule.rangeMin, getters);
-  let maxValue = getFormulaNumberValue(chart.sheetId, chart.sectionRule.rangeMax, getters);
-  if (minValue === undefined || maxValue === undefined) {
-    return getInvalidGaugeRuntime(chart, getters);
-  }
-  if (maxValue < minValue) {
-    [minValue, maxValue] = [maxValue, minValue];
-  }
+    let minValue = getFormulaNumberValue(sheetId, definition.sectionRule.rangeMin, getters);
+    let maxValue = getFormulaNumberValue(sheetId, definition.sectionRule.rangeMax, getters);
+    if (minValue === undefined || maxValue === undefined) {
+      return getInvalidGaugeRuntime(definition, getters);
+    }
+    if (maxValue < minValue) {
+      [minValue, maxValue] = [maxValue, minValue];
+    }
 
-  const lowerPoint = chart.sectionRule.lowerInflectionPoint;
-  const upperPoint = chart.sectionRule.upperInflectionPoint;
-  const lowerPointValue = getSectionThresholdValue(
-    chart.sheetId,
-    chart.sectionRule.lowerInflectionPoint,
-    minValue,
-    maxValue,
-    getters
-  );
-  const upperPointValue = getSectionThresholdValue(
-    chart.sheetId,
-    chart.sectionRule.upperInflectionPoint,
-    minValue,
-    maxValue,
-    getters
-  );
+    const lowerPoint = definition.sectionRule.lowerInflectionPoint;
+    const upperPoint = definition.sectionRule.upperInflectionPoint;
+    const lowerPointValue = getSectionThresholdValue(
+      sheetId,
+      definition.sectionRule.lowerInflectionPoint,
+      minValue,
+      maxValue,
+      getters
+    );
+    const upperPointValue = getSectionThresholdValue(
+      sheetId,
+      definition.sectionRule.upperInflectionPoint,
+      minValue,
+      maxValue,
+      getters
+    );
 
-  const inflectionValues: GaugeInflectionValue[] = [];
-  const colors: Color[] = [];
+    const inflectionValues: GaugeInflectionValue[] = [];
+    const colors: Color[] = [];
+    const humanize = definition.humanize;
+    const title = definition.title;
 
-  if (lowerPointValue !== undefined) {
-    inflectionValues.push({
-      value: lowerPointValue,
-      label: formatOrHumanizeValue(lowerPointValue, format, locale, chart.humanize),
-      operator: lowerPoint.operator,
-    });
-    colors.push(chartColors.lowerColor);
-  }
+    if (lowerPointValue !== undefined) {
+      inflectionValues.push({
+        value: lowerPointValue,
+        label: formatOrHumanizeValue(lowerPointValue, format, locale, humanize),
+        operator: lowerPoint.operator,
+      });
+      colors.push(chartColors.lowerColor);
+    }
 
-  if (upperPointValue !== undefined && upperPointValue !== lowerPointValue) {
-    inflectionValues.push({
-      value: upperPointValue,
-      label: formatOrHumanizeValue(upperPointValue, format, locale, chart.humanize),
-      operator: upperPoint.operator,
-    });
-    colors.push(chartColors.middleColor);
-  }
+    if (upperPointValue !== undefined && upperPointValue !== lowerPointValue) {
+      inflectionValues.push({
+        value: upperPointValue,
+        label: formatOrHumanizeValue(upperPointValue, format, locale, humanize),
+        operator: upperPoint.operator,
+      });
+      colors.push(chartColors.middleColor);
+    }
 
-  if (
-    upperPointValue !== undefined &&
-    lowerPointValue !== undefined &&
-    lowerPointValue > upperPointValue
-  ) {
-    inflectionValues.reverse();
-    colors.reverse();
-  }
+    if (
+      upperPointValue !== undefined &&
+      lowerPointValue !== undefined &&
+      lowerPointValue > upperPointValue
+    ) {
+      inflectionValues.reverse();
+      colors.reverse();
+    }
 
-  colors.push(chartColors.upperColor);
+    colors.push(chartColors.upperColor);
 
-  return {
-    background: getters.getStyleOfSingleCellChart(chart.background, dataRange).background,
-    title: {
-      ...chart.title,
-      text: chart.title.text ? getters.dynamicTranslate(chart.title.text) : "",
-    },
-    minValue: {
-      value: minValue,
-      label: formatOrHumanizeValue(minValue, format, locale, chart.humanize),
-    },
-    maxValue: {
-      value: maxValue,
-      label: formatOrHumanizeValue(maxValue, format, locale, chart.humanize),
-    },
-    gaugeValue:
-      gaugeValue !== undefined && formattedValue
-        ? {
-            value: gaugeValue,
-            label: chart.humanize
-              ? humanizeNumber({ value: gaugeValue, format }, locale)
-              : formattedValue,
-          }
-        : undefined,
-    inflectionValues,
-    colors,
-  };
-}
+    return {
+      background: getters.getStyleOfSingleCellChart(definition.background, dataRange).background,
+      title: {
+        ...title,
+        text: title.text ? getters.dynamicTranslate(title.text) : "",
+      },
+      minValue: {
+        value: minValue,
+        label: formatOrHumanizeValue(minValue, format, locale, humanize),
+      },
+      maxValue: {
+        value: maxValue,
+        label: formatOrHumanizeValue(maxValue, format, locale, humanize),
+      },
+      gaugeValue:
+        gaugeValue !== undefined && formattedValue
+          ? {
+              value: gaugeValue,
+              label: humanize
+                ? humanizeNumber({ value: gaugeValue, format }, locale)
+                : formattedValue,
+            }
+          : undefined,
+      inflectionValues,
+      colors,
+    };
+  },
+};
 
 function getSectionThresholdValue(
   sheetId: UID,
@@ -424,10 +383,14 @@ function getFormulaNumberValue(sheetId: UID, formula: string, getters: Getters) 
     : tryToNumber(toScalar(value), getters.getLocale());
 }
 
-function getInvalidGaugeRuntime(chart: GaugeChart, getters: Getters): GaugeChartRuntime {
+function getInvalidGaugeRuntime(
+  definition: GaugeChartDefinition<Range>,
+  getters: Getters
+): GaugeChartRuntime {
   return {
-    background: getters.getStyleOfSingleCellChart(chart.background, chart.dataRange).background,
-    title: chart.title ?? { text: "" },
+    background: getters.getStyleOfSingleCellChart(definition.background, definition.dataRange)
+      .background,
+    title: definition.title ?? { text: "" },
     minValue: { value: 0, label: "" },
     maxValue: { value: 100, label: "" },
     gaugeValue: { value: 0, label: CellErrorType.GenericError },

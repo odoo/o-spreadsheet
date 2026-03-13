@@ -1,213 +1,43 @@
-import { chartRegistry } from "@odoo/o-spreadsheet-engine/registries/chart_registry";
+import { chartTypeRegistry } from "@odoo/o-spreadsheet-engine/registries/chart_registry";
 import { chartSubtypeRegistry } from "@odoo/o-spreadsheet-engine/registries/chart_subtype_registry";
 import { _t } from "@odoo/o-spreadsheet-engine/translation";
 import {
-  BarChartDefinition,
-  FunnelChartDefinition,
-  GaugeChartDefinition,
-  LineChartDefinition,
-  PieChartDefinition,
-  PyramidChartDefinition,
-  ScatterChartDefinition,
-  ScorecardChartDefinition,
-  SunburstChartDefinition,
-  WaterfallChartDefinition,
-} from "@odoo/o-spreadsheet-engine/types/chart";
-import { CalendarChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/calendar_chart";
-import { ComboChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/combo_chart";
-import { GeoChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/geo_chart";
-import { RadarChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/radar_chart";
-import { TreeMapChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/tree_map_chart";
-import {
   BarChart,
-  createBarChartRuntime,
-  createGaugeChartRuntime,
-  createLineChartRuntime,
-  createPieChartRuntime,
-  createScorecardChartRuntime,
-  createWaterfallChartRuntime,
   GaugeChart,
   LineChart,
   PieChart,
   ScorecardChart,
   WaterfallChart,
 } from "../helpers/figures/charts";
-import {
-  CalendarChart,
-  createCalendarChartRuntime,
-} from "../helpers/figures/charts/calendar_chart";
-import { ComboChart, createComboChartRuntime } from "../helpers/figures/charts/combo_chart";
-import { createFunnelChartRuntime, FunnelChart } from "../helpers/figures/charts/funnel_chart";
-import { createGeoChartRuntime, GeoChart } from "../helpers/figures/charts/geo_chart";
-import { createPyramidChartRuntime, PyramidChart } from "../helpers/figures/charts/pyramid_chart";
-import { createRadarChartRuntime, RadarChart } from "../helpers/figures/charts/radar_chart";
-import { createScatterChartRuntime, ScatterChart } from "../helpers/figures/charts/scatter_chart";
-import {
-  createSunburstChartRuntime,
-  SunburstChart,
-} from "../helpers/figures/charts/sunburst_chart";
-import { createTreeMapChartRuntime, TreeMapChart } from "../helpers/figures/charts/tree_map_chart";
+import { CalendarChart } from "../helpers/figures/charts/calendar_chart";
+import { ComboChart } from "../helpers/figures/charts/combo_chart";
+import { FunnelChart } from "../helpers/figures/charts/funnel_chart";
+import { GeoChart } from "../helpers/figures/charts/geo_chart";
+import { PyramidChart } from "../helpers/figures/charts/pyramid_chart";
+import { RadarChart } from "../helpers/figures/charts/radar_chart";
+import { ScatterChart } from "../helpers/figures/charts/scatter_chart";
+import { SunburstChart } from "../helpers/figures/charts/sunburst_chart";
+import { TreeMapChart } from "../helpers/figures/charts/tree_map_chart";
 
 //------------------------------------------------------------------------------
 // Chart Registry
 //------------------------------------------------------------------------------
 
-chartRegistry.add("bar", {
-  match: (type) => type === "bar",
-  createChart: (definition, sheetId, getters) =>
-    new BarChart(definition as BarChartDefinition, sheetId, getters),
-  getChartRuntime: createBarChartRuntime,
-  validateChartDefinition: BarChart.validateChartDefinition,
-  transformDefinition: BarChart.transformDefinition,
-  getChartDefinitionFromContextCreation: BarChart.getDefinitionFromContextCreation,
-  sequence: 10,
-});
-chartRegistry.add("combo", {
-  match: (type) => type === "combo",
-  createChart: (definition, sheetId, getters) =>
-    new ComboChart(definition as ComboChartDefinition, sheetId, getters),
-  getChartRuntime: createComboChartRuntime,
-  validateChartDefinition: ComboChart.validateChartDefinition,
-  transformDefinition: ComboChart.transformDefinition,
-  getChartDefinitionFromContextCreation: ComboChart.getDefinitionFromContextCreation,
-  sequence: 15,
-});
-chartRegistry.add("line", {
-  match: (type) => type === "line",
-  createChart: (definition, sheetId, getters) =>
-    new LineChart(definition as LineChartDefinition, sheetId, getters),
-  getChartRuntime: createLineChartRuntime,
-  validateChartDefinition: LineChart.validateChartDefinition,
-  transformDefinition: LineChart.transformDefinition,
-  getChartDefinitionFromContextCreation: LineChart.getDefinitionFromContextCreation,
-  sequence: 20,
-});
-chartRegistry.add("pie", {
-  match: (type) => type === "pie",
-  createChart: (definition, sheetId, getters) =>
-    new PieChart(definition as PieChartDefinition, sheetId, getters),
-  getChartRuntime: createPieChartRuntime,
-  validateChartDefinition: PieChart.validateChartDefinition,
-  transformDefinition: PieChart.transformDefinition,
-  getChartDefinitionFromContextCreation: PieChart.getDefinitionFromContextCreation,
-  sequence: 30,
-});
-chartRegistry.add("scorecard", {
-  match: (type) => type === "scorecard",
-  createChart: (definition, sheetId, getters) =>
-    new ScorecardChart(definition as ScorecardChartDefinition, sheetId, getters),
-  getChartRuntime: createScorecardChartRuntime,
-  validateChartDefinition: ScorecardChart.validateChartDefinition,
-  transformDefinition: ScorecardChart.transformDefinition,
-  getChartDefinitionFromContextCreation: ScorecardChart.getDefinitionFromContextCreation,
-  sequence: 40,
-});
-chartRegistry.add("gauge", {
-  match: (type) => type === "gauge",
-  createChart: (definition, sheetId, getters) =>
-    new GaugeChart(definition as GaugeChartDefinition, sheetId, getters),
-  getChartRuntime: createGaugeChartRuntime,
-  validateChartDefinition: GaugeChart.validateChartDefinition,
-  transformDefinition: GaugeChart.transformDefinition,
-  getChartDefinitionFromContextCreation: GaugeChart.getDefinitionFromContextCreation,
-  sequence: 50,
-});
-chartRegistry.add("scatter", {
-  match: (type) => type === "scatter",
-  createChart: (definition, sheetId, getters) =>
-    new ScatterChart(definition as ScatterChartDefinition, sheetId, getters),
-  getChartRuntime: createScatterChartRuntime,
-  validateChartDefinition: ScatterChart.validateChartDefinition,
-  transformDefinition: ScatterChart.transformDefinition,
-  getChartDefinitionFromContextCreation: ScatterChart.getDefinitionFromContextCreation,
-  sequence: 60,
-});
-chartRegistry.add("waterfall", {
-  match: (type) => type === "waterfall",
-  createChart: (definition, sheetId, getters) =>
-    new WaterfallChart(definition as WaterfallChartDefinition, sheetId, getters),
-  getChartRuntime: createWaterfallChartRuntime,
-  validateChartDefinition: WaterfallChart.validateChartDefinition,
-  transformDefinition: WaterfallChart.transformDefinition,
-  getChartDefinitionFromContextCreation: WaterfallChart.getDefinitionFromContextCreation,
-  sequence: 70,
-});
-chartRegistry.add("pyramid", {
-  match: (type) => type === "pyramid",
-  createChart: (definition, sheetId, getters) =>
-    new PyramidChart(definition as PyramidChartDefinition, sheetId, getters),
-  getChartRuntime: createPyramidChartRuntime,
-  validateChartDefinition: PyramidChart.validateChartDefinition,
-  transformDefinition: PyramidChart.transformDefinition,
-  getChartDefinitionFromContextCreation: PyramidChart.getDefinitionFromContextCreation,
-  sequence: 80,
-  dataSeriesLimit: 2,
-});
-chartRegistry.add("radar", {
-  match: (type) => type === "radar",
-  createChart: (definition, sheetId, getters) =>
-    new RadarChart(definition as RadarChartDefinition, sheetId, getters),
-  getChartRuntime: createRadarChartRuntime,
-  validateChartDefinition: RadarChart.validateChartDefinition,
-  transformDefinition: RadarChart.transformDefinition,
-  getChartDefinitionFromContextCreation: RadarChart.getDefinitionFromContextCreation,
-  sequence: 80,
-});
-chartRegistry.add("geo", {
-  match: (type) => type === "geo",
-  createChart: (definition, sheetId, getters) =>
-    new GeoChart(definition as GeoChartDefinition, sheetId, getters),
-  getChartRuntime: createGeoChartRuntime,
-  validateChartDefinition: GeoChart.validateChartDefinition,
-  transformDefinition: GeoChart.transformDefinition,
-  getChartDefinitionFromContextCreation: GeoChart.getDefinitionFromContextCreation,
-  sequence: 90,
-  dataSeriesLimit: 1,
-});
-chartRegistry.add("funnel", {
-  match: (type) => type === "funnel",
-  createChart: (definition, sheetId, getters) =>
-    new FunnelChart(definition as FunnelChartDefinition, sheetId, getters),
-  getChartRuntime: createFunnelChartRuntime,
-  validateChartDefinition: FunnelChart.validateChartDefinition,
-  transformDefinition: FunnelChart.transformDefinition,
-  getChartDefinitionFromContextCreation: FunnelChart.getDefinitionFromContextCreation,
-  sequence: 100,
-  dataSeriesLimit: 1,
-});
-chartRegistry.add("sunburst", {
-  match: (type) => type === "sunburst",
-  createChart: (definition, sheetId, getters) =>
-    new SunburstChart(definition as SunburstChartDefinition, sheetId, getters),
-  getChartRuntime: createSunburstChartRuntime,
-  validateChartDefinition: SunburstChart.validateChartDefinition,
-  transformDefinition: SunburstChart.transformDefinition,
-  getChartDefinitionFromContextCreation: SunburstChart.getDefinitionFromContextCreation,
-  sequence: 30,
-});
-chartRegistry.add("treemap", {
-  match: (type) => type === "treemap",
-  createChart: (definition, sheetId, getters) =>
-    new TreeMapChart(definition as TreeMapChartDefinition, sheetId, getters),
-  getChartRuntime: createTreeMapChartRuntime,
-  validateChartDefinition: TreeMapChart.validateChartDefinition,
-  transformDefinition: TreeMapChart.transformDefinition,
-  getChartDefinitionFromContextCreation: TreeMapChart.getDefinitionFromContextCreation,
-  sequence: 100,
-});
-chartRegistry.add("calendar", {
-  match: (type) => type === "calendar",
-  createChart: (definition, sheetId, getters) =>
-    new CalendarChart(definition as CalendarChartDefinition, sheetId, getters),
-  getChartRuntime: (chart, getters) => {
-    return createCalendarChartRuntime(chart as CalendarChart, getters);
-  },
-  validateChartDefinition: CalendarChart.validateChartDefinition,
-  transformDefinition: CalendarChart.transformDefinition,
-  getChartDefinitionFromContextCreation: CalendarChart.getDefinitionFromContextCreation,
-  sequence: 110,
-  dataSeriesLimit: 1,
-});
+chartTypeRegistry.add("bar", BarChart);
+chartTypeRegistry.add("combo", ComboChart);
+chartTypeRegistry.add("line", LineChart);
+chartTypeRegistry.add("pie", PieChart);
+chartTypeRegistry.add("scorecard", ScorecardChart);
+chartTypeRegistry.add("gauge", GaugeChart);
+chartTypeRegistry.add("scatter", ScatterChart);
+chartTypeRegistry.add("waterfall", WaterfallChart);
+chartTypeRegistry.add("pyramid", PyramidChart);
+chartTypeRegistry.add("radar", RadarChart);
+chartTypeRegistry.add("geo", GeoChart);
+chartTypeRegistry.add("funnel", FunnelChart);
+chartTypeRegistry.add("sunburst", SunburstChart);
+chartTypeRegistry.add("treemap", TreeMapChart);
+chartTypeRegistry.add("calendar", CalendarChart);
 
 chartSubtypeRegistry
   .add("line", {

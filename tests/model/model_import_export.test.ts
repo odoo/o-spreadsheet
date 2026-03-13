@@ -8,7 +8,6 @@ import {
 } from "@odoo/o-spreadsheet-engine/constants";
 import { DEFAULT_TABLE_CONFIG } from "@odoo/o-spreadsheet-engine/helpers/table_presets";
 import { getCurrentVersion } from "@odoo/o-spreadsheet-engine/migrations/data";
-import { LineChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart";
 import { StateUpdateMessage } from "@odoo/o-spreadsheet-engine/types/collaborative/transport_service";
 import { CellIsRule, Model } from "../../src";
 import { toZone } from "../../src/helpers";
@@ -20,6 +19,7 @@ import {
   IconSetRule,
   schemeToColorScale,
 } from "../../src/types";
+import { toChartDataSource } from "../test_helpers/chart_helpers";
 import {
   activateSheet,
   resizeColumns,
@@ -181,9 +181,11 @@ describe("Migrations", () => {
       chartId: "1",
       type: "line",
       title: { text: "demo chart" },
-      labelRange: "'My sheet'!A27:A35",
-      dataSets: [{ dataRange: "B26:B35" }, { dataRange: "C26:C35" }],
-      dataSetsHaveTitle: true,
+      ...toChartDataSource({
+        labelRange: "'My sheet'!A27:A35",
+        dataSets: [{ dataRange: "B26:B35" }, { dataRange: "C26:C35" }],
+        dataSetsHaveTitle: true,
+      }),
       background: BACKGROUND_CHART_COLOR,
       legendPosition: "top",
       stacked: false,
@@ -193,9 +195,11 @@ describe("Migrations", () => {
       chartId: "2",
       type: "bar",
       title: { text: "demo chart 2" },
-      labelRange: "'My sheet'!A27:A35",
-      dataSets: [{ dataRange: "B27:B35" }, { dataRange: "C27:C35" }],
-      dataSetsHaveTitle: false,
+      ...toChartDataSource({
+        labelRange: "'My sheet'!A27:A35",
+        dataSets: [{ dataRange: "B27:B35" }, { dataRange: "C27:C35" }],
+        dataSetsHaveTitle: false,
+      }),
       background: BACKGROUND_CHART_COLOR,
       legendPosition: "top",
       stacked: false,
@@ -205,9 +209,11 @@ describe("Migrations", () => {
       chartId: "3",
       type: "bar",
       title: { text: "demo chart 3" },
-      labelRange: "'My sheet'!A27",
-      dataSets: [{ dataRange: "B26:B27" }],
-      dataSetsHaveTitle: true,
+      ...toChartDataSource({
+        labelRange: "'My sheet'!A27",
+        dataSets: [{ dataRange: "B26:B27" }],
+        dataSetsHaveTitle: true,
+      }),
       background: BACKGROUND_CHART_COLOR,
       legendPosition: "top",
       stacked: false,
@@ -217,9 +223,11 @@ describe("Migrations", () => {
       chartId: "4",
       type: "bar",
       title: { text: "demo chart 4" },
-      labelRange: "'My sheet'!A27",
-      dataSets: [{ dataRange: "B27" }],
-      dataSetsHaveTitle: false,
+      ...toChartDataSource({
+        labelRange: "'My sheet'!A27",
+        dataSets: [{ dataRange: "B27" }],
+        dataSetsHaveTitle: false,
+      }),
       background: BACKGROUND_CHART_COLOR,
       legendPosition: "top",
       stacked: false,
@@ -301,11 +309,12 @@ describe("Migrations", () => {
     expect(cells.A1!).toBe("=sheetName_!A2");
 
     const figures = data.sheets[1].figures;
-    expect(figures[0].data?.dataSets).toEqual([
-      { dataRange: "A1:A2" },
-      { dataRange: "'My sheet'!A1:A2" },
-    ]);
-    expect(figures[0].data?.labelRange).toBe("sheetName_!B1:B2");
+    expect(figures[0].data).toMatchObject(
+      toChartDataSource({
+        dataSets: [{ dataRange: "A1:A2" }, { dataRange: "'My sheet'!A1:A2" }],
+      })
+    );
+    expect(figures[0].data?.dataSource.labelRange).toBe("sheetName_!B1:B2");
 
     const cfs = data.sheets[1].conditionalFormats;
     const rule1 = cfs[0].rule as ColorScaleRule;
@@ -833,6 +842,67 @@ test("migrate version 19.1.0: colorScale is changed to a colorScale", () => {
   expect(model.getters.getChartRuntime(chartIds[1])).toBeDefined();
 });
 
+test("migrate version 19.3.2: change datasets to dataSource", () => {
+  const model = new Model({
+    version: "19.3.1",
+    sheets: [
+      {
+        id: "sh1",
+        figures: [
+          {
+            id: "chartFigure1",
+            tag: "chart",
+            data: {
+              chartId: "chartFigure1",
+              type: "bar",
+              dataSets: [{ dataRange: "A1:A3" }, { dataRange: "B1:B3", yAxisId: "y2" }],
+              dataSetsHaveTitle: true,
+              labelRange: "Sheet1!C1:C3",
+              title: { text: "Test Chart" },
+              background: "#FFFFFF",
+            },
+          },
+          {
+            id: "carouselFigure",
+            tag: "carousel",
+            data: {
+              chartDefinitions: {
+                carouselChart: {
+                  chartId: "carouselChart",
+                  type: "line",
+                  dataSets: [{ dataRange: "D1:D3" }],
+                  dataSetsHaveTitle: false,
+                  labelRange: "Sheet1!E1:E3",
+                },
+              },
+            },
+          },
+        ],
+      },
+    ],
+  });
+  const exportedData = model.exportData();
+
+  expect(exportedData.sheets[0].figures[0].data).toMatchObject(
+    toChartDataSource({
+      dataSets: [{ dataRange: "A1:A3" }, { dataRange: "B1:B3", yAxisId: "y2" }],
+      dataSetsHaveTitle: true,
+      labelRange: "Sheet1!C1:C3",
+    })
+  );
+  expect(exportedData.sheets[0].figures[0].data.dataSets).toBeUndefined();
+  expect(exportedData.sheets[0].figures[0].data.dataSetsHaveTitle).toBeUndefined();
+  expect(exportedData.sheets[0].figures[0].data.labelRange).toBeUndefined();
+
+  expect(exportedData.sheets[0].figures[1].data.chartDefinitions["carouselChart"]).toMatchObject(
+    toChartDataSource({
+      dataSets: [{ dataRange: "D1:D3" }],
+      dataSetsHaveTitle: false,
+      labelRange: "Sheet1!E1:E3",
+    })
+  );
+});
+
 describe("Import", () => {
   test("Import sheet with rows/cols size defined.", () => {
     const model = new Model({
@@ -928,8 +998,10 @@ describe("Export", () => {
               data: {
                 type: "line",
                 title: "demo chart",
-                labelRange: "A1:A4",
-                dataSets: [{ dataRange: "B1:B4" }, { dataRange: "C1:C4" }],
+                ...toChartDataSource({
+                  labelRange: "A1:A4",
+                  dataSets: [{ dataRange: "B1:B4" }, { dataRange: "C1:C4" }],
+                }),
               },
             },
             { id: "id2", x: 100, y: 100, width: 100, height: 100 },
@@ -1197,7 +1269,11 @@ test("Update chart revisions contain the full definition pre 18.5.1", () => {
           figureId: "fig1",
           chartId: "fig1",
           //@ts-ignore the old command would handle a partial definition
-          definition: { dataSets: [{ dataRange: "A1:A3" }] },
+          definition: {
+            ...toChartDataSource({
+              dataSets: [{ dataRange: "A1:A3" }],
+            }),
+          },
         },
         {
           type: "CREATE_CHART",
@@ -1216,10 +1292,12 @@ test("Update chart revisions contain the full definition pre 18.5.1", () => {
           },
           definition: {
             title: { text: "" },
-            dataSets: [{ dataRange: "A1", yAxisId: "y" }],
+            ...toChartDataSource({
+              dataSets: [{ dataRange: "A1", yAxisId: "y" }],
+              dataSetsHaveTitle: false,
+            }),
             type: "bar",
             stacked: false,
-            dataSetsHaveTitle: false,
             legendPosition: "none",
           },
         },
@@ -1228,7 +1306,11 @@ test("Update chart revisions contain the full definition pre 18.5.1", () => {
           figureId: "fig2",
           chartId: "fig2",
           //@ts-ignore the old command would handle a partial definition
-          definition: { dataSets: [{ dataRange: "B1:B3" }] },
+          definition: {
+            ...toChartDataSource({
+              dataSets: [{ dataRange: "B1:B3" }],
+            }),
+          },
         },
       ],
       serverRevisionId: "initial_revision",
@@ -1263,10 +1345,18 @@ test("Update chart revisions contain the full definition pre 18.5.1", () => {
     ],
   };
   const model = new Model(data, {}, initialMessages);
-  const definition1 = model.getters.getChartDefinition("fig1") as LineChartDefinition;
-  expect(definition1.dataSets).toEqual([{ dataRange: "A1:A3" }]);
-  const definition2 = model.getters.getChartDefinition("fig2") as LineChartDefinition;
-  expect(definition2.dataSets).toEqual([{ dataRange: "B1:B3" }]);
+  const definition1 = model.getters.getChartDefinition("fig1");
+  expect(definition1).toMatchObject(
+    toChartDataSource({
+      dataSets: [{ dataRange: "A1:A3" }],
+    })
+  );
+  const definition2 = model.getters.getChartDefinition("fig2");
+  expect(definition2).toMatchObject(
+    toChartDataSource({
+      dataSets: [{ dataRange: "B1:B3" }],
+    })
+  );
 });
 
 test("Reject data import from data with a subsequent version", () => {

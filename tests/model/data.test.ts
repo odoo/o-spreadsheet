@@ -1,6 +1,7 @@
 import { DEFAULT_REVISION_ID } from "@odoo/o-spreadsheet-engine/constants";
 import { getCurrentVersion, load } from "@odoo/o-spreadsheet-engine/migrations/data";
 import { DEFAULT_LOCALE } from "../../src/types";
+import { toChartDataSource } from "../test_helpers/chart_helpers";
 
 describe("load data", () => {
   test("create empty workbookdata when loading nothing", () => {
@@ -192,6 +193,7 @@ describe("load data", () => {
             figures: [
               {
                 id: "1",
+                tag: "chart",
                 data: {
                   type: "line",
                   title: "Line",
@@ -212,8 +214,10 @@ describe("load data", () => {
             {
               data: {
                 title: { text: "Line" },
-                dataSets: [{ dataRange: "Sheet1!B26:B35" }, { dataRange: "Sheet1!C26:C35" }],
-                dataSetsHaveTitle: true,
+                ...toChartDataSource({
+                  dataSets: [{ dataRange: "Sheet1!B26:B35" }, { dataRange: "Sheet1!C26:C35" }],
+                  dataSetsHaveTitle: true,
+                }),
               },
             },
           ],

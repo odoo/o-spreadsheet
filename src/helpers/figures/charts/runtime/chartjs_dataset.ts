@@ -9,6 +9,8 @@ import {
   LINE_DATA_POINT_RADIUS,
   LINE_FILL_TRANSPARENCY,
 } from "@odoo/o-spreadsheet-engine/constants";
+import { tryToNumber } from "@odoo/o-spreadsheet-engine/functions/helpers";
+import { isNumberCell } from "@odoo/o-spreadsheet-engine/helpers/cells/cell_evaluation";
 import {
   ColorGenerator,
   colorToRGBA,
@@ -28,7 +30,7 @@ import { formatValue } from "@odoo/o-spreadsheet-engine/helpers/format/format";
 import { _t } from "@odoo/o-spreadsheet-engine/translation";
 import {
   BarChartDefinition,
-  ChartWithDataSetDefinition,
+  DataSetStyle,
   DatasetValues,
   FunnelChartColors,
   FunnelChartDefinition,
@@ -71,22 +73,22 @@ export function getBarChartDatasets(
   const { dataSetsValues } = args;
 
   const dataSets: ChartDataset<"bar" | "line">[] = [];
-  const colors = getChartColorsGenerator(definition, dataSetsValues.length);
+  const colors = getChartColorsGenerator(definition.dataSetStyles, dataSetsValues);
   const trendDatasets: ChartDataset<"line">[] = [];
 
   for (const index in dataSetsValues) {
-    let { label, data, hidden } = dataSetsValues[index];
-    label = definition.dataSets?.[index].label || label;
+    let { label, data, hidden, dataSetId } = dataSetsValues[index];
+    label = definition.dataSetStyles?.[dataSetId]?.label ?? label;
 
     const backgroundColor = colors.next();
     const dataset: ChartDataset<"bar"> = {
       label,
-      data,
+      data: data.map((cell) => (isNumberCell(cell) ? cell.value : NaN)),
       hidden,
       borderColor: definition.background || BACKGROUND_CHART_COLOR,
       borderWidth: definition.stacked ? 1 : 0,
       backgroundColor,
-      yAxisID: definition.horizontal ? "y" : definition.dataSets?.[index].yAxisId || "y",
+      yAxisID: definition.horizontal ? "y" : definition.dataSetStyles?.[dataSetId]?.yAxisId ?? "y",
       xAxisID: "x",
       barPercentage: 0.9,
       categoryPercentage: dataSetsValues.length > 1 ? 0.8 : 1,
@@ -94,7 +96,7 @@ export function getBarChartDatasets(
     };
     dataSets.push(dataset);
 
-    const trendConfig = definition.dataSets?.[index].trend;
+    const trendConfig = definition.dataSetStyles?.[dataSetId]?.trend;
     const trendData = args.trendDataSetsValues?.[index];
     if (!trendConfig?.display || definition.horizontal || !trendData) {
       continue;
@@ -119,7 +121,8 @@ export function getCalendarChartDatasetAndLabels(
   const values = dataSetsValues
     .map((ds) => ds.data)
     .flat()
-    .filter(isDefined);
+    .filter(isNumberCell)
+    .map((cell) => cell.value);
 
   const maxValue = Math.max(...values);
   const minValue = Math.min(...values);
@@ -135,14 +138,14 @@ export function getCalendarChartDatasetAndLabels(
       label: dataSetValues.label,
       data: dataSetValues.data.map((v) => 1),
       backgroundColor: dataSetValues.data.map((v) =>
-        v !== undefined ? colorMap(v) : definition.missingValueColor || COLOR_TRANSPARENT
+        isNumberCell(v) ? colorMap(v.value) : definition.missingValueColor || COLOR_TRANSPARENT
       ),
       borderColor: definition.background || BACKGROUND_CHART_COLOR,
       borderSkipped: false,
       borderWidth: 1,
       barPercentage: 1,
       categoryPercentage: 1,
-      values: dataSetValues.data,
+      values: dataSetValues.data.map((cell) => (isNumberCell(cell) ? cell.value : NaN)),
     });
   }
 
@@ -179,20 +182,20 @@ export function getWaterfallDatasetAndLabels(
       continue;
     }
     for (let i = 0; i < dataSetsValue.data.length; i++) {
-      const data = dataSetsValue.data[i];
+      const cell = dataSetsValue.data[i];
       labelsWithSubTotals.push(labels[i]);
-      if (isNaN(Number(data))) {
+      if (!isNumberCell(cell)) {
         datasetValues.push([lastValue, lastValue]);
         backgroundColor.push("");
         continue;
       }
-      datasetValues.push([lastValue, data + lastValue]);
-      let color = data >= 0 ? positiveColor : negativeColor;
+      datasetValues.push([lastValue, cell.value + lastValue]);
+      let color = cell.value >= 0 ? positiveColor : negativeColor;
       if (i === 0 && dataSetsValue === dataSetsValues[0] && definition.firstValueAsSubtotal) {
         color = subTotalColor;
       }
       backgroundColor.push(color);
-      lastValue += data;
+      lastValue += cell.value;
     }
     if (definition.showSubTotals) {
       labelsWithSubTotals.push(_t("Subtotal"));
@@ -219,20 +222,26 @@ export function getLineChartDatasets(
 
   const trendDatasets: any[] = [];
 
-  const colors = getChartColorsGenerator(definition, dataSetsValues.length);
+  const colors = getChartColorsGenerator(definition.dataSetStyles, dataSetsValues);
   for (let index = 0; index < dataSetsValues.length; index++) {
-    let { label, data, hidden } = dataSetsValues[index];
-    label = definition.dataSets?.[index].label || label;
+    let { label, data, hidden, dataSetId } = dataSetsValues[index];
+    label = definition.dataSetStyles?.[dataSetId]?.label ?? label;
+    let dataValues: (number | { x: number; y: number })[] = [];
 
     const color = colors.next();
     if (axisType && ["linear", "time"].includes(axisType)) {
       // Replace empty string labels by undefined to make sure chartJS doesn't decide that "" is the same as 0
-      data = data.map((y, index) => ({ x: labels[index] || undefined, y }));
+      dataValues = data.map((y, index) => ({
+        x: labels[index] === "" ? NaN : tryToNumber(labels[index], args.locale) ?? NaN,
+        y: isNumberCell(y) ? y.value : NaN,
+      }));
+    } else {
+      dataValues = data.map((cell) => (isNumberCell(cell) ? cell.value : NaN));
     }
-
+    const dataSetStyle = definition.dataSetStyles?.[dataSetId];
     const dataset: ChartDataset<"line"> = {
       label,
-      data,
+      data: dataValues,
       hidden,
       tension: 0, // 0 -> render straight lines, which is much faster
       borderColor: color,
@@ -240,11 +249,11 @@ export function getLineChartDatasets(
       pointBackgroundColor: color,
       fill: areaChart ? getFillingMode(index, stackedChart) : false,
       pointRadius: definition.hideDataMarkers ? 0 : LINE_DATA_POINT_RADIUS,
-      yAxisID: definition.dataSets?.[index].yAxisId || "y",
+      yAxisID: dataSetStyle?.yAxisId || "y",
     };
     dataSets.push(dataset);
 
-    const trendConfig = definition.dataSets?.[index].trend;
+    const trendConfig = dataSetStyle?.trend;
     const trendData = args.trendDataSetsValues?.[index];
     if (!trendConfig?.display || !trendData) {
       continue;
@@ -287,12 +296,12 @@ export function getPieChartDatasets(
     }
     const dataset: ChartDataset<"pie"> = {
       label,
-      data,
+      data: data.map((cell) => (isNumberCell(cell) ? cell.value : NaN)),
       borderColor: definition.background || "#FFFFFF",
       backgroundColor,
       hoverOffset: 10,
     };
-    dataSets!.push(dataset);
+    dataSets.push(dataset);
   }
   return dataSets;
 }
@@ -304,27 +313,27 @@ export function getComboChartDatasets(
   const { dataSetsValues } = args;
 
   const dataSets: ChartDataset<"bar" | "line">[] = [];
-  const colors = getChartColorsGenerator(definition, dataSetsValues.length);
+  const colors = getChartColorsGenerator(definition.dataSetStyles, dataSetsValues);
   const trendDatasets: ChartDataset<"line">[] = [];
   const barDatasets = dataSetsValues.filter(
-    (_, i) => (definition.dataSets?.[i].type ?? "line") === "bar"
+    ({ dataSetId }) => (definition.dataSetStyles?.[dataSetId]?.type ?? "line") === "bar"
   );
 
   for (let index = 0; index < dataSetsValues.length; index++) {
-    let { label, data, hidden } = dataSetsValues[index];
-    label = definition.dataSets?.[index].label || label;
+    let { label, data, hidden, dataSetId } = dataSetsValues[index];
+    label = definition.dataSetStyles?.[dataSetId]?.label || label;
 
-    const design = definition.dataSets?.[index];
+    const style = definition.dataSetStyles?.[dataSetId];
     const color = colors.next();
-
-    const type = design?.type ?? "line";
+    const defaultStyle = index === 0 ? "bar" : "line";
+    const type = style?.type ?? defaultStyle;
     const dataset: ChartDataset<"bar" | "line"> = {
       label: label,
-      data,
+      data: data.map((cell) => (isNumberCell(cell) ? cell.value : null)),
       hidden,
       borderColor: color,
       backgroundColor: color,
-      yAxisID: definition.dataSets?.[index].yAxisId || "y",
+      yAxisID: definition.dataSetStyles?.[dataSetId]?.yAxisId || "y",
       xAxisID: "x",
       type,
       order: type === "bar" ? dataSetsValues.length + index : index,
@@ -337,7 +346,7 @@ export function getComboChartDatasets(
     }
     dataSets.push(dataset);
 
-    const trendConfig = definition.dataSets?.[index].trend;
+    const trendConfig = definition.dataSetStyles?.[dataSetId]?.trend;
     const trendData = args.trendDataSetsValues?.[index];
     if (!trendConfig?.display || !trendData) {
       continue;
@@ -359,16 +368,16 @@ export function getRadarChartDatasets(
 
   const fill = definition.fillArea ?? false;
 
-  const colors = getChartColorsGenerator(definition, dataSetsValues.length);
+  const colors = getChartColorsGenerator(definition.dataSetStyles, dataSetsValues);
   for (let i = 0; i < dataSetsValues.length; i++) {
     let { label, data, hidden } = dataSetsValues[i];
-    if (definition.dataSets?.[i]?.label) {
-      label = definition.dataSets[i].label;
+    if (definition.dataSetStyles?.[i]?.label) {
+      label = definition.dataSetStyles[i].label;
     }
     const borderColor = colors.next();
     const dataset: ChartDataset<"radar"> = {
       label,
-      data,
+      data: data.map((cell) => (isNumberCell(cell) ? cell.value : null)),
       hidden,
       borderColor,
       backgroundColor: borderColor,
@@ -402,12 +411,16 @@ export function getGeoChartDatasets(
     const labelsAndValues: { [featureId: string]: { value: number; label: string } } = {};
     if (dataSetsValues[0]) {
       for (let i = 0; i < dataSetsValues[0].data.length; i++) {
-        if (!labels[i] || dataSetsValues[0].data[i] === undefined) {
+        const cell = dataSetsValues[0].data[i];
+        if (!labels[i] || cell === undefined) {
           continue;
         }
         const featureId = args.geoFeatureNameToId(regionName, labels[i]);
         if (featureId) {
-          labelsAndValues[featureId] = { value: dataSetsValues[0].data[i], label: labels[i] };
+          labelsAndValues[featureId] = {
+            value: isNumberCell(cell) ? cell.value : 0,
+            label: labels[i],
+          };
         }
       }
     }
@@ -440,11 +453,17 @@ export function getFunnelChartDatasets(
   }
 
   let { label: datasetLabel, data } = dataSetsValues;
-  datasetLabel = definition.dataSets?.[0].label || datasetLabel;
+  datasetLabel = definition.dataSetStyles?.[0]?.label || datasetLabel;
 
   const dataset: ChartDataset<"bar"> = {
     label: datasetLabel,
-    data: data.map((value) => (value <= 0 ? [0, 0] : [-value, value])),
+    data: data.map((cell) => {
+      if (!isNumberCell(cell)) {
+        return 0;
+      }
+      const value = cell.value;
+      return value <= 0 ? [0, 0] : [-value, value];
+    }),
     backgroundColor: getFunnelLabelColors(labels, definition.funnelColors),
     yAxisID: "y",
     xAxisID: "x",
@@ -512,10 +531,8 @@ function getDataEntriesFromDatasets(hierarchicalDatasetValues: DatasetValues[], 
   for (let i = 0; i < maxDatasetLength; i++) {
     entries[i] = {};
     for (let j = 0; j < hierarchicalDatasetValues.length; j++) {
-      const groupBy =
-        hierarchicalDatasetValues[j].data[i] === null
-          ? GHOST_SUNBURST_VALUE
-          : String(hierarchicalDatasetValues[j].data[i]);
+      const value = hierarchicalDatasetValues[j].data[i]?.value;
+      const groupBy = value === null ? GHOST_SUNBURST_VALUE : String(value);
       entries[i][j] = groupBy;
     }
     entries[i].value = Number(values[i]);
@@ -607,8 +624,8 @@ export function getTreeMapChartDatasets(
   for (let i = 0; i < maxDatasetLength; i++) {
     datasetEntries[i] = {};
     for (let j = 0; j < dataSetsValues.length; j++) {
-      datasetEntries[i][j] = dataSetsValues[j].data[i]
-        ? String(dataSetsValues[j].data[i])
+      datasetEntries[i][j] = dataSetsValues[j].data[i].value
+        ? String(dataSetsValues[j].data[i].value)
         : undefined;
     }
     datasetEntries[i].value = Number(labels[i]);
@@ -732,13 +749,12 @@ function getFillingMode(index: number, stackedChart: boolean): string {
 }
 
 export function getChartColorsGenerator(
-  definition: GenericDefinition<ChartWithDataSetDefinition>,
-  dataSetsSize: number
+  dataSetStyles: DataSetStyle | undefined,
+  dataSetValues: Pick<DatasetValues, "dataSetId">[]
 ) {
-  return new ColorGenerator(
-    dataSetsSize,
-    definition.dataSets?.map((ds) => ds.backgroundColor) || []
-  );
+  const colors = dataSetValues.map((ds) => dataSetStyles?.[ds.dataSetId]?.backgroundColor);
+  const dataSetsSize = dataSetValues.length;
+  return new ColorGenerator(dataSetsSize, colors);
 }
 
 function getTreeMapGroupColors(

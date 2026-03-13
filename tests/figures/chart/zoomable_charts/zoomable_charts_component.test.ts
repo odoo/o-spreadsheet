@@ -3,7 +3,7 @@ import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadshee
 import { CreateFigureCommand, Model, UID } from "../../../../src";
 import { ZoomableChartStore } from "../../../../src/components/figures/chart/chartJs/zoomable_chart/zoomable_chart_store";
 import { ChartPanel } from "../../../../src/components/side_panel/chart/main_chart_panel/main_chart_panel";
-import { openChartDesignSidePanel } from "../../../test_helpers/chart_helpers";
+import { openChartDesignSidePanel, toChartDataSource } from "../../../test_helpers/chart_helpers";
 import { createChart, setCellContent, updateChart } from "../../../test_helpers/commands_helpers";
 import { TEST_CHART_DATA } from "../../../test_helpers/constants";
 import { clickAndDrag, simulateClick, triggerMouseEvent } from "../../../test_helpers/dom_helper";
@@ -22,15 +22,17 @@ extendMockGetBoundingClientRect({
 function createTestChart(
   newChartId: UID = chartId,
   partialFigure: Partial<CreateFigureCommand> = {},
-  partialDefinition: Partial<LineChartDefinition> = {}
+  partialDefinition: Partial<LineChartDefinition<string>> = {}
 ) {
   createChart(
     model,
     {
       ...TEST_CHART_DATA.basicChart,
-      labelRange: "C2:C4",
-      dataSets: [{ dataRange: "B2:B4" }],
-      dataSetsHaveTitle: false,
+      ...toChartDataSource({
+        labelRange: "C2:C4",
+        dataSets: [{ dataRange: "B2:B4" }],
+        dataSetsHaveTitle: false,
+      }),
       ...partialDefinition,
     },
     newChartId,
@@ -98,16 +100,18 @@ describe("zoom", () => {
     await openChartDesignSidePanel(model, env, fixture, chartId);
 
     expect(
-      (model.getters.getChartDefinition(chartId) as LineChartDefinition).zoomable
+      (model.getters.getChartDefinition(chartId) as LineChartDefinition<string>).zoomable
     ).toBeUndefined();
 
     await simulateClick("input[name='zoomable']");
     expect(
-      (model.getters.getChartDefinition(chartId) as LineChartDefinition).zoomable
+      (model.getters.getChartDefinition(chartId) as LineChartDefinition<string>).zoomable
     ).toBeTruthy();
 
     await simulateClick("input[name='zoomable']");
-    expect((model.getters.getChartDefinition(chartId) as LineChartDefinition).zoomable).toBeFalsy();
+    expect(
+      (model.getters.getChartDefinition(chartId) as LineChartDefinition<string>).zoomable
+    ).toBeFalsy();
   });
 
   test("Allowing zoom changes the definition and shows the master chart", async () => {
@@ -116,12 +120,12 @@ describe("zoom", () => {
     await openChartDesignSidePanel(model, env, fixture, chartId);
 
     expect(
-      (model.getters.getChartDefinition(chartId) as LineChartDefinition).zoomable
+      (model.getters.getChartDefinition(chartId) as LineChartDefinition<string>).zoomable
     ).toBeUndefined();
 
     await simulateClick("input[name='zoomable']");
     expect(
-      (model.getters.getChartDefinition(chartId) as LineChartDefinition).zoomable
+      (model.getters.getChartDefinition(chartId) as LineChartDefinition<string>).zoomable
     ).toBeTruthy();
     expect(fixture.querySelector(".o-master-chart-container")).not.toBeNull();
   });
@@ -132,11 +136,13 @@ describe("zoom", () => {
     await openChartDesignSidePanel(model, env, fixture, chartId);
 
     expect(
-      (model.getters.getChartDefinition(chartId) as LineChartDefinition).zoomable
+      (model.getters.getChartDefinition(chartId) as LineChartDefinition<string>).zoomable
     ).toBeDefined();
 
     await simulateClick("input[name='zoomable']");
-    expect((model.getters.getChartDefinition(chartId) as LineChartDefinition).zoomable).toBeFalsy();
+    expect(
+      (model.getters.getChartDefinition(chartId) as LineChartDefinition<string>).zoomable
+    ).toBeFalsy();
     expect(fixture.querySelector(".o-master-chart-container")).toBeNull();
   });
 
@@ -471,7 +477,11 @@ describe("zoom", () => {
     let style = container?.getAttribute("style");
     expect(style).toEqual("");
 
-    updateChart(model, chartId, { dataSets: [{ dataRange: "B2:B2" }], labelRange: "C2:C2" });
+    updateChart(
+      model,
+      chartId,
+      toChartDataSource({ dataSets: [{ dataRange: "B2:B2" }], labelRange: "C2:C2" })
+    );
     await nextTick();
     container = fixture.querySelector(".o-master-chart-container");
     style = container?.getAttribute("style");

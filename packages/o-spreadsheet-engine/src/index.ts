@@ -36,6 +36,10 @@ export * from "./types/locale";
 export * from "./types/misc";
 export * from "./types/rendering";
 export * from "./types/validator";
+
+export type { ChartDataSourceRegistry } from "./registries/chart_data_source_registry";
+import "./registries/chart_data_source_registry";
+
 export const __info__ = {};
 
 import "./canvas_mock"; // for node.js environment

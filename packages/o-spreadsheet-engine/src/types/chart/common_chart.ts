@@ -1,13 +1,13 @@
 import { Color } from "../misc";
-import { AxesDesign, CustomizedDataSet, TitleDesign } from "./chart";
+import { Range } from "../range";
+import { AxesDesign, ChartDataSource, DataSetStyle, TitleDesign } from "./chart";
 
 export type VerticalAxisPosition = "left" | "right";
 export type LegendPosition = "top" | "bottom" | "left" | "right" | "none";
 
-export interface CommonChartDefinition {
-  readonly dataSets: CustomizedDataSet[];
-  readonly dataSetsHaveTitle: boolean;
-  readonly labelRange?: string;
+export interface CommonChartDefinition<T extends string | Range = Range> {
+  readonly dataSetStyles: DataSetStyle;
+  readonly dataSource: ChartDataSource<T>;
   readonly title: TitleDesign;
   readonly background?: Color;
   readonly legendPosition: LegendPosition;

@@ -1,38 +1,134 @@
-import { AbstractChart } from "../helpers/figures/charts/abstract_chart";
-import { ChartCreationContext, ChartDefinition, ChartRuntime, ChartType } from "../types/chart";
+import {
+  ChartCreationContext,
+  ChartData,
+  ChartRuntime,
+  ChartType,
+  ChartTypeDefinition,
+  DatasetValues,
+  ExcelChartDefinition,
+} from "../types/chart";
 import { CommandResult } from "../types/commands";
 import { CoreGetters } from "../types/core_getters";
 import { Getters } from "../types/getters";
-import { RangeAdapter, UID } from "../types/misc";
+import { RangeAdapterFunctions, UID } from "../types/misc";
+import { Range } from "../types/range";
 import { Validator } from "../types/validator";
+import { ChartDataSourceBuilder } from "./chart_data_source_registry";
 import { Registry } from "./registry";
+
+export type GoToDataSetFunction<T extends ChartType> = (
+  dataSource: ChartTypeDefinition<T, Range>["dataSource"],
+  dataSetName: string,
+  dataSet: DatasetValues,
+  dataSetIndex: number,
+  newWindow: boolean,
+  getters: Getters
+) => void;
 
 /**
  * Instantiate a chart object based on a definition
  */
-export interface ChartBuilder {
-  /**
-   * Check if this factory should be used
-   */
-  match: (type: ChartType) => boolean;
-  createChart: (definition: ChartDefinition, sheetId: UID, getters: CoreGetters) => AbstractChart;
-  getChartRuntime: (chart: AbstractChart, getters: Getters) => ChartRuntime;
-  validateChartDefinition(
+export interface ChartTypeBuilder<T extends ChartType> {
+  fromStrDefinition(
+    definition: ChartTypeDefinition<T, string>,
+    sheetId: UID,
+    getters: CoreGetters
+  ): Omit<ChartTypeDefinition<T, Range>, "dataSource">;
+  toStrDefinition(
+    definition: ChartTypeDefinition<T, Range>,
+    sheetId: UID,
+    getters: CoreGetters
+  ): Omit<ChartTypeDefinition<T, string>, "dataSource">;
+  validateDefinition: (
     validator: Validator,
-    definition: ChartDefinition
-  ): CommandResult | CommandResult[];
+    definition: ChartTypeDefinition<NoInfer<T>, string>
+  ) => CommandResult | CommandResult[];
   transformDefinition(
-    chartSheetId: UID,
-    definition: ChartDefinition,
-    applyRange: RangeAdapter
-  ): ChartDefinition;
-  getChartDefinitionFromContextCreation(context: ChartCreationContext): ChartDefinition;
+    definition: ChartTypeDefinition<T, string>,
+    sheetId: UID,
+    rangeAdapters: RangeAdapterFunctions
+  ): ChartTypeDefinition<T, string>;
+  /**
+   * Update all ranges of the chart after
+   * a grid change (add/remove col/row, rename sheet, ...)
+   */
+  updateRanges(
+    definition: ChartTypeDefinition<T, Range>,
+    rangeAdapters: RangeAdapterFunctions,
+    sheetId: UID
+  ): ChartTypeDefinition<T, Range>;
+  /**
+   * Duplicate the chart when a sheet is duplicated.
+   * The ranges that are in the same sheet as the chart are adapted to the new sheetId.
+   */
+  duplicateInDuplicatedSheet(
+    definition: ChartTypeDefinition<T, Range>,
+    sheetIdFrom: UID,
+    sheetIdTo: UID,
+    getters: CoreGetters
+  ): ChartTypeDefinition<T, Range>;
+  /**
+   * Get a copy a the chart in the given sheetId.
+   * The ranges of the chart will stay the same as the copied chart.
+   */
+  copyInSheetId(
+    definition: ChartTypeDefinition<T, Range>,
+    sheetIdFrom: UID,
+    sheetIdTo: UID,
+    getters: CoreGetters
+  ): ChartTypeDefinition<T, Range>;
+  getContextCreation(
+    definition: ChartTypeDefinition<T, string>,
+    dataSourceBuilder: ChartDataSourceBuilder<any>,
+    dataSource: ChartTypeDefinition<T, string>["dataSource"]
+  ): ChartCreationContext;
+  getDefinitionFromContextCreation(
+    context: ChartCreationContext,
+    dataSourceBuilder: ChartDataSourceBuilder<any>
+  ): ChartTypeDefinition<T, string>;
+  /**
+   * Get the definition of the chart used for excel export.
+   * If the chart is not supported by Excel, this function returns undefined.
+   */
+  getDefinitionForExcel(
+    getters: Getters,
+    definition: ChartTypeDefinition<T, Range>,
+    params: Pick<ExcelChartDefinition, "dataSets" | "labelRange">
+  ): ExcelChartDefinition | undefined;
+  getRuntime(
+    getters: Getters,
+    definition: ChartTypeDefinition<T, Range>,
+    chartDataExtractors: ChartDataExtractors,
+    sheetId: UID,
+    eventHandlers: ChartJsEventHandlers
+  ): ChartRuntime;
+  allowedDefinitionKeys: readonly string[];
   sequence: number;
   dataSeriesLimit?: number;
 }
 
-/**
- * This registry is intended to map a cell content (raw string) to
- * an instance of a cell.
- */
-export const chartRegistry = new Registry<ChartBuilder>();
+interface ChartDataExtractors {
+  extractData(): ChartData;
+  extractHierarchicalData(): ChartData;
+}
+
+interface ChartJsEventHandlers {
+  onClick?: (
+    // chartjs internals
+    event: unknown,
+    items: unknown,
+    chartJsChart: unknown
+  ) => void;
+  onHover?: (
+    // chartjs internals
+    event: unknown,
+    items: unknown,
+    chartJsChart: unknown
+  ) => void;
+}
+
+export interface ChartTypeRegistry extends Registry<ChartTypeBuilder<any>> {
+  add<T extends ChartType>(type: T, builder: ChartTypeBuilder<T>): this;
+}
+
+export const chartTypeRegistry: ChartTypeRegistry = new Registry();

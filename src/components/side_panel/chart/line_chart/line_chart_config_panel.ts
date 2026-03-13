@@ -1,5 +1,4 @@
 import { AxesDesign, LineChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart";
-import { LineChart } from "../../../../helpers/figures/charts";
 import { canChartParseLabels } from "../../../../helpers/figures/charts/runtime";
 import { GenericChartConfigPanel } from "../building_blocks/generic_side_panel/config_panel";
 
@@ -8,30 +7,27 @@ export class LineConfigPanel extends GenericChartConfigPanel {
 
   get canTreatLabelsAsText() {
     const chart = this.env.model.getters.getChart(this.props.chartId);
-    if (chart && chart instanceof LineChart) {
-      return canChartParseLabels(
-        chart.getDefinition(),
-        chart.dataSets,
-        chart.labelRange,
-        this.env.model.getters
-      );
+    const definition = chart?.getRangeDefinition();
+    const sheetId = chart?.sheetId;
+    if (sheetId && definition?.type === "line") {
+      return canChartParseLabels(chart.getData(this.env.model.getters, this.props.chartId));
     }
     return false;
   }
 
   get stackedLabel(): string {
-    const definition = this.props.definition as LineChartDefinition;
+    const definition = this.props.definition as LineChartDefinition<string>;
     return definition.fillArea
       ? this.chartTerms.StackedAreaChart
       : this.chartTerms.StackedLineChart;
   }
 
   getLabelRangeOptions() {
-    const options = super.getLabelRangeOptions();
+    const options = [this.getAggregateLabelRangeOption()];
     if (this.canTreatLabelsAsText) {
       options.push({
         name: "labelsAsText",
-        value: (this.props.definition as LineChartDefinition).labelsAsText,
+        value: (this.props.definition as LineChartDefinition<string>).labelsAsText,
         label: this.chartTerms.TreatLabelsAsText,
         onChange: this.onUpdateLabelsAsText.bind(this),
       });

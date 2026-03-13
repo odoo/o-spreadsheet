@@ -156,7 +156,7 @@ import {
 import { UNDO_REDO_PIVOT_COMMANDS } from "@odoo/o-spreadsheet-engine/plugins/ui_core_views/pivot_ui";
 import { autofillModifiersRegistry } from "@odoo/o-spreadsheet-engine/registries/autofill_modifiers";
 import { autofillRulesRegistry } from "@odoo/o-spreadsheet-engine/registries/autofill_rules";
-import { chartRegistry } from "@odoo/o-spreadsheet-engine/registries/chart_registry";
+import { chartTypeRegistry } from "@odoo/o-spreadsheet-engine/registries/chart_registry";
 import { iconsOnCellRegistry } from "@odoo/o-spreadsheet-engine/registries/icons_on_cell_registry";
 import { inverseCommandRegistry } from "@odoo/o-spreadsheet-engine/registries/inverse_command_registry";
 import { otRegistry } from "@odoo/o-spreadsheet-engine/registries/ot_registry";
@@ -221,7 +221,7 @@ import { HighlightStore } from "./stores/highlight_store";
 import { ModelStore } from "./stores/model_store";
 import { NotificationStore } from "./stores/notification_store";
 import { RendererStore } from "./stores/renderer_store";
-import { AddFunctionDescription, isMatrix, schemeToColorScale } from "./types";
+import { AddFunctionDescription, CHART_TYPES, isMatrix, schemeToColorScale } from "./types";
 
 /**
  * We export here all entities that needs to be accessed publicly by Odoo.
@@ -309,9 +309,11 @@ export const registries = {
   sidePanelRegistry,
   figureRegistry,
   chartSidePanelComponentRegistry,
+  chartDataSourceSidePanelComponentRegistry,
   chartComponentRegistry,
-  chartRegistry,
+  chartTypeRegistry,
   chartSubtypeRegistry,
+  chartDataSourceRegistry,
   topbarMenuRegistry,
   topbarComponentRegistry,
   clickableCellRegistry,
@@ -333,6 +335,7 @@ export const registries = {
   chartJsExtensionRegistry,
 };
 
+import "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_data_sources";
 import "./registries/chart_types";
 
 import { parseFormat } from "@odoo/o-spreadsheet-engine/helpers/format/format_parser";
@@ -341,12 +344,15 @@ import {
   getNumberOfPivotFunctions,
 } from "@odoo/o-spreadsheet-engine/helpers/pivot/pivot_composer_helpers";
 import { domainToColRowDomain } from "@odoo/o-spreadsheet-engine/helpers/pivot/pivot_domain_helpers";
+import { chartDataSourceRegistry } from "@odoo/o-spreadsheet-engine/registries/chart_data_source_registry";
 import { chartSubtypeRegistry } from "@odoo/o-spreadsheet-engine/registries/chart_subtype_registry";
 import { clipboardHandlersRegistries } from "@odoo/o-spreadsheet-engine/registries/clipboardHandlersRegistries";
 import "./clipboard_handlers";
 import { Composer } from "./components/composer/composer/composer";
 import { Select } from "./components/select/select";
+import { ChartRangeDataSource } from "./components/side_panel/chart/building_blocks/range_data_source/range_data_source";
 import { TopBar } from "./components/top_bar/top_bar";
+import { chartDataSourceSidePanelComponentRegistry } from "./registries/chart_data_source_component_registry";
 
 export const helpers = {
   arg,
@@ -436,6 +442,7 @@ export const components = {
   ChartDataSeries,
   ChartErrorSection,
   ChartLabelRange,
+  ChartRangeDataSource,
   ChartTitle,
   ChartPanel,
   ChartFigure,
@@ -543,6 +550,7 @@ export const constants = {
   FIGURE_ID_SPLITTER,
   GRID_ICON_EDGE_LENGTH,
   GRID_ICON_MARGIN,
+  CHART_TYPES,
 };
 
 export const chartHelpers = { ...CHART_HELPERS, ...CHART_RUNTIME_HELPERS };
