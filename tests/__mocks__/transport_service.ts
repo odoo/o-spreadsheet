@@ -52,9 +52,9 @@ export class MockTransportService implements TransportService<CollaborationMessa
     this.listeners = this.listeners.filter((listener) => listener.id !== id);
   }
 
-  concurrent(concurrentExecutionCallback: () => void) {
+  async concurrent(concurrentExecutionCallback: () => Promise<void> | void) {
     this.isConcurrent = true;
-    concurrentExecutionCallback();
+    await concurrentExecutionCallback();
     for (const message of this.pendingMessages) {
       this.notifyListeners(message);
     }
