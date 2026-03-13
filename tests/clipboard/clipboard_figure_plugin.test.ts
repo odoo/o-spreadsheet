@@ -255,7 +255,7 @@ describe("Carousel clipboard test", () => {
 
   test("Can copy/paste an empty carousel", () => {
     createCarousel(model, { items: [] }, "carouselId");
-    await model.dispatchFromOutside("SELECT_FIGURE", { figureId: "carouselId" });
+    model.dispatchFromOutside("SELECT_FIGURE", { figureId: "carouselId" });
     copy(model);
     paste(model, "A1");
     expect(model.getters.getFigures(sheetId)).toHaveLength(2);
