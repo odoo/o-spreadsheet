@@ -25,10 +25,10 @@ describe("Collaborative range manipulation", () => {
     ({ network, alice, bob, charlie } = setupCollaborativeEnv());
   });
 
-  test("Copy - Paste of references are correctly updated", () => {
+  test("Copy - Paste of references are correctly updated", async () => {
     setCellContent(bob, "A1", "=SUM(B1:C1)");
     copy(bob, "A1");
-    network.concurrent(() => {
+    await network.concurrent(async () => {
       paste(bob, "C1");
       addColumns(alice, "after", "D", 1);
     });
@@ -59,12 +59,12 @@ describe("Collaborative range manipulation", () => {
     );
   });
 
-  test("cut and paste and delete origin sheet concurrently", () => {
+  test("cut and paste and delete origin sheet concurrently", async () => {
     setCellContent(alice, "A2", "hello");
     cut(alice, "A2");
     createSheet(alice, { sheetId: "Sheet2", activate: true });
     setCellContent(alice, "A1", "=Sheet1!A2");
-    network.concurrent(() => {
+    await network.concurrent(async () => {
       deleteSheet(bob, "Sheet1");
       paste(alice, "D4");
     });
@@ -78,11 +78,11 @@ describe("Collaborative range manipulation", () => {
     );
   });
 
-  test("cut and paste and delete target sheet concurrently (delete first)", () => {
+  test("cut and paste and delete target sheet concurrently (delete first)", async () => {
     setCellContent(alice, "A2", "=A1");
     cut(alice, "A1");
     createSheet(alice, { sheetId: "Sheet2", activate: true });
-    network.concurrent(() => {
+    await network.concurrent(async () => {
       deleteSheet(bob, "Sheet2");
       paste(alice, "D4");
     });
@@ -92,11 +92,11 @@ describe("Collaborative range manipulation", () => {
     );
   });
 
-  test("cut and paste and delete target sheet concurrently (paste first)", () => {
+  test("cut and paste and delete target sheet concurrently (paste first)", async () => {
     setCellContent(alice, "A2", "=A1");
     cut(alice, "A1");
     createSheet(alice, { sheetId: "Sheet2", activate: true });
-    network.concurrent(() => {
+    await network.concurrent(async () => {
       paste(alice, "D4");
       deleteSheet(bob, "Sheet2");
     });

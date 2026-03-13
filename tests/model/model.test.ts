@@ -240,7 +240,7 @@ describe("Model", () => {
     expect(() => new Model()).toThrowError(`Getter "getSomething" is already defined.`);
   });
 
-  test("Replayed commands are not send to UI plugins", () => {
+  test("Replayed commands are not send to UI plugins", async () => {
     let numberCall = 0;
     //@ts-ignore
     coreTypes.add("MY_CMD_1");
@@ -272,7 +272,7 @@ describe("Model", () => {
     addTestPlugin(corePluginRegistry, MyCorePlugin);
 
     const { alice, bob, network } = setupCollaborativeEnv();
-    network.concurrent(() => {
+    await network.concurrent(async () => {
       setCellContent(alice, "A1", "Hello");
       //@ts-ignore
       bob.dispatch("MY_CMD_1");

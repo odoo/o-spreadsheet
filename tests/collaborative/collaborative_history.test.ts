@@ -77,9 +77,9 @@ describe("Collaborative local history", () => {
     expect(all).toHaveSynchronizedValue((user) => getCellContent(user, "A1"), "test");
   });
 
-  test("Concurrent undo, undo last", () => {
+  test("Concurrent undo, undo last", async () => {
     setCellContent(alice, "A1", "hello");
-    network.concurrent(() => {
+    await network.concurrent(async () => {
       setCellContent(bob, "B1", "hello");
       undo(alice);
     });
@@ -88,9 +88,9 @@ describe("Collaborative local history", () => {
     expect(all).toHaveSynchronizedExportedData();
   });
 
-  test("Concurrent undo, undo first", () => {
+  test("Concurrent undo, undo first", async () => {
     setCellContent(alice, "A1", "A1");
-    network.concurrent(() => {
+    await network.concurrent(async () => {
       undo(alice);
       setCellContent(bob, "B1", "B1");
     });
@@ -99,8 +99,8 @@ describe("Collaborative local history", () => {
     expect(all).toHaveSynchronizedExportedData();
   });
 
-  test("Undo a pending revision", () => {
-    network.concurrent(() => {
+  test("Undo a pending revision", async () => {
+    await network.concurrent(async () => {
       setCellContent(alice, "A1", "hello");
       undo(alice);
       setCellContent(bob, "B1", "hello");
@@ -110,9 +110,9 @@ describe("Collaborative local history", () => {
     expect(all).toHaveSynchronizedExportedData();
   });
 
-  test("Concurrent undo and a non-related pending revision", () => {
+  test("Concurrent undo and a non-related pending revision", async () => {
     setCellContent(alice, "A1", "hello");
-    network.concurrent(() => {
+    await network.concurrent(async () => {
       undo(alice);
       setCellContent(bob, "B1", "hello");
     });
@@ -121,12 +121,12 @@ describe("Collaborative local history", () => {
     expect(all).toHaveSynchronizedExportedData();
   });
 
-  test("Concurrent undo, redo last", () => {
+  test("Concurrent undo, redo last", async () => {
     setCellContent(alice, "A1", "hello");
     setCellContent(bob, "B1", "hello");
     setCellContent(bob, "C1", "hello");
     undo(bob);
-    network.concurrent(() => {
+    await network.concurrent(async () => {
       undo(alice);
       redo(bob);
     });
@@ -136,11 +136,11 @@ describe("Collaborative local history", () => {
     expect(all).toHaveSynchronizedExportedData();
   });
 
-  test("Concurrent redo, undo first", () => {
+  test("Concurrent redo, undo first", async () => {
     setCellContent(alice, "A1", "hello");
     setCellContent(bob, "B1", "hello");
     undo(bob);
-    network.concurrent(() => {
+    await network.concurrent(async () => {
       redo(bob);
       undo(alice);
     });
@@ -303,9 +303,9 @@ describe("Collaborative local history", () => {
     expect(model.exportData().revisionId).toBe("2");
   });
 
-  test("The revisions are rebased", () => {
+  test("The revisions are rebased", async () => {
     addRows(alice, "after", 11, 1);
-    network.concurrent(() => {
+    await network.concurrent(async () => {
       undo(alice);
       setCellContent(charlie, "A1", "Hello"); // This command is not transformed
       setCellContent(charlie, "A13", "Hello"); // This command is transformed (and destroyed)
@@ -462,9 +462,9 @@ describe("Collaborative local history", () => {
     expect(all).toHaveSynchronizedValue((user) => getCellContent(user, "B1"), "hello in D1");
   });
 
-  test("Undo with pending which requires a transformation", () => {
+  test("Undo with pending which requires a transformation", async () => {
     addColumns(alice, "before", "A", 1);
-    network.concurrent(() => {
+    await network.concurrent(async () => {
       undo(alice);
       setCellContent(bob, "B1", "hello");
     });
@@ -472,9 +472,9 @@ describe("Collaborative local history", () => {
     expect(all).toHaveSynchronizedValue((user) => getCell(user, "B1"), undefined);
   });
 
-  test("Undo or redo block the next commands until it's accepted", () => {
+  test("Undo or redo block the next commands until it's accepted", async () => {
     setCellContent(alice, "A1", "hello");
-    network.concurrent(() => {
+    await network.concurrent(async () => {
       undo(alice);
       expect(setCellContent(alice, "A2", "test")).toBeCancelledBecause(
         CommandResult.WaitingSessionConfirmation
@@ -526,10 +526,10 @@ describe("Collaborative local history", () => {
     expect(all).toHaveSynchronizedValue((user) => getCellContent(user, "B1"), "hello");
   });
 
-  test("Undo a concurrent command which requires a transformation", () => {
+  test("Undo a concurrent command which requires a transformation", async () => {
     setCellContent(alice, "A1", "salut");
     setCellContent(alice, "A1", "hello");
-    network.concurrent(() => {
+    await network.concurrent(async () => {
       addColumns(bob, "before", "A", 1);
       undo(alice);
     });
@@ -684,10 +684,10 @@ describe("Collaborative local history", () => {
     expect(all).toHaveSynchronizedValue((user) => getCellContent(user, "F1"), "hello");
   });
 
-  test("Active sheet is correctly recomputed after concurrent sheet modifications", () => {
+  test("Active sheet is correctly recomputed after concurrent sheet modifications", async () => {
     const firstSheetId = alice.getters.getActiveSheetId();
     createSheet(bob, { sheetId: "sheet2", name: "Sheet2", position: 1 });
-    network.concurrent(() => {
+    await network.concurrent(async () => {
       deleteSheet(bob, "sheet2");
       createSheet(alice, { sheetId: "sheet3", position: 1, name: "Sheet3" });
       deleteSheet(charlie, firstSheetId);
@@ -704,9 +704,9 @@ describe("Collaborative local history", () => {
     expect(redo(alice)).toBeCancelledBecause(CommandResult.EmptyRedoStack);
   });
 
-  test("concurrently dispatch after history cleared", () => {
+  test("concurrently dispatch after history cleared", async () => {
     const bobData = bob.exportData();
-    network.concurrent(() => {
+    await network.concurrent(async () => {
       snapshot(bob);
       setCellContent(alice, "A2", "Hi");
     });
@@ -714,9 +714,9 @@ describe("Collaborative local history", () => {
     expect(all).toHaveSynchronizedValue((user) => getCellContent(user, "A2"), "Hi");
   });
 
-  test("concurrently clear history after dispatch", () => {
+  test("concurrently clear history after dispatch", async () => {
     const bobData = bob.exportData();
-    network.concurrent(() => {
+    await network.concurrent(async () => {
       setCellContent(alice, "A2", "Hi");
       snapshot(bob);
     });
@@ -724,11 +724,11 @@ describe("Collaborative local history", () => {
     expect(all).toHaveSynchronizedValue((user) => getCellContent(user, "A2"), "Hi");
   });
 
-  test("concurrent snapshot is refused if arrives after", () => {
+  test("concurrent snapshot is refused if arrives after", async () => {
     setCellContent(alice, "A1", "hello");
     setCellContent(alice, "A2", "hello");
     const bobData = bob.exportData();
-    network.concurrent(() => {
+    await network.concurrent(async () => {
       undo(alice);
       snapshot(bob);
     });
@@ -738,9 +738,9 @@ describe("Collaborative local history", () => {
     expect(all).toHaveSynchronizedValue((user) => getCellContent(user, "A2"), "Hi");
   });
 
-  test("local history can be cleared while undoing: clear first", () => {
+  test("local history can be cleared while undoing: clear first", async () => {
     setCellContent(alice, "A1", "hello");
-    network.concurrent(() => {
+    await network.concurrent(async () => {
       snapshot(bob);
       undo(alice);
     });
@@ -761,7 +761,7 @@ describe("Collaborative local history", () => {
     expect(network.snapshot?.revisionId).not.toBe(revisionId);
   });
 
-  test("undone & redone commands are transformed", () => {
+  test("undone & redone commands are transformed", async () => {
     const david = new Model(alice.exportData(), {
       transportService: network,
       client: { id: "david", name: "David" },
@@ -777,7 +777,7 @@ describe("Collaborative local history", () => {
       sheetId: david.getters.getActiveSheetId(),
       content: "hello",
     };
-    network.concurrent(() => {
+    await network.concurrent(async () => {
       addColumns(alice, "before", "A", 1);
       david.dispatch(command.type, command);
     });
@@ -802,9 +802,9 @@ describe("Collaborative local history", () => {
       commands: [{ ...command, col: 1 }],
     });
   });
-  test("dispatch command after concurrent action with another user", () => {
+  test("dispatch command after concurrent action with another user", async () => {
     addColumns(bob, "before", "A", 1);
-    network.concurrent(() => {
+    await network.concurrent(async () => {
       undo(bob);
       setCellContent(charlie, "D25", "D");
     });
@@ -816,9 +816,9 @@ describe("Collaborative local history", () => {
     expect([alice, bob, charlie]).toHaveSynchronizedExportedData();
   });
 
-  test("Concurrent undo with actions from at least two users", () => {
+  test("Concurrent undo with actions from at least two users", async () => {
     setCellContent(bob, "A1", "Hello");
-    network.concurrent(() => {
+    await network.concurrent(async () => {
       undo(bob);
       addColumns(alice, "before", "A", 1);
       setCellContent(charlie, "B2", "Alice");
@@ -826,10 +826,10 @@ describe("Collaborative local history", () => {
     expect([alice, bob, charlie]).toHaveSynchronizedExportedData();
   });
 
-  test("Concurrent redo with actions from at least two users", () => {
+  test("Concurrent redo with actions from at least two users", async () => {
     setCellContent(bob, "A1", "Hello");
     undo(bob);
-    network.concurrent(() => {
+    await network.concurrent(async () => {
       redo(bob);
       addColumns(alice, "before", "A", 1);
       setCellContent(charlie, "B2", "Alice");
@@ -848,13 +848,13 @@ describe("Collaborative local history", () => {
     );
   });
 
-  test("Evaluation is re-triggered after a replay of dupplicate sheet", () => {
+  test("Evaluation is re-triggered after a replay of dupplicate sheet", async () => {
     const { network, alice, bob, charlie } = setupCollaborativeEnv();
-    network.concurrent(() => {
+    await network.concurrent(async () => {
       deleteRows(bob, [0], "Sheet1");
       setCellContent(alice, "A1", "hello", "Sheet1");
     });
-    network.concurrent(() => {
+    await network.concurrent(async () => {
       clearCells(alice, ["A1:B2"], "Sheet1");
       duplicateSheet(charlie, "Sheet1", "duplicateSheetId");
     });
@@ -862,11 +862,11 @@ describe("Collaborative local history", () => {
     expect([alice, bob, charlie]).toHaveSynchronizedExportedData();
   });
 
-  test("Evaluation is the same after a sheet deletion replayed", () => {
+  test("Evaluation is the same after a sheet deletion replayed", async () => {
     const { network, alice, bob, charlie } = setupCollaborativeEnv();
     setCellContent(alice, "A1", "hello");
     duplicateSheet(charlie, "Sheet1", "duplicateSheetId");
-    network.concurrent(() => {
+    await network.concurrent(async () => {
       hideSheet(bob, "Sheet1");
       deleteSheet(charlie, "Sheet1");
     });
@@ -874,7 +874,7 @@ describe("Collaborative local history", () => {
     expect([alice, bob, charlie]).toHaveSynchronizedExportedData();
   });
 
-  test("Replay a REMOVE_TABLE in empty sheet after a local CREATE_TABLE", () => {
+  test("Replay a REMOVE_TABLE in empty sheet after a local CREATE_TABLE", async () => {
     const { network, alice, bob, charlie } = setupCollaborativeEnv();
     setCellContent(charlie, "A1", "Hello", "Sheet1");
     alice.dispatch("REMOVE_TABLE", {
@@ -884,7 +884,7 @@ describe("Collaborative local history", () => {
       ],
       sheetId: "Sheet1",
     });
-    network.concurrent(() => {
+    await network.concurrent(async () => {
       undo(charlie);
       createTable(alice, "3:11", {});
     });
@@ -892,9 +892,9 @@ describe("Collaborative local history", () => {
     expect([alice, bob, charlie]).toHaveSynchronizedExportedData();
   });
 
-  test("transform target command with column addition before the target edge", () => {
+  test("transform target command with column addition before the target edge", async () => {
     addColumns(charlie, "before", "B", 1);
-    network.concurrent(() => {
+    await network.concurrent(async () => {
       undo(charlie);
       setStyle(bob, "A1", { bold: true });
     });
@@ -906,9 +906,9 @@ describe("Collaborative local history", () => {
     expect(all).toHaveSynchronizedExportedData();
   });
 
-  test("Pivot payload replayed is the same as the original", () => {
+  test("Pivot payload replayed is the same as the original", async () => {
     const { network, alice, bob, charlie } = setupCollaborativeEnv();
-    network.concurrent(() => {
+    await network.concurrent(async () => {
       setCellContent(alice, "A1", "hello");
       addPivot(charlie, "A1:A2", { name: "pivot" }, "1");
       charlie.dispatch("RENAME_PIVOT", { pivotId: "1", name: "newName" });
@@ -918,12 +918,12 @@ describe("Collaborative local history", () => {
     expect([alice, bob, charlie]).toHaveSynchronizedExportedData();
   });
 
-  test("updated pivot payload transformed is the same as the original", () => {
+  test("updated pivot payload transformed is the same as the original", async () => {
     const { network, alice, bob, charlie } = setupCollaborativeEnv();
     addPivot(charlie, "A1:A2", { name: "pivot" }, "1");
     deleteRows(alice, [0]);
     redo(alice);
-    network.concurrent(() => {
+    await network.concurrent(async () => {
       setCellContent(charlie, "A10", "hello");
       updatePivot(alice, "1", {
         dataSet: { sheetId: alice.getters.getActiveSheetId(), zone: toZone("A1:B1") },
@@ -985,7 +985,7 @@ describe("Collaborative local history", () => {
     expect(getEvaluatedCell(bob, "B3").value).toEqual(10);
   });
 
-  test("Concurrently undo a command on which another is based", () => {
+  test("Concurrently undo a command on which another is based", async () => {
     /**
      * This test is a bit tricky. Let's begin with the use case:
      * 1) A command is created by Alice
@@ -1006,7 +1006,7 @@ describe("Collaborative local history", () => {
      * if the *local* command is empty.
      */
     createSheet(alice, { sheetId: "sheet2" });
-    network.concurrent(() => {
+    await network.concurrent(async () => {
       undo(alice);
       setCellContent(bob, "B2", "B2", "sheet2");
     });
@@ -1014,7 +1014,7 @@ describe("Collaborative local history", () => {
     expect([alice, bob, charlie]).toHaveSynchronizedExportedData();
   });
 
-  test("do not transformed revisions with concurrently rejected commands", () => {
+  test("do not transformed revisions with concurrently rejected commands", async () => {
     const { network, alice, bob, charlie } = setupCollaborativeEnv();
     const initialCols = alice.getters.getNumberCols("Sheet1");
     charlie.dispatch("DUPLICATE_SHEET", {
@@ -1022,14 +1022,14 @@ describe("Collaborative local history", () => {
       sheetIdTo: "duplicateSheetId",
       sheetNameTo: "Copy of Sheet1",
     });
-    network.concurrent(() => {
+    await network.concurrent(async () => {
       undo(charlie);
 
       // DELETE_SHEET is initially accepted (there's 2 sheets) but later
       // rejected because there's only one sheet left when DUPLICATE_SHEET is undone
       deleteSheet(bob, "Sheet1");
     });
-    network.concurrent(() => {
+    await network.concurrent(async () => {
       undo(bob);
 
       // ADD_COLUMNS_ROWS no longer makes sense because the sheet has been finally deleted
@@ -1055,9 +1055,9 @@ describe("Collaborative local history", () => {
     expect([alice, bob, charlie]).toHaveSynchronizedExportedData();
   });
 
-  test("Concurrent undo where the transformation partially destroys the other", () => {
+  test("Concurrent undo where the transformation partially destroys the other", async () => {
     addColumns(alice, "before", "C", 3);
-    network.concurrent(() => {
+    await network.concurrent(async () => {
       undo(alice);
       resizeColumns(bob, ["A", "B", "C", "D", "E"], 20);
     });
@@ -1065,11 +1065,11 @@ describe("Collaborative local history", () => {
     expect([alice, bob, charlie]).toHaveSynchronizedExportedData();
   });
 
-  test("Transform command with preceding concurrent command when previous command is redone", () => {
+  test("Transform command with preceding concurrent command when previous command is redone", async () => {
     setCellContent(alice, "E10", "hello");
     addColumns(alice, "before", "F", 3);
     undo(alice);
-    network.concurrent(() => {
+    await network.concurrent(async () => {
       addColumns(bob, "before", "B", 2);
       // Charlie's command should be transformed with Bob's command when Alice redo
       // her command
@@ -1087,9 +1087,9 @@ describe("Collaborative local history", () => {
     expect([alice, bob, charlie]).toHaveSynchronizedExportedData();
   });
 
-  test("inverse delete rows then replay the command", () => {
+  test("inverse delete rows then replay the command", async () => {
     deleteRows(bob, [6, 5, 4, 3, 2]);
-    network.concurrent(() => {
+    await network.concurrent(async () => {
       undo(bob);
       setCellContent(alice, "C4", "hello");
     });
@@ -1105,9 +1105,9 @@ describe("Collaborative local history", () => {
     expect([alice, bob, charlie]).toHaveSynchronizedExportedData();
   });
 
-  test("All locals commands", () => {
+  test("All locals commands", async () => {
     createSheet(alice, { sheetId: "sheet2" });
-    network.concurrent(() => {
+    await network.concurrent(async () => {
       undo(alice);
       setCellContent(bob, "B2", "B2", "sheet2");
       setCellContent(bob, "A1", "Hello");
@@ -1124,9 +1124,9 @@ describe("Collaborative local history", () => {
     expect([alice, bob, charlie]).toHaveSynchronizedExportedData();
   });
 
-  test("redo destroyed command", () => {
+  test("redo destroyed command", async () => {
     setCellContent(charlie, "A1", "hi");
-    network.concurrent(() => {
+    await network.concurrent(async () => {
       deleteRows(bob, [6, 5, 4, 3, 2]);
       setCellContent(charlie, "C5", "hi");
       undo(charlie);
@@ -1137,9 +1137,9 @@ describe("Collaborative local history", () => {
     expect(all).toHaveSynchronizedExportedData();
   });
 
-  test("can undo/redo command previous to a destroyed command", () => {
+  test("can undo/redo command previous to a destroyed command", async () => {
     setCellContent(charlie, "A1", "hello");
-    network.concurrent(() => {
+    await network.concurrent(async () => {
       deleteRows(bob, [6, 5, 4, 3, 2]);
       setCellContent(charlie, "C5", "hi");
     });
@@ -1155,10 +1155,10 @@ describe("Collaborative local history", () => {
     expect(all).toHaveSynchronizedExportedData();
   });
 
-  test("cannot redo command after a destroyed command", () => {
+  test("cannot redo command after a destroyed command", async () => {
     setCellContent(charlie, "A1", "hello");
     undo(charlie);
-    network.concurrent(() => {
+    await network.concurrent(async () => {
       deleteRows(bob, [6, 5, 4, 3, 2]);
       setCellContent(charlie, "C5", "hi");
     });
@@ -1190,31 +1190,31 @@ describe("Collaborative local history", () => {
     expect(all).toHaveSynchronizedValue((user) => getCellContent(user, "A3"), "hello there");
   });
 
-  test("can repeat command concurrently with remote revisions", () => {
+  test("can repeat command concurrently with remote revisions", async () => {
     setCellContent(alice, "A1", "hello there");
     setSelection(alice, ["A3"]);
-    network.concurrent(() => {
+    await network.concurrent(async () => {
       setCellContent(bob, "A3", "general kenobi");
       redo(alice);
     });
     expect(all).toHaveSynchronizedValue((user) => getCellContent(user, "A3"), "hello there");
   });
 
-  test("Can concurrently hide and delete a sheet", () => {
+  test("Can concurrently hide and delete a sheet", async () => {
     const { network, alice, bob, charlie } = setupCollaborativeEnv();
     duplicateSheet(charlie, "Sheet1", "duplicateSheetId");
-    network.concurrent(() => {
+    await network.concurrent(async () => {
       hideSheet(bob, "Sheet1");
       deleteSheet(charlie, "Sheet1");
     });
     expect([alice, bob, charlie]).toHaveSynchronizedExportedData();
   });
 
-  test("rejected new sheet with the same name", () => {
+  test("rejected new sheet with the same name", async () => {
     const name = "Sheet2";
     createSheet(bob, { name, position: 1, sheetId: "Sheet2" });
     deleteSheet(bob, "Sheet2");
-    network.concurrent(() => {
+    await network.concurrent(async () => {
       undo(bob);
       // this create sheet is rejected because it has a duplicated
       // sheet name
