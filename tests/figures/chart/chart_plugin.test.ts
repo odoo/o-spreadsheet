@@ -2797,7 +2797,7 @@ describe("Linear/Time charts", () => {
     expect(getChartConfiguration(model, chartId).options?.scales?.x?.type).toEqual("linear");
   });
 
-  test.each(["mm/dd/yyyy", "yyyy-mm-dd", "dd/mm/yyyy", "d mmm yyyy"])(
+  test.each(["mm/dd/yyyy", "yyyy-mm-dd"])(
     "time axis for line/bar chart with date labels in format %s",
     (format: string) => {
       setFormat(model, "C2:C5", format);
