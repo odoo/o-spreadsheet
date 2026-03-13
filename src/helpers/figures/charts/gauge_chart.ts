@@ -272,6 +272,10 @@ export class GaugeChart extends AbstractChart {
     return undefined;
   }
 
+  getDataRanges(): Range[] {
+    return this.dataRange ? [this.dataRange] : [];
+  }
+
   getContextCreation(): ChartCreationContext {
     return {
       ...this,

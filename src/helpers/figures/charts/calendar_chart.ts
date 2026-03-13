@@ -129,6 +129,12 @@ export class CalendarChart extends AbstractChart {
     };
   }
 
+  getDataRanges(): Range[] {
+    return [this.labelRange, ...this.dataSets.map((ds) => ds.dataRange)].filter(
+      (r): r is Range => r !== undefined
+    );
+  }
+
   getContextCreation(): ChartCreationContext {
     const range: CustomizedDataSet[] = [
       { dataRange: this.getters.getRangeString(this.dataSets[0].dataRange, this.sheetId) },

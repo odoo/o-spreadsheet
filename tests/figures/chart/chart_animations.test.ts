@@ -62,12 +62,13 @@ describe("Chart animations in dashboard", () => {
 
     expect(mockedChart.config.options.animation).toEqual({ animateRotate: true });
 
-    // Dispatch a command that doesn't change the chart data
+    // Dispatch a command that doesn't change the chart data: runtime is not re-created,
+    // so the animation state is unchanged (still { animateRotate: true } from first render)
     setCellContent(model, "A50", "6");
     await nextTick();
-    expect(mockedChart.config.options.animation).toBe(false);
+    expect(mockedChart.config.options.animation).toEqual({ animateRotate: true });
 
-    // Change the chart data
+    // Change the chart data: runtime is re-created with new data, animation plays again
     setCellContent(model, "A2", "6");
     await nextTick();
     expect(mockedChart.config.options.animation).toEqual({ animateRotate: true });
@@ -75,7 +76,7 @@ describe("Chart animations in dashboard", () => {
     readonlyAllowedCommands.delete("UPDATE_CELL");
   });
 
-  test("Treemap animation are not replayed when data does not change but runtime is re-created", async () => {
+  test("Treemap animation is not replayed when a cell outside the chart range changes", async () => {
     readonlyAllowedCommands.add("UPDATE_CELL");
 
     const model = new Model();
@@ -86,9 +87,10 @@ describe("Chart animations in dashboard", () => {
 
     expect(mockedChart.config.options.animation).toEqual({ animateRotate: true });
 
+    // B1 is outside the chart range: runtime is not re-created, animation is unchanged
     setCellContent(model, "B1", "6");
     await nextTick();
-    expect(mockedChart.config.options.animation).toBe(false);
+    expect(mockedChart.config.options.animation).toEqual({ animateRotate: true });
 
     readonlyAllowedCommands.delete("UPDATE_CELL");
   });
