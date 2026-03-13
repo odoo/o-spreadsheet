@@ -1,8 +1,10 @@
 import { CompiledFormula } from "../../formulas/compiler";
 import { deepCopy, deepEquals } from "../../helpers";
+import { createCell } from "../../helpers/cells/cell_evaluation";
 import { toCartesian, toXC } from "../../helpers/coordinates";
 import { getRangeString } from "../../helpers/range";
 import { Cell } from "../../types/cells";
+import { UpdateCellCommand } from "../../types/commands";
 import { CoreGetters } from "../../types/core_getters";
 import { UID } from "../../types/misc";
 import { Range } from "../../types/range";
@@ -26,7 +28,7 @@ export interface SquishedFormula {
   R?: string | string[]; // the references used in the formula, ordered by position, converted to string, separated by | if needed
 }
 
-export type SquishedCell = string | SquishedFormula;
+export type SquishedContent = string | SquishedFormula;
 
 export const SEPARATOR = "|";
 export const NO_CHANGE = "=";
@@ -112,7 +114,7 @@ export class Squisher {
    *     - for strings: returns the full string if changed, else "="
    *     - for references: returns a relative change (+Ck or +Rk) if possible, else the full reference or "=" if unchanged
    * */
-  squish(cell: Cell, forSheetId: UID): SquishedCell {
+  squish(cell: Cell, forSheetId: UID): SquishedContent {
     if (cell.isFormula) {
       let numbers: string[] = [];
       let strings: string[] = [];
@@ -161,38 +163,57 @@ export class Squisher {
     return cell.content;
   }
 
+  public squishContent(command: UpdateCellCommand): string | SquishedFormula | undefined {
+    if (typeof command.content === "string") {
+      const cell = createCell(
+        this.getters,
+        -1,
+        command.content,
+        command.format,
+        command.style ?? undefined,
+        command.sheetId
+      );
+      return this.squish(cell, command.sheetId);
+    }
+    return command.content;
+  }
+
   /**
    * Read all the consecutive cells with either the same content or the same transformation and merge their key into one zone
    * Do not join cells from different columns
    * */
+
   squishSheet(
-    cells: { [key: string]: string | SquishedCell },
+    cells: { [key: string]: string | SquishedContent },
     sheetId: UID
   ): {
-    [key: string]: string | SquishedCell;
+    [key: string]: string | SquishedContent;
   } {
     const allKeys = Object.keys(cells);
-    const result: { [key: string]: string | SquishedCell } = {};
+    const result: { [key: string]: string | SquishedContent } = {};
     for (let startIndex = 0; startIndex < allKeys.length; startIndex++) {
       const startKey = toCartesian(allKeys[startIndex]);
-      let offset = 0;
+      let mergedRowCount = 0;
 
-      for (offset = 0; offset + startIndex + 1 < allKeys.length; offset++) {
-        const nextKey = toCartesian(allKeys[offset + startIndex + 1]);
+      for (mergedRowCount = 0; mergedRowCount + startIndex + 1 < allKeys.length; mergedRowCount++) {
+        const nextKey = toCartesian(allKeys[mergedRowCount + startIndex + 1]);
         if (
           nextKey.col !== startKey.col || // different column, do not merge
-          nextKey.row !== startKey.row + offset + 1 || // not consecutive, do not merge
-          !deepEquals(cells[allKeys[offset + startIndex + 1]], cells[allKeys[startIndex]]) // different content, do not merge
+          nextKey.row !== startKey.row + mergedRowCount + 1 || // not consecutive, do not merge
+          !deepEquals(cells[allKeys[mergedRowCount + startIndex + 1]], cells[allKeys[startIndex]]) // different content, do not merge
         ) {
           break;
         }
       }
 
-      if (offset > 0) {
+      if (mergedRowCount > 0) {
         // we have found consecutive cells with the same pattern or content, merge them
-        const rangeKey = `${allKeys[startIndex]}:${toXC(startKey.col, startKey.row + offset)}`;
+        const rangeKey = `${allKeys[startIndex]}:${toXC(
+          startKey.col,
+          startKey.row + mergedRowCount
+        )}`;
         result[rangeKey] = cells[allKeys[startIndex]];
-        startIndex += offset;
+        startIndex += mergedRowCount;
       } else {
         const originalCell = this.getters.getCell({
           sheetId,

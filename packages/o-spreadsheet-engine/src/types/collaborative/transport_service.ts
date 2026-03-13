@@ -1,3 +1,4 @@
+import { SquishedCoreCommand } from "../../collaborative/commandSquisher";
 import { CoreCommand } from "../commands";
 import { UID } from "../misc";
 import { WorkbookData } from "../workbook_data";
@@ -14,6 +15,10 @@ export interface RemoteRevisionMessage extends AbstractMessage {
   nextRevisionId: UID;
   serverRevisionId: UID;
   timestamp?: number;
+}
+
+export interface RemoteRevisionsSquishedMessage extends Omit<RemoteRevisionMessage, "commands"> {
+  commands: (CoreCommand | SquishedCoreCommand)[];
 }
 
 export interface RevisionUndoneMessage extends AbstractMessage {
@@ -69,6 +74,7 @@ export type CollaborationMessage =
   | RevisionUndoneMessage
   | RevisionRedoneMessage
   | RemoteRevisionMessage
+  | RemoteRevisionsSquishedMessage
   | SnapshotMessage
   | SnapshotCreatedMessage
   | ClientMovedMessage
