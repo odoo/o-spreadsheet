@@ -583,6 +583,13 @@ migrationStepRegistry
         for (const figure of sheet.figures || []) {
           if (figure.tag === "chart" && !("humanize" in figure.data)) {
             figure.data.humanize = true;
+          } else if (figure.tag === "carousel") {
+            for (const chartId in figure.data.chartDefinitions) {
+              const definition = figure.data.chartDefinitions[chartId];
+              if (!("humanize" in definition)) {
+                definition.humanize = true;
+              }
+            }
           }
         }
       }
