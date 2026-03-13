@@ -123,4 +123,12 @@ describe("Table style popover", () => {
       expect(Object.keys(model.getters.getTableStyles())).not.toContain("MyStyle");
     });
   });
+
+  test("Right-click outside close the popover", async () => {
+    const closePopover = jest.fn();
+    await mountPopover({ closePopover });
+    triggerMouseEvent(fixture, "contextmenu");
+    await nextTick();
+    expect(closePopover).toHaveBeenCalled();
+  });
 });

@@ -76,6 +76,7 @@
           title="text_color"
           icon="'o-spreadsheet-Icon.TEXT_COLOR'"
           class="'o-hoverable-button o-menu-item-button'"
+          onClose="() => store.closeMenus()"
         />
         <div class="o-divider border-end"/>
         <ColorPickerWidget
@@ -86,6 +87,7 @@
           title="fill_color"
           icon="'o-spreadsheet-Icon.FILL_COLOR'"
           class="'o-hoverable-button o-menu-item-button'"
+          onClose="() => store.closeMenus()"
         />
       </div>
     </div>

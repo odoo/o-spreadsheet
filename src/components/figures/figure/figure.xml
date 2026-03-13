@@ -10,7 +10,7 @@
         t-att-class="props.class"
         t-on-pointerdown.stop="(ev) => this.onMouseDown(ev)"
         t-on-click="onClick"
-        t-on-contextmenu.prevent.stop="(ev) => !env.model.getters.isReadonly() and this.onContextMenu(ev)"
+        t-on-contextmenu.prevent="(ev) => !env.model.getters.isReadonly() and this.onContextMenu(ev)"
         t-ref="figure"
         t-att-style="props.style"
         t-att-data-id="props.figureUI.id"
@@ -30,7 +30,7 @@
             t-if="!env.model.getters.isReadonly() and props.figureUI.tag !== 'carousel'"
             t-on-click="showMenu"
             t-ref="menuButton"
-            t-on-contextmenu.prevent.stop="showMenu">
+            t-on-contextmenu.prevent="showMenu">
             <t t-call="o-spreadsheet-Icon.LIST"/>
           </div>
           <MenuPopover

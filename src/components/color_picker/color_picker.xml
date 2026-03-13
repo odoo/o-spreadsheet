@@ -1,7 +1,7 @@
 <templates>
   <t t-name="o-spreadsheet-ColorPicker">
     <Popover t-props="popoverProps">
-      <div class="o-color-picker bg-white" t-on-click.stop="" t-att-style="colorPickerStyle">
+      <div class="o-color-picker bg-white" t-att-style="colorPickerStyle">
         <div class="o-color-picker-section-name">Standard</div>
         <div class="colors-grid">
           <div
@@ -51,7 +51,6 @@
         <div t-if="state.showGradient" class="o-custom-selector">
           <div
             class="o-gradient"
-            t-on-click.stop=""
             t-on-pointerdown="dragGradientPointer"
             t-att-style="gradientHueStyle">
             <div class="saturation w-100 h-100 position-absolute pe-none"/>
@@ -69,7 +68,6 @@
               type="text"
               class="border rounded"
               t-att-class="{'o-wrong-color': !isHexColorInputValid }"
-              t-on-click.stop=""
               t-att-value="state.customHexColor"
               t-on-input="setHexColor"
             />
@@ -79,7 +77,7 @@
             <button
               class="o-add-button border rounded"
               t-att-class="{'o-disabled': !state.customHexColor or !isHexColorInputValid}"
-              t-on-click.stop="addCustomColor">
+              t-on-click="addCustomColor">
               Add
             </button>
           </div>
