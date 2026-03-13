@@ -2097,6 +2097,27 @@ describe("charts", () => {
     }
   );
 
+  test.each<ChartType>(["bar", "combo"])("showTotals checkbox updates the chart", async (type) => {
+    createTestChart(type);
+    if (type === "bar") {
+      updateChart(model, chartId, { stacked: true });
+    }
+    await mountChartSidePanel();
+    await openChartDesignSidePanel(model, env, fixture, chartId);
+
+    expect(document.querySelector("input[name='showTotals']")).toBeTruthy();
+    expect(model.getters.getChartDefinition(chartId)["showTotals"]).toBeFalsy();
+
+    let options = getChartConfiguration(model, chartId).options;
+    expect(options.plugins.chartShowValuesPlugin.showTotals).toBeFalsy();
+
+    await simulateClick("input[name='showTotals']");
+    expect(model.getters.getChartDefinition(chartId)["showTotals"]).toBeTruthy();
+
+    options = getChartConfiguration(model, chartId).options;
+    expect(options.plugins.chartShowValuesPlugin.showTotals).toBeTruthy();
+  });
+
   test.each<ChartType>(["line", "combo", "radar"])(
     "show data marker checkbox updates the chart",
     async (type: ChartType) => {

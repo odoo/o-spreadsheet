@@ -2,6 +2,7 @@ import { _t } from "@odoo/o-spreadsheet-engine/translation";
 import { ComboChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/combo_chart";
 import { RadioSelection } from "../../components/radio_selection/radio_selection";
 import { ChartShowDataMarkers } from "../building_blocks/show_data_markers/show_data_markers";
+import { ChartShowTotals } from "../building_blocks/show_totals/show_totals";
 import { ChartSidePanelProps } from "../common";
 import { GenericZoomableChartDesignPanel } from "../zoomable_chart/design_panel";
 
@@ -12,6 +13,7 @@ export class ComboChartDesignPanel extends GenericZoomableChartDesignPanel<
   static components = {
     ...GenericZoomableChartDesignPanel.components,
     ChartShowDataMarkers,
+    ChartShowTotals,
     RadioSelection,
   };
   seriesTypeChoices = [
@@ -37,5 +39,11 @@ export class ComboChartDesignPanel extends GenericZoomableChartDesignPanel<
       return "bar";
     }
     return dataSets[index].type ?? "line";
+  }
+
+  get hasBarDataSets() {
+    return this.props.definition.dataSets.some(
+      (_dataSet, index) => this.getDataSeriesType(index) === "bar"
+    );
   }
 }

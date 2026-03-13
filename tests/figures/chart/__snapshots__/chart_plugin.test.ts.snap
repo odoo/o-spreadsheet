@@ -61,7 +61,9 @@ exports[`datasource tests create a chart with stacked bar 1`] = `
           "background": [Function],
           "callback": [Function],
           "horizontal": undefined,
+          "showTotals": false,
           "showValues": false,
+          "stacked": true,
           "type": "bar",
         },
         "legend": {
@@ -332,7 +334,9 @@ exports[`datasource tests create chart with column datasets 1`] = `
           "background": [Function],
           "callback": [Function],
           "horizontal": false,
+          "showTotals": false,
           "showValues": false,
+          "stacked": false,
           "type": "line",
         },
         "legend": {

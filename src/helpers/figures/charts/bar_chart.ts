@@ -58,6 +58,7 @@ export class BarChart extends AbstractChart {
   readonly axesDesign?: AxesDesign;
   readonly horizontal?: boolean;
   readonly showValues?: boolean;
+  readonly showTotals?: boolean;
   readonly zoomable?: boolean;
 
   constructor(definition: BarChartDefinition, sheetId: UID, getters: CoreGetters) {
@@ -78,6 +79,7 @@ export class BarChart extends AbstractChart {
     this.axesDesign = definition.axesDesign;
     this.horizontal = definition.horizontal;
     this.showValues = definition.showValues;
+    this.showTotals = definition.showTotals;
     this.zoomable = definition.zoomable;
   }
 
@@ -109,6 +111,7 @@ export class BarChart extends AbstractChart {
       labelRange: context.auxiliaryRange || undefined,
       axesDesign: context.axesDesign,
       showValues: context.showValues,
+      showTotals: context.showTotals,
       horizontal: context.horizontal,
       zoomable: context.zoomable,
       humanize: context.humanize,
@@ -183,6 +186,7 @@ export class BarChart extends AbstractChart {
       axesDesign: this.axesDesign,
       horizontal: this.horizontal,
       showValues: this.showValues,
+      showTotals: this.showTotals,
       zoomable: this.horizontal ? undefined : this.zoomable,
       humanize: this.humanize,
     };

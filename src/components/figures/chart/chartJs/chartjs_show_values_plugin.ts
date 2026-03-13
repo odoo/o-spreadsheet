@@ -10,9 +10,19 @@ import { Color } from "../../../../types";
 export interface ChartShowValuesPluginOptions {
   type: AllChartType;
   showValues: boolean;
+  showTotals?: boolean;
+  stacked?: boolean;
   background: (value: number | string, dataset: ChartMeta, index: number) => Color | undefined;
   horizontal?: boolean;
   callback: (value: number | string, dataset: ChartMeta, index: number) => string;
+}
+
+interface StackedTotalRenderInfo {
+  dataset: any;
+  dataPointIndex: number;
+  point: any;
+  value: number;
+  labelAxisPosition: number;
 }
 
 declare module "chart.js" {
@@ -25,7 +35,7 @@ declare module "chart.js" {
 export const chartShowValuesPlugin: Plugin = {
   id: "chartShowValuesPlugin",
   afterDatasetsDraw(chart: any, args, options: ChartShowValuesPluginOptions) {
-    if (!options.showValues) {
+    if (!options.showValues && !options.showTotals) {
       return;
     }
     const drawData = chart._metasets?.[0]?.data;
@@ -33,46 +43,58 @@ export const chartShowValuesPlugin: Plugin = {
       return;
     }
     const ctx = chart.ctx as CanvasRenderingContext2D;
-    ctx.save();
-    const { left, top, height, width } = chart.chartArea;
-    ctx.beginPath();
-    ctx.rect(left, top, width, height);
-    ctx.clip();
-
-    ctx.textAlign = "center";
-    ctx.textBaseline = "middle";
-    ctx.miterLimit = 1; // Avoid sharp artifacts on strokeText
-
-    switch (options.type) {
-      case "pie":
-        drawPieChartValues(chart, options, ctx);
-        break;
-      case "line":
-      case "scatter":
-      case "combo":
-      case "waterfall":
-      case "radar":
-        drawLineOrBarOrRadarChartValues(chart, options, ctx);
-        break;
-      case "bar":
-        options.horizontal
-          ? drawHorizontalBarChartValues(chart, options, ctx)
-          : drawLineOrBarOrRadarChartValues(chart, options, ctx);
-        break;
-      case "pyramid":
-        drawHorizontalBarChartValues(chart, options, ctx);
-        break;
-      case "calendar":
-        drawBarChartValues(chart, options, ctx);
-        break;
-      case "funnel":
-        drawHorizontalBarChartValues(chart, options, ctx);
-        break;
+    if (options.showValues) {
+      ctx.save();
+      clipChartArea(chart, ctx);
+      setupDrawTextContext(ctx);
+      switch (options.type) {
+        case "pie":
+          drawPieChartValues(chart, options, ctx);
+          break;
+        case "line":
+        case "scatter":
+        case "combo":
+        case "waterfall":
+        case "radar":
+          drawLineOrBarOrRadarChartValues(chart, options, ctx);
+          break;
+        case "bar":
+          options.horizontal
+            ? drawHorizontalBarChartValues(chart, options, ctx)
+            : drawLineOrBarOrRadarChartValues(chart, options, ctx);
+          break;
+        case "pyramid":
+        case "funnel":
+          drawHorizontalBarChartValues(chart, options, ctx);
+          break;
+        case "calendar":
+          drawBarChartValues(chart, options, ctx);
+          break;
+      }
+      ctx.restore();
     }
 
-    ctx.restore();
+    if (options.showTotals) {
+      ctx.save();
+      setupDrawTextContext(ctx);
+      drawStackedBarChartTotals(chart, options, ctx);
+      ctx.restore();
+    }
   },
 };
+
+function clipChartArea(chart: any, ctx: CanvasRenderingContext2D) {
+  const { left, top, height, width } = chart.chartArea;
+  ctx.beginPath();
+  ctx.rect(left, top, width, height);
+  ctx.clip();
+}
+
+function setupDrawTextContext(ctx: CanvasRenderingContext2D) {
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.miterLimit = 1; // Avoid sharp artifacts on strokeText
+}
 
 function drawTextWithBackground(text: string, x: number, y: number, ctx: CanvasRenderingContext2D) {
   ctx.lineWidth = 3; // Stroke the text with a big lineWidth width to have some kind of background
@@ -295,4 +317,108 @@ function drawPieChartValues(
       drawTextWithBackground(displayValue, x, y, ctx);
     }
   }
+}
+
+function drawStackedBarChartTotals(
+  chart: any,
+  options: ChartShowValuesPluginOptions,
+  ctx: CanvasRenderingContext2D
+) {
+  const isHorizontal = !!options.horizontal && options.type === "bar";
+  const textHeight = globalThis.Chart?.defaults.font.size ?? 12;
+
+  const xMax = chart.chartArea.right;
+  const xMin = chart.chartArea.left;
+  const yMax = chart.chartArea.bottom;
+  const yMin = chart.chartArea.top;
+
+  for (const total of getStackedChartTotals(chart, options)) {
+    const displayValue = options.callback(total.value, total.dataset, total.dataPointIndex);
+    const background = options.background(total.value, total.dataset, total.dataPointIndex);
+
+    let xPosition = total.point.x;
+    let yPosition = total.point.y;
+
+    if (isHorizontal) {
+      const textWidth = computeTextWidth(ctx, displayValue, { fontSize: textHeight }, "px");
+      xPosition = total.labelAxisPosition + textWidth / 2 + 3;
+      xPosition = Math.min(xPosition, xMax);
+      xPosition = Math.max(xPosition, xMin);
+    } else {
+      yPosition = total.labelAxisPosition - textHeight / 2 - 3;
+      yPosition = Math.min(yPosition, yMax);
+      yPosition = Math.max(yPosition, yMin);
+    }
+
+    ctx.fillStyle = chartFontColor(background);
+    ctx.strokeStyle = background || "#ffffff";
+    drawTextWithBackground(displayValue, xPosition, yPosition, ctx);
+  }
+}
+
+function getStackedChartTotals(
+  chart: any,
+  options: ChartShowValuesPluginOptions
+): StackedTotalRenderInfo[] {
+  const totalsByIndex = new Map<number, StackedTotalRenderInfo>();
+  const isHorizontal = !!options.horizontal && options.type === "bar";
+
+  for (const dataset of chart._metasets) {
+    if (!shouldIncludeDatasetInTotals(dataset, options)) {
+      continue;
+    }
+
+    const axisId = isHorizontal ? dataset.xAxisID : dataset.yAxisID;
+    const axisScale = chart.scales[axisId];
+    const zeroLine = axisScale.getPixelForValue(0);
+
+    for (let dataPointIndex = 0; dataPointIndex < dataset._parsed.length; dataPointIndex++) {
+      const point = dataset.data[dataPointIndex];
+      const parsedValue = dataset._parsed[dataPointIndex];
+      const value = Number(isHorizontal ? parsedValue?.x : parsedValue?.y);
+
+      if (!point || isNaN(value)) {
+        continue;
+      }
+
+      let total = totalsByIndex.get(dataPointIndex);
+      if (!total) {
+        total = {
+          dataset,
+          dataPointIndex,
+          point,
+          value: 0,
+          labelAxisPosition: zeroLine,
+        };
+        totalsByIndex.set(dataPointIndex, total);
+      }
+
+      total.value += value;
+
+      if (value > 0) {
+        const pointAxisPosition = isHorizontal ? point.x : point.y;
+        const shouldUpdateLabelAxisPosition = isHorizontal
+          ? pointAxisPosition > total.labelAxisPosition
+          : pointAxisPosition < total.labelAxisPosition;
+
+        if (shouldUpdateLabelAxisPosition) {
+          total.labelAxisPosition = pointAxisPosition;
+        }
+      }
+    }
+  }
+
+  return [...totalsByIndex.values()];
+}
+
+function shouldIncludeDatasetInTotals(dataset: any, options: ChartShowValuesPluginOptions) {
+  if (dataset.hidden || isTrendLineAxis(dataset.xAxisID)) {
+    return false;
+  }
+
+  if (options.type === "combo") {
+    return dataset.type === "bar";
+  }
+
+  return options.type === "bar" && !!options.stacked;
 }
