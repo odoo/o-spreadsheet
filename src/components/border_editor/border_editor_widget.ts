@@ -89,7 +89,7 @@ export class BorderEditorWidget extends Component<Props, SpreadsheetChildEnv> {
     if (this.state.currentPosition === undefined) {
       return;
     }
-    this.env.model.dispatch("SET_ZONE_BORDERS", {
+    this.env.model.dispatchFromOutside("SET_ZONE_BORDERS", {
       sheetId: this.env.model.getters.getActiveSheetId(),
       target: this.env.model.getters.getSelectedZones(),
       border: {

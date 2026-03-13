@@ -667,7 +667,7 @@ describe("evaluate formulas that use/return an array", () => {
       expect(mockCompute).toHaveBeenCalledTimes(3);
     });
 
-    test("Formula depending on array formula is reevaluated when the array formula result changes", () => {
+    test("Formula depending on array formula is reevaluated when the array formula result changes", async () => {
       const model = new Model();
       setCellContent(model, "A1", "=sumifs(E4:E7,H4:H7,1)");
       setCellContent(model, "C4", "=MUNIT(4)");
@@ -676,7 +676,7 @@ describe("evaluate formulas that use/return an array", () => {
       expect(getEvaluatedCell(model, "A1").value).toBe(1);
 
       // Force a reevaluation to avoid the incremental evaluation following each update_cell
-      model.dispatch("EVALUATE_CELLS");
+      await model.dispatchFromOutside("EVALUATE_CELLS");
       expect(getEvaluatedCell(model, "A1").value).toBe(1);
     });
 

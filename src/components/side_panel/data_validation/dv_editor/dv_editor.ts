@@ -94,8 +94,11 @@ export class DataValidationEditor extends Component<Props, SpreadsheetChildEnv> 
     this.env.replaceSidePanel("DataValidation", `DataValidationEditor_${this.props.ruleId}`);
   }
 
-  onSave() {
-    const result = this.env.model.dispatch("ADD_DATA_VALIDATION_RULE", this.dispatchPayload);
+  async onSave() {
+    const result = await this.env.model.dispatchFromOutside(
+      "ADD_DATA_VALIDATION_RULE",
+      this.dispatchPayload
+    );
     if (!result.isSuccessful) {
       this.state.errors = result.reasons;
       return;

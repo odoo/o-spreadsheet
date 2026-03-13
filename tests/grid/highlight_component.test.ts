@@ -179,7 +179,7 @@ function expectedResult(xc: string) {
 
 const genericBeforeEach = async () => {
   model = new Model();
-  model.dispatch("RESIZE_SHEETVIEW", {
+  await model.dispatchFromOutside("RESIZE_SHEETVIEW", {
     width: getDefaultSheetViewSize(),
     height: getDefaultSheetViewSize(),
     gridOffsetX: 0,
@@ -208,7 +208,7 @@ describe("Corner component", () => {
 
       // select B2 ne corner
       selectNECellCorner(cornerEl, "B2");
-      expect(model.dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
+      expect(model.dispatchFromOutside).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
         zone: toZone("B2"),
       });
 
@@ -223,7 +223,7 @@ describe("Corner component", () => {
 
       // select B2 sw corner
       selectSWCellCorner(cornerEl, "B2");
-      expect(parent.model.dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
+      expect(parent.model.dispatchFromOutside).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
         zone: toZone("B2"),
       });
 
@@ -238,7 +238,7 @@ describe("Corner component", () => {
 
       // select B2 se corner
       selectSECellCorner(cornerEl, "B2");
-      expect(parent.model.dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
+      expect(parent.model.dispatchFromOutside).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
         zone: toZone("B2"),
       });
 
@@ -372,7 +372,7 @@ describe("Corner component", () => {
 
       // select B2 ne corner
       selectNWCellCorner(cornerEl, "B2");
-      expect(parent.model.dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
+      expect(parent.model.dispatchFromOutside).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
         zone: toZone("B2"),
       });
 
@@ -387,7 +387,7 @@ describe("Corner component", () => {
       cornerEl = fixture.querySelector(".o-corner-ne")!;
 
       selectNECellCorner(cornerEl, "A1");
-      expect(parent.model.dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
+      expect(parent.model.dispatchFromOutside).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
         zone: toZone("A1:A10"),
       });
 
@@ -401,7 +401,7 @@ describe("Corner component", () => {
       cornerEl = fixture.querySelector(".o-corner-sw")!;
 
       selectSWCellCorner(cornerEl, "A1");
-      expect(parent.model.dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
+      expect(parent.model.dispatchFromOutside).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
         zone: toZone("A1:J1"),
       });
 
@@ -412,7 +412,7 @@ describe("Corner component", () => {
 
   test("can edge-scroll horizontally", async () => {
     const { width } = model.getters.getSheetViewDimensionWithHeaders();
-    model.dispatch("RESIZE_COLUMNS_ROWS", {
+    await model.dispatchFromOutside("RESIZE_COLUMNS_ROWS", {
       dimension: "COL",
       sheetId: model.getters.getActiveSheetId(),
       elements: [0, 1],
@@ -423,13 +423,13 @@ describe("Corner component", () => {
 
     // select B1 nw corner
     selectNWCellCorner(cornerEl, "B1");
-    expect(parent.model.dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
+    expect(parent.model.dispatchFromOutside).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
       zone: toZone("B1"),
     });
 
     // move to C1
     moveToCell(cornerEl, "C1");
-    expect(parent.model.dispatch).toHaveBeenCalledWith("SET_VIEWPORT_OFFSET", {
+    expect(parent.model.dispatchFromOutside).toHaveBeenCalledWith("SET_VIEWPORT_OFFSET", {
       offsetX: width / 2,
       offsetY: 0,
     });
@@ -437,7 +437,7 @@ describe("Corner component", () => {
 
   test("can edge-scroll vertically", async () => {
     const { height } = model.getters.getSheetViewDimensionWithHeaders();
-    model.dispatch("RESIZE_COLUMNS_ROWS", {
+    await model.dispatchFromOutside("RESIZE_COLUMNS_ROWS", {
       dimension: "ROW",
       sheetId: model.getters.getActiveSheetId(),
       elements: [0, 1],
@@ -448,13 +448,13 @@ describe("Corner component", () => {
 
     // select A2 nw corner
     selectTopCellBorder(cornerEl, "A2");
-    expect(parent.model.dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
+    expect(parent.model.dispatchFromOutside).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
       zone: toZone("A2"),
     });
 
     // move to A3
     moveToCell(cornerEl, "A3");
-    expect(parent.model.dispatch).toHaveBeenCalledWith("SET_VIEWPORT_OFFSET", {
+    expect(parent.model.dispatchFromOutside).toHaveBeenCalledWith("SET_VIEWPORT_OFFSET", {
       offsetX: 0,
       offsetY: height / 2,
     });
@@ -476,7 +476,7 @@ describe("Border component", () => {
 
       // select B2 top border
       selectTopCellBorder(borderEl, "B2");
-      expect(parent.model.dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
+      expect(parent.model.dispatchFromOutside).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
         zone: toZone("B2"),
       });
 
@@ -491,7 +491,7 @@ describe("Border component", () => {
 
       // select B2 left border
       selectLeftCellBorder(borderEl, "B2");
-      expect(parent.model.dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
+      expect(parent.model.dispatchFromOutside).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
         zone: toZone("B2"),
       });
 
@@ -506,7 +506,7 @@ describe("Border component", () => {
 
       // select B2 right border
       selectRightCellBorder(borderEl, "B2");
-      expect(parent.model.dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
+      expect(parent.model.dispatchFromOutside).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
         zone: toZone("B2"),
       });
 
@@ -521,7 +521,7 @@ describe("Border component", () => {
 
       // select B2 bottom border
       selectBottomCellBorder(borderEl, "B2");
-      expect(parent.model.dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
+      expect(parent.model.dispatchFromOutside).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
         zone: toZone("B2"),
       });
 
@@ -610,7 +610,7 @@ describe("Border component", () => {
 
     // select A1 top border
     selectTopCellBorder(borderEl, "A1");
-    expect(parent.model.dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
+    expect(parent.model.dispatchFromOutside).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
       zone: toZone("A1:B2"),
     });
 
@@ -629,7 +629,7 @@ describe("Border component", () => {
 
     // select B1 top border
     selectTopCellBorder(borderEl, "B1");
-    expect(parent.model.dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
+    expect(parent.model.dispatchFromOutside).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
       zone: toZone("A1:B2"),
     });
 
@@ -644,13 +644,13 @@ describe("Border component", () => {
 
     // select B2 bottom border
     selectBottomCellBorder(borderEl, "B2");
-    expect(parent.model.dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
+    expect(parent.model.dispatchFromOutside).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
       zone: toZone("A1:B2"),
     });
 
     // move to A2
     moveToCell(borderEl, "A2");
-    expect(parent.model.dispatch).toHaveBeenCalledTimes(1);
+    expect(parent.model.dispatchFromOutside).toHaveBeenCalledTimes(1);
   });
 
   describe("dragging highlight border on merged cells expands the final highlight zone", () => {
@@ -672,7 +672,7 @@ describe("Border component", () => {
 
       // select A1 top border
       selectTopCellBorder(borderEl, "A1");
-      expect(parent.model.dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
+      expect(parent.model.dispatchFromOutside).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
         zone: toZone("A1"),
       });
 
@@ -687,7 +687,7 @@ describe("Border component", () => {
       borderEl = fixture.querySelector(".o-border-n")!;
 
       selectTopCellBorder(borderEl, "A1");
-      expect(parent.model.dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
+      expect(parent.model.dispatchFromOutside).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
         zone: toZone("A1:A10"),
       });
 
@@ -701,7 +701,7 @@ describe("Border component", () => {
       borderEl = fixture.querySelector(".o-border-n")!;
 
       selectTopCellBorder(borderEl, "A1");
-      expect(parent.model.dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
+      expect(parent.model.dispatchFromOutside).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
         zone: toZone("A1:J1"),
       });
 
@@ -712,7 +712,7 @@ describe("Border component", () => {
 
   test("can edge-scroll horizontally", async () => {
     const { width } = model.getters.getSheetViewDimensionWithHeaders();
-    model.dispatch("RESIZE_COLUMNS_ROWS", {
+    await model.dispatchFromOutside("RESIZE_COLUMNS_ROWS", {
       dimension: "COL",
       sheetId: model.getters.getActiveSheetId(),
       elements: [0, 1],
@@ -723,13 +723,13 @@ describe("Border component", () => {
 
     // select B1 top border
     selectTopCellBorder(borderEl, "B1");
-    expect(parent.model.dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
+    expect(parent.model.dispatchFromOutside).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
       zone: toZone("B1"),
     });
 
     // move to C1
     moveToCell(borderEl, "C1");
-    expect(parent.model.dispatch).toHaveBeenCalledWith("SET_VIEWPORT_OFFSET", {
+    expect(parent.model.dispatchFromOutside).toHaveBeenCalledWith("SET_VIEWPORT_OFFSET", {
       offsetX: width / 2,
       offsetY: 0,
     });
@@ -737,7 +737,7 @@ describe("Border component", () => {
 
   test("can edge-scroll vertically", async () => {
     const { height } = model.getters.getSheetViewDimensionWithHeaders();
-    model.dispatch("RESIZE_COLUMNS_ROWS", {
+    await model.dispatchFromOutside("RESIZE_COLUMNS_ROWS", {
       dimension: "ROW",
       sheetId: model.getters.getActiveSheetId(),
       elements: [0, 1],
@@ -748,13 +748,13 @@ describe("Border component", () => {
 
     // select A2 top border
     selectTopCellBorder(borderEl, "A2");
-    expect(parent.model.dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
+    expect(parent.model.dispatchFromOutside).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
       zone: toZone("A2"),
     });
 
     // move to A3
     moveToCell(borderEl, "A3");
-    expect(parent.model.dispatch).toHaveBeenCalledWith("SET_VIEWPORT_OFFSET", {
+    expect(parent.model.dispatchFromOutside).toHaveBeenCalledWith("SET_VIEWPORT_OFFSET", {
       offsetX: 0,
       offsetY: height / 2,
     });
@@ -771,7 +771,7 @@ describe.each(ZOOM_VALUES)(
       jest.useFakeTimers();
       ({ model, fixture } = await mountSpreadsheet());
       zoom = zoomValue / 100;
-      model.dispatch("SET_ZOOM", { zoom });
+      await model.dispatchFromOutside("SET_ZOOM", { zoom });
       ({ width, height } = model.getters.getSheetViewDimensionWithHeaders());
       // In test sheetviewDim is not changed based on the Zoom
       width = width * zoom;

@@ -403,7 +403,7 @@ describe("Composer hover integration test", () => {
 
   test("Hover is deactivated in a standalone composer", async () => {
     const sheetId = model.getters.getActiveSheetId();
-    model.dispatch("ADD_CONDITIONAL_FORMAT", {
+    await model.dispatchFromOutside("ADD_CONDITIONAL_FORMAT", {
       cf: {
         rule: {
           type: "CellIsRule",

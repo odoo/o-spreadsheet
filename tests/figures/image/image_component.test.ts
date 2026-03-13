@@ -9,7 +9,7 @@ describe("Image component", () => {
     const sheetId = model.getters.getActiveSheetId();
     createImage(model, { sheetId, figureId: "test", size: { width: 200, height: 200 } });
     await mountSpreadsheet({ model });
-    model.dispatch("UPDATE_FIGURE", {
+    await model.dispatchFromOutside("UPDATE_FIGURE", {
       sheetId,
       figureId: "test",
       width: 300,

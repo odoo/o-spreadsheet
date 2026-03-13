@@ -91,7 +91,7 @@ export class LinkEditor extends Component<LinkEditorProps, SpreadsheetChildEnv> 
     const label = this.link.label
       ? canonicalizeNumberContent(this.link.label, locale)
       : this.link.url;
-    this.env.model.dispatch("UPDATE_CELL", {
+    this.env.model.dispatchFromOutside("UPDATE_CELL", {
       col: col,
       row: row,
       sheetId: this.env.model.getters.getActiveSheetId(),

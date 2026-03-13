@@ -36,22 +36,22 @@ describe("Lock Sheet plugin", () => {
     (cmdType) => {
       const model = new Model();
       lockSheet(model);
-      const result = model.dispatch(cmdType, TEST_COMMANDS[cmdType]);
+      const result = await model.dispatchFromOutside(cmdType, TEST_COMMANDS[cmdType]);
       expect(result.reasons).toContain(CommandResult.SheetLocked);
     }
   );
 
-  test("Can dispatch white-listed commands on a locked sheet", () => {
+  test("Can dispatch white-listed commands on a locked sheet", async () => {
     const model = new Model();
     createSheet(model, { name: "Another sheet", position: 0 });
     lockSheet(model);
     for (const cmdType of allowedCommands) {
-      const result = model.dispatch(cmdType, TEST_COMMANDS[cmdType]);
+      const result = await model.dispatchFromOutside(cmdType, TEST_COMMANDS[cmdType]);
       expect(result).toBeSuccessfullyDispatched();
     }
   });
 
-  test("read only commands bypass lock in dashboard mode", () => {
+  test("read only commands bypass lock in dashboard mode", async () => {
     for (const cmdType of readonlyCommands) {
       const model = new Model();
       createSheet(model, { name: "Another sheet", position: 0 });
@@ -59,7 +59,7 @@ describe("Lock Sheet plugin", () => {
       addPivot(model);
       lockSheet(model);
       model.updateMode("dashboard");
-      const result = model.dispatch(cmdType, TEST_COMMANDS[cmdType]);
+      const result = await model.dispatchFromOutside(cmdType, TEST_COMMANDS[cmdType]);
       expect(result).toBeSuccessfullyDispatched();
     }
   });

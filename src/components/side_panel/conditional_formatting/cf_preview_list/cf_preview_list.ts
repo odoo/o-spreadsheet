@@ -68,7 +68,7 @@ export class ConditionalFormatPreviewList extends Component<Props, SpreadsheetCh
         values: [],
       },
     };
-    this.env.model.dispatch("ADD_CONDITIONAL_FORMAT", {
+    this.env.model.dispatchFromOutside("ADD_CONDITIONAL_FORMAT", {
       cf,
       ranges: zones.map((zone) => this.env.model.getters.getRangeDataFromZone(sheetId, zone)),
       sheetId,
@@ -88,7 +88,7 @@ export class ConditionalFormatPreviewList extends Component<Props, SpreadsheetCh
     const originalIndex = this.conditionalFormats.findIndex((sheet) => sheet.id === cfId);
     const delta = originalIndex - finalIndex;
     if (delta !== 0) {
-      this.env.model.dispatch("CHANGE_CONDITIONAL_FORMAT_PRIORITY", {
+      this.env.model.dispatchFromOutside("CHANGE_CONDITIONAL_FORMAT_PRIORITY", {
         cfId,
         delta,
         sheetId: this.env.model.getters.getActiveSheetId(),

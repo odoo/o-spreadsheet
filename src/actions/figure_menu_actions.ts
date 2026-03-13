@@ -17,7 +17,7 @@ export function getChartMenuActions(figureId: UID, env: SpreadsheetChildEnv): Ac
       id: "edit",
       name: _t("Edit"),
       execute: () => {
-        env.model.dispatch("SELECT_FIGURE", { figureId });
+        env.model.dispatchFromOutside("SELECT_FIGURE", { figureId });
         env.openSidePanel("ChartPanel");
       },
       icon: "o-spreadsheet-Icon.EDIT",
@@ -57,7 +57,7 @@ export function getImageMenuActions(figureId: UID, env: SpreadsheetChildEnv): Ac
         }
         const { col, row } = figure;
         const { height, width } = getMaxFigureSize(env.model.getters, size);
-        env.model.dispatch("UPDATE_FIGURE", {
+        env.model.dispatchFromOutside("UPDATE_FIGURE", {
           sheetId,
           figureId,
           height,
@@ -72,7 +72,7 @@ export function getImageMenuActions(figureId: UID, env: SpreadsheetChildEnv): Ac
       id: "download",
       name: _t("Download"),
       execute: async () => {
-        env.model.dispatch("SELECT_FIGURE", { figureId });
+        env.model.dispatchFromOutside("SELECT_FIGURE", { figureId });
         const path = env.model.getters.getImagePath(figureId);
         downloadFile(path, "image");
       },
@@ -91,7 +91,7 @@ export function getCarouselMenuActions(figureId: UID, env: SpreadsheetChildEnv):
       id: "edit_carousel",
       name: _t("Edit carousel"),
       execute: () => {
-        env.model.dispatch("SELECT_FIGURE", { figureId });
+        env.model.dispatchFromOutside("SELECT_FIGURE", { figureId });
         env.openSidePanel("CarouselPanel", { figureId });
       },
       icon: "o-spreadsheet-Icon.EDIT",
@@ -112,7 +112,7 @@ export function getCarouselMenuActions(figureId: UID, env: SpreadsheetChildEnv):
       id: "edit_chart",
       name: _t("Edit chart"),
       execute: () => {
-        env.model.dispatch("SELECT_FIGURE", { figureId });
+        env.model.dispatchFromOutside("SELECT_FIGURE", { figureId });
         env.openSidePanel("ChartPanel", {});
       },
       icon: "o-spreadsheet-Icon.EDIT",
@@ -138,7 +138,7 @@ export function getCarouselMenuActions(figureId: UID, env: SpreadsheetChildEnv):
         if (!selectedItem || selectedItem.type !== "chart") {
           return;
         }
-        env.model.dispatch("POPOUT_CHART_FROM_CAROUSEL", {
+        env.model.dispatchFromOutside("POPOUT_CHART_FROM_CAROUSEL", {
           carouselId: figureId,
           chartId: selectedItem.chartId,
           sheetId: env.model.getters.getActiveSheetId(),
@@ -159,7 +159,7 @@ export function getCarouselMenuActions(figureId: UID, env: SpreadsheetChildEnv):
         }
         const carousel = env.model.getters.getCarousel(figureId);
         const items = carousel.items.filter((itm) => !deepEquals(itm, item));
-        env.model.dispatch("UPDATE_CAROUSEL", {
+        env.model.dispatchFromOutside("UPDATE_CAROUSEL", {
           figureId,
           sheetId: env.model.getters.getActiveSheetId(),
           definition: { ...carousel, items },
@@ -184,8 +184,8 @@ function getCopyMenuItem(
     name: _t("Copy"),
     shortcut: "Ctrl+C",
     execute: async () => {
-      env.model.dispatch("SELECT_FIGURE", { figureId });
-      env.model.dispatch("COPY");
+      env.model.dispatchFromOutside("SELECT_FIGURE", { figureId });
+      env.model.dispatchFromOutside("COPY");
       const osClipboardContent = await env.model.getters.getClipboardTextAndImageContent();
       await env.clipboard.write(osClipboardContent);
       if (copiedNotificationMessage) {
@@ -203,8 +203,8 @@ function getCutMenuItem(figureId: UID, env: SpreadsheetChildEnv): ActionSpec {
     name: _t("Cut"),
     shortcut: "Ctrl+X",
     execute: async () => {
-      env.model.dispatch("SELECT_FIGURE", { figureId });
-      env.model.dispatch("CUT");
+      env.model.dispatchFromOutside("SELECT_FIGURE", { figureId });
+      env.model.dispatchFromOutside("CUT");
       await env.clipboard.write(await env.model.getters.getClipboardTextAndImageContent());
     },
     icon: "o-spreadsheet-Icon.CUT",
@@ -286,7 +286,7 @@ function getDeleteMenuItem(figureId: UID, env: SpreadsheetChildEnv): ActionSpec 
     id: "delete",
     name: _t("Delete"),
     execute: () => {
-      env.model.dispatch("DELETE_FIGURE", {
+      env.model.dispatchFromOutside("DELETE_FIGURE", {
         sheetId: env.model.getters.getActiveSheetId(),
         figureId,
       });

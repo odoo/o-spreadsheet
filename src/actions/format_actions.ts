@@ -168,7 +168,7 @@ export const increaseDecimalPlaces: ActionSpec = {
   name: _t("Increase decimal places"),
   icon: "o-spreadsheet-Icon.INCREASE_DECIMAL",
   execute: (env) =>
-    env.model.dispatch("SET_DECIMAL", {
+    env.model.dispatchFromOutside("SET_DECIMAL", {
       sheetId: env.model.getters.getActiveSheetId(),
       target: env.model.getters.getSelectedZones(),
       step: 1,
@@ -179,7 +179,7 @@ export const decreaseDecimalPlaces: ActionSpec = {
   name: _t("Decrease decimal places"),
   icon: "o-spreadsheet-Icon.DECRASE_DECIMAL",
   execute: (env) =>
-    env.model.dispatch("SET_DECIMAL", {
+    env.model.dispatchFromOutside("SET_DECIMAL", {
       sheetId: env.model.getters.getActiveSheetId(),
       target: env.model.getters.getSelectedZones(),
       step: -1,
@@ -390,7 +390,7 @@ export const clearFormat: ActionSpec = {
   name: _t("Clear formatting"),
   shortcut: "Ctrl+<",
   execute: (env) =>
-    env.model.dispatch("CLEAR_FORMATTING", {
+    env.model.dispatchFromOutside("CLEAR_FORMATTING", {
       sheetId: env.model.getters.getActiveSheetId(),
       target: env.model.getters.getSelectedZones(),
     }),

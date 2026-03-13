@@ -71,7 +71,7 @@ export class TableStyleEditorPanel extends Component<
 
   onConfirm() {
     const tableStyleId = this.props.styleId || this.env.model.uuidGenerator.smallUuid();
-    this.env.model.dispatch("CREATE_TABLE_STYLE", {
+    this.env.model.dispatchFromOutside("CREATE_TABLE_STYLE", {
       tableStyleId,
       tableStyleName: this.state.styleName,
       templateName: this.state.selectedTemplateName,
@@ -89,7 +89,7 @@ export class TableStyleEditorPanel extends Component<
     if (!this.props.styleId) {
       return;
     }
-    this.env.model.dispatch("REMOVE_TABLE_STYLE", { tableStyleId: this.props.styleId });
+    this.env.model.dispatchFromOutside("REMOVE_TABLE_STYLE", { tableStyleId: this.props.styleId });
     this.props.onCloseSidePanel();
   }
 

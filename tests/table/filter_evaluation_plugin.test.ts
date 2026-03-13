@@ -85,12 +85,12 @@ describe("Simple filter test", () => {
     expect(model.getters.isRowFiltered(sheetId, 3)).toEqual(true);
   });
 
-  test("Can delete row/columns on duplicated sheet with filters", () => {
+  test("Can delete row/columns on duplicated sheet with filters", async () => {
     createTableWithFilter(model, "B1:B3");
     updateFilter(model, "B1", ["C"]);
 
     const sheet2Id = "42";
-    model.dispatch("DUPLICATE_SHEET", {
+    await model.dispatchFromOutside("DUPLICATE_SHEET", {
       sheetId: sheetId,
       sheetIdTo: sheet2Id,
       sheetNameTo: "Copy of Sheet1",
@@ -243,7 +243,7 @@ describe("Filter Evaluation", () => {
     expect(model.getters.isRowHidden(sheetId, 1)).toEqual(false);
   });
 
-  test("Sheet duplication after importing table don't break", () => {
+  test("Sheet duplication after importing table don't break", async () => {
     const model = new Model({
       sheets: [
         {
@@ -259,7 +259,7 @@ describe("Filter Evaluation", () => {
     });
     expect(model.getters.getFilter({ sheetId: "sh1", col: 0, row: 0 })).toBeTruthy();
 
-    model.dispatch("DUPLICATE_SHEET", {
+    await model.dispatchFromOutside("DUPLICATE_SHEET", {
       sheetId: "sh1",
       sheetIdTo: "sh2",
       sheetNameTo: "Copy of Sheet1",

@@ -545,11 +545,11 @@ describe("squish - unsquish specific cases", () => {
     }
   );
 
-  test("empty cell do not generate positions", () => {
+  test("empty cell do not generate positions", async () => {
     const sheetContent = {};
     const squishedContent = {};
     const model = createModelFromGrid(sheetContent);
-    model.dispatch("SET_FORMATTING", {
+    await model.dispatchFromOutside("SET_FORMATTING", {
       sheetId: model.getters.getActiveSheetId(),
       target: [{ top: 0, left: 0, bottom: 2, right: 2 }],
       style: { bold: true },
@@ -586,7 +586,7 @@ describe("squish - unsquish specific cases", () => {
 });
 
 describe("Models created from squished data behavior", () => {
-  test("adapt ranges when inserting rows/columns", () => {
+  test("adapt ranges when inserting rows/columns", async () => {
     const squishedData = {
       sheets: [
         {
@@ -603,7 +603,7 @@ describe("Models created from squished data behavior", () => {
       ],
     };
     const model = new Model(squishedData);
-    model.dispatch("ADD_COLUMNS_ROWS", {
+    await model.dispatchFromOutside("ADD_COLUMNS_ROWS", {
       sheetId: "Sheet1",
       sheetName: "Sheet1",
       dimension: "ROW",

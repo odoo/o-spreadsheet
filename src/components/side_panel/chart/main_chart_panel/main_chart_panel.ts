@@ -61,7 +61,7 @@ export class ChartPanel extends Component<Props, SpreadsheetChildEnv> {
       ...(this.getChartDefinition(this.chartId) as T),
       ...updateDefinition,
     };
-    return this.env.model.dispatch("UPDATE_CHART", {
+    return this.env.model.dispatchFromOutside("UPDATE_CHART", {
       definition,
       chartId,
       figureId,

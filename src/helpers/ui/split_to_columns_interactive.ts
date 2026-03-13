@@ -7,15 +7,18 @@ export const SplitToColumnsInteractiveContent = {
   SplitIsDestructive: _t("This will overwrite data in the subsequent columns. Split anyway?"),
 };
 
-export function interactiveSplitToColumns(
+export async function interactiveSplitToColumns(
   env: SpreadsheetChildEnv,
   separator: string,
   addNewColumns: boolean
-): DispatchResult {
-  let result = env.model.dispatch("SPLIT_TEXT_INTO_COLUMNS", { separator, addNewColumns });
+): Promise<DispatchResult> {
+  const result = await env.model.dispatchFromOutside("SPLIT_TEXT_INTO_COLUMNS", {
+    separator,
+    addNewColumns,
+  });
   if (result.isCancelledBecause(CommandResult.SplitWillOverwriteContent)) {
     env.askConfirmation(SplitToColumnsInteractiveContent.SplitIsDestructive, () => {
-      result = env.model.dispatch("SPLIT_TEXT_INTO_COLUMNS", {
+      env.model.dispatchFromOutside("SPLIT_TEXT_INTO_COLUMNS", {
         separator,
         addNewColumns,
         force: true,

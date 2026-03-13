@@ -161,12 +161,12 @@ describe("UI of conditional formats", () => {
         }
       ));
       sheetId = model.getters.getActiveSheetId();
-      model.dispatch("ADD_CONDITIONAL_FORMAT", {
+      await model.dispatchFromOutside("ADD_CONDITIONAL_FORMAT", {
         cf: createEqualCF("2", { fillColor: "#FF0000" }, "1"),
         sheetId: model.getters.getActiveSheetId(),
         ranges: toRangesData(sheetId, "A1:A2"),
       });
-      model.dispatch("ADD_CONDITIONAL_FORMAT", {
+      await model.dispatchFromOutside("ADD_CONDITIONAL_FORMAT", {
         cf: createColorScale(
           "2",
           { type: "value", color: 0xff00ff, value: "" },
@@ -202,7 +202,7 @@ describe("UI of conditional formats", () => {
 
     test("previews are localized", async () => {
       updateLocale(model, FR_LOCALE);
-      model.dispatch("ADD_CONDITIONAL_FORMAT", {
+      await model.dispatchFromOutside("ADD_CONDITIONAL_FORMAT", {
         cf: createEqualCF("1.5", { fillColor: "#FF0000" }, "3"),
         sheetId: model.getters.getActiveSheetId(),
         ranges: toRangesData(sheetId, "A1:A2"),
@@ -227,7 +227,7 @@ describe("UI of conditional formats", () => {
 
     test("the list preview should be bold when the rule is bold", async () => {
       const sheetId = model.getters.getActiveSheetId();
-      model.dispatch("ADD_CONDITIONAL_FORMAT", {
+      await model.dispatchFromOutside("ADD_CONDITIONAL_FORMAT", {
         cf: createEqualCF("2", { bold: true, fillColor: "#ff0000" }, "99"),
         ranges: toRangesData(sheetId, "C1:C5"),
         sheetId,
@@ -274,7 +274,7 @@ describe("UI of conditional formats", () => {
       await clickAndDrag(previewEl, { x: 0, y: 200 });
 
       expect(previewEl.parentElement!.style.transition).toBe("top 0s");
-      model.dispatch("ADD_CONDITIONAL_FORMAT", {
+      await model.dispatchFromOutside("ADD_CONDITIONAL_FORMAT", {
         cf: createEqualCF("2", { bold: true, fillColor: "#ff0000" }, "99"),
         ranges: toRangesData(sheetId, "C1:C5"),
         sheetId,
@@ -319,7 +319,7 @@ describe("UI of conditional formats", () => {
         props: { cf: { ...cf, ranges }, isNewCf: false, onCloseSidePanel: () => {} },
       }));
       sheetId = model.getters.getActiveSheetId();
-      model.dispatch("ADD_CONDITIONAL_FORMAT", {
+      await model.dispatchFromOutside("ADD_CONDITIONAL_FORMAT", {
         cf,
         sheetId: model.getters.getActiveSheetId(),
         ranges: toRangesData(sheetId, "A1:A2"),
@@ -692,7 +692,7 @@ describe("UI of conditional formats", () => {
       // Open the panel
       await click(fixture, selectors.listPreview);
       // Someone else changes the CF in the meantime
-      model.dispatch("ADD_CONDITIONAL_FORMAT", {
+      await model.dispatchFromOutside("ADD_CONDITIONAL_FORMAT", {
         cf: createEqualCF("2", { fillColor: "#ff0000" }, cfId),
         ranges: toRangesData(sheetId, "A1:A2"),
         sheetId,
@@ -863,7 +863,7 @@ describe("UI of conditional formats", () => {
     });
 
     test("Undoing an edit on an existing CF does not close the editor panel", async () => {
-      model.dispatch("ADD_CONDITIONAL_FORMAT", {
+      await model.dispatchFromOutside("ADD_CONDITIONAL_FORMAT", {
         cf: createEqualCF("2", { fillColor: "#FF0000" }, "1"),
         sheetId,
         ranges: toRangesData(sheetId, "A1:A2"),
@@ -881,7 +881,7 @@ describe("UI of conditional formats", () => {
     });
 
     test("Highlights are removed when cf preview is unmounted", async () => {
-      model.dispatch("ADD_CONDITIONAL_FORMAT", {
+      await model.dispatchFromOutside("ADD_CONDITIONAL_FORMAT", {
         cf: createEqualCF("2", { fillColor: "#FF0000" }, "1"),
         sheetId,
         ranges: toRangesData(sheetId, "A1:A2"),
@@ -908,7 +908,7 @@ describe("UI of conditional formats", () => {
 
     describe("CellIsRule", () => {
       test("CellIsRule editor displays the right preview", async () => {
-        model.dispatch("ADD_CONDITIONAL_FORMAT", {
+        await model.dispatchFromOutside("ADD_CONDITIONAL_FORMAT", {
           cf: createEqualCF(
             "2",
             {
@@ -978,7 +978,7 @@ describe("UI of conditional formats", () => {
       });
 
       test("can edit an existing CellIsRule", async () => {
-        model.dispatch("ADD_CONDITIONAL_FORMAT", {
+        await model.dispatchFromOutside("ADD_CONDITIONAL_FORMAT", {
           cf: createEqualCF("2", { fillColor: "#FF0000" }, "1"),
           sheetId,
           ranges: toRangesData(sheetId, "A1:A2"),
@@ -1025,7 +1025,7 @@ describe("UI of conditional formats", () => {
       });
 
       test("can edit a date CellIsRule", async () => {
-        model.dispatch("ADD_CONDITIONAL_FORMAT", {
+        await model.dispatchFromOutside("ADD_CONDITIONAL_FORMAT", {
           cf: createEqualCF("2", { fillColor: "#FF0000" }, "1"),
           sheetId,
           ranges: toRangesData(sheetId, "A1:A2"),
@@ -1310,7 +1310,7 @@ describe("UI of conditional formats", () => {
       });
 
       test("can edit an existing ColorScaleRule", async () => {
-        model.dispatch("ADD_CONDITIONAL_FORMAT", {
+        await model.dispatchFromOutside("ADD_CONDITIONAL_FORMAT", {
           cf: createColorScale(
             "2",
             { type: "value", color: 0xff00ff, value: "" },
@@ -1668,7 +1668,7 @@ describe("Integration tests", () => {
     const sheetId = model.getters.getActiveSheetId();
     const cf = createEqualCF("2", { bold: true, fillColor: "#ff0000" }, "99");
     const range = "A1:A2";
-    model.dispatch("ADD_CONDITIONAL_FORMAT", {
+    await model.dispatchFromOutside("ADD_CONDITIONAL_FORMAT", {
       cf,
       ranges: toRangesData(sheetId, range),
       sheetId,
@@ -1691,7 +1691,7 @@ describe("Integration tests", () => {
     const sheetId = model.getters.getActiveSheetId();
     const cf = createEqualCF("2", { bold: true, fillColor: "#ff0000" }, "99");
     const range = "A1:A2";
-    model.dispatch("ADD_CONDITIONAL_FORMAT", {
+    await model.dispatchFromOutside("ADD_CONDITIONAL_FORMAT", {
       cf,
       ranges: toRangesData(sheetId, range),
       sheetId,

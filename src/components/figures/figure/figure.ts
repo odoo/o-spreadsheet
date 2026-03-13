@@ -159,7 +159,7 @@ export class FigureComponent extends Component<Props, SpreadsheetChildEnv> {
     switch (keyDownShortcut) {
       case "Delete":
       case "Backspace":
-        this.env.model.dispatch("DELETE_FIGURE", {
+        this.env.model.dispatchFromOutside("DELETE_FIGURE", {
           sheetId: this.env.model.getters.getActiveSheetId(),
           figureId: this.props.figureUI.id,
         });
@@ -171,7 +171,7 @@ export class FigureComponent extends Component<Props, SpreadsheetChildEnv> {
       case "ArrowRight":
       case "ArrowUp":
         const { col, row, offset } = this.postionInBoundary(this.props.figureUI, ev.key);
-        this.env.model.dispatch("UPDATE_FIGURE", {
+        this.env.model.dispatchFromOutside("UPDATE_FIGURE", {
           sheetId: this.env.model.getters.getActiveSheetId(),
           figureId: this.props.figureUI.id,
           offset,
@@ -189,9 +189,9 @@ export class FigureComponent extends Component<Props, SpreadsheetChildEnv> {
       case "Ctrl+Y":
       case "Ctrl+Z":
         if (keyDownShortcut === "Ctrl+Y") {
-          this.env.model.dispatch("REQUEST_REDO");
+          this.env.model.dispatchFromOutside("REQUEST_REDO");
         } else if (keyDownShortcut === "Ctrl+Z") {
-          this.env.model.dispatch("REQUEST_UNDO");
+          this.env.model.dispatchFromOutside("REQUEST_UNDO");
         }
         ev.preventDefault();
         ev.stopPropagation();

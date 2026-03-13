@@ -41,28 +41,28 @@ beforeEach(() => {
 });
 
 describe("conditional format", () => {
-  test("works", () => {
+  test("works", async () => {
     setCellContent(model, "A1", "1");
     setCellContent(model, "A2", "2");
     setCellContent(model, "A3", "3");
     setCellContent(model, "A4", "4");
-    model.dispatch("ADD_CONDITIONAL_FORMAT", {
+    await model.dispatchFromOutside("ADD_CONDITIONAL_FORMAT", {
       cf: createEqualCF("2", { fillColor: "#FF0000" }, "1"),
       ranges: toRangesData(sheetId, "A1:A4"),
       sheetId,
     });
-    model.dispatch("ADD_CONDITIONAL_FORMAT", {
+    await model.dispatchFromOutside("ADD_CONDITIONAL_FORMAT", {
       cf: createEqualCF("4", { fillColor: "#0000FF" }, "2"),
       ranges: toRangesData(sheetId, "A:A"),
       sheetId,
     });
-    model.dispatch("ADD_CONDITIONAL_FORMAT", {
+    await model.dispatchFromOutside("ADD_CONDITIONAL_FORMAT", {
       cf: createEqualCF("5", { fillColor: "#0000FF" }, "3"),
       ranges: toRangesData(sheetId, "A3:A"),
       sheetId,
     });
 
-    model.dispatch("ADD_CONDITIONAL_FORMAT", {
+    await model.dispatchFromOutside("ADD_CONDITIONAL_FORMAT", {
       cf: createEqualCF("6", { fillColor: "#0000FF" }, "4"),
       ranges: toRangesData(sheetId, "C3:3"),
       sheetId,
@@ -127,13 +127,13 @@ describe("conditional format", () => {
     });
   });
 
-  test("getCellComputedStyle", () => {
+  test("getCellComputedStyle", async () => {
     setCellContent(model, "A1", "1");
     setCellContent(model, "A2", "1");
     setStyle(model, "A1", { fillColor: "blue" });
     setStyle(model, "A2", { bold: true });
     setStyle(model, "A3", { fillColor: "orange" });
-    model.dispatch("ADD_CONDITIONAL_FORMAT", {
+    await model.dispatchFromOutside("ADD_CONDITIONAL_FORMAT", {
       cf: createEqualCF("1", { fillColor: "#FF0000" }, "1"),
       ranges: toRangesData(sheetId, "A1, A2"),
       sheetId,
@@ -151,10 +151,10 @@ describe("conditional format", () => {
     expect(getStyle(model, "A4")).toEqual({});
   });
 
-  test("falsy CF attributes do not overwrite cell style in getCellComputedStyle", () => {
+  test("falsy CF attributes do not overwrite cell style in getCellComputedStyle", async () => {
     setCellContent(model, "A1", "1");
     setStyle(model, "A1", { bold: true, fillColor: "#FF0000" });
-    model.dispatch("ADD_CONDITIONAL_FORMAT", {
+    await model.dispatchFromOutside("ADD_CONDITIONAL_FORMAT", {
       cf: createEqualCF("1", { bold: false, fillColor: undefined }, "cfId"),
       ranges: toRangesData(sheetId, "A1"),
       sheetId,
@@ -162,12 +162,12 @@ describe("conditional format", () => {
     expect(getStyle(model, "A1")).toEqual({ bold: true, fillColor: "#FF0000" });
   });
 
-  test("Add conditional formatting on inactive sheet", () => {
+  test("Add conditional formatting on inactive sheet", async () => {
     model = new Model();
     createSheet(model, { sheetId: "42" });
     const [, sheetId] = model.getters.getSheetIds();
     expect(sheetId).not.toBe(model.getters.getActiveSheetId());
-    model.dispatch("ADD_CONDITIONAL_FORMAT", {
+    await model.dispatchFromOutside("ADD_CONDITIONAL_FORMAT", {
       cf: createEqualCF("4", { fillColor: "#0000FF" }, "2"),
       ranges: toRangesData(sheetId, "A1:A4"),
       sheetId,
@@ -189,15 +189,15 @@ describe("conditional format", () => {
     ]);
   });
 
-  test("is correctly duplicated when the sheet is duplicated", () => {
+  test("is correctly duplicated when the sheet is duplicated", async () => {
     model = new Model();
     const cf = createEqualCF("4", { fillColor: "#0000FF" }, "2");
-    model.dispatch("ADD_CONDITIONAL_FORMAT", {
+    await model.dispatchFromOutside("ADD_CONDITIONAL_FORMAT", {
       cf,
       ranges: toRangesData(sheetId, "A1:A4"),
       sheetId,
     });
-    model.dispatch("DUPLICATE_SHEET", {
+    await model.dispatchFromOutside("DUPLICATE_SHEET", {
       sheetId,
       sheetIdTo: "Sheet2",
       sheetNameTo: "Copy of Sheet1",
@@ -211,12 +211,12 @@ describe("conditional format", () => {
     ]);
   });
 
-  test("add conditional format outside the sheet", () => {
+  test("add conditional format outside the sheet", async () => {
     model = new Model();
     createSheet(model, { sheetId: "42" });
     const sheetId = model.getters.getActiveSheetId();
     expect(
-      model.dispatch("ADD_CONDITIONAL_FORMAT", {
+      await model.dispatchFromOutside("ADD_CONDITIONAL_FORMAT", {
         cf: createEqualCF("4", { fillColor: "#0000FF" }, "2"),
         ranges: toRangesData(sheetId, "A1:A4000"),
         sheetId: sheetId,
@@ -224,7 +224,7 @@ describe("conditional format", () => {
     ).toBeCancelledBecause(CommandResult.TargetOutOfSheet);
   });
 
-  test("Dispatch is refused if no changes are made", () => {
+  test("Dispatch is refused if no changes are made", async () => {
     model = new Model();
     createSheet(model, { sheetId: "42" });
     const sheetId = model.getters.getActiveSheetId();
@@ -233,23 +233,25 @@ describe("conditional format", () => {
       ranges: toRangesData(sheetId, "A1:A4"),
       sheetId: sheetId,
     };
-    expect(model.dispatch("ADD_CONDITIONAL_FORMAT", cmd)).toBeSuccessfullyDispatched();
-    expect(model.dispatch("ADD_CONDITIONAL_FORMAT", cmd)).toBeCancelledBecause(
+    expect(
+      await model.dispatchFromOutside("ADD_CONDITIONAL_FORMAT", cmd)
+    ).toBeSuccessfullyDispatched();
+    expect(await model.dispatchFromOutside("ADD_CONDITIONAL_FORMAT", cmd)).toBeCancelledBecause(
       CommandResult.NoChanges
     );
   });
 
-  test("remove a conditional format rule", () => {
+  test("remove a conditional format rule", async () => {
     setCellContent(model, "A1", "1");
     setCellContent(model, "A2", "2");
     setCellContent(model, "A3", "3");
     setCellContent(model, "A4", "4");
-    model.dispatch("ADD_CONDITIONAL_FORMAT", {
+    await model.dispatchFromOutside("ADD_CONDITIONAL_FORMAT", {
       cf: createEqualCF("2", { fillColor: "#FF0000" }, "1"),
       ranges: toRangesData(sheetId, "A1:A4"),
       sheetId,
     });
-    model.dispatch("ADD_CONDITIONAL_FORMAT", {
+    await model.dispatchFromOutside("ADD_CONDITIONAL_FORMAT", {
       cf: createEqualCF("4", { fillColor: "#0000FF" }, "2"),
       ranges: toRangesData(sheetId, "A1:A4"),
       sheetId,
@@ -288,7 +290,7 @@ describe("conditional format", () => {
     expect(getStyle(model, "A4")).toEqual({
       fillColor: "#0000FF",
     });
-    model.dispatch("REMOVE_CONDITIONAL_FORMAT", {
+    await model.dispatchFromOutside("REMOVE_CONDITIONAL_FORMAT", {
       id: "2",
       sheetId,
     });
@@ -300,10 +302,10 @@ describe("conditional format", () => {
     expect(getStyle(model, "A4")).toEqual({});
   });
 
-  test("works on multiple ranges", () => {
+  test("works on multiple ranges", async () => {
     setCellContent(model, "A1", "1");
     setCellContent(model, "A2", "1");
-    model.dispatch("ADD_CONDITIONAL_FORMAT", {
+    await model.dispatchFromOutside("ADD_CONDITIONAL_FORMAT", {
       cf: createEqualCF("1", { fillColor: "#FF0000" }, "1"),
       ranges: toRangesData(sheetId, "A1, A2"),
       sheetId,
@@ -316,10 +318,10 @@ describe("conditional format", () => {
     });
   });
 
-  test("can be undo/redo", () => {
+  test("can be undo/redo", async () => {
     setCellContent(model, "A1", "1");
     setCellContent(model, "A2", "1");
-    model.dispatch("ADD_CONDITIONAL_FORMAT", {
+    await model.dispatchFromOutside("ADD_CONDITIONAL_FORMAT", {
       cf: createEqualCF("1", { fillColor: "#FF0000" }, "1"),
       ranges: toRangesData(sheetId, "A1, A2"),
       sheetId,
@@ -346,8 +348,8 @@ describe("conditional format", () => {
     });
   });
 
-  test("Conditional formatting with an unbounded range on an invalid sheet", () => {
-    const result = model.dispatch("ADD_CONDITIONAL_FORMAT", {
+  test("Conditional formatting with an unbounded range on an invalid sheet", async () => {
+    const result = await model.dispatchFromOutside("ADD_CONDITIONAL_FORMAT", {
       cf: createEqualCF("4", { fillColor: "#0000FF" }, "2"),
       ranges: toRangesData("not-a-valid-sheet-id", "B1,A1:A"),
       sheetId,
@@ -355,8 +357,8 @@ describe("conditional format", () => {
     expect(result).toBeCancelledBecause(CommandResult.InvalidSheetId);
   });
 
-  test("Conditional formatting with empty target", () => {
-    const result = model.dispatch("ADD_CONDITIONAL_FORMAT", {
+  test("Conditional formatting with empty target", async () => {
+    const result = await model.dispatchFromOutside("ADD_CONDITIONAL_FORMAT", {
       cf: createEqualCF("4", { fillColor: "#0000FF" }, "2"),
       ranges: [],
       sheetId,
@@ -365,10 +367,10 @@ describe("conditional format", () => {
     expect(model.getters.getConditionalFormats(sheetId)).toHaveLength(0);
   });
 
-  test("Still correct after ADD_COLUMNS_ROWS with dimension col and UNDO/REDO", () => {
+  test("Still correct after ADD_COLUMNS_ROWS with dimension col and UNDO/REDO", async () => {
     setCellContent(model, "B1", "1");
     setCellContent(model, "B2", "1");
-    model.dispatch("ADD_CONDITIONAL_FORMAT", {
+    await model.dispatchFromOutside("ADD_CONDITIONAL_FORMAT", {
       cf: createEqualCF("1", { fillColor: "#FF0000" }, "1"),
       ranges: toRangesData(sheetId, "B1,B2"),
       sheetId,
@@ -434,8 +436,8 @@ describe("conditional format", () => {
     });
   });
 
-  test("delete cf when range is deleted with previous rows", () => {
-    model.dispatch("ADD_CONDITIONAL_FORMAT", {
+  test("delete cf when range is deleted with previous rows", async () => {
+    await model.dispatchFromOutside("ADD_CONDITIONAL_FORMAT", {
       cf: createEqualCF("2", { fillColor: "#FF0000" }, "1"),
       ranges: toRangesData(sheetId, "A4"),
       sheetId,
@@ -444,8 +446,8 @@ describe("conditional format", () => {
     expect(model.getters.getConditionalFormats(sheetId)).toEqual([]);
   });
 
-  test("is saved/restored", () => {
-    model.dispatch("ADD_CONDITIONAL_FORMAT", {
+  test("is saved/restored", async () => {
+    await model.dispatchFromOutside("ADD_CONDITIONAL_FORMAT", {
       cf: createEqualCF("2", { fillColor: "#FF0000" }, "1"),
       ranges: toRangesData(sheetId, "A1:A4"),
       sheetId,
@@ -457,10 +459,10 @@ describe("conditional format", () => {
     );
   });
 
-  test("works after value update", () => {
+  test("works after value update", async () => {
     setCellContent(model, "A1", "1");
     setCellContent(model, "A2", "2");
-    model.dispatch("ADD_CONDITIONAL_FORMAT", {
+    await model.dispatchFromOutside("ADD_CONDITIONAL_FORMAT", {
       cf: createEqualCF("2", { fillColor: "#FF0000" }, "1"),
       ranges: toRangesData(sheetId, "A1"),
       sheetId,
@@ -478,9 +480,9 @@ describe("conditional format", () => {
     });
   });
 
-  test("works after format update that updates a value", () => {
+  test("works after format update that updates a value", async () => {
     setCellContent(model, "A1", '=CELL("format", A2)');
-    model.dispatch("ADD_CONDITIONAL_FORMAT", {
+    await model.dispatchFromOutside("ADD_CONDITIONAL_FORMAT", {
       cf: createEqualCF("mm/dd/yyyy", { fillColor: "#FF0000" }, "1"),
       ranges: toRangesData(sheetId, "A1"),
       sheetId,
@@ -492,9 +494,9 @@ describe("conditional format", () => {
     });
   });
 
-  test("works when cells are in error", () => {
+  test("works when cells are in error", async () => {
     setCellContent(model, "A1", "2");
-    model.dispatch("ADD_CONDITIONAL_FORMAT", {
+    await model.dispatchFromOutside("ADD_CONDITIONAL_FORMAT", {
       cf: createEqualCF("2", { fillColor: "#FF0000" }, "1"),
       ranges: toRangesData(sheetId, "A1"),
       sheetId,
@@ -503,14 +505,14 @@ describe("conditional format", () => {
     expect(getStyle(model, "A1")).toEqual({});
   });
 
-  test("multiple conditional formats for one cell", () => {
+  test("multiple conditional formats for one cell", async () => {
     setCellContent(model, "A1", "2");
-    model.dispatch("ADD_CONDITIONAL_FORMAT", {
+    await model.dispatchFromOutside("ADD_CONDITIONAL_FORMAT", {
       cf: createEqualCF("2", { fillColor: "#FF0000" }, "1"),
       ranges: toRangesData(sheetId, "A1"),
       sheetId,
     });
-    model.dispatch("ADD_CONDITIONAL_FORMAT", {
+    await model.dispatchFromOutside("ADD_CONDITIONAL_FORMAT", {
       cf: createEqualCF("2", { textColor: "#445566" }, "2"),
       ranges: toRangesData(sheetId, "A1"),
       sheetId,
@@ -521,14 +523,14 @@ describe("conditional format", () => {
     });
   });
 
-  test("multiple conditional formats with same style", () => {
+  test("multiple conditional formats with same style", async () => {
     setCellContent(model, "A1", "2");
-    model.dispatch("ADD_CONDITIONAL_FORMAT", {
+    await model.dispatchFromOutside("ADD_CONDITIONAL_FORMAT", {
       cf: createEqualCF("2", { fillColor: "#FF0000" }, "1"),
       ranges: toRangesData(sheetId, "A1"),
       sheetId,
     });
-    model.dispatch("ADD_CONDITIONAL_FORMAT", {
+    await model.dispatchFromOutside("ADD_CONDITIONAL_FORMAT", {
       cf: createEqualCF("2", { fillColor: "#FF0000" }, "2"),
       ranges: toRangesData(sheetId, "A1"),
       sheetId,
@@ -538,10 +540,10 @@ describe("conditional format", () => {
     });
   });
 
-  test("multiple conditional formats using stopIfTrue flag", () => {
+  test("multiple conditional formats using stopIfTrue flag", async () => {
     setCellContent(model, "A1", "2");
 
-    model.dispatch("ADD_CONDITIONAL_FORMAT", {
+    await model.dispatchFromOutside("ADD_CONDITIONAL_FORMAT", {
       cf: {
         rule: {
           values: ["2"],
@@ -555,7 +557,7 @@ describe("conditional format", () => {
       ranges: toRangesData(sheetId, "A1"),
       sheetId,
     });
-    model.dispatch("ADD_CONDITIONAL_FORMAT", {
+    await model.dispatchFromOutside("ADD_CONDITIONAL_FORMAT", {
       cf: createEqualCF("2", { fillColor: "#445566" }, "2"),
       ranges: toRangesData(sheetId, "A1"),
       sheetId,
@@ -968,13 +970,13 @@ describe("conditional format", () => {
     });
   });
 
-  test("cannot send invalid arguments to *move* conditional format rules command", () => {
-    model.dispatch("ADD_CONDITIONAL_FORMAT", {
+  test("cannot send invalid arguments to *move* conditional format rules command", async () => {
+    await model.dispatchFromOutside("ADD_CONDITIONAL_FORMAT", {
       cf: createEqualCF("1", { fillColor: "#FF0000" }, "idRule1"),
       ranges: toRangesData(sheetId, "A1"),
       sheetId,
     });
-    model.dispatch("ADD_CONDITIONAL_FORMAT", {
+    await model.dispatchFromOutside("ADD_CONDITIONAL_FORMAT", {
       cf: createEqualCF("1", { fillColor: "#0000FF" }, "idRule2"),
       ranges: toRangesData(sheetId, "A1"),
       sheetId,
@@ -986,18 +988,18 @@ describe("conditional format", () => {
     expect(changeCFPriority(model, "idRule2", -1, sheetId)).not.toBeSuccessfullyDispatched();
   });
 
-  test("Reorder conditional format rules command", () => {
-    model.dispatch("ADD_CONDITIONAL_FORMAT", {
+  test("Reorder conditional format rules command", async () => {
+    await model.dispatchFromOutside("ADD_CONDITIONAL_FORMAT", {
       cf: createEqualCF("1", { fillColor: "#FF0000" }, "idRule1"),
       ranges: toRangesData(sheetId, "A1"),
       sheetId,
     });
-    model.dispatch("ADD_CONDITIONAL_FORMAT", {
+    await model.dispatchFromOutside("ADD_CONDITIONAL_FORMAT", {
       cf: createEqualCF("1", { fillColor: "#0000FF" }, "idRule2"),
       ranges: toRangesData(sheetId, "A1"),
       sheetId,
     });
-    model.dispatch("ADD_CONDITIONAL_FORMAT", {
+    await model.dispatchFromOutside("ADD_CONDITIONAL_FORMAT", {
       cf: createEqualCF("1", { fillColor: "#00FF00" }, "idRule3"),
       ranges: toRangesData(sheetId, "A1"),
       sheetId,
@@ -1030,13 +1032,13 @@ describe("conditional format", () => {
     expect(formats[2].id).toEqual("idRule3");
   });
 
-  test("Reorder format rules command can be undo/redo", () => {
-    model.dispatch("ADD_CONDITIONAL_FORMAT", {
+  test("Reorder format rules command can be undo/redo", async () => {
+    await model.dispatchFromOutside("ADD_CONDITIONAL_FORMAT", {
       cf: createEqualCF("1", { fillColor: "#FF0000" }, "idRule1"),
       ranges: toRangesData(sheetId, "A1"),
       sheetId,
     });
-    model.dispatch("ADD_CONDITIONAL_FORMAT", {
+    await model.dispatchFromOutside("ADD_CONDITIONAL_FORMAT", {
       cf: createEqualCF("1", { fillColor: "#0000FF" }, "idRule2"),
       ranges: toRangesData(sheetId, "A1"),
       sheetId,
@@ -1058,14 +1060,14 @@ describe("conditional format", () => {
     expect(formats[1].id).toEqual("idRule1");
   });
 
-  test("conditional format is re-evaluated when order changes", () => {
+  test("conditional format is re-evaluated when order changes", async () => {
     setCellContent(model, "A1", "1");
-    model.dispatch("ADD_CONDITIONAL_FORMAT", {
+    await model.dispatchFromOutside("ADD_CONDITIONAL_FORMAT", {
       cf: createEqualCF("1", { fillColor: "#FF0000" }, "idRule1"),
       ranges: toRangesData(sheetId, "A1"),
       sheetId,
     });
-    model.dispatch("ADD_CONDITIONAL_FORMAT", {
+    await model.dispatchFromOutside("ADD_CONDITIONAL_FORMAT", {
       cf: createEqualCF("1", { fillColor: "#0000FF" }, "idRule2"),
       ranges: toRangesData(sheetId, "A1"),
       sheetId,
@@ -1980,8 +1982,8 @@ describe("conditional formats types", () => {
     describe.each(["", "aaaa", "=SUM(1, 2)"])(
       "dispatch is not allowed if value is not a number",
       (value) => {
-        test("lower inflection point is NaN", () => {
-          const result = model.dispatch("ADD_CONDITIONAL_FORMAT", {
+        test("lower inflection point is NaN", async () => {
+          const result = await model.dispatchFromOutside("ADD_CONDITIONAL_FORMAT", {
             sheetId,
             ranges: toRangesData(sheetId, "A1"),
             cf: {
@@ -2000,8 +2002,8 @@ describe("conditional formats types", () => {
           });
           expect(result).toBeCancelledBecause(CommandResult.ValueUpperInflectionNaN);
         });
-        test("upper inflection point is NaN", () => {
-          const result = model.dispatch("ADD_CONDITIONAL_FORMAT", {
+        test("upper inflection point is NaN", async () => {
+          const result = await model.dispatchFromOutside("ADD_CONDITIONAL_FORMAT", {
             sheetId,
             ranges: toRangesData(sheetId, "A1"),
             cf: {
@@ -2023,8 +2025,8 @@ describe("conditional formats types", () => {
       }
     );
 
-    test("refuse invalid formulas %s", () => {
-      const result = model.dispatch("ADD_CONDITIONAL_FORMAT", {
+    test("refuse invalid formulas %s", async () => {
+      const result = await model.dispatchFromOutside("ADD_CONDITIONAL_FORMAT", {
         sheetId,
         ranges: toRangesData(sheetId, "A1"),
         cf: {
@@ -2057,8 +2059,8 @@ describe("conditional formats types", () => {
         lowerInflectionPoint: "number" | "percentage" | "percentile",
         upperInflectionPoint: "number" | "percentage" | "percentile"
       ) => {
-        test("upper bigger than lower", () => {
-          const result = model.dispatch("ADD_CONDITIONAL_FORMAT", {
+        test("upper bigger than lower", async () => {
+          const result = await model.dispatchFromOutside("ADD_CONDITIONAL_FORMAT", {
             sheetId,
             ranges: toRangesData(sheetId, "A1"),
             cf: {
@@ -2079,9 +2081,9 @@ describe("conditional formats types", () => {
         });
       }
     );
-    test("single cell", () => {
+    test("single cell", async () => {
       setCellContent(model, "A1", "5");
-      model.dispatch("ADD_CONDITIONAL_FORMAT", {
+      await model.dispatchFromOutside("ADD_CONDITIONAL_FORMAT", {
         cf: {
           id: "1",
           rule: {
@@ -2106,9 +2108,9 @@ describe("conditional formats types", () => {
 
     test.each(["hello", "TRUE", "=TRUE", `="hello"`, ""])(
       "is not applied if cell is not a number: %s",
-      (content) => {
+      async (content) => {
         setCellContent(model, "A1", content);
-        model.dispatch("ADD_CONDITIONAL_FORMAT", {
+        await model.dispatchFromOutside("ADD_CONDITIONAL_FORMAT", {
           cf: {
             id: "1",
             rule: {
@@ -2130,14 +2132,14 @@ describe("conditional formats types", () => {
       }
     );
 
-    test("2 points with 'gt', value scale", () => {
+    test("2 points with 'gt', value scale", async () => {
       setCellContent(model, "A1", "1");
       setCellContent(model, "A2", "3");
       setCellContent(model, "A3", "5");
       setCellContent(model, "A4", "7");
       setCellContent(model, "A5", "10");
 
-      model.dispatch("ADD_CONDITIONAL_FORMAT", {
+      await model.dispatchFromOutside("ADD_CONDITIONAL_FORMAT", {
         cf: {
           id: "1",
           rule: {
@@ -2166,14 +2168,14 @@ describe("conditional formats types", () => {
       expect(model.getters.getConditionalIcon(toCellPosition(sheetId, "A5"))).toEqual("arrowGood");
     });
 
-    test("2 points with 'ge', value scale", () => {
+    test("2 points with 'ge', value scale", async () => {
       setCellContent(model, "A1", "1");
       setCellContent(model, "A2", "3");
       setCellContent(model, "A3", "5");
       setCellContent(model, "A4", "7");
       setCellContent(model, "A5", "10");
 
-      model.dispatch("ADD_CONDITIONAL_FORMAT", {
+      await model.dispatchFromOutside("ADD_CONDITIONAL_FORMAT", {
         cf: {
           id: "1",
           rule: {
@@ -2202,14 +2204,14 @@ describe("conditional formats types", () => {
       expect(model.getters.getConditionalIcon(toCellPosition(sheetId, "A5"))).toEqual("arrowGood");
     });
 
-    test("same upper and lower inflection point", () => {
+    test("same upper and lower inflection point", async () => {
       setCellContent(model, "A1", "1");
       setCellContent(model, "A2", "3");
       setCellContent(model, "A3", "5");
       setCellContent(model, "A4", "7");
       setCellContent(model, "A5", "10");
 
-      model.dispatch("ADD_CONDITIONAL_FORMAT", {
+      await model.dispatchFromOutside("ADD_CONDITIONAL_FORMAT", {
         cf: {
           id: "1",
           rule: {
@@ -2238,8 +2240,8 @@ describe("conditional formats types", () => {
     describe.each(["", "aaaa", "=SUM(1, 2)"])(
       "dispatch is not allowed if value is not a number",
       (value) => {
-        test("minimum is NaN", () => {
-          const result = model.dispatch("ADD_CONDITIONAL_FORMAT", {
+        test("minimum is NaN", async () => {
+          const result = await model.dispatchFromOutside("ADD_CONDITIONAL_FORMAT", {
             sheetId,
             ranges: toRangesData(sheetId, "A1"),
             cf: {
@@ -2253,8 +2255,8 @@ describe("conditional formats types", () => {
           });
           expect(result).toBeCancelledBecause(CommandResult.MinNaN);
         });
-        test("midpoint is NaN", () => {
-          const result = model.dispatch("ADD_CONDITIONAL_FORMAT", {
+        test("midpoint is NaN", async () => {
+          const result = await model.dispatchFromOutside("ADD_CONDITIONAL_FORMAT", {
             sheetId,
             ranges: toRangesData(sheetId, "A1"),
             cf: {
@@ -2269,8 +2271,8 @@ describe("conditional formats types", () => {
           });
           expect(result).toBeCancelledBecause(CommandResult.MidNaN);
         });
-        test("maximum is NaN", () => {
-          const result = model.dispatch("ADD_CONDITIONAL_FORMAT", {
+        test("maximum is NaN", async () => {
+          const result = await model.dispatchFromOutside("ADD_CONDITIONAL_FORMAT", {
             sheetId,
             ranges: toRangesData(sheetId, "A1"),
             cf: {
@@ -2298,8 +2300,8 @@ describe("conditional formats types", () => {
         midType: "number" | "percentage" | "percentile",
         maxType: "number" | "percentage" | "percentile"
       ) => {
-        test("min bigger than max", () => {
-          const result = model.dispatch("ADD_CONDITIONAL_FORMAT", {
+        test("min bigger than max", async () => {
+          const result = await model.dispatchFromOutside("ADD_CONDITIONAL_FORMAT", {
             sheetId,
             ranges: toRangesData(sheetId, "A1"),
             cf: {
@@ -2313,8 +2315,8 @@ describe("conditional formats types", () => {
           });
           expect(result).toBeCancelledBecause(CommandResult.MinBiggerThanMax);
         });
-        test("mid bigger than max", () => {
-          const result = model.dispatch("ADD_CONDITIONAL_FORMAT", {
+        test("mid bigger than max", async () => {
+          const result = await model.dispatchFromOutside("ADD_CONDITIONAL_FORMAT", {
             sheetId,
             ranges: toRangesData(sheetId, "A1"),
             cf: {
@@ -2329,8 +2331,8 @@ describe("conditional formats types", () => {
           });
           expect(result).toBeCancelledBecause(CommandResult.MidBiggerThanMax);
         });
-        test("min bigger than mid", () => {
-          const result = model.dispatch("ADD_CONDITIONAL_FORMAT", {
+        test("min bigger than mid", async () => {
+          const result = await model.dispatchFromOutside("ADD_CONDITIONAL_FORMAT", {
             sheetId,
             ranges: toRangesData(sheetId, "A1"),
             cf: {
@@ -2347,9 +2349,9 @@ describe("conditional formats types", () => {
         });
       }
     );
-    test("1 point, value scale", () => {
+    test("1 point, value scale", async () => {
       setCellContent(model, "A1", "10");
-      model.dispatch("ADD_CONDITIONAL_FORMAT", {
+      await model.dispatchFromOutside("ADD_CONDITIONAL_FORMAT", {
         cf: createColorScale(
           "1",
           { type: "value", color: 0xff00ff },
@@ -2361,14 +2363,14 @@ describe("conditional formats types", () => {
       expect(getStyle(model, "A1")).toEqual({});
     });
 
-    test("2 points, value scale", () => {
+    test("2 points, value scale", async () => {
       setCellContent(model, "A1", "10");
       setCellContent(model, "A2", "11");
       setCellContent(model, "A3", "17");
       setCellContent(model, "A4", "19");
       setCellContent(model, "A5", "20");
 
-      model.dispatch("ADD_CONDITIONAL_FORMAT", {
+      await model.dispatchFromOutside("ADD_CONDITIONAL_FORMAT", {
         cf: createColorScale(
           "1",
           { type: "value", color: 0xff00ff },
@@ -2395,14 +2397,14 @@ describe("conditional formats types", () => {
       });
     });
 
-    test("2 points, value scale with other min and max", () => {
+    test("2 points, value scale with other min and max", async () => {
       setCellContent(model, "A1", "100");
       setCellContent(model, "A2", "110");
       setCellContent(model, "A3", "170");
       setCellContent(model, "A4", "190");
       setCellContent(model, "A5", "200");
 
-      model.dispatch("ADD_CONDITIONAL_FORMAT", {
+      await model.dispatchFromOutside("ADD_CONDITIONAL_FORMAT", {
         cf: createColorScale(
           "1",
           { type: "value", color: 0xff00ff },
@@ -2429,14 +2431,14 @@ describe("conditional formats types", () => {
       });
     });
 
-    test("2 points, value scale with minimum = 0", () => {
+    test("2 points, value scale with minimum = 0", async () => {
       setCellContent(model, "A1", "0");
       setCellContent(model, "A2", "1");
       setCellContent(model, "A3", "7");
       setCellContent(model, "A4", "9");
       setCellContent(model, "A5", "10");
 
-      model.dispatch("ADD_CONDITIONAL_FORMAT", {
+      await model.dispatchFromOutside("ADD_CONDITIONAL_FORMAT", {
         cf: createColorScale(
           "1",
           { type: "value", color: 0xff00ff },
@@ -2463,12 +2465,12 @@ describe("conditional formats types", () => {
       });
     });
 
-    test("2 points, value scale with any value 0", () => {
+    test("2 points, value scale with any value 0", async () => {
       setCellContent(model, "A1", "0");
       setCellContent(model, "A2", "-5");
       setCellContent(model, "A3", "5");
 
-      model.dispatch("ADD_CONDITIONAL_FORMAT", {
+      await model.dispatchFromOutside("ADD_CONDITIONAL_FORMAT", {
         cf: createColorScale(
           "1",
           { type: "value", color: 0xff0000 },
@@ -2489,10 +2491,10 @@ describe("conditional formats types", () => {
       });
     });
 
-    test("2 points, value scale with same min/max", () => {
+    test("2 points, value scale with same min/max", async () => {
       setCellContent(model, "A1", "10");
       setCellContent(model, "A2", "10");
-      model.dispatch("ADD_CONDITIONAL_FORMAT", {
+      await model.dispatchFromOutside("ADD_CONDITIONAL_FORMAT", {
         cf: createColorScale(
           "1",
           { type: "value", color: 0xff00ff },
@@ -2506,8 +2508,8 @@ describe("conditional formats types", () => {
       expect(getStyle(model, "A2")).toEqual({});
     });
 
-    test("CF is updated with insert/delete cells", () => {
-      model.dispatch("ADD_CONDITIONAL_FORMAT", {
+    test("CF is updated with insert/delete cells", async () => {
+      await model.dispatchFromOutside("ADD_CONDITIONAL_FORMAT", {
         cf: createColorScale(
           "1",
           { type: "value", color: 0xff00ff },
@@ -2520,12 +2522,12 @@ describe("conditional formats types", () => {
       expect(model.getters.getConditionalFormats(sheetId)[0].ranges[0]).toBe("A1:A8");
     });
 
-    test("Color scale with error cell in range", () => {
+    test("Color scale with error cell in range", async () => {
       setCellContent(model, "A1", "10");
       setCellContent(model, "A2", "=0/0");
       setCellContent(model, "A3", "1");
 
-      model.dispatch("ADD_CONDITIONAL_FORMAT", {
+      await model.dispatchFromOutside("ADD_CONDITIONAL_FORMAT", {
         cf: createColorScale(
           "1",
           { type: "value", color: 0xff00ff },
@@ -2540,9 +2542,9 @@ describe("conditional formats types", () => {
     });
   });
 
-  test("CF evaluation uses default locale, and not current locale", () => {
+  test("CF evaluation uses default locale, and not current locale", async () => {
     updateLocale(model, FR_LOCALE);
-    model.dispatch("ADD_CONDITIONAL_FORMAT", {
+    await model.dispatchFromOutside("ADD_CONDITIONAL_FORMAT", {
       cf: createEqualCF("01/12/2012", { fillColor: "#0000FF" }, "id"),
       ranges: toRangesData(sheetId, "A1"),
       sheetId,
@@ -2552,8 +2554,8 @@ describe("conditional formats types", () => {
     expect(getStyle(model, "A1")).toEqual({});
   });
 
-  test("Can add a data bar rule with rangeValue having a differnet size than the cf range", () => {
-    const result = model.dispatch("ADD_CONDITIONAL_FORMAT", {
+  test("Can add a data bar rule with rangeValue having a differnet size than the cf range", async () => {
+    const result = await model.dispatchFromOutside("ADD_CONDITIONAL_FORMAT", {
       cf: {
         id: "1",
         rule: {
@@ -2568,7 +2570,7 @@ describe("conditional formats types", () => {
     expect(result).toBeSuccessfullyDispatched;
   });
 
-  test("Can add a data bar cf based on itself", () => {
+  test("Can add a data bar cf based on itself", async () => {
     // prettier-ignore
     const grid = {
         A1: "2",
@@ -2576,7 +2578,7 @@ describe("conditional formats types", () => {
         A3: "8",
     };
     const model = createModelFromGrid(grid);
-    model.dispatch("ADD_CONDITIONAL_FORMAT", {
+    await model.dispatchFromOutside("ADD_CONDITIONAL_FORMAT", {
       cf: {
         id: "1",
         rule: {
@@ -2592,7 +2594,7 @@ describe("conditional formats types", () => {
     expect(getDataBarFill(model, "A3")?.percentage).toBe(100);
   });
 
-  test("Can add a data bar cf based on another range", () => {
+  test("Can add a data bar cf based on another range", async () => {
     // prettier-ignore
     const grid = {
         A1: "2", B1: "Hello",
@@ -2600,7 +2602,7 @@ describe("conditional formats types", () => {
         A3: "8", B3: "!",
     };
     const model = createModelFromGrid(grid);
-    model.dispatch("ADD_CONDITIONAL_FORMAT", {
+    await model.dispatchFromOutside("ADD_CONDITIONAL_FORMAT", {
       cf: {
         id: "1",
         rule: {
@@ -2617,7 +2619,7 @@ describe("conditional formats types", () => {
     expect(getDataBarFill(model, "B3")?.percentage).toBe(100);
   });
 
-  test("Adding a data bar rule with rangeValues having smaller size than cf range should only apply rule on matching cells", () => {
+  test("Adding a data bar rule with rangeValues having smaller size than cf range should only apply rule on matching cells", async () => {
     // prettier-ignore
     const grid = {
         A1: "A", B1: "2",
@@ -2625,7 +2627,7 @@ describe("conditional formats types", () => {
         A3: "C", B3: "8",
     };
     const model = createModelFromGrid(grid);
-    model.dispatch("ADD_CONDITIONAL_FORMAT", {
+    await model.dispatchFromOutside("ADD_CONDITIONAL_FORMAT", {
       cf: {
         id: "1",
         rule: {
@@ -2642,7 +2644,7 @@ describe("conditional formats types", () => {
     expect(getDataBarFill(model, "A3")?.percentage).toBeUndefined();
   });
 
-  test("Adding a data bar rule with rangeValues having bigger size than cf range should only apply rule on matching cells", () => {
+  test("Adding a data bar rule with rangeValues having bigger size than cf range should only apply rule on matching cells", async () => {
     // prettier-ignore
     const grid = {
       A1: "A", B1: "2",
@@ -2650,7 +2652,7 @@ describe("conditional formats types", () => {
       A3: "C", B3: "8",
   };
     const model = createModelFromGrid(grid);
-    model.dispatch("ADD_CONDITIONAL_FORMAT", {
+    await model.dispatchFromOutside("ADD_CONDITIONAL_FORMAT", {
       cf: {
         id: "1",
         rule: {
@@ -2668,7 +2670,7 @@ describe("conditional formats types", () => {
     expect(getDataBarFill(model, "A4")?.percentage).toBeUndefined();
   });
 
-  test("Data bar CF with negative values", () => {
+  test("Data bar CF with negative values", async () => {
     // prettier-ignore
     const grid = {
         A1: "-2",
@@ -2676,7 +2678,7 @@ describe("conditional formats types", () => {
         A3: "-8",
     };
     const model = createModelFromGrid(grid);
-    model.dispatch("ADD_CONDITIONAL_FORMAT", {
+    await model.dispatchFromOutside("ADD_CONDITIONAL_FORMAT", {
       cf: {
         id: "1",
         rule: {
@@ -2692,7 +2694,7 @@ describe("conditional formats types", () => {
     expect(getDataBarFill(model, "A3")).toBeUndefined();
   });
 
-  test("Data bar CF with 0 values", () => {
+  test("Data bar CF with 0 values", async () => {
     // prettier-ignore
     const grid = {
         A1: "2",
@@ -2700,7 +2702,7 @@ describe("conditional formats types", () => {
         A3: "0",
     };
     const model = createModelFromGrid(grid);
-    model.dispatch("ADD_CONDITIONAL_FORMAT", {
+    await model.dispatchFromOutside("ADD_CONDITIONAL_FORMAT", {
       cf: {
         id: "1",
         rule: {
@@ -2716,13 +2718,13 @@ describe("conditional formats types", () => {
     expect(getDataBarFill(model, "A3")).toBeUndefined();
   });
 
-  test("Data bar CF with 0 as maximum", () => {
+  test("Data bar CF with 0 as maximum", async () => {
     // prettier-ignore
     const grid = {
         A1: "0",
     };
     const model = createModelFromGrid(grid);
-    model.dispatch("ADD_CONDITIONAL_FORMAT", {
+    await model.dispatchFromOutside("ADD_CONDITIONAL_FORMAT", {
       cf: {
         id: "1",
         rule: {
@@ -2736,7 +2738,7 @@ describe("conditional formats types", () => {
     expect(getDataBarFill(model, "A1")).toBeUndefined();
   });
 
-  test("Ignore not number cells", () => {
+  test("Ignore not number cells", async () => {
     // prettier-ignore
     const grid = {
         A1: "10",
@@ -2744,7 +2746,7 @@ describe("conditional formats types", () => {
         A3: "World",
     };
     const model = createModelFromGrid(grid);
-    model.dispatch("ADD_CONDITIONAL_FORMAT", {
+    await model.dispatchFromOutside("ADD_CONDITIONAL_FORMAT", {
       cf: {
         id: "1",
         rule: {
@@ -2760,14 +2762,14 @@ describe("conditional formats types", () => {
     expect(getDataBarFill(model, "A3")).toBeUndefined();
   });
 
-  test("Ignore negative number cells", () => {
+  test("Ignore negative number cells", async () => {
     // prettier-ignore
     const grid = {
         A1: "10",
         A2: "-10",
     };
     const model = createModelFromGrid(grid);
-    model.dispatch("ADD_CONDITIONAL_FORMAT", {
+    await model.dispatchFromOutside("ADD_CONDITIONAL_FORMAT", {
       cf: {
         id: "1",
         rule: {
@@ -2782,7 +2784,7 @@ describe("conditional formats types", () => {
     expect(getDataBarFill(model, "A2")).toBeUndefined();
   });
 
-  test("range value range is adapted", () => {
+  test("range value range is adapted", async () => {
     // prettier-ignore
     const grid = {
         B1: "2", C1: "Hello",
@@ -2790,7 +2792,7 @@ describe("conditional formats types", () => {
         B3: "8", C3: "!",
     };
     const model = createModelFromGrid(grid);
-    model.dispatch("ADD_CONDITIONAL_FORMAT", {
+    await model.dispatchFromOutside("ADD_CONDITIONAL_FORMAT", {
       cf: {
         id: "1",
         rule: {
@@ -2808,7 +2810,7 @@ describe("conditional formats types", () => {
     expect(getDataBarFill(model, "B3")?.percentage).toBe(100);
   });
 
-  test("conditional format with simple custom formula", () => {
+  test("conditional format with simple custom formula", async () => {
     const grid = {
       A1: "2",
       A2: "4",
@@ -2816,7 +2818,7 @@ describe("conditional formats types", () => {
       A4: "4",
     };
     const model = createModelFromGrid(grid);
-    model.dispatch("ADD_CONDITIONAL_FORMAT", {
+    await model.dispatchFromOutside("ADD_CONDITIONAL_FORMAT", {
       cf: {
         id: "1",
         rule: {
@@ -2837,14 +2839,14 @@ describe("conditional formats types", () => {
     expect(getStyle(model, "C4")).toEqual({ fillColor: "#FF0000" });
   });
 
-  test("conditional format with simple custom formula containing fixed range", () => {
+  test("conditional format with simple custom formula containing fixed range", async () => {
     const grid = {
       A1: "2",
       A2: "4",
       A3: "2",
     };
     const model = createModelFromGrid(grid);
-    model.dispatch("ADD_CONDITIONAL_FORMAT", {
+    await model.dispatchFromOutside("ADD_CONDITIONAL_FORMAT", {
       cf: {
         id: "1",
         rule: {
@@ -2864,12 +2866,12 @@ describe("conditional formats types", () => {
     expect(getStyle(model, "C3")).toEqual({ fillColor: "#FF0000" });
   });
 
-  test("custom formula not returning a boolean", () => {
+  test("custom formula not returning a boolean", async () => {
     const grid = {
       B1: "Seattle",
     };
     const model = createModelFromGrid(grid);
-    model.dispatch("ADD_CONDITIONAL_FORMAT", {
+    await model.dispatchFromOutside("ADD_CONDITIONAL_FORMAT", {
       cf: {
         id: "1",
         rule: {
@@ -2887,12 +2889,12 @@ describe("conditional formats types", () => {
     expect(getStyle(model, "B1")).toEqual({ fillColor: "#FF0000" });
   });
 
-  test("custom formula resulting to an error", () => {
+  test("custom formula resulting to an error", async () => {
     const grid = {
       B1: "Seattle",
     };
     const model = createModelFromGrid(grid);
-    model.dispatch("ADD_CONDITIONAL_FORMAT", {
+    await model.dispatchFromOutside("ADD_CONDITIONAL_FORMAT", {
       cf: {
         id: "1",
         rule: {

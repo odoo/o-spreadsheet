@@ -421,7 +421,7 @@ describe("borders", () => {
     expect(getBorder(model, "C2")).toBeNull();
   });
 
-  test("deleting a cell with a border does not remove the border", () => {
+  test("deleting a cell with a border does not remove the border", async () => {
     const model = new Model();
 
     // select B2 and set its top border
@@ -430,7 +430,7 @@ describe("borders", () => {
     setZoneBorders(model, { position: "top" });
 
     expect(getBorder(model, "B2")).toBeDefined();
-    model.dispatch("DELETE_CONTENT", {
+    await model.dispatchFromOutside("DELETE_CONTENT", {
       sheetId: model.getters.getActiveSheetId(),
       target: model.getters.getSelectedZones(),
     });
@@ -450,14 +450,14 @@ describe("borders", () => {
     expect(getBorder(model, "B2")).toBeNull();
   });
 
-  test("can clear formatting (border)", () => {
+  test("can clear formatting (border)", async () => {
     const model = new Model();
     setCellContent(model, "B1", "b1");
     selectCell(model, "B1");
     setZoneBorders(model, { position: "all" });
 
     expect(getBorder(model, "B1")).toBeDefined();
-    model.dispatch("CLEAR_FORMATTING", {
+    await model.dispatchFromOutside("CLEAR_FORMATTING", {
       sheetId: model.getters.getActiveSheetId(),
       target: model.getters.getSelectedZones(),
     });
@@ -482,10 +482,10 @@ describe("borders", () => {
     expect(getCell(model, "B1")).toBeUndefined();
   });
 
-  test("set all border of a cell", () => {
+  test("set all border of a cell", async () => {
     const model = new Model();
     const s: BorderDescr = { style: "medium", color: "#FF0000" };
-    model.dispatch("SET_BORDER", {
+    await model.dispatchFromOutside("SET_BORDER", {
       sheetId: model.getters.getActiveSheetId(),
       col: 0,
       row: 0,
@@ -534,7 +534,7 @@ describe("Grid manipulation", () => {
     expect(getBorder(model, "D2")).toBeNull();
   });
 
-  test("move duplicated border when col is inserted before", () => {
+  test("move duplicated border when col is inserted before", async () => {
     const model = new Model();
     const firstSheetId = model.getters.getActiveSheetId();
     const secondSheetId = "42";
@@ -545,7 +545,7 @@ describe("Grid manipulation", () => {
       right: DEFAULT_BORDER_DESC,
       bottom: DEFAULT_BORDER_DESC,
     });
-    model.dispatch("DUPLICATE_SHEET", {
+    await model.dispatchFromOutside("DUPLICATE_SHEET", {
       sheetId: firstSheetId,
       sheetIdTo: secondSheetId,
       sheetNameTo: "Copy of Sheet1",
@@ -567,12 +567,12 @@ describe("Grid manipulation", () => {
     expect(getBorder(model, "D2", secondSheetId)).toBeNull();
   });
 
-  test("move duplicated border when row is inserted before", () => {
+  test("move duplicated border when row is inserted before", async () => {
     const model = new Model();
     const firstSheetId = model.getters.getActiveSheetId();
     const secondSheetId = "42";
     setZoneBorders(model, { position: "external" }, ["B2"]);
-    model.dispatch("DUPLICATE_SHEET", {
+    await model.dispatchFromOutside("DUPLICATE_SHEET", {
       sheetId: firstSheetId,
       sheetIdTo: secondSheetId,
       sheetNameTo: "Copy of Sheet1",
@@ -678,12 +678,16 @@ describe("Grid manipulation", () => {
     expect(getBorder(model, "A2")).toBeNull();
   });
 
-  test("Borders are correctly duplicated on sheet dup", () => {
+  test("Borders are correctly duplicated on sheet dup", async () => {
     setZoneBorders(model, { position: "external" }, ["B2"]);
     const sheetId = model.getters.getActiveSheetId();
     const sheetIdTo = "42";
-    model.dispatch("DUPLICATE_SHEET", { sheetId, sheetIdTo, sheetNameTo: "Copy of Sheet1" });
-    model.dispatch("ACTIVATE_SHEET", { sheetIdFrom: sheetId, sheetIdTo });
+    await model.dispatchFromOutside("DUPLICATE_SHEET", {
+      sheetId,
+      sheetIdTo,
+      sheetNameTo: "Copy of Sheet1",
+    });
+    await model.dispatchFromOutside("ACTIVATE_SHEET", { sheetIdFrom: sheetId, sheetIdTo });
     expect(getBorder(model, "B2")).toEqual({
       top: DEFAULT_BORDER_DESC,
       left: DEFAULT_BORDER_DESC,

@@ -53,7 +53,7 @@ export class VerticalScrollBar extends Component<Props, SpreadsheetChildEnv> {
 
   onScroll(offset) {
     const { scrollX } = this.env.model.getters.getActiveSheetScrollInfo();
-    this.env.model.dispatch("SET_VIEWPORT_OFFSET", {
+    this.env.model.dispatchFromOutside("SET_VIEWPORT_OFFSET", {
       offsetX: scrollX, // offsetX is the same
       offsetY: offset,
     });

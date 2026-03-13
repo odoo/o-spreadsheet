@@ -2,8 +2,8 @@ import { _t } from "@odoo/o-spreadsheet-engine/translation";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { CommandResult } from "../../types";
 
-export function interactiveCut(env: SpreadsheetChildEnv) {
-  const result = env.model.dispatch("CUT");
+export async function interactiveCut(env: SpreadsheetChildEnv) {
+  const result = await env.model.dispatchFromOutside("CUT");
 
   if (!result.isSuccessful) {
     if (result.isCancelledBecause(CommandResult.WrongCutSelection)) {

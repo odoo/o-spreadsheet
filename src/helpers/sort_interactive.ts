@@ -4,7 +4,7 @@ import { CommandResult } from "@odoo/o-spreadsheet-engine/types/commands";
 import { Position, SortOptions } from "@odoo/o-spreadsheet-engine/types/misc";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 
-export function interactiveSortSelection(
+export async function interactiveSortSelection(
   env: SpreadsheetChildEnv,
   sheetId: UID,
   anchor: Position,
@@ -32,13 +32,13 @@ export function interactiveSortSelection(
   }
 
   if (multiColumns) {
-    interactiveSort(env, sheetId, anchor, zone, sortDirection);
+    await interactiveSort(env, sheetId, anchor, zone, sortDirection);
     return;
   }
 
   const contiguousZone = env.model.getters.getContiguousZone(sheetId, zone);
   if (isEqual(contiguousZone, zone)) {
-    interactiveSort(env, sheetId, anchor, zone, sortDirection);
+    await interactiveSort(env, sheetId, anchor, zone, sortDirection);
   } else {
     env.askConfirmation(
       _t(
@@ -50,7 +50,7 @@ export function interactiveSortSelection(
   }
 }
 
-export function interactiveSort(
+export async function interactiveSort(
   env: SpreadsheetChildEnv,
   sheetId: UID,
   anchor: Position,
@@ -58,7 +58,7 @@ export function interactiveSort(
   sortDirection: SortDirection,
   sortOptions?: SortOptions
 ) {
-  const result = env.model.dispatch("SORT_CELLS", {
+  const result = await env.model.dispatchFromOutside("SORT_CELLS", {
     sheetId,
     col: anchor.col,
     row: anchor.row,

@@ -1,4 +1,5 @@
 import { Session } from "../collaborative/session";
+import { FinalizeStateObserver } from "../finalize_state_observer";
 import { StateObserver } from "../state_observer";
 import { ClientPosition } from "../types/collaborative/session";
 import { Command, CommandDispatcher } from "../types/commands";
@@ -15,6 +16,7 @@ export type UIActions = Pick<ModelConfig, "notifyUI" | "raiseBlockingErrorUI">;
 export interface UIPluginConfig {
   readonly getters: Getters;
   readonly stateObserver: StateObserver;
+  readonly finalizeStateObserver: FinalizeStateObserver;
   readonly dispatch: CommandDispatcher["dispatch"];
   readonly canDispatch: CommandDispatcher["dispatch"];
   readonly selection: SelectionStreamProcessor;
@@ -49,12 +51,13 @@ export class UIPlugin<State = any> extends BasePlugin<State, Command> {
   constructor({
     getters,
     stateObserver,
+    finalizeStateObserver,
     dispatch,
     canDispatch,
     uiActions,
     selection,
   }: UIPluginConfig) {
-    super(stateObserver);
+    super(stateObserver, finalizeStateObserver);
     this.getters = getters;
     this.ui = uiActions;
     this.selection = selection;

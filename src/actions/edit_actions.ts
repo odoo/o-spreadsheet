@@ -10,7 +10,7 @@ import * as ACTIONS from "./menu_items_actions";
 export const undo: ActionSpec = {
   name: _t("Undo"),
   shortcut: "Ctrl+Z",
-  execute: (env) => env.model.dispatch("REQUEST_UNDO"),
+  execute: async (env) => env.model.dispatchFromOutside("REQUEST_UNDO"),
   isEnabled: (env) => env.model.getters.canUndo(),
   isEnabledOnLockedSheet: true,
   icon: "o-spreadsheet-Icon.UNDO",
@@ -19,7 +19,7 @@ export const undo: ActionSpec = {
 export const redo: ActionSpec = {
   name: _t("Redo"),
   shortcut: "Ctrl+Y",
-  execute: (env) => env.model.dispatch("REQUEST_REDO"),
+  execute: (env) => env.model.dispatchFromOutside("REQUEST_REDO"),
   isEnabled: (env) => env.model.getters.canRedo(),
   isEnabledOnLockedSheet: true,
   icon: "o-spreadsheet-Icon.REDO",
@@ -30,7 +30,7 @@ export const copy: ActionSpec = {
   shortcut: "Ctrl+C",
   isReadonlyAllowed: true,
   execute: async (env) => {
-    env.model.dispatch("COPY");
+    env.model.dispatchFromOutside("COPY");
     await env.clipboard.write(await env.model.getters.getClipboardTextAndImageContent());
   },
   isEnabledOnLockedSheet: true,
@@ -88,7 +88,7 @@ export const findAndReplace: ActionSpec = {
 export const deleteValues: ActionSpec = {
   name: _t("Delete values"),
   execute: (env) =>
-    env.model.dispatch("DELETE_UNFILTERED_CONTENT", {
+    env.model.dispatchFromOutside("DELETE_UNFILTERED_CONTENT", {
       sheetId: env.model.getters.getActiveSheetId(),
       target: env.model.getters.getSelectedZones(),
     }),
@@ -133,18 +133,24 @@ export const deleteCells: ActionSpec = {
 
 export const deleteCellShiftUp: ActionSpec = {
   name: _t("Delete cell and shift up"),
-  execute: (env) => {
+  execute: async (env) => {
     const zone = env.model.getters.getSelectedZone();
-    const result = env.model.dispatch("DELETE_CELL", { zone, shiftDimension: "ROW" });
+    const result = await env.model.dispatchFromOutside("DELETE_CELL", {
+      zone,
+      shiftDimension: "ROW",
+    });
     handlePasteResult(env, result);
   },
 };
 
 export const deleteCellShiftLeft: ActionSpec = {
   name: _t("Delete cell and shift left"),
-  execute: (env) => {
+  execute: async (env) => {
     const zone = env.model.getters.getSelectedZone();
-    const result = env.model.dispatch("DELETE_CELL", { zone, shiftDimension: "COL" });
+    const result = await env.model.dispatchFromOutside("DELETE_CELL", {
+      zone,
+      shiftDimension: "COL",
+    });
     handlePasteResult(env, result);
   },
 };
@@ -203,7 +209,7 @@ function toggleMerge(env: SpreadsheetChildEnv) {
     const mergesToRemove = target.flatMap((zone) =>
       env.model.getters.getMergesInZone(sheetId, zone)
     );
-    env.model.dispatch("REMOVE_MERGE", { sheetId, target: mergesToRemove });
+    env.model.dispatchFromOutside("REMOVE_MERGE", { sheetId, target: mergesToRemove });
   } else {
     interactiveAddMerge(env, sheetId, target);
   }

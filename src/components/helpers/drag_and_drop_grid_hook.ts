@@ -126,7 +126,7 @@ export function useDragAndDropBeyondTheViewport(env: SpreadsheetChildEnv) {
 
     pointerMoveCallback?.(colIndex, rowIndex, currentEv);
     if (canEdgeScroll) {
-      env.model.dispatch("SET_VIEWPORT_OFFSET", { offsetX: scrollX, offsetY: scrollY });
+      env.model.dispatchFromOutside("SET_VIEWPORT_OFFSET", { offsetX: scrollX, offsetY: scrollY });
       timeOutId = setTimeout(() => {
         timeOutId = null;
         pointerMoveHandler(currentEv);

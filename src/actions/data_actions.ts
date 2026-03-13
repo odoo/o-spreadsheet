@@ -39,7 +39,7 @@ export const removeDuplicates: ActionSpec = {
 export const trimWhitespace: ActionSpec = {
   name: _t("Trim whitespace"),
   execute: (env) => {
-    env.model.dispatch("TRIM_WHITESPACE");
+    env.model.dispatchFromOutside("TRIM_WHITESPACE");
   },
 };
 

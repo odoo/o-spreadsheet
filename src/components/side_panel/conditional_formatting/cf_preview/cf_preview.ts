@@ -82,7 +82,7 @@ export class ConditionalFormatPreview extends Component<Props, SpreadsheetChildE
   }
 
   deleteConditionalFormat() {
-    this.env.model.dispatch("REMOVE_CONDITIONAL_FORMAT", {
+    this.env.model.dispatchFromOutside("REMOVE_CONDITIONAL_FORMAT", {
       id: this.props.conditionalFormat.id,
       sheetId: this.env.model.getters.getActiveSheetId(),
     });

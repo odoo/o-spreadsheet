@@ -133,7 +133,7 @@ describe("Export data to xlsx then import it", () => {
   test("Cell border", async () => {
     const descr: BorderDescr = { style: "thin", color: "#000000" };
     const border = { bottom: descr, top: descr, left: descr, right: descr };
-    model.dispatch("SET_BORDER", {
+    await model.dispatchFromOutside("SET_BORDER", {
       sheetId,
       col: 0,
       row: 0,
@@ -211,7 +211,7 @@ describe("Export data to xlsx then import it", () => {
       id: "1",
       rule,
     };
-    model.dispatch("ADD_CONDITIONAL_FORMAT", {
+    await model.dispatchFromOutside("ADD_CONDITIONAL_FORMAT", {
       cf,
       ranges: toRangesData(sheetId, "A1:A3"),
       sheetId,
@@ -263,7 +263,7 @@ describe("Export data to xlsx then import it", () => {
       criterion: dv.criterion,
       isBlocking: dv.isBlocking,
     };
-    model.dispatch("ADD_DATA_VALIDATION_RULE", {
+    await model.dispatchFromOutside("ADD_DATA_VALIDATION_RULE", {
       rule,
       ranges: toRangesData(sheetId, dv.ranges[0]),
       sheetId,

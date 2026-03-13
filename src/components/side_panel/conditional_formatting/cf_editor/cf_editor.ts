@@ -103,12 +103,12 @@ export class ConditionalFormattingEditor extends Component<Props, SpreadsheetChi
   onCancel() {
     if (this.store.state.hasEditedCf) {
       if (this.props.isNewCf) {
-        this.env.model.dispatch("REMOVE_CONDITIONAL_FORMAT", {
+        this.env.model.dispatchFromOutside("REMOVE_CONDITIONAL_FORMAT", {
           sheetId: this.activeSheetId,
           id: this.props.cf.id,
         });
       } else {
-        this.env.model.dispatch("ADD_CONDITIONAL_FORMAT", {
+        this.env.model.dispatchFromOutside("ADD_CONDITIONAL_FORMAT", {
           cf: this.props.cf,
           ranges: this.props.cf.ranges.map((range) =>
             this.env.model.getters.getRangeDataFromXc(this.activeSheetId, range)

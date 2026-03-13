@@ -122,7 +122,7 @@ class MockGridRenderingContext implements GridRenderingContext {
   thinLineWidth = 0.4;
 
   constructor(model: Model, width: number, height: number, observer: ContextObserver) {
-    model.dispatch("RESIZE_SHEETVIEW", {
+    await model.dispatchFromOutside("RESIZE_SHEETVIEW", {
       width: width - HEADER_WIDTH,
       height: height - HEADER_HEIGHT,
       gridOffsetX: 0,
@@ -209,7 +209,7 @@ describe("renderer", () => {
     let ctx: MockGridRenderingContext;
     let drawGridRenderer: (ctx: GridRenderingContext) => void;
 
-    beforeEach(() => {
+    beforeEach(async () => {
       ({ drawGridRenderer, model } = setRenderer(
         new Model({ sheets: [{ colNumber: 2, rowNumber: 2 }] })
       ));
@@ -226,7 +226,7 @@ describe("renderer", () => {
           instructions.push(`ctx.${key}(${args.map((a) => JSON.stringify(a)).join(", ")})`);
         },
       });
-      model.dispatch("RESIZE_SHEETVIEW", {
+      await model.dispatchFromOutside("RESIZE_SHEETVIEW", {
         width,
         height,
         gridOffsetX: HEADER_WIDTH,
@@ -470,12 +470,12 @@ describe("renderer", () => {
     ]);
   });
 
-  test("fillstyle of cell works with CF", () => {
+  test("fillstyle of cell works with CF", async () => {
     const { drawGridRenderer, model } = setRenderer(
       new Model({ sheets: [{ colNumber: 1, rowNumber: 3 }] })
     );
     const sheetId = model.getters.getActiveSheetId();
-    model.dispatch("ADD_CONDITIONAL_FORMAT", {
+    await model.dispatchFromOutside("ADD_CONDITIONAL_FORMAT", {
       cf: createEqualCF("1", { fillColor: "#DC6CDF" }, "1"),
       sheetId,
       ranges: toRangesData(sheetId, "A1"),
@@ -554,12 +554,12 @@ describe("renderer", () => {
     ]);
   });
 
-  test("fillstyle of merge works with CF", () => {
+  test("fillstyle of merge works with CF", async () => {
     const { drawGridRenderer, model } = setRenderer(
       new Model({ sheets: [{ colNumber: 1, rowNumber: 3 }] })
     );
     const sheetId = model.getters.getActiveSheetId();
-    model.dispatch("ADD_CONDITIONAL_FORMAT", {
+    await model.dispatchFromOutside("ADD_CONDITIONAL_FORMAT", {
       cf: createEqualCF("1", { fillColor: "#DC6CDF" }, "1"),
       ranges: toRangesData(sheetId, "A1"),
       sheetId,
@@ -806,11 +806,11 @@ describe("renderer", () => {
     expect(textAligns).toEqual(["right", "center"]);
   });
 
-  test("functions are aligned to the left", () => {
+  test("functions are aligned to the left", async () => {
     const { drawGridRenderer, model } = setRenderer();
 
     setCellContent(model, "A1", "=SUM(1,2)");
-    model.dispatch("SET_FORMULA_VISIBILITY", { show: true });
+    await model.dispatchFromOutside("SET_FORMULA_VISIBILITY", { show: true });
     const textAligns: string[] = [];
 
     const ctx = new MockGridRenderingContext(model, 1000, 1000, {
@@ -834,12 +834,12 @@ describe("renderer", () => {
     );
   });
 
-  test("functions with centered content are aligned to the left", () => {
+  test("functions with centered content are aligned to the left", async () => {
     const { drawGridRenderer, model } = setRenderer();
     setStyle(model, "A1", { align: "center" });
 
     setCellContent(model, "A1", "=SUM(1,2)");
-    model.dispatch("SET_FORMULA_VISIBILITY", { show: true });
+    await model.dispatchFromOutside("SET_FORMULA_VISIBILITY", { show: true });
     const textAligns: string[] = [];
 
     const ctx = new MockGridRenderingContext(model, 1000, 1000, {
@@ -863,7 +863,7 @@ describe("renderer", () => {
     );
   });
 
-  test("CF on empty cell", () => {
+  test("CF on empty cell", async () => {
     const { drawGridRenderer, model } = setRenderer(
       new Model({ sheets: [{ colNumber: 1, rowNumber: 1 }] })
     );
@@ -888,7 +888,7 @@ describe("renderer", () => {
     expect(removeOffsetOfFillStyles(fillStyle)).toEqual([]);
     fillStyle = [];
     const sheetId = model.getters.getActiveSheetId();
-    const result = model.dispatch("ADD_CONDITIONAL_FORMAT", {
+    const result = await model.dispatchFromOutside("ADD_CONDITIONAL_FORMAT", {
       cf: {
         id: "1",
         rule: {
@@ -1735,7 +1735,7 @@ describe("renderer", () => {
     expect(strokeColors).toEqual([]);
   });
 
-  test("Do not draw gridLines over colored cells while hiding grid lines", () => {
+  test("Do not draw gridLines over colored cells while hiding grid lines", async () => {
     const CellFillColor = "#fe0000";
     const { drawGridRenderer, model } = setRenderer(
       new Model({
@@ -1761,7 +1761,10 @@ describe("renderer", () => {
     expect(strokeColors).toContain(SELECTION_BORDER_COLOR);
 
     // model without grid lines
-    model.dispatch("SET_GRID_LINES_VISIBILITY", { sheetId: "Sheet1", areGridLinesVisible: false });
+    await model.dispatchFromOutside("SET_GRID_LINES_VISIBILITY", {
+      sheetId: "Sheet1",
+      areGridLinesVisible: false,
+    });
     strokeColors = [];
     drawGridRenderer(ctx);
 
@@ -2299,9 +2302,9 @@ describe("renderer", () => {
     expect(borderRenderingContext).toEqual([[1, [[1, 1]]]]);
   });
 
-  test("Cells of splilled formula are empty is we display the formulas", () => {
+  test("Cells of splilled formula are empty is we display the formulas", async () => {
     const model = new Model({ sheets: [{ colNumber: 2, rowNumber: 2 }] });
-    model.dispatch("SET_FORMULA_VISIBILITY", { show: true });
+    await model.dispatchFromOutside("SET_FORMULA_VISIBILITY", { show: true });
     setCellContent(model, "A1", "=MUNIT(2)");
     const { drawGridRenderer, gridRendererStore } = setRenderer(model);
     const ctx = new MockGridRenderingContext(model, 1000, 1000, {});
@@ -2414,7 +2417,7 @@ describe("renderer", () => {
       });
     });
 
-    test("chip is rendered next to CF icon", () => {
+    test("chip is rendered next to CF icon", async () => {
       const { drawGridRenderer, model, gridRendererStore } = setRenderer();
       const criterion: DataValidationCriterion = {
         type: "isValueInList",
@@ -2422,7 +2425,7 @@ describe("renderer", () => {
         displayStyle: "chip",
       };
       const sheetId = model.getters.getActiveSheetId();
-      model.dispatch("ADD_CONDITIONAL_FORMAT", {
+      await model.dispatchFromOutside("ADD_CONDITIONAL_FORMAT", {
         cf: {
           id: "1",
           rule: {

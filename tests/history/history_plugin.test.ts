@@ -269,11 +269,11 @@ describe("Model history", () => {
     expect(getEvaluatedCell(model, "A1").value).toBe(10);
   });
 
-  test("undo a sheet creation changes the active sheet", () => {
+  test("undo a sheet creation changes the active sheet", async () => {
     const model = new Model();
     const sheetId = model.getters.getActiveSheetId();
     createSheet(model, { sheetId: "42", position: 1 });
-    model.dispatch("ACTIVATE_SHEET", { sheetIdFrom: sheetId, sheetIdTo: "42" });
+    await model.dispatchFromOutside("ACTIVATE_SHEET", { sheetIdFrom: sheetId, sheetIdTo: "42" });
     undo(model);
     expect(model.getters.getActiveSheetId()).toBe(sheetId);
   });
@@ -307,7 +307,7 @@ describe("Model history", () => {
     expect(model.getters.getActiveSheetId()).toBe(sheet);
   });
 
-  test("undone & redone commands are part of the command", () => {
+  test("undone & redone commands are part of the command", async () => {
     const model = new Model();
     const pluginHandle = spyUiPluginHandle(model);
     const command: UpdateCellCommand = {
@@ -317,7 +317,7 @@ describe("Model history", () => {
       sheetId: model.getters.getActiveSheetId(),
       content: "hello",
     };
-    model.dispatch(command.type, command);
+    await model.dispatchFromOutside(command.type, command);
     undo(model);
     expect(pluginHandle).toHaveBeenCalledWith({
       type: "UNDO",

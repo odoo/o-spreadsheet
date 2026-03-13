@@ -53,7 +53,7 @@ export class HorizontalScrollBar extends Component<Props, SpreadsheetChildEnv> {
 
   onScroll(offset) {
     const { scrollY } = this.env.model.getters.getActiveSheetScrollInfo();
-    this.env.model.dispatch("SET_VIEWPORT_OFFSET", {
+    this.env.model.dispatchFromOutside("SET_VIEWPORT_OFFSET", {
       offsetX: offset,
       offsetY: scrollY, // offsetY is the same
     });

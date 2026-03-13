@@ -116,7 +116,7 @@ describe("Model", () => {
     expect(getCellContent(model, "A1")).toBe("");
   });
 
-  test("Core plugins allowDispatch don't receive UI commands", () => {
+  test("Core plugins allowDispatch don't receive UI commands", async () => {
     const receivedCommands: CommandTypes[] = [];
     class MyCorePlugin extends CorePlugin {
       allowDispatch(cmd: CoreCommand): CommandResult {
@@ -126,11 +126,11 @@ describe("Model", () => {
     }
     addTestPlugin(corePluginRegistry, MyCorePlugin);
     const model = new Model();
-    model.dispatch("COPY");
+    await model.dispatchFromOutside("COPY");
     expect(receivedCommands).not.toContain("COPY");
   });
 
-  test("Core plugins handle don't receive UI commands", () => {
+  test("Core plugins handle don't receive UI commands", async () => {
     const receivedCommands: CommandTypes[] = [];
     class MyCorePlugin extends CorePlugin {
       handle(cmd: CoreCommand) {
@@ -139,11 +139,11 @@ describe("Model", () => {
     }
     addTestPlugin(corePluginRegistry, MyCorePlugin);
     const model = new Model();
-    model.dispatch("COPY");
+    await model.dispatchFromOutside("COPY");
     expect(receivedCommands).not.toContain("COPY");
   });
 
-  test("canDispatch method is exposed and works", () => {
+  test("canDispatch method is exposed and works", async () => {
     class MyCorePlugin extends CorePlugin {
       allowDispatch(cmd: CoreCommand) {
         if (cmd.type === "CREATE_SHEET") {
@@ -158,7 +158,11 @@ describe("Model", () => {
       model.canDispatch("CREATE_SHEET", { sheetId: "42", position: 1, name: "Sheet42" })
     ).toBeCancelledBecause(CommandResult.CancelledForUnknownReason);
     expect(
-      model.dispatch("CREATE_SHEET", { sheetId: "42", position: 1, name: "Sheet42" })
+      await model.dispatchFromOutside("CREATE_SHEET", {
+        sheetId: "42",
+        position: 1,
+        name: "Sheet42",
+      })
     ).toBeCancelledBecause(CommandResult.CancelledForUnknownReason);
 
     const sheetId = model.getters.getActiveSheetId();
@@ -166,7 +170,7 @@ describe("Model", () => {
       model.canDispatch("UPDATE_CELL", { sheetId, col: 0, row: 0, content: "hey" })
     ).toBeSuccessfullyDispatched();
     expect(
-      model.dispatch("UPDATE_CELL", { sheetId, col: 0, row: 0, content: "hey" })
+      await model.dispatchFromOutside("UPDATE_CELL", { sheetId, col: 0, row: 0, content: "hey" })
     ).toBeSuccessfullyDispatched();
     corePluginRegistry.remove("myCorePlugin");
   });
@@ -191,7 +195,7 @@ describe("Model", () => {
     expect(model["config"]["custom"]).toBe("42");
   });
 
-  test("type property in command payload is ignored", () => {
+  test("type property in command payload is ignored", async () => {
     const model = new Model();
     const payload = {
       col: 0,
@@ -200,7 +204,7 @@ describe("Model", () => {
       content: "hello",
       type: "greeting",
     };
-    model.dispatch("UPDATE_CELL", payload);
+    await model.dispatchFromOutside("UPDATE_CELL", payload);
     expect(getCellRawContent(model, "A1")).toBe("hello");
   });
 
@@ -240,7 +244,7 @@ describe("Model", () => {
     expect(() => new Model()).toThrowError(`Getter "getSomething" is already defined.`);
   });
 
-  test("Replayed commands are not send to UI plugins", () => {
+  test("Replayed commands are not send to UI plugins", async () => {
     let numberCall = 0;
     //@ts-ignore
     coreTypes.add("MY_CMD_1");
@@ -272,10 +276,10 @@ describe("Model", () => {
     addTestPlugin(corePluginRegistry, MyCorePlugin);
 
     const { alice, bob, network } = setupCollaborativeEnv();
-    network.concurrent(() => {
+    await network.concurrent(async () => {
       setCellContent(alice, "A1", "Hello");
       //@ts-ignore
-      bob.dispatch("MY_CMD_1");
+      await bob.dispatchFromOutside("MY_CMD_1");
     });
     expect(numberCall).toEqual(1);
   });
@@ -314,7 +318,7 @@ describe("Model", () => {
     expect(getEvaluatedCell(model, "A1").value).toBe(6);
   });
 
-  test("Core commands which dispatch UPDATE_CELL should trigger evaluation", () => {
+  test("Core commands which dispatch UPDATE_CELL should trigger evaluation", async () => {
     //@ts-ignore
     coreTypes.add("MY_CMD_1");
     class MyCorePlugin extends CorePlugin {
@@ -340,7 +344,7 @@ describe("Model", () => {
       "3"
     );
     //@ts-ignore
-    alice.dispatch("MY_CMD_1", { sheetId: alice.getters.getActiveSheetId() });
+    await alice.dispatchFromOutside("MY_CMD_1", { sheetId: alice.getters.getActiveSheetId() });
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
       (user) => getCellContent(user, "A1"),
       "5"

@@ -179,7 +179,7 @@ export class EvaluationPlugin extends CoreViewPlugin {
       invalidateEvaluationCommands.has(cmd.type) ||
       invalidateDependenciesCommands.has(cmd.type)
     ) {
-      this.shouldRebuildDependenciesGraph = true;
+      this.derived.update("shouldRebuildDependenciesGraph", true);
     }
   }
 
@@ -190,7 +190,7 @@ export class EvaluationPlugin extends CoreViewPlugin {
           return;
         }
         const position = { sheetId: cmd.sheetId, row: cmd.row, col: cmd.col };
-        this.positionsToUpdate.push(position);
+        this.derived.update("positionsToUpdate", [...this.positionsToUpdate, position]);
 
         if ("content" in cmd) {
           this.evaluator.updateDependencies(position);
@@ -198,9 +198,11 @@ export class EvaluationPlugin extends CoreViewPlugin {
         break;
       case "EVALUATE_CELLS":
         if (cmd.cellIds) {
+          const newPositions = [...this.positionsToUpdate];
           for (let i = 0; i < cmd.cellIds.length; i++) {
-            this.positionsToUpdate.push(this.getters.getCellPosition(cmd.cellIds[i]));
+            newPositions.push(this.getters.getCellPosition(cmd.cellIds[i]));
           }
+          this.derived.update("positionsToUpdate", newPositions);
         } else {
           this.evaluator.evaluateAllCells();
         }
@@ -212,11 +214,11 @@ export class EvaluationPlugin extends CoreViewPlugin {
     if (this.shouldRebuildDependenciesGraph) {
       this.evaluator.buildDependencyGraph();
       this.evaluator.evaluateAllCells();
-      this.shouldRebuildDependenciesGraph = false;
+      this.derived.update("shouldRebuildDependenciesGraph", false);
     } else if (this.positionsToUpdate.length) {
       this.evaluator.evaluateCells(this.positionsToUpdate);
     }
-    this.positionsToUpdate = [];
+    this.derived.update("positionsToUpdate", []);
   }
 
   // ---------------------------------------------------------------------------

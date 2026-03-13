@@ -95,7 +95,7 @@ export class ConditionalFormattingEditorStore extends SpreadsheetStore {
     }
   }
 
-  updateConditionalFormat(newCf: Partial<ConditionalFormat> & { suppressErrors?: boolean }) {
+  async updateConditionalFormat(newCf: Partial<ConditionalFormat> & { suppressErrors?: boolean }) {
     const ranges = newCf.ranges || this.state.ranges;
     const invalidRanges = this.state.ranges.some((xc) => !xc.match(rangeReference));
     if (invalidRanges) {
@@ -107,7 +107,7 @@ export class ConditionalFormattingEditorStore extends SpreadsheetStore {
     const sheetId = this.model.getters.getActiveSheetId();
     const locale = this.model.getters.getLocale();
     const rule = newCf.rule || this.getEditedRule(this.state.currentCFType);
-    const result = this.model.dispatch("ADD_CONDITIONAL_FORMAT", {
+    const result = await this.model.dispatchFromOutside("ADD_CONDITIONAL_FORMAT", {
       cf: {
         id: this.cfId,
         rule: canonicalizeCFRule(rule, locale),

@@ -77,12 +77,12 @@ describe("merges", () => {
     expect(Object.keys(getMerges(model))).toEqual([]);
   });
 
-  test("add a merge cells in a duplicated sheet", () => {
+  test("add a merge cells in a duplicated sheet", async () => {
     const model = new Model();
     const firstSheetId = model.getters.getActiveSheetId();
     const secondSheetId = "42";
     merge(model, "C2:C3", firstSheetId);
-    model.dispatch("DUPLICATE_SHEET", {
+    await model.dispatchFromOutside("DUPLICATE_SHEET", {
       sheetId: firstSheetId,
       sheetIdTo: secondSheetId,
       sheetNameTo: "Copy of Sheet1",
@@ -96,12 +96,12 @@ describe("merges", () => {
     expect(model.getters.getMerge({ sheetId: secondSheetId, col: 1, row: 1 })?.id).toBe(3);
   });
 
-  test("delete a duplicated sheet with merge", () => {
+  test("delete a duplicated sheet with merge", async () => {
     const model = new Model();
     const firstSheetId = model.getters.getActiveSheetId();
     const secondSheetId = "42";
     merge(model, "C2:C3", firstSheetId);
-    model.dispatch("DUPLICATE_SHEET", {
+    await model.dispatchFromOutside("DUPLICATE_SHEET", {
       sheetId: firstSheetId,
       sheetIdTo: secondSheetId,
       sheetNameTo: "Copy of Sheet1",
@@ -211,11 +211,14 @@ describe("merges", () => {
     });
   });
 
-  test("Merge with two zone overlap is now allowed", () => {
+  test("Merge with two zone overlap is now allowed", async () => {
     const model = new Model();
     const sheetId = model.getters.getActiveSheetId();
     expect(
-      model.dispatch("ADD_MERGE", { sheetId, target: [toZone("A1:B2"), toZone("A2:B3")] })
+      await model.dispatchFromOutside("ADD_MERGE", {
+        sheetId,
+        target: [toZone("A1:B2"), toZone("A2:B3")],
+      })
     ).toBeCancelledBecause(CommandResult.MergeOverlap);
   });
 
@@ -276,7 +279,7 @@ describe("merges", () => {
     expect(getEvaluatedCell(model, "A4").value).toBe(6);
   });
 
-  test("merging cells with values remove them if forced", () => {
+  test("merging cells with values remove them if forced", async () => {
     const model = new Model({
       sheets: [
         {
@@ -293,7 +296,11 @@ describe("merges", () => {
     });
     const sheet1 = model.getters.getSheetIds()[0];
     expect(getEvaluatedCell(model, "A4").value).toBe(6);
-    model.dispatch("ADD_MERGE", { sheetId: sheet1, target: target("A1:A3"), force: true });
+    await model.dispatchFromOutside("ADD_MERGE", {
+      sheetId: sheet1,
+      target: target("A1:A3"),
+      force: true,
+    });
 
     expect(getEvaluatedCell(model, "A1").value).toBe(1);
     expect(getCell(model, "A2")).toBeUndefined();
@@ -600,12 +607,12 @@ describe("merges", () => {
     expect(getCell(model, "A2")).toBeUndefined();
   });
 
-  test("move duplicated merge when col is inserted before", () => {
+  test("move duplicated merge when col is inserted before", async () => {
     const model = new Model();
     const firstSheetId = model.getters.getActiveSheetId();
     const secondSheetId = "42";
     merge(model, "C1:C2");
-    model.dispatch("DUPLICATE_SHEET", {
+    await model.dispatchFromOutside("DUPLICATE_SHEET", {
       sheetId: firstSheetId,
       sheetIdTo: secondSheetId,
       sheetNameTo: "Copy of Sheet1",

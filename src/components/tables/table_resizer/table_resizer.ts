@@ -60,7 +60,7 @@ export class TableResizer extends Component<Props, SpreadsheetChildEnv> {
         return;
       }
       const sheetId = this.props.table.range.sheetId;
-      this.env.model.dispatch("RESIZE_TABLE", {
+      this.env.model.dispatchFromOutside("RESIZE_TABLE", {
         sheetId,
         zone: this.props.table.range.zone,
         newTableRange: this.env.model.getters.getRangeDataFromZone(sheetId, newTableZone),

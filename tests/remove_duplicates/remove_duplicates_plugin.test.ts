@@ -9,31 +9,31 @@ import {
 } from "../test_helpers/helpers";
 
 describe("remove duplicates", () => {
-  test("can remove duplicate", () => {
+  test("can remove duplicate", async () => {
     const grid = { A2: "1", A3: "1", A4: "2", A5: "2" };
     const model = createModelFromGrid(grid);
     setSelection(model, ["A2:A5"]);
-    model.dispatch("REMOVE_DUPLICATES", { columns: [0], hasHeader: false });
+    await model.dispatchFromOutside("REMOVE_DUPLICATES", { columns: [0], hasHeader: false });
     expect(getRangeValuesAsMatrix(model, "A2:A5")).toEqual([[1], [2], [null], [null]]);
   });
 
-  test("selection is updated after removing duplicates", () => {
+  test("selection is updated after removing duplicates", async () => {
     const grid = { A2: "1", A3: "1", A4: "2", A5: "2" };
     const model = createModelFromGrid(grid);
     setSelection(model, ["A2:A5"]);
-    model.dispatch("REMOVE_DUPLICATES", { columns: [0], hasHeader: false });
+    await model.dispatchFromOutside("REMOVE_DUPLICATES", { columns: [0], hasHeader: false });
     expect(model.getters.getSelectedZone()).toEqual(toZone("A2:A3"));
   });
 
-  test("apply deletion only in selected zone", () => {
+  test("apply deletion only in selected zone", async () => {
     const grid = { A2: "1", A3: "1", A4: "2", A5: "2" };
     const model = createModelFromGrid(grid);
     setSelection(model, ["A2:A4"]);
-    model.dispatch("REMOVE_DUPLICATES", { columns: [0], hasHeader: false });
+    await model.dispatchFromOutside("REMOVE_DUPLICATES", { columns: [0], hasHeader: false });
     expect(getRangeValuesAsMatrix(model, "A2:A5")).toEqual([[1], [2], [null], [2]]);
   });
 
-  test("remove duplicates based on columns provided", () => {
+  test("remove duplicates based on columns provided", async () => {
     // prettier-ignore
     const grid = {
       A2: "1", B2: "la",
@@ -43,7 +43,7 @@ describe("remove duplicates", () => {
     const model = createModelFromGrid(grid);
     setSelection(model, ["A2:B4"]);
     // provide column B to analyze
-    model.dispatch("REMOVE_DUPLICATES", { columns: [1], hasHeader: false });
+    await model.dispatchFromOutside("REMOVE_DUPLICATES", { columns: [1], hasHeader: false });
     expect(getRangeValuesAsMatrix(model, "A2:B4")).toEqual([
       [1, "la"],
       [1, "land"],
@@ -51,7 +51,7 @@ describe("remove duplicates", () => {
     ]);
   });
 
-  test("if several rows considered identical are found, returns the first row found of these rows", () => {
+  test("if several rows considered identical are found, returns the first row found of these rows", async () => {
     // prettier-ignore
     const grid = {
       A2: "1", B2: "B2",
@@ -61,24 +61,24 @@ describe("remove duplicates", () => {
     const model = createModelFromGrid(grid);
     setSelection(model, ["A2:B4"]);
     // provide column A to analyze
-    model.dispatch("REMOVE_DUPLICATES", { columns: [0], hasHeader: false });
+    await model.dispatchFromOutside("REMOVE_DUPLICATES", { columns: [0], hasHeader: false });
     expect(getRangeValuesAsMatrix(model, "B2:B4")).toEqual([["B2"], [null], [null]]);
   });
 
-  test("For formula, take into account the evaluated cell value", () => {
+  test("For formula, take into account the evaluated cell value", async () => {
     const grid = {
       A2: "42",
       A3: "=21+21",
     };
     const model = createModelFromGrid(grid);
     setSelection(model, ["A2:A3"]);
-    model.dispatch("REMOVE_DUPLICATES", { columns: [0], hasHeader: false });
+    await model.dispatchFromOutside("REMOVE_DUPLICATES", { columns: [0], hasHeader: false });
 
     expect(getEvaluatedCell(model, "A2").value).toBe(42);
     expect(getEvaluatedCell(model, "A3").value).toBe(null);
   });
 
-  test("For formula, update the references", () => {
+  test("For formula, update the references", async () => {
     const grid = {
       A2: "1",
       A3: "1",
@@ -86,14 +86,14 @@ describe("remove duplicates", () => {
     };
     const model = createModelFromGrid(grid);
     setSelection(model, ["A2:A4"]);
-    model.dispatch("REMOVE_DUPLICATES", { columns: [0], hasHeader: false });
+    await model.dispatchFromOutside("REMOVE_DUPLICATES", { columns: [0], hasHeader: false });
 
     expect(getEvaluatedCell(model, "A2").value).toBe(1);
     expect(getEvaluatedCell(model, "A3").value).toBe(1);
     expect(getCellRawContent(model, "A3")).toBe("=A1+1");
   });
 
-  test("dont take into account the format", () => {
+  test("dont take into account the format", async () => {
     const grid = {
       B2: "42",
       B3: "42",
@@ -107,20 +107,20 @@ describe("remove duplicates", () => {
     expect(getRangeFormatsAsMatrix(model, "B2:B4")).toEqual([["0.00%"], [""], ["#,##0[$€]"]]);
 
     setSelection(model, ["B2:B4"]);
-    model.dispatch("REMOVE_DUPLICATES", { columns: [1], hasHeader: false });
+    await model.dispatchFromOutside("REMOVE_DUPLICATES", { columns: [1], hasHeader: false });
 
     expect(getRangeValuesAsMatrix(model, "B2:B4")).toEqual([[42], [null], [null]]);
     expect(getRangeFormatsAsMatrix(model, "B2:B4")).toEqual([["0.00%"], [""], [""]]);
   });
 
-  test("consider empty cell as value to compare", () => {
+  test("consider empty cell as value to compare", async () => {
     const model = createModelFromGrid({
       A1: "24",
       A4: "42",
       A6: "242",
     });
     setSelection(model, ["A1:A6"]);
-    model.dispatch("REMOVE_DUPLICATES", { columns: [0], hasHeader: false });
+    await model.dispatchFromOutside("REMOVE_DUPLICATES", { columns: [0], hasHeader: false });
     expect(getRangeValuesAsMatrix(model, "A1:A6")).toEqual([
       [24],
       [null],
@@ -131,7 +131,7 @@ describe("remove duplicates", () => {
     ]);
   });
 
-  test("can remove duplicates with header", () => {
+  test("can remove duplicates with header", async () => {
     // prettier-ignore
     const grid = {
       A1: "42", B1: "Michel Blanc",
@@ -142,11 +142,11 @@ describe("remove duplicates", () => {
 
     const model = createModelFromGrid(grid);
     setSelection(model, ["A1:A4"]);
-    model.dispatch("REMOVE_DUPLICATES", { columns: [0], hasHeader: true });
+    await model.dispatchFromOutside("REMOVE_DUPLICATES", { columns: [0], hasHeader: true });
     expect(getRangeValuesAsMatrix(model, "A1:A4")).toEqual([[42], [24], [42], [null]]);
 
     setSelection(model, ["B1:B4"]);
-    model.dispatch("REMOVE_DUPLICATES", { columns: [1], hasHeader: true });
+    await model.dispatchFromOutside("REMOVE_DUPLICATES", { columns: [1], hasHeader: true });
     expect(getRangeValuesAsMatrix(model, "B1:B4")).toEqual([
       ["Michel Blanc"],
       ["Michel Noir"],
@@ -157,7 +157,7 @@ describe("remove duplicates", () => {
 });
 
 describe("allow dispatch", () => {
-  test("cancel if merging zone", () => {
+  test("cancel if merging zone", async () => {
     const grid = {
       A2: "1",
       A3: "1",
@@ -166,11 +166,11 @@ describe("allow dispatch", () => {
     merge(model, "A1:A2");
     setSelection(model, ["A1:A3"]);
     expect(
-      model.dispatch("REMOVE_DUPLICATES", { columns: [0], hasHeader: false })
+      await model.dispatchFromOutside("REMOVE_DUPLICATES", { columns: [0], hasHeader: false })
     ).toBeCancelledBecause(CommandResult.WillRemoveExistingMerge);
   });
 
-  test("throw error if more than one range selected", () => {
+  test("throw error if more than one range selected", async () => {
     const grid = {
       A2: "1",
       A3: "1",
@@ -178,11 +178,11 @@ describe("allow dispatch", () => {
     const model = createModelFromGrid(grid);
     setSelection(model, ["A2:A3", "A3:A4"]);
     expect(
-      model.dispatch("REMOVE_DUPLICATES", { columns: [0], hasHeader: false })
+      await model.dispatchFromOutside("REMOVE_DUPLICATES", { columns: [0], hasHeader: false })
     ).toBeCancelledBecause(CommandResult.MoreThanOneRangeSelected);
   });
 
-  test("throw error if zone doesn't contain values", () => {
+  test("throw error if zone doesn't contain values", async () => {
     const grid = {
       A2: "1",
       A3: "1",
@@ -190,15 +190,15 @@ describe("allow dispatch", () => {
     const model = createModelFromGrid(grid);
     setSelection(model, ["D10:E11"]);
     expect(
-      model.dispatch("REMOVE_DUPLICATES", { columns: [0], hasHeader: false })
+      await model.dispatchFromOutside("REMOVE_DUPLICATES", { columns: [0], hasHeader: false })
     ).toBeCancelledBecause(CommandResult.EmptySelectedRange);
     setSelection(model, ["C9:E11"]);
     expect(
-      model.dispatch("REMOVE_DUPLICATES", { columns: [0], hasHeader: true })
+      await model.dispatchFromOutside("REMOVE_DUPLICATES", { columns: [0], hasHeader: true })
     ).toBeCancelledBecause(CommandResult.EmptySelectedRange);
   });
 
-  test("throw error if no columns selected", () => {
+  test("throw error if no columns selected", async () => {
     const grid = {
       A2: "1",
       A3: "1",
@@ -206,11 +206,11 @@ describe("allow dispatch", () => {
     const model = createModelFromGrid(grid);
     setSelection(model, ["A2:A3"]);
     expect(
-      model.dispatch("REMOVE_DUPLICATES", { columns: [], hasHeader: false })
+      await model.dispatchFromOutside("REMOVE_DUPLICATES", { columns: [], hasHeader: false })
     ).toBeCancelledBecause(CommandResult.NoColumnsProvided);
   });
 
-  test("throw error if columns aren't in zone", () => {
+  test("throw error if columns aren't in zone", async () => {
     const grid = {
       A2: "1",
       A3: "1",
@@ -219,11 +219,11 @@ describe("allow dispatch", () => {
     setSelection(model, ["A1:B2"]);
     expect(
       // provide column B and D to analyze
-      model.dispatch("REMOVE_DUPLICATES", { columns: [1, 3], hasHeader: false })
+      await model.dispatchFromOutside("REMOVE_DUPLICATES", { columns: [1, 3], hasHeader: false })
     ).toBeCancelledBecause(CommandResult.ColumnsNotIncludedInZone);
   });
 
-  test("throw error if columns are selected twice", () => {
+  test("throw error if columns are selected twice", async () => {
     const grid = {
       A2: "1",
       A3: "1",
@@ -231,7 +231,7 @@ describe("allow dispatch", () => {
     const model = createModelFromGrid(grid);
     setSelection(model, ["A2:A3"]);
     expect(
-      model.dispatch("REMOVE_DUPLICATES", { columns: [0, 0], hasHeader: false })
+      await model.dispatchFromOutside("REMOVE_DUPLICATES", { columns: [0, 0], hasHeader: false })
     ).toBeCancelledBecause(CommandResult.DuplicatesColumnsSelected);
   });
 });
@@ -245,7 +245,7 @@ describe("notify user", () => {
     const notifyUserTextSpy = jest.fn();
     jest.spyOn(model.config, "notifyUI").mockImplementation(notifyUserTextSpy);
     setSelection(model, ["A1:A2"]);
-    model.dispatch("REMOVE_DUPLICATES", { columns: [0], hasHeader: false });
+    await model.dispatchFromOutside("REMOVE_DUPLICATES", { columns: [0], hasHeader: false });
     expect(notifyUserTextSpy).toHaveBeenCalledWith({
       text: "1 duplicate rows found and removed.\n1 unique rows remain.",
       type: "info",
@@ -261,7 +261,7 @@ describe("notify user", () => {
     const notifyUserTextSpy = jest.fn();
     jest.spyOn(model.config, "notifyUI").mockImplementation(notifyUserTextSpy);
     setSelection(model, ["A1:A2"]);
-    model.dispatch("REMOVE_DUPLICATES", { columns: [0], hasHeader: false });
+    await model.dispatchFromOutside("REMOVE_DUPLICATES", { columns: [0], hasHeader: false });
     expect(notifyUserTextSpy).toHaveBeenCalledWith({
       text: "0 duplicate rows found and removed.\n2 unique rows remain.",
       type: "info",

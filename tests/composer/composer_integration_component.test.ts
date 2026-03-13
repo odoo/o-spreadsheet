@@ -310,7 +310,7 @@ describe("Composer interactions", () => {
 
   test("Starting the edition and scroll should display the cell reference", async () => {
     await startComposition();
-    model.dispatch("SET_VIEWPORT_OFFSET", {
+    await model.dispatchFromOutside("SET_VIEWPORT_OFFSET", {
       offsetX: 0,
       offsetY: DEFAULT_CELL_HEIGHT * 5,
     });
@@ -343,7 +343,7 @@ describe("Composer interactions", () => {
 
   test("Stopping the edition resets the cell reference visibility", async () => {
     await startComposition();
-    model.dispatch("SET_VIEWPORT_OFFSET", {
+    await model.dispatchFromOutside("SET_VIEWPORT_OFFSET", {
       offsetX: 0,
       offsetY: DEFAULT_CELL_HEIGHT * 5,
     });
@@ -806,7 +806,7 @@ describe("Grid composer", () => {
 
     test("Inherits CF formatting of the cell", async () => {
       const sheetId = model.getters.getActiveSheetId();
-      model.dispatch("ADD_CONDITIONAL_FORMAT", {
+      await model.dispatchFromOutside("ADD_CONDITIONAL_FORMAT", {
         cf: createEqualCF(
           "4",
           {
@@ -859,7 +859,7 @@ describe("Grid composer", () => {
 
     test("Does not inherit CF formatting of the cell", async () => {
       const sheetId = model.getters.getActiveSheetId();
-      model.dispatch("ADD_CONDITIONAL_FORMAT", {
+      await model.dispatchFromOutside("ADD_CONDITIONAL_FORMAT", {
         cf: {
           id: "cfId",
           rule: {
@@ -889,7 +889,7 @@ describe("Grid composer", () => {
   });
 
   test("Grid composer will not open if the sheet is locked", async () => {
-    model.dispatch("LOCK_SHEET", {
+    await model.dispatchFromOutside("LOCK_SHEET", {
       sheetId: model.getters.getActiveSheetId(),
     });
 
@@ -1002,7 +1002,7 @@ describe("TopBar composer", () => {
     let env: SpreadsheetChildEnv;
     ({ model, fixture, env } = await mountSpreadsheet());
     composerStore = env.getStore(CellComposerStore);
-    model.dispatch("LOCK_SHEET", {
+    await model.dispatchFromOutside("LOCK_SHEET", {
       sheetId: model.getters.getActiveSheetId(),
     });
     await click(fixture, ".o-spreadsheet-topbar .o-composer");

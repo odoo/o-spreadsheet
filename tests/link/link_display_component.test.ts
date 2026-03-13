@@ -156,7 +156,7 @@ describe("link display component", () => {
   test("link text color is removed when the cell is unlinked", async () => {
     setCellContent(model, "A1", "[label](url.com)");
     await hoverCell(model, "A1", 400);
-    model.dispatch("UPDATE_CELL", {
+    await model.dispatchFromOutside("UPDATE_CELL", {
       col: 0,
       row: 0,
       sheetId: model.getters.getActiveSheetId(),
@@ -173,7 +173,7 @@ describe("link display component", () => {
 
   test("link text color is not removed when the cell is unlinked if it is custom", async () => {
     setCellContent(model, "A1", "[label](url.com)");
-    model.dispatch("UPDATE_CELL", {
+    await model.dispatchFromOutside("UPDATE_CELL", {
       col: 0,
       row: 0,
       sheetId: model.getters.getActiveSheetId(),

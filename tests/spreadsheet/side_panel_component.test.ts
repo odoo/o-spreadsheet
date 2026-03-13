@@ -246,7 +246,7 @@ describe("Side Panel", () => {
     inputTarget.focus();
     expect(document.activeElement).toBe(inputTarget);
     const sheetId = model.getters.getActiveSheetId();
-    model.dispatch("ACTIVATE_NEXT_SHEET");
+    await model.dispatchFromOutside("ACTIVATE_NEXT_SHEET");
     await nextTick();
     expect(document.activeElement).toBe(inputTarget);
     expect(model.getters.getActiveSheetId()).not.toBe(sheetId);

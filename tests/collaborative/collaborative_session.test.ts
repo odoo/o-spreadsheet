@@ -90,7 +90,7 @@ describe("Collaborative session", () => {
     );
     setCellContent(model, "A1", "hello"); // send a revision
     const spy = jest.spyOn(transport, "sendMessage");
-    transport.concurrent(() => {
+    await transport.concurrent(async () => {
       // send another revision
       setCellContent(model, "A2", "world");
       // and leave before receiving the acknowledgement

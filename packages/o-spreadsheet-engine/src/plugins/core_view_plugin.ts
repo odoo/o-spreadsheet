@@ -1,4 +1,5 @@
 import { Session } from "../collaborative/session";
+import { FinalizeStateObserver } from "../finalize_state_observer";
 import { StateObserver } from "../state_observer";
 import { Command } from "../types/commands";
 import { Currency } from "../types/currency";
@@ -10,6 +11,7 @@ import { BasePlugin } from "./base_plugin";
 export interface CoreViewPluginConfig {
   readonly getters: Getters;
   readonly stateObserver: StateObserver;
+  readonly finalizeStateObserver: FinalizeStateObserver;
   readonly custom: ModelConfig["custom"];
   readonly session: Session;
   readonly defaultCurrency?: Partial<Currency>;
@@ -28,8 +30,8 @@ export interface CoreViewPluginConstructor {
  */
 export class CoreViewPlugin<State = any> extends BasePlugin<State, Command> {
   protected getters: Getters;
-  constructor({ getters, stateObserver }: CoreViewPluginConfig) {
-    super(stateObserver);
+  constructor({ getters, stateObserver, finalizeStateObserver }: CoreViewPluginConfig) {
+    super(stateObserver, finalizeStateObserver);
     this.getters = getters;
   }
 }

@@ -77,7 +77,7 @@ export class RangeAdapterPlugin implements CommandHandler<CoreCommand> {
     }
   }
 
-  finalize() {}
+  finalize(): void {}
 
   /**
    * Return a modified adapting function that verifies that after adapting a range, the range is still valid.

@@ -74,8 +74,11 @@ export class BottomBar extends Component<Props, SpreadsheetChildEnv> {
       this.env.model.getters.getSheetIds().findIndex((sheetId) => sheetId === activeSheetId) + 1;
     const sheetId = this.env.model.uuidGenerator.smallUuid();
     const name = this.env.model.getters.getNextSheetName(_t("Sheet"));
-    this.env.model.dispatch("CREATE_SHEET", { sheetId, position, name });
-    this.env.model.dispatch("ACTIVATE_SHEET", { sheetIdFrom: activeSheetId, sheetIdTo: sheetId });
+    this.env.model.dispatchFromOutside("CREATE_SHEET", { sheetId, position, name });
+    this.env.model.dispatchFromOutside("ACTIVATE_SHEET", {
+      sheetIdFrom: activeSheetId,
+      sheetIdTo: sheetId,
+    });
   }
 
   getVisibleSheets(): BottomBarSheetItem[] {
@@ -98,9 +101,12 @@ export class BottomBar extends Component<Props, SpreadsheetChildEnv> {
         textColor: sheet.isVisible ? undefined : "#808080",
         execute: (env) => {
           if (!this.env.model.getters.isSheetVisible(sheetId)) {
-            this.env.model.dispatch("SHOW_SHEET", { sheetId });
+            this.env.model.dispatchFromOutside("SHOW_SHEET", { sheetId });
           }
-          env.model.dispatch("ACTIVATE_SHEET", { sheetIdFrom: from, sheetIdTo: sheetId });
+          env.model.dispatchFromOutside("ACTIVATE_SHEET", {
+            sheetIdFrom: from,
+            sheetIdTo: sheetId,
+          });
         },
         isEnabled: (env) => (env.model.getters.isReadonly() ? sheet.isVisible : true),
         icon: sheet.color ? "o-spreadsheet-Icon.SMALL_DOT_RIGHT_ALIGN" : undefined,
@@ -224,7 +230,7 @@ export class BottomBar extends Component<Props, SpreadsheetChildEnv> {
     const originalIndex = this.getVisibleSheets().findIndex((sheet) => sheet.id === sheetId);
     const delta = finalIndex - originalIndex;
     if (sheetId && delta !== 0) {
-      this.env.model.dispatch("MOVE_SHEET", {
+      this.env.model.dispatchFromOutside("MOVE_SHEET", {
         sheetId: sheetId,
         delta: delta,
       });

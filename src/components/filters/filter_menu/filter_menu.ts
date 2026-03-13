@@ -115,7 +115,7 @@ export class FilterMenu extends Component<Props, SpreadsheetChildEnv> {
       return;
     }
     const position = this.props.filterPosition;
-    this.env.model.dispatch("UPDATE_FILTER", {
+    this.env.model.dispatchFromOutside("UPDATE_FILTER", {
       ...position,
       sheetId: this.env.model.getters.getActiveSheetId(),
       value: this.updatedCriterionValue,

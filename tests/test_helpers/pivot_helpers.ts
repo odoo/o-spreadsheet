@@ -2,7 +2,7 @@ import {
   PivotMeasureDisplay,
   SpreadsheetPivotCoreDefinition,
 } from "@odoo/o-spreadsheet-engine/types/pivot";
-import { DispatchResult, Model, UID } from "../../src";
+import { Model, UID } from "../../src";
 import { deepCopy, toZone } from "../../src/helpers";
 import { pivotModelData } from "../pivots/pivot_data";
 import { setCellContent } from "./commands_helpers";
@@ -26,13 +26,13 @@ function defaultPivotDefinition(sheetId: UID): SpreadsheetPivotCoreDefinition {
   };
 }
 
-export function addPivot(
+export async function addPivot( //TODOPRO Wait
   model: Model,
   zone: string = "A1:D5",
   pivotData: Partial<SpreadsheetPivotCoreDefinition> = {},
   pivotId = "1",
   init = true
-): DispatchResult {
+) {
   const pivot: SpreadsheetPivotCoreDefinition = {
     ...defaultPivotDefinition(model.getters.getActiveSheetId()),
     ...pivotData,
@@ -40,7 +40,7 @@ export function addPivot(
   if (zone) {
     pivot.dataSet!.zone = toZone(zone);
   }
-  const result = model.dispatch("ADD_PIVOT", { pivot, pivotId });
+  const result = await model.dispatchFromOutside("ADD_PIVOT", { pivot, pivotId });
   if (!result.isSuccessful) {
     return result;
   }
@@ -49,7 +49,8 @@ export function addPivot(
   return result;
 }
 
-export function updatePivot(
+//TODOPRO wait for it
+export async function updatePivot(
   model: Model,
   pivotId: UID,
   pivotData: Partial<SpreadsheetPivotCoreDefinition>
@@ -58,11 +59,11 @@ export function updatePivot(
     ...model.getters.getPivotCoreDefinition(pivotId),
     ...pivotData,
   };
-  return model.dispatch("UPDATE_PIVOT", { pivotId, pivot });
+  return await model.dispatchFromOutside("UPDATE_PIVOT", { pivotId, pivot });
 }
-
-export function removePivot(model: Model, pivotId: UID) {
-  return model.dispatch("REMOVE_PIVOT", { pivotId });
+//TODOPRO wait for it
+export async function removePivot(model: Model, pivotId: UID) {
+  return await model.dispatchFromOutside("REMOVE_PIVOT", { pivotId });
 }
 
 export const SELECTORS = {

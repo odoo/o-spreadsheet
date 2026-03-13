@@ -2,6 +2,7 @@ import { LocalTransportService } from "./collaborative/local_transport_service";
 import { ReadonlyTransportFilter } from "./collaborative/readonly_transport_filter";
 import { Session } from "./collaborative/session";
 import { DEFAULT_REVISION_ID } from "./constants";
+import { FinalizeStateObserver } from "./finalize_state_observer";
 import { deepEquals, UuidGenerator } from "./helpers";
 import { EventBus } from "./helpers/event_bus";
 import { deepCopy, lazy } from "./helpers/misc";
@@ -28,6 +29,7 @@ import { StateObserver } from "./state_observer";
 import { _t, setDefaultTranslationMethod } from "./translation";
 import { StateUpdateMessage } from "./types/collaborative/transport_service";
 import {
+  AsyncCommandDispatcher,
   canExecuteInReadonly,
   Command,
   CommandDispatcher,
@@ -80,7 +82,7 @@ const enum Status {
  * Note that the Model can be used in a standalone way to manipulate
  * programmatically a spreadsheet.
  */
-export class Model extends EventBus<any> implements CommandDispatcher {
+export class Model extends EventBus<any> implements AsyncCommandDispatcher {
   private corePlugins: CorePlugin[] = [];
 
   private statefulUIPlugins: UIPlugin[] = [];
@@ -118,6 +120,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
   private uiPluginConfig: UIPluginConfig;
 
   private state: StateObserver;
+  private finalizeState: FinalizeStateObserver;
 
   readonly selection: SelectionStreamProcessor;
 
@@ -157,6 +160,10 @@ export class Model extends EventBus<any> implements CommandDispatcher {
     const workbookData = load(data, verboseImport);
 
     this.state = new StateObserver();
+    this.finalizeState = new FinalizeStateObserver();
+    this.state.setOnChange((target, key, before) => {
+      this.finalizeState.trackChange(target, key, before);
+    });
 
     this.uuidGenerator = uuidGenerator;
 
@@ -227,7 +234,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
 
     if (this.config.mode !== "export_verification") {
       // starting plugins
-      this.dispatch("START");
+      this.dispatchFromOutside("START"); //TODOPRO Il faudra régler ca, là le constructeur devrait être async
       // Model should be the last permanent subscriber in the list since he should render
       // after all changes have been applied to the other subscribers (plugins)
       this.selection.observe(this, {
@@ -316,14 +323,17 @@ export class Model extends EventBus<any> implements CommandDispatcher {
     this.handlers.push(plugin);
   }
 
-  private onRemoteRevisionReceived({ commands }: { commands: readonly CoreCommand[] }) {
+  private async onRemoteRevisionReceived({ commands }: { commands: readonly CoreCommand[] }) {
+    this.finalizeState.begin();
     for (const command of commands) {
       const previousStatus = this.status;
       this.status = Status.RunningCore;
       this.dispatchToHandlers(this.statefulUIPlugins, command);
       this.status = previousStatus;
     }
-    this.finalize();
+    await this.finalize();
+    this.finalizeState.commit();
+    this.trigger("update");
   }
 
   private setupSession(revisionId: UID): Session {
@@ -353,13 +363,19 @@ export class Model extends EventBus<any> implements CommandDispatcher {
 
   private setupSessionEvents() {
     this.session.on("remote-revision-received", this, this.onRemoteRevisionReceived);
-    this.session.on("revision-undone", this, ({ commands }) => {
+    this.session.on("revision-undone", this, async ({ commands }) => {
+      this.finalizeState.begin();
       this.dispatchFromCorePlugin("UNDO", { commands });
-      this.finalize();
+      await this.finalize();
+      this.finalizeState.commit();
+      this.trigger("update");
     });
-    this.session.on("revision-redone", this, ({ commands }) => {
+    this.session.on("revision-redone", this, async ({ commands }) => {
+      this.finalizeState.begin();
       this.dispatchFromCorePlugin("REDO", { commands });
-      this.finalize();
+      await this.finalize();
+      this.finalizeState.commit();
+      this.trigger("update");
     });
     // How could we improve communication between the session and UI?
     // It feels weird to have the model piping specific session events to its own bus.
@@ -420,6 +436,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
     return {
       getters: this.getters,
       stateObserver: this.state,
+      finalizeStateObserver: this.finalizeState,
       custom: this.config.custom,
       session: this.session,
       defaultCurrency: this.config.defaultCurrency,
@@ -432,7 +449,8 @@ export class Model extends EventBus<any> implements CommandDispatcher {
     return {
       getters: this.getters,
       stateObserver: this.state,
-      dispatch: this.dispatch,
+      finalizeStateObserver: this.finalizeState,
+      dispatch: this.dispatchForPlugins,
       canDispatch: this.canDispatch,
       selection: this.selection,
       moveClient: this.session.move.bind(this.session),
@@ -479,10 +497,15 @@ export class Model extends EventBus<any> implements CommandDispatcher {
     return this.uiHandlers.map((handler) => handler.allowDispatch(command));
   }
 
-  private finalize() {
+  private async finalize() {
     this.status = Status.Finalizing;
     for (const h of this.handlers) {
-      h.finalize();
+      const maybePromise = h.finalize();
+      if (maybePromise instanceof Promise) {
+        this.finalizeState.suspend();
+        await maybePromise;
+        this.finalizeState.resume();
+      }
     }
     this.status = Status.Ready;
     this.trigger("command-finalized");
@@ -497,9 +520,8 @@ export class Model extends EventBus<any> implements CommandDispatcher {
   };
 
   /**
-   * The dispatch method is the only entry point to manipulate data in the model.
-   * This is through this method that commands are dispatched most of the time
-   * recursively until no plugin want to react anymore.
+   * The dispatch method is the public entry point to manipulate data in the model.
+   * It handles the top-level dispatch (Status.Ready) including the async finalize phase.
    *
    * CoreCommands dispatched from this function are saved in the history.
    *
@@ -508,42 +530,64 @@ export class Model extends EventBus<any> implements CommandDispatcher {
    * 1. this means that the dispatch method can be "detached" from the model,
    *    which is done when it is put in the environment (see the Spreadsheet
    *    component)
-   * 2. This allows us to define its type by using the interface CommandDispatcher
+   * 2. This allows us to define its type by using the interface AsyncCommandDispatcher
    */
-  dispatch: CommandDispatcher["dispatch"] = (type: CommandTypes, payload?: any) => {
+  dispatchFromOutside: AsyncCommandDispatcher["dispatchFromOutside"] = async (
+    type: CommandTypes,
+    payload?: any
+  ): Promise<DispatchResult> => {
     const command: Command = createCommand(type, payload);
-    const status: Status = this.status;
+    if (this.getters.isReadonly() && !canExecuteInReadonly(command)) {
+      return Promise.resolve(new DispatchResult(CommandResult.Readonly));
+    }
+    if (!this.session.canApplyOptimisticUpdate()) {
+      return Promise.resolve(new DispatchResult(CommandResult.WaitingSessionConfirmation));
+    }
+    const result = this.checkDispatchAllowed(command);
+    if (!result.isSuccessful) {
+      this.trigger("update");
+      this.trigger("command-rejected", { command, result });
+      return Promise.resolve(result);
+    }
+    this.status = Status.Running;
+    this.finalizeState.begin();
+    let finalizePromise: Promise<void>;
+    const start = performance.now();
+    const { changes, commands } = this.state.recordChanges(() => {
+      if (isCoreCommand(command)) {
+        this.state.addCommand(command);
+      }
+      this.dispatchToHandlers(this.handlers, command);
+      finalizePromise = this.finalize();
+    });
+    await finalizePromise!;
+    this.finalizeState.commit();
+    const time = performance.now() - start;
+    if (time > 5) {
+      console.debug(type, time, "ms");
+    }
+    this.session.save(command, commands, changes);
+    this.status = Status.Ready;
+    this.trigger("update");
+    return DispatchResult.Success;
+  };
+
+  /**
+   * Synchronous dispatch provided to plugins for their internal use (within handle()).
+   * Handles only Status.Running and Status.RunningCore — never calls finalize.
+   */
+  private dispatchForPlugins: CommandDispatcher["dispatch"] = (
+    type: CommandTypes,
+    payload?: any
+  ): DispatchResult => {
+    const command = createCommand(type, payload);
     if (this.getters.isReadonly() && !canExecuteInReadonly(command)) {
       return new DispatchResult(CommandResult.Readonly);
     }
     if (!this.session.canApplyOptimisticUpdate()) {
       return new DispatchResult(CommandResult.WaitingSessionConfirmation);
     }
-    switch (status) {
-      case Status.Ready:
-        const result = this.checkDispatchAllowed(command);
-        if (!result.isSuccessful) {
-          this.trigger("update");
-          this.trigger("command-rejected", { command, result });
-          return result;
-        }
-        this.status = Status.Running;
-        const { changes, commands } = this.state.recordChanges(() => {
-          const start = performance.now();
-          if (isCoreCommand(command)) {
-            this.state.addCommand(command);
-          }
-          this.dispatchToHandlers(this.handlers, command);
-          this.finalize();
-          const time = performance.now() - start;
-          if (time > 5) {
-            console.debug(type, time, "ms");
-          }
-        });
-        this.session.save(command, commands, changes);
-        this.status = Status.Ready;
-        this.trigger("update");
-        break;
+    switch (this.status) {
       case Status.Running:
         if (isCoreCommand(command)) {
           const dispatchResult = this.checkDispatchAllowed(command);
@@ -553,7 +597,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
           this.state.addCommand(command);
         }
         this.dispatchToHandlers(this.handlers, command);
-        break;
+        return DispatchResult.Success;
       case Status.Finalizing:
         throw new Error("Cannot dispatch commands in the finalize state");
       case Status.RunningCore:
@@ -561,8 +605,10 @@ export class Model extends EventBus<any> implements CommandDispatcher {
           throw new Error(`A UI plugin cannot dispatch ${type} while handling a core command`);
         }
         this.dispatchToHandlers(this.handlers, command);
+        return DispatchResult.Success;
+      default:
+        throw new Error(`dispatchForPlugins called with unexpected status: ${this.status}`);
     }
-    return DispatchResult.Success;
   };
 
   /**
@@ -688,7 +734,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
    * (e.g. open a document with several sheet and click on download before visiting each sheet)
    */
   async exportXLSX(): Promise<XLSXExport> {
-    this.dispatch("EVALUATE_CELLS");
+    await this.dispatchFromOutside("EVALUATE_CELLS");
     let data = createEmptyExcelWorkbookData();
     for (const handler of this.handlers) {
       if (handler instanceof BasePlugin) {

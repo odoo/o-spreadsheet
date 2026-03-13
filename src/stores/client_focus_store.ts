@@ -37,11 +37,14 @@ export class ClientFocusStore extends SpreadsheetStore {
     const client = this.model.getters.getClient(clientId);
     this.focusClient(clientId);
     if (client.position) {
-      this.model.dispatch("ACTIVATE_SHEET", {
+      this.model.dispatchFromOutside("ACTIVATE_SHEET", {
         sheetIdTo: client.position.sheetId,
         sheetIdFrom: this.getters.getActiveSheetId(),
       });
-      this.model.dispatch("SCROLL_TO_CELL", { col: client.position.col, row: client.position.row });
+      this.model.dispatchFromOutside("SCROLL_TO_CELL", {
+        col: client.position.col,
+        row: client.position.row,
+      });
     }
   }
 

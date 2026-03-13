@@ -112,7 +112,7 @@ describe("datasource tests", function () {
     expect(chart.baseline!).toStrictEqual("Sheet1!C2:C4");
   });
 
-  test("can delete an imported scorecard chart", () => {
+  test("can delete an imported scorecard chart", async () => {
     createScorecardChart(
       model,
       {
@@ -126,7 +126,7 @@ describe("datasource tests", function () {
     const newModel = new Model(exportedData);
     expect(newModel.getters.getVisibleFigures()).toHaveLength(1);
     expect(newModel.getters.getChartRuntime("1")).toBeTruthy();
-    newModel.dispatch("DELETE_FIGURE", {
+    await newModel.dispatchFromOutside("DELETE_FIGURE", {
       sheetId: model.getters.getActiveSheetId(),
       figureId: model.getters.getFigureIdFromChartId("1")!,
     });
@@ -194,7 +194,7 @@ describe("datasource tests", function () {
     expect(() => model.getters.getChartRuntime("1")).toThrow();
   });
 
-  test("Scorecard chart is copied on sheet duplication", () => {
+  test("Scorecard chart is copied on sheet duplication", async () => {
     const firstSheetId = model.getters.getActiveSheetId();
     const secondSheetId = "42";
     createScorecardChart(
@@ -207,7 +207,7 @@ describe("datasource tests", function () {
       firstSheetId
     );
     const figure = model.getters.getFigures(firstSheetId)[0]!;
-    model.dispatch("DUPLICATE_SHEET", {
+    await model.dispatchFromOutside("DUPLICATE_SHEET", {
       sheetIdTo: secondSheetId,
       sheetId: firstSheetId,
       sheetNameTo: "Copy of Sheet1",

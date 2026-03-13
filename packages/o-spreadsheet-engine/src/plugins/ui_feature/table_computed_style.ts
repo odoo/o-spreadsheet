@@ -27,15 +27,17 @@ export class TableComputedStylePlugin extends UIPlugin {
       (cmd.type === "UPDATE_CELL" && ("content" in cmd || "format" in cmd)) ||
       cmd.type === "EVALUATE_CELLS"
     ) {
-      this.tableStyles = {};
+      this.derived.update("tableStyles", {});
       return;
     }
 
     if (doesCommandInvalidatesTableStyle(cmd)) {
       if ("sheetId" in cmd) {
-        delete this.tableStyles[cmd.sheetId];
+        const newStyles = { ...this.tableStyles };
+        delete newStyles[cmd.sheetId];
+        this.derived.update("tableStyles", newStyles);
       } else {
-        this.tableStyles = {};
+        this.derived.update("tableStyles", {});
       }
       return;
     }
@@ -44,11 +46,16 @@ export class TableComputedStylePlugin extends UIPlugin {
   finalize() {
     for (const sheetId of this.getters.getSheetIds()) {
       if (!this.tableStyles[sheetId]) {
-        this.tableStyles[sheetId] = {};
+        this.derived.update("tableStyles", sheetId, {});
       }
       for (const table of this.getters.getTables(sheetId)) {
         if (!this.tableStyles[sheetId][table.id]) {
-          this.tableStyles[sheetId][table.id] = this.computeTableStyle(sheetId, table);
+          this.derived.update(
+            "tableStyles",
+            sheetId,
+            table.id,
+            this.computeTableStyle(sheetId, table)
+          );
         }
       }
     }

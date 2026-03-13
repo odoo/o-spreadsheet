@@ -36,24 +36,24 @@ import {
 import { addTestPlugin, getGrid, setGrid, target } from "../test_helpers/helpers";
 
 describe("getCellText", () => {
-  test("Update cell with a format is correctly set", () => {
+  test("Update cell with a format is correctly set", async () => {
     const model = new Model();
     const sheetId = model.getters.getActiveSheetId();
-    model.dispatch("UPDATE_CELL", {
+    await model.dispatchFromOutside("UPDATE_CELL", {
       sheetId,
       col: 0,
       row: 0,
       content: "5%",
       format: "bla",
     });
-    model.dispatch("UPDATE_CELL", {
+    await model.dispatchFromOutside("UPDATE_CELL", {
       sheetId,
       col: 1,
       row: 1,
       content: "12/30/1899",
       format: "bla",
     });
-    model.dispatch("UPDATE_CELL", {
+    await model.dispatchFromOutside("UPDATE_CELL", {
       sheetId,
       col: 2,
       row: 2,
@@ -65,10 +65,10 @@ describe("getCellText", () => {
     expect(getCell(model, "C3")?.format).toBe("bla");
   });
 
-  test("update cell outside of sheet", () => {
+  test("update cell outside of sheet", async () => {
     const model = new Model();
     const sheetId = model.getters.getActiveSheetId();
-    const result = model.dispatch("UPDATE_CELL", {
+    const result = await model.dispatchFromOutside("UPDATE_CELL", {
       sheetId,
       col: 9999,
       row: 9999,
@@ -77,10 +77,10 @@ describe("getCellText", () => {
     expect(result).toBeCancelledBecause(CommandResult.TargetOutOfSheet);
   });
 
-  test("update cell outside of sheet (without any modification)", () => {
+  test("update cell outside of sheet (without any modification)", async () => {
     const model = new Model();
     const sheetId = model.getters.getActiveSheetId();
-    const result = model.dispatch("UPDATE_CELL", {
+    const result = await model.dispatchFromOutside("UPDATE_CELL", {
       sheetId,
       col: 9999,
       row: 9999,
@@ -88,10 +88,10 @@ describe("getCellText", () => {
     expect(result).toBeCancelledBecause(CommandResult.TargetOutOfSheet, CommandResult.NoChanges);
   });
 
-  test("update cell without any modification", () => {
+  test("update cell without any modification", async () => {
     const model = new Model();
     const sheetId = model.getters.getActiveSheetId();
-    const result = model.dispatch("UPDATE_CELL", {
+    const result = await model.dispatchFromOutside("UPDATE_CELL", {
       sheetId,
       col: 0,
       row: 0,
@@ -99,13 +99,13 @@ describe("getCellText", () => {
     expect(result).toBeCancelledBecause(CommandResult.NoChanges);
   });
 
-  test("update cell with only the same content as before", () => {
+  test("update cell with only the same content as before", async () => {
     const model = new Model();
     const sheetId = model.getters.getActiveSheetId();
     setCellContent(model, "A1", "hello");
     setCellFormat(model, "A1", "#,##0.0");
     setStyle(model, "A1", { bold: true });
-    const result = model.dispatch("UPDATE_CELL", {
+    const result = await model.dispatchFromOutside("UPDATE_CELL", {
       sheetId,
       col: 0,
       row: 0,
@@ -114,13 +114,13 @@ describe("getCellText", () => {
     expect(result).toBeCancelledBecause(CommandResult.NoChanges);
   });
 
-  test("update cell with only the same format as before", () => {
+  test("update cell with only the same format as before", async () => {
     const model = new Model();
     const sheetId = model.getters.getActiveSheetId();
     setCellContent(model, "A1", "0");
     setCellFormat(model, "A1", "#,##0.0");
     setStyle(model, "A1", { bold: true });
-    const result = model.dispatch("UPDATE_CELL", {
+    const result = await model.dispatchFromOutside("UPDATE_CELL", {
       sheetId,
       col: 0,
       row: 0,
@@ -129,13 +129,13 @@ describe("getCellText", () => {
     expect(result).toBeCancelledBecause(CommandResult.NoChanges);
   });
 
-  test("update cell with only the same style as before", () => {
+  test("update cell with only the same style as before", async () => {
     const model = new Model();
     const sheetId = model.getters.getActiveSheetId();
     setCellContent(model, "A1", "0");
     setCellFormat(model, "A1", "#,##0.0");
     setStyle(model, "A1", { bold: true });
-    const result = model.dispatch("UPDATE_CELL", {
+    const result = await model.dispatchFromOutside("UPDATE_CELL", {
       sheetId,
       col: 0,
       row: 0,
@@ -144,13 +144,13 @@ describe("getCellText", () => {
     expect(result).toBeCancelledBecause(CommandResult.NoChanges);
   });
 
-  test("update cell with the same style, content and format as before", () => {
+  test("update cell with the same style, content and format as before", async () => {
     const model = new Model();
     const sheetId = model.getters.getActiveSheetId();
     setCellContent(model, "A1", "hello");
     setCellFormat(model, "A1", "#,##0.0");
     setStyle(model, "A1", { bold: true });
-    const result = model.dispatch("UPDATE_CELL", {
+    const result = await model.dispatchFromOutside("UPDATE_CELL", {
       sheetId,
       col: 0,
       row: 0,
@@ -472,7 +472,7 @@ describe("link cell", () => {
     (content) => {
       const model = new Model();
       const sheetId = model.getters.getActiveSheetId();
-      model.dispatch("UPDATE_CELL", {
+      await model.dispatchFromOutside("UPDATE_CELL", {
         col: 0,
         row: 0,
         sheetId,
@@ -492,7 +492,7 @@ describe("link cell", () => {
     (content) => {
       const model = new Model();
       const sheetId = model.getters.getActiveSheetId();
-      model.dispatch("UPDATE_CELL", {
+      await model.dispatchFromOutside("UPDATE_CELL", {
         col: 0,
         row: 0,
         sheetId,
@@ -535,10 +535,10 @@ describe("link cell", () => {
     expect(getCell(model, "D2")?.style).toEqual(getCell(model, "B2")?.style);
   });
 
-  test("copy-paste custom style", () => {
+  test("copy-paste custom style", async () => {
     const model = new Model();
     const sheetId = model.getters.getActiveSheetId();
-    model.dispatch("UPDATE_CELL", {
+    await model.dispatchFromOutside("UPDATE_CELL", {
       col: 1,
       row: 1,
       sheetId,
@@ -660,30 +660,36 @@ describe("Delete cell content", () => {
     sheetId = model.getters.getActiveSheetId();
   });
 
-  test("With DELETE_CONTENT command", () => {
+  test("With DELETE_CONTENT command", async () => {
     setCellContent(model, "A1", "hello");
-    model.dispatch("DELETE_CONTENT", { sheetId, target: target("A1") });
+    await model.dispatchFromOutside("DELETE_CONTENT", { sheetId, target: target("A1") });
     expect(getCellContent(model, "A1")).toBe("");
   });
 
-  test("With DELETE_UNFILTERED_CONTENT command", () => {
+  test("With DELETE_UNFILTERED_CONTENT command", async () => {
     setCellContent(model, "A1", "hello");
-    model.dispatch("DELETE_UNFILTERED_CONTENT", { sheetId, target: target("A1") });
+    await model.dispatchFromOutside("DELETE_UNFILTERED_CONTENT", { sheetId, target: target("A1") });
     expect(getCellContent(model, "A1")).toBe("");
   });
 
-  test("DELETE_UNFILTERED_CONTENT ignores filtered rows", () => {
+  test("DELETE_UNFILTERED_CONTENT ignores filtered rows", async () => {
     setGrid(model, { A2: "A1", A3: "A3", A4: "A4", B2: "B2", B3: "B3", B4: "B4" });
     createTableWithFilter(model, "A1:B4");
     updateFilter(model, "A1", ["A3"]);
-    model.dispatch("DELETE_UNFILTERED_CONTENT", { sheetId, target: target("A1:B4") });
+    await model.dispatchFromOutside("DELETE_UNFILTERED_CONTENT", {
+      sheetId,
+      target: target("A1:B4"),
+    });
     expect(getGrid(model)).toEqual({ A3: "A3", B3: "B3" });
   });
 
-  test("DELETE_UNFILTERED_CONTENT removes content of hidden rows", () => {
+  test("DELETE_UNFILTERED_CONTENT removes content of hidden rows", async () => {
     setGrid(model, { A2: "A1", A3: "A3", A4: "A4", B2: "B2", B3: "B3", B4: "B4" });
     hideRows(model, [2]);
-    model.dispatch("DELETE_UNFILTERED_CONTENT", { sheetId, target: target("A1:B4") });
+    await model.dispatchFromOutside("DELETE_UNFILTERED_CONTENT", {
+      sheetId,
+      target: target("A1:B4"),
+    });
     expect(getGrid(model)).toEqual({});
   });
 });

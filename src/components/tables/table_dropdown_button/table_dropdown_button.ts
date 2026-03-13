@@ -37,10 +37,10 @@ export class TableDropdownButton extends Component<Props, SpreadsheetChildEnv> {
     this.topBarToolStore = useToolBarDropdownStore();
   }
 
-  onStylePicked(styleId: string) {
+  async onStylePicked(styleId: string) {
     const sheetId = this.env.model.getters.getActiveSheetId();
     const tableConfig = { ...this.tableConfig, styleId };
-    const result = interactiveCreateTable(this.env, sheetId, tableConfig);
+    const result = await interactiveCreateTable(this.env, sheetId, tableConfig);
     if (result.isSuccessful) {
       this.env.openSidePanel("TableSidePanel", {});
     }

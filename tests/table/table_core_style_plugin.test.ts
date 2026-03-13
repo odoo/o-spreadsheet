@@ -50,16 +50,16 @@ describe("Table core style plugin", () => {
     });
   });
 
-  test("Can remove a table style", () => {
+  test("Can remove a table style", async () => {
     createTableStyle(model, "MyStyle");
 
     expect(model.getters.getTableStyles()["MyStyle"]).toMatchObject(customStyle);
 
-    model.dispatch("REMOVE_TABLE_STYLE", { tableStyleId: "MyStyle" });
+    await model.dispatchFromOutside("REMOVE_TABLE_STYLE", { tableStyleId: "MyStyle" });
     expect(model.getters.getTableStyles()["MyStyle"]).toBeUndefined();
   });
 
-  test("Editing or removing a table style edit the cell style", () => {
+  test("Editing or removing a table style edit the cell style", async () => {
     createTableStyle(model, "MyStyle");
     createTable(model, "A1", { styleId: "MyStyle" });
     expect(getStyle(model, "A1")).toMatchObject({ fillColor: "#FF0000" });
@@ -70,17 +70,17 @@ describe("Table core style plugin", () => {
     });
     expect(getStyle(model, "A1")).toMatchObject({ fillColor: "#00FF00" });
 
-    model.dispatch("REMOVE_TABLE_STYLE", { tableStyleId: "MyStyle" });
+    await model.dispatchFromOutside("REMOVE_TABLE_STYLE", { tableStyleId: "MyStyle" });
     expect(getStyle(model, "A1")).toMatchObject({ fillColor: "#346B90" }); // default table style
   });
 
-  test("Table config is updated if its style is removed", () => {
+  test("Table config is updated if its style is removed", async () => {
     createTableStyle(model, "MyStyle");
 
     createTable(model, "A1", { styleId: "MyStyle" });
     expect(model.getters.getTables(sheetId)[0].config.styleId).toEqual("MyStyle");
 
-    model.dispatch("REMOVE_TABLE_STYLE", { tableStyleId: "MyStyle" });
+    await model.dispatchFromOutside("REMOVE_TABLE_STYLE", { tableStyleId: "MyStyle" });
     expect(model.getters.getTables(sheetId)[0].config.styleId).toEqual(
       DEFAULT_TABLE_CONFIG.styleId
     );

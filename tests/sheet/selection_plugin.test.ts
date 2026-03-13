@@ -483,7 +483,7 @@ describe("simple selection", () => {
     expect(model.getters.getSelectedZone()).toEqual(toZone("A1:B2"));
   });
 
-  test("Selecting figure and undo cleanup selectedFigureId in selection plugin", () => {
+  test("Selecting figure and undo cleanup selectedFigureId in selection plugin", async () => {
     const model = new Model();
     createFigure(model, {
       sheetId: model.getters.getActiveSheetId(),
@@ -498,7 +498,7 @@ describe("simple selection", () => {
       height: 100,
     });
     expect(model.getters.getSelectedFigureId()).toBe(null);
-    model.dispatch("SELECT_FIGURE", { figureId: "someuuid" });
+    await model.dispatchFromOutside("SELECT_FIGURE", { figureId: "someuuid" });
     expect(model.getters.getSelectedFigureId()).toBe("someuuid");
     undo(model);
     expect(model.getters.getSelectedFigureId()).toBe(null);
@@ -1159,13 +1159,13 @@ describe("move elements(s)", () => {
     expect(getCellContent(model, "A100")).toEqual("5");
   });
 
-  test("cannot move column out of bound", () => {
+  test("cannot move column out of bound", async () => {
     const model = new Model();
     let result = moveColumns(model, "AAA", ["A"]);
     expect(result).toBeCancelledBecause(CommandResult.InvalidHeaderIndex);
     result = moveColumns(model, "A", ["AAA"]);
     expect(result).toBeCancelledBecause(CommandResult.InvalidHeaderIndex);
-    result = model.dispatch("MOVE_COLUMNS_ROWS", {
+    result = await model.dispatchFromOutside("MOVE_COLUMNS_ROWS", {
       sheetId: model.getters.getActiveSheetId(),
       sheetName: model.getters.getActiveSheetName(),
       base: -1,

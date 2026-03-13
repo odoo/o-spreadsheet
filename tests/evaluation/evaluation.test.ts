@@ -1394,7 +1394,7 @@ describe("evaluate formula getter", () => {
     expect(model.getters.evaluateFormula(sheetId, "=A1")).toBe("#BAD_EXPR");
   });
 
-  test("EVALUATE_CELLS with no argument re-evaluate all the cells", () => {
+  test("EVALUATE_CELLS with no argument re-evaluate all the cells", async () => {
     let value = 1;
     addToRegistry(functionRegistry, "GETVALUE", {
       description: "Get value",
@@ -1404,7 +1404,7 @@ describe("evaluate formula getter", () => {
     setCellContent(model, "A1", "=GETVALUE()");
     expect(getEvaluatedCell(model, "A1").value).toBe(1);
     value = 2;
-    model.dispatch("EVALUATE_CELLS");
+    await model.dispatchFromOutside("EVALUATE_CELLS");
     expect(getEvaluatedCell(model, "A1").value).toBe(2);
   });
 
@@ -1436,7 +1436,7 @@ describe("evaluate formula getter", () => {
     expect(mockCompute).toHaveBeenCalledTimes(1);
   });
 
-  test("cells in error are correctly reset", () => {
+  test("cells in error are correctly reset", async () => {
     let value: string | number = "LOADING...";
     addToRegistry(functionRegistry, "GETVALUE", {
       description: "Get value",
@@ -1448,12 +1448,12 @@ describe("evaluate formula getter", () => {
     expect(getEvaluatedCell(model, "A1").type).toBe(CellValueType.error);
     expect(getEvaluatedCell(model, "A2").type).toBe(CellValueType.error);
     value = 2;
-    model.dispatch("EVALUATE_CELLS");
+    await model.dispatchFromOutside("EVALUATE_CELLS");
     expect(getEvaluatedCell(model, "A1").value).toBe(-2);
     expect(getEvaluatedCell(model, "A2").value).toBe(-2);
   });
 
-  test("cells in error and in another sheet are correctly reset", () => {
+  test("cells in error and in another sheet are correctly reset", async () => {
     let value: string | number = "LOADING...";
     addToRegistry(functionRegistry, "GETVALUE", {
       description: "Get value",
@@ -1465,7 +1465,7 @@ describe("evaluate formula getter", () => {
     setCellContent(model, "A2", "=-GETVALUE()", "sheet2");
     expect(getEvaluatedCell(model, "A1").type).toBe(CellValueType.error);
     value = 2;
-    model.dispatch("EVALUATE_CELLS");
+    await model.dispatchFromOutside("EVALUATE_CELLS");
     expect(getEvaluatedCell(model, "A1").value).toBe(-2);
     expect(getEvaluatedCell(model, "A2", "sheet2").value).toBe(-2);
   });
@@ -1479,7 +1479,7 @@ describe("evaluate formula getter", () => {
     expect(getEvaluatedCell(model, "A3", firstSheetId).value).toBe(5);
   });
 
-  test("cells with two consecutive error are correctly evaluated", () => {
+  test("cells with two consecutive error are correctly evaluated", async () => {
     let value: number = 1;
     addToRegistry(functionRegistry, "GETVALUE", {
       description: "Get value",
@@ -1492,7 +1492,7 @@ describe("evaluate formula getter", () => {
     expect(getEvaluatedCell(model, "A1").type).toBe(CellValueType.error);
     expect((getEvaluatedCell(model, "A1") as ErrorCell).message).toBe("Error1");
     value = 2;
-    model.dispatch("EVALUATE_CELLS");
+    await model.dispatchFromOutside("EVALUATE_CELLS");
     expect(getEvaluatedCell(model, "A1").type).toBe(CellValueType.error);
     expect((getEvaluatedCell(model, "A1") as ErrorCell).message).toBe("Error2");
   });

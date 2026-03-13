@@ -156,9 +156,12 @@ export const insertCell: ActionSpec = {
 
 export const insertCellShiftDown: ActionSpec = {
   name: _t("Insert cells and shift down"),
-  execute: (env) => {
+  execute: async (env) => {
     const zone = env.model.getters.getSelectedZone();
-    const result = env.model.dispatch("INSERT_CELL", { zone, shiftDimension: "ROW" });
+    const result = await env.model.dispatchFromOutside("INSERT_CELL", {
+      zone,
+      shiftDimension: "ROW",
+    });
     handlePasteResult(env, result);
   },
   isVisible: (env) =>
@@ -168,9 +171,12 @@ export const insertCellShiftDown: ActionSpec = {
 
 export const insertCellShiftRight: ActionSpec = {
   name: _t("Insert cells and shift right"),
-  execute: (env) => {
+  execute: async (env) => {
     const zone = env.model.getters.getSelectedZone();
-    const result = env.model.dispatch("INSERT_CELL", { zone, shiftDimension: "COL" });
+    const result = await env.model.dispatchFromOutside("INSERT_CELL", {
+      zone,
+      shiftDimension: "COL",
+    });
     handlePasteResult(env, result);
   },
   isVisible: (env) =>
@@ -295,7 +301,7 @@ export const insertCheckbox: ActionSpec = {
     const zones = env.model.getters.getSelectedZones();
     const sheetId = env.model.getters.getActiveSheetId();
     const ranges = zones.map((zone) => env.model.getters.getRangeDataFromZone(sheetId, zone));
-    env.model.dispatch("ADD_DATA_VALIDATION_RULE", {
+    env.model.dispatchFromOutside("ADD_DATA_VALIDATION_RULE", {
       ranges,
       sheetId,
       rule: {
@@ -318,7 +324,7 @@ export const insertDropdown: ActionSpec = {
     const sheetId = env.model.getters.getActiveSheetId();
     const ranges = zones.map((zone) => env.model.getters.getRangeDataFromZone(sheetId, zone));
     const ruleId = env.model.uuidGenerator.smallUuid();
-    env.model.dispatch("ADD_DATA_VALIDATION_RULE", {
+    env.model.dispatchFromOutside("ADD_DATA_VALIDATION_RULE", {
       ranges,
       sheetId,
       rule: {
@@ -337,7 +343,7 @@ export const insertDropdown: ActionSpec = {
     env.openSidePanel("DataValidationEditor", {
       ruleId,
       onCancel: () => {
-        env.model.dispatch("REMOVE_DATA_VALIDATION_RULE", { sheetId, id: ruleId });
+        env.model.dispatchFromOutside("REMOVE_DATA_VALIDATION_RULE", { sheetId, id: ruleId });
       },
     });
   },
@@ -352,12 +358,15 @@ export const insertSheet: ActionSpec = {
     const activeSheetId = env.model.getters.getActiveSheetId();
     const position = env.model.getters.getSheetIds().indexOf(activeSheetId) + 1;
     const sheetId = env.model.uuidGenerator.smallUuid();
-    env.model.dispatch("CREATE_SHEET", {
+    env.model.dispatchFromOutside("CREATE_SHEET", {
       sheetId,
       position,
       name: env.model.getters.getNextSheetName(),
     });
-    env.model.dispatch("ACTIVATE_SHEET", { sheetIdFrom: activeSheetId, sheetIdTo: sheetId });
+    env.model.dispatchFromOutside("ACTIVATE_SHEET", {
+      sheetIdFrom: activeSheetId,
+      sheetIdTo: sheetId,
+    });
   },
   icon: "o-spreadsheet-Icon.INSERT_SHEET",
 };

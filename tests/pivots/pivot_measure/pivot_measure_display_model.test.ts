@@ -1654,7 +1654,7 @@ describe("Measure display", () => {
     });
   });
 
-  test("Display measure as works with PIVOT.VALUE formulas", () => {
+  test("Display measure as works with PIVOT.VALUE formulas", async () => {
     const measureDisplay: PivotMeasureDisplay = {
       type: "%_of",
       fieldNameWithGranularity: "Created on:month_number",
@@ -1671,7 +1671,7 @@ describe("Measure display", () => {
       ],
     });
     const pivot = model.getters.getPivot(pivotId);
-    model.dispatch("INSERT_PIVOT", {
+    await model.dispatchFromOutside("INSERT_PIVOT", {
       sheetId: model.getters.getActiveSheetId(),
       col: 0,
       row: 19,

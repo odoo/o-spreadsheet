@@ -8,16 +8,32 @@ type HistoryPath = [any, ...(number | string)[]];
 export class StateObserver {
   private changes: HistoryChange[] | undefined;
   private commands: CoreCommand[] = [];
+  private onChangeCallback?: (target: any, key: string, before: any) => void;
 
   /**
    * Record the changes which could happen in the given callback, save them in a
    * new revision with the given id and userId.
    */
-  recordChanges(callback: () => void): { changes: HistoryChange[]; commands: CoreCommand[] } {
+  recordChanges(
+    callback: () => Promise<void>
+  ): Promise<{ changes: HistoryChange[]; commands: CoreCommand[] }>;
+  recordChanges(callback: () => void): { changes: HistoryChange[]; commands: CoreCommand[] };
+  recordChanges(
+    callback: () => void | Promise<void>
+  ):
+    | { changes: HistoryChange[]; commands: CoreCommand[] }
+    | Promise<{ changes: HistoryChange[]; commands: CoreCommand[] }> {
     this.changes = [];
     this.commands = [];
-    callback();
-    return { changes: this.changes, commands: this.commands };
+    const result = callback();
+    if (result instanceof Promise) {
+      return result.then(() => ({ changes: this.changes!, commands: this.commands }));
+    }
+    return { changes: this.changes!, commands: this.commands };
+  }
+
+  setOnChange(callback: (target: any, key: string, before: any) => void) {
+    this.onChangeCallback = callback;
   }
 
   addCommand(command: CoreCommand) {
@@ -41,11 +57,13 @@ export class StateObserver {
     if (value[key] === val) {
       return;
     }
+    const before = value[key];
     this.changes?.push({
       key,
       target: value,
-      before: value[key],
+      before,
     });
+    this.onChangeCallback?.(value, key, before);
     if (val === undefined) {
       delete value[key];
     } else {

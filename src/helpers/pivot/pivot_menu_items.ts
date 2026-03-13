@@ -80,7 +80,7 @@ export const FIX_FORMULAS: ActionSpec = {
     if (!pivot.isValid()) {
       return;
     }
-    env.model.dispatch("SPLIT_PIVOT_FORMULA", {
+    env.model.dispatchFromOutside("SPLIT_PIVOT_FORMULA", {
       sheetId,
       col,
       row,
@@ -125,7 +125,7 @@ export const groupPivotHeaders: ActionSpec = {
       groupValuesInCustomField(customField, values);
     }
 
-    env.model.dispatch("UPDATE_PIVOT", { pivotId, pivot: definition });
+    env.model.dispatchFromOutside("UPDATE_PIVOT", { pivotId, pivot: definition });
   },
   isVisible: (env) => {
     const matchingHeaders = getMatchingPivotHeadersInSelection(env);
@@ -164,7 +164,7 @@ export const groupRemainingPivotHeadersAction: ActionSpec = {
       isOtherGroup: true,
     });
     addDimensionToPivotDefinition(definition, field.name, customField.name);
-    env.model.dispatch("UPDATE_PIVOT", { pivotId, pivot: definition });
+    env.model.dispatchFromOutside("UPDATE_PIVOT", { pivotId, pivot: definition });
   },
   isVisible: (env) => {
     const matchingHeaders = getMatchingPivotHeadersInSelection(env);
@@ -188,7 +188,7 @@ export const ungroupPivotHeadersAction: ActionSpec = {
     const definition = deepCopy(env.model.getters.getPivotCoreDefinition(pivotId));
     ungroupPivotHeaders(definition, values, field, pivot.getFields());
 
-    env.model.dispatch("UPDATE_PIVOT", { pivotId, pivot: definition });
+    env.model.dispatchFromOutside("UPDATE_PIVOT", { pivotId, pivot: definition });
   },
   isVisible: (env) => {
     const matchingHeaders = getMatchingPivotHeadersInSelection(env);
@@ -221,9 +221,9 @@ export const toggleCollapsePivotGroupAction: ActionSpec = {
     }
     return "";
   },
-  execute(env) {
+  async execute(env) {
     const position = env.model.getters.getActivePosition();
-    togglePivotCollapse(position, env);
+    await togglePivotCollapse(position, env);
   },
   isVisible: (env) => {
     const position = env.model.getters.getActivePosition();
@@ -255,7 +255,7 @@ export const collapseAllPivotGroupAction: ActionSpec = {
     );
 
     definition.collapsedDomains[pivotCell.dimension] = filteredCollapsed;
-    env.model.dispatch("UPDATE_PIVOT", { pivotId, pivot: definition });
+    env.model.dispatchFromOutside("UPDATE_PIVOT", { pivotId, pivot: definition });
   },
   isVisible: (env) => {
     const position = env.model.getters.getActivePosition();
@@ -293,7 +293,7 @@ export const expandAllPivotGroupAction: ActionSpec = {
     );
 
     definition.collapsedDomains[pivotCell.dimension] = filteredDomains;
-    env.model.dispatch("UPDATE_PIVOT", { pivotId, pivot: definition });
+    env.model.dispatchFromOutside("UPDATE_PIVOT", { pivotId, pivot: definition });
   },
   isVisible: (env) => {
     const position = env.model.getters.getActivePosition();
@@ -384,7 +384,7 @@ export function sortPivot(
   }
 
   if (order === "none") {
-    env.model.dispatch("UPDATE_PIVOT", {
+    env.model.dispatchFromOutside("UPDATE_PIVOT", {
       pivotId: pivotId,
       pivot: {
         ...env.model.getters.getPivotCoreDefinition(pivotId),
@@ -396,7 +396,7 @@ export function sortPivot(
 
   const pivot = env.model.getters.getPivot(pivotId);
   const colDomain = domainToColRowDomain(pivot, pivotCell.domain).colDomain;
-  env.model.dispatch("UPDATE_PIVOT", {
+  env.model.dispatchFromOutside("UPDATE_PIVOT", {
     pivotId: pivotId,
     pivot: {
       ...env.model.getters.getPivotCoreDefinition(pivotId),

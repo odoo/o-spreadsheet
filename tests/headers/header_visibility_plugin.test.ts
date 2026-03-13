@@ -81,9 +81,12 @@ describe("Hide Columns", () => {
     expect(model.getters.getHiddenColsGroups(sheetId)).toEqual([[1]]);
   });
 
-  test("hide/unhide Column on small sheet", () => {
+  test("hide/unhide Column on small sheet", async () => {
     model = new Model({ sheets: [{ colNumber: 5, rowNumber: 1 }] });
-    model.dispatch("RESIZE_SHEETVIEW", { width: DEFAULT_CELL_WIDTH, height: 1000 });
+    await model.dispatchFromOutside("RESIZE_SHEETVIEW", {
+      width: DEFAULT_CELL_WIDTH,
+      height: 1000,
+    });
     const sheet = model.getters.getActiveSheet();
     const dimensions = model.getters.getMainViewportRect();
     hideColumns(model, ["B", "C", "D"], sheet.id);
@@ -176,9 +179,12 @@ describe("Hide Rows", () => {
     expect(hideRows(model, [0], "INVALID")).toBeCancelledBecause(CommandResult.InvalidSheetId);
   });
 
-  test("hide/unhide Row on small sheet", () => {
+  test("hide/unhide Row on small sheet", async () => {
     model = new Model({ sheets: [{ colNumber: 1, rowNumber: 5 }] });
-    model.dispatch("RESIZE_SHEETVIEW", { width: 1000, height: DEFAULT_CELL_HEIGHT });
+    await model.dispatchFromOutside("RESIZE_SHEETVIEW", {
+      width: 1000,
+      height: DEFAULT_CELL_HEIGHT,
+    });
     const sheet = model.getters.getActiveSheet();
     const dimensions = model.getters.getMainViewportRect();
     hideRows(model, [1, 2, 3], sheet.id);
@@ -308,7 +314,7 @@ describe("Hide Rows", () => {
     expect(model.getters.getHiddenRowsGroups(sheetId)).toEqual([[1, 2]]);
   });
 
-  test("Do not compute row of empty cell", () => {
+  test("Do not compute row of empty cell", async () => {
     model = new Model();
     const sheetId = model.getters.getActiveSheetId();
     // Will force an UPDATE_CELL subcommand upon addRows
@@ -316,7 +322,7 @@ describe("Hide Rows", () => {
     addRows(model, "after", 99, 1);
     const plugin = getPlugin(model, HeaderSizePlugin);
     expect(plugin.sizes[sheetId].ROW.length).toEqual(101);
-    model.dispatch("DUPLICATE_SHEET", {
+    await model.dispatchFromOutside("DUPLICATE_SHEET", {
       sheetId,
       sheetIdTo: "sheet2",
       sheetNameTo: "Copy of Sheet1",

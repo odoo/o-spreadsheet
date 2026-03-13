@@ -75,7 +75,7 @@ describe("Hovered Table Store", () => {
     );
   });
 
-  test("Hidden columns should be ignored when applying overlay colors", () => {
+  test("Hidden columns should be ignored when applying overlay colors", async () => {
     const B2 = { col: 1, row: 1 };
     createTable(model, "A1:B2");
     setCellContent(model, "A2", "Some data");
@@ -87,7 +87,11 @@ describe("Hovered Table Store", () => {
     hoveredTableStore.clear();
 
     model.updateMode("normal");
-    model.dispatch("HIDE_COLUMNS_ROWS", { sheetId, elements: [0], dimension: "COL" });
+    await model.dispatchFromOutside("HIDE_COLUMNS_ROWS", {
+      sheetId,
+      elements: [0],
+      dimension: "COL",
+    });
     model.updateMode("dashboard");
     hoveredTableStore.hover(B2);
     expect(hoveredTableStore.overlayColors.has({ sheetId, ...B2 })).toBe(false);

@@ -70,12 +70,17 @@ describe("Header grouping plugin", () => {
       expect(result).toBeCancelledBecause(CommandResult.InvalidHeaderGroupStartEnd);
     });
 
-    test("Cannot remove group with invalid header indexes", () => {
-      let result = model.dispatch("UNGROUP_HEADERS", { sheetId, dimension, start: -1, end: 5 });
+    test("Cannot remove group with invalid header indexes", async () => {
+      let result = await model.dispatchFromOutside("UNGROUP_HEADERS", {
+        sheetId,
+        dimension,
+        start: -1,
+        end: 5,
+      });
       expect(result).toBeCancelledBecause(CommandResult.InvalidHeaderGroupStartEnd);
 
       const numberHeaders = model.getters.getNumberHeaders(sheetId, dimension);
-      result = model.dispatch("UNGROUP_HEADERS", {
+      result = await model.dispatchFromOutside("UNGROUP_HEADERS", {
         sheetId,
         dimension,
         start: 0,
@@ -83,16 +88,21 @@ describe("Header grouping plugin", () => {
       });
       expect(result).toBeCancelledBecause(CommandResult.InvalidHeaderGroupStartEnd);
 
-      result = model.dispatch("UNGROUP_HEADERS", { sheetId, dimension, start: 5, end: 0 });
+      result = await model.dispatchFromOutside("UNGROUP_HEADERS", {
+        sheetId,
+        dimension,
+        start: 5,
+        end: 0,
+      });
       expect(result).toBeCancelledBecause(CommandResult.InvalidHeaderGroupStartEnd);
     });
 
-    test("Cannot toggle unknown group", () => {
+    test("Cannot toggle unknown group", async () => {
       const cmdParams = { sheetId, dimension, start: 0, end: 1 };
-      let result = model.dispatch("UNFOLD_HEADER_GROUP", cmdParams);
+      let result = await model.dispatchFromOutside("UNFOLD_HEADER_GROUP", cmdParams);
       expect(result).toBeCancelledBecause(CommandResult.UnknownHeaderGroup);
 
-      result = model.dispatch("FOLD_HEADER_GROUP", cmdParams);
+      result = await model.dispatchFromOutside("FOLD_HEADER_GROUP", cmdParams);
       expect(result).toBeCancelledBecause(CommandResult.UnknownHeaderGroup);
     });
 

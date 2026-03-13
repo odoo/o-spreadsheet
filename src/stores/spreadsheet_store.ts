@@ -28,7 +28,7 @@ export class SpreadsheetStore extends DisposableStore {
   }
 
   protected handle(cmd: Command) {}
-  protected finalize() {}
+  protected finalize() {} //TODOPRO Not async for now, I think it's ok since it's triggered from command-finalized
 
   drawLayer(ctx: GridRenderingContext, layer: LayerName, timestamp: number | undefined) {}
 }

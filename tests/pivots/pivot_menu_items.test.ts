@@ -100,7 +100,7 @@ describe("Pivot properties menu item", () => {
 });
 
 describe("Pivot fix formula menu item", () => {
-  test("It should fix formula when clicking on pivot_fix_formulas", () => {
+  test("It should fix formula when clicking on pivot_fix_formulas", async () => {
     // prettier-ignore
     const grid = {
       A1: "Customer", B1: "Product",  C1: "Quantity", D1: "Amount", E1: "Date",
@@ -133,7 +133,7 @@ describe("Pivot fix formula menu item", () => {
       ["Total",    "60",     "60",     "5",       "125"],
     ]);
 
-    model.dispatch("SET_FORMULA_VISIBILITY", { show: true });
+    await model.dispatchFromOutside("SET_FORMULA_VISIBILITY", { show: true });
     expect(getEvaluatedGrid(model, "A8:E14")).toEqual([
       [
         "",
@@ -187,7 +187,7 @@ describe("Pivot fix formula menu item", () => {
     ]);
   });
 
-  test("It should correctly manage empty values while fixing formulas", () => {
+  test("It should correctly manage empty values while fixing formulas", async () => {
     // prettier-ignore
     const grid = {
       A1: "Customer", B1: "Amount", C1: "=PIVOT(1)",
@@ -221,7 +221,7 @@ describe("Pivot fix formula menu item", () => {
       ["(Undefined)", "20"],
     ]);
 
-    model.dispatch("SET_FORMULA_VISIBILITY", { show: true });
+    await model.dispatchFromOutside("SET_FORMULA_VISIBILITY", { show: true });
     expect(getEvaluatedGrid(model, "C3:D4")).toEqual([
       [`=PIVOT.HEADER(1,"Customer","Alice")`, `=PIVOT.VALUE(1,"Amount:sum","Customer","Alice")`],
       [`=PIVOT.HEADER(1,"Customer","null")`, `=PIVOT.VALUE(1,"Amount:sum","Customer","null")`],
@@ -264,7 +264,7 @@ describe("Pivot fix formula menu item", () => {
     });
   });
 
-  test("It should fix formulas with computed measure when clicking on pivot_fix_formulas", () => {
+  test("It should fix formulas with computed measure when clicking on pivot_fix_formulas", async () => {
     // prettier-ignore
     const grid = {
       A1: "Customer",
@@ -297,7 +297,7 @@ describe("Pivot fix formula menu item", () => {
       ["Total", "42"],
     ]);
 
-    model.dispatch("SET_FORMULA_VISIBILITY", { show: true });
+    await model.dispatchFromOutside("SET_FORMULA_VISIBILITY", { show: true });
     expect(getEvaluatedGrid(model, "A3:B6")).toEqual([
       ["", "=PIVOT.HEADER(1)"],
       ["", '=PIVOT.HEADER(1,"measure","calculated")'],
@@ -337,7 +337,7 @@ describe("Pivot fix formula menu item", () => {
     expect(cellMenuRegistry.get("pivot_fix_formulas").isVisible!(env)).toBe(false);
   });
 
-  test("It should ignore hidden measures", () => {
+  test("It should ignore hidden measures", async () => {
     const grid = {
       A1: "Price",
       A2: "10",
@@ -365,7 +365,7 @@ describe("Pivot fix formula menu item", () => {
     const env = makeTestEnv({ model });
     selectCell(model, "A4");
     cellMenuRegistry.get("pivot_fix_formulas").execute?.(env);
-    model.dispatch("SET_FORMULA_VISIBILITY", { show: true });
+    await model.dispatchFromOutside("SET_FORMULA_VISIBILITY", { show: true });
 
     // prettier-ignore
     expect(getEvaluatedGrid(model, "A4:B6")).toEqual([
@@ -375,7 +375,7 @@ describe("Pivot fix formula menu item", () => {
     ]);
   });
 
-  test("Fixing the formula take into account the arguments of PIVOT()", () => {
+  test("Fixing the formula take into account the arguments of PIVOT()", async () => {
     // prettier-ignore
     const grid = {
      A1: "Customer", B1: "Price", C1: "Date",     E1: "=PIVOT(1, 1, false, false, 1, false)",
@@ -395,7 +395,7 @@ describe("Pivot fix formula menu item", () => {
     selectCell(model, "E1");
     cellMenuRegistry.get("pivot_fix_formulas").execute!(env);
 
-    model.dispatch("SET_FORMULA_VISIBILITY", { show: true });
+    await model.dispatchFromOutside("SET_FORMULA_VISIBILITY", { show: true });
     expect(getEvaluatedGrid(model, "E1:F1")).toEqual([
       [
         `=PIVOT.HEADER(1,"Date:year",2023)`,
@@ -726,9 +726,9 @@ describe("Pivot sorting menu item", () => {
     expect(sortAction.isVisible(env)).toBe(true);
   });
 
-  test("Sort menu item is not visible on static pivot formulas", () => {
+  test("Sort menu item is not visible on static pivot formulas", async () => {
     const pivotId = model.getters.getPivotIds()[0];
-    model.dispatch("SPLIT_PIVOT_FORMULA", {
+    await model.dispatchFromOutside("SPLIT_PIVOT_FORMULA", {
       sheetId: model.getters.getActiveSheetId(),
       col: 0,
       row: 91,
@@ -843,12 +843,12 @@ describe("Pivot (un)grouping menu items", () => {
       expect(cellMenuRegistry.get("pivot_headers_group").isVisible!(env)).toBe(false);
     });
 
-    test("Menu item is not visible on static pivot formulas", () => {
+    test("Menu item is not visible on static pivot formulas", async () => {
       updatePivot(model, pivotId, {
         rows: [{ fieldName: "Salesperson" }, { fieldName: "Stage" }],
       });
       const sheetId = model.getters.getActiveSheetId();
-      model.dispatch("SPLIT_PIVOT_FORMULA", { sheetId, col: 0, row: 24, pivotId });
+      await model.dispatchFromOutside("SPLIT_PIVOT_FORMULA", { sheetId, col: 0, row: 24, pivotId });
 
       setSelection(model, ["A27", "A32"]); // Salesperson headers
       expect(cellMenuRegistry.get("pivot_headers_group").isVisible!(env)).toBe(false);

@@ -29,7 +29,6 @@ import {
   DataValidationCriterion,
   Dimension,
   Direction,
-  DispatchResult,
   HeaderIndex,
   Locale,
   ParsedOsClipboardContentWithImageData,
@@ -66,15 +65,15 @@ import {
 /**
  * Dispatch an UNDO to the model
  */
-export function undo(model: Model): DispatchResult {
-  return model.dispatch("REQUEST_UNDO");
+export function undo(model: Model) {
+  return model.dispatchFromOutside("REQUEST_UNDO");
 }
 
 /**
  * Dispatch a REDO to the model
  */
-export function redo(model: Model): DispatchResult {
-  return model.dispatch("REQUEST_REDO");
+export function redo(model: Model) {
+  return model.dispatchFromOutside("REQUEST_REDO");
 }
 
 export function activateSheet(
@@ -82,7 +81,7 @@ export function activateSheet(
   sheetIdTo: UID,
   sheetIdFrom: UID = model.getters.getActiveSheetId()
 ) {
-  return model.dispatch("ACTIVATE_SHEET", { sheetIdFrom, sheetIdTo });
+  return model.dispatchFromOutside("ACTIVATE_SHEET", { sheetIdFrom, sheetIdTo });
 }
 
 /**
@@ -94,7 +93,7 @@ export function createSheet(
   data: Partial<CreateSheetCommand & { activate: boolean; hidden: boolean; color: Color }>
 ) {
   const sheetId = data.sheetId || model.uuidGenerator.uuidv4();
-  const result = model.dispatch("CREATE_SHEET", {
+  const result = model.dispatchFromOutside("CREATE_SHEET", {
     position: data.position !== undefined ? data.position : 1,
     sheetId,
     cols: data.cols,
@@ -113,26 +112,26 @@ export function createSheet(
   return result;
 }
 
-export function renameSheet(model: Model, sheetId: UID, newName: string): DispatchResult {
+export function renameSheet(model: Model, sheetId: UID, newName: string) {
   const oldName = model.getters.tryGetSheet(sheetId)?.name ?? "SheetName";
-  return model.dispatch("RENAME_SHEET", { sheetId, newName, oldName });
+  return model.dispatchFromOutside("RENAME_SHEET", { sheetId, newName, oldName });
 }
 
-export function colorSheet(model: Model, sheetId: UID, color: Color | undefined): DispatchResult {
-  return model.dispatch("COLOR_SHEET", { sheetId, color });
+export function colorSheet(model: Model, sheetId: UID, color: Color | undefined) {
+  return model.dispatchFromOutside("COLOR_SHEET", { sheetId, color });
 }
 
 export function createSheetWithName(
   model: Model,
   data: Partial<CreateSheetCommand & { activate: boolean }>,
   name: string
-): DispatchResult {
+) {
   return createSheet(model, { ...data, name });
 }
 
-export function deleteSheet(model: Model, sheetId: UID): DispatchResult {
+export function deleteSheet(model: Model, sheetId: UID) {
   const sheetName = model.getters.tryGetSheet(sheetId)?.name ?? "SheetName";
-  return model.dispatch("DELETE_SHEET", {
+  return model.dispatchFromOutside("DELETE_SHEET", {
     sheetId,
     sheetName,
   });
@@ -163,7 +162,7 @@ export function createFigure(
     tag: "text",
     ...partialParam,
   };
-  return model.dispatch("CREATE_FIGURE", {
+  return model.dispatchFromOutside("CREATE_FIGURE", {
     sheetId: param.sheetId,
     figureId: param.figureId,
     col: param.col,
@@ -200,7 +199,7 @@ export function createImage(
     },
   };
   const size = partialParam.size ?? { width: 380, height: 380 };
-  return model.dispatch("CREATE_IMAGE", {
+  return model.dispatchFromOutside("CREATE_IMAGE", {
     sheetId: param.sheetId,
     figureId: param.figureId,
     col: param.col,
@@ -245,7 +244,7 @@ export function createChart(
     horizontalGroupBy: ("horizontalGroupBy" in data && data.horizontalGroupBy) || "day_of_week",
     verticalGroupBy: ("verticalGroupBy" in data && data.verticalGroupBy) || "month_number",
   };
-  return model.dispatch("CREATE_CHART", {
+  return model.dispatchFromOutside("CREATE_CHART", {
     figureId: figureData.figureId || model.uuidGenerator.smallUuid(),
     chartId: id,
     sheetId,
@@ -268,7 +267,7 @@ export function createComboChart(
   const id = chartId || model.uuidGenerator.uuidv4();
   sheetId = sheetId || model.getters.getActiveSheetId();
 
-  return model.dispatch("CREATE_CHART", {
+  return model.dispatchFromOutside("CREATE_CHART", {
     figureId: figureData.figureId || model.uuidGenerator.smallUuid(),
     chartId: id,
     sheetId,
@@ -301,7 +300,7 @@ export function createRadarChart(
   const id = chartId || model.uuidGenerator.uuidv4();
   sheetId = sheetId || model.getters.getActiveSheetId();
 
-  return model.dispatch("CREATE_CHART", {
+  return model.dispatchFromOutside("CREATE_CHART", {
     figureId: figureData.figureId || model.uuidGenerator.smallUuid(),
     chartId: id,
     sheetId,
@@ -336,7 +335,7 @@ export function createCalendarChart(
   const id = chartId || model.uuidGenerator.uuidv4();
   sheetId = sheetId || model.getters.getActiveSheetId();
 
-  return model.dispatch("CREATE_CHART", {
+  return model.dispatchFromOutside("CREATE_CHART", {
     figureId: figureData.figureId || model.uuidGenerator.smallUuid(),
     chartId: id,
     sheetId: sheetId,
@@ -393,7 +392,7 @@ export function createScorecardChart(
   const id = chartId || model.uuidGenerator.uuidv4();
   sheetId = sheetId || model.getters.getActiveSheetId();
 
-  return model.dispatch("CREATE_CHART", {
+  return model.dispatchFromOutside("CREATE_CHART", {
     figureId: figureData.figureId || model.uuidGenerator.smallUuid(),
     chartId: id,
     sheetId,
@@ -428,7 +427,7 @@ export function createGaugeChart(
   const id = chartId || model.uuidGenerator.uuidv4();
   sheetId = sheetId || model.getters.getActiveSheetId();
 
-  return model.dispatch("CREATE_CHART", {
+  return model.dispatchFromOutside("CREATE_CHART", {
     figureId: figureData.figureId || model.uuidGenerator.smallUuid(),
     chartId: id,
     sheetId,
@@ -475,7 +474,7 @@ export function createGeoChart(
 ) {
   const id = chartId || model.uuidGenerator.uuidv4();
 
-  return model.dispatch("CREATE_CHART", {
+  return model.dispatchFromOutside("CREATE_CHART", {
     figureId: figureData.figureId || model.uuidGenerator.smallUuid(),
     chartId: id,
     sheetId,
@@ -508,12 +507,12 @@ export function updateChart(
   chartId: UID,
   definition: Partial<ChartDefinition>,
   sheetId: UID = model.getters.getActiveSheetId()
-): DispatchResult {
+) {
   const def: ChartDefinition = {
     ...model.getters.getChartDefinition(chartId),
     ...definition,
   } as ChartDefinition;
-  return model.dispatch("UPDATE_CHART", {
+  return model.dispatchFromOutside("UPDATE_CHART", {
     figureId: model.getters.getFigureIdFromChartId(chartId),
     chartId,
     sheetId,
@@ -524,32 +523,28 @@ export function updateChart(
 /**
  * Copy a zone
  */
-export function copy(model: Model, ...ranges: string[]): DispatchResult {
+export function copy(model: Model, ...ranges: string[]) {
   if (ranges && ranges.length) {
     setSelection(model, ranges);
   }
-  return model.dispatch("COPY");
+  return model.dispatchFromOutside("COPY");
 }
 
 /**
  * Cut a zone
  */
-export function cut(model: Model, ...ranges: string[]): DispatchResult {
+export function cut(model: Model, ...ranges: string[]) {
   if (ranges && ranges.length) {
     setSelection(model, ranges);
   }
-  return model.dispatch("CUT");
+  return model.dispatchFromOutside("CUT");
 }
 
 /**
  * Paste on a zone
  */
-export function paste(
-  model: Model,
-  range: string,
-  pasteOption?: ClipboardPasteOptions
-): DispatchResult {
-  return model.dispatch("PASTE", { target: target(range), pasteOption });
+export function paste(model: Model, range: string, pasteOption?: ClipboardPasteOptions) {
+  return model.dispatchFromOutside("PASTE", { target: target(range), pasteOption });
 }
 
 /**
@@ -560,8 +555,8 @@ export function pasteFromOSClipboard(
   range: string,
   content: ParsedOsClipboardContentWithImageData,
   pasteOption?: ClipboardPasteOptions
-): DispatchResult {
-  return model.dispatch("PASTE_FROM_OS_CLIPBOARD", {
+) {
+  return model.dispatchFromOutside("PASTE_FROM_OS_CLIPBOARD", {
     clipboardContent: content,
     target: target(range),
     pasteOption,
@@ -571,29 +566,29 @@ export function pasteFromOSClipboard(
 /**
  * Copy cells above a zone and paste on zone
  */
-export function copyPasteAboveCells(model: Model): DispatchResult {
-  return model.dispatch("COPY_PASTE_CELLS_ABOVE");
+export function copyPasteAboveCells(model: Model) {
+  return model.dispatchFromOutside("COPY_PASTE_CELLS_ABOVE");
 }
 
 /**
  * Copy cells to the left of a zone and paste on zone
  */
-export function copyPasteCellsOnLeft(model: Model): DispatchResult {
-  return model.dispatch("COPY_PASTE_CELLS_ON_LEFT");
+export function copyPasteCellsOnLeft(model: Model) {
+  return model.dispatchFromOutside("COPY_PASTE_CELLS_ON_LEFT");
 }
 
 /**
  * Copy cell and paste on zone
  */
-export function copyPasteCellsOnZone(model: Model): DispatchResult {
-  return model.dispatch("COPY_PASTE_CELLS_ON_ZONE");
+export function copyPasteCellsOnZone(model: Model) {
+  return model.dispatchFromOutside("COPY_PASTE_CELLS_ON_ZONE");
 }
 
 /**
  * Clean clipboard highlight selection.
  */
-export function cleanClipBoardHighlight(model: Model): DispatchResult {
-  return model.dispatch("CLEAN_CLIPBOARD_HIGHLIGHT");
+export function cleanClipBoardHighlight(model: Model) {
+  return model.dispatchFromOutside("CLEAN_CLIPBOARD_HIGHLIGHT");
 }
 
 /**
@@ -605,9 +600,9 @@ export function addColumns(
   column: string,
   quantity: number,
   sheetId: UID = model.getters.getActiveSheetId()
-): DispatchResult {
+) {
   const sheetName = model.getters.tryGetSheet(sheetId)?.name ?? "SheetName";
-  return model.dispatch("ADD_COLUMNS_ROWS", {
+  return model.dispatchFromOutside("ADD_COLUMNS_ROWS", {
     sheetId,
     dimension: "COL",
     position,
@@ -624,9 +619,9 @@ export function deleteColumns(
   model: Model,
   columns: string[],
   sheetId: UID = model.getters.getActiveSheetId()
-): DispatchResult {
+) {
   const sheetName = model.getters.tryGetSheet(sheetId)?.name ?? "SheetName";
-  return model.dispatch("REMOVE_COLUMNS_ROWS", {
+  return model.dispatchFromOutside("REMOVE_COLUMNS_ROWS", {
     sheetId,
     dimension: "COL",
     elements: columns.map(lettersToNumber),
@@ -642,8 +637,8 @@ export function resizeColumns(
   columns: string[],
   size: number,
   sheetId: UID = model.getters.getActiveSheetId()
-): DispatchResult {
-  return model.dispatch("RESIZE_COLUMNS_ROWS", {
+) {
+  return model.dispatchFromOutside("RESIZE_COLUMNS_ROWS", {
     dimension: "COL",
     elements: columns.map(lettersToNumber),
     sheetId,
@@ -660,9 +655,9 @@ export function addRows(
   row: number,
   quantity: number,
   sheetId: UID = model.getters.getActiveSheetId()
-): DispatchResult {
+) {
   const sheetName = model.getters.tryGetSheet(sheetId)?.name ?? "SheetName";
-  return model.dispatch("ADD_COLUMNS_ROWS", {
+  return model.dispatchFromOutside("ADD_COLUMNS_ROWS", {
     dimension: "ROW",
     sheetId,
     position,
@@ -679,9 +674,9 @@ export function deleteRows(
   model: Model,
   rows: number[],
   sheetId: UID = model.getters.getActiveSheetId()
-): DispatchResult {
+) {
   const sheetName = model.getters.tryGetSheet(sheetId)?.name ?? "SheetName";
-  return model.dispatch("REMOVE_COLUMNS_ROWS", {
+  return model.dispatchFromOutside("REMOVE_COLUMNS_ROWS", {
     sheetId,
     elements: rows,
     dimension: "ROW",
@@ -694,8 +689,8 @@ export function deleteHeaders(
   dimension: Dimension,
   headers: number[],
   sheetId: UID = model.getters.getActiveSheetId()
-): DispatchResult {
-  return model.dispatch("REMOVE_COLUMNS_ROWS", {
+) {
+  return model.dispatchFromOutside("REMOVE_COLUMNS_ROWS", {
     sheetId,
     sheetName: model.getters.getSheetName(sheetId),
     dimension,
@@ -711,8 +706,8 @@ export function resizeRows(
   rows: number[],
   size: number,
   sheetId: UID = model.getters.getActiveSheetId()
-): DispatchResult {
-  return model.dispatch("RESIZE_COLUMNS_ROWS", {
+) {
+  return model.dispatchFromOutside("RESIZE_COLUMNS_ROWS", {
     dimension: "ROW",
     elements: rows,
     sheetId,
@@ -727,8 +722,8 @@ export function hideColumns(
   model: Model,
   columns: string[],
   sheetId: UID = model.getters.getActiveSheetId()
-): DispatchResult {
-  return model.dispatch("HIDE_COLUMNS_ROWS", {
+) {
+  return model.dispatchFromOutside("HIDE_COLUMNS_ROWS", {
     sheetId,
     dimension: "COL",
     elements: columns.map(lettersToNumber),
@@ -742,8 +737,8 @@ export function unhideColumns(
   model: Model,
   columns: string[],
   sheetId: UID = model.getters.getActiveSheetId()
-): DispatchResult {
-  return model.dispatch("UNHIDE_COLUMNS_ROWS", {
+) {
+  return model.dispatchFromOutside("UNHIDE_COLUMNS_ROWS", {
     sheetId,
     dimension: "COL",
     elements: columns.map(lettersToNumber),
@@ -757,8 +752,8 @@ export function hideRows(
   model: Model,
   rows: number[],
   sheetId: UID = model.getters.getActiveSheetId()
-): DispatchResult {
-  return model.dispatch("HIDE_COLUMNS_ROWS", {
+) {
+  return model.dispatchFromOutside("HIDE_COLUMNS_ROWS", {
     sheetId,
     dimension: "ROW",
     elements: rows,
@@ -772,16 +767,16 @@ export function unhideRows(
   model: Model,
   rows: number[],
   sheetId: UID = model.getters.getActiveSheetId()
-): DispatchResult {
-  return model.dispatch("UNHIDE_COLUMNS_ROWS", {
+) {
+  return model.dispatchFromOutside("UNHIDE_COLUMNS_ROWS", {
     sheetId,
     dimension: "ROW",
     elements: rows,
   });
 }
 
-export function deleteCells(model: Model, range: string, shift: "left" | "up"): DispatchResult {
-  return model.dispatch("DELETE_CELL", {
+export function deleteCells(model: Model, range: string, shift: "left" | "up") {
+  return model.dispatchFromOutside("DELETE_CELL", {
     zone: toZone(range),
     shiftDimension: shift === "left" ? "COL" : "ROW",
   });
@@ -791,15 +786,15 @@ export function deleteContent(
   model: Model,
   ranges: string[],
   sheetId: UID = model.getters.getActiveSheetId()
-): DispatchResult {
-  return model.dispatch("DELETE_CONTENT", {
+) {
+  return model.dispatchFromOutside("DELETE_CONTENT", {
     sheetId,
     target: ranges.map(toZone),
   });
 }
 
-export function insertCells(model: Model, range: string, shift: "right" | "down"): DispatchResult {
-  return model.dispatch("INSERT_CELL", {
+export function insertCells(model: Model, range: string, shift: "right" | "down") {
+  return model.dispatchFromOutside("INSERT_CELL", {
     zone: toZone(range),
     shiftDimension: shift === "right" ? "COL" : "ROW",
   });
@@ -810,7 +805,7 @@ export function insertCells(model: Model, range: string, shift: "right" | "down"
  */
 export function setZoneBorders(model: Model, border: BorderData, xcs?: string[]) {
   const target = xcs ? xcs.map(toZone) : model.getters.getSelectedZones();
-  model.dispatch("SET_ZONE_BORDERS", {
+  model.dispatchFromOutside("SET_ZONE_BORDERS", {
     sheetId: model.getters.getActiveSheetId(),
     target,
     border: {
@@ -828,7 +823,7 @@ export function setBorders(
   sheetId: UID = model.getters.getActiveSheetId()
 ) {
   const { col, row } = toCartesian(xc);
-  return model.dispatch("SET_BORDER", {
+  return model.dispatchFromOutside("SET_BORDER", {
     sheetId,
     col,
     row,
@@ -842,7 +837,7 @@ export function setBordersOnTarget(
   border?: Border,
   sheetId: UID = model.getters.getActiveSheetId()
 ) {
-  return model.dispatch("SET_BORDERS_ON_TARGET", {
+  return model.dispatchFromOutside("SET_BORDERS_ON_TARGET", {
     sheetId,
     target: xcs.map(toZone),
     border,
@@ -858,7 +853,7 @@ export function clearCell(
   sheetId: UID = model.getters.getActiveSheetId()
 ) {
   const { col, row } = toCartesian(xc);
-  return model.dispatch("CLEAR_CELL", { col, row, sheetId });
+  return model.dispatchFromOutside("CLEAR_CELL", { col, row, sheetId });
 }
 
 /**
@@ -869,7 +864,7 @@ export function clearCells(
   xcs: string[],
   sheetId: UID = model.getters.getActiveSheetId()
 ) {
-  return model.dispatch("CLEAR_CELLS", { target: xcs.map(toZone), sheetId });
+  return model.dispatchFromOutside("CLEAR_CELLS", { target: xcs.map(toZone), sheetId });
 }
 
 /**
@@ -882,7 +877,7 @@ export function setCellContent(
   sheetId: UID = model.getters.getActiveSheetId()
 ) {
   const { col, row } = toCartesian(xc);
-  return model.dispatch("UPDATE_CELL", { col, row, sheetId, content });
+  return model.dispatchFromOutside("UPDATE_CELL", { col, row, sheetId, content });
 }
 
 /**
@@ -895,39 +890,31 @@ export function setCellFormat(
   sheetId: UID = model.getters.getActiveSheetId()
 ) {
   const { col, row } = toCartesian(xc);
-  return model.dispatch("UPDATE_CELL", { col, row, sheetId, format });
+  return model.dispatchFromOutside("UPDATE_CELL", { col, row, sheetId, format });
 }
 
 /**
  * Select a cell
  */
-export function selectCell(model: Model, xc: string): DispatchResult {
+export function selectCell(model: Model, xc: string) {
   const { col, row } = toCartesian(xc);
   return model.selection.selectCell(col, row);
 }
 
-export function moveAnchorCell(
-  model: Model,
-  direction: Direction,
-  step: SelectionStep = 1
-): DispatchResult {
+export function moveAnchorCell(model: Model, direction: Direction, step: SelectionStep = 1) {
   return model.selection.moveAnchorCell(direction, step);
 }
 
-export function resizeAnchorZone(
-  model: Model,
-  direction: Direction,
-  step: SelectionStep = 1
-): DispatchResult {
+export function resizeAnchorZone(model: Model, direction: Direction, step: SelectionStep = 1) {
   return model.selection.resizeAnchorZone(direction, step);
 }
 
-export function setAnchorCorner(model: Model, xc: string): DispatchResult {
+export function setAnchorCorner(model: Model, xc: string) {
   const { col, row } = toCartesian(xc);
   return model.selection.setAnchorCorner(col, row);
 }
 
-export function addCellToSelection(model: Model, xc: string): DispatchResult {
+export function addCellToSelection(model: Model, xc: string) {
   const { col, row } = toCartesian(xc);
   return model.selection.addCellToSelection(col, row);
 }
@@ -936,7 +923,7 @@ export function addCellToSelection(model: Model, xc: string): DispatchResult {
  * commitSelection only called on mouse up.
  * it will check and update the selection accordingly.
  */
-export function commitSelection(model: Model): DispatchResult {
+export function commitSelection(model: Model) {
   return model.selection.commitSelection();
 }
 
@@ -948,8 +935,8 @@ export function changeCFPriority(
   cfId: UID,
   delta: number,
   sheetId: UID = model.getters.getActiveSheetId()
-): DispatchResult {
-  return model.dispatch("CHANGE_CONDITIONAL_FORMAT_PRIORITY", { cfId, delta, sheetId });
+) {
+  return model.dispatchFromOutside("CHANGE_CONDITIONAL_FORMAT_PRIORITY", { cfId, delta, sheetId });
 }
 
 export function setSelection(
@@ -1062,7 +1049,7 @@ export function sort(
   }
 ) {
   const { col, row } = toCartesian(anchor);
-  return model.dispatch("SORT_CELLS", {
+  return model.dispatchFromOutside("SORT_CELLS", {
     sheetId: sheetId || model.getters.getActiveSheetId(),
     zone: toZone(zone),
     col,
@@ -1077,8 +1064,8 @@ export function merge(
   range: string,
   sheetId: UID = model.getters.getActiveSheetId(),
   force: boolean = true
-): DispatchResult {
-  return model.dispatch("ADD_MERGE", {
+) {
+  return model.dispatchFromOutside("ADD_MERGE", {
     sheetId,
     target: target(range),
     force,
@@ -1089,8 +1076,8 @@ export function unMerge(
   model: Model,
   range: string,
   sheetId: UID = model.getters.getActiveSheetId()
-): DispatchResult {
-  return model.dispatch("REMOVE_MERGE", {
+) {
+  return model.dispatchFromOutside("REMOVE_MERGE", {
     sheetId,
     target: target(range),
   });
@@ -1106,8 +1093,8 @@ export function moveColumns(
   columns: string[],
   position: "before" | "after" = "before",
   sheetId: UID = model.getters.getActiveSheetId()
-): DispatchResult {
-  return model.dispatch("MOVE_COLUMNS_ROWS", {
+) {
+  return model.dispatchFromOutside("MOVE_COLUMNS_ROWS", {
     sheetId,
     sheetName: model.getters.getSheetName(sheetId),
     base: lettersToNumber(target),
@@ -1123,8 +1110,8 @@ export function moveRows(
   rows: number[],
   position: "before" | "after" = "before",
   sheetId: UID = model.getters.getActiveSheetId()
-): DispatchResult {
-  return model.dispatch("MOVE_COLUMNS_ROWS", {
+) {
+  return model.dispatchFromOutside("MOVE_COLUMNS_ROWS", {
     sheetId,
     sheetName: model.getters.getSheetName(sheetId),
     base: target,
@@ -1139,22 +1126,22 @@ export function moveSheet(
   delta: number,
   sheetId: UID = model.getters.getActiveSheetId()
 ) {
-  return model.dispatch("MOVE_SHEET", {
+  return model.dispatchFromOutside("MOVE_SHEET", {
     sheetId,
     delta,
   });
 }
 
 export function hideSheet(model: Model, sheetId: UID) {
-  return model.dispatch("HIDE_SHEET", { sheetId });
+  return model.dispatchFromOutside("HIDE_SHEET", { sheetId });
 }
 
 export function showSheet(model: Model, sheetId: UID) {
-  return model.dispatch("SHOW_SHEET", { sheetId });
+  return model.dispatchFromOutside("SHOW_SHEET", { sheetId });
 }
 
 export function setViewportOffset(model: Model, offsetX: number, offsetY: number) {
-  return model.dispatch("SET_VIEWPORT_OFFSET", {
+  return model.dispatchFromOutside("SET_VIEWPORT_OFFSET", {
     offsetX,
     offsetY,
   });
@@ -1166,7 +1153,7 @@ export function setStyle(
   style: Style,
   sheetId: UID = model.getters.getActiveSheetId()
 ) {
-  return model.dispatch("SET_FORMATTING", {
+  return model.dispatchFromOutside("SET_FORMATTING", {
     sheetId: sheetId,
     target: target(targetXc),
     style: style,
@@ -1181,14 +1168,14 @@ export function freezeRows(
   quantity: number,
   sheetId: UID = model.getters.getActiveSheetId()
 ) {
-  return model.dispatch("FREEZE_ROWS", {
+  return model.dispatchFromOutside("FREEZE_ROWS", {
     sheetId,
     quantity,
   });
 }
 
 export function unfreezeRows(model: Model, sheetId: UID = model.getters.getActiveSheetId()) {
-  return model.dispatch("UNFREEZE_ROWS", {
+  return model.dispatchFromOutside("UNFREEZE_ROWS", {
     sheetId,
   });
 }
@@ -1201,14 +1188,14 @@ export function freezeColumns(
   quantity: number,
   sheetId: UID = model.getters.getActiveSheetId()
 ) {
-  return model.dispatch("FREEZE_COLUMNS", {
+  return model.dispatchFromOutside("FREEZE_COLUMNS", {
     sheetId,
     quantity,
   });
 }
 
 export function unfreezeColumns(model: Model, sheetId: UID = model.getters.getActiveSheetId()) {
-  return model.dispatch("UNFREEZE_COLUMNS", {
+  return model.dispatchFromOutside("UNFREEZE_COLUMNS", {
     sheetId,
   });
 }
@@ -1219,9 +1206,9 @@ export function createTable(
   config?: Partial<TableConfig>,
   tableType: CoreTableType = "static",
   sheetId: UID = model.getters.getActiveSheetId()
-): DispatchResult {
+) {
   model.selection.selectTableAroundSelection();
-  return model.dispatch("CREATE_TABLE", {
+  return model.dispatchFromOutside("CREATE_TABLE", {
     sheetId,
     ranges: toRangesData(sheetId, range),
     config: { ...DEFAULT_TABLE_CONFIG, ...config },
@@ -1234,7 +1221,7 @@ export function createDynamicTable(
   range: string,
   config?: Partial<TableConfig>,
   sheetId: UID = model.getters.getActiveSheetId()
-): DispatchResult {
+) {
   return createTable(model, range, config, "dynamic", sheetId);
 }
 
@@ -1254,13 +1241,13 @@ export function updateTableConfig(
   config: Partial<TableConfig>,
   tableType?: CoreTableType,
   sheetId: UID = model.getters.getActiveSheetId()
-): DispatchResult {
+) {
   const zone = toZone(range);
   const table = model.getters.getTable({ sheetId, col: zone.left, row: zone.top });
   if (!table) {
     throw new Error(`No table found at ${range}`);
   }
-  return model.dispatch("UPDATE_TABLE", {
+  return model.dispatchFromOutside("UPDATE_TABLE", {
     sheetId,
     zone: table.range.zone,
     config,
@@ -1274,13 +1261,13 @@ export function updateTableZone(
   newZone: string,
   tableType?: CoreTableType,
   sheetId: UID = model.getters.getActiveSheetId()
-): DispatchResult {
+) {
   const zone = toZone(range);
   const table = model.getters.getTable({ sheetId, col: zone.left, row: zone.top });
   if (!table) {
     throw new Error(`No table found at ${range}`);
   }
-  return model.dispatch("UPDATE_TABLE", {
+  return model.dispatchFromOutside("UPDATE_TABLE", {
     sheetId,
     zone: table.range.zone,
     newTableRange: toRangeData(sheetId, newZone),
@@ -1294,13 +1281,13 @@ export function resizeTable(
   newZone: string,
   tableType?: CoreTableType,
   sheetId: UID = model.getters.getActiveSheetId()
-): DispatchResult {
+) {
   const zone = toZone(range);
   const table = model.getters.getTable({ sheetId, col: zone.left, row: zone.top });
   if (!table) {
     throw new Error(`No table found at ${range}`);
   }
-  return model.dispatch("RESIZE_TABLE", {
+  return model.dispatchFromOutside("RESIZE_TABLE", {
     sheetId,
     zone: table.range.zone,
     newTableRange: toRangeData(sheetId, newZone),
@@ -1313,9 +1300,9 @@ export function updateFilter(
   xc: string,
   hiddenValues: string[],
   sheetId: UID = model.getters.getActiveSheetId()
-): DispatchResult {
+) {
   const { col, row } = toCartesian(xc);
-  return model.dispatch("UPDATE_FILTER", {
+  return model.dispatchFromOutside("UPDATE_FILTER", {
     col,
     row,
     sheetId,
@@ -1331,9 +1318,9 @@ export function updateFilterCriterion(
   xc: string,
   criterion: Omit<CriterionFilter, "filterType">,
   sheetId: UID = model.getters.getActiveSheetId()
-): DispatchResult {
+) {
   const { col, row } = toCartesian(xc);
-  return model.dispatch("UPDATE_FILTER", {
+  return model.dispatchFromOutside("UPDATE_FILTER", {
     col,
     row,
     sheetId,
@@ -1348,16 +1335,16 @@ export function deleteTable(
   model: Model,
   range: string,
   sheetId: UID = model.getters.getActiveSheetId()
-): DispatchResult {
-  return model.dispatch("REMOVE_TABLE", { sheetId, target: target(range) });
+) {
+  return model.dispatchFromOutside("REMOVE_TABLE", { sheetId, target: target(range) });
 }
 
 export function createTableStyle(
   model: Model,
   tableStyleId: string,
   style?: Partial<Omit<CreateTableStyleCommand, "type" | "styleId">>
-): DispatchResult {
-  return model.dispatch("CREATE_TABLE_STYLE", {
+) {
+  return model.dispatchFromOutside("CREATE_TABLE_STYLE", {
     tableStyleId,
     primaryColor: style?.primaryColor || "#FF0000",
     templateName: style?.templateName || "mediumBandedBorders",
@@ -1371,7 +1358,7 @@ export function setFormat(
   format: string,
   sheetId = model.getters.getActiveSheetId()
 ) {
-  return model.dispatch("SET_FORMATTING", {
+  return model.dispatchFromOutside("SET_FORMATTING", {
     sheetId,
     target: target(targetXc),
     format,
@@ -1387,7 +1374,7 @@ export function splitTextToColumns(
   if (target) {
     setSelection(model, [target]);
   }
-  return model.dispatch("SPLIT_TEXT_INTO_COLUMNS", {
+  return model.dispatchFromOutside("SPLIT_TEXT_INTO_COLUMNS", {
     separator,
     force: options.force || false,
     addNewColumns: options.addNewColumns || false,
@@ -1395,7 +1382,7 @@ export function splitTextToColumns(
 }
 
 export function updateLocale(model: Model, locale: Locale) {
-  return model.dispatch("UPDATE_LOCALE", { locale });
+  return model.dispatchFromOutside("UPDATE_LOCALE", { locale });
 }
 
 /**
@@ -1435,7 +1422,7 @@ export function groupHeaders(
   end: number,
   sheetId: UID = model.getters.getActiveSheetId()
 ) {
-  return model.dispatch("GROUP_HEADERS", { sheetId, dimension, start, end });
+  return model.dispatchFromOutside("GROUP_HEADERS", { sheetId, dimension, start, end });
 }
 
 export function ungroupHeaders(
@@ -1445,7 +1432,7 @@ export function ungroupHeaders(
   end: number,
   sheetId: UID = model.getters.getActiveSheetId()
 ) {
-  return model.dispatch("UNGROUP_HEADERS", { sheetId, dimension, start, end });
+  return model.dispatchFromOutside("UNGROUP_HEADERS", { sheetId, dimension, start, end });
 }
 
 export function duplicateSheet(
@@ -1453,7 +1440,7 @@ export function duplicateSheet(
   sheetId: UID = model.getters.getActiveSheetId(),
   sheetIdTo: UID = model.uuidGenerator.uuidv4()
 ) {
-  return model.dispatch("DUPLICATE_SHEET", {
+  return model.dispatchFromOutside("DUPLICATE_SHEET", {
     sheetId,
     sheetIdTo,
     sheetNameTo: model.getters.getDuplicateSheetName(model.getters.getSheetName(sheetId)),
@@ -1467,7 +1454,7 @@ export function unfoldHeaderGroup(
   end: number,
   sheetId: UID = model.getters.getActiveSheetId()
 ) {
-  return model.dispatch("UNFOLD_HEADER_GROUP", { dimension, sheetId, start, end });
+  return model.dispatchFromOutside("UNFOLD_HEADER_GROUP", { dimension, sheetId, start, end });
 }
 
 export function foldHeaderGroup(
@@ -1477,7 +1464,7 @@ export function foldHeaderGroup(
   end: number,
   sheetId: UID = model.getters.getActiveSheetId()
 ) {
-  return model.dispatch("FOLD_HEADER_GROUP", { dimension, sheetId, start, end });
+  return model.dispatchFromOutside("FOLD_HEADER_GROUP", { dimension, sheetId, start, end });
 }
 
 export function unfoldAllHeaderGroups(
@@ -1485,7 +1472,7 @@ export function unfoldAllHeaderGroups(
   dimension: Dimension,
   sheetId: UID = model.getters.getActiveSheetId()
 ) {
-  return model.dispatch("UNFOLD_ALL_HEADER_GROUPS", { sheetId, dimension });
+  return model.dispatchFromOutside("UNFOLD_ALL_HEADER_GROUPS", { sheetId, dimension });
 }
 
 export function foldAllHeaderGroups(
@@ -1493,7 +1480,7 @@ export function foldAllHeaderGroups(
   dimension: Dimension,
   sheetId: UID = model.getters.getActiveSheetId()
 ) {
-  return model.dispatch("FOLD_ALL_HEADER_GROUPS", { sheetId, dimension });
+  return model.dispatchFromOutside("FOLD_ALL_HEADER_GROUPS", { sheetId, dimension });
 }
 
 export function foldHeaderGroupsInZone(
@@ -1502,7 +1489,7 @@ export function foldHeaderGroupsInZone(
   xc: string,
   sheetId: UID = model.getters.getActiveSheetId()
 ) {
-  return model.dispatch("FOLD_HEADER_GROUPS_IN_ZONE", {
+  return model.dispatchFromOutside("FOLD_HEADER_GROUPS_IN_ZONE", {
     dimension,
     zone: toZone(xc),
     sheetId,
@@ -1515,7 +1502,7 @@ export function unfoldHeaderGroupsInZone(
   xc: string,
   sheetId: UID = model.getters.getActiveSheetId()
 ) {
-  return model.dispatch("UNFOLD_HEADER_GROUPS_IN_ZONE", {
+  return model.dispatchFromOutside("UNFOLD_HEADER_GROUPS_IN_ZONE", {
     dimension,
     zone: toZone(xc),
     sheetId,
@@ -1531,7 +1518,7 @@ export function addDataValidation(
   sheetId: UID = model.getters.getActiveSheetId()
 ) {
   const ranges = toRangesData(sheetId, xcs);
-  return model.dispatch("ADD_DATA_VALIDATION_RULE", {
+  return model.dispatchFromOutside("ADD_DATA_VALIDATION_RULE", {
     sheetId,
     ranges,
     rule: { id, criterion, isBlocking: isBlocking === "blocking" },
@@ -1543,7 +1530,7 @@ export function removeDataValidation(
   id: UID,
   sheetId: UID = model.getters.getActiveSheetId()
 ) {
-  return model.dispatch("REMOVE_DATA_VALIDATION_RULE", { sheetId, id });
+  return model.dispatchFromOutside("REMOVE_DATA_VALIDATION_RULE", { sheetId, id });
 }
 
 export function insertPivot(
@@ -1553,11 +1540,11 @@ export function insertPivot(
   newSheetId: UID = "newSheet1"
 ) {
   setSelection(model, [xc]);
-  return model.dispatch("INSERT_NEW_PIVOT", { pivotId, newSheetId });
+  return model.dispatchFromOutside("INSERT_NEW_PIVOT", { pivotId, newSheetId });
 }
 
 export function setSheetviewSize(model: Model, height: Pixel, width: Pixel, hasHeaders = true) {
-  return model.dispatch("RESIZE_SHEETVIEW", {
+  return model.dispatchFromOutside("RESIZE_SHEETVIEW", {
     height,
     width,
     gridOffsetX: hasHeaders ? HEADER_WIDTH : 0,
@@ -1572,7 +1559,7 @@ export function addCfRule(
   cfId: UID = "cfId",
   sheetId: UID = model.getters.getActiveSheetId()
 ) {
-  return model.dispatch("ADD_CONDITIONAL_FORMAT", {
+  return model.dispatchFromOutside("ADD_CONDITIONAL_FORMAT", {
     cf: { rule, id: cfId },
     ranges: toRangesData(sheetId, xc),
     sheetId,
@@ -1586,8 +1573,8 @@ export function addEqualCf(
   value: string,
   cfId: UID = "cfId",
   sheetId: UID = model.getters.getActiveSheetId()
-): DispatchResult {
-  return model.dispatch("ADD_CONDITIONAL_FORMAT", {
+) {
+  return model.dispatchFromOutside("ADD_CONDITIONAL_FORMAT", {
     cf: createEqualCF(value, style, cfId),
     sheetId,
     ranges: toRangesData(sheetId, xc),
@@ -1601,8 +1588,8 @@ export function addIconCF(
   iconSet: keyof typeof ICON_SETS,
   cfId: UID = "cfId",
   sheetId: UID = model.getters.getActiveSheetId()
-): DispatchResult {
-  return model.dispatch("ADD_CONDITIONAL_FORMAT", {
+) {
+  return model.dispatchFromOutside("ADD_CONDITIONAL_FORMAT", {
     cf: {
       id: cfId,
       rule: {
@@ -1627,8 +1614,8 @@ export function addDataBarCF(
   color: string,
   cfId: UID = "cfId",
   sheetId: UID = model.getters.getActiveSheetId()
-): DispatchResult {
-  return model.dispatch("ADD_CONDITIONAL_FORMAT", {
+) {
+  return model.dispatchFromOutside("ADD_CONDITIONAL_FORMAT", {
     cf: {
       id: cfId,
       rule: {
@@ -1648,7 +1635,7 @@ export function createCarousel(
   sheetId?: UID,
   figureData: Partial<CreateFigureCommand> = {}
 ) {
-  return model.dispatch("CREATE_CAROUSEL", {
+  return model.dispatchFromOutside("CREATE_CAROUSEL", {
     figureId: carouselId || model.uuidGenerator.smallUuid(),
     sheetId: sheetId || model.getters.getActiveSheetId(),
     col: 0,
@@ -1665,8 +1652,8 @@ export function updateCarousel(
   carouselId: UID,
   data: Partial<Carousel>,
   sheetId: UID = model.getters.getActiveSheetId()
-): DispatchResult {
-  return model.dispatch("UPDATE_CAROUSEL", {
+) {
+  return model.dispatchFromOutside("UPDATE_CAROUSEL", {
     figureId: carouselId,
     sheetId,
     definition: {
@@ -1681,21 +1668,16 @@ export function addChartFigureToCarousel(
   carouselId: UID,
   chartFigureId: UID,
   sheetId: UID = model.getters.getActiveSheetId()
-): DispatchResult {
-  return model.dispatch("ADD_FIGURE_CHART_TO_CAROUSEL", {
+) {
+  return model.dispatchFromOutside("ADD_FIGURE_CHART_TO_CAROUSEL", {
     carouselFigureId: carouselId,
     chartFigureId,
     sheetId,
   });
 }
 
-export function popOutChartFromCarousel(
-  model: Model,
-  sheetId: UID,
-  carouselId: UID,
-  chartId: UID
-): DispatchResult {
-  return model.dispatch("POPOUT_CHART_FROM_CAROUSEL", { carouselId, chartId, sheetId });
+export function popOutChartFromCarousel(model: Model, sheetId: UID, carouselId: UID, chartId: UID) {
+  return model.dispatchFromOutside("POPOUT_CHART_FROM_CAROUSEL", { carouselId, chartId, sheetId });
 }
 
 export function addNewChartToCarousel(
@@ -1703,7 +1685,7 @@ export function addNewChartToCarousel(
   carouselId: UID,
   definition?: Partial<ChartDefinition>
 ): UID {
-  model.dispatch("ADD_NEW_CHART_TO_CAROUSEL", {
+  model.dispatchFromOutside("ADD_NEW_CHART_TO_CAROUSEL", {
     figureId: carouselId,
     sheetId: model.getters.getActiveSheetId(),
   });
@@ -1719,24 +1701,18 @@ export function selectCarouselItem(
   carouselId: UID,
   item: CarouselItem,
   sheetId: UID = model.getters.getActiveSheetId()
-): DispatchResult {
-  return model.dispatch("UPDATE_CAROUSEL_ACTIVE_ITEM", {
+) {
+  return model.dispatchFromOutside("UPDATE_CAROUSEL_ACTIVE_ITEM", {
     figureId: carouselId,
     item,
     sheetId,
   });
 }
 
-export function lockSheet(
-  model: Model,
-  sheetId: UID = model.getters.getActiveSheetId()
-): DispatchResult {
-  return model.dispatch("LOCK_SHEET", { sheetId });
+export function lockSheet(model: Model, sheetId: UID = model.getters.getActiveSheetId()) {
+  return model.dispatchFromOutside("LOCK_SHEET", { sheetId });
 }
 
-export function unlockSheet(
-  model: Model,
-  sheetId: UID = model.getters.getActiveSheetId()
-): DispatchResult {
-  return model.dispatch("UNLOCK_SHEET", { sheetId });
+export function unlockSheet(model: Model, sheetId: UID = model.getters.getActiveSheetId()) {
+  return model.dispatchFromOutside("UNLOCK_SHEET", { sheetId });
 }

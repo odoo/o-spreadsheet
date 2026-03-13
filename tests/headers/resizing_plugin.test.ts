@@ -77,7 +77,7 @@ describe("Model resizer", () => {
   test("Cannot auto resize column in invalid sheet", async () => {
     const model = new Model();
     expect(
-      model.dispatch("AUTORESIZE_COLUMNS", {
+      await model.dispatchFromOutside("AUTORESIZE_COLUMNS", {
         sheetId: "invalid",
         cols: [10],
       })
@@ -86,7 +86,7 @@ describe("Model resizer", () => {
   test("Cannot auto resize row in invalid sheet", async () => {
     const model = new Model();
     expect(
-      model.dispatch("AUTORESIZE_ROWS", {
+      await model.dispatchFromOutside("AUTORESIZE_ROWS", {
         sheetId: "invalid",
         rows: [10],
       })

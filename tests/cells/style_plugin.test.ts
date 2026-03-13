@@ -57,13 +57,13 @@ describe("styles", () => {
     expect(getCell(model, "B1")!.style).not.toBeDefined();
   });
 
-  test("can clear formatting (style)", () => {
+  test("can clear formatting (style)", async () => {
     const model = new Model();
     setCellContent(model, "B1", "b1");
     selectCell(model, "B1");
     setStyle(model, "B1", { fillColor: "red" });
     expect(getCell(model, "B1")!.style).toBeDefined();
-    model.dispatch("CLEAR_FORMATTING", {
+    await model.dispatchFromOutside("CLEAR_FORMATTING", {
       sheetId: model.getters.getActiveSheetId(),
       target: model.getters.getSelectedZones(),
     });
@@ -121,27 +121,27 @@ describe("styles", () => {
     expect(data.styles).toEqual({ 1: { align: "left" }, 2: { align: "right" } });
   });
 
-  test("clearing format on a cell with no content actually remove it", () => {
+  test("clearing format on a cell with no content actually remove it", async () => {
     const model = new Model();
     setStyle(model, "B1", { fillColor: "red" });
     setFormat(model, "B1", "#,##0.0");
     expect(getCell(model, "B1")!.style).toBeDefined();
     expect(getCell(model, "B1")!.format).toBeDefined();
-    model.dispatch("CLEAR_FORMATTING", {
+    await model.dispatchFromOutside("CLEAR_FORMATTING", {
       sheetId: model.getters.getActiveSheetId(),
       target: target("B1"),
     });
     expect(getCell(model, "B1")).toBeUndefined();
   });
 
-  test("clearing format operation can be undone", () => {
+  test("clearing format operation can be undone", async () => {
     const model = new Model();
     setCellContent(model, "B1", "b1");
     setStyle(model, "B1", { fillColor: "red" });
     setFormat(model, "B1", "#,##0.0");
     expect(getCell(model, "B1")!.style).toBeDefined();
     expect(getCell(model, "B1")!.format).toBeDefined();
-    model.dispatch("CLEAR_FORMATTING", {
+    await model.dispatchFromOutside("CLEAR_FORMATTING", {
       sheetId: model.getters.getActiveSheetId(),
       target: target("B1"),
     });
@@ -151,11 +151,11 @@ describe("styles", () => {
     expect(getCell(model, "B1")!.format).toBeDefined();
   });
 
-  test("clear formatting should remove format", () => {
+  test("clear formatting should remove format", async () => {
     const model = new Model();
     const sheetId = model.getters.getActiveSheetId();
     setFormat(model, "A1", "#,##0.0");
-    model.dispatch("CLEAR_FORMATTING", {
+    await model.dispatchFromOutside("CLEAR_FORMATTING", {
       sheetId,
       target: target("A1"),
     });
@@ -170,13 +170,13 @@ describe("styles", () => {
     expect(getCell(model, "A1", "42")!.style).toBeDefined();
   });
 
-  test("getCellWidth use computed style", () => {
+  test("getCellWidth use computed style", async () => {
     const model = new Model();
     const sheetId = model.getters.getActiveSheetId();
     setCellContent(model, "A1", "H");
     setCellContent(model, "A2", "H");
     const fontSize = 36;
-    model.dispatch("ADD_CONDITIONAL_FORMAT", {
+    await model.dispatchFromOutside("ADD_CONDITIONAL_FORMAT", {
       cf: createEqualCF("H", { fontSize }, "1"),
       ranges: toRangesData(sheetId, "A1"),
       sheetId,
@@ -211,12 +211,12 @@ describe("styles", () => {
     );
   });
 
-  test("Style is not updated if not explicitely provided in commands", () => {
+  test("Style is not updated if not explicitely provided in commands", async () => {
     const model = new Model();
     setCellContent(model, "A1", "hello");
     setStyle(model, "A1", { fillColor: "#fefefe" });
 
-    model.dispatch("SET_FORMATTING", {
+    await model.dispatchFromOutside("SET_FORMATTING", {
       sheetId: model.getters.getActiveSheetId(),
       target: target("A1"),
       style: undefined,
@@ -224,7 +224,7 @@ describe("styles", () => {
     expect(getStyle(model, "A1")).toEqual({ fillColor: "#fefefe" });
 
     setStyle(model, "A1", { fillColor: "#fefefe" });
-    model.dispatch("UPDATE_CELL", {
+    await model.dispatchFromOutside("UPDATE_CELL", {
       sheetId: model.getters.getActiveSheetId(),
       col: 0,
       row: 0,
@@ -233,12 +233,12 @@ describe("styles", () => {
     expect(getStyle(model, "A1")).toEqual({ fillColor: "#fefefe" });
   });
 
-  test("Style is overwritten through an UPDATE_CELL command", () => {
+  test("Style is overwritten through an UPDATE_CELL command", async () => {
     const model = new Model();
     setCellContent(model, "A1", "hello");
     setStyle(model, "A1", { fillColor: "#fefefe", bold: true });
 
-    model.dispatch("UPDATE_CELL", {
+    await model.dispatchFromOutside("UPDATE_CELL", {
       sheetId: model.getters.getActiveSheetId(),
       col: 0,
       row: 0,

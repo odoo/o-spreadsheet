@@ -45,7 +45,7 @@ describe("reconnection recovery", () => {
       content: "fourth command",
     };
 
-    alice.dispatch("UPDATE_CELL", commandWhileOnline);
+    await alice.dispatchFromOutside("UPDATE_CELL", commandWhileOnline);
     await nextTick();
 
     const backupSendMessage = network.sendMessage;
@@ -53,13 +53,13 @@ describe("reconnection recovery", () => {
       return Promise.reject(new ClientDisconnectedError("network error"));
     };
 
-    alice.dispatch("UPDATE_CELL", commandWhileOFFLINE);
+    await alice.dispatchFromOutside("UPDATE_CELL", commandWhileOFFLINE);
     await nextTick();
-    alice.dispatch("UPDATE_CELL", commandWhileOFFLINE2);
+    await alice.dispatchFromOutside("UPDATE_CELL", commandWhileOFFLINE2);
     await nextTick();
 
     network.sendMessage = backupSendMessage;
-    alice.dispatch("UPDATE_CELL", commandWhileBackOnline);
+    await alice.dispatchFromOutside("UPDATE_CELL", commandWhileBackOnline);
 
     await nextTick();
     await nextTick();

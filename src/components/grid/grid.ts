@@ -219,7 +219,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
         return scrollY < maxOffsetY;
       },
       getZoom: () => this.env.model.getters.getViewportZoomLevel(),
-      setZoom: (zoom: number) => this.env.model.dispatch("SET_ZOOM", { zoom }),
+      setZoom: (zoom: number) => this.env.model.dispatchFromOutside("SET_ZOOM", { zoom }),
     });
   }
 
@@ -255,13 +255,13 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
       this.focusComposerFromActiveCell();
     },
     Delete: () => {
-      this.env.model.dispatch("DELETE_UNFILTERED_CONTENT", {
+      this.env.model.dispatchFromOutside("DELETE_UNFILTERED_CONTENT", {
         sheetId: this.env.model.getters.getActiveSheetId(),
         target: this.env.model.getters.getSelectedZones(),
       });
     },
     Backspace: () => {
-      this.env.model.dispatch("DELETE_UNFILTERED_CONTENT", {
+      this.env.model.dispatchFromOutside("DELETE_UNFILTERED_CONTENT", {
         sheetId: this.env.model.getters.getActiveSheetId(),
         target: this.env.model.getters.getSelectedZones(),
       });
@@ -275,27 +275,27 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
       } else if (this.paintFormatStore.isActive) {
         this.paintFormatStore.cancel();
       } else {
-        this.env.model.dispatch("CLEAN_CLIPBOARD_HIGHLIGHT");
+        this.env.model.dispatchFromOutside("CLEAN_CLIPBOARD_HIGHLIGHT");
       }
     },
     "Ctrl+A": () => this.env.model.selection.loopSelection(),
-    "Ctrl+Z": () => this.env.model.dispatch("REQUEST_UNDO"),
-    "Ctrl+Y": () => this.env.model.dispatch("REQUEST_REDO"),
-    F4: () => this.env.model.dispatch("REQUEST_REDO"),
+    "Ctrl+Z": () => this.env.model.dispatchFromOutside("REQUEST_UNDO"),
+    "Ctrl+Y": () => this.env.model.dispatchFromOutside("REQUEST_REDO"),
+    F4: () => this.env.model.dispatchFromOutside("REQUEST_REDO"),
     "Ctrl+B": () =>
-      this.env.model.dispatch("SET_FORMATTING", {
+      this.env.model.dispatchFromOutside("SET_FORMATTING", {
         sheetId: this.env.model.getters.getActiveSheetId(),
         target: this.env.model.getters.getSelectedZones(),
         style: { bold: !this.env.model.getters.getCurrentStyle().bold },
       }),
     "Ctrl+I": () =>
-      this.env.model.dispatch("SET_FORMATTING", {
+      this.env.model.dispatchFromOutside("SET_FORMATTING", {
         sheetId: this.env.model.getters.getActiveSheetId(),
         target: this.env.model.getters.getSelectedZones(),
         style: { italic: !this.env.model.getters.getCurrentStyle().italic },
       }),
     "Ctrl+U": () =>
-      this.env.model.dispatch("SET_FORMATTING", {
+      this.env.model.dispatchFromOutside("SET_FORMATTING", {
         sheetId: this.env.model.getters.getActiveSheetId(),
         target: this.env.model.getters.getSelectedZones(),
         style: { underline: !this.env.model.getters.getCurrentStyle().underline },
@@ -316,7 +316,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
         const formula = `=SUM(${zoneXc})`;
         this.onComposerCellFocused(formula, { start: 5, end: 5 + zoneXc.length });
       } else {
-        this.env.model.dispatch("SUM_SELECTION");
+        this.env.model.dispatchFromOutside("SUM_SELECTION");
       }
     },
     "Alt+Enter": () => {
@@ -406,14 +406,14 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
       const columns = [...this.env.model.getters.getActiveCols()];
       const rows = [...this.env.model.getters.getActiveRows()];
       if (columns.length > 0 && rows.length === 0) {
-        this.env.model.dispatch("REMOVE_COLUMNS_ROWS", {
+        this.env.model.dispatchFromOutside("REMOVE_COLUMNS_ROWS", {
           sheetId: this.env.model.getters.getActiveSheetId(),
           sheetName: this.env.model.getters.getActiveSheetName(),
           dimension: "COL",
           elements: columns,
         });
       } else if (rows.length > 0 && columns.length === 0) {
-        this.env.model.dispatch("REMOVE_COLUMNS_ROWS", {
+        this.env.model.dispatchFromOutside("REMOVE_COLUMNS_ROWS", {
           sheetId: this.env.model.getters.getActiveSheetId(),
           sheetName: this.env.model.getters.getActiveSheetName(),
           dimension: "ROW",
@@ -422,10 +422,10 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
       }
     },
     "Shift+PageDown": () => {
-      this.env.model.dispatch("ACTIVATE_NEXT_SHEET");
+      this.env.model.dispatchFromOutside("ACTIVATE_NEXT_SHEET");
     },
     "Shift+PageUp": () => {
-      this.env.model.dispatch("ACTIVATE_PREVIOUS_SHEET");
+      this.env.model.dispatchFromOutside("ACTIVATE_PREVIOUS_SHEET");
     },
     "Shift+F11": () => {
       insertSheet.execute?.(this.env);
@@ -433,8 +433,8 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     "Alt+T": () => {
       insertTable.execute?.(this.env);
     },
-    PageDown: () => this.env.model.dispatch("SHIFT_VIEWPORT_DOWN"),
-    PageUp: () => this.env.model.dispatch("SHIFT_VIEWPORT_UP"),
+    PageDown: () => this.env.model.dispatchFromOutside("SHIFT_VIEWPORT_DOWN"),
+    PageUp: () => this.env.model.dispatchFromOutside("SHIFT_VIEWPORT_UP"),
     "Ctrl+K": () => INSERT_LINK(this.env),
     "Alt+Shift+ArrowRight": () => this.processHeaderGroupingKey("right"),
     "Alt+Shift+ArrowLeft": () => this.processHeaderGroupingKey("left"),
@@ -512,7 +512,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
 
   onGridResized() {
     const { height, width } = this.props.getGridSize();
-    this.env.model.dispatch("RESIZE_SHEETVIEW", {
+    this.env.model.dispatchFromOutside("RESIZE_SHEETVIEW", {
       width: width - HEADER_WIDTH,
       height: height - HEADER_HEIGHT,
       gridOffsetX: HEADER_WIDTH,
@@ -522,7 +522,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
 
   private moveCanvas(deltaX: number, deltaY: number) {
     const { scrollX, scrollY } = this.env.model.getters.getActiveSheetScrollInfo();
-    this.env.model.dispatch("SET_VIEWPORT_OFFSET", {
+    this.env.model.dispatchFromOutside("SET_VIEWPORT_OFFSET", {
       offsetX: scrollX + deltaX,
       offsetY: scrollY + deltaY,
     });
@@ -534,7 +534,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     ) {
       ev.preventDefault();
       ev.stopPropagation();
-      this.env.model.dispatch("TOGGLE_CHECKBOX", {
+      this.env.model.dispatchFromOutside("TOGGLE_CHECKBOX", {
         sheetId: this.env.model.getters.getActiveSheetId(),
         target: this.env.model.getters.getSelectedZones(),
       });
@@ -724,7 +724,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     if (cut) {
       interactiveCut(this.env);
     } else {
-      this.env.model.dispatch("COPY");
+      this.env.model.dispatchFromOutside("COPY");
     }
     const osContent = await this.env.model.getters.getClipboardTextAndImageContent();
     await this.env.clipboard.write(osContent);
@@ -775,14 +775,14 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
   }
 
   private clearFormatting() {
-    this.env.model.dispatch("CLEAR_FORMATTING", {
+    this.env.model.dispatchFromOutside("CLEAR_FORMATTING", {
       sheetId: this.env.model.getters.getActiveSheetId(),
       target: this.env.model.getters.getSelectedZones(),
     });
   }
 
   private setHorizontalAlign(align: Align) {
-    this.env.model.dispatch("SET_FORMATTING", {
+    this.env.model.dispatchFromOutside("SET_FORMATTING", {
       sheetId: this.env.model.getters.getActiveSheetId(),
       target: this.env.model.getters.getSelectedZones(),
       style: { align },
@@ -822,16 +822,34 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
 
     switch (direction) {
       case "right":
-        this.env.model.dispatch("GROUP_HEADERS", { sheetId, dimension: dimension, start, end });
+        this.env.model.dispatchFromOutside("GROUP_HEADERS", {
+          sheetId,
+          dimension: dimension,
+          start,
+          end,
+        });
         break;
       case "left":
-        this.env.model.dispatch("UNGROUP_HEADERS", { sheetId, dimension: dimension, start, end });
+        this.env.model.dispatchFromOutside("UNGROUP_HEADERS", {
+          sheetId,
+          dimension: dimension,
+          start,
+          end,
+        });
         break;
       case "down":
-        this.env.model.dispatch("UNFOLD_HEADER_GROUPS_IN_ZONE", { sheetId, dimension, zone });
+        this.env.model.dispatchFromOutside("UNFOLD_HEADER_GROUPS_IN_ZONE", {
+          sheetId,
+          dimension,
+          zone,
+        });
         break;
       case "up":
-        this.env.model.dispatch("FOLD_HEADER_GROUPS_IN_ZONE", { sheetId, dimension, zone });
+        this.env.model.dispatchFromOutside("FOLD_HEADER_GROUPS_IN_ZONE", {
+          sheetId,
+          dimension,
+          zone,
+        });
         break;
     }
   }
@@ -839,11 +857,11 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
   private processHeaderGroupingEventOnWholeSheet(direction: Direction) {
     const sheetId = this.env.model.getters.getActiveSheetId();
     if (direction === "up") {
-      this.env.model.dispatch("FOLD_ALL_HEADER_GROUPS", { sheetId, dimension: "ROW" });
-      this.env.model.dispatch("FOLD_ALL_HEADER_GROUPS", { sheetId, dimension: "COL" });
+      this.env.model.dispatchFromOutside("FOLD_ALL_HEADER_GROUPS", { sheetId, dimension: "ROW" });
+      this.env.model.dispatchFromOutside("FOLD_ALL_HEADER_GROUPS", { sheetId, dimension: "COL" });
     } else if (direction === "down") {
-      this.env.model.dispatch("UNFOLD_ALL_HEADER_GROUPS", { sheetId, dimension: "ROW" });
-      this.env.model.dispatch("UNFOLD_ALL_HEADER_GROUPS", { sheetId, dimension: "COL" });
+      this.env.model.dispatchFromOutside("UNFOLD_ALL_HEADER_GROUPS", { sheetId, dimension: "ROW" });
+      this.env.model.dispatchFromOutside("UNFOLD_ALL_HEADER_GROUPS", { sheetId, dimension: "COL" });
     }
   }
 
@@ -852,24 +870,24 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     const zone = this.env.model.getters.getSelectedZone();
     switch (direction) {
       case "down":
-        this.env.model.dispatch("UNFOLD_HEADER_GROUPS_IN_ZONE", {
+        this.env.model.dispatchFromOutside("UNFOLD_HEADER_GROUPS_IN_ZONE", {
           sheetId,
           dimension: "ROW",
           zone: zone,
         });
-        this.env.model.dispatch("UNFOLD_HEADER_GROUPS_IN_ZONE", {
+        this.env.model.dispatchFromOutside("UNFOLD_HEADER_GROUPS_IN_ZONE", {
           sheetId,
           dimension: "COL",
           zone: zone,
         });
         break;
       case "up":
-        this.env.model.dispatch("FOLD_HEADER_GROUPS_IN_ZONE", {
+        this.env.model.dispatchFromOutside("FOLD_HEADER_GROUPS_IN_ZONE", {
           sheetId,
           dimension: "ROW",
           zone: zone,
         });
-        this.env.model.dispatch("FOLD_HEADER_GROUPS_IN_ZONE", {
+        this.env.model.dispatchFromOutside("FOLD_HEADER_GROUPS_IN_ZONE", {
           sheetId,
           dimension: "COL",
           zone: zone,

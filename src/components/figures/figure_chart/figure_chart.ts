@@ -24,7 +24,7 @@ export class ChartFigure extends Component<Props, SpreadsheetChildEnv> {
   static components = { ChartDashboardMenu };
 
   onDoubleClick() {
-    this.env.model.dispatch("SELECT_FIGURE", { figureId: this.props.figureUI.id });
+    this.env.model.dispatchFromOutside("SELECT_FIGURE", { figureId: this.props.figureUI.id });
     this.env.openSidePanel("ChartPanel");
   }
 

@@ -62,7 +62,10 @@ export class PaintFormatStore extends SpreadsheetStore {
   }
 
   pasteFormat(target: Zone[]) {
-    this.model.dispatch("PAINT_FORMAT", { target, sheetId: this.getters.getActiveSheetId() });
+    this.model.dispatchFromOutside("PAINT_FORMAT", {
+      target,
+      sheetId: this.getters.getActiveSheetId(),
+    });
   }
 
   get isActive() {
@@ -77,7 +80,8 @@ export class PaintFormatStore extends SpreadsheetStore {
       const HandlerClass = clipboardHandlersRegistries.cellHandlers.get(handlerName);
       return {
         handlerName,
-        handler: new HandlerClass(this.getters, this.model.dispatch),
+        //@ts-ignore TODOPRO Synchronous dispatch should be enough.
+        handler: new HandlerClass(this.getters, this.model.dispatchForPlugin),
       };
     });
   }

@@ -158,11 +158,11 @@ describe("clipboard", () => {
     expect(getClipboardVisibleZones(model).length).toBe(0);
   });
 
-  test("cut command will cut the selection if no target were given", () => {
+  test("cut command will cut the selection if no target were given", async () => {
     const model = new Model();
     setCellContent(model, "B2", "b2");
     setSelection(model, ["B2"]);
-    model.dispatch("CUT");
+    await model.dispatchFromOutside("CUT");
     paste(model, "D2");
     expect(getCellRawContent(model, "D2")).toBe("b2");
   });
@@ -626,7 +626,7 @@ describe("clipboard", () => {
       setCellContent(model, "A1", "1");
       setCellContent(model, "A2", "3");
       setStyle(model, "A1", { bold: true });
-      model.dispatch("ADD_CONDITIONAL_FORMAT", {
+      await model.dispatchFromOutside("ADD_CONDITIONAL_FORMAT", {
         cf: createEqualCF("1", { fillColor: "#123456" }, "id"),
         ranges: toRangesData(sheetId, "A1"),
         sheetId,
@@ -1232,14 +1232,14 @@ describe("clipboard", () => {
     expect(getBorder(model, "C2")).toBeNull();
   });
 
-  test("can copy a cell with a conditional format and paste as value", () => {
+  test("can copy a cell with a conditional format and paste as value", async () => {
     const model = new Model({ sheets: [{ colNumber: 5, rowNumber: 5 }] });
     setCellContent(model, "A1", "1");
     setCellContent(model, "A2", "2");
     setCellContent(model, "C1", "1");
     setCellContent(model, "C2", "2");
     const sheetId = model.getters.getActiveSheetId();
-    const result = model.dispatch("ADD_CONDITIONAL_FORMAT", {
+    const result = await model.dispatchFromOutside("ADD_CONDITIONAL_FORMAT", {
       cf: createEqualCF("1", { fillColor: "#FF0000" }, "1"),
       ranges: toRangesData(sheetId, "A1,A2"),
       sheetId,
@@ -1655,7 +1655,7 @@ describe("clipboard", () => {
     const model = new Model();
     setCellContent(model, "A1", value);
     copy(model, "A1");
-    model.dispatch("PASTE", { target: target("B2") });
+    await model.dispatchFromOutside("PASTE", { target: target("B2") });
     expect(getCellText(model, "B2")).toBe(expected);
   });
 
@@ -1678,14 +1678,14 @@ describe("clipboard", () => {
     expect(getCell(model, "B2")!.style).not.toBeDefined();
   });
 
-  test("can copy and paste a conditional formatted cell", () => {
+  test("can copy and paste a conditional formatted cell", async () => {
     const model = new Model({ sheets: [{ colNumber: 5, rowNumber: 5 }] });
     setCellContent(model, "A1", "1");
     setCellContent(model, "A2", "2");
     setCellContent(model, "C1", "1");
     setCellContent(model, "C2", "2");
     const sheetId = model.getters.getActiveSheetId();
-    model.dispatch("ADD_CONDITIONAL_FORMAT", {
+    await model.dispatchFromOutside("ADD_CONDITIONAL_FORMAT", {
       cf: createEqualCF("1", { fillColor: "#FF0000" }, "1"),
       sheetId,
       ranges: toRangesData(sheetId, "A1,A2"),
@@ -1703,14 +1703,14 @@ describe("clipboard", () => {
     });
     expect(getStyle(model, "C2")).toEqual({});
   });
-  test("can cut and paste a conditional formatted cell", () => {
+  test("can cut and paste a conditional formatted cell", async () => {
     const model = new Model({ sheets: [{ colNumber: 5, rowNumber: 5 }] });
     setCellContent(model, "A1", "1");
     setCellContent(model, "A2", "2");
     setCellContent(model, "C1", "1");
     setCellContent(model, "C2", "2");
     const sheetId = model.getters.getActiveSheetId();
-    model.dispatch("ADD_CONDITIONAL_FORMAT", {
+    await model.dispatchFromOutside("ADD_CONDITIONAL_FORMAT", {
       cf: createEqualCF("1", { fillColor: "#FF0000" }, "1"),
       ranges: toRangesData(sheetId, "A1,A2"),
       sheetId,
@@ -1727,12 +1727,12 @@ describe("clipboard", () => {
     expect(getStyle(model, "C2")).toEqual({});
   });
 
-  test("can cut and paste a conditional format in another sheet", () => {
+  test("can cut and paste a conditional format in another sheet", async () => {
     const model = new Model();
     const sheet1Id = model.getters.getActiveSheetId();
     createSheet(model, { sheetId: "sheet2Id" });
     const sheetId = model.getters.getActiveSheetId();
-    model.dispatch("ADD_CONDITIONAL_FORMAT", {
+    await model.dispatchFromOutside("ADD_CONDITIONAL_FORMAT", {
       cf: createEqualCF("1", { fillColor: "#FF0000" }, "1"),
       ranges: toRangesData(sheetId, "A1:A2"),
       sheetId,
@@ -1746,17 +1746,17 @@ describe("clipboard", () => {
     ]);
   });
 
-  test("copy cells with CF => remove origin CF => paste => it should paste with original CF", () => {
+  test("copy cells with CF => remove origin CF => paste => it should paste with original CF", async () => {
     const model = new Model();
     const sheetId = model.getters.getActiveSheetId();
     const cf = createEqualCF("1", { fillColor: "#00FF00" }, "cfId");
-    model.dispatch("ADD_CONDITIONAL_FORMAT", {
+    await model.dispatchFromOutside("ADD_CONDITIONAL_FORMAT", {
       cf,
       sheetId,
       ranges: toRangesData(sheetId, "A1:A3"),
     });
     copy(model, "A1:A3");
-    model.dispatch("REMOVE_CONDITIONAL_FORMAT", {
+    await model.dispatchFromOutside("REMOVE_CONDITIONAL_FORMAT", {
       id: "cfId",
       sheetId,
     });
@@ -1766,27 +1766,27 @@ describe("clipboard", () => {
     ]);
   });
 
-  test("copy cells with multiple independent CF => remove all copied CF => paste => it should paste with all original CF in the correct positions", () => {
+  test("copy cells with multiple independent CF => remove all copied CF => paste => it should paste with all original CF in the correct positions", async () => {
     const model = new Model();
     const sheetId = model.getters.getActiveSheetId();
     const cf1 = createEqualCF("1", { fillColor: "#00FF00" }, "cf1");
     const cf2 = createEqualCF("1", { fillColor: "#0000FF" }, "cf2");
-    model.dispatch("ADD_CONDITIONAL_FORMAT", {
+    await model.dispatchFromOutside("ADD_CONDITIONAL_FORMAT", {
       cf: cf1,
       sheetId,
       ranges: toRangesData(sheetId, "A1:A3"),
     });
-    model.dispatch("ADD_CONDITIONAL_FORMAT", {
+    await model.dispatchFromOutside("ADD_CONDITIONAL_FORMAT", {
       cf: cf2,
       sheetId,
       ranges: toRangesData(sheetId, "C1:C3"),
     });
     copy(model, "A1:C3");
-    model.dispatch("REMOVE_CONDITIONAL_FORMAT", {
+    await model.dispatchFromOutside("REMOVE_CONDITIONAL_FORMAT", {
       id: "cf1",
       sheetId,
     });
-    model.dispatch("REMOVE_CONDITIONAL_FORMAT", {
+    await model.dispatchFromOutside("REMOVE_CONDITIONAL_FORMAT", {
       id: "cf2",
       sheetId,
     });
@@ -1797,17 +1797,17 @@ describe("clipboard", () => {
     ]);
   });
 
-  test("copy cells with multiple independent CF => remove origin sheet => paste => it should paste with all original CF in the correct positions", () => {
+  test("copy cells with multiple independent CF => remove origin sheet => paste => it should paste with all original CF in the correct positions", async () => {
     const model = new Model();
     const sheetId = model.getters.getActiveSheetId();
     const cf1 = createEqualCF("1", { fillColor: "#00FF00" }, "cf1");
     const cf2 = createEqualCF("1", { fillColor: "#0000FF" }, "cf2");
-    model.dispatch("ADD_CONDITIONAL_FORMAT", {
+    await model.dispatchFromOutside("ADD_CONDITIONAL_FORMAT", {
       cf: cf1,
       sheetId,
       ranges: toRangesData(sheetId, "A1:A3"),
     });
-    model.dispatch("ADD_CONDITIONAL_FORMAT", {
+    await model.dispatchFromOutside("ADD_CONDITIONAL_FORMAT", {
       cf: cf2,
       sheetId,
       ranges: toRangesData(sheetId, "C1:C3"),
@@ -1824,12 +1824,12 @@ describe("clipboard", () => {
     ]);
   });
 
-  test("can copy and paste a conditional formatted zone", () => {
+  test("can copy and paste a conditional formatted zone", async () => {
     const model = new Model({ sheets: [{ colNumber: 5, rowNumber: 5 }] });
     setCellContent(model, "A1", "1");
     setCellContent(model, "A2", "2");
     const sheetId = model.getters.getActiveSheetId();
-    model.dispatch("ADD_CONDITIONAL_FORMAT", {
+    await model.dispatchFromOutside("ADD_CONDITIONAL_FORMAT", {
       cf: createEqualCF("1", { fillColor: "#FF0000" }, "1"),
       ranges: toRangesData(sheetId, "A1,A2"),
       sheetId,
@@ -1857,12 +1857,12 @@ describe("clipboard", () => {
     });
   });
 
-  test("can cut and paste a conditional formatted zone", () => {
+  test("can cut and paste a conditional formatted zone", async () => {
     const model = new Model({ sheets: [{ colNumber: 5, rowNumber: 5 }] });
     setCellContent(model, "A1", "1");
     setCellContent(model, "A2", "2");
     const sheetId = model.getters.getActiveSheetId();
-    model.dispatch("ADD_CONDITIONAL_FORMAT", {
+    await model.dispatchFromOutside("ADD_CONDITIONAL_FORMAT", {
       cf: createEqualCF("1", { fillColor: "#FF0000" }, "1"),
       ranges: toRangesData(sheetId, "A1,A2"),
       sheetId,
@@ -1883,7 +1883,7 @@ describe("clipboard", () => {
     });
   });
 
-  test("can copy and paste a conditional formatted cell to another page", () => {
+  test("can copy and paste a conditional formatted cell to another page", async () => {
     const model = new Model({
       sheets: [
         { id: "s1", colNumber: 5, rowNumber: 5 },
@@ -1893,7 +1893,7 @@ describe("clipboard", () => {
     setCellContent(model, "A1", "1");
     setCellContent(model, "A2", "2");
     const sheetId = model.getters.getActiveSheetId();
-    model.dispatch("ADD_CONDITIONAL_FORMAT", {
+    await model.dispatchFromOutside("ADD_CONDITIONAL_FORMAT", {
       cf: createEqualCF("1", { fillColor: "#FF0000" }, "1"),
       ranges: toRangesData(sheetId, "A1,A2"),
       sheetId,
@@ -1913,10 +1913,10 @@ describe("clipboard", () => {
     });
   });
 
-  test("can cut and paste a conditional formatted zone to another page", () => {
+  test("can cut and paste a conditional formatted zone to another page", async () => {
     const model = new Model({ sheets: [{ id: "sheet1" }, { id: "sheet2" }] });
     const cf = createEqualCF("1", { fillColor: "#FF0000" }, "id");
-    model.dispatch("ADD_CONDITIONAL_FORMAT", {
+    await model.dispatchFromOutside("ADD_CONDITIONAL_FORMAT", {
       cf,
       ranges: toRangesData("sheet1", "A1:A2"),
       sheetId: "sheet1",
@@ -1932,14 +1932,14 @@ describe("clipboard", () => {
     expect(model.getters.getConditionalFormats("sheet1")).toEqual([]);
   });
 
-  test("copy paste CF in another sheet => change CF => copy paste again does not overwrite the previously pasted CF", () => {
+  test("copy paste CF in another sheet => change CF => copy paste again does not overwrite the previously pasted CF", async () => {
     const model = new Model();
     createSheet(model, {});
     const sheet1Id = model.getters.getSheetIds()[0];
     const sheet2Id = model.getters.getSheetIds()[1];
 
     const cf = createEqualCF("2", { fillColor: "#00FF00" }, "cfId");
-    model.dispatch("ADD_CONDITIONAL_FORMAT", {
+    await model.dispatchFromOutside("ADD_CONDITIONAL_FORMAT", {
       cf,
       ranges: toRangesData(sheet1Id, "A1"),
       sheetId: sheet1Id,
@@ -1947,12 +1947,12 @@ describe("clipboard", () => {
 
     copy(model, "A1");
     activateSheet(model, sheet2Id);
-    model.dispatch("PASTE", { target: target("A1") });
+    await model.dispatchFromOutside("PASTE", { target: target("A1") });
     expect(model.getters.getConditionalFormats(sheet2Id)).toMatchObject([
       { ranges: ["A1"], rule: { style: { fillColor: "#00FF00" } } },
     ]);
 
-    model.dispatch("ADD_CONDITIONAL_FORMAT", {
+    await model.dispatchFromOutside("ADD_CONDITIONAL_FORMAT", {
       cf: createEqualCF("2", { fillColor: "#FF0000" }, "cfId"),
       ranges: toRangesData(sheet1Id, "A1"),
       sheetId: sheet1Id,
@@ -1960,14 +1960,14 @@ describe("clipboard", () => {
     activateSheet(model, sheet1Id);
     copy(model, "A1");
     activateSheet(model, sheet2Id);
-    model.dispatch("PASTE", { target: target("B2") });
+    await model.dispatchFromOutside("PASTE", { target: target("B2") });
     expect(model.getters.getConditionalFormats(sheet2Id)).toMatchObject([
       { ranges: ["A1"], rule: { style: { fillColor: "#00FF00" } } },
       { ranges: ["B2"], rule: { style: { fillColor: "#FF0000" } } },
     ]);
   });
 
-  test("copy/paste a CF zone only dispatch a singled ADD_CONDITIONAL_FORMAT", () => {
+  test("copy/paste a CF zone only dispatch a singled ADD_CONDITIONAL_FORMAT", async () => {
     const commands: Command[] = [];
     class MyUIPlugin extends UIPlugin {
       handle = (cmd: Command) => commands.push(cmd);
@@ -1976,7 +1976,7 @@ describe("clipboard", () => {
 
     const model = new Model({ sheets: [{ colNumber: 5, rowNumber: 5 }] });
     const sheetId = model.getters.getActiveSheetId();
-    model.dispatch("ADD_CONDITIONAL_FORMAT", {
+    await model.dispatchFromOutside("ADD_CONDITIONAL_FORMAT", {
       cf: createEqualCF("1", { fillColor: "#FF0000" }, "1"),
       ranges: toRangesData(sheetId, "A1,A2"),
       sheetId,
@@ -2165,7 +2165,7 @@ describe("clipboard", () => {
     ]);
   });
 
-  test("copying a spread pivot cell results in the fixed pivot formula", () => {
+  test("copying a spread pivot cell results in the fixed pivot formula", async () => {
     // prettier-ignore
     const grid = {
       A1: "Customer", B1: "Price", C1: "=PIVOT(1)",
@@ -2188,7 +2188,7 @@ describe("clipboard", () => {
     // copy part of pivot
     copy(model, "C1:D4");
     paste(model, "G4");
-    model.dispatch("SET_FORMULA_VISIBILITY", { show: true });
+    await model.dispatchFromOutside("SET_FORMULA_VISIBILITY", { show: true });
     // prettier-ignore
     expect(getEvaluatedGrid(model, "G4:H7")).toEqual([
       ["",                                      "=PIVOT.HEADER(1)"],
@@ -2274,7 +2274,7 @@ describe("clipboard", () => {
     expect(getCellRawContent(model, "G4")).toBe('=PIVOT.VALUE(1,"Price:sum","Customer","Alice")');
   });
 
-  test("copying a spread pivot cell with (Undefined)", () => {
+  test("copying a spread pivot cell with (Undefined)", async () => {
     // prettier-ignore
     const grid = {
       A1: "Customer", B1: "Price", C1: "=PIVOT(1)",
@@ -2290,7 +2290,7 @@ describe("clipboard", () => {
 
     copy(model, "C1:D4");
     paste(model, "G4");
-    model.dispatch("SET_FORMULA_VISIBILITY", { show: true });
+    await model.dispatchFromOutside("SET_FORMULA_VISIBILITY", { show: true });
     // prettier-ignore
     expect(getEvaluatedGrid(model, "G4:H7")).toEqual([
       ["",                                      "=PIVOT.HEADER(1)"],
@@ -2667,8 +2667,8 @@ describe("clipboard: pasting outside of sheet", () => {
     model.on("notify-ui", this, spyNotifyUI);
 
     createImage(model, { figureId: "test" });
-    model.dispatch("SELECT_FIGURE", { figureId: "test" });
-    model.dispatch("COPY");
+    await model.dispatchFromOutside("SELECT_FIGURE", { figureId: "test" });
+    await model.dispatchFromOutside("COPY");
     await model.getters.getClipboardTextAndImageContent();
     expect(spyNotifyUI).toHaveBeenCalledWith({
       sticky: false,
@@ -3193,19 +3193,23 @@ describe("cross spreadsheet copy/paste", () => {
   });
 });
 
-test("Can use clipboard handlers to paste in a sheet other than the active sheet", () => {
+test("Can use clipboard handlers to paste in a sheet other than the active sheet", async () => {
   model = new Model();
   const sheetId = model.getters.getActiveSheetId();
   createSheet(model, { sheetId: "sh2" });
 
   setCellContent(model, "A1", "1");
   const cf = createEqualCF("1", { fillColor: "#FF0000" }, "1");
-  model.dispatch("ADD_CONDITIONAL_FORMAT", { cf, ranges: toRangesData(sheetId, "A1"), sheetId });
+  await model.dispatchFromOutside("ADD_CONDITIONAL_FORMAT", {
+    cf,
+    ranges: toRangesData(sheetId, "A1"),
+    sheetId,
+  });
   createTable(model, "A1");
 
   const handlers = clipboardHandlersRegistries.cellHandlers
     .getAll()
-    .map((handler) => new handler(model.getters, model.dispatch));
+    .map((handler) => new handler(model.getters, model.dispatchFromOutside));
 
   let copiedData = {};
   const clipboardData = getClipboardDataPositions(sheetId, [toZone("A1")]);

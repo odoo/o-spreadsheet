@@ -46,13 +46,13 @@ let model: Model;
  */
 function autofill(from: string, to: string) {
   setSelection(model, [from]);
-  model.dispatch("AUTOFILL_SELECT", toCartesian(to));
-  model.dispatch("AUTOFILL");
+  await model.dispatchFromOutside("AUTOFILL_SELECT", toCartesian(to));
+  await model.dispatchFromOutside("AUTOFILL");
 }
 
 function autofillTooltip(from: string, to: string): string | undefined {
   setSelection(model, [from]);
-  model.dispatch("AUTOFILL_SELECT", toCartesian(to));
+  await model.dispatchFromOutside("AUTOFILL_SELECT", toCartesian(to));
   return model.getters.getAutofillTooltip()?.props.content;
 }
 
@@ -70,7 +70,7 @@ function getDirection(from: string, xc: string): DIRECTION {
  */
 function select(from: string, xc: string) {
   setSelection(model, [from]);
-  model.dispatch("AUTOFILL_SELECT", toCartesian(xc));
+  await model.dispatchFromOutside("AUTOFILL_SELECT", toCartesian(xc));
 }
 
 beforeEach(() => {
@@ -125,7 +125,7 @@ describe("Autofill", () => {
     expect(getCellText(model, "A2")).toBe(expected);
   });
 
-  test("Autofill keep style, border and format", () => {
+  test("Autofill keep style, border and format", async () => {
     const sheetId = model.getters.getActiveSheetId();
     const col = 0;
     const row = 0;
@@ -133,14 +133,14 @@ describe("Autofill", () => {
       left: { style: "thin", color: "#000" },
     };
     const style: Style = { textColor: "orange" };
-    model.dispatch("UPDATE_CELL", {
+    await model.dispatchFromOutside("UPDATE_CELL", {
       col,
       row,
       sheetId,
       style,
       format: "m/d/yyyy",
     });
-    model.dispatch("SET_BORDER", { sheetId, col, row, border });
+    await model.dispatchFromOutside("SET_BORDER", { sheetId, col, row, border });
     autofill("A1", "A2");
     const cell = getCell(model, "A2")!;
     expect(cell.style).toEqual(style);
@@ -156,7 +156,7 @@ describe("Autofill", () => {
     expect(composerStore.currentContent).toBe("1/2/2017");
   });
 
-  test("Autofill add CF to target cell if present in origin cell", () => {
+  test("Autofill add CF to target cell if present in origin cell", async () => {
     setCellContent(model, "A1", "1");
     autofill("A1", "A4");
     const cf: ConditionalFormat = {
@@ -172,7 +172,7 @@ describe("Autofill", () => {
       },
     };
     const sheetId = model.getters.getActiveSheetId();
-    model.dispatch("ADD_CONDITIONAL_FORMAT", {
+    await model.dispatchFromOutside("ADD_CONDITIONAL_FORMAT", {
       cf,
       sheetId,
       ranges: toRangesData(sheetId, cf.ranges.join(",")),
@@ -671,7 +671,7 @@ describe("Autofill", () => {
       expect(getCellContent(model, "A10")).toBe("-6");
     });
 
-    test("Autofill should override selected zone", () => {
+    test("Autofill should override selected zone", async () => {
       setCellContent(model, "A1", "1");
       const sheetId = model.getters.getActiveSheetId();
       const col = 0;
@@ -680,7 +680,7 @@ describe("Autofill", () => {
         left: { style: "thin", color: "#000" },
       };
       const style: Style = { textColor: "orange" };
-      model.dispatch("UPDATE_CELL", {
+      await model.dispatchFromOutside("UPDATE_CELL", {
         sheetId,
         col,
         row,
@@ -688,7 +688,7 @@ describe("Autofill", () => {
         style,
         format: "m/d/yyyy",
       });
-      model.dispatch("SET_BORDER", { sheetId, col, row, border });
+      await model.dispatchFromOutside("SET_BORDER", { sheetId, col, row, border });
       autofill("A1", "A2");
       const cell = getCell(model, "A2")!;
       expect(cell.style).toBeUndefined();
@@ -715,7 +715,7 @@ describe("Autofill", () => {
     expect(getCellText(model, "B1")).toBe("=C2");
   });
 
-  test("Autofill empty cell should erase others", () => {
+  test("Autofill empty cell should erase others", async () => {
     setCellContent(model, "A2", "1");
     const sheetId = model.getters.getActiveSheetId();
     const col = 0;
@@ -724,14 +724,14 @@ describe("Autofill", () => {
       left: { style: "thin", color: "#000" },
     };
     const style: Style = { textColor: "orange" };
-    model.dispatch("UPDATE_CELL", {
+    await model.dispatchFromOutside("UPDATE_CELL", {
       sheetId,
       col,
       row,
       style,
       format: "m/d/yyyy",
     });
-    model.dispatch("SET_BORDER", { sheetId, col, row, border });
+    await model.dispatchFromOutside("SET_BORDER", { sheetId, col, row, border });
     autofill("A1", "A3");
     expect(getCell(model, "A2")).toBeUndefined();
     expect(getCell(model, "A3")).toBeUndefined();
@@ -739,19 +739,19 @@ describe("Autofill", () => {
     expect(getBorder(model, "A3")).toBeNull();
   });
 
-  test("Auto-autofill left", () => {
+  test("Auto-autofill left", async () => {
     setCellContent(model, "A2", "1");
     setCellContent(model, "A3", "1");
     setCellContent(model, "A4", "1");
     setCellContent(model, "B2", "2");
     setSelection(model, ["B2"]);
-    model.dispatch("AUTOFILL_AUTO");
+    await model.dispatchFromOutside("AUTOFILL_AUTO");
     expect(getCellContent(model, "B3")).toBe("2");
     expect(getCellContent(model, "B4")).toBe("2");
     expect(getCell(model, "B5")).toBeUndefined();
   });
 
-  test("Auto-autofill multiple cells left", () => {
+  test("Auto-autofill multiple cells left", async () => {
     setCellContent(model, "A2", "1");
     setCellContent(model, "A3", "1");
     setCellContent(model, "A4", "1");
@@ -759,25 +759,25 @@ describe("Autofill", () => {
     setCellContent(model, "B2", "2");
     setCellContent(model, "B3", "3");
     setSelection(model, ["B2:B3"]);
-    model.dispatch("AUTOFILL_AUTO");
+    await model.dispatchFromOutside("AUTOFILL_AUTO");
     expect(getCellContent(model, "B4")).toBe("4");
     expect(getCellContent(model, "B5")).toBe("5");
     expect(getCell(model, "B6")).toBeUndefined();
   });
 
-  test("Auto-autofill right", () => {
+  test("Auto-autofill right", async () => {
     setCellContent(model, "B2", "1");
     setCellContent(model, "B3", "1");
     setCellContent(model, "B4", "1");
     setCellContent(model, "A2", "2");
     setSelection(model, ["A2"]);
-    model.dispatch("AUTOFILL_AUTO");
+    await model.dispatchFromOutside("AUTOFILL_AUTO");
     expect(getCellContent(model, "A3")).toBe("2");
     expect(getCellContent(model, "A4")).toBe("2");
     expect(getCell(model, "A5")).toBeUndefined();
   });
 
-  test("Auto-autofill multiple cells right", () => {
+  test("Auto-autofill multiple cells right", async () => {
     setCellContent(model, "B2", "1");
     setCellContent(model, "B3", "1");
     setCellContent(model, "B4", "1");
@@ -785,25 +785,25 @@ describe("Autofill", () => {
     setCellContent(model, "A2", "2");
     setCellContent(model, "A3", "3");
     setSelection(model, ["A2:A3"]);
-    model.dispatch("AUTOFILL_AUTO");
+    await model.dispatchFromOutside("AUTOFILL_AUTO");
     expect(getCellContent(model, "A4")).toBe("4");
     expect(getCellContent(model, "A5")).toBe("5");
     expect(getCell(model, "A6")).toBeUndefined();
   });
 
-  test("Auto-autofill considers cells with a content", () => {
+  test("Auto-autofill considers cells with a content", async () => {
     setCellContent(model, "B2", "1");
     setCellContent(model, "B3", '=""');
     setCellContent(model, "B4", '=""');
     setCellContent(model, "A2", "2");
     setSelection(model, ["A2"]);
-    model.dispatch("AUTOFILL_AUTO");
+    await model.dispatchFromOutside("AUTOFILL_AUTO");
     expect(getCellContent(model, "A3")).toBe("2");
     expect(getCellContent(model, "A4")).toBe("2");
     expect(getCell(model, "A5")).toBeUndefined();
   });
 
-  test("Auto-autofill of multiple cells considers cells with a content", () => {
+  test("Auto-autofill of multiple cells considers cells with a content", async () => {
     setCellContent(model, "B2", "1");
     setCellContent(model, "B3", '=""');
     setCellContent(model, "B4", '=""');
@@ -811,13 +811,13 @@ describe("Autofill", () => {
     setCellContent(model, "A2", "2");
     setCellContent(model, "A3", "3");
     setSelection(model, ["A2:A3"]);
-    model.dispatch("AUTOFILL_AUTO");
+    await model.dispatchFromOutside("AUTOFILL_AUTO");
     expect(getCellContent(model, "A4")).toBe("4");
     expect(getCellContent(model, "A5")).toBe("5");
     expect(getCell(model, "A6")).toBeUndefined();
   });
 
-  test("Auto-autofill considers formula spreaded value", () => {
+  test("Auto-autofill considers formula spreaded value", async () => {
     addToRegistry(functionRegistry, "SPREAD.EMPTY", {
       description: "spreads empty values",
       args: [],
@@ -832,23 +832,23 @@ describe("Autofill", () => {
     setCellContent(model, "A1", "=SPREAD.EMPTY()");
     setCellContent(model, "C1", "2");
     setSelection(model, ["C1"]);
-    model.dispatch("AUTOFILL_AUTO");
+    await model.dispatchFromOutside("AUTOFILL_AUTO");
     expect(getCellContent(model, "C1")).toBe("2");
     expect(getCellContent(model, "C2")).toBe("2");
     expect(getCellContent(model, "C3")).toBe("2");
     expect(getCell(model, "C4")).toBeUndefined();
   });
 
-  test("Auto-autofill in a table fill until the end of the table", () => {
+  test("Auto-autofill in a table fill until the end of the table", async () => {
     createTable(model, "A1:B3");
     setCellContent(model, "A1", "=C1");
-    model.dispatch("AUTOFILL_AUTO");
+    await model.dispatchFromOutside("AUTOFILL_AUTO");
     expect(getCellRawContent(model, "A2")).toBe("=C2");
     expect(getCellRawContent(model, "A3")).toBe("=C3");
     expect(getCellRawContent(model, "A4")).toBe(undefined);
   });
 
-  test("Auto-autofill stops at non empty cell", () => {
+  test("Auto-autofill stops at non empty cell", async () => {
     // On standard range
     setCellContent(model, "A1", "1");
     setCellContent(model, "A2", "2");
@@ -856,7 +856,7 @@ describe("Autofill", () => {
     setCellContent(model, "B1", "=A1");
     setCellContent(model, "B3", "Text not overwritten");
     setSelection(model, ["B1"]);
-    model.dispatch("AUTOFILL_AUTO");
+    await model.dispatchFromOutside("AUTOFILL_AUTO");
     expect(getCellRawContent(model, "B2")).toBe("=A2");
     expect(getCellRawContent(model, "B3")).toBe("Text not overwritten");
 
@@ -865,7 +865,7 @@ describe("Autofill", () => {
     setCellContent(model, "C1", "=D1");
     setCellContent(model, "C3", "Text not overwritten");
     setSelection(model, ["C1"]);
-    model.dispatch("AUTOFILL_AUTO");
+    await model.dispatchFromOutside("AUTOFILL_AUTO");
     expect(getCellRawContent(model, "C2")).toBe("=D2");
     expect(getCellRawContent(model, "C3")).toBe("Text not overwritten");
   });
@@ -945,8 +945,8 @@ describe("Autofill", () => {
     expect(autofillTooltip("A1", "A3")).toBe("10/12/2021");
   });
 
-  test("copy number tooltip is formatted", () => {
-    model.dispatch("UPDATE_CELL", {
+  test("copy number tooltip is formatted", async () => {
+    await model.dispatchFromOutside("UPDATE_CELL", {
       col: 0,
       row: 0,
       sheetId: model.getters.getActiveSheetId(),
@@ -956,15 +956,15 @@ describe("Autofill", () => {
     expect(autofillTooltip("A1", "A2")).toBe("100.00%");
   });
 
-  test("increment number tooltip is formatted", () => {
-    model.dispatch("UPDATE_CELL", {
+  test("increment number tooltip is formatted", async () => {
+    await model.dispatchFromOutside("UPDATE_CELL", {
       col: 0,
       row: 0,
       sheetId: model.getters.getActiveSheetId(),
       content: "1",
       format: "0.00%",
     });
-    model.dispatch("UPDATE_CELL", {
+    await model.dispatchFromOutside("UPDATE_CELL", {
       col: 0,
       row: 1,
       sheetId: model.getters.getActiveSheetId(),

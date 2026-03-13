@@ -64,7 +64,7 @@ export class GridAddRowsFooter extends Component<Props, SpreadsheetChildEnv> {
     const quantity = Number(this.state.inputValue);
     const activeSheetId = this.env.model.getters.getActiveSheetId();
     const rowNumber = this.env.model.getters.getNumberRows(activeSheetId);
-    this.env.model.dispatch("ADD_COLUMNS_ROWS", {
+    this.env.model.dispatchFromOutside("ADD_COLUMNS_ROWS", {
       sheetId: activeSheetId,
       sheetName: this.env.model.getters.getSheetName(activeSheetId),
       position: "after",
@@ -80,7 +80,7 @@ export class GridAddRowsFooter extends Component<Props, SpreadsheetChildEnv> {
       activeSheetId,
       rowNumber + quantity - 1
     );
-    this.env.model.dispatch("SET_VIEWPORT_OFFSET", {
+    this.env.model.dispatchFromOutside("SET_VIEWPORT_OFFSET", {
       offsetX: scrollX,
       offsetY: end,
     });

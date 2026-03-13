@@ -189,7 +189,7 @@ export class CellComposerStore extends AbstractComposerStore {
     this.row = top;
   }
 
-  protected confirmEdition(content: string) {
+  protected async confirmEdition(content: string) {
     let result: DispatchResult;
     if (content) {
       const sheetId = this.getters.getActiveSheetId();
@@ -204,19 +204,19 @@ export class CellComposerStore extends AbstractComposerStore {
           ? undefined
           : detectDateFormat(content, this.getters.getLocale());
       this.addHeadersForSpreadingFormula(content);
-      result = this.model.dispatch("UPDATE_CELL", {
+      result = await this.model.dispatchFromOutside("UPDATE_CELL", {
         ...this.currentEditedCell,
         content,
         format: afterFormat,
       });
     } else {
-      result = this.model.dispatch("UPDATE_CELL", {
+      result = await this.model.dispatchFromOutside("UPDATE_CELL", {
         ...this.currentEditedCell,
         content: "",
       });
     }
     if (result.isSuccessful) {
-      this.model.dispatch("AUTOFILL_TABLE_COLUMN", { ...this.currentEditedCell });
+      await this.model.dispatchFromOutside("AUTOFILL_TABLE_COLUMN", { ...this.currentEditedCell });
     }
     this.setContent("");
   }
@@ -307,7 +307,7 @@ export class CellComposerStore extends AbstractComposerStore {
   }
 
   /** Add headers at the end of the sheet so the formula in the composer has enough space to spread */
-  private addHeadersForSpreadingFormula(content: string) {
+  private async addHeadersForSpreadingFormula(content: string) {
     const missingHeaders = getMissingHeadersForSpreadResult(
       this.getters,
       this.currentEditedCell,
@@ -318,7 +318,7 @@ export class CellComposerStore extends AbstractComposerStore {
     }
 
     if (missingHeaders.missingCols > 0) {
-      this.model.dispatch("ADD_COLUMNS_ROWS", {
+      await this.model.dispatchFromOutside("ADD_COLUMNS_ROWS", {
         sheetId: this.sheetId,
         sheetName: this.getters.getSheetName(this.sheetId),
         dimension: "COL",
@@ -328,7 +328,7 @@ export class CellComposerStore extends AbstractComposerStore {
       });
     }
     if (missingHeaders.missingRows > 0) {
-      this.model.dispatch("ADD_COLUMNS_ROWS", {
+      await this.model.dispatchFromOutside("ADD_COLUMNS_ROWS", {
         sheetId: this.sheetId,
         sheetName: this.getters.getSheetName(this.sheetId),
         dimension: "ROW",
@@ -360,7 +360,8 @@ export class CellComposerStore extends AbstractComposerStore {
     return true;
   }
 
-  startEdition(text?: string, selection?: ComposerSelection) {
+  //@ts-ignore TODOPRO
+  async startEdition(text?: string, selection?: ComposerSelection) {
     if (this.getters.isCurrentSheetLocked()) {
       this.model.trigger("command-rejected", {
         result: new DispatchResult(CommandResult.SheetLocked),

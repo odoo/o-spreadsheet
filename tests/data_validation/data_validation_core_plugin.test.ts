@@ -44,8 +44,8 @@ describe("Data validation", () => {
       expect(result).toBeCancelledBecause(CommandResult.InvalidSheetId);
     });
 
-    test("Data validation with a wrong sheet in ranges", () => {
-      const result = model.dispatch("ADD_DATA_VALIDATION_RULE", {
+    test("Data validation with a wrong sheet in ranges", async () => {
+      const result = await model.dispatchFromOutside("ADD_DATA_VALIDATION_RULE", {
         sheetId: "Sheet1",
         ranges: toRangesData("wrong-sheet-id", "A1:5"),
         rule: { id: "dvId", criterion: { type: "containsText", values: ["1"] } },
@@ -98,8 +98,8 @@ describe("Data validation", () => {
       expect(result).toBeCancelledBecause(CommandResult.UnknownDataValidationRule);
     });
 
-    test("Cannot create a data validation rule with an empty range", () => {
-      const result = model.dispatch("ADD_DATA_VALIDATION_RULE", {
+    test("Cannot create a data validation rule with an empty range", async () => {
+      const result = await model.dispatchFromOutside("ADD_DATA_VALIDATION_RULE", {
         sheetId,
         ranges: [],
         rule: { id: "id", criterion: { type: "isBoolean", values: [] } },

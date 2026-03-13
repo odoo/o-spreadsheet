@@ -223,9 +223,9 @@ describe("Insert chart menu item", () => {
     });
   });
 
-  test("Chart is inserted at the top left of the viewport when too small", () => {
+  test("Chart is inserted at the top left of the viewport when too small", async () => {
     setSelection(model, ["B2"]);
-    model.dispatch("RESIZE_SHEETVIEW", {
+    await model.dispatchFromOutside("RESIZE_SHEETVIEW", {
       width: DEFAULT_FIGURE_WIDTH / 2,
       height: DEFAULT_FIGURE_HEIGHT / 2,
       gridOffsetX: 0,
@@ -248,10 +248,10 @@ describe("Insert chart menu item", () => {
     });
   });
 
-  test("Chart is inserted inside frozen pane if middle is frozen pane", () => {
+  test("Chart is inserted inside frozen pane if middle is frozen pane", async () => {
     addRows(model, "before", 0, 100);
     setSelection(model, ["B2"]);
-    model.dispatch("RESIZE_SHEETVIEW", {
+    await model.dispatchFromOutside("RESIZE_SHEETVIEW", {
       width: DEFAULT_FIGURE_WIDTH * 1.5,
       height: DEFAULT_FIGURE_HEIGHT * 1.5,
       gridOffsetX: 0,
@@ -278,12 +278,12 @@ describe("Insert chart menu item", () => {
     });
   });
 
-  test("Chart is inserted at correct position on a scrolled viewport", () => {
+  test("Chart is inserted at correct position on a scrolled viewport", async () => {
     setSelection(model, ["B2:B3"]);
     const { width, height } = env.model.getters.getSheetViewDimension();
     addColumns(model, "after", "D", 100);
     addRows(model, "after", 4, 100);
-    env.model.dispatch("SET_VIEWPORT_OFFSET", {
+    await env.model.dispatchFromOutside("SET_VIEWPORT_OFFSET", {
       offsetX: 2 * DEFAULT_CELL_WIDTH,
       offsetY: 4 * DEFAULT_CELL_HEIGHT,
     });
@@ -304,14 +304,14 @@ describe("Insert chart menu item", () => {
     });
   });
 
-  test("Chart is inserted at correct position on a scrolled viewport with frozen rows", () => {
+  test("Chart is inserted at correct position on a scrolled viewport with frozen rows", async () => {
     const sheetId = model.getters.getActiveSheetId();
     freezeRows(model, 5, sheetId);
     setSelection(model, ["B2:B3"]);
     const { width, height } = model.getters.getSheetViewDimension();
     addColumns(model, "after", "D", 100);
     addRows(model, "after", 4, 100);
-    env.model.dispatch("SET_VIEWPORT_OFFSET", {
+    await env.model.dispatchFromOutside("SET_VIEWPORT_OFFSET", {
       offsetX: 2 * DEFAULT_CELL_WIDTH,
       offsetY: 4 * DEFAULT_CELL_HEIGHT,
     });
@@ -332,14 +332,14 @@ describe("Insert chart menu item", () => {
     });
   });
 
-  test("Chart is inserted at correct position on a scrolled viewport with columns frozen", () => {
+  test("Chart is inserted at correct position on a scrolled viewport with columns frozen", async () => {
     const sheetId = model.getters.getActiveSheetId();
     freezeColumns(model, 4, sheetId);
     setSelection(model, ["B2:B3"]);
     const { width, height } = model.getters.getSheetViewDimension();
     addColumns(model, "after", "D", 100);
     addRows(model, "after", 4, 100);
-    env.model.dispatch("SET_VIEWPORT_OFFSET", {
+    await env.model.dispatchFromOutside("SET_VIEWPORT_OFFSET", {
       offsetX: 2 * DEFAULT_CELL_WIDTH,
       offsetY: 4 * DEFAULT_CELL_HEIGHT,
     });
@@ -360,7 +360,7 @@ describe("Insert chart menu item", () => {
     });
   });
 
-  test("Chart is inserted at correct position on a scrolled viewport with both directions frozen", () => {
+  test("Chart is inserted at correct position on a scrolled viewport with both directions frozen", async () => {
     const sheetId = model.getters.getActiveSheetId();
     freezeColumns(model, 4, sheetId);
     freezeRows(model, 5, sheetId);
@@ -368,7 +368,7 @@ describe("Insert chart menu item", () => {
     const { width, height } = model.getters.getSheetViewDimension();
     addColumns(model, "after", "D", 100);
     addRows(model, "after", 4, 100);
-    env.model.dispatch("SET_VIEWPORT_OFFSET", {
+    await env.model.dispatchFromOutside("SET_VIEWPORT_OFFSET", {
       offsetX: 2 * DEFAULT_CELL_WIDTH,
       offsetY: 4 * DEFAULT_CELL_HEIGHT,
     });

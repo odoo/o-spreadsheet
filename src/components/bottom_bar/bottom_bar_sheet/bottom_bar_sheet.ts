@@ -166,7 +166,7 @@ export class BottomBarSheet extends Component<Props, SpreadsheetChildEnv> {
   }
 
   private activateSheet() {
-    this.env.model.dispatch("ACTIVATE_SHEET", {
+    this.env.model.dispatchFromOutside("ACTIVATE_SHEET", {
       sheetIdFrom: this.env.model.getters.getActiveSheetId(),
       sheetIdTo: this.props.sheetId,
     });
@@ -253,7 +253,7 @@ export class BottomBarSheet extends Component<Props, SpreadsheetChildEnv> {
 
   onColorPicked(color: string) {
     this.state.pickerOpened = false;
-    this.env.model.dispatch("COLOR_SHEET", { sheetId: this.props.sheetId, color });
+    this.env.model.dispatchFromOutside("COLOR_SHEET", { sheetId: this.props.sheetId, color });
   }
 
   get colorPickerAnchorRect(): Rect {

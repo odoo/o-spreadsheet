@@ -58,12 +58,12 @@ export class PivotMeasureDisplayPanelStore extends SpreadsheetStore {
     );
   }
 
-  private updatePivotMeasureDisplay(newDisplay: PivotMeasureDisplay) {
+  private async updatePivotMeasureDisplay(newDisplay: PivotMeasureDisplay) {
     const pivotDefinition = deepCopy(this.model.getters.getPivotCoreDefinition(this.pivotId));
     const measureIndex = this.getMeasureIndex(this.initialMeasure.id, pivotDefinition);
     const newMeasure = { ...pivotDefinition.measures[measureIndex], display: newDisplay };
     pivotDefinition.measures[measureIndex] = newMeasure;
-    const result = this.model.dispatch("UPDATE_PIVOT", {
+    const result = await this.model.dispatchFromOutside("UPDATE_PIVOT", {
       pivot: pivotDefinition,
       pivotId: this.pivotId,
     });
@@ -173,7 +173,7 @@ export class PivotMeasureDisplayPanelStore extends SpreadsheetStore {
       ...pivotDefinition.measures[measureIndex],
       display: this.initialMeasure.display,
     };
-    this.model.dispatch("UPDATE_PIVOT", {
+    this.model.dispatchFromOutside("UPDATE_PIVOT", {
       pivot: pivotDefinition,
       pivotId: this.pivotId,
     });

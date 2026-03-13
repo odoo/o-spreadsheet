@@ -3,13 +3,13 @@ import { _t } from "@odoo/o-spreadsheet-engine/translation";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { CommandResult, UID } from "../../types";
 
-export function interactiveRenameSheet(
+export async function interactiveRenameSheet(
   env: SpreadsheetChildEnv,
   sheetId: UID,
   name: string,
   errorCallback: () => void
 ) {
-  const result = env.model.dispatch("RENAME_SHEET", {
+  const result = await env.model.dispatchFromOutside("RENAME_SHEET", {
     sheetId,
     newName: name,
     oldName: env.model.getters.getSheetName(sheetId),

@@ -66,9 +66,9 @@ describe("Table plugin", () => {
   });
 
   describe("Dispatch results", () => {
-    test("Create table is correctly rejected if given invalid zone", () => {
+    test("Create table is correctly rejected if given invalid zone", async () => {
       expect(
-        model.dispatch("CREATE_TABLE", {
+        await model.dispatchFromOutside("CREATE_TABLE", {
           sheetId: model.getters.getActiveSheetId(),
           ranges: [{ _sheetId: sheetId, _zone: { top: -1, bottom: 0, right: 5, left: 9 } }],
           tableType: "static",
@@ -142,9 +142,9 @@ describe("Table plugin", () => {
       });
     });
 
-    test("Cannot update a non-existing table", () => {
+    test("Cannot update a non-existing table", async () => {
       expect(
-        model.dispatch("UPDATE_TABLE", {
+        await model.dispatchFromOutside("UPDATE_TABLE", {
           sheetId,
           zone: toZone("A1:A5"),
           config: { bandedColumns: true },
@@ -187,10 +187,10 @@ describe("Table plugin", () => {
       expect(result).toBeCancelledBecause(CommandResult.InvalidSheetId);
     });
 
-    test("reject data range targeting a different sheet", () => {
+    test("reject data range targeting a different sheet", async () => {
       const firstSheetId = model.getters.getActiveSheetId();
       createSheet(model, { sheetId: "sheet2" });
-      const result = model.dispatch("CREATE_TABLE", {
+      const result = await model.dispatchFromOutside("CREATE_TABLE", {
         ranges: toRangesData(firstSheetId, "A1"),
         sheetId: "sheet2",
         tableType: "static",
@@ -231,12 +231,12 @@ describe("Table plugin", () => {
       expect(getTable(model, "A1")?.range.zone).toEqual(toZone("A1:B5"));
     });
 
-    test("Create new table on sheet duplication", () => {
+    test("Create new table on sheet duplication", async () => {
       createTableWithFilter(model, "A1:A3");
       updateFilter(model, "A1", ["C"]);
 
       const sheet2Id = "42";
-      model.dispatch("DUPLICATE_SHEET", {
+      await model.dispatchFromOutside("DUPLICATE_SHEET", {
         sheetId: sheetId,
         sheetIdTo: sheet2Id,
         sheetNameTo: "Copy of Sheet1",
@@ -706,11 +706,11 @@ describe("Table plugin", () => {
       expect(getFilter(model, "A1")).toBeFalsy();
     });
 
-    test("Can undo/redo update a table", () => {
+    test("Can undo/redo update a table", async () => {
       const model = new Model();
       createTable(model, "A1:A4");
 
-      model.dispatch("UPDATE_TABLE", {
+      await model.dispatchFromOutside("UPDATE_TABLE", {
         sheetId,
         zone: toZone("A1:A4"),
         newTableRange: toRangeData(sheetId, "A1:B4"),

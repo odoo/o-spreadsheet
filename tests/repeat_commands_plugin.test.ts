@@ -261,7 +261,7 @@ describe("Repeat command transform specifics", () => {
     });
   });
 
-  test("Create sheet transform", () => {
+  test("Create sheet transform", async () => {
     createSheet(model, { sheetId: "sheetId", name: "sheetName" });
     const command: CreateSheetCommand = {
       ...TEST_COMMANDS.CREATE_SHEET,
@@ -274,7 +274,7 @@ describe("Repeat command transform specifics", () => {
       sheetId: expect.not.stringMatching("sheetId"),
       name: "sheetName1",
     });
-    model.dispatch("CREATE_SHEET", { ...repeated });
+    await model.dispatchFromOutside("CREATE_SHEET", { ...repeated });
 
     expect(repeatCoreCommand(model.getters, repeated)).toEqual({
       ...command,
@@ -386,11 +386,11 @@ describe("Repeat command transform specifics", () => {
 });
 
 describe("Repeat local commands", () => {
-  test("Repeat Paste", () => {
+  test("Repeat Paste", async () => {
     setCellContent(model, "A1", "A1");
     setCellContent(model, "A2", "A2");
     setStyle(model, "A2", { fillColor: "red" });
-    model.dispatch("ADD_CONDITIONAL_FORMAT", {
+    await model.dispatchFromOutside("ADD_CONDITIONAL_FORMAT", {
       ...TEST_COMMANDS.ADD_CONDITIONAL_FORMAT,
       ranges: toRangesData(sheetId, "A1:A2"),
     });
@@ -486,19 +486,19 @@ describe("Repeat local commands", () => {
     expect(getCellContent(model, "B1")).toEqual("kikou");
   });
 
-  test("Repeat set decimal", () => {
+  test("Repeat set decimal", async () => {
     setSelection(model, ["A1"]);
     setCellContent(model, "A1", "1");
-    model.dispatch("SET_DECIMAL", { target: target("A1"), step: 1, sheetId });
+    await model.dispatchFromOutside("SET_DECIMAL", { target: target("A1"), step: 1, sheetId });
     expect(getEvaluatedCell(model, "A1").formattedValue).toEqual("1.0");
 
     redo(model);
     expect(getEvaluatedCell(model, "A1").formattedValue).toEqual("1.00");
   });
 
-  test("Repeat autoresize rows", () => {
+  test("Repeat autoresize rows", async () => {
     resizeRows(model, [0, 2, 3], 100);
-    model.dispatch("AUTORESIZE_ROWS", {
+    await model.dispatchFromOutside("AUTORESIZE_ROWS", {
       sheetId,
       rows: [0],
     });
@@ -510,12 +510,12 @@ describe("Repeat local commands", () => {
     expect(model.getters.getRowSize(sheetId, 3)).toEqual(DEFAULT_CELL_HEIGHT);
   });
 
-  test("Repeat autoresize columns", () => {
+  test("Repeat autoresize columns", async () => {
     setCellContent(model, "A1", "A1");
     setCellContent(model, "C1", "C1");
     setCellContent(model, "D1", "D1");
     resizeColumns(model, ["A", "C", "D"], 50);
-    model.dispatch("AUTORESIZE_COLUMNS", {
+    await model.dispatchFromOutside("AUTORESIZE_COLUMNS", {
       sheetId,
       cols: [0],
     });
@@ -548,23 +548,23 @@ describe("Repeat local commands", () => {
     expect(getCellContent(model, "A3")).toEqual("A1");
   });
 
-  test("Repeat sum selection", () => {
+  test("Repeat sum selection", async () => {
     setCellContent(model, "A1", "1");
     setCellContent(model, "A2", "2");
 
     setSelection(model, ["B1:B2"]);
-    model.dispatch("SUM_SELECTION");
+    await model.dispatchFromOutside("SUM_SELECTION");
 
     setSelection(model, ["A1:A2"]);
     redo(model);
     expect(getCellRawContent(model, "A3")).toEqual("=SUM(A1:A2)");
   });
 
-  test("Repeat delete unfiltered content", () => {
+  test("Repeat delete unfiltered content", async () => {
     setCellContent(model, "A1", "1");
     setCellContent(model, "A2", "2");
 
-    model.dispatch("DELETE_UNFILTERED_CONTENT", { sheetId, target: target("A1") });
+    await model.dispatchFromOutside("DELETE_UNFILTERED_CONTENT", { sheetId, target: target("A1") });
     expect(getCellContent(model, "A1")).toEqual("");
     expect(getCellContent(model, "A2")).toEqual("2");
 
