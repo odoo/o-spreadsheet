@@ -713,8 +713,10 @@ describe("charts", () => {
     createChart(
       model,
       {
-        dataSets: [{ dataRange: "B1:B2" }],
-        labelRange: "A1:A2",
+        ...toChartDataSource({
+          dataSets: [{ dataRange: "B1:B2" }],
+          labelRange: "A1:A2",
+        }),
         type: "line",
       },
       chartId
@@ -738,8 +740,10 @@ describe("charts", () => {
     createChart(
       model,
       {
-        dataSets: [{ dataRange: "B1" }],
-        labelRange: "A1",
+        ...toChartDataSource({
+          dataSets: [{ dataRange: "B1" }],
+          labelRange: "A1",
+        }),
         type: "line",
       },
       chartId
@@ -755,8 +759,10 @@ describe("charts", () => {
     createChart(
       model,
       {
-        dataSets: [{ dataRange: "C1:C4" }],
-        labelRange: "A2:A4",
+        ...toChartDataSource({
+          dataSets: [{ dataRange: "C1:C4" }],
+          labelRange: "A2:A4",
+        }),
         type: "line",
       },
       chartId
@@ -780,8 +786,10 @@ describe("charts", () => {
     createChart(
       model,
       {
-        dataSets: [{ dataRange: "B1" }],
-        labelRange: "A1",
+        ...toChartDataSource({
+          dataSets: [{ dataRange: "B1" }],
+          labelRange: "A1",
+        }),
         type: "line",
       },
       chartId
@@ -800,8 +808,10 @@ describe("charts", () => {
     createChart(
       model,
       {
-        dataSets: [{ dataRange: "B1:B2" }],
-        labelRange: "A1:A2",
+        ...toChartDataSource({
+          dataSets: [{ dataRange: "B1:B2" }],
+          labelRange: "A1:A2",
+        }),
         type: "line",
         axesDesign: {
           [axis]: { gridLines: "none" },
@@ -832,8 +842,10 @@ describe("charts", () => {
     createChart(
       model,
       {
-        dataSets: [{ dataRange: "B1" }],
-        labelRange: "A1",
+        ...toChartDataSource({
+          dataSets: [{ dataRange: "B1" }],
+          labelRange: "A1",
+        }),
         type: "line",
         axesDesign: {
           x: { gridLines: "none" },
@@ -2130,8 +2142,10 @@ describe("charts", () => {
       createTestChart("basicChart");
       updateChart(model, chartId, {
         type: "scatter",
-        labelRange: "C2:C4",
-        dataSets: [{ dataRange: "B2:B4" }],
+        ...toChartDataSource({
+          labelRange: "C2:C4",
+          dataSets: [{ dataRange: "B2:B4" }],
+        }),
         axesDesign: {
           x: {
             min: 5,

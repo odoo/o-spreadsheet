@@ -4,7 +4,7 @@ import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadshee
 import { Model } from "../../../src";
 import { ChartPanel } from "../../../src/components/side_panel/chart/main_chart_panel/main_chart_panel";
 import { UID } from "../../../src/types";
-import { openChartDesignSidePanel } from "../../test_helpers/chart_helpers";
+import { openChartDesignSidePanel, toChartDataSource } from "../../test_helpers/chart_helpers";
 import { createChart } from "../../test_helpers/commands_helpers";
 import { setInputValueAndTrigger } from "../../test_helpers/dom_helper";
 import {
@@ -34,8 +34,10 @@ describe("charts", () => {
     createChart(
       model,
       {
-        dataSets: [{ dataRange: "B2:B3" }],
-        labelRange: "A2:A3",
+        ...toChartDataSource({
+          dataSets: [{ dataRange: "B2:B3" }],
+          labelRange: "A2:A3",
+        }),
         type: "line",
         labelsAsText: false,
       },
@@ -66,8 +68,10 @@ describe("charts", () => {
     createChart(
       model,
       {
-        dataSets: [{ dataRange: "B2:B3" }],
-        labelRange: "A2:A3",
+        ...toChartDataSource({
+          dataSets: [{ dataRange: "B2:B3" }],
+          labelRange: "A2:A3",
+        }),
         type: "line",
         labelsAsText: false,
       },
