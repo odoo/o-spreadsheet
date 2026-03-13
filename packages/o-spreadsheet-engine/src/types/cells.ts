@@ -75,3 +75,10 @@ export enum CellValueType {
   empty = "empty",
   error = "error",
 }
+
+export interface CellTiming {
+  /** Time spent exclusively computing this cell (excluding dependency evaluation), in ms */
+  selfTime: number;
+  /** Total time including dependency evaluation, in ms */
+  totalTime: number;
+}

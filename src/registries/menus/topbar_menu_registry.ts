@@ -534,3 +534,16 @@ topbarMenuRegistry
 ZOOM_VALUES.forEach((zoom) => {
   topbarMenuRegistry.addChild(`zoom${zoom}`, ["view", "zoom"], ACTION_VIEW.zoomAction(zoom));
 });
+
+// Tools menu
+topbarMenuRegistry
+  .add("tools", {
+    name: _t("Tools"),
+    sequence: 70,
+  })
+  .addChild("evaluation_profiler", ["tools"], {
+    name: _t("Evaluation profiler"),
+    sequence: 10,
+    execute: (env) => env.openSidePanel("EvaluationProfiler"),
+    isEnabledOnLockedSheet: true,
+  });

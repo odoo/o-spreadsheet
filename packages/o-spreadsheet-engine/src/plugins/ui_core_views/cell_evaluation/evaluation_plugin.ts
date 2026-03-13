@@ -3,7 +3,13 @@ import { matrixMap } from "../../../functions/helpers";
 import { toXC } from "../../../helpers/coordinates";
 import { getItemId } from "../../../helpers/data_normalization";
 import { positions } from "../../../helpers/zones";
-import { CellValue, CellValueType, EvaluatedCell, FormulaCell } from "../../../types/cells";
+import {
+  CellTiming,
+  CellValue,
+  CellValueType,
+  EvaluatedCell,
+  FormulaCell,
+} from "../../../types/cells";
 import {
   Command,
   CoreViewCommand,
@@ -158,6 +164,8 @@ export class EvaluationPlugin extends CoreViewPlugin {
     "getArrayFormulaSpreadingOn",
     "isArrayFormulaSpillBlocked",
     "isEmpty",
+    "getCellTiming",
+    "getCellTimings",
   ] as const;
 
   private shouldRebuildDependenciesGraph = true;
@@ -204,6 +212,11 @@ export class EvaluationPlugin extends CoreViewPlugin {
         } else {
           this.evaluator.evaluateAllCells();
         }
+        break;
+      case "PROFILE_CELLS":
+        this.evaluator.enableProfiling();
+        this.evaluator.evaluateAllCells();
+        this.evaluator.disableProfiling();
         break;
     }
   }
@@ -317,6 +330,14 @@ export class EvaluationPlugin extends CoreViewPlugin {
 
   isArrayFormulaSpillBlocked(position: CellPosition): boolean {
     return this.evaluator.isArrayFormulaSpillBlocked(position);
+  }
+
+  getCellTiming(position: CellPosition): CellTiming | undefined {
+    return this.evaluator.getCellTiming(position);
+  }
+
+  getCellTimings(sheetId: UID): { position: CellPosition; timing: CellTiming }[] {
+    return this.evaluator.getCellTimings(sheetId);
   }
 
   /**

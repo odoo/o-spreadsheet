@@ -2,7 +2,7 @@ import { CompiledFormula } from "../../../formulas/compiler";
 
 import { createEvaluatedCell, evaluateLiteral } from "../../../helpers/cells/cell_evaluation";
 
-import { CellValueType, EvaluatedCell, FormulaCell } from "../../../types/cells";
+import { CellTiming, CellValueType, EvaluatedCell, FormulaCell } from "../../../types/cells";
 import {
   BadExpressionError,
   CellErrorType,
@@ -55,6 +55,23 @@ export class Evaluator {
   private blockedArrayFormulas = new PositionSet({});
   private spreadingRelations = new SpreadingRelation();
 
+  private profilingEnabled = false;
+  private cellTimings: PositionMap<CellTiming> = new PositionMap();
+  /**
+   * Each frame tracks:
+   * - startTime: when this cell's computation began
+   * - directChildTime: wall-clock time spent inside nested computeCell calls that were NOT cached
+   *   (used to subtract from elapsed to get selfTime)
+   * - dependencyTotalTime: accumulated inclusive totalTime of all direct dependencies,
+   *   whether they were computed fresh (recursive) or retrieved from cache
+   *   (used to compute the inclusive totalTime for this cell)
+   */
+  private timingStack: Array<{
+    startTime: number;
+    directChildTime: number;
+    dependencyTotalTime: number;
+  }> = [];
+
   constructor(private readonly context: ModelConfig["custom"], getters: Getters) {
     this.getters = getters;
     this.compilationParams = buildCompilationParameters(
@@ -89,6 +106,27 @@ export class Evaluator {
 
   getEvaluatedPositionsInSheet(sheetId: UID): CellPosition[] {
     return this.evaluatedCells.keysForSheet(sheetId);
+  }
+
+  enableProfiling() {
+    this.profilingEnabled = true;
+    this.cellTimings = new PositionMap();
+    this.timingStack = [];
+  }
+
+  disableProfiling() {
+    this.profilingEnabled = false;
+    this.timingStack = [];
+  }
+
+  getCellTiming(position: CellPosition): CellTiming | undefined {
+    return this.cellTimings.get(position);
+  }
+
+  getCellTimings(sheetId: UID): { position: CellPosition; timing: CellTiming }[] {
+    return this.cellTimings
+      .keysForSheet(sheetId)
+      .map((position) => ({ position, timing: this.cellTimings.get(position)! }));
   }
 
   getArrayFormulaSpreadingOn(position: CellPosition): CellPosition | undefined {
@@ -346,12 +384,20 @@ export class Evaluator {
     }
 
     const cellId = cell.id;
+    if (this.cellsBeingComputed.has(cellId)) {
+      return ERROR_CYCLE_CELL;
+    }
+
     const localeFormat = { format: cell.format, locale: this.getters.getLocale() };
+    if (this.profilingEnabled) {
+      this.timingStack.push({
+        startTime: performance.now(),
+        directChildTime: 0,
+        dependencyTotalTime: 0,
+      });
+    }
+    this.cellsBeingComputed.add(cellId);
     try {
-      if (this.cellsBeingComputed.has(cellId)) {
-        return ERROR_CYCLE_CELL;
-      }
-      this.cellsBeingComputed.add(cellId);
       return cell.isFormula
         ? this.computeFormulaCell(position, cell)
         : evaluateLiteral(cell, localeFormat, position);
@@ -362,13 +408,35 @@ export class Evaluator {
       return createEvaluatedCell(e);
     } finally {
       this.cellsBeingComputed.delete(cellId);
+      if (this.profilingEnabled) {
+        const frame = this.timingStack.pop()!;
+        const elapsed = performance.now() - frame.startTime;
+        const selfTime = elapsed - frame.directChildTime;
+        const totalTime = selfTime + frame.dependencyTotalTime;
+        if (this.timingStack.length > 0) {
+          const parent = this.timingStack[this.timingStack.length - 1];
+          parent.directChildTime += elapsed;
+          parent.dependencyTotalTime += totalTime;
+        }
+        this.cellTimings.set(position, { selfTime, totalTime });
+      }
     }
   }
 
   private computeAndSave(position: CellPosition) {
+    const wasCached = this.profilingEnabled && this.evaluatedCells.has(position);
     const evaluatedCell = this.computeCell(position);
     if (!this.evaluatedCells.has(position)) {
       this.evaluatedCells.set(position, evaluatedCell);
+    }
+    // When profiling, if the cell was already cached, computeCell returned early without
+    // pushing a timing frame. We still need to attribute the dependency's inclusive cost
+    // to the parent frame so that totalTime propagates up the dependency chain.
+    if (wasCached && this.timingStack.length > 0) {
+      const cachedTiming = this.cellTimings.get(position);
+      if (cachedTiming) {
+        this.timingStack[this.timingStack.length - 1].dependencyTotalTime += cachedTiming.totalTime;
+      }
     }
     return evaluatedCell;
   }

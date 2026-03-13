@@ -9,6 +9,7 @@ import { ConditionalFormattingEditor } from "../components/side_panel/conditiona
 import { ConditionalFormatPreviewList } from "../components/side_panel/conditional_formatting/cf_preview_list/cf_preview_list";
 import { DataValidationPanel } from "../components/side_panel/data_validation/data_validation_panel";
 import { DataValidationEditor } from "../components/side_panel/data_validation/dv_editor/dv_editor";
+import { EvaluationProfilerPanel } from "../components/side_panel/evaluation_profiler/evaluation_profiler_panel";
 import { FindAndReplacePanel } from "../components/side_panel/find_and_replace/find_and_replace";
 import { MoreFormatsPanel } from "../components/side_panel/more_formats/more_formats";
 import { PivotMeasureDisplayPanel } from "../components/side_panel/pivot/pivot_measure_display_panel/pivot_measure_display_panel";
@@ -179,6 +180,11 @@ sidePanelRegistry.add("PivotMeasureDisplayPanel", {
       return { isOpen: false };
     }
   },
+});
+
+sidePanelRegistry.add("EvaluationProfiler", {
+  title: _t("Evaluation profiler"),
+  Body: EvaluationProfilerPanel,
 });
 
 sidePanelRegistry.add("CarouselPanel", {

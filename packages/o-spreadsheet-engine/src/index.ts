@@ -26,7 +26,7 @@ export { BasePlugin } from "./plugins/base_plugin";
 export { Registry } from "./registry";
 export { StateObserver } from "./state_observer";
 export * from "./translation";
-export { CellValue } from "./types/cells";
+export { CellTiming, CellValue } from "./types/cells";
 export { SpreadsheetClipboardData } from "./types/clipboard";
 export { CoreGetters, PluginGetters } from "./types/core_getters";
 export * from "./types/errors";

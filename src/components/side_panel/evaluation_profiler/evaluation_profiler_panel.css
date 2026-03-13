@@ -1,0 +1,58 @@
+.o-spreadsheet {
+  .o-evaluation-profiler {
+    padding: 8px;
+  }
+
+  .o-profiler-table {
+    border-collapse: collapse;
+    font-size: 12px;
+  }
+
+  .o-profiler-table th,
+  .o-profiler-table td {
+    padding: 4px 8px;
+    border: 1px solid #dee2e6;
+    text-align: left;
+  }
+
+  .o-profiler-table th {
+    background-color: #f8f9fa;
+    font-weight: 600;
+  }
+
+  .o-profiler-row {
+    cursor: pointer;
+  }
+
+  .o-profiler-row:hover {
+    background-color: #e8f0fe;
+  }
+
+  .o-profiler-cell-ref {
+    font-family: monospace;
+  }
+
+  .o-profiler-time {
+    text-align: right;
+    font-family: monospace;
+  }
+
+  .o-profiler-empty {
+    color: #6c757d;
+    font-style: italic;
+    padding: 8px;
+  }
+
+  .o-profiler-truncated {
+    color: #6c757d;
+    font-size: 12px;
+    padding: 6px 8px;
+    border-top: 1px solid #dee2e6;
+  }
+
+  .o-button.active {
+    background-color: #1a73e8;
+    color: white;
+    border-color: #1a73e8;
+  }
+}
