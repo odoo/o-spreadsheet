@@ -225,7 +225,7 @@ describe("Insert chart menu item", () => {
 
   test("Chart is inserted at the top left of the viewport when too small", () => {
     setSelection(model, ["B2"]);
-    model.dispatchFromOutside("RESIZE_SHEETVIEW", {
+    await model.dispatchFromOutside("RESIZE_SHEETVIEW", {
       width: DEFAULT_FIGURE_WIDTH / 2,
       height: DEFAULT_FIGURE_HEIGHT / 2,
       gridOffsetX: 0,
@@ -251,7 +251,7 @@ describe("Insert chart menu item", () => {
   test("Chart is inserted inside frozen pane if middle is frozen pane", () => {
     addRows(model, "before", 0, 100);
     setSelection(model, ["B2"]);
-    model.dispatchFromOutside("RESIZE_SHEETVIEW", {
+    await model.dispatchFromOutside("RESIZE_SHEETVIEW", {
       width: DEFAULT_FIGURE_WIDTH * 1.5,
       height: DEFAULT_FIGURE_HEIGHT * 1.5,
       gridOffsetX: 0,
@@ -283,7 +283,7 @@ describe("Insert chart menu item", () => {
     const { width, height } = env.model.getters.getSheetViewDimension();
     addColumns(model, "after", "D", 100);
     addRows(model, "after", 4, 100);
-    env.model.dispatchFromOutside("SET_VIEWPORT_OFFSET", {
+    await env.model.dispatchFromOutside("SET_VIEWPORT_OFFSET", {
       offsetX: 2 * DEFAULT_CELL_WIDTH,
       offsetY: 4 * DEFAULT_CELL_HEIGHT,
     });
@@ -311,7 +311,7 @@ describe("Insert chart menu item", () => {
     const { width, height } = model.getters.getSheetViewDimension();
     addColumns(model, "after", "D", 100);
     addRows(model, "after", 4, 100);
-    env.model.dispatchFromOutside("SET_VIEWPORT_OFFSET", {
+    await env.model.dispatchFromOutside("SET_VIEWPORT_OFFSET", {
       offsetX: 2 * DEFAULT_CELL_WIDTH,
       offsetY: 4 * DEFAULT_CELL_HEIGHT,
     });
@@ -339,7 +339,7 @@ describe("Insert chart menu item", () => {
     const { width, height } = model.getters.getSheetViewDimension();
     addColumns(model, "after", "D", 100);
     addRows(model, "after", 4, 100);
-    env.model.dispatchFromOutside("SET_VIEWPORT_OFFSET", {
+    await env.model.dispatchFromOutside("SET_VIEWPORT_OFFSET", {
       offsetX: 2 * DEFAULT_CELL_WIDTH,
       offsetY: 4 * DEFAULT_CELL_HEIGHT,
     });
@@ -368,7 +368,7 @@ describe("Insert chart menu item", () => {
     const { width, height } = model.getters.getSheetViewDimension();
     addColumns(model, "after", "D", 100);
     addRows(model, "after", 4, 100);
-    env.model.dispatchFromOutside("SET_VIEWPORT_OFFSET", {
+    await env.model.dispatchFromOutside("SET_VIEWPORT_OFFSET", {
       offsetX: 2 * DEFAULT_CELL_WIDTH,
       offsetY: 4 * DEFAULT_CELL_HEIGHT,
     });

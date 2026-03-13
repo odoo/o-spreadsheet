@@ -36,7 +36,7 @@ describe("Lock Sheet plugin", () => {
     (cmdType) => {
       const model = new Model();
       lockSheet(model);
-      const result = model.dispatchFromOutside(cmdType, TEST_COMMANDS[cmdType]);
+      const result = await model.dispatchFromOutside(cmdType, TEST_COMMANDS[cmdType]);
       expect(result.reasons).toContain(CommandResult.SheetLocked);
     }
   );
@@ -46,7 +46,7 @@ describe("Lock Sheet plugin", () => {
     createSheet(model, { name: "Another sheet", position: 0 });
     lockSheet(model);
     for (const cmdType of allowedCommands) {
-      const result = model.dispatchFromOutside(cmdType, TEST_COMMANDS[cmdType]);
+      const result = await model.dispatchFromOutside(cmdType, TEST_COMMANDS[cmdType]);
       expect(result).toBeSuccessfullyDispatched();
     }
   });
@@ -59,7 +59,7 @@ describe("Lock Sheet plugin", () => {
       addPivot(model);
       lockSheet(model);
       model.updateMode("dashboard");
-      const result = model.dispatchFromOutside(cmdType, TEST_COMMANDS[cmdType]);
+      const result = await model.dispatchFromOutside(cmdType, TEST_COMMANDS[cmdType]);
       expect(result).toBeSuccessfullyDispatched();
     }
   });

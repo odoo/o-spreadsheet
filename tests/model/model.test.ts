@@ -126,7 +126,7 @@ describe("Model", () => {
     }
     addTestPlugin(corePluginRegistry, MyCorePlugin);
     const model = new Model();
-    model.dispatchFromOutside("COPY");
+    await model.dispatchFromOutside("COPY");
     expect(receivedCommands).not.toContain("COPY");
   });
 
@@ -139,7 +139,7 @@ describe("Model", () => {
     }
     addTestPlugin(corePluginRegistry, MyCorePlugin);
     const model = new Model();
-    model.dispatchFromOutside("COPY");
+    await model.dispatchFromOutside("COPY");
     expect(receivedCommands).not.toContain("COPY");
   });
 
@@ -158,7 +158,11 @@ describe("Model", () => {
       model.canDispatch("CREATE_SHEET", { sheetId: "42", position: 1, name: "Sheet42" })
     ).toBeCancelledBecause(CommandResult.CancelledForUnknownReason);
     expect(
-      model.dispatchFromOutside("CREATE_SHEET", { sheetId: "42", position: 1, name: "Sheet42" })
+      await model.dispatchFromOutside("CREATE_SHEET", {
+        sheetId: "42",
+        position: 1,
+        name: "Sheet42",
+      })
     ).toBeCancelledBecause(CommandResult.CancelledForUnknownReason);
 
     const sheetId = model.getters.getActiveSheetId();
@@ -166,7 +170,7 @@ describe("Model", () => {
       model.canDispatch("UPDATE_CELL", { sheetId, col: 0, row: 0, content: "hey" })
     ).toBeSuccessfullyDispatched();
     expect(
-      model.dispatchFromOutside("UPDATE_CELL", { sheetId, col: 0, row: 0, content: "hey" })
+      await model.dispatchFromOutside("UPDATE_CELL", { sheetId, col: 0, row: 0, content: "hey" })
     ).toBeSuccessfullyDispatched();
     corePluginRegistry.remove("myCorePlugin");
   });
@@ -200,7 +204,7 @@ describe("Model", () => {
       content: "hello",
       type: "greeting",
     };
-    model.dispatchFromOutside("UPDATE_CELL", payload);
+    await model.dispatchFromOutside("UPDATE_CELL", payload);
     expect(getCellRawContent(model, "A1")).toBe("hello");
   });
 
@@ -275,7 +279,7 @@ describe("Model", () => {
     await network.concurrent(async () => {
       setCellContent(alice, "A1", "Hello");
       //@ts-ignore
-      bob.dispatchFromOutside("MY_CMD_1");
+      await bob.dispatchFromOutside("MY_CMD_1");
     });
     expect(numberCall).toEqual(1);
   });
@@ -340,7 +344,7 @@ describe("Model", () => {
       "3"
     );
     //@ts-ignore
-    alice.dispatchFromOutside("MY_CMD_1", { sheetId: alice.getters.getActiveSheetId() });
+    await alice.dispatchFromOutside("MY_CMD_1", { sheetId: alice.getters.getActiveSheetId() });
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
       (user) => getCellContent(user, "A1"),
       "5"

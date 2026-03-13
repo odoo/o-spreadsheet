@@ -215,7 +215,7 @@ async function run(network: MockTransportService, users: Model[], actions: UserA
     try {
       await network.concurrent(async () => {
         for (const { command, user } of commandGroup) {
-          const result = user.dispatchFromOutside(command.type, command);
+          const result = await user.dispatchFromOutside(command.type, command);
           if (result.isSuccessful) {
             concurrentlyExecuted.push({ command, user });
           }

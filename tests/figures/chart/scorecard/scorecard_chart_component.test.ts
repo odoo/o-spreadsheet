@@ -43,9 +43,9 @@ let env: SpreadsheetChildEnv;
 
 const mutedFontColor = chartMutedFontColor("#fff");
 
-function updateScorecardChartSize(width: Pixel, height: Pixel) {
+async function updateScorecardChartSize(width: Pixel, height: Pixel) {
   const figureId = model.getters.getFigureIdFromChartId(chartId);
-  model.dispatchFromOutside("UPDATE_FIGURE", {
+  await model.dispatchFromOutside("UPDATE_FIGURE", {
     sheetId,
     figureId,
     offset: {
@@ -113,7 +113,7 @@ test("Scorecard chart canvas adapt to figure size", () => {
     chartId
   );
 
-  updateScorecardChartSize(100, 100);
+  await updateScorecardChartSize(100, 100);
   renderScorecardChart(model, chartId, sheetId, canvas);
 
   expect(canvas.width).toEqual(100);
@@ -432,7 +432,7 @@ describe("Scorecard charts computation", () => {
   });
 
   test("Scorecard chart adapts CF font color", async () => {
-    model.dispatchFromOutside("ADD_CONDITIONAL_FORMAT", {
+    await model.dispatchFromOutside("ADD_CONDITIONAL_FORMAT", {
       cf: {
         rule: {
           type: "CellIsRule",

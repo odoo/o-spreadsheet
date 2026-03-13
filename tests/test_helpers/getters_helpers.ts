@@ -223,14 +223,15 @@ export function automaticSum(
   return automaticSumMulti(model, [xc], { anchor }, sheetId);
 }
 
-export function automaticSumMulti(
+//TODOPRO wait for it
+export async function automaticSumMulti(
   model: Model,
   xcs: string[],
   { anchor }: { anchor?: string } = {},
   sheetId?: UID
 ) {
   setSelection(model, xcs, { anchor });
-  return model.dispatchFromOutside("SUM_SELECTION");
+  return await model.dispatchFromOutside("SUM_SELECTION");
 }
 
 export function getTable(

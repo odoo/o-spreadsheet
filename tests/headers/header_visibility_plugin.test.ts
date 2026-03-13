@@ -83,7 +83,10 @@ describe("Hide Columns", () => {
 
   test("hide/unhide Column on small sheet", () => {
     model = new Model({ sheets: [{ colNumber: 5, rowNumber: 1 }] });
-    model.dispatchFromOutside("RESIZE_SHEETVIEW", { width: DEFAULT_CELL_WIDTH, height: 1000 });
+    await model.dispatchFromOutside("RESIZE_SHEETVIEW", {
+      width: DEFAULT_CELL_WIDTH,
+      height: 1000,
+    });
     const sheet = model.getters.getActiveSheet();
     const dimensions = model.getters.getMainViewportRect();
     hideColumns(model, ["B", "C", "D"], sheet.id);
@@ -178,7 +181,10 @@ describe("Hide Rows", () => {
 
   test("hide/unhide Row on small sheet", () => {
     model = new Model({ sheets: [{ colNumber: 1, rowNumber: 5 }] });
-    model.dispatchFromOutside("RESIZE_SHEETVIEW", { width: 1000, height: DEFAULT_CELL_HEIGHT });
+    await model.dispatchFromOutside("RESIZE_SHEETVIEW", {
+      width: 1000,
+      height: DEFAULT_CELL_HEIGHT,
+    });
     const sheet = model.getters.getActiveSheet();
     const dimensions = model.getters.getMainViewportRect();
     hideRows(model, [1, 2, 3], sheet.id);
@@ -316,7 +322,7 @@ describe("Hide Rows", () => {
     addRows(model, "after", 99, 1);
     const plugin = getPlugin(model, HeaderSizePlugin);
     expect(plugin.sizes[sheetId].ROW.length).toEqual(101);
-    model.dispatchFromOutside("DUPLICATE_SHEET", {
+    await model.dispatchFromOutside("DUPLICATE_SHEET", {
       sheetId,
       sheetIdTo: "sheet2",
       sheetNameTo: "Copy of Sheet1",

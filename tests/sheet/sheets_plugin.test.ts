@@ -184,14 +184,14 @@ describe("sheets", () => {
   test("Cannot create a sheet with a position > length of sheets", () => {
     const model = new Model();
     expect(
-      model.dispatchFromOutside("CREATE_SHEET", { sheetId: "42", position: 54, name: "S42" })
+      await model.dispatchFromOutside("CREATE_SHEET", { sheetId: "42", position: 54, name: "S42" })
     ).toBeCancelledBecause(CommandResult.WrongSheetPosition);
   });
 
   test("Cannot create a sheet with a negative position", () => {
     const model = new Model();
     expect(
-      model.dispatchFromOutside("CREATE_SHEET", { sheetId: "42", position: -1, name: "S42" })
+      await model.dispatchFromOutside("CREATE_SHEET", { sheetId: "42", position: -1, name: "S42" })
     ).toBeCancelledBecause(CommandResult.WrongSheetPosition);
   });
 
@@ -213,7 +213,7 @@ describe("sheets", () => {
   test("Cannot delete an invalid sheet", async () => {
     const model = new Model();
     expect(
-      model.dispatchFromOutside("DELETE_SHEET", { sheetId: "invalid", sheetName: "invalid2" })
+      await model.dispatchFromOutside("DELETE_SHEET", { sheetId: "invalid", sheetName: "invalid2" })
     ).toBeCancelledBecause(CommandResult.InvalidSheetId);
   });
 
@@ -619,7 +619,7 @@ describe("sheets", () => {
     const model = new Model();
     const sheet = model.getters.getActiveSheetId();
     const name = `Copy of ${model.getters.getSheetIds().map(model.getters.getSheetName)}`;
-    model.dispatchFromOutside("DUPLICATE_SHEET", {
+    await model.dispatchFromOutside("DUPLICATE_SHEET", {
       sheetId: sheet,
       sheetIdTo: model.uuidGenerator.uuidv4(),
       sheetNameTo: "Copy of Sheet1",
@@ -636,7 +636,7 @@ describe("sheets", () => {
   test("Duplicate a sheet does not make the newly created active", () => {
     const model = new Model();
     const sheetId = model.getters.getActiveSheetId();
-    model.dispatchFromOutside("DUPLICATE_SHEET", {
+    await model.dispatchFromOutside("DUPLICATE_SHEET", {
       sheetId: sheetId,
       sheetIdTo: "42",
       sheetNameTo: "Copy of Sheet1",
@@ -668,7 +668,7 @@ describe("sheets", () => {
     });
     const sheet = model.getters.getActiveSheetId();
     setCellContent(model, "A1", "42");
-    model.dispatchFromOutside("DUPLICATE_SHEET", {
+    await model.dispatchFromOutside("DUPLICATE_SHEET", {
       sheetId: sheet,
       sheetIdTo: model.uuidGenerator.uuidv4(),
       sheetNameTo: "Copy of Sheet1",
@@ -707,7 +707,7 @@ describe("sheets", () => {
     });
     const sheet = model.getters.getActiveSheetId();
     setCellContent(model, "A1", "42");
-    model.dispatchFromOutside("DUPLICATE_SHEET", {
+    await model.dispatchFromOutside("DUPLICATE_SHEET", {
       sheetId: sheet,
       sheetIdTo: model.uuidGenerator.uuidv4(),
       sheetNameTo: "Copy of Sheet1",
@@ -721,7 +721,7 @@ describe("sheets", () => {
     });
     expect(model.getters.getConditionalFormats(newSheetId)).toHaveLength(1);
     const sheetId = model.getters.getActiveSheetId();
-    model.dispatchFromOutside("ADD_CONDITIONAL_FORMAT", {
+    await model.dispatchFromOutside("ADD_CONDITIONAL_FORMAT", {
       cf: createEqualCF("42", { fillColor: "blue" }, "1"),
       ranges: toRangesData(sheetId, "A1:A2"),
       sheetId,
@@ -740,7 +740,7 @@ describe("sheets", () => {
       sheets: [{ colNumber: 5, rowNumber: 5, cells: { A1: "42" } }],
     });
     const sheet = model.getters.getActiveSheetId();
-    model.dispatchFromOutside("DUPLICATE_SHEET", {
+    await model.dispatchFromOutside("DUPLICATE_SHEET", {
       sheetId: sheet,
       sheetIdTo: model.uuidGenerator.uuidv4(),
       sheetNameTo: "Copy of Sheet1",
@@ -765,12 +765,12 @@ describe("sheets", () => {
       undefined,
       { size: { height: 335, width: 536 }, figureId: "figureId" }
     );
-    model.dispatchFromOutside("DUPLICATE_SHEET", {
+    await model.dispatchFromOutside("DUPLICATE_SHEET", {
       sheetId,
       sheetIdTo: "42",
       sheetNameTo: "Copy of Sheet1",
     });
-    model.dispatchFromOutside("UPDATE_FIGURE", {
+    await model.dispatchFromOutside("UPDATE_FIGURE", {
       sheetId: sheetId,
       figureId: "figureId",
       offset: { x: 40, y: 0 },
@@ -806,7 +806,7 @@ describe("sheets", () => {
   test("Cols and Rows are correctly duplicated", () => {
     const model = new Model();
     const sheet = model.getters.getActiveSheetId();
-    model.dispatchFromOutside("DUPLICATE_SHEET", {
+    await model.dispatchFromOutside("DUPLICATE_SHEET", {
       sheetId: sheet,
       sheetIdTo: model.uuidGenerator.uuidv4(),
       sheetNameTo: "Copy of Sheet1",
@@ -823,7 +823,7 @@ describe("sheets", () => {
   test("Merges are correctly duplicated", () => {
     const model = new Model({ sheets: [{ colNumber: 5, rowNumber: 5, merges: ["A1:A2"] }] });
     const sheet = model.getters.getActiveSheetId();
-    model.dispatchFromOutside("DUPLICATE_SHEET", {
+    await model.dispatchFromOutside("DUPLICATE_SHEET", {
       sheetId: sheet,
       sheetIdTo: model.uuidGenerator.uuidv4(),
       sheetNameTo: "Copy of Sheet1",
@@ -840,12 +840,12 @@ describe("sheets", () => {
     const model = new Model();
     const firstSheetId = model.getters.getActiveSheetId();
     const duplicatedSheetId = "new-sheet-id";
-    model.dispatchFromOutside("DUPLICATE_SHEET", {
+    await model.dispatchFromOutside("DUPLICATE_SHEET", {
       sheetId: firstSheetId,
       sheetIdTo: duplicatedSheetId,
       sheetNameTo: "Copy of Sheet1",
     });
-    const result = model.dispatchFromOutside("DUPLICATE_SHEET", {
+    const result = await model.dispatchFromOutside("DUPLICATE_SHEET", {
       sheetId: firstSheetId,
       sheetIdTo: duplicatedSheetId,
       sheetNameTo: "Copy of Copy of Sheet1",
@@ -857,12 +857,12 @@ describe("sheets", () => {
     const model = new Model();
     const firstSheetId = model.getters.getActiveSheetId();
     const duplicatedSheetName = "Copy of Sheet1";
-    model.dispatchFromOutside("DUPLICATE_SHEET", {
+    await model.dispatchFromOutside("DUPLICATE_SHEET", {
       sheetId: firstSheetId,
       sheetIdTo: "new-sheet-id",
       sheetNameTo: duplicatedSheetName,
     });
-    const result = model.dispatchFromOutside("DUPLICATE_SHEET", {
+    const result = await model.dispatchFromOutside("DUPLICATE_SHEET", {
       sheetId: firstSheetId,
       sheetIdTo: "new-new-sheet-id",
       sheetNameTo: duplicatedSheetName,
@@ -912,7 +912,7 @@ describe("sheets", () => {
   test("Cannot delete sheet if there is only one", () => {
     const model = new Model();
     expect(
-      model.dispatchFromOutside("DELETE_SHEET", {
+      await model.dispatchFromOutside("DELETE_SHEET", {
         sheetId: model.getters.getActiveSheetId(),
         sheetName: model.getters.getActiveSheetName(),
       })
@@ -924,7 +924,7 @@ describe("sheets", () => {
     createSheet(model, { sheetId: "Sheet2" });
     hideSheet(model, "Sheet2");
     expect(
-      model.dispatchFromOutside("DELETE_SHEET", { sheetId: "Sheet1", sheetName: "Sheet1" })
+      await model.dispatchFromOutside("DELETE_SHEET", { sheetId: "Sheet1", sheetName: "Sheet1" })
     ).toBeCancelledBecause(CommandResult.NotEnoughSheets);
   });
 
@@ -978,7 +978,7 @@ describe("sheets", () => {
     const model = new Model();
     setCellContent(model, "A1", "test");
     const cell = getCell(model, "A1")!;
-    model.dispatchFromOutside("UPDATE_CELL_POSITION", {
+    await model.dispatchFromOutside("UPDATE_CELL_POSITION", {
       sheetId: model.getters.getActiveSheetId(),
       col: 1,
       row: 1,
@@ -1027,9 +1027,15 @@ describe("sheets", () => {
     const model = new Model();
     const sheetId = model.getters.getActiveSheetId();
     expect(model.getters.getGridLinesVisibility(sheetId)).toBe(true);
-    model.dispatchFromOutside("SET_GRID_LINES_VISIBILITY", { sheetId, areGridLinesVisible: false });
+    await model.dispatchFromOutside("SET_GRID_LINES_VISIBILITY", {
+      sheetId,
+      areGridLinesVisible: false,
+    });
     expect(model.getters.getGridLinesVisibility(sheetId)).toBe(false);
-    model.dispatchFromOutside("SET_GRID_LINES_VISIBILITY", { sheetId, areGridLinesVisible: true });
+    await model.dispatchFromOutside("SET_GRID_LINES_VISIBILITY", {
+      sheetId,
+      areGridLinesVisible: true,
+    });
     expect(model.getters.getGridLinesVisibility(sheetId)).toBe(true);
   });
 
@@ -1037,7 +1043,7 @@ describe("sheets", () => {
     const model = new Model();
     const sheetId = "invalid";
     expect(
-      model.dispatchFromOutside("SET_GRID_LINES_VISIBILITY", {
+      await model.dispatchFromOutside("SET_GRID_LINES_VISIBILITY", {
         sheetId,
         areGridLinesVisible: false,
       })
@@ -1048,7 +1054,10 @@ describe("sheets", () => {
     const model = new Model();
     const sheetId = model.getters.getActiveSheetId();
     expect(model.getters.getGridLinesVisibility(sheetId)).toBe(true);
-    model.dispatchFromOutside("SET_GRID_LINES_VISIBILITY", { sheetId, areGridLinesVisible: false });
+    await model.dispatchFromOutside("SET_GRID_LINES_VISIBILITY", {
+      sheetId,
+      areGridLinesVisible: false,
+    });
     expect(model.getters.getGridLinesVisibility(sheetId)).toBe(false);
     undo(model);
     expect(model.getters.getGridLinesVisibility(sheetId)).toBe(true);
@@ -1221,7 +1230,7 @@ describe("sheets", () => {
     }
     cmd.target = [];
     const model = new Model();
-    const result = model.dispatchFromOutside(cmd.type, cmd);
+    const result = await model.dispatchFromOutside(cmd.type, cmd);
     expect(result.reasons).toContain(CommandResult.EmptyTarget);
   });
 
@@ -1231,7 +1240,7 @@ describe("sheets", () => {
     }
     cmd.ranges = [];
     const model = new Model();
-    const result = model.dispatchFromOutside(cmd.type, cmd);
+    const result = await model.dispatchFromOutside(cmd.type, cmd);
     expect(result.reasons).toContain(CommandResult.EmptyRange);
   });
 

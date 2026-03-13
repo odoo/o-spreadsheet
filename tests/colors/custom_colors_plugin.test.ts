@@ -36,7 +36,7 @@ describe("custom colors are correctly handled when formatting cells", () => {
   test("Removing style to cell keep custom colors in the plugin", () => {
     setStyle(model, "A1", { fillColor: "#123456", textColor: "#2468BD" });
     expect(model.getters.getCustomColors()).toEqual(["#2468BD", "#123456"]);
-    model.dispatchFromOutside("CLEAR_FORMATTING", {
+    await model.dispatchFromOutside("CLEAR_FORMATTING", {
       sheetId,
       target: target("A1"),
     });
@@ -44,13 +44,13 @@ describe("custom colors are correctly handled when formatting cells", () => {
   });
 
   test("Adding conditional formatting add custom colors in the plugin", () => {
-    model.dispatchFromOutside("ADD_CONDITIONAL_FORMAT", {
+    await model.dispatchFromOutside("ADD_CONDITIONAL_FORMAT", {
       cf: createEqualCF("1", { fillColor: "#123456", textColor: "#2468BD" }, "1"),
       sheetId,
       ranges: toRangesData(sheetId, "A1:A3,C1:D3,F1:F3"),
     });
     expect(model.getters.getCustomColors()).toEqual(["#2468BD", "#123456"]);
-    model.dispatchFromOutside("ADD_CONDITIONAL_FORMAT", {
+    await model.dispatchFromOutside("ADD_CONDITIONAL_FORMAT", {
       cf: createColorScale(
         "2",
         { type: "value", color: 0xf500ff, value: "" },
@@ -106,7 +106,7 @@ describe("custom colors are correctly handled when editing charts", () => {
       sheetId
     );
     expect(model.getters.getCustomColors()).toEqual(["#123456"]);
-    model.dispatchFromOutside("UPDATE_CHART", {
+    await model.dispatchFromOutside("UPDATE_CHART", {
       sheetId,
       figureId: model.getters.getFigureIdFromChartId("1")!,
       chartId: "1",
@@ -122,7 +122,7 @@ describe("custom colors are correctly handled when editing charts", () => {
       },
     });
     expect(model.getters.getCustomColors()).toEqual(["#112233", "#123456"]);
-    model.dispatchFromOutside("DELETE_FIGURE", {
+    await model.dispatchFromOutside("DELETE_FIGURE", {
       sheetId,
       figureId: "1",
     });
@@ -131,7 +131,7 @@ describe("custom colors are correctly handled when editing charts", () => {
 
   test("Gauge colors are taken into account", () => {
     expect(model.getters.getCustomColors()).toEqual([]);
-    model.dispatchFromOutside("CREATE_CHART", {
+    await model.dispatchFromOutside("CREATE_CHART", {
       sheetId,
       figureId: "1",
       chartId: "1",

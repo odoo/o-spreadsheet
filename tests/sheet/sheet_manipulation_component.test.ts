@@ -238,7 +238,7 @@ describe("Context MenuPopover hide col/row", () => {
     });
   });
   test("can unhide column", async () => {
-    model.dispatchFromOutside("HIDE_COLUMNS_ROWS", {
+    await model.dispatchFromOutside("HIDE_COLUMNS_ROWS", {
       sheetId: model.getters.getActiveSheetId(),
       elements: [2], // COL_C
       dimension: "COL",
@@ -268,7 +268,7 @@ describe("Context MenuPopover hide col/row", () => {
     });
   });
   test("can unhide row", async () => {
-    model.dispatchFromOutside("HIDE_COLUMNS_ROWS", {
+    await model.dispatchFromOutside("HIDE_COLUMNS_ROWS", {
       sheetId: model.getters.getActiveSheetId(),
       elements: [3], // ROW_4
       dimension: "ROW",

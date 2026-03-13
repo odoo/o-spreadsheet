@@ -430,7 +430,7 @@ describe("borders", () => {
     setZoneBorders(model, { position: "top" });
 
     expect(getBorder(model, "B2")).toBeDefined();
-    model.dispatchFromOutside("DELETE_CONTENT", {
+    await model.dispatchFromOutside("DELETE_CONTENT", {
       sheetId: model.getters.getActiveSheetId(),
       target: model.getters.getSelectedZones(),
     });
@@ -457,7 +457,7 @@ describe("borders", () => {
     setZoneBorders(model, { position: "all" });
 
     expect(getBorder(model, "B1")).toBeDefined();
-    model.dispatchFromOutside("CLEAR_FORMATTING", {
+    await model.dispatchFromOutside("CLEAR_FORMATTING", {
       sheetId: model.getters.getActiveSheetId(),
       target: model.getters.getSelectedZones(),
     });
@@ -485,7 +485,7 @@ describe("borders", () => {
   test("set all border of a cell", () => {
     const model = new Model();
     const s: BorderDescr = { style: "medium", color: "#FF0000" };
-    model.dispatchFromOutside("SET_BORDER", {
+    await model.dispatchFromOutside("SET_BORDER", {
       sheetId: model.getters.getActiveSheetId(),
       col: 0,
       row: 0,
@@ -545,7 +545,7 @@ describe("Grid manipulation", () => {
       right: DEFAULT_BORDER_DESC,
       bottom: DEFAULT_BORDER_DESC,
     });
-    model.dispatchFromOutside("DUPLICATE_SHEET", {
+    await model.dispatchFromOutside("DUPLICATE_SHEET", {
       sheetId: firstSheetId,
       sheetIdTo: secondSheetId,
       sheetNameTo: "Copy of Sheet1",
@@ -572,7 +572,7 @@ describe("Grid manipulation", () => {
     const firstSheetId = model.getters.getActiveSheetId();
     const secondSheetId = "42";
     setZoneBorders(model, { position: "external" }, ["B2"]);
-    model.dispatchFromOutside("DUPLICATE_SHEET", {
+    await model.dispatchFromOutside("DUPLICATE_SHEET", {
       sheetId: firstSheetId,
       sheetIdTo: secondSheetId,
       sheetNameTo: "Copy of Sheet1",
@@ -682,12 +682,12 @@ describe("Grid manipulation", () => {
     setZoneBorders(model, { position: "external" }, ["B2"]);
     const sheetId = model.getters.getActiveSheetId();
     const sheetIdTo = "42";
-    model.dispatchFromOutside("DUPLICATE_SHEET", {
+    await model.dispatchFromOutside("DUPLICATE_SHEET", {
       sheetId,
       sheetIdTo,
       sheetNameTo: "Copy of Sheet1",
     });
-    model.dispatchFromOutside("ACTIVATE_SHEET", { sheetIdFrom: sheetId, sheetIdTo });
+    await model.dispatchFromOutside("ACTIVATE_SHEET", { sheetIdFrom: sheetId, sheetIdTo });
     expect(getBorder(model, "B2")).toEqual({
       top: DEFAULT_BORDER_DESC,
       left: DEFAULT_BORDER_DESC,

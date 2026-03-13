@@ -31,8 +31,8 @@ describe("Single cell chart background color", () => {
     setCellContent(model, "A1", "1");
   });
 
-  function addCfToA1(color: Color) {
-    model.dispatchFromOutside("ADD_CONDITIONAL_FORMAT", {
+  async function addCfToA1(color: Color) {
+    await model.dispatchFromOutside("ADD_CONDITIONAL_FORMAT", {
       cf: createEqualCF("1", { fillColor: color }, "cfId"),
       ranges: toRangesData(sheetId, "A1"),
       sheetId,
@@ -56,7 +56,7 @@ describe("Single cell chart background color", () => {
     (chartType: string) => {
       createTestChart(chartType, "A1");
       expect(getGaugeOrScorecardRuntime(model, chartId).background).toEqual(BACKGROUND_CHART_COLOR);
-      addCfToA1("#FF0000");
+      await addCfToA1("#FF0000");
       expect(getGaugeOrScorecardRuntime(model, chartId).background).toEqual("#FF0000");
       setCellContent(model, "A1", "random value not in CF");
       expect(getGaugeOrScorecardRuntime(model, chartId).background).toEqual(BACKGROUND_CHART_COLOR);
@@ -76,7 +76,7 @@ describe("Single cell chart background color", () => {
   test.each(["scorecard", "gauge"])(
     "CF color have priority over cell background color",
     (chartType: string) => {
-      addCfToA1("#FF0000");
+      await addCfToA1("#FF0000");
       addFillToA1("#00FF00");
       createTestChart(chartType, "A1");
       expect(getGaugeOrScorecardRuntime(model, chartId).background).toEqual("#FF0000");
@@ -86,7 +86,7 @@ describe("Single cell chart background color", () => {
   test.each(["scorecard", "gauge"])(
     "chart background color have priority over CF color",
     (chartType: string) => {
-      addCfToA1("#FF0000");
+      await addCfToA1("#FF0000");
       createTestChart(chartType, "A1", "#0000FF");
       expect(getGaugeOrScorecardRuntime(model, chartId).background).toEqual("#0000FF");
     }
@@ -98,7 +98,7 @@ describe("Single cell chart background color", () => {
       createSheet(model, { sheetId: "sheet2" });
       activateSheet(model, "sheet2");
       setCellContent(model, "A1", "1", sheetId);
-      model.dispatchFromOutside("ADD_CONDITIONAL_FORMAT", {
+      await model.dispatchFromOutside("ADD_CONDITIONAL_FORMAT", {
         cf: createEqualCF("1", { fillColor: "#000FFF" }, "cfId"),
         ranges: toRangesData(sheetId, "A1"),
         sheetId,
@@ -115,7 +115,7 @@ describe("Single cell chart background color", () => {
     createChart(model, { type: "bar" });
     const firstSheetFigures = model.getters.getFigures(firstSheetId);
     expect(firstSheetFigures.length).toBe(1);
-    model.dispatchFromOutside("UPDATE_FIGURE", {
+    await model.dispatchFromOutside("UPDATE_FIGURE", {
       sheetId,
       figureId: firstSheetFigures[0].id,
       offset: {
@@ -127,7 +127,7 @@ describe("Single cell chart background color", () => {
       col: 0,
       row: 0,
     });
-    model.dispatchFromOutside("DUPLICATE_SHEET", {
+    await model.dispatchFromOutside("DUPLICATE_SHEET", {
       sheetIdTo: secondSheetId,
       sheetId: firstSheetId,
       sheetNameTo: "Copy of Sheet1",

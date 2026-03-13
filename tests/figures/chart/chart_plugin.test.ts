@@ -565,7 +565,7 @@ describe("datasource tests", function () {
     const newModel = new Model(exportedData);
     expect(newModel.getters.getVisibleFigures()).toHaveLength(1);
     expect(newModel.getters.getChartRuntime("1")).toBeTruthy();
-    newModel.dispatchFromOutside("DELETE_FIGURE", {
+    await newModel.dispatchFromOutside("DELETE_FIGURE", {
       sheetId: model.getters.getActiveSheetId(),
       figureId,
     });
@@ -903,7 +903,7 @@ describe("datasource tests", function () {
       "1"
     );
     createSheet(model, { sheetId: "42" });
-    const result = model.dispatchFromOutside("UPDATE_CHART", {
+    const result = await model.dispatchFromOutside("UPDATE_CHART", {
       definition: model.getters.getChartDefinition("1"),
       sheetId: model.getters.getActiveSheetId(),
       figureId: "2",
@@ -917,7 +917,7 @@ describe("datasource tests", function () {
   test("reject updates that target a figure that is not a chart", () => {
     createFigure(model, { figureId: "2", tag: "not a chart" });
 
-    const result = model.dispatchFromOutside("UPDATE_CHART", {
+    const result = await model.dispatchFromOutside("UPDATE_CHART", {
       definition: {
         dataSets: [],
         dataSetsHaveTitle: false,
@@ -951,7 +951,7 @@ describe("datasource tests", function () {
       chartId
     );
     expect(model.getters.getSelectedFigureId()).toBeNull();
-    model.dispatchFromOutside("SELECT_FIGURE", { figureId: chartId });
+    await model.dispatchFromOutside("SELECT_FIGURE", { figureId: chartId });
     expect(model.getters.getSelectedFigureId()).toBe(chartId);
     selectCell(model, "A1");
     expect(model.getters.getSelectedFigureId()).toBeNull();
@@ -1071,14 +1071,14 @@ describe("datasource tests", function () {
       "1",
       "2"
     );
-    model.dispatchFromOutside("DUPLICATE_SHEET", {
+    await model.dispatchFromOutside("DUPLICATE_SHEET", {
       sheetId: "1",
       sheetIdTo: "SheetNoFigure",
       sheetNameTo: "Copy of Sheet1",
     });
     activateSheet(model, "SheetNoFigure");
     expect(model.getters.getVisibleFigures()).toEqual([]);
-    model.dispatchFromOutside("DUPLICATE_SHEET", {
+    await model.dispatchFromOutside("DUPLICATE_SHEET", {
       sheetId: "2",
       sheetIdTo: "SheetWithFigure",
       sheetNameTo: "Copy of Sheet1",
@@ -1159,7 +1159,7 @@ describe("datasource tests", function () {
       firstSheetId
     );
     const figure = model.getters.getFigures(firstSheetId)[0]!;
-    model.dispatchFromOutside("DUPLICATE_SHEET", {
+    await model.dispatchFromOutside("DUPLICATE_SHEET", {
       sheetIdTo: secondSheetId,
       sheetId: firstSheetId,
       sheetNameTo: "Copy of Sheet1",
@@ -1201,14 +1201,14 @@ describe("datasource tests", function () {
       "myChart",
       firstSheetId
     );
-    model.dispatchFromOutside("DUPLICATE_SHEET", {
+    await model.dispatchFromOutside("DUPLICATE_SHEET", {
       sheetId: firstSheetId,
       sheetIdTo: secondSheetId,
       sheetNameTo: "Copy of Sheet1",
     });
 
     const newModel = new Model(model.exportData());
-    newModel.dispatchFromOutside("DUPLICATE_SHEET", {
+    await newModel.dispatchFromOutside("DUPLICATE_SHEET", {
       sheetId: secondSheetId,
       sheetIdTo: thirdSheetId,
       sheetNameTo: "Copy of Sheet1 2",
@@ -1257,7 +1257,7 @@ describe("datasource tests", function () {
       },
       firstSheetId
     );
-    model.dispatchFromOutside("DUPLICATE_SHEET", {
+    await model.dispatchFromOutside("DUPLICATE_SHEET", {
       sheetIdTo: thirdSheetId,
       sheetId: firstSheetId,
       sheetNameTo: "Copy of Sheet1",
@@ -1629,14 +1629,14 @@ describe("multiple sheets", function () {
       },
       "28"
     );
-    model.dispatchFromOutside("ACTIVATE_SHEET", { sheetIdFrom: "42", sheetIdTo: "Sheet1" });
-    model.dispatchFromOutside("UPDATE_CELL", {
+    await model.dispatchFromOutside("ACTIVATE_SHEET", { sheetIdFrom: "42", sheetIdTo: "Sheet1" });
+    await model.dispatchFromOutside("UPDATE_CELL", {
       col: 1,
       row: 1,
       sheetId: "Sheet1",
       content: "99",
     });
-    model.dispatchFromOutside("ACTIVATE_SHEET", { sheetIdFrom: "Sheet1", sheetIdTo: "42" });
+    await model.dispatchFromOutside("ACTIVATE_SHEET", { sheetIdFrom: "Sheet1", sheetIdTo: "42" });
     expect(getChartConfiguration(model, "28").data.datasets[0].data).toEqual([99, 11, 12]);
   });
   test("change dataset label then activate the chart sheet (it should be up-to-date)", () => {
@@ -1650,14 +1650,14 @@ describe("multiple sheets", function () {
       },
       "28"
     );
-    model.dispatchFromOutside("ACTIVATE_SHEET", { sheetIdFrom: "42", sheetIdTo: "Sheet1" });
-    model.dispatchFromOutside("UPDATE_CELL", {
+    await model.dispatchFromOutside("ACTIVATE_SHEET", { sheetIdFrom: "42", sheetIdTo: "Sheet1" });
+    await model.dispatchFromOutside("UPDATE_CELL", {
       col: 0,
       row: 2,
       sheetId: "Sheet1",
       content: "miam",
     });
-    model.dispatchFromOutside("ACTIVATE_SHEET", { sheetIdFrom: "Sheet1", sheetIdTo: "42" });
+    await model.dispatchFromOutside("ACTIVATE_SHEET", { sheetIdFrom: "Sheet1", sheetIdTo: "42" });
     expect(getChartConfiguration(model, "28").data.labels).toEqual(["P1", "miam", "P3"]);
   });
   test("create a chart with data from another sheet", () => {
@@ -1727,7 +1727,7 @@ describe("multiple sheets", function () {
     test("chart is updated with new data", () => {
       let dataSets = getChartConfiguration(model, "1").data.datasets;
       expect(dataSets[0].data).toEqual([2, 4]);
-      model.dispatchFromOutside("UPDATE_CELL", {
+      await model.dispatchFromOutside("UPDATE_CELL", {
         sheetId: "Sheet2",
         col: 0,
         row: 0,
@@ -1736,7 +1736,7 @@ describe("multiple sheets", function () {
       dataSets = getChartConfiguration(model, "1").data.datasets;
       expect(dataSets[0].data).toEqual([3, 4]);
 
-      model.dispatchFromOutside("UPDATE_CELL", {
+      await model.dispatchFromOutside("UPDATE_CELL", {
         sheetId: "Sheet1",
         col: 1,
         row: 1,
@@ -2019,7 +2019,7 @@ describe("Chart design configuration", () => {
     "no data points but style on a label",
     (formatting) => {
       const model = new Model();
-      model.dispatchFromOutside("SET_FORMATTING", {
+      await model.dispatchFromOutside("SET_FORMATTING", {
         sheetId: model.getters.getActiveSheetId(),
         target: target("A2:A3"),
         ...formatting,
@@ -2040,7 +2040,7 @@ describe("Chart design configuration", () => {
     "no data points but style on a value",
     (formatting) => {
       const model = new Model();
-      model.dispatchFromOutside("SET_FORMATTING", {
+      await model.dispatchFromOutside("SET_FORMATTING", {
         sheetId: model.getters.getActiveSheetId(),
         target: target("B1:B3"),
         ...formatting,
@@ -3424,7 +3424,7 @@ test("Duplicating a sheet dispatches CREATE_CHART for each chart", () => {
   const spyFigureDispatch = jest.spyOn(figurePlugin, "dispatch");
 
   const sheetId = model.getters.getActiveSheetId();
-  model.dispatchFromOutside("DUPLICATE_SHEET", {
+  await model.dispatchFromOutside("DUPLICATE_SHEET", {
     sheetId,
     sheetIdTo: "copyOf" + sheetId,
     sheetNameTo: "Copy of Sheet1",

@@ -189,7 +189,7 @@ describe("zoom", () => {
     test("Can move the slicer on the master chart", async () => {
       const store = env.getStore(ZoomableChartStore);
       store.updateAxisLimits(lineChartId, { min: 1, max: 2 });
-      model.dispatchFromOutside("EVALUATE_CHARTS");
+      await model.dispatchFromOutside("EVALUATE_CHARTS");
       await nextTick();
       const element = fixture.querySelector(".o-master-chart-canvas") as HTMLCanvasElement;
       const { left, top, width, height } = element.getBoundingClientRect();
@@ -205,7 +205,7 @@ describe("zoom", () => {
     test("Can double click on the left limit on the master chart to reset the lower bound", async () => {
       const store = env.getStore(ZoomableChartStore);
       store.updateAxisLimits(lineChartId, { min: 1, max: 2 });
-      model.dispatchFromOutside("EVALUATE_CHARTS");
+      await model.dispatchFromOutside("EVALUATE_CHARTS");
       await nextTick();
       const element = fixture.querySelector(".o-master-chart-canvas") as HTMLCanvasElement;
       const { left, top, width, height } = element.getBoundingClientRect();
@@ -221,7 +221,7 @@ describe("zoom", () => {
     test("Can double click on the right limit on the master chart to reset the upper bound", async () => {
       const store = env.getStore(ZoomableChartStore);
       store.updateAxisLimits(lineChartId, { min: 1, max: 2 });
-      model.dispatchFromOutside("EVALUATE_CHARTS");
+      await model.dispatchFromOutside("EVALUATE_CHARTS");
       await nextTick();
       const element = fixture.querySelector(".o-master-chart-canvas") as HTMLCanvasElement;
       const { left, top, width, height } = element.getBoundingClientRect();
@@ -237,7 +237,7 @@ describe("zoom", () => {
     test("Can double click in the selected area on the master chart to reset the zoom", async () => {
       const store = env.getStore(ZoomableChartStore);
       store.updateAxisLimits(lineChartId, { min: 1, max: 2 });
-      model.dispatchFromOutside("EVALUATE_CHARTS");
+      await model.dispatchFromOutside("EVALUATE_CHARTS");
       await nextTick();
       const element = fixture.querySelector(".o-master-chart-canvas") as HTMLCanvasElement;
       const { left, top, width, height } = element.getBoundingClientRect();
@@ -253,7 +253,7 @@ describe("zoom", () => {
     test("Double clicking outside of the slicer does nothing", async () => {
       const store = env.getStore(ZoomableChartStore);
       store.updateAxisLimits(lineChartId, { min: 1, max: 2 });
-      model.dispatchFromOutside("EVALUATE_CHARTS");
+      await model.dispatchFromOutside("EVALUATE_CHARTS");
       await nextTick();
       const element = fixture.querySelector(".o-master-chart-canvas") as HTMLCanvasElement;
       const { left, top, width, height } = element.getBoundingClientRect();
@@ -329,7 +329,7 @@ describe("zoom", () => {
     test("Can move the slicer on the master chart", async () => {
       const store = env.getStore(ZoomableChartStore);
       store.updateAxisLimits(barChartId, { min: 0.5, max: 2.5 });
-      model.dispatchFromOutside("EVALUATE_CHARTS");
+      await model.dispatchFromOutside("EVALUATE_CHARTS");
       await nextTick();
       const element = fixture.querySelector(".o-master-chart-canvas") as HTMLCanvasElement;
       const { left, top, width, height } = element.getBoundingClientRect();
@@ -345,7 +345,7 @@ describe("zoom", () => {
     test("Can double click on the left limit on the master chart to reset the lower bound", async () => {
       const store = env.getStore(ZoomableChartStore);
       store.updateAxisLimits(barChartId, { min: 0.5, max: 2.5 });
-      model.dispatchFromOutside("EVALUATE_CHARTS");
+      await model.dispatchFromOutside("EVALUATE_CHARTS");
       await nextTick();
       const element = fixture.querySelector(".o-master-chart-canvas") as HTMLCanvasElement;
       const { left, top, width, height } = element.getBoundingClientRect();
@@ -361,7 +361,7 @@ describe("zoom", () => {
     test("Can double click on the right limit on the master chart to reset the upper bound", async () => {
       const store = env.getStore(ZoomableChartStore);
       store.updateAxisLimits(barChartId, { min: 0.5, max: 2.5 });
-      model.dispatchFromOutside("EVALUATE_CHARTS");
+      await model.dispatchFromOutside("EVALUATE_CHARTS");
       await nextTick();
       const element = fixture.querySelector(".o-master-chart-canvas") as HTMLCanvasElement;
       const { left, top, width, height } = element.getBoundingClientRect();
@@ -377,7 +377,7 @@ describe("zoom", () => {
     test("Can double click in the selected area on the master chart to reset the zoom", async () => {
       const store = env.getStore(ZoomableChartStore);
       store.updateAxisLimits(barChartId, { min: 0.5, max: 2.5 });
-      model.dispatchFromOutside("EVALUATE_CHARTS");
+      await model.dispatchFromOutside("EVALUATE_CHARTS");
       await nextTick();
       const element = fixture.querySelector(".o-master-chart-canvas") as HTMLCanvasElement;
       const { left, top, width, height } = element.getBoundingClientRect();
@@ -393,7 +393,7 @@ describe("zoom", () => {
     test("Double clicking outside of the slicer does nothing", async () => {
       const store = env.getStore(ZoomableChartStore);
       store.updateAxisLimits(barChartId, { min: 0.5, max: 2.5 });
-      model.dispatchFromOutside("EVALUATE_CHARTS");
+      await model.dispatchFromOutside("EVALUATE_CHARTS");
       await nextTick();
       const element = fixture.querySelector(".o-master-chart-canvas") as HTMLCanvasElement;
       const { left, top, width, height } = element.getBoundingClientRect();
@@ -409,11 +409,11 @@ describe("zoom", () => {
     test("Changing dataset boundaries clear the zoom", async () => {
       const store = env.getStore(ZoomableChartStore);
       store.updateAxisLimits(barChartId, { min: 0.5, max: 2.5 });
-      model.dispatchFromOutside("EVALUATE_CHARTS");
+      await model.dispatchFromOutside("EVALUATE_CHARTS");
       await nextTick();
       setCellContent(model, "B2", "");
       setCellContent(model, "C2", "");
-      model.dispatchFromOutside("EVALUATE_CHARTS");
+      await model.dispatchFromOutside("EVALUATE_CHARTS");
       await nextTick();
       const { min: newMin, max: newMax } = store.currentAxesLimits[barChartId]?.x ?? {};
       expect(newMin).toBeUndefined();

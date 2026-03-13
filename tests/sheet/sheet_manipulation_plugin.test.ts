@@ -51,7 +51,7 @@ function clearColumns(indexes: string[]) {
     .map((index) => {
       return model.getters.getColsZone(sheetId, index, index);
     });
-  model.dispatchFromOutside("DELETE_CONTENT", {
+  await model.dispatchFromOutside("DELETE_CONTENT", {
     target,
     sheetId: model.getters.getActiveSheetId(),
   });
@@ -62,7 +62,7 @@ function clearRows(indexes: number[]) {
   const target = indexes.map((index) => {
     return model.getters.getRowsZone(sheetId, index, index);
   });
-  model.dispatchFromOutside("DELETE_CONTENT", {
+  await model.dispatchFromOutside("DELETE_CONTENT", {
     target,
     sheetId: model.getters.getActiveSheetId(),
   });
@@ -945,7 +945,7 @@ describe("Rows", () => {
       expect(model.getters.getNumberRows(sheetId)).toBe(6);
       const dimensions = model.getters.getMainViewportRect();
       expect(dimensions).toMatchObject({ width: 1000, height: 1000 });
-      model.dispatchFromOutside("RESIZE_SHEETVIEW", {
+      await model.dispatchFromOutside("RESIZE_SHEETVIEW", {
         width: DEFAULT_CELL_WIDTH,
         height: DEFAULT_CELL_HEIGHT,
       });
@@ -967,7 +967,7 @@ describe("Rows", () => {
       expect(model.getters.getRowSize(sheetId, 5)).toBe(size);
       const dimensions = model.getters.getMainViewportRect();
       expect(dimensions).toMatchObject({ width: 1000, height: 1000 });
-      model.dispatchFromOutside("RESIZE_SHEETVIEW", {
+      await model.dispatchFromOutside("RESIZE_SHEETVIEW", {
         width: DEFAULT_CELL_WIDTH,
         height: DEFAULT_CELL_HEIGHT,
       });
@@ -987,7 +987,7 @@ describe("Rows", () => {
 
     test("activate Sheet: same size", () => {
       addRows(model, "after", 2, 1);
-      model.dispatchFromOutside("RESIZE_SHEETVIEW", {
+      await model.dispatchFromOutside("RESIZE_SHEETVIEW", {
         width: DEFAULT_CELL_WIDTH,
         height: DEFAULT_CELL_HEIGHT,
       });
@@ -1574,7 +1574,7 @@ describe("Delete cell", () => {
     const col = model.getters.getNumberCols(sheetId) - 1;
     const row = model.getters.getNumberRows(sheetId) - 1;
     const xc = toXC(col, row);
-    model.dispatchFromOutside("UPDATE_CELL", {
+    await model.dispatchFromOutside("UPDATE_CELL", {
       sheetId,
       col,
       row,

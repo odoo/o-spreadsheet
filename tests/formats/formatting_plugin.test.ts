@@ -49,16 +49,16 @@ import {
 } from "../test_helpers/helpers";
 import { addPivot } from "../test_helpers/pivot_helpers";
 
-function setDecimal(model: Model, targetXc: string, step: SetDecimalStep) {
-  model.dispatchFromOutside("SET_DECIMAL", {
+async function setDecimal(model: Model, targetXc: string, step: SetDecimalStep) {
+  await model.dispatchFromOutside("SET_DECIMAL", {
     sheetId: model.getters.getActiveSheetId(),
     target: target(targetXc),
     step: step,
   });
 }
 
-function setContextualFormat(model: Model, targetXc: string, format: Format) {
-  model.dispatchFromOutside("SET_FORMATTING_WITH_PIVOT", {
+async function setContextualFormat(model: Model, targetXc: string, format: Format) {
+  await model.dispatchFromOutside("SET_FORMATTING_WITH_PIVOT", {
     sheetId: model.getters.getActiveSheetId(),
     target: target(targetXc),
     format,
@@ -189,7 +189,7 @@ describe("formatting values (with formatters)", () => {
     const model = new Model();
     setCellContent(model, "A1", '=SET.DYN.FORMAT(5, "0.00")');
     selectCell(model, "A1");
-    setDecimal(model, "A1", 1);
+    await setDecimal(model, "A1", 1);
     expect(getCell(model, "A1")?.format).toBe("0.000");
   });
 
@@ -198,19 +198,19 @@ describe("formatting values (with formatters)", () => {
     setCellContent(model, "A1", "10.123456789123");
     expect(getEvaluatedCell(model, "A1")?.formattedValue).toEqual("10.12345679");
 
-    setDecimal(model, "A1", 1);
+    await setDecimal(model, "A1", 1);
     expect(getCell(model, "A1")?.format).toBe("0." + "0".repeat(9));
     expect(getEvaluatedCell(model, "A1")?.formattedValue).toEqual("10.123456789");
 
-    setDecimal(model, "A1", -1);
+    await setDecimal(model, "A1", -1);
     expect(getCell(model, "A1")?.format).toBe("0." + "0".repeat(8));
     expect(getEvaluatedCell(model, "A1")?.formattedValue).toEqual("10.12345679");
 
-    setDecimal(model, "A1", -1);
+    await setDecimal(model, "A1", -1);
     expect(getCell(model, "A1")?.format).toBe("0." + "0".repeat(7));
     expect(getEvaluatedCell(model, "A1")?.formattedValue).toEqual("10.1234568");
 
-    setDecimal(model, "A1", 1);
+    await setDecimal(model, "A1", 1);
     expect(getCell(model, "A1")?.format).toBe("0." + "0".repeat(8));
     expect(getEvaluatedCell(model, "A1")?.formattedValue).toEqual("10.12345679");
   });
@@ -220,17 +220,17 @@ describe("formatting values (with formatters)", () => {
     setCellContent(model, "A1", "10");
 
     setFormat(model, "A1", "0.0\\€");
-    setDecimal(model, "A1", 1);
+    await setDecimal(model, "A1", 1);
     expect(getCell(model, "A1")?.format).toBe("0.00\\€");
 
     setFormat(model, "A1", "0.0\\€");
-    setDecimal(model, "A1", -1);
+    await setDecimal(model, "A1", -1);
     expect(getCell(model, "A1")?.format).toBe("0\\€");
 
     setFormat(model, "A1", "0.0$0");
-    setDecimal(model, "A1", -1);
+    await setDecimal(model, "A1", -1);
     expect(getCell(model, "A1")?.format).toBe("0.0$");
-    setDecimal(model, "A1", -1);
+    await setDecimal(model, "A1", -1);
     expect(getCell(model, "A1")?.format).toBe("0$");
   });
 
@@ -239,15 +239,15 @@ describe("formatting values (with formatters)", () => {
     setCellContent(model, "A1", "10");
 
     setFormat(model, "A1", "0.0\\€;$0.#; 0 ;@");
-    setDecimal(model, "A1", 1);
+    await setDecimal(model, "A1", 1);
     expect(getCell(model, "A1")?.format).toBe("0.00\\€;$0.#0; 0.0 ;@");
 
     setFormat(model, "A1", "0.0\\€;$0.#; 0 ;@");
-    setDecimal(model, "A1", -1);
+    await setDecimal(model, "A1", -1);
     expect(getCell(model, "A1")?.format).toBe("0\\€;$0; 0 ;@");
 
     setFormat(model, "A1", ";;;@");
-    setDecimal(model, "A1", -1);
+    await setDecimal(model, "A1", -1);
     expect(getCell(model, "A1")?.format).toBe(";;;@");
   });
 
@@ -256,12 +256,12 @@ describe("formatting values (with formatters)", () => {
     setCellContent(model, "A1", "1234");
 
     setFormat(model, "A1", "0.00e");
-    setDecimal(model, "A1", 1);
+    await setDecimal(model, "A1", 1);
     expect(getCell(model, "A1")?.format).toBe("0.000e");
     expect(getEvaluatedCell(model, "A1").formattedValue).toBe("1.234e+03");
 
-    setDecimal(model, "A1", -1);
-    setDecimal(model, "A1", -1);
+    await setDecimal(model, "A1", -1);
+    await setDecimal(model, "A1", -1);
     expect(getCell(model, "A1")?.format).toBe("0.0e");
     expect(getEvaluatedCell(model, "A1").formattedValue).toBe("1.2e+03");
   });
@@ -272,7 +272,7 @@ describe("formatting values (with formatters)", () => {
     expect(getEvaluatedCell(model, "A1").value).toEqual(10.123456789123);
 
     const sheetId = model.getters.getActiveSheetId();
-    model.dispatchFromOutside("UPDATE_CELL", {
+    await model.dispatchFromOutside("UPDATE_CELL", {
       col: 0,
       row: 0,
       sheetId,
@@ -286,7 +286,7 @@ describe("formatting values (with formatters)", () => {
 describe("pivot contextual formatting", () => {
   test("format without pivot", () => {
     const model = new Model();
-    setContextualFormat(model, "A1", "0.00%");
+    await setContextualFormat(model, "A1", "0.00%");
     expect(getCell(model, "A1")?.format).toBe("0.00%");
   });
 
@@ -302,7 +302,7 @@ describe("pivot contextual formatting", () => {
       columns: [{ fieldName: "Customer" }],
       measures: [{ id: "Price", fieldName: "Price", aggregator: "sum" }],
     });
-    setContextualFormat(model, "D3", "[$$]#,##0.00");
+    await setContextualFormat(model, "D3", "[$$]#,##0.00");
     expect(getCell(model, "D3")?.format).toBeUndefined();
     expect(getCell(model, "E3")?.format).toBeUndefined();
     expect(getCell(model, "F3")?.format).toBeUndefined();
@@ -331,7 +331,7 @@ describe("pivot contextual formatting", () => {
       ],
     });
 
-    setContextualFormat(model, "B5", "[$$]#,##0.00"); // only on the first measure
+    await setContextualFormat(model, "B5", "[$$]#,##0.00"); // only on the first measure
     // prettier-ignore
     expect(getEvaluatedGrid(model, "A3:C5")).toEqual([
       ["Pivot",      "Total",   ""],
@@ -339,7 +339,7 @@ describe("pivot contextual formatting", () => {
       ["Total",      "$10.00",  "10"],
     ]);
 
-    setContextualFormat(model, "B5:C5", "[$€]#,##0.00"); // on both measures
+    await setContextualFormat(model, "B5:C5", "[$€]#,##0.00"); // on both measures
     // prettier-ignore
     expect(getEvaluatedGrid(model, "A3:C5")).toEqual([
       ["Pivot",      "Total",   ""],
@@ -359,7 +359,7 @@ describe("pivot contextual formatting", () => {
       measures: [{ id: "Price", fieldName: "Price", aggregator: "sum" }],
     });
     setFormat(model, "B5", "0.0%");
-    setContextualFormat(model, "B5", "[$$]#,##0.00");
+    await setContextualFormat(model, "B5", "[$$]#,##0.00");
     expect(getCell(model, "B5")?.format).toBeUndefined();
     expect(getEvaluatedCell(model, "B5").formattedValue).toBe("$10.00");
   });
@@ -374,7 +374,7 @@ describe("pivot contextual formatting", () => {
     addPivot(model, "A1:A2", {
       measures: [{ id: "Price", fieldName: "Price", aggregator: "sum" }],
     });
-    setContextualFormat(model, "B5:B6", "[$$]#,##0.00");
+    await setContextualFormat(model, "B5:B6", "[$$]#,##0.00");
     expect(getCell(model, "B5")?.format).toBeUndefined();
     expect(getCell(model, "B6")?.format).toBe("[$$]#,##0.00");
     expect(getEvaluatedCell(model, "B5")?.format).toBe("[$$]#,##0.00");
@@ -391,7 +391,7 @@ describe("pivot contextual formatting", () => {
       rows: [{ fieldName: "Customer" }],
       measures: [{ id: "Price", fieldName: "Price", aggregator: "count" }],
     });
-    setContextualFormat(model, "D3", "[$$]#,##0.00");
+    await setContextualFormat(model, "D3", "[$$]#,##0.00");
     // prettier-ignore
     expect(getEvaluatedGrid(model, "C1:D4")).toEqual([
       ["Pivot",      "Total"],
@@ -412,7 +412,7 @@ describe("pivot contextual formatting", () => {
       rows: [{ fieldName: "Customer" }],
       measures: [{ id: "Price", fieldName: "Price", aggregator: "count" }],
     });
-    setContextualFormat(model, "C1", "[$$]#,##0.00");
+    await setContextualFormat(model, "C1", "[$$]#,##0.00");
     expect(model.getters.getPivotCoreDefinition("1")?.measures[0].format).toBeUndefined();
     expect(getCell(model, "C1")?.format).toBe("[$$]#,##0.00");
   });
@@ -428,7 +428,7 @@ describe("pivot contextual formatting", () => {
     addPivot(model, "A1:A2", {
       measures: [{ id: "Price", fieldName: "Price", aggregator: "sum" }],
     });
-    setContextualFormat(model, "C3", "[$$]#,##0.00");
+    await setContextualFormat(model, "C3", "[$$]#,##0.00");
     selectCell(model, "C3");
 
     const action = getNode(["format", "format_number", "format_number_currency"], env);
@@ -442,7 +442,7 @@ describe("formatting values (when change decimal)", () => {
     setCellContent(model, "A1", "kikou");
     expect(getCellContent(model, "A1")).toBe("kikou");
     selectCell(model, "A1");
-    setDecimal(model, "A1", 1);
+    await setDecimal(model, "A1", 1);
     expect(getCell(model, "A1")!.format).toBe(undefined);
     expect(getCellContent(model, "A1")).toBe("kikou");
   });
@@ -451,12 +451,12 @@ describe("formatting values (when change decimal)", () => {
     const model = new Model();
     setCellContent(model, "A1", "42%");
     selectCell(model, "A1");
-    model.dispatchFromOutside("DELETE_CONTENT", {
+    await model.dispatchFromOutside("DELETE_CONTENT", {
       sheetId: model.getters.getActiveSheetId(),
       target: model.getters.getSelectedZones(),
     });
     expect(getCell(model, "A1")!.format).toBe("0%");
-    setDecimal(model, "A1", 1);
+    await setDecimal(model, "A1", 1);
     expect(getCell(model, "A1")!.format).toBe("0%");
   });
 
@@ -477,25 +477,25 @@ describe("formatting values (when change decimal)", () => {
       setCellContent(model, "A1", "42");
       selectCell(model, "A1");
       setFormat(model, "A1", oneDecimal);
-      setDecimal(model, "A1", 1);
+      await setDecimal(model, "A1", 1);
       expect(getCell(model, "A1")!.format).toBe(twoDecimal);
 
       setCellContent(model, "A2", "42");
       selectCell(model, "A2");
       setFormat(model, "A2", oneDecimal);
-      setDecimal(model, "A2", -1);
+      await setDecimal(model, "A2", -1);
       expect(getCell(model, "A2")!.format).toBe(noneDecimal);
 
       setCellContent(model, "A3", "42");
       selectCell(model, "A3");
       setFormat(model, "A3", noneDecimal);
-      setDecimal(model, "A3", 1);
+      await setDecimal(model, "A3", 1);
       expect(getCell(model, "A3")!.format).toBe(oneDecimal);
 
       setCellContent(model, "A4", "42");
       selectCell(model, "A4");
       setFormat(model, "A4", noneDecimal);
-      setDecimal(model, "A4", -1);
+      await setDecimal(model, "A4", -1);
       expect(getCell(model, "A4")!.format).toBe(noneDecimal);
     }
   );
@@ -506,25 +506,25 @@ describe("formatting values (when change decimal)", () => {
     setCellContent(model, "A1", "123");
     expect(getCell(model, "A1")!.format).toBe(undefined);
     selectCell(model, "A1");
-    setDecimal(model, "A1", 1);
+    await setDecimal(model, "A1", 1);
     expect(getCell(model, "A1")!.format).toBe("0.0");
 
     setCellContent(model, "A2", "456");
     expect(getCell(model, "A2")!.format).toBe(undefined);
     selectCell(model, "A2");
-    setDecimal(model, "A2", -1);
+    await setDecimal(model, "A2", -1);
     expect(getCell(model, "A2")!.format).toBe("0");
 
     setCellContent(model, "B1", "123.456");
     expect(getCell(model, "B1")!.format).toBe(undefined);
     selectCell(model, "B1");
-    setDecimal(model, "B1", 1);
+    await setDecimal(model, "B1", 1);
     expect(getCell(model, "B1")!.format).toBe("0.0000");
 
     setCellContent(model, "B2", "456.789");
     expect(getCell(model, "B2")!.format).toBe(undefined);
     selectCell(model, "B2");
-    setDecimal(model, "B2", -1);
+    await setDecimal(model, "B2", -1);
     expect(getCell(model, "B2")!.format).toBe("0.00");
   });
 
@@ -535,31 +535,31 @@ describe("formatting values (when change decimal)", () => {
     const twentyZerosA1 = "0.00000000000000000000";
     setCellContent(model, "A1", "123");
     setFormat(model, "A1", nineteenZerosA1);
-    setDecimal(model, "A1", 1);
-    setDecimal(model, "A1", 1);
-    setDecimal(model, "A1", 1);
+    await setDecimal(model, "A1", 1);
+    await setDecimal(model, "A1", 1);
+    await setDecimal(model, "A1", 1);
     expect(getCell(model, "A1")!.format).toBe(twentyZerosA1);
 
     const seventeenZerosB1 = "0.00000000000000000%";
     const twentyZerosB1 = "0.00000000000000000000%";
     setCellContent(model, "B1", "9%");
     setFormat(model, "B1", seventeenZerosB1);
-    setDecimal(model, "B1", 1);
-    setDecimal(model, "B1", 1);
-    setDecimal(model, "B1", 1);
-    setDecimal(model, "B1", 1);
-    setDecimal(model, "B1", 1);
-    setDecimal(model, "B1", 1);
+    await setDecimal(model, "B1", 1);
+    await setDecimal(model, "B1", 1);
+    await setDecimal(model, "B1", 1);
+    await setDecimal(model, "B1", 1);
+    await setDecimal(model, "B1", 1);
+    await setDecimal(model, "B1", 1);
     expect(getCell(model, "B1")!.format).toBe(twentyZerosB1);
 
     const eighteenZerosC1 = "#,##0.000000000000000000";
     const twentyZerosC1 = "#,##0.00000000000000000000";
     setCellContent(model, "C1", "3456.789");
     setFormat(model, "C1", eighteenZerosC1);
-    setDecimal(model, "C1", 1);
-    setDecimal(model, "C1", 1);
-    setDecimal(model, "C1", 1);
-    setDecimal(model, "C1", 1);
+    await setDecimal(model, "C1", 1);
+    await setDecimal(model, "C1", 1);
+    await setDecimal(model, "C1", 1);
+    await setDecimal(model, "C1", 1);
     expect(getCell(model, "C1")!.format).toBe(twentyZerosC1);
   });
 
@@ -586,7 +586,7 @@ describe("formatting values (when change decimal)", () => {
 
     // increase decimalFormat on the selection
 
-    setDecimal(model, "A1:C3", 1);
+    await setDecimal(model, "A1:C3", 1);
 
     expect(getCellContent(model, "A2")).toBe("Hey Jude");
     expect(getCellContent(model, "A3")).toBe("12/12/2012");
@@ -602,7 +602,7 @@ describe("formatting values (when change decimal)", () => {
     setCellContent(model, "A1", "100%");
     setCellContent(model, "B1", "$190.12");
     setCellContent(model, "C1", "$21");
-    setDecimal(model, "A1:C1", 1);
+    await setDecimal(model, "A1:C1", 1);
     expect(getCellContent(model, "A1")).toEqual("100.0%");
     expect(getCellContent(model, "B1")).toEqual("$190.120");
     expect(getCellContent(model, "C1")).toEqual("$21.0");
@@ -616,8 +616,8 @@ describe("formatting values (when change decimal)", () => {
     setCellContent(model, "A3", "100%");
     setCellContent(model, "B3", "$190.12");
     setCellContent(model, "C3", "$21");
-    setDecimal(model, "A1:C1", 1);
-    setDecimal(model, "A3:C3", 1);
+    await setDecimal(model, "A1:C1", 1);
+    await setDecimal(model, "A3:C3", 1);
     expect(getCellContent(model, "A1")).toEqual("100.0%");
     expect(getCellContent(model, "B1")).toEqual("$190.120");
     expect(getCellContent(model, "C1")).toEqual("$21.0");
@@ -648,14 +648,14 @@ describe("Autoresize", () => {
   test("Can autoresize a column", () => {
     setCellContent(model, "A1", TEXT);
     const initCellWidth = sizes[0] + hPadding;
-    model.dispatchFromOutside("AUTORESIZE_COLUMNS", { sheetId, cols: [0] });
+    await model.dispatchFromOutside("AUTORESIZE_COLUMNS", { sheetId, cols: [0] });
     expect(model.getters.getColSize(sheetId, 0)).toBe(initCellWidth);
   });
 
   test("Can autoresize a column with multiline content", () => {
     const content = `Hello this is \nmultiline content for test`;
     setCellContent(model, "A1", content);
-    model.dispatchFromOutside("AUTORESIZE_COLUMNS", { sheetId, cols: [0] });
+    await model.dispatchFromOutside("AUTORESIZE_COLUMNS", { sheetId, cols: [0] });
     const position = { sheetId, ...toCartesian("A1") };
     const style = model.getters.getCellComputedStyle(position);
     const multiLineText = content.split(NEWLINE);
@@ -670,7 +670,7 @@ describe("Autoresize", () => {
     const newCellWidth = initCellWidth * 2;
     resizeColumns(model, ["A"], newCellWidth);
     expect(model.getters.getColSize(sheetId, 0)).toBe(newCellWidth);
-    model.dispatchFromOutside("AUTORESIZE_COLUMNS", { sheetId, cols: [0] });
+    await model.dispatchFromOutside("AUTORESIZE_COLUMNS", { sheetId, cols: [0] });
     expect(model.getters.getColSize(sheetId, 0)).toBe(initCellWidth);
   });
 
@@ -681,7 +681,7 @@ describe("Autoresize", () => {
     resizeColumns(model, ["A"], newCellWidth);
     setStyle(model, "A1", { wrapping: "wrap" });
     expect(model.getters.getColSize(sheetId, 0)).toBe(newCellWidth);
-    model.dispatchFromOutside("AUTORESIZE_COLUMNS", { sheetId, cols: [0] });
+    await model.dispatchFromOutside("AUTORESIZE_COLUMNS", { sheetId, cols: [0] });
     expect(model.getters.getColSize(sheetId, 0)).toBe(initCellWidth);
   });
 
@@ -691,7 +691,7 @@ describe("Autoresize", () => {
     const newCellWidth = initCellWidth / 2;
     resizeColumns(model, ["A"], newCellWidth);
     expect(model.getters.getColSize(sheetId, 0)).toBe(newCellWidth);
-    model.dispatchFromOutside("AUTORESIZE_COLUMNS", { sheetId, cols: [0] });
+    await model.dispatchFromOutside("AUTORESIZE_COLUMNS", { sheetId, cols: [0] });
     expect(model.getters.getColSize(sheetId, 0)).toBe(initCellWidth);
   });
 
@@ -702,14 +702,14 @@ describe("Autoresize", () => {
     resizeColumns(model, ["A"], newCellWidth);
     setStyle(model, "A1", { wrapping: "wrap" });
     expect(model.getters.getColSize(sheetId, 0)).toBe(newCellWidth);
-    model.dispatchFromOutside("AUTORESIZE_COLUMNS", { sheetId, cols: [0] });
+    await model.dispatchFromOutside("AUTORESIZE_COLUMNS", { sheetId, cols: [0] });
     expect(model.getters.getColSize(sheetId, 0)).toBe(newCellWidth);
   });
 
   test("Can autoresize two columns", () => {
     setCellContent(model, "A1", TEXT);
     setCellContent(model, "C1", LONG_TEXT);
-    model.dispatchFromOutside("AUTORESIZE_COLUMNS", { sheetId, cols: [0, 2] });
+    await model.dispatchFromOutside("AUTORESIZE_COLUMNS", { sheetId, cols: [0, 2] });
     expect(model.getters.getColSize(sheetId, 0)).toBe(sizes[0] + hPadding);
     expect(model.getters.getColSize(sheetId, 2)).toBe(sizes[1] + hPadding);
   });
@@ -717,7 +717,7 @@ describe("Autoresize", () => {
   test("Autoresize includes filter icon to compute the size", () => {
     setCellContent(model, "A1", TEXT);
     createTableWithFilter(model, "A1");
-    model.dispatchFromOutside("AUTORESIZE_COLUMNS", { sheetId, cols: [0] });
+    await model.dispatchFromOutside("AUTORESIZE_COLUMNS", { sheetId, cols: [0] });
     expect(model.getters.getColSize(sheetId, 0)).toBe(
       sizes[0] + hPadding + GRID_ICON_EDGE_LENGTH + GRID_ICON_MARGIN
     );
@@ -725,7 +725,7 @@ describe("Autoresize", () => {
 
   test("Autoresize includes cells with only a filter icon", () => {
     createTableWithFilter(model, "A1");
-    model.dispatchFromOutside("AUTORESIZE_COLUMNS", { sheetId, cols: [0] });
+    await model.dispatchFromOutside("AUTORESIZE_COLUMNS", { sheetId, cols: [0] });
     expect(model.getters.getColSize(sheetId, 0)).toBe(
       hPadding + GRID_ICON_EDGE_LENGTH + GRID_ICON_MARGIN
     );
@@ -734,7 +734,7 @@ describe("Autoresize", () => {
   test("Can autoresize a row", () => {
     resizeRows(model, [0], DEFAULT_CELL_HEIGHT + 42);
     setCellContent(model, "A1", "test");
-    model.dispatchFromOutside("AUTORESIZE_ROWS", { sheetId, rows: [0] });
+    await model.dispatchFromOutside("AUTORESIZE_ROWS", { sheetId, rows: [0] });
     expect(model.getters.getRowSize(sheetId, 0)).toBe(DEFAULT_CELL_HEIGHT);
   });
 
@@ -743,7 +743,7 @@ describe("Autoresize", () => {
     setCellContent(model, "A1", "test");
     setCellContent(model, "A3", "test");
     setStyle(model, "A3", { fontSize: 24 });
-    model.dispatchFromOutside("AUTORESIZE_ROWS", { sheetId, rows: [0, 2] });
+    await model.dispatchFromOutside("AUTORESIZE_ROWS", { sheetId, rows: [0, 2] });
     expect(model.getters.getRowSize(sheetId, 0)).toBe(DEFAULT_CELL_HEIGHT);
     expect(model.getters.getRowSize(sheetId, 2)).toBe(fontSizeInPixels(24) + vPadding);
   });
@@ -752,7 +752,7 @@ describe("Autoresize", () => {
     const rows = [0, 1, 2];
     resizeRows(model, rows, DEFAULT_CELL_HEIGHT + 30);
     const handleCmd = spyUiPluginHandle(model);
-    model.dispatchFromOutside("AUTORESIZE_ROWS", { sheetId, rows: [0, 1, 2] });
+    await model.dispatchFromOutside("AUTORESIZE_ROWS", { sheetId, rows: [0, 1, 2] });
     expect(handleCmd).toHaveBeenCalledTimes(2);
     expect(handleCmd).toHaveBeenNthCalledWith(1, { type: "AUTORESIZE_ROWS", sheetId, rows });
     expect(handleCmd).toHaveBeenNthCalledWith(2, {
@@ -767,7 +767,7 @@ describe("Autoresize", () => {
   test("Can autoresize a row with evaluated multi-line content", () => {
     setCellContent(model, "A1", '="Hello\nThere"');
     expect(model.getters.getRowSize(sheetId, 0)).toBe(DEFAULT_CELL_HEIGHT);
-    model.dispatchFromOutside("AUTORESIZE_ROWS", { sheetId, rows: [0] });
+    await model.dispatchFromOutside("AUTORESIZE_ROWS", { sheetId, rows: [0] });
     const numberOfLines = 2;
     const lineHeight = 13; // default font size in px
     const expectedHeight =
@@ -781,15 +781,15 @@ describe("Autoresize", () => {
     setCellContent(model, "A1", '="Hello\nThere"');
 
     setCellContent(model, "B1", "Hello\nThere\nGeneral");
-    model.dispatchFromOutside("AUTORESIZE_ROWS", { sheetId, rows: [0] });
+    await model.dispatchFromOutside("AUTORESIZE_ROWS", { sheetId, rows: [0] });
     expect(model.getters.getUserRowSize(sheetId, 0)).toBe(undefined);
 
     setCellContent(model, "B1", "Hello\nThere");
-    model.dispatchFromOutside("AUTORESIZE_ROWS", { sheetId, rows: [0] });
+    await model.dispatchFromOutside("AUTORESIZE_ROWS", { sheetId, rows: [0] });
     expect(model.getters.getUserRowSize(sheetId, 0)).toBe(undefined);
 
     setCellContent(model, "B1", "Hello");
-    model.dispatchFromOutside("AUTORESIZE_ROWS", { sheetId, rows: [0] });
+    await model.dispatchFromOutside("AUTORESIZE_ROWS", { sheetId, rows: [0] });
     expect(model.getters.getUserRowSize(sheetId, 0)).toBe(36);
   });
 
@@ -797,7 +797,7 @@ describe("Autoresize", () => {
     setCellContent(model, "A1", "=RANDARRAY(2, 2)");
     expect(model.getters.getRowSize(sheetId, 1)).toBe(DEFAULT_CELL_HEIGHT);
     setStyle(model, "A2", { fontSize: 40 });
-    model.dispatchFromOutside("AUTORESIZE_ROWS", { sheetId, rows: [1] });
+    await model.dispatchFromOutside("AUTORESIZE_ROWS", { sheetId, rows: [1] });
     const position = { sheetId, ...toCartesian("A2") };
     const evaluatedSize = getCellContentHeight(
       ctx,
@@ -813,7 +813,7 @@ describe("Autoresize", () => {
     const newSheetId = "42";
     createSheet(model, { sheetId: newSheetId });
     setCellContent(model, "A1", TEXT, newSheetId);
-    model.dispatchFromOutside("AUTORESIZE_COLUMNS", { sheetId: newSheetId, cols: [0] });
+    await model.dispatchFromOutside("AUTORESIZE_COLUMNS", { sheetId: newSheetId, cols: [0] });
     expect(model.getters.getColSize(sheetId, 0)).toBe(initialSize);
     expect(model.getters.getColSize(newSheetId, 0)).toBe(sizes[0] + hPadding);
   });
@@ -824,17 +824,17 @@ describe("Autoresize", () => {
     createSheet(model, { sheetId: newSheetId });
     resizeRows(model, [0], DEFAULT_CELL_HEIGHT + 30, "42");
     setCellContent(model, "A1", "test", newSheetId);
-    model.dispatchFromOutside("AUTORESIZE_ROWS", { sheetId: newSheetId, rows: [0] });
+    await model.dispatchFromOutside("AUTORESIZE_ROWS", { sheetId: newSheetId, rows: [0] });
     expect(model.getters.getRowSize(sheetId, 0)).toBe(initialSize);
     expect(model.getters.getRowSize(newSheetId, 0)).toBe(DEFAULT_CELL_HEIGHT);
   });
 
   test("Autoresizing empty cols has no effect", () => {
     const initialSize = model.getters.getColSize(sheetId, 0);
-    model.dispatchFromOutside("AUTORESIZE_COLUMNS", { sheetId, cols: [0] });
+    await model.dispatchFromOutside("AUTORESIZE_COLUMNS", { sheetId, cols: [0] });
     expect(model.getters.getColSize(sheetId, 0)).toBe(initialSize);
     setCellContent(model, "A1", '=""');
-    model.dispatchFromOutside("AUTORESIZE_COLUMNS", { sheetId, cols: [0] });
+    await model.dispatchFromOutside("AUTORESIZE_COLUMNS", { sheetId, cols: [0] });
     expect(model.getters.getColSize(sheetId, 0)).toBe(initialSize);
   });
 
@@ -850,7 +850,7 @@ describe("Autoresize", () => {
     (rotation) => {
       const noRotationStyle = { fontSize: 20 };
 
-      model.dispatchFromOutside("SET_FORMATTING", {
+      await model.dispatchFromOutside("SET_FORMATTING", {
         sheetId,
         target: [positionToZone(toCartesian("A1"))],
         style: { rotation, ...noRotationStyle },
@@ -862,33 +862,33 @@ describe("Autoresize", () => {
 
       setCellContent(model, "A1", "ABC");
       ({ width, height } = model.getters.getMultilineTextSize(["ABC"], noRotationStyle));
-      model.dispatchFromOutside("AUTORESIZE_COLUMNS", { sheetId, cols: [0] });
+      await model.dispatchFromOutside("AUTORESIZE_COLUMNS", { sheetId, cols: [0] });
       expect(model.getters.getColSize(sheetId, 0)).toEqual(
         Math.round(cos * width + sin * height + 2 * PADDING_AUTORESIZE_HORIZONTAL)
       );
-      model.dispatchFromOutside("AUTORESIZE_ROWS", { sheetId, rows: [0] });
+      await model.dispatchFromOutside("AUTORESIZE_ROWS", { sheetId, rows: [0] });
       expect(model.getters.getRowSize(sheetId, 0)).toEqual(
         Math.round(sin * width + cos * height + 2 * PADDING_AUTORESIZE_VERTICAL)
       );
 
       setCellContent(model, "A1", "ABC\n123");
       ({ width, height } = model.getters.getMultilineTextSize(["ABC", "123"], noRotationStyle));
-      model.dispatchFromOutside("AUTORESIZE_COLUMNS", { sheetId, cols: [0] });
+      await model.dispatchFromOutside("AUTORESIZE_COLUMNS", { sheetId, cols: [0] });
       expect(model.getters.getColSize(sheetId, 0)).toEqual(
         Math.round(cos * width + sin * height + 2 * PADDING_AUTORESIZE_HORIZONTAL)
       );
-      model.dispatchFromOutside("AUTORESIZE_ROWS", { sheetId, rows: [0] });
+      await model.dispatchFromOutside("AUTORESIZE_ROWS", { sheetId, rows: [0] });
       expect(model.getters.getRowSize(sheetId, 0)).toEqual(
         Math.round(sin * width + cos * height + 2 * PADDING_AUTORESIZE_VERTICAL)
       );
 
       setCellContent(model, "A1", "ABC-123");
       ({ width, height } = model.getters.getMultilineTextSize(["ABC-123"], noRotationStyle));
-      model.dispatchFromOutside("AUTORESIZE_COLUMNS", { sheetId, cols: [0] });
+      await model.dispatchFromOutside("AUTORESIZE_COLUMNS", { sheetId, cols: [0] });
       expect(model.getters.getColSize(sheetId, 0)).toEqual(
         Math.round(cos * width + sin * height + 2 * PADDING_AUTORESIZE_HORIZONTAL)
       );
-      model.dispatchFromOutside("AUTORESIZE_ROWS", { sheetId, rows: [0] });
+      await model.dispatchFromOutside("AUTORESIZE_ROWS", { sheetId, rows: [0] });
       expect(model.getters.getRowSize(sheetId, 0)).toEqual(
         Math.round(sin * width + cos * height + 2 * PADDING_AUTORESIZE_VERTICAL)
       );

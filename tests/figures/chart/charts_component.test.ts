@@ -1094,7 +1094,7 @@ describe("charts", () => {
     const sheetId = model.getters.getActiveSheetId();
     await mountChartSidePanel("chartId1");
     expect(fixture.querySelector(".o-chart")).toBeTruthy();
-    model.dispatchFromOutside("DELETE_FIGURE", { figureId: "figureId2", sheetId }); // could be deleted by another user
+    await model.dispatchFromOutside("DELETE_FIGURE", { figureId: "figureId2", sheetId }); // could be deleted by another user
     await nextTick();
     expect(fixture.querySelector(".o-chart")).toBeTruthy();
   });
@@ -1208,7 +1208,7 @@ describe("charts", () => {
         await simulateClick(figures[1]);
       } else {
         const figureId = model.getters.getFigureIdFromChartId("secondChartId")!;
-        model.dispatchFromOutside("SELECT_FIGURE", { figureId });
+        await model.dispatchFromOutside("SELECT_FIGURE", { figureId });
       }
 
       await nextTick();
@@ -1582,12 +1582,12 @@ describe("charts", () => {
     expect(store.mainPanelProps?.chartId).toBe(chartId);
     expect(fixture.querySelector(".o-sidePanel")).not.toBeNull();
 
-    model.dispatchFromOutside("SELECT_FIGURE", { figureId: figures[1].id });
+    await model.dispatchFromOutside("SELECT_FIGURE", { figureId: figures[1].id });
     await nextTick();
     expect(store.mainPanelProps?.chartId).toBe("secondChartId");
     expect(fixture.querySelector(".o-sidePanel")).not.toBeNull();
 
-    model.dispatchFromOutside("DELETE_FIGURE", { sheetId, figureId: figures[1].id });
+    await model.dispatchFromOutside("DELETE_FIGURE", { sheetId, figureId: figures[1].id });
     await nextTick();
     expect(store.isMainPanelOpen).toBeFalsy();
     expect(fixture.querySelector(".o-sidePanel")).toBeNull();
@@ -2028,7 +2028,7 @@ describe("charts", () => {
       await changeChartType("bar"); // save chart1 context creation the side panel store
 
       const figure2id = model.getters.getFigureIdFromChartId("chart2")!;
-      model.dispatchFromOutside("SELECT_FIGURE", { figureId: figure2id });
+      await model.dispatchFromOutside("SELECT_FIGURE", { figureId: figure2id });
       await nextTick();
       await changeChartType("line");
       // check that chart2 cumulative option is the line chart default (undefined) and not the chart1 value
@@ -2323,7 +2323,7 @@ describe("charts", () => {
     setCellContent(model, "D6", "HELLO");
     createTestChart("gauge", undefined, { figureId: "someuuid" });
     await nextTick();
-    env.model.dispatchFromOutside("SELECT_FIGURE", { figureId: "someuuid" });
+    await env.model.dispatchFromOutside("SELECT_FIGURE", { figureId: "someuuid" });
     await nextTick();
 
     copy(model);
@@ -2499,7 +2499,7 @@ test("ChartJS charts are correctly destroyed on chart deletion", async () => {
   await nextTick();
   const spyDelete = jest.spyOn((window as any).Chart.prototype, "destroy");
   const figureId = model.getters.getFigureIdFromChartId(chartId);
-  model.dispatchFromOutside("DELETE_FIGURE", {
+  await model.dispatchFromOutside("DELETE_FIGURE", {
     figureId,
     sheetId: model.getters.getActiveSheetId(),
   });

@@ -140,7 +140,7 @@ describe("Grid renderer animations", () => {
   test("Animations are not run the on copy/paste zone ", () => {
     const sheetId = model.getters.getActiveSheetId();
     const style = { fillColor: "#ff0f0f" };
-    model.dispatchFromOutside("ADD_CONDITIONAL_FORMAT", {
+    await model.dispatchFromOutside("ADD_CONDITIONAL_FORMAT", {
       cf: { rule: { type: "CellIsRule", operator: "isEmpty", values: [], style }, id: "11" },
       ranges: toRangesData(sheetId, "A1:A3"),
       sheetId,

@@ -912,7 +912,7 @@ describe("Context menu react to grid size changes", () => {
     expect(menus[0]?.style.display).toBe("block");
     expect(menus[1]).toBeTruthy();
 
-    model.dispatchFromOutside("RESIZE_SHEETVIEW", { width: 500, height: 500 });
+    await model.dispatchFromOutside("RESIZE_SHEETVIEW", { width: 500, height: 500 });
     await nextTick();
     await nextTick(); // First render hides the parent menu, second closes the submenu
 
@@ -931,7 +931,10 @@ describe("Context menu react to grid size changes", () => {
     expect(menus[0]?.style.left).toBe("500px");
     expect(menus[1]).toBeTruthy();
 
-    model.dispatchFromOutside("RESIZE_SHEETVIEW", { width: 500 + MENU_WIDTH / 2, height: 1000 });
+    await model.dispatchFromOutside("RESIZE_SHEETVIEW", {
+      width: 500 + MENU_WIDTH / 2,
+      height: 1000,
+    });
     await nextTick();
     await nextTick(); // First render moves the parent menu, second closes the submenu
 

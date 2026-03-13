@@ -29,7 +29,6 @@ import {
   DataValidationCriterion,
   Dimension,
   Direction,
-  DispatchResult,
   HeaderIndex,
   Locale,
   ParsedOsClipboardContentWithImageData,
@@ -66,14 +65,14 @@ import {
 /**
  * Dispatch an UNDO to the model
  */
-export function undo(model: Model): DispatchResult {
+export function undo(model: Model) {
   return model.dispatchFromOutside("REQUEST_UNDO");
 }
 
 /**
  * Dispatch a REDO to the model
  */
-export function redo(model: Model): DispatchResult {
+export function redo(model: Model) {
   return model.dispatchFromOutside("REQUEST_REDO");
 }
 
@@ -113,12 +112,12 @@ export function createSheet(
   return result;
 }
 
-export function renameSheet(model: Model, sheetId: UID, newName: string): DispatchResult {
+export function renameSheet(model: Model, sheetId: UID, newName: string) {
   const oldName = model.getters.tryGetSheet(sheetId)?.name ?? "SheetName";
   return model.dispatchFromOutside("RENAME_SHEET", { sheetId, newName, oldName });
 }
 
-export function colorSheet(model: Model, sheetId: UID, color: Color | undefined): DispatchResult {
+export function colorSheet(model: Model, sheetId: UID, color: Color | undefined) {
   return model.dispatchFromOutside("COLOR_SHEET", { sheetId, color });
 }
 
@@ -126,11 +125,11 @@ export function createSheetWithName(
   model: Model,
   data: Partial<CreateSheetCommand & { activate: boolean }>,
   name: string
-): DispatchResult {
+) {
   return createSheet(model, { ...data, name });
 }
 
-export function deleteSheet(model: Model, sheetId: UID): DispatchResult {
+export function deleteSheet(model: Model, sheetId: UID) {
   const sheetName = model.getters.tryGetSheet(sheetId)?.name ?? "SheetName";
   return model.dispatchFromOutside("DELETE_SHEET", {
     sheetId,
@@ -508,7 +507,7 @@ export function updateChart(
   chartId: UID,
   definition: Partial<ChartDefinition>,
   sheetId: UID = model.getters.getActiveSheetId()
-): DispatchResult {
+) {
   const def: ChartDefinition = {
     ...model.getters.getChartDefinition(chartId),
     ...definition,
@@ -524,7 +523,7 @@ export function updateChart(
 /**
  * Copy a zone
  */
-export function copy(model: Model, ...ranges: string[]): DispatchResult {
+export function copy(model: Model, ...ranges: string[]) {
   if (ranges && ranges.length) {
     setSelection(model, ranges);
   }
@@ -534,7 +533,7 @@ export function copy(model: Model, ...ranges: string[]): DispatchResult {
 /**
  * Cut a zone
  */
-export function cut(model: Model, ...ranges: string[]): DispatchResult {
+export function cut(model: Model, ...ranges: string[]) {
   if (ranges && ranges.length) {
     setSelection(model, ranges);
   }
@@ -544,11 +543,7 @@ export function cut(model: Model, ...ranges: string[]): DispatchResult {
 /**
  * Paste on a zone
  */
-export function paste(
-  model: Model,
-  range: string,
-  pasteOption?: ClipboardPasteOptions
-): DispatchResult {
+export function paste(model: Model, range: string, pasteOption?: ClipboardPasteOptions) {
   return model.dispatchFromOutside("PASTE", { target: target(range), pasteOption });
 }
 
@@ -560,7 +555,7 @@ export function pasteFromOSClipboard(
   range: string,
   content: ParsedOsClipboardContentWithImageData,
   pasteOption?: ClipboardPasteOptions
-): DispatchResult {
+) {
   return model.dispatchFromOutside("PASTE_FROM_OS_CLIPBOARD", {
     clipboardContent: content,
     target: target(range),
@@ -571,28 +566,28 @@ export function pasteFromOSClipboard(
 /**
  * Copy cells above a zone and paste on zone
  */
-export function copyPasteAboveCells(model: Model): DispatchResult {
+export function copyPasteAboveCells(model: Model) {
   return model.dispatchFromOutside("COPY_PASTE_CELLS_ABOVE");
 }
 
 /**
  * Copy cells to the left of a zone and paste on zone
  */
-export function copyPasteCellsOnLeft(model: Model): DispatchResult {
+export function copyPasteCellsOnLeft(model: Model) {
   return model.dispatchFromOutside("COPY_PASTE_CELLS_ON_LEFT");
 }
 
 /**
  * Copy cell and paste on zone
  */
-export function copyPasteCellsOnZone(model: Model): DispatchResult {
+export function copyPasteCellsOnZone(model: Model) {
   return model.dispatchFromOutside("COPY_PASTE_CELLS_ON_ZONE");
 }
 
 /**
  * Clean clipboard highlight selection.
  */
-export function cleanClipBoardHighlight(model: Model): DispatchResult {
+export function cleanClipBoardHighlight(model: Model) {
   return model.dispatchFromOutside("CLEAN_CLIPBOARD_HIGHLIGHT");
 }
 
@@ -605,7 +600,7 @@ export function addColumns(
   column: string,
   quantity: number,
   sheetId: UID = model.getters.getActiveSheetId()
-): DispatchResult {
+) {
   const sheetName = model.getters.tryGetSheet(sheetId)?.name ?? "SheetName";
   return model.dispatchFromOutside("ADD_COLUMNS_ROWS", {
     sheetId,
@@ -624,7 +619,7 @@ export function deleteColumns(
   model: Model,
   columns: string[],
   sheetId: UID = model.getters.getActiveSheetId()
-): DispatchResult {
+) {
   const sheetName = model.getters.tryGetSheet(sheetId)?.name ?? "SheetName";
   return model.dispatchFromOutside("REMOVE_COLUMNS_ROWS", {
     sheetId,
@@ -642,7 +637,7 @@ export function resizeColumns(
   columns: string[],
   size: number,
   sheetId: UID = model.getters.getActiveSheetId()
-): DispatchResult {
+) {
   return model.dispatchFromOutside("RESIZE_COLUMNS_ROWS", {
     dimension: "COL",
     elements: columns.map(lettersToNumber),
@@ -660,7 +655,7 @@ export function addRows(
   row: number,
   quantity: number,
   sheetId: UID = model.getters.getActiveSheetId()
-): DispatchResult {
+) {
   const sheetName = model.getters.tryGetSheet(sheetId)?.name ?? "SheetName";
   return model.dispatchFromOutside("ADD_COLUMNS_ROWS", {
     dimension: "ROW",
@@ -679,7 +674,7 @@ export function deleteRows(
   model: Model,
   rows: number[],
   sheetId: UID = model.getters.getActiveSheetId()
-): DispatchResult {
+) {
   const sheetName = model.getters.tryGetSheet(sheetId)?.name ?? "SheetName";
   return model.dispatchFromOutside("REMOVE_COLUMNS_ROWS", {
     sheetId,
@@ -694,7 +689,7 @@ export function deleteHeaders(
   dimension: Dimension,
   headers: number[],
   sheetId: UID = model.getters.getActiveSheetId()
-): DispatchResult {
+) {
   return model.dispatchFromOutside("REMOVE_COLUMNS_ROWS", {
     sheetId,
     sheetName: model.getters.getSheetName(sheetId),
@@ -711,7 +706,7 @@ export function resizeRows(
   rows: number[],
   size: number,
   sheetId: UID = model.getters.getActiveSheetId()
-): DispatchResult {
+) {
   return model.dispatchFromOutside("RESIZE_COLUMNS_ROWS", {
     dimension: "ROW",
     elements: rows,
@@ -727,7 +722,7 @@ export function hideColumns(
   model: Model,
   columns: string[],
   sheetId: UID = model.getters.getActiveSheetId()
-): DispatchResult {
+) {
   return model.dispatchFromOutside("HIDE_COLUMNS_ROWS", {
     sheetId,
     dimension: "COL",
@@ -742,7 +737,7 @@ export function unhideColumns(
   model: Model,
   columns: string[],
   sheetId: UID = model.getters.getActiveSheetId()
-): DispatchResult {
+) {
   return model.dispatchFromOutside("UNHIDE_COLUMNS_ROWS", {
     sheetId,
     dimension: "COL",
@@ -757,7 +752,7 @@ export function hideRows(
   model: Model,
   rows: number[],
   sheetId: UID = model.getters.getActiveSheetId()
-): DispatchResult {
+) {
   return model.dispatchFromOutside("HIDE_COLUMNS_ROWS", {
     sheetId,
     dimension: "ROW",
@@ -772,7 +767,7 @@ export function unhideRows(
   model: Model,
   rows: number[],
   sheetId: UID = model.getters.getActiveSheetId()
-): DispatchResult {
+) {
   return model.dispatchFromOutside("UNHIDE_COLUMNS_ROWS", {
     sheetId,
     dimension: "ROW",
@@ -780,7 +775,7 @@ export function unhideRows(
   });
 }
 
-export function deleteCells(model: Model, range: string, shift: "left" | "up"): DispatchResult {
+export function deleteCells(model: Model, range: string, shift: "left" | "up") {
   return model.dispatchFromOutside("DELETE_CELL", {
     zone: toZone(range),
     shiftDimension: shift === "left" ? "COL" : "ROW",
@@ -791,14 +786,14 @@ export function deleteContent(
   model: Model,
   ranges: string[],
   sheetId: UID = model.getters.getActiveSheetId()
-): DispatchResult {
+) {
   return model.dispatchFromOutside("DELETE_CONTENT", {
     sheetId,
     target: ranges.map(toZone),
   });
 }
 
-export function insertCells(model: Model, range: string, shift: "right" | "down"): DispatchResult {
+export function insertCells(model: Model, range: string, shift: "right" | "down") {
   return model.dispatchFromOutside("INSERT_CELL", {
     zone: toZone(range),
     shiftDimension: shift === "right" ? "COL" : "ROW",
@@ -901,33 +896,25 @@ export function setCellFormat(
 /**
  * Select a cell
  */
-export function selectCell(model: Model, xc: string): DispatchResult {
+export function selectCell(model: Model, xc: string) {
   const { col, row } = toCartesian(xc);
   return model.selection.selectCell(col, row);
 }
 
-export function moveAnchorCell(
-  model: Model,
-  direction: Direction,
-  step: SelectionStep = 1
-): DispatchResult {
+export function moveAnchorCell(model: Model, direction: Direction, step: SelectionStep = 1) {
   return model.selection.moveAnchorCell(direction, step);
 }
 
-export function resizeAnchorZone(
-  model: Model,
-  direction: Direction,
-  step: SelectionStep = 1
-): DispatchResult {
+export function resizeAnchorZone(model: Model, direction: Direction, step: SelectionStep = 1) {
   return model.selection.resizeAnchorZone(direction, step);
 }
 
-export function setAnchorCorner(model: Model, xc: string): DispatchResult {
+export function setAnchorCorner(model: Model, xc: string) {
   const { col, row } = toCartesian(xc);
   return model.selection.setAnchorCorner(col, row);
 }
 
-export function addCellToSelection(model: Model, xc: string): DispatchResult {
+export function addCellToSelection(model: Model, xc: string) {
   const { col, row } = toCartesian(xc);
   return model.selection.addCellToSelection(col, row);
 }
@@ -936,7 +923,7 @@ export function addCellToSelection(model: Model, xc: string): DispatchResult {
  * commitSelection only called on mouse up.
  * it will check and update the selection accordingly.
  */
-export function commitSelection(model: Model): DispatchResult {
+export function commitSelection(model: Model) {
   return model.selection.commitSelection();
 }
 
@@ -948,7 +935,7 @@ export function changeCFPriority(
   cfId: UID,
   delta: number,
   sheetId: UID = model.getters.getActiveSheetId()
-): DispatchResult {
+) {
   return model.dispatchFromOutside("CHANGE_CONDITIONAL_FORMAT_PRIORITY", { cfId, delta, sheetId });
 }
 
@@ -1077,7 +1064,7 @@ export function merge(
   range: string,
   sheetId: UID = model.getters.getActiveSheetId(),
   force: boolean = true
-): DispatchResult {
+) {
   return model.dispatchFromOutside("ADD_MERGE", {
     sheetId,
     target: target(range),
@@ -1089,7 +1076,7 @@ export function unMerge(
   model: Model,
   range: string,
   sheetId: UID = model.getters.getActiveSheetId()
-): DispatchResult {
+) {
   return model.dispatchFromOutside("REMOVE_MERGE", {
     sheetId,
     target: target(range),
@@ -1106,7 +1093,7 @@ export function moveColumns(
   columns: string[],
   position: "before" | "after" = "before",
   sheetId: UID = model.getters.getActiveSheetId()
-): DispatchResult {
+) {
   return model.dispatchFromOutside("MOVE_COLUMNS_ROWS", {
     sheetId,
     sheetName: model.getters.getSheetName(sheetId),
@@ -1123,7 +1110,7 @@ export function moveRows(
   rows: number[],
   position: "before" | "after" = "before",
   sheetId: UID = model.getters.getActiveSheetId()
-): DispatchResult {
+) {
   return model.dispatchFromOutside("MOVE_COLUMNS_ROWS", {
     sheetId,
     sheetName: model.getters.getSheetName(sheetId),
@@ -1219,7 +1206,7 @@ export function createTable(
   config?: Partial<TableConfig>,
   tableType: CoreTableType = "static",
   sheetId: UID = model.getters.getActiveSheetId()
-): DispatchResult {
+) {
   model.selection.selectTableAroundSelection();
   return model.dispatchFromOutside("CREATE_TABLE", {
     sheetId,
@@ -1234,7 +1221,7 @@ export function createDynamicTable(
   range: string,
   config?: Partial<TableConfig>,
   sheetId: UID = model.getters.getActiveSheetId()
-): DispatchResult {
+) {
   return createTable(model, range, config, "dynamic", sheetId);
 }
 
@@ -1254,7 +1241,7 @@ export function updateTableConfig(
   config: Partial<TableConfig>,
   tableType?: CoreTableType,
   sheetId: UID = model.getters.getActiveSheetId()
-): DispatchResult {
+) {
   const zone = toZone(range);
   const table = model.getters.getTable({ sheetId, col: zone.left, row: zone.top });
   if (!table) {
@@ -1274,7 +1261,7 @@ export function updateTableZone(
   newZone: string,
   tableType?: CoreTableType,
   sheetId: UID = model.getters.getActiveSheetId()
-): DispatchResult {
+) {
   const zone = toZone(range);
   const table = model.getters.getTable({ sheetId, col: zone.left, row: zone.top });
   if (!table) {
@@ -1294,7 +1281,7 @@ export function resizeTable(
   newZone: string,
   tableType?: CoreTableType,
   sheetId: UID = model.getters.getActiveSheetId()
-): DispatchResult {
+) {
   const zone = toZone(range);
   const table = model.getters.getTable({ sheetId, col: zone.left, row: zone.top });
   if (!table) {
@@ -1313,7 +1300,7 @@ export function updateFilter(
   xc: string,
   hiddenValues: string[],
   sheetId: UID = model.getters.getActiveSheetId()
-): DispatchResult {
+) {
   const { col, row } = toCartesian(xc);
   return model.dispatchFromOutside("UPDATE_FILTER", {
     col,
@@ -1331,7 +1318,7 @@ export function updateFilterCriterion(
   xc: string,
   criterion: Omit<CriterionFilter, "filterType">,
   sheetId: UID = model.getters.getActiveSheetId()
-): DispatchResult {
+) {
   const { col, row } = toCartesian(xc);
   return model.dispatchFromOutside("UPDATE_FILTER", {
     col,
@@ -1348,7 +1335,7 @@ export function deleteTable(
   model: Model,
   range: string,
   sheetId: UID = model.getters.getActiveSheetId()
-): DispatchResult {
+) {
   return model.dispatchFromOutside("REMOVE_TABLE", { sheetId, target: target(range) });
 }
 
@@ -1356,7 +1343,7 @@ export function createTableStyle(
   model: Model,
   tableStyleId: string,
   style?: Partial<Omit<CreateTableStyleCommand, "type" | "styleId">>
-): DispatchResult {
+) {
   return model.dispatchFromOutside("CREATE_TABLE_STYLE", {
     tableStyleId,
     primaryColor: style?.primaryColor || "#FF0000",
@@ -1586,7 +1573,7 @@ export function addEqualCf(
   value: string,
   cfId: UID = "cfId",
   sheetId: UID = model.getters.getActiveSheetId()
-): DispatchResult {
+) {
   return model.dispatchFromOutside("ADD_CONDITIONAL_FORMAT", {
     cf: createEqualCF(value, style, cfId),
     sheetId,
@@ -1601,7 +1588,7 @@ export function addIconCF(
   iconSet: keyof typeof ICON_SETS,
   cfId: UID = "cfId",
   sheetId: UID = model.getters.getActiveSheetId()
-): DispatchResult {
+) {
   return model.dispatchFromOutside("ADD_CONDITIONAL_FORMAT", {
     cf: {
       id: cfId,
@@ -1627,7 +1614,7 @@ export function addDataBarCF(
   color: string,
   cfId: UID = "cfId",
   sheetId: UID = model.getters.getActiveSheetId()
-): DispatchResult {
+) {
   return model.dispatchFromOutside("ADD_CONDITIONAL_FORMAT", {
     cf: {
       id: cfId,
@@ -1665,7 +1652,7 @@ export function updateCarousel(
   carouselId: UID,
   data: Partial<Carousel>,
   sheetId: UID = model.getters.getActiveSheetId()
-): DispatchResult {
+) {
   return model.dispatchFromOutside("UPDATE_CAROUSEL", {
     figureId: carouselId,
     sheetId,
@@ -1681,7 +1668,7 @@ export function addChartFigureToCarousel(
   carouselId: UID,
   chartFigureId: UID,
   sheetId: UID = model.getters.getActiveSheetId()
-): DispatchResult {
+) {
   return model.dispatchFromOutside("ADD_FIGURE_CHART_TO_CAROUSEL", {
     carouselFigureId: carouselId,
     chartFigureId,
@@ -1689,12 +1676,7 @@ export function addChartFigureToCarousel(
   });
 }
 
-export function popOutChartFromCarousel(
-  model: Model,
-  sheetId: UID,
-  carouselId: UID,
-  chartId: UID
-): DispatchResult {
+export function popOutChartFromCarousel(model: Model, sheetId: UID, carouselId: UID, chartId: UID) {
   return model.dispatchFromOutside("POPOUT_CHART_FROM_CAROUSEL", { carouselId, chartId, sheetId });
 }
 
@@ -1719,7 +1701,7 @@ export function selectCarouselItem(
   carouselId: UID,
   item: CarouselItem,
   sheetId: UID = model.getters.getActiveSheetId()
-): DispatchResult {
+) {
   return model.dispatchFromOutside("UPDATE_CAROUSEL_ACTIVE_ITEM", {
     figureId: carouselId,
     item,
@@ -1727,16 +1709,10 @@ export function selectCarouselItem(
   });
 }
 
-export function lockSheet(
-  model: Model,
-  sheetId: UID = model.getters.getActiveSheetId()
-): DispatchResult {
+export function lockSheet(model: Model, sheetId: UID = model.getters.getActiveSheetId()) {
   return model.dispatchFromOutside("LOCK_SHEET", { sheetId });
 }
 
-export function unlockSheet(
-  model: Model,
-  sheetId: UID = model.getters.getActiveSheetId()
-): DispatchResult {
+export function unlockSheet(model: Model, sheetId: UID = model.getters.getActiveSheetId()) {
   return model.dispatchFromOutside("UNLOCK_SHEET", { sheetId });
 }

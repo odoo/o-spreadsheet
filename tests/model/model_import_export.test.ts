@@ -937,7 +937,10 @@ describe("Export", () => {
         },
       ],
     });
-    model.dispatchFromOutside("DELETE_FIGURE", { figureId: "otheruuid", sheetId: "someuuid" });
+    await model.dispatchFromOutside("DELETE_FIGURE", {
+      figureId: "otheruuid",
+      sheetId: "someuuid",
+    });
     expect(model.exportData()).toMatchObject({
       sheets: [
         {
@@ -1079,7 +1082,7 @@ test("Data of a duplicate sheet are correctly duplicated", () => {
   const model = new Model();
   setCellContent(model, "A1", "hello");
   const sheetId = model.getters.getActiveSheetId();
-  model.dispatchFromOutside("DUPLICATE_SHEET", {
+  await model.dispatchFromOutside("DUPLICATE_SHEET", {
     sheetId,
     sheetIdTo: "42",
     sheetNameTo: "Copy of Sheet1",

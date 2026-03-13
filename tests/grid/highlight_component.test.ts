@@ -179,7 +179,7 @@ function expectedResult(xc: string) {
 
 const genericBeforeEach = async () => {
   model = new Model();
-  model.dispatchFromOutside("RESIZE_SHEETVIEW", {
+  await model.dispatchFromOutside("RESIZE_SHEETVIEW", {
     width: getDefaultSheetViewSize(),
     height: getDefaultSheetViewSize(),
     gridOffsetX: 0,
@@ -412,7 +412,7 @@ describe("Corner component", () => {
 
   test("can edge-scroll horizontally", async () => {
     const { width } = model.getters.getSheetViewDimensionWithHeaders();
-    model.dispatchFromOutside("RESIZE_COLUMNS_ROWS", {
+    await model.dispatchFromOutside("RESIZE_COLUMNS_ROWS", {
       dimension: "COL",
       sheetId: model.getters.getActiveSheetId(),
       elements: [0, 1],
@@ -437,7 +437,7 @@ describe("Corner component", () => {
 
   test("can edge-scroll vertically", async () => {
     const { height } = model.getters.getSheetViewDimensionWithHeaders();
-    model.dispatchFromOutside("RESIZE_COLUMNS_ROWS", {
+    await model.dispatchFromOutside("RESIZE_COLUMNS_ROWS", {
       dimension: "ROW",
       sheetId: model.getters.getActiveSheetId(),
       elements: [0, 1],
@@ -712,7 +712,7 @@ describe("Border component", () => {
 
   test("can edge-scroll horizontally", async () => {
     const { width } = model.getters.getSheetViewDimensionWithHeaders();
-    model.dispatchFromOutside("RESIZE_COLUMNS_ROWS", {
+    await model.dispatchFromOutside("RESIZE_COLUMNS_ROWS", {
       dimension: "COL",
       sheetId: model.getters.getActiveSheetId(),
       elements: [0, 1],
@@ -737,7 +737,7 @@ describe("Border component", () => {
 
   test("can edge-scroll vertically", async () => {
     const { height } = model.getters.getSheetViewDimensionWithHeaders();
-    model.dispatchFromOutside("RESIZE_COLUMNS_ROWS", {
+    await model.dispatchFromOutside("RESIZE_COLUMNS_ROWS", {
       dimension: "ROW",
       sheetId: model.getters.getActiveSheetId(),
       elements: [0, 1],
@@ -771,7 +771,7 @@ describe.each(ZOOM_VALUES)(
       jest.useFakeTimers();
       ({ model, fixture } = await mountSpreadsheet());
       zoom = zoomValue / 100;
-      model.dispatchFromOutside("SET_ZOOM", { zoom });
+      await model.dispatchFromOutside("SET_ZOOM", { zoom });
       ({ width, height } = model.getters.getSheetViewDimensionWithHeaders());
       // In test sheetviewDim is not changed based on the Zoom
       width = width * zoom;

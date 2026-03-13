@@ -16,18 +16,21 @@ interface ContextObserver {
 export class MockGridRenderingContext implements GridRenderingContext {
   _context = document.createElement("canvas").getContext("2d");
   ctx: CanvasRenderingContext2D;
-  viewport: Viewport;
+  viewport!: Viewport; //TODOPRO Check this, await is in the constructor
   dpr = 1;
   thinLineWidth = 0.4;
 
   constructor(model: Model, width: number, height: number, observer: ContextObserver) {
-    model.dispatchFromOutside("RESIZE_SHEETVIEW", {
-      width,
-      height,
-      gridOffsetX: 0,
-      gridOffsetY: 0,
-    });
-    this.viewport = model.getters.getActiveMainViewport();
+    model
+      .dispatchFromOutside("RESIZE_SHEETVIEW", {
+        width,
+        height,
+        gridOffsetX: 0,
+        gridOffsetY: 0,
+      })
+      .then(() => {
+        this.viewport = model.getters.getActiveMainViewport();
+      });
 
     const handler = {
       get: (target, val) => {

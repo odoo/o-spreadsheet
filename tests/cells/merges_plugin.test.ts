@@ -82,7 +82,7 @@ describe("merges", () => {
     const firstSheetId = model.getters.getActiveSheetId();
     const secondSheetId = "42";
     merge(model, "C2:C3", firstSheetId);
-    model.dispatchFromOutside("DUPLICATE_SHEET", {
+    await model.dispatchFromOutside("DUPLICATE_SHEET", {
       sheetId: firstSheetId,
       sheetIdTo: secondSheetId,
       sheetNameTo: "Copy of Sheet1",
@@ -101,7 +101,7 @@ describe("merges", () => {
     const firstSheetId = model.getters.getActiveSheetId();
     const secondSheetId = "42";
     merge(model, "C2:C3", firstSheetId);
-    model.dispatchFromOutside("DUPLICATE_SHEET", {
+    await model.dispatchFromOutside("DUPLICATE_SHEET", {
       sheetId: firstSheetId,
       sheetIdTo: secondSheetId,
       sheetNameTo: "Copy of Sheet1",
@@ -215,7 +215,7 @@ describe("merges", () => {
     const model = new Model();
     const sheetId = model.getters.getActiveSheetId();
     expect(
-      model.dispatchFromOutside("ADD_MERGE", {
+      await model.dispatchFromOutside("ADD_MERGE", {
         sheetId,
         target: [toZone("A1:B2"), toZone("A2:B3")],
       })
@@ -296,7 +296,7 @@ describe("merges", () => {
     });
     const sheet1 = model.getters.getSheetIds()[0];
     expect(getEvaluatedCell(model, "A4").value).toBe(6);
-    model.dispatchFromOutside("ADD_MERGE", {
+    await model.dispatchFromOutside("ADD_MERGE", {
       sheetId: sheet1,
       target: target("A1:A3"),
       force: true,
@@ -612,7 +612,7 @@ describe("merges", () => {
     const firstSheetId = model.getters.getActiveSheetId();
     const secondSheetId = "42";
     merge(model, "C1:C2");
-    model.dispatchFromOutside("DUPLICATE_SHEET", {
+    await model.dispatchFromOutside("DUPLICATE_SHEET", {
       sheetId: firstSheetId,
       sheetIdTo: secondSheetId,
       sheetNameTo: "Copy of Sheet1",

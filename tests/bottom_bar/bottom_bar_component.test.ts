@@ -1045,7 +1045,7 @@ describe("BottomBar component", () => {
   test("Attempt to modify a locked sheet will trigger an animation", async () => {
     const { model } = await mountBottomBar();
     const sheetId = model.getters.getActiveSheetId();
-    model.dispatchFromOutside("LOCK_SHEET", { sheetId });
+    await model.dispatchFromOutside("LOCK_SHEET", { sheetId });
 
     model.trigger("command-rejected", { result: new DispatchResult(CommandResult.SheetLocked) });
     expect(HTMLDivElement.prototype.animate).toHaveBeenCalled();

@@ -63,7 +63,7 @@ describe("styles", () => {
     selectCell(model, "B1");
     setStyle(model, "B1", { fillColor: "red" });
     expect(getCell(model, "B1")!.style).toBeDefined();
-    model.dispatchFromOutside("CLEAR_FORMATTING", {
+    await model.dispatchFromOutside("CLEAR_FORMATTING", {
       sheetId: model.getters.getActiveSheetId(),
       target: model.getters.getSelectedZones(),
     });
@@ -127,7 +127,7 @@ describe("styles", () => {
     setFormat(model, "B1", "#,##0.0");
     expect(getCell(model, "B1")!.style).toBeDefined();
     expect(getCell(model, "B1")!.format).toBeDefined();
-    model.dispatchFromOutside("CLEAR_FORMATTING", {
+    await model.dispatchFromOutside("CLEAR_FORMATTING", {
       sheetId: model.getters.getActiveSheetId(),
       target: target("B1"),
     });
@@ -141,7 +141,7 @@ describe("styles", () => {
     setFormat(model, "B1", "#,##0.0");
     expect(getCell(model, "B1")!.style).toBeDefined();
     expect(getCell(model, "B1")!.format).toBeDefined();
-    model.dispatchFromOutside("CLEAR_FORMATTING", {
+    await model.dispatchFromOutside("CLEAR_FORMATTING", {
       sheetId: model.getters.getActiveSheetId(),
       target: target("B1"),
     });
@@ -155,7 +155,7 @@ describe("styles", () => {
     const model = new Model();
     const sheetId = model.getters.getActiveSheetId();
     setFormat(model, "A1", "#,##0.0");
-    model.dispatchFromOutside("CLEAR_FORMATTING", {
+    await model.dispatchFromOutside("CLEAR_FORMATTING", {
       sheetId,
       target: target("A1"),
     });
@@ -176,7 +176,7 @@ describe("styles", () => {
     setCellContent(model, "A1", "H");
     setCellContent(model, "A2", "H");
     const fontSize = 36;
-    model.dispatchFromOutside("ADD_CONDITIONAL_FORMAT", {
+    await model.dispatchFromOutside("ADD_CONDITIONAL_FORMAT", {
       cf: createEqualCF("H", { fontSize }, "1"),
       ranges: toRangesData(sheetId, "A1"),
       sheetId,
@@ -216,7 +216,7 @@ describe("styles", () => {
     setCellContent(model, "A1", "hello");
     setStyle(model, "A1", { fillColor: "#fefefe" });
 
-    model.dispatchFromOutside("SET_FORMATTING", {
+    await model.dispatchFromOutside("SET_FORMATTING", {
       sheetId: model.getters.getActiveSheetId(),
       target: target("A1"),
       style: undefined,
@@ -224,7 +224,7 @@ describe("styles", () => {
     expect(getStyle(model, "A1")).toEqual({ fillColor: "#fefefe" });
 
     setStyle(model, "A1", { fillColor: "#fefefe" });
-    model.dispatchFromOutside("UPDATE_CELL", {
+    await model.dispatchFromOutside("UPDATE_CELL", {
       sheetId: model.getters.getActiveSheetId(),
       col: 0,
       row: 0,
@@ -238,7 +238,7 @@ describe("styles", () => {
     setCellContent(model, "A1", "hello");
     setStyle(model, "A1", { fillColor: "#fefefe", bold: true });
 
-    model.dispatchFromOutside("UPDATE_CELL", {
+    await model.dispatchFromOutside("UPDATE_CELL", {
       sheetId: model.getters.getActiveSheetId(),
       col: 0,
       row: 0,

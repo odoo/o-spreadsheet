@@ -1670,7 +1670,7 @@ describe("Test XLSX export", () => {
         sheetId,
         model.getters.getNumberCols(sheetId) - 1
       ).end;
-      model.dispatchFromOutside("UPDATE_FIGURE", {
+      await model.dispatchFromOutside("UPDATE_FIGURE", {
         sheetId: "Sheet1",
         figureId: "1",
         offset: { x: end + 5, y: 0 },
@@ -1723,7 +1723,7 @@ describe("Test XLSX export", () => {
         sheetId,
         model.getters.getNumberCols(sheetId) - 1
       ).end;
-      model.dispatchFromOutside("UPDATE_FIGURE", {
+      await model.dispatchFromOutside("UPDATE_FIGURE", {
         sheetId,
         figureId: "1",
         offset: { x: end + 5, y: 0 },
@@ -1760,7 +1760,7 @@ describe("Test XLSX export", () => {
       },
       "1"
     );
-    model.dispatchFromOutside("ADD_CONDITIONAL_FORMAT", {
+    await model.dispatchFromOutside("ADD_CONDITIONAL_FORMAT", {
       sheetId: model.getters.getActiveSheetId(),
       ranges: toRangesData(model.getters.getActiveSheetId(), "A1"),
       cf: {

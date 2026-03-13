@@ -45,7 +45,7 @@ describe("Data validation", () => {
     });
 
     test("Data validation with a wrong sheet in ranges", () => {
-      const result = model.dispatchFromOutside("ADD_DATA_VALIDATION_RULE", {
+      const result = await model.dispatchFromOutside("ADD_DATA_VALIDATION_RULE", {
         sheetId: "Sheet1",
         ranges: toRangesData("wrong-sheet-id", "A1:5"),
         rule: { id: "dvId", criterion: { type: "containsText", values: ["1"] } },
@@ -99,7 +99,7 @@ describe("Data validation", () => {
     });
 
     test("Cannot create a data validation rule with an empty range", () => {
-      const result = model.dispatchFromOutside("ADD_DATA_VALIDATION_RULE", {
+      const result = await model.dispatchFromOutside("ADD_DATA_VALIDATION_RULE", {
         sheetId,
         ranges: [],
         rule: { id: "id", criterion: { type: "isBoolean", values: [] } },

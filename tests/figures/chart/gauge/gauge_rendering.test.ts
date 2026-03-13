@@ -258,10 +258,10 @@ describe("Gauge chart component animation", () => {
     expect(gaugeAnimationSpy).toHaveBeenCalledTimes(1);
 
     // Scroll the figure out of the viewport and back in
-    model.dispatchFromOutside("SET_VIEWPORT_OFFSET", { offsetX: 0, offsetY: 500 });
+    await model.dispatchFromOutside("SET_VIEWPORT_OFFSET", { offsetX: 0, offsetY: 500 });
     await nextTick();
     expect(".o-figure").toHaveCount(0);
-    model.dispatchFromOutside("SET_VIEWPORT_OFFSET", { offsetX: 0, offsetY: 0 });
+    await model.dispatchFromOutside("SET_VIEWPORT_OFFSET", { offsetX: 0, offsetY: 0 });
     await nextTick();
     expect(".o-figure").toHaveCount(1);
     expect(gaugeAnimationSpy).toHaveBeenCalledTimes(1);

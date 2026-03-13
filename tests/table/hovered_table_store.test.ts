@@ -87,7 +87,11 @@ describe("Hovered Table Store", () => {
     hoveredTableStore.clear();
 
     model.updateMode("normal");
-    model.dispatchFromOutside("HIDE_COLUMNS_ROWS", { sheetId, elements: [0], dimension: "COL" });
+    await model.dispatchFromOutside("HIDE_COLUMNS_ROWS", {
+      sheetId,
+      elements: [0],
+      dimension: "COL",
+    });
     model.updateMode("dashboard");
     hoveredTableStore.hover(B2);
     expect(hoveredTableStore.overlayColors.has({ sheetId, ...B2 })).toBe(false);

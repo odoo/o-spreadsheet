@@ -334,7 +334,7 @@ describe("find and replace sidePanel component", () => {
       await click(fixture, selectors.closeSidepanel);
       expect(model.getters.shouldShowFormulas()).toBe(false);
 
-      model.dispatchFromOutside("SET_FORMULA_VISIBILITY", { show: true });
+      await model.dispatchFromOutside("SET_FORMULA_VISIBILITY", { show: true });
       parent.env.openSidePanel("FindAndReplace");
       await nextTick();
 
@@ -350,7 +350,7 @@ describe("find and replace sidePanel component", () => {
     });
 
     test("Setting show formula from f&r should retain its state even it's changed via topbar", async () => {
-      model.dispatchFromOutside("SET_FORMULA_VISIBILITY", { show: true });
+      await model.dispatchFromOutside("SET_FORMULA_VISIBILITY", { show: true });
       await nextTick();
       expect(model.getters.shouldShowFormulas()).toBe(true);
       expect(

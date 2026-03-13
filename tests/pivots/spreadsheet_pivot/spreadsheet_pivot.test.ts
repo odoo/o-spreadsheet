@@ -462,7 +462,7 @@ describe("Spreadsheet Pivot", () => {
     const model = createModelFromGrid(grid);
     const locale = DEFAULT_LOCALES[1];
     expect(locale.weekStart).toBe(1);
-    model.dispatchFromOutside("UPDATE_LOCALE", { locale });
+    await model.dispatchFromOutside("UPDATE_LOCALE", { locale });
     addPivot(model, "A1:B3", {
       columns: [],
       rows: [{ fieldName: "Date", granularity: "day_of_week" }],
@@ -2095,7 +2095,7 @@ describe("Spreadsheet Pivot", () => {
     const pivotId = model.getters.getPivotIds()[0];
     const pivot = model.getters.getPivot(pivotId);
     const table = pivot.getCollapsedTableStructure().export();
-    model.dispatchFromOutside("INSERT_PIVOT", {
+    await model.dispatchFromOutside("INSERT_PIVOT", {
       pivotId,
       col: 2,
       row: 0,
@@ -2106,22 +2106,22 @@ describe("Spreadsheet Pivot", () => {
       },
     });
     expect(getEvaluatedGrid(model, "C3:C4")).toEqual([["10"], ["20"]]);
-    model.dispatchFromOutside("SET_FORMULA_VISIBILITY", { show: true });
+    await model.dispatchFromOutside("SET_FORMULA_VISIBILITY", { show: true });
     // With fieldsType = undefined, arguments are stringified
     expect(getEvaluatedGrid(model, "C3:C4")).toEqual([
       [`=PIVOT.HEADER(1,"Price","10")`],
       [`=PIVOT.HEADER(1,"Price","20")`],
     ]);
-    model.dispatchFromOutside("INSERT_PIVOT", {
+    await model.dispatchFromOutside("INSERT_PIVOT", {
       pivotId,
       col: 2,
       row: 0,
       sheetId: model.getters.getActiveSheetId(),
       table,
     });
-    model.dispatchFromOutside("SET_FORMULA_VISIBILITY", { show: false });
+    await model.dispatchFromOutside("SET_FORMULA_VISIBILITY", { show: false });
     expect(getEvaluatedGrid(model, "C3:C4")).toEqual([["10"], ["20"]]);
-    model.dispatchFromOutside("SET_FORMULA_VISIBILITY", { show: true });
+    await model.dispatchFromOutside("SET_FORMULA_VISIBILITY", { show: true });
     // With fieldsType set, arguments are correctly normalized
     expect(getEvaluatedGrid(model, "C3:C4")).toEqual([
       [`=PIVOT.HEADER(1,"Price",10)`],
@@ -2613,7 +2613,12 @@ describe("Spreadsheet Pivot", () => {
     updatePivot(model, "1", { style: { tabularForm: true } });
 
     const sheetId = model.getters.getActiveSheetId();
-    model.dispatchFromOutside("SPLIT_PIVOT_FORMULA", { sheetId, col: 0, row: 24, pivotId: "1" });
+    await model.dispatchFromOutside("SPLIT_PIVOT_FORMULA", {
+      sheetId,
+      col: 0,
+      row: 24,
+      pivotId: "1",
+    });
 
     delete standardPivotGrid["A25"]; // Pivot title is removed in split
     expect(removeFalsyAttributes(getGrid(model))).toMatchObject(standardPivotGrid);

@@ -28,7 +28,7 @@ describe("Table formula autofill ", () => {
   test("Can autofill a formula on a table column", () => {
     createTable(model, "C3:D5", TABLE_CONFIG_NO_HEADERS);
     setCellContent(model, "C3", "=A1");
-    model.dispatchFromOutside("AUTOFILL_TABLE_COLUMN", { col: 2, row: 2, sheetId });
+    await model.dispatchFromOutside("AUTOFILL_TABLE_COLUMN", { col: 2, row: 2, sheetId });
     expect(getCellRawContent(model, "C3")).toEqual("=A1");
     expect(getCellRawContent(model, "C4")).toEqual("=A2");
     expect(getCellRawContent(model, "C5")).toEqual("=A3");
@@ -37,7 +37,7 @@ describe("Table formula autofill ", () => {
   test("Autofill is not active with the automaticAutofill table option set to false", () => {
     createTable(model, "A1:B3", { ...TABLE_CONFIG_NO_HEADERS, automaticAutofill: false });
     setCellContent(model, "A1", "=C1");
-    model.dispatchFromOutside("AUTOFILL_TABLE_COLUMN", { col: 0, row: 0, sheetId });
+    await model.dispatchFromOutside("AUTOFILL_TABLE_COLUMN", { col: 0, row: 0, sheetId });
     expect(getCellRawContent(model, "A1")).toEqual("=C1");
     expect(getCellRawContent(model, "A2")).toEqual(undefined);
   });
@@ -45,13 +45,13 @@ describe("Table formula autofill ", () => {
   test("Table headers are not auto-filled ", () => {
     createTable(model, "A1:B3", { ...DEFAULT_TABLE_CONFIG, numberOfHeaders: 1 });
     setCellContent(model, "A1", "=C1");
-    model.dispatchFromOutside("AUTOFILL_TABLE_COLUMN", { col: 0, row: 0, sheetId });
+    await model.dispatchFromOutside("AUTOFILL_TABLE_COLUMN", { col: 0, row: 0, sheetId });
     expect(getCellRawContent(model, "A1")).toEqual("=C1");
     expect(getCellRawContent(model, "A2")).toEqual(undefined);
     expect(getCellRawContent(model, "A3")).toEqual(undefined);
 
     setCellContent(model, "B2", "=C2");
-    model.dispatchFromOutside("AUTOFILL_TABLE_COLUMN", { col: 1, row: 1, sheetId });
+    await model.dispatchFromOutside("AUTOFILL_TABLE_COLUMN", { col: 1, row: 1, sheetId });
     expect(getCellRawContent(model, "B1")).toEqual(undefined);
     expect(getCellRawContent(model, "B2")).toEqual("=C2");
     expect(getCellRawContent(model, "B3")).toEqual("=C3");
@@ -60,7 +60,7 @@ describe("Table formula autofill ", () => {
   test("Autofill on something else than a formula does not autofill the column", () => {
     createTable(model, "A1:B3", TABLE_CONFIG_NO_HEADERS);
     setCellContent(model, "A1", "hello");
-    model.dispatchFromOutside("AUTOFILL_TABLE_COLUMN", { col: 0, row: 0, sheetId });
+    await model.dispatchFromOutside("AUTOFILL_TABLE_COLUMN", { col: 0, row: 0, sheetId });
     expect(getCellRawContent(model, "A1")).toEqual("hello");
     expect(getCellRawContent(model, "A2")).toEqual(undefined);
   });
@@ -68,7 +68,7 @@ describe("Table formula autofill ", () => {
   test("Autofill works both above and below the inputted formula", () => {
     createTable(model, "A1:B3", TABLE_CONFIG_NO_HEADERS);
     setCellContent(model, "A2", "=C2");
-    model.dispatchFromOutside("AUTOFILL_TABLE_COLUMN", { col: 0, row: 1, sheetId });
+    await model.dispatchFromOutside("AUTOFILL_TABLE_COLUMN", { col: 0, row: 1, sheetId });
     expect(getCellRawContent(model, "A1")).toEqual("=C1");
     expect(getCellRawContent(model, "A2")).toEqual("=C2");
     expect(getCellRawContent(model, "A3")).toEqual("=C3");
@@ -78,7 +78,7 @@ describe("Table formula autofill ", () => {
     createTable(model, "A1:B3", TABLE_CONFIG_NO_HEADERS);
     setCellContent(model, "A3", "hello");
     setCellContent(model, "A1", "=C1");
-    model.dispatchFromOutside("AUTOFILL_TABLE_COLUMN", { col: 0, row: 0, sheetId });
+    await model.dispatchFromOutside("AUTOFILL_TABLE_COLUMN", { col: 0, row: 0, sheetId });
     expect(getCellRawContent(model, "A1")).toEqual("=C1");
     expect(getCellRawContent(model, "A2")).toEqual(undefined);
     expect(getCellRawContent(model, "A3")).toEqual("hello");
