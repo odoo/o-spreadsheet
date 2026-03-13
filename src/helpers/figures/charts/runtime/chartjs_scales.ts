@@ -8,7 +8,11 @@ import {
   GRAY_300,
 } from "@odoo/o-spreadsheet-engine/constants";
 import { isNumberCell } from "@odoo/o-spreadsheet-engine/helpers/cells/cell_evaluation";
-import { COLORSCHEMES, getColorScale, relativeLuminance } from "@odoo/o-spreadsheet-engine/helpers/color";
+import {
+  COLORSCHEMES,
+  getColorScale,
+  relativeLuminance,
+} from "@odoo/o-spreadsheet-engine/helpers/color";
 import {
   MOVING_AVERAGE_TREND_LINE_XAXIS_ID,
   TREND_LINE_XAXIS_ID,
