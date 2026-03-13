@@ -85,7 +85,7 @@ describe("Simple filter test", () => {
     expect(model.getters.isRowFiltered(sheetId, 3)).toEqual(true);
   });
 
-  test("Can delete row/columns on duplicated sheet with filters", () => {
+  test("Can delete row/columns on duplicated sheet with filters", async () => {
     createTableWithFilter(model, "B1:B3");
     updateFilter(model, "B1", ["C"]);
 
@@ -243,7 +243,7 @@ describe("Filter Evaluation", () => {
     expect(model.getters.isRowHidden(sheetId, 1)).toEqual(false);
   });
 
-  test("Sheet duplication after importing table don't break", () => {
+  test("Sheet duplication after importing table don't break", async () => {
     const model = new Model({
       sheets: [
         {

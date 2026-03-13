@@ -932,7 +932,7 @@ describe("Rows", () => {
       expect(model.getters.getActiveSheet().numberOfCols).toBe(1);
       expect(model.getters.getActiveSheet().rows).toHaveLength(5);
     });
-    test("On addition before", () => {
+    test("On addition before", async () => {
       addRows(model, "before", 1, 2);
       const size = DEFAULT_CELL_HEIGHT;
       const sheetId = model.getters.getActiveSheetId();
@@ -955,7 +955,7 @@ describe("Rows", () => {
         height: 142, // sum of row sizes  + 46px for adding rows footer
       });
     });
-    test("On addition after", () => {
+    test("On addition after", async () => {
       addRows(model, "after", 2, 2);
       const size = DEFAULT_CELL_HEIGHT;
       const sheetId = model.getters.getActiveSheetId();
@@ -985,7 +985,7 @@ describe("Rows", () => {
       );
     });
 
-    test("activate Sheet: same size", () => {
+    test("activate Sheet: same size", async () => {
       addRows(model, "after", 2, 1);
       await model.dispatchFromOutside("RESIZE_SHEETVIEW", {
         width: DEFAULT_CELL_WIDTH,
@@ -1569,7 +1569,7 @@ describe("Delete cell", () => {
     testUndoRedo(model, expect, "DELETE_CELL", { zone: toZone("A1"), dimension: "ROW" });
   });
 
-  test.each(["up", "left"] as const)("can delete the last cell of the grid", (direction) => {
+  test.each(["up", "left"] as const)("can delete the last cell of the grid", async (direction) => {
     const sheetId = model.getters.getActiveSheetId();
     const col = model.getters.getNumberCols(sheetId) - 1;
     const row = model.getters.getNumberRows(sheetId) - 1;

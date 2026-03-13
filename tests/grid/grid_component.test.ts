@@ -1172,7 +1172,7 @@ describe("Grid component", () => {
       expect(getCell(model, "C8")?.style).toMatchObject({ fillColor: "#748747" });
     });
 
-    test("Paste format works with conditional format", () => {
+    test("Paste format works with conditional format", async () => {
       const sheetId = model.getters.getActiveSheetId();
       await model.dispatchFromOutside("ADD_CONDITIONAL_FORMAT", {
         cf: createEqualCF("1", { fillColor: "#0000FF" }, "cf2"),

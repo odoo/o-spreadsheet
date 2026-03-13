@@ -66,7 +66,7 @@ describe("Table plugin", () => {
   });
 
   describe("Dispatch results", () => {
-    test("Create table is correctly rejected if given invalid zone", () => {
+    test("Create table is correctly rejected if given invalid zone", async () => {
       expect(
         await model.dispatchFromOutside("CREATE_TABLE", {
           sheetId: model.getters.getActiveSheetId(),
@@ -142,7 +142,7 @@ describe("Table plugin", () => {
       });
     });
 
-    test("Cannot update a non-existing table", () => {
+    test("Cannot update a non-existing table", async () => {
       expect(
         await model.dispatchFromOutside("UPDATE_TABLE", {
           sheetId,
@@ -187,7 +187,7 @@ describe("Table plugin", () => {
       expect(result).toBeCancelledBecause(CommandResult.InvalidSheetId);
     });
 
-    test("reject data range targeting a different sheet", () => {
+    test("reject data range targeting a different sheet", async () => {
       const firstSheetId = model.getters.getActiveSheetId();
       createSheet(model, { sheetId: "sheet2" });
       const result = await model.dispatchFromOutside("CREATE_TABLE", {
@@ -231,7 +231,7 @@ describe("Table plugin", () => {
       expect(getTable(model, "A1")?.range.zone).toEqual(toZone("A1:B5"));
     });
 
-    test("Create new table on sheet duplication", () => {
+    test("Create new table on sheet duplication", async () => {
       createTableWithFilter(model, "A1:A3");
       updateFilter(model, "A1", ["C"]);
 
@@ -706,7 +706,7 @@ describe("Table plugin", () => {
       expect(getFilter(model, "A1")).toBeFalsy();
     });
 
-    test("Can undo/redo update a table", () => {
+    test("Can undo/redo update a table", async () => {
       const model = new Model();
       createTable(model, "A1:A4");
 

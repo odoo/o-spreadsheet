@@ -550,7 +550,7 @@ describe("datasource tests", function () {
     expect(title?.([{ dataset: { axisId: "y" } }])).toBeUndefined();
   });
 
-  test("can delete an imported chart", () => {
+  test("can delete an imported chart", async () => {
     createChart(
       model,
       {
@@ -892,7 +892,7 @@ describe("datasource tests", function () {
     expect(chartIds[0]).not.toEqual(chartIds[1]);
   });
 
-  test("reject updates that target a inexistent chart", () => {
+  test("reject updates that target a inexistent chart", async () => {
     createChart(
       model,
       {
@@ -914,7 +914,7 @@ describe("datasource tests", function () {
     expect(result).toBeCancelledBecause(CommandResult.ChartDoesNotExist);
   });
 
-  test("reject updates that target a figure that is not a chart", () => {
+  test("reject updates that target a figure that is not a chart", async () => {
     createFigure(model, { figureId: "2", tag: "not a chart" });
 
     const result = await model.dispatchFromOutside("UPDATE_CHART", {
@@ -939,7 +939,7 @@ describe("datasource tests", function () {
     expect(result).toBeCancelledBecause(CommandResult.NoChanges);
   });
 
-  test("chart is not selected after creation and update", () => {
+  test("chart is not selected after creation and update", async () => {
     const chartId = "1234";
     createChart(
       model,
@@ -1045,7 +1045,7 @@ describe("datasource tests", function () {
       })
     ).toBeCancelledBecause(CommandResult.InvalidLabelRange);
   });
-  test("duplicate a sheet with and without a chart", () => {
+  test("duplicate a sheet with and without a chart", async () => {
     const model = new Model({
       sheets: [
         {
@@ -1144,7 +1144,7 @@ describe("datasource tests", function () {
     expect(() => model.getters.getChartRuntime("1")).toThrow();
   });
 
-  test("Chart is copied on sheet duplication", () => {
+  test("Chart is copied on sheet duplication", async () => {
     const firstSheetId = model.getters.getActiveSheetId();
     const secondSheetId = "42";
     const dataSets = [{ dataRange: "B1:B4" }, { dataRange: "C1:C4" }];
@@ -1187,7 +1187,7 @@ describe("datasource tests", function () {
     expect(model.getters.getFigures(secondSheetId)).toEqual([duplicatedFigure]);
   });
 
-  test("Duplicate sheet > export > import > duplicate sheet contains 2 distinct charts", () => {
+  test("Duplicate sheet > export > import > duplicate sheet contains 2 distinct charts", async () => {
     const firstSheetId = model.getters.getActiveSheetId();
     const secondSheetId = "42";
     const thirdSheetId = "third";
@@ -1242,7 +1242,7 @@ describe("datasource tests", function () {
     expect(chartSh3).not.toEqual(chartSh1);
   });
 
-  test("Chart foreign ranges unchanged on sheet duplication", () => {
+  test("Chart foreign ranges unchanged on sheet duplication", async () => {
     const firstSheetId = model.getters.getActiveSheetId();
     const secondSheetName = "FixedRef";
     const secondSheetId = "41";
@@ -1618,7 +1618,7 @@ describe("multiple sheets", function () {
       labelRange: "Sheet1!A2:A4",
     });
   });
-  test("change source data then activate the chart sheet (it should be up-to-date)", () => {
+  test("change source data then activate the chart sheet (it should be up-to-date)", async () => {
     createSheet(model, { sheetId: "42", activate: true });
     createChart(
       model,
@@ -1639,7 +1639,7 @@ describe("multiple sheets", function () {
     await model.dispatchFromOutside("ACTIVATE_SHEET", { sheetIdFrom: "Sheet1", sheetIdTo: "42" });
     expect(getChartConfiguration(model, "28").data.datasets[0].data).toEqual([99, 11, 12]);
   });
-  test("change dataset label then activate the chart sheet (it should be up-to-date)", () => {
+  test("change dataset label then activate the chart sheet (it should be up-to-date)", async () => {
     createSheet(model, { sheetId: "42", activate: true });
     createChart(
       model,
@@ -1724,7 +1724,7 @@ describe("multiple sheets", function () {
     test("new model with chart with formulas from another sheet (not evaluated yet)", () => {
       expect(getChartConfiguration(model, "1").data!.datasets![0].data).toEqual([2, 4]);
     });
-    test("chart is updated with new data", () => {
+    test("chart is updated with new data", async () => {
       let dataSets = getChartConfiguration(model, "1").data.datasets;
       expect(dataSets[0].data).toEqual([2, 4]);
       await model.dispatchFromOutside("UPDATE_CELL", {
@@ -2017,7 +2017,7 @@ describe("Chart design configuration", () => {
 
   test.each([{ format: "0.00%" }, { style: { textColor: "#FFF" } }])(
     "no data points but style on a label",
-    (formatting) => {
+    async (formatting) => {
       const model = new Model();
       await model.dispatchFromOutside("SET_FORMATTING", {
         sheetId: model.getters.getActiveSheetId(),
@@ -2038,7 +2038,7 @@ describe("Chart design configuration", () => {
 
   test.each([{ format: "0.00%" }, { style: { textColor: "#FFF" } }])(
     "no data points but style on a value",
-    (formatting) => {
+    async (formatting) => {
       const model = new Model();
       await model.dispatchFromOutside("SET_FORMATTING", {
         sheetId: model.getters.getActiveSheetId(),
@@ -3398,7 +3398,7 @@ describe("Pie chart invalid values", () => {
   });
 });
 
-test("Duplicating a sheet dispatches CREATE_CHART for each chart", () => {
+test("Duplicating a sheet dispatches CREATE_CHART for each chart", async () => {
   createChart(
     model,
     {

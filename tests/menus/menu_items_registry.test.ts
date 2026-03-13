@@ -259,7 +259,7 @@ describe("Menu Item actions", () => {
     expect(getCellContent(model, "A1")).toEqual("");
   });
 
-  test("Edit -> paste_special should be hidden after a CUT ", () => {
+  test("Edit -> paste_special should be hidden after a CUT ", async () => {
     await model.dispatchFromOutside("CUT");
     expect(getNode(["edit", "paste_special"], env).isVisible(env)).toBeFalsy();
   });
@@ -1198,7 +1198,7 @@ describe("Menu Item actions", () => {
       expect(getCell(model, "A1")?.format).toBe("[$€]*  #,##0 ;[$€]* (#,##0);[$€]*   -  ");
     });
 
-    test.each(DEFAULT_LOCALES)("Date", (locale) => {
+    test.each(DEFAULT_LOCALES)("Date", async (locale) => {
       await env.model.dispatchFromOutside("UPDATE_LOCALE", { locale });
       doAction(["format", "format_number", "format_number_date"], env);
       expect(dispatch).toHaveBeenCalledWith("SET_FORMATTING_WITH_PIVOT", {
@@ -1208,7 +1208,7 @@ describe("Menu Item actions", () => {
       });
     });
 
-    test.each(DEFAULT_LOCALES)("Time", (locale) => {
+    test.each(DEFAULT_LOCALES)("Time", async (locale) => {
       await env.model.dispatchFromOutside("UPDATE_LOCALE", { locale });
       doAction(["format", "format_number", "format_number_time"], env);
       expect(dispatch).toHaveBeenCalledWith("SET_FORMATTING_WITH_PIVOT", {
@@ -1218,7 +1218,7 @@ describe("Menu Item actions", () => {
       });
     });
 
-    test.each(DEFAULT_LOCALES)("Date time", (locale) => {
+    test.each(DEFAULT_LOCALES)("Date time", async (locale) => {
       await env.model.dispatchFromOutside("UPDATE_LOCALE", { locale });
       doAction(["format", "format_number", "format_number_date_time"], env);
       expect(dispatch).toHaveBeenCalledWith("SET_FORMATTING_WITH_PIVOT", {
@@ -1877,7 +1877,7 @@ describe("Menu Item actions", () => {
     });
   });
 
-  test("View -> Set gridlines visibility", () => {
+  test("View -> Set gridlines visibility", async () => {
     const path_gridlines = ["view", "show", "view_gridlines"];
     const sheetId = model.getters.getActiveSheetId();
 

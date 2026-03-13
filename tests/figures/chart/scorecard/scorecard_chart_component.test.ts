@@ -83,7 +83,7 @@ function renderScorecardChart(model: Model, chartId: UID, sheetId: UID, canvas: 
   drawScoreChart(design, canvas);
 }
 
-test("Scorecard chart canvas adapt to figure size", () => {
+test("Scorecard chart canvas adapt to figure size", async () => {
   chartId = "someuuid";
   sheetId = "Sheet1";
   const data = {

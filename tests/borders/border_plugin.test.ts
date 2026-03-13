@@ -421,7 +421,7 @@ describe("borders", () => {
     expect(getBorder(model, "C2")).toBeNull();
   });
 
-  test("deleting a cell with a border does not remove the border", () => {
+  test("deleting a cell with a border does not remove the border", async () => {
     const model = new Model();
 
     // select B2 and set its top border
@@ -450,7 +450,7 @@ describe("borders", () => {
     expect(getBorder(model, "B2")).toBeNull();
   });
 
-  test("can clear formatting (border)", () => {
+  test("can clear formatting (border)", async () => {
     const model = new Model();
     setCellContent(model, "B1", "b1");
     selectCell(model, "B1");
@@ -482,7 +482,7 @@ describe("borders", () => {
     expect(getCell(model, "B1")).toBeUndefined();
   });
 
-  test("set all border of a cell", () => {
+  test("set all border of a cell", async () => {
     const model = new Model();
     const s: BorderDescr = { style: "medium", color: "#FF0000" };
     await model.dispatchFromOutside("SET_BORDER", {
@@ -534,7 +534,7 @@ describe("Grid manipulation", () => {
     expect(getBorder(model, "D2")).toBeNull();
   });
 
-  test("move duplicated border when col is inserted before", () => {
+  test("move duplicated border when col is inserted before", async () => {
     const model = new Model();
     const firstSheetId = model.getters.getActiveSheetId();
     const secondSheetId = "42";
@@ -567,7 +567,7 @@ describe("Grid manipulation", () => {
     expect(getBorder(model, "D2", secondSheetId)).toBeNull();
   });
 
-  test("move duplicated border when row is inserted before", () => {
+  test("move duplicated border when row is inserted before", async () => {
     const model = new Model();
     const firstSheetId = model.getters.getActiveSheetId();
     const secondSheetId = "42";
@@ -678,7 +678,7 @@ describe("Grid manipulation", () => {
     expect(getBorder(model, "A2")).toBeNull();
   });
 
-  test("Borders are correctly duplicated on sheet dup", () => {
+  test("Borders are correctly duplicated on sheet dup", async () => {
     setZoneBorders(model, { position: "external" }, ["B2"]);
     const sheetId = model.getters.getActiveSheetId();
     const sheetIdTo = "42";

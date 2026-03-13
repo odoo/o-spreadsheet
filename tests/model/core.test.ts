@@ -318,7 +318,7 @@ describe("core", () => {
     expect(model.getters.getNumberCols("2")).toEqual(19);
   });
 
-  test("Range with absolute references are correctly updated on rows manipulation", () => {
+  test("Range with absolute references are correctly updated on rows manipulation", async () => {
     const model = new Model();
     await model.dispatchFromOutside("SET_FORMULA_VISIBILITY", { show: true });
     setCellContent(model, "A1", "=SUM($C$1:$C$5)");
@@ -328,7 +328,7 @@ describe("core", () => {
     expect(getCellContent(model, "A2")).toBe("=SUM($C$2:$C$7)");
   });
 
-  test("Absolute references are correctly updated on rows manipulation", () => {
+  test("Absolute references are correctly updated on rows manipulation", async () => {
     const model = new Model();
     await model.dispatchFromOutside("SET_FORMULA_VISIBILITY", { show: true });
     setCellContent(model, "A1", "=SUM($C$1)");
@@ -338,7 +338,7 @@ describe("core", () => {
     expect(getCellContent(model, "A2")).toBe("=SUM($C$2)");
   });
 
-  test("Range with absolute references are correctly updated on columns manipulation", () => {
+  test("Range with absolute references are correctly updated on columns manipulation", async () => {
     const model = new Model();
     await model.dispatchFromOutside("SET_FORMULA_VISIBILITY", { show: true });
     setCellContent(model, "A1", "=SUM($A$2:$E$2)");
@@ -348,7 +348,7 @@ describe("core", () => {
     expect(getCellContent(model, "B1")).toBe("=SUM($B$2:$G$2)");
   });
 
-  test("Absolute references are correctly updated on columns manipulation", () => {
+  test("Absolute references are correctly updated on columns manipulation", async () => {
     const model = new Model();
     await model.dispatchFromOutside("SET_FORMULA_VISIBILITY", { show: true });
     setCellContent(model, "A1", "=SUM($A$2)");
@@ -400,7 +400,7 @@ describe("history", () => {
     expect(model.getters.canUndo()).toBe(true);
   });
 
-  test("can undo and redo a delete cell operation", () => {
+  test("can undo and redo a delete cell operation", async () => {
     const model = new Model();
     setCellContent(model, "A2", "3");
 
@@ -419,7 +419,7 @@ describe("history", () => {
     expect(getCell(model, "A2")).toBeUndefined();
   });
 
-  test("can delete a cell with a style", () => {
+  test("can delete a cell with a style", async () => {
     const model = new Model();
     setCellContent(model, "A1", "3");
     setStyle(model, "A1", { bold: true });
@@ -432,7 +432,7 @@ describe("history", () => {
     expect(getCellContent(model, "A1")).toBe("");
   });
 
-  test("can delete a cell with a border", () => {
+  test("can delete a cell with a border", async () => {
     const model = new Model();
     setCellContent(model, "A1", "3");
     setZoneBorders(model, { position: "bottom" }, ["A1"]);
@@ -446,7 +446,7 @@ describe("history", () => {
     expect(getCellContent(model, "A1")).toBe("");
   });
 
-  test("can delete a cell with a format", () => {
+  test("can delete a cell with a format", async () => {
     const model = new Model();
     setCellContent(model, "A1", "3");
     setFormat(model, "A1", "#,##0.00");
@@ -468,7 +468,7 @@ describe("history", () => {
     expect(getCellContent(model, "A2")).toBe("03/12/2011");
   });
 
-  test("get cell formula text", () => {
+  test("get cell formula text", async () => {
     const model = new Model();
     setCellContent(model, "A1", "=SUM(1,2)");
     setCellContent(model, "A2", "This is Patrick");
@@ -480,7 +480,7 @@ describe("history", () => {
     expect(getCellContent(model, "A2")).toBe("This is Patrick");
   });
 
-  test("set formula visibility is idempotent", () => {
+  test("set formula visibility is idempotent", async () => {
     const model = new Model();
     await model.dispatchFromOutside("SET_FORMULA_VISIBILITY", { show: true });
     expect(model.getters.shouldShowFormulas()).toBe(true);
@@ -640,26 +640,26 @@ describe("Generic allowDispatch", () => {
   });
 
   describe.each(["MY_CORE_CMD", "My_UI_CMD"])("Generic allowDispatch", (cmdType: string) => {
-    test("Sheet dependant command", () => {
+    test("Sheet dependant command", async () => {
       const result = await dispatch(cmdType, { sheetId: "notARealSheet" });
       expect(result).toBeCancelledBecause(CommandResult.InvalidSheetId);
     });
 
-    test("Zone dependant command", () => {
+    test("Zone dependant command", async () => {
       const sheetZone = model.getters.getSheetZone(sheetId);
       const outOfSheetZone = { ...sheetZone, right: sheetZone.right + 10 };
       const result = await dispatch(cmdType, { sheetId, zone: outOfSheetZone });
       expect(result).toBeCancelledBecause(CommandResult.TargetOutOfSheet);
     });
 
-    test("Target dependant command", () => {
+    test("Target dependant command", async () => {
       const sheetZone = model.getters.getSheetZone(sheetId);
       const outOfSheetZone = { ...sheetZone, right: sheetZone.right + 10 };
       const result = await dispatch(cmdType, { sheetId, target: [outOfSheetZone] });
       expect(result).toBeCancelledBecause(CommandResult.TargetOutOfSheet);
     });
 
-    test("Range dependant command", () => {
+    test("Range dependant command", async () => {
       const sheetZone = model.getters.getSheetZone(sheetId);
       const outOfSheetZoneXc = zoneToXc({ ...sheetZone, right: sheetZone.right + 10 });
       const result = await dispatch(cmdType, {
@@ -669,7 +669,7 @@ describe("Generic allowDispatch", () => {
       expect(result).toBeCancelledBecause(CommandResult.TargetOutOfSheet);
     });
 
-    test("Position dependant command", () => {
+    test("Position dependant command", async () => {
       const sheetZone = model.getters.getSheetZone(sheetId);
       const result = await dispatch(cmdType, {
         sheetId,

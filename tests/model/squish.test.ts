@@ -545,7 +545,7 @@ describe("squish - unsquish specific cases", () => {
     }
   );
 
-  test("empty cell do not generate positions", () => {
+  test("empty cell do not generate positions", async () => {
     const sheetContent = {};
     const squishedContent = {};
     const model = createModelFromGrid(sheetContent);
@@ -586,7 +586,7 @@ describe("squish - unsquish specific cases", () => {
 });
 
 describe("Models created from squished data behavior", () => {
-  test("adapt ranges when inserting rows/columns", () => {
+  test("adapt ranges when inserting rows/columns", async () => {
     const squishedData = {
       sheets: [
         {

@@ -824,7 +824,7 @@ describe("Collaborative Sheet manipulation", () => {
       );
     });
 
-    test("Set grid lines visibility is correctly shared", () => {
+    test("Set grid lines visibility is correctly shared", async () => {
       createSheet(alice, { sheetId: "42" });
       expect([alice, bob, charlie]).toHaveSynchronizedValue(
         (user) => user.getters.getGridLinesVisibility("42"),

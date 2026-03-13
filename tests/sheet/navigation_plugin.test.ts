@@ -74,7 +74,7 @@ describe("navigation", () => {
     expect(getActivePosition(model)).toBe(xc);
   });
 
-  test("move bottom from merge in last position", () => {
+  test("move bottom from merge in last position", async () => {
     const model = new Model();
     const activeSheetId = model.getters.getActiveSheetId();
     const rowNumber = model.getters.getNumberRows(activeSheetId);
@@ -89,7 +89,7 @@ describe("navigation", () => {
     expect(getActivePosition(model)).toBe(xc);
   });
 
-  test("Cannot move bottom from merge in last position if last row is hidden", () => {
+  test("Cannot move bottom from merge in last position if last row is hidden", async () => {
     const model = new Model();
     const activeSheetId = model.getters.getActiveSheetId();
     const rowNumber = model.getters.getNumberRows(activeSheetId);
@@ -109,7 +109,7 @@ describe("navigation", () => {
     expect(getActivePosition(model)).toBe(xc);
   });
 
-  test("move right from merge in last position", () => {
+  test("move right from merge in last position", async () => {
     const model = new Model();
     const activeSheetId = model.getters.getActiveSheetId();
     const colNumber = model.getters.getNumberCols(activeSheetId);
@@ -162,7 +162,7 @@ describe("navigation", () => {
     expect(getSelectionAnchorCellXc(model)).toEqual("B2");
   });
 
-  test("move right from right col (of the viewport)", () => {
+  test("move right from right col (of the viewport)", async () => {
     const model = new Model();
     let viewport = await getViewport(model, 600, 300, 0, 0);
     expect(viewport.left).toBe(0);
@@ -184,7 +184,7 @@ describe("navigation", () => {
     expect(viewport.right).toBe(7);
   });
 
-  test("move left from left col (of the viewport)", () => {
+  test("move left from left col (of the viewport)", async () => {
     const model = new Model();
     let viewport = await getViewport(model, 600, 300, 100, 0);
     expect(viewport.left).toBe(1);
@@ -201,7 +201,7 @@ describe("navigation", () => {
     expect(viewport.right).toBe(6);
   });
 
-  test("move bottom from bottom row (of the viewport)", () => {
+  test("move bottom from bottom row (of the viewport)", async () => {
     const model = new Model();
     let viewport = await getViewport(model, 600, 300, 0, 0);
     expect(viewport.top).toBe(0);
@@ -223,7 +223,7 @@ describe("navigation", () => {
     expect(viewport.bottom).toBe(14);
   });
 
-  test("move top from top row (of the viewport)", () => {
+  test("move top from top row (of the viewport)", async () => {
     const model = new Model();
     let viewport = await getViewport(model, 600, 300, 0, 60);
     expect(viewport.top).toBe(2);
@@ -240,7 +240,7 @@ describe("navigation", () => {
     expect(viewport.bottom).toBe(14);
   });
 
-  test("move top from top row (of the viewport) with a merge", () => {
+  test("move top from top row (of the viewport) with a merge", async () => {
     const model = new Model();
     let viewport = await getViewport(model, 600, 300, 0, 60);
     expect(viewport.top).toBe(2);

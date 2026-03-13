@@ -148,7 +148,7 @@ describe("datasource tests", function () {
       });
     });
 
-    test("copying a gauge chart in another sheet keep the ranges referencing to the same sheet", () => {
+    test("copying a gauge chart in another sheet keep the ranges referencing to the same sheet", async () => {
       const figureId = model.getters.getFigureIdFromChartId("chartId")!;
       await model.dispatchFromOutside("SELECT_FIGURE", { figureId });
       copy(model);
@@ -199,7 +199,7 @@ describe("datasource tests", function () {
     });
   });
 
-  test("can delete an imported gauge chart", () => {
+  test("can delete an imported gauge chart", async () => {
     createGaugeChart(model, { dataRange: "B7:B8" }, "chartId", undefined, { figureId: "figureId" });
     const exportedData = model.exportData();
     const newModel = new Model(exportedData);
@@ -401,7 +401,7 @@ describe("datasource tests", function () {
     expect(() => model.getters.getChartRuntime("chartId")).toThrow();
   });
 
-  test("Gauge chart is copied on sheet duplication", () => {
+  test("Gauge chart is copied on sheet duplication", async () => {
     const firstSheetId = model.getters.getActiveSheetId();
     const secondSheetId = "sheet2";
     createGaugeChart(

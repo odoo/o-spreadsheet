@@ -427,7 +427,7 @@ describe("Viewport of Simple sheet", () => {
     });
   });
 
-  test("cannot set offset outside of the grid", () => {
+  test("cannot set offset outside of the grid", async () => {
     // negative
     setViewportOffset(model, -1, -1);
     expect(model.getters.getActiveSheetScrollInfo()).toEqual({
@@ -694,7 +694,7 @@ describe("Viewport of Simple sheet", () => {
   });
 
   describe("Cross Move Position with selection outside the viewport affects offset", () => {
-    test("Move horizontally a cell which row is outside the viewport", () => {
+    test("Move horizontally a cell which row is outside the viewport", async () => {
       const { bottom } = model.getters.getActiveMainViewport();
       selectCell(model, toXC(0, bottom + 3));
       const viewport = { ...model.getters.getActiveMainViewport() };
@@ -703,7 +703,7 @@ describe("Viewport of Simple sheet", () => {
       expect(model.getters.getActiveMainViewport()).toMatchObject(viewport);
     });
 
-    test("Move vertically a cell which col is outside the viewport", () => {
+    test("Move vertically a cell which col is outside the viewport", async () => {
       const { right } = model.getters.getActiveMainViewport();
       selectCell(model, toXC(right + 3, 0));
       const viewport = { ...model.getters.getActiveMainViewport() };
@@ -777,7 +777,7 @@ describe("Viewport of Simple sheet", () => {
     expect(model.getters.getActiveMainViewport()).toMatchObject(viewport);
   });
 
-  test("Resize Viewport is correctly computed and does not adjust position", () => {
+  test("Resize Viewport is correctly computed and does not adjust position", async () => {
     selectCell(model, "K71");
     setViewportOffset(model, 100, 112);
     const viewport = model.getters.getActiveMainViewport();
@@ -794,7 +794,7 @@ describe("Viewport of Simple sheet", () => {
     });
   });
 
-  test("Resizing the viewport impacts current Offset", () => {
+  test("Resizing the viewport impacts current Offset", async () => {
     // set coherent size and offset limit
     await model.dispatchFromOutside("RESIZE_SHEETVIEW", {
       width: getDefaultSheetViewSize(),
@@ -827,7 +827,7 @@ describe("Viewport of Simple sheet", () => {
     expect(freezeRows(model, 4)).toBeCancelledBecause(CommandResult.MergeOverlap);
   });
 
-  test("resize to identical values doesn't do anything (no render)", () => {
+  test("resize to identical values doesn't do anything (no render)", async () => {
     await model.dispatchFromOutside("RESIZE_SHEETVIEW", {
       height: 100,
       width: 50,
@@ -844,7 +844,7 @@ describe("Viewport of Simple sheet", () => {
     ).toBeCancelledBecause(CommandResult.ValuesNotChanged);
   });
 
-  test("cannot resize to negative values", () => {
+  test("cannot resize to negative values", async () => {
     expect(
       await model.dispatchFromOutside("RESIZE_SHEETVIEW", {
         height: -100,
@@ -934,7 +934,7 @@ describe("Viewport of Simple sheet", () => {
     });
   });
 
-  test("getVisibleRect returns the actual visible part of a zone", () => {
+  test("getVisibleRect returns the actual visible part of a zone", async () => {
     const width = 4.5 * DEFAULT_CELL_WIDTH;
     const height = 5.5 * DEFAULT_CELL_HEIGHT;
     await model.dispatchFromOutside("RESIZE_SHEETVIEW", {
@@ -951,7 +951,7 @@ describe("Viewport of Simple sheet", () => {
     });
   });
 
-  test("getVisibleRect with frozen panes returns the actual visible part of a zone", () => {
+  test("getVisibleRect with frozen panes returns the actual visible part of a zone", async () => {
     freezeColumns(model, 1);
     freezeRows(model, 1);
     const width = 4.5 * DEFAULT_CELL_WIDTH;
@@ -996,7 +996,7 @@ describe("Viewport of Simple sheet", () => {
     });
   });
 
-  test("getRect returns the full zone dimensions regardless of the viewport size", () => {
+  test("getRect returns the full zone dimensions regardless of the viewport size", async () => {
     const width = 4.5 * DEFAULT_CELL_WIDTH;
     const height = 5.5 * DEFAULT_CELL_HEIGHT;
     await model.dispatchFromOutside("RESIZE_SHEETVIEW", {
@@ -1013,7 +1013,7 @@ describe("Viewport of Simple sheet", () => {
     });
   });
 
-  test("getRect with frozen panes returns the full part of a zone", () => {
+  test("getRect with frozen panes returns the full part of a zone", async () => {
     freezeColumns(model, 1);
     freezeRows(model, 1);
     const width = 4.5 * DEFAULT_CELL_WIDTH;
@@ -1197,7 +1197,7 @@ describe("Multi Panes viewport", () => {
     );
   });
 
-  test("Freezing a column too far reset and disallow scrolling", () => {
+  test("Freezing a column too far reset and disallow scrolling", async () => {
     await model.dispatchFromOutside("RESIZE_SHEETVIEW", {
       width: 10 * DEFAULT_CELL_WIDTH,
       height: 10 * DEFAULT_CELL_HEIGHT,
@@ -1270,7 +1270,7 @@ describe("Multi Panes viewport", () => {
     expect(model.getters.getActiveMainViewport()).toEqual(originalActiveMainViewport);
   });
 
-  test("Visible Cols and Rows are correctly computed when the sheetview has a 0 width", () => {
+  test("Visible Cols and Rows are correctly computed when the sheetview has a 0 width", async () => {
     const model = new Model();
     await model.dispatchFromOutside("RESIZE_SHEETVIEW", {
       width: 0,
@@ -1290,7 +1290,7 @@ describe("Multi Panes viewport", () => {
     expect(model.getters.getSheetViewVisibleRows()).toEqual([]);
   });
 
-  test("Visible Cols and Rows are correctly computed when the sheetview has a 0 height", () => {
+  test("Visible Cols and Rows are correctly computed when the sheetview has a 0 height", async () => {
     const model = new Model();
     await model.dispatchFromOutside("RESIZE_SHEETVIEW", {
       width: 100,
@@ -1376,7 +1376,7 @@ describe("multi sheet with different sizes", () => {
     expect(model.getters.getCell(position)).toBeUndefined();
   });
 
-  test("Client resize impacts all sheets", () => {
+  test("Client resize impacts all sheets", async () => {
     await model.dispatchFromOutside("RESIZE_SHEETVIEW", {
       width: 2.5 * DEFAULT_CELL_WIDTH, // concretely 2.5 cells visible
       height: 3.5 * DEFAULT_CELL_HEIGHT, // concretely 3.5 cells visible
@@ -1412,7 +1412,7 @@ describe("shift viewport up/down", () => {
     model = new Model();
   });
 
-  test("basic move viewport", () => {
+  test("basic move viewport", async () => {
     const { bottom } = model.getters.getActiveMainViewport();
     await model.dispatchFromOutside("SHIFT_VIEWPORT_DOWN");
     expect(model.getters.getActiveMainViewport().top).toBe(bottom);
@@ -1420,7 +1420,7 @@ describe("shift viewport up/down", () => {
     expect(model.getters.getActiveMainViewport().top).toBe(0);
   });
 
-  test("move viewport with non-default size", () => {
+  test("move viewport with non-default size", async () => {
     await model.dispatchFromOutside("RESIZE_SHEETVIEW", {
       height: 100,
       width: 100,
@@ -1438,7 +1438,7 @@ describe("shift viewport up/down", () => {
     [DEFAULT_CELL_HEIGHT * 3, 3],
     [DEFAULT_CELL_HEIGHT * 3 + 1, 3],
     [DEFAULT_CELL_HEIGHT * 3 - 1, 2],
-  ])("Move viewport not starting from the top", (scrollValue, expectedTop) => {
+  ])("Move viewport not starting from the top", async (scrollValue, expectedTop) => {
     selectCell(model, "A4");
     const { bottom } = model.getters.getActiveMainViewport();
     setViewportOffset(model, 0, scrollValue);
@@ -1448,7 +1448,7 @@ describe("shift viewport up/down", () => {
     expect(model.getters.getActiveMainViewport().top).toBe(expectedTop);
   });
 
-  test("move all the way down and up again", () => {
+  test("move all the way down and up again", async () => {
     const sheetId = model.getters.getActiveSheetId();
     const numberOfRows = model.getters.getNumberRows(sheetId);
     const { bottom } = model.getters.getActiveMainViewport();
@@ -1468,7 +1468,7 @@ describe("shift viewport up/down", () => {
     expect(model.getters.getActiveMainViewport().top).toBe(0);
   });
 
-  test("move viewport does not changes its dimension", () => {
+  test("move viewport does not changes its dimension", async () => {
     const viewportDimension = model.getters.getSheetViewDimensionWithHeaders();
     await model.dispatchFromOutside("SHIFT_VIEWPORT_DOWN");
     expect(model.getters.getSheetViewDimensionWithHeaders()).toEqual(viewportDimension);
@@ -1476,7 +1476,7 @@ describe("shift viewport up/down", () => {
     expect(model.getters.getSheetViewDimensionWithHeaders()).toEqual(viewportDimension);
   });
 
-  test("X offset does not change", () => {
+  test("X offset does not change", async () => {
     selectCell(model, "D1");
     setViewportOffset(model, DEFAULT_CELL_WIDTH * 3, 0);
     await model.dispatchFromOutside("SHIFT_VIEWPORT_DOWN");
@@ -1485,7 +1485,7 @@ describe("shift viewport up/down", () => {
     expect(model.getters.getActiveSheetScrollInfo().scrollX).toBe(DEFAULT_CELL_WIDTH * 3);
   });
 
-  test("anchor cell at the viewport top is shifted", () => {
+  test("anchor cell at the viewport top is shifted", async () => {
     const { bottom } = model.getters.getActiveMainViewport();
     selectCell(model, "A1");
     await model.dispatchFromOutside("SHIFT_VIEWPORT_DOWN");
@@ -1496,7 +1496,7 @@ describe("shift viewport up/down", () => {
     expect(model.getters.getSelectedZone()).toEqual(toZone("A1"));
   });
 
-  test("anchor cell not at the viewport top is shifted", () => {
+  test("anchor cell not at the viewport top is shifted", async () => {
     const { bottom } = model.getters.getActiveMainViewport();
     selectCell(model, "B4");
     await model.dispatchFromOutside("SHIFT_VIEWPORT_DOWN");
@@ -1510,7 +1510,7 @@ describe("shift viewport up/down", () => {
     expect(model.getters.getSelectedZone()).toEqual(toZone("B4"));
   });
 
-  test("only anchor cell is kept (and shifted) when moving the viewport", () => {
+  test("only anchor cell is kept (and shifted) when moving the viewport", async () => {
     setSelection(model, ["A1:A2", "B5", "D1:D2"], {
       anchor: "D1",
     });
@@ -1525,7 +1525,7 @@ describe("shift viewport up/down", () => {
     });
   });
 
-  test("hidden rows are skipped", () => {
+  test("hidden rows are skipped", async () => {
     const { bottom } = model.getters.getActiveMainViewport();
     await model.dispatchFromOutside("HIDE_COLUMNS_ROWS", {
       dimension: "ROW",
@@ -1540,7 +1540,7 @@ describe("shift viewport up/down", () => {
     expect(model.getters.getActiveMainViewport().bottom).toBe(bottomWithHiddenRows);
   });
 
-  test("bottom cell is in a merge and new anchor in the merge", () => {
+  test("bottom cell is in a merge and new anchor in the merge", async () => {
     const { bottom } = model.getters.getActiveMainViewport();
     const mergeTop = bottom - 1;
     const mergeBottom = bottom + 1;
@@ -1559,7 +1559,7 @@ describe("shift viewport up/down", () => {
     expect(model.getters.getActiveMainViewport().bottom).toBe(bottom);
   });
 
-  test("bottom cell is in a merge and new anchor *not* in the merge", () => {
+  test("bottom cell is in a merge and new anchor *not* in the merge", async () => {
     const { bottom } = model.getters.getActiveMainViewport();
     const mergeTop = bottom - 1;
     const mergeBottom = bottom + 1;
@@ -1577,7 +1577,7 @@ describe("shift viewport up/down", () => {
     expect(model.getters.getActiveMainViewport().top).toBe(bottom);
   });
 
-  test("anchor ends up at the last row", () => {
+  test("anchor ends up at the last row", async () => {
     const { bottom } = model.getters.getActiveMainViewport();
     const sheetId = model.getters.getActiveSheetId();
     await model.dispatchFromOutside("RESIZE_SHEETVIEW", {
@@ -1599,7 +1599,7 @@ describe("shift viewport up/down", () => {
   });
 
   describe("shift down/up with frozen panes", () => {
-    test("shift down/up with frozen rows and with selection in frozen rows", () => {
+    test("shift down/up with frozen rows and with selection in frozen rows", async () => {
       freezeRows(model, 5);
       const { bottom, top } = model.getters.getActiveMainViewport();
       await model.dispatchFromOutside("SHIFT_VIEWPORT_DOWN");
@@ -1610,7 +1610,7 @@ describe("shift viewport up/down", () => {
       expect(zoneToXc(model.getters.getSelectedZone())).toEqual("A1");
     });
 
-    test("shift down/up with frozen rows and with selection not in frozen rows", () => {
+    test("shift down/up with frozen rows and with selection not in frozen rows", async () => {
       freezeRows(model, 5);
       selectCell(model, "A6");
       const { bottom, top } = model.getters.getActiveMainViewport();
@@ -1622,7 +1622,7 @@ describe("shift viewport up/down", () => {
       expect(zoneToXc(model.getters.getSelectedZone())).toEqual("A6");
     });
 
-    test("shift down scrolls until the last row if there are frozen rows", () => {
+    test("shift down scrolls until the last row if there are frozen rows", async () => {
       const sheetId = model.getters.getActiveSheetId();
       const numberOfRows = model.getters.getNumberRows(sheetId);
       freezeRows(model, 10);
@@ -1641,7 +1641,7 @@ describe("shift viewport up/down", () => {
 
   test.each(["A1", "A2"])(
     "viewport and selection %s do not move when its already the end of the sheet",
-    (selectedCell) => {
+    async (selectedCell) => {
       const sheetId = model.getters.getActiveSheetId();
       // delete all rows except the first two ones
       deleteRows(model, range(2, model.getters.getNumberRows(sheetId)));
@@ -1657,7 +1657,7 @@ describe("shift viewport up/down", () => {
 
   test.each(["A1", "A2", "A15"])(
     "anchor %s is shifted by the correct amount when the sheet end is reached",
-    (selectedCell) => {
+    async (selectedCell) => {
       const { bottom } = model.getters.getActiveMainViewport();
       const sheetId = model.getters.getActiveSheetId();
       // delete all rows after the viewport except three

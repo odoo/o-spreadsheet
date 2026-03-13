@@ -100,7 +100,7 @@ describe("Pivot properties menu item", () => {
 });
 
 describe("Pivot fix formula menu item", () => {
-  test("It should fix formula when clicking on pivot_fix_formulas", () => {
+  test("It should fix formula when clicking on pivot_fix_formulas", async () => {
     // prettier-ignore
     const grid = {
       A1: "Customer", B1: "Product",  C1: "Quantity", D1: "Amount", E1: "Date",
@@ -187,7 +187,7 @@ describe("Pivot fix formula menu item", () => {
     ]);
   });
 
-  test("It should correctly manage empty values while fixing formulas", () => {
+  test("It should correctly manage empty values while fixing formulas", async () => {
     // prettier-ignore
     const grid = {
       A1: "Customer", B1: "Amount", C1: "=PIVOT(1)",
@@ -264,7 +264,7 @@ describe("Pivot fix formula menu item", () => {
     });
   });
 
-  test("It should fix formulas with computed measure when clicking on pivot_fix_formulas", () => {
+  test("It should fix formulas with computed measure when clicking on pivot_fix_formulas", async () => {
     // prettier-ignore
     const grid = {
       A1: "Customer",
@@ -337,7 +337,7 @@ describe("Pivot fix formula menu item", () => {
     expect(cellMenuRegistry.get("pivot_fix_formulas").isVisible!(env)).toBe(false);
   });
 
-  test("It should ignore hidden measures", () => {
+  test("It should ignore hidden measures", async () => {
     const grid = {
       A1: "Price",
       A2: "10",
@@ -375,7 +375,7 @@ describe("Pivot fix formula menu item", () => {
     ]);
   });
 
-  test("Fixing the formula take into account the arguments of PIVOT()", () => {
+  test("Fixing the formula take into account the arguments of PIVOT()", async () => {
     // prettier-ignore
     const grid = {
      A1: "Customer", B1: "Price", C1: "Date",     E1: "=PIVOT(1, 1, false, false, 1, false)",
@@ -726,7 +726,7 @@ describe("Pivot sorting menu item", () => {
     expect(sortAction.isVisible(env)).toBe(true);
   });
 
-  test("Sort menu item is not visible on static pivot formulas", () => {
+  test("Sort menu item is not visible on static pivot formulas", async () => {
     const pivotId = model.getters.getPivotIds()[0];
     await model.dispatchFromOutside("SPLIT_PIVOT_FORMULA", {
       sheetId: model.getters.getActiveSheetId(),
@@ -843,7 +843,7 @@ describe("Pivot (un)grouping menu items", () => {
       expect(cellMenuRegistry.get("pivot_headers_group").isVisible!(env)).toBe(false);
     });
 
-    test("Menu item is not visible on static pivot formulas", () => {
+    test("Menu item is not visible on static pivot formulas", async () => {
       updatePivot(model, pivotId, {
         rows: [{ fieldName: "Salesperson" }, { fieldName: "Stage" }],
       });

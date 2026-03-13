@@ -41,7 +41,7 @@ describe("Lock Sheet plugin", () => {
     }
   );
 
-  test("Can dispatch white-listed commands on a locked sheet", () => {
+  test("Can dispatch white-listed commands on a locked sheet", async () => {
     const model = new Model();
     createSheet(model, { name: "Another sheet", position: 0 });
     lockSheet(model);
@@ -51,7 +51,7 @@ describe("Lock Sheet plugin", () => {
     }
   });
 
-  test("read only commands bypass lock in dashboard mode", () => {
+  test("read only commands bypass lock in dashboard mode", async () => {
     for (const cmdType of readonlyCommands) {
       const model = new Model();
       createSheet(model, { name: "Another sheet", position: 0 });

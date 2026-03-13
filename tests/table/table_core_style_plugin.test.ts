@@ -50,7 +50,7 @@ describe("Table core style plugin", () => {
     });
   });
 
-  test("Can remove a table style", () => {
+  test("Can remove a table style", async () => {
     createTableStyle(model, "MyStyle");
 
     expect(model.getters.getTableStyles()["MyStyle"]).toMatchObject(customStyle);
@@ -59,7 +59,7 @@ describe("Table core style plugin", () => {
     expect(model.getters.getTableStyles()["MyStyle"]).toBeUndefined();
   });
 
-  test("Editing or removing a table style edit the cell style", () => {
+  test("Editing or removing a table style edit the cell style", async () => {
     createTableStyle(model, "MyStyle");
     createTable(model, "A1", { styleId: "MyStyle" });
     expect(getStyle(model, "A1")).toMatchObject({ fillColor: "#FF0000" });
@@ -74,7 +74,7 @@ describe("Table core style plugin", () => {
     expect(getStyle(model, "A1")).toMatchObject({ fillColor: "#346B90" }); // default table style
   });
 
-  test("Table config is updated if its style is removed", () => {
+  test("Table config is updated if its style is removed", async () => {
     createTableStyle(model, "MyStyle");
 
     createTable(model, "A1", { styleId: "MyStyle" });

@@ -9,7 +9,7 @@ import {
 } from "../test_helpers/helpers";
 
 describe("remove duplicates", () => {
-  test("can remove duplicate", () => {
+  test("can remove duplicate", async () => {
     const grid = { A2: "1", A3: "1", A4: "2", A5: "2" };
     const model = createModelFromGrid(grid);
     setSelection(model, ["A2:A5"]);
@@ -17,7 +17,7 @@ describe("remove duplicates", () => {
     expect(getRangeValuesAsMatrix(model, "A2:A5")).toEqual([[1], [2], [null], [null]]);
   });
 
-  test("selection is updated after removing duplicates", () => {
+  test("selection is updated after removing duplicates", async () => {
     const grid = { A2: "1", A3: "1", A4: "2", A5: "2" };
     const model = createModelFromGrid(grid);
     setSelection(model, ["A2:A5"]);
@@ -25,7 +25,7 @@ describe("remove duplicates", () => {
     expect(model.getters.getSelectedZone()).toEqual(toZone("A2:A3"));
   });
 
-  test("apply deletion only in selected zone", () => {
+  test("apply deletion only in selected zone", async () => {
     const grid = { A2: "1", A3: "1", A4: "2", A5: "2" };
     const model = createModelFromGrid(grid);
     setSelection(model, ["A2:A4"]);
@@ -33,7 +33,7 @@ describe("remove duplicates", () => {
     expect(getRangeValuesAsMatrix(model, "A2:A5")).toEqual([[1], [2], [null], [2]]);
   });
 
-  test("remove duplicates based on columns provided", () => {
+  test("remove duplicates based on columns provided", async () => {
     // prettier-ignore
     const grid = {
       A2: "1", B2: "la",
@@ -51,7 +51,7 @@ describe("remove duplicates", () => {
     ]);
   });
 
-  test("if several rows considered identical are found, returns the first row found of these rows", () => {
+  test("if several rows considered identical are found, returns the first row found of these rows", async () => {
     // prettier-ignore
     const grid = {
       A2: "1", B2: "B2",
@@ -65,7 +65,7 @@ describe("remove duplicates", () => {
     expect(getRangeValuesAsMatrix(model, "B2:B4")).toEqual([["B2"], [null], [null]]);
   });
 
-  test("For formula, take into account the evaluated cell value", () => {
+  test("For formula, take into account the evaluated cell value", async () => {
     const grid = {
       A2: "42",
       A3: "=21+21",
@@ -78,7 +78,7 @@ describe("remove duplicates", () => {
     expect(getEvaluatedCell(model, "A3").value).toBe(null);
   });
 
-  test("For formula, update the references", () => {
+  test("For formula, update the references", async () => {
     const grid = {
       A2: "1",
       A3: "1",
@@ -93,7 +93,7 @@ describe("remove duplicates", () => {
     expect(getCellRawContent(model, "A3")).toBe("=A1+1");
   });
 
-  test("dont take into account the format", () => {
+  test("dont take into account the format", async () => {
     const grid = {
       B2: "42",
       B3: "42",
@@ -113,7 +113,7 @@ describe("remove duplicates", () => {
     expect(getRangeFormatsAsMatrix(model, "B2:B4")).toEqual([["0.00%"], [""], [""]]);
   });
 
-  test("consider empty cell as value to compare", () => {
+  test("consider empty cell as value to compare", async () => {
     const model = createModelFromGrid({
       A1: "24",
       A4: "42",
@@ -131,7 +131,7 @@ describe("remove duplicates", () => {
     ]);
   });
 
-  test("can remove duplicates with header", () => {
+  test("can remove duplicates with header", async () => {
     // prettier-ignore
     const grid = {
       A1: "42", B1: "Michel Blanc",
@@ -157,7 +157,7 @@ describe("remove duplicates", () => {
 });
 
 describe("allow dispatch", () => {
-  test("cancel if merging zone", () => {
+  test("cancel if merging zone", async () => {
     const grid = {
       A2: "1",
       A3: "1",
@@ -170,7 +170,7 @@ describe("allow dispatch", () => {
     ).toBeCancelledBecause(CommandResult.WillRemoveExistingMerge);
   });
 
-  test("throw error if more than one range selected", () => {
+  test("throw error if more than one range selected", async () => {
     const grid = {
       A2: "1",
       A3: "1",
@@ -182,7 +182,7 @@ describe("allow dispatch", () => {
     ).toBeCancelledBecause(CommandResult.MoreThanOneRangeSelected);
   });
 
-  test("throw error if zone doesn't contain values", () => {
+  test("throw error if zone doesn't contain values", async () => {
     const grid = {
       A2: "1",
       A3: "1",
@@ -198,7 +198,7 @@ describe("allow dispatch", () => {
     ).toBeCancelledBecause(CommandResult.EmptySelectedRange);
   });
 
-  test("throw error if no columns selected", () => {
+  test("throw error if no columns selected", async () => {
     const grid = {
       A2: "1",
       A3: "1",
@@ -210,7 +210,7 @@ describe("allow dispatch", () => {
     ).toBeCancelledBecause(CommandResult.NoColumnsProvided);
   });
 
-  test("throw error if columns aren't in zone", () => {
+  test("throw error if columns aren't in zone", async () => {
     const grid = {
       A2: "1",
       A3: "1",
@@ -223,7 +223,7 @@ describe("allow dispatch", () => {
     ).toBeCancelledBecause(CommandResult.ColumnsNotIncludedInZone);
   });
 
-  test("throw error if columns are selected twice", () => {
+  test("throw error if columns are selected twice", async () => {
     const grid = {
       A2: "1",
       A3: "1",

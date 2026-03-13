@@ -209,7 +209,7 @@ describe("renderer", () => {
     let ctx: MockGridRenderingContext;
     let drawGridRenderer: (ctx: GridRenderingContext) => void;
 
-    beforeEach(() => {
+    beforeEach(async () => {
       ({ drawGridRenderer, model } = setRenderer(
         new Model({ sheets: [{ colNumber: 2, rowNumber: 2 }] })
       ));
@@ -470,7 +470,7 @@ describe("renderer", () => {
     ]);
   });
 
-  test("fillstyle of cell works with CF", () => {
+  test("fillstyle of cell works with CF", async () => {
     const { drawGridRenderer, model } = setRenderer(
       new Model({ sheets: [{ colNumber: 1, rowNumber: 3 }] })
     );
@@ -554,7 +554,7 @@ describe("renderer", () => {
     ]);
   });
 
-  test("fillstyle of merge works with CF", () => {
+  test("fillstyle of merge works with CF", async () => {
     const { drawGridRenderer, model } = setRenderer(
       new Model({ sheets: [{ colNumber: 1, rowNumber: 3 }] })
     );
@@ -806,7 +806,7 @@ describe("renderer", () => {
     expect(textAligns).toEqual(["right", "center"]);
   });
 
-  test("functions are aligned to the left", () => {
+  test("functions are aligned to the left", async () => {
     const { drawGridRenderer, model } = setRenderer();
 
     setCellContent(model, "A1", "=SUM(1,2)");
@@ -834,7 +834,7 @@ describe("renderer", () => {
     );
   });
 
-  test("functions with centered content are aligned to the left", () => {
+  test("functions with centered content are aligned to the left", async () => {
     const { drawGridRenderer, model } = setRenderer();
     setStyle(model, "A1", { align: "center" });
 
@@ -863,7 +863,7 @@ describe("renderer", () => {
     );
   });
 
-  test("CF on empty cell", () => {
+  test("CF on empty cell", async () => {
     const { drawGridRenderer, model } = setRenderer(
       new Model({ sheets: [{ colNumber: 1, rowNumber: 1 }] })
     );
@@ -1735,7 +1735,7 @@ describe("renderer", () => {
     expect(strokeColors).toEqual([]);
   });
 
-  test("Do not draw gridLines over colored cells while hiding grid lines", () => {
+  test("Do not draw gridLines over colored cells while hiding grid lines", async () => {
     const CellFillColor = "#fe0000";
     const { drawGridRenderer, model } = setRenderer(
       new Model({
@@ -2302,7 +2302,7 @@ describe("renderer", () => {
     expect(borderRenderingContext).toEqual([[1, [[1, 1]]]]);
   });
 
-  test("Cells of splilled formula are empty is we display the formulas", () => {
+  test("Cells of splilled formula are empty is we display the formulas", async () => {
     const model = new Model({ sheets: [{ colNumber: 2, rowNumber: 2 }] });
     await model.dispatchFromOutside("SET_FORMULA_VISIBILITY", { show: true });
     setCellContent(model, "A1", "=MUNIT(2)");
@@ -2417,7 +2417,7 @@ describe("renderer", () => {
       });
     });
 
-    test("chip is rendered next to CF icon", () => {
+    test("chip is rendered next to CF icon", async () => {
       const { drawGridRenderer, model, gridRendererStore } = setRenderer();
       const criterion: DataValidationCriterion = {
         type: "isValueInList",

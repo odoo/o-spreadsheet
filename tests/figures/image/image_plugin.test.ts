@@ -25,7 +25,7 @@ describe("image plugin", function () {
     expect(model.getters.getImage(imageId)).toEqual(definition);
   });
 
-  test("delete image", () => {
+  test("delete image", async () => {
     const model = new Model();
     const sheetId = model.getters.getActiveSheetId();
     const imageId = "Image1";
@@ -35,7 +35,7 @@ describe("image plugin", function () {
     expect(images).toHaveLength(0);
   });
 
-  test("copy paste image", () => {
+  test("copy paste image", async () => {
     const model = new Model();
     const sheetId = model.getters.getActiveSheetId();
     const imageId = "Image1";
@@ -56,7 +56,7 @@ describe("image plugin", function () {
     }
   });
 
-  test("cut past image", () => {
+  test("cut past image", async () => {
     const model = new Model();
     const sheetId = model.getters.getActiveSheetId();
     const imageId = "Image1";
@@ -78,7 +78,7 @@ describe("image plugin", function () {
 });
 
 describe("test image in sheet", function () {
-  test("duplicate sheet image", () => {
+  test("duplicate sheet image", async () => {
     const model = new Model();
     const sheetId = model.getters.getActiveSheetId();
     const imageId = "Image1";
@@ -107,7 +107,7 @@ describe("test image in sheet", function () {
     expect(images).toHaveLength(0);
   });
 
-  test("Duplicate sheet > export > import > duplicate sheet contains 2 distinct charts", () => {
+  test("Duplicate sheet > export > import > duplicate sheet contains 2 distinct charts", async () => {
     const model = new Model();
     const firstSheetId = model.getters.getActiveSheetId();
     const secondSheetId = "42";
@@ -196,7 +196,7 @@ describe("test image undo/redo", () => {
     redo(model);
     expect(model).toExport(after);
   });
-  test("undo/redo image deletion", () => {
+  test("undo/redo image deletion", async () => {
     const model = new Model();
     const sheetId = model.getters.getActiveSheetId();
     const imageId = "Image1";
@@ -210,7 +210,7 @@ describe("test image undo/redo", () => {
     expect(model).toExport(after);
   });
 
-  test("undo/redo image cut & paste", () => {
+  test("undo/redo image cut & paste", async () => {
     const model = new Model();
     const imageId = "Image1";
     createImage(model, { figureId: imageId });
@@ -225,7 +225,7 @@ describe("test image undo/redo", () => {
     expect(model).toExport(after);
   });
 
-  test("undo/redo duplicate sheet", () => {
+  test("undo/redo duplicate sheet", async () => {
     const model = new Model();
     const sheetId = model.getters.getActiveSheetId();
     const imageId = "Image1";

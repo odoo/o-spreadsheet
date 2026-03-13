@@ -70,7 +70,7 @@ describe("Header grouping plugin", () => {
       expect(result).toBeCancelledBecause(CommandResult.InvalidHeaderGroupStartEnd);
     });
 
-    test("Cannot remove group with invalid header indexes", () => {
+    test("Cannot remove group with invalid header indexes", async () => {
       let result = await model.dispatchFromOutside("UNGROUP_HEADERS", {
         sheetId,
         dimension,
@@ -97,7 +97,7 @@ describe("Header grouping plugin", () => {
       expect(result).toBeCancelledBecause(CommandResult.InvalidHeaderGroupStartEnd);
     });
 
-    test("Cannot toggle unknown group", () => {
+    test("Cannot toggle unknown group", async () => {
       const cmdParams = { sheetId, dimension, start: 0, end: 1 };
       let result = await model.dispatchFromOutside("UNFOLD_HEADER_GROUP", cmdParams);
       expect(result).toBeCancelledBecause(CommandResult.UnknownHeaderGroup);

@@ -81,7 +81,7 @@ describe("Hide Columns", () => {
     expect(model.getters.getHiddenColsGroups(sheetId)).toEqual([[1]]);
   });
 
-  test("hide/unhide Column on small sheet", () => {
+  test("hide/unhide Column on small sheet", async () => {
     model = new Model({ sheets: [{ colNumber: 5, rowNumber: 1 }] });
     await model.dispatchFromOutside("RESIZE_SHEETVIEW", {
       width: DEFAULT_CELL_WIDTH,
@@ -179,7 +179,7 @@ describe("Hide Rows", () => {
     expect(hideRows(model, [0], "INVALID")).toBeCancelledBecause(CommandResult.InvalidSheetId);
   });
 
-  test("hide/unhide Row on small sheet", () => {
+  test("hide/unhide Row on small sheet", async () => {
     model = new Model({ sheets: [{ colNumber: 1, rowNumber: 5 }] });
     await model.dispatchFromOutside("RESIZE_SHEETVIEW", {
       width: 1000,
@@ -314,7 +314,7 @@ describe("Hide Rows", () => {
     expect(model.getters.getHiddenRowsGroups(sheetId)).toEqual([[1, 2]]);
   });
 
-  test("Do not compute row of empty cell", () => {
+  test("Do not compute row of empty cell", async () => {
     model = new Model();
     const sheetId = model.getters.getActiveSheetId();
     // Will force an UPDATE_CELL subcommand upon addRows

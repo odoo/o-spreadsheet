@@ -53,7 +53,7 @@ describe("Single cell chart background color", () => {
 
   test.each(["scorecard", "gauge"])(
     "chart %s background color change with main cell CF background color",
-    (chartType: string) => {
+    async (chartType: string) => {
       createTestChart(chartType, "A1");
       expect(getGaugeOrScorecardRuntime(model, chartId).background).toEqual(BACKGROUND_CHART_COLOR);
       await addCfToA1("#FF0000");
@@ -75,7 +75,7 @@ describe("Single cell chart background color", () => {
 
   test.each(["scorecard", "gauge"])(
     "CF color have priority over cell background color",
-    (chartType: string) => {
+    async (chartType: string) => {
       await addCfToA1("#FF0000");
       addFillToA1("#00FF00");
       createTestChart(chartType, "A1");
@@ -85,7 +85,7 @@ describe("Single cell chart background color", () => {
 
   test.each(["scorecard", "gauge"])(
     "chart background color have priority over CF color",
-    (chartType: string) => {
+    async (chartType: string) => {
       await addCfToA1("#FF0000");
       createTestChart(chartType, "A1", "#0000FF");
       expect(getGaugeOrScorecardRuntime(model, chartId).background).toEqual("#0000FF");
@@ -94,7 +94,7 @@ describe("Single cell chart background color", () => {
 
   test.each(["scorecard", "gauge"])(
     "Chart style change based on CF of another sheet",
-    (chartType: string) => {
+    async (chartType: string) => {
       createSheet(model, { sheetId: "sheet2" });
       activateSheet(model, "sheet2");
       setCellContent(model, "A1", "1", sheetId);
@@ -109,7 +109,7 @@ describe("Single cell chart background color", () => {
     }
   );
 
-  test("Duplicating a sheet preserves the figure dimensions", () => {
+  test("Duplicating a sheet preserves the figure dimensions", async () => {
     const firstSheetId = model.getters.getActiveSheetId();
     const secondSheetId = "42";
     createChart(model, { type: "bar" });

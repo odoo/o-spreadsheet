@@ -112,7 +112,7 @@ describe("datasource tests", function () {
     expect(chart.baseline!).toStrictEqual("Sheet1!C2:C4");
   });
 
-  test("can delete an imported scorecard chart", () => {
+  test("can delete an imported scorecard chart", async () => {
     createScorecardChart(
       model,
       {
@@ -194,7 +194,7 @@ describe("datasource tests", function () {
     expect(() => model.getters.getChartRuntime("1")).toThrow();
   });
 
-  test("Scorecard chart is copied on sheet duplication", () => {
+  test("Scorecard chart is copied on sheet duplication", async () => {
     const firstSheetId = model.getters.getActiveSheetId();
     const secondSheetId = "42";
     createScorecardChart(

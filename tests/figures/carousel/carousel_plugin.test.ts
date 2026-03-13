@@ -28,7 +28,7 @@ describe("Carousel figure", () => {
       expect(result).toBeCancelledBecause(CommandResult.DuplicatedFigureId);
     });
 
-    test("Cannot update carousel with invalid figure id", () => {
+    test("Cannot update carousel with invalid figure id", async () => {
       const result = await model.dispatchFromOutside("UPDATE_CAROUSEL", {
         figureId: "carouselId",
         sheetId,
@@ -37,7 +37,7 @@ describe("Carousel figure", () => {
       expect(result).toBeCancelledBecause(CommandResult.InvalidFigureId);
     });
 
-    test("Cannot add a new chart to a non carousel-figure", () => {
+    test("Cannot add a new chart to a non carousel-figure", async () => {
       createChart(model, { type: "bar" }, "chartId", undefined, { figureId: "chartFigureId" });
 
       const sheetId = model.getters.getActiveSheetId();
@@ -73,7 +73,7 @@ describe("Carousel figure", () => {
       expect(result).toBeSuccessfullyDispatched();
     });
 
-    test("Cannot update the carousel to a wrong state", () => {
+    test("Cannot update the carousel to a wrong state", async () => {
       createCarousel(model, { items: [] }, "carouselId");
       const chartId = addNewChartToCarousel(model, "carouselId");
 
@@ -106,7 +106,7 @@ describe("Carousel figure", () => {
       expect(result).toBeSuccessfullyDispatched();
     });
 
-    test("Cannot duplicate wrong carousel item", () => {
+    test("Cannot duplicate wrong carousel item", async () => {
       createCarousel(model, { items: [] }, "carouselId");
       const chartId = addNewChartToCarousel(model, "carouselId");
 

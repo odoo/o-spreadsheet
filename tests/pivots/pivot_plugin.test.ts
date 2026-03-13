@@ -52,7 +52,7 @@ describe("Pivot plugin", () => {
     );
   });
 
-  test("Cannot update a pivot with an empty name", () => {
+  test("Cannot update a pivot with an empty name", async () => {
     // prettier-ignore
     const grid = {
       A1: "Customer", B1: "Price", C1: '=PIVOT(1)',
@@ -235,7 +235,7 @@ describe("Pivot plugin", () => {
     );
   });
 
-  test("cannot update a pivot with a wrong id", () => {
+  test("cannot update a pivot with a wrong id", async () => {
     const model = new Model();
     const updateResult = await model.dispatchFromOutside("UPDATE_PIVOT", {
       pivotId: "9999",
@@ -258,7 +258,7 @@ describe("Pivot plugin", () => {
     expect(createResult2).toBeCancelledBecause(CommandResult.PivotIdTaken);
   });
 
-  test("cannot duplicate a pivot with a wrong id", () => {
+  test("cannot duplicate a pivot with a wrong id", async () => {
     const model = new Model();
     const updateResult = await model.dispatchFromOutside("DUPLICATE_PIVOT", {
       pivotId: "9999",
@@ -267,7 +267,7 @@ describe("Pivot plugin", () => {
     expect(updateResult).toBeCancelledBecause(CommandResult.PivotIdNotFound);
   });
 
-  test("cannot remove a pivot with a wrong id", () => {
+  test("cannot remove a pivot with a wrong id", async () => {
     const model = new Model();
     const updateResult = await model.dispatchFromOutside("REMOVE_PIVOT", {
       pivotId: "9999",
@@ -315,7 +315,7 @@ describe("Pivot plugin", () => {
     expect(updateResult3).toBeCancelledBecause(CommandResult.TargetOutOfSheet);
   });
 
-  test("forbidden characters are removed from new sheet name when duplicating a pivot", () => {
+  test("forbidden characters are removed from new sheet name when duplicating a pivot", async () => {
     const grid = {
       A1: "Customer",
       A2: "Alice",
@@ -333,7 +333,7 @@ describe("Pivot plugin", () => {
     expect(model.getters.getPivotName("pivot2")).toEqual("forbidden: ',*,?,/,\\,[,] (copy)");
   });
 
-  test("sheet names with forbidden characters cannot conflict", () => {
+  test("sheet names with forbidden characters cannot conflict", async () => {
     const grid = {
       A1: "Customer",
       A2: "Alice",
@@ -435,7 +435,7 @@ describe("Pivot plugin", () => {
     expect(model.getters.getPivotCellFromPosition(D1)).toMatchObject({ type: "HEADER" });
   });
 
-  test("DUPLICATE_PIVOT_IN_NEW_SHEET is prevented if the pivot is in error", () => {
+  test("DUPLICATE_PIVOT_IN_NEW_SHEET is prevented if the pivot is in error", async () => {
     const model = new Model();
     addPivot(model, "A1:A2", {}, "pivot1");
     const result = await model.dispatchFromOutside("DUPLICATE_PIVOT_IN_NEW_SHEET", {

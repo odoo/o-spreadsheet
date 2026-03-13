@@ -261,7 +261,7 @@ describe("Repeat command transform specifics", () => {
     });
   });
 
-  test("Create sheet transform", () => {
+  test("Create sheet transform", async () => {
     createSheet(model, { sheetId: "sheetId", name: "sheetName" });
     const command: CreateSheetCommand = {
       ...TEST_COMMANDS.CREATE_SHEET,
@@ -386,7 +386,7 @@ describe("Repeat command transform specifics", () => {
 });
 
 describe("Repeat local commands", () => {
-  test("Repeat Paste", () => {
+  test("Repeat Paste", async () => {
     setCellContent(model, "A1", "A1");
     setCellContent(model, "A2", "A2");
     setStyle(model, "A2", { fillColor: "red" });
@@ -486,7 +486,7 @@ describe("Repeat local commands", () => {
     expect(getCellContent(model, "B1")).toEqual("kikou");
   });
 
-  test("Repeat set decimal", () => {
+  test("Repeat set decimal", async () => {
     setSelection(model, ["A1"]);
     setCellContent(model, "A1", "1");
     await model.dispatchFromOutside("SET_DECIMAL", { target: target("A1"), step: 1, sheetId });
@@ -496,7 +496,7 @@ describe("Repeat local commands", () => {
     expect(getEvaluatedCell(model, "A1").formattedValue).toEqual("1.00");
   });
 
-  test("Repeat autoresize rows", () => {
+  test("Repeat autoresize rows", async () => {
     resizeRows(model, [0, 2, 3], 100);
     await model.dispatchFromOutside("AUTORESIZE_ROWS", {
       sheetId,
@@ -510,7 +510,7 @@ describe("Repeat local commands", () => {
     expect(model.getters.getRowSize(sheetId, 3)).toEqual(DEFAULT_CELL_HEIGHT);
   });
 
-  test("Repeat autoresize columns", () => {
+  test("Repeat autoresize columns", async () => {
     setCellContent(model, "A1", "A1");
     setCellContent(model, "C1", "C1");
     setCellContent(model, "D1", "D1");
@@ -548,7 +548,7 @@ describe("Repeat local commands", () => {
     expect(getCellContent(model, "A3")).toEqual("A1");
   });
 
-  test("Repeat sum selection", () => {
+  test("Repeat sum selection", async () => {
     setCellContent(model, "A1", "1");
     setCellContent(model, "A2", "2");
 
@@ -560,7 +560,7 @@ describe("Repeat local commands", () => {
     expect(getCellRawContent(model, "A3")).toEqual("=SUM(A1:A2)");
   });
 
-  test("Repeat delete unfiltered content", () => {
+  test("Repeat delete unfiltered content", async () => {
     setCellContent(model, "A1", "1");
     setCellContent(model, "A2", "2");
 

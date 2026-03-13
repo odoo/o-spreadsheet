@@ -26,7 +26,7 @@ const GROUPED_OPPORTUNITIES_FIELD: PivotCustomGroupedField = {
   ],
 };
 
-beforeEach(() => {
+beforeEach(async () => {
   model = createModelWithPivot("A1:I22");
   sheetId = model.getters.getActiveSheetId();
   await model.dispatchFromOutside("CLEAR_FORMATTING", { sheetId, target: target("F2:F22") });

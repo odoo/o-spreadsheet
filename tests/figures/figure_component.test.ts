@@ -168,7 +168,7 @@ describe("figures", () => {
     sheetId = model.getters.getActiveSheetId();
   });
 
-  test("can create a figure with some data", () => {
+  test("can create a figure with some data", async () => {
     await createFigure(model);
     expect(model.getters.getFigures(sheetId)).toEqual([
       {

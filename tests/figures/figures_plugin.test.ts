@@ -193,7 +193,7 @@ describe("figure plugin", () => {
     expect(model.getters.getVisibleFigures().length).toBe(2);
   });
 
-  test("selecting a figure, then clicking on a cell unselect figure", () => {
+  test("selecting a figure, then clicking on a cell unselect figure", async () => {
     const model = new Model();
     createFigure(model, {
       sheetId: model.getters.getActiveSheetId(),
@@ -211,7 +211,7 @@ describe("figure plugin", () => {
     expect(model.getters.getSelectedFigureId()).toBe(null);
   });
 
-  test("some commands do not remove figure selection", () => {
+  test("some commands do not remove figure selection", async () => {
     const model = new Model();
     createFigure(model, {
       sheetId: model.getters.getActiveSheetId(),
@@ -251,7 +251,7 @@ describe("figure plugin", () => {
       row: 4,
       offset: { x: 4, y: 8 },
     },
-  ])("can move a figure", (figure) => {
+  ])("can move a figure", async (figure) => {
     const model = new Model();
     createFigure(model, { sheetId: model.getters.getActiveSheetId(), ...figure });
 
@@ -273,7 +273,7 @@ describe("figure plugin", () => {
     expect(newy).toBe(200);
   });
 
-  test("can undo an update operation", () => {
+  test("can undo an update operation", async () => {
     const model = new Model();
     createFigure(model, {
       sheetId: model.getters.getActiveSheetId(),
@@ -321,7 +321,7 @@ describe("figure plugin", () => {
       row: 4,
       offset: { x: 4, y: 8 },
     },
-  ])("prevent moving a figure left or above of the sheet", (figure) => {
+  ])("prevent moving a figure left or above of the sheet", async (figure) => {
     const model = new Model();
     createFigure(model, { sheetId: model.getters.getActiveSheetId(), ...figure });
 
@@ -341,7 +341,7 @@ describe("figure plugin", () => {
     expect(result).toBeCancelledBecause(CommandResult.WrongSheetPosition);
   });
 
-  test("cannot update a figure which doesn't exist", () => {
+  test("cannot update a figure which doesn't exist", async () => {
     const model = new Model();
     const result = await model.dispatchFromOutside("UPDATE_FIGURE", {
       sheetId: model.getters.getActiveSheetId(),
@@ -353,7 +353,7 @@ describe("figure plugin", () => {
     expect(result).toBeCancelledBecause(CommandResult.FigureDoesNotExist);
   });
 
-  test("cannot delete a figure which doesn't exist", () => {
+  test("cannot delete a figure which doesn't exist", async () => {
     const model = new Model();
     const result = await model.dispatchFromOutside("DELETE_FIGURE", {
       sheetId: model.getters.getActiveSheetId(),
@@ -362,7 +362,7 @@ describe("figure plugin", () => {
     expect(result).toBeCancelledBecause(CommandResult.FigureDoesNotExist);
   });
 
-  test("can delete a figure", () => {
+  test("can delete a figure", async () => {
     const model = new Model();
     const sheetId = model.getters.getActiveSheetId();
     createFigure(model, {
@@ -385,7 +385,7 @@ describe("figure plugin", () => {
     expect(model.getters.getVisibleFigures()).toHaveLength(1);
   });
 
-  test("change sheet deselect figure", () => {
+  test("change sheet deselect figure", async () => {
     const model = new Model({
       sheets: [
         { id: "1", colNumber: 2, rowNumber: 2 },
@@ -407,7 +407,7 @@ describe("figure plugin", () => {
     expect(model.getters.getSelectedFigureId()).toBeNull();
   });
 
-  test("Selecting a figure cancels the edition of a cell", () => {
+  test("Selecting a figure cancels the edition of a cell", async () => {
     const model = new Model();
     const composerStore = makeTestComposerStore(model);
     createFigure(model, {
@@ -427,7 +427,7 @@ describe("figure plugin", () => {
     expect(model.getters.getActiveCell().value).toBe(null);
   });
 
-  test("Selecting a figure cancels the edition of a cell in selecting mode", () => {
+  test("Selecting a figure cancels the edition of a cell in selecting mode", async () => {
     const model = new Model();
     const composerStore = makeTestComposerStore(model);
     setCellContent(model, "A1", "=A1+");

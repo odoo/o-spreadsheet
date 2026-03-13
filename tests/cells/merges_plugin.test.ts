@@ -77,7 +77,7 @@ describe("merges", () => {
     expect(Object.keys(getMerges(model))).toEqual([]);
   });
 
-  test("add a merge cells in a duplicated sheet", () => {
+  test("add a merge cells in a duplicated sheet", async () => {
     const model = new Model();
     const firstSheetId = model.getters.getActiveSheetId();
     const secondSheetId = "42";
@@ -96,7 +96,7 @@ describe("merges", () => {
     expect(model.getters.getMerge({ sheetId: secondSheetId, col: 1, row: 1 })?.id).toBe(3);
   });
 
-  test("delete a duplicated sheet with merge", () => {
+  test("delete a duplicated sheet with merge", async () => {
     const model = new Model();
     const firstSheetId = model.getters.getActiveSheetId();
     const secondSheetId = "42";
@@ -211,7 +211,7 @@ describe("merges", () => {
     });
   });
 
-  test("Merge with two zone overlap is now allowed", () => {
+  test("Merge with two zone overlap is now allowed", async () => {
     const model = new Model();
     const sheetId = model.getters.getActiveSheetId();
     expect(
@@ -279,7 +279,7 @@ describe("merges", () => {
     expect(getEvaluatedCell(model, "A4").value).toBe(6);
   });
 
-  test("merging cells with values remove them if forced", () => {
+  test("merging cells with values remove them if forced", async () => {
     const model = new Model({
       sheets: [
         {
@@ -607,7 +607,7 @@ describe("merges", () => {
     expect(getCell(model, "A2")).toBeUndefined();
   });
 
-  test("move duplicated merge when col is inserted before", () => {
+  test("move duplicated merge when col is inserted before", async () => {
     const model = new Model();
     const firstSheetId = model.getters.getActiveSheetId();
     const secondSheetId = "42";

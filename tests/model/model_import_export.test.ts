@@ -912,7 +912,7 @@ describe("Export", () => {
     expect(exp.sheets[0].styles.A1).toEqual(1);
   });
 
-  test("chart figures without a definition are not exported", () => {
+  test("chart figures without a definition are not exported", async () => {
     const model = new Model({
       sheets: [
         {
@@ -1078,7 +1078,7 @@ test("can import cells outside sheet size", () => {
   expect(getCellRawContent(model, "Z100")).toBe("hello");
 });
 
-test("Data of a duplicate sheet are correctly duplicated", () => {
+test("Data of a duplicate sheet are correctly duplicated", async () => {
   const model = new Model();
   setCellContent(model, "A1", "hello");
   const sheetId = model.getters.getActiveSheetId();

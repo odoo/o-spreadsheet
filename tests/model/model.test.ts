@@ -116,7 +116,7 @@ describe("Model", () => {
     expect(getCellContent(model, "A1")).toBe("");
   });
 
-  test("Core plugins allowDispatch don't receive UI commands", () => {
+  test("Core plugins allowDispatch don't receive UI commands", async () => {
     const receivedCommands: CommandTypes[] = [];
     class MyCorePlugin extends CorePlugin {
       allowDispatch(cmd: CoreCommand): CommandResult {
@@ -130,7 +130,7 @@ describe("Model", () => {
     expect(receivedCommands).not.toContain("COPY");
   });
 
-  test("Core plugins handle don't receive UI commands", () => {
+  test("Core plugins handle don't receive UI commands", async () => {
     const receivedCommands: CommandTypes[] = [];
     class MyCorePlugin extends CorePlugin {
       handle(cmd: CoreCommand) {
@@ -143,7 +143,7 @@ describe("Model", () => {
     expect(receivedCommands).not.toContain("COPY");
   });
 
-  test("canDispatch method is exposed and works", () => {
+  test("canDispatch method is exposed and works", async () => {
     class MyCorePlugin extends CorePlugin {
       allowDispatch(cmd: CoreCommand) {
         if (cmd.type === "CREATE_SHEET") {
@@ -195,7 +195,7 @@ describe("Model", () => {
     expect(model["config"]["custom"]).toBe("42");
   });
 
-  test("type property in command payload is ignored", () => {
+  test("type property in command payload is ignored", async () => {
     const model = new Model();
     const payload = {
       col: 0,
@@ -318,7 +318,7 @@ describe("Model", () => {
     expect(getEvaluatedCell(model, "A1").value).toBe(6);
   });
 
-  test("Core commands which dispatch UPDATE_CELL should trigger evaluation", () => {
+  test("Core commands which dispatch UPDATE_CELL should trigger evaluation", async () => {
     //@ts-ignore
     coreTypes.add("MY_CMD_1");
     class MyCorePlugin extends CorePlugin {

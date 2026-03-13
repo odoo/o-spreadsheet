@@ -1654,7 +1654,7 @@ describe("Measure display", () => {
     });
   });
 
-  test("Display measure as works with PIVOT.VALUE formulas", () => {
+  test("Display measure as works with PIVOT.VALUE formulas", async () => {
     const measureDisplay: PivotMeasureDisplay = {
       type: "%_of",
       fieldNameWithGranularity: "Created on:month_number",

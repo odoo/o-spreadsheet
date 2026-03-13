@@ -258,7 +258,7 @@ describe("Multi users synchronisation", () => {
     expect([alice, bob, charlie]).toHaveSynchronizedValue((user) => getMerges(user), {});
   });
 
-  test("copy/paste style", () => {
+  test("copy/paste style", async () => {
     setCellContent(alice, "A1", "hello");
     await alice.dispatchFromOutside("UPDATE_CELL", {
       sheetId: alice.getters.getActiveSheetId(),
@@ -276,7 +276,7 @@ describe("Multi users synchronisation", () => {
     });
   });
 
-  test("copy/paste on styled cell", () => {
+  test("copy/paste on styled cell", async () => {
     setCellContent(alice, "A1", "hello");
     await alice.dispatchFromOutside("UPDATE_CELL", {
       sheetId: alice.getters.getActiveSheetId(),
@@ -292,7 +292,7 @@ describe("Multi users synchronisation", () => {
     );
   });
 
-  test("update a cell without changing its style", () => {
+  test("update a cell without changing its style", async () => {
     setCellContent(alice, "A1", "hello");
     setStyle(alice, "A1", { fillColor: "#fefefe" });
     await alice.dispatchFromOutside("UPDATE_CELL", {
@@ -306,7 +306,7 @@ describe("Multi users synchronisation", () => {
     });
   });
 
-  test("clear a cell style through UPDATE_CELL", () => {
+  test("clear a cell style through UPDATE_CELL", async () => {
     setStyle(alice, "A1", { fillColor: "#fefefe", underline: true });
     await alice.dispatchFromOutside("UPDATE_CELL", {
       sheetId: alice.getters.getActiveSheetId(),
@@ -455,7 +455,7 @@ describe("Multi users synchronisation", () => {
     });
   });
 
-  test("duplicate sheet does not activate sheet", () => {
+  test("duplicate sheet does not activate sheet", async () => {
     const firstSheetId = alice.getters.getActiveSheetId();
     await alice.dispatchFromOutside("DUPLICATE_SHEET", {
       sheetId: firstSheetId,
@@ -520,7 +520,7 @@ describe("Multi users synchronisation", () => {
     });
   });
 
-  test("duplicated chart are the same", () => {
+  test("duplicated chart are the same", async () => {
     createChart(
       alice,
       {
@@ -630,7 +630,7 @@ describe("Multi users synchronisation", () => {
     expect(david.getters.getNumberCols(david.getters.getActiveSheetId())).toBe(length + 50);
   });
 
-  test("Selected figure Id is not modified if the create sheet comes from someone else", () => {
+  test("Selected figure Id is not modified if the create sheet comes from someone else", async () => {
     createFigure(alice, {
       figureId: "42",
       col: 0,
@@ -756,7 +756,7 @@ describe("Multi users synchronisation", () => {
       );
     });
 
-    test("async computation resolving when in other sheet", () => {
+    test("async computation resolving when in other sheet", async () => {
       let value: string | number = "LOADING...";
       addToRegistry(functionRegistry, "GET.ASYNC.VALUE", {
         description: "Get value",
@@ -780,7 +780,7 @@ describe("Multi users synchronisation", () => {
       expect(getEvaluatedCell(bob, "A1", "sheet2").value).toBe(2);
     });
 
-    test("reference to async computation resolving when in other sheet", () => {
+    test("reference to async computation resolving when in other sheet", async () => {
       let value: string | number = "LOADING...";
       addToRegistry(functionRegistry, "GET.ASYNC.VALUE", {
         description: "Get value",
@@ -1125,7 +1125,7 @@ describe("Multi users synchronisation", () => {
     });
   });
 
-  test("updating a cell content (through UPDATE_CELL) only updates on actual content", () => {
+  test("updating a cell content (through UPDATE_CELL) only updates on actual content", async () => {
     setCellContent(alice, "A1", "23");
     const sheetId = alice.getters.getActiveSheetId();
     await alice.dispatchFromOutside("UPDATE_CELL", { sheetId, col: 0, row: 0, content: undefined });
@@ -1142,7 +1142,7 @@ describe("Multi users synchronisation", () => {
     expect([alice, bob, charlie]).toHaveSynchronizedValue((user) => getCellContent(user, "A1"), "");
   });
 
-  test("updating a cell format (through UPDATE_CELL) only if format is defined in command", () => {
+  test("updating a cell format (through UPDATE_CELL) only if format is defined in command", async () => {
     setCellFormat(alice, "A1", "%");
     const sheetId = alice.getters.getActiveSheetId();
     await alice.dispatchFromOutside("UPDATE_CELL", {

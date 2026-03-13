@@ -137,7 +137,7 @@ describe("Grid renderer animations", () => {
     expect(gridRenderer["animations"].size).toEqual(0);
   });
 
-  test("Animations are not run the on copy/paste zone ", () => {
+  test("Animations are not run the on copy/paste zone ", async () => {
     const sheetId = model.getters.getActiveSheetId();
     const style = { fillColor: "#ff0f0f" };
     await model.dispatchFromOutside("ADD_CONDITIONAL_FORMAT", {

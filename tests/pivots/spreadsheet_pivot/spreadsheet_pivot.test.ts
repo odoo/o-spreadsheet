@@ -451,7 +451,7 @@ describe("Spreadsheet Pivot", () => {
     ]);
   });
 
-  test("Pivot with day_of_week with locale with startWeek = 1", () => {
+  test("Pivot with day_of_week with locale with startWeek = 1", async () => {
     resetMapValueDimensionDate();
     // prettier-ignore
     const grid = {
@@ -2079,7 +2079,7 @@ describe("Spreadsheet Pivot", () => {
     expect(getEvaluatedGrid(model, "B4:E4")).toEqual([["March", "(Undefined)", "Total", ""]]);
   });
 
-  test("fieldsType is not mandatory in INSERT_PIVOT command", () => {
+  test("fieldsType is not mandatory in INSERT_PIVOT command", async () => {
     // prettier-ignore
     const grid = {
       A1: "Name", B1: "Price",
@@ -2597,7 +2597,7 @@ describe("Spreadsheet Pivot", () => {
     });
   });
 
-  test("Splitting a pivot in tabular form transform it to a normal pivot", () => {
+  test("Splitting a pivot in tabular form transform it to a normal pivot", async () => {
     const model = createModelWithPivot("A1:I22");
     updatePivot(model, "1", {
       columns: [],

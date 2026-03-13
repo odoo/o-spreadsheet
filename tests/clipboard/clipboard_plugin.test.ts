@@ -158,7 +158,7 @@ describe("clipboard", () => {
     expect(getClipboardVisibleZones(model).length).toBe(0);
   });
 
-  test("cut command will cut the selection if no target were given", () => {
+  test("cut command will cut the selection if no target were given", async () => {
     const model = new Model();
     setCellContent(model, "B2", "b2");
     setSelection(model, ["B2"]);
@@ -1232,7 +1232,7 @@ describe("clipboard", () => {
     expect(getBorder(model, "C2")).toBeNull();
   });
 
-  test("can copy a cell with a conditional format and paste as value", () => {
+  test("can copy a cell with a conditional format and paste as value", async () => {
     const model = new Model({ sheets: [{ colNumber: 5, rowNumber: 5 }] });
     setCellContent(model, "A1", "1");
     setCellContent(model, "A2", "2");
@@ -1678,7 +1678,7 @@ describe("clipboard", () => {
     expect(getCell(model, "B2")!.style).not.toBeDefined();
   });
 
-  test("can copy and paste a conditional formatted cell", () => {
+  test("can copy and paste a conditional formatted cell", async () => {
     const model = new Model({ sheets: [{ colNumber: 5, rowNumber: 5 }] });
     setCellContent(model, "A1", "1");
     setCellContent(model, "A2", "2");
@@ -1703,7 +1703,7 @@ describe("clipboard", () => {
     });
     expect(getStyle(model, "C2")).toEqual({});
   });
-  test("can cut and paste a conditional formatted cell", () => {
+  test("can cut and paste a conditional formatted cell", async () => {
     const model = new Model({ sheets: [{ colNumber: 5, rowNumber: 5 }] });
     setCellContent(model, "A1", "1");
     setCellContent(model, "A2", "2");
@@ -1727,7 +1727,7 @@ describe("clipboard", () => {
     expect(getStyle(model, "C2")).toEqual({});
   });
 
-  test("can cut and paste a conditional format in another sheet", () => {
+  test("can cut and paste a conditional format in another sheet", async () => {
     const model = new Model();
     const sheet1Id = model.getters.getActiveSheetId();
     createSheet(model, { sheetId: "sheet2Id" });
@@ -1746,7 +1746,7 @@ describe("clipboard", () => {
     ]);
   });
 
-  test("copy cells with CF => remove origin CF => paste => it should paste with original CF", () => {
+  test("copy cells with CF => remove origin CF => paste => it should paste with original CF", async () => {
     const model = new Model();
     const sheetId = model.getters.getActiveSheetId();
     const cf = createEqualCF("1", { fillColor: "#00FF00" }, "cfId");
@@ -1766,7 +1766,7 @@ describe("clipboard", () => {
     ]);
   });
 
-  test("copy cells with multiple independent CF => remove all copied CF => paste => it should paste with all original CF in the correct positions", () => {
+  test("copy cells with multiple independent CF => remove all copied CF => paste => it should paste with all original CF in the correct positions", async () => {
     const model = new Model();
     const sheetId = model.getters.getActiveSheetId();
     const cf1 = createEqualCF("1", { fillColor: "#00FF00" }, "cf1");
@@ -1797,7 +1797,7 @@ describe("clipboard", () => {
     ]);
   });
 
-  test("copy cells with multiple independent CF => remove origin sheet => paste => it should paste with all original CF in the correct positions", () => {
+  test("copy cells with multiple independent CF => remove origin sheet => paste => it should paste with all original CF in the correct positions", async () => {
     const model = new Model();
     const sheetId = model.getters.getActiveSheetId();
     const cf1 = createEqualCF("1", { fillColor: "#00FF00" }, "cf1");
@@ -1824,7 +1824,7 @@ describe("clipboard", () => {
     ]);
   });
 
-  test("can copy and paste a conditional formatted zone", () => {
+  test("can copy and paste a conditional formatted zone", async () => {
     const model = new Model({ sheets: [{ colNumber: 5, rowNumber: 5 }] });
     setCellContent(model, "A1", "1");
     setCellContent(model, "A2", "2");
@@ -1857,7 +1857,7 @@ describe("clipboard", () => {
     });
   });
 
-  test("can cut and paste a conditional formatted zone", () => {
+  test("can cut and paste a conditional formatted zone", async () => {
     const model = new Model({ sheets: [{ colNumber: 5, rowNumber: 5 }] });
     setCellContent(model, "A1", "1");
     setCellContent(model, "A2", "2");
@@ -1883,7 +1883,7 @@ describe("clipboard", () => {
     });
   });
 
-  test("can copy and paste a conditional formatted cell to another page", () => {
+  test("can copy and paste a conditional formatted cell to another page", async () => {
     const model = new Model({
       sheets: [
         { id: "s1", colNumber: 5, rowNumber: 5 },
@@ -1913,7 +1913,7 @@ describe("clipboard", () => {
     });
   });
 
-  test("can cut and paste a conditional formatted zone to another page", () => {
+  test("can cut and paste a conditional formatted zone to another page", async () => {
     const model = new Model({ sheets: [{ id: "sheet1" }, { id: "sheet2" }] });
     const cf = createEqualCF("1", { fillColor: "#FF0000" }, "id");
     await model.dispatchFromOutside("ADD_CONDITIONAL_FORMAT", {
@@ -1932,7 +1932,7 @@ describe("clipboard", () => {
     expect(model.getters.getConditionalFormats("sheet1")).toEqual([]);
   });
 
-  test("copy paste CF in another sheet => change CF => copy paste again does not overwrite the previously pasted CF", () => {
+  test("copy paste CF in another sheet => change CF => copy paste again does not overwrite the previously pasted CF", async () => {
     const model = new Model();
     createSheet(model, {});
     const sheet1Id = model.getters.getSheetIds()[0];
@@ -1967,7 +1967,7 @@ describe("clipboard", () => {
     ]);
   });
 
-  test("copy/paste a CF zone only dispatch a singled ADD_CONDITIONAL_FORMAT", () => {
+  test("copy/paste a CF zone only dispatch a singled ADD_CONDITIONAL_FORMAT", async () => {
     const commands: Command[] = [];
     class MyUIPlugin extends UIPlugin {
       handle = (cmd: Command) => commands.push(cmd);
@@ -2165,7 +2165,7 @@ describe("clipboard", () => {
     ]);
   });
 
-  test("copying a spread pivot cell results in the fixed pivot formula", () => {
+  test("copying a spread pivot cell results in the fixed pivot formula", async () => {
     // prettier-ignore
     const grid = {
       A1: "Customer", B1: "Price", C1: "=PIVOT(1)",
@@ -2274,7 +2274,7 @@ describe("clipboard", () => {
     expect(getCellRawContent(model, "G4")).toBe('=PIVOT.VALUE(1,"Price:sum","Customer","Alice")');
   });
 
-  test("copying a spread pivot cell with (Undefined)", () => {
+  test("copying a spread pivot cell with (Undefined)", async () => {
     // prettier-ignore
     const grid = {
       A1: "Customer", B1: "Price", C1: "=PIVOT(1)",
@@ -3193,7 +3193,7 @@ describe("cross spreadsheet copy/paste", () => {
   });
 });
 
-test("Can use clipboard handlers to paste in a sheet other than the active sheet", () => {
+test("Can use clipboard handlers to paste in a sheet other than the active sheet", async () => {
   model = new Model();
   const sheetId = model.getters.getActiveSheetId();
   createSheet(model, { sheetId: "sh2" });
