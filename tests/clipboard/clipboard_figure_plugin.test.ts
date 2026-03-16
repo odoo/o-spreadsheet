@@ -173,7 +173,7 @@ describe.each(["chart", "image"])("Clipboard for %s figures", (type: string) => 
       {
         type: "bar",
         dataSets: [{ dataRange: "Sheet1!A1:A5" }, { dataRange: "Sheet2!B1:B5" }],
-        labelRange: "B1",
+        labelRanges: ["B1"],
       },
       "chartId",
       undefined,
@@ -187,7 +187,7 @@ describe.each(["chart", "image"])("Clipboard for %s figures", (type: string) => 
     const newChartId = model.getters.getChartIds("sheet2Id")[0];
     expect(model.getters.getChartDefinition(newChartId)).toMatchObject({
       dataSets: [{ dataRange: "B1:B5" }],
-      labelRange: undefined,
+      labelRanges: undefined,
     });
   });
 
@@ -226,7 +226,7 @@ describe("chart specific Clipboard test", () => {
     const model = new Model();
     const chartId = "thisIsAnId";
     createChart(model, { type: "bar" }, chartId);
-    updateChart(model, chartId, { dataSets: [{ dataRange: "A1:A5" }], labelRange: "B1" });
+    updateChart(model, chartId, { dataSets: [{ dataRange: "A1:A5" }], labelRanges: ["B1"] });
     const chartDef = model.getters.getChartDefinition(chartId) as BarChartDefinition;
     model.dispatch("SELECT_FIGURE", { figureId: model.getters.getFigureIdFromChartId(chartId) });
     copy(model);
@@ -237,7 +237,7 @@ describe("chart specific Clipboard test", () => {
     expect(model.getters.getChartDefinition(newChartId)).toEqual({
       ...chartDef,
       dataSets: [{ dataRange: "Sheet1!A1:A5" }],
-      labelRange: "Sheet1!B1",
+      labelRanges: ["Sheet1!B1"],
     });
   });
 });
@@ -283,7 +283,10 @@ describe("Carousel clipboard test", () => {
       type: "radar",
       dataSets: [{ dataRange: "A1:A5" }],
     });
-    const chartId2 = addNewChartToCarousel(model, "carouselId", { type: "bar", labelRange: "B1" });
+    const chartId2 = addNewChartToCarousel(model, "carouselId", {
+      type: "bar",
+      labelRanges: ["B1"],
+    });
     model.dispatch("SELECT_FIGURE", { figureId: "carouselId" });
     copy(model);
     paste(model, "A1");
@@ -302,7 +305,7 @@ describe("Carousel clipboard test", () => {
     });
     expect(model.getters.getChartDefinition(copiedCarousel.items[1]["chartId"])).toMatchObject({
       type: "bar",
-      labelRange: "B1",
+      labelRanges: ["B1"],
     });
   });
 

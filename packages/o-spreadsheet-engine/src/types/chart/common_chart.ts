@@ -7,7 +7,7 @@ export type LegendPosition = "top" | "bottom" | "left" | "right" | "none";
 export interface CommonChartDefinition {
   readonly dataSets: CustomizedDataSet[];
   readonly dataSetsHaveTitle: boolean;
-  readonly labelRange?: string;
+  readonly labelRanges?: string[];
   readonly title: TitleDesign;
   readonly background?: Color;
   readonly legendPosition: LegendPosition;

@@ -12,7 +12,7 @@ export class ScatterConfigPanel extends GenericChartConfigPanel {
       return canChartParseLabels(
         chart.getDefinition(),
         chart.dataSets,
-        chart.labelRange,
+        chart.labelRanges,
         this.env.model.getters
       );
     }

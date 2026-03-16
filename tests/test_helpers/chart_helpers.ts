@@ -1,6 +1,6 @@
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { TooltipItem } from "chart.js";
-import { ChartCreationContext, ChartJSRuntime, Model, UID } from "../../src";
+import { ChartCreationContext, Model, UID } from "../../src";
 import { range, toHex } from "../../src/helpers";
 import { click, simulateClick } from "./dom_helper";
 import { nextTick } from "./helpers";
@@ -76,7 +76,7 @@ export async function editColorPicker(fixture: HTMLElement, selector: string, co
 }
 
 export function getChartTooltipItemFromDataset(
-  chart: ChartJSRuntime,
+  chart: any,
   datasetIndex: number,
   dataIndex: number
 ): Partial<TooltipItem<any>> {
@@ -94,10 +94,7 @@ export function getChartTooltipItemFromDataset(
   };
 }
 
-export function getChartTooltipValues(
-  chart: ChartJSRuntime,
-  tooltipItem: Partial<TooltipItem<any>>
-) {
+export function getChartTooltipValues(chart: any, tooltipItem: Partial<TooltipItem<any>>) {
   const callbacks = chart.chartJsConfig!.options!.plugins!.tooltip!.callbacks! as any;
   return {
     label: callbacks.label(tooltipItem),
@@ -110,7 +107,7 @@ export const GENERAL_CHART_CREATION_CONTEXT: Required<ChartCreationContext> = {
   title: { text: "hello there" },
   range: [{ dataRange: "Sheet1!B1:B4" }],
   hierarchicalRanges: [],
-  auxiliaryRange: "Sheet1!A1:A4",
+  auxiliaryRanges: ["Sheet1!A1:A4"],
   legendPosition: "bottom",
   cumulative: true,
   labelsAsText: true,

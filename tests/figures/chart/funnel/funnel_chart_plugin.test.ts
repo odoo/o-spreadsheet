@@ -25,7 +25,7 @@ describe("Funnel chart", () => {
       background: "#123456",
       title: { text: "hello there" },
       dataSets: [{ dataRange: "Sheet1!B1:B4", yAxisId: "y1" }],
-      labelRange: "Sheet1!A1:A4",
+      labelRanges: ["Sheet1!A1:A4"],
       legendPosition: "none",
       dataSetsHaveTitle: true,
       aggregated: true,
@@ -49,7 +49,7 @@ describe("Funnel chart", () => {
     setCellContent(model, "B2", "25");
     const chartId = createFunnelChart(model, {
       dataSets: [{ dataRange: "B1:B2" }],
-      labelRange: "A1:A2",
+      labelRanges: ["A1:A2"],
       dataSetsHaveTitle: false,
     });
     const config = getFunnelRuntime(chartId).chartJsConfig;
@@ -93,7 +93,7 @@ describe("Funnel chart", () => {
     setCellContent(model, "B1", "50");
     setCellContent(model, "B2", "30");
     const chartId = createFunnelChart(model, {
-      labelRange: "A1:A2",
+      labelRanges: ["A1:A2"],
       dataSets: [{ dataRange: "B1:B2" }],
       dataSetsHaveTitle: false,
     });
@@ -123,7 +123,7 @@ describe("Funnel chart", () => {
     setCellContent(model, "B3", "60");
     setCellContent(model, "B4", "50");
     const chartId = createFunnelChart(model, {
-      labelRange: "A1:A4",
+      labelRanges: ["A1:A4"],
       dataSets: [{ dataRange: "B1:B4" }],
       dataSetsHaveTitle: false,
       aggregated: true,
@@ -170,7 +170,7 @@ describe("Funnel chart", () => {
     setCellContent(model, "B2", "20");
     setCellContent(model, "B3", "30");
     const chartId = createFunnelChart(model, {
-      labelRange: "A1:A3",
+      labelRanges: ["A1:A3"],
       dataSets: [{ dataRange: "B1:B3" }],
       dataSetsHaveTitle: false,
       funnelColors: ["#ff0000", undefined, "#00ff00"],

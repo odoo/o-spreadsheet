@@ -532,7 +532,7 @@ describe("Multi users synchronisation", () => {
             dataRange: "A9:D9",
           },
         ],
-        labelRange: "B7:D7",
+        labelRanges: ["B7:D7"],
         type: "line",
       },
       "1"

@@ -264,7 +264,7 @@ describe("charts", () => {
         );
         expect(hasTitle).toBe(true);
         expect((labels!.querySelector(".o-selection input") as HTMLInputElement).value).toBe(
-          TEST_CHART_DATA.basicChart.labelRange
+          TEST_CHART_DATA.basicChart.labelRanges![0]
         );
         break;
       case "basicChart": {
@@ -279,7 +279,7 @@ describe("charts", () => {
         );
         expect(hasTitle).toBe(true);
         expect((labels!.querySelector(".o-selection input") as HTMLInputElement).value).toBe(
-          TEST_CHART_DATA.basicChart.labelRange
+          TEST_CHART_DATA.basicChart.labelRanges![0]
         );
         break;
       }
@@ -416,7 +416,7 @@ describe("charts", () => {
       model,
       {
         dataSets: [{ dataRange: "C1:C4" }],
-        labelRange: "A2:A4",
+        labelRanges: ["A2:A4"],
         type: "line",
         title: { text: "title" },
       },
@@ -444,7 +444,7 @@ describe("charts", () => {
         model,
         {
           dataSets: [{ dataRange: "C1:C4" }],
-          labelRange: "A2:A4",
+          labelRanges: ["A2:A4"],
           type: "line",
           title: { text: "title" },
         },
@@ -470,7 +470,7 @@ describe("charts", () => {
       model,
       {
         dataSets: [{ dataRange: "C1:C4" }],
-        labelRange: "A2:A4",
+        labelRanges: ["A2:A4"],
         type: "line",
         title: { text: "title" },
       },
@@ -513,7 +513,7 @@ describe("charts", () => {
       model,
       {
         dataSets: [{ dataRange: "C1:C4" }],
-        labelRange: "A2:A4",
+        labelRanges: ["A2:A4"],
         type: "line",
       },
       chartId
@@ -539,7 +539,7 @@ describe("charts", () => {
       model,
       {
         dataSets: [{ dataRange: "C1:C4" }],
-        labelRange: "A2:A4",
+        labelRanges: ["A2:A4"],
         type: "line",
       },
       chartId
@@ -568,7 +568,7 @@ describe("charts", () => {
         model,
         {
           dataSets: [{ dataRange: "C1:C4" }],
-          labelRange: "A2:A4",
+          labelRanges: ["A2:A4"],
           type: "line",
           title: { text: "title" },
         },
@@ -596,7 +596,7 @@ describe("charts", () => {
       model,
       {
         dataSets: [{ dataRange: "C1:C4" }],
-        labelRange: "A2:A4",
+        labelRanges: ["A2:A4"],
         type: "line",
         title: { text: "title" },
       },
@@ -634,7 +634,7 @@ describe("charts", () => {
       model,
       {
         dataSets: [{ dataRange: "C1:C4" }],
-        labelRange: "A2:A4",
+        labelRanges: ["A2:A4"],
         type: "line",
         title: { text: "title" },
       },
@@ -684,7 +684,7 @@ describe("charts", () => {
       model,
       {
         dataSets: [{ dataRange: "B1:B2" }],
-        labelRange: "A1:A2",
+        labelRanges: ["A1:A2"],
         type: "line",
       },
       chartId
@@ -709,7 +709,7 @@ describe("charts", () => {
       model,
       {
         dataSets: [{ dataRange: "B1" }],
-        labelRange: "A1",
+        labelRanges: ["A1"],
         type: "line",
       },
       chartId
@@ -726,7 +726,7 @@ describe("charts", () => {
       model,
       {
         dataSets: [{ dataRange: "C1:C4" }],
-        labelRange: "A2:A4",
+        labelRanges: ["A2:A4"],
         type: "line",
       },
       chartId
@@ -751,7 +751,7 @@ describe("charts", () => {
       model,
       {
         dataSets: [{ dataRange: "B1" }],
-        labelRange: "A1",
+        labelRanges: ["A1"],
         type: "line",
       },
       chartId
@@ -771,7 +771,7 @@ describe("charts", () => {
       model,
       {
         dataSets: [{ dataRange: "B1:B2" }],
-        labelRange: "A1:A2",
+        labelRanges: ["A1:A2"],
         type: "line",
         axesDesign: {
           [axis]: { gridLines: "none" },
@@ -803,7 +803,7 @@ describe("charts", () => {
       model,
       {
         dataSets: [{ dataRange: "B1" }],
-        labelRange: "A1",
+        labelRanges: ["A1"],
         type: "line",
         axesDesign: {
           x: { gridLines: "none" },
@@ -828,7 +828,7 @@ describe("charts", () => {
           { dataRange: "B1:B4", label: "serie_1" },
           { dataRange: "C1:C4", label: "serie_2" },
         ],
-        labelRange: "A2:A4",
+        labelRanges: ["A2:A4"],
         type: "line",
       },
       chartId
@@ -882,7 +882,7 @@ describe("charts", () => {
           { dataRange: "B1:B4", label: "serie_1" },
           { dataRange: "C1:C4", label: "serie_2" },
         ],
-        labelRange: "A2:A4",
+        labelRanges: ["A2:A4"],
         type: "pie",
       },
       chartId
@@ -914,7 +914,7 @@ describe("charts", () => {
       model,
       {
         dataSets: [{ dataRange: "C1:C4" }],
-        labelRange: "A2:A4",
+        labelRanges: ["A2:A4"],
         type: "line",
       },
       chartId
@@ -937,7 +937,7 @@ describe("charts", () => {
       model,
       {
         dataSets: [{ dataRange: "C1:C4" }],
-        labelRange: "A2:A4",
+        labelRanges: ["A2:A4"],
         type: "line",
       },
       chartId
@@ -971,7 +971,7 @@ describe("charts", () => {
       model,
       {
         dataSets: [{ dataRange: "C1:C4" }],
-        labelRange: "A2:A4",
+        labelRanges: ["A2:A4"],
         type: "line",
         title: { text: "old_title_1" },
       },
@@ -981,7 +981,7 @@ describe("charts", () => {
       model,
       {
         dataSets: [{ dataRange: "C1:C4" }],
-        labelRange: "A2:A4",
+        labelRanges: ["A2:A4"],
         type: "line",
         title: { text: "old_title_2" },
       },
@@ -1064,8 +1064,8 @@ describe("charts", () => {
   );
 
   test.each([
-    ["basicChart", [".o-data-labels"], ["labelRange"]],
-    ["combo", [".o-data-labels"], ["labelRange"]],
+    ["basicChart", [".o-data-labels"], ["labelRanges"]],
+    ["combo", [".o-data-labels"], ["labelRanges"]],
     ["scorecard", [".o-data-labels"], ["baseline"]],
   ] as const)("remove ranges in chart %s", async (chartType, rangesDomClasses, nameInChartDef) => {
     createTestChart(chartType);
@@ -1109,7 +1109,7 @@ describe("charts", () => {
             { dataRange: "C1:C4", label: "serie_2", backgroundColor: "#00FF00" },
             { dataRange: "D1:D4", label: "serie_3", backgroundColor: "#0000FF" },
           ],
-          labelRange: "A2:A4",
+          labelRanges: ["A2:A4"],
           type: "line",
         },
         chartId
@@ -1138,7 +1138,7 @@ describe("charts", () => {
             { dataRange: "C1:C4", label: "serie_2", backgroundColor: "#00FF00" },
             { dataRange: "D1:D4", label: "serie_3", backgroundColor: "#0000FF" },
           ],
-          labelRange: "A2:A4",
+          labelRanges: ["A2:A4"],
           type: "line",
         },
         chartId
@@ -1166,7 +1166,7 @@ describe("charts", () => {
             { dataRange: "B1:B4", label: "serie_1" },
             { dataRange: "C1:C4", label: "serie_2" },
           ],
-          labelRange: "A2:A4",
+          labelRanges: ["A2:A4"],
           type: "line",
         },
         chartId
@@ -1341,7 +1341,7 @@ describe("charts", () => {
         model,
         {
           dataSets: [{ dataRange: "C1:C4" }],
-          labelRange: "A2:A4",
+          labelRanges: ["A2:A4"],
           title: { text: "second" },
           type: "line",
         },
@@ -1499,7 +1499,7 @@ describe("charts", () => {
       model,
       {
         dataSets: [],
-        labelRange: "A2:A4",
+        labelRanges: ["A2:A4"],
         type: "line",
         title: { text: "old_title_1" },
       },
@@ -1522,7 +1522,7 @@ describe("charts", () => {
       model,
       {
         dataSets: [],
-        labelRange: "A2:A4",
+        labelRanges: ["A2:A4"],
         type: "line",
         title: { text: "old_title_1" },
       },
@@ -1803,7 +1803,7 @@ describe("charts", () => {
       createTestChart("basicChart");
       updateChart(model, chartId, {
         type: "line",
-        labelRange: "C2:C4",
+        labelRanges: ["C2:C4"],
         dataSets: [{ dataRange: "B2:B4" }],
       });
       await mountChartSidePanel();
@@ -1830,7 +1830,7 @@ describe("charts", () => {
     test("labelAsText checkbox not displayed for text labels", async () => {
       createTestChart("basicChart");
       updateChart(model, chartId, { type: "line" });
-      updateChart(model, chartId, { labelRange: "A2:A4", dataSets: [{ dataRange: "B2:B4" }] });
+      updateChart(model, chartId, { labelRanges: ["A2:A4"], dataSets: [{ dataRange: "B2:B4" }] });
       await mountChartSidePanel();
 
       expect(document.querySelector("input[name='labelsAsText']")).toBeFalsy();
@@ -1841,7 +1841,7 @@ describe("charts", () => {
       createTestChart("basicChart");
       updateChart(model, chartId, {
         type: "line",
-        labelRange: "C2:C4",
+        labelRanges: ["C2:C4"],
         dataSets: [{ dataRange: "B2:B4" }],
       });
       await mountChartSidePanel();
@@ -1853,7 +1853,7 @@ describe("charts", () => {
       createTestChart("basicChart");
       updateChart(model, chartId, {
         type: "line",
-        labelRange: "C2:C4",
+        labelRanges: ["C2:C4"],
         dataSets: [{ dataRange: "B2:B4" }],
       });
       await mountChartSidePanel();
@@ -1872,7 +1872,7 @@ describe("charts", () => {
       createTestChart("basicChart");
       updateChart(model, chartId, {
         type: "scatter",
-        labelRange: "C2:C4",
+        labelRanges: ["C2:C4"],
         dataSets: [{ dataRange: "B2:B4" }],
         axesDesign: {
           x: {
@@ -1898,7 +1898,7 @@ describe("charts", () => {
       setFormat(model, "C2:C4", "m/d/yyyy");
       updateChart(model, chartId, {
         type: "line",
-        labelRange: "A2:A4",
+        labelRanges: ["A2:A4"],
         dataSets: [{ dataRange: "B2:B4" }],
       });
       await mountChartSidePanel();
@@ -1910,7 +1910,7 @@ describe("charts", () => {
       createTestChart("basicChart");
       updateChart(model, chartId, {
         type: "line",
-        labelRange: "F2:F4",
+        labelRanges: ["F2:F4"],
         dataSets: [{ dataRange: "B2:B4" }],
       });
       await mountChartSidePanel();
@@ -1922,7 +1922,7 @@ describe("charts", () => {
       createTestChart("basicChart");
       updateChart(model, chartId, {
         type: "line",
-        labelRange: "C2",
+        labelRanges: ["C2"],
         dataSets: [{ dataRange: "A1" }],
         dataSetsHaveTitle: false,
       });
@@ -1939,7 +1939,7 @@ describe("charts", () => {
       createTestChart("basicChart");
       updateChart(model, chartId, {
         type: "line",
-        labelRange: "C2",
+        labelRanges: ["C2"],
         dataSets: [{ dataRange: "A1:A2" }, { dataRange: "A1" }],
         dataSetsHaveTitle: false,
       });
@@ -1972,19 +1972,19 @@ describe("charts", () => {
 
   test.each([
     {
-      labelRange: "B2:B3",
+      labelRanges: ["B2:B3"],
       dataSets: [{ dataRange: "C2:C3" }, { dataRange: "D2:D3" }, { dataRange: "F2:F3" }],
     },
     {
-      labelRange: "B2:B4",
+      labelRanges: ["B2:B4"],
       dataSets: [{ dataRange: "C2:C4" }, { dataRange: "D3:D4" }, { dataRange: "E2:E4" }],
     },
     {
-      labelRange: "B2:B5",
+      labelRanges: ["B2:B5"],
       dataSets: [{ dataRange: "C2:C4" }, { dataRange: "D2:D4" }, { dataRange: "E2:E4" }],
     },
     {
-      labelRange: "B2:B3",
+      labelRanges: ["B2:B3"],
       dataSets: [
         { dataRange: "Sheet1!C2:C3" },
         { dataRange: "Sheet2!D2:D3" },
@@ -2006,7 +2006,7 @@ describe("charts", () => {
     createTestChart("basicChart");
     updateChart(model, chartId, {
       type: "line",
-      labelRange: "B2:B3",
+      labelRanges: ["B2:B3"],
       dataSets: [
         { dataRange: "C2:C3" },
         { dataRange: "D2:D3" },
@@ -2020,7 +2020,7 @@ describe("charts", () => {
 
     await simulateClick(".o-split-by-rows");
     let definition = model.getters.getChartDefinition(chartId) as LineChartDefinition;
-    expect(definition.labelRange).toBe("B2:F2");
+    expect(definition.labelRanges?.[0]).toBe("B2:F2");
     expect(definition.dataSets).toEqual([{ dataRange: "B3:F3" }]);
     await simulateClick(".o-split-by-columns");
     definition = model.getters.getChartDefinition(chartId) as LineChartDefinition;
@@ -2031,18 +2031,18 @@ describe("charts", () => {
     createTestChart("basicChart");
     updateChart(model, chartId, {
       type: "line",
-      labelRange: "",
+      labelRanges: [],
       dataSets: [{ dataRange: "C2:C3" }],
     });
     await mountChartSidePanel();
 
     await simulateClick(".o-split-by-rows");
     let definition = model.getters.getChartDefinition(chartId) as LineChartDefinition;
-    expect(definition.labelRange).toBe("C2");
+    expect(definition.labelRanges?.[0]).toBe("C2");
     expect(definition.dataSets).toEqual([{ dataRange: "C3" }]);
     await simulateClick(".o-split-by-columns");
     definition = model.getters.getChartDefinition(chartId) as LineChartDefinition;
-    expect(definition.labelRange).toBeUndefined();
+    expect(definition.labelRanges).toBeFalsy();
     expect(definition.dataSets).toEqual([{ dataRange: "C2:C3" }]);
   });
 
@@ -2050,7 +2050,7 @@ describe("charts", () => {
     createTestChart("basicChart");
     updateChart(model, chartId, {
       type: "line",
-      labelRange: "",
+      labelRanges: [],
       dataSets: [{ dataRange: "B1:C4" }],
     });
     await mountChartSidePanel();
@@ -2147,7 +2147,7 @@ describe("charts", () => {
           model,
           {
             dataSets: [{ dataRange: "K1:K6" }],
-            labelRange: "K1:K6",
+            labelRanges: ["K1:K6"],
             aggregated: true,
             legendPosition: "top",
             type,
@@ -2255,7 +2255,7 @@ describe("charts", () => {
           model,
           {
             dataSets: [{ dataRange: "B1:B4" }],
-            labelRange: "A1:A4",
+            labelRanges: ["A1:A4"],
             type,
             dataSetsHaveTitle: false,
           },
@@ -2301,7 +2301,7 @@ describe("charts", () => {
             dataSets: [
               { dataRange: "B1:B4", trend: { type: "polynomial", order: 3, display: true } },
             ],
-            labelRange: "A1:A4",
+            labelRanges: ["A1:A4"],
             type,
             dataSetsHaveTitle: false,
           },
@@ -2340,7 +2340,7 @@ describe("charts", () => {
             dataSets: [
               { dataRange: "B1:B4", trend: { type: "polynomial", order: 3, display: true } },
             ],
-            labelRange: "A1:A4",
+            labelRanges: ["A1:A4"],
             type,
             dataSetsHaveTitle: false,
           },
@@ -2375,7 +2375,7 @@ describe("charts", () => {
                 trend: { type: "trailingMovingAverage", window: 2, display: true },
               },
             ],
-            labelRange: "A1:A4",
+            labelRanges: ["A1:A4"],
             type,
             dataSetsHaveTitle: false,
           },
@@ -2408,7 +2408,7 @@ describe("charts", () => {
             dataSets: [
               { dataRange: "B1:B5", trend: { type: "polynomial", order: 3, display: true } },
             ],
-            labelRange: "A1:A5",
+            labelRanges: ["A1:A5"],
             type,
             dataSetsHaveTitle: false,
           },
@@ -2439,7 +2439,7 @@ describe("charts", () => {
                 backgroundColor: "#ff0000",
               },
             ],
-            labelRange: "A1:A4",
+            labelRanges: ["A1:A4"],
             type,
             dataSetsHaveTitle: false,
           },
@@ -2594,7 +2594,7 @@ describe("charts with multiple sheets", () => {
                 chartId,
                 type: "line",
                 title: { text: "demo chart" },
-                labelRange: "Sheet1!A2:A4",
+                labelRanges: ["Sheet1!A2:A4"],
                 dataSets: [{ dataRange: "Sheet1!B1:B4" }, { dataRange: "Sheet1!C1:C4" }],
                 dataSetsHaveTitle: true,
                 background: "#FFFFFF",

@@ -35,7 +35,7 @@ describe("Waterfall chart side panel", () => {
     test("Waterfall config panel is correctly initialized", async () => {
       const chartId = createWaterfallChart(model, {
         dataSets: [{ dataRange: "A1:A3" }],
-        labelRange: "B1:B3",
+        labelRanges: ["B1:B3"],
         dataSetsHaveTitle: true,
         aggregated: true,
       });
@@ -50,7 +50,7 @@ describe("Waterfall chart side panel", () => {
     test("Can change chart values in config side panel", async () => {
       const chartId = createWaterfallChart(model, {
         dataSets: [{ dataRange: "A1:A3" }],
-        labelRange: "B1:B3",
+        labelRanges: ["B1:B3"],
         dataSetsHaveTitle: true,
         aggregated: true,
       });
@@ -58,7 +58,7 @@ describe("Waterfall chart side panel", () => {
 
       await setInputValueAndTrigger(".o-data-labels input", "C1:C3");
       await simulateClick(".o-data-labels .o-selection-ok");
-      expect(getWaterfallDefinition(chartId)?.labelRange).toEqual("C1:C3");
+      expect(getWaterfallDefinition(chartId)?.labelRanges?.[0]).toEqual("C1:C3");
 
       await setInputValueAndTrigger(".o-data-series input", "B1:B3");
       await simulateClick(".o-data-series .o-selection-ok");

@@ -39,7 +39,7 @@ export class PieChartDesignPanel extends Component<
   }
 
   get isLegendDisabled() {
-    return !this.props.definition.labelRange;
+    return !this.props.definition.labelRanges?.length;
   }
 
   get labels() {

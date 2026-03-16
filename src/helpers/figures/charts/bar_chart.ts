@@ -7,14 +7,17 @@ import {
   checkLabelRange,
   createDataSets,
   duplicateDataSetsInDuplicatedSheet,
-  duplicateLabelRangeInDuplicatedSheet,
   getDefinedAxis,
   shouldRemoveFirstLabel,
   transformChartDefinitionWithDataSetsWithZone,
   updateChartRangesWithDataSets,
 } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_common";
 import { CHART_COMMON_OPTIONS } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_ui_common";
-import { createValidRange } from "@odoo/o-spreadsheet-engine/helpers/range";
+import { isDefined } from "@odoo/o-spreadsheet-engine/helpers/misc";
+import {
+  createValidRange,
+  duplicateRangeInDuplicatedSheet,
+} from "@odoo/o-spreadsheet-engine/helpers/range";
 import {
   BarChartDefinition,
   BarChartRuntime,
@@ -47,7 +50,7 @@ import { getChartLayout } from "./runtime/chartjs_layout";
 
 export class BarChart extends AbstractChart {
   readonly dataSets: DataSet[];
-  readonly labelRange?: Range | undefined;
+  readonly labelRanges: Range[];
   readonly background?: Color;
   readonly legendPosition: LegendPosition;
   readonly stacked: boolean;
@@ -68,7 +71,9 @@ export class BarChart extends AbstractChart {
       sheetId,
       definition.dataSetsHaveTitle
     );
-    this.labelRange = createValidRange(getters, sheetId, definition.labelRange);
+    this.labelRanges = (definition.labelRanges || [])
+      .map((r) => createValidRange(getters, sheetId, r))
+      .filter(isDefined);
     this.background = definition.background;
     this.legendPosition = definition.legendPosition;
     this.stacked = definition.stacked;
@@ -106,7 +111,7 @@ export class BarChart extends AbstractChart {
       legendPosition: context.legendPosition ?? "top",
       title: context.title || { text: "" },
       type: "bar",
-      labelRange: context.auxiliaryRange || undefined,
+      labelRanges: context.auxiliaryRanges,
       axesDesign: context.axesDesign,
       showValues: context.showValues,
       horizontal: context.horizontal,
@@ -126,39 +131,37 @@ export class BarChart extends AbstractChart {
     return {
       ...this,
       range,
-      auxiliaryRange: this.labelRange
-        ? this.getters.getRangeString(this.labelRange, this.sheetId)
+      auxiliaryRanges: this.labelRanges.length
+        ? this.labelRanges.map((r) => this.getters.getRangeString(r, this.sheetId))
         : undefined,
     };
   }
 
   duplicateInDuplicatedSheet(newSheetId: UID): BarChart {
     const dataSets = duplicateDataSetsInDuplicatedSheet(this.sheetId, newSheetId, this.dataSets);
-    const labelRange = duplicateLabelRangeInDuplicatedSheet(
-      this.sheetId,
-      newSheetId,
-      this.labelRange
+    const labelRanges = this.labelRanges.map((r) =>
+      duplicateRangeInDuplicatedSheet(this.sheetId, newSheetId, r)
     );
-    const definition = this.getDefinitionWithSpecificDataSets(dataSets, labelRange, newSheetId);
+    const definition = this.getDefinitionWithSpecificDataSets(dataSets, labelRanges, newSheetId);
     return new BarChart(definition, newSheetId, this.getters);
   }
 
   copyInSheetId(sheetId: UID): BarChart {
     const definition = this.getDefinitionWithSpecificDataSets(
       this.dataSets,
-      this.labelRange,
+      this.labelRanges,
       sheetId
     );
     return new BarChart(definition, sheetId, this.getters);
   }
 
   getDefinition(): BarChartDefinition {
-    return this.getDefinitionWithSpecificDataSets(this.dataSets, this.labelRange);
+    return this.getDefinitionWithSpecificDataSets(this.dataSets, this.labelRanges);
   }
 
   private getDefinitionWithSpecificDataSets(
     dataSets: DataSet[],
-    labelRange: Range | undefined,
+    labelRanges: Range[],
     targetSheetId?: UID
   ): BarChartDefinition {
     const ranges: CustomizedDataSet[] = [];
@@ -174,8 +177,8 @@ export class BarChart extends AbstractChart {
       background: this.background,
       dataSets: ranges,
       legendPosition: this.legendPosition,
-      labelRange: labelRange
-        ? this.getters.getRangeString(labelRange, targetSheetId || this.sheetId)
+      labelRanges: labelRanges.length
+        ? labelRanges.map((r) => this.getters.getRangeString(r, targetSheetId || this.sheetId))
         : undefined,
       title: this.title,
       stacked: this.stacked,
@@ -190,11 +193,11 @@ export class BarChart extends AbstractChart {
 
   getDefinitionForExcel(): ExcelChartDefinition | undefined {
     const { dataSets, labelRange } = this.getCommonDataSetAttributesForExcel(
-      this.labelRange,
+      this.labelRanges[0],
       this.dataSets,
-      shouldRemoveFirstLabel(this.labelRange, this.dataSets[0], this.dataSetsHaveTitle)
+      shouldRemoveFirstLabel(this.labelRanges[0], this.dataSets[0], this.dataSetsHaveTitle)
     );
-    const definition = this.getDefinition();
+    const { labelRanges: _, ...definition } = this.getDefinition();
     return {
       ...definition,
       backgroundColor: toXlsxHexColor(this.background || BACKGROUND_CHART_COLOR),
@@ -206,23 +209,23 @@ export class BarChart extends AbstractChart {
   }
 
   updateRanges({ applyChange }: RangeAdapterFunctions): BarChart {
-    const { dataSets, labelRange, isStale } = updateChartRangesWithDataSets(
+    const { dataSets, labelRanges, isStale } = updateChartRangesWithDataSets(
       this.getters,
       applyChange,
       this.dataSets,
-      this.labelRange
+      this.labelRanges
     );
     if (!isStale) {
       return this;
     }
-    const definition = this.getDefinitionWithSpecificDataSets(dataSets, labelRange);
+    const definition = this.getDefinitionWithSpecificDataSets(dataSets, labelRanges || []);
     return new BarChart(definition, this.sheetId, this.getters);
   }
 }
 
 export function createBarChartRuntime(chart: BarChart, getters: Getters): BarChartRuntime {
   const definition = chart.getDefinition();
-  const chartData = getBarChartData(definition, chart.dataSets, chart.labelRange, getters);
+  const chartData = getBarChartData(definition, chart.dataSets, chart.labelRanges, getters);
 
   const config: ChartConfiguration<"bar" | "line"> = {
     type: "bar",

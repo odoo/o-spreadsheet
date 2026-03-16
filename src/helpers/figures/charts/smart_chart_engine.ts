@@ -137,7 +137,7 @@ function buildSingleColumnChart(column: ColumnInfo, getters: Getters): ChartDefi
         type: "pie",
         title: hasUniqueTitle ? { text: String(titleCell.value) } : {},
         dataSets: [{ dataRange }],
-        labelRange: dataRange,
+        labelRanges: [dataRange],
         dataSetsHaveTitle: hasUniqueTitle,
         aggregated: true,
         legendPosition: "top",
@@ -179,7 +179,7 @@ function buildTwoColumnChart(columns: ColumnInfo[], getters: Getters): ChartDefi
       type: "pie",
       title: {},
       dataSets: [{ dataRange: getUnboundRange(getters, columns[1].zone) }],
-      labelRange: getUnboundRange(getters, columns[0].zone),
+      labelRanges: [getUnboundRange(getters, columns[0].zone)],
       dataSetsHaveTitle: isDatasetTitled(getters, columns[1]),
       aggregated: true,
       legendPosition: "none",
@@ -191,7 +191,7 @@ function buildTwoColumnChart(columns: ColumnInfo[], getters: Getters): ChartDefi
       type: "scatter",
       title: {},
       dataSets: [{ dataRange: getUnboundRange(getters, columns[1].zone) }],
-      labelRange: getUnboundRange(getters, columns[0].zone),
+      labelRanges: [getUnboundRange(getters, columns[0].zone)],
       dataSetsHaveTitle: isDatasetTitled(getters, columns[1]),
       labelsAsText: false,
       legendPosition: "none",
@@ -203,7 +203,7 @@ function buildTwoColumnChart(columns: ColumnInfo[], getters: Getters): ChartDefi
       ...DEFAULT_LINE_CHART_CONFIG,
       type: "line",
       dataSets: [{ dataRange: getUnboundRange(getters, columns[1].zone) }],
-      labelRange: getUnboundRange(getters, columns[0].zone),
+      labelRanges: [getUnboundRange(getters, columns[0].zone)],
       dataSetsHaveTitle: isDatasetTitled(getters, columns[0]),
     };
   }
@@ -220,7 +220,7 @@ function buildTwoColumnChart(columns: ColumnInfo[], getters: Getters): ChartDefi
         type: "treemap",
         title: {},
         dataSets: [{ dataRange: getUnboundRange(getters, textColumn.zone) }],
-        labelRange: getUnboundRange(getters, numberColumn.zone),
+        labelRanges: [getUnboundRange(getters, numberColumn.zone)],
         dataSetsHaveTitle,
         legendPosition: "none",
       };
@@ -230,7 +230,7 @@ function buildTwoColumnChart(columns: ColumnInfo[], getters: Getters): ChartDefi
   return {
     ...DEFAULT_BAR_CHART_CONFIG,
     dataSets: [{ dataRange: getUnboundRange(getters, columns[1].zone) }],
-    labelRange: getUnboundRange(getters, columns[0].zone),
+    labelRanges: [getUnboundRange(getters, columns[0].zone)],
     dataSetsHaveTitle: isDatasetTitled(getters, columns[1]),
   };
 }
@@ -266,7 +266,7 @@ function buildMultiColumnChart(columns: ColumnInfo[], getters: Getters): ChartDe
       type: columnsExceptLast.length >= 3 ? "sunburst" : "treemap",
       title: {},
       dataSets,
-      labelRange: getUnboundRange(getters, lastColumn.zone),
+      labelRanges: [getUnboundRange(getters, lastColumn.zone)],
       dataSetsHaveTitle,
       legendPosition: "none",
     };
@@ -283,7 +283,7 @@ function buildMultiColumnChart(columns: ColumnInfo[], getters: Getters): ChartDe
       type: "pie",
       title: {},
       dataSets: rangesOfColumnsExceptFirst,
-      labelRange: getUnboundRange(getters, firstColumn.zone),
+      labelRanges: [getUnboundRange(getters, firstColumn.zone)],
       dataSetsHaveTitle,
       aggregated: false,
       legendPosition: "top",
@@ -295,7 +295,7 @@ function buildMultiColumnChart(columns: ColumnInfo[], getters: Getters): ChartDe
       ...DEFAULT_LINE_CHART_CONFIG,
       type: "line",
       dataSets: rangesOfColumnsExceptFirst,
-      labelRange: getUnboundRange(getters, firstColumn.zone),
+      labelRanges: [getUnboundRange(getters, firstColumn.zone)],
       dataSetsHaveTitle,
       legendPosition: "top",
     };
@@ -304,7 +304,7 @@ function buildMultiColumnChart(columns: ColumnInfo[], getters: Getters): ChartDe
   return {
     ...DEFAULT_BAR_CHART_CONFIG,
     dataSets: rangesOfColumnsExceptFirst,
-    labelRange: getUnboundRange(getters, firstColumn.zone),
+    labelRanges: [getUnboundRange(getters, firstColumn.zone)],
     dataSetsHaveTitle,
     legendPosition: "top",
   };

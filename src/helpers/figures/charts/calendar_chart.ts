@@ -5,11 +5,11 @@ import {
   checkLabelRange,
   createDataSets,
   duplicateDataSetsInDuplicatedSheet,
-  duplicateLabelRangeInDuplicatedSheet,
   transformChartDefinitionWithDataSetsWithZone,
   updateChartRangesWithDataSets,
 } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_common";
 import { CHART_COMMON_OPTIONS } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_ui_common";
+import { isDefined } from "@odoo/o-spreadsheet-engine/helpers/misc";
 import { createValidRange } from "@odoo/o-spreadsheet-engine/helpers/range";
 import {
   BarChartDefinition,
@@ -59,7 +59,7 @@ function checkDateGranularity(definition: CalendarChartDefinition): CommandResul
 
 export class CalendarChart extends AbstractChart {
   readonly dataSets: DataSet[];
-  readonly labelRange?: Range | undefined;
+  readonly labelRanges: Range[];
   readonly background?: Color;
   readonly type = "calendar";
   readonly showValues?: boolean;
@@ -78,7 +78,9 @@ export class CalendarChart extends AbstractChart {
       sheetId,
       definition.dataSetsHaveTitle
     );
-    this.labelRange = createValidRange(getters, sheetId, definition.labelRange);
+    this.labelRanges = (definition.labelRanges || [])
+      .map((r) => createValidRange(getters, sheetId, r))
+      .filter(isDefined);
     this.background = definition.background;
     this.showValues = definition.showValues;
     this.colorScale = definition.colorScale;
@@ -120,7 +122,7 @@ export class CalendarChart extends AbstractChart {
       dataSetsHaveTitle: context.dataSetsHaveTitle ?? false,
       title: context.title || { text: "" },
       type: "calendar",
-      labelRange: context.auxiliaryRange || undefined,
+      labelRanges: context.auxiliaryRanges,
       showValues: context.showValues,
       axesDesign: context.axesDesign,
       legendPosition,
@@ -136,39 +138,39 @@ export class CalendarChart extends AbstractChart {
     return {
       ...this,
       range,
-      auxiliaryRange: this.labelRange
-        ? this.getters.getRangeString(this.labelRange, this.sheetId)
+      auxiliaryRanges: this.labelRanges.length
+        ? this.labelRanges.map((r) => this.getters.getRangeString(r, this.sheetId))
         : undefined,
     };
   }
 
   duplicateInDuplicatedSheet(newSheetId: UID): CalendarChart {
     const dataSets = duplicateDataSetsInDuplicatedSheet(this.sheetId, newSheetId, this.dataSets);
-    const labelRange = duplicateLabelRangeInDuplicatedSheet(
-      this.sheetId,
-      newSheetId,
-      this.labelRange
-    );
-    const definition = this.getDefinitionWithSpecificDataSets(dataSets, labelRange, newSheetId);
+    const labelRanges = this.labelRanges
+      .map((r) =>
+        createValidRange(this.getters, newSheetId, this.getters.getRangeString(r, this.sheetId))
+      )
+      .filter(isDefined);
+    const definition = this.getDefinitionWithSpecificDataSets(dataSets, labelRanges, newSheetId);
     return new CalendarChart(definition, newSheetId, this.getters);
   }
 
   copyInSheetId(sheetId: UID): CalendarChart {
     const definition = this.getDefinitionWithSpecificDataSets(
       this.dataSets,
-      this.labelRange,
+      this.labelRanges,
       sheetId
     );
     return new CalendarChart(definition, sheetId, this.getters);
   }
 
   getDefinition(): CalendarChartDefinition {
-    return this.getDefinitionWithSpecificDataSets(this.dataSets, this.labelRange);
+    return this.getDefinitionWithSpecificDataSets(this.dataSets, this.labelRanges);
   }
 
   private getDefinitionWithSpecificDataSets(
     dataSets: DataSet[],
-    labelRange: Range | undefined,
+    labelRanges: Range[],
     targetSheetId?: UID
   ): CalendarChartDefinition {
     const ranges: CustomizedDataSet[] = dataSets.map((dataSet) => ({
@@ -179,8 +181,8 @@ export class CalendarChart extends AbstractChart {
       background: this.background,
       dataSets: ranges,
       dataSetsHaveTitle: dataSets.length ? Boolean(dataSets[0].labelCell) : false,
-      labelRange: labelRange
-        ? this.getters.getRangeString(labelRange, targetSheetId || this.sheetId)
+      labelRanges: labelRanges.length
+        ? labelRanges.map((r) => this.getters.getRangeString(r, targetSheetId || this.sheetId))
         : undefined,
       title: this.title,
       showValues: this.showValues,
@@ -198,16 +200,16 @@ export class CalendarChart extends AbstractChart {
   }
 
   updateRanges({ applyChange }: RangeAdapterFunctions): CalendarChart {
-    const { dataSets, labelRange, isStale } = updateChartRangesWithDataSets(
+    const { dataSets, labelRanges, isStale } = updateChartRangesWithDataSets(
       this.getters,
       applyChange,
       this.dataSets,
-      this.labelRange
+      this.labelRanges
     );
     if (!isStale) {
       return this;
     }
-    const definition = this.getDefinitionWithSpecificDataSets(dataSets, labelRange);
+    const definition = this.getDefinitionWithSpecificDataSets(dataSets, labelRanges || []);
     return new CalendarChart(definition, this.sheetId, this.getters);
   }
 }
@@ -217,7 +219,7 @@ export function createCalendarChartRuntime(
   getters: Getters
 ): CalendarChartRuntime {
   const definition = chart.getDefinition();
-  const chartData = getCalendarChartData(definition, chart.dataSets, chart.labelRange, getters);
+  const chartData = getCalendarChartData(definition, chart.dataSets, chart.labelRanges, getters);
   const { labels, datasets } = getCalendarChartDatasetAndLabels(definition, chartData);
 
   const config: ChartConfiguration<"calendar"> = {

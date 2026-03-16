@@ -760,7 +760,7 @@ describe("sheets", () => {
     const sheetId = model.getters.getActiveSheetId();
     createChart(
       model,
-      { type: "bar", dataSets: [{ dataRange: "Sheet1!B1:B4" }], labelRange: "Sheet1!A2:A4" },
+      { type: "bar", dataSets: [{ dataRange: "Sheet1!B1:B4" }], labelRanges: ["Sheet1!A2:A4"] },
       "uuid",
       undefined,
       { size: { height: 335, width: 536 }, figureId: "figureId" }

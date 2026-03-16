@@ -31,7 +31,7 @@ describe("bar chart", () => {
       background: "#123456",
       title: { text: "hello there" },
       dataSets: [{ dataRange: "Sheet1!B1:B4", yAxisId: "y1" }],
-      labelRange: "Sheet1!A1:A4",
+      labelRanges: ["Sheet1!A1:A4"],
       legendPosition: "bottom",
       dataSetsHaveTitle: true,
       aggregated: true,
@@ -144,7 +144,7 @@ describe("bar chart", () => {
           { dataRange: "Sheet1!A1:A2", backgroundColor: "#f00", label: "serie_1" },
           { dataRange: "Sheet1!A3:A4", backgroundColor: "#00f", label: "serie_2" },
         ],
-        labelRange: "Sheet1!A2:A4",
+        labelRanges: ["Sheet1!A2:A4"],
         type: "bar",
       },
       "1"
@@ -183,7 +183,7 @@ describe("bar chart", () => {
       model,
       {
         dataSets: [{ dataRange: "B1:C2" }],
-        labelRange: "A1:A2",
+        labelRanges: ["A1:A2"],
         dataSetsHaveTitle: true,
         type: "bar",
       },
@@ -295,7 +295,7 @@ describe("bar chart", () => {
       model,
       {
         type: "bar",
-        labelRange: "A2",
+        labelRanges: ["A2"],
         dataSets: [{ dataRange: "B2" }],
       },
       "1"

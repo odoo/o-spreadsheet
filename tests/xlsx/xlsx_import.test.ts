@@ -878,7 +878,7 @@ describe("Import xlsx data", () => {
       expect(chartData.type).toEqual(chartType);
       expect(standardizeColor(chartData.background!)).toEqual(standardizeColor(chartColor));
 
-      expect(chartData.labelRange).toEqual("Sheet1!A27:A35");
+      expect(chartData.labelRanges?.[0]).toEqual("Sheet1!A27:A35");
       expect(chartData.dataSets).toMatchObject(chartDatasets);
       expect(chartData.dataSetsHaveTitle).toBeFalsy();
     }
@@ -949,7 +949,7 @@ describe("Import xlsx data", () => {
       expect(chartData.type).toEqual(chartType);
       expect(standardizeColor(chartData.background!)).toEqual(standardizeColor(chartColor));
 
-      expect(chartData.labelRange).toEqual("Sheet1!A26:A35");
+      expect(chartData.labelRanges?.[0]).toEqual("Sheet1!A26:A35");
       expect(chartData.dataSets).toMatchObject(chartDatasets);
       expect(chartData.dataSetsHaveTitle).toBeTruthy();
     }
@@ -963,7 +963,7 @@ describe("Import xlsx data", () => {
     expect(chartData.type).toEqual("scatter");
     expect(standardizeColor(chartData.background!)).toEqual(standardizeColor("#fff"));
     expect(chartData.dataSets).toMatchObject([{ dataRange: "Sheet1!C27:C35" }]);
-    expect(chartData.labelRange).toEqual("Sheet1!B27:B35");
+    expect(chartData.labelRanges?.[0]).toEqual("Sheet1!B27:B35");
     expect(chartData.dataSetsHaveTitle).toBeFalsy();
   });
 
@@ -977,7 +977,7 @@ describe("Import xlsx data", () => {
     expect(chartData.type).toEqual("scatter");
     expect(standardizeColor(chartData.background!)).toEqual(standardizeColor("#fff"));
     expect(chartData.dataSets).toMatchObject([{ dataRange: "Sheet1!C27:C35" }]);
-    expect(chartData.labelRange).toEqual("Sheet1!A27:A35");
+    expect(chartData.labelRanges?.[0]).toEqual("Sheet1!A27:A35");
     expect(chartData.dataSetsHaveTitle).toBeFalsy();
   });
 

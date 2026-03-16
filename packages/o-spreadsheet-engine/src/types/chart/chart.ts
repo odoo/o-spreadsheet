@@ -64,7 +64,11 @@ export type ChartDefinition =
 
 export type ChartWithDataSetDefinition = Extract<
   ChartDefinition,
-  { dataSets: CustomizedDataSet[]; labelRange?: string; humanize?: boolean }
+  {
+    dataSets: CustomizedDataSet[];
+    labelRanges?: string[];
+    humanize?: boolean;
+  }
 >;
 
 export type ChartWithColorScaleDefinition = Extract<
@@ -214,7 +218,7 @@ export interface ChartCreationContext {
   readonly hierarchicalRanges?: CustomizedDataSet[];
   readonly title?: TitleDesign;
   readonly background?: Color;
-  readonly auxiliaryRange?: string;
+  readonly auxiliaryRanges?: string[];
   readonly aggregated?: boolean;
   readonly stacked?: boolean;
   readonly cumulative?: boolean;

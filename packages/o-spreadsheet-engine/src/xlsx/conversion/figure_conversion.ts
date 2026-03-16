@@ -104,7 +104,7 @@ function convertChartData(chartData: ExcelChartDefinition): ChartDefinition | un
   const creationContext: ChartCreationContext = {
     range: dataSets,
     dataSetsHaveTitle,
-    auxiliaryRange: labelRange,
+    auxiliaryRanges: labelRange ? [labelRange] : [],
     title: chartData.title ?? { text: "" },
     background: convertColor({ rgb: chartData.backgroundColor }) || "#FFFFFF",
     legendPosition: chartData.legendPosition,
