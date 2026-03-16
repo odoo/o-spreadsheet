@@ -10,6 +10,7 @@ exports[`BottomBar component Can open the list of statistics 1`] = `
     class="o-menu-item d-flex justify-content-between align-items-center"
     data-name="Sum"
     style=""
+    tabindex="-1"
     title="Sum: 24"
   >
     <div
@@ -30,6 +31,7 @@ exports[`BottomBar component Can open the list of statistics 1`] = `
     class="o-menu-item d-flex justify-content-between align-items-center"
     data-name="Avg"
     style=""
+    tabindex="-1"
     title="Avg: 24"
   >
     <div
@@ -50,6 +52,7 @@ exports[`BottomBar component Can open the list of statistics 1`] = `
     class="o-menu-item d-flex justify-content-between align-items-center"
     data-name="Min"
     style=""
+    tabindex="-1"
     title="Min: 24"
   >
     <div
@@ -70,6 +73,7 @@ exports[`BottomBar component Can open the list of statistics 1`] = `
     class="o-menu-item d-flex justify-content-between align-items-center"
     data-name="Max"
     style=""
+    tabindex="-1"
     title="Max: 24"
   >
     <div
@@ -90,6 +94,7 @@ exports[`BottomBar component Can open the list of statistics 1`] = `
     class="o-menu-item d-flex justify-content-between align-items-center"
     data-name="Count"
     style=""
+    tabindex="-1"
     title="Count: 1"
   >
     <div
@@ -110,6 +115,7 @@ exports[`BottomBar component Can open the list of statistics 1`] = `
     class="o-menu-item d-flex justify-content-between align-items-center"
     data-name="Count Numbers"
     style=""
+    tabindex="-1"
     title="Count Numbers: 1"
   >
     <div
