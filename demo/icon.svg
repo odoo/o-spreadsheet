@@ -1,0 +1,64 @@
+<svg width="144" height="144" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <path
+    d="M 3 3 H 97 V 97 H 2 Z"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    fill="#dcdcdc"
+    stroke="#444"
+    stroke-width="5"
+  />
+
+  <!-- Grid -->
+  <g stroke="#9a9a9a" stroke-width="5" opacity="0.7">
+    <line x1="5" y1="50" x2="95" y2="50"/>
+    <line x1="5" y1="75" x2="95" y2="75"/>
+    <line x1="5" y1="25" x2="95" y2="25" stroke="#333"/>
+    <line x1="25" y1="5" x2="25" y2="95" stroke="#333"/>
+  </g>
+
+  <!-- Main circular arc -->
+  <path
+    d="M48 14
+       a39 39 0 1 0 39 39
+       h-14
+       a25 25 0 1 1 -25 -25
+    z"
+    fill="#7a0066"
+    stroke="#222"
+    stroke-width="3"
+  />
+  <path
+    d="M48 28
+       a25 25 0 1 0 25 25
+       h-25
+    z"
+    fill="#fff"
+    stroke="#222"
+    stroke-width="3"
+  />
+
+  <!-- Quarter ring background -->
+  <path
+    d="M55 10
+       v36
+       h36
+       a36 36 0 0 0 -36 -36
+       Z"
+    fill="#b54a73"
+    stroke="#222"
+    stroke-width="3"
+  />
+
+  <!-- Inner cutout -->
+  <path
+    d="M55 24
+       v22
+       h22
+       a22 22 0 0 0 -22 -22
+       Z"
+    fill="#fff"
+    stroke="#222"
+    stroke-width="3"
+  />
+</svg>

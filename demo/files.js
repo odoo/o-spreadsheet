@@ -232,6 +232,7 @@ class FileManagerDemo extends Component {
     });
 
     useExternalListener(window, "beforeunload", () => this._saveCurrentFile());
+    useExternalListener(window, "visibilitychange", () => this._saveCurrentFile());
   }
 
   async _loadFileList() {
