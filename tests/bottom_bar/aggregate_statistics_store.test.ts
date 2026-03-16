@@ -14,7 +14,7 @@ import {
   setSelection,
 } from "../test_helpers/commands_helpers";
 import { getCellError, getEvaluatedCell } from "../test_helpers/getters_helpers";
-import { addToRegistry } from "../test_helpers/helpers";
+import { addToRegistry, createModel } from "../test_helpers/helpers";
 import { makeStore } from "../test_helpers/stores";
 
 describe("Aggregate statistic functions", () => {
@@ -166,7 +166,7 @@ describe("Aggregate statistic functions", () => {
       ],
     });
 
-    const model = new Model();
+    const model = createModel();
     setCellContent(model, "A1", "=TWOARGSNEEDED(42)");
 
     expect(getEvaluatedCell(model, "A1").value).toBe("#BAD_EXPR");

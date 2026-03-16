@@ -16,7 +16,7 @@ import {
   setFormat,
   updateChart,
 } from "../../test_helpers/commands_helpers";
-import { createModelFromGrid } from "../../test_helpers/helpers";
+import { createModel, createModelFromGrid } from "../../test_helpers/helpers";
 
 let model: Model;
 describe("bar chart", () => {
@@ -45,7 +45,7 @@ describe("bar chart", () => {
   });
 
   test("Stacked bar", () => {
-    const model = new Model();
+    const model = createModel();
     createChart(model, { type: "bar", stacked: false }, "chartId");
     expect(isChartAxisStacked(model, "chartId", "x")).toBeFalsy();
     expect(isChartAxisStacked(model, "chartId", "y")).toBeFalsy();
@@ -57,7 +57,7 @@ describe("bar chart", () => {
 
   describe("Horizontal bar chart", () => {
     beforeEach(() => {
-      model = new Model();
+      model = createModel();
     });
 
     test("Chart is set as horizontal in chartJS runtime", () => {
@@ -96,7 +96,7 @@ describe("bar chart", () => {
     });
 
     test("Horizontal bar chart cannot have datasets on the right", () => {
-      const model = new Model({
+      const model = createModel({
         sheets: [
           {
             name: "Sheet1",

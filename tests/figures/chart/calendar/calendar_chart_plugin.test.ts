@@ -3,11 +3,11 @@ import {
   CalendarChartRuntime,
 } from "@odoo/o-spreadsheet-engine/types/chart/calendar_chart";
 import { ScaleChartOptions } from "chart.js";
-import { ChartCreationContext, Model } from "../../../../src";
+import { ChartCreationContext } from "../../../../src";
 import { CalendarChart } from "../../../../src/helpers/figures/charts/calendar_chart";
 import { createCalendarChart, createSheet, setCellContent, setFormat } from "../../../test_helpers";
 import { GENERAL_CHART_CREATION_CONTEXT } from "../../../test_helpers/chart_helpers";
-
+import { createModel } from "../../../test_helpers/helpers";
 const STAMPS_AND_LABELS: { stamp: CalendarChartGranularity; labels: string[] }[] = [
   {
     stamp: "day_of_week",
@@ -158,7 +158,6 @@ const STAMPS_AND_LABELS: { stamp: CalendarChartGranularity; labels: string[] }[]
     labels: ["Q1", "Q2", "Q3", "Q4"],
   },
 ];
-
 describe("calendar chart", () => {
   test("create calendar chart from creation context", () => {
     const context: Required<ChartCreationContext> = {
@@ -180,11 +179,10 @@ describe("calendar chart", () => {
       axesDesign: {},
     });
   });
-
   test.each(STAMPS_AND_LABELS)(
     "Vertical axis grouping is taken into account",
     (grouping: { stamp: CalendarChartGranularity; labels: readonly string[] }) => {
-      const model = new Model();
+      const model = createModel();
       createSheet(model, { sheetId: "calendar", activate: true, rows: 365, cols: 2 });
       setCellContent(model, "A1", "=DATE(1,1,1) + SEQUENCE(365,1,1,1) + SEQUENCE(365,1, 0, 1/366)");
       setFormat(model, "A1:A365", "mm/dd/yyyy hh:mm:ss");
@@ -207,11 +205,10 @@ describe("calendar chart", () => {
       );
     }
   );
-
   test.each(STAMPS_AND_LABELS)(
     "Horizontal axis grouping is taken into account",
     (grouping: { stamp: CalendarChartGranularity; labels: readonly string[] }) => {
-      const model = new Model();
+      const model = createModel();
       createSheet(model, { sheetId: "calendar", activate: true, rows: 365, cols: 2 });
       setCellContent(model, "A1", "=DATE(1,1,1) + SEQUENCE(365,1,1,1) + SEQUENCE(365,1, 0, 1/366)");
       setFormat(model, "A1:A365", "mm/dd/yyyy hh:mm:ss");
@@ -232,9 +229,8 @@ describe("calendar chart", () => {
       expect(runtime.chartJsConfig.data.labels).toEqual(grouping.labels);
     }
   );
-
   test("Axis borders are not shown in calendar charts", () => {
-    const model = new Model();
+    const model = createModel();
     createCalendarChart(
       model,
       { type: "calendar", dataSets: [{ dataRange: "B1:B365" }] },

@@ -2,7 +2,11 @@ import { DEFAULT_BORDER_DESC } from "@odoo/o-spreadsheet-engine/constants";
 import { Model } from "@odoo/o-spreadsheet-engine/model";
 import { BorderEditor, BorderEditorProps } from "../../src/components/border_editor/border_editor";
 import { simulateClick } from "../test_helpers/dom_helper";
-import { makeTestFixture, mountComponentWithPortalTarget } from "../test_helpers/helpers";
+import {
+  createModel,
+  makeTestFixture,
+  mountComponentWithPortalTarget,
+} from "../test_helpers/helpers";
 
 let fixture: HTMLElement;
 
@@ -18,7 +22,7 @@ async function setDefaultBorder(name: string) {
 
 async function mountBorderEditor(
   partialProps: Partial<BorderEditorProps> = {},
-  model = new Model()
+  model = createModel()
 ) {
   const props = {
     onBorderColorPicked: partialProps.onBorderColorPicked || (() => {}),
@@ -51,7 +55,7 @@ afterEach(() => {
 describe("Can set borders", () => {
   let model: Model;
   beforeEach(async () => {
-    model = new Model();
+    model = createModel();
     await mountBorderEditor(
       { onBorderColorPicked, onBorderPositionPicked, onBorderStylePicked },
       model

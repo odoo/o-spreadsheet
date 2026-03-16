@@ -26,26 +26,26 @@ import {
   getRangeFormattedValues,
   getRangeValues,
 } from "../test_helpers/getters_helpers";
-import { makeTestComposerStore, toRangesData } from "../test_helpers/helpers";
+import { createModel, makeTestComposerStore, toRangesData } from "../test_helpers/helpers";
 
 describe("core", () => {
   describe("format", () => {
     test("format cell that point to an empty cell properly", () => {
-      const model = new Model();
+      const model = createModel();
       setCellContent(model, "A1", "=A2");
 
       expect(getCellContent(model, "A1")).toBe("0");
     });
 
     test("format cell without content: empty string", () => {
-      const model = new Model();
+      const model = createModel();
       selectCell(model, "B2");
       setZoneBorders(model, { position: "bottom" });
       expect(getCellContent(model, "B2")).toBe("");
     });
 
     test("format cell with the zero value", () => {
-      const model = new Model();
+      const model = createModel();
       setCellContent(model, "A1", "0");
       selectCell(model, "A1");
       setFormat(model, "A1", "0.00000");
@@ -56,14 +56,14 @@ describe("core", () => {
     });
 
     test("evaluate properly a cell with a style just recently applied", () => {
-      const model = new Model();
+      const model = createModel();
       setCellContent(model, "A1", "=sum(A2) + 1");
       setFormatting(model, "A1", { bold: true });
       expect(getCellContent(model, "A1")).toEqual("1");
     });
 
     test("format cell to a boolean value", () => {
-      const model = new Model();
+      const model = createModel();
       setCellContent(model, "A1", "=false");
       setCellContent(model, "A2", "=true");
 
@@ -73,7 +73,7 @@ describe("core", () => {
 
     describe("detect format number automatically", () => {
       test("if contain currency", () => {
-        const model = new Model();
+        const model = createModel();
         setCellContent(model, "A1", "3$");
         setCellContent(model, "A2", "-$3");
         setCellContent(model, "A3", "$-3");
@@ -104,7 +104,7 @@ describe("core", () => {
       });
 
       test("if contain percent", () => {
-        const model = new Model();
+        const model = createModel();
         setCellContent(model, "A1", "3%");
         setCellContent(model, "A2", "3.4%");
         expect(getCellContent(model, "A1")).toBe("3%");
@@ -114,7 +114,7 @@ describe("core", () => {
       });
 
       test("currency format most important than percent format", () => {
-        const model = new Model();
+        const model = createModel();
         setCellContent(model, "A1", "12300%$");
         expect(getCellContent(model, "A1")).toBe("123$");
         expect(getEvaluatedCell(model, "A1").format).toBe("#,##0[$$]");
@@ -126,26 +126,26 @@ describe("core", () => {
     });
     describe("detect format formula automatically", () => {
       test("from formula without return format", () => {
-        const model = new Model();
+        const model = createModel();
         setCellContent(model, "A1", "=CONCAT(4,2)");
         expect(getEvaluatedCell(model, "A1").format).toBe(undefined);
       });
 
       test("from formula without return format and format seted on the formula", () => {
-        const model = new Model();
+        const model = createModel();
         setCellContent(model, "A1", "=CONCAT(4,2)");
         setCellFormat(model, "A1", "#,##0[$$]");
         expect(getEvaluatedCell(model, "A1").format).toBe("#,##0[$$]");
       });
 
       test("from formula with return format", () => {
-        const model = new Model();
+        const model = createModel();
         setCellContent(model, "A1", "=TIME(42,42,42)");
         expect(getEvaluatedCell(model, "A1").format).toBe("hh:mm:ss a");
       });
 
       test("from formula with return format and format seted on the formula", () => {
-        const model = new Model();
+        const model = createModel();
         setCellContent(model, "A1", "=TIME(42,42,42)");
         setCellFormat(model, "A1", "#,##0[$$]");
         expect(getEvaluatedCell(model, "A1").format).toBe("#,##0[$$]");
@@ -153,7 +153,7 @@ describe("core", () => {
 
       describe("from formula depending on the reference", () => {
         test("with the reference declared before the formula", () => {
-          const model = new Model();
+          const model = createModel();
           setCellContent(model, "A1", "3%");
           expect(getEvaluatedCell(model, "A1").format).toBe("0%");
 
@@ -163,14 +163,14 @@ describe("core", () => {
         });
 
         test("with a reference to an empty cell", () => {
-          const model = new Model();
+          const model = createModel();
           setCellFormat(model, "A1", "#,##0[$$]");
           setCellContent(model, "A2", "=A1");
           expect(getEvaluatedCell(model, "A2")?.format).toBe("#,##0[$$]");
         });
 
         test("with the reference declared before the formula and format applied on the formula", () => {
-          const model = new Model();
+          const model = createModel();
           setCellContent(model, "A1", "3%");
           expect(getEvaluatedCell(model, "A1").format).toBe("0%");
 
@@ -181,7 +181,7 @@ describe("core", () => {
         });
 
         test("with the reference declared before the formula and format applied on the reference", () => {
-          const model = new Model();
+          const model = createModel();
           setCellContent(model, "A1", "3%");
           expect(getEvaluatedCell(model, "A1").format).toBe("0%");
 
@@ -192,7 +192,7 @@ describe("core", () => {
         });
 
         test("with the formula declared before the reference ", () => {
-          const model = new Model();
+          const model = createModel();
           setCellContent(model, "A1", "=1+A2");
           expect(getEvaluatedCell(model, "A1").format).toBe(undefined);
 
@@ -202,7 +202,7 @@ describe("core", () => {
         });
 
         test("with the formula declared before the reference and format seted on the formula", () => {
-          const model = new Model();
+          const model = createModel();
           setCellContent(model, "A1", "=1+A2");
           expect(getEvaluatedCell(model, "A1").format).toBe(undefined);
 
@@ -213,7 +213,7 @@ describe("core", () => {
         });
 
         test("with the formula declared before the reference and format seted on the reference", () => {
-          const model = new Model();
+          const model = createModel();
           setCellContent(model, "A1", "=1+A2");
           expect(getEvaluatedCell(model, "A1").format).toBe(undefined);
 
@@ -227,7 +227,7 @@ describe("core", () => {
   });
 
   test("does not reevaluate cells if edition does not change content", () => {
-    const model = new Model();
+    const model = createModel();
     const composerStore = makeTestComposerStore(model);
     setCellContent(model, "A1", "=rand()");
 
@@ -240,13 +240,13 @@ describe("core", () => {
   });
 
   test("core cell getter does not crash if invalid col/row", () => {
-    const model = new Model();
+    const model = createModel();
     const sheetId = model.getters.getActiveSheetId();
     expect(model.getters.getCell({ sheetId, col: -1, row: -1 })).toBeUndefined();
   });
 
   test("single cell XC conversion", () => {
-    const model = new Model({});
+    const model = createModel({});
     expect(
       model.getters.zoneToXC(
         model.getters.getActiveSheetId(),
@@ -256,7 +256,7 @@ describe("core", () => {
   });
 
   test("multi cell zone XC conversion", () => {
-    const model = new Model({});
+    const model = createModel({});
     expect(
       model.getters.zoneToXC(
         model.getters.getActiveSheetId(),
@@ -266,7 +266,7 @@ describe("core", () => {
   });
 
   test("xc is expanded to overlapping merges", () => {
-    const model = new Model({ sheets: [{ colNumber: 10, rowNumber: 10, merges: ["A1:B2"] }] });
+    const model = createModel({ sheets: [{ colNumber: 10, rowNumber: 10, merges: ["A1:B2"] }] });
     expect(
       model.getters.zoneToXC(
         model.getters.getActiveSheetId(),
@@ -276,7 +276,7 @@ describe("core", () => {
   });
 
   test("zone is across two merges", () => {
-    const model = new Model({
+    const model = createModel({
       sheets: [{ colNumber: 10, rowNumber: 10, merges: ["A1:B2", "A4:B5"] }],
     });
     expect(
@@ -288,7 +288,7 @@ describe("core", () => {
   });
 
   test("merge is considered as one single cell", () => {
-    const model = new Model({ sheets: [{ colNumber: 10, rowNumber: 10, merges: ["A1:B2"] }] });
+    const model = createModel({ sheets: [{ colNumber: 10, rowNumber: 10, merges: ["A1:B2"] }] });
     expect(
       model.getters.zoneToXC(
         model.getters.getActiveSheetId(),
@@ -298,7 +298,7 @@ describe("core", () => {
   });
 
   test("can get row/col of inactive sheet", () => {
-    const model = new Model();
+    const model = createModel();
     createSheet(model, { sheetId: "42" });
     const [, sheet2Id] = model.getters.getSheetIds();
     resizeRows(model, [0], 24, sheet2Id);
@@ -309,7 +309,7 @@ describe("core", () => {
   });
 
   test("can get row/col number of inactive sheet", () => {
-    const model = new Model({
+    const model = createModel({
       sheets: [
         { colNumber: 10, rowNumber: 10, id: "1" },
         { colNumber: 19, rowNumber: 29, id: "2" },
@@ -321,7 +321,7 @@ describe("core", () => {
   });
 
   test("Range with absolute references are correctly updated on rows manipulation", () => {
-    const model = new Model();
+    const model = createModel();
     setFormulaVisibility(model, true);
     setCellContent(model, "A1", "=SUM($C$1:$C$5)");
     addRows(model, "after", 2, 1);
@@ -331,7 +331,7 @@ describe("core", () => {
   });
 
   test("Absolute references are correctly updated on rows manipulation", () => {
-    const model = new Model();
+    const model = createModel();
     setFormulaVisibility(model, true);
     setCellContent(model, "A1", "=SUM($C$1)");
     addRows(model, "after", 2, 1);
@@ -341,7 +341,7 @@ describe("core", () => {
   });
 
   test("Range with absolute references are correctly updated on columns manipulation", () => {
-    const model = new Model();
+    const model = createModel();
     setFormulaVisibility(model, true);
     setCellContent(model, "A1", "=SUM($A$2:$E$2)");
     addColumns(model, "after", "C", 1);
@@ -351,7 +351,7 @@ describe("core", () => {
   });
 
   test("Absolute references are correctly updated on columns manipulation", () => {
-    const model = new Model();
+    const model = createModel();
     setFormulaVisibility(model, true);
     setCellContent(model, "A1", "=SUM($A$2)");
     addColumns(model, "after", "C", 1);
@@ -363,7 +363,7 @@ describe("core", () => {
 
 describe("history", () => {
   test("can undo and redo a add cell operation", () => {
-    const model = new Model();
+    const model = createModel();
 
     expect(model.getters.canUndo()).toBe(false);
 
@@ -380,7 +380,7 @@ describe("history", () => {
   });
 
   test("can undo and redo a cell update", () => {
-    const model = new Model({
+    const model = createModel({
       sheets: [{ colNumber: 10, rowNumber: 10, cells: { A1: "1" } }],
     });
     const composerStore = makeTestComposerStore(model);
@@ -403,7 +403,7 @@ describe("history", () => {
   });
 
   test("can undo and redo a delete cell operation", () => {
-    const model = new Model();
+    const model = createModel();
     setCellContent(model, "A2", "3");
 
     expect(getCellContent(model, "A2")).toBe("3");
@@ -418,7 +418,7 @@ describe("history", () => {
   });
 
   test("can delete a cell with a style", () => {
-    const model = new Model();
+    const model = createModel();
     setCellContent(model, "A1", "3");
     setFormatting(model, "A1", { bold: true });
     expect(getCellContent(model, "A1")).toBe("3");
@@ -428,7 +428,7 @@ describe("history", () => {
   });
 
   test("can delete a cell with a border", () => {
-    const model = new Model();
+    const model = createModel();
     setCellContent(model, "A1", "3");
     setZoneBorders(model, { position: "bottom" }, ["A1"]);
 
@@ -439,7 +439,7 @@ describe("history", () => {
   });
 
   test("can delete a cell with a format", () => {
-    const model = new Model();
+    const model = createModel();
     setCellContent(model, "A1", "3");
     setFormat(model, "A1", "#,##0.00");
 
@@ -450,7 +450,7 @@ describe("history", () => {
   });
 
   test("setting a date to a cell will reformat it", () => {
-    const model = new Model();
+    const model = createModel();
     setCellContent(model, "A1", "03/2/2011");
     setCellContent(model, "A2", " 03/12/2011");
     expect(getCellContent(model, "A1")).toBe("03/02/2011");
@@ -458,7 +458,7 @@ describe("history", () => {
   });
 
   test("get cell formula text", () => {
-    const model = new Model();
+    const model = createModel();
     setCellContent(model, "A1", "=SUM(1,2)");
     setCellContent(model, "A2", "This is Patrick");
     setFormulaVisibility(model, true);
@@ -470,7 +470,7 @@ describe("history", () => {
   });
 
   test("set formula visibility is idempotent", () => {
-    const model = new Model();
+    const model = createModel();
     setFormulaVisibility(model, true);
     expect(model.getters.shouldShowFormulas()).toBe(true);
     setFormulaVisibility(model, true);
@@ -480,14 +480,14 @@ describe("history", () => {
   });
 
   test("Cannot update a cell in invalid sheet", async () => {
-    const model = new Model();
+    const model = createModel();
     expect(setCellContent(model, "B2", "hello", "invalid")).toBeCancelledBecause(
       CommandResult.InvalidSheetId
     );
   });
 
   test("Can select a cell in another sheet", async () => {
-    const model = new Model({
+    const model = createModel({
       sheets: [
         { id: "1", cells: { A1: "Sheet1A1" } },
         { id: "2", cells: { A1: "Sheet2A1" } },
@@ -501,7 +501,7 @@ describe("history", () => {
     test("getRangeFormattedValues", () => {
       const sheet1Id = "42";
       const sheet2Id = "43";
-      const model = new Model({
+      const model = createModel({
         sheets: [
           {
             id: sheet1Id,
@@ -569,7 +569,7 @@ describe("history", () => {
     test("getRangeValues", () => {
       const sheet1Id = "42";
       const sheet2Id = "43";
-      const model = new Model({
+      const model = createModel({
         sheets: [
           {
             id: sheet1Id,
@@ -619,7 +619,7 @@ describe("Generic allowDispatch", () => {
   beforeEach(() => {
     //@ts-ignore
     coreTypes.add("MY_CORE_CMD");
-    model = new Model();
+    model = createModel();
     sheetId = model.getters.getActiveSheetId();
   });
 

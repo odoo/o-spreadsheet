@@ -65,7 +65,7 @@ import {
   setZoneBorders,
 } from "../test_helpers/commands_helpers";
 import { getCell } from "../test_helpers/getters_helpers";
-import { getFingerprint, target } from "../test_helpers/helpers";
+import { createModel, getFingerprint, target } from "../test_helpers/helpers";
 import { createModelWithTestPivotDataset } from "../test_helpers/pivot_helpers";
 import { watchClipboardOutline } from "../test_helpers/renderer_helpers";
 import { makeStoreWithModel } from "../test_helpers/stores";
@@ -112,7 +112,7 @@ interface ContextObserver {
   onFunctionCall?(fn: string, args: any[], renderingContext: MockGridRenderingContext): void;
 }
 
-function setRenderer(model: Model = new Model()) {
+function setRenderer(model: Model = createModel()) {
   const { container, store: gridRendererStore } = makeStoreWithModel(model, GridRenderer);
   gridRendererStore["getBoxesWithAnimations"] = (boxes) => boxes;
   const rendererManager = container.get(RendererStore);
@@ -214,7 +214,7 @@ describe("renderer", () => {
 
     beforeEach(() => {
       ({ drawGridRenderer, model } = setRenderer(
-        new Model({ sheets: [{ colNumber: 2, rowNumber: 2 }] })
+        createModel({ sheets: [{ colNumber: 2, rowNumber: 2 }] })
       ));
       const { width, height } = model.getters.getSheetViewDimension();
       instructions = [];
@@ -318,7 +318,7 @@ describe("renderer", () => {
 
   test("Cells evaluating to a number are properly aligned on overflow", () => {
     const { drawGridRenderer, model } = setRenderer(
-      new Model({
+      createModel({
         sheets: [
           {
             id: "1",
@@ -370,7 +370,7 @@ describe("renderer", () => {
 
   test("fillstyle of cell will be rendered", () => {
     const { drawGridRenderer, model } = setRenderer(
-      new Model({ sheets: [{ colNumber: 1, rowNumber: 3 }] })
+      createModel({ sheets: [{ colNumber: 1, rowNumber: 3 }] })
     );
 
     setFormatting(model, "A1", { fillColor: "#DC6CDF" });
@@ -420,7 +420,7 @@ describe("renderer", () => {
 
   test("fillstyle of merge will be rendered for all cells in merge", () => {
     const { drawGridRenderer, model } = setRenderer(
-      new Model({ sheets: [{ colNumber: 1, rowNumber: 3 }] })
+      createModel({ sheets: [{ colNumber: 1, rowNumber: 3 }] })
     );
     setFormatting(model, "A1", { fillColor: "#DC6CDF" });
     merge(model, "A1:A3");
@@ -470,7 +470,7 @@ describe("renderer", () => {
 
   test("fillstyle of cell works with CF", () => {
     const { drawGridRenderer, model } = setRenderer(
-      new Model({ sheets: [{ colNumber: 1, rowNumber: 3 }] })
+      createModel({ sheets: [{ colNumber: 1, rowNumber: 3 }] })
     );
     addEqualCf(model, "A1", { fillColor: "#DC6CDF" }, "1", "1");
 
@@ -505,7 +505,7 @@ describe("renderer", () => {
 
   test("fill style of hovered clickable cells goes over regular fill style", () => {
     const { drawGridRenderer, model, container } = setRenderer(
-      new Model({ sheets: [{ colNumber: 1, rowNumber: 3 }] })
+      createModel({ sheets: [{ colNumber: 1, rowNumber: 3 }] })
     );
     const background = "#DC6CDF";
     const hoverColor = blendColors(background, TABLE_HOVER_BACKGROUND_COLOR);
@@ -549,7 +549,7 @@ describe("renderer", () => {
 
   test("fillstyle of merge works with CF", () => {
     const { drawGridRenderer, model } = setRenderer(
-      new Model({ sheets: [{ colNumber: 1, rowNumber: 3 }] })
+      createModel({ sheets: [{ colNumber: 1, rowNumber: 3 }] })
     );
     addEqualCf(model, "A1", { fillColor: "#DC6CDF" }, "1", "1");
     merge(model, "A1:A3");
@@ -584,7 +584,7 @@ describe("renderer", () => {
 
   test("formula fingerprints", () => {
     const { drawGridRenderer, model, gridRendererStore, container } = setRenderer(
-      new Model({ sheets: [{ colNumber: 1, rowNumber: 6 }] })
+      createModel({ sheets: [{ colNumber: 1, rowNumber: 6 }] })
     );
     const fingerprints = container.get(FormulaFingerprintStore);
     fingerprints.enable();
@@ -671,7 +671,7 @@ describe("renderer", () => {
 
   test("Cells in a merge evaluating to a number are properly aligned on overflow", () => {
     const { drawGridRenderer, model } = setRenderer(
-      new Model({
+      createModel({
         sheets: [
           {
             id: "1",
@@ -853,7 +853,7 @@ describe("renderer", () => {
 
   test("CF on empty cell", () => {
     const { drawGridRenderer, model } = setRenderer(
-      new Model({ sheets: [{ colNumber: 1, rowNumber: 1 }] })
+      createModel({ sheets: [{ colNumber: 1, rowNumber: 1 }] })
     );
     let fillStyle: any[] = [];
     let fillStyleColor1Called = false;
@@ -908,7 +908,7 @@ describe("renderer", () => {
     (overflowingContent) => {
       let box: Box;
       const { drawGridRenderer, model, gridRendererStore } = setRenderer(
-        new Model({
+        createModel({
           sheets: [
             {
               id: "sheet1",
@@ -959,7 +959,7 @@ describe("renderer", () => {
       const overflowingNumber = "100000000000000";
       let box: Box;
       const { drawGridRenderer, model, gridRendererStore } = setRenderer(
-        new Model({
+        createModel({
           sheets: [
             {
               id: "sheet1",
@@ -1008,7 +1008,7 @@ describe("renderer", () => {
     const overflowingText = "I am a very long text";
     let box: Box;
     const { drawGridRenderer, model, gridRendererStore } = setRenderer(
-      new Model({
+      createModel({
         sheets: [
           {
             id: "sheet1",
@@ -1057,7 +1057,7 @@ describe("renderer", () => {
     // using alternative col size to clarify the computations
     const colSize = 5;
     const { drawGridRenderer, model, gridRendererStore } = setRenderer(
-      new Model({
+      createModel({
         sheets: [
           {
             id: "sheet1",
@@ -1088,7 +1088,7 @@ describe("renderer", () => {
     // using alternative col size to clarify the computations
     const colSize = 5;
     const { drawGridRenderer, model, gridRendererStore } = setRenderer(
-      new Model({
+      createModel({
         sheets: [
           {
             id: "sheet1",
@@ -1123,7 +1123,7 @@ describe("renderer", () => {
     (align) => {
       const overflowingText = "I am a very long text";
       const { drawGridRenderer, model, gridRendererStore } = setRenderer(
-        new Model({
+        createModel({
           sheets: [
             {
               id: "sheet1",
@@ -1159,7 +1159,7 @@ describe("renderer", () => {
   ])("Content cannot overflow over merge with align %s", (align, ...merges) => {
     const overflowingText = "I am a very long text";
     const { drawGridRenderer, model, gridRendererStore } = setRenderer(
-      new Model({
+      createModel({
         sheets: [
           {
             id: "sheet1",
@@ -1192,7 +1192,7 @@ describe("renderer", () => {
     (align) => {
       const overflowingText = "I am a very very very long text";
       const { drawGridRenderer, model, gridRendererStore } = setRenderer(
-        new Model({
+        createModel({
           sheets: [
             {
               id: "sheet1",
@@ -1225,7 +1225,7 @@ describe("renderer", () => {
     (align) => {
       const overflowingText = "I am a very very very long text";
       const { drawGridRenderer, model, gridRendererStore } = setRenderer(
-        new Model({
+        createModel({
           sheets: [
             {
               id: "sheet1",
@@ -1258,7 +1258,7 @@ describe("renderer", () => {
     const fontSize = 26;
     let box: Box;
     const { drawGridRenderer, model, gridRendererStore } = setRenderer(
-      new Model({
+      createModel({
         sheets: [
           {
             id: "sheet1",
@@ -1316,7 +1316,7 @@ describe("renderer", () => {
     let box: Box;
     const cellContent = "10000";
     const { drawGridRenderer, model, gridRendererStore } = setRenderer(
-      new Model({
+      createModel({
         sheets: [
           {
             id: "sheet1",
@@ -1434,7 +1434,7 @@ describe("renderer", () => {
     (align: string, borders: string[], expectedClipRectZone: Zone | undefined) => {
       const cellContent = "This is a long text larger than a cell";
       const { drawGridRenderer, model, gridRendererStore } = setRenderer(
-        new Model({
+        createModel({
           sheets: [
             {
               id: "sheet1",
@@ -1466,7 +1466,7 @@ describe("renderer", () => {
   test("Cell overflowing text centered is cut correctly when there's a border", () => {
     const cellContent = "This is a long text larger than a cell";
 
-    const model = new Model();
+    const model = createModel();
     resizeColumns(model, ["B"], 10);
     setCellContent(model, "B2", cellContent);
     setFormatting(model, "B2", { align: "center" });
@@ -1503,7 +1503,7 @@ describe("renderer", () => {
     (align: string, expectedClipRectZone: Zone | undefined) => {
       const cellContent = "This is a very vey very very very very long text larger than a cell";
       const { drawGridRenderer, model, gridRendererStore } = setRenderer(
-        new Model({
+        createModel({
           sheets: [
             {
               id: "sheet1",
@@ -1532,7 +1532,7 @@ describe("renderer", () => {
   test("Box clip rect computation take the text margin into account", () => {
     let box: Box;
     const { drawGridRenderer, model, gridRendererStore } = setRenderer(
-      new Model({ sheets: [{ id: "sheet1", colNumber: 1, rowNumber: 1 }] })
+      createModel({ sheets: [{ id: "sheet1", colNumber: 1, rowNumber: 1 }] })
     );
     resizeColumns(model, ["A"], 10);
 
@@ -1615,7 +1615,7 @@ describe("renderer", () => {
     ["dashboard" as Mode, { x: 0, y: 0, width: DEFAULT_CELL_WIDTH, height: DEFAULT_CELL_HEIGHT }],
     ["normal" as Mode, { x: 0, y: 0, width: DEFAULT_CELL_WIDTH, height: DEFAULT_CELL_HEIGHT }],
   ])("A1 starts at the upper left corner with mode %s", (mode, expectedRect) => {
-    const model = new Model({}, { mode });
+    const model = createModel({}, { mode });
     const rect = model.getters.getVisibleRect(toZone("A1"));
     expect(rect).toEqual(expectedRect);
   });
@@ -1625,7 +1625,7 @@ describe("renderer", () => {
      * according to the kind of error
      */
     const { drawGridRenderer, model, gridRendererStore } = setRenderer(
-      new Model({
+      createModel({
         sheets: [
           {
             id: "sheet1",
@@ -1686,7 +1686,7 @@ describe("renderer", () => {
   test("Do not draw gridLines over colored cells in dashboard mode", () => {
     const CellFillColor = "#fe0000";
     const { drawGridRenderer, model } = setRenderer(
-      new Model({
+      createModel({
         sheets: [{ id: "Sheet1", name: "Sheet1", styles: { A1: 1, A2: 1 } }],
         styles: { 1: { fillColor: CellFillColor } },
       })
@@ -1719,7 +1719,7 @@ describe("renderer", () => {
   test("Do not draw gridLines over colored cells while hiding grid lines", () => {
     const CellFillColor = "#fe0000";
     const { drawGridRenderer, model } = setRenderer(
-      new Model({
+      createModel({
         sheets: [{ id: "Sheet1", name: "Sheet1", styles: { A1: 1, A2: 2 } }],
         styles: { 1: { fillColor: CellFillColor } },
       })
@@ -1754,7 +1754,7 @@ describe("renderer", () => {
 
   test("draw text position depends on vertical align", () => {
     const { drawGridRenderer, model } = setRenderer(
-      new Model({
+      createModel({
         sheets: [
           {
             id: 1,
@@ -1799,7 +1799,7 @@ describe("renderer", () => {
 
   test("keep the text vertically align to the top if not enough spaces to display it", () => {
     const { drawGridRenderer, model } = setRenderer(
-      new Model({
+      createModel({
         sheets: [
           {
             id: 1,
@@ -1869,7 +1869,7 @@ describe("renderer", () => {
 
     beforeEach(() => {
       ({ drawGridRenderer, model, gridRendererStore } = setRenderer(
-        new Model({ sheets: [{ colNumber: 10, rowNumber: 10 }] })
+        createModel({ sheets: [{ colNumber: 10, rowNumber: 10 }] })
       ));
       fillWhiteRectInstructions = [];
       let drawingWhiteBackground = false;
@@ -2281,7 +2281,7 @@ describe("renderer", () => {
   });
 
   test("Cells of splilled formula are empty is we display the formulas", () => {
-    const model = new Model({ sheets: [{ colNumber: 2, rowNumber: 2 }] });
+    const model = createModel({ sheets: [{ colNumber: 2, rowNumber: 2 }] });
     setFormulaVisibility(model, true);
     setCellContent(model, "A1", "=MUNIT(2)");
     const { drawGridRenderer, gridRendererStore } = setRenderer(model);
@@ -2456,7 +2456,7 @@ describe("renderer", () => {
   });
 
   test("Each frozen pane is clipped in the grid", () => {
-    const model = new Model({ sheets: [{ colNumber: 7, rowNumber: 7 }] });
+    const model = createModel({ sheets: [{ colNumber: 7, rowNumber: 7 }] });
     const { drawGridRenderer } = setRenderer(model);
     setCellContent(model, "A1", "1");
     freezeColumns(model, 2);
@@ -2504,7 +2504,7 @@ describe("renderer", () => {
   });
 
   test("Applying style hideGridLines on a cell skips the drawing of the grid lines for this cell", () => {
-    const model = new Model();
+    const model = createModel();
     const { drawGridRenderer } = setRenderer(model);
 
     let strokeRectCalls: string[];

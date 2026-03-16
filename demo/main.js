@@ -342,6 +342,7 @@ class Demo extends Component {
       },
       this.stateUpdateMessages
     );
+    this.model.startModel();
     markRaw(this.model);
     o_spreadsheet.__DEBUG__ = o_spreadsheet.__DEBUG__ || {};
     o_spreadsheet.__DEBUG__.model = this.model;

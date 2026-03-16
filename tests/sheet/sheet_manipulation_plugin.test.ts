@@ -40,6 +40,7 @@ import {
 } from "../test_helpers/getters_helpers";
 import {
   XCToMergeCellMap,
+  createModel,
   getCellsObject,
   getMergeCellMap,
   makeTestFixture,
@@ -108,7 +109,7 @@ const fullData = {
 describe("Clear columns", () => {
   test("Can clear multiple column", () => {
     const border = { right: { style: "thin", color: "#000" } };
-    model = new Model({
+    model = createModel({
       sheets: [
         {
           colNumber: 3,
@@ -148,7 +149,7 @@ describe("Clear columns", () => {
     expect(getBorder(model, "C2")).toEqual(border);
   });
   test("cannot delete column in invalid sheet", () => {
-    model = new Model();
+    model = createModel();
     expect(deleteColumns(model, ["A"], "INVALID")).toBeCancelledBecause(
       CommandResult.InvalidSheetId
     );
@@ -158,7 +159,7 @@ describe("Clear columns", () => {
 describe("Clear rows", () => {
   test("Can clear multiple rows", () => {
     const border = { right: { style: "thin", color: "#000" } };
-    model = new Model({
+    model = createModel({
       sheets: [
         {
           colNumber: 3,
@@ -199,7 +200,7 @@ describe("Clear rows", () => {
     expect(getCell(model, "C2")).toMatchObject({ style });
   });
   test("cannot delete row in invalid sheet", () => {
-    model = new Model();
+    model = createModel();
     expect(deleteRows(model, [0], "INVALID")).toBeCancelledBecause(CommandResult.InvalidSheetId);
   });
 });
@@ -214,7 +215,7 @@ describe("Columns", () => {
   });
   describe("Correctly update size, name, order and number", () => {
     beforeEach(() => {
-      model = new Model({
+      model = createModel({
         sheets: [{ colNumber: 4, rowNumber: 1, cols: { 1: { size: 10 }, 2: { size: 20 } } }],
       });
     });
@@ -226,7 +227,7 @@ describe("Columns", () => {
       expect(model.getters.getActiveSheet().numberOfCols).toBe(2);
     });
     test("On delete cols in inactive sheet", () => {
-      model = new Model({
+      model = createModel({
         sheets: [
           { id: "s1", colNumber: 3, rowNumber: 3, cells: { B2: "B2 in sheet1" } },
           { id: "s2", colNumber: 3, rowNumber: 3, cells: { B2: "B2 in sheet2" } },
@@ -286,7 +287,7 @@ describe("Columns", () => {
 
   describe("Correctly update merges", () => {
     beforeEach(() => {
-      model = new Model({
+      model = createModel({
         sheets: [{ colNumber: 5, rowNumber: 4, merges: ["A1:E1", "B2:E2", "C3:E3", "B4:D4"] }],
       });
     });
@@ -327,7 +328,7 @@ describe("Columns", () => {
   describe("Correctly update borders", () => {
     test("Add columns with simple border", () => {
       const s = { style: "thin", color: "#000" };
-      model = new Model({
+      model = createModel({
         sheets: [
           {
             borders: {
@@ -356,7 +357,7 @@ describe("Columns", () => {
     });
     test("Add columns with two consecutive borders", () => {
       const s = { style: "thin", color: "#000" };
-      model = new Model({
+      model = createModel({
         sheets: [
           {
             borders: {
@@ -400,7 +401,7 @@ describe("Columns", () => {
     });
 
     test("insert column after cell with external border", () => {
-      const model = new Model();
+      const model = createModel();
       setZoneBorders(model, { position: "external" }, ["B2"]);
       addColumns(model, "after", "B", 1);
       expect(getBorder(model, "B2")).toEqual({
@@ -412,7 +413,7 @@ describe("Columns", () => {
     });
 
     test("insert column before cell with external border", () => {
-      const model = new Model();
+      const model = createModel();
       setZoneBorders(model, { position: "external" }, ["B2"]);
       addColumns(model, "before", "B", 1);
       expect(getBorder(model, "C2")).toEqual({
@@ -424,7 +425,7 @@ describe("Columns", () => {
     });
 
     test("delete column after cell with external border", () => {
-      const model = new Model();
+      const model = createModel();
       setZoneBorders(model, { position: "external" }, ["B2"]);
       deleteColumns(model, ["C"]);
       expect(getBorder(model, "B2")).toEqual({
@@ -440,7 +441,7 @@ describe("Columns", () => {
     let border: Border;
     beforeEach(() => {
       border = { top: { style: "thin", color: "#000000" } };
-      model = new Model({
+      model = createModel({
         sheets: [
           {
             id: "sheet1",
@@ -547,7 +548,7 @@ describe("Columns", () => {
 
   describe("Correctly update references", () => {
     beforeEach(() => {
-      model = new Model({
+      model = createModel({
         sheets: [
           {
             id: "sheet1",
@@ -585,7 +586,7 @@ describe("Columns", () => {
       expect(getCellsObject(model, "sheet2")).toMatchSnapshot();
     });
     test("delete col on inactive sheet", () => {
-      const model = new Model({
+      const model = createModel({
         sheets: [
           {
             id: "s1",
@@ -618,7 +619,7 @@ describe("Columns", () => {
       });
     });
     test("On first col deletion", () => {
-      model = new Model({
+      model = createModel({
         sheets: [{ id: "sheet1", colNumber: 3, rowNumber: 3, cells: { B2: "=SUM(A1:C1)" } }],
       });
       deleteColumns(model, ["A"]);
@@ -627,7 +628,7 @@ describe("Columns", () => {
       });
     });
     test("On multiple col deletion including the first one", () => {
-      model = new Model({
+      model = createModel({
         sheets: [{ id: "sheet1", colNumber: 3, rowNumber: 3, cells: { C2: "=SUM(A1:D1)" } }],
       });
       deleteColumns(model, ["A", "B"]);
@@ -636,7 +637,7 @@ describe("Columns", () => {
       });
     });
     test("On last col deletion", () => {
-      model = new Model({
+      model = createModel({
         sheets: [{ id: "sheet1", colNumber: 3, rowNumber: 3, cells: { A2: "=SUM(A1:C1)" } }],
       });
       deleteColumns(model, ["C"]);
@@ -645,7 +646,7 @@ describe("Columns", () => {
       });
     });
     test("delete almost all columns of a range", () => {
-      model = new Model({
+      model = createModel({
         sheets: [{ id: "s1", colNumber: 9, rowNumber: 9, cells: { A1: "=SUM(A2:E5)" } }],
       });
       deleteColumns(model, ["B", "C", "D", "E"]);
@@ -653,7 +654,7 @@ describe("Columns", () => {
     });
 
     test("delete all columns of a range", () => {
-      model = new Model({
+      model = createModel({
         sheets: [
           {
             id: "s1",
@@ -672,7 +673,7 @@ describe("Columns", () => {
       expect(getCellText(model, "A1", "s1")).toBe(`=SUM(${CellErrorType.InvalidReference})`);
     });
     test("update cross sheet range on column deletion", () => {
-      model = new Model({
+      model = createModel({
         sheets: [
           { name: "Sheet1", colNumber: 5, rowNumber: 5 },
           {
@@ -688,7 +689,7 @@ describe("Columns", () => {
       expect(getCellText(model, "A1", "42")).toBe("=SUM(Sheet1!A1:C3)");
     });
     test("update cross sheet range on column deletion in inactive sheet", () => {
-      model = new Model({
+      model = createModel({
         sheets: [
           { name: "Sheet0", colNumber: 1, rowNumber: 1 }, // <-- less column than Sheet1
           { name: "Sheet1", id: "sheet1", colNumber: 5, rowNumber: 5 },
@@ -707,7 +708,7 @@ describe("Columns", () => {
       expect(getCellText(model, "A1", "42")).toBe("=SUM(Sheet1!A1:C3)");
     });
     test("On multiple col deletion including the last one", () => {
-      model = new Model({
+      model = createModel({
         sheets: [{ id: "sheet1", colNumber: 4, rowNumber: 4, cells: { A2: "=SUM(A1:D1)" } }],
       });
       deleteColumns(model, ["C", "D"]);
@@ -727,7 +728,7 @@ describe("Columns", () => {
     const sheetId = "sheet1";
 
     beforeEach(() => {
-      model = new Model({
+      model = createModel({
         sheets: [{ id: sheetId, colNumber: 5, rowNumber: 1, cols: { 2: { isHidden: true } } }],
       });
     });
@@ -755,7 +756,7 @@ describe("Columns", () => {
 
   describe("Correctly handle undo/redo", () => {
     test("On deletion", () => {
-      model = new Model(fullData);
+      model = createModel(fullData);
       const beforeRemove = model.exportData();
       deleteColumns(model, ["A", "C"]);
       const afterRemove = model.exportData();
@@ -765,7 +766,7 @@ describe("Columns", () => {
       expect(model).toExport(afterRemove);
     });
     test("On addition", () => {
-      model = new Model(fullData);
+      model = createModel(fullData);
       const beforeAdd = model.exportData();
       addColumns(model, "before", "B", 4);
       const afterAdd1 = model.exportData();
@@ -783,7 +784,7 @@ describe("Columns", () => {
 
   describe("Correctly update selection", () => {
     test("On add left 1", () => {
-      model = new Model(fullData);
+      model = createModel(fullData);
       const zoneXC = "B1:D3";
       setSelection(model, [zoneXC]);
       expect(model.getters.getSelectedZone()).toEqual({ bottom: 2, left: 1, right: 3, top: 0 });
@@ -793,21 +794,21 @@ describe("Columns", () => {
       expect(model.getters.getSelectedZone()).toEqual(toZone("C1:E3"));
     });
     test("On add left 3", () => {
-      model = new Model(fullData);
+      model = createModel(fullData);
       setSelection(model, ["B1:D3"]);
       expect(model.getters.getSelectedZone()).toEqual(toZone("B1:D3"));
       addColumns(model, "before", "B", 3);
       expect(model.getters.getSelectedZone()).toEqual(toZone("E1:G3"));
     });
     test("On add right 1", () => {
-      model = new Model(fullData);
+      model = createModel(fullData);
       setSelection(model, ["B1:D3"]);
       expect(model.getters.getSelectedZone()).toEqual(toZone("B1:D3"));
       addColumns(model, "after", "B", 1);
       expect(model.getters.getSelectedZone()).toEqual(toZone("B1:E3"));
     });
     test("On add right 3", () => {
-      model = new Model(fullData);
+      model = createModel(fullData);
       setSelection(model, ["B1:D3"]);
       expect(model.getters.getSelectedZone()).toEqual(toZone("B1:D3"));
       addColumns(model, "after", "B", 3);
@@ -826,7 +827,7 @@ describe("Rows", () => {
   });
   describe("Correctly update size, name, order and number", () => {
     beforeEach(() => {
-      model = new Model({
+      model = createModel({
         sheets: [{ colNumber: 1, rowNumber: 4, rows: { 1: { size: 10 }, 2: { size: 20 } } }],
       });
     });
@@ -839,7 +840,7 @@ describe("Rows", () => {
       expect(model.getters.getNumberRows(sheetId)).toBe(2);
     });
     test("On delete row in inactive sheet", () => {
-      model = new Model({
+      model = createModel({
         sheets: [
           { colNumber: 3, rowNumber: 3, cells: { B2: "B2 in sheet1" } },
           { colNumber: 3, rowNumber: 3, cells: { B2: "B2 in sheet2" } },
@@ -852,7 +853,7 @@ describe("Rows", () => {
       expect(getCellContent(model, "B1", sheet2Id)).toBe("B2 in sheet2");
     });
     test("On deletion batch", () => {
-      model = new Model({
+      model = createModel({
         sheets: [
           {
             id: "sheet1",
@@ -873,7 +874,7 @@ describe("Rows", () => {
       });
     });
     test("delete all rows of a range", () => {
-      model = new Model({
+      model = createModel({
         sheets: [
           {
             id: "sheet1",
@@ -892,7 +893,7 @@ describe("Rows", () => {
       expect(getCellText(model, "A1")).toBe(`=SUM(${CellErrorType.InvalidReference})`);
     });
     test("update cross sheet range on row deletion", () => {
-      model = new Model({
+      model = createModel({
         sheets: [
           { name: "Sheet1", colNumber: 5, rowNumber: 5 },
           {
@@ -908,7 +909,7 @@ describe("Rows", () => {
       expect(getCellText(model, "A1", "42")).toBe("=SUM(Sheet1!A1:A2)");
     });
     test("update cross sheet range on row deletion in inactive sheet", () => {
-      model = new Model({
+      model = createModel({
         sheets: [
           { name: "Sheet0", colNumber: 1, rowNumber: 1 }, // <-- less rows than Sheet1
           { name: "Sheet1", id: "sheet1", colNumber: 5, rowNumber: 5 },
@@ -1006,7 +1007,7 @@ describe("Rows", () => {
 
   describe("Correctly update merges", () => {
     beforeEach(() => {
-      model = new Model({
+      model = createModel({
         sheets: [{ colNumber: 4, rowNumber: 5, merges: ["A1:A5", "B2:B5", "C3:C5", "D2:D4"] }],
       });
     });
@@ -1047,7 +1048,7 @@ describe("Rows", () => {
 
   describe("Correctly update border and style", () => {
     beforeEach(() => {
-      model = new Model({
+      model = createModel({
         sheets: [
           {
             id: "sheet1",
@@ -1148,7 +1149,7 @@ describe("Rows", () => {
     });
 
     test("insert row after cell with external border", () => {
-      const model = new Model();
+      const model = createModel();
       const s = DEFAULT_BORDER_DESC;
       setZoneBorders(model, { position: "external" }, ["B2"]);
       addRows(model, "after", 1, 1);
@@ -1156,7 +1157,7 @@ describe("Rows", () => {
     });
 
     test("insert row before cell with external border", () => {
-      const model = new Model();
+      const model = createModel();
       const s = DEFAULT_BORDER_DESC;
       setZoneBorders(model, { position: "external" }, ["B2"]);
       addRows(model, "before", 1, 1);
@@ -1165,7 +1166,7 @@ describe("Rows", () => {
     });
 
     test("delete row  after cell with external border", () => {
-      const model = new Model();
+      const model = createModel();
       const s = DEFAULT_BORDER_DESC;
       setZoneBorders(model, { position: "external" }, ["B2"]);
       deleteRows(model, [2]);
@@ -1175,7 +1176,7 @@ describe("Rows", () => {
 
   describe("Correctly update references", () => {
     beforeEach(() => {
-      model = new Model({
+      model = createModel({
         sheets: [
           {
             id: "sheet1",
@@ -1214,7 +1215,7 @@ describe("Rows", () => {
       expect(getCellsObject(model, "sheet2")).toMatchSnapshot();
     });
     test("delete row on inactive sheet", () => {
-      const model = new Model({
+      const model = createModel({
         sheets: [
           {
             id: "s1",
@@ -1240,7 +1241,7 @@ describe("Rows", () => {
       expect(getCellsObject(model, "s2")).toMatchSnapshot();
     });
     test("On first row deletion", () => {
-      model = new Model({
+      model = createModel({
         sheets: [{ id: "sheet1", colNumber: 3, rowNumber: 3, cells: { B2: "=SUM(A1:A3)" } }],
       });
       deleteRows(model, [0]);
@@ -1250,7 +1251,7 @@ describe("Rows", () => {
     });
 
     test("with space in the sheet name", () => {
-      model = new Model({
+      model = createModel({
         sheets: [
           {
             id: "sheet1",
@@ -1287,7 +1288,7 @@ describe("Rows", () => {
     });
 
     test("On multiple row deletion including the first one", () => {
-      model = new Model({
+      model = createModel({
         sheets: [{ id: "sheet1", colNumber: 3, rowNumber: 6, cells: { B1: "=SUM(A2:A5)" } }],
       });
       deleteRows(model, [1, 2]);
@@ -1296,7 +1297,7 @@ describe("Rows", () => {
       });
     });
     test("strange test in Odoo", () => {
-      model = new Model({
+      model = createModel({
         sheets: [
           {
             id: "sheet1",
@@ -1321,7 +1322,7 @@ describe("Rows", () => {
       });
     });
     test("On last row deletion", () => {
-      model = new Model({
+      model = createModel({
         sheets: [{ id: "sheet1", colNumber: 3, rowNumber: 3, cells: { B1: "=SUM(A1:A3)" } }],
       });
       deleteRows(model, [2]);
@@ -1330,7 +1331,7 @@ describe("Rows", () => {
       });
     });
     test("On multiple row", () => {
-      model = new Model({
+      model = createModel({
         sheets: [{ id: "sheet1", colNumber: 1, rowNumber: 8, cells: { A1: "=SUM(A2:A5)" } }],
       });
       deleteRows(model, [2, 3]);
@@ -1339,7 +1340,7 @@ describe("Rows", () => {
       });
     });
     test("On multiple rows (7)", () => {
-      model = new Model({
+      model = createModel({
         sheets: [{ id: "sheet1", colNumber: 1, rowNumber: 8, cells: { A1: "=SUM(A2:A8)" } }],
       });
       deleteRows(model, [1, 2, 3, 4, 5, 6]);
@@ -1348,7 +1349,7 @@ describe("Rows", () => {
       });
     });
     test("On multiple row deletion including the last one", () => {
-      model = new Model({
+      model = createModel({
         sheets: [{ id: "sheet1", colNumber: 4, rowNumber: 4, cells: { B1: "=SUM(A1:A4)" } }],
       });
       deleteRows(model, [2, 3]);
@@ -1357,7 +1358,7 @@ describe("Rows", () => {
       });
     });
     test("On multiple row deletion including the last and beyond", () => {
-      model = new Model({
+      model = createModel({
         sheets: [{ id: "sheet1", colNumber: 2, rowNumber: 8, cells: { B2: "=SUM(A1:A4)" } }],
       });
       deleteRows(model, [3, 4, 5, 6, 7]);
@@ -1377,7 +1378,7 @@ describe("Rows", () => {
     const sheetId = "sheet1";
 
     beforeEach(() => {
-      model = new Model({
+      model = createModel({
         sheets: [{ id: sheetId, colNumber: 1, rowNumber: 5, rows: { 2: { isHidden: true } } }],
       });
     });
@@ -1405,7 +1406,7 @@ describe("Rows", () => {
 
   describe("Correctly handle undo/redo", () => {
     test("On deletion", () => {
-      model = new Model(fullData);
+      model = createModel(fullData);
       const beforeRemove = model.exportData();
       deleteRows(model, [0, 2]);
       const afterRemove = model.exportData();
@@ -1416,7 +1417,7 @@ describe("Rows", () => {
     });
 
     test("On addition", () => {
-      model = new Model(fullData);
+      model = createModel(fullData);
       const beforeAdd = model.exportData();
       addRows(model, "before", 2, 2);
       const afterAdd1 = model.exportData();
@@ -1434,28 +1435,28 @@ describe("Rows", () => {
 
   describe("Correctly update selection", () => {
     test("On add top 1", () => {
-      model = new Model(fullData);
+      model = createModel(fullData);
       setSelection(model, ["C1:D2"]);
       expect(model.getters.getSelectedZone()).toEqual(toZone("C1:D2"));
       addRows(model, "before", 0, 1);
       expect(model.getters.getSelectedZone()).toEqual(toZone("C2:D3"));
     });
     test("On add top 3", () => {
-      model = new Model(fullData);
+      model = createModel(fullData);
       setSelection(model, ["C1:D2"]);
       expect(model.getters.getSelectedZone()).toEqual(toZone("C1:D2"));
       addRows(model, "before", 0, 3);
       expect(model.getters.getSelectedZone()).toEqual(toZone("C4:D5"));
     });
     test("On add bottom 1", () => {
-      model = new Model(fullData);
+      model = createModel(fullData);
       setSelection(model, ["C1:D2"]);
       expect(model.getters.getSelectedZone()).toEqual(toZone("C1:D2"));
       addRows(model, "after", 0, 1);
       expect(model.getters.getSelectedZone()).toEqual(toZone("C1:D3"));
     });
     test("On add bottom 3", () => {
-      model = new Model(fullData);
+      model = createModel(fullData);
       setSelection(model, ["C1:D2"]);
       expect(model.getters.getSelectedZone()).toEqual(toZone("C1:D2"));
       addRows(model, "after", 0, 3);
@@ -1465,7 +1466,7 @@ describe("Rows", () => {
 
   describe("Multi-sheet", () => {
     test("Can add a row in another sheet", () => {
-      const model = new Model({
+      const model = createModel({
         sheets: [
           { id: "1", colNumber: 3, rowNumber: 3 },
           { id: "2", colNumber: 3, rowNumber: 3 },
@@ -1483,7 +1484,7 @@ describe("Rows", () => {
 describe("Delete cell", () => {
   let model: Model;
   beforeEach(() => {
-    model = new Model();
+    model = createModel();
   });
 
   test("Do not move cell positioned before the deleted ones", () => {
@@ -1574,7 +1575,7 @@ describe("Delete cell", () => {
 describe("Insert cell", () => {
   let model: Model;
   beforeEach(() => {
-    model = new Model();
+    model = createModel();
   });
 
   test("Do not move cell positioned before the inserted ones", () => {
@@ -1655,7 +1656,7 @@ describe("Insert cell", () => {
 
 describe("Insert/Delete cells with merge", () => {
   test("Insert/Delete cell is rejected if a merge is blocking left-right", () => {
-    model = new Model();
+    model = createModel();
     merge(model, "B1:B2");
     expect(deleteCells(model, "A1", "left")).toBeCancelledBecause(
       CommandResult.WillRemoveExistingMerge
@@ -1666,7 +1667,7 @@ describe("Insert/Delete cells with merge", () => {
   });
 
   test("Insert/Delete cell is rejected if a merge is blocking up-down", () => {
-    model = new Model();
+    model = createModel();
     merge(model, "A2:B2");
     expect(deleteCells(model, "A1", "up")).toBeCancelledBecause(
       CommandResult.WillRemoveExistingMerge
@@ -1679,7 +1680,7 @@ describe("Insert/Delete cells with merge", () => {
 
 describe("Freeze columns", () => {
   test(`Removing columns impacts frozen columns`, () => {
-    const model = new Model();
+    const model = createModel();
     const sheetId = model.getters.getActiveSheetId();
     freezeColumns(model, 4);
     deleteColumns(model, ["G"]);
@@ -1694,7 +1695,7 @@ describe("Freeze columns", () => {
   });
 
   test(`Adding columns impacts frozen columns`, () => {
-    const model = new Model();
+    const model = createModel();
     const sheetId = model.getters.getActiveSheetId();
     freezeColumns(model, 4);
     addColumns(model, "after", "G", 5);
@@ -1713,7 +1714,7 @@ describe("Freeze columns", () => {
   });
 
   test("Can undo/redo", () => {
-    const model = new Model();
+    const model = createModel();
     const sheetId = model.getters.getActiveSheetId();
     freezeColumns(model, 4);
     expect(model.getters.getPaneDivisions(sheetId)).toEqual({ xSplit: 4, ySplit: 0 });
@@ -1732,7 +1733,7 @@ describe("Freeze columns", () => {
 
 describe("Freeze rows", () => {
   test(`Removing rows impacts frozen rows`, () => {
-    const model = new Model();
+    const model = createModel();
     const sheetId = model.getters.getActiveSheetId();
     freezeRows(model, 4);
     deleteRows(model, [6]);
@@ -1747,7 +1748,7 @@ describe("Freeze rows", () => {
   });
 
   test(`Adding rows impact frozen rows`, () => {
-    const model = new Model();
+    const model = createModel();
     const sheetId = model.getters.getActiveSheetId();
     freezeRows(model, 4);
     addRows(model, "after", 6, 5);
@@ -1766,7 +1767,7 @@ describe("Freeze rows", () => {
   });
 
   test("Can undo/redo", () => {
-    const model = new Model();
+    const model = createModel();
     const sheetId = model.getters.getActiveSheetId();
     freezeRows(model, 4);
     expect(model.getters.getPaneDivisions(sheetId)).toEqual({ xSplit: 0, ySplit: 4 });

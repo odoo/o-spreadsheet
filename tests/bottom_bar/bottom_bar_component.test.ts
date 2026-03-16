@@ -31,6 +31,7 @@ import {
   triggerWheelEvent,
 } from "../test_helpers/dom_helper";
 import {
+  createModel,
   makeTestEnv,
   mountComponentWithPortalTarget,
   mountSpreadsheet,
@@ -47,7 +48,7 @@ function isDragAndDropActive(): boolean {
 }
 
 async function mountBottomBar(
-  model: Model = new Model(),
+  model: Model = createModel(),
   partialEnv: Partial<SpreadsheetChildEnv> = {}
 ): Promise<{ parent: Component; model: Model; env: SpreadsheetChildEnv }> {
   let parent: Component;
@@ -95,7 +96,7 @@ describe("BottomBar component", () => {
   });
 
   test("create a second sheet while the first one is called Sheet2", async () => {
-    const model = new Model({ sheets: [{ name: "Sheet2" }] });
+    const model = createModel({ sheets: [{ name: "Sheet2" }] });
     await mountBottomBar(model);
     const dispatch = jest.spyOn(model, "dispatch");
     expect(model.getters.getSheetIds().map(model.getters.getSheetName)).toEqual(["Sheet2"]);
@@ -108,7 +109,7 @@ describe("BottomBar component", () => {
   });
 
   test("Can activate a sheet", async () => {
-    const model = new Model({ sheets: [{ id: "Sheet1" }, { id: "Sheet2" }] });
+    const model = createModel({ sheets: [{ id: "Sheet1" }, { id: "Sheet2" }] });
     await mountBottomBar(model);
     const dispatch = jest.spyOn(model, "dispatch");
     triggerMouseEvent(`.o-sheet[data-id="Sheet2"]`, "pointerdown");
@@ -170,7 +171,7 @@ describe("BottomBar component", () => {
   });
 
   test("Can move right a sheet", async () => {
-    const model = new Model();
+    const model = createModel();
     createSheet(model, { sheetId: "42" });
     await mountBottomBar(model);
     const dispatch = jest.spyOn(model, "dispatch");
@@ -186,7 +187,7 @@ describe("BottomBar component", () => {
   });
 
   test("Can move left a sheet", async () => {
-    const model = new Model();
+    const model = createModel();
     createSheet(model, { sheetId: "42", activate: true });
     await mountBottomBar(model);
     const dispatch = jest.spyOn(model, "dispatch");
@@ -203,7 +204,7 @@ describe("BottomBar component", () => {
   });
 
   test("Can hide a sheet", async () => {
-    const model = new Model();
+    const model = createModel();
     createSheet(model, { sheetId: "42" });
     await mountBottomBar(model);
     const dispatch = jest.spyOn(model, "dispatch");
@@ -218,7 +219,7 @@ describe("BottomBar component", () => {
   });
 
   test("Hide sheet menu is not visible if there's only one visible sheet", async () => {
-    const model = new Model();
+    const model = createModel();
     createSheet(model, { sheetId: "42" });
     hideSheet(model, "42");
     await mountBottomBar(model);
@@ -246,7 +247,7 @@ describe("BottomBar component", () => {
       raiseError = jest.fn((string, callback) => {
         callback();
       });
-      ({ model, env } = await mountBottomBar(new Model(), { raiseError }));
+      ({ model, env } = await mountBottomBar(createModel(), { raiseError }));
       //@ts-ignore
       env.getStore(DOMFocusableElementStore).focus = jest.fn();
     });
@@ -392,7 +393,7 @@ describe("BottomBar component", () => {
   test("Can't rename a sheet in readonly mode", async () => {
     const sheetName = "New name";
     const raiseError = jest.fn();
-    const model = new Model({}, { mode: "readonly" });
+    const model = createModel({}, { mode: "readonly" });
     const env = makeTestEnv({ model, raiseError });
     interactiveRenameSheet(env, model.getters.getActiveSheetId(), sheetName, raiseError);
     expect(raiseError).not.toHaveBeenCalled();
@@ -415,7 +416,7 @@ describe("BottomBar component", () => {
   });
 
   test("Can delete a sheet", async () => {
-    const { model } = await mountBottomBar(new Model(), {
+    const { model } = await mountBottomBar(createModel(), {
       askConfirmation: jest.fn((title, callback) => callback()),
     });
     const dispatch = jest.spyOn(model, "dispatch");
@@ -508,7 +509,7 @@ describe("BottomBar component", () => {
       });
 
     beforeEach(async () => {
-      model = new Model({
+      model = createModel({
         sheets: [
           { name: "Sheet1" },
           { name: "Sheet2" },
@@ -682,7 +683,7 @@ describe("BottomBar component", () => {
   });
 
   test("Can open the list of statistics if another menu is already open", async () => {
-    const model = new Model();
+    const model = createModel();
     const nonMockedDispatch = model.dispatch;
     await mountBottomBar(model);
     model.dispatch = nonMockedDispatch;
@@ -752,7 +753,7 @@ describe("BottomBar component", () => {
 
   test("Do not focus out from sheet name when renaming until clicking outside", async () => {
     ({ fixture } = await mountSpreadsheet({
-      model: new Model({ sheets: [{ id: "sh1" }] }),
+      model: createModel({ sheets: [{ id: "sh1" }] }),
     }));
 
     const sheetName = fixture.querySelector<HTMLElement>(".o-sheet-name")!;
@@ -784,7 +785,7 @@ describe("BottomBar component", () => {
       });
 
       jest.useFakeTimers();
-      model = new Model({ sheets: sheetIds.map((sheetId) => ({ id: sheetId })) });
+      model = createModel({ sheets: sheetIds.map((sheetId) => ({ id: sheetId })) });
       await mountBottomBar(model);
     });
 

@@ -20,14 +20,14 @@ import {
   unMerge,
 } from "../test_helpers/commands_helpers";
 import { getCellContent, getCellError, getEvaluatedCell } from "../test_helpers/getters_helpers";
-import { addToRegistry } from "../test_helpers/helpers";
+import { addToRegistry, createModel } from "../test_helpers/helpers";
 
 let model: Model;
 let sheetId: UID;
 
 describe("evaluate formulas that use/return an array", () => {
   beforeEach(() => {
-    model = new Model();
+    model = createModel();
     sheetId = model.getters.getActiveSheetId();
     addToRegistry(functionRegistry, "MFILL", {
       description: "Return an n*n matrix filled with n.",
@@ -461,7 +461,7 @@ describe("evaluate formulas that use/return an array", () => {
   describe("result array can collides with sheet borders", () => {
     let model: Model;
     beforeEach(() => {
-      model = new Model({
+      model = createModel({
         sheets: [
           {
             id: "sheet1",
@@ -652,7 +652,7 @@ describe("evaluate formulas that use/return an array", () => {
         args: [arg("range (range<any>)", "")],
         compute: mockCompute,
       });
-      new Model({
+      createModel({
         sheets: [
           {
             cells: {
@@ -669,7 +669,7 @@ describe("evaluate formulas that use/return an array", () => {
     });
 
     test("Formula depending on array formula is reevaluated when the array formula result changes", () => {
-      const model = new Model();
+      const model = createModel();
       setCellContent(model, "A1", "=sumifs(E4:E7,H4:H7,1)");
       setCellContent(model, "C4", "=MUNIT(4)");
       setCellContent(model, "H4", "=C4");
@@ -767,7 +767,7 @@ describe("evaluate formulas that use/return an array", () => {
     });
 
     test("recompute cell depending on spread values computed in between", () => {
-      const model = new Model({
+      const model = createModel({
         sheets: [
           {
             name: "sheet1",
@@ -787,7 +787,7 @@ describe("evaluate formulas that use/return an array", () => {
     });
 
     test("array formula evaluated first invalidated by other", () => {
-      const model = new Model({
+      const model = createModel({
         sheets: [
           {
             cells: {

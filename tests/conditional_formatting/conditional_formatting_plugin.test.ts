@@ -33,6 +33,7 @@ import { getDataBarFill, getStyle } from "../test_helpers/getters_helpers";
 import {
   createColorScale,
   createEqualCF,
+  createModel,
   createModelFromGrid,
   setGrid,
   toCellPosition,
@@ -42,7 +43,7 @@ let model: Model;
 let sheetId: UID;
 
 beforeEach(() => {
-  model = new Model();
+  model = createModel();
   sheetId = model.getters.getActiveSheetId();
 });
 
@@ -144,7 +145,7 @@ describe("conditional format", () => {
   });
 
   test("Add conditional formatting on inactive sheet", () => {
-    model = new Model();
+    model = createModel();
     createSheet(model, { sheetId: "42" });
     const [, sheetId] = model.getters.getSheetIds();
     expect(sheetId).not.toBe(model.getters.getActiveSheetId());
@@ -167,7 +168,7 @@ describe("conditional format", () => {
   });
 
   test("is correctly duplicated when the sheet is duplicated", () => {
-    model = new Model();
+    model = createModel();
     const cf = createEqualCF("4", { fillColor: "#0000FF" }, "2");
     addEqualCf(model, "A1:A4", { fillColor: "#0000FF" }, "4", "2", sheetId);
     duplicateSheet(model, sheetId, "Sheet2");
@@ -181,7 +182,7 @@ describe("conditional format", () => {
   });
 
   test("add conditional format outside the sheet", () => {
-    model = new Model();
+    model = createModel();
     createSheet(model, { sheetId: "42" });
     const sheetId = model.getters.getActiveSheetId();
     expect(
@@ -190,7 +191,7 @@ describe("conditional format", () => {
   });
 
   test("Dispatch is refused if no changes are made", () => {
-    model = new Model();
+    model = createModel();
     createSheet(model, { sheetId: "42" });
     expect(addEqualCf(model, "A1:A4", { fillColor: "#0000FF" }, "2")).toBeSuccessfullyDispatched();
     expect(addEqualCf(model, "A1:A4", { fillColor: "#0000FF" }, "2")).toBeCancelledBecause(
@@ -382,7 +383,7 @@ describe("conditional format", () => {
   test("is saved/restored", () => {
     addEqualCf(model, "A1:A4", { fillColor: "#FF0000" }, "2", "1", sheetId);
     const workbookData = model.exportData();
-    const newModel = new Model(workbookData);
+    const newModel = createModel(workbookData);
     expect(newModel.getters.getConditionalFormats(sheetId)).toEqual(
       model.getters.getConditionalFormats(sheetId)
     );
@@ -461,7 +462,7 @@ describe("conditional format", () => {
       style: { fillColor: "orange" },
     };
     test("On row deletion", () => {
-      model = new Model({
+      model = createModel({
         sheets: [
           {
             colNumber: 7,
@@ -493,7 +494,7 @@ describe("conditional format", () => {
       expect(getStyle(model, "C3")).toEqual({});
     });
     test("On column deletion", () => {
-      model = new Model({
+      model = createModel({
         sheets: [
           {
             colNumber: 4,
@@ -529,7 +530,7 @@ describe("conditional format", () => {
       expect(getStyle(model, "C3")).toEqual({});
     });
     test("On column addition", () => {
-      model = new Model({
+      model = createModel({
         sheets: [
           {
             colNumber: 3,
@@ -556,7 +557,7 @@ describe("conditional format", () => {
       expect(getStyle(model, "C4")!.fillColor).toBe("orange");
     });
     test("On row addition", () => {
-      model = new Model({
+      model = createModel({
         sheets: [
           {
             colNumber: 4,
@@ -690,7 +691,7 @@ describe("conditional format", () => {
         "=F3*10",
         "=SUM(A1:F3)",
       ];
-      model = new Model({
+      model = createModel({
         sheets: [
           {
             colNumber: 7,
@@ -727,7 +728,7 @@ describe("conditional format", () => {
         "=SUM(A1:D5)",
       ];
 
-      model = new Model({
+      model = createModel({
         sheets: [
           {
             colNumber: 7,
@@ -764,7 +765,7 @@ describe("conditional format", () => {
         "=SUM(A1:H5)",
       ];
 
-      model = new Model({
+      model = createModel({
         sheets: [
           {
             colNumber: 7,
@@ -801,7 +802,7 @@ describe("conditional format", () => {
         "=SUM(A1:F7)",
       ];
 
-      model = new Model({
+      model = createModel({
         sheets: [
           {
             colNumber: 7,
@@ -837,7 +838,7 @@ describe("conditional format", () => {
         "=OtherSheet!F3*10",
         "=SUM(OtherSheet!A1:F3)",
       ];
-      model = new Model({
+      model = createModel({
         sheets: [
           {
             colNumber: 7,

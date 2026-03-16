@@ -5,14 +5,14 @@ import { DEFAULT_LOCALE, DEFAULT_LOCALES, Locale } from "../../src/types";
 import { updateLocale } from "../test_helpers/commands_helpers";
 import { CUSTOM_LOCALE, FR_LOCALE } from "../test_helpers/constants";
 import { editSelectComponent, simulateClick } from "../test_helpers/dom_helper";
-import { mountComponentWithPortalTarget, nextTick } from "../test_helpers/helpers";
+import { createModel, mountComponentWithPortalTarget, nextTick } from "../test_helpers/helpers";
 
 describe("settings sidePanel component", () => {
   let model: Model;
   let fixture: HTMLElement;
 
   async function mountSettingsSidePanel(modelArg?: Model, env?: Partial<SpreadsheetChildEnv>) {
-    model = modelArg ?? new Model();
+    model = modelArg ?? createModel();
     ({ fixture } = await mountComponentWithPortalTarget(SettingsPanel, {
       model,
       props: { onCloseSidePanel: () => {} },
@@ -33,7 +33,7 @@ describe("settings sidePanel component", () => {
 
   describe("Locale", () => {
     test("Locale select is initialized with correct value", async () => {
-      model = new Model({ settings: { locale: FR_LOCALE } });
+      model = createModel({ settings: { locale: FR_LOCALE } });
       await mountSettingsSidePanel(model);
       expect(".o-settings-panel .o-select").toHaveText("French");
     });
@@ -79,7 +79,7 @@ describe("settings sidePanel component", () => {
     });
 
     test("Current locale in loaded model that is not in env.loadLocales() is displayed", async () => {
-      model = new Model({ settings: { locale: CUSTOM_LOCALE } });
+      model = createModel({ settings: { locale: CUSTOM_LOCALE } });
       await mountSettingsSidePanel(model);
       await simulateClick(".o-settings-panel .o-select");
       const options = fixture.querySelectorAll<HTMLOptionElement>(".o-popover .o-select-option");

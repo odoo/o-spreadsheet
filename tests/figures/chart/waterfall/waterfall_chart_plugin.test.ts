@@ -18,7 +18,7 @@ import {
   getChartConfiguration,
   getChartTooltipValues,
 } from "../../../test_helpers/chart_helpers";
-import { nextTick } from "../../../test_helpers/helpers";
+import { createModel, nextTick } from "../../../test_helpers/helpers";
 
 let model: Model;
 
@@ -28,7 +28,7 @@ function getWaterfallRuntime(chartId: UID): WaterfallChartRuntime {
 
 describe("Waterfall chart", () => {
   beforeEach(() => {
-    model = new Model();
+    model = createModel();
   });
 
   test("Waterfall runtime with single dataset", () => {

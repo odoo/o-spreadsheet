@@ -63,7 +63,7 @@ import {
   getMerges,
   getStyle,
 } from "../test_helpers/getters_helpers";
-import { addToRegistry, getDataValidationRules } from "../test_helpers/helpers";
+import { addToRegistry, createModel, getDataValidationRules } from "../test_helpers/helpers";
 import { addPivot, updatePivot } from "../test_helpers/pivot_helpers";
 import { setupCollaborativeEnv } from "./collaborative_helpers";
 
@@ -205,7 +205,7 @@ describe("Multi users synchronisation", () => {
       callback(nextMessage);
     });
     const data = alice.exportData();
-    const david = new Model(data, { transportService: transport }, [catchupMessage]);
+    const david = createModel(data, { transportService: transport }, [catchupMessage]);
     expect(getCellContent(david, "A1")).toBe("second command");
   });
 
@@ -219,7 +219,7 @@ describe("Multi users synchronisation", () => {
       clientId: "alice",
       commands: [{ type: "DELETE_SHEET", sheetId, sheetName: "" }],
     };
-    const model = new Model(
+    const model = createModel(
       {
         sheets: [{ id: sheetId }, { id: "sheet2" }],
         activeSheetId: sheetId,
@@ -573,7 +573,7 @@ describe("Multi users synchronisation", () => {
       commands,
     };
     // The message is received once as initial message and once from the network
-    const david = new Model(data, { transportService: network }, [message]);
+    const david = createModel(data, { transportService: network }, [message]);
     await network.sendMessage(message);
     expect(david.getters.getNumberCols(david.getters.getActiveSheetId())).toBe(length + 50);
   });
@@ -595,7 +595,7 @@ describe("Multi users synchronisation", () => {
   });
 
   test("Spreadsheet in readonly still receive commands", () => {
-    const david = new Model(alice.exportData(), { transportService: network, mode: "readonly" });
+    const david = createModel(alice.exportData(), { transportService: network, mode: "readonly" });
     setCellContent(alice, "A1", "hello");
     expect([alice, bob, charlie, david]).toHaveSynchronizedValue(
       (user) => getCellContent(user, "A1"),
@@ -628,7 +628,7 @@ describe("Multi users synchronisation", () => {
   test.each(["readonly", "dashboard"] as const)(
     "Spreadsheet in readonly never sends commands",
     (mode) => {
-      const david = new Model(alice.exportData(), { transportService: network, mode });
+      const david = createModel(alice.exportData(), { transportService: network, mode });
       setCellContent(alice, "A1", "hello");
       addPivot(alice, "A1", {
         measures: [{ id: "__count", fieldName: "__count", aggregator: "sum" }],
@@ -657,7 +657,7 @@ describe("Multi users synchronisation", () => {
       "Bob",
       "Charlie",
     ]);
-    const david = new Model(alice.exportData(), {
+    const david = createModel(alice.exportData(), {
       transportService: network,
       mode: "readonly",
       client: { id: "david", name: "David" },

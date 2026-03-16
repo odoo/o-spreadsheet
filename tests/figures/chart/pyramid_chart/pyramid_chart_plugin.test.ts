@@ -11,6 +11,7 @@ import {
   setFormat,
   updateChart,
 } from "../../../test_helpers/commands_helpers";
+import { createModel } from "../../../test_helpers/helpers";
 
 let model: Model;
 describe("population pyramid chart", () => {
@@ -39,7 +40,7 @@ describe("population pyramid chart", () => {
 
   describe("Pyramid chart definition and runtime", () => {
     beforeEach(() => {
-      model = new Model();
+      model = createModel();
     });
 
     test("Runtime is a stacked bar chart, with the second dataset converted to negative values", () => {
@@ -135,7 +136,7 @@ describe("population pyramid chart", () => {
 });
 
 test("Humanization is taken into account for the axis ticks of a pyramid chart", async () => {
-  model = new Model();
+  model = createModel();
   createChart(
     model,
     {

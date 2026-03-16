@@ -8,6 +8,7 @@ import {
   selectCell,
   selectColumn,
 } from "../test_helpers/commands_helpers";
+import { createModel } from "../test_helpers/helpers";
 import { setupCollaborativeEnv } from "./collaborative_helpers";
 
 describe("Collaborative selection", () => {
@@ -196,7 +197,7 @@ describe("Collaborative selection", () => {
         },
       ]) as Set<ClientWithColor>
     );
-    const david = new Model(alice.exportData(), {
+    const david = createModel(alice.exportData(), {
       transportService: network,
       client: { id: "david", name: "David" },
     });
@@ -314,7 +315,7 @@ describe("Collaborative selection", () => {
 
   test("Can send custom data in client", () => {
     const sheetId = alice.getters.getActiveSheetId();
-    new Model(alice.exportData(), {
+    createModel(alice.exportData(), {
       transportService: network,
       client: { id: "david", name: "David", customId: "1" } as Client,
     });

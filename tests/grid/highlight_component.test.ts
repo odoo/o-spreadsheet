@@ -12,6 +12,7 @@ import { Color, Pixel, Range } from "../../src/types";
 import { merge, resizeSheetView, setZoom } from "../test_helpers/commands_helpers";
 import { edgeScrollDelay, triggerMouseEvent } from "../test_helpers/dom_helper";
 import {
+  createModel,
   mountComponent,
   mountSpreadsheet,
   nextTick,
@@ -178,7 +179,7 @@ function expectedResult(xc: string) {
 }
 
 const genericBeforeEach = async () => {
-  model = new Model();
+  model = createModel();
   resizeSheetView(model, getDefaultSheetViewSize(), getDefaultSheetViewSize());
 };
 
@@ -245,7 +246,7 @@ describe("Corner component", () => {
 
   describe("drag highlight corner to cover full columns/rows will make the final highlight zone to be unbounded", () => {
     beforeEach(() => {
-      model = new Model({
+      model = createModel({
         sheets: [
           {
             colNumber: 10,
@@ -350,7 +351,7 @@ describe("Corner component", () => {
 
   describe("dragging highlight corner on merged cells expands the final highlight zone", () => {
     beforeEach(() => {
-      model = new Model({
+      model = createModel({
         sheets: [
           {
             colNumber: 10,
@@ -528,7 +529,7 @@ describe("Border component", () => {
 
   describe("dragging borders will keep the unbounded zones", () => {
     beforeEach(() => {
-      model = new Model({
+      model = createModel({
         sheets: [
           {
             colNumber: 10,
@@ -650,7 +651,7 @@ describe("Border component", () => {
 
   describe("dragging highlight border on merged cells expands the final highlight zone", () => {
     beforeEach(() => {
-      model = new Model({
+      model = createModel({
         sheets: [
           {
             colNumber: 10,

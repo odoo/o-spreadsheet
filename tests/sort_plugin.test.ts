@@ -4,7 +4,7 @@ import { toZone, zoneToXc } from "../src/helpers/index";
 import { CellErrorType, CellValueType, CommandResult, DEFAULT_LOCALE, UID } from "../src/types";
 import { merge, redo, setCellContent, sort, undo } from "./test_helpers/commands_helpers";
 import { getEvaluatedCell } from "./test_helpers/getters_helpers";
-import { getCellsObject } from "./test_helpers/helpers";
+import { createModel, getCellsObject } from "./test_helpers/helpers";
 
 let model: Model;
 const dateFormat = "mm/dd/yyyy";
@@ -21,7 +21,7 @@ describe("Basic Sorting", () => {
       A5: "16",
       A6: "15",
     };
-    model = new Model({ sheets: [{ id: sheetId, colNumber: 1, rowNumber: 6, cells: cells }] });
+    model = createModel({ sheets: [{ id: sheetId, colNumber: 1, rowNumber: 6, cells: cells }] });
     sort(model, {
       zone: "A1:A6",
       anchor: "A2",
@@ -55,7 +55,7 @@ describe("Basic Sorting", () => {
     });
   });
   test("Sort Text", () => {
-    model = new Model({
+    model = createModel({
       sheets: [
         {
           id: sheetId,
@@ -87,7 +87,7 @@ describe("Basic Sorting", () => {
     });
   });
   test("Sort Dates", () => {
-    model = new Model({
+    model = createModel({
       sheets: [
         {
           id: sheetId,
@@ -122,7 +122,7 @@ describe("Basic Sorting", () => {
     });
   });
   test("Sort Formulas", () => {
-    model = new Model({
+    model = createModel({
       sheets: [
         {
           id: sheetId,
@@ -162,7 +162,7 @@ describe("Basic Sorting", () => {
     expect(getEvaluatedCell(model, "C4").type).toBe(CellValueType.error);
   });
   test("Sort all types of cells then undo then redo", () => {
-    model = new Model({
+    model = createModel({
       sheets: [
         {
           id: sheetId,
@@ -237,7 +237,7 @@ describe("Basic Sorting", () => {
   });
   test("Sort style", () => {
     const myStyle = { textColor: "#fe0000" };
-    model = new Model({
+    model = createModel({
       sheets: [
         {
           id: sheetId,
@@ -271,7 +271,7 @@ describe("Basic Sorting", () => {
   });
 
   test("Sort with empty cells", () => {
-    model = new Model({
+    model = createModel({
       sheets: [
         {
           id: sheetId,
@@ -302,7 +302,7 @@ describe("Basic Sorting", () => {
   });
 
   test("Sort with emptyCellAsZero option", () => {
-    model = new Model({
+    model = createModel({
       sheets: [
         {
           id: sheetId,
@@ -348,7 +348,7 @@ describe("Basic Sorting", () => {
   });
 
   test("Sort with a cell that will be removed because it is considered empty", () => {
-    model = new Model({
+    model = createModel({
       sheets: [
         {
           id: sheetId,
@@ -375,7 +375,7 @@ describe("Basic Sorting", () => {
 
 describe("Sorting allowDispatch", () => {
   beforeEach(() => {
-    model = new Model();
+    model = createModel();
   });
 
   test("Sort with anchor outside of the sorting zone", () => {
@@ -438,7 +438,7 @@ describe("Sort multi adjacent columns", () => {
    * Manually calling the getContiguousZone function.
    */
   test("Sort on second column w/ contiguous", () => {
-    model = new Model(modelData);
+    model = createModel(modelData);
     const zone = toZone("B2:B3");
     const sheetId = model.getters.getActiveSheetId();
     const contiguousZone = model.getters.getContiguousZone(sheetId, zone);
@@ -461,7 +461,7 @@ describe("Sort multi adjacent columns", () => {
     });
   });
   test("Sort on third column  w/ contiguous", () => {
-    model = new Model(modelData);
+    model = createModel(modelData);
     const zone = toZone("C2:C4");
     const contiguousZone = model.getters.getContiguousZone(sheetId, zone);
     sort(model, {
@@ -483,7 +483,7 @@ describe("Sort multi adjacent columns", () => {
     });
   });
   test("Sort on fourth column w/ contiguous", () => {
-    model = new Model(modelData);
+    model = createModel(modelData);
     const zone = toZone("D2:D5");
     const contiguousZone = model.getters.getContiguousZone(sheetId, zone);
     sort(model, {
@@ -506,7 +506,7 @@ describe("Sort multi adjacent columns", () => {
   });
 
   test("Sort w/ multicolumn selection", () => {
-    model = new Model(modelData);
+    model = createModel(modelData);
     sort(model, {
       zone: "B2:C3",
       anchor: "B3",
@@ -530,7 +530,7 @@ describe("Sort multi adjacent columns", () => {
 describe("Sort adjacent columns with headers", () => {
   const sheetId: UID = "sheet4";
   beforeEach(() => {
-    model = new Model({
+    model = createModel({
       sheets: [
         {
           id: sheetId,
@@ -700,7 +700,7 @@ describe("Sort Merges", () => {
     ],
   };
   beforeEach(() => {
-    model = new Model(modelData);
+    model = createModel(modelData);
   });
   test("Sort of merges w/ contiguous", () => {
     const zone = toZone("B2:B4");

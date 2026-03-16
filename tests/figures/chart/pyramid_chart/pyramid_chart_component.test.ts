@@ -4,7 +4,11 @@ import { SidePanels } from "../../../../src/components/side_panel/side_panels/si
 import { createChart } from "../../../test_helpers";
 import { openChartConfigSidePanel } from "../../../test_helpers/chart_helpers";
 import { setInputValueAndTrigger, simulateClick } from "../../../test_helpers/dom_helper";
-import { mountComponentWithPortalTarget, nextTick } from "../../../test_helpers/helpers";
+import {
+  createModel,
+  mountComponentWithPortalTarget,
+  nextTick,
+} from "../../../test_helpers/helpers";
 
 let model: Model;
 let fixture: HTMLElement;
@@ -12,7 +16,7 @@ let env: SpreadsheetChildEnv;
 
 describe("Pyramid chart side panel", () => {
   beforeEach(async () => {
-    model = new Model();
+    model = createModel();
     ({ fixture, env } = await mountComponentWithPortalTarget(SidePanels, { model }));
   });
 

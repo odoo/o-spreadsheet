@@ -6,7 +6,7 @@ import { TableStyleEditorPanelProps } from "../../src/components/side_panel/tabl
 import { TableStyle } from "../../src/types";
 import { createTableStyle } from "../test_helpers/commands_helpers";
 import { click, setInputValueAndTrigger } from "../test_helpers/dom_helper";
-import { mountComponentWithPortalTarget, nextTick } from "../test_helpers/helpers";
+import { createModel, mountComponentWithPortalTarget, nextTick } from "../test_helpers/helpers";
 
 let model: Model;
 let fixture: HTMLElement;
@@ -30,7 +30,7 @@ function getTableStyleFromName(name: string): TableStyle | undefined {
 
 describe("Table style editor panel", () => {
   beforeEach(() => {
-    model = new Model();
+    model = createModel();
   });
 
   test("Can create a new table style", async () => {

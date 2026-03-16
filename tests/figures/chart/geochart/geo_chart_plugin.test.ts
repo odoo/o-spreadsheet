@@ -8,13 +8,18 @@ import {
   updateChart,
 } from "../../../test_helpers";
 import { getChartTooltipValues } from "../../../test_helpers/chart_helpers";
-import { mockChart, mockGeoJsonService, nextTick } from "../../../test_helpers/helpers";
+import {
+  createModel,
+  mockChart,
+  mockGeoJsonService,
+  nextTick,
+} from "../../../test_helpers/helpers";
 
 mockChart();
 let model: Model;
 
 beforeEach(async () => {
-  model = new Model({}, { external: { geoJsonService: mockGeoJsonService } });
+  model = createModel({}, { external: { geoJsonService: mockGeoJsonService } });
   // Wait for the geoJsonService to resolve the promise and cache the geoJson features
   model.getters.getGeoChartAvailableRegions();
   model.getters.getGeoJsonFeatures("world");
@@ -175,7 +180,7 @@ describe("Geo charts plugin tests", () => {
 
     test("UPDATE_CHART_REGION is allowed in readonly mode", () => {
       createGeoChart(model, { region: "world" });
-      const readonlyModel = new Model(model.exportData(), {
+      const readonlyModel = createModel(model.exportData(), {
         mode: "readonly",
         external: { geoJsonService: mockGeoJsonService },
       });
@@ -188,7 +193,7 @@ describe("Geo charts plugin tests", () => {
 
     test("UPDATE_CHART_REGION is allowed in dashboard mode", () => {
       createGeoChart(model, { region: "world" });
-      const dashboardModel = new Model(model.exportData(), {
+      const dashboardModel = createModel(model.exportData(), {
         mode: "dashboard",
         external: { geoJsonService: mockGeoJsonService },
       });

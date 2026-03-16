@@ -1,11 +1,10 @@
 import { FORBIDDEN_SHEETNAME_CHARS } from "@odoo/o-spreadsheet-engine/constants";
 import { EMPTY_PIVOT_CELL } from "@odoo/o-spreadsheet-engine/helpers/pivot/table_spreadsheet_pivot";
-import { CommandResult, Model } from "../../src";
+import { CommandResult } from "../../src";
 import { toZone } from "../../src/helpers";
 import { renameSheet, selectCell, setCellContent } from "../test_helpers/commands_helpers";
-import { createModelFromGrid, toCellPosition } from "../test_helpers/helpers";
+import { createModel, createModelFromGrid, toCellPosition } from "../test_helpers/helpers";
 import { addPivot, updatePivot } from "../test_helpers/pivot_helpers";
-
 describe("Pivot plugin", () => {
   test("isSpillPivotFormula", () => {
     // prettier-ignore
@@ -20,7 +19,6 @@ describe("Pivot plugin", () => {
       rows: [{ fieldName: "Customer" }],
       measures: [{ id: "Price:sum", fieldName: "Price", aggregator: "sum" }],
     });
-
     const sheetId = model.getters.getActiveSheetId();
     const isSpillPivotFormula = (xc: string) =>
       model.getters.isSpillPivotFormula(toCellPosition(sheetId, xc));
@@ -32,7 +30,6 @@ describe("Pivot plugin", () => {
     setCellContent(model, "G1", "=PIVOT.HEADER(1)");
     expect(isSpillPivotFormula("G1")).toBe(false);
   });
-
   test("getPivotCellFromPosition doesn't throw with invalid pivot domain", () => {
     // prettier-ignore
     const grid = {
@@ -51,7 +48,6 @@ describe("Pivot plugin", () => {
       EMPTY_PIVOT_CELL
     );
   });
-
   test("Cannot update a pivot with an empty name", () => {
     // prettier-ignore
     const grid = {
@@ -70,7 +66,6 @@ describe("Pivot plugin", () => {
       model.dispatch("UPDATE_PIVOT", { pivotId: "1", pivot: { ...pivot, name: "" } })
     ).toBeCancelledBecause(CommandResult.EmptyName);
   });
-
   test("cannot create a pivot with duplicated measure ids", () => {
     const grid = {
       A1: "Customer",
@@ -91,7 +86,6 @@ describe("Pivot plugin", () => {
     });
     expect(creationResult.isSuccessful).toBe(false);
   });
-
   test("sortedColumn must be in the measures", () => {
     // prettier-ignore
     const grid = {
@@ -110,7 +104,6 @@ describe("Pivot plugin", () => {
     });
     expect(creationResult).toBeCancelledBecause(CommandResult.InvalidDefinition);
   });
-
   test("cannot update a pivot with duplicated measure ids", () => {
     const grid = {
       A1: "Customer",
@@ -139,7 +132,6 @@ describe("Pivot plugin", () => {
     });
     expect(updateResult.isSuccessful).toBe(false);
   });
-
   test("can generate unique calculated measure", () => {
     const grid = {
       A1: "Customer",
@@ -153,7 +145,6 @@ describe("Pivot plugin", () => {
     let definition = model.getters.getPivotCoreDefinition("1");
     const firstCalculatedName = model.getters.generateNewCalculatedMeasureName(definition.measures);
     expect(firstCalculatedName).toBe("Calculated measure 1");
-
     updatePivot(model, "1", {
       measures: [
         {
@@ -169,7 +160,6 @@ describe("Pivot plugin", () => {
       definition.measures
     );
     expect(secondCalculatedName).toBe("Calculated measure 2");
-
     updatePivot(model, "1", {
       measures: [
         {
@@ -184,7 +174,6 @@ describe("Pivot plugin", () => {
     const thirdCalculatedName = model.getters.generateNewCalculatedMeasureName(definition.measures);
     expect(thirdCalculatedName).toBe("Calculated measure 1");
   });
-
   test("getPivotCellFromPosition cannot get the pivot cell when the table is manipulated by other functions", () => {
     // prettier-ignore
     const grid = {
@@ -204,7 +193,6 @@ describe("Pivot plugin", () => {
       EMPTY_PIVOT_CELL
     );
   });
-
   test("getPivotCellFromPosition can handle vectorization", () => {
     // prettier-ignore
     const grid = {
@@ -231,9 +219,8 @@ describe("Pivot plugin", () => {
       }
     );
   });
-
   test("cannot update a pivot with a wrong id", () => {
-    const model = new Model();
+    const model = createModel();
     const updateResult = model.dispatch("UPDATE_PIVOT", {
       pivotId: "9999",
       pivot: {
@@ -246,34 +233,30 @@ describe("Pivot plugin", () => {
     });
     expect(updateResult).toBeCancelledBecause(CommandResult.PivotIdNotFound);
   });
-
   test("cannot add a pivot with an existing id", () => {
-    const model = new Model();
+    const model = createModel();
     const createResult1 = addPivot(model, "A1:A2", {}, "1");
     expect(createResult1.isSuccessful).toBe(true);
     const createResult2 = addPivot(model, "A1:A2", {}, "1");
     expect(createResult2).toBeCancelledBecause(CommandResult.PivotIdTaken);
   });
-
   test("cannot duplicate a pivot with a wrong id", () => {
-    const model = new Model();
+    const model = createModel();
     const updateResult = model.dispatch("DUPLICATE_PIVOT", {
       pivotId: "9999",
       newPivotId: "1",
     });
     expect(updateResult).toBeCancelledBecause(CommandResult.PivotIdNotFound);
   });
-
   test("cannot remove a pivot with a wrong id", () => {
-    const model = new Model();
+    const model = createModel();
     const updateResult = model.dispatch("REMOVE_PIVOT", {
       pivotId: "9999",
     });
     expect(updateResult).toBeCancelledBecause(CommandResult.PivotIdNotFound);
   });
-
   test("cannot create a pivot with and invalid dataset sheetId or zone", () => {
-    const model = new Model();
+    const model = createModel();
     const createResult1 = addPivot(model, "", {
       dataSet: { sheetId: "BADSHEETID", zone: toZone("A1:A2") },
     });
@@ -283,18 +266,15 @@ describe("Pivot plugin", () => {
       dataSet: { sheetId, zone: { top: -1, left: 1, bottom: 2, right: 2 } },
     });
     expect(createResult2).toBeCancelledBecause(CommandResult.InvalidDataSet);
-
     // Out of bounds zone
     const createResult3 = addPivot(model, "", {
       dataSet: { sheetId, zone: { top: 1, left: 1, bottom: 200, right: 200 } },
     });
     expect(createResult3).toBeCancelledBecause(CommandResult.TargetOutOfSheet);
   });
-
   test("cannot update a pivot with and invalid dataset sheetId or zone", () => {
-    const model = new Model();
+    const model = createModel();
     addPivot(model, "A1:A2");
-
     const updateResult1 = updatePivot(model, "1", {
       dataSet: { sheetId: "BADSHEETID", zone: toZone("A1:A2") },
     });
@@ -304,14 +284,12 @@ describe("Pivot plugin", () => {
       dataSet: { sheetId, zone: { top: -1, left: 1, bottom: 2, right: 2 } },
     });
     expect(updateResult2).toBeCancelledBecause(CommandResult.InvalidDataSet);
-
     // Out of bounds zone
     const updateResult3 = updatePivot(model, "1", {
       dataSet: { sheetId, zone: { top: 1, left: 1, bottom: 200, right: 200 } },
     });
     expect(updateResult3).toBeCancelledBecause(CommandResult.TargetOutOfSheet);
   });
-
   test("forbidden characters are removed from new sheet name when duplicating a pivot", () => {
     const grid = {
       A1: "Customer",
@@ -329,7 +307,6 @@ describe("Pivot plugin", () => {
     );
     expect(model.getters.getPivotName("pivot2")).toEqual("forbidden: ',*,?,/,\\,[,] (copy)");
   });
-
   test("sheet names with forbidden characters cannot conflict", () => {
     const grid = {
       A1: "Customer",
@@ -347,7 +324,6 @@ describe("Pivot plugin", () => {
     });
     expect(model.getters.getSheetName("Sheet2")).toEqual("forbidden:   (copy) (Pivot #2) (1)");
   });
-
   test("getPivotCellFromPosition handles falsy arguments for includeColumnTitle", () => {
     // prettier-ignore
     const grid = {
@@ -406,7 +382,6 @@ describe("Pivot plugin", () => {
       type: "HEADER",
     });
   });
-
   test("getPivotCellFromPosition handles both the pivot style and the function arguments", () => {
     // prettier-ignore
     const grid = {
@@ -421,19 +396,15 @@ describe("Pivot plugin", () => {
       measures: [{ id: "testCount", fieldName: "__count", aggregator: "sum" }],
     });
     const D1 = toCellPosition(model.getters.getActiveSheetId(), "D1");
-
     setCellContent(model, "C1", "=PIVOT(1)");
     expect(model.getters.getPivotCellFromPosition(D1)).toMatchObject({ type: "HEADER" });
-
     updatePivot(model, "1", { style: { displayColumnHeaders: false } });
     expect(model.getters.getPivotCellFromPosition(D1)).toMatchObject({ type: "MEASURE_HEADER" });
-
     setCellContent(model, "C1", "=PIVOT(1,,,TRUE)");
     expect(model.getters.getPivotCellFromPosition(D1)).toMatchObject({ type: "HEADER" });
   });
-
   test("DUPLICATE_PIVOT_IN_NEW_SHEET is prevented if the pivot is in error", () => {
-    const model = new Model();
+    const model = createModel();
     addPivot(model, "A1:A2", {}, "pivot1");
     const result = model.dispatch("DUPLICATE_PIVOT_IN_NEW_SHEET", {
       newPivotId: "pivot2",

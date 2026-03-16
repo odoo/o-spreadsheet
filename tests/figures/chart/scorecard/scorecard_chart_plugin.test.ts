@@ -23,11 +23,12 @@ import {
   undo,
   updateChart,
 } from "../../../test_helpers/commands_helpers";
+import { createModel } from "../../../test_helpers/helpers";
 
 let model: Model;
 
 beforeEach(() => {
-  model = new Model({
+  model = createModel({
     sheets: [
       {
         name: "Sheet1",
@@ -125,7 +126,7 @@ describe("datasource tests", function () {
       "1"
     );
     const exportedData = model.exportData();
-    const newModel = new Model(exportedData);
+    const newModel = createModel(exportedData);
     expect(newModel.getters.getVisibleFigures()).toHaveLength(1);
     expect(newModel.getters.getChartRuntime("1")).toBeTruthy();
     deleteFigure(newModel, model.getters.getFigureIdFromChartId("1"));
@@ -400,7 +401,7 @@ describe("datasource tests", function () {
 
 describe("multiple sheets", () => {
   beforeEach(() => {
-    model = new Model({
+    model = createModel({
       sheets: [
         {
           name: "Sheet1",

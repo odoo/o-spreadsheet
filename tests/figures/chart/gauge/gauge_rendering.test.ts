@@ -15,7 +15,7 @@ import {
   setCellContent,
   setViewportOffset,
 } from "../../../test_helpers/commands_helpers";
-import { mountSpreadsheet, nextTick } from "../../../test_helpers/helpers";
+import { createModel, mountSpreadsheet, nextTick } from "../../../test_helpers/helpers";
 
 const testRuntime: GaugeChartRuntime = {
   background: "#FFFFFF",
@@ -247,7 +247,7 @@ describe("Gauge chart component animation", () => {
 
   beforeEach(() => {
     gaugeAnimationSpy = jest.spyOn(GaugeChartComponent.prototype, "drawGaugeWithAnimation");
-    model = new Model();
+    model = createModel();
   });
 
   afterEach(() => {
@@ -274,7 +274,7 @@ describe("Gauge chart component animation", () => {
   test("Animations are replayed only when chart data changes", async () => {
     readonlyAllowedCommands.add("UPDATE_CELL");
 
-    const model = new Model();
+    const model = createModel();
     createGaugeChart(model, { dataRange: "A1" });
     model.updateMode("dashboard");
     await mountSpreadsheet({ model });

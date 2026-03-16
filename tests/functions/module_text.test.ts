@@ -1,14 +1,13 @@
-import { Model } from "../../src";
 import { setCellContent } from "../test_helpers/commands_helpers";
 import {
   checkFunctionDoesntSpreadBeyondRange,
+  createModel,
   createModelFromGrid,
   evaluateArrayFormula,
   evaluateCell,
   evaluateGrid,
   getRangeValuesAsMatrix,
 } from "../test_helpers/helpers";
-
 describe("CHAR formula", () => {
   test("functional tests on simple arguments", () => {
     expect(evaluateCell("A1", { A1: "=CHAR()" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
@@ -18,11 +17,9 @@ describe("CHAR formula", () => {
     expect(evaluateCell("A1", { A1: "=CHAR(-1)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
     expect(evaluateCell("A1", { A1: "=CHAR(65.9)" })).toBe("A");
   });
-
   test("casting tests on simple arguments", () => {
     expect(evaluateCell("A1", { A1: '=CHAR("65")' })).toBe("A");
   });
-
   test("functional tests on cell arguments", () => {
     expect(evaluateCell("A1", { A1: "=CHAR(A2)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
     expect(evaluateCell("A1", { A1: "=CHAR(A2)", A2: "66" })).toBe("B");
@@ -31,13 +28,11 @@ describe("CHAR formula", () => {
     expect(evaluateCell("A1", { A1: "=CHAR(A2)", A2: "-1" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
     expect(evaluateCell("A1", { A1: "=CHAR(A2)", A2: "66.9" })).toBe("B");
   });
-
   test("casting tests on cell arguments", () => {
     expect(evaluateCell("A1", { A1: "=CHAR(A2)", A2: '"68"' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
     expect(evaluateCell("A1", { A1: "=CHAR(A2)", A2: '="68"' })).toBe("D");
   });
 });
-
 describe("CLEAN formula", () => {
   test("functional tests on simple arguments", () => {
     expect(evaluateCell("A1", { A1: "=CLEAN()" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
@@ -47,7 +42,6 @@ describe("CLEAN formula", () => {
     expect(evaluateCell("A1", { A1: "=CLEAN(CHAR(10))" })).toBe("");
     expect(evaluateCell("A1", { A1: '=CLEAN("A")' })).toBe("A");
   });
-
   test("functional tests on cell arguments", () => {
     expect(evaluateCell("A1", { A1: "=CLEAN(A2)" })).toBe("");
     expect(evaluateCell("A1", { A1: "=CLEAN(A2)", A2: "66" })).toBe("66");
@@ -56,7 +50,6 @@ describe("CLEAN formula", () => {
     expect(evaluateCell("A1", { A1: "=CLEAN(A2)", A2: '="A" & CHAR(5)' })).toBe("A");
   });
 });
-
 describe("CONCATENATE formula", () => {
   test("functional tests on simple arguments", () => {
     expect(evaluateCell("A1", { A1: "=CONCATENATE()" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
@@ -77,7 +70,6 @@ describe("CONCATENATE formula", () => {
     expect(evaluateCell("A1", { A1: '=CONCATENATE("ki", "kou")' })).toBe("kikou");
     expect(evaluateCell("A1", { A1: '=CONCATENATE("TRUE", TRUE)' })).toBe("TRUETRUE");
   });
-
   test("functional tests on cell arguments", () => {
     expect(evaluateCell("A1", { A1: "=CONCATENATE(A2, A3)" })).toBe("");
     expect(evaluateCell("A1", { A1: "=CONCATENATE(A2, A3)", A2: "1" })).toBe("1");
@@ -92,26 +84,22 @@ describe("CONCATENATE formula", () => {
     expect(evaluateCell("A1", { A1: "=CONCATENATE(A2, A3)", A2: "42", A3: '=" "' })).toBe("42 ");
     expect(evaluateCell("A1", { A1: "=CONCATENATE(A2, A3)", A2: "42", A3: '="24"' })).toBe("4224");
   });
-
   // prettier-ignore
   test("functional tests on range arguments", () => {
     const grid = {
       A1: "=CONCATENATE(A2:A4)",
       B1: "=CONCATENATE(B2:B4)",
       C1: "=CONCATENATE(C2:C4)",
-
       A2: "9",    A3: "test",   A4: '"42"',
       B2: "tRuE", B3: '="123"', B4: '="tset"',
       C2: "7%",   C3: '"8%"',   C4: '=""',
     };
-
     const gridResult = evaluateGrid(grid);
     expect(gridResult.A1).toBe('9test"42"');
     expect(gridResult.B1).toBe("TRUE123tset");
     expect(gridResult.C1).toBe('0.07"8%"');
   });
 });
-
 describe("EXACT formula", () => {
   test("functional tests on simple arguments", () => {
     expect(evaluateCell("A1", { A1: "=EXACT(,)" })).toBe(true);
@@ -120,20 +108,17 @@ describe("EXACT formula", () => {
     expect(evaluateCell("A1", { A1: '=EXACT("test","Test")' })).toBe(false);
     expect(evaluateCell("A1", { A1: '=EXACT("test"," test   ")' })).toBe(false);
   });
-
   test("casting tests on simple arguments", () => {
     expect(evaluateCell("A1", { A1: "=EXACT(123, 123)" })).toBe(true);
     expect(evaluateCell("A1", { A1: "=EXACT(123, 1234)" })).toBe(false);
     expect(evaluateCell("A1", { A1: '=EXACT(123, "123")' })).toBe(true);
     expect(evaluateCell("A1", { A1: '=EXACT(TRUE, "TRUE")' })).toBe(true);
   });
-
   test("functional tests on cell arguments", () => {
     expect(evaluateCell("A1", { A1: "=EXACT(A2, A3)" })).toBe(true);
     expect(evaluateCell("A1", { A1: "=EXACT(A2, A3)", A2: "test", A3: "test" })).toBe(true);
     expect(evaluateCell("A1", { A1: "=EXACT(A2, A3)", A2: "test", A3: "Test" })).toBe(false);
   });
-
   test("casting tests on cell arguments", () => {
     expect(evaluateCell("A1", { A1: "=EXACT(A2, A3)", A2: "TRUE", A3: "TRUE" })).toBe(true);
     expect(evaluateCell("A1", { A1: "=EXACT(A2, A3)", A2: "TRUE", A3: "FALSE" })).toBe(false);
@@ -142,7 +127,6 @@ describe("EXACT formula", () => {
     expect(evaluateCell("A1", { A1: "=EXACT(A2, A3)", A2: "456", A3: '="456"' })).toBe(true);
   });
 });
-
 describe("FIND formula", () => {
   test("functional tests on simple arguments", () => {
     expect(evaluateCell("A1", { A1: "=FIND( ,  )" })).toBe("#ERROR"); // @compatibility: on google sheets, return #N/A
@@ -157,7 +141,6 @@ describe("FIND formula", () => {
     expect(evaluateCell("A1", { A1: '=FIND("C", "ABCD", 4)' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
     expect(evaluateCell("A1", { A1: '=FIND("C", "ABCDC", 4)' })).toBe(5);
   });
-
   test("functional tests on cell arguments", () => {
     expect(evaluateCell("A1", { A1: "=FIND(A2, A3)", A2: "do", A3: "Odoo" })).toBe(2);
     expect(
@@ -177,7 +160,6 @@ describe("FIND formula", () => {
     ).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
     expect(evaluateCell("A1", { A1: "=FIND(A2, A3)", A2: "7", A3: "No.7 Doc" })).toBe(4);
   });
-
   test("casting tests on cell arguments", () => {
     expect(
       evaluateCell("A1", { A1: "=FIND(A2, A3, A4)", A2: "S", A3: "Spreadsheet", A4: '="6"' })
@@ -191,7 +173,6 @@ describe("FIND formula", () => {
     ).toBe(6);
   });
 });
-
 describe("JOIN formula", () => {
   test("functional tests on simple arguments", () => {
     expect(evaluateCell("A1", { A1: "=JOIN()" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
@@ -205,7 +186,6 @@ describe("JOIN formula", () => {
     expect(evaluateCell("A1", { A1: '=JOIN(9, "1", "2", "3")' })).toBe("19293");
     expect(evaluateCell("A1", { A1: "=JOIN(TRUE, 1, 2, 3)" })).toBe("1TRUE2TRUE3");
   });
-
   test("functional tests on cell arguments", () => {
     expect(evaluateCell("A1", { A1: "=JOIN(A2, A3)" })).toBe("");
     expect(evaluateCell("A1", { A1: "=JOIN(A2, A3)", A3: "1" })).toBe("1");
@@ -235,26 +215,22 @@ describe("JOIN formula", () => {
       evaluateCell("A1", { A1: "=JOIN(A2, A3, A4, A5)", A2: "TRUE", A3: "1", A4: "2", A5: "3" })
     ).toBe("1TRUE2TRUE3");
   });
-
   // prettier-ignore
   test("functional tests on range arguments", () => {
     const grid = {
       A1: '=JOIN("*", A2:A4)',
       B1: '=JOIN(42, B2:B4)',
       C1: '=JOIN(",", C2:C4)',
-
       A2: "9",    A3: "test",   A4: '"42"',
       B2: "tRuE", B3: '="123"', B4: '="tset"',
       C2: "7%",   C3: '"8%"',   C4: '=""',
     };
-
     const gridResult = evaluateGrid(grid);
     expect(gridResult.A1).toBe('9*test*"42"');
     expect(gridResult.B1).toBe("TRUE4212342tset");
     expect(gridResult.C1).toBe('0.07,"8%",');
   });
 });
-
 describe("LEFT formula", () => {
   test("functional tests on simple arguments", () => {
     expect(evaluateCell("A1", { A1: "=LEFT()" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
@@ -272,7 +248,6 @@ describe("LEFT formula", () => {
     expect(evaluateCell("A1", { A1: '=LEFT("kikou", 99)' })).toBe("kikou");
     expect(evaluateCell("A1", { A1: '=LEFT("kikou", "2")' })).toBe("ki");
   });
-
   test("functional tests on cell arguments", () => {
     expect(evaluateCell("A1", { A1: "=LEFT(A2)" })).toBe("");
     expect(evaluateCell("A1", { A1: "=LEFT(A2)", A2: "kikou" })).toBe("k");
@@ -290,7 +265,6 @@ describe("LEFT formula", () => {
     expect(evaluateCell("A1", { A1: "=LEFT(A2, A3)", A2: "kikou", A3: '="2"' })).toBe("ki");
   });
 });
-
 describe("LEN formula", () => {
   test("functional tests on simple arguments", () => {
     expect(evaluateCell("A1", { A1: "=LEN()" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
@@ -305,7 +279,6 @@ describe("LEN formula", () => {
     expect(evaluateCell("A1", { A1: '=LEN("42")' })).toBe(2);
     expect(evaluateCell("A1", { A1: '=LEN("オドゥ")' })).toBe(3);
   });
-
   test("functional tests on cell arguments", () => {
     expect(evaluateCell("A1", { A1: "=LEN(A2)" })).toBe(0);
     expect(evaluateCell("A1", { A1: "=LEN(A2)", A2: " " })).toBe(1);
@@ -321,7 +294,6 @@ describe("LEN formula", () => {
     expect(evaluateCell("A1", { A1: "=LEN(A2)", A2: '="42"' })).toBe(2);
   });
 });
-
 describe("LOWER formula", () => {
   test("functional tests on simple arguments", () => {
     expect(evaluateCell("A1", { A1: "=LOWER()" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
@@ -335,7 +307,6 @@ describe("LOWER formula", () => {
     expect(evaluateCell("A1", { A1: '=LOWER("オドゥ")' })).toBe("オドゥ");
     expect(evaluateCell("A1", { A1: '=LOWER("オAドB")' })).toBe("オaドb");
   });
-
   test("functional tests on cell arguments", () => {
     expect(evaluateCell("A1", { A1: "=LOWER(A2)" })).toBe("");
     expect(evaluateCell("A1", { A1: "=LOWER(A2)", A2: " " })).toBe(" ");
@@ -351,7 +322,6 @@ describe("LOWER formula", () => {
     expect(evaluateCell("A1", { A1: "=LOWER(A2)", A2: '="TEST"' })).toBe("test");
   });
 });
-
 describe("MID formula", () => {
   test("functional tests on simple arguments", () => {
     expect(evaluateCell("A1", { A1: "=MID()" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
@@ -359,12 +329,10 @@ describe("MID formula", () => {
     expect(evaluateCell("A1", { A1: '=MID("amen", 2)' })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
     expect(evaluateCell("A1", { A1: '=MID("amen", 0, 1)' })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
     expect(evaluateCell("A1", { A1: '=MID("amen", 0, -1)' })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
-
     expect(evaluateCell("A1", { A1: '=MID("amen", 2, 1)' })).toBe("m");
     expect(evaluateCell("A1", { A1: "=MID(6558, 2, 2)" })).toBe("55");
     expect(evaluateCell("A1", { A1: '=MID("hey", 2, 20)' })).toBe("ey");
   });
-
   test("functional tests on cell arguments", () => {
     expect(evaluateCell("A1", { A1: "=MID(A2, 1, 1)" })).toBe("");
     expect(evaluateCell("A1", { A1: "=MID(A2, 2, 1)", A2: "66" })).toBe("6");
@@ -372,7 +340,6 @@ describe("MID formula", () => {
     expect(evaluateCell("A1", { A1: "=MID(A2, 3, 5)", A2: "I'm a legend)" })).toBe("m a l");
   });
 });
-
 describe("PROPER formula", () => {
   test("functional tests on simple arguments", () => {
     expect(evaluateCell("A1", { A1: "=PROPER()" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
@@ -382,7 +349,6 @@ describe("PROPER formula", () => {
     expect(evaluateCell("A1", { A1: '=PROPER("ça")' })).toBe("Ça");
     expect(evaluateCell("A1", { A1: '=PROPER("ébloui")' })).toBe("Ébloui");
   });
-
   test("functional tests on cell arguments", () => {
     expect(evaluateCell("A1", { A1: "=PROPER(A2)" })).toBe("");
     expect(evaluateCell("A1", { A1: "=PROPER(A2)", A2: "66" })).toBe("66");
@@ -390,7 +356,6 @@ describe("PROPER formula", () => {
     expect(evaluateCell("A1", { A1: "=PROPER(A2)", A2: '="bi-annual' })).toBe("Bi-Annual");
   });
 });
-
 describe("REGEXTEST function", () => {
   test("REGEXTEST takes 2-3 arguments", () => {
     expect(evaluateCell("A1", { A1: "=REGEXTEST()" })).toBe("#BAD_EXPR");
@@ -399,20 +364,17 @@ describe("REGEXTEST function", () => {
     expect(evaluateCell("A1", { A1: '=REGEXTEST("Hello", "lo", 0)' })).toBe(true);
     expect(evaluateCell("A1", { A1: '=REGEXTEST("Hello", "lo", 0, 0)' })).toBe("#BAD_EXPR");
   });
-
   test("Empty text/pattern", () => {
     expect(evaluateCell("A1", { A1: '=REGEXTEST("", "lo")' })).toBe(false);
     expect(evaluateCell("A1", { A1: '=REGEXTEST("Hello", "")' })).toBe(true);
     expect(evaluateCell("A1", { A1: '=REGEXTEST("", "")' })).toBe(true);
   });
-
   test("case_sensitivity is either 0 or 1", () => {
     expect(evaluateCell("A1", { A1: '=REGEXTEST("Hello", "lo", -1)' })).toBe("#ERROR");
     expect(evaluateCell("A1", { A1: '=REGEXTEST("Hello", "lo", 0)' })).not.toBe("#ERROR");
     expect(evaluateCell("A1", { A1: '=REGEXTEST("Hello", "lo", 1)' })).not.toBe("#ERROR");
     expect(evaluateCell("A1", { A1: '=REGEXTEST("Hello", "lo", 2)' })).toBe("#ERROR");
   });
-
   test("various tests with true results", () => {
     expect(evaluateCell("A1", { A1: '=REGEXTEST("Hello there", "there", 0)' })).toBe(true);
     expect(evaluateCell("A1", { A1: '=REGEXTEST("Hello there", "hello", 1)' })).toBe(true);
@@ -436,7 +398,6 @@ describe("REGEXTEST function", () => {
       evaluateCell("A1", { A1: String.raw`=REGEXTEST("Hello \there\ ", "\\\w+\\ ", 0)` })
     ).toBe(true);
   });
-
   test("various tests with false results", () => {
     expect(evaluateCell("A1", { A1: '=REGEXTEST("Hello there", "hi", 0)' })).toBe(false);
     expect(evaluateCell("A1", { A1: '=REGEXTEST("Hello there", "Hi", 1)' })).toBe(false);
@@ -447,12 +408,10 @@ describe("REGEXTEST function", () => {
     expect(evaluateCell("A1", { A1: '=REGEXTEST("Hello there", "[0-9]+", 0)' })).toBe(false);
     expect(evaluateCell("A1", { A1: '=REGEXTEST("Hello there", "hello", 0)' })).toBe(false);
   });
-
   test("invalid regex raise an error", () => {
     expect(evaluateCell("A1", { A1: '=REGEXTEST("Hello there", "[0-9+", 0)' })).toBe("#ERROR");
   });
 });
-
 describe("REGEXEXTRACT function", () => {
   test("REGEXEXTRACT takes 2-4 arguments", () => {
     expect(evaluateCell("A1", { A1: "=REGEXEXTRACT()" })).toBe("#BAD_EXPR");
@@ -462,12 +421,10 @@ describe("REGEXEXTRACT function", () => {
     expect(evaluateCell("A1", { A1: '=REGEXEXTRACT("Hello", "lo", 0, 0)' })).toBe("lo");
     expect(evaluateCell("A1", { A1: '=REGEXEXTRACT("Hello", "lo", 0, 0, 0)' })).toBe("#BAD_EXPR");
   });
-
   test("Empty text/pattern returns an empty string", () => {
     expect(evaluateCell("A1", { A1: '=REGEXEXTRACT("", "lo")' })).toBe("");
     expect(evaluateCell("A1", { A1: '=REGEXEXTRACT("Hello", "")' })).toBe("");
   });
-
   test("return_mode is 0, 1 or 2", () => {
     expect(evaluateCell("A1", { A1: '=REGEXEXTRACT("Hello", "lo", -1)' })).toBe("#ERROR");
     expect(evaluateCell("A1", { A1: '=REGEXEXTRACT("Hello", "lo", 0)' })).not.toBe("#ERROR");
@@ -475,21 +432,18 @@ describe("REGEXEXTRACT function", () => {
     expect(evaluateCell("A1", { A1: '=REGEXEXTRACT("Hello", "(lo)", 2)' })).not.toBe("#ERROR");
     expect(evaluateCell("A1", { A1: '=REGEXEXTRACT("Hello", "lo", 3)' })).toBe("#ERROR");
   });
-
   test("error if return_mode is 2 and there is no capturing groups in the regex", () => {
     expect(evaluateCell("A1", { A1: '=REGEXEXTRACT("Hello", "lo", 2)' })).toBe("#ERROR");
     expect(evaluateCell("A1", { A1: '=REGEXEXTRACT("Hello", "(lo)", 2)' })).not.toBe("#ERROR");
   });
-
   test("case_sensitivity is either 0 or 1", () => {
     expect(evaluateCell("A1", { A1: '=REGEXEXTRACT("Hello", "lo", 0, -1)' })).toBe("#ERROR");
     expect(evaluateCell("A1", { A1: '=REGEXEXTRACT("Hello", "lo", 0, 0)' })).not.toBe("#ERROR");
     expect(evaluateCell("A1", { A1: '=REGEXEXTRACT("Hello", "lo", 0, 1)' })).not.toBe("#ERROR");
     expect(evaluateCell("A1", { A1: '=REGEXEXTRACT("Hello", "lo", 0, 2)' })).toBe("#ERROR");
   });
-
   test("Can return the first match, all the matches, or the capturing groups of first match", () => {
-    const model = new Model();
+    const model = createModel();
     expect(
       evaluateArrayFormula(model, `REGEXEXTRACT("hello there my guy", "e([a-z]+)", 0)`)
     ).toEqual([["ello"]]);
@@ -500,9 +454,8 @@ describe("REGEXEXTRACT function", () => {
       evaluateArrayFormula(model, `REGEXEXTRACT("hello there my guy", "e([a-z]+)", 2)`)
     ).toEqual([["llo"]]);
   });
-
   test("Can be either case sensitive or insensitive", () => {
-    const model = new Model();
+    const model = createModel();
     expect(evaluateArrayFormula(model, `REGEXEXTRACT("HellO", "[A-Z]+", 1, 0)`)).toEqual([
       ["H"],
       ["O"],
@@ -511,7 +464,6 @@ describe("REGEXEXTRACT function", () => {
       ["HellO"],
     ]);
   });
-
   test.each([
     ["Hello there", "there", 0, 0, ["there"]],
     ["Hello there", "o.*", 0, 0, ["o there"]],
@@ -528,18 +480,16 @@ describe("REGEXEXTRACT function", () => {
   ])(
     "various function results =REGEXEXTRACT(%s, %s, %s, %s)",
     (arg0: string, arg1: string, arg2: number, arg3: number, expectedResult: string[]) => {
-      const model = new Model();
+      const model = createModel();
       expect(
         evaluateArrayFormula(model, `REGEXEXTRACT("${arg0}", "${arg1}", ${arg2}, ${arg3})`).flat()
       ).toEqual(expectedResult);
     }
   );
-
   test("invalid regex raise an error", () => {
     expect(evaluateCell("A1", { A1: '=REGEXEXTRACT("Hello there", "[a-z+")' })).toBe("#ERROR");
   });
 });
-
 describe("REGEXREPLACE function", () => {
   test("REGEXREPLACE takes 3-5 arguments", () => {
     expect(evaluateCell("A1", { A1: "=REGEXREPLACE()" })).toBe("#BAD_EXPR");
@@ -552,17 +502,14 @@ describe("REGEXREPLACE function", () => {
       "#BAD_EXPR"
     );
   });
-
   test("Empty text/pattern", () => {
     expect(evaluateCell("A1", { A1: '=REGEXREPLACE("Hello", "", "y")' })).toBe("yHyeylylyoy");
     expect(evaluateCell("A1", { A1: '=REGEXREPLACE("Hello", "llo", "")' })).toBe("He");
     expect(evaluateCell("A1", { A1: '=REGEXREPLACE("Hello", "", "")' })).toBe("Hello");
   });
-
   test("Invalid regex raise an error", () => {
     expect(evaluateCell("A1", { A1: '=REGEXREPLACE("Hello", "[a-z", "y")' })).toBe("#ERROR");
   });
-
   test("occurences", () => {
     expect(
       evaluateCell("A1", { A1: String.raw`=REGEXREPLACE("Hello there my guy", "\s[a-z]+", "o")` })
@@ -588,7 +535,6 @@ describe("REGEXREPLACE function", () => {
       })
     ).toBe("Hello there my guy");
   });
-
   test("case_sensitivity is either 0 or 1", () => {
     expect(evaluateCell("A1", { A1: '=REGEXREPLACE("Hello", "llo", "y", 0, -1)' })).toBe("#ERROR");
     expect(evaluateCell("A1", { A1: '=REGEXREPLACE("Hello", "llo", "y", 0, 0)' })).not.toBe(
@@ -599,12 +545,10 @@ describe("REGEXREPLACE function", () => {
     );
     expect(evaluateCell("A1", { A1: '=REGEXREPLACE("Hello", "llo","y", 0, 2)' })).toBe("#ERROR");
   });
-
   test("Can be either case sensitive or insensitive", () => {
     expect(evaluateCell("A1", { A1: '=REGEXREPLACE("HellO", "[A-Z]+", "y", 0, 0)' })).toBe("yelly");
     expect(evaluateCell("A1", { A1: '=REGEXREPLACE("HellO", "[A-Z]+", "y", 0, 1)' })).toBe("y");
   });
-
   test("various tests", () => {
     expect(evaluateCell("A1", { A1: '=REGEXREPLACE("Hello there", "there", "World", 0, 0)' })).toBe(
       "Hello World"
@@ -639,7 +583,6 @@ describe("REGEXREPLACE function", () => {
       "123123"
     );
   });
-
   test("capturing groups", () => {
     const grid = {
       A1: "Maria Cruz",
@@ -650,7 +593,6 @@ describe("REGEXREPLACE function", () => {
     expect(evaluateCell("D1", grid)).toBe("Cruz,Maria");
   });
 });
-
 describe("REPLACE formula", () => {
   test("functional tests on simple arguments", () => {
     expect(evaluateCell("A1", { A1: '=REPLACE("ABZ", 2, 1, "Y")' })).toBe("AYZ");
@@ -668,14 +610,12 @@ describe("REPLACE formula", () => {
     expect(evaluateCell("A1", { A1: '=REPLACE("ABZ", 2, 0, "Y")' })).toBe("AYBZ");
     expect(evaluateCell("A1", { A1: '=REPLACE("ABZ", -1, 0, "Y")' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
   });
-
   test("casting tests on simple arguments", () => {
     expect(evaluateCell("A1", { A1: '=REPLACE("ABZ", "2", TRUE, "Y")' })).toBe("AYZ");
     expect(evaluateCell("A1", { A1: '=REPLACE(1239, 2, 2, "78")' })).toBe("1789");
     expect(evaluateCell("A1", { A1: '=REPLACE("1789", 2, 2, 23)' })).toBe("1239");
   });
 });
-
 describe("RIGHT formula", () => {
   test("functional tests on simple arguments", () => {
     expect(evaluateCell("A1", { A1: "=RIGHT()" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
@@ -693,7 +633,6 @@ describe("RIGHT formula", () => {
     expect(evaluateCell("A1", { A1: '=RIGHT("kikou", 99)' })).toBe("kikou");
     expect(evaluateCell("A1", { A1: '=RIGHT("kikou", "2")' })).toBe("ou");
   });
-
   test("functional tests on cell arguments", () => {
     expect(evaluateCell("A1", { A1: "=RIGHT(A2)" })).toBe("");
     expect(evaluateCell("A1", { A1: "=RIGHT(A2)", A2: "kikou" })).toBe("u");
@@ -711,7 +650,6 @@ describe("RIGHT formula", () => {
     expect(evaluateCell("A1", { A1: "=RIGHT(A2, A3)", A2: "kikou", A3: '="2"' })).toBe("ou");
   });
 });
-
 describe("SEARCH formula", () => {
   test("functional tests on simple arguments", () => {
     expect(evaluateCell("A1", { A1: "=SEARCH( ,  )" })).toBe("#ERROR"); // @compatibility: on google sheets, return #N/A
@@ -724,7 +662,6 @@ describe("SEARCH formula", () => {
     expect(evaluateCell("A1", { A1: '=SEARCH("C", "ABCD", 4)' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
     expect(evaluateCell("A1", { A1: '=SEARCH("C", "ABCDC", 4)' })).toBe(5);
   });
-
   test("functional tests on cell arguments", () => {
     expect(evaluateCell("A1", { A1: "=SEARCH(A2, A3)", A2: "do", A3: "Odoo" })).toBe(2);
     expect(
@@ -744,7 +681,6 @@ describe("SEARCH formula", () => {
     ).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
     expect(evaluateCell("A1", { A1: "=SEARCH(A2, A3)", A2: "7", A3: "No.7 Doc" })).toBe(4);
   });
-
   test("casting tests on cell arguments", () => {
     expect(
       evaluateCell("A1", { A1: "=SEARCH(A2, A3, A4)", A2: "S", A3: "Spreadsheet", A4: '="6"' })
@@ -758,7 +694,6 @@ describe("SEARCH formula", () => {
     ).toBe(6);
   });
 });
-
 describe("SPLIT function", () => {
   test("SPLIT takes 2-4 arguments", () => {
     expect(evaluateCell("A1", { A1: "=SPLIT()" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
@@ -768,12 +703,10 @@ describe("SPLIT function", () => {
     expect(evaluateCell("A1", { A1: '=SPLIT("Hello", " ", 1, 1)' })).toBe("Hello");
     expect(evaluateCell("A1", { A1: '=SPLIT("Hello", " ", 1, 1, 0)' })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
   });
-
   test("delimiter argument should not be empty", () => {
     expect(evaluateCell("A1", { A1: '=SPLIT("Hello", "", 1, 1)' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
     expect(evaluateCell("A1", { A1: '=SPLIT("Hello", B1, 1, 1)', B1: '=""' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
   });
-
   test("Simple split", () => {
     const grid = { A1: "Hello there, General Kenobi" };
     const model = createModelFromGrid(grid);
@@ -783,7 +716,6 @@ describe("SPLIT function", () => {
     ]);
     expect(checkFunctionDoesntSpreadBeyondRange(model, "A1:D1")).toBeTruthy();
   });
-
   test("Split with multiple characters", () => {
     const grid = { A1: "Hello there, General Kenobi" };
     const model = createModelFromGrid(grid);
@@ -793,7 +725,6 @@ describe("SPLIT function", () => {
     ]);
     expect(checkFunctionDoesntSpreadBeyondRange(model, "A1:J1")).toBeTruthy();
   });
-
   test("split_by_each argument", () => {
     const grid = { A1: "Hello there, General Kenobi" };
     const model = createModelFromGrid(grid);
@@ -802,36 +733,30 @@ describe("SPLIT function", () => {
       ["Hello", "there", "General", "Kenobi"],
     ]);
     expect(checkFunctionDoesntSpreadBeyondRange(model, "A1:D1")).toBeTruthy();
-
     setCellContent(model, "A5", '=SPLIT(A1, ", ", 0)');
     expect(getRangeValuesAsMatrix(model, "A5:B5")).toEqual([["Hello there", "General Kenobi"]]);
     expect(checkFunctionDoesntSpreadBeyondRange(model, "A5:B5")).toBeTruthy();
   });
-
   test("remove_empty_text argument", () => {
     const grid = { A1: "Hello     there" };
     const model = createModelFromGrid(grid);
     setCellContent(model, "A5", '=SPLIT(A1, " ", 1, 1)');
     expect(getRangeValuesAsMatrix(model, "A5:B5")).toEqual([["Hello", "there"]]);
     expect(checkFunctionDoesntSpreadBeyondRange(model, "A5:B5")).toBeTruthy();
-
     setCellContent(model, "A5", '=SPLIT(A1, " ", 1, 0)');
     expect(getRangeValuesAsMatrix(model, "A5:F5")).toEqual([["Hello", "", "", "", "", "there"]]);
     expect(checkFunctionDoesntSpreadBeyondRange(model, "A5:F5")).toBeTruthy();
   });
-
   test("Split with regex characters", () => {
-    const model = new Model();
+    const model = createModel();
     setCellContent(model, "A1", "Hello.there");
     setCellContent(model, "A5", '=SPLIT(A1, ".", 1, 1)');
     expect(getRangeValuesAsMatrix(model, "A5:B5")).toEqual([["Hello", "there"]]);
-
     setCellContent(model, "A1", "Hello\\nthere");
     setCellContent(model, "A5", '=SPLIT(A1, "\\n", 1, 1)');
     expect(getRangeValuesAsMatrix(model, "A5:B5")).toEqual([["Hello", "there"]]);
   });
 });
-
 describe("TEXTSPLIT function", () => {
   test("TEXTSPLIT accepts minimum 2 and maximum 6 arguments", () => {
     expect(evaluateCell("A1", { A1: "=TEXTSPLIT()" })).toBe("#BAD_EXPR");
@@ -853,28 +778,24 @@ describe("TEXTSPLIT function", () => {
       "#BAD_EXPR"
     );
   });
-
   test("Split into columns", () => {
     const grid = { A1: "Red,Green,Blue" };
     const model = createModelFromGrid(grid);
     setCellContent(model, "A2", '=TEXTSPLIT(A1, ",")');
     expect(getRangeValuesAsMatrix(model, "A2:C2")).toEqual([["Red", "Green", "Blue"]]);
   });
-
   test("Split into rows", () => {
     const grid = { A1: "Red;Green;Blue" };
     const model = createModelFromGrid(grid);
     setCellContent(model, "A2", '=TEXTSPLIT(A1, , ";")');
     expect(getRangeValuesAsMatrix(model, "A2:A4")).toEqual([["Red"], ["Green"], ["Blue"]]);
   });
-
   test("Split by substring", () => {
     const grid = { A1: "2023--11--05" };
     const model = createModelFromGrid(grid);
     setCellContent(model, "A2", '=TEXTSPLIT(A1, "--")');
     expect(getRangeValuesAsMatrix(model, "A2:C2")).toEqual([["2023", "11", "05"]]);
   });
-
   test("Split into columns and rows", () => {
     const grid = { A1: "Name, Age=City, Country" };
     const model = createModelFromGrid(grid);
@@ -884,7 +805,6 @@ describe("TEXTSPLIT function", () => {
       ["City", "Country"],
     ]);
   });
-
   test("Split by the same delimiter in both dimensions", () => {
     const grid = {
       A1: "AppledelimBanana;OrangedelimGrapes;TomatotestPotato",
@@ -898,7 +818,6 @@ describe("TEXTSPLIT function", () => {
       ["Apple", "Banana", "Orange", "Grapes", "Tomato", "Potato"],
     ]);
   });
-
   test("Multiple one-character delimiters", () => {
     const grid = { A1: "Apple, Banana;Orange, Grapes;Tomato", F1: ", ", F2: ";" };
     const model = createModelFromGrid(grid);
@@ -907,7 +826,6 @@ describe("TEXTSPLIT function", () => {
       ["Apple", "Banana", "Orange", "Grapes", "Tomato"],
     ]);
   });
-
   test("Mix of one-character and multi-character delimiters", () => {
     const grid = {
       A1: "AppledelimBanana;OrangedelimGrapes;TomatotestPotato",
@@ -921,14 +839,12 @@ describe("TEXTSPLIT function", () => {
       ["Apple", "Banana", "Orange", "Grapes", "Tomato", "Potato"],
     ]);
   });
-
   test("Ignore empty values at column split", () => {
     const grid = { A1: "Dog,,Cat,,Bird" };
     const model = createModelFromGrid(grid);
     setCellContent(model, "A2", '=TEXTSPLIT(A1, ",", , TRUE)');
     expect(getRangeValuesAsMatrix(model, "A2:C2")).toEqual([["Dog", "Cat", "Bird"]]);
   });
-
   test("Ignore empty values at column split with multiple delimiters", () => {
     const grid = { A1: "Do. Or do not. There is no try. -Anonymous", H1: ".", H2: "-" };
     const model = createModelFromGrid(grid);
@@ -937,14 +853,12 @@ describe("TEXTSPLIT function", () => {
       ["Do", " Or do not", " There is no try", " ", "Anonymous"],
     ]);
   });
-
   test("Ignore empty values at row split", () => {
     const grid = { A1: "Dog,,Cat,,Bird" };
     const model = createModelFromGrid(grid);
     setCellContent(model, "A2", '=TEXTSPLIT(A1,,",", TRUE)');
     expect(getRangeValuesAsMatrix(model, "A2:A4")).toEqual([["Dog"], ["Cat"], ["Bird"]]);
   });
-
   test("Ignore empty values at column and row split", () => {
     const grid = { A1: "Name=MERA, , Result=Excellent" };
     const model = createModelFromGrid(grid);
@@ -955,14 +869,12 @@ describe("TEXTSPLIT function", () => {
       [null, null],
     ]);
   });
-
   test("Case-insensitive split", () => {
     const grid = { A1: "AppleDELIMbanaNADelimcHerry" };
     const model = createModelFromGrid(grid);
     setCellContent(model, "A2", '=TEXTSPLIT(A1, "delim",,,1)');
     expect(getRangeValuesAsMatrix(model, "A2:C2")).toEqual([["Apple", "banaNA", "cHerry"]]);
   });
-
   test("Case-sensitive split", () => {
     const grid = { A1: "AppleDELIMbanaNADelimcHerry" };
     const model = createModelFromGrid(grid);
@@ -971,7 +883,6 @@ describe("TEXTSPLIT function", () => {
       ["AppleDELIMbanaNADelimcHerry", null, null],
     ]);
   });
-
   test("Pad missing values with custom value", () => {
     const grid = { A1: "Name=MERA, Score, Result=Excellent" };
     const model = createModelFromGrid(grid);
@@ -982,7 +893,6 @@ describe("TEXTSPLIT function", () => {
       ["Result", "Excellent"],
     ]);
   });
-
   test("Pad missing values with default value", () => {
     const grid = { A1: "Name=MERA, Score, Result=Excellent" };
     const model = createModelFromGrid(grid);
@@ -993,7 +903,6 @@ describe("TEXTSPLIT function", () => {
       ["Result", "Excellent"],
     ]);
   });
-
   test("Pad missing values with empty string", () => {
     const grid = { A1: "Name=MERA, Score, Result=Excellent" };
     const model = createModelFromGrid(grid);
@@ -1004,7 +913,6 @@ describe("TEXTSPLIT function", () => {
       ["Result", "Excellent"],
     ]);
   });
-
   test("Split dates", () => {
     const grid = { A1: "2024/05/09" };
     const model = createModelFromGrid(grid);
@@ -1012,7 +920,6 @@ describe("TEXTSPLIT function", () => {
     expect(getRangeValuesAsMatrix(model, "A2:C2")).toEqual([["5", "9", "2024"]]);
   });
 });
-
 describe("TEXTAFTER function", () => {
   test("TEXTAFTER accepts minimum 2 and maximum 5 arguments", () => {
     expect(evaluateCell("A1", { A1: "=TEXTAFTER()" })).toBe("#BAD_EXPR");
@@ -1024,89 +931,71 @@ describe("TEXTAFTER function", () => {
       evaluateCell("A1", { A1: '=TEXTAFTER("apple", ",", 1, 0, 1, "N/A", "extraParam")' })
     ).toBe("#BAD_EXPR");
   });
-
   test("instance_num should not be zero", () => {
     expect(evaluateCell("A1", { A1: '=TEXTAFTER("apple", ",", -1)' })).not.toBe("#ERROR");
     expect(evaluateCell("A1", { A1: '=TEXTAFTER("apple", ",", 0)' })).toBe("#ERROR");
     expect(evaluateCell("A1", { A1: '=TEXTAFTER("apple", ",", 1)' })).not.toBe("#ERROR");
   });
-
   test("match_mode should be either 0 or 1", () => {
     expect(evaluateCell("A1", { A1: '=TEXTAFTER("apple", ",", 1, -1)' })).toBe("#ERROR");
     expect(evaluateCell("A1", { A1: '=TEXTAFTER("apple", ",", 1, 0)' })).not.toBe("#ERROR");
     expect(evaluateCell("A1", { A1: '=TEXTAFTER("apple", ",", 1, 1)' })).not.toBe("#ERROR");
     expect(evaluateCell("A1", { A1: '=TEXTAFTER("apple", ",", 1, 2)' })).toBe("#ERROR");
   });
-
   test("match_end should be either 0 or 1", () => {
     expect(evaluateCell("A1", { A1: '=TEXTAFTER("apple", ",", 1, 1, -1)' })).toBe("#ERROR");
     expect(evaluateCell("A1", { A1: '=TEXTAFTER("apple", ",", 1, 1, 0)' })).not.toBe("#ERROR");
     expect(evaluateCell("A1", { A1: '=TEXTAFTER("apple", ",", 1, 1, 1)' })).not.toBe("#ERROR");
     expect(evaluateCell("A1", { A1: '=TEXTAFTER("apple", ",", 1, 1, 2)' })).toBe("#ERROR");
   });
-
   test("Can have an empty delimiter ", () => {
     expect(evaluateCell("A1", { A1: '=TEXTAFTER("apple", "")' })).toBe("apple");
     expect(evaluateCell("A1", { A1: '=TEXTAFTER("apple", "", 1)' })).toBe("apple");
     expect(evaluateCell("A1", { A1: '=TEXTAFTER("apple", "", -1)' })).toBe("");
   });
-
   test("Can match given index", () => {
     const text = "apple,banana,orange";
     expect(evaluateCell("A2", { A1: text, A2: '=TEXTAFTER(A1, ",", 1)' })).toBe("banana,orange");
     expect(evaluateCell("A2", { A1: text, A2: '=TEXTAFTER(A1, ",", 2)' })).toBe("orange");
     expect(evaluateCell("A2", { A1: text, A2: '=TEXTAFTER(A1, ",", 3)' })).toBe("#N/A");
-
     expect(evaluateCell("A2", { A1: text, A2: '=TEXTAFTER(A1, ",", -1)' })).toBe("orange");
     expect(evaluateCell("A2", { A1: text, A2: '=TEXTAFTER(A1, ",", -2)' })).toBe("banana,orange");
     expect(evaluateCell("A2", { A1: text, A2: '=TEXTAFTER(A1, ",", -3)' })).toBe("#N/A");
   });
-
   test("using non-existent delimiter returns #N/A", () => {
     const text = "apple,banana,orange";
     expect(evaluateCell("A2", { A1: text, A2: '=TEXTAFTER(A1, ".")' })).toBe("#N/A");
   });
-
   test("should use fallback value when delimiter is not found", () => {
     const text = "apple,banana,orange";
     expect(evaluateCell("A2", { A1: text, A2: '=TEXTAFTER(A1, ".", , , , "Not Found")' })).toBe(
       "Not Found"
     );
   });
-
   test("can do case-insensitive text matching", () => {
     const text1 = "Start:MATCH:End";
     expect(evaluateCell("A2", { A1: text1, A2: '=TEXTAFTER(A1, "match", , 1)' })).toBe(":End");
-
     const text2 = "Red riding hood's red hood";
     expect(evaluateCell("A2", { A1: text2, A2: '=TEXTAFTER(A1, "red", -1)' })).toBe(" hood");
   });
-
   test("setting match_end parameter to 1 treats the end of the text as a delimiter", () => {
     const text = "report.final.v2.pdf";
-
     // With positive indexes
     expect(evaluateCell("A2", { A1: text, A2: '=TEXTAFTER(A1, "pdf", 1, , 0)' })).toBe("");
     expect(evaluateCell("A2", { A1: text, A2: '=TEXTAFTER(A1, "pdf", 1, , 1)' })).toBe("");
-
     expect(evaluateCell("A2", { A1: text, A2: '=TEXTAFTER(A1, "pdf", 2, , 0)' })).toBe("#N/A");
     expect(evaluateCell("A2", { A1: text, A2: '=TEXTAFTER(A1, "pdf", 2, , 1)' })).toBe("");
-
     expect(evaluateCell("A2", { A1: text, A2: '=TEXTAFTER(A1, "pdf", 3, , 0)' })).toBe("#N/A");
     expect(evaluateCell("A2", { A1: text, A2: '=TEXTAFTER(A1, "pdf", 3, , 1)' })).toBe("#N/A");
-
     // With negative indexes
     expect(evaluateCell("A2", { A1: text, A2: '=TEXTAFTER(A1, "pdf", -1, , 0)' })).toBe("");
     expect(evaluateCell("A2", { A1: text, A2: '=TEXTAFTER(A1, "pdf", -1, , 1)' })).toBe("");
-
     expect(evaluateCell("A2", { A1: text, A2: '=TEXTAFTER(A1, "pdf", -2, , 0)' })).toBe("#N/A");
     expect(evaluateCell("A2", { A1: text, A2: '=TEXTAFTER(A1, "pdf", -2, , 1)' })).toBe(text);
-
     expect(evaluateCell("A2", { A1: text, A2: '=TEXTAFTER(A1, "pdf", -3, , 0)' })).toBe("#N/A");
     expect(evaluateCell("A2", { A1: text, A2: '=TEXTAFTER(A1, "pdf", -3, , 1)' })).toBe("#N/A");
   });
 });
-
 describe("TEXTBEFORE function", () => {
   test("TEXTBEFORE accepts minimum 2 and maximum 5 arguments", () => {
     expect(evaluateCell("A1", { A1: "=TEXTBEFORE()" })).toBe("#BAD_EXPR");
@@ -1118,69 +1007,57 @@ describe("TEXTBEFORE function", () => {
       evaluateCell("A1", { A1: '=TEXTBEFORE("apple", ",", 1, 0, 1, "N/A", "extraParam")' })
     ).toBe("#BAD_EXPR");
   });
-
   test("instance_num should not be zero", () => {
     expect(evaluateCell("A1", { A1: '=TEXTBEFORE("apple", ",", -1)' })).not.toBe("#ERROR");
     expect(evaluateCell("A1", { A1: '=TEXTBEFORE("apple", ",", 0)' })).toBe("#ERROR");
     expect(evaluateCell("A1", { A1: '=TEXTBEFORE("apple", ",", 1)' })).not.toBe("#ERROR");
   });
-
   test("match_mode should be either 0 or 1", () => {
     expect(evaluateCell("A1", { A1: '=TEXTBEFORE("apple", ",", 1, -1)' })).toBe("#ERROR");
     expect(evaluateCell("A1", { A1: '=TEXTBEFORE("apple", ",", 1, 0)' })).not.toBe("#ERROR");
     expect(evaluateCell("A1", { A1: '=TEXTBEFORE("apple", ",", 1, 1)' })).not.toBe("#ERROR");
     expect(evaluateCell("A1", { A1: '=TEXTBEFORE("apple", ",", 1, 2)' })).toBe("#ERROR");
   });
-
   test("match_end should be either 0 or 1", () => {
     expect(evaluateCell("A1", { A1: '=TEXTBEFORE("apple", ",", 1, 1, -1)' })).toBe("#ERROR");
     expect(evaluateCell("A1", { A1: '=TEXTBEFORE("apple", ",", 1, 1, 0)' })).not.toBe("#ERROR");
     expect(evaluateCell("A1", { A1: '=TEXTBEFORE("apple", ",", 1, 1, 1)' })).not.toBe("#ERROR");
     expect(evaluateCell("A1", { A1: '=TEXTBEFORE("apple", ",", 1, 1, 2)' })).toBe("#ERROR");
   });
-
   test("Can have an empty delimiter ", () => {
     expect(evaluateCell("A1", { A1: '=TEXTBEFORE("apple", "")' })).toBe("");
     expect(evaluateCell("A1", { A1: '=TEXTBEFORE("apple", "", 1)' })).toBe("");
     expect(evaluateCell("A1", { A1: '=TEXTBEFORE("apple", "", -1)' })).toBe("apple");
   });
-
   test("Can match given index", () => {
     const text = "apple,banana,orange";
     expect(evaluateCell("A2", { A1: text, A2: '=TEXTBEFORE(A1, ",", 1)' })).toBe("apple");
     expect(evaluateCell("A2", { A1: text, A2: '=TEXTBEFORE(A1, ",", 2)' })).toBe("apple,banana");
     expect(evaluateCell("A2", { A1: text, A2: '=TEXTBEFORE(A1, ",", 3)' })).toBe("#N/A");
-
     expect(evaluateCell("A2", { A1: text, A2: '=TEXTBEFORE(A1, ",", -1)' })).toBe("apple,banana");
     expect(evaluateCell("A2", { A1: text, A2: '=TEXTBEFORE(A1, ",", -2)' })).toBe("apple");
     expect(evaluateCell("A2", { A1: text, A2: '=TEXTBEFORE(A1, ",", -3)' })).toBe("#N/A");
   });
-
   test("using non-existent delimiter returns #N/A", () => {
     const text = "apple,banana,orange";
     expect(evaluateCell("A2", { A1: text, A2: '=TEXTBEFORE(A1, ".")' })).toBe("#N/A");
   });
-
   test("should use fallback value when delimiter is not found", () => {
     const text = "apple,banana,orange";
     expect(evaluateCell("A2", { A1: text, A2: '=TEXTBEFORE(A1, ".", , , , "Not Found")' })).toBe(
       "Not Found"
     );
   });
-
   test("can do case-insensitive text matching", () => {
     const text1 = "Start:MATCH:End";
     expect(evaluateCell("A2", { A1: text1, A2: '=TEXTBEFORE(A1, "match", , 1)' })).toBe("Start:");
-
     const text2 = "Red riding hood's red hood";
     expect(evaluateCell("A2", { A1: text2, A2: '=TEXTBEFORE(A1, "red", -1)' })).toBe(
       "Red riding hood's "
     );
   });
-
   test("setting match_end parameter to 1 treats the end of the text as a delimiter", () => {
     const text = "report.final.v2.pdf";
-
     // With positive indexes
     expect(evaluateCell("A2", { A1: text, A2: '=TEXTBEFORE(A1, "pdf", 1, , 0)' })).toBe(
       "report.final.v2."
@@ -1188,13 +1065,10 @@ describe("TEXTBEFORE function", () => {
     expect(evaluateCell("A2", { A1: text, A2: '=TEXTBEFORE(A1, "pdf", 1, , 1)' })).toBe(
       "report.final.v2."
     );
-
     expect(evaluateCell("A2", { A1: text, A2: '=TEXTBEFORE(A1, "pdf", 2, , 0)' })).toBe("#N/A");
     expect(evaluateCell("A2", { A1: text, A2: '=TEXTBEFORE(A1, "pdf", 2, , 1)' })).toBe(text);
-
     expect(evaluateCell("A2", { A1: text, A2: '=TEXTBEFORE(A1, "pdf", 3, , 0)' })).toBe("#N/A");
     expect(evaluateCell("A2", { A1: text, A2: '=TEXTBEFORE(A1, "pdf", 3, , 1)' })).toBe("#N/A");
-
     // With negative indexes
     expect(evaluateCell("A2", { A1: text, A2: '=TEXTBEFORE(A1, "pdf", -1, , 0)' })).toBe(
       "report.final.v2."
@@ -1202,15 +1076,12 @@ describe("TEXTBEFORE function", () => {
     expect(evaluateCell("A2", { A1: text, A2: '=TEXTBEFORE(A1, "pdf", -1, , 1)' })).toBe(
       "report.final.v2."
     );
-
     expect(evaluateCell("A2", { A1: text, A2: '=TEXTBEFORE(A1, "pdf", -2, , 0)' })).toBe("#N/A");
     expect(evaluateCell("A2", { A1: text, A2: '=TEXTBEFORE(A1, "pdf", -2, , 1)' })).toBe("");
-
     expect(evaluateCell("A2", { A1: text, A2: '=TEXTBEFORE(A1, "pdf", -3, , 0)' })).toBe("#N/A");
     expect(evaluateCell("A2", { A1: text, A2: '=TEXTBEFORE(A1, "pdf", -3, , 1)' })).toBe("#N/A");
   });
 });
-
 describe("SUBSTITUTE formula", () => {
   test("functional tests on simple arguments", () => {
     expect(evaluateCell("A1", { A1: "=SUBSTITUTE( ,  ,  )" })).toBe("");
@@ -1224,11 +1095,9 @@ describe("SUBSTITUTE formula", () => {
     );
     expect(evaluateCell("A1", { A1: '=SUBSTITUTE("AAAA", "", "B")' })).toBe("AAAA");
   });
-
   test("functional tests on argument with regexp characters", () => {
     expect(evaluateCell("A1", { A1: '=SUBSTITUTE("(hello)", "(" , ")")' })).toBe(")hello)");
   });
-
   test("functional tests on cell arguments", () => {
     expect(
       evaluateCell("A1", {
@@ -1242,7 +1111,6 @@ describe("SUBSTITUTE formula", () => {
     expect(evaluateCell("A1", { A1: "=SUBSTITUTE(A2, A3, A4)", A2: "AAAA", A3: "A" })).toBe("");
     expect(evaluateCell("A1", { A1: "=SUBSTITUTE(A2, A3, A4)", A2: "AAAA" })).toBe("AAAA");
     expect(evaluateCell("A1", { A1: "=SUBSTITUTE(A2, A3, A4)", A2: "AAAA", A4: "B" })).toBe("AAAA");
-
     expect(
       evaluateCell("A1", { A1: "=SUBSTITUTE(A2, A3, A4)", A2: "Hello there", A3: "e", A4: "E" })
     ).toBe("HEllo thErE");
@@ -1286,7 +1154,6 @@ describe("SUBSTITUTE formula", () => {
       })
     ).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
   });
-
   test("casting tests on cell arguments", () => {
     expect(evaluateCell("A1", { A1: "=SUBSTITUTE(A2, A3, A4)", A2: "22", A3: "2", A4: "99" })).toBe(
       "9999"
@@ -1305,7 +1172,6 @@ describe("SUBSTITUTE formula", () => {
     ).toBe("TRUQUE");
   });
 });
-
 describe("TEXTJOIN formula", () => {
   test("functional tests on simple arguments", () => {
     expect(evaluateCell("A1", { A1: "=TEXTJOIN( ,  ,  )" })).toBe("");
@@ -1325,7 +1191,6 @@ describe("TEXTJOIN formula", () => {
       "1 2 3  4"
     );
   });
-
   test("casting tests on simple arguments", () => {
     expect(evaluateCell("A1", { A1: '=TEXTJOIN(" ", TRUE, 1, 2, 3,  , 4)' })).toBe("1 2 3 4");
     expect(evaluateCell("A1", { A1: '=TEXTJOIN(" ", FALSE, 1, 2, 3,  , 4)' })).toBe("1 2 3  4");
@@ -1334,7 +1199,6 @@ describe("TEXTJOIN formula", () => {
       "1 2 3  4"
     );
   });
-
   test("functional tests on cell arguments", () => {
     expect(
       evaluateCell("A1", {
@@ -1363,7 +1227,6 @@ describe("TEXTJOIN formula", () => {
     );
   });
 });
-
 describe("TRIM formula", () => {
   test("functional tests on simple arguments", () => {
     expect(evaluateCell("A1", { A1: "=TRIM()" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
@@ -1378,12 +1241,10 @@ describe("TRIM formula", () => {
     expect(evaluateCell("A1", { A1: '=TRIM("  A   \n B   \n  \n C  ")' })).toBe("A\nB\n\nC"); // @compatibility: the TRIM Excel function does not keep line breaks
     expect(evaluateCell("A1", { A1: '=TRIM(" \t  A   \t B\tC  \t")' })).toBe("A B C");
   });
-
   test("casting tests on simple arguments", () => {
     expect(evaluateCell("A1", { A1: "=TRIM(123)" })).toBe("123");
     expect(evaluateCell("A1", { A1: "=TRIM(TRUE)" })).toBe("TRUE");
   });
-
   test("functional tests on cell arguments", () => {
     expect(evaluateCell("A1", { A1: "=TRIM(A2)" })).toBe("");
     expect(evaluateCell("A1", { A1: "=TRIM(A2)", A2: " Kikou  " })).toBe("Kikou");
@@ -1391,7 +1252,6 @@ describe("TRIM formula", () => {
     expect(evaluateCell("A1", { A1: "=TRIM(A2)", A2: '=" Kikou  "' })).toBe("Kikou");
   });
 });
-
 describe("UPPER formula", () => {
   test("functional tests on simple arguments", () => {
     expect(evaluateCell("A1", { A1: "=UPPER()" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
@@ -1405,7 +1265,6 @@ describe("UPPER formula", () => {
     expect(evaluateCell("A1", { A1: '=UPPER("")' })).toBe("");
     expect(evaluateCell("A1", { A1: '=UPPER(" ")' })).toBe(" ");
   });
-
   test("functional tests on cell arguments", () => {
     expect(evaluateCell("A1", { A1: "=UPPER(A2)" })).toBe("");
     expect(evaluateCell("A1", { A1: "=UPPER(A2)", A2: " " })).toBe(" ");
@@ -1419,13 +1278,11 @@ describe("UPPER formula", () => {
     expect(evaluateCell("A1", { A1: "=UPPER(A2)", A2: '="true"' })).toBe("TRUE");
   });
 });
-
 test("TEXT formula", () => {
   expect(evaluateCell("A1", { A1: '=TEXT(5, "#,##0.00")' })).toBe("5.00");
   expect(evaluateCell("A1", { A1: '=TEXT(.05, "000%")' })).toBe("005%");
   expect(evaluateCell("A1", { A1: "=TEXT(5, 0)" })).toBe("5");
 });
-
 test("VALUE formula", () => {
   expect(evaluateCell("A1", { A1: "=VALUE(5)" })).toBe(5);
   expect(evaluateCell("A1", { A1: '=VALUE("")' })).toBe(0);

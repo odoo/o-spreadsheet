@@ -20,6 +20,7 @@ import {
   triggerWheelEvent,
 } from "../test_helpers/dom_helper";
 import {
+  createModel,
   makeTestComposerStore,
   mockChart,
   mountComponent,
@@ -43,7 +44,7 @@ describe("Error tooltip component", () => {
   }
 
   test("Can display a data validation error message", async () => {
-    const model = new Model();
+    const model = createModel();
     addDataValidation(model, "A1", "id", { type: "containsText", values: ["hi"] });
     setCellContent(model, "A1", "hello");
     await mountErrorTooltip(model, "A1");
@@ -52,7 +53,7 @@ describe("Error tooltip component", () => {
   });
 
   test("Can display multiple error messages", async () => {
-    const model = new Model();
+    const model = createModel();
     addDataValidation(model, "A2", "id", { type: "containsText", values: ["hi"] });
     setCellContent(model, "A1", "=1/0");
     setCellContent(model, "A2", "=A1");
@@ -70,7 +71,7 @@ describe("Error tooltip component", () => {
   });
 
   test("can display error origin position", async () => {
-    const model = new Model();
+    const model = createModel();
     setCellContent(model, "A1", "=1/0");
     setCellContent(model, "A2", "=A1");
     await mountErrorTooltip(model, "A2");
@@ -78,7 +79,7 @@ describe("Error tooltip component", () => {
   });
 
   test("Do not display error origin position in dashboard", async () => {
-    const model = new Model();
+    const model = createModel();
     setCellContent(model, "A1", "=1/0");
     setCellContent(model, "A2", "=A1");
     model.updateMode("dashboard");
@@ -87,7 +88,7 @@ describe("Error tooltip component", () => {
   });
 
   test("can display error position from another sheet", async () => {
-    const model = new Model();
+    const model = createModel();
     createSheet(model, { sheetId: "sheet2" });
     setCellContent(model, "A1", "=1/0", "sheet2");
     setCellContent(model, "A2", "=Sheet2!A1");
@@ -96,7 +97,7 @@ describe("Error tooltip component", () => {
   });
 
   test("clicking on error position selects the position", async () => {
-    const model = new Model();
+    const model = createModel();
     createSheet(model, { sheetId: "sheet2" });
     setCellContent(model, "J10", "=1/0", "sheet2");
     setCellContent(model, "A2", "=Sheet2!J10");
@@ -106,14 +107,14 @@ describe("Error tooltip component", () => {
   });
 
   test("does not display error origin position if it is the same cell", async () => {
-    const model = new Model();
+    const model = createModel();
     setCellContent(model, "A1", "=1/0");
     await mountErrorTooltip(model, "A1");
     expect(".fst-italic").toHaveCount(0);
   });
 
   test("Can add missing headers if the formula is #SPILL", async () => {
-    const model = new Model({ sheets: [{ id: "sheet1", colNumber: 1, rowNumber: 1 }] });
+    const model = createModel({ sheets: [{ id: "sheet1", colNumber: 1, rowNumber: 1 }] });
     setCellContent(model, "A1", "=MUNIT(3)");
     await mountErrorTooltip(model, "A1");
     await click(fixture, ".o-button-link");
@@ -122,7 +123,7 @@ describe("Error tooltip component", () => {
   });
 
   test("Button to add missing header is not there for #SPILL not caused by too few headers", async () => {
-    const model = new Model();
+    const model = createModel();
     setCellContent(model, "A1", "=MUNIT(3)");
     setCellContent(model, "B1", "BlockingSpill");
     expect(getCellContent(model, "A1")).toBe("#SPILL!");
@@ -132,7 +133,7 @@ describe("Error tooltip component", () => {
   });
 
   test("Button to add missing header is not there for #SPILL of referenced cell", async () => {
-    const model = new Model({ sheets: [{ id: "sheet1", colNumber: 10, rowNumber: 1 }] });
+    const model = createModel({ sheets: [{ id: "sheet1", colNumber: 10, rowNumber: 1 }] });
     setCellContent(model, "A1", "=MUNIT(3)");
     expect(getCellContent(model, "A1")).toBe("#SPILL!");
 

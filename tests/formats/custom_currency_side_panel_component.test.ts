@@ -7,6 +7,7 @@ import { FR_LOCALE } from "../test_helpers/constants";
 import { click, editSelectComponent, setInputValueAndTrigger } from "../test_helpers/dom_helper";
 import { getCell } from "../test_helpers/getters_helpers";
 import {
+  createModel,
   mountComponent,
   mountComponentWithPortalTarget,
   nextTick,
@@ -76,7 +77,7 @@ describe("custom currency sidePanel component", () => {
 
     ({ model, fixture } = await mountComponentWithPortalTarget(MoreFormatsPanel, {
       env: { loadCurrencies },
-      model: new Model({}, { external: { loadCurrencies } }),
+      model: createModel({}, { external: { loadCurrencies } }),
       props: { onCloseSidePanel: () => {}, category: "currency" },
     }));
     dispatch = spyModelDispatch(model);
@@ -358,7 +359,7 @@ describe("Provided Currencies", () => {
   test("if currencies are provided in spreadsheet --> display this currencies", async () => {
     await mountComponent(MoreFormatsPanel, {
       env: { loadCurrencies },
-      model: new Model({}, { external: { loadCurrencies } }),
+      model: createModel({}, { external: { loadCurrencies } }),
       props: { onCloseSidePanel: () => {}, category: "currency" },
     });
     await nextTick();
@@ -368,7 +369,7 @@ describe("Provided Currencies", () => {
   test("if currencies aren't provided in spreadsheet --> remove 'available currencies' section", async () => {
     await mountComponent(MoreFormatsPanel, {
       env: { loadCurrencies: undefined },
-      model: new Model({}),
+      model: createModel({}),
       props: { onCloseSidePanel: () => {}, category: "currency" },
     });
     await nextTick();

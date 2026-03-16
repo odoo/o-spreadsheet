@@ -7,6 +7,7 @@ import { FR_LOCALE } from "../test_helpers/constants";
 import { keyDown } from "../test_helpers/dom_helper";
 import { getCellContent, getCellRawContent } from "../test_helpers/getters_helpers";
 import {
+  createModel,
   makeTestComposerStore,
   mountSpreadsheet,
   typeInComposerGrid,
@@ -18,7 +19,7 @@ describe("Data validation with blocking rule", () => {
   let composerStore: Store<CellComposerStore>;
 
   beforeEach(async () => {
-    model = new Model();
+    model = createModel();
     sheetId = model.getters.getActiveSheetId();
     composerStore = makeTestComposerStore(model);
   });

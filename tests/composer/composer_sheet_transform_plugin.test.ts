@@ -16,7 +16,11 @@ import {
   undo,
 } from "../test_helpers/commands_helpers";
 import { getCellContent } from "../test_helpers/getters_helpers";
-import { makeTestComposerStore, makeTestNotificationStore } from "../test_helpers/helpers";
+import {
+  createModel,
+  makeTestComposerStore,
+  makeTestNotificationStore,
+} from "../test_helpers/helpers";
 
 describe("describe", () => {
   let model: Model;
@@ -25,7 +29,7 @@ describe("describe", () => {
   let raiseErrorSpy: jest.SpyInstance;
 
   beforeEach(() => {
-    model = new Model();
+    model = createModel();
     notificationStore = makeTestNotificationStore();
     raiseErrorSpy = jest.spyOn(notificationStore, "raiseError");
     composerStore = makeTestComposerStore(model, notificationStore);

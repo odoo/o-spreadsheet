@@ -33,7 +33,7 @@ import {
   undo,
   updateTableConfig,
 } from "../test_helpers/commands_helpers";
-import { setGrid } from "../test_helpers/helpers";
+import { createModel, setGrid } from "../test_helpers/helpers";
 import { MockGridRenderingContext } from "../test_helpers/renderer_helpers";
 import { makeStoreWithModel } from "../test_helpers/stores";
 
@@ -65,7 +65,7 @@ afterAll(() => {
 });
 
 beforeEach(() => {
-  model = new Model();
+  model = createModel();
   const { container, store: gridRendererStore } = makeStoreWithModel(model, GridRenderer);
   rendererStore = container.get(RendererStore);
   jest

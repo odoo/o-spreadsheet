@@ -14,6 +14,7 @@ describe("o-spreadsheet engine", () => {
         },
       ],
     });
+    model.startModel();
     expect(model).toBeDefined();
   });
 });

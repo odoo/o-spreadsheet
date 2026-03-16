@@ -13,6 +13,7 @@ import {
 } from "../test_helpers/commands_helpers";
 import { getCellContent } from "../test_helpers/getters_helpers";
 import {
+  createModel,
   getGrid,
   getGridFormat,
   getGridStyle,
@@ -24,7 +25,7 @@ describe("Split text into columns", () => {
   let model: Model;
   let sheetId: UID;
   beforeEach(() => {
-    model = new Model({ sheets: [{ colNumber: 10, rowNumber: 10 }] });
+    model = createModel({ sheets: [{ colNumber: 10, rowNumber: 10 }] });
     sheetId = model.getters.getActiveSheetId();
   });
 

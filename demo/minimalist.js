@@ -46,6 +46,7 @@ class Demo extends Component {
       // in readonly mode, the spreadsheet can be viewed but not edited
       // in dashboard mode, the spreadsheet can be viewed at a specific width, only the first page is shown
     });
+    this.model.startModel(); // you need to start the model to make it work.
     o_spreadsheet.__DEBUG__ = o_spreadsheet.__DEBUG__ || {}; // for debugging purposes
     o_spreadsheet.__DEBUG__.model = this.model; // use window.o_spreadsheet.__DEBUG__.model to access the model in the console
     // use window.o_spreadsheet.__DEBUG__.model.exportData() to obtain the data in the console

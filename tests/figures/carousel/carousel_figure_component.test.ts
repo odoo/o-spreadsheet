@@ -14,7 +14,13 @@ import {
   updateCarousel,
 } from "../../test_helpers/commands_helpers";
 import { click, clickAndDrag, getElStyle, triggerMouseEvent } from "../../test_helpers/dom_helper";
-import { makeTestEnv, mockChart, mountSpreadsheet, nextTick } from "../../test_helpers/helpers";
+import {
+  createModel,
+  makeTestEnv,
+  mockChart,
+  mountSpreadsheet,
+  nextTick,
+} from "../../test_helpers/helpers";
 import { extendMockGetBoundingClientRect } from "../../test_helpers/mock_helpers";
 
 jest.mock("../../../src/components/helpers/dom_helpers", () => {
@@ -29,7 +35,7 @@ let sheetId: UID;
 let mockChartData: ChartConfiguration;
 
 beforeEach(() => {
-  model = new Model();
+  model = createModel();
   sheetId = model.getters.getActiveSheetId();
   mockChartData = mockChart();
 });

@@ -32,7 +32,7 @@ import {
   getEvaluatedCell,
   getStyle,
 } from "../test_helpers/getters_helpers";
-import { spyUiPluginHandle, target } from "../test_helpers/helpers";
+import { createModel, spyUiPluginHandle, target } from "../test_helpers/helpers";
 import { addPivot, removePivot, updatePivot } from "../test_helpers/pivot_helpers";
 import { setupCollaborativeEnv } from "./collaborative_helpers";
 
@@ -186,7 +186,7 @@ describe("Collaborative local history", () => {
         serverRevisionId: "initial_revision",
       },
     ];
-    const model = new Model(
+    const model = createModel(
       {
         revisionId: "initial_revision",
         sheets: [{ id: "sheet1" }],
@@ -214,7 +214,7 @@ describe("Collaborative local history", () => {
         serverRevisionId: DEFAULT_REVISION_ID,
       },
     ];
-    const model = new Model({}, {}, initialMessages);
+    const model = createModel({}, {}, initialMessages);
     expect(getCellContent(model, "A1")).toBe("Hello");
   });
 
@@ -265,7 +265,7 @@ describe("Collaborative local history", () => {
         ],
       },
     ];
-    const model = new Model({}, {}, initialMessages);
+    const model = createModel({}, {}, initialMessages);
     expect(getCellContent(model, "A1")).toBe("Hello");
     expect(getCellContent(model, "B1")).toBe("Good morning");
     expect(getCellContent(model, "A1", "newSheetId")).toBe("Hi");
@@ -289,7 +289,7 @@ describe("Collaborative local history", () => {
         undoneRevisionId: "1",
       },
     ];
-    const model = new Model(
+    const model = createModel(
       {
         revisionId: "initial_revision",
         sheets: [{ id: "sheet1" }],
@@ -342,7 +342,7 @@ describe("Collaborative local history", () => {
         redoneRevisionId: "1",
       },
     ];
-    const model = new Model(
+    const model = createModel(
       {
         revisionId: "initial_revision",
         sheets: [{ id: "sheet1" }],
@@ -387,7 +387,7 @@ describe("Collaborative local history", () => {
         },
       ],
     };
-    const model = new Model(data, {}, initialMessages);
+    const model = createModel(data, {}, initialMessages);
     expect(getCellContent(model, "A1")).toBe("1");
     expect(getCellContent(model, "A2")).toBe("2");
     expect(getCellContent(model, "A3")).toBe("3");
@@ -421,7 +421,7 @@ describe("Collaborative local history", () => {
         },
       ],
     };
-    const model = new Model(data, {}, initialMessages);
+    const model = createModel(data, {}, initialMessages);
     expect(getCell(model, "A1")?.format).toBeUndefined();
   });
 
@@ -711,7 +711,7 @@ describe("Collaborative local history", () => {
       snapshot(bob);
       setCellContent(alice, "A2", "Hi");
     });
-    expect(new Model(network.snapshot)).toExport(bobData);
+    expect(createModel(network.snapshot)).toExport(bobData);
     expect(all).toHaveSynchronizedValue((user) => getCellContent(user, "A2"), "Hi");
   });
 
@@ -752,8 +752,8 @@ describe("Collaborative local history", () => {
 
   test("snapshot is sent", () => {
     const data = alice.exportData();
-    new Model(data, { transportService: network, snapshotRequested: true });
-    expect(new Model(network.snapshot)).toExport(data);
+    createModel(data, { transportService: network, snapshotRequested: true });
+    expect(createModel(network.snapshot)).toExport(data);
   });
 
   test("snapshot is sent with a new revision id", () => {
@@ -763,11 +763,11 @@ describe("Collaborative local history", () => {
   });
 
   test("undone & redone commands are transformed", async () => {
-    const david = new Model(alice.exportData(), {
+    const david = createModel(alice.exportData(), {
       transportService: network,
       client: { id: "david", name: "David" },
     });
-    const elisa = new Model(alice.exportData(), {
+    const elisa = createModel(alice.exportData(), {
       transportService: network,
       client: { id: "elisa", name: "Elisa" },
     });
@@ -970,7 +970,7 @@ describe("Collaborative local history", () => {
     const messages: StateUpdateMessage[] = [];
     network.onNewMessage("dd", (message) => messages.push(message));
 
-    const alice = new Model(data, {
+    const alice = createModel(data, {
       transportService: network,
       client: { id: "alice", name: "Alice" },
     });
@@ -981,7 +981,7 @@ describe("Collaborative local history", () => {
       transportService: network,
       client: { id: "bob", name: "Bob" },
     };
-    const bob = new Model(data, configBob, messages);
+    const bob = createModel(data, configBob, messages);
     undo(alice);
     expect(getEvaluatedCell(bob, "B3").value).toEqual(10);
   });

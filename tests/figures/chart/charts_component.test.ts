@@ -71,6 +71,7 @@ import {
 } from "../../test_helpers/dom_helper";
 import { getCellContent } from "../../test_helpers/getters_helpers";
 import {
+  createModel,
   createModelFromGrid,
   mockChart,
   mockGeoJsonService,
@@ -179,7 +180,7 @@ describe("charts", () => {
         },
       ],
     };
-    model = new Model(data, { external: { geoJsonService: mockGeoJsonService } });
+    model = createModel(data, { external: { geoJsonService: mockGeoJsonService } });
   });
 
   test.each(CHART_TYPES)("Can open a chart sidePanel", async (chartType) => {
@@ -2622,7 +2623,7 @@ describe("charts with multiple sheets", () => {
         },
       ],
     };
-    model = new Model(data);
+    model = createModel(data);
     await mountSpreadsheet();
   });
 
@@ -2638,7 +2639,7 @@ describe("charts with multiple sheets", () => {
 
 describe("Default background on runtime tests", () => {
   beforeEach(() => {
-    model = new Model();
+    model = createModel();
   });
 
   test("Creating a 'basicChart' without background should have no background on runtime", async () => {
@@ -2665,7 +2666,7 @@ describe("Default background on runtime tests", () => {
 });
 
 test("ChartJS charts are correctly destroyed on chart deletion", async () => {
-  model = new Model();
+  model = createModel();
   await mountSpreadsheet();
   createChart(model, { type: "bar", dataSets: [{ dataRange: "A1" }] }, chartId);
   await nextTick();
@@ -2677,7 +2678,7 @@ test("ChartJS charts are correctly destroyed on chart deletion", async () => {
 });
 
 test("ChartJS charts are correctly destroyed and re-created when runtime change type but definition do not", async () => {
-  model = new Model();
+  model = createModel();
   await mountSpreadsheet();
 
   createChart(model, { type: "pie", isDoughnut: false }, chartId);
@@ -2702,7 +2703,7 @@ test("ChartJS charts are correctly destroyed and re-created when runtime change 
 
 test("ChartJS charts extensions are loaded when mounting a spreadsheet, are only loaded once, and removed on unmount", async () => {
   window.Chart.registry.plugins["items"] = [];
-  model = new Model();
+  model = createModel();
   const spyRegister = jest.spyOn(window.Chart, "register");
   const spyUnregister = jest.spyOn(window.Chart, "unregister");
   createChart(model, { type: "bar" }, chartId);
@@ -2735,7 +2736,7 @@ test("ChartJS charts extensions are loaded when mounting a spreadsheet, are only
 
 describe("Change chart type", () => {
   beforeEach(() => {
-    model = new Model();
+    model = createModel();
   });
 
   test.each(["bar", "line"] as const)(

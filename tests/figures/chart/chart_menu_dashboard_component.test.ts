@@ -2,7 +2,7 @@ import { CHART_PADDING_TOP } from "@odoo/o-spreadsheet-engine/constants";
 import { Model } from "../../../src";
 import { createChart, updateChart } from "../../test_helpers/commands_helpers";
 import { click, getElStyle, triggerMouseEvent } from "../../test_helpers/dom_helper";
-import { mockChart, mountSpreadsheet, nextTick } from "../../test_helpers/helpers";
+import { createModel, mockChart, mountSpreadsheet, nextTick } from "../../test_helpers/helpers";
 import { extendMockGetBoundingClientRect } from "../../test_helpers/mock_helpers";
 
 mockChart();
@@ -12,7 +12,7 @@ const chartId = "someuuid";
 
 describe("chart menu for dashboard", () => {
   beforeEach(async () => {
-    model = new Model();
+    model = createModel();
   });
 
   test.each(["bar", "line", "pie"] as const)(

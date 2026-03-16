@@ -1,11 +1,9 @@
-import { Model } from "../../../src";
 import { createImage, updateFigure } from "../../test_helpers/commands_helpers";
 import { simulateClick } from "../../test_helpers/dom_helper";
-import { mountSpreadsheet } from "../../test_helpers/helpers";
-
+import { createModel, mountSpreadsheet } from "../../test_helpers/helpers";
 describe("Image component", () => {
   test("Can reset the image size", async () => {
-    const model = new Model({});
+    const model = createModel({});
     const sheetId = model.getters.getActiveSheetId();
     createImage(model, { sheetId, figureId: "test", size: { width: 200, height: 200 } });
     await mountSpreadsheet({ model });

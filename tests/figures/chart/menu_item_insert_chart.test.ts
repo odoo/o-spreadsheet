@@ -18,6 +18,7 @@ import {
   setViewportOffset,
 } from "../../test_helpers/commands_helpers";
 import {
+  createModel,
   doAction,
   makeTestEnv,
   mockChart,
@@ -89,14 +90,14 @@ describe("Insert chart menu item", () => {
   }
 
   async function mountTestSpreadsheet() {
-    ({ model, env } = await mountSpreadsheet({ model: new Model(data) }));
+    ({ model, env } = await mountSpreadsheet({ model: createModel(data) }));
     dispatchSpy = spyModelDispatch(model);
   }
 
   beforeEach(async () => {
     openSidePanelSpy = jest.fn();
     env = makeTestEnv({
-      model: new Model(data),
+      model: createModel(data),
       openSidePanel: (type, props) => openSidePanelSpy(type, props),
     });
     model = env.model;
@@ -407,7 +408,7 @@ describe("Smart chart type detection", () => {
   let env: SpreadsheetChildEnv;
 
   beforeEach(() => {
-    model = new Model();
+    model = createModel();
     env = makeTestEnv({ model });
   });
 

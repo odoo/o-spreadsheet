@@ -1,4 +1,3 @@
-import { Model } from "../src";
 import { getCellContent } from "./test_helpers";
 import {
   selectCell,
@@ -6,11 +5,11 @@ import {
   setSelection,
   trimWhitespace,
 } from "./test_helpers/commands_helpers";
-import { createModelFromGrid, getRangeValuesAsMatrix } from "./test_helpers/helpers";
+import { createModel, createModelFromGrid, getRangeValuesAsMatrix } from "./test_helpers/helpers";
 
 describe("trim whitespace", () => {
   test("trim cell content", () => {
-    const model = new Model();
+    const model = createModel();
     setCellContent(model, "A2", "   Alo         ");
     selectCell(model, "A2");
     trimWhitespace(model);
@@ -18,7 +17,7 @@ describe("trim whitespace", () => {
   });
 
   test("remove duplicate spaces", () => {
-    const model = new Model();
+    const model = createModel();
     setCellContent(model, "A2", "  Alo        salut     sunt  eu    un haiduc  ");
     selectCell(model, "A2");
     trimWhitespace(model);
@@ -43,7 +42,7 @@ describe("trim whitespace", () => {
   });
 
   test("remove tabulation", () => {
-    const model = new Model();
+    const model = createModel();
     setCellContent(model, "A2", "\tAlo   \t     salut\tsunt eu \tun haiduc  \t");
     selectCell(model, "A2");
     trimWhitespace(model);
@@ -52,7 +51,7 @@ describe("trim whitespace", () => {
 
   test("keep lines break", () => {
     // @compatibility: the TRIM Excel function does not keep line breaks
-    const model = new Model();
+    const model = createModel();
     setCellContent(model, "A2", "  Alo        salut   \n   sunt  eu  \n  un haiduc  ");
     selectCell(model, "A2");
     trimWhitespace(model);
@@ -61,7 +60,7 @@ describe("trim whitespace", () => {
 
   test("keep empty lines break", () => {
     // @compatibility: the TRIM Google Sheets feature does not keep empty line breaks bue the formula does
-    const model = new Model();
+    const model = createModel();
     setCellContent(model, "A2", "  Alo        salut   \n\n   sunt  eu  \n     \n  un haiduc  ");
     selectCell(model, "A2");
     trimWhitespace(model);

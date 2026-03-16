@@ -28,7 +28,7 @@ import {
   updateTableConfig,
 } from "../test_helpers/commands_helpers";
 import { getTable } from "../test_helpers/getters_helpers";
-import { toCellPosition } from "../test_helpers/helpers";
+import { createModel, toCellPosition } from "../test_helpers/helpers";
 
 let model: Model;
 let sheetId: UID;
@@ -52,7 +52,7 @@ function getFullTableStyle(xc: string) {
 
 describe("Table style", () => {
   beforeEach(() => {
-    model = new Model();
+    model = createModel();
     sheetId = model.getters.getActiveSheetId();
   });
 
@@ -243,7 +243,7 @@ describe("Table style", () => {
     });
 
     test("Table style is updated when (un)filtering headers", () => {
-      model = new Model();
+      model = createModel();
       createTableWithFilter(model, "A1:B4");
       const tableStyle = getFullTableStyle("A1:B4");
       setCellContent(model, "A2", "test");

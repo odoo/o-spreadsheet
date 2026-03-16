@@ -9,6 +9,7 @@ import { DataValidationRuleData, DEFAULT_LOCALE } from "../../src/types";
 import { updateLocale } from "../test_helpers/commands_helpers";
 import { click, triggerMouseEvent } from "../test_helpers/dom_helper";
 import {
+  createModel,
   flattenHighlightRange,
   getHighlightsFromStore,
   mountComponent,
@@ -28,7 +29,7 @@ describe("Data validation preview", () => {
   let env: SpreadsheetChildEnv;
 
   async function mountDataValidationPreview(ruleData: DataValidationRuleData) {
-    model = new Model();
+    model = createModel();
     const sheetId = model.getters.getActiveSheetId();
     const rule = {
       ...ruleData,
@@ -90,7 +91,7 @@ describe("Data validation preview", () => {
 
   describe("Date rules previews", () => {
     beforeEach(() => {
-      model = new Model();
+      model = createModel();
     });
 
     function getCriterionPreview(criterion: DataValidationCriterion) {

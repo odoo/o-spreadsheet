@@ -1,14 +1,13 @@
-import { Model } from "../../src";
 import { setCellContent } from "../test_helpers/commands_helpers";
 import { getCellContent, getCellError } from "../test_helpers/getters_helpers";
 import {
   checkFunctionDoesntSpreadBeyondRange,
+  createModel,
   createModelFromGrid,
   evaluateCell,
   getRangeFormatsAsMatrix,
   getRangeValuesAsMatrix,
 } from "../test_helpers/helpers";
-
 describe("FILTER function", () => {
   test("FILTER takes at least 2 arguments", () => {
     expect(evaluateCell("A1", { A1: "=FILTER()" })).toBe("#BAD_EXPR");
@@ -16,31 +15,25 @@ describe("FILTER function", () => {
     expect(evaluateCell("A1", { A1: "=FILTER(B1:C2, D1:D2)" })).toBe("#N/A");
     expect(evaluateCell("A1", { A1: "=FILTER(B1:C2, D1:D2, D1:D2)" })).toBe("#N/A");
   });
-
   test("conditions should be single cols or rows", () => {
     expect(evaluateCell("A1", { A1: "=FILTER(B1:C2, D1:C2)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
   });
-
   test("conditions should have the same dimensions", () => {
     expect(evaluateCell("A1", { A1: "=FILTER(B1:C2, D1:D2, D1:D3)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #N/A!
     expect(evaluateCell("A1", { A1: "=FILTER(B1:C2, B1:C1, B1:C3)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #N/A!
   });
-
   test("conditions should have the same dimensions as the filtered range", () => {
     expect(evaluateCell("A1", { A1: "=FILTER(B1:C2, D1:D3)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #N/A!
     expect(evaluateCell("A1", { A1: "=FILTER(B1:C2, B1:D1)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #N/A!
   });
-
   test("FILTER with single values", () => {
     const grid = { A1: "A1", A2: "TRUE" };
     const model = createModelFromGrid(grid);
     setCellContent(model, "D1", "=FILTER(A1, A2)");
     expect(getRangeValuesAsMatrix(model, "D1")).toEqual([["A1"]]);
-
     setCellContent(model, "D1", '=FILTER("A1", TRUE)');
     expect(getRangeValuesAsMatrix(model, "D1")).toEqual([["A1"]]);
   });
-
   test("Can filter rows", () => {
     const grid = { A1: "A1", A2: "A2", A3: "A3", B1: "0", B2: "0", B3: "1" };
     const model = createModelFromGrid(grid);
@@ -52,7 +45,6 @@ describe("FILTER function", () => {
     ]);
     expect(checkFunctionDoesntSpreadBeyondRange(model, "D1:E3")).toBeTruthy();
   });
-
   test("Can filter columns", () => {
     const grid = { A1: "A1", A2: "A2", A3: "A3", B1: "0", B2: "0", B3: "1", A6: "1", B6: "0" };
     const model = createModelFromGrid(grid);
@@ -64,7 +56,6 @@ describe("FILTER function", () => {
     ]);
     expect(checkFunctionDoesntSpreadBeyondRange(model, "D1:E3")).toBeTruthy();
   });
-
   test("Can have multiple conditions", () => {
     // prettier-ignore
     const grid = {
@@ -81,7 +72,6 @@ describe("FILTER function", () => {
     ]);
     expect(checkFunctionDoesntSpreadBeyondRange(model, "D1:E3")).toBeTruthy();
   });
-
   test("undefined values are converted to 0 in range, and are falsy in conditions", () => {
     const grid = { A1: "A1", A2: "A2", A3: undefined, B1: undefined, B2: "0", B3: "1" };
     const model = createModelFromGrid(grid);
@@ -93,7 +83,6 @@ describe("FILTER function", () => {
     ]);
     expect(checkFunctionDoesntSpreadBeyondRange(model, "D1:E3")).toBeTruthy();
   });
-
   test("no match: return N/A", () => {
     const grid = { A1: "A1", B1: "0" };
     const model = createModelFromGrid(grid);
@@ -101,14 +90,12 @@ describe("FILTER function", () => {
     expect(getRangeValuesAsMatrix(model, "D1")).toEqual([["#N/A"]]);
     expect(checkFunctionDoesntSpreadBeyondRange(model, "D1")).toBeTruthy();
   });
-
   test("FILTER with literals", () => {
-    const model = new Model();
+    const model = createModel();
     setCellContent(model, "D1", '=FILTER("hello", TRUE)');
     expect(getRangeValuesAsMatrix(model, "D1")).toEqual([["hello"]]);
     expect(checkFunctionDoesntSpreadBeyondRange(model, "D1")).toBeTruthy();
   });
-
   test("FILTER by string ignores the value", () => {
     // prettier-ignore
     const grid = {
@@ -119,7 +106,6 @@ describe("FILTER function", () => {
     setCellContent(model, "A6", "=FILTER(A1:A2, B1:B2)");
     expect(getRangeValuesAsMatrix(model, "A6:A7")).toEqual([["Bob"], [null]]);
   });
-
   test("FILTER accepts errors in first argument", () => {
     // prettier-ignore
     const grid = {
@@ -131,7 +117,6 @@ describe("FILTER function", () => {
     setCellContent(model, "A6", "=FILTER(A1:A3, B1:B3)");
     expect(getRangeValuesAsMatrix(model, "A6:A7")).toEqual([["#BAD_EXPR"], ["John"]]);
   });
-
   test("FILTER accepts errors in condition arguments", () => {
     // prettier-ignore
     const grid = {
@@ -144,7 +129,6 @@ describe("FILTER function", () => {
     expect(getRangeValuesAsMatrix(model, "A6:A8")).toEqual([["Alice"], [null], [null]]);
   });
 });
-
 describe("UNIQUE function", () => {
   test("UNIQUE takes 1-3 arguments", () => {
     expect(evaluateCell("A1", { A1: "=UNIQUE()" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
@@ -153,26 +137,21 @@ describe("UNIQUE function", () => {
     expect(evaluateCell("A1", { A1: "=UNIQUE(B1:C3, false, false)" })).toBe(0);
     expect(evaluateCell("A1", { A1: "=UNIQUE(B1:C3, false, false, 0)" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
   });
-
   test("UNIQUE function with single value", () => {
     const grid = { B1: "hey" };
     const model = createModelFromGrid(grid);
     setCellContent(model, "A1", "=UNIQUE(B1)");
     expect(getCellContent(model, "A1")).toBe("hey");
-
     setCellContent(model, "A1", '=UNIQUE("ok")');
     expect(getCellContent(model, "A1")).toBe("ok");
   });
-
   test("UNIQUE function with single col", () => {
     const grid = { B1: "hey", B2: "hey" };
-
     const model = createModelFromGrid(grid);
     setCellContent(model, "C1", "=UNIQUE(B1:B2)");
     expect(getRangeValuesAsMatrix(model, "C1:C2")).toEqual([["hey"], [null]]);
     expect(checkFunctionDoesntSpreadBeyondRange(model, "C1:C2")).toBeTruthy();
   });
-
   test("UNIQUE function with multidimensional array", () => {
     // prettier-ignore
     const grid = {
@@ -190,7 +169,6 @@ describe("UNIQUE function", () => {
     ]);
     expect(checkFunctionDoesntSpreadBeyondRange(model, "D1:E3")).toBeTruthy();
   });
-
   test("UNIQUE: result format depends on range's format", () => {
     // prettier-ignore
     const grid = {
@@ -207,10 +185,8 @@ describe("UNIQUE function", () => {
       ["", "0%"],
     ]);
   });
-
   test("UNIQUE function with undefined values", () => {
     const grid = { A1: "hey", A2: "hey", A3: "hey", B3: "bjr" };
-
     const model = createModelFromGrid(grid);
     setCellContent(model, "D1", "=UNIQUE(A1:B3)");
     expect(getRangeValuesAsMatrix(model, "D1:E3")).toEqual([
@@ -220,7 +196,6 @@ describe("UNIQUE function", () => {
     ]);
     expect(checkFunctionDoesntSpreadBeyondRange(model, "D1:E3")).toBeTruthy();
   });
-
   test("UNIQUE function with by_column argument to true", () => {
     const grid = { A1: "hey", A2: "olà", B1: "hey", B2: "olà" };
     const model = createModelFromGrid(grid);
@@ -231,7 +206,6 @@ describe("UNIQUE function", () => {
     ]);
     expect(checkFunctionDoesntSpreadBeyondRange(model, "D1:E2")).toBeTruthy();
   });
-
   test("UNIQUE function with only_once argument to true", () => {
     const grid = { A1: "hey", A2: "hey", A3: "hey", B1: "olà", B2: "olà", B3: "bjr" };
     const model = createModelFromGrid(grid);
@@ -243,7 +217,6 @@ describe("UNIQUE function", () => {
     ]);
     expect(checkFunctionDoesntSpreadBeyondRange(model, "D1:E3")).toBeTruthy();
   });
-
   test("UNIQUE function with no unique rows and only_once argument", () => {
     const grid = { A1: "hey", A2: "hey", A3: "hey", B1: "olà", B2: "olà", B3: "olà" };
     const model = createModelFromGrid(grid);
@@ -251,7 +224,6 @@ describe("UNIQUE function", () => {
     expect(getCellContent(model, "D1")).toBe("#ERROR");
     expect(getCellError(model, "D1")).toBe("No unique values found");
   });
-
   test("UNIQUE accepts errors in first argument", () => {
     const grid = {
       A1: "=KABOUM",
@@ -269,7 +241,6 @@ describe("UNIQUE function", () => {
     ]);
   });
 });
-
 describe("SORT function", () => {
   test("SORT error messages", () => {
     const grid = {
@@ -284,7 +255,6 @@ describe("SORT function", () => {
     expect(getCellError(model, "A2")).toBe("Value for parameter sort_column is missing in SORT.");
     expect(getCellError(model, "A3")).toBe("Value for parameter is_ascending is missing in SORT.");
   });
-
   test("Sorting a single column of numbers", () => {
     //prettier-ignore
     const grid = {
@@ -298,7 +268,6 @@ describe("SORT function", () => {
     setCellContent(model, "A11", "=SORT(A1:A5)");
     expect(getRangeValuesAsMatrix(model, "A11:A15")).toEqual([[1], [1], [2], [3], [4]]);
   });
-
   test("Full sorting with multiple columns", () => {
     //prettier-ignore
     const grid = {
@@ -326,15 +295,12 @@ describe("SORT function", () => {
       [4, 2, 1],
     ]);
   });
-
   test("Empty cell going last no matter the ascending/descending order", () => {
     //prettier-ignore
     const grid = {
        A1: "1",
        A2: "2",
-
        A4: "4",
-
        A6: "3",
     };
     const model = createModelFromGrid(grid);
@@ -343,7 +309,6 @@ describe("SORT function", () => {
     setCellContent(model, "B1", "=SORT(A1:A6, 1, FALSE)");
     expect(getRangeValuesAsMatrix(model, "B5:B6")).toEqual([[0], [0]]);
   });
-
   test("Full sorting with multiple columns of string", () => {
     //prettier-ignore
     const grid = {
@@ -369,7 +334,6 @@ describe("SORT function", () => {
       ["ok", "a"],
     ]);
   });
-
   test("Full sorting with multiple columns of different data types", () => {
     //prettier-ignore
     const grid = {
@@ -395,7 +359,6 @@ describe("SORT function", () => {
       ["ok", 0],
     ]);
   });
-
   test("Sorting a column of mixed data types", () => {
     //prettier-ignore
     const grid = {
@@ -422,7 +385,6 @@ describe("SORT function", () => {
       [0],
     ]);
   });
-
   test("Sorting a single column of string", () => {
     //prettier-ignore
     const grid = {
@@ -450,7 +412,6 @@ describe("SORT function", () => {
       ["test"],
     ]);
   });
-
   test("Ascending Sorting multiple columns specifying column number", () => {
     //prettier-ignore
     const grid = {
@@ -502,7 +463,6 @@ describe("SORT function", () => {
       [3, 4, 4],
     ]);
   });
-
   test("Descending Sorting multiple columns specifying column number", () => {
     //prettier-ignore
     const grid = {
@@ -554,7 +514,6 @@ describe("SORT function", () => {
       [2, 1, 1],
     ]);
   });
-
   test("Sorting multiple columns specifying multiple column numbers", () => {
     //prettier-ignore
     const grid = {
@@ -610,7 +569,6 @@ describe("SORT function", () => {
       [1, 3, 3],
     ]);
   });
-
   test("Ascending Sorting multiple columns specifying range", () => {
     //prettier-ignore
     const grid = {
@@ -666,7 +624,6 @@ describe("SORT function", () => {
       [3, 4, 4],
     ]);
   });
-
   test("Descending Sorting multiple columns specifying range", () => {
     //prettier-ignore
     const grid = {
@@ -722,7 +679,6 @@ describe("SORT function", () => {
       [2, 1, 1],
     ]);
   });
-
   test("Sorting columns specifying range with strings or errors", () => {
     const grid = {
       C1: "=10",
@@ -743,7 +699,6 @@ describe("SORT function", () => {
       [false],
     ]);
   });
-
   test("Sorting multiple columns specifying multiple ranges to base to sorting on", () => {
     //prettier-ignore
     const grid = {
@@ -799,7 +754,6 @@ describe("SORT function", () => {
       [1, 3, 3],
     ]);
   });
-
   test.each(["-1", "0", "4"])("Sorting with invalid column index (%s)", (index) => {
     //prettier-ignore
     const grid = {
@@ -819,15 +773,13 @@ describe("SORT function", () => {
       [2, 3, 1],
     ]);
   });
-
   test("Sorting with missing 'order' argument", () => {
-    const model = new Model();
+    const model = createModel();
     setCellContent(model, "B1", "=SORT(A1:A2, 1)");
     expect(getRangeValuesAsMatrix(model, "B1")).toEqual([["#BAD_EXPR"]]);
     expect(checkFunctionDoesntSpreadBeyondRange(model, "B1")).toBeTruthy();
   });
 });
-
 describe("SORTN function", () => {
   test("SORTN error messages", () => {
     const grid = {
@@ -842,7 +794,6 @@ describe("SORTN function", () => {
     expect(getCellError(model, "A2")).toBe("Value for parameter sort_column is missing in SORTN.");
     expect(getCellError(model, "A3")).toBe("Value for parameter is_ascending is missing in SORTN.");
   });
-
   test("Sorting a single column of numbers", () => {
     //prettier-ignore
     const grid = {
@@ -857,7 +808,6 @@ describe("SORTN function", () => {
     setCellContent(model, "A11", "=SORTN(A1:A6, 5, 0)");
     expect(getRangeValuesAsMatrix(model, "A11:A16")).toEqual([[1], [1], [2], [2], [2], [null]]);
   });
-
   test("Full sorting with multiple columns", () => {
     //prettier-ignore
     const grid = {
@@ -879,7 +829,6 @@ describe("SORTN function", () => {
       [null, null, null],
     ]);
   });
-
   test("Accept at least two arguments", () => {
     // @compatibility: Google Sheets requires at least one argument only.
     // Here, depending on the implementation, they couldn't have more (or equal) optional arguments than repeatable arguments.
@@ -893,7 +842,6 @@ describe("SORTN function", () => {
     };
     expect(evaluateCell("A7", { A7: "=SORTN(A1:A6)", ...grid })).toBe("#BAD_EXPR");
   });
-
   test("Full sorting with different display ties modes", () => {
     //prettier-ignore
     const grid = {
@@ -938,7 +886,6 @@ describe("SORTN function", () => {
       [null, null, null],
     ]);
   });
-
   test("When 4 values supplied, the 3th value and 4th value correspond to the 4th and 5th arguments", () => {
     // see 'argTargeting' to understand how the arguments are targeted
     //prettier-ignore
@@ -964,9 +911,8 @@ describe("SORTN function", () => {
       [2, 1, 1],
     ]);
   });
-
   test("Sorting with bad n argument", () => {
-    const model = new Model();
+    const model = createModel();
     setCellContent(model, "A11", "=SORTN(A1:C10, -1, 0)");
     expect(getCellContent(model, "A11")).toEqual("#ERROR");
     expect(getCellError(model, "A11")).toBe(
@@ -974,7 +920,6 @@ describe("SORTN function", () => {
     );
     expect(checkFunctionDoesntSpreadBeyondRange(model, "A11")).toBeTruthy();
   });
-
   test("Sorting with a too big n value returns full sorted range", () => {
     //prettier-ignore
     const grid = {
@@ -989,9 +934,8 @@ describe("SORTN function", () => {
     setCellContent(model, "A11", "=SORTN(A1:A6, 30, 0)");
     expect(getRangeValuesAsMatrix(model, "A11:A16")).toEqual([[1], [2], [2], [3], [3], [4]]);
   });
-
   test.each(["-1", "4"])("Sorting with bad display ties mode argument", (mode) => {
-    const model = new Model();
+    const model = createModel();
     setCellContent(model, "A11", `=SORTN(A1:C10, 1, ${mode})`);
     expect(getCellContent(model, "A11")).toEqual("#ERROR");
     expect(getCellError(model, "A11")).toBe(
@@ -999,7 +943,6 @@ describe("SORTN function", () => {
     );
     expect(checkFunctionDoesntSpreadBeyondRange(model, "A11")).toBeTruthy();
   });
-
   test("Ascending Sorting multiple columns specifying column number", () => {
     //prettier-ignore
     const grid = {
@@ -1029,7 +972,6 @@ describe("SORTN function", () => {
       [3, 4, 4],
     ]);
   });
-
   test("Descending Sorting multiple columns specifying column number", () => {
     //prettier-ignore
     const grid = {
@@ -1051,7 +993,6 @@ describe("SORTN function", () => {
       [null, null, null],
     ]);
   });
-
   test("Sorting multiple columns specifying multiple column numbers", () => {
     //prettier-ignore
     const grid = {
@@ -1073,7 +1014,6 @@ describe("SORTN function", () => {
       [null, null, null],
     ]);
   });
-
   test("Ascending Sorting multiple columns specifying range", () => {
     //prettier-ignore
     const grid = {
@@ -1095,7 +1035,6 @@ describe("SORTN function", () => {
       [null, null, null],
     ]);
   });
-
   test("Descending Sorting multiple columns specifying range", () => {
     //prettier-ignore
     const grid = {
@@ -1117,7 +1056,6 @@ describe("SORTN function", () => {
       [null, null, null],
     ]);
   });
-
   test("Sorting based on strings or errors", () => {
     const grid = {
       C1: "=10",
@@ -1138,7 +1076,6 @@ describe("SORTN function", () => {
       [false],
     ]);
   });
-
   test("Sorting multiple columns specifying multiple ranges to base to sorting on", () => {
     //prettier-ignore
     const grid = {

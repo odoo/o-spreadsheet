@@ -16,7 +16,7 @@ import {
   setCellContent,
   setFormat,
 } from "../../../test_helpers/commands_helpers";
-import { setGrid } from "../../../test_helpers/helpers";
+import { createModel, setGrid } from "../../../test_helpers/helpers";
 
 let model: Model;
 
@@ -43,7 +43,7 @@ const SUNBURST_DATASET = {
 
 describe("Sunburst chart chart", () => {
   beforeEach(() => {
-    model = new Model();
+    model = createModel();
   });
 
   test("Can create a sunburst chart from a creation context", () => {
@@ -91,7 +91,7 @@ describe("Sunburst chart chart", () => {
   });
 
   test("Labels and datasets are not swapped from a TreeMap chart creation context", () => {
-    const model = new Model();
+    const model = createModel();
     const chartId = createTreeMapChart(model, {
       dataSets: [{ dataRange: "A1:A4" }],
       labelRange: "B1:B4",
@@ -466,7 +466,7 @@ describe("Sunburst chart chart", () => {
   });
 
   test("Sunburst chart hole size", () => {
-    const model = new Model();
+    const model = createModel();
     const chartId = createSunburstChart(model, { pieHolePercentage: 80 });
 
     const runtime = model.getters.getChartRuntime(chartId) as SunburstChartRuntime;

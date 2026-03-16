@@ -10,7 +10,12 @@ import {
 } from "../test_helpers/commands_helpers";
 import { click, setInputValueAndTrigger, simulateClick } from "../test_helpers/dom_helper";
 import { getCellRawContent } from "../test_helpers/getters_helpers";
-import { mountComponentWithPortalTarget, nextTick, setGrid } from "../test_helpers/helpers";
+import {
+  createModel,
+  mountComponentWithPortalTarget,
+  nextTick,
+  setGrid,
+} from "../test_helpers/helpers";
 
 import { TableTerms } from "@odoo/o-spreadsheet-engine/components/translations_terms";
 import { TABLE_PRESETS } from "@odoo/o-spreadsheet-engine/helpers/table_presets";
@@ -34,7 +39,7 @@ let env: SpreadsheetChildEnv;
 
 describe("Table side panel", () => {
   beforeEach(async () => {
-    model = new Model();
+    model = createModel();
     sheetId = model.getters.getActiveSheetId();
     createTable(model, "A1:C3");
     ({ fixture, env } = await mountComponentWithPortalTarget(SidePanels, { model }));

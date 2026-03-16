@@ -7,7 +7,7 @@ import {
   pointerUp,
   triggerMouseEvent,
 } from "../../test_helpers/dom_helper";
-import { mockChart, mountSpreadsheet, nextTick } from "../../test_helpers/helpers";
+import { createModel, mockChart, mountSpreadsheet, nextTick } from "../../test_helpers/helpers";
 
 mockChart({
   scales: {
@@ -22,7 +22,7 @@ let fixture: HTMLElement;
 
 describe("chart menu for dashboard", () => {
   beforeEach(async () => {
-    model = new Model();
+    model = createModel();
     ({ fixture } = await mountSpreadsheet({ model }));
   });
 

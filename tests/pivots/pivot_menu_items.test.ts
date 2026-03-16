@@ -24,6 +24,7 @@ import {
   getTable,
 } from "../test_helpers/getters_helpers";
 import {
+  createModel,
   createModelFromGrid,
   doAction,
   getNode,
@@ -622,7 +623,7 @@ describe("Pivot reinsertion menu item", () => {
   });
 
   test("Insert a pivot", async () => {
-    const model = new Model();
+    const model = createModel();
     const sheetId = model.getters.getActiveSheetId();
     const env = makeTestEnv({ model });
     setGrid(model, { A1: "Header1", B1: "Header2", A2: "Data1", B2: "Data2" });

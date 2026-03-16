@@ -54,18 +54,18 @@ import {
   getSelectionAnchorCellXc,
   getTable,
 } from "../test_helpers/getters_helpers";
-import { addTestPlugin, createModelFromGrid } from "../test_helpers/helpers";
+import { addTestPlugin, createModel, createModelFromGrid } from "../test_helpers/helpers";
 
 let model: Model;
 const hiddenContent = "hidden content to be skipped";
 describe("simple selection", () => {
   test("if A1 is in a merge, it is initially properly selected", () => {
-    const model = new Model({ sheets: [{ colNumber: 10, rowNumber: 10, merges: ["A1:B3"] }] });
+    const model = createModel({ sheets: [{ colNumber: 10, rowNumber: 10, merges: ["A1:B3"] }] });
     expect(model.getters.getSelectedZones()[0]).toEqual({ left: 0, top: 0, right: 1, bottom: 2 });
   });
 
   test("Adding a cell of a merge in the selection adds the whole merge", () => {
-    const model = new Model({ sheets: [{ colNumber: 10, rowNumber: 10, merges: ["A2:B3"] }] });
+    const model = createModel({ sheets: [{ colNumber: 10, rowNumber: 10, merges: ["A2:B3"] }] });
 
     expect(model.getters.getSelectedZones()).toEqual([{ left: 0, top: 0, right: 0, bottom: 0 }]);
     addCellToSelection(model, "A2");
@@ -76,14 +76,14 @@ describe("simple selection", () => {
   });
 
   test("can select selection with shift-arrow", () => {
-    const model = new Model({ sheets: [{ colNumber: 10, rowNumber: 10, merges: ["B1:C2"] }] });
+    const model = createModel({ sheets: [{ colNumber: 10, rowNumber: 10, merges: ["B1:C2"] }] });
     expect(model.getters.getSelectedZones()[0]).toEqual({ left: 0, top: 0, right: 0, bottom: 0 });
     resizeAnchorZone(model, "right");
     expect(model.getters.getSelectedZones()[0]).toEqual({ left: 0, top: 0, right: 2, bottom: 1 });
   });
 
   test("can grow/shrink selection with shift-arrow", () => {
-    const model = new Model();
+    const model = createModel();
     expect(model.getters.getSelectedZones()[0]).toEqual({ left: 0, top: 0, right: 0, bottom: 0 });
     resizeAnchorZone(model, "right");
     expect(model.getters.getSelectedZones()[0]).toEqual({ left: 0, top: 0, right: 1, bottom: 0 });
@@ -92,7 +92,7 @@ describe("simple selection", () => {
   });
 
   test("cannot expand select selection with shift-arrow if it is out of bound", () => {
-    const model = new Model({ sheets: [{ colNumber: 10, rowNumber: 10 }] });
+    const model = createModel({ sheets: [{ colNumber: 10, rowNumber: 10 }] });
     selectCell(model, "A2");
     resizeAnchorZone(model, "up");
     expect(model.getters.getSelectedZones()[0]).toEqual({ left: 0, top: 0, right: 0, bottom: 1 });
@@ -108,7 +108,7 @@ describe("simple selection", () => {
   });
 
   test("Can extend selection with Shift-arrow through merges horizontally", () => {
-    const model = new Model();
+    const model = createModel();
     merge(model, "A1:B2");
     merge(model, "C1:D2");
     merge(model, "E1:F2");
@@ -135,7 +135,7 @@ describe("simple selection", () => {
   });
 
   test("Can extend selection with Shift-arrow through merges horizontally", () => {
-    const model = new Model();
+    const model = createModel();
     merge(model, "A1:B2");
     merge(model, "A3:B4");
     merge(model, "A5:B6");
@@ -162,14 +162,14 @@ describe("simple selection", () => {
   });
 
   test("can expand selection with mouse", () => {
-    const model = new Model({ sheets: [{ colNumber: 10, rowNumber: 10, merges: ["B1:C2"] }] });
+    const model = createModel({ sheets: [{ colNumber: 10, rowNumber: 10, merges: ["B1:C2"] }] });
     expect(model.getters.getSelectedZones()[0]).toEqual({ left: 0, top: 0, right: 0, bottom: 0 });
     setAnchorCorner(model, "B1");
     expect(model.getters.getSelectedZones()[0]).toEqual({ left: 0, top: 0, right: 2, bottom: 1 });
   });
 
   test("move selection in and out of a merge (in opposite direction)", () => {
-    const model = new Model({ sheets: [{ colNumber: 10, rowNumber: 10, merges: ["C1:D2"] }] });
+    const model = createModel({ sheets: [{ colNumber: 10, rowNumber: 10, merges: ["C1:D2"] }] });
     selectCell(model, "B1");
 
     // move to the right, inside the merge
@@ -185,7 +185,7 @@ describe("simple selection", () => {
   });
 
   test("select a cell outside the sheet", () => {
-    const model = new Model({ sheets: [{ colNumber: 3, rowNumber: 3 }] });
+    const model = createModel({ sheets: [{ colNumber: 3, rowNumber: 3 }] });
     selectCell(model, "D4");
     const A1Zone = toZone("A1");
     expect(model.getters.getSelection()).toEqual({
@@ -198,7 +198,7 @@ describe("simple selection", () => {
     expect(getActivePosition(model)).toBe("A1");
   });
   test("update selection in some different directions", () => {
-    const model = new Model({ sheets: [{ colNumber: 10, rowNumber: 10, merges: ["B2:C3"] }] });
+    const model = createModel({ sheets: [{ colNumber: 10, rowNumber: 10, merges: ["B2:C3"] }] });
     // move sell to B4
     selectCell(model, "B4");
     expect(getSelectionAnchorCellXc(model)).toBe("B4");
@@ -214,7 +214,7 @@ describe("simple selection", () => {
   });
 
   test("expand selection when encountering a merge", () => {
-    const model = new Model({
+    const model = createModel({
       sheets: [{ colNumber: 10, rowNumber: 10, merges: ["B2:B3", "C2:D2"] }],
     });
     // move sell to B4
@@ -227,7 +227,7 @@ describe("simple selection", () => {
   });
 
   test("expand selection when starting from a merge", () => {
-    const model = new Model({
+    const model = createModel({
       sheets: [{ colNumber: 10, rowNumber: 10, merges: ["B2:B3", "E2:G2"] }],
     });
     selectCell(model, "B2");
@@ -264,7 +264,7 @@ describe("simple selection", () => {
   });
 
   test("extend and reduce selection through hidden columns", () => {
-    const model = new Model({
+    const model = createModel({
       sheets: [
         { colNumber: 5, rowNumber: 1, cols: { 2: { isHidden: true }, 3: { isHidden: true } } },
       ],
@@ -277,7 +277,7 @@ describe("simple selection", () => {
   });
 
   test("extend and reduce selection through hidden rows", () => {
-    const model = new Model({
+    const model = createModel({
       sheets: [
         { colNumber: 1, rowNumber: 5, rows: { 2: { isHidden: true }, 3: { isHidden: true } } },
       ],
@@ -290,7 +290,7 @@ describe("simple selection", () => {
   });
 
   test("move selection left through hidden cols, with scrolling", () => {
-    const model = new Model({ sheets: [{ colNumber: 100, rowNumber: 1 }] });
+    const model = createModel({ sheets: [{ colNumber: 100, rowNumber: 1 }] });
     hideColumns(model, ["B"]);
     selectCell(model, "C1");
     setViewportOffset(model, DEFAULT_CELL_WIDTH, 0);
@@ -301,7 +301,7 @@ describe("simple selection", () => {
   });
 
   test("move selection right through hidden cols, with scrolling", () => {
-    const model = new Model({ sheets: [{ colNumber: 100, rowNumber: 1 }] });
+    const model = createModel({ sheets: [{ colNumber: 100, rowNumber: 1 }] });
     const visibleCols = model.getters.getSheetViewVisibleCols();
     const lastVisibleCol = visibleCols[visibleCols.length - 1];
     hideColumns(model, [numberToLetters(lastVisibleCol + 1), numberToLetters(lastVisibleCol + 2)]);
@@ -317,7 +317,7 @@ describe("simple selection", () => {
   });
 
   test("move selection up through hidden rows, with scrolling", () => {
-    const model = new Model({ sheets: [{ colNumber: 1, rowNumber: 100 }] });
+    const model = createModel({ sheets: [{ colNumber: 1, rowNumber: 100 }] });
     hideRows(model, [1]);
     selectCell(model, "A3");
     setViewportOffset(model, 0, DEFAULT_CELL_HEIGHT);
@@ -328,7 +328,7 @@ describe("simple selection", () => {
   });
 
   test("move selection down through hidden cols, with scrolling", () => {
-    const model = new Model({ sheets: [{ colNumber: 1, rowNumber: 100 }] });
+    const model = createModel({ sheets: [{ colNumber: 1, rowNumber: 100 }] });
     const visibleRows = model.getters.getSheetViewVisibleRows();
     const lastVisibleRow = visibleRows[visibleRows.length - 1];
     hideRows(model, [lastVisibleRow + 1, lastVisibleRow + 2]);
@@ -344,7 +344,7 @@ describe("simple selection", () => {
   });
 
   test("can select a whole column", () => {
-    const model = new Model({ sheets: [{ colNumber: 10, rowNumber: 10 }] });
+    const model = createModel({ sheets: [{ colNumber: 10, rowNumber: 10 }] });
     selectColumn(model, 4, "overrideSelection");
 
     expect(getSelectionAnchorCellXc(model)).toBe("E1");
@@ -353,7 +353,7 @@ describe("simple selection", () => {
   });
 
   test("can select a whole column with a merged cell", () => {
-    const model = new Model({ sheets: [{ colNumber: 10, rowNumber: 10, merges: ["A1:B1"] }] });
+    const model = createModel({ sheets: [{ colNumber: 10, rowNumber: 10, merges: ["A1:B1"] }] });
     selectColumn(model, 0, "overrideSelection");
 
     expect(getSelectionAnchorCellXc(model)).toBe("A1");
@@ -361,7 +361,7 @@ describe("simple selection", () => {
   });
 
   test("selection is clipped to sheet size", () => {
-    const model = new Model({ sheets: [{ colNumber: 3, rowNumber: 3 }] });
+    const model = createModel({ sheets: [{ colNumber: 3, rowNumber: 3 }] });
     setSelection(model, ["A1:Z20"]);
     const zone = toZone("A1:C3");
     expect(model.getters.getSelection()).toEqual({
@@ -371,7 +371,7 @@ describe("simple selection", () => {
   });
 
   test("can select a whole row", () => {
-    const model = new Model({ sheets: [{ colNumber: 10, rowNumber: 10 }] });
+    const model = createModel({ sheets: [{ colNumber: 10, rowNumber: 10 }] });
 
     selectRow(model, 4, "overrideSelection");
     expect(getSelectionAnchorCellXc(model)).toBe("A5");
@@ -380,7 +380,7 @@ describe("simple selection", () => {
   });
 
   test("can select a whole row with a merged cell", () => {
-    const model = new Model({ sheets: [{ colNumber: 10, rowNumber: 10, merges: ["A1:A2"] }] });
+    const model = createModel({ sheets: [{ colNumber: 10, rowNumber: 10, merges: ["A1:A2"] }] });
 
     selectRow(model, 0, "overrideSelection");
     expect(getSelectionAnchorCellXc(model)).toBe("A1");
@@ -388,7 +388,7 @@ describe("simple selection", () => {
   });
 
   test("cannot select out of bound row", () => {
-    const model = new Model({ sheets: [{ colNumber: 10, rowNumber: 10 }] });
+    const model = createModel({ sheets: [{ colNumber: 10, rowNumber: 10 }] });
     expect(selectRow(model, -1, "overrideSelection")).toBeCancelledBecause(
       CommandResult.SelectionOutOfBound
     );
@@ -398,7 +398,7 @@ describe("simple selection", () => {
   });
 
   test("cannot select out of bound column", () => {
-    const model = new Model({ sheets: [{ colNumber: 10, rowNumber: 10 }] });
+    const model = createModel({ sheets: [{ colNumber: 10, rowNumber: 10 }] });
     expect(selectColumn(model, -1, "overrideSelection")).toBeCancelledBecause(
       CommandResult.SelectionOutOfBound
     );
@@ -408,7 +408,7 @@ describe("simple selection", () => {
   });
 
   test("can select the whole sheet", () => {
-    const model = new Model({ sheets: [{ colNumber: 10, rowNumber: 10 }] });
+    const model = createModel({ sheets: [{ colNumber: 10, rowNumber: 10 }] });
     selectAll(model);
     expect(getSelectionAnchorCellXc(model)).toBe("A1");
 
@@ -416,7 +416,7 @@ describe("simple selection", () => {
   });
 
   test("invalid selection is updated after undo", () => {
-    const model = new Model({ sheets: [{ id: "42", colNumber: 3, rowNumber: 3 }] });
+    const model = createModel({ sheets: [{ id: "42", colNumber: 3, rowNumber: 3 }] });
     addColumns(model, "after", "A", 1);
     selectCell(model, "D1");
     undo(model);
@@ -425,7 +425,7 @@ describe("simple selection", () => {
   });
 
   test("invalid selection is updated after redo", () => {
-    const model = new Model({ sheets: [{ id: "42", colNumber: 3, rowNumber: 3 }] });
+    const model = createModel({ sheets: [{ id: "42", colNumber: 3, rowNumber: 3 }] });
     deleteColumns(model, ["A"]);
     undo(model);
     selectCell(model, "C1");
@@ -439,7 +439,7 @@ describe("simple selection", () => {
       sheets: [{ id: "sheet1" }],
       revisionId: "initialRevision",
     };
-    const model = new Model(data, {}, [
+    const model = createModel(data, {}, [
       {
         type: "REMOTE_REVISION",
         nextRevisionId: "1",
@@ -463,7 +463,7 @@ describe("simple selection", () => {
   });
 
   test("Select a merge when its topLeft column is hidden", () => {
-    const model = new Model({
+    const model = createModel({
       sheets: [{ colNumber: 3, rowNumber: 2, merges: ["A1:B2"], cols: { 0: { isHidden: true } } }],
     });
     selectCell(model, "B1");
@@ -474,7 +474,7 @@ describe("simple selection", () => {
   });
 
   test("Select a merge when its topLeft row is hidden", () => {
-    const model = new Model({
+    const model = createModel({
       sheets: [{ colNumber: 2, rowNumber: 3, merges: ["A1:B2"], rows: { 0: { isHidden: true } } }],
     });
     selectCell(model, "A2");
@@ -485,7 +485,7 @@ describe("simple selection", () => {
   });
 
   test("Selecting figure and undo cleanup selectedFigureId in selection plugin", () => {
-    const model = new Model();
+    const model = createModel();
     createFigure(model, {
       sheetId: model.getters.getActiveSheetId(),
       id: "someuuid",
@@ -508,7 +508,7 @@ describe("simple selection", () => {
 
 describe("multiple selections", () => {
   test("can select a new range", () => {
-    const model = new Model({ sheets: [{ colNumber: 10, rowNumber: 10 }] });
+    const model = createModel({ sheets: [{ colNumber: 10, rowNumber: 10 }] });
     selectCell(model, "C3");
     let selection = model.getters.getSelection();
     expect(selection.zones.length).toBe(1);
@@ -528,7 +528,7 @@ describe("multiple selections", () => {
 
 describe("multiple sheets", () => {
   test("activating same sheet does not change selection", () => {
-    const model = new Model();
+    const model = createModel();
     const sheet1 = model.getters.getSheetIds()[0];
     selectCell(model, "C3");
     expect(model.getters.getSelectedZones()).toEqual([toZone("C3")]);
@@ -538,7 +538,7 @@ describe("multiple sheets", () => {
   });
 
   test("selection is restored when coming back to previous sheet", () => {
-    const model = new Model();
+    const model = createModel();
     selectCell(model, "C3");
     expect(model.getters.getSelectedZones()).toEqual([toZone("C3")]);
     createSheet(model, { activate: true, sheetId: "42" });
@@ -555,7 +555,7 @@ describe("multiple sheets", () => {
   });
 
   test("Selection is updated when deleting the active sheet", () => {
-    const model = new Model();
+    const model = createModel();
     selectCell(model, "B2");
     const firstSheetId = model.getters.getActiveSheetId();
     const secondSheetId = "42";
@@ -571,7 +571,7 @@ describe("multiple sheets", () => {
   });
 
   test("Do not share selections between sheets", () => {
-    const model = new Model();
+    const model = createModel();
     selectCell(model, "B2");
     const sheetId = model.getters.getActiveSheetId();
     createSheet(model, { sheetId: "42", activate: true });
@@ -585,7 +585,7 @@ describe("multiple sheets", () => {
   });
 
   test("Activating an unvisited sheet selects its first visible cell", () => {
-    const model = new Model({
+    const model = createModel({
       sheets: [
         { sheetId: "Sheet1" },
         {
@@ -606,7 +606,7 @@ describe("multiple sheets", () => {
 
 describe("Alter selection starting from hidden cells", () => {
   test("Cannot change selection if the current one is completely hidden", () => {
-    const model = new Model({ sheets: [{ colNumber: 5, rowNumber: 2 }] });
+    const model = createModel({ sheets: [{ colNumber: 5, rowNumber: 2 }] });
     selectCell(model, "C1");
     hideColumns(model, ["C"]);
     hideRows(model, [0]);
@@ -618,7 +618,7 @@ describe("Alter selection starting from hidden cells", () => {
   });
 
   test("Cannot move position vertically from hidden column", () => {
-    const model = new Model({ sheets: [{ colNumber: 5, rowNumber: 2 }] });
+    const model = createModel({ sheets: [{ colNumber: 5, rowNumber: 2 }] });
     selectCell(model, "C1");
     hideColumns(model, ["C"]);
     const move1 = moveAnchorCell(model, "down");
@@ -642,7 +642,7 @@ describe("Alter selection starting from hidden cells", () => {
   ])(
     "Alter selection horizontally from hidden col",
     (hiddenCols, startPosition, direction, endPosition) => {
-      const model = new Model();
+      const model = createModel();
       selectCell(model, startPosition);
       hideColumns(model, hiddenCols);
       resizeAnchorZone(model, direction as Direction);
@@ -658,7 +658,7 @@ describe("Alter selection starting from hidden cells", () => {
   ])(
     "Alter selection vertically from hidden col needs at least one visible selected cell",
     (hiddenCols, startPosition, endPosition) => {
-      const model = new Model();
+      const model = createModel();
       setSelection(model, [startPosition]);
       hideColumns(model, hiddenCols);
       resizeAnchorZone(model, "down");
@@ -681,7 +681,7 @@ describe("Alter selection starting from hidden cells", () => {
   ])(
     "Alter selection vertically from hidden col",
     (hiddenRows, startPosition, direction, endPosition) => {
-      const model = new Model();
+      const model = createModel();
       selectCell(model, startPosition);
       hideRows(model, hiddenRows);
       resizeAnchorZone(model, direction as Direction);
@@ -695,7 +695,7 @@ describe("Alter selection starting from hidden cells", () => {
     [[0, 1], "A1:A2", "A1:A2"], // won't move
     [[0, 2], "A1:A3", "A1:B3"],
   ])("Alter selection horizontally from hidden col", (hiddenRows, startPosition, endPosition) => {
-    const model = new Model();
+    const model = createModel();
     setSelection(model, [startPosition]);
     hideRows(model, hiddenRows);
     resizeAnchorZone(model, "right");
@@ -713,7 +713,7 @@ describe("Change selection to sheet extremities", () => {
   ])(
     "Move selection horizontally to sheet extremities",
     (hiddenCols, merges, selection, direction, result) => {
-      const model = new Model();
+      const model = createModel();
       selectCell(model, selection);
       for (const mergeXc of merges) {
         merge(model, mergeXc);
@@ -733,7 +733,7 @@ describe("Change selection to sheet extremities", () => {
   ])(
     "Move selection vertically to sheet extremities",
     (hiddenRows, merges, selection, direction, result) => {
-      const model = new Model();
+      const model = createModel();
       selectCell(model, selection);
       for (const mergeXc of merges) {
         merge(model, mergeXc);
@@ -753,7 +753,7 @@ describe("Change selection to sheet extremities", () => {
   ])(
     "Alter selection horizontally to sheet extremities",
     (hiddenCols, merges, selection, direction, result) => {
-      const model = new Model();
+      const model = createModel();
       selectCell(model, selection);
       for (const mergeXc of merges) {
         merge(model, mergeXc);
@@ -773,7 +773,7 @@ describe("Change selection to sheet extremities", () => {
   ])(
     "Alter selection vertically to sheet extremities",
     (hiddenRows, merges, selection, direction, result) => {
-      const model = new Model();
+      const model = createModel();
       selectCell(model, selection);
       for (const mergeXc of merges) {
         merge(model, mergeXc);
@@ -787,7 +787,7 @@ describe("Change selection to sheet extremities", () => {
 
 describe("Change selection to next clusters", () => {
   beforeEach(() => {
-    model = new Model({
+    model = createModel({
       sheets: [
         {
           colNumber: 9,
@@ -910,7 +910,7 @@ describe("Change selection to next clusters", () => {
 
 describe("Alter Selection with content in selection", () => {
   beforeEach(() => {
-    model = new Model({
+    model = createModel({
       sheets: [
         {
           colNumber: 9,
@@ -964,7 +964,7 @@ describe("Alter Selection with content in selection", () => {
 
 describe("move elements(s)", () => {
   beforeEach(() => {
-    model = new Model({
+    model = createModel({
       sheets: [{ id: "1", colNumber: 10, rowNumber: 10, merges: ["C3:D4", "G7:H8"] }],
     });
   });
@@ -999,7 +999,7 @@ describe("move elements(s)", () => {
   });
 
   test("Move a resized column preserves its size", () => {
-    const model = new Model();
+    const model = createModel();
     resizeColumns(model, ["A"], 10);
     resizeColumns(model, ["C"], 20);
     moveColumns(model, "C", ["A"], "after");
@@ -1025,7 +1025,7 @@ describe("move elements(s)", () => {
     }
     addTestPlugin(corePluginRegistry, CommandSpy);
 
-    const model = new Model();
+    const model = createModel();
     resizeColumns(model, ["A", "B"], 10);
     resizeColumns(model, ["C", "D"], 20);
 
@@ -1047,7 +1047,7 @@ describe("move elements(s)", () => {
   });
 
   test("Move a resized row preserves its size", () => {
-    const model = new Model();
+    const model = createModel();
     resizeRows(model, [0], 10);
     resizeRows(model, [2], 20);
     moveRows(model, 2, [0], "after");
@@ -1073,7 +1073,7 @@ describe("move elements(s)", () => {
     }
     addTestPlugin(corePluginRegistry, CommandSpy);
 
-    const model = new Model();
+    const model = createModel();
 
     resizeRows(model, [1, 2], 10);
     resizeRows(model, [3, 4], 20);
@@ -1096,7 +1096,7 @@ describe("move elements(s)", () => {
   });
 
   test("Move multiline row preserves its size", () => {
-    const model = new Model();
+    const model = createModel();
     const sheetId = model.getters.getActiveSheetId();
     setCellContent(model, "A3", "Hello\nWorld");
     expect(model.getters.getRowSize(sheetId, 2)).toEqual(36);
@@ -1107,7 +1107,7 @@ describe("move elements(s)", () => {
   });
 
   test("Moving a row with wrapped text should not convert its height to fixed row size", () => {
-    const model = new Model();
+    const model = createModel();
     const sheetId = model.getters.getActiveSheetId();
     setCellContent(model, "A3", "Hello\nWorld");
     setFormatting(model, "A3", { wrapping: "wrap" });
@@ -1116,7 +1116,7 @@ describe("move elements(s)", () => {
   });
 
   test("Moving a resized row above does not change next row's size", () => {
-    const model = new Model();
+    const model = createModel();
     const sheetId = model.getters.getActiveSheetId();
     setCellContent(model, "A2", "Hello\nRow1");
     resizeRows(model, [1], 50);
@@ -1127,7 +1127,7 @@ describe("move elements(s)", () => {
   });
 
   test("Moving a row above a resized row should not inherit its size", () => {
-    const model = new Model();
+    const model = createModel();
     const sheetId = model.getters.getActiveSheetId();
     setCellContent(model, "A1", "Hello\nWorld");
     resizeRows(model, [0], 50);
@@ -1138,7 +1138,7 @@ describe("move elements(s)", () => {
   });
 
   test("Preserves wrapped row height when a row is moved above it", () => {
-    const model = new Model();
+    const model = createModel();
     const sheetId = model.getters.getActiveSheetId();
     setCellContent(model, "A2", "Hello\nWorld");
     setFormatting(model, "A2", { wrapping: "wrap" });
@@ -1147,21 +1147,21 @@ describe("move elements(s)", () => {
   });
 
   test("Can move a column to the end of the sheet", () => {
-    const model = new Model();
+    const model = createModel();
     setCellContent(model, "A1", "5");
     moveColumns(model, "Z", ["A"], "after");
     expect(getCellContent(model, "Z1")).toEqual("5");
   });
 
   test("Can move a row to the end of the sheet", () => {
-    const model = new Model();
+    const model = createModel();
     setCellContent(model, "A1", "5");
     moveRows(model, 99, [0], "after");
     expect(getCellContent(model, "A100")).toEqual("5");
   });
 
   test("cannot move column out of bound", () => {
-    const model = new Model();
+    const model = createModel();
     let result = moveColumns(model, "AAA", ["A"]);
     expect(result).toBeCancelledBecause(CommandResult.InvalidHeaderIndex);
     result = moveColumns(model, "A", ["AAA"]);
@@ -1178,7 +1178,7 @@ describe("move elements(s)", () => {
   });
 
   test("cannot move row out of bound", () => {
-    const model = new Model();
+    const model = createModel();
     let result = moveRows(model, 100, [0]);
     expect(result).toBeCancelledBecause(CommandResult.InvalidHeaderIndex);
     result = moveRows(model, 19, [100]);
@@ -1188,21 +1188,21 @@ describe("move elements(s)", () => {
   });
 
   test("Selection stays on the moved column", () => {
-    const model = new Model();
+    const model = createModel();
     selectColumn(model, 1, "overrideSelection");
     moveColumns(model, "D", ["B"]);
     expect(model.getters.getSelectedZone()).toEqual(toZone("D1:D100"));
   });
 
   test("Selection stays on the moved row", () => {
-    const model = new Model();
+    const model = createModel();
     selectRow(model, 1, "overrideSelection");
     moveRows(model, 3, [1]);
     expect(model.getters.getSelectedZone()).toEqual(toZone("A4:Z4"));
   });
 
   test("Can move a row with an array formula", () => {
-    const model = new Model();
+    const model = createModel();
     setCellContent(model, "A4", "=MUNIT(2)");
     moveRows(model, 0, [3], "before");
     expect(getCellRawContent(model, "A1")).toEqual("=MUNIT(2)");
@@ -1211,7 +1211,7 @@ describe("move elements(s)", () => {
   });
 
   test("Moving a column with spreaded results do not copy them", () => {
-    const model = new Model();
+    const model = createModel();
     setCellContent(model, "C1", "=MUNIT(2)");
     moveColumns(model, "A", ["D"], "before");
     expect(getCell(model, "A1")).toEqual(undefined);
@@ -1298,7 +1298,7 @@ describe("move elements(s)", () => {
 });
 
 test("Preserves wrapped row height when inserting a row above", () => {
-  const model = new Model();
+  const model = createModel();
   const sheetId = model.getters.getActiveSheetId();
   setCellContent(model, "A2", "Hello\nWorld");
   setFormatting(model, "A2", { wrapping: "wrap" });
@@ -1310,7 +1310,7 @@ describe("Selection loop (ctrl + a)", () => {
   describe("Selection content", () => {
     let model: Model;
     beforeEach(() => {
-      model = new Model({
+      model = createModel({
         sheets: [
           {
             colNumber: 10,
@@ -1370,7 +1370,7 @@ describe("Selection loop (ctrl + a)", () => {
   describe("Viewport doesn't move", () => {
     let model: Model;
     beforeEach(() => {
-      model = new Model();
+      model = createModel();
     });
 
     test("Selection loop doesn't scroll the viewport", () => {
@@ -1409,7 +1409,7 @@ describe("Selection loop (ctrl + a)", () => {
 
 describe("Multiple selection updates after insertion and deletion", () => {
   test("after inserting column before", () => {
-    const model = new Model({ sheets: [{ colNumber: 20, rowNumber: 10 }] });
+    const model = createModel({ sheets: [{ colNumber: 20, rowNumber: 10 }] });
     selectColumn(model, 4, "overrideSelection"); // select E
     selectColumn(model, 9, "newAnchor"); // select J
     let selection = model.getters.getSelection();
@@ -1429,7 +1429,7 @@ describe("Multiple selection updates after insertion and deletion", () => {
   });
 
   test("after inserting column between", () => {
-    const model = new Model({ sheets: [{ colNumber: 20, rowNumber: 10 }] });
+    const model = createModel({ sheets: [{ colNumber: 20, rowNumber: 10 }] });
     selectColumn(model, 4, "overrideSelection"); // select E
     selectColumn(model, 9, "newAnchor"); // select J
     let selection = model.getters.getSelection();
@@ -1449,7 +1449,7 @@ describe("Multiple selection updates after insertion and deletion", () => {
   });
 
   test("after inserting column after", () => {
-    const model = new Model({ sheets: [{ colNumber: 20, rowNumber: 10 }] });
+    const model = createModel({ sheets: [{ colNumber: 20, rowNumber: 10 }] });
     selectColumn(model, 4, "overrideSelection"); // select E
     selectColumn(model, 9, "newAnchor"); // select J
     let selection = model.getters.getSelection();
@@ -1469,7 +1469,7 @@ describe("Multiple selection updates after insertion and deletion", () => {
   });
 
   test("after inserting row before", () => {
-    const model = new Model({ sheets: [{ colNumber: 10, rowNumber: 20 }] });
+    const model = createModel({ sheets: [{ colNumber: 10, rowNumber: 20 }] });
     selectRow(model, 4, "overrideSelection"); // select 5
     selectRow(model, 9, "newAnchor"); // select 10
     let selection = model.getters.getSelection();
@@ -1489,7 +1489,7 @@ describe("Multiple selection updates after insertion and deletion", () => {
   });
 
   test("after inserting row between", () => {
-    const model = new Model({ sheets: [{ colNumber: 10, rowNumber: 20 }] });
+    const model = createModel({ sheets: [{ colNumber: 10, rowNumber: 20 }] });
     selectRow(model, 4, "overrideSelection"); // select 5
     selectRow(model, 9, "newAnchor"); // select 10
     let selection = model.getters.getSelection();
@@ -1509,7 +1509,7 @@ describe("Multiple selection updates after insertion and deletion", () => {
   });
 
   test("after inserting rows after", () => {
-    const model = new Model({ sheets: [{ colNumber: 10, rowNumber: 20 }] });
+    const model = createModel({ sheets: [{ colNumber: 10, rowNumber: 20 }] });
     selectRow(model, 4, "overrideSelection"); // select 5
     selectRow(model, 9, "newAnchor"); // select 10
     let selection = model.getters.getSelection();
@@ -1529,7 +1529,7 @@ describe("Multiple selection updates after insertion and deletion", () => {
   });
 
   test("after deleting column before", () => {
-    const model = new Model({ sheets: [{ colNumber: 20, rowNumber: 10 }] });
+    const model = createModel({ sheets: [{ colNumber: 20, rowNumber: 10 }] });
     selectColumn(model, 4, "overrideSelection"); // select E
     selectColumn(model, 9, "newAnchor"); // select J
     let selection = model.getters.getSelection();
@@ -1549,7 +1549,7 @@ describe("Multiple selection updates after insertion and deletion", () => {
   });
 
   test("after deleting column between", () => {
-    const model = new Model({ sheets: [{ colNumber: 20, rowNumber: 10 }] });
+    const model = createModel({ sheets: [{ colNumber: 20, rowNumber: 10 }] });
     selectColumn(model, 4, "overrideSelection"); // select E
     selectColumn(model, 9, "newAnchor"); // select J
     let selection = model.getters.getSelection();
@@ -1569,7 +1569,7 @@ describe("Multiple selection updates after insertion and deletion", () => {
   });
 
   test("after deleting column after", () => {
-    const model = new Model({ sheets: [{ colNumber: 20, rowNumber: 10 }] });
+    const model = createModel({ sheets: [{ colNumber: 20, rowNumber: 10 }] });
     selectColumn(model, 4, "overrideSelection"); // select E
     selectColumn(model, 9, "newAnchor"); // select J
     let selection = model.getters.getSelection();
@@ -1589,7 +1589,7 @@ describe("Multiple selection updates after insertion and deletion", () => {
   });
 
   test("after deleting row before", () => {
-    const model = new Model({ sheets: [{ colNumber: 10, rowNumber: 20 }] });
+    const model = createModel({ sheets: [{ colNumber: 10, rowNumber: 20 }] });
     selectRow(model, 4, "overrideSelection"); // select 5
     selectRow(model, 9, "newAnchor"); // select 10
     let selection = model.getters.getSelection();
@@ -1609,7 +1609,7 @@ describe("Multiple selection updates after insertion and deletion", () => {
   });
 
   test("after deleting row between", () => {
-    const model = new Model({ sheets: [{ colNumber: 10, rowNumber: 20 }] });
+    const model = createModel({ sheets: [{ colNumber: 10, rowNumber: 20 }] });
     selectRow(model, 4, "overrideSelection"); // select 5
     selectRow(model, 9, "newAnchor"); // select 10
     let selection = model.getters.getSelection();
@@ -1629,7 +1629,7 @@ describe("Multiple selection updates after insertion and deletion", () => {
   });
 
   test("after deleting row after", () => {
-    const model = new Model({ sheets: [{ colNumber: 10, rowNumber: 20 }] });
+    const model = createModel({ sheets: [{ colNumber: 10, rowNumber: 20 }] });
     selectRow(model, 4, "overrideSelection"); // select 5
     selectRow(model, 9, "newAnchor"); // select 10
     let selection = model.getters.getSelection();
@@ -1653,7 +1653,7 @@ describe("Grid selection updates zones correctly when deselecting zone", () => {
   let model: Model;
 
   beforeEach(() => {
-    model = new Model({ sheets: [{ colNumber: 5, rowNumber: 5 }] });
+    model = createModel({ sheets: [{ colNumber: 5, rowNumber: 5 }] });
   });
 
   test("can deselect zone from a larger zone", () => {

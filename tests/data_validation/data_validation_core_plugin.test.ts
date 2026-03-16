@@ -15,14 +15,14 @@ import {
   undo,
 } from "../test_helpers/commands_helpers";
 import { getCellContent } from "../test_helpers/getters_helpers";
-import { getDataValidationRules } from "../test_helpers/helpers";
+import { createModel, getDataValidationRules } from "../test_helpers/helpers";
 
 describe("Data validation", () => {
   let model: Model;
   let sheetId: UID;
 
   beforeEach(() => {
-    model = new Model();
+    model = createModel();
     sheetId = model.getters.getActiveSheetId();
   });
 
@@ -544,7 +544,7 @@ describe("Data validation", () => {
       },
     ]);
 
-    const newModel = new Model(exported);
+    const newModel = createModel(exported);
     expect(getDataValidationRules(newModel, sheetId)).toEqual([
       {
         id: "id",
