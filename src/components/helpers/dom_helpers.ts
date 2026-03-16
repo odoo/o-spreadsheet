@@ -14,7 +14,7 @@ function defineZoomCssImpactOnBoundingRect() {
   document.body.removeChild(div);
 }
 
-whenReady(defineZoomCssImpactOnBoundingRect);
+void whenReady(defineZoomCssImpactOnBoundingRect);
 
 const MODIFIER_KEYS = ["Shift", "Control", "Alt", "Meta"];
 

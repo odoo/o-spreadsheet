@@ -46,7 +46,7 @@ class WebClipboardWrapper implements ClipboardInterface {
 
   async writeText(text: string): Promise<void> {
     try {
-      this.clipboard?.writeText(text);
+      await this.clipboard?.writeText(text);
     } catch (e) {}
   }
 

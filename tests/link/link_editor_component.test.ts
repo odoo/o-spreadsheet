@@ -129,8 +129,8 @@ describe("link editor component", () => {
 
   test("insert link with an url and a label", async () => {
     await openLinkEditor(model, "A1");
-    setInputValueAndTrigger(labelInput(), "my label");
-    setInputValueAndTrigger(urlInput(), "https://url.com");
+    await setInputValueAndTrigger(labelInput(), "my label");
+    await setInputValueAndTrigger(urlInput(), "https://url.com");
     await simulateClick("button.o-save");
     const link = getEvaluatedCell(model, "A1").link;
     expect(link?.label).toBe("my label");
@@ -139,7 +139,7 @@ describe("link editor component", () => {
 
   test("insert link with only an url and no label", async () => {
     await openLinkEditor(model, "A1");
-    setInputValueAndTrigger(urlInput(), "https://url.com");
+    await setInputValueAndTrigger(urlInput(), "https://url.com");
     await simulateClick("button.o-save");
     const link = getEvaluatedCell(model, "A1").link;
     expect(link?.label).toBe("https://url.com");
@@ -176,8 +176,8 @@ describe("link editor component", () => {
       thousandsSeparator: " ",
     });
     await openLinkEditor(model, "A1");
-    setInputValueAndTrigger(labelInput(), "3,15");
-    setInputValueAndTrigger(urlInput(), "https://url.com");
+    await setInputValueAndTrigger(labelInput(), "3,15");
+    await setInputValueAndTrigger(urlInput(), "https://url.com");
     await simulateClick("button.o-save");
     const evaluatedCell = getEvaluatedCell(model, "A1");
     expect(evaluatedCell).toMatchObject({

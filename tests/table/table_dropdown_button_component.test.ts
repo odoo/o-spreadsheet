@@ -72,7 +72,7 @@ describe("Table dropdown button", () => {
     await click(fixture, ".o-new-table-style");
 
     expect(fixture.querySelector(".o-table-style-editor-panel")).toBeTruthy();
-    click(fixture, ".o-sidePanel .o-confirm");
+    await click(fixture, ".o-sidePanel .o-confirm");
     const table = model.getters.getTables(sheetId)[0];
     expect(zoneToXc(table.range.zone)).toEqual("A1:C3");
     expect(model.getters.getTableStyle(table.config.styleId).displayName).toEqual(

@@ -101,7 +101,7 @@ export class BottomBarSheet extends Component<Props, SpreadsheetChildEnv> {
       this.env.model.on(
         "command-rejected",
         this,
-        ({ command, result }: { command: Command; result: DispatchResult }) => {
+        async ({ command, result }: { command: Command; result: DispatchResult }) => {
           if (result.isCancelledBecause(CommandResult.SheetLocked)) {
             if (
               !command ||
@@ -109,7 +109,7 @@ export class BottomBarSheet extends Component<Props, SpreadsheetChildEnv> {
               (isSheetDependent(command) && command.sheetId === this.props.sheetId)
             ) {
               this.scrollToSheet();
-              animateLockedSheet();
+              await animateLockedSheet();
             }
           }
         }

@@ -54,14 +54,14 @@ describe("split to columns sidePanel component", () => {
 
   test("Selected separator is dispatched on confirm", async () => {
     await editSelectComponent(".o-split-to-cols-panel .o-select", ",");
-    click(confirmButton);
+    await click(confirmButton);
     expect(dispatch).toHaveBeenCalledWith("SPLIT_TEXT_INTO_COLUMNS", {
       separator: ",",
       addNewColumns: expect.any(Boolean),
     });
 
     await editSelectComponent(".o-split-to-cols-panel .o-select", ";");
-    click(confirmButton);
+    await click(confirmButton);
     expect(dispatch).toHaveBeenCalledWith("SPLIT_TEXT_INTO_COLUMNS", {
       separator: ";",
       addNewColumns: expect.any(Boolean),
@@ -75,8 +75,8 @@ describe("split to columns sidePanel component", () => {
 
     input = fixture.querySelector('.o-split-to-cols-panel input[type="text"]')!;
     expect(input).toBeTruthy();
-    setInputValueAndTrigger(input, "customSeparator");
-    click(confirmButton);
+    await setInputValueAndTrigger(input, "customSeparator");
+    await click(confirmButton);
     expect(dispatch).toHaveBeenCalledWith("SPLIT_TEXT_INTO_COLUMNS", {
       separator: "customSeparator",
       addNewColumns: expect.any(Boolean),
@@ -85,14 +85,14 @@ describe("split to columns sidePanel component", () => {
 
   test("Add new columns checkbox", async () => {
     setCheckboxValueAndTrigger(checkBox, true, "change");
-    click(confirmButton);
+    await click(confirmButton);
     expect(dispatch).toHaveBeenCalledWith("SPLIT_TEXT_INTO_COLUMNS", {
       separator: expect.any(String),
       addNewColumns: true,
     });
 
     setCheckboxValueAndTrigger(checkBox, false, "change");
-    click(confirmButton);
+    await click(confirmButton);
     expect(dispatch).toHaveBeenCalledWith("SPLIT_TEXT_INTO_COLUMNS", {
       separator: expect.any(String),
       addNewColumns: true,
@@ -181,7 +181,7 @@ describe("split to columns sidePanel component", () => {
   test("Panel is closed after a successful split", async () => {
     setSelection(model, ["A1"]);
     setCellContent(model, "A1", "hello there");
-    click(confirmButton);
+    await click(confirmButton);
     await nextTick();
     expect(onCloseSidePanel).toHaveBeenCalled();
   });

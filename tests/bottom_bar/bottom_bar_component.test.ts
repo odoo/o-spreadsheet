@@ -581,11 +581,11 @@ describe("BottomBar component", () => {
       jest.spyOn(sheetListEl, "scrollWidth", "get").mockReturnValue(250);
       parent.render(true);
       await nextTick();
-      simulateClick(".o-bottom-bar-arrow-right");
+      await simulateClick(".o-bottom-bar-arrow-right");
       await nextTick();
       expect(sheetListEl.scrollLeft).toBe(100);
 
-      simulateClick(".o-bottom-bar-arrow-right");
+      await simulateClick(".o-bottom-bar-arrow-right");
       await nextTick();
       expect(sheetListEl.scrollLeft).toBe(150);
     });
@@ -596,11 +596,11 @@ describe("BottomBar component", () => {
       sheetListEl.scrollLeft = 150;
       parent.render(true);
       await nextTick();
-      simulateClick(".o-bottom-bar-arrow-left");
+      await simulateClick(".o-bottom-bar-arrow-left");
       await nextTick();
       expect(sheetListEl.scrollLeft).toBe(50);
 
-      simulateClick(".o-bottom-bar-arrow-left");
+      await simulateClick(".o-bottom-bar-arrow-left");
       await nextTick();
       expect(sheetListEl.scrollLeft).toBe(0);
     });
@@ -611,19 +611,19 @@ describe("BottomBar component", () => {
       parent.render(true);
       await nextTick();
 
-      simulateClick(".o-bottom-bar-arrow-right");
-      simulateClick(".o-bottom-bar-arrow-right");
-      simulateClick(".o-bottom-bar-arrow-right");
-      simulateClick(".o-bottom-bar-arrow-right");
-      simulateClick(".o-bottom-bar-arrow-right");
+      await simulateClick(".o-bottom-bar-arrow-right");
+      await simulateClick(".o-bottom-bar-arrow-right");
+      await simulateClick(".o-bottom-bar-arrow-right");
+      await simulateClick(".o-bottom-bar-arrow-right");
+      await simulateClick(".o-bottom-bar-arrow-right");
 
       sheetListEl.scrollLeft = 500;
       sheetListEl.dispatchEvent(new MouseEvent("scroll"));
       await nextTick();
 
-      simulateClick(".o-bottom-bar-arrow-left");
-      simulateClick(".o-bottom-bar-arrow-left");
-      simulateClick(".o-bottom-bar-arrow-left");
+      await simulateClick(".o-bottom-bar-arrow-left");
+      await simulateClick(".o-bottom-bar-arrow-left");
+      await simulateClick(".o-bottom-bar-arrow-left");
     });
 
     test("Selecting a sheet from the context menu scrolls to that sheet", async () => {

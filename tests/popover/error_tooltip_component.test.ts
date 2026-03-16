@@ -101,7 +101,7 @@ describe("Error tooltip component", () => {
     setCellContent(model, "J10", "=1/0", "sheet2");
     setCellContent(model, "A2", "=Sheet2!J10");
     await mountErrorTooltip(model, "A2");
-    click(fixture, ".o-button-link");
+    await click(fixture, ".o-button-link");
     expect(model.getters.getActivePosition()).toEqual(toCellPosition("sheet2", "J10"));
   });
 
@@ -179,7 +179,7 @@ describe("Grid integration", () => {
     Date.now = jest.fn(() => 0);
     setCellContent(model, "A1", "=NA()");
     await nextTick();
-    gridMouseEvent(model, "pointermove", "A1");
+    await gridMouseEvent(model, "pointermove", "A1");
     Date.now = jest.fn(() => 500);
     jest.advanceTimersByTime(300);
     await nextTick();
@@ -190,7 +190,7 @@ describe("Grid integration", () => {
     Date.now = jest.fn(() => 0);
     setCellContent(model, "A1", "=VLOOKUP(6,A1:A2,B2:B4)");
     await nextTick();
-    gridMouseEvent(model, "pointermove", "A1");
+    await gridMouseEvent(model, "pointermove", "A1");
     Date.now = jest.fn(() => 500);
     jest.advanceTimersByTime(300);
     await nextTick();

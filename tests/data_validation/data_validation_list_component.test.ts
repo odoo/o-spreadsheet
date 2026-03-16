@@ -98,7 +98,7 @@ describe("Edit criterion in side panel", () => {
       const inputs = fixture.querySelectorAll<HTMLInputElement>(".o-dv-list-values .o-input");
       expect(inputs).toHaveLength(4);
 
-      setInputValueAndTrigger(inputs[3], "new value");
+      await setInputValueAndTrigger(inputs[3], "new value");
       await click(fixture, ".o-dv-save");
 
       expect(getDataValidationRules(model)[0].criterion.values).toEqual([
@@ -137,7 +137,7 @@ describe("Edit criterion in side panel", () => {
       expect(inputs[0].value).toBe("hello");
       expect(inputs[1].value).toBe("okay");
 
-      click(fixture, ".o-dv-save");
+      await click(fixture, ".o-dv-save");
       expect(getDataValidationRules(model)[0].criterion.values).toEqual(["hello", "okay"]);
     });
 
@@ -146,7 +146,7 @@ describe("Edit criterion in side panel", () => {
       async (displayStyle) => {
         const displayStyleInput = fixture.querySelector<HTMLInputElement>(".o-dv-display-style");
         await editSelectComponent(displayStyleInput, displayStyle);
-        click(fixture, ".o-dv-save");
+        await click(fixture, ".o-dv-save");
         expect(
           (getDataValidationRules(model)[0].criterion as IsValueInListCriterion).displayStyle
         ).toEqual(displayStyle);
@@ -202,12 +202,12 @@ describe("Edit criterion in side panel", () => {
       expect(".o-dv-display-style").toHaveText("Arrow");
     });
 
-    test("Can change the range", () => {
+    test("Can change the range", async () => {
       const rangeInput = fixture.querySelector<HTMLInputElement>(
         ".o-dv-settings .o-selection-input input"
       )!;
-      setInputValueAndTrigger(rangeInput, "B1:B9");
-      click(fixture, ".o-dv-save");
+      await setInputValueAndTrigger(rangeInput, "B1:B9");
+      await click(fixture, ".o-dv-save");
       expect(getDataValidationRules(model)[0].criterion.values).toEqual(["B1:B9"]);
     });
 
@@ -221,7 +221,7 @@ describe("Edit criterion in side panel", () => {
     test("Can change display style", async () => {
       const displayStyleInput = fixture.querySelector<HTMLInputElement>(".o-dv-display-style");
       await editSelectComponent(displayStyleInput, "plainText");
-      click(fixture, ".o-dv-save");
+      await click(fixture, ".o-dv-save");
       expect(
         (getDataValidationRules(model)[0].criterion as IsValueInListCriterion).displayStyle
       ).toEqual("plainText");
@@ -506,8 +506,8 @@ describe("Selection arrow icon in grid", () => {
     expect(composerStore.editionMode).toBe("editing");
     expect(hideHelpSpy).not.toHaveBeenCalled();
 
-    gridMouseEvent(model, "pointerdown", "B2");
-    gridMouseEvent(model, "pointerup", "B2");
+    await gridMouseEvent(model, "pointerdown", "B2");
+    await gridMouseEvent(model, "pointerup", "B2");
     expect(composerStore.editionMode).toBe("inactive");
   });
 

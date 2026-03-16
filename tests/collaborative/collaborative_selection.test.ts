@@ -229,7 +229,7 @@ describe("Collaborative selection", () => {
         },
       ]) as Set<ClientWithColor>
     );
-    david.leaveSession();
+    void david.leaveSession();
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
       (user) => new Set(user.getters.getConnectedClients()),
       new Set([

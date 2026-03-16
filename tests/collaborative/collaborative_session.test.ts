@@ -47,9 +47,9 @@ describe("Collaborative session", () => {
     );
   });
 
-  test("local client leaves", () => {
+  test("local client leaves", async () => {
     const spy = jest.spyOn(transport, "sendMessage");
-    session.leave(lazy({} as WorkbookData));
+    await session.leave(lazy({} as WorkbookData));
     expect(spy).toHaveBeenCalledTimes(1);
     expect(spy).toHaveBeenCalledWith({
       type: "CLIENT_LEFT",
@@ -59,8 +59,8 @@ describe("Collaborative session", () => {
     expect(session.getConnectedClients()).toEqual(new Set());
   });
 
-  test("local client leaves with no other clients and changes", () => {
-    transport.sendMessage({
+  test("local client leaves with no other clients and changes", async () => {
+    await transport.sendMessage({
       type: "REMOTE_REVISION",
       version: MESSAGE_VERSION,
       nextRevisionId: "42",
@@ -70,7 +70,7 @@ describe("Collaborative session", () => {
     });
     const spy = jest.spyOn(transport, "sendMessage");
     const data = { sheets: [{}] } as WorkbookData;
-    session.leave(lazy(data));
+    await session.leave(lazy(data));
     expect(spy).toHaveBeenCalledWith({
       type: "SNAPSHOT",
       version: MESSAGE_VERSION,
@@ -94,7 +94,9 @@ describe("Collaborative session", () => {
       // send another revision
       setCellContent(model, "A2", "world");
       // and leave before receiving the acknowledgement
-      model.leaveSession();
+
+      // As concurrent is not yet async
+      void model.leaveSession();
     });
     await nextTick();
     expect(spy).toHaveBeenCalledTimes(2);
@@ -111,7 +113,7 @@ describe("Collaborative session", () => {
         client: { id: "alice", name: "Alice" },
       }
     );
-    transport.sendMessage({
+    await transport.sendMessage({
       type: "REMOTE_REVISION",
       version: MESSAGE_VERSION,
       nextRevisionId: "42",
@@ -120,7 +122,7 @@ describe("Collaborative session", () => {
       serverRevisionId: transport["serverRevisionId"],
     });
     const spy = jest.spyOn(transport, "sendMessage");
-    model.leaveSession();
+    await model.leaveSession();
     await nextTick();
     expect(spy).toHaveBeenCalledTimes(1);
     expect(spy).not.toHaveBeenCalledWith(expect.objectContaining({ type: "SNAPSHOT" }));
@@ -132,7 +134,7 @@ describe("Collaborative session", () => {
       {},
       { transportService: transport, client: { id: "alice", name: "Alice" } }
     );
-    transport.sendMessage({
+    await transport.sendMessage({
       type: "REMOTE_REVISION",
       version: MESSAGE_VERSION,
       nextRevisionId: "42",
@@ -140,22 +142,22 @@ describe("Collaborative session", () => {
       commands: [],
       serverRevisionId: transport["serverRevisionId"],
     });
-    transport.sendMessage({
+    await transport.sendMessage({
       type: "SNAPSHOT_CREATED",
       version: MESSAGE_VERSION,
       nextRevisionId: "43",
       serverRevisionId: transport["serverRevisionId"],
     });
     const spy = jest.spyOn(transport, "sendMessage");
-    model.leaveSession();
+    await model.leaveSession();
     await nextTick();
     expect(spy).toHaveBeenCalledTimes(1);
     expect(spy).not.toHaveBeenCalledWith(expect.objectContaining({ type: "SNAPSHOT" }));
     expect(spy).toHaveBeenCalledWith(expect.objectContaining({ type: "CLIENT_LEFT" }));
   });
 
-  test("local client leaves with other connected clients and changes", () => {
-    transport.sendMessage({
+  test("local client leaves with other connected clients and changes", async () => {
+    await transport.sendMessage({
       type: "CLIENT_JOINED",
       version: MESSAGE_VERSION,
       client: {
@@ -165,7 +167,7 @@ describe("Collaborative session", () => {
       },
     });
     expect(session.getConnectedClients().size).toBe(2);
-    transport.sendMessage({
+    await transport.sendMessage({
       type: "REMOTE_REVISION",
       version: MESSAGE_VERSION,
       nextRevisionId: "42",
@@ -175,7 +177,7 @@ describe("Collaborative session", () => {
     });
     const spy = jest.spyOn(transport, "sendMessage");
     const data = { sheets: [{}] } as WorkbookData;
-    session.leave(lazy(data));
+    await session.leave(lazy(data));
     expect(spy).toHaveBeenCalledTimes(1);
     expect(spy).toHaveBeenCalledWith({
       type: "CLIENT_LEFT",
@@ -184,8 +186,8 @@ describe("Collaborative session", () => {
     });
   });
 
-  test("remote client move", () => {
-    transport.sendMessage({
+  test("remote client move", async () => {
+    await transport.sendMessage({
       type: "CLIENT_MOVED",
       version: MESSAGE_VERSION,
       client: { id: "bob", name: "Bob", position: { sheetId: "sheetId", col: 1, row: 2 } },
@@ -200,7 +202,7 @@ describe("Collaborative session", () => {
         },
       ])
     );
-    transport.sendMessage({
+    await transport.sendMessage({
       type: "CLIENT_LEFT",
       version: MESSAGE_VERSION,
       clientId: "bob",
@@ -208,10 +210,10 @@ describe("Collaborative session", () => {
     expect(session.getConnectedClients()).toEqual(new Set([client]));
   });
 
-  test("remote client joins", () => {
+  test("remote client joins", async () => {
     session.move({ sheetId: "sheetId", col: 0, row: 0 });
     const spy = jest.spyOn(transport, "sendMessage");
-    transport.sendMessage({
+    await transport.sendMessage({
       type: "CLIENT_JOINED",
       version: MESSAGE_VERSION,
       client: { id: "bob", name: "Bob", position: { sheetId: "sheetId", col: 1, row: 2 } },
@@ -266,9 +268,9 @@ describe("Collaborative session", () => {
     });
   });
 
-  test("Leave the session do not crash", () => {
+  test("Leave the session do not crash", async () => {
     session.move({ sheetId: "sheetId", col: 1, row: 2 });
-    session.leave(lazy({} as WorkbookData));
+    await session.leave(lazy({} as WorkbookData));
   });
 
   const messages = [
@@ -302,12 +304,12 @@ describe("Collaborative session", () => {
     },
   ] as const;
 
-  test.each(messages)("Receiving a bad revision id should trigger", (message) => {
+  test.each(messages)("Receiving a bad revision id should trigger", async (message) => {
     const spy = jest.spyOn(session, "trigger");
     // simulate a revision not in sync with the server
     // e.g. the session missed a revision or received a revision from the past
     transport["serverRevisionId"] = message.serverRevisionId;
-    transport.sendMessage(message);
+    await transport.sendMessage(message);
     expect(spy).toHaveBeenNthCalledWith(1, "unexpected-revision-id");
     expect(spy).not.toHaveBeenCalledWith("remote-revision-received");
   });

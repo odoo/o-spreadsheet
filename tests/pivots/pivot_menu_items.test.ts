@@ -412,7 +412,7 @@ describe("Pivot fix formula menu item", () => {
 
 describe("Pivot reinsertion menu item", () => {
   describe("Dynamic pivots", () => {
-    test("Reinsert a dynamic pivot", () => {
+    test("Reinsert a dynamic pivot", async () => {
       // prettier-ignore
       const grid = {
             A1: "Customer", B1: "Quantity",
@@ -427,7 +427,7 @@ describe("Pivot reinsertion menu item", () => {
       });
       const env = makeTestEnv({ model });
       selectCell(model, "B8");
-      doAction(reinsertDynamicPivotPath, env, topbarMenuRegistry);
+      await doAction(reinsertDynamicPivotPath, env, topbarMenuRegistry);
       expect(getCellText(model, "B8")).toEqual(`=PIVOT(1)`);
       expect(getTable(model, "B8")).toMatchObject({
         range: { zone: toZone("B8:C11") },
@@ -435,7 +435,7 @@ describe("Pivot reinsertion menu item", () => {
       });
     });
 
-    test("Reinsert a dynamic pivot in a sheet too small", () => {
+    test("Reinsert a dynamic pivot in a sheet too small", async () => {
       // prettier-ignore
       const grid = {
             A1: "Customer", B1: "Quantity",
@@ -449,14 +449,14 @@ describe("Pivot reinsertion menu item", () => {
       });
       createSheet(model, { sheetId: "smallSheet", rows: 1, cols: 1, activate: true });
       const env = makeTestEnv({ model });
-      doAction(reinsertDynamicPivotPath, env, topbarMenuRegistry);
+      await doAction(reinsertDynamicPivotPath, env, topbarMenuRegistry);
       expect(getCellText(model, "A1")).toEqual(`=PIVOT(1)`);
       expect(model.getters.getPivot(model.getters.getPivotId("1")!).isValid()).toBeTruthy();
       expect(model.getters.getNumberCols("smallSheet")).toEqual(2);
       expect(model.getters.getNumberRows("smallSheet")).toEqual(4); // title, col group, row header, total
     });
 
-    test("undo pivot reinsertion", () => {
+    test("undo pivot reinsertion", async () => {
       // prettier-ignore
       const grid = {
             A1: "Customer", B1: "Quantity",
@@ -471,7 +471,7 @@ describe("Pivot reinsertion menu item", () => {
       });
       const env = makeTestEnv({ model });
       selectCell(model, "B8");
-      doAction(reinsertDynamicPivotPath, env, topbarMenuRegistry);
+      await doAction(reinsertDynamicPivotPath, env, topbarMenuRegistry);
       expect(getCellText(model, "B8")).toEqual(`=PIVOT(1)`);
       expect(getTable(model, "B8")).toBeDefined();
       undo(model);
@@ -484,7 +484,7 @@ describe("Pivot reinsertion menu item", () => {
   });
 
   describe("Static pivots", () => {
-    test("Reinsert a static pivot", () => {
+    test("Reinsert a static pivot", async () => {
       // prettier-ignore
       const grid = {
             A1: "Customer", B1: "Quantity",
@@ -498,7 +498,7 @@ describe("Pivot reinsertion menu item", () => {
       });
       const env = makeTestEnv({ model });
       selectCell(model, "B8");
-      doAction(reinsertStaticPivotPath, env, topbarMenuRegistry);
+      await doAction(reinsertStaticPivotPath, env, topbarMenuRegistry);
       expect(getCellText(model, "B10")).toEqual(`=PIVOT.HEADER(1,"Customer","Alice")`);
       expect(
         model.getters.getCoreTable({
@@ -512,7 +512,7 @@ describe("Pivot reinsertion menu item", () => {
       });
     });
 
-    test("Reinsert a static pivot in a sheet too small", () => {
+    test("Reinsert a static pivot in a sheet too small", async () => {
       // prettier-ignore
       const grid = {
             A1: "Customer", B1: "Quantity",
@@ -526,14 +526,14 @@ describe("Pivot reinsertion menu item", () => {
       });
       createSheet(model, { sheetId: "smallSheet", rows: 1, cols: 1, activate: true });
       const env = makeTestEnv({ model });
-      doAction(reinsertStaticPivotPath, env, topbarMenuRegistry);
+      await doAction(reinsertStaticPivotPath, env, topbarMenuRegistry);
       expect(getCellText(model, "A3")).toEqual(`=PIVOT.HEADER(1,"Customer","Alice")`);
       expect(model.getters.getPivot(model.getters.getPivotId("1")!).isValid()).toBeTruthy();
       expect(model.getters.getNumberCols("smallSheet")).toEqual(2);
       expect(model.getters.getNumberRows("smallSheet")).toEqual(4); // title, col group, row header, total
     });
 
-    test("Cannot reinsert a static pivot with too many pivot cells", () => {
+    test("Cannot reinsert a static pivot with too many pivot cells", async () => {
       const grid = { A1: "Customer", B1: "Quantity", A2: "Alice", B2: "Jambon" };
       const model = createModelFromGrid(grid);
       addPivot(model, "A1:B2", {});
@@ -542,7 +542,7 @@ describe("Pivot reinsertion menu item", () => {
       const env = makeTestEnv({ model, notifyUser });
       jest.spyOn(SpreadsheetPivotTable.prototype, "numberOfCells", "get").mockReturnValue(1000000);
 
-      doAction(reinsertStaticPivotPath, env, topbarMenuRegistry);
+      await doAction(reinsertStaticPivotPath, env, topbarMenuRegistry);
       expect(notifyUser).toHaveBeenCalledWith({
         sticky: true,
         text: getPivotTooBigErrorMessage(1000000, model.getters.getLocale()),
@@ -551,7 +551,7 @@ describe("Pivot reinsertion menu item", () => {
       jest.restoreAllMocks();
     });
 
-    test("undo pivot reinsertion", () => {
+    test("undo pivot reinsertion", async () => {
       // prettier-ignore
       const grid = {
             A1: "Customer", B1: "Quantity",
@@ -565,7 +565,7 @@ describe("Pivot reinsertion menu item", () => {
       });
       const env = makeTestEnv({ model });
       selectCell(model, "B8");
-      doAction(reinsertStaticPivotPath, env, topbarMenuRegistry);
+      await doAction(reinsertStaticPivotPath, env, topbarMenuRegistry);
       expect(getCellText(model, "B10")).toEqual(`=PIVOT.HEADER(1,"Customer","Alice")`);
       expect(getTable(model, "B10")).toBeDefined();
       undo(model);
@@ -621,13 +621,13 @@ describe("Pivot reinsertion menu item", () => {
     expect(getNode(reinsertStaticPivotPath, env, topbarMenuRegistry).isVisible(env)).toBeTruthy();
   });
 
-  test("Insert a pivot", () => {
+  test("Insert a pivot", async () => {
     const model = new Model();
     const sheetId = model.getters.getActiveSheetId();
     const env = makeTestEnv({ model });
     setGrid(model, { A1: "Header1", B1: "Header2", A2: "Data1", B2: "Data2" });
     setSelection(model, ["A1:B2"]);
-    doAction(insertPivotPath, env, topbarMenuRegistry);
+    await doAction(insertPivotPath, env, topbarMenuRegistry);
     expect(model.getters.getActiveSheetId()).not.toEqual(sheetId);
     expect(model.getters.getPivotIds()).toHaveLength(1);
     expect(getCellText(model, "A1")).toEqual(`=PIVOT(1)`);
@@ -643,7 +643,7 @@ describe("Pivot sorting menu item", () => {
   let env: SpreadsheetChildEnv;
   let sortAction: Action;
 
-  function sortPivot(order: SortDirection | "none") {
+  async function sortPivot(order: SortDirection | "none") {
     const path = ["pivot_sorting"];
     if (order === "asc") {
       path.push("pivot_sorting_asc");
@@ -652,7 +652,7 @@ describe("Pivot sorting menu item", () => {
     } else {
       path.push("pivot_sorting_none");
     }
-    doAction(path, env, cellMenuRegistry);
+    await doAction(path, env, cellMenuRegistry);
   }
 
   function getPivotSortedColumn() {
@@ -666,9 +666,9 @@ describe("Pivot sorting menu item", () => {
     sortAction = getNode(["pivot_sorting"], env, cellMenuRegistry);
   });
 
-  test("Can sort and un-sort the pivot when clicking on a value cell", () => {
+  test("Can sort and un-sort the pivot when clicking on a value cell", async () => {
     selectCell(model, "B23"); // Cell of "Alice" column
-    sortPivot("asc");
+    await sortPivot("asc");
     expect(getPivotSortedColumn()).toEqual({
       measure: "measureId",
       order: "asc",
@@ -676,20 +676,20 @@ describe("Pivot sorting menu item", () => {
     });
 
     selectCell(model, "C25"); // Cell of "Bob" column
-    sortPivot("desc");
+    await sortPivot("desc");
     expect(getPivotSortedColumn()).toEqual({
       measure: "measureId",
       order: "desc",
       domain: [{ field: "Salesperson", value: "Bob", type: "char" }],
     });
 
-    sortPivot("none");
+    await sortPivot("none");
     expect(getPivotSortedColumn()).toBeUndefined();
   });
 
-  test("Can sort the pivot with a measure header", () => {
+  test("Can sort the pivot with a measure header", async () => {
     selectCell(model, "D21"); // "Expected Revenue" measure header from the total column
-    sortPivot("asc");
+    await sortPivot("asc");
     expect(getPivotSortedColumn()).toEqual({
       measure: "measureId",
       order: "asc",
@@ -743,7 +743,7 @@ describe("Pivot sorting menu item", () => {
     expect(sortAction.isVisible(env)).toBe(false);
   });
 
-  test("Menu item corresponding to the current sorting of the pivot is active", () => {
+  test("Menu item corresponding to the current sorting of the pivot is active", async () => {
     function getActiveSortOrder() {
       const activeNodes: string[] = [];
       if (getNode(["pivot_sorting", "pivot_sorting_asc"], env, cellMenuRegistry).isActive?.(env)) {
@@ -761,10 +761,10 @@ describe("Pivot sorting menu item", () => {
     selectCell(model, "B21"); // Pivot measure header
     expect(getActiveSortOrder()).toEqual(["pivot_sorting_none"]);
 
-    sortPivot("asc");
+    await sortPivot("asc");
     expect(getActiveSortOrder()).toEqual(["pivot_sorting_asc"]);
 
-    sortPivot("desc");
+    await sortPivot("desc");
     expect(getActiveSortOrder()).toEqual(["pivot_sorting_desc"]);
 
     selectCell(model, "C21"); // Other column
@@ -855,13 +855,13 @@ describe("Pivot (un)grouping menu items", () => {
       expect(cellMenuRegistry.get("pivot_headers_group").isVisible!(env)).toBe(false);
     });
 
-    test("Can group pivot headers", () => {
+    test("Can group pivot headers", async () => {
       updatePivot(model, pivotId, {
         rows: [{ fieldName: "Stage" }],
       });
 
       setSelection(model, ["A27:A28"]); // Salesperson and Stage headers
-      doAction(["pivot_headers_group"], env, cellMenuRegistry);
+      await doAction(["pivot_headers_group"], env, cellMenuRegistry);
 
       expect(model.getters.getPivotCoreDefinition(pivotId)).toMatchObject({
         rows: [{ fieldName: "Stage2" }, { fieldName: "Stage" }],
@@ -874,11 +874,11 @@ describe("Pivot (un)grouping menu items", () => {
       });
     });
 
-    test("If some headers are already grouped, remove their group", () => {
+    test("If some headers are already grouped, remove their group", async () => {
       updatePivotWithGroups([{ name: "CustomGroup", values: ["New", "Won"] }]);
 
       setSelection(model, ["A28:A29", "A31"]); // "New", "Won" and"Proposition" headers
-      doAction(["pivot_headers_group"], env, cellMenuRegistry);
+      await doAction(["pivot_headers_group"], env, cellMenuRegistry);
 
       expect(model.getters.getPivotCoreDefinition(pivotId)).toMatchObject({
         rows: [{ fieldName: "Stage2" }, { fieldName: "Stage" }],
@@ -891,19 +891,19 @@ describe("Pivot (un)grouping menu items", () => {
       });
 
       setSelection(model, ["A28:A29"]); // "New" and "Won" headers
-      doAction(["pivot_headers_group"], env, cellMenuRegistry);
+      await doAction(["pivot_headers_group"], env, cellMenuRegistry);
 
       expect(model.getters.getPivotCoreDefinition(pivotId).customFields?.Stage2.groups).toEqual([
         { name: "Group", values: ["New", "Won"] },
       ]);
     });
 
-    test("Can merge value into existing group", () => {
+    test("Can merge value into existing group", async () => {
       updatePivotWithGroups([{ name: "MyGroup", values: ["New", "Won"] }]);
 
       setSelection(model, ["A27", "A30"]); // "MyGroup" + "Proposition" headers
       expect(cellMenuRegistry.get("pivot_headers_group").isVisible!(env)).toBe(true);
-      doAction(["pivot_headers_group"], env, cellMenuRegistry);
+      await doAction(["pivot_headers_group"], env, cellMenuRegistry);
 
       expect(model.getters.getPivotCoreDefinition(pivotId)).toMatchObject({
         rows: [{ fieldName: "Stage2" }, { fieldName: "Stage" }],
@@ -915,7 +915,7 @@ describe("Pivot (un)grouping menu items", () => {
       });
     });
 
-    test("Can merge two existing groups", () => {
+    test("Can merge two existing groups", async () => {
       updatePivotWithGroups([
         { name: "MyGroup", values: ["New", "Won"] },
         { name: "Group2", values: ["Proposition", "Qualified"] },
@@ -923,7 +923,7 @@ describe("Pivot (un)grouping menu items", () => {
 
       setSelection(model, ["A27", "A30"]); // "MyGroup" + "Group2" headers
       expect(cellMenuRegistry.get("pivot_headers_group").isVisible!(env)).toBe(true);
-      doAction(["pivot_headers_group"], env, cellMenuRegistry);
+      await doAction(["pivot_headers_group"], env, cellMenuRegistry);
 
       expect(model.getters.getPivotCoreDefinition(pivotId)).toMatchObject({
         rows: [{ fieldName: "Stage2" }, { fieldName: "Stage" }],
@@ -935,14 +935,14 @@ describe("Pivot (un)grouping menu items", () => {
       });
     });
 
-    test("Merging a group into others group will remove the group", () => {
+    test("Merging a group into others group will remove the group", async () => {
       updatePivotWithGroups([
         { name: "MyGroup", values: ["New", "Won"] },
         { name: "Others", values: [], isOtherGroup: true },
       ]);
 
       setSelection(model, ["A27", "A30"]); // MyGroup + Others headers
-      doAction(["pivot_headers_group"], env, cellMenuRegistry);
+      await doAction(["pivot_headers_group"], env, cellMenuRegistry);
 
       expect(model.getters.getPivotCoreDefinition(pivotId)).toMatchObject({
         rows: [{ fieldName: "Stage2" }, { fieldName: "Stage" }],
@@ -995,34 +995,34 @@ describe("Pivot (un)grouping menu items", () => {
       expect(cellMenuRegistry.get("pivot_headers_ungroup").isVisible!(env)).toBe(false);
     });
 
-    test("Un-grouping header deletes the group it belongs to", () => {
+    test("Un-grouping header deletes the group it belongs to", async () => {
       updatePivotWithGroups([
         { name: "MyGroup", values: ["New", "Won"] },
         { name: "SecondGroup", values: ["Proposition", "Qualified"] },
       ]);
 
       setSelection(model, ["A28"]); // "New" header inside MyGroup
-      doAction(["pivot_headers_ungroup"], env, cellMenuRegistry);
+      await doAction(["pivot_headers_ungroup"], env, cellMenuRegistry);
 
       expect(model.getters.getPivotCoreDefinition(pivotId).customFields?.Stage2.groups).toEqual([
         { name: "SecondGroup", values: ["Proposition", "Qualified"] },
       ]);
     });
 
-    test("Removing all groups deletes the custom field, and its occurrences in the pivot dimensions", () => {
+    test("Removing all groups deletes the custom field, and its occurrences in the pivot dimensions", async () => {
       updatePivotWithGroups([
         { name: "MyGroup", values: ["New", "Won"] },
         { name: "Others", values: [], isOtherGroup: true },
       ]);
 
       setSelection(model, ["A28", "A31"]); // "New" header inside MyGroup and Proposition header in Others group
-      doAction(["pivot_headers_ungroup"], env, cellMenuRegistry);
+      await doAction(["pivot_headers_ungroup"], env, cellMenuRegistry);
 
       expect(model.getters.getPivotCoreDefinition(pivotId).customFields?.Stage2).toBeUndefined();
       expect(model.getters.getPivotCoreDefinition(pivotId).rows).toEqual([{ fieldName: "Stage" }]);
     });
 
-    test("The deleted custom field is replaced with its parent field if it wasn't present in the pivot", () => {
+    test("The deleted custom field is replaced with its parent field if it wasn't present in the pivot", async () => {
       updatePivot(model, pivotId, {
         rows: [{ fieldName: "Stage2" }],
         customFields: {
@@ -1035,34 +1035,34 @@ describe("Pivot (un)grouping menu items", () => {
       });
 
       setSelection(model, ["A27"]); // "MyGroup" header
-      doAction(["pivot_headers_ungroup"], env, cellMenuRegistry);
+      await doAction(["pivot_headers_ungroup"], env, cellMenuRegistry);
 
       expect(model.getters.getPivotCoreDefinition(pivotId).customFields?.Stage2).toBeUndefined();
       expect(model.getters.getPivotCoreDefinition(pivotId).rows).toEqual([{ fieldName: "Stage" }]);
     });
 
-    test("Can remove a group", () => {
+    test("Can remove a group", async () => {
       updatePivotWithGroups([
         { name: "MyGroup", values: ["New", "Won"] },
         { name: "Others", values: [], isOtherGroup: true },
       ]);
 
       setSelection(model, ["A27"]); // "MyGroup" header
-      doAction(["pivot_headers_ungroup"], env, cellMenuRegistry);
+      await doAction(["pivot_headers_ungroup"], env, cellMenuRegistry);
 
       expect(model.getters.getPivotCoreDefinition(pivotId).customFields?.Stage2.groups).toEqual([
         { name: "Others", values: [], isOtherGroup: true },
       ]);
     });
 
-    test("Can remove the others group", () => {
+    test("Can remove the others group", async () => {
       updatePivotWithGroups([
         { name: "MyGroup", values: ["New", "Won"] },
         { name: "Others", values: [], isOtherGroup: true },
       ]);
 
       setSelection(model, ["A30"]); // "MyGroup" header
-      doAction(["pivot_headers_ungroup"], env, cellMenuRegistry);
+      await doAction(["pivot_headers_ungroup"], env, cellMenuRegistry);
 
       expect(model.getters.getPivotCoreDefinition(pivotId).customFields?.Stage2.groups).toEqual([
         { name: "MyGroup", values: ["New", "Won"] },
@@ -1096,11 +1096,11 @@ describe("Pivot (un)grouping menu items", () => {
       expect(cellMenuRegistry.get("pivot_group_remaining").isVisible!(env)).toBe(true);
     });
 
-    test("Can group remaining groups", () => {
+    test("Can group remaining groups", async () => {
       updatePivotWithGroups([{ name: "MyGroup", values: ["New", "Won"] }]);
 
       setSelection(model, ["A30", "A32"]); // "Proposition", "Qualified" headers inside Stage field
-      doAction(["pivot_group_remaining"], env, cellMenuRegistry);
+      await doAction(["pivot_group_remaining"], env, cellMenuRegistry);
 
       expect(model.getters.getPivotCoreDefinition(pivotId).customFields?.Stage2.groups).toEqual([
         { name: "MyGroup", values: ["New", "Won"] },
@@ -1109,47 +1109,47 @@ describe("Pivot (un)grouping menu items", () => {
 
       undo(model);
       setSelection(model, ["A31", "A33"]); // "Proposition", "Qualified" headers inside Stage field
-      doAction(["pivot_group_remaining"], env, cellMenuRegistry);
+      await doAction(["pivot_group_remaining"], env, cellMenuRegistry);
       expect(model.getters.getPivotCoreDefinition(pivotId).customFields?.Stage2.groups).toEqual([
         { name: "MyGroup", values: ["New", "Won"] },
         { name: "Others", values: [], isOtherGroup: true },
       ]);
     });
 
-    test("Removing all groups deletes the custom field", () => {
+    test("Removing all groups deletes the custom field", async () => {
       updatePivotWithGroups([
         { name: "MyGroup", values: ["New", "Won"] },
         { name: "Others", values: [], isOtherGroup: true },
       ]);
 
       setSelection(model, ["A28", "A31"]); // "New" header inside MyGroup and Proposition header in Others group
-      doAction(["pivot_headers_ungroup"], env, cellMenuRegistry);
+      await doAction(["pivot_headers_ungroup"], env, cellMenuRegistry);
 
       expect(model.getters.getPivotCoreDefinition(pivotId).customFields?.Stage2).toBeUndefined();
     });
 
-    test("Can remove a group", () => {
+    test("Can remove a group", async () => {
       updatePivotWithGroups([
         { name: "MyGroup", values: ["New", "Won"] },
         { name: "Others", values: [], isOtherGroup: true },
       ]);
 
       setSelection(model, ["A27"]); // "MyGroup" header
-      doAction(["pivot_headers_ungroup"], env, cellMenuRegistry);
+      await doAction(["pivot_headers_ungroup"], env, cellMenuRegistry);
 
       expect(model.getters.getPivotCoreDefinition(pivotId).customFields?.Stage2.groups).toEqual([
         { name: "Others", values: [], isOtherGroup: true },
       ]);
     });
 
-    test("Can remove the others group", () => {
+    test("Can remove the others group", async () => {
       updatePivotWithGroups([
         { name: "MyGroup", values: ["New", "Won"] },
         { name: "Others", values: [], isOtherGroup: true },
       ]);
 
       setSelection(model, ["A30"]); // "MyGroup" header
-      doAction(["pivot_headers_ungroup"], env, cellMenuRegistry);
+      await doAction(["pivot_headers_ungroup"], env, cellMenuRegistry);
 
       expect(model.getters.getPivotCoreDefinition(pivotId).customFields?.Stage2.groups).toEqual([
         { name: "MyGroup", values: ["New", "Won"] },

@@ -221,8 +221,7 @@ export function getGridIconEventPosition(model: Model, xc: string) {
 
 export async function clickGridIcon(model: Model, xc: string) {
   const { x, y } = getGridIconEventPosition(model, xc);
-  simulateClick(".o-grid-overlay", x, y);
-  await nextTick();
+  await simulateClick(".o-grid-overlay", x, y);
 }
 
 export async function hoverGridIcon(model: Model, xc: string) {

@@ -60,7 +60,7 @@ describe("Data validation preview", () => {
     await mountDataValidationPreview(testDataValidationRule);
     const spyDispatch = spyModelDispatch(model);
     const sheetId = model.getters.getActiveSheetId();
-    click(fixture, ".o-dv-delete-button");
+    await click(fixture, ".o-dv-delete-button");
     expect(spyDispatch).toHaveBeenCalledWith("REMOVE_DATA_VALIDATION_RULE", {
       id: "1",
       sheetId,

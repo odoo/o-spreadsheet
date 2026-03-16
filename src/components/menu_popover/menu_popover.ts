@@ -239,11 +239,11 @@ export class MenuPopover extends Component<Props, SpreadsheetChildEnv> {
     this.subMenu.parentMenu = undefined;
   }
 
-  onClickMenu(menu: Action, ev: PointerEvent) {
+  async onClickMenu(menu: Action, ev: PointerEvent) {
     if (this.isRoot(menu)) {
       this.openSubMenu(menu, ev.currentTarget as HTMLElement);
     } else {
-      this.activateMenu(menu, isMiddleClickOrCtrlClick(ev));
+      await this.activateMenu(menu, isMiddleClickOrCtrlClick(ev));
     }
   }
 

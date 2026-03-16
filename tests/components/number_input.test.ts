@@ -55,7 +55,7 @@ describe("NumberInput", () => {
   test("can save the value when clicking outside the input", async () => {
     const onChange = jest.fn();
     await mountNumberInput({ value: 5, onChange });
-    setInputValueAndTrigger(fixture.querySelector("input")!, "2");
+    await setInputValueAndTrigger(fixture.querySelector("input")!, "2");
     await click(document.body);
     jest.advanceTimersByTime(100);
     expect(onChange).toHaveBeenCalledWith("2");
@@ -72,7 +72,7 @@ describe("NumberInput", () => {
     const onChange = jest.fn();
     await mountNumberInput({ value: 5, onChange });
     fixture.querySelector("input")!.focus();
-    setInputValueAndTrigger(fixture.querySelector("input")!, "4");
+    await setInputValueAndTrigger(fixture.querySelector("input")!, "4");
     await keyDown({ key: "Enter" });
     jest.advanceTimersByTime(100);
     expect(onChange).toHaveBeenCalledWith("4");
@@ -90,7 +90,7 @@ describe("NumberInput", () => {
   test("saves the value on input blur", async () => {
     const onChange = jest.fn();
     await mountNumberInput({ value: 5, onChange });
-    setInputValueAndTrigger(fixture.querySelector("input")!, "2");
+    await setInputValueAndTrigger(fixture.querySelector("input")!, "2");
     fixture.querySelector("input")!.blur();
     jest.advanceTimersByTime(100);
     expect(onChange).toHaveBeenCalledWith("2");

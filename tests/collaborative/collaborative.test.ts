@@ -154,10 +154,10 @@ describe("Multi users synchronisation", () => {
     );
   });
 
-  test("Do not receive command after leaving the session", () => {
+  test("Do not receive command after leaving the session", async () => {
     let called = false;
     alice["session"].on("collaborative-event-received", alice, () => (called = true));
-    alice.leaveSession();
+    await alice.leaveSession();
     setCellContent(bob, "A1", "salut");
     expect(called).toBe(false);
   });
@@ -169,8 +169,8 @@ describe("Multi users synchronisation", () => {
     expect(notif).toHaveBeenCalled();
   });
 
-  test("Can export data after leaving the session", () => {
-    alice.leaveSession();
+  test("Can export data after leaving the session", async () => {
+    await alice.leaveSession();
     alice.exportData();
   });
 
@@ -549,7 +549,7 @@ describe("Multi users synchronisation", () => {
     );
   });
 
-  test("Do not handle duplicated message", () => {
+  test("Do not handle duplicated message", async () => {
     const serverRevisionId = alice["session"]["serverRevisionId"];
     const length = alice.getters.getNumberCols(alice.getters.getActiveSheetId());
     const data = alice.exportData();
@@ -574,7 +574,7 @@ describe("Multi users synchronisation", () => {
     };
     // The message is received once as initial message and once from the network
     const david = new Model(data, { transportService: network }, [message]);
-    network.sendMessage(message);
+    await network.sendMessage(message);
     expect(david.getters.getNumberCols(david.getters.getActiveSheetId())).toBe(length + 50);
   });
 
@@ -652,7 +652,7 @@ describe("Multi users synchronisation", () => {
     }
   );
 
-  test("readonly client is visible to other users", () => {
+  test("readonly client is visible to other users", async () => {
     expect(alice.getters.getClientsToDisplay().map((client) => client.name)).toEqual([
       "Bob",
       "Charlie",
@@ -672,7 +672,7 @@ describe("Multi users synchronisation", () => {
       "Bob",
       "Charlie",
     ]);
-    david.leaveSession();
+    await david.leaveSession();
     expect(alice.getters.getClientsToDisplay().map((client) => client.name)).toEqual([
       "Bob",
       "Charlie",

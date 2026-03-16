@@ -334,7 +334,7 @@ describe("charts", () => {
         });
         break;
       case "scorecard": {
-        setInputValueAndTrigger(dataSeriesValues, "B2:B4");
+        await setInputValueAndTrigger(dataSeriesValues, "B2:B4");
         await nextTick();
         await simulateClick(".o-data-series .o-selection-ok");
         const definition = model.getters.getChartDefinition(chartId) as ScorecardChart;
@@ -342,7 +342,7 @@ describe("charts", () => {
         break;
       }
       case "gauge": {
-        setInputValueAndTrigger(dataSeriesValues, "B9");
+        await setInputValueAndTrigger(dataSeriesValues, "B9");
         await nextTick();
         await simulateClick(".o-data-series .o-selection-ok");
         const definition = model.getters.getChartDefinition(chartId) as GaugeChart;
@@ -351,7 +351,7 @@ describe("charts", () => {
       }
     }
     await simulateClick(".o-panel .inactive");
-    setInputValueAndTrigger(".o-chart-title input", "hello");
+    await setInputValueAndTrigger(".o-chart-title input", "hello");
     expect(dispatch).toHaveBeenLastCalledWith("UPDATE_CHART", {
       figureId: expect.any(String),
       chartId,
@@ -361,7 +361,7 @@ describe("charts", () => {
         title: { text: "hello" },
       },
     });
-    setInputValueAndTrigger(".o-chart-title input", "Hi there");
+    await setInputValueAndTrigger(".o-chart-title input", "Hi there");
     expect(dispatch).toHaveBeenLastCalledWith("UPDATE_CHART", {
       figureId: expect.any(String),
       chartId,
@@ -378,7 +378,7 @@ describe("charts", () => {
     await mountSpreadsheet();
     await openChartDesignSidePanel(model, env, fixture, chartId);
 
-    setInputValueAndTrigger(".o-chart-title input", "Another Title", "onlyInput");
+    await setInputValueAndTrigger(".o-chart-title input", "Another Title", "onlyInput");
     expect(".o-chart-title input").toHaveValue("Another Title");
     await click(fixture.querySelector(".o-chart-title input")!);
     expect(".o-chart-title input").toHaveValue("Another Title");
@@ -944,7 +944,7 @@ describe("charts", () => {
     );
     await mountChartSidePanel();
     await openChartDesignSidePanel(model, env, fixture, chartId);
-    setInputValueAndTrigger(".o-serie-label-editor", "coucou");
+    await setInputValueAndTrigger(".o-serie-label-editor", "coucou");
 
     //@ts-ignore
     expect(model.getters.getChartDefinition(chartId).dataSets).toEqual([
@@ -993,7 +993,7 @@ describe("charts", () => {
     const figures = fixture.querySelectorAll(".o-figure");
     await simulateClick(figures[1] as HTMLElement);
     await simulateClick(".o-chart-title input");
-    setInputValueAndTrigger(".o-chart-title input", "new_title");
+    await setInputValueAndTrigger(".o-chart-title input", "new_title");
 
     expect(model.getters.getChartDefinition("1").title.text).toBe("old_title_1");
     expect(model.getters.getChartDefinition("2").title.text).toBe("new_title");
@@ -1009,7 +1009,7 @@ describe("charts", () => {
       await simulateClick(".o-chart-title input");
       const chartTitle = document.querySelector(".o-chart-title input") as HTMLInputElement;
       expect(chartTitle.value).toBe("hello");
-      setInputValueAndTrigger(".o-chart-title input", "hello_new_title");
+      await setInputValueAndTrigger(".o-chart-title input", "hello_new_title");
       await simulateClick(".o-grid-overlay");
       expect(chartTitle.value).toBe("hello_new_title");
     }
@@ -1199,7 +1199,7 @@ describe("charts", () => {
     const dataSeriesValues = dataSeries.querySelector("input");
     const hasTitle = fixture.querySelector("input[name=dataSetsHaveTitle]") as HTMLInputElement;
     await changeChartType("pie");
-    setInputValueAndTrigger(dataSeriesValues, "B2:B5");
+    await setInputValueAndTrigger(dataSeriesValues, "B2:B5");
     await click(hasTitle);
     expect((mockChartData.data! as any).datasets[0].label).toEqual("first column dataset");
     expect((mockChartData.data! as any).datasets[0].data).toEqual([10, 11, 12]);
@@ -1218,7 +1218,7 @@ describe("charts", () => {
     const dataSeries = fixture.querySelectorAll(".o-chart .o-data-series")[0] as HTMLInputElement;
     const dataSeriesValues = dataSeries.querySelector("input");
     const hasTitle = fixture.querySelector("input[name=dataSetsHaveTitle]") as HTMLInputElement;
-    setInputValueAndTrigger(dataSeriesValues, "B2:B5");
+    await setInputValueAndTrigger(dataSeriesValues, "B2:B5");
     await simulateClick(hasTitle);
     expect(model.getters.getChart(chartId)?.sheetId).toBe(sheetId);
   });
@@ -1663,7 +1663,7 @@ describe("charts", () => {
 
       // invalid labels/baseline
       await simulateClick(".o-data-labels input");
-      setInputValueAndTrigger(".o-data-labels input", "Invalid Label Range");
+      await setInputValueAndTrigger(".o-data-labels input", "Invalid Label Range");
       await simulateClick(".o-data-labels .o-selection-ok");
       expect(document.querySelector(".o-data-series input")?.classList).toContain("o-invalid");
       expect(document.querySelector(".o-data-labels input")?.classList).toContain("o-invalid");
@@ -2391,7 +2391,7 @@ describe("charts", () => {
           display: true,
         });
 
-        setInputValueAndTrigger(".trend-window-input", "3");
+        await setInputValueAndTrigger(".trend-window-input", "3");
         await nextTick();
         definition = model.getters.getChartDefinition(chartId) as ChartWithDataSetDefinition;
         expect(definition.dataSets[0].trend?.window).toEqual(3);

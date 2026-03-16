@@ -21,7 +21,7 @@ describe("Pyramid chart side panel", () => {
     await openChartConfigSidePanel(model, env, "id");
 
     const dataSeries = fixture.querySelector<HTMLInputElement>(".o-chart .o-data-series input")!;
-    setInputValueAndTrigger(dataSeries, "A1:D5");
+    await setInputValueAndTrigger(dataSeries, "A1:D5");
     await nextTick();
     await simulateClick(".o-data-series .o-selection-ok");
 

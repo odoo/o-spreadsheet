@@ -423,30 +423,34 @@ describe("Header group component test", () => {
         await nextTick();
       });
 
-      test("Can fold/unfold group with the context menu", () => {
-        click(getMenuItem("toggle_group"));
+      test("Can fold/unfold group with the context menu", async () => {
+        await click(getMenuItem("toggle_group"));
         expect(model.getters.isGroupFolded(sheetId, dimension, 1, 2)).toBe(true);
         expect(model.getters.isGroupFolded(sheetId, dimension, 4, 5)).toBe(false);
 
-        click(getMenuItem("toggle_group"));
+        triggerMouseEvent('.o-header-group[data-id="1-2"]', "contextmenu");
+        await nextTick();
+        await click(getMenuItem("toggle_group"));
         expect(model.getters.isGroupFolded(sheetId, dimension, 1, 2)).toBe(false);
         expect(model.getters.isGroupFolded(sheetId, dimension, 4, 5)).toBe(false);
       });
 
-      test("Can remove group with the context menu", () => {
-        click(getMenuItem("remove_group"));
+      test("Can remove group with the context menu", async () => {
+        await click(getMenuItem("remove_group"));
         expect(model.getters.getHeaderGroup(sheetId, dimension, 1, 2)).toBeFalsy();
       });
 
-      test("Can fold/unfold all groups with the context menu", () => {
+      test("Can fold/unfold all groups with the context menu", async () => {
         expect(model.getters.isGroupFolded(sheetId, dimension, 1, 2)).toBe(false);
         expect(model.getters.isGroupFolded(sheetId, dimension, 4, 5)).toBe(false);
 
-        click(getMenuItem("fold_all"));
+        await click(getMenuItem("fold_all"));
         expect(model.getters.isGroupFolded(sheetId, dimension, 1, 2)).toBe(true);
         expect(model.getters.isGroupFolded(sheetId, dimension, 4, 5)).toBe(true);
 
-        click(getMenuItem("unfold_all"));
+        triggerMouseEvent('.o-header-group[data-id="1-2"]', "contextmenu");
+        await nextTick();
+        await click(getMenuItem("unfold_all"));
         expect(model.getters.isGroupFolded(sheetId, dimension, 1, 2)).toBe(false);
         expect(model.getters.isGroupFolded(sheetId, dimension, 4, 5)).toBe(false);
       });

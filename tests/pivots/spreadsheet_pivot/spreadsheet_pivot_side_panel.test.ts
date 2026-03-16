@@ -76,7 +76,7 @@ describe("Spreadsheet pivot side panel", () => {
   test("It should be able to change the pivot name", async () => {
     await click(fixture.querySelector(".pivot-defer-update input")!);
     await nextTick();
-    setInputValueAndTrigger(".os-pivot-title", "New Pivot Name");
+    await setInputValueAndTrigger(".os-pivot-title", "New Pivot Name");
     expect(model.getters.getPivotName("1")).toEqual("New Pivot Name");
   });
 
@@ -323,13 +323,13 @@ describe("Spreadsheet pivot side panel", () => {
   });
 
   test("Can rename a pivot", async () => {
-    setInputValueAndTrigger(".os-pivot-title", "New Pivot Name");
+    await setInputValueAndTrigger(".os-pivot-title", "New Pivot Name");
     expect(model.getters.getPivotName("1")).toEqual("New Pivot Name");
   });
 
   test("Cannot rename a pivot with an empty name", async () => {
     const name = model.getters.getPivotName("1");
-    setInputValueAndTrigger(".os-pivot-title", "");
+    await setInputValueAndTrigger(".os-pivot-title", "");
     await nextTick();
     expect((fixture.querySelector(".os-pivot-title") as HTMLInputElement).value).toEqual(name);
     expect(model.getters.getPivotName("1")).toEqual(name);
@@ -771,7 +771,7 @@ describe("Spreadsheet pivot side panel", () => {
     const sheet2Id = "sheet2";
     createSheet(model, { sheetId: sheet2Id, activate: true });
     const reinsertStaticPivotPath = ["data", "reinsert_static_pivot", "reinsert_static_pivot_1"];
-    doAction(reinsertStaticPivotPath, env, topbarMenuRegistry);
+    await doAction(reinsertStaticPivotPath, env, topbarMenuRegistry);
     env.openSidePanel("PivotSidePanel", { pivotId: "2" });
     await nextTick();
     // update the pivot
@@ -946,14 +946,14 @@ describe("Spreadsheet pivot side panel", () => {
 
     test("Pivot sorting is removed when removing the sorted measure", async () => {
       expect(model.getters.getPivotCoreDefinition("2").sortedColumn).toEqual(sortedColumn);
-      click(fixture, ".pivot-measure .fa-trash");
+      await click(fixture, ".pivot-measure .fa-trash");
       expect(model.getters.getPivotCoreDefinition("2").sortedColumn).toBeUndefined();
     });
 
     test("Pivot sorting is removed when removing a column", async () => {
       expect(model.getters.getPivotCoreDefinition("2").sortedColumn).toEqual(sortedColumn);
       const column = fixture.querySelectorAll(".pivot-dimension")[0];
-      click(column, ".fa-trash");
+      await click(column, ".fa-trash");
       expect(model.getters.getPivotCoreDefinition("2").sortedColumn).toBeUndefined();
     });
   });
