@@ -336,10 +336,10 @@ describe("UI of conditional formats", () => {
       await click(fixture.querySelectorAll(selectors.cfTabSelector)[1]);
 
       // change every value
-      setInputValueAndTrigger(selectors.ruleEditor.range, "B2:B5");
+      await setInputValueAndTrigger(selectors.ruleEditor.range, "B2:B5");
 
       await editSelectComponent(selectors.colorScaleEditor.minType, "number");
-      setInputValueAndTrigger(selectors.colorScaleEditor.minValue, "20");
+      await setInputValueAndTrigger(selectors.colorScaleEditor.minValue, "20");
       await editSelectComponent(selectors.colorScaleEditor.maxType, "number");
       await setInputValueAndTrigger(selectors.colorScaleEditor.maxValue, "10");
 
@@ -357,13 +357,13 @@ describe("UI of conditional formats", () => {
       await click(fixture.querySelectorAll(selectors.cfTabSelector)[1]);
 
       // change every value
-      setInputValueAndTrigger(selectors.ruleEditor.range, "B2:B5");
+      await setInputValueAndTrigger(selectors.ruleEditor.range, "B2:B5");
 
       await editSelectComponent(selectors.colorScaleEditor.minType, "number");
-      setInputValueAndTrigger(selectors.colorScaleEditor.minValue, "60");
+      await setInputValueAndTrigger(selectors.colorScaleEditor.minValue, "60");
 
       await editSelectComponent(selectors.colorScaleEditor.midType, "number");
-      setInputValueAndTrigger(selectors.colorScaleEditor.midValue, "50");
+      await setInputValueAndTrigger(selectors.colorScaleEditor.midValue, "50");
 
       await editSelectComponent(selectors.colorScaleEditor.maxType, "number");
       await setInputValueAndTrigger(selectors.colorScaleEditor.maxValue, "10");
@@ -388,13 +388,13 @@ describe("UI of conditional formats", () => {
       await click(fixture.querySelectorAll(selectors.cfTabSelector)[1]);
 
       // change every value
-      setInputValueAndTrigger(selectors.ruleEditor.range, "B2:B5");
+      await setInputValueAndTrigger(selectors.ruleEditor.range, "B2:B5");
 
       await editSelectComponent(selectors.colorScaleEditor.minType, "number");
       await editSelectComponent(selectors.colorScaleEditor.midType, "number");
       await editSelectComponent(selectors.colorScaleEditor.maxType, "number");
-      setInputValueAndTrigger(selectors.colorScaleEditor.minValue, "0");
-      setInputValueAndTrigger(selectors.colorScaleEditor.midValue, "50");
+      await setInputValueAndTrigger(selectors.colorScaleEditor.minValue, "0");
+      await setInputValueAndTrigger(selectors.colorScaleEditor.midValue, "50");
       await setInputValueAndTrigger(selectors.colorScaleEditor.maxValue, "25");
 
       expect(errorMessages()).toEqual(["Midpoint must be smaller then Maximum"]);
@@ -415,12 +415,12 @@ describe("UI of conditional formats", () => {
         await click(fixture.querySelectorAll(selectors.cfTabSelector)[1]);
 
         // change every value
-        setInputValueAndTrigger(selectors.ruleEditor.range, "B2:B5");
+        await setInputValueAndTrigger(selectors.ruleEditor.range, "B2:B5");
 
         await editSelectComponent(selectors.colorScaleEditor.minType, "number");
         await editSelectComponent(selectors.colorScaleEditor.midType, "none");
         await editSelectComponent(selectors.colorScaleEditor.maxType, "number");
-        setInputValueAndTrigger(selectors.colorScaleEditor.minValue, invalidValue);
+        await setInputValueAndTrigger(selectors.colorScaleEditor.minValue, invalidValue);
         await setInputValueAndTrigger(selectors.colorScaleEditor.maxValue, "25");
 
         expect(errorMessages()).toEqual(["The minpoint must be a number"]);
@@ -440,13 +440,13 @@ describe("UI of conditional formats", () => {
         await click(fixture.querySelectorAll(selectors.cfTabSelector)[1]);
 
         // change every value
-        setInputValueAndTrigger(selectors.ruleEditor.range, "B2:B5");
+        await setInputValueAndTrigger(selectors.ruleEditor.range, "B2:B5");
 
         await editSelectComponent(selectors.colorScaleEditor.minType, "number");
         await editSelectComponent(selectors.colorScaleEditor.midType, "number");
         await editSelectComponent(selectors.colorScaleEditor.maxType, "number");
-        setInputValueAndTrigger(selectors.colorScaleEditor.minValue, "10");
-        setInputValueAndTrigger(selectors.colorScaleEditor.midValue, invalidValue);
+        await setInputValueAndTrigger(selectors.colorScaleEditor.minValue, "10");
+        await setInputValueAndTrigger(selectors.colorScaleEditor.midValue, invalidValue);
         await setInputValueAndTrigger(selectors.colorScaleEditor.maxValue, "25");
 
         expect(errorMessages()).toEqual(["The midpoint must be a number"]);
@@ -468,12 +468,12 @@ describe("UI of conditional formats", () => {
         await click(fixture.querySelectorAll(selectors.cfTabSelector)[1]);
 
         // change every value
-        setInputValueAndTrigger(selectors.ruleEditor.range, "B2:B5");
+        await setInputValueAndTrigger(selectors.ruleEditor.range, "B2:B5");
 
         await editSelectComponent(selectors.colorScaleEditor.minType, "number");
         await editSelectComponent(selectors.colorScaleEditor.midType, "none");
         await editSelectComponent(selectors.colorScaleEditor.maxType, "number");
-        setInputValueAndTrigger(selectors.colorScaleEditor.minValue, "1");
+        await setInputValueAndTrigger(selectors.colorScaleEditor.minValue, "1");
         await setInputValueAndTrigger(selectors.colorScaleEditor.maxValue, invalidValue);
 
         expect(errorMessages()).toEqual(["The maxpoint must be a number"]);
@@ -491,7 +491,7 @@ describe("UI of conditional formats", () => {
       await click(fixture.querySelectorAll(selectors.cfTabSelector)[1]);
 
       // change every value
-      setInputValueAndTrigger(selectors.ruleEditor.range, "B2:B5");
+      await setInputValueAndTrigger(selectors.ruleEditor.range, "B2:B5");
 
       await editSelectComponent(selectors.colorScaleEditor.minType, "formula");
       await editSelectComponent(selectors.colorScaleEditor.midType, "none");
@@ -509,13 +509,13 @@ describe("UI of conditional formats", () => {
       await click(fixture.querySelectorAll(selectors.cfTabSelector)[1]);
 
       // change every value
-      setInputValueAndTrigger(selectors.ruleEditor.range, "B2:B5");
+      await setInputValueAndTrigger(selectors.ruleEditor.range, "B2:B5");
 
       await editSelectComponent(selectors.colorScaleEditor.minType, "number");
       await editSelectComponent(selectors.colorScaleEditor.midType, "formula");
       await editSelectComponent(selectors.colorScaleEditor.maxType, "number");
-      setInputValueAndTrigger(selectors.colorScaleEditor.minValue, "1");
-      editStandaloneComposer(selectors.colorScaleEditor.midValueComposer, "=hello()");
+      await setInputValueAndTrigger(selectors.colorScaleEditor.minValue, "1");
+      await editStandaloneComposer(selectors.colorScaleEditor.midValueComposer, "=hello()");
       await setInputValueAndTrigger(selectors.colorScaleEditor.maxValue, "3");
 
       expect(errorMessages()).toEqual(["Invalid Midpoint formula"]);
@@ -538,7 +538,7 @@ describe("UI of conditional formats", () => {
       await click(fixture.querySelectorAll(selectors.cfTabSelector)[1]);
 
       // change every value
-      setInputValueAndTrigger(selectors.ruleEditor.range, "B2:B5");
+      await setInputValueAndTrigger(selectors.ruleEditor.range, "B2:B5");
 
       await editSelectComponent(selectors.colorScaleEditor.minType, "formula");
       await editSelectComponent(selectors.colorScaleEditor.midType, "none");
@@ -656,7 +656,7 @@ describe("UI of conditional formats", () => {
         operator: "isEmpty",
       });
 
-      click(fixture, selectors.buttonCancel);
+      await click(fixture, selectors.buttonCancel);
       expect(model.getters.getConditionalFormats(sheetId)[0].rule).toMatchObject({
         operator: "isNotEmpty",
       });
@@ -742,7 +742,7 @@ describe("UI of conditional formats", () => {
       await click(fixture, selectors.buttonAdd);
       await nextTick();
 
-      setInputValueAndTrigger(selectors.ruleEditor.range, "hello");
+      await setInputValueAndTrigger(selectors.ruleEditor.range, "hello");
 
       const dispatch = spyModelDispatch(model);
       //  click save
@@ -784,7 +784,7 @@ describe("UI of conditional formats", () => {
       await nextTick();
 
       await setInputValueAndTrigger(selectors.ruleEditor.editor.operatorInput, "BeginsWith");
-      setInputValueAndTrigger(".o-selection-input input", "A1:A4");
+      await setInputValueAndTrigger(".o-selection-input input", "A1:A4");
       expect(document.querySelectorAll(".o-selection-input input")).toHaveLength(1);
 
       // Add & remove a valid range
@@ -819,7 +819,7 @@ describe("UI of conditional formats", () => {
       expect(document.querySelectorAll(".o-selection-input input")).toHaveLength(2);
 
       await changeRuleOperatorType(fixture, "isGreaterThan");
-      editStandaloneComposer(selectors.ruleEditor.editor.valueInput, "ABC");
+      await editStandaloneComposer(selectors.ruleEditor.editor.valueInput, "ABC");
 
       // The CF rule should be saved with the one range only
       await click(fixture, selectors.buttonSave);
@@ -862,7 +862,7 @@ describe("UI of conditional formats", () => {
 
     test("switching to list resets the rules to their default value", async () => {
       await click(fixture, selectors.buttonAdd);
-      setInputValueAndTrigger(selectors.ruleEditor.range, "B5:C7");
+      await setInputValueAndTrigger(selectors.ruleEditor.range, "B5:C7");
       await changeRuleOperatorType(fixture, "beginsWithText");
       await click(fixture, selectors.buttonCancel);
       await click(fixture, selectors.buttonAdd);
@@ -907,9 +907,9 @@ describe("UI of conditional formats", () => {
         await nextTick();
 
         // change every value
-        setInputValueAndTrigger(selectors.ruleEditor.range, "A1:A3");
+        await setInputValueAndTrigger(selectors.ruleEditor.range, "A1:A3");
         await changeRuleOperatorType(fixture, "beginsWithText");
-        editStandaloneComposer(selectors.ruleEditor.editor.valueInput, "3");
+        await editStandaloneComposer(selectors.ruleEditor.editor.valueInput, "3");
 
         await click(fixture, selectors.ruleEditor.editor.bold);
         await click(fixture, selectors.ruleEditor.editor.italic);
@@ -948,11 +948,11 @@ describe("UI of conditional formats", () => {
         await nextTick();
 
         // change every value
-        setInputValueAndTrigger(selectors.ruleEditor.range, "A1:A3");
+        await setInputValueAndTrigger(selectors.ruleEditor.range, "A1:A3");
         expect(".o-composer").not.toHaveClass("active");
         await changeRuleOperatorType(fixture, "beginsWithText");
         expect(".o-composer").toHaveClass("active");
-        editStandaloneComposer(selectors.ruleEditor.editor.valueInput, "3");
+        await editStandaloneComposer(selectors.ruleEditor.editor.valueInput, "3");
 
         await click(fixture, selectors.ruleEditor.editor.bold);
         await click(fixture, selectors.ruleEditor.editor.italic);
@@ -992,7 +992,7 @@ describe("UI of conditional formats", () => {
 
         await changeRuleOperatorType(fixture, "dateIs");
         expect(".o-composer").toHaveClass("active");
-        editStandaloneComposer(selectors.ruleEditor.editor.valueInput, "10/10/2025");
+        await editStandaloneComposer(selectors.ruleEditor.editor.valueInput, "10/10/2025");
 
         await click(fixture, selectors.ruleEditor.editor.bold);
         await click(fixture, selectors.buttonSave);
@@ -1030,7 +1030,7 @@ describe("UI of conditional formats", () => {
 
       test("single color with an invalid formula as value", async () => {
         await click(fixture, selectors.buttonAdd);
-        setInputValueAndTrigger(selectors.ruleEditor.range, "A1:A3");
+        await setInputValueAndTrigger(selectors.ruleEditor.range, "A1:A3");
         await changeRuleOperatorType(fixture, "isGreaterThan");
         expect(fixture.querySelector(".o-invalid")).toBeNull();
         await editStandaloneComposer(selectors.ruleEditor.editor.valueInput, "=suùù(");
@@ -1048,7 +1048,7 @@ describe("UI of conditional formats", () => {
         await click(fixture.querySelectorAll(selectors.cfTabSelector)[1]);
 
         // change every value
-        setInputValueAndTrigger(selectors.ruleEditor.range, "B2:B5");
+        await setInputValueAndTrigger(selectors.ruleEditor.range, "B2:B5");
         await click(fixture, selectors.colorScaleEditor.minColor);
         await click(fixture, selectors.colorScaleEditor.colorPickerBlue);
         await click(fixture, selectors.colorScaleEditor.maxColor);
@@ -1084,16 +1084,16 @@ describe("UI of conditional formats", () => {
         await click(fixture.querySelectorAll(selectors.cfTabSelector)[1]);
 
         // change every value
-        setInputValueAndTrigger(selectors.ruleEditor.range, "B2:B5");
+        await setInputValueAndTrigger(selectors.ruleEditor.range, "B2:B5");
 
         await click(fixture, selectors.colorScaleEditor.minColor);
         await click(fixture, selectors.colorScaleEditor.colorPickerBlue);
         await editSelectComponent(selectors.colorScaleEditor.minType, "number");
-        setInputValueAndTrigger(selectors.colorScaleEditor.minValue, "10");
+        await setInputValueAndTrigger(selectors.colorScaleEditor.minValue, "10");
         await click(fixture, selectors.colorScaleEditor.maxColor);
         await click(fixture, selectors.colorScaleEditor.colorPickerYellow);
         await editSelectComponent(selectors.colorScaleEditor.maxType, "number");
-        setInputValueAndTrigger(selectors.colorScaleEditor.maxValue, "20");
+        await setInputValueAndTrigger(selectors.colorScaleEditor.maxValue, "20");
 
         const dispatch = spyModelDispatch(model);
         //  click save
@@ -1128,16 +1128,16 @@ describe("UI of conditional formats", () => {
         await click(fixture.querySelectorAll(selectors.cfTabSelector)[1]);
 
         // change every value
-        setInputValueAndTrigger(selectors.ruleEditor.range, "B2:B5");
+        await setInputValueAndTrigger(selectors.ruleEditor.range, "B2:B5");
 
         await click(fixture, selectors.colorScaleEditor.minColor);
         await click(fixture, selectors.colorScaleEditor.colorPickerBlue);
         await editSelectComponent(selectors.colorScaleEditor.minType, "percentage");
-        setInputValueAndTrigger(selectors.colorScaleEditor.minValue, "10");
+        await setInputValueAndTrigger(selectors.colorScaleEditor.minValue, "10");
         await click(fixture, selectors.colorScaleEditor.maxColor);
         await click(fixture, selectors.colorScaleEditor.colorPickerYellow);
         await editSelectComponent(selectors.colorScaleEditor.maxType, "percentage");
-        setInputValueAndTrigger(selectors.colorScaleEditor.maxValue, "90");
+        await setInputValueAndTrigger(selectors.colorScaleEditor.maxValue, "90");
 
         const dispatch = spyModelDispatch(model);
         //  click save
@@ -1172,16 +1172,16 @@ describe("UI of conditional formats", () => {
         await click(fixture.querySelectorAll(selectors.cfTabSelector)[1]);
 
         // change every value
-        setInputValueAndTrigger(selectors.ruleEditor.range, "B2:B5");
+        await setInputValueAndTrigger(selectors.ruleEditor.range, "B2:B5");
 
         await click(fixture, selectors.colorScaleEditor.minColor);
         await click(fixture, selectors.colorScaleEditor.colorPickerBlue);
         await editSelectComponent(selectors.colorScaleEditor.minType, "percentile");
-        setInputValueAndTrigger(selectors.colorScaleEditor.minValue, "10");
+        await setInputValueAndTrigger(selectors.colorScaleEditor.minValue, "10");
         await click(fixture, selectors.colorScaleEditor.maxColor);
         await click(fixture, selectors.colorScaleEditor.colorPickerYellow);
         await editSelectComponent(selectors.colorScaleEditor.maxType, "percentile");
-        setInputValueAndTrigger(selectors.colorScaleEditor.maxValue, "90");
+        await setInputValueAndTrigger(selectors.colorScaleEditor.maxValue, "90");
 
         const dispatch = spyModelDispatch(model);
         //  click save
@@ -1216,22 +1216,22 @@ describe("UI of conditional formats", () => {
         await click(fixture.querySelectorAll(selectors.cfTabSelector)[1]);
 
         // change every value
-        setInputValueAndTrigger(selectors.ruleEditor.range, "B2:B5");
+        await setInputValueAndTrigger(selectors.ruleEditor.range, "B2:B5");
 
         await click(fixture, selectors.colorScaleEditor.minColor);
         await click(fixture, selectors.colorScaleEditor.colorPickerBlue);
         await editSelectComponent(selectors.colorScaleEditor.minType, "number");
-        setInputValueAndTrigger(selectors.colorScaleEditor.minValue, "0");
+        await setInputValueAndTrigger(selectors.colorScaleEditor.minValue, "0");
 
         await editSelectComponent(selectors.colorScaleEditor.midType, "number");
         await click(fixture, selectors.colorScaleEditor.midColor);
         await click(fixture, selectors.colorScaleEditor.colorPickerOrange);
-        setInputValueAndTrigger(selectors.colorScaleEditor.midValue, "50");
+        await setInputValueAndTrigger(selectors.colorScaleEditor.midValue, "50");
 
         await click(fixture, selectors.colorScaleEditor.maxColor);
         await click(fixture, selectors.colorScaleEditor.colorPickerYellow);
         await editSelectComponent(selectors.colorScaleEditor.maxType, "number");
-        setInputValueAndTrigger(selectors.colorScaleEditor.maxValue, "100");
+        await setInputValueAndTrigger(selectors.colorScaleEditor.maxValue, "100");
 
         const dispatch = spyModelDispatch(model);
         //  click save
@@ -1276,7 +1276,7 @@ describe("UI of conditional formats", () => {
         await click(fixture.querySelectorAll(selectors.listPreview)[0]);
         await nextTick();
         // change every value
-        setInputValueAndTrigger(selectors.ruleEditor.range, "B2:B5");
+        await setInputValueAndTrigger(selectors.ruleEditor.range, "B2:B5");
 
         await click(fixture, selectors.colorScaleEditor.minColor);
         await click(fixture, selectors.colorScaleEditor.colorPickerBlue);
@@ -1317,7 +1317,7 @@ describe("UI of conditional formats", () => {
         await click(fixture.querySelectorAll(selectors.cfTabSelector)[2]);
 
         // change every value
-        setInputValueAndTrigger(selectors.ruleEditor.range, "B2:B5");
+        await setInputValueAndTrigger(selectors.ruleEditor.range, "B2:B5");
 
         const dispatch = spyModelDispatch(model);
         //  click save
@@ -1496,13 +1496,13 @@ describe("UI of conditional formats", () => {
         const rows = document.querySelectorAll(selectors.ruleEditor.editor.iconSetRule.rows);
         const inputInflectionLower = rows[1].querySelectorAll("input")[0];
         const inputInflectionUpper = rows[2].querySelectorAll("input")[0];
-        setInputValueAndTrigger(inputInflectionLower, "hello");
+        await setInputValueAndTrigger(inputInflectionLower, "hello");
         await click(fixture, selectors.buttonSave);
         expect(inputInflectionLower.classList).toContain("o-invalid");
         expect(inputInflectionUpper.classList).not.toContain("o-invalid");
         expect(errorMessages()).toEqual(["The first value must be a number"]);
 
-        setInputValueAndTrigger(inputInflectionUpper, "hello");
+        await setInputValueAndTrigger(inputInflectionUpper, "hello");
         await click(fixture, selectors.buttonSave);
         expect(inputInflectionLower.classList).toContain("o-invalid");
         expect(inputInflectionUpper.classList).toContain("o-invalid");
@@ -1536,7 +1536,7 @@ describe("UI of conditional formats", () => {
         await click(fixture.querySelectorAll(selectors.cfTabSelector)[3]);
 
         // change every value
-        setInputValueAndTrigger(selectors.ruleEditor.range, "B2:B5");
+        await setInputValueAndTrigger(selectors.ruleEditor.range, "B2:B5");
 
         const dispatch = spyModelDispatch(model);
         //  click save

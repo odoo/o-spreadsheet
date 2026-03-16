@@ -87,7 +87,7 @@ describe("Table style popover", () => {
     const onStylePicked = jest.fn();
     await mountPopover({ onStylePicked });
     await click(fixture, ".o-notebook-tab[data-id='custom']");
-    click(fixture, ".o-new-table-style");
+    await click(fixture, ".o-new-table-style");
     expect(openSidePanel).toHaveBeenCalledWith("TableStyleEditorPanel", { onStylePicked });
   });
 
@@ -119,7 +119,7 @@ describe("Table style popover", () => {
     test("Can delete a custom table style with the context menu", async () => {
       triggerMouseEvent('.o-table-style-list-item[title="MyStyle"]', "contextmenu");
       await nextTick();
-      click(fixture, ".o-menu-item[data-name='deleteTableStyle'");
+      await click(fixture, ".o-menu-item[data-name='deleteTableStyle'");
       expect(Object.keys(model.getters.getTableStyles())).not.toContain("MyStyle");
     });
   });

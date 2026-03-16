@@ -62,7 +62,7 @@ describe("Table resizer component", () => {
     createTable(model, "A1:B2");
     await nextTick();
     const dragEndPosition = { x: DEFAULT_CELL_WIDTH * 4, y: DEFAULT_CELL_HEIGHT * 4 };
-    clickAndDrag(".o-table-resizer", dragEndPosition, undefined, false);
+    await clickAndDrag(".o-table-resizer", dragEndPosition, undefined, false);
     expect(flattenHighlightRange(getHighlightsFromStore(env)[0])).toMatchObject({
       zone: toZone("A1:E5"),
       noFill: true,
@@ -76,7 +76,7 @@ describe("Table resizer component", () => {
     createTable(model, "C3:D4");
     await nextTick();
 
-    clickAndDrag(".o-table-resizer", { x: 0, y: 0 }, undefined, false);
+    await clickAndDrag(".o-table-resizer", { x: 0, y: 0 }, undefined, false);
     expect(flattenHighlightRange(getHighlightsFromStore(env)[0])).toMatchObject({
       zone: toZone("C3"),
     });

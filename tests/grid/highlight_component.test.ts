@@ -190,10 +190,10 @@ describe("Corner component", () => {
       cornerEl = fixture.querySelector(".o-corner-nw")!;
 
       // select B2 nw corner
-      selectNWCellCorner(cornerEl, "B2");
+      await selectNWCellCorner(cornerEl, "B2");
       expect(spyDispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", { zone: toZone("B2") });
       // move to A1
-      moveToCell(cornerEl, "A1");
+      await moveToCell(cornerEl, "A1");
       expect(spyHandleEvent).toHaveBeenCalledWith(expectedResult("A1:B2"));
     });
 
@@ -202,13 +202,13 @@ describe("Corner component", () => {
       cornerEl = fixture.querySelector(".o-corner-ne")!;
 
       // select B2 ne corner
-      selectNECellCorner(cornerEl, "B2");
+      await selectNECellCorner(cornerEl, "B2");
       expect(model.dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
         zone: toZone("B2"),
       });
 
       // move to C1
-      moveToCell(cornerEl, "C1");
+      await moveToCell(cornerEl, "C1");
       expect(spyHandleEvent).toHaveBeenCalledWith(expectedResult("B1:C2"));
     });
 
@@ -217,13 +217,13 @@ describe("Corner component", () => {
       cornerEl = fixture.querySelector(".o-corner-sw")!;
 
       // select B2 sw corner
-      selectSWCellCorner(cornerEl, "B2");
+      await selectSWCellCorner(cornerEl, "B2");
       expect(parent.model.dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
         zone: toZone("B2"),
       });
 
       // move to A3
-      moveToCell(cornerEl, "A3");
+      await moveToCell(cornerEl, "A3");
       expect(spyHandleEvent).toHaveBeenCalledWith(expectedResult("A2:B3"));
     });
 
@@ -232,13 +232,13 @@ describe("Corner component", () => {
       cornerEl = fixture.querySelector(".o-corner-se")!;
 
       // select B2 se corner
-      selectSECellCorner(cornerEl, "B2");
+      await selectSECellCorner(cornerEl, "B2");
       expect(parent.model.dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
         zone: toZone("B2"),
       });
 
       // move to C3
-      moveToCell(cornerEl, "C3");
+      await moveToCell(cornerEl, "C3");
       expect(spyHandleEvent).toHaveBeenCalledWith(expectedResult("B2:C3"));
     });
   });
@@ -258,8 +258,8 @@ describe("Corner component", () => {
       await mountHighlight("B1", "#666");
       cornerEl = fixture.querySelector(".o-corner-se")!;
 
-      selectSECellCorner(cornerEl, "B1");
-      moveToCell(cornerEl, "B10");
+      await selectSECellCorner(cornerEl, "B1");
+      await moveToCell(cornerEl, "B10");
 
       expect(spyHandleEvent).toHaveBeenCalledWith(expectedResult("B1:B10"));
     });
@@ -268,8 +268,8 @@ describe("Corner component", () => {
       await mountHighlight("A1", "#666");
       cornerEl = fixture.querySelector(".o-corner-se")!;
 
-      selectSECellCorner(cornerEl, "A1");
-      moveToCell(cornerEl, "J1");
+      await selectSECellCorner(cornerEl, "A1");
+      await moveToCell(cornerEl, "J1");
 
       expect(spyHandleEvent).toHaveBeenCalledWith(expectedResult("A1:J1"));
     });
@@ -278,8 +278,8 @@ describe("Corner component", () => {
       await mountHighlight("B1:C2", "#666");
       cornerEl = fixture.querySelector(".o-corner-se")!;
 
-      selectSECellCorner(cornerEl, "C2");
-      moveToCell(cornerEl, "D10");
+      await selectSECellCorner(cornerEl, "C2");
+      await moveToCell(cornerEl, "D10");
 
       expect(spyHandleEvent).toHaveBeenCalledWith(expectedResult("B1:D10"));
     });
@@ -288,8 +288,8 @@ describe("Corner component", () => {
       await mountHighlight("A1:B3", "#666");
       cornerEl = fixture.querySelector(".o-corner-se")!;
 
-      selectSECellCorner(cornerEl, "B3");
-      moveToCell(cornerEl, "J4");
+      await selectSECellCorner(cornerEl, "B3");
+      await moveToCell(cornerEl, "J4");
 
       expect(spyHandleEvent).toHaveBeenCalledWith(expectedResult("A1:J4"));
     });
@@ -298,8 +298,8 @@ describe("Corner component", () => {
       await mountHighlight("A1:B5", "#666");
       cornerEl = fixture.querySelector(".o-corner-se")!;
 
-      selectSECellCorner(cornerEl, "B5");
-      moveToCell(cornerEl, "J10");
+      await selectSECellCorner(cornerEl, "B5");
+      await moveToCell(cornerEl, "J10");
 
       expect(spyHandleEvent).toHaveBeenCalledWith(expectedResult("A1:J10"));
     });
@@ -308,8 +308,8 @@ describe("Corner component", () => {
       await mountHighlight("B1:B10", "#666");
       cornerEl = fixture.querySelector(".o-corner-ne")!;
 
-      selectNECellCorner(cornerEl, "B1");
-      moveToCell(cornerEl, "B5");
+      await selectNECellCorner(cornerEl, "B1");
+      await moveToCell(cornerEl, "B5");
 
       expect(spyHandleEvent).toHaveBeenCalledWith(expectedResult("B5:B10"));
     });
@@ -318,8 +318,8 @@ describe("Corner component", () => {
       await mountHighlight("A1:J1", "#666");
       cornerEl = fixture.querySelector(".o-corner-sw")!;
 
-      selectSWCellCorner(cornerEl, "A1");
-      moveToCell(cornerEl, "D1");
+      await selectSWCellCorner(cornerEl, "A1");
+      await moveToCell(cornerEl, "D1");
 
       expect(spyHandleEvent).toHaveBeenCalledWith(expectedResult("D1:J1"));
     });
@@ -330,7 +330,7 @@ describe("Corner component", () => {
     cornerEl = fixture.querySelector(".o-corner-nw")!;
 
     // select A1 nw corner
-    selectNWCellCorner(cornerEl, "A1");
+    await selectNWCellCorner(cornerEl, "A1");
 
     expect(spyDispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
       zone: toZone("A1"),
@@ -366,13 +366,13 @@ describe("Corner component", () => {
       cornerEl = fixture.querySelector(".o-corner-nw")!;
 
       // select B2 ne corner
-      selectNWCellCorner(cornerEl, "B2");
+      await selectNWCellCorner(cornerEl, "B2");
       expect(parent.model.dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
         zone: toZone("B2"),
       });
 
       // move to B1
-      moveToCell(cornerEl, "B1");
+      await moveToCell(cornerEl, "B1");
       expect(spyHandleEvent).toHaveBeenCalledWith(expectedResult("B1:C2"));
     });
 
@@ -381,12 +381,12 @@ describe("Corner component", () => {
       const parent = await mountHighlight("A1:A10", "#666");
       cornerEl = fixture.querySelector(".o-corner-ne")!;
 
-      selectNECellCorner(cornerEl, "A1");
+      await selectNECellCorner(cornerEl, "A1");
       expect(parent.model.dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
         zone: toZone("A1:A10"),
       });
 
-      moveToCell(cornerEl, "B1");
+      await moveToCell(cornerEl, "B1");
       expect(spyHandleEvent).toHaveBeenCalledWith(expectedResult("A1:C10"));
     });
 
@@ -395,12 +395,12 @@ describe("Corner component", () => {
       const parent = await mountHighlight("A1:J1", "#666");
       cornerEl = fixture.querySelector(".o-corner-sw")!;
 
-      selectSWCellCorner(cornerEl, "A1");
+      await selectSWCellCorner(cornerEl, "A1");
       expect(parent.model.dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
         zone: toZone("A1:J1"),
       });
 
-      moveToCell(cornerEl, "A2");
+      await moveToCell(cornerEl, "A2");
       expect(spyHandleEvent).toHaveBeenCalledWith(expectedResult("A1:J3"));
     });
   });
@@ -417,13 +417,13 @@ describe("Corner component", () => {
     cornerEl = fixture.querySelector(".o-corner-nw")!;
 
     // select B1 nw corner
-    selectNWCellCorner(cornerEl, "B1");
+    await selectNWCellCorner(cornerEl, "B1");
     expect(parent.model.dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
       zone: toZone("B1"),
     });
 
     // move to C1
-    moveToCell(cornerEl, "C1");
+    await moveToCell(cornerEl, "C1");
     expect(parent.model.dispatch).toHaveBeenCalledWith("SET_VIEWPORT_OFFSET", {
       offsetX: width / 2,
       offsetY: 0,
@@ -442,13 +442,13 @@ describe("Corner component", () => {
     cornerEl = fixture.querySelector(".o-corner-nw")!;
 
     // select A2 nw corner
-    selectTopCellBorder(cornerEl, "A2");
+    await selectTopCellBorder(cornerEl, "A2");
     expect(parent.model.dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
       zone: toZone("A2"),
     });
 
     // move to A3
-    moveToCell(cornerEl, "A3");
+    await moveToCell(cornerEl, "A3");
     expect(parent.model.dispatch).toHaveBeenCalledWith("SET_VIEWPORT_OFFSET", {
       offsetX: 0,
       offsetY: height / 2,
@@ -470,13 +470,13 @@ describe("Border component", () => {
       borderEl = fixture.querySelector(".o-border-n")!;
 
       // select B2 top border
-      selectTopCellBorder(borderEl, "B2");
+      await selectTopCellBorder(borderEl, "B2");
       expect(parent.model.dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
         zone: toZone("B2"),
       });
 
       // move to C2
-      moveToCell(borderEl, "C2");
+      await moveToCell(borderEl, "C2");
       expect(spyHandleEvent).toHaveBeenCalledWith(expectedResult("C2"));
     });
 
@@ -485,13 +485,13 @@ describe("Border component", () => {
       borderEl = fixture.querySelector(".o-border-w")!;
 
       // select B2 left border
-      selectLeftCellBorder(borderEl, "B2");
+      await selectLeftCellBorder(borderEl, "B2");
       expect(parent.model.dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
         zone: toZone("B2"),
       });
 
       // move to C2
-      moveToCell(borderEl, "C2");
+      await moveToCell(borderEl, "C2");
       expect(spyHandleEvent).toHaveBeenCalledWith(expectedResult("C2"));
     });
 
@@ -500,13 +500,13 @@ describe("Border component", () => {
       borderEl = fixture.querySelector(".o-border-e")!;
 
       // select B2 right border
-      selectRightCellBorder(borderEl, "B2");
+      await selectRightCellBorder(borderEl, "B2");
       expect(parent.model.dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
         zone: toZone("B2"),
       });
 
       // move to C2
-      moveToCell(borderEl, "C2");
+      await moveToCell(borderEl, "C2");
       expect(spyHandleEvent).toHaveBeenCalledWith(expectedResult("C2"));
     });
 
@@ -515,13 +515,13 @@ describe("Border component", () => {
       borderEl = fixture.querySelector(".o-border-s")!;
 
       // select B2 bottom border
-      selectBottomCellBorder(borderEl, "B2");
+      await selectBottomCellBorder(borderEl, "B2");
       expect(parent.model.dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
         zone: toZone("B2"),
       });
 
       // move to C2
-      moveToCell(borderEl, "C2");
+      await moveToCell(borderEl, "C2");
       expect(spyHandleEvent).toHaveBeenCalledWith(expectedResult("C2"));
     });
   });
@@ -542,8 +542,8 @@ describe("Border component", () => {
       await mountHighlight("B1:B10", "#666");
       borderEl = fixture.querySelector(".o-border-e")!;
 
-      selectRightCellBorder(borderEl, "B2");
-      moveToCell(borderEl, "C2");
+      await selectRightCellBorder(borderEl, "B2");
+      await moveToCell(borderEl, "C2");
 
       expect(spyHandleEvent).toHaveBeenCalledWith(expectedResult("C1:C10"));
     });
@@ -552,8 +552,8 @@ describe("Border component", () => {
       await mountHighlight("A1:J1", "#666");
       borderEl = fixture.querySelector(".o-border-s")!;
 
-      selectBottomCellBorder(borderEl, "A1");
-      moveToCell(borderEl, "A2");
+      await selectBottomCellBorder(borderEl, "A1");
+      await moveToCell(borderEl, "A2");
 
       expect(spyHandleEvent).toHaveBeenCalledWith(expectedResult("A2:J2"));
     });
@@ -562,8 +562,8 @@ describe("Border component", () => {
       await mountHighlight("B1:C10", "#666");
       borderEl = fixture.querySelector(".o-border-e")!;
 
-      selectRightCellBorder(borderEl, "C2");
-      moveToCell(borderEl, "F2");
+      await selectRightCellBorder(borderEl, "C2");
+      await moveToCell(borderEl, "F2");
 
       expect(spyHandleEvent).toHaveBeenCalledWith(expectedResult("E1:F10"));
     });
@@ -572,8 +572,8 @@ describe("Border component", () => {
       await mountHighlight("A1:J2", "#666");
       borderEl = fixture.querySelector(".o-border-s")!;
 
-      selectBottomCellBorder(borderEl, "B2");
-      moveToCell(borderEl, "B4");
+      await selectBottomCellBorder(borderEl, "B2");
+      await moveToCell(borderEl, "B4");
 
       expect(spyHandleEvent).toHaveBeenCalledWith(expectedResult("A3:J4"));
     });
@@ -582,8 +582,8 @@ describe("Border component", () => {
       await mountHighlight("B5:B10", "#666");
       borderEl = fixture.querySelector(".o-border-e")!;
 
-      selectRightCellBorder(borderEl, "B7");
-      moveToCell(borderEl, "C7");
+      await selectRightCellBorder(borderEl, "B7");
+      await moveToCell(borderEl, "C7");
 
       expect(spyHandleEvent).toHaveBeenCalledWith(expectedResult("C5:C10"));
     });
@@ -592,8 +592,8 @@ describe("Border component", () => {
       await mountHighlight("C1:J1", "#666");
       borderEl = fixture.querySelector(".o-border-s")!;
 
-      selectBottomCellBorder(borderEl, "D1");
-      moveToCell(borderEl, "D2");
+      await selectBottomCellBorder(borderEl, "D1");
+      await moveToCell(borderEl, "D2");
 
       expect(spyHandleEvent).toHaveBeenCalledWith(expectedResult("C2:J2"));
     });
@@ -604,17 +604,17 @@ describe("Border component", () => {
     borderEl = fixture.querySelector(".o-border-n")!;
 
     // select A1 top border
-    selectTopCellBorder(borderEl, "A1");
+    await selectTopCellBorder(borderEl, "A1");
     expect(parent.model.dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
       zone: toZone("A1:B2"),
     });
 
     // move to B1
-    moveToCell(borderEl, "B1");
+    await moveToCell(borderEl, "B1");
     expect(spyHandleEvent).toHaveBeenCalledWith(expectedResult("B1:C2"));
 
     // move to C1
-    moveToCell(borderEl, "C1");
+    await moveToCell(borderEl, "C1");
     expect(spyHandleEvent).toHaveBeenCalledWith(expectedResult("C1:D2"));
   });
 
@@ -623,13 +623,13 @@ describe("Border component", () => {
     borderEl = fixture.querySelector(".o-border-n")!;
 
     // select B1 top border
-    selectTopCellBorder(borderEl, "B1");
+    await selectTopCellBorder(borderEl, "B1");
     expect(parent.model.dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
       zone: toZone("A1:B2"),
     });
 
     // move to C1
-    moveToCell(borderEl, "C1");
+    await moveToCell(borderEl, "C1");
     expect(spyHandleEvent).toHaveBeenCalledWith(expectedResult("B1:C2"));
   });
 
@@ -638,13 +638,13 @@ describe("Border component", () => {
     borderEl = fixture.querySelector(".o-border-s")!;
 
     // select B2 bottom border
-    selectBottomCellBorder(borderEl, "B2");
+    await selectBottomCellBorder(borderEl, "B2");
     expect(parent.model.dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
       zone: toZone("A1:B2"),
     });
 
     // move to A2
-    moveToCell(borderEl, "A2");
+    await moveToCell(borderEl, "A2");
     expect(parent.model.dispatch).toHaveBeenCalledTimes(1);
   });
 
@@ -666,13 +666,13 @@ describe("Border component", () => {
       borderEl = fixture.querySelector(".o-border-n")!;
 
       // select A1 top border
-      selectTopCellBorder(borderEl, "A1");
+      await selectTopCellBorder(borderEl, "A1");
       expect(parent.model.dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
         zone: toZone("A1"),
       });
 
       // move to B1
-      moveToCell(borderEl, "B1");
+      await moveToCell(borderEl, "B1");
       expect(spyHandleEvent).toHaveBeenCalledWith(expectedResult("B1:C1"));
     });
 
@@ -681,12 +681,12 @@ describe("Border component", () => {
       const parent = await mountHighlight("A1:A10", "#666");
       borderEl = fixture.querySelector(".o-border-n")!;
 
-      selectTopCellBorder(borderEl, "A1");
+      await selectTopCellBorder(borderEl, "A1");
       expect(parent.model.dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
         zone: toZone("A1:A10"),
       });
 
-      moveToCell(borderEl, "B1");
+      await moveToCell(borderEl, "B1");
       expect(spyHandleEvent).toHaveBeenCalledWith(expectedResult("B1:C10"));
     });
 
@@ -695,12 +695,12 @@ describe("Border component", () => {
       const parent = await mountHighlight("A1:J1", "#666");
       borderEl = fixture.querySelector(".o-border-n")!;
 
-      selectTopCellBorder(borderEl, "A1");
+      await selectTopCellBorder(borderEl, "A1");
       expect(parent.model.dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
         zone: toZone("A1:J1"),
       });
 
-      moveToCell(borderEl, "A2");
+      await moveToCell(borderEl, "A2");
       expect(spyHandleEvent).toHaveBeenCalledWith(expectedResult("A2:J3"));
     });
   });
@@ -717,13 +717,13 @@ describe("Border component", () => {
     borderEl = fixture.querySelector(".o-border-n")!;
 
     // select B1 top border
-    selectTopCellBorder(borderEl, "B1");
+    await selectTopCellBorder(borderEl, "B1");
     expect(parent.model.dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
       zone: toZone("B1"),
     });
 
     // move to C1
-    moveToCell(borderEl, "C1");
+    await moveToCell(borderEl, "C1");
     expect(parent.model.dispatch).toHaveBeenCalledWith("SET_VIEWPORT_OFFSET", {
       offsetX: width / 2,
       offsetY: 0,
@@ -742,13 +742,13 @@ describe("Border component", () => {
     borderEl = fixture.querySelector(".o-border-n")!;
 
     // select A2 top border
-    selectTopCellBorder(borderEl, "A2");
+    await selectTopCellBorder(borderEl, "A2");
     expect(parent.model.dispatch).toHaveBeenCalledWith("START_CHANGE_HIGHLIGHT", {
       zone: toZone("A2"),
     });
 
     // move to A3
-    moveToCell(borderEl, "A3");
+    await moveToCell(borderEl, "A3");
     expect(parent.model.dispatch).toHaveBeenCalledWith("SET_VIEWPORT_OFFSET", {
       offsetX: 0,
       offsetY: height / 2,

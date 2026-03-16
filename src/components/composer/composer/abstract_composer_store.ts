@@ -845,13 +845,14 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
     return range;
   }
 
-  private async updateAutoCompleteProvider() {
+  private updateAutoCompleteProvider() {
     this.autoComplete.hide();
-    const provider = await this.autoCompleteKeepLast.add(this.findAutocompleteProvider());
-    if (provider) {
-      this.autoComplete.useProvider(provider);
-      this.model.trigger("update");
-    }
+    void this.autoCompleteKeepLast.add(this.findAutocompleteProvider()).then((provider) => {
+      if (provider) {
+        this.autoComplete.useProvider(provider);
+        this.model.trigger("update");
+      }
+    });
   }
 
   private async findAutocompleteProvider() {

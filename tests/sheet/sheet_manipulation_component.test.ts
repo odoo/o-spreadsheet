@@ -69,7 +69,7 @@ describe("Context MenuPopover add/remove row/col", () => {
     simulateContextMenu(".o-col-resizer", COLUMN_D);
     await nextTick();
     const dispatch = spyDispatch(parent);
-    simulateClick(".o-menu div[data-name='clear_column']");
+    await simulateClick(".o-menu div[data-name='clear_column']");
     expect(dispatch).toHaveBeenCalledWith("DELETE_CONTENT", {
       target: [
         {
@@ -87,7 +87,7 @@ describe("Context MenuPopover add/remove row/col", () => {
     simulateContextMenu(".o-row-resizer", ROW_5);
     await nextTick();
     const dispatch = spyDispatch(parent);
-    simulateClick(".o-menu div[data-name='clear_row']");
+    await simulateClick(".o-menu div[data-name='clear_row']");
     expect(dispatch).toHaveBeenCalledWith("DELETE_CONTENT", {
       target: [
         {
@@ -106,7 +106,7 @@ describe("Context MenuPopover add/remove row/col", () => {
     await nextTick();
 
     const dispatch = spyDispatch(parent);
-    simulateClick(".o-menu div[data-name='delete_column']");
+    await simulateClick(".o-menu div[data-name='delete_column']");
     expect(dispatch).toHaveBeenCalledWith("REMOVE_COLUMNS_ROWS", {
       elements: [3],
       dimension: "COL",
@@ -137,7 +137,7 @@ describe("Context MenuPopover add/remove row/col", () => {
     simulateContextMenu(".o-row-resizer", ROW_5);
     await nextTick();
     const dispatch = spyDispatch(parent);
-    simulateClick(".o-menu div[data-name='delete_row']");
+    await simulateClick(".o-menu div[data-name='delete_row']");
     expect(dispatch).toHaveBeenCalledWith("REMOVE_COLUMNS_ROWS", {
       elements: [4],
       dimension: "ROW",
@@ -168,7 +168,7 @@ describe("Context MenuPopover add/remove row/col", () => {
     simulateContextMenu(".o-col-resizer", COLUMN_D);
     await nextTick();
     const dispatch = spyDispatch(parent);
-    simulateClick(".o-menu div[data-name='add_column_before']");
+    await simulateClick(".o-menu div[data-name='add_column_before']");
     expect(dispatch).toHaveBeenCalledWith("ADD_COLUMNS_ROWS", {
       position: "before",
       dimension: "COL",
@@ -183,7 +183,7 @@ describe("Context MenuPopover add/remove row/col", () => {
     simulateContextMenu(".o-row-resizer", ROW_5);
     await nextTick();
     const dispatch = spyDispatch(parent);
-    simulateClick(".o-menu div[data-name='add_row_before']");
+    await simulateClick(".o-menu div[data-name='add_row_before']");
     expect(dispatch).toHaveBeenCalledWith("ADD_COLUMNS_ROWS", {
       position: "before",
       base: 4,
@@ -198,7 +198,7 @@ describe("Context MenuPopover add/remove row/col", () => {
     simulateContextMenu(".o-col-resizer", COLUMN_D);
     await nextTick();
     const dispatch = spyDispatch(parent);
-    simulateClick(".o-menu div[data-name='add_column_after']");
+    await simulateClick(".o-menu div[data-name='add_column_after']");
     expect(dispatch).toHaveBeenCalledWith("ADD_COLUMNS_ROWS", {
       position: "after",
       dimension: "COL",
@@ -213,7 +213,7 @@ describe("Context MenuPopover add/remove row/col", () => {
     simulateContextMenu(".o-row-resizer", ROW_5);
     await nextTick();
     const dispatch = spyDispatch(parent);
-    simulateClick(".o-menu div[data-name='add_row_after']");
+    await simulateClick(".o-menu div[data-name='add_row_after']");
     expect(dispatch).toHaveBeenCalledWith("ADD_COLUMNS_ROWS", {
       position: "after",
       base: 4,
@@ -230,7 +230,7 @@ describe("Context MenuPopover hide col/row", () => {
     simulateContextMenu(".o-col-resizer", COLUMN_D);
     await nextTick();
     const dispatch = spyDispatch(parent);
-    simulateClick(".o-menu div[data-name='hide_columns']");
+    await simulateClick(".o-menu div[data-name='hide_columns']");
     expect(dispatch).toHaveBeenCalledWith("HIDE_COLUMNS_ROWS", {
       elements: [3],
       sheetId: model.getters.getActiveSheetId(),
@@ -245,7 +245,7 @@ describe("Context MenuPopover hide col/row", () => {
     simulateContextMenu(".o-col-resizer", NEW_COL_D);
     await nextTick();
     const dispatch = spyDispatch(parent);
-    simulateClick(".o-menu div[data-name='unhide_columns']");
+    await simulateClick(".o-menu div[data-name='unhide_columns']");
     expect(dispatch).toHaveBeenCalledWith("UNHIDE_COLUMNS_ROWS", {
       elements: [1, 2, 3],
       sheetId: model.getters.getActiveSheetId(),
@@ -256,7 +256,7 @@ describe("Context MenuPopover hide col/row", () => {
     simulateContextMenu(".o-row-resizer", ROW_5);
     await nextTick();
     const dispatch = spyDispatch(parent);
-    simulateClick(".o-menu div[data-name='hide_rows']");
+    await simulateClick(".o-menu div[data-name='hide_rows']");
     expect(dispatch).toHaveBeenCalledWith("HIDE_COLUMNS_ROWS", {
       elements: [4],
       sheetId: model.getters.getActiveSheetId(),
@@ -271,7 +271,7 @@ describe("Context MenuPopover hide col/row", () => {
     simulateContextMenu(".o-row-resizer", NEW_ROW_5);
     await nextTick();
     const dispatch = spyDispatch(parent);
-    simulateClick(".o-menu div[data-name='unhide_rows']");
+    await simulateClick(".o-menu div[data-name='unhide_rows']");
     expect(dispatch).toHaveBeenCalledWith("UNHIDE_COLUMNS_ROWS", {
       elements: [2, 3, 4],
       sheetId: model.getters.getActiveSheetId(),
@@ -329,7 +329,7 @@ describe("Adding rows footer at the end of sheet", () => {
     const sheetId = model.getters.getActiveSheetId();
     const numberOfRows = model.getters.getNumberRows(sheetId);
     const input = fixture.querySelector(".o-grid-add-rows input");
-    setInputValueAndTrigger(input, "10");
+    await setInputValueAndTrigger(input, "10");
     await click(fixture, ".o-grid-add-rows button");
     expect(model.getters.getNumberRows(sheetId)).toEqual(numberOfRows + 10);
   });
@@ -339,7 +339,7 @@ describe("Adding rows footer at the end of sheet", () => {
     const sheetId = model.getters.getActiveSheetId();
     const numberOfRows = model.getters.getNumberRows(sheetId);
     const input = fixture.querySelector(".o-grid-add-rows input")! as HTMLInputElement;
-    setInputValueAndTrigger(input, "10");
+    await setInputValueAndTrigger(input, "10");
     input.focus();
     await keyDown({ key: "Enter" });
     expect(model.getters.getNumberRows(sheetId)).toEqual(numberOfRows + 10);
@@ -350,7 +350,7 @@ describe("Adding rows footer at the end of sheet", () => {
     const sheetId = model.getters.getActiveSheetId();
     const numberOfRows = model.getters.getNumberRows(sheetId);
     const input = fixture.querySelector(".o-grid-add-rows input")!;
-    setInputValueAndTrigger(input, "0");
+    await setInputValueAndTrigger(input, "0");
     await click(fixture, ".o-grid-add-rows button");
     expect(fixture.querySelector(".o-validation-error")).toBeTruthy();
     expect(model.getters.getNumberRows(sheetId)).toEqual(numberOfRows);
@@ -361,7 +361,7 @@ describe("Adding rows footer at the end of sheet", () => {
     const sheetId = model.getters.getActiveSheetId();
     const numberOfRows = model.getters.getNumberRows(sheetId);
     const input = fixture.querySelector(".o-grid-add-rows input")!;
-    setInputValueAndTrigger(input, "10001");
+    await setInputValueAndTrigger(input, "10001");
     await click(fixture, ".o-grid-add-rows button");
     expect(fixture.querySelector(".o-validation-error")).toBeTruthy();
     expect(model.getters.getNumberRows(sheetId)).toEqual(numberOfRows);
@@ -372,7 +372,7 @@ describe("Adding rows footer at the end of sheet", () => {
     const sheetId = model.getters.getActiveSheetId();
     const numberOfRows = model.getters.getNumberRows(sheetId);
     const input = fixture.querySelector(".o-grid-add-rows input")!;
-    setInputValueAndTrigger(input, "abc");
+    await setInputValueAndTrigger(input, "abc");
     await click(fixture, ".o-grid-add-rows button");
     expect(fixture.querySelector(".o-validation-error")).toBeTruthy();
     expect(model.getters.getNumberRows(sheetId)).toEqual(numberOfRows);
@@ -381,7 +381,7 @@ describe("Adding rows footer at the end of sheet", () => {
   test("will scroll down to the new last row after adding new rows", async () => {
     await scrollGrid({ deltaY: 10000 });
     const input = fixture.querySelector(".o-grid-add-rows input");
-    setInputValueAndTrigger(input, "1000");
+    await setInputValueAndTrigger(input, "1000");
     await click(fixture, ".o-grid-add-rows button");
     const sheetId = model.getters.getActiveSheetId();
     const numberOfRows = model.getters.getNumberRows(sheetId);
@@ -392,7 +392,7 @@ describe("Adding rows footer at the end of sheet", () => {
     createSheet(model, { sheetId: "sheet2" });
     await scrollGrid({ deltaY: 10000 });
     const input = fixture.querySelector(".o-grid-add-rows input");
-    setInputValueAndTrigger(input, "1000");
+    await setInputValueAndTrigger(input, "1000");
     activateSheet(model, "sheet2");
     await nextTick();
     expect(fixture.querySelector<HTMLInputElement>(".o-grid-add-rows input")!.value).toBe("100");

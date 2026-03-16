@@ -245,7 +245,7 @@ describe("Selection Input", () => {
     expect(fixture.querySelector("input")!.getAttribute("style")).toBe(
       `color:${color}; caret-color:transparent; `
     );
-    simulateClick(".o-add-selection");
+    await simulateClick(".o-add-selection");
     selectCell(model, "B5");
     await nextTick();
     const color2 = colorGenerator.next();
@@ -267,7 +267,7 @@ describe("Selection Input", () => {
     expect(fixture.querySelector("input")!.getAttribute("style")).toBe(
       "color:#FF0000; caret-color:transparent; "
     );
-    simulateClick(".o-add-selection");
+    await simulateClick(".o-add-selection");
     selectCell(model, "B5");
     await nextTick();
     const colorGenerator = new ColorGenerator(2);
@@ -347,9 +347,9 @@ describe("Selection Input", () => {
     await nextTick();
     const input = fixture.querySelector(".o-selection-input input") as HTMLInputElement;
     await simulateClick(input);
-    clickCell(model, "B4");
+    await clickCell(model, "B4");
     await nextTick();
-    clickCell(model, "B5", { ctrlKey: true });
+    await clickCell(model, "B5", { ctrlKey: true });
     await nextTick();
     const inputs = fixture.querySelectorAll(
       ".o-selection-input input"
@@ -441,7 +441,7 @@ describe("Selection Input", () => {
     await keyDown({ key: "ArrowLeft" });
     expect(document.activeElement).toBe(selectionInputEl);
     expect(selectionInputEl?.value).toEqual("C2");
-    keyDown({ key: "F2" });
+    await keyDown({ key: "F2" });
     await keyDown({ key: "ArrowLeft" });
     expect(document.activeElement).toBe(selectionInputEl);
     expect(selectionInputEl?.value).toEqual("B2");
@@ -602,7 +602,7 @@ describe("Selection Input", () => {
   describe("change highlight position in the grid", () => {
     test("change the associated range in the composer ", async () => {
       const { model, fixture } = await createSelectionInput({ initialRanges: ["B2"] });
-      focus(0);
+      await focus(0);
       startChangeHighlight(model, "B2");
       model.selection.selectZone(
         { cell: toCartesian("C3"), zone: toZone("C3") },
@@ -624,7 +624,7 @@ describe("Selection Input", () => {
     });
     test("change the first associated range in the composer when ranges are the same", async () => {
       const { model, fixture } = await createSelectionInput({ initialRanges: ["B2", "B2"] });
-      focus(0);
+      await focus(0);
       startChangeHighlight(model, "B2");
       model.selection.selectZone(
         { cell: toCartesian("C3"), zone: toZone("C3") },
@@ -638,7 +638,7 @@ describe("Selection Input", () => {
 
     test("the first range doesn't change if other highlight transit by the first range state ", async () => {
       const { model, fixture } = await createSelectionInput({ initialRanges: ["B2", "B1"] });
-      focus(0);
+      await focus(0);
       startChangeHighlight(model, "B1");
       model.selection.selectZone(
         { cell: toCartesian("B2"), zone: toZone("B2") },
@@ -657,7 +657,7 @@ describe("Selection Input", () => {
 
     test("can change references of different length", async () => {
       const { model, fixture } = await createSelectionInput({ initialRanges: ["B1"] });
-      focus(0);
+      await focus(0);
       startChangeHighlight(model, "B1");
       model.selection.selectZone(
         { cell: toCartesian("B1"), zone: toZone("B1:B2") },
@@ -671,7 +671,7 @@ describe("Selection Input", () => {
       const { model, fixture } = await createSelectionInput({ initialRanges: ["Sheet42!B1"] });
       createSheetWithName(model, { sheetId: "42", activate: true }, "Sheet42");
       await nextTick();
-      focus(0);
+      await focus(0);
       startChangeHighlight(model, "B1");
       model.selection.selectZone(
         { cell: toCartesian("B2"), zone: toZone("B2") },
@@ -687,7 +687,7 @@ describe("Selection Input", () => {
       });
       createSheetWithName(model, { sheetId: "42", activate: true }, "Sheet42");
       await nextTick();
-      focus(0);
+      await focus(0);
       startChangeHighlight(model, "B1");
       model.selection.selectZone(
         { cell: toCartesian("B2"), zone: toZone("B2") },
@@ -704,7 +704,7 @@ describe("Selection Input", () => {
       ["$b1", "$C1"],
     ])("can change cells reference with index fixed", async (ref, resultRef) => {
       const { model, fixture } = await createSelectionInput({ initialRanges: [ref] });
-      focus(0);
+      await focus(0);
       startChangeHighlight(model, "B1");
       model.selection.selectZone(
         { cell: toCartesian("C1"), zone: toZone("C1") },
@@ -726,7 +726,7 @@ describe("Selection Input", () => {
       ["$B$1:$B$2", "$C$1:$C$2"],
     ])("can change ranges reference with index fixed", async (ref, resultRef) => {
       const { model, fixture } = await createSelectionInput({ initialRanges: [ref] });
-      focus(0);
+      await focus(0);
       startChangeHighlight(model, "B1:B2");
       model.selection.selectZone(
         { cell: toCartesian("C1"), zone: toZone("C1:C2") },
@@ -740,7 +740,7 @@ describe("Selection Input", () => {
       const { model, fixture } = await createSelectionInput({ initialRanges: ["B1"] });
       merge(model, "B1:B2");
       await nextTick();
-      focus(0);
+      await focus(0);
       startChangeHighlight(model, "B1:B2");
       model.selection.selectZone(
         { cell: toCartesian("C1"), zone: toZone("C1") },
@@ -767,7 +767,7 @@ describe("Selection Input", () => {
       const { model, fixture } = await createSelectionInput({ initialRanges: ["B$2"] });
       merge(model, "B1:B2");
       await nextTick();
-      focus(0);
+      await focus(0);
       startChangeHighlight(model, "B1:B2");
       model.selection.selectZone(
         { cell: toCartesian("C1"), zone: toZone("C1:C2") },
@@ -781,7 +781,7 @@ describe("Selection Input", () => {
       const { model, fixture } = await createSelectionInput({ initialRanges: ["A1:B1"] });
       merge(model, "C1:D1");
       await nextTick();
-      focus(0);
+      await focus(0);
 
       startChangeHighlight(model, "A1:B1");
       model.selection.selectZone(
@@ -794,7 +794,7 @@ describe("Selection Input", () => {
 
     test("can change references of different length with index fixed", async () => {
       const { model, fixture } = await createSelectionInput({ initialRanges: ["$B$1"] });
-      focus(0);
+      await focus(0);
       startChangeHighlight(model, "B1");
       model.selection.selectZone(
         { cell: toCartesian("B1"), zone: toZone("B1:B2") },
@@ -835,7 +835,7 @@ describe("Selection Input", () => {
     const { model } = await createSelectionInput({ initialRanges: ["C4", "A1"] });
     const input = fixture.querySelector("input")!;
     await simulateClick(input);
-    setInputValueAndTrigger(input, "C5:D9");
+    await setInputValueAndTrigger(input, "C5:D9");
     await nextTick();
     expect(input.value).toBe("C5:D9");
 
@@ -849,7 +849,7 @@ describe("Selection Input", () => {
     const { model } = await createSelectionInput({ initialRanges: ["C4", "A1"] });
     const input = fixture.querySelector("input")!;
     await simulateClick(input);
-    setInputValueAndTrigger(input, "C5:D9");
+    await setInputValueAndTrigger(input, "C5:D9");
     await nextTick();
     expect(input.value).toBe("C5:D9");
     await keyDown({ key: "Escape" });

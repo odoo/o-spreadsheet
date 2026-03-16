@@ -196,9 +196,9 @@ describe("Simple Spreadsheet Component", () => {
   test("Insert a function properly sets the edition", async () => {
     ({ model, parent, fixture, env } = await mountSpreadsheet());
     const composerStore = env.getStore(CellComposerStore);
-    doAction(["insert", "insert_function", "insert_function_sum"], env);
+    await doAction(["insert", "insert_function", "insert_function_sum"], env);
     expect(composerStore.currentContent).toBe("=SUM(");
-    doAction(["insert", "insert_function", "insert_function_sum"], env);
+    await doAction(["insert", "insert_function", "insert_function_sum"], env);
     expect(composerStore.currentContent).toBe("=SUM(");
   });
 });

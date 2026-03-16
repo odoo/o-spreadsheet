@@ -48,7 +48,7 @@ describe("TextInput", () => {
   test("can save the value when clicking outside the input", async () => {
     const onChange = jest.fn();
     await mountTextInput({ value: "hello", onChange });
-    setInputValueAndTrigger(fixture.querySelector("input")!, "world");
+    await setInputValueAndTrigger(fixture.querySelector("input")!, "world");
     await click(document.body);
     expect(onChange).toHaveBeenCalledWith("world");
   });
@@ -64,7 +64,7 @@ describe("TextInput", () => {
     const onChange = jest.fn();
     await mountTextInput({ value: "hello", onChange });
     fixture.querySelector("input")!.focus();
-    setInputValueAndTrigger(fixture.querySelector("input")!, "world");
+    await setInputValueAndTrigger(fixture.querySelector("input")!, "world");
     await keyDown({ key: "Enter" });
     expect(onChange).toHaveBeenCalledWith("world");
   });
@@ -79,7 +79,7 @@ describe("TextInput", () => {
   test("saves the value on input blur", async () => {
     const onChange = jest.fn();
     await mountTextInput({ value: "hello", onChange });
-    setInputValueAndTrigger(fixture.querySelector("input")!, "world");
+    await setInputValueAndTrigger(fixture.querySelector("input")!, "world");
     fixture.querySelector("input")!.blur();
     expect(onChange).toHaveBeenCalledWith("world");
   });

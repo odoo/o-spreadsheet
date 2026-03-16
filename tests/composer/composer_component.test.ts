@@ -60,8 +60,8 @@ async function typeInComposer(text: string, fromScratch: boolean = true) {
 
 async function moveToStart() {
   // TODO: remove keyup at refactoring of content editable helper
-  keyDown({ key: "Home" });
-  keyUp({ key: "Home" });
+  await keyDown({ key: "Home" });
+  await keyUp({ key: "Home" });
   const firstTextNode = getTextNodes(composerEl)[0];
   if (firstTextNode) {
     const selection = document.getSelection()!;
@@ -559,9 +559,9 @@ describe("composer", () => {
     expect(composerStore.editionMode).toBe("editing");
     // Enter is pressed really fast while another character is pressed such that
     // the character keyup event happens after the Enter
-    keyDown({ key: "Enter" });
-    keyUp({ key: "Enter" });
-    keyUp({ key: "d" });
+    await keyDown({ key: "Enter" });
+    await keyUp({ key: "Enter" });
+    await keyUp({ key: "d" });
     await nextTick();
     expect(composerStore.editionMode).toBe("inactive");
   });
@@ -1022,14 +1022,14 @@ describe("composer", () => {
 
   test("Numpad decimal have a different behaviour depending on the locale", async () => {
     await startComposition("5");
-    keyDown({ code: "NumpadDecimal", key: "." });
-    keyUp({ code: "NumpadDecimal", key: "." });
+    await keyDown({ code: "NumpadDecimal", key: "." });
+    await keyUp({ code: "NumpadDecimal", key: "." });
     await nextTick();
     expect(composerStore.currentContent).toBe("5.");
 
     updateLocale(model, FR_LOCALE);
-    keyDown({ code: "NumpadDecimal", key: "." });
-    keyUp({ code: "NumpadDecimal", key: "." });
+    await keyDown({ code: "NumpadDecimal", key: "." });
+    await keyUp({ code: "NumpadDecimal", key: "." });
     await nextTick();
     expect(composerStore.currentContent).toBe("5.,");
   });

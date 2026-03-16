@@ -242,7 +242,8 @@ export class Model extends EventBus<any> implements CommandDispatcher {
       if (config.snapshotRequested || (data["[Content_Types].xml"] && !this.getters.isReadonly())) {
         const startSnapshot = performance.now();
         console.debug("Snapshot requested");
-        this.session.snapshot(this.exportData());
+        // We do not need to wait for the snapshot to be sent
+        void this.session.snapshot(this.exportData());
         console.debug("Snapshot taken in", performance.now() - startSnapshot, "ms");
       }
     }

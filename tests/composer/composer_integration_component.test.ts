@@ -252,9 +252,9 @@ describe("Composer interactions", () => {
 
   test("=+Click range, the range ref should be colored", async () => {
     const composerEl = await typeInComposerGrid("=");
-    gridMouseEvent(model, "pointerdown", "C8");
-    gridMouseEvent(model, "pointermove", "B8");
-    gridMouseEvent(model, "pointerup", "B8");
+    await gridMouseEvent(model, "pointerdown", "C8");
+    await gridMouseEvent(model, "pointermove", "B8");
+    await gridMouseEvent(model, "pointerup", "B8");
     await nextTick();
     expect(composerEl.textContent).toBe("=B8:C8");
     expect(getComposerColors(composerEl)["B8:C8"]).toBeSameColorAs(colors[0]);
@@ -382,8 +382,8 @@ describe("Composer interactions", () => {
     setCellContent(model, "A1", "=A2");
     await click(fixture, ".o-spreadsheet-topbar .o-composer");
     expect(composerStore.editionMode).toBe("editing");
-    keyDown({ key: "Escape" });
-    keyUp({ key: "Escape" });
+    await keyDown({ key: "Escape" });
+    await keyUp({ key: "Escape" });
     expect(composerStore.editionMode).toBe("inactive");
   });
 
@@ -624,10 +624,10 @@ describe("Composer interactions", () => {
 
   test("keyboard inputs are disabled when selecting a range for the composer", async () => {
     await typeInComposerGrid("=");
-    gridMouseEvent(model, "pointerdown", "C8");
-    gridMouseEvent(model, "pointermove", "B8");
+    await gridMouseEvent(model, "pointerdown", "C8");
+    await gridMouseEvent(model, "pointermove", "B8");
     await keyDown({ key: "A" });
-    gridMouseEvent(model, "pointerup", "B8");
+    await gridMouseEvent(model, "pointerup", "B8");
     await nextTick();
     expect(composerStore.currentContent).toBe("=B8:C8");
   });

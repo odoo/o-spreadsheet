@@ -696,7 +696,10 @@ describe("Hide/show columns", () => {
     // from the left
     await nextTick();
     let x = model.getters.getColDimensions(model.getters.getActiveSheetId(), 1)!.start - 10;
-    click(fixture, ".o-overlay .o-col-resizer>div>div:nth-child(1) .o-unhide[data-index='0']");
+    await click(
+      fixture,
+      ".o-overlay .o-col-resizer>div>div:nth-child(1) .o-unhide[data-index='0']"
+    );
     expect(model.getters.getHiddenColsGroups(model.getters.getActiveSheetId())).toEqual([]);
     // from the right
     undo(model);
@@ -809,7 +812,10 @@ describe("Hide/show rows", () => {
     // from the left
     await nextTick();
     let y = model.getters.getRowDimensions(model.getters.getActiveSheetId(), 1)!.start - 10;
-    click(fixture, ".o-overlay .o-row-resizer>div>div:nth-child(1) .o-unhide[data-index='0']");
+    await click(
+      fixture,
+      ".o-overlay .o-row-resizer>div>div:nth-child(1) .o-unhide[data-index='0']"
+    );
     expect(model.getters.getHiddenRowsGroups(model.getters.getActiveSheetId())).toEqual([]);
     // from the right
     undo(model);

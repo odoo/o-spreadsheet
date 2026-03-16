@@ -187,7 +187,7 @@ export class Session extends EventBus<CollaborativeEvent> {
     }
     delete this.clients[this.clientId];
     this.transportService.leave(this.clientId);
-    this.sendToTransport({
+    await this.sendToTransport({
       type: "CLIENT_LEFT",
       clientId: this.clientId,
       version: MESSAGE_VERSION,
@@ -262,7 +262,7 @@ export class Session extends EventBus<CollaborativeEvent> {
     const type = currentPosition ? "CLIENT_MOVED" : "CLIENT_JOINED";
     const client = this.getCurrentClient();
     this.clients[this.clientId] = { ...client, position };
-    this.sendToTransport({
+    void this.sendToTransport({
       type,
       version: MESSAGE_VERSION,
       client: { ...client, position },
@@ -377,7 +377,7 @@ export class Session extends EventBus<CollaborativeEvent> {
       if (client) {
         const { position } = client;
         if (position) {
-          this.sendToTransport({
+          void this.sendToTransport({
             type: "CLIENT_MOVED",
             version: MESSAGE_VERSION,
             client: { ...client, position },

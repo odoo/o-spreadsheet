@@ -309,7 +309,7 @@ describe("figures", () => {
     await nextTick();
     setCellContent(model, "A1", "hello");
     await simulateClick(".o-figure");
-    keyDown({ key: "z", ctrlKey: true });
+    await keyDown({ key: "z", ctrlKey: true });
     expect(getCellText(model, "A1")).toBe("");
   });
 
@@ -863,9 +863,9 @@ describe("figures", () => {
       test("Selecting a figure and hitting Ctrl does not unselect it", async () => {
         await simulateClick(".o-figure");
         expect(model.getters.getSelectedFigureId()).toBe(figureId);
-        keyDown({ key: "Control" });
+        await keyDown({ key: "Control" });
         expect(model.getters.getSelectedFigureId()).toBe(figureId);
-        keyUp({ key: "Control" });
+        await keyUp({ key: "Control" });
         expect(model.getters.getSelectedFigureId()).toBe(figureId);
       });
 

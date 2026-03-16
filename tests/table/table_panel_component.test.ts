@@ -50,11 +50,11 @@ describe("Table side panel", () => {
     "bandedRows",
     "bandedColumns",
     "automaticAutofill",
-  ])("Can change table config boolean option %s", (configOption) => {
+  ])("Can change table config boolean option %s", async (configOption) => {
     const value = getTable(model, sheetId).config[configOption];
     const checkbox = fixture.querySelector(`input[name="${configOption}"]`) as HTMLInputElement;
     expect(checkbox.checked).toBe(value);
-    click(checkbox);
+    await click(checkbox);
     expect(getTable(model, sheetId).config[configOption]).toBe(!value);
   });
 
@@ -76,7 +76,7 @@ describe("Table side panel", () => {
     expect(fixture.querySelector("input.o-table-n-of-headers")).not.toBeNull();
 
     expect(fixture.querySelector<HTMLInputElement>("input.o-table-n-of-headers")!.value).toBe("1");
-    setInputValueAndTrigger("input.o-table-n-of-headers", "2");
+    await setInputValueAndTrigger("input.o-table-n-of-headers", "2");
     expect(getTable(model, sheetId).config.numberOfHeaders).toBe(2);
   });
 

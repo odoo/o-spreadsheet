@@ -36,7 +36,7 @@ describe("Table style editor panel", () => {
   test("Can create a new table style", async () => {
     await mountPanel();
     await setInputValueAndTrigger(".o-sidePanel input", "New style that I made");
-    click(fixture, ".o-sidePanel .o-confirm");
+    await click(fixture, ".o-sidePanel .o-confirm");
     expect(getTableStyleFromName("New style that I made")).not.toBeUndefined();
   });
 
@@ -52,7 +52,7 @@ describe("Table style editor panel", () => {
     await mountPanel();
     await click(fixture, ".o-round-color-picker-button");
     await click(fixture, 'div[data-color="#FF9900"]');
-    click(fixture, ".o-sidePanel .o-confirm");
+    await click(fixture, ".o-sidePanel .o-confirm");
     expect(getTableStyleFromName("Custom Table Style")).toMatchObject(
       buildTableStyle("Custom Table Style", "lightColoredText", "#FF9900")
     );
@@ -64,7 +64,7 @@ describe("Table style editor panel", () => {
     expect(templatesItems[0].classList).toContain("selected");
     await click(templatesItems[1]);
     expect(templatesItems[1].classList).toContain("selected");
-    click(fixture, ".o-sidePanel .o-confirm");
+    await click(fixture, ".o-sidePanel .o-confirm");
     expect(getTableStyleFromName("Custom Table Style")).toMatchObject(
       buildTableStyle("Custom Table Style", "lightAllBorders", "#3C78D8")
     );
@@ -82,7 +82,7 @@ describe("Table style editor panel", () => {
     expect(getTableStyleFromName("Custom Table Style")).not.toBeUndefined();
 
     await mountPanel({ styleId: "Custom Table Style" });
-    click(fixture, ".o-sidePanel .o-delete");
+    await click(fixture, ".o-sidePanel .o-delete");
     expect(getTableStyleFromName("Custom Table Style")).toBeUndefined();
   });
 

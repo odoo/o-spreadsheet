@@ -101,7 +101,7 @@ describe("Pivot side panel", () => {
   test("Side panel supports unbounded zone in definition", async () => {
     env.openSidePanel("PivotSidePanel", { pivotId: "1" });
     await nextTick();
-    setInputValueAndTrigger(SELECTORS.ZONE_INPUT, "A:A");
+    await setInputValueAndTrigger(SELECTORS.ZONE_INPUT, "A:A");
     await nextTick();
     await simulateClick(SELECTORS.ZONE_CONFIRM);
     expect(

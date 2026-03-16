@@ -55,7 +55,7 @@ describe("Grid component in dashboard mode", () => {
     model.updateMode("dashboard");
     await nextTick();
     expect(getSelectionAnchorCellXc(model)).toBe("A1");
-    keyDown({ key: "ArrowRight" });
+    await keyDown({ key: "ArrowRight" });
     expect(getSelectionAnchorCellXc(model)).not.toBe("B1");
   });
 

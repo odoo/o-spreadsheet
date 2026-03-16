@@ -116,8 +116,8 @@ describe("Spreadsheet pivot side panel", () => {
     await nextTick();
 
     jest.useFakeTimers();
-    setInputValueAndTrigger("input.o-pivot-n-of-rows", "olà");
-    setInputValueAndTrigger("input.o-pivot-n-of-columns", "");
+    await setInputValueAndTrigger("input.o-pivot-n-of-rows", "olà");
+    await setInputValueAndTrigger("input.o-pivot-n-of-columns", "");
     jest.advanceTimersByTime(1000);
 
     expect(model.getters.getPivotCoreDefinition("1").style).toEqual({

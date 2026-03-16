@@ -33,8 +33,8 @@ describe("KeepLast", () => {
     const resolveFn2 = jest.fn();
     const keepLast = new KeepLast();
 
-    keepLast.add(new Promise((resolve) => setTimeout(resolve, 10))).then(resolveFn1);
-    keepLast.add(new Promise((resolve) => setTimeout(resolve, 20))).then(resolveFn2);
+    void keepLast.add(new Promise((resolve) => setTimeout(resolve, 10))).then(resolveFn1);
+    void keepLast.add(new Promise((resolve) => setTimeout(resolve, 20))).then(resolveFn2);
     jest.advanceTimersByTime(15);
     await nextTick();
     expect(resolveFn1).not.toBeCalled();
@@ -50,8 +50,8 @@ describe("KeepLast", () => {
     const resolveFn2 = jest.fn();
     const keepLast = new KeepLast();
 
-    keepLast.add(new Promise((resolve) => setTimeout(resolve, 20))).then(resolveFn1);
-    keepLast.add(new Promise((resolve) => setTimeout(resolve, 10))).then(resolveFn2);
+    void keepLast.add(new Promise((resolve) => setTimeout(resolve, 20))).then(resolveFn1);
+    void keepLast.add(new Promise((resolve) => setTimeout(resolve, 10))).then(resolveFn2);
     jest.advanceTimersByTime(15);
     await nextTick();
     expect(resolveFn1).not.toBeCalled();

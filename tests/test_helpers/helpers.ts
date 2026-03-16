@@ -800,7 +800,7 @@ export async function editStandaloneComposer(
   composerEl.dispatchEvent(new InputEvent("input", { data: text, bubbles: true }));
 
   if (confirm) {
-    keyDown({ key: "Enter" });
+    await keyDown({ key: "Enter" });
     await keyUp({ key: "Enter" });
   }
 

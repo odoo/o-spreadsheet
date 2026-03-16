@@ -245,7 +245,7 @@ function getCopyAsImageMenuItem(figureId: UID, env: SpreadsheetChildEnv): Action
 
       const innerHTML = `<img src="data:image/png;base64,${imageBase64}" />`;
 
-      env.clipboard.write({
+      await env.clipboard.write({
         "text/html": innerHTML,
         "image/png": blob,
       });

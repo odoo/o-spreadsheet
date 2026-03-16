@@ -1133,7 +1133,8 @@ export function unMerge(
 }
 
 export function snapshot(model: Model) {
-  model["session"].snapshot(model.exportData());
+  // We do not need to wait for the snapshot to be sent
+  void model["session"].snapshot(model.exportData());
 }
 
 export function moveColumns(

@@ -101,7 +101,7 @@ describe("data validation sidePanel component", () => {
     await nextTick();
     await changeCriterionType(type);
 
-    setInputValueAndTrigger(".o-selection-input input", "A1:A5");
+    await setInputValueAndTrigger(".o-selection-input input", "A1:A5");
 
     const composerElements = fixture.querySelectorAll(".o-dv-settings .o-composer");
     for (let i = 0; i < criterion.values.length; i++) {
@@ -125,7 +125,7 @@ describe("data validation sidePanel component", () => {
   test("Date criteria have a dateValue select input", async () => {
     await simulateClick(".o-dv-add");
     await nextTick();
-    setInputValueAndTrigger(".o-selection-input input", "A1:A5");
+    await setInputValueAndTrigger(".o-selection-input input", "A1:A5");
     await changeCriterionType("dateIs");
 
     expect(fixture.querySelector(".o-dv-date-value")).toBeTruthy();
@@ -145,7 +145,7 @@ describe("data validation sidePanel component", () => {
     await simulateClick(".o-dv-add");
     expect(document.activeElement).not.toBe(fixture.querySelector(".o-dv-input .o-composer"));
     await changeCriterionType("dateIs");
-    setInputValueAndTrigger(".o-dv-date-value", "exactDate");
+    await setInputValueAndTrigger(".o-dv-date-value", "exactDate");
     expect(".o-dv-input .o-composer").toHaveClass("active");
     expect(document.activeElement).toBe(fixture.querySelector(".o-dv-input .o-composer"));
   });
@@ -155,7 +155,7 @@ describe("data validation sidePanel component", () => {
     await nextTick();
     await changeCriterionType("dateIs");
 
-    setInputValueAndTrigger(".o-selection-input input", "A1:HOLA");
+    await setInputValueAndTrigger(".o-selection-input input", "A1:HOLA");
 
     const composer = ".o-dv-settings .o-composer";
     await editStandaloneComposer(composer, "=SUM(1,2)");
@@ -173,7 +173,7 @@ describe("data validation sidePanel component", () => {
     await nextTick();
     await changeCriterionType("dateIs");
 
-    setInputValueAndTrigger(".o-selection-input input", "A1:A4");
+    await setInputValueAndTrigger(".o-selection-input input", "A1:A4");
     expect(document.querySelectorAll(".o-selection-input input")).toHaveLength(1);
 
     // Add & remove a valid range
@@ -223,7 +223,7 @@ describe("data validation sidePanel component", () => {
     await nextTick();
     await changeCriterionType("dateIs");
 
-    setInputValueAndTrigger(".o-selection-input input", "A1:A5");
+    await setInputValueAndTrigger(".o-selection-input input", "A1:A5");
 
     const composer = ".o-dv-settings .o-composer";
     await editStandaloneComposer(composer, "thisIsNotADate");
@@ -242,7 +242,7 @@ describe("data validation sidePanel component", () => {
     await nextTick();
     await changeCriterionType("isBetween");
 
-    setInputValueAndTrigger(".o-selection-input input", "A1:A5");
+    await setInputValueAndTrigger(".o-selection-input input", "A1:A5");
 
     const composerElements = fixture.querySelectorAll(".o-dv-settings .o-composer");
     await editStandaloneComposer(composerElements[0], "Not a number");
@@ -286,7 +286,7 @@ describe("data validation sidePanel component", () => {
     const composer = ".o-dv-settings .o-composer";
     await editStandaloneComposer(composer, "Random text");
     await editSelectComponent(".o-dv-reject-input", "true");
-    simulateClick(".o-dv-save");
+    await simulateClick(".o-dv-save");
 
     expect(model.getters.getDataValidationRules(sheetId)).toMatchObject([{ isBlocking: true }]);
   });
@@ -319,7 +319,7 @@ describe("data validation sidePanel component", () => {
 
     await simulateClick(".o-dv-add");
     await nextTick();
-    setInputValueAndTrigger(".o-selection-input input", "A1:A5");
+    await setInputValueAndTrigger(".o-selection-input input", "A1:A5");
     await changeCriterionType("isValueInRange");
 
     const rangeInput = fixture.querySelectorAll<HTMLInputElement>(".o-selection-input input")[1];
