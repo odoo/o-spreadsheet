@@ -43,7 +43,9 @@
     "test": "tsc --noEmit --project tsconfig.jest.json && jest",
     "monkey": "SPREADSHEET_MONKEY_COUNT=$npm_config_monkey_count jest 'tests/collaborative/collaborative_monkey_party.test.ts'",
     "zipXlsx": "node tools/bundle_xlsx/zip_xlsx_demo.cjs",
-    "unzipXlsx": "node tools/bundle_xlsx/unzip_xlsx_demo.cjs"
+    "unzipXlsx": "node tools/bundle_xlsx/unzip_xlsx_demo.cjs",
+    "pwa:build": "npm run build && node tools/build_pwa.cjs",
+    "pwa:serve": "npm run build && node tools/build_pwa.cjs && live-server pwa --open=files.html"
   },
   "browserslist": [
     "last 1 Chrome versions"
