@@ -9,14 +9,20 @@ import {
   setStyle,
   undo,
 } from "../test_helpers/commands_helpers";
-import { createColorScale, createEqualCF, target, toRangesData } from "../test_helpers/helpers";
+import {
+  createColorScale,
+  createEqualCF,
+  createModel,
+  target,
+  toRangesData,
+} from "../test_helpers/helpers";
 
 describe("custom colors are correctly handled when formatting cells", () => {
   let model: Model;
   let sheetId: UID;
 
   beforeEach(() => {
-    model = new Model();
+    model = createModel();
     sheetId = model.getters.getActiveSheetId();
   });
 
@@ -89,7 +95,7 @@ describe("custom colors are correctly handled when editing charts", () => {
   let sheetId: UID;
 
   beforeEach(() => {
-    model = new Model();
+    model = createModel();
     sheetId = model.getters.getActiveSheetId();
   });
   test("Chart background colors are taken into account", () => {
@@ -218,14 +224,14 @@ describe("custom colors are correctly handled when editing charts", () => {
   test("custom colors from model imported data", () => {
     setStyle(model, "A1", { fillColor: "#123456" });
     createChart(model, { type: "bar", background: "#654987" }, "1", sheetId);
-    const importedModel = new Model(model.exportData());
+    const importedModel = createModel(model.exportData());
     expect(importedModel.getters.getCustomColors()).toEqual(["#654987", "#123456"]);
   });
 });
 
 test("custom colors from config", () => {
   const data = {};
-  const model = new Model(data, { customColors: ["#875A7B", "not a valid color"] });
+  const model = createModel(data, { customColors: ["#875A7B", "not a valid color"] });
   expect(model.getters.getCustomColors()).toEqual(["#875A7B"]);
 });
 
@@ -243,7 +249,7 @@ describe("Custom colors with table styles", () => {
 
   beforeEach(() => {
     TABLE_PRESETS["customStyle"] = customStyle;
-    model = new Model();
+    model = createModel();
   });
 
   afterEach(() => {

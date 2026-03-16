@@ -1,7 +1,7 @@
 import { createRangeFromXc } from "@odoo/o-spreadsheet-engine/helpers/range";
 import { Model } from "@odoo/o-spreadsheet-engine/model";
 import { createSheet } from "../test_helpers";
-import { createModelFromGrid } from "../test_helpers/helpers";
+import { createModel, createModelFromGrid } from "../test_helpers/helpers";
 
 describe("squish - unsquish", () => {
   let model: Model;
@@ -33,7 +33,7 @@ describe("squish - unsquish", () => {
 
   test("should squish identical formulas", () => {
     const fullExport = model._exportData(false);
-    const importedFromSquishedExport = new Model(model._exportData(true));
+    const importedFromSquishedExport = createModel(model._exportData(true));
     const exportedWithoutSquishing = importedFromSquishedExport._exportData(false);
     expect(exportedWithoutSquishing).toEqual(fullExport);
   });
@@ -82,7 +82,7 @@ describe("squish - unsquish", () => {
 
 describe("squish - unsquish specific cases", () => {
   test("squish always reset when changing sheet", () => {
-    const model = new Model({
+    const model = createModel({
       sheets: [
         {
           id: "Sheet1",
@@ -210,7 +210,7 @@ describe("squish - unsquish specific cases", () => {
     const exportSquished = model._exportData(true);
     expect(exportSquished.sheets[0].cells.A2).toEqual(expected);
 
-    const importedFromSquished = new Model(exportSquished);
+    const importedFromSquished = createModel(exportSquished);
     const exportUnSquished = importedFromSquished._exportData(false);
     expect(exportUnSquished.sheets[0].cells.A1).toEqual(A1);
     expect(exportUnSquished.sheets[0].cells.A2).toEqual(A2);
@@ -430,7 +430,7 @@ describe("squish - unsquish specific cases", () => {
       const exportSquished = model._exportData(true);
       expect(exportSquished.sheets[0].cells).toEqual(squishedContent);
 
-      const importedFromSquished = new Model(exportSquished);
+      const importedFromSquished = createModel(exportSquished);
       const exportUnSquished = importedFromSquished._exportData(false);
       expect(exportUnSquished.sheets[0].cells).toEqual(sheetContent);
     }
@@ -539,7 +539,7 @@ describe("squish - unsquish specific cases", () => {
       const exportSquished = model._exportData(true);
       expect(exportSquished.sheets[0].cells).toEqual(squishedContent);
 
-      const importedFromSquished = new Model(exportSquished);
+      const importedFromSquished = createModel(exportSquished);
       const exportUnSquished = importedFromSquished._exportData(false);
       expect(exportUnSquished.sheets[0].cells).toEqual(sheetContent);
     }
@@ -557,7 +557,7 @@ describe("squish - unsquish specific cases", () => {
     const exportSquished = model._exportData(true);
     expect(exportSquished.sheets[0].cells).toEqual(squishedContent);
 
-    const importedFromSquished = new Model(exportSquished);
+    const importedFromSquished = createModel(exportSquished);
     const exportUnSquished = importedFromSquished._exportData(false);
     expect(exportUnSquished.sheets[0].cells).toEqual(sheetContent);
   });
@@ -579,7 +579,7 @@ describe("squish - unsquish specific cases", () => {
     const exportSquished = model._exportData(true);
     expect(exportSquished.sheets[0].cells).toEqual(squishedContent);
 
-    const importedFromSquished = new Model(exportSquished);
+    const importedFromSquished = createModel(exportSquished);
     const exportUnSquished = importedFromSquished._exportData(false);
     expect(exportUnSquished.sheets[0].cells).toEqual(sheetContent);
   });
@@ -602,7 +602,7 @@ describe("Models created from squished data behavior", () => {
         },
       ],
     };
-    const model = new Model(squishedData);
+    const model = createModel(squishedData);
     model.dispatch("ADD_COLUMNS_ROWS", {
       sheetId: "Sheet1",
       sheetName: "Sheet1",
@@ -652,7 +652,7 @@ describe("do not rely on order of keys in squished data", () => {
         },
       ],
     };
-    const model = new Model(squishedData1);
+    const model = createModel(squishedData1);
     const exported = model._exportData(false);
     expect(exported.sheets[0].cells).toEqual({
       A1: "=SUM(B1)",
@@ -670,7 +670,7 @@ describe("do not rely on order of keys in squished data", () => {
 
 describe("We did not add properties to Range without adding the behavior in Squish/Unsquish", () => {
   test("range didn't change", () => {
-    const model = new Model();
+    const model = createModel();
     const range = createRangeFromXc(
       {
         xc: "B9:C11",

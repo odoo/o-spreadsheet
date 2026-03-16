@@ -10,6 +10,7 @@ import {
   simulateClick,
 } from "../test_helpers/dom_helper";
 import {
+  createModel,
   getHighlightsFromStore,
   mountSpreadsheet,
   nextTick,
@@ -24,7 +25,7 @@ describe("Pivot side panel", () => {
 
   beforeEach(async () => {
     ({ env, model, fixture } = await mountSpreadsheet(
-      { model: new Model() },
+      { model: createModel() },
       { askConfirmation: jest.fn((title, callback) => callback()) }
     ));
     addPivot(model, "A1:B2", {}, "1");

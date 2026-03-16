@@ -8,6 +8,7 @@ import { Highlight, UID } from "../../src/types";
 
 import { Model } from "../../src";
 import { toZone } from "../../src/helpers";
+import { createModel } from "../test_helpers/helpers";
 import { MockGridRenderingContext } from "../test_helpers/renderer_helpers";
 import { makeStoreWithModel } from "../test_helpers/stores";
 
@@ -25,7 +26,7 @@ function drawHighlight(highlight: Highlight) {
 
 describe("Highlight store", () => {
   beforeEach(() => {
-    model = new Model();
+    model = createModel();
     sheetId = model.getters.getActiveSheetId();
     ({ store: highlightStore } = makeStoreWithModel(model, HighlightStore));
 

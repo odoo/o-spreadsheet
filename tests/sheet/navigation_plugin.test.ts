@@ -10,6 +10,7 @@ import {
   setViewportOffset,
 } from "../test_helpers/commands_helpers";
 import { getActivePosition, getSelectionAnchorCellXc } from "../test_helpers/getters_helpers";
+import { createModel } from "../test_helpers/helpers";
 
 function getViewport(
   model: Model,
@@ -25,7 +26,7 @@ function getViewport(
 
 describe("navigation", () => {
   test("normal move to the right", () => {
-    const model = new Model();
+    const model = createModel();
     expect(model.getters.getSelectedZones()[0]).toEqual({ top: 0, right: 0, left: 0, bottom: 0 });
     expect(getActivePosition(model)).toBe("A1");
     expect(model.getters.getSelection().anchor.cell).toEqual(toCartesian("A1"));
@@ -37,7 +38,7 @@ describe("navigation", () => {
   });
 
   test("move up from top row", () => {
-    const model = new Model();
+    const model = createModel();
     expect(model.getters.getSelectedZones()[0]).toEqual({ top: 0, right: 0, left: 0, bottom: 0 });
     expect(getActivePosition(model)).toBe("A1");
 
@@ -47,7 +48,7 @@ describe("navigation", () => {
   });
 
   test("move right from right row", () => {
-    const model = new Model();
+    const model = createModel();
     const activeSheetId = model.getters.getActiveSheetId();
     const colNumber = model.getters.getNumberCols(activeSheetId);
     const xc = toXC(colNumber - 1, 0);
@@ -59,7 +60,7 @@ describe("navigation", () => {
   });
 
   test("move bottom from bottom row", () => {
-    const model = new Model();
+    const model = createModel();
     const activeSheetId = model.getters.getActiveSheetId();
     const rowNumber = model.getters.getNumberRows(activeSheetId);
     const xc = toXC(0, rowNumber - 1);
@@ -70,7 +71,7 @@ describe("navigation", () => {
   });
 
   test("move bottom from merge in last position", () => {
-    const model = new Model();
+    const model = createModel();
     const activeSheetId = model.getters.getActiveSheetId();
     const rowNumber = model.getters.getNumberRows(activeSheetId);
     model.dispatch("ADD_MERGE", {
@@ -85,7 +86,7 @@ describe("navigation", () => {
   });
 
   test("Cannot move bottom from merge in last position if last row is hidden", () => {
-    const model = new Model();
+    const model = createModel();
     const activeSheetId = model.getters.getActiveSheetId();
     const rowNumber = model.getters.getNumberRows(activeSheetId);
     model.dispatch("ADD_MERGE", {
@@ -105,7 +106,7 @@ describe("navigation", () => {
   });
 
   test("move right from merge in last position", () => {
-    const model = new Model();
+    const model = createModel();
     const activeSheetId = model.getters.getActiveSheetId();
     const colNumber = model.getters.getNumberCols(activeSheetId);
     model.dispatch("ADD_MERGE", {
@@ -120,7 +121,7 @@ describe("navigation", () => {
   });
 
   test("move in and out of a merge", () => {
-    const model = new Model({ sheets: [{ colNumber: 10, rowNumber: 10, merges: ["B1:C2"] }] });
+    const model = createModel({ sheets: [{ colNumber: 10, rowNumber: 10, merges: ["B1:C2"] }] });
     expect(getActivePosition(model)).toBe("A1");
 
     // move to the right, inside the merge
@@ -137,7 +138,7 @@ describe("navigation", () => {
   });
 
   test("do nothing if moving out of merge is out of grid", () => {
-    const model = new Model({ sheets: [{ colNumber: 10, rowNumber: 10, merges: ["B1:C2"] }] });
+    const model = createModel({ sheets: [{ colNumber: 10, rowNumber: 10, merges: ["B1:C2"] }] });
     expect(getSelectionAnchorCellXc(model)).toEqual("A1");
 
     // put selection below merge
@@ -158,7 +159,7 @@ describe("navigation", () => {
   });
 
   test("move right from right col (of the viewport)", () => {
-    const model = new Model();
+    const model = createModel();
     let viewport = getViewport(model, 600, 300, 0, 0);
     expect(viewport.left).toBe(0);
     expect(viewport.right).toBe(6);
@@ -180,7 +181,7 @@ describe("navigation", () => {
   });
 
   test("move left from left col (of the viewport)", () => {
-    const model = new Model();
+    const model = createModel();
     let viewport = getViewport(model, 600, 300, 100, 0);
     expect(viewport.left).toBe(1);
     expect(viewport.right).toBe(7);
@@ -197,7 +198,7 @@ describe("navigation", () => {
   });
 
   test("move bottom from bottom row (of the viewport)", () => {
-    const model = new Model();
+    const model = createModel();
     let viewport = getViewport(model, 600, 300, 0, 0);
     expect(viewport.top).toBe(0);
     expect(viewport.bottom).toBe(13);
@@ -219,7 +220,7 @@ describe("navigation", () => {
   });
 
   test("move top from top row (of the viewport)", () => {
-    const model = new Model();
+    const model = createModel();
     let viewport = getViewport(model, 600, 300, 0, 60);
     expect(viewport.top).toBe(2);
     expect(viewport.bottom).toBe(15);
@@ -236,7 +237,7 @@ describe("navigation", () => {
   });
 
   test("move top from top row (of the viewport) with a merge", () => {
-    const model = new Model();
+    const model = createModel();
     let viewport = getViewport(model, 600, 300, 0, 60);
     expect(viewport.top).toBe(2);
     expect(viewport.bottom).toBe(15);
@@ -255,7 +256,7 @@ describe("navigation", () => {
   });
 
   test("move through hidden column", () => {
-    const model = new Model({
+    const model = createModel({
       sheets: [{ colNumber: 5, rowNumber: 1, cols: { 2: { isHidden: true } } }],
     });
     //from the right
@@ -268,7 +269,7 @@ describe("navigation", () => {
   });
 
   test("don't move through hidden col if out of grid", () => {
-    const model = new Model({
+    const model = createModel({
       sheets: [
         { colNumber: 5, rowNumber: 1, cols: { 0: { isHidden: true }, 4: { isHidden: true } } },
       ],
@@ -284,7 +285,7 @@ describe("navigation", () => {
   });
 
   test("move through hidden row", () => {
-    const model = new Model({
+    const model = createModel({
       sheets: [{ colNumber: 1, rowNumber: 5, rows: { 2: { isHidden: true } } }],
     });
     selectCell(model, "A4");
@@ -298,7 +299,7 @@ describe("navigation", () => {
 
 describe("Navigation starting from hidden cells", () => {
   test("Cannot move position horizontally from hidden row", () => {
-    const model = new Model({ sheets: [{ colNumber: 5, rowNumber: 2 }] });
+    const model = createModel({ sheets: [{ colNumber: 5, rowNumber: 2 }] });
     selectCell(model, "C1");
     hideRows(model, [0]);
     const move1 = moveAnchorCell(model, "right");
@@ -308,7 +309,7 @@ describe("Navigation starting from hidden cells", () => {
   });
 
   test("Cannot move position vertically from hidden column", () => {
-    const model = new Model({ sheets: [{ colNumber: 5, rowNumber: 2 }] });
+    const model = createModel({ sheets: [{ colNumber: 5, rowNumber: 2 }] });
     selectCell(model, "C1");
     hideColumns(model, ["C"]);
     const move1 = moveAnchorCell(model, "down");
@@ -332,7 +333,7 @@ describe("Navigation starting from hidden cells", () => {
   ])(
     "Move from position horizontally from hidden col",
     (hiddenCols, startPosition, direction, endPosition) => {
-      const model = new Model();
+      const model = createModel();
       selectCell(model, startPosition);
       hideColumns(model, hiddenCols);
       moveAnchorCell(model, direction as Direction);
@@ -354,7 +355,7 @@ describe("Navigation starting from hidden cells", () => {
   ])(
     "Move from position vertically from hidden col",
     (hiddenRows, startPosition, direction, endPosition) => {
-      const model = new Model();
+      const model = createModel();
       selectCell(model, startPosition);
       hideRows(model, hiddenRows);
       moveAnchorCell(model, direction as Direction);
@@ -363,7 +364,7 @@ describe("Navigation starting from hidden cells", () => {
   );
 
   test("Cannot from zero or negative steps does nothing", () => {
-    const model = new Model({ sheets: [{ colNumber: 5, rowNumber: 2 }] });
+    const model = createModel({ sheets: [{ colNumber: 5, rowNumber: 2 }] });
     selectCell(model, "C1");
     hideColumns(model, ["C"]);
     const move1 = moveAnchorCell(model, "down", 0);

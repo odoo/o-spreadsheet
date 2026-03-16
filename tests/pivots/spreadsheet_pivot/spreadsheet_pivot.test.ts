@@ -7,7 +7,6 @@ import {
   DEFAULT_LOCALES,
   EvaluatedCell,
   FunctionResultObject,
-  Model,
   TableStyle,
 } from "../../../src";
 import { positions, removeFalsyAttributes, toZone } from "../../../src/helpers";
@@ -28,7 +27,12 @@ import {
   getEvaluatedCell,
   getEvaluatedGrid,
 } from "../../test_helpers/getters_helpers";
-import { createModelFromGrid, getGrid, getGridStyle } from "../../test_helpers/helpers";
+import {
+  createModel,
+  createModelFromGrid,
+  getGrid,
+  getGridStyle,
+} from "../../test_helpers/helpers";
 import {
   addPivot,
   createModelWithPivot,
@@ -44,7 +48,7 @@ describe("Spreadsheet Pivot", () => {
   });
 
   test("Pivot fields are correctly computed", () => {
-    const model = new Model({
+    const model = createModel({
       sheets: [
         {
           cells: {
@@ -61,7 +65,7 @@ describe("Spreadsheet Pivot", () => {
   });
 
   test("Pivot fields with same name are correctly loaded", () => {
-    const model = new Model({
+    const model = createModel({
       sheets: [
         {
           cells: {
@@ -77,7 +81,7 @@ describe("Spreadsheet Pivot", () => {
   });
 
   test("Pivot fields are correctly loaded after evaluation", () => {
-    const model = new Model({
+    const model = createModel({
       sheets: [
         {
           cells: {
@@ -93,7 +97,7 @@ describe("Spreadsheet Pivot", () => {
   });
 
   test("Types are correctly inferred", () => {
-    const model = new Model({
+    const model = createModel({
       sheets: [
         {
           cells: {
@@ -169,7 +173,7 @@ describe("Spreadsheet Pivot", () => {
   });
 
   test("Values aren't detected as date if they have a date format but a non-numeric value", () => {
-    const model = new Model();
+    const model = createModel();
     setCellContent(model, "A1", "Col1");
     setFormat(model, "A2", "dd/mm/yyyy");
     addPivot(model, "A1:A2", {});
@@ -186,7 +190,7 @@ describe("Spreadsheet Pivot", () => {
   });
 
   test("Pivot fields are not loaded if a cell is in error", () => {
-    const model = new Model({
+    const model = createModel({
       sheets: [
         {
           cells: {
@@ -338,7 +342,7 @@ describe("Spreadsheet Pivot", () => {
   });
 
   test("Date fields without granularity are defaulted as month", () => {
-    const model = new Model();
+    const model = createModel();
     setCellContent(model, "A1", "Col1");
     setCellContent(model, "A2", "45323");
     addPivot(model, "A1:A2", {
@@ -2130,7 +2134,7 @@ describe("Spreadsheet Pivot", () => {
   });
 
   test("PIVOT.VALUE works after migration", () => {
-    const model = new Model({
+    const model = createModel({
       version: 17,
       sheets: [
         {
@@ -2233,7 +2237,7 @@ describe("Spreadsheet Pivot", () => {
 
   describe("Pivot reevaluation", () => {
     test("Pivot fields reevaluation", () => {
-      const model = new Model({
+      const model = createModel({
         sheets: [
           {
             cells: {

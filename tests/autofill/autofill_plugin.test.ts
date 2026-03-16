@@ -26,6 +26,7 @@ import {
 import {
   XCToMergeCellMap,
   addToRegistry,
+  createModel,
   getDataValidationRules,
   getMergeCellMap,
   getPlugin,
@@ -74,7 +75,7 @@ function select(from: string, xc: string) {
 }
 
 beforeEach(() => {
-  model = new Model();
+  model = createModel();
   autoFill = getPlugin(model, AutofillPlugin);
 });
 
@@ -888,7 +889,7 @@ describe("Autofill", () => {
   });
 
   test("autofill with merge greater than the grid size", () => {
-    model = new Model({ sheets: [{ colNumber: 1, rowNumber: 5 }] });
+    model = createModel({ sheets: [{ colNumber: 1, rowNumber: 5 }] });
     merge(model, "A1:A2");
     autofill("A1:A2", "A5");
     expect(getMergeCellMap(model)).toEqual(XCToMergeCellMap(model, ["A1", "A2", "A3", "A4"]));

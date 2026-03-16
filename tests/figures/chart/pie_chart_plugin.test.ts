@@ -1,13 +1,12 @@
 import { PieChartRuntime } from "@odoo/o-spreadsheet-engine/types/chart";
-import { ChartCreationContext, Model } from "../../../src";
+import { ChartCreationContext } from "../../../src";
 import { PieChart } from "../../../src/helpers/figures/charts";
 import { createChart } from "../../test_helpers";
 import {
   GENERAL_CHART_CREATION_CONTEXT,
   getChartLegendLabels,
 } from "../../test_helpers/chart_helpers";
-import { createModelFromGrid } from "../../test_helpers/helpers";
-
+import { createModel, createModelFromGrid } from "../../test_helpers/helpers";
 describe("pie chart", () => {
   test("create pie chart from creation context", () => {
     const context: Required<ChartCreationContext> = {
@@ -31,7 +30,6 @@ describe("pie chart", () => {
       slicesColors: [],
     });
   });
-
   test("Pie chart legend", () => {
     // prettier-ignore
     const model = createModelFromGrid({
@@ -68,14 +66,12 @@ describe("pie chart", () => {
       },
     ]);
   });
-
   test("Empty legend items are filtered out", () => {
     // prettier-ignore
     const model = createModelFromGrid({
       A1: "",    B1: "1",
       A2: "P2",  B2: "2",
     });
-
     createChart(
       model,
       {
@@ -89,11 +85,9 @@ describe("pie chart", () => {
     expect(getChartLegendLabels(model, "1")).toHaveLength(1);
     expect(getChartLegendLabels(model, "1")[0].text).toEqual("P2");
   });
-
   test("Pie chart hole size", () => {
-    const model = new Model();
+    const model = createModel();
     createChart(model, { type: "pie", isDoughnut: true, pieHolePercentage: 15 }, "1");
-
     const runtime = model.getters.getChartRuntime("1") as PieChartRuntime;
     expect(runtime.chartJsConfig.options?.cutout).toEqual("15%");
   });

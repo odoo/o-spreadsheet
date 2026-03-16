@@ -18,7 +18,11 @@ import {
   openChartConfigSidePanel,
   openChartDesignSidePanel,
 } from "../../../test_helpers/chart_helpers";
-import { mockChart, mountComponentWithPortalTarget } from "../../../test_helpers/helpers";
+import {
+  createModel,
+  mockChart,
+  mountComponentWithPortalTarget,
+} from "../../../test_helpers/helpers";
 
 let model: Model;
 let fixture: HTMLElement;
@@ -34,7 +38,7 @@ function getCalendarChartDefinition(chartId: UID): CalendarChartDefinition {
 
 describe("Calendar chart side panel", () => {
   beforeEach(async () => {
-    model = new Model({});
+    model = createModel({});
     ({ fixture, env } = await mountComponentWithPortalTarget(SidePanels, { model }));
   });
 

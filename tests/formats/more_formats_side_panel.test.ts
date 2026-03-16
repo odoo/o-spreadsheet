@@ -4,7 +4,7 @@ import { MoreFormatsPanel } from "../../src/components/side_panel/more_formats/m
 import { click, setInputValueAndTrigger } from "../test_helpers";
 import { selectCell, setFormat } from "../test_helpers/commands_helpers";
 import { getCell } from "../test_helpers/getters_helpers";
-import { mountComponent, mountSpreadsheet, nextTick } from "../test_helpers/helpers";
+import { createModel, mountComponent, mountSpreadsheet, nextTick } from "../test_helpers/helpers";
 
 let model: Model;
 let fixture: HTMLElement;
@@ -16,7 +16,7 @@ function getExampleValues() {
 
 describe("more formats side panel component", () => {
   beforeEach(() => {
-    model = new Model();
+    model = createModel();
   });
 
   async function mountFormatPanel(

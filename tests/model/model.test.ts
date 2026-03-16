@@ -1,9 +1,8 @@
 import { MESSAGE_VERSION } from "@odoo/o-spreadsheet-engine/constants";
-import { Model } from "@odoo/o-spreadsheet-engine/model";
 import { corePluginRegistry, featurePluginRegistry } from "@odoo/o-spreadsheet-engine/plugins";
 import { UIPlugin } from "@odoo/o-spreadsheet-engine/plugins/ui_plugin";
 import { ModelConfig } from "@odoo/o-spreadsheet-engine/types/model";
-import { CollaborationMessage, CommandResult, CorePlugin } from "../../src";
+import { CollaborationMessage, CommandResult, CorePlugin, Model } from "../../src";
 import { toZone } from "../../src/helpers";
 import { Command, CommandTypes, CoreCommand, DispatchResult, coreTypes } from "../../src/types";
 import { MockTransportService } from "../__mocks__/transport_service";
@@ -16,7 +15,7 @@ import {
   getCellText,
   getEvaluatedCell,
 } from "../test_helpers/getters_helpers";
-import { addTestPlugin } from "../test_helpers/helpers";
+import { addTestPlugin, createModel } from "../test_helpers/helpers";
 
 describe("Model", () => {
   test("core plugin can refuse command from UI plugin", () => {
@@ -43,7 +42,7 @@ describe("Model", () => {
     }
     addTestPlugin(featurePluginRegistry, MyUIPlugin);
     addTestPlugin(corePluginRegistry, MyCorePlugin);
-    const model = new Model();
+    const model = createModel();
     copy(model, "A1");
     expect(result).toBeCancelledBecause(CommandResult.CancelledForUnknownReason);
   });
@@ -69,7 +68,7 @@ describe("Model", () => {
       }
     }
     addTestPlugin(corePluginRegistry, MyCorePlugin);
-    const model = new Model();
+    const model = createModel();
     createSheet(model, { sheetId: "42", position: 1 });
     expect(result).toBeSuccessfullyDispatched();
     expect(getCellText(model, "A1", "42")).toBe("Hello");
@@ -93,7 +92,7 @@ describe("Model", () => {
       }
     }
     addTestPlugin(featurePluginRegistry, MyUIPlugin);
-    const model = new Model();
+    const model = createModel();
     setCellContent(model, "A1", "copy&paste me");
     copy(model, "A1");
     expect(result).toBeSuccessfullyDispatched();
@@ -110,7 +109,7 @@ describe("Model", () => {
       }
     }
     addTestPlugin(featurePluginRegistry, MyUIPlugin);
-    const model = new Model();
+    const model = createModel();
 
     setCellContent(model, "A1", "hello");
     expect(getCellContent(model, "A1")).toBe("");
@@ -125,7 +124,7 @@ describe("Model", () => {
       }
     }
     addTestPlugin(corePluginRegistry, MyCorePlugin);
-    const model = new Model();
+    const model = createModel();
     model.dispatch("COPY");
     expect(receivedCommands).not.toContain("COPY");
   });
@@ -138,7 +137,7 @@ describe("Model", () => {
       }
     }
     addTestPlugin(corePluginRegistry, MyCorePlugin);
-    const model = new Model();
+    const model = createModel();
     model.dispatch("COPY");
     expect(receivedCommands).not.toContain("COPY");
   });
@@ -153,7 +152,7 @@ describe("Model", () => {
       }
     }
     addTestPlugin(corePluginRegistry, MyCorePlugin);
-    const model = new Model();
+    const model = createModel();
     expect(
       model.canDispatch("CREATE_SHEET", { sheetId: "42", position: 1, name: "Sheet42" })
     ).toBeCancelledBecause(CommandResult.CancelledForUnknownReason);
@@ -172,27 +171,27 @@ describe("Model", () => {
   });
 
   test("Can open a model in readonly mode", () => {
-    const model = new Model({}, { mode: "readonly" });
+    const model = createModel({}, { mode: "readonly" });
     expect(model.getters.isReadonly()).toBe(true);
   });
 
   test("Some commands are not dispatched in readonly mode", () => {
-    const model = new Model({}, { mode: "readonly" });
+    const model = createModel({}, { mode: "readonly" });
     expect(setCellContent(model, "A1", "hello")).toBeCancelledBecause(CommandResult.Readonly);
   });
 
   test("Moving the selection is allowed in readonly mode", () => {
-    const model = new Model({}, { mode: "readonly" });
+    const model = createModel({}, { mode: "readonly" });
     expect(selectCell(model, "A15")).toBeSuccessfullyDispatched();
   });
 
   test("Can add custom elements in the config of model", () => {
-    const model = new Model({}, { custom: "42" } as unknown as ModelConfig);
+    const model = createModel({}, { custom: "42" } as unknown as ModelConfig);
     expect(model["config"]["custom"]).toBe("42");
   });
 
   test("type property in command payload is ignored", () => {
-    const model = new Model();
+    const model = createModel();
     const payload = {
       col: 0,
       row: 0,
@@ -219,7 +218,7 @@ describe("Model", () => {
     addTestPlugin(corePluginRegistry, MyCorePlugin1);
     addTestPlugin(corePluginRegistry, MyCorePlugin2);
 
-    expect(() => new Model()).toThrowError(`Getter "getSomething" is already defined.`);
+    expect(() => createModel()).toThrowError(`Getter "getSomething" is already defined.`);
   });
 
   test("Cannot add an already existing getters", () => {
@@ -237,7 +236,7 @@ describe("Model", () => {
     addTestPlugin(featurePluginRegistry, MyUIPlugin1);
     addTestPlugin(featurePluginRegistry, MyUIPlugin2);
 
-    expect(() => new Model()).toThrowError(`Getter "getSomething" is already defined.`);
+    expect(() => createModel()).toThrowError(`Getter "getSomething" is already defined.`);
   });
 
   test("Replayed commands are not send to UI plugins", () => {
@@ -293,7 +292,7 @@ describe("Model", () => {
       sheets: [{ id: "sheet1" }],
       revisionId: "initialRevision",
     };
-    const model = new Model(data, {}, [
+    const model = createModel(data, {}, [
       {
         type: "REMOTE_REVISION",
         nextRevisionId: "1",
@@ -358,7 +357,7 @@ describe("Model", () => {
         },
       ],
     };
-    const model = new Model(modelData);
+    const model = createModel(modelData);
     expect(model.exportData()).toMatchObject({
       sheets: [
         {
@@ -375,7 +374,7 @@ describe("Model", () => {
     const transport = new MockTransportService();
     const spy = jest.spyOn(transport, "sendMessage");
     const xlsxData = await getTextXlsxFiles();
-    new Model(xlsxData, {
+    createModel(xlsxData, {
       transportService: transport,
       client: { id: "test", name: "Test" },
     });
@@ -393,11 +392,16 @@ describe("Model", () => {
     const transport = new MockTransportService();
     transport.onNewMessage("listener", (message) => messages.push(message));
     const xlsxData = await getTextXlsxFiles();
-    new Model(xlsxData, {
+    createModel(xlsxData, {
       transportService: transport,
       client: { id: "test", name: "Test" },
       mode: "readonly",
     });
     expect(messages.map((m) => m.type)).not.toContain("SNAPSHOT_CREATED");
+  });
+
+  test("Cannot dispatch a command if START is not yet dispatched", () => {
+    const model = new Model();
+    expect(() => model.dispatch("EVALUATE_CELLS")).toThrow();
   });
 });

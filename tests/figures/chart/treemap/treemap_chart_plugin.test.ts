@@ -11,7 +11,7 @@ import {
   updateChart,
 } from "../../../test_helpers";
 import { GENERAL_CHART_CREATION_CONTEXT } from "../../../test_helpers/chart_helpers";
-import { setGrid } from "../../../test_helpers/helpers";
+import { createModel, setGrid } from "../../../test_helpers/helpers";
 
 interface TreeMapElementCtx {
   type: "data";
@@ -62,7 +62,7 @@ function getTreeMapElement(args: {
 
 describe("TreeMap chart", () => {
   beforeEach(() => {
-    model = new Model();
+    model = createModel();
   });
 
   test("Labels and datasets are swapped from the creation context", () => {
@@ -86,7 +86,7 @@ describe("TreeMap chart", () => {
   });
 
   test("Labels and datasets are not swapped from a Sunburst chart creation context", () => {
-    const model = new Model();
+    const model = createModel();
     const chartId = createSunburstChart(model, {
       dataSets: [{ dataRange: "A1:A4" }],
       labelRange: "B1:B4",

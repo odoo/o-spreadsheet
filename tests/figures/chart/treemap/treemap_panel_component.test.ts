@@ -19,7 +19,11 @@ import {
   openChartConfigSidePanel,
   openChartDesignSidePanel,
 } from "../../../test_helpers/chart_helpers";
-import { mountComponentWithPortalTarget, setGrid } from "../../../test_helpers/helpers";
+import {
+  createModel,
+  mountComponentWithPortalTarget,
+  setGrid,
+} from "../../../test_helpers/helpers";
 
 let model: Model;
 let fixture: HTMLElement;
@@ -31,7 +35,7 @@ function getTreeMapChartDefinition(chartId: UID): TreeMapChartDefinition {
 
 describe("TreeMap chart side panel", () => {
   beforeEach(async () => {
-    model = new Model();
+    model = createModel();
     ({ fixture, env } = await mountComponentWithPortalTarget(SidePanels, { model }));
   });
 

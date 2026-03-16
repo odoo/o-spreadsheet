@@ -3,6 +3,7 @@ import { Model } from "@odoo/o-spreadsheet-engine/model";
 import { CommandResult, TableStyle, TableStyleTemplateName, UID } from "../../src";
 import { createTable, createTableStyle, redo, undo } from "../test_helpers/commands_helpers";
 import { getStyle } from "../test_helpers/getters_helpers";
+import { createModel } from "../test_helpers/helpers";
 
 const customStyle: Omit<TableStyle, "category"> = {
   displayName: "MyStyle",
@@ -15,7 +16,7 @@ describe("Table core style plugin", () => {
   let sheetId: UID;
 
   beforeEach(() => {
-    model = new Model();
+    model = createModel();
     sheetId = model.getters.getActiveSheetId();
   });
 
@@ -106,7 +107,7 @@ describe("Table core style plugin", () => {
     const exportedData = model.exportData();
     expect(exportedData.customTableStyles).toMatchObject({ MyStyle: customStyle });
 
-    const importedModel = new Model(exportedData);
+    const importedModel = createModel(exportedData);
     expect(importedModel.getters.getTableStyle("MyStyle")).toMatchObject(customStyle);
   });
 });

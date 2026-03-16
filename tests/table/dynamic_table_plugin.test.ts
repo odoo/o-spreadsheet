@@ -17,6 +17,7 @@ import {
 } from "../test_helpers/commands_helpers";
 import { getCell, getTables } from "../test_helpers/getters_helpers";
 import {
+  createModel,
   getExportedExcelData,
   getFilterHiddenValues,
   setGrid,
@@ -28,7 +29,7 @@ let model: Model;
 let sheetId: UID;
 
 beforeEach(() => {
-  model = new Model();
+  model = createModel();
   sheetId = model.getters.getActiveSheetId();
 });
 
@@ -228,7 +229,7 @@ describe("Dynamic tables", () => {
       const exported = model.exportData();
       expect(exported.sheets[0].tables).toMatchObject([{ range: "A1", type: "dynamic" }]);
 
-      const newModel = new Model(exported);
+      const newModel = createModel(exported);
       expect(newModel.getters.getCoreTables(sheetId)).toMatchObject([
         { range: { zone: toZone("A1") }, type: "dynamic" },
       ]);

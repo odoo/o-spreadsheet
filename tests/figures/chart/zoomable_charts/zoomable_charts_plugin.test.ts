@@ -3,11 +3,12 @@ import { Scale } from "chart.js";
 import { Model } from "../../../../src";
 import { TREND_LINE_XAXIS_ID } from "../../../../src/helpers/figures/charts";
 import { createChart, setCellContent } from "../../../test_helpers/commands_helpers";
+import { createModel } from "../../../test_helpers/helpers";
 
 let model: Model;
 
 beforeEach(() => {
-  model = new Model();
+  model = createModel();
 });
 
 describe("Zoomable chart configuration tests", () => {

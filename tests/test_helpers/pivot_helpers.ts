@@ -6,10 +6,10 @@ import { DispatchResult, Model, UID } from "../../src";
 import { deepCopy, toZone } from "../../src/helpers";
 import { pivotModelData } from "../pivots/pivot_data";
 import { setCellContent } from "./commands_helpers";
-import { createModelFromGrid } from "./helpers";
+import { createModel, createModelFromGrid } from "./helpers";
 
 export function createModelWithPivot(range: string): Model {
-  return new Model(pivotModelData(range));
+  return createModel(pivotModelData(range));
 }
 
 function defaultPivotDefinition(sheetId: UID): SpreadsheetPivotCoreDefinition {

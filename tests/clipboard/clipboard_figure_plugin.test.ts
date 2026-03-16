@@ -21,7 +21,13 @@ import {
   updateChart,
 } from "../test_helpers/commands_helpers";
 import { getCellContent } from "../test_helpers/getters_helpers";
-import { getFigureDefinition, getFigureIds, mockChart, nextTick } from "../test_helpers/helpers";
+import {
+  createModel,
+  getFigureDefinition,
+  getFigureIds,
+  mockChart,
+  nextTick,
+} from "../test_helpers/helpers";
 
 mockChart();
 
@@ -31,7 +37,7 @@ describe.each(["chart", "image"])("Clipboard for %s figures", (type: string) => 
   let figureId: UID;
 
   beforeEach(async () => {
-    model = new Model();
+    model = createModel();
     sheetId = model.getters.getActiveSheetId();
     figureId = model.uuidGenerator.uuidv4();
     if (type === "chart") {
@@ -166,7 +172,7 @@ describe.each(["chart", "image"])("Clipboard for %s figures", (type: string) => 
   });
 
   test("Can paste a chart with ranges that were deleted between the copy and the paste", () => {
-    const model = new Model();
+    const model = createModel();
     createSheet(model, { sheetId: "sheet2Id", name: "Sheet2" });
     createChart(
       model,
@@ -223,7 +229,7 @@ describe.each(["chart", "image"])("Clipboard for %s figures", (type: string) => 
 
 describe("chart specific Clipboard test", () => {
   test("Can copy paste chart on another sheet", () => {
-    const model = new Model();
+    const model = createModel();
     const chartId = "thisIsAnId";
     createChart(model, { type: "bar" }, chartId);
     updateChart(model, chartId, { dataSets: [{ dataRange: "A1:A5" }], labelRange: "B1" });
@@ -247,7 +253,7 @@ describe("Carousel clipboard test", () => {
   let sheetId: UID;
 
   beforeEach(() => {
-    model = new Model();
+    model = createModel();
     sheetId = model.getters.getActiveSheetId();
   });
 

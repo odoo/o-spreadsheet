@@ -50,6 +50,7 @@ import {
 } from "../test_helpers/getters_helpers";
 import {
   createEqualCF,
+  createModel,
   getInputSelection,
   mountSpreadsheet,
   nextTick,
@@ -84,7 +85,7 @@ const modelData = { sheets: [{ id: "sh1" }] };
 describe("Composer interactions", () => {
   beforeEach(async () => {
     let env: SpreadsheetChildEnv;
-    ({ model, fixture, env } = await mountSpreadsheet({ model: new Model(modelData) }));
+    ({ model, fixture, env } = await mountSpreadsheet({ model: createModel(modelData) }));
     composerStore = env.getStore(CellComposerStore);
   });
 
@@ -641,7 +642,7 @@ describe("Grid composer", () => {
   let env: SpreadsheetChildEnv;
   beforeEach(async () => {
     ({ model, env, fixture } = await mountSpreadsheet({
-      model: new Model(modelData),
+      model: createModel(modelData),
     }));
     composerStore = env.getStore(CellComposerStore);
   });

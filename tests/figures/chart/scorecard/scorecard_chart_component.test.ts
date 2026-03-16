@@ -30,6 +30,7 @@ import {
 import { FR_LOCALE } from "../../../test_helpers/constants";
 import { getCellContent } from "../../../test_helpers/getters_helpers";
 import {
+  createModel,
   mountComponentWithPortalTarget,
   nextTick,
   toRangesData,
@@ -104,7 +105,7 @@ test("Scorecard chart canvas adapt to figure size", () => {
       },
     ],
   };
-  model = new Model(data);
+  model = createModel(data);
   canvas = document.createElement("canvas");
 
   createScorecardChart(
@@ -142,7 +143,7 @@ describe("Scorecard charts computation", () => {
         },
       ],
     };
-    model = new Model(data);
+    model = createModel(data);
   });
 
   test("Chart display correct info", () => {
@@ -477,7 +478,7 @@ describe("Scorecard charts rendering", () => {
         },
       ],
     };
-    model = new Model(data);
+    model = createModel(data);
     scorecardChartStyle = {
       title: {},
       key: {},

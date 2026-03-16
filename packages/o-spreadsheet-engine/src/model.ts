@@ -119,6 +119,9 @@ export class Model extends EventBus<any> implements CommandDispatcher {
 
   private state: StateObserver;
 
+  private isStarted: boolean = false;
+  private dataIsXLSX: boolean = false;
+
   readonly selection: SelectionStreamProcessor;
 
   /**
@@ -154,6 +157,9 @@ export class Model extends EventBus<any> implements CommandDispatcher {
 
     stateUpdateMessages = repairInitialMessages(data, stateUpdateMessages);
 
+    if (data["[Content_Types].xml"]) {
+      this.dataIsXLSX = true;
+    }
     const workbookData = load(data, verboseImport);
 
     this.state = new StateObserver();
@@ -227,7 +233,6 @@ export class Model extends EventBus<any> implements CommandDispatcher {
 
     if (this.config.mode !== "export_verification") {
       // starting plugins
-      this.dispatch("START");
       // Model should be the last permanent subscriber in the list since he should render
       // after all changes have been applied to the other subscribers (plugins)
       this.selection.observe(this, {
@@ -236,18 +241,21 @@ export class Model extends EventBus<any> implements CommandDispatcher {
       // This should be done after construction of LocalHistory due to order of
       // events
       this.setupSessionEvents();
-
-      this.joinSession();
-
-      if (config.snapshotRequested || (data["[Content_Types].xml"] && !this.getters.isReadonly())) {
-        const startSnapshot = performance.now();
-        console.debug("Snapshot requested");
-        this.session.snapshot(this.exportData());
-        console.debug("Snapshot taken in", performance.now() - startSnapshot, "ms");
-      }
     }
     console.debug("Model created in", performance.now() - start, "ms");
     console.debug("######");
+  }
+
+  startModel() {
+    this.dispatch("START");
+    this.joinSession();
+    if (this.config.snapshotRequested || (this.dataIsXLSX && !this.getters.isReadonly())) {
+      const startSnapshot = performance.now();
+      console.debug("Snapshot requested");
+      this.session.snapshot(this.exportData());
+      console.debug("Snapshot taken in", performance.now() - startSnapshot, "ms");
+    }
+    this.isStarted = true;
   }
 
   joinSession() {
@@ -511,6 +519,9 @@ export class Model extends EventBus<any> implements CommandDispatcher {
    * 2. This allows us to define its type by using the interface CommandDispatcher
    */
   dispatch: CommandDispatcher["dispatch"] = (type: CommandTypes, payload?: any) => {
+    if (!this.isStarted && type !== "START") {
+      throw new Error("Cannot dispatch commands before the model is started");
+    }
     const command: Command = createCommand(type, payload);
     const status: Status = this.status;
     if (this.getters.isReadonly() && !canExecuteInReadonly(command)) {
@@ -650,9 +661,11 @@ export class Model extends EventBus<any> implements CommandDispatcher {
     const exportVerificationModel = new Model(
       deepCopy(exportSquished), // the import itself modifies the data, so we need to deep copy it to keep the original one for comparison
       verificationConfig
-    )._exportData(unsquished);
+    );
+    exportVerificationModel.startModel();
+    const exportVerificationData = exportVerificationModel._exportData(unsquished);
 
-    if (!deepEquals(exportUnsquished, exportVerificationModel)) {
+    if (!deepEquals(exportUnsquished, exportVerificationData)) {
       exportUnsquished.isNotSquishable = true;
       return exportUnsquished;
     } else {

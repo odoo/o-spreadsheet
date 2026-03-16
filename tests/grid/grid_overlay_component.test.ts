@@ -35,7 +35,13 @@ import {
   triggerMouseEvent,
 } from "../test_helpers/dom_helper";
 import { getEvaluatedCell, getSelectionAnchorCellXc } from "../test_helpers/getters_helpers";
-import { mountSpreadsheet, nextTick, target, typeInComposerGrid } from "../test_helpers/helpers";
+import {
+  createModel,
+  mountSpreadsheet,
+  nextTick,
+  target,
+  typeInComposerGrid,
+} from "../test_helpers/helpers";
 
 let fixture: HTMLElement;
 let model: Model;
@@ -157,7 +163,7 @@ describe("Resizer component", () => {
         },
       ],
     };
-    model = new Model(data);
+    model = createModel(data);
     ({ fixture, env } = await mountSpreadsheet({ model }));
   });
 
@@ -675,7 +681,7 @@ describe("Resizer component", () => {
 
 describe("Hide/show columns", () => {
   beforeEach(async () => {
-    model = new Model();
+    model = createModel();
     ({ fixture } = await mountSpreadsheet({ model }));
   });
   test("Hide A unhide it", async () => {
@@ -783,7 +789,7 @@ describe("Hide/show columns", () => {
 
 describe("Hide/show rows", () => {
   beforeEach(async () => {
-    model = new Model();
+    model = createModel();
     ({ fixture } = await mountSpreadsheet({ model }));
   });
   test("hide 1, unhide it", async () => {
@@ -989,7 +995,7 @@ describe("move selected element(s)", () => {
         },
       ],
     };
-    model = new Model(data);
+    model = createModel(data);
     ({ fixture } = await mountSpreadsheet({ model }));
   });
 
@@ -1300,7 +1306,7 @@ describe("Can select de-select headers", () => {
         },
       ],
     };
-    model = new Model(data);
+    model = createModel(data);
     ({ fixture, env } = await mountSpreadsheet({ model }));
   });
 

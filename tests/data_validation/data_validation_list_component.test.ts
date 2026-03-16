@@ -33,6 +33,7 @@ import {
 import { getCellContent, getCellIcons } from "../test_helpers/getters_helpers";
 import {
   ComposerWrapper,
+  createModel,
   getDataValidationRules,
   mountComponentWithPortalTarget,
   mountComposerWrapper,
@@ -47,7 +48,7 @@ let sheetId: UID;
 let env: SpreadsheetChildEnv;
 
 beforeEach(async () => {
-  model = new Model();
+  model = createModel();
   sheetId = model.getters.getActiveSheetId();
 });
 

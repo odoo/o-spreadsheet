@@ -3,10 +3,10 @@ import { DependencyContainer, StoreConstructor, StoreParams } from "../../src/st
 import { ModelStore } from "../../src/stores";
 import { NotificationStore } from "../../src/stores/notification_store";
 import { registerCleanup } from "../setup/jest.setup";
-import { makeTestNotificationStore } from "./helpers";
+import { createModel, makeTestNotificationStore } from "./helpers";
 
 export function makeStore<T extends StoreConstructor>(Store: T, ...args: StoreParams<T>) {
-  return makeStoreWithModel(new Model(), Store, ...args);
+  return makeStoreWithModel(createModel(), Store, ...args);
 }
 
 export function makeStoreWithModel<T extends StoreConstructor>(

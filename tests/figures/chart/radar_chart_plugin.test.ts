@@ -1,5 +1,5 @@
 import { RadarChartRuntime } from "@odoo/o-spreadsheet-engine/types/chart/radar_chart";
-import { ChartCreationContext, Model } from "../../../src";
+import { ChartCreationContext } from "../../../src";
 import { RadarChart } from "../../../src/helpers/figures/charts/radar_chart";
 import {
   GENERAL_CHART_CREATION_CONTEXT,
@@ -14,8 +14,7 @@ import {
   setFormat,
   updateChart,
 } from "../../test_helpers/commands_helpers";
-import { createModelFromGrid } from "../../test_helpers/helpers";
-
+import { createModel, createModelFromGrid } from "../../test_helpers/helpers";
 describe("radar chart", () => {
   test("create radar chart from creation context", () => {
     const context: Required<ChartCreationContext> = {
@@ -41,20 +40,17 @@ describe("radar chart", () => {
       humanize: false,
     });
   });
-
   test("Dataset is filled if fillArea is set to true", () => {
-    const model = new Model();
+    const model = createModel();
     setCellContent(model, "A2", "1");
     createRadarChart(model, { fillArea: false, dataSets: [{ dataRange: "A1:A2" }] }, "chartId");
     let runtime = model.getters.getChartRuntime("chartId") as RadarChartRuntime;
     expect(runtime.chartJsConfig.data.datasets[0]?.["fill"]).toBeFalsy();
-
     updateChart(model, "chartId", { fillArea: true });
     runtime = model.getters.getChartRuntime("chartId") as RadarChartRuntime;
     expect(runtime.chartJsConfig.data.datasets[0]?.backgroundColor).toEqual("#4EA7F266");
     expect(runtime.chartJsConfig.data.datasets[0]?.["fill"]).toEqual("start");
   });
-
   test("Radar chart legend", () => {
     const model = createModelFromGrid({
       A1: "1",
@@ -97,12 +93,10 @@ describe("radar chart", () => {
       },
     ]);
   });
-
   test("Radar chart ticks and tooltip values are formatted with the cells format", () => {
-    const model = new Model();
+    const model = createModel();
     setCellContent(model, "A2", "1");
     setFormat(model, "A2", `0.0 "écu d'or"`);
-
     createRadarChart(
       model,
       { fillArea: false, dataSets: [{ dataRange: "A1:A2" }], humanize: false },
@@ -111,58 +105,48 @@ describe("radar chart", () => {
     const runtime = model.getters.getChartRuntime("chartId") as RadarChartRuntime;
     const tickCallback = runtime.chartJsConfig.options?.scales?.r?.["ticks"]?.callback as any;
     expect(tickCallback(1)).toBe("1.0 écu d'or");
-
     const tooltipItem = { parsed: { x: "Louis", r: 14 }, dataset: { label: "Ds1" } };
     const tooltipValues = getChartTooltipValues(runtime, tooltipItem);
     expect(tooltipValues).toEqual({ beforeLabel: "Ds1", label: "14.0 écu d'or" });
   });
-
   test("Radar point color depend on the chart background", () => {
-    const model = new Model();
+    const model = createModel();
     createRadarChart(model, {}, "chartId");
-
     let runtime = model.getters.getChartRuntime("chartId") as RadarChartRuntime;
     expect(runtime.chartJsConfig.options?.scales?.r?.["pointLabels"]?.color).toBe("#000000");
-
     updateChart(model, "chartId", { background: "#000000" });
     runtime = model.getters.getChartRuntime("chartId") as RadarChartRuntime;
     expect(runtime.chartJsConfig.options?.scales?.r?.["pointLabels"]?.color).toBe("#FFFFFF");
   });
-
   test("Radar scale starts at zero for positive numbers", () => {
-    const model = new Model();
+    const model = createModel();
     setCellContent(model, "A2", "1");
     setCellContent(model, "A3", "1");
     createRadarChart(model, { dataSets: [{ dataRange: "A1:A3" }] }, "chartId");
     const runtime = model.getters.getChartRuntime("chartId") as RadarChartRuntime;
     expect(runtime.chartJsConfig.options?.scales?.r?.["beginAtZero"]).toBe(true);
   });
-
   test("Radar scale starts below the minimum for negative values", () => {
-    const model = new Model();
+    const model = createModel();
     setCellContent(model, "A2", "4");
     setCellContent(model, "A3", "-7");
     setCellContent(model, "A4", "-1");
-
     createRadarChart(model, { dataSets: [{ dataRange: "A1:A4" }] }, "chartId");
     const runtime = model.getters.getChartRuntime("chartId") as RadarChartRuntime;
     expect(runtime.chartJsConfig.options?.scales?.r?.suggestedMin).toBe(-8);
   });
-
   test("Radar chart point labels are truncated properly", () => {
-    const model = new Model();
+    const model = createModel();
     createRadarChart(model, { dataSets: [{ dataRange: "A1:A2" }] }, "chartId");
     const runtime = model.getters.getChartRuntime("chartId") as RadarChartRuntime;
     const callback = (runtime.chartJsConfig.options?.scales?.r as any)?.pointLabels
       ?.callback as Function;
-
     expect(callback("short", 0)).toBe("short");
     expect(callback("very very long label of radar", 1)).toBe("very very long label…");
   });
 });
-
 test("Humanization is taken into account for the axis ticks of a radar chart", async () => {
-  const model = new Model();
+  const model = createModel();
   createChart(
     model,
     {

@@ -21,6 +21,7 @@ import {
   unfoldHeaderGroupsInZone,
   ungroupHeaders,
 } from "../test_helpers/commands_helpers";
+import { createModel } from "../test_helpers/helpers";
 
 function getSortedGroups(model: Model, sheetId: UID, dimension: Dimension) {
   return model.getters
@@ -34,7 +35,7 @@ describe("Header grouping plugin", () => {
   let sheetId: UID;
 
   beforeEach(() => {
-    model = new Model();
+    model = createModel();
     sheetId = model.getters.getActiveSheetId();
   });
 
@@ -324,7 +325,7 @@ describe("Header grouping plugin", () => {
       ]);
 
       // Test case 2: groups go to the rightmost layer
-      model = new Model();
+      model = createModel();
       groupHeaders(model, dimension, 0, 1);
       groupHeaders(model, dimension, 0, 2);
       groupHeaders(model, dimension, 0, 3);
@@ -659,7 +660,7 @@ describe("Header grouping plugin", () => {
       ROW: [{ start: 0, end: 2 }],
     });
 
-    const newModel = new Model(exported);
+    const newModel = createModel(exported);
     expect(newModel.getters.getHeaderGroups(sheetId, "COL")).toMatchObject([
       { start: 0, end: 2, isFolded: true },
     ]);

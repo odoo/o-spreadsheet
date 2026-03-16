@@ -26,6 +26,7 @@ import {
 } from "../test_helpers/getters_helpers";
 import {
   addToRegistry,
+  createModel,
   createModelFromGrid,
   evaluateCell,
   evaluateGrid,
@@ -140,7 +141,7 @@ describe("evaluateCells", () => {
       compute: mock,
       args: [],
     });
-    new Model({
+    createModel({
       sheets: [
         {
           cells: {
@@ -171,7 +172,7 @@ describe("evaluateCells", () => {
   });
 
   test("error in some function calls", () => {
-    const model = new Model();
+    const model = createModel();
     setCellContent(model, "A1", '=Sum("asdf")');
     expect(getEvaluatedCell(model, "A1").value).toBe("#ERROR");
     expect(getCellError(model, "A1")).toBe(
@@ -187,7 +188,7 @@ describe("evaluateCells", () => {
   });
 
   test("error in an addition", () => {
-    const model = new Model();
+    const model = createModel();
     setCellContent(model, "A1", "1");
     setCellContent(model, "A2", "2");
     setCellContent(model, "A3", "=A1+A2");
@@ -205,7 +206,7 @@ describe("evaluateCells", () => {
   });
 
   test("error in an subtraction", () => {
-    const model = new Model();
+    const model = createModel();
     setCellContent(model, "A1", "1");
     setCellContent(model, "A2", "2");
     setCellContent(model, "A3", "=A1-A2");
@@ -223,7 +224,7 @@ describe("evaluateCells", () => {
   });
 
   test("error in a multiplication", () => {
-    const model = new Model();
+    const model = createModel();
     setCellContent(model, "A1", "1");
     setCellContent(model, "A2", "2");
     setCellContent(model, "A3", "=A1*A2");
@@ -238,7 +239,7 @@ describe("evaluateCells", () => {
   });
 
   test("error in a division", () => {
-    const model = new Model();
+    const model = createModel();
     setCellContent(model, "A1", "1");
     setCellContent(model, "A2", "2");
     setCellContent(model, "A3", "=A1/A2");
@@ -253,7 +254,7 @@ describe("evaluateCells", () => {
   });
 
   test("error in range vlookup", () => {
-    const model = new Model();
+    const model = createModel();
     expect(model.getters.getNumberRows(model.getters.getActiveSheetId())).toBeLessThan(200);
     setCellContent(model, "A1", "=VLOOKUP(D12, A2:A200, 2, false)");
 
@@ -261,7 +262,7 @@ describe("evaluateCells", () => {
   });
 
   test("error when expecting a boolean", () => {
-    const model = new Model();
+    const model = createModel();
     setCellContent(model, "A1", '=NOT("1")');
     expect(getCellError(model, "A1")).toBe(
       "The function NOT expects a boolean value, but '1' is a text, and cannot be coerced to a boolean."
@@ -269,7 +270,7 @@ describe("evaluateCells", () => {
   });
 
   test("Unknown function error", () => {
-    const model = new Model();
+    const model = createModel();
     setCellContent(model, "A1", "=ThisIsNotARealFunction(A2)");
     expect(getCellContent(model, "A1")).toBe(CellErrorType.UnknownFunction);
     expect(getCellError(model, "A1")).toBe('Unknown function: "ThisIsNotARealFunction"');
@@ -280,7 +281,7 @@ describe("evaluateCells", () => {
   });
 
   test("Unknown function with spaces before LEFT_PAREN", () => {
-    const model = new Model();
+    const model = createModel();
     setCellContent(model, "A1", "=ThisIsNotARealFunction    (A2)");
     expect(getCellContent(model, "A1")).toBe(CellErrorType.UnknownFunction);
     expect(getCellError(model, "A1")).toBe('Unknown function: "ThisIsNotARealFunction"');
@@ -290,7 +291,7 @@ describe("evaluateCells", () => {
     "=1/0", // bad evaluation
     "=", // bad expression
   ])("setting a format on an error cell keeps the error", (formula) => {
-    const model = new Model();
+    const model = createModel();
     setCellContent(model, "A1", formula);
     const message = getCellError(model, "A1");
     const value = getEvaluatedCell(model, "A1").value;
@@ -300,7 +301,7 @@ describe("evaluateCells", () => {
   });
 
   test("string representation of an error is stored as an error", () => {
-    const model = new Model();
+    const model = createModel();
     setCellContent(model, "A1", "#ERROR");
     expect(getCellRawContent(model, "A1")).toBe("#ERROR");
     expect(getEvaluatedCell(model, "A1").type).toBe(CellValueType.error);
@@ -309,7 +310,7 @@ describe("evaluateCells", () => {
   });
 
   test("range", () => {
-    const model = new Model();
+    const model = createModel();
     setCellContent(model, "D4", "42");
     setCellContent(model, "A1", "=sum(A2:Z10)");
 
@@ -324,7 +325,7 @@ describe("evaluateCells", () => {
       },
       args: [{ name: "range", description: "", type: ["RANGE"], acceptMatrix: true }],
     });
-    const model = new Model();
+    const model = createModel();
     setCellContent(model, "D4", "42");
     setCellContent(model, "A1", "=RANGE.COUNT.FUNCTION(A2:AZ999)");
     setCellContent(model, "A2", "=RANGE.COUNT.FUNCTION(B2:AZ2)");
@@ -336,14 +337,14 @@ describe("evaluateCells", () => {
   });
 
   test("range totally outside of sheet", () => {
-    const model = new Model();
+    const model = createModel();
     setCellContent(model, "A1", "=sum(AB1:AZ999)");
 
     expect(getEvaluatedCell(model, "A1").value).toBe(0);
   });
 
   test("misc math formulas", () => {
-    const model = new Model();
+    const model = createModel();
     setCellContent(model, "A1", "42");
     setCellContent(model, "A2", "2");
     setCellContent(model, "B3", "2.3");
@@ -363,7 +364,7 @@ describe("evaluateCells", () => {
   });
 
   test("priority of operations", () => {
-    const model = new Model();
+    const model = createModel();
     setCellContent(model, "A1", "=1 + 2 * 3");
     setCellContent(model, "A2", "=-2*-2");
     setCellContent(model, "A3", "=-2^2");
@@ -392,7 +393,7 @@ describe("evaluateCells", () => {
   });
 
   test("# operator", () => {
-    const model = new Model();
+    const model = createModel();
     setCellContent(model, "A1", "=SEQUENCE(3)");
     setCellContent(model, "B1", "=SEQUENCE(3)");
 
@@ -447,13 +448,13 @@ describe("evaluateCells", () => {
   });
 
   test("evaluate formula returns the cell error value when we pass an invalid formula", () => {
-    const model = new Model();
+    const model = createModel();
     const sheetId = model.getters.getActiveSheetId();
     expect(model.getters.evaluateFormula(sheetId, "=min(abc)")).toBe("#BAD_EXPR");
   });
 
   test("various expressions with boolean", () => {
-    const model = new Model();
+    const model = createModel();
 
     setCellContent(model, "A1", "FALSE");
     setCellContent(model, "A2", "TRUE");
@@ -513,7 +514,7 @@ describe("evaluateCells", () => {
   });
 
   test("various expressions with whitespace", () => {
-    const model = new Model();
+    const model = createModel();
 
     setCellContent(model, "A1", "");
     setCellContent(model, "A2", ",");
@@ -589,7 +590,7 @@ describe("evaluateCells", () => {
   });
 
   test("various string expressions with whitespace", () => {
-    const model = new Model();
+    const model = createModel();
 
     setCellContent(model, "A1", '""');
     setCellContent(model, "A2", '","');
@@ -674,7 +675,7 @@ describe("evaluateCells", () => {
   });
 
   test("various expressions with dot", () => {
-    const model = new Model();
+    const model = createModel();
 
     setCellContent(model, "A1", "4.2");
     setCellContent(model, "A2", "4.");
@@ -710,7 +711,7 @@ describe("evaluateCells", () => {
   });
 
   test("various string expressions with dot", () => {
-    const model = new Model();
+    const model = createModel();
     setCellContent(model, "A1", '"4.2"');
     setCellContent(model, "A2", '"4."');
     setCellContent(model, "A3", '".2"');
@@ -745,7 +746,7 @@ describe("evaluateCells", () => {
   });
 
   test("various expressions with dot and whitespace", () => {
-    const model = new Model();
+    const model = createModel();
     setCellContent(model, "A1", "42 .24");
     setCellContent(model, "A2", "42. 24");
     setCellContent(model, "A3", "42 .");
@@ -804,7 +805,7 @@ describe("evaluateCells", () => {
   });
 
   test("various string expressions with dot and whitespace", () => {
-    const model = new Model();
+    const model = createModel();
     setCellContent(model, "A1", '"42 .24"');
     setCellContent(model, "A2", '"42. 24"');
     setCellContent(model, "A3", '"42 ."');
@@ -863,7 +864,7 @@ describe("evaluateCells", () => {
   });
 
   test("various localized number in string expressions ", () => {
-    const model = new Model();
+    const model = createModel();
     updateLocale(model, FR_LOCALE);
     setCellContent(model, "A1", '"4,2"');
     expect(getEvaluatedCell(model, "A1").value).toBe('"4,2"');
@@ -879,7 +880,7 @@ describe("evaluateCells", () => {
   });
 
   test("various expressions with percent, dot and whitespace", () => {
-    const model = new Model();
+    const model = createModel();
     setCellContent(model, "A1", "%");
     setCellContent(model, "A2", " %");
     setCellContent(model, "A3", "40%");
@@ -986,7 +987,7 @@ describe("evaluateCells", () => {
   });
 
   test("various string expressions with percent, dot and whitespace", () => {
-    const model = new Model();
+    const model = createModel();
 
     setCellContent(model, "A1", '"%"');
     setCellContent(model, "A2", '" %"');
@@ -1095,7 +1096,7 @@ describe("evaluateCells", () => {
   });
 
   test("evaluate empty colored cell", () => {
-    const model = new Model();
+    const model = createModel();
     setCellContent(model, "A2", "=A1");
     expect(getEvaluatedCell(model, "A2").value).toBe(0);
     setStyle(model, "A1", {
@@ -1107,7 +1108,7 @@ describe("evaluateCells", () => {
   });
 
   test("evaluation follows dependencies", () => {
-    const model = new Model({
+    const model = createModel({
       sheets: [
         {
           id: "sheet1",
@@ -1124,7 +1125,7 @@ describe("evaluateCells", () => {
   });
 
   test("Coherent handling of #REF when it occurs following a column deletion or a copy/paste", () => {
-    const model = new Model();
+    const model = createModel();
     setCellContent(model, "A1", "=SUM(B1,C1)");
     deleteColumns(model, ["B"]);
     expect(getEvaluatedCell(model, "A1").value).toBe("#REF");
@@ -1137,7 +1138,7 @@ describe("evaluateCells", () => {
   });
 
   test("Coherent handling of error when referencing errored cell", () => {
-    const model = new Model();
+    const model = createModel();
     setCellContent(model, "A1", "=+(");
     setCellContent(model, "B1", "=A1");
     setCellContent(model, "C1", "=B1");
@@ -1150,7 +1151,7 @@ describe("evaluateCells", () => {
   });
 
   test("error original position from the cell itself", () => {
-    const model = new Model();
+    const model = createModel();
     const sheetId = model.getters.getActiveSheetId();
     setCellContent(model, "A1", "=0/0");
     expect(getEvaluatedCell(model, "A1").errorOriginPosition).toEqual(
@@ -1159,7 +1160,7 @@ describe("evaluateCells", () => {
   });
 
   test("error original position from simple references", () => {
-    const model = new Model();
+    const model = createModel();
     const sheetId = model.getters.getActiveSheetId();
     setCellContent(model, "A1", "=0/0");
     setCellContent(model, "A2", "=A1");
@@ -1170,7 +1171,7 @@ describe("evaluateCells", () => {
   });
 
   test("error original position from a range reference", () => {
-    const model = new Model();
+    const model = createModel();
     const sheetId = model.getters.getActiveSheetId();
     setCellContent(model, "A1", "1");
     setCellContent(model, "A2", "=0/0");
@@ -1181,7 +1182,7 @@ describe("evaluateCells", () => {
   });
 
   test("error original position in a spilled result", () => {
-    const model = new Model();
+    const model = createModel();
     const sheetId = model.getters.getActiveSheetId();
     setCellContent(model, "A1", "1");
     setCellContent(model, "A2", "=0/0");
@@ -1198,7 +1199,7 @@ describe("evaluateCells", () => {
   describe("origin", () => {
     let model: Model, sheetId: UID;
     beforeEach(() => {
-      model = new Model();
+      model = createModel();
       sheetId = model.getters.getActiveSheetId();
     });
 
@@ -1364,7 +1365,7 @@ describe("evaluate formula getter", () => {
   let sheetId: string;
 
   beforeEach(() => {
-    model = new Model();
+    model = createModel();
     sheetId = model.getters.getActiveSheetId();
   });
 

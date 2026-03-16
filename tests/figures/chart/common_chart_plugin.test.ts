@@ -11,7 +11,7 @@ import {
   setCellContent,
   setStyle,
 } from "../../test_helpers/commands_helpers";
-import { createEqualCF, toRangesData } from "../../test_helpers/helpers";
+import { createEqualCF, createModel, toRangesData } from "../../test_helpers/helpers";
 
 describe("Single cell chart background color", () => {
   let model: Model;
@@ -26,7 +26,7 @@ describe("Single cell chart background color", () => {
   }
 
   beforeEach(() => {
-    model = new Model();
+    model = createModel();
     sheetId = model.getters.getActiveSheetId();
     setCellContent(model, "A1", "1");
   });

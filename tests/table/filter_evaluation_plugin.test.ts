@@ -20,14 +20,14 @@ import {
   updateTableConfig,
   updateTableZone,
 } from "../test_helpers/commands_helpers";
-import { getFilterHiddenValues, setGrid } from "../test_helpers/helpers";
+import { createModel, getFilterHiddenValues, setGrid } from "../test_helpers/helpers";
 
 describe("Simple filter test", () => {
   let model: Model;
   let sheetId: UID;
 
   beforeEach(() => {
-    model = new Model();
+    model = createModel();
     sheetId = model.getters.getActiveSheetId();
   });
 
@@ -73,7 +73,7 @@ describe("Simple filter test", () => {
   });
 
   test("Filtered rows should persist after hiding and unhiding multiple rows", () => {
-    const model = new Model();
+    const model = createModel();
 
     setCellContent(model, "A4", "D");
 
@@ -108,7 +108,7 @@ describe("Filter Evaluation", () => {
   let sheetId: UID;
 
   beforeEach(() => {
-    model = new Model();
+    model = createModel();
     sheetId = model.getters.getActiveSheetId();
 
     createTableWithFilter(model, "A1:A5");
@@ -144,7 +144,7 @@ describe("Filter Evaluation", () => {
   });
 
   test("deleting a table show rows again", () => {
-    const model = new Model();
+    const model = createModel();
     createTableWithFilter(model, "A1:A3");
     setCellContent(model, "A2", "Hi");
     updateFilter(model, "A2", ["Hi"]);
@@ -244,7 +244,7 @@ describe("Filter Evaluation", () => {
   });
 
   test("Sheet duplication after importing table don't break", () => {
-    const model = new Model({
+    const model = createModel({
       sheets: [
         {
           id: "sh1",
@@ -268,7 +268,7 @@ describe("Filter Evaluation", () => {
   });
 
   test("Inserting rows above or below the table header updates the filtered rows", () => {
-    const model = new Model();
+    const model = createModel();
 
     createTableWithFilter(model, "A1:A2");
     setCellContent(model, "A2", "Hi");
@@ -286,7 +286,7 @@ describe("Filter Evaluation", () => {
   });
 
   test("Removing rows above the table header updates the filtered rows", () => {
-    const model = new Model();
+    const model = createModel();
 
     createTableWithFilter(model, "A4:A6");
     setCellContent(model, "A5", "Hi");
@@ -303,7 +303,7 @@ describe("Filter Evaluation", () => {
   });
 
   test("Folding a group after filtering some rows does not hide all rows of the sheet", () => {
-    const model = new Model({ sheets: [{ colNumber: 5, rowNumber: 5 }] });
+    const model = createModel({ sheets: [{ colNumber: 5, rowNumber: 5 }] });
     const sheetId = model.getters.getActiveSheetId();
 
     groupHeaders(model, "ROW", 0, 3);
@@ -318,7 +318,7 @@ describe("Filter Evaluation", () => {
   });
 
   test("Grouping headers after filtering some rows does not break the data filter state", () => {
-    const model = new Model({ sheets: [{ colNumber: 8, rowNumber: 8 }] });
+    const model = createModel({ sheets: [{ colNumber: 8, rowNumber: 8 }] });
     const sheetId = model.getters.getActiveSheetId();
 
     groupHeaders(model, "ROW", 0, 5);
@@ -337,7 +337,7 @@ describe("Filter Evaluation", () => {
   });
 
   test("row filtered in an inactive sheet", () => {
-    const model = new Model();
+    const model = createModel();
     const sheetId = model.getters.getActiveSheetId();
 
     createTableWithFilter(model, "A6:A8");
@@ -354,7 +354,7 @@ describe("Filter criterion test", () => {
   let sheetId: UID;
 
   beforeEach(() => {
-    model = new Model();
+    model = createModel();
     sheetId = model.getters.getActiveSheetId();
   });
 

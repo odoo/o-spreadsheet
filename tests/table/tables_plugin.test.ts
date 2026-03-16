@@ -34,6 +34,7 @@ import {
   getTable,
 } from "../test_helpers/getters_helpers";
 import {
+  createModel,
   getFilterHiddenValues,
   getPlugin,
   toRangeData,
@@ -61,7 +62,7 @@ describe("Table plugin", () => {
   let sheetId: UID;
 
   beforeEach(() => {
-    model = new Model();
+    model = createModel();
     sheetId = model.getters.getActiveSheetId();
   });
 
@@ -414,7 +415,7 @@ describe("Table plugin", () => {
     let model: Model;
     let sheetId: UID;
     beforeEach(() => {
-      model = new Model();
+      model = createModel();
       createTableWithFilter(model, "C3:F6");
       updateFilter(model, "C3", ["C"]);
       updateFilter(model, "D3", ["D"]);
@@ -684,7 +685,7 @@ describe("Table plugin", () => {
 
   describe("Undo/Redo", () => {
     test("Can undo/redo creating a table", () => {
-      const model = new Model();
+      const model = createModel();
       createTable(model, "C1:C4");
       const sheetId = model.getters.getActiveSheetId();
       expect(model.getters.getTables(sheetId).length).toBe(1);
@@ -695,7 +696,7 @@ describe("Table plugin", () => {
     });
 
     test("Can undo/redo deleting a table", () => {
-      const model = new Model();
+      const model = createModel();
       createTableWithFilter(model, "A1:A4");
       expect(getFilter(model, "A1")).toBeTruthy();
       deleteTable(model, "A1");
@@ -707,7 +708,7 @@ describe("Table plugin", () => {
     });
 
     test("Can undo/redo update a table", () => {
-      const model = new Model();
+      const model = createModel();
       createTable(model, "A1:A4");
 
       model.dispatch("UPDATE_TABLE", {
@@ -835,7 +836,7 @@ describe("Table plugin", () => {
         ...TABLE_PRESETS.TestStyleAllRed,
         wholeTable: { style: { fillColor: "#FF0000", hideGridLines: true } },
       };
-      const model = new Model();
+      const model = createModel();
       createTable(model, "B2:B3");
       updateTableConfig(model, "B2", { styleId: "TestStyleAllRed", numberOfHeaders: 1 });
       expect(getStyle(model, "B2")).toEqual({
@@ -979,7 +980,7 @@ describe("Table plugin", () => {
         { range: "C5:C9" }, // default config is not exported
       ]);
 
-      const imported = new Model(exported);
+      const imported = createModel(exported);
       expect(imported.getters.getTables(sheetId)).toMatchObject([
         {
           range: { zone: toZone("A1:B5") },

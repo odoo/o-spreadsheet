@@ -7,7 +7,12 @@ import {
   selectCarouselItem,
 } from "../../test_helpers/commands_helpers";
 import { click, clickAndDrag, setInputValueAndTrigger } from "../../test_helpers/dom_helper";
-import { mockChart, mountComponentWithPortalTarget, nextTick } from "../../test_helpers/helpers";
+import {
+  createModel,
+  mockChart,
+  mountComponentWithPortalTarget,
+  nextTick,
+} from "../../test_helpers/helpers";
 import { extendMockGetBoundingClientRect } from "../../test_helpers/mock_helpers";
 
 mockChart();
@@ -26,7 +31,7 @@ extendMockGetBoundingClientRect({
 });
 
 beforeEach(() => {
-  model = new Model();
+  model = createModel();
 });
 
 async function mountCarouselPanel(modelArg: Model, figureId: UID) {
@@ -79,7 +84,7 @@ describe("Carousel panel component", () => {
   test("Can remove a carousel item", async () => {
     createCarousel(model, { items: [] }, "carouselId");
     addNewChartToCarousel(model, "carouselId", { type: "radar" });
-    model = new Model(model.exportData());
+    model = createModel(model.exportData());
 
     await mountCarouselPanel(model, "carouselId");
     expect(model.getters.getCarousel("carouselId").items).toHaveLength(1);
@@ -93,7 +98,7 @@ describe("Carousel panel component", () => {
   test("Can pop a carousel item out", async () => {
     createCarousel(model, { items: [] }, "carouselId");
     addNewChartToCarousel(model, "carouselId", { type: "radar" });
-    model = new Model(model.exportData());
+    model = createModel(model.exportData());
 
     await mountCarouselPanel(model, "carouselId");
     expect(model.getters.getCarousel("carouselId").items).toHaveLength(1);

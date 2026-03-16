@@ -10,12 +10,13 @@ import {
 } from "../test_helpers/commands_helpers";
 import { CUSTOM_LOCALE, FR_LOCALE } from "../test_helpers/constants";
 import { getCell, getCellContent, getEvaluatedCell } from "../test_helpers/getters_helpers";
+import { createModel } from "../test_helpers/helpers";
 
 describe("Settings plugin", () => {
   let model: Model;
 
   beforeEach(() => {
-    model = new Model();
+    model = createModel();
   });
 
   describe("Locale", () => {
@@ -48,18 +49,18 @@ describe("Settings plugin", () => {
       const exported = model.exportData();
       expect(exported.settings.locale).toEqual(CUSTOM_LOCALE);
 
-      const newModel = new Model(exported);
+      const newModel = createModel(exported);
       expect(newModel.getters.getLocale()).toEqual(CUSTOM_LOCALE);
     });
 
     test("Can import data with locale set", () => {
-      const model = new Model({ settings: { locale: FR_LOCALE } });
+      const model = createModel({ settings: { locale: FR_LOCALE } });
       expect(model.getters.getLocale()).toEqual(FR_LOCALE);
     });
 
     test("Invalid locale in the data is ignored", () => {
       const invalidLocale = { ...FR_LOCALE, dateFormat: "I'm not a real format 💀" };
-      const model = new Model({ settings: { locale: invalidLocale } });
+      const model = createModel({ settings: { locale: invalidLocale } });
       expect(model.getters.getLocale()).toEqual(DEFAULT_LOCALE);
     });
 

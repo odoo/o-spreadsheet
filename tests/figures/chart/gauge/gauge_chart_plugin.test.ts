@@ -23,6 +23,7 @@ import {
   undo,
   updateChart,
 } from "../../../test_helpers/commands_helpers";
+import { createModel } from "../../../test_helpers/helpers";
 
 let model: Model;
 
@@ -71,7 +72,7 @@ const randomSectionRule: SectionRule = {
 };
 
 beforeEach(() => {
-  model = new Model();
+  model = createModel();
 });
 
 describe("datasource tests", function () {
@@ -202,7 +203,7 @@ describe("datasource tests", function () {
   test("can delete an imported gauge chart", () => {
     createGaugeChart(model, { dataRange: "B7:B8" }, "chartId", undefined, { figureId: "figureId" });
     const exportedData = model.exportData();
-    const newModel = new Model(exportedData);
+    const newModel = createModel(exportedData);
     expect(newModel.getters.getVisibleFigures()).toHaveLength(1);
     expect(newModel.getters.getChartRuntime("chartId") as GaugeChartRuntime).toBeTruthy();
     newModel.dispatch("DELETE_FIGURE", {
@@ -277,7 +278,7 @@ describe("datasource tests", function () {
     let model: Model;
     beforeEach(() => {
       sectionRule = deepCopy(defaultSectionRule);
-      model = new Model();
+      model = createModel();
     });
 
     test("empty rangeMin", async () => {
@@ -439,7 +440,7 @@ describe("datasource tests", function () {
 });
 
 test("create a gauge chart with data from another sheet", () => {
-  model = new Model();
+  model = createModel();
   createSheet(model, { sheetId: "42", activate: true });
   createGaugeChart(model, { dataRange: "Sheet1!B1" }, "chartId");
   const chart = model.getters.getChartDefinition("chartId") as GaugeChartDefinition;
@@ -479,7 +480,7 @@ describe("Chart design configuration", () => {
   let model: Model;
 
   beforeEach(() => {
-    model = new Model();
+    model = createModel();
     defaultChart = {
       background: "#ffffff",
       dataRange: "A1",

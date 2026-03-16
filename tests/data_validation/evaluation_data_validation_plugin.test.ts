@@ -7,6 +7,7 @@ import {
   setCellContent,
   setFormat,
 } from "../test_helpers/commands_helpers";
+import { createModel } from "../test_helpers/helpers";
 
 describe("Data validation evaluation", () => {
   let model: Model;
@@ -14,7 +15,7 @@ describe("Data validation evaluation", () => {
   let A1: CellPosition;
 
   beforeEach(() => {
-    model = new Model();
+    model = createModel();
     sheetId = model.getters.getActiveSheetId();
     A1 = { sheetId, col: 0, row: 0 };
   });

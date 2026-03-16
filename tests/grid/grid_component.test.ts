@@ -95,6 +95,7 @@ import {
 } from "../test_helpers/getters_helpers";
 import {
   createEqualCF,
+  createModel,
   flattenHighlightRange,
   getPlugin,
   mockChart,
@@ -605,7 +606,7 @@ describe("Grid component", () => {
       const fileStore = new FileStore();
       const data = createEmptyWorkbookData();
       const { env } = await mountSpreadsheet({
-        model: new Model(data, {
+        model: createModel(data, {
           external: { fileStore },
         }),
       });
@@ -1380,7 +1381,7 @@ describe("Multi User selection", () => {
   beforeEach(async () => {
     transportService = new MockTransportService();
 
-    model = new Model({}, { transportService });
+    model = createModel({}, { transportService });
     ({ parent, fixture, env } = await mountSpreadsheet({ model }));
   });
 
@@ -1875,7 +1876,7 @@ describe("Copy paste keyboard shortcut", () => {
   beforeEach(async () => {
     clipboardData = new MockClipboardData();
     ({ parent, model, fixture, env } = await mountSpreadsheet({
-      model: new Model({}, { external: { fileStore } }),
+      model: createModel({}, { external: { fileStore } }),
     }));
     sheetId = model.getters.getActiveSheetId();
   });

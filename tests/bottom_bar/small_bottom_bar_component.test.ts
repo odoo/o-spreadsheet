@@ -3,6 +3,7 @@ import { selectCell, setCellContent } from "../test_helpers/commands_helpers";
 import { click } from "../test_helpers/dom_helper";
 import { getCellText } from "../test_helpers/getters_helpers";
 import {
+  createModel,
   mountSpreadsheet,
   nextTick,
   setMobileMode,
@@ -14,7 +15,7 @@ let fixture: HTMLElement;
 let model: Model;
 
 beforeEach(async () => {
-  ({ fixture, model } = await mountSpreadsheet({ model: new Model() }, { isSmall: true }));
+  ({ fixture, model } = await mountSpreadsheet({ model: createModel() }, { isSmall: true }));
 });
 
 const composerSelector = ".o-spreadsheet-small-bottom-bar .o-composer";

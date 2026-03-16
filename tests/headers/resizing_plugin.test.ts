@@ -29,6 +29,7 @@ import {
   updateLocale,
 } from "../test_helpers/commands_helpers";
 import { getCell, getCellContent } from "../test_helpers/getters_helpers";
+import { createModel } from "../test_helpers/helpers";
 
 const ctx = document.createElement("canvas").getContext("2d")!;
 function getDefaultCellHeight(
@@ -43,7 +44,7 @@ function getDefaultCellHeight(
 
 describe("Model resizer", () => {
   test("Can resize one column, undo, then redo", async () => {
-    const model = new Model();
+    const model = createModel();
     const sheet = model.getters.getActiveSheet();
     const sheetId = sheet.id;
     const initialSize = model.getters.getColSize(sheetId, 1);
@@ -63,19 +64,19 @@ describe("Model resizer", () => {
   });
 
   test("Cannot resize column in invalid sheet", async () => {
-    const model = new Model();
+    const model = createModel();
     expect(resizeColumns(model, ["B"], 100, "invalid")).toBeCancelledBecause(
       CommandResult.InvalidSheetId
     );
   });
   test("Cannot resize row in invalid sheet", async () => {
-    const model = new Model();
+    const model = createModel();
     expect(resizeRows(model, [1], 100, "invalid")).toBeCancelledBecause(
       CommandResult.InvalidSheetId
     );
   });
   test("Cannot auto resize column in invalid sheet", async () => {
-    const model = new Model();
+    const model = createModel();
     expect(
       model.dispatch("AUTORESIZE_COLUMNS", {
         sheetId: "invalid",
@@ -84,7 +85,7 @@ describe("Model resizer", () => {
     ).toBeCancelledBecause(CommandResult.InvalidSheetId);
   });
   test("Cannot auto resize row in invalid sheet", async () => {
-    const model = new Model();
+    const model = createModel();
     expect(
       model.dispatch("AUTORESIZE_ROWS", {
         sheetId: "invalid",
@@ -94,7 +95,7 @@ describe("Model resizer", () => {
   });
 
   test("Can resize one row, then undo", async () => {
-    const model = new Model();
+    const model = createModel();
     const sheet = model.getters.getActiveSheet();
     const sheetId = sheet.id;
     const initialSize = model.getters.getRowSize(sheetId, 1);
@@ -110,7 +111,7 @@ describe("Model resizer", () => {
   });
 
   test("Can resize row of inactive sheet", async () => {
-    const model = new Model();
+    const model = createModel();
     createSheet(model, { sheetId: "42" });
     const [, sheet2Id] = model.getters.getSheetIds();
     resizeRows(model, [0], 42, sheet2Id);
@@ -119,7 +120,7 @@ describe("Model resizer", () => {
   });
 
   test("Can resize column of inactive sheet", async () => {
-    const model = new Model();
+    const model = createModel();
     createSheet(model, { sheetId: "42" });
     const [, sheet2Id] = model.getters.getSheetIds();
     resizeColumns(model, ["A"], 42, sheet2Id);
@@ -128,7 +129,7 @@ describe("Model resizer", () => {
   });
 
   test("changing sheets update the sizes", async () => {
-    const model = new Model();
+    const model = createModel();
     createSheet(model, { activate: true, sheetId: "42" });
     const sheet1 = model.getters.getSheetIds()[0];
     const sheet2 = model.getters.getSheetIds()[1];
@@ -143,7 +144,7 @@ describe("Model resizer", () => {
   });
 
   test("Can resize multiple columns", async () => {
-    const model = new Model();
+    const model = createModel();
     const sheet = model.getters.getActiveSheetId();
     const size = model.getters.getColSize(sheet, 0);
 
@@ -155,7 +156,7 @@ describe("Model resizer", () => {
   });
 
   test("Can resize multiple rows", async () => {
-    const model = new Model();
+    const model = createModel();
     const sheet = model.getters.getActiveSheetId();
     const size = model.getters.getRowSize(sheet, 0);
 
@@ -168,7 +169,7 @@ describe("Model resizer", () => {
   });
 
   test("resizing cols/rows update the total width/height", async () => {
-    const model = new Model();
+    const model = createModel();
     const sheet = model.getters.getActiveSheet();
     const sheetId = sheet.id;
     const { width: initialWidth, height: initialHeight } = model.getters.getMainViewportRect();
@@ -180,7 +181,7 @@ describe("Model resizer", () => {
   });
 
   test("resizing cols/rows update the pane structure and offsets", async () => {
-    const model = new Model();
+    const model = createModel();
     freezeRows(model, 6);
     freezeColumns(model, 6);
     const sheet = model.getters.getActiveSheet();
@@ -209,7 +210,7 @@ describe("Model resizer", () => {
     let model: Model;
     const sheetId = "id1";
     beforeEach(() => {
-      model = new Model({
+      model = createModel({
         sheets: [
           {
             id: sheetId,
@@ -324,7 +325,7 @@ describe("Model resizer", () => {
     let model: Model;
     let sheet: Sheet;
     beforeEach(() => {
-      model = new Model({
+      model = createModel({
         sheets: [
           {
             id: "1",
@@ -540,7 +541,7 @@ describe("Model resizer", () => {
     ])(
       "deleting multiple rows with alphabetical order different from natural order",
       (...deletedRows) => {
-        const model = new Model();
+        const model = createModel();
         const sheetId = model.getters.getActiveSheetId();
         setStyle(model, "A4", { fontSize: 36 });
         setStyle(model, "A12", { fontSize: 36 });
@@ -558,7 +559,7 @@ describe("Model resizer", () => {
     );
 
     test("deleting a row before shifts the computed size", () => {
-      const model = new Model();
+      const model = createModel();
       const sheetId = model.getters.getActiveSheetId();
       setStyle(model, "A7", { fontSize: 36 });
       setCellContent(model, "A7", "test");
@@ -569,7 +570,7 @@ describe("Model resizer", () => {
     });
 
     test("deleting a row after does not change the computed size", () => {
-      const model = new Model();
+      const model = createModel();
       const sheetId = model.getters.getActiveSheetId();
       setStyle(model, "A7", { fontSize: 36 });
       setCellContent(model, "A7", "test");
@@ -579,7 +580,7 @@ describe("Model resizer", () => {
     });
 
     test("deleting the last row does not change the computed size", () => {
-      const model = new Model();
+      const model = createModel();
       const sheetId = model.getters.getActiveSheetId();
       setStyle(model, "A7", { fontSize: 36 });
       setCellContent(model, "A7", "test");
@@ -590,7 +591,7 @@ describe("Model resizer", () => {
     });
 
     test("deleting a row does not change the last row", () => {
-      const model = new Model();
+      const model = createModel();
       const sheetId = model.getters.getActiveSheetId();
       deleteRows(model, [5]);
       const lastRowIndex = model.getters.getNumberRows(sheetId) - 1;
@@ -598,7 +599,7 @@ describe("Model resizer", () => {
     });
 
     test("deleting a row shifts the last row computed size", () => {
-      const model = new Model();
+      const model = createModel();
       const sheetId = model.getters.getActiveSheetId();
       let lastRowIndex = model.getters.getNumberRows(sheetId) - 1;
       const lastRowCellXC = toXC(0, lastRowIndex);
@@ -611,7 +612,7 @@ describe("Model resizer", () => {
     });
 
     test("deleting a column before does not change the computed size", () => {
-      const model = new Model();
+      const model = createModel();
       const sheetId = model.getters.getActiveSheetId();
       setStyle(model, "B1", { fontSize: 36 });
       setCellContent(model, "B1", "test");
@@ -622,7 +623,7 @@ describe("Model resizer", () => {
     });
 
     test("deleting a column after does not change the computed size", () => {
-      const model = new Model();
+      const model = createModel();
       const sheetId = model.getters.getActiveSheetId();
       setStyle(model, "B1", { fontSize: 36 });
       setCellContent(model, "B1", "test");
@@ -688,7 +689,7 @@ describe("Model resizer", () => {
   });
 
   test("Header sizes are rounded to avoid issues in further computations with floating number precision", () => {
-    const model = new Model();
+    const model = createModel();
     const sheetId = model.getters.getActiveSheetId();
     resizeColumns(model, ["A"], 26.4);
     resizeRows(model, [0], 26.6);
@@ -697,7 +698,7 @@ describe("Model resizer", () => {
   });
 
   test("Should use markdown label instead of full link for auto row height", () => {
-    const model = new Model();
+    const model = createModel();
     const sheetId = model.getters.getActiveSheetId();
 
     setStyle(model, "A1", { wrapping: "wrap" });

@@ -30,7 +30,7 @@ import {
   getCellRawContent,
   getEvaluatedCell,
 } from "../test_helpers/getters_helpers";
-import { toRangesData } from "../test_helpers/helpers";
+import { createModel, toRangesData } from "../test_helpers/helpers";
 
 /**
  * Testing to export a model to xlsx then import this xlsx
@@ -61,7 +61,7 @@ async function exportToXlsxThenImport(model: Model) {
       imageSrc: file.imageSrc,
     };
   }
-  return new Model(dataToImport, undefined, undefined, undefined, false);
+  return createModel(dataToImport, undefined, undefined, undefined, false);
 }
 
 describe("Export data to xlsx then import it", () => {
@@ -69,7 +69,7 @@ describe("Export data to xlsx then import it", () => {
   let sheetId;
 
   beforeEach(() => {
-    model = new Model();
+    model = createModel();
     sheetId = model.getters.getActiveSheetId();
   });
 

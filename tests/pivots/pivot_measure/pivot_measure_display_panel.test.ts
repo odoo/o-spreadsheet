@@ -8,6 +8,7 @@ import { PivotMeasureDisplayPanel } from "../../../src/components/side_panel/piv
 import { setCellContent, setFormat } from "../../test_helpers";
 import { click, editSelectComponent } from "../../test_helpers/dom_helper";
 import {
+  createModel,
   mountComponentWithPortalTarget,
   mountSpreadsheet,
   nextTick,
@@ -41,7 +42,7 @@ describe("Standalone side panel tests", () => {
   }
 
   beforeEach(() => {
-    model = new Model();
+    model = createModel();
     sheetId = model.getters.getActiveSheetId();
     setCellContent(model, "A1", "TestMeasure");
     addPivot(

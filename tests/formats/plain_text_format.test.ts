@@ -7,11 +7,12 @@ import {
   getCellRawContent,
   getEvaluatedCell,
 } from "../test_helpers/getters_helpers";
+import { createModel } from "../test_helpers/helpers";
 import { FR_LOCALE } from "./../test_helpers/constants";
 
 let model: Model;
 beforeEach(() => {
-  model = new Model();
+  model = createModel();
 });
 
 describe("Plain text format", () => {
@@ -108,7 +109,7 @@ describe("Plain text format", () => {
     expect(getCellContent(model, "A1")).toBe("00009");
     const exported = model.exportData();
 
-    const importedModel = new Model(exported);
+    const importedModel = createModel(exported);
     expect(getCell(importedModel, "A1")?.format).toBe("@");
     expect(getCellContent(importedModel, "A1")).toBe("00009");
   });

@@ -13,9 +13,11 @@ if (response.status === 404) {
     'File not found: ../dist/o_spreadsheet.xml, Don\'t forget to run: "npm run dist"';
 } else {
   const templates = await response.text();
+  const model = new Model();
+  model.startModel();
   const app = new owl.App(Spreadsheet, {
     props: {
-      model: new Model(),
+      model,
       // optionals
       notifyUser: () => window.alert(content),
       askConfirmation: (message, confirm, cancel) => window.confirm(message),
@@ -60,6 +62,7 @@ Spreadsheet model can be created with the following arguments, all optionals:
 ```ts
 const { Model } = o_spreadsheet;
 const model = new Model(data, config);
+model.startModel();
 ```
 
 - `data`

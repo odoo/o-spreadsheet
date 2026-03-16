@@ -1,12 +1,13 @@
 import { Model } from "../../src";
 import { merge, setCellContent } from "../test_helpers/commands_helpers";
 import { automaticSum, automaticSumMulti, getCellText } from "../test_helpers/getters_helpers";
+import { createModel } from "../test_helpers/helpers";
 
 describe("automatic sum", () => {
   let model: Model;
 
   beforeEach(() => {
-    model = new Model();
+    model = createModel();
   });
 
   test("vertical", () => {
@@ -486,21 +487,21 @@ describe("automatic sum", () => {
   });
 
   test("sum data in the last row", () => {
-    const model = new Model({ sheets: [{ colNumber: 1, rowNumber: 2 }] });
+    const model = createModel({ sheets: [{ colNumber: 1, rowNumber: 2 }] });
     setCellContent(model, "A1", "4");
     setCellContent(model, "A2", "4");
     automaticSum(model, "A1:A2");
   });
 
   test("sum data horizontally in the bottom right corner", () => {
-    const model = new Model({ sheets: [{ colNumber: 2, rowNumber: 1 }] });
+    const model = createModel({ sheets: [{ colNumber: 2, rowNumber: 1 }] });
     setCellContent(model, "A1", "4");
     setCellContent(model, "B1", "4");
     automaticSum(model, "A1:B1");
   });
 
   test("not at the end but no next empty row", () => {
-    const model = new Model({ sheets: [{ colNumber: 1, rowNumber: 3 }] });
+    const model = createModel({ sheets: [{ colNumber: 1, rowNumber: 3 }] });
     setCellContent(model, "A1", "4");
     setCellContent(model, "A2", "4");
     setCellContent(model, "A3", "4");
@@ -508,7 +509,7 @@ describe("automatic sum", () => {
   });
 
   test("not at the end but no next empty col", () => {
-    const model = new Model({ sheets: [{ colNumber: 3, rowNumber: 1 }] });
+    const model = createModel({ sheets: [{ colNumber: 3, rowNumber: 1 }] });
     setCellContent(model, "A1", "4");
     setCellContent(model, "B1", "4");
     setCellContent(model, "C1", "4");

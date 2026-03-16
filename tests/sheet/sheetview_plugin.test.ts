@@ -47,7 +47,7 @@ import {
   updateFilter,
   updateTableZone,
 } from "../test_helpers/commands_helpers";
-import { getPlugin } from "../test_helpers/helpers";
+import { createModel, getPlugin } from "../test_helpers/helpers";
 import { makeStore } from "../test_helpers/stores";
 
 let model: Model;
@@ -72,7 +72,7 @@ function getSheetViewBoundaries(model: Model): Zone {
 
 describe("Viewport of Simple sheet", () => {
   beforeEach(async () => {
-    model = new Model();
+    model = createModel();
   });
 
   test("SET_VIEWPORT_OFFSET is refused if it won't scroll any viewport", () => {
@@ -139,7 +139,7 @@ describe("Viewport of Simple sheet", () => {
   });
 
   test("updateAnchor scrolls to the anchor cell when zone is unchanged", () => {
-    model = new Model({ sheets: [{ colNumber: 5, rowNumber: 120 }] });
+    model = createModel({ sheets: [{ colNumber: 5, rowNumber: 120 }] });
     setSelection(model, ["A1:A100"]);
     setViewportOffset(model, 0, 0);
 
@@ -301,7 +301,7 @@ describe("Viewport of Simple sheet", () => {
   });
 
   test("can horizontal scroll on sheet smaller than viewport", () => {
-    model = new Model({ sheets: [{ rowNumber: 2 }] });
+    model = createModel({ sheets: [{ rowNumber: 2 }] });
     setViewportOffset(model, DEFAULT_CELL_WIDTH * 2, 0);
     expect(model.getters.getActiveMainViewport()).toMatchObject({
       top: 0,
@@ -413,7 +413,7 @@ describe("Viewport of Simple sheet", () => {
   });
 
   test("can vertical scroll on sheet smaller than viewport", () => {
-    model = new Model({ sheets: [{ colNumber: 2 }] });
+    model = createModel({ sheets: [{ colNumber: 2 }] });
     setViewportOffset(model, 0, DEFAULT_CELL_HEIGHT * 2);
     expect(model.getters.getActiveMainViewport()).toMatchObject({
       top: 2,
@@ -864,7 +864,7 @@ describe("Viewport of Simple sheet", () => {
   });
 
   test("Viewport is updated when updating a data filter", () => {
-    model = new Model();
+    model = createModel();
     createTableWithFilter(model, "A1:A10");
     setCellContent(model, "A2", "5");
     setCellContent(model, "A2", "5");
@@ -878,7 +878,7 @@ describe("Viewport of Simple sheet", () => {
   });
 
   test("Viewport is updated when updating a cell that change the evaluation of filtered rows", () => {
-    model = new Model();
+    model = createModel();
     createTableWithFilter(model, "A1:A10");
     setCellContent(model, "A2", "=B1");
     setCellContent(model, "A2", "=B1");
@@ -895,7 +895,7 @@ describe("Viewport of Simple sheet", () => {
   });
 
   test("Viewport is updated when folding/unfolding header groups", () => {
-    model = new Model();
+    model = createModel();
 
     groupColumns(model, "A", "B");
     let oldViewport = { ...model.getters.getActiveMainViewport() };
@@ -1054,13 +1054,13 @@ describe("Viewport of Simple sheet", () => {
       },
     ];
 
-    expect(() => new Model({}, {}, initialMessages)).not.toThrow();
+    expect(() => createModel({}, {}, initialMessages)).not.toThrow();
   });
 });
 
 describe("Multi Panes viewport", () => {
   beforeEach(async () => {
-    model = new Model();
+    model = createModel();
   });
 
   test("SET_VIEWPORT_OFFSET is refused if it won't scroll any viewport", () => {
@@ -1196,7 +1196,7 @@ describe("Multi Panes viewport", () => {
   });
 
   test("Viewport remains unaffected when hiding all rows below frozen pane or columns right to frozen panes", () => {
-    const model = new Model({ sheets: [{ colNumber: 8, rowNumber: 8 }] });
+    const model = createModel({ sheets: [{ colNumber: 8, rowNumber: 8 }] });
     const sheetId = model.getters.getActiveSheetId();
 
     freezeRows(model, 4, sheetId);
@@ -1211,7 +1211,7 @@ describe("Multi Panes viewport", () => {
   });
 
   test("filtered row rect after updating another sheet", () => {
-    const model = new Model();
+    const model = createModel();
     const sheetId = model.getters.getActiveSheetId();
     createSheet(model, { sheetId: "sh2" });
     setCellContent(model, "A1", "Hi");
@@ -1235,7 +1235,7 @@ describe("Multi Panes viewport", () => {
   });
 
   test("Viewport remains unaffected when hiding all rows below frozen panes by data filter", () => {
-    const model = new Model({ sheets: [{ colNumber: 3, rowNumber: 3 }] });
+    const model = createModel({ sheets: [{ colNumber: 3, rowNumber: 3 }] });
     const sheetId = model.getters.getActiveSheetId();
 
     setCellContent(model, "A2", "2808");
@@ -1251,7 +1251,7 @@ describe("Multi Panes viewport", () => {
   });
 
   test("Visible Cols and Rows are correctly computed when the sheetview has a 0 width", () => {
-    const model = new Model();
+    const model = createModel();
     model.dispatch("RESIZE_SHEETVIEW", {
       width: 0,
       height: 100,
@@ -1271,7 +1271,7 @@ describe("Multi Panes viewport", () => {
   });
 
   test("Visible Cols and Rows are correctly computed when the sheetview has a 0 height", () => {
-    const model = new Model();
+    const model = createModel();
     model.dispatch("RESIZE_SHEETVIEW", {
       width: 100,
       height: 0,
@@ -1293,7 +1293,7 @@ describe("Multi Panes viewport", () => {
 
 describe("multi sheet with different sizes", () => {
   beforeEach(async () => {
-    model = new Model({
+    model = createModel({
       sheets: [
         { name: "small", id: "small", colNumber: 2, rowNumber: 2 },
         { name: "big", id: "big", colNumber: 5, rowNumber: 5 },
@@ -1389,7 +1389,7 @@ describe("multi sheet with different sizes", () => {
 
 describe("shift viewport up/down", () => {
   beforeEach(() => {
-    model = new Model();
+    model = createModel();
   });
 
   test("basic move viewport", () => {
@@ -1676,7 +1676,7 @@ describe("shift viewport up/down", () => {
 
 describe("Partially Scrolled Viewport", () => {
   test("getRowIndex takes the partial scroll into account", () => {
-    const model = new Model();
+    const model = createModel();
     const rowSize = 10; // to avoid rounding issues
     resizeRows(model, range(0, 10), rowSize);
     setViewportOffset(model, 0, 2.3 * rowSize);
@@ -1689,7 +1689,7 @@ describe("Partially Scrolled Viewport", () => {
   });
 
   test("getColIndex takes the partial scroll into account", () => {
-    const model = new Model();
+    const model = createModel();
     const colSize = 10; // to avoid rounding issues
     resizeColumns(model, range(0, 10).map(numberToLetters), colSize);
     setViewportOffset(model, 2.3 * colSize, 0);
@@ -1702,7 +1702,7 @@ describe("Partially Scrolled Viewport", () => {
   });
 
   test("getVisibleRect takes the partial scroll into account", () => {
-    const model = new Model();
+    const model = createModel();
     const headerSize = 10; // to avoid rounding issues
     resizeColumns(model, range(0, 10).map(numberToLetters), headerSize);
     resizeRows(model, range(0, 10), headerSize);

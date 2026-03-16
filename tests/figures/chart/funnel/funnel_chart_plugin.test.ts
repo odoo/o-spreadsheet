@@ -4,7 +4,7 @@ import { ColorGenerator } from "../../../../src/helpers";
 import { FunnelChart } from "../../../../src/helpers/figures/charts/funnel_chart";
 import { createFunnelChart, setCellContent, setFormat } from "../../../test_helpers";
 import { GENERAL_CHART_CREATION_CONTEXT } from "../../../test_helpers/chart_helpers";
-import { setGrid } from "../../../test_helpers/helpers";
+import { createModel, setGrid } from "../../../test_helpers/helpers";
 
 let model: Model;
 
@@ -39,7 +39,7 @@ describe("Funnel chart", () => {
   });
 
   beforeEach(() => {
-    model = new Model();
+    model = createModel();
   });
 
   test("Funnel runtime with simple dataset", () => {

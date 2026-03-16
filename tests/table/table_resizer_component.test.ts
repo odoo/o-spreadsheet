@@ -7,6 +7,7 @@ import { createDynamicTable, createTable, setCellContent } from "../test_helpers
 import { clickAndDrag, triggerMouseEvent } from "../test_helpers/dom_helper";
 import { getCellRawContent } from "../test_helpers/getters_helpers";
 import {
+  createModel,
   flattenHighlightRange,
   getHighlightsFromStore,
   mountComponent,
@@ -34,7 +35,7 @@ describe("Table resizer component", () => {
   let env: SpreadsheetChildEnv;
 
   beforeEach(async () => {
-    model = new Model();
+    model = createModel();
     ({ env } = await mountComponent(Grid, {
       props: {
         exposeFocus: () => {},

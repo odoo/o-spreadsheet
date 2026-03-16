@@ -14,6 +14,7 @@ import {
 } from "../../../test_helpers/chart_helpers";
 import { TEST_CHART_DATA } from "../../../test_helpers/constants";
 import {
+  createModel,
   editStandaloneComposer,
   mountComponentWithPortalTarget,
   textContentAll,
@@ -25,7 +26,7 @@ let env: SpreadsheetChildEnv;
 const chartId = "chartId";
 
 beforeEach(async () => {
-  model = new Model();
+  model = createModel();
   createGaugeChart(model, TEST_CHART_DATA.gauge, chartId);
   ({ fixture, env } = await mountComponentWithPortalTarget(SidePanels, { model }));
   await openChartConfigSidePanel(model, env, chartId);

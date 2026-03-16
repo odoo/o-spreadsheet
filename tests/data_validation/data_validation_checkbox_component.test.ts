@@ -12,13 +12,13 @@ import {
 } from "../test_helpers/commands_helpers";
 import { clickGridIcon, keyDown } from "../test_helpers/dom_helper";
 import { getCellContent, getCellIcons, getStyle } from "../test_helpers/getters_helpers";
-import { mountSpreadsheet } from "../test_helpers/helpers";
+import { createModel, mountSpreadsheet } from "../test_helpers/helpers";
 
 describe("Checkbox in model", () => {
   let model: Model;
 
   beforeEach(async () => {
-    model = new Model();
+    model = createModel();
   });
 
   test("Adding a checkbox rule will make its cells align middle/center", () => {
@@ -40,7 +40,7 @@ describe("Checkbox in model", () => {
   });
 
   test("Icon is not displayed if there is a filter icon", () => {
-    const model = new Model();
+    const model = createModel();
     addDataValidation(model, "A1", "id", { type: "isBoolean", values: [] });
     createTableWithFilter(model, "A1:A4");
 
@@ -52,7 +52,7 @@ describe("Checkbox in model", () => {
 
 describe("Checkbox component", () => {
   test("can check and uncheck with click", async () => {
-    const model = new Model();
+    const model = createModel();
     addDataValidation(model, "A1", "id", { type: "isBoolean", values: [] });
     await mountSpreadsheet({ model });
     expect(getCellIcons(model, "A1")[0].svg).toEqual(CHECKBOX_UNCHECKED);
@@ -65,7 +65,7 @@ describe("Checkbox component", () => {
   });
 
   test("can check and uncheck with space key", async () => {
-    const model = new Model();
+    const model = createModel();
     addDataValidation(model, "A1", "id", { type: "isBoolean", values: [] });
     await mountSpreadsheet({ model });
     expect(getCellIcons(model, "A1")[0].svg).toEqual(CHECKBOX_UNCHECKED);
@@ -78,7 +78,7 @@ describe("Checkbox component", () => {
   });
 
   test("Can toggle checkbox in selection with space key", async () => {
-    const model = new Model();
+    const model = createModel();
     addDataValidation(model, "B2:B3", "id", { type: "isBoolean", values: [] });
     await mountSpreadsheet({ model });
     setSelection(model, ["A1:B2"]);
@@ -107,7 +107,7 @@ describe("Checkbox component", () => {
   });
 
   test("Data validation checkbox on formula is disabled", async () => {
-    const model = new Model();
+    const model = createModel();
     addDataValidation(model, "A1", "id", { type: "isBoolean", values: [] });
     setCellContent(model, "A1", "=TRUE");
     await mountSpreadsheet({ model });
@@ -118,7 +118,7 @@ describe("Checkbox component", () => {
   });
 
   test("Data validation checkbox is disabled in readonly mode", async () => {
-    const model = new Model();
+    const model = createModel();
     addDataValidation(model, "A1", "id", { type: "isBoolean", values: [] });
     model.updateMode("readonly");
     await mountSpreadsheet({ model });

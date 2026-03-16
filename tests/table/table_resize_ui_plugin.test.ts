@@ -7,13 +7,14 @@ import {
   setCellContent,
 } from "../test_helpers/commands_helpers";
 import { getActivePosition, getCellRawContent } from "../test_helpers/getters_helpers";
+import { createModel } from "../test_helpers/helpers";
 
 let model: Model;
 let sheetId: UID;
 
 describe("Table resize", () => {
   beforeEach(() => {
-    model = new Model();
+    model = createModel();
     sheetId = model.getters.getActiveSheetId();
   });
 

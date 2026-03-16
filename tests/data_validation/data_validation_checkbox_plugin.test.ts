@@ -6,14 +6,14 @@ import {
   setStyle,
 } from "../test_helpers/commands_helpers";
 import { getCellContent, getCellRawContent, getStyle } from "../test_helpers/getters_helpers";
-import { getDataValidationRules } from "../test_helpers/helpers";
+import { createModel, getDataValidationRules } from "../test_helpers/helpers";
 
 describe("Checkbox in model", () => {
   let model: Model;
   let sheetId: UID;
 
   beforeEach(async () => {
-    model = new Model();
+    model = createModel();
     sheetId = model.getters.getActiveSheetId();
   });
 

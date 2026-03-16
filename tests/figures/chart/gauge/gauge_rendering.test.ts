@@ -11,7 +11,7 @@ import { chartMutedFontColor } from "../../../../src/helpers/figures/charts";
 import { readonlyAllowedCommands, Rect } from "../../../../src/types";
 import { MockCanvasRenderingContext2D } from "../../../setup/canvas.mock";
 import { createGaugeChart, setCellContent } from "../../../test_helpers/commands_helpers";
-import { mountSpreadsheet, nextTick } from "../../../test_helpers/helpers";
+import { createModel, mountSpreadsheet, nextTick } from "../../../test_helpers/helpers";
 
 const testRuntime: GaugeChartRuntime = {
   background: "#FFFFFF",
@@ -243,7 +243,7 @@ describe("Gauge chart component animation", () => {
 
   beforeEach(() => {
     gaugeAnimationSpy = jest.spyOn(GaugeChartComponent.prototype, "drawGaugeWithAnimation");
-    model = new Model();
+    model = createModel();
   });
 
   afterEach(() => {
@@ -270,7 +270,7 @@ describe("Gauge chart component animation", () => {
   test("Animations are replayed only when chart data changes", async () => {
     readonlyAllowedCommands.add("UPDATE_CELL");
 
-    const model = new Model();
+    const model = createModel();
     createGaugeChart(model, { dataRange: "A1" });
     model.updateMode("dashboard");
     await mountSpreadsheet({ model });

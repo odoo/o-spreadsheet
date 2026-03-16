@@ -4,7 +4,7 @@ import { ChartPanel } from "../../../src/components/side_panel/chart/main_chart_
 import { openChartDesignSidePanel } from "../../test_helpers/chart_helpers";
 import { createChart } from "../../test_helpers/commands_helpers";
 import { click } from "../../test_helpers/dom_helper";
-import { mountComponentWithPortalTarget } from "../../test_helpers/helpers";
+import { createModel, mountComponentWithPortalTarget } from "../../test_helpers/helpers";
 
 async function mountChartSidePanel(id = chartId) {
   const props = { chartId: id, onCloseSidePanel: () => {} };
@@ -46,7 +46,7 @@ describe("combo charts", () => {
         },
       ],
     };
-    model = new Model(data);
+    model = createModel(data);
   });
 
   test("can edit chart data series type", async () => {

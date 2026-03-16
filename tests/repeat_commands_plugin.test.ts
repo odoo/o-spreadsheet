@@ -45,13 +45,13 @@ import {
   getEvaluatedCell,
   getStyle,
 } from "./test_helpers/getters_helpers";
-import { makeTestComposerStore, target, toRangesData } from "./test_helpers/helpers";
+import { createModel, makeTestComposerStore, target, toRangesData } from "./test_helpers/helpers";
 
 let model: Model;
 let sheetId: UID;
 
 beforeEach(() => {
-  model = new Model();
+  model = createModel();
   sheetId = model.getters.getActiveSheetId();
 });
 

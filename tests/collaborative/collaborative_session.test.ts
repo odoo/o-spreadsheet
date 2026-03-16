@@ -1,12 +1,11 @@
 import { Session } from "@odoo/o-spreadsheet-engine/collaborative/session";
 import { MESSAGE_VERSION } from "@odoo/o-spreadsheet-engine/constants";
 import { buildRevisionLog } from "@odoo/o-spreadsheet-engine/history/factory";
-import { Model } from "../../src";
 import { lazy } from "../../src/helpers";
 import { Client, CommandResult, WorkbookData } from "../../src/types";
 import { MockTransportService } from "../__mocks__/transport_service";
 import { selectCell, setCellContent } from "../test_helpers/commands_helpers";
-import { nextTick } from "../test_helpers/helpers";
+import { createModel, nextTick } from "../test_helpers/helpers";
 
 describe("Collaborative session", () => {
   let transport: MockTransportService;
@@ -81,7 +80,7 @@ describe("Collaborative session", () => {
   });
 
   test("do not snapshot when leaving if there are pending change", async () => {
-    const model = new Model(
+    const model = createModel(
       {},
       {
         transportService: transport,
@@ -103,7 +102,7 @@ describe("Collaborative session", () => {
   });
 
   test("do not snapshot when leaving in read-only mode", async () => {
-    const model = new Model(
+    const model = createModel(
       {},
       {
         mode: "readonly",
@@ -128,7 +127,7 @@ describe("Collaborative session", () => {
   });
 
   test("do not snapshot when leaving if there are no revisions since the last snapshot", async () => {
-    const model = new Model(
+    const model = createModel(
       {},
       { transportService: transport, client: { id: "alice", name: "Alice" } }
     );
@@ -235,7 +234,7 @@ describe("Collaborative session", () => {
 
   test("Can send custom data in client", () => {
     const spy = jest.spyOn(transport, "sendMessage");
-    const model = new Model(
+    const model = createModel(
       {},
       {
         transportService: transport,

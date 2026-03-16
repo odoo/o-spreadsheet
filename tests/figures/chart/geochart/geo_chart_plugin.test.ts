@@ -2,13 +2,18 @@ import { GeoChartRuntime } from "@odoo/o-spreadsheet-engine/types/chart/geo_char
 import { Model } from "../../../../src";
 import { createGeoChart, setCellContent, setFormat, updateChart } from "../../../test_helpers";
 import { getChartTooltipValues } from "../../../test_helpers/chart_helpers";
-import { mockChart, mockGeoJsonService, nextTick } from "../../../test_helpers/helpers";
+import {
+  createModel,
+  mockChart,
+  mockGeoJsonService,
+  nextTick,
+} from "../../../test_helpers/helpers";
 
 mockChart();
 let model: Model;
 
 beforeEach(async () => {
-  model = new Model({}, { external: { geoJsonService: mockGeoJsonService } });
+  model = createModel({}, { external: { geoJsonService: mockGeoJsonService } });
   // Wait for the geoJsonService to resolve the promise and cache the geoJson features
   model.getters.getGeoChartAvailableRegions();
   model.getters.getGeoJsonFeatures("world");

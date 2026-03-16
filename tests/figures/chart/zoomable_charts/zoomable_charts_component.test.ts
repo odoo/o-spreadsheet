@@ -8,6 +8,7 @@ import { createChart, setCellContent, updateChart } from "../../../test_helpers/
 import { TEST_CHART_DATA } from "../../../test_helpers/constants";
 import { clickAndDrag, simulateClick, triggerMouseEvent } from "../../../test_helpers/dom_helper";
 import {
+  createModel,
   mockChart,
   mountComponentWithPortalTarget,
   mountSpreadsheet as mountSpreadsheetHelper,
@@ -89,7 +90,7 @@ describe("zoom", () => {
         },
       ],
     };
-    model = new Model(data);
+    model = createModel(data);
   });
 
   test("allowZoom checkbox check/uncheck updates the definition", async () => {

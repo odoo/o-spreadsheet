@@ -12,6 +12,7 @@ import {
   undo,
 } from "../test_helpers/commands_helpers";
 import { getCell, getCellRawContent } from "../test_helpers/getters_helpers";
+import { createModel } from "../test_helpers/helpers";
 import { makeStore } from "../test_helpers/stores";
 
 const TABLE_CONFIG_NO_HEADERS = { ...DEFAULT_TABLE_CONFIG, numberOfHeaders: 0, hasFilters: false };
@@ -21,7 +22,7 @@ let sheetId: UID;
 
 describe("Table formula autofill ", () => {
   beforeEach(() => {
-    model = new Model();
+    model = createModel();
     sheetId = model.getters.getActiveSheetId();
   });
 
@@ -133,7 +134,7 @@ describe("Table autofill with composer", () => {
 
 describe("Table autofill with copy/paste", () => {
   beforeEach(() => {
-    model = new Model();
+    model = createModel();
   });
 
   test("Copy paste a formula autofill the table column", () => {

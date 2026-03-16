@@ -23,6 +23,7 @@ import {
 } from "../test_helpers/commands_helpers";
 import { click, triggerMouseEvent } from "../test_helpers/dom_helper";
 import {
+  createModel,
   getStylePropertyInPx,
   mountComponentWithPortalTarget,
   mountSpreadsheet,
@@ -126,7 +127,7 @@ describe("Header group component test", () => {
   let sheetId: UID;
 
   beforeEach(() => {
-    model = new Model();
+    model = createModel();
     sheetId = model.getters.getActiveSheetId();
   });
 

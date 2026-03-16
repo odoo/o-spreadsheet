@@ -1,6 +1,7 @@
 import { Model } from "@odoo/o-spreadsheet-engine/model";
 import { deepCopy } from "../../src/helpers";
 import { MockTransportService } from "../__mocks__/transport_service";
+import { createModel } from "../test_helpers/helpers";
 interface CollaborativeEnv {
   network: MockTransportService;
   alice: Model;
@@ -22,16 +23,16 @@ export function setupCollaborativeEnv(
   mockTransportService?: MockTransportService
 ): CollaborativeEnv {
   const network = mockTransportService || new MockTransportService();
-  const emptySheetData = new Model(modelData).exportData();
-  const alice = new Model(deepCopy(emptySheetData), {
+  const emptySheetData = createModel(modelData).exportData();
+  const alice = createModel(deepCopy(emptySheetData), {
     transportService: network,
     client: { id: "alice", name: "Alice" },
   });
-  const bob = new Model(deepCopy(emptySheetData), {
+  const bob = createModel(deepCopy(emptySheetData), {
     transportService: network,
     client: { id: "bob", name: "Bob" },
   });
-  const charlie = new Model(deepCopy(emptySheetData), {
+  const charlie = createModel(deepCopy(emptySheetData), {
     transportService: network,
     client: { id: "charlie", name: "Charlie" },
   });

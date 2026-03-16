@@ -11,12 +11,13 @@ import {
   updateCarousel,
   updateChart,
 } from "../../test_helpers/commands_helpers";
+import { createModel } from "../../test_helpers/helpers";
 
 let model: Model;
 let sheetId: UID;
 
 beforeEach(() => {
-  model = new Model();
+  model = createModel();
   sheetId = model.getters.getActiveSheetId();
 });
 
@@ -217,7 +218,7 @@ describe("Carousel figure", () => {
     createChart(model, { type: "radar" }, "chartId2", undefined, { figureId: "chartFigureId" });
     addChartFigureToCarousel(model, "carouselId", "chartFigureId");
 
-    const newModel = new Model(model.exportData());
+    const newModel = createModel(model.exportData());
     expect(newModel.getters.getFigures(sheetId)).toHaveLength(1);
     expect(newModel.getters.getCarousel("carouselId").title).toEqual(title);
     expect(newModel.getters.getCarousel("carouselId").items).toEqual([

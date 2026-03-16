@@ -11,14 +11,14 @@ import {
   paste,
   removeDataValidation,
 } from "../test_helpers/commands_helpers";
-import { addTestPlugin, getDataValidationRules } from "../test_helpers/helpers";
+import { addTestPlugin, createModel, getDataValidationRules } from "../test_helpers/helpers";
 
 describe("Data validation", () => {
   let model: Model;
   let sheetId: UID;
 
   beforeEach(() => {
-    model = new Model();
+    model = createModel();
     sheetId = model.getters.getActiveSheetId();
   });
 
@@ -115,7 +115,7 @@ describe("Data validation", () => {
   });
 
   test("copy paste DV in another sheet => change DV => copy paste again doesnt overwrite the previously pasted DV", () => {
-    const model = new Model();
+    const model = createModel();
     createSheet(model, { sheetId: "sheet2" });
     const sheet1Id = model.getters.getSheetIds()[0];
     const sheet2Id = model.getters.getSheetIds()[1];
@@ -210,7 +210,7 @@ describe("Data validation", () => {
     }
     addTestPlugin(featurePluginRegistry, MyUIPlugin);
 
-    const model = new Model({ sheets: [{ colNumber: 5, rowNumber: 5 }] });
+    const model = createModel({ sheets: [{ colNumber: 5, rowNumber: 5 }] });
     const sheetId = model.getters.getActiveSheetId();
     addDataValidation(model, "A1:A2", "id", { type: "containsText", values: ["1"] });
 

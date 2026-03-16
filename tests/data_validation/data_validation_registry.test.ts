@@ -19,14 +19,14 @@ import {
 } from "../../src/types";
 import { addDataValidation, setCellContent, updateLocale } from "../test_helpers/commands_helpers";
 import { FR_LOCALE } from "../test_helpers/constants";
-import { setGrid, toCellPosition } from "../test_helpers/helpers";
+import { createModel, setGrid, toCellPosition } from "../test_helpers/helpers";
 
 describe("Data validation registry", () => {
   let model: Model;
   let getters: Getters;
   let sheetId: UID;
   beforeEach(() => {
-    model = new Model();
+    model = createModel();
     getters = model.getters;
     sheetId = model.getters.getActiveSheetId();
   });

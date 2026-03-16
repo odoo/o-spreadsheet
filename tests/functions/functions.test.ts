@@ -6,12 +6,10 @@ import {
   toBoolean,
   toNumber,
 } from "@odoo/o-spreadsheet-engine/functions/helpers";
-import { Model } from "../../src";
 import { Arg, CellErrorType, DEFAULT_LOCALE, EvaluationError } from "../../src/types";
 import { setCellContent, setCellFormat } from "../test_helpers/commands_helpers";
 import { getCellError, getEvaluatedCell } from "../test_helpers/getters_helpers";
-import { addToRegistry, evaluateCell } from "../test_helpers/helpers";
-
+import { addToRegistry, createModel, evaluateCell } from "../test_helpers/helpers";
 describe("functions", () => {
   test("can add a function", () => {
     const val = evaluateCell("A1", { A1: "=DOUBLEDOUBLE(3)" });
@@ -25,7 +23,6 @@ describe("functions", () => {
     });
     expect(evaluateCell("A1", { A1: "=DOUBLEDOUBLE(3)" })).toBe(6);
   });
-
   test("can not add a function with invalid name", () => {
     const createBadFunction = () => {
       addToRegistry(functionRegistry, "TEST*FUNCTION", {
@@ -38,7 +35,6 @@ describe("functions", () => {
       "Invalid function name TEST*FUNCTION. Function names can exclusively contain alphanumerical values separated by dots (.)"
     );
   });
-
   test("can add a function with underscore", () => {
     const createBadFunction = () => {
       addToRegistry(functionRegistry, "TEST_FUNCTION", {
@@ -49,9 +45,8 @@ describe("functions", () => {
     };
     expect(createBadFunction).not.toThrow();
   });
-
   test("Function can return value depending on input values", () => {
-    const model = new Model();
+    const model = createModel();
     addToRegistry(functionRegistry, "RETURN.VALUE.DEPENDING.ON.INPUT.VALUE", {
       description: "return value depending on input value",
       compute: function (arg) {
@@ -66,9 +61,8 @@ describe("functions", () => {
     expect(getEvaluatedCell(model, "B1").value).toBe(42);
     expect(getEvaluatedCell(model, "B2").value).toBe(84);
   });
-
   test("Function can return value depending on input error", () => {
-    const model = new Model();
+    const model = createModel();
     addToRegistry(functionRegistry, "RETURN.VALUE.DEPENDING.ON.INPUT.ERROR", {
       description: "return value depending on input error",
       compute: function (arg: Arg) {
@@ -82,9 +76,8 @@ describe("functions", () => {
     expect(getEvaluatedCell(model, "B1").value).toBe(true);
     expect(getEvaluatedCell(model, "B2").value).toBe(false);
   });
-
   test("Function can return error depending on input value", () => {
-    const model = new Model();
+    const model = createModel();
     addToRegistry(functionRegistry, "RETURN.ERROR.DEPENDING.ON.INPUT.VALUE", {
       description: "return value depending on input error",
       compute: function (arg) {
@@ -99,9 +92,8 @@ describe("functions", () => {
     expect(getCellError(model, "B1")).toBe("Les calculs sont pas bons KEVIN !");
     expect(getEvaluatedCell(model, "B2").value).toBe("ceci n'est pas une erreur");
   });
-
   test("Function can return error depending on input error", () => {
-    const model = new Model();
+    const model = createModel();
     addToRegistry(functionRegistry, "RETURN.ERROR.DEPENDING.ON.INPUT.ERROR", {
       description: "return value depending on input error",
       compute: function (arg) {
@@ -117,9 +109,8 @@ describe("functions", () => {
     expect(getEvaluatedCell(model, "B1").value).toBe("#CYCLE");
     expect(getEvaluatedCell(model, "B2").value).toBe("#REF");
   });
-
   test("Function can return format depending on input format", () => {
-    const model = new Model();
+    const model = createModel();
     addToRegistry(functionRegistry, "RETURN.FORMAT.DEPENDING.ON.INPUT.FORMAT", {
       description: "return format depending on input format",
       compute: function (arg) {
@@ -136,9 +127,8 @@ describe("functions", () => {
     expect(getEvaluatedCell(model, "B1").format).toBe("0%");
     expect(getEvaluatedCell(model, "B2").format).toBe("#,##0.00");
   });
-
   test("Function can return format depending on input value", () => {
-    const model = new Model();
+    const model = createModel();
     addToRegistry(functionRegistry, "RETURN.FORMAT.DEPENDING.ON.INPUT.VALUE", {
       description: "return format depending on input value",
       compute: function (arg) {
@@ -157,9 +147,8 @@ describe("functions", () => {
     expect(getEvaluatedCell(model, "B1").format).toBe("0%");
     expect(getEvaluatedCell(model, "B2").format).toBe("#,##0.00");
   });
-
   test("Can use a custom evaluation context in a function", () => {
-    const model = new Model(
+    const model = createModel(
       {},
       {
         custom: {
@@ -177,9 +166,8 @@ describe("functions", () => {
     setCellContent(model, "A1", "=GETCOUCOU()");
     expect(getEvaluatedCell(model, "A1").value).toBe("Raoul");
   });
-
   test("Can use a getter in a function", () => {
-    const model = new Model();
+    const model = createModel();
     addToRegistry(functionRegistry, "GETNUMBERCOLS", {
       description: "Get the number of columns",
       compute: function () {
@@ -192,7 +180,6 @@ describe("functions", () => {
       model.getters.getNumberCols(model.getters.getActiveSheetId())
     );
   });
-
   test("undefined fallback to the zero value in a function", () => {
     addToRegistry(functionRegistry, "UNDEFINED", {
       description: "undefined",
@@ -204,7 +191,6 @@ describe("functions", () => {
     });
     expect(evaluateCell("A1", { A1: "=UNDEFINED()" })).toBe(0);
   });
-
   describe("check type of arguments", () => {
     test("reject non-range argument when expecting only range argument", () => {
       addToRegistry(functionRegistry, "RANGEEXPECTED", {
@@ -214,7 +200,6 @@ describe("functions", () => {
         },
         args: [arg("arg1 (range<any>)", "1st argument")],
       });
-
       addToRegistry(functionRegistry, "FORMULA_RETURNING_RANGE", {
         description: "function returning range",
         compute: () => {
@@ -222,7 +207,6 @@ describe("functions", () => {
         },
         args: [],
       });
-
       addToRegistry(functionRegistry, "FORMULA_NOT_RETURNING_RANGE", {
         description: "function returning range",
         compute: () => {
@@ -230,7 +214,6 @@ describe("functions", () => {
         },
         args: [],
       });
-
       addToRegistry(functionRegistry, "FORMULA_RETURNING_ERROR", {
         description: "function returning ERROR",
         compute: () => {
@@ -238,7 +221,6 @@ describe("functions", () => {
         },
         args: [],
       });
-
       addToRegistry(functionRegistry, "FORMULA_TROWING_ERROR", {
         description: "function trowing error",
         compute: () => {
@@ -246,7 +228,6 @@ describe("functions", () => {
         },
         args: [],
       });
-
       addToRegistry(functionRegistry, "FORMULA_RETURNING_RANGE_WITH_ERROR", {
         description: "function returning range",
         compute: () => {
@@ -254,7 +235,6 @@ describe("functions", () => {
         },
         args: [],
       });
-
       addToRegistry(functionRegistry, "FORMULA_RETURNING_RANGE_TROWING_ERROR", {
         description: "function returning range",
         compute: () => {
@@ -262,60 +242,44 @@ describe("functions", () => {
         },
         args: [],
       });
-
-      const m = new Model();
+      const m = createModel();
       const errorMessage =
         "Function RANGEEXPECTED expects the parameter '1' to be reference to a cell or range.";
-
       setCellContent(m, "A1", "=RANGEEXPECTED(42)");
       expect(getEvaluatedCell(m, "A1").value).toBe("#BAD_EXPR");
       expect(getCellError(m, "A1")).toBe(errorMessage);
-
       setCellContent(m, "B1", '=RANGEEXPECTED("test")');
       expect(getEvaluatedCell(m, "B1").value).toBe("#BAD_EXPR");
       expect(getCellError(m, "B1")).toBe(errorMessage);
-
       setCellContent(m, "C1", "=RANGEEXPECTED(TRUE)");
       expect(getEvaluatedCell(m, "C1").value).toBe("#BAD_EXPR");
       expect(getCellError(m, "C1")).toBe(errorMessage);
-
       setCellContent(m, "D1", "=RANGEEXPECTED(FORMULA_NOT_RETURNING_RANGE())");
       expect(getEvaluatedCell(m, "D1").value).toBe("#BAD_EXPR");
       expect(getCellError(m, "D1")).toBe(errorMessage);
-
       setCellContent(m, "E1", "=RANGEEXPECTED(A1)");
       expect(getEvaluatedCell(m, "E1").value).toBe(true);
-
       setCellContent(m, "F1", "=RANGEEXPECTED(A1:A1)");
       expect(getEvaluatedCell(m, "F1").value).toBe(true);
-
       setCellContent(m, "G1", "=RANGEEXPECTED(A1:A2)");
       expect(getEvaluatedCell(m, "G1").value).toBe(true);
-
       setCellContent(m, "H1", "=RANGEEXPECTED(A1:A$2)");
       expect(getEvaluatedCell(m, "H1").value).toBe(true);
-
       setCellContent(m, "I1", "=RANGEEXPECTED(sheet1!A1:A$2)");
       expect(getEvaluatedCell(m, "I1").value).toBe(true);
-
       setCellContent(m, "J1", "=RANGEEXPECTED(FORMULA_RETURNING_RANGE())");
       expect(getEvaluatedCell(m, "J1").value).toBe(true);
-
       setCellContent(m, "K1", "=RANGEEXPECTED(FORMULA_TROWING_ERROR())");
       expect(getEvaluatedCell(m, "K1").value).toBe("#BAD_EXPR");
       expect(getCellError(m, "K1")).toBe(errorMessage);
-
       setCellContent(m, "L1", "=RANGEEXPECTED(FORMULA_RETURNING_RANGE_WITH_ERROR())");
       expect(getEvaluatedCell(m, "L1").value).toBe(true);
-
       setCellContent(m, "M1", "=RANGEEXPECTED(FORMULA_RETURNING_RANGE_TROWING_ERROR())");
       expect(getEvaluatedCell(m, "M1").value).toBe("#BAD_EXPR");
       expect(getCellError(m, "M1")).toBe(errorMessage);
     });
-
     test("simple argument value from a single cell or range reference", () => {
-      const m = new Model();
-
+      const m = createModel();
       addToRegistry(functionRegistry, "SIMPLE_VALUE_EXPECTED", {
         description: "does not accept a range",
         compute: (arg) => {
@@ -323,10 +287,8 @@ describe("functions", () => {
         },
         args: [{ name: "arg1", description: "", type: ["NUMBER"] }],
       });
-
       setCellContent(m, "B1", "=SIMPLE_VALUE_EXPECTED(A1)");
       expect(getEvaluatedCell(m, "B1").value).toBe(true);
-
       setCellContent(m, "B2", "=SIMPLE_VALUE_EXPECTED(A1:A2)");
       expect(getEvaluatedCell(m, "B2").value).toBe(true);
       expect(getEvaluatedCell(m, "B3").value).toBe(true);

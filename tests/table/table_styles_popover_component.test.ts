@@ -9,7 +9,7 @@ import {
 } from "../../src/components/tables/table_styles_popover/table_styles_popover";
 import { createTableStyle } from "../test_helpers/commands_helpers";
 import { click, triggerMouseEvent } from "../test_helpers/dom_helper";
-import { mountComponentWithPortalTarget, nextTick } from "../test_helpers/helpers";
+import { createModel, mountComponentWithPortalTarget, nextTick } from "../test_helpers/helpers";
 
 let model: Model;
 let fixture: HTMLElement;
@@ -37,7 +37,7 @@ async function mountPopover(partialProps: Partial<TableStylesPopoverProps> = {})
 
 describe("Table style popover", () => {
   beforeEach(() => {
-    model = new Model();
+    model = createModel();
   });
 
   test("Only table styles given as props are displayed", async () => {

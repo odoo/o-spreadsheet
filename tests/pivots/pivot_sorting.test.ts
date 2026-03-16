@@ -4,14 +4,17 @@ import {
   PREVIOUS_VALUE,
   SpreadsheetPivotCoreDefinition,
 } from "@odoo/o-spreadsheet-engine/types/pivot";
-import { Model } from "../../src";
-import { createModelFromGrid, getFormattedGrid, getGrid } from "../test_helpers/helpers";
+import {
+  createModel,
+  createModelFromGrid,
+  getFormattedGrid,
+  getGrid,
+} from "../test_helpers/helpers";
 import {
   addPivot,
   createModelWithTestPivotDataset,
   updatePivot,
 } from "../test_helpers/pivot_helpers";
-
 // prettier-ignore
 const unsortedGrid = {
     A20: "Pivot",       B20: "Alice",  C20: "Bob",  D20: "Total",
@@ -20,12 +23,10 @@ const unsortedGrid = {
     A24: "April",       B24: 82300,    C24: 26000,  D24: 108300,
     A25: "Total",       B25: 230200,   C25: 90000,  D25: 320200,
 }
-
 describe("Pivot sorting", () => {
   test("Can sort the pivot on any column", () => {
     const model = createModelWithTestPivotDataset();
     expect(getGrid(model)).toMatchObject(unsortedGrid);
-
     updatePivot(model, "pivotId", {
       sortedColumn: {
         measure: "measureId",
@@ -41,7 +42,6 @@ describe("Pivot sorting", () => {
         A24: "March",        B24: 125400,   C24: 64000,  D24: 189400,
         A25: "Total",        B25: 230200,   C25: 90000,  D25: 320200,
     });
-
     updatePivot(model, "pivotId", {
       sortedColumn: {
         measure: "measureId",
@@ -57,7 +57,6 @@ describe("Pivot sorting", () => {
         A24: "March",      B24: 125400,   C24: 64000,  D24: 189400,
         A25: "Total",      B25: 230200,   C25: 90000,  D25: 320200,
     });
-
     updatePivot(model, "pivotId", {
       sortedColumn: { measure: "measureId", order: "desc", domain: [] },
     });
@@ -70,7 +69,6 @@ describe("Pivot sorting", () => {
         A25: "Total",      B25: 230200,   C25: 90000,  D25: 320200,
     });
   });
-
   test("Empty values are sorted as the smallest value", () => {
     const model = createModelWithTestPivotDataset();
     const bobColumn: PivotSortedColumn = {
@@ -78,7 +76,6 @@ describe("Pivot sorting", () => {
       order: "asc",
       domain: [{ field: "Salesperson", value: "Bob", type: "char" }],
     };
-
     updatePivot(model, "pivotId", { sortedColumn: { ...bobColumn, order: "asc" } });
     // prettier-ignore
     expect(getGrid(model)).toMatchObject({
@@ -88,7 +85,6 @@ describe("Pivot sorting", () => {
       A24: "March",      B24: 125400,   C24: 64000,  D24: 189400,
       A25: "Total",      B25: 230200,   C25: 90000,  D25: 320200,
     });
-
     updatePivot(model, "pivotId", { sortedColumn: { ...bobColumn, order: "desc" } });
     // prettier-ignore
     expect(getGrid(model)).toMatchObject({
@@ -99,7 +95,6 @@ describe("Pivot sorting", () => {
       A25: "Total",      B25: 230200,   C25: 90000,  D25: 320200,
     });
   });
-
   test("Can sort on pivot with a datetime column group by", () => {
     const model = createModelWithTestPivotDataset({
       rows: [{ fieldName: "Salesperson" }],
@@ -116,10 +111,8 @@ describe("Pivot sorting", () => {
       A22: 'Alice',       B22: 22500,       C22: 125400,  D22: 82300,   E22: 230200,
       A23: 'Bob',         B23: "",          C23: 64000,   D23: 26000,   E23: 90000,
       A24: 'Total',       B24: 22500,       C24: 189400,  D24: 108300,  E24: 320200,
-
     });
   });
-
   test("Can sort on pivot with multiple group by", () => {
     const model = createModelWithTestPivotDataset({
       rows: [
@@ -128,7 +121,6 @@ describe("Pivot sorting", () => {
       ],
       sortedColumn: { measure: "measureId", order: "asc", domain: [] },
     });
-
     // prettier-ignore
     expect(getGrid(model)).toMatchObject({
         A20:"Pivot",         B20: "Alice",  C20: "Bob",  D20: "Total",
@@ -142,7 +134,6 @@ describe("Pivot sorting", () => {
         A29: "FALSE",        B29: 105600,   C29: 53000,  D29: 158600,
         A30: "Total",        B30: 230200,   C30: 90000,  D30: 320200,
     });
-
     updatePivot(model, "pivotId", {
       sortedColumn: {
         measure: "measureId",
@@ -164,7 +155,6 @@ describe("Pivot sorting", () => {
         A30: "Total",        B30: 230200,   C30: 90000,  D30: 320200,
     });
   });
-
   test("Trying to sort the pivot on an invalid column or measure does nothing", () => {
     const model = createModelWithTestPivotDataset({
       sortedColumn: {
@@ -174,7 +164,6 @@ describe("Pivot sorting", () => {
       },
     });
     expect(getGrid(model)).toMatchObject(unsortedGrid);
-
     updatePivot(model, "pivotId", {
       sortedColumn: {
         measure: "measureId",
@@ -183,7 +172,6 @@ describe("Pivot sorting", () => {
       },
     });
     expect(getGrid(model)).toMatchObject(unsortedGrid);
-
     updatePivot(model, "pivotId", {
       sortedColumn: {
         measure: "Not a real measure",
@@ -193,7 +181,6 @@ describe("Pivot sorting", () => {
     });
     expect(getGrid(model)).toMatchObject(unsortedGrid);
   });
-
   test("Can sort on a calculated measure", () => {
     const model = createModelWithTestPivotDataset();
     const sheetId = model.getters.getActiveSheetId();
@@ -227,7 +214,6 @@ describe("Pivot sorting", () => {
         A25: "Total",      B25: 460400,   C25: 180000,  D25: 640400,
     });
   });
-
   test("Sorting is applied before measure display", () => {
     const model = createModelWithTestPivotDataset({
       measures: [
@@ -247,7 +233,6 @@ describe("Pivot sorting", () => {
         domain: [],
       },
     });
-
     // prettier-ignore
     expect(getGrid(model)).toMatchObject({
         A20:"Pivot",       B20: "Alice",  C20: "Bob",  D20: "Total",
@@ -257,7 +242,6 @@ describe("Pivot sorting", () => {
         A25: "Total",      B25: "",       C25: "",     D25: "",
     });
   });
-
   test("(previous) in measure display take sorting into account", () => {
     // Note: this is explicitly disable in Excel.
     const model = createModelWithTestPivotDataset({
@@ -267,7 +251,6 @@ describe("Pivot sorting", () => {
         domain: [],
       },
     });
-
     // prettier-ignore
     expect(getGrid(model)).toMatchObject({
         A20:"Pivot",       B20: "Alice",  C20: "Bob",  D20: "Total",
@@ -276,7 +259,6 @@ describe("Pivot sorting", () => {
         A24: "March",      B24: 125400,   C24: 64000,  D24: 189400,
         A25: "Total",      B25: 230200,   C25: 90000,  D25: 320200,
     });
-
     updatePivot(model, "pivotId", {
       measures: [
         {
@@ -291,7 +273,6 @@ describe("Pivot sorting", () => {
         },
       ],
     });
-
     // prettier-ignore
     expect(getFormattedGrid(model)).toMatchObject({
         A20:"Pivot",       B20: "Alice",    C20: "Bob",      D20: "Total",
@@ -301,7 +282,6 @@ describe("Pivot sorting", () => {
         A25: "Total",      B25: "",         C25: "",         D25: "",
     });
   });
-
   test("Can import/export sorted pivot ", () => {
     const pivotDefinition: Partial<SpreadsheetPivotCoreDefinition> = {
       columns: [{ fieldName: "Salesperson" }],
@@ -312,14 +292,11 @@ describe("Pivot sorting", () => {
       },
     };
     const model = createModelWithTestPivotDataset(pivotDefinition);
-
     const exported = model.exportData();
     expect(exported.pivots).toMatchObject({ pivotId: pivotDefinition });
-
-    const importedModel = new Model(exported);
+    const importedModel = createModel(exported);
     expect(importedModel.getters.getPivotCoreDefinition("pivotId")).toMatchObject(pivotDefinition);
   });
-
   test("Can sort pivot table on the column '(Undefined)'", () => {
     // prettier-ignore
     const grid = {
@@ -334,7 +311,6 @@ describe("Pivot sorting", () => {
       rows: [{ fieldName: "Customer" }],
       measures: [{ id: "Price:sum", fieldName: "Price", aggregator: "sum" }],
     });
-
     const pivotId = model.getters.getPivotIds()[0];
     const sortedColumn: PivotSortedColumn = {
       domain: [{ type: "integer", field: "Date", value: null }],
@@ -342,7 +318,6 @@ describe("Pivot sorting", () => {
       measure: "Price:sum",
     };
     expect(isSortedColumnValid(sortedColumn, model.getters.getPivot(pivotId))).toBe(true);
-
     updatePivot(model, pivotId, { sortedColumn });
     // prettier-ignore
     expect(getGrid(model)).toMatchObject({
