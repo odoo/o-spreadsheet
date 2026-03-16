@@ -7,16 +7,17 @@
         onSelectionConfirmed.bind="onDataSeriesConfirmed"
         onSelectionReordered.bind="onDataSeriesReordered"
         onSelectionRemoved.bind="onDataSeriesRemoved"
-        maxNumberOfUsedRanges="1"
+        maxNumberOfUsedRanges="maxNumberOfUsedDataRanges"
         canChangeDatasetOrientation="false"
       />
       <ChartLabelRange
-        range="this.getLabelRange()"
+        ranges="this.getLabelRanges()"
         isInvalid="isLabelInvalid"
         onSelectionChanged.bind="onLabelRangeChanged"
         onSelectionConfirmed.bind="onLabelRangeConfirmed"
         options="this.getLabelRangeOptions()"
         title.translate="Date range"
+        maxNumberOfUsedRanges="maxNumberOfUsedLabelRanges"
       />
 
       <Section title.translate="Fields to group by">

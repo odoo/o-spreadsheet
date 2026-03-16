@@ -981,7 +981,7 @@ describe("Test XLSX export", () => {
             { dataRange: "Sheet1!B2:B", trend: { type: "polynomial", order: 2, display: true } },
             { dataRange: "Sheet1!C4:4", trend: { type: "polynomial", order: 1, display: true } },
           ],
-          labelRange: "Sheet1!A2:A",
+          labelRanges: ["Sheet1!A2:A"],
           type: "line",
         },
         "1"
@@ -993,7 +993,7 @@ describe("Test XLSX export", () => {
             { dataRange: "Sheet1!B2:B", trend: { type: "exponential", display: true } },
             { dataRange: "Sheet1!C4:4", trend: { type: "logarithmic", display: true } },
           ],
-          labelRange: "Sheet1!A2:A",
+          labelRanges: ["Sheet1!A2:A"],
           type: "bar",
         },
         "2"
@@ -1002,7 +1002,7 @@ describe("Test XLSX export", () => {
         model,
         {
           dataSets: [{ dataRange: "Sheet1!B2:B" }, { dataRange: "Sheet1!C4:4" }],
-          labelRange: "Sheet1!A2:A",
+          labelRanges: ["Sheet1!A2:A"],
           type: "pie",
         },
         "3"
@@ -1020,7 +1020,7 @@ describe("Test XLSX export", () => {
               trend: { type: "polynomial", order: 7, display: true },
             },
           ],
-          labelRange: "Sheet1!A2:A",
+          labelRanges: ["Sheet1!A2:A"],
           type: "scatter",
         },
         "4"
@@ -1030,7 +1030,7 @@ describe("Test XLSX export", () => {
         model,
         {
           dataSets: [{ dataRange: "Sheet1!B2:B" }, { dataRange: "Sheet1!C4:4" }],
-          labelRange: "Sheet1!A2:A",
+          labelRanges: ["Sheet1!A2:A"],
           type: "radar",
         },
         "5"
@@ -1274,7 +1274,7 @@ describe("Test XLSX export", () => {
           model,
           {
             dataSets,
-            labelRange: "Sheet1!A2:A4",
+            labelRanges: ["Sheet1!A2:A4"],
             type: chartType as "line" | "bar" | "pie" | "combo",
           },
           "1"
@@ -1298,7 +1298,7 @@ describe("Test XLSX export", () => {
                 label: "coucou",
               },
             ],
-            labelRange: "Sheet1!A2:A4",
+            labelRanges: ["Sheet1!A2:A4"],
             type: chartType as "line" | "bar" | "pie" | "combo",
           },
           "1"
@@ -1322,7 +1322,7 @@ describe("Test XLSX export", () => {
               italic: true,
               color: "#ff0000",
             },
-            labelRange: "Sheet1!A2:A4",
+            labelRanges: ["Sheet1!A2:A4"],
             type: chartType as "line" | "bar" | "pie" | "combo" | "radar",
           },
           "1"
@@ -1368,7 +1368,7 @@ describe("Test XLSX export", () => {
                 },
               },
             },
-            labelRange: "Sheet1!A2:A4",
+            labelRanges: ["Sheet1!A2:A4"],
             type: chartType as "line" | "bar" | "pie" | "combo" | "radar",
           },
           "1"
@@ -1384,7 +1384,7 @@ describe("Test XLSX export", () => {
         {
           type: "bar",
           dataSets: [{ dataRange: "Sheet1!B1:B4" }, { dataRange: "Sheet1!C1:C4" }],
-          labelRange: "Sheet1!A1:A4",
+          labelRanges: ["Sheet1!A1:A4"],
           dataSetsHaveTitle: true,
         },
         "1"
@@ -1394,7 +1394,7 @@ describe("Test XLSX export", () => {
         {
           type: "bar",
           dataSets: [{ dataRange: "Sheet1!B1:B4" }, { dataRange: "Sheet1!C1:C4" }],
-          labelRange: "Sheet1!A2:A4",
+          labelRanges: ["Sheet1!A2:A4"],
           dataSetsHaveTitle: true,
         },
         "2"
@@ -1409,7 +1409,7 @@ describe("Test XLSX export", () => {
         model,
         {
           dataSets: [{ dataRange: "Sheet1!B1:B4" }, { dataRange: "Sheet1!C1:C4" }],
-          labelRange: "Sheet1!A2:A4",
+          labelRanges: ["Sheet1!A2:A4"],
           type: "line",
         },
         "1"
@@ -1418,7 +1418,7 @@ describe("Test XLSX export", () => {
         model,
         {
           dataSets: [{ dataRange: "Sheet1!B1:B4" }, { dataRange: "Sheet1!C1:C4" }],
-          labelRange: "Sheet1!A2:A4",
+          labelRanges: ["Sheet1!A2:A4"],
           type: "bar",
         },
         "2"
@@ -1432,7 +1432,7 @@ describe("Test XLSX export", () => {
         model,
         {
           dataSets: [{ dataRange: "Sheet1!B1:B4" }, { dataRange: "Sheet1!C1:C4" }],
-          labelRange: "Sheet1!A2:A4",
+          labelRanges: ["Sheet1!A2:A4"],
           type: "bar",
           horizontal: true,
         },
@@ -1447,7 +1447,7 @@ describe("Test XLSX export", () => {
         model,
         {
           dataSets: [{ dataRange: "Sheet1!B1:B4" }, { dataRange: "Sheet1!C1:C4" }],
-          labelRange: "Sheet1!A2:A4",
+          labelRanges: ["Sheet1!A2:A4"],
           type: "pie",
           isDoughnut: true,
           pieHolePercentage: 50,
@@ -1463,7 +1463,7 @@ describe("Test XLSX export", () => {
         model,
         {
           dataSets: [{ dataRange: "Sheet1!B1:B4" }, { dataRange: "Sheet1!C1:C4" }],
-          labelRange: "Sheet1!A2:A4",
+          labelRanges: ["Sheet1!A2:A4"],
           type: "pyramid",
         },
         "2"
@@ -1508,7 +1508,7 @@ describe("Test XLSX export", () => {
         model,
         {
           dataSets: [{ dataRange: "Sheet1!B1:B4" }, { dataRange: "Sheet1!C1:C4" }],
-          labelRange: "Sheet1!A2:A4",
+          labelRanges: ["Sheet1!A2:A4"],
           stacked: true,
           type: "bar",
         },
@@ -1524,7 +1524,7 @@ describe("Test XLSX export", () => {
         model,
         {
           dataSets: [{ dataRange: "Sheet1!B1:B4" }, { dataRange: "Sheet1!C1:C4" }],
-          labelRange: "Sheet1!A2:A4",
+          labelRanges: ["Sheet1!A2:A4"],
           type: "line",
         },
         "1"
@@ -1533,7 +1533,7 @@ describe("Test XLSX export", () => {
         model,
         {
           dataSets: [{ dataRange: "Sheet1!B1:B4" }, { dataRange: "Sheet1!C1:C4" }],
-          labelRange: "Sheet1!A2:A4",
+          labelRanges: ["Sheet1!A2:A4"],
           type: "bar",
         },
         "2",
@@ -1548,7 +1548,7 @@ describe("Test XLSX export", () => {
         model,
         {
           dataSets: [{ dataRange: "Sheet1!B2:B4" }, { dataRange: "Sheet1!C2:C4" }],
-          labelRange: "Sheet1!A2:A4",
+          labelRanges: ["Sheet1!A2:A4"],
           type: "bar",
           dataSetsHaveTitle: false,
         },
@@ -1564,7 +1564,7 @@ describe("Test XLSX export", () => {
         model,
         {
           dataSets: [{ dataRange: "Sheet1!B2:B4" }, { dataRange: "Sheet1!C2:C4" }],
-          labelRange: "Sheet1!A2:A4",
+          labelRanges: ["Sheet1!A2:A4"],
           type: "bar",
           background: "#EFEFEF",
         },
@@ -1574,7 +1574,7 @@ describe("Test XLSX export", () => {
         model,
         {
           dataSets: [{ dataRange: "Sheet1!B2:B4" }, { dataRange: "Sheet1!C2:C4" }],
-          labelRange: "Sheet1!A2:A4",
+          labelRanges: ["Sheet1!A2:A4"],
           type: "pie",
           background: "#EEEEEE",
         },
@@ -1584,7 +1584,7 @@ describe("Test XLSX export", () => {
         model,
         {
           dataSets: [{ dataRange: "Sheet1!B2:B4" }, { dataRange: "Sheet1!C2:C4" }],
-          labelRange: "Sheet1!A2:A4",
+          labelRanges: ["Sheet1!A2:A4"],
           type: "line",
           background: "#DDDDDD",
         },
@@ -1594,7 +1594,7 @@ describe("Test XLSX export", () => {
         model,
         {
           dataSets: [{ dataRange: "Sheet2!B2:B4" }, { dataRange: "Sheet2!C2:C4" }],
-          labelRange: "She!et2!A2:A4",
+          labelRanges: ["She!et2!A2:A4"],
           type: "pie",
           background: "#EEEEEE",
         },
@@ -1604,7 +1604,7 @@ describe("Test XLSX export", () => {
         model,
         {
           dataSets: [{ dataRange: "Sheet1!B2:B4" }, { dataRange: "Sheet1!C2:C4" }],
-          labelRange: "Sheet1!A2:A4",
+          labelRanges: ["Sheet1!A2:A4"],
           type: "scatter",
           background: "#EEEEEE",
         },
@@ -1614,7 +1614,7 @@ describe("Test XLSX export", () => {
         model,
         {
           dataSets: [{ dataRange: "Sheet1!B2:B4" }, { dataRange: "Sheet1!C2:C4" }],
-          labelRange: "Sheet1!A2:A4",
+          labelRanges: ["Sheet1!A2:A4"],
           type: "radar",
           background: "#EEEEEE",
         },
@@ -1629,7 +1629,7 @@ describe("Test XLSX export", () => {
         model,
         {
           dataSets: [{ dataRange: "Sheet1!B2:B5" }, { dataRange: "Sheet1!C2:C5" }],
-          labelRange: "Sheet1!A2:A5",
+          labelRanges: ["Sheet1!A2:A5"],
           type: "bar",
           legendPosition: "none",
         },
@@ -1658,7 +1658,7 @@ describe("Test XLSX export", () => {
         model,
         {
           dataSets: [{ dataRange: "Sheet1!B2:B4" }, { dataRange: "Sheet1!C2:C4" }],
-          labelRange: "Sheet1!A2:A4",
+          labelRanges: ["Sheet1!A2:A4"],
           type: "bar",
           dataSetsHaveTitle: false,
         },
@@ -1755,7 +1755,7 @@ describe("Test XLSX export", () => {
       model,
       {
         dataSets: [{ dataRange: "Sheet1!B2:B4" }, { dataRange: "Sheet1!C2:C4" }],
-        labelRange: "Sheet1!A2:A4",
+        labelRanges: ["Sheet1!A2:A4"],
         type: "bar",
         dataSetsHaveTitle: false,
       },
@@ -2041,7 +2041,7 @@ describe("Test XLSX export", () => {
     createChart(model, {
       type: "bar",
       dataSets: [{ dataRange: `${longSheetName}!A1:A4` }],
-      labelRange: `${longSheetName}!A1:A4`,
+      labelRanges: [`${longSheetName}!A1:A4`],
     });
 
     const fixedSheetName = "a".repeat(31);
@@ -2050,7 +2050,7 @@ describe("Test XLSX export", () => {
     expect(exportedData.sheets[1].name).toBe(fixedSheetName);
     expect(exportedData.sheets[0].cells["A1"]).toBe(`='${fixedSheetNameWithSpaces}'!A1`);
     expect(exportedData.sheets[0].cells["A1"]).toBe(`='${fixedSheetNameWithSpaces}'!A1`);
-    expect(exportedData.sheets[0].charts[0].data.labelRange).toBe(`${fixedSheetName}!A2:A4`);
+    expect(exportedData.sheets[0].charts[0].data.labelRanges?.[0]).toBe(`${fixedSheetName}!A2:A4`);
     expect(exportedData.sheets[0].charts[0].data.dataSets[0]).toEqual({
       label: {
         reference: `${fixedSheetName}!A1`,

@@ -5,11 +5,11 @@ import {
   checkLabelRange,
   createDataSets,
   duplicateDataSetsInDuplicatedSheet,
-  duplicateLabelRangeInDuplicatedSheet,
   transformChartDefinitionWithDataSetsWithZone,
   updateChartRangesWithDataSets,
 } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_common";
 import { CHART_COMMON_OPTIONS } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_ui_common";
+import { isDefined } from "@odoo/o-spreadsheet-engine/helpers/misc";
 import { createValidRange } from "@odoo/o-spreadsheet-engine/helpers/range";
 import {
   AxesDesign,
@@ -41,7 +41,7 @@ import { getChartLayout } from "./runtime/chartjs_layout";
 
 export class WaterfallChart extends AbstractChart {
   readonly dataSets: DataSet[];
-  readonly labelRange?: Range | undefined;
+  readonly labelRanges: Range[];
   readonly background?: Color;
   readonly verticalAxisPosition: VerticalAxisPosition;
   readonly legendPosition: LegendPosition;
@@ -67,7 +67,9 @@ export class WaterfallChart extends AbstractChart {
       sheetId,
       definition.dataSetsHaveTitle
     );
-    this.labelRange = createValidRange(getters, sheetId, definition.labelRange);
+    this.labelRanges = (definition.labelRanges || [])
+      .map((r) => createValidRange(getters, sheetId, r))
+      .filter(isDefined);
     this.background = definition.background;
     this.verticalAxisPosition = definition.verticalAxisPosition;
     this.legendPosition = definition.legendPosition;
@@ -110,7 +112,7 @@ export class WaterfallChart extends AbstractChart {
       title: context.title || { text: "" },
       type: "waterfall",
       verticalAxisPosition: "left",
-      labelRange: context.auxiliaryRange || undefined,
+      labelRanges: context.auxiliaryRanges,
       showSubTotals: context.showSubTotals ?? false,
       showConnectorLines: context.showConnectorLines ?? true,
       firstValueAsSubtotal: context.firstValueAsSubtotal ?? false,
@@ -132,39 +134,39 @@ export class WaterfallChart extends AbstractChart {
     return {
       ...this,
       range,
-      auxiliaryRange: this.labelRange
-        ? this.getters.getRangeString(this.labelRange, this.sheetId)
+      auxiliaryRanges: this.labelRanges.length
+        ? this.labelRanges.map((r) => this.getters.getRangeString(r, this.sheetId))
         : undefined,
     };
   }
 
   duplicateInDuplicatedSheet(newSheetId: UID): WaterfallChart {
     const dataSets = duplicateDataSetsInDuplicatedSheet(this.sheetId, newSheetId, this.dataSets);
-    const labelRange = duplicateLabelRangeInDuplicatedSheet(
-      this.sheetId,
-      newSheetId,
-      this.labelRange
-    );
-    const definition = this.getDefinitionWithSpecificDataSets(dataSets, labelRange, newSheetId);
+    const labelRanges = this.labelRanges
+      .map((r) =>
+        createValidRange(this.getters, newSheetId, this.getters.getRangeString(r, this.sheetId))
+      )
+      .filter(isDefined);
+    const definition = this.getDefinitionWithSpecificDataSets(dataSets, labelRanges, newSheetId);
     return new WaterfallChart(definition, newSheetId, this.getters);
   }
 
   copyInSheetId(sheetId: UID): WaterfallChart {
     const definition = this.getDefinitionWithSpecificDataSets(
       this.dataSets,
-      this.labelRange,
+      this.labelRanges,
       sheetId
     );
     return new WaterfallChart(definition, sheetId, this.getters);
   }
 
   getDefinition(): WaterfallChartDefinition {
-    return this.getDefinitionWithSpecificDataSets(this.dataSets, this.labelRange);
+    return this.getDefinitionWithSpecificDataSets(this.dataSets, this.labelRanges);
   }
 
   private getDefinitionWithSpecificDataSets(
     dataSets: DataSet[],
-    labelRange: Range | undefined,
+    labelRanges: Range[],
     targetSheetId?: UID
   ): WaterfallChartDefinition {
     const ranges: CustomizedDataSet[] = [];
@@ -181,8 +183,8 @@ export class WaterfallChart extends AbstractChart {
       dataSets: ranges,
       legendPosition: this.legendPosition,
       verticalAxisPosition: this.verticalAxisPosition,
-      labelRange: labelRange
-        ? this.getters.getRangeString(labelRange, targetSheetId || this.sheetId)
+      labelRanges: labelRanges.length
+        ? labelRanges.map((r) => this.getters.getRangeString(r, targetSheetId || this.sheetId))
         : undefined,
       title: this.title,
       aggregated: this.aggregated,
@@ -205,16 +207,16 @@ export class WaterfallChart extends AbstractChart {
   }
 
   updateRanges({ applyChange }: RangeAdapterFunctions): WaterfallChart {
-    const { dataSets, labelRange, isStale } = updateChartRangesWithDataSets(
+    const { dataSets, labelRanges, isStale } = updateChartRangesWithDataSets(
       this.getters,
       applyChange,
       this.dataSets,
-      this.labelRange
+      this.labelRanges
     );
     if (!isStale) {
       return this;
     }
-    const definition = this.getDefinitionWithSpecificDataSets(dataSets, labelRange);
+    const definition = this.getDefinitionWithSpecificDataSets(dataSets, labelRanges || []);
     return new WaterfallChart(definition, this.sheetId, this.getters);
   }
 }
@@ -224,7 +226,7 @@ export function createWaterfallChartRuntime(
   getters: Getters
 ): WaterfallChartRuntime {
   const definition = chart.getDefinition();
-  const chartData = getBarChartData(definition, chart.dataSets, chart.labelRange, getters);
+  const chartData = getBarChartData(definition, chart.dataSets, chart.labelRanges, getters);
 
   const { labels, datasets } = getWaterfallDatasetAndLabels(definition, chartData);
   const config: ChartConfiguration = {

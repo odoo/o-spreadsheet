@@ -3,6 +3,7 @@ import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadshee
 import { Component } from "@odoo/owl";
 import { getDefinedAxis } from "../../../../helpers/figures/charts";
 import { ChartWithDataSetDefinition } from "../../../../types/index";
+import { Checkbox } from "../../components/checkbox/checkbox";
 import { SidePanelCollapsible } from "../../components/collapsible/side_panel_collapsible";
 import { Section } from "../../components/section/section";
 import {
@@ -29,8 +30,17 @@ export class ChartWithAxisDesignPanel<
     ChartLegend,
     ChartShowValues,
     ChartHumanizeNumbers,
+    Checkbox,
   };
   static props = ChartSidePanelPropsObject;
+
+  get hasMultipleLabelRanges(): boolean {
+    return (this.props.definition.labelRanges?.length ?? 0) > 1;
+  }
+
+  onToggleGroupBySecondaryLabels(groupBySecondaryLabels: boolean) {
+    this.props.updateChart(this.props.chartId, { groupBySecondaryLabels });
+  }
 
   get axesList(): AxisDefinition[] {
     const { useLeftAxis, useRightAxis } = getDefinedAxis(this.props.definition);

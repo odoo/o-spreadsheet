@@ -30,6 +30,7 @@ export interface ChartBuilder {
   getChartDefinitionFromContextCreation(context: ChartCreationContext): ChartDefinition;
   sequence: number;
   dataSeriesLimit?: number;
+  labelRangesLimit?: number;
 }
 
 /**

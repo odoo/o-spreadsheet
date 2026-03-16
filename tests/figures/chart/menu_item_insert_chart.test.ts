@@ -382,7 +382,7 @@ describe("Insert chart menu item", () => {
       { dataRange: "G1:G5" },
       { dataRange: "H1:H5" },
     ];
-    payload.definition.labelRange = "A1:A5";
+    payload.definition.labelRanges = ["A1:A5"];
     payload.definition.dataSetsHaveTitle = true;
     payload.definition.legendPosition = "top";
     expect(dispatchSpy).toHaveBeenCalledWith("CREATE_CHART", payload);
@@ -395,7 +395,7 @@ describe("Insert chart menu item", () => {
     const chartId = model.getters.getChartIds(model.getters.getActiveSheetId())[0];
     expect(model.getters.getChartDefinition(chartId)).toMatchObject({
       dataSets: [{ dataRange: "B:B" }],
-      labelRange: "A:A",
+      labelRanges: ["A:A"],
     });
   });
 });
@@ -459,7 +459,7 @@ describe("Smart chart type detection", () => {
   test.each<[DatasetDescriptor, Partial<ChartDefinition>]>([
     [["percentage"], { type: "pie" }],
     [["number"], { type: "bar" }],
-    [["text"], { type: "pie", labelRange: "A1:A6", aggregated: true }], // categorical pie chart, the data range is also the label range
+    [["text"], { type: "pie", labelRanges: ["A1:A6"], aggregated: true }], // categorical pie chart, the data range is also the label range
     [["date"], { type: "line" }],
     [["percentage_with_header"], { type: "pie", dataSetsHaveTitle: true }],
     [["date_with_header"], { type: "line", dataSetsHaveTitle: true }],
@@ -473,7 +473,7 @@ describe("Smart chart type detection", () => {
     expect(definition).toMatchObject({
       ...expected,
       dataSets: [{ dataRange: "A1:A6" }],
-      labelRange: "labelRange" in expected ? expected.labelRange : undefined,
+      labelRanges: "labelRanges" in expected ? expected.labelRanges : undefined,
     });
   });
 
@@ -501,7 +501,7 @@ describe("Smart chart type detection", () => {
     expect(model.getters.getChartDefinition(chartId)).toMatchObject({
       ...expected,
       dataSets: expectedDataset,
-      labelRange: expectedLabelRange,
+      labelRanges: [expectedLabelRange],
     });
   });
 
@@ -528,7 +528,7 @@ describe("Smart chart type detection", () => {
       expect(model.getters.getChartDefinition(chartId)).toMatchObject({
         ...expected,
         dataSets: expectedDatasets,
-        labelRange: expectedLabelRange,
+        labelRanges: [expectedLabelRange],
       });
     }
   );
@@ -558,7 +558,7 @@ describe("Smart chart type detection", () => {
     expect(model.getters.getChartDefinition(chartId)).toMatchObject({
       ...expected,
       dataSets: expectedDatasets,
-      labelRange: "A1:A6",
+      labelRanges: ["A1:A6"],
     });
   });
 
@@ -581,7 +581,7 @@ describe("Smart chart type detection", () => {
     expect(model.getters.getChartDefinition(chartId)).toMatchObject({
       type: "scatter",
       dataSets: [{ dataRange: "C1:C6" }],
-      labelRange: "A1:A6",
+      labelRanges: ["A1:A6"],
     });
   });
 

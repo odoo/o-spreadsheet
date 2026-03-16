@@ -521,7 +521,7 @@ export const demoData = {
               },
             ],
             legendPosition: "top",
-            labelRange: "Sheet1!A27:A35",
+            labelRanges: ["Sheet1!A27:A35"],
             title: {
               text: "Pie",
             },
@@ -620,7 +620,7 @@ export const demoData = {
               },
             ],
             legendPosition: "top",
-            labelRange: "Sheet1!B27:B35",
+            labelRanges: ["Sheet1!B27:B35"],
             title: {
               text: "Scatter",
             },
@@ -654,7 +654,7 @@ export const demoData = {
               },
             ],
             legendPosition: "top",
-            labelRange: "Sheet1!A27:A35",
+            labelRanges: ["Sheet1!A27:A35"],
             title: {
               text: "Combo",
             },
@@ -687,7 +687,7 @@ export const demoData = {
               },
             ],
             legendPosition: "top",
-            labelRange: "Sheet1!A27:A35",
+            labelRanges: ["Sheet1!A27:A35"],
             title: {
               text: "Radar",
             },
@@ -717,7 +717,7 @@ export const demoData = {
               },
             ],
             legendPosition: "left",
-            labelRange: "R:R",
+            labelRanges: ["R:R"],
             title: {
               text: "Geo",
             },
@@ -749,7 +749,7 @@ export const demoData = {
               },
             ],
             legendPosition: "top",
-            labelRange: "X1:X23",
+            labelRanges: ["X1:X23"],
             title: {
               text: "Movie Revenue by Genre",
             },
@@ -778,7 +778,7 @@ export const demoData = {
               },
             ],
             legendPosition: "none",
-            labelRange: "V27:V32",
+            labelRanges: ["V27:V32"],
             title: {
               text: "Funnel",
             },
@@ -812,7 +812,7 @@ export const demoData = {
               },
             ],
             legendPosition: "top",
-            labelRange: "X1:X23",
+            labelRanges: ["X1:X23"],
             title: {
               text: "Movie Revenue by Genre",
             },
@@ -844,7 +844,7 @@ export const demoData = {
               },
             ],
             legendPosition: "top",
-            labelRange: "Sheet1!A27:A35",
+            labelRanges: ["Sheet1!A27:A35"],
             title: {
               text: "Pyramid",
             },
@@ -886,7 +886,7 @@ export const demoData = {
                   },
                 ],
                 legendPosition: "top",
-                labelRange: "Sheet1!A27:A35",
+                labelRanges: ["Sheet1!A27:A35"],
                 title: {
                   text: "",
                 },
@@ -906,7 +906,7 @@ export const demoData = {
                   },
                 ],
                 legendPosition: "top",
-                labelRange: "Sheet1!A27:A35",
+                labelRanges: ["Sheet1!A27:A35"],
                 title: {
                   text: "",
                 },
@@ -927,7 +927,7 @@ export const demoData = {
                 ],
                 legendPosition: "top",
                 verticalAxisPosition: "left",
-                labelRange: "Sheet1!A26:A29",
+                labelRanges: ["Sheet1!A26:A29"],
                 title: {
                   text: "",
                 },
@@ -969,7 +969,7 @@ export const demoData = {
               },
             ],
             dataSetsHaveTitle: true,
-            labelRange: "V36:V86",
+            labelRanges: ["V36:V86"],
             title: {},
             horizontalGroupBy: "iso_week_number",
             verticalGroupBy: "day_of_week",

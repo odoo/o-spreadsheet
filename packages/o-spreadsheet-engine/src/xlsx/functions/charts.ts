@@ -2,6 +2,8 @@ import { CHART_AXIS_TITLE_FONT_SIZE, CHART_TITLE_FONT_SIZE } from "../../constan
 import { ColorGenerator, lightenColor } from "../../helpers/color";
 import { chartMutedFontColor } from "../../helpers/figures/charts/chart_common";
 import { largeMax, range } from "../../helpers/misc";
+import { splitReference } from "../../helpers/references";
+import { toZone, zoneToXc } from "../../helpers/zones";
 import { ExcelChartDataset, ExcelChartDefinition, TitleDesign } from "../../types/chart";
 import { Color } from "../../types/misc";
 import { ExcelWorkbookData, FigureData } from "../../types/workbook_data";
@@ -332,9 +334,7 @@ function addBarChart(chart: ExcelChartDefinition): XMLString {
         ${extractDataSetLabel(dataset.label)}
         ${insertDataLabels({ showValues: chart.showValues })}
         ${dataShapeProperty}
-        ${
-          chart.labelRange ? escapeXml/*xml*/ `<c:cat>${stringRef(chart.labelRange!)}</c:cat>` : ""
-        } <!-- x-coordinate values -->
+        ${catElement(chart)} <!-- x-coordinate values -->
         <c:val> <!-- x-coordinate values -->
           ${numberRef(dataset.range)}
         </c:val>
@@ -457,7 +457,7 @@ function addComboChart(chart: ExcelChartDefinition): XMLString {
         backgroundColor: firstColor,
         line: { color: firstColor },
       })}
-      ${chart.labelRange ? escapeXml/*xml*/ `<c:cat>${stringRef(chart.labelRange)}</c:cat>` : ""}
+      ${catElement(chart)}
       <!-- x-coordinate values -->
       <c:val>
         ${numberRef(dataSet.range)}
@@ -488,7 +488,7 @@ function addComboChart(chart: ExcelChartDefinition): XMLString {
         ${extractDataSetLabel(dataSet.label)}
         ${insertDataLabels({ showValues: chart.showValues })}
         ${dataShapeProperty}
-        ${chart.labelRange ? escapeXml`<c:cat>${stringRef(chart.labelRange)}</c:cat>` : ""}
+        ${catElement(chart)}
         <!-- x-coordinate values -->
         <c:val>
           ${numberRef(dataSet.range)}
@@ -589,9 +589,7 @@ function addPyramidChart(chart: ExcelChartDefinition): XMLString {
   const firstColor = toXlsxHexColor(colors.next());
   const secondColor = toXlsxHexColor(colors.next());
   const { maxValue, majorUnit } = getPyramidChartHorizontalAxisConfig(chart.maxValue!);
-  const labelRangeEl = chart.labelRange
-    ? escapeXml`<c:cat>${stringRef(chart.labelRange)}</c:cat>`
-    : "";
+  const labelRangeEl = catElement(chart);
   const leftBarDataSetNode: XMLString = escapeXml/*xml*/ `
   <c:ser>
     <c:idx val="0"/>
@@ -621,7 +619,7 @@ function addPyramidChart(chart: ExcelChartDefinition): XMLString {
       backgroundColor: secondColor,
       line: { color: secondColor },
     })}
-    ${chart.labelRange ? escapeXml/*xml*/ `<c:cat>${stringRef(chart.labelRange)}</c:cat>` : ""}
+    ${labelRangeEl}
     <!-- x-coordinate values -->
     <c:val>
       ${numberRef(rightDataSet.range)}
@@ -743,9 +741,7 @@ function addLineChart(chart: ExcelChartDefinition): XMLString {
         ${extractDataSetLabel(dataset.label)}
         ${insertDataLabels({ showValues: chart.showValues })}
         ${dataShapeProperty}
-        ${
-          chart.labelRange ? escapeXml`<c:cat>${stringRef(chart.labelRange!)}</c:cat>` : ""
-        } <!-- x-coordinate values -->
+        ${catElement(chart)} <!-- x-coordinate values -->
         <c:val> <!-- x-coordinate values -->
           ${numberRef(dataset.range)}
         </c:val>
@@ -841,9 +837,9 @@ function addScatterChart(chart: ExcelChartDefinition): XMLString {
         ${extractDataSetLabel(dataset.label)}
         ${insertDataLabels({ showValues: chart.showValues })}
         ${
-          chart.labelRange
+          chart.labelRanges?.[0]
             ? escapeXml/*xml*/ `<c:xVal> <!-- x-coordinate values -->
-              ${numberRef(chart.labelRange)}
+              ${numberRef(chart.labelRanges[0])}
             </c:xVal>`
             : ""
         }
@@ -937,9 +933,7 @@ function addRadarChart(chart: ExcelChartDefinition): XMLString {
         ${extractDataSetLabel(dataset.label)}
         ${insertDataLabels({ showValues: chart.showValues })}
         ${dataShapeProperty}
-        ${
-          chart.labelRange ? escapeXml`<c:cat>${stringRef(chart.labelRange!)}</c:cat>` : ""
-        } <!-- x-coordinate values -->
+        ${catElement(chart)} <!-- x-coordinate values -->
         <c:val> <!-- x-coordinate values -->
           ${numberRef(dataset.range)}
         </c:val>
@@ -1000,7 +994,7 @@ function addDoughnutChart(
         ${extractDataSetLabel(dataset.label)}
         ${joinXmlNodes(dataPoints)}
         ${insertDataLabels({ showLeaderLines: true, showValues: chart.showValues })}
-        ${chart.labelRange ? escapeXml`<c:cat>${stringRef(chart.labelRange!)}</c:cat>` : ""}
+        ${catElement(chart)}
         <c:val>
           ${numberRef(dataset.range)}
         </c:val>
@@ -1114,6 +1108,64 @@ function stringRef(reference: string): XMLString {
       <c:f>${reference}</c:f>
     </c:strRef>
   `;
+}
+
+function multiLvlStringRef(mergedRange: string): XMLString {
+  return escapeXml/*xml*/ `
+    <c:multiLvlStrRef>
+      <c:f>${mergedRange}</c:f>
+    </c:multiLvlStrRef>
+  `;
+}
+
+/**
+ * Try to merge multiple label range strings (e.g. ["Sheet1!A2:A10", "Sheet1!B2:B10"])
+ * into a single rectangular range ("Sheet1!A2:B10") for Excel multi-level categories.
+ * Returns undefined if ranges cannot be merged (different sheets, different row bounds, etc.)
+ */
+function tryMergeLabelRanges(ranges: string[]): string | undefined {
+  if (ranges.length <= 1) {
+    return ranges[0];
+  }
+  const parsed = ranges.map((r) => {
+    try {
+      const { sheetName, xc } = splitReference(r);
+      const zone = toZone(xc);
+      return { sheetName, zone };
+    } catch {
+      return undefined;
+    }
+  });
+  if (parsed.some((p) => p === undefined)) {
+    return undefined;
+  }
+  const sheetName = parsed[0]!.sheetName;
+  if (!parsed.every((p) => p!.sheetName === sheetName)) {
+    return undefined;
+  }
+  const topRow = parsed[0]!.zone.top;
+  const bottomRow = parsed[0]!.zone.bottom;
+  if (!parsed.every((p) => p!.zone.top === topRow && p!.zone.bottom === bottomRow)) {
+    return undefined;
+  }
+  const leftCol = Math.min(...parsed.map((p) => p!.zone.left));
+  const rightCol = Math.max(...parsed.map((p) => p!.zone.right));
+  const mergedXc = zoneToXc({ top: topRow, left: leftCol, bottom: bottomRow, right: rightCol });
+  return sheetName ? `${sheetName}!${mergedXc}` : mergedXc;
+}
+
+function catElement(chart: ExcelChartDefinition): XMLString {
+  const ranges = chart.labelRanges ?? [];
+  if (ranges.length === 0) {
+    return escapeXml``;
+  }
+  if (ranges.length > 1) {
+    const merged = tryMergeLabelRanges(ranges);
+    if (merged) {
+      return escapeXml/*xml*/ `<c:cat>${multiLvlStringRef(merged)}</c:cat>`;
+    }
+  }
+  return escapeXml/*xml*/ `<c:cat>${stringRef(ranges[0])}</c:cat>`;
 }
 
 function numberRef(reference: string): XMLString {

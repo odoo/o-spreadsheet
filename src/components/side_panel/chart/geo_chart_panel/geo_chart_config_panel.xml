@@ -13,18 +13,19 @@
         onSelectionConfirmed.bind="onDataSeriesConfirmed"
         onSelectionReordered.bind="onDataSeriesReordered"
         onSelectionRemoved.bind="onDataSeriesRemoved"
-        maxNumberOfUsedRanges="maxNumberOfUsedRanges"
+        maxNumberOfUsedRanges="maxNumberOfUsedDataRanges"
         canChangeDatasetOrientation="canChangeDatasetOrientation"
         datasetOrientation="datasetOrientation"
         onFlipAxis.bind="setDatasetOrientation"
       />
       <ChartLabelRange
-        range="this.getLabelRange()"
+        ranges="this.getLabelRanges()"
         isInvalid="isLabelInvalid"
         onSelectionChanged="(ranges) => this.onLabelRangeChanged(ranges)"
         onSelectionConfirmed="() => this.onLabelRangeConfirmed()"
         options="this.getLabelRangeOptions()"
         title.translate="Territories"
+        maxNumberOfUsedRanges="maxNumberOfUsedLabelRanges"
       />
 
       <ChartErrorSection t-if="errorMessages.length" messages="errorMessages"/>

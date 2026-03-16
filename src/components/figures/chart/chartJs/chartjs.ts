@@ -18,6 +18,7 @@ import {
   getFunnelChartController,
   getFunnelChartElement,
 } from "./chartjs_funnel_chart";
+import { chartGroupedLabelsPlugin } from "./chartjs_grouped_labels_plugin";
 import { chartMinorGridPlugin } from "./chartjs_minor_grid_plugin";
 import { chartShowValuesPlugin } from "./chartjs_show_values_plugin";
 import { sunburstHoverPlugin } from "./chartjs_sunburst_hover_plugin";
@@ -78,6 +79,10 @@ chartJsExtensionRegistry.add("zoomWindowPlugin", {
 chartJsExtensionRegistry.add("chartBackgroundPlugin", {
   register: (Chart) => Chart.register(chartBackgroundPlugin),
   unregister: (Chart) => Chart.unregister(chartBackgroundPlugin),
+});
+chartJsExtensionRegistry.add("chartGroupedLabelsPlugin", {
+  register: (Chart) => Chart.register(chartGroupedLabelsPlugin),
+  unregister: (Chart) => Chart.unregister(chartGroupedLabelsPlugin),
 });
 
 export class ChartJsComponent extends Component<Props, SpreadsheetChildEnv> {

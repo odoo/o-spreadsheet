@@ -91,6 +91,7 @@ chartRegistry.add("pie", {
   transformDefinition: PieChart.transformDefinition,
   getChartDefinitionFromContextCreation: PieChart.getDefinitionFromContextCreation,
   sequence: 30,
+  labelRangesLimit: 1,
 });
 chartRegistry.add("scorecard", {
   match: (type) => type === "scorecard",
@@ -142,6 +143,7 @@ chartRegistry.add("pyramid", {
   getChartDefinitionFromContextCreation: PyramidChart.getDefinitionFromContextCreation,
   sequence: 80,
   dataSeriesLimit: 2,
+  labelRangesLimit: 1,
 });
 chartRegistry.add("radar", {
   match: (type) => type === "radar",
@@ -152,6 +154,7 @@ chartRegistry.add("radar", {
   transformDefinition: RadarChart.transformDefinition,
   getChartDefinitionFromContextCreation: RadarChart.getDefinitionFromContextCreation,
   sequence: 80,
+  labelRangesLimit: 1,
 });
 chartRegistry.add("geo", {
   match: (type) => type === "geo",
@@ -163,6 +166,7 @@ chartRegistry.add("geo", {
   getChartDefinitionFromContextCreation: GeoChart.getDefinitionFromContextCreation,
   sequence: 90,
   dataSeriesLimit: 1,
+  labelRangesLimit: 1,
 });
 chartRegistry.add("funnel", {
   match: (type) => type === "funnel",
@@ -174,6 +178,7 @@ chartRegistry.add("funnel", {
   getChartDefinitionFromContextCreation: FunnelChart.getDefinitionFromContextCreation,
   sequence: 100,
   dataSeriesLimit: 1,
+  labelRangesLimit: 1,
 });
 chartRegistry.add("sunburst", {
   match: (type) => type === "sunburst",
@@ -207,6 +212,7 @@ chartRegistry.add("calendar", {
   getChartDefinitionFromContextCreation: CalendarChart.getDefinitionFromContextCreation,
   sequence: 110,
   dataSeriesLimit: 1,
+  labelRangesLimit: 1,
 });
 
 chartSubtypeRegistry

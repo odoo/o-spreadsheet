@@ -64,7 +64,11 @@ export type ChartDefinition =
 
 export type ChartWithDataSetDefinition = Extract<
   ChartDefinition,
-  { dataSets: CustomizedDataSet[]; labelRange?: string; humanize?: boolean }
+  {
+    dataSets: CustomizedDataSet[];
+    labelRanges?: string[];
+    humanize?: boolean;
+  }
 >;
 
 export type ChartWithColorScaleDefinition = Extract<
@@ -100,6 +104,8 @@ export type ChartRuntime = ChartJSRuntime | ScorecardChartRuntime | GaugeChartRu
 export interface LabelValues {
   readonly values: string[];
   readonly formattedValues: string[];
+  readonly secondaryFormattedValues?: string[][];
+  readonly secondaryValues?: string[][];
 }
 
 export interface DatasetValues {
@@ -191,7 +197,7 @@ export interface ExcelChartDefinition {
   readonly title?: TitleDesign;
   readonly type: ExcelChartType;
   readonly dataSets: ExcelChartDataset[];
-  readonly labelRange?: string;
+  readonly labelRanges?: string[];
   readonly backgroundColor: XlsxHexColor;
   readonly fontColor: XlsxHexColor;
   readonly legendPosition: LegendPosition;
@@ -214,7 +220,7 @@ export interface ChartCreationContext {
   readonly hierarchicalRanges?: CustomizedDataSet[];
   readonly title?: TitleDesign;
   readonly background?: Color;
-  readonly auxiliaryRange?: string;
+  readonly auxiliaryRanges?: string[];
   readonly aggregated?: boolean;
   readonly stacked?: boolean;
   readonly cumulative?: boolean;
@@ -241,6 +247,7 @@ export interface ChartCreationContext {
   readonly zoomable?: boolean;
   readonly humanize?: boolean;
   readonly slicesColors?: Color[];
+  readonly groupBySecondaryLabels?: boolean;
 }
 
 export type ChartAxisFormats = { [axisId: string]: Format | undefined } | undefined;
@@ -249,6 +256,7 @@ export interface ChartRuntimeGenerationArgs {
   dataSetsValues: DatasetValues[];
   axisFormats: ChartAxisFormats;
   labels: string[];
+  secondaryLabels?: string[][];
   locale: Locale;
   trendDataSetsValues?: (Point[] | undefined)[];
   axisType?: AxisType;

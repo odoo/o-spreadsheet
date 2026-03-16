@@ -5,11 +5,11 @@ import {
   checkLabelRange,
   createDataSets,
   duplicateDataSetsInDuplicatedSheet,
-  duplicateLabelRangeInDuplicatedSheet,
   transformChartDefinitionWithDataSetsWithZone,
   updateChartRangesWithDataSets,
 } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_common";
 import { CHART_COMMON_OPTIONS } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_ui_common";
+import { isDefined } from "@odoo/o-spreadsheet-engine/helpers/misc";
 import { createValidRange } from "@odoo/o-spreadsheet-engine/helpers/range";
 import { LegendPosition } from "@odoo/o-spreadsheet-engine/types/chart";
 import {
@@ -37,7 +37,7 @@ import { getChartLayout } from "./runtime/chartjs_layout";
 
 export class GeoChart extends AbstractChart {
   readonly dataSets: DataSet[];
-  readonly labelRange?: Range | undefined;
+  readonly labelRanges: Range[];
   readonly background?: Color;
   readonly legendPosition: LegendPosition;
   readonly type = "geo";
@@ -55,7 +55,9 @@ export class GeoChart extends AbstractChart {
       sheetId,
       definition.dataSetsHaveTitle
     );
-    this.labelRange = createValidRange(getters, sheetId, definition.labelRange);
+    this.labelRanges = (definition.labelRanges || [])
+      .map((r) => createValidRange(getters, sheetId, r))
+      .filter(isDefined);
     this.background = definition.background;
     this.legendPosition = definition.legendPosition;
     this.dataSetsHaveTitle = definition.dataSetsHaveTitle;
@@ -88,7 +90,7 @@ export class GeoChart extends AbstractChart {
       legendPosition: context.legendPosition ?? "top",
       title: context.title || { text: "" },
       type: "geo",
-      labelRange: context.auxiliaryRange || undefined,
+      labelRanges: context.auxiliaryRanges,
       humanize: context.humanize,
     };
   }
@@ -104,39 +106,39 @@ export class GeoChart extends AbstractChart {
     return {
       ...this,
       range,
-      auxiliaryRange: this.labelRange
-        ? this.getters.getRangeString(this.labelRange, this.sheetId)
+      auxiliaryRanges: this.labelRanges.length
+        ? this.labelRanges.map((r) => this.getters.getRangeString(r, this.sheetId))
         : undefined,
     };
   }
 
   duplicateInDuplicatedSheet(newSheetId: UID): GeoChart {
     const dataSets = duplicateDataSetsInDuplicatedSheet(this.sheetId, newSheetId, this.dataSets);
-    const labelRange = duplicateLabelRangeInDuplicatedSheet(
-      this.sheetId,
-      newSheetId,
-      this.labelRange
-    );
-    const definition = this.getDefinitionWithSpecificDataSets(dataSets, labelRange, newSheetId);
+    const labelRanges = this.labelRanges
+      .map((r) =>
+        createValidRange(this.getters, newSheetId, this.getters.getRangeString(r, this.sheetId))
+      )
+      .filter(isDefined);
+    const definition = this.getDefinitionWithSpecificDataSets(dataSets, labelRanges, newSheetId);
     return new GeoChart(definition, newSheetId, this.getters);
   }
 
   copyInSheetId(sheetId: UID): GeoChart {
     const definition = this.getDefinitionWithSpecificDataSets(
       this.dataSets,
-      this.labelRange,
+      this.labelRanges,
       sheetId
     );
     return new GeoChart(definition, sheetId, this.getters);
   }
 
   getDefinition(): GeoChartDefinition {
-    return this.getDefinitionWithSpecificDataSets(this.dataSets, this.labelRange);
+    return this.getDefinitionWithSpecificDataSets(this.dataSets, this.labelRanges);
   }
 
   private getDefinitionWithSpecificDataSets(
     dataSets: DataSet[],
-    labelRange: Range | undefined,
+    labelRanges: Range[],
     targetSheetId?: UID
   ): GeoChartDefinition {
     const ranges: CustomizedDataSet[] = [];
@@ -152,8 +154,8 @@ export class GeoChart extends AbstractChart {
       background: this.background,
       dataSets: ranges,
       legendPosition: this.legendPosition,
-      labelRange: labelRange
-        ? this.getters.getRangeString(labelRange, targetSheetId || this.sheetId)
+      labelRanges: labelRanges.length
+        ? labelRanges.map((r) => this.getters.getRangeString(r, targetSheetId || this.sheetId))
         : undefined,
       title: this.title,
       colorScale: this.colorScale,
@@ -168,23 +170,23 @@ export class GeoChart extends AbstractChart {
   }
 
   updateRanges({ applyChange }: RangeAdapterFunctions): GeoChart {
-    const { dataSets, labelRange, isStale } = updateChartRangesWithDataSets(
+    const { dataSets, labelRanges, isStale } = updateChartRangesWithDataSets(
       this.getters,
       applyChange,
       this.dataSets,
-      this.labelRange
+      this.labelRanges
     );
     if (!isStale) {
       return this;
     }
-    const definition = this.getDefinitionWithSpecificDataSets(dataSets, labelRange);
+    const definition = this.getDefinitionWithSpecificDataSets(dataSets, labelRanges || []);
     return new GeoChart(definition, this.sheetId, this.getters);
   }
 }
 
 export function createGeoChartRuntime(chart: GeoChart, getters: Getters): GeoChartRuntime {
   const definition = chart.getDefinition();
-  const chartData = getGeoChartData(definition, chart.dataSets, chart.labelRange, getters);
+  const chartData = getGeoChartData(definition, chart.dataSets, chart.labelRanges, getters);
 
   const config: ChartConfiguration = {
     type: "choropleth",

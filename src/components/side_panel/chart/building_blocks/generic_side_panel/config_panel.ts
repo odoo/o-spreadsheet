@@ -55,14 +55,14 @@ export class GenericChartConfigPanel<
   });
 
   protected dataSets: CustomizedDataSet[] = [];
-  private labelRange: string | undefined;
+  private labelRanges: string[] = [];
   private datasetOrientation: ChartDatasetOrientation | undefined = undefined;
 
   protected chartTerms = ChartTerms;
 
   setup() {
     this.dataSets = this.props.definition.dataSets;
-    this.labelRange = this.props.definition.labelRange;
+    this.labelRanges = this.props.definition.labelRanges || [];
     this.datasetOrientation = this.computeDatasetOrientation();
   }
 
@@ -123,8 +123,8 @@ export class GenericChartConfigPanel<
     const datasetZones: Zone[] = [];
     const currentSheetName = this.env.model.getters.getActiveSheetName();
     const ranges = this.dataSets.map((ds) => ds.dataRange);
-    if (this.labelRange) {
-      ranges.push(this.labelRange);
+    if (this.labelRanges.length) {
+      ranges.push(...this.labelRanges);
     }
     for (const range of ranges) {
       if (!isXcRepresentation(range)) {
@@ -188,20 +188,20 @@ export class GenericChartConfigPanel<
     const oldDataSets = this.props.definition.dataSets;
     const dataRanges = oldDataSets.map((d) => d.dataRange);
     const dataSets = this.transposeDataSet(
-      [this.props.definition.labelRange, ...dataRanges],
+      [...(this.props.definition.labelRanges ?? []), ...dataRanges],
       datasetOrientation
     );
     if (dataSets.length === 0) {
       return;
     }
-    const labelRange = dataSets.length > 1 ? dataSets.shift()!.dataRange : "";
-
+    //TODO ANHE: Not sure it's a good idea to only take the first as label range ...
+    const labelRanges = dataSets.length > 1 ? [dataSets.shift()!.dataRange] : undefined;
     this.props.updateChart(this.props.chartId, {
-      labelRange,
+      labelRanges,
       dataSets,
     });
     this.dataSets = dataSets;
-    this.labelRange = labelRange;
+    this.labelRanges = labelRanges ?? [];
     this.datasetOrientation = datasetOrientation;
   }
 
@@ -350,21 +350,21 @@ export class GenericChartConfigPanel<
    * Change the local labelRange. The model should be updated when the
    * button "confirm" is clicked
    */
-  onLabelRangeChanged(ranges: string[]) {
-    this.labelRange = ranges[0];
+  onLabelRangeChanged(labelRanges: string[]) {
+    this.labelRanges = labelRanges;
     this.state.labelsDispatchResult = this.props.canUpdateChart(this.props.chartId, {
-      labelRange: this.labelRange,
+      labelRanges,
     });
   }
 
   onLabelRangeConfirmed() {
     this.state.labelsDispatchResult = this.props.updateChart(this.props.chartId, {
-      labelRange: this.labelRange,
+      labelRanges: this.labelRanges,
     });
   }
 
-  getLabelRange(): string {
-    return this.labelRange || "";
+  getLabelRanges(): string[] {
+    return this.labelRanges;
   }
 
   onUpdateAggregated(aggregated: boolean) {
@@ -379,7 +379,9 @@ export class GenericChartConfigPanel<
     }
     const getters = this.env.model.getters;
     const sheetId = getters.getActiveSheetId();
-    const labelRange = createValidRange(getters, sheetId, this.labelRange);
+    const labelRanges = this.labelRanges
+      ? this.labelRanges.map((r) => createValidRange(getters, sheetId, r)).filter(isDefined)
+      : [];
     const dataSets = createDataSets(
       getters,
       this.dataSets,
@@ -390,14 +392,18 @@ export class GenericChartConfigPanel<
       return this.datasetOrientation === "rows"
         ? dataSets[0].dataRange.zone.left
         : dataSets[0].dataRange.zone.top + 1;
-    } else if (labelRange) {
-      return labelRange.zone.top + 1;
+    } else if (labelRanges.length) {
+      return labelRanges[0].zone.top + 1;
     }
     return undefined;
   }
 
-  get maxNumberOfUsedRanges(): number | undefined {
+  get maxNumberOfUsedDataRanges(): number | undefined {
     return chartRegistry.get(this.props.definition.type).dataSeriesLimit;
+  }
+
+  get maxNumberOfUsedLabelRanges(): number | undefined {
+    return chartRegistry.get(this.props.definition.type).labelRangesLimit;
   }
 
   private transposeDataSet(

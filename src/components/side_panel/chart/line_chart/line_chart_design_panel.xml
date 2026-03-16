@@ -7,6 +7,15 @@
           <ChartShowValues t-props="props"/>
           <ChartShowDataMarkers t-props="props"/>
         </Section>
+        <Section t-if="hasMultipleLabelRanges" class="'pt-0'" title.translate="Label ordering">
+          <Checkbox
+            name="'groupBySecondaryLabels'"
+            label.translate="Group by secondary labels"
+            value="props.definition.groupBySecondaryLabels"
+            onChange.bind="onToggleGroupBySecondaryLabels"
+            className="'mb-2'"
+          />
+        </Section>
         <Section class="'pt-0'" title.translate="Zoom">
           <Checkbox
             name="'zoomable'"
