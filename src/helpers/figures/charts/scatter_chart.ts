@@ -7,23 +7,23 @@ import {
   checkLabelRange,
   createDataSets,
   duplicateDataSetsInDuplicatedSheet,
-  duplicateLabelRangeInDuplicatedSheet,
   getDefinedAxis,
   shouldRemoveFirstLabel,
-  toExcelDataset,
-  toExcelLabelRange,
   transformChartDefinitionWithDataSetsWithZone,
   updateChartRangesWithDataSets,
 } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_common";
 import { CHART_COMMON_OPTIONS } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_ui_common";
-import { createValidRange } from "@odoo/o-spreadsheet-engine/helpers/range";
+import { isDefined } from "@odoo/o-spreadsheet-engine/helpers/misc";
+import {
+  createValidRange,
+  duplicateRangeInDuplicatedSheet,
+} from "@odoo/o-spreadsheet-engine/helpers/range";
 import {
   AxesDesign,
   ChartCreationContext,
   CustomizedDataSet,
   DataSet,
   DatasetDesign,
-  ExcelChartDataset,
   ExcelChartDefinition,
 } from "@odoo/o-spreadsheet-engine/types/chart/chart";
 import { LegendPosition } from "@odoo/o-spreadsheet-engine/types/chart/common_chart";
@@ -35,6 +35,7 @@ import { toXlsxHexColor } from "@odoo/o-spreadsheet-engine/xlsx/helpers/colors";
 import { ChartConfiguration } from "chart.js";
 import { Color, CommandResult, Getters, Range, RangeAdapter, UID } from "../../../types";
 import {
+  getChartGroupedLabels,
   getChartShowValues,
   getChartTitle,
   getLineChartData,
@@ -47,7 +48,7 @@ import { getChartLayout } from "./runtime/chartjs_layout";
 
 export class ScatterChart extends AbstractChart {
   readonly dataSets: DataSet[];
-  readonly labelRange?: Range | undefined;
+  readonly labelRanges: Range[];
   readonly background?: Color;
   readonly legendPosition: LegendPosition;
   readonly labelsAsText: boolean;
@@ -66,7 +67,9 @@ export class ScatterChart extends AbstractChart {
       sheetId,
       definition.dataSetsHaveTitle
     );
-    this.labelRange = createValidRange(this.getters, sheetId, definition.labelRange);
+    this.labelRanges = (definition.labelRanges || [])
+      .map((r) => createValidRange(this.getters, sheetId, r))
+      .filter(isDefined);
     this.background = definition.background;
     this.legendPosition = definition.legendPosition;
     this.labelsAsText = definition.labelsAsText;
@@ -101,7 +104,7 @@ export class ScatterChart extends AbstractChart {
       legendPosition: context.legendPosition ?? "top",
       title: context.title || { text: "" },
       type: "scatter",
-      labelRange: context.auxiliaryRange || undefined,
+      labelRanges: context.auxiliaryRanges,
       aggregated: context.aggregated ?? false,
       axesDesign: context.axesDesign,
       showValues: context.showValues,
@@ -110,12 +113,12 @@ export class ScatterChart extends AbstractChart {
   }
 
   getDefinition(): ScatterChartDefinition {
-    return this.getDefinitionWithSpecificDataSets(this.dataSets, this.labelRange);
+    return this.getDefinitionWithSpecificDataSets(this.dataSets, this.labelRanges);
   }
 
   private getDefinitionWithSpecificDataSets(
     dataSets: DataSet[],
-    labelRange: Range | undefined,
+    labelRanges: Range[],
     targetSheetId?: UID
   ): ScatterChartDefinition {
     const ranges: CustomizedDataSet[] = [];
@@ -131,8 +134,8 @@ export class ScatterChart extends AbstractChart {
       background: this.background,
       dataSets: ranges,
       legendPosition: this.legendPosition,
-      labelRange: labelRange
-        ? this.getters.getRangeString(labelRange, targetSheetId || this.sheetId)
+      labelRanges: labelRanges.length
+        ? labelRanges.map((r) => this.getters.getRangeString(r, targetSheetId || this.sheetId))
         : undefined,
       title: this.title,
       labelsAsText: this.labelsAsText,
@@ -154,36 +157,33 @@ export class ScatterChart extends AbstractChart {
     return {
       ...this,
       range,
-      auxiliaryRange: this.labelRange
-        ? this.getters.getRangeString(this.labelRange, this.sheetId)
+      auxiliaryRanges: this.labelRanges.length
+        ? this.labelRanges.map((r) => this.getters.getRangeString(r, this.sheetId))
         : undefined,
     };
   }
 
   updateRanges({ applyChange }: RangeAdapterFunctions): ScatterChart {
-    const { dataSets, labelRange, isStale } = updateChartRangesWithDataSets(
+    const { dataSets, labelRanges, isStale } = updateChartRangesWithDataSets(
       this.getters,
       applyChange,
       this.dataSets,
-      this.labelRange
+      this.labelRanges
     );
     if (!isStale) {
       return this;
     }
-    const definition = this.getDefinitionWithSpecificDataSets(dataSets, labelRange);
+    const definition = this.getDefinitionWithSpecificDataSets(dataSets, labelRanges || []);
     return new ScatterChart(definition, this.sheetId, this.getters);
   }
 
   getDefinitionForExcel(): ExcelChartDefinition | undefined {
-    const dataSets: ExcelChartDataset[] = this.dataSets
-      .map((ds: DataSet) => toExcelDataset(this.getters, ds))
-      .filter((ds) => ds.range !== "");
-    const labelRange = toExcelLabelRange(
-      this.getters,
-      this.labelRange,
-      shouldRemoveFirstLabel(this.labelRange, this.dataSets[0], this.dataSetsHaveTitle)
+    const { dataSets, labelRange } = this.getCommonDataSetAttributesForExcel(
+      this.labelRanges[0],
+      this.dataSets,
+      shouldRemoveFirstLabel(this.labelRanges[0], this.dataSets[0], this.dataSetsHaveTitle)
     );
-    const definition = this.getDefinition();
+    const { labelRanges: _, ...definition } = this.getDefinition();
     return {
       ...definition,
       backgroundColor: toXlsxHexColor(this.background || BACKGROUND_CHART_COLOR),
@@ -196,19 +196,17 @@ export class ScatterChart extends AbstractChart {
 
   duplicateInDuplicatedSheet(newSheetId: UID): ScatterChart {
     const dataSets = duplicateDataSetsInDuplicatedSheet(this.sheetId, newSheetId, this.dataSets);
-    const labelRange = duplicateLabelRangeInDuplicatedSheet(
-      this.sheetId,
-      newSheetId,
-      this.labelRange
+    const labelRanges = this.labelRanges.map((r) =>
+      duplicateRangeInDuplicatedSheet(this.sheetId, newSheetId, r)
     );
-    const definition = this.getDefinitionWithSpecificDataSets(dataSets, labelRange, newSheetId);
+    const definition = this.getDefinitionWithSpecificDataSets(dataSets, labelRanges, newSheetId);
     return new ScatterChart(definition, newSheetId, this.getters);
   }
 
   copyInSheetId(sheetId: UID): ScatterChart {
     const definition = this.getDefinitionWithSpecificDataSets(
       this.dataSets,
-      this.labelRange,
+      this.labelRanges,
       sheetId
     );
     return new ScatterChart(definition, sheetId, this.getters);
@@ -220,7 +218,7 @@ export function createScatterChartRuntime(
   getters: Getters
 ): ScatterChartRuntime {
   const definition = chart.getDefinition();
-  const chartData = getLineChartData(definition, chart.dataSets, chart.labelRange, getters);
+  const chartData = getLineChartData(definition, chart.dataSets, chart.labelRanges, getters);
 
   const config: ChartConfiguration<"line"> = {
     // use chartJS line chart and disable the lines instead of chartJS scatter chart. This is because the scatter chart
@@ -240,6 +238,7 @@ export function createScatterChartRuntime(
         tooltip: getLineChartTooltip(definition, chartData),
         chartShowValuesPlugin: getChartShowValues(definition, chartData),
         background: { color: chart.background },
+        chartGroupedLabelsPlugin: getChartGroupedLabels(chartData, chart.background),
       },
     },
   };

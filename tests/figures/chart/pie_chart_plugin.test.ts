@@ -20,7 +20,7 @@ describe("pie chart", () => {
       background: "#123456",
       title: { text: "hello there" },
       dataSets: [{ dataRange: "Sheet1!B1:B4", yAxisId: "y1" }],
-      labelRange: "Sheet1!A1:A4",
+      labelRanges: ["Sheet1!A1:A4"],
       legendPosition: "bottom",
       dataSetsHaveTitle: true,
       aggregated: true,
@@ -42,7 +42,7 @@ describe("pie chart", () => {
       model,
       {
         dataSets: [{ dataRange: "Sheet1!B1:B2" }, { dataRange: "Sheet1!C1:C2" }],
-        labelRange: "Sheet1!A1:A2",
+        labelRanges: ["Sheet1!A1:A2"],
         dataSetsHaveTitle: false,
         type: "pie",
         background: "#000000",
@@ -80,7 +80,7 @@ describe("pie chart", () => {
       model,
       {
         dataSets: [{ dataRange: "B1:B2" }],
-        labelRange: "A1:A2",
+        labelRanges: ["A1:A2"],
         dataSetsHaveTitle: false,
         type: "pie",
       },

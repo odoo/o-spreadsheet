@@ -56,7 +56,7 @@ export function updateChartRangesWithDataSets(
   getters: CoreGetters,
   applyChange: ApplyRangeChange,
   chartDataSets: DataSet[],
-  chartLabelRange?: Range
+  chartLabelRanges?: Range[]
 ) {
   let isStale = false;
   const dataSetsWithUndefined: (DataSet | undefined)[] = [];
@@ -88,17 +88,23 @@ export function updateChartRangesWithDataSets(
     }
     dataSetsWithUndefined[index] = ds;
   }
-  let labelRange = chartLabelRange;
-  const range = adaptChartRange(labelRange, applyChange);
-  if (range !== labelRange) {
-    isStale = true;
-    labelRange = range;
+  const labelRanges: Range[] = [];
+  if (chartLabelRanges) {
+    for (const range of chartLabelRanges) {
+      const adapted = adaptChartRange(range, applyChange);
+      if (range !== adapted) {
+        isStale = true;
+      }
+      if (adapted) {
+        labelRanges.push(adapted);
+      }
+    }
   }
   const dataSets = dataSetsWithUndefined.filter(isDefined);
   return {
     isStale,
     dataSets,
-    labelRange,
+    labelRanges,
   };
 }
 
@@ -328,15 +334,17 @@ export function transformChartDefinitionWithDataSetsWithZone<T extends ChartWith
   definition: T,
   applyChange: RangeAdapter
 ): T {
-  let labelRange: string | undefined;
-  if (definition.labelRange) {
-    const { changeType, range: adaptedRange } = adaptStringRange(
-      chartSheetId,
-      definition.labelRange,
-      applyChange
-    );
-    if (changeType !== "REMOVE") {
-      labelRange = adaptedRange;
+  const labelRanges: string[] = [];
+  if (definition.labelRanges) {
+    for (const range of definition.labelRanges) {
+      const { changeType, range: adaptedRange } = adaptStringRange(
+        chartSheetId,
+        range,
+        applyChange
+      );
+      if (changeType !== "REMOVE") {
+        labelRanges.push(adaptedRange);
+      }
     }
   }
 
@@ -358,7 +366,7 @@ export function transformChartDefinitionWithDataSetsWithZone<T extends ChartWith
   return {
     ...definition,
     dataSets,
-    labelRange,
+    labelRanges: labelRanges.length ? labelRanges : undefined,
   };
 }
 
@@ -396,9 +404,9 @@ export function checkDataset(definition: ChartWithDataSetDefinition): CommandRes
 }
 
 export function checkLabelRange(definition: ChartWithDataSetDefinition): CommandResult {
-  if (definition.labelRange) {
-    const invalidLabels = !rangeReference.test(definition.labelRange || "");
-    if (invalidLabels) {
+  const labelRanges = definition.labelRanges || [];
+  for (const labelRange of labelRanges) {
+    if (!rangeReference.test(labelRange || "")) {
       return CommandResult.InvalidLabelRange;
     }
   }

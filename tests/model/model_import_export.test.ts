@@ -181,7 +181,7 @@ describe("Migrations", () => {
       chartId: "1",
       type: "line",
       title: { text: "demo chart" },
-      labelRange: "'My sheet'!A27:A35",
+      labelRanges: ["'My sheet'!A27:A35"],
       dataSets: [{ dataRange: "B26:B35" }, { dataRange: "C26:C35" }],
       dataSetsHaveTitle: true,
       background: BACKGROUND_CHART_COLOR,
@@ -193,7 +193,7 @@ describe("Migrations", () => {
       chartId: "2",
       type: "bar",
       title: { text: "demo chart 2" },
-      labelRange: "'My sheet'!A27:A35",
+      labelRanges: ["'My sheet'!A27:A35"],
       dataSets: [{ dataRange: "B27:B35" }, { dataRange: "C27:C35" }],
       dataSetsHaveTitle: false,
       background: BACKGROUND_CHART_COLOR,
@@ -205,7 +205,7 @@ describe("Migrations", () => {
       chartId: "3",
       type: "bar",
       title: { text: "demo chart 3" },
-      labelRange: "'My sheet'!A27",
+      labelRanges: ["'My sheet'!A27"],
       dataSets: [{ dataRange: "B26:B27" }],
       dataSetsHaveTitle: true,
       background: BACKGROUND_CHART_COLOR,
@@ -217,7 +217,7 @@ describe("Migrations", () => {
       chartId: "4",
       type: "bar",
       title: { text: "demo chart 4" },
-      labelRange: "'My sheet'!A27",
+      labelRanges: ["'My sheet'!A27"],
       dataSets: [{ dataRange: "B27" }],
       dataSetsHaveTitle: false,
       background: BACKGROUND_CHART_COLOR,
@@ -305,7 +305,7 @@ describe("Migrations", () => {
       { dataRange: "A1:A2" },
       { dataRange: "'My sheet'!A1:A2" },
     ]);
-    expect(figures[0].data?.labelRange).toBe("sheetName_!B1:B2");
+    expect(figures[0].data?.labelRanges).toEqual(["sheetName_!B1:B2"]);
 
     const cfs = data.sheets[1].conditionalFormats;
     const rule1 = cfs[0].rule as ColorScaleRule;
@@ -833,6 +833,53 @@ test("migrate version 19.1.0: colorScale is changed to a colorScale", () => {
   expect(model.getters.getChartRuntime(chartIds[1])).toBeDefined();
 });
 
+test("migrate version 19.1.1: labelRange (string) is converted to labelRanges (string[])", () => {
+  const data = {
+    version: "19.1.0",
+    sheets: [
+      {
+        id: "sh1",
+        figures: [
+          {
+            id: "chart1",
+            tag: "chart",
+            data: { type: "line", title: "with label", labelRange: "A1:A4", dataSets: [] },
+          },
+          {
+            id: "chart2",
+            tag: "chart",
+            data: { type: "bar", title: "empty label", labelRange: "", dataSets: [] },
+          },
+          {
+            id: "chart3",
+            tag: "chart",
+            data: { type: "bar", title: "no label", dataSets: [] },
+          },
+          {
+            id: "carousel1",
+            tag: "carousel",
+            data: {
+              chartDefinitions: {
+                c1: { type: "line", title: "carousel chart", labelRange: "B1:B4", dataSets: [] },
+              },
+            },
+          },
+        ],
+      },
+    ],
+  };
+  const model = new Model(data);
+  const figures = model.exportData().sheets[0].figures;
+  expect(figures[0].data.labelRanges).toEqual(["A1:A4"]);
+  expect("labelRange" in figures[0].data).toBeFalsy();
+  expect(figures[1].data.labelRanges).toBeUndefined();
+  expect("labelRange" in figures[1].data).toBeFalsy();
+  expect(figures[2].data.labelRanges).toBeUndefined();
+  expect("labelRange" in figures[2].data).toBeFalsy();
+  expect(figures[3].data.chartDefinitions["c1"].labelRanges).toEqual(["B1:B4"]);
+  expect("labelRange" in figures[3].data.chartDefinitions["c1"]).toBeFalsy();
+});
+
 describe("Import", () => {
   test("Import sheet with rows/cols size defined.", () => {
     const model = new Model({
@@ -928,7 +975,7 @@ describe("Export", () => {
               data: {
                 type: "line",
                 title: "demo chart",
-                labelRange: "A1:A4",
+                labelRanges: ["A1:A4"],
                 dataSets: [{ dataRange: "B1:B4" }, { dataRange: "C1:C4" }],
               },
             },

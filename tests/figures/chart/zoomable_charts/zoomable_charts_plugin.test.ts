@@ -52,7 +52,7 @@ describe("Zoomable chart configuration tests", () => {
       {
         type: "line",
         dataSets: [{ dataRange: "B1:B5" }],
-        labelRange: "A1:A5",
+        labelRanges: ["A1:A5"],
         axesDesign: { x: { title: { text: "axis title" } } },
       },
       "chartId"

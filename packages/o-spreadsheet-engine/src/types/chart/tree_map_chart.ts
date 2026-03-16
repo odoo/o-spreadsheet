@@ -8,7 +8,7 @@ export interface TreeMapChartDefinition {
   readonly type: "treemap";
   readonly dataSets: CustomizedDataSet[];
   readonly dataSetsHaveTitle: boolean;
-  readonly labelRange?: string;
+  readonly labelRanges?: string[];
   readonly title: TitleDesign;
   readonly background?: Color;
   readonly legendPosition: LegendPosition;

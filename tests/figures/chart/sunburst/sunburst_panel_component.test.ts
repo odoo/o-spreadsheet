@@ -39,7 +39,7 @@ describe("Sunburst chart side panel", () => {
     test("Sunburst config panel is correctly initialized", async () => {
       const chartId = createSunburstChart(model, {
         dataSets: [{ dataRange: "A1:A3" }],
-        labelRange: "B1:B3",
+        labelRanges: ["B1:B3"],
         dataSetsHaveTitle: true,
       });
       await openChartConfigSidePanel(model, env, chartId);
@@ -52,14 +52,14 @@ describe("Sunburst chart side panel", () => {
     test("Can change chart values in config side panel", async () => {
       const chartId = createSunburstChart(model, {
         dataSets: [{ dataRange: "A1:A3" }],
-        labelRange: "B1:B3",
+        labelRanges: ["B1:B3"],
         dataSetsHaveTitle: true,
       });
       await openChartConfigSidePanel(model, env, chartId);
 
       await setInputValueAndTrigger(".o-data-labels input", "C1:C3");
       await simulateClick(".o-data-labels .o-selection-ok");
-      expect(getSunburstDefinition(chartId)?.labelRange).toEqual("C1:C3");
+      expect(getSunburstDefinition(chartId)?.labelRanges?.[0]).toEqual("C1:C3");
 
       await setInputValueAndTrigger(".o-data-series input", "B1:B3");
       await simulateClick(".o-data-series .o-selection-ok");
@@ -158,7 +158,7 @@ describe("Sunburst chart side panel", () => {
       setGrid(model, { A2: "G1", A3: "G2", B2: "30", B3: "20" });
       const chartId = createSunburstChart(model, {
         dataSets: [{ dataRange: "A1:A3" }],
-        labelRange: "B1:B3",
+        labelRanges: ["B1:B3"],
         groupColors: [undefined, "#00FF00"],
       });
       await openChartDesignSidePanel(model, env, fixture, chartId);

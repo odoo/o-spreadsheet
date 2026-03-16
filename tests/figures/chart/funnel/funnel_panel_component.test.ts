@@ -30,7 +30,7 @@ describe("Funnel chart side panel", () => {
     test("Funnel config panel is correctly initialized", async () => {
       const chartId = createFunnelChart(model, {
         dataSets: [{ dataRange: "A1:A3" }],
-        labelRange: "B1:B3",
+        labelRanges: ["B1:B3"],
         dataSetsHaveTitle: true,
         aggregated: true,
         cumulative: true,
@@ -103,7 +103,7 @@ describe("Funnel chart side panel", () => {
       setCellContent(model, "B3", "60");
       const chartId = createFunnelChart(model, {
         dataSets: [{ dataRange: "B1:B3" }],
-        labelRange: "A1:A3",
+        labelRanges: ["A1:A3"],
         title: { text: "My Funnel chart" },
         showValues: true,
       });

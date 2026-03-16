@@ -30,7 +30,7 @@ describe("radar chart", () => {
       background: "#123456",
       title: { text: "hello there" },
       dataSets: [{ dataRange: "Sheet1!B1:B4", yAxisId: "y1" }],
-      labelRange: "Sheet1!A1:A4",
+      labelRanges: ["Sheet1!A1:A4"],
       legendPosition: "bottom",
       dataSetsHaveTitle: true,
       aggregated: true,
@@ -69,7 +69,7 @@ describe("radar chart", () => {
           { dataRange: "Sheet1!A1:A2", backgroundColor: "#f00", label: "serie_1" },
           { dataRange: "Sheet1!A3:A4", backgroundColor: "#00f", label: "serie_2" },
         ],
-        labelRange: "Sheet1!A2:A4",
+        labelRanges: ["Sheet1!A2:A4"],
         type: "radar",
       },
       "1"
@@ -167,7 +167,7 @@ test("Humanization is taken into account for the axis ticks of a radar chart", a
     model,
     {
       type: "radar",
-      labelRange: "A2",
+      labelRanges: ["A2"],
       dataSets: [{ dataRange: "B2" }],
       humanize: false,
     },

@@ -11,7 +11,7 @@
         canChangeDatasetOrientation="false"
       />
       <ChartLabelRange
-        range="this.getLabelRange()"
+        ranges="this.getLabelRanges()"
         isInvalid="isLabelInvalid"
         onSelectionChanged.bind="onLabelRangeChanged"
         onSelectionConfirmed.bind="onLabelRangeConfirmed"

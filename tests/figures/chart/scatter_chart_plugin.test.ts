@@ -20,7 +20,7 @@ describe("scatter chart", () => {
       background: "#123456",
       title: { text: "hello there" },
       dataSets: [{ dataRange: "Sheet1!B1:B4", yAxisId: "y1" }],
-      labelRange: "Sheet1!A1:A4",
+      labelRanges: ["Sheet1!A1:A4"],
       legendPosition: "bottom",
       dataSetsHaveTitle: true,
       labelsAsText: true,
@@ -44,7 +44,7 @@ describe("scatter chart", () => {
       model,
       {
         type: "scatter",
-        labelRange: "A2:A3",
+        labelRanges: ["A2:A3"],
         dataSets: [{ dataRange: "B2:B3", yAxisId: "y" }],
         labelsAsText: false,
       },

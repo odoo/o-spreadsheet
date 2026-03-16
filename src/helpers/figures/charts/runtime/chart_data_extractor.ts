@@ -53,13 +53,13 @@ import { timeFormatLuxonCompatible } from "../../../chart_date";
 export function getBarChartData(
   definition: GenericDefinition<BarChartDefinition>,
   dataSets: DataSet[],
-  labelRange: Range | undefined,
+  labelRanges: Range[],
   getters: Getters
 ): ChartRuntimeGenerationArgs {
-  const labelValues = getChartLabelValues(getters, dataSets, labelRange);
+  const labelValues = getChartLabelValues(getters, dataSets, labelRanges);
   let labels = labelValues.formattedValues;
   let dataSetsValues = getChartDatasetValues(getters, dataSets);
-  if (shouldRemoveFirstLabel(labelRange, dataSets[0], definition.dataSetsHaveTitle || false)) {
+  if (shouldRemoveFirstLabel(labelRanges[0], dataSets[0], definition.dataSetsHaveTitle || false)) {
     labels.shift();
   }
 
@@ -183,13 +183,13 @@ function computeValuesAndLabels(
 export function getCalendarChartData(
   definition: GenericDefinition<CalendarChartDefinition>,
   dataSets: DataSet[],
-  labelRange: Range | undefined,
+  labelRanges: Range[],
   getters: Getters
 ): ChartRuntimeGenerationArgs {
-  const labelValues = getChartLabelValues(getters, dataSets, labelRange);
+  const labelValues = getChartLabelValues(getters, dataSets, labelRanges);
   let labels = labelValues.values;
   let dataSetsValues = getChartDatasetValues(getters, dataSets);
-  if (shouldRemoveFirstLabel(labelRange, dataSets[0], definition.dataSetsHaveTitle || false)) {
+  if (shouldRemoveFirstLabel(labelRanges[0], dataSets[0], definition.dataSetsHaveTitle || false)) {
     labels.shift();
   }
 
@@ -219,10 +219,10 @@ export function getCalendarChartData(
 export function getPyramidChartData(
   definition: PyramidChartDefinition,
   dataSets: DataSet[],
-  labelRange: Range | undefined,
+  labelRanges: Range[],
   getters: Getters
 ): ChartRuntimeGenerationArgs {
-  const barChartData = getBarChartData(definition, dataSets.slice(0, 2), labelRange, getters);
+  const barChartData = getBarChartData(definition, dataSets.slice(0, 2), labelRanges, getters);
   const barDataset = barChartData.dataSetsValues.filter((ds) => !ds.hidden);
 
   const pyramidDatasetValues: DatasetValues[] = [];
@@ -244,15 +244,15 @@ export function getPyramidChartData(
 export function getLineChartData(
   definition: GenericDefinition<LineChartDefinition>,
   dataSets: DataSet[],
-  labelRange: Range | undefined,
+  labelRanges: Range[],
   getters: Getters
 ): ChartRuntimeGenerationArgs {
-  const axisType = getChartAxisType(definition, dataSets, labelRange, getters);
-  const labelValues = getChartLabelValues(getters, dataSets, labelRange);
+  const axisType = getChartAxisType(definition, dataSets, labelRanges, getters);
+  const labelValues = getChartLabelValues(getters, dataSets, labelRanges);
   let labels = axisType === "linear" ? labelValues.values : labelValues.formattedValues;
   let dataSetsValues = getChartDatasetValues(getters, dataSets);
   const removeFirstLabel = shouldRemoveFirstLabel(
-    labelRange,
+    labelRanges[0],
     dataSets[0],
     definition.dataSetsHaveTitle || false
   );
@@ -273,7 +273,7 @@ export function getLineChartData(
 
   const leftAxisFormat = getChartDatasetFormat(getters, dataSets, "left");
   const rightAxisFormat = getChartDatasetFormat(getters, dataSets, "right");
-  const labelsFormat = getChartLabelFormat(getters, labelRange, removeFirstLabel);
+  const labelsFormat = getChartLabelFormat(getters, labelRanges[0], removeFirstLabel);
   const axisFormats = { y: leftAxisFormat, y1: rightAxisFormat, x: labelsFormat };
 
   const trendDataSetsValues: (Point[] | undefined)[] = [];
@@ -304,13 +304,13 @@ export function getLineChartData(
 export function getPieChartData(
   definition: GenericDefinition<PieChartDefinition>,
   dataSets: DataSet[],
-  labelRange: Range | undefined,
+  labelRanges: Range[],
   getters: Getters
 ): ChartRuntimeGenerationArgs {
-  const labelValues = getChartLabelValues(getters, dataSets, labelRange);
+  const labelValues = getChartLabelValues(getters, dataSets, labelRanges);
   let labels = labelValues.formattedValues;
   let dataSetsValues = getChartDatasetValues(getters, dataSets);
-  if (shouldRemoveFirstLabel(labelRange, dataSets[0], definition.dataSetsHaveTitle || false)) {
+  if (shouldRemoveFirstLabel(labelRanges[0], dataSets[0], definition.dataSetsHaveTitle || false)) {
     labels.shift();
   }
 
@@ -336,13 +336,13 @@ export function getPieChartData(
 export function getRadarChartData(
   definition: GenericDefinition<RadarChartDefinition>,
   dataSets: DataSet[],
-  labelRange: Range | undefined,
+  labelRanges: Range[],
   getters: Getters
 ): ChartRuntimeGenerationArgs {
-  const labelValues = getChartLabelValues(getters, dataSets, labelRange);
+  const labelValues = getChartLabelValues(getters, dataSets, labelRanges);
   let labels = labelValues.formattedValues;
   let dataSetsValues = getChartDatasetValues(getters, dataSets);
-  if (shouldRemoveFirstLabel(labelRange, dataSets[0], definition.dataSetsHaveTitle || false)) {
+  if (shouldRemoveFirstLabel(labelRanges[0], dataSets[0], definition.dataSetsHaveTitle || false)) {
     labels.shift();
   }
 
@@ -367,13 +367,13 @@ export function getRadarChartData(
 export function getGeoChartData(
   definition: GeoChartDefinition,
   fullDataSets: DataSet[],
-  labelRange: Range | undefined,
+  labelRanges: Range[],
   getters: Getters
 ): GeoChartRuntimeGenerationArgs {
   const dataSets = fullDataSets.slice(0, 1);
-  const labelValues = getChartLabelValues(getters, dataSets, labelRange);
+  const labelValues = getChartLabelValues(getters, dataSets, labelRanges);
   let labels = labelValues.formattedValues;
-  if (shouldRemoveFirstLabel(labelRange, dataSets[0], definition.dataSetsHaveTitle || false)) {
+  if (shouldRemoveFirstLabel(labelRanges[0], dataSets[0], definition.dataSetsHaveTitle || false)) {
     labels.shift();
   }
   let dataSetsValues = getChartDatasetValues(getters, dataSets);
@@ -397,13 +397,13 @@ export function getGeoChartData(
 export function getFunnelChartData(
   definition: GenericDefinition<FunnelChartDefinition>,
   dataSets: DataSet[],
-  labelRange: Range | undefined,
+  labelRanges: Range[],
   getters: Getters
 ): ChartRuntimeGenerationArgs {
-  const labelValues = getChartLabelValues(getters, dataSets, labelRange);
+  const labelValues = getChartLabelValues(getters, dataSets, labelRanges);
   let labels = labelValues.formattedValues;
   let dataSetsValues = getChartDatasetValues(getters, dataSets);
-  if (shouldRemoveFirstLabel(labelRange, dataSets[0], definition.dataSetsHaveTitle || false)) {
+  if (shouldRemoveFirstLabel(labelRanges[0], dataSets[0], definition.dataSetsHaveTitle || false)) {
     labels.shift();
   }
 
@@ -430,14 +430,14 @@ export function getFunnelChartData(
 export function getHierarchalChartData(
   definition: SunburstChartDefinition | TreeMapChartDefinition,
   dataSets: DataSet[],
-  labelRange: Range | undefined,
+  labelRanges: Range[],
   getters: Getters
 ): ChartRuntimeGenerationArgs {
   // In hierarchical charts, labels are the leaf values (numbers), and the hierarchy is defined in the dataSets (strings)
-  let labels = getChartLabelValues(getters, dataSets, labelRange).values;
+  let labels = getChartLabelValues(getters, dataSets, labelRanges).values;
   let dataSetsValues = getHierarchicalDatasetValues(getters, dataSets);
   const removeFirstLabel = shouldRemoveFirstLabel(
-    labelRange,
+    labelRanges[0],
     dataSets[0],
     definition.dataSetsHaveTitle || false
   );
@@ -449,7 +449,7 @@ export function getHierarchalChartData(
 
   return {
     dataSetsValues,
-    axisFormats: { y: getChartLabelFormat(getters, labelRange, removeFirstLabel) },
+    axisFormats: { y: getChartLabelFormat(getters, labelRanges[0], removeFirstLabel) },
     labels,
     locale: getters.getLocale(),
   };
@@ -632,60 +632,69 @@ function normalizeLabels(
   return { normalizedLabels, normalizedNewLabels };
 }
 
-function getChartAxisType(
-  definition: GenericDefinition<LineChartDefinition>,
-  dataSets: DataSet[],
-  labelRange: Range | undefined,
-  getters: Getters
-): AxisType {
-  if (isDateChart(definition, dataSets, labelRange, getters) && isLuxonTimeAdapterInstalled()) {
-    return "time";
-  }
-  if (isLinearChart(definition, dataSets, labelRange, getters)) {
-    return "linear";
-  }
-  return "category";
-}
-
 function isDateChart(
   definition: GenericDefinition<LineChartDefinition>,
   dataSets: DataSet[],
-  labelRange: Range | undefined,
+  labelRanges: Range[],
   getters: Getters
 ): boolean {
-  return !definition.labelsAsText && canBeDateChart(definition, dataSets, labelRange, getters);
+  return (
+    !definition.labelsAsText &&
+    labelRanges.length === 1 &&
+    canBeDateChart(definition, dataSets, labelRanges, getters)
+  );
 }
 
 function isLinearChart(
   definition: GenericDefinition<LineChartDefinition>,
   dataSets: DataSet[],
-  labelRange: Range | undefined,
+  labelRanges: Range[],
   getters: Getters
 ): boolean {
-  return !definition.labelsAsText && canBeLinearChart(definition, dataSets, labelRange, getters);
+  return (
+    !definition.labelsAsText &&
+    labelRanges.length === 1 &&
+    canBeLinearChart(definition, dataSets, labelRanges, getters)
+  );
+}
+
+export function getChartAxisType(
+  definition: GenericDefinition<LineChartDefinition>,
+  dataSets: DataSet[],
+  labelRanges: Range[],
+  getters: Getters
+): AxisType {
+  if (isDateChart(definition, dataSets, labelRanges, getters) && isLuxonTimeAdapterInstalled()) {
+    return "time";
+  }
+  if (isLinearChart(definition, dataSets, labelRanges, getters)) {
+    return "linear";
+  }
+  return "category";
 }
 
 export function canChartParseLabels(
   definition: GenericDefinition<LineChartDefinition>,
   dataSets: DataSet[],
-  labelRange: Range | undefined,
+  labelRanges: Range[],
   getters: Getters
 ): boolean {
   return (
-    canBeDateChart(definition, dataSets, labelRange, getters) ||
-    canBeLinearChart(definition, dataSets, labelRange, getters)
+    canBeDateChart(definition, dataSets, labelRanges, getters) ||
+    canBeLinearChart(definition, dataSets, labelRanges, getters)
   );
 }
 
 function canBeDateChart(
   definition: GenericDefinition<LineChartDefinition>,
   dataSets: DataSet[],
-  labelRange: Range | undefined,
+  labelRanges: Range[],
   getters: Getters
 ): boolean {
-  if (!labelRange || !canBeLinearChart(definition, dataSets, labelRange, getters)) {
+  if (labelRanges.length !== 1 || !canBeLinearChart(definition, dataSets, labelRanges, getters)) {
     return false;
   }
+  const labelRange = labelRanges[0];
   const removeFirstLabel = shouldRemoveFirstLabel(
     labelRange,
     dataSets[0],
@@ -698,13 +707,14 @@ function canBeDateChart(
 function canBeLinearChart(
   definition: GenericDefinition<LineChartDefinition>,
   dataSets: DataSet[],
-  labelRange: Range | undefined,
+  labelRanges: Range[],
   getters: Getters
 ): boolean {
-  if (!labelRange) {
+  if (labelRanges.length !== 1) {
     return false;
   }
 
+  const labelRange = labelRanges[0];
   const labels = getters.getRangeValues(labelRange);
   if (shouldRemoveFirstLabel(labelRange, dataSets[0], definition.dataSetsHaveTitle || false)) {
     labels.shift();
@@ -972,19 +982,56 @@ export function getChartLabelFormat(
 function getChartLabelValues(
   getters: Getters,
   dataSets: DataSet[],
-  labelRange: Range | undefined
+  labelRanges: Range[]
 ): LabelValues {
-  if (labelRange) {
-    const { left } = labelRange.zone;
-    if (
-      !labelRange.invalidXc &&
-      !labelRange.invalidSheetName &&
-      !getters.isColHidden(labelRange.sheetId, left)
-    ) {
-      return {
-        formattedValues: getters.getRangeFormattedValues(labelRange),
-        values: getters.getRangeValues(labelRange).map((val) => String(val ?? "")),
-      };
+  const ranges = labelRanges;
+  if (ranges.length > 0) {
+    const allFormattedValues: string[][] = [];
+    const allValues: string[][] = [];
+
+    for (const range of ranges) {
+      if (
+        range.invalidXc ||
+        range.invalidSheetName ||
+        getters.isColHidden(range.sheetId, range.zone.left)
+      ) {
+        continue;
+      }
+      allFormattedValues.push(getters.getRangeFormattedValues(range));
+      allValues.push(getters.getRangeValues(range).map((val) => String(val ?? "")));
+    }
+
+    if (allValues.length > 0) {
+      const maxLength = Math.max(...allValues.map((v) => v.length));
+      const formattedValues: any[] = [];
+      const values: any[] = [];
+      for (let i = 0; i < maxLength; i++) {
+        const fvs = allFormattedValues.map((v) => v[i] || "");
+        const vs = allValues.map((v) => v[i] || "");
+        formattedValues.push(fvs.length === 1 ? fvs[0] : fvs);
+        values.push(vs.length === 1 ? vs[0] : vs);
+      }
+      // When there are multiple label ranges, group consecutive identical secondary labels
+      // (positions >= 1): only show a parent label when its value changes, leaving it empty
+      // for subsequent rows that share the same parent. This creates a grouped category axis.
+      // We track the last *seen* value per position independently of the collapsed "" values,
+      // so that 3+ rows with the same parent are all collapsed (not just every other one).
+      if (allValues.length > 1) {
+        const lastSeenFormatted: (string | null)[] = Array(allFormattedValues.length).fill(null);
+        for (let i = 0; i < formattedValues.length; i++) {
+          const currRow = formattedValues[i] as string[];
+          const currValues = values[i] as string[];
+          for (let j = 1; j < currRow.length; j++) {
+            if (currRow[j] === lastSeenFormatted[j]) {
+              currRow[j] = "";
+              currValues[j] = "";
+            } else {
+              lastSeenFormatted[j] = currRow[j];
+            }
+          }
+        }
+      }
+      return { formattedValues, values };
     }
   }
   if (dataSets[0]) {

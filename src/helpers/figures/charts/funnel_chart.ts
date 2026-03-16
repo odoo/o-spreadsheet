@@ -5,11 +5,11 @@ import {
   checkLabelRange,
   createDataSets,
   duplicateDataSetsInDuplicatedSheet,
-  duplicateLabelRangeInDuplicatedSheet,
   transformChartDefinitionWithDataSetsWithZone,
   updateChartRangesWithDataSets,
 } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_common";
 import { CHART_COMMON_OPTIONS } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_ui_common";
+import { isDefined } from "@odoo/o-spreadsheet-engine/helpers/misc";
 import { createValidRange } from "@odoo/o-spreadsheet-engine/helpers/range";
 import {
   FunnelChartColors,
@@ -39,7 +39,7 @@ import { getChartLayout } from "./runtime/chartjs_layout";
 
 export class FunnelChart extends AbstractChart {
   readonly dataSets: DataSet[];
-  readonly labelRange?: Range | undefined;
+  readonly labelRanges: Range[];
   readonly background?: Color;
   readonly legendPosition: LegendPosition;
   readonly aggregated?: boolean;
@@ -60,7 +60,9 @@ export class FunnelChart extends AbstractChart {
       sheetId,
       definition.dataSetsHaveTitle
     );
-    this.labelRange = createValidRange(getters, sheetId, definition.labelRange);
+    this.labelRanges = (definition.labelRanges || [])
+      .map((r) => createValidRange(getters, sheetId, r))
+      .filter(isDefined);
     this.background = definition.background;
     this.legendPosition = definition.legendPosition;
     this.aggregated = definition.aggregated;
@@ -97,7 +99,7 @@ export class FunnelChart extends AbstractChart {
       legendPosition: "none",
       title: context.title || { text: "" },
       type: "funnel",
-      labelRange: context.auxiliaryRange || undefined,
+      labelRanges: context.auxiliaryRanges,
       showValues: context.showValues,
       axesDesign: context.axesDesign,
       funnelColors: context.funnelColors,
@@ -118,39 +120,39 @@ export class FunnelChart extends AbstractChart {
     return {
       ...this,
       range,
-      auxiliaryRange: this.labelRange
-        ? this.getters.getRangeString(this.labelRange, this.sheetId)
+      auxiliaryRanges: this.labelRanges.length
+        ? this.labelRanges.map((r) => this.getters.getRangeString(r, this.sheetId))
         : undefined,
     };
   }
 
   duplicateInDuplicatedSheet(newSheetId: UID): FunnelChart {
     const dataSets = duplicateDataSetsInDuplicatedSheet(this.sheetId, newSheetId, this.dataSets);
-    const labelRange = duplicateLabelRangeInDuplicatedSheet(
-      this.sheetId,
-      newSheetId,
-      this.labelRange
-    );
-    const definition = this.getDefinitionWithSpecificDataSets(dataSets, labelRange, newSheetId);
+    const labelRanges = this.labelRanges
+      .map((r) =>
+        createValidRange(this.getters, newSheetId, this.getters.getRangeString(r, this.sheetId))
+      )
+      .filter(isDefined);
+    const definition = this.getDefinitionWithSpecificDataSets(dataSets, labelRanges, newSheetId);
     return new FunnelChart(definition, newSheetId, this.getters);
   }
 
   copyInSheetId(sheetId: UID): FunnelChart {
     const definition = this.getDefinitionWithSpecificDataSets(
       this.dataSets,
-      this.labelRange,
+      this.labelRanges,
       sheetId
     );
     return new FunnelChart(definition, sheetId, this.getters);
   }
 
   getDefinition(): FunnelChartDefinition {
-    return this.getDefinitionWithSpecificDataSets(this.dataSets, this.labelRange);
+    return this.getDefinitionWithSpecificDataSets(this.dataSets, this.labelRanges);
   }
 
   private getDefinitionWithSpecificDataSets(
     dataSets: DataSet[],
-    labelRange: Range | undefined,
+    labelRanges: Range[],
     targetSheetId?: UID
   ): FunnelChartDefinition {
     const ranges: CustomizedDataSet[] = [];
@@ -166,8 +168,8 @@ export class FunnelChart extends AbstractChart {
       background: this.background,
       dataSets: ranges,
       legendPosition: this.legendPosition,
-      labelRange: labelRange
-        ? this.getters.getRangeString(labelRange, targetSheetId || this.sheetId)
+      labelRanges: labelRanges.length
+        ? labelRanges.map((r) => this.getters.getRangeString(r, targetSheetId || this.sheetId))
         : undefined,
       title: this.title,
       aggregated: this.aggregated,
@@ -185,23 +187,23 @@ export class FunnelChart extends AbstractChart {
   }
 
   updateRanges({ applyChange }: RangeAdapterFunctions): FunnelChart {
-    const { dataSets, labelRange, isStale } = updateChartRangesWithDataSets(
+    const { dataSets, labelRanges, isStale } = updateChartRangesWithDataSets(
       this.getters,
       applyChange,
       this.dataSets,
-      this.labelRange
+      this.labelRanges
     );
     if (!isStale) {
       return this;
     }
-    const definition = this.getDefinitionWithSpecificDataSets(dataSets, labelRange);
+    const definition = this.getDefinitionWithSpecificDataSets(dataSets, labelRanges || []);
     return new FunnelChart(definition, this.sheetId, this.getters);
   }
 }
 
 export function createFunnelChartRuntime(chart: FunnelChart, getters: Getters): FunnelChartRuntime {
   const definition = chart.getDefinition();
-  const chartData = getFunnelChartData(definition, chart.dataSets, chart.labelRange, getters);
+  const chartData = getFunnelChartData(definition, chart.dataSets, chart.labelRanges, getters);
 
   const config: ChartConfiguration = {
     type: "funnel",

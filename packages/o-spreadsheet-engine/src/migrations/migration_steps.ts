@@ -576,7 +576,34 @@ migrationStepRegistry
       }
       return data;
     },
+  })
+  .add("19.1.1", {
+    // convert singular labelRange (string) to plural labelRanges (string[]) in chart definitions
+    migrate(data: WorkbookData): any {
+      for (const sheet of data.sheets ?? []) {
+        for (const figure of sheet.figures ?? []) {
+          if (figure.tag === "chart") {
+            migrateChartData(figure.data);
+          }
+          if (figure.tag === "carousel") {
+            for (const definition of Object.values<any>(figure.data.chartDefinitions) ?? []) {
+              migrateChartData(definition);
+            }
+          }
+        }
+      }
+      return data;
+    },
   });
+
+function migrateChartData(chartData: any) {
+  if ("labelRange" in chartData) {
+    if (chartData.labelRange) {
+      chartData.labelRanges = [chartData.labelRange];
+    }
+    delete chartData.labelRange;
+  }
+}
 
 function fixOverlappingFilters(data: any): any {
   for (const sheet of data.sheets || []) {

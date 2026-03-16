@@ -1,4 +1,5 @@
 import { toJsDate } from "@odoo/o-spreadsheet-engine/functions/helpers";
+import { isDefined } from "@odoo/o-spreadsheet-engine/helpers/misc";
 import { ALL_PERIODS } from "@odoo/o-spreadsheet-engine/helpers/pivot/pivot_helpers";
 import {
   CALENDAR_CHART_GRANULARITIES,
@@ -48,15 +49,13 @@ export class CalendarChartConfigPanel extends GenericChartConfigPanel<
     if (dataSets.length === 0) {
       return [];
     }
-    const labelRange = createValidRange(
-      this.env.model.getters,
-      sheetId,
-      this.props.definition.labelRange
-    );
+    const labelRanges = (this.props.definition.labelRanges || [])
+      .map((r) => createValidRange(this.env.model.getters, sheetId, r))
+      .filter(isDefined);
     const data = getBarChartData(
       this.props.definition,
       dataSets,
-      labelRange,
+      labelRanges,
       this.env.model.getters
     );
     const labels = data.labels.filter((l) => isDateTime(l, DEFAULT_LOCALE));

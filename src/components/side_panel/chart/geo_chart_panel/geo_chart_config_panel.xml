@@ -19,7 +19,7 @@
         onFlipAxis.bind="setDatasetOrientation"
       />
       <ChartLabelRange
-        range="this.getLabelRange()"
+        ranges="this.getLabelRanges()"
         isInvalid="isLabelInvalid"
         onSelectionChanged="(ranges) => this.onLabelRangeChanged(ranges)"
         onSelectionConfirmed="() => this.onLabelRangeConfirmed()"

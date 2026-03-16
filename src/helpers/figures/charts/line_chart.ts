@@ -7,14 +7,17 @@ import {
   checkLabelRange,
   createDataSets,
   duplicateDataSetsInDuplicatedSheet,
-  duplicateLabelRangeInDuplicatedSheet,
   getDefinedAxis,
   shouldRemoveFirstLabel,
   transformChartDefinitionWithDataSetsWithZone,
   updateChartRangesWithDataSets,
 } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_common";
 import { CHART_COMMON_OPTIONS } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_ui_common";
-import { createValidRange } from "@odoo/o-spreadsheet-engine/helpers/range";
+import { isDefined } from "@odoo/o-spreadsheet-engine/helpers/misc";
+import {
+  createValidRange,
+  duplicateRangeInDuplicatedSheet,
+} from "@odoo/o-spreadsheet-engine/helpers/range";
 import {
   AxesDesign,
   ChartCreationContext,
@@ -30,6 +33,7 @@ import { toXlsxHexColor } from "@odoo/o-spreadsheet-engine/xlsx/helpers/colors";
 import { ChartConfiguration } from "chart.js";
 import { Color, CommandResult, Getters, Range, RangeAdapter, UID } from "../../../types";
 import {
+  getChartGroupedLabels,
   getChartShowValues,
   getChartTitle,
   getLineChartData,
@@ -42,7 +46,7 @@ import { getChartLayout } from "./runtime/chartjs_layout";
 
 export class LineChart extends AbstractChart {
   readonly dataSets: DataSet[];
-  readonly labelRange?: Range | undefined;
+  readonly labelRanges: Range[];
   readonly background?: Color;
   readonly legendPosition: LegendPosition;
   readonly labelsAsText: boolean;
@@ -66,7 +70,9 @@ export class LineChart extends AbstractChart {
       sheetId,
       definition.dataSetsHaveTitle
     );
-    this.labelRange = createValidRange(this.getters, sheetId, definition.labelRange);
+    this.labelRanges = (definition.labelRanges || [])
+      .map((r) => createValidRange(this.getters, sheetId, r))
+      .filter(isDefined);
     this.background = definition.background;
     this.legendPosition = definition.legendPosition;
     this.labelsAsText = definition.labelsAsText;
@@ -106,7 +112,7 @@ export class LineChart extends AbstractChart {
       legendPosition: context.legendPosition ?? "top",
       title: context.title || { text: "" },
       type: "line",
-      labelRange: context.auxiliaryRange || undefined,
+      labelRanges: context.auxiliaryRanges,
       stacked: context.stacked ?? false,
       aggregated: context.aggregated ?? false,
       cumulative: context.cumulative ?? false,
@@ -120,12 +126,12 @@ export class LineChart extends AbstractChart {
   }
 
   getDefinition(): LineChartDefinition {
-    return this.getDefinitionWithSpecificDataSets(this.dataSets, this.labelRange);
+    return this.getDefinitionWithSpecificDataSets(this.dataSets, this.labelRanges);
   }
 
   private getDefinitionWithSpecificDataSets(
     dataSets: DataSet[],
-    labelRange: Range | undefined,
+    labelRanges: Range[],
     targetSheetId?: UID
   ): LineChartDefinition {
     const ranges: CustomizedDataSet[] = [];
@@ -141,8 +147,8 @@ export class LineChart extends AbstractChart {
       background: this.background,
       dataSets: ranges,
       legendPosition: this.legendPosition,
-      labelRange: labelRange
-        ? this.getters.getRangeString(labelRange, targetSheetId || this.sheetId)
+      labelRanges: labelRanges.length
+        ? labelRanges.map((r) => this.getters.getRangeString(r, targetSheetId || this.sheetId))
         : undefined,
       title: this.title,
       labelsAsText: this.labelsAsText,
@@ -169,33 +175,33 @@ export class LineChart extends AbstractChart {
     return {
       ...this,
       range,
-      auxiliaryRange: this.labelRange
-        ? this.getters.getRangeString(this.labelRange, this.sheetId)
+      auxiliaryRanges: this.labelRanges.length
+        ? this.labelRanges.map((r) => this.getters.getRangeString(r, this.sheetId))
         : undefined,
     };
   }
 
   updateRanges({ applyChange }: RangeAdapterFunctions): LineChart {
-    const { dataSets, labelRange, isStale } = updateChartRangesWithDataSets(
+    const { dataSets, labelRanges, isStale } = updateChartRangesWithDataSets(
       this.getters,
       applyChange,
       this.dataSets,
-      this.labelRange
+      this.labelRanges
     );
     if (!isStale) {
       return this;
     }
-    const definition = this.getDefinitionWithSpecificDataSets(dataSets, labelRange);
+    const definition = this.getDefinitionWithSpecificDataSets(dataSets, labelRanges || []);
     return new LineChart(definition, this.sheetId, this.getters);
   }
 
   getDefinitionForExcel(): ExcelChartDefinition | undefined {
     const { dataSets, labelRange } = this.getCommonDataSetAttributesForExcel(
-      this.labelRange,
+      this.labelRanges[0],
       this.dataSets,
-      shouldRemoveFirstLabel(this.labelRange, this.dataSets[0], this.dataSetsHaveTitle)
+      shouldRemoveFirstLabel(this.labelRanges[0], this.dataSets[0], this.dataSetsHaveTitle)
     );
-    const definition = this.getDefinition();
+    const { labelRanges: _, ...definition } = this.getDefinition();
     return {
       ...definition,
       backgroundColor: toXlsxHexColor(this.background || BACKGROUND_CHART_COLOR),
@@ -208,19 +214,17 @@ export class LineChart extends AbstractChart {
 
   duplicateInDuplicatedSheet(newSheetId: UID): LineChart {
     const dataSets = duplicateDataSetsInDuplicatedSheet(this.sheetId, newSheetId, this.dataSets);
-    const labelRange = duplicateLabelRangeInDuplicatedSheet(
-      this.sheetId,
-      newSheetId,
-      this.labelRange
+    const labelRanges = this.labelRanges.map((r) =>
+      duplicateRangeInDuplicatedSheet(this.sheetId, newSheetId, r)
     );
-    const definition = this.getDefinitionWithSpecificDataSets(dataSets, labelRange, newSheetId);
+    const definition = this.getDefinitionWithSpecificDataSets(dataSets, labelRanges, newSheetId);
     return new LineChart(definition, newSheetId, this.getters);
   }
 
   copyInSheetId(sheetId: UID): LineChart {
     const definition = this.getDefinitionWithSpecificDataSets(
       this.dataSets,
-      this.labelRange,
+      this.labelRanges,
       sheetId
     );
     return new LineChart(definition, sheetId, this.getters);
@@ -229,7 +233,7 @@ export class LineChart extends AbstractChart {
 
 export function createLineChartRuntime(chart: LineChart, getters: Getters): ChartJSRuntime {
   const definition = chart.getDefinition();
-  const chartData = getLineChartData(definition, chart.dataSets, chart.labelRange, getters);
+  const chartData = getLineChartData(definition, chart.dataSets, chart.labelRanges, getters);
 
   const config: ChartConfiguration = {
     type: "line",
@@ -247,6 +251,7 @@ export function createLineChartRuntime(chart: LineChart, getters: Getters): Char
         tooltip: getLineChartTooltip(definition, chartData),
         chartShowValuesPlugin: getChartShowValues(definition, chartData),
         background: { color: chart.background },
+        chartGroupedLabelsPlugin: getChartGroupedLabels(chartData, chart.background),
       },
     },
   };

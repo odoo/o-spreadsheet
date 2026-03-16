@@ -173,7 +173,7 @@ describe("calendar chart", () => {
       dataSets: [{ dataRange: "Sheet1!B1:B4", yAxisId: "y1" }],
       dataSetsHaveTitle: true,
       legendPosition: "left",
-      labelRange: "Sheet1!A1:A4",
+      labelRanges: ["Sheet1!A1:A4"],
       showValues: false,
       horizontalGroupBy: "day_of_week",
       verticalGroupBy: "month_number",
@@ -195,7 +195,7 @@ describe("calendar chart", () => {
         {
           type: "calendar" as const,
           dataSets: [{ dataRange: "B1:B365" }],
-          labelRange: "A1:A365",
+          labelRanges: ["A1:A365"],
           verticalGroupBy: grouping.stamp,
         },
         chartId,
@@ -222,7 +222,7 @@ describe("calendar chart", () => {
         {
           type: "calendar" as const,
           dataSets: [{ dataRange: "B1:B365" }],
-          labelRange: "A1:A365",
+          labelRanges: ["A1:A365"],
           horizontalGroupBy: grouping.stamp,
         },
         chartId,
