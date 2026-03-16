@@ -1011,6 +1011,26 @@ function getChartLabelValues(
         formattedValues.push(fvs.length === 1 ? fvs[0] : fvs);
         values.push(vs.length === 1 ? vs[0] : vs);
       }
+      // When there are multiple label ranges, group consecutive identical secondary labels
+      // (positions >= 1): only show a parent label when its value changes, leaving it empty
+      // for subsequent rows that share the same parent. This creates a grouped category axis.
+      // We track the last *seen* value per position independently of the collapsed "" values,
+      // so that 3+ rows with the same parent are all collapsed (not just every other one).
+      if (allValues.length > 1) {
+        const lastSeenFormatted: (string | null)[] = Array(allFormattedValues.length).fill(null);
+        for (let i = 0; i < formattedValues.length; i++) {
+          const currRow = formattedValues[i] as string[];
+          const currValues = values[i] as string[];
+          for (let j = 1; j < currRow.length; j++) {
+            if (currRow[j] === lastSeenFormatted[j]) {
+              currRow[j] = "";
+              currValues[j] = "";
+            } else {
+              lastSeenFormatted[j] = currRow[j];
+            }
+          }
+        }
+      }
       return { formattedValues, values };
     }
   }

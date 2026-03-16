@@ -35,6 +35,7 @@ import { toXlsxHexColor } from "@odoo/o-spreadsheet-engine/xlsx/helpers/colors";
 import { ChartConfiguration } from "chart.js";
 import { Color, CommandResult, Getters, Range, RangeAdapter, UID } from "../../../types";
 import {
+  getChartGroupedLabels,
   getChartShowValues,
   getChartTitle,
   getLineChartData,
@@ -237,6 +238,7 @@ export function createScatterChartRuntime(
         tooltip: getLineChartTooltip(definition, chartData),
         chartShowValuesPlugin: getChartShowValues(definition, chartData),
         background: { color: chart.background },
+        chartGroupedLabelsPlugin: getChartGroupedLabels(chartData, chart.background),
       },
     },
   };

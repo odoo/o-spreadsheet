@@ -57,6 +57,10 @@ exports[`datasource tests create a chart with stacked bar 1`] = `
         "background": {
           "color": undefined,
         },
+        "chartGroupedLabelsPlugin": {
+          "enabled": false,
+          "fontColor": "#000000",
+        },
         "chartShowValuesPlugin": {
           "background": [Function],
           "callback": [Function],
@@ -196,6 +200,10 @@ exports[`datasource tests create a chart with stacked bar 1`] = `
         "background": {
           "color": undefined,
         },
+        "chartGroupedLabelsPlugin": {
+          "enabled": false,
+          "fontColor": "#000000",
+        },
         "chartShowValuesPlugin": undefined,
         "legend": {
           "display": false,
@@ -327,6 +335,10 @@ exports[`datasource tests create chart with column datasets 1`] = `
       "plugins": {
         "background": {
           "color": undefined,
+        },
+        "chartGroupedLabelsPlugin": {
+          "enabled": false,
+          "fontColor": "#000000",
         },
         "chartShowValuesPlugin": {
           "background": [Function],
@@ -484,6 +496,10 @@ exports[`datasource tests create chart with column datasets 1`] = `
       "plugins": {
         "background": {
           "color": undefined,
+        },
+        "chartGroupedLabelsPlugin": {
+          "enabled": false,
+          "fontColor": "#000000",
         },
         "chartShowValuesPlugin": undefined,
         "legend": {

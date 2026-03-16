@@ -43,6 +43,7 @@ import {
   getBarChartLegend,
   getBarChartScales,
   getBarChartTooltip,
+  getChartGroupedLabels,
   getChartShowValues,
   getChartTitle,
 } from "./runtime";
@@ -244,6 +245,7 @@ export function createBarChartRuntime(chart: BarChart, getters: Getters): BarCha
         tooltip: getBarChartTooltip(definition, chartData),
         chartShowValuesPlugin: getChartShowValues(definition, chartData),
         background: { color: chart.background },
+        chartGroupedLabelsPlugin: getChartGroupedLabels(chartData, chart.background),
       },
     },
   };

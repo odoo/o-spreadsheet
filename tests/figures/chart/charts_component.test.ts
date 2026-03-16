@@ -2722,6 +2722,7 @@ test("ChartJS charts extensions are loaded when mounting a spreadsheet, are only
     "calendar", // Calendar controller
     "zoomWindowPlugin",
     "background",
+    "chartGroupedLabelsPlugin",
   ]);
 
   createChart(model, { type: "line" }, "chart2");

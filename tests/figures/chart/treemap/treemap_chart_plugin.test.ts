@@ -13,7 +13,10 @@ import {
   setFormat,
   updateChart,
 } from "../../../test_helpers";
-import { GENERAL_CHART_CREATION_CONTEXT } from "../../../test_helpers/chart_helpers";
+import {
+  GENERAL_CHART_CREATION_CONTEXT,
+  getChartConfiguration,
+} from "../../../test_helpers/chart_helpers";
 import { setGrid } from "../../../test_helpers/helpers";
 
 interface TreeMapElementCtx {
@@ -123,6 +126,52 @@ describe("TreeMap chart", () => {
       // Hierarchy is reversed: leaf (B/Quarter) first, principal (A/Year) last
       expect(definition.labelRanges).toEqual(["B1:B4", "A1:A4"]);
     }
+  });
+
+  test("Switching from TreeMap to a bar chart: secondary labels are grouped (consecutive duplicates collapsed)", () => {
+    // prettier-ignore
+    setGrid(model, {
+      A1: "Year", B1: "Quarter", C1: "Sales",
+      A2: "2024", B2: "Q1",      C2: "100",
+      A3: "2024", B3: "Q2",      C3: "200",
+      A4: "2024", B4: "Q3",      C4: "300",
+      A5: "2025", B5: "Q1",      C5: "150",
+      A6: "2025", B6: "Q2",      C6: "250",
+      A7: "2025", B7: "Q3",      C7: "350",
+    });
+    // TreeMap: dataSets=[Year, Quarter], labelRanges=[Sales]
+    const treemapId = createTreeMapChart(model, {
+      dataSets: [{ dataRange: "A1:A7" }, { dataRange: "B1:B7" }],
+      labelRanges: ["C1:C7"],
+      dataSetsHaveTitle: true,
+    });
+    // Convert to bar chart via context creation
+    const context = model.getters.getChart(treemapId)!.getContextCreation();
+    const barDef = BarChart.getDefinitionFromContextCreation(context);
+    // Bar chart: dataSets=[Sales], labelRanges=[Quarter, Year] (reversed hierarchy)
+    expect(barDef.labelRanges).toEqual(["B1:B7", "A1:A7"]);
+    const barChartId = model.uuidGenerator.uuidv4();
+    model.dispatch("CREATE_CHART", {
+      figureId: model.uuidGenerator.smallUuid(),
+      chartId: barChartId,
+      sheetId: model.getters.getActiveSheetId(),
+      col: 0,
+      row: 0,
+      size: { width: 536, height: 335 },
+      offset: { x: 0, y: 0 },
+      definition: barDef,
+    });
+    const labels = getChartConfiguration(model, barChartId).data.labels;
+    // Each label is [Quarter, Year]. Year is grouped: shown only at first occurrence per group.
+    // All 3 rows of 2024 must have Year collapsed after the first one.
+    expect(labels).toEqual([
+      ["Q1", "2024"],
+      ["Q2", ""], // 2024 same as prev → collapsed
+      ["Q3", ""], // 2024 same as prev → collapsed (not shown every 2 rows)
+      ["Q1", "2025"],
+      ["Q2", ""], // 2025 same as prev → collapsed
+      ["Q3", ""], // 2025 same as prev → collapsed
+    ]);
   });
 
   test("create TreeMap chart from creation context", () => {

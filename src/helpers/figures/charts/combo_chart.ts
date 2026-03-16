@@ -45,6 +45,7 @@ import {
   getBarChartData,
   getBarChartScales,
   getBarChartTooltip,
+  getChartGroupedLabels,
   getChartShowValues,
   getChartTitle,
   getComboChartDatasets,
@@ -250,6 +251,7 @@ export function createComboChartRuntime(chart: ComboChart, getters: Getters): Co
         tooltip: getBarChartTooltip(definition, chartData),
         chartShowValuesPlugin: getChartShowValues(definition, chartData),
         background: { color: chart.background },
+        chartGroupedLabelsPlugin: getChartGroupedLabels(chartData, chart.background),
       },
     },
   };
