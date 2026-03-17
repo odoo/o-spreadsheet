@@ -4,7 +4,7 @@ import {
   DEFAULT_CELL_WIDTH,
   ZOOM_VALUES,
 } from "@odoo/o-spreadsheet-engine/constants";
-import { setCellContent } from "./test_helpers/commands_helpers";
+import { setCellContent, setZoom } from "./test_helpers/commands_helpers";
 import { clickCell, clickHeader, hoverCell } from "./test_helpers/dom_helper";
 import { getSelectionAnchorCellXc } from "./test_helpers/getters_helpers";
 import { mountSpreadsheet, nextTick } from "./test_helpers/helpers";
@@ -22,7 +22,7 @@ describe("Spreadsheet zoom tests", () => {
   describe.each(ZOOM_VALUES.map((zoom) => zoom / 100))("Zoom tests selection %s", (zoom) => {
     beforeEach(async () => {
       ({ model, fixture } = await mountSpreadsheet());
-      model.dispatch("SET_ZOOM", { zoom });
+      setZoom(model, zoom);
       await nextTick();
     });
     test("can render a sheet with zoom", async () => {
@@ -78,7 +78,7 @@ describe("Dashboard zoom tests", () => {
   describe.each(ZOOM_VALUES.map((zoom) => zoom / 100))("Zoom tests selection %s", (zoom) => {
     beforeEach(async () => {
       ({ model, fixture } = await mountSpreadsheet());
-      model.dispatch("SET_ZOOM", { zoom });
+      setZoom(model, zoom);
       setCellContent(model, "C8", "=1/0");
       model.updateMode("dashboard");
       await nextTick();

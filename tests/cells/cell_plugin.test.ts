@@ -3,7 +3,7 @@ import { urlRepresentation } from "@odoo/o-spreadsheet-engine/helpers/links";
 import { corePluginRegistry } from "@odoo/o-spreadsheet-engine/plugins";
 import { CoreCommand, CorePlugin, Model } from "../../src";
 import { buildSheetLink } from "../../src/helpers";
-import { CellValueType, CommandResult, UID } from "../../src/types";
+import { CellValueType, CommandResult } from "../../src/types";
 import {
   addColumns,
   addRows,
@@ -16,13 +16,16 @@ import {
   deleteContent,
   deleteRows,
   deleteSheet,
+  deleteUnfilteredContent,
   hideRows,
   paste,
   renameSheet,
   setCellContent,
   setCellFormat,
-  setStyle,
+  setCellStyle,
+  setFormatting,
   undo,
+  updateCell,
   updateFilter,
 } from "../test_helpers/commands_helpers";
 import {
@@ -33,33 +36,14 @@ import {
   getEvaluatedCell,
   getStyle,
 } from "../test_helpers/getters_helpers";
-import { addTestPlugin, getGrid, setGrid, target } from "../test_helpers/helpers";
+import { addTestPlugin, getGrid, setGrid } from "../test_helpers/helpers";
 
 describe("getCellText", () => {
   test("Update cell with a format is correctly set", () => {
     const model = new Model();
-    const sheetId = model.getters.getActiveSheetId();
-    model.dispatch("UPDATE_CELL", {
-      sheetId,
-      col: 0,
-      row: 0,
-      content: "5%",
-      format: "bla",
-    });
-    model.dispatch("UPDATE_CELL", {
-      sheetId,
-      col: 1,
-      row: 1,
-      content: "12/30/1899",
-      format: "bla",
-    });
-    model.dispatch("UPDATE_CELL", {
-      sheetId,
-      col: 2,
-      row: 2,
-      content: "=DATE(2021,1,1)",
-      format: "bla",
-    });
+    updateCell(model, "A1", { content: "5%", format: "bla" });
+    updateCell(model, "B2", { content: "12/30/1899", format: "bla" });
+    updateCell(model, "C3", { content: "=DATE(2021,1,1)", format: "bla" });
     expect(getCell(model, "A1")?.format).toBe("bla");
     expect(getCell(model, "B2")?.format).toBe("bla");
     expect(getCell(model, "C3")?.format).toBe("bla");
@@ -67,93 +51,55 @@ describe("getCellText", () => {
 
   test("update cell outside of sheet", () => {
     const model = new Model();
-    const sheetId = model.getters.getActiveSheetId();
-    const result = model.dispatch("UPDATE_CELL", {
-      sheetId,
-      col: 9999,
-      row: 9999,
-      content: "hello",
-    });
+    const result = setCellContent(model, "ZZ9999", "hello");
     expect(result).toBeCancelledBecause(CommandResult.TargetOutOfSheet);
   });
 
   test("update cell outside of sheet (without any modification)", () => {
     const model = new Model();
-    const sheetId = model.getters.getActiveSheetId();
-    const result = model.dispatch("UPDATE_CELL", {
-      sheetId,
-      col: 9999,
-      row: 9999,
-    });
+    const result = updateCell(model, "ZZ9999", {});
     expect(result).toBeCancelledBecause(CommandResult.TargetOutOfSheet, CommandResult.NoChanges);
   });
 
   test("update cell without any modification", () => {
     const model = new Model();
-    const sheetId = model.getters.getActiveSheetId();
-    const result = model.dispatch("UPDATE_CELL", {
-      sheetId,
-      col: 0,
-      row: 0,
-    });
+    const result = updateCell(model, "A1", {});
     expect(result).toBeCancelledBecause(CommandResult.NoChanges);
   });
 
   test("update cell with only the same content as before", () => {
     const model = new Model();
-    const sheetId = model.getters.getActiveSheetId();
     setCellContent(model, "A1", "hello");
     setCellFormat(model, "A1", "#,##0.0");
-    setStyle(model, "A1", { bold: true });
-    const result = model.dispatch("UPDATE_CELL", {
-      sheetId,
-      col: 0,
-      row: 0,
-      content: "hello",
-    });
+    setFormatting(model, "A1", { bold: true });
+    const result = setCellContent(model, "A1", "hello");
     expect(result).toBeCancelledBecause(CommandResult.NoChanges);
   });
 
   test("update cell with only the same format as before", () => {
     const model = new Model();
-    const sheetId = model.getters.getActiveSheetId();
     setCellContent(model, "A1", "0");
     setCellFormat(model, "A1", "#,##0.0");
-    setStyle(model, "A1", { bold: true });
-    const result = model.dispatch("UPDATE_CELL", {
-      sheetId,
-      col: 0,
-      row: 0,
-      format: "#,##0.0",
-    });
+    setFormatting(model, "A1", { bold: true });
+    const result = setCellFormat(model, "A1", "#,##0.0");
     expect(result).toBeCancelledBecause(CommandResult.NoChanges);
   });
 
   test("update cell with only the same style as before", () => {
     const model = new Model();
-    const sheetId = model.getters.getActiveSheetId();
     setCellContent(model, "A1", "0");
     setCellFormat(model, "A1", "#,##0.0");
-    setStyle(model, "A1", { bold: true });
-    const result = model.dispatch("UPDATE_CELL", {
-      sheetId,
-      col: 0,
-      row: 0,
-      style: { bold: true },
-    });
+    setFormatting(model, "A1", { bold: true });
+    const result = setCellStyle(model, "A1", { bold: true });
     expect(result).toBeCancelledBecause(CommandResult.NoChanges);
   });
 
   test("update cell with the same style, content and format as before", () => {
     const model = new Model();
-    const sheetId = model.getters.getActiveSheetId();
     setCellContent(model, "A1", "hello");
     setCellFormat(model, "A1", "#,##0.0");
-    setStyle(model, "A1", { bold: true });
-    const result = model.dispatch("UPDATE_CELL", {
-      sheetId,
-      col: 0,
-      row: 0,
+    setFormatting(model, "A1", { bold: true });
+    const result = updateCell(model, "A1", {
       content: "hello",
       format: "#,##0.0",
       style: { bold: true },
@@ -179,15 +125,15 @@ describe("getCellText", () => {
 
   test("clear some style", () => {
     const model = new Model();
-    setStyle(model, "A1", { bold: true });
+    setFormatting(model, "A1", { bold: true });
     clearCell(model, "A1");
     expect(getCell(model, "A1")).toBeUndefined();
   });
 
   test("clear some style", () => {
     const model = new Model();
-    setStyle(model, "A1", { bold: true });
-    setStyle(model, "A2", { italic: true });
+    setFormatting(model, "A1", { bold: true });
+    setFormatting(model, "A2", { italic: true });
     clearCells(model, ["A1:A2"]);
     expect(getCell(model, "A1")).toBeUndefined();
     expect(getCell(model, "A2")).toBeUndefined();
@@ -211,7 +157,7 @@ describe("getCellText", () => {
   test("clear content, style and format", () => {
     const model = new Model();
     setCellContent(model, "A1", "hello");
-    setStyle(model, "A1", { bold: true });
+    setFormatting(model, "A1", { bold: true });
     setCellFormat(model, "A1", "#,##0.0");
     clearCell(model, "A1");
     expect(getCell(model, "A1")).toBeUndefined();
@@ -221,8 +167,8 @@ describe("getCellText", () => {
     const model = new Model();
     setCellContent(model, "A1", "hello");
     setCellContent(model, "A2", "there");
-    setStyle(model, "A1", { bold: true });
-    setStyle(model, "A2", { italic: true });
+    setFormatting(model, "A1", { bold: true });
+    setFormatting(model, "A2", { italic: true });
     setCellFormat(model, "A1", "#,##0.0");
     setCellFormat(model, "A2", "0%");
     clearCells(model, ["A1", "A2"]);
@@ -471,11 +417,7 @@ describe("link cell", () => {
     "link text color is applied if a custom style is specified",
     (content) => {
       const model = new Model();
-      const sheetId = model.getters.getActiveSheetId();
-      model.dispatch("UPDATE_CELL", {
-        col: 0,
-        row: 0,
-        sheetId,
+      updateCell(model, "A1", {
         content,
         style: { fillColor: "#555", bold: true, textColor: "#111" },
       });
@@ -491,13 +433,7 @@ describe("link cell", () => {
     "link text color is not overwritten if there is a custom style",
     (content) => {
       const model = new Model();
-      const sheetId = model.getters.getActiveSheetId();
-      model.dispatch("UPDATE_CELL", {
-        col: 0,
-        row: 0,
-        sheetId,
-        style: { fillColor: "#555", bold: true, textColor: "#111" },
-      });
+      setCellStyle(model, "A1", { fillColor: "#555", bold: true, textColor: "#111" });
       setCellContent(model, "A1", content);
       expect(getCell(model, "A1")?.style).toEqual({
         fillColor: "#555",
@@ -537,11 +473,7 @@ describe("link cell", () => {
 
   test("copy-paste custom style", () => {
     const model = new Model();
-    const sheetId = model.getters.getActiveSheetId();
-    model.dispatch("UPDATE_CELL", {
-      col: 1,
-      row: 1,
-      sheetId,
+    updateCell(model, "B2", {
       content: "[my label](odoo.com)",
       style: { fillColor: "#555", bold: true, textColor: "#111" },
     });
@@ -644,7 +576,7 @@ describe("Cell dependencies and tokens are updated", () => {
     }
     addTestPlugin(corePluginRegistry, SubCommandCounterRange);
     const model = new Model();
-    setStyle(model, "A1", { bold: true });
+    setFormatting(model, "A1", { bold: true });
     counter = 0;
     deleteContent(model, ["A1"]);
     expect(counter).toBe(0);
@@ -653,22 +585,20 @@ describe("Cell dependencies and tokens are updated", () => {
 
 describe("Delete cell content", () => {
   let model: Model;
-  let sheetId: UID;
 
   beforeEach(() => {
     model = new Model();
-    sheetId = model.getters.getActiveSheetId();
   });
 
   test("With DELETE_CONTENT command", () => {
     setCellContent(model, "A1", "hello");
-    model.dispatch("DELETE_CONTENT", { sheetId, target: target("A1") });
+    deleteContent(model, ["A1"]);
     expect(getCellContent(model, "A1")).toBe("");
   });
 
   test("With DELETE_UNFILTERED_CONTENT command", () => {
     setCellContent(model, "A1", "hello");
-    model.dispatch("DELETE_UNFILTERED_CONTENT", { sheetId, target: target("A1") });
+    deleteUnfilteredContent(model, "A1");
     expect(getCellContent(model, "A1")).toBe("");
   });
 
@@ -676,14 +606,14 @@ describe("Delete cell content", () => {
     setGrid(model, { A2: "A1", A3: "A3", A4: "A4", B2: "B2", B3: "B3", B4: "B4" });
     createTableWithFilter(model, "A1:B4");
     updateFilter(model, "A1", ["A3"]);
-    model.dispatch("DELETE_UNFILTERED_CONTENT", { sheetId, target: target("A1:B4") });
+    deleteUnfilteredContent(model, "A1:B4");
     expect(getGrid(model)).toEqual({ A3: "A3", B3: "B3" });
   });
 
   test("DELETE_UNFILTERED_CONTENT removes content of hidden rows", () => {
     setGrid(model, { A2: "A1", A3: "A3", A4: "A4", B2: "B2", B3: "B3", B4: "B4" });
     hideRows(model, [2]);
-    model.dispatch("DELETE_UNFILTERED_CONTENT", { sheetId, target: target("A1:B4") });
+    deleteUnfilteredContent(model, "A1:B4");
     expect(getGrid(model)).toEqual({});
   });
 });

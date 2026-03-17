@@ -6,6 +6,7 @@ import {
   addColumns,
   addRows,
   createSheet,
+  deleteContent,
   redo,
   resizeColumns,
   resizeRows,
@@ -13,7 +14,8 @@ import {
   setCellContent,
   setCellFormat,
   setFormat,
-  setStyle,
+  setFormatting,
+  setFormulaVisibility,
   setZoneBorders,
   undo,
 } from "../test_helpers/commands_helpers";
@@ -56,7 +58,7 @@ describe("core", () => {
     test("evaluate properly a cell with a style just recently applied", () => {
       const model = new Model();
       setCellContent(model, "A1", "=sum(A2) + 1");
-      setStyle(model, "A1", { bold: true });
+      setFormatting(model, "A1", { bold: true });
       expect(getCellContent(model, "A1")).toEqual("1");
     });
 
@@ -320,7 +322,7 @@ describe("core", () => {
 
   test("Range with absolute references are correctly updated on rows manipulation", () => {
     const model = new Model();
-    model.dispatch("SET_FORMULA_VISIBILITY", { show: true });
+    setFormulaVisibility(model, true);
     setCellContent(model, "A1", "=SUM($C$1:$C$5)");
     addRows(model, "after", 2, 1);
     expect(getCellContent(model, "A1")).toBe("=SUM($C$1:$C$6)");
@@ -330,7 +332,7 @@ describe("core", () => {
 
   test("Absolute references are correctly updated on rows manipulation", () => {
     const model = new Model();
-    model.dispatch("SET_FORMULA_VISIBILITY", { show: true });
+    setFormulaVisibility(model, true);
     setCellContent(model, "A1", "=SUM($C$1)");
     addRows(model, "after", 2, 1);
     expect(getCellContent(model, "A1")).toBe("=SUM($C$1)");
@@ -340,7 +342,7 @@ describe("core", () => {
 
   test("Range with absolute references are correctly updated on columns manipulation", () => {
     const model = new Model();
-    model.dispatch("SET_FORMULA_VISIBILITY", { show: true });
+    setFormulaVisibility(model, true);
     setCellContent(model, "A1", "=SUM($A$2:$E$2)");
     addColumns(model, "after", "C", 1);
     expect(getCellContent(model, "A1")).toBe("=SUM($A$2:$F$2)");
@@ -350,7 +352,7 @@ describe("core", () => {
 
   test("Absolute references are correctly updated on columns manipulation", () => {
     const model = new Model();
-    model.dispatch("SET_FORMULA_VISIBILITY", { show: true });
+    setFormulaVisibility(model, true);
     setCellContent(model, "A1", "=SUM($A$2)");
     addColumns(model, "after", "C", 1);
     expect(getCellContent(model, "A1")).toBe("=SUM($A$2)");
@@ -405,11 +407,7 @@ describe("history", () => {
     setCellContent(model, "A2", "3");
 
     expect(getCellContent(model, "A2")).toBe("3");
-    selectCell(model, "A2");
-    model.dispatch("DELETE_CONTENT", {
-      sheetId: model.getters.getActiveSheetId(),
-      target: model.getters.getSelectedZones(),
-    });
+    deleteContent(model, ["A2"]);
     expect(getCell(model, "A2")).toBeUndefined();
 
     undo(model);
@@ -422,13 +420,10 @@ describe("history", () => {
   test("can delete a cell with a style", () => {
     const model = new Model();
     setCellContent(model, "A1", "3");
-    setStyle(model, "A1", { bold: true });
+    setFormatting(model, "A1", { bold: true });
     expect(getCellContent(model, "A1")).toBe("3");
 
-    model.dispatch("DELETE_CONTENT", {
-      sheetId: model.getters.getActiveSheetId(),
-      target: [{ left: 0, top: 0, right: 0, bottom: 0 }],
-    });
+    deleteContent(model, ["A1"]);
     expect(getCellContent(model, "A1")).toBe("");
   });
 
@@ -439,10 +434,7 @@ describe("history", () => {
 
     expect(getCellContent(model, "A1")).toBe("3");
 
-    model.dispatch("DELETE_CONTENT", {
-      sheetId: model.getters.getActiveSheetId(),
-      target: [{ left: 0, top: 0, right: 0, bottom: 0 }],
-    });
+    deleteContent(model, ["A1"]);
     expect(getCellContent(model, "A1")).toBe("");
   });
 
@@ -453,10 +445,7 @@ describe("history", () => {
 
     expect(getCellContent(model, "A1")).toBe("3.00");
 
-    model.dispatch("DELETE_CONTENT", {
-      sheetId: model.getters.getActiveSheetId(),
-      target: [{ left: 0, top: 0, right: 0, bottom: 0 }],
-    });
+    deleteContent(model, ["A1"]);
     expect(getCellContent(model, "A1")).toBe("");
   });
 
@@ -472,21 +461,21 @@ describe("history", () => {
     const model = new Model();
     setCellContent(model, "A1", "=SUM(1,2)");
     setCellContent(model, "A2", "This is Patrick");
-    model.dispatch("SET_FORMULA_VISIBILITY", { show: true });
+    setFormulaVisibility(model, true);
     expect(getCellContent(model, "A1")).toBe("=SUM(1,2)");
     expect(getCellContent(model, "A2")).toBe("This is Patrick");
-    model.dispatch("SET_FORMULA_VISIBILITY", { show: false });
+    setFormulaVisibility(model, false);
     expect(getCellContent(model, "A1")).toBe("3");
     expect(getCellContent(model, "A2")).toBe("This is Patrick");
   });
 
   test("set formula visibility is idempotent", () => {
     const model = new Model();
-    model.dispatch("SET_FORMULA_VISIBILITY", { show: true });
+    setFormulaVisibility(model, true);
     expect(model.getters.shouldShowFormulas()).toBe(true);
-    model.dispatch("SET_FORMULA_VISIBILITY", { show: true });
+    setFormulaVisibility(model, true);
     expect(model.getters.shouldShowFormulas()).toBe(true);
-    model.dispatch("SET_FORMULA_VISIBILITY", { show: false });
+    setFormulaVisibility(model, false);
     expect(model.getters.shouldShowFormulas()).toBe(false);
   });
 

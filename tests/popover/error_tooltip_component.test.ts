@@ -8,6 +8,7 @@ import {
   createSheet,
   merge,
   setCellContent,
+  updateFigure,
 } from "../test_helpers/commands_helpers";
 import { TEST_CHART_DATA } from "../test_helpers/constants";
 import {
@@ -218,7 +219,7 @@ describe("Grid integration", () => {
 
   test("Hovering over a figure should not open popovers", async () => {
     createChart(model, { ...TEST_CHART_DATA.basicChart }, "figureId");
-    model.dispatch("UPDATE_FIGURE", {
+    updateFigure(model, {
       figureId: "figureId",
       offset: {
         y: 200,

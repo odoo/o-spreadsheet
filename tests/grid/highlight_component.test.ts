@@ -9,7 +9,7 @@ import { Model } from "../../src";
 import { Highlight } from "../../src/components/highlight/highlight/highlight";
 import { toHex, toZone } from "../../src/helpers";
 import { Color, Pixel, Range } from "../../src/types";
-import { merge } from "../test_helpers/commands_helpers";
+import { merge, resizeSheetView, setZoom } from "../test_helpers/commands_helpers";
 import { edgeScrollDelay, triggerMouseEvent } from "../test_helpers/dom_helper";
 import {
   mountComponent,
@@ -179,12 +179,7 @@ function expectedResult(xc: string) {
 
 const genericBeforeEach = async () => {
   model = new Model();
-  model.dispatch("RESIZE_SHEETVIEW", {
-    width: getDefaultSheetViewSize(),
-    height: getDefaultSheetViewSize(),
-    gridOffsetX: 0,
-    gridOffsetY: 0,
-  });
+  resizeSheetView(model, getDefaultSheetViewSize(), getDefaultSheetViewSize());
 };
 
 describe("Corner component", () => {
@@ -771,7 +766,7 @@ describe.each(ZOOM_VALUES)(
       jest.useFakeTimers();
       ({ model, fixture } = await mountSpreadsheet());
       zoom = zoomValue / 100;
-      model.dispatch("SET_ZOOM", { zoom });
+      setZoom(model, zoom);
       ({ width, height } = model.getters.getSheetViewDimensionWithHeaders());
       // In test sheetviewDim is not changed based on the Zoom
       width = width * zoom;

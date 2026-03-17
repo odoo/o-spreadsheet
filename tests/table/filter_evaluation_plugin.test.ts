@@ -9,6 +9,7 @@ import {
   deleteColumns,
   deleteRows,
   deleteTable,
+  duplicateSheet,
   foldHeaderGroup,
   groupHeaders,
   hideRows,
@@ -90,11 +91,7 @@ describe("Simple filter test", () => {
     updateFilter(model, "B1", ["C"]);
 
     const sheet2Id = "42";
-    model.dispatch("DUPLICATE_SHEET", {
-      sheetId: sheetId,
-      sheetIdTo: sheet2Id,
-      sheetNameTo: "Copy of Sheet1",
-    });
+    duplicateSheet(model, sheetId, sheet2Id);
     expect(getFilterHiddenValues(model, sheet2Id)).toMatchObject([{ zone: "B1:B3", value: ["C"] }]);
     deleteColumns(model, ["A"], sheet2Id);
 
@@ -258,12 +255,7 @@ describe("Filter Evaluation", () => {
       ],
     });
     expect(model.getters.getFilter({ sheetId: "sh1", col: 0, row: 0 })).toBeTruthy();
-
-    model.dispatch("DUPLICATE_SHEET", {
-      sheetId: "sh1",
-      sheetIdTo: "sh2",
-      sheetNameTo: "Copy of Sheet1",
-    });
+    duplicateSheet(model, "sh1", "sh2");
     expect(model.getters.getFilter({ sheetId: "sh2", col: 0, row: 0 })).toBeTruthy();
   });
 

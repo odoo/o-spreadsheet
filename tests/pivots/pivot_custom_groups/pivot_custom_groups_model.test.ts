@@ -1,6 +1,6 @@
 import { CommandResult, Model, PivotCustomGroupedField, UID } from "../../../src";
-import { setCellContent } from "../../test_helpers/commands_helpers";
-import { getFormattedGrid, target } from "../../test_helpers/helpers";
+import { clearFormatting, setCellContent } from "../../test_helpers/commands_helpers";
+import { getFormattedGrid } from "../../test_helpers/helpers";
 import { createModelWithPivot, updatePivot } from "../../test_helpers/pivot_helpers";
 
 let model: Model;
@@ -29,7 +29,7 @@ const GROUPED_OPPORTUNITIES_FIELD: PivotCustomGroupedField = {
 beforeEach(() => {
   model = createModelWithPivot("A1:I22");
   sheetId = model.getters.getActiveSheetId();
-  model.dispatch("CLEAR_FORMATTING", { sheetId, target: target("F2:F22") });
+  clearFormatting(model, "F2:F22");
   pivotId = model.getters.getPivotIds()[0];
   setCellContent(model, "A30", "=PIVOT(1)");
 });

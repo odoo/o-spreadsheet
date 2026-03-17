@@ -1,7 +1,7 @@
 import { corePluginRegistry } from "@odoo/o-spreadsheet-engine/plugins";
 import { CorePlugin, coreTypes, Model } from "../src";
 import { duplicateRangeInDuplicatedSheet } from "../src/helpers";
-import { CellErrorType, Command, Range, RangeAdapterFunctions } from "../src/types";
+import { CellErrorType, Command, Range, RangeAdapterFunctions, UID } from "../src/types";
 import {
   addColumns,
   addRows,
@@ -79,6 +79,10 @@ class PluginTestRange extends CorePlugin {
   }
 }
 
+function useRange(m: any, xc: string, sheetId: UID = m.getters.getActiveSheetId()) {
+  return m.dispatch("USE_RANGE", { sheetId, rangesXC: [xc] });
+}
+
 beforeEach(() => {
   addTestPlugin(corePluginRegistry, PluginTestRange);
 });
@@ -92,7 +96,7 @@ describe("range plugin", () => {
         { id: "s1!!", name: "s1!!" },
       ],
     });
-    m.dispatch("USE_RANGE", { sheetId: m.getters.getActiveSheetId(), rangesXC: ["B2:D4"] });
+    useRange(m, "B2:D4");
   });
   afterEach(() => {
     jest.restoreAllMocks();
@@ -140,7 +144,7 @@ describe("range plugin", () => {
             { id: "s2", name: "s 2" },
           ],
         });
-        m.dispatch("USE_RANGE", { sheetId: m.getters.getActiveSheetId(), rangesXC: ["C2:F5"] });
+        useRange(m, "C2:F5");
       });
 
       test("in the middle", () => {
@@ -179,7 +183,7 @@ describe("range plugin", () => {
       });
 
       test("delete columns causing invalid reference will be marked as #REF", () => {
-        m.dispatch("USE_RANGE", { sheetId: m.getters.getActiveSheetId(), rangesXC: ["C1"] });
+        useRange(m, "C1");
         deleteColumns(m, ["B", "C"]);
         expect(m.getters.getUsedRanges()[1]).toEqual("#REF");
       });
@@ -226,7 +230,7 @@ describe("range plugin", () => {
             { id: "s2", name: "s 2" },
           ],
         });
-        m.dispatch("USE_RANGE", { sheetId: m.getters.getActiveSheetId(), rangesXC: ["C3:F7"] });
+        useRange(m, "C3:F7");
       });
 
       test("in the middle", () => {
@@ -265,7 +269,7 @@ describe("range plugin", () => {
       });
 
       test("delete rows causing invalid reference will be marked as #REF", () => {
-        m.dispatch("USE_RANGE", { sheetId: m.getters.getActiveSheetId(), rangesXC: ["C3"] });
+        useRange(m, "C3");
         deleteRows(m, [1, 2]);
         expect(m.getters.getUsedRanges().length).toEqual(2);
         expect(m.getters.getUsedRanges()[0]).toEqual("C2:F5");
@@ -396,7 +400,7 @@ describe("range plugin", () => {
       });
 
       test("delete sheet delete ranges in the same sheet", () => {
-        m.dispatch("USE_RANGE", { rangesXC: ["A1"], sheetId: "s2" });
+        useRange(m, "A1", "s2");
         expect(m.getters.getUsedRanges()).toEqual(["B2:D4", "'s 2'!A1"]);
         deleteSheet(m, "s2");
         expect(m.getters.getUsedRanges()).toEqual(["B2:D4", "#REF"]);
@@ -410,7 +414,7 @@ describe("range plugin", () => {
       });
 
       test("delete sheet delete ranges in the same sheet", () => {
-        m.dispatch("USE_RANGE", { rangesXC: ["A1"], sheetId: "s2" });
+        useRange(m, "A1", "s2");
         expect(m.getters.getUsedRanges()).toEqual(["B2:D4", "'s 2'!A1"]);
         deleteSheet(m, "s2");
         expect(m.getters.getUsedRanges()).toEqual(["B2:D4", "#REF"]);
@@ -620,7 +624,7 @@ describe("Helpers", () => {
 describe("full column range", () => {
   beforeEach(() => {
     m = new Model({ sheets: [{ id: "s1", name: "s1", rows: 10, cols: 10 }] });
-    m.dispatch("USE_RANGE", { sheetId: m.getters.getActiveSheetId(), rangesXC: ["B:C"] });
+    useRange(m, "B:C");
   });
   afterEach(() => {
     jest.restoreAllMocks();
@@ -662,7 +666,7 @@ describe("full column range", () => {
     expect(m.getters.getUsedRanges()).toEqual(["B:C"]);
   });
   test("insert row before (2)", () => {
-    m.dispatch("USE_RANGE", { sheetId: m.getters.getActiveSheetId(), rangesXC: ["B1:C"] });
+    useRange(m, "B1:C");
     addRows(m, "before", 0, 1);
     expect(m.getters.getUsedRanges()[1]).toEqual("B2:C");
   });
@@ -671,7 +675,7 @@ describe("full column range", () => {
 describe("full row range", () => {
   beforeEach(() => {
     m = new Model({ sheets: [{ id: "s1", name: "s1", rows: 10, cols: 10 }] });
-    m.dispatch("USE_RANGE", { sheetId: m.getters.getActiveSheetId(), rangesXC: ["2:3"] });
+    useRange(m, "2:3");
   });
   afterEach(() => {
     jest.restoreAllMocks();
@@ -713,7 +717,7 @@ describe("full row range", () => {
     expect(m.getters.getUsedRanges()).toEqual(["2:3"]);
   });
   test("insert col before range (1)", () => {
-    m.dispatch("USE_RANGE", { sheetId: m.getters.getActiveSheetId(), rangesXC: ["A2:3"] });
+    useRange(m, "A2:3");
     addColumns(m, "before", "A", 1);
     expect(m.getters.getUsedRanges()[1]).toEqual("B2:3");
   });

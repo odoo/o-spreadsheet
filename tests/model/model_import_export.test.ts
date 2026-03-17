@@ -22,10 +22,12 @@ import {
 } from "../../src/types";
 import {
   activateSheet,
+  deleteFigure,
+  duplicateSheet,
   resizeColumns,
   resizeRows,
   setCellContent,
-  setStyle,
+  setFormatting,
 } from "../test_helpers/commands_helpers";
 import { FR_LOCALE } from "../test_helpers/constants";
 import {
@@ -41,10 +43,10 @@ import { mockGeoJsonService } from "../test_helpers/helpers";
 describe("data", () => {
   test("give default col size if not specified", () => {
     const model = new Model();
-    const sheet = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getActiveSheetId();
     // 96 is default cell width
-    expect(model.getters.getColSize(sheet, 0)).toEqual(DEFAULT_CELL_WIDTH);
-    expect(model.getters.getColSize(sheet, 1)).toEqual(DEFAULT_CELL_WIDTH);
+    expect(model.getters.getColSize(sheetId, 0)).toEqual(DEFAULT_CELL_WIDTH);
+    expect(model.getters.getColSize(sheetId, 1)).toEqual(DEFAULT_CELL_WIDTH);
   });
 });
 
@@ -840,11 +842,11 @@ describe("Import", () => {
         { colNumber: 2, rowNumber: 2, cols: { 0: { size: 42 } }, rows: { 1: { size: 13 } } },
       ],
     });
-    const sheet = model.getters.getActiveSheetId();
-    expect(model.getters.getColSize(sheet, 0)).toBe(42);
-    expect(model.getters.getColSize(sheet, 1)).toBe(DEFAULT_CELL_WIDTH);
-    expect(model.getters.getRowSize(sheet, 0)).toBe(DEFAULT_CELL_HEIGHT);
-    expect(model.getters.getRowSize(sheet, 1)).toBe(13);
+    const sheetId = model.getters.getActiveSheetId();
+    expect(model.getters.getColSize(sheetId, 0)).toBe(42);
+    expect(model.getters.getColSize(sheetId, 1)).toBe(DEFAULT_CELL_WIDTH);
+    expect(model.getters.getRowSize(sheetId, 0)).toBe(DEFAULT_CELL_HEIGHT);
+    expect(model.getters.getRowSize(sheetId, 1)).toBe(13);
   });
 
   test("Import 2 sheets with merges", () => {
@@ -907,7 +909,7 @@ describe("Export", () => {
 
   test("empty content is not exported", () => {
     const model = new Model();
-    setStyle(model, "A1", { fillColor: "#123456" });
+    setFormatting(model, "A1", { fillColor: "#123456" });
     const exp = model.exportData();
     expect(exp.sheets[0].styles.A1).toEqual(1);
   });
@@ -937,7 +939,7 @@ describe("Export", () => {
         },
       ],
     });
-    model.dispatch("DELETE_FIGURE", { figureId: "otheruuid", sheetId: "someuuid" });
+    deleteFigure(model, "otheruuid", "someuuid");
     expect(model.exportData()).toMatchObject({
       sheets: [
         {
@@ -1079,7 +1081,7 @@ test("Data of a duplicate sheet are correctly duplicated", () => {
   const model = new Model();
   setCellContent(model, "A1", "hello");
   const sheetId = model.getters.getActiveSheetId();
-  model.dispatch("DUPLICATE_SHEET", { sheetId, sheetIdTo: "42", sheetNameTo: "Copy of Sheet1" });
+  duplicateSheet(model, sheetId, "42");
   expect(getCellContent(model, "A1", sheetId)).toBe("hello");
   expect(getCellContent(model, "A1", "42")).toBe("hello");
   const data = model.exportData();

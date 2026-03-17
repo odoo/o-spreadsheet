@@ -25,6 +25,7 @@ import {
   setCellContent,
   setSheetviewSize,
   setViewportOffset,
+  setZoom,
   undo,
 } from "../test_helpers/commands_helpers";
 import {
@@ -162,7 +163,7 @@ describe("Resizer component", () => {
   });
 
   test.each(ZOOM_VALUES)("can click on a header to select a column", async (zoom) => {
-    model.dispatch("SET_ZOOM", { zoom: zoom / 100 });
+    setZoom(model, zoom / 100);
     await selectColumn("C");
     expect(model.getters.getSelectedZones()[0]).toEqual({ left: 2, top: 0, right: 2, bottom: 9 });
     expect(getSelectionAnchorCellXc(model)).toBe("C1");
@@ -194,7 +195,7 @@ describe("Resizer component", () => {
   });
 
   test.each(ZOOM_VALUES)("can click on a row-header to select a row", async (zoom) => {
-    model.dispatch("SET_ZOOM", { zoom: zoom / 100 });
+    setZoom(model, zoom / 100);
     await selectRow(2, {}, zoom / 100);
     expect(model.getters.getSelectedZones()[0]).toEqual({ left: 0, top: 2, right: 9, bottom: 2 });
     expect(getSelectionAnchorCellXc(model)).toBe("A3");
@@ -417,26 +418,30 @@ describe("Resizer component", () => {
     await selectColumn("C");
     await selectColumn("D", { ctrlKey: true });
     await dblClickColumn("D");
-    const sheet = model.getters.getActiveSheetId();
-    const initialSize = model.getters.getColSize(sheet, 0);
+    const sheetId = model.getters.getActiveSheetId();
+    const initialSize = model.getters.getColSize(sheetId, 0);
     const resizedSize = 2 * 13 + 2 * PADDING_AUTORESIZE_HORIZONTAL; // 2 letter fontSize 13 + 2*3px padding
-    expect(model.getters.getColSize(sheet, 1)).toBe(initialSize);
-    expect(model.getters.getColSize(sheet, 2)).toBe(resizedSize);
-    expect(model.getters.getColSize(sheet, 3)).toBe(resizedSize);
-    expect(model.getters.getColSize(sheet, 4)).toBe(initialSize);
-    expect(model.getters.getColDimensions(sheet, 4)!.start).toBe(initialSize * 2 + resizedSize * 2);
+    expect(model.getters.getColSize(sheetId, 1)).toBe(initialSize);
+    expect(model.getters.getColSize(sheetId, 2)).toBe(resizedSize);
+    expect(model.getters.getColSize(sheetId, 3)).toBe(resizedSize);
+    expect(model.getters.getColSize(sheetId, 4)).toBe(initialSize);
+    expect(model.getters.getColDimensions(sheetId, 4)!.start).toBe(
+      initialSize * 2 + resizedSize * 2
+    );
     undo(model);
-    expect(model.getters.getColSize(sheet, 1)).toBe(initialSize);
-    expect(model.getters.getColSize(sheet, 2)).toBe(initialSize);
-    expect(model.getters.getColSize(sheet, 3)).toBe(initialSize);
-    expect(model.getters.getColSize(sheet, 4)).toBe(initialSize);
-    expect(model.getters.getColDimensions(sheet, 4)!.start).toBe(initialSize * 4);
+    expect(model.getters.getColSize(sheetId, 1)).toBe(initialSize);
+    expect(model.getters.getColSize(sheetId, 2)).toBe(initialSize);
+    expect(model.getters.getColSize(sheetId, 3)).toBe(initialSize);
+    expect(model.getters.getColSize(sheetId, 4)).toBe(initialSize);
+    expect(model.getters.getColDimensions(sheetId, 4)!.start).toBe(initialSize * 4);
     redo(model);
-    expect(model.getters.getColSize(sheet, 1)).toBe(initialSize);
-    expect(model.getters.getColSize(sheet, 2)).toBe(resizedSize);
-    expect(model.getters.getColSize(sheet, 3)).toBe(resizedSize);
-    expect(model.getters.getColSize(sheet, 4)).toBe(initialSize);
-    expect(model.getters.getColDimensions(sheet, 4)!.start).toBe(initialSize * 2 + resizedSize * 2);
+    expect(model.getters.getColSize(sheetId, 1)).toBe(initialSize);
+    expect(model.getters.getColSize(sheetId, 2)).toBe(resizedSize);
+    expect(model.getters.getColSize(sheetId, 3)).toBe(resizedSize);
+    expect(model.getters.getColSize(sheetId, 4)).toBe(initialSize);
+    expect(model.getters.getColDimensions(sheetId, 4)!.start).toBe(
+      initialSize * 2 + resizedSize * 2
+    );
   });
 
   test("Double click: Modify the size of a row", async () => {
@@ -457,26 +462,26 @@ describe("Resizer component", () => {
     await selectRow(2);
     await selectRow(3, { ctrlKey: true });
     await dblClickRow(2);
-    const sheet = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getActiveSheetId();
     const initialSize = 30;
     const size = DEFAULT_CELL_HEIGHT;
-    expect(model.getters.getRowSize(sheet, 1)).toBe(initialSize);
-    expect(model.getters.getRowSize(sheet, 2)).toBe(size);
-    expect(model.getters.getRowSize(sheet, 3)).toBe(size);
-    expect(model.getters.getRowSize(sheet, 4)).toBe(initialSize);
-    expect(model.getters.getRowDimensions(sheet, 4)!.start).toBe(initialSize * 2 + size * 2);
+    expect(model.getters.getRowSize(sheetId, 1)).toBe(initialSize);
+    expect(model.getters.getRowSize(sheetId, 2)).toBe(size);
+    expect(model.getters.getRowSize(sheetId, 3)).toBe(size);
+    expect(model.getters.getRowSize(sheetId, 4)).toBe(initialSize);
+    expect(model.getters.getRowDimensions(sheetId, 4)!.start).toBe(initialSize * 2 + size * 2);
     undo(model);
-    expect(model.getters.getRowSize(sheet, 1)).toBe(initialSize);
-    expect(model.getters.getRowSize(sheet, 2)).toBe(initialSize);
-    expect(model.getters.getRowSize(sheet, 3)).toBe(initialSize);
-    expect(model.getters.getRowSize(sheet, 4)).toBe(initialSize);
-    expect(model.getters.getRowDimensions(sheet, 4)!.start).toBe(initialSize * 4);
+    expect(model.getters.getRowSize(sheetId, 1)).toBe(initialSize);
+    expect(model.getters.getRowSize(sheetId, 2)).toBe(initialSize);
+    expect(model.getters.getRowSize(sheetId, 3)).toBe(initialSize);
+    expect(model.getters.getRowSize(sheetId, 4)).toBe(initialSize);
+    expect(model.getters.getRowDimensions(sheetId, 4)!.start).toBe(initialSize * 4);
     redo(model);
-    expect(model.getters.getRowSize(sheet, 1)).toBe(initialSize);
-    expect(model.getters.getRowSize(sheet, 2)).toBe(size);
-    expect(model.getters.getRowSize(sheet, 3)).toBe(size);
-    expect(model.getters.getRowSize(sheet, 4)).toBe(initialSize);
-    expect(model.getters.getRowDimensions(sheet, 4)!.start).toBe(initialSize * 2 + size * 2);
+    expect(model.getters.getRowSize(sheetId, 1)).toBe(initialSize);
+    expect(model.getters.getRowSize(sheetId, 2)).toBe(size);
+    expect(model.getters.getRowSize(sheetId, 3)).toBe(size);
+    expect(model.getters.getRowSize(sheetId, 4)).toBe(initialSize);
+    expect(model.getters.getRowDimensions(sheetId, 4)!.start).toBe(initialSize * 2 + size * 2);
   });
 
   test("Select B, shift D then BCD selected", async () => {

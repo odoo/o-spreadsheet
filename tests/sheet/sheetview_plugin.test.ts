@@ -32,15 +32,18 @@ import {
   redo,
   resizeColumns,
   resizeRows,
+  resizeSheetView,
   selectAll,
   selectCell,
   selectColumn,
   selectRow,
   setCellContent,
   setFormat,
+  setFormatting,
   setSelection,
-  setStyle,
   setViewportOffset,
+  shiftViewportDown,
+  shiftViewportUp,
   undo,
   unfreezeColumns,
   unfreezeRows,
@@ -436,12 +439,7 @@ describe("Viewport of Simple sheet", () => {
     });
 
     // too large
-    model.dispatch("RESIZE_SHEETVIEW", {
-      height: 10 * DEFAULT_CELL_HEIGHT,
-      width: 10 * DEFAULT_CELL_WIDTH,
-      gridOffsetX: 0,
-      gridOffsetY: 0,
-    });
+    resizeSheetView(model, 10 * DEFAULT_CELL_HEIGHT, 10 * DEFAULT_CELL_WIDTH);
     const sheetId = model.getters.getActiveSheetId();
     const nCols = model.getters.getNumberCols(sheetId);
     const nRows = model.getters.getNumberRows(sheetId);
@@ -698,7 +696,7 @@ describe("Viewport of Simple sheet", () => {
       const { bottom } = model.getters.getActiveMainViewport();
       selectCell(model, toXC(0, bottom + 3));
       const viewport = { ...model.getters.getActiveMainViewport() };
-      model.dispatch("SET_VIEWPORT_OFFSET", { offsetX: 0, offsetY: 0 });
+      setViewportOffset(model, 0, 0);
       moveAnchorCell(model, "right");
       expect(model.getters.getActiveMainViewport()).toMatchObject(viewport);
     });
@@ -707,7 +705,7 @@ describe("Viewport of Simple sheet", () => {
       const { right } = model.getters.getActiveMainViewport();
       selectCell(model, toXC(right + 3, 0));
       const viewport = { ...model.getters.getActiveMainViewport() };
-      model.dispatch("SET_VIEWPORT_OFFSET", { offsetX: 0, offsetY: 0 });
+      setViewportOffset(model, 0, 0);
       moveAnchorCell(model, "down");
       expect(model.getters.getActiveMainViewport()).toMatchObject(viewport);
     });
@@ -781,12 +779,7 @@ describe("Viewport of Simple sheet", () => {
     selectCell(model, "K71");
     setViewportOffset(model, 100, 112);
     const viewport = model.getters.getActiveMainViewport();
-    model.dispatch("RESIZE_SHEETVIEW", {
-      width: 500,
-      height: 500,
-      gridOffsetX: 0,
-      gridOffsetY: 0,
-    });
+    resizeSheetView(model, 500, 500);
     expect(model.getters.getActiveMainViewport()).toMatchObject({
       ...viewport,
       bottom: Math.ceil((100 + 500) / DEFAULT_CELL_HEIGHT) - 1,
@@ -796,22 +789,12 @@ describe("Viewport of Simple sheet", () => {
 
   test("Resizing the viewport impacts current Offset", () => {
     // set coherent size and offset limit
-    model.dispatch("RESIZE_SHEETVIEW", {
-      width: getDefaultSheetViewSize(),
-      height: getDefaultSheetViewSize(),
-      gridOffsetX: 0,
-      gridOffsetY: 0,
-    });
+    resizeSheetView(model, getDefaultSheetViewSize(), getDefaultSheetViewSize());
     let { width: gridWidth, height: gridHeight } = model.getters.getMainViewportRect();
     let { width, height } = model.getters.getSheetViewDimensionWithHeaders();
     setViewportOffset(model, gridWidth - width, gridHeight - height);
     // de-zoom
-    model.dispatch("RESIZE_SHEETVIEW", {
-      width: 1250,
-      height: 1250,
-      gridOffsetX: 0,
-      gridOffsetY: 0,
-    });
+    resizeSheetView(model, 1250, 1250);
     ({ width, height } = model.getters.getSheetViewDimensionWithHeaders());
     ({ width: gridWidth, height: gridHeight } = model.getters.getMainViewportRect());
 
@@ -828,39 +811,19 @@ describe("Viewport of Simple sheet", () => {
   });
 
   test("resize to identical values doesn't do anything (no render)", () => {
-    model.dispatch("RESIZE_SHEETVIEW", {
-      height: 100,
-      width: 50,
-      gridOffsetX: 10,
-      gridOffsetY: 15,
-    });
-    expect(
-      model.dispatch("RESIZE_SHEETVIEW", {
-        height: 100,
-        width: 50,
-        gridOffsetX: 10,
-        gridOffsetY: 15,
-      })
-    ).toBeCancelledBecause(CommandResult.ValuesNotChanged);
+    resizeSheetView(model, 100, 50, 10, 15);
+    expect(resizeSheetView(model, 100, 50, 10, 15)).toBeCancelledBecause(
+      CommandResult.ValuesNotChanged
+    );
   });
 
   test("cannot resize to negative values", () => {
-    expect(
-      model.dispatch("RESIZE_SHEETVIEW", {
-        height: -100,
-        width: 50,
-        gridOffsetX: 0,
-        gridOffsetY: 0,
-      })
-    ).toBeCancelledBecause(CommandResult.InvalidViewportSize);
-    expect(
-      model.dispatch("RESIZE_SHEETVIEW", {
-        height: 100,
-        width: -50,
-        gridOffsetX: 0,
-        gridOffsetY: 0,
-      })
-    ).toBeCancelledBecause(CommandResult.InvalidViewportSize);
+    expect(resizeSheetView(model, -100, 50)).toBeCancelledBecause(
+      CommandResult.InvalidViewportSize
+    );
+    expect(resizeSheetView(model, 100, -50)).toBeCancelledBecause(
+      CommandResult.InvalidViewportSize
+    );
   });
 
   test("Viewport is updated when updating a data filter", () => {
@@ -915,7 +878,7 @@ describe("Viewport of Simple sheet", () => {
       right: 10,
       top: 0,
     });
-    setStyle(model, "A1:A20", { fontSize: 36 });
+    setFormatting(model, "A1:A20", { fontSize: 36 });
     for (let i = 1; i <= 20; ++i) {
       setCellContent(model, `A${i}`, "test"); // Requires non-empty cells. Otherwise, the fontsize is not considered when computing the row height
     }
@@ -925,7 +888,7 @@ describe("Viewport of Simple sheet", () => {
       right: 10,
       top: 0,
     });
-    setStyle(model, "A1:A20", { fontSize: 8 });
+    setFormatting(model, "A1:A20", { fontSize: 8 });
     expect(model.getters.getActiveMainViewport()).toEqual({
       bottom: 43,
       left: 0,
@@ -937,7 +900,7 @@ describe("Viewport of Simple sheet", () => {
   test("getVisibleRect returns the actual visible part of a zone", () => {
     const width = 4.5 * DEFAULT_CELL_WIDTH;
     const height = 5.5 * DEFAULT_CELL_HEIGHT;
-    model.dispatch("RESIZE_SHEETVIEW", { gridOffsetX: 0, gridOffsetY: 0, width, height });
+    resizeSheetView(model, height, width);
     expect(model.getters.getVisibleRect(model.getters.getActiveMainViewport())).toEqual({
       x: 0,
       y: 0,
@@ -951,7 +914,7 @@ describe("Viewport of Simple sheet", () => {
     freezeRows(model, 1);
     const width = 4.5 * DEFAULT_CELL_WIDTH;
     const height = 5.5 * DEFAULT_CELL_HEIGHT;
-    model.dispatch("RESIZE_SHEETVIEW", { gridOffsetX: 0, gridOffsetY: 0, width, height });
+    resizeSheetView(model, height, width);
     const zone = model.getters.getActiveMainViewport();
     expect(model.getters.getVisibleRect(zone)).toEqual({
       x: DEFAULT_CELL_WIDTH,
@@ -989,7 +952,7 @@ describe("Viewport of Simple sheet", () => {
   test("getRect returns the full zone dimensions regardless of the viewport size", () => {
     const width = 4.5 * DEFAULT_CELL_WIDTH;
     const height = 5.5 * DEFAULT_CELL_HEIGHT;
-    model.dispatch("RESIZE_SHEETVIEW", { gridOffsetX: 0, gridOffsetY: 0, width, height });
+    resizeSheetView(model, height, width);
     expect(model.getters.getRect(model.getters.getActiveMainViewport())).toEqual({
       x: 0,
       y: 0,
@@ -1003,7 +966,7 @@ describe("Viewport of Simple sheet", () => {
     freezeRows(model, 1);
     const width = 4.5 * DEFAULT_CELL_WIDTH;
     const height = 5.5 * DEFAULT_CELL_HEIGHT;
-    model.dispatch("RESIZE_SHEETVIEW", { gridOffsetX: 0, gridOffsetY: 0, width, height });
+    resizeSheetView(model, height, width);
     const zone = model.getters.getActiveMainViewport();
     expect(model.getters.getRect(zone)).toEqual({
       x: DEFAULT_CELL_WIDTH,
@@ -1160,12 +1123,7 @@ describe("Multi Panes viewport", () => {
   });
 
   test("Freezing a row too far reset and disallow scrolling", async () => {
-    model.dispatch("RESIZE_SHEETVIEW", {
-      width: 10 * DEFAULT_CELL_WIDTH,
-      height: 10 * DEFAULT_CELL_HEIGHT,
-      gridOffsetX: 0,
-      gridOffsetY: 0,
-    });
+    resizeSheetView(model, 10 * DEFAULT_CELL_HEIGHT, 10 * DEFAULT_CELL_WIDTH);
     setViewportOffset(model, 0, 5 * DEFAULT_CELL_HEIGHT);
     freezeRows(model, 11);
     expect(model.getters.getActiveSheetScrollInfo()).toEqual({
@@ -1178,12 +1136,7 @@ describe("Multi Panes viewport", () => {
   });
 
   test("Freezing a column too far reset and disallow scrolling", () => {
-    model.dispatch("RESIZE_SHEETVIEW", {
-      width: 10 * DEFAULT_CELL_WIDTH,
-      height: 10 * DEFAULT_CELL_HEIGHT,
-      gridOffsetX: 0,
-      gridOffsetY: 0,
-    });
+    resizeSheetView(model, 10 * DEFAULT_CELL_HEIGHT, 10 * DEFAULT_CELL_WIDTH);
     setViewportOffset(model, 5 * DEFAULT_CELL_WIDTH, 0);
     freezeColumns(model, 10);
     expect(model.getters.getActiveSheetScrollInfo()).toEqual({
@@ -1252,12 +1205,7 @@ describe("Multi Panes viewport", () => {
 
   test("Visible Cols and Rows are correctly computed when the sheetview has a 0 width", () => {
     const model = new Model();
-    model.dispatch("RESIZE_SHEETVIEW", {
-      width: 0,
-      height: 100,
-      gridOffsetX: 0,
-      gridOffsetY: 0,
-    });
+    resizeSheetView(model, 100, 0);
     expect(model.getters.getSheetViewVisibleCols()).toEqual([]);
     expect(model.getters.getSheetViewVisibleRows()).toEqual([]);
 
@@ -1272,12 +1220,7 @@ describe("Multi Panes viewport", () => {
 
   test("Visible Cols and Rows are correctly computed when the sheetview has a 0 height", () => {
     const model = new Model();
-    model.dispatch("RESIZE_SHEETVIEW", {
-      width: 100,
-      height: 0,
-      gridOffsetX: 0,
-      gridOffsetY: 0,
-    });
+    resizeSheetView(model, 0, 100);
     expect(model.getters.getSheetViewVisibleCols()).toEqual([]);
     expect(model.getters.getSheetViewVisibleRows()).toEqual([]);
 
@@ -1357,12 +1300,9 @@ describe("multi sheet with different sizes", () => {
   });
 
   test("Client resize impacts all sheets", () => {
-    model.dispatch("RESIZE_SHEETVIEW", {
-      width: 2.5 * DEFAULT_CELL_WIDTH, // concretely 2.5 cells visible
-      height: 3.5 * DEFAULT_CELL_HEIGHT, // concretely 3.5 cells visible
-      gridOffsetX: 0,
-      gridOffsetY: 0,
-    });
+    const width = 2.5 * DEFAULT_CELL_WIDTH; // concretely 2.5 cells visible
+    const height = 3.5 * DEFAULT_CELL_HEIGHT; // concretely 3.5 cells visible
+    resizeSheetView(model, height, width);
     activateSheet(model, "small");
     expect(model.getters.getActiveMainViewport()).toMatchObject({
       top: 0,
@@ -1394,23 +1334,18 @@ describe("shift viewport up/down", () => {
 
   test("basic move viewport", () => {
     const { bottom } = model.getters.getActiveMainViewport();
-    model.dispatch("SHIFT_VIEWPORT_DOWN");
+    shiftViewportDown(model);
     expect(model.getters.getActiveMainViewport().top).toBe(bottom);
-    model.dispatch("SHIFT_VIEWPORT_UP");
+    shiftViewportUp(model);
     expect(model.getters.getActiveMainViewport().top).toBe(0);
   });
 
   test("move viewport with non-default size", () => {
-    model.dispatch("RESIZE_SHEETVIEW", {
-      height: 100,
-      width: 100,
-      gridOffsetX: 0,
-      gridOffsetY: 0,
-    });
+    resizeSheetView(model, 100, 100);
     const { bottom } = model.getters.getActiveMainViewport();
-    model.dispatch("SHIFT_VIEWPORT_DOWN");
+    shiftViewportDown(model);
     expect(model.getters.getActiveMainViewport().top).toBe(bottom);
-    model.dispatch("SHIFT_VIEWPORT_UP");
+    shiftViewportUp(model);
     expect(model.getters.getActiveMainViewport().top).toBe(0);
   });
 
@@ -1422,9 +1357,9 @@ describe("shift viewport up/down", () => {
     selectCell(model, "A4");
     const { bottom } = model.getters.getActiveMainViewport();
     setViewportOffset(model, 0, scrollValue);
-    model.dispatch("SHIFT_VIEWPORT_DOWN");
+    shiftViewportDown(model);
     expect(model.getters.getActiveMainViewport().top).toBe(bottom + expectedTop);
-    model.dispatch("SHIFT_VIEWPORT_UP");
+    shiftViewportUp(model);
     expect(model.getters.getActiveMainViewport().top).toBe(expectedTop);
   });
 
@@ -1432,46 +1367,46 @@ describe("shift viewport up/down", () => {
     const sheetId = model.getters.getActiveSheetId();
     const numberOfRows = model.getters.getNumberRows(sheetId);
     const { bottom } = model.getters.getActiveMainViewport();
-    model.dispatch("SHIFT_VIEWPORT_DOWN");
+    shiftViewportDown(model);
     expect(model.getters.getActiveMainViewport().top).toBe(bottom);
-    model.dispatch("SHIFT_VIEWPORT_DOWN");
+    shiftViewportDown(model);
     expect(model.getters.getActiveMainViewport().bottom).toBe(numberOfRows - 1);
-    model.dispatch("SHIFT_VIEWPORT_DOWN");
+    shiftViewportDown(model);
     expect(model.getters.getActiveMainViewport().bottom).toBe(numberOfRows - 1);
 
     const { top } = model.getters.getActiveMainViewport();
-    model.dispatch("SHIFT_VIEWPORT_UP");
+    shiftViewportUp(model);
     expect(model.getters.getActiveMainViewport().bottom).toBe(top);
-    model.dispatch("SHIFT_VIEWPORT_UP");
+    shiftViewportUp(model);
     expect(model.getters.getActiveMainViewport().top).toBe(0);
-    model.dispatch("SHIFT_VIEWPORT_UP");
+    shiftViewportUp(model);
     expect(model.getters.getActiveMainViewport().top).toBe(0);
   });
 
   test("move viewport does not changes its dimension", () => {
     const viewportDimension = model.getters.getSheetViewDimensionWithHeaders();
-    model.dispatch("SHIFT_VIEWPORT_DOWN");
+    shiftViewportDown(model);
     expect(model.getters.getSheetViewDimensionWithHeaders()).toEqual(viewportDimension);
-    model.dispatch("SHIFT_VIEWPORT_UP");
+    shiftViewportUp(model);
     expect(model.getters.getSheetViewDimensionWithHeaders()).toEqual(viewportDimension);
   });
 
   test("X offset does not change", () => {
     selectCell(model, "D1");
     setViewportOffset(model, DEFAULT_CELL_WIDTH * 3, 0);
-    model.dispatch("SHIFT_VIEWPORT_DOWN");
+    shiftViewportDown(model);
     expect(model.getters.getActiveSheetScrollInfo().scrollX).toBe(DEFAULT_CELL_WIDTH * 3);
-    model.dispatch("SHIFT_VIEWPORT_UP");
+    shiftViewportUp(model);
     expect(model.getters.getActiveSheetScrollInfo().scrollX).toBe(DEFAULT_CELL_WIDTH * 3);
   });
 
   test("anchor cell at the viewport top is shifted", () => {
     const { bottom } = model.getters.getActiveMainViewport();
     selectCell(model, "A1");
-    model.dispatch("SHIFT_VIEWPORT_DOWN");
+    shiftViewportDown(model);
     expect(model.getters.getSelectedZones()).toHaveLength(1);
     expect(model.getters.getSelectedZone()).toEqual({ top: bottom, bottom, left: 0, right: 0 });
-    model.dispatch("SHIFT_VIEWPORT_UP");
+    shiftViewportUp(model);
     expect(model.getters.getSelectedZones()).toHaveLength(1);
     expect(model.getters.getSelectedZone()).toEqual(toZone("A1"));
   });
@@ -1479,14 +1414,14 @@ describe("shift viewport up/down", () => {
   test("anchor cell not at the viewport top is shifted", () => {
     const { bottom } = model.getters.getActiveMainViewport();
     selectCell(model, "B4");
-    model.dispatch("SHIFT_VIEWPORT_DOWN");
+    shiftViewportDown(model);
     expect(model.getters.getSelectedZone()).toEqual({
       top: bottom + 3,
       bottom: bottom + 3,
       left: 1,
       right: 1,
     });
-    model.dispatch("SHIFT_VIEWPORT_UP");
+    shiftViewportUp(model);
     expect(model.getters.getSelectedZone()).toEqual(toZone("B4"));
   });
 
@@ -1495,7 +1430,7 @@ describe("shift viewport up/down", () => {
       anchor: "D1",
     });
     const { bottom } = model.getters.getActiveMainViewport();
-    model.dispatch("SHIFT_VIEWPORT_DOWN");
+    shiftViewportDown(model);
     expect(model.getters.getSelectedZones()).toHaveLength(1);
     expect(model.getters.getSelectedZone()).toEqual({
       top: bottom,
@@ -1507,16 +1442,12 @@ describe("shift viewport up/down", () => {
 
   test("hidden rows are skipped", () => {
     const { bottom } = model.getters.getActiveMainViewport();
-    model.dispatch("HIDE_COLUMNS_ROWS", {
-      dimension: "ROW",
-      elements: [2, 3, 4],
-      sheetId: model.getters.getActiveSheetId(),
-    });
+    hideRows(model, [2, 3, 4]);
     const { bottom: bottomWithHiddenRows } = model.getters.getActiveMainViewport();
     expect(bottomWithHiddenRows).toBe(bottom + 3);
-    model.dispatch("SHIFT_VIEWPORT_DOWN");
+    shiftViewportDown(model);
     expect(model.getters.getActiveMainViewport().top).toBe(bottomWithHiddenRows);
-    model.dispatch("SHIFT_VIEWPORT_UP");
+    shiftViewportUp(model);
     expect(model.getters.getActiveMainViewport().bottom).toBe(bottomWithHiddenRows);
   });
 
@@ -1533,9 +1464,9 @@ describe("shift viewport up/down", () => {
         right: 0,
       })
     );
-    model.dispatch("SHIFT_VIEWPORT_DOWN");
+    shiftViewportDown(model);
     expect(model.getters.getActiveMainViewport().top).toBe(mergeTop);
-    model.dispatch("SHIFT_VIEWPORT_UP");
+    shiftViewportUp(model);
     expect(model.getters.getActiveMainViewport().bottom).toBe(bottom);
   });
 
@@ -1553,23 +1484,18 @@ describe("shift viewport up/down", () => {
       })
     );
     selectCell(model, "B1");
-    model.dispatch("SHIFT_VIEWPORT_DOWN");
+    shiftViewportDown(model);
     expect(model.getters.getActiveMainViewport().top).toBe(bottom);
   });
 
   test("anchor ends up at the last row", () => {
     const { bottom } = model.getters.getActiveMainViewport();
     const sheetId = model.getters.getActiveSheetId();
-    model.dispatch("RESIZE_SHEETVIEW", {
-      width: getDefaultSheetViewSize(),
-      height: bottom * DEFAULT_CELL_HEIGHT,
-      gridOffsetX: 0,
-      gridOffsetY: 0,
-    });
+    resizeSheetView(model, bottom * DEFAULT_CELL_HEIGHT, getDefaultSheetViewSize());
     deleteRows(model, range(bottom + 1, model.getters.getNumberRows(sheetId)));
     selectCell(model, toXC(0, bottom));
     expect(model.getters.getActiveMainViewport().bottom).toBe(bottom);
-    model.dispatch("SHIFT_VIEWPORT_DOWN");
+    shiftViewportDown(model);
     expect(model.getters.getSelectedZone()).toEqual({
       top: bottom,
       bottom: model.getters.getNumberRows(sheetId) - 1,
@@ -1582,10 +1508,10 @@ describe("shift viewport up/down", () => {
     test("shift down/up with frozen rows and with selection in frozen rows", () => {
       freezeRows(model, 5);
       const { bottom, top } = model.getters.getActiveMainViewport();
-      model.dispatch("SHIFT_VIEWPORT_DOWN");
+      shiftViewportDown(model);
       expect(model.getters.getActiveMainViewport().top).toBe(bottom);
       expect(zoneToXc(model.getters.getSelectedZone())).toEqual("A1");
-      model.dispatch("SHIFT_VIEWPORT_UP");
+      shiftViewportUp(model);
       expect(model.getters.getActiveMainViewport().top).toBe(top);
       expect(zoneToXc(model.getters.getSelectedZone())).toEqual("A1");
     });
@@ -1594,10 +1520,10 @@ describe("shift viewport up/down", () => {
       freezeRows(model, 5);
       selectCell(model, "A6");
       const { bottom, top } = model.getters.getActiveMainViewport();
-      model.dispatch("SHIFT_VIEWPORT_DOWN");
+      shiftViewportDown(model);
       expect(model.getters.getActiveMainViewport().top).toBe(bottom);
       expect(zoneToXc(model.getters.getSelectedZone())).toEqual(toXC(0, bottom));
-      model.dispatch("SHIFT_VIEWPORT_UP");
+      shiftViewportUp(model);
       expect(model.getters.getActiveMainViewport().top).toBe(top);
       expect(zoneToXc(model.getters.getSelectedZone())).toEqual("A6");
     });
@@ -1608,7 +1534,7 @@ describe("shift viewport up/down", () => {
       freezeRows(model, 10);
       let { bottom } = model.getters.getActiveMainViewport();
       while (true) {
-        model.dispatch("SHIFT_VIEWPORT_DOWN");
+        shiftViewportDown(model);
         const newBottom = model.getters.getActiveMainViewport().bottom;
         if (newBottom === bottom) {
           break;
@@ -1626,10 +1552,10 @@ describe("shift viewport up/down", () => {
       // delete all rows except the first two ones
       deleteRows(model, range(2, model.getters.getNumberRows(sheetId)));
       selectCell(model, selectedCell);
-      model.dispatch("SHIFT_VIEWPORT_DOWN");
+      shiftViewportDown(model);
       expect(model.getters.getActiveMainViewport().top).toBe(0);
       expect(model.getters.getSelectedZone()).toEqual(toZone(selectedCell));
-      model.dispatch("SHIFT_VIEWPORT_UP");
+      shiftViewportUp(model);
       expect(model.getters.getActiveMainViewport().top).toBe(0);
       expect(model.getters.getSelectedZone()).toEqual(toZone(selectedCell));
     }
@@ -1643,31 +1569,26 @@ describe("shift viewport up/down", () => {
       // delete all rows after the viewport except three
       deleteRows(model, range(bottom + 3, model.getters.getNumberRows(sheetId)));
       selectCell(model, selectedCell);
-      model.dispatch("SHIFT_VIEWPORT_DOWN");
+      shiftViewportDown(model);
       expect(model.getters.getSelectedZone()).toEqual({
         top: toZone(selectedCell).top + 4,
         bottom: toZone(selectedCell).bottom + 4,
         left: 0,
         right: 0,
       });
-      model.dispatch("SHIFT_VIEWPORT_UP");
+      shiftViewportUp(model);
       expect(model.getters.getSelectedZone()).toEqual(toZone(selectedCell));
     }
   );
 
   test("Ensure the cell is in the viewport when starting the edition of a cell", async () => {
     const { store: composerStore, model } = makeStore(CellComposerStore);
-    model.dispatch("RESIZE_SHEETVIEW", {
-      width: 100,
-      height: 100,
-      gridOffsetX: 0,
-      gridOffsetY: 0,
-    });
+    resizeSheetView(model, 100, 100);
     setCellContent(model, "A1", "apple");
     selectCell(model, "A1");
     const sheetId = model.getters.getActiveSheetId();
     const { col, row } = model.getters.getActivePosition();
-    model.dispatch("SET_VIEWPORT_OFFSET", { offsetX: 0, offsetY: 200 });
+    setViewportOffset(model, 0, 200);
     expect(model.getters.isVisibleInViewport({ sheetId, col, row })).toBeFalsy();
     composerStore.startEdition();
     expect(model.getters.isVisibleInViewport({ sheetId, col, row })).toBeTruthy();

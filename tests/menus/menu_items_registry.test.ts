@@ -5,6 +5,7 @@ import {
   createDynamicTable,
   createTable,
   createTableWithFilter,
+  cut,
   foldHeaderGroup,
   freezeColumns,
   freezeRows,
@@ -20,8 +21,9 @@ import {
   setAnchorCorner,
   setCellContent,
   setFormat,
+  setFormatting,
+  setGridLinesVisibility,
   setSelection,
-  setStyle,
   updateLocale,
   updateTableConfig,
 } from "../test_helpers/commands_helpers";
@@ -249,7 +251,7 @@ describe("Menu Item actions", () => {
 
   test("Internal copy followed by OS copy should not bring paste format from internal copy", async () => {
     setCellContent(model, "C1", "c1");
-    setStyle(model, "C1", { fillColor: "#FA0000" });
+    setFormatting(model, "C1", { fillColor: "#FA0000" });
     selectCell(model, "C1");
     await doAction(["edit", "copy"], env); // first copy from grid
     await env.clipboard!.writeText("Then copy in OS clipboard");
@@ -260,7 +262,7 @@ describe("Menu Item actions", () => {
   });
 
   test("Edit -> paste_special should be hidden after a CUT ", () => {
-    model.dispatch("CUT");
+    cut(model);
     expect(getNode(["edit", "paste_special"], env).isVisible(env)).toBeFalsy();
   });
 
@@ -1881,19 +1883,13 @@ describe("Menu Item actions", () => {
     const path_gridlines = ["view", "show", "view_gridlines"];
     const sheetId = model.getters.getActiveSheetId();
 
-    model.dispatch("SET_GRID_LINES_VISIBILITY", {
-      sheetId,
-      areGridLinesVisible: true,
-    });
+    setGridLinesVisibility(model, true);
 
     expect(getName(path_gridlines, env)).toBe("Gridlines");
     expect(getNode(path_gridlines, env).isVisible(env)).toBeTruthy();
     expect(getNode(path_gridlines, env).isActive?.(env)).toBeTruthy();
 
-    model.dispatch("SET_GRID_LINES_VISIBILITY", {
-      sheetId,
-      areGridLinesVisible: false,
-    });
+    setGridLinesVisibility(model, false);
     expect(getName(path_gridlines, env)).toBe("Gridlines");
     expect(getNode(path_gridlines, env).isVisible(env)).toBeTruthy();
     expect(getNode(path_gridlines, env).isActive?.(env)).toBeFalsy();
@@ -1903,10 +1899,7 @@ describe("Menu Item actions", () => {
       sheetId,
       areGridLinesVisible: true,
     });
-    model.dispatch("SET_GRID_LINES_VISIBILITY", {
-      sheetId,
-      areGridLinesVisible: true,
-    });
+    setGridLinesVisibility(model, true);
 
     doAction(path_gridlines, env);
     expect(dispatch).toHaveBeenCalledWith("SET_GRID_LINES_VISIBILITY", {

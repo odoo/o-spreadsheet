@@ -33,7 +33,9 @@ import {
   groupHeaders,
   merge,
   selectCell,
+  selectFigure,
   setCellContent,
+  setCellStyle,
   setSelection,
   sort,
   undo,
@@ -179,7 +181,7 @@ describe("UI Helpers", () => {
     test("Interactive paste paste options are working", async () => {
       const style = { fontSize: 36 };
       setCellContent(model, "A1", "=42");
-      model.dispatch("UPDATE_CELL", { sheetId, col: 0, row: 0, style });
+      setCellStyle(model, "A1", style);
 
       copy(model, "A1");
       const env = makeTestEnv({ model });
@@ -231,7 +233,7 @@ describe("UI Helpers", () => {
 
     test("paste special with a figure will warn the user", async () => {
       createChart(model, { type: "bar" }, "chartId", undefined, { figureId: "figureId" });
-      model.dispatch("SELECT_FIGURE", { figureId: "figureId" });
+      selectFigure(model, "figureId");
       copy(model);
       interactivePaste(env, target("A1"), "onlyFormat");
       expect(notifyUserTextSpy).toHaveBeenCalledWith(

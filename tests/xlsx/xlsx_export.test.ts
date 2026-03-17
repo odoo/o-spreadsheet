@@ -13,6 +13,7 @@ import { arg } from "@odoo/o-spreadsheet-engine/functions/arguments";
 import { functionRegistry } from "@odoo/o-spreadsheet-engine/functions/function_registry";
 import {
   addCfRule,
+  addEqualCf,
   createChart,
   createGaugeChart,
   createImage,
@@ -25,6 +26,7 @@ import {
   setCellContent,
   setCellFormat,
   setFormat,
+  updateFigure,
   updateFilter,
 } from "../test_helpers/commands_helpers";
 import { TEST_CHART_DATA } from "../test_helpers/constants";
@@ -34,7 +36,6 @@ import {
   exportPrettifiedXlsx,
   getExportedExcelData,
   mockChart,
-  toRangesData,
 } from "../test_helpers/helpers";
 
 mockChart();
@@ -1670,7 +1671,7 @@ describe("Test XLSX export", () => {
         sheetId,
         model.getters.getNumberCols(sheetId) - 1
       ).end;
-      model.dispatch("UPDATE_FIGURE", {
+      updateFigure(model, {
         sheetId: "Sheet1",
         figureId: "1",
         offset: { x: end + 5, y: 0 },
@@ -1723,7 +1724,7 @@ describe("Test XLSX export", () => {
         sheetId,
         model.getters.getNumberCols(sheetId) - 1
       ).end;
-      model.dispatch("UPDATE_FIGURE", {
+      updateFigure(model, {
         sheetId,
         figureId: "1",
         offset: { x: end + 5, y: 0 },
@@ -1760,19 +1761,7 @@ describe("Test XLSX export", () => {
       },
       "1"
     );
-    model.dispatch("ADD_CONDITIONAL_FORMAT", {
-      sheetId: model.getters.getActiveSheetId(),
-      ranges: toRangesData(model.getters.getActiveSheetId(), "A1"),
-      cf: {
-        id: "42",
-        rule: {
-          type: "CellIsRule",
-          operator: "isEqual",
-          values: ["1"],
-          style: { bold: true },
-        },
-      },
-    });
+    addEqualCf(model, "A1", { bold: true }, "1", "42");
     expect(await exportPrettifiedXlsx(model)).toMatchSnapshot();
   });
 

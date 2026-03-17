@@ -5,7 +5,7 @@ import {
   DEFAULT_CELL_WIDTH,
   MIN_CELL_TEXT_MARGIN,
 } from "@odoo/o-spreadsheet-engine/constants";
-import { Box, GridRenderingContext, Model } from "../../src";
+import { Box, CellIsRule, GridRenderingContext, Model } from "../../src";
 import { toZone } from "../../src/helpers";
 import { EASING_FN, cellAnimationRegistry } from "../../src/registries/cell_animation_registry";
 import { CELL_ANIMATION_DURATION, GridRenderer } from "../../src/stores/grid_renderer_store";
@@ -13,6 +13,7 @@ import { RendererStore } from "../../src/stores/renderer_store";
 import { MockCanvasRenderingContext2D } from "../setup/canvas.mock";
 import {
   activateSheet,
+  addCfRule,
   addDataBarCF,
   addEqualCf,
   addIconCF,
@@ -27,12 +28,12 @@ import {
   resizeColumns,
   setCellContent,
   setFormat,
-  setStyle,
+  setFormatting,
   setViewportOffset,
   undo,
   updateTableConfig,
 } from "../test_helpers/commands_helpers";
-import { setGrid, toRangesData } from "../test_helpers/helpers";
+import { setGrid } from "../test_helpers/helpers";
 import { MockGridRenderingContext } from "../test_helpers/renderer_helpers";
 import { makeStoreWithModel } from "../test_helpers/stores";
 
@@ -138,13 +139,9 @@ describe("Grid renderer animations", () => {
   });
 
   test("Animations are not run the on copy/paste zone ", () => {
-    const sheetId = model.getters.getActiveSheetId();
     const style = { fillColor: "#ff0f0f" };
-    model.dispatch("ADD_CONDITIONAL_FORMAT", {
-      cf: { rule: { type: "CellIsRule", operator: "isEmpty", values: [], style }, id: "11" },
-      ranges: toRangesData(sheetId, "A1:A3"),
-      sheetId,
-    });
+    const rule: CellIsRule = { type: "CellIsRule", operator: "isEmpty", values: [], style };
+    addCfRule(model, "A1:A3", rule, "11");
     setCellContent(model, "A3", "2");
     setCellContent(model, "D8", "=SUM(B1:B3)");
     drawGrid();
@@ -467,7 +464,7 @@ describe("Individual animation tests", () => {
   test("Can animate both a text fading out and a background color change at the same time", () => {
     addEqualCf(model, "B3", { fillColor: "#0000FF" }, "1");
     setGrid(model, { A1: "2", A2: "=MUNIT(A1)" });
-    setStyle(model, "B3", { textColor: "#FF00FF" });
+    setFormatting(model, "B3", { textColor: "#FF00FF" });
 
     drawGrid();
     expect(getBoxFromXc("B3").style).toMatchObject({ fillColor: "#0000FF", textColor: "#FF00FF" });

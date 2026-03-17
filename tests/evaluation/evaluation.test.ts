@@ -10,10 +10,11 @@ import {
   copy,
   createSheet,
   deleteColumns,
+  evaluateCells,
   paste,
   setCellContent,
   setFormat,
-  setStyle,
+  setFormatting,
   updateLocale,
 } from "../test_helpers/commands_helpers";
 import { FR_LOCALE } from "../test_helpers/constants";
@@ -1098,7 +1099,7 @@ describe("evaluateCells", () => {
     const model = new Model();
     setCellContent(model, "A2", "=A1");
     expect(getEvaluatedCell(model, "A2").value).toBe(0);
-    setStyle(model, "A1", {
+    setFormatting(model, "A1", {
       fillColor: "#B6D7A8",
     });
     setCellContent(model, "A12", "this re-evaluates cells");
@@ -1404,7 +1405,7 @@ describe("evaluate formula getter", () => {
     setCellContent(model, "A1", "=GETVALUE()");
     expect(getEvaluatedCell(model, "A1").value).toBe(1);
     value = 2;
-    model.dispatch("EVALUATE_CELLS");
+    evaluateCells(model);
     expect(getEvaluatedCell(model, "A1").value).toBe(2);
   });
 
@@ -1448,7 +1449,7 @@ describe("evaluate formula getter", () => {
     expect(getEvaluatedCell(model, "A1").type).toBe(CellValueType.error);
     expect(getEvaluatedCell(model, "A2").type).toBe(CellValueType.error);
     value = 2;
-    model.dispatch("EVALUATE_CELLS");
+    evaluateCells(model);
     expect(getEvaluatedCell(model, "A1").value).toBe(-2);
     expect(getEvaluatedCell(model, "A2").value).toBe(-2);
   });
@@ -1465,7 +1466,7 @@ describe("evaluate formula getter", () => {
     setCellContent(model, "A2", "=-GETVALUE()", "sheet2");
     expect(getEvaluatedCell(model, "A1").type).toBe(CellValueType.error);
     value = 2;
-    model.dispatch("EVALUATE_CELLS");
+    evaluateCells(model);
     expect(getEvaluatedCell(model, "A1").value).toBe(-2);
     expect(getEvaluatedCell(model, "A2", "sheet2").value).toBe(-2);
   });
@@ -1492,7 +1493,7 @@ describe("evaluate formula getter", () => {
     expect(getEvaluatedCell(model, "A1").type).toBe(CellValueType.error);
     expect((getEvaluatedCell(model, "A1") as ErrorCell).message).toBe("Error1");
     value = 2;
-    model.dispatch("EVALUATE_CELLS");
+    evaluateCells(model);
     expect(getEvaluatedCell(model, "A1").type).toBe(CellValueType.error);
     expect((getEvaluatedCell(model, "A1") as ErrorCell).message).toBe("Error2");
   });
@@ -1521,7 +1522,7 @@ describe("evaluate formula getter", () => {
   });
 
   test("Getter getEvaluatedCells does not return cells with only a style", () => {
-    setStyle(model, "B1", { fillColor: "red" });
+    setFormatting(model, "B1", { fillColor: "red" });
     expect(model.getters.getEvaluatedCells(sheetId)).toHaveLength(0);
   });
 });

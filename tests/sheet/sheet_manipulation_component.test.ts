@@ -238,11 +238,7 @@ describe("Context MenuPopover hide col/row", () => {
     });
   });
   test("can unhide column", async () => {
-    model.dispatch("HIDE_COLUMNS_ROWS", {
-      sheetId: model.getters.getActiveSheetId(),
-      elements: [2], // COL_C
-      dimension: "COL",
-    });
+    hideColumns(model, ["C"]);
     selectColumn(model, 1, "overrideSelection");
     selectColumn(model, 3, "updateAnchor");
     const NEW_COL_D = { x: COLUMN_D.x - DEFAULT_CELL_WIDTH, y: COLUMN_D.y };
@@ -268,11 +264,7 @@ describe("Context MenuPopover hide col/row", () => {
     });
   });
   test("can unhide row", async () => {
-    model.dispatch("HIDE_COLUMNS_ROWS", {
-      sheetId: model.getters.getActiveSheetId(),
-      elements: [3], // ROW_4
-      dimension: "ROW",
-    });
+    hideRows(model, [3]);
     selectRow(model, 2, "overrideSelection");
     selectRow(model, 4, "updateAnchor");
     const NEW_ROW_5 = { x: ROW_5.x, y: ROW_5.y - DEFAULT_CELL_HEIGHT };

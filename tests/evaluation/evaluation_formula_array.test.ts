@@ -12,6 +12,7 @@ import {
   deleteColumns,
   deleteContent,
   deleteRows,
+  evaluateCells,
   merge,
   paste,
   setCellContent,
@@ -676,7 +677,7 @@ describe("evaluate formulas that use/return an array", () => {
       expect(getEvaluatedCell(model, "A1").value).toBe(1);
 
       // Force a reevaluation to avoid the incremental evaluation following each update_cell
-      model.dispatch("EVALUATE_CELLS");
+      evaluateCells(model);
       expect(getEvaluatedCell(model, "A1").value).toBe(1);
     });
 

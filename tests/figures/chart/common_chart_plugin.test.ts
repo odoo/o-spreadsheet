@@ -4,14 +4,16 @@ import { Model } from "../../../src";
 import { Color, UID } from "../../../src/types";
 import {
   activateSheet,
+  addEqualCf,
   createChart,
   createGaugeChart,
   createScorecardChart,
   createSheet,
+  duplicateSheet,
   setCellContent,
-  setStyle,
+  setFormatting,
+  updateFigure,
 } from "../../test_helpers/commands_helpers";
-import { createEqualCF, toRangesData } from "../../test_helpers/helpers";
 
 describe("Single cell chart background color", () => {
   let model: Model;
@@ -31,16 +33,12 @@ describe("Single cell chart background color", () => {
     setCellContent(model, "A1", "1");
   });
 
-  function addCfToA1(color: Color) {
-    model.dispatch("ADD_CONDITIONAL_FORMAT", {
-      cf: createEqualCF("1", { fillColor: color }, "cfId"),
-      ranges: toRangesData(sheetId, "A1"),
-      sheetId,
-    });
+  function addCfToA1(fillColor: Color) {
+    addEqualCf(model, "A1", { fillColor }, "1");
   }
 
   function addFillToA1(color: Color) {
-    setStyle(model, "A1", { fillColor: color });
+    setFormatting(model, "A1", { fillColor: color });
   }
 
   function createTestChart(chartType: string, mainCell: string, background?: Color) {
@@ -98,11 +96,7 @@ describe("Single cell chart background color", () => {
       createSheet(model, { sheetId: "sheet2" });
       activateSheet(model, "sheet2");
       setCellContent(model, "A1", "1", sheetId);
-      model.dispatch("ADD_CONDITIONAL_FORMAT", {
-        cf: createEqualCF("1", { fillColor: "#000FFF" }, "cfId"),
-        ranges: toRangesData(sheetId, "A1"),
-        sheetId,
-      });
+      addEqualCf(model, "A1", { fillColor: "#000FFF" }, "1", "cfId", sheetId);
       const sheet1Name = model.getters.getSheetName(sheetId);
       createTestChart(chartType, `${sheet1Name}!A1`);
       expect(getGaugeOrScorecardRuntime(model, chartId).background).toEqual("#000FFF");
@@ -115,7 +109,7 @@ describe("Single cell chart background color", () => {
     createChart(model, { type: "bar" });
     const firstSheetFigures = model.getters.getFigures(firstSheetId);
     expect(firstSheetFigures.length).toBe(1);
-    model.dispatch("UPDATE_FIGURE", {
+    updateFigure(model, {
       sheetId,
       figureId: firstSheetFigures[0].id,
       offset: {
@@ -127,11 +121,7 @@ describe("Single cell chart background color", () => {
       col: 0,
       row: 0,
     });
-    model.dispatch("DUPLICATE_SHEET", {
-      sheetIdTo: secondSheetId,
-      sheetId: firstSheetId,
-      sheetNameTo: "Copy of Sheet1",
-    });
+    duplicateSheet(model, firstSheetId, secondSheetId);
     const secondSheetFigures = model.getters.getFigures(secondSheetId);
     expect(secondSheetFigures.length).toBe(1);
     expect(firstSheetFigures[0]).toMatchObject({

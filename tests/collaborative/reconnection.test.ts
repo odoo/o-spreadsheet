@@ -15,6 +15,10 @@ describe("reconnection recovery", () => {
   });
 
   test("disconnecting than reconnecting re-send all messages and swallows the error", async () => {
+    function dispatchCmd(model: Model, cmd: CoreCommand) {
+      return model.dispatch(cmd.type, cmd);
+    }
+
     const commandWhileOnline: CoreCommand = {
       type: "UPDATE_CELL",
       sheetId: alice.getters.getActiveSheetId(),
@@ -45,7 +49,7 @@ describe("reconnection recovery", () => {
       content: "fourth command",
     };
 
-    alice.dispatch("UPDATE_CELL", commandWhileOnline);
+    dispatchCmd(alice, commandWhileOnline);
     await nextTick();
 
     const backupSendMessage = network.sendMessage;
@@ -53,13 +57,13 @@ describe("reconnection recovery", () => {
       return Promise.reject(new ClientDisconnectedError("network error"));
     };
 
-    alice.dispatch("UPDATE_CELL", commandWhileOFFLINE);
+    dispatchCmd(alice, commandWhileOFFLINE);
     await nextTick();
-    alice.dispatch("UPDATE_CELL", commandWhileOFFLINE2);
+    dispatchCmd(alice, commandWhileOFFLINE2);
     await nextTick();
 
     network.sendMessage = backupSendMessage;
-    alice.dispatch("UPDATE_CELL", commandWhileBackOnline);
+    dispatchCmd(alice, commandWhileBackOnline);
 
     await nextTick();
     await nextTick();

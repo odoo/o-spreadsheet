@@ -15,7 +15,7 @@ import {
   hideRows,
   redo,
   setCellContent,
-  setStyle,
+  setFormatting,
   setZoneBorders,
   undo,
   unfoldAllHeaderGroups,
@@ -80,14 +80,14 @@ describe("Table style", () => {
     test("Table style do not overwrite cell style", () => {
       createTable(model, "A1:A4");
       updateTableConfig(model, "A1:A4", { styleId: "TableStyleMedium9", numberOfHeaders: 1 });
-      setStyle(model, "A1", { fillColor: "#f00" });
+      setFormatting(model, "A1", { fillColor: "#f00" });
       expect(getCellStyle("A1")).toMatchObject({ fillColor: "#f00" });
     });
 
     test("Falsy cell style do not overwrite table", () => {
       createTable(model, "A1:A4");
       updateTableConfig(model, "A1:A4", { styleId: "TableStyleMedium9", numberOfHeaders: 1 });
-      setStyle(model, "A1", { fillColor: undefined, bold: false });
+      setFormatting(model, "A1", { fillColor: undefined, bold: false });
       expect(getCellStyle("A1")).toMatchObject({ fillColor: headerColor, bold: true });
     });
 
@@ -278,7 +278,7 @@ describe("Table style", () => {
     });
 
     test("Style is updated when deleting a table", () => {
-      setStyle(model, "A1", { fillColor: "#f00" });
+      setFormatting(model, "A1", { fillColor: "#f00" });
       const tableStyle = getFullTableStyle("A1:B4");
       deleteTable(model, "A1:B4");
       expect(getFullTableStyle("A1:B4")).not.toEqual(tableStyle);

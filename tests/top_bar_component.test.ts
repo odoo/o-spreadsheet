@@ -9,20 +9,22 @@ import { topBarToolBarRegistry } from "../src/components/top_bar/top_bar_tools_r
 import { toZone, zoneToXc } from "../src/helpers";
 import { topbarMenuRegistry } from "../src/registries/menus";
 import { topbarComponentRegistry } from "../src/registries/topbar_component_registry";
-import { ConditionalFormat, Currency, Pixel, Style } from "../src/types";
+import { Currency, Pixel, Style } from "../src/types";
 import { FileStore } from "./__mocks__/mock_file_store";
 import { MockTransportService } from "./__mocks__/transport_service";
 import {
   addCellToSelection,
+  addEqualCf,
   createTableWithFilter,
   freezeColumns,
   freezeRows,
   merge,
+  resizeSheetView,
   selectCell,
   setAnchorCorner,
   setCellContent,
+  setFormatting,
   setSelection,
-  setStyle,
   setZoneBorders,
 } from "./test_helpers/commands_helpers";
 import {
@@ -44,7 +46,6 @@ import {
   mountSpreadsheet,
   nextTick,
   target,
-  toRangesData,
   typeInComposerTopBar,
 } from "./test_helpers/helpers";
 import { extendMockGetBoundingClientRect } from "./test_helpers/mock_helpers";
@@ -282,7 +283,7 @@ describe("TopBar component", () => {
     expect(undoTool.classList.contains("o-disabled")).toBeTruthy();
     expect(redoTool.classList.contains("o-disabled")).toBeTruthy();
 
-    setStyle(model, "A1", { bold: true });
+    setFormatting(model, "A1", { bold: true });
     await nextTick();
     expect(undoTool.classList.contains("o-disabled")).toBeFalsy();
     expect(redoTool.classList.contains("o-disabled")).toBeFalsy();
@@ -500,7 +501,7 @@ describe("TopBar component", () => {
       async (content, style, expectedTitleActive) => {
         const model = new Model();
         setCellContent(model, "A1", content);
-        setStyle(model, "A1", style as Style);
+        setFormatting(model, "A1", style as Style);
         await mountParent(model);
         await click(fixture, '.o-menu-item-button[title="Horizontal align"]');
         const expectedButtonActive = fixture.querySelector(
@@ -533,7 +534,7 @@ describe("TopBar component", () => {
       async (content, style, expectedTitleActive) => {
         const model = new Model();
         setCellContent(model, "A1", content);
-        setStyle(model, "A1", style as Style);
+        setFormatting(model, "A1", style as Style);
         await mountParent(model);
         await click(fixture, '.o-menu-item-button[title="Vertical align"]');
         const expectedButtonActive = fixture.querySelector(
@@ -566,7 +567,7 @@ describe("TopBar component", () => {
       async (content, style, expectedTitleActive) => {
         const model = new Model();
         setCellContent(model, "A1", content);
-        setStyle(model, "A1", style as Style);
+        setFormatting(model, "A1", style as Style);
         await mountParent(model);
         await click(fixture, '.o-menu-item-button[title="Wrapping"]');
         const expectedButtonActive = fixture.querySelector(
@@ -813,7 +814,7 @@ describe("TopBar - Custom currency", () => {
 describe("Format", () => {
   test("can clear format", async () => {
     const { model, fixture } = await mountSpreadsheet();
-    setStyle(model, "A1, B2:B3", { fillColor: "#000000" });
+    setFormatting(model, "A1, B2:B3", { fillColor: "#000000" });
     selectCell(model, "A1");
     addCellToSelection(model, "B2");
     setAnchorCorner(model, "B3");
@@ -839,23 +840,7 @@ describe("TopBar - CF", () => {
 
   test("open sidepanel with one CF in selected zone", async () => {
     const { model, fixture } = await mountSpreadsheet();
-
-    const cfRule: ConditionalFormat = {
-      ranges: ["A1:C7"],
-      id: "1",
-      rule: {
-        values: ["2"],
-        operator: "isEqual",
-        type: "CellIsRule",
-        style: { fillColor: "#FF0000" },
-      },
-    };
-    const sheetId = model.getters.getActiveSheetId();
-    model.dispatch("ADD_CONDITIONAL_FORMAT", {
-      cf: cfRule,
-      sheetId,
-      ranges: toRangesData(sheetId, cfRule.ranges.join(",")),
-    });
+    addEqualCf(model, "A1:C7", { fillColor: "#FF0000" }, "2");
     setSelection(model, ["A1:K11"]);
 
     await click(fixture, ".o-topbar-menu[data-id='format']");
@@ -866,38 +851,8 @@ describe("TopBar - CF", () => {
 
   test("open sidepanel with with more then one CF in selected zone", async () => {
     const { model, fixture } = await mountSpreadsheet();
-
-    const cfRule1: ConditionalFormat = {
-      ranges: ["A1:C7"],
-      id: "1",
-      rule: {
-        values: ["2"],
-        operator: "isEqual",
-        type: "CellIsRule",
-        style: { fillColor: "#FF0000" },
-      },
-    };
-    const cfRule2: ConditionalFormat = {
-      ranges: ["A1:C7"],
-      id: "2",
-      rule: {
-        values: ["3"],
-        operator: "isEqual",
-        type: "CellIsRule",
-        style: { fillColor: "#FE0001" },
-      },
-    };
-    const sheetId = model.getters.getActiveSheetId();
-    model.dispatch("ADD_CONDITIONAL_FORMAT", {
-      cf: cfRule1,
-      sheetId,
-      ranges: toRangesData(sheetId, cfRule1.ranges.join(",")),
-    });
-    model.dispatch("ADD_CONDITIONAL_FORMAT", {
-      cf: cfRule2,
-      sheetId,
-      ranges: toRangesData(sheetId, cfRule2.ranges.join(",")),
-    });
+    addEqualCf(model, "A1:C7", { fillColor: "#FF0000" }, "2", "1");
+    addEqualCf(model, "A1:C7", { fillColor: "#FE0001" }, "3", "2");
     setSelection(model, ["A1:K11"]);
 
     await click(fixture, ".o-topbar-menu[data-id='format']");
@@ -909,27 +864,8 @@ describe("TopBar - CF", () => {
   test("will update sidepanel if we reopen it from other cell", async () => {
     const { model, fixture } = await mountSpreadsheet();
 
-    const cfRule1: ConditionalFormat = {
-      ranges: ["A1:A10"],
-      id: "1",
-      rule: {
-        values: ["2"],
-        operator: "isEqual",
-        type: "CellIsRule",
-        style: { fillColor: "#FF1200" },
-      },
-    };
-    const sheetId = model.getters.getActiveSheetId();
-    model.dispatch("ADD_CONDITIONAL_FORMAT", {
-      cf: cfRule1,
-      sheetId,
-      ranges: toRangesData(sheetId, cfRule1.ranges.join(",")),
-    });
-    model.dispatch("ADD_CONDITIONAL_FORMAT", {
-      cf: { ...cfRule1, id: "2" },
-      sheetId,
-      ranges: toRangesData(sheetId, "F1"),
-    });
+    addEqualCf(model, "A1:A10", { fillColor: "#FF1200" }, "2", "1");
+    addEqualCf(model, "F1", { fillColor: "#FF1200" }, "2", "2");
     setSelection(model, ["A1:A11"]);
     await click(fixture, ".o-topbar-menu[data-id='format']");
     await click(fixture, ".o-menu-item[data-name='format_cf']");
@@ -963,7 +899,7 @@ describe("Topbar - menu item resizing with viewport", () => {
     expect(parseInt(height)).toBe(
       model.getters.getVisibleRect(model.getters.getActiveMainViewport()).height
     );
-    model.dispatch("RESIZE_SHEETVIEW", { width: 300, height: 100 });
+    resizeSheetView(model, 100, 300);
     spreadsheetHeight = 100;
     window.resizers.resize();
     await nextTick();
@@ -980,7 +916,7 @@ describe("Topbar - menu item resizing with viewport", () => {
     expect(parseInt(height)).toBe(
       model.getters.getVisibleRect(model.getters.getActiveMainViewport()).height
     );
-    model.dispatch("RESIZE_SHEETVIEW", { width: 300, height: 100 });
+    resizeSheetView(model, 100, 300);
     spreadsheetHeight = 100;
     window.resizers.resize();
     await nextTick();
@@ -1072,7 +1008,7 @@ describe("Topbar svg icon", () => {
     [{ wrapping: "overflow" }, "Wrapping", "wrapping-overflow"],
   ])("Icon in top bar matches the selected cell style", async (style, buttonTitle, iconClass) => {
     const model = new Model();
-    setStyle(model, "A1", style as Style);
+    setFormatting(model, "A1", style as Style);
 
     ({ fixture } = await mountSpreadsheet({ model }));
 

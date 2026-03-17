@@ -13,20 +13,23 @@ import {
   createSheet,
   deleteCells,
   deleteColumns,
+  deleteContent,
   deleteRows,
   freezeColumns,
   freezeRows,
   insertCells,
   merge,
   redo,
+  resizeSheetView,
   selectCell,
   setCellContent,
+  setFormatting,
   setSelection,
-  setStyle,
   setZoneBorders,
   undo,
   unfreezeColumns,
   unfreezeRows,
+  updateCell,
 } from "../test_helpers/commands_helpers";
 import {
   getBorder,
@@ -46,26 +49,22 @@ let model: Model;
 
 function clearColumns(indexes: string[]) {
   const sheetId = model.getters.getActiveSheetId();
-  const target = indexes
+  const ranges = indexes
     .map((index) => lettersToNumber(index))
-    .map((index) => {
-      return model.getters.getColsZone(sheetId, index, index);
+    .map((col) => {
+      const zone = model.getters.getColsZone(sheetId, col, col);
+      return `${toXC(zone.left, zone.top)}:${toXC(zone.right, zone.bottom)}`;
     });
-  model.dispatch("DELETE_CONTENT", {
-    target,
-    sheetId: model.getters.getActiveSheetId(),
-  });
+  deleteContent(model, ranges);
 }
 
 function clearRows(indexes: number[]) {
   const sheetId = model.getters.getActiveSheetId();
-  const target = indexes.map((index) => {
-    return model.getters.getRowsZone(sheetId, index, index);
+  const ranges = indexes.map((index) => {
+    const zone = model.getters.getRowsZone(sheetId, index, index);
+    return `${toXC(zone.left, zone.top)}:${toXC(zone.right, zone.bottom)}`;
   });
-  model.dispatch("DELETE_CONTENT", {
-    target,
-    sheetId: model.getters.getActiveSheetId(),
-  });
+  deleteContent(model, ranges);
 }
 
 const fullData = {
@@ -945,10 +944,7 @@ describe("Rows", () => {
       expect(model.getters.getNumberRows(sheetId)).toBe(6);
       const dimensions = model.getters.getMainViewportRect();
       expect(dimensions).toMatchObject({ width: 1000, height: 1000 });
-      model.dispatch("RESIZE_SHEETVIEW", {
-        width: DEFAULT_CELL_WIDTH,
-        height: DEFAULT_CELL_HEIGHT,
-      });
+      resizeSheetView(model, DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH);
       const newDimensions = model.getters.getMainViewportRect();
       expect(newDimensions).toMatchObject({
         width: DEFAULT_CELL_WIDTH, // sum of col sizes
@@ -967,10 +963,7 @@ describe("Rows", () => {
       expect(model.getters.getRowSize(sheetId, 5)).toBe(size);
       const dimensions = model.getters.getMainViewportRect();
       expect(dimensions).toMatchObject({ width: 1000, height: 1000 });
-      model.dispatch("RESIZE_SHEETVIEW", {
-        width: DEFAULT_CELL_WIDTH,
-        height: DEFAULT_CELL_HEIGHT,
-      });
+      resizeSheetView(model, DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH);
       const newDimensions = model.getters.getMainViewportRect();
       expect(newDimensions).toMatchObject({
         width: DEFAULT_CELL_WIDTH, // sum of col sizes
@@ -987,10 +980,7 @@ describe("Rows", () => {
 
     test("activate Sheet: same size", () => {
       addRows(model, "after", 2, 1);
-      model.dispatch("RESIZE_SHEETVIEW", {
-        width: DEFAULT_CELL_WIDTH,
-        height: DEFAULT_CELL_HEIGHT,
-      });
+      resizeSheetView(model, DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH);
       let dimensions = model.getters.getMainViewportRect();
       expect(dimensions).toMatchObject({
         width: DEFAULT_CELL_WIDTH, // sum of col sizes
@@ -1565,7 +1555,7 @@ describe("Delete cell", () => {
 
   test("Undo/redo is correctly supported", () => {
     setCellContent(model, "A2", "=A3");
-    setStyle(model, "A3", { fillColor: "orange" });
+    setFormatting(model, "A3", { fillColor: "orange" });
     testUndoRedo(model, expect, "DELETE_CELL", { zone: toZone("A1"), dimension: "ROW" });
   });
 
@@ -1574,7 +1564,7 @@ describe("Delete cell", () => {
     const col = model.getters.getNumberCols(sheetId) - 1;
     const row = model.getters.getNumberRows(sheetId) - 1;
     const xc = toXC(col, row);
-    model.dispatch("UPDATE_CELL", { sheetId, col, row, content: "test", style: { bold: true } });
+    updateCell(model, xc, { content: "test", style: { bold: true } });
     deleteCells(model, xc, direction);
     const cell = getCell(model, xc);
     expect(cell).toBeUndefined();
@@ -1658,7 +1648,7 @@ describe("Insert cell", () => {
 
   test("Undo/redo is correctly supported", () => {
     setCellContent(model, "A2", "=A3");
-    setStyle(model, "A3", { fillColor: "orange" });
+    setFormatting(model, "A3", { fillColor: "orange" });
     testUndoRedo(model, expect, "INSERT_CELL", { zone: toZone("A1"), dimension: "ROW" });
   });
 });

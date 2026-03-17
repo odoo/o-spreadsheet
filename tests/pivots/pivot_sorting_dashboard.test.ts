@@ -2,7 +2,7 @@ import { TEXT_BODY_MUTED } from "@odoo/o-spreadsheet-engine/constants";
 import { ClickableCellsStore } from "../../src/components/dashboard/clickable_cell_store";
 import { HoveredTableStore } from "../../src/components/tables/hovered_table_store";
 import { toCartesian } from "../../src/helpers";
-import { createTable, setStyle } from "../test_helpers/commands_helpers";
+import { createTable, setFormatting } from "../test_helpers/commands_helpers";
 import { click, getElComputedStyle } from "../test_helpers/dom_helper";
 import { getCellIcons } from "../test_helpers/getters_helpers";
 import {
@@ -87,7 +87,7 @@ describe("Dashboard Pivot Sorting", () => {
     ] as const;
     for (const { align, expectedClass } of cases) {
       model.updateMode("normal");
-      setStyle(model, "B5", { verticalAlign: align });
+      setFormatting(model, "B5", { verticalAlign: align });
       await nextTick();
       model.updateMode("dashboard");
       await nextTick();
@@ -132,7 +132,7 @@ describe("Dashboard Pivot Sorting", () => {
       rows: [{ fieldName: "Customer" }],
       measures: [{ id: "Price:sum", fieldName: "Price", aggregator: "sum" }],
     });
-    setStyle(model, "B5", { textColor: "#FF0000", fillColor: "#00FF00" });
+    setFormatting(model, "B5", { textColor: "#FF0000", fillColor: "#00FF00" });
     await mountSpreadsheet({ model });
     model.updateMode("dashboard");
     await nextTick();

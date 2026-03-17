@@ -7,12 +7,14 @@ import {
   addRows,
   deleteColumns,
   deleteRows,
+  duplicateSheet,
   hideColumns,
   hideRows,
   merge,
   redo,
+  setFormatting,
   setSelection,
-  setStyle,
+  setSheetviewSize,
   undo,
   unhideColumns,
   unhideRows,
@@ -83,7 +85,7 @@ describe("Hide Columns", () => {
 
   test("hide/unhide Column on small sheet", () => {
     model = new Model({ sheets: [{ colNumber: 5, rowNumber: 1 }] });
-    model.dispatch("RESIZE_SHEETVIEW", { width: DEFAULT_CELL_WIDTH, height: 1000 });
+    setSheetviewSize(model, 1000, DEFAULT_CELL_WIDTH);
     const sheet = model.getters.getActiveSheet();
     const dimensions = model.getters.getMainViewportRect();
     hideColumns(model, ["B", "C", "D"], sheet.id);
@@ -178,7 +180,7 @@ describe("Hide Rows", () => {
 
   test("hide/unhide Row on small sheet", () => {
     model = new Model({ sheets: [{ colNumber: 1, rowNumber: 5 }] });
-    model.dispatch("RESIZE_SHEETVIEW", { width: 1000, height: DEFAULT_CELL_HEIGHT });
+    setSheetviewSize(model, DEFAULT_CELL_HEIGHT, 1000);
     const sheet = model.getters.getActiveSheet();
     const dimensions = model.getters.getMainViewportRect();
     hideRows(model, [1, 2, 3], sheet.id);
@@ -312,15 +314,11 @@ describe("Hide Rows", () => {
     model = new Model();
     const sheetId = model.getters.getActiveSheetId();
     // Will force an UPDATE_CELL subcommand upon addRows
-    setStyle(model, "A100", { fillColor: "red" });
+    setFormatting(model, "A100", { fillColor: "red" });
     addRows(model, "after", 99, 1);
     const plugin = getPlugin(model, HeaderSizePlugin);
     expect(plugin.sizes[sheetId].ROW.length).toEqual(101);
-    model.dispatch("DUPLICATE_SHEET", {
-      sheetId,
-      sheetIdTo: "sheet2",
-      sheetNameTo: "Copy of Sheet1",
-    });
+    duplicateSheet(model, sheetId, "sheet2");
     expect(plugin.sizes["sheet2"].ROW.length).toEqual(101);
   });
 });

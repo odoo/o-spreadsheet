@@ -1,7 +1,7 @@
 import { TABLE_HOVER_BACKGROUND_COLOR } from "@odoo/o-spreadsheet-engine/constants";
 import { Model, UID } from "../../src";
 import { HoveredTableStore } from "../../src/components/tables/hovered_table_store";
-import { createTable, setCellContent } from "../test_helpers/commands_helpers";
+import { createTable, hideColumns, setCellContent } from "../test_helpers/commands_helpers";
 import { makeStore } from "../test_helpers/stores";
 
 describe("Hovered Table Store", () => {
@@ -87,7 +87,7 @@ describe("Hovered Table Store", () => {
     hoveredTableStore.clear();
 
     model.updateMode("normal");
-    model.dispatch("HIDE_COLUMNS_ROWS", { sheetId, elements: [0], dimension: "COL" });
+    hideColumns(model, ["A"]);
     model.updateMode("dashboard");
     hoveredTableStore.hover(B2);
     expect(hoveredTableStore.overlayColors.has({ sheetId, ...B2 })).toBe(false);

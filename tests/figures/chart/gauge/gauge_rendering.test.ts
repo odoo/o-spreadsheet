@@ -10,7 +10,11 @@ import { GaugeChartComponent } from "../../../../src/components/figures/chart/ga
 import { chartMutedFontColor } from "../../../../src/helpers/figures/charts";
 import { readonlyAllowedCommands, Rect } from "../../../../src/types";
 import { MockCanvasRenderingContext2D } from "../../../setup/canvas.mock";
-import { createGaugeChart, setCellContent } from "../../../test_helpers/commands_helpers";
+import {
+  createGaugeChart,
+  setCellContent,
+  setViewportOffset,
+} from "../../../test_helpers/commands_helpers";
 import { mountSpreadsheet, nextTick } from "../../../test_helpers/helpers";
 
 const testRuntime: GaugeChartRuntime = {
@@ -258,10 +262,10 @@ describe("Gauge chart component animation", () => {
     expect(gaugeAnimationSpy).toHaveBeenCalledTimes(1);
 
     // Scroll the figure out of the viewport and back in
-    model.dispatch("SET_VIEWPORT_OFFSET", { offsetX: 0, offsetY: 500 });
+    setViewportOffset(model, 0, 500);
     await nextTick();
     expect(".o-figure").toHaveCount(0);
-    model.dispatch("SET_VIEWPORT_OFFSET", { offsetX: 0, offsetY: 0 });
+    setViewportOffset(model, 0, 0);
     await nextTick();
     expect(".o-figure").toHaveCount(1);
     expect(gaugeAnimationSpy).toHaveBeenCalledTimes(1);

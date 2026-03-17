@@ -11,6 +11,7 @@ import {
   resizeAnchorZone,
   selectCell,
   setCellContent,
+  startChangeHighlight,
   updateLocale,
 } from "../test_helpers/commands_helpers";
 import { FR_LOCALE } from "../test_helpers/constants";
@@ -283,9 +284,7 @@ describe("ranges and highlights", () => {
   describe("change highlight position in the grid", () => {
     test("change the associated range in the composer ", async () => {
       composerEl = await typeInComposer("=SUM(B2)");
-      model.dispatch("START_CHANGE_HIGHLIGHT", {
-        zone: toZone("B2"),
-      });
+      startChangeHighlight(model, "B2");
       model.selection.selectZone(
         { cell: toCartesian("C3"), zone: toZone("C3") },
         { unbounded: true }
@@ -296,9 +295,7 @@ describe("ranges and highlights", () => {
 
     test("highlights change handle unbounded ranges ", async () => {
       composerEl = await typeInComposer("=SUM(B:B)");
-      model.dispatch("START_CHANGE_HIGHLIGHT", {
-        zone: toZone("B1:B100"),
-      });
+      startChangeHighlight(model, "B1:B100");
       model.selection.selectZone(
         { cell: toCartesian("C1"), zone: toZone("C1:C100") },
         { unbounded: true }
@@ -309,9 +306,7 @@ describe("ranges and highlights", () => {
 
     test("change the first associated range in the composer when ranges are the same", async () => {
       composerEl = await typeInComposer("=SUM(B2, B2)");
-      model.dispatch("START_CHANGE_HIGHLIGHT", {
-        zone: toZone("B2"),
-      });
+      startChangeHighlight(model, "B2");
       model.selection.selectZone(
         { cell: toCartesian("C3"), zone: toZone("C3") },
         { unbounded: true }
@@ -322,9 +317,7 @@ describe("ranges and highlights", () => {
 
     test("the first range doesn't change if other highlight transit by the first range state ", async () => {
       composerEl = await typeInComposer("=SUM(B2, B1)");
-      model.dispatch("START_CHANGE_HIGHLIGHT", {
-        zone: toZone("B1"),
-      });
+      startChangeHighlight(model, "B1");
       model.selection.selectZone(
         { cell: toCartesian("B2"), zone: toZone("B2") },
         { unbounded: true }
@@ -341,9 +334,7 @@ describe("ranges and highlights", () => {
     test("Changing superimposed highlights gives priority to the token at cursor", async () => {
       composerEl = await typeInComposer("=SUM(B1,B1,B1)");
       composerStore.changeComposerCursorSelection(9, 9);
-      model.dispatch("START_CHANGE_HIGHLIGHT", {
-        zone: toZone("B1"),
-      });
+      startChangeHighlight(model, "B1");
       model.selection.selectZone(
         { cell: toCartesian("B4"), zone: toZone("B4") },
         { unbounded: true }
@@ -354,9 +345,7 @@ describe("ranges and highlights", () => {
 
     test("can change references of different length", async () => {
       composerEl = await typeInComposer("=SUM(B1)");
-      model.dispatch("START_CHANGE_HIGHLIGHT", {
-        zone: toZone("B1"),
-      });
+      startChangeHighlight(model, "B1");
       model.selection.selectZone(
         { cell: toCartesian("B1"), zone: toZone("B1:B2") },
         { unbounded: true }
@@ -368,9 +357,7 @@ describe("ranges and highlights", () => {
     test("can change references with sheetname", async () => {
       composerEl = await typeInComposer("=Sheet42!B1");
       createSheetWithName(model, { sheetId: "42", activate: true }, "Sheet42");
-      model.dispatch("START_CHANGE_HIGHLIGHT", {
-        zone: toZone("B1"),
-      });
+      startChangeHighlight(model, "B1");
       model.selection.selectZone(
         { cell: toCartesian("B2"), zone: toZone("B2") },
         { unbounded: true }
@@ -382,9 +369,7 @@ describe("ranges and highlights", () => {
     test("change references of the current sheet", async () => {
       composerEl = await typeInComposer("=SUM(B1,Sheet42!B1)");
       createSheetWithName(model, { sheetId: "42", activate: true }, "Sheet42");
-      model.dispatch("START_CHANGE_HIGHLIGHT", {
-        zone: toZone("B1"),
-      });
+      startChangeHighlight(model, "B1");
       model.selection.selectZone(
         { cell: toCartesian("B2"), zone: toZone("B2") },
         { unbounded: true }
@@ -398,9 +383,7 @@ describe("ranges and highlights", () => {
       ["=$b1", "=$C1"],
     ])("can change cells reference with index fixed", async (ref, resultRef) => {
       composerEl = await typeInComposer(ref);
-      model.dispatch("START_CHANGE_HIGHLIGHT", {
-        zone: toZone("B1"),
-      });
+      startChangeHighlight(model, "B1");
       model.selection.selectZone(
         { cell: toCartesian("C1"), zone: toZone("C1") },
         { unbounded: true }
@@ -421,9 +404,7 @@ describe("ranges and highlights", () => {
       ["=$B$1:$B$2", "=$C$1:$C$2"],
     ])("can change ranges reference with index fixed", async (ref, resultRef) => {
       composerEl = await typeInComposer(ref);
-      model.dispatch("START_CHANGE_HIGHLIGHT", {
-        zone: toZone("B1:B2"),
-      });
+      startChangeHighlight(model, "B1:B2");
       model.selection.selectZone(
         { cell: toCartesian("C1"), zone: toZone("C1:C2") },
         { unbounded: true }
@@ -435,9 +416,7 @@ describe("ranges and highlights", () => {
     test("can change cells merged reference", async () => {
       merge(model, "B1:B2");
       composerEl = await typeInComposer("=B1");
-      model.dispatch("START_CHANGE_HIGHLIGHT", {
-        zone: toZone("B1:B2"),
-      });
+      startChangeHighlight(model, "B1:B2");
       model.selection.selectZone(
         { cell: toCartesian("C1"), zone: toZone("C1") },
         { unbounded: true }
@@ -446,9 +425,7 @@ describe("ranges and highlights", () => {
       expect(composerEl.textContent).toBe("=C1");
 
       composerEl = await typeInComposer("+B2", false);
-      model.dispatch("START_CHANGE_HIGHLIGHT", {
-        zone: toZone("B1:B2"),
-      });
+      startChangeHighlight(model, "B1:B2");
       model.selection.selectZone(
         { cell: toCartesian("C2"), zone: toZone("C2") },
         { unbounded: true }
@@ -460,9 +437,7 @@ describe("ranges and highlights", () => {
     test("can change cells merged reference with index fixed", async () => {
       merge(model, "B1:B2");
       composerEl = await typeInComposer("=B$2");
-      model.dispatch("START_CHANGE_HIGHLIGHT", {
-        zone: toZone("B1:B2"),
-      });
+      startChangeHighlight(model, "B1:B2");
       model.selection.selectZone(
         { cell: toCartesian("C1"), zone: toZone("C1:C2") },
         { unbounded: true }
@@ -474,9 +449,7 @@ describe("ranges and highlights", () => {
     test("references are expanded to include merges", async () => {
       merge(model, "C1:D1");
       composerEl = await typeInComposer("=A1:B1");
-      model.dispatch("START_CHANGE_HIGHLIGHT", {
-        zone: toZone("A1:B1"),
-      });
+      startChangeHighlight(model, "A1:B1");
       model.selection.selectZone(
         { cell: toCartesian("B1"), zone: toZone("B1:C1") },
         { unbounded: true }
@@ -487,9 +460,7 @@ describe("ranges and highlights", () => {
 
     test("can change references of different length with index fixed", async () => {
       composerEl = await typeInComposer("=SUM($B$1)");
-      model.dispatch("START_CHANGE_HIGHLIGHT", {
-        zone: toZone("B1"),
-      });
+      startChangeHighlight(model, "B1");
       model.selection.selectZone(
         { cell: toCartesian("B1"), zone: toZone("B1:B2") },
         { unbounded: true }
@@ -501,9 +472,7 @@ describe("ranges and highlights", () => {
     test("changing highlight to a spilled range adds the spill operator", async () => {
       setCellContent(model, "C3", "=MUNIT(2)");
       composerEl = await typeInComposer("=SUM(B2)");
-      model.dispatch("START_CHANGE_HIGHLIGHT", {
-        zone: toZone("B2"),
-      });
+      startChangeHighlight(model, "B2");
       model.selection.selectZone(
         { cell: toCartesian("C3"), zone: toZone("C3:D4") },
         { unbounded: true }

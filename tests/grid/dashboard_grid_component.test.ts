@@ -16,6 +16,7 @@ import { toZone } from "../../src/helpers";
 import { clickableCellRegistry } from "../../src/registries/cell_clickable_registry";
 import {
   createTableWithFilter,
+  evaluateCells,
   selectCell,
   setCellContent,
   setViewportOffset,
@@ -270,7 +271,7 @@ describe("Grid component in dashboard mode", () => {
     expect("div.o-dashboard-clickable-cell").toHaveCount(0); // because center icon => no clickable cell
 
     horizontalAlign = "right";
-    model.dispatch("EVALUATE_CELLS");
+    evaluateCells(model);
     await nextTick();
     expect("div.o-dashboard-clickable-cell").toHaveStyle({
       left: "0px",
@@ -279,7 +280,7 @@ describe("Grid component in dashboard mode", () => {
     });
 
     horizontalAlign = "left";
-    model.dispatch("EVALUATE_CELLS");
+    evaluateCells(model);
     await nextTick();
     expect("div.o-dashboard-clickable-cell").toHaveStyle({
       left: 20 + 2 + "px",

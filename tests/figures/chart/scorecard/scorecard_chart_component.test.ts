@@ -15,25 +15,23 @@ import { Model } from "../../../../src";
 import { SidePanels } from "../../../../src/components/side_panel/side_panels/side_panels";
 import { getContextFontSize } from "../../../../src/helpers";
 import { chartMutedFontColor, drawScoreChart } from "../../../../src/helpers/figures/charts";
-import { Pixel, UID } from "../../../../src/types";
+import { CellIsRule, Pixel, UID } from "../../../../src/types";
 import { MockCanvasRenderingContext2D } from "../../../setup/canvas.mock";
 import { click } from "../../../test_helpers";
 import { openChartDesignSidePanel } from "../../../test_helpers/chart_helpers";
 import {
+  addCfRule,
   createScorecardChart,
   setCellContent,
   setFormat,
-  setStyle,
+  setFormatting,
   updateChart,
+  updateFigure,
   updateLocale,
 } from "../../../test_helpers/commands_helpers";
 import { FR_LOCALE } from "../../../test_helpers/constants";
 import { getCellContent } from "../../../test_helpers/getters_helpers";
-import {
-  mountComponentWithPortalTarget,
-  nextTick,
-  toRangesData,
-} from "../../../test_helpers/helpers";
+import { mountComponentWithPortalTarget, nextTick } from "../../../test_helpers/helpers";
 
 let model: Model;
 let chartId: string;
@@ -45,7 +43,7 @@ const mutedFontColor = chartMutedFontColor("#fff");
 
 function updateScorecardChartSize(width: Pixel, height: Pixel) {
   const figureId = model.getters.getFigureIdFromChartId(chartId);
-  model.dispatch("UPDATE_FIGURE", {
+  updateFigure(model, {
     sheetId,
     figureId,
     offset: {
@@ -348,7 +346,7 @@ describe("Scorecard charts computation", () => {
 
   test("Key value and baseline are displayed with the cell style", () => {
     createScorecardChart(model, { keyValue: "A1", baseline: "A1" }, chartId);
-    setStyle(model, "A1", {
+    setFormatting(model, "A1", {
       textColor: "#FF0000",
       bold: true,
       italic: true,
@@ -368,7 +366,7 @@ describe("Scorecard charts computation", () => {
   test("Scorecard elements take the bold/italic style into account when finding the best font size", () => {
     const string = "This is a long string that will be the keyvalue";
     setCellContent(model, "A3", string);
-    setStyle(model, "A3", { bold: true, italic: true });
+    setFormatting(model, "A3", { bold: true, italic: true });
     createScorecardChart(model, { baseline: "A3", keyValue: "A3" }, chartId);
     const chartDesign = getChartDesign(model, chartId, sheetId);
 
@@ -384,7 +382,7 @@ describe("Scorecard charts computation", () => {
       { keyValue: "A1", baseline: "B1", baselineMode: "percentage" },
       chartId
     );
-    setStyle(model, "A1", { bold: true });
+    setFormatting(model, "A1", { bold: true });
     setFormat(model, "A1", "0.0");
     const chartDesign = getChartDesign(model, chartId, sheetId);
     expect(chartDesign.baseline?.style.font.includes("bold")).toBeFalsy();
@@ -432,24 +430,18 @@ describe("Scorecard charts computation", () => {
   });
 
   test("Scorecard chart adapts CF font color", async () => {
-    model.dispatch("ADD_CONDITIONAL_FORMAT", {
-      cf: {
-        rule: {
-          type: "CellIsRule",
-          values: [],
-          operator: "isNotEmpty",
-          style: { textColor: "#FF0000", fillColor: "#00FF00" },
-        },
-        id: "cfId",
-      },
-      ranges: toRangesData(sheetId, "A1"),
-      sheetId,
-    });
+    const rule: CellIsRule = {
+      type: "CellIsRule",
+      values: [],
+      operator: "isNotEmpty",
+      style: { textColor: "#FF0000", fillColor: "#00FF00" },
+    };
+    addCfRule(model, "A1", rule);
     setCellContent(model, "A1", "30");
     createScorecardChart(model, { keyValue: "A1" }, chartId);
     let chartDesign = getChartDesign(model, chartId, sheetId);
     expect(chartDesign.key?.style.color).toBeSameColorAs("#FF0000");
-    setStyle(model, "A1", { textColor: "#FFAAAA" });
+    setFormatting(model, "A1", { textColor: "#FFAAAA" });
     chartDesign = getChartDesign(model, chartId, sheetId);
     expect(chartDesign.key?.style.color).toBeSameColorAs("#FF0000");
   });
@@ -558,7 +550,7 @@ describe("Scorecard charts rendering", () => {
   });
 
   test("Key value and baseline are displayed with the cell style", () => {
-    setStyle(model, "A1", {
+    setFormatting(model, "A1", {
       textColor: "#FF0000",
       bold: true,
       italic: true,
@@ -746,7 +738,7 @@ describe("Scorecard charts rendering", () => {
   });
 
   test("Baseline mode percentage don't inherit of the style of the cell", () => {
-    setStyle(model, "A1", { bold: true });
+    setFormatting(model, "A1", { bold: true });
     setFormat(model, "A1", "0.0");
     createScorecardChart(
       model,

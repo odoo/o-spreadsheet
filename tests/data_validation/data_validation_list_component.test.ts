@@ -15,8 +15,8 @@ import {
   createTableWithFilter,
   setCellContent,
   setFormat,
+  setFormatting,
   setSelection,
-  setStyle,
 } from "../test_helpers/commands_helpers";
 import {
   changeRoundColorPickerColor,
@@ -448,7 +448,7 @@ describe("autocomplete in composer", () => {
       values: ["hello"],
       displayStyle: "arrow",
     });
-    setStyle(model, "A1", {
+    setFormatting(model, "A1", {
       textColor: "#FFFF00",
       fillColor: "#000000",
     });
@@ -578,7 +578,7 @@ describe("Selection arrow icon in grid", () => {
       colors: { hello: "#CFE2F3" },
     });
     setCellContent(model, "A1", "hello");
-    setStyle(model, "A1", {
+    setFormatting(model, "A1", {
       fillColor: "#123456",
       textColor: "#654321",
     });

@@ -273,7 +273,7 @@ describe("Model history", () => {
     const model = new Model();
     const sheetId = model.getters.getActiveSheetId();
     createSheet(model, { sheetId: "42", position: 1 });
-    model.dispatch("ACTIVATE_SHEET", { sheetIdFrom: sheetId, sheetIdTo: "42" });
+    activateSheet(model, "42");
     undo(model);
     expect(model.getters.getActiveSheetId()).toBe(sheetId);
   });
@@ -301,10 +301,10 @@ describe("Model history", () => {
 
   test("ACTIVATE_SHEET with another command is saved", () => {
     const model = new Model();
-    const sheet = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getActiveSheetId();
     createSheet(model, { sheetId: "42", activate: true });
     undo(model);
-    expect(model.getters.getActiveSheetId()).toBe(sheet);
+    expect(model.getters.getActiveSheetId()).toBe(sheetId);
   });
 
   test("undone & redone commands are part of the command", () => {

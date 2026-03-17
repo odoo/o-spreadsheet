@@ -18,6 +18,7 @@ import {
   copy,
   createSheet,
   createSheetWithName,
+  deleteContent,
   merge,
   moveAnchorCell,
   paste,
@@ -27,9 +28,10 @@ import {
   selectCell,
   setAnchorCorner,
   setCellContent,
+  setCellFormat,
   setFormat,
+  setFormatting,
   setSelection,
-  setStyle,
   undo,
   updateLocale,
 } from "../test_helpers/commands_helpers";
@@ -78,15 +80,11 @@ describe("edition", () => {
 
   test("deleting a cell with style does not remove it", () => {
     setCellContent(model, "A2", "a2");
-    setStyle(model, "A2", { fillColor: "red" });
+    setFormatting(model, "A2", { fillColor: "red" });
 
     // removing
     expect(getCellContent(model, "A2")).toBe("a2");
-    selectCell(model, "A2");
-    model.dispatch("DELETE_CONTENT", {
-      sheetId: model.getters.getActiveSheetId(),
-      target: model.getters.getSelectedZones(),
-    });
+    deleteContent(model, ["A2"]);
     expect(getCell(model, "A2")).toBeTruthy();
     expect(getCellContent(model, "A2")).toBe("");
   });
@@ -691,12 +689,7 @@ describe("edition", () => {
     setCellContent(model, "A1", "0.123456789123");
     selectCell(model, "A1");
     expect(composerStore.currentContent).toBe("0.123456789123");
-    model.dispatch("UPDATE_CELL", {
-      sheetId: model.getters.getActiveSheetId(),
-      col: 0,
-      row: 0,
-      format: "#,##0.00",
-    });
+    setCellFormat(model, "A1", "#,##0.00");
     expect(composerStore.currentContent).toBe("0.123456789123");
   });
 
@@ -718,48 +711,28 @@ describe("edition", () => {
   test("set a number format on a date displays the raw number", () => {
     setCellContent(model, "A1", "2020/10/20");
     expect(composerStore.currentContent).toBe("2020/10/20");
-    model.dispatch("UPDATE_CELL", {
-      sheetId: model.getters.getActiveSheetId(),
-      col: 0,
-      row: 0,
-      format: "#,##0.00",
-    });
+    setCellFormat(model, "A1", "#,##0.00");
     expect(composerStore.currentContent).toBe("44124");
   });
 
   test("set a date format on a number displays the date", () => {
     setCellContent(model, "A1", "42736");
     expect(composerStore.currentContent).toBe("42736");
-    model.dispatch("UPDATE_CELL", {
-      sheetId: model.getters.getActiveSheetId(),
-      col: 0,
-      row: 0,
-      format: "mm/dd/yyyy",
-    });
+    setCellFormat(model, "A1", "mm/dd/yyyy");
     expect(composerStore.currentContent).toBe("01/01/2017");
   });
 
   test("set a number format on a time displays the number", () => {
     setCellContent(model, "A1", "12:00:00 AM");
     expect(composerStore.currentContent).toBe("12:00:00 AM");
-    model.dispatch("UPDATE_CELL", {
-      sheetId: model.getters.getActiveSheetId(),
-      col: 0,
-      row: 0,
-      format: "#,##0.00",
-    });
+    setCellFormat(model, "A1", "#,##0.00");
     expect(composerStore.currentContent).toBe("0");
   });
 
   test("set a time format on a number displays the time", () => {
     setCellContent(model, "A1", "1");
     expect(composerStore.currentContent).toBe("1");
-    model.dispatch("UPDATE_CELL", {
-      sheetId: model.getters.getActiveSheetId(),
-      col: 0,
-      row: 0,
-      format: "hh:mm:ss a",
-    });
+    setCellFormat(model, "A1", "hh:mm:ss a");
     expect(composerStore.currentContent).toBe("12:00:00 AM");
   });
 

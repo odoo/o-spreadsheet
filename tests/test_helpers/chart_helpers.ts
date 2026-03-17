@@ -2,6 +2,7 @@ import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadshee
 import { TooltipItem } from "chart.js";
 import { ChartCreationContext, ChartJSRuntime, Model, UID } from "../../src";
 import { range, toHex } from "../../src/helpers";
+import { selectFigure } from "./commands_helpers";
 import { click, simulateClick } from "./dom_helper";
 import { nextTick } from "./helpers";
 
@@ -46,7 +47,7 @@ export async function openChartConfigSidePanel(
   if (!figureId) {
     throw new Error(`No figure found for chart ID: ${chartId}`);
   }
-  model.dispatch("SELECT_FIGURE", { figureId });
+  selectFigure(model, figureId);
   env.openSidePanel("ChartPanel");
   await nextTick();
 }

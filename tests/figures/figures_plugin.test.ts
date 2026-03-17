@@ -9,15 +9,19 @@ import {
   createFigure,
   createSheet,
   deleteColumns,
+  deleteFigure,
   deleteRows,
+  evaluateCells,
   freezeColumns,
   freezeRows,
   moveColumns,
   moveRows,
   selectCell,
+  selectFigure,
   setCellContent,
   setViewportOffset,
   undo,
+  updateFigure,
 } from "../test_helpers/commands_helpers";
 import { makeTestComposerStore } from "../test_helpers/helpers";
 
@@ -205,7 +209,7 @@ describe("figure plugin", () => {
       height: 100,
     });
     expect(model.getters.getSelectedFigureId()).toBe(null);
-    model.dispatch("SELECT_FIGURE", { figureId: "someuuid" });
+    selectFigure(model, "someuuid");
     expect(model.getters.getSelectedFigureId()).toBe("someuuid");
     selectCell(model, "A1");
     expect(model.getters.getSelectedFigureId()).toBe(null);
@@ -225,10 +229,10 @@ describe("figure plugin", () => {
     selectCell(model, "A1");
     expect(model.getters.getSelectedFigureId()).toBeNull();
 
-    model.dispatch("SELECT_FIGURE", { figureId: "someuuid" });
+    selectFigure(model, "someuuid");
     expect(model.getters.getSelectedFigureId()).toBe("someuuid");
 
-    model.dispatch("EVALUATE_CELLS");
+    evaluateCells(model);
     expect(model.getters.getSelectedFigureId()).toBe("someuuid");
   });
 
@@ -261,7 +265,7 @@ describe("figure plugin", () => {
     expect(x).toBe(100);
     expect(y).toBe(100);
 
-    model.dispatch("UPDATE_FIGURE", {
+    updateFigure(model, {
       sheetId: model.getters.getActiveSheetId(),
       figureId: "someuuid",
       offset: { x: figure.offset.x + 10, y: figure.offset.y + 100 },
@@ -285,7 +289,7 @@ describe("figure plugin", () => {
       height: 10,
     });
 
-    model.dispatch("UPDATE_FIGURE", {
+    updateFigure(model, {
       sheetId: model.getters.getActiveSheetId(),
       figureId: "someuuid",
       col: 0,
@@ -331,7 +335,7 @@ describe("figure plugin", () => {
     expect(x).toBe(100);
     expect(y).toBe(100);
 
-    const result = model.dispatch("UPDATE_FIGURE", {
+    const result = updateFigure(model, {
       sheetId: model.getters.getActiveSheetId(),
       figureId: "someuuid",
       offset: { x: figureUI.offset.x - 200, y: figureUI.offset.y - 50 },
@@ -343,7 +347,7 @@ describe("figure plugin", () => {
 
   test("cannot update a figure which doesn't exist", () => {
     const model = new Model();
-    const result = model.dispatch("UPDATE_FIGURE", {
+    const result = updateFigure(model, {
       sheetId: model.getters.getActiveSheetId(),
       figureId: "someuuid",
       col: 0,
@@ -355,10 +359,7 @@ describe("figure plugin", () => {
 
   test("cannot delete a figure which doesn't exist", () => {
     const model = new Model();
-    const result = model.dispatch("DELETE_FIGURE", {
-      sheetId: model.getters.getActiveSheetId(),
-      figureId: "someuuid",
-    });
+    const result = deleteFigure(model, "someuuid");
     expect(result).toBeCancelledBecause(CommandResult.FigureDoesNotExist);
   });
 
@@ -374,10 +375,10 @@ describe("figure plugin", () => {
       width: 10,
       height: 10,
     });
-    model.dispatch("SELECT_FIGURE", { figureId: "someuuid" });
+    selectFigure(model, "someuuid");
     expect(model.getters.getSelectedFigureId()).toBe("someuuid");
     expect(model.getters.getVisibleFigures()).toHaveLength(1);
-    model.dispatch("DELETE_FIGURE", { sheetId, figureId: "someuuid" });
+    deleteFigure(model, "someuuid", sheetId);
     expect(model.getters.getSelectedFigureId()).toBeNull();
     expect(model.getters.getVisibleFigures()).toHaveLength(0);
     undo(model);
@@ -401,7 +402,7 @@ describe("figure plugin", () => {
       width: 10,
       height: 10,
     });
-    model.dispatch("SELECT_FIGURE", { figureId: "someuuid" });
+    selectFigure(model, "someuuid");
     expect(model.getters.getSelectedFigureId()).toBe("someuuid");
     activateSheet(model, "2");
     expect(model.getters.getSelectedFigureId()).toBeNull();
@@ -422,7 +423,7 @@ describe("figure plugin", () => {
     composerStore.startEdition();
     composerStore.setCurrentContent("hello");
     expect(composerStore.editionMode).toBe("editing");
-    model.dispatch("SELECT_FIGURE", { figureId: "someuuid" });
+    selectFigure(model, "someuuid");
     expect(composerStore.editionMode).toBe("inactive");
     expect(model.getters.getActiveCell().value).toBe(null);
   });
@@ -443,7 +444,7 @@ describe("figure plugin", () => {
     });
     composerStore.startEdition();
     expect(composerStore.editionMode).toBe("selecting");
-    model.dispatch("SELECT_FIGURE", { figureId: "someuuid" });
+    selectFigure(model, "someuuid");
     expect(composerStore.editionMode).toBe("inactive");
   });
 

@@ -2,7 +2,7 @@ import { Model } from "../../src";
 import { ColorPicker, ColorPickerProps } from "../../src/components/color_picker/color_picker";
 import { toHex } from "../../src/helpers";
 import { Color } from "../../src/types";
-import { setStyle } from "../test_helpers/commands_helpers";
+import { setFormatting } from "../test_helpers/commands_helpers";
 import {
   getElComputedStyle,
   setInputValueAndTrigger,
@@ -135,7 +135,7 @@ describe("Color Picker buttons", () => {
 
   test("initial custom color", async () => {
     const model = new Model();
-    setStyle(model, "A1", { fillColor: "#123456" });
+    setFormatting(model, "A1", { fillColor: "#123456" });
     await mountColorPicker({ currentColor: "#123456" }, model);
     const color = fixture.querySelector("div[data-color='#123456']") as HTMLElement;
     expect(color?.textContent).toBe(" ✓ ");

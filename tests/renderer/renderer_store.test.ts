@@ -30,6 +30,7 @@ import {
   Align,
   BorderPosition,
   Box,
+  CellIsRule,
   DataValidationCriterion,
   GridRenderingContext,
   Viewport,
@@ -37,8 +38,11 @@ import {
 } from "../../src/types";
 import { MockCanvasRenderingContext2D } from "../setup/canvas.mock";
 import {
+  addCfRule,
   addColumns,
   addDataValidation,
+  addEqualCf,
+  addIconCF,
   copy,
   createSheet,
   createTable,
@@ -49,15 +53,19 @@ import {
   paste,
   resizeColumns,
   resizeRows,
+  resizeSheetView,
   setCellContent,
   setCellFormat,
   setFormat,
+  setFormatting,
+  setFormulaVisibility,
+  setGridLinesVisibility,
   setSelection,
-  setStyle,
+  setSheetviewSize,
   setZoneBorders,
 } from "../test_helpers/commands_helpers";
 import { getCell } from "../test_helpers/getters_helpers";
-import { createEqualCF, getFingerprint, target, toRangesData } from "../test_helpers/helpers";
+import { getFingerprint, target } from "../test_helpers/helpers";
 import { createModelWithTestPivotDataset } from "../test_helpers/pivot_helpers";
 import { watchClipboardOutline } from "../test_helpers/renderer_helpers";
 import { makeStoreWithModel } from "../test_helpers/stores";
@@ -122,12 +130,7 @@ class MockGridRenderingContext implements GridRenderingContext {
   thinLineWidth = 0.4;
 
   constructor(model: Model, width: number, height: number, observer: ContextObserver) {
-    model.dispatch("RESIZE_SHEETVIEW", {
-      width: width - HEADER_WIDTH,
-      height: height - HEADER_HEIGHT,
-      gridOffsetX: 0,
-      gridOffsetY: 0,
-    });
+    resizeSheetView(model, height - HEADER_HEIGHT, width - HEADER_WIDTH);
     this.viewport = model.getters.getActiveMainViewport();
 
     const handler = {
@@ -226,12 +229,7 @@ describe("renderer", () => {
           instructions.push(`ctx.${key}(${args.map((a) => JSON.stringify(a)).join(", ")})`);
         },
       });
-      model.dispatch("RESIZE_SHEETVIEW", {
-        width,
-        height,
-        gridOffsetX: HEADER_WIDTH,
-        gridOffsetY: HEADER_HEIGHT,
-      });
+      setSheetviewSize(model, height, width);
     });
 
     test("Color of headers containing the selection", () => {
@@ -302,7 +300,7 @@ describe("renderer", () => {
     const { drawGridRenderer, model } = setRenderer();
 
     setCellContent(model, "A1", "1");
-    setStyle(model, "A1", { fontSize: 36 });
+    setFormatting(model, "A1", { fontSize: 36 });
 
     const textAligns: string[] = [];
     const ctx = new MockGridRenderingContext(model, 1000, 1000, {
@@ -375,7 +373,7 @@ describe("renderer", () => {
       new Model({ sheets: [{ colNumber: 1, rowNumber: 3 }] })
     );
 
-    setStyle(model, "A1", { fillColor: "#DC6CDF" });
+    setFormatting(model, "A1", { fillColor: "#DC6CDF" });
 
     let fillStyle: any[] = [];
     let fillStyleColor1Called = false;
@@ -412,7 +410,7 @@ describe("renderer", () => {
     ]);
 
     fillStyle = [];
-    setStyle(model, "A1", { fillColor: "#DC6CDE" });
+    setFormatting(model, "A1", { fillColor: "#DC6CDE" });
     drawGridRenderer(ctx);
 
     expect(removeOffsetOfFillStyles(fillStyle)).toEqual([
@@ -424,7 +422,7 @@ describe("renderer", () => {
     const { drawGridRenderer, model } = setRenderer(
       new Model({ sheets: [{ colNumber: 1, rowNumber: 3 }] })
     );
-    setStyle(model, "A1", { fillColor: "#DC6CDF" });
+    setFormatting(model, "A1", { fillColor: "#DC6CDF" });
     merge(model, "A1:A3");
 
     let fillStyle: any[] = [];
@@ -462,7 +460,7 @@ describe("renderer", () => {
     ]);
 
     fillStyle = [];
-    setStyle(model, "A1", { fillColor: "#DC6CDE" });
+    setFormatting(model, "A1", { fillColor: "#DC6CDE" });
     drawGridRenderer(ctx);
 
     expect(removeOffsetOfFillStyles(fillStyle)).toEqual([
@@ -474,12 +472,7 @@ describe("renderer", () => {
     const { drawGridRenderer, model } = setRenderer(
       new Model({ sheets: [{ colNumber: 1, rowNumber: 3 }] })
     );
-    const sheetId = model.getters.getActiveSheetId();
-    model.dispatch("ADD_CONDITIONAL_FORMAT", {
-      cf: createEqualCF("1", { fillColor: "#DC6CDF" }, "1"),
-      sheetId,
-      ranges: toRangesData(sheetId, "A1"),
-    });
+    addEqualCf(model, "A1", { fillColor: "#DC6CDF" }, "1", "1");
 
     let fillStyle: any[] = [];
     let fillStyleColor1Called = false;
@@ -517,7 +510,7 @@ describe("renderer", () => {
     const background = "#DC6CDF";
     const hoverColor = blendColors(background, TABLE_HOVER_BACKGROUND_COLOR);
     createTable(model, "A1", { numberOfHeaders: 0 });
-    setStyle(model, "A1", { fillColor: background });
+    setFormatting(model, "A1", { fillColor: background });
     setCellContent(model, "A1", "Data");
     model.updateMode("dashboard");
 
@@ -558,12 +551,7 @@ describe("renderer", () => {
     const { drawGridRenderer, model } = setRenderer(
       new Model({ sheets: [{ colNumber: 1, rowNumber: 3 }] })
     );
-    const sheetId = model.getters.getActiveSheetId();
-    model.dispatch("ADD_CONDITIONAL_FORMAT", {
-      cf: createEqualCF("1", { fillColor: "#DC6CDF" }, "1"),
-      ranges: toRangesData(sheetId, "A1"),
-      sheetId,
-    });
+    addEqualCf(model, "A1", { fillColor: "#DC6CDF" }, "1", "1");
     merge(model, "A1:A3");
     let fillStyle: any[] = [];
     let fillStyleColor1Called = false;
@@ -602,7 +590,7 @@ describe("renderer", () => {
     fingerprints.enable();
 
     // a colored cell but no fingerprint (it's a string)
-    setStyle(model, "A2", { fillColor: "#DC6CDF" });
+    setFormatting(model, "A2", { fillColor: "#DC6CDF" });
     setCellContent(model, "A2", "Hi");
 
     // a cell with a formula
@@ -810,7 +798,7 @@ describe("renderer", () => {
     const { drawGridRenderer, model } = setRenderer();
 
     setCellContent(model, "A1", "=SUM(1,2)");
-    model.dispatch("SET_FORMULA_VISIBILITY", { show: true });
+    setFormulaVisibility(model, true);
     const textAligns: string[] = [];
 
     const ctx = new MockGridRenderingContext(model, 1000, 1000, {
@@ -836,10 +824,10 @@ describe("renderer", () => {
 
   test("functions with centered content are aligned to the left", () => {
     const { drawGridRenderer, model } = setRenderer();
-    setStyle(model, "A1", { align: "center" });
+    setFormatting(model, "A1", { align: "center" });
 
     setCellContent(model, "A1", "=SUM(1,2)");
-    model.dispatch("SET_FORMULA_VISIBILITY", { show: true });
+    setFormulaVisibility(model, true);
     const textAligns: string[] = [];
 
     const ctx = new MockGridRenderingContext(model, 1000, 1000, {
@@ -887,20 +875,13 @@ describe("renderer", () => {
 
     expect(removeOffsetOfFillStyles(fillStyle)).toEqual([]);
     fillStyle = [];
-    const sheetId = model.getters.getActiveSheetId();
-    const result = model.dispatch("ADD_CONDITIONAL_FORMAT", {
-      cf: {
-        id: "1",
-        rule: {
-          type: "CellIsRule",
-          operator: "isEmpty",
-          values: [],
-          style: { fillColor: "#DC6CDF" },
-        },
-      },
-      ranges: toRangesData(sheetId, "A1"),
-      sheetId,
-    });
+    const rule: CellIsRule = {
+      type: "CellIsRule",
+      operator: "isEmpty",
+      values: [],
+      style: { fillColor: "#DC6CDF" },
+    };
+    const result = addCfRule(model, "A1", rule, "1");
     expect(result).toBeSuccessfullyDispatched();
     drawGridRenderer(ctx);
 
@@ -914,7 +895,7 @@ describe("renderer", () => {
     createSheet(pivotModel, { sheetId: "2", activate: true });
     setCellContent(pivotModel, "A1", "=PIVOT(1)");
     const { drawGridRenderer, model, gridRendererStore } = setRenderer(pivotModel);
-    setStyle(model, "B1", { align: "right" });
+    setFormatting(model, "B1", { align: "right" });
     const contex2D = new MockGridRenderingContext(model, 1000, 1000, {});
     drawGridRenderer(contex2D);
     const box = getBoxFromText(gridRendererStore, "Alice");
@@ -1316,7 +1297,7 @@ describe("renderer", () => {
     const fontSize = 26;
 
     setCellContent(model, "A1", overflowingText);
-    setStyle(model, "A1", { fontSize });
+    setFormatting(model, "A1", { fontSize });
     resizeRows(model, [0], Math.floor(fontSizeInPixels(fontSize) / 2));
     resizeColumns(model, ["A"], 10);
 
@@ -1466,7 +1447,7 @@ describe("renderer", () => {
         })
       );
 
-      setStyle(model, "B2", { align: align as Align });
+      setFormatting(model, "B2", { align: align as Align });
 
       for (const border of borders) {
         setZoneBorders(model, { position: border as BorderPosition }, ["B2"]);
@@ -1488,7 +1469,7 @@ describe("renderer", () => {
     const model = new Model();
     resizeColumns(model, ["B"], 10);
     setCellContent(model, "B2", cellContent);
-    setStyle(model, "B2", { align: "center" });
+    setFormatting(model, "B2", { align: "center" });
     setZoneBorders(model, { position: "right" }, ["B2"]);
 
     const { drawGridRenderer, gridRendererStore } = setRenderer(model);
@@ -1536,7 +1517,7 @@ describe("renderer", () => {
       );
 
       setZoneBorders(model, { position: "right" }, ["A1"]);
-      setStyle(model, "C1", { align: align as Align });
+      setFormatting(model, "C1", { align: align as Align });
       setZoneBorders(model, { position: "left" }, ["E1"]);
 
       const ctx = new MockGridRenderingContext(model, 1000, 1000, {});
@@ -1761,7 +1742,7 @@ describe("renderer", () => {
     expect(strokeColors).toContain(SELECTION_BORDER_COLOR);
 
     // model without grid lines
-    model.dispatch("SET_GRID_LINES_VISIBILITY", { sheetId: "Sheet1", areGridLinesVisible: false });
+    setGridLinesVisibility(model, false);
     strokeColors = [];
     drawGridRenderer(ctx);
 
@@ -1796,21 +1777,21 @@ describe("renderer", () => {
 
     // vertical top point
     let verticalStartPoints: any[] = [];
-    setStyle(model, "A1", { verticalAlign: "top" });
+    setFormatting(model, "A1", { verticalAlign: "top" });
     drawGridRenderer(ctx);
 
     expect(verticalStartPoints[0]).toEqual(5);
 
     // vertical middle point
     verticalStartPoints = [];
-    setStyle(model, "A1", { verticalAlign: "middle" });
+    setFormatting(model, "A1", { verticalAlign: "middle" });
     drawGridRenderer(ctx);
 
     expect(verticalStartPoints[0]).toEqual(18);
 
     // vertical bottom point
     verticalStartPoints = [];
-    setStyle(model, "A1", { verticalAlign: "bottom" });
+    setFormatting(model, "A1", { verticalAlign: "bottom" });
     drawGridRenderer(ctx);
 
     expect(verticalStartPoints[0]).toEqual(30);
@@ -1841,25 +1822,25 @@ describe("renderer", () => {
       },
     });
 
-    setStyle(model, "A1", { wrapping: "wrap" });
+    setFormatting(model, "A1", { wrapping: "wrap" });
 
     // with verticalAlign top
     let verticalStartPoints: any[] = [];
-    setStyle(model, "A1", { verticalAlign: "top" });
+    setFormatting(model, "A1", { verticalAlign: "top" });
     drawGridRenderer(ctx);
 
     expect(verticalStartPoints[0]).toEqual(5);
 
     // with verticalAlign middle
     verticalStartPoints = [];
-    setStyle(model, "A1", { verticalAlign: "middle" });
+    setFormatting(model, "A1", { verticalAlign: "middle" });
     drawGridRenderer(ctx);
 
     expect(verticalStartPoints[0]).toEqual(5);
 
     // with verticalAlign bottom
     verticalStartPoints = [];
-    setStyle(model, "A1", { verticalAlign: "bottom" });
+    setFormatting(model, "A1", { verticalAlign: "bottom" });
     drawGridRenderer(ctx);
 
     expect(verticalStartPoints[0]).toEqual(5);
@@ -1948,7 +1929,7 @@ describe("renderer", () => {
       const overflowingText = "TOO HIGH";
       const fontSize = 26;
       setCellContent(model, "A1", overflowingText);
-      setStyle(model, "A1", { fontSize });
+      setFormatting(model, "A1", { fontSize });
       resizeRows(model, [0], Math.floor(fontSizeInPixels(fontSize) / 2));
       drawGridRenderer(ctx);
 
@@ -1984,7 +1965,7 @@ describe("renderer", () => {
     test("Wrapped text is displayed over multiple lines", () => {
       const overFlowingContent = "ThisIsAVeryVeryLongText";
       setCellContent(model, "A1", overFlowingContent);
-      setStyle(model, "A1", { wrapping: "wrap" });
+      setFormatting(model, "A1", { wrapping: "wrap" });
       resizeColumns(model, ["A"], 14);
 
       // Split length = 14 - 2*MIN_CELL_TEXT_MARGIN = 6 letters (1 letter = 1px in the tests)
@@ -1998,7 +1979,7 @@ describe("renderer", () => {
     test("Wrapped text try to not split words in multiple lines if the word is small enough", () => {
       const overFlowingContent = "W Word2 W3 WordThatIsTooLong";
       setCellContent(model, "A1", overFlowingContent);
-      setStyle(model, "A1", { wrapping: "wrap" });
+      setFormatting(model, "A1", { wrapping: "wrap" });
       resizeColumns(model, ["A"], 16);
 
       drawGridRenderer(ctx);
@@ -2301,7 +2282,7 @@ describe("renderer", () => {
 
   test("Cells of splilled formula are empty is we display the formulas", () => {
     const model = new Model({ sheets: [{ colNumber: 2, rowNumber: 2 }] });
-    model.dispatch("SET_FORMULA_VISIBILITY", { show: true });
+    setFormulaVisibility(model, true);
     setCellContent(model, "A1", "=MUNIT(2)");
     const { drawGridRenderer, gridRendererStore } = setRenderer(model);
     const ctx = new MockGridRenderingContext(model, 1000, 1000, {});
@@ -2421,24 +2402,7 @@ describe("renderer", () => {
         values: ["1"],
         displayStyle: "chip",
       };
-      const sheetId = model.getters.getActiveSheetId();
-      model.dispatch("ADD_CONDITIONAL_FORMAT", {
-        cf: {
-          id: "1",
-          rule: {
-            type: "IconSetRule",
-            lowerInflectionPoint: { type: "number", value: "7", operator: "gt" },
-            upperInflectionPoint: { type: "number", value: "7", operator: "gt" },
-            icons: {
-              upper: "arrowGood",
-              middle: "arrowNeutral",
-              lower: "arrowBad",
-            },
-          },
-        },
-        ranges: toRangesData(sheetId, "A1:A5"),
-        sheetId,
-      });
+      addIconCF(model, "A1:A5", ["7", "7"], "arrows");
       addDataValidation(model, "A1", "id", criterion);
       setCellContent(model, "A1", "1");
       const ctx = new MockGridRenderingContext(model, 1000, 1000, {});
@@ -2557,7 +2521,7 @@ describe("renderer", () => {
 
     const baseNumberOfStrokeRect = strokeRectCalls.length;
 
-    setStyle(model, "A1:B2", { hideGridLines: true });
+    setFormatting(model, "A1:B2", { hideGridLines: true });
     strokeRectCalls = [];
     drawGridRenderer(ctx);
 

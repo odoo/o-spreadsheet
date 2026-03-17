@@ -7,8 +7,8 @@ import {
   addDataValidation,
   createTableWithFilter,
   setCellContent,
+  setFormatting,
   setSelection,
-  setStyle,
 } from "../test_helpers/commands_helpers";
 import { clickGridIcon, keyDown } from "../test_helpers/dom_helper";
 import { getCellContent, getCellIcons, getStyle } from "../test_helpers/getters_helpers";
@@ -28,8 +28,8 @@ describe("Checkbox in model", () => {
   });
 
   test("Adding a checkbox rule no not overwrite the style of the cell", () => {
-    setStyle(model, "A1", { align: "left", verticalAlign: "top" });
-    setStyle(model, "A2", { fillColor: "#FF0000" });
+    setFormatting(model, "A1", { align: "left", verticalAlign: "top" });
+    setFormatting(model, "A2", { fillColor: "#FF0000" });
     addDataValidation(model, "A1:A2", "id", { type: "isBoolean", values: [] });
     expect(getStyle(model, "A1")).toMatchObject({ align: "left", verticalAlign: "top" });
     expect(getStyle(model, "A2")).toMatchObject({

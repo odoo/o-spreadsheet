@@ -2,12 +2,16 @@ import { DEFAULT_BORDER_DESC } from "@odoo/o-spreadsheet-engine/constants";
 import { Model } from "@odoo/o-spreadsheet-engine/model";
 import { BorderDescr, CommandResult } from "../../src/types/index";
 import {
+  activateSheet,
   addColumns,
   addRows,
+  clearFormatting,
   cut,
   deleteCells,
   deleteColumns,
+  deleteContent,
   deleteRows,
+  duplicateSheet,
   merge,
   moveColumns,
   moveRows,
@@ -430,10 +434,7 @@ describe("borders", () => {
     setZoneBorders(model, { position: "top" });
 
     expect(getBorder(model, "B2")).toBeDefined();
-    model.dispatch("DELETE_CONTENT", {
-      sheetId: model.getters.getActiveSheetId(),
-      target: model.getters.getSelectedZones(),
-    });
+    deleteContent(model, ["B2"]);
     expect(getBorder(model, "B2")).toBeDefined();
   });
 
@@ -457,10 +458,7 @@ describe("borders", () => {
     setZoneBorders(model, { position: "all" });
 
     expect(getBorder(model, "B1")).toBeDefined();
-    model.dispatch("CLEAR_FORMATTING", {
-      sheetId: model.getters.getActiveSheetId(),
-      target: model.getters.getSelectedZones(),
-    });
+    clearFormatting(model, "B1");
     expect(getBorder(model, "B1")).toBeNull();
   });
 
@@ -485,12 +483,7 @@ describe("borders", () => {
   test("set all border of a cell", () => {
     const model = new Model();
     const s: BorderDescr = { style: "medium", color: "#FF0000" };
-    model.dispatch("SET_BORDER", {
-      sheetId: model.getters.getActiveSheetId(),
-      col: 0,
-      row: 0,
-      border: { bottom: s, top: s, left: s, right: s },
-    });
+    setBorders(model, "A1", { bottom: s, top: s, left: s, right: s });
     expect(getBorder(model, "A1")).toEqual({ bottom: s, top: s, left: s, right: s });
   });
 
@@ -545,11 +538,7 @@ describe("Grid manipulation", () => {
       right: DEFAULT_BORDER_DESC,
       bottom: DEFAULT_BORDER_DESC,
     });
-    model.dispatch("DUPLICATE_SHEET", {
-      sheetId: firstSheetId,
-      sheetIdTo: secondSheetId,
-      sheetNameTo: "Copy of Sheet1",
-    });
+    duplicateSheet(model, firstSheetId, secondSheetId);
     addColumns(model, "before", "A", 1, secondSheetId);
     expect(getBorder(model, "B2", firstSheetId)).toEqual({
       top: DEFAULT_BORDER_DESC,
@@ -572,11 +561,7 @@ describe("Grid manipulation", () => {
     const firstSheetId = model.getters.getActiveSheetId();
     const secondSheetId = "42";
     setZoneBorders(model, { position: "external" }, ["B2"]);
-    model.dispatch("DUPLICATE_SHEET", {
-      sheetId: firstSheetId,
-      sheetIdTo: secondSheetId,
-      sheetNameTo: "Copy of Sheet1",
-    });
+    duplicateSheet(model, firstSheetId, secondSheetId);
     addRows(model, "before", 0, 1, secondSheetId);
     expect(getBorder(model, "B2", firstSheetId)).toEqual({
       top: DEFAULT_BORDER_DESC,
@@ -682,8 +667,8 @@ describe("Grid manipulation", () => {
     setZoneBorders(model, { position: "external" }, ["B2"]);
     const sheetId = model.getters.getActiveSheetId();
     const sheetIdTo = "42";
-    model.dispatch("DUPLICATE_SHEET", { sheetId, sheetIdTo, sheetNameTo: "Copy of Sheet1" });
-    model.dispatch("ACTIVATE_SHEET", { sheetIdFrom: sheetId, sheetIdTo });
+    duplicateSheet(model, sheetId, sheetIdTo);
+    activateSheet(model, sheetIdTo);
     expect(getBorder(model, "B2")).toEqual({
       top: DEFAULT_BORDER_DESC,
       left: DEFAULT_BORDER_DESC,

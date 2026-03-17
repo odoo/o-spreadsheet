@@ -14,6 +14,8 @@ import {
 } from "../../src/types";
 import {
   activateSheet,
+  addCfRule,
+  addEqualCf,
   copy,
   createSheet,
   paste,
@@ -161,20 +163,13 @@ describe("UI of conditional formats", () => {
         }
       ));
       sheetId = model.getters.getActiveSheetId();
-      model.dispatch("ADD_CONDITIONAL_FORMAT", {
-        cf: createEqualCF("2", { fillColor: "#FF0000" }, "1"),
-        sheetId: model.getters.getActiveSheetId(),
-        ranges: toRangesData(sheetId, "A1:A2"),
-      });
-      model.dispatch("ADD_CONDITIONAL_FORMAT", {
-        cf: createColorScale(
-          "2",
-          { type: "value", color: 0xff00ff, value: "" },
-          { type: "value", color: 0x123456, value: "" }
-        ),
-        ranges: toRangesData(sheetId, "B1:B5"),
-        sheetId,
-      });
+      addEqualCf(model, "A1:A2", { fillColor: "#FF0000" }, "2", "1");
+      const rule = createColorScale(
+        "2",
+        { type: "value", color: 0xff00ff, value: "" },
+        { type: "value", color: 0x123456, value: "" }
+      ).rule;
+      addCfRule(model, "B1:B5", rule, "2");
       await nextTick();
     });
 
@@ -202,11 +197,7 @@ describe("UI of conditional formats", () => {
 
     test("previews are localized", async () => {
       updateLocale(model, FR_LOCALE);
-      model.dispatch("ADD_CONDITIONAL_FORMAT", {
-        cf: createEqualCF("1.5", { fillColor: "#FF0000" }, "3"),
-        sheetId: model.getters.getActiveSheetId(),
-        ranges: toRangesData(sheetId, "A1:A2"),
-      });
+      addEqualCf(model, "A1:A2", { fillColor: "#FF0000" }, "1.5", "3");
       await nextTick();
 
       const previews = document.querySelectorAll(selectors.listPreview);
@@ -226,12 +217,7 @@ describe("UI of conditional formats", () => {
     });
 
     test("the list preview should be bold when the rule is bold", async () => {
-      const sheetId = model.getters.getActiveSheetId();
-      model.dispatch("ADD_CONDITIONAL_FORMAT", {
-        cf: createEqualCF("2", { bold: true, fillColor: "#ff0000" }, "99"),
-        ranges: toRangesData(sheetId, "C1:C5"),
-        sheetId,
-      });
+      addEqualCf(model, "C1:C5", { bold: true, fillColor: "#ff0000" }, "2", "99");
 
       await nextTick();
 
@@ -274,11 +260,7 @@ describe("UI of conditional formats", () => {
       await clickAndDrag(previewEl, { x: 0, y: 200 });
 
       expect(previewEl.parentElement!.style.transition).toBe("top 0s");
-      model.dispatch("ADD_CONDITIONAL_FORMAT", {
-        cf: createEqualCF("2", { bold: true, fillColor: "#ff0000" }, "99"),
-        ranges: toRangesData(sheetId, "C1:C5"),
-        sheetId,
-      });
+      addEqualCf(model, "C1:C5", { bold: true, fillColor: "#ff0000" }, "2", "99");
       await nextTick();
 
       expect(previewEl.style.transition).toBe("");
@@ -319,11 +301,7 @@ describe("UI of conditional formats", () => {
         props: { cf: { ...cf, ranges }, isNewCf: false, onCloseSidePanel: () => {} },
       }));
       sheetId = model.getters.getActiveSheetId();
-      model.dispatch("ADD_CONDITIONAL_FORMAT", {
-        cf,
-        sheetId: model.getters.getActiveSheetId(),
-        ranges: toRangesData(sheetId, "A1:A2"),
-      });
+      addEqualCf(model, "A1:A2", { fillColor: "#FF0000" }, "2", "1");
       await nextTick();
     });
 
@@ -692,11 +670,7 @@ describe("UI of conditional formats", () => {
       // Open the panel
       await click(fixture, selectors.listPreview);
       // Someone else changes the CF in the meantime
-      model.dispatch("ADD_CONDITIONAL_FORMAT", {
-        cf: createEqualCF("2", { fillColor: "#ff0000" }, cfId),
-        ranges: toRangesData(sheetId, "A1:A2"),
-        sheetId,
-      });
+      addEqualCf(model, "A1:A2", { fillColor: "#ff0000" }, "2", cfId);
       // Press cancel
       await click(fixture, selectors.buttonCancel);
       expect(model.getters.getConditionalFormats(sheetId)[0].rule).toMatchObject({
@@ -863,11 +837,7 @@ describe("UI of conditional formats", () => {
     });
 
     test("Undoing an edit on an existing CF does not close the editor panel", async () => {
-      model.dispatch("ADD_CONDITIONAL_FORMAT", {
-        cf: createEqualCF("2", { fillColor: "#FF0000" }, "1"),
-        sheetId,
-        ranges: toRangesData(sheetId, "A1:A2"),
-      });
+      addEqualCf(model, "A1:A2", { fillColor: "#FF0000" }, "2", "1");
       await nextTick();
       await click(fixture, selectors.listPreview);
       await nextTick();
@@ -881,11 +851,7 @@ describe("UI of conditional formats", () => {
     });
 
     test("Highlights are removed when cf preview is unmounted", async () => {
-      model.dispatch("ADD_CONDITIONAL_FORMAT", {
-        cf: createEqualCF("2", { fillColor: "#FF0000" }, "1"),
-        sheetId,
-        ranges: toRangesData(sheetId, "A1:A2"),
-      });
+      addEqualCf(model, "A1:A2", { fillColor: "#FF0000" }, "2", "1");
       await nextTick();
 
       triggerMouseEvent(selectors.listPreview, "mouseenter");
@@ -908,21 +874,19 @@ describe("UI of conditional formats", () => {
 
     describe("CellIsRule", () => {
       test("CellIsRule editor displays the right preview", async () => {
-        model.dispatch("ADD_CONDITIONAL_FORMAT", {
-          cf: createEqualCF(
-            "2",
-            {
-              fillColor: "#FF9900",
-              textColor: "#ffff00",
-              italic: true,
-              bold: true,
-              strikethrough: true,
-            },
-            "1"
-          ),
-          sheetId: model.getters.getActiveSheetId(),
-          ranges: toRangesData(sheetId, "A1:A2"),
-        });
+        addEqualCf(
+          model,
+          "A1:A2",
+          {
+            fillColor: "#FF9900",
+            textColor: "#ffff00",
+            italic: true,
+            bold: true,
+            strikethrough: true,
+          },
+          "2",
+          "1"
+        );
         // let the sidePanel reload the CF values
         await nextTick();
         await click(fixture.querySelectorAll(selectors.listPreview)[0]);
@@ -978,11 +942,7 @@ describe("UI of conditional formats", () => {
       });
 
       test("can edit an existing CellIsRule", async () => {
-        model.dispatch("ADD_CONDITIONAL_FORMAT", {
-          cf: createEqualCF("2", { fillColor: "#FF0000" }, "1"),
-          sheetId,
-          ranges: toRangesData(sheetId, "A1:A2"),
-        });
+        addEqualCf(model, "A1:A2", { fillColor: "#FF0000" }, "2", "1");
         await nextTick();
         await click(fixture.querySelectorAll(selectors.listPreview)[0]);
         await nextTick();
@@ -1025,11 +985,7 @@ describe("UI of conditional formats", () => {
       });
 
       test("can edit a date CellIsRule", async () => {
-        model.dispatch("ADD_CONDITIONAL_FORMAT", {
-          cf: createEqualCF("2", { fillColor: "#FF0000" }, "1"),
-          sheetId,
-          ranges: toRangesData(sheetId, "A1:A2"),
-        });
+        addEqualCf(model, "A1:A2", { fillColor: "#FF0000" }, "2", "1");
         await nextTick();
         await click(fixture.querySelectorAll(selectors.listPreview)[0]);
         await nextTick();
@@ -1310,15 +1266,12 @@ describe("UI of conditional formats", () => {
       });
 
       test("can edit an existing ColorScaleRule", async () => {
-        model.dispatch("ADD_CONDITIONAL_FORMAT", {
-          cf: createColorScale(
-            "2",
-            { type: "value", color: 0xff00ff, value: "" },
-            { type: "value", color: 0x123456, value: "" }
-          ),
-          ranges: toRangesData(sheetId, "B1:B5"),
-          sheetId,
-        });
+        const rule = createColorScale(
+          "2",
+          { type: "value", color: 0xff00ff, value: "" },
+          { type: "value", color: 0x123456, value: "" }
+        ).rule;
+        addCfRule(model, "B1:B5", rule, "2");
         await nextTick();
         await click(fixture.querySelectorAll(selectors.listPreview)[0]);
         await nextTick();
@@ -1665,14 +1618,9 @@ describe("Integration tests", () => {
   });
 
   test("switching sheet resets CF Editor to list", async () => {
-    const sheetId = model.getters.getActiveSheetId();
     const cf = createEqualCF("2", { bold: true, fillColor: "#ff0000" }, "99");
     const range = "A1:A2";
-    model.dispatch("ADD_CONDITIONAL_FORMAT", {
-      cf,
-      ranges: toRangesData(sheetId, range),
-      sheetId,
-    });
+    addEqualCf(model, range, { bold: true, fillColor: "#ff0000" }, "2", "99");
     createSheet(model, { sheetId: "42" });
     env.openSidePanel("ConditionalFormattingEditor", {
       cf: { ...cf, ranges: [range] },
@@ -1688,14 +1636,9 @@ describe("Integration tests", () => {
   });
 
   test("CF standalone composer becomes inactive on sheet change", async () => {
-    const sheetId = model.getters.getActiveSheetId();
     const cf = createEqualCF("2", { bold: true, fillColor: "#ff0000" }, "99");
     const range = "A1:A2";
-    model.dispatch("ADD_CONDITIONAL_FORMAT", {
-      cf,
-      ranges: toRangesData(sheetId, range),
-      sheetId,
-    });
+    addEqualCf(model, range, { bold: true, fillColor: "#ff0000" }, "2", "99");
     createSheet(model, { sheetId: "42" });
     env.openSidePanel("ConditionalFormattingEditor", {
       cf: { ...cf, ranges: [range] },

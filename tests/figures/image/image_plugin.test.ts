@@ -1,11 +1,16 @@
 import { FIGURE_ID_SPLITTER } from "@odoo/o-spreadsheet-engine/constants";
 import { Model } from "../../../src";
 import {
+  copy,
   createImage,
   createSheet,
+  cut,
+  deleteFigure,
   deleteSheet,
+  duplicateSheet,
   paste,
   redo,
+  selectFigure,
   undo,
 } from "../../test_helpers/commands_helpers";
 import { getFigureIds } from "../../test_helpers/helpers";
@@ -30,7 +35,7 @@ describe("image plugin", function () {
     const sheetId = model.getters.getActiveSheetId();
     const imageId = "Image1";
     createImage(model, { sheetId: sheetId, figureId: imageId });
-    model.dispatch("DELETE_FIGURE", { sheetId, figureId: imageId });
+    deleteFigure(model, imageId);
     const images = getFigureIds(model, sheetId);
     expect(images).toHaveLength(0);
   });
@@ -46,8 +51,8 @@ describe("image plugin", function () {
       mimetype: "image/jpeg",
     };
     createImage(model, { figureId: imageId, definition });
-    model.dispatch("SELECT_FIGURE", { figureId: imageId });
-    model.dispatch("COPY");
+    selectFigure(model, imageId);
+    copy(model);
     paste(model, "D4");
     const images = getFigureIds(model, sheetId);
     expect(images).toHaveLength(2);
@@ -67,8 +72,8 @@ describe("image plugin", function () {
       mimetype: "image/jpeg",
     };
     createImage(model, { figureId: imageId, definition });
-    model.dispatch("SELECT_FIGURE", { figureId: imageId });
-    model.dispatch("CUT");
+    selectFigure(model, imageId);
+    cut(model);
     paste(model, "D4");
     const images = getFigureIds(model, sheetId);
     expect(images).toHaveLength(1);
@@ -84,11 +89,7 @@ describe("test image in sheet", function () {
     const imageId = "Image1";
     createImage(model, { sheetId: sheetId, figureId: imageId });
     const newSheetId = "Sheet2";
-    model.dispatch("DUPLICATE_SHEET", {
-      sheetId,
-      sheetIdTo: newSheetId,
-      sheetNameTo: "Copy of Sheet1",
-    });
+    duplicateSheet(model, sheetId, newSheetId);
     const original = model.getters.getImage(imageId);
     const newImages = getFigureIds(model, newSheetId);
     expect(newImages).toHaveLength(1);
@@ -113,17 +114,9 @@ describe("test image in sheet", function () {
     const secondSheetId = "42";
     const thirdSheetId = "third";
     createImage(model, { sheetId: firstSheetId, figureId: "myImage" });
-    model.dispatch("DUPLICATE_SHEET", {
-      sheetId: firstSheetId,
-      sheetIdTo: secondSheetId,
-      sheetNameTo: "Copy of Sheet1",
-    });
+    duplicateSheet(model, firstSheetId, secondSheetId);
     const newModel = new Model(model.exportData());
-    newModel.dispatch("DUPLICATE_SHEET", {
-      sheetId: secondSheetId,
-      sheetIdTo: thirdSheetId,
-      sheetNameTo: "Copy of Copy of Sheet1",
-    });
+    duplicateSheet(newModel, secondSheetId, thirdSheetId);
 
     const figuresSh1 = newModel.getters.getFigures(firstSheetId);
     const figuresSh2 = newModel.getters.getFigures(secondSheetId);
@@ -202,7 +195,7 @@ describe("test image undo/redo", () => {
     const imageId = "Image1";
     createImage(model, { sheetId, figureId: imageId });
     const before = model.exportData();
-    model.dispatch("DELETE_FIGURE", { sheetId, figureId: imageId });
+    deleteFigure(model, imageId);
     const after = model.exportData();
     undo(model);
     expect(model).toExport(before);
@@ -215,8 +208,8 @@ describe("test image undo/redo", () => {
     const imageId = "Image1";
     createImage(model, { figureId: imageId });
     const before = model.exportData();
-    model.dispatch("SELECT_FIGURE", { figureId: imageId });
-    model.dispatch("CUT");
+    selectFigure(model, imageId);
+    cut(model);
     paste(model, "D4");
     const after = model.exportData();
     undo(model);
@@ -232,11 +225,7 @@ describe("test image undo/redo", () => {
     createImage(model, { sheetId, figureId: imageId });
     const before = model.exportData();
     const newSheetId = "Sheet2";
-    model.dispatch("DUPLICATE_SHEET", {
-      sheetId,
-      sheetIdTo: newSheetId,
-      sheetNameTo: "Copy of Sheet1",
-    });
+    duplicateSheet(model, sheetId, newSheetId);
     const after = model.exportData();
     undo(model);
     expect(model).toExport(before);

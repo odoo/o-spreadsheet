@@ -34,6 +34,7 @@ import { FileStore } from "../__mocks__/mock_file_store";
 import { MockTransportService } from "../__mocks__/transport_service";
 import { MockClipboardData, getClipboardEvent } from "../test_helpers/clipboard";
 import {
+  addEqualCf,
   addIconCF,
   copy,
   createChart,
@@ -50,13 +51,15 @@ import {
   merge,
   selectCell,
   selectColumn,
+  selectFigure,
   selectHeader,
   selectRow,
   setBorders,
   setCellContent,
   setCellFormat,
+  setFormatting,
+  setFormulaVisibility,
   setSelection,
-  setStyle,
   setViewportOffset,
   undo,
   updateFilter,
@@ -94,7 +97,6 @@ import {
   getStyle,
 } from "../test_helpers/getters_helpers";
 import {
-  createEqualCF,
   flattenHighlightRange,
   getPlugin,
   mockChart,
@@ -102,7 +104,6 @@ import {
   nextTick,
   spyModelDispatch,
   target,
-  toRangesData,
   typeInComposerGrid,
 } from "../test_helpers/helpers";
 import { extendMockGetBoundingClientRect } from "../test_helpers/mock_helpers";
@@ -538,7 +539,7 @@ describe("Grid component", () => {
       { key: "F4", ctrlKey: false },
       { key: "Y", ctrlKey: true },
     ])("can undo/redo with keyboard CTRL+Z/%s", async (redoKey) => {
-      setStyle(model, "A1", { fillColor: "red" });
+      setFormatting(model, "A1", { fillColor: "red" });
       expect(getCell(model, "A1")!.style).toBeDefined();
       keyDown({ key: "z", ctrlKey: true });
       expect(getCell(model, "A1")).toBeUndefined();
@@ -548,7 +549,7 @@ describe("Grid component", () => {
     });
 
     test("can undo/redo with keyboard (uppercase version)", async () => {
-      setStyle(model, "A1", { fillColor: "red" });
+      setFormatting(model, "A1", { fillColor: "red" });
       expect(getCell(model, "A1")!.style).toBeDefined();
       keyDown({ key: "Z", ctrlKey: true });
       expect(getCell(model, "A1")).toBeUndefined();
@@ -651,7 +652,7 @@ describe("Grid component", () => {
     test("clean formatting with CTRL+SHIFT+<", async () => {
       const style = { fillColor: "red", align: "right" as Align, bold: true };
       setCellContent(model, "A1", "hello");
-      setStyle(model, "A1", style);
+      setFormatting(model, "A1", style);
       expect(getCell(model, "A1")!.style).toEqual(style);
       document.activeElement!.dispatchEvent(
         new KeyboardEvent("keydown", { key: "<", ctrlKey: true, shiftKey: true, bubbles: true })
@@ -663,7 +664,7 @@ describe("Grid component", () => {
     test("clean formatting with CTRL+<", async () => {
       const style = { fillColor: "red", align: "right" as Align, bold: true };
       setCellContent(model, "A1", "hello");
-      setStyle(model, "A1", style);
+      setFormatting(model, "A1", style);
       expect(getCell(model, "A1")!.style).toEqual(style);
       document.activeElement!.dispatchEvent(
         new KeyboardEvent("keydown", { key: "<", ctrlKey: true, bubbles: true })
@@ -1069,7 +1070,7 @@ describe("Grid component", () => {
       icon = getCellIcons(model, "A1")[0];
       expect(icon?.svg?.paths[0].fillColor).toBe("#defade");
 
-      setStyle(model, "A1", { fillColor: "#fff" });
+      setFormatting(model, "A1", { fillColor: "#fff" });
       icon = getCellIcons(model, "A1")[0];
       expect(icon?.svg?.paths[0].fillColor).toBe(FILTERS_COLOR);
     });
@@ -1147,7 +1148,7 @@ describe("Grid component", () => {
     test("can paste format and borders with mouse once", async () => {
       setCellContent(model, "B2", "b2");
       selectCell(model, "B2");
-      setStyle(model, "B2", { bold: true });
+      setFormatting(model, "B2", { bold: true });
       setBorders(model, "B2", { top: DEFAULT_BORDER_DESC });
       paintFormatStore.activate({ persistent: false });
       gridMouseEvent(model, "pointerdown", "C8");
@@ -1174,11 +1175,7 @@ describe("Grid component", () => {
 
     test("Paste format works with conditional format", () => {
       const sheetId = model.getters.getActiveSheetId();
-      model.dispatch("ADD_CONDITIONAL_FORMAT", {
-        cf: createEqualCF("1", { fillColor: "#0000FF" }, "cf2"),
-        sheetId,
-        ranges: toRangesData(sheetId, "A1"),
-      });
+      addEqualCf(model, "A1", { fillColor: "#0000FF" }, "1", "cf2");
       selectCell(model, "A1");
       paintFormatStore.activate({ persistent: false });
       gridMouseEvent(model, "pointerdown", "C8");
@@ -1207,7 +1204,7 @@ describe("Grid component", () => {
     test("can keep the paint format mode persistently", async () => {
       setCellContent(model, "B2", "b2");
       selectCell(model, "B2");
-      setStyle(model, "B2", { bold: true });
+      setFormatting(model, "B2", { bold: true });
       paintFormatStore.activate({ persistent: true });
       gridMouseEvent(model, "pointerdown", "C8");
       expect(getCell(model, "C8")).toBeUndefined();
@@ -1223,7 +1220,7 @@ describe("Grid component", () => {
     test("can paste format with key", async () => {
       setCellContent(model, "B2", "b2");
       selectCell(model, "B2");
-      setStyle(model, "B2", { bold: true });
+      setFormatting(model, "B2", { bold: true });
       paintFormatStore.activate({ persistent: false });
       expect(getCell(model, "C2")).toBeUndefined();
       keyDown({ key: "ArrowRight" });
@@ -1233,7 +1230,7 @@ describe("Grid component", () => {
     test("can exit the paint format mode via ESC key", async () => {
       setCellContent(model, "B2", "b2");
       selectCell(model, "B2");
-      setStyle(model, "B2", { bold: true });
+      setFormatting(model, "B2", { bold: true });
       paintFormatStore.activate({ persistent: false });
       keyDown({ key: "Escape" });
       gridMouseEvent(model, "pointerdown", "C8");
@@ -1245,9 +1242,9 @@ describe("Grid component", () => {
     test("in persistent mode, updating the style of origin cell won't change the copied style", async () => {
       setCellContent(model, "B2", "b2");
       selectCell(model, "B2");
-      setStyle(model, "B2", { bold: true });
+      setFormatting(model, "B2", { bold: true });
       paintFormatStore.activate({ persistent: true });
-      setStyle(model, "B2", { bold: false });
+      setFormatting(model, "B2", { bold: false });
 
       gridMouseEvent(model, "pointerdown", "D8");
       expect(getCell(model, "D8")).toBeUndefined();
@@ -1268,7 +1265,7 @@ describe("Grid component", () => {
 
     test("paint format does not destroy clipboard content", async () => {
       setCellContent(model, "A1", "hello");
-      setStyle(model, "A1", { bold: true });
+      setFormatting(model, "A1", { bold: true });
       copy(model, "A1");
 
       const clipboardContent = await model.getters.getClipboardTextAndImageContent();
@@ -1280,7 +1277,7 @@ describe("Grid component", () => {
       setCellContent(model, "B2", "b2");
       cut(model, "A1");
       selectCell(model, "B2");
-      setStyle(model, "B2", { bold: true });
+      setFormatting(model, "B2", { bold: true });
       paintFormatStore.activate({ persistent: false });
       expect(model.getters.isCutOperation());
 
@@ -1291,7 +1288,7 @@ describe("Grid component", () => {
 
     test("Paint format does a single history step", async () => {
       selectCell(model, "B2");
-      setStyle(model, "B2", { bold: true });
+      setFormatting(model, "B2", { bold: true });
       setBorders(model, "B2", { top: DEFAULT_BORDER_DESC });
 
       paintFormatStore.activate({ persistent: false });
@@ -1950,7 +1947,7 @@ describe("Copy paste keyboard shortcut", () => {
 
   test("cut zone gets cleared on paste if content/style is altered after cut", async () => {
     setCellContent(model, "A1", "things");
-    setStyle(model, "A1", { bold: true });
+    setFormatting(model, "A1", { bold: true });
     selectCell(model, "A1");
     document.body.dispatchEvent(getClipboardEvent("cut", clipboardData));
     await nextTick();
@@ -1959,7 +1956,7 @@ describe("Copy paste keyboard shortcut", () => {
       clipboardData.content = clipboard.content;
     }
     setCellContent(model, "A1", "new content");
-    setStyle(model, "A1", { bold: false });
+    setFormatting(model, "A1", { bold: false });
     selectCell(model, "A2");
     document.body.dispatchEvent(getClipboardEvent("paste", clipboardData));
     await nextTick();
@@ -1969,7 +1966,7 @@ describe("Copy paste keyboard shortcut", () => {
   });
 
   test("Cut of a formula cell, and enabling showFormulas should return content", async () => {
-    model.dispatch("SET_FORMULA_VISIBILITY", { show: true });
+    setFormulaVisibility(model, true);
     setCellContent(model, "A1", "1");
     setCellFormat(model, "A1", "m/d/yyyy");
     document.body.dispatchEvent(getClipboardEvent("cut", clipboardData));
@@ -1980,7 +1977,7 @@ describe("Copy paste keyboard shortcut", () => {
     }
     const clipboardContent = clipboardData.content;
     expect(clipboardContent[ClipboardMIMEType.PlainText]).toEqual(getCellContent(model, "A1"));
-    model.dispatch("SET_FORMULA_VISIBILITY", { show: false });
+    setFormulaVisibility(model, false);
     selectCell(model, "A2");
     document.body.dispatchEvent(getClipboardEvent("paste", clipboardData));
     await nextTick();
@@ -2005,7 +2002,7 @@ describe("Copy paste keyboard shortcut", () => {
     await nextTick();
     expect(getCellContent(model, "A2")).toEqual("12/31/1899");
 
-    model.dispatch("SET_FORMULA_VISIBILITY", { show: true });
+    setFormulaVisibility(model, true);
     setCellContent(model, "B1", "1");
     selectCell(model, "B1");
     document.body.dispatchEvent(getClipboardEvent("cut", clipboardData));
@@ -2018,7 +2015,7 @@ describe("Copy paste keyboard shortcut", () => {
     expect(clipboardContent[ClipboardMIMEType.PlainText]).toEqual(
       getEvaluatedCell(model, "B1").formattedValue
     );
-    model.dispatch("SET_FORMULA_VISIBILITY", { show: false });
+    setFormulaVisibility(model, false);
     selectCell(model, "B2");
     document.body.dispatchEvent(getClipboardEvent("paste", clipboardData));
     await nextTick();
@@ -2028,7 +2025,7 @@ describe("Copy paste keyboard shortcut", () => {
   test("can paste as value with CTRL+SHIFT+V", async () => {
     const content = "things";
     setCellContent(model, "A1", content);
-    setStyle(model, "A1", { fillColor: "red", align: "right", bold: true });
+    setFormatting(model, "A1", { fillColor: "red", align: "right", bold: true });
     selectCell(model, "A1");
     const ev = getClipboardEvent("copy", clipboardData);
     document.body.dispatchEvent(ev);
@@ -2166,7 +2163,7 @@ describe("Copy paste keyboard shortcut", () => {
   test("Can copy/paste chart", async () => {
     selectCell(model, "A1");
     createChart(model, { type: "bar" }, "chartId", undefined, { figureId: "figureId" });
-    model.dispatch("SELECT_FIGURE", { figureId: "figureId" });
+    selectFigure(model, "figureId");
     document.body.dispatchEvent(getClipboardEvent("copy", clipboardData));
     await nextTick();
     const clipboard = await parent.env.clipboard.read!();
@@ -2185,7 +2182,7 @@ describe("Copy paste keyboard shortcut", () => {
   test("Can cut/paste chart", async () => {
     selectCell(model, "A1");
     createChart(model, { type: "bar" }, "chartId", undefined, { figureId: "figureId" });
-    model.dispatch("SELECT_FIGURE", { figureId: "figureId" });
+    selectFigure(model, "figureId");
     document.body.dispatchEvent(getClipboardEvent("cut", clipboardData));
     await nextTick();
     const clipboard = await parent.env.clipboard.read!();
@@ -2209,7 +2206,7 @@ describe("Copy paste keyboard shortcut", () => {
       mockChart();
       selectCell(model, "A1");
       createChart(model, { type: "bar" }, "chartId", undefined, { figureId: "figId" });
-      model.dispatch("SELECT_FIGURE", { figureId: "figId" });
+      selectFigure(model, "figId");
       document.body.dispatchEvent(getClipboardEvent(operation, clipboardData));
       await nextTick();
       const clipboard = await parent.env.clipboard.read!();
@@ -2237,7 +2234,7 @@ describe("Copy paste keyboard shortcut", () => {
     async (operation) => {
       selectCell(model, "A1");
       createImage(model, { figureId: "imageId" });
-      model.dispatch("SELECT_FIGURE", { figureId: "imageId" });
+      selectFigure(model, "imageId");
       document.body.dispatchEvent(getClipboardEvent(operation, clipboardData));
       await nextTick();
       // copying to the clipboard might take more than one tick
