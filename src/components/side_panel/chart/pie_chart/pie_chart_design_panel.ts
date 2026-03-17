@@ -1,8 +1,9 @@
-import { deepCopy } from "@odoo/o-spreadsheet-engine";
+import { deepCopy, ValueAndLabel } from "@odoo/o-spreadsheet-engine";
 import { PieChartDefinition, PieChartRuntime } from "@odoo/o-spreadsheet-engine/types/chart";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { DEFAULT_DOUGHNUT_CHART_HOLE_SIZE } from "@odoo/o-spreadsheet-engine/xlsx/constants";
 import { Component, useState } from "@odoo/owl";
+import { Select } from "../../../select/select";
 import { Checkbox } from "../../components/checkbox/checkbox";
 import { SidePanelCollapsible } from "../../components/collapsible/side_panel_collapsible";
 import { RoundColorPicker } from "../../components/round_color_picker/round_color_picker";
@@ -29,6 +30,7 @@ export class PieChartDesignPanel extends Component<
     ChartHumanizeNumbers,
     SidePanelCollapsible,
     RoundColorPicker,
+    Select,
   };
   static props = ChartSidePanelPropsObject;
 
@@ -42,10 +44,9 @@ export class PieChartDesignPanel extends Component<
     return !this.props.definition.labelRange;
   }
 
-  get labels() {
-    let labels = this.runtime.chartJsConfig.data.labels;
-    labels = labels?.map((label, index) => (label === "" ? `Slice ${index + 1}` : label));
-    return labels;
+  get labels(): string[] {
+    const labels = this.runtime.chartJsConfig.data.labels as string[] | undefined;
+    return labels?.map((label, index) => (label === "" ? `Slice ${index + 1}` : label)) || [];
   }
 
   onPieHoleSizeChange(pieHolePercentage: number) {
@@ -58,8 +59,8 @@ export class PieChartDesignPanel extends Component<
     return DEFAULT_DOUGHNUT_CHART_HOLE_SIZE;
   }
 
-  updateEditedValues(ev: Event) {
-    this.state.index = (ev.target as HTMLSelectElement).selectedIndex;
+  updateEditedValues(selectedIndex: string) {
+    this.state.index = parseInt(selectedIndex);
   }
 
   updateSliceColor(color: string) {
@@ -82,5 +83,12 @@ export class PieChartDesignPanel extends Component<
     const dataSets = this.runtime.chartJsConfig.data.datasets;
     const color = dataSets[0]?.backgroundColor?.[this.state.index];
     return color;
+  }
+
+  get pieSliceOptions(): ValueAndLabel[] {
+    return this.labels.map((label, index) => ({
+      value: index.toString(),
+      label,
+    }));
   }
 }

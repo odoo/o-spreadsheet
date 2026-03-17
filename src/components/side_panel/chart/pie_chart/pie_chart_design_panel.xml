@@ -20,17 +20,12 @@
     <SidePanelCollapsible isInitiallyCollapsed="true" title.translate="Pie Slice">
       <t t-set-slot="content">
         <Section class="'py-0'">
-          <select
-            class="o-input pie-slice-selector"
-            t-on-change="(ev) => this.updateEditedValues(ev)">
-            <t t-foreach="labels" t-as="label" t-key="label_index">
-              <option
-                t-att-value="label"
-                t-att-selected="state.index === label_index"
-                t-esc="label"
-              />
-            </t>
-          </select>
+          <Select
+            class="'o-pie-slice-selector'"
+            selectedValue="state.index.toString()"
+            values="pieSliceOptions"
+            onChange="(value) => this.updateEditedValues(value)"
+          />
         </Section>
         <Section class="'py-4'">
           <div class="d-flex align-items-center">

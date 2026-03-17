@@ -1,7 +1,9 @@
 import { ChartTerms } from "@odoo/o-spreadsheet-engine/components/translations_terms";
 import { LINE_DATA_POINT_RADIUS } from "@odoo/o-spreadsheet-engine/constants";
+import { chartSubtypeRegistry } from "@odoo/o-spreadsheet-engine/registries/chart_subtype_registry";
 import {
   GaugeChartDefinition,
+  PieChartDefinition,
   PieChartRuntime,
   ScorecardChartDefinition,
   ScorecardChartRuntime,
@@ -258,7 +260,7 @@ describe("charts", () => {
           fixture.querySelector("input[name=dataSetsHaveTitle]") as HTMLInputElement
         ).checked;
         const labels = fixture.querySelector(".o-data-labels");
-        expect((panelChartType as HTMLSelectElement).value).toBe("combo");
+        expect(panelChartType.textContent).toBe("Combo");
         expect((dataSeries.querySelector(" .o-selection input") as HTMLInputElement).value).toBe(
           TEST_CHART_DATA.basicChart.dataSets[0].dataRange
         );
@@ -273,7 +275,7 @@ describe("charts", () => {
           fixture.querySelector("input[name=dataSetsHaveTitle]") as HTMLInputElement
         ).checked;
         const labels = fixture.querySelector(".o-data-labels");
-        expect((panelChartType as HTMLSelectElement).value).toBe("column");
+        expect(panelChartType.textContent).toBe("Column");
         expect((dataSeries.querySelector(" .o-selection input") as HTMLInputElement).value).toBe(
           TEST_CHART_DATA.basicChart.dataSets[0].dataRange
         );
@@ -286,7 +288,7 @@ describe("charts", () => {
       case "scorecard": {
         const keyValue = fixture.querySelector(".o-chart .o-data-series");
         const baseline = fixture.querySelector(".o-data-labels");
-        expect((panelChartType as HTMLSelectElement).value).toBe(TEST_CHART_DATA.scorecard.type);
+        expect(panelChartType.textContent).toBe("Scorecard");
         expect((keyValue!.querySelector(" .o-selection input") as HTMLInputElement).value).toBe(
           TEST_CHART_DATA.scorecard.keyValue
         );
@@ -894,19 +896,15 @@ describe("charts", () => {
 
     await click(colorMenu);
     await click(fixture, ".o-color-picker-line-item[data-color='#EFEFEF'");
-    //@ts-ignore
-    expect(model.getters.getChartDefinition(chartId).slicesColors).toEqual(["#EFEFEF", "", ""]);
+    let definition = model.getters.getChartDefinition(chartId) as PieChartDefinition;
+    expect(definition.slicesColors).toEqual(["#EFEFEF", "", ""]);
     expect(colorMenu).toHaveStyle({ background: "#EFEFEF" });
 
-    setInputValueAndTrigger(".pie-slice-selector", "P3");
+    await editSelectComponent(".o-pie-slice-selector", "2");
     await click(colorMenu);
     await click(fixture, ".o-color-picker-line-item[data-color='#FF0000'");
-    //@ts-ignore
-    expect(model.getters.getChartDefinition(chartId).slicesColors).toEqual([
-      "#EFEFEF",
-      "",
-      "#FF0000",
-    ]);
+    definition = model.getters.getChartDefinition(chartId) as PieChartDefinition;
+    expect(definition.slicesColors).toEqual(["#EFEFEF", "", "#FF0000"]);
   });
 
   test("can edit chart data series vertical axis", async () => {
@@ -1211,8 +1209,7 @@ describe("charts", () => {
     createTestChart("basicChart");
     await mountChartSidePanel();
     createSheet(model, { sheetId: "42", activate: true });
-    const chartType = fixture.querySelectorAll(".o-chart .o-input")[0] as HTMLSelectElement;
-    await setInputValueAndTrigger(chartType, "pie");
+    await changeChartType("pie");
 
     expect(model.getters.getChart(chartId)?.sheetId).toBe(sheetId);
 
@@ -1365,7 +1362,7 @@ describe("charts", () => {
       const hasTitle = (fixture.querySelector("input[name=dataSetsHaveTitle]") as HTMLInputElement)
         .checked;
       const labels = fixture.querySelector(".o-data-labels");
-      expect((panelChartType as HTMLSelectElement).value).toBe("line");
+      expect(panelChartType.textContent).toBe("Line");
       expect((dataSeries.querySelector(" .o-selection input") as HTMLInputElement).value).toBe(
         "C1:C4"
       );
@@ -2746,19 +2743,21 @@ describe("Change chart type", () => {
       createChart(model, { type }, chartId);
       await mountChartSidePanel(chartId);
 
-      const select = fixture.querySelector(".o-type-selector") as HTMLSelectElement;
+      const select = fixture.querySelector(".o-type-selector") as HTMLDivElement;
       const stackedCheckbox = fixture.querySelector("input[name='stacked']") as HTMLInputElement;
-      expect(select.value).toBe(uiType);
+      expect(select.textContent).toBe(chartSubtypeRegistry.get(uiType).displayName.toString());
       expect(stackedCheckbox.checked).toBe(false);
 
       await changeChartType("stacked_" + uiType);
-      expect(select.value).toBe("stacked_" + uiType);
+      expect(select.textContent).toBe(
+        chartSubtypeRegistry.get("stacked_" + uiType).displayName.toString()
+      );
       expect(model.getters.getChartDefinition(chartId)).toMatchObject({ type, stacked: true });
       expect(stackedCheckbox.checked).toBe(true);
 
       await click(stackedCheckbox);
       expect(stackedCheckbox.checked).toBe(false);
-      expect(select.value).toBe(uiType);
+      expect(select.textContent).toBe(chartSubtypeRegistry.get(uiType).displayName.toString());
       expect(model.getters.getChartDefinition(chartId)).toMatchObject({ type, stacked: false });
     }
   );
@@ -2766,41 +2765,41 @@ describe("Change chart type", () => {
   test("Can change chart type between bar and horizontal bar chart", async () => {
     createChart(model, { type: "bar", horizontal: false }, chartId);
     await mountChartSidePanel(chartId);
-    const select = fixture.querySelector(".o-type-selector") as HTMLSelectElement;
+    const select = fixture.querySelector(".o-type-selector") as HTMLDivElement;
 
     updateChart(model, chartId, { horizontal: true }, sheetId);
     await nextTick();
     expect(model.getters.getChartDefinition(chartId)).toMatchObject({ horizontal: true });
-    expect(select.value).toBe("bar");
+    expect(select.textContent).toBe("Bar");
 
     await changeChartType("column");
     expect(model.getters.getChartDefinition(chartId)).toMatchObject({ horizontal: false });
-    expect(select.value).toBe("column");
+    expect(select.textContent).toBe("Column");
   });
 
   test("Can change chart type between pie and doughnut chart", async () => {
     createChart(model, { type: "pie", isDoughnut: false }, chartId);
     await mountChartSidePanel(chartId);
-    const select = fixture.querySelector(".o-type-selector") as HTMLSelectElement;
+    const select = fixture.querySelector(".o-type-selector") as HTMLDivElement;
 
     updateChart(model, chartId, { isDoughnut: true }, sheetId);
     await nextTick();
     expect(model.getters.getChartRuntime(chartId)).toMatchObject({
       chartJsConfig: { type: "doughnut" },
     });
-    expect(select.value).toBe("doughnut");
+    expect(select.textContent).toBe("Doughnut");
 
     await changeChartType("pie");
     expect(model.getters.getChartRuntime(chartId)).toMatchObject({
       chartJsConfig: { type: "pie" },
     });
-    expect(select.value).toBe("pie");
+    expect(select.textContent).toBe("Pie");
   });
 
   test("Can change from (stacked)line to (stacked)area chart", async () => {
     createChart(model, { type: "line", stacked: false, fillArea: false }, chartId);
     await mountChartSidePanel(chartId);
-    const select = fixture.querySelector(".o-type-selector") as HTMLSelectElement;
+    const select = fixture.querySelector(".o-type-selector") as HTMLDivElement;
 
     updateChart(model, chartId, { fillArea: true }, sheetId);
     await nextTick();
@@ -2808,14 +2807,14 @@ describe("Change chart type", () => {
       stacked: false,
       fillArea: true,
     });
-    expect(select.value).toBe("area");
+    expect(select.textContent).toBe("Area");
 
     await changeChartType("stacked_area");
     expect(model.getters.getChartDefinition(chartId)).toMatchObject({
       stacked: true,
       fillArea: true,
     });
-    expect(select.value).toBe("stacked_area");
+    expect(select.textContent).toBe("Stacked Area");
 
     updateChart(model, chartId, { fillArea: false }, sheetId);
     await nextTick();
@@ -2823,7 +2822,7 @@ describe("Change chart type", () => {
       stacked: true,
       fillArea: false,
     });
-    expect(select.value).toBe("stacked_line");
+    expect(select.textContent).toBe("Stacked Line");
   });
 
   test("Changing chart type updates the stacked checkbox label accordingly", async () => {
@@ -2875,16 +2874,16 @@ describe("Change chart type", () => {
   test("Can change chart type between radar and filled radar chart", async () => {
     createChart(model, { type: "radar", fillArea: false }, chartId);
     await mountChartSidePanel(chartId);
-    const select = fixture.querySelector(".o-type-selector") as HTMLSelectElement;
+    const select = fixture.querySelector(".o-type-selector") as HTMLDivElement;
 
     updateChart(model, chartId, { fillArea: true }, sheetId);
     await nextTick();
 
     expect(model.getters.getChartDefinition(chartId)).toMatchObject({ fillArea: true });
-    expect(select.value).toBe("filled_radar");
+    expect(select.textContent).toBe("Filled Radar");
 
     await changeChartType("radar");
     expect(model.getters.getChartDefinition(chartId)).toMatchObject({ fillArea: false });
-    expect(select.value).toBe("radar");
+    expect(select.textContent).toBe("Radar");
   });
 });

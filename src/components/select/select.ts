@@ -11,6 +11,7 @@ export interface SelectProps {
   class?: string;
   popoverClass?: string;
   name?: string;
+  title?: string;
 }
 
 interface State {
@@ -27,6 +28,7 @@ export class Select extends Component<SelectProps, SpreadsheetChildEnv> {
     class: { type: String, optional: true },
     popoverClass: { type: String, optional: true },
     name: { type: String, optional: true },
+    title: { type: String, optional: true },
   };
   static components = { Popover };
 
