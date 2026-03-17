@@ -726,7 +726,7 @@ describe("charts", () => {
     const maxInput = fixture.querySelector(`.axis-max-input`) as HTMLInputElement;
     await setInputValueAndTrigger(maxInput, "4");
 
-    const definition = model.getters.getChartDefinition(chartId) as LineChartDefinition;
+    const definition = model.getters.getChartDefinition(chartId) as LineChartDefinition<string>;
     expect(definition.axesDesign?.x?.min).toEqual(2);
     expect(definition.axesDesign?.x?.max).toEqual(4);
   });
@@ -772,7 +772,7 @@ describe("charts", () => {
     const maxInput = fixture.querySelector(`.axis-max-input`) as HTMLInputElement;
     await setInputValueAndTrigger(maxInput, "10");
 
-    const definition = model.getters.getChartDefinition(chartId) as LineChartDefinition;
+    const definition = model.getters.getChartDefinition(chartId) as LineChartDefinition<string>;
     expect(definition.axesDesign?.y?.min).toEqual(5);
     expect(definition.axesDesign?.y?.max).toEqual(10);
   });
@@ -819,17 +819,17 @@ describe("charts", () => {
     await openChartDesignSidePanel(model, env, fixture, chartId);
     await click(fixture, `.o-badge-selection button[data-id=${axis}]`);
 
-    let definition = model.getters.getChartDefinition(chartId) as LineChartDefinition;
+    let definition = model.getters.getChartDefinition(chartId) as LineChartDefinition<string>;
     expect(definition.axesDesign?.[axis]?.gridLines).toEqual("none");
     setCheckboxValueAndTrigger(".o-axis-grid-major input", true, "change");
     await nextTick();
 
-    definition = model.getters.getChartDefinition(chartId) as LineChartDefinition;
+    definition = model.getters.getChartDefinition(chartId) as LineChartDefinition<string>;
     expect(definition.axesDesign?.[axis]?.gridLines).toEqual("major");
     setCheckboxValueAndTrigger(".o-axis-grid-minor input", true, "change");
     await nextTick();
 
-    definition = model.getters.getChartDefinition(chartId) as LineChartDefinition;
+    definition = model.getters.getChartDefinition(chartId) as LineChartDefinition<string>;
     expect(definition.axesDesign?.[axis]?.gridLines).toEqual("both");
   });
 
@@ -852,7 +852,7 @@ describe("charts", () => {
     await mountChartSidePanel(chartId, model);
     await openChartDesignSidePanel(model, env, fixture, chartId);
 
-    const definition = model.getters.getChartDefinition(chartId) as LineChartDefinition;
+    const definition = model.getters.getChartDefinition(chartId) as LineChartDefinition<string>;
     expect(definition.axesDesign?.x?.gridLines).toEqual("none");
     expect(".o-axis-grid-major input").toHaveCount(0);
     expect(".o-axis-grid-minor input").toHaveCount(0);
@@ -1930,6 +1930,7 @@ describe("charts", () => {
     async (chartType) => {
       createTestChart(chartType);
       updateChart(model, chartId, {
+        // @ts-ignore
         keyValue: undefined,
         dataRange: undefined,
         ...toChartDataSource({ dataSets: [] }),
@@ -2157,12 +2158,12 @@ describe("charts", () => {
       await mountChartSidePanel();
 
       expect(
-        (model.getters.getChartDefinition(chartId) as LineChartDefinition).axesDesign?.x
+        (model.getters.getChartDefinition(chartId) as LineChartDefinition<string>).axesDesign?.x
       ).toEqual({ min: 5, max: 10 });
 
       await simulateClick("input[name='labelsAsText']");
       expect(
-        (model.getters.getChartDefinition(chartId) as LineChartDefinition).axesDesign?.x
+        (model.getters.getChartDefinition(chartId) as LineChartDefinition<string>).axesDesign?.x
       ).toEqual({ min: undefined, max: undefined });
     });
 
