@@ -1995,6 +1995,23 @@ describe("renderer", () => {
       expect(renderedTexts.slice(0, 4)).toEqual(splittedText);
     });
 
+    test.each<Align>(["left", "center", "right"])(
+      "Wrapped text is displayed over multiple lines with %s align",
+      (align) => {
+        const overFlowingContent = "ThisIsAVeryVeryLongText";
+        setCellContent(model, "A1", overFlowingContent);
+        setStyle(model, "A1", { wrapping: "wrap", align });
+        resizeColumns(model, ["A"], 14);
+
+        // Split length = 14 - 2*MIN_CELL_TEXT_MARGIN = 6 letters (1 letter = 1px in the tests)
+        const splittedText = ["ThisIs", "AVeryV", "eryLon", "gText"];
+
+        drawGridRenderer(ctx);
+
+        expect(renderedTexts.slice(0, 4)).toEqual(splittedText);
+      }
+    );
+
     test("Wrapped text try to not split words in multiple lines if the word is small enough", () => {
       const overFlowingContent = "W Word2 W3 WordThatIsTooLong";
       setCellContent(model, "A1", overFlowingContent);
