@@ -407,7 +407,7 @@ Demo.template = xml/* xml */ `
       <Spreadsheet model="model" notifyUser="notifyUser" t-key="state.key" colorScheme="state.colorScheme"/>
     </div>
   </div>
-  <div t-else="" class="w-100 h-100">
+  <div t-else="" class="w-100 h-100 overflow-auto">
     <Spreadsheet model="model" t-key="state.key" notifyUser="notifyUser" colorScheme="state.colorScheme"/>
   </div>
 `;

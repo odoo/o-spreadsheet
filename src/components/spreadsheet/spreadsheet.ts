@@ -33,6 +33,7 @@ import {
 import { BottomBar } from "../bottom_bar/bottom_bar";
 import { ComposerFocusStore } from "../composer/composer_focus_store";
 import { SpreadsheetDashboard } from "../dashboard/dashboard";
+import { MobileDashboard } from "../dashboard/mobile_dashboard/mobile_dashboard";
 import { FullScreenFigure } from "../full_screen_figure/full_screen_figure";
 import { Grid } from "../grid/grid";
 import { HeaderGroupContainer } from "../header_group/header_group_container";
@@ -85,6 +86,7 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
     HeaderGroupContainer,
     FullScreenFigure,
     SpreadsheetPrint,
+    MobileDashboard,
   };
 
   sidePanel!: Store<SidePanelStore>;
@@ -220,6 +222,33 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
 
     const render = batched(this.render.bind(this, true));
     onMounted(() => {
+      // ADRM TODO: delete this
+      this.model.updateMode("dashboard");
+      // setTimeout(() => {
+      //   if (!this.model.getters.isDashboard()) {
+      //     const a = topbarMenuRegistry
+      //       .get("file")
+      //       .children?.find((menu) => menu.name.toString().includes("dashboard"));
+      //     (a as unknown as Action)?.execute?.(this.env);
+      //   }
+      // }, 50);
+
+      // const sheetId = this.env.model.getters.getActiveSheetId();
+      // const chartId = this.env.model.getters.getFigures(sheetId)[0]?.id;
+      // if (chartId) {
+      //   this.env.model.dispatch("SELECT_FIGURE", { figureId: chartId });
+      //   this.sidePanel.open("ChartPanel");
+      //   setTimeout(() => {
+      //     document.querySelector<HTMLElement>(".o-panel-design")?.click();
+      //   }, 60);
+      // }
+
+      // const pivotId = this.model.getters.getPivotIds()[0];
+      // if (pivotId) {
+      //   this.sidePanel.open("PivotSidePanel", { pivotId: "1" });
+      // }
+      // END_TOKEN
+
       this.bindModelEvents();
       this.checkViewportSize();
       stores.on("store-updated", this, render);

@@ -9,7 +9,8 @@
         <SpreadsheetPrint onExitPrintMode.bind="exitPrintMode"/>
       </t>
       <t t-elif="env.isDashboard()">
-        <SpreadsheetDashboard getGridSize.bind="getGridSize"/>
+        <MobileDashboard t-if="env.isSmall" spreadsheetModel="this"/>
+        <SpreadsheetDashboard t-else="" getGridSize.bind="getGridSize"/>
         <FullScreenFigure/>
       </t>
       <t t-else="">
