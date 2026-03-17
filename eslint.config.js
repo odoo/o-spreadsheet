@@ -2,6 +2,8 @@
 
 import tseslint from "typescript-eslint";
 
+const fastMode = !!process.env.ESLINT_FAST;
+
 export default tseslint.config(
   {
     ignores: ["**/dist/**", "**/node_modules/**", "**/build/**", "**/*.js"],
@@ -21,9 +23,9 @@ export default tseslint.config(
         //   - engine tests: packages/o-spreadsheet-engine/tsconfig.json only
         //     includes `src/`, so its tests/ directory has no owning project
         //     (unlike the main tests/ folder which has its own tsconfig.json).
-        projectService: {
-          allowDefaultProject: ["global.d.ts", "packages/o-spreadsheet-engine/tests/*.ts"],
-        },
+        projectService: fastMode
+          ? false
+          : { allowDefaultProject: ["global.d.ts", "packages/o-spreadsheet-engine/tests/*.ts"] },
       },
     },
     rules: {
@@ -33,7 +35,7 @@ export default tseslint.config(
       eqeqeq: "error", // ban non-strict equal
       "@typescript-eslint/no-non-null-asserted-optional-chain": "error", // ban non-null assertion in optional chain
       curly: ["error", "all"], // enforce curly braces for all control statements
-      "@typescript-eslint/no-floating-promises": "error", // ban unawaited promises
+      ...(!fastMode && { "@typescript-eslint/no-floating-promises": "error" }), // ban unawaited promises
     },
   }
 );
