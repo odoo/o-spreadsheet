@@ -656,9 +656,13 @@ export class GridRenderer {
     /** Content */
     const wrapping = style.wrapping || "overflow";
     const wrapText = wrapping === "wrap" && !showFormula;
-    // we want to give priority to the style, so if there is one we don't fill with white spaces
-    const maxWidth = style.align ? 0 : width - 2 * MIN_CELL_TEXT_MARGIN;
-    const multiLineText = this.getters.getCellMultiLineText(position, { maxWidth, wrapText });
+    const maxWidth = width - 2 * MIN_CELL_TEXT_MARGIN;
+    const formatWidth = style.align ? 0 : maxWidth;
+    const multiLineText = this.getters.getCellMultiLineText(position, {
+      maxWidth,
+      formatWidth,
+      wrapText,
+    });
     const textWidth = Math.max(
       ...multiLineText.map((line) => this.getters.getTextWidth(line, style) + MIN_CELL_TEXT_MARGIN)
     );
