@@ -35,7 +35,7 @@ beforeEach(() => {
 });
 describe("Chart animations in dashboard", () => {
   test("Charts are animated only at first render", async () => {
-    const model = createModel();
+    const model = await createModel();
     createChart(model, { type: "bar" });
     model.updateMode("dashboard");
     await mountSpreadsheet({ model });
@@ -53,7 +53,7 @@ describe("Chart animations in dashboard", () => {
   });
   test("Animations are replayed only when chart data changes", async () => {
     readonlyAllowedCommands.add("UPDATE_CELL");
-    const model = createModel();
+    const model = await createModel();
     createChart(model, { type: "bar", dataSets: [{ dataRange: "A1:A6" }] });
     model.updateMode("dashboard");
     await mountSpreadsheet({ model });
@@ -70,7 +70,7 @@ describe("Chart animations in dashboard", () => {
   });
   test("Treemap animation are not replayed when data does not change but runtime is re-created", async () => {
     readonlyAllowedCommands.add("UPDATE_CELL");
-    const model = createModel();
+    const model = await createModel();
     createChart(model, { type: "treemap", dataSets: [{ dataRange: "A1:A6" }] });
     setCellContent(model, "A2", "1");
     model.updateMode("dashboard");
@@ -82,7 +82,7 @@ describe("Chart animations in dashboard", () => {
     readonlyAllowedCommands.delete("UPDATE_CELL");
   });
   test("Charts are animated when chart type changes", async () => {
-    const model = createModel();
+    const model = await createModel();
     createChart(model, { type: "bar", dataSets: [{ dataRange: "A1:A6" }] }, "chartId");
     model.updateMode("dashboard");
     await mountSpreadsheet({ model });
@@ -95,7 +95,7 @@ describe("Chart animations in dashboard", () => {
     expect(mockedChart.config.options.animation.animateRotate).toBe(true);
   });
   test("Non-zoomable full screen charts are animated separately from their counterparts", async () => {
-    const model = createModel();
+    const model = await createModel();
     createChart(model, { type: "pie", dataSets: [{ dataRange: "A1:A6" }] }, "chartId");
     model.updateMode("dashboard");
     const { env, fixture } = await mountSpreadsheet({ model });
@@ -106,7 +106,7 @@ describe("Chart animations in dashboard", () => {
     expect(store.animationPlayed["chartId-fullscreen"]).toBe("pie");
   });
   test("Non-zoomable full screen charts will be animated each time we open them", async () => {
-    const model = createModel();
+    const model = await createModel();
     createChart(model, { type: "pie", dataSets: [{ dataRange: "A1:A6" }] }, "chartId");
     model.updateMode("dashboard");
     const { env, fixture } = await mountSpreadsheet({ model });
@@ -116,7 +116,7 @@ describe("Chart animations in dashboard", () => {
     expect(enableAnimationSpy).toHaveBeenCalledWith("chartId-fullscreen");
   });
   test("Zoomable chart isn't animated when moving the slicer in full screen", async () => {
-    const model = createModel();
+    const model = await createModel();
     createChart(
       model,
       { type: "bar", dataSets: [{ dataRange: "A1:A6" }], zoomable: true },

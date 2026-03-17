@@ -51,8 +51,8 @@ function getFullTableStyle(xc: string) {
 }
 
 describe("Table style", () => {
-  beforeEach(() => {
-    model = createModel();
+  beforeEach(async () => {
+    model = await createModel();
     sheetId = model.getters.getActiveSheetId();
   });
 
@@ -242,8 +242,8 @@ describe("Table style", () => {
       expect(getFullTableStyle("A1:B4")).toEqual(tableStyle);
     });
 
-    test("Table style is updated when (un)filtering headers", () => {
-      model = createModel();
+    test("Table style is updated when (un)filtering headers", async () => {
+      model = await createModel();
       createTableWithFilter(model, "A1:B4");
       const tableStyle = getFullTableStyle("A1:B4");
       setCellContent(model, "A2", "test");

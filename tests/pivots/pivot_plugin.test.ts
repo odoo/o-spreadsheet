@@ -6,14 +6,14 @@ import { renameSheet, selectCell, setCellContent } from "../test_helpers/command
 import { createModel, createModelFromGrid, toCellPosition } from "../test_helpers/helpers";
 import { addPivot, updatePivot } from "../test_helpers/pivot_helpers";
 describe("Pivot plugin", () => {
-  test("isSpillPivotFormula", () => {
+  test("isSpillPivotFormula", async () => {
     // prettier-ignore
     const grid = {
       A1: "Customer", B1: "Price", C1: "=PIVOT(1)",
       A2: "Alice",    B2: "10",
       A3: "Bob",      B3: "30",
     };
-    const model = createModelFromGrid(grid);
+    const model = await createModelFromGrid(grid);
     addPivot(model, "A1:B3", {
       columns: [],
       rows: [{ fieldName: "Customer" }],
@@ -30,14 +30,14 @@ describe("Pivot plugin", () => {
     setCellContent(model, "G1", "=PIVOT.HEADER(1)");
     expect(isSpillPivotFormula("G1")).toBe(false);
   });
-  test("getPivotCellFromPosition doesn't throw with invalid pivot domain", () => {
+  test("getPivotCellFromPosition doesn't throw with invalid pivot domain", async () => {
     // prettier-ignore
     const grid = {
       A1: "Customer", B1: "Price", C1: '=PIVOT.VALUE(1,"Price","5","Bob")',
       A2: "Alice",    B2: "10",
       A3: "Bob",      B3: "30",
     };
-    const model = createModelFromGrid(grid);
+    const model = await createModelFromGrid(grid);
     addPivot(model, "A1:B3", {
       columns: [],
       rows: [{ fieldName: "Customer" }],
@@ -48,14 +48,14 @@ describe("Pivot plugin", () => {
       EMPTY_PIVOT_CELL
     );
   });
-  test("Cannot update a pivot with an empty name", () => {
+  test("Cannot update a pivot with an empty name", async () => {
     // prettier-ignore
     const grid = {
       A1: "Customer", B1: "Price", C1: '=PIVOT(1)',
       A2: "Alice",    B2: "10",
       A3: "Bob",      B3: "30",
     };
-    const model = createModelFromGrid(grid);
+    const model = await createModelFromGrid(grid);
     addPivot(model, "A1:B3", {
       columns: [],
       rows: [{ fieldName: "Customer" }],
@@ -66,12 +66,12 @@ describe("Pivot plugin", () => {
       model.dispatch("UPDATE_PIVOT", { pivotId: "1", pivot: { ...pivot, name: "" } })
     ).toBeCancelledBecause(CommandResult.EmptyName);
   });
-  test("cannot create a pivot with duplicated measure ids", () => {
+  test("cannot create a pivot with duplicated measure ids", async () => {
     const grid = {
       A1: "Customer",
       A2: "Alice",
     };
-    const model = createModelFromGrid(grid);
+    const model = await createModelFromGrid(grid);
     const sheetId = model.getters.getActiveSheetId();
     const creationResult = addPivot(model, "A1:A2", {
       measures: [
@@ -86,14 +86,14 @@ describe("Pivot plugin", () => {
     });
     expect(creationResult.isSuccessful).toBe(false);
   });
-  test("sortedColumn must be in the measures", () => {
+  test("sortedColumn must be in the measures", async () => {
     // prettier-ignore
     const grid = {
       A1: "Customer", B1: "Price",
       A2: "Alice",    B2: "10",
       A3: "Bob",      B3: "30",
     };
-    const model = createModelFromGrid(grid);
+    const model = await createModelFromGrid(grid);
     const creationResult = addPivot(model, "A1:A2", {
       measures: [{ id: "Customer:sum", fieldName: "Customer", aggregator: "sum" }],
       sortedColumn: {
@@ -104,12 +104,12 @@ describe("Pivot plugin", () => {
     });
     expect(creationResult).toBeCancelledBecause(CommandResult.InvalidDefinition);
   });
-  test("cannot update a pivot with duplicated measure ids", () => {
+  test("cannot update a pivot with duplicated measure ids", async () => {
     const grid = {
       A1: "Customer",
       A2: "Alice",
     };
-    const model = createModelFromGrid(grid);
+    const model = await createModelFromGrid(grid);
     const sheetId = model.getters.getActiveSheetId();
     addPivot(model, "A1:A2", {
       measures: [],
@@ -132,12 +132,12 @@ describe("Pivot plugin", () => {
     });
     expect(updateResult.isSuccessful).toBe(false);
   });
-  test("can generate unique calculated measure", () => {
+  test("can generate unique calculated measure", async () => {
     const grid = {
       A1: "Customer",
       A2: "Alice",
     };
-    const model = createModelFromGrid(grid);
+    const model = await createModelFromGrid(grid);
     const sheetId = model.getters.getActiveSheetId();
     addPivot(model, "A1:A2", {
       measures: [{ id: "Customer", fieldName: "Customer", aggregator: "sum" }],
@@ -174,7 +174,7 @@ describe("Pivot plugin", () => {
     const thirdCalculatedName = model.getters.generateNewCalculatedMeasureName(definition.measures);
     expect(thirdCalculatedName).toBe("Calculated measure 1");
   });
-  test("getPivotCellFromPosition cannot get the pivot cell when the table is manipulated by other functions", () => {
+  test("getPivotCellFromPosition cannot get the pivot cell when the table is manipulated by other functions", async () => {
     // prettier-ignore
     const grid = {
       A1: "Customer", B1: "Price", C1: '=PIVOT.VALUE(1,"Price","5","Bob")',
@@ -182,7 +182,7 @@ describe("Pivot plugin", () => {
       A3: "Bob",      B3: "30",
       A4: "=TRANSPOSE(PIVOT(1))",
     };
-    const model = createModelFromGrid(grid);
+    const model = await createModelFromGrid(grid);
     addPivot(model, "A1:B3", {
       columns: [],
       rows: [{ fieldName: "Customer" }],
@@ -193,14 +193,14 @@ describe("Pivot plugin", () => {
       EMPTY_PIVOT_CELL
     );
   });
-  test("getPivotCellFromPosition can handle vectorization", () => {
+  test("getPivotCellFromPosition can handle vectorization", async () => {
     // prettier-ignore
     const grid = {
       A1: "Stage", B1: "Price", C1: '=PIVOT.VALUE(1,"Price","Stage",SEQUENCE(2))',
       A2: "1",     B2: "10",
       A3: "2",     B3: "30",
     };
-    const model = createModelFromGrid(grid);
+    const model = await createModelFromGrid(grid);
     addPivot(model, "A1:B3", {
       columns: [],
       rows: [{ fieldName: "Stage" }],
@@ -219,8 +219,8 @@ describe("Pivot plugin", () => {
       }
     );
   });
-  test("cannot update a pivot with a wrong id", () => {
-    const model = createModel();
+  test("cannot update a pivot with a wrong id", async () => {
+    const model = await createModel();
     const updateResult = model.dispatch("UPDATE_PIVOT", {
       pivotId: "9999",
       pivot: {
@@ -233,30 +233,30 @@ describe("Pivot plugin", () => {
     });
     expect(updateResult).toBeCancelledBecause(CommandResult.PivotIdNotFound);
   });
-  test("cannot add a pivot with an existing id", () => {
-    const model = createModel();
+  test("cannot add a pivot with an existing id", async () => {
+    const model = await createModel();
     const createResult1 = addPivot(model, "A1:A2", {}, "1");
     expect(createResult1.isSuccessful).toBe(true);
     const createResult2 = addPivot(model, "A1:A2", {}, "1");
     expect(createResult2).toBeCancelledBecause(CommandResult.PivotIdTaken);
   });
-  test("cannot duplicate a pivot with a wrong id", () => {
-    const model = createModel();
+  test("cannot duplicate a pivot with a wrong id", async () => {
+    const model = await createModel();
     const updateResult = model.dispatch("DUPLICATE_PIVOT", {
       pivotId: "9999",
       newPivotId: "1",
     });
     expect(updateResult).toBeCancelledBecause(CommandResult.PivotIdNotFound);
   });
-  test("cannot remove a pivot with a wrong id", () => {
-    const model = createModel();
+  test("cannot remove a pivot with a wrong id", async () => {
+    const model = await createModel();
     const updateResult = model.dispatch("REMOVE_PIVOT", {
       pivotId: "9999",
     });
     expect(updateResult).toBeCancelledBecause(CommandResult.PivotIdNotFound);
   });
-  test("cannot create a pivot with and invalid dataset sheetId or zone", () => {
-    const model = createModel();
+  test("cannot create a pivot with and invalid dataset sheetId or zone", async () => {
+    const model = await createModel();
     const createResult1 = addPivot(model, "", {
       dataSet: { sheetId: "BADSHEETID", zone: toZone("A1:A2") },
     });
@@ -272,8 +272,8 @@ describe("Pivot plugin", () => {
     });
     expect(createResult3).toBeCancelledBecause(CommandResult.TargetOutOfSheet);
   });
-  test("cannot update a pivot with and invalid dataset sheetId or zone", () => {
-    const model = createModel();
+  test("cannot update a pivot with and invalid dataset sheetId or zone", async () => {
+    const model = await createModel();
     addPivot(model, "A1:A2");
     const updateResult1 = updatePivot(model, "1", {
       dataSet: { sheetId: "BADSHEETID", zone: toZone("A1:A2") },
@@ -290,12 +290,12 @@ describe("Pivot plugin", () => {
     });
     expect(updateResult3).toBeCancelledBecause(CommandResult.TargetOutOfSheet);
   });
-  test("forbidden characters are removed from new sheet name when duplicating a pivot", () => {
+  test("forbidden characters are removed from new sheet name when duplicating a pivot", async () => {
     const grid = {
       A1: "Customer",
       A2: "Alice",
     };
-    const model = createModelFromGrid(grid);
+    const model = await createModelFromGrid(grid);
     addPivot(model, "A1:A2", { name: `forbidden: ${FORBIDDEN_SHEETNAME_CHARS}` }, "pivot1");
     model.dispatch("DUPLICATE_PIVOT_IN_NEW_SHEET", {
       newPivotId: "pivot2",
@@ -307,12 +307,12 @@ describe("Pivot plugin", () => {
     );
     expect(model.getters.getPivotName("pivot2")).toEqual("forbidden: ',*,?,/,\\,[,] (copy)");
   });
-  test("sheet names with forbidden characters cannot conflict", () => {
+  test("sheet names with forbidden characters cannot conflict", async () => {
     const grid = {
       A1: "Customer",
       A2: "Alice",
     };
-    const model = createModelFromGrid(grid);
+    const model = await createModelFromGrid(grid);
     const sheetId = model.getters.getActiveSheetId();
     const name = "forbidden: /";
     renameSheet(model, sheetId, "forbidden:   (copy) (Pivot #2)");
@@ -324,14 +324,14 @@ describe("Pivot plugin", () => {
     });
     expect(model.getters.getSheetName("Sheet2")).toEqual("forbidden:   (copy) (Pivot #2) (1)");
   });
-  test("getPivotCellFromPosition handles falsy arguments for includeColumnTitle", () => {
+  test("getPivotCellFromPosition handles falsy arguments for includeColumnTitle", async () => {
     // prettier-ignore
     const grid = {
       A1: "Customer", B1: "Price",
       A2: "Alice",    B2: "10",
       A3: "Bob",      B3: "30",
     };
-    const model = createModelFromGrid(grid);
+    const model = await createModelFromGrid(grid);
     addPivot(model, "A1:B3", {
       columns: [{ fieldName: "Customer" }],
       rows: [{ fieldName: "Price" }],
@@ -382,14 +382,14 @@ describe("Pivot plugin", () => {
       type: "HEADER",
     });
   });
-  test("getPivotCellFromPosition handles both the pivot style and the function arguments", () => {
+  test("getPivotCellFromPosition handles both the pivot style and the function arguments", async () => {
     // prettier-ignore
     const grid = {
       A1: "Customer", B1: "Price",
       A2: "Alice",    B2: "10",
       A3: "Bob",      B3: "30",
     };
-    const model = createModelFromGrid(grid);
+    const model = await createModelFromGrid(grid);
     addPivot(model, "A1:B3", {
       columns: [{ fieldName: "Customer" }],
       rows: [{ fieldName: "Price" }],
@@ -403,8 +403,8 @@ describe("Pivot plugin", () => {
     setCellContent(model, "C1", "=PIVOT(1,,,TRUE)");
     expect(model.getters.getPivotCellFromPosition(D1)).toMatchObject({ type: "HEADER" });
   });
-  test("DUPLICATE_PIVOT_IN_NEW_SHEET is prevented if the pivot is in error", () => {
-    const model = createModel();
+  test("DUPLICATE_PIVOT_IN_NEW_SHEET is prevented if the pivot is in error", async () => {
+    const model = await createModel();
     addPivot(model, "A1:A2", {}, "pivot1");
     const result = model.dispatch("DUPLICATE_PIVOT_IN_NEW_SHEET", {
       newPivotId: "pivot2",

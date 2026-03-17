@@ -28,8 +28,8 @@ describe("describe", () => {
   let notificationStore: NotificationStore;
   let raiseErrorSpy: jest.SpyInstance;
 
-  beforeEach(() => {
-    model = createModel();
+  beforeEach(async () => {
+    model = await createModel();
     notificationStore = makeTestNotificationStore();
     raiseErrorSpy = jest.spyOn(notificationStore, "raiseError");
     composerStore = makeTestComposerStore(model, notificationStore);

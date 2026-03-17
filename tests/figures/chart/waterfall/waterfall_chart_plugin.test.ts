@@ -27,8 +27,8 @@ function getWaterfallRuntime(chartId: UID): WaterfallChartRuntime {
 }
 
 describe("Waterfall chart", () => {
-  beforeEach(() => {
-    model = createModel();
+  beforeEach(async () => {
+    model = await createModel();
   });
 
   test("Waterfall runtime with single dataset", () => {

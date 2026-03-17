@@ -29,7 +29,7 @@ describe("Pivot HTML Renderer", () => {
       A2: "Alice", B2: "25",  C2: "90",
       A3: "Bob",   B3: "30",  C3: "85",
     };
-    const model = createModelFromGrid(grid);
+    const model = await createModelFromGrid(grid);
     addPivot(model, "A1:C3", {
       rows: [{ fieldName: "Name" }],
       measures: [{ id: "Score", fieldName: "Score", aggregator: "count" }],
@@ -52,7 +52,7 @@ describe("Pivot HTML Renderer", () => {
       A8: `=PIVOT.HEADER(1,"Name","Bob")`,   B8: `=PIVOT.VALUE(1,"Score","Name","Bob")`,
       A9: "=PIVOT.HEADER(1)",                B9: `=PIVOT.VALUE(1,"Score")`,
     };
-    const model = createModelFromGrid(grid);
+    const model = await createModelFromGrid(grid);
     addPivot(model, "A1:C3", {
       rows: [{ fieldName: "Name" }],
       measures: [{ id: "Score", fieldName: "Score", aggregator: "count" }],
@@ -79,7 +79,7 @@ describe("Pivot HTML Renderer", () => {
       A8: `=PIVOT.HEADER(1,"Name","Bob")`,   B8: `=PIVOT.VALUE(1,"Score","Name","Bob")`,
       A9: "=PIVOT.HEADER(1)",                B9: `=PIVOT.VALUE(1,"Score")`,
     };
-    const model = createModelFromGrid(grid);
+    const model = await createModelFromGrid(grid);
     addPivot(model, "A1:C3", {
       rows: [{ fieldName: "Name" }],
       measures: [{ id: "Score", fieldName: "Score", aggregator: "count" }],

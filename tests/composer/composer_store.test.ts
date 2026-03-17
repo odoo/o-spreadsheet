@@ -52,8 +52,8 @@ let model: Model;
 let composerStore: Store<CellComposerStore>;
 let container: DependencyContainer;
 
-beforeEach(() => {
-  ({ model, container, store: composerStore } = makeStore(CellComposerStore));
+beforeEach(async () => {
+  ({ model, container, store: composerStore } = await makeStore(CellComposerStore));
 });
 
 function editCell(model: Model, xc: string, content: string) {

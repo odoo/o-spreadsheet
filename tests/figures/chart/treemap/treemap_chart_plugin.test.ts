@@ -61,8 +61,8 @@ function getTreeMapElement(args: {
 }
 
 describe("TreeMap chart", () => {
-  beforeEach(() => {
-    model = createModel();
+  beforeEach(async () => {
+    model = await createModel();
   });
 
   test("Labels and datasets are swapped from the creation context", () => {
@@ -85,8 +85,8 @@ describe("TreeMap chart", () => {
     });
   });
 
-  test("Labels and datasets are not swapped from a Sunburst chart creation context", () => {
-    const model = createModel();
+  test("Labels and datasets are not swapped from a Sunburst chart creation context", async () => {
+    const model = await createModel();
     const chartId = createSunburstChart(model, {
       dataSets: [{ dataRange: "A1:A4" }],
       labelRange: "B1:B4",

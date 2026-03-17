@@ -16,7 +16,7 @@ let env: SpreadsheetChildEnv;
 
 describe("Pyramid chart side panel", () => {
   beforeEach(async () => {
-    model = createModel();
+    model = await createModel();
     ({ fixture, env } = await mountComponentWithPortalTarget(SidePanels, { model }));
   });
 

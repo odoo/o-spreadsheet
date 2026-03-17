@@ -30,8 +30,8 @@ describe("scatter chart", () => {
     });
   });
 
-  test("scatter chart runtime reflects axis bounds, scale type and grids", () => {
-    const model = createModelFromGrid({
+  test("scatter chart runtime reflects axis bounds, scale type and grids", async () => {
+    const model = await createModelFromGrid({
       A1: "x",
       A2: "1",
       A3: "2",

@@ -14,7 +14,7 @@ if (response.status === 404) {
 } else {
   const templates = await response.text();
   const model = new Model();
-  model.startModel();
+  await model.startModel();
   const app = new owl.App(Spreadsheet, {
     props: {
       model,
@@ -62,7 +62,7 @@ Spreadsheet model can be created with the following arguments, all optionals:
 ```ts
 const { Model } = o_spreadsheet;
 const model = new Model(data, config);
-model.startModel();
+await model.startModel();
 ```
 
 - `data`

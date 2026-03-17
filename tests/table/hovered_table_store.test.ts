@@ -9,8 +9,8 @@ describe("Hovered Table Store", () => {
   let model: Model;
   let sheetId: UID;
 
-  beforeEach(() => {
-    ({ model, store: hoveredTableStore } = makeStore(HoveredTableStore));
+  beforeEach(async () => {
+    ({ model, store: hoveredTableStore } = await makeStore(HoveredTableStore));
     sheetId = model.getters.getActiveSheetId();
   });
 

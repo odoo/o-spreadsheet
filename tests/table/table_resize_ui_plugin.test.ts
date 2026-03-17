@@ -13,8 +13,8 @@ let model: Model;
 let sheetId: UID;
 
 describe("Table resize", () => {
-  beforeEach(() => {
-    model = createModel();
+  beforeEach(async () => {
+    model = await createModel();
     sheetId = model.getters.getActiveSheetId();
   });
 

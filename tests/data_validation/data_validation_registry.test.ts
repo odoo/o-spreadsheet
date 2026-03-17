@@ -25,8 +25,8 @@ describe("Data validation registry", () => {
   let model: Model;
   let getters: Getters;
   let sheetId: UID;
-  beforeEach(() => {
-    model = createModel();
+  beforeEach(async () => {
+    model = await createModel();
     getters = model.getters;
     sheetId = model.getters.getActiveSheetId();
   });

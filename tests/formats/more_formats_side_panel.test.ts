@@ -15,8 +15,8 @@ function getExampleValues() {
 }
 
 describe("more formats side panel component", () => {
-  beforeEach(() => {
-    model = createModel();
+  beforeEach(async () => {
+    model = await createModel();
   });
 
   async function mountFormatPanel(

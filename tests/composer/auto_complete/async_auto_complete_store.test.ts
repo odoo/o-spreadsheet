@@ -18,7 +18,7 @@ describe("Async auto complete", () => {
       selectProposal() {},
     });
     registerCleanup(() => autoCompleteProviders.remove("async_test"));
-    const { store: composer } = makeStore(CellComposerStore);
+    const { store: composer } = await makeStore(CellComposerStore);
     composer.startEdition();
     // first auto-complete will resolve in 100ms (after the next one)
     composer.setCurrentContent("=a");

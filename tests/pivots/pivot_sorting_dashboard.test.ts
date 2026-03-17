@@ -24,7 +24,7 @@ describe("Dashboard Pivot Sorting", () => {
       B3: "20",
       A4: "=PIVOT(1)",
     };
-    const model = createModelFromGrid(grid);
+    const model = await createModelFromGrid(grid);
     addPivot(model, "A1:B3", {
       rows: [{ fieldName: "Customer" }],
       measures: [{ id: "Price:sum", fieldName: "Price", aggregator: "sum" }],
@@ -73,7 +73,7 @@ describe("Dashboard Pivot Sorting", () => {
       B2: "10",
       A4: "=PIVOT(1)",
     };
-    const model = createModelFromGrid(grid);
+    const model = await createModelFromGrid(grid);
     addPivot(model, "A1:B3", {
       rows: [{ fieldName: "Customer" }],
       measures: [{ id: "Price:sum", fieldName: "Price", aggregator: "sum" }],
@@ -103,7 +103,7 @@ describe("Dashboard Pivot Sorting", () => {
       B2: "10",
       A4: "=PIVOT(1)",
     };
-    const model = createModelFromGrid(grid);
+    const model = await createModelFromGrid(grid);
     addPivot(model, "A1:B3", {
       rows: [{ fieldName: "Customer" }],
       measures: [{ id: "Price:sum", fieldName: "Price", aggregator: "sum" }],
@@ -127,7 +127,7 @@ describe("Dashboard Pivot Sorting", () => {
       B2: "10",
       A4: "=PIVOT(1)",
     };
-    const model = createModelFromGrid(grid);
+    const model = await createModelFromGrid(grid);
     addPivot(model, "A1:B3", {
       rows: [{ fieldName: "Customer" }],
       measures: [{ id: "Price:sum", fieldName: "Price", aggregator: "sum" }],
@@ -152,7 +152,7 @@ describe("Dashboard Pivot Sorting", () => {
       B2: "10",
       A4: "=PIVOT(1)",
     };
-    const model = createModelFromGrid(grid);
+    const model = await createModelFromGrid(grid);
     addPivot(model, "A1:B3", {
       rows: [{ fieldName: "Customer" }],
       measures: [{ id: "Price:sum", fieldName: "Price", aggregator: "sum" }],

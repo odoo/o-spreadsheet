@@ -20,7 +20,7 @@ const row = 0;
 const sheetId = "1";
 
 const model = new Model();
-model.startModel();
+await model.startModel();
 
 // Update A1's content by dispatching a command
 model.dispatch("UPDATE_CELL", {

@@ -95,7 +95,7 @@ describe("zoom", () => {
         },
       ],
     };
-    model = createModel(data);
+    model = await createModel(data);
   });
 
   test("allowZoom checkbox check/uncheck updates the definition", async () => {

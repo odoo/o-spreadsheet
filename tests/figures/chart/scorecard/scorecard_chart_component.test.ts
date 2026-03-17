@@ -31,7 +31,11 @@ import {
 } from "../../../test_helpers/commands_helpers";
 import { FR_LOCALE } from "../../../test_helpers/constants";
 import { getCellContent } from "../../../test_helpers/getters_helpers";
-import { createModel, mountComponentWithPortalTarget, nextTick } from "../../../test_helpers/helpers";
+import {
+  createModel,
+  mountComponentWithPortalTarget,
+  nextTick,
+} from "../../../test_helpers/helpers";
 
 let model: Model;
 let chartId: string;
@@ -81,7 +85,7 @@ function renderScorecardChart(model: Model, chartId: UID, sheetId: UID, canvas: 
   drawScoreChart(design, canvas);
 }
 
-test("Scorecard chart canvas adapt to figure size", () => {
+test("Scorecard chart canvas adapt to figure size", async () => {
   chartId = "someuuid";
   sheetId = "Sheet1";
   const data = {
@@ -102,7 +106,7 @@ test("Scorecard chart canvas adapt to figure size", () => {
       },
     ],
   };
-  model = createModel(data);
+  model = await createModel(data);
   canvas = document.createElement("canvas");
 
   createScorecardChart(
@@ -119,7 +123,7 @@ test("Scorecard chart canvas adapt to figure size", () => {
 });
 
 describe("Scorecard charts computation", () => {
-  beforeEach(() => {
+  beforeEach(async () => {
     chartId = "someuuid";
     sheetId = "Sheet1";
     const data = {
@@ -140,7 +144,7 @@ describe("Scorecard charts computation", () => {
         },
       ],
     };
-    model = createModel(data);
+    model = await createModel(data);
   });
 
   test("Chart display correct info", () => {
@@ -469,7 +473,7 @@ describe("Scorecard charts rendering", () => {
         },
       ],
     };
-    model = createModel(data);
+    model = await createModel(data);
     scorecardChartStyle = {
       title: {},
       key: {},

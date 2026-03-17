@@ -13,7 +13,7 @@ let fixture: HTMLElement;
 
 describe("Chart type picker component", () => {
   beforeEach(async () => {
-    model = createModel();
+    model = await createModel();
     createChart(model, { type: "bar" }, chartId);
     ({ store: chartPanelStore } = makeStoreWithModel(model, MainChartPanelStore));
     const props = { chartId, chartPanelStore };

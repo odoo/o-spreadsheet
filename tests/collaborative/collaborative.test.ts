@@ -73,8 +73,8 @@ describe("Multi users synchronisation", () => {
   let bob: Model;
   let charlie: Model;
 
-  beforeEach(() => {
-    ({ network, alice, bob, charlie } = setupCollaborativeEnv());
+  beforeEach(async () => {
+    ({ network, alice, bob, charlie } = await setupCollaborativeEnv());
   });
 
   test("update two different cells concurrently", async () => {
@@ -174,7 +174,7 @@ describe("Multi users synchronisation", () => {
     alice.exportData();
   });
 
-  test("Do not listen for new message before catchup messages", () => {
+  test("Do not listen for new message before catchup messages", async () => {
     const transport = new MockTransportService();
     const command: CoreCommand = {
       type: "UPDATE_CELL",
@@ -205,11 +205,11 @@ describe("Multi users synchronisation", () => {
       callback(nextMessage);
     });
     const data = alice.exportData();
-    const david = createModel(data, { transportService: transport }, [catchupMessage]);
+    const david = await createModel(data, { transportService: transport }, [catchupMessage]);
     expect(getCellContent(david, "A1")).toBe("second command");
   });
 
-  test("Correctly set the active sheet after a sheet deletion", () => {
+  test("Correctly set the active sheet after a sheet deletion", async () => {
     const sheetId = "sheet1";
     const message: CollaborationMessage = {
       type: "REMOTE_REVISION",
@@ -219,7 +219,7 @@ describe("Multi users synchronisation", () => {
       clientId: "alice",
       commands: [{ type: "DELETE_SHEET", sheetId, sheetName: "" }],
     };
-    const model = createModel(
+    const model = await createModel(
       {
         sheets: [{ id: sheetId }, { id: "sheet2" }],
         activeSheetId: sheetId,
@@ -497,7 +497,7 @@ describe("Multi users synchronisation", () => {
   });
 
   test("duplicate charts in deterministic order", async () => {
-    const { network, alice, bob, charlie } = setupCollaborativeEnv();
+    const { network, alice, bob, charlie } = await setupCollaborativeEnv();
     createChart(bob, { type: "bar" }, "figureId");
     redo(bob);
     setCellContent(alice, "A1", "hello");
@@ -510,7 +510,7 @@ describe("Multi users synchronisation", () => {
   });
 
   test("duplicate table in deterministic order", async () => {
-    const { network, alice, bob, charlie } = setupCollaborativeEnv();
+    const { network, alice, bob, charlie } = await setupCollaborativeEnv();
     createTable(charlie, "C5:G7");
     redo(charlie);
     duplicateSheet(charlie, "Sheet1", "duplicateSheetId");
@@ -573,7 +573,7 @@ describe("Multi users synchronisation", () => {
       commands,
     };
     // The message is received once as initial message and once from the network
-    const david = createModel(data, { transportService: network }, [message]);
+    const david = await createModel(data, { transportService: network }, [message]);
     await network.sendMessage(message);
     expect(david.getters.getNumberCols(david.getters.getActiveSheetId())).toBe(length + 50);
   });
@@ -594,8 +594,11 @@ describe("Multi users synchronisation", () => {
     expect(bob.getters.getSelectedFigureId()).toBeNull();
   });
 
-  test("Spreadsheet in readonly still receive commands", () => {
-    const david = createModel(alice.exportData(), { transportService: network, mode: "readonly" });
+  test("Spreadsheet in readonly still receive commands", async () => {
+    const david = await createModel(alice.exportData(), {
+      transportService: network,
+      mode: "readonly",
+    });
     setCellContent(alice, "A1", "hello");
     expect([alice, bob, charlie, david]).toHaveSynchronizedValue(
       (user) => getCellContent(user, "A1"),
@@ -627,8 +630,8 @@ describe("Multi users synchronisation", () => {
 
   test.each(["readonly", "dashboard"] as const)(
     "Spreadsheet in readonly never sends commands",
-    (mode) => {
-      const david = createModel(alice.exportData(), { transportService: network, mode });
+    async (mode) => {
+      const david = await createModel(alice.exportData(), { transportService: network, mode });
       setCellContent(alice, "A1", "hello");
       addPivot(alice, "A1", {
         measures: [{ id: "__count", fieldName: "__count", aggregator: "sum" }],
@@ -657,7 +660,7 @@ describe("Multi users synchronisation", () => {
       "Bob",
       "Charlie",
     ]);
-    const david = createModel(alice.exportData(), {
+    const david = await createModel(alice.exportData(), {
       transportService: network,
       mode: "readonly",
       client: { id: "david", name: "David" },
@@ -1067,7 +1070,7 @@ describe("Multi users synchronisation", () => {
   });
 });
 
-test("UI plugins cannot refuse core command and de-synchronize the users", () => {
+test("UI plugins cannot refuse core command and de-synchronize the users", async () => {
   class MyUIPlugin extends UIPlugin {
     allowDispatch(cmd: Command) {
       if (cmd.type === "UPDATE_CELL") {
@@ -1079,7 +1082,7 @@ test("UI plugins cannot refuse core command and de-synchronize the users", () =>
     }
   }
   addToRegistry(featurePluginRegistry, "myUIPlugin", MyUIPlugin);
-  const { alice, bob } = setupCollaborativeEnv();
+  const { alice, bob } = await setupCollaborativeEnv();
 
   setCellContent(alice, "A1", "hello");
   expect([alice, bob]).toHaveSynchronizedValue((user) => getCellContent(user, "A1"), "hello");
@@ -1087,7 +1090,7 @@ test("UI plugins cannot refuse core command and de-synchronize the users", () =>
 });
 
 test("Export of figures should be in the same order in all users", async () => {
-  const { network, alice, bob, charlie } = setupCollaborativeEnv();
+  const { network, alice, bob, charlie } = await setupCollaborativeEnv();
   createFigure(charlie, {
     figureId: "figureId",
     tag: "tag",

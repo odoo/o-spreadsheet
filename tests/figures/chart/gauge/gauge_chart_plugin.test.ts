@@ -73,8 +73,8 @@ const randomSectionRule: SectionRule = {
   },
 };
 
-beforeEach(() => {
-  model = createModel();
+beforeEach(async () => {
+  model = await createModel();
 });
 
 describe("datasource tests", function () {
@@ -202,10 +202,10 @@ describe("datasource tests", function () {
     });
   });
 
-  test("can delete an imported gauge chart", () => {
+  test("can delete an imported gauge chart", async () => {
     createGaugeChart(model, { dataRange: "B7:B8" }, "chartId", undefined, { figureId: "figureId" });
     const exportedData = model.exportData();
-    const newModel = createModel(exportedData);
+    const newModel = await createModel(exportedData);
     expect(newModel.getters.getVisibleFigures()).toHaveLength(1);
     expect(newModel.getters.getChartRuntime("chartId") as GaugeChartRuntime).toBeTruthy();
     deleteFigure(newModel, "figureId");
@@ -275,9 +275,9 @@ describe("datasource tests", function () {
   describe("create gauge chart with invalid section rule", () => {
     let sectionRule: SectionRule;
     let model: Model;
-    beforeEach(() => {
+    beforeEach(async () => {
       sectionRule = deepCopy(defaultSectionRule);
-      model = createModel();
+      model = await createModel();
     });
 
     test("empty rangeMin", async () => {
@@ -434,8 +434,8 @@ describe("datasource tests", function () {
   });
 });
 
-test("create a gauge chart with data from another sheet", () => {
-  model = createModel();
+test("create a gauge chart with data from another sheet", async () => {
+  model = await createModel();
   createSheet(model, { sheetId: "42", activate: true });
   createGaugeChart(model, { dataRange: "Sheet1!B1" }, "chartId");
   const chart = model.getters.getChartDefinition("chartId") as GaugeChartDefinition;
@@ -474,8 +474,8 @@ describe("Chart design configuration", () => {
   let defaultChart: GaugeChartDefinition;
   let model: Model;
 
-  beforeEach(() => {
-    model = createModel();
+  beforeEach(async () => {
+    model = await createModel();
     defaultChart = {
       background: "#ffffff",
       dataRange: "A1",

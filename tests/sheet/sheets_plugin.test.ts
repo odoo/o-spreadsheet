@@ -54,8 +54,8 @@ import "../test_helpers/helpers";
 import { createModel, testUndoRedo } from "../test_helpers/helpers";
 
 describe("sheets", () => {
-  test("can create a new sheet, then undo, then redo", () => {
-    const model = createModel();
+  test("can create a new sheet, then undo, then redo", async () => {
+    const model = await createModel();
     expect(model.getters.getSheetIds().length).toBe(1);
     expect(model.getters.getSheetName(model.getters.getActiveSheetId())).toBe("Sheet1");
     createSheet(model, { activate: true, sheetId: "42" });
@@ -68,15 +68,15 @@ describe("sheets", () => {
     expect(model.getters.getSheetIds().length).toBe(2);
     expect(model.getters.getSheetName(model.getters.getActiveSheetId())).toBe("Sheet1");
   });
-  test("Creating a new sheet insert it just after the active", () => {
-    const model = createModel();
+  test("Creating a new sheet insert it just after the active", async () => {
+    const model = await createModel();
     createSheet(model, { sheetId: "42", position: 1 });
     createSheet(model, { sheetId: "43", position: 1 });
     expect(model.getters.getSheetIds()[1]).toBe("43");
     expect(model.getters.getSheetIds()[2]).toBe("42");
   });
-  test("Creating a new sheet does not activate it by default", () => {
-    const model = createModel();
+  test("Creating a new sheet does not activate it by default", async () => {
+    const model = await createModel();
     const sheet1 = model.getters.getSheetIds()[0];
     expect(model.getters.getActiveSheetId()).toBe(sheet1);
     expect(model.getters.getSheetIds()).toEqual([sheet1]);
@@ -85,8 +85,8 @@ describe("sheets", () => {
     expect(model.getters.getActiveSheetId()).toBe(sheet1);
     expect(model.getters.getSheetIds()).toEqual([sheet1, sheet2]);
   });
-  test("Can create a new sheet with given size and name", () => {
-    const model = createModel();
+  test("Can create a new sheet with given size and name", async () => {
+    const model = await createModel();
     createSheetWithName(
       model,
       {
@@ -102,8 +102,8 @@ describe("sheets", () => {
     expect(model.getters.getNumberRows(activeSheet.id)).toBe(2);
     expect(activeSheet.name).toBe("SheetTest");
   });
-  test("Cannot create a sheet with a name already existent", () => {
-    const model = createModel();
+  test("Cannot create a sheet with a name already existent", async () => {
+    const model = await createModel();
     const name = model.getters.getSheetName(model.getters.getActiveSheetId()) || "";
     expect(
       createSheetWithName(
@@ -116,8 +116,8 @@ describe("sheets", () => {
       )
     ).toBeCancelledBecause(CommandResult.DuplicatedSheetName);
   });
-  test("Cannot create a sheet with a name already existent + upper", () => {
-    const model = createModel();
+  test("Cannot create a sheet with a name already existent + upper", async () => {
+    const model = await createModel();
     const name = model.getters.getSheetName(model.getters.getActiveSheetId()) || "";
     expect(
       createSheetWithName(
@@ -130,8 +130,8 @@ describe("sheets", () => {
       )
     ).toBeCancelledBecause(CommandResult.DuplicatedSheetName);
   });
-  test("Cannot create a sheet with a name already existent + spaces", () => {
-    const model = createModel();
+  test("Cannot create a sheet with a name already existent + spaces", async () => {
+    const model = await createModel();
     const name = model.getters.getSheetName(model.getters.getActiveSheetId()) || "";
     expect(
       createSheetWithName(
@@ -144,45 +144,48 @@ describe("sheets", () => {
       )
     ).toBeCancelledBecause(CommandResult.DuplicatedSheetName);
   });
-  test.each(FORBIDDEN_SHEETNAME_CHARS)("Cannot rename a sheet with a %s in the name", (char) => {
-    const model = createModel();
-    expect(
-      renameSheet(model, model.getters.getActiveSheetId(), `my life ${char}`)
-    ).toBeCancelledBecause(CommandResult.ForbiddenCharactersInSheetName);
-  });
-  test("Cannot create a sheet with a duplicate name", () => {
-    const model = createModel({ sheets: [{ name: "My first sheet" }] });
+  test.each(FORBIDDEN_SHEETNAME_CHARS)(
+    "Cannot rename a sheet with a %s in the name",
+    async (char) => {
+      const model = await createModel();
+      expect(
+        renameSheet(model, model.getters.getActiveSheetId(), `my life ${char}`)
+      ).toBeCancelledBecause(CommandResult.ForbiddenCharactersInSheetName);
+    }
+  );
+  test("Cannot create a sheet with a duplicate name", async () => {
+    const model = await createModel({ sheets: [{ name: "My first sheet" }] });
     expect(createSheet(model, { sheetId: "42", name: "My first sheet" })).toBeCancelledBecause(
       CommandResult.DuplicatedSheetName
     );
   });
-  test("Rename command won't be dispatched if the name is unchanged (case sensitive)", () => {
-    const model = createModel({ sheets: [{ id: "11", name: "Sheet1" }] });
+  test("Rename command won't be dispatched if the name is unchanged (case sensitive)", async () => {
+    const model = await createModel({ sheets: [{ id: "11", name: "Sheet1" }] });
     expect(renameSheet(model, "11", "Sheet1")).toBeCancelledBecause(
       CommandResult.UnchangedSheetName
     );
   });
-  test("Can change sheet name case", () => {
+  test("Can change sheet name case", async () => {
     const sheetId = "11";
-    const model = createModel({ sheets: [{ id: sheetId, name: "Sheet1" }] });
+    const model = await createModel({ sheets: [{ id: sheetId, name: "Sheet1" }] });
     expect(model.getters.getSheetName(sheetId)).toBe("Sheet1");
     renameSheet(model, "11", "SHEET1");
     expect(model.getters.getSheetName(sheetId)).toBe("SHEET1");
   });
-  test("Cannot create a sheet with a position > length of sheets", () => {
-    const model = createModel();
+  test("Cannot create a sheet with a position > length of sheets", async () => {
+    const model = await createModel();
     expect(createSheet(model, { sheetId: "42", position: 54, name: "S42" })).toBeCancelledBecause(
       CommandResult.WrongSheetPosition
     );
   });
-  test("Cannot create a sheet with a negative position", () => {
-    const model = createModel();
+  test("Cannot create a sheet with a negative position", async () => {
+    const model = await createModel();
     expect(createSheet(model, { sheetId: "42", position: -1, name: "S42" })).toBeCancelledBecause(
       CommandResult.WrongSheetPosition
     );
   });
-  test("Name is correctly generated when creating a sheet without given name", () => {
-    const model = createModel();
+  test("Name is correctly generated when creating a sheet without given name", async () => {
+    const model = await createModel();
     expect(model.getters.getSheetName(model.getters.getActiveSheetId())).toBe("Sheet1");
     createSheet(model, { sheetId: "42", activate: true });
     expect(model.getters.getSheetName(model.getters.getActiveSheetId())).toBe("Sheet2");
@@ -195,11 +198,11 @@ describe("sheets", () => {
     expect(model.getters.getSheetName(model.getters.getActiveSheetId())).toBe("Sheet2");
   });
   test("Cannot delete an invalid sheet", async () => {
-    const model = createModel();
+    const model = await createModel();
     expect(deleteSheet(model, "invalid")).toBeCancelledBecause(CommandResult.InvalidSheetId);
   });
-  test("Cannot create a sheet with an already existent id", () => {
-    const model = createModel();
+  test("Cannot create a sheet with an already existent id", async () => {
+    const model = await createModel();
     const sheetId = model.getters.getActiveSheetId();
     expect(
       createSheetWithName(
@@ -213,18 +216,18 @@ describe("sheets", () => {
     ).toBeCancelledBecause(CommandResult.DuplicatedSheetId);
   });
   test("Cannot delete an invalid sheet; confirmation", async () => {
-    const model = createModel();
+    const model = await createModel();
     expect(deleteSheet(model, "invalid")).toBeCancelledBecause(CommandResult.InvalidSheetId);
   });
-  test("can read a value in same sheet", () => {
-    const model = createModel();
+  test("can read a value in same sheet", async () => {
+    const model = await createModel();
     expect(model.getters.getSheetName(model.getters.getActiveSheetId())).toBe("Sheet1");
     setCellContent(model, "A1", "3");
     setCellContent(model, "A2", "=Sheet1!A1");
     expect(getEvaluatedCell(model, "A2").value).toBe(3);
   });
-  test("can read a value in another sheet", () => {
-    const model = createModel();
+  test("can read a value in another sheet", async () => {
+    const model = await createModel();
     expect(model.getters.getSheetName(model.getters.getActiveSheetId())).toBe("Sheet1");
     setCellContent(model, "A1", "3");
     createSheet(model, { sheetId: "42", activate: true });
@@ -232,18 +235,18 @@ describe("sheets", () => {
     setCellContent(model, "A1", "=Sheet1!A1");
     expect(getEvaluatedCell(model, "A1").value).toBe(3);
   });
-  test("show #ERROR if invalid sheet name in content", () => {
-    const model = createModel();
+  test("show #ERROR if invalid sheet name in content", async () => {
+    const model = await createModel();
     setCellContent(model, "A1", "=Sheet133!A1");
     expect(getEvaluatedCell(model, "A1").value).toBe("#REF");
   });
-  test("does not throw if invalid sheetId", () => {
-    const model = createModel();
+  test("does not throw if invalid sheetId", async () => {
+    const model = await createModel();
     setCellContent(model, "A1", "hello");
     expect(getCell(model, "A1", "invalidSheetId")!).toBe(undefined);
   });
-  test("delete then create a sheet with the same id", () => {
-    const model = createModel();
+  test("delete then create a sheet with the same id", async () => {
+    const model = await createModel();
     const newSheetId = "42";
     createSheet(model, { sheetId: newSheetId });
     setCellContent(model, "A1", "hello", newSheetId);
@@ -252,17 +255,17 @@ describe("sheets", () => {
     expect(getCell(model, "A1", newSheetId)).toBeUndefined();
     expect(model.exportData().sheets[1].cells).toEqual({});
   });
-  test("cannot activate an invalid sheet", () => {
-    const model = createModel();
+  test("cannot activate an invalid sheet", async () => {
+    const model = await createModel();
     expect(activateSheet(model, "INVALID_ID")).toBeCancelledBecause(CommandResult.InvalidSheetId);
   });
-  test("cannot activate an hidden sheet", () => {
-    const model = createModel();
+  test("cannot activate an hidden sheet", async () => {
+    const model = await createModel();
     createSheet(model, { sheetId: "42", hidden: true });
     expect(activateSheet(model, "42")).toBeCancelledBecause(CommandResult.SheetIsHidden);
   });
-  test("evaluating multiple sheets", () => {
-    const model = createModel({
+  test("evaluating multiple sheets", async () => {
+    const model = await createModel({
       sheets: [
         { name: "ABC", colNumber: 10, rowNumber: 10, cells: { B1: "=DEF!B2" } },
         { name: "DEF", colNumber: 10, rowNumber: 10, cells: { B2: "3" } },
@@ -271,8 +274,8 @@ describe("sheets", () => {
     expect(model.getters.getSheetName(model.getters.getActiveSheetId())).toBe("ABC");
     expect(getEvaluatedCell(model, "B1").value).toBe(3);
   });
-  test("evaluating multiple sheets, 2", () => {
-    const model = createModel({
+  test("evaluating multiple sheets, 2", async () => {
+    const model = await createModel({
       sheets: [
         { name: "ABC", colNumber: 10, rowNumber: 10, cells: { B1: "=DEF!B2" } },
         {
@@ -286,8 +289,8 @@ describe("sheets", () => {
     expect(model.getters.getSheetName(model.getters.getActiveSheetId())).toBe("ABC");
     expect(getEvaluatedCell(model, "B1").value).toBe(3);
   });
-  test("evaluating multiple sheets, 3 (with range)", () => {
-    const model = createModel({
+  test("evaluating multiple sheets, 3 (with range)", async () => {
+    const model = await createModel({
       sheets: [
         { name: "ABC", colNumber: 10, rowNumber: 10, cells: { B1: "=DEF!B2" } },
         {
@@ -301,8 +304,8 @@ describe("sheets", () => {
     expect(model.getters.getSheetName(model.getters.getActiveSheetId())).toBe("ABC");
     expect(getEvaluatedCell(model, "B1").value).toBe(5);
   });
-  test("evaluating multiple sheets: cycles", () => {
-    const model = createModel({
+  test("evaluating multiple sheets: cycles", async () => {
+    const model = await createModel({
       sheets: [
         {
           name: "ABC",
@@ -326,8 +329,8 @@ describe("sheets", () => {
     expect(getEvaluatedCell(model, "B1").value).toBe("#CYCLE");
     expect(getEvaluatedCell(model, "C3").value).toBe(42);
   });
-  test("evaluation from one sheet to another no render", () => {
-    const model = createModel({
+  test("evaluation from one sheet to another no render", async () => {
+    const model = await createModel({
       sheets: [
         {
           name: "small",
@@ -347,8 +350,8 @@ describe("sheets", () => {
     });
     expect(getEvaluatedCell(model, "A2").value).toBe(23);
   });
-  test("cells are updated when dependency in other sheet is updated", () => {
-    const model = createModel();
+  test("cells are updated when dependency in other sheet is updated", async () => {
+    const model = await createModel();
     createSheet(model, { sheetId: "42", activate: true });
     const sheet1 = model.getters.getSheetIds()[0];
     const sheet2 = model.getters.getSheetIds()[1];
@@ -363,8 +366,8 @@ describe("sheets", () => {
     expect(model.getters.getActiveSheetId()).toEqual(sheet1);
     expect(getCellContent(model, "A1")).toEqual("3");
   });
-  test("can move a sheet", () => {
-    const model = createModel();
+  test("can move a sheet", async () => {
+    const model = await createModel();
     createSheet(model, { sheetId: "42" });
     const sheet1 = model.getters.getSheetIds()[0];
     const sheet2 = model.getters.getSheetIds()[1];
@@ -378,27 +381,29 @@ describe("sheets", () => {
     expect(model.getters.getSheetIds()[1]).toEqual(sheet2);
     expect(model).toExport(beforeMoveSheet);
   });
-  test("cannot move the first sheet to left and the last to right", () => {
-    const model = createModel();
+  test("cannot move the first sheet to left and the last to right", async () => {
+    const model = await createModel();
     createSheet(model, { sheetId: "42" });
     const sheet1 = model.getters.getSheetIds()[0];
     const sheet2 = model.getters.getSheetIds()[1];
     expect(moveSheet(model, -1, sheet1)).toBeCancelledBecause(CommandResult.WrongSheetMove);
     expect(moveSheet(model, 1, sheet2)).toBeCancelledBecause(CommandResult.WrongSheetMove);
   });
-  test("Cannot hide a sheet with only one sheet", () => {
-    const model = createModel({ sheets: [{ id: "sheet0" }] });
+  test("Cannot hide a sheet with only one sheet", async () => {
+    const model = await createModel({ sheets: [{ id: "sheet0" }] });
     expect(model.getters.getSheetIds()).toEqual(["sheet0"]);
     expect(hideSheet(model, "sheet0")).toBeCancelledBecause(CommandResult.NotEnoughSheets);
   });
-  test("Cannot hide a sheet with only one visible sheet", () => {
-    const model = createModel({ sheets: [{ id: "sheet0" }, { id: "sheet1", isVisible: false }] });
+  test("Cannot hide a sheet with only one visible sheet", async () => {
+    const model = await createModel({
+      sheets: [{ id: "sheet0" }, { id: "sheet1", isVisible: false }],
+    });
     expect(model.getters.getSheetIds()).toEqual(["sheet0", "sheet1"]);
     expect(model.getters.getVisibleSheetIds()).toEqual(["sheet0"]);
     expect(hideSheet(model, "sheet0")).toBeCancelledBecause(CommandResult.NotEnoughSheets);
   });
-  test("Can hide a sheet", () => {
-    const model = createModel({ sheets: [{ id: "sheet0" }] });
+  test("Can hide a sheet", async () => {
+    const model = await createModel({ sheets: [{ id: "sheet0" }] });
     createSheet(model, { sheetId: "sheet1" });
     expect(model.getters.getVisibleSheetIds()).toEqual(["sheet0", "sheet1"]);
     expect(model.getters.getActiveSheetId()).toBe("sheet0");
@@ -411,8 +416,8 @@ describe("sheets", () => {
     redo(model);
     expect(model.getters.getVisibleSheetIds()).toEqual(["sheet1"]);
   });
-  test("Can show a sheet", () => {
-    const model = createModel({
+  test("Can show a sheet", async () => {
+    const model = await createModel({
       sheets: [
         { id: "sheet0", isVisible: false },
         { id: "sheet1", isVisible: true },
@@ -426,26 +431,30 @@ describe("sheets", () => {
     redo(model);
     expect(model.getters.getVisibleSheetIds()).toEqual(["sheet0", "sheet1"]);
   });
-  test("Can move left a sheet with invisible sheet in between", () => {
-    const model = createModel({ sheets: [{ id: "sheet0" }] });
+  test("Can move left a sheet with invisible sheet in between", async () => {
+    const model = await createModel({ sheets: [{ id: "sheet0" }] });
     createSheet(model, { sheetId: "sheet2" });
     createSheet(model, { sheetId: "sheet1" });
     hideSheet(model, "sheet1");
     moveSheet(model, -1, "sheet2");
     expect(model.getters.getVisibleSheetIds()).toEqual(["sheet2", "sheet0"]);
   });
-  test("Can move a sheet 2 right", () => {
-    const model = createModel({ sheets: [{ id: "sheet0" }, { id: "sheet1" }, { id: "sheet2" }] });
+  test("Can move a sheet 2 right", async () => {
+    const model = await createModel({
+      sheets: [{ id: "sheet0" }, { id: "sheet1" }, { id: "sheet2" }],
+    });
     moveSheet(model, 2, "sheet0");
     expect(model.getters.getVisibleSheetIds()).toEqual(["sheet1", "sheet2", "sheet0"]);
   });
-  test("Can move a sheet 2 left", () => {
-    const model = createModel({ sheets: [{ id: "sheet0" }, { id: "sheet1" }, { id: "sheet2" }] });
+  test("Can move a sheet 2 left", async () => {
+    const model = await createModel({
+      sheets: [{ id: "sheet0" }, { id: "sheet1" }, { id: "sheet2" }],
+    });
     moveSheet(model, -2, "sheet2");
     expect(model.getters.getVisibleSheetIds()).toEqual(["sheet2", "sheet0", "sheet1"]);
   });
-  test("Can move right a sheet with invisible sheet in between", () => {
-    const model = createModel({ sheets: [{ id: "sheet0" }] });
+  test("Can move right a sheet with invisible sheet in between", async () => {
+    const model = await createModel({ sheets: [{ id: "sheet0" }] });
     createSheet(model, { sheetId: "sheet2" });
     createSheet(model, { sheetId: "sheet1" });
     hideSheet(model, "sheet1");
@@ -453,22 +462,22 @@ describe("sheets", () => {
     moveSheet(model, 1, "sheet0");
     expect(model.getters.getVisibleSheetIds()).toEqual(["sheet2", "sheet0"]);
   });
-  test("Cannot move left a sheet with invisible sheet to the left", () => {
-    const model = createModel({ sheets: [{ id: "sheet0" }] });
+  test("Cannot move left a sheet with invisible sheet to the left", async () => {
+    const model = await createModel({ sheets: [{ id: "sheet0" }] });
     createSheet(model, { sheetId: "sheet2" });
     createSheet(model, { sheetId: "sheet1" });
     hideSheet(model, "sheet0");
     expect(moveSheet(model, -1, "sheet1")).toBeCancelledBecause(CommandResult.WrongSheetMove);
   });
-  test("Cannot move right a sheet with invisible sheet to the right", () => {
-    const model = createModel({ sheets: [{ id: "sheet0" }] });
+  test("Cannot move right a sheet with invisible sheet to the right", async () => {
+    const model = await createModel({ sheets: [{ id: "sheet0" }] });
     createSheet(model, { sheetId: "sheet2" });
     createSheet(model, { sheetId: "sheet1" });
     hideSheet(model, "sheet2");
     expect(moveSheet(model, 1, "sheet1")).toBeCancelledBecause(CommandResult.WrongSheetMove);
   });
-  test("Can rename a sheet", () => {
-    const model = createModel();
+  test("Can rename a sheet", async () => {
+    const model = await createModel();
     const sheetId = model.getters.getActiveSheetId();
     const name = "NEW_NAME";
     renameSheet(model, sheetId, name);
@@ -477,13 +486,13 @@ describe("sheets", () => {
     ).toBe(name);
   });
   test("Cannot rename an invalid sheet", async () => {
-    const model = createModel();
+    const model = await createModel();
     expect(renameSheet(model, "invalid", "hello")).toBeCancelledBecause(
       CommandResult.InvalidSheetId
     );
   });
-  test("New sheet name is trimmed", () => {
-    const model = createModel();
+  test("New sheet name is trimmed", async () => {
+    const model = await createModel();
     const sheetId = model.getters.getActiveSheetId();
     const name = " NEW_NAME   ";
     renameSheet(model, sheetId, name);
@@ -491,8 +500,8 @@ describe("sheets", () => {
       model.getters.getSheetName(model.getters.getSheetIds().find((s) => s === sheetId)!)
     ).toBe("NEW_NAME");
   });
-  test("Cannot rename a sheet with existing name", () => {
-    const model = createModel();
+  test("Cannot rename a sheet with existing name", async () => {
+    const model = await createModel();
     const sheetId = model.getters.getActiveSheetId();
     const name = "NEW_NAME";
     createSheetWithName(model, { sheetId: "42" }, name);
@@ -506,8 +515,8 @@ describe("sheets", () => {
       CommandResult.DuplicatedSheetName
     );
   });
-  test("Cannot rename a sheet without name", () => {
-    const model = createModel();
+  test("Cannot rename a sheet without name", async () => {
+    const model = await createModel();
     const sheetId = model.getters.getActiveSheetId();
     expect(
       //@ts-ignore undefined is not a string
@@ -517,8 +526,8 @@ describe("sheets", () => {
       CommandResult.MissingSheetName
     );
   });
-  test("Sheet reference are correctly updated", () => {
-    const model = createModel();
+  test("Sheet reference are correctly updated", async () => {
+    const model = await createModel();
     const name = "NEW_NAME";
     const sheet1 = model.getters.getActiveSheetId();
     setCellContent(model, "A1", "=NEW_NAME!A1");
@@ -534,8 +543,8 @@ describe("sheets", () => {
     activateSheet(model, sheet1);
     expect(getCellText(model, "A1")).toBe("=NEW_NAME!A1");
   });
-  test("Cells have the correct value after rename sheet", () => {
-    const model = createModel();
+  test("Cells have the correct value after rename sheet", async () => {
+    const model = await createModel();
     const name = "NEW_NAME";
     const sheet2 = "42";
     createSheetWithName(model, { sheetId: sheet2 }, name);
@@ -546,17 +555,17 @@ describe("sheets", () => {
     expect(getCellText(model, "A1")).toBe("='NEXT NAME'!A1");
     expect(getEvaluatedCell(model, "A1").value).toBe(24);
   });
-  test("tryGetSheetName with an existing sheet", () => {
-    const model = createModel();
+  test("tryGetSheetName with an existing sheet", async () => {
+    const model = await createModel();
     const sheetId = model.getters.getActiveSheetId();
     expect(model.getters.tryGetSheetName(sheetId)).toBe("Sheet1");
   });
-  test("tryGetSheetName with a sheet which does not exist", () => {
-    const model = createModel();
+  test("tryGetSheetName with a sheet which does not exist", async () => {
+    const model = await createModel();
     expect(model.getters.tryGetSheetName("Sheet999")).toBeUndefined();
   });
-  test("Can duplicate a sheet", () => {
-    const model = createModel();
+  test("Can duplicate a sheet", async () => {
+    const model = await createModel();
     const name = `Copy of ${model.getters.getSheetIds().map(model.getters.getSheetName)}`;
     duplicateSheet(model);
     const sheetIds = model.getters.getSheetIds();
@@ -567,14 +576,14 @@ describe("sheets", () => {
     redo(model);
     expect(model.getters.getSheetIds()).toHaveLength(2);
   });
-  test("Duplicate a sheet does not make the newly created active", () => {
-    const model = createModel();
+  test("Duplicate a sheet does not make the newly created active", async () => {
+    const model = await createModel();
     const sheetId = model.getters.getActiveSheetId();
     duplicateSheet(model, sheetId);
     expect(model.getters.getActiveSheetId()).toBe(sheetId);
   });
-  test("Properties of sheet are correctly duplicated", () => {
-    const model = createModel({
+  test("Properties of sheet are correctly duplicated", async () => {
+    const model = await createModel({
       sheets: [
         {
           colNumber: 5,
@@ -608,8 +617,8 @@ describe("sheets", () => {
       fillColor: "orange",
     });
   });
-  test("CFs of sheets are correctly duplicated", () => {
-    const model = createModel({
+  test("CFs of sheets are correctly duplicated", async () => {
+    const model = await createModel({
       sheets: [
         {
           colNumber: 5,
@@ -649,8 +658,8 @@ describe("sheets", () => {
     });
     expect(model.getters.getConditionalFormats(newSheetId)).toHaveLength(1);
   });
-  test("Cells are correctly duplicated", () => {
-    const model = createModel({
+  test("Cells are correctly duplicated", async () => {
+    const model = await createModel({
       sheets: [{ colNumber: 5, rowNumber: 5, cells: { A1: "42" } }],
     });
     const sheetId = model.getters.getActiveSheetId();
@@ -664,8 +673,8 @@ describe("sheets", () => {
     activateSheet(model, sheetId);
     expect(getCellContent(model, "A1")).toBe("42");
   });
-  test("Figures of Charts are correctly duplicated", () => {
-    const model = createModel();
+  test("Figures of Charts are correctly duplicated", async () => {
+    const model = await createModel();
     const sheetId = model.getters.getActiveSheetId();
     createChart(
       model,
@@ -706,8 +715,8 @@ describe("sheets", () => {
       },
     ]);
   });
-  test("Cols and Rows are correctly duplicated", () => {
-    const model = createModel();
+  test("Cols and Rows are correctly duplicated", async () => {
+    const model = await createModel();
     const sheetId = model.getters.getActiveSheetId();
     duplicateSheet(model, sheetId);
     expect(model.getters.getSheetIds()).toHaveLength(2);
@@ -718,8 +727,10 @@ describe("sheets", () => {
     expect(model.getters.getColSize(model.getters.getActiveSheetId(), 0)).not.toBe(1);
     expect(model.getters.getRowSize(model.getters.getActiveSheetId(), 0)).not.toBe(1);
   });
-  test("Merges are correctly duplicated", () => {
-    const model = createModel({ sheets: [{ colNumber: 5, rowNumber: 5, merges: ["A1:A2"] }] });
+  test("Merges are correctly duplicated", async () => {
+    const model = await createModel({
+      sheets: [{ colNumber: 5, rowNumber: 5, merges: ["A1:A2"] }],
+    });
     const sheetId = model.getters.getActiveSheetId();
     duplicateSheet(model, sheetId);
     expect(model.getters.getSheetIds()).toHaveLength(2);
@@ -729,24 +740,24 @@ describe("sheets", () => {
     expect(model.exportData().sheets[0].merges).toHaveLength(0);
     expect(model.exportData().sheets[1].merges).toHaveLength(1);
   });
-  test("cannot duplicate a sheet twice with the same new id", () => {
-    const model = createModel();
+  test("cannot duplicate a sheet twice with the same new id", async () => {
+    const model = await createModel();
     const firstSheetId = model.getters.getActiveSheetId();
     const duplicatedSheetId = "new-sheet-id";
     duplicateSheet(model, firstSheetId, duplicatedSheetId);
     const result = duplicateSheet(model, firstSheetId, duplicatedSheetId);
     expect(result).toBeCancelledBecause(CommandResult.DuplicatedSheetId);
   });
-  test("cannot duplicate a sheet twice with the same new name", () => {
-    const model = createModel();
+  test("cannot duplicate a sheet twice with the same new name", async () => {
+    const model = await createModel();
     const firstSheetId = model.getters.getActiveSheetId();
     const duplicatedSheetName = "Copy of Sheet1";
     duplicateSheet(model, firstSheetId, "42", duplicatedSheetName);
     const result = duplicateSheet(model, firstSheetId, "24", duplicatedSheetName);
     expect(result).toBeCancelledBecause(CommandResult.DuplicatedSheetName);
   });
-  test("Can delete the active sheet", () => {
-    const model = createModel();
+  test("Can delete the active sheet", async () => {
+    const model = await createModel();
     const sheet1 = model.getters.getActiveSheetId();
     createSheet(model, { sheetId: "42", activate: true });
     const sheet2 = model.getters.getActiveSheetId();
@@ -761,8 +772,8 @@ describe("sheets", () => {
     expect(model.getters.getSheetIds()).toHaveLength(1);
     expect(model.getters.getActiveSheetId()).toEqual(sheet1);
   });
-  test("Can delete the first sheet (active)", () => {
-    const model = createModel();
+  test("Can delete the first sheet (active)", async () => {
+    const model = await createModel();
     const sheet1 = model.getters.getActiveSheetId();
     const sheet2 = "Sheet2";
     createSheet(model, { sheetId: sheet2 });
@@ -771,8 +782,8 @@ describe("sheets", () => {
     expect(model.getters.getActiveSheetId()).toBe(sheet2);
     expect(getCellContent(model, "A1")).toBe("Hello in Sheet2");
   });
-  test("Can delete a non-active sheet", () => {
-    const model = createModel();
+  test("Can delete a non-active sheet", async () => {
+    const model = await createModel();
     const sheet1 = model.getters.getActiveSheetId();
     createSheet(model, { sheetId: "42", activate: true });
     const sheet2 = model.getters.getSheetIds()[1];
@@ -781,40 +792,40 @@ describe("sheets", () => {
     expect(model.getters.getSheetIds()[0]).toEqual(sheet2);
     expect(model.getters.getActiveSheetId()).toEqual(sheet2);
   });
-  test("Cannot delete sheet if there is only one", () => {
-    const model = createModel();
+  test("Cannot delete sheet if there is only one", async () => {
+    const model = await createModel();
     expect(deleteSheet(model, model.getters.getActiveSheetId())).toBeCancelledBecause(
       CommandResult.NotEnoughSheets
     );
   });
-  test("Cannot delete sheet if it is the last visible one", () => {
-    const model = createModel();
+  test("Cannot delete sheet if it is the last visible one", async () => {
+    const model = await createModel();
     createSheet(model, { sheetId: "Sheet2" });
     hideSheet(model, "Sheet2");
     expect(deleteSheet(model, "Sheet1")).toBeCancelledBecause(CommandResult.NotEnoughSheets);
   });
-  test("Can undo-redo a sheet deletion", () => {
-    const model = createModel();
+  test("Can undo-redo a sheet deletion", async () => {
+    const model = await createModel();
     createSheet(model, { sheetId: "42" });
     testUndoRedo(model, expect, "DELETE_SHEET", { sheetId: "42" });
   });
-  test("Can undo-redo a sheet renaming", () => {
-    const model = createModel();
+  test("Can undo-redo a sheet renaming", async () => {
+    const model = await createModel();
     testUndoRedo(model, expect, "RENAME_SHEET", {
       sheetId: model.getters.getActiveSheetId(),
       newName: "New name",
     });
   });
-  test("Can undo-redo a sheet duplication", () => {
-    const model = createModel();
+  test("Can undo-redo a sheet duplication", async () => {
+    const model = await createModel();
     testUndoRedo(model, expect, "DUPLICATE_SHEET", {
       sheetIdTo: "42",
       sheetId: model.getters.getActiveSheetId(),
       sheetNameTo: "Copy of Sheet1",
     });
   });
-  test("Sheet reference are correctly marked as #REF on sheet deletion", () => {
-    const model = createModel();
+  test("Sheet reference are correctly marked as #REF on sheet deletion", async () => {
+    const model = await createModel();
     const name = "NEW_NAME";
     const sheet1 = model.getters.getActiveSheetId();
     createSheetWithName(model, { sheetId: "sheet2", activate: true }, name);
@@ -831,8 +842,8 @@ describe("sheets", () => {
     expect(getCellText(model, "A1")).toBe("=NEW_NAME!A1");
     expect(getEvaluatedCell(model, "A1").value).toBe(42);
   });
-  test("UPDATE_CELL_POSITION remove the old position if exist", () => {
-    const model = createModel();
+  test("UPDATE_CELL_POSITION remove the old position if exist", async () => {
+    const model = await createModel();
     setCellContent(model, "A1", "test");
     const cell = getCell(model, "A1")!;
     model.dispatch("UPDATE_CELL_POSITION", {
@@ -850,15 +861,15 @@ describe("sheets", () => {
       sheetId: model.getters.getActiveSheetId(),
     });
   });
-  test("Cannot remove more columns/rows than there are inside the sheet", () => {
-    const model = createModel({ sheets: [{ colNumber: 3, rowNumber: 3 }] });
+  test("Cannot remove more columns/rows than there are inside the sheet", async () => {
+    const model = await createModel({ sheets: [{ colNumber: 3, rowNumber: 3 }] });
     expect(deleteRows(model, [0, 1, 2])).toBeCancelledBecause(CommandResult.NotEnoughElements);
     expect(deleteColumns(model, ["A", "B", "C"])).toBeCancelledBecause(
       CommandResult.NotEnoughElements
     );
   });
-  test("Cannot remove all the non-hidden columns/rows", () => {
-    const model = createModel({ sheets: [{ colNumber: 4, rowNumber: 4 }] });
+  test("Cannot remove all the non-hidden columns/rows", async () => {
+    const model = await createModel({ sheets: [{ colNumber: 4, rowNumber: 4 }] });
     hideRows(model, [1, 3]);
     hideColumns(model, ["B", "D"]);
     expect(deleteRows(model, [0, 2])).toBeCancelledBecause(CommandResult.NotEnoughElements);
@@ -868,14 +879,14 @@ describe("sheets", () => {
       CommandResult.NotEnoughElements
     );
   });
-  test("Cannot have all rows/columns hidden at once", () => {
-    const model = createModel({
+  test("Cannot have all rows/columns hidden at once", async () => {
+    const model = await createModel({
       sheets: [{ colNumber: 1, rowNumber: 4, rows: { 2: { isHidden: true } } }],
     });
     expect(hideRows(model, [0, 1, 3])).toBeCancelledBecause(CommandResult.TooManyHiddenElements);
   });
-  test("Can set the grid lines visibility", () => {
-    const model = createModel();
+  test("Can set the grid lines visibility", async () => {
+    const model = await createModel();
     const sheetId = model.getters.getActiveSheetId();
     expect(model.getters.getGridLinesVisibility(sheetId)).toBe(true);
     setGridLinesVisibility(model, false);
@@ -883,15 +894,15 @@ describe("sheets", () => {
     setGridLinesVisibility(model, true);
     expect(model.getters.getGridLinesVisibility(sheetId)).toBe(true);
   });
-  test("Dispatch set the grid lines visibility on invalid sheet", () => {
-    const model = createModel();
+  test("Dispatch set the grid lines visibility on invalid sheet", async () => {
+    const model = await createModel();
     const sheetId = "invalid";
     expect(setGridLinesVisibility(model, false, sheetId)).toBeCancelledBecause(
       CommandResult.InvalidSheetId
     );
   });
-  test("Can undo/redo grid lines visibility", () => {
-    const model = createModel();
+  test("Can undo/redo grid lines visibility", async () => {
+    const model = await createModel();
     const sheetId = model.getters.getActiveSheetId();
     expect(model.getters.getGridLinesVisibility(sheetId)).toBe(true);
     setGridLinesVisibility(model, false);
@@ -901,8 +912,8 @@ describe("sheets", () => {
     redo(model);
     expect(model.getters.getGridLinesVisibility(sheetId)).toBe(false);
   });
-  test("isEmpty getter", () => {
-    const model = createModel();
+  test("isEmpty getter", async () => {
+    const model = await createModel();
     const sheetId = model.getters.getActiveSheetId();
     setCellContent(model, "A1", "hello");
     expect(model.getters.isEmpty(sheetId, toZone("A1"))).toBe(false);
@@ -913,26 +924,26 @@ describe("sheets", () => {
     expect(model.getters.isEmpty(sheetId, toZone("A2"))).toBe(true);
     expect(model.getters.isEmpty(sheetId, toZone("A2:A3"))).toBe(true);
   });
-  test.each(["Sheet", "My sheet"])("getSheetIdByName", (name) => {
-    const model = createModel();
+  test.each(["Sheet", "My sheet"])("getSheetIdByName", async (name) => {
+    const model = await createModel();
     const sheetId = model.getters.getActiveSheetId();
     renameSheet(model, sheetId, name);
     expect(model.getters.getSheetIdByName(name)).toBe(sheetId);
     expect(model.getters.getSheetIdByName(`'${name}'`)).toBe(sheetId);
     expect(model.getters.getSheetIdByName(getCanonicalSymbolName(name))).toBe(sheetId);
   });
-  test("getSheetIdByName with invalid name", () => {
-    const model = createModel();
+  test("getSheetIdByName with invalid name", async () => {
+    const model = await createModel();
     expect(model.getters.getSheetIdByName("this name does not exist")).toBeUndefined();
   });
-  test("getSheetIdByName works with non-matching case", () => {
-    const model = createModel();
+  test("getSheetIdByName works with non-matching case", async () => {
+    const model = await createModel();
     const sheetId = model.getters.getActiveSheetId();
     renameSheet(model, sheetId, "Sheet1");
     expect(model.getters.getSheetIdByName("shEeT1")).toBeDefined();
   });
-  test("Can freeze second to last column", () => {
-    const model = createModel({ sheets: [{ colNumber: 10, rowNumber: 10 }] });
+  test("Can freeze second to last column", async () => {
+    const model = await createModel({ sheets: [{ colNumber: 10, rowNumber: 10 }] });
     const sheetId = model.getters.getActiveSheetId();
     freezeColumns(model, 9);
     expect(model.getters.getPaneDivisions(sheetId)).toEqual({
@@ -940,8 +951,8 @@ describe("sheets", () => {
       ySplit: 0,
     });
   });
-  test("Can freeze second to last row", () => {
-    const model = createModel({ sheets: [{ colNumber: 10, rowNumber: 10 }] });
+  test("Can freeze second to last row", async () => {
+    const model = await createModel({ sheets: [{ colNumber: 10, rowNumber: 10 }] });
     const sheetId = model.getters.getActiveSheetId();
     freezeRows(model, 9);
     expect(model.getters.getPaneDivisions(sheetId)).toEqual({
@@ -949,23 +960,23 @@ describe("sheets", () => {
       ySplit: 9,
     });
   });
-  test("Cannot freeze the last column or row", () => {
-    const model = createModel({ sheets: [{ colNumber: 10, rowNumber: 10 }] });
+  test("Cannot freeze the last column or row", async () => {
+    const model = await createModel({ sheets: [{ colNumber: 10, rowNumber: 10 }] });
     expect(freezeColumns(model, 10)).toBeCancelledBecause(CommandResult.InvalidFreezeQuantity);
     expect(freezeRows(model, 10)).toBeCancelledBecause(CommandResult.InvalidFreezeQuantity);
   });
-  test("Cannot freeze 0 column or row", () => {
-    const model = createModel();
+  test("Cannot freeze 0 column or row", async () => {
+    const model = await createModel();
     expect(freezeColumns(model, 0)).toBeCancelledBecause(CommandResult.InvalidFreezeQuantity);
     expect(freezeRows(model, 0)).toBeCancelledBecause(CommandResult.InvalidFreezeQuantity);
   });
-  test("Cannot freeze column/row outside of the sheet", () => {
-    const model = createModel({ sheets: [{ colNumber: 10, rowNumber: 10 }] });
+  test("Cannot freeze column/row outside of the sheet", async () => {
+    const model = await createModel({ sheets: [{ colNumber: 10, rowNumber: 10 }] });
     expect(freezeColumns(model, 11)).toBeCancelledBecause(CommandResult.InvalidFreezeQuantity);
     expect(freezeRows(model, 12)).toBeCancelledBecause(CommandResult.InvalidFreezeQuantity);
   });
-  test("Cannot delete all non-frozen columns/rows when frozen columns/rows exist", () => {
-    const model = createModel({ sheets: [{ colNumber: 10, rowNumber: 10 }] });
+  test("Cannot delete all non-frozen columns/rows when frozen columns/rows exist", async () => {
+    const model = await createModel({ sheets: [{ colNumber: 10, rowNumber: 10 }] });
     const sheetId = model.getters.getActiveSheetId();
     freezeColumns(model, 5, sheetId);
     freezeRows(model, 5, sheetId);
@@ -976,8 +987,8 @@ describe("sheets", () => {
       CommandResult.NotEnoughElements
     );
   });
-  test("Cannot delete non-existing columns", () => {
-    const model = createModel({ sheets: [{ colNumber: 3, rowNumber: 3 }] });
+  test("Cannot delete non-existing columns", async () => {
+    const model = await createModel({ sheets: [{ colNumber: 3, rowNumber: 3 }] });
     const sheetId = model.getters.getActiveSheetId();
     let result = deleteColumns(model, [1, 2, 12].map(numberToLetters));
     expect(result).toBeCancelledBecause(CommandResult.InvalidHeaderIndex);
@@ -986,8 +997,8 @@ describe("sheets", () => {
     deleteColumns(model, [1, 2].map(numberToLetters));
     expect(model.getters.getNumberCols(sheetId)).toBe(1);
   });
-  test("Cannot delete non-existing rows", () => {
-    const model = createModel({ sheets: [{ colNumber: 3, rowNumber: 3 }] });
+  test("Cannot delete non-existing rows", async () => {
+    const model = await createModel({ sheets: [{ colNumber: 3, rowNumber: 3 }] });
     const sheetId = model.getters.getActiveSheetId();
     let result = deleteRows(model, [1, 2, 26]);
     expect(result).toBeCancelledBecause(CommandResult.InvalidHeaderIndex);
@@ -996,8 +1007,8 @@ describe("sheets", () => {
     deleteRows(model, [1, 2]);
     expect(model.getters.getNumberRows(sheetId)).toBe(1);
   });
-  test("Cannot add cols/row to indexes out of the sheet", () => {
-    const model = createModel({ sheets: [{ colNumber: 3, rowNumber: 3 }] });
+  test("Cannot add cols/row to indexes out of the sheet", async () => {
+    const model = await createModel({ sheets: [{ colNumber: 3, rowNumber: 3 }] });
     expect(addColumns(model, "after", "Z", 1)).toBeCancelledBecause(
       CommandResult.InvalidHeaderIndex
     );
@@ -1007,59 +1018,59 @@ describe("sheets", () => {
     expect(addRows(model, "after", 3, 1)).toBeCancelledBecause(CommandResult.InvalidHeaderIndex);
     expect(addRows(model, "after", 20, 1)).toBeCancelledBecause(CommandResult.InvalidHeaderIndex);
   });
-  test("Cannot add wrong quantity of cols/row", () => {
-    const model = createModel();
+  test("Cannot add wrong quantity of cols/row", async () => {
+    const model = await createModel();
     expect(addColumns(model, "after", "A", 0)).toBeCancelledBecause(CommandResult.InvalidQuantity);
     expect(addRows(model, "after", 0, -1)).toBeCancelledBecause(CommandResult.InvalidQuantity);
   });
-  test("GetUnboundedZone works as expected > Range without any full col/row", () => {
-    const model = createModel({ sheets: [{ colNumber: 10, rowNumber: 10 }] });
+  test("GetUnboundedZone works as expected > Range without any full col/row", async () => {
+    const model = await createModel({ sheets: [{ colNumber: 10, rowNumber: 10 }] });
     const sheetId = model.getters.getActiveSheetId();
     const zone = toZone("A1:E5");
     expect(model.getters.getUnboundedZone(sheetId, zone)).toEqual(zone);
   });
-  test("GetUnboundedZone works as expected > Range with a full row", () => {
-    const model = createModel({ sheets: [{ colNumber: 10, rowNumber: 10 }] });
+  test("GetUnboundedZone works as expected > Range with a full row", async () => {
+    const model = await createModel({ sheets: [{ colNumber: 10, rowNumber: 10 }] });
     const sheetId = model.getters.getActiveSheetId();
     const zone = toZone("A1:A10");
     expect(model.getters.getUnboundedZone(sheetId, zone)).toEqual({ ...zone, bottom: undefined });
   });
-  test("GetUnboundedZone works as expected > Range with a full col", () => {
-    const model = createModel({ sheets: [{ colNumber: 10, rowNumber: 10 }] });
+  test("GetUnboundedZone works as expected > Range with a full col", async () => {
+    const model = await createModel({ sheets: [{ colNumber: 10, rowNumber: 10 }] });
     const sheetId = model.getters.getActiveSheetId();
     const zone = toZone("A1:J1");
     expect(model.getters.getUnboundedZone(sheetId, zone)).toEqual({ ...zone, right: undefined });
   });
   test.each<string>(["A1:Z", "A2:Z", "B2:26", "B1:26", "A:A", "A:A3"])(
     "GetUnboundedZone : Unbounded range '%s' is unaffected",
-    (xc) => {
-      const model = createModel();
+    async (xc) => {
+      const model = await createModel();
       const sheetId = model.getters.getActiveSheetId();
       const zone = toUnboundedZone(xc);
       expect(model.getters.getUnboundedZone(sheetId, zone)).toEqual(zone);
     }
   );
-  test.each(TEST_COMMANDS_TARGET_DEPENDENT)("Cannot dispatch %s with empty Target", (cmd) => {
+  test.each(TEST_COMMANDS_TARGET_DEPENDENT)("Cannot dispatch %s with empty Target", async (cmd) => {
     if (!("target" in cmd)) {
       return;
     }
     cmd.target = [];
-    const model = createModel();
+    const model = await createModel();
     const result = model.dispatch(cmd.type, cmd);
     expect(result.reasons).toContain(CommandResult.EmptyTarget);
   });
-  test.each(TEST_COMMANDS_RANGE_DEPENDENT)("Cannot dispatch %s with empty ranges", (cmd) => {
+  test.each(TEST_COMMANDS_RANGE_DEPENDENT)("Cannot dispatch %s with empty ranges", async (cmd) => {
     if (!("ranges" in cmd)) {
       return;
     }
     cmd.ranges = [];
-    const model = createModel();
+    const model = await createModel();
     const result = model.dispatch(cmd.type, cmd);
     expect(result.reasons).toContain(CommandResult.EmptyRange);
   });
   describe("Sheet color", () => {
-    test("Can change a sheet color", () => {
-      const model = createModel();
+    test("Can change a sheet color", async () => {
+      const model = await createModel();
       const sheetId = model.getters.getActiveSheetId();
       colorSheet(model, sheetId, "#FF0000");
       expect(model.getters.getSheet(sheetId).color).toBe("#FF0000");
@@ -1070,32 +1081,32 @@ describe("sheets", () => {
       redo(model);
       expect(model.getters.getSheet(sheetId).color).toBe(undefined);
     });
-    test("Cannot give an invalid color to a sheet", () => {
-      const model = createModel();
+    test("Cannot give an invalid color to a sheet", async () => {
+      const model = await createModel();
       const sheetId = model.getters.getActiveSheetId();
       expect(colorSheet(model, sheetId, "#PPP")).toBeCancelledBecause(CommandResult.InvalidColor);
     });
-    test("Can export and import sheet colors", () => {
-      const model = createModel();
+    test("Can export and import sheet colors", async () => {
+      const model = await createModel();
       const sheetId = model.getters.getActiveSheetId();
       colorSheet(model, sheetId, "#FF0000");
       const exported = model.exportData();
       expect(exported.sheets[0].color).toBe("#FF0000");
-      const newModel = createModel(exported);
+      const newModel = await createModel(exported);
       expect(newModel.getters.getSheet(sheetId).color).toBe("#FF0000");
     });
   });
   describe("Sheet protection", () => {
-    test("Can lock/unlock a sheet", () => {
-      const model = createModel();
+    test("Can lock/unlock a sheet", async () => {
+      const model = await createModel();
       const sheetId = model.getters.getActiveSheetId();
       lockSheet(model, sheetId);
       expect(model.getters.getSheet(sheetId).isLocked).toBe(true);
       unlockSheet(model, sheetId);
       expect(model.getters.getSheet(sheetId).isLocked).toBe(false);
     });
-    test("Duplicating a locked sheet creates an unlocked copy", () => {
-      const model = createModel();
+    test("Duplicating a locked sheet creates an unlocked copy", async () => {
+      const model = await createModel();
       createSheet(model, { name: "Another sheet", position: 0 });
       const sheetId = model.getters.getActiveSheetId();
       lockSheet(model);

@@ -3,7 +3,7 @@ import { simulateClick } from "../../test_helpers/dom_helper";
 import { createModel, mountSpreadsheet } from "../../test_helpers/helpers";
 describe("Image component", () => {
   test("Can reset the image size", async () => {
-    const model = createModel({});
+    const model = await createModel({});
     const sheetId = model.getters.getActiveSheetId();
     createImage(model, { sheetId, figureId: "test", size: { width: 200, height: 200 } });
     await mountSpreadsheet({ model });

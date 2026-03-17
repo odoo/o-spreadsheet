@@ -17,8 +17,8 @@ describe("Collaborative selection", () => {
   let charlie: Model;
   let network: MockTransportService;
 
-  beforeEach(() => {
-    ({ alice, bob, charlie, network } = setupCollaborativeEnv());
+  beforeEach(async () => {
+    ({ alice, bob, charlie, network } = await setupCollaborativeEnv());
   });
 
   test("Everyone starts in A1", () => {
@@ -172,7 +172,7 @@ describe("Collaborative selection", () => {
     );
   });
 
-  test("Position is remove on client left", () => {
+  test("Position is remove on client left", async () => {
     const sheetId = alice.getters.getActiveSheetId();
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
       (user) => new Set(user.getters.getConnectedClients()),
@@ -197,7 +197,7 @@ describe("Collaborative selection", () => {
         },
       ]) as Set<ClientWithColor>
     );
-    const david = createModel(alice.exportData(), {
+    const david = await createModel(alice.exportData(), {
       transportService: network,
       client: { id: "david", name: "David" },
     });
@@ -313,9 +313,9 @@ describe("Collaborative selection", () => {
     );
   });
 
-  test("Can send custom data in client", () => {
+  test("Can send custom data in client", async () => {
     const sheetId = alice.getters.getActiveSheetId();
-    createModel(alice.exportData(), {
+    await createModel(alice.exportData(), {
       transportService: network,
       client: { id: "david", name: "David", customId: "1" } as Client,
     });

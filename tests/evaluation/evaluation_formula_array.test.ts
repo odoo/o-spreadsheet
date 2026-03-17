@@ -26,8 +26,8 @@ let model: Model;
 let sheetId: UID;
 
 describe("evaluate formulas that use/return an array", () => {
-  beforeEach(() => {
-    model = createModel();
+  beforeEach(async () => {
+    model = await createModel();
     sheetId = model.getters.getActiveSheetId();
     addToRegistry(functionRegistry, "MFILL", {
       description: "Return an n*n matrix filled with n.",
@@ -460,8 +460,8 @@ describe("evaluate formulas that use/return an array", () => {
 
   describe("result array can collides with sheet borders", () => {
     let model: Model;
-    beforeEach(() => {
-      model = createModel({
+    beforeEach(async () => {
+      model = await createModel({
         sheets: [
           {
             id: "sheet1",
@@ -644,7 +644,7 @@ describe("evaluate formulas that use/return an array", () => {
       expect(c).toEqual(3);
     });
 
-    test("array formula depending on array formula result is evaluated once", () => {
+    test("array formula depending on array formula result is evaluated once", async () => {
       const mockCompute = jest.fn().mockImplementation((values) => values);
 
       addToRegistry(functionRegistry, "RANGE_IDENTITY", {
@@ -652,7 +652,7 @@ describe("evaluate formulas that use/return an array", () => {
         args: [arg("range (range<any>)", "")],
         compute: mockCompute,
       });
-      createModel({
+      await createModel({
         sheets: [
           {
             cells: {
@@ -668,8 +668,8 @@ describe("evaluate formulas that use/return an array", () => {
       expect(mockCompute).toHaveBeenCalledTimes(3);
     });
 
-    test("Formula depending on array formula is reevaluated when the array formula result changes", () => {
-      const model = createModel();
+    test("Formula depending on array formula is reevaluated when the array formula result changes", async () => {
+      const model = await createModel();
       setCellContent(model, "A1", "=sumifs(E4:E7,H4:H7,1)");
       setCellContent(model, "C4", "=MUNIT(4)");
       setCellContent(model, "H4", "=C4");
@@ -766,8 +766,8 @@ describe("evaluate formulas that use/return an array", () => {
       expect(getEvaluatedCell(model, "A3").value).toBe(421);
     });
 
-    test("recompute cell depending on spread values computed in between", () => {
-      const model = createModel({
+    test("recompute cell depending on spread values computed in between", async () => {
+      const model = await createModel({
         sheets: [
           {
             name: "sheet1",
@@ -786,8 +786,8 @@ describe("evaluate formulas that use/return an array", () => {
       expect(getEvaluatedCell(model, "A1").value).toBe(42);
     });
 
-    test("array formula evaluated first invalidated by other", () => {
-      const model = createModel({
+    test("array formula evaluated first invalidated by other", async () => {
+      const model = await createModel({
         sheets: [
           {
             cells: {

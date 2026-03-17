@@ -56,8 +56,8 @@ import { createModel, makeTestComposerStore, target, toRangesData } from "./test
 let model: Model;
 let sheetId: UID;
 
-beforeEach(() => {
-  model = createModel();
+beforeEach(async () => {
+  model = await createModel();
   sheetId = model.getters.getActiveSheetId();
 });
 

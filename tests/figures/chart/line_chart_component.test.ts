@@ -27,7 +27,7 @@ mockChart();
 
 describe("charts", () => {
   test("can edit chart time axis limits", async () => {
-    const model = createModelFromGrid({
+    const model = await createModelFromGrid({
       A2: "=DATE(2022,1,1)",
       A3: "=DATE(2022,1,2)",
     });
@@ -59,7 +59,7 @@ describe("charts", () => {
   });
 
   test("Axis scale type is not editable for time axis", async () => {
-    const model = createModelFromGrid({
+    const model = await createModelFromGrid({
       A2: "=DATE(2022,1,1)",
       A3: "=DATE(2022,1,2)",
     });

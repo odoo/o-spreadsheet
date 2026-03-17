@@ -38,8 +38,8 @@ describe("Funnel chart", () => {
     });
   });
 
-  beforeEach(() => {
-    model = createModel();
+  beforeEach(async () => {
+    model = await createModel();
   });
 
   test("Funnel runtime with simple dataset", () => {

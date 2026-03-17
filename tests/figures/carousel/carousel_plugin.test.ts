@@ -16,8 +16,8 @@ import { createModel } from "../../test_helpers/helpers";
 let model: Model;
 let sheetId: UID;
 
-beforeEach(() => {
-  model = createModel();
+beforeEach(async () => {
+  model = await createModel();
   sheetId = model.getters.getActiveSheetId();
 });
 
@@ -208,7 +208,7 @@ describe("Carousel figure", () => {
     expect(model.getters.getFigureIdFromChartId("newSheetId??" + chartId)).toBe(newCarouselId);
   });
 
-  test("Can export/import a carousel and its charts", () => {
+  test("Can export/import a carousel and its charts", async () => {
     const title = { text: "Title1", fontSize: 20, bold: true };
     createCarousel(model, { items: [], title }, "carouselId");
     addNewChartToCarousel(model, "carouselId");
@@ -218,7 +218,7 @@ describe("Carousel figure", () => {
     createChart(model, { type: "radar" }, "chartId2", undefined, { figureId: "chartFigureId" });
     addChartFigureToCarousel(model, "carouselId", "chartFigureId");
 
-    const newModel = createModel(model.exportData());
+    const newModel = await createModel(model.exportData());
     expect(newModel.getters.getFigures(sheetId)).toHaveLength(1);
     expect(newModel.getters.getCarousel("carouselId").title).toEqual(title);
     expect(newModel.getters.getCarousel("carouselId").items).toEqual([

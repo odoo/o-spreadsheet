@@ -50,8 +50,8 @@ describe("Collaborative Sheet manipulation", () => {
   let bob: Model;
   let charlie: Model;
 
-  beforeEach(() => {
-    ({ network, alice, bob, charlie } = setupCollaborativeEnv());
+  beforeEach(async () => {
+    ({ network, alice, bob, charlie } = await setupCollaborativeEnv());
   });
 
   test("create and delete sheet concurrently", async () => {
@@ -97,7 +97,7 @@ describe("Collaborative Sheet manipulation", () => {
   });
 
   test("Create two sheets concurrently with the same id", async () => {
-    const { network, alice, bob, charlie } = setupCollaborativeEnv();
+    const { network, alice, bob, charlie } = await setupCollaborativeEnv();
     await network.concurrent(async () => {
       createSheet(alice, { sheetId: "sheet2", name: "Sheet2" });
       createSheet(charlie, { sheetId: "sheet2", name: "Sheet2" });
@@ -114,7 +114,7 @@ describe("Collaborative Sheet manipulation", () => {
   });
 
   test("recreate a sheet with the same id from an undo", async () => {
-    const { network, alice, bob, charlie } = setupCollaborativeEnv();
+    const { network, alice, bob, charlie } = await setupCollaborativeEnv();
     const firstSheetId = alice.getters.getActiveSheetId();
     createSheet(alice, { sheetId: "sheet2" });
     deleteSheet(alice, firstSheetId);
@@ -1080,7 +1080,7 @@ describe("Collaborative Sheet manipulation", () => {
   });
 });
 
-test("test undo redo", () => {
+test("test undo redo", async () => {
   const sheetId = "sid";
   const sheetName = "SheetName";
   const otherSheetId = "othersid";
@@ -1088,7 +1088,7 @@ test("test undo redo", () => {
 
   const newSheetName = "NewSheetName";
 
-  const { alice, bob, charlie } = setupCollaborativeEnv({
+  const { alice, bob, charlie } = await setupCollaborativeEnv({
     sheets: [
       { id: sheetId, name: sheetName },
       { id: otherSheetId, name: otherSheetName },
@@ -1153,7 +1153,7 @@ test("Concurrent datavalidation create and rename sheet", async () => {
 
   const newSheetName = "NewSheetName";
 
-  const { network, alice, bob, charlie } = setupCollaborativeEnv({
+  const { network, alice, bob, charlie } = await setupCollaborativeEnv({
     sheets: [{ id: sheetId, name: sheetName }],
   });
 
@@ -1192,7 +1192,7 @@ test("concurrent pivot computed measure and rename sheet", async () => {
   const sheetName = "SheetName";
   const newSheetName = "NewSheetName";
 
-  const { network, alice, bob, charlie } = setupCollaborativeEnv({
+  const { network, alice, bob, charlie } = await setupCollaborativeEnv({
     sheets: [{ id: sheetId, name: sheetName }],
   });
 
@@ -1252,7 +1252,7 @@ test("concurrent pivot computed measure and delete sheet", async () => {
 
   const secondSheetId = "42";
   const secondSheetName = "SecondSheet";
-  const { network, alice, bob, charlie } = setupCollaborativeEnv({
+  const { network, alice, bob, charlie } = await setupCollaborativeEnv({
     sheets: [{ id: sheetId, name: sheetName }],
   });
   createSheet(bob, { sheetId: secondSheetId, name: secondSheetName });

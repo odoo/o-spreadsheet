@@ -69,14 +69,14 @@ beforeEach(() => {
 describe("Simple Spreadsheet Component", () => {
   test("simple rendering snapshot", async () => {
     ({ model, parent, fixture } = await mountSpreadsheet({
-      model: createModel({ sheets: [{ id: "sh1" }] }),
+      model: await createModel({ sheets: [{ id: "sh1" }] }),
     }));
     expect(fixture.querySelector(".o-spreadsheet")).toMatchSnapshot();
   });
 
   test("focus is properly set, initially and after switching sheet", async () => {
     ({ model, fixture } = await mountSpreadsheet({
-      model: createModel({ sheets: [{ id: "sh1" }] }),
+      model: await createModel({ sheets: [{ id: "sh1" }] }),
     }));
     const defaultComposer = fixture.querySelector(".o-grid div.o-composer");
     expect(document.activeElement).toBe(defaultComposer);
@@ -100,8 +100,8 @@ describe("Simple Spreadsheet Component", () => {
       });
     });
 
-    test("Can use  an external dependency in a function", () => {
-      const model = createModel({ sheets: [{ id: 1 }] }, { custom: { env: { myKey: [] } } });
+    test("Can use  an external dependency in a function", async () => {
+      const model = await createModel({ sheets: [{ id: 1 }] }, { custom: { env: { myKey: [] } } });
       setCellContent(model, "A1", "=GETACTIVESHEET()");
       expect(getCellContent(model, "A1")).toBe("Sheet");
       expect(env).toMatchObject({ myKey: [] });
@@ -109,7 +109,7 @@ describe("Simple Spreadsheet Component", () => {
 
     test("Can use an external dependency in a function at model start", async () => {
       await mountSpreadsheet({
-        model: createModel(
+        model: await createModel(
           {
             version: 2,
             sheets: [
@@ -134,7 +134,7 @@ describe("Simple Spreadsheet Component", () => {
 
   test("Clipboard is in spreadsheet env", async () => {
     ({ env } = await mountSpreadsheet({
-      model: createModel({ sheets: [{ id: "sh1" }] }),
+      model: await createModel({ sheets: [{ id: "sh1" }] }),
     }));
     expect(env.clipboard["clipboard"]).toBe(navigator.clipboard);
   });
@@ -180,7 +180,7 @@ describe("Simple Spreadsheet Component", () => {
 
   test("Mac user use metaKey, not CtrlKey", async () => {
     ({ model, parent, fixture } = await mountSpreadsheet({
-      model: createModel({ sheets: [{ id: "sh1" }] }),
+      model: await createModel({ sheets: [{ id: "sh1" }] }),
     }));
     const mockUserAgent = jest.spyOn(navigator, "userAgent", "get");
     mockUserAgent.mockImplementation(
@@ -206,7 +206,7 @@ describe("Simple Spreadsheet Component", () => {
 
 test("Can instantiate a spreadsheet with a given client id-name", async () => {
   const client = { id: "alice", name: "Alice" };
-  ({ model } = await mountSpreadsheet({ model: createModel({}, { client }) }));
+  ({ model } = await mountSpreadsheet({ model: await createModel({}, { client }) }));
   expect(model.getters.getCurrentClient()).toEqual({
     id: "alice",
     name: "Alice",
@@ -220,7 +220,7 @@ test("Can instantiate a spreadsheet with a given client id-name", async () => {
 
 test("Spreadsheet detects frozen panes that exceed the limit size at start", async () => {
   const notifyUser = jest.fn();
-  const model = createModel({ sheets: [{ panes: { xSplit: 12, ySplit: 50 } }] });
+  const model = await createModel({ sheets: [{ panes: { xSplit: 12, ySplit: 50 } }] });
   ({ parent, fixture } = await mountSpreadsheet({ model }, { notifyUser }));
   expect(notifyUser).toHaveBeenCalled();
 });
@@ -231,7 +231,7 @@ test("Warns user when viewport is too small for frozen panes but stops warning a
   // Setting the sheet viewport size to 0 to represent the "real life" scenario where the default size is 0
   setDefaultSheetViewSize(0);
   const notifyUser = jest.fn();
-  const model = createModel({ sheets: [{ panes: { xSplit: 0, ySplit: 20 } }] });
+  const model = await createModel({ sheets: [{ panes: { xSplit: 0, ySplit: 20 } }] });
   ({ parent, fixture } = await mountSpreadsheet({ model }, { notifyUser }));
   expect(notifyUser).toHaveBeenCalledTimes(0);
 
@@ -311,7 +311,7 @@ describe("Composer / selectionInput interactions", () => {
   };
   beforeEach(async () => {
     ({ model, parent, fixture, env } = await mountSpreadsheet({
-      model: createModel(modelDataCf),
+      model: await createModel(modelDataCf),
     }));
   });
 
@@ -482,7 +482,7 @@ test("*isSmall* is properly recomputed when changing window size", async () => {
 });
 
 test("components take the small screen into account", async () => {
-  const model = createModel();
+  const model = await createModel();
   spreadsheetWidth = 500;
   const { fixture } = await mountSpreadsheet({ model }, { isSmall: true });
   expect(fixture.querySelector(".o-spreadsheet")).toMatchSnapshot();
@@ -490,13 +490,13 @@ test("components take the small screen into account", async () => {
 });
 
 test("Spreadsheet color scheme can be set to dark", async () => {
-  const model = createModel();
+  const model = await createModel();
   await mountSpreadsheet({ model, colorScheme: "dark" });
   expect(".o-spreadsheet").toHaveStyle({ "color-scheme": "dark" });
 });
 
 test("Commands rejected on locked sheet trigger a notification", async () => {
-  const model = createModel();
+  const model = await createModel();
   const notifyFn = jest.fn();
   ({ parent, fixture } = await mountSpreadsheet({ model, notifyUser: notifyFn }));
   lockSheet(model);

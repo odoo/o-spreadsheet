@@ -35,8 +35,8 @@ describe("line chart", () => {
       humanize: false,
     });
   });
-  test("Stacked line chart", () => {
-    const model = createModel({
+  test("Stacked line chart", async () => {
+    const model = await createModel({
       sheets: [
         {
           name: "Sheet1",
@@ -61,8 +61,8 @@ describe("line chart", () => {
     expect(isChartAxisStacked(model, "chartId", "y")).toBe(true);
     expect(runtime.chartJsConfig.data.datasets[0].fill).toBeFalsy();
   });
-  test("Area chart", () => {
-    const model = createModel({
+  test("Area chart", async () => {
+    const model = await createModel({
       sheets: [
         {
           name: "Sheet1",
@@ -98,8 +98,8 @@ describe("line chart", () => {
     expect(isChartAxisStacked(model, "chartId", "x")).toBeFalsy();
     expect(isChartAxisStacked(model, "chartId", "y")).toBeFalsy();
   });
-  test("Stacked area chart", () => {
-    const model = createModel({
+  test("Stacked area chart", async () => {
+    const model = await createModel({
       sheets: [
         {
           name: "Sheet1",
@@ -135,8 +135,8 @@ describe("line chart", () => {
     expect(isChartAxisStacked(model, "chartId", "x")).toBeUndefined();
     expect(isChartAxisStacked(model, "chartId", "y")).toBe(true);
   });
-  test("Trend lines have no fill color in area chart", () => {
-    const model = createModel();
+  test("Trend lines have no fill color in area chart", async () => {
+    const model = await createModel();
     setCellContent(model, "A1", "data");
     setCellContent(model, "A2", "3");
     setCellContent(model, "A3", "4");
@@ -154,8 +154,8 @@ describe("line chart", () => {
     expect(runtime.chartJsConfig.data.datasets[0].fill).toBe("origin");
     expect(runtime.chartJsConfig.data.datasets[1].fill).toBe(false);
   });
-  test("Line chart legend", () => {
-    const model = createModelFromGrid({
+  test("Line chart legend", async () => {
+    const model = await createModelFromGrid({
       A1: "1",
       A2: "2",
       A3: "3",
@@ -196,8 +196,8 @@ describe("line chart", () => {
       },
     ]);
   });
-  test("line chart runtime reflects axis bounds, grids and scale type", () => {
-    const model = createModelFromGrid({
+  test("line chart runtime reflects axis bounds, grids and scale type", async () => {
+    const model = await createModelFromGrid({
       A1: "Month",
       A2: "Jan",
       B1: "Series A",

@@ -14,8 +14,8 @@ describe("formula fingerprints", () => {
   let fingerprints: FormulaFingerprintStore;
   let model: Model;
 
-  beforeEach(() => {
-    ({ model, store: fingerprints } = makeStore(FormulaFingerprintStore));
+  beforeEach(async () => {
+    ({ model, store: fingerprints } = await makeStore(FormulaFingerprintStore));
     fingerprints.enable();
   });
 

@@ -28,8 +28,8 @@ import { addPivot, updatePivot } from "../test_helpers/pivot_helpers";
 let model: Model;
 let sheetId: UID;
 
-beforeEach(() => {
-  model = createModel();
+beforeEach(async () => {
+  model = await createModel();
   sheetId = model.getters.getActiveSheetId();
 });
 
@@ -222,14 +222,14 @@ describe("Dynamic tables", () => {
   });
 
   describe("Import/export", () => {
-    test("Can export and import dynamic tables", () => {
+    test("Can export and import dynamic tables", async () => {
       setCellContent(model, "A1", "=MUNIT(2)");
       createDynamicTable(model, "A1");
 
       const exported = model.exportData();
       expect(exported.sheets[0].tables).toMatchObject([{ range: "A1", type: "dynamic" }]);
 
-      const newModel = createModel(exported);
+      const newModel = await createModel(exported);
       expect(newModel.getters.getCoreTables(sheetId)).toMatchObject([
         { range: { zone: toZone("A1") }, type: "dynamic" },
       ]);

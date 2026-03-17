@@ -592,7 +592,7 @@ describe("Autocomplete parenthesis", () => {
 
 describe("composer Assistant", () => {
   test("render below the cell by default", async () => {
-    ({ model, fixture, parent } = await mountComposerWrapper(createModel(), {
+    ({ model, fixture, parent } = await mountComposerWrapper(await createModel(), {
       delimitation: { width: 500, height: 500 },
       rect: { width: DEFAULT_CELL_WIDTH, height: DEFAULT_CELL_HEIGHT, x: 150, y: 150 },
     }));
@@ -607,7 +607,7 @@ describe("composer Assistant", () => {
 
   test("render above the cell when not enough place below", async () => {
     const rect = { width: DEFAULT_CELL_WIDTH, height: DEFAULT_CELL_HEIGHT, x: 150, y: 150 };
-    ({ model, fixture, parent } = await mountComposerWrapper(createModel(), {
+    ({ model, fixture, parent } = await mountComposerWrapper(await createModel(), {
       delimitation: { width: 200, height: 200 },
       rect,
     }));
@@ -622,7 +622,7 @@ describe("composer Assistant", () => {
   });
 
   test("composer assistant min-width is the same as the underlying cell", async () => {
-    ({ model, fixture, parent } = await mountComposerWrapper(createModel(), {
+    ({ model, fixture, parent } = await mountComposerWrapper(await createModel(), {
       rect: { width: 60, height: DEFAULT_CELL_HEIGHT, x: 150, y: 150 },
     }));
     await typeInComposer("=s");
@@ -630,7 +630,7 @@ describe("composer Assistant", () => {
   });
 
   test("composer assistant min-width is capped for large cells", async () => {
-    ({ model, fixture, parent } = await mountComposerWrapper(createModel(), {
+    ({ model, fixture, parent } = await mountComposerWrapper(await createModel(), {
       rect: { width: 1000, height: DEFAULT_CELL_HEIGHT, x: 150, y: 150 },
     }));
     await typeInComposer("=s");

@@ -29,8 +29,8 @@ function getTableStyleFromName(name: string): TableStyle | undefined {
 }
 
 describe("Table style editor panel", () => {
-  beforeEach(() => {
-    model = createModel();
+  beforeEach(async () => {
+    model = await createModel();
   });
 
   test("Can create a new table style", async () => {

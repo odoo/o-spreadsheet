@@ -17,8 +17,8 @@ describe("Data validation", () => {
   let model: Model;
   let sheetId: UID;
 
-  beforeEach(() => {
-    model = createModel();
+  beforeEach(async () => {
+    model = await createModel();
     sheetId = model.getters.getActiveSheetId();
   });
 
@@ -114,8 +114,8 @@ describe("Data validation", () => {
     ]);
   });
 
-  test("copy paste DV in another sheet => change DV => copy paste again doesnt overwrite the previously pasted DV", () => {
-    const model = createModel();
+  test("copy paste DV in another sheet => change DV => copy paste again doesnt overwrite the previously pasted DV", async () => {
+    const model = await createModel();
     createSheet(model, { sheetId: "sheet2" });
     const sheet1Id = model.getters.getSheetIds()[0];
     const sheet2Id = model.getters.getSheetIds()[1];
@@ -203,14 +203,14 @@ describe("Data validation", () => {
     ]);
   });
 
-  test("copy/paste a DV zone only dispatch a singled ADD_DATA_VALIDATION_RULE", () => {
+  test("copy/paste a DV zone only dispatch a singled ADD_DATA_VALIDATION_RULE", async () => {
     const commands: Command[] = [];
     class MyUIPlugin extends UIPlugin {
       handle = (cmd: Command) => commands.push(cmd);
     }
     addTestPlugin(featurePluginRegistry, MyUIPlugin);
 
-    const model = createModel({ sheets: [{ colNumber: 5, rowNumber: 5 }] });
+    const model = await createModel({ sheets: [{ colNumber: 5, rowNumber: 5 }] });
     const sheetId = model.getters.getActiveSheetId();
     addDataValidation(model, "A1:A2", "id", { type: "containsText", values: ["1"] });
 

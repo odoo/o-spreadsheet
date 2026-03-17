@@ -45,22 +45,22 @@ describe("vectorization", () => {
     });
   });
 
-  test("scalar arg with vertical arg", () => {
-    const model = createModelFromGrid(grid);
+  test("scalar arg with vertical arg", async () => {
+    const model = await createModelFromGrid(grid);
     setCellContent(model, "D1", "=FUNCTION.WITHOUT.RANGE.ARGS(A1, B1:B2)");
     expect(getRangeValuesAsMatrix(model, "D1:D2")).toEqual([["A1B1"], ["A1B2"]]);
     expect(checkFunctionDoesntSpreadBeyondRange(model, "D1:D2")).toBeTruthy();
   });
 
-  test("scalar arg with horizontal arg", () => {
-    const model = createModelFromGrid(grid);
+  test("scalar arg with horizontal arg", async () => {
+    const model = await createModelFromGrid(grid);
     setCellContent(model, "D1", "=FUNCTION.WITHOUT.RANGE.ARGS(A1, B1:C1)");
     expect(getRangeValuesAsMatrix(model, "D1:E1")).toEqual([["A1B1", "A1C1"]]);
     expect(checkFunctionDoesntSpreadBeyondRange(model, "D1:E1")).toBeTruthy();
   });
 
-  test("scalar arg with matrix arg", () => {
-    const model = createModelFromGrid(grid);
+  test("scalar arg with matrix arg", async () => {
+    const model = await createModelFromGrid(grid);
     setCellContent(model, "D1", "=FUNCTION.WITHOUT.RANGE.ARGS(A1, B1:C2)");
     expect(getRangeValuesAsMatrix(model, "D1:E2")).toEqual([
       ["A1B1", "A1C1"],
@@ -69,15 +69,15 @@ describe("vectorization", () => {
     expect(checkFunctionDoesntSpreadBeyondRange(model, "D1:E2")).toBeTruthy();
   });
 
-  test("vertical arg with vertical arg", () => {
-    const model = createModelFromGrid(grid);
+  test("vertical arg with vertical arg", async () => {
+    const model = await createModelFromGrid(grid);
     setCellContent(model, "D1", "=FUNCTION.WITHOUT.RANGE.ARGS(A1:A2, B1:B2)");
     expect(getRangeValuesAsMatrix(model, "D1:D2")).toEqual([["A1B1"], ["A2B2"]]);
     expect(checkFunctionDoesntSpreadBeyondRange(model, "D1:D2")).toBeTruthy();
   });
 
-  test("vertical arg with horizontal arg", () => {
-    const model = createModelFromGrid(grid);
+  test("vertical arg with horizontal arg", async () => {
+    const model = await createModelFromGrid(grid);
     setCellContent(model, "D1", "=FUNCTION.WITHOUT.RANGE.ARGS(A1:A2, B1:C1)");
     expect(getRangeValuesAsMatrix(model, "D1:E2")).toEqual([
       ["A1B1", "A1C1"],
@@ -86,8 +86,8 @@ describe("vectorization", () => {
     expect(checkFunctionDoesntSpreadBeyondRange(model, "D1:E2")).toBeTruthy();
   });
 
-  test("vertical arg with matrix arg", () => {
-    const model = createModelFromGrid(grid);
+  test("vertical arg with matrix arg", async () => {
+    const model = await createModelFromGrid(grid);
     setCellContent(model, "D1", "=FUNCTION.WITHOUT.RANGE.ARGS(A1:A2, B1:C2)");
     expect(getRangeValuesAsMatrix(model, "D1:E2")).toEqual([
       ["A1B1", "A1C1"],
@@ -96,15 +96,15 @@ describe("vectorization", () => {
     expect(checkFunctionDoesntSpreadBeyondRange(model, "D1:E2")).toBeTruthy();
   });
 
-  test("horizontal arg with horizontal arg", () => {
-    const model = createModelFromGrid(grid);
+  test("horizontal arg with horizontal arg", async () => {
+    const model = await createModelFromGrid(grid);
     setCellContent(model, "D1", "=FUNCTION.WITHOUT.RANGE.ARGS(A1:B1, A2:B2)");
     expect(getRangeValuesAsMatrix(model, "D1:E1")).toEqual([["A1A2", "B1B2"]]);
     expect(checkFunctionDoesntSpreadBeyondRange(model, "D1:E1")).toBeTruthy();
   });
 
-  test("horizontal arg with matrix arg", () => {
-    const model = createModelFromGrid(grid);
+  test("horizontal arg with matrix arg", async () => {
+    const model = await createModelFromGrid(grid);
     setCellContent(model, "D1", "=FUNCTION.WITHOUT.RANGE.ARGS(A1:B1, A2:B3)");
     expect(getRangeValuesAsMatrix(model, "D1:E2")).toEqual([
       ["A1A2", "B1B2"],
@@ -113,8 +113,8 @@ describe("vectorization", () => {
     expect(checkFunctionDoesntSpreadBeyondRange(model, "D1:E2")).toBeTruthy();
   });
 
-  test("matrix arg with matrix arg", () => {
-    const model = createModelFromGrid(grid);
+  test("matrix arg with matrix arg", async () => {
+    const model = await createModelFromGrid(grid);
     setCellContent(model, "D1", "=FUNCTION.WITHOUT.RANGE.ARGS(A1:B2, B2:C3)");
     expect(getRangeValuesAsMatrix(model, "D1:E2")).toEqual([
       ["A1B2", "B1C2"],
@@ -123,8 +123,8 @@ describe("vectorization", () => {
     expect(checkFunctionDoesntSpreadBeyondRange(model, "D1:E2")).toBeTruthy();
   });
 
-  test("vectorization display #N/A errors when vectors havent the same size", () => {
-    const model = createModelFromGrid(grid);
+  test("vectorization display #N/A errors when vectors havent the same size", async () => {
+    const model = await createModelFromGrid(grid);
     setCellContent(model, "D1", "=FUNCTION.WITHOUT.RANGE.ARGS(A1:B1, A2:C2)");
     expect(getRangeValuesAsMatrix(model, "D1:F1")).toEqual([["A1A2", "B1B2", "#N/A"]]);
     expect(getEvaluatedCell(model, "F1").message).toBe(
@@ -140,9 +140,9 @@ describe("vectorization", () => {
     );
   });
 
-  test("vectorization of array formula will only return the first value of the array", () => {
+  test("vectorization of array formula will only return the first value of the array", async () => {
     // can change in the future with VECTORIZATION V2 ??
-    const model = createModelFromGrid(grid);
+    const model = await createModelFromGrid(grid);
     setCellContent(model, "D1", "=FUNCTION.THAT.SPREADS(A1)");
     expect(getRangeValuesAsMatrix(model, "D1:E2")).toEqual([
       ["A1", "A1"],
@@ -158,14 +158,14 @@ describe("vectorization", () => {
     expect(checkFunctionDoesntSpreadBeyondRange(model, "D1:E2")).toBeTruthy();
   });
 
-  test("function which throws an error during the evaluation of the position of one of its vectors, will apply the error to this position and continue the evaluation for each vector position", () => {
+  test("function which throws an error during the evaluation of the position of one of its vectors, will apply the error to this position and continue the evaluation for each vector position", async () => {
     // prettier-ignore
     const grid = {
       A1: "A1", B1: "B1",
       A2: "A2", B2: "#ERROR",
       A3: "A3", B3: "B3",
     };
-    const model = createModelFromGrid(grid);
+    const model = await createModelFromGrid(grid);
     setCellContent(model, "D1", '=FUNCTION.WITHOUT.RANGE.ARGS("this is ", B1:B3)');
     expect(getRangeValuesAsMatrix(model, "D1:D3")).toEqual([
       ["this is B1"],
@@ -197,7 +197,7 @@ describe("vectorization", () => {
     }
   });
 
-  test("vectorization is possible with meta args", () => {
+  test("vectorization is possible with meta args", async () => {
     addToRegistry(functionRegistry, "META.FUNCTION.WITHOUT.RANGE.ARGS", {
       description: "a function with simple args",
       args: [
@@ -210,7 +210,7 @@ describe("vectorization", () => {
       },
     });
 
-    const model = createModelFromGrid(grid);
+    const model = await createModelFromGrid(grid);
     setCellContent(model, "D1", "=META.FUNCTION.WITHOUT.RANGE.ARGS(A4, B4:C5)");
     expect(getRangeValuesAsMatrix(model, "D1:E2")).toEqual([
       ["A4B4", "A4C4"],

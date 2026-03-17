@@ -246,7 +246,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
     console.debug("######");
   }
 
-  startModel() {
+  async startModel() {
     this.dispatch("START");
     this.joinSession();
     if (this.config.snapshotRequested || (this.dataIsXLSX && !this.getters.isReadonly())) {

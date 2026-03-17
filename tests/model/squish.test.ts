@@ -5,8 +5,8 @@ import { createModel, createModelFromGrid } from "../test_helpers/helpers";
 
 describe("squish - unsquish", () => {
   let model: Model;
-  beforeEach(() => {
-    model = createModelFromGrid({
+  beforeEach(async () => {
+    model = await createModelFromGrid({
       A1: "=SUM(B1:B10)",
       A2: "=SUM(B1:B10)",
       A3: "=SUM(B1:B11)",
@@ -31,9 +31,9 @@ describe("squish - unsquish", () => {
     });
   });
 
-  test("should squish identical formulas", () => {
+  test("should squish identical formulas", async () => {
     const fullExport = model._exportData(false);
-    const importedFromSquishedExport = createModel(model._exportData(true));
+    const importedFromSquishedExport = await createModel(model._exportData(true));
     const exportedWithoutSquishing = importedFromSquishedExport._exportData(false);
     expect(exportedWithoutSquishing).toEqual(fullExport);
   });
@@ -81,8 +81,8 @@ describe("squish - unsquish", () => {
 });
 
 describe("squish - unsquish specific cases", () => {
-  test("squish always reset when changing sheet", () => {
-    const model = createModel({
+  test("squish always reset when changing sheet", async () => {
+    const model = await createModel({
       sheets: [
         {
           id: "Sheet1",
@@ -202,15 +202,15 @@ describe("squish - unsquish specific cases", () => {
 
     // using the squish separator character in string is valid
     [['=CONCAT("cou|cou","hello")', '=CONCAT("sa|lut","hello")'], { S: ["sa|lut", "="] }],
-  ])("difference in formula parameters should be handled properly", (received, expected) => {
+  ])("difference in formula parameters should be handled properly", async (received, expected) => {
     const A1 = received[0];
     const A2 = received[1];
-    const model = createModelFromGrid({ A1, A2 });
+    const model = await createModelFromGrid({ A1, A2 });
     createSheet(model, { sheetId: "Sheet2" });
     const exportSquished = model._exportData(true);
     expect(exportSquished.sheets[0].cells.A2).toEqual(expected);
 
-    const importedFromSquished = createModel(exportSquished);
+    const importedFromSquished = await createModel(exportSquished);
     const exportUnSquished = importedFromSquished._exportData(false);
     expect(exportUnSquished.sheets[0].cells.A1).toEqual(A1);
     expect(exportUnSquished.sheets[0].cells.A2).toEqual(A2);
@@ -425,12 +425,12 @@ describe("squish - unsquish specific cases", () => {
     ],
   ])(
     "same formulas at following positions are grouped on the same range %s",
-    (sheetContent, squishedContent) => {
-      const model = createModelFromGrid(sheetContent);
+    async (sheetContent, squishedContent) => {
+      const model = await createModelFromGrid(sheetContent);
       const exportSquished = model._exportData(true);
       expect(exportSquished.sheets[0].cells).toEqual(squishedContent);
 
-      const importedFromSquished = createModel(exportSquished);
+      const importedFromSquished = await createModel(exportSquished);
       const exportUnSquished = importedFromSquished._exportData(false);
       expect(exportUnSquished.sheets[0].cells).toEqual(sheetContent);
     }
@@ -534,26 +534,26 @@ describe("squish - unsquish specific cases", () => {
     ],
   ])(
     "compress numbers at following positions are grouped on the same range %s",
-    (sheetContent, squishedContent) => {
-      const model = createModelFromGrid(sheetContent);
+    async (sheetContent, squishedContent) => {
+      const model = await createModelFromGrid(sheetContent);
       const exportSquished = model._exportData(true);
       expect(exportSquished.sheets[0].cells).toEqual(squishedContent);
 
-      const importedFromSquished = createModel(exportSquished);
+      const importedFromSquished = await createModel(exportSquished);
       const exportUnSquished = importedFromSquished._exportData(false);
       expect(exportUnSquished.sheets[0].cells).toEqual(sheetContent);
     }
   );
 
-  test("empty cell do not generate positions", () => {
+  test("empty cell do not generate positions", async () => {
     const sheetContent = {};
     const squishedContent = {};
-    const model = createModelFromGrid(sheetContent);
+    const model = await createModelFromGrid(sheetContent);
     setFormatting(model, "A1:C3", { bold: true });
     const exportSquished = model._exportData(true);
     expect(exportSquished.sheets[0].cells).toEqual(squishedContent);
 
-    const importedFromSquished = createModel(exportSquished);
+    const importedFromSquished = await createModel(exportSquished);
     const exportUnSquished = importedFromSquished._exportData(false);
     expect(exportUnSquished.sheets[0].cells).toEqual(sheetContent);
   });
@@ -570,19 +570,19 @@ describe("squish - unsquish specific cases", () => {
     ],
 
     [{ A1: "=SUM(B1,/2)", A2: "=SUM(B1,/2)" }, { "A1:A2": "=SUM(B1,/2)" }],
-  ])("invalid formulas are not squished", (sheetContent, squishedContent) => {
-    const model = createModelFromGrid(sheetContent);
+  ])("invalid formulas are not squished", async (sheetContent, squishedContent) => {
+    const model = await createModelFromGrid(sheetContent);
     const exportSquished = model._exportData(true);
     expect(exportSquished.sheets[0].cells).toEqual(squishedContent);
 
-    const importedFromSquished = createModel(exportSquished);
+    const importedFromSquished = await createModel(exportSquished);
     const exportUnSquished = importedFromSquished._exportData(false);
     expect(exportUnSquished.sheets[0].cells).toEqual(sheetContent);
   });
 });
 
 describe("Models created from squished data behavior", () => {
-  test("adapt ranges when inserting rows/columns", () => {
+  test("adapt ranges when inserting rows/columns", async () => {
     const squishedData = {
       sheets: [
         {
@@ -598,7 +598,7 @@ describe("Models created from squished data behavior", () => {
         },
       ],
     };
-    const model = createModel(squishedData);
+    const model = await createModel(squishedData);
     model.dispatch("ADD_COLUMNS_ROWS", {
       sheetId: "Sheet1",
       sheetName: "Sheet1",
@@ -628,7 +628,7 @@ describe("Models created from squished data behavior", () => {
 });
 
 describe("do not rely on order of keys in squished data", () => {
-  test("importing squished data with different key order works", () => {
+  test("importing squished data with different key order works", async () => {
     const squishedData1 = {
       sheets: [
         {
@@ -648,7 +648,7 @@ describe("do not rely on order of keys in squished data", () => {
         },
       ],
     };
-    const model = createModel(squishedData1);
+    const model = await createModel(squishedData1);
     const exported = model._exportData(false);
     expect(exported.sheets[0].cells).toEqual({
       A1: "=SUM(B1)",
@@ -665,8 +665,8 @@ describe("do not rely on order of keys in squished data", () => {
 });
 
 describe("We did not add properties to Range without adding the behavior in Squish/Unsquish", () => {
-  test("range didn't change", () => {
-    const model = createModel();
+  test("range didn't change", async () => {
+    const model = await createModel();
     const range = createRangeFromXc(
       {
         xc: "B9:C11",

@@ -41,8 +41,8 @@ describe("Standalone side panel tests", () => {
     }));
   }
 
-  beforeEach(() => {
-    model = createModel();
+  beforeEach(async () => {
+    model = await createModel();
     sheetId = model.getters.getActiveSheetId();
     setCellContent(model, "A1", "TestMeasure");
     addPivot(

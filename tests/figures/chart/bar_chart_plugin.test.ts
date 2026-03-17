@@ -44,8 +44,8 @@ describe("bar chart", () => {
     });
   });
 
-  test("Stacked bar", () => {
-    const model = createModel();
+  test("Stacked bar", async () => {
+    const model = await createModel();
     createChart(model, { type: "bar", stacked: false }, "chartId");
     expect(isChartAxisStacked(model, "chartId", "x")).toBeFalsy();
     expect(isChartAxisStacked(model, "chartId", "y")).toBeFalsy();
@@ -56,8 +56,8 @@ describe("bar chart", () => {
   });
 
   describe("Horizontal bar chart", () => {
-    beforeEach(() => {
-      model = createModel();
+    beforeEach(async () => {
+      model = await createModel();
     });
 
     test("Chart is set as horizontal in chartJS runtime", () => {
@@ -95,8 +95,8 @@ describe("bar chart", () => {
       expect(tooltipValues).toEqual({ beforeLabel: "dataSetLabel", label: "5€" });
     });
 
-    test("Horizontal bar chart cannot have datasets on the right", () => {
-      const model = createModel({
+    test("Horizontal bar chart cannot have datasets on the right", async () => {
+      const model = await createModel({
         sheets: [
           {
             name: "Sheet1",
@@ -130,8 +130,8 @@ describe("bar chart", () => {
     });
   });
 
-  test("Bar chart legend", () => {
-    const model = createModelFromGrid({
+  test("Bar chart legend", async () => {
+    const model = await createModelFromGrid({
       A1: "1",
       A2: "2",
       A3: "3",
@@ -173,9 +173,9 @@ describe("bar chart", () => {
     ]);
   });
 
-  test("Empty legend items are filtered out", () => {
+  test("Empty legend items are filtered out", async () => {
     // prettier-ignore
-    const model = createModelFromGrid({
+    const model = await createModelFromGrid({
       A1: "",    B1: "",   C1: "Dataset 2",
       A2: "P1",  B2: "2",  C2: "4",
     });
@@ -193,8 +193,8 @@ describe("bar chart", () => {
     expect(getChartLegendLabels(model, "1")[0].text).toEqual("Dataset 2");
   });
 
-  test("Bar chart border are only shown for stacked chart", () => {
-    const model = createModelFromGrid({
+  test("Bar chart border are only shown for stacked chart", async () => {
+    const model = await createModelFromGrid({
       A1: "first column dataset",
       A2: "0",
       A3: "1",
@@ -218,8 +218,8 @@ describe("bar chart", () => {
     expect(runtime.chartJsConfig.data.datasets[0].borderWidth).toBe(1);
   });
 
-  test("Stacked Bar chart border are drawn with the chart background color", () => {
-    const model = createModelFromGrid({
+  test("Stacked Bar chart border are drawn with the chart background color", async () => {
+    const model = await createModelFromGrid({
       A1: "first column dataset",
       A2: "0",
       A3: "1",
@@ -243,8 +243,8 @@ describe("bar chart", () => {
     expect(runtime.chartJsConfig.data.datasets[0].borderColor).toBe("#f00");
   });
 
-  test("Bar chart trend line legend", () => {
-    const model = createModelFromGrid({ A1: "1", A2: "2" });
+  test("Bar chart trend line legend", async () => {
+    const model = await createModelFromGrid({ A1: "1", A2: "2" });
     createChart(
       model,
       {
@@ -267,8 +267,8 @@ describe("bar chart", () => {
     ]);
   });
 
-  test("Bar spacing is adapted to the number of datasets", () => {
-    const model = createModelFromGrid({ A2: "2", B2: "3" });
+  test("Bar spacing is adapted to the number of datasets", async () => {
+    const model = await createModelFromGrid({ A2: "2", B2: "3" });
     createChart(model, { type: "bar", dataSets: [{ dataRange: "A1:A3" }] }, "chartId");
 
     let runtime = model.getters.getChartRuntime("chartId") as BarChartRuntime;
@@ -283,8 +283,8 @@ describe("bar chart", () => {
     expect(config.data.datasets.map((ds) => ds.categoryPercentage)).toEqual([0.8, 0.8]);
   });
 
-  test("bar chart runtime reflects axis bounds and grids", () => {
-    const model = createModelFromGrid({
+  test("bar chart runtime reflects axis bounds and grids", async () => {
+    const model = await createModelFromGrid({
       A1: "Month",
       A2: "Jan",
       B1: "Series A",

@@ -80,7 +80,7 @@ describe("Collaborative session", () => {
   });
 
   test("do not snapshot when leaving if there are pending change", async () => {
-    const model = createModel(
+    const model = await createModel(
       {},
       {
         transportService: transport,
@@ -103,7 +103,7 @@ describe("Collaborative session", () => {
   });
 
   test("do not snapshot when leaving in read-only mode", async () => {
-    const model = createModel(
+    const model = await createModel(
       {},
       {
         mode: "readonly",
@@ -128,7 +128,7 @@ describe("Collaborative session", () => {
   });
 
   test("do not snapshot when leaving if there are no revisions since the last snapshot", async () => {
-    const model = createModel(
+    const model = await createModel(
       {},
       { transportService: transport, client: { id: "alice", name: "Alice" } }
     );
@@ -233,9 +233,9 @@ describe("Collaborative session", () => {
     });
   });
 
-  test("Can send custom data in client", () => {
+  test("Can send custom data in client", async () => {
     const spy = jest.spyOn(transport, "sendMessage");
-    const model = createModel(
+    const model = await createModel(
       {},
       {
         transportService: transport,

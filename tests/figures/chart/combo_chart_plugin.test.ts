@@ -42,8 +42,8 @@ describe("combo chart", () => {
       humanize: false,
     });
   });
-  test("both axis and tooltips formats are based on their data set", () => {
-    const model = createModel();
+  test("both axis and tooltips formats are based on their data set", async () => {
+    const model = await createModel();
     setCellFormat(model, "B1", "0.00%"); // first data set
     setCellFormat(model, "C1", "0.00[$$]"); // second data set
     createChart(
@@ -71,8 +71,8 @@ describe("combo chart", () => {
     tooltipValues = getChartTooltipValues(runtime, tooltipItem);
     expect(tooltipValues).toEqual({ beforeLabel: "Ds 2", label: "20.00$" });
   });
-  test("Can edit the type of the series", () => {
-    const model = createModel();
+  test("Can edit the type of the series", async () => {
+    const model = await createModel();
     setCellContent(model, "A1", "Alice");
     setCellContent(model, "A2", "Bob");
     setCellContent(model, "B1", "1");
@@ -97,8 +97,8 @@ describe("combo chart", () => {
     runtime = model.getters.getChartRuntime("1") as ComboChartRuntime;
     expect(runtime.chartJsConfig.data?.datasets?.[1].type).toBe("bar");
   });
-  test("Combo chart legend", () => {
-    const model = createModelFromGrid({
+  test("Combo chart legend", async () => {
+    const model = await createModelFromGrid({
       A1: "1",
       A2: "2",
       A3: "3",
@@ -139,8 +139,8 @@ describe("combo chart", () => {
       },
     ]);
   });
-  test("Bar spacing is adapted to the number of bar datasets", () => {
-    const model = createModelFromGrid({ A2: "2", B2: "3", C2: "4" });
+  test("Bar spacing is adapted to the number of bar datasets", async () => {
+    const model = await createModelFromGrid({ A2: "2", B2: "3", C2: "4" });
     let dataSets: ComboChartDataSet[] = [
       { dataRange: "A1:A3", type: "bar" },
       { dataRange: "B1:B3", type: "line" },
@@ -157,8 +157,8 @@ describe("combo chart", () => {
     expect(config.data.datasets.map((ds) => ds.barPercentage)).toEqual([0.9, undefined, 0.9]); // undefined for line dataset
     expect(config.data.datasets.map((ds) => ds.categoryPercentage)).toEqual([0.8, undefined, 0.8]);
   });
-  test("combo chart runtime reflects axis bounds on both vertical axes", () => {
-    const model = createModelFromGrid({
+  test("combo chart runtime reflects axis bounds on both vertical axes", async () => {
+    const model = await createModelFromGrid({
       A1: "Month",
       A2: "Jan",
       B1: "Series A",

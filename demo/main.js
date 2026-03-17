@@ -317,16 +317,16 @@ class Demo extends Component {
       this.transportService = undefined;
       this.stateUpdateMessages = [];
     }
-    this.createModel(data || demoData);
-    // this.createModel(makePivotDataset(10_000));
-    // this.createModel(makeLargeDataset(26, 10_000, ["numbers"]));
-    //this.createModel(makeLargeDataset(26, 10_000, ["formulasSquished"]));
-    // this.createModel(makeLargeDataset(26, 10_000, ["arrayFormulas"]));
-    // this.createModel(makeLargeDataset(26, 10_000, ["vectorizedFormulas"]));
-    // this.createModel({});
+    await this.createModel(data || demoData);
+    // await this.createModel(makePivotDataset(10_000));
+    // await this.createModel(makeLargeDataset(26, 10_000, ["numbers"]));
+    //await this.createModel(makeLargeDataset(26, 10_000, ["formulasSquished"]));
+    // await this.createModel(makeLargeDataset(26, 10_000, ["arrayFormulas"]));
+    // await this.createModel(makeLargeDataset(26, 10_000, ["vectorizedFormulas"]));
+    // await this.createModel({});
   }
 
-  createModel(data) {
+  async createModel(data) {
     this.model = new Model(
       data,
       {
@@ -342,7 +342,7 @@ class Demo extends Component {
       },
       this.stateUpdateMessages
     );
-    this.model.startModel();
+    await this.model.startModel();
     markRaw(this.model);
     o_spreadsheet.__DEBUG__ = o_spreadsheet.__DEBUG__ || {};
     o_spreadsheet.__DEBUG__.model = this.model;

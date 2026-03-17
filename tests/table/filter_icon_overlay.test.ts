@@ -2,8 +2,8 @@ import { createTableWithFilter } from "../test_helpers/commands_helpers";
 import { clickGridIcon } from "../test_helpers/dom_helper";
 import { createModel, mountSpreadsheet } from "../test_helpers/helpers";
 describe("Filter Icon Overlay component", () => {
-  test("Overlapping filters are overwritten by the latest inserted", () => {
-    const model = createModel({
+  test("Overlapping filters are overwritten by the latest inserted", async () => {
+    const model = await createModel({
       version: 12,
       sheets: [
         {
@@ -16,7 +16,7 @@ describe("Filter Icon Overlay component", () => {
     expect(model.getters.getCellIcons({ col: 0, row: 1, sheetId: "sh1" })).toHaveLength(1);
   });
   test("MouseEvent on filter icon selects the underlying cell", async () => {
-    const model = createModel();
+    const model = await createModel();
     createTableWithFilter(model, "B2:B3");
     const sheetId = model.getters.getActiveSheetId();
     await mountSpreadsheet({ model });

@@ -21,8 +21,8 @@ describe("Table core style plugin", () => {
   let model: Model;
   let sheetId: UID;
 
-  beforeEach(() => {
-    model = createModel();
+  beforeEach(async () => {
+    model = await createModel();
     sheetId = model.getters.getActiveSheetId();
   });
 
@@ -105,7 +105,7 @@ describe("Table core style plugin", () => {
     expect(model.getters.getTableStyle("MyStyle")).toMatchObject(customStyle);
   });
 
-  test("Can import/export a table style", () => {
+  test("Can import/export a table style", async () => {
     createTableStyle(model, "MyStyle");
 
     expect(model.getters.getTableStyle("MyStyle")).toMatchObject(customStyle);
@@ -113,7 +113,7 @@ describe("Table core style plugin", () => {
     const exportedData = model.exportData();
     expect(exportedData.customTableStyles).toMatchObject({ MyStyle: customStyle });
 
-    const importedModel = createModel(exportedData);
+    const importedModel = await createModel(exportedData);
     expect(importedModel.getters.getTableStyle("MyStyle")).toMatchObject(customStyle);
   });
 });

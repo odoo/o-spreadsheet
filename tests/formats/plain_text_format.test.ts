@@ -11,8 +11,8 @@ import { createModel } from "../test_helpers/helpers";
 import { FR_LOCALE } from "./../test_helpers/constants";
 
 let model: Model;
-beforeEach(() => {
-  model = createModel();
+beforeEach(async () => {
+  model = await createModel();
 });
 
 describe("Plain text format", () => {
@@ -102,14 +102,14 @@ describe("Plain text format", () => {
     expect(getEvaluatedCell(model, "A2").value).toBe("#ERROR");
   });
 
-  test("can export/import plain text format", () => {
+  test("can export/import plain text format", async () => {
     setFormat(model, "A1", "@");
     setCellContent(model, "A1", "00009");
 
     expect(getCellContent(model, "A1")).toBe("00009");
     const exported = model.exportData();
 
-    const importedModel = createModel(exported);
+    const importedModel = await createModel(exported);
     expect(getCell(importedModel, "A1")?.format).toBe("@");
     expect(getCellContent(importedModel, "A1")).toBe("00009");
   });

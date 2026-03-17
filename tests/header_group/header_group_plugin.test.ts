@@ -34,8 +34,8 @@ describe("Header grouping plugin", () => {
   let model: Model;
   let sheetId: UID;
 
-  beforeEach(() => {
-    model = createModel();
+  beforeEach(async () => {
+    model = await createModel();
     sheetId = model.getters.getActiveSheetId();
   });
 
@@ -284,7 +284,7 @@ describe("Header grouping plugin", () => {
       });
     });
 
-    test("Group layers", () => {
+    test("Group layers", async () => {
       /**
        * The groups cannot be displayed as is in the UI because they can overlap, they need to be separated into
        * different layers.
@@ -325,7 +325,7 @@ describe("Header grouping plugin", () => {
       ]);
 
       // Test case 2: groups go to the rightmost layer
-      model = createModel();
+      model = await createModel();
       groupHeaders(model, dimension, 0, 1);
       groupHeaders(model, dimension, 0, 2);
       groupHeaders(model, dimension, 0, 3);
@@ -649,7 +649,7 @@ describe("Header grouping plugin", () => {
     });
   });
 
-  test("Can export/import header groups", () => {
+  test("Can export/import header groups", async () => {
     groupColumns(model, "A", "C");
     groupRows(model, 0, 2);
     foldHeaderGroup(model, "COL", 0, 2);
@@ -660,7 +660,7 @@ describe("Header grouping plugin", () => {
       ROW: [{ start: 0, end: 2 }],
     });
 
-    const newModel = createModel(exported);
+    const newModel = await createModel(exported);
     expect(newModel.getters.getHeaderGroups(sheetId, "COL")).toMatchObject([
       { start: 0, end: 2, isFolded: true },
     ]);

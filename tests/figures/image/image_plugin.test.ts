@@ -14,8 +14,8 @@ import {
 } from "../../test_helpers/commands_helpers";
 import { createModel, getFigureIds } from "../../test_helpers/helpers";
 describe("image plugin", function () {
-  test("create image", () => {
-    const model = createModel();
+  test("create image", async () => {
+    const model = await createModel();
     const sheetId = model.getters.getActiveSheetId();
     const imageId = "Image1";
     const definition = {
@@ -27,8 +27,8 @@ describe("image plugin", function () {
     createImage(model, { figureId: imageId, definition });
     expect(model.getters.getImage(imageId)).toEqual(definition);
   });
-  test("delete image", () => {
-    const model = createModel();
+  test("delete image", async () => {
+    const model = await createModel();
     const sheetId = model.getters.getActiveSheetId();
     const imageId = "Image1";
     createImage(model, { sheetId: sheetId, figureId: imageId });
@@ -36,8 +36,8 @@ describe("image plugin", function () {
     const images = getFigureIds(model, sheetId);
     expect(images).toHaveLength(0);
   });
-  test("copy paste image", () => {
-    const model = createModel();
+  test("copy paste image", async () => {
+    const model = await createModel();
     const sheetId = model.getters.getActiveSheetId();
     const imageId = "Image1";
     const definition = {
@@ -56,8 +56,8 @@ describe("image plugin", function () {
       expect(model.getters.getImage(nextImageId)).toEqual(definition);
     }
   });
-  test("cut past image", () => {
-    const model = createModel();
+  test("cut past image", async () => {
+    const model = await createModel();
     const sheetId = model.getters.getActiveSheetId();
     const imageId = "Image1";
     const definition = {
@@ -77,8 +77,8 @@ describe("image plugin", function () {
   });
 });
 describe("test image in sheet", function () {
-  test("duplicate sheet image", () => {
-    const model = createModel();
+  test("duplicate sheet image", async () => {
+    const model = await createModel();
     const sheetId = model.getters.getActiveSheetId();
     const imageId = "Image1";
     createImage(model, { sheetId: sheetId, figureId: imageId });
@@ -90,8 +90,8 @@ describe("test image in sheet", function () {
     const copy = model.getters.getImage(newImages[0]);
     expect(copy).not.toBe(original);
   });
-  test("delete a sheet with an image", () => {
-    const model = createModel();
+  test("delete a sheet with an image", async () => {
+    const model = await createModel();
     const imageId = "Image1";
     const newSheetId = "Sheet2";
     createSheet(model, { sheetId: newSheetId, position: 2 });
@@ -100,14 +100,14 @@ describe("test image in sheet", function () {
     const images = getFigureIds(model, newSheetId);
     expect(images).toHaveLength(0);
   });
-  test("Duplicate sheet > export > import > duplicate sheet contains 2 distinct charts", () => {
-    const model = createModel();
+  test("Duplicate sheet > export > import > duplicate sheet contains 2 distinct charts", async () => {
+    const model = await createModel();
     const firstSheetId = model.getters.getActiveSheetId();
     const secondSheetId = "42";
     const thirdSheetId = "third";
     createImage(model, { sheetId: firstSheetId, figureId: "myImage" });
     duplicateSheet(model, firstSheetId, secondSheetId);
-    const newModel = createModel(model.exportData());
+    const newModel = await createModel(model.exportData());
     duplicateSheet(newModel, secondSheetId, thirdSheetId);
 
     const figuresSh1 = newModel.getters.getFigures(firstSheetId);
@@ -128,8 +128,8 @@ describe("test image in sheet", function () {
   });
 });
 describe("test image import & export", function () {
-  test("can export an image", () => {
-    const model = createModel();
+  test("can export an image", async () => {
+    const model = await createModel();
     const imageId = "Image1";
     createImage(model, { sheetId: "Sheet1", figureId: imageId, size: { height: 300, width: 400 } });
     const data = model.exportData();
@@ -151,13 +151,13 @@ describe("test image import & export", function () {
       },
     ]);
   });
-  test("can import an image", () => {
-    const model = createModel();
+  test("can import an image", async () => {
+    const model = await createModel();
     const sheetId = "Sheet1";
     const imageId = "Image1";
     createImage(model, { sheetId, figureId: imageId });
     const importedData = model.exportData();
-    const newModel = createModel(importedData);
+    const newModel = await createModel(importedData);
     expect(newModel.getters.getImage(imageId)).toEqual(model.getters.getImage(imageId));
     expect(newModel.getters.getFigure(sheetId, imageId)).toEqual(
       model.getters.getFigure(sheetId, imageId)
@@ -165,8 +165,8 @@ describe("test image import & export", function () {
   });
 });
 describe("test image undo/redo", () => {
-  test("undo/redo image creation", () => {
-    const model = createModel();
+  test("undo/redo image creation", async () => {
+    const model = await createModel();
     const before = model.exportData();
     createImage(model, {});
     const after = model.exportData();
@@ -175,8 +175,8 @@ describe("test image undo/redo", () => {
     redo(model);
     expect(model).toExport(after);
   });
-  test("undo/redo image deletion", () => {
-    const model = createModel();
+  test("undo/redo image deletion", async () => {
+    const model = await createModel();
     const sheetId = model.getters.getActiveSheetId();
     const imageId = "Image1";
     createImage(model, { sheetId, figureId: imageId });
@@ -188,8 +188,8 @@ describe("test image undo/redo", () => {
     redo(model);
     expect(model).toExport(after);
   });
-  test("undo/redo image cut & paste", () => {
-    const model = createModel();
+  test("undo/redo image cut & paste", async () => {
+    const model = await createModel();
     const imageId = "Image1";
     createImage(model, { figureId: imageId });
     const before = model.exportData();
@@ -202,8 +202,8 @@ describe("test image undo/redo", () => {
     redo(model);
     expect(model).toExport(after);
   });
-  test("undo/redo duplicate sheet", () => {
-    const model = createModel();
+  test("undo/redo duplicate sheet", async () => {
+    const model = await createModel();
     const sheetId = model.getters.getActiveSheetId();
     const imageId = "Image1";
     createImage(model, { sheetId, figureId: imageId });

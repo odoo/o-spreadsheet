@@ -12,7 +12,7 @@ const locale = DEFAULT_LOCALE;
 
 describe("Basic Sorting", () => {
   const sheetId: UID = "sheetId";
-  test("Sort Numbers then undo then redo", () => {
+  test("Sort Numbers then undo then redo", async () => {
     const cells = {
       A1: "4",
       A2: "23",
@@ -21,7 +21,9 @@ describe("Basic Sorting", () => {
       A5: "16",
       A6: "15",
     };
-    model = createModel({ sheets: [{ id: sheetId, colNumber: 1, rowNumber: 6, cells: cells }] });
+    model = await createModel({
+      sheets: [{ id: sheetId, colNumber: 1, rowNumber: 6, cells: cells }],
+    });
     sort(model, {
       zone: "A1:A6",
       anchor: "A2",
@@ -54,8 +56,8 @@ describe("Basic Sorting", () => {
       A6: { content: "42" },
     });
   });
-  test("Sort Text", () => {
-    model = createModel({
+  test("Sort Text", async () => {
+    model = await createModel({
       sheets: [
         {
           id: sheetId,
@@ -86,8 +88,8 @@ describe("Basic Sorting", () => {
       A6: { content: "Zulu" },
     });
   });
-  test("Sort Dates", () => {
-    model = createModel({
+  test("Sort Dates", async () => {
+    model = await createModel({
       sheets: [
         {
           id: sheetId,
@@ -121,8 +123,8 @@ describe("Basic Sorting", () => {
       A6: { value: parseDateTime("11/08/2016", locale)!.value },
     });
   });
-  test("Sort Formulas", () => {
-    model = createModel({
+  test("Sort Formulas", async () => {
+    model = await createModel({
       sheets: [
         {
           id: sheetId,
@@ -161,8 +163,8 @@ describe("Basic Sorting", () => {
     expect(getEvaluatedCell(model, "C3").type).toBe(CellValueType.error);
     expect(getEvaluatedCell(model, "C4").type).toBe(CellValueType.error);
   });
-  test("Sort all types of cells then undo then redo", () => {
-    model = createModel({
+  test("Sort all types of cells then undo then redo", async () => {
+    model = await createModel({
       sheets: [
         {
           id: sheetId,
@@ -235,9 +237,9 @@ describe("Basic Sorting", () => {
     expect(getEvaluatedCell(model, "A6").type).toBe(CellValueType.error);
     expect(getEvaluatedCell(model, "A7").type).toBe(CellValueType.error);
   });
-  test("Sort style", () => {
+  test("Sort style", async () => {
     const myStyle = { textColor: "#fe0000" };
-    model = createModel({
+    model = await createModel({
       sheets: [
         {
           id: sheetId,
@@ -270,8 +272,8 @@ describe("Basic Sorting", () => {
     });
   });
 
-  test("Sort with empty cells", () => {
-    model = createModel({
+  test("Sort with empty cells", async () => {
+    model = await createModel({
       sheets: [
         {
           id: sheetId,
@@ -301,8 +303,8 @@ describe("Basic Sorting", () => {
     });
   });
 
-  test("Sort with emptyCellAsZero option", () => {
-    model = createModel({
+  test("Sort with emptyCellAsZero option", async () => {
+    model = await createModel({
       sheets: [
         {
           id: sheetId,
@@ -347,8 +349,8 @@ describe("Basic Sorting", () => {
     });
   });
 
-  test("Sort with a cell that will be removed because it is considered empty", () => {
-    model = createModel({
+  test("Sort with a cell that will be removed because it is considered empty", async () => {
+    model = await createModel({
       sheets: [
         {
           id: sheetId,
@@ -374,8 +376,8 @@ describe("Basic Sorting", () => {
 });
 
 describe("Sorting allowDispatch", () => {
-  beforeEach(() => {
-    model = createModel();
+  beforeEach(async () => {
+    model = await createModel();
   });
 
   test("Sort with anchor outside of the sorting zone", () => {
@@ -437,8 +439,8 @@ describe("Sort multi adjacent columns", () => {
    * Interactive tests for same are moved to helpers/ui.test.ts
    * Manually calling the getContiguousZone function.
    */
-  test("Sort on second column w/ contiguous", () => {
-    model = createModel(modelData);
+  test("Sort on second column w/ contiguous", async () => {
+    model = await createModel(modelData);
     const zone = toZone("B2:B3");
     const sheetId = model.getters.getActiveSheetId();
     const contiguousZone = model.getters.getContiguousZone(sheetId, zone);
@@ -460,8 +462,8 @@ describe("Sort multi adjacent columns", () => {
       D5: { content: "6" },
     });
   });
-  test("Sort on third column  w/ contiguous", () => {
-    model = createModel(modelData);
+  test("Sort on third column  w/ contiguous", async () => {
+    model = await createModel(modelData);
     const zone = toZone("C2:C4");
     const contiguousZone = model.getters.getContiguousZone(sheetId, zone);
     sort(model, {
@@ -482,8 +484,8 @@ describe("Sort multi adjacent columns", () => {
       D5: { content: "6" },
     });
   });
-  test("Sort on fourth column w/ contiguous", () => {
-    model = createModel(modelData);
+  test("Sort on fourth column w/ contiguous", async () => {
+    model = await createModel(modelData);
     const zone = toZone("D2:D5");
     const contiguousZone = model.getters.getContiguousZone(sheetId, zone);
     sort(model, {
@@ -505,8 +507,8 @@ describe("Sort multi adjacent columns", () => {
     });
   });
 
-  test("Sort w/ multicolumn selection", () => {
-    model = createModel(modelData);
+  test("Sort w/ multicolumn selection", async () => {
+    model = await createModel(modelData);
     sort(model, {
       zone: "B2:C3",
       anchor: "B3",
@@ -529,8 +531,8 @@ describe("Sort multi adjacent columns", () => {
 
 describe("Sort adjacent columns with headers", () => {
   const sheetId: UID = "sheet4";
-  beforeEach(() => {
-    model = createModel({
+  beforeEach(async () => {
+    model = await createModel({
       sheets: [
         {
           id: sheetId,
@@ -699,8 +701,8 @@ describe("Sort Merges", () => {
       },
     ],
   };
-  beforeEach(() => {
-    model = createModel(modelData);
+  beforeEach(async () => {
+    model = await createModel(modelData);
   });
   test("Sort of merges w/ contiguous", () => {
     const zone = toZone("B2:B4");

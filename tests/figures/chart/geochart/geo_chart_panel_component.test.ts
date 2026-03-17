@@ -37,7 +37,7 @@ function getGeoChartDefinition(chartId: UID): GeoChartDefinition {
 
 describe("Geo chart side panel", () => {
   beforeEach(async () => {
-    model = createModel({}, { external: { geoJsonService: mockGeoJsonService } });
+    model = await createModel({}, { external: { geoJsonService: mockGeoJsonService } });
     ({ fixture, env } = await mountComponentWithPortalTarget(SidePanels, { model }));
   });
 

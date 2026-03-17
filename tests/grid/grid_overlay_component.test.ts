@@ -164,7 +164,7 @@ describe("Resizer component", () => {
         },
       ],
     };
-    model = createModel(data);
+    model = await createModel(data);
     ({ fixture, env } = await mountSpreadsheet({ model }));
   });
 
@@ -686,7 +686,7 @@ describe("Resizer component", () => {
 
 describe("Hide/show columns", () => {
   beforeEach(async () => {
-    model = createModel();
+    model = await createModel();
     ({ fixture } = await mountSpreadsheet({ model }));
   });
   test("Hide A unhide it", async () => {
@@ -797,7 +797,7 @@ describe("Hide/show columns", () => {
 
 describe("Hide/show rows", () => {
   beforeEach(async () => {
-    model = createModel();
+    model = await createModel();
     ({ fixture } = await mountSpreadsheet({ model }));
   });
   test("hide 1, unhide it", async () => {
@@ -1006,7 +1006,7 @@ describe("move selected element(s)", () => {
         },
       ],
     };
-    model = createModel(data);
+    model = await createModel(data);
     ({ fixture } = await mountSpreadsheet({ model }));
   });
 
@@ -1317,7 +1317,7 @@ describe("Can select de-select headers", () => {
         },
       ],
     };
-    model = createModel(data);
+    model = await createModel(data);
     ({ fixture, env } = await mountSpreadsheet({ model }));
   });
 

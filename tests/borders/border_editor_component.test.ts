@@ -20,10 +20,8 @@ async function setDefaultBorder(name: string) {
   }
 }
 
-async function mountBorderEditor(
-  partialProps: Partial<BorderEditorProps> = {},
-  model = createModel()
-) {
+async function mountBorderEditor(partialProps: Partial<BorderEditorProps> = {}, model?: Model) {
+  model = model ?? (await createModel());
   const props = {
     onBorderColorPicked: partialProps.onBorderColorPicked || (() => {}),
     currentBorderColor: partialProps.currentBorderColor || DEFAULT_BORDER_DESC.color,
@@ -55,7 +53,7 @@ afterEach(() => {
 describe("Can set borders", () => {
   let model: Model;
   beforeEach(async () => {
-    model = createModel();
+    model = await createModel();
     await mountBorderEditor(
       { onBorderColorPicked, onBorderPositionPicked, onBorderStylePicked },
       model

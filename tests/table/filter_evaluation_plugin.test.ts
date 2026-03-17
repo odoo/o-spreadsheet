@@ -27,8 +27,8 @@ describe("Simple filter test", () => {
   let model: Model;
   let sheetId: UID;
 
-  beforeEach(() => {
-    model = createModel();
+  beforeEach(async () => {
+    model = await createModel();
     sheetId = model.getters.getActiveSheetId();
   });
 
@@ -73,8 +73,8 @@ describe("Simple filter test", () => {
     expect(model.getters.isRowHidden(sheetId, 2)).toBe(false);
   });
 
-  test("Filtered rows should persist after hiding and unhiding multiple rows", () => {
-    const model = createModel();
+  test("Filtered rows should persist after hiding and unhiding multiple rows", async () => {
+    const model = await createModel();
 
     setCellContent(model, "A4", "D");
 
@@ -104,8 +104,8 @@ describe("Filter Evaluation", () => {
   let model: Model;
   let sheetId: UID;
 
-  beforeEach(() => {
-    model = createModel();
+  beforeEach(async () => {
+    model = await createModel();
     sheetId = model.getters.getActiveSheetId();
 
     createTableWithFilter(model, "A1:A5");
@@ -140,8 +140,8 @@ describe("Filter Evaluation", () => {
     expect(model.getters.isRowHidden(sheetId, 1)).toEqual(true);
   });
 
-  test("deleting a table show rows again", () => {
-    const model = createModel();
+  test("deleting a table show rows again", async () => {
+    const model = await createModel();
     createTableWithFilter(model, "A1:A3");
     setCellContent(model, "A2", "Hi");
     updateFilter(model, "A2", ["Hi"]);
@@ -240,8 +240,8 @@ describe("Filter Evaluation", () => {
     expect(model.getters.isRowHidden(sheetId, 1)).toEqual(false);
   });
 
-  test("Sheet duplication after importing table don't break", () => {
-    const model = createModel({
+  test("Sheet duplication after importing table don't break", async () => {
+    const model = await createModel({
       sheets: [
         {
           id: "sh1",
@@ -259,8 +259,8 @@ describe("Filter Evaluation", () => {
     expect(model.getters.getFilter({ sheetId: "sh2", col: 0, row: 0 })).toBeTruthy();
   });
 
-  test("Inserting rows above or below the table header updates the filtered rows", () => {
-    const model = createModel();
+  test("Inserting rows above or below the table header updates the filtered rows", async () => {
+    const model = await createModel();
 
     createTableWithFilter(model, "A1:A2");
     setCellContent(model, "A2", "Hi");
@@ -277,8 +277,8 @@ describe("Filter Evaluation", () => {
     expect(model.getters.isRowFiltered(sheetId, 3)).toEqual(true);
   });
 
-  test("Removing rows above the table header updates the filtered rows", () => {
-    const model = createModel();
+  test("Removing rows above the table header updates the filtered rows", async () => {
+    const model = await createModel();
 
     createTableWithFilter(model, "A4:A6");
     setCellContent(model, "A5", "Hi");
@@ -294,8 +294,8 @@ describe("Filter Evaluation", () => {
     expect(model.getters.isRowFiltered(sheetId, 2)).toEqual(true);
   });
 
-  test("Folding a group after filtering some rows does not hide all rows of the sheet", () => {
-    const model = createModel({ sheets: [{ colNumber: 5, rowNumber: 5 }] });
+  test("Folding a group after filtering some rows does not hide all rows of the sheet", async () => {
+    const model = await createModel({ sheets: [{ colNumber: 5, rowNumber: 5 }] });
     const sheetId = model.getters.getActiveSheetId();
 
     groupHeaders(model, "ROW", 0, 3);
@@ -309,8 +309,8 @@ describe("Filter Evaluation", () => {
     expect(model.getters.isRowFiltered(sheetId, 4)).toEqual(false);
   });
 
-  test("Grouping headers after filtering some rows does not break the data filter state", () => {
-    const model = createModel({ sheets: [{ colNumber: 8, rowNumber: 8 }] });
+  test("Grouping headers after filtering some rows does not break the data filter state", async () => {
+    const model = await createModel({ sheets: [{ colNumber: 8, rowNumber: 8 }] });
     const sheetId = model.getters.getActiveSheetId();
 
     groupHeaders(model, "ROW", 0, 5);
@@ -328,8 +328,8 @@ describe("Filter Evaluation", () => {
     expect(model.getters.isRowFiltered(sheetId, 7)).toEqual(true);
   });
 
-  test("row filtered in an inactive sheet", () => {
-    const model = createModel();
+  test("row filtered in an inactive sheet", async () => {
+    const model = await createModel();
     const sheetId = model.getters.getActiveSheetId();
 
     createTableWithFilter(model, "A6:A8");
@@ -345,8 +345,8 @@ describe("Filter criterion test", () => {
   let model: Model;
   let sheetId: UID;
 
-  beforeEach(() => {
-    model = createModel();
+  beforeEach(async () => {
+    model = await createModel();
     sheetId = model.getters.getActiveSheetId();
   });
 

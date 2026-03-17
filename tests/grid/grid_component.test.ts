@@ -607,7 +607,7 @@ describe("Grid component", () => {
       const fileStore = new FileStore();
       const data = createEmptyWorkbookData();
       const { env } = await mountSpreadsheet({
-        model: createModel(data, {
+        model: await createModel(data, {
           external: { fileStore },
         }),
       });
@@ -1378,7 +1378,7 @@ describe("Multi User selection", () => {
   beforeEach(async () => {
     transportService = new MockTransportService();
 
-    model = createModel({}, { transportService });
+    model = await createModel({}, { transportService });
     ({ parent, fixture, env } = await mountSpreadsheet({ model }));
   });
 
@@ -1873,7 +1873,7 @@ describe("Copy paste keyboard shortcut", () => {
   beforeEach(async () => {
     clipboardData = new MockClipboardData();
     ({ parent, model, fixture, env } = await mountSpreadsheet({
-      model: createModel({}, { external: { fileStore } }),
+      model: await createModel({}, { external: { fileStore } }),
     }));
     sheetId = model.getters.getActiveSheetId();
   });

@@ -7,8 +7,8 @@ import { Model } from "../../src";
 
 describe("cross spreadsheet copy/paste", () => {
   test("should copy/paste from Edit menu", async () => {
-    const envA: SpreadsheetChildEnv = makeTestEnv();
-    const envB: SpreadsheetChildEnv = makeTestEnv();
+    const envA: SpreadsheetChildEnv = await makeTestEnv();
+    const envB: SpreadsheetChildEnv = await makeTestEnv();
     const modelA: Model = envA.model;
     const modelB: Model = envB.model;
 

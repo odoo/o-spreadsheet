@@ -55,7 +55,7 @@ async function mountTestPopover(args: MountPopoverArgs) {
 }
 
 beforeEach(async () => {
-  model = createModel();
+  model = await createModel();
   extendMockGetBoundingClientRect({
     "o-popover-content": (el: HTMLElement) => {
       const popover = el.closest<HTMLElement>(".o-popover")!;

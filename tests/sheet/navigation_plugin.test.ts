@@ -26,8 +26,8 @@ function getViewport(
 }
 
 describe("navigation", () => {
-  test("normal move to the right", () => {
-    const model = createModel();
+  test("normal move to the right", async () => {
+    const model = await createModel();
     expect(model.getters.getSelectedZones()[0]).toEqual({ top: 0, right: 0, left: 0, bottom: 0 });
     expect(getActivePosition(model)).toBe("A1");
     expect(model.getters.getSelection().anchor.cell).toEqual(toCartesian("A1"));
@@ -38,8 +38,8 @@ describe("navigation", () => {
     expect(model.getters.getSelection().anchor.cell).toEqual(toCartesian("B1"));
   });
 
-  test("move up from top row", () => {
-    const model = createModel();
+  test("move up from top row", async () => {
+    const model = await createModel();
     expect(model.getters.getSelectedZones()[0]).toEqual({ top: 0, right: 0, left: 0, bottom: 0 });
     expect(getActivePosition(model)).toBe("A1");
 
@@ -48,8 +48,8 @@ describe("navigation", () => {
     expect(getActivePosition(model)).toBe("A1");
   });
 
-  test("move right from right row", () => {
-    const model = createModel();
+  test("move right from right row", async () => {
+    const model = await createModel();
     const activeSheetId = model.getters.getActiveSheetId();
     const colNumber = model.getters.getNumberCols(activeSheetId);
     const xc = toXC(colNumber - 1, 0);
@@ -60,8 +60,8 @@ describe("navigation", () => {
     expect(getActivePosition(model)).toBe(xc);
   });
 
-  test("move bottom from bottom row", () => {
-    const model = createModel();
+  test("move bottom from bottom row", async () => {
+    const model = await createModel();
     const activeSheetId = model.getters.getActiveSheetId();
     const rowNumber = model.getters.getNumberRows(activeSheetId);
     const xc = toXC(0, rowNumber - 1);
@@ -71,8 +71,8 @@ describe("navigation", () => {
     expect(getActivePosition(model)).toBe(xc);
   });
 
-  test("move bottom from merge in last position", () => {
-    const model = createModel();
+  test("move bottom from merge in last position", async () => {
+    const model = await createModel();
     const activeSheetId = model.getters.getActiveSheetId();
     const rowNumber = model.getters.getNumberRows(activeSheetId);
     merge(model, `${toXC(0, rowNumber - 2)}:${toXC(0, rowNumber - 1)}`, activeSheetId);
@@ -83,8 +83,8 @@ describe("navigation", () => {
     expect(getActivePosition(model)).toBe(xc);
   });
 
-  test("Cannot move bottom from merge in last position if last row is hidden", () => {
-    const model = createModel();
+  test("Cannot move bottom from merge in last position if last row is hidden", async () => {
+    const model = await createModel();
     const activeSheetId = model.getters.getActiveSheetId();
     const rowNumber = model.getters.getNumberRows(activeSheetId);
     merge(model, `${toXC(0, rowNumber - 3)}:${toXC(0, rowNumber - 2)}`, activeSheetId);
@@ -96,8 +96,8 @@ describe("navigation", () => {
     expect(getActivePosition(model)).toBe(xc);
   });
 
-  test("move right from merge in last position", () => {
-    const model = createModel();
+  test("move right from merge in last position", async () => {
+    const model = await createModel();
     const activeSheetId = model.getters.getActiveSheetId();
     const colNumber = model.getters.getNumberCols(activeSheetId);
     merge(model, `${toXC(colNumber - 2, 0)}:${toXC(colNumber - 1, 0)}`, activeSheetId);
@@ -108,8 +108,10 @@ describe("navigation", () => {
     expect(getActivePosition(model)).toBe(xc);
   });
 
-  test("move in and out of a merge", () => {
-    const model = createModel({ sheets: [{ colNumber: 10, rowNumber: 10, merges: ["B1:C2"] }] });
+  test("move in and out of a merge", async () => {
+    const model = await createModel({
+      sheets: [{ colNumber: 10, rowNumber: 10, merges: ["B1:C2"] }],
+    });
     expect(getActivePosition(model)).toBe("A1");
 
     // move to the right, inside the merge
@@ -125,8 +127,10 @@ describe("navigation", () => {
     expect(getSelectionAnchorCellXc(model)).toBe("D1");
   });
 
-  test("do nothing if moving out of merge is out of grid", () => {
-    const model = createModel({ sheets: [{ colNumber: 10, rowNumber: 10, merges: ["B1:C2"] }] });
+  test("do nothing if moving out of merge is out of grid", async () => {
+    const model = await createModel({
+      sheets: [{ colNumber: 10, rowNumber: 10, merges: ["B1:C2"] }],
+    });
     expect(getSelectionAnchorCellXc(model)).toEqual("A1");
 
     // put selection below merge
@@ -146,8 +150,8 @@ describe("navigation", () => {
     expect(getSelectionAnchorCellXc(model)).toEqual("B2");
   });
 
-  test("move right from right col (of the viewport)", () => {
-    const model = createModel();
+  test("move right from right col (of the viewport)", async () => {
+    const model = await createModel();
     let viewport = getViewport(model, 600, 300, 0, 0);
     expect(viewport.left).toBe(0);
     expect(viewport.right).toBe(6);
@@ -168,8 +172,8 @@ describe("navigation", () => {
     expect(viewport.right).toBe(7);
   });
 
-  test("move left from left col (of the viewport)", () => {
-    const model = createModel();
+  test("move left from left col (of the viewport)", async () => {
+    const model = await createModel();
     let viewport = getViewport(model, 600, 300, 100, 0);
     expect(viewport.left).toBe(1);
     expect(viewport.right).toBe(7);
@@ -185,8 +189,8 @@ describe("navigation", () => {
     expect(viewport.right).toBe(6);
   });
 
-  test("move bottom from bottom row (of the viewport)", () => {
-    const model = createModel();
+  test("move bottom from bottom row (of the viewport)", async () => {
+    const model = await createModel();
     let viewport = getViewport(model, 600, 300, 0, 0);
     expect(viewport.top).toBe(0);
     expect(viewport.bottom).toBe(13);
@@ -207,8 +211,8 @@ describe("navigation", () => {
     expect(viewport.bottom).toBe(14);
   });
 
-  test("move top from top row (of the viewport)", () => {
-    const model = createModel();
+  test("move top from top row (of the viewport)", async () => {
+    const model = await createModel();
     let viewport = getViewport(model, 600, 300, 0, 60);
     expect(viewport.top).toBe(2);
     expect(viewport.bottom).toBe(15);
@@ -224,8 +228,8 @@ describe("navigation", () => {
     expect(viewport.bottom).toBe(14);
   });
 
-  test("move top from top row (of the viewport) with a merge", () => {
-    const model = createModel();
+  test("move top from top row (of the viewport) with a merge", async () => {
+    const model = await createModel();
     let viewport = getViewport(model, 600, 300, 0, 60);
     expect(viewport.top).toBe(2);
     expect(viewport.bottom).toBe(15);
@@ -243,8 +247,8 @@ describe("navigation", () => {
     expect(viewport.bottom).toBe(13);
   });
 
-  test("move through hidden column", () => {
-    const model = createModel({
+  test("move through hidden column", async () => {
+    const model = await createModel({
       sheets: [{ colNumber: 5, rowNumber: 1, cols: { 2: { isHidden: true } } }],
     });
     //from the right
@@ -256,8 +260,8 @@ describe("navigation", () => {
     expect(getActivePosition(model)).toBe("D1");
   });
 
-  test("don't move through hidden col if out of grid", () => {
-    const model = createModel({
+  test("don't move through hidden col if out of grid", async () => {
+    const model = await createModel({
       sheets: [
         { colNumber: 5, rowNumber: 1, cols: { 0: { isHidden: true }, 4: { isHidden: true } } },
       ],
@@ -272,8 +276,8 @@ describe("navigation", () => {
     expect(getActivePosition(model)).toBe("D1");
   });
 
-  test("move through hidden row", () => {
-    const model = createModel({
+  test("move through hidden row", async () => {
+    const model = await createModel({
       sheets: [{ colNumber: 1, rowNumber: 5, rows: { 2: { isHidden: true } } }],
     });
     selectCell(model, "A4");
@@ -286,8 +290,8 @@ describe("navigation", () => {
 });
 
 describe("Navigation starting from hidden cells", () => {
-  test("Cannot move position horizontally from hidden row", () => {
-    const model = createModel({ sheets: [{ colNumber: 5, rowNumber: 2 }] });
+  test("Cannot move position horizontally from hidden row", async () => {
+    const model = await createModel({ sheets: [{ colNumber: 5, rowNumber: 2 }] });
     selectCell(model, "C1");
     hideRows(model, [0]);
     const move1 = moveAnchorCell(model, "right");
@@ -296,8 +300,8 @@ describe("Navigation starting from hidden cells", () => {
     expect(move2).toBeCancelledBecause(CommandResult.SelectionOutOfBound);
   });
 
-  test("Cannot move position vertically from hidden column", () => {
-    const model = createModel({ sheets: [{ colNumber: 5, rowNumber: 2 }] });
+  test("Cannot move position vertically from hidden column", async () => {
+    const model = await createModel({ sheets: [{ colNumber: 5, rowNumber: 2 }] });
     selectCell(model, "C1");
     hideColumns(model, ["C"]);
     const move1 = moveAnchorCell(model, "down");
@@ -320,8 +324,8 @@ describe("Navigation starting from hidden cells", () => {
     [["Y", "Z"], "Y1", "right", "X1"], // move right from Y1 if column Y and Z are hidden => X1
   ])(
     "Move from position horizontally from hidden col",
-    (hiddenCols, startPosition, direction, endPosition) => {
-      const model = createModel();
+    async (hiddenCols, startPosition, direction, endPosition) => {
+      const model = await createModel();
       selectCell(model, startPosition);
       hideColumns(model, hiddenCols);
       moveAnchorCell(model, direction as Direction);
@@ -342,8 +346,8 @@ describe("Navigation starting from hidden cells", () => {
     [[98, 99], "A99", "down", "A98"], // move bottom from A99 if rows 99 and 100 are hidden => A98
   ])(
     "Move from position vertically from hidden col",
-    (hiddenRows, startPosition, direction, endPosition) => {
-      const model = createModel();
+    async (hiddenRows, startPosition, direction, endPosition) => {
+      const model = await createModel();
       selectCell(model, startPosition);
       hideRows(model, hiddenRows);
       moveAnchorCell(model, direction as Direction);
@@ -351,8 +355,8 @@ describe("Navigation starting from hidden cells", () => {
     }
   );
 
-  test("Cannot from zero or negative steps does nothing", () => {
-    const model = createModel({ sheets: [{ colNumber: 5, rowNumber: 2 }] });
+  test("Cannot from zero or negative steps does nothing", async () => {
+    const model = await createModel({ sheets: [{ colNumber: 5, rowNumber: 2 }] });
     selectCell(model, "C1");
     hideColumns(model, ["C"]);
     const move1 = moveAnchorCell(model, "down", 0);

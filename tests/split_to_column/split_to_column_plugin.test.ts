@@ -24,8 +24,8 @@ import {
 describe("Split text into columns", () => {
   let model: Model;
   let sheetId: UID;
-  beforeEach(() => {
-    model = createModel({ sheets: [{ colNumber: 10, rowNumber: 10 }] });
+  beforeEach(async () => {
+    model = await createModel({ sheets: [{ colNumber: 10, rowNumber: 10 }] });
     sheetId = model.getters.getActiveSheetId();
   });
 

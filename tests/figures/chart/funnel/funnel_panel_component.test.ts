@@ -22,7 +22,7 @@ let env: SpreadsheetChildEnv;
 
 describe("Funnel chart side panel", () => {
   beforeEach(async () => {
-    model = createModel();
+    model = await createModel();
     ({ fixture, env } = await mountComponentWithPortalTarget(SidePanels, { model }));
   });
 

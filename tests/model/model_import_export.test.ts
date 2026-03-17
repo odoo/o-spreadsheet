@@ -10,7 +10,7 @@ import { DEFAULT_TABLE_CONFIG } from "@odoo/o-spreadsheet-engine/helpers/table_p
 import { getCurrentVersion } from "@odoo/o-spreadsheet-engine/migrations/data";
 import { LineChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart";
 import { StateUpdateMessage } from "@odoo/o-spreadsheet-engine/types/collaborative/transport_service";
-import { CellIsRule } from "../../src";
+import { CellIsRule, Model } from "../../src";
 import { toZone } from "../../src/helpers";
 import {
   BorderDescr,
@@ -40,8 +40,8 @@ import {
 } from "../test_helpers/getters_helpers";
 import { createModel, mockGeoJsonService } from "../test_helpers/helpers";
 describe("data", () => {
-  test("give default col size if not specified", () => {
-    const model = createModel();
+  test("give default col size if not specified", async () => {
+    const model = await createModel();
     const sheetId = model.getters.getActiveSheetId();
     // 96 is default cell width
     expect(model.getters.getColSize(sheetId, 0)).toEqual(DEFAULT_CELL_WIDTH);
@@ -49,8 +49,8 @@ describe("data", () => {
   });
 });
 describe("Migrations", () => {
-  test("Can upgrade from 1 to 13", () => {
-    const model = createModel({
+  test("Can upgrade from 1 to 13", async () => {
+    const model = await createModel({
       version: 1,
       sheets: [
         {
@@ -71,8 +71,8 @@ describe("Migrations", () => {
     expect(data.sheets[0].cells.A1).toBe("=A1");
     expect(data.sheets[0].isVisible).toBe(true);
   });
-  test("migrate version 5: normalize formulas", () => {
-    const model = createModel({
+  test("migrate version 5: normalize formulas", async () => {
+    const model = await createModel({
       version: 5,
       sheets: [
         {
@@ -96,8 +96,8 @@ describe("Migrations", () => {
     expect(cells.A4).toBe("=A1+A1+A2");
     expect(cells.A5).toBe(`=A1+1+"2"`);
   });
-  test("migrate version 6: charts", () => {
-    const model = createModel({
+  test("migrate version 6: charts", async () => {
+    const model = await createModel({
       version: 6,
       sheets: [
         {
@@ -225,8 +225,8 @@ describe("Migrations", () => {
       humanize: true,
     });
   });
-  test.each(FORBIDDEN_SHEETNAME_CHARS)("migrate version 7: sheet Names", (char) => {
-    const model = createModel({
+  test.each(FORBIDDEN_SHEETNAME_CHARS)("migrate version 7: sheet Names", async (char) => {
+    const model = await createModel({
       version: 7,
       sheets: [
         { name: "My sheet" },
@@ -319,8 +319,8 @@ describe("Migrations", () => {
     expect(rule3.midpoint?.value).toEqual("13");
     expect(rule3.maximum.value).toBeUndefined();
   });
-  test("migrate version 7: duplicated sheet Names without forbidden characters", () => {
-    const model = createModel({
+  test("migrate version 7: duplicated sheet Names without forbidden characters", async () => {
+    const model = await createModel({
       version: 7,
       sheets: [
         { name: "My sheet?" },
@@ -341,8 +341,8 @@ describe("Migrations", () => {
     expect(data.sheets[5].name).toBe("__");
     expect(data.sheets[6].name).toBe("__1");
   });
-  test("migrate version 9: de-normalize formulas", () => {
-    const model = createModel({
+  test("migrate version 9: de-normalize formulas", async () => {
+    const model = await createModel({
       version: 9,
       sheets: [
         {
@@ -357,8 +357,8 @@ describe("Migrations", () => {
     expect(data.sheets[0].cells.A1).toBe("1");
     expect(data.sheets[0].cells.A2).toBe("=A1+A3");
   });
-  test("migrate version 10: normalized cell formats", () => {
-    const model = createModel({
+  test("migrate version 10: normalized cell formats", async () => {
+    const model = await createModel({
       version: 10,
       sheets: [
         {
@@ -388,8 +388,8 @@ describe("Migrations", () => {
     expect(data.sheets[1].formats["A1"]).toEqual(1);
     expect(data.sheets[1].formats["A2"]).toEqual(2);
   });
-  test("migrate version 12: Fix Overlapping datafilters", () => {
-    const model = createModel({
+  test("migrate version 12: Fix Overlapping datafilters", async () => {
+    const model = await createModel({
       version: 12,
       sheets: [
         {
@@ -407,8 +407,8 @@ describe("Migrations", () => {
       },
     ]);
   });
-  test("migrate version 12.5: update border description structure", () => {
-    const model = createModel({
+  test("migrate version 12.5: update border description structure", async () => {
+    const model = await createModel({
       version: 12.5,
       sheets: [
         {
@@ -436,13 +436,13 @@ describe("Migrations", () => {
       },
     });
   });
-  test("migrate version 14: set locale of spreadsheet to en_US", () => {
-    const model = createModel({ version: 13 });
+  test("migrate version 14: set locale of spreadsheet to en_US", async () => {
+    const model = await createModel({ version: 13 });
     const data = model.exportData();
     expect(data.settings).toEqual({ locale: DEFAULT_LOCALE });
   });
-  test("migrate version 14.5: Fix Overlapping datafilters", () => {
-    const model = createModel({
+  test("migrate version 14.5: Fix Overlapping datafilters", async () => {
+    const model = await createModel({
       version: 14,
       sheets: [
         {
@@ -462,8 +462,8 @@ describe("Migrations", () => {
       },
     ]);
   });
-  test("migrate version 15: filterTables are renamed into tables", () => {
-    const model = createModel({
+  test("migrate version 15: filterTables are renamed into tables", async () => {
+    const model = await createModel({
       version: 14.5,
       sheets: [
         {
@@ -483,10 +483,10 @@ describe("Migrations", () => {
       },
     ]);
   });
-  test("migrate version 21: style,format and borders by zones", () => {
+  test("migrate version 21: style,format and borders by zones", async () => {
     const style = { bold: true };
     const border = { top: { style: "thin", color: "#000" } as BorderDescr };
-    const model = createModel({
+    const model = await createModel({
       version: 20,
       sheets: [
         {
@@ -513,8 +513,8 @@ describe("Migrations", () => {
     expect(data.styles).toEqual({ 1: style });
     expect(data.borders).toEqual({ 1: border });
   });
-  test("Migrate version 22: add inflection operator to gauge chart", () => {
-    const model = createModel({
+  test("Migrate version 22: add inflection operator to gauge chart", async () => {
+    const model = await createModel({
       version: 19,
       sheets: [
         {
@@ -551,8 +551,8 @@ describe("Migrations", () => {
       },
     });
   });
-  test("migrate version 23: tables no longer have filters by default", () => {
-    const model = createModel({
+  test("migrate version 23: tables no longer have filters by default", async () => {
+    const model = await createModel({
       version: 22,
       sheets: [
         {
@@ -572,8 +572,8 @@ describe("Migrations", () => {
       },
     ]);
   });
-  test("migrate version 24: flatten cell object", () => {
-    const model = createModel({
+  test("migrate version 24: flatten cell object", async () => {
+    const model = await createModel({
       version: 23,
       sheets: [
         {
@@ -584,7 +584,7 @@ describe("Migrations", () => {
     });
     expect(getCellContent(model, "A1")).toBe("Hello");
   });
-  test("migration 18.3: drop sorted column if not part of measure", () => {
+  test("migration 18.3: drop sorted column if not part of measure", async () => {
     const data = {
       version: 24,
       pivots: {
@@ -618,13 +618,13 @@ describe("Migrations", () => {
         },
       },
     };
-    const model = createModel(data);
+    const model = await createModel(data);
     expect(model.getters.getPivot("1").definition.sortedColumn).toBe(undefined);
     expect(model.getters.getPivot("2").definition.sortedColumn).toEqual(
       data.pivots["2"].sortedColumn
     ); // unchanged
   });
-  test("migrate version 18.4.1: convert cf types", () => {
+  test("migrate version 18.4.1: convert cf types", async () => {
     const oldCfTypes = [
       "BeginsWith",
       "Between",
@@ -649,7 +649,7 @@ describe("Migrations", () => {
         rule: { type: "CellIsRule", values: ["42"], style: {}, operator: oldCfTypes[index] },
       });
     }
-    const model = createModel({
+    const model = await createModel({
       version: "18.3.1",
       sheets: [{ conditionalFormats }],
     });
@@ -673,7 +673,7 @@ describe("Migrations", () => {
       "isNotEqual",
     ]);
   });
-  test("migrate version 18.4.1: convert dv types", () => {
+  test("migrate version 18.4.1: convert dv types", async () => {
     const oldDvTypes = ["textContains", "textNotContains", "textIs", "textIsEmail", "textIsLink"];
     const dvs: any[] = [];
     for (const index in oldDvTypes) {
@@ -683,7 +683,7 @@ describe("Migrations", () => {
         criterion: { type: oldDvTypes[index], values: ["42"] },
       });
     }
-    const model = createModel({
+    const model = await createModel({
       version: "18.3.1",
       sheets: [{ dataValidationRules: dvs }],
     });
@@ -698,7 +698,7 @@ describe("Migrations", () => {
       "isLink",
     ]);
   });
-  test("migrate version 18.4.3: clean pivot sorted column", () => {
+  test("migrate version 18.4.3: clean pivot sorted column", async () => {
     const data = {
       version: "18.4.2",
       pivots: {
@@ -734,12 +734,12 @@ describe("Migrations", () => {
         },
       },
     };
-    const model = createModel(data);
+    const model = await createModel(data);
     expect(model.getters.getPivot("1").definition.sortedColumn?.measure).toBe("probability:sum");
     expect(model.getters.getPivot("2").definition.sortedColumn?.measure).toBe("probability:sum");
   });
 });
-test("migrate version 18.5.1: chartId is added to figure data", () => {
+test("migrate version 18.5.1: chartId is added to figure data", async () => {
   const data = {
     version: "18.4.2",
     sheets: [
@@ -755,10 +755,10 @@ test("migrate version 18.5.1: chartId is added to figure data", () => {
       },
     ],
   };
-  const model = createModel(data);
+  const model = await createModel(data);
   expect(model.exportData().sheets[0].figures[0].data.chartId).toBe("someuuid");
 });
-test("migrate version 19.1.0: colorScale is changed to a colorScale", () => {
+test("migrate version 19.1.0: colorScale is changed to a colorScale", async () => {
   const getChartDefinition = (chartId, scheme) => ({
     chartId,
     type: "geo",
@@ -791,7 +791,7 @@ test("migrate version 19.1.0: colorScale is changed to a colorScale", () => {
       },
     ],
   };
-  const model = createModel(data, { external: { geoJsonService: mockGeoJsonService } });
+  const model = await createModel(data, { external: { geoJsonService: mockGeoJsonService } });
   const exportedData = model.exportData();
   expect(exportedData.sheets[0].figures[0].data.colorScale).toEqual(schemeToColorScale("reds"));
   expect(exportedData.sheets[0].figures[1].data.chartDefinitions["chartId2"].colorScale).toEqual(
@@ -804,8 +804,8 @@ test("migrate version 19.1.0: colorScale is changed to a colorScale", () => {
   expect(model.getters.getChartRuntime(chartIds[1])).toBeDefined();
 });
 describe("Import", () => {
-  test("Import sheet with rows/cols size defined.", () => {
-    const model = createModel({
+  test("Import sheet with rows/cols size defined.", async () => {
+    const model = await createModel({
       sheets: [
         { colNumber: 2, rowNumber: 2, cols: { 0: { size: 42 } }, rows: { 1: { size: 13 } } },
       ],
@@ -816,8 +816,8 @@ describe("Import", () => {
     expect(model.getters.getRowSize(sheetId, 0)).toBe(DEFAULT_CELL_HEIGHT);
     expect(model.getters.getRowSize(sheetId, 1)).toBe(13);
   });
-  test("Import 2 sheets with merges", () => {
-    const model = createModel({
+  test("Import 2 sheets with merges", async () => {
+    const model = await createModel({
       sheets: [
         { colNumber: 2, rowNumber: 2, merges: ["A2:B2"] },
         { colNumber: 2, rowNumber: 2 },
@@ -831,8 +831,8 @@ describe("Import", () => {
     expect(Object.keys(getMerges(model))).toHaveLength(1);
     expect(getMerges(model)[1]).toMatchObject(toZone("A2:B2"));
   });
-  test("can import cell without content", () => {
-    const model = createModel({
+  test("can import cell without content", async () => {
+    const model = await createModel({
       sheets: [{ id: "1", formats: { A1: 1 } }],
       formats: { 1: "0.00%" },
     });
@@ -841,41 +841,41 @@ describe("Import", () => {
   });
 });
 describe("Export", () => {
-  test("Can export col size", () => {
-    const model = createModel({ sheets: [{ colNumber: 10, rowNumber: 10 }] });
+  test("Can export col size", async () => {
+    const model = await createModel({ sheets: [{ colNumber: 10, rowNumber: 10 }] });
     resizeColumns(model, ["B"], 150);
     const exp = model.exportData();
     expect(exp.sheets![0].cols![1].size).toBe(150);
   });
-  test("Can export row size", () => {
-    const model = createModel({ sheets: [{ colNumber: 10, rowNumber: 10 }] });
+  test("Can export row size", async () => {
+    const model = await createModel({ sheets: [{ colNumber: 10, rowNumber: 10 }] });
     resizeRows(model, [1], 150);
     const exp = model.exportData();
     expect(exp.sheets![0].rows![1].size).toBe(150);
   });
-  test("Can export merges", () => {
-    const model = createModel({
+  test("Can export merges", async () => {
+    const model = await createModel({
       sheets: [{ colNumber: 10, rowNumber: 10, merges: ["A1:A2", "B1:C1", "D1:E2"] }],
     });
     const exp = model.exportData();
     expect(exp.sheets![0].merges).toHaveLength(3);
   });
-  test("Can export format", () => {
-    const model = createModel({
+  test("Can export format", async () => {
+    const model = await createModel({
       sheets: [{ colNumber: 10, rowNumber: 10, cells: { A1: "145" }, formats: { A1: 1 } }],
       formats: { 1: "0.00%" },
     });
     const exp = model.exportData();
     expect(exp.sheets[0].formats.A1).toBe(1);
   });
-  test("empty content is not exported", () => {
-    const model = createModel();
+  test("empty content is not exported", async () => {
+    const model = await createModel();
     setFormatting(model, "A1", { fillColor: "#123456" });
     const exp = model.exportData();
     expect(exp.sheets[0].styles.A1).toEqual(1);
   });
-  test("chart figures without a definition are not exported", () => {
-    const model = createModel({
+  test("chart figures without a definition are not exported", async () => {
+    const model = await createModel({
       sheets: [
         {
           id: "someuuid",
@@ -918,7 +918,7 @@ describe("Export", () => {
     });
   });
 });
-test("complete import, then export", () => {
+test("complete import, then export", async () => {
   const modelData = {
     version: getCurrentVersion(),
     revisionId: DEFAULT_REVISION_ID,
@@ -1005,13 +1005,13 @@ test("complete import, then export", () => {
     },
     uniqueFigureIds: true,
   };
-  const model = createModel(modelData);
+  const model = await createModel(modelData);
   expect(model).toExport(modelData);
   // We test here a that two import with the same data give the same result.
-  const model2 = createModel(modelData);
+  const model2 = await createModel(modelData);
   expect(model2.exportData()).toEqual(modelData);
 });
-test("can import cells outside sheet size", () => {
+test("can import cells outside sheet size", async () => {
   const sheetId = "someuuid";
   const modelData = {
     version: getCurrentVersion(),
@@ -1028,13 +1028,13 @@ test("can import cells outside sheet size", () => {
       },
     ],
   };
-  const model = createModel(modelData);
+  const model = await createModel(modelData);
   expect(model.getters.getNumberRows(sheetId)).toBe(100);
   expect(model.getters.getNumberCols(sheetId)).toBe(26);
   expect(getCellRawContent(model, "Z100")).toBe("hello");
 });
-test("Data of a duplicate sheet are correctly duplicated", () => {
-  const model = createModel();
+test("Data of a duplicate sheet are correctly duplicated", async () => {
+  const model = await createModel();
   setCellContent(model, "A1", "hello");
   const sheetId = model.getters.getActiveSheetId();
   duplicateSheet(model, sheetId, "42");
@@ -1044,7 +1044,7 @@ test("Data of a duplicate sheet are correctly duplicated", () => {
   expect(Object.keys(data.sheets[0].cells)).toHaveLength(1);
   expect(Object.keys(data.sheets[1].cells)).toHaveLength(1);
 });
-test("import then export (figures)", () => {
+test("import then export (figures)", async () => {
   const modelData = {
     version: getCurrentVersion(),
     revisionId: DEFAULT_REVISION_ID,
@@ -1089,11 +1089,11 @@ test("import then export (figures)", () => {
     settings: { locale: DEFAULT_LOCALE },
     customTableStyles: {},
   };
-  const model = createModel(modelData);
+  const model = await createModel(modelData);
   expect(model).toExport(modelData);
 });
-test("import date as string and detect the format", () => {
-  const model = createModel({
+test("import date as string and detect the format", async () => {
+  const model = await createModel({
     sheets: [
       {
         cells: { A1: "12/31/2020" },
@@ -1104,8 +1104,8 @@ test("import date as string and detect the format", () => {
   expect(getCellRawContent(model, "A1")).toBe("44196");
   expect(getEvaluatedCell(model, "A1")?.formattedValue).toBe("12/31/2020");
 });
-test("import localized date as string and detect the format", () => {
-  const model = createModel({
+test("import localized date as string and detect the format", async () => {
+  const model = await createModel({
     sheets: [
       {
         cells: { A1: "31/12/2020" },
@@ -1117,26 +1117,30 @@ test("import localized date as string and detect the format", () => {
   expect(getCellRawContent(model, "A1")).toBe("44196");
   expect(getEvaluatedCell(model, "A1")?.formattedValue).toBe("31/12/2020");
 });
-test("Week start is automatically added during migration", () => {
+test("Week start is automatically added during migration", async () => {
   expect(
-    createModel({
-      version: 19,
-      settings: { locale: { ...DEFAULT_LOCALES[1], weekStart: undefined } },
-    }).exportData().settings.locale.weekStart
+    (
+      await createModel({
+        version: 19,
+        settings: { locale: { ...DEFAULT_LOCALES[1], weekStart: undefined } },
+      })
+    ).exportData().settings.locale.weekStart
   ).toBe(1);
   expect(
-    createModel({
-      version: 19,
-      settings: { locale: { ...DEFAULT_LOCALES[0], weekStart: undefined } },
-    }).exportData().settings.locale.weekStart
+    (
+      await createModel({
+        version: 19,
+        settings: { locale: { ...DEFAULT_LOCALES[0], weekStart: undefined } },
+      })
+    ).exportData().settings.locale.weekStart
   ).toBe(7);
 });
-test("Can import spreadsheet with only version", () => {
-  createModel({ version: 1 });
+test("Can import spreadsheet with only version", async () => {
+  await createModel({ version: 1 });
   // We expect the model to be loaded without traceback
   expect(true).toBeTruthy();
 });
-test("Update chart revisions contain the full definition pre 18.5.1", () => {
+test("Update chart revisions contain the full definition pre 18.5.1", async () => {
   const initialMessages: StateUpdateMessage[] = [
     {
       type: "REMOTE_REVISION",
@@ -1214,7 +1218,7 @@ test("Update chart revisions contain the full definition pre 18.5.1", () => {
       },
     ],
   };
-  const model = createModel(data, {}, initialMessages);
+  const model = await createModel(data, {}, initialMessages);
   const definition1 = model.getters.getChartDefinition("fig1") as LineChartDefinition;
   expect(definition1.dataSets).toEqual([{ dataRange: "A1:A3" }]);
   const definition2 = model.getters.getChartDefinition("fig2") as LineChartDefinition;
@@ -1222,11 +1226,11 @@ test("Update chart revisions contain the full definition pre 18.5.1", () => {
 });
 test("Reject data import from data with a subsequent version", () => {
   const futureVersion = (parseFloat(getCurrentVersion()) + 1).toString();
-  expect(() => createModel({ version: futureVersion })).toThrow(
+  expect(() => new Model({ version: futureVersion })).toThrow(
     `Data version ${futureVersion} postdates the current version of o-spreadsheet (version ${getCurrentVersion()}). It cannot be loaded.`
   );
 });
 test("Accept data that predates the latest version while not being present in the migration steps", () => {
   const previousVersion = "16.3.1";
-  expect(() => createModel({ version: previousVersion })).not.toThrow();
+  expect(() => new Model({ version: previousVersion })).not.toThrow();
 });

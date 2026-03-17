@@ -180,7 +180,7 @@ describe("charts", () => {
         },
       ],
     };
-    model = createModel(data, { external: { geoJsonService: mockGeoJsonService } });
+    model = await createModel(data, { external: { geoJsonService: mockGeoJsonService } });
   });
 
   test.each(CHART_TYPES)("Can open a chart sidePanel", async (chartType) => {
@@ -681,7 +681,7 @@ describe("charts", () => {
 
   test("can edit chart horizontal axis boundaries", async () => {
     //prettier-ignore
-    const model = createModelFromGrid({
+    const model = await createModelFromGrid({
       A1: "0", B1: "1",
       A2: "1", B2: "4",
     });
@@ -709,7 +709,7 @@ describe("charts", () => {
   });
 
   test("Axis boundaries are hidden for categorical horizontal axis", async () => {
-    const model = createModelFromGrid({ A1: "A", B1: "1" });
+    const model = await createModelFromGrid({ A1: "A", B1: "1" });
     createChart(
       model,
       {
@@ -751,7 +751,7 @@ describe("charts", () => {
   });
 
   test("Axis scale type is not editable for categorical axis", async () => {
-    const model = createModelFromGrid({ A1: "A", B1: "1" });
+    const model = await createModelFromGrid({ A1: "A", B1: "1" });
     createChart(
       model,
       {
@@ -768,7 +768,7 @@ describe("charts", () => {
 
   test.each(["x", "y"] as const)("can toggle chart %s axis gridlines", async (axis: string) => {
     //prettier-ignore
-    const model = createModelFromGrid({
+    const model = await createModelFromGrid({
       A1: "0", B1: "1",
       A2: "1", B2: "2",
     });
@@ -803,7 +803,7 @@ describe("charts", () => {
   });
 
   test("can't toggle chart major or minor gridline for categorical axis", async () => {
-    const model = createModelFromGrid({ A1: "A", B1: "1" });
+    const model = await createModelFromGrid({ A1: "A", B1: "1" });
     createChart(
       model,
       {
@@ -2623,7 +2623,7 @@ describe("charts with multiple sheets", () => {
         },
       ],
     };
-    model = createModel(data);
+    model = await createModel(data);
     await mountSpreadsheet();
   });
 
@@ -2638,8 +2638,8 @@ describe("charts with multiple sheets", () => {
 });
 
 describe("Default background on runtime tests", () => {
-  beforeEach(() => {
-    model = createModel();
+  beforeEach(async () => {
+    model = await createModel();
   });
 
   test("Creating a 'basicChart' without background should have no background on runtime", async () => {
@@ -2666,7 +2666,7 @@ describe("Default background on runtime tests", () => {
 });
 
 test("ChartJS charts are correctly destroyed on chart deletion", async () => {
-  model = createModel();
+  model = await createModel();
   await mountSpreadsheet();
   createChart(model, { type: "bar", dataSets: [{ dataRange: "A1" }] }, chartId);
   await nextTick();
@@ -2678,7 +2678,7 @@ test("ChartJS charts are correctly destroyed on chart deletion", async () => {
 });
 
 test("ChartJS charts are correctly destroyed and re-created when runtime change type but definition do not", async () => {
-  model = createModel();
+  model = await createModel();
   await mountSpreadsheet();
 
   createChart(model, { type: "pie", isDoughnut: false }, chartId);
@@ -2703,7 +2703,7 @@ test("ChartJS charts are correctly destroyed and re-created when runtime change 
 
 test("ChartJS charts extensions are loaded when mounting a spreadsheet, are only loaded once, and removed on unmount", async () => {
   window.Chart.registry.plugins["items"] = [];
-  model = createModel();
+  model = await createModel();
   const spyRegister = jest.spyOn(window.Chart, "register");
   const spyUnregister = jest.spyOn(window.Chart, "unregister");
   createChart(model, { type: "bar" }, chartId);
@@ -2735,8 +2735,8 @@ test("ChartJS charts extensions are loaded when mounting a spreadsheet, are only
 });
 
 describe("Change chart type", () => {
-  beforeEach(() => {
-    model = createModel();
+  beforeEach(async () => {
+    model = await createModel();
   });
 
   test.each(["bar", "line"] as const)(

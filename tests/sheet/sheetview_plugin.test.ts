@@ -75,7 +75,7 @@ function getSheetViewBoundaries(model: Model): Zone {
 
 describe("Viewport of Simple sheet", () => {
   beforeEach(async () => {
-    model = createModel();
+    model = await createModel();
   });
 
   test("SET_VIEWPORT_OFFSET is refused if it won't scroll any viewport", () => {
@@ -141,8 +141,8 @@ describe("Viewport of Simple sheet", () => {
     });
   });
 
-  test("updateAnchor scrolls to the anchor cell when zone is unchanged", () => {
-    model = createModel({ sheets: [{ colNumber: 5, rowNumber: 120 }] });
+  test("updateAnchor scrolls to the anchor cell when zone is unchanged", async () => {
+    model = await createModel({ sheets: [{ colNumber: 5, rowNumber: 120 }] });
     setSelection(model, ["A1:A100"]);
     setViewportOffset(model, 0, 0);
 
@@ -303,8 +303,8 @@ describe("Viewport of Simple sheet", () => {
     });
   });
 
-  test("can horizontal scroll on sheet smaller than viewport", () => {
-    model = createModel({ sheets: [{ rowNumber: 2 }] });
+  test("can horizontal scroll on sheet smaller than viewport", async () => {
+    model = await createModel({ sheets: [{ rowNumber: 2 }] });
     setViewportOffset(model, DEFAULT_CELL_WIDTH * 2, 0);
     expect(model.getters.getActiveMainViewport()).toMatchObject({
       top: 0,
@@ -415,8 +415,8 @@ describe("Viewport of Simple sheet", () => {
     });
   });
 
-  test("can vertical scroll on sheet smaller than viewport", () => {
-    model = createModel({ sheets: [{ colNumber: 2 }] });
+  test("can vertical scroll on sheet smaller than viewport", async () => {
+    model = await createModel({ sheets: [{ colNumber: 2 }] });
     setViewportOffset(model, 0, DEFAULT_CELL_HEIGHT * 2);
     expect(model.getters.getActiveMainViewport()).toMatchObject({
       top: 2,
@@ -826,8 +826,8 @@ describe("Viewport of Simple sheet", () => {
     );
   });
 
-  test("Viewport is updated when updating a data filter", () => {
-    model = createModel();
+  test("Viewport is updated when updating a data filter", async () => {
+    model = await createModel();
     createTableWithFilter(model, "A1:A10");
     setCellContent(model, "A2", "5");
     setCellContent(model, "A2", "5");
@@ -840,8 +840,8 @@ describe("Viewport of Simple sheet", () => {
     expect(model.getters.getActiveMainViewport()).toEqual(initialViewport);
   });
 
-  test("Viewport is updated when updating a cell that change the evaluation of filtered rows", () => {
-    model = createModel();
+  test("Viewport is updated when updating a cell that change the evaluation of filtered rows", async () => {
+    model = await createModel();
     createTableWithFilter(model, "A1:A10");
     setCellContent(model, "A2", "=B1");
     setCellContent(model, "A2", "=B1");
@@ -857,8 +857,8 @@ describe("Viewport of Simple sheet", () => {
     expect(model.getters.getActiveMainViewport()).not.toEqual(oldViewport);
   });
 
-  test("Viewport is updated when folding/unfolding header groups", () => {
-    model = createModel();
+  test("Viewport is updated when folding/unfolding header groups", async () => {
+    model = await createModel();
 
     groupColumns(model, "A", "B");
     let oldViewport = { ...model.getters.getActiveMainViewport() };
@@ -1023,7 +1023,7 @@ describe("Viewport of Simple sheet", () => {
 
 describe("Multi Panes viewport", () => {
   beforeEach(async () => {
-    model = createModel();
+    model = await createModel();
   });
 
   test("SET_VIEWPORT_OFFSET is refused if it won't scroll any viewport", () => {
@@ -1148,8 +1148,8 @@ describe("Multi Panes viewport", () => {
     );
   });
 
-  test("Viewport remains unaffected when hiding all rows below frozen pane or columns right to frozen panes", () => {
-    const model = createModel({ sheets: [{ colNumber: 8, rowNumber: 8 }] });
+  test("Viewport remains unaffected when hiding all rows below frozen pane or columns right to frozen panes", async () => {
+    const model = await createModel({ sheets: [{ colNumber: 8, rowNumber: 8 }] });
     const sheetId = model.getters.getActiveSheetId();
 
     freezeRows(model, 4, sheetId);
@@ -1163,8 +1163,8 @@ describe("Multi Panes viewport", () => {
     expect(model.getters.getActiveMainViewport()).toEqual(originalActiveMainViewport);
   });
 
-  test("filtered row rect after updating another sheet", () => {
-    const model = createModel();
+  test("filtered row rect after updating another sheet", async () => {
+    const model = await createModel();
     const sheetId = model.getters.getActiveSheetId();
     createSheet(model, { sheetId: "sh2" });
     setCellContent(model, "A1", "Hi");
@@ -1187,8 +1187,8 @@ describe("Multi Panes viewport", () => {
     expect(model.getters.getVisibleRect(toZone("A2"))).toEqual(rectA2);
   });
 
-  test("Viewport remains unaffected when hiding all rows below frozen panes by data filter", () => {
-    const model = createModel({ sheets: [{ colNumber: 3, rowNumber: 3 }] });
+  test("Viewport remains unaffected when hiding all rows below frozen panes by data filter", async () => {
+    const model = await createModel({ sheets: [{ colNumber: 3, rowNumber: 3 }] });
     const sheetId = model.getters.getActiveSheetId();
 
     setCellContent(model, "A2", "2808");
@@ -1203,8 +1203,8 @@ describe("Multi Panes viewport", () => {
     expect(model.getters.getActiveMainViewport()).toEqual(originalActiveMainViewport);
   });
 
-  test("Visible Cols and Rows are correctly computed when the sheetview has a 0 width", () => {
-    const model = createModel();
+  test("Visible Cols and Rows are correctly computed when the sheetview has a 0 width", async () => {
+    const model = await createModel();
     resizeSheetView(model, 100, 0);
     expect(model.getters.getSheetViewVisibleCols()).toEqual([]);
     expect(model.getters.getSheetViewVisibleRows()).toEqual([]);
@@ -1218,8 +1218,8 @@ describe("Multi Panes viewport", () => {
     expect(model.getters.getSheetViewVisibleRows()).toEqual([]);
   });
 
-  test("Visible Cols and Rows are correctly computed when the sheetview has a 0 height", () => {
-    const model = createModel();
+  test("Visible Cols and Rows are correctly computed when the sheetview has a 0 height", async () => {
+    const model = await createModel();
     resizeSheetView(model, 0, 100);
     expect(model.getters.getSheetViewVisibleCols()).toEqual([]);
     expect(model.getters.getSheetViewVisibleRows()).toEqual([]);
@@ -1236,7 +1236,7 @@ describe("Multi Panes viewport", () => {
 
 describe("multi sheet with different sizes", () => {
   beforeEach(async () => {
-    model = createModel({
+    model = await createModel({
       sheets: [
         { name: "small", id: "small", colNumber: 2, rowNumber: 2 },
         { name: "big", id: "big", colNumber: 5, rowNumber: 5 },
@@ -1328,8 +1328,8 @@ describe("multi sheet with different sizes", () => {
 });
 
 describe("shift viewport up/down", () => {
-  beforeEach(() => {
-    model = createModel();
+  beforeEach(async () => {
+    model = await createModel();
   });
 
   test("basic move viewport", () => {
@@ -1582,7 +1582,7 @@ describe("shift viewport up/down", () => {
   );
 
   test("Ensure the cell is in the viewport when starting the edition of a cell", async () => {
-    const { store: composerStore, model } = makeStore(CellComposerStore);
+    const { store: composerStore, model } = await makeStore(CellComposerStore);
     resizeSheetView(model, 100, 100);
     setCellContent(model, "A1", "apple");
     selectCell(model, "A1");
@@ -1596,8 +1596,8 @@ describe("shift viewport up/down", () => {
 });
 
 describe("Partially Scrolled Viewport", () => {
-  test("getRowIndex takes the partial scroll into account", () => {
-    const model = createModel();
+  test("getRowIndex takes the partial scroll into account", async () => {
+    const model = await createModel();
     const rowSize = 10; // to avoid rounding issues
     resizeRows(model, range(0, 10), rowSize);
     setViewportOffset(model, 0, 2.3 * rowSize);
@@ -1609,8 +1609,8 @@ describe("Partially Scrolled Viewport", () => {
     expect(model.getters.getRowIndex(rowSize)).toBe(3);
   });
 
-  test("getColIndex takes the partial scroll into account", () => {
-    const model = createModel();
+  test("getColIndex takes the partial scroll into account", async () => {
+    const model = await createModel();
     const colSize = 10; // to avoid rounding issues
     resizeColumns(model, range(0, 10).map(numberToLetters), colSize);
     setViewportOffset(model, 2.3 * colSize, 0);
@@ -1622,8 +1622,8 @@ describe("Partially Scrolled Viewport", () => {
     expect(model.getters.getColIndex(colSize)).toBe(3);
   });
 
-  test("getVisibleRect takes the partial scroll into account", () => {
-    const model = createModel();
+  test("getVisibleRect takes the partial scroll into account", async () => {
+    const model = await createModel();
     const headerSize = 10; // to avoid rounding issues
     resizeColumns(model, range(0, 10).map(numberToLetters), headerSize);
     resizeRows(model, range(0, 10), headerSize);

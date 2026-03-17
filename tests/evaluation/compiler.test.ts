@@ -1,6 +1,6 @@
 import { CompiledFormula } from "@odoo/o-spreadsheet-engine/formulas/compiler";
 import { functionRegistry } from "@odoo/o-spreadsheet-engine/functions/function_registry";
-import { functionCache } from "../../src";
+import { functionCache, Model } from "../../src";
 import { createValidRange } from "../../src/helpers";
 import {
   addToRegistry,
@@ -14,13 +14,16 @@ function compiledBaseFunction(formula: string): CompiledFormula {
   }
   return compileFromCompleteFormula(formula);
 }
+
 const debugConsole = console.debug;
 console.debug = () => {};
-const fakeModel = createModel();
+// Here we do not need a started model as we only need the getters.
+const fakeModel = new Model();
 console.debug = debugConsole;
 function compileFromCompleteFormula(formula: string) {
   return CompiledFormula.Compile(formula, "no_sheet", fakeModel.getters);
 }
+
 describe("expression compiler", () => {
   test.each(["=1", "=true", `="abc"`])("some arithmetic expressions", (formula) => {
     const compiledFormula = compiledBaseFunction(formula);
@@ -240,17 +243,21 @@ describe("compile functions", () => {
         },
       });
     });
-    test("empty value interpreted as undefined", () => {
-      expect(evaluateCell("A1", { A1: "=ISSECONDARGUNDEFINED(1,)" })).toBe(true);
-      expect(evaluateCellFormat("A1", { A1: "=ISSECONDARGUNDEFINED(1,)" })).toBe('"TRUE"');
+    test("empty value interpreted as undefined", async () => {
+      expect(await evaluateCell("A1", { A1: "=ISSECONDARGUNDEFINED(1,)" })).toBe(true);
+      expect(await evaluateCellFormat("A1", { A1: "=ISSECONDARGUNDEFINED(1,)" })).toBe('"TRUE"');
     });
-    test("if default value --> empty value interpreted as default value", () => {
-      expect(evaluateCell("A1", { A1: "=SECONDARGDEFAULTVALUEEQUAL42(1,)" })).toBe(true);
-      expect(evaluateCellFormat("A1", { A1: "=SECONDARGDEFAULTVALUEEQUAL42(1,)" })).toBe('"TRUE"');
+    test("if default value --> empty value interpreted as default value", async () => {
+      expect(await evaluateCell("A1", { A1: "=SECONDARGDEFAULTVALUEEQUAL42(1,)" })).toBe(true);
+      expect(await evaluateCellFormat("A1", { A1: "=SECONDARGDEFAULTVALUEEQUAL42(1,)" })).toBe(
+        '"TRUE"'
+      );
     });
-    test("if default value --> non-value interpreted as default value", () => {
-      expect(evaluateCell("A1", { A1: "=SECONDARGDEFAULTVALUEEQUAL42(1)" })).toBe(true);
-      expect(evaluateCellFormat("A1", { A1: "=SECONDARGDEFAULTVALUEEQUAL42(1)" })).toBe('"TRUE"');
+    test("if default value --> non-value interpreted as default value", async () => {
+      expect(await evaluateCell("A1", { A1: "=SECONDARGDEFAULTVALUEEQUAL42(1)" })).toBe(true);
+      expect(await evaluateCellFormat("A1", { A1: "=SECONDARGDEFAULTVALUEEQUAL42(1)" })).toBe(
+        '"TRUE"'
+      );
     });
   });
   describe("with meta arguments", () => {
@@ -287,12 +294,12 @@ describe("compile functions", () => {
       expect(compiledBaseFunction("=USEMETAARG(TRUE)").isBadExpression).toBe(true);
       expect(compiledBaseFunction("=USEMETAARG(SUM(1,2,3))").isBadExpression).toBe(true);
     });
-    test("do not care about the value of the cell / range passed as a reference", () => {
+    test("do not care about the value of the cell / range passed as a reference", async () => {
       const compiledFormula1 = compileFromCompleteFormula("=USEMETAARG(A1)");
       const compiledFormula2 = compileFromCompleteFormula("=USEMETAARG(A1:B2)");
       const compiledFormula3 = compileFromCompleteFormula("=NOTUSEMETAARG(A1)");
       const compiledFormula4 = compileFromCompleteFormula("=NOTUSEMETAARG(A1:B2)");
-      const m = createModel();
+      const m = await createModel();
       const refFn = jest.fn();
       const ensureRange = jest.fn();
       const getSymbolValue = jest.fn();

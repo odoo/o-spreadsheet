@@ -2,12 +2,12 @@ import { UNITS_ALIASES, UNIT_PREFIXES } from "@odoo/o-spreadsheet-engine/functio
 import { evaluateCell } from "../test_helpers/helpers";
 
 describe("CONVERT formula", () => {
-  test("Arguments validation", () => {
-    expect(evaluateCell("A1", { A1: "=CONVERT()" })).toBe("#BAD_EXPR");
-    expect(evaluateCell("A1", { A1: "=CONVERT(1)" })).toBe("#BAD_EXPR");
-    expect(evaluateCell("A1", { A1: '=CONVERT(1,"m")' })).toBe("#BAD_EXPR");
-    expect(evaluateCell("A1", { A1: '=CONVERT(1,,"m")' })).toBe("#ERROR"); // invalid unit
-    expect(evaluateCell("A1", { A1: '=CONVERT(1,"unknown","m")' })).toBe("#ERROR"); // invalid unit
+  test("Arguments validation", async () => {
+    expect(await evaluateCell("A1", { A1: "=CONVERT()" })).toBe("#BAD_EXPR");
+    expect(await evaluateCell("A1", { A1: "=CONVERT(1)" })).toBe("#BAD_EXPR");
+    expect(await evaluateCell("A1", { A1: '=CONVERT(1,"m")' })).toBe("#BAD_EXPR");
+    expect(await evaluateCell("A1", { A1: '=CONVERT(1,,"m")' })).toBe("#ERROR"); // invalid unit
+    expect(await evaluateCell("A1", { A1: '=CONVERT(1,"unknown","m")' })).toBe("#ERROR"); // invalid unit
   });
 
   test.each([
@@ -32,13 +32,15 @@ describe("CONVERT formula", () => {
     ["ly", "m", "1", 9.46073047258e15],
     ["parsec", "m", "1", 3.0856775814914e16],
     ["cm", "nm", "1", 1e7],
-  ])("correctly convert distance unit (%s to %s)", (from, to, value, result) => {
-    expect(evaluateCell("A1", { A1: `=CONVERT(A2, "${from}", "${to}")`, A2: value })).toBeCloseTo(
-      result
-    );
-    expect(evaluateCell("A1", { A1: `=CONVERT(1, "${from}", "${from}")` })).toBeCloseTo(1);
+  ])("correctly convert distance unit (%s to %s)", async (from, to, value, result) => {
     expect(
-      evaluateCell("A1", { A1: `=CONVERT(CONVERT(1, "${from}", "${to}"), "${to}", "${from}")` })
+      await evaluateCell("A1", { A1: `=CONVERT(A2, "${from}", "${to}")`, A2: value })
+    ).toBeCloseTo(result);
+    expect(await evaluateCell("A1", { A1: `=CONVERT(1, "${from}", "${from}")` })).toBeCloseTo(1);
+    expect(
+      await evaluateCell("A1", {
+        A1: `=CONVERT(CONVERT(1, "${from}", "${to}"), "${to}", "${from}")`,
+      })
     ).toBeCloseTo(1);
   });
 
@@ -57,13 +59,15 @@ describe("CONVERT formula", () => {
     ["Morgen", "m^2", "1", 2500],
     ["Nmi^2", "m^2", "1", 3429904],
     ["ly^2", "m^2", "1", Math.pow(9.46073047258e15, 2)],
-  ])("correctly convert area unit (%s to %s)", (from, to, value, result) => {
-    expect(evaluateCell("A1", { A1: `=CONVERT(A2, "${from}", "${to}")`, A2: value })).toBeCloseTo(
-      result
-    );
-    expect(evaluateCell("A1", { A1: `=CONVERT(1, "${from}", "${from}")` })).toBeCloseTo(1);
+  ])("correctly convert area unit (%s to %s)", async (from, to, value, result) => {
     expect(
-      evaluateCell("A1", { A1: `=CONVERT(CONVERT(1, "${from}", "${to}"), "${to}", "${from}")` })
+      await evaluateCell("A1", { A1: `=CONVERT(A2, "${from}", "${to}")`, A2: value })
+    ).toBeCloseTo(result);
+    expect(await evaluateCell("A1", { A1: `=CONVERT(1, "${from}", "${from}")` })).toBeCloseTo(1);
+    expect(
+      await evaluateCell("A1", {
+        A1: `=CONVERT(CONVERT(1, "${from}", "${to}"), "${to}", "${from}")`,
+      })
     ).toBeCloseTo(1);
   });
 
@@ -80,13 +84,15 @@ describe("CONVERT formula", () => {
     ["sg", "g", "1", 14593.90294],
     ["cwt", "g", "1", 45359.237],
     ["uk_cwt", "g", "1", 50802.3],
-  ])("correctly convert mass unit (%s to %s)", (from, to, value, result) => {
-    expect(evaluateCell("A1", { A1: `=CONVERT(A2, "${from}", "${to}")`, A2: value })).toBeCloseTo(
-      result
-    );
-    expect(evaluateCell("A1", { A1: `=CONVERT(1, "${from}", "${from}")` })).toBeCloseTo(1);
+  ])("correctly convert mass unit (%s to %s)", async (from, to, value, result) => {
     expect(
-      evaluateCell("A1", { A1: `=CONVERT(CONVERT(1, "${from}", "${to}"), "${to}", "${from}")` })
+      await evaluateCell("A1", { A1: `=CONVERT(A2, "${from}", "${to}")`, A2: value })
+    ).toBeCloseTo(result);
+    expect(await evaluateCell("A1", { A1: `=CONVERT(1, "${from}", "${from}")` })).toBeCloseTo(1);
+    expect(
+      await evaluateCell("A1", {
+        A1: `=CONVERT(CONVERT(1, "${from}", "${to}"), "${to}", "${from}")`,
+      })
     ).toBeCloseTo(1);
   });
 
@@ -98,13 +104,15 @@ describe("CONVERT formula", () => {
     ["Rank", "K", "1", 5 / 9],
     ["Reau", "K", "1", 274.4],
     ["K", "Reau", "1", -217.72],
-  ])("correctly convert temperature unit (%s to %s)", (from, to, value, result) => {
-    expect(evaluateCell("A1", { A1: `=CONVERT(A2, "${from}", "${to}")`, A2: value })).toBeCloseTo(
-      result
-    );
-    expect(evaluateCell("A1", { A1: `=CONVERT(1, "${from}", "${from}")` })).toBeCloseTo(1);
+  ])("correctly convert temperature unit (%s to %s)", async (from, to, value, result) => {
     expect(
-      evaluateCell("A1", { A1: `=CONVERT(CONVERT(1, "${from}", "${to}"), "${to}", "${from}")` })
+      await evaluateCell("A1", { A1: `=CONVERT(A2, "${from}", "${to}")`, A2: value })
+    ).toBeCloseTo(result);
+    expect(await evaluateCell("A1", { A1: `=CONVERT(1, "${from}", "${from}")` })).toBeCloseTo(1);
+    expect(
+      await evaluateCell("A1", {
+        A1: `=CONVERT(CONVERT(1, "${from}", "${to}"), "${to}", "${from}")`,
+      })
     ).toBeCloseTo(1);
   });
 
@@ -113,13 +121,15 @@ describe("CONVERT formula", () => {
     ["hr", "sec", "1", 3600],
     ["day", "sec", "1", 86400],
     ["yr", "day", "1", 365.2425],
-  ])("correctly convert time unit (%s to %s)", (from, to, value, result) => {
-    expect(evaluateCell("A1", { A1: `=CONVERT(A2, "${from}", "${to}")`, A2: value })).toBeCloseTo(
-      result
-    );
-    expect(evaluateCell("A1", { A1: `=CONVERT(1, "${from}", "${from}")` })).toBeCloseTo(1);
+  ])("correctly convert time unit (%s to %s)", async (from, to, value, result) => {
     expect(
-      evaluateCell("A1", { A1: `=CONVERT(CONVERT(1, "${from}", "${to}"), "${to}", "${from}")` })
+      await evaluateCell("A1", { A1: `=CONVERT(A2, "${from}", "${to}")`, A2: value })
+    ).toBeCloseTo(result);
+    expect(await evaluateCell("A1", { A1: `=CONVERT(1, "${from}", "${from}")` })).toBeCloseTo(1);
+    expect(
+      await evaluateCell("A1", {
+        A1: `=CONVERT(CONVERT(1, "${from}", "${to}"), "${to}", "${from}")`,
+      })
     ).toBeCloseTo(1);
   });
 
@@ -128,13 +138,15 @@ describe("CONVERT formula", () => {
     ["Torr", "mmHg", "1", 1],
     ["psi", "Pa", "1", 6894.76],
     ["atm", "Pa", "1", 101325],
-  ])("correctly convert pressure unit (%s to %s)", (from, to, value, result) => {
-    expect(evaluateCell("A1", { A1: `=CONVERT(A2, "${from}", "${to}")`, A2: value })).toBeCloseTo(
-      result
-    );
-    expect(evaluateCell("A1", { A1: `=CONVERT(1, "${from}", "${from}")` })).toBeCloseTo(1);
+  ])("correctly convert pressure unit (%s to %s)", async (from, to, value, result) => {
     expect(
-      evaluateCell("A1", { A1: `=CONVERT(CONVERT(1, "${from}", "${to}"), "${to}", "${from}")` })
+      await evaluateCell("A1", { A1: `=CONVERT(A2, "${from}", "${to}")`, A2: value })
+    ).toBeCloseTo(result);
+    expect(await evaluateCell("A1", { A1: `=CONVERT(1, "${from}", "${from}")` })).toBeCloseTo(1);
+    expect(
+      await evaluateCell("A1", {
+        A1: `=CONVERT(CONVERT(1, "${from}", "${to}"), "${to}", "${from}")`,
+      })
     ).toBeCloseTo(1);
   });
 
@@ -142,13 +154,15 @@ describe("CONVERT formula", () => {
     ["dyn", "N", "1", 1e-5],
     ["pond", "N", "1", 0.00980665],
     ["lbf", "N", "1", 4.44822],
-  ])("correctly convert force unit (%s to %s)", (from, to, value, result) => {
-    expect(evaluateCell("A1", { A1: `=CONVERT(A2, "${from}", "${to}")`, A2: value })).toBeCloseTo(
-      result
-    );
-    expect(evaluateCell("A1", { A1: `=CONVERT(1, "${from}", "${from}")` })).toBeCloseTo(1);
+  ])("correctly convert force unit (%s to %s)", async (from, to, value, result) => {
     expect(
-      evaluateCell("A1", { A1: `=CONVERT(CONVERT(1, "${from}", "${to}"), "${to}", "${from}")` })
+      await evaluateCell("A1", { A1: `=CONVERT(A2, "${from}", "${to}")`, A2: value })
+    ).toBeCloseTo(result);
+    expect(await evaluateCell("A1", { A1: `=CONVERT(1, "${from}", "${from}")` })).toBeCloseTo(1);
+    expect(
+      await evaluateCell("A1", {
+        A1: `=CONVERT(CONVERT(1, "${from}", "${to}"), "${to}", "${from}")`,
+      })
     ).toBeCloseTo(1);
   });
 
@@ -161,38 +175,44 @@ describe("CONVERT formula", () => {
     ["BTU", "J", "1", 1055.06],
     ["Wh", "J", "1", 3600],
     ["HPh", "J", "1", 3600 * 745.7],
-  ])("correctly convert energy unit (%s to %s)", (from, to, value, result) => {
-    expect(evaluateCell("A1", { A1: `=CONVERT(A2, "${from}", "${to}")`, A2: value })).toBeCloseTo(
-      result
-    );
-    expect(evaluateCell("A1", { A1: `=CONVERT(1, "${from}", "${from}")` })).toBeCloseTo(1);
+  ])("correctly convert energy unit (%s to %s)", async (from, to, value, result) => {
     expect(
-      evaluateCell("A1", { A1: `=CONVERT(CONVERT(1, "${from}", "${to}"), "${to}", "${from}")` })
+      await evaluateCell("A1", { A1: `=CONVERT(A2, "${from}", "${to}")`, A2: value })
+    ).toBeCloseTo(result);
+    expect(await evaluateCell("A1", { A1: `=CONVERT(1, "${from}", "${from}")` })).toBeCloseTo(1);
+    expect(
+      await evaluateCell("A1", {
+        A1: `=CONVERT(CONVERT(1, "${from}", "${to}"), "${to}", "${from}")`,
+      })
     ).toBeCloseTo(1);
   });
 
   test.each([
     ["PS", "W", "1", 735.499],
     ["HP", "W", "1", 745.7],
-  ])("correctly convert power unit (%s to %s)", (from, to, value, result) => {
-    expect(evaluateCell("A1", { A1: `=CONVERT(A2, "${from}", "${to}")`, A2: value })).toBeCloseTo(
-      result
-    );
-    expect(evaluateCell("A1", { A1: `=CONVERT(1, "${from}", "${from}")` })).toBeCloseTo(1);
+  ])("correctly convert power unit (%s to %s)", async (from, to, value, result) => {
     expect(
-      evaluateCell("A1", { A1: `=CONVERT(CONVERT(1, "${from}", "${to}"), "${to}", "${from}")` })
+      await evaluateCell("A1", { A1: `=CONVERT(A2, "${from}", "${to}")`, A2: value })
+    ).toBeCloseTo(result);
+    expect(await evaluateCell("A1", { A1: `=CONVERT(1, "${from}", "${from}")` })).toBeCloseTo(1);
+    expect(
+      await evaluateCell("A1", {
+        A1: `=CONVERT(CONVERT(1, "${from}", "${to}"), "${to}", "${from}")`,
+      })
     ).toBeCloseTo(1);
   });
 
   test.each([["T", "ga", "1", 10000]])(
     "correctly convert magnetism unit (%s to %s)",
-    (from, to, value, result) => {
-      expect(evaluateCell("A1", { A1: `=CONVERT(A2, "${from}", "${to}")`, A2: value })).toBeCloseTo(
-        result
-      );
-      expect(evaluateCell("A1", { A1: `=CONVERT(1, "${from}", "${from}")` })).toBeCloseTo(1);
+    async (from, to, value, result) => {
       expect(
-        evaluateCell("A1", { A1: `=CONVERT(CONVERT(1, "${from}", "${to}"), "${to}", "${from}")` })
+        await evaluateCell("A1", { A1: `=CONVERT(A2, "${from}", "${to}")`, A2: value })
+      ).toBeCloseTo(result);
+      expect(await evaluateCell("A1", { A1: `=CONVERT(1, "${from}", "${from}")` })).toBeCloseTo(1);
+      expect(
+        await evaluateCell("A1", {
+          A1: `=CONVERT(CONVERT(1, "${from}", "${to}"), "${to}", "${from}")`,
+        })
       ).toBeCloseTo(1);
     }
   );
@@ -225,25 +245,29 @@ describe("CONVERT formula", () => {
     ["mi3", "m^3", "1", 4168150745.6605034],
     ["Nmi^3", "m3", "1", 6352182208],
     ["ly^3", "m^3", "1", 8.467866646235003e47],
-  ])("correctly convert volum unit (%s to %s)", (from, to, value, result) => {
-    expect(evaluateCell("A1", { A1: `=CONVERT(A2, "${from}", "${to}")`, A2: value })).toBeCloseTo(
-      result
-    );
-    expect(evaluateCell("A1", { A1: `=CONVERT(1, "${from}", "${from}")` })).toBeCloseTo(1);
+  ])("correctly convert volum unit (%s to %s)", async (from, to, value, result) => {
     expect(
-      evaluateCell("A1", { A1: `=CONVERT(CONVERT(1, "${from}", "${to}"), "${to}", "${from}")` })
+      await evaluateCell("A1", { A1: `=CONVERT(A2, "${from}", "${to}")`, A2: value })
+    ).toBeCloseTo(result);
+    expect(await evaluateCell("A1", { A1: `=CONVERT(1, "${from}", "${from}")` })).toBeCloseTo(1);
+    expect(
+      await evaluateCell("A1", {
+        A1: `=CONVERT(CONVERT(1, "${from}", "${to}"), "${to}", "${from}")`,
+      })
     ).toBeCloseTo(1);
   });
 
   test.each([["byte", "bit", "1", 8]])(
     "correctly convert information unit (%s to %s)",
-    (from, to, value, result) => {
-      expect(evaluateCell("A1", { A1: `=CONVERT(A2, "${from}", "${to}")`, A2: value })).toBeCloseTo(
-        result
-      );
-      expect(evaluateCell("A1", { A1: `=CONVERT(1, "${from}", "${from}")` })).toBeCloseTo(1);
+    async (from, to, value, result) => {
       expect(
-        evaluateCell("A1", { A1: `=CONVERT(CONVERT(1, "${from}", "${to}"), "${to}", "${from}")` })
+        await evaluateCell("A1", { A1: `=CONVERT(A2, "${from}", "${to}")`, A2: value })
+      ).toBeCloseTo(result);
+      expect(await evaluateCell("A1", { A1: `=CONVERT(1, "${from}", "${from}")` })).toBeCloseTo(1);
+      expect(
+        await evaluateCell("A1", {
+          A1: `=CONVERT(CONVERT(1, "${from}", "${to}"), "${to}", "${from}")`,
+        })
       ).toBeCloseTo(1);
     }
   );
@@ -254,30 +278,38 @@ describe("CONVERT formula", () => {
     ["mph", "m/s", "1", 0.44704],
     ["kn", "m/s", "1", 0.5144444444],
     ["admkn", "m/s", "1", 0.5147733333],
-  ])("correctly convert information unit (%s to %s)", (from, to, value, result) => {
-    expect(evaluateCell("A1", { A1: `=CONVERT(A2, "${from}", "${to}")`, A2: value })).toBeCloseTo(
-      result
-    );
-    expect(evaluateCell("A1", { A1: `=CONVERT(1, "${from}", "${from}")` })).toBeCloseTo(1);
+  ])("correctly convert information unit (%s to %s)", async (from, to, value, result) => {
     expect(
-      evaluateCell("A1", { A1: `=CONVERT(CONVERT(1, "${from}", "${to}"), "${to}", "${from}")` })
+      await evaluateCell("A1", { A1: `=CONVERT(A2, "${from}", "${to}")`, A2: value })
+    ).toBeCloseTo(result);
+    expect(await evaluateCell("A1", { A1: `=CONVERT(1, "${from}", "${from}")` })).toBeCloseTo(1);
+    expect(
+      await evaluateCell("A1", {
+        A1: `=CONVERT(CONVERT(1, "${from}", "${to}"), "${to}", "${from}")`,
+      })
     ).toBeCloseTo(1);
   });
 
   test.each(Array.from(Object.entries(UNITS_ALIASES)))(
     "correctly convert between aliases unit (%s to %s)",
-    (unit1, unit2) => {
-      expect(evaluateCell("A1", { A1: `=CONVERT(1, "${unit1}", "${unit2}")` })).toBeCloseTo(1);
+    async (unit1, unit2) => {
+      expect(await evaluateCell("A1", { A1: `=CONVERT(1, "${unit1}", "${unit2}")` })).toBeCloseTo(
+        1
+      );
     }
   );
 
   test.each(Array.from(Object.entries(UNIT_PREFIXES)))(
     "correctly convert between prefixed unit (%sm)",
-    (prefix, value) => {
-      expect(evaluateCell("A1", { A1: `=CONVERT(1, "${prefix}m", "m")` })).toBeCloseTo(value);
-      expect(evaluateCell("A1", { A1: `=CONVERT(1, "m", "${prefix}m")` })).toBeCloseTo(1 / value);
-      expect(evaluateCell("A1", { A1: `=CONVERT(1, "${prefix}m", "${prefix}m")` })).toBeCloseTo(1);
-      expect(evaluateCell("A1", { A1: `=CONVERT(1, "${prefix}m3", "m3")` })).toBeCloseTo(
+    async (prefix, value) => {
+      expect(await evaluateCell("A1", { A1: `=CONVERT(1, "${prefix}m", "m")` })).toBeCloseTo(value);
+      expect(await evaluateCell("A1", { A1: `=CONVERT(1, "m", "${prefix}m")` })).toBeCloseTo(
+        1 / value
+      );
+      expect(
+        await evaluateCell("A1", { A1: `=CONVERT(1, "${prefix}m", "${prefix}m")` })
+      ).toBeCloseTo(1);
+      expect(await evaluateCell("A1", { A1: `=CONVERT(1, "${prefix}m3", "m3")` })).toBeCloseTo(
         Math.pow(value, 3)
       );
     }

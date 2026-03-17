@@ -42,8 +42,8 @@ import {
 let model: Model;
 let sheetId: UID;
 
-beforeEach(() => {
-  model = createModel();
+beforeEach(async () => {
+  model = await createModel();
   sheetId = model.getters.getActiveSheetId();
 });
 
@@ -144,8 +144,8 @@ describe("conditional format", () => {
     expect(getStyle(model, "A1")).toEqual({ bold: true, fillColor: "#FF0000" });
   });
 
-  test("Add conditional formatting on inactive sheet", () => {
-    model = createModel();
+  test("Add conditional formatting on inactive sheet", async () => {
+    model = await createModel();
     createSheet(model, { sheetId: "42" });
     const [, sheetId] = model.getters.getSheetIds();
     expect(sheetId).not.toBe(model.getters.getActiveSheetId());
@@ -167,8 +167,8 @@ describe("conditional format", () => {
     ]);
   });
 
-  test("is correctly duplicated when the sheet is duplicated", () => {
-    model = createModel();
+  test("is correctly duplicated when the sheet is duplicated", async () => {
+    model = await createModel();
     const cf = createEqualCF("4", { fillColor: "#0000FF" }, "2");
     addEqualCf(model, "A1:A4", { fillColor: "#0000FF" }, "4", "2", sheetId);
     duplicateSheet(model, sheetId, "Sheet2");
@@ -181,8 +181,8 @@ describe("conditional format", () => {
     ]);
   });
 
-  test("add conditional format outside the sheet", () => {
-    model = createModel();
+  test("add conditional format outside the sheet", async () => {
+    model = await createModel();
     createSheet(model, { sheetId: "42" });
     const sheetId = model.getters.getActiveSheetId();
     expect(
@@ -190,8 +190,8 @@ describe("conditional format", () => {
     ).toBeCancelledBecause(CommandResult.TargetOutOfSheet);
   });
 
-  test("Dispatch is refused if no changes are made", () => {
-    model = createModel();
+  test("Dispatch is refused if no changes are made", async () => {
+    model = await createModel();
     createSheet(model, { sheetId: "42" });
     expect(addEqualCf(model, "A1:A4", { fillColor: "#0000FF" }, "2")).toBeSuccessfullyDispatched();
     expect(addEqualCf(model, "A1:A4", { fillColor: "#0000FF" }, "2")).toBeCancelledBecause(
@@ -380,10 +380,10 @@ describe("conditional format", () => {
     expect(model.getters.getConditionalFormats(sheetId)).toEqual([]);
   });
 
-  test("is saved/restored", () => {
+  test("is saved/restored", async () => {
     addEqualCf(model, "A1:A4", { fillColor: "#FF0000" }, "2", "1", sheetId);
     const workbookData = model.exportData();
-    const newModel = createModel(workbookData);
+    const newModel = await createModel(workbookData);
     expect(newModel.getters.getConditionalFormats(sheetId)).toEqual(
       model.getters.getConditionalFormats(sheetId)
     );
@@ -461,8 +461,8 @@ describe("conditional format", () => {
       type: "CellIsRule",
       style: { fillColor: "orange" },
     };
-    test("On row deletion", () => {
-      model = createModel({
+    test("On row deletion", async () => {
+      model = await createModel({
         sheets: [
           {
             colNumber: 7,
@@ -493,8 +493,8 @@ describe("conditional format", () => {
       expect(getStyle(model, "C2")!.fillColor).toBe("orange");
       expect(getStyle(model, "C3")).toEqual({});
     });
-    test("On column deletion", () => {
-      model = createModel({
+    test("On column deletion", async () => {
+      model = await createModel({
         sheets: [
           {
             colNumber: 4,
@@ -529,8 +529,8 @@ describe("conditional format", () => {
       expect(getStyle(model, "B3")!.fillColor).toBe("orange");
       expect(getStyle(model, "C3")).toEqual({});
     });
-    test("On column addition", () => {
-      model = createModel({
+    test("On column addition", async () => {
+      model = await createModel({
         sheets: [
           {
             colNumber: 3,
@@ -556,8 +556,8 @@ describe("conditional format", () => {
       expect(getStyle(model, "B4")).toEqual({});
       expect(getStyle(model, "C4")!.fillColor).toBe("orange");
     });
-    test("On row addition", () => {
-      model = createModel({
+    test("On row addition", async () => {
+      model = await createModel({
         sheets: [
           {
             colNumber: 4,
@@ -668,7 +668,7 @@ describe("conditional format", () => {
       ["IconSetRule", iconSetRule],
     ] as const;
 
-    test.each(cfGenerators)("On row deletion %s", (name, cfrule) => {
+    test.each(cfGenerators)("On row deletion %s", async (name, cfrule) => {
       const formulas = [
         "=A1",
         "=A5",
@@ -691,7 +691,7 @@ describe("conditional format", () => {
         "=F3*10",
         "=SUM(A1:F3)",
       ];
-      model = createModel({
+      model = await createModel({
         sheets: [
           {
             colNumber: 7,
@@ -704,7 +704,7 @@ describe("conditional format", () => {
       expect(model.getters.getConditionalFormats(sheetId)).toEqual(formulasToCFs(expected, cfrule));
     });
 
-    test.each(cfGenerators)("On column deletion %s", (name, cfrule) => {
+    test.each(cfGenerators)("On column deletion %s", async (name, cfrule) => {
       const formulas = [
         "=A1",
         "=A5",
@@ -728,7 +728,7 @@ describe("conditional format", () => {
         "=SUM(A1:D5)",
       ];
 
-      model = createModel({
+      model = await createModel({
         sheets: [
           {
             colNumber: 7,
@@ -741,7 +741,7 @@ describe("conditional format", () => {
       expect(model.getters.getConditionalFormats(sheetId)).toEqual(formulasToCFs(expected, cfrule));
     });
 
-    test.each(cfGenerators)("On column addition %s", (name, cfrule) => {
+    test.each(cfGenerators)("On column addition %s", async (name, cfrule) => {
       const formulas = [
         "=A1",
         "=A5",
@@ -765,7 +765,7 @@ describe("conditional format", () => {
         "=SUM(A1:H5)",
       ];
 
-      model = createModel({
+      model = await createModel({
         sheets: [
           {
             colNumber: 7,
@@ -778,7 +778,7 @@ describe("conditional format", () => {
       expect(model.getters.getConditionalFormats(sheetId)).toEqual(formulasToCFs(expected, cfrule));
     });
 
-    test.each(cfGenerators)("On row addition %s", (name, cfrule) => {
+    test.each(cfGenerators)("On row addition %s", async (name, cfrule) => {
       const formulas = [
         "=A1",
         "=A5",
@@ -802,7 +802,7 @@ describe("conditional format", () => {
         "=SUM(A1:F7)",
       ];
 
-      model = createModel({
+      model = await createModel({
         sheets: [
           {
             colNumber: 7,
@@ -815,7 +815,7 @@ describe("conditional format", () => {
       expect(model.getters.getConditionalFormats(sheetId)).toEqual(formulasToCFs(expected, cfrule));
     });
 
-    test.each(cfGenerators)("On another sheet %s", (name, cfrule) => {
+    test.each(cfGenerators)("On another sheet %s", async (name, cfrule) => {
       const formulas = [
         "=OtherSheet!A1",
         "=OtherSheet!A5",
@@ -838,7 +838,7 @@ describe("conditional format", () => {
         "=OtherSheet!F3*10",
         "=SUM(OtherSheet!A1:F3)",
       ];
-      model = createModel({
+      model = await createModel({
         sheets: [
           {
             colNumber: 7,
@@ -2346,14 +2346,14 @@ describe("conditional formats types", () => {
     expect(result).toBeSuccessfullyDispatched;
   });
 
-  test("Can add a data bar cf based on itself", () => {
+  test("Can add a data bar cf based on itself", async () => {
     // prettier-ignore
     const grid = {
         A1: "2",
         A2: "4",
         A3: "8",
     };
-    const model = createModelFromGrid(grid);
+    const model = await createModelFromGrid(grid);
     addCf(
       model,
       "A1:A3",
@@ -2371,14 +2371,14 @@ describe("conditional formats types", () => {
     expect(getDataBarFill(model, "A3")?.percentage).toBe(100);
   });
 
-  test("Can add a data bar cf based on another range", () => {
+  test("Can add a data bar cf based on another range", async () => {
     // prettier-ignore
     const grid = {
         A1: "2", B1: "Hello",
         A2: "4", B2: "World",
         A3: "8", B3: "!",
     };
-    const model = createModelFromGrid(grid);
+    const model = await createModelFromGrid(grid);
     addCf(
       model,
       "B1:B3",
@@ -2397,14 +2397,14 @@ describe("conditional formats types", () => {
     expect(getDataBarFill(model, "B3")?.percentage).toBe(100);
   });
 
-  test("Adding a data bar rule with rangeValues having smaller size than cf range should only apply rule on matching cells", () => {
+  test("Adding a data bar rule with rangeValues having smaller size than cf range should only apply rule on matching cells", async () => {
     // prettier-ignore
     const grid = {
         A1: "A", B1: "2",
         A2: "B", B2: "4",
         A3: "C", B3: "8",
     };
-    const model = createModelFromGrid(grid);
+    const model = await createModelFromGrid(grid);
     addCf(
       model,
       "A1:A3",
@@ -2423,14 +2423,14 @@ describe("conditional formats types", () => {
     expect(getDataBarFill(model, "A3")?.percentage).toBeUndefined();
   });
 
-  test("Adding a data bar rule with rangeValues having bigger size than cf range should only apply rule on matching cells", () => {
+  test("Adding a data bar rule with rangeValues having bigger size than cf range should only apply rule on matching cells", async () => {
     // prettier-ignore
     const grid = {
       A1: "A", B1: "2",
       A2: "B", B2: "4",
       A3: "C", B3: "8",
   };
-    const model = createModelFromGrid(grid);
+    const model = await createModelFromGrid(grid);
     addCf(
       model,
       "A1:A3",
@@ -2450,14 +2450,14 @@ describe("conditional formats types", () => {
     expect(getDataBarFill(model, "A4")?.percentage).toBeUndefined();
   });
 
-  test("Data bar CF with negative values", () => {
+  test("Data bar CF with negative values", async () => {
     // prettier-ignore
     const grid = {
         A1: "-2",
         A2: "-4",
         A3: "-8",
     };
-    const model = createModelFromGrid(grid);
+    const model = await createModelFromGrid(grid);
     addCf(
       model,
       "A1:A3",
@@ -2475,14 +2475,14 @@ describe("conditional formats types", () => {
     expect(getDataBarFill(model, "A3")).toBeUndefined();
   });
 
-  test("Data bar CF with 0 values", () => {
+  test("Data bar CF with 0 values", async () => {
     // prettier-ignore
     const grid = {
         A1: "2",
         A2: "1",
         A3: "0",
     };
-    const model = createModelFromGrid(grid);
+    const model = await createModelFromGrid(grid);
     addCf(
       model,
       "A1:A3",
@@ -2500,12 +2500,12 @@ describe("conditional formats types", () => {
     expect(getDataBarFill(model, "A3")).toBeUndefined();
   });
 
-  test("Data bar CF with 0 as maximum", () => {
+  test("Data bar CF with 0 as maximum", async () => {
     // prettier-ignore
     const grid = {
         A1: "0",
     };
-    const model = createModelFromGrid(grid);
+    const model = await createModelFromGrid(grid);
     addCf(
       model,
       "A1",
@@ -2521,14 +2521,14 @@ describe("conditional formats types", () => {
     expect(getDataBarFill(model, "A1")).toBeUndefined();
   });
 
-  test("Ignore not number cells", () => {
+  test("Ignore not number cells", async () => {
     // prettier-ignore
     const grid = {
         A1: "10",
         A2: "Hello",
         A3: "World",
     };
-    const model = createModelFromGrid(grid);
+    const model = await createModelFromGrid(grid);
 
     addCf(
       model,
@@ -2547,13 +2547,13 @@ describe("conditional formats types", () => {
     expect(getDataBarFill(model, "A3")).toBeUndefined();
   });
 
-  test("Ignore negative number cells", () => {
+  test("Ignore negative number cells", async () => {
     // prettier-ignore
     const grid = {
         A1: "10",
         A2: "-10",
     };
-    const model = createModelFromGrid(grid);
+    const model = await createModelFromGrid(grid);
 
     addCf(
       model,
@@ -2571,14 +2571,14 @@ describe("conditional formats types", () => {
     expect(getDataBarFill(model, "A2")).toBeUndefined();
   });
 
-  test("range value range is adapted", () => {
+  test("range value range is adapted", async () => {
     // prettier-ignore
     const grid = {
         B1: "2", C1: "Hello",
         B2: "4", C2: "World",
         B3: "8", C3: "!",
     };
-    const model = createModelFromGrid(grid);
+    const model = await createModelFromGrid(grid);
     addCf(
       model,
       "C1:C3",
@@ -2598,14 +2598,14 @@ describe("conditional formats types", () => {
     expect(getDataBarFill(model, "B3")?.percentage).toBe(100);
   });
 
-  test("conditional format with simple custom formula", () => {
+  test("conditional format with simple custom formula", async () => {
     const grid = {
       A1: "2",
       A2: "4",
       A3: "2",
       A4: "4",
     };
-    const model = createModelFromGrid(grid);
+    const model = await createModelFromGrid(grid);
 
     addCf(
       model,
@@ -2629,13 +2629,13 @@ describe("conditional formats types", () => {
     expect(getStyle(model, "C4")).toEqual({ fillColor: "#FF0000" });
   });
 
-  test("conditional format with simple custom formula containing fixed range", () => {
+  test("conditional format with simple custom formula containing fixed range", async () => {
     const grid = {
       A1: "2",
       A2: "4",
       A3: "2",
     };
-    const model = createModelFromGrid(grid);
+    const model = await createModelFromGrid(grid);
     addCf(
       model,
       "C1:C6",
@@ -2657,11 +2657,11 @@ describe("conditional formats types", () => {
     expect(getStyle(model, "C3")).toEqual({ fillColor: "#FF0000" });
   });
 
-  test("custom formula not returning a boolean", () => {
+  test("custom formula not returning a boolean", async () => {
     const grid = {
       B1: "Seattle",
     };
-    const model = createModelFromGrid(grid);
+    const model = await createModelFromGrid(grid);
     addCf(
       model,
       "B1:B10",
@@ -2681,11 +2681,11 @@ describe("conditional formats types", () => {
     expect(getStyle(model, "B1")).toEqual({ fillColor: "#FF0000" });
   });
 
-  test("custom formula resulting to an error", () => {
+  test("custom formula resulting to an error", async () => {
     const grid = {
       B1: "Seattle",
     };
-    const model = createModelFromGrid(grid);
+    const model = await createModelFromGrid(grid);
     addCf(
       model,
       "B1:B10",

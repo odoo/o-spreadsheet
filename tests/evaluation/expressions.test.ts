@@ -6,52 +6,52 @@ import { evaluateCell } from "../test_helpers/helpers";
  */
 
 describe("expression evaluation", () => {
-  test("arithmetic expressions", () => {
-    expect(evaluateCell("A1", { A1: "=1" })).toBe(1);
-    expect(evaluateCell("A1", { A1: "=2 + 3 * 4" })).toBe(14);
+  test("arithmetic expressions", async () => {
+    expect(await evaluateCell("A1", { A1: "=1" })).toBe(1);
+    expect(await evaluateCell("A1", { A1: "=2 + 3 * 4" })).toBe(14);
   });
 
-  test("comparisons", () => {
+  test("comparisons", async () => {
     // eq
-    expect(evaluateCell("A1", { A1: "=2 = 1" })).toBe(false);
-    expect(evaluateCell("A1", { A1: "=2 = 2" })).toBe(true);
+    expect(await evaluateCell("A1", { A1: "=2 = 1" })).toBe(false);
+    expect(await evaluateCell("A1", { A1: "=2 = 2" })).toBe(true);
 
     // gt
-    expect(evaluateCell("A1", { A1: "=2 > 1" })).toBe(true);
-    expect(evaluateCell("A1", { A1: "=1 > 2" })).toBe(false);
-    expect(evaluateCell("A1", { A1: "=1 > 1" })).toBe(false);
+    expect(await evaluateCell("A1", { A1: "=2 > 1" })).toBe(true);
+    expect(await evaluateCell("A1", { A1: "=1 > 2" })).toBe(false);
+    expect(await evaluateCell("A1", { A1: "=1 > 1" })).toBe(false);
     // gte
-    expect(evaluateCell("A1", { A1: "=1 >= 1" })).toBe(true);
-    expect(evaluateCell("A1", { A1: "=1 >= 0" })).toBe(true);
-    expect(evaluateCell("A1", { A1: "=-1 >= 3" })).toBe(false);
+    expect(await evaluateCell("A1", { A1: "=1 >= 1" })).toBe(true);
+    expect(await evaluateCell("A1", { A1: "=1 >= 0" })).toBe(true);
+    expect(await evaluateCell("A1", { A1: "=-1 >= 3" })).toBe(false);
     // lt
-    expect(evaluateCell("A1", { A1: "=1 < 2" })).toBe(true);
-    expect(evaluateCell("A1", { A1: "=2 < 2" })).toBe(false);
-    expect(evaluateCell("A1", { A1: "=3 < 2" })).toBe(false);
+    expect(await evaluateCell("A1", { A1: "=1 < 2" })).toBe(true);
+    expect(await evaluateCell("A1", { A1: "=2 < 2" })).toBe(false);
+    expect(await evaluateCell("A1", { A1: "=3 < 2" })).toBe(false);
     // lte
-    expect(evaluateCell("A1", { A1: "=1 <= 2" })).toBe(true);
-    expect(evaluateCell("A1", { A1: "=2 <= 2" })).toBe(true);
-    expect(evaluateCell("A1", { A1: "=3 <= 2" })).toBe(false);
+    expect(await evaluateCell("A1", { A1: "=1 <= 2" })).toBe(true);
+    expect(await evaluateCell("A1", { A1: "=2 <= 2" })).toBe(true);
+    expect(await evaluateCell("A1", { A1: "=3 <= 2" })).toBe(false);
   });
 
-  test("priority of operations", () => {
-    expect(evaluateCell("A1", { A1: "=4 > 1 + 2" })).toBe(true);
-    expect(evaluateCell("A1", { A1: "=4 < 1 + 2" })).toBe(false);
-    expect(evaluateCell("A1", { A1: "=4 >= 1 + 2" })).toBe(true);
-    expect(evaluateCell("A1", { A1: "=4 <= 1 + 2" })).toBe(false);
-    expect(evaluateCell("A1", { A1: "=2 = 1 + 1" })).toBe(true);
+  test("priority of operations", async () => {
+    expect(await evaluateCell("A1", { A1: "=4 > 1 + 2" })).toBe(true);
+    expect(await evaluateCell("A1", { A1: "=4 < 1 + 2" })).toBe(false);
+    expect(await evaluateCell("A1", { A1: "=4 >= 1 + 2" })).toBe(true);
+    expect(await evaluateCell("A1", { A1: "=4 <= 1 + 2" })).toBe(false);
+    expect(await evaluateCell("A1", { A1: "=2 = 1 + 1" })).toBe(true);
 
-    expect(evaluateCell("A1", { A1: '="4" > 1 & 2' })).toBe(true);
-    expect(evaluateCell("A1", { A1: '="4" < 1 & 2' })).toBe(false);
-    expect(evaluateCell("A1", { A1: '="4" >= 1 & 2' })).toBe(true);
-    expect(evaluateCell("A1", { A1: '="4" <= 1 & 2' })).toBe(false);
-    expect(evaluateCell("A1", { A1: '="12" = 1 & 2' })).toBe(true);
+    expect(await evaluateCell("A1", { A1: '="4" > 1 & 2' })).toBe(true);
+    expect(await evaluateCell("A1", { A1: '="4" < 1 & 2' })).toBe(false);
+    expect(await evaluateCell("A1", { A1: '="4" >= 1 & 2' })).toBe(true);
+    expect(await evaluateCell("A1", { A1: '="4" <= 1 & 2' })).toBe(false);
+    expect(await evaluateCell("A1", { A1: '="12" = 1 & 2' })).toBe(true);
   });
 
-  test("miscellaneous formulas", () => {
-    const r1 = evaluateCell("A2", { A2: "=SUM(A1,B1)", A1: "1", B1: "2" });
+  test("miscellaneous formulas", async () => {
+    const r1 = await evaluateCell("A2", { A2: "=SUM(A1,B1)", A1: "1", B1: "2" });
     expect(r1).toBe(3);
-    const r2 = evaluateCell("A2", { A2: "=SUM(A1:B1)", A1: "1", B1: "2" });
+    const r2 = await evaluateCell("A2", { A2: "=SUM(A1:B1)", A1: "1", B1: "2" });
     expect(r2).toBe(3);
   });
 });

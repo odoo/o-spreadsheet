@@ -229,14 +229,14 @@ describe("ToFunctionValue", () => {
   });
 });
 
-test("isSortedColumnValid", () => {
+test("isSortedColumnValid", async () => {
   // prettier-ignore
   const grid = {
       A1: "Customer", B1: "Price", C1: "Date",
       A2: "Alice",    B2: "10",    C2: "10/10/2020",
       A3: "Bob",      B3: "30",    C3: "10/10/2022",
     };
-  const model = createModelFromGrid(grid);
+  const model = await createModelFromGrid(grid);
   addPivot(model, "A1:C3", {
     columns: [{ fieldName: "Date", granularity: "year" }],
     rows: [{ fieldName: "Customer" }],
@@ -275,7 +275,7 @@ test("isSortedColumnValid", () => {
   expect(isSortedColumnValid(sortedColumn, model.getters.getPivot(pivotId))).toBe(false);
 });
 
-test("isDomainInPivot", () => {
+test("isDomainInPivot", async () => {
   // prettier-ignore
   const grid = {
       A1: "Customer", B1: "Price", C1: "Date",
@@ -283,7 +283,7 @@ test("isDomainInPivot", () => {
       A3: "Bob",      B3: "30",    C3: "10/10/2020",
       A4: "Bob",      B4: "20",    C4: "01/01/2020",
   };
-  const model = createModelFromGrid(grid);
+  const model = await createModelFromGrid(grid);
   addPivot(model, "A1:C4", {
     columns: [
       { fieldName: "Date", granularity: "year" },

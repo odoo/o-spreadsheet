@@ -6,7 +6,7 @@ import { makeStore } from "../../test_helpers/stores";
 
 describe("Data validation auto complete", () => {
   test("start with exact match, but with other proposals", async () => {
-    const { store: composer, model } = makeStore(CellComposerStore);
+    const { store: composer, model } = await makeStore(CellComposerStore);
     addDataValidation(model, "A1", "id", {
       type: "isValueInList",
       values: ["XS", "S", "M", "L", "XL"],
@@ -20,7 +20,7 @@ describe("Data validation auto complete", () => {
   });
 
   test("start with partial match displays all values", async () => {
-    const { store: composer, model } = makeStore(CellComposerStore);
+    const { store: composer, model } = await makeStore(CellComposerStore);
     addDataValidation(model, "A1", "id", {
       type: "isValueInList",
       values: ["XS", "XL", "L"],
@@ -34,7 +34,7 @@ describe("Data validation auto complete", () => {
   });
 
   test("value in list set rounded chip and color", async () => {
-    const { store: composer, model } = makeStore(CellComposerStore);
+    const { store: composer, model } = await makeStore(CellComposerStore);
     addDataValidation(model, "A1", "id", {
       type: "isValueInList",
       values: ["hello", "world"],
@@ -65,7 +65,7 @@ describe("Data validation auto complete", () => {
   });
 
   test("value in range set rounded chip and color", async () => {
-    const { store: composer, model } = makeStore(CellComposerStore);
+    const { store: composer, model } = await makeStore(CellComposerStore);
     addDataValidation(model, "A1", "id", {
       type: "isValueInRange",
       values: ["B2:B4"],

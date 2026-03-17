@@ -123,9 +123,10 @@ class Comp2 extends Comp {
 }
 
 async function mountParent(
-  model: Model = createModel(),
+  model: Model | undefined = undefined,
   testEnv?: Partial<SpreadsheetChildEnv>
 ): Promise<{ parent: Parent; model: Model; fixture: HTMLElement }> {
+  model = model ?? (await createModel());
   const env = {
     ...testEnv,
     model,
@@ -143,7 +144,7 @@ describe("TopBar component", () => {
   });
 
   test("opening a second menu closes the first one", async () => {
-    const model = createModel();
+    const model = await createModel();
     setCellContent(model, "B2", "b2");
     await mountParent(model);
     expect(fixture.querySelectorAll(".o-dropdown-content").length).toBe(0);
@@ -415,7 +416,7 @@ describe("TopBar component", () => {
   });
 
   test("can clear formatting", async () => {
-    const model = createModel();
+    const model = await createModel();
     selectCell(model, "B1");
     setZoneBorders(model, { position: "all" });
     expect(getBorder(model, "B1")).toBeDefined();
@@ -500,7 +501,7 @@ describe("TopBar component", () => {
     ])(
       "alignment icon options in top bar matches the selected cell (content: %s, style: %s)",
       async (content, style, expectedTitleActive) => {
-        const model = createModel();
+        const model = await createModel();
         setCellContent(model, "A1", content);
         setFormatting(model, "A1", style as Style);
         await mountParent(model);
@@ -533,7 +534,7 @@ describe("TopBar component", () => {
     ])(
       "alignment icon options in top bar matches the selected cell (content: %s, style: %s)",
       async (content, style, expectedTitleActive) => {
-        const model = createModel();
+        const model = await createModel();
         setCellContent(model, "A1", content);
         setFormatting(model, "A1", style as Style);
         await mountParent(model);
@@ -566,7 +567,7 @@ describe("TopBar component", () => {
     ])(
       "wrapping icon options in the top bar matches the selected cell (content: %s, style: %s)",
       async (content, style, expectedTitleActive) => {
-        const model = createModel();
+        const model = await createModel();
         setCellContent(model, "A1", content);
         setFormatting(model, "A1", style as Style);
         await mountParent(model);
@@ -580,7 +581,7 @@ describe("TopBar component", () => {
   });
 
   test("opening, then closing same menu", async () => {
-    const model = createModel();
+    const model = await createModel();
     setCellContent(model, "B2", "b2");
     await mountParent(model);
 
@@ -704,7 +705,7 @@ describe("TopBar component", () => {
   });
 
   test("Cannot edit cell in a readonly spreadsheet", async () => {
-    const model = createModel({}, { mode: "readonly" });
+    const model = await createModel({}, { mode: "readonly" });
     ({ fixture, parent } = await mountParent(model));
     const composerStore = parent.env.getStore(CellComposerStore);
 
@@ -720,7 +721,7 @@ describe("TopBar component", () => {
   });
 
   test("Keep focus on the composer when clicked in readonly mode", async () => {
-    ({ fixture } = await mountParent(createModel({}, { mode: "readonly" })));
+    ({ fixture } = await mountParent(await createModel({}, { mode: "readonly" })));
 
     const topBarComposerEl = fixture.querySelector<HTMLElement>(".o-topbar-composer")!;
     expect(topBarComposerEl.classList).toContain("o-topbar-composer-readonly");
@@ -764,7 +765,7 @@ describe("TopBar component", () => {
 
   test("can insert an image", async () => {
     const fileStore = new FileStore();
-    const model = createModel({}, { external: { fileStore } });
+    const model = await createModel({}, { external: { fileStore } });
     await mountParent(model);
     const sheetId = model.getters.getActiveSheetId();
     await simulateClick(".o-topbar-menu[data-id='insert']");
@@ -804,7 +805,7 @@ test("Can show/hide a TopBarComponent based on condition", async () => {
 describe("TopBar - Custom currency", () => {
   test("can open custom currency sidepanel from tool", async () => {
     const { fixture } = await mountSpreadsheet({
-      model: createModel({}, { external: { loadCurrencies: async () => [] as Currency[] } }),
+      model: await createModel({}, { external: { loadCurrencies: async () => [] as Currency[] } }),
     });
     await click(fixture, ".o-menu-item-button[title='More formats']");
     await click(fixture, ".o-menu-item[title='Custom currency']");
@@ -1008,7 +1009,7 @@ describe("Topbar svg icon", () => {
     [{ wrapping: "wrap" }, "Wrapping", "wrapping-wrap"],
     [{ wrapping: "overflow" }, "Wrapping", "wrapping-overflow"],
   ])("Icon in top bar matches the selected cell style", async (style, buttonTitle, iconClass) => {
-    const model = createModel();
+    const model = await createModel();
     setFormatting(model, "A1", style as Style);
 
     ({ fixture } = await mountSpreadsheet({ model }));
@@ -1021,7 +1022,7 @@ describe("Topbar svg icon", () => {
 test("Clicking on a topbar button triggers two renders", async () => {
   const transportService = new MockTransportService();
 
-  const model = createModel({}, { transportService });
+  const model = await createModel({}, { transportService });
   const { fixture, env } = await mountSpreadsheet({ model });
 
   const modelRender = jest.fn();
@@ -1143,7 +1144,7 @@ describe("Responsive Top bar behaviour", () => {
     const index = categories.findIndex((category) => category === "cellStyle");
     spreadsheetWidth = index * toolWidth + moreToolsContainerWidth + 1;
 
-    const model = createModel();
+    const model = await createModel();
     await mountParent(model);
     await nextTick();
     await click(fixture, ".more-tools");
@@ -1156,7 +1157,7 @@ describe("Responsive Top bar behaviour", () => {
     // Hide a section with an action button
     const index = categories.findIndex((category) => category === "textStyle");
     spreadsheetWidth = index * toolWidth + moreToolsContainerWidth + 1;
-    const model = createModel();
+    const model = await createModel();
     await mountParent(model);
     await nextTick();
     await click(fixture, ".more-tools");
@@ -1168,7 +1169,7 @@ describe("Responsive Top bar behaviour", () => {
 
   test("Use a dropdown item from the popover", async () => {
     spreadsheetWidth = 550;
-    const model = createModel();
+    const model = await createModel();
     await mountParent(model);
     await nextTick();
     await click(fixture, ".more-tools");

@@ -46,7 +46,7 @@ describe("combo charts", () => {
         },
       ],
     };
-    model = createModel(data);
+    model = await createModel(data);
   });
 
   test("can edit chart data series type", async () => {

@@ -18,8 +18,8 @@ import { addToRegistry, createModel } from "../test_helpers/helpers";
 import { makeStore } from "../test_helpers/stores";
 
 describe("Aggregate statistic functions", () => {
-  test("functions are applied on deduplicated cells in zones", () => {
-    const { store, model } = makeStore(AggregateStatisticsStore);
+  test("functions are applied on deduplicated cells in zones", async () => {
+    const { store, model } = await makeStore(AggregateStatisticsStore);
     setCellContent(model, "A1", "1");
     setCellContent(model, "A2", "2");
     setCellContent(model, "A3", "3");
@@ -37,8 +37,8 @@ describe("Aggregate statistic functions", () => {
     expect(statisticFnResults["Count"]?.value?.()).toBe(3);
   });
 
-  test("statistic function should not include hidden rows/columns in calculations", () => {
-    const { store, model } = makeStore(AggregateStatisticsStore);
+  test("statistic function should not include hidden rows/columns in calculations", async () => {
+    const { store, model } = await makeStore(AggregateStatisticsStore);
     setCellContent(model, "A1", "1");
     setCellContent(model, "A2", "2");
     setCellContent(model, "A3", "3");
@@ -55,8 +55,8 @@ describe("Aggregate statistic functions", () => {
   describe("return undefined if the types handled by the function are not present among the types of the selected cells", () => {
     let model: Model;
     let store: AggregateStatisticsStore;
-    beforeEach(() => {
-      ({ store, model } = makeStore(AggregateStatisticsStore));
+    beforeEach(async () => {
+      ({ store, model } = await makeStore(AggregateStatisticsStore));
       setCellContent(model, "A1", "24");
       setCellContent(model, "A2", "=42");
       setCellContent(model, "A3", "107% of people don't get statistics");
@@ -154,7 +154,7 @@ describe("Aggregate statistic functions", () => {
     });
   });
 
-  test("raise error from compilation with specific error message", () => {
+  test("raise error from compilation with specific error message", async () => {
     addToRegistry(functionRegistry, "TWOARGSNEEDED", {
       description: "any function",
       compute: () => {
@@ -166,7 +166,7 @@ describe("Aggregate statistic functions", () => {
       ],
     });
 
-    const model = createModel();
+    const model = await createModel();
     setCellContent(model, "A1", "=TWOARGSNEEDED(42)");
 
     expect(getEvaluatedCell(model, "A1").value).toBe("#BAD_EXPR");
@@ -175,8 +175,8 @@ describe("Aggregate statistic functions", () => {
     );
   });
 
-  test("Statistics are recomputed when switching sheets", () => {
-    const { store, model } = makeStore(AggregateStatisticsStore);
+  test("Statistics are recomputed when switching sheets", async () => {
+    const { store, model } = await makeStore(AggregateStatisticsStore);
     setCellContent(model, "A1", "1");
     setCellContent(model, "A2", "2");
     setCellContent(model, "A3", "3");
@@ -195,8 +195,8 @@ describe("Aggregate statistic functions", () => {
     expect(store.statisticFnResults["Count"]?.value?.()).toBe(3);
   });
 
-  test("statistic is updated when a cell format changes", () => {
-    const { store, model } = makeStore(AggregateStatisticsStore);
+  test("statistic is updated when a cell format changes", async () => {
+    const { store, model } = await makeStore(AggregateStatisticsStore);
     setCellContent(model, "A1", '=IF(CELL("format",B1)="0.00%",3,0)');
     setSelection(model, ["A1"]);
 

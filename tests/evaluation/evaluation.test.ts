@@ -36,12 +36,12 @@ import {
 import resetAllMocks = jest.resetAllMocks;
 
 describe("evaluateCells", () => {
-  test("Simple Evaluation", () => {
+  test("Simple Evaluation", async () => {
     const grid = { A1: "1", B1: "2", C1: "=SUM(A1,B1)" };
-    expect(evaluateCell("C1", grid)).toBe(3);
+    expect(await evaluateCell("C1", grid)).toBe(3);
   });
 
-  test("Various numbers representations", () => {
+  test("Various numbers representations", async () => {
     const grid = {
       A1: "1",
       A2: "1.1",
@@ -57,7 +57,7 @@ describe("evaluateCells", () => {
       C4: "1E309", // number too large
       D1: "1.1.1", // not a number
     };
-    expect(evaluateGrid(grid)).toEqual({
+    expect(await evaluateGrid(grid)).toEqual({
       A1: 1,
       A2: 1.1,
       A3: 1234,
@@ -74,7 +74,7 @@ describe("evaluateCells", () => {
     });
   });
 
-  test("Various numbers representations in formulas", () => {
+  test("Various numbers representations in formulas", async () => {
     const grid = {
       A1: "=1",
       A2: "=1.1",
@@ -94,7 +94,7 @@ describe("evaluateCells", () => {
 
       D1: "=1.1.1", // not a number
     };
-    expect(evaluateGrid(grid)).toEqual({
+    expect(await evaluateGrid(grid)).toEqual({
       A1: 1,
       A2: 1.1,
       A3: "#BAD_EXPR", // commas are not allowed as thousand separator in formulas
@@ -114,35 +114,35 @@ describe("evaluateCells", () => {
     });
   });
 
-  test("With empty content", () => {
+  test("With empty content", async () => {
     const grid = { A1: "1", B1: "", C1: "=SUM(A1,B1)" };
-    expect(evaluateCell("C1", grid)).toBe(1);
+    expect(await evaluateCell("C1", grid)).toBe(1);
   });
 
-  test("With empty cell", () => {
+  test("With empty cell", async () => {
     const grid = { A1: "1", C1: "=SUM(A1,B1)" };
-    expect(evaluateCell("C1", grid)).toBe(1);
+    expect(await evaluateCell("C1", grid)).toBe(1);
   });
 
-  test("We avoid '-0' values", () => {
+  test("We avoid '-0' values", async () => {
     const grid = { C1: "=MULTIPLY(0, -1)" };
-    expect(evaluateCell("C1", grid)).toBe(0);
-    expect(evaluateCell("C1", grid)).not.toBe(-0);
+    expect(await evaluateCell("C1", grid)).toBe(0);
+    expect(await evaluateCell("C1", grid)).not.toBe(-0);
   });
 
-  test("With cell outside of sheet", () => {
+  test("With cell outside of sheet", async () => {
     const grid = { C1: "=SUM(A11111,AAA1)" };
-    expect(evaluateCell("C1", grid)).toBe(0);
+    expect(await evaluateCell("C1", grid)).toBe(0);
   });
 
-  test("compute cell only once when references multiple times", () => {
+  test("compute cell only once when references multiple times", async () => {
     const mock = jest.fn().mockReturnValue(42);
     addToRegistry(functionRegistry, "MY.FUNC", {
       description: "any function",
       compute: mock,
       args: [],
     });
-    createModel({
+    await createModel({
       sheets: [
         {
           cells: {
@@ -157,14 +157,14 @@ describe("evaluateCells", () => {
     expect(mock).toHaveBeenCalledTimes(1);
   });
 
-  test("Percent operator", () => {
+  test("Percent operator", async () => {
     const grid = { A1: "1", B1: "=(5+A1)%" };
-    expect(evaluateCell("B1", grid)).toBe(0.06);
+    expect(await evaluateCell("B1", grid)).toBe(0.06);
   });
 
-  test("handling some errors", () => {
+  test("handling some errors", async () => {
     const grid = { A1: "=A1", A2: "=A1", A3: "=+", A4: "=1 + A3", A5: "=sum('asdf')" };
-    const result = evaluateGrid(grid);
+    const result = await evaluateGrid(grid);
     expect(result.A1).toBe("#CYCLE");
     expect(result.A2).toBe("#CYCLE");
     expect(result.A3).toBe("#BAD_EXPR");
@@ -172,8 +172,8 @@ describe("evaluateCells", () => {
     expect(result.A5).toBe("#BAD_EXPR");
   });
 
-  test("error in some function calls", () => {
-    const model = createModel();
+  test("error in some function calls", async () => {
+    const model = await createModel();
     setCellContent(model, "A1", '=Sum("asdf")');
     expect(getEvaluatedCell(model, "A1").value).toBe("#ERROR");
     expect(getCellError(model, "A1")).toBe(
@@ -188,8 +188,8 @@ describe("evaluateCells", () => {
     expect(getCellError(model, "A1")).toBe(`The base (100) must be between 2 and 36 inclusive.`);
   });
 
-  test("error in an addition", () => {
-    const model = createModel();
+  test("error in an addition", async () => {
+    const model = await createModel();
     setCellContent(model, "A1", "1");
     setCellContent(model, "A2", "2");
     setCellContent(model, "A3", "=A1+A2");
@@ -206,8 +206,8 @@ describe("evaluateCells", () => {
     expect(getEvaluatedCell(model, "A3").value).toBe(43);
   });
 
-  test("error in an subtraction", () => {
-    const model = createModel();
+  test("error in an subtraction", async () => {
+    const model = await createModel();
     setCellContent(model, "A1", "1");
     setCellContent(model, "A2", "2");
     setCellContent(model, "A3", "=A1-A2");
@@ -224,8 +224,8 @@ describe("evaluateCells", () => {
     expect(getEvaluatedCell(model, "A3").value).toBe(23);
   });
 
-  test("error in a multiplication", () => {
-    const model = createModel();
+  test("error in a multiplication", async () => {
+    const model = await createModel();
     setCellContent(model, "A1", "1");
     setCellContent(model, "A2", "2");
     setCellContent(model, "A3", "=A1*A2");
@@ -239,8 +239,8 @@ describe("evaluateCells", () => {
     expect(getEvaluatedCell(model, "A3").value).toBe(330);
   });
 
-  test("error in a division", () => {
-    const model = createModel();
+  test("error in a division", async () => {
+    const model = await createModel();
     setCellContent(model, "A1", "1");
     setCellContent(model, "A2", "2");
     setCellContent(model, "A3", "=A1/A2");
@@ -254,24 +254,24 @@ describe("evaluateCells", () => {
     expect(getEvaluatedCell(model, "A3").value).toBe(3);
   });
 
-  test("error in range vlookup", () => {
-    const model = createModel();
+  test("error in range vlookup", async () => {
+    const model = await createModel();
     expect(model.getters.getNumberRows(model.getters.getActiveSheetId())).toBeLessThan(200);
     setCellContent(model, "A1", "=VLOOKUP(D12, A2:A200, 2, false)");
 
     expect(getCellError(model, "A1")).toBe("VLOOKUP evaluates to an out of bounds range.");
   });
 
-  test("error when expecting a boolean", () => {
-    const model = createModel();
+  test("error when expecting a boolean", async () => {
+    const model = await createModel();
     setCellContent(model, "A1", '=NOT("1")');
     expect(getCellError(model, "A1")).toBe(
       "The function NOT expects a boolean value, but '1' is a text, and cannot be coerced to a boolean."
     );
   });
 
-  test("Unknown function error", () => {
-    const model = createModel();
+  test("Unknown function error", async () => {
+    const model = await createModel();
     setCellContent(model, "A1", "=ThisIsNotARealFunction(A2)");
     expect(getCellContent(model, "A1")).toBe(CellErrorType.UnknownFunction);
     expect(getCellError(model, "A1")).toBe('Unknown function: "ThisIsNotARealFunction"');
@@ -281,8 +281,8 @@ describe("evaluateCells", () => {
     expect(getCellError(model, "A1")).toBe('Unknown function: "This.Is.Not.A.Real.Function"');
   });
 
-  test("Unknown function with spaces before LEFT_PAREN", () => {
-    const model = createModel();
+  test("Unknown function with spaces before LEFT_PAREN", async () => {
+    const model = await createModel();
     setCellContent(model, "A1", "=ThisIsNotARealFunction    (A2)");
     expect(getCellContent(model, "A1")).toBe(CellErrorType.UnknownFunction);
     expect(getCellError(model, "A1")).toBe('Unknown function: "ThisIsNotARealFunction"');
@@ -291,8 +291,8 @@ describe("evaluateCells", () => {
   test.each([
     "=1/0", // bad evaluation
     "=", // bad expression
-  ])("setting a format on an error cell keeps the error", (formula) => {
-    const model = createModel();
+  ])("setting a format on an error cell keeps the error", async (formula) => {
+    const model = await createModel();
     setCellContent(model, "A1", formula);
     const message = getCellError(model, "A1");
     const value = getEvaluatedCell(model, "A1").value;
@@ -301,8 +301,8 @@ describe("evaluateCells", () => {
     expect(getEvaluatedCell(model, "A1").value).toBe(value);
   });
 
-  test("string representation of an error is stored as an error", () => {
-    const model = createModel();
+  test("string representation of an error is stored as an error", async () => {
+    const model = await createModel();
     setCellContent(model, "A1", "#ERROR");
     expect(getCellRawContent(model, "A1")).toBe("#ERROR");
     expect(getEvaluatedCell(model, "A1").type).toBe(CellValueType.error);
@@ -310,15 +310,15 @@ describe("evaluateCells", () => {
     expect(getCellError(model, "A1")).toBeUndefined();
   });
 
-  test("range", () => {
-    const model = createModel();
+  test("range", async () => {
+    const model = await createModel();
     setCellContent(model, "D4", "42");
     setCellContent(model, "A1", "=sum(A2:Z10)");
 
     expect(getEvaluatedCell(model, "A1").value).toBe(42);
   });
 
-  test("Evaluate only existing cells from a range partially outside of sheet", () => {
+  test("Evaluate only existing cells from a range partially outside of sheet", async () => {
     addToRegistry(functionRegistry, "RANGE.COUNT.FUNCTION", {
       description: "any function",
       compute: function (range) {
@@ -326,7 +326,7 @@ describe("evaluateCells", () => {
       },
       args: [{ name: "range", description: "", type: ["RANGE"], acceptMatrix: true }],
     });
-    const model = createModel();
+    const model = await createModel();
     setCellContent(model, "D4", "42");
     setCellContent(model, "A1", "=RANGE.COUNT.FUNCTION(A2:AZ999)");
     setCellContent(model, "A2", "=RANGE.COUNT.FUNCTION(B2:AZ2)");
@@ -337,15 +337,15 @@ describe("evaluateCells", () => {
     expect(getEvaluatedCell(model, "A2").value).toBe(26);
   });
 
-  test("range totally outside of sheet", () => {
-    const model = createModel();
+  test("range totally outside of sheet", async () => {
+    const model = await createModel();
     setCellContent(model, "A1", "=sum(AB1:AZ999)");
 
     expect(getEvaluatedCell(model, "A1").value).toBe(0);
   });
 
-  test("misc math formulas", () => {
-    const model = createModel();
+  test("misc math formulas", async () => {
+    const model = await createModel();
     setCellContent(model, "A1", "42");
     setCellContent(model, "A2", "2");
     setCellContent(model, "B3", "2.3");
@@ -364,8 +364,8 @@ describe("evaluateCells", () => {
     expect(getEvaluatedCell(model, "C6").value).toBe(46.3);
   });
 
-  test("priority of operations", () => {
-    const model = createModel();
+  test("priority of operations", async () => {
+    const model = await createModel();
     setCellContent(model, "A1", "=1 + 2 * 3");
     setCellContent(model, "A2", "=-2*-2");
     setCellContent(model, "A3", "=-2^2");
@@ -385,16 +385,16 @@ describe("evaluateCells", () => {
     expect(getEvaluatedCell(model, "A8").value).toBe(2);
   });
 
-  test("& operator", () => {
-    expect(evaluateCell("A1", { A1: "=A2&A3", A2: "abc", A3: "def" })).toBe("abcdef");
+  test("& operator", async () => {
+    expect(await evaluateCell("A1", { A1: "=A2&A3", A2: "abc", A3: "def" })).toBe("abcdef");
   });
 
-  test("<> operator", () => {
-    expect(evaluateCell("A1", { A1: "=A2<>A3", A2: "abc", A3: "def" })).toBe(true);
+  test("<> operator", async () => {
+    expect(await evaluateCell("A1", { A1: "=A2<>A3", A2: "abc", A3: "def" })).toBe(true);
   });
 
-  test("# operator", () => {
-    const model = createModel();
+  test("# operator", async () => {
+    const model = await createModel();
     setCellContent(model, "A1", "=SEQUENCE(3)");
     setCellContent(model, "B1", "=SEQUENCE(3)");
 
@@ -427,19 +427,21 @@ describe("evaluateCells", () => {
     expect(getEvaluatedCell(model, "C3").value).toBe(3);
   });
 
-  test("if with sub expressions", () => {
-    expect(evaluateCell("A1", { A1: "=IF(A2>0,1,2)", A2: "0" })).toBe(2);
-    expect(evaluateCell("A1", { A1: "=IF(A2>0,1,2)", A2: "1" })).toBe(1);
-    expect(evaluateCell("A1", { A1: "=IF(AND(A2>0,A3>0),1,2)", A2: "1", A3: "0" })).toBe(2);
-    expect(evaluateCell("A1", { A1: "=IF(AND(A2>0,A3>0),1,2)", A2: "1", A3: "1" })).toBe(1);
-    expect(evaluateCell("A1", { A1: "=IF(A2>=SUM(A2,A3),1,2)", A2: "1", A3: "0" })).toBe(1);
-    expect(evaluateCell("A1", { A1: "=IF(A2>SUM(A2,A3),1,2)", A2: "1", A3: "1" })).toBe(2);
-    expect(evaluateCell("A1", { A1: "=IF(A2=0,1+1,sum(A2,A3))", A2: "0", A3: "10" })).toBe(2);
-    expect(evaluateCell("A1", { A1: "=IF(A2<>0,1+1,sum(A2,A3))", A2: "0", A3: "10" })).toBe(10);
+  test("if with sub expressions", async () => {
+    expect(await evaluateCell("A1", { A1: "=IF(A2>0,1,2)", A2: "0" })).toBe(2);
+    expect(await evaluateCell("A1", { A1: "=IF(A2>0,1,2)", A2: "1" })).toBe(1);
+    expect(await evaluateCell("A1", { A1: "=IF(AND(A2>0,A3>0),1,2)", A2: "1", A3: "0" })).toBe(2);
+    expect(await evaluateCell("A1", { A1: "=IF(AND(A2>0,A3>0),1,2)", A2: "1", A3: "1" })).toBe(1);
+    expect(await evaluateCell("A1", { A1: "=IF(A2>=SUM(A2,A3),1,2)", A2: "1", A3: "0" })).toBe(1);
+    expect(await evaluateCell("A1", { A1: "=IF(A2>SUM(A2,A3),1,2)", A2: "1", A3: "1" })).toBe(2);
+    expect(await evaluateCell("A1", { A1: "=IF(A2=0,1+1,sum(A2,A3))", A2: "0", A3: "10" })).toBe(2);
+    expect(await evaluateCell("A1", { A1: "=IF(A2<>0,1+1,sum(A2,A3))", A2: "0", A3: "10" })).toBe(
+      10
+    );
   });
 
-  test("IF does not mutate the empty cell value", () => {
-    const grid = evaluateGrid({
+  test("IF does not mutate the empty cell value", async () => {
+    const grid = await evaluateGrid({
       A1: "=ISBLANK(C1)",
       A2: "=IF(TRUE,B1,B1)",
       A3: "=ISBLANK(C1)",
@@ -448,14 +450,14 @@ describe("evaluateCells", () => {
     expect(grid.A3).toBe(true);
   });
 
-  test("evaluate formula returns the cell error value when we pass an invalid formula", () => {
-    const model = createModel();
+  test("evaluate formula returns the cell error value when we pass an invalid formula", async () => {
+    const model = await createModel();
     const sheetId = model.getters.getActiveSheetId();
     expect(model.getters.evaluateFormula(sheetId, "=min(abc)")).toBe("#BAD_EXPR");
   });
 
-  test("various expressions with boolean", () => {
-    const model = createModel();
+  test("various expressions with boolean", async () => {
+    const model = await createModel();
 
     setCellContent(model, "A1", "FALSE");
     setCellContent(model, "A2", "TRUE");
@@ -514,8 +516,8 @@ describe("evaluateCells", () => {
     expect(getEvaluatedCell(model, "B6").value).toBe(true);
   });
 
-  test("various expressions with whitespace", () => {
-    const model = createModel();
+  test("various expressions with whitespace", async () => {
+    const model = await createModel();
 
     setCellContent(model, "A1", "");
     setCellContent(model, "A2", ",");
@@ -590,8 +592,8 @@ describe("evaluateCells", () => {
     expect(getEvaluatedCell(model, "D8").value).toBe("#BAD_EXPR"); // @compatibility: on google sheet, return #ERROR!
   });
 
-  test("various string expressions with whitespace", () => {
-    const model = createModel();
+  test("various string expressions with whitespace", async () => {
+    const model = await createModel();
 
     setCellContent(model, "A1", '""');
     setCellContent(model, "A2", '","');
@@ -666,17 +668,17 @@ describe("evaluateCells", () => {
     expect(getEvaluatedCell(model, "D8").value).toBe(0);
   });
 
-  test("Expression with new lines", () => {
-    expect(evaluateCell("A1", { A1: "=\nD3", D3: "23" })).toBe(23);
-    expect(evaluateCell("A1", { A1: "=D3\n", D3: "23" })).toBe(23);
-    expect(evaluateCell("A1", { A1: "\n=D3", D3: "23" })).toBe("\n=D3");
-    expect(evaluateCell("A1", { A1: "=SUM(\nD3\n)", D3: "23" })).toBe(23);
-    expect(evaluateCell("A1", { A1: "=SUM(D3\n, 5)", D3: "23" })).toBe(28);
-    expect(evaluateCell("A1", { A1: "=SU\nM(D3)", D3: "23" })).toBe(23);
+  test("Expression with new lines", async () => {
+    expect(await evaluateCell("A1", { A1: "=\nD3", D3: "23" })).toBe(23);
+    expect(await evaluateCell("A1", { A1: "=D3\n", D3: "23" })).toBe(23);
+    expect(await evaluateCell("A1", { A1: "\n=D3", D3: "23" })).toBe("\n=D3");
+    expect(await evaluateCell("A1", { A1: "=SUM(\nD3\n)", D3: "23" })).toBe(23);
+    expect(await evaluateCell("A1", { A1: "=SUM(D3\n, 5)", D3: "23" })).toBe(28);
+    expect(await evaluateCell("A1", { A1: "=SU\nM(D3)", D3: "23" })).toBe(23);
   });
 
-  test("various expressions with dot", () => {
-    const model = createModel();
+  test("various expressions with dot", async () => {
+    const model = await createModel();
 
     setCellContent(model, "A1", "4.2");
     setCellContent(model, "A2", "4.");
@@ -711,8 +713,8 @@ describe("evaluateCells", () => {
     expect(getEvaluatedCell(model, "D3").value).toBe(1);
   });
 
-  test("various string expressions with dot", () => {
-    const model = createModel();
+  test("various string expressions with dot", async () => {
+    const model = await createModel();
     setCellContent(model, "A1", '"4.2"');
     setCellContent(model, "A2", '"4."');
     setCellContent(model, "A3", '".2"');
@@ -746,8 +748,8 @@ describe("evaluateCells", () => {
     expect(getEvaluatedCell(model, "D3").value).toBe(1);
   });
 
-  test("various expressions with dot and whitespace", () => {
-    const model = createModel();
+  test("various expressions with dot and whitespace", async () => {
+    const model = await createModel();
     setCellContent(model, "A1", "42 .24");
     setCellContent(model, "A2", "42. 24");
     setCellContent(model, "A3", "42 .");
@@ -805,8 +807,8 @@ describe("evaluateCells", () => {
     expect(getEvaluatedCell(model, "D6").value).toBe("#BAD_EXPR"); // @compatibility: on google sheet, return #ERROR!
   });
 
-  test("various string expressions with dot and whitespace", () => {
-    const model = createModel();
+  test("various string expressions with dot and whitespace", async () => {
+    const model = await createModel();
     setCellContent(model, "A1", '"42 .24"');
     setCellContent(model, "A2", '"42. 24"');
     setCellContent(model, "A3", '"42 ."');
@@ -864,8 +866,8 @@ describe("evaluateCells", () => {
     expect(getEvaluatedCell(model, "D6").value).toBe(0);
   });
 
-  test("various localized number in string expressions ", () => {
-    const model = createModel();
+  test("various localized number in string expressions ", async () => {
+    const model = await createModel();
     updateLocale(model, FR_LOCALE);
     setCellContent(model, "A1", '"4,2"');
     expect(getEvaluatedCell(model, "A1").value).toBe('"4,2"');
@@ -880,8 +882,8 @@ describe("evaluateCells", () => {
     expect(getEvaluatedCell(model, "D1").value).toBe(1);
   });
 
-  test("various expressions with percent, dot and whitespace", () => {
-    const model = createModel();
+  test("various expressions with percent, dot and whitespace", async () => {
+    const model = await createModel();
     setCellContent(model, "A1", "%");
     setCellContent(model, "A2", " %");
     setCellContent(model, "A3", "40%");
@@ -987,8 +989,8 @@ describe("evaluateCells", () => {
     expect(getEvaluatedCell(model, "D12").value).toBe(1);
   });
 
-  test("various string expressions with percent, dot and whitespace", () => {
-    const model = createModel();
+  test("various string expressions with percent, dot and whitespace", async () => {
+    const model = await createModel();
 
     setCellContent(model, "A1", '"%"');
     setCellContent(model, "A2", '" %"');
@@ -1096,8 +1098,8 @@ describe("evaluateCells", () => {
     expect(getEvaluatedCell(model, "D12").value).toBe(1);
   });
 
-  test("evaluate empty colored cell", () => {
-    const model = createModel();
+  test("evaluate empty colored cell", async () => {
+    const model = await createModel();
     setCellContent(model, "A2", "=A1");
     expect(getEvaluatedCell(model, "A2").value).toBe(0);
     setFormatting(model, "A1", {
@@ -1108,8 +1110,8 @@ describe("evaluateCells", () => {
     expect(getEvaluatedCell(model, "A2").value).toBe(0);
   });
 
-  test("evaluation follows dependencies", () => {
-    const model = createModel({
+  test("evaluation follows dependencies", async () => {
+    const model = await createModel({
       sheets: [
         {
           id: "sheet1",
@@ -1125,8 +1127,8 @@ describe("evaluateCells", () => {
     expect(getEvaluatedCell(model, "A3").value).toBe("new");
   });
 
-  test("Coherent handling of #REF when it occurs following a column deletion or a copy/paste", () => {
-    const model = createModel();
+  test("Coherent handling of #REF when it occurs following a column deletion or a copy/paste", async () => {
+    const model = await createModel();
     setCellContent(model, "A1", "=SUM(B1,C1)");
     deleteColumns(model, ["B"]);
     expect(getEvaluatedCell(model, "A1").value).toBe("#REF");
@@ -1138,8 +1140,8 @@ describe("evaluateCells", () => {
     expect(getCellError(model, "A1")).toBe("Invalid reference");
   });
 
-  test("Coherent handling of error when referencing errored cell", () => {
-    const model = createModel();
+  test("Coherent handling of error when referencing errored cell", async () => {
+    const model = await createModel();
     setCellContent(model, "A1", "=+(");
     setCellContent(model, "B1", "=A1");
     setCellContent(model, "C1", "=B1");
@@ -1151,8 +1153,8 @@ describe("evaluateCells", () => {
     expect(getCellError(model, "C1")).toBe("Invalid expression");
   });
 
-  test("error original position from the cell itself", () => {
-    const model = createModel();
+  test("error original position from the cell itself", async () => {
+    const model = await createModel();
     const sheetId = model.getters.getActiveSheetId();
     setCellContent(model, "A1", "=0/0");
     expect(getEvaluatedCell(model, "A1").errorOriginPosition).toEqual(
@@ -1160,8 +1162,8 @@ describe("evaluateCells", () => {
     );
   });
 
-  test("error original position from simple references", () => {
-    const model = createModel();
+  test("error original position from simple references", async () => {
+    const model = await createModel();
     const sheetId = model.getters.getActiveSheetId();
     setCellContent(model, "A1", "=0/0");
     setCellContent(model, "A2", "=A1");
@@ -1171,8 +1173,8 @@ describe("evaluateCells", () => {
     expect(getEvaluatedCell(model, "A3").errorOriginPosition).toEqual(A1);
   });
 
-  test("error original position from a range reference", () => {
-    const model = createModel();
+  test("error original position from a range reference", async () => {
+    const model = await createModel();
     const sheetId = model.getters.getActiveSheetId();
     setCellContent(model, "A1", "1");
     setCellContent(model, "A2", "=0/0");
@@ -1182,8 +1184,8 @@ describe("evaluateCells", () => {
     );
   });
 
-  test("error original position in a spilled result", () => {
-    const model = createModel();
+  test("error original position in a spilled result", async () => {
+    const model = await createModel();
     const sheetId = model.getters.getActiveSheetId();
     setCellContent(model, "A1", "1");
     setCellContent(model, "A2", "=0/0");
@@ -1199,8 +1201,8 @@ describe("evaluateCells", () => {
 
   describe("origin", () => {
     let model: Model, sheetId: UID;
-    beforeEach(() => {
-      model = createModel();
+    beforeEach(async () => {
+      model = await createModel();
       sheetId = model.getters.getActiveSheetId();
     });
 
@@ -1318,14 +1320,14 @@ describe("evaluateCells", () => {
   });
 
   describe("number too large", () => {
-    test("in a formula", () => {
+    test("in a formula", async () => {
       const grid = {
         A1: "1E200",
         A2: "=POWER(A1,2)",
       };
-      expect(evaluateCell("A2", grid)).toBe("#NUM!");
+      expect(await evaluateCell("A2", grid)).toBe("#NUM!");
     });
-    test("in a 1x1 matrix", () => {
+    test("in a 1x1 matrix", async () => {
       const grid = {
         A1: "1E200",
         B1: "1",
@@ -1333,10 +1335,10 @@ describe("evaluateCells", () => {
         C2: "1",
         D1: "=MMULT(A1:B1,C1:C2)",
       };
-      expect(evaluateCell("D1", grid)).toBe("#NUM!");
+      expect(await evaluateCell("D1", grid)).toBe("#NUM!");
     });
-    test("in a matrix", () => {
-      const model = createModelFromGrid({
+    test("in a matrix", async () => {
+      const model = await createModelFromGrid({
         A1: "1E200",
         A2: "2",
         B1: "1",
@@ -1348,7 +1350,7 @@ describe("evaluateCells", () => {
       expect(getEvaluatedCell(model, "D1").value).toBe("#NUM!");
       expect(getEvaluatedCell(model, "D2").value).toBe(2e200);
     });
-    test("in a vectorization", () => {
+    test("in a vectorization", async () => {
       const grid = {
         A1: "1E200",
         A2: "1",
@@ -1356,7 +1358,7 @@ describe("evaluateCells", () => {
         B2: "1",
         C1: "=(A1:A2)*(B1:B2)",
       };
-      expect(evaluateCell("C1", grid)).toBe("#NUM!");
+      expect(await evaluateCell("C1", grid)).toBe("#NUM!");
     });
   });
 });
@@ -1365,8 +1367,8 @@ describe("evaluate formula getter", () => {
   let model: Model;
   let sheetId: string;
 
-  beforeEach(() => {
-    model = createModel();
+  beforeEach(async () => {
+    model = await createModel();
     sheetId = model.getters.getActiveSheetId();
   });
 

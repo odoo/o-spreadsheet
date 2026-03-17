@@ -5,8 +5,8 @@ import { NotificationStore } from "../../src/stores/notification_store";
 import { registerCleanup } from "../setup/jest.setup";
 import { createModel, makeTestNotificationStore } from "./helpers";
 
-export function makeStore<T extends StoreConstructor>(Store: T, ...args: StoreParams<T>) {
-  return makeStoreWithModel(createModel(), Store, ...args);
+export async function makeStore<T extends StoreConstructor>(Store: T, ...args: StoreParams<T>) {
+  return makeStoreWithModel(await createModel(), Store, ...args);
 }
 
 export function makeStoreWithModel<T extends StoreConstructor>(

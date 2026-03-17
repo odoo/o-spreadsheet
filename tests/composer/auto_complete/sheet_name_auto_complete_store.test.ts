@@ -5,7 +5,7 @@ import { makeStore } from "../../test_helpers/stores";
 
 describe("Sheet name auto complete", () => {
   test("auto complete a single sheet", async () => {
-    const { store: composer, model } = makeStore(CellComposerStore);
+    const { store: composer, model } = await makeStore(CellComposerStore);
     createSheet(model, { name: "MySheet" });
     composer.startEdition("=MyS");
     await nextTick();
@@ -21,7 +21,7 @@ describe("Sheet name auto complete", () => {
   });
 
   test("auto complete a sheet with spaces", async () => {
-    const { store: composer, model } = makeStore(CellComposerStore);
+    const { store: composer, model } = await makeStore(CellComposerStore);
     createSheet(model, { name: "My awesome sheet" });
     composer.startEdition("=aweso");
     await nextTick();
@@ -37,7 +37,7 @@ describe("Sheet name auto complete", () => {
   });
 
   test("function auto complete has higher priority", async () => {
-    const { store: composer, model } = makeStore(CellComposerStore);
+    const { store: composer, model } = await makeStore(CellComposerStore);
     createSheet(model, { name: "SUM" });
     composer.startEdition("=SU");
     await nextTick();
@@ -49,7 +49,7 @@ describe("Sheet name auto complete", () => {
   });
 
   test("starting with single quote matches the sheet even if the quote is not required", async () => {
-    const { store: composer, model } = makeStore(CellComposerStore);
+    const { store: composer, model } = await makeStore(CellComposerStore);
     createSheet(model, { name: "Hello" });
     composer.startEdition("='Hel");
     await nextTick();
@@ -60,7 +60,7 @@ describe("Sheet name auto complete", () => {
   });
 
   test("one single quote matches all sheets", async () => {
-    const { store: composer, model } = makeStore(CellComposerStore);
+    const { store: composer, model } = await makeStore(CellComposerStore);
     createSheet(model, { name: "Hello" });
     composer.startEdition("='");
     await nextTick();

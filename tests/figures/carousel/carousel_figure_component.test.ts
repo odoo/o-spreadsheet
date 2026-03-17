@@ -34,8 +34,8 @@ let model: Model;
 let sheetId: UID;
 let mockChartData: ChartConfiguration;
 
-beforeEach(() => {
-  model = createModel();
+beforeEach(async () => {
+  model = await createModel();
   sheetId = model.getters.getActiveSheetId();
   mockChartData = mockChart();
 });
@@ -287,9 +287,9 @@ describe("Carousel figure component", () => {
       return getCarouselMenuActions(figureId, env).find((action) => action.id === actionId);
     }
 
-    beforeEach(() => {
+    beforeEach(async () => {
       openSidePanel = jest.fn();
-      env = makeTestEnv({ model, openSidePanel });
+      env = await makeTestEnv({ model, openSidePanel });
     });
 
     test("Can edit the carousel", () => {

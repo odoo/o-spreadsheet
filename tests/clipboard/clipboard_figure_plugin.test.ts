@@ -40,7 +40,7 @@ describe.each(["chart", "image"])("Clipboard for %s figures", (type: string) => 
   let figureId: UID;
 
   beforeEach(async () => {
-    model = createModel();
+    model = await createModel();
     sheetId = model.getters.getActiveSheetId();
     figureId = model.uuidGenerator.uuidv4();
     if (type === "chart") {
@@ -174,8 +174,8 @@ describe.each(["chart", "image"])("Clipboard for %s figures", (type: string) => 
     expect(figureUI.y).toBe(maxY - copiedFigure.height);
   });
 
-  test("Can paste a chart with ranges that were deleted between the copy and the paste", () => {
-    const model = createModel();
+  test("Can paste a chart with ranges that were deleted between the copy and the paste", async () => {
+    const model = await createModel();
     createSheet(model, { sheetId: "sheet2Id", name: "Sheet2" });
     createChart(
       model,
@@ -231,8 +231,8 @@ describe.each(["chart", "image"])("Clipboard for %s figures", (type: string) => 
 });
 
 describe("chart specific Clipboard test", () => {
-  test("Can copy paste chart on another sheet", () => {
-    const model = createModel();
+  test("Can copy paste chart on another sheet", async () => {
+    const model = await createModel();
     const chartId = "thisIsAnId";
     createChart(model, { type: "bar" }, chartId);
     updateChart(model, chartId, { dataSets: [{ dataRange: "A1:A5" }], labelRange: "B1" });
@@ -255,8 +255,8 @@ describe("Carousel clipboard test", () => {
   let model: Model;
   let sheetId: UID;
 
-  beforeEach(() => {
-    model = createModel();
+  beforeEach(async () => {
+    model = await createModel();
     sheetId = model.getters.getActiveSheetId();
   });
 

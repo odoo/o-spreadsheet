@@ -21,8 +21,8 @@ let model: Model;
 let sheetId: UID;
 
 describe("Table formula autofill ", () => {
-  beforeEach(() => {
-    model = createModel();
+  beforeEach(async () => {
+    model = await createModel();
     sheetId = model.getters.getActiveSheetId();
   });
 
@@ -95,8 +95,8 @@ describe("Table autofill with composer", () => {
     composerStore.stopEdition();
   }
 
-  beforeEach(() => {
-    ({ model, store: composerStore } = makeStore(CellComposerStore));
+  beforeEach(async () => {
+    ({ model, store: composerStore } = await makeStore(CellComposerStore));
   });
 
   test("Editing a cell autofill the table column", () => {
@@ -133,8 +133,8 @@ describe("Table autofill with composer", () => {
 });
 
 describe("Table autofill with copy/paste", () => {
-  beforeEach(() => {
-    model = createModel();
+  beforeEach(async () => {
+    model = await createModel();
   });
 
   test("Copy paste a formula autofill the table column", () => {

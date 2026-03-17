@@ -30,8 +30,8 @@ extendMockGetBoundingClientRect({
   },
 });
 
-beforeEach(() => {
-  model = createModel();
+beforeEach(async () => {
+  model = await createModel();
 });
 
 async function mountCarouselPanel(modelArg: Model, figureId: UID) {
@@ -84,7 +84,7 @@ describe("Carousel panel component", () => {
   test("Can remove a carousel item", async () => {
     createCarousel(model, { items: [] }, "carouselId");
     addNewChartToCarousel(model, "carouselId", { type: "radar" });
-    model = createModel(model.exportData());
+    model = await createModel(model.exportData());
 
     await mountCarouselPanel(model, "carouselId");
     expect(model.getters.getCarousel("carouselId").items).toHaveLength(1);
@@ -98,7 +98,7 @@ describe("Carousel panel component", () => {
   test("Can pop a carousel item out", async () => {
     createCarousel(model, { items: [] }, "carouselId");
     addNewChartToCarousel(model, "carouselId", { type: "radar" });
-    model = createModel(model.exportData());
+    model = await createModel(model.exportData());
 
     await mountCarouselPanel(model, "carouselId");
     expect(model.getters.getCarousel("carouselId").items).toHaveLength(1);

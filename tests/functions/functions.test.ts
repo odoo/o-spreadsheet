@@ -11,8 +11,8 @@ import { setCellContent, setCellFormat } from "../test_helpers/commands_helpers"
 import { getCellError, getEvaluatedCell } from "../test_helpers/getters_helpers";
 import { addToRegistry, createModel, evaluateCell } from "../test_helpers/helpers";
 describe("functions", () => {
-  test("can add a function", () => {
-    const val = evaluateCell("A1", { A1: "=DOUBLEDOUBLE(3)" });
+  test("can add a function", async () => {
+    const val = await evaluateCell("A1", { A1: "=DOUBLEDOUBLE(3)" });
     expect(val).toBe("#NAME?");
     addToRegistry(functionRegistry, "DOUBLEDOUBLE", {
       description: "Double the first argument",
@@ -21,7 +21,7 @@ describe("functions", () => {
       },
       args: [arg("number (number)", "my number")],
     });
-    expect(evaluateCell("A1", { A1: "=DOUBLEDOUBLE(3)" })).toBe(6);
+    expect(await evaluateCell("A1", { A1: "=DOUBLEDOUBLE(3)" })).toBe(6);
   });
   test("can not add a function with invalid name", () => {
     const createBadFunction = () => {
@@ -45,8 +45,8 @@ describe("functions", () => {
     };
     expect(createBadFunction).not.toThrow();
   });
-  test("Function can return value depending on input values", () => {
-    const model = createModel();
+  test("Function can return value depending on input values", async () => {
+    const model = await createModel();
     addToRegistry(functionRegistry, "RETURN.VALUE.DEPENDING.ON.INPUT.VALUE", {
       description: "return value depending on input value",
       compute: function (arg) {
@@ -61,8 +61,8 @@ describe("functions", () => {
     expect(getEvaluatedCell(model, "B1").value).toBe(42);
     expect(getEvaluatedCell(model, "B2").value).toBe(84);
   });
-  test("Function can return value depending on input error", () => {
-    const model = createModel();
+  test("Function can return value depending on input error", async () => {
+    const model = await createModel();
     addToRegistry(functionRegistry, "RETURN.VALUE.DEPENDING.ON.INPUT.ERROR", {
       description: "return value depending on input error",
       compute: function (arg: Arg) {
@@ -76,8 +76,8 @@ describe("functions", () => {
     expect(getEvaluatedCell(model, "B1").value).toBe(true);
     expect(getEvaluatedCell(model, "B2").value).toBe(false);
   });
-  test("Function can return error depending on input value", () => {
-    const model = createModel();
+  test("Function can return error depending on input value", async () => {
+    const model = await createModel();
     addToRegistry(functionRegistry, "RETURN.ERROR.DEPENDING.ON.INPUT.VALUE", {
       description: "return value depending on input error",
       compute: function (arg) {
@@ -92,8 +92,8 @@ describe("functions", () => {
     expect(getCellError(model, "B1")).toBe("Les calculs sont pas bons KEVIN !");
     expect(getEvaluatedCell(model, "B2").value).toBe("ceci n'est pas une erreur");
   });
-  test("Function can return error depending on input error", () => {
-    const model = createModel();
+  test("Function can return error depending on input error", async () => {
+    const model = await createModel();
     addToRegistry(functionRegistry, "RETURN.ERROR.DEPENDING.ON.INPUT.ERROR", {
       description: "return value depending on input error",
       compute: function (arg) {
@@ -109,8 +109,8 @@ describe("functions", () => {
     expect(getEvaluatedCell(model, "B1").value).toBe("#CYCLE");
     expect(getEvaluatedCell(model, "B2").value).toBe("#REF");
   });
-  test("Function can return format depending on input format", () => {
-    const model = createModel();
+  test("Function can return format depending on input format", async () => {
+    const model = await createModel();
     addToRegistry(functionRegistry, "RETURN.FORMAT.DEPENDING.ON.INPUT.FORMAT", {
       description: "return format depending on input format",
       compute: function (arg) {
@@ -127,8 +127,8 @@ describe("functions", () => {
     expect(getEvaluatedCell(model, "B1").format).toBe("0%");
     expect(getEvaluatedCell(model, "B2").format).toBe("#,##0.00");
   });
-  test("Function can return format depending on input value", () => {
-    const model = createModel();
+  test("Function can return format depending on input value", async () => {
+    const model = await createModel();
     addToRegistry(functionRegistry, "RETURN.FORMAT.DEPENDING.ON.INPUT.VALUE", {
       description: "return format depending on input value",
       compute: function (arg) {
@@ -147,8 +147,8 @@ describe("functions", () => {
     expect(getEvaluatedCell(model, "B1").format).toBe("0%");
     expect(getEvaluatedCell(model, "B2").format).toBe("#,##0.00");
   });
-  test("Can use a custom evaluation context in a function", () => {
-    const model = createModel(
+  test("Can use a custom evaluation context in a function", async () => {
+    const model = await createModel(
       {},
       {
         custom: {
@@ -166,8 +166,8 @@ describe("functions", () => {
     setCellContent(model, "A1", "=GETCOUCOU()");
     expect(getEvaluatedCell(model, "A1").value).toBe("Raoul");
   });
-  test("Can use a getter in a function", () => {
-    const model = createModel();
+  test("Can use a getter in a function", async () => {
+    const model = await createModel();
     addToRegistry(functionRegistry, "GETNUMBERCOLS", {
       description: "Get the number of columns",
       compute: function () {
@@ -176,11 +176,11 @@ describe("functions", () => {
       },
       args: [],
     });
-    expect(evaluateCell("A1", { A1: "=GETNUMBERCOLS()" })).toBe(
+    expect(await evaluateCell("A1", { A1: "=GETNUMBERCOLS()" })).toBe(
       model.getters.getNumberCols(model.getters.getActiveSheetId())
     );
   });
-  test("undefined fallback to the zero value in a function", () => {
+  test("undefined fallback to the zero value in a function", async () => {
     addToRegistry(functionRegistry, "UNDEFINED", {
       description: "undefined",
       // @ts-expect-error can happen in a vanilla javascript code base
@@ -189,10 +189,10 @@ describe("functions", () => {
       },
       args: [],
     });
-    expect(evaluateCell("A1", { A1: "=UNDEFINED()" })).toBe(0);
+    expect(await evaluateCell("A1", { A1: "=UNDEFINED()" })).toBe(0);
   });
   describe("check type of arguments", () => {
-    test("reject non-range argument when expecting only range argument", () => {
+    test("reject non-range argument when expecting only range argument", async () => {
       addToRegistry(functionRegistry, "RANGEEXPECTED", {
         description: "function expect number in 1st arg",
         compute: (arg) => {
@@ -242,7 +242,7 @@ describe("functions", () => {
         },
         args: [],
       });
-      const m = createModel();
+      const m = await createModel();
       const errorMessage =
         "Function RANGEEXPECTED expects the parameter '1' to be reference to a cell or range.";
       setCellContent(m, "A1", "=RANGEEXPECTED(42)");
@@ -278,8 +278,8 @@ describe("functions", () => {
       expect(getEvaluatedCell(m, "M1").value).toBe("#BAD_EXPR");
       expect(getCellError(m, "M1")).toBe(errorMessage);
     });
-    test("simple argument value from a single cell or range reference", () => {
-      const m = createModel();
+    test("simple argument value from a single cell or range reference", async () => {
+      const m = await createModel();
       addToRegistry(functionRegistry, "SIMPLE_VALUE_EXPECTED", {
         description: "does not accept a range",
         compute: (arg) => {

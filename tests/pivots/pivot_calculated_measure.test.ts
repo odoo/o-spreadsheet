@@ -14,13 +14,13 @@ import { createModelFromGrid } from "../test_helpers/helpers";
 import { addPivot, updatePivot } from "../test_helpers/pivot_helpers";
 
 describe("Pivot calculated measure", () => {
-  test("can reference another measure", () => {
+  test("can reference another measure", async () => {
     // prettier-ignore
     const grid = {
       A1: "Customer", B1: "Price",  C1: "=PIVOT(1)",
       A2: "Alice",    B2: "10",
     };
-    const model = createModelFromGrid(grid);
+    const model = await createModelFromGrid(grid);
     const sheetId = model.getters.getActiveSheetId();
     addPivot(model, "A1:B2", {
       measures: [
@@ -41,13 +41,13 @@ describe("Pivot calculated measure", () => {
     ]);
   });
 
-  test("can reference another measure with a space in its name", () => {
+  test("can reference another measure with a space in its name", async () => {
     // prettier-ignore
     const grid = {
       A1: "Customer", B1: "Expected revenue",  C1: "=PIVOT(1)",
       A2: "Alice",    B2: "10",
     };
-    const model = createModelFromGrid(grid);
+    const model = await createModelFromGrid(grid);
     const sheetId = model.getters.getActiveSheetId();
     addPivot(model, "A1:B2", {
       measures: [
@@ -68,13 +68,13 @@ describe("Pivot calculated measure", () => {
     ]);
   });
 
-  test("cannot reference an unused measure", () => {
+  test("cannot reference an unused measure", async () => {
     // prettier-ignore
     const grid = {
       A1: "Customer", B1: "Price",  C1: "=PIVOT(1)",
       A2: "Alice",    B2: "10",
     };
-    const model = createModelFromGrid(grid);
+    const model = await createModelFromGrid(grid);
     const sheetId = model.getters.getActiveSheetId();
     addPivot(model, "A1:B2", {
       measures: [
@@ -91,14 +91,14 @@ describe("Pivot calculated measure", () => {
     expect(getEvaluatedCell(model, "D3").message).toEqual("Field Price is not a measure");
   });
 
-  test("cannot reference a measure which does not exist", () => {
+  test("cannot reference a measure which does not exist", async () => {
     const grid = {
       A1: "Customer",
       A2: "Alice",
       A3: '=PIVOT.VALUE(1, "calculated")',
       A4: "=PIVOT(1)",
     };
-    const model = createModelFromGrid(grid);
+    const model = await createModelFromGrid(grid);
     const sheetId = model.getters.getActiveSheetId();
     addPivot(model, "A1:A2", {
       measures: [
@@ -119,7 +119,7 @@ describe("Pivot calculated measure", () => {
     ]);
   });
 
-  test("can reference and aggregate row dimensions", () => {
+  test("can reference and aggregate row dimensions", async () => {
     // prettier-ignore
     const grid = {
       A1: "Customer", B1: "Price",  C1: "Category",
@@ -128,7 +128,7 @@ describe("Pivot calculated measure", () => {
       A4: "Alice",    B4: "10",     C4: "Drink",
       A5: "=PIVOT(1)"
     };
-    const model = createModelFromGrid(grid);
+    const model = await createModelFromGrid(grid);
     const sheetId = model.getters.getActiveSheetId();
     addPivot(model, "A1:C4", {
       rows: [{ fieldName: "Customer" }, { fieldName: "Category" }],
@@ -162,7 +162,7 @@ describe("Pivot calculated measure", () => {
     );
   });
 
-  test("can reference and aggregate column dimensions", () => {
+  test("can reference and aggregate column dimensions", async () => {
     // prettier-ignore
     const grid = {
       A1: "Customer", B1: "Price",  C1: "Category",
@@ -171,7 +171,7 @@ describe("Pivot calculated measure", () => {
       A4: "Alice",    B4: "10",     C4: "Drink",
       A5: "=PIVOT(1)"
     };
-    const model = createModelFromGrid(grid);
+    const model = await createModelFromGrid(grid);
     const sheetId = model.getters.getActiveSheetId();
     addPivot(model, "A1:C4", {
       columns: [{ fieldName: "Customer" }, { fieldName: "Category" }],
@@ -201,7 +201,7 @@ describe("Pivot calculated measure", () => {
     );
   });
 
-  test("aggregate row measures with a column group", () => {
+  test("aggregate row measures with a column group", async () => {
     // prettier-ignore
     const grid = {
       A1: "Customer", B1: "Price",  C1: "Category",
@@ -210,7 +210,7 @@ describe("Pivot calculated measure", () => {
       A4: "Alice",    B4: "10",     C4: "Drink",
       A5: "=PIVOT(1)"
     };
-    const model = createModelFromGrid(grid);
+    const model = await createModelFromGrid(grid);
     const sheetId = model.getters.getActiveSheetId();
     addPivot(model, "A1:C4", {
       columns: [{ fieldName: "Customer" }],
@@ -236,7 +236,7 @@ describe("Pivot calculated measure", () => {
     );
   });
 
-  test("calculated measure without (sub)totals aggregates", () => {
+  test("calculated measure without (sub)totals aggregates", async () => {
     // prettier-ignore
     const grid = {
       A1: "Product", B1: "Price",  C1: "Margin",
@@ -244,7 +244,7 @@ describe("Pivot calculated measure", () => {
       A3: "Chair",   B3: "100",    C3: "50",
       A5: "=PIVOT(1)"
     };
-    const model = createModelFromGrid(grid);
+    const model = await createModelFromGrid(grid);
     const sheetId = model.getters.getActiveSheetId();
     addPivot(model, "A1:C3", {
       columns: [],
@@ -272,7 +272,7 @@ describe("Pivot calculated measure", () => {
     );
   });
 
-  test("row header value is #N/A in formula in totals without aggregates", () => {
+  test("row header value is #N/A in formula in totals without aggregates", async () => {
     // prettier-ignore
     const grid = {
       A1: "Product", B1: "Color",
@@ -280,7 +280,7 @@ describe("Pivot calculated measure", () => {
       A3: "Chair",   B3: "blue",
       A5: "=PIVOT(1)"
     };
-    const model = createModelFromGrid(grid);
+    const model = await createModelFromGrid(grid);
     const sheetId = model.getters.getActiveSheetId();
     addPivot(model, "A1:B3", {
       rows: [{ fieldName: "Product" }, { fieldName: "Color" }],
@@ -312,7 +312,7 @@ describe("Pivot calculated measure", () => {
     );
   });
 
-  test("col header value is #N/A in formula in totals without aggregates", () => {
+  test("col header value is #N/A in formula in totals without aggregates", async () => {
     // prettier-ignore
     const grid = {
       A1: "Product", B1: "Color",
@@ -320,7 +320,7 @@ describe("Pivot calculated measure", () => {
       A3: "Chair",   B3: "blue",
       A5: "=PIVOT(1)"
     };
-    const model = createModelFromGrid(grid);
+    const model = await createModelFromGrid(grid);
     const sheetId = model.getters.getActiveSheetId();
     addPivot(model, "A1:B3", {
       columns: [{ fieldName: "Product" }, { fieldName: "Color" }],
@@ -351,7 +351,7 @@ describe("Pivot calculated measure", () => {
     );
   });
 
-  test("aggregate intermediary row aggregates in a column group", () => {
+  test("aggregate intermediary row aggregates in a column group", async () => {
     // prettier-ignore
     const grid = {
       A1: "Customer", B1: "Price",  C1: "Category",
@@ -360,7 +360,7 @@ describe("Pivot calculated measure", () => {
       A4: "Alice",    B4: "10",     C4: "Drink",
       A5: "=PIVOT(1)"
     };
-    const model = createModelFromGrid(grid);
+    const model = await createModelFromGrid(grid);
     const sheetId = model.getters.getActiveSheetId();
     addPivot(model, "A1:C4", {
       columns: [{ fieldName: "Price" }],
@@ -387,14 +387,14 @@ describe("Pivot calculated measure", () => {
     );
   });
 
-  test("can reference a cell", () => {
+  test("can reference a cell", async () => {
     // prettier-ignore
     const grid = {
       A1: "Customer", B1: "Price",  C1: "=PIVOT(1)",
       A2: "Alice",    B2: "10",
       A5: "2",
     };
-    const model = createModelFromGrid(grid);
+    const model = await createModelFromGrid(grid);
     const sheetId = model.getters.getActiveSheetId();
     addPivot(model, "A1:B2", {
       measures: [
@@ -412,14 +412,14 @@ describe("Pivot calculated measure", () => {
     expect(getEvaluatedCell(model, "E3").value).toEqual(30);
   });
 
-  test("can indirectly reference a cell", () => {
+  test("can indirectly reference a cell", async () => {
     // prettier-ignore
     const grid = {
       A1: "Customer", B1: "Price",  C1: "=PIVOT(1)",
       A2: "Alice",    B2: "10",
       A5: "2",
     };
-    const model = createModelFromGrid(grid);
+    const model = await createModelFromGrid(grid);
     const sheetId = model.getters.getActiveSheetId();
     addPivot(model, "A1:B2", {
       measures: [
@@ -437,7 +437,7 @@ describe("Pivot calculated measure", () => {
     expect(getEvaluatedCell(model, "E3").value).toEqual(30);
   });
 
-  test("a real use case", () => {
+  test("a real use case", async () => {
     // prettier-ignore
     const grid = {
       A1: "Customer", B1: "Price",  C1: "Category",
@@ -451,7 +451,7 @@ describe("Pivot calculated measure", () => {
 
       A10: "=PIVOT(1)"
     };
-    const model = createModelFromGrid(grid);
+    const model = await createModelFromGrid(grid);
     const sheetId = model.getters.getActiveSheetId();
     addPivot(model, "A1:C4", {
       rows: [{ fieldName: "Customer" }, { fieldName: "Category" }],
@@ -484,7 +484,7 @@ describe("Pivot calculated measure", () => {
     );
   });
 
-  test("two identical formulas referencing two different sheets", () => {
+  test("two identical formulas referencing two different sheets", async () => {
     const grid = {
       A1: "Customer",
       A2: "Alice",
@@ -492,7 +492,7 @@ describe("Pivot calculated measure", () => {
       A4: '=PIVOT.VALUE(1, "calculated2")',
       A5: "A5 in sheet 1",
     };
-    const model = createModelFromGrid(grid);
+    const model = await createModelFromGrid(grid);
     const sheetId = model.getters.getActiveSheetId();
     createSheet(model, { sheetId: "sheet2" });
     setCellContent(model, "A5", "A5 in sheet 2", "sheet2");
@@ -516,14 +516,14 @@ describe("Pivot calculated measure", () => {
     expect(getEvaluatedCell(model, "A4").value).toEqual("A5 in sheet 2");
   });
 
-  test("can depend on a previous calculated measure", () => {
+  test("can depend on a previous calculated measure", async () => {
     // prettier-ignore
     const grid = {
       A1: "Customer", B1: "Price",
       A2: "Alice",    B2: "10",
       A3: '=PIVOT.VALUE(1, "Price times 4")',
     };
-    const model = createModelFromGrid(grid);
+    const model = await createModelFromGrid(grid);
     const sheetId = model.getters.getActiveSheetId();
     addPivot(model, "A1:B2", {
       measures: [
@@ -545,14 +545,14 @@ describe("Pivot calculated measure", () => {
     expect(getEvaluatedCell(model, "A3").value).toEqual(40);
   });
 
-  test("can depend on a calculated measure defined after", () => {
+  test("can depend on a calculated measure defined after", async () => {
     // prettier-ignore
     const grid = {
       A1: "Customer", B1: "Price",
       A2: "Alice",    B2: "10",
       A3: '=PIVOT.VALUE(1, "Price times 4")',
     };
-    const model = createModelFromGrid(grid);
+    const model = await createModelFromGrid(grid);
     const sheetId = model.getters.getActiveSheetId();
     addPivot(model, "A1:B2", {
       measures: [
@@ -574,13 +574,13 @@ describe("Pivot calculated measure", () => {
     expect(getEvaluatedCell(model, "A3").value).toEqual(40);
   });
 
-  test("cannot depend on itself", () => {
+  test("cannot depend on itself", async () => {
     const grid = {
       A1: "Customer",
       A2: "Alice",
       A3: '=PIVOT.VALUE(1, "calculated")',
     };
-    const model = createModelFromGrid(grid);
+    const model = await createModelFromGrid(grid);
     const sheetId = model.getters.getActiveSheetId();
     addPivot(model, "A1:A2", {
       measures: [
@@ -596,13 +596,13 @@ describe("Pivot calculated measure", () => {
     expect(getEvaluatedCell(model, "A3").message).toEqual("Circular reference");
   });
 
-  test("cannot depend on a cell depending on itself", () => {
+  test("cannot depend on a cell depending on itself", async () => {
     const grid = {
       A1: "Customer",
       A2: "Alice",
       A3: '=PIVOT.VALUE(1, "calculated")',
     };
-    const model = createModelFromGrid(grid);
+    const model = await createModelFromGrid(grid);
     const sheetId = model.getters.getActiveSheetId();
     addPivot(model, "A1:A2", {
       measures: [
@@ -618,14 +618,14 @@ describe("Pivot calculated measure", () => {
     expect(getEvaluatedCell(model, "A3").message).toEqual("Circular reference");
   });
 
-  test("Measures cannot mutually depend on each other", () => {
+  test("Measures cannot mutually depend on each other", async () => {
     const grid = {
       A1: "Customer",
       A2: "Alice",
       A3: '=PIVOT.VALUE(1, "calculated")',
       A4: '=PIVOT.VALUE(1, "basedOnCalculated")',
     };
-    const model = createModelFromGrid(grid);
+    const model = await createModelFromGrid(grid);
     const sheetId = model.getters.getActiveSheetId();
     addPivot(model, "A1:A2", {
       measures: [
@@ -649,7 +649,7 @@ describe("Pivot calculated measure", () => {
     expect(getEvaluatedCell(model, "A4").message).toEqual("Circular reference");
   });
 
-  test("Measure can depend on cells that depend on the pivot", () => {
+  test("Measure can depend on cells that depend on the pivot", async () => {
     const grid = {
       A1: "Customer",
       A2: "Alice",
@@ -658,7 +658,7 @@ describe("Pivot calculated measure", () => {
       A4: '=PIVOT.VALUE(1, "standard")', // depends on the pivot
       A6: "=PIVOT(1)",
     };
-    const model = createModelFromGrid(grid);
+    const model = await createModelFromGrid(grid);
     const sheetId = model.getters.getActiveSheetId();
     addPivot(model, "A1:A2", {
       measures: [
@@ -681,14 +681,14 @@ describe("Pivot calculated measure", () => {
     expect(getEvaluatedCell(model, "C8").value).toEqual(2);
   });
 
-  test("can depend on a cell containing another header", () => {
+  test("can depend on a cell containing another header", async () => {
     const grid = {
       A1: '=PIVOT.HEADER(1, "Customer", "Alice")', // not referenced by the computed measure
       A10: '=PIVOT.HEADER(1, "Customer", "Alice")', // referenced by the computed measure
       A2: "Customer",
       A3: "Alice",
     };
-    const model = createModelFromGrid(grid);
+    const model = await createModelFromGrid(grid);
     const sheetId = model.getters.getActiveSheetId();
     addPivot(model, "A2:A3", {
       rows: [{ fieldName: "Customer" }],
@@ -705,14 +705,14 @@ describe("Pivot calculated measure", () => {
     expect(getEvaluatedCell(model, "A1").value).toEqual("Alice");
   });
 
-  test("can depend on a cell containing another value", () => {
+  test("can depend on a cell containing another value", async () => {
     const grid = {
       A1: '=PIVOT.VALUE(1, "Customer")', // not referenced by the computed measure
       A10: '=PIVOT.VALUE(1, "Customer")', // referenced by the computed measure
       A2: "Customer",
       A3: "Alice",
     };
-    const model = createModelFromGrid(grid);
+    const model = await createModelFromGrid(grid);
     const sheetId = model.getters.getActiveSheetId();
     addPivot(model, "A2:A3", {
       measures: [
@@ -729,7 +729,7 @@ describe("Pivot calculated measure", () => {
     expect(getEvaluatedCell(model, "A1").value).toEqual(0);
   });
 
-  test("measures symbols are scoped to the formula", () => {
+  test("measures symbols are scoped to the formula", async () => {
     // prettier-ignore
     const grid = {
       A1: "Customer", B1: "Price",
@@ -739,7 +739,7 @@ describe("Pivot calculated measure", () => {
       // even if A4 is referenced in the formula
       A4: "=Price",
     };
-    const model = createModelFromGrid(grid);
+    const model = await createModelFromGrid(grid);
     const sheetId = model.getters.getActiveSheetId();
     addPivot(model, "A1:B2", {
       measures: [
@@ -756,14 +756,14 @@ describe("Pivot calculated measure", () => {
     expect(getEvaluatedCell(model, "A4").value).toEqual("#BAD_EXPR");
   });
 
-  test("values on rows are aggregated", () => {
+  test("values on rows are aggregated", async () => {
     // prettier-ignore
     const grid = {
       A1: "Customer", B1: "Price",  C1: "Year", D1: "=PIVOT(1)",
       A2: "Alice",    B2: "10",     C2: "2020",
       A3: "Alice",    B3: "20",     C3: "2021",
     };
-    const model = createModelFromGrid(grid);
+    const model = await createModelFromGrid(grid);
     const sheetId = model.getters.getActiveSheetId();
     addPivot(model, "A1:C3", {
       rows: [{ fieldName: "Customer" }, { fieldName: "Year" }],
@@ -788,7 +788,7 @@ describe("Pivot calculated measure", () => {
     ]);
   });
 
-  test("values on cols are aggregated", () => {
+  test("values on cols are aggregated", async () => {
     // prettier-ignore
     const grid = {
       A1: "Customer", B1: "Price",  C1: "Year", D1: "Category",
@@ -798,7 +798,7 @@ describe("Pivot calculated measure", () => {
       A5: "Bob",      B5: "3000",   C5: "2021", D5: "Drink",
       A6: "=PIVOT(1)"
     };
-    const model = createModelFromGrid(grid);
+    const model = await createModelFromGrid(grid);
     const sheetId = model.getters.getActiveSheetId();
     addPivot(model, "A1:D5", {
       columns: [{ fieldName: "Category" }],
@@ -823,13 +823,13 @@ describe("Pivot calculated measure", () => {
     ]);
   });
 
-  test("aggregate grouped by integer field", () => {
+  test("aggregate grouped by integer field", async () => {
     const grid = {
       A1: "Type",
       A2: "10",
       A6: '=PIVOT.VALUE(1,"calc", "Type", "10")',
     };
-    const model = createModelFromGrid(grid);
+    const model = await createModelFromGrid(grid);
     const sheetId = model.getters.getActiveSheetId();
     addPivot(model, "A1:A2", {
       columns: [],
@@ -846,7 +846,7 @@ describe("Pivot calculated measure", () => {
     expect(getEvaluatedCell(model, "A6").value).toEqual(10);
   });
 
-  test("aggregate grouped by date field aggregated by month number", () => {
+  test("aggregate grouped by date field aggregated by month number", async () => {
     // prettier-ignore
     const grid = {
       A1: "Date",       B1: "Name",
@@ -856,7 +856,7 @@ describe("Pivot calculated measure", () => {
       A7: '=PIVOT.VALUE(1,"calc","Name","Bob")',
       A8: '=PIVOT.VALUE(1,"calc","Name","Bob","Date:month_number",1)',
     };
-    const model = createModelFromGrid(grid);
+    const model = await createModelFromGrid(grid);
     const sheetId = model.getters.getActiveSheetId();
     addPivot(model, "A1:B3", {
       columns: [],
@@ -875,7 +875,7 @@ describe("Pivot calculated measure", () => {
     expect(getEvaluatedCell(model, "A8").value).toEqual(10);
   });
 
-  test("aggregator preserves the format", () => {
+  test("aggregator preserves the format", async () => {
     // prettier-ignore
     const grid = {
       A1: "Customer", B1: "Price",
@@ -884,7 +884,7 @@ describe("Pivot calculated measure", () => {
       A4: '=PIVOT.VALUE(1, "double", "Customer", "Alice")',
       A5: '=PIVOT.VALUE(1, "double")',
     };
-    const model = createModelFromGrid(grid);
+    const model = await createModelFromGrid(grid);
     setFormat(model, "B2:B3", "#,##0[$€]");
     const sheetId = model.getters.getActiveSheetId();
     addPivot(model, "A1:B3", {
@@ -905,7 +905,7 @@ describe("Pivot calculated measure", () => {
     expect(getEvaluatedCell(model, "A5").format).toBe("#,##0[$€]");
   });
 
-  test("format of empty values is preserved", () => {
+  test("format of empty values is preserved", async () => {
     // prettier-ignore
     const grid = {
       A1: "Customer", B1: "Country",  C1: "Price",
@@ -915,7 +915,7 @@ describe("Pivot calculated measure", () => {
       A5: '=PIVOT.VALUE(1, "double")',
       A6: '=PIVOT.VALUE(1, "double", "Customer", "Alice", "Country", "BE")',
     };
-    const model = createModelFromGrid(grid);
+    const model = await createModelFromGrid(grid);
     setFormat(model, "C2:C3", "#,##0[$€]");
     const sheetId = model.getters.getActiveSheetId();
     addPivot(model, "A1:C3", {
@@ -949,7 +949,7 @@ describe("Pivot calculated measure", () => {
     expect(getEvaluatedCell(model, "A6").formattedValue).toBe("0€");
   });
 
-  test("formula is applied with specified aggregator", () => {
+  test("formula is applied with specified aggregator", async () => {
     // prettier-ignore
     const grid = {
       A1: "Customer", B1: "Price",  C1: "Year", D1: "=PIVOT(1)",
@@ -957,7 +957,7 @@ describe("Pivot calculated measure", () => {
       A3: "Alice",    B3: "20",     C3: "2021",
       A4: "Alice",    B4: "1",      C4: "2021",
     };
-    const model = createModelFromGrid(grid);
+    const model = await createModelFromGrid(grid);
     const sheetId = model.getters.getActiveSheetId();
     addPivot(model, "A1:C4", {
       rows: [{ fieldName: "Customer" }, { fieldName: "Year" }],
@@ -982,14 +982,14 @@ describe("Pivot calculated measure", () => {
     ]);
   });
 
-  test("formula returning a matrix", () => {
+  test("formula returning a matrix", async () => {
     // prettier-ignore
     const grid = {
       A1: "Customer", B1: "B1",
       A2: "Alice",    B2: "B2",
       A3: "=PIVOT(1)"
     };
-    const model = createModelFromGrid(grid);
+    const model = await createModelFromGrid(grid);
     const sheetId = model.getters.getActiveSheetId();
     addPivot(model, "A1:A2", {
       measures: [
@@ -1006,13 +1006,13 @@ describe("Pivot calculated measure", () => {
     expect(getEvaluatedCell(model, "B5").value).toEqual("B1 bis");
   });
 
-  test("formula with a compilation error", () => {
+  test("formula with a compilation error", async () => {
     const grid = {
       A1: "Customer",
       A2: "Alice",
       A3: "=PIVOT(1)",
     };
-    const model = createModelFromGrid(grid);
+    const model = await createModelFromGrid(grid);
     const sheetId = model.getters.getActiveSheetId();
     addPivot(model, "A1:A2", {
       measures: [
@@ -1028,13 +1028,13 @@ describe("Pivot calculated measure", () => {
     expect(getEvaluatedCell(model, "B5").message).toEqual("Invalid expression");
   });
 
-  test("formula with a runtime error", () => {
+  test("formula with a runtime error", async () => {
     const grid = {
       A1: "Customer",
       A2: "Alice",
       A3: "=PIVOT(1)",
     };
-    const model = createModelFromGrid(grid);
+    const model = await createModelFromGrid(grid);
     const sheetId = model.getters.getActiveSheetId();
     addPivot(model, "A1:A2", {
       rows: [{ fieldName: "Customer" }],
@@ -1056,13 +1056,13 @@ describe("Pivot calculated measure", () => {
     ]);
   });
 
-  test("formula does not start with =", () => {
+  test("formula does not start with =", async () => {
     const grid = {
       A1: "Customer",
       A2: "Alice",
       A3: '=PIVOT.VALUE(1, "calculated")',
     };
-    const model = createModelFromGrid(grid);
+    const model = await createModelFromGrid(grid);
     const sheetId = model.getters.getActiveSheetId();
     addPivot(model, "A1:A2", {
       measures: [
@@ -1077,13 +1077,13 @@ describe("Pivot calculated measure", () => {
     expect(getEvaluatedCell(model, "A3").value).toEqual(42);
   });
 
-  test("update formula", () => {
+  test("update formula", async () => {
     const grid = {
       A1: "Customer",
       A2: "Alice",
       A3: '=PIVOT.VALUE(1, "calculated")',
     };
-    const model = createModelFromGrid(grid);
+    const model = await createModelFromGrid(grid);
     const sheetId = model.getters.getActiveSheetId();
     addPivot(model, "A1:A2", {
       measures: [
@@ -1109,14 +1109,14 @@ describe("Pivot calculated measure", () => {
     expect(getEvaluatedCell(model, "A3").value).toEqual(43);
   });
 
-  test("references are adapted with sheet", () => {
+  test("references are adapted with sheet", async () => {
     const grid = {
       A1: "Customer",
       A2: "Alice",
       A3: "42",
       A4: '=PIVOT.VALUE(1, "calculated")',
     };
-    const model = createModelFromGrid(grid);
+    const model = await createModelFromGrid(grid);
     const sheetId = model.getters.getActiveSheetId();
     addPivot(model, "A1:A2", {
       measures: [
@@ -1146,14 +1146,14 @@ describe("Pivot calculated measure", () => {
     expect(getEvaluatedCell(model, "A5").value).toEqual(42);
   });
 
-  test("references are adapted with rename sheet", () => {
+  test("references are adapted with rename sheet", async () => {
     const grid = {
       A1: "Customer",
       A2: "Alice",
       A3: "42",
       A4: '=PIVOT.VALUE(1, "calculated")',
     };
-    const model = createModelFromGrid(grid);
+    const model = await createModelFromGrid(grid);
     const sheetId = model.getters.getActiveSheetId();
     const sheetName = model.getters.getSheetName(sheetId);
     addPivot(model, "A1:A2", {
@@ -1179,13 +1179,13 @@ describe("Pivot calculated measure", () => {
     expect(getEvaluatedCell(model, "A4").value).toEqual(42);
   });
 
-  test("reference is preserved when sheet is deleted", () => {
+  test("reference is preserved when sheet is deleted", async () => {
     const grid = {
       A1: "Customer",
       A2: "Alice",
       A4: '=PIVOT.VALUE(1, "calculated")',
     };
-    const model = createModelFromGrid(grid);
+    const model = await createModelFromGrid(grid);
     const sheetId = model.getters.getActiveSheetId();
     const sheetId2 = "sheetId2";
     createSheet(model, { sheetId: sheetId2 });
@@ -1214,7 +1214,7 @@ describe("Pivot calculated measure", () => {
     expect(getEvaluatedCell(model, "A4", sheetId).value).toEqual("#REF");
   });
 
-  test("Can get subtotal of calculated measure", () => {
+  test("Can get subtotal of calculated measure", async () => {
     // prettier-ignore
     const grid = {
       A1: "Customer", B1: "Price",  C1: "Year",
@@ -1223,7 +1223,7 @@ describe("Pivot calculated measure", () => {
       A4: "Bob",      B4: "30",     C4: "2020",
       A5: "Bob",      B5: "40",     C5: "2021",
     };
-    const model = createModelFromGrid(grid);
+    const model = await createModelFromGrid(grid);
     const sheetId = model.getters.getActiveSheetId();
     addPivot(model, "A1:C5", {
       columns: [{ fieldName: "Year" }, { fieldName: "Customer" }],
@@ -1253,7 +1253,7 @@ describe("Pivot calculated measure", () => {
     expect(getEvaluatedCell(model, "E3").value).toEqual(60);
   });
 
-  test("formula with a domain not matching any data in the pivot", () => {
+  test("formula with a domain not matching any data in the pivot", async () => {
     const grid = {
       A1: "Customer",
       B1: "Country",
@@ -1266,7 +1266,7 @@ describe("Pivot calculated measure", () => {
       A5: '=PIVOT.VALUE(1, "calculated", "Country", "IN", "Customer", "Bob")', // All missing
       A6: '=PIVOT.VALUE(1, "calculated", "Country", "IN")', // aggregated value
     };
-    const model = createModelFromGrid(grid);
+    const model = await createModelFromGrid(grid);
     const sheetId = model.getters.getActiveSheetId();
     addPivot(model, "A1:C2", {
       rows: [{ fieldName: "Country" }, { fieldName: "Customer" }],
@@ -1286,7 +1286,7 @@ describe("Pivot calculated measure", () => {
   });
 });
 
-test("measure takes indirect dependency into account for recalculation", () => {
+test("measure takes indirect dependency into account for recalculation", async () => {
   const grid = {
     A1: "Customer",
     A2: "Alice",
@@ -1294,7 +1294,7 @@ test("measure takes indirect dependency into account for recalculation", () => {
     A4: '=PIVOT.VALUE(1, "calculated")',
     A5: '=PIVOT.VALUE(1, "basedOnCalculated")',
   };
-  const model = createModelFromGrid(grid);
+  const model = await createModelFromGrid(grid);
   const sheetId = model.getters.getActiveSheetId();
   addPivot(model, "A1:A2", {
     measures: [
@@ -1317,14 +1317,14 @@ test("measure takes indirect dependency into account for recalculation", () => {
   expect(getEvaluatedCell(model, "A5").value).toEqual(43);
 });
 
-test("calculated measure do not break meta formula", () => {
+test("calculated measure do not break meta formula", async () => {
   const grid = {
     A1: "Customer",
     A2: "Alice",
     A3: "42",
     A4: '=INDIRECT("A3") & PIVOT.VALUE(1, "calculated") & INDIRECT("A3")',
   };
-  const model = createModelFromGrid(grid);
+  const model = await createModelFromGrid(grid);
   createSheet(model, { sheetId: "sheet2" });
   setCellContent(model, "A3", "1", "sheet2");
   addPivot(model, "A1:A2", {

@@ -62,14 +62,14 @@ describe("Interactive rename sheet", () => {
   let errorTextSpy: jest.Mock;
   let model: Model;
 
-  beforeEach(() => {
+  beforeEach(async () => {
     errorTextSpy = jest.fn();
     raiseErrorSpy = jest.fn().mockImplementation((error, callback) => {
       errorTextSpy(error.toString());
       callback();
     });
-    model = createModel({});
-    env = makeTestEnv({ model, raiseError: raiseErrorSpy });
+    model = await createModel({});
+    env = await makeTestEnv({ model, raiseError: raiseErrorSpy });
   });
 
   test.each([
@@ -107,11 +107,11 @@ describe("Interactive Freeze columns/rows", () => {
   test.each([
     ["column", "COL"],
     ["row", "ROW"],
-  ])("freeze %s through a merge", (name, dimension) => {
-    const model = createModel();
+  ])("freeze %s through a merge", async (name, dimension) => {
+    const model = await createModel();
     merge(model, "A1:D4");
     const raiseError = jest.fn();
-    const env = makeTestEnv({ model, raiseError });
+    const env = await makeTestEnv({ model, raiseError });
     interactiveFreezeColumnsRows(env, dimension as Dimension, 2);
     expect(raiseError).toBeCalled();
   });
@@ -124,8 +124,8 @@ describe("UI Helpers", () => {
   let model: Model;
   let sheetId: UID;
 
-  beforeEach(() => {
-    model = createModel();
+  beforeEach(async () => {
+    model = await createModel();
     sheetId = model.getters.getActiveSheetId();
     notifyUserTextSpy = jest.fn();
     askConfirmationTextSpy = jest.fn();
@@ -135,7 +135,7 @@ describe("UI Helpers", () => {
     const askConfirmation = (content: string, confirm: () => any, cancel?: () => any) => {
       askConfirmationTextSpy(content.toString());
     };
-    env = makeTestEnv({ model, raiseError, askConfirmation });
+    env = await makeTestEnv({ model, raiseError, askConfirmation });
   });
 
   describe("Interactive Create table", () => {
@@ -184,7 +184,7 @@ describe("UI Helpers", () => {
       setCellStyle(model, "A1", style);
 
       copy(model, "A1");
-      const env = makeTestEnv({ model });
+      const env = await makeTestEnv({ model });
       interactivePaste(env, target("B1"), "onlyFormat");
       interactivePaste(env, target("B2"), "asValue");
       interactivePaste(env, target("B3"));
@@ -388,31 +388,31 @@ describe("UI Helpers", () => {
         },
       ],
     };
-    test("Sort with adjacent values to the selection ask for confirmation", () => {
+    test("Sort with adjacent values to the selection ask for confirmation", async () => {
       askConfirmation = jest.fn();
-      model = createModel(modelData);
+      model = await createModel(modelData);
       const zone = toZone("A2:A3");
       anchor = toCartesian("A2");
-      const env = makeTestEnv({ model, askConfirmation });
+      const env = await makeTestEnv({ model, askConfirmation });
       interactiveSortSelection(env, sheetId, anchor, zone, "desc");
       expect(askConfirmation).toHaveBeenCalled();
     });
-    test("Sort without adjacent values to the selection does not ask for confirmation", () => {
+    test("Sort without adjacent values to the selection does not ask for confirmation", async () => {
       askConfirmation = jest.fn();
-      model = createModel(modelData);
+      model = await createModel(modelData);
       const zone = toZone("A2:A3");
       const contiguousZone = model.getters.getContiguousZone(sheetId, zone);
-      const env = makeTestEnv({ model, askConfirmation });
+      const env = await makeTestEnv({ model, askConfirmation });
       interactiveSortSelection(env, sheetId, anchor, contiguousZone, "desc");
       expect(askConfirmation).not.toHaveBeenCalled();
     });
 
-    test("Sort on first column w/ confirming contiguous", () => {
+    test("Sort on first column w/ confirming contiguous", async () => {
       askConfirmation = jest.fn((text, confirm, cancel) => confirm());
-      model = createModel(modelData);
+      model = await createModel(modelData);
       const zone = toZone("A3:A4");
       anchor = toCartesian("A3");
-      const env = makeTestEnv({ model, askConfirmation });
+      const env = await makeTestEnv({ model, askConfirmation });
       interactiveSortSelection(env, sheetId, anchor, zone, "desc");
       expect(getCellsObject(model, sheetId)).toMatchObject({
         A1: { content: "Zulu" },
@@ -427,12 +427,12 @@ describe("UI Helpers", () => {
         D5: { content: "6" },
       });
     });
-    test("Sort on first column w/ refusing contiguous", () => {
+    test("Sort on first column w/ refusing contiguous", async () => {
       askConfirmation = jest.fn((text, confirm, cancel) => cancel());
-      model = createModel(modelData);
+      model = await createModel(modelData);
       const zone = toZone("A3:A4");
       anchor = toCartesian("A3");
-      const env = makeTestEnv({ model, askConfirmation });
+      const env = await makeTestEnv({ model, askConfirmation });
       interactiveSortSelection(env, sheetId, anchor, zone, "desc");
       expect(getCellsObject(model, sheetId)).toMatchObject({
         A1: { content: "Alpha" },
@@ -449,19 +449,19 @@ describe("UI Helpers", () => {
     });
   });
 
-  test("Cannot sort on zone with array formulas that spread", () => {
+  test("Cannot sort on zone with array formulas that spread", async () => {
     const raiseError = jest.fn();
-    model = createModelFromGrid({ A1: "9", A2: "8", A3: "=CHOOSECOLS(A1:A2, 1)" });
-    const env = makeTestEnv({ model, raiseError });
+    model = await createModelFromGrid({ A1: "9", A2: "8", A3: "=CHOOSECOLS(A1:A2, 1)" });
+    const env = await makeTestEnv({ model, raiseError });
 
     interactiveSortSelection(env, sheetId, toCartesian("A1"), toZone("A1:A4"), "asc");
     expect(raiseError).toHaveBeenCalledWith("Cannot sort a zone with array formulas.");
   });
 
-  test("Can sort on zone with array formulas that do not spread", () => {
+  test("Can sort on zone with array formulas that do not spread", async () => {
     const raiseError = jest.fn();
-    model = createModelFromGrid({ A1: "9", A2: "8", B1: "1", C1: "=MMULT(A1:A2, A1:B1)" });
-    const env = makeTestEnv({ model, raiseError });
+    model = await createModelFromGrid({ A1: "9", A2: "8", B1: "1", C1: "=MMULT(A1:A2, A1:B1)" });
+    const env = await makeTestEnv({ model, raiseError });
 
     interactiveSortSelection(env, sheetId, toCartesian("C1"), toZone("C1:D2"), "asc");
     expect(raiseError).toHaveBeenCalledTimes(1);
@@ -507,10 +507,10 @@ describe("UI Helpers", () => {
         },
       ],
     };
-    beforeEach(() => {
-      model = createModel(modelData);
+    beforeEach(async () => {
+      model = await createModel(modelData);
     });
-    test("Failed Sort of merges with single adjacent cell with and without interactive mode", () => {
+    test("Failed Sort of merges with single adjacent cell with and without interactive mode", async () => {
       // add value in adjacent cell
       setCellContent(model, "E6", "Bad Cell!", sheetId);
 
@@ -518,7 +518,7 @@ describe("UI Helpers", () => {
       const zone = toZone("B2:B8");
       const contiguousZone = model.getters.getContiguousZone(sheetId, zone);
       anchor = toCartesian("B2");
-      const env = makeTestEnv({ model, raiseError });
+      const env = await makeTestEnv({ model, raiseError });
       interactiveSortSelection(env, sheetId, anchor, contiguousZone, "asc");
       expect(raiseError).toHaveBeenCalled();
       expect(model.getters.getSelection()).toEqual({
@@ -535,7 +535,7 @@ describe("UI Helpers", () => {
       ).toBeCancelledBecause(CommandResult.InvalidSortZone);
     });
 
-    test("Failed Sort of merges with adjacent merge with and without interactive mode", () => {
+    test("Failed Sort of merges with adjacent merge with and without interactive mode", async () => {
       const sheetId = model.getters.getActiveSheetId();
       //add merge [cols:2, rows: 1] above existing merges
       setCellContent(model, "B1", "Bad Merge!", sheetId);
@@ -545,7 +545,7 @@ describe("UI Helpers", () => {
       const contiguousZone = model.getters.getContiguousZone(sheetId, zone);
 
       const anchor = toCartesian("B2");
-      const env = makeTestEnv({ model, raiseError });
+      const env = await makeTestEnv({ model, raiseError });
       interactiveSortSelection(env, sheetId, anchor, contiguousZone, "asc");
       expect(raiseError).toHaveBeenCalled();
       expect(model.getters.getSelection()).toEqual({

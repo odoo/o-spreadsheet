@@ -18,21 +18,21 @@ interface CollaborativeEnv {
  * first, meaning she will also resend her pending messages first.
  * Similarly, Bob's messages are resent before Charlie's.
  */
-export function setupCollaborativeEnv(
+export async function setupCollaborativeEnv(
   modelData?: any,
   mockTransportService?: MockTransportService
-): CollaborativeEnv {
+): Promise<CollaborativeEnv> {
   const network = mockTransportService || new MockTransportService();
-  const emptySheetData = createModel(modelData).exportData();
-  const alice = createModel(deepCopy(emptySheetData), {
+  const emptySheetData = (await createModel(modelData)).exportData();
+  const alice = await createModel(deepCopy(emptySheetData), {
     transportService: network,
     client: { id: "alice", name: "Alice" },
   });
-  const bob = createModel(deepCopy(emptySheetData), {
+  const bob = await createModel(deepCopy(emptySheetData), {
     transportService: network,
     client: { id: "bob", name: "Bob" },
   });
-  const charlie = createModel(deepCopy(emptySheetData), {
+  const charlie = await createModel(deepCopy(emptySheetData), {
     transportService: network,
     client: { id: "charlie", name: "Charlie" },
   });

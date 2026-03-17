@@ -36,8 +36,8 @@ async function mountPopover(partialProps: Partial<TableStylesPopoverProps> = {})
 }
 
 describe("Table style popover", () => {
-  beforeEach(() => {
-    model = createModel();
+  beforeEach(async () => {
+    model = await createModel();
   });
 
   test("Only table styles given as props are displayed", async () => {

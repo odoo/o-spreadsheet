@@ -33,16 +33,16 @@ const readonlyCommands: Command["type"][] = [];
 describe("Lock Sheet plugin", () => {
   test.each<Command["type"]>(rejectedCommands)(
     "Cannot dispatch blacklisted command %s on a locked sheet",
-    (cmdType) => {
-      const model = createModel();
+    async (cmdType) => {
+      const model = await createModel();
       lockSheet(model);
       const result = model.dispatch(cmdType, TEST_COMMANDS[cmdType]);
       expect(result.reasons).toContain(CommandResult.SheetLocked);
     }
   );
 
-  test("Can dispatch white-listed commands on a locked sheet", () => {
-    const model = createModel();
+  test("Can dispatch white-listed commands on a locked sheet", async () => {
+    const model = await createModel();
     createSheet(model, { name: "Another sheet", position: 0 });
     lockSheet(model);
     for (const cmdType of allowedCommands) {
@@ -51,9 +51,9 @@ describe("Lock Sheet plugin", () => {
     }
   });
 
-  test("read only commands bypass lock in dashboard mode", () => {
+  test("read only commands bypass lock in dashboard mode", async () => {
     for (const cmdType of readonlyCommands) {
-      const model = createModel();
+      const model = await createModel();
       createSheet(model, { name: "Another sheet", position: 0 });
       createChart(model, { type: "bar" }, "chartId");
       addPivot(model);

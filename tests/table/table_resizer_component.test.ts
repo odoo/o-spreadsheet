@@ -35,7 +35,7 @@ describe("Table resizer component", () => {
   let env: SpreadsheetChildEnv;
 
   beforeEach(async () => {
-    model = createModel();
+    model = await createModel();
     ({ env } = await mountComponent(Grid, {
       props: {
         exposeFocus: () => {},

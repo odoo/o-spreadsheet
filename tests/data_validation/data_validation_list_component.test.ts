@@ -48,7 +48,7 @@ let sheetId: UID;
 let env: SpreadsheetChildEnv;
 
 beforeEach(async () => {
-  model = createModel();
+  model = await createModel();
   sheetId = model.getters.getActiveSheetId();
 });
 

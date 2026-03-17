@@ -28,8 +28,8 @@ describe("Single cell chart background color", () => {
     return model.getters.getChartRuntime(chartId) as GaugeChartRuntime | ScorecardChartRuntime;
   }
 
-  beforeEach(() => {
-    model = createModel();
+  beforeEach(async () => {
+    model = await createModel();
     sheetId = model.getters.getActiveSheetId();
     setCellContent(model, "A1", "1");
   });

@@ -90,14 +90,14 @@ describe("Insert chart menu item", () => {
   }
 
   async function mountTestSpreadsheet() {
-    ({ model, env } = await mountSpreadsheet({ model: createModel(data) }));
+    ({ model, env } = await mountSpreadsheet({ model: await createModel(data) }));
     dispatchSpy = spyModelDispatch(model);
   }
 
   beforeEach(async () => {
     openSidePanelSpy = jest.fn();
-    env = makeTestEnv({
-      model: createModel(data),
+    env = await makeTestEnv({
+      model: await createModel(data),
       openSidePanel: (type, props) => openSidePanelSpy(type, props),
     });
     model = env.model;
@@ -407,9 +407,9 @@ describe("Smart chart type detection", () => {
   let model: Model;
   let env: SpreadsheetChildEnv;
 
-  beforeEach(() => {
-    model = createModel();
-    env = makeTestEnv({ model });
+  beforeEach(async () => {
+    model = await createModel();
+    env = await makeTestEnv({ model });
   });
 
   /**

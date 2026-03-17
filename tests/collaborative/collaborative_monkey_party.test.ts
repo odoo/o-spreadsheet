@@ -43,7 +43,7 @@ describe("monkey party", () => {
     "monkey party with seed %s",
     async (seed) => {
       seedrandom(seed, { global: true });
-      const { network, alice, bob, charlie } = setupCollaborativeEnv();
+      const { network, alice, bob, charlie } = await setupCollaborativeEnv();
 
       // duplicate commands to test the same command interacting with itself
       const commands = deepCopy(Object.values(TEST_COMMANDS).concat(Object.values(TEST_COMMANDS)));
@@ -116,7 +116,7 @@ function assignUser(commands: CoreCommand[], users: Model[]): UserAction[] {
 function actionsToTestCode(testTitle: string, actions: UserAction[][]) {
   const code = new FunctionCodeBuilder();
   code.append(`test("${testTitle}", async () => {`);
-  code.append("const { network, alice, bob, charlie } = setupCollaborativeEnv();");
+  code.append("const { network, alice, bob, charlie } = await setupCollaborativeEnv();");
   for (const commandGroup of actions) {
     if (commandGroup.length === 1) {
       appendCommand(code, commandGroup[0]);
@@ -149,7 +149,7 @@ function appendCommand(code: FunctionCodeBuilder, { user, command }: UserAction)
 }
 
 async function rerunTest(actions: UserAction[][]) {
-  const { network, alice, bob, charlie } = setupCollaborativeEnv();
+  const { network, alice, bob, charlie } = await setupCollaborativeEnv();
   const newUsers = { alice, bob, charlie };
   for (const concurrentChunk of actions) {
     for (const action of concurrentChunk) {

@@ -29,7 +29,7 @@ describe("Data validation preview", () => {
   let env: SpreadsheetChildEnv;
 
   async function mountDataValidationPreview(ruleData: DataValidationRuleData) {
-    model = createModel();
+    model = await createModel();
     const sheetId = model.getters.getActiveSheetId();
     const rule = {
       ...ruleData,
@@ -90,8 +90,8 @@ describe("Data validation preview", () => {
   });
 
   describe("Date rules previews", () => {
-    beforeEach(() => {
-      model = createModel();
+    beforeEach(async () => {
+      model = await createModel();
     });
 
     function getCriterionPreview(criterion: DataValidationCriterion) {

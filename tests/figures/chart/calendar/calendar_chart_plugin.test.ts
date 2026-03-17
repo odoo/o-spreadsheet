@@ -181,8 +181,8 @@ describe("calendar chart", () => {
   });
   test.each(STAMPS_AND_LABELS)(
     "Vertical axis grouping is taken into account",
-    (grouping: { stamp: CalendarChartGranularity; labels: readonly string[] }) => {
-      const model = createModel();
+    async (grouping: { stamp: CalendarChartGranularity; labels: readonly string[] }) => {
+      const model = await createModel();
       createSheet(model, { sheetId: "calendar", activate: true, rows: 365, cols: 2 });
       setCellContent(model, "A1", "=DATE(1,1,1) + SEQUENCE(365,1,1,1) + SEQUENCE(365,1, 0, 1/366)");
       setFormat(model, "A1:A365", "mm/dd/yyyy hh:mm:ss");
@@ -207,8 +207,8 @@ describe("calendar chart", () => {
   );
   test.each(STAMPS_AND_LABELS)(
     "Horizontal axis grouping is taken into account",
-    (grouping: { stamp: CalendarChartGranularity; labels: readonly string[] }) => {
-      const model = createModel();
+    async (grouping: { stamp: CalendarChartGranularity; labels: readonly string[] }) => {
+      const model = await createModel();
       createSheet(model, { sheetId: "calendar", activate: true, rows: 365, cols: 2 });
       setCellContent(model, "A1", "=DATE(1,1,1) + SEQUENCE(365,1,1,1) + SEQUENCE(365,1, 0, 1/366)");
       setFormat(model, "A1:A365", "mm/dd/yyyy hh:mm:ss");
@@ -229,8 +229,8 @@ describe("calendar chart", () => {
       expect(runtime.chartJsConfig.data.labels).toEqual(grouping.labels);
     }
   );
-  test("Axis borders are not shown in calendar charts", () => {
-    const model = createModel();
+  test("Axis borders are not shown in calendar charts", async () => {
+    const model = await createModel();
     createCalendarChart(
       model,
       { type: "calendar", dataSets: [{ dataRange: "B1:B365" }] },

@@ -61,8 +61,8 @@ function getDirection(from: string, xc: string): DIRECTION {
   return autoFill["getDirection"](col, row);
 }
 
-beforeEach(() => {
-  model = createModel();
+beforeEach(async () => {
+  model = await createModel();
   autoFill = getPlugin(model, AutofillPlugin);
 });
 
@@ -823,8 +823,8 @@ describe("Autofill", () => {
     expect(getCellContent(model, "A7")).toBe("3");
   });
 
-  test("autofill with merge greater than the grid size", () => {
-    model = createModel({ sheets: [{ colNumber: 1, rowNumber: 5 }] });
+  test("autofill with merge greater than the grid size", async () => {
+    model = await createModel({ sheets: [{ colNumber: 1, rowNumber: 5 }] });
     merge(model, "A1:A2");
     autofill(model, "A1:A2", "A5");
     expect(getMergeCellMap(model)).toEqual(XCToMergeCellMap(model, ["A1", "A2", "A3", "A4"]));

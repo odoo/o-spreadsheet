@@ -12,7 +12,7 @@ const chartId = "someuuid";
 
 describe("chart menu for dashboard", () => {
   beforeEach(async () => {
-    model = createModel();
+    model = await createModel();
   });
 
   test.each(["bar", "line", "pie"] as const)(

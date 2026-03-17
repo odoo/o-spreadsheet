@@ -46,7 +46,7 @@ function getDefaultCellHeight(
 
 describe("Model resizer", () => {
   test("Can resize one column, undo, then redo", async () => {
-    const model = createModel();
+    const model = await createModel();
     const sheet = model.getters.getActiveSheet();
     const sheetId = sheet.id;
     const initialSize = model.getters.getColSize(sheetId, 1);
@@ -66,32 +66,32 @@ describe("Model resizer", () => {
   });
 
   test("Cannot resize column in invalid sheet", async () => {
-    const model = createModel();
+    const model = await createModel();
     expect(resizeColumns(model, ["B"], 100, "invalid")).toBeCancelledBecause(
       CommandResult.InvalidSheetId
     );
   });
   test("Cannot resize row in invalid sheet", async () => {
-    const model = createModel();
+    const model = await createModel();
     expect(resizeRows(model, [1], 100, "invalid")).toBeCancelledBecause(
       CommandResult.InvalidSheetId
     );
   });
   test("Cannot auto resize column in invalid sheet", async () => {
-    const model = createModel();
+    const model = await createModel();
     expect(autoresizeColumns(model, [10], "invalid")).toBeCancelledBecause(
       CommandResult.InvalidSheetId
     );
   });
   test("Cannot auto resize row in invalid sheet", async () => {
-    const model = createModel();
+    const model = await createModel();
     expect(autoresizeRows(model, [10], "invalid")).toBeCancelledBecause(
       CommandResult.InvalidSheetId
     );
   });
 
   test("Can resize one row, then undo", async () => {
-    const model = createModel();
+    const model = await createModel();
     const sheet = model.getters.getActiveSheet();
     const sheetId = sheet.id;
     const initialSize = model.getters.getRowSize(sheetId, 1);
@@ -107,7 +107,7 @@ describe("Model resizer", () => {
   });
 
   test("Can resize row of inactive sheet", async () => {
-    const model = createModel();
+    const model = await createModel();
     createSheet(model, { sheetId: "42" });
     const [, sheet2Id] = model.getters.getSheetIds();
     resizeRows(model, [0], 42, sheet2Id);
@@ -116,7 +116,7 @@ describe("Model resizer", () => {
   });
 
   test("Can resize column of inactive sheet", async () => {
-    const model = createModel();
+    const model = await createModel();
     createSheet(model, { sheetId: "42" });
     const [, sheet2Id] = model.getters.getSheetIds();
     resizeColumns(model, ["A"], 42, sheet2Id);
@@ -125,7 +125,7 @@ describe("Model resizer", () => {
   });
 
   test("changing sheets update the sizes", async () => {
-    const model = createModel();
+    const model = await createModel();
     createSheet(model, { activate: true, sheetId: "42" });
     const sheet1 = model.getters.getSheetIds()[0];
     const sheet2 = model.getters.getSheetIds()[1];
@@ -140,7 +140,7 @@ describe("Model resizer", () => {
   });
 
   test("Can resize multiple columns", async () => {
-    const model = createModel();
+    const model = await createModel();
     const sheetId = model.getters.getActiveSheetId();
     const size = model.getters.getColSize(sheetId, 0);
 
@@ -152,7 +152,7 @@ describe("Model resizer", () => {
   });
 
   test("Can resize multiple rows", async () => {
-    const model = createModel();
+    const model = await createModel();
     const sheetId = model.getters.getActiveSheetId();
     const size = model.getters.getRowSize(sheetId, 0);
 
@@ -165,7 +165,7 @@ describe("Model resizer", () => {
   });
 
   test("resizing cols/rows update the total width/height", async () => {
-    const model = createModel();
+    const model = await createModel();
     const sheet = model.getters.getActiveSheet();
     const sheetId = sheet.id;
     const { width: initialWidth, height: initialHeight } = model.getters.getMainViewportRect();
@@ -177,7 +177,7 @@ describe("Model resizer", () => {
   });
 
   test("resizing cols/rows update the pane structure and offsets", async () => {
-    const model = createModel();
+    const model = await createModel();
     freezeRows(model, 6);
     freezeColumns(model, 6);
     const sheet = model.getters.getActiveSheet();
@@ -205,8 +205,8 @@ describe("Model resizer", () => {
   describe("Sheet manipulation keep resized rows/cols", () => {
     let model: Model;
     const sheetId = "id1";
-    beforeEach(() => {
-      model = createModel({
+    beforeEach(async () => {
+      model = await createModel({
         sheets: [
           {
             id: sheetId,
@@ -320,8 +320,8 @@ describe("Model resizer", () => {
   describe("resize rows when changing font", () => {
     let model: Model;
     let sheet: Sheet;
-    beforeEach(() => {
-      model = createModel({
+    beforeEach(async () => {
+      model = await createModel({
         sheets: [
           {
             id: "1",
@@ -536,8 +536,8 @@ describe("Model resizer", () => {
       [2, 10],
     ])(
       "deleting multiple rows with alphabetical order different from natural order",
-      (...deletedRows) => {
-        const model = createModel();
+      async (...deletedRows) => {
+        const model = await createModel();
         const sheetId = model.getters.getActiveSheetId();
         setFormatting(model, "A4", { fontSize: 36 });
         setFormatting(model, "A12", { fontSize: 36 });
@@ -554,8 +554,8 @@ describe("Model resizer", () => {
       }
     );
 
-    test("deleting a row before shifts the computed size", () => {
-      const model = createModel();
+    test("deleting a row before shifts the computed size", async () => {
+      const model = await createModel();
       const sheetId = model.getters.getActiveSheetId();
       setFormatting(model, "A7", { fontSize: 36 });
       setCellContent(model, "A7", "test");
@@ -565,8 +565,8 @@ describe("Model resizer", () => {
       expect(model.getters.getRowSize(sheetId, 6)).toBe(DEFAULT_CELL_HEIGHT);
     });
 
-    test("deleting a row after does not change the computed size", () => {
-      const model = createModel();
+    test("deleting a row after does not change the computed size", async () => {
+      const model = await createModel();
       const sheetId = model.getters.getActiveSheetId();
       setFormatting(model, "A7", { fontSize: 36 });
       setCellContent(model, "A7", "test");
@@ -575,8 +575,8 @@ describe("Model resizer", () => {
       expect(model.getters.getRowSize(sheetId, 6)).toBe(font36CellHeight);
     });
 
-    test("deleting the last row does not change the computed size", () => {
-      const model = createModel();
+    test("deleting the last row does not change the computed size", async () => {
+      const model = await createModel();
       const sheetId = model.getters.getActiveSheetId();
       setFormatting(model, "A7", { fontSize: 36 });
       setCellContent(model, "A7", "test");
@@ -586,16 +586,16 @@ describe("Model resizer", () => {
       expect(model.getters.getRowSize(sheetId, 6)).toBe(font36CellHeight);
     });
 
-    test("deleting a row does not change the last row", () => {
-      const model = createModel();
+    test("deleting a row does not change the last row", async () => {
+      const model = await createModel();
       const sheetId = model.getters.getActiveSheetId();
       deleteRows(model, [5]);
       const lastRowIndex = model.getters.getNumberRows(sheetId) - 1;
       expect(model.getters.getRowSize(sheetId, lastRowIndex)).toBe(DEFAULT_CELL_HEIGHT);
     });
 
-    test("deleting a row shifts the last row computed size", () => {
-      const model = createModel();
+    test("deleting a row shifts the last row computed size", async () => {
+      const model = await createModel();
       const sheetId = model.getters.getActiveSheetId();
       let lastRowIndex = model.getters.getNumberRows(sheetId) - 1;
       const lastRowCellXC = toXC(0, lastRowIndex);
@@ -607,8 +607,8 @@ describe("Model resizer", () => {
       expect(model.getters.getRowSize(sheetId, lastRowIndex)).toBe(font36CellHeight);
     });
 
-    test("deleting a column before does not change the computed size", () => {
-      const model = createModel();
+    test("deleting a column before does not change the computed size", async () => {
+      const model = await createModel();
       const sheetId = model.getters.getActiveSheetId();
       setFormatting(model, "B1", { fontSize: 36 });
       setCellContent(model, "B1", "test");
@@ -618,8 +618,8 @@ describe("Model resizer", () => {
       expect(model.getters.getRowSize(sheetId, 0)).toBe(font36CellHeight);
     });
 
-    test("deleting a column after does not change the computed size", () => {
-      const model = createModel();
+    test("deleting a column after does not change the computed size", async () => {
+      const model = await createModel();
       const sheetId = model.getters.getActiveSheetId();
       setFormatting(model, "B1", { fontSize: 36 });
       setCellContent(model, "B1", "test");
@@ -684,8 +684,8 @@ describe("Model resizer", () => {
     });
   });
 
-  test("Header sizes are rounded to avoid issues in further computations with floating number precision", () => {
-    const model = createModel();
+  test("Header sizes are rounded to avoid issues in further computations with floating number precision", async () => {
+    const model = await createModel();
     const sheetId = model.getters.getActiveSheetId();
     resizeColumns(model, ["A"], 26.4);
     resizeRows(model, [0], 26.6);
@@ -693,8 +693,8 @@ describe("Model resizer", () => {
     expect(model.getters.getRowSize(sheetId, 0)).toBe(27);
   });
 
-  test("Should use markdown label instead of full link for auto row height", () => {
-    const model = createModel();
+  test("Should use markdown label instead of full link for auto row height", async () => {
+    const model = await createModel();
     const sheetId = model.getters.getActiveSheetId();
 
     setFormatting(model, "A1", { wrapping: "wrap" });

@@ -6,8 +6,8 @@ import { addPivot, updatePivot } from "../test_helpers/pivot_helpers";
 import { makeStore } from "../test_helpers/stores";
 
 describe("array function highlights", () => {
-  test("Putting the selection inside an array formula highlights it", () => {
-    const { model, container } = makeStore(ArrayFormulaHighlight);
+  test("Putting the selection inside an array formula highlights it", async () => {
+    const { model, container } = await makeStore(ArrayFormulaHighlight);
     setCellContent(model, "A2", "=TRANSPOSE(A1:C1)");
     expect(getHighlightsFromStore(container)).toEqual([]);
     const highlight = {
@@ -24,8 +24,8 @@ describe("array function highlights", () => {
     expect(getHighlightsFromStore(container).map(flattenHighlightRange)).toEqual([highlight]);
   });
 
-  test("Selecting an array formula that cannot spill is still highlighted", () => {
-    const { model, container } = makeStore(ArrayFormulaHighlight);
+  test("Selecting an array formula that cannot spill is still highlighted", async () => {
+    const { model, container } = await makeStore(ArrayFormulaHighlight);
     setCellContent(model, "A2", "=TRANSPOSE(A1:C1)");
     setCellContent(model, "A4", "blocking the spread");
     expect(getHighlightsFromStore(container)).toEqual([]);
@@ -44,15 +44,15 @@ describe("array function highlights", () => {
     expect(getHighlightsFromStore(container)).toEqual([]);
   });
 
-  test("Non-array formula are not highlighted", () => {
-    const { model, container } = makeStore(ArrayFormulaHighlight);
+  test("Non-array formula are not highlighted", async () => {
+    const { model, container } = await makeStore(ArrayFormulaHighlight);
     setCellContent(model, "A2", "=A1");
     selectCell(model, "A2");
     expect(getHighlightsFromStore(container)).toEqual([]);
   });
 
-  test("Array formula using a spill error is not highlighted as blocked", () => {
-    const { model, container } = makeStore(ArrayFormulaHighlight);
+  test("Array formula using a spill error is not highlighted as blocked", async () => {
+    const { model, container } = await makeStore(ArrayFormulaHighlight);
     setCellContent(model, "A1", "=MUNIT(2)");
     setCellContent(model, "A2", "5"); // block the spread of A1
     setCellContent(model, "A4", "=A1:B2");
@@ -70,8 +70,8 @@ describe("array function highlights", () => {
     expect(getHighlightsFromStore(container).map(flattenHighlightRange)).toEqual([highlight]);
   });
 
-  test("Selecting an array formula that cannot spill is still highlighted", () => {
-    const { model, container } = makeStore(ArrayFormulaHighlight);
+  test("Selecting an array formula that cannot spill is still highlighted", async () => {
+    const { model, container } = await makeStore(ArrayFormulaHighlight);
     setCellContent(model, "A2", "=TRANSPOSE(A1:C1)");
     setCellContent(model, "A4", "blocking the spread");
     expect(getHighlightsFromStore(container)).toEqual([]);
@@ -90,8 +90,8 @@ describe("array function highlights", () => {
     expect(getHighlightsFromStore(container)).toEqual([]);
   });
 
-  test("Selecting an styled pivot does not highlight it", () => {
-    const { model, container } = makeStore(ArrayFormulaHighlight);
+  test("Selecting an styled pivot does not highlight it", async () => {
+    const { model, container } = await makeStore(ArrayFormulaHighlight);
     setGrid(model, { A1: "Header1", B1: "Header2", A2: "Data1", B2: "Data2", F1: "=PIVOT(1)" });
     addPivot(model, "A1:B2", { style: { tableStyleId: "None" } }, "pivotId");
 

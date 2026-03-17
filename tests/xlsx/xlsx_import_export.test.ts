@@ -70,8 +70,8 @@ describe("Export data to xlsx then import it", () => {
   let model: Model;
   let sheetId;
 
-  beforeEach(() => {
-    model = createModel();
+  beforeEach(async () => {
+    model = await createModel();
     sheetId = model.getters.getActiveSheetId();
   });
 

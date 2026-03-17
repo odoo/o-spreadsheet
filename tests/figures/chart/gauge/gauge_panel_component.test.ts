@@ -26,7 +26,7 @@ let env: SpreadsheetChildEnv;
 const chartId = "chartId";
 
 beforeEach(async () => {
-  model = createModel();
+  model = await createModel();
   createGaugeChart(model, TEST_CHART_DATA.gauge, chartId);
   ({ fixture, env } = await mountComponentWithPortalTarget(SidePanels, { model }));
   await openChartConfigSidePanel(model, env, chartId);

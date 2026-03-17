@@ -22,7 +22,7 @@ describe("Pivot table style", () => {
 
   let tableStyle: TableStyle;
 
-  beforeEach(() => {
+  beforeEach(async () => {
     tableStyle = {
       category: "medium",
       templateName: "TestStyle",
@@ -30,7 +30,7 @@ describe("Pivot table style", () => {
       primaryColor: "#ff0000",
     };
     PIVOT_TABLE_PRESETS.TestStyle = tableStyle;
-    model = createModelWithPivot("A1:I22");
+    model = await createModelWithPivot("A1:I22");
     sheetId = model.getters.getActiveSheetId();
     updatePivot(model, "1", {
       columns: [],

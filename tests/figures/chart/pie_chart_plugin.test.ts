@@ -30,9 +30,9 @@ describe("pie chart", () => {
       slicesColors: [],
     });
   });
-  test("Pie chart legend", () => {
+  test("Pie chart legend", async () => {
     // prettier-ignore
-    const model = createModelFromGrid({
+    const model = await createModelFromGrid({
       A1: "P1",  B1: "1",  C1: "3",
       A2: "P2",  B2: "2",  C2: "4",
     });
@@ -66,9 +66,9 @@ describe("pie chart", () => {
       },
     ]);
   });
-  test("Empty legend items are filtered out", () => {
+  test("Empty legend items are filtered out", async () => {
     // prettier-ignore
-    const model = createModelFromGrid({
+    const model = await createModelFromGrid({
       A1: "",    B1: "1",
       A2: "P2",  B2: "2",
     });
@@ -85,8 +85,8 @@ describe("pie chart", () => {
     expect(getChartLegendLabels(model, "1")).toHaveLength(1);
     expect(getChartLegendLabels(model, "1")[0].text).toEqual("P2");
   });
-  test("Pie chart hole size", () => {
-    const model = createModel();
+  test("Pie chart hole size", async () => {
+    const model = await createModel();
     createChart(model, { type: "pie", isDoughnut: true, pieHolePercentage: 15 }, "1");
     const runtime = model.getters.getChartRuntime("1") as PieChartRuntime;
     expect(runtime.chartJsConfig.options?.cutout).toEqual("15%");

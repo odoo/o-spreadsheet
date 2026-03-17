@@ -18,7 +18,7 @@ import {
 import { addTestPlugin, createModel } from "../test_helpers/helpers";
 
 describe("Model", () => {
-  test("core plugin can refuse command from UI plugin", () => {
+  test("core plugin can refuse command from UI plugin", async () => {
     class MyCorePlugin extends CorePlugin {
       allowDispatch(cmd: CoreCommand) {
         if (cmd.type === "UPDATE_CELL") {
@@ -42,12 +42,12 @@ describe("Model", () => {
     }
     addTestPlugin(featurePluginRegistry, MyUIPlugin);
     addTestPlugin(corePluginRegistry, MyCorePlugin);
-    const model = createModel();
+    const model = await createModel();
     copy(model, "A1");
     expect(result).toBeCancelledBecause(CommandResult.CancelledForUnknownReason);
   });
 
-  test("core plugin cannot refuse command from core plugin", () => {
+  test("core plugin cannot refuse command from core plugin", async () => {
     let result: DispatchResult | undefined = undefined;
     class MyCorePlugin extends CorePlugin {
       allowDispatch(cmd: CoreCommand) {
@@ -68,13 +68,13 @@ describe("Model", () => {
       }
     }
     addTestPlugin(corePluginRegistry, MyCorePlugin);
-    const model = createModel();
+    const model = await createModel();
     createSheet(model, { sheetId: "42", position: 1 });
     expect(result).toBeSuccessfullyDispatched();
     expect(getCellText(model, "A1", "42")).toBe("Hello");
   });
 
-  test("UI plugin cannot refuse command from UI plugin", () => {
+  test("UI plugin cannot refuse command from UI plugin", async () => {
     let result: DispatchResult | undefined = undefined;
     class MyUIPlugin extends UIPlugin {
       allowDispatch(cmd: Command) {
@@ -92,14 +92,14 @@ describe("Model", () => {
       }
     }
     addTestPlugin(featurePluginRegistry, MyUIPlugin);
-    const model = createModel();
+    const model = await createModel();
     setCellContent(model, "A1", "copy&paste me");
     copy(model, "A1");
     expect(result).toBeSuccessfullyDispatched();
     expect(getCellText(model, "A2")).toBe("copy&paste me");
   });
 
-  test("UI plugins can refuse local core commands", () => {
+  test("UI plugins can refuse local core commands", async () => {
     class MyUIPlugin extends UIPlugin {
       allowDispatch(cmd: Command) {
         if (cmd.type === "UPDATE_CELL") {
@@ -109,13 +109,13 @@ describe("Model", () => {
       }
     }
     addTestPlugin(featurePluginRegistry, MyUIPlugin);
-    const model = createModel();
+    const model = await createModel();
 
     setCellContent(model, "A1", "hello");
     expect(getCellContent(model, "A1")).toBe("");
   });
 
-  test("Core plugins allowDispatch don't receive UI commands", () => {
+  test("Core plugins allowDispatch don't receive UI commands", async () => {
     const receivedCommands: CommandTypes[] = [];
     class MyCorePlugin extends CorePlugin {
       allowDispatch(cmd: CoreCommand): CommandResult {
@@ -124,12 +124,12 @@ describe("Model", () => {
       }
     }
     addTestPlugin(corePluginRegistry, MyCorePlugin);
-    const model = createModel();
+    const model = await createModel();
     copy(model);
     expect(receivedCommands).not.toContain("COPY");
   });
 
-  test("Core plugins handle don't receive UI commands", () => {
+  test("Core plugins handle don't receive UI commands", async () => {
     const receivedCommands: CommandTypes[] = [];
     class MyCorePlugin extends CorePlugin {
       handle(cmd: CoreCommand) {
@@ -137,12 +137,12 @@ describe("Model", () => {
       }
     }
     addTestPlugin(corePluginRegistry, MyCorePlugin);
-    const model = createModel();
+    const model = await createModel();
     copy(model);
     expect(receivedCommands).not.toContain("COPY");
   });
 
-  test("canDispatch method is exposed and works", () => {
+  test("canDispatch method is exposed and works", async () => {
     class MyCorePlugin extends CorePlugin {
       allowDispatch(cmd: CoreCommand) {
         if (cmd.type === "CREATE_SHEET") {
@@ -152,7 +152,7 @@ describe("Model", () => {
       }
     }
     addTestPlugin(corePluginRegistry, MyCorePlugin);
-    const model = createModel();
+    const model = await createModel();
     expect(
       model.canDispatch("CREATE_SHEET", { sheetId: "42", position: 1, name: "Sheet42" })
     ).toBeCancelledBecause(CommandResult.CancelledForUnknownReason);
@@ -168,28 +168,28 @@ describe("Model", () => {
     corePluginRegistry.remove("myCorePlugin");
   });
 
-  test("Can open a model in readonly mode", () => {
-    const model = createModel({}, { mode: "readonly" });
+  test("Can open a model in readonly mode", async () => {
+    const model = await createModel({}, { mode: "readonly" });
     expect(model.getters.isReadonly()).toBe(true);
   });
 
-  test("Some commands are not dispatched in readonly mode", () => {
-    const model = createModel({}, { mode: "readonly" });
+  test("Some commands are not dispatched in readonly mode", async () => {
+    const model = await createModel({}, { mode: "readonly" });
     expect(setCellContent(model, "A1", "hello")).toBeCancelledBecause(CommandResult.Readonly);
   });
 
-  test("Moving the selection is allowed in readonly mode", () => {
-    const model = createModel({}, { mode: "readonly" });
+  test("Moving the selection is allowed in readonly mode", async () => {
+    const model = await createModel({}, { mode: "readonly" });
     expect(selectCell(model, "A15")).toBeSuccessfullyDispatched();
   });
 
-  test("Can add custom elements in the config of model", () => {
-    const model = createModel({}, { custom: "42" } as unknown as ModelConfig);
+  test("Can add custom elements in the config of model", async () => {
+    const model = await createModel({}, { custom: "42" } as unknown as ModelConfig);
     expect(model["config"]["custom"]).toBe("42");
   });
 
-  test("type property in command payload is ignored", () => {
-    const model = createModel();
+  test("type property in command payload is ignored", async () => {
+    const model = await createModel();
     const payload = {
       col: 0,
       row: 0,
@@ -216,7 +216,7 @@ describe("Model", () => {
     addTestPlugin(corePluginRegistry, MyCorePlugin1);
     addTestPlugin(corePluginRegistry, MyCorePlugin2);
 
-    expect(() => createModel()).toThrowError(`Getter "getSomething" is already defined.`);
+    expect(() => new Model()).toThrowError(`Getter "getSomething" is already defined.`);
   });
 
   test("Cannot add an already existing getters", () => {
@@ -234,7 +234,7 @@ describe("Model", () => {
     addTestPlugin(featurePluginRegistry, MyUIPlugin1);
     addTestPlugin(featurePluginRegistry, MyUIPlugin2);
 
-    expect(() => createModel()).toThrowError(`Getter "getSomething" is already defined.`);
+    expect(() => new Model()).toThrowError(`Getter "getSomething" is already defined.`);
   });
 
   test("Replayed commands are not send to UI plugins", async () => {
@@ -268,7 +268,7 @@ describe("Model", () => {
     }
     addTestPlugin(corePluginRegistry, MyCorePlugin);
 
-    const { alice, bob, network } = setupCollaborativeEnv();
+    const { alice, bob, network } = await setupCollaborativeEnv();
     await network.concurrent(async () => {
       setCellContent(alice, "A1", "Hello");
       //@ts-ignore
@@ -277,7 +277,7 @@ describe("Model", () => {
     expect(numberCall).toEqual(1);
   });
 
-  test("Initial commands are not sent to UI plugins", () => {
+  test("Initial commands are not sent to UI plugins", async () => {
     class MyUIPlugin extends UIPlugin {
       handle(cmd: Command) {
         if (cmd.type === "UPDATE_CELL") {
@@ -290,7 +290,7 @@ describe("Model", () => {
       sheets: [{ id: "sheet1" }],
       revisionId: "initialRevision",
     };
-    const model = createModel(data, {}, [
+    const model = await createModel(data, {}, [
       {
         type: "REMOTE_REVISION",
         nextRevisionId: "1",
@@ -311,7 +311,7 @@ describe("Model", () => {
     expect(getEvaluatedCell(model, "A1").value).toBe(6);
   });
 
-  test("Core commands which dispatch UPDATE_CELL should trigger evaluation", () => {
+  test("Core commands which dispatch UPDATE_CELL should trigger evaluation", async () => {
     //@ts-ignore
     coreTypes.add("MY_CMD_1");
     class MyCorePlugin extends CorePlugin {
@@ -330,7 +330,7 @@ describe("Model", () => {
     }
     addTestPlugin(corePluginRegistry, MyCorePlugin);
 
-    const { alice, bob, charlie } = setupCollaborativeEnv();
+    const { alice, bob, charlie } = await setupCollaborativeEnv();
     setCellContent(alice, "A1", "=3");
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
       (user) => getCellContent(user, "A1"),
@@ -344,7 +344,7 @@ describe("Model", () => {
     );
   });
 
-  test("export formula with unbound zone stays unbound", () => {
+  test("export formula with unbound zone stays unbound", async () => {
     const modelData = {
       sheets: [
         {
@@ -355,7 +355,7 @@ describe("Model", () => {
         },
       ],
     };
-    const model = createModel(modelData);
+    const model = await createModel(modelData);
     expect(model.exportData()).toMatchObject({
       sheets: [
         {
@@ -372,7 +372,7 @@ describe("Model", () => {
     const transport = new MockTransportService();
     const spy = jest.spyOn(transport, "sendMessage");
     const xlsxData = await getTextXlsxFiles();
-    createModel(xlsxData, {
+    await createModel(xlsxData, {
       transportService: transport,
       client: { id: "test", name: "Test" },
     });
@@ -390,7 +390,7 @@ describe("Model", () => {
     const transport = new MockTransportService();
     transport.onNewMessage("listener", (message) => messages.push(message));
     const xlsxData = await getTextXlsxFiles();
-    createModel(xlsxData, {
+    await createModel(xlsxData, {
       transportService: transport,
       client: { id: "test", name: "Test" },
       mode: "readonly",

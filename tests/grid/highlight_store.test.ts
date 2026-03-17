@@ -25,8 +25,8 @@ function drawHighlight(highlight: Highlight) {
 }
 
 describe("Highlight store", () => {
-  beforeEach(() => {
-    model = createModel();
+  beforeEach(async () => {
+    model = await createModel();
     sheetId = model.getters.getActiveSheetId();
     ({ store: highlightStore } = makeStoreWithModel(model, HighlightStore));
 

@@ -245,9 +245,9 @@ describe("Gauge chart component animation", () => {
   let gaugeAnimationSpy: jest.SpyInstance;
   let model: Model;
 
-  beforeEach(() => {
+  beforeEach(async () => {
     gaugeAnimationSpy = jest.spyOn(GaugeChartComponent.prototype, "drawGaugeWithAnimation");
-    model = createModel();
+    model = await createModel();
   });
 
   afterEach(() => {
@@ -274,7 +274,7 @@ describe("Gauge chart component animation", () => {
   test("Animations are replayed only when chart data changes", async () => {
     readonlyAllowedCommands.add("UPDATE_CELL");
 
-    const model = createModel();
+    const model = await createModel();
     createGaugeChart(model, { dataRange: "A1" });
     model.updateMode("dashboard");
     await mountSpreadsheet({ model });

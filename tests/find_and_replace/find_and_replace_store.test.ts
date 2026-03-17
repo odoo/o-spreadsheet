@@ -67,8 +67,8 @@ function replaceAll(replaceWith: string) {
 
 let sheetId1: string;
 const sheetId2 = "s2";
-beforeEach(() => {
-  ({ store, model, container } = makeStore(FindAndReplaceStore));
+beforeEach(async () => {
+  ({ store, model, container } = await makeStore(FindAndReplaceStore));
   sheetId1 = model.getters.getActiveSheetId();
 });
 

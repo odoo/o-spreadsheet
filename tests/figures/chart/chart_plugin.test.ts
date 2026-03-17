@@ -78,8 +78,8 @@ import { FR_LOCALE } from "../../test_helpers/constants";
 
 let model: Model;
 
-beforeEach(() => {
-  model = createModel({
+beforeEach(async () => {
+  model = await createModel({
     sheets: [
       {
         name: "Sheet1",
@@ -384,8 +384,8 @@ describe("datasource tests", function () {
     expect(config?.data?.datasets?.[0].data).toEqual([0]);
   });
 
-  test("empty datasets are filtered", () => {
-    model = createModel({
+  test("empty datasets are filtered", async () => {
+    model = await createModel({
       sheets: [
         {
           name: "Sheet1",
@@ -449,8 +449,8 @@ describe("datasource tests", function () {
     }
   );
 
-  test("empty datasets are filtered in different locales", () => {
-    model = createModel({
+  test("empty datasets are filtered in different locales", async () => {
+    model = await createModel({
       sheets: [
         {
           name: "Sheet1",
@@ -555,7 +555,7 @@ describe("datasource tests", function () {
     expect(title?.([{ dataset: { axisId: "y" } }])).toBeUndefined();
   });
 
-  test("can delete an imported chart", () => {
+  test("can delete an imported chart", async () => {
     createChart(
       model,
       {
@@ -567,7 +567,7 @@ describe("datasource tests", function () {
     );
     const figureId = model.getters.getFigureIdFromChartId("1")!;
     const exportedData = model.exportData();
-    const newModel = createModel(exportedData);
+    const newModel = await createModel(exportedData);
     expect(newModel.getters.getVisibleFigures()).toHaveLength(1);
     expect(newModel.getters.getChartRuntime("1")).toBeTruthy();
     deleteFigure(newModel, figureId);
@@ -575,7 +575,7 @@ describe("datasource tests", function () {
     expect(() => newModel.getters.getChartRuntime("1")).toThrow();
   });
 
-  test("update dataset of imported chart", () => {
+  test("update dataset of imported chart", async () => {
     createChart(
       model,
       {
@@ -585,7 +585,7 @@ describe("datasource tests", function () {
       },
       "1"
     );
-    const newModel = createModel(model.exportData());
+    const newModel = await createModel(model.exportData());
     let data = getChartConfiguration(newModel, "1").data;
     expect(data.datasets![0].data).toEqual([10, 11, 12]);
     setCellContent(newModel, "B2", "99");
@@ -833,8 +833,8 @@ describe("datasource tests", function () {
     expect(result).toBeCancelledBecause(CommandResult.InvalidDataSet);
   });
 
-  test("cannot duplicate chart ids", () => {
-    const model = createModel();
+  test("cannot duplicate chart ids", async () => {
+    const model = await createModel();
     const cmd1 = createChart(
       model,
       {
@@ -870,9 +870,9 @@ describe("datasource tests", function () {
     expect(cmd3).toBeCancelledBecause(CommandResult.DuplicatedChartId);
   });
 
-  test("Cannot have duplicate chart id at model creation", () => {
+  test("Cannot have duplicate chart id at model creation", async () => {
     const figure = { id: "figureId", tag: "chart", width: 400, height: 300, x: 100, y: 100 };
-    const model = createModel({
+    const model = await createModel({
       version: 7,
       sheets: [
         {
@@ -1047,8 +1047,8 @@ describe("datasource tests", function () {
       })
     ).toBeCancelledBecause(CommandResult.InvalidLabelRange);
   });
-  test("duplicate a sheet with and without a chart", () => {
-    const model = createModel({
+  test("duplicate a sheet with and without a chart", async () => {
+    const model = await createModel({
       sheets: [
         {
           id: "1",
@@ -1177,7 +1177,7 @@ describe("datasource tests", function () {
     expect(model.getters.getFigures(secondSheetId)).toEqual([duplicatedFigure]);
   });
 
-  test("Duplicate sheet > export > import > duplicate sheet contains 2 distinct charts", () => {
+  test("Duplicate sheet > export > import > duplicate sheet contains 2 distinct charts", async () => {
     const firstSheetId = model.getters.getActiveSheetId();
     const secondSheetId = "42";
     const thirdSheetId = "third";
@@ -1193,7 +1193,7 @@ describe("datasource tests", function () {
     );
     duplicateSheet(model, firstSheetId, secondSheetId);
 
-    const newModel = createModel(model.exportData());
+    const newModel = await createModel(model.exportData());
     duplicateSheet(newModel, secondSheetId, thirdSheetId);
 
     const figuresSh1 = newModel.getters.getFigures(firstSheetId);
@@ -1648,8 +1648,8 @@ describe("multiple sheets", function () {
     });
   });
   describe("multiple sheets with formulas", function () {
-    beforeEach(() => {
-      model = createModel({
+    beforeEach(async () => {
+      model = await createModel({
         version: "18.4.1",
         sheets: [
           {
@@ -1704,7 +1704,7 @@ describe("multiple sheets", function () {
     });
   });
 
-  test("export with chart data from a sheet that was deleted, than import data does not crash", () => {
+  test("export with chart data from a sheet that was deleted, than import data does not crash", async () => {
     const originSheet = model.getters.getActiveSheetId();
     createSheet(model, { sheetId: "42", activate: true });
     createChart(
@@ -1718,7 +1718,7 @@ describe("multiple sheets", function () {
     );
     deleteSheet(model, originSheet);
     const exportedData = model.exportData();
-    const newModel = createModel(exportedData);
+    const newModel = await createModel(exportedData);
     const chart = newModel.getters.getChartRuntime("28")!;
     expect(chart).toBeDefined();
   });
@@ -1892,8 +1892,8 @@ describe("Chart design configuration", () => {
     expect(model.getters.getChartDefinition("42")!.background).toBe("#000000");
   });
 
-  test("empty data points are not displayed in the chart", () => {
-    const model = createModel({
+  test("empty data points are not displayed in the chart", async () => {
+    const model = await createModel({
       sheets: [
         {
           colNumber: 10,
@@ -1930,8 +1930,8 @@ describe("Chart design configuration", () => {
     expect(data.datasets![1].data).toEqual([null, null, 20]);
   });
 
-  test("value without matching index in the label set", () => {
-    const model = createModel();
+  test("value without matching index in the label set", async () => {
+    const model = await createModel();
     // corresponding label would be A8, but it's not part of the label range
     setCellContent(model, "B8", "30");
     createChart(
@@ -1944,8 +1944,8 @@ describe("Chart design configuration", () => {
     expect(data.datasets![0].data).toEqual([30]);
   });
 
-  test("label without matching index in the data set", () => {
-    const model = createModel();
+  test("label without matching index in the data set", async () => {
+    const model = await createModel();
     // corresponding value would be B8, but it's not part of the data range
     setCellContent(model, "A8", "P1");
     createChart(
@@ -1959,8 +1959,8 @@ describe("Chart design configuration", () => {
     expect(data.datasets[0].hidden).toBeTruthy();
   });
 
-  test("no data points at all", () => {
-    const model = createModel();
+  test("no data points at all", async () => {
+    const model = await createModel();
     createChart(
       model,
       { type: "bar", labelRange: "A2:A3", dataSets: [{ dataRange: "B1:B3" }] },
@@ -1974,8 +1974,8 @@ describe("Chart design configuration", () => {
 
   test.each([{ format: "0.00%" }, { style: { textColor: "#FFF" } }])(
     "no data points but style on a label",
-    (formatting) => {
-      const model = createModel();
+    async (formatting) => {
+      const model = await createModel();
       model.dispatch("SET_FORMATTING", {
         sheetId: model.getters.getActiveSheetId(),
         target: target("A2:A3"),
@@ -1995,8 +1995,8 @@ describe("Chart design configuration", () => {
 
   test.each([{ format: "0.00%" }, { style: { textColor: "#FFF" } }])(
     "no data points but style on a value",
-    (formatting) => {
-      const model = createModel();
+    async (formatting) => {
+      const model = await createModel();
       model.dispatch("SET_FORMATTING", {
         sheetId: model.getters.getActiveSheetId(),
         target: target("B1:B3"),
@@ -2014,8 +2014,8 @@ describe("Chart design configuration", () => {
     }
   );
 
-  test("data point with only a zero value", () => {
-    const model = createModel();
+  test("data point with only a zero value", async () => {
+    const model = await createModel();
     setCellContent(model, "B2", "0");
     createChart(
       model,
@@ -2027,8 +2027,8 @@ describe("Chart design configuration", () => {
     expect(data.datasets![0].data).toEqual([0]);
   });
 
-  test("data point with only a zero label", () => {
-    const model = createModel();
+  test("data point with only a zero label", async () => {
+    const model = await createModel();
     setCellContent(model, "A2", "0");
     createChart(
       model,
@@ -2041,8 +2041,8 @@ describe("Chart design configuration", () => {
     expect(data.datasets[0].hidden).toBeTruthy();
   });
 
-  test("Changing the format of a cell reevaluates a chart runtime", () => {
-    const model = createModel();
+  test("Changing the format of a cell reevaluates a chart runtime", async () => {
+    const model = await createModel();
     setCellContent(model, "A2", "2022/03/01");
     setCellContent(model, "A3", "2022/03/02");
     createChart(
@@ -2591,7 +2591,7 @@ describe("Chart aggregate labels", () => {
   let aggregatedChart: BarChartDefinition;
   let aggregatedModel: Model;
 
-  beforeEach(() => {
+  beforeEach(async () => {
     aggregatedChart = {
       background: "#FFFFFF",
       dataSets: [{ dataRange: "B2:B9", yAxisId: "y" }],
@@ -2603,7 +2603,7 @@ describe("Chart aggregate labels", () => {
       stacked: false,
       aggregated: false,
     };
-    aggregatedModel = createModel({
+    aggregatedModel = await createModel({
       sheets: [
         {
           name: "Sheet1",
@@ -3044,8 +3044,8 @@ describe("Linear/Time charts", () => {
 });
 
 describe("Chart evaluation", () => {
-  test("Chart runtime is correctly updated when a value is changed", () => {
-    const model = createModel();
+  test("Chart runtime is correctly updated when a value is changed", async () => {
+    const model = await createModel();
     setCellContent(model, "A2", "group");
     setCellContent(model, "B1", "title");
     setCellContent(model, "B2", "=C3");
@@ -3082,8 +3082,8 @@ describe("Chart evaluation", () => {
   });
 
   describe("hidden col/rows", () => {
-    beforeEach(() => {
-      model = createModel({
+    beforeEach(async () => {
+      model = await createModel({
         sheets: [
           {
             name: "Sheet1",
@@ -3220,8 +3220,8 @@ describe("Chart evaluation", () => {
     });
   });
 
-  test("hidden labels are not displayed", () => {
-    model = createModel({
+  test("hidden labels are not displayed", async () => {
+    model = await createModel({
       sheets: [
         {
           name: "Sheet1",
@@ -3584,8 +3584,8 @@ describe("trending line", () => {
     }
   });
 
-  test("trend line is bypassed without sufficient dataset values", () => {
-    const model = createModel();
+  test("trend line is bypassed without sufficient dataset values", async () => {
+    const model = await createModel();
     setCellContent(model, "A1", "test");
     createChart(
       model,
@@ -3604,7 +3604,7 @@ describe("trending line", () => {
     expect(runtime.chartJsConfig.data.datasets).toHaveLength(1);
   });
 
-  test("trend line ignores invalid input data", () => {
+  test("trend line ignores invalid input data", async () => {
     const grid = {
       A1: "1",
       A2: "2",
@@ -3615,7 +3615,7 @@ describe("trending line", () => {
       B3: "9",
       B4: "16",
     };
-    const model = createModelFromGrid(grid);
+    const model = await createModelFromGrid(grid);
     createChart(
       model,
       {
@@ -3717,8 +3717,8 @@ test("moving average trend line", () => {
 describe("Chart labels truncation", () => {
   test.each(["bar", "line", "combo", "radar"] as const)(
     "chart %s labels are not truncated in the data",
-    (type) => {
-      const model = createModel();
+    async (type) => {
+      const model = await createModel();
       const longLabel = "This is a very long label name that should not be truncated";
       setCellContent(model, "A2", longLabel);
       setCellContent(model, "B2", "10");
@@ -3827,8 +3827,8 @@ describe("Chart labels truncation", () => {
 
   test.each(["bar", "line", "combo", "radar"] as const)(
     "long labels are truncated in %s chart legends",
-    (type) => {
-      const model = createModel();
+    async (type) => {
+      const model = await createModel();
       setCellContent(model, "B1", "This is a very long dataset name that should be truncated");
       setCellContent(model, "B2", "10");
 
@@ -3846,8 +3846,8 @@ describe("Chart labels truncation", () => {
 
   test.each(["bar", "line", "combo"] as const)(
     "long labels are truncated in %s chart X axis ticks",
-    (type) => {
-      const model = createModel();
+    async (type) => {
+      const model = await createModel();
       const longLabel = "This is a very long label name that should not be truncated";
       setCellContent(model, "A2", longLabel);
       setCellContent(model, "B2", "10");

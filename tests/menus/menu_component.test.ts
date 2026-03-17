@@ -37,7 +37,7 @@ describe("Menu component", () => {
       },
     ]);
     const selector = ".o-menu div[data-name='test_menu']";
-    const model = createModel();
+    const model = await createModel();
     model.updateMode("readonly");
     const { fixture } = await mountComponent(Menu, {
       props: { menuItems, onClose: () => {}, onClickMenu: () => callback() },

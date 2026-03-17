@@ -21,8 +21,8 @@ describe("Collaborative range manipulation", () => {
   let bob: Model;
   let charlie: Model;
 
-  beforeEach(() => {
-    ({ network, alice, bob, charlie } = setupCollaborativeEnv());
+  beforeEach(async () => {
+    ({ network, alice, bob, charlie } = await setupCollaborativeEnv());
   });
 
   test("Copy - Paste of references are correctly updated", async () => {

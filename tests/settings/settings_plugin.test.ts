@@ -15,8 +15,8 @@ import { createModel } from "../test_helpers/helpers";
 describe("Settings plugin", () => {
   let model: Model;
 
-  beforeEach(() => {
-    model = createModel();
+  beforeEach(async () => {
+    model = await createModel();
   });
 
   describe("Locale", () => {
@@ -44,23 +44,23 @@ describe("Settings plugin", () => {
       expect(model.getters.getLocale()).toEqual(CUSTOM_LOCALE);
     });
 
-    test("Can import/export locale", () => {
+    test("Can import/export locale", async () => {
       updateLocale(model, CUSTOM_LOCALE);
       const exported = model.exportData();
       expect(exported.settings.locale).toEqual(CUSTOM_LOCALE);
 
-      const newModel = createModel(exported);
+      const newModel = await createModel(exported);
       expect(newModel.getters.getLocale()).toEqual(CUSTOM_LOCALE);
     });
 
-    test("Can import data with locale set", () => {
-      const model = createModel({ settings: { locale: FR_LOCALE } });
+    test("Can import data with locale set", async () => {
+      const model = await createModel({ settings: { locale: FR_LOCALE } });
       expect(model.getters.getLocale()).toEqual(FR_LOCALE);
     });
 
-    test("Invalid locale in the data is ignored", () => {
+    test("Invalid locale in the data is ignored", async () => {
       const invalidLocale = { ...FR_LOCALE, dateFormat: "I'm not a real format 💀" };
-      const model = createModel({ settings: { locale: invalidLocale } });
+      const model = await createModel({ settings: { locale: invalidLocale } });
       expect(model.getters.getLocale()).toEqual(DEFAULT_LOCALE);
     });
 

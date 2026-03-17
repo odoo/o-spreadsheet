@@ -167,8 +167,8 @@ describe("history", () => {
 });
 
 describe("Model history", () => {
-  test("Can undo a basic operation", () => {
-    const model = createModel();
+  test("Can undo a basic operation", async () => {
+    const model = await createModel();
     setCellContent(model, "A1", "hello");
     undo(model);
     expect(getCell(model, "A1")).toBeUndefined();
@@ -176,8 +176,8 @@ describe("Model history", () => {
     expect(getCellContent(model, "A1")).toBe("hello");
   });
 
-  test("can undo and redo two consecutive operations", () => {
-    const model = createModel();
+  test("can undo and redo two consecutive operations", async () => {
+    const model = await createModel();
     setCellContent(model, "A2", "3");
     setCellContent(model, "A2", "5");
 
@@ -195,25 +195,25 @@ describe("Model history", () => {
     expect(getCellContent(model, "A2")).toBe("5");
   });
 
-  test("Cannot redo when when the redo stack is empty", () => {
-    const model = createModel();
+  test("Cannot redo when when the redo stack is empty", async () => {
+    const model = await createModel();
     expect(model.getters.canRedo()).toBeFalsy();
   });
 
-  test("Cannot redo when when the redo stack is empty and last command is not repeatable", () => {
-    const model = createModel();
+  test("Cannot redo when when the redo stack is empty and last command is not repeatable", async () => {
+    const model = await createModel();
     freezeRows(model, 2);
     expect(model.getters.canRedo()).toBeFalsy();
   });
 
-  test("Can redo when when the redo stack is empty and last command is repeatable", () => {
-    const model = createModel();
+  test("Can redo when when the redo stack is empty and last command is repeatable", async () => {
+    const model = await createModel();
     setCellContent(model, "A1", "5");
     expect(model.getters.canRedo()).toBeTruthy();
   });
 
-  test("two identical changes do not count as two undo steps", () => {
-    const model = createModel();
+  test("two identical changes do not count as two undo steps", async () => {
+    const model = await createModel();
     selectCell(model, "B2");
     setZoneBorders(model, { position: "all" });
     setZoneBorders(model, { position: "all" });
@@ -223,8 +223,8 @@ describe("Model history", () => {
     expect(getCell(model, "B2")).toBeUndefined();
   });
 
-  test("undo steps are dropped at some point", () => {
-    const model = createModel();
+  test("undo steps are dropped at some point", async () => {
+    const model = await createModel();
     const composerStore = makeTestComposerStore(model);
     expect(model.getters.canUndo()).toBe(false);
     for (let i = 0; i < MAX_HISTORY_STEPS; i++) {
@@ -239,8 +239,8 @@ describe("Model history", () => {
     expect(getCellContent(model, "A1")).toBe(String(MAX_HISTORY_STEPS - 1));
   });
 
-  test("undo recomputes the cells", () => {
-    const model = createModel();
+  test("undo recomputes the cells", async () => {
+    const model = await createModel();
     setCellContent(model, "A1", "=A2");
     setCellContent(model, "A2", "11");
     expect(getEvaluatedCell(model, "A1").value).toBe(11);
@@ -251,7 +251,7 @@ describe("Model history", () => {
   });
 
   test("undo when undo stack is empty does nothing", async () => {
-    const model = createModel({ sheets: [{ cells: { A1: "=10" } }] });
+    const model = await createModel({ sheets: [{ cells: { A1: "=10" } }] });
 
     expect(getEvaluatedCell(model, "A1").value).toBe(10);
 
@@ -260,7 +260,7 @@ describe("Model history", () => {
   });
 
   test("undo when redo stack is empty does nothing", async () => {
-    const model = createModel({ sheets: [{ cells: { A1: "=10" } }] });
+    const model = await createModel({ sheets: [{ cells: { A1: "=10" } }] });
 
     expect(getEvaluatedCell(model, "A1").value).toBe(10);
 
@@ -268,8 +268,8 @@ describe("Model history", () => {
     expect(getEvaluatedCell(model, "A1").value).toBe(10);
   });
 
-  test("undo a sheet creation changes the active sheet", () => {
-    const model = createModel();
+  test("undo a sheet creation changes the active sheet", async () => {
+    const model = await createModel();
     const sheetId = model.getters.getActiveSheetId();
     createSheet(model, { sheetId: "42", position: 1 });
     activateSheet(model, "42");
@@ -277,8 +277,8 @@ describe("Model history", () => {
     expect(model.getters.getActiveSheetId()).toBe(sheetId);
   });
 
-  test("ACTIVATE_SHEET standalone is not saved", () => {
-    const model = createModel();
+  test("ACTIVATE_SHEET standalone is not saved", async () => {
+    const model = await createModel();
     createSheet(model, { sheetId: "42" });
     setCellContent(model, "A1", "this will be undone");
     activateSheet(model, "42");
@@ -286,10 +286,10 @@ describe("Model history", () => {
     expect(model.getters.getActiveSheetId()).toBe("42");
   });
 
-  test("create and activate sheet, then undo", () => {
+  test("create and activate sheet, then undo", async () => {
     // The active sheet is currently not changed when the sheet
     // creation is undone
-    const model = createModel();
+    const model = await createModel();
     const originActiveSheetId = model.getters.getActiveSheetId();
     createSheet(model, { sheetId: "42" });
     activateSheet(model, "42");
@@ -298,16 +298,16 @@ describe("Model history", () => {
     expect(model.getters.getActiveSheetId()).toBe(originActiveSheetId);
   });
 
-  test("ACTIVATE_SHEET with another command is saved", () => {
-    const model = createModel();
+  test("ACTIVATE_SHEET with another command is saved", async () => {
+    const model = await createModel();
     const sheetId = model.getters.getActiveSheetId();
     createSheet(model, { sheetId: "42", activate: true });
     undo(model);
     expect(model.getters.getActiveSheetId()).toBe(sheetId);
   });
 
-  test("undone & redone commands are part of the command", () => {
-    const model = createModel();
+  test("undone & redone commands are part of the command", async () => {
+    const model = await createModel();
     const pluginHandle = spyUiPluginHandle(model);
     const command: UpdateCellCommand = {
       type: "UPDATE_CELL",

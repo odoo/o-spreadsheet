@@ -43,8 +43,8 @@ describe("Collaborative local history", () => {
   let charlie: Model;
   let all: Model[];
 
-  beforeEach(() => {
-    ({ network, alice, bob, charlie } = setupCollaborativeEnv());
+  beforeEach(async () => {
+    ({ network, alice, bob, charlie } = await setupCollaborativeEnv());
     all = [alice, bob, charlie];
   });
 
@@ -175,7 +175,7 @@ describe("Collaborative local history", () => {
     );
   });
 
-  test("Load model with a simple initial messages", () => {
+  test("Load model with a simple initial messages", async () => {
     const initialMessages: StateUpdateMessage[] = [
       {
         type: "REMOTE_REVISION",
@@ -186,7 +186,7 @@ describe("Collaborative local history", () => {
         serverRevisionId: "initial_revision",
       },
     ];
-    const model = createModel(
+    const model = await createModel(
       {
         revisionId: "initial_revision",
         sheets: [{ id: "sheet1" }],
@@ -201,7 +201,7 @@ describe("Collaborative local history", () => {
     expect(model.exportData().revisionId).toBe("1");
   });
 
-  test("Load empty model with initial messages, with wrong sheetId", () => {
+  test("Load empty model with initial messages, with wrong sheetId", async () => {
     const initialMessages: StateUpdateMessage[] = [
       {
         type: "REMOTE_REVISION",
@@ -214,11 +214,11 @@ describe("Collaborative local history", () => {
         serverRevisionId: DEFAULT_REVISION_ID,
       },
     ];
-    const model = createModel({}, {}, initialMessages);
+    const model = await createModel({}, {}, initialMessages);
     expect(getCellContent(model, "A1")).toBe("Hello");
   });
 
-  test("Load empty model with initial messages, with multiple sheets and wrong sheetIds", () => {
+  test("Load empty model with initial messages, with multiple sheets and wrong sheetIds", async () => {
     const initialMessages: StateUpdateMessage[] = [
       {
         type: "REMOTE_REVISION",
@@ -265,13 +265,13 @@ describe("Collaborative local history", () => {
         ],
       },
     ];
-    const model = createModel({}, {}, initialMessages);
+    const model = await createModel({}, {}, initialMessages);
     expect(getCellContent(model, "A1")).toBe("Hello");
     expect(getCellContent(model, "B1")).toBe("Good morning");
     expect(getCellContent(model, "A1", "newSheetId")).toBe("Hi");
   });
 
-  test("Load model with initial messages, with undo", () => {
+  test("Load model with initial messages, with undo", async () => {
     const initialMessages: StateUpdateMessage[] = [
       {
         type: "REMOTE_REVISION",
@@ -289,7 +289,7 @@ describe("Collaborative local history", () => {
         undoneRevisionId: "1",
       },
     ];
-    const model = createModel(
+    const model = await createModel(
       {
         revisionId: "initial_revision",
         sheets: [{ id: "sheet1" }],
@@ -317,7 +317,7 @@ describe("Collaborative local history", () => {
     expect([alice, bob, charlie]).toHaveSynchronizedExportedData();
   });
 
-  test("Load model with initial messages, with redo", () => {
+  test("Load model with initial messages, with redo", async () => {
     const initialMessages: StateUpdateMessage[] = [
       {
         type: "REMOTE_REVISION",
@@ -342,7 +342,7 @@ describe("Collaborative local history", () => {
         redoneRevisionId: "1",
       },
     ];
-    const model = createModel(
+    const model = await createModel(
       {
         revisionId: "initial_revision",
         sheets: [{ id: "sheet1" }],
@@ -357,7 +357,7 @@ describe("Collaborative local history", () => {
     expect(model.exportData().revisionId).toBe("3");
   });
 
-  test("Initial sort command is dropped", () => {
+  test("Initial sort command is dropped", async () => {
     const initialMessages: StateUpdateMessage[] = [
       {
         type: "REMOTE_REVISION",
@@ -387,13 +387,13 @@ describe("Collaborative local history", () => {
         },
       ],
     };
-    const model = createModel(data, {}, initialMessages);
+    const model = await createModel(data, {}, initialMessages);
     expect(getCellContent(model, "A1")).toBe("1");
     expect(getCellContent(model, "A2")).toBe("2");
     expect(getCellContent(model, "A3")).toBe("3");
   });
 
-  test("Initial set decimal command is dropped", () => {
+  test("Initial set decimal command is dropped", async () => {
     const initialMessages: StateUpdateMessage[] = [
       {
         type: "REMOTE_REVISION",
@@ -421,7 +421,7 @@ describe("Collaborative local history", () => {
         },
       ],
     };
-    const model = createModel(data, {}, initialMessages);
+    const model = await createModel(data, {}, initialMessages);
     expect(getCell(model, "A1")?.format).toBeUndefined();
   });
 
@@ -711,7 +711,7 @@ describe("Collaborative local history", () => {
       snapshot(bob);
       setCellContent(alice, "A2", "Hi");
     });
-    expect(createModel(network.snapshot)).toExport(bobData);
+    expect(await createModel(network.snapshot)).toExport(bobData);
     expect(all).toHaveSynchronizedValue((user) => getCellContent(user, "A2"), "Hi");
   });
 
@@ -750,10 +750,10 @@ describe("Collaborative local history", () => {
     expect(all).toHaveSynchronizedValue((user) => getCellContent(user, "A2"), "Hi");
   });
 
-  test("snapshot is sent", () => {
+  test("snapshot is sent", async () => {
     const data = alice.exportData();
-    createModel(data, { transportService: network, snapshotRequested: true });
-    expect(createModel(network.snapshot)).toExport(data);
+    await createModel(data, { transportService: network, snapshotRequested: true });
+    expect(await createModel(network.snapshot)).toExport(data);
   });
 
   test("snapshot is sent with a new revision id", () => {
@@ -763,11 +763,11 @@ describe("Collaborative local history", () => {
   });
 
   test("undone & redone commands are transformed", async () => {
-    const david = createModel(alice.exportData(), {
+    const david = await createModel(alice.exportData(), {
       transportService: network,
       client: { id: "david", name: "David" },
     });
-    const elisa = createModel(alice.exportData(), {
+    const elisa = await createModel(alice.exportData(), {
       transportService: network,
       client: { id: "elisa", name: "Elisa" },
     });
@@ -850,7 +850,7 @@ describe("Collaborative local history", () => {
   });
 
   test("Evaluation is re-triggered after a replay of dupplicate sheet", async () => {
-    const { network, alice, bob, charlie } = setupCollaborativeEnv();
+    const { network, alice, bob, charlie } = await setupCollaborativeEnv();
     await network.concurrent(async () => {
       deleteRows(bob, [0], "Sheet1");
       setCellContent(alice, "A1", "hello", "Sheet1");
@@ -864,7 +864,7 @@ describe("Collaborative local history", () => {
   });
 
   test("Evaluation is the same after a sheet deletion replayed", async () => {
-    const { network, alice, bob, charlie } = setupCollaborativeEnv();
+    const { network, alice, bob, charlie } = await setupCollaborativeEnv();
     setCellContent(alice, "A1", "hello");
     duplicateSheet(charlie, "Sheet1", "duplicateSheetId");
     await network.concurrent(async () => {
@@ -876,7 +876,7 @@ describe("Collaborative local history", () => {
   });
 
   test("Replay a REMOVE_TABLE in empty sheet after a local CREATE_TABLE", async () => {
-    const { network, alice, bob, charlie } = setupCollaborativeEnv();
+    const { network, alice, bob, charlie } = await setupCollaborativeEnv();
     setCellContent(charlie, "A1", "Hello", "Sheet1");
     alice.dispatch("REMOVE_TABLE", {
       target: [
@@ -908,7 +908,7 @@ describe("Collaborative local history", () => {
   });
 
   test("Pivot payload replayed is the same as the original", async () => {
-    const { network, alice, bob, charlie } = setupCollaborativeEnv();
+    const { network, alice, bob, charlie } = await setupCollaborativeEnv();
     await network.concurrent(async () => {
       setCellContent(alice, "A1", "hello");
       addPivot(charlie, "A1:A2", { name: "pivot" }, "1");
@@ -920,7 +920,7 @@ describe("Collaborative local history", () => {
   });
 
   test("updated pivot payload transformed is the same as the original", async () => {
-    const { network, alice, bob, charlie } = setupCollaborativeEnv();
+    const { network, alice, bob, charlie } = await setupCollaborativeEnv();
     addPivot(charlie, "A1:A2", { name: "pivot" }, "1");
     deleteRows(alice, [0]);
     redo(alice);
@@ -936,7 +936,7 @@ describe("Collaborative local history", () => {
     expect([alice, bob, charlie]).toHaveSynchronizedExportedData();
   });
 
-  test("remove pivot, new user joins, then undo", () => {
+  test("remove pivot, new user joins, then undo", async () => {
     const network = new MockTransportService();
     const data = {
       revisionId: DEFAULT_REVISION_ID,
@@ -970,7 +970,7 @@ describe("Collaborative local history", () => {
     const messages: StateUpdateMessage[] = [];
     network.onNewMessage("dd", (message) => messages.push(message));
 
-    const alice = createModel(data, {
+    const alice = await createModel(data, {
       transportService: network,
       client: { id: "alice", name: "Alice" },
     });
@@ -981,7 +981,7 @@ describe("Collaborative local history", () => {
       transportService: network,
       client: { id: "bob", name: "Bob" },
     };
-    const bob = createModel(data, configBob, messages);
+    const bob = await createModel(data, configBob, messages);
     undo(alice);
     expect(getEvaluatedCell(bob, "B3").value).toEqual(10);
   });
@@ -1016,7 +1016,7 @@ describe("Collaborative local history", () => {
   });
 
   test("do not transformed revisions with concurrently rejected commands", async () => {
-    const { network, alice, bob, charlie } = setupCollaborativeEnv();
+    const { network, alice, bob, charlie } = await setupCollaborativeEnv();
     const initialCols = alice.getters.getNumberCols("Sheet1");
     duplicateSheet(charlie, "Sheet1");
     await network.concurrent(async () => {
@@ -1191,7 +1191,7 @@ describe("Collaborative local history", () => {
   });
 
   test("Can concurrently hide and delete a sheet", async () => {
-    const { network, alice, bob, charlie } = setupCollaborativeEnv();
+    const { network, alice, bob, charlie } = await setupCollaborativeEnv();
     duplicateSheet(charlie, "Sheet1", "duplicateSheetId");
     await network.concurrent(async () => {
       hideSheet(bob, "Sheet1");

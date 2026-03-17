@@ -59,8 +59,8 @@ function setContextualFormat(model: Model, targetXc: string, format: Format) {
 }
 
 describe("formatting values (with formatters)", () => {
-  test("can set a format to a cell", () => {
-    const model = createModel();
+  test("can set a format to a cell", async () => {
+    const model = await createModel();
     setCellContent(model, "A1", "3");
     expect(getCellContent(model, "A1")).toBe("3");
     setFormat(model, "A1", "0.00%");
@@ -68,8 +68,8 @@ describe("formatting values (with formatters)", () => {
     expect(getCellContent(model, "A1")).toBe("300.00%");
   });
 
-  test("can set a date format to a cell containing a date", () => {
-    const model = createModel();
+  test("can set a date format to a cell containing a date", async () => {
+    const model = await createModel();
     setCellContent(model, "A1", "3 14 2014");
     expect(getCellContent(model, "A1")).toBe("3 14 2014");
     setFormat(model, "A1", "mm/dd/yyyy");
@@ -77,8 +77,8 @@ describe("formatting values (with formatters)", () => {
     expect(getCellContent(model, "A1")).toBe("03/14/2014");
   });
 
-  test("can set a date format to a cell containing a number", () => {
-    const model = createModel();
+  test("can set a date format to a cell containing a number", async () => {
+    const model = await createModel();
     setCellContent(model, "A1", "1");
     expect(getCellContent(model, "A1")).toBe("1");
     setFormat(model, "A1", "mm/dd/yyyy");
@@ -86,8 +86,8 @@ describe("formatting values (with formatters)", () => {
     expect(getCellContent(model, "A1")).toBe("12/31/1899");
   });
 
-  test("can set a number format to a cell containing a date", () => {
-    const model = createModel();
+  test("can set a number format to a cell containing a date", async () => {
+    const model = await createModel();
     setCellContent(model, "A1", "1/1/2000");
     expect(getCellContent(model, "A1")).toBe("1/1/2000");
     setFormat(model, "A1", "0.00%");
@@ -95,8 +95,8 @@ describe("formatting values (with formatters)", () => {
     expect(getCellContent(model, "A1")).toBe("3652600.00%");
   });
 
-  test("can set a format to an empty cell", () => {
-    const model = createModel();
+  test("can set a format to an empty cell", async () => {
+    const model = await createModel();
     selectCell(model, "A1");
     setFormat(model, "A1", "0.00%");
     expect(getCell(model, "A1")!.format).toBe("0.00%");
@@ -105,16 +105,16 @@ describe("formatting values (with formatters)", () => {
     expect(getCellContent(model, "A1")).toBe("43.10%");
   });
 
-  test("can set the default format to a cell with value = 0", () => {
-    const model = createModel();
+  test("can set the default format to a cell with value = 0", async () => {
+    const model = await createModel();
     setCellContent(model, "A1", "0");
     setFormat(model, "A1", "");
     expect(getCell(model, "A1")!.format).not.toBeDefined();
     expect(getCellContent(model, "A1")).toBe("0");
   });
 
-  test("can clear a format in a non empty cell", () => {
-    const model = createModel();
+  test("can clear a format in a non empty cell", async () => {
+    const model = await createModel();
     setCellContent(model, "A1", "3");
     setFormat(model, "A1", "0.00%");
     expect(getCell(model, "A1")!.format).toBeDefined();
@@ -124,22 +124,22 @@ describe("formatting values (with formatters)", () => {
     expect(getCell(model, "A1")!.format).not.toBeDefined();
   });
 
-  test("can clear a format in an empty cell", () => {
-    const model = createModel();
+  test("can clear a format in an empty cell", async () => {
+    const model = await createModel();
     setFormat(model, "A1", "0.00%");
     expect(getCell(model, "A1")!.format).toBe("0.00%");
     setFormat(model, "A1", "");
     expect(getCell(model, "A1")).toBeUndefined();
   });
 
-  test("setting an empty format in an empty cell does nothing", () => {
-    const model = createModel();
+  test("setting an empty format in an empty cell does nothing", async () => {
+    const model = await createModel();
     setFormat(model, "A1", "");
     expect(getCell(model, "A1")).toBeUndefined();
   });
 
-  test("does not format errors", () => {
-    const model = createModel();
+  test("does not format errors", async () => {
+    const model = await createModel();
     setCellContent(model, "A1", "3");
     setFormat(model, "A1", "0.00%");
     expect(getCellContent(model, "A1")).toBe("300.00%");
@@ -147,28 +147,28 @@ describe("formatting values (with formatters)", () => {
     expect(getCellContent(model, "A1")).toBe("#CYCLE");
   });
 
-  test("Can set number format to text value", () => {
-    const model = createModel();
+  test("Can set number format to text value", async () => {
+    const model = await createModel();
     setCellContent(model, "A1", "Test");
     setFormat(model, "A1", "0.00%");
     expect(getCellContent(model, "A1")).toBe("Test");
   });
 
-  test("Can set date format to text value", () => {
-    const model = createModel();
+  test("Can set date format to text value", async () => {
+    const model = await createModel();
     setCellContent(model, "A1", "Test");
     setFormat(model, "A1", "mm/dd/yyyy");
     expect(getCellContent(model, "A1")).toBe("Test");
   });
 
-  test("Cannot set format in invalid sheet", () => {
-    const model = createModel();
+  test("Cannot set format in invalid sheet", async () => {
+    const model = await createModel();
     expect(setFormat(model, "A1", "", "invalid sheet Id")).toBeCancelledBecause(
       CommandResult.InvalidSheetId
     );
   });
 
-  test("SET_DECIMAL considers the evaluated format to infer the decimal position", () => {
+  test("SET_DECIMAL considers the evaluated format to infer the decimal position", async () => {
     addToRegistry(functionRegistry, "SET.DYN.FORMAT", {
       description: "Returns the value set to the provided format",
       args: [arg("value (any)", "value to format"), arg("format (any)", "format to set.")],
@@ -179,15 +179,15 @@ describe("formatting values (with formatters)", () => {
         };
       },
     });
-    const model = createModel();
+    const model = await createModel();
     setCellContent(model, "A1", '=SET.DYN.FORMAT(5, "0.00")');
     selectCell(model, "A1");
     setDecimal(model, "A1", 1);
     expect(getCell(model, "A1")?.format).toBe("0.000");
   });
 
-  test("SET_DECIMAL on long number that are truncated due to default format don't lose truncated digits", () => {
-    const model = createModel();
+  test("SET_DECIMAL on long number that are truncated due to default format don't lose truncated digits", async () => {
+    const model = await createModel();
     setCellContent(model, "A1", "10.123456789123");
     expect(getEvaluatedCell(model, "A1")?.formattedValue).toEqual("10.12345679");
 
@@ -208,8 +208,8 @@ describe("formatting values (with formatters)", () => {
     expect(getEvaluatedCell(model, "A1")?.formattedValue).toEqual("10.12345679");
   });
 
-  test("SET_DECIMAL on format with escaped string", () => {
-    const model = createModel();
+  test("SET_DECIMAL on format with escaped string", async () => {
+    const model = await createModel();
     setCellContent(model, "A1", "10");
 
     setFormat(model, "A1", "0.0\\€");
@@ -227,8 +227,8 @@ describe("formatting values (with formatters)", () => {
     expect(getCell(model, "A1")?.format).toBe("0$");
   });
 
-  test("SET_DECIMAL on multi-part format", () => {
-    const model = createModel();
+  test("SET_DECIMAL on multi-part format", async () => {
+    const model = await createModel();
     setCellContent(model, "A1", "10");
 
     setFormat(model, "A1", "0.0\\€;$0.#; 0 ;@");
@@ -244,8 +244,8 @@ describe("formatting values (with formatters)", () => {
     expect(getCell(model, "A1")?.format).toBe(";;;@");
   });
 
-  test("SET_DECIMAL on scientific format", () => {
-    const model = createModel();
+  test("SET_DECIMAL on scientific format", async () => {
+    const model = await createModel();
     setCellContent(model, "A1", "1234");
 
     setFormat(model, "A1", "0.00e");
@@ -259,8 +259,8 @@ describe("formatting values (with formatters)", () => {
     expect(getEvaluatedCell(model, "A1").formattedValue).toBe("1.2e+03");
   });
 
-  test("UPDATE_CELL on long number that are truncated due to default format don't loose truncated digits", () => {
-    const model = createModel();
+  test("UPDATE_CELL on long number that are truncated due to default format don't loose truncated digits", async () => {
+    const model = await createModel();
     setCellContent(model, "A1", "10.123456789123");
     expect(getEvaluatedCell(model, "A1").value).toEqual(10.123456789123);
 
@@ -270,20 +270,20 @@ describe("formatting values (with formatters)", () => {
 });
 
 describe("pivot contextual formatting", () => {
-  test("format without pivot", () => {
-    const model = createModel();
+  test("format without pivot", async () => {
+    const model = await createModel();
     setContextualFormat(model, "A1", "0.00%");
     expect(getCell(model, "A1")?.format).toBe("0.00%");
   });
 
-  test("format on a pivot measure value applies to the entire measure", () => {
+  test("format on a pivot measure value applies to the entire measure", async () => {
     // prettier-ignore
     const grid = {
       A1: "Customer", B1: "Price",  C1: "=PIVOT(1)",
       A2: "Alice",    B2: "10",
       A3: "Bob",      B3: "12",
     };
-    const model = createModelFromGrid(grid);
+    const model = await createModelFromGrid(grid);
     addPivot(model, "A1:B3", {
       columns: [{ fieldName: "Customer" }],
       measures: [{ id: "Price", fieldName: "Price", aggregator: "sum" }],
@@ -303,13 +303,13 @@ describe("pivot contextual formatting", () => {
     ]);
   });
 
-  test("format on a pivot measure value applies to the selected measures", () => {
+  test("format on a pivot measure value applies to the selected measures", async () => {
     const grid = {
       A1: "Price",
       A2: "10",
       A3: "=PIVOT(1)",
     };
-    const model = createModelFromGrid(grid);
+    const model = await createModelFromGrid(grid);
     addPivot(model, "A1:A2", {
       measures: [
         { id: "Price:sum", fieldName: "Price", aggregator: "sum" },
@@ -334,13 +334,13 @@ describe("pivot contextual formatting", () => {
     ]);
   });
 
-  test("format on a pivot values overwrites user defined format", () => {
+  test("format on a pivot values overwrites user defined format", async () => {
     const grid = {
       A1: "Price",
       A2: "10",
       A3: "=PIVOT(1)",
     };
-    const model = createModelFromGrid(grid);
+    const model = await createModelFromGrid(grid);
     addPivot(model, "A1:A2", {
       measures: [{ id: "Price", fieldName: "Price", aggregator: "sum" }],
     });
@@ -350,13 +350,13 @@ describe("pivot contextual formatting", () => {
     expect(getEvaluatedCell(model, "B5").formattedValue).toBe("$10.00");
   });
 
-  test("format both pivot values and normal cells", () => {
+  test("format both pivot values and normal cells", async () => {
     const grid = {
       A1: "Price",
       A2: "10",
       A3: "=PIVOT(1)",
     };
-    const model = createModelFromGrid(grid);
+    const model = await createModelFromGrid(grid);
     addPivot(model, "A1:A2", {
       measures: [{ id: "Price", fieldName: "Price", aggregator: "sum" }],
     });
@@ -366,13 +366,13 @@ describe("pivot contextual formatting", () => {
     expect(getEvaluatedCell(model, "B5")?.format).toBe("[$$]#,##0.00");
   });
 
-  test("measure format takes precedence over aggregate format", () => {
+  test("measure format takes precedence over aggregate format", async () => {
     // prettier-ignore
     const grid = {
       A1: "Customer", B1: "Price",  C1: "=PIVOT(1)",
       A2: "Alice",    B2: "10",
     };
-    const model = createModelFromGrid(grid);
+    const model = await createModelFromGrid(grid);
     addPivot(model, "A1:B2", {
       rows: [{ fieldName: "Customer" }],
       measures: [{ id: "Price", fieldName: "Price", aggregator: "count" }],
@@ -387,13 +387,13 @@ describe("pivot contextual formatting", () => {
     ]);
   });
 
-  test("format is not applied on the measure with fixed pivot values", () => {
+  test("format is not applied on the measure with fixed pivot values", async () => {
     // prettier-ignore
     const grid = {
       A1: "Customer", B1: "Price",  C1: '=PIVOT.VALUE(1, "Price")',
       A2: "Alice",    B2: "10",
     };
-    const model = createModelFromGrid(grid);
+    const model = await createModelFromGrid(grid);
     addPivot(model, "A1:B2", {
       rows: [{ fieldName: "Customer" }],
       measures: [{ id: "Price", fieldName: "Price", aggregator: "count" }],
@@ -403,8 +403,8 @@ describe("pivot contextual formatting", () => {
     expect(getCell(model, "C1")?.format).toBe("[$$]#,##0.00");
   });
 
-  test("topbar menu correctly indicates the format of the selected pivot cell", () => {
-    const env = makeTestEnv();
+  test("topbar menu correctly indicates the format of the selected pivot cell", async () => {
+    const env = await makeTestEnv();
     const { model } = env;
 
     setCellContent(model, "A1", "Price");
@@ -423,8 +423,8 @@ describe("pivot contextual formatting", () => {
 });
 
 describe("formatting values (when change decimal)", () => {
-  test("Can't change decimal format of a cell that isn't 'number' type", () => {
-    const model = createModel();
+  test("Can't change decimal format of a cell that isn't 'number' type", async () => {
+    const model = await createModel();
     setCellContent(model, "A1", "kikou");
     expect(getCellContent(model, "A1")).toBe("kikou");
     selectCell(model, "A1");
@@ -433,8 +433,8 @@ describe("formatting values (when change decimal)", () => {
     expect(getCellContent(model, "A1")).toBe("kikou");
   });
 
-  test("Can't change decimal format of a cell when value not exist", () => {
-    const model = createModel();
+  test("Can't change decimal format of a cell when value not exist", async () => {
+    const model = await createModel();
     setCellContent(model, "A1", "42%");
     deleteContent(model, ["A1"]);
     expect(getCell(model, "A1")!.format).toBe("0%");
@@ -453,8 +453,8 @@ describe("formatting values (when change decimal)", () => {
     ["[$ #,##0.00 ]#,##0", "[$ #,##0.00 ]#,##0.0", "[$ #,##0.00 ]#,##0.00"],
   ])(
     "Can change decimal format of a cell that already has format",
-    (noneDecimal, oneDecimal, twoDecimal) => {
-      const model = createModel();
+    async (noneDecimal, oneDecimal, twoDecimal) => {
+      const model = await createModel();
 
       setCellContent(model, "A1", "42");
       selectCell(model, "A1");
@@ -482,8 +482,8 @@ describe("formatting values (when change decimal)", () => {
     }
   );
 
-  test("Can change decimal format of a cell that hasn't format (case 'number' type only)", () => {
-    const model = createModel();
+  test("Can change decimal format of a cell that hasn't format (case 'number' type only)", async () => {
+    const model = await createModel();
 
     setCellContent(model, "A1", "123");
     expect(getCell(model, "A1")!.format).toBe(undefined);
@@ -510,8 +510,8 @@ describe("formatting values (when change decimal)", () => {
     expect(getCell(model, "B2")!.format).toBe("0.00");
   });
 
-  test("Decimal format is limited to 20 zeros after the decimal point", () => {
-    const model = createModel();
+  test("Decimal format is limited to 20 zeros after the decimal point", async () => {
+    const model = await createModel();
 
     const nineteenZerosA1 = "0.0000000000000000000";
     const twentyZerosA1 = "0.00000000000000000000";
@@ -545,8 +545,8 @@ describe("formatting values (when change decimal)", () => {
     expect(getCell(model, "C1")!.format).toBe(twentyZerosC1);
   });
 
-  test("Change decimal format on a range does nothing if there isn't 'number' type", () => {
-    const model = createModel();
+  test("Change decimal format on a range does nothing if there isn't 'number' type", async () => {
+    const model = await createModel();
 
     // give values ​​with different formats
 
@@ -580,7 +580,7 @@ describe("formatting values (when change decimal)", () => {
   });
 
   test("Check multiple format in selected zone", async () => {
-    const model = createModel();
+    const model = await createModel();
     setCellContent(model, "A1", "100%");
     setCellContent(model, "B1", "$190.12");
     setCellContent(model, "C1", "$21");
@@ -591,7 +591,7 @@ describe("formatting values (when change decimal)", () => {
   });
 
   test("Check multiple format in multiple zone", async () => {
-    const model = createModel();
+    const model = await createModel();
     setCellContent(model, "A1", "100%");
     setCellContent(model, "B1", "$190.12");
     setCellContent(model, "C1", "$21");
@@ -619,8 +619,8 @@ describe("Autoresize", () => {
   const hPadding = 2 * PADDING_AUTORESIZE_HORIZONTAL;
   const vPadding = 2 * PADDING_AUTORESIZE_VERTICAL;
 
-  beforeEach(() => {
-    model = createModel();
+  beforeEach(async () => {
+    model = await createModel();
     sheetId = model.getters.getActiveSheetId();
     ctx = document.createElement("canvas").getContext("2d")!;
     ctx.font = `${fontSizeInPixels(DEFAULT_FONT_SIZE)}px ${DEFAULT_FONT}`;

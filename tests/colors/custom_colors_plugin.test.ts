@@ -20,8 +20,8 @@ import { createColorScale, createModel } from "../test_helpers/helpers";
 describe("custom colors are correctly handled when formatting cells", () => {
   let model: Model;
 
-  beforeEach(() => {
-    model = createModel();
+  beforeEach(async () => {
+    model = await createModel();
   });
 
   test("Adding style to cell add custom colors in the plugin", () => {
@@ -82,8 +82,8 @@ describe("custom colors are correctly handled when editing charts", () => {
   let model: Model;
   let sheetId: UID;
 
-  beforeEach(() => {
-    model = createModel();
+  beforeEach(async () => {
+    model = await createModel();
     sheetId = model.getters.getActiveSheetId();
   });
   test("Chart background colors are taken into account", () => {
@@ -192,17 +192,17 @@ describe("custom colors are correctly handled when editing charts", () => {
     expect(model.getters.getCustomColors()).toEqual(["#123456"]);
   });
 
-  test("custom colors from model imported data", () => {
+  test("custom colors from model imported data", async () => {
     setFormatting(model, "A1", { fillColor: "#123456" });
     createChart(model, { type: "bar", background: "#654987" }, "1", sheetId);
-    const importedModel = createModel(model.exportData());
+    const importedModel = await createModel(model.exportData());
     expect(importedModel.getters.getCustomColors()).toEqual(["#654987", "#123456"]);
   });
 });
 
-test("custom colors from config", () => {
+test("custom colors from config", async () => {
   const data = {};
-  const model = createModel(data, { customColors: ["#875A7B", "not a valid color"] });
+  const model = await createModel(data, { customColors: ["#875A7B", "not a valid color"] });
   expect(model.getters.getCustomColors()).toEqual(["#875A7B"]);
 });
 
@@ -218,9 +218,9 @@ describe("Custom colors with table styles", () => {
     primaryColor: "#123456",
   };
 
-  beforeEach(() => {
+  beforeEach(async () => {
     TABLE_PRESETS["customStyle"] = customStyle;
-    model = createModel();
+    model = await createModel();
   });
 
   afterEach(() => {

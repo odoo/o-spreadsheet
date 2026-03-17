@@ -23,7 +23,7 @@ describe("database formula", () => {
     }
 
   describe("DCOUNT formula", () => {
-    test("functional tests on cell arguments", () => {
+    test("functional tests on cell arguments", async () => {
       // prettier-ignore
       const gridDcount = {
           A20: "YEAR",
@@ -92,7 +92,7 @@ describe("database formula", () => {
 
         };
 
-      const gridResult = evaluateGrid({ ...database, ...gridDcount });
+      const gridResult = await evaluateGrid({ ...database, ...gridDcount });
 
       expect(gridResult.B21).toBe(2);
       expect(gridResult.B24).toBe(15);
@@ -136,7 +136,7 @@ describe("database formula", () => {
     }
 
   describe("DAVERAGE formula", () => {
-    test("functional tests on cell arguments", () => {
+    test("functional tests on cell arguments", async () => {
       // prettier-ignore
       const grid = {
           A20: '=DAVERAGE(A1:D17, "SCORE", F1:F2)',
@@ -145,7 +145,7 @@ describe("database formula", () => {
           A23: '=DAVERAGE(A1:D17, "YEAR", F11:G13)',
         };
 
-      const gridResult = evaluateGrid({ ...database, ...criteria, ...grid });
+      const gridResult = await evaluateGrid({ ...database, ...criteria, ...grid });
       expect(gridResult.A20).toBe(0.73);
       expect(gridResult.A21).toBe(0.75);
       expect(gridResult.A22).toBe(1981.5);
@@ -154,7 +154,7 @@ describe("database formula", () => {
   });
 
   describe("DCOUNTA formula", () => {
-    test("functional tests on cell arguments", () => {
+    test("functional tests on cell arguments", async () => {
       // prettier-ignore
       const grid = {
           A20: '=DCOUNTA(A1:D17, "SCORE", F1:F2)',
@@ -163,7 +163,7 @@ describe("database formula", () => {
           A23: '=DCOUNTA(A1:D17, "NAME", F11:G13)',
         };
 
-      const gridResult = evaluateGrid({ ...database, ...criteria, ...grid });
+      const gridResult = await evaluateGrid({ ...database, ...criteria, ...grid });
       expect(gridResult.A20).toBe(2);
       expect(gridResult.A21).toBe(1);
       expect(gridResult.A22).toBe(12);
@@ -172,7 +172,7 @@ describe("database formula", () => {
   });
 
   describe("DGET formula", () => {
-    test("functional tests on cell arguments", () => {
+    test("functional tests on cell arguments", async () => {
       // prettier-ignore
       const grid = {
           A20: '=DGET(A1:D17, "SCORE", F1:F2)',
@@ -181,7 +181,7 @@ describe("database formula", () => {
           A23: '=DGET(A1:D17, "YEAR", F11:G13)',
         };
 
-      const gridResult = evaluateGrid({ ...database, ...criteria, ...grid });
+      const gridResult = await evaluateGrid({ ...database, ...criteria, ...grid });
       expect(gridResult.A20).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
       expect(gridResult.A21).toBe(0.75);
       expect(gridResult.A22).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
@@ -190,7 +190,7 @@ describe("database formula", () => {
   });
 
   describe("DMAX formula", () => {
-    test("functional tests on cell arguments", () => {
+    test("functional tests on cell arguments", async () => {
       // prettier-ignore
       const grid = {
           A20: '=DMAX(A1:D17, "SCORE", F1:F2)',
@@ -199,7 +199,7 @@ describe("database formula", () => {
           A23: '=DMAX(A1:D17, "YEAR", F11:G13)',
         };
 
-      const gridResult = evaluateGrid({ ...database, ...criteria, ...grid });
+      const gridResult = await evaluateGrid({ ...database, ...criteria, ...grid });
       expect(gridResult.A20).toBe(0.75);
       expect(gridResult.A21).toBe(0.75);
       expect(gridResult.A22).toBe(2011);
@@ -208,7 +208,7 @@ describe("database formula", () => {
   });
 
   describe("DMIN formula", () => {
-    test("functional tests on cell arguments", () => {
+    test("functional tests on cell arguments", async () => {
       // prettier-ignore
       const grid = {
           A20: '=DMIN(A1:D17, "SCORE", F1:F2)',
@@ -217,7 +217,7 @@ describe("database formula", () => {
           A23: '=DMIN(A1:D17, "YEAR", F11:G13)',
         };
 
-      const gridResult = evaluateGrid({ ...database, ...criteria, ...grid });
+      const gridResult = await evaluateGrid({ ...database, ...criteria, ...grid });
       expect(gridResult.A20).toBe(0.71);
       expect(gridResult.A21).toBe(0.75);
       expect(gridResult.A22).toBe(1938);
@@ -226,7 +226,7 @@ describe("database formula", () => {
   });
 
   describe("DPRODUCT formula", () => {
-    test("functional tests on cell arguments", () => {
+    test("functional tests on cell arguments", async () => {
       // prettier-ignore
       const grid = {
           A20: '=DPRODUCT(A1:D17, "SCORE", F1:F2)',
@@ -235,7 +235,7 @@ describe("database formula", () => {
           A23: '=DPRODUCT(A1:D17, "YEAR", F11:G13)',
         };
 
-      const gridResult = evaluateGrid({ ...database, ...criteria, ...grid });
+      const gridResult = await evaluateGrid({ ...database, ...criteria, ...grid });
       expect(gridResult.A20).toBe(0.5325);
       expect(gridResult.A21).toBe(0.75);
       expect(gridResult.A22).toBeCloseTo(0.01707, 5);
@@ -244,7 +244,7 @@ describe("database formula", () => {
   });
 
   describe("DSTDEV formula", () => {
-    test("functional tests on cell arguments", () => {
+    test("functional tests on cell arguments", async () => {
       // prettier-ignore
       const grid = {
           A20: '=DSTDEV(A1:D17, "SCORE", F1:F2)',
@@ -253,7 +253,7 @@ describe("database formula", () => {
           A23: '=DSTDEV(A1:D17, "YEAR", F11:G13)',
         };
 
-      const gridResult = evaluateGrid({ ...database, ...criteria, ...grid });
+      const gridResult = await evaluateGrid({ ...database, ...criteria, ...grid });
       expect(gridResult.A20).toBeCloseTo(0.02828, 5);
       expect(gridResult.A21).toBe("#DIV/0!");
       expect(gridResult.A22).toBeCloseTo(24.47448, 5);
@@ -262,7 +262,7 @@ describe("database formula", () => {
   });
 
   describe("DSTDEVP formula", () => {
-    test("functional tests on cell arguments", () => {
+    test("functional tests on cell arguments", async () => {
       // prettier-ignore
       const grid = {
           A20: '=DSTDEVP(A1:D17, "SCORE", F1:F2)',
@@ -271,7 +271,7 @@ describe("database formula", () => {
           A23: '=DSTDEVP(A1:D17, "YEAR", F11:G13)',
         };
 
-      const gridResult = evaluateGrid({ ...database, ...criteria, ...grid });
+      const gridResult = await evaluateGrid({ ...database, ...criteria, ...grid });
       expect(gridResult.A20).toBeCloseTo(0.02);
       expect(gridResult.A21).toBe(0);
       expect(gridResult.A22).toBeCloseTo(23.43253, 5);
@@ -280,7 +280,7 @@ describe("database formula", () => {
   });
 
   describe("DSUM formula", () => {
-    test("functional tests on cell arguments", () => {
+    test("functional tests on cell arguments", async () => {
       // prettier-ignore
       const grid = {
           A20: '=DSUM(A1:D17, "SCORE", F1:F2)',
@@ -289,7 +289,7 @@ describe("database formula", () => {
           A23: '=DSUM(A1:D17, "YEAR", F11:G13)',
         };
 
-      const gridResult = evaluateGrid({ ...database, ...criteria, ...grid });
+      const gridResult = await evaluateGrid({ ...database, ...criteria, ...grid });
       expect(gridResult.A20).toBe(1.46);
       expect(gridResult.A21).toBe(0.75);
       expect(gridResult.A22).toBe(23778);
@@ -298,7 +298,7 @@ describe("database formula", () => {
   });
 
   describe("DVAR formula", () => {
-    test("functional tests on cell arguments", () => {
+    test("functional tests on cell arguments", async () => {
       // prettier-ignore
       const grid = {
           A20: '=DVAR(A1:D17, "SCORE", F1:F2)',
@@ -307,7 +307,7 @@ describe("database formula", () => {
           A23: '=DVAR(A1:D17, "YEAR", F11:G13)',
         };
 
-      const gridResult = evaluateGrid({ ...database, ...criteria, ...grid });
+      const gridResult = await evaluateGrid({ ...database, ...criteria, ...grid });
       expect(gridResult.A20).toBeCloseTo(0.0008, 4);
       expect(gridResult.A21).toBe("#DIV/0!");
       expect(gridResult.A22).toBe(599);
@@ -316,7 +316,7 @@ describe("database formula", () => {
   });
 
   describe("DVAR formula", () => {
-    test("functional tests on cell arguments", () => {
+    test("functional tests on cell arguments", async () => {
       // prettier-ignore
       const grid = {
           A20: '=DVARP(A1:D17, "SCORE", F1:F2)',
@@ -325,7 +325,7 @@ describe("database formula", () => {
           A23: '=DVARP(A1:D17, "YEAR", F11:G13)',
         };
 
-      const gridResult = evaluateGrid({ ...database, ...criteria, ...grid });
+      const gridResult = await evaluateGrid({ ...database, ...criteria, ...grid });
       expect(gridResult.A20).toBeCloseTo(0.0004, 4);
       expect(gridResult.A21).toBe(0);
       expect(gridResult.A22).toBeCloseTo(549.08333, 5);
@@ -333,7 +333,7 @@ describe("database formula", () => {
     });
   });
 
-  test("database formulas accepts errors in first argument", () => {
+  test("database formulas accepts errors in first argument", async () => {
     // prettier-ignore
     const grid = {
         A1: "Name", B1: "Age",
@@ -346,6 +346,6 @@ describe("database formula", () => {
         A7: "Peter",
       };
 
-    expect(evaluateCell("A10", { A10: '=DAVERAGE(A1:B5, "Age", A6:B7)', ...grid })).toBe(23);
+    expect(await evaluateCell("A10", { A10: '=DAVERAGE(A1:B5, "Age", A6:B7)', ...grid })).toBe(23);
   });
 });

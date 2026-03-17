@@ -5,7 +5,7 @@ import { makeStore } from "../../test_helpers/stores";
 
 describe("Function auto complete", () => {
   test("start with exact match, but with other proposals", async () => {
-    const { store: composer, model } = makeStore(CellComposerStore);
+    const { store: composer, model } = await makeStore(CellComposerStore);
     setCellContent(model, "A1", "=SUM");
     composer.startEdition();
     await nextTick();
@@ -18,7 +18,7 @@ describe("Function auto complete", () => {
   });
 
   test("function auto complete uses fuzzy search", async () => {
-    const { store: composer, model } = makeStore(CellComposerStore);
+    const { store: composer, model } = await makeStore(CellComposerStore);
     setCellContent(model, "A1", "=VOK");
     composer.startEdition();
     await nextTick();
@@ -30,7 +30,7 @@ describe("Function auto complete", () => {
   });
 
   test("reselect cell with existing content shows correct autocomplete proposals", async () => {
-    const { store: composer, model } = makeStore(CellComposerStore);
+    const { store: composer, model } = await makeStore(CellComposerStore);
     setCellContent(model, "A1", "=VLOOKUP");
     selectCell(model, "A1");
     composer.startEdition();

@@ -10,7 +10,7 @@ let fixture: HTMLElement;
 
 describe("full screen carousel", () => {
   beforeEach(async () => {
-    model = createModel();
+    model = await createModel();
     ({ fixture } = await mountSpreadsheet({ model }));
   });
 

@@ -34,8 +34,8 @@ import "../test_helpers/helpers"; // to have getcontext mocks
 import { createModel } from "../test_helpers/helpers";
 
 describe("borders", () => {
-  test("can add and remove a border, on empty cell", () => {
-    const model = createModel();
+  test("can add and remove a border, on empty cell", async () => {
+    const model = await createModel();
 
     // select B2, set its top border, then clear it
     selectCell(model, "B2");
@@ -67,8 +67,8 @@ describe("borders", () => {
     expect(getCell(model, "B2")).toBeUndefined();
   });
 
-  test("can add and remove a top border, on existing cell", () => {
-    const model = createModel();
+  test("can add and remove a top border, on existing cell", async () => {
+    const model = await createModel();
 
     // select B2
     setCellContent(model, "B2", "content");
@@ -84,8 +84,8 @@ describe("borders", () => {
     expect(getBorder(model, "B2")).toBeNull();
   });
 
-  test("can add and remove a top border, on a selection", () => {
-    const model = createModel();
+  test("can add and remove a top border, on a selection", async () => {
+    const model = await createModel();
 
     // select B2:C2
     selectCell(model, "B2");
@@ -98,8 +98,8 @@ describe("borders", () => {
     expect(getBorder(model, "C2")).toEqual({ top: DEFAULT_BORDER_DESC });
   });
 
-  test("can clear a zone", () => {
-    const model = createModel();
+  test("can clear a zone", async () => {
+    const model = await createModel();
 
     // select C3 and add a border
     selectCell(model, "C3");
@@ -116,23 +116,23 @@ describe("borders", () => {
     expect(getCell(model, "C3")).toBeUndefined();
   });
 
-  test("set the same border twice is cancelled", () => {
-    const model = createModel();
+  test("set the same border twice is cancelled", async () => {
+    const model = await createModel();
     const border = { top: DEFAULT_BORDER_DESC };
     setBorders(model, "A1", border);
     expect(setBorders(model, "A1", border)).toBeCancelledBecause(CommandResult.NoChanges);
   });
 
-  test("reset border when there is no border is cancelled", () => {
-    const model = createModel();
+  test("reset border when there is no border is cancelled", async () => {
+    const model = await createModel();
     expect(setBorders(model, "A1", undefined)).toBeCancelledBecause(CommandResult.NoChanges);
     expect(setBorders(model, "A1", { top: undefined })).toBeCancelledBecause(
       CommandResult.NoChanges
     );
   });
 
-  test("Can set border on a target", () => {
-    const model = createModel();
+  test("Can set border on a target", async () => {
+    const model = await createModel();
     const border = { top: DEFAULT_BORDER_DESC };
     setBordersOnTarget(model, ["A1:A2", "B2:B3"], border);
     expect(getBorder(model, "A1")).toEqual({
@@ -149,8 +149,8 @@ describe("borders", () => {
     });
   });
 
-  test("Preserves side borders when combining external and all via command", () => {
-    const model = createModel();
+  test("Preserves side borders when combining external and all via command", async () => {
+    const model = await createModel();
     const defaultBorder = DEFAULT_BORDER_DESC;
 
     setZoneBorders(model, { position: "all" }, ["C3"]);
@@ -203,15 +203,15 @@ describe("borders", () => {
     });
   });
 
-  test("import preserves merged cell borders", () => {
+  test("import preserves merged cell borders", async () => {
     const b = DEFAULT_BORDER_DESC;
     const allSides = { top: b, bottom: b, left: b, right: b };
-    const model = createModel();
+    const model = await createModel();
 
     setZoneBorders(model, { position: "all" }, ["B2:C3"]);
     merge(model, "C2:C3");
 
-    const importedModel = createModel(model.exportData());
+    const importedModel = await createModel(model.exportData());
 
     expect(getBorder(importedModel, "B2")).toEqual(allSides);
     expect(getBorder(importedModel, "B3")).toEqual(allSides);
@@ -219,8 +219,8 @@ describe("borders", () => {
     expect(getBorder(importedModel, "C3")).toEqual({ left: b, bottom: b, right: b });
   });
 
-  test("can set all borders in a zone", () => {
-    const model = createModel();
+  test("can set all borders in a zone", async () => {
+    const model = await createModel();
 
     // select B2, then expand selection to B2:C3
     selectCell(model, "B2");
@@ -240,8 +240,8 @@ describe("borders", () => {
     expect(getBorder(model, "C3")).toEqual(all);
   });
 
-  test("setting top border in a zone only set top row", () => {
-    const model = createModel();
+  test("setting top border in a zone only set top row", async () => {
+    const model = await createModel();
 
     // select B2, then expand selection to B2:C3
     selectCell(model, "B2");
@@ -258,8 +258,8 @@ describe("borders", () => {
     expect(getCell(model, "C3")).toBeUndefined();
   });
 
-  test("clearing a common border in a neighbour cell", () => {
-    const model = createModel();
+  test("clearing a common border in a neighbour cell", async () => {
+    const model = await createModel();
 
     // select B2, then set its right border
     selectCell(model, "B2");
@@ -272,8 +272,8 @@ describe("borders", () => {
     expect(getCell(model, "B2")).toBeUndefined();
   });
 
-  test("setting external border in a zone works", () => {
-    const model = createModel();
+  test("setting external border in a zone works", async () => {
+    const model = await createModel();
 
     // select B2, then expand selection to B2:D4
     selectCell(model, "B2");
@@ -301,8 +301,8 @@ describe("borders", () => {
     });
   });
 
-  test("setting internal horizontal borders in a zone works", () => {
-    const model = createModel();
+  test("setting internal horizontal borders in a zone works", async () => {
+    const model = await createModel();
 
     // select B2, then expand selection to B2:C4
     selectCell(model, "B2");
@@ -323,16 +323,16 @@ describe("borders", () => {
     expect(getBorder(model, "C4")).toEqual({ top: DEFAULT_BORDER_DESC });
   });
 
-  test("setting internal horizontal border on a sincel cell does nothing", () => {
-    const model = createModel();
+  test("setting internal horizontal border on a sincel cell does nothing", async () => {
+    const model = await createModel();
     setZoneBorders(model, { position: "h" }, ["B2"]);
     expect(getBorder(model, "B1")).toBeNull();
     expect(getBorder(model, "B2")).toBeNull();
     expect(getBorder(model, "B3")).toBeNull();
   });
 
-  test("setting internal vertical borders in a zone works", () => {
-    const model = createModel();
+  test("setting internal vertical borders in a zone works", async () => {
+    const model = await createModel();
 
     // select B2, then expand selection to B2:D4
     selectCell(model, "B2");
@@ -359,16 +359,16 @@ describe("borders", () => {
     expect(getBorder(model, "D4")).toEqual({ left: DEFAULT_BORDER_DESC });
   });
 
-  test("setting internal vertical border on a sincel cell does nothing", () => {
-    const model = createModel();
+  test("setting internal vertical border on a sincel cell does nothing", async () => {
+    const model = await createModel();
     setZoneBorders(model, { position: "v" }, ["B2"]);
     expect(getBorder(model, "A2")).toBeNull();
     expect(getBorder(model, "B2")).toBeNull();
     expect(getBorder(model, "C2")).toBeNull();
   });
 
-  test("setting internal  borders in a zone works", () => {
-    const model = createModel();
+  test("setting internal  borders in a zone works", async () => {
+    const model = await createModel();
 
     // select B2, then expand selection to B2:D4
     selectCell(model, "B2");
@@ -416,8 +416,8 @@ describe("borders", () => {
     expect(getBorder(model, "D4")).toEqual({ top: DEFAULT_BORDER_DESC, left: DEFAULT_BORDER_DESC });
   });
 
-  test("setting internal border on a sincel cell does nothing", () => {
-    const model = createModel();
+  test("setting internal border on a sincel cell does nothing", async () => {
+    const model = await createModel();
     setZoneBorders(model, { position: "hv" }, ["B2"]);
     expect(getBorder(model, "A2")).toBeNull();
     expect(getBorder(model, "B1")).toBeNull();
@@ -426,8 +426,8 @@ describe("borders", () => {
     expect(getBorder(model, "C2")).toBeNull();
   });
 
-  test("deleting a cell with a border does not remove the border", () => {
-    const model = createModel();
+  test("deleting a cell with a border does not remove the border", async () => {
+    const model = await createModel();
 
     // select B2 and set its top border
     setCellContent(model, "B2", "content");
@@ -439,8 +439,8 @@ describe("borders", () => {
     expect(getBorder(model, "B2")).toBeDefined();
   });
 
-  test("can undo and redo a setBorder operation on an non empty cell", () => {
-    const model = createModel();
+  test("can undo and redo a setBorder operation on an non empty cell", async () => {
+    const model = await createModel();
     setCellContent(model, "B2", "some content");
     selectCell(model, "B2");
     setZoneBorders(model, { position: "all" });
@@ -452,8 +452,8 @@ describe("borders", () => {
     expect(getBorder(model, "B2")).toBeNull();
   });
 
-  test("can clear formatting (border)", () => {
-    const model = createModel();
+  test("can clear formatting (border)", async () => {
+    const model = await createModel();
     setCellContent(model, "B1", "b1");
     selectCell(model, "B1");
     setZoneBorders(model, { position: "all" });
@@ -463,8 +463,8 @@ describe("borders", () => {
     expect(getBorder(model, "B1")).toBeNull();
   });
 
-  test("can clear formatting (border) after selecting all cells", () => {
-    const model = createModel();
+  test("can clear formatting (border) after selecting all cells", async () => {
+    const model = await createModel();
     selectCell(model, "A1");
 
     setAnchorCorner(model, "Z100");
@@ -481,15 +481,15 @@ describe("borders", () => {
     expect(getCell(model, "B1")).toBeUndefined();
   });
 
-  test("set all border of a cell", () => {
-    const model = createModel();
+  test("set all border of a cell", async () => {
+    const model = await createModel();
     const s: BorderDescr = { style: "medium", color: "#FF0000" };
     setBorders(model, "A1", { bottom: s, top: s, left: s, right: s });
     expect(getBorder(model, "A1")).toEqual({ bottom: s, top: s, left: s, right: s });
   });
 
-  test("cut & paste a border", () => {
-    const model = createModel();
+  test("cut & paste a border", async () => {
+    const model = await createModel();
     setZoneBorders(model, { position: "external" }, ["B2"]);
     expect(getBorder(model, "B2")).toEqual({
       top: DEFAULT_BORDER_DESC,
@@ -511,8 +511,8 @@ describe("borders", () => {
 
 describe("Grid manipulation", () => {
   let model: Model;
-  beforeEach(() => {
-    model = createModel();
+  beforeEach(async () => {
+    model = await createModel();
   });
 
   test("ADD_COLUMNS_ROWS with dimension col before with external borders", () => {
@@ -528,8 +528,8 @@ describe("Grid manipulation", () => {
     expect(getBorder(model, "D2")).toBeNull();
   });
 
-  test("move duplicated border when col is inserted before", () => {
-    const model = createModel();
+  test("move duplicated border when col is inserted before", async () => {
+    const model = await createModel();
     const firstSheetId = model.getters.getActiveSheetId();
     const secondSheetId = "42";
     setZoneBorders(model, { position: "external" }, ["B2"]);
@@ -557,8 +557,8 @@ describe("Grid manipulation", () => {
     expect(getBorder(model, "D2", secondSheetId)).toBeNull();
   });
 
-  test("move duplicated border when row is inserted before", () => {
-    const model = createModel();
+  test("move duplicated border when row is inserted before", async () => {
+    const model = await createModel();
     const firstSheetId = model.getters.getActiveSheetId();
     const secondSheetId = "42";
     setZoneBorders(model, { position: "external" }, ["B2"]);
@@ -814,8 +814,8 @@ describe("Grid manipulation", () => {
     expect(model.exportData().borders).toEqual({});
   });
 
-  test("Adding a border on a cell removes it on the adjacent cells if it differs", () => {
-    const model = createModel();
+  test("Adding a border on a cell removes it on the adjacent cells if it differs", async () => {
+    const model = await createModel();
     const b = DEFAULT_BORDER_DESC;
     setZoneBorders(model, { position: "bottom", color: "red", style: "dashed" }, ["B2"]);
     setZoneBorders(model, { position: "right", color: "red", style: "dashed" }, ["A3"]);
@@ -926,8 +926,8 @@ describe("Grid manipulation", () => {
     });
   });
 
-  test("Setting a *clear* border on a cell removes the adjacent border cell", () => {
-    const model = createModel();
+  test("Setting a *clear* border on a cell removes the adjacent border cell", async () => {
+    const model = await createModel();
     const b = DEFAULT_BORDER_DESC;
     setZoneBorders(model, { position: "all" }, ["A1:C3"]);
     setZoneBorders(model, { position: "clear" }, ["B2"]);
@@ -1014,8 +1014,8 @@ describe("Border continuity", () => {
     right: DEFAULT_BORDER_DESC,
     bottom: DEFAULT_BORDER_DESC,
   };
-  test("border continuity is preserved when adding a row before", () => {
-    const model = createModel();
+  test("border continuity is preserved when adding a row before", async () => {
+    const model = await createModel();
     setZoneBorders(model, { position: "external" }, ["A1"]);
     setZoneBorders(model, { position: "external" }, ["A2"]);
     expect(getBorder(model, "A1")).toEqual(border);
@@ -1027,8 +1027,8 @@ describe("Border continuity", () => {
     expect(getBorder(model, "A3")).toEqual(border);
   });
 
-  test("border continuity is preserved when adding a row after", () => {
-    const model = createModel();
+  test("border continuity is preserved when adding a row after", async () => {
+    const model = await createModel();
     setZoneBorders(model, { position: "external" }, ["A1"]);
     setZoneBorders(model, { position: "external" }, ["A2"]);
     expect(getBorder(model, "A1")).toEqual(border);
@@ -1040,8 +1040,8 @@ describe("Border continuity", () => {
     expect(getBorder(model, "A3")).toEqual(border);
   });
 
-  test("border continuity is preserved when adding a column before", () => {
-    const model = createModel();
+  test("border continuity is preserved when adding a column before", async () => {
+    const model = await createModel();
     setZoneBorders(model, { position: "external" }, ["A1"]);
     setZoneBorders(model, { position: "external" }, ["B1"]);
     expect(getBorder(model, "A1")).toEqual(border);
@@ -1053,8 +1053,8 @@ describe("Border continuity", () => {
     expect(getBorder(model, "C1")).toEqual(border);
   });
 
-  test("border continuity is preserved when adding a column after", () => {
-    const model = createModel();
+  test("border continuity is preserved when adding a column after", async () => {
+    const model = await createModel();
     setZoneBorders(model, { position: "external" }, ["A1"]);
     setZoneBorders(model, { position: "external" }, ["B1"]);
     expect(getBorder(model, "A1")).toEqual(border);
@@ -1067,7 +1067,7 @@ describe("Border continuity", () => {
   });
 });
 
-test("Cells that have undefined borders don't override borders of neighboring cells at import", () => {
+test("Cells that have undefined borders don't override borders of neighboring cells at import", async () => {
   const data = {
     sheets: [
       {
@@ -1106,7 +1106,7 @@ test("Cells that have undefined borders don't override borders of neighboring ce
       },
     },
   };
-  const model = createModel(data);
+  const model = await createModel(data);
   expect(model.getters.getCellBorder({ sheetId: "Sheet1", col: 1, row: 1 })).toEqual({
     top: { style: "thin", color: "#000" },
     bottom: { style: "thin", color: "#000" },
@@ -1118,8 +1118,8 @@ test("Cells that have undefined borders don't override borders of neighboring ce
 describe("Borders formatting", () => {
   let model: Model;
 
-  beforeEach(() => {
-    model = createModel();
+  beforeEach(async () => {
+    model = await createModel();
   });
 
   test("Can set a border with style and color", () => {
@@ -1146,22 +1146,22 @@ describe("Borders formatting", () => {
 });
 
 describe("Computed borders", () => {
-  test("SET_BORDER command recomputes the borders", () => {
-    const model = createModel();
+  test("SET_BORDER command recomputes the borders", async () => {
+    const model = await createModel();
     expect(getComputedBorder(model, "A1")).toBeNull();
     setBorders(model, "A1", { top: DEFAULT_BORDER_DESC });
     expect(getComputedBorder(model, "A1")).not.toBeNull();
   });
 
-  test("SET_ZONE_BORDERS command recomputes the borders", () => {
-    const model = createModel();
+  test("SET_ZONE_BORDERS command recomputes the borders", async () => {
+    const model = await createModel();
     expect(getComputedBorder(model, "A1")).toBeNull();
     setZoneBorders(model, { position: "all" }, ["A1"]);
     expect(getComputedBorder(model, "A1")).not.toBeNull();
   });
 
-  test("SET_BORDERS_ON_TARGET command recomputes the borders", () => {
-    const model = createModel();
+  test("SET_BORDERS_ON_TARGET command recomputes the borders", async () => {
+    const model = await createModel();
     const border = { top: DEFAULT_BORDER_DESC };
     expect(getComputedBorder(model, "A1")).toBeNull();
     setBordersOnTarget(model, ["A1"], border);

@@ -4,16 +4,16 @@ import { insertPivot } from "../test_helpers/commands_helpers";
 import { getCellText, getTable } from "../test_helpers/getters_helpers";
 import { createModel, setGrid } from "../test_helpers/helpers";
 describe("Insert pivot command", () => {
-  test("Can insert a pivot in a cell", () => {
-    const model = createModel();
+  test("Can insert a pivot in a cell", async () => {
+    const model = await createModel();
     insertPivot(model, "A1", "pivot1", "Sheet2");
     expect(model.getters.getActiveSheetId()).toEqual("Sheet2");
     expect(getCellText(model, "A1")).toEqual("=PIVOT(1)");
     expect(model.getters.getPivotIds()).toHaveLength(1);
     expect(model.getters.getPivotCoreDefinition("pivot1")["dataSet"].zone).toEqual(toZone("A1"));
   });
-  test("Can insert a pivot from a zone", () => {
-    const model = createModel();
+  test("Can insert a pivot from a zone", async () => {
+    const model = await createModel();
     setGrid(model, { A1: "Header1", B1: "Header2", A2: "Data1", B2: "Data2" });
     insertPivot(model, "A1:B2", "pivot1", "Sheet2");
     expect(model.getters.getPivotCoreDefinition("pivot1")["dataSet"].zone).toEqual(toZone("A1:B2"));
@@ -22,8 +22,8 @@ describe("Insert pivot command", () => {
       config: { styleId: PIVOT_INSERT_TABLE_STYLE_ID },
     });
   });
-  test("Can insert a pivot from a contiguous zone", () => {
-    const model = createModel({
+  test("Can insert a pivot from a contiguous zone", async () => {
+    const model = await createModel({
       sheets: [
         {
           id: "Sheet1",

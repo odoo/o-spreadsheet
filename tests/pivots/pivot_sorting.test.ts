@@ -24,8 +24,8 @@ const unsortedGrid = {
     A25: "Total",       B25: 230200,   C25: 90000,  D25: 320200,
 }
 describe("Pivot sorting", () => {
-  test("Can sort the pivot on any column", () => {
-    const model = createModelWithTestPivotDataset();
+  test("Can sort the pivot on any column", async () => {
+    const model = await createModelWithTestPivotDataset();
     expect(getGrid(model)).toMatchObject(unsortedGrid);
     updatePivot(model, "pivotId", {
       sortedColumn: {
@@ -69,8 +69,8 @@ describe("Pivot sorting", () => {
         A25: "Total",      B25: 230200,   C25: 90000,  D25: 320200,
     });
   });
-  test("Empty values are sorted as the smallest value", () => {
-    const model = createModelWithTestPivotDataset();
+  test("Empty values are sorted as the smallest value", async () => {
+    const model = await createModelWithTestPivotDataset();
     const bobColumn: PivotSortedColumn = {
       measure: "measureId",
       order: "asc",
@@ -95,8 +95,8 @@ describe("Pivot sorting", () => {
       A25: "Total",      B25: 230200,   C25: 90000,  D25: 320200,
     });
   });
-  test("Can sort on pivot with a datetime column group by", () => {
-    const model = createModelWithTestPivotDataset({
+  test("Can sort on pivot with a datetime column group by", async () => {
+    const model = await createModelWithTestPivotDataset({
       rows: [{ fieldName: "Salesperson" }],
       columns: [{ fieldName: "Created on", granularity: "month_number", order: "asc" }],
       sortedColumn: {
@@ -113,8 +113,8 @@ describe("Pivot sorting", () => {
       A24: 'Total',       B24: 22500,       C24: 189400,  D24: 108300,  E24: 320200,
     });
   });
-  test("Can sort on pivot with multiple group by", () => {
-    const model = createModelWithTestPivotDataset({
+  test("Can sort on pivot with multiple group by", async () => {
+    const model = await createModelWithTestPivotDataset({
       rows: [
         { fieldName: "Created on", granularity: "month_number", order: "asc" },
         { fieldName: "Active", order: "asc" },
@@ -155,8 +155,8 @@ describe("Pivot sorting", () => {
         A30: "Total",        B30: 230200,   C30: 90000,  D30: 320200,
     });
   });
-  test("Trying to sort the pivot on an invalid column or measure does nothing", () => {
-    const model = createModelWithTestPivotDataset({
+  test("Trying to sort the pivot on an invalid column or measure does nothing", async () => {
+    const model = await createModelWithTestPivotDataset({
       sortedColumn: {
         measure: "measureId",
         order: "asc",
@@ -181,8 +181,8 @@ describe("Pivot sorting", () => {
     });
     expect(getGrid(model)).toMatchObject(unsortedGrid);
   });
-  test("Can sort on a calculated measure", () => {
-    const model = createModelWithTestPivotDataset();
+  test("Can sort on a calculated measure", async () => {
+    const model = await createModelWithTestPivotDataset();
     const sheetId = model.getters.getActiveSheetId();
     updatePivot(model, "pivotId", {
       measures: [
@@ -214,8 +214,8 @@ describe("Pivot sorting", () => {
         A25: "Total",      B25: 460400,   C25: 180000,  D25: 640400,
     });
   });
-  test("Sorting is applied before measure display", () => {
-    const model = createModelWithTestPivotDataset({
+  test("Sorting is applied before measure display", async () => {
+    const model = await createModelWithTestPivotDataset({
       measures: [
         {
           id: "measureId",
@@ -242,9 +242,9 @@ describe("Pivot sorting", () => {
         A25: "Total",      B25: "",       C25: "",     D25: "",
     });
   });
-  test("(previous) in measure display take sorting into account", () => {
+  test("(previous) in measure display take sorting into account", async () => {
     // Note: this is explicitly disable in Excel.
-    const model = createModelWithTestPivotDataset({
+    const model = await createModelWithTestPivotDataset({
       sortedColumn: {
         measure: "measureId",
         order: "asc",
@@ -282,7 +282,7 @@ describe("Pivot sorting", () => {
         A25: "Total",      B25: "",         C25: "",         D25: "",
     });
   });
-  test("Can import/export sorted pivot ", () => {
+  test("Can import/export sorted pivot ", async () => {
     const pivotDefinition: Partial<SpreadsheetPivotCoreDefinition> = {
       columns: [{ fieldName: "Salesperson" }],
       sortedColumn: {
@@ -291,13 +291,13 @@ describe("Pivot sorting", () => {
         domain: [{ field: "Salesperson", value: "Alice", type: "char" }],
       },
     };
-    const model = createModelWithTestPivotDataset(pivotDefinition);
+    const model = await createModelWithTestPivotDataset(pivotDefinition);
     const exported = model.exportData();
     expect(exported.pivots).toMatchObject({ pivotId: pivotDefinition });
-    const importedModel = createModel(exported);
+    const importedModel = await createModel(exported);
     expect(importedModel.getters.getPivotCoreDefinition("pivotId")).toMatchObject(pivotDefinition);
   });
-  test("Can sort pivot table on the column '(Undefined)'", () => {
+  test("Can sort pivot table on the column '(Undefined)'", async () => {
     // prettier-ignore
     const grid = {
       A1: "Customer",    B1: "Price",        C1: "Date",
@@ -305,7 +305,7 @@ describe("Pivot sorting", () => {
       A3: "Bob",         B3: "20",           C3: "",
       A4: "=PIVOT(1)"
     };
-    const model = createModelFromGrid(grid);
+    const model = await createModelFromGrid(grid);
     addPivot(model, "A1:C3", {
       columns: [{ fieldName: "Date", granularity: "year" }],
       rows: [{ fieldName: "Customer" }],

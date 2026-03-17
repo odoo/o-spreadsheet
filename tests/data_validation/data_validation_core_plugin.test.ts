@@ -21,8 +21,8 @@ describe("Data validation", () => {
   let model: Model;
   let sheetId: UID;
 
-  beforeEach(() => {
-    model = createModel();
+  beforeEach(async () => {
+    model = await createModel();
     sheetId = model.getters.getActiveSheetId();
   });
 
@@ -523,7 +523,7 @@ describe("Data validation", () => {
     expect(getDataValidationRules(model, sheetId)).toEqual([]);
   });
 
-  test("Can import/export data validation rules", () => {
+  test("Can import/export data validation rules", async () => {
     addDataValidation(model, "A1", "id", { type: "containsText", values: ["1"] });
     addDataValidation(model, "B:B", "id2", { type: "isBetween", values: ["1", "8"] }, "blocking");
 
@@ -544,7 +544,7 @@ describe("Data validation", () => {
       },
     ]);
 
-    const newModel = createModel(exported);
+    const newModel = await createModel(exported);
     expect(getDataValidationRules(newModel, sheetId)).toEqual([
       {
         id: "id",

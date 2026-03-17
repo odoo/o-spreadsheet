@@ -64,8 +64,8 @@ afterAll(() => {
   }
 });
 
-beforeEach(() => {
-  model = createModel();
+beforeEach(async () => {
+  model = await createModel();
   const { container, store: gridRendererStore } = makeStoreWithModel(model, GridRenderer);
   rendererStore = container.get(RendererStore);
   jest

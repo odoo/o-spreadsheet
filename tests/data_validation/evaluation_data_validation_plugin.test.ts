@@ -14,8 +14,8 @@ describe("Data validation evaluation", () => {
   let sheetId: UID;
   let A1: CellPosition;
 
-  beforeEach(() => {
-    model = createModel();
+  beforeEach(async () => {
+    model = await createModel();
     sheetId = model.getters.getActiveSheetId();
     A1 = { sheetId, col: 0, row: 0 };
   });

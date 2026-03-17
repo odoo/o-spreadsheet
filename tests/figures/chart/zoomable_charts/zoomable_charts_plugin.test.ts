@@ -7,8 +7,8 @@ import { createModel } from "../../../test_helpers/helpers";
 
 let model: Model;
 
-beforeEach(() => {
-  model = createModel();
+beforeEach(async () => {
+  model = await createModel();
 });
 
 describe("Zoomable chart configuration tests", () => {

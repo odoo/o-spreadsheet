@@ -18,7 +18,7 @@ describe("chart conversion", () => {
     mockChart();
   });
   test("convert chart to image", async () => {
-    const model = createModel();
+    const model = await createModel();
     const sheetId = model.getters.getActiveSheetId();
     createChart(model, TEST_CHART_DATA.basicChart, chartId, undefined, { figureId });
     const figure = model.getters.getFigure(sheetId, figureId)!;
@@ -32,7 +32,7 @@ describe("chart conversion", () => {
   test("cannot export Chart.js chart when lib is not loaded", async () => {
     globalThis.Chart = undefined;
     const spy = jest.spyOn(console, "log").mockImplementation(() => {});
-    const model = createModel();
+    const model = await createModel();
     const sheetId = model.getters.getActiveSheetId();
     createChart(model, TEST_CHART_DATA.basicChart, chartId, undefined, { figureId });
     const figure = model.getters.getFigure(sheetId, figureId)!;
@@ -45,7 +45,7 @@ describe("chart conversion", () => {
     expect(spy).toHaveBeenCalledWith("Chart.js library is not loaded");
   });
   test("export Chart.js chart check type from runtime config, not the given chart type", async () => {
-    const model = createModel();
+    const model = await createModel();
     const sheetId = model.getters.getActiveSheetId();
     createChart(model, TEST_CHART_DATA.combo, chartId, undefined, { figureId });
     const figure = model.getters.getFigure(sheetId, figureId)!;
@@ -66,7 +66,7 @@ describe("chart conversion", () => {
       return type === "bar" ? {} : (undefined as any);
     });
     const spy = jest.spyOn(console, "log").mockImplementation(() => {});
-    const model = createModel();
+    const model = await createModel();
     const sheetId = model.getters.getActiveSheetId();
     createChart(model, TEST_CHART_DATA.combo, chartId, undefined, { figureId });
     const figure = model.getters.getFigure(sheetId, figureId)!;

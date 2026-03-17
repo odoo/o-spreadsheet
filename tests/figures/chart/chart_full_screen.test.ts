@@ -22,7 +22,7 @@ let fixture: HTMLElement;
 
 describe("chart menu for dashboard", () => {
   beforeEach(async () => {
-    model = createModel();
+    model = await createModel();
     ({ fixture } = await mountSpreadsheet({ model }));
   });
 

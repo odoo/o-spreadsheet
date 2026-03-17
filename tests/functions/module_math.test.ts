@@ -19,35 +19,35 @@ import {
   getRangeValuesAsMatrix,
 } from "../test_helpers/helpers";
 describe("ABS formula", () => {
-  test("take 1 argument", () => {
-    expect(evaluateCell("A1", { A1: "=ABS()" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
-    expect(evaluateCell("A1", { A1: "=ABS(-42)" })).toBe(42);
-    expect(evaluateCell("A1", { A1: "=ABS(-42, 24)" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+  test("take 1 argument", async () => {
+    expect(await evaluateCell("A1", { A1: "=ABS()" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+    expect(await evaluateCell("A1", { A1: "=ABS(-42)" })).toBe(42);
+    expect(await evaluateCell("A1", { A1: "=ABS(-42, 24)" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
   });
   test.each([
     ["123", 123],
     ["-123", 123],
     ["-0.9", 0.9],
-  ])("business logic > return the ABS", (value, result) => {
-    expect(evaluateCell("A1", { A1: "=ABS(A2)", A2: value })).toBe(result);
+  ])("business logic > return the ABS", async (value, result) => {
+    expect(await evaluateCell("A1", { A1: "=ABS(A2)", A2: value })).toBe(result);
   });
   describe("casting test", () => {
-    test("empty cell are considered as 0", () => {
-      expect(evaluateCell("A1", { A1: "=ABS(A2)" })).toBe(0);
+    test("empty cell are considered as 0", async () => {
+      expect(await evaluateCell("A1", { A1: "=ABS(A2)" })).toBe(0);
     });
-    test("string/string in cell which can be cast in number are interpreted as numbers", () => {
-      expect(evaluateCell("A1", { A1: '=ABS("-100")' })).toBe(100);
-      expect(evaluateCell("A1", { A1: "=ABS(A2)", A2: '="-100"' })).toBe(100);
+    test("string/string in cell which can be cast in number are interpreted as numbers", async () => {
+      expect(await evaluateCell("A1", { A1: '=ABS("-100")' })).toBe(100);
+      expect(await evaluateCell("A1", { A1: "=ABS(A2)", A2: '="-100"' })).toBe(100);
     });
-    test("string/string in cell which cannot be cast in number return an error", () => {
-      expect(evaluateCell("A1", { A1: '=ABS(" ")' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE
-      expect(evaluateCell("A1", { A1: '=ABS("kikou")' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE
-      expect(evaluateCell("A1", { A1: "=ABS(A2)", A2: "coucou" })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE
+    test("string/string in cell which cannot be cast in number return an error", async () => {
+      expect(await evaluateCell("A1", { A1: '=ABS(" ")' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE
+      expect(await evaluateCell("A1", { A1: '=ABS("kikou")' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE
+      expect(await evaluateCell("A1", { A1: "=ABS(A2)", A2: "coucou" })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE
     });
-    test("boolean/boolean in cell are interpreted as numbers", () => {
-      expect(evaluateCell("A1", { A1: "=ABS(-TRUE)" })).toBe(1);
-      expect(evaluateCell("A1", { A1: "=ABS(-FALSE)" })).toBe(0);
-      expect(evaluateCell("A1", { A1: "=ABS(A2)", A2: "TRUE" })).toBe(1);
+    test("boolean/boolean in cell are interpreted as numbers", async () => {
+      expect(await evaluateCell("A1", { A1: "=ABS(-TRUE)" })).toBe(1);
+      expect(await evaluateCell("A1", { A1: "=ABS(-FALSE)" })).toBe(0);
+      expect(await evaluateCell("A1", { A1: "=ABS(A2)", A2: "TRUE" })).toBe(1);
     });
   });
 });
@@ -57,28 +57,28 @@ describe("ACOS formula", () => {
     ["-1", Math.PI],
     ["0", Math.PI / 2],
     ["0.5", Math.PI / 3],
-  ])("take 1 parameter, return a number", (a, expected) => {
-    expect(evaluateCell("A1", { A1: "=ACOS(A2)", A2: a })).toBeCloseTo(expected, 9);
+  ])("take 1 parameter, return a number", async (a, expected) => {
+    expect(await evaluateCell("A1", { A1: "=ACOS(A2)", A2: a })).toBeCloseTo(expected, 9);
   });
-  test.each([["2"], ["-1.5"]])("take 1 parameter, return an error", (a) => {
-    expect(evaluateCell("A1", { A1: "=ACOS(A2)", A2: a })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+  test.each([["2"], ["-1.5"]])("take 1 parameter, return an error", async (a) => {
+    expect(await evaluateCell("A1", { A1: "=ACOS(A2)", A2: a })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
   });
-  test("special value testing", () => {
-    expect(evaluateCell("A1", { A1: "=ACOS()" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
-    expect(evaluateCell("A1", { A1: "=ACOS(TRUE)" })).toBeCloseTo(0, 9);
-    expect(evaluateCell("A1", { A1: "=ACOS(FALSE)" })).toBeCloseTo(Math.PI / 2, 9);
-    expect(evaluateCell("A1", { A1: '=ACOS("")' })).toBeCloseTo(Math.PI / 2, 9);
-    expect(evaluateCell("A1", { A1: '=ACOS(" ")' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
-    expect(evaluateCell("A1", { A1: '=ACOS("0")' })).toBeCloseTo(Math.PI / 2, 9);
-    expect(evaluateCell("A1", { A1: "=ACOS(A2)", A2: "" })).toBeCloseTo(Math.PI / 2, 9);
-    expect(evaluateCell("A1", { A1: "=ACOS(A2)", A2: " " })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
-    expect(evaluateCell("A1", { A1: "=ACOS(A2)", A2: "0" })).toBeCloseTo(Math.PI / 2, 9);
-    expect(evaluateCell("A1", { A1: "=ACOS(A2)", A2: '""' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
-    expect(evaluateCell("A1", { A1: "=ACOS(A2)", A2: '" "' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
-    expect(evaluateCell("A1", { A1: "=ACOS(A2)", A2: '"0"' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
-    expect(evaluateCell("A1", { A1: "=ACOS(A2)", A2: '=""' })).toBeCloseTo(Math.PI / 2, 9);
-    expect(evaluateCell("A1", { A1: "=ACOS(A2)", A2: '=" "' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
-    expect(evaluateCell("A1", { A1: "=ACOS(A2)", A2: '="0"' })).toBeCloseTo(Math.PI / 2, 9);
+  test("special value testing", async () => {
+    expect(await evaluateCell("A1", { A1: "=ACOS()" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+    expect(await evaluateCell("A1", { A1: "=ACOS(TRUE)" })).toBeCloseTo(0, 9);
+    expect(await evaluateCell("A1", { A1: "=ACOS(FALSE)" })).toBeCloseTo(Math.PI / 2, 9);
+    expect(await evaluateCell("A1", { A1: '=ACOS("")' })).toBeCloseTo(Math.PI / 2, 9);
+    expect(await evaluateCell("A1", { A1: '=ACOS(" ")' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(await evaluateCell("A1", { A1: '=ACOS("0")' })).toBeCloseTo(Math.PI / 2, 9);
+    expect(await evaluateCell("A1", { A1: "=ACOS(A2)", A2: "" })).toBeCloseTo(Math.PI / 2, 9);
+    expect(await evaluateCell("A1", { A1: "=ACOS(A2)", A2: " " })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(await evaluateCell("A1", { A1: "=ACOS(A2)", A2: "0" })).toBeCloseTo(Math.PI / 2, 9);
+    expect(await evaluateCell("A1", { A1: "=ACOS(A2)", A2: '""' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(await evaluateCell("A1", { A1: "=ACOS(A2)", A2: '" "' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(await evaluateCell("A1", { A1: "=ACOS(A2)", A2: '"0"' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(await evaluateCell("A1", { A1: "=ACOS(A2)", A2: '=""' })).toBeCloseTo(Math.PI / 2, 9);
+    expect(await evaluateCell("A1", { A1: "=ACOS(A2)", A2: '=" "' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(await evaluateCell("A1", { A1: "=ACOS(A2)", A2: '="0"' })).toBeCloseTo(Math.PI / 2, 9);
   });
 });
 describe("ACOSH formula", () => {
@@ -87,11 +87,11 @@ describe("ACOSH formula", () => {
     ["1", 0],
     ["1.25", Math.log(2)],
     ["2.125", Math.log(4)],
-  ])("take 1 parameter, return a number", (a, expected) => {
-    expect(evaluateCell("A1", { A1: "=ACOSH(A2)", A2: a })).toBeCloseTo(expected, 9);
+  ])("take 1 parameter, return a number", async (a, expected) => {
+    expect(await evaluateCell("A1", { A1: "=ACOSH(A2)", A2: a })).toBeCloseTo(expected, 9);
   });
-  test.each([["-2"], ["0.5"]])("take 1 parameter, return an error", (a) => {
-    expect(evaluateCell("A1", { A1: "=ACOSH(A2)", A2: a })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+  test.each([["-2"], ["0.5"]])("take 1 parameter, return an error", async (a) => {
+    expect(await evaluateCell("A1", { A1: "=ACOSH(A2)", A2: a })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
   });
 });
 describe("ACOT formula", () => {
@@ -101,8 +101,8 @@ describe("ACOT formula", () => {
     ["-1", -Math.PI / 4],
     ["2", 0.463647609],
     ["-4", -0.244978663],
-  ])("take 1 parameter, return a number", (a, expected) => {
-    expect(evaluateCell("A1", { A1: "=ACOT(A2)", A2: a })).toBeCloseTo(expected, 9);
+  ])("take 1 parameter, return a number", async (a, expected) => {
+    expect(await evaluateCell("A1", { A1: "=ACOT(A2)", A2: a })).toBeCloseTo(expected, 9);
   });
 });
 describe("ACOTH formula", () => {
@@ -112,11 +112,11 @@ describe("ACOTH formula", () => {
     ["2", 0.549306144],
     ["-3", -0.34657359],
     ["-4", -0.255412812],
-  ])("take 1 parameter, return a number", (a, expected) => {
-    expect(evaluateCell("A1", { A1: "=ACOTH(A2)", A2: a })).toBeCloseTo(expected, 9);
+  ])("take 1 parameter, return a number", async (a, expected) => {
+    expect(await evaluateCell("A1", { A1: "=ACOTH(A2)", A2: a })).toBeCloseTo(expected, 9);
   });
-  test.each([["0"], ["1"], ["-1"], ["0.5"]])("take 1 parameter, return an error", (a) => {
-    expect(evaluateCell("A1", { A1: "=ACOTH(A2)", A2: a })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+  test.each([["0"], ["1"], ["-1"], ["0.5"]])("take 1 parameter, return an error", async (a) => {
+    expect(await evaluateCell("A1", { A1: "=ACOTH(A2)", A2: a })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
   });
 });
 describe("ASIN formula", () => {
@@ -125,11 +125,11 @@ describe("ASIN formula", () => {
     ["-1", -Math.PI / 2],
     ["0", 0],
     ["0.5", Math.PI / 6],
-  ])("take 1 parameter, return a number", (a, expected) => {
-    expect(evaluateCell("A1", { A1: "=ASIN(A2)", A2: a })).toBeCloseTo(expected, 9);
+  ])("take 1 parameter, return a number", async (a, expected) => {
+    expect(await evaluateCell("A1", { A1: "=ASIN(A2)", A2: a })).toBeCloseTo(expected, 9);
   });
-  test.each([["2"], ["-1.5"]])("take 1 parameter, return an error", (a) => {
-    expect(evaluateCell("A1", { A1: "=ASIN(A2)", A2: a })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+  test.each([["2"], ["-1.5"]])("take 1 parameter, return an error", async (a) => {
+    expect(await evaluateCell("A1", { A1: "=ASIN(A2)", A2: a })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
   });
 });
 describe("ASINH formula", () => {
@@ -139,8 +139,8 @@ describe("ASINH formula", () => {
     ["0", 0],
     ["0.75", Math.log(2)],
     ["-1.875", -Math.log(4)],
-  ])("take 1 parameter, return a number", (a, expected) => {
-    expect(evaluateCell("A1", { A1: "=ASINH(A2)", A2: a })).toBeCloseTo(expected, 9);
+  ])("take 1 parameter, return a number", async (a, expected) => {
+    expect(await evaluateCell("A1", { A1: "=ASINH(A2)", A2: a })).toBeCloseTo(expected, 9);
   });
 });
 describe("ATAN formula", () => {
@@ -150,8 +150,8 @@ describe("ATAN formula", () => {
     ["1.557407725", 1],
     ["-2", -1.107148718],
     ["-4", -1.325817664],
-  ])("take 1 parameter, return a number", (a, expected) => {
-    expect(evaluateCell("A1", { A1: "=ATAN(A2)", A2: a })).toBeCloseTo(expected, 9);
+  ])("take 1 parameter, return a number", async (a, expected) => {
+    expect(await evaluateCell("A1", { A1: "=ATAN(A2)", A2: a })).toBeCloseTo(expected, 9);
   });
 });
 describe("ATAN2 formula", () => {
@@ -161,11 +161,14 @@ describe("ATAN2 formula", () => {
     ["2", "2", Math.PI / 4],
     ["-2", "3", 2.15879893],
     ["4", "-7", -1.051650213],
-  ])("take 2 parameters, return a number", (a, b, expected) => {
-    expect(evaluateCell("A1", { A1: "=ATAN2(A2, A3)", A2: a, A3: b })).toBeCloseTo(expected, 9);
+  ])("take 2 parameters, return a number", async (a, b, expected) => {
+    expect(await evaluateCell("A1", { A1: "=ATAN2(A2, A3)", A2: a, A3: b })).toBeCloseTo(
+      expected,
+      9
+    );
   });
-  test.each([["0", "0"]])("take 2 parameter, return an error", (a, b) => {
-    expect(evaluateCell("A1", { A1: "=ATAN2(A2, A3)", A2: a, A3: b })).toBe("#DIV/0!");
+  test.each([["0", "0"]])("take 2 parameter, return an error", async (a, b) => {
+    expect(await evaluateCell("A1", { A1: "=ATAN2(A2, A3)", A2: a, A3: b })).toBe("#DIV/0!");
   });
 });
 describe("ATANH formula", () => {
@@ -175,11 +178,11 @@ describe("ATANH formula", () => {
     ["0", 0],
     [" 0.761594156", 1],
     ["-0.9", -1.47221949],
-  ])("take 1 parameter, return a number", (a, expected) => {
-    expect(evaluateCell("A1", { A1: "=ATANH(A2)", A2: a })).toBeCloseTo(expected, 9);
+  ])("take 1 parameter, return a number", async (a, expected) => {
+    expect(await evaluateCell("A1", { A1: "=ATANH(A2)", A2: a })).toBeCloseTo(expected, 9);
   });
-  test.each([["1.1"], ["-1"], ["42"]])("take 1 parameter, return an error", (a) => {
-    expect(evaluateCell("A1", { A1: "=ATANH(A2)", A2: a })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+  test.each([["1.1"], ["-1"], ["42"]])("take 1 parameter, return an error", async (a) => {
+    expect(await evaluateCell("A1", { A1: "=ATANH(A2)", A2: a })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
   });
 });
 describe("CEILING / CEILING.MATH / CEILING.PRECISE / ISO.CEILING formulas", () => {
@@ -191,11 +194,11 @@ describe("CEILING / CEILING.MATH / CEILING.PRECISE / ISO.CEILING formulas", () =
     ["7.89", 8],
     ["-6.7", -6],
     ["-7.89", -7],
-  ])("take 1 parameters, return a number", (a, expected) => {
-    expect(evaluateCell("A1", { A1: "=CEILING(A2)", A2: a })).toBe(expected);
-    expect(evaluateCell("A1", { A1: "=CEILING.MATH(A2)", A2: a })).toBe(expected);
-    expect(evaluateCell("A1", { A1: "=CEILING.PRECISE(A2)", A2: a })).toBe(expected);
-    expect(evaluateCell("A1", { A1: "=ISO.CEILING(A2)", A2: a })).toBe(expected);
+  ])("take 1 parameters, return a number", async (a, expected) => {
+    expect(await evaluateCell("A1", { A1: "=CEILING(A2)", A2: a })).toBe(expected);
+    expect(await evaluateCell("A1", { A1: "=CEILING.MATH(A2)", A2: a })).toBe(expected);
+    expect(await evaluateCell("A1", { A1: "=CEILING.PRECISE(A2)", A2: a })).toBe(expected);
+    expect(await evaluateCell("A1", { A1: "=ISO.CEILING(A2)", A2: a })).toBe(expected);
   });
   test.each([
     ["0", "0", 0],
@@ -210,17 +213,20 @@ describe("CEILING / CEILING.MATH / CEILING.PRECISE / ISO.CEILING formulas", () =
     ["-6", "0.7", -5.6],
     ["6.7", "0.2", 6.8],
     ["-6.7", "0.2", -6.6],
-  ])("take 2 parameters, return a number", (a, b, expected) => {
-    expect(evaluateCell("A1", { A1: "=CEILING(A2, A3)", A2: a, A3: b })).toBeCloseTo(expected, 9);
-    expect(evaluateCell("A1", { A1: "=CEILING.MATH(A2, A3)", A2: a, A3: b })).toBeCloseTo(
+  ])("take 2 parameters, return a number", async (a, b, expected) => {
+    expect(await evaluateCell("A1", { A1: "=CEILING(A2, A3)", A2: a, A3: b })).toBeCloseTo(
       expected,
       9
     );
-    expect(evaluateCell("A1", { A1: "=CEILING.PRECISE(A2, A3)", A2: a, A3: b })).toBeCloseTo(
+    expect(await evaluateCell("A1", { A1: "=CEILING.MATH(A2, A3)", A2: a, A3: b })).toBeCloseTo(
       expected,
       9
     );
-    expect(evaluateCell("A1", { A1: "=ISO.CEILING(A2, A3)", A2: a, A3: b })).toBeCloseTo(
+    expect(await evaluateCell("A1", { A1: "=CEILING.PRECISE(A2, A3)", A2: a, A3: b })).toBeCloseTo(
+      expected,
+      9
+    );
+    expect(await evaluateCell("A1", { A1: "=ISO.CEILING(A2, A3)", A2: a, A3: b })).toBeCloseTo(
       expected,
       9
     );
@@ -232,16 +238,16 @@ describe("CEILING / CEILING.MATH / CEILING.PRECISE / ISO.CEILING formulas", () =
     ["7.89", "-0.2", 8],
     ["-7.89", "0.2", -7.8],
     ["-7.89", "-0.2", -7.8],
-  ])("MATH/PRECISE/ISO: no effect with negative factor", (a, b, expected) => {
-    expect(evaluateCell("A1", { A1: "=CEILING.MATH(A2, A3)", A2: a, A3: b })).toBeCloseTo(
+  ])("MATH/PRECISE/ISO: no effect with negative factor", async (a, b, expected) => {
+    expect(await evaluateCell("A1", { A1: "=CEILING.MATH(A2, A3)", A2: a, A3: b })).toBeCloseTo(
       expected,
       9
     );
-    expect(evaluateCell("A1", { A1: "=CEILING.PRECISE(A2, A3)", A2: a, A3: b })).toBeCloseTo(
+    expect(await evaluateCell("A1", { A1: "=CEILING.PRECISE(A2, A3)", A2: a, A3: b })).toBeCloseTo(
       expected,
       9
     );
-    expect(evaluateCell("A1", { A1: "=ISO.CEILING(A2, A3)", A2: a, A3: b })).toBeCloseTo(
+    expect(await evaluateCell("A1", { A1: "=ISO.CEILING(A2, A3)", A2: a, A3: b })).toBeCloseTo(
       expected,
       9
     );
@@ -249,8 +255,8 @@ describe("CEILING / CEILING.MATH / CEILING.PRECISE / ISO.CEILING formulas", () =
   test.each([
     ["6", "-0.2"],
     ["7.89", "-0.2"],
-  ])("CEILING: if value positive, factor can't be negative", (a, b) => {
-    expect(evaluateCell("A1", { A1: "=CEILING(A2, A3)", A2: a, A3: b })).toBe("#ERROR");
+  ])("CEILING: if value positive, factor can't be negative", async (a, b) => {
+    expect(await evaluateCell("A1", { A1: "=CEILING(A2, A3)", A2: a, A3: b })).toBe("#ERROR");
   });
   test.each([
     // Concerning CEILING function
@@ -258,8 +264,11 @@ describe("CEILING / CEILING.MATH / CEILING.PRECISE / ISO.CEILING formulas", () =
     // the nearest integer multiple of b
     ["-7.89", "0.2", -7.8],
     ["-7.89", "-0.2", -8],
-  ])("CEILING: if factor negative, rounds number down", (a, b, expected) => {
-    expect(evaluateCell("A1", { A1: "=CEILING(A2, A3)", A2: a, A3: b })).toBeCloseTo(expected, 9);
+  ])("CEILING: if factor negative, rounds number down", async (a, b, expected) => {
+    expect(await evaluateCell("A1", { A1: "=CEILING(A2, A3)", A2: a, A3: b })).toBeCloseTo(
+      expected,
+      9
+    );
   });
   test.each([
     // Concerning CEILING.MATH function
@@ -275,91 +284,111 @@ describe("CEILING / CEILING.MATH / CEILING.PRECISE / ISO.CEILING formulas", () =
     ["-7.89", "-0.2", "1", -8],
     ["-7.89", "-0.2", "2.2", -8],
     ["-7.89", "-0.2", "-2.2", -8],
-  ])("CEILING.MATH: take 3 parameters, return a number", (a, b, c, expected) => {
+  ])("CEILING.MATH: take 3 parameters, return a number", async (a, b, c, expected) => {
     expect(
-      evaluateCell("A1", { A1: "=CEILING.MATH(A2, A3, A4)", A2: a, A3: b, A4: c })
+      await evaluateCell("A1", { A1: "=CEILING.MATH(A2, A3, A4)", A2: a, A3: b, A4: c })
     ).toBeCloseTo(expected, 9);
   });
-  function evaluateCeilingFunction(functionName: string): void {
-    expect(evaluateCell("A1", { A1: "=" + functionName + "()" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
-    expect(evaluateCell("A1", { A1: "=" + functionName + "( , )" })).toBeCloseTo(0, 9);
-    expect(evaluateCell("A1", { A1: "=" + functionName + "(-7.89, 0.2)" })).toBeCloseTo(-7.8, 9);
-    expect(evaluateCell("A1", { A1: "=" + functionName + "( , 0.2)" })).toBeCloseTo(0, 9);
-    expect(evaluateCell("A1", { A1: "=" + functionName + "(-7.89, )" })).toBeCloseTo(-7, 9);
-    expect(evaluateCell("A1", { A1: "=" + functionName + "(-7.89, TRUE)" })).toBeCloseTo(-7, 9);
-    expect(evaluateCell("A1", { A1: "=" + functionName + "(-7.89, FALSE)" })).toBeCloseTo(0, 9);
-    expect(evaluateCell("A1", { A1: "=" + functionName + "(TRUE, 10)" })).toBeCloseTo(10, 9);
-    expect(evaluateCell("A1", { A1: "=" + functionName + "(FALSE, 10)" })).toBeCloseTo(0, 9);
-    expect(evaluateCell("A1", { A1: "=" + functionName + '("" , "")' })).toBeCloseTo(0, 9);
-    expect(evaluateCell("A1", { A1: "=" + functionName + '(" " , " ")' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
-    expect(evaluateCell("A1", { A1: "=" + functionName + '("-7.89", "0.2")' })).toBeCloseTo(
+  async function evaluateCeilingFunction(functionName: string) {
+    expect(await evaluateCell("A1", { A1: "=" + functionName + "()" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+    expect(await evaluateCell("A1", { A1: "=" + functionName + "( , )" })).toBeCloseTo(0, 9);
+    expect(await evaluateCell("A1", { A1: "=" + functionName + "(-7.89, 0.2)" })).toBeCloseTo(
       -7.8,
       9
     );
-    expect(evaluateCell("A1", { A1: "=" + functionName + "(A2, A3)", A2: "", A3: "" })).toBeCloseTo(
+    expect(await evaluateCell("A1", { A1: "=" + functionName + "( , 0.2)" })).toBeCloseTo(0, 9);
+    expect(await evaluateCell("A1", { A1: "=" + functionName + "(-7.89, )" })).toBeCloseTo(-7, 9);
+    expect(await evaluateCell("A1", { A1: "=" + functionName + "(-7.89, TRUE)" })).toBeCloseTo(
+      -7,
+      9
+    );
+    expect(await evaluateCell("A1", { A1: "=" + functionName + "(-7.89, FALSE)" })).toBeCloseTo(
       0,
       9
     );
-    expect(evaluateCell("A1", { A1: "=" + functionName + "(A2, A3)", A2: " ", A3: " " })).toBe(
-      "#ERROR"
-    ); // @compatibility: on google sheets, return #VALUE!
+    expect(await evaluateCell("A1", { A1: "=" + functionName + "(TRUE, 10)" })).toBeCloseTo(10, 9);
+    expect(await evaluateCell("A1", { A1: "=" + functionName + "(FALSE, 10)" })).toBeCloseTo(0, 9);
+    expect(await evaluateCell("A1", { A1: "=" + functionName + '("" , "")' })).toBeCloseTo(0, 9);
+    expect(await evaluateCell("A1", { A1: "=" + functionName + '(" " , " ")' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(await evaluateCell("A1", { A1: "=" + functionName + '("-7.89", "0.2")' })).toBeCloseTo(
+      -7.8,
+      9
+    );
     expect(
-      evaluateCell("A1", { A1: "=" + functionName + "(A2, A3)", A2: "-7.89", A3: "0.2" })
+      await evaluateCell("A1", { A1: "=" + functionName + "(A2, A3)", A2: "", A3: "" })
+    ).toBeCloseTo(0, 9);
+    expect(
+      await evaluateCell("A1", { A1: "=" + functionName + "(A2, A3)", A2: " ", A3: " " })
+    ).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(
+      await evaluateCell("A1", { A1: "=" + functionName + "(A2, A3)", A2: "-7.89", A3: "0.2" })
     ).toBeCloseTo(-7.8, 9);
     expect(
-      evaluateCell("A1", { A1: "=" + functionName + "(A2, A3)", A2: "", A3: "0.2" })
+      await evaluateCell("A1", { A1: "=" + functionName + "(A2, A3)", A2: "", A3: "0.2" })
     ).toBeCloseTo(0, 9);
     expect(
-      evaluateCell("A1", { A1: "=" + functionName + "(A2, A3)", A2: "-7.89", A3: "" })
+      await evaluateCell("A1", { A1: "=" + functionName + "(A2, A3)", A2: "-7.89", A3: "" })
     ).toBeCloseTo(0, 9);
     expect(
-      evaluateCell("A1", { A1: "=" + functionName + "(A2, A3)", A2: "-7.89", A3: "TRUE" })
+      await evaluateCell("A1", { A1: "=" + functionName + "(A2, A3)", A2: "-7.89", A3: "TRUE" })
     ).toBeCloseTo(-7, 9);
     expect(
-      evaluateCell("A1", { A1: "=" + functionName + "(A2, A3)", A2: "-7.89", A3: "FALSE" })
+      await evaluateCell("A1", { A1: "=" + functionName + "(A2, A3)", A2: "-7.89", A3: "FALSE" })
     ).toBeCloseTo(0, 9);
     expect(
-      evaluateCell("A1", { A1: "=" + functionName + "(A2, A3)", A2: "TRUE", A3: "10" })
+      await evaluateCell("A1", { A1: "=" + functionName + "(A2, A3)", A2: "TRUE", A3: "10" })
     ).toBeCloseTo(10, 9);
     expect(
-      evaluateCell("A1", { A1: "=" + functionName + "(A2, A3)", A2: "FALSE", A3: "10" })
-    ).toBeCloseTo(0, 9);
-    expect(evaluateCell("A1", { A1: "=" + functionName + "(A2, A3)", A2: '""', A3: '""' })).toBe(
-      "#ERROR"
-    ); // @compatibility: on google sheets, return #VALUE!
-    expect(evaluateCell("A1", { A1: "=" + functionName + "(A2, A3)", A2: '" "', A3: '" "' })).toBe(
-      "#ERROR"
-    ); // @compatibility: on google sheets, return #VALUE!
-    expect(
-      evaluateCell("A1", { A1: "=" + functionName + "(A2, A3)", A2: '"-7.89"', A3: '"0.2"' })
-    ).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
-    expect(
-      evaluateCell("A1", { A1: "=" + functionName + "(A2, A3)", A2: '=""', A3: '=""' })
+      await evaluateCell("A1", { A1: "=" + functionName + "(A2, A3)", A2: "FALSE", A3: "10" })
     ).toBeCloseTo(0, 9);
     expect(
-      evaluateCell("A1", { A1: "=" + functionName + "(A2, A3)", A2: '=" "', A3: '=" "' })
+      await evaluateCell("A1", { A1: "=" + functionName + "(A2, A3)", A2: '""', A3: '""' })
     ).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
     expect(
-      evaluateCell("A1", { A1: "=" + functionName + "(A2, A3)", A2: '="-7.89"', A3: '="0.2"' })
+      await evaluateCell("A1", { A1: "=" + functionName + "(A2, A3)", A2: '" "', A3: '" "' })
+    ).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(
+      await evaluateCell("A1", { A1: "=" + functionName + "(A2, A3)", A2: '"-7.89"', A3: '"0.2"' })
+    ).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(
+      await evaluateCell("A1", { A1: "=" + functionName + "(A2, A3)", A2: '=""', A3: '=""' })
+    ).toBeCloseTo(0, 9);
+    expect(
+      await evaluateCell("A1", { A1: "=" + functionName + "(A2, A3)", A2: '=" "', A3: '=" "' })
+    ).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(
+      await evaluateCell("A1", {
+        A1: "=" + functionName + "(A2, A3)",
+        A2: '="-7.89"',
+        A3: '="0.2"',
+      })
     ).toBeCloseTo(-7.8, 9);
   }
   test.each([["CEILING"], ["CEILING.MATH"], ["CEILING.PRECISE"], ["ISO.CEILING"]])(
     "special value testing",
-    (functionName) => {
-      evaluateCeilingFunction(functionName);
+    async (functionName) => {
+      await evaluateCeilingFunction(functionName);
     }
   );
   test.each([["CEILING"], ["CEILING.MATH"], ["CEILING.PRECISE"], ["ISO.CEILING"]])(
     "result format depends on 1st argument",
-    (functionName) => {
+    async (functionName) => {
       expect(
-        evaluateCellFormat("A1", { A1: "=" + functionName + "(A2, A3)", A2: "0.05", A3: "0.2" })
+        await evaluateCellFormat("A1", {
+          A1: "=" + functionName + "(A2, A3)",
+          A2: "0.05",
+          A3: "0.2",
+        })
       ).toBe("");
       expect(
-        evaluateCellFormat("A1", { A1: "=" + functionName + "(A2, A3)", A2: "5%", A3: "0.2" })
+        await evaluateCellFormat("A1", { A1: "=" + functionName + "(A2, A3)", A2: "5%", A3: "0.2" })
       ).toBe("0%");
       expect(
-        evaluateCellFormat("A1", { A1: "=" + functionName + "(A2, A3)", A2: "4.8€", A3: "0.2" })
+        await evaluateCellFormat("A1", {
+          A1: "=" + functionName + "(A2, A3)",
+          A2: "4.8€",
+          A3: "0.2",
+        })
       ).toBe("#,##0.00[$€]");
     }
   );
@@ -372,25 +401,25 @@ describe("COS formula", () => {
     ["=PI()/2", 0],
     ["=PI()/3", 0.5],
     ["=-PI()/2", 0],
-  ])("take 1 parameter, return a number", (a, expected) => {
-    expect(evaluateCell("A1", { A1: "=COS(A2)", A2: a })).toBeCloseTo(expected, 9);
+  ])("take 1 parameter, return a number", async (a, expected) => {
+    expect(await evaluateCell("A1", { A1: "=COS(A2)", A2: a })).toBeCloseTo(expected, 9);
   });
-  test("special value testing", () => {
-    expect(evaluateCell("A1", { A1: "=COS()" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
-    expect(evaluateCell("A1", { A1: "=COS(TRUE)" })).toBeCloseTo(0.54030230586814, 9);
-    expect(evaluateCell("A1", { A1: "=COS(FALSE)" })).toBeCloseTo(1, 9);
-    expect(evaluateCell("A1", { A1: '=COS("")' })).toBeCloseTo(1, 9);
-    expect(evaluateCell("A1", { A1: '=COS(" ")' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
-    expect(evaluateCell("A1", { A1: '=COS("0")' })).toBeCloseTo(1, 9);
-    expect(evaluateCell("A1", { A1: "=COS(A2)", A2: "" })).toBeCloseTo(1, 9);
-    expect(evaluateCell("A1", { A1: "=COS(A2)", A2: " " })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
-    expect(evaluateCell("A1", { A1: "=COS(A2)", A2: "0" })).toBeCloseTo(1, 9);
-    expect(evaluateCell("A1", { A1: "=COS(A2)", A2: '""' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
-    expect(evaluateCell("A1", { A1: "=COS(A2)", A2: '" "' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
-    expect(evaluateCell("A1", { A1: "=COS(A2)", A2: '"0"' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
-    expect(evaluateCell("A1", { A1: "=COS(A2)", A2: '=""' })).toBeCloseTo(1, 9);
-    expect(evaluateCell("A1", { A1: "=COS(A2)", A2: '=" "' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
-    expect(evaluateCell("A1", { A1: "=COS(A2)", A2: '="0"' })).toBeCloseTo(1, 9);
+  test("special value testing", async () => {
+    expect(await evaluateCell("A1", { A1: "=COS()" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+    expect(await evaluateCell("A1", { A1: "=COS(TRUE)" })).toBeCloseTo(0.54030230586814, 9);
+    expect(await evaluateCell("A1", { A1: "=COS(FALSE)" })).toBeCloseTo(1, 9);
+    expect(await evaluateCell("A1", { A1: '=COS("")' })).toBeCloseTo(1, 9);
+    expect(await evaluateCell("A1", { A1: '=COS(" ")' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(await evaluateCell("A1", { A1: '=COS("0")' })).toBeCloseTo(1, 9);
+    expect(await evaluateCell("A1", { A1: "=COS(A2)", A2: "" })).toBeCloseTo(1, 9);
+    expect(await evaluateCell("A1", { A1: "=COS(A2)", A2: " " })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(await evaluateCell("A1", { A1: "=COS(A2)", A2: "0" })).toBeCloseTo(1, 9);
+    expect(await evaluateCell("A1", { A1: "=COS(A2)", A2: '""' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(await evaluateCell("A1", { A1: "=COS(A2)", A2: '" "' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(await evaluateCell("A1", { A1: "=COS(A2)", A2: '"0"' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(await evaluateCell("A1", { A1: "=COS(A2)", A2: '=""' })).toBeCloseTo(1, 9);
+    expect(await evaluateCell("A1", { A1: "=COS(A2)", A2: '=" "' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(await evaluateCell("A1", { A1: "=COS(A2)", A2: '="0"' })).toBeCloseTo(1, 9);
   });
 });
 describe("COSH formula", () => {
@@ -400,8 +429,8 @@ describe("COSH formula", () => {
     ["-1", 1.543080635],
     ["=LN(2)", 1.25],
     ["=LN(4)", 2.125],
-  ])("take 1 parameter, return a number", (a, expected) => {
-    expect(evaluateCell("A1", { A1: "=COSH(A2)", A2: a })).toBeCloseTo(expected, 9);
+  ])("take 1 parameter, return a number", async (a, expected) => {
+    expect(await evaluateCell("A1", { A1: "=COSH(A2)", A2: a })).toBeCloseTo(expected, 9);
   });
 });
 describe("COT formula", () => {
@@ -411,11 +440,11 @@ describe("COT formula", () => {
     ["=-PI()*5/4", -1],
     ["1", 0.642092616],
     ["2", -0.457657554],
-  ])("take 1 parameter, return a number", (a, expected) => {
-    expect(evaluateCell("A1", { A1: "=COT(A2)", A2: a })).toBeCloseTo(expected, 9);
+  ])("take 1 parameter, return a number", async (a, expected) => {
+    expect(await evaluateCell("A1", { A1: "=COT(A2)", A2: a })).toBeCloseTo(expected, 9);
   });
-  test.each([["0"]])("take 1 parameter, return an error", (a) => {
-    expect(evaluateCell("A1", { A1: "=COT(A2)", A2: a })).toBe("#DIV/0!");
+  test.each([["0"]])("take 1 parameter, return an error", async (a) => {
+    expect(await evaluateCell("A1", { A1: "=COT(A2)", A2: a })).toBe("#DIV/0!");
   });
 });
 describe("COTH formula", () => {
@@ -425,39 +454,39 @@ describe("COTH formula", () => {
     ["2", 1.037314721],
     ["-3", -1.004969823],
     ["-4", -1.00067115],
-  ])("take 1 parameter, return a number", (a, expected) => {
-    expect(evaluateCell("A1", { A1: "=COTH(A2)", A2: a })).toBeCloseTo(expected, 9);
+  ])("take 1 parameter, return a number", async (a, expected) => {
+    expect(await evaluateCell("A1", { A1: "=COTH(A2)", A2: a })).toBeCloseTo(expected, 9);
   });
-  test.each([["0"]])("take 1 parameter(s), return an error", (a) => {
-    expect(evaluateCell("A1", { A1: "=COTH(A2)", A2: a })).toBe("#DIV/0!");
+  test.each([["0"]])("take 1 parameter(s), return an error", async (a) => {
+    expect(await evaluateCell("A1", { A1: "=COTH(A2)", A2: a })).toBe("#DIV/0!");
   });
 });
 describe("COUNTBLANK formula", () => {
-  test("functional tests on simple arguments", () => {
-    expect(evaluateCell("A1", { A1: "=COUNTBLANK()" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
-    expect(evaluateCell("A1", { A1: "=COUNTBLANK(,)" })).toBe(2);
-    expect(evaluateCell("A1", { A1: "=COUNTBLANK(0)" })).toBe(0);
-    expect(evaluateCell("A1", { A1: "=COUNTBLANK(42)" })).toBe(0);
-    expect(evaluateCell("A1", { A1: "=COUNTBLANK(TRUE)" })).toBe(0);
-    expect(evaluateCell("A1", { A1: "=COUNTBLANK(FALSE)" })).toBe(0);
-    expect(evaluateCell("A1", { A1: '=COUNTBLANK("")' })).toBe(1);
-    expect(evaluateCell("A1", { A1: '=COUNTBLANK(" ")' })).toBe(0);
-    expect(evaluateCell("A1", { A1: '=COUNTBLANK("hello there")' })).toBe(0);
-    expect(evaluateCell("A1", { A1: "=COUNTBLANK(A2)", A2: "" })).toBe(1);
-    expect(evaluateCell("A1", { A1: "=COUNTBLANK(A2)", A2: " " })).toBe(0);
-    expect(evaluateCell("A1", { A1: "=COUNTBLANK(A2)", A2: "0" })).toBe(0);
-    expect(evaluateCell("A1", { A1: "=COUNTBLANK(A2)", A2: "42" })).toBe(0);
-    expect(evaluateCell("A1", { A1: "=COUNTBLANK(A2)", A2: "TRUE" })).toBe(0);
-    expect(evaluateCell("A1", { A1: "=COUNTBLANK(A2)", A2: "FALSE" })).toBe(0);
-    expect(evaluateCell("A1", { A1: "=COUNTBLANK(A2)", A2: '""' })).toBe(0);
-    expect(evaluateCell("A1", { A1: "=COUNTBLANK(A2)", A2: '" "' })).toBe(0);
-    expect(evaluateCell("A1", { A1: "=COUNTBLANK(A2)", A2: '"42"' })).toBe(0);
-    expect(evaluateCell("A1", { A1: "=COUNTBLANK(A2)", A2: '=""' })).toBe(1);
-    expect(evaluateCell("A1", { A1: "=COUNTBLANK(A2)", A2: '=" "' })).toBe(0);
-    expect(evaluateCell("A1", { A1: "=COUNTBLANK(A2)", A2: '="42"' })).toBe(0);
+  test("functional tests on simple arguments", async () => {
+    expect(await evaluateCell("A1", { A1: "=COUNTBLANK()" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+    expect(await evaluateCell("A1", { A1: "=COUNTBLANK(,)" })).toBe(2);
+    expect(await evaluateCell("A1", { A1: "=COUNTBLANK(0)" })).toBe(0);
+    expect(await evaluateCell("A1", { A1: "=COUNTBLANK(42)" })).toBe(0);
+    expect(await evaluateCell("A1", { A1: "=COUNTBLANK(TRUE)" })).toBe(0);
+    expect(await evaluateCell("A1", { A1: "=COUNTBLANK(FALSE)" })).toBe(0);
+    expect(await evaluateCell("A1", { A1: '=COUNTBLANK("")' })).toBe(1);
+    expect(await evaluateCell("A1", { A1: '=COUNTBLANK(" ")' })).toBe(0);
+    expect(await evaluateCell("A1", { A1: '=COUNTBLANK("hello there")' })).toBe(0);
+    expect(await evaluateCell("A1", { A1: "=COUNTBLANK(A2)", A2: "" })).toBe(1);
+    expect(await evaluateCell("A1", { A1: "=COUNTBLANK(A2)", A2: " " })).toBe(0);
+    expect(await evaluateCell("A1", { A1: "=COUNTBLANK(A2)", A2: "0" })).toBe(0);
+    expect(await evaluateCell("A1", { A1: "=COUNTBLANK(A2)", A2: "42" })).toBe(0);
+    expect(await evaluateCell("A1", { A1: "=COUNTBLANK(A2)", A2: "TRUE" })).toBe(0);
+    expect(await evaluateCell("A1", { A1: "=COUNTBLANK(A2)", A2: "FALSE" })).toBe(0);
+    expect(await evaluateCell("A1", { A1: "=COUNTBLANK(A2)", A2: '""' })).toBe(0);
+    expect(await evaluateCell("A1", { A1: "=COUNTBLANK(A2)", A2: '" "' })).toBe(0);
+    expect(await evaluateCell("A1", { A1: "=COUNTBLANK(A2)", A2: '"42"' })).toBe(0);
+    expect(await evaluateCell("A1", { A1: "=COUNTBLANK(A2)", A2: '=""' })).toBe(1);
+    expect(await evaluateCell("A1", { A1: "=COUNTBLANK(A2)", A2: '=" "' })).toBe(0);
+    expect(await evaluateCell("A1", { A1: "=COUNTBLANK(A2)", A2: '="42"' })).toBe(0);
   });
   // prettier-ignore
-  test("count blank on ranges ", () => {
+  test("count blank on ranges ", async () => {
     const grid = {
       B1: "=COUNTBLANK(D1:I2)",
       C1: "=COUNTBLANK(D1:I1)",
@@ -473,7 +502,7 @@ describe("COUNTBLANK formula", () => {
       A8: '""', B8: "TRUE",
       A9: "",   B9: "42",
     };
-    const gridResult = evaluateGrid(grid);
+    const gridResult = await evaluateGrid(grid);
     expect(gridResult.B1).toBe(4);
     expect(gridResult.C1).toBe(2);
     expect(gridResult.C2).toBe(2);
@@ -481,18 +510,18 @@ describe("COUNTBLANK formula", () => {
     expect(gridResult.A3).toBe(2);
     expect(gridResult.B3).toBe(2);
   });
-  test("COUNTBLANK accepts errors in parameters", () => {
+  test("COUNTBLANK accepts errors in parameters", async () => {
     // prettier-ignore
     const grid = {
       A1: "=KABOUM",
       A2: "1",       B2: "=1/0",
     };
-    expect(evaluateCell("A3", { A3: "=COUNTBLANK(A1:B2)", ...grid })).toBe(1);
+    expect(await evaluateCell("A3", { A3: "=COUNTBLANK(A1:B2)", ...grid })).toBe(1);
   });
 });
 describe("COUNTIF formula", () => {
   // prettier-ignore
-  test("operator tests on type number and type string", () => {
+  test("operator tests on type number and type string", async () => {
     const grid = {
       A1 : "1" , B1 : '="1"',
       A2 : "10", B2 : '="10"',
@@ -522,7 +551,7 @@ describe("COUNTIF formula", () => {
       A35: '=COUNTIF(A1:A8, ">2?")'   , B35: '=COUNTIF(B1:B8, ">2?")',
       A37: '=COUNTIF(A1:A8, "<>20")'  , B37: '=COUNTIF(B1:B8, "<>20")',
     };
-    const gridResult = evaluateGrid(grid);
+    const gridResult = await evaluateGrid(grid);
     expect(gridResult.A10).toBe(1);  expect(gridResult.B10).toBe(1);
     expect(gridResult.A11).toBe(1);  expect(gridResult.B11).toBe(1);
     expect(gridResult.A12).toBe(1);  expect(gridResult.B12).toBe(1);
@@ -543,15 +572,15 @@ describe("COUNTIF formula", () => {
     expect(gridResult.A35).toBe(0);  expect(gridResult.B35).toBe(4); // @compatibility: on google sheet, return 5
     expect(gridResult.A37).toBe(7);  expect(gridResult.B37).toBe(8);
   });
-  test("operator tests on type boolean", () => {
-    expect(evaluateCell("A41", { A41: "=COUNTIF(A39, TRUE)", A39: "TRUE" })).toBe(1);
-    expect(evaluateCell("A42", { A42: '=COUNTIF(A39, "TRUE")', A39: "TRUE" })).toBe(1);
-    expect(evaluateCell("A43", { A43: '=COUNTIF(A39, "=TRUE")', A39: "TRUE" })).toBe(1);
-    expect(evaluateCell("B41", { B41: "=COUNTIF(B39, TRUE)", B39: '="TRUE"' })).toBe(0);
-    expect(evaluateCell("B42", { B42: '=COUNTIF(B39, "TRUE")', B39: '="TRUE"' })).toBe(0);
-    expect(evaluateCell("B43", { B43: '=COUNTIF(B39, "=TRUE")', B39: '="TRUE"' })).toBe(0);
+  test("operator tests on type boolean", async () => {
+    expect(await evaluateCell("A41", { A41: "=COUNTIF(A39, TRUE)", A39: "TRUE" })).toBe(1);
+    expect(await evaluateCell("A42", { A42: '=COUNTIF(A39, "TRUE")', A39: "TRUE" })).toBe(1);
+    expect(await evaluateCell("A43", { A43: '=COUNTIF(A39, "=TRUE")', A39: "TRUE" })).toBe(1);
+    expect(await evaluateCell("B41", { B41: "=COUNTIF(B39, TRUE)", B39: '="TRUE"' })).toBe(0);
+    expect(await evaluateCell("B42", { B42: '=COUNTIF(B39, "TRUE")', B39: '="TRUE"' })).toBe(0);
+    expect(await evaluateCell("B43", { B43: '=COUNTIF(B39, "=TRUE")', B39: '="TRUE"' })).toBe(0);
   });
-  test("operator tests on criterion expression", () => {
+  test("operator tests on criterion expression", async () => {
     const grid1 = {
       A45: "abc",
       A46: "abd",
@@ -582,7 +611,7 @@ describe("COUNTIF formula", () => {
       D56: '=COUNTIF(A45:A52, "x~?z")',
       D57: '=COUNTIF(A45:A52, "b~e")',
     };
-    const grid1Result = evaluateGrid(grid1);
+    const grid1Result = await evaluateGrid(grid1);
     expect(grid1Result.C45).toBe(1);
     expect(grid1Result.C46).toBe(0);
     expect(grid1Result.C47).toBe(1);
@@ -626,7 +655,7 @@ describe("COUNTIF formula", () => {
       F65: '=COUNTIF(A59:A67, ">b")',
       F66: '=COUNTIF(A59:A67, "<b")',
     };
-    const grid2Result = evaluateGrid(grid2);
+    const grid2Result = await evaluateGrid(grid2);
     expect(grid2Result.C59).toBe(9);
     expect(grid2Result.C60).toBe(2);
     expect(grid2Result.C61).toBe(4);
@@ -650,7 +679,7 @@ describe("COUNTIF formula", () => {
       D71: '=COUNTIF(A69, "<b#f")',
       D72: '=COUNTIF(A69, "<b&f")',
     };
-    const grid3Result = evaluateGrid(grid3);
+    const grid3Result = await evaluateGrid(grid3);
     expect(grid3Result.C69).toBe(0);
     expect(grid3Result.C70).toBe(0);
     expect(grid3Result.C71).toBe(1);
@@ -675,7 +704,7 @@ describe("COUNTIF formula", () => {
       G76: '=COUNTIF(A74:A77, "ab?")',
       G77: '=COUNTIF(A74:A77, "abc?")',
     };
-    const grid4Result = evaluateGrid(grid4);
+    const grid4Result = await evaluateGrid(grid4);
     expect(grid4Result.C74).toBe(0);
     expect(grid4Result.C75).toBe(1);
     expect(grid4Result.E74).toBe(4);
@@ -698,7 +727,7 @@ describe("COUNTIF formula", () => {
       J81: '=COUNTIF(J73, "<>a*")',
       J82: '=COUNTIF(J73, "<>a*b")',
     };
-    const grid5Result = evaluateGrid(grid5);
+    const grid5Result = await evaluateGrid(grid5);
     expect(grid5Result.J74).toBe(0);
     expect(grid5Result.J75).toBe(1);
     expect(grid5Result.J76).toBe(0);
@@ -709,35 +738,35 @@ describe("COUNTIF formula", () => {
     expect(grid5Result.J81).toBe(0);
     expect(grid5Result.J82).toBe(1);
   });
-  test("COUNTIF does not accept errors in first parameter", () => {
+  test("COUNTIF does not accept errors in first parameter", async () => {
     // prettier-ignore
     const grid = {
       A1: "=KABOUM", B1: "42",
       A2: "42",      B2: "=1/0",
     };
-    expect(evaluateCell("A3", { A3: "=COUNTIF(A1:B2, 42)", ...grid })).toBe(2);
+    expect(await evaluateCell("A3", { A3: "=COUNTIF(A1:B2, 42)", ...grid })).toBe(2);
   });
   // @compatibility: should be able to count errors !
-  test("COUNTIF can't count errors", () => {
+  test("COUNTIF can't count errors", async () => {
     // prettier-ignore
     const grid = {
       A1: "40", B1: "41",
       A2: "42", B2: "43",
     };
-    expect(evaluateCell("A3", { A3: "=COUNTIF(A1:B2, KABOUM)", ...grid })).toBe("#BAD_EXPR"); // @compatibility: should be 4
+    expect(await evaluateCell("A3", { A3: "=COUNTIF(A1:B2, KABOUM)", ...grid })).toBe("#BAD_EXPR"); // @compatibility: should be 4
   });
-  test("COUNTIF on empty range", () => {
+  test("COUNTIF on empty range", async () => {
     const grid = {
       A1: '=COUNTIF(B1, "<>Hi")',
       A2: '=COUNTIF(B1, "=Hi")',
       A3: '=COUNTIF(B1, "*")',
     };
-    const gridResult = evaluateGrid(grid);
+    const gridResult = await evaluateGrid(grid);
     expect(gridResult.A1).toBe(1);
     expect(gridResult.A2).toBe(0);
     expect(gridResult.A3).toBe(0);
   });
-  test("COUNTIF with date predicate", () => {
+  test("COUNTIF with date predicate", async () => {
     const grid = {
       A1: "01/01/2024",
       A2: "01/02/2024",
@@ -749,7 +778,7 @@ describe("COUNTIF formula", () => {
       B5: '=COUNTIF(A3, "<=01/01/2024")',
       B6: '=COUNTIF(A3, "01/2024")',
     };
-    expect(evaluateGrid(grid)).toMatchObject({
+    expect(await evaluateGrid(grid)).toMatchObject({
       B1: 1,
       B2: 0,
       B3: 1,
@@ -758,28 +787,28 @@ describe("COUNTIF formula", () => {
       B6: 1,
     });
   });
-  test("COUNTIF with string against a date predicate", () => {
+  test("COUNTIF with string against a date predicate", async () => {
     const grid = {
       A1: "hello",
       B1: '=COUNTIF(A1, "01/02/2024")',
     };
-    expect(evaluateGrid(grid)).toMatchObject({
+    expect(await evaluateGrid(grid)).toMatchObject({
       B1: 0,
     });
   });
-  test("COUNTIF with number against a date predicate", () => {
+  test("COUNTIF with number against a date predicate", async () => {
     const grid = {
       A1: "0",
       B1: '=COUNTIF(A1, "12/30/1899")',
       B2: '=COUNTIF(A1, "<=12/30/1899")',
     };
-    expect(evaluateGrid(grid)).toMatchObject({
+    expect(await evaluateGrid(grid)).toMatchObject({
       B1: 1,
       B2: 1,
     });
   });
-  test("COUNTIF date predicates are localized", () => {
-    const model = createModel();
+  test("COUNTIF date predicates are localized", async () => {
+    const model = await createModel();
     setCellContent(model, "A1", "01/02/2024");
     setCellContent(model, "A2", '=COUNTIF(A1, "<02/01/2024")');
     expect(getEvaluatedCell(model, "A2").value).toBe(1);
@@ -788,7 +817,7 @@ describe("COUNTIF formula", () => {
   });
 });
 describe("COUNTIFS formula", () => {
-  test("functional tests on range", () => {
+  test("functional tests on range", async () => {
     // prettier-ignore
     const grid = {
       A1: "Jim"  , B1: "MN", C1: "100",
@@ -810,7 +839,7 @@ describe("COUNTIFS formula", () => {
       D8: '=COUNTIFS(A1:A8, "*a*", B1:B8, "*a*", C1:C8, ">0")',
       D9: '=COUNTIFS(A1:A8, A9, B1:B8, "*a*", C1:C8, B9)',
     };
-    const gridResult = evaluateGrid(grid);
+    const gridResult = await evaluateGrid(grid);
     expect(gridResult.D1).toBe(1);
     expect(gridResult.D2).toBe(3);
     expect(gridResult.D3).toBe(2);
@@ -821,115 +850,125 @@ describe("COUNTIFS formula", () => {
     expect(gridResult.D8).toBe(4);
     expect(gridResult.D9).toBe(4);
   });
-  test("COUNTIFS does not accept errors in 2n+1 parameters", () => {
+  test("COUNTIFS does not accept errors in 2n+1 parameters", async () => {
     // prettier-ignore
     const grid = {
       A1: "=KABOUM", B1: "42",
       A2: "42",      B2: "=1/0",
     };
-    expect(evaluateCell("A3", { A3: "=COUNTIFS(A1:B2, 42)", ...grid })).toBe(2);
+    expect(await evaluateCell("A3", { A3: "=COUNTIFS(A1:B2, 42)", ...grid })).toBe(2);
   });
   // @compatibility: should be able to count errors !
-  test("COUNTIFS does not accept errors on 2n parameters", () => {
+  test("COUNTIFS does not accept errors on 2n parameters", async () => {
     // prettier-ignore
     const grid = {
       A1: "40", B1: "41",
       A2: "42", B2: "43",
     };
-    expect(evaluateCell("A3", { A3: "=COUNTIFS(A1:B2, KABOUM)", ...grid })).toBe("#BAD_EXPR"); // @compatibility: should be 4
+    expect(await evaluateCell("A3", { A3: "=COUNTIFS(A1:B2, KABOUM)", ...grid })).toBe("#BAD_EXPR"); // @compatibility: should be 4
   });
-  test("COUNTIFS on empty range", () => {
+  test("COUNTIFS on empty range", async () => {
     const grid = {
       A1: "Alice",
       A2: '=COUNTIFS(A1, "Alice", B1, "<>Hi")',
       A3: '=COUNTIFS(A1, "Alice", B1, "=Hi")',
       A4: '=COUNTIFS(A1, "Alice", B1, "*")',
     };
-    const gridResult = evaluateGrid(grid);
+    const gridResult = await evaluateGrid(grid);
     expect(gridResult.A2).toBe(1);
     expect(gridResult.A3).toBe(0);
     expect(gridResult.A4).toBe(0);
   });
 });
 describe("COUNTUNIQUE formula", () => {
-  test("functional tests on simple arguments", () => {
-    expect(evaluateCell("A1", { A1: "=countunique()" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
-    expect(evaluateCell("A1", { A1: "=countunique(,)" })).toBe(0);
-    expect(evaluateCell("A1", { A1: "=countunique(0)" })).toBe(1);
-    expect(evaluateCell("A1", { A1: "=countunique(1, 2, 3, 1, 2)" })).toBe(3);
-    expect(evaluateCell("A1", { A1: "=countunique(1,  , 2,  , 3)" })).toBe(3);
-    expect(evaluateCell("A1", { A1: "=countunique(1.5, 1.4)" })).toBe(2);
-    expect(evaluateCell("A1", { A1: '=countunique("Jean Saisrien", "Jean Prendnote")' })).toBe(2);
-    expect(evaluateCell("A1", { A1: '=countunique("")' })).toBe(0);
-    expect(evaluateCell("A1", { A1: '=countunique(" ")' })).toBe(1);
-    expect(evaluateCell("A1", { A1: '=countunique("2", "-2")' })).toBe(2);
-    expect(evaluateCell("A1", { A1: '=countunique("2", "")' })).toBe(1);
-    expect(evaluateCell("A1", { A1: '=countunique("2", " ")' })).toBe(2);
-    expect(evaluateCell("A1", { A1: "=countunique(TRUE, FALSE)" })).toBe(2);
-    expect(evaluateCell("A1", { A1: '=countunique(1, "1", TRUE)' })).toBe(3);
-  });
-  test("functional tests on cell arguments", () => {
-    expect(evaluateCell("A1", { A1: "=countunique(A2)", A2: "" })).toBe(0);
-    expect(evaluateCell("A1", { A1: "=countunique(A2)", A2: " " })).toBe(1);
-    expect(evaluateCell("A1", { A1: "=countunique(A2)", A2: "," })).toBe(1);
-    expect(evaluateCell("A1", { A1: "=countunique(A2)", A2: "0" })).toBe(1);
-    expect(evaluateCell("A1", { A1: "=countunique(A2, A3)", A2: "1", A3: "2" })).toBe(2);
-    expect(evaluateCell("A1", { A1: "=countunique(A2, A3, A4)", A2: "1", A3: "", A4: "1" })).toBe(
-      1
-    );
+  test("functional tests on simple arguments", async () => {
+    expect(await evaluateCell("A1", { A1: "=countunique()" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+    expect(await evaluateCell("A1", { A1: "=countunique(,)" })).toBe(0);
+    expect(await evaluateCell("A1", { A1: "=countunique(0)" })).toBe(1);
+    expect(await evaluateCell("A1", { A1: "=countunique(1, 2, 3, 1, 2)" })).toBe(3);
+    expect(await evaluateCell("A1", { A1: "=countunique(1,  , 2,  , 3)" })).toBe(3);
+    expect(await evaluateCell("A1", { A1: "=countunique(1.5, 1.4)" })).toBe(2);
     expect(
-      evaluateCell("A1", {
+      await evaluateCell("A1", { A1: '=countunique("Jean Saisrien", "Jean Prendnote")' })
+    ).toBe(2);
+    expect(await evaluateCell("A1", { A1: '=countunique("")' })).toBe(0);
+    expect(await evaluateCell("A1", { A1: '=countunique(" ")' })).toBe(1);
+    expect(await evaluateCell("A1", { A1: '=countunique("2", "-2")' })).toBe(2);
+    expect(await evaluateCell("A1", { A1: '=countunique("2", "")' })).toBe(1);
+    expect(await evaluateCell("A1", { A1: '=countunique("2", " ")' })).toBe(2);
+    expect(await evaluateCell("A1", { A1: "=countunique(TRUE, FALSE)" })).toBe(2);
+    expect(await evaluateCell("A1", { A1: '=countunique(1, "1", TRUE)' })).toBe(3);
+  });
+  test("functional tests on cell arguments", async () => {
+    expect(await evaluateCell("A1", { A1: "=countunique(A2)", A2: "" })).toBe(0);
+    expect(await evaluateCell("A1", { A1: "=countunique(A2)", A2: " " })).toBe(1);
+    expect(await evaluateCell("A1", { A1: "=countunique(A2)", A2: "," })).toBe(1);
+    expect(await evaluateCell("A1", { A1: "=countunique(A2)", A2: "0" })).toBe(1);
+    expect(await evaluateCell("A1", { A1: "=countunique(A2, A3)", A2: "1", A3: "2" })).toBe(2);
+    expect(
+      await evaluateCell("A1", { A1: "=countunique(A2, A3, A4)", A2: "1", A3: "", A4: "1" })
+    ).toBe(1);
+    expect(
+      await evaluateCell("A1", {
         A1: "=countunique(A2, A3, A4)",
         A2: "1.4",
         A3: "-1",
         A4: "Jean Peuxplus",
       })
     ).toBe(3);
-    expect(evaluateCell("A1", { A1: "=countunique(A2, A3)", A2: "", A3: "" })).toBe(0);
-    expect(evaluateCell("A1", { A1: "=countunique(A2, A3)", A2: " ", A3: "" })).toBe(1);
-    expect(evaluateCell("A1", { A1: "=countunique(A2, A3)", A2: "", A3: '=" "' })).toBe(1);
-    expect(evaluateCell("A1", { A1: "=countunique(A2, A3)", A2: " ", A3: '=" "' })).toBe(1);
-    expect(evaluateCell("A1", { A1: "=countunique(A2, A3)", A2: "  ", A3: '=" "' })).toBe(2);
-    expect(evaluateCell("A1", { A1: "=countunique(A2, A3)", A2: " ", A3: '="  "' })).toBe(2);
-    expect(evaluateCell("A1", { A1: "=countunique(A2, A3)", A2: "42", A3: "42" })).toBe(1);
-    expect(evaluateCell("A1", { A1: "=countunique(A2, A3)", A2: "42", A3: '"42"' })).toBe(2);
-    expect(evaluateCell("A1", { A1: "=countunique(A2, A3)", A2: "42", A3: "=42" })).toBe(1);
-    expect(evaluateCell("A1", { A1: "=countunique(A2, A3)", A2: "42", A3: '="42"' })).toBe(2);
-    expect(evaluateCell("A1", { A1: "=countunique(A2, A3)", A2: '"42"', A3: '"42"' })).toBe(1);
-    expect(evaluateCell("A1", { A1: "=countunique(A2, A3)", A2: '"42"', A3: "=42" })).toBe(2);
-    expect(evaluateCell("A1", { A1: "=countunique(A2, A3)", A2: '"42"', A3: '="42"' })).toBe(2);
-    expect(evaluateCell("A1", { A1: "=countunique(A2, A3)", A2: "=42", A3: "=42" })).toBe(1);
-    expect(evaluateCell("A1", { A1: "=countunique(A2, A3)", A2: "=42", A3: '="42"' })).toBe(2);
-    expect(evaluateCell("A1", { A1: "=countunique(A2, A3)", A2: '="42"', A3: '="42"' })).toBe(1);
+    expect(await evaluateCell("A1", { A1: "=countunique(A2, A3)", A2: "", A3: "" })).toBe(0);
+    expect(await evaluateCell("A1", { A1: "=countunique(A2, A3)", A2: " ", A3: "" })).toBe(1);
+    expect(await evaluateCell("A1", { A1: "=countunique(A2, A3)", A2: "", A3: '=" "' })).toBe(1);
+    expect(await evaluateCell("A1", { A1: "=countunique(A2, A3)", A2: " ", A3: '=" "' })).toBe(1);
+    expect(await evaluateCell("A1", { A1: "=countunique(A2, A3)", A2: "  ", A3: '=" "' })).toBe(2);
+    expect(await evaluateCell("A1", { A1: "=countunique(A2, A3)", A2: " ", A3: '="  "' })).toBe(2);
+    expect(await evaluateCell("A1", { A1: "=countunique(A2, A3)", A2: "42", A3: "42" })).toBe(1);
+    expect(await evaluateCell("A1", { A1: "=countunique(A2, A3)", A2: "42", A3: '"42"' })).toBe(2);
+    expect(await evaluateCell("A1", { A1: "=countunique(A2, A3)", A2: "42", A3: "=42" })).toBe(1);
+    expect(await evaluateCell("A1", { A1: "=countunique(A2, A3)", A2: "42", A3: '="42"' })).toBe(2);
+    expect(await evaluateCell("A1", { A1: "=countunique(A2, A3)", A2: '"42"', A3: '"42"' })).toBe(
+      1
+    );
+    expect(await evaluateCell("A1", { A1: "=countunique(A2, A3)", A2: '"42"', A3: "=42" })).toBe(2);
+    expect(await evaluateCell("A1", { A1: "=countunique(A2, A3)", A2: '"42"', A3: '="42"' })).toBe(
+      2
+    );
+    expect(await evaluateCell("A1", { A1: "=countunique(A2, A3)", A2: "=42", A3: "=42" })).toBe(1);
+    expect(await evaluateCell("A1", { A1: "=countunique(A2, A3)", A2: "=42", A3: '="42"' })).toBe(
+      2
+    );
+    expect(await evaluateCell("A1", { A1: "=countunique(A2, A3)", A2: '="42"', A3: '="42"' })).toBe(
+      1
+    );
   });
-  test("functional tests on simple and cell arguments", () => {
-    expect(evaluateCell("A1", { A1: "=countunique(A2,)", A2: "" })).toBe(0);
-    expect(evaluateCell("A1", { A1: "=countunique(A2,)", A2: " " })).toBe(1);
-    expect(evaluateCell("A1", { A1: "=countunique(A2,)", A2: '=""' })).toBe(0);
-    expect(evaluateCell("A1", { A1: "=countunique(A2,)", A2: '=" "' })).toBe(1);
-    expect(evaluateCell("A1", { A1: '=countunique(A2, "")', A2: "" })).toBe(0);
-    expect(evaluateCell("A1", { A1: '=countunique(A2, "")', A2: " " })).toBe(1);
-    expect(evaluateCell("A1", { A1: '=countunique(A2, "")', A2: '=""' })).toBe(0);
-    expect(evaluateCell("A1", { A1: '=countunique(A2, "")', A2: '=" "' })).toBe(1);
-    expect(evaluateCell("A1", { A1: '=countunique(A2, " ")', A2: "" })).toBe(1);
-    expect(evaluateCell("A1", { A1: '=countunique(A2, " ")', A2: " " })).toBe(1);
-    expect(evaluateCell("A1", { A1: '=countunique(A2, " ")', A2: '=""' })).toBe(1);
-    expect(evaluateCell("A1", { A1: '=countunique(A2, " ")', A2: '=" "' })).toBe(1);
-    expect(evaluateCell("A1", { A1: '=countunique(42, "42")' })).toBe(2);
-    expect(evaluateCell("A1", { A1: "=countunique(A2, 42)", A2: "42" })).toBe(1);
-    expect(evaluateCell("A1", { A1: "=countunique(A2, 42)", A2: '"42"' })).toBe(2);
-    expect(evaluateCell("A1", { A1: "=countunique(A2, 42)", A2: "=42" })).toBe(1);
-    expect(evaluateCell("A1", { A1: "=countunique(A2, 42)", A2: '="42"' })).toBe(2);
-    expect(evaluateCell("A1", { A1: '=countunique(A2, "42")', A2: "42" })).toBe(2);
-    expect(evaluateCell("A1", { A1: '=countunique(A2, "42")', A2: '"42"' })).toBe(2);
-    expect(evaluateCell("A1", { A1: '=countunique(A2, "42")', A2: "=42" })).toBe(2);
-    expect(evaluateCell("A1", { A1: '=countunique(A2, "42")', A2: '="42"' })).toBe(1);
-    expect(evaluateCell("A1", { A1: "=countunique(A2, TRUE)", A2: "1" })).toBe(2);
-    expect(evaluateCell("A1", { A1: "=countunique(A2, TRUE)", A2: '"1"' })).toBe(2);
-    expect(evaluateCell("A1", { A1: "=countunique(A2, TRUE)", A2: "=1" })).toBe(2);
-    expect(evaluateCell("A1", { A1: "=countunique(A2, TRUE)", A2: '="1"' })).toBe(2);
+  test("functional tests on simple and cell arguments", async () => {
+    expect(await evaluateCell("A1", { A1: "=countunique(A2,)", A2: "" })).toBe(0);
+    expect(await evaluateCell("A1", { A1: "=countunique(A2,)", A2: " " })).toBe(1);
+    expect(await evaluateCell("A1", { A1: "=countunique(A2,)", A2: '=""' })).toBe(0);
+    expect(await evaluateCell("A1", { A1: "=countunique(A2,)", A2: '=" "' })).toBe(1);
+    expect(await evaluateCell("A1", { A1: '=countunique(A2, "")', A2: "" })).toBe(0);
+    expect(await evaluateCell("A1", { A1: '=countunique(A2, "")', A2: " " })).toBe(1);
+    expect(await evaluateCell("A1", { A1: '=countunique(A2, "")', A2: '=""' })).toBe(0);
+    expect(await evaluateCell("A1", { A1: '=countunique(A2, "")', A2: '=" "' })).toBe(1);
+    expect(await evaluateCell("A1", { A1: '=countunique(A2, " ")', A2: "" })).toBe(1);
+    expect(await evaluateCell("A1", { A1: '=countunique(A2, " ")', A2: " " })).toBe(1);
+    expect(await evaluateCell("A1", { A1: '=countunique(A2, " ")', A2: '=""' })).toBe(1);
+    expect(await evaluateCell("A1", { A1: '=countunique(A2, " ")', A2: '=" "' })).toBe(1);
+    expect(await evaluateCell("A1", { A1: '=countunique(42, "42")' })).toBe(2);
+    expect(await evaluateCell("A1", { A1: "=countunique(A2, 42)", A2: "42" })).toBe(1);
+    expect(await evaluateCell("A1", { A1: "=countunique(A2, 42)", A2: '"42"' })).toBe(2);
+    expect(await evaluateCell("A1", { A1: "=countunique(A2, 42)", A2: "=42" })).toBe(1);
+    expect(await evaluateCell("A1", { A1: "=countunique(A2, 42)", A2: '="42"' })).toBe(2);
+    expect(await evaluateCell("A1", { A1: '=countunique(A2, "42")', A2: "42" })).toBe(2);
+    expect(await evaluateCell("A1", { A1: '=countunique(A2, "42")', A2: '"42"' })).toBe(2);
+    expect(await evaluateCell("A1", { A1: '=countunique(A2, "42")', A2: "=42" })).toBe(2);
+    expect(await evaluateCell("A1", { A1: '=countunique(A2, "42")', A2: '="42"' })).toBe(1);
+    expect(await evaluateCell("A1", { A1: "=countunique(A2, TRUE)", A2: "1" })).toBe(2);
+    expect(await evaluateCell("A1", { A1: "=countunique(A2, TRUE)", A2: '"1"' })).toBe(2);
+    expect(await evaluateCell("A1", { A1: "=countunique(A2, TRUE)", A2: "=1" })).toBe(2);
+    expect(await evaluateCell("A1", { A1: "=countunique(A2, TRUE)", A2: '="1"' })).toBe(2);
   });
-  test("functional tests on range arguments", () => {
+  test("functional tests on range arguments", async () => {
     const grid = {
       A1: "=COUNTUNIQUE(B2:D3,B4:D4,E2:E3,E4)",
       A2: "=COUNTUNIQUE(B2:E2)",
@@ -952,7 +991,7 @@ describe("COUNTUNIQUE formula", () => {
       D4: '=""',
       E4: '" "',
     };
-    const gridResult = evaluateGrid(grid);
+    const gridResult = await evaluateGrid(grid);
     expect(gridResult.A1).toBe(9);
     expect(gridResult.A2).toBe(3);
     expect(gridResult.A3).toBe(4);
@@ -963,17 +1002,17 @@ describe("COUNTUNIQUE formula", () => {
     expect(gridResult.E1).toBe(3);
   });
   // @compatibility: should count errors of the same type as being the same
-  test("COUNTUNIQUE counts each error as unique", () => {
+  test("COUNTUNIQUE counts each error as unique", async () => {
     // prettier-ignore
     const grid = {
       A1: "=KABOUM_1", B1: "=KABOUM_2",
       A2: "42",        B2: "=KABOUM_3",
     };
-    expect(evaluateCell("A3", { A3: "=COUNTUNIQUE(A1:B2)", ...grid })).toBe(2);
+    expect(await evaluateCell("A3", { A3: "=COUNTUNIQUE(A1:B2)", ...grid })).toBe(2);
   });
 });
 describe("COUNTUNIQUEIFS formula", () => {
-  test("functional tests on range", () => {
+  test("functional tests on range", async () => {
     // prettier-ignore
     const grid = {
       A1:  "car"   , B1:  "4" , C1:  "14", D1:  "Yes",
@@ -993,51 +1032,51 @@ describe("COUNTUNIQUEIFS formula", () => {
       A15: '=COUNTUNIQUEIFS(A1:A11, D1:D11, "No")',
       A16: '=COUNTUNIQUEIFS(A1:A11, B1:B11, A12, C1:C11, B12)',
     };
-    const gridResult = evaluateGrid(grid);
+    const gridResult = await evaluateGrid(grid);
     expect(gridResult.A13).toBe(3);
     expect(gridResult.A14).toBe(2);
     expect(gridResult.A15).toBe(3);
     expect(gridResult.A16).toBe(2);
   });
   // @compatibility: should count errors of the same type as being the same
-  test("COUNTUNIQUEIFS counts each error as unique", () => {
+  test("COUNTUNIQUEIFS counts each error as unique", async () => {
     // prettier-ignore
     const grid = {
       A1: "=KABOUM_1", B1: "1",
       A2: "=KABOUM_2", B2: "1",
       A3: "42"       , B3: "1",
     };
-    expect(evaluateCell("A4", { A4: "=COUNTUNIQUEIFS(A1:A3, B1:B3, 1)", ...grid })).toBe(2);
+    expect(await evaluateCell("A4", { A4: "=COUNTUNIQUEIFS(A1:A3, B1:B3, 1)", ...grid })).toBe(2);
   });
-  test("COUNTUNIQUEIFS does not accept errors in 2n+2 parameters", () => {
+  test("COUNTUNIQUEIFS does not accept errors in 2n+2 parameters", async () => {
     // prettier-ignore
     const grid = {
       A1: "40", B1: "1",
       A2: "41", B2: "1",
       A3: "42", B3: "=KABOUM",
     };
-    expect(evaluateCell("A4", { A4: "=COUNTUNIQUEIFS(A1:A3, B1:B3, 1)", ...grid })).toBe(2);
+    expect(await evaluateCell("A4", { A4: "=COUNTUNIQUEIFS(A1:A3, B1:B3, 1)", ...grid })).toBe(2);
   });
   // @compatibility: should be able to count errors !
-  test("COUNTUNIQUEIFS does not accept errors on 2n+3 parameters", () => {
+  test("COUNTUNIQUEIFS does not accept errors on 2n+3 parameters", async () => {
     // prettier-ignore
     const grid = {
       A1: "40", B1: "1",
       A2: "41", B2: "1",
       A3: "42", B3: "1",
     };
-    expect(evaluateCell("A4", { A4: "=COUNTUNIQUEIFS(A1:A3, B1:B3, KABOUM)", ...grid })).toBe(
+    expect(await evaluateCell("A4", { A4: "=COUNTUNIQUEIFS(A1:A3, B1:B3, KABOUM)", ...grid })).toBe(
       "#BAD_EXPR"
     ); // @compatibility: should be 0
   });
-  test("COUNTUNIQUEIFS on empty range", () => {
+  test("COUNTUNIQUEIFS on empty range", async () => {
     const grid = {
       A1: "Alice",
       A2: '=COUNTUNIQUEIFS(A1, A1, "Alice", B1, "<>Hi")',
       A3: '=COUNTUNIQUEIFS(A1, A1, "Alice", B1, "=Hi")',
       A4: '=COUNTUNIQUEIFS(A1, A1, "Alice", B1, "*")',
     };
-    const gridResult = evaluateGrid(grid);
+    const gridResult = await evaluateGrid(grid);
     expect(gridResult.A2).toBe(1);
     expect(gridResult.A3).toBe(0);
     expect(gridResult.A4).toBe(0);
@@ -1050,11 +1089,11 @@ describe("CSC formula", () => {
     ["=-PI()/2", -1],
     ["1", 1.188395106],
     ["-2", -1.09975017],
-  ])("take 1 parameter, return a number", (a, expected) => {
-    expect(evaluateCell("A1", { A1: "=CSC(A2)", A2: a })).toBeCloseTo(expected, 9);
+  ])("take 1 parameter, return a number", async (a, expected) => {
+    expect(await evaluateCell("A1", { A1: "=CSC(A2)", A2: a })).toBeCloseTo(expected, 9);
   });
-  test.each([["0"]])("take 1 parameter(s), return an error", (a) => {
-    expect(evaluateCell("A1", { A1: "=CSC(A2)", A2: a })).toBe("#DIV/0!");
+  test.each([["0"]])("take 1 parameter(s), return an error", async (a) => {
+    expect(await evaluateCell("A1", { A1: "=CSC(A2)", A2: a })).toBe("#DIV/0!");
   });
 });
 describe("CSCH formula", () => {
@@ -1063,11 +1102,11 @@ describe("CSCH formula", () => {
     ["-2", -0.275720565],
     ["=LN(3)", 0.75],
     ["=-LN(9)", -0.225],
-  ])("take 1 parameter, return a number", (a, expected) => {
-    expect(evaluateCell("A1", { A1: "=CSCH(A2)", A2: a })).toBeCloseTo(expected, 9);
+  ])("take 1 parameter, return a number", async (a, expected) => {
+    expect(await evaluateCell("A1", { A1: "=CSCH(A2)", A2: a })).toBeCloseTo(expected, 9);
   });
-  test.each([["0"]])("take 1 parameter, return an error", (a) => {
-    expect(evaluateCell("A1", { A1: "=CSCH(A2)", A2: a })).toBe("#DIV/0!");
+  test.each([["0"]])("take 1 parameter, return an error", async (a) => {
+    expect(await evaluateCell("A1", { A1: "=CSCH(A2)", A2: a })).toBe("#DIV/0!");
   });
 });
 describe("DECIMAL formula", () => {
@@ -1089,8 +1128,8 @@ describe("DECIMAL formula", () => {
     ["-ABAB", "16", -43947], // @compatibility: return error on parameter 1 on google sheets
     ["-ABAB", "36", -481187], // @compatibility: return error on parameter 1 on google sheets
     ["zzzz", "36", 1679615],
-  ])("take 2 parameters, return a number", (a, b, expected) => {
-    expect(evaluateCell("A1", { A1: "=DECIMAL(A2, A3)", A2: a, A3: b })).toBe(expected);
+  ])("take 2 parameters, return a number", async (a, b, expected) => {
+    expect(await evaluateCell("A1", { A1: "=DECIMAL(A2, A3)", A2: a, A3: b })).toBe(expected);
   });
   test.each([
     ["1010", "-1"],
@@ -1102,8 +1141,8 @@ describe("DECIMAL formula", () => {
     ["A-", "36"],
     ["@ABAB", "36"],
     ["AB AB", "36"],
-  ])("take 2 parameters, return error on parameter 2", (a, b) => {
-    expect(evaluateCell("A1", { A1: "=DECIMAL(A2, A3)", A2: a, A3: b })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+  ])("take 2 parameters, return error on parameter 2", async (a, b) => {
+    expect(await evaluateCell("A1", { A1: "=DECIMAL(A2, A3)", A2: a, A3: b })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
   });
   test.each([
     ["0.1", "2"],
@@ -1118,37 +1157,51 @@ describe("DECIMAL formula", () => {
     ["ABAB.2", "36"],
     ["ABAB.21@", "36"],
     ["AB AB", "36"],
-  ])("take 2 parameters, return error on parameter 1", (a, b) => {
-    expect(evaluateCell("A1", { A1: "=DECIMAL(A2, A3)", A2: a, A3: b })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+  ])("take 2 parameters, return error on parameter 1", async (a, b) => {
+    expect(await evaluateCell("A1", { A1: "=DECIMAL(A2, A3)", A2: a, A3: b })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
   });
-  test("special value testing", () => {
-    expect(evaluateCell("A1", { A1: "=DECIMAL()" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
-    expect(evaluateCell("A1", { A1: "=DECIMAL( , )" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
-    expect(evaluateCell("A1", { A1: "=DECIMAL(42, 12)" })).toBe(50);
-    expect(evaluateCell("A1", { A1: "=DECIMAL( , 12)" })).toBe(0);
-    expect(evaluateCell("A1", { A1: "=DECIMAL(42, )" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
-    expect(evaluateCell("A1", { A1: "=DECIMAL(42, TRUE)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
-    expect(evaluateCell("A1", { A1: "=DECIMAL(42, FALSE)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
-    expect(evaluateCell("A1", { A1: "=DECIMAL(TRUE, 10)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
-    expect(evaluateCell("A1", { A1: "=DECIMAL(FALSE, 10)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
-    expect(evaluateCell("A1", { A1: '=DECIMAL("" , "")' })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
-    expect(evaluateCell("A1", { A1: '=DECIMAL("" , 12)' })).toBe(0);
-    expect(evaluateCell("A1", { A1: '=DECIMAL(" " , 12)' })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
-    expect(evaluateCell("A1", { A1: '=DECIMAL("42", 12)' })).toBe(50);
-    expect(evaluateCell("A1", { A1: '=DECIMAL("42", "12")' })).toBe(50);
-    expect(evaluateCell("A1", { A1: '=DECIMAL("42", "")' })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
-    expect(evaluateCell("A1", { A1: "=DECIMAL(A2, A3)", A2: "", A3: "" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
-    expect(evaluateCell("A1", { A1: "=DECIMAL(A2, A3)", A2: "42", A3: "12" })).toBe(50);
-    expect(evaluateCell("A1", { A1: "=DECIMAL(A2, A3)", A2: "", A3: "12" })).toBe(0);
-    expect(evaluateCell("A1", { A1: "=DECIMAL(A2, A3)", A2: "42", A3: "" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
-    expect(evaluateCell("A1", { A1: "=DECIMAL(A2, A3)", A2: "42", A3: "TRUE" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
-    expect(evaluateCell("A1", { A1: "=DECIMAL(A2, A3)", A2: "42", A3: "FALSE" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
-    expect(evaluateCell("A1", { A1: "=DECIMAL(A2, A3)", A2: "42", A3: "FALSE" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
-    expect(evaluateCell("A1", { A1: "=DECIMAL(A2, A3)", A2: "TRUE", A3: "10" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
-    expect(evaluateCell("A1", { A1: "=DECIMAL(A2, A3)", A2: "FALSE", A3: "10" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
-    expect(evaluateCell("A1", { A1: "=DECIMAL(A2, A3)", A2: '"42"', A3: '"12"' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
-    expect(evaluateCell("A1", { A1: "=DECIMAL(A2, A3)", A2: '=""', A3: '="2"' })).toBe(0);
-    expect(evaluateCell("A1", { A1: "=DECIMAL(A2, A3)", A2: '="42"', A3: '="36"' })).toBe(146);
+  test("special value testing", async () => {
+    expect(await evaluateCell("A1", { A1: "=DECIMAL()" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+    expect(await evaluateCell("A1", { A1: "=DECIMAL( , )" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+    expect(await evaluateCell("A1", { A1: "=DECIMAL(42, 12)" })).toBe(50);
+    expect(await evaluateCell("A1", { A1: "=DECIMAL( , 12)" })).toBe(0);
+    expect(await evaluateCell("A1", { A1: "=DECIMAL(42, )" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+    expect(await evaluateCell("A1", { A1: "=DECIMAL(42, TRUE)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+    expect(await evaluateCell("A1", { A1: "=DECIMAL(42, FALSE)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+    expect(await evaluateCell("A1", { A1: "=DECIMAL(TRUE, 10)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+    expect(await evaluateCell("A1", { A1: "=DECIMAL(FALSE, 10)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+    expect(await evaluateCell("A1", { A1: '=DECIMAL("" , "")' })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+    expect(await evaluateCell("A1", { A1: '=DECIMAL("" , 12)' })).toBe(0);
+    expect(await evaluateCell("A1", { A1: '=DECIMAL(" " , 12)' })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+    expect(await evaluateCell("A1", { A1: '=DECIMAL("42", 12)' })).toBe(50);
+    expect(await evaluateCell("A1", { A1: '=DECIMAL("42", "12")' })).toBe(50);
+    expect(await evaluateCell("A1", { A1: '=DECIMAL("42", "")' })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+    expect(await evaluateCell("A1", { A1: "=DECIMAL(A2, A3)", A2: "", A3: "" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+    expect(await evaluateCell("A1", { A1: "=DECIMAL(A2, A3)", A2: "42", A3: "12" })).toBe(50);
+    expect(await evaluateCell("A1", { A1: "=DECIMAL(A2, A3)", A2: "", A3: "12" })).toBe(0);
+    expect(await evaluateCell("A1", { A1: "=DECIMAL(A2, A3)", A2: "42", A3: "" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+    expect(await evaluateCell("A1", { A1: "=DECIMAL(A2, A3)", A2: "42", A3: "TRUE" })).toBe(
+      "#ERROR"
+    ); // @compatibility: on google sheets, return #NUM!
+    expect(await evaluateCell("A1", { A1: "=DECIMAL(A2, A3)", A2: "42", A3: "FALSE" })).toBe(
+      "#ERROR"
+    ); // @compatibility: on google sheets, return #NUM!
+    expect(await evaluateCell("A1", { A1: "=DECIMAL(A2, A3)", A2: "42", A3: "FALSE" })).toBe(
+      "#ERROR"
+    ); // @compatibility: on google sheets, return #NUM!
+    expect(await evaluateCell("A1", { A1: "=DECIMAL(A2, A3)", A2: "TRUE", A3: "10" })).toBe(
+      "#ERROR"
+    ); // @compatibility: on google sheets, return #NUM!
+    expect(await evaluateCell("A1", { A1: "=DECIMAL(A2, A3)", A2: "FALSE", A3: "10" })).toBe(
+      "#ERROR"
+    ); // @compatibility: on google sheets, return #NUM!
+    expect(await evaluateCell("A1", { A1: "=DECIMAL(A2, A3)", A2: '"42"', A3: '"12"' })).toBe(
+      "#ERROR"
+    ); // @compatibility: on google sheets, return #VALUE!
+    expect(await evaluateCell("A1", { A1: "=DECIMAL(A2, A3)", A2: '=""', A3: '="2"' })).toBe(0);
+    expect(await evaluateCell("A1", { A1: "=DECIMAL(A2, A3)", A2: '="42"', A3: '="36"' })).toBe(
+      146
+    );
   });
 });
 describe("DEGREES formula", () => {
@@ -1164,30 +1217,33 @@ describe("DEGREES formula", () => {
     ["3.141592653589793", 180],
     ["3.14159265358979", 179.99999999999983], // @compatibility: on google sheets return 180
     ["3.1415926535897", 179.99999999999466], // @compatibility: on google sheets return 179.99999999999(5) and not (466)
-  ])("take 1 parameter, return a number", (a, expected) => {
-    expect(evaluateCell("A1", { A1: "=DEGREES(A2)", A2: a })).toBe(expected);
+  ])("take 1 parameter, return a number", async (a, expected) => {
+    expect(await evaluateCell("A1", { A1: "=DEGREES(A2)", A2: a })).toBe(expected);
   });
-  test("functional tests on simple arguments", () => {
-    expect(evaluateCell("A1", { A1: "=DEGREES()" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
-    expect(evaluateCell("A1", { A1: "=DEGREES(0)" })).toBe(0);
-    expect(evaluateCell("A1", { A1: "=DEGREES(PI())" })).toBe(180);
-    expect(evaluateCell("A1", { A1: "=DEGREES(TRUE)" })).toBeCloseTo(57.29577951, 8);
-    expect(evaluateCell("A1", { A1: "=DEGREES(FALSE)" })).toBe(0);
-    expect(evaluateCell("A1", { A1: '=DEGREES("")' })).toBe(0);
-    expect(evaluateCell("A1", { A1: '=DEGREES(" ")' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
-    expect(evaluateCell("A1", { A1: '=DEGREES("hello there")' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
-    expect(evaluateCell("A1", { A1: "=DEGREES(A2)", A2: "" })).toBe(0);
-    expect(evaluateCell("A1", { A1: "=DEGREES(A2)", A2: " " })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
-    expect(evaluateCell("A1", { A1: "=DEGREES(A2)", A2: "0" })).toBe(0);
-    expect(evaluateCell("A1", { A1: "=DEGREES(A2)", A2: "=PI()" })).toBe(180);
-    expect(evaluateCell("A1", { A1: "=DEGREES(A2)", A2: "TRUE" })).toBeCloseTo(57.29577951, 8);
-    expect(evaluateCell("A1", { A1: "=DEGREES(A2)", A2: "FALSE" })).toBe(0);
-    expect(evaluateCell("A1", { A1: "=DEGREES(A2)", A2: '""' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
-    expect(evaluateCell("A1", { A1: "=DEGREES(A2)", A2: '" "' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
-    expect(evaluateCell("A1", { A1: "=DEGREES(A2)", A2: '"42"' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
-    expect(evaluateCell("A1", { A1: "=DEGREES(A2)", A2: '=""' })).toBe(0);
-    expect(evaluateCell("A1", { A1: "=DEGREES(A2)", A2: '=" "' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
-    expect(evaluateCell("A1", { A1: "=DEGREES(A2)", A2: '="0"' })).toBe(0);
+  test("functional tests on simple arguments", async () => {
+    expect(await evaluateCell("A1", { A1: "=DEGREES()" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+    expect(await evaluateCell("A1", { A1: "=DEGREES(0)" })).toBe(0);
+    expect(await evaluateCell("A1", { A1: "=DEGREES(PI())" })).toBe(180);
+    expect(await evaluateCell("A1", { A1: "=DEGREES(TRUE)" })).toBeCloseTo(57.29577951, 8);
+    expect(await evaluateCell("A1", { A1: "=DEGREES(FALSE)" })).toBe(0);
+    expect(await evaluateCell("A1", { A1: '=DEGREES("")' })).toBe(0);
+    expect(await evaluateCell("A1", { A1: '=DEGREES(" ")' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(await evaluateCell("A1", { A1: '=DEGREES("hello there")' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(await evaluateCell("A1", { A1: "=DEGREES(A2)", A2: "" })).toBe(0);
+    expect(await evaluateCell("A1", { A1: "=DEGREES(A2)", A2: " " })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(await evaluateCell("A1", { A1: "=DEGREES(A2)", A2: "0" })).toBe(0);
+    expect(await evaluateCell("A1", { A1: "=DEGREES(A2)", A2: "=PI()" })).toBe(180);
+    expect(await evaluateCell("A1", { A1: "=DEGREES(A2)", A2: "TRUE" })).toBeCloseTo(
+      57.29577951,
+      8
+    );
+    expect(await evaluateCell("A1", { A1: "=DEGREES(A2)", A2: "FALSE" })).toBe(0);
+    expect(await evaluateCell("A1", { A1: "=DEGREES(A2)", A2: '""' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(await evaluateCell("A1", { A1: "=DEGREES(A2)", A2: '" "' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(await evaluateCell("A1", { A1: "=DEGREES(A2)", A2: '"42"' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(await evaluateCell("A1", { A1: "=DEGREES(A2)", A2: '=""' })).toBe(0);
+    expect(await evaluateCell("A1", { A1: "=DEGREES(A2)", A2: '=" "' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(await evaluateCell("A1", { A1: "=DEGREES(A2)", A2: '="0"' })).toBe(0);
   });
 });
 describe("EXP formula", () => {
@@ -1197,25 +1253,25 @@ describe("EXP formula", () => {
     ["0", 1],
     ["-1", 0.3678794412],
     ["2", 7.389056099],
-  ])("take 1 parameter, return a number", (a, expected) => {
-    expect(evaluateCell("A1", { A1: "=EXP(A2)", A2: a })).toBeCloseTo(expected, 9);
+  ])("take 1 parameter, return a number", async (a, expected) => {
+    expect(await evaluateCell("A1", { A1: "=EXP(A2)", A2: a })).toBeCloseTo(expected, 9);
   });
-  test("special value testing", () => {
-    expect(evaluateCell("A1", { A1: "=EXP()" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
-    expect(evaluateCell("A1", { A1: "=EXP(TRUE)" })).toBeCloseTo(Math.exp(1), 9);
-    expect(evaluateCell("A1", { A1: "=EXP(FALSE)" })).toBeCloseTo(1, 9);
-    expect(evaluateCell("A1", { A1: '=EXP("")' })).toBeCloseTo(1, 9);
-    expect(evaluateCell("A1", { A1: '=EXP(" ")' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
-    expect(evaluateCell("A1", { A1: '=EXP("1")' })).toBeCloseTo(Math.exp(1), 9);
-    expect(evaluateCell("A1", { A1: "=EXP(A2)", A2: "" })).toBeCloseTo(1, 9);
-    expect(evaluateCell("A1", { A1: "=EXP(A2)", A2: " " })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
-    expect(evaluateCell("A1", { A1: "=EXP(A2)", A2: "1" })).toBeCloseTo(Math.exp(1), 9);
-    expect(evaluateCell("A1", { A1: "=EXP(A2)", A2: '""' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
-    expect(evaluateCell("A1", { A1: "=EXP(A2)", A2: '" "' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
-    expect(evaluateCell("A1", { A1: "=EXP(A2)", A2: '"1"' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
-    expect(evaluateCell("A1", { A1: "=EXP(A2)", A2: '=""' })).toBeCloseTo(1, 9);
-    expect(evaluateCell("A1", { A1: "=EXP(A2)", A2: '=" "' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
-    expect(evaluateCell("A1", { A1: "=EXP(A2)", A2: '="1"' })).toBeCloseTo(Math.exp(1), 9);
+  test("special value testing", async () => {
+    expect(await evaluateCell("A1", { A1: "=EXP()" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+    expect(await evaluateCell("A1", { A1: "=EXP(TRUE)" })).toBeCloseTo(Math.exp(1), 9);
+    expect(await evaluateCell("A1", { A1: "=EXP(FALSE)" })).toBeCloseTo(1, 9);
+    expect(await evaluateCell("A1", { A1: '=EXP("")' })).toBeCloseTo(1, 9);
+    expect(await evaluateCell("A1", { A1: '=EXP(" ")' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(await evaluateCell("A1", { A1: '=EXP("1")' })).toBeCloseTo(Math.exp(1), 9);
+    expect(await evaluateCell("A1", { A1: "=EXP(A2)", A2: "" })).toBeCloseTo(1, 9);
+    expect(await evaluateCell("A1", { A1: "=EXP(A2)", A2: " " })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(await evaluateCell("A1", { A1: "=EXP(A2)", A2: "1" })).toBeCloseTo(Math.exp(1), 9);
+    expect(await evaluateCell("A1", { A1: "=EXP(A2)", A2: '""' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(await evaluateCell("A1", { A1: "=EXP(A2)", A2: '" "' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(await evaluateCell("A1", { A1: "=EXP(A2)", A2: '"1"' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(await evaluateCell("A1", { A1: "=EXP(A2)", A2: '=""' })).toBeCloseTo(1, 9);
+    expect(await evaluateCell("A1", { A1: "=EXP(A2)", A2: '=" "' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(await evaluateCell("A1", { A1: "=EXP(A2)", A2: '="1"' })).toBeCloseTo(Math.exp(1), 9);
   });
 });
 describe("FLOOR / FLOOR.MATH / FLOOR.PRECISE formulas", () => {
@@ -1227,10 +1283,10 @@ describe("FLOOR / FLOOR.MATH / FLOOR.PRECISE formulas", () => {
     ["-6", -6],
     ["-6.7", -7],
     ["-7.89", -8],
-  ])("take 1 parameters, return a number", (a, expected) => {
-    expect(evaluateCell("A1", { A1: "=FLOOR(A2)", A2: a })).toBe(expected);
-    expect(evaluateCell("A1", { A1: "=FLOOR.MATH(A2)", A2: a })).toBe(expected);
-    expect(evaluateCell("A1", { A1: "=FLOOR.PRECISE(A2)", A2: a })).toBe(expected);
+  ])("take 1 parameters, return a number", async (a, expected) => {
+    expect(await evaluateCell("A1", { A1: "=FLOOR(A2)", A2: a })).toBe(expected);
+    expect(await evaluateCell("A1", { A1: "=FLOOR.MATH(A2)", A2: a })).toBe(expected);
+    expect(await evaluateCell("A1", { A1: "=FLOOR.PRECISE(A2)", A2: a })).toBe(expected);
   });
   test.each([
     ["0", "0", 0],
@@ -1245,10 +1301,12 @@ describe("FLOOR / FLOOR.MATH / FLOOR.PRECISE formulas", () => {
     ["-6", "0.7", -6.3],
     ["6.7", "0.2", 6.6],
     ["-6.7", "0.2", -6.8],
-  ])("take 2 parameters, return a number", (a, b, expected) => {
-    expect(evaluateCell("A1", { A1: "=FLOOR(A2, A3)", A2: a, A3: b })).toBeCloseTo(expected);
-    expect(evaluateCell("A1", { A1: "=FLOOR.MATH(A2, A3)", A2: a, A3: b })).toBeCloseTo(expected);
-    expect(evaluateCell("A1", { A1: "=FLOOR.PRECISE(A2, A3)", A2: a, A3: b })).toBeCloseTo(
+  ])("take 2 parameters, return a number", async (a, b, expected) => {
+    expect(await evaluateCell("A1", { A1: "=FLOOR(A2, A3)", A2: a, A3: b })).toBeCloseTo(expected);
+    expect(await evaluateCell("A1", { A1: "=FLOOR.MATH(A2, A3)", A2: a, A3: b })).toBeCloseTo(
+      expected
+    );
+    expect(await evaluateCell("A1", { A1: "=FLOOR.PRECISE(A2, A3)", A2: a, A3: b })).toBeCloseTo(
       expected
     );
   });
@@ -1259,17 +1317,19 @@ describe("FLOOR / FLOOR.MATH / FLOOR.PRECISE formulas", () => {
     ["7.89", "-0.2", 7.8],
     ["-7.89", "0.2", -8],
     ["-7.89", "-0.2", -8],
-  ])("MATH/PRECISE: no effect with negative factor", (a, b, expected) => {
-    expect(evaluateCell("A1", { A1: "=FLOOR.MATH(A2, A3)", A2: a, A3: b })).toBeCloseTo(expected);
-    expect(evaluateCell("A1", { A1: "=FLOOR.PRECISE(A2, A3)", A2: a, A3: b })).toBeCloseTo(
+  ])("MATH/PRECISE: no effect with negative factor", async (a, b, expected) => {
+    expect(await evaluateCell("A1", { A1: "=FLOOR.MATH(A2, A3)", A2: a, A3: b })).toBeCloseTo(
+      expected
+    );
+    expect(await evaluateCell("A1", { A1: "=FLOOR.PRECISE(A2, A3)", A2: a, A3: b })).toBeCloseTo(
       expected
     );
   });
   test.each([
     ["6", "-0.2"],
     ["7.89", "-0.2"],
-  ])("FLOOR: if value positive, factor can't be negative", (a, b) => {
-    expect(evaluateCell("A1", { A1: "=FLOOR(A2, A3)", A2: a, A3: b })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+  ])("FLOOR: if value positive, factor can't be negative", async (a, b) => {
+    expect(await evaluateCell("A1", { A1: "=FLOOR(A2, A3)", A2: a, A3: b })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
   });
   test.each([
     // Concerning FLOOR function
@@ -1277,8 +1337,11 @@ describe("FLOOR / FLOOR.MATH / FLOOR.PRECISE formulas", () => {
     // the nearest integer multiple of b
     ["-7.89", "0.2", -8],
     ["-7.89", "-0.2", -7.8],
-  ])("FLOOR: if factor negative, rouds number down", (a, b, expected) => {
-    expect(evaluateCell("A1", { A1: "=FLOOR(A2, A3)", A2: a, A3: b })).toBeCloseTo(expected, 9);
+  ])("FLOOR: if factor negative, rouds number down", async (a, b, expected) => {
+    expect(await evaluateCell("A1", { A1: "=FLOOR(A2, A3)", A2: a, A3: b })).toBeCloseTo(
+      expected,
+      9
+    );
   });
   test.each([
     // Concerning FLOOR.MATH function
@@ -1294,89 +1357,111 @@ describe("FLOOR / FLOOR.MATH / FLOOR.PRECISE formulas", () => {
     ["-7.89", "-0.2", "1", -7.8],
     ["-7.89", "-0.2", "2.2", -7.8],
     ["-7.89", "-0.2", "-2.2", -7.8],
-  ])("FLOOR.MATH: take 3 parameters, return a number", (a, b, c, expected) => {
-    expect(evaluateCell("A1", { A1: "=FLOOR.MATH(A2, A3, A4)", A2: a, A3: b, A4: c })).toBeCloseTo(
-      expected,
+  ])("FLOOR.MATH: take 3 parameters, return a number", async (a, b, c, expected) => {
+    expect(
+      await evaluateCell("A1", { A1: "=FLOOR.MATH(A2, A3, A4)", A2: a, A3: b, A4: c })
+    ).toBeCloseTo(expected, 9);
+  });
+  async function evaluateFloorFunction(functionName: string) {
+    expect(await evaluateCell("A1", { A1: "=" + functionName + "()" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+    expect(await evaluateCell("A1", { A1: "=" + functionName + "( , )" })).toBeCloseTo(0, 9);
+    expect(await evaluateCell("A1", { A1: "=" + functionName + "(-7.89, 0.2)" })).toBeCloseTo(
+      -8,
       9
     );
-  });
-  function evaluateFloorFunction(functionName: string): void {
-    expect(evaluateCell("A1", { A1: "=" + functionName + "()" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
-    expect(evaluateCell("A1", { A1: "=" + functionName + "( , )" })).toBeCloseTo(0, 9);
-    expect(evaluateCell("A1", { A1: "=" + functionName + "(-7.89, 0.2)" })).toBeCloseTo(-8, 9);
-    expect(evaluateCell("A1", { A1: "=" + functionName + "( , 0.2)" })).toBeCloseTo(0, 9);
-    expect(evaluateCell("A1", { A1: "=" + functionName + "(-7.89, )" })).toBeCloseTo(-8, 9);
-    expect(evaluateCell("A1", { A1: "=" + functionName + "(-7.89, TRUE)" })).toBeCloseTo(-8, 9);
-    expect(evaluateCell("A1", { A1: "=" + functionName + "(-7.89, FALSE)" })).toBeCloseTo(0, 9); // @compatibility on google sheets: concerning basic floor function, return error div by 0
-    expect(evaluateCell("A1", { A1: "=" + functionName + "(TRUE, 10)" })).toBeCloseTo(0, 9);
-    expect(evaluateCell("A1", { A1: "=" + functionName + "(FALSE, 10)" })).toBeCloseTo(0, 9);
-    expect(evaluateCell("A1", { A1: "=" + functionName + '("" , "")' })).toBeCloseTo(0, 9);
-    expect(evaluateCell("A1", { A1: "=" + functionName + '(" " , " ")' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
-    expect(evaluateCell("A1", { A1: "=" + functionName + '("-7.89", "0.2")' })).toBeCloseTo(-8, 9);
-    expect(evaluateCell("A1", { A1: "=" + functionName + "(A2, A3)", A2: "", A3: "" })).toBeCloseTo(
+    expect(await evaluateCell("A1", { A1: "=" + functionName + "( , 0.2)" })).toBeCloseTo(0, 9);
+    expect(await evaluateCell("A1", { A1: "=" + functionName + "(-7.89, )" })).toBeCloseTo(-8, 9);
+    expect(await evaluateCell("A1", { A1: "=" + functionName + "(-7.89, TRUE)" })).toBeCloseTo(
+      -8,
+      9
+    );
+    expect(await evaluateCell("A1", { A1: "=" + functionName + "(-7.89, FALSE)" })).toBeCloseTo(
       0,
       9
+    ); // @compatibility on google sheets: concerning basic floor function, return error div by 0
+    expect(await evaluateCell("A1", { A1: "=" + functionName + "(TRUE, 10)" })).toBeCloseTo(0, 9);
+    expect(await evaluateCell("A1", { A1: "=" + functionName + "(FALSE, 10)" })).toBeCloseTo(0, 9);
+    expect(await evaluateCell("A1", { A1: "=" + functionName + '("" , "")' })).toBeCloseTo(0, 9);
+    expect(await evaluateCell("A1", { A1: "=" + functionName + '(" " , " ")' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(await evaluateCell("A1", { A1: "=" + functionName + '("-7.89", "0.2")' })).toBeCloseTo(
+      -8,
+      9
     );
-    expect(evaluateCell("A1", { A1: "=" + functionName + "(A2, A3)", A2: " ", A3: " " })).toBe(
-      "#ERROR"
-    ); // @compatibility: on google sheets, return #VALUE!
     expect(
-      evaluateCell("A1", { A1: "=" + functionName + "(A2, A3)", A2: "-7.89", A3: "0.2" })
-    ).toBeCloseTo(-8, 9);
-    expect(
-      evaluateCell("A1", { A1: "=" + functionName + "(A2, A3)", A2: "", A3: "0.2" })
+      await evaluateCell("A1", { A1: "=" + functionName + "(A2, A3)", A2: "", A3: "" })
     ).toBeCloseTo(0, 9);
     expect(
-      evaluateCell("A1", { A1: "=" + functionName + "(A2, A3)", A2: "-7.89", A3: "" })
-    ).toBeCloseTo(0, 9); // @compatibility on google sheets: concerning basic floor function, return error div by 0
-    expect(
-      evaluateCell("A1", { A1: "=" + functionName + "(A2, A3)", A2: "-7.89", A3: "TRUE" })
-    ).toBeCloseTo(-8, 9);
-    expect(
-      evaluateCell("A1", { A1: "=" + functionName + "(A2, A3)", A2: "-7.89", A3: "FALSE" })
-    ).toBeCloseTo(0, 9); // @compatibility on google sheets: concerning basic floor function, return error div by 0
-    expect(
-      evaluateCell("A1", { A1: "=" + functionName + "(A2, A3)", A2: "TRUE", A3: "10" })
-    ).toBeCloseTo(0, 9);
-    expect(
-      evaluateCell("A1", { A1: "=" + functionName + "(A2, A3)", A2: "FALSE", A3: "10" })
-    ).toBeCloseTo(0, 9);
-    expect(evaluateCell("A1", { A1: "=" + functionName + "(A2, A3)", A2: '""', A3: '""' })).toBe(
-      "#ERROR"
-    ); // @compatibility: on google sheets, return #VALUE!
-    expect(evaluateCell("A1", { A1: "=" + functionName + "(A2, A3)", A2: '" "', A3: '" "' })).toBe(
-      "#ERROR"
-    ); // @compatibility: on google sheets, return #VALUE!
-    expect(
-      evaluateCell("A1", { A1: "=" + functionName + "(A2, A3)", A2: '"-7.89"', A3: '"0.2"' })
+      await evaluateCell("A1", { A1: "=" + functionName + "(A2, A3)", A2: " ", A3: " " })
     ).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
     expect(
-      evaluateCell("A1", { A1: "=" + functionName + "(A2, A3)", A2: '=""', A3: '=""' })
+      await evaluateCell("A1", { A1: "=" + functionName + "(A2, A3)", A2: "-7.89", A3: "0.2" })
+    ).toBeCloseTo(-8, 9);
+    expect(
+      await evaluateCell("A1", { A1: "=" + functionName + "(A2, A3)", A2: "", A3: "0.2" })
     ).toBeCloseTo(0, 9);
     expect(
-      evaluateCell("A1", { A1: "=" + functionName + "(A2, A3)", A2: '=" "', A3: '=" "' })
+      await evaluateCell("A1", { A1: "=" + functionName + "(A2, A3)", A2: "-7.89", A3: "" })
+    ).toBeCloseTo(0, 9); // @compatibility on google sheets: concerning basic floor function, return error div by 0
+    expect(
+      await evaluateCell("A1", { A1: "=" + functionName + "(A2, A3)", A2: "-7.89", A3: "TRUE" })
+    ).toBeCloseTo(-8, 9);
+    expect(
+      await evaluateCell("A1", { A1: "=" + functionName + "(A2, A3)", A2: "-7.89", A3: "FALSE" })
+    ).toBeCloseTo(0, 9); // @compatibility on google sheets: concerning basic floor function, return error div by 0
+    expect(
+      await evaluateCell("A1", { A1: "=" + functionName + "(A2, A3)", A2: "TRUE", A3: "10" })
+    ).toBeCloseTo(0, 9);
+    expect(
+      await evaluateCell("A1", { A1: "=" + functionName + "(A2, A3)", A2: "FALSE", A3: "10" })
+    ).toBeCloseTo(0, 9);
+    expect(
+      await evaluateCell("A1", { A1: "=" + functionName + "(A2, A3)", A2: '""', A3: '""' })
     ).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
     expect(
-      evaluateCell("A1", { A1: "=" + functionName + "(A2, A3)", A2: '="-7.89"', A3: '="0.2"' })
+      await evaluateCell("A1", { A1: "=" + functionName + "(A2, A3)", A2: '" "', A3: '" "' })
+    ).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(
+      await evaluateCell("A1", { A1: "=" + functionName + "(A2, A3)", A2: '"-7.89"', A3: '"0.2"' })
+    ).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(
+      await evaluateCell("A1", { A1: "=" + functionName + "(A2, A3)", A2: '=""', A3: '=""' })
+    ).toBeCloseTo(0, 9);
+    expect(
+      await evaluateCell("A1", { A1: "=" + functionName + "(A2, A3)", A2: '=" "', A3: '=" "' })
+    ).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(
+      await evaluateCell("A1", {
+        A1: "=" + functionName + "(A2, A3)",
+        A2: '="-7.89"',
+        A3: '="0.2"',
+      })
     ).toBeCloseTo(-8, 9);
   }
   test.each([["FLOOR"], ["FLOOR.MATH"], ["FLOOR.PRECISE"]])(
     "special value testing",
-    (functionName) => {
-      evaluateFloorFunction(functionName);
+    async (functionName) => {
+      await evaluateFloorFunction(functionName);
     }
   );
   test.each([["FLOOR"], ["FLOOR.MATH"], ["FLOOR.PRECISE"]])(
     "result format depends on 1st argument",
-    (functionName) => {
+    async (functionName) => {
       expect(
-        evaluateCellFormat("A1", { A1: "=" + functionName + "(A2, A3)", A2: "0.05", A3: "0.2" })
+        await evaluateCellFormat("A1", {
+          A1: "=" + functionName + "(A2, A3)",
+          A2: "0.05",
+          A3: "0.2",
+        })
       ).toBe("");
       expect(
-        evaluateCellFormat("A1", { A1: "=" + functionName + "(A2, A3)", A2: "5%", A3: "0.2" })
+        await evaluateCellFormat("A1", { A1: "=" + functionName + "(A2, A3)", A2: "5%", A3: "0.2" })
       ).toBe("0%");
       expect(
-        evaluateCellFormat("A1", { A1: "=" + functionName + "(A2, A3)", A2: "4.8€", A3: "0.2" })
+        await evaluateCellFormat("A1", {
+          A1: "=" + functionName + "(A2, A3)",
+          A2: "4.8€",
+          A3: "0.2",
+        })
       ).toBe("#,##0.00[$€]");
     }
   );
@@ -1390,8 +1475,8 @@ describe("INT formula", () => {
     ["-6", -6],
     ["-6.7", -7],
     ["-7.89", -8],
-  ])("return the nearest rounded down integer", (a, expected) => {
-    expect(evaluateCell("A1", { A1: "=INT(A2)", A2: a })).toBe(expected);
+  ])("return the nearest rounded down integer", async (a, expected) => {
+    expect(await evaluateCell("A1", { A1: "=INT(A2)", A2: a })).toBe(expected);
   });
 });
 describe("ISEVEN formula", () => {
@@ -1403,30 +1488,30 @@ describe("ISEVEN formula", () => {
     ["2", true],
     ["2.3", true],
     ["3", false],
-  ])("take 1 parameter, return a boolean", (a, expected) => {
-    expect(evaluateCell("A1", { A1: "=ISEVEN(A2)", A2: a })).toBe(expected);
+  ])("take 1 parameter, return a boolean", async (a, expected) => {
+    expect(await evaluateCell("A1", { A1: "=ISEVEN(A2)", A2: a })).toBe(expected);
   });
-  test("functional tests on simple arguments", () => {
-    expect(evaluateCell("A1", { A1: "=ISEVEN()" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
-    expect(evaluateCell("A1", { A1: "=ISEVEN(0)" })).toBe(true);
-    expect(evaluateCell("A1", { A1: "=ISEVEN(1)" })).toBe(false);
-    expect(evaluateCell("A1", { A1: "=ISEVEN(TRUE)" })).toBe(false);
-    expect(evaluateCell("A1", { A1: "=ISEVEN(FALSE)" })).toBe(true);
-    expect(evaluateCell("A1", { A1: '=ISEVEN("")' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
-    expect(evaluateCell("A1", { A1: '=ISEVEN(" ")' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
-    expect(evaluateCell("A1", { A1: '=ISEVEN("hello there")' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
-    expect(evaluateCell("A1", { A1: "=ISEVEN(A2)", A2: "" })).toBe(true);
-    expect(evaluateCell("A1", { A1: "=ISEVEN(A2)", A2: " " })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
-    expect(evaluateCell("A1", { A1: "=ISEVEN(A2)", A2: "0" })).toBe(true);
-    expect(evaluateCell("A1", { A1: "=ISEVEN(A2)", A2: "1" })).toBe(false);
-    expect(evaluateCell("A1", { A1: "=ISEVEN(A2)", A2: "TRUE" })).toBe(false);
-    expect(evaluateCell("A1", { A1: "=ISEVEN(A2)", A2: "FALSE" })).toBe(true);
-    expect(evaluateCell("A1", { A1: "=ISEVEN(A2)", A2: '""' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
-    expect(evaluateCell("A1", { A1: "=ISEVEN(A2)", A2: '" "' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
-    expect(evaluateCell("A1", { A1: "=ISEVEN(A2)", A2: '"42"' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
-    expect(evaluateCell("A1", { A1: "=ISEVEN(A2)", A2: '=""' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
-    expect(evaluateCell("A1", { A1: "=ISEVEN(A2)", A2: '=" "' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
-    expect(evaluateCell("A1", { A1: "=ISEVEN(A2)", A2: '="0"' })).toBe(true);
+  test("functional tests on simple arguments", async () => {
+    expect(await evaluateCell("A1", { A1: "=ISEVEN()" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+    expect(await evaluateCell("A1", { A1: "=ISEVEN(0)" })).toBe(true);
+    expect(await evaluateCell("A1", { A1: "=ISEVEN(1)" })).toBe(false);
+    expect(await evaluateCell("A1", { A1: "=ISEVEN(TRUE)" })).toBe(false);
+    expect(await evaluateCell("A1", { A1: "=ISEVEN(FALSE)" })).toBe(true);
+    expect(await evaluateCell("A1", { A1: '=ISEVEN("")' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(await evaluateCell("A1", { A1: '=ISEVEN(" ")' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(await evaluateCell("A1", { A1: '=ISEVEN("hello there")' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(await evaluateCell("A1", { A1: "=ISEVEN(A2)", A2: "" })).toBe(true);
+    expect(await evaluateCell("A1", { A1: "=ISEVEN(A2)", A2: " " })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(await evaluateCell("A1", { A1: "=ISEVEN(A2)", A2: "0" })).toBe(true);
+    expect(await evaluateCell("A1", { A1: "=ISEVEN(A2)", A2: "1" })).toBe(false);
+    expect(await evaluateCell("A1", { A1: "=ISEVEN(A2)", A2: "TRUE" })).toBe(false);
+    expect(await evaluateCell("A1", { A1: "=ISEVEN(A2)", A2: "FALSE" })).toBe(true);
+    expect(await evaluateCell("A1", { A1: "=ISEVEN(A2)", A2: '""' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(await evaluateCell("A1", { A1: "=ISEVEN(A2)", A2: '" "' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(await evaluateCell("A1", { A1: "=ISEVEN(A2)", A2: '"42"' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(await evaluateCell("A1", { A1: "=ISEVEN(A2)", A2: '=""' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(await evaluateCell("A1", { A1: "=ISEVEN(A2)", A2: '=" "' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(await evaluateCell("A1", { A1: "=ISEVEN(A2)", A2: '="0"' })).toBe(true);
   });
 });
 describe("ISODD formula", () => {
@@ -1438,30 +1523,30 @@ describe("ISODD formula", () => {
     ["2", false],
     ["2.3", false],
     ["3", true],
-  ])("take 1 parameter, return a boolean", (a, expected) => {
-    expect(evaluateCell("A1", { A1: "=ISODD(A2)", A2: a })).toBe(expected);
+  ])("take 1 parameter, return a boolean", async (a, expected) => {
+    expect(await evaluateCell("A1", { A1: "=ISODD(A2)", A2: a })).toBe(expected);
   });
-  test("functional tests on simple arguments", () => {
-    expect(evaluateCell("A1", { A1: "=ISODD()" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
-    expect(evaluateCell("A1", { A1: "=ISODD(0)" })).toBe(false);
-    expect(evaluateCell("A1", { A1: "=ISODD(1)" })).toBe(true);
-    expect(evaluateCell("A1", { A1: "=ISODD(TRUE)" })).toBe(true);
-    expect(evaluateCell("A1", { A1: "=ISODD(FALSE)" })).toBe(false);
-    expect(evaluateCell("A1", { A1: '=ISODD("")' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
-    expect(evaluateCell("A1", { A1: '=ISODD(" ")' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
-    expect(evaluateCell("A1", { A1: '=ISODD("hello there")' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
-    expect(evaluateCell("A1", { A1: "=ISODD(A2)", A2: "" })).toBe(false);
-    expect(evaluateCell("A1", { A1: "=ISODD(A2)", A2: " " })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
-    expect(evaluateCell("A1", { A1: "=ISODD(A2)", A2: "0" })).toBe(false);
-    expect(evaluateCell("A1", { A1: "=ISODD(A2)", A2: "1" })).toBe(true);
-    expect(evaluateCell("A1", { A1: "=ISODD(A2)", A2: "TRUE" })).toBe(true);
-    expect(evaluateCell("A1", { A1: "=ISODD(A2)", A2: "FALSE" })).toBe(false);
-    expect(evaluateCell("A1", { A1: "=ISODD(A2)", A2: '""' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
-    expect(evaluateCell("A1", { A1: "=ISODD(A2)", A2: '" "' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
-    expect(evaluateCell("A1", { A1: "=ISODD(A2)", A2: '"42"' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
-    expect(evaluateCell("A1", { A1: "=ISODD(A2)", A2: '=""' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
-    expect(evaluateCell("A1", { A1: "=ISODD(A2)", A2: '=" "' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
-    expect(evaluateCell("A1", { A1: "=ISODD(A2)", A2: '="0"' })).toBe(false);
+  test("functional tests on simple arguments", async () => {
+    expect(await evaluateCell("A1", { A1: "=ISODD()" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+    expect(await evaluateCell("A1", { A1: "=ISODD(0)" })).toBe(false);
+    expect(await evaluateCell("A1", { A1: "=ISODD(1)" })).toBe(true);
+    expect(await evaluateCell("A1", { A1: "=ISODD(TRUE)" })).toBe(true);
+    expect(await evaluateCell("A1", { A1: "=ISODD(FALSE)" })).toBe(false);
+    expect(await evaluateCell("A1", { A1: '=ISODD("")' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(await evaluateCell("A1", { A1: '=ISODD(" ")' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(await evaluateCell("A1", { A1: '=ISODD("hello there")' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(await evaluateCell("A1", { A1: "=ISODD(A2)", A2: "" })).toBe(false);
+    expect(await evaluateCell("A1", { A1: "=ISODD(A2)", A2: " " })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(await evaluateCell("A1", { A1: "=ISODD(A2)", A2: "0" })).toBe(false);
+    expect(await evaluateCell("A1", { A1: "=ISODD(A2)", A2: "1" })).toBe(true);
+    expect(await evaluateCell("A1", { A1: "=ISODD(A2)", A2: "TRUE" })).toBe(true);
+    expect(await evaluateCell("A1", { A1: "=ISODD(A2)", A2: "FALSE" })).toBe(false);
+    expect(await evaluateCell("A1", { A1: "=ISODD(A2)", A2: '""' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(await evaluateCell("A1", { A1: "=ISODD(A2)", A2: '" "' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(await evaluateCell("A1", { A1: "=ISODD(A2)", A2: '"42"' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(await evaluateCell("A1", { A1: "=ISODD(A2)", A2: '=""' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(await evaluateCell("A1", { A1: "=ISODD(A2)", A2: '=" "' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(await evaluateCell("A1", { A1: "=ISODD(A2)", A2: '="0"' })).toBe(false);
   });
 });
 describe("LN formula", () => {
@@ -1470,45 +1555,45 @@ describe("LN formula", () => {
     ["=EXP(1)", 1],
     ["2", 0.6931471806],
     ["9", Math.log(3) + Math.log(3)],
-  ])("take 1 parameter, return a number", (a, expected) => {
-    expect(evaluateCell("A1", { A1: "=LN(A2)", A2: a })).toBeCloseTo(expected, 9);
+  ])("take 1 parameter, return a number", async (a, expected) => {
+    expect(await evaluateCell("A1", { A1: "=LN(A2)", A2: a })).toBeCloseTo(expected, 9);
   });
-  test.each([["0"], ["-42"]])("take 1 parameter(s), return an error", (a) => {
-    expect(evaluateCell("A1", { A1: "=LN(A2)", A2: a })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+  test.each([["0"], ["-42"]])("take 1 parameter(s), return an error", async (a) => {
+    expect(await evaluateCell("A1", { A1: "=LN(A2)", A2: a })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
   });
-  test("special value testing", () => {
-    expect(evaluateCell("A1", { A1: "=LN()" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
-    expect(evaluateCell("A1", { A1: "=LN(TRUE)" })).toBeCloseTo(0, 9);
-    expect(evaluateCell("A1", { A1: "=LN(FALSE)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
-    expect(evaluateCell("A1", { A1: '=LN("")' })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
-    expect(evaluateCell("A1", { A1: '=LN(" ")' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
-    expect(evaluateCell("A1", { A1: '=LN("1")' })).toBeCloseTo(0, 9);
-    expect(evaluateCell("A1", { A1: "=LN(A2)", A2: "" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
-    expect(evaluateCell("A1", { A1: "=LN(A2)", A2: " " })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
-    expect(evaluateCell("A1", { A1: "=LN(A2)", A2: "1" })).toBeCloseTo(0, 9);
-    expect(evaluateCell("A1", { A1: "=LN(A2)", A2: '""' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
-    expect(evaluateCell("A1", { A1: "=LN(A2)", A2: '" "' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
-    expect(evaluateCell("A1", { A1: "=LN(A2)", A2: '"1"' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
-    expect(evaluateCell("A1", { A1: "=LN(A2)", A2: '=""' })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
-    expect(evaluateCell("A1", { A1: "=LN(A2)", A2: '=" "' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
-    expect(evaluateCell("A1", { A1: "=LN(A2)", A2: '="1"' })).toBeCloseTo(0, 9);
+  test("special value testing", async () => {
+    expect(await evaluateCell("A1", { A1: "=LN()" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+    expect(await evaluateCell("A1", { A1: "=LN(TRUE)" })).toBeCloseTo(0, 9);
+    expect(await evaluateCell("A1", { A1: "=LN(FALSE)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+    expect(await evaluateCell("A1", { A1: '=LN("")' })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+    expect(await evaluateCell("A1", { A1: '=LN(" ")' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(await evaluateCell("A1", { A1: '=LN("1")' })).toBeCloseTo(0, 9);
+    expect(await evaluateCell("A1", { A1: "=LN(A2)", A2: "" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+    expect(await evaluateCell("A1", { A1: "=LN(A2)", A2: " " })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(await evaluateCell("A1", { A1: "=LN(A2)", A2: "1" })).toBeCloseTo(0, 9);
+    expect(await evaluateCell("A1", { A1: "=LN(A2)", A2: '""' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(await evaluateCell("A1", { A1: "=LN(A2)", A2: '" "' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(await evaluateCell("A1", { A1: "=LN(A2)", A2: '"1"' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(await evaluateCell("A1", { A1: "=LN(A2)", A2: '=""' })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+    expect(await evaluateCell("A1", { A1: "=LN(A2)", A2: '=" "' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(await evaluateCell("A1", { A1: "=LN(A2)", A2: '="1"' })).toBeCloseTo(0, 9);
   });
 });
 describe("LOG function", () => {
-  test("LOG takes 1-2 arguments", () => {
-    expect(evaluateCell("A1", { A1: "=LOG()" })).toBe("#BAD_EXPR");
-    expect(evaluateCell("A1", { A1: "=LOG(10)" })).toBe(1);
-    expect(evaluateCell("A1", { A1: "=LOG(10, 10)" })).toBe(1);
-    expect(evaluateCell("A1", { A1: "=LOG(10, 10, 0)" })).toBe("#BAD_EXPR");
+  test("LOG takes 1-2 arguments", async () => {
+    expect(await evaluateCell("A1", { A1: "=LOG()" })).toBe("#BAD_EXPR");
+    expect(await evaluateCell("A1", { A1: "=LOG(10)" })).toBe(1);
+    expect(await evaluateCell("A1", { A1: "=LOG(10, 10)" })).toBe(1);
+    expect(await evaluateCell("A1", { A1: "=LOG(10, 10, 0)" })).toBe("#BAD_EXPR");
   });
-  test("Value argument bust be strictly positive", () => {
-    expect(evaluateCell("A1", { A1: "=LOG(0)" })).toBe("#ERROR");
-    expect(evaluateCell("A1", { A1: "=LOG(-1)" })).toBe("#ERROR");
+  test("Value argument bust be strictly positive", async () => {
+    expect(await evaluateCell("A1", { A1: "=LOG(0)" })).toBe("#ERROR");
+    expect(await evaluateCell("A1", { A1: "=LOG(-1)" })).toBe("#ERROR");
   });
-  test("Base argument must be positive and different from 1", () => {
-    expect(evaluateCell("A1", { A1: "=LOG(10, -1)" })).toBe("#ERROR");
-    expect(evaluateCell("A1", { A1: "=LOG(10, 0)" })).toBe("#ERROR");
-    expect(evaluateCell("A1", { A1: "=LOG(10, 1)" })).toBe("#ERROR");
+  test("Base argument must be positive and different from 1", async () => {
+    expect(await evaluateCell("A1", { A1: "=LOG(10, -1)" })).toBe("#ERROR");
+    expect(await evaluateCell("A1", { A1: "=LOG(10, 0)" })).toBe("#ERROR");
+    expect(await evaluateCell("A1", { A1: "=LOG(10, 1)" })).toBe("#ERROR");
   });
   test.each([
     [1, 2, 0],
@@ -1516,8 +1601,8 @@ describe("LOG function", () => {
     [16, 2, 4],
     [5, 6, 0.898244402],
     [125.15, 0.1, -2.097430854],
-  ])("function result =LOG(%s, %s)", (arg0: number, arg1: number, expectedResult: number) => {
-    const cellValue = evaluateCell("A1", { A1: `=LOG(${arg0}, ${arg1})` });
+  ])("function result =LOG(%s, %s)", async (arg0: number, arg1: number, expectedResult: number) => {
+    const cellValue = await evaluateCell("A1", { A1: `=LOG(${arg0}, ${arg1})` });
     expect(cellValue).toBeCloseTo(expectedResult, 4);
   });
 });
@@ -1541,65 +1626,67 @@ describe("MOD formula", () => {
     ["2.2", "2", 0.2],
     ["2.2", "2.2", 0],
     ["2.2", "10", 2.2],
-  ])("take 2 parameters, return a number", (a, b, expected) => {
-    expect(evaluateCell("A1", { A1: "=MOD(A2, A3)", A2: a, A3: b })).toBeCloseTo(expected, 9);
+  ])("take 2 parameters, return a number", async (a, b, expected) => {
+    expect(await evaluateCell("A1", { A1: "=MOD(A2, A3)", A2: a, A3: b })).toBeCloseTo(expected, 9);
   });
   test.each([
     ["-42", "0"],
     ["0", "0"],
     ["2.2", "0"],
-  ])("take 2 parameters, return error on parameter 2", (a, b) => {
-    expect(evaluateCell("A1", { A1: "=MOD(A2, A3)", A2: a, A3: b })).toBe("#DIV/0!");
+  ])("take 2 parameters, return error on parameter 2", async (a, b) => {
+    expect(await evaluateCell("A1", { A1: "=MOD(A2, A3)", A2: a, A3: b })).toBe("#DIV/0!");
   });
-  test("special value testing", () => {
-    expect(evaluateCell("A1", { A1: "=MOD()" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
-    expect(evaluateCell("A1", { A1: "=MOD( , )" })).toBe("#DIV/0!");
-    expect(evaluateCell("A1", { A1: "=MOD(42, 12)" })).toBe(6);
-    expect(evaluateCell("A1", { A1: "=MOD( , 12)" })).toBe(0);
-    expect(evaluateCell("A1", { A1: "=MOD(42, )" })).toBe("#DIV/0!");
-    expect(evaluateCell("A1", { A1: "=MOD(42.42, TRUE)" })).toBeCloseTo(0.42, 9);
-    expect(evaluateCell("A1", { A1: "=MOD(42, FALSE)" })).toBe("#DIV/0!");
-    expect(evaluateCell("A1", { A1: "=MOD(TRUE, 10)" })).toBe(1);
-    expect(evaluateCell("A1", { A1: "=MOD(FALSE, 10)" })).toBe(0);
-    expect(evaluateCell("A1", { A1: '=MOD("" , "")' })).toBe("#DIV/0!");
-    expect(evaluateCell("A1", { A1: '=MOD("" , 12)' })).toBe(0);
-    expect(evaluateCell("A1", { A1: '=MOD(" " , 12)' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
-    expect(evaluateCell("A1", { A1: '=MOD("42", 12)' })).toBe(6);
-    expect(evaluateCell("A1", { A1: '=MOD("42", "12")' })).toBe(6);
-    expect(evaluateCell("A1", { A1: '=MOD("42", "")' })).toBe("#DIV/0!");
-    expect(evaluateCell("A1", { A1: "=MOD(A2, A3)", A2: "", A3: "" })).toBe("#DIV/0!");
-    expect(evaluateCell("A1", { A1: "=MOD(A2, A3)", A2: "42", A3: "12" })).toBe(6);
-    expect(evaluateCell("A1", { A1: "=MOD(A2, A3)", A2: "", A3: "12" })).toBe(0);
-    expect(evaluateCell("A1", { A1: "=MOD(A2, A3)", A2: "42", A3: "" })).toBe("#DIV/0!");
-    expect(evaluateCell("A1", { A1: "=MOD(A2, A3)", A2: "42.42", A3: "TRUE" })).toBeCloseTo(
+  test("special value testing", async () => {
+    expect(await evaluateCell("A1", { A1: "=MOD()" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+    expect(await evaluateCell("A1", { A1: "=MOD( , )" })).toBe("#DIV/0!");
+    expect(await evaluateCell("A1", { A1: "=MOD(42, 12)" })).toBe(6);
+    expect(await evaluateCell("A1", { A1: "=MOD( , 12)" })).toBe(0);
+    expect(await evaluateCell("A1", { A1: "=MOD(42, )" })).toBe("#DIV/0!");
+    expect(await evaluateCell("A1", { A1: "=MOD(42.42, TRUE)" })).toBeCloseTo(0.42, 9);
+    expect(await evaluateCell("A1", { A1: "=MOD(42, FALSE)" })).toBe("#DIV/0!");
+    expect(await evaluateCell("A1", { A1: "=MOD(TRUE, 10)" })).toBe(1);
+    expect(await evaluateCell("A1", { A1: "=MOD(FALSE, 10)" })).toBe(0);
+    expect(await evaluateCell("A1", { A1: '=MOD("" , "")' })).toBe("#DIV/0!");
+    expect(await evaluateCell("A1", { A1: '=MOD("" , 12)' })).toBe(0);
+    expect(await evaluateCell("A1", { A1: '=MOD(" " , 12)' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(await evaluateCell("A1", { A1: '=MOD("42", 12)' })).toBe(6);
+    expect(await evaluateCell("A1", { A1: '=MOD("42", "12")' })).toBe(6);
+    expect(await evaluateCell("A1", { A1: '=MOD("42", "")' })).toBe("#DIV/0!");
+    expect(await evaluateCell("A1", { A1: "=MOD(A2, A3)", A2: "", A3: "" })).toBe("#DIV/0!");
+    expect(await evaluateCell("A1", { A1: "=MOD(A2, A3)", A2: "42", A3: "12" })).toBe(6);
+    expect(await evaluateCell("A1", { A1: "=MOD(A2, A3)", A2: "", A3: "12" })).toBe(0);
+    expect(await evaluateCell("A1", { A1: "=MOD(A2, A3)", A2: "42", A3: "" })).toBe("#DIV/0!");
+    expect(await evaluateCell("A1", { A1: "=MOD(A2, A3)", A2: "42.42", A3: "TRUE" })).toBeCloseTo(
       0.42,
       9
     );
-    expect(evaluateCell("A1", { A1: "=MOD(A2, A3)", A2: "42.42", A3: "FALSE" })).toBe("#DIV/0!");
-    expect(evaluateCell("A1", { A1: "=MOD(A2, A3)", A2: "TRUE", A3: "10" })).toBe(1);
-    expect(evaluateCell("A1", { A1: "=MOD(A2, A3)", A2: "FALSE", A3: "10" })).toBe(0);
-    expect(evaluateCell("A1", { A1: "=MOD(A2, A3)", A2: '"42"', A3: '"12"' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
-    expect(evaluateCell("A1", { A1: "=MOD(A2, A3)", A2: '=""', A3: '="2"' })).toBe(0);
-    expect(evaluateCell("A1", { A1: "=MOD(A2, A3)", A2: '="42"', A3: '="36"' })).toBe(6);
+    expect(await evaluateCell("A1", { A1: "=MOD(A2, A3)", A2: "42.42", A3: "FALSE" })).toBe(
+      "#DIV/0!"
+    );
+    expect(await evaluateCell("A1", { A1: "=MOD(A2, A3)", A2: "TRUE", A3: "10" })).toBe(1);
+    expect(await evaluateCell("A1", { A1: "=MOD(A2, A3)", A2: "FALSE", A3: "10" })).toBe(0);
+    expect(await evaluateCell("A1", { A1: "=MOD(A2, A3)", A2: '"42"', A3: '"12"' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(await evaluateCell("A1", { A1: "=MOD(A2, A3)", A2: '=""', A3: '="2"' })).toBe(0);
+    expect(await evaluateCell("A1", { A1: "=MOD(A2, A3)", A2: '="42"', A3: '="36"' })).toBe(6);
   });
-  test("result format depends on 1st argument", () => {
-    expect(evaluateCellFormat("A1", { A1: "=MOD(A2, 12)", A2: "42" })).toBe("");
-    expect(evaluateCellFormat("A1", { A1: "=MOD(A2, 12)", A2: "4200%" })).toBe("0%");
+  test("result format depends on 1st argument", async () => {
+    expect(await evaluateCellFormat("A1", { A1: "=MOD(A2, 12)", A2: "42" })).toBe("");
+    expect(await evaluateCellFormat("A1", { A1: "=MOD(A2, 12)", A2: "4200%" })).toBe("0%");
   });
 });
 describe("MUNIT function", () => {
-  test("MUNIT takes 1 arguments", () => {
-    expect(evaluateCell("A1", { A1: "=MUNIT()" })).toBe("#BAD_EXPR");
-    expect(evaluateCell("A1", { A1: "=MUNIT(2)" })).toBe(1);
-    expect(evaluateCell("A1", { A1: "=MUNIT(2, 0)" })).toBe("#BAD_EXPR");
+  test("MUNIT takes 1 arguments", async () => {
+    expect(await evaluateCell("A1", { A1: "=MUNIT()" })).toBe("#BAD_EXPR");
+    expect(await evaluateCell("A1", { A1: "=MUNIT(2)" })).toBe(1);
+    expect(await evaluateCell("A1", { A1: "=MUNIT(2, 0)" })).toBe("#BAD_EXPR");
   });
-  test("Argument should be a positive number", () => {
-    expect(evaluateCell("A1", { A1: "=MUNIT(0)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
-    expect(evaluateCell("A1", { A1: "=MUNIT(-1)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
-    expect(evaluateCell("A1", { A1: '=MUNIT("hello")' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+  test("Argument should be a positive number", async () => {
+    expect(await evaluateCell("A1", { A1: "=MUNIT(0)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(await evaluateCell("A1", { A1: "=MUNIT(-1)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(await evaluateCell("A1", { A1: '=MUNIT("hello")' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
   });
-  test("Generate unit matrix", () => {
-    const model = createModel();
+  test("Generate unit matrix", async () => {
+    const model = await createModel();
     setCellContent(model, "D1", "=MUNIT(3)");
     expect(getRangeValuesAsMatrix(model, "D1:F3")).toEqual([
       [1, 0, 0],
@@ -1624,39 +1711,39 @@ describe("ODD formula", () => {
     ["3", 3],
     ["3.1", 5],
     ["3.9", 5],
-  ])("take 1 parameter, return a number", (a, expected) => {
-    expect(evaluateCell("A1", { A1: "=ODD(A2)", A2: a })).toBe(expected);
+  ])("take 1 parameter, return a number", async (a, expected) => {
+    expect(await evaluateCell("A1", { A1: "=ODD(A2)", A2: a })).toBe(expected);
   });
-  test("functional tests on simple arguments", () => {
-    expect(evaluateCell("A1", { A1: "=ODD()" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
-    expect(evaluateCell("A1", { A1: "=ODD(0)" })).toBe(1);
-    expect(evaluateCell("A1", { A1: "=ODD(2)" })).toBe(3);
-    expect(evaluateCell("A1", { A1: "=ODD(TRUE)" })).toBe(1);
-    expect(evaluateCell("A1", { A1: "=ODD(FALSE)" })).toBe(1);
-    expect(evaluateCell("A1", { A1: '=ODD("")' })).toBe(1);
-    expect(evaluateCell("A1", { A1: '=ODD(" ")' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
-    expect(evaluateCell("A1", { A1: '=ODD("hello there")' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
-    expect(evaluateCell("A1", { A1: "=ODD(A2)", A2: "" })).toBe(1);
-    expect(evaluateCell("A1", { A1: "=ODD(A2)", A2: " " })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
-    expect(evaluateCell("A1", { A1: "=ODD(A2)", A2: "0" })).toBe(1);
-    expect(evaluateCell("A1", { A1: "=ODD(A2)", A2: "2" })).toBe(3);
-    expect(evaluateCell("A1", { A1: "=ODD(A2)", A2: "TRUE" })).toBe(1);
-    expect(evaluateCell("A1", { A1: "=ODD(A2)", A2: "FALSE" })).toBe(1);
-    expect(evaluateCell("A1", { A1: "=ODD(A2)", A2: '""' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
-    expect(evaluateCell("A1", { A1: "=ODD(A2)", A2: '" "' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
-    expect(evaluateCell("A1", { A1: "=ODD(A2)", A2: '"42"' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
-    expect(evaluateCell("A1", { A1: "=ODD(A2)", A2: '=""' })).toBe(1);
-    expect(evaluateCell("A1", { A1: "=ODD(A2)", A2: '=" "' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
-    expect(evaluateCell("A1", { A1: "=ODD(A2)", A2: '="42"' })).toBe(43);
+  test("functional tests on simple arguments", async () => {
+    expect(await evaluateCell("A1", { A1: "=ODD()" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+    expect(await evaluateCell("A1", { A1: "=ODD(0)" })).toBe(1);
+    expect(await evaluateCell("A1", { A1: "=ODD(2)" })).toBe(3);
+    expect(await evaluateCell("A1", { A1: "=ODD(TRUE)" })).toBe(1);
+    expect(await evaluateCell("A1", { A1: "=ODD(FALSE)" })).toBe(1);
+    expect(await evaluateCell("A1", { A1: '=ODD("")' })).toBe(1);
+    expect(await evaluateCell("A1", { A1: '=ODD(" ")' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(await evaluateCell("A1", { A1: '=ODD("hello there")' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(await evaluateCell("A1", { A1: "=ODD(A2)", A2: "" })).toBe(1);
+    expect(await evaluateCell("A1", { A1: "=ODD(A2)", A2: " " })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(await evaluateCell("A1", { A1: "=ODD(A2)", A2: "0" })).toBe(1);
+    expect(await evaluateCell("A1", { A1: "=ODD(A2)", A2: "2" })).toBe(3);
+    expect(await evaluateCell("A1", { A1: "=ODD(A2)", A2: "TRUE" })).toBe(1);
+    expect(await evaluateCell("A1", { A1: "=ODD(A2)", A2: "FALSE" })).toBe(1);
+    expect(await evaluateCell("A1", { A1: "=ODD(A2)", A2: '""' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(await evaluateCell("A1", { A1: "=ODD(A2)", A2: '" "' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(await evaluateCell("A1", { A1: "=ODD(A2)", A2: '"42"' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(await evaluateCell("A1", { A1: "=ODD(A2)", A2: '=""' })).toBe(1);
+    expect(await evaluateCell("A1", { A1: "=ODD(A2)", A2: '=" "' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(await evaluateCell("A1", { A1: "=ODD(A2)", A2: '="42"' })).toBe(43);
   });
-  test("result format depends on 1st argument", () => {
-    expect(evaluateCellFormat("A1", { A1: "=ODD(A2)", A2: "42" })).toBe("");
-    expect(evaluateCellFormat("A1", { A2: "4200%", A1: "=ODD(A2)" })).toBe("0%");
+  test("result format depends on 1st argument", async () => {
+    expect(await evaluateCellFormat("A1", { A1: "=ODD(A2)", A2: "42" })).toBe("");
+    expect(await evaluateCellFormat("A1", { A2: "4200%", A1: "=ODD(A2)" })).toBe("0%");
   });
 });
 describe("PI formula", () => {
-  test("functional test", () => {
-    expect(evaluateCell("A1", { A1: "=PI()" })).toBeCloseTo(Math.PI, 9); // @compatibility: on google sheets return 3.14159265358979
+  test("functional test", async () => {
+    expect(await evaluateCell("A1", { A1: "=PI()" })).toBeCloseTo(Math.PI, 9); // @compatibility: on google sheets return 3.14159265358979
   });
 });
 describe("POWER formula", () => {
@@ -1672,121 +1759,132 @@ describe("POWER formula", () => {
     ["4", "0.5", 2],
     ["4", "-0.5", 0.5],
     ["4", "-2", 0.0625],
-  ])("take 2 parameters, return a number", (a, b, expected) => {
-    expect(evaluateCell("A1", { A1: "=POWER(A2, A3)", A2: a, A3: b })).toBe(expected);
+  ])("take 2 parameters, return a number", async (a, b, expected) => {
+    expect(await evaluateCell("A1", { A1: "=POWER(A2, A3)", A2: a, A3: b })).toBe(expected);
   });
   test.each([
     ["-4", "0.5"],
     ["-4", "1.5"],
     ["-4", "0.2"],
-  ])("take 2 parameters, return an error on parameter 2", (a, b) => {
-    expect(evaluateCell("A1", { A1: "=POWER(A2, A3)", A2: a, A3: b })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+  ])("take 2 parameters, return an error on parameter 2", async (a, b) => {
+    expect(await evaluateCell("A1", { A1: "=POWER(A2, A3)", A2: a, A3: b })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
   });
-  test("special value testing", () => {
-    expect(evaluateCell("A1", { A1: "=POWER()" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
-    expect(evaluateCell("A1", { A1: "=POWER( , )" })).toBe(1);
-    expect(evaluateCell("A1", { A1: "=POWER(42, 2)" })).toBe(1764);
-    expect(evaluateCell("A1", { A1: "=POWER( , 12)" })).toBe(0);
-    expect(evaluateCell("A1", { A1: "=POWER(42, )" })).toBe(1);
-    expect(evaluateCell("A1", { A1: "=POWER(42.42, TRUE)" })).toBe(42.42);
-    expect(evaluateCell("A1", { A1: "=POWER(42.42, FALSE)" })).toBe(1);
-    expect(evaluateCell("A1", { A1: "=POWER(TRUE, 10)" })).toBe(1);
-    expect(evaluateCell("A1", { A1: "=POWER(FALSE, 10)" })).toBe(0);
-    expect(evaluateCell("A1", { A1: '=POWER("" , "")' })).toBe(1);
-    expect(evaluateCell("A1", { A1: '=POWER("" , 12)' })).toBe(0);
-    expect(evaluateCell("A1", { A1: '=POWER(" " , 12)' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
-    expect(evaluateCell("A1", { A1: '=POWER("42", 2)' })).toBe(1764);
-    expect(evaluateCell("A1", { A1: '=POWER("42", "2")' })).toBe(1764);
-    expect(evaluateCell("A1", { A1: '=POWER("42", "")' })).toBe(1);
-    expect(evaluateCell("A1", { A1: "=POWER(A2, A3)", A2: "", A3: "" })).toBe(1);
-    expect(evaluateCell("A1", { A1: "=POWER(A2, A3)", A2: "42", A3: "2" })).toBe(1764);
-    expect(evaluateCell("A1", { A1: "=POWER(A2, A3)", A2: "", A3: "12" })).toBe(0);
-    expect(evaluateCell("A1", { A1: "=POWER(A2, A3)", A2: "42", A3: "" })).toBe(1);
-    expect(evaluateCell("A1", { A1: "=POWER(A2, A3)", A2: "42.42", A3: "TRUE" })).toBe(42.42);
-    expect(evaluateCell("A1", { A1: "=POWER(A2, A3)", A2: "42.42", A3: "FALSE" })).toBe(1);
-    expect(evaluateCell("A1", { A1: "=POWER(A2, A3)", A2: "TRUE", A3: "10" })).toBe(1);
-    expect(evaluateCell("A1", { A1: "=POWER(A2, A3)", A2: "FALSE", A3: "10" })).toBe(0);
-    expect(evaluateCell("A1", { A1: "=POWER(A2, A3)", A2: '"42"', A3: '"12"' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
-    expect(evaluateCell("A1", { A1: "=POWER(A2, A3)", A2: '=""', A3: '="2"' })).toBe(0);
-    expect(evaluateCell("A1", { A1: "=POWER(A2, A3)", A2: '="42"', A3: '="2"' })).toBe(1764);
+  test("special value testing", async () => {
+    expect(await evaluateCell("A1", { A1: "=POWER()" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+    expect(await evaluateCell("A1", { A1: "=POWER( , )" })).toBe(1);
+    expect(await evaluateCell("A1", { A1: "=POWER(42, 2)" })).toBe(1764);
+    expect(await evaluateCell("A1", { A1: "=POWER( , 12)" })).toBe(0);
+    expect(await evaluateCell("A1", { A1: "=POWER(42, )" })).toBe(1);
+    expect(await evaluateCell("A1", { A1: "=POWER(42.42, TRUE)" })).toBe(42.42);
+    expect(await evaluateCell("A1", { A1: "=POWER(42.42, FALSE)" })).toBe(1);
+    expect(await evaluateCell("A1", { A1: "=POWER(TRUE, 10)" })).toBe(1);
+    expect(await evaluateCell("A1", { A1: "=POWER(FALSE, 10)" })).toBe(0);
+    expect(await evaluateCell("A1", { A1: '=POWER("" , "")' })).toBe(1);
+    expect(await evaluateCell("A1", { A1: '=POWER("" , 12)' })).toBe(0);
+    expect(await evaluateCell("A1", { A1: '=POWER(" " , 12)' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(await evaluateCell("A1", { A1: '=POWER("42", 2)' })).toBe(1764);
+    expect(await evaluateCell("A1", { A1: '=POWER("42", "2")' })).toBe(1764);
+    expect(await evaluateCell("A1", { A1: '=POWER("42", "")' })).toBe(1);
+    expect(await evaluateCell("A1", { A1: "=POWER(A2, A3)", A2: "", A3: "" })).toBe(1);
+    expect(await evaluateCell("A1", { A1: "=POWER(A2, A3)", A2: "42", A3: "2" })).toBe(1764);
+    expect(await evaluateCell("A1", { A1: "=POWER(A2, A3)", A2: "", A3: "12" })).toBe(0);
+    expect(await evaluateCell("A1", { A1: "=POWER(A2, A3)", A2: "42", A3: "" })).toBe(1);
+    expect(await evaluateCell("A1", { A1: "=POWER(A2, A3)", A2: "42.42", A3: "TRUE" })).toBe(42.42);
+    expect(await evaluateCell("A1", { A1: "=POWER(A2, A3)", A2: "42.42", A3: "FALSE" })).toBe(1);
+    expect(await evaluateCell("A1", { A1: "=POWER(A2, A3)", A2: "TRUE", A3: "10" })).toBe(1);
+    expect(await evaluateCell("A1", { A1: "=POWER(A2, A3)", A2: "FALSE", A3: "10" })).toBe(0);
+    expect(await evaluateCell("A1", { A1: "=POWER(A2, A3)", A2: '"42"', A3: '"12"' })).toBe(
+      "#ERROR"
+    ); // @compatibility: on google sheets, return #VALUE!
+    expect(await evaluateCell("A1", { A1: "=POWER(A2, A3)", A2: '=""', A3: '="2"' })).toBe(0);
+    expect(await evaluateCell("A1", { A1: "=POWER(A2, A3)", A2: '="42"', A3: '="2"' })).toBe(1764);
   });
-  test("result format depends on 1st argument", () => {
-    expect(evaluateCellFormat("A1", { A1: "=POWER(A2, 2)", A2: "42" })).toBe("");
-    expect(evaluateCellFormat("A1", { A1: "=POWER(A2, 2)", A2: "4200%" })).toBe("0%");
+  test("result format depends on 1st argument", async () => {
+    expect(await evaluateCellFormat("A1", { A1: "=POWER(A2, 2)", A2: "42" })).toBe("");
+    expect(await evaluateCellFormat("A1", { A1: "=POWER(A2, 2)", A2: "4200%" })).toBe("0%");
   });
 });
 describe("PRODUCT formula", () => {
-  test("functional tests on simple arguments", () => {
-    expect(evaluateCell("A1", { A1: "=PRODUCT()" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
-    expect(evaluateCell("A1", { A1: "=PRODUCT(,)" })).toBe(0);
-    expect(evaluateCell("A1", { A1: "=PRODUCT(0)" })).toBe(0);
-    expect(evaluateCell("A1", { A1: "=PRODUCT(1, 2, 3, 1, 2)" })).toBe(12);
-    expect(evaluateCell("A1", { A1: "=PRODUCT(1,  , 2,  , 3)" })).toBe(6);
-    expect(evaluateCell("A1", { A1: "=PRODUCT(1.5, 1.4)" })).toBeCloseTo(2.1);
-    expect(evaluateCell("A1", { A1: '=PRODUCT("Jean Chante", "Jean Courage")' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
-    expect(evaluateCell("A1", { A1: '=PRODUCT("")' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
-    expect(evaluateCell("A1", { A1: '=PRODUCT(" ")' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
-    expect(evaluateCell("A1", { A1: '=PRODUCT("2", "-2")' })).toBe(-4);
-    expect(evaluateCell("A1", { A1: '=PRODUCT("2", "")' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
-    expect(evaluateCell("A1", { A1: '=PRODUCT("2", " ")' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
-    expect(evaluateCell("A1", { A1: "=PRODUCT(TRUE, FALSE)" })).toBe(0);
-    expect(evaluateCell("A1", { A1: '=PRODUCT(1, "1", TRUE)' })).toBe(1);
+  test("functional tests on simple arguments", async () => {
+    expect(await evaluateCell("A1", { A1: "=PRODUCT()" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+    expect(await evaluateCell("A1", { A1: "=PRODUCT(,)" })).toBe(0);
+    expect(await evaluateCell("A1", { A1: "=PRODUCT(0)" })).toBe(0);
+    expect(await evaluateCell("A1", { A1: "=PRODUCT(1, 2, 3, 1, 2)" })).toBe(12);
+    expect(await evaluateCell("A1", { A1: "=PRODUCT(1,  , 2,  , 3)" })).toBe(6);
+    expect(await evaluateCell("A1", { A1: "=PRODUCT(1.5, 1.4)" })).toBeCloseTo(2.1);
+    expect(await evaluateCell("A1", { A1: '=PRODUCT("Jean Chante", "Jean Courage")' })).toBe(
+      "#ERROR"
+    ); // @compatibility: on google sheets, return #VALUE!
+    expect(await evaluateCell("A1", { A1: '=PRODUCT("")' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(await evaluateCell("A1", { A1: '=PRODUCT(" ")' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(await evaluateCell("A1", { A1: '=PRODUCT("2", "-2")' })).toBe(-4);
+    expect(await evaluateCell("A1", { A1: '=PRODUCT("2", "")' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(await evaluateCell("A1", { A1: '=PRODUCT("2", " ")' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(await evaluateCell("A1", { A1: "=PRODUCT(TRUE, FALSE)" })).toBe(0);
+    expect(await evaluateCell("A1", { A1: '=PRODUCT(1, "1", TRUE)' })).toBe(1);
   });
-  test("functional tests on cell arguments", () => {
-    expect(evaluateCell("A1", { A1: "=PRODUCT(A2)", A2: "" })).toBe(0);
-    expect(evaluateCell("A1", { A1: "=PRODUCT(A2)", A2: " " })).toBe(0);
-    expect(evaluateCell("A1", { A1: "=PRODUCT(A2)", A2: "," })).toBe(0);
-    expect(evaluateCell("A1", { A1: "=PRODUCT(A2)", A2: "0" })).toBe(0);
-    expect(evaluateCell("A1", { A1: "=PRODUCT(A2, A3)", A2: "1", A3: "2" })).toBe(2);
-    expect(evaluateCell("A1", { A1: "=PRODUCT(A2, A3, A4)", A2: "1", A3: "", A4: "1" })).toBe(1);
+  test("functional tests on cell arguments", async () => {
+    expect(await evaluateCell("A1", { A1: "=PRODUCT(A2)", A2: "" })).toBe(0);
+    expect(await evaluateCell("A1", { A1: "=PRODUCT(A2)", A2: " " })).toBe(0);
+    expect(await evaluateCell("A1", { A1: "=PRODUCT(A2)", A2: "," })).toBe(0);
+    expect(await evaluateCell("A1", { A1: "=PRODUCT(A2)", A2: "0" })).toBe(0);
+    expect(await evaluateCell("A1", { A1: "=PRODUCT(A2, A3)", A2: "1", A3: "2" })).toBe(2);
+    expect(await evaluateCell("A1", { A1: "=PRODUCT(A2, A3, A4)", A2: "1", A3: "", A4: "1" })).toBe(
+      1
+    );
     expect(
-      evaluateCell("A1", { A1: "=PRODUCT(A2, A3, A4)", A2: "1.5", A3: "-10", A4: "Jean Brasse" })
+      await evaluateCell("A1", {
+        A1: "=PRODUCT(A2, A3, A4)",
+        A2: "1.5",
+        A3: "-10",
+        A4: "Jean Brasse",
+      })
     ).toBe(-15);
-    expect(evaluateCell("A1", { A1: "=PRODUCT(A2, A3)", A2: "", A3: "" })).toBe(0);
-    expect(evaluateCell("A1", { A1: "=PRODUCT(A2, A3)", A2: " ", A3: "" })).toBe(0);
-    expect(evaluateCell("A1", { A1: "=PRODUCT(A2, A3)", A2: "", A3: '=" "' })).toBe(0);
-    expect(evaluateCell("A1", { A1: "=PRODUCT(A2, A3)", A2: " ", A3: '=" "' })).toBe(0);
-    expect(evaluateCell("A1", { A1: "=PRODUCT(A2, A3)", A2: "  ", A3: '=" "' })).toBe(0);
-    expect(evaluateCell("A1", { A1: "=PRODUCT(A2, A3)", A2: " ", A3: '="  "' })).toBe(0);
-    expect(evaluateCell("A1", { A1: "=PRODUCT(A2, A3)", A2: "42", A3: "42" })).toBe(1764);
-    expect(evaluateCell("A1", { A1: "=PRODUCT(A2, A3)", A2: "42", A3: '"42"' })).toBe(42);
-    expect(evaluateCell("A1", { A1: "=PRODUCT(A2, A3)", A2: "42", A3: "=42" })).toBe(1764);
-    expect(evaluateCell("A1", { A1: "=PRODUCT(A2, A3)", A2: "42", A3: '="42"' })).toBe(42);
-    expect(evaluateCell("A1", { A1: "=PRODUCT(A2, A3)", A2: '"42"', A3: '"42"' })).toBe(0);
-    expect(evaluateCell("A1", { A1: "=PRODUCT(A2, A3)", A2: '"42"', A3: "=42" })).toBe(42);
-    expect(evaluateCell("A1", { A1: "=PRODUCT(A2, A3)", A2: '"42"', A3: '="42"' })).toBe(0);
-    expect(evaluateCell("A1", { A1: "=PRODUCT(A2, A3)", A2: "=42", A3: "=42" })).toBe(1764);
-    expect(evaluateCell("A1", { A1: "=PRODUCT(A2, A3)", A2: "=42", A3: '="42"' })).toBe(42);
-    expect(evaluateCell("A1", { A1: "=PRODUCT(A2, A3)", A2: '="42"', A3: '="42"' })).toBe(0);
+    expect(await evaluateCell("A1", { A1: "=PRODUCT(A2, A3)", A2: "", A3: "" })).toBe(0);
+    expect(await evaluateCell("A1", { A1: "=PRODUCT(A2, A3)", A2: " ", A3: "" })).toBe(0);
+    expect(await evaluateCell("A1", { A1: "=PRODUCT(A2, A3)", A2: "", A3: '=" "' })).toBe(0);
+    expect(await evaluateCell("A1", { A1: "=PRODUCT(A2, A3)", A2: " ", A3: '=" "' })).toBe(0);
+    expect(await evaluateCell("A1", { A1: "=PRODUCT(A2, A3)", A2: "  ", A3: '=" "' })).toBe(0);
+    expect(await evaluateCell("A1", { A1: "=PRODUCT(A2, A3)", A2: " ", A3: '="  "' })).toBe(0);
+    expect(await evaluateCell("A1", { A1: "=PRODUCT(A2, A3)", A2: "42", A3: "42" })).toBe(1764);
+    expect(await evaluateCell("A1", { A1: "=PRODUCT(A2, A3)", A2: "42", A3: '"42"' })).toBe(42);
+    expect(await evaluateCell("A1", { A1: "=PRODUCT(A2, A3)", A2: "42", A3: "=42" })).toBe(1764);
+    expect(await evaluateCell("A1", { A1: "=PRODUCT(A2, A3)", A2: "42", A3: '="42"' })).toBe(42);
+    expect(await evaluateCell("A1", { A1: "=PRODUCT(A2, A3)", A2: '"42"', A3: '"42"' })).toBe(0);
+    expect(await evaluateCell("A1", { A1: "=PRODUCT(A2, A3)", A2: '"42"', A3: "=42" })).toBe(42);
+    expect(await evaluateCell("A1", { A1: "=PRODUCT(A2, A3)", A2: '"42"', A3: '="42"' })).toBe(0);
+    expect(await evaluateCell("A1", { A1: "=PRODUCT(A2, A3)", A2: "=42", A3: "=42" })).toBe(1764);
+    expect(await evaluateCell("A1", { A1: "=PRODUCT(A2, A3)", A2: "=42", A3: '="42"' })).toBe(42);
+    expect(await evaluateCell("A1", { A1: "=PRODUCT(A2, A3)", A2: '="42"', A3: '="42"' })).toBe(0);
   });
-  test("functional tests on simple and cell arguments", () => {
-    expect(evaluateCell("A1", { A1: "=PRODUCT(A2,)", A2: "" })).toBe(0);
-    expect(evaluateCell("A1", { A1: "=PRODUCT(A2,)", A2: " " })).toBe(0);
-    expect(evaluateCell("A1", { A1: "=PRODUCT(A2,)", A2: '=""' })).toBe(0);
-    expect(evaluateCell("A1", { A1: "=PRODUCT(A2,)", A2: '=" "' })).toBe(0);
-    expect(evaluateCell("A1", { A1: '=PRODUCT(A2, "")', A2: "" })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
-    expect(evaluateCell("A1", { A1: '=PRODUCT(A2, "")', A2: " " })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
-    expect(evaluateCell("A1", { A1: '=PRODUCT(A2, "")', A2: '=""' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
-    expect(evaluateCell("A1", { A1: '=PRODUCT(A2, "")', A2: '=" "' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
-    expect(evaluateCell("A1", { A1: '=PRODUCT(A2, " ")', A2: "" })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
-    expect(evaluateCell("A1", { A1: '=PRODUCT(A2, " ")', A2: " " })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
-    expect(evaluateCell("A1", { A1: '=PRODUCT(A2, " ")', A2: '=""' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
-    expect(evaluateCell("A1", { A1: '=PRODUCT(A2, " ")', A2: '=" "' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
-    expect(evaluateCell("A1", { A1: '=PRODUCT(42, "42")' })).toBe(1764);
-    expect(evaluateCell("A1", { A1: "=PRODUCT(A2, 42)", A2: "42" })).toBe(1764);
-    expect(evaluateCell("A1", { A1: "=PRODUCT(A2, 42)", A2: '"42"' })).toBe(42);
-    expect(evaluateCell("A1", { A1: "=PRODUCT(A2, 42)", A2: "=42" })).toBe(1764);
-    expect(evaluateCell("A1", { A1: "=PRODUCT(A2, 42)", A2: '="42"' })).toBe(42);
-    expect(evaluateCell("A1", { A1: '=PRODUCT(A2, "42")', A2: "42" })).toBe(1764);
-    expect(evaluateCell("A1", { A1: '=PRODUCT(A2, "42")', A2: '"42"' })).toBe(42);
-    expect(evaluateCell("A1", { A1: '=PRODUCT(A2, "42")', A2: "=42" })).toBe(1764);
-    expect(evaluateCell("A1", { A1: '=PRODUCT(A2, "42")', A2: '="42"' })).toBe(42);
-    expect(evaluateCell("A1", { A1: "=PRODUCT(A2, TRUE)", A2: "1" })).toBe(1);
-    expect(evaluateCell("A1", { A1: "=PRODUCT(A2, TRUE)", A2: '"1"' })).toBe(1);
-    expect(evaluateCell("A1", { A1: "=PRODUCT(A2, TRUE)", A2: "=1" })).toBe(1);
-    expect(evaluateCell("A1", { A1: "=PRODUCT(A2, TRUE)", A2: '="1"' })).toBe(1);
+  test("functional tests on simple and cell arguments", async () => {
+    expect(await evaluateCell("A1", { A1: "=PRODUCT(A2,)", A2: "" })).toBe(0);
+    expect(await evaluateCell("A1", { A1: "=PRODUCT(A2,)", A2: " " })).toBe(0);
+    expect(await evaluateCell("A1", { A1: "=PRODUCT(A2,)", A2: '=""' })).toBe(0);
+    expect(await evaluateCell("A1", { A1: "=PRODUCT(A2,)", A2: '=" "' })).toBe(0);
+    expect(await evaluateCell("A1", { A1: '=PRODUCT(A2, "")', A2: "" })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(await evaluateCell("A1", { A1: '=PRODUCT(A2, "")', A2: " " })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(await evaluateCell("A1", { A1: '=PRODUCT(A2, "")', A2: '=""' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(await evaluateCell("A1", { A1: '=PRODUCT(A2, "")', A2: '=" "' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(await evaluateCell("A1", { A1: '=PRODUCT(A2, " ")', A2: "" })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(await evaluateCell("A1", { A1: '=PRODUCT(A2, " ")', A2: " " })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(await evaluateCell("A1", { A1: '=PRODUCT(A2, " ")', A2: '=""' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(await evaluateCell("A1", { A1: '=PRODUCT(A2, " ")', A2: '=" "' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(await evaluateCell("A1", { A1: '=PRODUCT(42, "42")' })).toBe(1764);
+    expect(await evaluateCell("A1", { A1: "=PRODUCT(A2, 42)", A2: "42" })).toBe(1764);
+    expect(await evaluateCell("A1", { A1: "=PRODUCT(A2, 42)", A2: '"42"' })).toBe(42);
+    expect(await evaluateCell("A1", { A1: "=PRODUCT(A2, 42)", A2: "=42" })).toBe(1764);
+    expect(await evaluateCell("A1", { A1: "=PRODUCT(A2, 42)", A2: '="42"' })).toBe(42);
+    expect(await evaluateCell("A1", { A1: '=PRODUCT(A2, "42")', A2: "42" })).toBe(1764);
+    expect(await evaluateCell("A1", { A1: '=PRODUCT(A2, "42")', A2: '"42"' })).toBe(42);
+    expect(await evaluateCell("A1", { A1: '=PRODUCT(A2, "42")', A2: "=42" })).toBe(1764);
+    expect(await evaluateCell("A1", { A1: '=PRODUCT(A2, "42")', A2: '="42"' })).toBe(42);
+    expect(await evaluateCell("A1", { A1: "=PRODUCT(A2, TRUE)", A2: "1" })).toBe(1);
+    expect(await evaluateCell("A1", { A1: "=PRODUCT(A2, TRUE)", A2: '"1"' })).toBe(1);
+    expect(await evaluateCell("A1", { A1: "=PRODUCT(A2, TRUE)", A2: "=1" })).toBe(1);
+    expect(await evaluateCell("A1", { A1: "=PRODUCT(A2, TRUE)", A2: '="1"' })).toBe(1);
   });
-  test("functional tests on range arguments", () => {
+  test("functional tests on range arguments", async () => {
     const grid = {
       A1: "=PRODUCT(B2:D3,B4:D4,E2:E3,E4)",
       A2: "=PRODUCT(B2:E2)",
@@ -1809,7 +1907,7 @@ describe("PRODUCT formula", () => {
       D4: '=""',
       E4: '" "',
     };
-    const gridResult = evaluateGrid(grid);
+    const gridResult = await evaluateGrid(grid);
     expect(gridResult.A1).toBe(0);
     expect(gridResult.A2).toBe(9);
     expect(gridResult.A3).toBe(0);
@@ -1819,82 +1917,88 @@ describe("PRODUCT formula", () => {
     expect(gridResult.D1).toBe(0);
     expect(gridResult.E1).toBe(0);
   });
-  test("result format depends on 1st argument", () => {
-    expect(evaluateCellFormat("A1", { A1: "=PRODUCT(A2, 2)", A2: "42" })).toBe("");
-    expect(evaluateCellFormat("A1", { A1: "=PRODUCT(A2:A3)", A2: "42%", A3: "1" })).toBe("0%");
-    expect(evaluateCellFormat("A1", { A1: "=PRODUCT(A2:A3)", A2: "1", A3: "42%" })).toBe("");
+  test("result format depends on 1st argument", async () => {
+    expect(await evaluateCellFormat("A1", { A1: "=PRODUCT(A2, 2)", A2: "42" })).toBe("");
+    expect(await evaluateCellFormat("A1", { A1: "=PRODUCT(A2:A3)", A2: "42%", A3: "1" })).toBe(
+      "0%"
+    );
+    expect(await evaluateCellFormat("A1", { A1: "=PRODUCT(A2:A3)", A2: "1", A3: "42%" })).toBe("");
   });
-  test("PRODUCT does not accept error in values", () => {
-    expect(evaluateCell("A1", { A1: "=PRODUCT(1, KABOUM)" })).toBe("#BAD_EXPR");
-    expect(evaluateCell("A1", { A1: "=PRODUCT(1, A2)", A2: "=KABOUM" })).toBe("#BAD_EXPR");
+  test("PRODUCT does not accept error in values", async () => {
+    expect(await evaluateCell("A1", { A1: "=PRODUCT(1, KABOUM)" })).toBe("#BAD_EXPR");
+    expect(await evaluateCell("A1", { A1: "=PRODUCT(1, A2)", A2: "=KABOUM" })).toBe("#BAD_EXPR");
   });
 });
 describe("RAND formula", () => {
-  test("return a number", () => {
-    expect(evaluateCell("A1", { A1: "=RAND()" })).toBeGreaterThanOrEqual(0);
-    expect(evaluateCell("A1", { A1: "=RAND()" })).toBeLessThan(1);
+  test("return a number", async () => {
+    expect(await evaluateCell("A1", { A1: "=RAND()" })).toBeGreaterThanOrEqual(0);
+    expect(await evaluateCell("A1", { A1: "=RAND()" })).toBeLessThan(1);
   });
 });
 describe("RANDARRAY function", () => {
-  test("RANDARRAY takes 0-5 arguments", () => {
+  test("RANDARRAY takes 0-5 arguments", async () => {
     // @compatibility: on google sheets there is only 2 arguments
-    expect(evaluateCell("A1", { A1: "=RANDARRAY()" })).toBeBetween(0, 1);
-    expect(evaluateCell("A1", { A1: "=RANDARRAY(2)" })).toBeBetween(0, 1);
-    expect(evaluateCell("A1", { A1: "=RANDARRAY(2, 2)" })).toBeBetween(0, 1);
-    expect(evaluateCell("A1", { A1: "=RANDARRAY(2, 2, 0)" })).toBeBetween(0, 1);
-    expect(evaluateCell("A1", { A1: "=RANDARRAY(2, 2, 0, 1)" })).toBeBetween(0, 1);
-    expect(evaluateCell("A1", { A1: "=RANDARRAY(2, 2, 0, 1, FALSE)" })).toBeBetween(0, 1);
-    expect(evaluateCell("A1", { A1: "=RANDARRAY(2, 2, 0, 0, 1, FALSE, 5)" })).toBe("#BAD_EXPR");
+    expect(await evaluateCell("A1", { A1: "=RANDARRAY()" })).toBeBetween(0, 1);
+    expect(await evaluateCell("A1", { A1: "=RANDARRAY(2)" })).toBeBetween(0, 1);
+    expect(await evaluateCell("A1", { A1: "=RANDARRAY(2, 2)" })).toBeBetween(0, 1);
+    expect(await evaluateCell("A1", { A1: "=RANDARRAY(2, 2, 0)" })).toBeBetween(0, 1);
+    expect(await evaluateCell("A1", { A1: "=RANDARRAY(2, 2, 0, 1)" })).toBeBetween(0, 1);
+    expect(await evaluateCell("A1", { A1: "=RANDARRAY(2, 2, 0, 1, FALSE)" })).toBeBetween(0, 1);
+    expect(await evaluateCell("A1", { A1: "=RANDARRAY(2, 2, 0, 0, 1, FALSE, 5)" })).toBe(
+      "#BAD_EXPR"
+    );
   });
-  test("cols and rows arguments must be > 0", () => {
-    expect(evaluateCell("A1", { A1: "=RANDARRAY(0, 1)" })).toBe("#ERROR");
-    expect(evaluateCell("A1", { A1: "=RANDARRAY(-1, 1)" })).toBe("#ERROR");
-    expect(evaluateCell("A1", { A1: "=RANDARRAY(1, 0)" })).toBe("#ERROR");
-    expect(evaluateCell("A1", { A1: "=RANDARRAY(1, -1)" })).toBe("#ERROR");
+  test("cols and rows arguments must be > 0", async () => {
+    expect(await evaluateCell("A1", { A1: "=RANDARRAY(0, 1)" })).toBe("#ERROR");
+    expect(await evaluateCell("A1", { A1: "=RANDARRAY(-1, 1)" })).toBe("#ERROR");
+    expect(await evaluateCell("A1", { A1: "=RANDARRAY(1, 0)" })).toBe("#ERROR");
+    expect(await evaluateCell("A1", { A1: "=RANDARRAY(1, -1)" })).toBe("#ERROR");
   });
-  test("Max argument must be >= min", () => {
-    expect(evaluateCell("A1", { A1: "=RANDARRAY(1, 1, 3, 1)" })).toBe("#ERROR");
-    expect(evaluateCell("A1", { A1: "=RANDARRAY(1, 1, 3, 3)" })).not.toBe("#ERROR");
+  test("Max argument must be >= min", async () => {
+    expect(await evaluateCell("A1", { A1: "=RANDARRAY(1, 1, 3, 1)" })).toBe("#ERROR");
+    expect(await evaluateCell("A1", { A1: "=RANDARRAY(1, 1, 3, 3)" })).not.toBe("#ERROR");
   });
-  test("Min and max must be integer is whole_number is true", () => {
-    expect(evaluateCell("A1", { A1: "=RANDARRAY(1, 1, 0.1, 1, TRUE)" })).toBe("#ERROR");
-    expect(evaluateCell("A1", { A1: "=RANDARRAY(1, 1, 0, 1.5, TRUE)" })).toBe("#ERROR");
-    expect(evaluateCell("A1", { A1: "=RANDARRAY(1, 1, 0.1, 0.5, FALSE)" })).not.toBe("#ERROR");
+  test("Min and max must be integer is whole_number is true", async () => {
+    expect(await evaluateCell("A1", { A1: "=RANDARRAY(1, 1, 0.1, 1, TRUE)" })).toBe("#ERROR");
+    expect(await evaluateCell("A1", { A1: "=RANDARRAY(1, 1, 0, 1.5, TRUE)" })).toBe("#ERROR");
+    expect(await evaluateCell("A1", { A1: "=RANDARRAY(1, 1, 0.1, 0.5, FALSE)" })).not.toBe(
+      "#ERROR"
+    );
   });
-  test("Random rows", () => {
-    const model = createModel();
+  test("Random rows", async () => {
+    const model = await createModel();
     setCellContent(model, "A1", "=RANDARRAY(2)");
     expect(getEvaluatedCell(model, "A1").value).toBeBetween(0, 1);
     expect(getEvaluatedCell(model, "A2").value).toBeBetween(0, 1);
     expect(getEvaluatedCell(model, "B1").value).toBe(null);
     expect(getEvaluatedCell(model, "B21").value).toBe(null);
   });
-  test("Random columns", () => {
-    const model = createModel();
+  test("Random columns", async () => {
+    const model = await createModel();
     setCellContent(model, "A1", "=RANDARRAY(1, 2)");
     expect(getEvaluatedCell(model, "A1").value).toBeBetween(0, 1);
     expect(getEvaluatedCell(model, "A2").value).toBe(null);
     expect(getEvaluatedCell(model, "B1").value).toBeBetween(0, 1);
     expect(getEvaluatedCell(model, "B2").value).toBe(null);
   });
-  test("Random rows and columns", () => {
-    const model = createModel();
+  test("Random rows and columns", async () => {
+    const model = await createModel();
     setCellContent(model, "A1", "=RANDARRAY(2, 2)");
     expect(getEvaluatedCell(model, "A1").value).toBeBetween(0, 1);
     expect(getEvaluatedCell(model, "A2").value).toBeBetween(0, 1);
     expect(getEvaluatedCell(model, "B1").value).toBeBetween(0, 1);
     expect(getEvaluatedCell(model, "B2").value).toBeBetween(0, 1);
   });
-  test("Max and min arguments", () => {
-    const model = createModel();
+  test("Max and min arguments", async () => {
+    const model = await createModel();
     setCellContent(model, "A1", "=RANDARRAY(2, 2, -2, 2)");
     expect(getEvaluatedCell(model, "A1").value).toBeBetween(-2, 2);
     expect(getEvaluatedCell(model, "A2").value).toBeBetween(-2, 2);
     expect(getEvaluatedCell(model, "B1").value).toBeBetween(-2, 2);
     expect(getEvaluatedCell(model, "B2").value).toBeBetween(-2, 2);
   });
-  test("whole_number argument", () => {
-    const model = createModel();
+  test("whole_number argument", async () => {
+    const model = await createModel();
     setCellContent(model, "A1", "=RANDARRAY(1, 1, -2, 2, TRUE)");
     const val = getEvaluatedCell(model, "A1").value as number;
     expect(val).toBeBetween(-2, 2);
@@ -1907,65 +2011,69 @@ describe("RANDBETWEEN formula", () => {
     ["42", "42", 42],
     ["-42", "-42", -42],
     ["1.1", "2", 2],
-  ])("take 2 parameters, return a number", (a, b, expected) => {
-    expect(evaluateCell("A1", { A1: "=RANDBETWEEN(A2, A3)", A2: a, A3: b })).toBe(expected);
+  ])("take 2 parameters, return a number", async (a, b, expected) => {
+    expect(await evaluateCell("A1", { A1: "=RANDBETWEEN(A2, A3)", A2: a, A3: b })).toBe(expected);
   });
   test.each([
     ["-42", "42"],
     ["24", "42"],
     ["-42", "-24"],
-  ])("take 2 parameters, return a number", (a, b) => {
-    expect(evaluateCell("A1", { A1: "=RANDBETWEEN(A2, A3)", A2: a, A3: b })).toBeGreaterThanOrEqual(
-      toNumber(a, DEFAULT_LOCALE)
-    );
-    expect(evaluateCell("A1", { A1: "=RANDBETWEEN(A2, A3)", A2: a, A3: b })).toBeLessThanOrEqual(
-      toNumber(b, DEFAULT_LOCALE)
-    );
+  ])("take 2 parameters, return a number", async (a, b) => {
+    expect(
+      await evaluateCell("A1", { A1: "=RANDBETWEEN(A2, A3)", A2: a, A3: b })
+    ).toBeGreaterThanOrEqual(toNumber(a, DEFAULT_LOCALE));
+    expect(
+      await evaluateCell("A1", { A1: "=RANDBETWEEN(A2, A3)", A2: a, A3: b })
+    ).toBeLessThanOrEqual(toNumber(b, DEFAULT_LOCALE));
   });
   test.each([
     ["1.1", "1.2"], // @compatibility: on google sheets, return 2
     ["-24", "-42"],
     ["42", "24"],
-  ])("take 2 parameters, return an error", (a, b) => {
-    expect(evaluateCell("A1", { A1: "=RANDBETWEEN(A2, A3)", A2: a, A3: b })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+  ])("take 2 parameters, return an error", async (a, b) => {
+    expect(await evaluateCell("A1", { A1: "=RANDBETWEEN(A2, A3)", A2: a, A3: b })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
   });
-  test("special value testing", () => {
-    expect(evaluateCell("A1", { A1: "=RANDBETWEEN()" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
-    expect(evaluateCell("A1", { A1: "=RANDBETWEEN( , )" })).toBe(0);
-    expect(evaluateCell("A1", { A1: "=RANDBETWEEN(2, 2)" })).toBe(2);
-    expect(evaluateCell("A1", { A1: "=RANDBETWEEN( , 0)" })).toBe(0);
-    expect(evaluateCell("A1", { A1: "=RANDBETWEEN(42, )" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
-    expect(evaluateCell("A1", { A1: "=RANDBETWEEN(42.42, TRUE)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
-    expect(evaluateCell("A1", { A1: "=RANDBETWEEN(42.42, FALSE)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
-    expect(evaluateCell("A1", { A1: "=RANDBETWEEN(TRUE, 1)" })).toBe(1);
-    expect(evaluateCell("A1", { A1: "=RANDBETWEEN(FALSE, 0)" })).toBe(0);
-    expect(evaluateCell("A1", { A1: '=RANDBETWEEN("" , "")' })).toBe(0);
-    expect(evaluateCell("A1", { A1: '=RANDBETWEEN("" , 0)' })).toBe(0);
-    expect(evaluateCell("A1", { A1: '=RANDBETWEEN(" " , 12)' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
-    expect(evaluateCell("A1", { A1: '=RANDBETWEEN("42", 42)' })).toBe(42);
-    expect(evaluateCell("A1", { A1: '=RANDBETWEEN("42", "42")' })).toBe(42);
-    expect(evaluateCell("A1", { A1: '=RANDBETWEEN("42", "")' })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
-    expect(evaluateCell("A1", { A1: "=RANDBETWEEN(A2, A3)", A2: "", A3: "" })).toBe(0);
-    expect(evaluateCell("A1", { A1: "=RANDBETWEEN(A2, A3)", A2: "2", A3: "2" })).toBe(2);
-    expect(evaluateCell("A1", { A1: "=RANDBETWEEN(A2, A3)", A2: "", A3: "0" })).toBe(0);
-    expect(evaluateCell("A1", { A1: "=RANDBETWEEN(A2, A3)", A2: "42", A3: "" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
-    expect(evaluateCell("A1", { A1: "=RANDBETWEEN(A2, A3)", A2: "42.42", A3: "TRUE" })).toBe(
+  test("special value testing", async () => {
+    expect(await evaluateCell("A1", { A1: "=RANDBETWEEN()" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+    expect(await evaluateCell("A1", { A1: "=RANDBETWEEN( , )" })).toBe(0);
+    expect(await evaluateCell("A1", { A1: "=RANDBETWEEN(2, 2)" })).toBe(2);
+    expect(await evaluateCell("A1", { A1: "=RANDBETWEEN( , 0)" })).toBe(0);
+    expect(await evaluateCell("A1", { A1: "=RANDBETWEEN(42, )" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+    expect(await evaluateCell("A1", { A1: "=RANDBETWEEN(42.42, TRUE)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+    expect(await evaluateCell("A1", { A1: "=RANDBETWEEN(42.42, FALSE)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+    expect(await evaluateCell("A1", { A1: "=RANDBETWEEN(TRUE, 1)" })).toBe(1);
+    expect(await evaluateCell("A1", { A1: "=RANDBETWEEN(FALSE, 0)" })).toBe(0);
+    expect(await evaluateCell("A1", { A1: '=RANDBETWEEN("" , "")' })).toBe(0);
+    expect(await evaluateCell("A1", { A1: '=RANDBETWEEN("" , 0)' })).toBe(0);
+    expect(await evaluateCell("A1", { A1: '=RANDBETWEEN(" " , 12)' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(await evaluateCell("A1", { A1: '=RANDBETWEEN("42", 42)' })).toBe(42);
+    expect(await evaluateCell("A1", { A1: '=RANDBETWEEN("42", "42")' })).toBe(42);
+    expect(await evaluateCell("A1", { A1: '=RANDBETWEEN("42", "")' })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+    expect(await evaluateCell("A1", { A1: "=RANDBETWEEN(A2, A3)", A2: "", A3: "" })).toBe(0);
+    expect(await evaluateCell("A1", { A1: "=RANDBETWEEN(A2, A3)", A2: "2", A3: "2" })).toBe(2);
+    expect(await evaluateCell("A1", { A1: "=RANDBETWEEN(A2, A3)", A2: "", A3: "0" })).toBe(0);
+    expect(await evaluateCell("A1", { A1: "=RANDBETWEEN(A2, A3)", A2: "42", A3: "" })).toBe(
       "#ERROR"
     ); // @compatibility: on google sheets, return #NUM!
-    expect(evaluateCell("A1", { A1: "=RANDBETWEEN(A2, A3)", A2: "42.42", A3: "FALSE" })).toBe(
+    expect(await evaluateCell("A1", { A1: "=RANDBETWEEN(A2, A3)", A2: "42.42", A3: "TRUE" })).toBe(
       "#ERROR"
     ); // @compatibility: on google sheets, return #NUM!
-    expect(evaluateCell("A1", { A1: "=RANDBETWEEN(A2, A3)", A2: "TRUE", A3: "1" })).toBe(1);
-    expect(evaluateCell("A1", { A1: "=RANDBETWEEN(A2, A3)", A2: "FALSE", A3: "0" })).toBe(0);
-    expect(evaluateCell("A1", { A1: "=RANDBETWEEN(A2, A3)", A2: '"42"', A3: '"42"' })).toBe(
+    expect(await evaluateCell("A1", { A1: "=RANDBETWEEN(A2, A3)", A2: "42.42", A3: "FALSE" })).toBe(
+      "#ERROR"
+    ); // @compatibility: on google sheets, return #NUM!
+    expect(await evaluateCell("A1", { A1: "=RANDBETWEEN(A2, A3)", A2: "TRUE", A3: "1" })).toBe(1);
+    expect(await evaluateCell("A1", { A1: "=RANDBETWEEN(A2, A3)", A2: "FALSE", A3: "0" })).toBe(0);
+    expect(await evaluateCell("A1", { A1: "=RANDBETWEEN(A2, A3)", A2: '"42"', A3: '"42"' })).toBe(
       "#ERROR"
     ); // @compatibility: on google sheets, return #VALUE!
-    expect(evaluateCell("A1", { A1: "=RANDBETWEEN(A2, A3)", A2: '=""', A3: '="0"' })).toBe(0);
-    expect(evaluateCell("A1", { A1: "=RANDBETWEEN(A2, A3)", A2: '="42"', A3: '="42"' })).toBe(42);
+    expect(await evaluateCell("A1", { A1: "=RANDBETWEEN(A2, A3)", A2: '=""', A3: '="0"' })).toBe(0);
+    expect(await evaluateCell("A1", { A1: "=RANDBETWEEN(A2, A3)", A2: '="42"', A3: '="42"' })).toBe(
+      42
+    );
   });
-  test("result format depends on 1st argument", () => {
-    expect(evaluateCellFormat("A1", { A1: "=RANDBETWEEN(A2, 2)", A2: "1" })).toBe("");
-    expect(evaluateCellFormat("A1", { A1: "=RANDBETWEEN(A2, 2)", A2: "100%" })).toBe("0%");
+  test("result format depends on 1st argument", async () => {
+    expect(await evaluateCellFormat("A1", { A1: "=RANDBETWEEN(A2, 2)", A2: "1" })).toBe("");
+    expect(await evaluateCellFormat("A1", { A1: "=RANDBETWEEN(A2, 2)", A2: "100%" })).toBe("0%");
   });
 });
 describe("ROUND formula", () => {
@@ -1977,8 +2085,8 @@ describe("ROUND formula", () => {
     ["1.4", 1],
     ["1.5", 2],
     ["1.6", 2],
-  ])("take 1 parameter, return a number", (a, expected) => {
-    expect(evaluateCell("A1", { A1: "=ROUND(A2)", A2: a })).toBe(expected);
+  ])("take 1 parameter, return a number", async (a, expected) => {
+    expect(await evaluateCell("A1", { A1: "=ROUND(A2)", A2: a })).toBe(expected);
   });
   test.each([
     ["0.3", "2", 0.3],
@@ -1996,40 +2104,42 @@ describe("ROUND formula", () => {
     ["-50", "-2", -100],
     ["5", "-1.9", 10],
     ["-5", "-1.9", -10],
-  ])("take 2 parameters, return a number", (a, b, expected) => {
-    expect(evaluateCell("A1", { A1: "=ROUND(A2, A3)", A2: a, A3: b })).toBe(expected);
+  ])("take 2 parameters, return a number", async (a, b, expected) => {
+    expect(await evaluateCell("A1", { A1: "=ROUND(A2, A3)", A2: a, A3: b })).toBe(expected);
   });
-  test("special value testing", () => {
-    expect(evaluateCell("A1", { A1: "=ROUND()" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
-    expect(evaluateCell("A1", { A1: "=ROUND( , )" })).toBe(0);
-    expect(evaluateCell("A1", { A1: "=ROUND(42, -1)" })).toBe(40);
-    expect(evaluateCell("A1", { A1: "=ROUND( , 42)" })).toBe(0);
-    expect(evaluateCell("A1", { A1: "=ROUND(42, )" })).toBe(42);
-    expect(evaluateCell("A1", { A1: "=ROUND(42.42, TRUE)" })).toBe(42.4);
-    expect(evaluateCell("A1", { A1: "=ROUND(42.42, FALSE)" })).toBe(42);
-    expect(evaluateCell("A1", { A1: "=ROUND(TRUE, 10)" })).toBe(1);
-    expect(evaluateCell("A1", { A1: "=ROUND(FALSE, 10)" })).toBe(0);
-    expect(evaluateCell("A1", { A1: '=ROUND("" , "")' })).toBe(0);
-    expect(evaluateCell("A1", { A1: '=ROUND("" , 12)' })).toBe(0);
-    expect(evaluateCell("A1", { A1: '=ROUND(" " , 0)' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
-    expect(evaluateCell("A1", { A1: '=ROUND("42", -1)' })).toBe(40);
-    expect(evaluateCell("A1", { A1: '=ROUND("42", "-1")' })).toBe(40);
-    expect(evaluateCell("A1", { A1: '=ROUND("42", "")' })).toBe(42);
-    expect(evaluateCell("A1", { A1: "=ROUND(A2, A3)", A2: "", A3: "" })).toBe(0);
-    expect(evaluateCell("A1", { A1: "=ROUND(A2, A3)", A2: "42", A3: "-1" })).toBe(40);
-    expect(evaluateCell("A1", { A1: "=ROUND(A2, A3)", A2: "", A3: "42" })).toBe(0);
-    expect(evaluateCell("A1", { A1: "=ROUND(A2, A3)", A2: "42", A3: "" })).toBe(42);
-    expect(evaluateCell("A1", { A1: "=ROUND(A2, A3)", A2: "42.42", A3: "TRUE" })).toBe(42.4);
-    expect(evaluateCell("A1", { A1: "=ROUND(A2, A3)", A2: "42.42", A3: "FALSE" })).toBe(42);
-    expect(evaluateCell("A1", { A1: "=ROUND(A2, A3)", A2: "TRUE", A3: "10" })).toBe(1);
-    expect(evaluateCell("A1", { A1: "=ROUND(A2, A3)", A2: "FALSE", A3: "10" })).toBe(0);
-    expect(evaluateCell("A1", { A1: "=ROUND(A2, A3)", A2: '"42"', A3: '"42"' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
-    expect(evaluateCell("A1", { A1: "=ROUND(A2, A3)", A2: '=""', A3: '="2"' })).toBe(0);
-    expect(evaluateCell("A1", { A1: "=ROUND(A2, A3)", A2: '="42"', A3: '="-1"' })).toBe(40);
+  test("special value testing", async () => {
+    expect(await evaluateCell("A1", { A1: "=ROUND()" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+    expect(await evaluateCell("A1", { A1: "=ROUND( , )" })).toBe(0);
+    expect(await evaluateCell("A1", { A1: "=ROUND(42, -1)" })).toBe(40);
+    expect(await evaluateCell("A1", { A1: "=ROUND( , 42)" })).toBe(0);
+    expect(await evaluateCell("A1", { A1: "=ROUND(42, )" })).toBe(42);
+    expect(await evaluateCell("A1", { A1: "=ROUND(42.42, TRUE)" })).toBe(42.4);
+    expect(await evaluateCell("A1", { A1: "=ROUND(42.42, FALSE)" })).toBe(42);
+    expect(await evaluateCell("A1", { A1: "=ROUND(TRUE, 10)" })).toBe(1);
+    expect(await evaluateCell("A1", { A1: "=ROUND(FALSE, 10)" })).toBe(0);
+    expect(await evaluateCell("A1", { A1: '=ROUND("" , "")' })).toBe(0);
+    expect(await evaluateCell("A1", { A1: '=ROUND("" , 12)' })).toBe(0);
+    expect(await evaluateCell("A1", { A1: '=ROUND(" " , 0)' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(await evaluateCell("A1", { A1: '=ROUND("42", -1)' })).toBe(40);
+    expect(await evaluateCell("A1", { A1: '=ROUND("42", "-1")' })).toBe(40);
+    expect(await evaluateCell("A1", { A1: '=ROUND("42", "")' })).toBe(42);
+    expect(await evaluateCell("A1", { A1: "=ROUND(A2, A3)", A2: "", A3: "" })).toBe(0);
+    expect(await evaluateCell("A1", { A1: "=ROUND(A2, A3)", A2: "42", A3: "-1" })).toBe(40);
+    expect(await evaluateCell("A1", { A1: "=ROUND(A2, A3)", A2: "", A3: "42" })).toBe(0);
+    expect(await evaluateCell("A1", { A1: "=ROUND(A2, A3)", A2: "42", A3: "" })).toBe(42);
+    expect(await evaluateCell("A1", { A1: "=ROUND(A2, A3)", A2: "42.42", A3: "TRUE" })).toBe(42.4);
+    expect(await evaluateCell("A1", { A1: "=ROUND(A2, A3)", A2: "42.42", A3: "FALSE" })).toBe(42);
+    expect(await evaluateCell("A1", { A1: "=ROUND(A2, A3)", A2: "TRUE", A3: "10" })).toBe(1);
+    expect(await evaluateCell("A1", { A1: "=ROUND(A2, A3)", A2: "FALSE", A3: "10" })).toBe(0);
+    expect(await evaluateCell("A1", { A1: "=ROUND(A2, A3)", A2: '"42"', A3: '"42"' })).toBe(
+      "#ERROR"
+    ); // @compatibility: on google sheets, return #VALUE!
+    expect(await evaluateCell("A1", { A1: "=ROUND(A2, A3)", A2: '=""', A3: '="2"' })).toBe(0);
+    expect(await evaluateCell("A1", { A1: "=ROUND(A2, A3)", A2: '="42"', A3: '="-1"' })).toBe(40);
   });
-  test("result format depends on 1st argument", () => {
-    expect(evaluateCellFormat("A1", { A1: "=ROUND(A2, 2)", A2: "42" })).toBe("");
-    expect(evaluateCellFormat("A1", { A1: "=ROUND(A2, 2)", A2: "4200%" })).toBe("0%");
+  test("result format depends on 1st argument", async () => {
+    expect(await evaluateCellFormat("A1", { A1: "=ROUND(A2, 2)", A2: "42" })).toBe("");
+    expect(await evaluateCellFormat("A1", { A1: "=ROUND(A2, 2)", A2: "4200%" })).toBe("0%");
   });
 });
 describe("ROUNDDOWN formula", () => {
@@ -2041,8 +2151,8 @@ describe("ROUNDDOWN formula", () => {
     ["1.4", 1],
     ["1.5", 1],
     ["1.9", 1],
-  ])("take 1 parameter, return a number", (a, expected) => {
-    expect(evaluateCell("A1", { A1: "=ROUNDDOWN(A2)", A2: a })).toBe(expected);
+  ])("take 1 parameter, return a number", async (a, expected) => {
+    expect(await evaluateCell("A1", { A1: "=ROUNDDOWN(A2)", A2: a })).toBe(expected);
   });
   test.each([
     ["0.3", "2", 0.3],
@@ -2060,40 +2170,48 @@ describe("ROUNDDOWN formula", () => {
     ["-599", "-2", -500],
     ["19", "-1.9", 10],
     ["-19", "-1.9", -10],
-  ])("take 2 parameters, return a number", (a, b, expected) => {
-    expect(evaluateCell("A1", { A1: "=ROUNDDOWN(A2, A3)", A2: a, A3: b })).toBe(expected);
+  ])("take 2 parameters, return a number", async (a, b, expected) => {
+    expect(await evaluateCell("A1", { A1: "=ROUNDDOWN(A2, A3)", A2: a, A3: b })).toBe(expected);
   });
-  test("special value testing", () => {
-    expect(evaluateCell("A1", { A1: "=ROUNDDOWN()" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
-    expect(evaluateCell("A1", { A1: "=ROUNDDOWN( , )" })).toBe(0);
-    expect(evaluateCell("A1", { A1: "=ROUNDDOWN(49, -1)" })).toBe(40);
-    expect(evaluateCell("A1", { A1: "=ROUNDDOWN( , 49)" })).toBe(0);
-    expect(evaluateCell("A1", { A1: "=ROUNDDOWN(49, )" })).toBe(49);
-    expect(evaluateCell("A1", { A1: "=ROUNDDOWN(49.49, TRUE)" })).toBe(49.4);
-    expect(evaluateCell("A1", { A1: "=ROUNDDOWN(49.49, FALSE)" })).toBe(49);
-    expect(evaluateCell("A1", { A1: "=ROUNDDOWN(TRUE, 10)" })).toBe(1);
-    expect(evaluateCell("A1", { A1: "=ROUNDDOWN(FALSE, 10)" })).toBe(0);
-    expect(evaluateCell("A1", { A1: '=ROUNDDOWN("" , "")' })).toBe(0);
-    expect(evaluateCell("A1", { A1: '=ROUNDDOWN("" , 12)' })).toBe(0);
-    expect(evaluateCell("A1", { A1: '=ROUNDDOWN(" " , 0)' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
-    expect(evaluateCell("A1", { A1: '=ROUNDDOWN("49", -1)' })).toBe(40);
-    expect(evaluateCell("A1", { A1: '=ROUNDDOWN("49", "-1")' })).toBe(40);
-    expect(evaluateCell("A1", { A1: '=ROUNDDOWN("49", "")' })).toBe(49);
-    expect(evaluateCell("A1", { A1: "=ROUNDDOWN(A2, A3)", A2: "", A3: "" })).toBe(0);
-    expect(evaluateCell("A1", { A1: "=ROUNDDOWN(A2, A3)", A2: "49", A3: "-1" })).toBe(40);
-    expect(evaluateCell("A1", { A1: "=ROUNDDOWN(A2, A3)", A2: "", A3: "49" })).toBe(0);
-    expect(evaluateCell("A1", { A1: "=ROUNDDOWN(A2, A3)", A2: "49", A3: "" })).toBe(49);
-    expect(evaluateCell("A1", { A1: "=ROUNDDOWN(A2, A3)", A2: "49.49", A3: "TRUE" })).toBe(49.4);
-    expect(evaluateCell("A1", { A1: "=ROUNDDOWN(A2, A3)", A2: "49.49", A3: "FALSE" })).toBe(49);
-    expect(evaluateCell("A1", { A1: "=ROUNDDOWN(A2, A3)", A2: "TRUE", A3: "10" })).toBe(1);
-    expect(evaluateCell("A1", { A1: "=ROUNDDOWN(A2, A3)", A2: "FALSE", A3: "10" })).toBe(0);
-    expect(evaluateCell("A1", { A1: "=ROUNDDOWN(A2, A3)", A2: '"49"', A3: '"49"' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
-    expect(evaluateCell("A1", { A1: "=ROUNDDOWN(A2, A3)", A2: '=""', A3: '="2"' })).toBe(0);
-    expect(evaluateCell("A1", { A1: "=ROUNDDOWN(A2, A3)", A2: '="49"', A3: '="-1"' })).toBe(40);
+  test("special value testing", async () => {
+    expect(await evaluateCell("A1", { A1: "=ROUNDDOWN()" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+    expect(await evaluateCell("A1", { A1: "=ROUNDDOWN( , )" })).toBe(0);
+    expect(await evaluateCell("A1", { A1: "=ROUNDDOWN(49, -1)" })).toBe(40);
+    expect(await evaluateCell("A1", { A1: "=ROUNDDOWN( , 49)" })).toBe(0);
+    expect(await evaluateCell("A1", { A1: "=ROUNDDOWN(49, )" })).toBe(49);
+    expect(await evaluateCell("A1", { A1: "=ROUNDDOWN(49.49, TRUE)" })).toBe(49.4);
+    expect(await evaluateCell("A1", { A1: "=ROUNDDOWN(49.49, FALSE)" })).toBe(49);
+    expect(await evaluateCell("A1", { A1: "=ROUNDDOWN(TRUE, 10)" })).toBe(1);
+    expect(await evaluateCell("A1", { A1: "=ROUNDDOWN(FALSE, 10)" })).toBe(0);
+    expect(await evaluateCell("A1", { A1: '=ROUNDDOWN("" , "")' })).toBe(0);
+    expect(await evaluateCell("A1", { A1: '=ROUNDDOWN("" , 12)' })).toBe(0);
+    expect(await evaluateCell("A1", { A1: '=ROUNDDOWN(" " , 0)' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(await evaluateCell("A1", { A1: '=ROUNDDOWN("49", -1)' })).toBe(40);
+    expect(await evaluateCell("A1", { A1: '=ROUNDDOWN("49", "-1")' })).toBe(40);
+    expect(await evaluateCell("A1", { A1: '=ROUNDDOWN("49", "")' })).toBe(49);
+    expect(await evaluateCell("A1", { A1: "=ROUNDDOWN(A2, A3)", A2: "", A3: "" })).toBe(0);
+    expect(await evaluateCell("A1", { A1: "=ROUNDDOWN(A2, A3)", A2: "49", A3: "-1" })).toBe(40);
+    expect(await evaluateCell("A1", { A1: "=ROUNDDOWN(A2, A3)", A2: "", A3: "49" })).toBe(0);
+    expect(await evaluateCell("A1", { A1: "=ROUNDDOWN(A2, A3)", A2: "49", A3: "" })).toBe(49);
+    expect(await evaluateCell("A1", { A1: "=ROUNDDOWN(A2, A3)", A2: "49.49", A3: "TRUE" })).toBe(
+      49.4
+    );
+    expect(await evaluateCell("A1", { A1: "=ROUNDDOWN(A2, A3)", A2: "49.49", A3: "FALSE" })).toBe(
+      49
+    );
+    expect(await evaluateCell("A1", { A1: "=ROUNDDOWN(A2, A3)", A2: "TRUE", A3: "10" })).toBe(1);
+    expect(await evaluateCell("A1", { A1: "=ROUNDDOWN(A2, A3)", A2: "FALSE", A3: "10" })).toBe(0);
+    expect(await evaluateCell("A1", { A1: "=ROUNDDOWN(A2, A3)", A2: '"49"', A3: '"49"' })).toBe(
+      "#ERROR"
+    ); // @compatibility: on google sheets, return #VALUE!
+    expect(await evaluateCell("A1", { A1: "=ROUNDDOWN(A2, A3)", A2: '=""', A3: '="2"' })).toBe(0);
+    expect(await evaluateCell("A1", { A1: "=ROUNDDOWN(A2, A3)", A2: '="49"', A3: '="-1"' })).toBe(
+      40
+    );
   });
-  test("result format depends on 1st argument", () => {
-    expect(evaluateCellFormat("A1", { A1: "=ROUNDDOWN(A2, 2)", A2: "42" })).toBe("");
-    expect(evaluateCellFormat("A1", { A1: "=ROUNDDOWN(A2, 2)", A2: "4200%" })).toBe("0%");
+  test("result format depends on 1st argument", async () => {
+    expect(await evaluateCellFormat("A1", { A1: "=ROUNDDOWN(A2, 2)", A2: "42" })).toBe("");
+    expect(await evaluateCellFormat("A1", { A1: "=ROUNDDOWN(A2, 2)", A2: "4200%" })).toBe("0%");
   });
 });
 describe("ROUNDUP formula", () => {
@@ -2105,8 +2223,8 @@ describe("ROUNDUP formula", () => {
     ["1.1", 2],
     ["1.5", 2],
     ["1.6", 2],
-  ])("take 1 parameter, return a number", (a, expected) => {
-    expect(evaluateCell("A1", { A1: "=ROUNDUP(A2)", A2: a })).toBe(expected);
+  ])("take 1 parameter, return a number", async (a, expected) => {
+    expect(await evaluateCell("A1", { A1: "=ROUNDUP(A2)", A2: a })).toBe(expected);
   });
   test.each([
     ["0.3", "2", 0.3],
@@ -2124,40 +2242,44 @@ describe("ROUNDUP formula", () => {
     ["1", "-2", 100],
     ["11", "-1.9", 20],
     ["-11", "-1.9", -20],
-  ])("take 2 parameters, return a number", (a, b, expected) => {
-    expect(evaluateCell("A1", { A1: "=ROUNDUP(A2, A3)", A2: a, A3: b })).toBe(expected);
+  ])("take 2 parameters, return a number", async (a, b, expected) => {
+    expect(await evaluateCell("A1", { A1: "=ROUNDUP(A2, A3)", A2: a, A3: b })).toBe(expected);
   });
-  test("special value testing", () => {
-    expect(evaluateCell("A1", { A1: "=ROUNDUP()" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
-    expect(evaluateCell("A1", { A1: "=ROUNDUP( , )" })).toBe(0);
-    expect(evaluateCell("A1", { A1: "=ROUNDUP(42, -1)" })).toBe(50);
-    expect(evaluateCell("A1", { A1: "=ROUNDUP( , 42)" })).toBe(0);
-    expect(evaluateCell("A1", { A1: "=ROUNDUP(42, )" })).toBe(42);
-    expect(evaluateCell("A1", { A1: "=ROUNDUP(42.42, TRUE)" })).toBe(42.5);
-    expect(evaluateCell("A1", { A1: "=ROUNDUP(42.42, FALSE)" })).toBe(43);
-    expect(evaluateCell("A1", { A1: "=ROUNDUP(TRUE, 10)" })).toBe(1);
-    expect(evaluateCell("A1", { A1: "=ROUNDUP(FALSE, 10)" })).toBe(0);
-    expect(evaluateCell("A1", { A1: '=ROUNDUP("" , "")' })).toBe(0);
-    expect(evaluateCell("A1", { A1: '=ROUNDUP("" , 12)' })).toBe(0);
-    expect(evaluateCell("A1", { A1: '=ROUNDUP(" " , 0)' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
-    expect(evaluateCell("A1", { A1: '=ROUNDUP("42", -1)' })).toBe(50);
-    expect(evaluateCell("A1", { A1: '=ROUNDUP("42", "-1")' })).toBe(50);
-    expect(evaluateCell("A1", { A1: '=ROUNDUP("42", "")' })).toBe(42);
-    expect(evaluateCell("A1", { A1: "=ROUNDUP(A2, A3)", A2: "", A3: "" })).toBe(0);
-    expect(evaluateCell("A1", { A1: "=ROUNDUP(A2, A3)", A2: "42", A3: "-1" })).toBe(50);
-    expect(evaluateCell("A1", { A1: "=ROUNDUP(A2, A3)", A2: "", A3: "42" })).toBe(0);
-    expect(evaluateCell("A1", { A1: "=ROUNDUP(A2, A3)", A2: "42", A3: "" })).toBe(42);
-    expect(evaluateCell("A1", { A1: "=ROUNDUP(A2, A3)", A2: "42.42", A3: "TRUE" })).toBe(42.5);
-    expect(evaluateCell("A1", { A1: "=ROUNDUP(A2, A3)", A2: "42.42", A3: "FALSE" })).toBe(43);
-    expect(evaluateCell("A1", { A1: "=ROUNDUP(A2, A3)", A2: "TRUE", A3: "10" })).toBe(1);
-    expect(evaluateCell("A1", { A1: "=ROUNDUP(A2, A3)", A2: "FALSE", A3: "10" })).toBe(0);
-    expect(evaluateCell("A1", { A1: "=ROUNDUP(A2, A3)", A2: '"42"', A3: '"42"' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
-    expect(evaluateCell("A1", { A1: "=ROUNDUP(A2, A3)", A2: '=""', A3: '="2"' })).toBe(0);
-    expect(evaluateCell("A1", { A1: "=ROUNDUP(A2, A3)", A2: '="42"', A3: '="-1"' })).toBe(50);
+  test("special value testing", async () => {
+    expect(await evaluateCell("A1", { A1: "=ROUNDUP()" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+    expect(await evaluateCell("A1", { A1: "=ROUNDUP( , )" })).toBe(0);
+    expect(await evaluateCell("A1", { A1: "=ROUNDUP(42, -1)" })).toBe(50);
+    expect(await evaluateCell("A1", { A1: "=ROUNDUP( , 42)" })).toBe(0);
+    expect(await evaluateCell("A1", { A1: "=ROUNDUP(42, )" })).toBe(42);
+    expect(await evaluateCell("A1", { A1: "=ROUNDUP(42.42, TRUE)" })).toBe(42.5);
+    expect(await evaluateCell("A1", { A1: "=ROUNDUP(42.42, FALSE)" })).toBe(43);
+    expect(await evaluateCell("A1", { A1: "=ROUNDUP(TRUE, 10)" })).toBe(1);
+    expect(await evaluateCell("A1", { A1: "=ROUNDUP(FALSE, 10)" })).toBe(0);
+    expect(await evaluateCell("A1", { A1: '=ROUNDUP("" , "")' })).toBe(0);
+    expect(await evaluateCell("A1", { A1: '=ROUNDUP("" , 12)' })).toBe(0);
+    expect(await evaluateCell("A1", { A1: '=ROUNDUP(" " , 0)' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(await evaluateCell("A1", { A1: '=ROUNDUP("42", -1)' })).toBe(50);
+    expect(await evaluateCell("A1", { A1: '=ROUNDUP("42", "-1")' })).toBe(50);
+    expect(await evaluateCell("A1", { A1: '=ROUNDUP("42", "")' })).toBe(42);
+    expect(await evaluateCell("A1", { A1: "=ROUNDUP(A2, A3)", A2: "", A3: "" })).toBe(0);
+    expect(await evaluateCell("A1", { A1: "=ROUNDUP(A2, A3)", A2: "42", A3: "-1" })).toBe(50);
+    expect(await evaluateCell("A1", { A1: "=ROUNDUP(A2, A3)", A2: "", A3: "42" })).toBe(0);
+    expect(await evaluateCell("A1", { A1: "=ROUNDUP(A2, A3)", A2: "42", A3: "" })).toBe(42);
+    expect(await evaluateCell("A1", { A1: "=ROUNDUP(A2, A3)", A2: "42.42", A3: "TRUE" })).toBe(
+      42.5
+    );
+    expect(await evaluateCell("A1", { A1: "=ROUNDUP(A2, A3)", A2: "42.42", A3: "FALSE" })).toBe(43);
+    expect(await evaluateCell("A1", { A1: "=ROUNDUP(A2, A3)", A2: "TRUE", A3: "10" })).toBe(1);
+    expect(await evaluateCell("A1", { A1: "=ROUNDUP(A2, A3)", A2: "FALSE", A3: "10" })).toBe(0);
+    expect(await evaluateCell("A1", { A1: "=ROUNDUP(A2, A3)", A2: '"42"', A3: '"42"' })).toBe(
+      "#ERROR"
+    ); // @compatibility: on google sheets, return #VALUE!
+    expect(await evaluateCell("A1", { A1: "=ROUNDUP(A2, A3)", A2: '=""', A3: '="2"' })).toBe(0);
+    expect(await evaluateCell("A1", { A1: "=ROUNDUP(A2, A3)", A2: '="42"', A3: '="-1"' })).toBe(50);
   });
-  test("result format depends on 1st argument", () => {
-    expect(evaluateCellFormat("A1", { A1: "=ROUNDUP(A2, 2)", A2: "42" })).toBe("");
-    expect(evaluateCellFormat("A1", { A1: "=ROUNDUP(A2, 2)", A2: "4200%" })).toBe("0%");
+  test("result format depends on 1st argument", async () => {
+    expect(await evaluateCellFormat("A1", { A1: "=ROUNDUP(A2, 2)", A2: "42" })).toBe("");
+    expect(await evaluateCellFormat("A1", { A1: "=ROUNDUP(A2, 2)", A2: "4200%" })).toBe("0%");
   });
 });
 describe("SEC formula", () => {
@@ -2168,8 +2290,8 @@ describe("SEC formula", () => {
     ["3", -1.010108666],
     ["-4", -1.529885656],
     ["0", 1],
-  ])("take 1 parameter, return a number", (a, expected) => {
-    expect(evaluateCell("A1", { A1: "=SEC(A2)", A2: a })).toBeCloseTo(expected, 9);
+  ])("take 1 parameter, return a number", async (a, expected) => {
+    expect(await evaluateCell("A1", { A1: "=SEC(A2)", A2: a })).toBeCloseTo(expected, 9);
   });
 });
 describe("SECH formula", () => {
@@ -2179,43 +2301,43 @@ describe("SECH formula", () => {
     ["0", 1],
     ["=LN(2)", 0.8],
     ["=-LN(3)", 0.6],
-  ])("take 1 parameter, return a number", (a, expected) => {
-    expect(evaluateCell("A1", { A1: "=SECH(A2)", A2: a })).toBeCloseTo(expected, 9);
+  ])("take 1 parameter, return a number", async (a, expected) => {
+    expect(await evaluateCell("A1", { A1: "=SECH(A2)", A2: a })).toBeCloseTo(expected, 9);
   });
 });
 describe("SEQUENCE formula", () => {
-  test("only positive rows parameter", () => {
-    const model = createModel();
+  test("only positive rows parameter", async () => {
+    const model = await createModel();
     setCellContent(model, "A1", "=SEQUENCE(3)");
     expect(getRangeValuesAsMatrix(model, "A1:A3")).toEqual([[1], [2], [3]]);
     expect(checkFunctionDoesntSpreadBeyondRange(model, "A1:A3")).toBeTruthy();
   });
-  test("rows and step", () => {
-    const model = createModel();
+  test("rows and step", async () => {
+    const model = await createModel();
     setCellContent(model, "A1", "=SEQUENCE(3,,,2)");
     expect(getRangeValuesAsMatrix(model, "A1:A3")).toEqual([[1], [3], [5]]);
     expect(checkFunctionDoesntSpreadBeyondRange(model, "A1:A3")).toBeTruthy();
   });
-  test("rows and negative step", () => {
-    const model = createModel();
+  test("rows and negative step", async () => {
+    const model = await createModel();
     setCellContent(model, "A1", "=SEQUENCE(4,,,-1)");
     expect(getRangeValuesAsMatrix(model, "A1:A4")).toEqual([[1], [0], [-1], [-2]]);
     expect(checkFunctionDoesntSpreadBeyondRange(model, "A1:A4")).toBeTruthy();
   });
-  test("step can be zero", () => {
-    const model = createModel();
+  test("step can be zero", async () => {
+    const model = await createModel();
     setCellContent(model, "A1", "=SEQUENCE(3,,,0)");
     expect(getRangeValuesAsMatrix(model, "A1:A3")).toEqual([[1], [1], [1]]);
     expect(checkFunctionDoesntSpreadBeyondRange(model, "A1:A3")).toBeTruthy();
   });
-  test("step can be omitted", () => {
-    const model = createModel();
+  test("step can be omitted", async () => {
+    const model = await createModel();
     setCellContent(model, "A1", "=SEQUENCE(3,,,)");
     expect(getRangeValuesAsMatrix(model, "A1:A3")).toEqual([[1], [2], [3]]);
     expect(checkFunctionDoesntSpreadBeyondRange(model, "A1:A3")).toBeTruthy();
   });
-  test("positive rows and columns parameters", () => {
-    const model = createModel();
+  test("positive rows and columns parameters", async () => {
+    const model = await createModel();
     setCellContent(model, "A1", "=SEQUENCE(3, 4)");
     expect(getRangeValuesAsMatrix(model, "A1:D3")).toEqual([
       [1, 2, 3, 4],
@@ -2224,8 +2346,8 @@ describe("SEQUENCE formula", () => {
     ]);
     expect(checkFunctionDoesntSpreadBeyondRange(model, "A1:D3")).toBeTruthy();
   });
-  test("rows, columns and step parameters", () => {
-    const model = createModel();
+  test("rows, columns and step parameters", async () => {
+    const model = await createModel();
     setCellContent(model, "A1", "=SEQUENCE(3,4,,2)");
     expect(getRangeValuesAsMatrix(model, "A1:D3")).toEqual([
       [1, 3, 5, 7],
@@ -2234,8 +2356,8 @@ describe("SEQUENCE formula", () => {
     ]);
     expect(checkFunctionDoesntSpreadBeyondRange(model, "A1:D3")).toBeTruthy();
   });
-  test("rows, columns, start and step parameters", () => {
-    const model = createModel();
+  test("rows, columns, start and step parameters", async () => {
+    const model = await createModel();
     setCellContent(model, "A1", "=SEQUENCE(3,2,2,2)");
     expect(getRangeValuesAsMatrix(model, "A1:B3")).toEqual([
       [2, 4],
@@ -2244,17 +2366,17 @@ describe("SEQUENCE formula", () => {
     ]);
     expect(checkFunctionDoesntSpreadBeyondRange(model, "A1:B3")).toBeTruthy();
   });
-  test("float rows and columns parameters", () => {
-    const model = createModel();
+  test("float rows and columns parameters", async () => {
+    const model = await createModel();
     setCellContent(model, "A1", "=SEQUENCE(1.6, 2.9)");
     expect(getRangeValuesAsMatrix(model, "A1:B1")).toEqual([[1, 2]]);
     expect(checkFunctionDoesntSpreadBeyondRange(model, "A1:B1")).toBeTruthy();
   });
-  test("rows and columns parameters not positive", () => {
-    expect(evaluateCell("A1", { A1: "=SEQUENCE(-1, 1)" })).toBe("#ERROR");
-    expect(evaluateCell("A1", { A1: "=SEQUENCE(1, -1)" })).toBe("#ERROR");
-    expect(evaluateCell("A1", { A1: "=SEQUENCE(0, 1)" })).toBe("#ERROR");
-    expect(evaluateCell("A1", { A1: "=SEQUENCE(1, 0)" })).toBe("#ERROR");
+  test("rows and columns parameters not positive", async () => {
+    expect(await evaluateCell("A1", { A1: "=SEQUENCE(-1, 1)" })).toBe("#ERROR");
+    expect(await evaluateCell("A1", { A1: "=SEQUENCE(1, -1)" })).toBe("#ERROR");
+    expect(await evaluateCell("A1", { A1: "=SEQUENCE(0, 1)" })).toBe("#ERROR");
+    expect(await evaluateCell("A1", { A1: "=SEQUENCE(1, 0)" })).toBe("#ERROR");
   });
 });
 describe("SIN formula", () => {
@@ -2265,25 +2387,25 @@ describe("SIN formula", () => {
     ["=PI()/2", 1],
     ["=PI()/6", 0.5],
     ["=-PI()/2", -1],
-  ])("take 1 parameter, return a number", (a, expected) => {
-    expect(evaluateCell("A1", { A1: "=SIN(A2)", A2: a })).toBeCloseTo(expected, 9);
+  ])("take 1 parameter, return a number", async (a, expected) => {
+    expect(await evaluateCell("A1", { A1: "=SIN(A2)", A2: a })).toBeCloseTo(expected, 9);
   });
-  test("special value testing", () => {
-    expect(evaluateCell("A1", { A1: "=SIN()" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
-    expect(evaluateCell("A1", { A1: "=SIN(TRUE)" })).toBeCloseTo(0.841470984807897, 9);
-    expect(evaluateCell("A1", { A1: "=SIN(FALSE)" })).toBeCloseTo(0, 9);
-    expect(evaluateCell("A1", { A1: '=SIN("")' })).toBeCloseTo(0, 9);
-    expect(evaluateCell("A1", { A1: '=SIN(" ")' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
-    expect(evaluateCell("A1", { A1: '=SIN("0")' })).toBeCloseTo(0, 9);
-    expect(evaluateCell("A1", { A1: "=SIN(A2)", A2: "" })).toBeCloseTo(0, 9);
-    expect(evaluateCell("A1", { A1: "=SIN(A2)", A2: " " })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
-    expect(evaluateCell("A1", { A1: "=SIN(A2)", A2: "0" })).toBeCloseTo(0, 9);
-    expect(evaluateCell("A1", { A1: "=SIN(A2)", A2: '""' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
-    expect(evaluateCell("A1", { A1: "=SIN(A2)", A2: '" "' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
-    expect(evaluateCell("A1", { A1: "=SIN(A2)", A2: '"0"' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
-    expect(evaluateCell("A1", { A1: "=SIN(A2)", A2: '=""' })).toBeCloseTo(0, 9);
-    expect(evaluateCell("A1", { A1: "=SIN(A2)", A2: '=" "' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
-    expect(evaluateCell("A1", { A1: "=SIN(A2)", A2: '="0"' })).toBeCloseTo(0, 9);
+  test("special value testing", async () => {
+    expect(await evaluateCell("A1", { A1: "=SIN()" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+    expect(await evaluateCell("A1", { A1: "=SIN(TRUE)" })).toBeCloseTo(0.841470984807897, 9);
+    expect(await evaluateCell("A1", { A1: "=SIN(FALSE)" })).toBeCloseTo(0, 9);
+    expect(await evaluateCell("A1", { A1: '=SIN("")' })).toBeCloseTo(0, 9);
+    expect(await evaluateCell("A1", { A1: '=SIN(" ")' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(await evaluateCell("A1", { A1: '=SIN("0")' })).toBeCloseTo(0, 9);
+    expect(await evaluateCell("A1", { A1: "=SIN(A2)", A2: "" })).toBeCloseTo(0, 9);
+    expect(await evaluateCell("A1", { A1: "=SIN(A2)", A2: " " })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(await evaluateCell("A1", { A1: "=SIN(A2)", A2: "0" })).toBeCloseTo(0, 9);
+    expect(await evaluateCell("A1", { A1: "=SIN(A2)", A2: '""' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(await evaluateCell("A1", { A1: "=SIN(A2)", A2: '" "' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(await evaluateCell("A1", { A1: "=SIN(A2)", A2: '"0"' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(await evaluateCell("A1", { A1: "=SIN(A2)", A2: '=""' })).toBeCloseTo(0, 9);
+    expect(await evaluateCell("A1", { A1: "=SIN(A2)", A2: '=" "' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(await evaluateCell("A1", { A1: "=SIN(A2)", A2: '="0"' })).toBeCloseTo(0, 9);
   });
 });
 describe("SINH formula", () => {
@@ -2293,8 +2415,8 @@ describe("SINH formula", () => {
     ["0", 0],
     ["=LN(2)", 0.75],
     ["=-LN(4)", -1.875],
-  ])("take 1 parameter, return a number", (a, expected) => {
-    expect(evaluateCell("A1", { A1: "=SINH(A2)", A2: a })).toBeCloseTo(expected, 9);
+  ])("take 1 parameter, return a number", async (a, expected) => {
+    expect(await evaluateCell("A1", { A1: "=SINH(A2)", A2: a })).toBeCloseTo(expected, 9);
   });
 });
 describe("SQRT formula", () => {
@@ -2302,108 +2424,108 @@ describe("SQRT formula", () => {
     ["0", 0],
     ["4", 2],
     ["9", 3],
-  ])("take 1 parameter, return a number", (a, expected) => {
-    expect(evaluateCell("A1", { A1: "=SQRT(A2)", A2: a })).toBe(expected);
+  ])("take 1 parameter, return a number", async (a, expected) => {
+    expect(await evaluateCell("A1", { A1: "=SQRT(A2)", A2: a })).toBe(expected);
   });
-  test.each([["-4"], ["-9"]])("take 1 parameter, return an error ", (a) => {
-    expect(evaluateCell("A1", { A1: "=SQRT(A2)", A2: a })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!!
+  test.each([["-4"], ["-9"]])("take 1 parameter, return an error ", async (a) => {
+    expect(await evaluateCell("A1", { A1: "=SQRT(A2)", A2: a })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!!
   });
-  test("special value testing", () => {
-    expect(evaluateCell("A1", { A1: "=SQRT()" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
-    expect(evaluateCell("A1", { A1: "=SQRT(TRUE)" })).toBe(1);
-    expect(evaluateCell("A1", { A1: "=SQRT(FALSE)" })).toBe(0);
-    expect(evaluateCell("A1", { A1: '=SQRT("")' })).toBe(0);
-    expect(evaluateCell("A1", { A1: '=SQRT(" ")' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
-    expect(evaluateCell("A1", { A1: '=SQRT("49")' })).toBe(7);
-    expect(evaluateCell("A1", { A1: "=SQRT(A2)", A2: "" })).toBe(0);
-    expect(evaluateCell("A1", { A1: "=SQRT(A2)", A2: " " })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
-    expect(evaluateCell("A1", { A1: "=SQRT(A2)", A2: "49" })).toBe(7);
-    expect(evaluateCell("A1", { A1: "=SQRT(A2)", A2: '""' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
-    expect(evaluateCell("A1", { A1: "=SQRT(A2)", A2: '" "' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
-    expect(evaluateCell("A1", { A1: "=SQRT(A2)", A2: '"0"' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
-    expect(evaluateCell("A1", { A1: "=SQRT(A2)", A2: '=""' })).toBe(0);
-    expect(evaluateCell("A1", { A1: "=SQRT(A2)", A2: '=" "' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
-    expect(evaluateCell("A1", { A1: "=SQRT(A2)", A2: '="49"' })).toBe(7);
+  test("special value testing", async () => {
+    expect(await evaluateCell("A1", { A1: "=SQRT()" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+    expect(await evaluateCell("A1", { A1: "=SQRT(TRUE)" })).toBe(1);
+    expect(await evaluateCell("A1", { A1: "=SQRT(FALSE)" })).toBe(0);
+    expect(await evaluateCell("A1", { A1: '=SQRT("")' })).toBe(0);
+    expect(await evaluateCell("A1", { A1: '=SQRT(" ")' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(await evaluateCell("A1", { A1: '=SQRT("49")' })).toBe(7);
+    expect(await evaluateCell("A1", { A1: "=SQRT(A2)", A2: "" })).toBe(0);
+    expect(await evaluateCell("A1", { A1: "=SQRT(A2)", A2: " " })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(await evaluateCell("A1", { A1: "=SQRT(A2)", A2: "49" })).toBe(7);
+    expect(await evaluateCell("A1", { A1: "=SQRT(A2)", A2: '""' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(await evaluateCell("A1", { A1: "=SQRT(A2)", A2: '" "' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(await evaluateCell("A1", { A1: "=SQRT(A2)", A2: '"0"' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(await evaluateCell("A1", { A1: "=SQRT(A2)", A2: '=""' })).toBe(0);
+    expect(await evaluateCell("A1", { A1: "=SQRT(A2)", A2: '=" "' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(await evaluateCell("A1", { A1: "=SQRT(A2)", A2: '="49"' })).toBe(7);
   });
-  test("result format depends on 1st argument", () => {
-    expect(evaluateCellFormat("A1", { A1: "=SQRT(A2)", A2: "42" })).toBe("");
-    expect(evaluateCellFormat("A1", { A1: "=SQRT(A2)", A2: "4200%" })).toBe("0%");
+  test("result format depends on 1st argument", async () => {
+    expect(await evaluateCellFormat("A1", { A1: "=SQRT(A2)", A2: "42" })).toBe("");
+    expect(await evaluateCellFormat("A1", { A1: "=SQRT(A2)", A2: "4200%" })).toBe("0%");
   });
 });
 describe("SUM formula", () => {
-  test("functional tests on simple arguments", () => {
-    expect(evaluateCell("A1", { A1: "=SUM()" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
-    expect(evaluateCell("A1", { A1: "=SUM(,)" })).toBe(0);
-    expect(evaluateCell("A1", { A1: "=SUM(0)" })).toBe(0);
-    expect(evaluateCell("A1", { A1: "=SUM(1, 2, 3, 1, 2)" })).toBe(9);
-    expect(evaluateCell("A1", { A1: "=SUM(1,  , 2,  , 3)" })).toBe(6);
-    expect(evaluateCell("A1", { A1: "=SUM(1.5, 1.4)" })).toBe(2.9);
-    expect(evaluateCell("A1", { A1: '=SUM("Jean Saigne", "Jean Tanrien")' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
-    expect(evaluateCell("A1", { A1: '=SUM("")' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
-    expect(evaluateCell("A1", { A1: '=SUM(" ")' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
-    expect(evaluateCell("A1", { A1: '=SUM("2", "-2")' })).toBe(0);
-    expect(evaluateCell("A1", { A1: '=SUM("2", "")' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
-    expect(evaluateCell("A1", { A1: '=SUM("2", " ")' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
-    expect(evaluateCell("A1", { A1: "=SUM(TRUE, FALSE)" })).toBe(1);
-    expect(evaluateCell("A1", { A1: '=SUM(1, "1", TRUE)' })).toBe(3);
-    expect(evaluateCell("A1", { A1: '=SUM(1, "10/10/10")' })).toBe(40462);
+  test("functional tests on simple arguments", async () => {
+    expect(await evaluateCell("A1", { A1: "=SUM()" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+    expect(await evaluateCell("A1", { A1: "=SUM(,)" })).toBe(0);
+    expect(await evaluateCell("A1", { A1: "=SUM(0)" })).toBe(0);
+    expect(await evaluateCell("A1", { A1: "=SUM(1, 2, 3, 1, 2)" })).toBe(9);
+    expect(await evaluateCell("A1", { A1: "=SUM(1,  , 2,  , 3)" })).toBe(6);
+    expect(await evaluateCell("A1", { A1: "=SUM(1.5, 1.4)" })).toBe(2.9);
+    expect(await evaluateCell("A1", { A1: '=SUM("Jean Saigne", "Jean Tanrien")' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(await evaluateCell("A1", { A1: '=SUM("")' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(await evaluateCell("A1", { A1: '=SUM(" ")' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(await evaluateCell("A1", { A1: '=SUM("2", "-2")' })).toBe(0);
+    expect(await evaluateCell("A1", { A1: '=SUM("2", "")' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(await evaluateCell("A1", { A1: '=SUM("2", " ")' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(await evaluateCell("A1", { A1: "=SUM(TRUE, FALSE)" })).toBe(1);
+    expect(await evaluateCell("A1", { A1: '=SUM(1, "1", TRUE)' })).toBe(3);
+    expect(await evaluateCell("A1", { A1: '=SUM(1, "10/10/10")' })).toBe(40462);
   });
-  test("functional tests on cell arguments", () => {
-    expect(evaluateCell("A1", { A1: "=SUM(A2)", A2: "" })).toBe(0);
-    expect(evaluateCell("A1", { A1: "=SUM(A2)", A2: " " })).toBe(0);
-    expect(evaluateCell("A1", { A1: "=SUM(A2)", A2: "," })).toBe(0);
-    expect(evaluateCell("A1", { A1: "=SUM(A2)", A2: "0" })).toBe(0);
-    expect(evaluateCell("A1", { A1: "=SUM(A2, A3)", A2: "1", A3: "2" })).toBe(3);
-    expect(evaluateCell("A1", { A1: "=SUM(A2, A3, A4)", A2: "1", A3: "", A4: "1" })).toBe(2);
+  test("functional tests on cell arguments", async () => {
+    expect(await evaluateCell("A1", { A1: "=SUM(A2)", A2: "" })).toBe(0);
+    expect(await evaluateCell("A1", { A1: "=SUM(A2)", A2: " " })).toBe(0);
+    expect(await evaluateCell("A1", { A1: "=SUM(A2)", A2: "," })).toBe(0);
+    expect(await evaluateCell("A1", { A1: "=SUM(A2)", A2: "0" })).toBe(0);
+    expect(await evaluateCell("A1", { A1: "=SUM(A2, A3)", A2: "1", A3: "2" })).toBe(3);
+    expect(await evaluateCell("A1", { A1: "=SUM(A2, A3, A4)", A2: "1", A3: "", A4: "1" })).toBe(2);
     expect(
-      evaluateCell("A1", { A1: "=SUM(A2, A3, A4)", A2: "1.5", A3: "-10", A4: "Jean Vier" })
+      await evaluateCell("A1", { A1: "=SUM(A2, A3, A4)", A2: "1.5", A3: "-10", A4: "Jean Vier" })
     ).toBe(-8.5);
-    expect(evaluateCell("A1", { A1: "=SUM(A2, A3)", A2: "", A3: "" })).toBe(0);
-    expect(evaluateCell("A1", { A1: "=SUM(A2, A3)", A2: " ", A3: "" })).toBe(0);
-    expect(evaluateCell("A1", { A1: "=SUM(A2, A3)", A2: "", A3: '=" "' })).toBe(0);
-    expect(evaluateCell("A1", { A1: "=SUM(A2, A3)", A2: " ", A3: '=" "' })).toBe(0);
-    expect(evaluateCell("A1", { A1: "=SUM(A2, A3)", A2: "  ", A3: '=" "' })).toBe(0);
-    expect(evaluateCell("A1", { A1: "=SUM(A2, A3)", A2: " ", A3: '="  "' })).toBe(0);
-    expect(evaluateCell("A1", { A1: "=SUM(A2, A3)", A2: "42", A3: "42" })).toBe(84);
-    expect(evaluateCell("A1", { A1: "=SUM(A2, A3)", A2: "42", A3: '"42"' })).toBe(42);
-    expect(evaluateCell("A1", { A1: "=SUM(A2, A3)", A2: "42", A3: "=42" })).toBe(84);
-    expect(evaluateCell("A1", { A1: "=SUM(A2, A3)", A2: "42", A3: '="42"' })).toBe(42);
-    expect(evaluateCell("A1", { A1: "=SUM(A2, A3)", A2: '"42"', A3: '"42"' })).toBe(0);
-    expect(evaluateCell("A1", { A1: "=SUM(A2, A3)", A2: '"42"', A3: "=42" })).toBe(42);
-    expect(evaluateCell("A1", { A1: "=SUM(A2, A3)", A2: '"42"', A3: '="42"' })).toBe(0);
-    expect(evaluateCell("A1", { A1: "=SUM(A2, A3)", A2: "=42", A3: "=42" })).toBe(84);
-    expect(evaluateCell("A1", { A1: "=SUM(A2, A3)", A2: "=42", A3: '="42"' })).toBe(42);
-    expect(evaluateCell("A1", { A1: "=SUM(A2, A3)", A2: '="42"', A3: '="42"' })).toBe(0);
+    expect(await evaluateCell("A1", { A1: "=SUM(A2, A3)", A2: "", A3: "" })).toBe(0);
+    expect(await evaluateCell("A1", { A1: "=SUM(A2, A3)", A2: " ", A3: "" })).toBe(0);
+    expect(await evaluateCell("A1", { A1: "=SUM(A2, A3)", A2: "", A3: '=" "' })).toBe(0);
+    expect(await evaluateCell("A1", { A1: "=SUM(A2, A3)", A2: " ", A3: '=" "' })).toBe(0);
+    expect(await evaluateCell("A1", { A1: "=SUM(A2, A3)", A2: "  ", A3: '=" "' })).toBe(0);
+    expect(await evaluateCell("A1", { A1: "=SUM(A2, A3)", A2: " ", A3: '="  "' })).toBe(0);
+    expect(await evaluateCell("A1", { A1: "=SUM(A2, A3)", A2: "42", A3: "42" })).toBe(84);
+    expect(await evaluateCell("A1", { A1: "=SUM(A2, A3)", A2: "42", A3: '"42"' })).toBe(42);
+    expect(await evaluateCell("A1", { A1: "=SUM(A2, A3)", A2: "42", A3: "=42" })).toBe(84);
+    expect(await evaluateCell("A1", { A1: "=SUM(A2, A3)", A2: "42", A3: '="42"' })).toBe(42);
+    expect(await evaluateCell("A1", { A1: "=SUM(A2, A3)", A2: '"42"', A3: '"42"' })).toBe(0);
+    expect(await evaluateCell("A1", { A1: "=SUM(A2, A3)", A2: '"42"', A3: "=42" })).toBe(42);
+    expect(await evaluateCell("A1", { A1: "=SUM(A2, A3)", A2: '"42"', A3: '="42"' })).toBe(0);
+    expect(await evaluateCell("A1", { A1: "=SUM(A2, A3)", A2: "=42", A3: "=42" })).toBe(84);
+    expect(await evaluateCell("A1", { A1: "=SUM(A2, A3)", A2: "=42", A3: '="42"' })).toBe(42);
+    expect(await evaluateCell("A1", { A1: "=SUM(A2, A3)", A2: '="42"', A3: '="42"' })).toBe(0);
   });
-  test("functional tests on simple and cell arguments", () => {
-    expect(evaluateCell("A1", { A1: "=SUM(A2,)", A2: "" })).toBe(0);
-    expect(evaluateCell("A1", { A1: "=SUM(A2,)", A2: " " })).toBe(0);
-    expect(evaluateCell("A1", { A1: "=SUM(A2,)", A2: '=""' })).toBe(0);
-    expect(evaluateCell("A1", { A1: "=SUM(A2,)", A2: '=" "' })).toBe(0);
-    expect(evaluateCell("A1", { A1: '=SUM(A2, "")', A2: "" })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
-    expect(evaluateCell("A1", { A1: '=SUM(A2, "")', A2: " " })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
-    expect(evaluateCell("A1", { A1: '=SUM(A2, "")', A2: '=""' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
-    expect(evaluateCell("A1", { A1: '=SUM(A2, "")', A2: '=" "' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
-    expect(evaluateCell("A1", { A1: '=SUM(A2, " ")', A2: "" })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
-    expect(evaluateCell("A1", { A1: '=SUM(A2, " ")', A2: " " })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
-    expect(evaluateCell("A1", { A1: '=SUM(A2, " ")', A2: '=""' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
-    expect(evaluateCell("A1", { A1: '=SUM(A2, " ")', A2: '=" "' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
-    expect(evaluateCell("A1", { A1: '=SUM(42, "42")' })).toBe(84);
-    expect(evaluateCell("A1", { A1: "=SUM(A2, 42)", A2: "10/10/10" })).toBe(40503);
-    expect(evaluateCell("A1", { A1: "=SUM(A2, 42)", A2: "42" })).toBe(84);
-    expect(evaluateCell("A1", { A1: "=SUM(A2, 42)", A2: '"42"' })).toBe(42);
-    expect(evaluateCell("A1", { A1: "=SUM(A2, 42)", A2: "=42" })).toBe(84);
-    expect(evaluateCell("A1", { A1: "=SUM(A2, 42)", A2: '="42"' })).toBe(42);
-    expect(evaluateCell("A1", { A1: '=SUM(A2, "42")', A2: "42" })).toBe(84);
-    expect(evaluateCell("A1", { A1: '=SUM(A2, "42")', A2: '"42"' })).toBe(42);
-    expect(evaluateCell("A1", { A1: '=SUM(A2, "42")', A2: "=42" })).toBe(84);
-    expect(evaluateCell("A1", { A1: '=SUM(A2, "42")', A2: '="42"' })).toBe(42);
-    expect(evaluateCell("A1", { A1: "=SUM(A2, TRUE)", A2: "1" })).toBe(2);
-    expect(evaluateCell("A1", { A1: "=SUM(A2, TRUE)", A2: '"1"' })).toBe(1);
-    expect(evaluateCell("A1", { A1: "=SUM(A2, TRUE)", A2: "=1" })).toBe(2);
-    expect(evaluateCell("A1", { A1: "=SUM(A2, TRUE)", A2: '="1"' })).toBe(1);
+  test("functional tests on simple and cell arguments", async () => {
+    expect(await evaluateCell("A1", { A1: "=SUM(A2,)", A2: "" })).toBe(0);
+    expect(await evaluateCell("A1", { A1: "=SUM(A2,)", A2: " " })).toBe(0);
+    expect(await evaluateCell("A1", { A1: "=SUM(A2,)", A2: '=""' })).toBe(0);
+    expect(await evaluateCell("A1", { A1: "=SUM(A2,)", A2: '=" "' })).toBe(0);
+    expect(await evaluateCell("A1", { A1: '=SUM(A2, "")', A2: "" })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(await evaluateCell("A1", { A1: '=SUM(A2, "")', A2: " " })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(await evaluateCell("A1", { A1: '=SUM(A2, "")', A2: '=""' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(await evaluateCell("A1", { A1: '=SUM(A2, "")', A2: '=" "' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(await evaluateCell("A1", { A1: '=SUM(A2, " ")', A2: "" })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(await evaluateCell("A1", { A1: '=SUM(A2, " ")', A2: " " })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(await evaluateCell("A1", { A1: '=SUM(A2, " ")', A2: '=""' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(await evaluateCell("A1", { A1: '=SUM(A2, " ")', A2: '=" "' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(await evaluateCell("A1", { A1: '=SUM(42, "42")' })).toBe(84);
+    expect(await evaluateCell("A1", { A1: "=SUM(A2, 42)", A2: "10/10/10" })).toBe(40503);
+    expect(await evaluateCell("A1", { A1: "=SUM(A2, 42)", A2: "42" })).toBe(84);
+    expect(await evaluateCell("A1", { A1: "=SUM(A2, 42)", A2: '"42"' })).toBe(42);
+    expect(await evaluateCell("A1", { A1: "=SUM(A2, 42)", A2: "=42" })).toBe(84);
+    expect(await evaluateCell("A1", { A1: "=SUM(A2, 42)", A2: '="42"' })).toBe(42);
+    expect(await evaluateCell("A1", { A1: '=SUM(A2, "42")', A2: "42" })).toBe(84);
+    expect(await evaluateCell("A1", { A1: '=SUM(A2, "42")', A2: '"42"' })).toBe(42);
+    expect(await evaluateCell("A1", { A1: '=SUM(A2, "42")', A2: "=42" })).toBe(84);
+    expect(await evaluateCell("A1", { A1: '=SUM(A2, "42")', A2: '="42"' })).toBe(42);
+    expect(await evaluateCell("A1", { A1: "=SUM(A2, TRUE)", A2: "1" })).toBe(2);
+    expect(await evaluateCell("A1", { A1: "=SUM(A2, TRUE)", A2: '"1"' })).toBe(1);
+    expect(await evaluateCell("A1", { A1: "=SUM(A2, TRUE)", A2: "=1" })).toBe(2);
+    expect(await evaluateCell("A1", { A1: "=SUM(A2, TRUE)", A2: '="1"' })).toBe(1);
   });
-  test("functional tests on range arguments", () => {
+  test("functional tests on range arguments", async () => {
     const grid = {
       A1: "=SUM(B2:D3,B4:D4,E2:E3,E4)",
       A2: "=SUM(B2:E2)",
@@ -2427,7 +2549,7 @@ describe("SUM formula", () => {
       D4: '=""',
       E4: '" "',
     };
-    const gridResult = evaluateGrid(grid);
+    const gridResult = await evaluateGrid(grid);
     expect(gridResult.A1).toBe(6);
     expect(gridResult.A2).toBe(6);
     expect(gridResult.A3).toBe(0);
@@ -2438,18 +2560,18 @@ describe("SUM formula", () => {
     expect(gridResult.D1).toBe(0);
     expect(gridResult.E1).toBe(0);
   });
-  test("result format depends on 1st argument", () => {
-    expect(evaluateCellFormat("A1", { A1: "=SUM(A2, 2)", A2: "42" })).toBe("");
-    expect(evaluateCellFormat("A1", { A1: "=SUM(A2:A3)", A2: "42%", A3: "1" })).toBe("0%");
-    expect(evaluateCellFormat("A1", { A1: "=SUM(A2:A3)", A2: "1", A3: "42%" })).toBe("");
+  test("result format depends on 1st argument", async () => {
+    expect(await evaluateCellFormat("A1", { A1: "=SUM(A2, 2)", A2: "42" })).toBe("");
+    expect(await evaluateCellFormat("A1", { A1: "=SUM(A2:A3)", A2: "42%", A3: "1" })).toBe("0%");
+    expect(await evaluateCellFormat("A1", { A1: "=SUM(A2:A3)", A2: "1", A3: "42%" })).toBe("");
   });
-  test("SUM does not accept error in values", () => {
-    expect(evaluateCell("A1", { A1: "=SUM(1, KABOUM)" })).toBe("#BAD_EXPR");
-    expect(evaluateCell("A1", { A1: "=SUM(1, A2)", A2: "=KABOUM" })).toBe("#BAD_EXPR");
+  test("SUM does not accept error in values", async () => {
+    expect(await evaluateCell("A1", { A1: "=SUM(1, KABOUM)" })).toBe("#BAD_EXPR");
+    expect(await evaluateCell("A1", { A1: "=SUM(1, A2)", A2: "=KABOUM" })).toBe("#BAD_EXPR");
   });
 });
 describe("SUMIF formula", () => {
-  test("functional tests on range", () => {
+  test("functional tests on range", async () => {
     // prettier-ignore
     const grid = {
       A1:  "Coffee"    , B1:  "4"  ,
@@ -2466,33 +2588,35 @@ describe("SUMIF formula", () => {
       A15: '=SUMIF(A1:A8, "G*", B1:B8)',
       A16: '=SUMIF(A1:A8, "G*", B2:B8)',
     };
-    const gridResult = evaluateGrid(grid);
+    const gridResult = await evaluateGrid(grid);
     expect(gridResult.A12).toBe(18);
     expect(gridResult.A13).toBe(113);
     expect(gridResult.A14).toBe(113);
     expect(gridResult.A15).toBe(72);
     expect(gridResult.A16).toBe(39);
   });
-  test("SUMIF does not accept errors in first parameter", () => {
+  test("SUMIF does not accept errors in first parameter", async () => {
     // prettier-ignore
     const grid = {
         A1: "=KABOUM", B1: "42",
         A2: "42",      B2: "=1/0",
       };
-    expect(evaluateCell("A3", { A3: "=SUMIF(A1:B2, 42)", ...grid })).toBe(84);
+    expect(await evaluateCell("A3", { A3: "=SUMIF(A1:B2, 42)", ...grid })).toBe(84);
   });
   // @compatibility: should be able to accept errors !
-  test("SUMIF does not accept error on second parameter", () => {
+  test("SUMIF does not accept error on second parameter", async () => {
     // prettier-ignore
     const grid = {
         A1: "40", B1: "42",
         A2: "41", B2: "43",
       };
-    expect(evaluateCell("A3", { A3: "=SUMIF(A1:A2, KABOUM, B1:B2)", ...grid })).toBe("#BAD_EXPR"); // @compatibility: should be 4
+    expect(await evaluateCell("A3", { A3: "=SUMIF(A1:A2, KABOUM, B1:B2)", ...grid })).toBe(
+      "#BAD_EXPR"
+    ); // @compatibility: should be 4
   });
 });
 describe("SUMIFS formula", () => {
-  test("functional tests on range", () => {
+  test("functional tests on range", async () => {
     // prettier-ignore
     const grid = {
       B1:  "4"  , C1:  "14" , D1:  "Yes",
@@ -2512,39 +2636,41 @@ describe("SUMIFS formula", () => {
       A14: '=SUMIFS(B1:B11, D1:D11, "No")',
       A15: '=SUMIFS(B1:B11, B1:B11, B12, C1:C11, C12)',
     };
-    const gridResult = evaluateGrid(grid);
+    const gridResult = await evaluateGrid(grid);
     expect(gridResult.A12).toBe(180);
     expect(gridResult.A13).toBe(90);
     expect(gridResult.A14).toBe(106);
     expect(gridResult.A15).toBe(90);
   });
-  test("SUMIFS accepts error in first parameter", () => {
+  test("SUMIFS accepts error in first parameter", async () => {
     // prettier-ignore
     const grid = {
       A1: "=KABOUM_1", B1: "1",
       A2: "=KABOUM_2", B2: "1",
       A3: "42"       , B3: "24",
     };
-    expect(evaluateCell("A4", { A4: "=SUMIFS(A1:A3, B1:B3, 24)", ...grid })).toBe(42);
+    expect(await evaluateCell("A4", { A4: "=SUMIFS(A1:A3, B1:B3, 24)", ...grid })).toBe(42);
   });
-  test("SUMIFS does not accept errors in 2n+2 parameters", () => {
+  test("SUMIFS does not accept errors in 2n+2 parameters", async () => {
     // prettier-ignore
     const grid = {
       A1: "40", B1: "1",
       A2: "41", B2: "1",
       A3: "42", B3: "=KABOUM",
     };
-    expect(evaluateCell("A4", { A4: "=SUMIFS(A1:A3, B1:B3, 1)", ...grid })).toBe(81);
+    expect(await evaluateCell("A4", { A4: "=SUMIFS(A1:A3, B1:B3, 1)", ...grid })).toBe(81);
   });
   // @compatibility: should be able to count errors !
-  test("SUMIFS does not accept errors on 2n+3 parameters", () => {
+  test("SUMIFS does not accept errors on 2n+3 parameters", async () => {
     // prettier-ignore
     const grid = {
       A1: "40", B1: "1",
       A2: "41", B2: "1",
       A3: "42", B3: "1",
     };
-    expect(evaluateCell("A4", { A4: "=SUMIFS(A1:A3, B1:B3, KABOUM)", ...grid })).toBe("#BAD_EXPR"); // @compatibility: should be 0
+    expect(await evaluateCell("A4", { A4: "=SUMIFS(A1:A3, B1:B3, KABOUM)", ...grid })).toBe(
+      "#BAD_EXPR"
+    ); // @compatibility: should be 0
   });
 });
 describe("TAN formula", () => {
@@ -2555,8 +2681,8 @@ describe("TAN formula", () => {
     ["2", -2.185039863],
     ["-3", 0.142546543],
     ["-4", -1.157821282],
-  ])("take 1 parameter, return a number", (a, expected) => {
-    expect(evaluateCell("A1", { A1: "=TAN(A2)", A2: a })).toBeCloseTo(expected, 9);
+  ])("take 1 parameter, return a number", async (a, expected) => {
+    expect(await evaluateCell("A1", { A1: "=TAN(A2)", A2: a })).toBeCloseTo(expected, 9);
   });
 });
 describe("TANH formula", () => {
@@ -2566,8 +2692,8 @@ describe("TANH formula", () => {
     ["0", 0],
     ["1", 0.761594156],
     ["-2", -0.96402758],
-  ])("take 1 parameter, return a number", (a, expected) => {
-    expect(evaluateCell("A1", { A1: "=TANH(A2)", A2: a })).toBeCloseTo(expected, 9);
+  ])("take 1 parameter, return a number", async (a, expected) => {
+    expect(await evaluateCell("A1", { A1: "=TANH(A2)", A2: a })).toBeCloseTo(expected, 9);
   });
 });
 describe("TRUNC formula", () => {
@@ -2579,8 +2705,8 @@ describe("TRUNC formula", () => {
     ["1.4", 1],
     ["1.5", 1],
     ["1.6", 1],
-  ])("take 1 parameter, return a number", (a, expected) => {
-    expect(evaluateCell("A1", { A1: "=TRUNC(A2, A3)", A2: a })).toBe(expected);
+  ])("take 1 parameter, return a number", async (a, expected) => {
+    expect(await evaluateCell("A1", { A1: "=TRUNC(A2, A3)", A2: a })).toBe(expected);
   });
   test.each([
     ["0.3", "2", 0.3],
@@ -2598,58 +2724,64 @@ describe("TRUNC formula", () => {
     ["-12345", "-2", -12300],
     ["12345", "-1.9", 12340],
     ["-12345", "-1.9", -12340],
-  ])("take 2 parameters, return a number", (a, b, expected) => {
-    expect(evaluateCell("A1", { A1: "=TRUNC(A2, A3)", A2: a, A3: b })).toBe(expected);
+  ])("take 2 parameters, return a number", async (a, b, expected) => {
+    expect(await evaluateCell("A1", { A1: "=TRUNC(A2, A3)", A2: a, A3: b })).toBe(expected);
   });
-  test("special value testing", () => {
-    expect(evaluateCell("A1", { A1: "=TRUNC()" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
-    expect(evaluateCell("A1", { A1: "=TRUNC( , )" })).toBe(0);
-    expect(evaluateCell("A1", { A1: "=TRUNC(42, -1)" })).toBe(40);
-    expect(evaluateCell("A1", { A1: "=TRUNC( , 42)" })).toBe(0);
-    expect(evaluateCell("A1", { A1: "=TRUNC(42, )" })).toBe(42);
-    expect(evaluateCell("A1", { A1: "=TRUNC(42.42, TRUE)" })).toBe(42.4);
-    expect(evaluateCell("A1", { A1: "=TRUNC(42.42, FALSE)" })).toBe(42);
-    expect(evaluateCell("A1", { A1: "=TRUNC(TRUE, 10)" })).toBe(1);
-    expect(evaluateCell("A1", { A1: "=TRUNC(FALSE, 10)" })).toBe(0);
-    expect(evaluateCell("A1", { A1: '=TRUNC("" , "")' })).toBe(0);
-    expect(evaluateCell("A1", { A1: '=TRUNC("" , 12)' })).toBe(0);
-    expect(evaluateCell("A1", { A1: '=TRUNC(" " , 0)' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
-    expect(evaluateCell("A1", { A1: '=TRUNC("42", -1)' })).toBe(40);
-    expect(evaluateCell("A1", { A1: '=TRUNC("42", "-1")' })).toBe(40);
-    expect(evaluateCell("A1", { A1: '=TRUNC("42", "")' })).toBe(42);
-    expect(evaluateCell("A1", { A1: "=TRUNC(A2, A3)", A2: "", A3: "" })).toBe(0);
-    expect(evaluateCell("A1", { A1: "=TRUNC(A2, A3)", A2: "42", A3: "-1" })).toBe(40);
-    expect(evaluateCell("A1", { A1: "=TRUNC(A2, A3)", A2: "", A3: "42" })).toBe(0);
-    expect(evaluateCell("A1", { A1: "=TRUNC(A2, A3)", A2: "42", A3: "" })).toBe(42);
-    expect(evaluateCell("A1", { A1: "=TRUNC(A2, A3)", A2: "42.42", A3: "TRUE" })).toBe(42.4);
-    expect(evaluateCell("A1", { A1: "=TRUNC(A2, A3)", A2: "42.42", A3: "FALSE" })).toBe(42);
-    expect(evaluateCell("A1", { A1: "=TRUNC(A2, A3)", A2: "TRUE", A3: "10" })).toBe(1);
-    expect(evaluateCell("A1", { A1: "=TRUNC(A2, A3)", A2: "FALSE", A3: "10" })).toBe(0);
-    expect(evaluateCell("A1", { A1: "=TRUNC(A2, A3)", A2: '"42"', A3: '"42"' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
-    expect(evaluateCell("A1", { A1: "=TRUNC(A2, A3)", A2: '=""', A3: '="2"' })).toBe(0);
-    expect(evaluateCell("A1", { A1: "=TRUNC(A2, A3)", A2: '="42"', A3: '="-1"' })).toBe(40);
+  test("special value testing", async () => {
+    expect(await evaluateCell("A1", { A1: "=TRUNC()" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+    expect(await evaluateCell("A1", { A1: "=TRUNC( , )" })).toBe(0);
+    expect(await evaluateCell("A1", { A1: "=TRUNC(42, -1)" })).toBe(40);
+    expect(await evaluateCell("A1", { A1: "=TRUNC( , 42)" })).toBe(0);
+    expect(await evaluateCell("A1", { A1: "=TRUNC(42, )" })).toBe(42);
+    expect(await evaluateCell("A1", { A1: "=TRUNC(42.42, TRUE)" })).toBe(42.4);
+    expect(await evaluateCell("A1", { A1: "=TRUNC(42.42, FALSE)" })).toBe(42);
+    expect(await evaluateCell("A1", { A1: "=TRUNC(TRUE, 10)" })).toBe(1);
+    expect(await evaluateCell("A1", { A1: "=TRUNC(FALSE, 10)" })).toBe(0);
+    expect(await evaluateCell("A1", { A1: '=TRUNC("" , "")' })).toBe(0);
+    expect(await evaluateCell("A1", { A1: '=TRUNC("" , 12)' })).toBe(0);
+    expect(await evaluateCell("A1", { A1: '=TRUNC(" " , 0)' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(await evaluateCell("A1", { A1: '=TRUNC("42", -1)' })).toBe(40);
+    expect(await evaluateCell("A1", { A1: '=TRUNC("42", "-1")' })).toBe(40);
+    expect(await evaluateCell("A1", { A1: '=TRUNC("42", "")' })).toBe(42);
+    expect(await evaluateCell("A1", { A1: "=TRUNC(A2, A3)", A2: "", A3: "" })).toBe(0);
+    expect(await evaluateCell("A1", { A1: "=TRUNC(A2, A3)", A2: "42", A3: "-1" })).toBe(40);
+    expect(await evaluateCell("A1", { A1: "=TRUNC(A2, A3)", A2: "", A3: "42" })).toBe(0);
+    expect(await evaluateCell("A1", { A1: "=TRUNC(A2, A3)", A2: "42", A3: "" })).toBe(42);
+    expect(await evaluateCell("A1", { A1: "=TRUNC(A2, A3)", A2: "42.42", A3: "TRUE" })).toBe(42.4);
+    expect(await evaluateCell("A1", { A1: "=TRUNC(A2, A3)", A2: "42.42", A3: "FALSE" })).toBe(42);
+    expect(await evaluateCell("A1", { A1: "=TRUNC(A2, A3)", A2: "TRUE", A3: "10" })).toBe(1);
+    expect(await evaluateCell("A1", { A1: "=TRUNC(A2, A3)", A2: "FALSE", A3: "10" })).toBe(0);
+    expect(await evaluateCell("A1", { A1: "=TRUNC(A2, A3)", A2: '"42"', A3: '"42"' })).toBe(
+      "#ERROR"
+    ); // @compatibility: on google sheets, return #VALUE!
+    expect(await evaluateCell("A1", { A1: "=TRUNC(A2, A3)", A2: '=""', A3: '="2"' })).toBe(0);
+    expect(await evaluateCell("A1", { A1: "=TRUNC(A2, A3)", A2: '="42"', A3: '="-1"' })).toBe(40);
   });
-  test("result format depends on 1st argument", () => {
-    expect(evaluateCellFormat("A1", { A1: "=TRUNC(A2, 2)", A2: "42" })).toBe("");
-    expect(evaluateCellFormat("A1", { A1: "=TRUNC(A2, 2)", A2: "4200%" })).toBe("0%");
+  test("result format depends on 1st argument", async () => {
+    expect(await evaluateCellFormat("A1", { A1: "=TRUNC(A2, 2)", A2: "42" })).toBe("");
+    expect(await evaluateCellFormat("A1", { A1: "=TRUNC(A2, 2)", A2: "4200%" })).toBe("0%");
   });
 });
 describe("SUBTOTAL formula", () => {
-  test("take 2 args at latest", () => {
-    expect(evaluateCell("A1", { A1: "=SUBTOTAL()" })).toBe("#BAD_EXPR");
-    expect(evaluateCell("A1", { A1: "=SUBTOTAL(9)" })).toBe("#BAD_EXPR");
-    expect(evaluateCell("A1", { A1: "=SUBTOTAL(9, A2:A3)" })).toBe(0);
+  test("take 2 args at latest", async () => {
+    expect(await evaluateCell("A1", { A1: "=SUBTOTAL()" })).toBe("#BAD_EXPR");
+    expect(await evaluateCell("A1", { A1: "=SUBTOTAL(9)" })).toBe("#BAD_EXPR");
+    expect(await evaluateCell("A1", { A1: "=SUBTOTAL(9, A2:A3)" })).toBe(0);
   });
-  test("casting test", () => {
-    expect(evaluateCell("A1", { A1: "=SUBTOTAL(9, A2, A3)", A2: "42", A3: "58" })).toBe(100);
-    expect(evaluateCell("A1", { A1: '=SUBTOTAL("9", A2, A3)', A2: "42", A3: "58" })).toBe(100);
-    expect(evaluateCell("A1", { A1: "=SUBTOTAL(9, 42, 58)" })).toBe("#BAD_EXPR");
-    expect(evaluateCell("A1", { A1: "=SUBTOTAL(, A2, A3)", A2: "42", A3: "58" })).toBe("#ERROR");
-    expect(evaluateCell("A1", { A1: "=SUBTOTAL(B1, A2, A3)", B1: "9", A2: "42", A3: "58" })).toBe(
+  test("casting test", async () => {
+    expect(await evaluateCell("A1", { A1: "=SUBTOTAL(9, A2, A3)", A2: "42", A3: "58" })).toBe(100);
+    expect(await evaluateCell("A1", { A1: '=SUBTOTAL("9", A2, A3)', A2: "42", A3: "58" })).toBe(
       100
     );
+    expect(await evaluateCell("A1", { A1: "=SUBTOTAL(9, 42, 58)" })).toBe("#BAD_EXPR");
+    expect(await evaluateCell("A1", { A1: "=SUBTOTAL(, A2, A3)", A2: "42", A3: "58" })).toBe(
+      "#ERROR"
+    );
+    expect(
+      await evaluateCell("A1", { A1: "=SUBTOTAL(B1, A2, A3)", B1: "9", A2: "42", A3: "58" })
+    ).toBe(100);
   });
-  test("function code should be between 1 and 11 or 101 and 111", () => {
+  test("function code should be between 1 and 11 or 101 and 111", async () => {
     const grid = {
       A1: "1",
       A2: "1",
@@ -2663,7 +2795,7 @@ describe("SUBTOTAL formula", () => {
       H1: "=SUBTOTAL(111, A2:A3)",
       I1: "=SUBTOTAL(112, A2:A3)",
     };
-    const gridResult = evaluateGrid(grid);
+    const gridResult = await evaluateGrid(grid);
     expect(gridResult.B1).toBe("#ERROR");
     expect(gridResult.C1).toBe(1);
     expect(gridResult.D1).toBe(0);
@@ -2674,7 +2806,7 @@ describe("SUBTOTAL formula", () => {
     expect(gridResult.I1).toBe("#ERROR");
   });
   describe("functional tests on function codes", () => {
-    test("apply corresponding function code", () => {
+    test("apply corresponding function code", async () => {
       const grid = {
         A1: "1",
         A2: "2",
@@ -2692,7 +2824,7 @@ describe("SUBTOTAL formula", () => {
         K1: "=SUBTOTAL(10, A1:A4)", // VAR
         L1: "=SUBTOTAL(11, A1:A4)", // VARP
       };
-      const gridResult = evaluateGrid(grid);
+      const gridResult = await evaluateGrid(grid);
       expect(gridResult.B1).toBe(2); // AVERAGE
       expect(gridResult.C1).toBe(3); // COUNT
       expect(gridResult.D1).toBe(4); // COUNTA
@@ -2707,8 +2839,8 @@ describe("SUBTOTAL formula", () => {
     });
   });
   describe("function codes greater than 100 (ignoring hidden rows)", () => {
-    test("write the SUBTOTAL formula after hiding rows", () => {
-      const model = createModel();
+    test("write the SUBTOTAL formula after hiding rows", async () => {
+      const model = await createModel();
       setCellContent(model, "A2", "1");
       setCellContent(model, "A3", "2");
       setCellContent(model, "A4", "3");
@@ -2716,8 +2848,8 @@ describe("SUBTOTAL formula", () => {
       setCellContent(model, "A1", "=SUBTOTAL(109, A2:A4)"); // 109: SUM ignoring hidden rows
       expect(getEvaluatedCell(model, "A1").value).toBe(4);
     });
-    test("write the SUBTOTAL formula before hiding rows", () => {
-      const model = createModel();
+    test("write the SUBTOTAL formula before hiding rows", async () => {
+      const model = await createModel();
       setCellContent(model, "A2", "1");
       setCellContent(model, "A3", "2");
       setCellContent(model, "A4", "3");
@@ -2725,8 +2857,8 @@ describe("SUBTOTAL formula", () => {
       hideRows(model, [2]);
       expect(getEvaluatedCell(model, "A1").value).toBe(4);
     });
-    test("unhide rows after writing the SUBTOTAL formula", () => {
-      const model = createModel();
+    test("unhide rows after writing the SUBTOTAL formula", async () => {
+      const model = await createModel();
       setCellContent(model, "A2", "1");
       setCellContent(model, "A3", "2");
       setCellContent(model, "A4", "3");
@@ -2736,8 +2868,8 @@ describe("SUBTOTAL formula", () => {
       expect(getEvaluatedCell(model, "A1").value).toBe(2);
     });
   });
-  test("function codes greater than 100 (ignoring hidden rows)", () => {
-    const model = createModel();
+  test("function codes greater than 100 (ignoring hidden rows)", async () => {
+    const model = await createModel();
     setCellContent(model, "A2", "1");
     setCellContent(model, "A3", "2");
     setCellContent(model, "A4", "3");
@@ -2745,7 +2877,7 @@ describe("SUBTOTAL formula", () => {
     setCellContent(model, "A1", "=SUBTOTAL(109, A2:A4)"); // 109: SUM ignoring hidden rows
     expect(getEvaluatedCell(model, "A1").value).toBe(4);
   });
-  test("SUBTOTAL dont take into account other SUBTOTAL", () => {
+  test("SUBTOTAL dont take into account other SUBTOTAL", async () => {
     const grid = {
       A1: "1",
       A2: "1",
@@ -2755,25 +2887,25 @@ describe("SUBTOTAL formula", () => {
       A6: "= 10 + ABS(SUBTOTAL(9, A1:A5))", // SUM
       A7: "=SUBTOTAL(2, A1:A6)", // COUNT
     };
-    const gridResult = evaluateGrid(grid);
+    const gridResult = await evaluateGrid(grid);
     expect(gridResult.A3).toBe(12);
     expect(gridResult.A6).toBe(14);
     expect(gridResult.A7).toBe(4);
   });
-  test("SUBTOTAL ignores spilled SUBTOTAL", () => {
+  test("SUBTOTAL ignores spilled SUBTOTAL", async () => {
     const grid = {
       A1: "1",
       A2: "1",
       A3: "=SUBTOTAL(9, A1:A2) + A1:A2",
       A5: "=SUBTOTAL(9, A4)",
     };
-    const gridResult = evaluateGrid(grid);
+    const gridResult = await evaluateGrid(grid);
     expect(gridResult.A3).toBe(3);
     expect(gridResult.A5).toBe(0);
   });
   describe("ignoring filtered rows", () => {
-    test("write the SUBTOTAL formula after updating filter", () => {
-      const model = createModel();
+    test("write the SUBTOTAL formula after updating filter", async () => {
+      const model = await createModel();
       setCellContent(model, "A1", "Header");
       setCellContent(model, "A2", "1");
       setCellContent(model, "A3", "2");
@@ -2783,8 +2915,8 @@ describe("SUBTOTAL formula", () => {
       setCellContent(model, "B1", "=SUBTOTAL(9, A2:A4)"); // SUM aggregate function
       expect(getEvaluatedCell(model, "B1").value).toBe(4);
     });
-    test("write the SUBTOTAL formula before updating filter", () => {
-      const model = createModel();
+    test("write the SUBTOTAL formula before updating filter", async () => {
+      const model = await createModel();
       setCellContent(model, "A1", "Header");
       setCellContent(model, "A2", "1");
       setCellContent(model, "A3", "2");
@@ -2795,23 +2927,23 @@ describe("SUBTOTAL formula", () => {
       expect(getEvaluatedCell(model, "B1").value).toBe(4);
     });
   });
-  test("multiple ranges", () => {
+  test("multiple ranges", async () => {
     const grid = {
       A1: "=SUBTOTAL(9, B2:B3, B2:B3)", // SUM
       B2: "1",
       B3: "2",
     };
-    const gridResult = evaluateGrid(grid);
+    const gridResult = await evaluateGrid(grid);
     expect(gridResult.A1).toBe(6);
   });
-  test("handling errors in ranges", () => {
+  test("handling errors in ranges", async () => {
     const grid = {
       A1: "=SUBTOTAL(9, A2:A4)", // SUM
       A2: "1",
       A3: "=1/0",
       A4: "3",
     };
-    const gridResult = evaluateGrid(grid);
+    const gridResult = await evaluateGrid(grid);
     expect(gridResult.A1).toBe("#DIV/0!"); // Error in range
   });
 });

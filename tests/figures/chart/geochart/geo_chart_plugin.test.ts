@@ -19,7 +19,7 @@ mockChart();
 let model: Model;
 
 beforeEach(async () => {
-  model = createModel({}, { external: { geoJsonService: mockGeoJsonService } });
+  model = await createModel({}, { external: { geoJsonService: mockGeoJsonService } });
   // Wait for the geoJsonService to resolve the promise and cache the geoJson features
   model.getters.getGeoChartAvailableRegions();
   model.getters.getGeoJsonFeatures("world");
@@ -178,9 +178,9 @@ describe("Geo charts plugin tests", () => {
       expect(regions.find((r) => r.id === "usa")).toBeUndefined();
     });
 
-    test("UPDATE_CHART_REGION is allowed in readonly mode", () => {
+    test("UPDATE_CHART_REGION is allowed in readonly mode", async () => {
       createGeoChart(model, { region: "world" });
-      const readonlyModel = createModel(model.exportData(), {
+      const readonlyModel = await createModel(model.exportData(), {
         mode: "readonly",
         external: { geoJsonService: mockGeoJsonService },
       });
@@ -191,9 +191,9 @@ describe("Geo charts plugin tests", () => {
       expect(result.isSuccessful).toBe(true);
     });
 
-    test("UPDATE_CHART_REGION is allowed in dashboard mode", () => {
+    test("UPDATE_CHART_REGION is allowed in dashboard mode", async () => {
       createGeoChart(model, { region: "world" });
-      const dashboardModel = createModel(model.exportData(), {
+      const dashboardModel = await createModel(model.exportData(), {
         mode: "dashboard",
         external: { geoJsonService: mockGeoJsonService },
       });

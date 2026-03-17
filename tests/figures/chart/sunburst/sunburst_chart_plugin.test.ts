@@ -42,8 +42,8 @@ const SUNBURST_DATASET = {
 };
 
 describe("Sunburst chart chart", () => {
-  beforeEach(() => {
-    model = createModel();
+  beforeEach(async () => {
+    model = await createModel();
   });
 
   test("Can create a sunburst chart from a creation context", () => {
@@ -90,8 +90,8 @@ describe("Sunburst chart chart", () => {
     });
   });
 
-  test("Labels and datasets are not swapped from a TreeMap chart creation context", () => {
-    const model = createModel();
+  test("Labels and datasets are not swapped from a TreeMap chart creation context", async () => {
+    const model = await createModel();
     const chartId = createTreeMapChart(model, {
       dataSets: [{ dataRange: "A1:A4" }],
       labelRange: "B1:B4",
@@ -465,8 +465,8 @@ describe("Sunburst chart chart", () => {
     });
   });
 
-  test("Sunburst chart hole size", () => {
-    const model = createModel();
+  test("Sunburst chart hole size", async () => {
+    const model = await createModel();
     const chartId = createSunburstChart(model, { pieHolePercentage: 80 });
 
     const runtime = model.getters.getChartRuntime(chartId) as SunburstChartRuntime;

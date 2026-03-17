@@ -15,7 +15,7 @@ let fixture: HTMLElement;
 let model: Model;
 
 beforeEach(async () => {
-  ({ fixture, model } = await mountSpreadsheet({ model: createModel() }, { isSmall: true }));
+  ({ fixture, model } = await mountSpreadsheet({ model: await createModel() }, { isSmall: true }));
 });
 
 const composerSelector = ".o-spreadsheet-small-bottom-bar .o-composer";

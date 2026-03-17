@@ -112,7 +112,7 @@ describe("Top Bar MenuPopover Item Registry", () => {
   afterEach(() => {
     topbarMenuRegistry.content = menuDefinitions;
   });
-  test("Can add children to menu Items", () => {
+  test("Can add children to menu Items", async () => {
     addToRegistry(topbarMenuRegistry, "root", { name: "Root", sequence: 1 });
     topbarMenuRegistry.addChild("child1", ["root"], { name: "Child1", sequence: 1 });
     topbarMenuRegistry.addChild("child2", ["root", "child1"], {
@@ -129,7 +129,7 @@ describe("Top Bar MenuPopover Item Registry", () => {
         sequence: 1,
       }));
     });
-    const env = makeTestEnv();
+    const env = await makeTestEnv();
     const [item] = topbarMenuRegistry.getMenuItems();
 
     const children = item.children && item.children(env);
@@ -171,7 +171,7 @@ describe("Menu Item actions", () => {
   let dispatch: jest.SpyInstance;
 
   beforeEach(async () => {
-    env = makeTestEnv();
+    env = await makeTestEnv();
     model = env.model;
     dispatch = spyModelDispatch(model);
     sheetId = model.getters.getActiveSheetId();
@@ -267,9 +267,9 @@ describe("Menu Item actions", () => {
     expect(getNode(["edit", "paste_special"], env).isVisible(env)).toBeFalsy();
   });
 
-  test("Data -> Pivot groups pivot data sources in a submenu", () => {
-    const pivotModel = createModelWithPivot("A1:I22");
-    const pivotEnv = makeTestEnv({ model: pivotModel });
+  test("Data -> Pivot groups pivot data sources in a submenu", async () => {
+    const pivotModel = await createModelWithPivot("A1:I22");
+    const pivotEnv = await makeTestEnv({ model: pivotModel });
 
     const pivotSubmenu = getNode(["data", "pivot_data_sources"], pivotEnv);
     const pivotIds = pivotModel.getters.getPivotIds();
@@ -289,10 +289,10 @@ describe("Menu Item actions", () => {
     expect(pivotItem.name(pivotEnv)).toBe(pivotModel.getters.getPivotDisplayName(firstPivotId));
   });
 
-  test("Data -> Pivot submenu shows a warning icon when at least one pivot is unused", () => {
-    const pivotModel = createModelWithTestPivotDataset();
+  test("Data -> Pivot submenu shows a warning icon when at least one pivot is unused", async () => {
+    const pivotModel = await createModelWithTestPivotDataset();
     addPivot(pivotModel, "A1:E18", { name: "Unused pivot" }, "2");
-    const pivotEnv = makeTestEnv({ model: pivotModel });
+    const pivotEnv = await makeTestEnv({ model: pivotModel });
 
     const pivotSubmenu = getNode(["data", "pivot_data_sources"], pivotEnv);
     expect(pivotSubmenu.secondaryIcon(pivotEnv)).toBe("o-spreadsheet-Icon.UNUSED_PIVOT_WARNING");
@@ -1041,13 +1041,13 @@ describe("Menu Item actions", () => {
     expect(spyStartCell).toHaveBeenCalled();
   });
 
-  test("Insert -> Function -> All includes new functions", () => {
+  test("Insert -> Function -> All includes new functions", async () => {
     addToRegistry(functionRegistry, "TEST.FUNC", {
       args: [],
       compute: () => 42,
       description: "Test function",
     });
-    const env = makeTestEnv();
+    const env = await makeTestEnv();
     const allFunctions = getNode(
       ["insert", "insert_function", "categorie_function_all"],
       env
@@ -1064,7 +1064,7 @@ describe("Menu Item actions", () => {
     expect(getCellContent(model, "A1")).toEqual("FALSE");
   });
 
-  test("Insert -> Function -> hidden formulas are filtered out", () => {
+  test("Insert -> Function -> hidden formulas are filtered out", async () => {
     clearFunctions();
     addToRegistry(functionRegistry, "HIDDEN.FUNC", {
       args: [],
@@ -1073,7 +1073,7 @@ describe("Menu Item actions", () => {
       hidden: true,
       category: "hidden",
     });
-    const env = makeTestEnv();
+    const env = await makeTestEnv();
     const functionCategories = getNode(["insert", "insert_function"], env).children(env);
     expect(functionCategories.map((f) => f.name(env))).not.toContain("hidden");
     const allFunctions = getNode(
@@ -1159,42 +1159,45 @@ describe("Menu Item actions", () => {
       expect(getCell(model, "A1")?.format).toBe("[$$]#,##0");
     });
 
-    test("currency format with custom default currency", () => {
-      const model = createModel({}, { defaultCurrency: TEST_CURRENCY });
-      env = makeTestEnv({ model });
+    test("currency format with custom default currency", async () => {
+      const model = await createModel({}, { defaultCurrency: TEST_CURRENCY });
+      env = await makeTestEnv({ model });
       const action = getNode(["format", "format_number", "format_number_currency"], env);
       expect(action.description(env)).toBe("€1,000.120");
       action.execute?.(env);
       expect(getCell(model, "A1")?.format).toBe("[$€]#,##0.000");
     });
 
-    test("rounded currency format with custom default currency", () => {
-      const model = createModel({}, { defaultCurrency: TEST_CURRENCY });
-      env = makeTestEnv({ model });
+    test("rounded currency format with custom default currency", async () => {
+      const model = await createModel({}, { defaultCurrency: TEST_CURRENCY });
+      env = await makeTestEnv({ model });
       const action = getNode(["format", "format_number", "format_number_currency_rounded"], env);
       expect(action.description(env)).toBe("€1,000");
       action.execute?.(env);
       expect(getCell(model, "A1")?.format).toBe("[$€]#,##0");
     });
 
-    test("rounded currency format is invisible if the custom default format is already rounded", () => {
-      const model = createModel({}, { defaultCurrency: { decimalPlaces: 0 } });
-      env = makeTestEnv({ model });
+    test("rounded currency format is invisible if the custom default format is already rounded", async () => {
+      const model = await createModel({}, { defaultCurrency: { decimalPlaces: 0 } });
+      env = await makeTestEnv({ model });
       const action = getNode(["format", "format_number", "format_number_currency_rounded"], env);
       expect(action.isVisible(env)).toBe(false);
     });
 
-    test("currency format description with locale and custom default currency", () => {
-      const model = createModel({}, { defaultCurrency: TEST_CURRENCY });
-      env = makeTestEnv({ model });
+    test("currency format description with locale and custom default currency", async () => {
+      const model = await createModel({}, { defaultCurrency: TEST_CURRENCY });
+      env = await makeTestEnv({ model });
       updateLocale(model, FR_LOCALE);
       const action = getNode(["format", "format_number", "format_number_currency"], env);
       expect(action.description(env)).toBe("€1 000,120");
     });
 
-    test("accounting format menu item", () => {
-      const model = createModel({}, { defaultCurrency: { ...TEST_CURRENCY, decimalPlaces: 0 } });
-      env = makeTestEnv({ model });
+    test("accounting format menu item", async () => {
+      const model = await createModel(
+        {},
+        { defaultCurrency: { ...TEST_CURRENCY, decimalPlaces: 0 } }
+      );
+      env = await makeTestEnv({ model });
       const action = getNode(["format", "format_number", "format_number_accounting"], env);
       expect(action.isVisible(env)).toBe(true);
       action.execute?.(env);
@@ -2089,7 +2092,7 @@ describe("Menu Item actions", () => {
 });
 
 test("Menu children are sorted by sequence", async () => {
-  const env = makeTestEnv();
+  const env = await makeTestEnv();
   const menuItems = createActions([
     {
       id: "menu_1",
