@@ -1,6 +1,6 @@
 import { UID } from "@odoo/o-spreadsheet-engine";
 import { _t } from "@odoo/o-spreadsheet-engine/translation";
-import { CustomisableSeriesChartRuntime } from "@odoo/o-spreadsheet-engine/types/chart";
+import { customizableSeriesChartRuntime } from "@odoo/o-spreadsheet-engine/types/chart";
 import { ComboChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/combo_chart";
 import { RadioSelection } from "../../components/radio_selection/radio_selection";
 import { ChartShowDataMarkers } from "../building_blocks/show_data_markers/show_data_markers";
@@ -37,8 +37,8 @@ export class ComboChartDesignPanel extends GenericZoomableChartDesignPanel<
     if (!type) {
       const runtime = this.env.model.getters.getChartRuntime(
         this.props.chartId
-      ) as CustomisableSeriesChartRuntime;
-      const dataSetIndex = runtime.customisableSeries.findIndex(
+      ) as customizableSeriesChartRuntime;
+      const dataSetIndex = runtime.customizableSeries.findIndex(
         (series) => series.dataSetId === dataSetId
       );
       return dataSetIndex === 0 ? "bar" : "line";

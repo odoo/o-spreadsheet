@@ -17,5 +17,5 @@ export interface LineChartDefinition<T extends string | Range = Range>
 export type LineChartRuntime = {
   chartJsConfig: ChartConfiguration<"line">;
   masterChartConfig?: ChartConfiguration<"line">;
-  customisableSeries: { dataSetId: string; label: string }[];
+  customizableSeries: { dataSetId: string; label: string }[];
 };

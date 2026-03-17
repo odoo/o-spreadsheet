@@ -116,7 +116,7 @@ export const LineChart: ChartTypeBuilder<"line"> = {
 
     return {
       chartJsConfig: config,
-      customisableSeries: chartData.dataSetsValues.map(({ dataSetId, label }) => ({
+      customizableSeries: chartData.dataSetsValues.map(({ dataSetId, label }) => ({
         dataSetId,
         label,
       })),

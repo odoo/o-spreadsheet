@@ -10,7 +10,7 @@ export interface GaugeChartDefinition<T extends string | Range = string> {
   readonly sectionRule: SectionRule;
   readonly background?: Color;
   readonly humanize?: boolean;
-  readonly dataSource?: { type: "none" };
+  readonly dataSource?: undefined; // doesn't use a data source. Explicitly declaring the key ensures that `dataSource` can be safely accessed on the `ChartDefinition` union without TypeScript errors.
 }
 
 export interface SectionRule {

@@ -9,5 +9,5 @@ export interface PyramidChartDefinition<T extends string | Range = Range>
 
 export type PyramidChartRuntime = {
   chartJsConfig: ChartConfiguration;
-  customisableSeries: { dataSetId: string; label: string }[];
+  customizableSeries: { dataSetId: string; label: string }[];
 };

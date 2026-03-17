@@ -3,7 +3,7 @@ import { Component, useState } from "@odoo/owl";
 import { getColorsPalette, getNthColor, toHex } from "../../../../../helpers";
 import {
   ChartDefinitionWithDataSource,
-  CustomisableSeriesChartRuntime,
+  customizableSeriesChartRuntime,
   ValueAndLabel,
 } from "../../../../../types";
 import { Select } from "../../../../select/select";
@@ -31,18 +31,18 @@ export class SeriesDesignEditor extends Component<Props, SpreadsheetChildEnv> {
 
   protected state = useState({ dataSetId: this.getDataSeries()[0]?.dataSetId || "" });
 
-  private getRuntime(): CustomisableSeriesChartRuntime {
+  private getRuntime(): customizableSeriesChartRuntime {
     const runtime = this.env.model.getters.getChartRuntime(this.props.chartId);
-    if (!runtime || !("customisableSeries" in runtime)) {
+    if (!runtime || !("customizableSeries" in runtime)) {
       throw new Error(
         "SeriesDesignEditor: chart runtime is not compatible with series customization."
       );
     }
-    return runtime as CustomisableSeriesChartRuntime;
+    return runtime as customizableSeriesChartRuntime;
   }
 
   getDataSeries() {
-    return this.getRuntime().customisableSeries;
+    return this.getRuntime().customizableSeries;
   }
 
   updateEditedSeries(dataSetId: string) {

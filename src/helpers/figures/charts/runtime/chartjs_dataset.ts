@@ -10,7 +10,7 @@ import {
   LINE_FILL_TRANSPARENCY,
 } from "@odoo/o-spreadsheet-engine/constants";
 import { tryToNumber } from "@odoo/o-spreadsheet-engine/functions/helpers";
-import { isNumberCell } from "@odoo/o-spreadsheet-engine/helpers/cells/cell_evaluation";
+import { isNumberResult } from "@odoo/o-spreadsheet-engine/helpers/cells/cell_evaluation";
 import {
   ColorGenerator,
   colorToRGBA,
@@ -83,7 +83,7 @@ export function getBarChartDatasets(
     const backgroundColor = colors.next();
     const dataset: ChartDataset<"bar"> = {
       label,
-      data: data.map((cell) => (isNumberCell(cell) ? cell.value : NaN)),
+      data: data.map((cell) => (isNumberResult(cell) ? cell.value : NaN)),
       hidden,
       borderColor: definition.background || BACKGROUND_CHART_COLOR,
       borderWidth: definition.stacked ? 1 : 0,
@@ -121,7 +121,7 @@ export function getCalendarChartDatasetAndLabels(
   const values = dataSetsValues
     .map((ds) => ds.data)
     .flat()
-    .filter(isNumberCell)
+    .filter(isNumberResult)
     .map((cell) => cell.value);
 
   const maxValue = Math.max(...values);
@@ -138,14 +138,14 @@ export function getCalendarChartDatasetAndLabels(
       label: dataSetValues.label,
       data: dataSetValues.data.map((v) => 1),
       backgroundColor: dataSetValues.data.map((v) =>
-        isNumberCell(v) ? colorMap(v.value) : definition.missingValueColor || COLOR_TRANSPARENT
+        isNumberResult(v) ? colorMap(v.value) : definition.missingValueColor || COLOR_TRANSPARENT
       ),
       borderColor: definition.background || BACKGROUND_CHART_COLOR,
       borderSkipped: false,
       borderWidth: 1,
       barPercentage: 1,
       categoryPercentage: 1,
-      values: dataSetValues.data.map((cell) => (isNumberCell(cell) ? cell.value : NaN)),
+      values: dataSetValues.data.map((cell) => (isNumberResult(cell) ? cell.value : NaN)),
     });
   }
 
@@ -184,7 +184,7 @@ export function getWaterfallDatasetAndLabels(
     for (let i = 0; i < dataSetsValue.data.length; i++) {
       const cell = dataSetsValue.data[i];
       labelsWithSubTotals.push(labels[i]);
-      if (!isNumberCell(cell)) {
+      if (!isNumberResult(cell)) {
         datasetValues.push([lastValue, lastValue]);
         backgroundColor.push("");
         continue;
@@ -233,10 +233,10 @@ export function getLineChartDatasets(
       // Replace empty string labels by undefined to make sure chartJS doesn't decide that "" is the same as 0
       dataValues = data.map((y, index) => ({
         x: labels[index] === "" ? NaN : tryToNumber(labels[index], args.locale) ?? NaN,
-        y: isNumberCell(y) ? y.value : NaN,
+        y: isNumberResult(y) ? y.value : NaN,
       }));
     } else {
-      dataValues = data.map((cell) => (isNumberCell(cell) ? cell.value : NaN));
+      dataValues = data.map((cell) => (isNumberResult(cell) ? cell.value : NaN));
     }
     const dataSetStyle = definition.dataSetStyles?.[dataSetId];
     const dataset: ChartDataset<"line"> = {
@@ -296,7 +296,7 @@ export function getPieChartDatasets(
     }
     const dataset: ChartDataset<"pie"> = {
       label,
-      data: data.map((cell) => (isNumberCell(cell) ? cell.value : NaN)),
+      data: data.map((cell) => (isNumberResult(cell) ? cell.value : NaN)),
       borderColor: definition.background || "#FFFFFF",
       backgroundColor,
       hoverOffset: 10,
@@ -329,7 +329,7 @@ export function getComboChartDatasets(
     const type = style?.type ?? defaultStyle;
     const dataset: ChartDataset<"bar" | "line"> = {
       label: label,
-      data: data.map((cell) => (isNumberCell(cell) ? cell.value : null)),
+      data: data.map((cell) => (isNumberResult(cell) ? cell.value : null)),
       hidden,
       borderColor: color,
       backgroundColor: color,
@@ -377,7 +377,7 @@ export function getRadarChartDatasets(
     const borderColor = colors.next();
     const dataset: ChartDataset<"radar"> = {
       label,
-      data: data.map((cell) => (isNumberCell(cell) ? cell.value : null)),
+      data: data.map((cell) => (isNumberResult(cell) ? cell.value : null)),
       hidden,
       borderColor,
       backgroundColor: borderColor,
@@ -418,7 +418,7 @@ export function getGeoChartDatasets(
         const featureId = args.geoFeatureNameToId(regionName, labels[i]);
         if (featureId) {
           labelsAndValues[featureId] = {
-            value: isNumberCell(cell) ? cell.value : 0,
+            value: isNumberResult(cell) ? cell.value : 0,
             label: labels[i],
           };
         }
@@ -458,7 +458,7 @@ export function getFunnelChartDatasets(
   const dataset: ChartDataset<"bar"> = {
     label: datasetLabel,
     data: data.map((cell) => {
-      if (!isNumberCell(cell)) {
+      if (!isNumberResult(cell)) {
         return 0;
       }
       const value = cell.value;

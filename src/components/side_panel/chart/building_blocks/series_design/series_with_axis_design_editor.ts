@@ -7,7 +7,7 @@ import { CHART_AXIS_CHOICES } from "../../../../../helpers/figures/charts";
 import {
   ChartDefinitionWithDataSource,
   Color,
-  CustomisableSeriesChartRuntime,
+  customizableSeriesChartRuntime,
   TrendConfiguration,
   ValueAndLabel,
 } from "../../../../../types";
@@ -134,8 +134,8 @@ export class SeriesWithAxisDesignEditor extends Component<Props, SpreadsheetChil
   getMaxPolynomialDegree(dataSetId: UID) {
     const runtime = this.env.model.getters.getChartRuntime(
       this.props.chartId
-    ) as CustomisableSeriesChartRuntime;
-    const index = runtime.customisableSeries.findIndex((series) => series.dataSetId === dataSetId);
+    ) as customizableSeriesChartRuntime;
+    const index = runtime.customizableSeries.findIndex((series) => series.dataSetId === dataSetId);
     return Math.min(10, runtime.chartJsConfig.data.datasets[index].data.length - 1);
   }
 
@@ -159,11 +159,11 @@ export class SeriesWithAxisDesignEditor extends Component<Props, SpreadsheetChil
     const color = dataSets[dataSetId]?.backgroundColor;
     const runtime = this.env.model.getters.getChartRuntime(
       this.props.chartId
-    ) as CustomisableSeriesChartRuntime;
-    const index = runtime.customisableSeries.findIndex((series) => series.dataSetId === dataSetId);
+    ) as customizableSeriesChartRuntime;
+    const index = runtime.customizableSeries.findIndex((series) => series.dataSetId === dataSetId);
     return color
       ? toHex(color)
-      : getNthColor(index, getColorsPalette(runtime.customisableSeries.length));
+      : getNthColor(index, getColorsPalette(runtime.customizableSeries.length));
   }
 
   getTrendLineColor(dataSetId: UID) {

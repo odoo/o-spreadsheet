@@ -101,9 +101,9 @@ export type ChartJSRuntime =
 
 export type ChartRuntime = ChartJSRuntime | ScorecardChartRuntime | GaugeChartRuntime;
 
-export type CustomisableSeriesChartRuntime = Extract<
+export type customizableSeriesChartRuntime = Extract<
   ChartRuntime,
-  { customisableSeries: { dataSetId: string; label: string }[] }
+  { customizableSeries: { dataSetId: string; label: string }[] }
 >;
 
 export type LabelValues = FunctionResultObject[];
