@@ -6,6 +6,7 @@
       class="o-input o-select"
       t-att-class="props.class"
       t-att-name="props.name"
+      t-att-title="props.title"
       t-on-pointerdown="onMouseDown"
       t-on-keydown="onKeyDown"
       t-esc="selectedLabel"

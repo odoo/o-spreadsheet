@@ -43,7 +43,7 @@ describe("Chart type picker component", () => {
 
   test("Current chart type is selected", async () => {
     const select = fixture.querySelector(".o-type-selector") as HTMLSelectElement;
-    expect(select.value).toBe("column");
+    expect(select.textContent).toBe("Column");
 
     await pointerDown(".o-type-selector");
     expect(fixture.querySelector<HTMLElement>(".o-chart-type-item.selected")?.dataset.id).toBe(
@@ -53,14 +53,14 @@ describe("Chart type picker component", () => {
 
   test("Can change the chart type ", async () => {
     const select = fixture.querySelector(".o-type-selector") as HTMLSelectElement;
-    expect(select.value).toBe("column");
+    expect(select.textContent).toBe("Column");
 
     await pointerDown(".o-type-selector");
     expect(fixture.querySelector(".o-chart-select-popover")).not.toBeNull();
     await click(fixture.querySelector(".o-chart-type-item[data-id='line']") as HTMLElement);
 
     expect(fixture.querySelector(".o-chart-select-popover")).toBeNull();
-    expect(select.value).toBe("line");
+    expect(select.textContent).toBe("Line");
     expect(model.getters.getChartDefinition(chartId).type).toBe("line");
   });
 });

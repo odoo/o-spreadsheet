@@ -1,4 +1,9 @@
 .o-spreadsheet {
+  /* Add a non-breaking space when the select is empty to keep the height consistent */
+  .o-select:empty::before {
+    content: "\00a0";
+  }
+
   .o-select-dropdown {
     min-width: 40px;
 
