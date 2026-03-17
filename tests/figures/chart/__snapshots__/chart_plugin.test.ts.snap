@@ -138,7 +138,7 @@ exports[`datasource tests create a chart with stacked bar 1`] = `
     },
     "type": "bar",
   },
-  "customisableSeries": [
+  "customizableSeries": [
     {
       "dataSetId": "0",
       "label": "P4",
@@ -418,7 +418,7 @@ exports[`datasource tests create chart with column datasets 1`] = `
     },
     "type": "line",
   },
-  "customisableSeries": [
+  "customizableSeries": [
     {
       "dataSetId": "0",
       "label": "first column dataset",

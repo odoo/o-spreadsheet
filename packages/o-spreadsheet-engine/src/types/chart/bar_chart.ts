@@ -13,5 +13,5 @@ export interface BarChartDefinition<T extends string | Range = Range>
 export type BarChartRuntime = {
   chartJsConfig: ChartConfiguration<"bar" | "line">;
   masterChartConfig?: ChartConfiguration<"bar">;
-  customisableSeries: { dataSetId: string; label: string }[];
+  customizableSeries: { dataSetId: string; label: string }[];
 };

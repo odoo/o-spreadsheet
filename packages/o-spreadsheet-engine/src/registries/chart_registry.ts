@@ -4,7 +4,6 @@ import {
   ChartRuntime,
   ChartType,
   ChartTypeDefinition,
-  DatasetValues,
   ExcelChartDefinition,
 } from "../types/chart";
 import { CommandResult } from "../types/commands";
@@ -16,24 +15,23 @@ import { Validator } from "../types/validator";
 import { ChartDataSourceBuilder } from "./chart_data_source_registry";
 import { Registry } from "./registry";
 
-export type GoToDataSetFunction<T extends ChartType> = (
-  dataSource: ChartTypeDefinition<T, Range>["dataSource"],
-  dataSetName: string,
-  dataSet: DatasetValues,
-  dataSetIndex: number,
-  newWindow: boolean,
-  getters: Getters
-) => void;
-
 /**
  * Instantiate a chart object based on a definition
  */
 export interface ChartTypeBuilder<T extends ChartType> {
+  /**
+   * Returns the definition with parsed ranges (Range instead of string).
+   * Do not need handle the data source.
+   */
   fromStrDefinition(
     definition: ChartTypeDefinition<T, string>,
     sheetId: UID,
     getters: CoreGetters
   ): Omit<ChartTypeDefinition<T, Range>, "dataSource">;
+  /**
+   * Returns the definition with ranges as string.
+   * Do not need handle the data source.
+   */
   toStrDefinition(
     definition: ChartTypeDefinition<T, Range>,
     sheetId: UID,

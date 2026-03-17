@@ -8,7 +8,7 @@ import {
   predictLinearValues,
 } from "@odoo/o-spreadsheet-engine/functions/helper_statistical";
 import { toNumber } from "@odoo/o-spreadsheet-engine/functions/helpers";
-import { isNumberCell } from "@odoo/o-spreadsheet-engine/helpers/cells/cell_evaluation";
+import { isNumberResult } from "@odoo/o-spreadsheet-engine/helpers/cells/cell_evaluation";
 import {
   DAYS,
   formatValue,
@@ -163,7 +163,7 @@ function computeValuesAndLabels(
       grouping[xValue][yValue] = { value: 0 };
     }
     const cell = values[i];
-    if (isNumberCell(cell)) {
+    if (isNumberResult(cell)) {
       grouping[xValue][yValue].value += cell.value;
     }
   }
@@ -230,13 +230,13 @@ export function getPyramidChartData(
   const pyramidDatasetValues: DatasetValues[] = [];
   if (barDataset[0]) {
     const pyramidData = barDataset[0].data.map((cell) =>
-      isNumberCell(cell) && cell.value > 0 ? cell : ZERO
+      isNumberResult(cell) && cell.value > 0 ? cell : ZERO
     );
     pyramidDatasetValues.push({ ...barDataset[0], data: pyramidData });
   }
   if (barDataset[1]) {
     const pyramidData = barDataset[1].data.map((cell) =>
-      isNumberCell(cell) && cell.value > 0 ? { value: -cell.value } : ZERO
+      isNumberResult(cell) && cell.value > 0 ? { value: -cell.value } : ZERO
     );
     pyramidDatasetValues.push({ ...barDataset[1], data: pyramidData });
   }
@@ -437,7 +437,7 @@ export function getTrendDatasetForBarChart(
   const labels: number[] = [];
   for (let i = 0; i < data.length; i++) {
     const cell = data[i];
-    if (isNumberCell(cell)) {
+    if (isNumberResult(cell)) {
       filteredValues.push(cell.value);
       filteredLabels.push(i + 1);
     }
@@ -469,7 +469,7 @@ export function getTrendDatasetForLineChart(
     case "category":
       for (let i = 0; i < datasetLength; i++) {
         const cell = data[i];
-        if (isNumberCell(cell)) {
+        if (isNumberResult(cell)) {
           filteredValues.push(cell.value);
           filteredLabels.push(i + 1);
         }
@@ -483,7 +483,7 @@ export function getTrendDatasetForLineChart(
           continue;
         }
         const cell = data[i];
-        if (isNumberCell(cell)) {
+        if (isNumberResult(cell)) {
           filteredValues.push(cell.value);
           filteredLabels.push(label);
         }
@@ -494,7 +494,7 @@ export function getTrendDatasetForLineChart(
       for (let i = 0; i < data.length; i++) {
         const date = toNumber({ value: labels[i] }, locale);
         const cell = data[i];
-        if (isNumberCell(cell)) {
+        if (isNumberResult(cell)) {
           filteredValues.push(cell.value);
           filteredLabels.push(date);
         }
@@ -651,7 +651,7 @@ function canBeDateChart(data: ChartData): boolean {
 function canBeLinearChart(data: ChartData): boolean {
   const labels = data.labelValues;
 
-  if (labels.some((label) => !isNumberCell(label) && label.value)) {
+  if (labels.some((label) => !isNumberResult(label) && label.value)) {
     return false;
   }
   if (labels.every((label) => !label.value)) {
@@ -688,14 +688,14 @@ function keepOnlyPositiveValues(
     ...datasets.map((dataset) => dataset.data?.length || 0)
   );
   const filteredIndexes = range(0, numberOfDataPoints).filter((i) =>
-    datasets.some((ds) => isNumberCell(ds.data[i]) && ds.data[i].value > 0)
+    datasets.some((ds) => isNumberResult(ds.data[i]) && ds.data[i].value > 0)
   );
   return {
     labels: filteredIndexes.map((i) => labels[i] || ""),
     dataSetsValues: datasets.map((ds) => ({
       ...ds,
       data: filteredIndexes.map((i) =>
-        isNumberCell(ds.data[i]) && ds.data[i].value > 0 ? ds.data[i] : EMPTY
+        isNumberResult(ds.data[i]) && ds.data[i].value > 0 ? ds.data[i] : EMPTY
       ),
     })),
   };
@@ -737,13 +737,15 @@ function filterInvalidDataPoints(
   const dataPointsIndexes = range(0, numberOfDataPoints).filter((dataPointIndex) => {
     const label = labels[dataPointIndex];
     const values = datasets.map((dataset) => dataset.data?.[dataPointIndex]);
-    return label || values.some(isNumberCell);
+    return label || values.some(isNumberResult);
   });
   return {
     labels: dataPointsIndexes.map((i) => labels[i] || ""),
     dataSetsValues: datasets.map((dataset) => ({
       ...dataset,
-      data: dataPointsIndexes.map((i) => (isNumberCell(dataset.data[i]) ? dataset.data[i] : EMPTY)),
+      data: dataPointsIndexes.map((i) =>
+        isNumberResult(dataset.data[i]) ? dataset.data[i] : EMPTY
+      ),
     })),
   };
 }
@@ -764,13 +766,15 @@ function filterInvalidCalendarDataPoints(
   const dataPointsIndexes = range(0, numberOfDataPoints).filter((dataPointIndex) => {
     const label = labels[dataPointIndex];
     const values = datasets.map((dataset) => dataset.data?.[dataPointIndex]);
-    return isNumberCell(label) && isNumberCell(values[0]);
+    return isNumberResult(label) && isNumberResult(values[0]);
   });
   return {
     labels: dataPointsIndexes.map((i) => labels[i] || ""),
     dataSetsValues: datasets.map((dataset) => ({
       ...dataset,
-      data: dataPointsIndexes.map((i) => (isNumberCell(dataset.data[i]) ? dataset.data[i] : EMPTY)),
+      data: dataPointsIndexes.map((i) =>
+        isNumberResult(dataset.data[i]) ? dataset.data[i] : EMPTY
+      ),
     })),
   };
 }
@@ -800,7 +804,7 @@ function filterInvalidHierarchicalPoints(
         return false;
       }
     }
-    return values[dataPointIndex] && isNumberCell(values[dataPointIndex]);
+    return values[dataPointIndex] && isNumberResult(values[dataPointIndex]);
   });
   return {
     labels: dataPointsIndexes.map((i) => values[i]),
@@ -909,7 +913,7 @@ export function makeDatasetsCumulative(
       order === "asc" ? range(0, dataset.data.length) : range(0, dataset.data.length).reverse();
     for (const i of indexes) {
       const cell = dataset.data[i];
-      if (isNumberCell(cell)) {
+      if (isNumberResult(cell)) {
         accumulator += cell.value;
         data[i] = { ...cell, value: accumulator };
       } else {

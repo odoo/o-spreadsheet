@@ -17,14 +17,17 @@ import { Getters } from "../../types/getters";
 import { Range } from "../../types/range";
 
 export class Chart {
+  private readonly dataSource: ChartDataSource<Range> | undefined;
+
   private constructor(
     private readonly getters: CoreGetters,
     readonly sheetId: UID,
     private readonly definition: ChartDefinition<Range>,
-    private readonly dataSource: ChartDataSource<Range> | undefined,
     private readonly chartTypeBuilder: ChartTypeBuilder<ChartType>, // e.g., BarChart
     private readonly dataSourceBuilder: ChartDataSourceBuilder<ChartDataSourceType> // from registry
-  ) {}
+  ) {
+    this.dataSource = definition.dataSource;
+  }
 
   static fromStrDefinition(
     getters: CoreGetters,
@@ -46,7 +49,6 @@ export class Chart {
       getters,
       sheetId,
       Chart.deleteInvalidKeys(rangeDefinition),
-      dataSource,
       chartTypeBuilder,
       dataSourceBuilder
     );
@@ -55,14 +57,7 @@ export class Chart {
   static fromDefinition(getters: CoreGetters, sheetId: UID, definition: ChartDefinition<Range>) {
     const dataSourceBuilder = chartDataSourceRegistry.get(definition.dataSource?.type ?? "none");
     const chartTypeBuilder = chartTypeRegistry.get(definition.type);
-    return new Chart(
-      getters,
-      sheetId,
-      definition,
-      definition.dataSource,
-      chartTypeBuilder,
-      dataSourceBuilder
-    );
+    return new Chart(getters, sheetId, definition, chartTypeBuilder, dataSourceBuilder);
   }
 
   static validate(validator: Validator, definition: ChartDefinition<string>) {
@@ -172,14 +167,15 @@ export class Chart {
 
   getDefinitionForExcel(getters: Getters) {
     const definition = this.definition;
-    if (!("dataSetStyles" in definition)) {
-      return undefined;
-    }
     return this.chartTypeBuilder.getDefinitionForExcel(
       getters,
       definition,
       this.dataSource
-        ? this.dataSourceBuilder.toExcelDataSets(this.dataSource, definition.dataSetStyles, getters)
+        ? this.dataSourceBuilder.toExcelDataSets(
+            this.dataSource,
+            "dataSetStyles" in definition ? definition.dataSetStyles : {},
+            getters
+          )
         : { dataSets: [] }
     );
   }

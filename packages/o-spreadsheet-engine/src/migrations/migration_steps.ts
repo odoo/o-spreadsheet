@@ -600,6 +600,7 @@ migrationStepRegistry
     migrate(data: WorkbookData): any {
       function upgrade(definition: any): any {
         if (!("dataSets" in definition)) {
+          // ignore gauges, scorecards and odoo-based charts
           return definition;
         }
         definition = { ...definition };

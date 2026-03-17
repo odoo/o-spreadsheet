@@ -111,7 +111,7 @@ export const BarChart: ChartTypeBuilder<"bar"> = {
 
     return {
       chartJsConfig: config,
-      customisableSeries: chartData.dataSetsValues.map(({ label, dataSetId }) => ({
+      customizableSeries: chartData.dataSetsValues.map(({ label, dataSetId }) => ({
         dataSetId,
         label,
       })),

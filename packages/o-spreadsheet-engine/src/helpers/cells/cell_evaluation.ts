@@ -129,27 +129,31 @@ function _createEvaluatedCell(
   return textCell(value, format, formattedValue);
 }
 
-export function isNumberCell(
+export function isNumberResult(
   result: FunctionResultObject | undefined
 ): result is { value: number } {
   return !!result && getEvaluatedCellType(result) === CellValueType.number;
 }
 
-export function isTextCell(result: FunctionResultObject | undefined): result is { value: string } {
+export function isTextResult(
+  result: FunctionResultObject | undefined
+): result is { value: string } {
   return !!result && getEvaluatedCellType(result) === CellValueType.text;
 }
 
-export function isBooleanCell(
+export function isBooleanResult(
   result: FunctionResultObject | undefined
 ): result is { value: boolean } {
   return !!result && getEvaluatedCellType(result) === CellValueType.boolean;
 }
 
-export function isEmptyCell(result: FunctionResultObject | undefined): result is { value: null } {
+export function isEmptyResult(result: FunctionResultObject | undefined): result is { value: null } {
   return !!result && getEvaluatedCellType(result) === CellValueType.empty;
 }
 
-export function isErrorCell(result: FunctionResultObject | undefined): result is { value: string } {
+export function isErrorResult(
+  result: FunctionResultObject | undefined
+): result is { value: string } {
   return !!result && getEvaluatedCellType(result) === CellValueType.error;
 }
 

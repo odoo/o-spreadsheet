@@ -102,7 +102,7 @@ export const RadarChart: ChartTypeBuilder<"radar"> = {
 
     return {
       chartJsConfig: config,
-      customisableSeries: chartData.dataSetsValues.map(({ dataSetId, label }) => ({
+      customizableSeries: chartData.dataSetsValues.map(({ dataSetId, label }) => ({
         dataSetId,
         label,
       })),

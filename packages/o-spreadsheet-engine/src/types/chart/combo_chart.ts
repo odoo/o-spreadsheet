@@ -17,5 +17,5 @@ export type ComboChartDataSetStyle = Record<UID, CustomizedDataSet & { type?: "b
 export type ComboChartRuntime = {
   chartJsConfig: ChartConfiguration;
   masterChartConfig?: ChartConfiguration;
-  customisableSeries: { dataSetId: string; label: string }[];
+  customizableSeries: { dataSetId: string; label: string }[];
 };

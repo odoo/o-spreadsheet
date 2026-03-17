@@ -14,5 +14,5 @@ export interface RadarChartDefinition<T extends string | Range = Range>
 
 export type RadarChartRuntime = {
   chartJsConfig: ChartConfiguration;
-  customisableSeries: { dataSetId: string; label: string }[];
+  customizableSeries: { dataSetId: string; label: string }[];
 };

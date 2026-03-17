@@ -1,6 +1,6 @@
 import { getChartData } from "@odoo/o-spreadsheet-engine";
 import { BACKGROUND_CHART_COLOR } from "@odoo/o-spreadsheet-engine/constants";
-import { isNumberCell } from "@odoo/o-spreadsheet-engine/helpers/cells/cell_evaluation";
+import { isNumberResult } from "@odoo/o-spreadsheet-engine/helpers/cells/cell_evaluation";
 import { AbstractChart } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/abstract_chart";
 import {
   chartFontColor,
@@ -85,7 +85,7 @@ export const PyramidChart: ChartTypeBuilder<"pyramid"> = {
     const maxValue = Math.max(
       ...dataSetsValues.map((dataSet) =>
         Math.max(
-          ...dataSet.data.map((cell) => (isNumberCell(cell) ? Math.abs(cell.value) : -Infinity))
+          ...dataSet.data.map((cell) => (isNumberResult(cell) ? Math.abs(cell.value) : -Infinity))
         )
       )
     );
@@ -129,7 +129,7 @@ export const PyramidChart: ChartTypeBuilder<"pyramid"> = {
 
     return {
       chartJsConfig: config,
-      customisableSeries: chartData.dataSetsValues.map(({ dataSetId, label }) => ({
+      customizableSeries: chartData.dataSetsValues.map(({ dataSetId, label }) => ({
         dataSetId,
         label,
       })),

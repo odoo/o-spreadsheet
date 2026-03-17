@@ -14,7 +14,7 @@ export interface ScorecardChartDefinition<T extends string | Range = string> {
   readonly baselineColorUp: Color;
   readonly baselineColorDown: Color;
   readonly humanize?: boolean;
-  readonly dataSource?: { type: "none" };
+  readonly dataSource?: undefined; // doesn't use a data source. Explicitly declaring the key ensures that `dataSource` can be safely accessed on the `ChartDefinition` union without TypeScript errors.
 }
 
 export type BaselineMode = "text" | "difference" | "percentage" | "progress";

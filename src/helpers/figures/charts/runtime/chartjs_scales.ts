@@ -7,7 +7,7 @@ import {
   DEFAULT_CHART_COLOR_SCALE,
   GRAY_300,
 } from "@odoo/o-spreadsheet-engine/constants";
-import { isNumberCell } from "@odoo/o-spreadsheet-engine/helpers/cells/cell_evaluation";
+import { isNumberResult } from "@odoo/o-spreadsheet-engine/helpers/cells/cell_evaluation";
 import {
   COLORSCHEMES,
   getColorScale,
@@ -156,7 +156,7 @@ export function getCalendarColorScale(
   }
   const allValues = dataSetsValues
     .flatMap((ds) => ds.data)
-    .filter(isNumberCell)
+    .filter(isNumberResult)
     .map((cell) => cell.value);
   const minValue = Math.min(...allValues);
   const maxValue = Math.max(...allValues);
@@ -333,7 +333,7 @@ export function getPyramidChartScales(
 
   const maxValue = Math.max(
     ...dataSetsValues.map((dataSet) =>
-      Math.max(...dataSet.data.filter(isNumberCell).map((x) => Math.abs(x.value)))
+      Math.max(...dataSet.data.filter(isNumberResult).map((x) => Math.abs(x.value)))
     )
   );
   scales!.x!.suggestedMin = -maxValue;
@@ -349,7 +349,7 @@ export function getRadarChartScales(
   const { locale, axisFormats, dataSetsValues } = args;
   const minValue = Math.min(
     ...dataSetsValues.map((ds) =>
-      Math.min(...ds.data.filter(isNumberCell).map((x) => x.value as number))
+      Math.min(...ds.data.filter(isNumberResult).map((x) => x.value as number))
     )
   );
   return {
@@ -434,8 +434,8 @@ export function getFunnelChartScales(
           if (
             !baseValueCell?.value ||
             valueCell?.value === null ||
-            !isNumberCell(valueCell) ||
-            !isNumberCell(baseValueCell)
+            !isNumberResult(valueCell) ||
+            !isNumberResult(baseValueCell)
           ) {
             return "";
           }

@@ -17,7 +17,7 @@ import { CellErrorType } from "../../../types/errors";
 import { Getters } from "../../../types/getters";
 import { FunctionResultObject } from "../../../types/misc";
 import { Range } from "../../../types/range";
-import { isErrorCell, isNumberCell, isTextCell } from "../../cells/cell_evaluation";
+import { isErrorResult, isNumberResult, isTextResult } from "../../cells/cell_evaluation";
 import { isDefined } from "../../misc";
 import { createValidRange, duplicateRangeInDuplicatedSheet } from "../../range";
 import { recomputeZones } from "../../recompute_zones";
@@ -285,12 +285,12 @@ function getChartDatasetValues(getters: Getters, dataSets: DataSet[]): DatasetVa
 
     let data = ds.dataRange ? getData(getters, ds) : [];
     if (
-      data.every((cell) => !cell.value || isTextCell(cell)) &&
-      data.filter(isTextCell).length > 1
+      data.every((cell) => !cell.value || isTextResult(cell)) &&
+      data.filter(isTextResult).length > 1
     ) {
       // Convert categorical data into counts
-      data = data.map((cell) => (!isErrorCell(cell) ? ONE : EMPTY));
-    } else if (data.every((cell) => !isNumberCell(cell))) {
+      data = data.map((cell) => (!isErrorResult(cell) ? ONE : EMPTY));
+    } else if (data.every((cell) => !isNumberResult(cell))) {
       hidden = true;
     }
     datasetValues.push({ data, label, hidden, dataSetId: ds.dataSetId });
