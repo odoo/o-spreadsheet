@@ -2,7 +2,7 @@ import { LocalTransportService } from "./collaborative/local_transport_service";
 import { ReadonlyTransportFilter } from "./collaborative/readonly_transport_filter";
 import { Session } from "./collaborative/session";
 import { DEFAULT_REVISION_ID } from "./constants";
-import { deepEquals, UuidGenerator } from "./helpers";
+import { UuidGenerator } from "./helpers";
 import { EventBus } from "./helpers/event_bus";
 import { deepCopy, lazy } from "./helpers/misc";
 import { buildRevisionLog } from "./history/factory";
@@ -635,29 +635,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
    * export data out of the model.
    */
   exportData(): WorkbookData {
-    const squished = true;
-    const unsquished = false;
-    const exportSquished = this._exportData(squished);
-    const exportUnsquished = this._exportData(unsquished);
-    const verificationConfig = {
-      ...this.config,
-      mode: "export_verification" as Mode, // will not trigger evaluation or join the session
-      client: { id: "exporter", name: "exporter" },
-      snapshotRequested: false, // guarantee that no extra snapshot is requested
-      transportService: new LocalTransportService(),
-    };
-
-    const exportVerificationModel = new Model(
-      deepCopy(exportSquished), // the import itself modifies the data, so we need to deep copy it to keep the original one for comparison
-      verificationConfig
-    )._exportData(unsquished);
-
-    if (!deepEquals(exportUnsquished, exportVerificationModel)) {
-      exportUnsquished.isNotSquishable = true;
-      return exportUnsquished;
-    } else {
-      return exportSquished;
-    }
+    return this._exportData(true);
   }
 
   _exportData(shouldSquish: boolean): WorkbookData {
