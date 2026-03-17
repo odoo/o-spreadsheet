@@ -150,12 +150,14 @@ export class SheetUIPlugin extends UIPlugin {
    */
   getCellMultiLineText(
     position: CellPosition,
-    args: { wrapText: boolean; maxWidth: number }
+    // Keep the stable getter signature additive for compatibility.
+    // 19.3+ can use a dedicated wrapping width argument instead.
+    args: { wrapText: boolean; maxWidth: number; formatWidth?: number }
   ): string[] {
     const style = this.getters.getCellStyle(position);
     const text = this.getters.getCellText(position, {
       showFormula: this.getters.shouldShowFormulas(),
-      availableWidth: args.maxWidth,
+      availableWidth: args.formatWidth,
     });
     return splitTextToWidth(this.ctx, text, style, args.wrapText ? args.maxWidth : undefined);
   }
