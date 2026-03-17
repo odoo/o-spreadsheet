@@ -39,12 +39,14 @@
       /* Menus */
       .o-topbar-topleft {
         .o-topbar-menu {
-          padding: 4px 6px;
+          padding: 3px 5px;
           margin: 0 2px;
+          border: 1px solid transparent;
 
           &.active {
             background-color: var(--os-button-active-bg);
             color: var(--os-button-active-text-color);
+            border-color: var(--os-link-color);
           }
         }
       }

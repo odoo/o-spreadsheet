@@ -114,7 +114,7 @@
       popoverPositioning="'bottom-left'"
     />
     <Popover t-if="state.toolsPopoverState.isOpen" t-props="toolsPopoverProps">
-      <div class="d-flex px-2 py-1 flex-wrap align-items-center bg-white">
+      <div class="d-flex px-2 py-1 flex-wrap align-items-center">
         <t
           t-foreach="state.invisibleToolsCategories"
           t-as="category"

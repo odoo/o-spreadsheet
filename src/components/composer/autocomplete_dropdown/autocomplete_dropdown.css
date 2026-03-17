@@ -4,11 +4,12 @@
     cursor: pointer;
     max-width: 400px;
     z-index: 1;
+    background-color: var(--os-popover-bg);
     .o-autocomplete-value-focus {
-      background-color: var(--os-composer-assistant-background);
+      background-color: var(--os-hovered-menu-item-color);
     }
-    & > div {
-      padding: 2px 5px 2px 5px;
+    .o-autocomplete-content {
+      padding: 1px 5px 5px 5px;
       .o-autocomplete-description {
         padding-left: 5px;
         font-size: 11px;

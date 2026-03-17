@@ -12,6 +12,7 @@
   --os-white: light-dark(#ffffff, #000000);
   --os-black: light-dark(#000000, #ffffff);
   --os-white-bg: light-dark(#ffffff, var(--os-gray-200));
+  --os-popover-bg: light-dark(#ffffff, var(--os-gray-300));
 
   --os-default-font: "Roboto", "Arial";
   --os-default-font-size: 10px;
@@ -33,6 +34,7 @@
   --os-action-color: var(--os-link-color); /* ACTION_COLOR */
   --os-action-color-hover: var(--os-link-hover-color);
   --os-border-color: light-dark(var(--os-gray-300), var(--os-gray-400));
+  --os-hovered-menu-item-color: light-dark(rgba(0, 0, 0, 0.08), rgba(255, 255, 255, 0.08));
 
   --os-composer-placeholder-color: light-dark(#bdbdbd, #757a89);
   --os-composer-assistant-color: #9b359b; /* COMPOSER_ASSISTANT_COLOR */
@@ -88,7 +90,7 @@
   --os-mobile-menu-item-height: 35px;
   --os-menu-item-padding-vertical: 4px;
   --os-menu-item-padding-horizontal: 11px;
-  --os-menu-vertical-padding: 6px;
+  --os-menu-vertical-padding: 8px;
   --os-line-vertical-padding: 1px;
   --os-picker-padding: 8px;
   --os-item-border-width: 1px;

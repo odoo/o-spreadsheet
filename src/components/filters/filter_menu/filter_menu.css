@@ -1,7 +1,6 @@
 .o-spreadsheet {
   .o-filter-menu {
     width: 245px;
-    padding: 8px 0;
     user-select: none;
 
     .o-filter-menu-content {
@@ -35,7 +34,7 @@
 
       &.selected,
       &:hover {
-        background-color: var(--os-button-active-bg);
+        background-color: var(--os-hovered-menu-item-color);
       }
     }
 
@@ -44,6 +43,13 @@
 
       .o-button {
         height: 26px;
+      }
+
+      .o-filter-menu-cancel {
+        background-color: light-dark(var(--os-button-bg), var(--os-gray-400));
+        &:hover {
+          background-color: var(--os-gray-500) !important;
+        }
       }
     }
   }
