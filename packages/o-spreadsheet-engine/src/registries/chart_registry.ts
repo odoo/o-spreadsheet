@@ -77,12 +77,12 @@ export interface ChartTypeBuilder<T extends ChartType> {
   ): ChartTypeDefinition<T, Range>;
   getContextCreation(
     definition: ChartTypeDefinition<T, string>,
-    dataSourceBuilder: ChartDataSourceBuilder<any>,
+    dataSourceBuilder: ChartDataSourceBuilder<unknown, unknown>,
     dataSource: ChartTypeDefinition<T, string>["dataSource"]
   ): ChartCreationContext;
   getDefinitionFromContextCreation(
     context: ChartCreationContext,
-    dataSourceBuilder: ChartDataSourceBuilder<any>
+    dataSourceBuilder: ChartDataSourceBuilder<unknown, unknown>
   ): ChartTypeDefinition<T, string>;
   /**
    * Get the definition of the chart used for excel export.
