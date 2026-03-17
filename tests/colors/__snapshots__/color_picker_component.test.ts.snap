@@ -2,7 +2,7 @@
 
 exports[`Color Picker buttons Full component rendering 1`] = `
 <div
-  class="o-color-picker bg-white"
+  class="o-color-picker"
   style=""
 >
   <div

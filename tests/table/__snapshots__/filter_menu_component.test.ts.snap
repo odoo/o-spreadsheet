@@ -2,7 +2,7 @@
 
 exports[`Filter menu component Filter Tests Filter menu is correctly rendered 1`] = `
 <div
-  class="o-filter-menu d-flex flex-column bg-white"
+  class="o-filter-menu d-flex flex-column py-3"
 >
   <div
     class="o-filter-menu-content"

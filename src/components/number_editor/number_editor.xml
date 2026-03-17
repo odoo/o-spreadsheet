@@ -24,7 +24,7 @@
         </span>
       </div>
       <Popover t-if="dropdown.isOpen" t-props="popoverProps">
-        <div class="o-text-options bg-white" t-on-click.stop="" t-ref="numberList">
+        <div class="o-text-options" t-on-click.stop="" t-ref="numberList">
           <t t-foreach="props.valueList" t-as="value" t-key="value">
             <div t-att-data-size="value" t-on-click="() => this.setValueFromList(value)">
               <t t-esc="value"/>

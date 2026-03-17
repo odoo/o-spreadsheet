@@ -4,10 +4,10 @@
       t-ref="autoCompleteList"
       t-on-pointerdown.prevent=""
       t-att-class="{
-          'o-autocomplete-dropdown bg-white': props.proposals.length}">
+          'o-autocomplete-dropdown': props.proposals.length}">
       <t t-foreach="props.proposals" t-as="proposal" t-key="proposal.text + proposal_index">
         <div
-          class="d-flex flex-column text-start"
+          class="o-autocomplete-content d-flex flex-column text-start"
           t-att-class="{'o-autocomplete-value-focus': props.selectedIndex === proposal_index}"
           t-on-click="() => this.props.onValueSelected(proposal)"
           t-on-pointermove="() => this.props.onValueHovered(proposal_index)">

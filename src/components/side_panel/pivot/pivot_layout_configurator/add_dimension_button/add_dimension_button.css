@@ -2,15 +2,29 @@
   input.pivot-dimension-search-field:focus {
     outline: none;
   }
+
   .pivot-dimension-search-field-icon svg {
     width: 13px;
     height: 13px;
   }
+
   .add-dimension.o-button {
     padding: 2px 7px;
     font-weight: 400;
     font-size: 12px;
     flex-grow: 0;
     height: inherit;
+  }
+
+  .o-pivot-add-dimension-popover {
+    .o-autocomplete-dropdown {
+      padding-bottom: var(--os-menu-item-padding-vertical);
+      .o-autocomplete-content {
+        padding: var(--os-menu-item-padding-vertical) 20px;
+        &:hover {
+          background-color: var(--os-hovered-menu-item-color);
+        }
+      }
+    }
   }
 }

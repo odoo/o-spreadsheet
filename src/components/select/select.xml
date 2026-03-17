@@ -14,7 +14,7 @@
 
     <Popover t-if="state.isPopoverOpen" t-props="popoverProps">
       <div
-        class="o-select-dropdown bg-white overflow-hidden py-2"
+        class="o-select-dropdown overflow-hidden py-2"
         t-att-class="props.popoverClass"
         t-ref="dropdownRef">
         <t t-foreach="props.values" t-as="value" t-key="value_index">
