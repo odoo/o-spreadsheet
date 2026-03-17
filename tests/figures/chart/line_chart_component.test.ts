@@ -51,12 +51,12 @@ describe("charts", () => {
     const locale = model.getters.getLocale();
 
     await setInputValueAndTrigger(minInput, "2022-01-02");
-    let definition = model.getters.getChartDefinition(chartId) as LineChartDefinition;
+    let definition = model.getters.getChartDefinition(chartId) as LineChartDefinition<string>;
     expect(definition.axesDesign?.x?.min).toEqual(parseDateTime("2022-01-02", locale)!.value);
 
     const maxInput = fixture.querySelector(".time-axis-max-input") as HTMLInputElement;
     await setInputValueAndTrigger(maxInput, "2022-01-04");
-    definition = model.getters.getChartDefinition(chartId) as LineChartDefinition;
+    definition = model.getters.getChartDefinition(chartId) as LineChartDefinition<string>;
     expect(definition.axesDesign?.x?.max).toEqual(parseDateTime("2022-01-04", locale)!.value);
   });
 
