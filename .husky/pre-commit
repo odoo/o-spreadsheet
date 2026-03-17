@@ -14,6 +14,7 @@ fi
 . "$(dirname "$0")/_/husky.sh"
 
 if [ "$HUSKY_PRE_COMMIT" != 0 ]; then
+    export ESLINT_FAST=1
     $npx lint-staged
 
     # Check console and debugger leftover statements
