@@ -6,6 +6,7 @@ import {
   hideRows,
   merge,
   moveAnchorCell,
+  resizeSheetView,
   selectCell,
   setViewportOffset,
 } from "../test_helpers/commands_helpers";
@@ -18,7 +19,7 @@ function getViewport(
   offsetX: number,
   offsetY: number
 ): Viewport {
-  model.dispatch("RESIZE_SHEETVIEW", { width, height, gridOffsetX: 0, gridOffsetY: 0 });
+  resizeSheetView(model, height, width);
   setViewportOffset(model, offsetX, offsetY);
   return model.getters.getActiveMainViewport();
 }
@@ -73,10 +74,7 @@ describe("navigation", () => {
     const model = new Model();
     const activeSheetId = model.getters.getActiveSheetId();
     const rowNumber = model.getters.getNumberRows(activeSheetId);
-    model.dispatch("ADD_MERGE", {
-      sheetId: activeSheetId,
-      target: [{ top: rowNumber - 2, bottom: rowNumber - 1, left: 0, right: 0 }],
-    });
+    merge(model, `${toXC(0, rowNumber - 2)}:${toXC(0, rowNumber - 1)}`, activeSheetId);
     const xc = toXC(0, rowNumber - 2);
     selectCell(model, xc);
     expect(getActivePosition(model)).toBe(xc);
@@ -88,15 +86,8 @@ describe("navigation", () => {
     const model = new Model();
     const activeSheetId = model.getters.getActiveSheetId();
     const rowNumber = model.getters.getNumberRows(activeSheetId);
-    model.dispatch("ADD_MERGE", {
-      sheetId: activeSheetId,
-      target: [{ top: rowNumber - 3, bottom: rowNumber - 2, left: 0, right: 0 }],
-    });
-    model.dispatch("HIDE_COLUMNS_ROWS", {
-      sheetId: activeSheetId,
-      dimension: "ROW",
-      elements: [rowNumber - 1],
-    });
+    merge(model, `${toXC(0, rowNumber - 3)}:${toXC(0, rowNumber - 2)}`, activeSheetId);
+    hideRows(model, [rowNumber - 1]);
     const xc = toXC(0, rowNumber - 3);
     selectCell(model, xc);
     expect(getActivePosition(model)).toBe(xc);
@@ -108,10 +99,7 @@ describe("navigation", () => {
     const model = new Model();
     const activeSheetId = model.getters.getActiveSheetId();
     const colNumber = model.getters.getNumberCols(activeSheetId);
-    model.dispatch("ADD_MERGE", {
-      sheetId: activeSheetId,
-      target: [{ top: 0, bottom: 0, left: colNumber - 2, right: colNumber - 1 }],
-    });
+    merge(model, `${toXC(colNumber - 2, 0)}:${toXC(colNumber - 1, 0)}`, activeSheetId);
     const xc = toXC(colNumber - 2, 0);
     selectCell(model, xc);
     expect(getActivePosition(model)).toBe(xc);

@@ -10,6 +10,7 @@ import {
   Wrapping,
 } from "../../src/types";
 import {
+  addCfRule,
   createChart,
   createImage,
   createSheet,
@@ -20,9 +21,10 @@ import {
   renameSheet,
   resizeColumns,
   resizeRows,
+  setBorders,
   setCellContent,
   setFormat,
-  setStyle,
+  setFormatting,
 } from "../test_helpers/commands_helpers";
 import {
   getBorder,
@@ -125,7 +127,7 @@ describe("Export data to xlsx then import it", () => {
     { fillColor: "#151515" },
     { wrapping: "wrap" as Wrapping },
   ])("Cell style %s", async (style: Style) => {
-    setStyle(model, "A1", style);
+    setFormatting(model, "A1", style);
     const importedModel = await exportToXlsxThenImport(model);
     expect(getCell(importedModel, "A1")!.style).toMatchObject(style);
   });
@@ -133,12 +135,7 @@ describe("Export data to xlsx then import it", () => {
   test("Cell border", async () => {
     const descr: BorderDescr = { style: "thin", color: "#000000" };
     const border = { bottom: descr, top: descr, left: descr, right: descr };
-    model.dispatch("SET_BORDER", {
-      sheetId,
-      col: 0,
-      row: 0,
-      border,
-    });
+    setBorders(model, "A1", border);
     const importedModel = await exportToXlsxThenImport(model);
     expect(getBorder(importedModel, "A1")).toEqual(border);
   });
@@ -207,18 +204,10 @@ describe("Export data to xlsx then import it", () => {
       },
     },
   ])("Conditional formats %s", async (rule: ConditionalFormatRule) => {
-    const cf = {
-      id: "1",
-      rule,
-    };
-    model.dispatch("ADD_CONDITIONAL_FORMAT", {
-      cf,
-      ranges: toRangesData(sheetId, "A1:A3"),
-      sheetId,
-    });
+    addCfRule(model, "A1:A3", rule, "1");
     const importedModel = await exportToXlsxThenImport(model);
     expect(importedModel.getters.getRulesByCell(sheetId, 0, 0).values().next().value).toMatchObject(
-      cf
+      { rule }
     );
   });
 

@@ -2,6 +2,7 @@ import { getDefaultSheetViewSize } from "@odoo/o-spreadsheet-engine/constants";
 import { Model } from "../../src";
 import { GridRenderingContext, Viewport, Zone } from "../../src/types";
 import { MockCanvasRenderingContext2D } from "../setup/canvas.mock";
+import { setSheetviewSize } from "./commands_helpers";
 
 MockCanvasRenderingContext2D.prototype.measureText = function () {
   return { width: 100, fontBoundingBoxAscent: 1, fontBoundingBoxDescent: 1 };
@@ -21,7 +22,7 @@ export class MockGridRenderingContext implements GridRenderingContext {
   thinLineWidth = 0.4;
 
   constructor(model: Model, width: number, height: number, observer: ContextObserver) {
-    model.dispatch("RESIZE_SHEETVIEW", { width, height, gridOffsetX: 0, gridOffsetY: 0 });
+    setSheetviewSize(model, height, width, false);
     this.viewport = model.getters.getActiveMainViewport();
 
     const handler = {

@@ -1,7 +1,13 @@
 import { DEFAULT_TABLE_CONFIG } from "@odoo/o-spreadsheet-engine/helpers/table_presets";
 import { Model } from "@odoo/o-spreadsheet-engine/model";
 import { CommandResult, TableStyle, TableStyleTemplateName, UID } from "../../src";
-import { createTable, createTableStyle, redo, undo } from "../test_helpers/commands_helpers";
+import {
+  createTable,
+  createTableStyle,
+  redo,
+  removeTableStyle,
+  undo,
+} from "../test_helpers/commands_helpers";
 import { getStyle } from "../test_helpers/getters_helpers";
 
 const customStyle: Omit<TableStyle, "category"> = {
@@ -55,7 +61,7 @@ describe("Table core style plugin", () => {
 
     expect(model.getters.getTableStyles()["MyStyle"]).toMatchObject(customStyle);
 
-    model.dispatch("REMOVE_TABLE_STYLE", { tableStyleId: "MyStyle" });
+    removeTableStyle(model, "MyStyle");
     expect(model.getters.getTableStyles()["MyStyle"]).toBeUndefined();
   });
 
@@ -70,7 +76,7 @@ describe("Table core style plugin", () => {
     });
     expect(getStyle(model, "A1")).toMatchObject({ fillColor: "#00FF00" });
 
-    model.dispatch("REMOVE_TABLE_STYLE", { tableStyleId: "MyStyle" });
+    removeTableStyle(model, "MyStyle");
     expect(getStyle(model, "A1")).toMatchObject({ fillColor: "#346B90" }); // default table style
   });
 
@@ -80,7 +86,7 @@ describe("Table core style plugin", () => {
     createTable(model, "A1", { styleId: "MyStyle" });
     expect(model.getters.getTables(sheetId)[0].config.styleId).toEqual("MyStyle");
 
-    model.dispatch("REMOVE_TABLE_STYLE", { tableStyleId: "MyStyle" });
+    removeTableStyle(model, "MyStyle");
     expect(model.getters.getTables(sheetId)[0].config.styleId).toEqual(
       DEFAULT_TABLE_CONFIG.styleId
     );

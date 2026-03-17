@@ -23,23 +23,29 @@ import {
 import { CoreCommand, Dimension, UID } from "../src/types";
 import {
   activateSheet,
+  addEqualCf,
+  autoresizeColumns,
+  autoresizeRows,
   copy,
   createSheet,
   createTableWithFilter,
   deleteCells,
+  deleteUnfilteredContent,
   insertCells,
   paste,
   redo,
   resizeColumns,
   resizeRows,
   setCellContent,
+  setDecimal,
+  setFormatting,
   setSelection,
-  setStyle,
   sort,
   undo,
 } from "./test_helpers/commands_helpers";
 import { TEST_COMMANDS } from "./test_helpers/constants";
 import {
+  automaticSum,
   getCellContent,
   getCellRawContent,
   getEvaluatedCell,
@@ -274,7 +280,7 @@ describe("Repeat command transform specifics", () => {
       sheetId: expect.not.stringMatching("sheetId"),
       name: "sheetName1",
     });
-    model.dispatch("CREATE_SHEET", { ...repeated });
+    createSheet(model, { ...repeated });
 
     expect(repeatCoreCommand(model.getters, repeated)).toEqual({
       ...command,
@@ -389,11 +395,9 @@ describe("Repeat local commands", () => {
   test("Repeat Paste", () => {
     setCellContent(model, "A1", "A1");
     setCellContent(model, "A2", "A2");
-    setStyle(model, "A2", { fillColor: "red" });
-    model.dispatch("ADD_CONDITIONAL_FORMAT", {
-      ...TEST_COMMANDS.ADD_CONDITIONAL_FORMAT,
-      ranges: toRangesData(sheetId, "A1:A2"),
-    });
+    setFormatting(model, "A2", { fillColor: "red" });
+
+    addEqualCf(model, "A1:A2", { fillColor: "#FF0000" }, "1");
     createTableWithFilter(model, "A1:A2");
 
     setSelection(model, ["A1:A2"]);
@@ -411,7 +415,7 @@ describe("Repeat local commands", () => {
 
   test("Repeat Paste format only", () => {
     setCellContent(model, "A1", "A1");
-    setStyle(model, "A1", { fillColor: "red" });
+    setFormatting(model, "A1", { fillColor: "red" });
 
     setSelection(model, ["A1"]);
     copy(model);
@@ -489,7 +493,7 @@ describe("Repeat local commands", () => {
   test("Repeat set decimal", () => {
     setSelection(model, ["A1"]);
     setCellContent(model, "A1", "1");
-    model.dispatch("SET_DECIMAL", { target: target("A1"), step: 1, sheetId });
+    setDecimal(model, "A1", 1, sheetId);
     expect(getEvaluatedCell(model, "A1").formattedValue).toEqual("1.0");
 
     redo(model);
@@ -498,10 +502,7 @@ describe("Repeat local commands", () => {
 
   test("Repeat autoresize rows", () => {
     resizeRows(model, [0, 2, 3], 100);
-    model.dispatch("AUTORESIZE_ROWS", {
-      sheetId,
-      rows: [0],
-    });
+    autoresizeRows(model, [0]);
     expect(model.getters.getRowSize(sheetId, 0)).toEqual(DEFAULT_CELL_HEIGHT);
 
     setSelection(model, ["A3:A4"]);
@@ -515,10 +516,7 @@ describe("Repeat local commands", () => {
     setCellContent(model, "C1", "C1");
     setCellContent(model, "D1", "D1");
     resizeColumns(model, ["A", "C", "D"], 50);
-    model.dispatch("AUTORESIZE_COLUMNS", {
-      sheetId,
-      cols: [0],
-    });
+    autoresizeColumns(model, [0]);
     expect(model.getters.getColSize(sheetId, 0)).toEqual(34);
 
     setSelection(model, ["C1:D1"]);
@@ -552,8 +550,7 @@ describe("Repeat local commands", () => {
     setCellContent(model, "A1", "1");
     setCellContent(model, "A2", "2");
 
-    setSelection(model, ["B1:B2"]);
-    model.dispatch("SUM_SELECTION");
+    automaticSum(model, "B1:B2");
 
     setSelection(model, ["A1:A2"]);
     redo(model);
@@ -564,7 +561,7 @@ describe("Repeat local commands", () => {
     setCellContent(model, "A1", "1");
     setCellContent(model, "A2", "2");
 
-    model.dispatch("DELETE_UNFILTERED_CONTENT", { sheetId, target: target("A1") });
+    deleteUnfilteredContent(model, "A1");
     expect(getCellContent(model, "A1")).toEqual("");
     expect(getCellContent(model, "A2")).toEqual("2");
 

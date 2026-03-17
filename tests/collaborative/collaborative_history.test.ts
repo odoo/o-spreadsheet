@@ -17,10 +17,11 @@ import {
   freezeColumns,
   hideSheet,
   redo,
+  renamePivot,
   resizeColumns,
   setCellContent,
+  setFormatting,
   setSelection,
-  setStyle,
   snapshot,
   undo,
   unfreezeColumns,
@@ -163,7 +164,7 @@ describe("Collaborative local history", () => {
   test("Add a column and set a formatting on it", () => {
     addColumns(alice, "before", "C", 4);
     undo(alice);
-    setStyle(bob, "H2:J6", { fillColor: "#121212" });
+    setFormatting(bob, "H2:J6", { fillColor: "#121212" });
     expect([alice, bob, charlie]).toHaveSynchronizedExportedData();
     expect([alice, bob, charlie]).toHaveSynchronizedValue((user) => getStyle(user, "H2"), {
       fillColor: "#121212",
@@ -896,7 +897,7 @@ describe("Collaborative local history", () => {
     addColumns(charlie, "before", "B", 1);
     network.concurrent(() => {
       undo(charlie);
-      setStyle(bob, "A1", { bold: true });
+      setFormatting(bob, "A1", { bold: true });
     });
     expect(all).toHaveSynchronizedValue((user) => getCell(user, "A1")?.style, { bold: true });
     expect(all).toHaveSynchronizedValue((user) => getCell(user, "B1")?.style, undefined);
@@ -911,7 +912,7 @@ describe("Collaborative local history", () => {
     network.concurrent(() => {
       setCellContent(alice, "A1", "hello");
       addPivot(charlie, "A1:A2", { name: "pivot" }, "1");
-      charlie.dispatch("RENAME_PIVOT", { pivotId: "1", name: "newName" });
+      renamePivot(charlie, "1", "newName");
     });
     undo(charlie);
     expect([alice, bob, charlie]).toHaveSynchronizedEvaluation();
@@ -928,7 +929,7 @@ describe("Collaborative local history", () => {
       updatePivot(alice, "1", {
         dataSet: { sheetId: alice.getters.getActiveSheetId(), zone: toZone("A1:B1") },
       });
-      alice.dispatch("RENAME_PIVOT", { pivotId: "1", name: "newName" });
+      renamePivot(alice, "1", "newName");
       undo(alice);
     });
     expect([alice, bob, charlie]).toHaveSynchronizedEvaluation();
@@ -1017,11 +1018,7 @@ describe("Collaborative local history", () => {
   test("do not transformed revisions with concurrently rejected commands", () => {
     const { network, alice, bob, charlie } = setupCollaborativeEnv();
     const initialCols = alice.getters.getNumberCols("Sheet1");
-    charlie.dispatch("DUPLICATE_SHEET", {
-      sheetId: "Sheet1",
-      sheetIdTo: "duplicateSheetId",
-      sheetNameTo: "Copy of Sheet1",
-    });
+    duplicateSheet(charlie, "Sheet1");
     network.concurrent(() => {
       undo(charlie);
 
@@ -1034,14 +1031,7 @@ describe("Collaborative local history", () => {
 
       // ADD_COLUMNS_ROWS no longer makes sense because the sheet has been finally deleted
       // and the transformation drops the command
-      alice.dispatch("ADD_COLUMNS_ROWS", {
-        position: "after",
-        dimension: "ROW",
-        base: 0,
-        quantity: 1,
-        sheetId: "Sheet1",
-        sheetName: "Sheet1",
-      });
+      addRows(alice, "after", 0, 1, "Sheet1");
     });
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
       (user) => user.getters.getNumberCols("Sheet1"),

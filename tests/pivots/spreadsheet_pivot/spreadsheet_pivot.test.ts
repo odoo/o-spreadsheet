@@ -20,6 +20,7 @@ import {
   redo,
   setCellContent,
   setFormat,
+  setFormulaVisibility,
   undo,
 } from "../../test_helpers/commands_helpers";
 import {
@@ -2106,7 +2107,7 @@ describe("Spreadsheet Pivot", () => {
       },
     });
     expect(getEvaluatedGrid(model, "C3:C4")).toEqual([["10"], ["20"]]);
-    model.dispatch("SET_FORMULA_VISIBILITY", { show: true });
+    setFormulaVisibility(model, true);
     // With fieldsType = undefined, arguments are stringified
     expect(getEvaluatedGrid(model, "C3:C4")).toEqual([
       [`=PIVOT.HEADER(1,"Price","10")`],
@@ -2119,9 +2120,9 @@ describe("Spreadsheet Pivot", () => {
       sheetId: model.getters.getActiveSheetId(),
       table,
     });
-    model.dispatch("SET_FORMULA_VISIBILITY", { show: false });
+    setFormulaVisibility(model, false);
     expect(getEvaluatedGrid(model, "C3:C4")).toEqual([["10"], ["20"]]);
-    model.dispatch("SET_FORMULA_VISIBILITY", { show: true });
+    setFormulaVisibility(model, true);
     // With fieldsType set, arguments are correctly normalized
     expect(getEvaluatedGrid(model, "C3:C4")).toEqual([
       [`=PIVOT.HEADER(1,"Price",10)`],

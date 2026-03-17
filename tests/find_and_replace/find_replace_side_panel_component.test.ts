@@ -1,7 +1,11 @@
 import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "@odoo/o-spreadsheet-engine/constants";
 import { SearchOptions } from "@odoo/o-spreadsheet-engine/types/find_and_replace";
 import { Model, Spreadsheet } from "../../src";
-import { createSheet, setCellContent } from "../test_helpers/commands_helpers";
+import {
+  createSheet,
+  setCellContent,
+  setFormulaVisibility,
+} from "../test_helpers/commands_helpers";
 import {
   click,
   editSelectComponent,
@@ -334,7 +338,7 @@ describe("find and replace sidePanel component", () => {
       await click(fixture, selectors.closeSidepanel);
       expect(model.getters.shouldShowFormulas()).toBe(false);
 
-      model.dispatch("SET_FORMULA_VISIBILITY", { show: true });
+      setFormulaVisibility(model, true);
       parent.env.openSidePanel("FindAndReplace");
       await nextTick();
 
@@ -350,7 +354,7 @@ describe("find and replace sidePanel component", () => {
     });
 
     test("Setting show formula from f&r should retain its state even it's changed via topbar", async () => {
-      model.dispatch("SET_FORMULA_VISIBILITY", { show: true });
+      setFormulaVisibility(model, true);
       await nextTick();
       expect(model.getters.shouldShowFormulas()).toBe(true);
       expect(

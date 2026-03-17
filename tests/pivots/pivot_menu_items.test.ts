@@ -11,6 +11,7 @@ import {
   redo,
   selectCell,
   setCellContent,
+  setFormulaVisibility,
   setSelection,
   undo,
 } from "../test_helpers/commands_helpers";
@@ -133,7 +134,7 @@ describe("Pivot fix formula menu item", () => {
       ["Total",    "60",     "60",     "5",       "125"],
     ]);
 
-    model.dispatch("SET_FORMULA_VISIBILITY", { show: true });
+    setFormulaVisibility(model, true);
     expect(getEvaluatedGrid(model, "A8:E14")).toEqual([
       [
         "",
@@ -221,7 +222,7 @@ describe("Pivot fix formula menu item", () => {
       ["(Undefined)", "20"],
     ]);
 
-    model.dispatch("SET_FORMULA_VISIBILITY", { show: true });
+    setFormulaVisibility(model, true);
     expect(getEvaluatedGrid(model, "C3:D4")).toEqual([
       [`=PIVOT.HEADER(1,"Customer","Alice")`, `=PIVOT.VALUE(1,"Amount:sum","Customer","Alice")`],
       [`=PIVOT.HEADER(1,"Customer","null")`, `=PIVOT.VALUE(1,"Amount:sum","Customer","null")`],
@@ -297,7 +298,7 @@ describe("Pivot fix formula menu item", () => {
       ["Total", "42"],
     ]);
 
-    model.dispatch("SET_FORMULA_VISIBILITY", { show: true });
+    setFormulaVisibility(model, true);
     expect(getEvaluatedGrid(model, "A3:B6")).toEqual([
       ["", "=PIVOT.HEADER(1)"],
       ["", '=PIVOT.HEADER(1,"measure","calculated")'],
@@ -365,7 +366,7 @@ describe("Pivot fix formula menu item", () => {
     const env = makeTestEnv({ model });
     selectCell(model, "A4");
     cellMenuRegistry.get("pivot_fix_formulas").execute?.(env);
-    model.dispatch("SET_FORMULA_VISIBILITY", { show: true });
+    setFormulaVisibility(model, true);
 
     // prettier-ignore
     expect(getEvaluatedGrid(model, "A4:B6")).toEqual([
@@ -395,7 +396,7 @@ describe("Pivot fix formula menu item", () => {
     selectCell(model, "E1");
     cellMenuRegistry.get("pivot_fix_formulas").execute!(env);
 
-    model.dispatch("SET_FORMULA_VISIBILITY", { show: true });
+    setFormulaVisibility(model, true);
     expect(getEvaluatedGrid(model, "E1:F1")).toEqual([
       [
         `=PIVOT.HEADER(1,"Date:year",2023)`,

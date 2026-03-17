@@ -126,7 +126,7 @@ describe("Model", () => {
     }
     addTestPlugin(corePluginRegistry, MyCorePlugin);
     const model = new Model();
-    model.dispatch("COPY");
+    copy(model);
     expect(receivedCommands).not.toContain("COPY");
   });
 
@@ -139,7 +139,7 @@ describe("Model", () => {
     }
     addTestPlugin(corePluginRegistry, MyCorePlugin);
     const model = new Model();
-    model.dispatch("COPY");
+    copy(model);
     expect(receivedCommands).not.toContain("COPY");
   });
 
@@ -158,16 +158,14 @@ describe("Model", () => {
       model.canDispatch("CREATE_SHEET", { sheetId: "42", position: 1, name: "Sheet42" })
     ).toBeCancelledBecause(CommandResult.CancelledForUnknownReason);
     expect(
-      model.dispatch("CREATE_SHEET", { sheetId: "42", position: 1, name: "Sheet42" })
+      createSheet(model, { sheetId: "42", position: 1, name: "Sheet42" })
     ).toBeCancelledBecause(CommandResult.CancelledForUnknownReason);
 
     const sheetId = model.getters.getActiveSheetId();
     expect(
       model.canDispatch("UPDATE_CELL", { sheetId, col: 0, row: 0, content: "hey" })
     ).toBeSuccessfullyDispatched();
-    expect(
-      model.dispatch("UPDATE_CELL", { sheetId, col: 0, row: 0, content: "hey" })
-    ).toBeSuccessfullyDispatched();
+    expect(setCellContent(model, "A1", "hey")).toBeSuccessfullyDispatched();
     corePluginRegistry.remove("myCorePlugin");
   });
 

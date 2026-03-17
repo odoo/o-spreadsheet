@@ -12,7 +12,7 @@ import { Action, ActionSpec, createActions } from "../../src/actions/action";
 import { MenuPopover } from "../../src/components/menu_popover/menu_popover";
 import { toXC } from "../../src/helpers";
 import { cellMenuRegistry } from "../../src/registries/menus/cell_menu_registry";
-import { setCellContent } from "../test_helpers/commands_helpers";
+import { resizeSheetView, setCellContent } from "../test_helpers/commands_helpers";
 import {
   DOMTarget,
   click,
@@ -193,12 +193,7 @@ class ContextMenuParent extends Component {
       height: 0,
     };
     this.menus = this.props.config.menuItems || createActions([makeTestMenuItem("Action")]);
-    this.env.model.dispatch("RESIZE_SHEETVIEW", {
-      height: this.props.height,
-      width: this.props.width,
-      gridOffsetX: 0,
-      gridOffsetY: 0,
-    });
+    resizeSheetView(this.env.model, this.props.heigth, this.props.width);
   }
 }
 
@@ -912,7 +907,7 @@ describe("Context menu react to grid size changes", () => {
     expect(menus[0]?.style.display).toBe("block");
     expect(menus[1]).toBeTruthy();
 
-    model.dispatch("RESIZE_SHEETVIEW", { width: 500, height: 500 });
+    resizeSheetView(model, 500, 500);
     await nextTick();
     await nextTick(); // First render hides the parent menu, second closes the submenu
 
@@ -931,7 +926,7 @@ describe("Context menu react to grid size changes", () => {
     expect(menus[0]?.style.left).toBe("500px");
     expect(menus[1]).toBeTruthy();
 
-    model.dispatch("RESIZE_SHEETVIEW", { width: 500 + MENU_WIDTH / 2, height: 1000 });
+    resizeSheetView(model, 1000, 500 + MENU_WIDTH / 2);
     await nextTick();
     await nextTick(); // First render moves the parent menu, second closes the submenu
 

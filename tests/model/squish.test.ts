@@ -1,6 +1,6 @@
 import { createRangeFromXc } from "@odoo/o-spreadsheet-engine/helpers/range";
 import { Model } from "@odoo/o-spreadsheet-engine/model";
-import { createSheet } from "../test_helpers";
+import { createSheet, setFormatting } from "../test_helpers";
 import { createModelFromGrid } from "../test_helpers/helpers";
 
 describe("squish - unsquish", () => {
@@ -549,11 +549,7 @@ describe("squish - unsquish specific cases", () => {
     const sheetContent = {};
     const squishedContent = {};
     const model = createModelFromGrid(sheetContent);
-    model.dispatch("SET_FORMATTING", {
-      sheetId: model.getters.getActiveSheetId(),
-      target: [{ top: 0, left: 0, bottom: 2, right: 2 }],
-      style: { bold: true },
-    });
+    setFormatting(model, "A1:C3", { bold: true });
     const exportSquished = model._exportData(true);
     expect(exportSquished.sheets[0].cells).toEqual(squishedContent);
 

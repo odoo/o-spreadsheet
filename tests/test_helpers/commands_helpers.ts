@@ -22,6 +22,7 @@ import {
   ChartWithDataSetDefinition,
   ClipboardPasteOptions,
   Color,
+  ConditionalFormat,
   ConditionalFormatRule,
   CreateFigureCommand,
   CreateSheetCommand,
@@ -36,11 +37,14 @@ import {
   Pixel,
   PixelPosition,
   SelectionStep,
+  SetDecimalStep,
   SortDirection,
   SortOptions,
   SplitTextIntoColumnsCommand,
   Style,
   UID,
+  UpdateCellCommand,
+  UpdateFigureCommand,
 } from "../../src/types";
 import { createEqualCF, target, toRangeData, toRangesData } from "./helpers";
 
@@ -172,6 +176,18 @@ export function createFigure(
     size: param.size,
     tag: param.tag,
   });
+}
+
+export function updateFigure(model: Model, cmd: Omit<UpdateFigureCommand, "type">) {
+  return model.dispatch("UPDATE_FIGURE", cmd);
+}
+
+export function deleteFigure(
+  model: Model,
+  figureId: UID,
+  sheetId: UID = model.getters.getActiveSheetId()
+) {
+  return model.dispatch("DELETE_FIGURE", { sheetId, figureId });
 }
 
 export function createImage(
@@ -878,7 +894,7 @@ export function clearCells(
 export function setCellContent(
   model: Model,
   xc: string,
-  content: string,
+  content: string | undefined,
   sheetId: UID = model.getters.getActiveSheetId()
 ) {
   const { col, row } = toCartesian(xc);
@@ -896,6 +912,26 @@ export function setCellFormat(
 ) {
   const { col, row } = toCartesian(xc);
   return model.dispatch("UPDATE_CELL", { col, row, sheetId, format });
+}
+
+export function setCellStyle(
+  model: Model,
+  xc: string,
+  style: Style | undefined | null,
+  sheetId: UID = model.getters.getActiveSheetId()
+) {
+  const { col, row } = toCartesian(xc);
+  return model.dispatch("UPDATE_CELL", { col, row, sheetId, style });
+}
+
+export function updateCell(
+  model: Model,
+  xc: string,
+  cell: Pick<UpdateCellCommand, "content" | "format" | "style">,
+  sheetId: UID = model.getters.getActiveSheetId()
+) {
+  const { col, row } = toCartesian(xc);
+  return model.dispatch("UPDATE_CELL", { col, row, sheetId, ...cell });
 }
 
 /**
@@ -1160,17 +1196,25 @@ export function setViewportOffset(model: Model, offsetX: number, offsetY: number
   });
 }
 
-export function setStyle(
+export function setFormatting(
   model: Model,
   targetXc: string,
-  style: Style,
+  style: Style | undefined,
   sheetId: UID = model.getters.getActiveSheetId()
 ) {
   return model.dispatch("SET_FORMATTING", {
-    sheetId: sheetId,
+    sheetId,
     target: target(targetXc),
-    style: style,
+    style,
   });
+}
+
+export function clearFormatting(
+  model: Model,
+  targetXc: string,
+  sheetId: UID = model.getters.getActiveSheetId()
+) {
+  return model.dispatch("CLEAR_FORMATTING", { sheetId, target: target(targetXc) });
 }
 
 /**
@@ -1451,12 +1495,13 @@ export function ungroupHeaders(
 export function duplicateSheet(
   model: Model,
   sheetId: UID = model.getters.getActiveSheetId(),
-  sheetIdTo: UID = model.uuidGenerator.uuidv4()
+  sheetIdTo: UID = model.uuidGenerator.uuidv4(),
+  sheetNameTo: string = model.getters.getDuplicateSheetName(model.getters.getSheetName(sheetId))
 ) {
   return model.dispatch("DUPLICATE_SHEET", {
     sheetId,
     sheetIdTo,
-    sheetNameTo: model.getters.getDuplicateSheetName(model.getters.getSheetName(sheetId)),
+    sheetNameTo,
   });
 }
 
@@ -1557,11 +1602,40 @@ export function insertPivot(
 }
 
 export function setSheetviewSize(model: Model, height: Pixel, width: Pixel, hasHeaders = true) {
+  return resizeSheetView(
+    model,
+    height,
+    width,
+    hasHeaders ? HEADER_WIDTH : 0,
+    hasHeaders ? HEADER_HEIGHT : 0
+  );
+}
+
+export function resizeSheetView(
+  model: Model,
+  height: Pixel,
+  width: Pixel,
+  gridOffsetX?: Pixel,
+  gridOffsetY?: Pixel
+) {
   return model.dispatch("RESIZE_SHEETVIEW", {
     height,
     width,
-    gridOffsetX: hasHeaders ? HEADER_WIDTH : 0,
-    gridOffsetY: hasHeaders ? HEADER_HEIGHT : 0,
+    gridOffsetX,
+    gridOffsetY,
+  });
+}
+
+export function addCf(
+  model: Model,
+  xc: string,
+  cf: Omit<ConditionalFormat, "ranges">,
+  sheetId: UID = model.getters.getActiveSheetId()
+) {
+  return model.dispatch("ADD_CONDITIONAL_FORMAT", {
+    cf,
+    ranges: toRangesData(sheetId, xc),
+    sheetId,
   });
 }
 
@@ -1572,11 +1646,7 @@ export function addCfRule(
   cfId: UID = "cfId",
   sheetId: UID = model.getters.getActiveSheetId()
 ) {
-  return model.dispatch("ADD_CONDITIONAL_FORMAT", {
-    cf: { rule, id: cfId },
-    ranges: toRangesData(sheetId, xc),
-    sheetId,
-  });
+  return addCf(model, xc, { rule, id: cfId }, sheetId);
 }
 
 export function addEqualCf(
@@ -1587,11 +1657,7 @@ export function addEqualCf(
   cfId: UID = "cfId",
   sheetId: UID = model.getters.getActiveSheetId()
 ): DispatchResult {
-  return model.dispatch("ADD_CONDITIONAL_FORMAT", {
-    cf: createEqualCF(value, style, cfId),
-    sheetId,
-    ranges: toRangesData(sheetId, xc),
-  });
+  return addCf(model, xc, createEqualCF(value, style, cfId), sheetId);
 }
 
 export function addIconCF(
@@ -1602,8 +1668,10 @@ export function addIconCF(
   cfId: UID = "cfId",
   sheetId: UID = model.getters.getActiveSheetId()
 ): DispatchResult {
-  return model.dispatch("ADD_CONDITIONAL_FORMAT", {
-    cf: {
+  return addCf(
+    model,
+    xc,
+    {
       id: cfId,
       rule: {
         type: "IconSetRule",
@@ -1616,9 +1684,8 @@ export function addIconCF(
         },
       },
     },
-    ranges: toRangesData(sheetId, xc),
-    sheetId,
-  });
+    sheetId
+  );
 }
 
 export function addDataBarCF(
@@ -1628,15 +1695,23 @@ export function addDataBarCF(
   cfId: UID = "cfId",
   sheetId: UID = model.getters.getActiveSheetId()
 ): DispatchResult {
-  return model.dispatch("ADD_CONDITIONAL_FORMAT", {
-    cf: {
+  return addCf(
+    model,
+    xc,
+    {
       id: cfId,
       rule: {
         type: "DataBarRule",
         color: colorToNumber(color),
       },
     },
-    ranges: toRangesData(sheetId, xc),
+    sheetId
+  );
+}
+
+export function removeCF(model: Model, id: UID, sheetId: UID = model.getters.getActiveSheetId()) {
+  return model.dispatch("REMOVE_CONDITIONAL_FORMAT", {
+    id,
     sheetId,
   });
 }
@@ -1739,4 +1814,122 @@ export function unlockSheet(
   sheetId: UID = model.getters.getActiveSheetId()
 ): DispatchResult {
   return model.dispatch("UNLOCK_SHEET", { sheetId });
+}
+
+export function trimWhitespace(model: Model) {
+  return model.dispatch("TRIM_WHITESPACE");
+}
+
+export function evaluateCells(model: Model) {
+  return model.dispatch("EVALUATE_CELLS");
+}
+
+export function evaluateCharts(model: Model) {
+  return model.dispatch("EVALUATE_CHARTS");
+}
+
+export function setDecimal(
+  model: Model,
+  xc: string,
+  step: SetDecimalStep,
+  sheetId: UID = model.getters.getActiveSheetId()
+) {
+  return model.dispatch("SET_DECIMAL", {
+    sheetId,
+    target: target(xc),
+    step,
+  });
+}
+
+export function autoresizeRows(
+  model: Model,
+  rows: HeaderIndex[],
+  sheetId: UID = model.getters.getActiveSheetId()
+) {
+  return model.dispatch("AUTORESIZE_ROWS", {
+    sheetId,
+    rows,
+  });
+}
+
+export function autoresizeColumns(
+  model: Model,
+  cols: HeaderIndex[],
+  sheetId: UID = model.getters.getActiveSheetId()
+) {
+  return model.dispatch("AUTORESIZE_COLUMNS", {
+    sheetId,
+    cols,
+  });
+}
+
+export function deleteUnfilteredContent(
+  model: Model,
+  xc: string,
+  sheetId: UID = model.getters.getActiveSheetId()
+) {
+  return model.dispatch("DELETE_UNFILTERED_CONTENT", { sheetId, target: target(xc) });
+}
+
+export function autofillAuto(model: Model) {
+  return model.dispatch("AUTOFILL_AUTO");
+}
+
+export function selectFigure(model: Model, figureId: UID) {
+  return model.dispatch("SELECT_FIGURE", { figureId });
+}
+
+export function shiftViewportDown(model: Model) {
+  return model.dispatch("SHIFT_VIEWPORT_DOWN");
+}
+
+export function shiftViewportUp(model: Model) {
+  return model.dispatch("SHIFT_VIEWPORT_UP");
+}
+
+export function setZoom(model: Model, zoom: number) {
+  return model.dispatch("SET_ZOOM", { zoom });
+}
+
+export function autofillSelect(model: Model, from: string, to: string) {
+  setSelection(model, [from]);
+  return model.dispatch("AUTOFILL_SELECT", toCartesian(to));
+}
+
+export function autofill(model: Model, from: string, to: string) {
+  autofillSelect(model, from, to);
+  return model.dispatch("AUTOFILL");
+}
+
+export function removeDuplicates(model: Model, columns: HeaderIndex[], hasHeader: boolean) {
+  return model.dispatch("REMOVE_DUPLICATES", { columns, hasHeader });
+}
+
+export function setFormulaVisibility(model: Model, show: boolean) {
+  return model.dispatch("SET_FORMULA_VISIBILITY", { show });
+}
+
+export function renamePivot(model: Model, pivotId: UID, name: string) {
+  return model.dispatch("RENAME_PIVOT", { pivotId, name });
+}
+
+export function setGridLinesVisibility(
+  model: Model,
+  areGridLinesVisible: boolean,
+  sheetId: UID = model.getters.getActiveSheetId()
+) {
+  return model.dispatch("SET_GRID_LINES_VISIBILITY", {
+    sheetId,
+    areGridLinesVisible,
+  });
+}
+
+export function removeTableStyle(model: Model, tableStyleId: UID) {
+  return model.dispatch("REMOVE_TABLE_STYLE", { tableStyleId });
+}
+
+export function startChangeHighlight(model: Model, xc: string) {
+  return model.dispatch("START_CHANGE_HIGHLIGHT", {
+    zone: toZone(xc),
+  });
 }

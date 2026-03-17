@@ -82,7 +82,14 @@ import {
 import { FileStore } from "../__mocks__/mock_file_store";
 import { registerCleanup } from "../setup/jest.setup";
 import { MockClipboard } from "./clipboard";
-import { redo, setCellContent, setFormat, setStyle, undo } from "./commands_helpers";
+import {
+  evaluateCells,
+  redo,
+  setCellContent,
+  setFormat,
+  setFormatting,
+  undo,
+} from "./commands_helpers";
 import { DOMTarget, click, getTarget, getTextNodes, keyDown, keyUp } from "./dom_helper";
 import { getCellContent, getEvaluatedCell } from "./getters_helpers";
 
@@ -451,7 +458,7 @@ export function setGridStyle(model: Model, grid: GridStyleDescr) {
     if (style === undefined) {
       continue;
     }
-    setStyle(model, xc, style);
+    setFormatting(model, xc, style);
   }
 }
 
@@ -895,7 +902,7 @@ export async function exportPrettifiedXlsx(model: Model): Promise<XLSXExport> {
 }
 
 export async function getExportedExcelData(model: Model): Promise<ExcelWorkbookData> {
-  model.dispatch("EVALUATE_CELLS");
+  evaluateCells(model);
   let data = createEmptyExcelWorkbookData();
   for (const handler of model["handlers"]) {
     if (handler instanceof BasePlugin) {

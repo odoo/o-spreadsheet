@@ -6,6 +6,8 @@ import {
   merge,
   selectCell,
   setCellContent,
+  setCellStyle,
+  updateCell,
 } from "../test_helpers/commands_helpers";
 import { clickCell, hoverCell, rightClickCell, simulateClick } from "../test_helpers/dom_helper";
 import { getCell, getCellRawContent, getEvaluatedCell } from "../test_helpers/getters_helpers";
@@ -156,13 +158,7 @@ describe("link display component", () => {
   test("link text color is removed when the cell is unlinked", async () => {
     setCellContent(model, "A1", "[label](url.com)");
     await hoverCell(model, "A1", 400);
-    model.dispatch("UPDATE_CELL", {
-      col: 0,
-      row: 0,
-      sheetId: model.getters.getActiveSheetId(),
-      content: "[label](url.com)",
-      style: { bold: true },
-    });
+    updateCell(model, "A1", { content: "[label](url.com)", style: { bold: true } });
     await simulateClick(".o-unlink");
     expect(getCell(model, "A1")?.style).toEqual({
       bold: true,
@@ -173,12 +169,7 @@ describe("link display component", () => {
 
   test("link text color is not removed when the cell is unlinked if it is custom", async () => {
     setCellContent(model, "A1", "[label](url.com)");
-    model.dispatch("UPDATE_CELL", {
-      col: 0,
-      row: 0,
-      sheetId: model.getters.getActiveSheetId(),
-      style: { bold: true, textColor: "#555" },
-    });
+    setCellStyle(model, "A1", { bold: true, textColor: "#555" });
     await hoverCell(model, "A1", 400);
     await simulateClick(".o-unlink");
     expect(getCell(model, "A1")?.style).toEqual({

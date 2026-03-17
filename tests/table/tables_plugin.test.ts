@@ -14,12 +14,13 @@ import {
   deleteContent,
   deleteRows,
   deleteTable,
+  duplicateSheet,
   insertCells,
   merge,
   paste,
   redo,
   setCellContent,
-  setStyle,
+  setFormatting,
   undo,
   updateFilter,
   updateTableConfig,
@@ -236,11 +237,7 @@ describe("Table plugin", () => {
       updateFilter(model, "A1", ["C"]);
 
       const sheet2Id = "42";
-      model.dispatch("DUPLICATE_SHEET", {
-        sheetId: sheetId,
-        sheetIdTo: sheet2Id,
-        sheetNameTo: "Copy of Sheet1",
-      });
+      duplicateSheet(model, sheetId, sheet2Id);
       expect(getFilterHiddenValues(model, sheet2Id)).toMatchObject([
         { zone: "A1:A3", value: ["C"] },
       ]);
@@ -360,7 +357,7 @@ describe("Table plugin", () => {
     });
 
     test("Table zone is expanded when another cell below the table had a a style but no content", () => {
-      setStyle(model, "B4", { fillColor: "#000000" });
+      setFormatting(model, "B4", { fillColor: "#000000" });
       createTable(model, "A1:B3");
       setCellContent(model, "A4", "Something");
       expect(zoneToXc(model.getters.getTables(sheetId)[0].range.zone)).toEqual("A1:B4");
@@ -919,7 +916,7 @@ describe("Table plugin", () => {
     test("Copied table style do not overwrite cell style", () => {
       createTable(model, "A1:A2");
       updateTableConfig(model, "A1", { styleId: "TestStyleAllRed", numberOfHeaders: 1 });
-      setStyle(model, "A1", { fillColor: "#000000", italic: true });
+      setFormatting(model, "A1", { fillColor: "#000000", italic: true });
       copy(model, "A1");
       paste(model, "B2");
       expect(getCell(model, "B2")?.style).toEqual({

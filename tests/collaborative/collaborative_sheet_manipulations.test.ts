@@ -5,6 +5,7 @@ import { lettersToNumber, numberToLetters, range, toZone } from "../../src/helpe
 import { MockTransportService } from "../__mocks__/transport_service";
 import {
   activateSheet,
+  addCfRule,
   addColumns,
   addDataValidation,
   addRows,
@@ -26,15 +27,17 @@ import {
   renameSheet,
   selectCell,
   setCellContent,
+  setGridLinesVisibility,
   undo,
   unfreezeColumns,
   unfreezeRows,
   unhideColumns,
   unhideRows,
   updateChart,
+  updateFigure,
 } from "../test_helpers/commands_helpers";
 import { getCellContent, getCellText } from "../test_helpers/getters_helpers";
-import { createEqualCF, getDataValidationRules, toRangesData } from "../test_helpers/helpers";
+import { createEqualCF, getDataValidationRules } from "../test_helpers/helpers";
 import { addPivot } from "../test_helpers/pivot_helpers";
 import { setupCollaborativeEnv } from "./collaborative_helpers";
 
@@ -193,7 +196,7 @@ describe("Collaborative Sheet manipulation", () => {
     });
     network.concurrent(() => {
       deleteSheet(alice, sheetId);
-      bob.dispatch("UPDATE_FIGURE", {
+      updateFigure(bob, {
         figureId: "456",
         sheetId,
         col: 0,
@@ -528,14 +531,10 @@ describe("Collaborative Sheet manipulation", () => {
   describe("conditional formatting", () => {
     test("Concurrent new conditional format and new columns", () => {
       const sheetId = bob.getters.getActiveSheetId();
-      const cf = createEqualCF("1", { fillColor: "#FF0000" }, "1");
+      const rule = createEqualCF("1", { fillColor: "#FF0000" }, "1").rule;
       network.concurrent(() => {
         addColumns(alice, "before", "D", 2);
-        bob.dispatch("ADD_CONDITIONAL_FORMAT", {
-          sheetId,
-          cf,
-          ranges: toRangesData(sheetId, "A1:A3,C1:D3,F1:F3"),
-        });
+        addCfRule(bob, "A1:A3,C1:D3,F1:F3", rule, "1");
       });
       expect([alice, bob, charlie]).toHaveSynchronizedValue(
         (user) => user.getters.getConditionalFormats(sheetId),
@@ -543,7 +542,7 @@ describe("Collaborative Sheet manipulation", () => {
           {
             id: "1",
             ranges: ["A1:A3", "C1:F3", "H1:H3"],
-            rule: cf.rule,
+            rule,
           },
         ]
       );
@@ -551,14 +550,10 @@ describe("Collaborative Sheet manipulation", () => {
 
     test("Concurrent new conditional format and removed columns", () => {
       const sheetId = bob.getters.getActiveSheetId();
-      const cf = createEqualCF("1", { fillColor: "#FF0000" }, "1");
+      const rule = createEqualCF("1", { fillColor: "#FF0000" }, "1").rule;
       network.concurrent(() => {
         deleteColumns(alice, ["C", "D", "F"]);
-        bob.dispatch("ADD_CONDITIONAL_FORMAT", {
-          sheetId,
-          cf,
-          ranges: toRangesData(sheetId, "A1:A3,C1:D3,F1:G3"),
-        });
+        addCfRule(bob, "A1:A3,C1:D3,F1:G3", rule, "1");
       });
       expect([alice, bob, charlie]).toHaveSynchronizedValue(
         (user) => user.getters.getConditionalFormats(sheetId),
@@ -566,7 +561,7 @@ describe("Collaborative Sheet manipulation", () => {
           {
             id: "1",
             ranges: ["A1:A3", "D1:D3"],
-            rule: cf.rule,
+            rule,
           },
         ]
       );
@@ -574,14 +569,10 @@ describe("Collaborative Sheet manipulation", () => {
 
     test("Concurrent new conditional format and new rows", () => {
       const sheetId = bob.getters.getActiveSheetId();
-      const cf = createEqualCF("1", { fillColor: "#FF0000" }, "1");
+      const rule = createEqualCF("1", { fillColor: "#FF0000" }, "1").rule;
       network.concurrent(() => {
         addRows(alice, "before", 9, 2);
-        bob.dispatch("ADD_CONDITIONAL_FORMAT", {
-          sheetId,
-          cf,
-          ranges: toRangesData(sheetId, "A1:A3,A4:A10,A11:A12"),
-        });
+        addCfRule(bob, "A1:A3,A4:A10,A11:A12", rule, "1");
       });
       expect([alice, bob, charlie]).toHaveSynchronizedValue(
         (user) => user.getters.getConditionalFormats(sheetId),
@@ -589,7 +580,7 @@ describe("Collaborative Sheet manipulation", () => {
           {
             id: "1",
             ranges: ["A1:A3", "A4:A12", "A13:A14"],
-            rule: cf.rule,
+            rule,
           },
         ]
       );
@@ -597,14 +588,10 @@ describe("Collaborative Sheet manipulation", () => {
 
     test("Concurrent new conditional format and removed rows", () => {
       const sheetId = bob.getters.getActiveSheetId();
-      const cf = createEqualCF("1", { fillColor: "#FF0000" }, "1");
+      const rule = createEqualCF("1", { fillColor: "#FF0000" }, "1").rule;
       network.concurrent(() => {
         deleteRows(alice, [3, 4, 10]);
-        bob.dispatch("ADD_CONDITIONAL_FORMAT", {
-          sheetId,
-          cf,
-          ranges: toRangesData(sheetId, "A1:A3,A4:A5,A11:A12"),
-        });
+        addCfRule(bob, "A1:A3,A4:A5,A11:A12", rule, "1");
       });
       expect([alice, bob, charlie]).toHaveSynchronizedValue(
         (user) => user.getters.getConditionalFormats(sheetId),
@@ -612,7 +599,7 @@ describe("Collaborative Sheet manipulation", () => {
           {
             id: "1",
             ranges: ["A1:A3", "A9"],
-            rule: cf.rule,
+            rule,
           },
         ]
       );
@@ -622,14 +609,10 @@ describe("Collaborative Sheet manipulation", () => {
       const sheetId = bob.getters.getActiveSheetId();
       const sheetName = bob.getters.getSheetName(sheetId);
       const newSheetName = "NewName";
-      const cf = createEqualCF(`=${sheetName}!A1`, { fillColor: "#FF0000" }, "1");
+      const rule = createEqualCF(`=${sheetName}!A1`, { fillColor: "#FF0000" }, "1").rule;
       network.concurrent(() => {
         renameSheet(alice, sheetId, newSheetName);
-        bob.dispatch("ADD_CONDITIONAL_FORMAT", {
-          sheetId,
-          cf,
-          ranges: toRangesData(sheetId, "A2"),
-        });
+        addCfRule(bob, "A2", rule, "1");
       });
       expect([alice, bob, charlie]).toHaveSynchronizedValue(
         (user) => user.getters.getConditionalFormats(sheetId),
@@ -638,7 +621,7 @@ describe("Collaborative Sheet manipulation", () => {
             id: "1",
             ranges: ["A2"],
             rule: {
-              ...cf.rule,
+              ...rule,
               values: [`=${newSheetName}!A1`],
             } as CellIsRule,
           },
@@ -652,7 +635,7 @@ describe("Collaborative Sheet manipulation", () => {
             id: "1",
             ranges: ["A2"],
             rule: {
-              ...cf.rule,
+              ...rule,
               values: [`=${sheetName}!A1`],
             } as CellIsRule,
           },
@@ -665,14 +648,10 @@ describe("Collaborative Sheet manipulation", () => {
       const secondSheetId = "42";
       const secondSheetName = "SecondSheet";
       createSheet(alice, { sheetId: secondSheetId, name: secondSheetName, activate: true });
-      const cf = createEqualCF(`=${secondSheetName}!A1`, { fillColor: "#FF0000" }, "1");
+      const rule = createEqualCF(`=${secondSheetName}!A1`, { fillColor: "#FF0000" }, "1").rule;
       network.concurrent(() => {
         deleteSheet(alice, secondSheetId);
-        bob.dispatch("ADD_CONDITIONAL_FORMAT", {
-          sheetId,
-          cf,
-          ranges: toRangesData(sheetId, "A2"),
-        });
+        addCfRule(bob, "A2", rule, "1");
       });
       expect([alice, bob, charlie]).toHaveSynchronizedValue(
         (user) => user.getters.getConditionalFormats(sheetId),
@@ -681,7 +660,7 @@ describe("Collaborative Sheet manipulation", () => {
             id: "1",
             ranges: ["A2"],
             rule: {
-              ...cf.rule,
+              ...rule,
               values: [`=${secondSheetName}!A1`],
             } as CellIsRule,
           },
@@ -695,7 +674,7 @@ describe("Collaborative Sheet manipulation", () => {
             id: "1",
             ranges: ["A2"],
             rule: {
-              ...cf.rule,
+              ...rule,
               values: [`=${secondSheetName}!A1`],
             } as CellIsRule,
           },
@@ -830,7 +809,7 @@ describe("Collaborative Sheet manipulation", () => {
         (user) => user.getters.getGridLinesVisibility("42"),
         true
       );
-      alice.dispatch("SET_GRID_LINES_VISIBILITY", { sheetId: "42", areGridLinesVisible: false });
+      setGridLinesVisibility(alice, false, "42");
       expect([alice, bob, charlie]).toHaveSynchronizedValue(
         (user) => user.getters.getGridLinesVisibility("42"),
         false
@@ -841,7 +820,7 @@ describe("Collaborative Sheet manipulation", () => {
       createSheet(alice, { sheetId: "42" });
       network.concurrent(() => {
         deleteSheet(bob, "42");
-        alice.dispatch("SET_GRID_LINES_VISIBILITY", { sheetId: "42", areGridLinesVisible: false });
+        setGridLinesVisibility(alice, false, "42");
       });
       expect([alice, bob, charlie]).toHaveSynchronizedValue(
         (user) => user.getters.tryGetSheet("42"),

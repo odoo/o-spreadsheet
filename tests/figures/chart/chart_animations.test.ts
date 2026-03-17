@@ -1,7 +1,13 @@
 import { Chart } from "chart.js";
 import { Model, readonlyAllowedCommands } from "../../../src";
 import { ChartAnimationStore } from "../../../src/components/figures/chart/chartJs/chartjs_animation_store";
-import { createChart, setCellContent, updateChart } from "../../test_helpers/commands_helpers";
+import {
+  createChart,
+  evaluateCells,
+  setCellContent,
+  setViewportOffset,
+  updateChart,
+} from "../../test_helpers/commands_helpers";
 import { click, clickAndDrag } from "../../test_helpers/dom_helper";
 import { mockChart, mountSpreadsheet, nextTick } from "../../test_helpers/helpers";
 import { extendMockGetBoundingClientRect } from "../../test_helpers/mock_helpers";
@@ -42,11 +48,11 @@ describe("Chart animations in dashboard", () => {
     expect(mockedChart.config.options.animation.animateRotate).toBe(true);
 
     // Scroll the figure out of the viewport and back in
-    model.dispatch("SET_VIEWPORT_OFFSET", { offsetX: 0, offsetY: 500 });
+    setViewportOffset(model, 0, 500);
     await nextTick();
     expect(".o-figure").toHaveCount(0);
 
-    model.dispatch("SET_VIEWPORT_OFFSET", { offsetX: 0, offsetY: 0 });
+    setViewportOffset(model, 0, 0);
     await nextTick();
     expect(".o-figure").toHaveCount(1);
     expect(mockedChart.config.options.animation).toBe(false);
@@ -99,7 +105,7 @@ describe("Chart animations in dashboard", () => {
     model.updateMode("dashboard");
     await mountSpreadsheet({ model });
 
-    model.dispatch("EVALUATE_CELLS");
+    evaluateCells(model);
     await nextTick();
     expect(mockedChart.config.options.animation).toBe(false);
 

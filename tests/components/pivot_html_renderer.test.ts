@@ -1,6 +1,6 @@
 import { Model, UID } from "../../src";
 import { PivotHTMLRenderer } from "../../src/components/pivot_html_renderer/pivot_html_renderer";
-import { createSheet } from "../test_helpers/commands_helpers";
+import { createSheet, evaluateCells } from "../test_helpers/commands_helpers";
 import { click } from "../test_helpers/dom_helper";
 import { createModelFromGrid, mountComponent } from "../test_helpers/helpers";
 import { addPivot } from "../test_helpers/pivot_helpers";
@@ -17,7 +17,7 @@ async function mountPivotHtmlRenderer(
     onCellClicked,
   };
   model.dispatch("PIVOT_START_PRESENCE_TRACKING", { pivotId });
-  model.dispatch("EVALUATE_CELLS");
+  evaluateCells(model);
   ({ fixture } = await mountComponent(PivotHTMLRenderer, { env: { model }, props }));
 }
 

@@ -1,4 +1,4 @@
-import { selectCell, setCellContent, setStyle } from "../test_helpers/commands_helpers";
+import { selectCell, setCellContent, setFormatting } from "../test_helpers/commands_helpers";
 import { getCell, getCellRawContent } from "../test_helpers/getters_helpers";
 import { doAction, makeTestEnv } from "../test_helpers/helpers";
 
@@ -15,7 +15,7 @@ describe("cross spreadsheet copy/paste", () => {
     const cellStyle = { bold: true, fillColor: "#00FF00", fontSize: 20 };
 
     setCellContent(modelA, "A1", "a1");
-    setStyle(modelA, "A1", cellStyle);
+    setFormatting(modelA, "A1", cellStyle);
     expect(getCell(modelA, "A1")).toMatchObject({
       content: "a1",
       style: cellStyle,

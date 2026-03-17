@@ -36,11 +36,12 @@ import {
   selectAll,
   selectCell,
   selectColumn,
+  selectFigure,
   selectRow,
   setAnchorCorner,
   setCellContent,
+  setFormatting,
   setSelection,
-  setStyle,
   setViewportOffset,
   undo,
 } from "../test_helpers/commands_helpers";
@@ -498,7 +499,7 @@ describe("simple selection", () => {
       height: 100,
     });
     expect(model.getters.getSelectedFigureId()).toBe(null);
-    model.dispatch("SELECT_FIGURE", { figureId: "someuuid" });
+    selectFigure(model, "someuuid");
     expect(model.getters.getSelectedFigureId()).toBe("someuuid");
     undo(model);
     expect(model.getters.getSelectedFigureId()).toBe(null);
@@ -1109,7 +1110,7 @@ describe("move elements(s)", () => {
     const model = new Model();
     const sheetId = model.getters.getActiveSheetId();
     setCellContent(model, "A3", "Hello\nWorld");
-    setStyle(model, "A3", { wrapping: "wrap" });
+    setFormatting(model, "A3", { wrapping: "wrap" });
     moveRows(model, 1, [2], "before");
     expect(model.getters.getUserRowSize(sheetId, 1)).toEqual(undefined);
   });
@@ -1140,7 +1141,7 @@ describe("move elements(s)", () => {
     const model = new Model();
     const sheetId = model.getters.getActiveSheetId();
     setCellContent(model, "A2", "Hello\nWorld");
-    setStyle(model, "A2", { wrapping: "wrap" });
+    setFormatting(model, "A2", { wrapping: "wrap" });
     moveRows(model, 1, [2], "before");
     expect(model.getters.getRowSize(sheetId, 2)).toEqual(36);
   });
@@ -1300,7 +1301,7 @@ test("Preserves wrapped row height when inserting a row above", () => {
   const model = new Model();
   const sheetId = model.getters.getActiveSheetId();
   setCellContent(model, "A2", "Hello\nWorld");
-  setStyle(model, "A2", { wrapping: "wrap" });
+  setFormatting(model, "A2", { wrapping: "wrap" });
   addRows(model, "before", 1, 1);
   expect(model.getters.getRowSize(sheetId, 2)).toEqual(36);
 });

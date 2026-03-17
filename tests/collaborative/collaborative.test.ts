@@ -16,7 +16,9 @@ import { MockTransportService } from "../__mocks__/transport_service";
 import {
   activateSheet,
   addDataValidation,
+  addEqualCf,
   addRows,
+  autofill,
   changeCFPriority,
   clearCell,
   copy,
@@ -26,22 +28,31 @@ import {
   createTable,
   createTableStyle,
   createTableWithFilter,
+  deleteContent,
+  deleteFigure,
   deleteRows,
   deleteSheet,
   duplicateSheet,
+  evaluateCells,
   groupHeaders,
   hideRows,
   hideSheet,
   merge,
   paste,
   redo,
+  removeCF,
+  removeTableStyle,
+  selectFigure,
   setCellContent,
   setCellFormat,
+  setCellStyle,
   setFormat,
-  setStyle,
+  setFormatting,
+  setZoneBorders,
   undo,
   ungroupHeaders,
   unMerge,
+  updateCell,
   updateTableConfig,
 } from "../test_helpers/commands_helpers";
 import {
@@ -52,13 +63,7 @@ import {
   getMerges,
   getStyle,
 } from "../test_helpers/getters_helpers";
-import {
-  addToRegistry,
-  createEqualCF,
-  getDataValidationRules,
-  target,
-  toRangesData,
-} from "../test_helpers/helpers";
+import { addToRegistry, getDataValidationRules } from "../test_helpers/helpers";
 import { addPivot, updatePivot } from "../test_helpers/pivot_helpers";
 import { setupCollaborativeEnv } from "./collaborative_helpers";
 
@@ -246,10 +251,7 @@ describe("Multi users synchronisation", () => {
   test("Update a cell and merge a cell concurrently", () => {
     network.concurrent(() => {
       setCellContent(alice, "B2", "Hi Bob");
-      bob.dispatch("ADD_MERGE", {
-        sheetId: alice.getters.getActiveSheetId(),
-        target: target("A1:B2"),
-      });
+      merge(bob, "A1:B2", bob.getters.getActiveSheetId(), false);
     });
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
       (user) => getCellContent(user, "B2"),
@@ -260,12 +262,7 @@ describe("Multi users synchronisation", () => {
 
   test("copy/paste style", () => {
     setCellContent(alice, "A1", "hello");
-    alice.dispatch("UPDATE_CELL", {
-      sheetId: alice.getters.getActiveSheetId(),
-      col: 0,
-      row: 0,
-      style: { fillColor: "#fefefe" },
-    });
+    setCellStyle(alice, "A1", { fillColor: "#fefefe" });
     copy(alice, "A1");
     paste(alice, "A2");
     expect([alice, bob, charlie]).toHaveSynchronizedValue((user) => getCell(user, "A1")!.style, {
@@ -278,12 +275,7 @@ describe("Multi users synchronisation", () => {
 
   test("copy/paste on styled cell", () => {
     setCellContent(alice, "A1", "hello");
-    alice.dispatch("UPDATE_CELL", {
-      sheetId: alice.getters.getActiveSheetId(),
-      col: 1,
-      row: 1,
-      style: { fillColor: "#fefefe" },
-    });
+    setCellStyle(alice, "B2", { fillColor: "#fefefe" });
     copy(alice, "A1");
     paste(alice, "B2");
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
@@ -294,26 +286,17 @@ describe("Multi users synchronisation", () => {
 
   test("update a cell without changing its style", () => {
     setCellContent(alice, "A1", "hello");
-    setStyle(alice, "A1", { fillColor: "#fefefe" });
-    alice.dispatch("UPDATE_CELL", {
-      sheetId: alice.getters.getActiveSheetId(),
-      col: 0,
-      row: 0,
-      style: undefined,
-    });
+    setFormatting(alice, "A1", { fillColor: "#fefefe" });
+    setCellStyle(alice, "A1", undefined);
     expect([alice, bob, charlie]).toHaveSynchronizedValue((user) => getCell(user, "A1")?.style, {
       fillColor: "#fefefe",
     });
   });
 
   test("clear a cell style through UPDATE_CELL", () => {
-    setStyle(alice, "A1", { fillColor: "#fefefe", underline: true });
-    alice.dispatch("UPDATE_CELL", {
-      sheetId: alice.getters.getActiveSheetId(),
-      col: 0,
-      row: 0,
-      style: null,
-    });
+    setFormatting(alice, "A1", { fillColor: "#fefefe", underline: true });
+
+    setCellStyle(alice, "A1", null);
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
       (user) => getCell(user, "A1")?.style,
       undefined
@@ -324,10 +307,7 @@ describe("Multi users synchronisation", () => {
     const sheetId = alice.getters.getActiveSheetId();
     setCellContent(bob, "C1", "hello");
     network.concurrent(() => {
-      alice.dispatch("ADD_MERGE", {
-        sheetId,
-        target: target("A1:B3"),
-      });
+      merge(alice, "A1:B3");
       setCellContent(bob, "B3", "Hi Alice");
     });
 
@@ -355,18 +335,12 @@ describe("Multi users synchronisation", () => {
 
   test("2-Merge a cell and update a cell concurrently, then remove the merge", () => {
     network.concurrent(() => {
-      alice.dispatch("ADD_MERGE", {
-        sheetId: alice.getters.getActiveSheetId(),
-        target: target("A1:B2"),
-      });
+      merge(alice, "A1:B2");
       setCellContent(bob, "B2", "Hi Alice");
     });
     const sheetId = alice.getters.getActiveSheetId();
     expect(alice.getters.getMerges(sheetId)).toHaveLength(1);
-    alice.dispatch("REMOVE_MERGE", {
-      target: target("A1:B2"),
-      sheetId,
-    });
+    unMerge(alice, "A1:B2");
     expect(alice.getters.getMerges(sheetId)).toHaveLength(0);
     expect(bob.getters.getMerges(sheetId)).toHaveLength(0);
     expect(charlie.getters.getMerges(sheetId)).toHaveLength(0);
@@ -374,33 +348,18 @@ describe("Multi users synchronisation", () => {
 
   test("delete content & merge concurrently", () => {
     setCellContent(alice, "B2", "hello");
-    const sheetId = alice.getters.getActiveSheetId();
     network.concurrent(() => {
-      alice.dispatch("ADD_MERGE", {
-        sheetId,
-        target: target("B2:C3"),
-      });
-      bob.dispatch("DELETE_CONTENT", {
-        sheetId,
-        target: [toZone("A1:B2")],
-      });
+      merge(alice, "B2:C3");
+      deleteContent(bob, ["A1:B2"]);
     });
     expect([alice, bob, charlie]).toHaveSynchronizedValue((user) => getCellContent(user, "B2"), "");
     expect([alice, bob, charlie]).toHaveSynchronizedExportedData();
   });
 
   test("Set formatting & merge concurrently", () => {
-    const sheetId = alice.getters.getActiveSheetId();
     network.concurrent(() => {
-      alice.dispatch("ADD_MERGE", {
-        sheetId,
-        target: target("A1:B2"),
-      });
-      bob.dispatch("SET_ZONE_BORDERS", {
-        sheetId,
-        target: [toZone("B2:C3")],
-        border: { position: "external" },
-      });
+      merge(alice, "A1:B2");
+      setZoneBorders(bob, { position: "external" }, ["B2:C3"]);
     });
     expect([alice, bob, charlie]).toHaveSynchronizedExportedData();
     expect([alice, bob, charlie]).toHaveSynchronizedValue((user) => getCellContent(user, "B2"), "");
@@ -457,11 +416,7 @@ describe("Multi users synchronisation", () => {
 
   test("duplicate sheet does not activate sheet", () => {
     const firstSheetId = alice.getters.getActiveSheetId();
-    alice.dispatch("DUPLICATE_SHEET", {
-      sheetId: firstSheetId,
-      sheetIdTo: "42",
-      sheetNameTo: "Copy of Sheet1",
-    });
+    duplicateSheet(alice, firstSheetId, "42");
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
       (user) => user.getters.getActiveSheetId(),
       firstSheetId
@@ -515,7 +470,7 @@ describe("Multi users synchronisation", () => {
     network.concurrent(() => {
       setCellContent(alice, "A1", "hello");
       const spy = jest.spyOn(network, "sendMessage");
-      alice.dispatch("COPY");
+      copy(alice);
       expect(spy).not.toHaveBeenCalled();
     });
   });
@@ -537,11 +492,7 @@ describe("Multi users synchronisation", () => {
       },
       "1"
     );
-    alice.dispatch("DUPLICATE_SHEET", {
-      sheetId: alice.getters.getActiveSheetId(),
-      sheetIdTo: "Sheet2",
-      sheetNameTo: "Copy of Sheet1",
-    });
+    duplicateSheet(alice);
     expect([alice, bob, charlie]).toHaveSynchronizedExportedData();
   });
 
@@ -553,7 +504,7 @@ describe("Multi users synchronisation", () => {
     duplicateSheet(charlie, "Sheet1", "duplicateSheetId");
     network.concurrent(() => {
       undo(alice);
-      charlie.dispatch("DELETE_FIGURE", { figureId: "figureId", sheetId: "Sheet1" });
+      deleteFigure(charlie, "figureId");
     });
     expect([alice, bob, charlie]).toHaveSynchronizedExportedData();
   });
@@ -589,8 +540,8 @@ describe("Multi users synchronisation", () => {
       [figure]
     );
     network.concurrent(() => {
-      alice.dispatch("DELETE_FIGURE", { figureId: "someuuid", sheetId });
-      bob.dispatch("DELETE_FIGURE", { figureId: "someuuid", sheetId });
+      deleteFigure(alice, "someuuid");
+      deleteFigure(bob, "someuuid");
     });
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
       (user) => user.getters.getFigures(sheetId),
@@ -638,7 +589,7 @@ describe("Multi users synchronisation", () => {
         height: 100,
       },
     });
-    alice.dispatch("SELECT_FIGURE", { figureId: "42" });
+    selectFigure(alice, "42");
     expect(alice.getters.getSelectedFigureId()).toBe("42");
     expect(bob.getters.getSelectedFigureId()).toBeNull();
   });
@@ -660,10 +611,9 @@ describe("Multi users synchronisation", () => {
   test("autofill overwrite style and format", () => {
     setCellContent(alice, "A1", "hello");
     network.concurrent(() => {
-      setStyle(alice, "A2", { bold: true });
+      setFormatting(alice, "A2", { bold: true });
       setFormat(alice, "A2", "0.0%");
-      bob.dispatch("AUTOFILL_SELECT", { col: 0, row: 1 });
-      bob.dispatch("AUTOFILL");
+      autofill(bob, "A1", "A2");
     });
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
       (user) => getCell(user, "A2")?.style,
@@ -771,7 +721,7 @@ describe("Multi users synchronisation", () => {
       // the value resolves while Bob is on another sheet
       // the active sheet is re-evaluated
       value = 2;
-      bob.dispatch("EVALUATE_CELLS");
+      evaluateCells(bob);
 
       activateSheet(bob, "sheet2");
       expect(getEvaluatedCell(bob, "A1", "sheet2").value).toBe(2);
@@ -796,7 +746,7 @@ describe("Multi users synchronisation", () => {
       // the value resolves while Bob is on another sheet,
       // the active sheet is re-evaluated
       value = 2;
-      bob.dispatch("EVALUATE_CELLS");
+      evaluateCells(bob);
 
       expect(getEvaluatedCell(bob, "A1", firstSheetId).value).toBe(2);
       expect(getEvaluatedCell(bob, "A1", "sheet2").value).toBe(2);
@@ -822,21 +772,9 @@ describe("Multi users synchronisation", () => {
   test("Reorder formatting rules concurrently", () => {
     const sheetId = alice.getters.getActiveSheetId();
     setCellContent(alice, "A1", "1");
-    alice.dispatch("ADD_CONDITIONAL_FORMAT", {
-      cf: createEqualCF("1", { fillColor: "#FF0000" }, "1"),
-      ranges: toRangesData(sheetId, "A1"),
-      sheetId,
-    });
-    alice.dispatch("ADD_CONDITIONAL_FORMAT", {
-      cf: createEqualCF("1", { fillColor: "#0000FF" }, "2"),
-      ranges: toRangesData(sheetId, "A1"),
-      sheetId,
-    });
-    alice.dispatch("ADD_CONDITIONAL_FORMAT", {
-      cf: createEqualCF("1", { fillColor: "#00FF00" }, "3"),
-      ranges: toRangesData(sheetId, "A1"),
-      sheetId,
-    });
+    addEqualCf(alice, "A1", { fillColor: "#FF0000" }, "1", "1");
+    addEqualCf(alice, "A1", { fillColor: "#0000FF" }, "1", "2");
+    addEqualCf(alice, "A1", { fillColor: "#00FF00" }, "1", "3");
     network.concurrent(() => {
       changeCFPriority(bob, "3", 1, sheetId);
       changeCFPriority(alice, "3", 1, sheetId);
@@ -861,22 +799,11 @@ describe("Multi users synchronisation", () => {
   test("Reorder and delete formatting rules concurrently", () => {
     const sheetId = alice.getters.getActiveSheetId();
     setCellContent(alice, "A1", "1");
-    alice.dispatch("ADD_CONDITIONAL_FORMAT", {
-      cf: createEqualCF("1", { fillColor: "#FF0000" }, "1"),
-      ranges: toRangesData(sheetId, "A1"),
-      sheetId,
-    });
-    alice.dispatch("ADD_CONDITIONAL_FORMAT", {
-      cf: createEqualCF("1", { fillColor: "#0000FF" }, "2"),
-      ranges: toRangesData(sheetId, "A1"),
-      sheetId,
-    });
+    addEqualCf(alice, "A1", { fillColor: "#FF0000" }, "1", "1");
+    addEqualCf(alice, "A1", { fillColor: "#0000FF" }, "1", "2");
     network.concurrent(() => {
       changeCFPriority(bob, "2", -1, sheetId);
-      alice.dispatch("REMOVE_CONDITIONAL_FORMAT", {
-        id: "2",
-        sheetId: sheetId,
-      });
+      removeCF(alice, "2");
     });
     expect([alice, bob]).toHaveSynchronizedValue((user) => getStyle(user, "A1"), {
       fillColor: "#FF0000",
@@ -935,11 +862,7 @@ describe("Multi users synchronisation", () => {
   test("duplicate sheet and create tables concurrently", () => {
     const firstSheetId = alice.getters.getActiveSheetId();
     network.concurrent(() => {
-      alice.dispatch("DUPLICATE_SHEET", {
-        sheetId: "Sheet1",
-        sheetIdTo: "sheet2",
-        sheetNameTo: "Copy of Sheet1",
-      });
+      duplicateSheet(alice, "Sheet1", "sheet2");
       createTableWithFilter(charlie, "A1:B4", undefined, undefined, firstSheetId);
     });
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
@@ -955,13 +878,9 @@ describe("Multi users synchronisation", () => {
   test("row size for a duplicated sheet and the original sheet deleted", () => {
     const firstSheetId = alice.getters.getActiveSheetId();
     network.concurrent(() => {
-      setStyle(bob, "A1", { fontSize: 36 });
+      setFormatting(bob, "A1", { fontSize: 36 });
       setCellContent(bob, "A1", "text");
-      charlie.dispatch("DUPLICATE_SHEET", {
-        sheetId: firstSheetId,
-        sheetIdTo: "sheet2",
-        sheetNameTo: "Copy of Sheet1",
-      });
+      duplicateSheet(charlie, firstSheetId, "sheet2");
       deleteSheet(charlie, firstSheetId);
     });
     const colSize = alice.getters.getColSize("sheet2", 0);
@@ -978,7 +897,7 @@ describe("Multi users synchronisation", () => {
       (user) => getStyle(user, "A1").fillColor,
       undefined
     );
-    setStyle(bob, "A1", { fillColor: "#112233" });
+    setFormatting(bob, "A1", { fillColor: "#112233" });
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
       (user) => getStyle(user, "A1").fillColor,
       "#112233"
@@ -1060,7 +979,7 @@ describe("Multi users synchronisation", () => {
     test("Create a table with a style, and delete the style at the same time", () => {
       createTableStyle(alice, "MyStyle");
       network.concurrent(() => {
-        alice.dispatch("REMOVE_TABLE_STYLE", { tableStyleId: "MyStyle" });
+        removeTableStyle(alice, "MyStyle");
         createTable(bob, "A1:B4", { styleId: "MyStyle" });
       });
       expect([alice, bob, charlie]).toHaveSynchronizedValue(
@@ -1073,7 +992,7 @@ describe("Multi users synchronisation", () => {
       createTableStyle(alice, "MyStyle");
       createTable(alice, "A1:B4");
       network.concurrent(() => {
-        alice.dispatch("REMOVE_TABLE_STYLE", { tableStyleId: "MyStyle" });
+        removeTableStyle(alice, "MyStyle");
         updateTableConfig(bob, "A1:B4", { styleId: "MyStyle" });
       });
       expect([alice, bob, charlie]).toHaveSynchronizedValue(
@@ -1106,7 +1025,7 @@ describe("Multi users synchronisation", () => {
     test("Undo delete table style have synchronized values", () => {
       createTableStyle(alice, "MyStyle");
       network.concurrent(() => {
-        alice.dispatch("REMOVE_TABLE_STYLE", { tableStyleId: "MyStyle" });
+        removeTableStyle(alice, "MyStyle");
         createTable(bob, "A1:B4", { styleId: "MyStyle" });
       });
       expect([alice, bob, charlie]).toHaveSynchronizedValue(
@@ -1124,8 +1043,7 @@ describe("Multi users synchronisation", () => {
 
   test("updating a cell content (through UPDATE_CELL) only updates on actual content", () => {
     setCellContent(alice, "A1", "23");
-    const sheetId = alice.getters.getActiveSheetId();
-    alice.dispatch("UPDATE_CELL", { sheetId, col: 0, row: 0, content: undefined });
+    setCellContent(alice, "A1", undefined);
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
       (user) => getCellContent(user, "A1"),
       "23"
@@ -1141,8 +1059,7 @@ describe("Multi users synchronisation", () => {
 
   test("updating a cell format (through UPDATE_CELL) only if format is defined in command", () => {
     setCellFormat(alice, "A1", "%");
-    const sheetId = alice.getters.getActiveSheetId();
-    alice.dispatch("UPDATE_CELL", { sheetId, col: 0, row: 0, content: "10", format: undefined });
+    updateCell(alice, "A1", { content: "10", format: undefined });
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
       (user) => getCell(user, "A1")?.format,
       "%"
@@ -1171,7 +1088,7 @@ test("UI plugins cannot refuse core command and de-synchronize the users", () =>
 
 test("Export of figures should be in the same order in all users", () => {
   const { network, alice, bob, charlie } = setupCollaborativeEnv();
-  charlie.dispatch("CREATE_FIGURE", {
+  createFigure(charlie, {
     figureId: "figureId",
     tag: "tag",
     offset: { x: 0, y: 0 },
@@ -1182,16 +1099,12 @@ test("Export of figures should be in the same order in all users", () => {
   });
   redo(charlie);
 
-  charlie.dispatch("UPDATE_CELL", { col: 4, row: 7, content: "2", sheetId: "Sheet1" });
+  setCellContent(charlie, "E8", "2", "Sheet1");
   undo(charlie);
-  alice.dispatch("DUPLICATE_SHEET", {
-    sheetId: "Sheet1",
-    sheetIdTo: "duplicateSheetId",
-    sheetNameTo: "Copy of Sheet1",
-  });
+  duplicateSheet(alice, "Sheet1");
   network.concurrent(() => {
     redo(charlie);
-    bob.dispatch("DELETE_FIGURE", { figureId: "figureId", sheetId: "Sheet1" });
+    deleteFigure(bob, "figureId");
   });
   expect([alice, bob, charlie]).toHaveSynchronizedEvaluation();
   expect([alice, bob, charlie]).toHaveSynchronizedExportedData();

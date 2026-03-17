@@ -12,8 +12,10 @@ import {
   addRows,
   freezeColumns,
   freezeRows,
+  resizeSheetView,
   setCellContent,
   setSelection,
+  setViewportOffset,
 } from "../../test_helpers/commands_helpers";
 import {
   doAction,
@@ -225,12 +227,7 @@ describe("Insert chart menu item", () => {
 
   test("Chart is inserted at the top left of the viewport when too small", () => {
     setSelection(model, ["B2"]);
-    model.dispatch("RESIZE_SHEETVIEW", {
-      width: DEFAULT_FIGURE_WIDTH / 2,
-      height: DEFAULT_FIGURE_HEIGHT / 2,
-      gridOffsetX: 0,
-      gridOffsetY: 0,
-    });
+    resizeSheetView(model, DEFAULT_FIGURE_HEIGHT / 2, DEFAULT_FIGURE_WIDTH / 2);
     insertChart();
     const payload = { ...defaultPayload };
     payload.definition = expect.any(Object);
@@ -251,12 +248,7 @@ describe("Insert chart menu item", () => {
   test("Chart is inserted inside frozen pane if middle is frozen pane", () => {
     addRows(model, "before", 0, 100);
     setSelection(model, ["B2"]);
-    model.dispatch("RESIZE_SHEETVIEW", {
-      width: DEFAULT_FIGURE_WIDTH * 1.5,
-      height: DEFAULT_FIGURE_HEIGHT * 1.5,
-      gridOffsetX: 0,
-      gridOffsetY: 0,
-    });
+    resizeSheetView(model, DEFAULT_FIGURE_HEIGHT * 1.5, DEFAULT_FIGURE_WIDTH * 1.5);
     const { bottom, right } = model.getters.getActiveMainViewport();
     freezeColumns(model, Math.floor(right / 2));
     freezeRows(model, Math.floor(bottom / 2));
@@ -283,10 +275,7 @@ describe("Insert chart menu item", () => {
     const { width, height } = env.model.getters.getSheetViewDimension();
     addColumns(model, "after", "D", 100);
     addRows(model, "after", 4, 100);
-    env.model.dispatch("SET_VIEWPORT_OFFSET", {
-      offsetX: 2 * DEFAULT_CELL_WIDTH,
-      offsetY: 4 * DEFAULT_CELL_HEIGHT,
-    });
+    setViewportOffset(model, 2 * DEFAULT_CELL_WIDTH, 4 * DEFAULT_CELL_HEIGHT);
     insertChart();
     const payload = { ...defaultPayload };
     payload.definition = expect.any(Object);
@@ -311,10 +300,7 @@ describe("Insert chart menu item", () => {
     const { width, height } = model.getters.getSheetViewDimension();
     addColumns(model, "after", "D", 100);
     addRows(model, "after", 4, 100);
-    env.model.dispatch("SET_VIEWPORT_OFFSET", {
-      offsetX: 2 * DEFAULT_CELL_WIDTH,
-      offsetY: 4 * DEFAULT_CELL_HEIGHT,
-    });
+    setViewportOffset(model, 2 * DEFAULT_CELL_WIDTH, 4 * DEFAULT_CELL_HEIGHT);
     insertChart();
     const payload = { ...defaultPayload };
     payload.definition = expect.any(Object);
@@ -339,10 +325,7 @@ describe("Insert chart menu item", () => {
     const { width, height } = model.getters.getSheetViewDimension();
     addColumns(model, "after", "D", 100);
     addRows(model, "after", 4, 100);
-    env.model.dispatch("SET_VIEWPORT_OFFSET", {
-      offsetX: 2 * DEFAULT_CELL_WIDTH,
-      offsetY: 4 * DEFAULT_CELL_HEIGHT,
-    });
+    setViewportOffset(model, 2 * DEFAULT_CELL_WIDTH, 4 * DEFAULT_CELL_HEIGHT);
     insertChart();
     const payload = { ...defaultPayload };
     payload.definition = expect.any(Object);
@@ -368,10 +351,7 @@ describe("Insert chart menu item", () => {
     const { width, height } = model.getters.getSheetViewDimension();
     addColumns(model, "after", "D", 100);
     addRows(model, "after", 4, 100);
-    env.model.dispatch("SET_VIEWPORT_OFFSET", {
-      offsetX: 2 * DEFAULT_CELL_WIDTH,
-      offsetY: 4 * DEFAULT_CELL_HEIGHT,
-    });
+    setViewportOffset(model, 2 * DEFAULT_CELL_WIDTH, 4 * DEFAULT_CELL_HEIGHT);
     insertChart();
     const payload = { ...defaultPayload };
     payload.definition = expect.any(Object);

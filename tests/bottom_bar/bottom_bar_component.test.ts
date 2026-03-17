@@ -11,6 +11,7 @@ import {
   createSheet,
   deleteSheet,
   hideSheet,
+  lockSheet,
   redo,
   renameSheet,
   resizeColumns,
@@ -404,10 +405,10 @@ describe("BottomBar component", () => {
 
     triggerMouseEvent(".o-sheet", "contextmenu");
     await nextTick();
-    const sheet = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getActiveSheetId();
     await click(fixture, ".o-menu-item[data-name='duplicate'");
     expect(dispatch).toHaveBeenCalledWith("DUPLICATE_SHEET", {
-      sheetId: sheet,
+      sheetId,
       sheetIdTo: expect.any(String),
       sheetNameTo: expect.any(String),
     });
@@ -446,7 +447,7 @@ describe("BottomBar component", () => {
 
   test("Can open the list of sheets", async () => {
     const { model } = await mountBottomBar();
-    const sheet = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getActiveSheetId();
     createSheet(model, { sheetId: "42" });
 
     expect(fixture.querySelectorAll(".o-menu")).toHaveLength(0);
@@ -454,20 +455,20 @@ describe("BottomBar component", () => {
     expect(fixture.querySelectorAll(".o-menu")).toHaveLength(1);
     const sheets = fixture.querySelectorAll(".o-menu-item");
     expect(sheets.length).toBe(2);
-    expect((sheets[0] as HTMLElement).dataset.name).toBe(sheet);
+    expect((sheets[0] as HTMLElement).dataset.name).toBe(sheetId);
     expect((sheets[1] as HTMLElement).dataset.name).toBe("42");
   });
 
   test("Can activate a sheet from the list of sheets", async () => {
     const { model } = await mountBottomBar();
     const dispatch = jest.spyOn(model, "dispatch");
-    const sheet = model.getters.getActiveSheetId();
+    const sheetId = model.getters.getActiveSheetId();
     createSheet(model, { sheetId: "42" });
 
     await click(fixture, ".o-list-sheets");
     await click(fixture, ".o-menu-item[data-name='42'");
     expect(dispatch).toHaveBeenCalledWith("ACTIVATE_SHEET", {
-      sheetIdFrom: sheet,
+      sheetIdFrom: sheetId,
       sheetIdTo: "42",
     });
   });
@@ -1045,7 +1046,7 @@ describe("BottomBar component", () => {
   test("Attempt to modify a locked sheet will trigger an animation", async () => {
     const { model } = await mountBottomBar();
     const sheetId = model.getters.getActiveSheetId();
-    model.dispatch("LOCK_SHEET", { sheetId });
+    lockSheet(model, sheetId);
 
     model.trigger("command-rejected", { result: new DispatchResult(CommandResult.SheetLocked) });
     expect(HTMLDivElement.prototype.animate).toHaveBeenCalled();

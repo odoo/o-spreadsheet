@@ -2,7 +2,12 @@ import { Model } from "@odoo/o-spreadsheet-engine/model";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { CellComposerStore } from "../../src/components/composer/composer/cell_composer_store";
 import { Store } from "../../src/store_engine";
-import { setCellContent, setFormat, updateLocale } from "../test_helpers/commands_helpers";
+import {
+  addEqualCf,
+  setCellContent,
+  setFormat,
+  updateLocale,
+} from "../test_helpers/commands_helpers";
 import { FR_LOCALE } from "../test_helpers/constants";
 import { click, getElStyle, keyDown, triggerMouseEvent } from "../test_helpers/dom_helper";
 import { getEvaluatedCell } from "../test_helpers/getters_helpers";
@@ -12,7 +17,6 @@ import {
   mountComposerWrapper,
   mountSpreadsheet,
   nextTick,
-  toRangeData,
   typeInComposerGrid,
   typeInComposerHelper,
 } from "../test_helpers/helpers";
@@ -403,19 +407,7 @@ describe("Composer hover integration test", () => {
 
   test("Hover is deactivated in a standalone composer", async () => {
     const sheetId = model.getters.getActiveSheetId();
-    model.dispatch("ADD_CONDITIONAL_FORMAT", {
-      cf: {
-        rule: {
-          type: "CellIsRule",
-          operator: "isEqual",
-          values: ["=ROW() + COLUMN() + B2"],
-          style: { fillColor: "#b6d7a8" },
-        },
-        id: "1",
-      },
-      ranges: [toRangeData(sheetId, "B1:D3")],
-      sheetId: sheetId,
-    });
+    addEqualCf(model, "B1:D3", { fillColor: "#b6d7a8" }, "=ROW() + COLUMN() + B2");
     const cf = model.getters.getConditionalFormats(sheetId)[0];
     env.openSidePanel("ConditionalFormattingEditor", { cf, isNewCf: false });
     await nextTick();

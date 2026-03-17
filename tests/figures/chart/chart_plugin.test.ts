@@ -22,14 +22,17 @@ import {
   createSheetWithName,
   createTableWithFilter,
   deleteColumns,
+  deleteFigure,
   deleteRows,
   deleteSheet,
+  duplicateSheet,
   foldHeaderGroup,
   groupHeaders,
   hideColumns,
   hideRows,
   redo,
   selectCell,
+  selectFigure,
   setCellContent,
   setCellFormat,
   setFormat,
@@ -566,10 +569,7 @@ describe("datasource tests", function () {
     const newModel = new Model(exportedData);
     expect(newModel.getters.getVisibleFigures()).toHaveLength(1);
     expect(newModel.getters.getChartRuntime("1")).toBeTruthy();
-    newModel.dispatch("DELETE_FIGURE", {
-      sheetId: model.getters.getActiveSheetId(),
-      figureId,
-    });
+    deleteFigure(newModel, figureId);
     expect(newModel.getters.getVisibleFigures()).toHaveLength(0);
     expect(() => newModel.getters.getChartRuntime("1")).toThrow();
   });
@@ -952,7 +952,7 @@ describe("datasource tests", function () {
       chartId
     );
     expect(model.getters.getSelectedFigureId()).toBeNull();
-    model.dispatch("SELECT_FIGURE", { figureId: chartId });
+    selectFigure(model, chartId);
     expect(model.getters.getSelectedFigureId()).toBe(chartId);
     selectCell(model, "A1");
     expect(model.getters.getSelectedFigureId()).toBeNull();
@@ -1072,18 +1072,10 @@ describe("datasource tests", function () {
       "1",
       "2"
     );
-    model.dispatch("DUPLICATE_SHEET", {
-      sheetId: "1",
-      sheetIdTo: "SheetNoFigure",
-      sheetNameTo: "Copy of Sheet1",
-    });
+    duplicateSheet(model, "1", "SheetNoFigure");
     activateSheet(model, "SheetNoFigure");
     expect(model.getters.getVisibleFigures()).toEqual([]);
-    model.dispatch("DUPLICATE_SHEET", {
-      sheetId: "2",
-      sheetIdTo: "SheetWithFigure",
-      sheetNameTo: "Copy of Sheet1",
-    });
+    duplicateSheet(model, "2", "SheetWithFigure");
     activateSheet(model, "2");
     const { x, y, width, height, tag } = model.getters.getVisibleFigures()[0];
     activateSheet(model, "SheetWithFigure");
@@ -1160,11 +1152,7 @@ describe("datasource tests", function () {
       firstSheetId
     );
     const figure = model.getters.getFigures(firstSheetId)[0]!;
-    model.dispatch("DUPLICATE_SHEET", {
-      sheetIdTo: secondSheetId,
-      sheetId: firstSheetId,
-      sheetNameTo: "Copy of Sheet1",
-    });
+    duplicateSheet(model, firstSheetId, secondSheetId);
 
     expect(model.getters.getFigures(secondSheetId)).toHaveLength(1);
     const duplicatedFigure = model.getters.getFigures(secondSheetId)[0];
@@ -1202,18 +1190,10 @@ describe("datasource tests", function () {
       "myChart",
       firstSheetId
     );
-    model.dispatch("DUPLICATE_SHEET", {
-      sheetId: firstSheetId,
-      sheetIdTo: secondSheetId,
-      sheetNameTo: "Copy of Sheet1",
-    });
+    duplicateSheet(model, firstSheetId, secondSheetId);
 
     const newModel = new Model(model.exportData());
-    newModel.dispatch("DUPLICATE_SHEET", {
-      sheetId: secondSheetId,
-      sheetIdTo: thirdSheetId,
-      sheetNameTo: "Copy of Sheet1 2",
-    });
+    duplicateSheet(newModel, secondSheetId, thirdSheetId);
 
     const figuresSh1 = newModel.getters.getFigures(firstSheetId);
     const figuresSh2 = newModel.getters.getFigures(secondSheetId);
@@ -1258,11 +1238,7 @@ describe("datasource tests", function () {
       },
       firstSheetId
     );
-    model.dispatch("DUPLICATE_SHEET", {
-      sheetIdTo: thirdSheetId,
-      sheetId: firstSheetId,
-      sheetNameTo: "Copy of Sheet1",
-    });
+    duplicateSheet(model, firstSheetId, thirdSheetId);
     const duplicatedChartId = model.getters.getChartIds(thirdSheetId)[0];
     const duplicatedChartDefinition = model.getters.getChartDefinition(duplicatedChartId);
     expect(duplicatedChartDefinition).toMatchObject({
@@ -1630,14 +1606,9 @@ describe("multiple sheets", function () {
       },
       "28"
     );
-    model.dispatch("ACTIVATE_SHEET", { sheetIdFrom: "42", sheetIdTo: "Sheet1" });
-    model.dispatch("UPDATE_CELL", {
-      col: 1,
-      row: 1,
-      sheetId: "Sheet1",
-      content: "99",
-    });
-    model.dispatch("ACTIVATE_SHEET", { sheetIdFrom: "Sheet1", sheetIdTo: "42" });
+    activateSheet(model, "Sheet1");
+    setCellContent(model, "B2", "99");
+    activateSheet(model, "42");
     expect(getChartConfiguration(model, "28").data.datasets[0].data).toEqual([99, 11, 12]);
   });
   test("change dataset label then activate the chart sheet (it should be up-to-date)", () => {
@@ -1651,14 +1622,9 @@ describe("multiple sheets", function () {
       },
       "28"
     );
-    model.dispatch("ACTIVATE_SHEET", { sheetIdFrom: "42", sheetIdTo: "Sheet1" });
-    model.dispatch("UPDATE_CELL", {
-      col: 0,
-      row: 2,
-      sheetId: "Sheet1",
-      content: "miam",
-    });
-    model.dispatch("ACTIVATE_SHEET", { sheetIdFrom: "Sheet1", sheetIdTo: "42" });
+    activateSheet(model, "Sheet1");
+    setCellContent(model, "A3", "miam");
+    activateSheet(model, "42");
     expect(getChartConfiguration(model, "28").data.labels).toEqual(["P1", "miam", "P3"]);
   });
   test("create a chart with data from another sheet", () => {
@@ -1728,21 +1694,10 @@ describe("multiple sheets", function () {
     test("chart is updated with new data", () => {
       let dataSets = getChartConfiguration(model, "1").data.datasets;
       expect(dataSets[0].data).toEqual([2, 4]);
-      model.dispatch("UPDATE_CELL", {
-        sheetId: "Sheet2",
-        col: 0,
-        row: 0,
-        content: "=Sheet1!B1*3",
-      });
+      setCellContent(model, "A1", "=Sheet1!B1*3", "Sheet2");
       dataSets = getChartConfiguration(model, "1").data.datasets;
       expect(dataSets[0].data).toEqual([3, 4]);
-
-      model.dispatch("UPDATE_CELL", {
-        sheetId: "Sheet1",
-        col: 1,
-        row: 1,
-        content: "5",
-      });
+      setCellContent(model, "B2", "5", "Sheet1");
       dataSets = getChartConfiguration(model, "1").data.datasets;
       expect(dataSets[0].data).toEqual([3, 10]);
     });
@@ -3456,11 +3411,7 @@ test("Duplicating a sheet dispatches CREATE_CHART for each chart", () => {
   const spyFigureDispatch = jest.spyOn(figurePlugin, "dispatch");
 
   const sheetId = model.getters.getActiveSheetId();
-  model.dispatch("DUPLICATE_SHEET", {
-    sheetId,
-    sheetIdTo: "copyOf" + sheetId,
-    sheetNameTo: "Copy of Sheet1",
-  });
+  duplicateSheet(model, sheetId);
   expect(spyChartDispatch).toHaveBeenNthCalledWith(1, "CREATE_CHART", expect.any(Object));
   expect(spyChartDispatch).toHaveBeenNthCalledWith(2, "CREATE_CHART", expect.any(Object));
 

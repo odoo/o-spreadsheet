@@ -15,7 +15,9 @@ import {
   addColumns,
   createScorecardChart,
   createSheet,
+  deleteFigure,
   deleteSheet,
+  duplicateSheet,
   redo,
   setCellContent,
   undo,
@@ -126,10 +128,7 @@ describe("datasource tests", function () {
     const newModel = new Model(exportedData);
     expect(newModel.getters.getVisibleFigures()).toHaveLength(1);
     expect(newModel.getters.getChartRuntime("1")).toBeTruthy();
-    newModel.dispatch("DELETE_FIGURE", {
-      sheetId: model.getters.getActiveSheetId(),
-      figureId: model.getters.getFigureIdFromChartId("1")!,
-    });
+    deleteFigure(newModel, model.getters.getFigureIdFromChartId("1"));
     expect(newModel.getters.getVisibleFigures()).toHaveLength(0);
     expect(() => newModel.getters.getChartRuntime("1")).toThrow();
   });
@@ -207,11 +206,7 @@ describe("datasource tests", function () {
       firstSheetId
     );
     const figure = model.getters.getFigures(firstSheetId)[0]!;
-    model.dispatch("DUPLICATE_SHEET", {
-      sheetIdTo: secondSheetId,
-      sheetId: firstSheetId,
-      sheetNameTo: "Copy of Sheet1",
-    });
+    duplicateSheet(model, firstSheetId, secondSheetId);
 
     expect(model.getters.getFigures(secondSheetId)).toHaveLength(1);
     const duplicatedFigure = model.getters.getFigures(secondSheetId)[0];

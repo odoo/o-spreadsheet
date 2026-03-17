@@ -6,23 +6,27 @@ import {
   HEADER_WIDTH,
 } from "@odoo/o-spreadsheet-engine/constants";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
-import { HeaderIndex, Model } from "../../src";
+import { CellIsRule, HeaderIndex, Model } from "../../src";
 import { CellComposerStore } from "../../src/components/composer/composer/cell_composer_store";
 import { colors, toHex, toZone } from "../../src/helpers";
 import { Store } from "../../src/store_engine";
 import {
   activateSheet,
+  addCfRule,
+  addEqualCf,
   copy,
   createSheet,
   createTable,
+  lockSheet,
   paste,
   renameSheet,
   resizeColumns,
   resizeRows,
   selectCell,
   setCellContent,
+  setFormatting,
   setSelection,
-  setStyle,
+  setViewportOffset,
   updateLocale,
 } from "../test_helpers/commands_helpers";
 import { FR_LOCALE } from "../test_helpers/constants";
@@ -49,12 +53,10 @@ import {
   getTable,
 } from "../test_helpers/getters_helpers";
 import {
-  createEqualCF,
   getInputSelection,
   mountSpreadsheet,
   nextTick,
   startGridComposition,
-  toRangesData,
   typeInComposerGrid as typeInComposerGridHelper,
   typeInComposerTopBar as typeInComposerTopBarHelper,
 } from "../test_helpers/helpers";
@@ -310,10 +312,7 @@ describe("Composer interactions", () => {
 
   test("Starting the edition and scroll should display the cell reference", async () => {
     await startComposition();
-    model.dispatch("SET_VIEWPORT_OFFSET", {
-      offsetX: 0,
-      offsetY: DEFAULT_CELL_HEIGHT * 5,
-    });
+    setViewportOffset(model, 0, DEFAULT_CELL_HEIGHT * 5);
     await nextTick();
     const reference = fixture.querySelector(".o-grid div.o-cell-reference");
     expect(reference).not.toBeNull();
@@ -343,10 +342,7 @@ describe("Composer interactions", () => {
 
   test("Stopping the edition resets the cell reference visibility", async () => {
     await startComposition();
-    model.dispatch("SET_VIEWPORT_OFFSET", {
-      offsetX: 0,
-      offsetY: DEFAULT_CELL_HEIGHT * 5,
-    });
+    setViewportOffset(model, 0, DEFAULT_CELL_HEIGHT * 5);
     await nextTick();
     const referenceSelector = ".o-grid div.o-cell-reference";
     const reference = fixture.querySelector(referenceSelector);
@@ -783,7 +779,7 @@ describe("Grid composer", () => {
     test("Inherits the style of the cell", async () => {
       const fontSize = FONT_SIZES[0];
       const color = "#123456";
-      setStyle(model, "A1", {
+      setFormatting(model, "A1", {
         textColor: color,
         fillColor: color,
         fontSize,
@@ -805,23 +801,15 @@ describe("Grid composer", () => {
     });
 
     test("Inherits CF formatting of the cell", async () => {
-      const sheetId = model.getters.getActiveSheetId();
-      model.dispatch("ADD_CONDITIONAL_FORMAT", {
-        cf: createEqualCF(
-          "4",
-          {
-            fillColor: "#0000FF",
-            bold: true,
-            italic: true,
-            strikethrough: true,
-            underline: true,
-            textColor: "#FF0000",
-          },
-          "cfId"
-        ),
-        ranges: toRangesData(sheetId, "A1"),
-        sheetId,
-      });
+      const style = {
+        fillColor: "#0000FF",
+        bold: true,
+        italic: true,
+        strikethrough: true,
+        underline: true,
+        textColor: "#FF0000",
+      };
+      addEqualCf(model, "A1", style, "4");
       setCellContent(model, "A1", "4");
       await typeInComposerGrid("Hello");
       const gridComposer = fixture.querySelector(".o-grid-composer")! as HTMLElement;
@@ -836,7 +824,7 @@ describe("Grid composer", () => {
     test("Does not inherit style of the cell", async () => {
       const fontSize = FONT_SIZES[0];
       const color = "#123456";
-      setStyle(model, "A1", {
+      setFormatting(model, "A1", {
         textColor: color,
         fillColor: color,
         fontSize,
@@ -858,27 +846,20 @@ describe("Grid composer", () => {
     });
 
     test("Does not inherit CF formatting of the cell", async () => {
-      const sheetId = model.getters.getActiveSheetId();
-      model.dispatch("ADD_CONDITIONAL_FORMAT", {
-        cf: {
-          id: "cfId",
-          rule: {
-            values: [],
-            type: "CellIsRule",
-            operator: "isNotEmpty",
-            style: {
-              fillColor: "#0000FF",
-              bold: true,
-              italic: true,
-              strikethrough: true,
-              underline: true,
-              textColor: "#FF0000",
-            },
-          },
+      const rule: CellIsRule = {
+        values: [],
+        type: "CellIsRule",
+        operator: "isNotEmpty",
+        style: {
+          fillColor: "#0000FF",
+          bold: true,
+          italic: true,
+          strikethrough: true,
+          underline: true,
+          textColor: "#FF0000",
         },
-        ranges: toRangesData(sheetId, "A1"),
-        sheetId,
-      });
+      };
+      addCfRule(model, "A1", rule);
       await typeInComposerGrid("=", true);
       const gridComposer = fixture.querySelector(".o-grid-composer")! as HTMLElement;
       expect(gridComposer.style.textDecoration).toBe("none");
@@ -889,9 +870,7 @@ describe("Grid composer", () => {
   });
 
   test("Grid composer will not open if the sheet is locked", async () => {
-    model.dispatch("LOCK_SHEET", {
-      sheetId: model.getters.getActiveSheetId(),
-    });
+    lockSheet(model);
 
     triggerMouseEvent(
       ".o-grid-overlay",
@@ -1002,9 +981,7 @@ describe("TopBar composer", () => {
     let env: SpreadsheetChildEnv;
     ({ model, fixture, env } = await mountSpreadsheet());
     composerStore = env.getStore(CellComposerStore);
-    model.dispatch("LOCK_SHEET", {
-      sheetId: model.getters.getActiveSheetId(),
-    });
+    lockSheet(model);
     await click(fixture, ".o-spreadsheet-topbar .o-composer");
     expect(composerStore.editionMode).toBe("inactive");
     await typeInComposerTopBar("=SUM(");
