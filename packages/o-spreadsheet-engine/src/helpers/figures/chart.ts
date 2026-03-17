@@ -8,7 +8,6 @@ import {
   ChartCreationContext,
   ChartData,
   ChartDataSource,
-  ChartDataSourceType,
   ChartDefinition,
   ChartType,
 } from "../../types/chart";
@@ -23,8 +22,8 @@ export class Chart {
     private readonly getters: CoreGetters,
     readonly sheetId: UID,
     private readonly definition: ChartDefinition<Range>,
-    private readonly chartTypeBuilder: ChartTypeBuilder<ChartType>, // e.g., BarChart
-    private readonly dataSourceBuilder: ChartDataSourceBuilder<ChartDataSourceType> // from registry
+    private readonly chartTypeBuilder: ChartTypeBuilder<ChartType>, // e.g., BarChart, LineChart
+    private readonly dataSourceBuilder: ChartDataSourceBuilder<unknown, unknown> // data comes from ranges, or a database
   ) {
     this.dataSource = definition.dataSource;
   }
@@ -36,7 +35,7 @@ export class Chart {
   ) {
     const dataSourceBuilder = chartDataSourceRegistry.get(definition.dataSource?.type ?? "none");
     const chartTypeBuilder = chartTypeRegistry.get(definition.type);
-    const dataSource = dataSourceBuilder.fromRangeStr(
+    const dataSource = dataSourceBuilder.fromExternalDefinition(
       definition.dataSource ?? { type: "none" },
       sheetId,
       getters

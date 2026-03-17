@@ -180,11 +180,6 @@ export type ChartDataSource<T extends string | Range = Range> =
   | ChartRangeDataSource<T>
   | { type: "none" };
 
-export type DataSourceType<T extends ChartDataSourceType, R extends string | Range> = Extract<
-  ChartDataSource<R>,
-  { type: T }
->;
-
 export type ChartDataSourceType = ChartDataSource["type"];
 
 export type AxisType = "category" | "linear" | "time";

@@ -35,9 +35,12 @@ import {
 const EMPTY = Object.freeze({ value: null });
 const ONE = Object.freeze({ value: 1 });
 
-export const ChartRangeDataSourceHandler: ChartDataSourceBuilder<"range"> = {
+export const ChartRangeDataSourceHandler: ChartDataSourceBuilder<
+  ChartRangeDataSource<string>,
+  ChartRangeDataSource<Range>
+> = {
   supportedChartTypes: CHART_TYPES,
-  fromRangeStr(dataSource, defaultSheetId, getters) {
+  fromExternalDefinition(dataSource, defaultSheetId, getters) {
     const dataSets = createDataSets(getters, defaultSheetId, dataSource);
     const labelRange = createValidRange(getters, defaultSheetId, dataSource.labelRange);
     return { ...dataSource, dataSets, labelRange };
@@ -384,9 +387,9 @@ export function getData(getters: Getters, ds: DataSet): FunctionResultObject[] {
   return [];
 }
 
-const ChartNeverDataSourceHandler: ChartDataSourceBuilder<"none"> = {
+const ChartNeverDataSourceHandler: ChartDataSourceBuilder<{ type: "none" }, { type: "none" }> = {
   supportedChartTypes: [],
-  fromRangeStr: () => ({ type: "none" }),
+  fromExternalDefinition: () => ({ type: "none" }),
   fromContextCreation: () => ({ type: "none" }),
   fromHierarchicalContextCreation: () => ({ type: "none" }),
   validate: () => CommandResult.Success,
