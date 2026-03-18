@@ -25,12 +25,12 @@ extendMockGetBoundingClientRect({
   "o-master-chart-canvas": () => ({ top: 0, left: 0, width: 100, height: 50 }),
 });
 
-function createTestChart(
+async function createTestChart(
   newChartId: UID = chartId,
   partialFigure: Partial<CreateFigureCommand> = {},
   partialDefinition: Partial<LineChartDefinition> = {}
 ) {
-  createChart(
+  await createChart(
     model,
     {
       ...TEST_CHART_DATA.basicChart,
@@ -99,7 +99,7 @@ describe("zoom", () => {
   });
 
   test("allowZoom checkbox check/uncheck updates the definition", async () => {
-    createTestChart(chartId);
+    await createTestChart(chartId);
     await mountChartSidePanel();
     await openChartDesignSidePanel(model, env, fixture, chartId);
 
@@ -118,7 +118,7 @@ describe("zoom", () => {
 
   test("Allowing zoom changes the definition and shows the master chart", async () => {
     await mountSpreadsheet();
-    createTestChart(chartId);
+    await createTestChart(chartId);
     await openChartDesignSidePanel(model, env, fixture, chartId);
 
     expect(
@@ -134,7 +134,7 @@ describe("zoom", () => {
 
   test("Disabling zoom removes the master chart", async () => {
     await mountSpreadsheet();
-    createTestChart(chartId, {}, { zoomable: true });
+    await createTestChart(chartId, {}, { zoomable: true });
     await openChartDesignSidePanel(model, env, fixture, chartId);
 
     expect(
@@ -149,7 +149,7 @@ describe("zoom", () => {
   describe("line chart", () => {
     beforeEach(async () => {
       await mountSpreadsheet();
-      createTestChart(chartId, {}, { type: "line", zoomable: true });
+      await createTestChart(chartId, {}, { type: "line", zoomable: true });
       await nextTick();
     });
 
@@ -195,7 +195,7 @@ describe("zoom", () => {
     test("Can move the slicer on the master chart", async () => {
       const store = env.getStore(ZoomableChartStore);
       store.updateAxisLimits(lineChartId, { min: 1, max: 2 });
-      evaluateCharts(model);
+      await evaluateCharts(model);
       await nextTick();
       const element = fixture.querySelector(".o-master-chart-canvas") as HTMLCanvasElement;
       const { left, top, width, height } = element.getBoundingClientRect();
@@ -211,7 +211,7 @@ describe("zoom", () => {
     test("Can double click on the left limit on the master chart to reset the lower bound", async () => {
       const store = env.getStore(ZoomableChartStore);
       store.updateAxisLimits(lineChartId, { min: 1, max: 2 });
-      evaluateCharts(model);
+      await evaluateCharts(model);
       await nextTick();
       const element = fixture.querySelector(".o-master-chart-canvas") as HTMLCanvasElement;
       const { left, top, width, height } = element.getBoundingClientRect();
@@ -227,7 +227,7 @@ describe("zoom", () => {
     test("Can double click on the right limit on the master chart to reset the upper bound", async () => {
       const store = env.getStore(ZoomableChartStore);
       store.updateAxisLimits(lineChartId, { min: 1, max: 2 });
-      evaluateCharts(model);
+      await evaluateCharts(model);
       await nextTick();
       const element = fixture.querySelector(".o-master-chart-canvas") as HTMLCanvasElement;
       const { left, top, width, height } = element.getBoundingClientRect();
@@ -243,7 +243,7 @@ describe("zoom", () => {
     test("Can double click in the selected area on the master chart to reset the zoom", async () => {
       const store = env.getStore(ZoomableChartStore);
       store.updateAxisLimits(lineChartId, { min: 1, max: 2 });
-      evaluateCharts(model);
+      await evaluateCharts(model);
       await nextTick();
       const element = fixture.querySelector(".o-master-chart-canvas") as HTMLCanvasElement;
       const { left, top, width, height } = element.getBoundingClientRect();
@@ -259,7 +259,7 @@ describe("zoom", () => {
     test("Double clicking outside of the slicer does nothing", async () => {
       const store = env.getStore(ZoomableChartStore);
       store.updateAxisLimits(lineChartId, { min: 1, max: 2 });
-      evaluateCharts(model);
+      await evaluateCharts(model);
       await nextTick();
       const element = fixture.querySelector(".o-master-chart-canvas") as HTMLCanvasElement;
       const { left, top, width, height } = element.getBoundingClientRect();
@@ -278,35 +278,35 @@ describe("zoom", () => {
       expect(store.currentAxesLimits[lineChartId]?.x.min).toBe(0);
       expect(store.currentAxesLimits[lineChartId]?.x.max).toBe(1.5);
 
-      updateChart(model, chartId, { axesDesign: { x: { min: 1, max: 3 } } });
+      await updateChart(model, chartId, { axesDesign: { x: { min: 1, max: 3 } } });
       await nextTick();
 
       expect(store.currentAxesLimits[lineChartId]).toBeUndefined();
     });
 
     test("Clearing axesDesign x boundaries clears the zoom", async () => {
-      updateChart(model, chartId, { axesDesign: { x: { min: 1, max: 3 } } });
+      await updateChart(model, chartId, { axesDesign: { x: { min: 1, max: 3 } } });
       await nextTick();
 
       const store = env.getStore(ZoomableChartStore);
       store.updateAxisLimits(lineChartId, { min: 1, max: 2 });
       expect(store.currentAxesLimits[lineChartId]?.x.min).toBe(1);
 
-      updateChart(model, chartId, { axesDesign: { x: { min: undefined, max: undefined } } });
+      await updateChart(model, chartId, { axesDesign: { x: { min: undefined, max: undefined } } });
       await nextTick();
 
       expect(store.currentAxesLimits[lineChartId]).toBeUndefined();
     });
 
     test("Unchanged axesDesign x boundaries preserve the zoom", async () => {
-      updateChart(model, chartId, { axesDesign: { x: { min: 1, max: 3 } } });
+      await updateChart(model, chartId, { axesDesign: { x: { min: 1, max: 3 } } });
       await nextTick();
 
       const store = env.getStore(ZoomableChartStore);
       store.updateAxisLimits(lineChartId, { min: 1, max: 2 });
 
       // Update something else (title) without changing the axis boundaries
-      updateChart(model, chartId, { title: { text: "new title" } });
+      await updateChart(model, chartId, { title: { text: "new title" } });
       await nextTick();
 
       // Zoom limits should be preserved
@@ -318,18 +318,18 @@ describe("zoom", () => {
   describe("Bar chart", () => {
     beforeEach(async () => {
       await mountSpreadsheet();
-      createTestChart(chartId, {}, { zoomable: true });
+      await createTestChart(chartId, {}, { zoomable: true });
       await nextTick();
     });
 
     test("allowZoom checkbox is hidden for horizontal bar chart", async () => {
-      createTestChart(chartId);
+      await createTestChart(chartId);
       await mountChartSidePanel();
       await openChartDesignSidePanel(model, env, fixture, chartId);
 
       expect(fixture.querySelector("input[name='zoomable']")).not.toBeNull();
 
-      updateChart(model, chartId, { horizontal: true });
+      await updateChart(model, chartId, { horizontal: true });
       await nextTick();
 
       expect(fixture.querySelector("input[name='zoomable']")).toBeNull();
@@ -377,7 +377,7 @@ describe("zoom", () => {
     test("Can move the slicer on the master chart", async () => {
       const store = env.getStore(ZoomableChartStore);
       store.updateAxisLimits(barChartId, { min: 0.5, max: 2.5 });
-      evaluateCharts(model);
+      await evaluateCharts(model);
       await nextTick();
       const element = fixture.querySelector(".o-master-chart-canvas") as HTMLCanvasElement;
       const { left, top, width, height } = element.getBoundingClientRect();
@@ -393,7 +393,7 @@ describe("zoom", () => {
     test("Can double click on the left limit on the master chart to reset the lower bound", async () => {
       const store = env.getStore(ZoomableChartStore);
       store.updateAxisLimits(barChartId, { min: 0.5, max: 2.5 });
-      evaluateCharts(model);
+      await evaluateCharts(model);
       await nextTick();
       const element = fixture.querySelector(".o-master-chart-canvas") as HTMLCanvasElement;
       const { left, top, width, height } = element.getBoundingClientRect();
@@ -409,7 +409,7 @@ describe("zoom", () => {
     test("Can double click on the right limit on the master chart to reset the upper bound", async () => {
       const store = env.getStore(ZoomableChartStore);
       store.updateAxisLimits(barChartId, { min: 0.5, max: 2.5 });
-      evaluateCharts(model);
+      await evaluateCharts(model);
       await nextTick();
       const element = fixture.querySelector(".o-master-chart-canvas") as HTMLCanvasElement;
       const { left, top, width, height } = element.getBoundingClientRect();
@@ -425,7 +425,7 @@ describe("zoom", () => {
     test("Can double click in the selected area on the master chart to reset the zoom", async () => {
       const store = env.getStore(ZoomableChartStore);
       store.updateAxisLimits(barChartId, { min: 0.5, max: 2.5 });
-      evaluateCharts(model);
+      await evaluateCharts(model);
       await nextTick();
       const element = fixture.querySelector(".o-master-chart-canvas") as HTMLCanvasElement;
       const { left, top, width, height } = element.getBoundingClientRect();
@@ -441,7 +441,7 @@ describe("zoom", () => {
     test("Double clicking outside of the slicer does nothing", async () => {
       const store = env.getStore(ZoomableChartStore);
       store.updateAxisLimits(barChartId, { min: 0.5, max: 2.5 });
-      evaluateCharts(model);
+      await evaluateCharts(model);
       await nextTick();
       const element = fixture.querySelector(".o-master-chart-canvas") as HTMLCanvasElement;
       const { left, top, width, height } = element.getBoundingClientRect();
@@ -457,11 +457,11 @@ describe("zoom", () => {
     test("Changing dataset boundaries clear the zoom", async () => {
       const store = env.getStore(ZoomableChartStore);
       store.updateAxisLimits(barChartId, { min: 0.5, max: 2.5 });
-      evaluateCharts(model);
+      await evaluateCharts(model);
       await nextTick();
-      setCellContent(model, "B2", "");
-      setCellContent(model, "C2", "");
-      evaluateCharts(model);
+      await setCellContent(model, "B2", "");
+      await setCellContent(model, "C2", "");
+      await evaluateCharts(model);
       await nextTick();
       const { min: newMin, max: newMax } = store.currentAxesLimits[barChartId]?.x ?? {};
       expect(newMin).toBeUndefined();
@@ -471,13 +471,13 @@ describe("zoom", () => {
 
   test("Chart with one point shows timeline as disabled", async () => {
     await mountSpreadsheet();
-    createTestChart(chartId, {}, { zoomable: true });
+    await createTestChart(chartId, {}, { zoomable: true });
     await openChartDesignSidePanel(model, env, fixture, chartId);
     let container = fixture.querySelector(".o-master-chart-container");
     let style = container?.getAttribute("style");
     expect(style).toEqual("");
 
-    updateChart(model, chartId, { dataSets: [{ dataRange: "B2:B2" }], labelRange: "C2:C2" });
+    await updateChart(model, chartId, { dataSets: [{ dataRange: "B2:B2" }], labelRange: "C2:C2" });
     await nextTick();
     container = fixture.querySelector(".o-master-chart-container");
     style = container?.getAttribute("style");

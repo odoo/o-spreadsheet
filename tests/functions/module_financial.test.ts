@@ -555,8 +555,8 @@ describe("Coupons formulas", () => {
     });
     test("Return format is locale dependant", async () => {
       const model = await createModel();
-      updateLocale(model, FR_LOCALE);
-      setCellContent(model, "A1", "=COUPPCD(0, 100, 1, 1)");
+      await updateLocale(model, FR_LOCALE);
+      await setCellContent(model, "A1", "=COUPPCD(0, 100, 1, 1)");
       expect(getEvaluatedCell(model, "A1").format).toBe(FR_LOCALE.dateFormat);
     });
   });
@@ -627,8 +627,8 @@ describe("Coupons formulas", () => {
     });
     test("Return format is locale dependant", async () => {
       const model = await createModel();
-      updateLocale(model, FR_LOCALE);
-      setCellContent(model, "A1", "=COUPNCD(0, 100, 1, 1)");
+      await updateLocale(model, FR_LOCALE);
+      await setCellContent(model, "A1", "=COUPNCD(0, 100, 1, 1)");
       expect(getEvaluatedCell(model, "A1").format).toBe(FR_LOCALE.dateFormat);
     });
   });

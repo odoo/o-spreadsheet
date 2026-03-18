@@ -44,9 +44,9 @@ describe.each(["chart", "image"])("Clipboard for %s figures", (type: string) => 
     sheetId = model.getters.getActiveSheetId();
     figureId = model.uuidGenerator.uuidv4();
     if (type === "chart") {
-      createChart(model, { type: "bar" }, "chartId", undefined, { figureId });
+      await createChart(model, { type: "bar" }, "chartId", undefined, { figureId });
     } else if (type === "image") {
-      createImage(model, { figureId });
+      await createImage(model, { figureId });
     }
     await nextTick();
   });
@@ -56,10 +56,10 @@ describe.each(["chart", "image"])("Clipboard for %s figures", (type: string) => 
     return ids.find((id) => id !== figureId)!;
   }
 
-  test(`Can copy and paste ${type}`, () => {
-    selectFigure(model, figureId);
-    copy(model);
-    paste(model, "A1");
+  test(`Can copy and paste ${type}`, async () => {
+    await selectFigure(model, figureId);
+    await copy(model);
+    await paste(model, "A1");
     const figureIds = getFigureIds(model, sheetId);
     expect(figureIds).toHaveLength(2);
     expect(getFigureDefinition(model, figureId, type)).toEqual(
@@ -67,32 +67,32 @@ describe.each(["chart", "image"])("Clipboard for %s figures", (type: string) => 
     );
   });
 
-  test("Can cut and paste figure", () => {
-    selectFigure(model, figureId);
+  test("Can cut and paste figure", async () => {
+    await selectFigure(model, figureId);
     const figureDef = getFigureDefinition(model, figureId, type);
-    cut(model);
-    paste(model, "A1");
+    await cut(model);
+    await paste(model, "A1");
     const figureIds = getFigureIds(model, sheetId, type);
     expect(figureIds).toHaveLength(1);
     expect(getFigureDefinition(model, getCopiedFigureId(), type)).toEqual(figureDef);
   });
 
-  test("Clipboard will copy figure instead of cells if a figure is selected", () => {
-    setCellContent(model, "A1", "1");
-    setSelection(model, ["A1"]);
-    selectFigure(model, figureId);
-    copy(model);
-    paste(model, "A2");
+  test("Clipboard will copy figure instead of cells if a figure is selected", async () => {
+    await setCellContent(model, "A1", "1");
+    await setSelection(model, ["A1"]);
+    await selectFigure(model, figureId);
+    await copy(model);
+    await paste(model, "A2");
     expect(getCellContent(model, "A2")).toEqual("");
     expect(model.getters.getFigures(sheetId)).toHaveLength(2);
   });
 
-  test("Can copy and paste figure to another sheet", () => {
-    selectFigure(model, figureId);
-    copy(model);
-    createSheet(model, { sheetId: "42" });
-    activateSheet(model, "42");
-    paste(model, "A1");
+  test("Can copy and paste figure to another sheet", async () => {
+    await selectFigure(model, figureId);
+    await copy(model);
+    await createSheet(model, { sheetId: "42" });
+    await activateSheet(model, "42");
+    await paste(model, "A1");
     expect(getFigureIds(model, sheetId, type)).toHaveLength(1);
     expect(getFigureIds(model, "42", type)).toHaveLength(1);
     expect(getFigureDefinition(model, figureId, type)).toEqual(
@@ -100,18 +100,18 @@ describe.each(["chart", "image"])("Clipboard for %s figures", (type: string) => 
     );
   });
 
-  test("Figure position is at the first cell of the target", () => {
-    selectFigure(model, figureId);
-    copy(model);
-    paste(model, "C3:C10, B8");
+  test("Figure position is at the first cell of the target", async () => {
+    await selectFigure(model, figureId);
+    await copy(model);
+    await paste(model, "C3:C10, B8");
     const copiedFigure = model.getters.getFigure(sheetId, getCopiedFigureId())!;
     const figureUI = model.getters.getFigureUI(sheetId, copiedFigure);
     expect(figureUI.x).toEqual(2 * DEFAULT_CELL_WIDTH);
     expect(figureUI.y).toEqual(2 * DEFAULT_CELL_HEIGHT);
   });
 
-  test("Figure size is copied", () => {
-    updateFigure(model, {
+  test("Figure size is copied", async () => {
+    await updateFigure(model, {
       sheetId,
       figureId,
       height: 256,
@@ -119,37 +119,37 @@ describe.each(["chart", "image"])("Clipboard for %s figures", (type: string) => 
       col: 0,
       row: 0,
     });
-    selectFigure(model, figureId);
-    copy(model);
-    paste(model, "A1");
+    await selectFigure(model, figureId);
+    await copy(model);
+    await paste(model, "A1");
     const copiedFigure = model.getters.getFigure(sheetId, getCopiedFigureId());
     expect(copiedFigure?.height).toEqual(256);
     expect(copiedFigure?.width).toEqual(257);
   });
 
-  test("Can paste deleted %s", () => {
+  test("Can paste deleted %s", async () => {
     const figureDef = getFigureDefinition(model, figureId, type);
-    selectFigure(model, figureId);
-    copy(model);
-    deleteFigure(model, figureId, sheetId);
-    paste(model, "A1");
+    await selectFigure(model, figureId);
+    await copy(model);
+    await deleteFigure(model, figureId, sheetId);
+    await paste(model, "A1");
     expect(getFigureDefinition(model, getCopiedFigureId(), type)).toEqual(figureDef);
   });
 
-  test("Can cut paste %s on another sheet", () => {
+  test("Can cut paste %s on another sheet", async () => {
     const figureDef = getFigureDefinition(model, figureId, type);
-    selectFigure(model, figureId);
-    cut(model);
-    createSheet(model, { sheetId: "42" });
-    activateSheet(model, "42");
-    paste(model, "A1");
+    await selectFigure(model, figureId);
+    await cut(model);
+    await createSheet(model, { sheetId: "42" });
+    await activateSheet(model, "42");
+    await paste(model, "A1");
     const newFigureId = model.getters.getFigures("42")[0].id;
     expect(getFigureDefinition(model, newFigureId, type)).toEqual(figureDef);
     expect(model.getters.getFigures(sheetId)).toHaveLength(0);
   });
 
-  test("Figure is copied to edge of the sheet", () => {
-    updateFigure(model, {
+  test("Figure is copied to edge of the sheet", async () => {
+    await updateFigure(model, {
       sheetId,
       figureId,
       height: 256,
@@ -157,9 +157,9 @@ describe.each(["chart", "image"])("Clipboard for %s figures", (type: string) => 
       col: 0,
       row: 0,
     });
-    selectFigure(model, figureId);
-    copy(model);
-    paste(model, "Z100");
+    await selectFigure(model, figureId);
+    await copy(model);
+    await paste(model, "Z100");
     const copiedFigure = model.getters.getFigure(sheetId, getCopiedFigureId())!;
     const figureUI = model.getters.getFigureUI(sheetId, copiedFigure);
     const maxX = model.getters.getColDimensions(
@@ -176,8 +176,8 @@ describe.each(["chart", "image"])("Clipboard for %s figures", (type: string) => 
 
   test("Can paste a chart with ranges that were deleted between the copy and the paste", async () => {
     const model = await createModel();
-    createSheet(model, { sheetId: "sheet2Id", name: "Sheet2" });
-    createChart(
+    await createSheet(model, { sheetId: "sheet2Id", name: "Sheet2" });
+    await createChart(
       model,
       {
         type: "bar",
@@ -188,10 +188,10 @@ describe.each(["chart", "image"])("Clipboard for %s figures", (type: string) => 
       undefined,
       { figureId: "figureId" }
     );
-    selectFigure(model, "figureId");
-    copy(model);
-    deleteSheet(model, "Sheet1");
-    paste(model, "A1");
+    await selectFigure(model, "figureId");
+    await copy(model);
+    await deleteSheet(model, "Sheet1");
+    await paste(model, "A1");
     expect(model.getters.getFigures("sheet2Id")).toHaveLength(1);
     const newChartId = model.getters.getChartIds("sheet2Id")[0];
     expect(model.getters.getChartDefinition(newChartId)).toMatchObject({
@@ -201,8 +201,8 @@ describe.each(["chart", "image"])("Clipboard for %s figures", (type: string) => 
   });
 
   test("Chart clipboard content is not serialized at copy", async () => {
-    selectFigure(model, figureId);
-    copy(model);
+    await selectFigure(model, figureId);
+    await copy(model);
 
     const clipboardSpreadsheetContent = await parseOSClipboardContent(
       await model.getters.getClipboardTextAndImageContent()
@@ -214,17 +214,17 @@ describe.each(["chart", "image"])("Clipboard for %s figures", (type: string) => 
   });
 
   describe("Paste command result", () => {
-    test("Cannot paste with empty target", () => {
-      selectFigure(model, figureId);
-      copy(model);
+    test("Cannot paste with empty target", async () => {
+      await selectFigure(model, figureId);
+      await copy(model);
       const result = model.dispatch("PASTE", { target: [] });
       expect(result).toBeCancelledBecause(CommandResult.EmptyTarget);
     });
 
-    test("Cannot paste with clipboard options when pasting a figure", () => {
-      selectFigure(model, figureId);
-      copy(model);
-      const result = paste(model, "A1", "onlyFormat");
+    test("Cannot paste with clipboard options when pasting a figure", async () => {
+      await selectFigure(model, figureId);
+      await copy(model);
+      const result = await paste(model, "A1", "onlyFormat");
       expect(result).toBeCancelledBecause(CommandResult.WrongFigurePasteOption);
     });
   });
@@ -234,14 +234,14 @@ describe("chart specific Clipboard test", () => {
   test("Can copy paste chart on another sheet", async () => {
     const model = await createModel();
     const chartId = "thisIsAnId";
-    createChart(model, { type: "bar" }, chartId);
-    updateChart(model, chartId, { dataSets: [{ dataRange: "A1:A5" }], labelRange: "B1" });
+    await createChart(model, { type: "bar" }, chartId);
+    await updateChart(model, chartId, { dataSets: [{ dataRange: "A1:A5" }], labelRange: "B1" });
     const chartDef = model.getters.getChartDefinition(chartId) as BarChartDefinition;
-    selectFigure(model, model.getters.getFigureIdFromChartId(chartId));
-    copy(model);
-    createSheet(model, { sheetId: "42" });
-    activateSheet(model, "42");
-    paste(model, "A1");
+    await selectFigure(model, model.getters.getFigureIdFromChartId(chartId));
+    await copy(model);
+    await createSheet(model, { sheetId: "42" });
+    await activateSheet(model, "42");
+    await paste(model, "A1");
     const newChartId = model.getters.getChartIds("42")[0];
     expect(model.getters.getChartDefinition(newChartId)).toEqual({
       ...chartDef,
@@ -260,11 +260,11 @@ describe("Carousel clipboard test", () => {
     sheetId = model.getters.getActiveSheetId();
   });
 
-  test("Can copy/paste an empty carousel", () => {
-    createCarousel(model, { items: [] }, "carouselId");
-    selectFigure(model, "carouselId");
-    copy(model);
-    paste(model, "A1");
+  test("Can copy/paste an empty carousel", async () => {
+    await createCarousel(model, { items: [] }, "carouselId");
+    await selectFigure(model, "carouselId");
+    await copy(model);
+    await paste(model, "A1");
     expect(model.getters.getFigures(sheetId)).toHaveLength(2);
     const copiedFigure = model.getters.getFigures(sheetId)[1];
 
@@ -273,11 +273,11 @@ describe("Carousel clipboard test", () => {
     expect(model.getters.getCarousel(copiedFigure.id).items).toEqual([]);
   });
 
-  test("Can cut/paste an empty carousel", () => {
-    createCarousel(model, { items: [] }, "carouselId");
-    selectFigure(model, "carouselId");
-    cut(model);
-    paste(model, "A1");
+  test("Can cut/paste an empty carousel", async () => {
+    await createCarousel(model, { items: [] }, "carouselId");
+    await selectFigure(model, "carouselId");
+    await cut(model);
+    await paste(model, "A1");
     expect(model.getters.getFigures(sheetId)).toHaveLength(1);
     const copiedFigure = model.getters.getFigures(sheetId)[0];
 
@@ -286,16 +286,19 @@ describe("Carousel clipboard test", () => {
     expect(model.getters.getCarousel(copiedFigure.id).items).toEqual([]);
   });
 
-  test("Can copy/paste a carousel with charts", () => {
-    createCarousel(model, { items: [] }, "carouselId");
-    const chartId = addNewChartToCarousel(model, "carouselId", {
+  test("Can copy/paste a carousel with charts", async () => {
+    await createCarousel(model, { items: [] }, "carouselId");
+    const chartId = await addNewChartToCarousel(model, "carouselId", {
       type: "radar",
       dataSets: [{ dataRange: "A1:A5" }],
     });
-    const chartId2 = addNewChartToCarousel(model, "carouselId", { type: "bar", labelRange: "B1" });
-    selectFigure(model, "carouselId");
-    copy(model);
-    paste(model, "A1");
+    const chartId2 = await addNewChartToCarousel(model, "carouselId", {
+      type: "bar",
+      labelRange: "B1",
+    });
+    await selectFigure(model, "carouselId");
+    await copy(model);
+    await paste(model, "A1");
 
     expect(model.getters.getFigures(sheetId)).toHaveLength(2);
     const copiedFigure = model.getters.getFigures(sheetId)[1];
@@ -315,17 +318,17 @@ describe("Carousel clipboard test", () => {
     });
   });
 
-  test("Can copy/paste a carousel with a chart to another sheet", () => {
-    createCarousel(model, { items: [] }, "carouselId");
-    addNewChartToCarousel(model, "carouselId", {
+  test("Can copy/paste a carousel with a chart to another sheet", async () => {
+    await createCarousel(model, { items: [] }, "carouselId");
+    await addNewChartToCarousel(model, "carouselId", {
       type: "line",
       dataSets: [{ dataRange: "A1:A5" }],
     });
-    selectFigure(model, "carouselId");
-    copy(model);
-    createSheet(model, { sheetId: "42" });
-    activateSheet(model, "42");
-    paste(model, "A1");
+    await selectFigure(model, "carouselId");
+    await copy(model);
+    await createSheet(model, { sheetId: "42" });
+    await activateSheet(model, "42");
+    await paste(model, "A1");
 
     expect(model.getters.getFigures("42")).toHaveLength(1);
     const copiedFigure = model.getters.getFigures("42")[0];
@@ -336,20 +339,20 @@ describe("Carousel clipboard test", () => {
     });
   });
 
-  test("Can undo/redo a carousel copy/paste", () => {
-    createCarousel(model, { items: [{ type: "carouselDataView" }] }, "carouselId");
-    const chartId = addNewChartToCarousel(model, "carouselId", {
+  test("Can undo/redo a carousel copy/paste", async () => {
+    await createCarousel(model, { items: [{ type: "carouselDataView" }] }, "carouselId");
+    const chartId = await addNewChartToCarousel(model, "carouselId", {
       type: "line",
       dataSets: [{ dataRange: "A1:A5" }],
     });
-    selectFigure(model, "carouselId");
-    copy(model);
-    paste(model, "A1");
+    await selectFigure(model, "carouselId");
+    await copy(model);
+    await paste(model, "A1");
 
     expect(model.getters.getFigures(sheetId)).toHaveLength(2);
-    undo(model);
+    await undo(model);
     expect(model.getters.getFigures(sheetId)).toHaveLength(1);
-    redo(model);
+    await redo(model);
     expect(model.getters.getFigures(sheetId)).toHaveLength(2);
 
     const copiedFigure = model.getters.getFigures(sheetId)[1];

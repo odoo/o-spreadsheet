@@ -7,7 +7,7 @@ import {
   MENU_WIDTH,
 } from "@odoo/o-spreadsheet-engine/constants";
 import { Model } from "@odoo/o-spreadsheet-engine/model";
-import { Component, xml } from "@odoo/owl";
+import { Component, onWillStart, xml } from "@odoo/owl";
 import { Action, ActionSpec, createActions } from "../../src/actions/action";
 import { MenuPopover } from "../../src/components/menu_popover/menu_popover";
 import { toXC } from "../../src/helpers";
@@ -193,7 +193,9 @@ class ContextMenuParent extends Component {
       height: 0,
     };
     this.menus = this.props.config.menuItems || createActions([makeTestMenuItem("Action")]);
-    resizeSheetView(this.env.model, this.props.heigth, this.props.width);
+    onWillStart(async () => {
+      await resizeSheetView(this.env.model, this.props.heigth, this.props.width);
+    });
   }
 }
 
@@ -287,7 +289,7 @@ describe("Context MenuPopover integration tests", () => {
   });
 
   test("can copy/paste with context menu", async () => {
-    setCellContent(model, "B1", "b1");
+    await setCellContent(model, "B1", "b1");
 
     await rightClickCell(model, "B1");
     expect(getSelectionAnchorCellXc(model)).toBe("B1");
@@ -304,7 +306,7 @@ describe("Context MenuPopover integration tests", () => {
   });
 
   test("can cut/paste with context menu", async () => {
-    setCellContent(model, "B1", "b1");
+    await setCellContent(model, "B1", "b1");
 
     await rightClickCell(model, "B1");
 
@@ -366,7 +368,7 @@ describe("Context MenuPopover integration tests", () => {
         isVisible: (env) => getEvaluatedCell(model, "B1").value !== "b1",
         execute() {},
       });
-    setCellContent(model, "B1", "b1");
+    await setCellContent(model, "B1", "b1");
     await rightClickCell(model, "B1");
     expect(fixture.querySelector(".o-menu div[data-name='visible_action']")).toBeTruthy();
     expect(fixture.querySelector(".o-menu div[data-name='hidden_action']")).toBeFalsy();
@@ -907,7 +909,7 @@ describe("Context menu react to grid size changes", () => {
     expect(menus[0]?.style.display).toBe("block");
     expect(menus[1]).toBeTruthy();
 
-    resizeSheetView(model, 500, 500);
+    await resizeSheetView(model, 500, 500);
     await nextTick();
     await nextTick(); // First render hides the parent menu, second closes the submenu
 
@@ -926,7 +928,7 @@ describe("Context menu react to grid size changes", () => {
     expect(menus[0]?.style.left).toBe("500px");
     expect(menus[1]).toBeTruthy();
 
-    resizeSheetView(model, 1000, 500 + MENU_WIDTH / 2);
+    await resizeSheetView(model, 1000, 500 + MENU_WIDTH / 2);
     await nextTick();
     await nextTick(); // First render moves the parent menu, second closes the submenu
 

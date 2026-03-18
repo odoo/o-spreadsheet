@@ -34,9 +34,9 @@ beforeEach(async () => {
 });
 
 describe("Dynamic tables", () => {
-  test("Can create a dynamic table", () => {
-    setCellContent(model, "A1", "=MUNIT(3)");
-    createDynamicTable(model, "A1");
+  test("Can create a dynamic table", async () => {
+    await setCellContent(model, "A1", "=MUNIT(3)");
+    await createDynamicTable(model, "A1");
 
     expect(model.getters.getCoreTables(sheetId)[0]).toMatchObject({
       range: { zone: toZone("A1") },
@@ -45,19 +45,19 @@ describe("Dynamic tables", () => {
     expect(getTables(model, sheetId)[0]).toMatchObject({ zone: "A1:C3" });
   });
 
-  test("Can update a dynamic table", () => {
-    setCellContent(model, "A1", "=MUNIT(3)");
-    createDynamicTable(model, "A1");
-    updateTableConfig(model, "A1", { styleId: "TableStyleMedium12" });
+  test("Can update a dynamic table", async () => {
+    await setCellContent(model, "A1", "=MUNIT(3)");
+    await createDynamicTable(model, "A1");
+    await updateTableConfig(model, "A1", { styleId: "TableStyleMedium12" });
     expect(getTables(model, sheetId)[0]).toMatchObject({
       config: { styleId: "TableStyleMedium12" },
     });
   });
 
-  test("Can duplicate a sheet with a dynamic table", () => {
-    setCellContent(model, "A1", "=MUNIT(3)");
-    createDynamicTable(model, "A1");
-    duplicateSheet(model, sheetId, "Sheet2Id");
+  test("Can duplicate a sheet with a dynamic table", async () => {
+    await setCellContent(model, "A1", "=MUNIT(3)");
+    await createDynamicTable(model, "A1");
+    await duplicateSheet(model, sheetId, "Sheet2Id");
 
     expect(model.getters.getCoreTables("Sheet2Id")).toMatchObject([
       { range: { zone: toZone("A1") }, type: "dynamic" },
@@ -65,14 +65,14 @@ describe("Dynamic tables", () => {
     expect(getTables(model, "Sheet2Id")[0]).toMatchObject({ zone: "A1:C3" });
   });
 
-  test("Can change a static table to a dynamic one", () => {
-    setCellContent(model, "C1", "=MUNIT(2)");
-    createTable(model, "A1:A3");
+  test("Can change a static table to a dynamic one", async () => {
+    await setCellContent(model, "C1", "=MUNIT(2)");
+    await createTable(model, "A1:A3");
 
     const table = model.getters.getCoreTables(sheetId)[0];
     expect(table).toMatchObject({ range: { zone: toZone("A1:A3") }, type: "static" });
 
-    updateTableZone(model, "A1:A3", "C1", "dynamic");
+    await updateTableZone(model, "A1:A3", "C1", "dynamic");
     expect(model.getters.getCoreTables(sheetId)).toHaveLength(1);
     expect(model.getters.getCoreTables(sheetId)[0]).toMatchObject({
       id: table.id,
@@ -86,14 +86,14 @@ describe("Dynamic tables", () => {
     });
   });
 
-  test("Can change a dynamic table to a static one", () => {
-    setCellContent(model, "A1", "=MUNIT(2)");
-    createDynamicTable(model, "A1");
+  test("Can change a dynamic table to a static one", async () => {
+    await setCellContent(model, "A1", "=MUNIT(2)");
+    await createDynamicTable(model, "A1");
 
     const table = model.getters.getCoreTables(sheetId)[0];
     expect(table).toMatchObject({ range: { zone: toZone("A1") }, type: "dynamic" });
 
-    updateTableZone(model, "A1:B2", "C1:C3", "static");
+    await updateTableZone(model, "A1:B2", "C1:C3", "static");
     expect(model.getters.getCoreTables(sheetId)).toHaveLength(1);
     expect(model.getters.getCoreTables(sheetId)[0]).toMatchObject({
       id: table.id,
@@ -107,40 +107,40 @@ describe("Dynamic tables", () => {
     });
   });
 
-  test("Dynamic tables cannot overlap with static tables", () => {
-    setCellContent(model, "A1", "=MUNIT(3)");
-    createDynamicTable(model, "A1");
-    createTable(model, "C2:C3");
+  test("Dynamic tables cannot overlap with static tables", async () => {
+    await setCellContent(model, "A1", "=MUNIT(3)");
+    await createDynamicTable(model, "A1");
+    await createTable(model, "C2:C3");
     expect(getTables(model, sheetId)).toMatchObject([{ zone: "C2:C3" }, { zone: "A1:B3" }]);
   });
 
-  test("Dynamic tables are trimmed down when static table overlaps on the bottom", () => {
-    createTable(model, "C3:F7");
-    setCellContent(model, "D1", "=MUNIT(3)");
-    createDynamicTable(model, "D1");
+  test("Dynamic tables are trimmed down when static table overlaps on the bottom", async () => {
+    await createTable(model, "C3:F7");
+    await setCellContent(model, "D1", "=MUNIT(3)");
+    await createDynamicTable(model, "D1");
     expect(getTables(model, sheetId)).toMatchObject([{ zone: "C3:F7" }, { zone: "D1:F2" }]);
   });
 
-  test("Dynamic tables are trimmed right when static table overlaps on the right", () => {
-    createTable(model, "C3:F7");
-    setCellContent(model, "A2", "=MUNIT(3)");
-    createDynamicTable(model, "A2");
+  test("Dynamic tables are trimmed right when static table overlaps on the right", async () => {
+    await createTable(model, "C3:F7");
+    await setCellContent(model, "A2", "=MUNIT(3)");
+    await createDynamicTable(model, "A2");
     expect(getTables(model, sheetId)).toMatchObject([{ zone: "C3:F7" }, { zone: "A2:B4" }]);
   });
 
-  test("Can delete a dynamic table", () => {
-    setCellContent(model, "A1", "=MUNIT(3)");
-    createDynamicTable(model, "A1");
+  test("Can delete a dynamic table", async () => {
+    await setCellContent(model, "A1", "=MUNIT(3)");
+    await createDynamicTable(model, "A1");
     expect(getTables(model, sheetId)).toHaveLength(1);
-    deleteTable(model, "A1");
+    await deleteTable(model, "A1");
     expect(getTables(model, sheetId)).toHaveLength(0);
   });
 
-  test("Can update the filter of a dynamic table", () => {
-    setCellContent(model, "A1", "=MUNIT(2)");
-    createDynamicTable(model, "A1", { hasFilters: true });
-    updateFilter(model, "A1", ["0"]);
-    updateFilter(model, "B1", ["1"]);
+  test("Can update the filter of a dynamic table", async () => {
+    await setCellContent(model, "A1", "=MUNIT(2)");
+    await createDynamicTable(model, "A1", { hasFilters: true });
+    await updateFilter(model, "A1", ["0"]);
+    await updateFilter(model, "B1", ["1"]);
     expect(getFilterHiddenValues(model)).toMatchObject([
       { value: ["0"], zone: "A1:A2" },
       { value: ["1"], zone: "B1:B2" },
@@ -148,72 +148,72 @@ describe("Dynamic tables", () => {
     expect(model.getters.isRowHidden(sheetId, 1)).toBe(true);
   });
 
-  test("Dynamic table is updated when formula result changes", () => {
-    setCellContent(model, "C10", "2");
-    setCellContent(model, "A1", "=MUNIT(C10)");
-    createDynamicTable(model, "A1");
+  test("Dynamic table is updated when formula result changes", async () => {
+    await setCellContent(model, "C10", "2");
+    await setCellContent(model, "A1", "=MUNIT(C10)");
+    await createDynamicTable(model, "A1");
 
     expect(getTables(model, sheetId)[0]).toMatchObject({ zone: "A1:B2" });
     expect(model.getters.getCellTableStyle(toCellPosition(sheetId, "C3"))).toBeUndefined();
 
-    setCellContent(model, "C10", "3");
+    await setCellContent(model, "C10", "3");
     expect(getTables(model, sheetId)[0]).toMatchObject({ zone: "A1:C3" });
     expect(model.getters.getCellTableStyle(toCellPosition(sheetId, "C3"))).not.toBeUndefined();
   });
 
-  test("Dynamic table is updated when cell is in error", () => {
-    setCellContent(model, "C10", "2");
-    setCellContent(model, "A1", "=MUNIT(C10)");
-    createDynamicTable(model, "A1");
+  test("Dynamic table is updated when cell is in error", async () => {
+    await setCellContent(model, "C10", "2");
+    await setCellContent(model, "A1", "=MUNIT(C10)");
+    await createDynamicTable(model, "A1");
 
     expect(getTables(model, sheetId)[0]).toMatchObject({ zone: "A1:B2" });
 
-    setCellContent(model, "A2", "this will prevent the array formula to be spread");
+    await setCellContent(model, "A2", "this will prevent the array formula to be spread");
     expect(getTables(model, sheetId)[0]).toMatchObject({ zone: "A1" });
 
-    setCellContent(model, "A2", "");
+    await setCellContent(model, "A2", "");
     expect(getTables(model, sheetId)[0]).toMatchObject({ zone: "A1:B2" });
 
-    setCellContent(model, "C10", "=0/0");
+    await setCellContent(model, "C10", "=0/0");
     expect(getTables(model, sheetId)[0]).toMatchObject({ zone: "A1" });
   });
 
-  test("Dynamic tables are updated when format changes", () => {
-    setCellContent(model, "A2", '=MUNIT(IF(CELL("format",A1)="0.00%",3,2))');
-    createDynamicTable(model, "A2");
+  test("Dynamic tables are updated when format changes", async () => {
+    await setCellContent(model, "A2", '=MUNIT(IF(CELL("format",A1)="0.00%",3,2))');
+    await createDynamicTable(model, "A2");
     expect(getTables(model, sheetId)[0]).toMatchObject({ zone: "A2:B3" });
 
-    setFormat(model, "A1", "0.00%");
+    await setFormat(model, "A1", "0.00%");
     expect(getTables(model, sheetId)[0]).toMatchObject({ zone: "A2:C4" });
   });
 
-  test("Can copy/paste a dynamic table", () => {
-    setCellContent(model, "A1", "=MUNIT(2)");
-    createDynamicTable(model, "A1");
+  test("Can copy/paste a dynamic table", async () => {
+    await setCellContent(model, "A1", "=MUNIT(2)");
+    await createDynamicTable(model, "A1");
 
-    copy(model, "A1");
-    paste(model, "D1");
+    await copy(model, "A1");
+    await paste(model, "D1");
 
     expect(getTables(model, sheetId)).toMatchObject([{ zone: "A1:B2" }, { zone: "D1:E2" }]);
   });
 
-  test("Can cut/paste a dynamic table", () => {
-    setCellContent(model, "A1", "=MUNIT(2)");
-    createDynamicTable(model, "A1");
+  test("Can cut/paste a dynamic table", async () => {
+    await setCellContent(model, "A1", "=MUNIT(2)");
+    await createDynamicTable(model, "A1");
 
-    cut(model, "A1");
-    paste(model, "D1");
+    await cut(model, "A1");
+    await paste(model, "D1");
 
     expect(getTables(model, sheetId)).toMatchObject([{ zone: "D1:E2" }]);
   });
 
-  test("Can copy/paste a cell of a dynamic table", () => {
-    setCellContent(model, "A1", "=MUNIT(2)");
-    createDynamicTable(model, "A1");
-    updateTableConfig(model, "A1", { styleId: "TableStyleDark11" });
+  test("Can copy/paste a cell of a dynamic table", async () => {
+    await setCellContent(model, "A1", "=MUNIT(2)");
+    await createDynamicTable(model, "A1");
+    await updateTableConfig(model, "A1", { styleId: "TableStyleDark11" });
 
-    copy(model, "B1");
-    paste(model, "D1");
+    await copy(model, "B1");
+    await paste(model, "D1");
 
     expect(model.getters.getTable({ sheetId, col: 3, row: 0 })).toBeUndefined();
     expect(getCell(model, "D1")?.style).toMatchObject(
@@ -223,8 +223,8 @@ describe("Dynamic tables", () => {
 
   describe("Import/export", () => {
     test("Can export and import dynamic tables", async () => {
-      setCellContent(model, "A1", "=MUNIT(2)");
-      createDynamicTable(model, "A1");
+      await setCellContent(model, "A1", "=MUNIT(2)");
+      await createDynamicTable(model, "A1");
 
       const exported = model.exportData();
       expect(exported.sheets[0].tables).toMatchObject([{ range: "A1", type: "dynamic" }]);
@@ -237,8 +237,8 @@ describe("Dynamic tables", () => {
     });
 
     test("Dynamic tables are transformed into static tables when exporting for excel", async () => {
-      setCellContent(model, "A1", "=MUNIT(3)");
-      createDynamicTable(model, "A1");
+      await setCellContent(model, "A1", "=MUNIT(3)");
+      await createDynamicTable(model, "A1");
 
       const exported = await getExportedExcelData(model);
       expect(exported.sheets[0].tables).toMatchObject([{ range: "A1:C3" }]);
@@ -246,9 +246,9 @@ describe("Dynamic tables", () => {
   });
 
   describe("Pivots", () => {
-    beforeEach(() => {
+    beforeEach(async () => {
       const grid = { A1: "Price", A2: "10", A3: "=PIVOT(1)" };
-      setGrid(model, grid);
+      await setGrid(model, grid);
       addPivot(model, "A1:A2", {
         measures: [{ id: "Price", fieldName: "Price", aggregator: "sum" }],
       });
@@ -265,11 +265,11 @@ describe("Dynamic tables", () => {
       });
     });
 
-    test("A single pivot can generate multiple tables", () => {
+    test("A single pivot can generate multiple tables", async () => {
       expect(getTables(model, sheetId)).toHaveLength(0);
 
       updatePivot(model, "1", { style: { tableStyleId: "PivotTableStyleMedium9" } });
-      setCellContent(model, "E25", "=PIVOT(1)");
+      await setCellContent(model, "E25", "=PIVOT(1)");
       const tables = getTables(model, sheetId);
       expect(tables).toHaveLength(2);
       expect(tables[0]).toMatchObject({
@@ -283,8 +283,8 @@ describe("Dynamic tables", () => {
       });
     });
 
-    test("Table from pivot takes precedence over standard dynamic table", () => {
-      createDynamicTable(model, "A3", { styleId: "TableStyleMedium2" });
+    test("Table from pivot takes precedence over standard dynamic table", async () => {
+      await createDynamicTable(model, "A3", { styleId: "TableStyleMedium2" });
       expect(getTables(model, sheetId)[0]).toMatchObject({
         config: { styleId: "TableStyleMedium2" },
         zone: "A3:B5",
@@ -298,10 +298,10 @@ describe("Dynamic tables", () => {
       });
     });
 
-    test("Pivot dynamic table inside a static table is ignored", () => {
-      createTable(model, "C3:E5");
+    test("Pivot dynamic table inside a static table is ignored", async () => {
+      await createTable(model, "C3:E5");
       updatePivot(model, "1", { style: { tableStyleId: "PivotTableStyleMedium9" } });
-      setCellContent(model, "E5", "=PIVOT(1)");
+      await setCellContent(model, "E5", "=PIVOT(1)");
 
       const tables = getTables(model, sheetId);
       expect(tables).toHaveLength(2); // static table + pivot table anchored at A3

@@ -206,7 +206,7 @@ describe("squish - unsquish specific cases", () => {
     const A1 = received[0];
     const A2 = received[1];
     const model = await createModelFromGrid({ A1, A2 });
-    createSheet(model, { sheetId: "Sheet2" });
+    await createSheet(model, { sheetId: "Sheet2" });
     const exportSquished = model._exportData(true);
     expect(exportSquished.sheets[0].cells.A2).toEqual(expected);
 
@@ -549,7 +549,7 @@ describe("squish - unsquish specific cases", () => {
     const sheetContent = {};
     const squishedContent = {};
     const model = await createModelFromGrid(sheetContent);
-    setFormatting(model, "A1:C3", { bold: true });
+    await setFormatting(model, "A1:C3", { bold: true });
     const exportSquished = model._exportData(true);
     expect(exportSquished.sheets[0].cells).toEqual(squishedContent);
 

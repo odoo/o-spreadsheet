@@ -169,29 +169,29 @@ describe("history", () => {
 describe("Model history", () => {
   test("Can undo a basic operation", async () => {
     const model = await createModel();
-    setCellContent(model, "A1", "hello");
-    undo(model);
+    await setCellContent(model, "A1", "hello");
+    await undo(model);
     expect(getCell(model, "A1")).toBeUndefined();
-    redo(model);
+    await redo(model);
     expect(getCellContent(model, "A1")).toBe("hello");
   });
 
   test("can undo and redo two consecutive operations", async () => {
     const model = await createModel();
-    setCellContent(model, "A2", "3");
-    setCellContent(model, "A2", "5");
+    await setCellContent(model, "A2", "3");
+    await setCellContent(model, "A2", "5");
 
     expect(getCellContent(model, "A2")).toBe("5");
 
-    undo(model);
+    await undo(model);
     expect(getCellContent(model, "A2")).toBe("3");
 
-    undo(model);
+    await undo(model);
     expect(getCell(model, "A2")).toBeUndefined();
 
-    redo(model);
+    await redo(model);
     expect(getCellContent(model, "A2")).toBe("3");
-    redo(model);
+    await redo(model);
     expect(getCellContent(model, "A2")).toBe("5");
   });
 
@@ -202,24 +202,24 @@ describe("Model history", () => {
 
   test("Cannot redo when when the redo stack is empty and last command is not repeatable", async () => {
     const model = await createModel();
-    freezeRows(model, 2);
+    await freezeRows(model, 2);
     expect(model.getters.canRedo()).toBeFalsy();
   });
 
   test("Can redo when when the redo stack is empty and last command is repeatable", async () => {
     const model = await createModel();
-    setCellContent(model, "A1", "5");
+    await setCellContent(model, "A1", "5");
     expect(model.getters.canRedo()).toBeTruthy();
   });
 
   test("two identical changes do not count as two undo steps", async () => {
     const model = await createModel();
-    selectCell(model, "B2");
-    setZoneBorders(model, { position: "all" });
-    setZoneBorders(model, { position: "all" });
+    await selectCell(model, "B2");
+    await setZoneBorders(model, { position: "all" });
+    await setZoneBorders(model, { position: "all" });
 
     expect(getBorder(model, "B2")).toBeDefined();
-    undo(model);
+    await undo(model);
     expect(getCell(model, "B2")).toBeUndefined();
   });
 
@@ -235,18 +235,18 @@ describe("Model history", () => {
     composerStore.startEdition("abc");
     composerStore.stopEdition();
     expect(getCellContent(model, "A1")).toBe("abc");
-    undo(model);
+    await undo(model);
     expect(getCellContent(model, "A1")).toBe(String(MAX_HISTORY_STEPS - 1));
   });
 
   test("undo recomputes the cells", async () => {
     const model = await createModel();
-    setCellContent(model, "A1", "=A2");
-    setCellContent(model, "A2", "11");
+    await setCellContent(model, "A1", "=A2");
+    await setCellContent(model, "A2", "11");
     expect(getEvaluatedCell(model, "A1").value).toBe(11);
-    undo(model);
+    await undo(model);
     expect(getEvaluatedCell(model, "A1").value).toBe(0);
-    redo(model);
+    await redo(model);
     expect(getEvaluatedCell(model, "A1").value).toBe(11);
   });
 
@@ -255,7 +255,7 @@ describe("Model history", () => {
 
     expect(getEvaluatedCell(model, "A1").value).toBe(10);
 
-    expect(undo(model)).toBeCancelledBecause(CommandResult.EmptyUndoStack);
+    expect(await undo(model)).toBeCancelledBecause(CommandResult.EmptyUndoStack);
     expect(getEvaluatedCell(model, "A1").value).toBe(10);
   });
 
@@ -264,25 +264,25 @@ describe("Model history", () => {
 
     expect(getEvaluatedCell(model, "A1").value).toBe(10);
 
-    expect(redo(model)).toBeCancelledBecause(CommandResult.EmptyRedoStack);
+    expect(await redo(model)).toBeCancelledBecause(CommandResult.EmptyRedoStack);
     expect(getEvaluatedCell(model, "A1").value).toBe(10);
   });
 
   test("undo a sheet creation changes the active sheet", async () => {
     const model = await createModel();
     const sheetId = model.getters.getActiveSheetId();
-    createSheet(model, { sheetId: "42", position: 1 });
-    activateSheet(model, "42");
-    undo(model);
+    await createSheet(model, { sheetId: "42", position: 1 });
+    await activateSheet(model, "42");
+    await undo(model);
     expect(model.getters.getActiveSheetId()).toBe(sheetId);
   });
 
   test("ACTIVATE_SHEET standalone is not saved", async () => {
     const model = await createModel();
-    createSheet(model, { sheetId: "42" });
-    setCellContent(model, "A1", "this will be undone");
-    activateSheet(model, "42");
-    undo(model);
+    await createSheet(model, { sheetId: "42" });
+    await setCellContent(model, "A1", "this will be undone");
+    await activateSheet(model, "42");
+    await undo(model);
     expect(model.getters.getActiveSheetId()).toBe("42");
   });
 
@@ -291,18 +291,18 @@ describe("Model history", () => {
     // creation is undone
     const model = await createModel();
     const originActiveSheetId = model.getters.getActiveSheetId();
-    createSheet(model, { sheetId: "42" });
-    activateSheet(model, "42");
+    await createSheet(model, { sheetId: "42" });
+    await activateSheet(model, "42");
     expect(model.getters.getActiveSheetId()).toBe("42");
-    undo(model);
+    await undo(model);
     expect(model.getters.getActiveSheetId()).toBe(originActiveSheetId);
   });
 
   test("ACTIVATE_SHEET with another command is saved", async () => {
     const model = await createModel();
     const sheetId = model.getters.getActiveSheetId();
-    createSheet(model, { sheetId: "42", activate: true });
-    undo(model);
+    await createSheet(model, { sheetId: "42", activate: true });
+    await undo(model);
     expect(model.getters.getActiveSheetId()).toBe(sheetId);
   });
 
@@ -317,12 +317,12 @@ describe("Model history", () => {
       content: "hello",
     };
     model.dispatch(command.type, command);
-    undo(model);
+    await undo(model);
     expect(pluginHandle).toHaveBeenCalledWith({
       type: "UNDO",
       commands: [command],
     });
-    redo(model);
+    await redo(model);
     expect(pluginHandle).toHaveBeenCalledWith({
       type: "REDO",
       commands: [command],

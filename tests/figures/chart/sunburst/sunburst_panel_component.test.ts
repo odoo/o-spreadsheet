@@ -41,7 +41,7 @@ describe("Sunburst chart side panel", () => {
 
   describe("Config panel", () => {
     test("Sunburst config panel is correctly initialized", async () => {
-      const chartId = createSunburstChart(model, {
+      const chartId = await createSunburstChart(model, {
         dataSets: [{ dataRange: "A1:A3" }],
         labelRange: "B1:B3",
         dataSetsHaveTitle: true,
@@ -54,7 +54,7 @@ describe("Sunburst chart side panel", () => {
     });
 
     test("Can change chart values in config side panel", async () => {
-      const chartId = createSunburstChart(model, {
+      const chartId = await createSunburstChart(model, {
         dataSets: [{ dataRange: "A1:A3" }],
         labelRange: "B1:B3",
         dataSetsHaveTitle: true,
@@ -76,7 +76,7 @@ describe("Sunburst chart side panel", () => {
 
   describe("Design panel", () => {
     test("Sunburst design panel is correctly initialized", async () => {
-      const chartId = createSunburstChart(model, {
+      const chartId = await createSunburstChart(model, {
         title: { text: "My Sunburst chart" },
         legendPosition: "bottom",
         background: "#00FF00",
@@ -98,7 +98,7 @@ describe("Sunburst chart side panel", () => {
     });
 
     test("Can change basic chart options", async () => {
-      const chartId = createSunburstChart(model, {});
+      const chartId = await createSunburstChart(model, {});
       await openChartDesignSidePanel(model, env, fixture, chartId);
 
       await setInputValueAndTrigger(".o-chart-title input", "My Sunburst Title");
@@ -113,7 +113,7 @@ describe("Sunburst chart side panel", () => {
     });
 
     test("Can display or not the labels/values", async () => {
-      const chartId = createSunburstChart(model, {});
+      const chartId = await createSunburstChart(model, {});
       await openChartDesignSidePanel(model, env, fixture, chartId);
 
       expect('input[name="showLabels"]').toHaveValue(true);
@@ -136,7 +136,7 @@ describe("Sunburst chart side panel", () => {
     });
 
     test("Can change Sunburst label style", async () => {
-      const chartId = createSunburstChart(model);
+      const chartId = await createSunburstChart(model);
       await openChartDesignSidePanel(model, env, fixture, chartId);
 
       expect('.o-values-style [title="Bold"]').not.toHaveClass("active");
@@ -159,8 +159,8 @@ describe("Sunburst chart side panel", () => {
     });
 
     test("Can change sunburst colors", async () => {
-      setGrid(model, { A2: "G1", A3: "G2", B2: "30", B3: "20" });
-      const chartId = createSunburstChart(model, {
+      await setGrid(model, { A2: "G1", A3: "G2", B2: "30", B3: "20" });
+      const chartId = await createSunburstChart(model, {
         dataSets: [{ dataRange: "A1:A3" }],
         labelRange: "B1:B3",
         groupColors: [undefined, "#00FF00"],
@@ -180,7 +180,7 @@ describe("Sunburst chart side panel", () => {
   });
 
   test("Can change sunburst chart hole size, and input is debounced on ,ultiple calls", async () => {
-    const chartId = createSunburstChart(model, {});
+    const chartId = await createSunburstChart(model, {});
     await openChartDesignSidePanel(model, env, fixture, chartId);
 
     expect(".o-pie-hole-size-input").toHaveValue("25");

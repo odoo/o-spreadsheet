@@ -29,9 +29,9 @@ const GROUPED_OPPORTUNITIES_FIELD: PivotCustomGroupedField = {
 beforeEach(async () => {
   model = await createModelWithPivot("A1:I22");
   sheetId = model.getters.getActiveSheetId();
-  clearFormatting(model, "F2:F22");
+  await clearFormatting(model, "F2:F22");
   pivotId = model.getters.getPivotIds()[0];
-  setCellContent(model, "A30", "=PIVOT(1)");
+  await setCellContent(model, "A30", "=PIVOT(1)");
 });
 
 describe("Custom field are checked for validity", () => {

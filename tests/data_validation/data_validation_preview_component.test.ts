@@ -145,8 +145,8 @@ describe("Data validation preview", () => {
       expect(description).toBe("Date is 12/30/1899");
     });
 
-    test("Date is formatted based on locale", () => {
-      updateLocale(model, { ...DEFAULT_LOCALE, dateFormat: "yyyy-mm-dd" });
+    test("Date is formatted based on locale", async () => {
+      await updateLocale(model, { ...DEFAULT_LOCALE, dateFormat: "yyyy-mm-dd" });
 
       const description = getCriterionPreview({
         type: "dateIs",

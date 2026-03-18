@@ -33,7 +33,7 @@ describe("Waterfall chart side panel", () => {
 
   describe("Config panel", () => {
     test("Waterfall config panel is correctly initialized", async () => {
-      const chartId = createWaterfallChart(model, {
+      const chartId = await createWaterfallChart(model, {
         dataSets: [{ dataRange: "A1:A3" }],
         labelRange: "B1:B3",
         dataSetsHaveTitle: true,
@@ -48,7 +48,7 @@ describe("Waterfall chart side panel", () => {
     });
 
     test("Can change chart values in config side panel", async () => {
-      const chartId = createWaterfallChart(model, {
+      const chartId = await createWaterfallChart(model, {
         dataSets: [{ dataRange: "A1:A3" }],
         labelRange: "B1:B3",
         dataSetsHaveTitle: true,
@@ -74,7 +74,7 @@ describe("Waterfall chart side panel", () => {
 
   describe("Design panel", () => {
     test("Waterfall design panel is correctly initialized", async () => {
-      const chartId = createWaterfallChart(model, {
+      const chartId = await createWaterfallChart(model, {
         title: { text: "My Waterfall chart" },
         verticalAxisPosition: "right",
         legendPosition: "bottom",
@@ -103,7 +103,7 @@ describe("Waterfall chart side panel", () => {
     });
 
     test("Can change basic chart options", async () => {
-      const chartId = createWaterfallChart(model, {});
+      const chartId = await createWaterfallChart(model, {});
       await openChartConfigSidePanel(model, env, chartId);
       await click(fixture, ".o-panel-design");
 
@@ -119,7 +119,7 @@ describe("Waterfall chart side panel", () => {
     });
 
     test("Can change waterfall-specific checkboxes", async () => {
-      const chartId = createWaterfallChart(model, {
+      const chartId = await createWaterfallChart(model, {
         showSubTotals: true,
         showConnectorLines: true,
         firstValueAsSubtotal: true,
@@ -137,7 +137,7 @@ describe("Waterfall chart side panel", () => {
     });
 
     test("Can change waterfall chart colors", async () => {
-      const chartId = createWaterfallChart(model);
+      const chartId = await createWaterfallChart(model);
       await openChartConfigSidePanel(model, env, chartId);
       await click(fixture, ".o-panel-design");
 

@@ -21,7 +21,7 @@ describe("Pyramid chart side panel", () => {
   });
 
   test("Only first 2 ranges are enabled when changing the selection input", async () => {
-    createChart(model, { type: "pyramid", dataSets: [] }, "id");
+    await createChart(model, { type: "pyramid", dataSets: [] }, "id");
     await openChartConfigSidePanel(model, env, "id");
 
     const dataSeries = fixture.querySelector<HTMLInputElement>(".o-chart .o-data-series input")!;

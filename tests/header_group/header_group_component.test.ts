@@ -44,13 +44,13 @@ describe("Integration tests", () => {
       expect(gridContainer.style.gridTemplateRows).toBe("0px auto");
       expect(gridContainer.style.gridTemplateColumns).toBe("0px auto");
 
-      groupColumns(model, "A", "B");
+      await groupColumns(model, "A", "B");
       await nextTick();
       expect(gridContainer.style.gridTemplateRows).toBe(`${GROUP_LAYER_WIDTH + 2}px auto`);
       expect(gridContainer.style.gridTemplateColumns).toBe("0px auto");
 
       // Two layers
-      groupColumns(model, "A", "D");
+      await groupColumns(model, "A", "D");
       await nextTick();
       expect(gridContainer.style.gridTemplateRows).toBe(`${GROUP_LAYER_WIDTH * 2 + 2}px auto`);
       expect(gridContainer.style.gridTemplateColumns).toBe("0px auto");
@@ -61,13 +61,13 @@ describe("Integration tests", () => {
       expect(gridContainer.style.gridTemplateRows).toBe("0px auto");
       expect(gridContainer.style.gridTemplateColumns).toBe("0px auto");
 
-      groupRows(model, 1, 2);
+      await groupRows(model, 1, 2);
       await nextTick();
       expect(gridContainer.style.gridTemplateRows).toBe("0px auto");
       expect(gridContainer.style.gridTemplateColumns).toBe(`${GROUP_LAYER_WIDTH + 2}px auto`);
 
       // Two layers
-      groupRows(model, 1, 4);
+      await groupRows(model, 1, 4);
       await nextTick();
       expect(gridContainer.style.gridTemplateRows).toBe("0px auto");
       expect(gridContainer.style.gridTemplateColumns).toBe(`${GROUP_LAYER_WIDTH * 2 + 2}px auto`);
@@ -76,15 +76,15 @@ describe("Integration tests", () => {
     test("Grid container with grouped columns and rows", async () => {
       const gridContainer = fixture.querySelector<HTMLElement>(".o-grid-container")!;
 
-      groupColumns(model, "A", "B");
-      groupRows(model, 1, 2);
+      await groupColumns(model, "A", "B");
+      await groupRows(model, 1, 2);
       await nextTick();
       expect(gridContainer.style.gridTemplateRows).toBe(`${GROUP_LAYER_WIDTH + 2}px auto`);
       expect(gridContainer.style.gridTemplateColumns).toBe(`${GROUP_LAYER_WIDTH + 2}px auto`);
 
       // Two layers
-      groupColumns(model, "A", "D");
-      groupRows(model, 1, 4);
+      await groupColumns(model, "A", "D");
+      await groupRows(model, 1, 4);
       await nextTick();
       expect(gridContainer.style.gridTemplateRows).toBe(`${GROUP_LAYER_WIDTH * 2 + 2}px auto`);
       expect(gridContainer.style.gridTemplateColumns).toBe(`${GROUP_LAYER_WIDTH * 2 + 2}px auto`);
@@ -92,21 +92,21 @@ describe("Integration tests", () => {
 
     test("Grid container is adapted dynamically with number of visible group layers", async () => {
       const gridContainer = fixture.querySelector<HTMLElement>(".o-grid-container")!;
-      groupRows(model, 0, 6);
-      groupRows(model, 1, 2);
+      await groupRows(model, 0, 6);
+      await groupRows(model, 1, 2);
       await nextTick();
 
       expect(gridContainer.style.gridTemplateColumns).toBe(`${GROUP_LAYER_WIDTH * 2 + 2}px auto`);
 
-      foldHeaderGroup(model, "ROW", 0, 6);
+      await foldHeaderGroup(model, "ROW", 0, 6);
       await nextTick();
       expect(gridContainer.style.gridTemplateColumns).toBe(`${GROUP_LAYER_WIDTH + 2}px auto`);
     });
   });
 
   test("Grid input has focus after click on header group", async () => {
-    groupColumns(model, "A", "D");
-    groupRows(model, 1, 4);
+    await groupColumns(model, "A", "D");
+    await groupRows(model, 1, 4);
     await nextTick();
 
     expect(document.activeElement).toBe(fixture.querySelector(".o-grid div.o-composer"));
@@ -141,8 +141,8 @@ describe("Header group component test", () => {
 
   describe("For column groups", () => {
     test("Snapshot", async () => {
-      groupColumns(model, "A", "F");
-      groupColumns(model, "C", "F");
+      await groupColumns(model, "A", "F");
+      await groupColumns(model, "C", "F");
       await mountHeaderGroups(model, "COL");
 
       const groups = fixture.querySelector<HTMLElement>(".o-header-group-container");
@@ -150,8 +150,8 @@ describe("Header group component test", () => {
     });
 
     test("Groups positions", async () => {
-      groupColumns(model, "A", "F");
-      groupColumns(model, "C", "F");
+      await groupColumns(model, "A", "F");
+      await groupColumns(model, "C", "F");
 
       await mountHeaderGroups(model, "COL");
       const groups = fixture.querySelectorAll<HTMLElement>(".o-header-group");
@@ -172,8 +172,8 @@ describe("Header group component test", () => {
     });
 
     test("Header box is sized based on its matching columns", async () => {
-      resizeColumns(model, ["A"], 200);
-      groupColumns(model, "B", "C");
+      await resizeColumns(model, ["A"], 200);
+      await groupColumns(model, "B", "C");
 
       await mountHeaderGroups(model, "COL");
       const header = fixture.querySelector<HTMLElement>(".o-header-group-header")!;
@@ -181,7 +181,7 @@ describe("Header group component test", () => {
     });
 
     test("Scroll of the sheet is handled", async () => {
-      groupColumns(model, "A", "F");
+      await groupColumns(model, "A", "F");
       await mountHeaderGroups(model, "COL");
 
       const scrollContainer = fixture.querySelector<HTMLElement>(
@@ -192,7 +192,7 @@ describe("Header group component test", () => {
       expect(getStylePropertyInPx(scrollContainer, "left")).toBe(0);
       expect(getStylePropertyInPx(group, "left")).toBe(0);
 
-      setViewportOffset(model, 3 * DEFAULT_CELL_WIDTH, 0);
+      await setViewportOffset(model, 3 * DEFAULT_CELL_WIDTH, 0);
       await nextTick();
 
       expect(getStylePropertyInPx(scrollContainer, "left")).toBe(-3 * DEFAULT_CELL_WIDTH);
@@ -200,11 +200,11 @@ describe("Header group component test", () => {
     });
 
     test("Frozen panes are handled", async () => {
-      groupColumns(model, "A", "F");
+      await groupColumns(model, "A", "F");
       await mountHeaderGroups(model, "COL");
 
       expect(fixture.querySelector(".o-header-group-frozen-pane")).toBeFalsy();
-      freezeColumns(model, 2);
+      await freezeColumns(model, 2);
       await nextTick();
 
       const frozenPaneContainer = fixture.querySelector<HTMLElement>(
@@ -229,9 +229,9 @@ describe("Header group component test", () => {
     });
 
     test("Frozen panes are handled are handled", async () => {
-      groupColumns(model, "A", "F");
-      setViewportOffset(model, DEFAULT_CELL_WIDTH, 0);
-      freezeColumns(model, 2);
+      await groupColumns(model, "A", "F");
+      await setViewportOffset(model, DEFAULT_CELL_WIDTH, 0);
+      await freezeColumns(model, 2);
       await mountHeaderGroups(model, "COL");
 
       const frozenPaneContainer = fixture.querySelector<HTMLElement>(
@@ -251,13 +251,13 @@ describe("Header group component test", () => {
     });
 
     test("End of group border is not there when last column of group is hidden", async () => {
-      groupColumns(model, "A", "F");
+      await groupColumns(model, "A", "F");
       await mountHeaderGroups(model, "COL");
 
       const group = fixture.querySelector<HTMLElement>(".o-header-group .o-group-border")!;
       expect(group.style["border-right"]).toBeTruthy();
 
-      hideColumns(model, ["F"]);
+      await hideColumns(model, ["F"]);
       await nextTick();
       expect(group.style["border-right"]).toBeFalsy();
     });
@@ -265,8 +265,8 @@ describe("Header group component test", () => {
 
   describe("For row groups", () => {
     test("Snapshot", async () => {
-      groupRows(model, 0, 5);
-      groupRows(model, 2, 5);
+      await groupRows(model, 0, 5);
+      await groupRows(model, 2, 5);
       await mountHeaderGroups(model, "ROW");
 
       const groups = fixture.querySelector<HTMLElement>(".o-header-group-container");
@@ -274,8 +274,8 @@ describe("Header group component test", () => {
     });
 
     test("Groups positions", async () => {
-      groupRows(model, 0, 5);
-      groupRows(model, 2, 3);
+      await groupRows(model, 0, 5);
+      await groupRows(model, 2, 3);
 
       await mountHeaderGroups(model, "ROW");
       const groups = fixture.querySelectorAll<HTMLElement>(".o-header-group");
@@ -296,8 +296,8 @@ describe("Header group component test", () => {
     });
 
     test("Header box is sized based on its matching columns", async () => {
-      resizeRows(model, [0], 200);
-      groupRows(model, 1, 2);
+      await resizeRows(model, [0], 200);
+      await groupRows(model, 1, 2);
 
       await mountHeaderGroups(model, "ROW");
       const header = fixture.querySelector<HTMLElement>(".o-header-group-header")!;
@@ -305,7 +305,7 @@ describe("Header group component test", () => {
     });
 
     test("Scroll of the sheet is handled", async () => {
-      groupRows(model, 0, 10);
+      await groupRows(model, 0, 10);
       await mountHeaderGroups(model, "ROW");
 
       const scrollContainer = fixture.querySelector<HTMLElement>(
@@ -316,7 +316,7 @@ describe("Header group component test", () => {
       expect(getStylePropertyInPx(scrollContainer, "top")).toBe(0);
       expect(getStylePropertyInPx(group, "top")).toBe(0);
 
-      setViewportOffset(model, 0, 3 * DEFAULT_CELL_HEIGHT);
+      await setViewportOffset(model, 0, 3 * DEFAULT_CELL_HEIGHT);
       await nextTick();
 
       expect(getStylePropertyInPx(scrollContainer, "top")).toBe(-3 * DEFAULT_CELL_HEIGHT);
@@ -324,11 +324,11 @@ describe("Header group component test", () => {
     });
 
     test("Frozen panes are handled", async () => {
-      groupRows(model, 0, 5);
+      await groupRows(model, 0, 5);
       await mountHeaderGroups(model, "ROW");
 
       expect(fixture.querySelector(".o-header-group-frozen-pane")).toBeFalsy();
-      freezeRows(model, 2);
+      await freezeRows(model, 2);
       await nextTick();
 
       const frozenPaneContainer = fixture.querySelector<HTMLElement>(
@@ -353,9 +353,9 @@ describe("Header group component test", () => {
     });
 
     test("Frozen panes are handled are handled", async () => {
-      groupRows(model, 0, 5);
-      setViewportOffset(model, 0, DEFAULT_CELL_HEIGHT);
-      freezeRows(model, 2);
+      await groupRows(model, 0, 5);
+      await setViewportOffset(model, 0, DEFAULT_CELL_HEIGHT);
+      await freezeRows(model, 2);
       await mountHeaderGroups(model, "ROW");
 
       const frozenPaneContainer = fixture.querySelector<HTMLElement>(
@@ -375,13 +375,13 @@ describe("Header group component test", () => {
     });
 
     test("End of group border is not there when last row of group is hidden", async () => {
-      groupRows(model, 0, 5);
+      await groupRows(model, 0, 5);
       await mountHeaderGroups(model, "ROW");
 
       const group = fixture.querySelector<HTMLElement>(".o-header-group .o-group-border")!;
       expect(group.style["border-bottom"]).toBeTruthy();
 
-      hideRows(model, [5]);
+      await hideRows(model, [5]);
       await nextTick();
       expect(group.style["border-bottom"]).toBeFalsy();
     });
@@ -389,7 +389,7 @@ describe("Header group component test", () => {
 
   describe.each(["COL", "ROW"] as const)("Common tests for row and column groups", (dimension) => {
     test("Can toggle group", async () => {
-      groupHeaders(model, dimension, 0, 2);
+      await groupHeaders(model, dimension, 0, 2);
       await mountHeaderGroups(model, dimension);
 
       const group = fixture.querySelector<HTMLElement>(".o-header-group")!;
@@ -415,8 +415,8 @@ describe("Header group component test", () => {
       }
 
       beforeEach(async () => {
-        groupHeaders(model, dimension, 1, 2);
-        groupHeaders(model, dimension, 4, 5);
+        await groupHeaders(model, dimension, 1, 2);
+        await groupHeaders(model, dimension, 4, 5);
 
         await mountHeaderGroups(model, dimension);
 

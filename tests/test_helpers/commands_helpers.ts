@@ -70,18 +70,18 @@ import {
 /**
  * Dispatch an UNDO to the model
  */
-export function undo(model: Model): DispatchResult {
+export async function undo(model: Model): Promise<DispatchResult> {
   return model.dispatch("REQUEST_UNDO");
 }
 
 /**
  * Dispatch a REDO to the model
  */
-export function redo(model: Model): DispatchResult {
+export async function redo(model: Model): Promise<DispatchResult> {
   return model.dispatch("REQUEST_REDO");
 }
 
-export function activateSheet(
+export async function activateSheet(
   model: Model,
   sheetIdTo: UID,
   sheetIdFrom: UID = model.getters.getActiveSheetId()
@@ -93,7 +93,7 @@ export function activateSheet(
  * Create a new sheet. By default, the sheet is added at position 1
  * If data.activate is true, a "ACTIVATE_SHEET" is dispatched
  */
-export function createSheet(
+export async function createSheet(
   model: Model,
   data: Partial<CreateSheetCommand & { activate: boolean; hidden: boolean; color: Color }>
 ) {
@@ -106,35 +106,35 @@ export function createSheet(
     name: data.name ?? model.getters.getNextSheetName(),
   });
   if (data.hidden) {
-    hideSheet(model, sheetId);
+    await hideSheet(model, sheetId);
   }
   if (data.activate) {
-    activateSheet(model, sheetId);
+    await activateSheet(model, sheetId);
   }
   if (data.color) {
-    colorSheet(model, sheetId, data.color);
+    await colorSheet(model, sheetId, data.color);
   }
   return result;
 }
 
-export function renameSheet(model: Model, sheetId: UID, newName: string): DispatchResult {
+export async function renameSheet(model: Model, sheetId: UID, newName: string) {
   const oldName = model.getters.tryGetSheet(sheetId)?.name ?? "SheetName";
   return model.dispatch("RENAME_SHEET", { sheetId, newName, oldName });
 }
 
-export function colorSheet(model: Model, sheetId: UID, color: Color | undefined): DispatchResult {
+export async function colorSheet(model: Model, sheetId: UID, color: Color | undefined) {
   return model.dispatch("COLOR_SHEET", { sheetId, color });
 }
 
-export function createSheetWithName(
+export async function createSheetWithName(
   model: Model,
   data: Partial<CreateSheetCommand & { activate: boolean }>,
   name: string
-): DispatchResult {
-  return createSheet(model, { ...data, name });
+) {
+  return await createSheet(model, { ...data, name });
 }
 
-export function deleteSheet(model: Model, sheetId: UID): DispatchResult {
+export async function deleteSheet(model: Model, sheetId: UID) {
   const sheetName = model.getters.tryGetSheet(sheetId)?.name ?? "SheetName";
   return model.dispatch("DELETE_SHEET", {
     sheetId,
@@ -142,7 +142,7 @@ export function deleteSheet(model: Model, sheetId: UID): DispatchResult {
   });
 }
 
-export function createFigure(
+export async function createFigure(
   model: Model,
   partialParam: {
     sheetId?: UID;
@@ -178,11 +178,11 @@ export function createFigure(
   });
 }
 
-export function updateFigure(model: Model, cmd: Omit<UpdateFigureCommand, "type">) {
+export async function updateFigure(model: Model, cmd: Omit<UpdateFigureCommand, "type">) {
   return model.dispatch("UPDATE_FIGURE", cmd);
 }
 
-export function deleteFigure(
+export async function deleteFigure(
   model: Model,
   figureId: UID,
   sheetId: UID = model.getters.getActiveSheetId()
@@ -190,7 +190,7 @@ export function deleteFigure(
   return model.dispatch("DELETE_FIGURE", { sheetId, figureId });
 }
 
-export function createImage(
+export async function createImage(
   model: Model,
   partialParam: {
     sheetId?: UID;
@@ -231,7 +231,7 @@ export function createImage(
  * Create a new chart by default of type bar with titles
  * in the data sets, on the active sheet.
  */
-export function createChart(
+export async function createChart(
   model: Model,
   data: { type: ChartDefinition["type"] } & Partial<ChartWithDataSetDefinition>,
   chartId?: UID,
@@ -274,7 +274,7 @@ export function createChart(
   });
 }
 
-export function createComboChart(
+export async function createComboChart(
   model: Model,
   data: Partial<ComboChartDefinition>,
   chartId?: UID,
@@ -307,7 +307,7 @@ export function createComboChart(
   });
 }
 
-export function createRadarChart(
+export async function createRadarChart(
   model: Model,
   data: Partial<RadarChartDefinition>,
   chartId?: UID,
@@ -342,7 +342,7 @@ export function createRadarChart(
   });
 }
 
-export function createCalendarChart(
+export async function createCalendarChart(
   model: Model,
   data: Partial<CalendarChartDefinition>,
   chartId?: UID,
@@ -376,30 +376,30 @@ export function createCalendarChart(
   });
 }
 
-export function createWaterfallChart(model: Model, def?: Partial<WaterfallChartDefinition>): UID {
-  createChart(model, { ...def, type: "waterfall" });
+export async function createWaterfallChart(model: Model, def?: Partial<WaterfallChartDefinition>) {
+  await createChart(model, { ...def, type: "waterfall" });
   const sheetId = model.getters.getActiveSheetId();
   return model.getters.getChartIds(sheetId)[0];
 }
 
-export function createFunnelChart(model: Model, def?: Partial<FunnelChartDefinition>): UID {
-  createChart(model, { ...def, type: "funnel" });
+export async function createFunnelChart(model: Model, def?: Partial<FunnelChartDefinition>) {
+  await createChart(model, { ...def, type: "funnel" });
   const sheetId = model.getters.getActiveSheetId();
   return model.getters.getChartIds(sheetId)[0];
 }
 
-export function createSunburstChart(model: Model, def?: Partial<SunburstChartDefinition>): UID {
-  createChart(model, { ...def, type: "sunburst" });
+export async function createSunburstChart(model: Model, def?: Partial<SunburstChartDefinition>) {
+  await createChart(model, { ...def, type: "sunburst" });
   return model.getters.getChartIds(model.getters.getActiveSheetId())[0];
 }
 
-export function createTreeMapChart(model: Model, def?: Partial<TreeMapChartDefinition>): UID {
-  createChart(model, { ...def, type: "treemap" });
+export async function createTreeMapChart(model: Model, def?: Partial<TreeMapChartDefinition>) {
+  await createChart(model, { ...def, type: "treemap" });
   const sheetId = model.getters.getActiveSheetId();
   return model.getters.getChartIds(sheetId)[0];
 }
 
-export function createScorecardChart(
+export async function createScorecardChart(
   model: Model,
   data: Partial<ScorecardChartDefinition>,
   chartId?: UID,
@@ -434,7 +434,7 @@ export function createScorecardChart(
   });
 }
 
-export function createGaugeChart(
+export async function createGaugeChart(
   model: Model,
   data: Partial<GaugeChartDefinition>,
   chartId?: UID,
@@ -482,7 +482,7 @@ export function createGaugeChart(
   });
 }
 
-export function createGeoChart(
+export async function createGeoChart(
   model: Model,
   data: Partial<GeoChartDefinition>,
   chartId: UID = "chartId",
@@ -519,12 +519,12 @@ export function createGeoChart(
 /**
  * Update a chart
  */
-export function updateChart(
+export async function updateChart(
   model: Model,
   chartId: UID,
   definition: Partial<ChartDefinition>,
   sheetId: UID = model.getters.getActiveSheetId()
-): DispatchResult {
+) {
   const def: ChartDefinition = {
     ...model.getters.getChartDefinition(chartId),
     ...definition,
@@ -540,9 +540,9 @@ export function updateChart(
 /**
  * Copy a zone
  */
-export function copy(model: Model, ...ranges: string[]): DispatchResult {
+export async function copy(model: Model, ...ranges: string[]) {
   if (ranges && ranges.length) {
-    setSelection(model, ranges);
+    await setSelection(model, ranges);
   }
   return model.dispatch("COPY");
 }
@@ -550,9 +550,9 @@ export function copy(model: Model, ...ranges: string[]): DispatchResult {
 /**
  * Cut a zone
  */
-export function cut(model: Model, ...ranges: string[]): DispatchResult {
+export async function cut(model: Model, ...ranges: string[]) {
   if (ranges && ranges.length) {
-    setSelection(model, ranges);
+    await setSelection(model, ranges);
   }
   return model.dispatch("CUT");
 }
@@ -560,23 +560,19 @@ export function cut(model: Model, ...ranges: string[]): DispatchResult {
 /**
  * Paste on a zone
  */
-export function paste(
-  model: Model,
-  range: string,
-  pasteOption?: ClipboardPasteOptions
-): DispatchResult {
+export async function paste(model: Model, range: string, pasteOption?: ClipboardPasteOptions) {
   return model.dispatch("PASTE", { target: target(range), pasteOption });
 }
 
 /**
  * Paste from OS clipboard on a zone
  */
-export function pasteFromOSClipboard(
+export async function pasteFromOSClipboard(
   model: Model,
   range: string,
   content: ParsedOsClipboardContentWithImageData,
   pasteOption?: ClipboardPasteOptions
-): DispatchResult {
+) {
   return model.dispatch("PASTE_FROM_OS_CLIPBOARD", {
     clipboardContent: content,
     target: target(range),
@@ -587,41 +583,41 @@ export function pasteFromOSClipboard(
 /**
  * Copy cells above a zone and paste on zone
  */
-export function copyPasteAboveCells(model: Model): DispatchResult {
+export async function copyPasteAboveCells(model: Model) {
   return model.dispatch("COPY_PASTE_CELLS_ABOVE");
 }
 
 /**
  * Copy cells to the left of a zone and paste on zone
  */
-export function copyPasteCellsOnLeft(model: Model): DispatchResult {
+export async function copyPasteCellsOnLeft(model: Model) {
   return model.dispatch("COPY_PASTE_CELLS_ON_LEFT");
 }
 
 /**
  * Copy cell and paste on zone
  */
-export function copyPasteCellsOnZone(model: Model): DispatchResult {
+export async function copyPasteCellsOnZone(model: Model) {
   return model.dispatch("COPY_PASTE_CELLS_ON_ZONE");
 }
 
 /**
  * Clean clipboard highlight selection.
  */
-export function cleanClipBoardHighlight(model: Model): DispatchResult {
+export async function cleanClipBoardHighlight(model: Model) {
   return model.dispatch("CLEAN_CLIPBOARD_HIGHLIGHT");
 }
 
 /**
  * Add columns
  */
-export function addColumns(
+export async function addColumns(
   model: Model,
   position: "before" | "after",
   column: string,
   quantity: number,
   sheetId: UID = model.getters.getActiveSheetId()
-): DispatchResult {
+) {
   const sheetName = model.getters.tryGetSheet(sheetId)?.name ?? "SheetName";
   return model.dispatch("ADD_COLUMNS_ROWS", {
     sheetId,
@@ -636,11 +632,11 @@ export function addColumns(
 /**
  * Delete columns
  */
-export function deleteColumns(
+export async function deleteColumns(
   model: Model,
   columns: string[],
   sheetId: UID = model.getters.getActiveSheetId()
-): DispatchResult {
+) {
   const sheetName = model.getters.tryGetSheet(sheetId)?.name ?? "SheetName";
   return model.dispatch("REMOVE_COLUMNS_ROWS", {
     sheetId,
@@ -653,12 +649,12 @@ export function deleteColumns(
 /**
  * Resize columns
  */
-export function resizeColumns(
+export async function resizeColumns(
   model: Model,
   columns: string[],
   size: number,
   sheetId: UID = model.getters.getActiveSheetId()
-): DispatchResult {
+) {
   return model.dispatch("RESIZE_COLUMNS_ROWS", {
     dimension: "COL",
     elements: columns.map(lettersToNumber),
@@ -670,13 +666,13 @@ export function resizeColumns(
 /**
  * Add rows
  */
-export function addRows(
+export async function addRows(
   model: Model,
   position: "before" | "after",
   row: number,
   quantity: number,
   sheetId: UID = model.getters.getActiveSheetId()
-): DispatchResult {
+) {
   const sheetName = model.getters.tryGetSheet(sheetId)?.name ?? "SheetName";
   return model.dispatch("ADD_COLUMNS_ROWS", {
     dimension: "ROW",
@@ -691,11 +687,11 @@ export function addRows(
 /**
  * Delete rows
  */
-export function deleteRows(
+export async function deleteRows(
   model: Model,
   rows: number[],
   sheetId: UID = model.getters.getActiveSheetId()
-): DispatchResult {
+) {
   const sheetName = model.getters.tryGetSheet(sheetId)?.name ?? "SheetName";
   return model.dispatch("REMOVE_COLUMNS_ROWS", {
     sheetId,
@@ -705,12 +701,12 @@ export function deleteRows(
   });
 }
 
-export function deleteHeaders(
+export async function deleteHeaders(
   model: Model,
   dimension: Dimension,
   headers: number[],
   sheetId: UID = model.getters.getActiveSheetId()
-): DispatchResult {
+) {
   return model.dispatch("REMOVE_COLUMNS_ROWS", {
     sheetId,
     sheetName: model.getters.getSheetName(sheetId),
@@ -722,12 +718,12 @@ export function deleteHeaders(
 /**
  * Resize rows
  */
-export function resizeRows(
+export async function resizeRows(
   model: Model,
   rows: number[],
   size: number,
   sheetId: UID = model.getters.getActiveSheetId()
-): DispatchResult {
+) {
   return model.dispatch("RESIZE_COLUMNS_ROWS", {
     dimension: "ROW",
     elements: rows,
@@ -739,11 +735,11 @@ export function resizeRows(
 /**
  * Hide Columns
  */
-export function hideColumns(
+export async function hideColumns(
   model: Model,
   columns: string[],
   sheetId: UID = model.getters.getActiveSheetId()
-): DispatchResult {
+) {
   return model.dispatch("HIDE_COLUMNS_ROWS", {
     sheetId,
     dimension: "COL",
@@ -754,11 +750,11 @@ export function hideColumns(
 /**
  * Unhide Columns
  */
-export function unhideColumns(
+export async function unhideColumns(
   model: Model,
   columns: string[],
   sheetId: UID = model.getters.getActiveSheetId()
-): DispatchResult {
+) {
   return model.dispatch("UNHIDE_COLUMNS_ROWS", {
     sheetId,
     dimension: "COL",
@@ -769,11 +765,11 @@ export function unhideColumns(
 /**
  * Hide Rows
  */
-export function hideRows(
+export async function hideRows(
   model: Model,
   rows: number[],
   sheetId: UID = model.getters.getActiveSheetId()
-): DispatchResult {
+) {
   return model.dispatch("HIDE_COLUMNS_ROWS", {
     sheetId,
     dimension: "ROW",
@@ -784,11 +780,11 @@ export function hideRows(
 /**
  * Unhide Rows
  */
-export function unhideRows(
+export async function unhideRows(
   model: Model,
   rows: number[],
   sheetId: UID = model.getters.getActiveSheetId()
-): DispatchResult {
+) {
   return model.dispatch("UNHIDE_COLUMNS_ROWS", {
     sheetId,
     dimension: "ROW",
@@ -796,25 +792,25 @@ export function unhideRows(
   });
 }
 
-export function deleteCells(model: Model, range: string, shift: "left" | "up"): DispatchResult {
+export async function deleteCells(model: Model, range: string, shift: "left" | "up") {
   return model.dispatch("DELETE_CELL", {
     zone: toZone(range),
     shiftDimension: shift === "left" ? "COL" : "ROW",
   });
 }
 
-export function deleteContent(
+export async function deleteContent(
   model: Model,
   ranges: string[],
   sheetId: UID = model.getters.getActiveSheetId()
-): DispatchResult {
+) {
   return model.dispatch("DELETE_CONTENT", {
     sheetId,
     target: ranges.map(toZone),
   });
 }
 
-export function insertCells(model: Model, range: string, shift: "right" | "down"): DispatchResult {
+export async function insertCells(model: Model, range: string, shift: "right" | "down") {
   return model.dispatch("INSERT_CELL", {
     zone: toZone(range),
     shiftDimension: shift === "right" ? "COL" : "ROW",
@@ -824,7 +820,7 @@ export function insertCells(model: Model, range: string, shift: "right" | "down"
 /**
  * Set a border to a given zone or the selected zones
  */
-export function setZoneBorders(model: Model, border: BorderData, xcs?: string[]) {
+export async function setZoneBorders(model: Model, border: BorderData, xcs?: string[]) {
   const target = xcs ? xcs.map(toZone) : model.getters.getSelectedZones();
   model.dispatch("SET_ZONE_BORDERS", {
     sheetId: model.getters.getActiveSheetId(),
@@ -837,7 +833,7 @@ export function setZoneBorders(model: Model, border: BorderData, xcs?: string[])
   });
 }
 
-export function setBorders(
+export async function setBorders(
   model: Model,
   xc: string,
   border?: Border,
@@ -852,7 +848,7 @@ export function setBorders(
   });
 }
 
-export function setBordersOnTarget(
+export async function setBordersOnTarget(
   model: Model,
   xcs: string[],
   border?: Border,
@@ -868,7 +864,7 @@ export function setBordersOnTarget(
 /**
  * Clear a cell
  */
-export function clearCell(
+export async function clearCell(
   model: Model,
   xc: string,
   sheetId: UID = model.getters.getActiveSheetId()
@@ -880,7 +876,7 @@ export function clearCell(
 /**
  * Clear cells in zones
  */
-export function clearCells(
+export async function clearCells(
   model: Model,
   xcs: string[],
   sheetId: UID = model.getters.getActiveSheetId()
@@ -891,7 +887,7 @@ export function clearCells(
 /**
  * Set the content of a cell
  */
-export function setCellContent(
+export async function setCellContent(
   model: Model,
   xc: string,
   content: string | undefined,
@@ -904,7 +900,7 @@ export function setCellContent(
 /**
  * Set the content of a cell
  */
-export function setCellFormat(
+export async function setCellFormat(
   model: Model,
   xc: string,
   format: string,
@@ -914,7 +910,7 @@ export function setCellFormat(
   return model.dispatch("UPDATE_CELL", { col, row, sheetId, format });
 }
 
-export function setCellStyle(
+export async function setCellStyle(
   model: Model,
   xc: string,
   style: Style | undefined | null,
@@ -924,7 +920,7 @@ export function setCellStyle(
   return model.dispatch("UPDATE_CELL", { col, row, sheetId, style });
 }
 
-export function updateCell(
+export async function updateCell(
   model: Model,
   xc: string,
   cell: Pick<UpdateCellCommand, "content" | "format" | "style">,
@@ -937,33 +933,29 @@ export function updateCell(
 /**
  * Select a cell
  */
-export function selectCell(model: Model, xc: string): DispatchResult {
+export async function selectCell(model: Model, xc: string) {
   const { col, row } = toCartesian(xc);
   return model.selection.selectCell(col, row);
 }
 
-export function moveAnchorCell(
-  model: Model,
-  direction: Direction,
-  step: SelectionStep = 1
-): DispatchResult {
+export async function moveAnchorCell(model: Model, direction: Direction, step: SelectionStep = 1) {
   return model.selection.moveAnchorCell(direction, step);
 }
 
-export function resizeAnchorZone(
+export async function resizeAnchorZone(
   model: Model,
   direction: Direction,
   step: SelectionStep = 1
-): DispatchResult {
+) {
   return model.selection.resizeAnchorZone(direction, step);
 }
 
-export function setAnchorCorner(model: Model, xc: string): DispatchResult {
+export async function setAnchorCorner(model: Model, xc: string) {
   const { col, row } = toCartesian(xc);
   return model.selection.setAnchorCorner(col, row);
 }
 
-export function addCellToSelection(model: Model, xc: string): DispatchResult {
+export async function addCellToSelection(model: Model, xc: string) {
   const { col, row } = toCartesian(xc);
   return model.selection.addCellToSelection(col, row);
 }
@@ -972,23 +964,23 @@ export function addCellToSelection(model: Model, xc: string): DispatchResult {
  * commitSelection only called on mouse up.
  * it will check and update the selection accordingly.
  */
-export function commitSelection(model: Model): DispatchResult {
+export async function commitSelection(model: Model) {
   return model.selection.commitSelection();
 }
 
 /**
  * Move a conditianal formatting rule
  */
-export function changeCFPriority(
+export async function changeCFPriority(
   model: Model,
   cfId: UID,
   delta: number,
   sheetId: UID = model.getters.getActiveSheetId()
-): DispatchResult {
+) {
   return model.dispatch("CHANGE_CONDITIONAL_FORMAT_PRIORITY", { cfId, delta, sheetId });
 }
 
-export function setSelection(
+export async function setSelection(
   model: Model,
   xcs: string[],
   options: {
@@ -1048,7 +1040,7 @@ export function setSelection(
   }
 }
 
-export function selectColumn(
+export async function selectColumn(
   model: Model,
   col: number,
   mode: "overrideSelection" | "updateAnchor" | "newAnchor"
@@ -1056,7 +1048,7 @@ export function selectColumn(
   return model.selection.selectColumn(col, mode);
 }
 
-export function selectRow(
+export async function selectRow(
   model: Model,
   row: number,
   mode: "overrideSelection" | "updateAnchor" | "newAnchor"
@@ -1064,7 +1056,7 @@ export function selectRow(
   return model.selection.selectRow(row, mode);
 }
 
-export function selectHeader(
+export async function selectHeader(
   model: Model,
   dimension: Dimension,
   index: number,
@@ -1077,11 +1069,11 @@ export function selectHeader(
   }
 }
 
-export function selectAll(model: Model) {
+export async function selectAll(model: Model) {
   return model.selection.selectAll();
 }
 
-export function sort(
+export async function sort(
   model: Model,
   {
     zone,
@@ -1108,12 +1100,12 @@ export function sort(
   });
 }
 
-export function merge(
+export async function merge(
   model: Model,
   range: string,
   sheetId: UID = model.getters.getActiveSheetId(),
   force: boolean = true
-): DispatchResult {
+) {
   return model.dispatch("ADD_MERGE", {
     sheetId,
     target: target(range),
@@ -1121,29 +1113,29 @@ export function merge(
   });
 }
 
-export function unMerge(
+export async function unMerge(
   model: Model,
   range: string,
   sheetId: UID = model.getters.getActiveSheetId()
-): DispatchResult {
+) {
   return model.dispatch("REMOVE_MERGE", {
     sheetId,
     target: target(range),
   });
 }
 
-export function snapshot(model: Model) {
+export async function snapshot(model: Model) {
   // We do not need to wait for the snapshot to be sent
   void model["session"].snapshot(model.exportData());
 }
 
-export function moveColumns(
+export async function moveColumns(
   model: Model,
   target: string,
   columns: string[],
   position: "before" | "after" = "before",
   sheetId: UID = model.getters.getActiveSheetId()
-): DispatchResult {
+) {
   return model.dispatch("MOVE_COLUMNS_ROWS", {
     sheetId,
     sheetName: model.getters.getSheetName(sheetId),
@@ -1154,13 +1146,13 @@ export function moveColumns(
   });
 }
 
-export function moveRows(
+export async function moveRows(
   model: Model,
   target: number,
   rows: number[],
   position: "before" | "after" = "before",
   sheetId: UID = model.getters.getActiveSheetId()
-): DispatchResult {
+) {
   return model.dispatch("MOVE_COLUMNS_ROWS", {
     sheetId,
     sheetName: model.getters.getSheetName(sheetId),
@@ -1171,7 +1163,7 @@ export function moveRows(
   });
 }
 
-export function moveSheet(
+export async function moveSheet(
   model: Model,
   delta: number,
   sheetId: UID = model.getters.getActiveSheetId()
@@ -1182,22 +1174,22 @@ export function moveSheet(
   });
 }
 
-export function hideSheet(model: Model, sheetId: UID) {
+export async function hideSheet(model: Model, sheetId: UID) {
   return model.dispatch("HIDE_SHEET", { sheetId });
 }
 
-export function showSheet(model: Model, sheetId: UID) {
+export async function showSheet(model: Model, sheetId: UID) {
   return model.dispatch("SHOW_SHEET", { sheetId });
 }
 
-export function setViewportOffset(model: Model, offsetX: number, offsetY: number) {
+export async function setViewportOffset(model: Model, offsetX: number, offsetY: number) {
   return model.dispatch("SET_VIEWPORT_OFFSET", {
     offsetX,
     offsetY,
   });
 }
 
-export function setFormatting(
+export async function setFormatting(
   model: Model,
   targetXc: string,
   style: Style | undefined,
@@ -1210,7 +1202,7 @@ export function setFormatting(
   });
 }
 
-export function clearFormatting(
+export async function clearFormatting(
   model: Model,
   targetXc: string,
   sheetId: UID = model.getters.getActiveSheetId()
@@ -1221,7 +1213,7 @@ export function clearFormatting(
 /**
  * Freeze a given number of rows on top of the sheet
  */
-export function freezeRows(
+export async function freezeRows(
   model: Model,
   quantity: number,
   sheetId: UID = model.getters.getActiveSheetId()
@@ -1232,7 +1224,7 @@ export function freezeRows(
   });
 }
 
-export function unfreezeRows(model: Model, sheetId: UID = model.getters.getActiveSheetId()) {
+export async function unfreezeRows(model: Model, sheetId: UID = model.getters.getActiveSheetId()) {
   return model.dispatch("UNFREEZE_ROWS", {
     sheetId,
   });
@@ -1241,7 +1233,7 @@ export function unfreezeRows(model: Model, sheetId: UID = model.getters.getActiv
 /**
  * Freeze a given number of columns on top of the sheet
  */
-export function freezeColumns(
+export async function freezeColumns(
   model: Model,
   quantity: number,
   sheetId: UID = model.getters.getActiveSheetId()
@@ -1252,19 +1244,22 @@ export function freezeColumns(
   });
 }
 
-export function unfreezeColumns(model: Model, sheetId: UID = model.getters.getActiveSheetId()) {
+export async function unfreezeColumns(
+  model: Model,
+  sheetId: UID = model.getters.getActiveSheetId()
+) {
   return model.dispatch("UNFREEZE_COLUMNS", {
     sheetId,
   });
 }
 
-export function createTable(
+export async function createTable(
   model: Model,
   range: string,
   config?: Partial<TableConfig>,
   tableType: CoreTableType = "static",
   sheetId: UID = model.getters.getActiveSheetId()
-): DispatchResult {
+) {
   model.selection.selectTableAroundSelection();
   return model.dispatch("CREATE_TABLE", {
     sheetId,
@@ -1274,32 +1269,32 @@ export function createTable(
   });
 }
 
-export function createDynamicTable(
+export async function createDynamicTable(
   model: Model,
   range: string,
   config?: Partial<TableConfig>,
   sheetId: UID = model.getters.getActiveSheetId()
-): DispatchResult {
-  return createTable(model, range, config, "dynamic", sheetId);
+) {
+  return await createTable(model, range, config, "dynamic", sheetId);
 }
 
-export function createTableWithFilter(
+export async function createTableWithFilter(
   model: Model,
   range: string,
   config?: Partial<TableConfig>,
   tableType: CoreTableType = "static",
   sheetId: UID = model.getters.getActiveSheetId()
 ) {
-  return createTable(model, range, { hasFilters: true, ...config }, tableType, sheetId);
+  return await createTable(model, range, { hasFilters: true, ...config }, tableType, sheetId);
 }
 
-export function updateTableConfig(
+export async function updateTableConfig(
   model: Model,
   range: string,
   config: Partial<TableConfig>,
   tableType?: CoreTableType,
   sheetId: UID = model.getters.getActiveSheetId()
-): DispatchResult {
+) {
   const zone = toZone(range);
   const table = model.getters.getTable({ sheetId, col: zone.left, row: zone.top });
   if (!table) {
@@ -1313,13 +1308,13 @@ export function updateTableConfig(
   });
 }
 
-export function updateTableZone(
+export async function updateTableZone(
   model: Model,
   range: string,
   newZone: string,
   tableType?: CoreTableType,
   sheetId: UID = model.getters.getActiveSheetId()
-): DispatchResult {
+) {
   const zone = toZone(range);
   const table = model.getters.getTable({ sheetId, col: zone.left, row: zone.top });
   if (!table) {
@@ -1333,13 +1328,13 @@ export function updateTableZone(
   });
 }
 
-export function resizeTable(
+export async function resizeTable(
   model: Model,
   range: string,
   newZone: string,
   tableType?: CoreTableType,
   sheetId: UID = model.getters.getActiveSheetId()
-): DispatchResult {
+) {
   const zone = toZone(range);
   const table = model.getters.getTable({ sheetId, col: zone.left, row: zone.top });
   if (!table) {
@@ -1353,12 +1348,12 @@ export function resizeTable(
   });
 }
 
-export function updateFilter(
+export async function updateFilter(
   model: Model,
   xc: string,
   hiddenValues: string[],
   sheetId: UID = model.getters.getActiveSheetId()
-): DispatchResult {
+) {
   const { col, row } = toCartesian(xc);
   return model.dispatch("UPDATE_FILTER", {
     col,
@@ -1371,12 +1366,12 @@ export function updateFilter(
   });
 }
 
-export function updateFilterCriterion(
+export async function updateFilterCriterion(
   model: Model,
   xc: string,
   criterion: Omit<CriterionFilter, "filterType">,
   sheetId: UID = model.getters.getActiveSheetId()
-): DispatchResult {
+) {
   const { col, row } = toCartesian(xc);
   return model.dispatch("UPDATE_FILTER", {
     col,
@@ -1389,19 +1384,19 @@ export function updateFilterCriterion(
   });
 }
 
-export function deleteTable(
+export async function deleteTable(
   model: Model,
   range: string,
   sheetId: UID = model.getters.getActiveSheetId()
-): DispatchResult {
+) {
   return model.dispatch("REMOVE_TABLE", { sheetId, target: target(range) });
 }
 
-export function createTableStyle(
+export async function createTableStyle(
   model: Model,
   tableStyleId: string,
   style?: Partial<Omit<CreateTableStyleCommand, "type" | "styleId">>
-): DispatchResult {
+) {
   return model.dispatch("CREATE_TABLE_STYLE", {
     tableStyleId,
     primaryColor: style?.primaryColor || "#FF0000",
@@ -1410,7 +1405,7 @@ export function createTableStyle(
   });
 }
 
-export function setFormat(
+export async function setFormat(
   model: Model,
   targetXc: string,
   format: string,
@@ -1423,14 +1418,14 @@ export function setFormat(
   });
 }
 
-export function splitTextToColumns(
+export async function splitTextToColumns(
   model: Model,
   separator: string,
   target?: string,
   options: Partial<Omit<SplitTextIntoColumnsCommand, "type" | "separator">> = {}
 ) {
   if (target) {
-    setSelection(model, [target]);
+    await setSelection(model, [target]);
   }
   return model.dispatch("SPLIT_TEXT_INTO_COLUMNS", {
     separator,
@@ -1439,7 +1434,7 @@ export function splitTextToColumns(
   });
 }
 
-export function updateLocale(model: Model, locale: Locale) {
+export async function updateLocale(model: Model, locale: Locale) {
   return model.dispatch("UPDATE_LOCALE", { locale });
 }
 
@@ -1447,33 +1442,33 @@ export function updateLocale(model: Model, locale: Locale) {
  * Group the given columns. The groupId isn't part of the command, but we'll use jest to mock the uuid generator to
  * return the given groupId, to make the writing of the tests easier.
  */
-export function groupColumns(
+export async function groupColumns(
   model: Model,
   start: string,
   end: string,
   sheetId: UID = model.getters.getActiveSheetId()
 ) {
-  return groupHeaders(model, "COL", lettersToNumber(start), lettersToNumber(end), sheetId);
+  return await groupHeaders(model, "COL", lettersToNumber(start), lettersToNumber(end), sheetId);
 }
 
 /**
  * Group the given rows. The groupId isn't part of the command, but we'll use jest to mock the uuid generator to
  * return the given groupId, to make the writing of the tests easier.
  */
-export function groupRows(
+export async function groupRows(
   model: Model,
   start: number,
   end: number,
   sheetId: UID = model.getters.getActiveSheetId()
 ) {
-  return groupHeaders(model, "ROW", start, end, sheetId);
+  return await groupHeaders(model, "ROW", start, end, sheetId);
 }
 
 /**
  * Group the given headers. The groupId isn't part of the command, but we'll use jest to mock the uuid generator to
  * return the given groupId, to make the writing of the tests easier.
  */
-export function groupHeaders(
+export async function groupHeaders(
   model: Model,
   dimension: "ROW" | "COL",
   start: number,
@@ -1483,7 +1478,7 @@ export function groupHeaders(
   return model.dispatch("GROUP_HEADERS", { sheetId, dimension, start, end });
 }
 
-export function ungroupHeaders(
+export async function ungroupHeaders(
   model: Model,
   dimension: "ROW" | "COL",
   start: number,
@@ -1493,7 +1488,7 @@ export function ungroupHeaders(
   return model.dispatch("UNGROUP_HEADERS", { sheetId, dimension, start, end });
 }
 
-export function duplicateSheet(
+export async function duplicateSheet(
   model: Model,
   sheetId: UID = model.getters.getActiveSheetId(),
   sheetIdTo: UID = model.uuidGenerator.uuidv4(),
@@ -1506,7 +1501,7 @@ export function duplicateSheet(
   });
 }
 
-export function unfoldHeaderGroup(
+export async function unfoldHeaderGroup(
   model: Model,
   dimension: Dimension,
   start: number,
@@ -1516,7 +1511,7 @@ export function unfoldHeaderGroup(
   return model.dispatch("UNFOLD_HEADER_GROUP", { dimension, sheetId, start, end });
 }
 
-export function foldHeaderGroup(
+export async function foldHeaderGroup(
   model: Model,
   dimension: Dimension,
   start: number,
@@ -1526,7 +1521,7 @@ export function foldHeaderGroup(
   return model.dispatch("FOLD_HEADER_GROUP", { dimension, sheetId, start, end });
 }
 
-export function unfoldAllHeaderGroups(
+export async function unfoldAllHeaderGroups(
   model: Model,
   dimension: Dimension,
   sheetId: UID = model.getters.getActiveSheetId()
@@ -1534,7 +1529,7 @@ export function unfoldAllHeaderGroups(
   return model.dispatch("UNFOLD_ALL_HEADER_GROUPS", { sheetId, dimension });
 }
 
-export function foldAllHeaderGroups(
+export async function foldAllHeaderGroups(
   model: Model,
   dimension: Dimension,
   sheetId: UID = model.getters.getActiveSheetId()
@@ -1542,7 +1537,7 @@ export function foldAllHeaderGroups(
   return model.dispatch("FOLD_ALL_HEADER_GROUPS", { sheetId, dimension });
 }
 
-export function foldHeaderGroupsInZone(
+export async function foldHeaderGroupsInZone(
   model: Model,
   dimension: Dimension,
   xc: string,
@@ -1555,7 +1550,7 @@ export function foldHeaderGroupsInZone(
   });
 }
 
-export function unfoldHeaderGroupsInZone(
+export async function unfoldHeaderGroupsInZone(
   model: Model,
   dimension: Dimension,
   xc: string,
@@ -1568,7 +1563,7 @@ export function unfoldHeaderGroupsInZone(
   });
 }
 
-export function addDataValidation(
+export async function addDataValidation(
   model: Model,
   xcs: string,
   id: UID,
@@ -1584,7 +1579,7 @@ export function addDataValidation(
   });
 }
 
-export function removeDataValidation(
+export async function removeDataValidation(
   model: Model,
   id: UID,
   sheetId: UID = model.getters.getActiveSheetId()
@@ -1592,18 +1587,23 @@ export function removeDataValidation(
   return model.dispatch("REMOVE_DATA_VALIDATION_RULE", { sheetId, id });
 }
 
-export function insertPivot(
+export async function insertPivot(
   model: Model,
   xc: string,
   pivotId: UID = "1",
   newSheetId: UID = "newSheet1"
 ) {
-  setSelection(model, [xc]);
+  await setSelection(model, [xc]);
   return model.dispatch("INSERT_NEW_PIVOT", { pivotId, newSheetId });
 }
 
-export function setSheetviewSize(model: Model, height: Pixel, width: Pixel, hasHeaders = true) {
-  return resizeSheetView(
+export async function setSheetviewSize(
+  model: Model,
+  height: Pixel,
+  width: Pixel,
+  hasHeaders = true
+) {
+  return await resizeSheetView(
     model,
     height,
     width,
@@ -1612,7 +1612,7 @@ export function setSheetviewSize(model: Model, height: Pixel, width: Pixel, hasH
   );
 }
 
-export function resizeSheetView(
+export async function resizeSheetView(
   model: Model,
   height: Pixel,
   width: Pixel,
@@ -1627,7 +1627,7 @@ export function resizeSheetView(
   });
 }
 
-export function addCf(
+export async function addCf(
   model: Model,
   xc: string,
   cf: Omit<ConditionalFormat, "ranges">,
@@ -1640,36 +1640,36 @@ export function addCf(
   });
 }
 
-export function addCfRule(
+export async function addCfRule(
   model: Model,
   xc: string,
   rule: ConditionalFormatRule,
   cfId: UID = "cfId",
   sheetId: UID = model.getters.getActiveSheetId()
 ) {
-  return addCf(model, xc, { rule, id: cfId }, sheetId);
+  return await addCf(model, xc, { rule, id: cfId }, sheetId);
 }
 
-export function addEqualCf(
+export async function addEqualCf(
   model: Model,
   xc: string,
   style: Style,
   value: string,
   cfId: UID = "cfId",
   sheetId: UID = model.getters.getActiveSheetId()
-): DispatchResult {
-  return addCf(model, xc, createEqualCF(value, style, cfId), sheetId);
+) {
+  return await addCf(model, xc, createEqualCF(value, style, cfId), sheetId);
 }
 
-export function addIconCF(
+export async function addIconCF(
   model: Model,
   xc: string,
   inflectionPoints: string[],
   iconSet: keyof typeof ICON_SETS,
   cfId: UID = "cfId",
   sheetId: UID = model.getters.getActiveSheetId()
-): DispatchResult {
-  return addCf(
+) {
+  return await addCf(
     model,
     xc,
     {
@@ -1689,14 +1689,14 @@ export function addIconCF(
   );
 }
 
-export function addDataBarCF(
+export async function addDataBarCF(
   model: Model,
   xc: string,
   color: string,
   cfId: UID = "cfId",
   sheetId: UID = model.getters.getActiveSheetId()
-): DispatchResult {
-  return addCf(
+) {
+  return await addCf(
     model,
     xc,
     {
@@ -1710,14 +1710,18 @@ export function addDataBarCF(
   );
 }
 
-export function removeCF(model: Model, id: UID, sheetId: UID = model.getters.getActiveSheetId()) {
+export async function removeCF(
+  model: Model,
+  id: UID,
+  sheetId: UID = model.getters.getActiveSheetId()
+) {
   return model.dispatch("REMOVE_CONDITIONAL_FORMAT", {
     id,
     sheetId,
   });
 }
 
-export function createCarousel(
+export async function createCarousel(
   model: Model,
   data: Carousel = { items: [] },
   carouselId?: UID,
@@ -1736,12 +1740,12 @@ export function createCarousel(
   });
 }
 
-export function updateCarousel(
+export async function updateCarousel(
   model: Model,
   carouselId: UID,
   data: Partial<Carousel>,
   sheetId: UID = model.getters.getActiveSheetId()
-): DispatchResult {
+) {
   return model.dispatch("UPDATE_CAROUSEL", {
     figureId: carouselId,
     sheetId,
@@ -1752,12 +1756,12 @@ export function updateCarousel(
   });
 }
 
-export function addChartFigureToCarousel(
+export async function addChartFigureToCarousel(
   model: Model,
   carouselId: UID,
   chartFigureId: UID,
   sheetId: UID = model.getters.getActiveSheetId()
-): DispatchResult {
+) {
   return model.dispatch("ADD_FIGURE_CHART_TO_CAROUSEL", {
     carouselFigureId: carouselId,
     chartFigureId,
@@ -1765,37 +1769,37 @@ export function addChartFigureToCarousel(
   });
 }
 
-export function popOutChartFromCarousel(
+export async function popOutChartFromCarousel(
   model: Model,
   sheetId: UID,
   carouselId: UID,
   chartId: UID
-): DispatchResult {
+) {
   return model.dispatch("POPOUT_CHART_FROM_CAROUSEL", { carouselId, chartId, sheetId });
 }
 
-export function addNewChartToCarousel(
+export async function addNewChartToCarousel(
   model: Model,
   carouselId: UID,
   definition?: Partial<ChartDefinition>
-): UID {
+) {
   model.dispatch("ADD_NEW_CHART_TO_CAROUSEL", {
     figureId: carouselId,
     sheetId: model.getters.getActiveSheetId(),
   });
   const chartId = model.getters.getCarousel(carouselId).items.at(-1)!["chartId"];
   if (definition) {
-    updateChart(model, chartId, definition);
+    await updateChart(model, chartId, definition);
   }
   return chartId;
 }
 
-export function selectCarouselItem(
+export async function selectCarouselItem(
   model: Model,
   carouselId: UID,
   item: CarouselItem,
   sheetId: UID = model.getters.getActiveSheetId()
-): DispatchResult {
+) {
   return model.dispatch("UPDATE_CAROUSEL_ACTIVE_ITEM", {
     figureId: carouselId,
     item,
@@ -1803,33 +1807,27 @@ export function selectCarouselItem(
   });
 }
 
-export function lockSheet(
-  model: Model,
-  sheetId: UID = model.getters.getActiveSheetId()
-): DispatchResult {
+export async function lockSheet(model: Model, sheetId: UID = model.getters.getActiveSheetId()) {
   return model.dispatch("LOCK_SHEET", { sheetId });
 }
 
-export function unlockSheet(
-  model: Model,
-  sheetId: UID = model.getters.getActiveSheetId()
-): DispatchResult {
+export async function unlockSheet(model: Model, sheetId: UID = model.getters.getActiveSheetId()) {
   return model.dispatch("UNLOCK_SHEET", { sheetId });
 }
 
-export function trimWhitespace(model: Model) {
+export async function trimWhitespace(model: Model) {
   return model.dispatch("TRIM_WHITESPACE");
 }
 
-export function evaluateCells(model: Model) {
+export async function evaluateCells(model: Model) {
   return model.dispatch("EVALUATE_CELLS");
 }
 
-export function evaluateCharts(model: Model) {
+export async function evaluateCharts(model: Model) {
   return model.dispatch("EVALUATE_CHARTS");
 }
 
-export function setDecimal(
+export async function setDecimal(
   model: Model,
   xc: string,
   step: SetDecimalStep,
@@ -1842,7 +1840,7 @@ export function setDecimal(
   });
 }
 
-export function autoresizeRows(
+export async function autoresizeRows(
   model: Model,
   rows: HeaderIndex[],
   sheetId: UID = model.getters.getActiveSheetId()
@@ -1853,7 +1851,7 @@ export function autoresizeRows(
   });
 }
 
-export function autoresizeColumns(
+export async function autoresizeColumns(
   model: Model,
   cols: HeaderIndex[],
   sheetId: UID = model.getters.getActiveSheetId()
@@ -1864,7 +1862,7 @@ export function autoresizeColumns(
   });
 }
 
-export function deleteUnfilteredContent(
+export async function deleteUnfilteredContent(
   model: Model,
   xc: string,
   sheetId: UID = model.getters.getActiveSheetId()
@@ -1872,49 +1870,49 @@ export function deleteUnfilteredContent(
   return model.dispatch("DELETE_UNFILTERED_CONTENT", { sheetId, target: target(xc) });
 }
 
-export function autofillAuto(model: Model) {
+export async function autofillAuto(model: Model) {
   return model.dispatch("AUTOFILL_AUTO");
 }
 
-export function selectFigure(model: Model, figureId: UID) {
+export async function selectFigure(model: Model, figureId: UID) {
   return model.dispatch("SELECT_FIGURE", { figureId });
 }
 
-export function shiftViewportDown(model: Model) {
+export async function shiftViewportDown(model: Model) {
   return model.dispatch("SHIFT_VIEWPORT_DOWN");
 }
 
-export function shiftViewportUp(model: Model) {
+export async function shiftViewportUp(model: Model) {
   return model.dispatch("SHIFT_VIEWPORT_UP");
 }
 
-export function setZoom(model: Model, zoom: number) {
+export async function setZoom(model: Model, zoom: number) {
   return model.dispatch("SET_ZOOM", { zoom });
 }
 
-export function autofillSelect(model: Model, from: string, to: string) {
-  setSelection(model, [from]);
+export async function autofillSelect(model: Model, from: string, to: string) {
+  await setSelection(model, [from]);
   return model.dispatch("AUTOFILL_SELECT", toCartesian(to));
 }
 
-export function autofill(model: Model, from: string, to: string) {
-  autofillSelect(model, from, to);
+export async function autofill(model: Model, from: string, to: string) {
+  await autofillSelect(model, from, to);
   return model.dispatch("AUTOFILL");
 }
 
-export function removeDuplicates(model: Model, columns: HeaderIndex[], hasHeader: boolean) {
+export async function removeDuplicates(model: Model, columns: HeaderIndex[], hasHeader: boolean) {
   return model.dispatch("REMOVE_DUPLICATES", { columns, hasHeader });
 }
 
-export function setFormulaVisibility(model: Model, show: boolean) {
+export async function setFormulaVisibility(model: Model, show: boolean) {
   return model.dispatch("SET_FORMULA_VISIBILITY", { show });
 }
 
-export function renamePivot(model: Model, pivotId: UID, name: string) {
+export async function renamePivot(model: Model, pivotId: UID, name: string) {
   return model.dispatch("RENAME_PIVOT", { pivotId, name });
 }
 
-export function setGridLinesVisibility(
+export async function setGridLinesVisibility(
   model: Model,
   areGridLinesVisible: boolean,
   sheetId: UID = model.getters.getActiveSheetId()
@@ -1925,11 +1923,11 @@ export function setGridLinesVisibility(
   });
 }
 
-export function removeTableStyle(model: Model, tableStyleId: UID) {
+export async function removeTableStyle(model: Model, tableStyleId: UID) {
   return model.dispatch("REMOVE_TABLE_STYLE", { tableStyleId });
 }
 
-export function startChangeHighlight(model: Model, xc: string) {
+export async function startChangeHighlight(model: Model, xc: string) {
   return model.dispatch("START_CHANGE_HIGHLIGHT", {
     zone: toZone(xc),
   });

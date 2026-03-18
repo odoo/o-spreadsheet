@@ -17,18 +17,22 @@ describe("chart menu for dashboard", () => {
 
   test.each(["bar", "line", "pie"] as const)(
     "%s charts have more top padding in dashboard mode if there is no title/legend",
-    (chartType) => {
-      createChart(model, { type: chartType, legendPosition: "none", title: { text: "" } }, chartId);
+    async (chartType) => {
+      await createChart(
+        model,
+        { type: chartType, legendPosition: "none", title: { text: "" } },
+        chartId
+      );
       model.updateMode("dashboard");
 
       let runtime = model.getters.getChartRuntime(chartId) as any;
       expect(runtime.chartJsConfig.options?.layout?.padding?.top).toBe(30);
 
-      updateChart(model, chartId, { title: { text: "some title" } });
+      await updateChart(model, chartId, { title: { text: "some title" } });
       runtime = model.getters.getChartRuntime(chartId) as any;
       expect(runtime.chartJsConfig.options?.layout?.padding?.top).toBe(CHART_PADDING_TOP);
 
-      updateChart(model, chartId, { legendPosition: "top", title: { text: "" } });
+      await updateChart(model, chartId, { legendPosition: "top", title: { text: "" } });
       runtime = model.getters.getChartRuntime(chartId) as any;
       expect(runtime.chartJsConfig.options?.layout?.padding?.top).toBe(CHART_PADDING_TOP);
     }
@@ -38,7 +42,7 @@ describe("chart menu for dashboard", () => {
     extendMockGetBoundingClientRect({
       "fa-ellipsis-v": () => ({ x: 100, y: 100, width: 20, height: 20 }),
     });
-    createChart(model, { type: "bar" }, chartId);
+    await createChart(model, { type: "bar" }, chartId);
     model.updateMode("dashboard");
     const { fixture } = await mountSpreadsheet({ model });
 

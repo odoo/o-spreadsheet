@@ -22,61 +22,61 @@ describe("Data validation", () => {
     sheetId = model.getters.getActiveSheetId();
   });
 
-  test("Can copy data validation rule on same sheet", () => {
+  test("Can copy data validation rule on same sheet", async () => {
     const criterion: DataValidationCriterion = { type: "containsText", values: ["1"] };
-    addDataValidation(model, "A1:A5", "id", criterion);
-    copy(model, "A1:A5");
+    await addDataValidation(model, "A1:A5", "id", criterion);
+    await copy(model, "A1:A5");
 
-    paste(model, "C1");
+    await paste(model, "C1");
     expect(getDataValidationRules(model, sheetId)).toMatchObject([
       { id: "id", criterion, ranges: ["A1:A5", "C1:C5"] },
     ]);
   });
 
-  test("Can copy data validation rule on another sheet", () => {
+  test("Can copy data validation rule on another sheet", async () => {
     const criterion: DataValidationCriterion = { type: "containsText", values: ["1"] };
-    addDataValidation(model, "A1:A5", "id", criterion);
-    copy(model, "A1:A5");
+    await addDataValidation(model, "A1:A5", "id", criterion);
+    await copy(model, "A1:A5");
 
-    createSheet(model, { sheetId: "sheet2", activate: true });
-    paste(model, "C1");
+    await createSheet(model, { sheetId: "sheet2", activate: true });
+    await paste(model, "C1");
     expect(getDataValidationRules(model, "sheet2")).toMatchObject([
       { id: expect.any(String), criterion, ranges: ["C1:C5"] },
     ]);
 
-    paste(model, "E1");
+    await paste(model, "E1");
     expect(getDataValidationRules(model, "sheet2")).toMatchObject([
       { id: expect.any(String), criterion, ranges: ["C1:C5", "E1:E5"] },
     ]);
   });
 
-  test("Can cut/paste part of data validation rule on same sheet", () => {
+  test("Can cut/paste part of data validation rule on same sheet", async () => {
     const criterion: DataValidationCriterion = { type: "containsText", values: ["1"] };
-    addDataValidation(model, "A1:A5", "id", criterion);
-    cut(model, "A4");
-    paste(model, "C1");
+    await addDataValidation(model, "A1:A5", "id", criterion);
+    await cut(model, "A4");
+    await paste(model, "C1");
     expect(getDataValidationRules(model, sheetId)).toMatchObject([
       { id: "id", criterion, ranges: ["A1:A3", "A5", "C1"] },
     ]);
   });
 
-  test("Can cut/paste whole data validation rule on same sheet", () => {
+  test("Can cut/paste whole data validation rule on same sheet", async () => {
     const criterion: DataValidationCriterion = { type: "containsText", values: ["1"] };
-    addDataValidation(model, "A1:A5", "id", criterion);
-    cut(model, "A1:A5");
-    paste(model, "C1");
+    await addDataValidation(model, "A1:A5", "id", criterion);
+    await cut(model, "A1:A5");
+    await paste(model, "C1");
     expect(getDataValidationRules(model, sheetId)).toMatchObject([
       { id: "id", criterion, ranges: ["C1:C5"] },
     ]);
   });
 
-  test("Can cut/paste part of data validation rule on another sheet", () => {
+  test("Can cut/paste part of data validation rule on another sheet", async () => {
     const criterion: DataValidationCriterion = { type: "containsText", values: ["1"] };
-    addDataValidation(model, "A1:A5", "id", criterion);
-    cut(model, "A4");
+    await addDataValidation(model, "A1:A5", "id", criterion);
+    await cut(model, "A4");
 
-    createSheet(model, { sheetId: "sheet2", activate: true });
-    paste(model, "C1");
+    await createSheet(model, { sheetId: "sheet2", activate: true });
+    await paste(model, "C1");
     expect(getDataValidationRules(model, sheetId)).toMatchObject([
       { id: "id", criterion, ranges: ["A1:A3", "A5"] },
     ]);
@@ -85,30 +85,30 @@ describe("Data validation", () => {
     ]);
   });
 
-  test("Can cut/paste whole validation rule on another sheet", () => {
+  test("Can cut/paste whole validation rule on another sheet", async () => {
     const criterion: DataValidationCriterion = { type: "containsText", values: ["1"] };
-    addDataValidation(model, "A1:A5", "id", criterion);
-    cut(model, "A1:A5");
+    await addDataValidation(model, "A1:A5", "id", criterion);
+    await cut(model, "A1:A5");
 
-    createSheet(model, { sheetId: "sheet2", activate: true });
-    paste(model, "C1");
+    await createSheet(model, { sheetId: "sheet2", activate: true });
+    await paste(model, "C1");
     expect(getDataValidationRules(model, sheetId)).toEqual([]);
     expect(getDataValidationRules(model, "sheet2")).toMatchObject([
       { id: expect.any(String), criterion, ranges: ["C1:C5"] },
     ]);
   });
 
-  test("Paste as value or paste format only don't paste data validation", () => {
+  test("Paste as value or paste format only don't paste data validation", async () => {
     const criterion: DataValidationCriterion = { type: "containsText", values: ["1"] };
-    addDataValidation(model, "A1:A5", "id", criterion);
-    copy(model, "A1:A5");
-    paste(model, "C1", "onlyFormat");
+    await addDataValidation(model, "A1:A5", "id", criterion);
+    await copy(model, "A1:A5");
+    await paste(model, "C1", "onlyFormat");
 
     expect(getDataValidationRules(model, sheetId)).toMatchObject([
       { id: "id", criterion, ranges: ["A1:A5"] },
     ]);
 
-    paste(model, "C1", "asValue");
+    await paste(model, "C1", "asValue");
     expect(getDataValidationRules(model, sheetId)).toMatchObject([
       { id: "id", criterion, ranges: ["A1:A5"] },
     ]);
@@ -116,67 +116,67 @@ describe("Data validation", () => {
 
   test("copy paste DV in another sheet => change DV => copy paste again doesnt overwrite the previously pasted DV", async () => {
     const model = await createModel();
-    createSheet(model, { sheetId: "sheet2" });
+    await createSheet(model, { sheetId: "sheet2" });
     const sheet1Id = model.getters.getSheetIds()[0];
     const sheet2Id = model.getters.getSheetIds()[1];
 
-    addDataValidation(model, "A1", "id", { type: "containsText", values: ["1"] });
+    await addDataValidation(model, "A1", "id", { type: "containsText", values: ["1"] });
 
-    copy(model, "A1");
-    activateSheet(model, sheet2Id);
-    paste(model, "A1");
+    await copy(model, "A1");
+    await activateSheet(model, sheet2Id);
+    await paste(model, "A1");
     expect(getDataValidationRules(model, sheet2Id)).toMatchObject([
       { criterion: { values: ["1"] }, ranges: ["A1"] },
     ]);
 
-    activateSheet(model, sheet1Id);
-    addDataValidation(model, "A1", "id", { type: "containsText", values: ["5"] });
-    copy(model, "A1");
-    activateSheet(model, sheet2Id);
-    paste(model, "B2");
+    await activateSheet(model, sheet1Id);
+    await addDataValidation(model, "A1", "id", { type: "containsText", values: ["5"] });
+    await copy(model, "A1");
+    await activateSheet(model, sheet2Id);
+    await paste(model, "B2");
     expect(getDataValidationRules(model, sheet2Id)).toMatchObject([
       { criterion: { values: ["1"] }, ranges: ["A1"] },
       { criterion: { values: ["5"] }, ranges: ["B2"] },
     ]);
   });
 
-  test("Can copy/paste empty cell to clear data validation rule", () => {
+  test("Can copy/paste empty cell to clear data validation rule", async () => {
     const criterion: DataValidationCriterion = { type: "containsText", values: ["1"] };
-    addDataValidation(model, "A1:A5", "id", criterion);
-    copy(model, "A6");
-    paste(model, "A1");
+    await addDataValidation(model, "A1:A5", "id", criterion);
+    await copy(model, "A6");
+    await paste(model, "A1");
 
     expect(getDataValidationRules(model, sheetId)).toMatchObject([
       { id: expect.any(String), criterion, ranges: ["A2:A5"] },
     ]);
   });
 
-  test("copy cells with DV => delete original DV => paste => should paste cells with copied DV", () => {
+  test("copy cells with DV => delete original DV => paste => should paste cells with copied DV", async () => {
     const criterion: DataValidationCriterion = { type: "containsText", values: ["1"] };
-    addDataValidation(model, "A1:A5", "id", criterion);
-    copy(model, "A1:A5");
+    await addDataValidation(model, "A1:A5", "id", criterion);
+    await copy(model, "A1:A5");
 
-    removeDataValidation(model, "id");
+    await removeDataValidation(model, "id");
 
-    paste(model, "C1");
+    await paste(model, "C1");
 
     expect(getDataValidationRules(model, sheetId)).toMatchObject([
       { id: "id", criterion, ranges: ["C1:C5"] },
     ]);
   });
 
-  test("copy zone with independant multiple DV => delete original DV => paste => should paste cells with copied DV", () => {
+  test("copy zone with independant multiple DV => delete original DV => paste => should paste cells with copied DV", async () => {
     const criterion1: DataValidationCriterion = { type: "containsText", values: ["1"] };
     const criterion2: DataValidationCriterion = { type: "containsText", values: ["2"] };
-    addDataValidation(model, "A1:A5", "id1", criterion1);
-    addDataValidation(model, "C1:C5", "id2", criterion2);
+    await addDataValidation(model, "A1:A5", "id1", criterion1);
+    await addDataValidation(model, "C1:C5", "id2", criterion2);
 
-    copy(model, "A1:C5");
+    await copy(model, "A1:C5");
 
-    removeDataValidation(model, "id1");
-    removeDataValidation(model, "id2");
+    await removeDataValidation(model, "id1");
+    await removeDataValidation(model, "id2");
 
-    paste(model, "E1");
+    await paste(model, "E1");
 
     expect(getDataValidationRules(model, sheetId)).toMatchObject([
       { id: "id1", criterion: criterion1, ranges: ["E1:E5"] },
@@ -184,18 +184,18 @@ describe("Data validation", () => {
     ]);
   });
 
-  test("copy zone with independant multiple DV => delete origin sheet => paste => should paste cells with copied DV", () => {
+  test("copy zone with independant multiple DV => delete origin sheet => paste => should paste cells with copied DV", async () => {
     const criterion1: DataValidationCriterion = { type: "containsText", values: ["1"] };
     const criterion2: DataValidationCriterion = { type: "containsText", values: ["2"] };
-    addDataValidation(model, "A1:A5", "id1", criterion1);
-    addDataValidation(model, "C1:C5", "id2", criterion2);
+    await addDataValidation(model, "A1:A5", "id1", criterion1);
+    await addDataValidation(model, "C1:C5", "id2", criterion2);
 
-    copy(model, "A1:C5");
+    await copy(model, "A1:C5");
 
-    createSheet(model, { sheetId: "Sheet2" });
-    deleteSheet(model, sheetId);
+    await createSheet(model, { sheetId: "Sheet2" });
+    await deleteSheet(model, sheetId);
 
-    paste(model, "E1");
+    await paste(model, "E1");
 
     expect(getDataValidationRules(model, "Sheet2")).toMatchObject([
       { criterion: criterion1, ranges: ["E1:E5"] },
@@ -212,10 +212,10 @@ describe("Data validation", () => {
 
     const model = await createModel({ sheets: [{ colNumber: 5, rowNumber: 5 }] });
     const sheetId = model.getters.getActiveSheetId();
-    addDataValidation(model, "A1:A2", "id", { type: "containsText", values: ["1"] });
+    await addDataValidation(model, "A1:A2", "id", { type: "containsText", values: ["1"] });
 
-    copy(model, "A1:A2");
-    paste(model, "B1");
+    await copy(model, "A1:A2");
+    await paste(model, "B1");
 
     expect(getDataValidationRules(model, sheetId)).toMatchObject([{ ranges: ["A1:B2"] }]);
     expect(commands.filter((c) => c.type === "ADD_DATA_VALIDATION_RULE")).toHaveLength(2);

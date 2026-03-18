@@ -19,52 +19,54 @@ describe("Table resize", () => {
   });
 
   describe("dispatch result", () => {
-    test("Cannot resize a table zone to a wrong zone", () => {
-      createTable(model, "A1:A5");
+    test("Cannot resize a table zone to a wrong zone", async () => {
+      await createTable(model, "A1:A5");
 
-      expect(resizeTable(model, "A1", "A1:A600")).toBeCancelledBecause(
+      expect(await resizeTable(model, "A1", "A1:A600")).toBeCancelledBecause(
         CommandResult.TargetOutOfSheet
       );
 
-      createTable(model, "B1:B5");
-      expect(resizeTable(model, "A1", "A1:B5")).toBeCancelledBecause(CommandResult.TableOverlap);
+      await createTable(model, "B1:B5");
+      expect(await resizeTable(model, "A1", "A1:B5")).toBeCancelledBecause(
+        CommandResult.TableOverlap
+      );
     });
 
-    test("Cannot resize a table while changing it's top-left", () => {
-      createTable(model, "A1:A5");
-      expect(resizeTable(model, "A1", "B1:B5")).toBeCancelledBecause(
+    test("Cannot resize a table while changing it's top-left", async () => {
+      await createTable(model, "A1:A5");
+      expect(await resizeTable(model, "A1", "B1:B5")).toBeCancelledBecause(
         CommandResult.InvalidTableResize
       );
     });
   });
 
-  test("Can resize a table", () => {
-    createTable(model, "A1:A5");
-    resizeTable(model, "A1", "A1:B10");
+  test("Can resize a table", async () => {
+    await createTable(model, "A1:A5");
+    await resizeTable(model, "A1", "A1:B10");
     expect(model.getters.getTables(sheetId)).toMatchObject([{ range: { zone: toZone("A1:B10") } }]);
   });
 
-  test("Can resize a dynamic table", () => {
-    setCellContent(model, "A1", "=MUNIT(4)");
-    createDynamicTable(model, "A1");
-    resizeTable(model, "A1", "A1:B10", "static");
+  test("Can resize a dynamic table", async () => {
+    await setCellContent(model, "A1", "=MUNIT(4)");
+    await createDynamicTable(model, "A1");
+    await resizeTable(model, "A1", "A1:B10", "static");
     expect(model.getters.getCoreTables(sheetId)).toMatchObject([
       { range: { zone: toZone("A1:B10") }, type: "static" },
     ]);
   });
 
-  test("Resize a table also autofills", () => {
-    createTable(model, "A1:A5");
-    setCellContent(model, "A5", "=B5");
-    resizeTable(model, "A1", "A1:A6");
+  test("Resize a table also autofills", async () => {
+    await createTable(model, "A1:A5");
+    await setCellContent(model, "A5", "=B5");
+    await resizeTable(model, "A1", "A1:A6");
     expect(getCellRawContent(model, "A6")).toBe("=B6");
   });
 
-  test("Resize a table change selection to bottom right corner", () => {
-    createTable(model, "A1:B4");
-    resizeTable(model, "A1", "A1:C6");
+  test("Resize a table change selection to bottom right corner", async () => {
+    await createTable(model, "A1:B4");
+    await resizeTable(model, "A1", "A1:C6");
     expect(getActivePosition(model)).toBe("C6");
-    resizeTable(model, "A1", "A1:B2");
+    await resizeTable(model, "A1", "A1:B2");
     expect(getActivePosition(model)).toBe("B2");
   });
 });

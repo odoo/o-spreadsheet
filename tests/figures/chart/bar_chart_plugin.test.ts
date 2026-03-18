@@ -46,11 +46,11 @@ describe("bar chart", () => {
 
   test("Stacked bar", async () => {
     const model = await createModel();
-    createChart(model, { type: "bar", stacked: false }, "chartId");
+    await createChart(model, { type: "bar", stacked: false }, "chartId");
     expect(isChartAxisStacked(model, "chartId", "x")).toBeFalsy();
     expect(isChartAxisStacked(model, "chartId", "y")).toBeFalsy();
 
-    updateChart(model, "chartId", { stacked: true });
+    await updateChart(model, "chartId", { stacked: true });
     expect(isChartAxisStacked(model, "chartId", "x")).toBe(true);
     expect(isChartAxisStacked(model, "chartId", "y")).toBe(true);
   });
@@ -60,17 +60,17 @@ describe("bar chart", () => {
       model = await createModel();
     });
 
-    test("Chart is set as horizontal in chartJS runtime", () => {
-      createChart(model, { horizontal: true, type: "bar" }, "id");
+    test("Chart is set as horizontal in chartJS runtime", async () => {
+      await createChart(model, { horizontal: true, type: "bar" }, "id");
       const runtime = model.getters.getChartRuntime("id") as BarChartRuntime;
       expect(runtime.chartJsConfig.options?.indexAxis).toBe("y");
     });
 
-    test("Axis and tooltips are correctly setup for horizontal chart", () => {
-      setCellContent(model, "A1", "5");
-      setFormat(model, "A1", "#,##0[$€]");
+    test("Axis and tooltips are correctly setup for horizontal chart", async () => {
+      await setCellContent(model, "A1", "5");
+      await setFormat(model, "A1", "#,##0[$€]");
 
-      createChart(
+      await createChart(
         model,
         {
           horizontal: true,
@@ -114,7 +114,7 @@ describe("bar chart", () => {
       });
       // Note: this is a chartJS limitation, it bugs when trying to display an horizontal bar chart with datasets with
       // axis on both right and left sides
-      createChart(
+      await createChart(
         model,
         {
           horizontal: true,
@@ -137,7 +137,7 @@ describe("bar chart", () => {
       A3: "3",
       A4: "4",
     });
-    createChart(
+    await createChart(
       model,
       {
         dataSets: [
@@ -179,7 +179,7 @@ describe("bar chart", () => {
       A1: "",    B1: "",   C1: "Dataset 2",
       A2: "P1",  B2: "2",  C2: "4",
     });
-    createChart(
+    await createChart(
       model,
       {
         dataSets: [{ dataRange: "B1:C2" }],
@@ -202,7 +202,7 @@ describe("bar chart", () => {
       B2: "10",
       B3: "11",
     });
-    createChart(
+    await createChart(
       model,
       {
         type: "bar",
@@ -213,7 +213,7 @@ describe("bar chart", () => {
     let runtime = model.getters.getChartRuntime("chartId") as BarChartRuntime;
     expect(runtime.chartJsConfig.data.datasets[0].borderWidth).toBe(0);
 
-    updateChart(model, "chartId", { stacked: true });
+    await updateChart(model, "chartId", { stacked: true });
     runtime = model.getters.getChartRuntime("chartId") as BarChartRuntime;
     expect(runtime.chartJsConfig.data.datasets[0].borderWidth).toBe(1);
   });
@@ -227,7 +227,7 @@ describe("bar chart", () => {
       B2: "10",
       B3: "11",
     });
-    createChart(
+    await createChart(
       model,
       {
         type: "bar",
@@ -238,14 +238,14 @@ describe("bar chart", () => {
     let runtime = model.getters.getChartRuntime("chartId") as BarChartRuntime;
     expect(runtime.chartJsConfig.data.datasets[0].borderColor).toBe(BACKGROUND_CHART_COLOR);
 
-    updateChart(model, "chartId", { background: "#f00" });
+    await updateChart(model, "chartId", { background: "#f00" });
     runtime = model.getters.getChartRuntime("chartId") as BarChartRuntime;
     expect(runtime.chartJsConfig.data.datasets[0].borderColor).toBe("#f00");
   });
 
   test("Bar chart trend line legend", async () => {
     const model = await createModelFromGrid({ A1: "1", A2: "2" });
-    createChart(
+    await createChart(
       model,
       {
         dataSets: [
@@ -269,14 +269,16 @@ describe("bar chart", () => {
 
   test("Bar spacing is adapted to the number of datasets", async () => {
     const model = await createModelFromGrid({ A2: "2", B2: "3" });
-    createChart(model, { type: "bar", dataSets: [{ dataRange: "A1:A3" }] }, "chartId");
+    await createChart(model, { type: "bar", dataSets: [{ dataRange: "A1:A3" }] }, "chartId");
 
     let runtime = model.getters.getChartRuntime("chartId") as BarChartRuntime;
     let config = runtime.chartJsConfig as ChartConfiguration<"bar">;
     expect(config.data.datasets[0].barPercentage).toEqual(0.9);
     expect(config.data.datasets[0].categoryPercentage).toEqual(1);
 
-    updateChart(model, "chartId", { dataSets: [{ dataRange: "A1:A3" }, { dataRange: "B1:B3" }] });
+    await updateChart(model, "chartId", {
+      dataSets: [{ dataRange: "A1:A3" }, { dataRange: "B1:B3" }],
+    });
     runtime = model.getters.getChartRuntime("chartId") as BarChartRuntime;
     config = runtime.chartJsConfig as ChartConfiguration<"bar">;
     expect(config.data.datasets.map((ds) => ds.barPercentage)).toEqual([0.9, 0.9]);
@@ -291,7 +293,7 @@ describe("bar chart", () => {
       B2: "5",
     });
 
-    createChart(
+    await createChart(
       model,
       {
         type: "bar",
@@ -301,7 +303,7 @@ describe("bar chart", () => {
       "1"
     );
 
-    updateChart(model, "1", {
+    await updateChart(model, "1", {
       axesDesign: {
         x: { min: 0, max: 2 },
         y: { min: 0, max: 30, gridLines: "minor" },

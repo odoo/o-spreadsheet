@@ -45,7 +45,7 @@ describe("figure plugin", () => {
     },
   ])("can create a simple figure", async (figure) => {
     const model = await createModel();
-    createFigure(model, { sheetId: model.getters.getActiveSheetId(), ...figure });
+    await createFigure(model, { sheetId: model.getters.getActiveSheetId(), ...figure });
     const data = model.exportData();
     const sheet = data.sheets.find((s) => s.id === model.getters.getActiveSheetId())!;
     expect(sheet.figures).toEqual([figure]);
@@ -60,7 +60,7 @@ describe("figure plugin", () => {
   });
   test("can undo figure creation", async () => {
     const model = await createModel();
-    createFigure(model, {
+    await createFigure(model, {
       sheetId: model.getters.getActiveSheetId(),
       id: "someuuid",
       width: 100,
@@ -70,14 +70,14 @@ describe("figure plugin", () => {
       offset: { x: 100, y: 100 },
     });
     expect(model.getters.getVisibleFigures().length).toBe(1);
-    undo(model);
+    await undo(model);
     expect(model.getters.getVisibleFigures().length).toBe(0);
   });
   test("can create a figure in a different sheet", async () => {
     const model = await createModel();
     const sheetId = "Sheet2";
-    createSheet(model, { sheetId }); // The sheet is not activated
-    createFigure(model, {
+    await createSheet(model, { sheetId }); // The sheet is not activated
+    await createFigure(model, {
       sheetId,
       id: "someuuid",
       tag: "hey",
@@ -132,11 +132,11 @@ describe("figure plugin", () => {
     },
   ])("getVisibleFigures only returns visible figures", async (figure) => {
     const model = await createModel();
-    createFigure(model, { sheetId: model.getters.getActiveSheetId(), ...figure });
+    await createFigure(model, { sheetId: model.getters.getActiveSheetId(), ...figure });
     expect(model.getters.getVisibleFigures().length).toBe(1);
-    setViewportOffset(model, 200, 200);
+    await setViewportOffset(model, 200, 200);
     expect(model.getters.getVisibleFigures().length).toBe(0);
-    setViewportOffset(model, 10, 10);
+    await setViewportOffset(model, 10, 10);
     expect(model.getters.getVisibleFigures().length).toBe(1);
   });
   test.each([
@@ -162,11 +162,11 @@ describe("figure plugin", () => {
     "getVisibleFigures only returns visible figures on sheet with frozen panes",
     async (figure) => {
       const model = await createModel();
-      createFigure(model, { sheetId: model.getters.getActiveSheetId(), ...figure });
+      await createFigure(model, { sheetId: model.getters.getActiveSheetId(), ...figure });
       expect(model.getters.getVisibleFigures().length).toBe(1);
-      freezeColumns(model, 3);
-      freezeRows(model, 3);
-      createFigure(model, {
+      await freezeColumns(model, 3);
+      await freezeRows(model, 3);
+      await createFigure(model, {
         sheetId: model.getters.getActiveSheetId(),
         id: "someuuid2",
         col: 0,
@@ -176,15 +176,15 @@ describe("figure plugin", () => {
         height: 10,
       });
       expect(model.getters.getVisibleFigures().length).toBe(2);
-      setViewportOffset(model, 200, 200);
+      await setViewportOffset(model, 200, 200);
       expect(model.getters.getVisibleFigures().length).toBe(1);
-      setViewportOffset(model, 10, 10);
+      await setViewportOffset(model, 10, 10);
       expect(model.getters.getVisibleFigures().length).toBe(2);
     }
   );
   test("selecting a figure, then clicking on a cell unselect figure", async () => {
     const model = await createModel();
-    createFigure(model, {
+    await createFigure(model, {
       sheetId: model.getters.getActiveSheetId(),
       id: "someuuid",
       col: 0,
@@ -194,14 +194,14 @@ describe("figure plugin", () => {
       height: 100,
     });
     expect(model.getters.getSelectedFigureId()).toBe(null);
-    selectFigure(model, "someuuid");
+    await selectFigure(model, "someuuid");
     expect(model.getters.getSelectedFigureId()).toBe("someuuid");
-    selectCell(model, "A1");
+    await selectCell(model, "A1");
     expect(model.getters.getSelectedFigureId()).toBe(null);
   });
   test("some commands do not remove figure selection", async () => {
     const model = await createModel();
-    createFigure(model, {
+    await createFigure(model, {
       sheetId: model.getters.getActiveSheetId(),
       id: "someuuid",
       col: 0,
@@ -210,13 +210,13 @@ describe("figure plugin", () => {
       width: 100,
       height: 100,
     });
-    selectCell(model, "A1");
+    await selectCell(model, "A1");
     expect(model.getters.getSelectedFigureId()).toBeNull();
 
-    selectFigure(model, "someuuid");
+    await selectFigure(model, "someuuid");
     expect(model.getters.getSelectedFigureId()).toBe("someuuid");
 
-    evaluateCells(model);
+    await evaluateCells(model);
     expect(model.getters.getSelectedFigureId()).toBe("someuuid");
   });
   test.each([
@@ -240,14 +240,14 @@ describe("figure plugin", () => {
     },
   ])("can move a figure", async (figure) => {
     const model = await createModel();
-    createFigure(model, { sheetId: model.getters.getActiveSheetId(), ...figure });
+    await createFigure(model, { sheetId: model.getters.getActiveSheetId(), ...figure });
     const figureUI = model.getters.getVisibleFigures()[0];
     const { x, y } = figureUI;
     figure = figureUI;
     expect(x).toBe(100);
     expect(y).toBe(100);
 
-    updateFigure(model, {
+    await updateFigure(model, {
       sheetId: model.getters.getActiveSheetId(),
       figureId: "someuuid",
       offset: { x: figure.offset.x + 10, y: figure.offset.y + 100 },
@@ -260,7 +260,7 @@ describe("figure plugin", () => {
   });
   test("can undo an update operation", async () => {
     const model = await createModel();
-    createFigure(model, {
+    await createFigure(model, {
       sheetId: model.getters.getActiveSheetId(),
       id: "someuuid",
       col: 0,
@@ -270,7 +270,7 @@ describe("figure plugin", () => {
       height: 10,
     });
 
-    updateFigure(model, {
+    await updateFigure(model, {
       sheetId: model.getters.getActiveSheetId(),
       figureId: "someuuid",
       col: 0,
@@ -280,7 +280,7 @@ describe("figure plugin", () => {
     const { x: x1, y: y1 } = model.getters.getVisibleFigures()[0];
     expect(x1).toBe(100);
     expect(y1).toBe(200);
-    undo(model);
+    await undo(model);
     const { x: x2, y: y2 } = model.getters.getVisibleFigures()[0];
     expect(x2).toBe(10);
     expect(y2).toBe(10);
@@ -306,14 +306,14 @@ describe("figure plugin", () => {
     },
   ])("prevent moving a figure left or above of the sheet", async (figure) => {
     const model = await createModel();
-    createFigure(model, { sheetId: model.getters.getActiveSheetId(), ...figure });
+    await createFigure(model, { sheetId: model.getters.getActiveSheetId(), ...figure });
     const figureUI = model.getters.getVisibleFigures()[0];
     const { x, y } = figureUI;
     figure = figureUI;
     expect(x).toBe(100);
     expect(y).toBe(100);
 
-    const result = updateFigure(model, {
+    const result = await updateFigure(model, {
       sheetId: model.getters.getActiveSheetId(),
       figureId: "someuuid",
       offset: { x: figureUI.offset.x - 200, y: figureUI.offset.y - 50 },
@@ -324,7 +324,7 @@ describe("figure plugin", () => {
   });
   test("cannot update a figure which doesn't exist", async () => {
     const model = await createModel();
-    const result = updateFigure(model, {
+    const result = await updateFigure(model, {
       sheetId: model.getters.getActiveSheetId(),
       figureId: "someuuid",
       col: 0,
@@ -335,13 +335,13 @@ describe("figure plugin", () => {
   });
   test("cannot delete a figure which doesn't exist", async () => {
     const model = await createModel();
-    const result = deleteFigure(model, "someuuid");
+    const result = await deleteFigure(model, "someuuid");
     expect(result).toBeCancelledBecause(CommandResult.FigureDoesNotExist);
   });
   test("can delete a figure", async () => {
     const model = await createModel();
     const sheetId = model.getters.getActiveSheetId();
-    createFigure(model, {
+    await createFigure(model, {
       sheetId,
       id: "someuuid",
       col: 0,
@@ -350,13 +350,13 @@ describe("figure plugin", () => {
       width: 10,
       height: 10,
     });
-    selectFigure(model, "someuuid");
+    await selectFigure(model, "someuuid");
     expect(model.getters.getSelectedFigureId()).toBe("someuuid");
     expect(model.getters.getVisibleFigures()).toHaveLength(1);
-    deleteFigure(model, "someuuid", sheetId);
+    await deleteFigure(model, "someuuid", sheetId);
     expect(model.getters.getSelectedFigureId()).toBeNull();
     expect(model.getters.getVisibleFigures()).toHaveLength(0);
-    undo(model);
+    await undo(model);
     expect(model.getters.getSelectedFigureId()).toBeNull();
     expect(model.getters.getVisibleFigures()).toHaveLength(1);
   });
@@ -367,7 +367,7 @@ describe("figure plugin", () => {
         { id: "2", colNumber: 2, rowNumber: 2 },
       ],
     });
-    createFigure(model, {
+    await createFigure(model, {
       sheetId: model.getters.getActiveSheetId(),
       id: "someuuid",
       col: 0,
@@ -376,15 +376,15 @@ describe("figure plugin", () => {
       width: 10,
       height: 10,
     });
-    selectFigure(model, "someuuid");
+    await selectFigure(model, "someuuid");
     expect(model.getters.getSelectedFigureId()).toBe("someuuid");
-    activateSheet(model, "2");
+    await activateSheet(model, "2");
     expect(model.getters.getSelectedFigureId()).toBeNull();
   });
   test("Selecting a figure cancels the edition of a cell", async () => {
     const model = await createModel();
     const composerStore = makeTestComposerStore(model);
-    createFigure(model, {
+    await createFigure(model, {
       sheetId: model.getters.getActiveSheetId(),
       id: "someuuid",
       col: 0,
@@ -396,15 +396,15 @@ describe("figure plugin", () => {
     composerStore.startEdition();
     composerStore.setCurrentContent("hello");
     expect(composerStore.editionMode).toBe("editing");
-    selectFigure(model, "someuuid");
+    await selectFigure(model, "someuuid");
     expect(composerStore.editionMode).toBe("inactive");
     expect(model.getters.getActiveCell().value).toBe(null);
   });
   test("Selecting a figure cancels the edition of a cell in selecting mode", async () => {
     const model = await createModel();
     const composerStore = makeTestComposerStore(model);
-    setCellContent(model, "A1", "=A1+");
-    createFigure(model, {
+    await setCellContent(model, "A1", "=A1+");
+    await createFigure(model, {
       sheetId: model.getters.getActiveSheetId(),
       id: "someuuid",
       offset: {
@@ -416,7 +416,7 @@ describe("figure plugin", () => {
     });
     composerStore.startEdition();
     expect(composerStore.editionMode).toBe("selecting");
-    selectFigure(model, "someuuid");
+    await selectFigure(model, "someuuid");
     expect(composerStore.editionMode).toBe("inactive");
   });
   test("cannot duplicate figure ids", async () => {
@@ -430,12 +430,18 @@ describe("figure plugin", () => {
       width: 10,
       height: 10,
     };
-    const cmd1 = createFigure(model, { sheetId: model.getters.getActiveSheetId(), ...figure });
+    const cmd1 = await createFigure(model, {
+      sheetId: model.getters.getActiveSheetId(),
+      ...figure,
+    });
     expect(cmd1).toBeSuccessfullyDispatched();
-    createSheet(model, { sheetId: "42" });
-    const cmd2 = createFigure(model, { sheetId: model.getters.getActiveSheetId(), ...figure });
+    await createSheet(model, { sheetId: "42" });
+    const cmd2 = await createFigure(model, {
+      sheetId: model.getters.getActiveSheetId(),
+      ...figure,
+    });
     expect(cmd2).toBeCancelledBecause(CommandResult.DuplicatedFigureId);
-    const cmd3 = createFigure(model, { sheetId: "42", ...figure });
+    const cmd3 = await createFigure(model, { sheetId: "42", ...figure });
     expect(cmd3).toBeCancelledBecause(CommandResult.DuplicatedFigureId);
   });
   test("figure move on col delete", async () => {
@@ -449,17 +455,17 @@ describe("figure plugin", () => {
       width: 10,
       height: 10,
     };
-    createFigure(model, { sheetId, ...figure });
+    await createFigure(model, { sheetId, ...figure });
     expect(model.getters.getFigure(sheetId, "someuuid")).toMatchObject({
       col: 3,
       row: 3,
     });
-    deleteColumns(model, ["D", "E"]);
+    await deleteColumns(model, ["D", "E"]);
     expect(model.getters.getFigure(sheetId, "someuuid")).toMatchObject({
       col: 3,
       row: 3,
     });
-    deleteColumns(model, ["A", "B"]);
+    await deleteColumns(model, ["A", "B"]);
     expect(model.getters.getFigure(sheetId, "someuuid")).toMatchObject({
       col: 1,
       row: 3,
@@ -476,12 +482,12 @@ describe("figure plugin", () => {
       width: 10,
       height: 10,
     };
-    createFigure(model, { sheetId, ...figure });
+    await createFigure(model, { sheetId, ...figure });
     expect(model.getters.getFigure(sheetId, "someuuid")).toMatchObject({
       col: 3,
       row: 3,
     });
-    deleteColumns(model, ["C", "D"]);
+    await deleteColumns(model, ["C", "D"]);
     expect(model.getters.getFigure(sheetId, "someuuid")).toMatchObject({
       col: 2,
       row: 3,
@@ -498,17 +504,17 @@ describe("figure plugin", () => {
       width: 10,
       height: 10,
     };
-    createFigure(model, { sheetId, ...figure });
+    await createFigure(model, { sheetId, ...figure });
     expect(model.getters.getFigure(sheetId, "someuuid")).toMatchObject({
       col: 1,
       row: 1,
     });
-    addColumns(model, "after", "B", 2);
+    await addColumns(model, "after", "B", 2);
     expect(model.getters.getFigure(sheetId, "someuuid")).toMatchObject({
       col: 1,
       row: 1,
     });
-    addColumns(model, "before", "B", 2);
+    await addColumns(model, "before", "B", 2);
     expect(model.getters.getFigure(sheetId, "someuuid")).toMatchObject({
       col: 3,
       row: 1,
@@ -525,17 +531,17 @@ describe("figure plugin", () => {
       width: 10,
       height: 10,
     };
-    createFigure(model, { sheetId, ...figure });
+    await createFigure(model, { sheetId, ...figure });
     expect(model.getters.getFigure(sheetId, "someuuid")).toMatchObject({
       col: 1,
       row: 1,
     });
-    moveColumns(model, "B", ["F", "G"], "after");
+    await moveColumns(model, "B", ["F", "G"], "after");
     expect(model.getters.getFigure(sheetId, "someuuid")).toMatchObject({
       col: 1,
       row: 1,
     });
-    moveColumns(model, "B", ["F", "G"], "before");
+    await moveColumns(model, "B", ["F", "G"], "before");
     expect(model.getters.getFigure(sheetId, "someuuid")).toMatchObject({
       col: 3,
       row: 1,
@@ -552,17 +558,17 @@ describe("figure plugin", () => {
       width: 10,
       height: 10,
     };
-    createFigure(model, { sheetId, ...figure });
+    await createFigure(model, { sheetId, ...figure });
     expect(model.getters.getFigure(sheetId, "someuuid")).toMatchObject({
       col: 3,
       row: 3,
     });
-    moveColumns(model, "D", ["A", "B"], "before");
+    await moveColumns(model, "D", ["A", "B"], "before");
     expect(model.getters.getFigure(sheetId, "someuuid")).toMatchObject({
       col: 3,
       row: 3,
     });
-    moveColumns(model, "D", ["A", "B"], "after");
+    await moveColumns(model, "D", ["A", "B"], "after");
     expect(model.getters.getFigure(sheetId, "someuuid")).toMatchObject({
       col: 1,
       row: 3,
@@ -579,12 +585,12 @@ describe("figure plugin", () => {
       width: 10,
       height: 10,
     };
-    createFigure(model, { sheetId, ...figure });
+    await createFigure(model, { sheetId, ...figure });
     expect(model.getters.getFigure(sheetId, "someuuid")).toMatchObject({
       col: 3,
       row: 3,
     });
-    moveColumns(model, "B", ["D"], "before");
+    await moveColumns(model, "B", ["D"], "before");
     expect(model.getters.getFigure(sheetId, "someuuid")).toMatchObject({
       col: 1,
       row: 3,
@@ -601,12 +607,12 @@ describe("figure plugin", () => {
       width: 10,
       height: 10,
     };
-    createFigure(model, { sheetId, ...figure });
+    await createFigure(model, { sheetId, ...figure });
     expect(model.getters.getFigure(sheetId, "someuuid")).toMatchObject({
       col: 3,
       row: 3,
     });
-    moveColumns(model, "F", ["D"], "after");
+    await moveColumns(model, "F", ["D"], "after");
     expect(model.getters.getFigure(sheetId, "someuuid")).toMatchObject({
       col: 5,
       row: 3,
@@ -623,17 +629,17 @@ describe("figure plugin", () => {
       width: 10,
       height: 10,
     };
-    createFigure(model, { sheetId, ...figure });
+    await createFigure(model, { sheetId, ...figure });
     expect(model.getters.getFigure(sheetId, "someuuid")).toMatchObject({
       col: 3,
       row: 3,
     });
-    deleteRows(model, [3, 4]);
+    await deleteRows(model, [3, 4]);
     expect(model.getters.getFigure(sheetId, "someuuid")).toMatchObject({
       col: 3,
       row: 3,
     });
-    deleteRows(model, [1, 2]);
+    await deleteRows(model, [1, 2]);
     expect(model.getters.getFigure(sheetId, "someuuid")).toMatchObject({
       col: 3,
       row: 1,
@@ -650,17 +656,17 @@ describe("figure plugin", () => {
       width: 10,
       height: 10,
     };
-    createFigure(model, { sheetId, ...figure });
+    await createFigure(model, { sheetId, ...figure });
     expect(model.getters.getFigure(sheetId, "someuuid")).toMatchObject({
       col: 1,
       row: 1,
     });
-    addRows(model, "after", 1, 2);
+    await addRows(model, "after", 1, 2);
     expect(model.getters.getFigure(sheetId, "someuuid")).toMatchObject({
       col: 1,
       row: 1,
     });
-    addRows(model, "before", 1, 2);
+    await addRows(model, "before", 1, 2);
     expect(model.getters.getFigure(sheetId, "someuuid")).toMatchObject({
       col: 1,
       row: 3,
@@ -677,17 +683,17 @@ describe("figure plugin", () => {
       width: 10,
       height: 10,
     };
-    createFigure(model, { sheetId, ...figure });
+    await createFigure(model, { sheetId, ...figure });
     expect(model.getters.getFigure(sheetId, "someuuid")).toMatchObject({
       col: 1,
       row: 1,
     });
-    moveRows(model, 1, [3, 4], "after");
+    await moveRows(model, 1, [3, 4], "after");
     expect(model.getters.getFigure(sheetId, "someuuid")).toMatchObject({
       col: 1,
       row: 1,
     });
-    moveRows(model, 1, [3, 4], "before");
+    await moveRows(model, 1, [3, 4], "before");
     expect(model.getters.getFigure(sheetId, "someuuid")).toMatchObject({
       col: 1,
       row: 3,
@@ -704,17 +710,17 @@ describe("figure plugin", () => {
       width: 10,
       height: 10,
     };
-    createFigure(model, { sheetId, ...figure });
+    await createFigure(model, { sheetId, ...figure });
     expect(model.getters.getFigure(sheetId, "someuuid")).toMatchObject({
       col: 3,
       row: 3,
     });
-    moveRows(model, 3, [1], "before");
+    await moveRows(model, 3, [1], "before");
     expect(model.getters.getFigure(sheetId, "someuuid")).toMatchObject({
       col: 3,
       row: 3,
     });
-    moveRows(model, 3, [1, 2], "after");
+    await moveRows(model, 3, [1, 2], "after");
     expect(model.getters.getFigure(sheetId, "someuuid")).toMatchObject({
       col: 3,
       row: 1,
@@ -731,12 +737,12 @@ describe("figure plugin", () => {
       width: 10,
       height: 10,
     };
-    createFigure(model, { sheetId, ...figure });
+    await createFigure(model, { sheetId, ...figure });
     expect(model.getters.getFigure(sheetId, "someuuid")).toMatchObject({
       col: 3,
       row: 3,
     });
-    moveRows(model, 1, [3], "before");
+    await moveRows(model, 1, [3], "before");
     expect(model.getters.getFigure(sheetId, "someuuid")).toMatchObject({
       col: 3,
       row: 1,
@@ -753,12 +759,12 @@ describe("figure plugin", () => {
       width: 10,
       height: 10,
     };
-    createFigure(model, { sheetId, ...figure });
+    await createFigure(model, { sheetId, ...figure });
     expect(model.getters.getFigure(sheetId, "someuuid")).toMatchObject({
       col: 3,
       row: 3,
     });
-    moveRows(model, 7, [3], "after");
+    await moveRows(model, 7, [3], "after");
     expect(model.getters.getFigure(sheetId, "someuuid")).toMatchObject({
       col: 3,
       row: 7,
@@ -787,13 +793,13 @@ describe("figure plugin", () => {
     const model = await createModel();
     const sheetId = model.getters.getActiveSheetId();
     const figureId = "someuuid";
-    createFigure(model, { sheetId, ...figure });
+    await createFigure(model, { sheetId, ...figure });
     const figureBefore = model.getters.getFigure(sheetId, figureId)!;
     const figureUIBefore = model.getters.getFigureUI(sheetId, figureBefore);
     expect(figureUIBefore.x).toBe(100);
     expect(figureUIBefore.y).toBe(100);
-    deleteColumns(model, range(8, model.getters.getNumberCols(sheetId)).map(numberToLetters));
-    deleteRows(model, range(8, model.getters.getNumberRows(sheetId)));
+    await deleteColumns(model, range(8, model.getters.getNumberCols(sheetId)).map(numberToLetters));
+    await deleteRows(model, range(8, model.getters.getNumberRows(sheetId)));
     const figureAfter = model.getters.getFigure(sheetId, figureId)!;
     const figureUIAfter = model.getters.getFigureUI(sheetId, figureAfter);
     expect(figureUIAfter.x).toBe(0);
@@ -803,7 +809,7 @@ describe("figure plugin", () => {
     const model = await createModel();
     const sheetId = model.getters.getActiveSheetId();
     const figureId = "someuuid";
-    createFigure(model, {
+    await createFigure(model, {
       sheetId,
       id: "someuuid",
       width: 100,
@@ -812,8 +818,8 @@ describe("figure plugin", () => {
       row: 4,
       offset: { x: 4, y: 8 },
     });
-    deleteColumns(model, ["A"]);
-    deleteRows(model, [0]);
+    await deleteColumns(model, ["A"]);
+    await deleteRows(model, [0]);
     const figureAfter = model.getters.getFigure(sheetId, figureId)!;
     const figureUIAfter = model.getters.getFigureUI(sheetId, figureAfter);
     expect(figureUIAfter.x).toBe(100 - DEFAULT_CELL_WIDTH);
@@ -823,7 +829,7 @@ describe("figure plugin", () => {
     const model = await createModel();
     const sheetId = model.getters.getActiveSheetId();
     const figureId = "someuuid";
-    createFigure(model, {
+    await createFigure(model, {
       sheetId,
       id: "someuuid",
       width: 100,
@@ -832,8 +838,8 @@ describe("figure plugin", () => {
       row: 4,
       offset: { x: 4, y: 8 },
     });
-    deleteColumns(model, ["E"]);
-    deleteRows(model, [5]);
+    await deleteColumns(model, ["E"]);
+    await deleteRows(model, [5]);
     const figureAfter = model.getters.getFigure(sheetId, figureId)!;
     const figureUIAfter = model.getters.getFigureUI(sheetId, figureAfter);
     expect(figureUIAfter.x).toBe(100);

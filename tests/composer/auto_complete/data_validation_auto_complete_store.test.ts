@@ -7,12 +7,12 @@ import { makeStore } from "../../test_helpers/stores";
 describe("Data validation auto complete", () => {
   test("start with exact match, but with other proposals", async () => {
     const { store: composer, model } = await makeStore(CellComposerStore);
-    addDataValidation(model, "A1", "id", {
+    await addDataValidation(model, "A1", "id", {
       type: "isValueInList",
       values: ["XS", "S", "M", "L", "XL"],
       displayStyle: "arrow",
     });
-    setCellContent(model, "A1", "S");
+    await setCellContent(model, "A1", "S");
     composer.startEdition();
     await nextTick();
     const proposals = composer.autoCompleteProposals;
@@ -21,12 +21,12 @@ describe("Data validation auto complete", () => {
 
   test("start with partial match displays all values", async () => {
     const { store: composer, model } = await makeStore(CellComposerStore);
-    addDataValidation(model, "A1", "id", {
+    await addDataValidation(model, "A1", "id", {
       type: "isValueInList",
       values: ["XS", "XL", "L"],
       displayStyle: "arrow",
     });
-    setCellContent(model, "A1", "X");
+    await setCellContent(model, "A1", "X");
     composer.startEdition();
     await nextTick();
     const proposals = composer.autoCompleteProposals;
@@ -35,7 +35,7 @@ describe("Data validation auto complete", () => {
 
   test("value in list set rounded chip and color", async () => {
     const { store: composer, model } = await makeStore(CellComposerStore);
-    addDataValidation(model, "A1", "id", {
+    await addDataValidation(model, "A1", "id", {
       type: "isValueInList",
       values: ["hello", "world"],
       colors: { world: "#B6D7A8" },
@@ -66,14 +66,14 @@ describe("Data validation auto complete", () => {
 
   test("value in range set rounded chip and color", async () => {
     const { store: composer, model } = await makeStore(CellComposerStore);
-    addDataValidation(model, "A1", "id", {
+    await addDataValidation(model, "A1", "id", {
       type: "isValueInRange",
       values: ["B2:B4"],
       colors: { world: "#B6D7A8" },
       displayStyle: "chip",
     });
-    setCellContent(model, "B2", "hello");
-    setCellContent(model, "B3", "world");
+    await setCellContent(model, "B2", "hello");
+    await setCellContent(model, "B3", "world");
     composer.startEdition();
     await nextTick();
     const proposals = composer.autoCompleteProposals;

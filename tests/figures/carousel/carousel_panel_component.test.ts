@@ -42,7 +42,7 @@ async function mountCarouselPanel(modelArg: Model, figureId: UID) {
 
 describe("Carousel panel component", () => {
   test("Can add a chart to the carousel", async () => {
-    createCarousel(model, { items: [] }, "carouselId");
+    await createCarousel(model, { items: [] }, "carouselId");
     await mountCarouselPanel(model, "carouselId");
 
     await click(fixture, ".o-carousel-add-chart");
@@ -52,7 +52,7 @@ describe("Carousel panel component", () => {
   });
 
   test("Can add a data view to the carousel", async () => {
-    createCarousel(model, { items: [] }, "carouselId");
+    await createCarousel(model, { items: [] }, "carouselId");
     await mountCarouselPanel(model, "carouselId");
 
     await click(fixture, ".o-carousel-add-data-view");
@@ -62,8 +62,8 @@ describe("Carousel panel component", () => {
   });
 
   test("Can edit a carousel item name", async () => {
-    createCarousel(model, { items: [] }, "carouselId");
-    addNewChartToCarousel(model, "carouselId", { type: "radar" });
+    await createCarousel(model, { items: [] }, "carouselId");
+    await addNewChartToCarousel(model, "carouselId", { type: "radar" });
     await mountCarouselPanel(model, "carouselId");
 
     await setInputValueAndTrigger(".o-carousel-preview .os-input", "New Chart Name");
@@ -72,8 +72,8 @@ describe("Carousel panel component", () => {
   });
 
   test("Can edit a chart linked to the carousel", async () => {
-    createCarousel(model, { items: [] }, "carouselId");
-    addNewChartToCarousel(model, "carouselId", { type: "radar" });
+    await createCarousel(model, { items: [] }, "carouselId");
+    await addNewChartToCarousel(model, "carouselId", { type: "radar" });
     await mountCarouselPanel(model, "carouselId");
 
     await click(fixture, ".o-carousel-preview .os-cog-wheel-menu-icon");
@@ -82,8 +82,8 @@ describe("Carousel panel component", () => {
   });
 
   test("Can remove a carousel item", async () => {
-    createCarousel(model, { items: [] }, "carouselId");
-    addNewChartToCarousel(model, "carouselId", { type: "radar" });
+    await createCarousel(model, { items: [] }, "carouselId");
+    await addNewChartToCarousel(model, "carouselId", { type: "radar" });
     model = await createModel(model.exportData());
 
     await mountCarouselPanel(model, "carouselId");
@@ -96,8 +96,8 @@ describe("Carousel panel component", () => {
   });
 
   test("Can pop a carousel item out", async () => {
-    createCarousel(model, { items: [] }, "carouselId");
-    addNewChartToCarousel(model, "carouselId", { type: "radar" });
+    await createCarousel(model, { items: [] }, "carouselId");
+    await addNewChartToCarousel(model, "carouselId", { type: "radar" });
     model = await createModel(model.exportData());
 
     await mountCarouselPanel(model, "carouselId");
@@ -111,8 +111,8 @@ describe("Carousel panel component", () => {
   });
 
   test("Can duplicate a carousel chart", async () => {
-    createCarousel(model, { items: [] }, "carouselId");
-    addNewChartToCarousel(model, "carouselId", { type: "radar" });
+    await createCarousel(model, { items: [] }, "carouselId");
+    await addNewChartToCarousel(model, "carouselId", { type: "radar" });
 
     await mountCarouselPanel(model, "carouselId");
     await click(fixture, ".o-carousel-preview .os-cog-wheel-menu-icon");
@@ -127,9 +127,9 @@ describe("Carousel panel component", () => {
   });
 
   test("Can drag & drop carousel items to re-order them", async () => {
-    createCarousel(model, { items: [] }, "carouselId");
-    const radarId = addNewChartToCarousel(model, "carouselId", { type: "radar" });
-    const barId = addNewChartToCarousel(model, "carouselId", { type: "bar" });
+    await createCarousel(model, { items: [] }, "carouselId");
+    const radarId = await addNewChartToCarousel(model, "carouselId", { type: "radar" });
+    const barId = await addNewChartToCarousel(model, "carouselId", { type: "bar" });
     await mountCarouselPanel(model, "carouselId");
     expect(model.getters.getCarousel("carouselId").items).toMatchObject([
       { chartId: radarId },
@@ -144,8 +144,8 @@ describe("Carousel panel component", () => {
   });
 
   test("Can edit the carousel title", async () => {
-    createCarousel(model, { items: [] }, "carouselId");
-    addNewChartToCarousel(model, "carouselId", { type: "radar" });
+    await createCarousel(model, { items: [] }, "carouselId");
+    await addNewChartToCarousel(model, "carouselId", { type: "radar" });
     await mountCarouselPanel(model, "carouselId");
 
     await setInputValueAndTrigger(".o-carousel-title .os-input", "Carousel Title");
@@ -162,8 +162,8 @@ describe("Carousel panel component", () => {
   });
 
   test("Selected carousel item is highlighted", async () => {
-    createCarousel(model, { items: [{ type: "carouselDataView" }] }, "carouselId");
-    const radarId = addNewChartToCarousel(model, "carouselId", { type: "radar" });
+    await createCarousel(model, { items: [{ type: "carouselDataView" }] }, "carouselId");
+    const radarId = await addNewChartToCarousel(model, "carouselId", { type: "radar" });
     await mountCarouselPanel(model, "carouselId");
 
     await setInputValueAndTrigger(".o-carousel-preview .os-input", "New Chart Name");
@@ -172,7 +172,7 @@ describe("Carousel panel component", () => {
     expect(previews[0]).toHaveClass("o-selected");
     expect(previews[1]).not.toHaveClass("o-selected");
 
-    selectCarouselItem(model, "carouselId", { type: "chart", chartId: radarId });
+    await selectCarouselItem(model, "carouselId", { type: "chart", chartId: radarId });
     await nextTick();
     expect(previews[0]).not.toHaveClass("o-selected");
     expect(previews[1]).toHaveClass("o-selected");

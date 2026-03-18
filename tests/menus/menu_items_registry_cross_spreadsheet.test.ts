@@ -14,14 +14,14 @@ describe("cross spreadsheet copy/paste", () => {
 
     const cellStyle = { bold: true, fillColor: "#00FF00", fontSize: 20 };
 
-    setCellContent(modelA, "A1", "a1");
-    setFormatting(modelA, "A1", cellStyle);
+    await setCellContent(modelA, "A1", "a1");
+    await setFormatting(modelA, "A1", cellStyle);
     expect(getCell(modelA, "A1")).toMatchObject({
       content: "a1",
       style: cellStyle,
     });
 
-    selectCell(modelA, "A1");
+    await selectCell(modelA, "A1");
     await doAction(["edit", "copy"], envA);
 
     /**
@@ -33,7 +33,7 @@ describe("cross spreadsheet copy/paste", () => {
      */
     envB.clipboard = envA.clipboard;
 
-    selectCell(modelB, "B1");
+    await selectCell(modelB, "B1");
     await doAction(["edit", "paste"], envB);
 
     expect(getCellRawContent(modelB, "B1")).toEqual("a1");

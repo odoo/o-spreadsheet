@@ -43,7 +43,7 @@ describe("Geo chart side panel", () => {
 
   describe("Config panel", () => {
     test("Geo chart config panel is correctly initialized", async () => {
-      createGeoChart(model, {
+      await createGeoChart(model, {
         dataSets: [{ dataRange: "A1:A3" }],
         labelRange: "B1:B3",
         dataSetsHaveTitle: true,
@@ -58,7 +58,7 @@ describe("Geo chart side panel", () => {
     });
 
     test("Only one data range is enabled", async () => {
-      createGeoChart(model, {
+      await createGeoChart(model, {
         dataSets: [{ dataRange: "A1:A3" }],
       });
       await openChartConfigSidePanel(model, env, chartId);
@@ -72,7 +72,7 @@ describe("Geo chart side panel", () => {
     });
 
     test("Can change the displayed region", async () => {
-      createGeoChart(model, {});
+      await createGeoChart(model, {});
       await openChartConfigSidePanel(model, env, chartId);
 
       expect(".o-geo-region .o-select").toHaveText("World");
@@ -90,7 +90,7 @@ describe("Geo chart side panel", () => {
 
   describe("Design panel", () => {
     test("Geo design panel is correctly initialized", async () => {
-      createGeoChart(model, {
+      await createGeoChart(model, {
         colorScale: schemeToColorScale("purples"),
         legendPosition: "right",
         background: "#000000",
@@ -109,7 +109,7 @@ describe("Geo chart side panel", () => {
     });
 
     test("Can edit the color scale", async () => {
-      createGeoChart(model, { colorScale: schemeToColorScale("purples") });
+      await createGeoChart(model, { colorScale: schemeToColorScale("purples") });
       await openChartDesignSidePanel(model, env, fixture, chartId);
 
       await click(fixture, ".color-scale-container");
@@ -122,7 +122,7 @@ describe("Geo chart side panel", () => {
     });
 
     test("Can edit a custom color scale", async () => {
-      createGeoChart(model, {});
+      await createGeoChart(model, {});
       await openChartDesignSidePanel(model, env, fixture, chartId);
 
       await click(fixture, ".color-scale-container");
@@ -140,7 +140,7 @@ describe("Geo chart side panel", () => {
     });
 
     test("Can edit the color of the countries with no value", async () => {
-      createGeoChart(model, { missingValueColor: "#f00" });
+      await createGeoChart(model, { missingValueColor: "#f00" });
       await openChartDesignSidePanel(model, env, fixture, chartId);
 
       await changeRoundColorPickerColor(".o-missing-value", "#FF9900");

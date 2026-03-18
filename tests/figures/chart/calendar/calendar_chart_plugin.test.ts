@@ -183,12 +183,16 @@ describe("calendar chart", () => {
     "Vertical axis grouping is taken into account",
     async (grouping: { stamp: CalendarChartGranularity; labels: readonly string[] }) => {
       const model = await createModel();
-      createSheet(model, { sheetId: "calendar", activate: true, rows: 365, cols: 2 });
-      setCellContent(model, "A1", "=DATE(1,1,1) + SEQUENCE(365,1,1,1) + SEQUENCE(365,1, 0, 1/366)");
-      setFormat(model, "A1:A365", "mm/dd/yyyy hh:mm:ss");
-      setCellContent(model, "B1", "=RANDARRAY(365,1)");
+      await createSheet(model, { sheetId: "calendar", activate: true, rows: 365, cols: 2 });
+      await setCellContent(
+        model,
+        "A1",
+        "=DATE(1,1,1) + SEQUENCE(365,1,1,1) + SEQUENCE(365,1, 0, 1/366)"
+      );
+      await setFormat(model, "A1:A365", "mm/dd/yyyy hh:mm:ss");
+      await setCellContent(model, "B1", "=RANDARRAY(365,1)");
       const chartId = model.uuidGenerator.uuidv4();
-      createCalendarChart(
+      await createCalendarChart(
         model,
         {
           type: "calendar" as const,
@@ -209,12 +213,16 @@ describe("calendar chart", () => {
     "Horizontal axis grouping is taken into account",
     async (grouping: { stamp: CalendarChartGranularity; labels: readonly string[] }) => {
       const model = await createModel();
-      createSheet(model, { sheetId: "calendar", activate: true, rows: 365, cols: 2 });
-      setCellContent(model, "A1", "=DATE(1,1,1) + SEQUENCE(365,1,1,1) + SEQUENCE(365,1, 0, 1/366)");
-      setFormat(model, "A1:A365", "mm/dd/yyyy hh:mm:ss");
-      setCellContent(model, "B1", "=RANDARRAY(365,1)");
+      await createSheet(model, { sheetId: "calendar", activate: true, rows: 365, cols: 2 });
+      await setCellContent(
+        model,
+        "A1",
+        "=DATE(1,1,1) + SEQUENCE(365,1,1,1) + SEQUENCE(365,1, 0, 1/366)"
+      );
+      await setFormat(model, "A1:A365", "mm/dd/yyyy hh:mm:ss");
+      await setCellContent(model, "B1", "=RANDARRAY(365,1)");
       const chartId = model.uuidGenerator.uuidv4();
-      createCalendarChart(
+      await createCalendarChart(
         model,
         {
           type: "calendar" as const,
@@ -231,7 +239,7 @@ describe("calendar chart", () => {
   );
   test("Axis borders are not shown in calendar charts", async () => {
     const model = await createModel();
-    createCalendarChart(
+    await createCalendarChart(
       model,
       { type: "calendar", dataSets: [{ dataRange: "B1:B365" }] },
       "chartId"

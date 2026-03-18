@@ -83,7 +83,7 @@ describe("COLUMN formula", () => {
   test("functional test without grid context", async () => {
     const model = await createModel();
     const sheetId = model.getters.getActiveSheetId();
-    setCellContent(model, "A1", "kikoulol");
+    await setCellContent(model, "A1", "kikoulol");
     expect(model.getters.evaluateFormula(sheetId, "=COLUMN()")).toBe("#ERROR"); // @compatibility: on google sheets, return #N/A
     expect(model.getters.evaluateFormula(sheetId, "=COLUMN(A1)")).toBe(1);
   });
@@ -104,7 +104,7 @@ describe("COLUMN formula", () => {
     ["=COLUMN(Sheet2!1:1)", [1, 5]],
   ])("functional tests on range arguments", async (formula, [start, end]) => {
     const model = await createModel();
-    createSheet(model, { sheetId: "Sheet2", name: "Sheet2", cols: 5 });
+    await createSheet(model, { sheetId: "Sheet2", name: "Sheet2", cols: 5 });
     const sheetId = model.getters.getActiveSheetId();
     const result = model.getters.evaluateFormula(sheetId, formula);
     expect(result).toEqual(range(start, end + 1).map((col) => [col]));
@@ -466,7 +466,7 @@ describe("ROW formula", () => {
   test("functional test without grid context", async () => {
     const model = await createModel();
     const sheetId = model.getters.getActiveSheetId();
-    setCellContent(model, "A1", "kikoulol");
+    await setCellContent(model, "A1", "kikoulol");
     expect(model.getters.evaluateFormula(sheetId, "=ROW()")).toBe("#ERROR"); // @compatibility: on google sheets, return #N/A
     expect(model.getters.evaluateFormula(sheetId, "=ROW(A1)")).toBe(1);
   });
@@ -487,7 +487,7 @@ describe("ROW formula", () => {
     ["=ROW(Sheet2!A:A)", [1, 5]],
   ])("functional tests on range arguments", async (formula, [start, end]) => {
     const model = await createModel();
-    createSheet(model, { sheetId: "Sheet2", name: "Sheet2", rows: 5 });
+    await createSheet(model, { sheetId: "Sheet2", name: "Sheet2", rows: 5 });
     const sheetId = model.getters.getActiveSheetId();
     const result = model.getters.evaluateFormula(sheetId, formula);
     expect(result).toEqual([range(start, end + 1)]);
@@ -792,7 +792,7 @@ describe("VLOOKUP formula", () => {
   });
   test("Error on key not found displays correctly", async () => {
     const model = await createModel();
-    setCellContent(model, "A1", "=VLOOKUP(5, B1, 1)");
+    await setCellContent(model, "A1", "=VLOOKUP(5, B1, 1)");
     expect(getCellError(model, "A1")).toBe("Did not find value '5' in VLOOKUP evaluation.");
   });
   test("Accept simple values on the search range or the return range", async () => {
@@ -993,7 +993,7 @@ describe("HLOOKUP formula", () => {
   });
   test("Error on key not found displays correctly", async () => {
     const model = await createModel();
-    setCellContent(model, "A1", "=HLOOKUP(5, B1, 1)");
+    await setCellContent(model, "A1", "=HLOOKUP(5, B1, 1)");
     expect(getCellError(model, "A1")).toBe("Did not find value '5' in HLOOKUP evaluation.");
   });
   test("Accept simple values on the search range or the return range", async () => {
@@ -1067,7 +1067,7 @@ describe("XLOOKUP formula", () => {
   });
   test("vertical XLOOKUP can return an array", async () => {
     const model = await createModelFromGrid(commonGrid);
-    setCellContent(model, "F1", '=XLOOKUP( "b2", B1:B6, C1:D6 )');
+    await setCellContent(model, "F1", '=XLOOKUP( "b2", B1:B6, C1:D6 )');
     expect(getRangeValuesAsMatrix(model, "F1:G1")).toEqual([["C2", "D2"]]);
   });
   test("Simple horizontal XLOOKUP", async () => {
@@ -1083,7 +1083,7 @@ describe("XLOOKUP formula", () => {
   });
   test("horizontal XLOOKUP can return an array", async () => {
     const model = await createModelFromGrid(commonGrid);
-    setCellContent(model, "F1", '=XLOOKUP( "C1", B1:D1, B2:D4 )');
+    await setCellContent(model, "F1", '=XLOOKUP( "C1", B1:D1, B2:D4 )');
     expect(getRangeValuesAsMatrix(model, "F1:F3")).toEqual([["C2"], ["C3"], ["C4"]]);
   });
   test("if_not_found argument", async () => {
@@ -1260,7 +1260,7 @@ describe("XLOOKUP formula", () => {
   });
   test("Error on key not found displays correctly", async () => {
     const model = await createModel();
-    setCellContent(model, "A1", "=XLOOKUP(5, B1, C1)");
+    await setCellContent(model, "A1", "=XLOOKUP(5, B1, C1)");
     expect(getCellError(model, "A1")).toBe("Did not find value '5' in XLOOKUP evaluation.");
   });
   test.each([
@@ -1464,7 +1464,7 @@ describe("INDIRECT formula", () => {
   test("functional test without grid context", async () => {
     const model = await createModel();
     const sheetId = model.getters.getActiveSheetId();
-    setCellContent(model, "A1", "kikoulol");
+    await setCellContent(model, "A1", "kikoulol");
     expect(model.getters.evaluateFormula(sheetId, "=INDIRECT()")).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
     expect(model.getters.evaluateFormula(sheetId, '=INDIRECT("A1")')).toBe("kikoulol");
   });
@@ -1538,22 +1538,22 @@ describe("INDIRECT formula", () => {
   test("Reference to a cell and range of a different sheet (A1 notation)", async () => {
     const model = await createModel();
     const sheetId = model.getters.getActiveSheetId();
-    createSheet(model, { sheetId: "sheet2", activate: true });
-    setCellContent(model, "A1", "1");
-    setCellContent(model, "A2", "2");
-    activateSheet(model, sheetId);
-    setCellContent(model, "A1", '=INDIRECT("sheet2!A1")');
-    setCellContent(model, "A2", '=SUM(INDIRECT("sheet2!A1:A2"))');
+    await createSheet(model, { sheetId: "sheet2", activate: true });
+    await setCellContent(model, "A1", "1");
+    await setCellContent(model, "A2", "2");
+    await activateSheet(model, sheetId);
+    await setCellContent(model, "A1", '=INDIRECT("sheet2!A1")');
+    await setCellContent(model, "A2", '=SUM(INDIRECT("sheet2!A1:A2"))');
     expect(getCellContent(model, "A1")).toBe("1");
     expect(getCellContent(model, "A2")).toBe("3");
   });
   test("Cell are correctly updated when changing referenced cells value", async () => {
     const model = await createModel();
-    setCellContent(model, "A2", '=INDIRECT("A1")');
-    setCellContent(model, "A3", '=INDIRECT("A"&A1)');
+    await setCellContent(model, "A2", '=INDIRECT("A1")');
+    await setCellContent(model, "A3", '=INDIRECT("A"&A1)');
     expect(getCellContent(model, "A2")).toBe("0");
     expect(getCellContent(model, "A3")).toBe("#REF");
-    setCellContent(model, "A1", "1");
+    await setCellContent(model, "A1", "1");
     expect(getCellContent(model, "A2")).toBe("1");
     expect(getCellContent(model, "A3")).toBe("1");
   });
@@ -1623,7 +1623,7 @@ describe("OFFSET formula", () => {
       ["B3", "C3", "0"],
       ["0",  "0",  "0"],
     ]);
-    setCellContent(model, "B2", "Hola");
+    await setCellContent(model, "B2", "Hola");
     expect(getEvaluatedCell(model, "D5").value).toBe("Hola");
   });
   test("should select a zone with negative offsets", async () => {
@@ -1641,7 +1641,7 @@ describe("OFFSET formula", () => {
       ["A2", "B2", ""],
       ["",    "",  ""],
     ]);
-    setCellContent(model, "A1", "Hola");
+    await setCellContent(model, "A1", "Hola");
     expect(getEvaluatedCell(model, "D5").value).toBe("Hola");
   });
   test("select a full row (with empty col parameter)", async () => {
@@ -1716,24 +1716,24 @@ describe("OFFSET formula", () => {
       A3: "A3", B3: "B3", C3: "C3",
     };
     const model = await createModelFromGrid(grid);
-    createSheet(model, { sheetId: "Sheet2" });
-    setCellContent(model, "D4", "=OFFSET(Sheet1!A1:C3,0,0)", "Sheet2");
+    await createSheet(model, { sheetId: "Sheet2" });
+    await setCellContent(model, "D4", "=OFFSET(Sheet1!A1:C3,0,0)", "Sheet2");
     //prettier-ignore
     expect(getEvaluatedGrid(model, "D4:F6", "Sheet2")).toEqual([
       ["A1", "B1", "C1"],
       ["A2", "B2", "C2"],
       ["A3", "B3", "C3"],
     ]);
-    setCellContent(model, "A1", "hola", "Sheet1");
+    await setCellContent(model, "A1", "hola", "Sheet1");
     expect(getEvaluatedCell(model, "D4", "Sheet2").value).toBe("hola");
   });
   test("the formula dependencies are correctly added", async () => {
     const model = await createModel({ sheets: [{ id: "sh1" }] });
-    createSheet(model, { sheetId: "sh2" });
-    createSheet(model, { sheetId: "sh3" });
-    setCellContent(model, "A1", "bloub", "sh2");
-    setCellContent(model, "A1", "=OFFSET(Sheet2!A1,0,0)", "sh1");
-    setCellContent(model, "A1", "=OFFSET(Sheet2!A1,0,0)", "sh3");
+    await createSheet(model, { sheetId: "sh2" });
+    await createSheet(model, { sheetId: "sh3" });
+    await setCellContent(model, "A1", "bloub", "sh2");
+    await setCellContent(model, "A1", "=OFFSET(Sheet2!A1,0,0)", "sh1");
+    await setCellContent(model, "A1", "=OFFSET(Sheet2!A1,0,0)", "sh3");
     expect(getEvaluatedCell(model, "A1", "sh1").value).toBe("bloub");
     expect(getEvaluatedCell(model, "A1", "sh2").value).toBe("bloub");
     expect(getEvaluatedCell(model, "A1", "sh3").value).toBe("bloub");

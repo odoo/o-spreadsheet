@@ -809,10 +809,10 @@ describe("COUNTIF formula", () => {
   });
   test("COUNTIF date predicates are localized", async () => {
     const model = await createModel();
-    setCellContent(model, "A1", "01/02/2024");
-    setCellContent(model, "A2", '=COUNTIF(A1, "<02/01/2024")');
+    await setCellContent(model, "A1", "01/02/2024");
+    await setCellContent(model, "A2", '=COUNTIF(A1, "<02/01/2024")');
     expect(getEvaluatedCell(model, "A2").value).toBe(1);
-    updateLocale(model, FR_LOCALE);
+    await updateLocale(model, FR_LOCALE);
     expect(getEvaluatedCell(model, "A2").value).toBe(0);
   });
 });
@@ -1687,7 +1687,7 @@ describe("MUNIT function", () => {
   });
   test("Generate unit matrix", async () => {
     const model = await createModel();
-    setCellContent(model, "D1", "=MUNIT(3)");
+    await setCellContent(model, "D1", "=MUNIT(3)");
     expect(getRangeValuesAsMatrix(model, "D1:F3")).toEqual([
       [1, 0, 0],
       [0, 1, 0],
@@ -1967,7 +1967,7 @@ describe("RANDARRAY function", () => {
   });
   test("Random rows", async () => {
     const model = await createModel();
-    setCellContent(model, "A1", "=RANDARRAY(2)");
+    await setCellContent(model, "A1", "=RANDARRAY(2)");
     expect(getEvaluatedCell(model, "A1").value).toBeBetween(0, 1);
     expect(getEvaluatedCell(model, "A2").value).toBeBetween(0, 1);
     expect(getEvaluatedCell(model, "B1").value).toBe(null);
@@ -1975,7 +1975,7 @@ describe("RANDARRAY function", () => {
   });
   test("Random columns", async () => {
     const model = await createModel();
-    setCellContent(model, "A1", "=RANDARRAY(1, 2)");
+    await setCellContent(model, "A1", "=RANDARRAY(1, 2)");
     expect(getEvaluatedCell(model, "A1").value).toBeBetween(0, 1);
     expect(getEvaluatedCell(model, "A2").value).toBe(null);
     expect(getEvaluatedCell(model, "B1").value).toBeBetween(0, 1);
@@ -1983,7 +1983,7 @@ describe("RANDARRAY function", () => {
   });
   test("Random rows and columns", async () => {
     const model = await createModel();
-    setCellContent(model, "A1", "=RANDARRAY(2, 2)");
+    await setCellContent(model, "A1", "=RANDARRAY(2, 2)");
     expect(getEvaluatedCell(model, "A1").value).toBeBetween(0, 1);
     expect(getEvaluatedCell(model, "A2").value).toBeBetween(0, 1);
     expect(getEvaluatedCell(model, "B1").value).toBeBetween(0, 1);
@@ -1991,7 +1991,7 @@ describe("RANDARRAY function", () => {
   });
   test("Max and min arguments", async () => {
     const model = await createModel();
-    setCellContent(model, "A1", "=RANDARRAY(2, 2, -2, 2)");
+    await setCellContent(model, "A1", "=RANDARRAY(2, 2, -2, 2)");
     expect(getEvaluatedCell(model, "A1").value).toBeBetween(-2, 2);
     expect(getEvaluatedCell(model, "A2").value).toBeBetween(-2, 2);
     expect(getEvaluatedCell(model, "B1").value).toBeBetween(-2, 2);
@@ -1999,7 +1999,7 @@ describe("RANDARRAY function", () => {
   });
   test("whole_number argument", async () => {
     const model = await createModel();
-    setCellContent(model, "A1", "=RANDARRAY(1, 1, -2, 2, TRUE)");
+    await setCellContent(model, "A1", "=RANDARRAY(1, 1, -2, 2, TRUE)");
     const val = getEvaluatedCell(model, "A1").value as number;
     expect(val).toBeBetween(-2, 2);
     expect(val).toEqual(Math.round(val));
@@ -2308,37 +2308,37 @@ describe("SECH formula", () => {
 describe("SEQUENCE formula", () => {
   test("only positive rows parameter", async () => {
     const model = await createModel();
-    setCellContent(model, "A1", "=SEQUENCE(3)");
+    await setCellContent(model, "A1", "=SEQUENCE(3)");
     expect(getRangeValuesAsMatrix(model, "A1:A3")).toEqual([[1], [2], [3]]);
     expect(checkFunctionDoesntSpreadBeyondRange(model, "A1:A3")).toBeTruthy();
   });
   test("rows and step", async () => {
     const model = await createModel();
-    setCellContent(model, "A1", "=SEQUENCE(3,,,2)");
+    await setCellContent(model, "A1", "=SEQUENCE(3,,,2)");
     expect(getRangeValuesAsMatrix(model, "A1:A3")).toEqual([[1], [3], [5]]);
     expect(checkFunctionDoesntSpreadBeyondRange(model, "A1:A3")).toBeTruthy();
   });
   test("rows and negative step", async () => {
     const model = await createModel();
-    setCellContent(model, "A1", "=SEQUENCE(4,,,-1)");
+    await setCellContent(model, "A1", "=SEQUENCE(4,,,-1)");
     expect(getRangeValuesAsMatrix(model, "A1:A4")).toEqual([[1], [0], [-1], [-2]]);
     expect(checkFunctionDoesntSpreadBeyondRange(model, "A1:A4")).toBeTruthy();
   });
   test("step can be zero", async () => {
     const model = await createModel();
-    setCellContent(model, "A1", "=SEQUENCE(3,,,0)");
+    await setCellContent(model, "A1", "=SEQUENCE(3,,,0)");
     expect(getRangeValuesAsMatrix(model, "A1:A3")).toEqual([[1], [1], [1]]);
     expect(checkFunctionDoesntSpreadBeyondRange(model, "A1:A3")).toBeTruthy();
   });
   test("step can be omitted", async () => {
     const model = await createModel();
-    setCellContent(model, "A1", "=SEQUENCE(3,,,)");
+    await setCellContent(model, "A1", "=SEQUENCE(3,,,)");
     expect(getRangeValuesAsMatrix(model, "A1:A3")).toEqual([[1], [2], [3]]);
     expect(checkFunctionDoesntSpreadBeyondRange(model, "A1:A3")).toBeTruthy();
   });
   test("positive rows and columns parameters", async () => {
     const model = await createModel();
-    setCellContent(model, "A1", "=SEQUENCE(3, 4)");
+    await setCellContent(model, "A1", "=SEQUENCE(3, 4)");
     expect(getRangeValuesAsMatrix(model, "A1:D3")).toEqual([
       [1, 2, 3, 4],
       [5, 6, 7, 8],
@@ -2348,7 +2348,7 @@ describe("SEQUENCE formula", () => {
   });
   test("rows, columns and step parameters", async () => {
     const model = await createModel();
-    setCellContent(model, "A1", "=SEQUENCE(3,4,,2)");
+    await setCellContent(model, "A1", "=SEQUENCE(3,4,,2)");
     expect(getRangeValuesAsMatrix(model, "A1:D3")).toEqual([
       [1, 3, 5, 7],
       [9, 11, 13, 15],
@@ -2358,7 +2358,7 @@ describe("SEQUENCE formula", () => {
   });
   test("rows, columns, start and step parameters", async () => {
     const model = await createModel();
-    setCellContent(model, "A1", "=SEQUENCE(3,2,2,2)");
+    await setCellContent(model, "A1", "=SEQUENCE(3,2,2,2)");
     expect(getRangeValuesAsMatrix(model, "A1:B3")).toEqual([
       [2, 4],
       [6, 8],
@@ -2368,7 +2368,7 @@ describe("SEQUENCE formula", () => {
   });
   test("float rows and columns parameters", async () => {
     const model = await createModel();
-    setCellContent(model, "A1", "=SEQUENCE(1.6, 2.9)");
+    await setCellContent(model, "A1", "=SEQUENCE(1.6, 2.9)");
     expect(getRangeValuesAsMatrix(model, "A1:B1")).toEqual([[1, 2]]);
     expect(checkFunctionDoesntSpreadBeyondRange(model, "A1:B1")).toBeTruthy();
   });
@@ -2841,40 +2841,40 @@ describe("SUBTOTAL formula", () => {
   describe("function codes greater than 100 (ignoring hidden rows)", () => {
     test("write the SUBTOTAL formula after hiding rows", async () => {
       const model = await createModel();
-      setCellContent(model, "A2", "1");
-      setCellContent(model, "A3", "2");
-      setCellContent(model, "A4", "3");
-      hideRows(model, [2]);
-      setCellContent(model, "A1", "=SUBTOTAL(109, A2:A4)"); // 109: SUM ignoring hidden rows
+      await setCellContent(model, "A2", "1");
+      await setCellContent(model, "A3", "2");
+      await setCellContent(model, "A4", "3");
+      await hideRows(model, [2]);
+      await setCellContent(model, "A1", "=SUBTOTAL(109, A2:A4)"); // 109: SUM ignoring hidden rows
       expect(getEvaluatedCell(model, "A1").value).toBe(4);
     });
     test("write the SUBTOTAL formula before hiding rows", async () => {
       const model = await createModel();
-      setCellContent(model, "A2", "1");
-      setCellContent(model, "A3", "2");
-      setCellContent(model, "A4", "3");
-      setCellContent(model, "A1", "=SUBTOTAL(109, A2:A4)"); // 109: SUM ignoring hidden rows
-      hideRows(model, [2]);
+      await setCellContent(model, "A2", "1");
+      await setCellContent(model, "A3", "2");
+      await setCellContent(model, "A4", "3");
+      await setCellContent(model, "A1", "=SUBTOTAL(109, A2:A4)"); // 109: SUM ignoring hidden rows
+      await hideRows(model, [2]);
       expect(getEvaluatedCell(model, "A1").value).toBe(4);
     });
     test("unhide rows after writing the SUBTOTAL formula", async () => {
       const model = await createModel();
-      setCellContent(model, "A2", "1");
-      setCellContent(model, "A3", "2");
-      setCellContent(model, "A4", "3");
-      setCellContent(model, "A1", "=SUBTOTAL(109, A2:A4)"); // 109: SUM ignoring hidden rows
-      hideRows(model, [1, 2, 3]);
-      unhideRows(model, [2]);
+      await setCellContent(model, "A2", "1");
+      await setCellContent(model, "A3", "2");
+      await setCellContent(model, "A4", "3");
+      await setCellContent(model, "A1", "=SUBTOTAL(109, A2:A4)"); // 109: SUM ignoring hidden rows
+      await hideRows(model, [1, 2, 3]);
+      await unhideRows(model, [2]);
       expect(getEvaluatedCell(model, "A1").value).toBe(2);
     });
   });
   test("function codes greater than 100 (ignoring hidden rows)", async () => {
     const model = await createModel();
-    setCellContent(model, "A2", "1");
-    setCellContent(model, "A3", "2");
-    setCellContent(model, "A4", "3");
-    hideRows(model, [2]);
-    setCellContent(model, "A1", "=SUBTOTAL(109, A2:A4)"); // 109: SUM ignoring hidden rows
+    await setCellContent(model, "A2", "1");
+    await setCellContent(model, "A3", "2");
+    await setCellContent(model, "A4", "3");
+    await hideRows(model, [2]);
+    await setCellContent(model, "A1", "=SUBTOTAL(109, A2:A4)"); // 109: SUM ignoring hidden rows
     expect(getEvaluatedCell(model, "A1").value).toBe(4);
   });
   test("SUBTOTAL dont take into account other SUBTOTAL", async () => {
@@ -2906,24 +2906,24 @@ describe("SUBTOTAL formula", () => {
   describe("ignoring filtered rows", () => {
     test("write the SUBTOTAL formula after updating filter", async () => {
       const model = await createModel();
-      setCellContent(model, "A1", "Header");
-      setCellContent(model, "A2", "1");
-      setCellContent(model, "A3", "2");
-      setCellContent(model, "A4", "3");
-      createTableWithFilter(model, "A1:A4");
-      updateFilter(model, "A1", ["2"]);
-      setCellContent(model, "B1", "=SUBTOTAL(9, A2:A4)"); // SUM aggregate function
+      await setCellContent(model, "A1", "Header");
+      await setCellContent(model, "A2", "1");
+      await setCellContent(model, "A3", "2");
+      await setCellContent(model, "A4", "3");
+      await createTableWithFilter(model, "A1:A4");
+      await updateFilter(model, "A1", ["2"]);
+      await setCellContent(model, "B1", "=SUBTOTAL(9, A2:A4)"); // SUM aggregate function
       expect(getEvaluatedCell(model, "B1").value).toBe(4);
     });
     test("write the SUBTOTAL formula before updating filter", async () => {
       const model = await createModel();
-      setCellContent(model, "A1", "Header");
-      setCellContent(model, "A2", "1");
-      setCellContent(model, "A3", "2");
-      setCellContent(model, "A4", "3");
-      setCellContent(model, "B1", "=SUBTOTAL(9, A2:A4)"); // SUM aggregate function
-      createTableWithFilter(model, "A1:A4");
-      updateFilter(model, "A1", ["2"]);
+      await setCellContent(model, "A1", "Header");
+      await setCellContent(model, "A2", "1");
+      await setCellContent(model, "A3", "2");
+      await setCellContent(model, "A4", "3");
+      await setCellContent(model, "B1", "=SUBTOTAL(9, A2:A4)"); // SUM aggregate function
+      await createTableWithFilter(model, "A1:A4");
+      await updateFilter(model, "A1", ["2"]);
       expect(getEvaluatedCell(model, "B1").value).toBe(4);
     });
   });

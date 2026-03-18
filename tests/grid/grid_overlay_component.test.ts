@@ -51,9 +51,9 @@ let env: SpreadsheetChildEnv;
 ColResizer.prototype._getMaxSize = () => 1000;
 RowResizer.prototype._getMaxSize = () => 1000;
 
-function fillData() {
+async function fillData() {
   for (let i = 0; i < 8; i++) {
-    setCellContent(model, toXC(i, i), "i");
+    await setCellContent(model, toXC(i, i), "i");
   }
 }
 
@@ -169,7 +169,7 @@ describe("Resizer component", () => {
   });
 
   test.each(ZOOM_VALUES)("can click on a header to select a column", async (zoom) => {
-    setZoom(model, zoom / 100);
+    await setZoom(model, zoom / 100);
     await selectColumn("C");
     expect(model.getters.getSelectedZones()[0]).toEqual({ left: 2, top: 0, right: 2, bottom: 9 });
     expect(getSelectionAnchorCellXc(model)).toBe("C1");
@@ -177,7 +177,7 @@ describe("Resizer component", () => {
   });
 
   test("On a sheet with a single row, can click a header to select a column", async () => {
-    deleteRows(model, [1, 2, 3, 4, 5, 6, 7, 8, 9]);
+    await deleteRows(model, [1, 2, 3, 4, 5, 6, 7, 8, 9]);
     expect(model.getters.getNumberRows(model.getters.getActiveSheetId())).toBe(1);
     await selectColumn("C");
     expect(model.getters.getSelectedZones()[0]).toEqual({ left: 2, top: 0, right: 2, bottom: 0 });
@@ -201,14 +201,14 @@ describe("Resizer component", () => {
   });
 
   test.each(ZOOM_VALUES)("can click on a row-header to select a row", async (zoom) => {
-    setZoom(model, zoom / 100);
+    await setZoom(model, zoom / 100);
     await selectRow(2, {}, zoom / 100);
     expect(model.getters.getSelectedZones()[0]).toEqual({ left: 0, top: 2, right: 9, bottom: 2 });
     expect(getSelectionAnchorCellXc(model)).toBe("A3");
   });
 
   test("In a sheet with a single column, can click on a row-header to select a row", async () => {
-    deleteColumns(model, ["B", "C", "D", "E", "F", "G", "H", "I", "J"]);
+    await deleteColumns(model, ["B", "C", "D", "E", "F", "G", "H", "I", "J"]);
     expect(model.getters.getNumberCols(model.getters.getActiveSheetId())).toBe(1);
     await selectRow(2);
     expect(model.getters.getSelectedZones()[0]).toEqual({ left: 0, top: 2, right: 0, bottom: 2 });
@@ -312,7 +312,7 @@ describe("Resizer component", () => {
   test("Can resize columns with some hidden", async () => {
     const sheetId = model.getters.getActiveSheetId();
     const col_A = model.getters.getColSize(sheetId, 0);
-    hideColumns(model, ["D", "E"]);
+    await hideColumns(model, ["D", "E"]);
     await selectColumn("C");
     await selectColumn("F", { shiftKey: true });
     await resizeColumn("D", 50);
@@ -342,7 +342,7 @@ describe("Resizer component", () => {
   test("Can resize rows with some hidden", async () => {
     const sheetId = model.getters.getActiveSheetId();
     const row_1 = model.getters.getRowSize(sheetId, 0);
-    hideRows(model, [3, 4]);
+    await hideRows(model, [3, 4]);
     await selectRow(2);
     await selectRow(5, { shiftKey: true });
     await resizeRow(3, 50);
@@ -410,7 +410,7 @@ describe("Resizer component", () => {
   });
 
   test("Double click: Modify the size of a column", async () => {
-    setCellContent(model, "B2", "b2");
+    await setCellContent(model, "B2", "b2");
     await dblClickColumn("B");
     await nextTick();
     const expectedSize = 2 * 13 + 2 * PADDING_AUTORESIZE_HORIZONTAL; // 2 * letter size + 2 * padding
@@ -419,8 +419,8 @@ describe("Resizer component", () => {
   });
 
   test("Double click on column then undo, then redo", async () => {
-    setCellContent(model, "C2", "C2");
-    setCellContent(model, "D2", "D2");
+    await setCellContent(model, "C2", "C2");
+    await setCellContent(model, "D2", "D2");
     await selectColumn("C");
     await selectColumn("D", { ctrlKey: true });
     await dblClickColumn("D");
@@ -434,13 +434,13 @@ describe("Resizer component", () => {
     expect(model.getters.getColDimensions(sheetId, 4)!.start).toBe(
       initialSize * 2 + resizedSize * 2
     );
-    undo(model);
+    await undo(model);
     expect(model.getters.getColSize(sheetId, 1)).toBe(initialSize);
     expect(model.getters.getColSize(sheetId, 2)).toBe(initialSize);
     expect(model.getters.getColSize(sheetId, 3)).toBe(initialSize);
     expect(model.getters.getColSize(sheetId, 4)).toBe(initialSize);
     expect(model.getters.getColDimensions(sheetId, 4)!.start).toBe(initialSize * 4);
-    redo(model);
+    await redo(model);
     expect(model.getters.getColSize(sheetId, 1)).toBe(initialSize);
     expect(model.getters.getColSize(sheetId, 2)).toBe(resizedSize);
     expect(model.getters.getColSize(sheetId, 3)).toBe(resizedSize);
@@ -451,9 +451,9 @@ describe("Resizer component", () => {
   });
 
   test("Double click: Modify the size of a row", async () => {
-    resizeRows(model, [1], 30);
+    await resizeRows(model, [1], 30);
     expect(model.getters.getRowSize(model.getters.getActiveSheetId(), 1)).toBe(30);
-    setCellContent(model, "B2", "b2");
+    await setCellContent(model, "B2", "b2");
     await dblClickRow(1);
     await nextTick();
     expect(model.getters.getRowSize(model.getters.getActiveSheetId(), 1)).toBe(DEFAULT_CELL_HEIGHT);
@@ -461,10 +461,10 @@ describe("Resizer component", () => {
   });
 
   test("Double click on rows then undo, then redo", async () => {
-    fillData();
-    resizeRows(model, [0, 1, 2, 3, 4], 30);
-    setCellContent(model, "C3", "C3");
-    setCellContent(model, "C4", "C4");
+    await fillData();
+    await resizeRows(model, [0, 1, 2, 3, 4], 30);
+    await setCellContent(model, "C3", "C3");
+    await setCellContent(model, "C4", "C4");
     await selectRow(2);
     await selectRow(3, { ctrlKey: true });
     await dblClickRow(2);
@@ -476,13 +476,13 @@ describe("Resizer component", () => {
     expect(model.getters.getRowSize(sheetId, 3)).toBe(size);
     expect(model.getters.getRowSize(sheetId, 4)).toBe(initialSize);
     expect(model.getters.getRowDimensions(sheetId, 4)!.start).toBe(initialSize * 2 + size * 2);
-    undo(model);
+    await undo(model);
     expect(model.getters.getRowSize(sheetId, 1)).toBe(initialSize);
     expect(model.getters.getRowSize(sheetId, 2)).toBe(initialSize);
     expect(model.getters.getRowSize(sheetId, 3)).toBe(initialSize);
     expect(model.getters.getRowSize(sheetId, 4)).toBe(initialSize);
     expect(model.getters.getRowDimensions(sheetId, 4)!.start).toBe(initialSize * 4);
-    redo(model);
+    await redo(model);
     expect(model.getters.getRowSize(sheetId, 1)).toBe(initialSize);
     expect(model.getters.getRowSize(sheetId, 2)).toBe(size);
     expect(model.getters.getRowSize(sheetId, 3)).toBe(size);
@@ -584,7 +584,7 @@ describe("Resizer component", () => {
   });
 
   test("Select ABC E, dblclick E then resize all", async () => {
-    fillData();
+    await fillData();
     await selectColumn("A");
     await selectColumn("C", { shiftKey: true });
     await selectColumn("E", { ctrlKey: true });
@@ -598,7 +598,7 @@ describe("Resizer component", () => {
   });
 
   test("Select ABC E, dblclick F then resize only F", async () => {
-    fillData();
+    await fillData();
     await selectColumn("A");
     await selectColumn("C", { shiftKey: true });
     await selectColumn("E", { ctrlKey: true });
@@ -613,8 +613,8 @@ describe("Resizer component", () => {
   });
 
   test("Select 123 5, dblclick 5 then resize all", async () => {
-    fillData();
-    resizeRows(model, [0, 1, 2, 3, 4, 5, 6], 30);
+    await fillData();
+    await resizeRows(model, [0, 1, 2, 3, 4, 5, 6], 30);
     await selectRow(0);
     await selectRow(2, { shiftKey: true });
     await selectRow(4, { ctrlKey: true });
@@ -627,8 +627,8 @@ describe("Resizer component", () => {
   });
 
   test("Select 123 5, dblclick 6 then resize only 6", async () => {
-    fillData();
-    resizeRows(model, [0, 1, 2, 3, 4, 5, 6], 30);
+    await fillData();
+    await resizeRows(model, [0, 1, 2, 3, 4, 5, 6], 30);
     await selectRow(0);
     await selectRow(2, { shiftKey: true });
     await selectRow(4, { ctrlKey: true });
@@ -690,7 +690,7 @@ describe("Hide/show columns", () => {
     ({ fixture } = await mountSpreadsheet({ model }));
   });
   test("Hide A unhide it", async () => {
-    hideColumns(model, ["A"]);
+    await hideColumns(model, ["A"]);
     await nextTick();
     const x = model.getters.getColDimensions(model.getters.getActiveSheetId(), 0)!.end + 10;
     triggerMouseEvent(".o-overlay .o-col-resizer .o-unhide[data-index='0']", "click", x, 10);
@@ -698,7 +698,7 @@ describe("Hide/show columns", () => {
   });
 
   test("hide BCD, unhide it", async () => {
-    hideColumns(model, ["B", "C", "D"]);
+    await hideColumns(model, ["B", "C", "D"]);
     // from the left
     await nextTick();
     let x = model.getters.getColDimensions(model.getters.getActiveSheetId(), 1)!.start - 10;
@@ -708,7 +708,7 @@ describe("Hide/show columns", () => {
     );
     expect(model.getters.getHiddenColsGroups(model.getters.getActiveSheetId())).toEqual([]);
     // from the right
-    undo(model);
+    await undo(model);
     expect(model.getters.getHiddenColsGroups(model.getters.getActiveSheetId())).toEqual([
       [1, 2, 3],
     ]);
@@ -724,14 +724,14 @@ describe("Hide/show columns", () => {
   });
 
   test("hide  A, B, D:E and unhide A-B", async () => {
-    hideColumns(model, ["A", "B", "D", "E"]);
+    await hideColumns(model, ["A", "B", "D", "E"]);
     await nextTick();
     const x = model.getters.getColDimensions(model.getters.getActiveSheetId(), 1)!.end + 10;
     triggerMouseEvent(".o-overlay .o-col-resizer .o-unhide[data-index='0']", "click", x, 10);
     expect(model.getters.getHiddenColsGroups(model.getters.getActiveSheetId())).toEqual([[3, 4]]);
   });
   test("hide A, C, E:F and unhide C", async () => {
-    hideColumns(model, ["A", "C", "E", "F"]);
+    await hideColumns(model, ["A", "C", "E", "F"]);
     await nextTick();
     const x = model.getters.getColDimensions(model.getters.getActiveSheetId(), 2)!.end + 10;
     triggerMouseEvent(".o-overlay .o-col-resizer .o-unhide[data-index='1']", "click", x, 10);
@@ -750,26 +750,26 @@ describe("Hide/show columns", () => {
       ];
     };
     test("No buttons if the columns adjacent to the hidden group are hidden", async () => {
-      hideColumns(model, ["D"]);
+      await hideColumns(model, ["D"]);
       await nextTick();
       const unhideButtons = getUnhideColumnButtons();
       expect(unhideButtons).toHaveLength(2);
 
-      setViewportOffset(model, 5 * DEFAULT_CELL_WIDTH, 0);
+      await setViewportOffset(model, 5 * DEFAULT_CELL_WIDTH, 0);
       await nextTick();
       expect(getUnhideColumnButtons()).toHaveLength(0);
     });
 
     test("left button is hidden if the column before the hidden group is not in the viewport", async () => {
-      freezeColumns(model, 1);
-      hideColumns(model, ["D"]);
+      await freezeColumns(model, 1);
+      await hideColumns(model, ["D"]);
       await nextTick();
 
       let unhideButtons = getUnhideColumnButtons();
       expect(unhideButtons).toHaveLength(2);
       expect(unhideButtons.some((el) => el.classList.contains("invisible"))).toBeFalsy();
 
-      setViewportOffset(model, 2 * DEFAULT_CELL_WIDTH, 0);
+      await setViewportOffset(model, 2 * DEFAULT_CELL_WIDTH, 0);
       await nextTick();
       unhideButtons = getUnhideColumnButtons();
 
@@ -778,14 +778,14 @@ describe("Hide/show columns", () => {
     });
 
     test("right button is hidden if the column after the hidden group is not in the viewport", async () => {
-      hideColumns(model, ["F"]);
+      await hideColumns(model, ["F"]);
       await nextTick();
 
       let unhideButtons = getUnhideColumnButtons();
       expect(unhideButtons).toHaveLength(2);
       expect(unhideButtons.some((el) => el.classList.contains("invisible"))).toBeFalsy();
 
-      setSheetviewSize(model, 1000, DEFAULT_CELL_WIDTH * 5);
+      await setSheetviewSize(model, 1000, DEFAULT_CELL_WIDTH * 5);
       await nextTick();
       unhideButtons = getUnhideColumnButtons();
 
@@ -801,7 +801,7 @@ describe("Hide/show rows", () => {
     ({ fixture } = await mountSpreadsheet({ model }));
   });
   test("hide 1, unhide it", async () => {
-    hideRows(model, [0]);
+    await hideRows(model, [0]);
     await nextTick();
     const y = model.getters.getRowDimensions(model.getters.getActiveSheetId(), 0)!.end + 10;
     triggerMouseEvent(
@@ -814,7 +814,7 @@ describe("Hide/show rows", () => {
   });
 
   test("hide 2:4, unhide it", async () => {
-    hideRows(model, [1, 2, 3]);
+    await hideRows(model, [1, 2, 3]);
     // from the left
     await nextTick();
     let y = model.getters.getRowDimensions(model.getters.getActiveSheetId(), 1)!.start - 10;
@@ -824,7 +824,7 @@ describe("Hide/show rows", () => {
     );
     expect(model.getters.getHiddenRowsGroups(model.getters.getActiveSheetId())).toEqual([]);
     // from the right
-    undo(model);
+    await undo(model);
     expect(model.getters.getHiddenRowsGroups(model.getters.getActiveSheetId())).toEqual([
       [1, 2, 3],
     ]);
@@ -839,7 +839,7 @@ describe("Hide/show rows", () => {
     expect(model.getters.getHiddenRowsGroups(model.getters.getActiveSheetId())).toEqual([]);
   });
   test("hide  0,1,3,4  and unhide 0", async () => {
-    hideRows(model, [0, 1, 3, 4]);
+    await hideRows(model, [0, 1, 3, 4]);
     await nextTick();
     const y = model.getters.getRowDimensions(model.getters.getActiveSheetId(), 1)!.end + 10;
     triggerMouseEvent(
@@ -851,7 +851,7 @@ describe("Hide/show rows", () => {
     expect(model.getters.getHiddenRowsGroups(model.getters.getActiveSheetId())).toEqual([[3, 4]]);
   });
   test("hide 0, 2, 4,5 and unhide 2", async () => {
-    hideRows(model, [0, 2, 4, 5]);
+    await hideRows(model, [0, 2, 4, 5]);
     await nextTick();
     const y = model.getters.getRowDimensions(model.getters.getActiveSheetId(), 2)!.end + 10;
     triggerMouseEvent(
@@ -875,26 +875,26 @@ describe("Hide/show rows", () => {
       ];
     };
     test("No buttons if the rows adjacent to the hidden group are not in the viewport", async () => {
-      hideRows(model, [3]);
+      await hideRows(model, [3]);
       await nextTick();
       const unhideButtons = getUnhideRowButtons();
       expect(unhideButtons).toHaveLength(2);
 
-      setViewportOffset(model, 0, 5 * DEFAULT_CELL_HEIGHT);
+      await setViewportOffset(model, 0, 5 * DEFAULT_CELL_HEIGHT);
       await nextTick();
       expect(getUnhideRowButtons()).toHaveLength(0);
     });
 
     test("top button is hidden if the row before the hidden group is not in the viewport", async () => {
-      freezeRows(model, 1);
-      hideRows(model, [3]);
+      await freezeRows(model, 1);
+      await hideRows(model, [3]);
       await nextTick();
 
       let unhideButtons = getUnhideRowButtons();
       expect(unhideButtons).toHaveLength(2);
       expect(unhideButtons.some((el) => el.classList.contains("invisible"))).toBeFalsy();
 
-      setViewportOffset(model, 0, 2 * DEFAULT_CELL_HEIGHT);
+      await setViewportOffset(model, 0, 2 * DEFAULT_CELL_HEIGHT);
       await nextTick();
       unhideButtons = getUnhideRowButtons();
 
@@ -903,14 +903,14 @@ describe("Hide/show rows", () => {
     });
 
     test("bottom button is hidden if the row after the hidden group is not in the viewport", async () => {
-      hideRows(model, [5]);
+      await hideRows(model, [5]);
       await nextTick();
 
       let unhideButtons = getUnhideRowButtons();
       expect(unhideButtons).toHaveLength(2);
       expect(unhideButtons.some((el) => el.classList.contains("invisible"))).toBeFalsy();
 
-      setSheetviewSize(model, DEFAULT_CELL_HEIGHT * 5, 1000);
+      await setSheetviewSize(model, DEFAULT_CELL_HEIGHT * 5, 1000);
       await nextTick();
       unhideButtons = getUnhideRowButtons();
 
@@ -1023,8 +1023,8 @@ describe("move selected element(s)", () => {
 
   describe("move selected column(s)", () => {
     test("drag selected B to C --> C arrive before B", async () => {
-      setCellContent(model, "B1", "b1");
-      setCellContent(model, "C1", "c1");
+      await setCellContent(model, "B1", "b1");
+      await setCellContent(model, "C1", "c1");
 
       await selectColumn("B");
       // last selected column is now the column B
@@ -1035,8 +1035,8 @@ describe("move selected element(s)", () => {
     });
 
     test("drag selected C to B --> C arrive before B", async () => {
-      setCellContent(model, "B1", "b1");
-      setCellContent(model, "C1", "c1");
+      await setCellContent(model, "B1", "b1");
+      await setCellContent(model, "C1", "c1");
 
       await selectColumn("C");
       // last selected column is now the column C
@@ -1047,9 +1047,9 @@ describe("move selected element(s)", () => {
     });
 
     test("drag selected C,D to B (mouseDown on C) --> C,D arrive before B", async () => {
-      setCellContent(model, "B1", "b1");
-      setCellContent(model, "C1", "c1");
-      setCellContent(model, "D1", "d1");
+      await setCellContent(model, "B1", "b1");
+      await setCellContent(model, "C1", "c1");
+      await setCellContent(model, "D1", "d1");
 
       await selectColumn("C");
       await selectColumn("D", { shiftKey: true });
@@ -1062,9 +1062,9 @@ describe("move selected element(s)", () => {
     });
 
     test("drag selected C,D to B (mouseDown on D) --> C,D arrive before B", async () => {
-      setCellContent(model, "B1", "b1");
-      setCellContent(model, "C1", "c1");
-      setCellContent(model, "D1", "d1");
+      await setCellContent(model, "B1", "b1");
+      await setCellContent(model, "C1", "c1");
+      await setCellContent(model, "D1", "d1");
 
       await selectColumn("C");
       await selectColumn("D", { shiftKey: true });
@@ -1077,9 +1077,9 @@ describe("move selected element(s)", () => {
     });
 
     test("drag selected C,D to E (mouseDown on C) -->  E arrive before C,D", async () => {
-      setCellContent(model, "C1", "c1");
-      setCellContent(model, "D1", "d1");
-      setCellContent(model, "E1", "e1");
+      await setCellContent(model, "C1", "c1");
+      await setCellContent(model, "D1", "d1");
+      await setCellContent(model, "E1", "e1");
 
       await selectColumn("C");
       await selectColumn("D", { shiftKey: true });
@@ -1092,9 +1092,9 @@ describe("move selected element(s)", () => {
     });
 
     test("drag selected C,D to E (mouseDown on D) --> E arrive before C,D", async () => {
-      setCellContent(model, "C1", "c1");
-      setCellContent(model, "D1", "d1");
-      setCellContent(model, "E1", "e1");
+      await setCellContent(model, "C1", "c1");
+      await setCellContent(model, "D1", "d1");
+      await setCellContent(model, "E1", "e1");
 
       await selectColumn("C");
       await selectColumn("D", { shiftKey: true });
@@ -1107,8 +1107,8 @@ describe("move selected element(s)", () => {
     });
 
     test("drag selected C,D to C (mouseDown on D) --> does nothing", async () => {
-      setCellContent(model, "C1", "c1");
-      setCellContent(model, "D1", "d1");
+      await setCellContent(model, "C1", "c1");
+      await setCellContent(model, "D1", "d1");
 
       await selectColumn("C");
       await selectColumn("D", { shiftKey: true });
@@ -1120,8 +1120,8 @@ describe("move selected element(s)", () => {
     });
 
     test("drag selected C,D to D (mouseDown on C) --> does nothing", async () => {
-      setCellContent(model, "C1", "c1");
-      setCellContent(model, "D1", "d1");
+      await setCellContent(model, "C1", "c1");
+      await setCellContent(model, "D1", "d1");
 
       await selectColumn("C");
       await selectColumn("D", { shiftKey: true });
@@ -1133,9 +1133,9 @@ describe("move selected element(s)", () => {
     });
 
     test("can't move a selected col that isn't the last selected zone", async () => {
-      setCellContent(model, "B1", "b1");
-      setCellContent(model, "C1", "c1");
-      setCellContent(model, "D1", "d1");
+      await setCellContent(model, "B1", "b1");
+      await setCellContent(model, "C1", "c1");
+      await setCellContent(model, "D1", "d1");
 
       await selectColumn("B");
       // last selected column is now column B
@@ -1161,8 +1161,8 @@ describe("move selected element(s)", () => {
 
   describe("move selected row(s)", () => {
     test("drag selected 2 to 3 --> 2 arrive before 3", async () => {
-      setCellContent(model, "A2", "a2");
-      setCellContent(model, "A3", "a3");
+      await setCellContent(model, "A2", "a2");
+      await setCellContent(model, "A3", "a3");
 
       await selectRow(1);
       // last selected row is now row 2
@@ -1173,8 +1173,8 @@ describe("move selected element(s)", () => {
     });
 
     test("drag selected 3 to 2 --> 2 arrive before 3", async () => {
-      setCellContent(model, "A2", "a2");
-      setCellContent(model, "A3", "a3");
+      await setCellContent(model, "A2", "a2");
+      await setCellContent(model, "A3", "a3");
 
       await selectRow(2);
       // last selected row is now row 3
@@ -1185,9 +1185,9 @@ describe("move selected element(s)", () => {
     });
 
     test("drag selected 3,4 to 2 (mouseDown on 3) --> 3,4 arrive before 2", async () => {
-      setCellContent(model, "A2", "a2");
-      setCellContent(model, "A3", "a3");
-      setCellContent(model, "A4", "a4");
+      await setCellContent(model, "A2", "a2");
+      await setCellContent(model, "A3", "a3");
+      await setCellContent(model, "A4", "a4");
 
       await selectRow(2);
       await selectRow(3, { shiftKey: true });
@@ -1200,9 +1200,9 @@ describe("move selected element(s)", () => {
     });
 
     test("drag selected 3,4 to 2 (mouseDown on 4) --> 3,4 arrive before 2", async () => {
-      setCellContent(model, "A2", "a2");
-      setCellContent(model, "A3", "a3");
-      setCellContent(model, "A4", "a4");
+      await setCellContent(model, "A2", "a2");
+      await setCellContent(model, "A3", "a3");
+      await setCellContent(model, "A4", "a4");
 
       await selectRow(2);
       await selectRow(3, { shiftKey: true });
@@ -1215,9 +1215,9 @@ describe("move selected element(s)", () => {
     });
 
     test("drag selected 3,4 to 5 (mouseDown on 3) -->  5 arrive before 3,4", async () => {
-      setCellContent(model, "A3", "a3");
-      setCellContent(model, "A4", "a4");
-      setCellContent(model, "A5", "a5");
+      await setCellContent(model, "A3", "a3");
+      await setCellContent(model, "A4", "a4");
+      await setCellContent(model, "A5", "a5");
 
       await selectRow(2);
       await selectRow(3, { shiftKey: true });
@@ -1230,9 +1230,9 @@ describe("move selected element(s)", () => {
     });
 
     test("drag selected 3,4 to 5 (mouseDown on 4) -->  5 arrive before 3,4", async () => {
-      setCellContent(model, "A3", "a3");
-      setCellContent(model, "A4", "a4");
-      setCellContent(model, "A5", "a5");
+      await setCellContent(model, "A3", "a3");
+      await setCellContent(model, "A4", "a4");
+      await setCellContent(model, "A5", "a5");
 
       await selectRow(2);
       await selectRow(3, { shiftKey: true });
@@ -1245,8 +1245,8 @@ describe("move selected element(s)", () => {
     });
 
     test("drag selected 3,4 to 3 (mouseDown on 4) --> does nothing", async () => {
-      setCellContent(model, "A3", "a3");
-      setCellContent(model, "A4", "a4");
+      await setCellContent(model, "A3", "a3");
+      await setCellContent(model, "A4", "a4");
 
       await selectRow(2);
       await selectRow(3, { shiftKey: true });
@@ -1258,8 +1258,8 @@ describe("move selected element(s)", () => {
     });
 
     test("drag selected 3,4 to 4 (mouseDown on 3) --> does nothing", async () => {
-      setCellContent(model, "A3", "a3");
-      setCellContent(model, "A4", "a4");
+      await setCellContent(model, "A3", "a3");
+      await setCellContent(model, "A4", "a4");
 
       await selectRow(2);
       await selectRow(3, { shiftKey: true });
@@ -1271,9 +1271,9 @@ describe("move selected element(s)", () => {
     });
 
     test("can't move a selected row that isn't the last selected zone", async () => {
-      setCellContent(model, "A2", "a2");
-      setCellContent(model, "A3", "a3");
-      setCellContent(model, "A4", "a4");
+      await setCellContent(model, "A2", "a2");
+      await setCellContent(model, "A3", "a3");
+      await setCellContent(model, "A4", "a4");
 
       await selectRow(1);
       // last selected row is now row 2
@@ -1289,7 +1289,7 @@ describe("move selected element(s)", () => {
   });
 
   test("Can select a column within a merge", async () => {
-    merge(model, "B1:C1");
+    await merge(model, "B1:C1");
     await selectColumn("A");
     await selectColumn("B", { shiftKey: true });
     expect(model.getters.getActiveCols()).toEqual(new Set([0, 1]));
@@ -1298,7 +1298,7 @@ describe("move selected element(s)", () => {
   });
 
   test("Can select a row within a merge", async () => {
-    merge(model, "B2:B3");
+    await merge(model, "B2:B3");
     await selectRow(0);
     await selectRow(1, { shiftKey: true });
     expect(model.getters.getActiveRows()).toEqual(new Set([0, 1]));

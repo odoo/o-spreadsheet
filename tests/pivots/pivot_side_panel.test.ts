@@ -16,7 +16,7 @@ import {
   nextTick,
   setGrid,
 } from "../test_helpers/helpers";
-import { SELECTORS, addPivot, removePivot, updatePivot } from "../test_helpers/pivot_helpers";
+import { addPivot, removePivot, SELECTORS, updatePivot } from "../test_helpers/pivot_helpers";
 
 describe("Pivot side panel", () => {
   let model: Model;
@@ -91,10 +91,10 @@ describe("Pivot side panel", () => {
     removePivot(model, "1");
     env.openSidePanel("PivotSidePanel", { pivotId: "2" });
     await nextTick();
-    createSheet(model, { sheetId: "toDelete", activate: true });
+    await createSheet(model, { sheetId: "toDelete", activate: true });
     await nextTick();
     // force the invalidation of the pivot definition
-    deleteSheet(model, "toDelete");
+    await deleteSheet(model, "toDelete");
     await nextTick();
     expect(fixture.querySelector(".o-sidePanel")).not.toBeNull();
   });
@@ -130,7 +130,7 @@ describe("Pivot side panel", () => {
 
   test("Pivot cells are highlighted when the panel is open on the config tab", async () => {
     // prettier-ignore
-    setGrid(model, {
+    await setGrid(model, {
       A1: "Partner", B1: "Amount",
       A2: "Alice", B2: "10",
       A5: "=PIVOT(1)"
@@ -148,7 +148,7 @@ describe("Pivot side panel", () => {
 
   test("Renaming the computed measure the pivot is sorted on keep the sorting", async () => {
     // prettier-ignore
-    setGrid(model, {
+    await setGrid(model, {
       A1: "Partner", B1: "Amount",
       A2: "Alice", B2: "10",
       A5: "=PIVOT(1)"
@@ -187,7 +187,7 @@ describe("Pivot side panel", () => {
       A4: "Bob",      B4: "30",     C4: "2020",  D4: "FALSE",  E4: "Marc",
       A5: "Bob",      B5: "40",     C5: "2021",  D5: "TRUE",   E5: "Marc",
     };
-    setGrid(model, grid);
+    await setGrid(model, grid);
     updatePivot(model, "1", {
       columns: [{ fieldName: "Customer" }, { fieldName: "Year" }],
       rows: [{ fieldName: "Client" }, { fieldName: "Active" }],
@@ -220,7 +220,7 @@ describe("Pivot side panel", () => {
 
   test("External update of the calulated formula impacts the side panel", async () => {
     // prettier-ignore
-    setGrid(model, {
+    await setGrid(model, {
       A1: "Partner", B1: "Amount",
       A2: "Alice", B2: "10",
       A5: "=PIVOT(1)"
@@ -260,7 +260,7 @@ describe("Pivot side panel", () => {
       A2: "Alice",    B2: "10",     C2: "2020",
       A3: "Alice",    B3: "20",     C3: "2021",
     };
-    setGrid(model, grid);
+    await setGrid(model, grid);
     updatePivot(model, "1", {
       columns: [{ fieldName: "Customer" }, { fieldName: "Year" }],
       rows: [],
@@ -290,7 +290,7 @@ describe("Pivot side panel", () => {
       A2: "Alice",    B2: "10",    C2: "2020",
       A3: "Alice",    B3: "20",    C3: "2021",
 	  };
-    setGrid(model, grid);
+    await setGrid(model, grid);
     updatePivot(model, "1", {
       columns: [{ fieldName: "Customer" }, { fieldName: "Year" }],
       rows: [],
@@ -317,7 +317,7 @@ describe("Pivot side panel", () => {
       A2: "Alice",    B2: "10",    C2: "2020",
       A3: "Alice",    B3: "20",    C3: "2021",
 	  };
-    setGrid(model, grid);
+    await setGrid(model, grid);
     updatePivot(model, "1", {
       columns: [{ fieldName: "Customer" }, { fieldName: "Year" }],
       rows: [],
@@ -339,7 +339,7 @@ describe("Pivot side panel", () => {
 
   test("Changing a measure aggregator also changes the related calculated measures", async () => {
     // prettier-ignore
-    setGrid(model, {
+    await setGrid(model, {
       A1: "Partner", B1: "Amount",
       A2: "Alice", B2: "10",
       A5: "=PIVOT(1)"
@@ -385,7 +385,7 @@ describe("Pivot side panel", () => {
 
   test("Changing a calculated measure name also changes the related calculated measures", async () => {
     // prettier-ignore
-    setGrid(model, {
+    await setGrid(model, {
       A1: "Partner", B1: "Amount",
       A2: "Alice", B2: "10",
       A5: "=PIVOT(1)"

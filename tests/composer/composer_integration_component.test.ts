@@ -131,16 +131,16 @@ describe("Composer interactions", () => {
   });
 
   test("top bar composer display active cell content", async () => {
-    setCellContent(model, "A2", "Hello");
-    selectCell(model, "A2");
+    await setCellContent(model, "A2", "Hello");
+    await selectCell(model, "A2");
     await nextTick();
     const topBarComposer = document.querySelector(".o-spreadsheet-topbar .o-composer");
     expect(topBarComposer!.textContent).toBe("Hello");
   });
 
   test("top bar composer displays formatted date cell content", async () => {
-    setCellContent(model, "A2", "10/10/2021");
-    selectCell(model, "A2");
+    await setCellContent(model, "A2", "10/10/2021");
+    await selectCell(model, "A2");
     await nextTick();
     const topBarComposer = document.querySelector(".o-spreadsheet-topbar .o-composer")!;
     expect(topBarComposer.textContent).toBe("10/10/2021");
@@ -159,8 +159,8 @@ describe("Composer interactions", () => {
   });
 
   test("autocomplete disappear when selecting a cell in the grid", async () => {
-    setCellContent(model, "B1", "Customer");
-    setCellContent(model, "B2", "Alice");
+    await setCellContent(model, "B1", "Customer");
+    await setCellContent(model, "B2", "Alice");
 
     addPivot(model, "B1:B2", {
       columns: [],
@@ -207,9 +207,9 @@ describe("Composer interactions", () => {
     await typeInComposerTopBar("=");
     const spy = jest.spyOn(gridComposerContainer.style, "width", "set");
     await nextTick();
-    selectCell(model, "B2");
+    await selectCell(model, "B2");
     await nextTick();
-    selectCell(model, "B2");
+    await selectCell(model, "B2");
     await nextTick();
     expect(spy).not.toHaveBeenCalled();
   });
@@ -286,7 +286,7 @@ describe("Composer interactions", () => {
   });
 
   test("pressing TAB in edit mode cycles within the selection", async () => {
-    setSelection(model, ["A1:B2"], { anchor: "B1" });
+    await setSelection(model, ["A1:B2"], { anchor: "B1" });
     await keyDown({ key: "F2" });
     expect(composerStore.editionMode).toBe("editing");
     await keyDown({ key: "Tab" });
@@ -296,7 +296,7 @@ describe("Composer interactions", () => {
   });
 
   test("pressing ENTER in edit mode cycles within the selection", async () => {
-    setSelection(model, ["A1:B2"], { anchor: "A2" });
+    await setSelection(model, ["A1:B2"], { anchor: "A2" });
     await keyDown({ key: "F2" });
     expect(composerStore.editionMode).toBe("editing");
     await keyDown({ key: "Enter" });
@@ -306,14 +306,14 @@ describe("Composer interactions", () => {
   });
 
   test("Starting the edition should not display the cell reference", async () => {
-    setSelection(model, ["A1:A2"]);
+    await setSelection(model, ["A1:A2"]);
     await startComposition();
     expect(fixture.querySelector(".o-grid div.o-cell-reference")).toBeNull();
   });
 
   test("Starting the edition and scroll should display the cell reference", async () => {
     await startComposition();
-    setViewportOffset(model, 0, DEFAULT_CELL_HEIGHT * 5);
+    await setViewportOffset(model, 0, DEFAULT_CELL_HEIGHT * 5);
     await nextTick();
     const reference = fixture.querySelector(".o-grid div.o-cell-reference");
     expect(reference).not.toBeNull();
@@ -321,9 +321,9 @@ describe("Composer interactions", () => {
   });
 
   test("Starting the edition and change sheet should display the cell reference with the sheet name", async () => {
-    createSheet(model, { sheetId: "sheet2" });
+    await createSheet(model, { sheetId: "sheet2" });
     await startComposition("=");
-    activateSheet(model, "sheet2");
+    await activateSheet(model, "sheet2");
     await nextTick();
     const reference = fixture.querySelector(".o-grid div.o-cell-reference");
     expect(reference).not.toBeNull();
@@ -331,10 +331,10 @@ describe("Composer interactions", () => {
   });
 
   test("Starting the edition and change sheet should display the cell reference with the sheet name, with quotes if needed", async () => {
-    renameSheet(model, model.getters.getActiveSheetId(), "My beautiful name");
-    createSheet(model, { sheetId: "sheet2" });
+    await renameSheet(model, model.getters.getActiveSheetId(), "My beautiful name");
+    await createSheet(model, { sheetId: "sheet2" });
     await startComposition("=");
-    activateSheet(model, "sheet2");
+    await activateSheet(model, "sheet2");
     await nextTick();
     const reference = fixture.querySelector(".o-grid div.o-cell-reference");
     expect(reference).not.toBeNull();
@@ -343,7 +343,7 @@ describe("Composer interactions", () => {
 
   test("Stopping the edition resets the cell reference visibility", async () => {
     await startComposition();
-    setViewportOffset(model, 0, DEFAULT_CELL_HEIGHT * 5);
+    await setViewportOffset(model, 0, DEFAULT_CELL_HEIGHT * 5);
     await nextTick();
     const referenceSelector = ".o-grid div.o-cell-reference";
     const reference = fixture.querySelector(referenceSelector);
@@ -380,7 +380,7 @@ describe("Composer interactions", () => {
   });
 
   test("should switch topbar composer from editing to inactive when pressing Escape on cell A1 containing '=A2'", async () => {
-    setCellContent(model, "A1", "=A2");
+    await setCellContent(model, "A1", "=A2");
     await click(fixture, ".o-spreadsheet-topbar .o-composer");
     expect(composerStore.editionMode).toBe("editing");
     await keyDown({ key: "Escape" });
@@ -473,8 +473,8 @@ describe("Composer interactions", () => {
   });
 
   test("Hitting enter on topbar composer will properly update it", async () => {
-    setCellContent(model, "A1", "I am Tabouret");
-    setCellContent(model, "A2", "wooplaburg");
+    await setCellContent(model, "A1", "I am Tabouret");
+    await setCellContent(model, "A2", "wooplaburg");
     await clickCell(model, "A1");
     const topbarComposerElement = fixture.querySelector(
       ".o-spreadsheet-topbar .o-composer-container .o-composer"
@@ -486,7 +486,7 @@ describe("Composer interactions", () => {
   });
 
   test("Grid taking focus over topbar composer will properly update the latter", async () => {
-    setCellContent(model, "A1", "I am Tabouret");
+    await setCellContent(model, "A1", "I am Tabouret");
     await clickCell(model, "A1");
     const topbarComposerElement = fixture.querySelector(
       ".o-spreadsheet-topbar .o-composer-container div"
@@ -570,14 +570,14 @@ describe("Composer interactions", () => {
   });
 
   test("Composer focus is not lost when changing sheet, even when not selecting a range", async () => {
-    createSheet(model, { sheetId: "42", name: "Sheet2" });
+    await createSheet(model, { sheetId: "42", name: "Sheet2" });
     await startGridComposition("=1");
     await simulateClick(".o-sheet[data-id='42']");
     expect(composerStore.editionMode).toBe("editing");
   });
 
   test("composer focus is not lost when changing sheet from the list sheet in the bottom bar", async () => {
-    createSheet(model, { sheetId: "42", name: "Sheet2" });
+    await createSheet(model, { sheetId: "42", name: "Sheet2" });
     await startGridComposition("=1");
     await simulateClick(".o-list-sheets", 0, 0, { cancelable: true, bubbles: true });
     await simulateClick(".o-menu-item[data-name='42']", 0, 0, { cancelable: true, bubbles: true });
@@ -586,7 +586,7 @@ describe("Composer interactions", () => {
   });
 
   test("composer focus is lost when opening a sheet menu from the bottom bar", async () => {
-    createSheet(model, { sheetId: "42", name: "Sheet2" });
+    await createSheet(model, { sheetId: "42", name: "Sheet2" });
     await startGridComposition("=1");
     await simulateClick(".o-sheet[data-id='42'] .o-sheet-icon");
     expect(composerStore.editionMode).toBe("inactive");
@@ -599,7 +599,7 @@ describe("Composer interactions", () => {
   });
 
   test("Pressing Enter while editing a label does not open grid composer", async () => {
-    setCellContent(model, "A1", "[label](http://odoo.com)");
+    await setCellContent(model, "A1", "[label](http://odoo.com)");
     await simulateClick(".o-topbar-menu[data-id='insert']");
     await simulateClick(".o-menu-item[data-name='insert_link']");
     const editor = fixture.querySelector(".o-link-editor");
@@ -612,14 +612,14 @@ describe("Composer interactions", () => {
   });
 
   test("should create a table when a cell is double clicked in edit mode", async () => {
-    selectCell(model, "A1");
+    await selectCell(model, "A1");
     triggerMouseEvent(
       ".o-grid-overlay",
       "dblclick",
       0.5 * DEFAULT_CELL_WIDTH,
       0.5 * DEFAULT_CELL_HEIGHT
     );
-    createTable(model, "A1");
+    await createTable(model, "A1");
     expect(getTable(model, "A1")).toBeTruthy();
   });
 
@@ -646,26 +646,26 @@ describe("Grid composer", () => {
   test("Composer is closed when changing sheet while not editing a formula", async () => {
     const composerStore = env.getStore(CellComposerStore);
     const baseSheetId = model.getters.getActiveSheetId();
-    createSheet(model, { sheetId: "42", name: "Sheet2" });
+    await createSheet(model, { sheetId: "42", name: "Sheet2" });
     await nextTick();
 
     // Editing text
     await typeInComposerGrid("hey");
     expect(composerStore.editionMode).not.toBe("inactive");
-    activateSheet(model, "42");
+    await activateSheet(model, "42");
     await nextTick();
     expect(composerStore.editionMode).toBe("inactive");
 
     // Editing formula
     await typeInComposerGrid("=");
     expect(composerStore.editionMode).not.toBe("inactive");
-    activateSheet(model, baseSheetId);
+    await activateSheet(model, baseSheetId);
     await nextTick();
     expect(composerStore.editionMode).not.toBe("inactive");
   });
 
   test("the composer should keep the focus after changing sheet", async () => {
-    createSheet(model, { sheetId: "42", name: "Sheet2" });
+    await createSheet(model, { sheetId: "42", name: "Sheet2" });
     await nextTick();
 
     await startComposition("=");
@@ -676,11 +676,11 @@ describe("Grid composer", () => {
   });
 
   test("pressing F4 loops the references without impacting the 'redo' feature of the grid", async () => {
-    setCellContent(model, "A1", "coucou");
-    setCellContent(model, "A2", "coucou2");
-    copy(model, "A1:A2");
-    paste(model, "A3:A4");
-    selectCell(model, "B1");
+    await setCellContent(model, "A1", "coucou");
+    await setCellContent(model, "A2", "coucou2");
+    await copy(model, "A1:A2");
+    await paste(model, "A3:A4");
+    await selectCell(model, "B1");
     await startComposition("=C4");
     await keyDown({ key: "F4" });
     expect(getCellContent(model, "B2")).toBe("");
@@ -717,7 +717,7 @@ describe("Grid composer", () => {
     });
 
     test("Grid composer container is positioned over the edited cell", async () => {
-      selectCell(model, "C3");
+      await selectCell(model, "C3");
       await typeInComposerGrid("A");
 
       const expectedTop = HEADER_HEIGHT + 2 * DEFAULT_CELL_HEIGHT;
@@ -744,8 +744,8 @@ describe("Grid composer", () => {
     });
 
     test("Grid composer container have a min-height / min-width to have the same size as the edited cell ", async () => {
-      resizeRows(model, [0], 40);
-      resizeColumns(model, ["A"], 50);
+      await resizeRows(model, [0], 40);
+      await resizeColumns(model, ["A"], 50);
       await typeInComposerGrid("A");
 
       const expectedMinHeight = 40 + 1; // +1 to include cell border
@@ -760,7 +760,7 @@ describe("Grid composer", () => {
     });
 
     test("Grid composer have a max-height / max-width to avoid overflow outside of grid", async () => {
-      selectCell(model, "C3");
+      await selectCell(model, "C3");
       await typeInComposerGrid("A");
 
       const sheetViewDims = model.getters.getSheetViewDimension();
@@ -780,7 +780,7 @@ describe("Grid composer", () => {
     test("Inherits the style of the cell", async () => {
       const fontSize = FONT_SIZES[0];
       const color = "#123456";
-      setFormatting(model, "A1", {
+      await setFormatting(model, "A1", {
         textColor: color,
         fillColor: color,
         fontSize,
@@ -810,8 +810,8 @@ describe("Grid composer", () => {
         underline: true,
         textColor: "#FF0000",
       };
-      addEqualCf(model, "A1", style, "4");
-      setCellContent(model, "A1", "4");
+      await addEqualCf(model, "A1", style, "4");
+      await setCellContent(model, "A1", "4");
       await typeInComposerGrid("Hello");
       const gridComposer = fixture.querySelector(".o-grid-composer")! as HTMLElement;
       expect(gridComposer.style.textDecoration).toBe("line-through underline");
@@ -825,7 +825,7 @@ describe("Grid composer", () => {
     test("Does not inherit style of the cell", async () => {
       const fontSize = FONT_SIZES[0];
       const color = "#123456";
-      setFormatting(model, "A1", {
+      await setFormatting(model, "A1", {
         textColor: color,
         fillColor: color,
         fontSize,
@@ -860,7 +860,7 @@ describe("Grid composer", () => {
           textColor: "#FF0000",
         },
       };
-      addCfRule(model, "A1", rule);
+      await addCfRule(model, "A1", rule);
       await typeInComposerGrid("=", true);
       const gridComposer = fixture.querySelector(".o-grid-composer")! as HTMLElement;
       expect(gridComposer.style.textDecoration).toBe("none");
@@ -871,7 +871,7 @@ describe("Grid composer", () => {
   });
 
   test("Grid composer will not open if the sheet is locked", async () => {
-    lockSheet(model);
+    await lockSheet(model);
 
     triggerMouseEvent(
       ".o-grid-overlay",
@@ -910,8 +910,8 @@ describe("TopBar composer", () => {
 
   test("Spreaded cell has no value in the composer but has a placeholder", async () => {
     ({ model, fixture } = await mountSpreadsheet());
-    setCellContent(model, "A1", "=MUNIT(3)");
-    selectCell(model, "A2");
+    await setCellContent(model, "A1", "=MUNIT(3)");
+    await selectCell(model, "A2");
     await nextTick();
 
     expect(".o-topbar-composer .o-composer").toHaveText("");
@@ -930,8 +930,8 @@ describe("TopBar composer", () => {
 
   test("Fx icon is not shown in spreaded cell results", async () => {
     ({ model, fixture } = await mountSpreadsheet());
-    setCellContent(model, "A1", "=MUNIT(3)");
-    selectCell(model, "A2");
+    await setCellContent(model, "A1", "=MUNIT(3)");
+    await selectCell(model, "A2");
     await nextTick();
 
     expect(".o-spreadsheet-topbar .o-composer").toHaveText("");
@@ -941,9 +941,9 @@ describe("TopBar composer", () => {
 
   test("Spreaded cell placeholder follows the current locale", async () => {
     ({ model, fixture } = await mountSpreadsheet());
-    setCellContent(model, "A1", "=SEQUENCE(3,3)");
-    selectCell(model, "A2");
-    updateLocale(model, FR_LOCALE);
+    await setCellContent(model, "A1", "=SEQUENCE(3,3)");
+    await selectCell(model, "A2");
+    await updateLocale(model, FR_LOCALE);
     await nextTick();
 
     const topBarComposer = document.querySelector(".o-spreadsheet-topbar .o-composer")!;
@@ -982,7 +982,7 @@ describe("TopBar composer", () => {
     let env: SpreadsheetChildEnv;
     ({ model, fixture, env } = await mountSpreadsheet());
     composerStore = env.getStore(CellComposerStore);
-    lockSheet(model);
+    await lockSheet(model);
     await click(fixture, ".o-spreadsheet-topbar .o-composer");
     expect(composerStore.editionMode).toBe("inactive");
     await typeInComposerTopBar("=SUM(");

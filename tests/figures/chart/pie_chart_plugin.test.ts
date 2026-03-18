@@ -36,7 +36,7 @@ describe("pie chart", () => {
       A1: "P1",  B1: "1",  C1: "3",
       A2: "P2",  B2: "2",  C2: "4",
     });
-    createChart(
+    await createChart(
       model,
       {
         dataSets: [{ dataRange: "Sheet1!B1:B2" }, { dataRange: "Sheet1!C1:C2" }],
@@ -72,7 +72,7 @@ describe("pie chart", () => {
       A1: "",    B1: "1",
       A2: "P2",  B2: "2",
     });
-    createChart(
+    await createChart(
       model,
       {
         dataSets: [{ dataRange: "B1:B2" }],
@@ -87,7 +87,7 @@ describe("pie chart", () => {
   });
   test("Pie chart hole size", async () => {
     const model = await createModel();
-    createChart(model, { type: "pie", isDoughnut: true, pieHolePercentage: 15 }, "1");
+    await createChart(model, { type: "pie", isDoughnut: true, pieHolePercentage: 15 }, "1");
     const runtime = model.getters.getChartRuntime("1") as PieChartRuntime;
     expect(runtime.chartJsConfig.options?.cutout).toEqual("15%");
   });

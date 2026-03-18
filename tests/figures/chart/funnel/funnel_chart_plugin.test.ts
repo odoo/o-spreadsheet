@@ -42,12 +42,12 @@ describe("Funnel chart", () => {
     model = await createModel();
   });
 
-  test("Funnel runtime with simple dataset", () => {
-    setCellContent(model, "A1", "Opportunities");
-    setCellContent(model, "A2", "Won");
-    setCellContent(model, "B1", "100");
-    setCellContent(model, "B2", "25");
-    const chartId = createFunnelChart(model, {
+  test("Funnel runtime with simple dataset", async () => {
+    await setCellContent(model, "A1", "Opportunities");
+    await setCellContent(model, "A2", "Won");
+    await setCellContent(model, "B1", "100");
+    await setCellContent(model, "B2", "25");
+    const chartId = await createFunnelChart(model, {
       dataSets: [{ dataRange: "B1:B2" }],
       labelRange: "A1:A2",
       dataSetsHaveTitle: false,
@@ -61,10 +61,10 @@ describe("Funnel chart", () => {
     expect(config.options?.plugins?.legend?.display).toEqual(false);
   });
 
-  test("Only the first dataset is kept", () => {
-    setCellContent(model, "B1", "10");
-    setCellContent(model, "C1", "30");
-    const chartId = createFunnelChart(model, {
+  test("Only the first dataset is kept", async () => {
+    await setCellContent(model, "B1", "10");
+    await setCellContent(model, "C1", "30");
+    const chartId = await createFunnelChart(model, {
       dataSets: [{ dataRange: "B1" }, { dataRange: "C1" }],
       dataSetsHaveTitle: false,
     });
@@ -72,11 +72,11 @@ describe("Funnel chart", () => {
     expect(getFunnelRuntime(chartId).chartJsConfig.data.datasets[0].data).toEqual([[-10, 10]]);
   });
 
-  test("Negative values are set to zero ", () => {
-    setCellContent(model, "B1", "10");
-    setCellContent(model, "B2", "-20");
-    setCellContent(model, "B3", "0");
-    const chartId = createFunnelChart(model, {
+  test("Negative values are set to zero ", async () => {
+    await setCellContent(model, "B1", "10");
+    await setCellContent(model, "B2", "-20");
+    await setCellContent(model, "B3", "0");
+    const chartId = await createFunnelChart(model, {
       dataSets: [{ dataRange: "B1:B3" }],
       dataSetsHaveTitle: false,
     });
@@ -87,12 +87,12 @@ describe("Funnel chart", () => {
     ]);
   });
 
-  test("Scales are correctly configures", () => {
-    setCellContent(model, "A1", "label1");
-    setCellContent(model, "A2", "label2");
-    setCellContent(model, "B1", "50");
-    setCellContent(model, "B2", "30");
-    const chartId = createFunnelChart(model, {
+  test("Scales are correctly configures", async () => {
+    await setCellContent(model, "A1", "label1");
+    await setCellContent(model, "A2", "label2");
+    await setCellContent(model, "B1", "50");
+    await setCellContent(model, "B2", "30");
+    const chartId = await createFunnelChart(model, {
       labelRange: "A1:A2",
       dataSets: [{ dataRange: "B1:B2" }],
       dataSetsHaveTitle: false,
@@ -113,16 +113,16 @@ describe("Funnel chart", () => {
     expect(scales.percentages?.ticks?.callback(1, 1)).toEqual("60%");
   });
 
-  test("Funnel runtime with aggregate", () => {
-    setCellContent(model, "A1", "label1");
-    setCellContent(model, "A2", "label2");
-    setCellContent(model, "A3", "label1");
-    setCellContent(model, "A4", "label2");
-    setCellContent(model, "B1", "10");
-    setCellContent(model, "B2", "-20");
-    setCellContent(model, "B3", "60");
-    setCellContent(model, "B4", "50");
-    const chartId = createFunnelChart(model, {
+  test("Funnel runtime with aggregate", async () => {
+    await setCellContent(model, "A1", "label1");
+    await setCellContent(model, "A2", "label2");
+    await setCellContent(model, "A3", "label1");
+    await setCellContent(model, "A4", "label2");
+    await setCellContent(model, "B1", "10");
+    await setCellContent(model, "B2", "-20");
+    await setCellContent(model, "B3", "60");
+    await setCellContent(model, "B4", "50");
+    const chartId = await createFunnelChart(model, {
       labelRange: "A1:A4",
       dataSets: [{ dataRange: "B1:B4" }],
       dataSetsHaveTitle: false,
@@ -134,9 +134,9 @@ describe("Funnel chart", () => {
     ]);
   });
 
-  test("Funnel runtime with cumulative", () => {
-    setGrid(model, { B1: "10", B2: "20", B3: "invalid", B4: "30" });
-    const chartId = createFunnelChart(model, {
+  test("Funnel runtime with cumulative", async () => {
+    await setGrid(model, { B1: "10", B2: "20", B3: "invalid", B4: "30" });
+    const chartId = await createFunnelChart(model, {
       dataSets: [{ dataRange: "B1:B4" }],
       dataSetsHaveTitle: false,
       cumulative: true,
@@ -148,10 +148,10 @@ describe("Funnel chart", () => {
     ]);
   });
 
-  test("Funnel chart tooltip", () => {
-    setCellContent(model, "A2", "30");
-    setFormat(model, "A2", "0[$€]");
-    const chartId = createFunnelChart(model, {
+  test("Funnel chart tooltip", async () => {
+    await setCellContent(model, "A2", "30");
+    await setFormat(model, "A2", "0[$€]");
+    const chartId = await createFunnelChart(model, {
       dataSets: [{ dataRange: "A1:A2" }],
       dataSetsHaveTitle: true,
     });
@@ -163,13 +163,13 @@ describe("Funnel chart", () => {
     expect(tooltipCallbacks?.label?.(tooltipItem)).toEqual("40€");
   });
 
-  test("Funnel chart colors", () => {
-    setCellContent(model, "A1", "label1");
-    setCellContent(model, "A3", "label2");
-    setCellContent(model, "B1", "10");
-    setCellContent(model, "B2", "20");
-    setCellContent(model, "B3", "30");
-    const chartId = createFunnelChart(model, {
+  test("Funnel chart colors", async () => {
+    await setCellContent(model, "A1", "label1");
+    await setCellContent(model, "A3", "label2");
+    await setCellContent(model, "B1", "10");
+    await setCellContent(model, "B2", "20");
+    await setCellContent(model, "B3", "30");
+    const chartId = await createFunnelChart(model, {
       labelRange: "A1:A3",
       dataSets: [{ dataRange: "B1:B3" }],
       dataSetsHaveTitle: false,

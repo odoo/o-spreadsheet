@@ -44,9 +44,9 @@ describe("combo chart", () => {
   });
   test("both axis and tooltips formats are based on their data set", async () => {
     const model = await createModel();
-    setCellFormat(model, "B1", "0.00%"); // first data set
-    setCellFormat(model, "C1", "0.00[$$]"); // second data set
-    createChart(
+    await setCellFormat(model, "B1", "0.00%"); // first data set
+    await setCellFormat(model, "C1", "0.00[$$]"); // second data set
+    await createChart(
       model,
       {
         type: "combo",
@@ -73,13 +73,13 @@ describe("combo chart", () => {
   });
   test("Can edit the type of the series", async () => {
     const model = await createModel();
-    setCellContent(model, "A1", "Alice");
-    setCellContent(model, "A2", "Bob");
-    setCellContent(model, "B1", "1");
-    setCellContent(model, "B2", "2");
-    setCellContent(model, "C1", "10");
-    setCellContent(model, "C2", "20");
-    createChart(
+    await setCellContent(model, "A1", "Alice");
+    await setCellContent(model, "A2", "Bob");
+    await setCellContent(model, "B1", "1");
+    await setCellContent(model, "B2", "2");
+    await setCellContent(model, "C1", "10");
+    await setCellContent(model, "C2", "20");
+    await createChart(
       model,
       {
         type: "combo",
@@ -91,7 +91,7 @@ describe("combo chart", () => {
     );
     let runtime = model.getters.getChartRuntime("1") as ComboChartRuntime;
     expect(runtime.chartJsConfig.data?.datasets?.[1].type).toBe("line");
-    updateChart(model, "1", {
+    await updateChart(model, "1", {
       dataSets: [{ dataRange: "B1:B2" }, { dataRange: "C1:C2", type: "bar" }],
     });
     runtime = model.getters.getChartRuntime("1") as ComboChartRuntime;
@@ -104,7 +104,7 @@ describe("combo chart", () => {
       A3: "3",
       A4: "4",
     });
-    createChart(
+    await createChart(
       model,
       {
         dataSets: [
@@ -145,13 +145,13 @@ describe("combo chart", () => {
       { dataRange: "A1:A3", type: "bar" },
       { dataRange: "B1:B3", type: "line" },
     ];
-    createChart(model, { type: "combo", dataSets }, "chartId");
+    await createChart(model, { type: "combo", dataSets }, "chartId");
     let runtime = model.getters.getChartRuntime("chartId") as BarChartRuntime;
     let config = runtime.chartJsConfig as ChartConfiguration<"bar">;
     expect(config.data.datasets[0].barPercentage).toEqual(0.9);
     expect(config.data.datasets[0].categoryPercentage).toEqual(1);
     dataSets = [...dataSets, { dataRange: "C1:C3", type: "bar" }];
-    updateChart(model, "chartId", { dataSets });
+    await updateChart(model, "chartId", { dataSets });
     runtime = model.getters.getChartRuntime("chartId") as BarChartRuntime;
     config = runtime.chartJsConfig as ChartConfiguration<"bar">;
     expect(config.data.datasets.map((ds) => ds.barPercentage)).toEqual([0.9, undefined, 0.9]); // undefined for line dataset
@@ -166,7 +166,7 @@ describe("combo chart", () => {
       C1: "Series B",
       C2: "50",
     });
-    createChart(
+    await createChart(
       model,
       {
         type: "combo",
@@ -179,7 +179,7 @@ describe("combo chart", () => {
       },
       "1"
     );
-    updateChart(model, "1", {
+    await updateChart(model, "1", {
       axesDesign: {
         x: { min: 0, max: 2 },
         y: { min: 5, max: 30, gridLines: "minor" },

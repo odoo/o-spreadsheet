@@ -173,7 +173,7 @@ describe("BottomBar component", () => {
 
   test("Can move right a sheet", async () => {
     const model = await createModel();
-    createSheet(model, { sheetId: "42" });
+    await createSheet(model, { sheetId: "42" });
     await mountBottomBar(model);
     const dispatch = jest.spyOn(model, "dispatch");
 
@@ -189,7 +189,7 @@ describe("BottomBar component", () => {
 
   test("Can move left a sheet", async () => {
     const model = await createModel();
-    createSheet(model, { sheetId: "42", activate: true });
+    await createSheet(model, { sheetId: "42", activate: true });
     await mountBottomBar(model);
     const dispatch = jest.spyOn(model, "dispatch");
 
@@ -206,7 +206,7 @@ describe("BottomBar component", () => {
 
   test("Can hide a sheet", async () => {
     const model = await createModel();
-    createSheet(model, { sheetId: "42" });
+    await createSheet(model, { sheetId: "42" });
     await mountBottomBar(model);
     const dispatch = jest.spyOn(model, "dispatch");
 
@@ -221,8 +221,8 @@ describe("BottomBar component", () => {
 
   test("Hide sheet menu is not visible if there's only one visible sheet", async () => {
     const model = await createModel();
-    createSheet(model, { sheetId: "42" });
-    hideSheet(model, "42");
+    await createSheet(model, { sheetId: "42" });
+    await hideSheet(model, "42");
     await mountBottomBar(model);
 
     triggerMouseEvent(".o-sheet", "contextmenu");
@@ -321,7 +321,7 @@ describe("BottomBar component", () => {
     });
 
     test("After an error was raised at the confirmation of the new sheet name, the sheet name is selected and focused ", async () => {
-      createSheet(model, { name: "ThisIsASheet" });
+      await createSheet(model, { name: "ThisIsASheet" });
       const sheetName = fixture.querySelector<HTMLElement>(".o-sheet-name")!;
       await doubleClick(sheetName);
       sheetName.textContent = "ThisIsASheet";
@@ -382,10 +382,10 @@ describe("BottomBar component", () => {
       sheetName.textContent = "ThisIsASheet";
       await keyDown({ key: "Enter" });
       expect(getSheetNameSpan()!.textContent).toEqual("ThisIsASheet");
-      undo(model);
+      await undo(model);
       await nextTick();
       expect(getSheetNameSpan()!.textContent).toEqual("Sheet1");
-      redo(model);
+      await redo(model);
       await nextTick();
       expect(getSheetNameSpan()!.textContent).toEqual("ThisIsASheet");
     });
@@ -421,7 +421,7 @@ describe("BottomBar component", () => {
       askConfirmation: jest.fn((title, callback) => callback()),
     });
     const dispatch = jest.spyOn(model, "dispatch");
-    createSheet(model, { sheetId: "42" });
+    await createSheet(model, { sheetId: "42" });
 
     triggerMouseEvent(".o-sheet", "contextmenu");
     await nextTick();
@@ -450,7 +450,7 @@ describe("BottomBar component", () => {
   test("Can open the list of sheets", async () => {
     const { model } = await mountBottomBar();
     const sheetId = model.getters.getActiveSheetId();
-    createSheet(model, { sheetId: "42" });
+    await createSheet(model, { sheetId: "42" });
 
     expect(fixture.querySelectorAll(".o-menu")).toHaveLength(0);
     await click(fixture, ".o-list-sheets");
@@ -465,7 +465,7 @@ describe("BottomBar component", () => {
     const { model } = await mountBottomBar();
     const dispatch = jest.spyOn(model, "dispatch");
     const sheetId = model.getters.getActiveSheetId();
-    createSheet(model, { sheetId: "42" });
+    await createSheet(model, { sheetId: "42" });
 
     await click(fixture, ".o-list-sheets");
     await click(fixture, ".o-menu-item[data-name='42'");
@@ -477,7 +477,7 @@ describe("BottomBar component", () => {
 
   test("Clicking on an hidden sheet in the list of sheets unhide and activate it", async () => {
     const { model } = await mountBottomBar();
-    createSheet(model, { sheetId: "42", hidden: true });
+    await createSheet(model, { sheetId: "42", hidden: true });
     await click(fixture, ".o-list-sheets");
     const menuItem = fixture.querySelector<HTMLElement>(".o-menu-item[data-name='42']")!;
     expect(toHex(menuItem.style.color)).toEqual("#808080");
@@ -488,7 +488,7 @@ describe("BottomBar component", () => {
 
   test("Hidden sheets menu items are disabled in readonly in the list of sheets", async () => {
     const { model } = await mountBottomBar();
-    createSheet(model, { sheetId: "42", hidden: true });
+    await createSheet(model, { sheetId: "42", hidden: true });
     model.updateMode("readonly");
     await click(fixture, ".o-list-sheets");
     const menuItem = fixture.querySelector<HTMLElement>(".o-menu-item[data-name='42']");
@@ -648,35 +648,35 @@ describe("BottomBar component", () => {
 
   test("Display the statistic button only if no-empty cells are selected", async () => {
     const { model } = await mountBottomBar();
-    setCellContent(model, "A2", "24");
-    setCellContent(model, "A3", "=A1");
+    await setCellContent(model, "A2", "24");
+    await setCellContent(model, "A3", "=A1");
 
-    selectCell(model, "A1");
+    await selectCell(model, "A1");
     await nextTick();
     expect(fixture.querySelector(".o-selection-statistic")).toBeFalsy();
 
-    selectCell(model, "A2");
+    await selectCell(model, "A2");
     await nextTick();
     expect(fixture.querySelector(".o-selection-statistic")?.textContent).toBe("Sum: 24");
 
-    selectCell(model, "A3");
+    await selectCell(model, "A3");
     await nextTick();
     expect(fixture.querySelector(".o-selection-statistic")?.textContent).toBe("Sum: 0");
   });
 
   test("Display empty information if the statistic function doesn't handle the types of the selected cells", async () => {
     const { model } = await mountBottomBar();
-    setCellContent(model, "A2", "I am not a number");
+    await setCellContent(model, "A2", "I am not a number");
 
-    selectCell(model, "A2");
+    await selectCell(model, "A2");
     await nextTick();
     expect(fixture.querySelector(".o-selection-statistic")?.textContent).toBe("Sum: __");
   });
 
   test("Can open the list of statistics", async () => {
     const { model } = await mountBottomBar();
-    setCellContent(model, "A2", "24");
-    selectCell(model, "A2");
+    await setCellContent(model, "A2", "24");
+    await selectCell(model, "A2");
     await nextTick();
 
     await click(fixture, ".o-selection-statistic");
@@ -688,8 +688,8 @@ describe("BottomBar component", () => {
     const nonMockedDispatch = model.dispatch;
     await mountBottomBar(model);
     model.dispatch = nonMockedDispatch;
-    setCellContent(model, "A2", "24");
-    selectCell(model, "A2");
+    await setCellContent(model, "A2", "24");
+    await selectCell(model, "A2");
     await nextTick();
     expect(fixture.querySelectorAll(".o-menu")).toHaveLength(0);
     await click(fixture, ".o-sheet-icon");
@@ -701,8 +701,8 @@ describe("BottomBar component", () => {
 
   test("Can activate a statistic from the list of statistics", async () => {
     const { model } = await mountBottomBar();
-    setCellContent(model, "A2", "24");
-    selectCell(model, "A2");
+    await setCellContent(model, "A2", "24");
+    await selectCell(model, "A2");
     await nextTick();
 
     expect(fixture.querySelector(".o-selection-statistic")?.textContent).toBe("Sum: 24");
@@ -715,19 +715,19 @@ describe("BottomBar component", () => {
   test("The list of statistics is updated with the selection", async () => {
     const { model } = await mountBottomBar();
     // Change value of cell
-    setCellContent(model, "A1", "24");
-    setCellContent(model, "A2", "23");
+    await setCellContent(model, "A1", "24");
+    await setCellContent(model, "A2", "23");
     await nextTick();
     triggerMouseEvent(".o-selection-statistic", "click");
     await nextTick();
     expect(fixture.querySelector(".o-menu")).toBeTruthy();
     expect(fixture.querySelector(".o-menu .o-menu-item")?.textContent).toBe("Sum: 24");
 
-    setCellContent(model, "A1", "42");
+    await setCellContent(model, "A1", "42");
     await nextTick();
     expect(fixture.querySelector(".o-menu .o-menu-item")?.textContent).toBe("Sum: 42");
 
-    selectCell(model, "A2");
+    await selectCell(model, "A2");
     await nextTick();
     expect(fixture.querySelector(".o-menu .o-menu-item")?.textContent).toBe("Sum: 23");
   });
@@ -735,18 +735,18 @@ describe("BottomBar component", () => {
   test("Hide the statistics component when the statistics are empty", async () => {
     const { model } = await mountBottomBar();
     // Change value of cell
-    setCellContent(model, "A1", "24");
+    await setCellContent(model, "A1", "24");
     await nextTick();
     triggerMouseEvent(".o-selection-statistic", "click");
     await nextTick();
     expect(fixture.querySelector(".o-menu")).toBeTruthy();
     expect(fixture.querySelector(".o-menu .o-menu-item")?.textContent).toBe("Sum: 24");
 
-    setCellContent(model, "A1", "42");
+    await setCellContent(model, "A1", "42");
     await nextTick();
     expect(fixture.querySelector(".o-menu .o-menu-item")?.textContent).toBe("Sum: 42");
 
-    selectCell(model, "A2");
+    await selectCell(model, "A2");
     await nextTick();
     expect(fixture.querySelector(".o-selection-statistic")).toBeFalsy();
     expect(fixture.querySelector(".o-menu")).toBeFalsy();
@@ -835,14 +835,14 @@ describe("BottomBar component", () => {
     test("undo/redo drag & drop of a sheet", async () => {
       await dragSheet("Sheet4", { mouseMoveX: -190 });
       expect(model.getters.getVisibleSheetIds()).toEqual(["Sheet1", "Sheet4", "Sheet2", "Sheet3"]);
-      undo(model);
+      await undo(model);
       expect(model.getters.getVisibleSheetIds()).toEqual(["Sheet1", "Sheet2", "Sheet3", "Sheet4"]);
-      redo(model);
+      await redo(model);
       expect(model.getters.getVisibleSheetIds()).toEqual(["Sheet1", "Sheet4", "Sheet2", "Sheet3"]);
     });
 
     test("Sheet position is updated when scrolling", async () => {
-      activateSheet(model, "Sheet0");
+      await activateSheet(model, "Sheet0");
       await nextTick();
 
       await dragSheet("Sheet1", { mouseMoveX: 0, mouseUp: false, mouseInitialX: 0 });
@@ -856,13 +856,16 @@ describe("BottomBar component", () => {
     });
 
     test("Can edge scroll to the right", async () => {
-      createSheet(model, { sheetId: "Sheet5", position: model.getters.getSheetIds().length });
-      createSheet(model, { sheetId: "Sheet6", position: model.getters.getSheetIds().length });
-      createSheet(model, { sheetId: "Sheet7", position: model.getters.getSheetIds().length });
-      createSheet(model, { sheetId: "Sheet8", position: model.getters.getSheetIds().length });
-      createSheet(model, { sheetId: "Sheet9", position: model.getters.getSheetIds().length });
-      createSheet(model, { sheetId: "Sheet10", position: model.getters.getSheetIds().length });
-      activateSheet(model, "Sheet1");
+      await createSheet(model, { sheetId: "Sheet5", position: model.getters.getSheetIds().length });
+      await createSheet(model, { sheetId: "Sheet6", position: model.getters.getSheetIds().length });
+      await createSheet(model, { sheetId: "Sheet7", position: model.getters.getSheetIds().length });
+      await createSheet(model, { sheetId: "Sheet8", position: model.getters.getSheetIds().length });
+      await createSheet(model, { sheetId: "Sheet9", position: model.getters.getSheetIds().length });
+      await createSheet(model, {
+        sheetId: "Sheet10",
+        position: model.getters.getSheetIds().length,
+      });
+      await activateSheet(model, "Sheet1");
       await nextTick();
 
       await dragSheet("Sheet1", { mouseMoveX: 600, mouseUp: false, mouseInitialX: 0 });
@@ -876,13 +879,16 @@ describe("BottomBar component", () => {
     });
 
     test("Can edge scroll to the left", async () => {
-      createSheet(model, { sheetId: "Sheet5", position: model.getters.getSheetIds().length });
-      createSheet(model, { sheetId: "Sheet6", position: model.getters.getSheetIds().length });
-      createSheet(model, { sheetId: "Sheet7", position: model.getters.getSheetIds().length });
-      createSheet(model, { sheetId: "Sheet8", position: model.getters.getSheetIds().length });
-      createSheet(model, { sheetId: "Sheet9", position: model.getters.getSheetIds().length });
-      createSheet(model, { sheetId: "Sheet10", position: model.getters.getSheetIds().length });
-      activateSheet(model, "Sheet10");
+      await createSheet(model, { sheetId: "Sheet5", position: model.getters.getSheetIds().length });
+      await createSheet(model, { sheetId: "Sheet6", position: model.getters.getSheetIds().length });
+      await createSheet(model, { sheetId: "Sheet7", position: model.getters.getSheetIds().length });
+      await createSheet(model, { sheetId: "Sheet8", position: model.getters.getSheetIds().length });
+      await createSheet(model, { sheetId: "Sheet9", position: model.getters.getSheetIds().length });
+      await createSheet(model, {
+        sheetId: "Sheet10",
+        position: model.getters.getSheetIds().length,
+      });
+      await activateSheet(model, "Sheet10");
       await nextTick();
 
       await dragSheet("Sheet10", { mouseMoveX: -500, mouseUp: false, mouseInitialX: 400 });
@@ -925,34 +931,37 @@ describe("BottomBar component", () => {
     });
 
     test.each([
-      () => createSheet(model, { sheetId: "newSheet" }),
-      () => deleteSheet(model, "Sheet2"),
-      () => renameSheet(model, "Sheet2", "New name"),
-      () => hideSheet(model, "Sheet2"),
+      async () => await createSheet(model, { sheetId: "newSheet" }),
+      async () => await deleteSheet(model, "Sheet2"),
+      async () => await renameSheet(model, "Sheet2", "New name"),
+      async () => await hideSheet(model, "Sheet2"),
     ])(
       "Modifying the sheet list during the drag & drop cancels it",
-      async (modifySheetList: () => void) => {
+      async (modifySheetList: () => Promise<any>) => {
         await dragSheet("Sheet3", { mouseMoveX: 10, mouseUp: false });
         await nextTick();
         expect(isDragAndDropActive()).toBeTruthy();
-        modifySheetList();
+        await modifySheetList();
         await nextTick();
         expect(isDragAndDropActive()).toBeFalsy();
       }
     );
 
     test.each([
-      () => resizeColumns(model, ["A"], 10),
-      () => resizeRows(model, [1], 10),
-      () => setCellContent(model, "A1", "Content"),
-    ])("Random actions on sheets does not cancel the drag & drop", async (action: () => void) => {
-      await dragSheet("Sheet3", { mouseMoveX: 10, mouseUp: false });
-      await nextTick();
-      expect(isDragAndDropActive()).toBeTruthy();
-      action();
-      await nextTick();
-      expect(isDragAndDropActive()).toBeTruthy();
-    });
+      async () => await resizeColumns(model, ["A"], 10),
+      async () => await resizeRows(model, [1], 10),
+      async () => await setCellContent(model, "A1", "Content"),
+    ])(
+      "Random actions on sheets does not cancel the drag & drop",
+      async (action: () => Promise<any>) => {
+        await dragSheet("Sheet3", { mouseMoveX: 10, mouseUp: false });
+        await nextTick();
+        expect(isDragAndDropActive()).toBeTruthy();
+        await action();
+        await nextTick();
+        expect(isDragAndDropActive()).toBeTruthy();
+      }
+    );
 
     test("Bottom bar context menu is closed when starting to drag a sheet", async () => {
       triggerMouseEvent(".o-sheet", "contextmenu");
@@ -1033,8 +1042,8 @@ describe("BottomBar component", () => {
 
     test("Sheet icons are colored in the menu listing all sheets", async () => {
       const { model } = await mountBottomBar();
-      createSheet(model, { sheetId: "42", color: "#FFFF00", position: 1 });
-      createSheet(model, { sheetId: "43", color: "#FF0000", position: 2 });
+      await createSheet(model, { sheetId: "42", color: "#FFFF00", position: 1 });
+      await createSheet(model, { sheetId: "43", color: "#FF0000", position: 2 });
 
       await click(fixture, ".o-sheet-item.o-list-sheets");
       const menuItemsIcons = fixture.querySelectorAll(".o-menu-item-icon");
@@ -1048,7 +1057,7 @@ describe("BottomBar component", () => {
   test("Attempt to modify a locked sheet will trigger an animation", async () => {
     const { model } = await mountBottomBar();
     const sheetId = model.getters.getActiveSheetId();
-    lockSheet(model, sheetId);
+    await lockSheet(model, sheetId);
 
     model.trigger("command-rejected", { result: new DispatchResult(CommandResult.SheetLocked) });
     expect(HTMLDivElement.prototype.animate).toHaveBeenCalled();

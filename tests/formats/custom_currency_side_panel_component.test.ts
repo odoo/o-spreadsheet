@@ -170,7 +170,7 @@ describe("custom currency sidePanel component", () => {
         "ABC µ1,000",
         "ABC µ1,000.000",
       ]);
-      updateLocale(model, FR_LOCALE);
+      await updateLocale(model, FR_LOCALE);
       await nextTick();
       expect(proposals.map((el) => el.textContent)).toEqual([
         "1 000µ",

@@ -4,7 +4,7 @@ import { UIPlugin } from "@odoo/o-spreadsheet-engine/plugins/ui_plugin";
 import { ModelConfig } from "@odoo/o-spreadsheet-engine/types/model";
 import { CollaborationMessage, CommandResult, CorePlugin, Model } from "../../src";
 import { toZone } from "../../src/helpers";
-import { Command, CommandTypes, CoreCommand, DispatchResult, coreTypes } from "../../src/types";
+import { Command, CommandTypes, CoreCommand, coreTypes, DispatchResult } from "../../src/types";
 import { MockTransportService } from "../__mocks__/transport_service";
 import { getTextXlsxFiles } from "../__xlsx__/read_demo_xlsx";
 import { setupCollaborativeEnv } from "../collaborative/collaborative_helpers";
@@ -43,7 +43,7 @@ describe("Model", () => {
     addTestPlugin(featurePluginRegistry, MyUIPlugin);
     addTestPlugin(corePluginRegistry, MyCorePlugin);
     const model = await createModel();
-    copy(model, "A1");
+    await copy(model, "A1");
     expect(result).toBeCancelledBecause(CommandResult.CancelledForUnknownReason);
   });
 
@@ -69,7 +69,7 @@ describe("Model", () => {
     }
     addTestPlugin(corePluginRegistry, MyCorePlugin);
     const model = await createModel();
-    createSheet(model, { sheetId: "42", position: 1 });
+    await createSheet(model, { sheetId: "42", position: 1 });
     expect(result).toBeSuccessfullyDispatched();
     expect(getCellText(model, "A1", "42")).toBe("Hello");
   });
@@ -93,8 +93,8 @@ describe("Model", () => {
     }
     addTestPlugin(featurePluginRegistry, MyUIPlugin);
     const model = await createModel();
-    setCellContent(model, "A1", "copy&paste me");
-    copy(model, "A1");
+    await setCellContent(model, "A1", "copy&paste me");
+    await copy(model, "A1");
     expect(result).toBeSuccessfullyDispatched();
     expect(getCellText(model, "A2")).toBe("copy&paste me");
   });
@@ -111,7 +111,7 @@ describe("Model", () => {
     addTestPlugin(featurePluginRegistry, MyUIPlugin);
     const model = await createModel();
 
-    setCellContent(model, "A1", "hello");
+    await setCellContent(model, "A1", "hello");
     expect(getCellContent(model, "A1")).toBe("");
   });
 
@@ -125,7 +125,7 @@ describe("Model", () => {
     }
     addTestPlugin(corePluginRegistry, MyCorePlugin);
     const model = await createModel();
-    copy(model);
+    await copy(model);
     expect(receivedCommands).not.toContain("COPY");
   });
 
@@ -138,7 +138,7 @@ describe("Model", () => {
     }
     addTestPlugin(corePluginRegistry, MyCorePlugin);
     const model = await createModel();
-    copy(model);
+    await copy(model);
     expect(receivedCommands).not.toContain("COPY");
   });
 
@@ -157,14 +157,14 @@ describe("Model", () => {
       model.canDispatch("CREATE_SHEET", { sheetId: "42", position: 1, name: "Sheet42" })
     ).toBeCancelledBecause(CommandResult.CancelledForUnknownReason);
     expect(
-      createSheet(model, { sheetId: "42", position: 1, name: "Sheet42" })
+      await createSheet(model, { sheetId: "42", position: 1, name: "Sheet42" })
     ).toBeCancelledBecause(CommandResult.CancelledForUnknownReason);
 
     const sheetId = model.getters.getActiveSheetId();
     expect(
       model.canDispatch("UPDATE_CELL", { sheetId, col: 0, row: 0, content: "hey" })
     ).toBeSuccessfullyDispatched();
-    expect(setCellContent(model, "A1", "hey")).toBeSuccessfullyDispatched();
+    expect(await setCellContent(model, "A1", "hey")).toBeSuccessfullyDispatched();
     corePluginRegistry.remove("myCorePlugin");
   });
 
@@ -175,12 +175,12 @@ describe("Model", () => {
 
   test("Some commands are not dispatched in readonly mode", async () => {
     const model = await createModel({}, { mode: "readonly" });
-    expect(setCellContent(model, "A1", "hello")).toBeCancelledBecause(CommandResult.Readonly);
+    expect(await setCellContent(model, "A1", "hello")).toBeCancelledBecause(CommandResult.Readonly);
   });
 
   test("Moving the selection is allowed in readonly mode", async () => {
     const model = await createModel({}, { mode: "readonly" });
-    expect(selectCell(model, "A15")).toBeSuccessfullyDispatched();
+    expect(await selectCell(model, "A15")).toBeSuccessfullyDispatched();
   });
 
   test("Can add custom elements in the config of model", async () => {
@@ -270,7 +270,7 @@ describe("Model", () => {
 
     const { alice, bob, network } = await setupCollaborativeEnv();
     await network.concurrent(async () => {
-      setCellContent(alice, "A1", "Hello");
+      await setCellContent(alice, "A1", "Hello");
       //@ts-ignore
       bob.dispatch("MY_CMD_1");
     });
@@ -331,7 +331,7 @@ describe("Model", () => {
     addTestPlugin(corePluginRegistry, MyCorePlugin);
 
     const { alice, bob, charlie } = await setupCollaborativeEnv();
-    setCellContent(alice, "A1", "=3");
+    await setCellContent(alice, "A1", "=3");
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
       (user) => getCellContent(user, "A1"),
       "3"

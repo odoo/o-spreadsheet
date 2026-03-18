@@ -41,7 +41,7 @@ describe("Table style editor panel", () => {
   });
 
   test("Default style name changes if there is already a style with the same name", async () => {
-    createTableStyle(model, "Custom Table Style");
+    await createTableStyle(model, "Custom Table Style");
     await mountPanel();
     expect(fixture.querySelector<HTMLInputElement>(".o-sidePanel input")?.value).toEqual(
       "Custom Table Style 2"
@@ -78,7 +78,7 @@ describe("Table style editor panel", () => {
   });
 
   test("Can delete table style from the panel", async () => {
-    createTableStyle(model, "Custom Table Style");
+    await createTableStyle(model, "Custom Table Style");
     expect(getTableStyleFromName("Custom Table Style")).not.toBeUndefined();
 
     await mountPanel({ styleId: "Custom Table Style" });

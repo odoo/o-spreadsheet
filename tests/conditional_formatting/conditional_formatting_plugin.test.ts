@@ -48,15 +48,15 @@ beforeEach(async () => {
 });
 
 describe("conditional format", () => {
-  test("works", () => {
-    setCellContent(model, "A1", "1");
-    setCellContent(model, "A2", "2");
-    setCellContent(model, "A3", "3");
-    setCellContent(model, "A4", "4");
-    addEqualCf(model, "A1:A4", { fillColor: "#FF0000" }, "2", "1", sheetId);
-    addEqualCf(model, "A:A", { fillColor: "#0000FF" }, "4", "2", sheetId);
-    addEqualCf(model, "A3:A", { fillColor: "#0000FF" }, "5", "3", sheetId);
-    addEqualCf(model, "C3:3", { fillColor: "#0000FF" }, "6", "4", sheetId);
+  test("works", async () => {
+    await setCellContent(model, "A1", "1");
+    await setCellContent(model, "A2", "2");
+    await setCellContent(model, "A3", "3");
+    await setCellContent(model, "A4", "4");
+    await addEqualCf(model, "A1:A4", { fillColor: "#FF0000" }, "2", "1", sheetId);
+    await addEqualCf(model, "A:A", { fillColor: "#0000FF" }, "4", "2", sheetId);
+    await addEqualCf(model, "A3:A", { fillColor: "#0000FF" }, "5", "3", sheetId);
+    await addEqualCf(model, "C3:3", { fillColor: "#0000FF" }, "6", "4", sheetId);
     expect(model.getters.getConditionalFormats(model.getters.getActiveSheetId())).toEqual([
       {
         rule: {
@@ -117,13 +117,13 @@ describe("conditional format", () => {
     });
   });
 
-  test("getCellComputedStyle", () => {
-    setCellContent(model, "A1", "1");
-    setCellContent(model, "A2", "1");
-    setFormatting(model, "A1", { fillColor: "blue" });
-    setFormatting(model, "A2", { bold: true });
-    setFormatting(model, "A3", { fillColor: "orange" });
-    addEqualCf(model, "A1, A2", { fillColor: "#FF0000" }, "1", "1", sheetId);
+  test("getCellComputedStyle", async () => {
+    await setCellContent(model, "A1", "1");
+    await setCellContent(model, "A2", "1");
+    await setFormatting(model, "A1", { fillColor: "blue" });
+    await setFormatting(model, "A2", { bold: true });
+    await setFormatting(model, "A3", { fillColor: "orange" });
+    await addEqualCf(model, "A1, A2", { fillColor: "#FF0000" }, "1", "1", sheetId);
     expect(getStyle(model, "A1")).toEqual({
       fillColor: "#FF0000",
     });
@@ -137,20 +137,20 @@ describe("conditional format", () => {
     expect(getStyle(model, "A4")).toEqual({});
   });
 
-  test("falsy CF attributes do not overwrite cell style in getCellComputedStyle", () => {
-    setCellContent(model, "A1", "1");
-    setFormatting(model, "A1", { bold: true, fillColor: "#FF0000" });
-    addEqualCf(model, "A1", { bold: false, fillColor: undefined }, "1", "cfId", sheetId);
+  test("falsy CF attributes do not overwrite cell style in getCellComputedStyle", async () => {
+    await setCellContent(model, "A1", "1");
+    await setFormatting(model, "A1", { bold: true, fillColor: "#FF0000" });
+    await addEqualCf(model, "A1", { bold: false, fillColor: undefined }, "1", "cfId", sheetId);
     expect(getStyle(model, "A1")).toEqual({ bold: true, fillColor: "#FF0000" });
   });
 
   test("Add conditional formatting on inactive sheet", async () => {
     model = await createModel();
-    createSheet(model, { sheetId: "42" });
+    await createSheet(model, { sheetId: "42" });
     const [, sheetId] = model.getters.getSheetIds();
     expect(sheetId).not.toBe(model.getters.getActiveSheetId());
-    addEqualCf(model, "A1:A4", { fillColor: "#0000FF" }, "4", "2", sheetId);
-    activateSheet(model, "42");
+    await addEqualCf(model, "A1:A4", { fillColor: "#0000FF" }, "4", "2", sheetId);
+    await activateSheet(model, "42");
     expect(model.getters.getConditionalFormats("42")).toEqual([
       {
         rule: {
@@ -170,8 +170,8 @@ describe("conditional format", () => {
   test("is correctly duplicated when the sheet is duplicated", async () => {
     model = await createModel();
     const cf = createEqualCF("4", { fillColor: "#0000FF" }, "2");
-    addEqualCf(model, "A1:A4", { fillColor: "#0000FF" }, "4", "2", sheetId);
-    duplicateSheet(model, sheetId, "Sheet2");
+    await addEqualCf(model, "A1:A4", { fillColor: "#0000FF" }, "4", "2", sheetId);
+    await duplicateSheet(model, sheetId, "Sheet2");
     expect(model.getters.getConditionalFormats("Sheet2")).toEqual([
       {
         id: expect.any(String),
@@ -183,29 +183,31 @@ describe("conditional format", () => {
 
   test("add conditional format outside the sheet", async () => {
     model = await createModel();
-    createSheet(model, { sheetId: "42" });
+    await createSheet(model, { sheetId: "42" });
     const sheetId = model.getters.getActiveSheetId();
     expect(
-      addEqualCf(model, "A1:A4000", { fillColor: "#0000FF" }, "4", "2", sheetId)
+      await addEqualCf(model, "A1:A4000", { fillColor: "#0000FF" }, "4", "2", sheetId)
     ).toBeCancelledBecause(CommandResult.TargetOutOfSheet);
   });
 
   test("Dispatch is refused if no changes are made", async () => {
     model = await createModel();
-    createSheet(model, { sheetId: "42" });
-    expect(addEqualCf(model, "A1:A4", { fillColor: "#0000FF" }, "2")).toBeSuccessfullyDispatched();
-    expect(addEqualCf(model, "A1:A4", { fillColor: "#0000FF" }, "2")).toBeCancelledBecause(
+    await createSheet(model, { sheetId: "42" });
+    expect(
+      await addEqualCf(model, "A1:A4", { fillColor: "#0000FF" }, "2")
+    ).toBeSuccessfullyDispatched();
+    expect(await addEqualCf(model, "A1:A4", { fillColor: "#0000FF" }, "2")).toBeCancelledBecause(
       CommandResult.NoChanges
     );
   });
 
-  test("remove a conditional format rule", () => {
-    setCellContent(model, "A1", "1");
-    setCellContent(model, "A2", "2");
-    setCellContent(model, "A3", "3");
-    setCellContent(model, "A4", "4");
-    addEqualCf(model, "A1:A4", { fillColor: "#FF0000" }, "2", "1", sheetId);
-    addEqualCf(model, "A1:A4", { fillColor: "#0000FF" }, "4", "2", sheetId);
+  test("remove a conditional format rule", async () => {
+    await setCellContent(model, "A1", "1");
+    await setCellContent(model, "A2", "2");
+    await setCellContent(model, "A3", "3");
+    await setCellContent(model, "A4", "4");
+    await addEqualCf(model, "A1:A4", { fillColor: "#FF0000" }, "2", "1", sheetId);
+    await addEqualCf(model, "A1:A4", { fillColor: "#0000FF" }, "4", "2", sheetId);
     expect(model.getters.getConditionalFormats(sheetId)).toEqual([
       {
         rule: {
@@ -240,7 +242,7 @@ describe("conditional format", () => {
     expect(getStyle(model, "A4")).toEqual({
       fillColor: "#0000FF",
     });
-    removeCF(model, "2");
+    await removeCF(model, "2");
     expect(getStyle(model, "A1")).toEqual({});
     expect(getStyle(model, "A2")).toEqual({
       fillColor: "#FF0000",
@@ -249,10 +251,10 @@ describe("conditional format", () => {
     expect(getStyle(model, "A4")).toEqual({});
   });
 
-  test("works on multiple ranges", () => {
-    setCellContent(model, "A1", "1");
-    setCellContent(model, "A2", "1");
-    addEqualCf(model, "A1, A2", { fillColor: "#FF0000" }, "1", "1", sheetId);
+  test("works on multiple ranges", async () => {
+    await setCellContent(model, "A1", "1");
+    await setCellContent(model, "A2", "1");
+    await addEqualCf(model, "A1, A2", { fillColor: "#FF0000" }, "1", "1", sheetId);
     expect(getStyle(model, "A1")).toEqual({
       fillColor: "#FF0000",
     });
@@ -261,10 +263,10 @@ describe("conditional format", () => {
     });
   });
 
-  test("can be undo/redo", () => {
-    setCellContent(model, "A1", "1");
-    setCellContent(model, "A2", "1");
-    addEqualCf(model, "A1, A2", { fillColor: "#FF0000" }, "1", "1", sheetId);
+  test("can be undo/redo", async () => {
+    await setCellContent(model, "A1", "1");
+    await setCellContent(model, "A2", "1");
+    await addEqualCf(model, "A1, A2", { fillColor: "#FF0000" }, "1", "1", sheetId);
     expect(getStyle(model, "A1")).toEqual({
       fillColor: "#FF0000",
     });
@@ -272,12 +274,12 @@ describe("conditional format", () => {
       fillColor: "#FF0000",
     });
 
-    undo(model);
+    await undo(model);
 
     expect(getStyle(model, "A1")).toEqual({});
     expect(getStyle(model, "A2")).toEqual({});
 
-    redo(model);
+    await redo(model);
 
     expect(getStyle(model, "A1")).toEqual({
       fillColor: "#FF0000",
@@ -287,8 +289,8 @@ describe("conditional format", () => {
     });
   });
 
-  test("Conditional formatting with an unbounded range on an invalid sheet", () => {
-    const result = addEqualCf(
+  test("Conditional formatting with an unbounded range on an invalid sheet", async () => {
+    const result = await addEqualCf(
       model,
       "B1,A1:A",
       { fillColor: "#0000FF" },
@@ -309,17 +311,17 @@ describe("conditional format", () => {
     expect(model.getters.getConditionalFormats(sheetId)).toHaveLength(0);
   });
 
-  test("Still correct after ADD_COLUMNS_ROWS with dimension col and UNDO/REDO", () => {
-    setCellContent(model, "B1", "1");
-    setCellContent(model, "B2", "1");
-    addEqualCf(model, "B1,B2", { fillColor: "#FF0000" }, "1", "1", sheetId);
+  test("Still correct after ADD_COLUMNS_ROWS with dimension col and UNDO/REDO", async () => {
+    await setCellContent(model, "B1", "1");
+    await setCellContent(model, "B2", "1");
+    await addEqualCf(model, "B1,B2", { fillColor: "#FF0000" }, "1", "1", sheetId);
     expect(getStyle(model, "B1")).toEqual({
       fillColor: "#FF0000",
     });
     expect(getStyle(model, "B2")).toEqual({
       fillColor: "#FF0000",
     });
-    addColumns(model, "after", "A", 1);
+    await addColumns(model, "after", "A", 1);
     expect(model.getters.getConditionalFormats(sheetId)).toStrictEqual([
       {
         id: "1",
@@ -341,7 +343,7 @@ describe("conditional format", () => {
       fillColor: "#FF0000",
     });
 
-    undo(model);
+    await undo(model);
     expect(model.getters.getConditionalFormats(sheetId)).toStrictEqual([
       {
         id: "1",
@@ -363,7 +365,7 @@ describe("conditional format", () => {
     expect(getStyle(model, "C1")).toEqual({});
     expect(getStyle(model, "C2")).toEqual({});
 
-    redo(model);
+    await redo(model);
     expect(getStyle(model, "B1")).toEqual({});
     expect(getStyle(model, "B2")).toEqual({});
     expect(getStyle(model, "C1")).toEqual({
@@ -374,14 +376,14 @@ describe("conditional format", () => {
     });
   });
 
-  test("delete cf when range is deleted with previous rows", () => {
-    addEqualCf(model, "A4", { fillColor: "#FF0000" }, "2", "1", sheetId);
-    deleteRows(model, [2, 3]);
+  test("delete cf when range is deleted with previous rows", async () => {
+    await addEqualCf(model, "A4", { fillColor: "#FF0000" }, "2", "1", sheetId);
+    await deleteRows(model, [2, 3]);
     expect(model.getters.getConditionalFormats(sheetId)).toEqual([]);
   });
 
   test("is saved/restored", async () => {
-    addEqualCf(model, "A1:A4", { fillColor: "#FF0000" }, "2", "1", sheetId);
+    await addEqualCf(model, "A1:A4", { fillColor: "#FF0000" }, "2", "1", sheetId);
     const workbookData = model.exportData();
     const newModel = await createModel(workbookData);
     expect(newModel.getters.getConditionalFormats(sheetId)).toEqual(
@@ -389,66 +391,66 @@ describe("conditional format", () => {
     );
   });
 
-  test("works after value update", () => {
-    setCellContent(model, "A1", "1");
-    setCellContent(model, "A2", "2");
-    addEqualCf(model, "A1", { fillColor: "#FF0000" }, "2", "1", sheetId);
+  test("works after value update", async () => {
+    await setCellContent(model, "A1", "1");
+    await setCellContent(model, "A2", "2");
+    await addEqualCf(model, "A1", { fillColor: "#FF0000" }, "2", "1", sheetId);
     expect(getStyle(model, "A1")).toEqual({});
-    setCellContent(model, "A1", "2");
+    await setCellContent(model, "A1", "2");
     expect(getStyle(model, "A1")).toEqual({
       fillColor: "#FF0000",
     });
-    setCellContent(model, "A1", "1");
+    await setCellContent(model, "A1", "1");
     expect(getStyle(model, "A1")).toEqual({});
-    setCellContent(model, "A1", "=A2");
-    expect(getStyle(model, "A1")).toEqual({
-      fillColor: "#FF0000",
-    });
-  });
-
-  test("works after format update that updates a value", () => {
-    setCellContent(model, "A1", '=CELL("format", A2)');
-    addEqualCf(model, "A1", { fillColor: "#FF0000" }, "mm/dd/yyyy", "1", sheetId);
-    expect(getStyle(model, "A1")).toEqual({});
-    setFormat(model, "A2", "mm/dd/yyyy");
+    await setCellContent(model, "A1", "=A2");
     expect(getStyle(model, "A1")).toEqual({
       fillColor: "#FF0000",
     });
   });
 
-  test("works when cells are in error", () => {
-    setCellContent(model, "A1", "2");
-    addEqualCf(model, "A1", { fillColor: "#FF0000" }, "2", "1", sheetId);
-    setCellContent(model, "A1", "=BLA");
+  test("works after format update that updates a value", async () => {
+    await setCellContent(model, "A1", '=CELL("format", A2)');
+    await addEqualCf(model, "A1", { fillColor: "#FF0000" }, "mm/dd/yyyy", "1", sheetId);
+    expect(getStyle(model, "A1")).toEqual({});
+    await setFormat(model, "A2", "mm/dd/yyyy");
+    expect(getStyle(model, "A1")).toEqual({
+      fillColor: "#FF0000",
+    });
+  });
+
+  test("works when cells are in error", async () => {
+    await setCellContent(model, "A1", "2");
+    await addEqualCf(model, "A1", { fillColor: "#FF0000" }, "2", "1", sheetId);
+    await setCellContent(model, "A1", "=BLA");
     expect(getStyle(model, "A1")).toEqual({});
   });
 
-  test("multiple conditional formats for one cell", () => {
-    setCellContent(model, "A1", "2");
-    addEqualCf(model, "A1", { fillColor: "#FF0000" }, "2", "1", sheetId);
-    addEqualCf(model, "A1", { textColor: "#445566" }, "2", "2", sheetId);
+  test("multiple conditional formats for one cell", async () => {
+    await setCellContent(model, "A1", "2");
+    await addEqualCf(model, "A1", { fillColor: "#FF0000" }, "2", "1", sheetId);
+    await addEqualCf(model, "A1", { textColor: "#445566" }, "2", "2", sheetId);
     expect(getStyle(model, "A1")).toEqual({
       fillColor: "#FF0000",
       textColor: "#445566",
     });
   });
 
-  test("multiple conditional formats with same style", () => {
-    setCellContent(model, "A1", "2");
-    addEqualCf(model, "A1", { fillColor: "#FF0000" }, "2", "1", sheetId);
-    addEqualCf(model, "A1", { fillColor: "#FF0000" }, "2", "2", sheetId);
+  test("multiple conditional formats with same style", async () => {
+    await setCellContent(model, "A1", "2");
+    await addEqualCf(model, "A1", { fillColor: "#FF0000" }, "2", "1", sheetId);
+    await addEqualCf(model, "A1", { fillColor: "#FF0000" }, "2", "2", sheetId);
     expect(getStyle(model, "A1")).toEqual({
       fillColor: "#FF0000",
     });
   });
 
-  test("multiple conditional formats using stopIfTrue flag", () => {
-    setCellContent(model, "A1", "2");
+  test("multiple conditional formats using stopIfTrue flag", async () => {
+    await setCellContent(model, "A1", "2");
 
     const cf = createEqualCF("2", { fillColor: "#FF0000" }, "1");
     cf.stopIfTrue = true;
-    addCf(model, "A1", cf, sheetId);
-    addEqualCf(model, "A1", { fillColor: "#445566" }, "2", "2", sheetId);
+    await addCf(model, "A1", cf, sheetId);
+    await addEqualCf(model, "A1", { fillColor: "#445566" }, "2", "2", sheetId);
     expect(getStyle(model, "A1")).toEqual({
       fillColor: "#FF0000",
     });
@@ -480,7 +482,7 @@ describe("conditional format", () => {
           },
         ],
       });
-      deleteRows(model, [1, 3]);
+      await deleteRows(model, [1, 3]);
       expect(model.getters.getConditionalFormats(sheetId)).toEqual([
         { id: "1", ranges: ["A1"], rule },
         { id: "3", ranges: ["C2"], rule },
@@ -514,7 +516,7 @@ describe("conditional format", () => {
           },
         ],
       });
-      deleteColumns(model, ["B", "D"]);
+      await deleteColumns(model, ["B", "D"]);
       expect(model.getters.getConditionalFormats(sheetId)).toEqual([
         { id: "1", ranges: ["A1"], rule },
         { id: "3", ranges: ["B3"], rule },
@@ -545,8 +547,8 @@ describe("conditional format", () => {
           },
         ],
       });
-      addColumns(model, "before", "B", 1);
-      addColumns(model, "after", "C", 2);
+      await addColumns(model, "before", "B", 1);
+      await addColumns(model, "after", "C", 2);
       expect(model.getters.getConditionalFormats(sheetId)).toEqual([
         { id: "1", ranges: ["A1:F1"], rule },
         { id: "2", ranges: ["A2:C2"], rule },
@@ -572,8 +574,8 @@ describe("conditional format", () => {
           },
         ],
       });
-      addRows(model, "before", 1, 1);
-      addRows(model, "after", 2, 2);
+      await addRows(model, "before", 1, 1);
+      await addRows(model, "after", 2, 2);
       expect(model.getters.getConditionalFormats(sheetId)).toEqual([
         { id: "1", ranges: ["A1:A6"], rule },
         { id: "2", ranges: ["B1:B3"], rule },
@@ -700,7 +702,7 @@ describe("conditional format", () => {
           },
         ],
       });
-      deleteRows(model, [1, 3]);
+      await deleteRows(model, [1, 3]);
       expect(model.getters.getConditionalFormats(sheetId)).toEqual(formulasToCFs(expected, cfrule));
     });
 
@@ -737,7 +739,7 @@ describe("conditional format", () => {
           },
         ],
       });
-      deleteColumns(model, ["B", "E"]);
+      await deleteColumns(model, ["B", "E"]);
       expect(model.getters.getConditionalFormats(sheetId)).toEqual(formulasToCFs(expected, cfrule));
     });
 
@@ -774,7 +776,7 @@ describe("conditional format", () => {
           },
         ],
       });
-      addColumns(model, "after", "B", 2);
+      await addColumns(model, "after", "B", 2);
       expect(model.getters.getConditionalFormats(sheetId)).toEqual(formulasToCFs(expected, cfrule));
     });
 
@@ -811,7 +813,7 @@ describe("conditional format", () => {
           },
         ],
       });
-      addRows(model, "after", 2, 2);
+      await addRows(model, "after", 2, 2);
       expect(model.getters.getConditionalFormats(sheetId)).toEqual(formulasToCFs(expected, cfrule));
     });
 
@@ -852,81 +854,81 @@ describe("conditional format", () => {
           },
         ],
       });
-      deleteRows(model, [1, 3], "otherSheet");
+      await deleteRows(model, [1, 3], "otherSheet");
       expect(model.getters.getConditionalFormats(sheetId)).toEqual(formulasToCFs(expected, cfrule));
     });
   });
 
-  test("cannot send invalid arguments to *move* conditional format rules command", () => {
-    addEqualCf(model, "A1", { fillColor: "#FF0000" }, "1", "idRule1", sheetId);
-    addEqualCf(model, "A1", { fillColor: "#0000FF" }, "1", "idRule2", sheetId);
+  test("cannot send invalid arguments to *move* conditional format rules command", async () => {
+    await addEqualCf(model, "A1", { fillColor: "#FF0000" }, "1", "idRule1", sheetId);
+    await addEqualCf(model, "A1", { fillColor: "#0000FF" }, "1", "idRule2", sheetId);
 
-    expect(changeCFPriority(model, "3", 1, sheetId)).not.toBeSuccessfullyDispatched();
-    expect(changeCFPriority(model, "idRule2", 1, "notAnId")).not.toBeSuccessfullyDispatched();
-    expect(changeCFPriority(model, "idRule1", 1, sheetId)).not.toBeSuccessfullyDispatched();
-    expect(changeCFPriority(model, "idRule2", -1, sheetId)).not.toBeSuccessfullyDispatched();
+    expect(await changeCFPriority(model, "3", 1, sheetId)).not.toBeSuccessfullyDispatched();
+    expect(await changeCFPriority(model, "idRule2", 1, "notAnId")).not.toBeSuccessfullyDispatched();
+    expect(await changeCFPriority(model, "idRule1", 1, sheetId)).not.toBeSuccessfullyDispatched();
+    expect(await changeCFPriority(model, "idRule2", -1, sheetId)).not.toBeSuccessfullyDispatched();
   });
 
-  test("Reorder conditional format rules command", () => {
-    addEqualCf(model, "A1", { fillColor: "#FF0000" }, "1", "idRule1", sheetId);
-    addEqualCf(model, "A1", { fillColor: "#0000FF" }, "1", "idRule2", sheetId);
-    addEqualCf(model, "A1", { fillColor: "#00FF00" }, "1", "idRule3", sheetId);
+  test("Reorder conditional format rules command", async () => {
+    await addEqualCf(model, "A1", { fillColor: "#FF0000" }, "1", "idRule1", sheetId);
+    await addEqualCf(model, "A1", { fillColor: "#0000FF" }, "1", "idRule2", sheetId);
+    await addEqualCf(model, "A1", { fillColor: "#00FF00" }, "1", "idRule3", sheetId);
 
     let formats = model.getters.getConditionalFormats(sheetId);
     expect(formats[0].id).toEqual("idRule1");
     expect(formats[1].id).toEqual("idRule2");
 
-    changeCFPriority(model, "idRule2", 1);
+    await changeCFPriority(model, "idRule2", 1);
     formats = model.getters.getConditionalFormats(sheetId);
     expect(formats[0].id).toEqual("idRule2");
     expect(formats[1].id).toEqual("idRule1");
 
-    changeCFPriority(model, "idRule2", -1);
+    await changeCFPriority(model, "idRule2", -1);
     formats = model.getters.getConditionalFormats(sheetId);
     expect(formats[0].id).toEqual("idRule1");
     expect(formats[1].id).toEqual("idRule2");
 
-    changeCFPriority(model, "idRule1", -2);
+    await changeCFPriority(model, "idRule1", -2);
     formats = model.getters.getConditionalFormats(sheetId);
     expect(formats[0].id).toEqual("idRule2");
     expect(formats[1].id).toEqual("idRule3");
     expect(formats[2].id).toEqual("idRule1");
 
-    changeCFPriority(model, "idRule1", 2);
+    await changeCFPriority(model, "idRule1", 2);
     formats = model.getters.getConditionalFormats(sheetId);
     expect(formats[0].id).toEqual("idRule1");
     expect(formats[1].id).toEqual("idRule2");
     expect(formats[2].id).toEqual("idRule3");
   });
 
-  test("Reorder format rules command can be undo/redo", () => {
-    addEqualCf(model, "A1", { fillColor: "#FF0000" }, "1", "idRule1", sheetId);
-    addEqualCf(model, "A1", { fillColor: "#0000FF" }, "1", "idRule2", sheetId);
+  test("Reorder format rules command can be undo/redo", async () => {
+    await addEqualCf(model, "A1", { fillColor: "#FF0000" }, "1", "idRule1", sheetId);
+    await addEqualCf(model, "A1", { fillColor: "#0000FF" }, "1", "idRule2", sheetId);
     let formats = model.getters.getConditionalFormats(sheetId);
-    changeCFPriority(model, "idRule1", -1);
+    await changeCFPriority(model, "idRule1", -1);
     formats = model.getters.getConditionalFormats(sheetId);
     expect(formats[0].id).toEqual("idRule2");
     expect(formats[1].id).toEqual("idRule1");
 
-    undo(model);
+    await undo(model);
     formats = model.getters.getConditionalFormats(sheetId);
     expect(formats[0].id).toEqual("idRule1");
     expect(formats[1].id).toEqual("idRule2");
 
-    redo(model);
+    await redo(model);
     formats = model.getters.getConditionalFormats(sheetId);
     expect(formats[0].id).toEqual("idRule2");
     expect(formats[1].id).toEqual("idRule1");
   });
 
-  test("conditional format is re-evaluated when order changes", () => {
-    setCellContent(model, "A1", "1");
-    addEqualCf(model, "A1", { fillColor: "#FF0000" }, "1", "idRule1", sheetId);
-    addEqualCf(model, "A1", { fillColor: "#0000FF" }, "1", "idRule2", sheetId);
+  test("conditional format is re-evaluated when order changes", async () => {
+    await setCellContent(model, "A1", "1");
+    await addEqualCf(model, "A1", { fillColor: "#FF0000" }, "1", "idRule1", sheetId);
+    await addEqualCf(model, "A1", { fillColor: "#0000FF" }, "1", "idRule2", sheetId);
     expect(getStyle(model, "A1")).toEqual({
       fillColor: "#FF0000",
     });
-    changeCFPriority(model, "idRule2", 1, sheetId);
+    await changeCFPriority(model, "idRule2", 1, sheetId);
     expect(getStyle(model, "A1")).toEqual({
       fillColor: "#0000FF",
     });
@@ -943,14 +945,14 @@ describe("conditional formats types", () => {
         ["hi", true],
         ["highway to hell", true],
         [`="highway to hell"`, true],
-      ])("a string %s", (cellContent, shouldMatch) => {
-        addCfRule(model, "A1", {
+      ])("a string %s", async (cellContent, shouldMatch) => {
+        await addCfRule(model, "A1", {
           type: "CellIsRule",
           operator: "beginsWithText",
           values: ["hi"],
           style: { fillColor: "#ff0f0f" },
         });
-        setCellContent(model, "A1", cellContent);
+        await setCellContent(model, "A1", cellContent);
         const computedStyle = shouldMatch ? { fillColor: "#ff0f0f" } : {};
         expect(getStyle(model, "A1")).toEqual(computedStyle);
       });
@@ -960,46 +962,46 @@ describe("conditional formats types", () => {
         ["42", true],
         ["422", true],
         ["=422", true],
-      ])("a number %s", (cellContent, shouldMatch) => {
-        addCfRule(model, "A1", {
+      ])("a number %s", async (cellContent, shouldMatch) => {
+        await addCfRule(model, "A1", {
           type: "CellIsRule",
           operator: "beginsWithText",
           values: ["42"],
           style: { fillColor: "#ff0f0f" },
         });
-        setCellContent(model, "A1", cellContent);
+        await setCellContent(model, "A1", cellContent);
         const computedStyle = shouldMatch ? { fillColor: "#ff0f0f" } : {};
         expect(getStyle(model, "A1")).toEqual(computedStyle);
       });
     });
 
-    test("Operator isBetween", () => {
-      addCfRule(model, "A1", {
+    test("Operator isBetween", async () => {
+      await addCfRule(model, "A1", {
         type: "CellIsRule",
         operator: "isBetween",
         values: ["1", "3"],
         style: { fillColor: "#ff0f0f" },
       });
 
-      setCellContent(model, "A1", "0");
+      await setCellContent(model, "A1", "0");
       expect(getStyle(model, "A1")).toEqual({});
 
-      setCellContent(model, "A1", "1");
+      await setCellContent(model, "A1", "1");
       expect(getStyle(model, "A1")).toEqual({
         fillColor: "#ff0f0f",
       });
 
-      setCellContent(model, "A1", "1.5");
+      await setCellContent(model, "A1", "1.5");
       expect(getStyle(model, "A1")).toEqual({
         fillColor: "#ff0f0f",
       });
 
-      setCellContent(model, "A1", "3");
+      await setCellContent(model, "A1", "3");
       expect(getStyle(model, "A1")).toEqual({
         fillColor: "#ff0f0f",
       });
 
-      setCellContent(model, "A1", "3.5");
+      await setCellContent(model, "A1", "3.5");
       expect(getStyle(model, "A1")).toEqual({});
     });
 
@@ -1012,14 +1014,14 @@ describe("conditional formats types", () => {
         ["this", true],
         ["ahi", true],
         [`="ahi"`, true],
-      ])("a string %s", (cellContent, shouldMatch) => {
-        addCfRule(model, "A1", {
+      ])("a string %s", async (cellContent, shouldMatch) => {
+        await addCfRule(model, "A1", {
           type: "CellIsRule",
           operator: "containsText",
           values: ["hi"],
           style: { fillColor: "#ff0f0f" },
         });
-        setCellContent(model, "A1", cellContent);
+        await setCellContent(model, "A1", cellContent);
         const computedStyle = shouldMatch ? { fillColor: "#ff0f0f" } : {};
         expect(getStyle(model, "A1")).toEqual(computedStyle);
       });
@@ -1030,21 +1032,21 @@ describe("conditional formats types", () => {
         ["422", true],
         ["2422", true],
         [`="2422"`, true],
-      ])("a number %s", (cellContent, shouldMatch) => {
-        addCfRule(model, "A1", {
+      ])("a number %s", async (cellContent, shouldMatch) => {
+        await addCfRule(model, "A1", {
           type: "CellIsRule",
           operator: "containsText",
           values: ["42"],
           style: { fillColor: "#ff0f0f" },
         });
-        setCellContent(model, "A1", cellContent);
+        await setCellContent(model, "A1", cellContent);
         const computedStyle = shouldMatch ? { fillColor: "#ff0f0f" } : {};
         expect(getStyle(model, "A1")).toEqual(computedStyle);
       });
 
-      test("applies conditional formatting correctly when formula returns a 1x1 matrix", () => {
-        setCellContent(model, "A1", "test");
-        addCfRule(model, "A1", {
+      test("applies conditional formatting correctly when formula returns a 1x1 matrix", async () => {
+        await setCellContent(model, "A1", "test");
+        await addCfRule(model, "A1", {
           type: "CellIsRule",
           operator: "containsText",
           values: ['=IF(TRUE, $A$1, "something else")'],
@@ -1063,14 +1065,14 @@ describe("conditional formats types", () => {
         ["highway to hell", false],
         ["hi", true],
         ["ahi", true],
-      ])("a string %s", (cellContent, shouldMatch) => {
-        addCfRule(model, "A1", {
+      ])("a string %s", async (cellContent, shouldMatch) => {
+        await addCfRule(model, "A1", {
           type: "CellIsRule",
           operator: "endsWithText",
           values: ["hi"],
           style: { fillColor: "#ff0f0f" },
         });
-        setCellContent(model, "A1", cellContent);
+        await setCellContent(model, "A1", cellContent);
         const computedStyle = shouldMatch ? { fillColor: "#ff0f0f" } : {};
         expect(getStyle(model, "A1")).toEqual(computedStyle);
       });
@@ -1080,117 +1082,117 @@ describe("conditional formats types", () => {
         ["422", false],
         ["442", true],
         ["=442", true],
-      ])("a number %s", (cellContent, shouldMatch) => {
-        addCfRule(model, "A1", {
+      ])("a number %s", async (cellContent, shouldMatch) => {
+        await addCfRule(model, "A1", {
           type: "CellIsRule",
           operator: "endsWithText",
           values: ["42"],
           style: { fillColor: "#ff0f0f" },
         });
-        setCellContent(model, "A1", cellContent);
+        await setCellContent(model, "A1", cellContent);
         const computedStyle = shouldMatch ? { fillColor: "#ff0f0f" } : {};
         expect(getStyle(model, "A1")).toEqual(computedStyle);
       });
     });
 
-    test("Operator GreaterThan", () => {
-      addCfRule(model, "A1", {
+    test("Operator GreaterThan", async () => {
+      await addCfRule(model, "A1", {
         type: "CellIsRule",
         operator: "isGreaterThan",
         values: ["12"],
         style: { fillColor: "#ff0f0f" },
       });
-      setCellContent(model, "A1", "5");
+      await setCellContent(model, "A1", "5");
       expect(getStyle(model, "A1")).toEqual({});
 
-      setCellContent(model, "A1", "12");
+      await setCellContent(model, "A1", "12");
       expect(getStyle(model, "A1")).toEqual({});
 
-      setCellContent(model, "A1", "13");
+      await setCellContent(model, "A1", "13");
       expect(getStyle(model, "A1")).toEqual({
         fillColor: "#ff0f0f",
       });
     });
 
-    test("Operator GreaterThan with simple reference", () => {
-      addCfRule(model, "A1:B2", {
+    test("Operator GreaterThan with simple reference", async () => {
+      await addCfRule(model, "A1:B2", {
         type: "CellIsRule",
         operator: "isGreaterThan",
         values: ["=A2"],
         style: { fillColor: "#ff0f0f" },
       });
-      setCellContent(model, "A1", "1");
-      setCellContent(model, "B1", "2");
-      setCellContent(model, "A2", "0");
-      setCellContent(model, "B2", "4");
+      await setCellContent(model, "A1", "1");
+      await setCellContent(model, "B1", "2");
+      await setCellContent(model, "A2", "0");
+      await setCellContent(model, "B2", "4");
       expect(getStyle(model, "A1")).toEqual({ fillColor: "#ff0f0f" });
       expect(getStyle(model, "B1")).toEqual({});
       expect(getStyle(model, "A2")).toEqual({});
       expect(getStyle(model, "B2")).toEqual({ fillColor: "#ff0f0f" });
     });
 
-    test("Operator GreaterThan with full-fixed simple reference", () => {
-      addCfRule(model, "A1:B2", {
+    test("Operator GreaterThan with full-fixed simple reference", async () => {
+      await addCfRule(model, "A1:B2", {
         type: "CellIsRule",
         operator: "isGreaterThan",
         values: ["=$A$2"],
         style: { fillColor: "#ff0f0f" },
       });
-      setCellContent(model, "A1", "3");
-      setCellContent(model, "B1", "1");
-      setCellContent(model, "A2", "2");
-      setCellContent(model, "B2", "4");
+      await setCellContent(model, "A1", "3");
+      await setCellContent(model, "B1", "1");
+      await setCellContent(model, "A2", "2");
+      await setCellContent(model, "B2", "4");
       expect(getStyle(model, "A1")).toEqual({ fillColor: "#ff0f0f" });
       expect(getStyle(model, "B1")).toEqual({});
       expect(getStyle(model, "A2")).toEqual({});
       expect(getStyle(model, "B2")).toEqual({ fillColor: "#ff0f0f" });
     });
 
-    test("Operator GreaterThan with column-fixed simple reference", () => {
-      addCfRule(model, "A1:B2", {
+    test("Operator GreaterThan with column-fixed simple reference", async () => {
+      await addCfRule(model, "A1:B2", {
         type: "CellIsRule",
         operator: "isGreaterThan",
         values: ["=$A2"],
         style: { fillColor: "#ff0f0f" },
       });
-      setCellContent(model, "A1", "3");
-      setCellContent(model, "B1", "3");
-      setCellContent(model, "A2", "2");
-      setCellContent(model, "B2", "4");
+      await setCellContent(model, "A1", "3");
+      await setCellContent(model, "B1", "3");
+      await setCellContent(model, "A2", "2");
+      await setCellContent(model, "B2", "4");
       expect(getStyle(model, "A1")).toEqual({ fillColor: "#ff0f0f" });
       expect(getStyle(model, "B1")).toEqual({ fillColor: "#ff0f0f" });
       expect(getStyle(model, "B1")).toEqual({ fillColor: "#ff0f0f" });
       expect(getStyle(model, "B2")).toEqual({ fillColor: "#ff0f0f" });
     });
 
-    test("Operator GreaterThan with row-fixed simple reference", () => {
-      addCfRule(model, "A1:B2", {
+    test("Operator GreaterThan with row-fixed simple reference", async () => {
+      await addCfRule(model, "A1:B2", {
         type: "CellIsRule",
         operator: "isGreaterThan",
         values: ["=A$2"],
         style: { fillColor: "#ff0f0f" },
       });
-      setCellContent(model, "A1", "3");
-      setCellContent(model, "B1", "1");
-      setCellContent(model, "A2", "2");
-      setCellContent(model, "B2", "4");
+      await setCellContent(model, "A1", "3");
+      await setCellContent(model, "B1", "1");
+      await setCellContent(model, "A2", "2");
+      await setCellContent(model, "B2", "4");
       expect(getStyle(model, "A1")).toEqual({ fillColor: "#ff0f0f" });
       expect(getStyle(model, "B1")).toEqual({});
       expect(getStyle(model, "A2")).toEqual({});
       expect(getStyle(model, "B2")).toEqual({});
     });
 
-    test("Operator GreaterThan with formula", () => {
-      addCfRule(model, "A1:B2", {
+    test("Operator GreaterThan with formula", async () => {
+      await addCfRule(model, "A1:B2", {
         type: "CellIsRule",
         operator: "isGreaterThan",
         values: ["=SUM(A1:B2)/4"],
         style: { fillColor: "#ff0f0f" },
       });
-      setCellContent(model, "A1", "1");
-      setCellContent(model, "B1", "2");
-      setCellContent(model, "A2", "3");
-      setCellContent(model, "B2", "4");
+      await setCellContent(model, "A1", "1");
+      await setCellContent(model, "B1", "2");
+      await setCellContent(model, "A2", "3");
+      await setCellContent(model, "B2", "4");
       expect(getStyle(model, "A1")).toEqual({});
       for (const cell of ["A2", "B1", "B2"]) {
         expect(getStyle(model, cell)).toEqual({
@@ -1199,17 +1201,17 @@ describe("conditional formats types", () => {
       }
     });
 
-    test("Operator GreaterThan with formula and fixed row/col", () => {
-      addCfRule(model, "A1:B2", {
+    test("Operator GreaterThan with formula and fixed row/col", async () => {
+      await addCfRule(model, "A1:B2", {
         type: "CellIsRule",
         operator: "isGreaterThan",
         values: ["=SUM($A$1:$B$2)/4"],
         style: { fillColor: "#ff0f0f" },
       });
-      setCellContent(model, "A1", "1");
-      setCellContent(model, "B1", "2");
-      setCellContent(model, "A2", "3");
-      setCellContent(model, "B2", "4");
+      await setCellContent(model, "A1", "1");
+      await setCellContent(model, "B1", "2");
+      await setCellContent(model, "A2", "3");
+      await setCellContent(model, "B2", "4");
       expect(getStyle(model, "A1")).toEqual({});
       expect(getStyle(model, "B1")).toEqual({});
       expect(getStyle(model, "A2")).toEqual({
@@ -1220,8 +1222,8 @@ describe("conditional formats types", () => {
       });
     });
 
-    test("CF with spreading formula is disabled", () => {
-      addCfRule(model, "A1", {
+    test("CF with spreading formula is disabled", async () => {
+      await addCfRule(model, "A1", {
         type: "CellIsRule",
         operator: "notContainsText",
         values: ["=MUNIT(3)"],
@@ -1231,102 +1233,102 @@ describe("conditional formats types", () => {
       expect(getStyle(model, "A1")).toEqual({});
     });
 
-    test("Operator GreaterThanOrEqual", () => {
-      addCfRule(model, "A1", {
+    test("Operator GreaterThanOrEqual", async () => {
+      await addCfRule(model, "A1", {
         type: "CellIsRule",
         operator: "isGreaterOrEqualTo",
         values: ["12"],
         style: { fillColor: "#ff0f0f" },
       });
 
-      setCellContent(model, "A1", "5");
+      await setCellContent(model, "A1", "5");
       expect(getStyle(model, "A1")).toEqual({});
 
-      setCellContent(model, "A1", "12");
+      await setCellContent(model, "A1", "12");
       expect(getStyle(model, "A1")).toEqual({
         fillColor: "#ff0f0f",
       });
 
-      setCellContent(model, "A1", "13");
+      await setCellContent(model, "A1", "13");
       expect(getStyle(model, "A1")).toEqual({
         fillColor: "#ff0f0f",
       });
     });
 
-    test("Operator LessThan", () => {
-      addCfRule(model, "A1", {
+    test("Operator LessThan", async () => {
+      await addCfRule(model, "A1", {
         type: "CellIsRule",
         operator: "isLessThan",
         values: ["10"],
         style: { fillColor: "#ff0f0f" },
       });
 
-      setCellContent(model, "A1", "11");
+      await setCellContent(model, "A1", "11");
       expect(getStyle(model, "A1")).toEqual({});
 
-      setCellContent(model, "A1", "10");
+      await setCellContent(model, "A1", "10");
       expect(getStyle(model, "A1")).toEqual({});
 
-      setCellContent(model, "A1", "9");
+      await setCellContent(model, "A1", "9");
       expect(getStyle(model, "A1")).toEqual({
         fillColor: "#ff0f0f",
       });
     });
 
-    test("Operator LessThanOrEqual", () => {
-      addCfRule(model, "A1", {
+    test("Operator LessThanOrEqual", async () => {
+      await addCfRule(model, "A1", {
         type: "CellIsRule",
         operator: "isLessOrEqualTo",
         values: ["10"],
         style: { fillColor: "#ff0f0f" },
       });
 
-      setCellContent(model, "A1", "11");
+      await setCellContent(model, "A1", "11");
       expect(getStyle(model, "A1")).toEqual({});
 
-      setCellContent(model, "A1", "10");
+      await setCellContent(model, "A1", "10");
       expect(getStyle(model, "A1")).toEqual({
         fillColor: "#ff0f0f",
       });
 
-      setCellContent(model, "A1", "9");
+      await setCellContent(model, "A1", "9");
       expect(getStyle(model, "A1")).toEqual({
         fillColor: "#ff0f0f",
       });
     });
 
-    test("Operator isNotBetween", () => {
-      addCfRule(model, "A1", {
+    test("Operator isNotBetween", async () => {
+      await addCfRule(model, "A1", {
         type: "CellIsRule",
         operator: "isNotBetween",
         values: ["5", "10"],
         style: { fillColor: "#ff0f0f" },
       });
 
-      setCellContent(model, "A1", "4");
+      await setCellContent(model, "A1", "4");
       expect(getStyle(model, "A1")).toEqual({
         fillColor: "#ff0f0f",
       });
 
-      setCellContent(model, "A1", "0");
+      await setCellContent(model, "A1", "0");
       expect(getStyle(model, "A1")).toEqual({
         fillColor: "#ff0f0f",
       });
 
-      setCellContent(model, "A1", "5");
+      await setCellContent(model, "A1", "5");
       expect(getStyle(model, "A1")).toEqual({});
 
-      setCellContent(model, "A1", "10");
+      await setCellContent(model, "A1", "10");
       expect(getStyle(model, "A1")).toEqual({});
 
-      setCellContent(model, "A1", "10.1");
+      await setCellContent(model, "A1", "10.1");
       expect(getStyle(model, "A1")).toEqual({
         fillColor: "#ff0f0f",
       });
     });
 
-    test("Operator textNotContains", () => {
-      addCfRule(model, "A1", {
+    test("Operator textNotContains", async () => {
+      await addCfRule(model, "A1", {
         type: "CellIsRule",
         operator: "notContainsText",
         values: ["qsdf"],
@@ -1336,10 +1338,10 @@ describe("conditional formats types", () => {
         fillColor: "#ff0f0f",
       });
 
-      setCellContent(model, "A1", "hellqsdfo");
+      await setCellContent(model, "A1", "hellqsdfo");
       expect(getStyle(model, "A1")).toEqual({});
 
-      setCellContent(model, "A1", "hello");
+      await setCellContent(model, "A1", "hello");
       expect(getStyle(model, "A1")).toEqual({
         fillColor: "#ff0f0f",
       });
@@ -1353,14 +1355,14 @@ describe("conditional formats types", () => {
         ["hi", true],
         ["highway to hell", true],
         [`="highway to hell"`, true],
-      ])("a string %s", (cellContent, shouldMatch) => {
-        addCfRule(model, "A1", {
+      ])("a string %s", async (cellContent, shouldMatch) => {
+        await addCfRule(model, "A1", {
           type: "CellIsRule",
           operator: "beginsWithText",
           values: ["hi"],
           style: { fillColor: "#ff0f0f" },
         });
-        setCellContent(model, "A1", cellContent);
+        await setCellContent(model, "A1", cellContent);
         const computedStyle = shouldMatch ? { fillColor: "#ff0f0f" } : {};
         expect(getStyle(model, "A1")).toEqual(computedStyle);
       });
@@ -1370,14 +1372,14 @@ describe("conditional formats types", () => {
         ["42", true],
         ["422", true],
         ["=422", true],
-      ])("a number %s", (cellContent, shouldMatch) => {
-        addCfRule(model, "A1", {
+      ])("a number %s", async (cellContent, shouldMatch) => {
+        await addCfRule(model, "A1", {
           type: "CellIsRule",
           operator: "beginsWithText",
           values: ["42"],
           style: { fillColor: "#ff0f0f" },
         });
-        setCellContent(model, "A1", cellContent);
+        await setCellContent(model, "A1", cellContent);
         const computedStyle = shouldMatch ? { fillColor: "#ff0f0f" } : {};
         expect(getStyle(model, "A1")).toEqual(computedStyle);
       });
@@ -1389,14 +1391,14 @@ describe("conditional formats types", () => {
         [`="hi"`, false],
         ["aaa", true],
         ["42", true],
-      ])("a string %s", (cellContent, shouldMatch) => {
-        addCfRule(model, "A1", {
+      ])("a string %s", async (cellContent, shouldMatch) => {
+        await addCfRule(model, "A1", {
           type: "CellIsRule",
           operator: "isNotEqual",
           values: ["hi"],
           style: { fillColor: "#ff0f0f" },
         });
-        setCellContent(model, "A1", cellContent);
+        await setCellContent(model, "A1", cellContent);
         const computedStyle = shouldMatch ? { fillColor: "#ff0f0f" } : {};
         expect(getStyle(model, "A1")).toEqual(computedStyle);
       });
@@ -1407,14 +1409,14 @@ describe("conditional formats types", () => {
         [`="42"`, true],
         ["aaa", true],
         ["422", true],
-      ])("a number %s", (cellContent, shouldMatch) => {
-        addCfRule(model, "A1", {
+      ])("a number %s", async (cellContent, shouldMatch) => {
+        await addCfRule(model, "A1", {
           type: "CellIsRule",
           operator: "isNotEqual",
           values: ["42"],
           style: { fillColor: "#ff0f0f" },
         });
-        setCellContent(model, "A1", cellContent);
+        await setCellContent(model, "A1", cellContent);
         const computedStyle = shouldMatch ? { fillColor: "#ff0f0f" } : {};
         expect(getStyle(model, "A1")).toEqual(computedStyle);
       });
@@ -1425,14 +1427,14 @@ describe("conditional formats types", () => {
         [`=42`, true],
         ["aaa", true],
         ["42", true],
-      ])("a date %s", (cellContent, shouldMatch) => {
-        addCfRule(model, "A1", {
+      ])("a date %s", async (cellContent, shouldMatch) => {
+        await addCfRule(model, "A1", {
           type: "CellIsRule",
           operator: "isNotEqual",
           values: ["12/12/2021"],
           style: { fillColor: "#ff0f0f" },
         });
-        setCellContent(model, "A1", cellContent);
+        await setCellContent(model, "A1", cellContent);
         const computedStyle = shouldMatch ? { fillColor: "#ff0f0f" } : {};
         expect(getStyle(model, "A1")).toEqual(computedStyle);
       });
@@ -1444,14 +1446,14 @@ describe("conditional formats types", () => {
         [`="hi"`, true],
         ["aaa", false],
         ["42", false],
-      ])("a string %s", (cellContent, shouldMatch) => {
-        addCfRule(model, "A1", {
+      ])("a string %s", async (cellContent, shouldMatch) => {
+        await addCfRule(model, "A1", {
           type: "CellIsRule",
           operator: "isEqual",
           values: ["hi"],
           style: { fillColor: "#ff0f0f" },
         });
-        setCellContent(model, "A1", cellContent);
+        await setCellContent(model, "A1", cellContent);
         const computedStyle = shouldMatch ? { fillColor: "#ff0f0f" } : {};
         expect(getStyle(model, "A1")).toEqual(computedStyle);
       });
@@ -1462,14 +1464,14 @@ describe("conditional formats types", () => {
         [`="42"`, false],
         ["aaa", false],
         ["422", false],
-      ])("a number %s", (cellContent, shouldMatch) => {
-        addCfRule(model, "A1", {
+      ])("a number %s", async (cellContent, shouldMatch) => {
+        await addCfRule(model, "A1", {
           type: "CellIsRule",
           operator: "isEqual",
           values: ["42"],
           style: { fillColor: "#ff0f0f" },
         });
-        setCellContent(model, "A1", cellContent);
+        await setCellContent(model, "A1", cellContent);
         const computedStyle = shouldMatch ? { fillColor: "#ff0f0f" } : {};
         expect(getStyle(model, "A1")).toEqual(computedStyle);
       });
@@ -1480,88 +1482,88 @@ describe("conditional formats types", () => {
         [`=42`, false],
         ["aaa", false],
         ["42", false],
-      ])("a date %s", (cellContent, shouldMatch) => {
-        addCfRule(model, "A1", {
+      ])("a date %s", async (cellContent, shouldMatch) => {
+        await addCfRule(model, "A1", {
           type: "CellIsRule",
           operator: "isEqual",
           values: ["12/12/2021"],
           style: { fillColor: "#ff0f0f" },
         });
-        setCellContent(model, "A1", cellContent);
+        await setCellContent(model, "A1", cellContent);
         const computedStyle = shouldMatch ? { fillColor: "#ff0f0f" } : {};
         expect(getStyle(model, "A1")).toEqual(computedStyle);
       });
 
-      test("With a formula value that can be parsed as a number", () => {
-        addCfRule(model, "A1", {
+      test("With a formula value that can be parsed as a number", async () => {
+        await addCfRule(model, "A1", {
           type: "CellIsRule",
           operator: "isEqual",
           values: ['="42"'],
           style: { fillColor: "#ff0f0f" },
         });
-        setCellContent(model, "A1", "42");
+        await setCellContent(model, "A1", "42");
         expect(getStyle(model, "A1")).toEqual({});
-        setCellContent(model, "A1", "=CONCAT(4, 2)");
+        await setCellContent(model, "A1", "=CONCAT(4, 2)");
         expect(getStyle(model, "A1")).toEqual({ fillColor: "#ff0f0f" });
       });
     });
 
-    test("Operator IsEmpty", () => {
-      addCfRule(model, "A1", {
+    test("Operator IsEmpty", async () => {
+      await addCfRule(model, "A1", {
         type: "CellIsRule",
         operator: "isEmpty",
         values: [],
         style: { fillColor: "#ff0f0f" },
       });
-      setCellContent(model, "A1", "");
+      await setCellContent(model, "A1", "");
       expect(getStyle(model, "A1")).toEqual({
         fillColor: "#ff0f0f",
       });
 
-      setCellContent(model, "A1", " ");
+      await setCellContent(model, "A1", " ");
       expect(getStyle(model, "A1")).toEqual({
         fillColor: "#ff0f0f",
       });
 
-      setCellContent(model, "A2", "");
-      setCellContent(model, "A1", "=A2");
+      await setCellContent(model, "A2", "");
+      await setCellContent(model, "A1", "=A2");
       expect(getStyle(model, "A1")).toEqual({});
 
-      setCellContent(model, "A1", '=""');
+      await setCellContent(model, "A1", '=""');
       expect(getStyle(model, "A1")).toEqual({
         fillColor: "#ff0f0f",
       });
 
-      setCellContent(model, "A1", '=" "');
+      await setCellContent(model, "A1", '=" "');
       expect(getStyle(model, "A1")).toEqual({
         fillColor: "#ff0f0f",
       });
 
-      setCellContent(model, "A1", "helabclo");
+      await setCellContent(model, "A1", "helabclo");
       expect(getStyle(model, "A1")).toEqual({});
     });
 
-    test("Operator IsNotEmpty", () => {
-      addCfRule(model, "A1", {
+    test("Operator IsNotEmpty", async () => {
+      await addCfRule(model, "A1", {
         type: "CellIsRule",
         operator: "isNotEmpty",
         values: [],
         style: { fillColor: "#ff0f0f" },
       });
-      setCellContent(model, "A1", "");
+      await setCellContent(model, "A1", "");
       expect(getStyle(model, "A1")).toEqual({});
 
-      setCellContent(model, "A1", " ");
+      await setCellContent(model, "A1", " ");
       expect(getStyle(model, "A1")).toEqual({});
 
-      setCellContent(model, "A1", "helabclo");
+      await setCellContent(model, "A1", "helabclo");
       expect(getStyle(model, "A1")).toEqual({
         fillColor: "#ff0f0f",
       });
     });
 
-    test("Operator dateIs", () => {
-      addCfRule(model, "A1", {
+    test("Operator dateIs", async () => {
+      await addCfRule(model, "A1", {
         type: "CellIsRule",
         operator: "dateIs",
         dateValue: "exactDate",
@@ -1569,18 +1571,18 @@ describe("conditional formats types", () => {
         style: { fillColor: "#ff0f0f" },
       });
 
-      setCellContent(model, "A1", "11/10/2022");
+      await setCellContent(model, "A1", "11/10/2022");
       expect(getStyle(model, "A1")).toEqual({});
 
-      setCellContent(model, "A1", "10/10/2022");
+      await setCellContent(model, "A1", "10/10/2022");
       expect(getStyle(model, "A1")).toEqual({ fillColor: "#ff0f0f" });
     });
 
-    test("Operator dateIsAfter", () => {
+    test("Operator dateIsAfter", async () => {
       jest.useFakeTimers();
       jest.setSystemTime(new Date("01/01/2021 12:00:00"));
 
-      addCfRule(model, "A1", {
+      await addCfRule(model, "A1", {
         type: "CellIsRule",
         operator: "dateIsAfter",
         dateValue: "today",
@@ -1588,19 +1590,19 @@ describe("conditional formats types", () => {
         style: { fillColor: "#ff0f0f" },
       });
 
-      setCellContent(model, "A1", "01/01/2021");
+      await setCellContent(model, "A1", "01/01/2021");
       expect(getStyle(model, "A1")).toEqual({});
 
-      setCellContent(model, "A1", "01/02/2021");
+      await setCellContent(model, "A1", "01/02/2021");
       expect(getStyle(model, "A1")).toEqual({ fillColor: "#ff0f0f" });
       jest.useRealTimers();
     });
 
-    test("Operator dateIsBefore", () => {
+    test("Operator dateIsBefore", async () => {
       jest.useFakeTimers();
       jest.setSystemTime(new Date("01/01/2021 12:00:00"));
 
-      addCfRule(model, "A1", {
+      await addCfRule(model, "A1", {
         type: "CellIsRule",
         operator: "dateIsBefore",
         dateValue: "lastYear",
@@ -1608,19 +1610,19 @@ describe("conditional formats types", () => {
         style: { fillColor: "#ff0f0f" },
       });
 
-      setCellContent(model, "A1", "01/02/2020");
+      await setCellContent(model, "A1", "01/02/2020");
       expect(getStyle(model, "A1")).toEqual({});
 
-      setCellContent(model, "A1", "12/31/2019");
+      await setCellContent(model, "A1", "12/31/2019");
       expect(getStyle(model, "A1")).toEqual({ fillColor: "#ff0f0f" });
       jest.useRealTimers();
     });
 
-    test("Operator dateIsOnOrBefore", () => {
+    test("Operator dateIsOnOrBefore", async () => {
       jest.useFakeTimers();
       jest.setSystemTime(new Date("01/01/2021 12:00:00"));
 
-      addCfRule(model, "A1", {
+      await addCfRule(model, "A1", {
         type: "CellIsRule",
         operator: "dateIsOnOrBefore",
         dateValue: "today",
@@ -1628,19 +1630,19 @@ describe("conditional formats types", () => {
         style: { fillColor: "#ff0f0f" },
       });
 
-      setCellContent(model, "A1", "01/02/2021");
+      await setCellContent(model, "A1", "01/02/2021");
       expect(getStyle(model, "A1")).toEqual({});
 
-      setCellContent(model, "A1", "01/01/2021");
+      await setCellContent(model, "A1", "01/01/2021");
       expect(getStyle(model, "A1")).toEqual({ fillColor: "#ff0f0f" });
       jest.useRealTimers();
     });
 
-    test("Operator dateIsOnOrAfter", () => {
+    test("Operator dateIsOnOrAfter", async () => {
       jest.useFakeTimers();
       jest.setSystemTime(new Date("01/01/2021 12:00:00"));
 
-      addCfRule(model, "A1", {
+      await addCfRule(model, "A1", {
         type: "CellIsRule",
         operator: "dateIsOnOrAfter",
         dateValue: "lastYear",
@@ -1648,18 +1650,18 @@ describe("conditional formats types", () => {
         style: { fillColor: "#ff0f0f" },
       });
 
-      setCellContent(model, "A1", "12/31/2019");
+      await setCellContent(model, "A1", "12/31/2019");
       expect(getStyle(model, "A1")).toEqual({});
 
-      setCellContent(model, "A1", "02/01/2020");
+      await setCellContent(model, "A1", "02/01/2020");
       expect(getStyle(model, "A1")).toEqual({ fillColor: "#ff0f0f" });
       jest.useRealTimers();
     });
 
-    test("Operator top10", () => {
+    test("Operator top10", async () => {
       const cfStyle = { fillColor: "#ff0f0f", italic: true };
-      setGrid(model, { A1: "10", A2: "20", A3: "30", A4: "40" });
-      addCfRule(model, "A1:A4", {
+      await setGrid(model, { A1: "10", A2: "20", A3: "30", A4: "40" });
+      await addCfRule(model, "A1:A4", {
         type: "CellIsRule",
         operator: "top10",
         values: ["2"], // top 2
@@ -1672,10 +1674,10 @@ describe("conditional formats types", () => {
       expect(getStyle(model, "A4")).toEqual(cfStyle);
     });
 
-    test("Operator uniqueValues", () => {
+    test("Operator uniqueValues", async () => {
       const cfStyle = { fillColor: "#ff0f0f", italic: true };
-      setGrid(model, { A1: "Hello", A2: "hello", A3: "bonjour", A4: "22" });
-      addCfRule(model, "A1:A4", {
+      await setGrid(model, { A1: "Hello", A2: "hello", A3: "bonjour", A4: "22" });
+      await addCfRule(model, "A1:A4", {
         type: "CellIsRule",
         operator: "uniqueValues",
         values: [],
@@ -1688,10 +1690,10 @@ describe("conditional formats types", () => {
       expect(getStyle(model, "A4")).toEqual(cfStyle);
     });
 
-    test("Operator duplicateValues", () => {
+    test("Operator duplicateValues", async () => {
       const cfStyle = { fillColor: "#ff0f0f", italic: true };
-      setGrid(model, { A1: "Hello", A2: "hello", A3: "bonjour", A4: "22" });
-      addCfRule(model, "A1:A4", {
+      await setGrid(model, { A1: "Hello", A2: "hello", A3: "bonjour", A4: "22" });
+      await addCfRule(model, "A1:A4", {
         type: "CellIsRule",
         operator: "duplicateValues",
         values: [],
@@ -1729,15 +1731,18 @@ describe("conditional formats types", () => {
       ["notContainsText", ["1", ""]],
       ["isBetween", ["1", "1"]],
       ["isNotBetween", ["1", "1"]],
-    ])("%s operator with valid number of arguments: %s", (operator: string, values: string[]) => {
-      const result = addCfRule(model, "A1", {
-        type: "CellIsRule",
-        operator: operator as ConditionalFormattingOperatorValues,
-        values: values,
-        style: { fillColor: "#ff0f0f" },
-      });
-      expect(result).toBeSuccessfullyDispatched();
-    });
+    ])(
+      "%s operator with valid number of arguments: %s",
+      async (operator: string, values: string[]) => {
+        const result = await addCfRule(model, "A1", {
+          type: "CellIsRule",
+          operator: operator as ConditionalFormattingOperatorValues,
+          values: values,
+          style: { fillColor: "#ff0f0f" },
+        });
+        expect(result).toBeSuccessfullyDispatched();
+      }
+    );
 
     test.each([
       ["isEqual", []],
@@ -1763,8 +1768,8 @@ describe("conditional formats types", () => {
       ["notContainsText", [""]],
       ["isBetween", ["", "1"]],
       ["isNotBetween", ["", "1"]],
-    ])("%s operator with missing first argument %s", (operator: string, values: string[]) => {
-      const result = addCfRule(model, "A1", {
+    ])("%s operator with missing first argument %s", async (operator: string, values: string[]) => {
+      const result = await addCfRule(model, "A1", {
         type: "CellIsRule",
         operator: operator as ConditionalFormattingOperatorValues,
         values: values,
@@ -1775,8 +1780,8 @@ describe("conditional formats types", () => {
 
     test.each(["=$c:$2", "=suùù("])(
       "Invalid formula ('%s') cannot be set as CF value",
-      (formula: string) => {
-        const result = addCfRule(model, "A1", {
+      async (formula: string) => {
+        const result = await addCfRule(model, "A1", {
           type: "CellIsRule",
           operator: "isGreaterThan",
           values: [formula],
@@ -1791,8 +1796,8 @@ describe("conditional formats types", () => {
     ["isBetween", ["1", ""]],
     ["isNotBetween", ["1"]],
     ["isNotBetween", ["1", ""]],
-  ])("%s operator with missing second argument %s", (operator: string, values: string[]) => {
-    const result = addCfRule(model, "A1", {
+  ])("%s operator with missing second argument %s", async (operator: string, values: string[]) => {
+    const result = await addCfRule(model, "A1", {
       type: "CellIsRule",
       operator: operator as ConditionalFormattingOperatorValues,
       values: values,
@@ -1803,8 +1808,8 @@ describe("conditional formats types", () => {
   test.each([
     ["isBetween", ["", ""]],
     ["isNotBetween", ["", ""]],
-  ])("%s operator with both arguments missing %s", (operator: string, values: string[]) => {
-    const result = addCfRule(model, "A1", {
+  ])("%s operator with both arguments missing %s", async (operator: string, values: string[]) => {
+    const result = await addCfRule(model, "A1", {
       type: "CellIsRule",
       operator: operator as ConditionalFormattingOperatorValues,
       values: values,
@@ -1816,21 +1821,21 @@ describe("conditional formats types", () => {
     );
   });
 
-  test("CF with cell referencing empty cell is treated as zero", () => {
-    addCfRule(model, "A1", {
+  test("CF with cell referencing empty cell is treated as zero", async () => {
+    await addCfRule(model, "A1", {
       values: ["0"],
       operator: "isEqual",
       type: "CellIsRule",
       style: { fillColor: "#FF0FFF" },
     });
-    setCellContent(model, "A1", "=B1");
+    await setCellContent(model, "A1", "=B1");
     expect(getStyle(model, "A1")).toEqual({
       fillColor: "#FF0FFF",
     });
   });
 
   describe("Icon set", () => {
-    function addIconSetCF(
+    async function addIconSetCF(
       model: Model,
       lowerInflectionPoint: IconThreshold,
       upperInflectionPoint: IconThreshold,
@@ -1862,19 +1867,19 @@ describe("conditional formats types", () => {
     describe.each(["", "aaaa", "=SUM(1, 2)"])(
       "dispatch is not allowed if value is not a number",
       (value) => {
-        test("lower inflection point is NaN", () => {
-          const result = addIconCF(model, "A1", ["1000", value], "arrows");
+        test("lower inflection point is NaN", async () => {
+          const result = await addIconCF(model, "A1", ["1000", value], "arrows");
           expect(result).toBeCancelledBecause(CommandResult.ValueUpperInflectionNaN);
         });
-        test("upper inflection point is NaN", () => {
-          const result = addIconCF(model, "A1", [value, "1000"], "arrows");
+        test("upper inflection point is NaN", async () => {
+          const result = await addIconCF(model, "A1", [value, "1000"], "arrows");
           expect(result).toBeCancelledBecause(CommandResult.ValueLowerInflectionNaN);
         });
       }
     );
 
-    test("refuse invalid formulas %s", () => {
-      const result = addIconSetCF(
+    test("refuse invalid formulas %s", async () => {
+      const result = await addIconSetCF(
         model,
         { type: "formula", value: "=INVALID(", operator: "gt" },
         { type: "formula", value: "=INVALID(", operator: "gt" }
@@ -1895,8 +1900,8 @@ describe("conditional formats types", () => {
         lowerInflectionPoint: "number" | "percentage" | "percentile",
         upperInflectionPoint: "number" | "percentage" | "percentile"
       ) => {
-        test("upper bigger than lower", () => {
-          const result = addIconSetCF(
+        test("upper bigger than lower", async () => {
+          const result = await addIconSetCF(
             model,
             {
               type: lowerInflectionPoint,
@@ -1909,9 +1914,9 @@ describe("conditional formats types", () => {
         });
       }
     );
-    test("single cell", () => {
-      setCellContent(model, "A1", "5");
-      addIconCF(model, "A1", ["0", "10"], "arrows");
+    test("single cell", async () => {
+      await setCellContent(model, "A1", "5");
+      await addIconCF(model, "A1", ["0", "10"], "arrows");
       expect(getStyle(model, "A1")).toEqual({});
       expect(model.getters.getConditionalIcon(toCellPosition(sheetId, "A1"))).toEqual(
         "arrowNeutral"
@@ -1920,22 +1925,22 @@ describe("conditional formats types", () => {
 
     test.each(["hello", "TRUE", "=TRUE", `="hello"`, ""])(
       "is not applied if cell is not a number: %s",
-      (content) => {
-        setCellContent(model, "A1", content);
-        addIconCF(model, "A1", ["0", "10"], "arrows");
+      async (content) => {
+        await setCellContent(model, "A1", content);
+        await addIconCF(model, "A1", ["0", "10"], "arrows");
         expect(getStyle(model, "A1")).toEqual({});
         expect(model.getters.getConditionalIcon(toCellPosition(sheetId, "A1"))).toBeUndefined();
       }
     );
 
-    test("2 points with 'gt', value scale", () => {
-      setCellContent(model, "A1", "1");
-      setCellContent(model, "A2", "3");
-      setCellContent(model, "A3", "5");
-      setCellContent(model, "A4", "7");
-      setCellContent(model, "A5", "10");
+    test("2 points with 'gt', value scale", async () => {
+      await setCellContent(model, "A1", "1");
+      await setCellContent(model, "A2", "3");
+      await setCellContent(model, "A3", "5");
+      await setCellContent(model, "A4", "7");
+      await setCellContent(model, "A5", "10");
 
-      addIconSetCF(
+      await addIconSetCF(
         model,
         { type: "number", value: "3", operator: "gt" },
         { type: "number", value: "7", operator: "gt" },
@@ -1953,14 +1958,14 @@ describe("conditional formats types", () => {
       expect(model.getters.getConditionalIcon(toCellPosition(sheetId, "A5"))).toEqual("arrowGood");
     });
 
-    test("2 points with 'ge', value scale", () => {
-      setCellContent(model, "A1", "1");
-      setCellContent(model, "A2", "3");
-      setCellContent(model, "A3", "5");
-      setCellContent(model, "A4", "7");
-      setCellContent(model, "A5", "10");
+    test("2 points with 'ge', value scale", async () => {
+      await setCellContent(model, "A1", "1");
+      await setCellContent(model, "A2", "3");
+      await setCellContent(model, "A3", "5");
+      await setCellContent(model, "A4", "7");
+      await setCellContent(model, "A5", "10");
 
-      addIconSetCF(
+      await addIconSetCF(
         model,
         { type: "number", value: "3", operator: "ge" },
         { type: "number", value: "7", operator: "ge" },
@@ -1978,14 +1983,14 @@ describe("conditional formats types", () => {
       expect(model.getters.getConditionalIcon(toCellPosition(sheetId, "A5"))).toEqual("arrowGood");
     });
 
-    test("same upper and lower inflection point", () => {
-      setCellContent(model, "A1", "1");
-      setCellContent(model, "A2", "3");
-      setCellContent(model, "A3", "5");
-      setCellContent(model, "A4", "7");
-      setCellContent(model, "A5", "10");
+    test("same upper and lower inflection point", async () => {
+      await setCellContent(model, "A1", "1");
+      await setCellContent(model, "A2", "3");
+      await setCellContent(model, "A3", "5");
+      await setCellContent(model, "A4", "7");
+      await setCellContent(model, "A5", "10");
 
-      addIconSetCF(
+      await addIconSetCF(
         model,
         { type: "number", value: "7", operator: "gt" },
         { type: "number", value: "7", operator: "gt" },
@@ -2003,8 +2008,8 @@ describe("conditional formats types", () => {
     describe.each(["", "aaaa", "=SUM(1, 2)"])(
       "dispatch is not allowed if value is not a number",
       (value) => {
-        test("minimum is NaN", () => {
-          const result = addCf(
+        test("minimum is NaN", async () => {
+          const result = await addCf(
             model,
             "A1",
             {
@@ -2019,8 +2024,8 @@ describe("conditional formats types", () => {
           );
           expect(result).toBeCancelledBecause(CommandResult.MinNaN);
         });
-        test("midpoint is NaN", () => {
-          const result = addCf(
+        test("midpoint is NaN", async () => {
+          const result = await addCf(
             model,
             "A1",
             {
@@ -2036,8 +2041,8 @@ describe("conditional formats types", () => {
           );
           expect(result).toBeCancelledBecause(CommandResult.MidNaN);
         });
-        test("maximum is NaN", () => {
-          const result = addCf(
+        test("maximum is NaN", async () => {
+          const result = await addCf(
             model,
             "A1",
             {
@@ -2066,8 +2071,8 @@ describe("conditional formats types", () => {
         midType: "number" | "percentage" | "percentile",
         maxType: "number" | "percentage" | "percentile"
       ) => {
-        test("min bigger than max", () => {
-          const result = addCf(
+        test("min bigger than max", async () => {
+          const result = await addCf(
             model,
             "A1",
             {
@@ -2082,8 +2087,8 @@ describe("conditional formats types", () => {
           );
           expect(result).toBeCancelledBecause(CommandResult.MinBiggerThanMax);
         });
-        test("mid bigger than max", () => {
-          const result = addCf(
+        test("mid bigger than max", async () => {
+          const result = await addCf(
             model,
             "A1",
             {
@@ -2099,8 +2104,8 @@ describe("conditional formats types", () => {
           );
           expect(result).toBeCancelledBecause(CommandResult.MidBiggerThanMax);
         });
-        test("min bigger than mid", () => {
-          const result = addCf(
+        test("min bigger than mid", async () => {
+          const result = await addCf(
             model,
             "A1",
             {
@@ -2118,9 +2123,9 @@ describe("conditional formats types", () => {
         });
       }
     );
-    test("1 point, value scale", () => {
-      setCellContent(model, "A1", "10");
-      addCf(
+    test("1 point, value scale", async () => {
+      await setCellContent(model, "A1", "10");
+      await addCf(
         model,
         "A1",
         createColorScale(
@@ -2133,14 +2138,14 @@ describe("conditional formats types", () => {
       expect(getStyle(model, "A1")).toEqual({});
     });
 
-    test("2 points, value scale", () => {
-      setCellContent(model, "A1", "10");
-      setCellContent(model, "A2", "11");
-      setCellContent(model, "A3", "17");
-      setCellContent(model, "A4", "19");
-      setCellContent(model, "A5", "20");
+    test("2 points, value scale", async () => {
+      await setCellContent(model, "A1", "10");
+      await setCellContent(model, "A2", "11");
+      await setCellContent(model, "A3", "17");
+      await setCellContent(model, "A4", "19");
+      await setCellContent(model, "A5", "20");
 
-      addCf(
+      await addCf(
         model,
         "A1:A5",
         createColorScale(
@@ -2168,14 +2173,14 @@ describe("conditional formats types", () => {
       });
     });
 
-    test("2 points, value scale with other min and max", () => {
-      setCellContent(model, "A1", "100");
-      setCellContent(model, "A2", "110");
-      setCellContent(model, "A3", "170");
-      setCellContent(model, "A4", "190");
-      setCellContent(model, "A5", "200");
+    test("2 points, value scale with other min and max", async () => {
+      await setCellContent(model, "A1", "100");
+      await setCellContent(model, "A2", "110");
+      await setCellContent(model, "A3", "170");
+      await setCellContent(model, "A4", "190");
+      await setCellContent(model, "A5", "200");
 
-      addCf(
+      await addCf(
         model,
         "A1:A5",
         createColorScale(
@@ -2203,14 +2208,14 @@ describe("conditional formats types", () => {
       });
     });
 
-    test("2 points, value scale with minimum = 0", () => {
-      setCellContent(model, "A1", "0");
-      setCellContent(model, "A2", "1");
-      setCellContent(model, "A3", "7");
-      setCellContent(model, "A4", "9");
-      setCellContent(model, "A5", "10");
+    test("2 points, value scale with minimum = 0", async () => {
+      await setCellContent(model, "A1", "0");
+      await setCellContent(model, "A2", "1");
+      await setCellContent(model, "A3", "7");
+      await setCellContent(model, "A4", "9");
+      await setCellContent(model, "A5", "10");
 
-      addCf(
+      await addCf(
         model,
         "A1:A5",
         createColorScale(
@@ -2238,12 +2243,12 @@ describe("conditional formats types", () => {
       });
     });
 
-    test("2 points, value scale with any value 0", () => {
-      setCellContent(model, "A1", "0");
-      setCellContent(model, "A2", "-5");
-      setCellContent(model, "A3", "5");
+    test("2 points, value scale with any value 0", async () => {
+      await setCellContent(model, "A1", "0");
+      await setCellContent(model, "A2", "-5");
+      await setCellContent(model, "A3", "5");
 
-      addCf(
+      await addCf(
         model,
         "A1:A5",
         createColorScale(
@@ -2265,11 +2270,11 @@ describe("conditional formats types", () => {
       });
     });
 
-    test("2 points, value scale with same min/max", () => {
-      setCellContent(model, "A1", "10");
-      setCellContent(model, "A2", "10");
+    test("2 points, value scale with same min/max", async () => {
+      await setCellContent(model, "A1", "10");
+      await setCellContent(model, "A2", "10");
 
-      addCf(
+      await addCf(
         model,
         "A1:A2",
         createColorScale(
@@ -2284,8 +2289,8 @@ describe("conditional formats types", () => {
       expect(getStyle(model, "A2")).toEqual({});
     });
 
-    test("CF is updated with insert/delete cells", () => {
-      addCf(
+    test("CF is updated with insert/delete cells", async () => {
+      await addCf(
         model,
         "A1:A10",
         createColorScale(
@@ -2295,16 +2300,16 @@ describe("conditional formats types", () => {
         ),
         sheetId
       );
-      deleteCells(model, "A2:A3", "up");
+      await deleteCells(model, "A2:A3", "up");
       expect(model.getters.getConditionalFormats(sheetId)[0].ranges[0]).toBe("A1:A8");
     });
 
-    test("Color scale with error cell in range", () => {
-      setCellContent(model, "A1", "10");
-      setCellContent(model, "A2", "=0/0");
-      setCellContent(model, "A3", "1");
+    test("Color scale with error cell in range", async () => {
+      await setCellContent(model, "A1", "10");
+      await setCellContent(model, "A2", "=0/0");
+      await setCellContent(model, "A3", "1");
 
-      addCf(
+      await addCf(
         model,
         "A1:A3",
         createColorScale(
@@ -2321,16 +2326,16 @@ describe("conditional formats types", () => {
     });
   });
 
-  test("CF evaluation uses default locale, and not current locale", () => {
-    updateLocale(model, FR_LOCALE);
-    addEqualCf(model, "A1", { fillColor: "#0000FF" }, "01/12/2012", "id", sheetId);
-    setCellContent(model, "A1", "01/12/2012");
+  test("CF evaluation uses default locale, and not current locale", async () => {
+    await updateLocale(model, FR_LOCALE);
+    await addEqualCf(model, "A1", { fillColor: "#0000FF" }, "01/12/2012", "id", sheetId);
+    await setCellContent(model, "A1", "01/12/2012");
     // Cf is 12 of January (commands should use canonical formatting), but cell is 1 of December (input in french locale)
     expect(getStyle(model, "A1")).toEqual({});
   });
 
-  test("Can add a data bar rule with rangeValue having a differnet size than the cf range", () => {
-    const result = addCf(
+  test("Can add a data bar rule with rangeValue having a differnet size than the cf range", async () => {
+    const result = await addCf(
       model,
       "A1",
       {
@@ -2354,7 +2359,7 @@ describe("conditional formats types", () => {
         A3: "8",
     };
     const model = await createModelFromGrid(grid);
-    addCf(
+    await addCf(
       model,
       "A1:A3",
       {
@@ -2379,7 +2384,7 @@ describe("conditional formats types", () => {
         A3: "8", B3: "!",
     };
     const model = await createModelFromGrid(grid);
-    addCf(
+    await addCf(
       model,
       "B1:B3",
       {
@@ -2405,7 +2410,7 @@ describe("conditional formats types", () => {
         A3: "C", B3: "8",
     };
     const model = await createModelFromGrid(grid);
-    addCf(
+    await addCf(
       model,
       "A1:A3",
       {
@@ -2431,7 +2436,7 @@ describe("conditional formats types", () => {
       A3: "C", B3: "8",
   };
     const model = await createModelFromGrid(grid);
-    addCf(
+    await addCf(
       model,
       "A1:A3",
       {
@@ -2458,7 +2463,7 @@ describe("conditional formats types", () => {
         A3: "-8",
     };
     const model = await createModelFromGrid(grid);
-    addCf(
+    await addCf(
       model,
       "A1:A3",
       {
@@ -2483,7 +2488,7 @@ describe("conditional formats types", () => {
         A3: "0",
     };
     const model = await createModelFromGrid(grid);
-    addCf(
+    await addCf(
       model,
       "A1:A3",
       {
@@ -2506,7 +2511,7 @@ describe("conditional formats types", () => {
         A1: "0",
     };
     const model = await createModelFromGrid(grid);
-    addCf(
+    await addCf(
       model,
       "A1",
       {
@@ -2530,7 +2535,7 @@ describe("conditional formats types", () => {
     };
     const model = await createModelFromGrid(grid);
 
-    addCf(
+    await addCf(
       model,
       "A1:A3",
       {
@@ -2555,7 +2560,7 @@ describe("conditional formats types", () => {
     };
     const model = await createModelFromGrid(grid);
 
-    addCf(
+    await addCf(
       model,
       "A1:A2",
       {
@@ -2579,7 +2584,7 @@ describe("conditional formats types", () => {
         B3: "8", C3: "!",
     };
     const model = await createModelFromGrid(grid);
-    addCf(
+    await addCf(
       model,
       "C1:C3",
       {
@@ -2592,7 +2597,7 @@ describe("conditional formats types", () => {
       },
       sheetId
     );
-    deleteColumns(model, ["A"]);
+    await deleteColumns(model, ["A"]);
     expect(getDataBarFill(model, "B1")?.percentage).toBe(25);
     expect(getDataBarFill(model, "B2")?.percentage).toBe(50);
     expect(getDataBarFill(model, "B3")?.percentage).toBe(100);
@@ -2607,7 +2612,7 @@ describe("conditional formats types", () => {
     };
     const model = await createModelFromGrid(grid);
 
-    addCf(
+    await addCf(
       model,
       "C1:C6",
       {
@@ -2636,7 +2641,7 @@ describe("conditional formats types", () => {
       A3: "2",
     };
     const model = await createModelFromGrid(grid);
-    addCf(
+    await addCf(
       model,
       "C1:C6",
       {
@@ -2662,7 +2667,7 @@ describe("conditional formats types", () => {
       B1: "Seattle",
     };
     const model = await createModelFromGrid(grid);
-    addCf(
+    await addCf(
       model,
       "B1:B10",
       {
@@ -2686,7 +2691,7 @@ describe("conditional formats types", () => {
       B1: "Seattle",
     };
     const model = await createModelFromGrid(grid);
-    addCf(
+    await addCf(
       model,
       "B1:B10",
       {

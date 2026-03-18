@@ -20,88 +20,88 @@ describe("Data validation evaluation", () => {
     A1 = { sheetId, col: 0, row: 0 };
   });
 
-  test("data validation rule", () => {
-    addDataValidation(model, "A1", "id", { type: "containsText", values: ["test"] });
+  test("data validation rule", async () => {
+    await addDataValidation(model, "A1", "id", { type: "containsText", values: ["test"] });
 
-    setCellContent(model, "A1", "random text");
+    await setCellContent(model, "A1", "random text");
     expect(model.getters.isDataValidationInvalid(A1)).toEqual(true);
     expect(model.getters.getInvalidDataValidationMessage(A1)?.toString()).toEqual(
       'The value must be a text that contains "test"'
     );
 
-    setCellContent(model, "A1", "random text test");
+    await setCellContent(model, "A1", "random text test");
     expect(model.getters.isDataValidationInvalid(A1)).toEqual(false);
     expect(model.getters.getInvalidDataValidationMessage(A1)).toBeUndefined();
   });
 
-  test("empty cells are not invalid", () => {
-    addDataValidation(model, "A1", "id", { type: "containsText", values: ["test"] });
+  test("empty cells are not invalid", async () => {
+    await addDataValidation(model, "A1", "id", { type: "containsText", values: ["test"] });
     expect(model.getters.isDataValidationInvalid(A1)).toEqual(false);
   });
 
-  test("data validation on sheet duplication", () => {
-    addDataValidation(model, "A1", "id", { type: "containsText", values: ["test"] });
+  test("data validation on sheet duplication", async () => {
+    await addDataValidation(model, "A1", "id", { type: "containsText", values: ["test"] });
 
-    setCellContent(model, "A1", "random text");
+    await setCellContent(model, "A1", "random text");
     expect(model.getters.isDataValidationInvalid(A1)).toEqual(true);
     expect(model.getters.getInvalidDataValidationMessage(A1)?.toString()).toEqual(
       'The value must be a text that contains "test"'
     );
 
-    duplicateSheet(model, sheetId, "newSheet");
+    await duplicateSheet(model, sheetId, "newSheet");
     expect(model.getters.isDataValidationInvalid({ ...A1, sheetId: "newSheet" })).toEqual(true);
     expect(
       model.getters.getInvalidDataValidationMessage({ ...A1, sheetId: "newSheet" })?.toString()
     ).toEqual('The value must be a text that contains "test"');
   });
 
-  test("style is applied in cell with arrow display", () => {
+  test("style is applied in cell with arrow display", async () => {
     const criterion: DataValidationCriterion = {
       type: "isValueInList",
       values: ["A", "B"],
       colors: { B: "#EA9999" },
       displayStyle: "arrow",
     };
-    addDataValidation(model, "A1", "id", criterion);
+    await addDataValidation(model, "A1", "id", criterion);
     expect(model.getters.getCellComputedStyle(A1)).toEqual({});
-    setCellContent(model, "A1", "A");
+    await setCellContent(model, "A1", "A");
     expect(model.getters.getCellComputedStyle(A1)).toEqual({});
-    setCellContent(model, "A1", "B");
+    await setCellContent(model, "A1", "B");
     expect(model.getters.getCellComputedStyle(A1)).toEqual({
       fillColor: "#EA9999",
       textColor: "#FDF5F5",
     });
   });
 
-  test("style is removed when data validation is removed", () => {
+  test("style is removed when data validation is removed", async () => {
     const criterion: DataValidationCriterion = {
       type: "isValueInList",
       values: ["A"],
       colors: { A: "#EA9999" },
       displayStyle: "arrow",
     };
-    addDataValidation(model, "A1", "id", criterion);
-    setCellContent(model, "A1", "A");
+    await addDataValidation(model, "A1", "id", criterion);
+    await setCellContent(model, "A1", "A");
     expect(model.getters.getCellComputedStyle(A1)).toEqual({
       fillColor: "#EA9999",
       textColor: "#FDF5F5",
     });
-    removeDataValidation(model, "id");
+    await removeDataValidation(model, "id");
     expect(model.getters.getCellComputedStyle(A1)).toEqual({});
   });
 
-  test("style is applied in cell with chip display", () => {
+  test("style is applied in cell with chip display", async () => {
     const criterion: DataValidationCriterion = {
       type: "isValueInList",
       values: ["A", "B"],
       colors: { B: "#EA9999" },
       displayStyle: "chip",
     };
-    addDataValidation(model, "A1", "id", criterion);
+    await addDataValidation(model, "A1", "id", criterion);
     expect(model.getters.getCellComputedStyle(A1)).toEqual({});
-    setCellContent(model, "A1", "A");
+    await setCellContent(model, "A1", "A");
     expect(model.getters.getCellComputedStyle(A1)).toEqual({});
-    setCellContent(model, "A1", "B");
+    await setCellContent(model, "A1", "B");
     expect(model.getters.getCellComputedStyle(A1)).toEqual({});
     expect(model.getters.getDataValidationChipStyle(A1)).toEqual({
       textColor: "#FDF5F5",
@@ -109,7 +109,7 @@ describe("Data validation evaluation", () => {
     });
   });
 
-  test("style is applied on numbers", () => {
+  test("style is applied on numbers", async () => {
     const criterion: DataValidationCriterion = {
       type: "isValueInList",
       values: ["4"],
@@ -120,106 +120,106 @@ describe("Data validation evaluation", () => {
       fillColor: "#EA9999",
       textColor: "#FDF5F5",
     };
-    addDataValidation(model, "A1", "id", criterion);
-    setCellContent(model, "A1", "4");
+    await addDataValidation(model, "A1", "id", criterion);
+    await setCellContent(model, "A1", "4");
     expect(model.getters.getCellComputedStyle(A1)).toEqual(expectedStyle);
-    setFormat(model, "A1", "0.00");
+    await setFormat(model, "A1", "0.00");
     expect(model.getters.getCellComputedStyle(A1)).toEqual(expectedStyle);
   });
 
   describe("Formula values", () => {
-    test("Can use formula values", () => {
-      addDataValidation(model, "A1", "id", {
+    test("Can use formula values", async () => {
+      await addDataValidation(model, "A1", "id", {
         type: "containsText",
         values: ['=CONCAT("te", "st")'],
       });
 
-      setCellContent(model, "A1", "random text");
+      await setCellContent(model, "A1", "random text");
       expect(model.getters.isDataValidationInvalid(A1)).toEqual(true);
 
-      setCellContent(model, "A1", "random test");
+      await setCellContent(model, "A1", "random test");
       expect(model.getters.isDataValidationInvalid(A1)).toEqual(false);
     });
 
-    test("applies data validation correctly when formula returns a 1x1 matrix", () => {
-      addDataValidation(model, "A1:A2", "id", {
+    test("applies data validation correctly when formula returns a 1x1 matrix", async () => {
+      await addDataValidation(model, "A1:A2", "id", {
         type: "containsText",
         values: ['=IF(1=1, $A$1, "something else")'],
       });
 
-      setCellContent(model, "A1", "random text");
-      setCellContent(model, "A2", "text");
+      await setCellContent(model, "A1", "random text");
+      await setCellContent(model, "A2", "text");
       expect(model.getters.isDataValidationInvalid(A1)).toBe(false);
       expect(model.getters.isDataValidationInvalid({ sheetId, col: 0, row: 1 })).toBe(true);
     });
 
-    test("Criterion with spreading formula values is ignored ", () => {
-      addDataValidation(model, "A1", "id", {
+    test("Criterion with spreading formula values is ignored ", async () => {
+      await addDataValidation(model, "A1", "id", {
         type: "isGreaterThan",
         values: ["=MUNIT(3)"],
       });
 
-      setCellContent(model, "A1", "8");
+      await setCellContent(model, "A1", "8");
       expect(model.getters.isDataValidationInvalid(A1)).toEqual(false);
     });
 
-    test("Can use references in formula values", () => {
-      addDataValidation(model, "A1", "id", {
+    test("Can use references in formula values", async () => {
+      await addDataValidation(model, "A1", "id", {
         type: "isBetween",
         values: ["=B1", "=B2"],
       });
-      setCellContent(model, "B1", "5");
-      setCellContent(model, "B2", "10");
+      await setCellContent(model, "B1", "5");
+      await setCellContent(model, "B2", "10");
 
-      setCellContent(model, "A1", "4");
+      await setCellContent(model, "A1", "4");
       expect(model.getters.isDataValidationInvalid(A1)).toEqual(true);
 
-      setCellContent(model, "A1", "5");
+      await setCellContent(model, "A1", "5");
       expect(model.getters.isDataValidationInvalid(A1)).toEqual(false);
     });
 
-    test("References in formula are translated based on the cell offset in the validation rule", () => {
-      addDataValidation(model, "A1:B2", "id", {
+    test("References in formula are translated based on the cell offset in the validation rule", async () => {
+      await addDataValidation(model, "A1:B2", "id", {
         type: "dateIs",
         values: ["=C1"],
         dateValue: "exactDate",
       });
-      setCellContent(model, "C1", "1/1/2020");
-      setCellContent(model, "D2", "1/2/2020");
+      await setCellContent(model, "C1", "1/1/2020");
+      await setCellContent(model, "D2", "1/2/2020");
 
-      setCellContent(model, "A1", "1/1/2020");
-      setCellContent(model, "B2", "1/2/2020");
+      await setCellContent(model, "A1", "1/1/2020");
+      await setCellContent(model, "B2", "1/2/2020");
       expect(model.getters.isDataValidationInvalid(A1)).toEqual(false);
       expect(model.getters.isDataValidationInvalid({ sheetId, col: 1, row: 1 })).toEqual(false);
     });
 
-    test("References in formula are not shifted with fixed references", () => {
-      addDataValidation(model, "A1:B2", "id", {
+    test("References in formula are not shifted with fixed references", async () => {
+      await addDataValidation(model, "A1:B2", "id", {
         type: "dateIs",
         values: ["=$C$1"],
         dateValue: "exactDate",
       });
-      setCellContent(model, "C1", "1/1/2020");
-      setCellContent(model, "D2", "1/2/2020");
+      await setCellContent(model, "C1", "1/1/2020");
+      await setCellContent(model, "D2", "1/2/2020");
 
-      setCellContent(model, "A1", "1/1/2020");
-      setCellContent(model, "B2", "1/2/2020");
+      await setCellContent(model, "A1", "1/1/2020");
+      await setCellContent(model, "B2", "1/2/2020");
       expect(model.getters.isDataValidationInvalid(A1)).toEqual(false);
       expect(model.getters.isDataValidationInvalid({ sheetId, col: 1, row: 1 })).toEqual(true);
 
-      setCellContent(model, "B2", "1/1/2020");
+      await setCellContent(model, "B2", "1/1/2020");
       expect(model.getters.isDataValidationInvalid({ sheetId, col: 1, row: 1 })).toEqual(false);
     });
   });
 
-  test("data validation is updated on cell format change", () => {
-    setFormat(model, "A2", "0.00");
-    addDataValidation(model, "A1", "id", { type: "containsText", values: ["m"] });
+  test("data validation is updated on cell format change", async () => {
+    await setFormat(model, "A2", "0.00");
+    await addDataValidation(model, "A1", "id", { type: "containsText", values: ["m"] });
 
-    setCellContent(model, "A1", '=CELL("format", A2)');
+    await setCellContent(model, "A1", '=CELL("format", A2)');
     expect(model.getters.isDataValidationInvalid(A1)).toEqual(true);
 
-    setFormat(model, "A2", "mm/dd/yyyy");
+    await setFormat(model, "A2", "mm/dd/yyyy");
     expect(model.getters.isDataValidationInvalid(A1)).toEqual(false);
   });
 });

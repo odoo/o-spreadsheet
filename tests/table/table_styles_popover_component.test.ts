@@ -98,7 +98,7 @@ describe("Table style popover", () => {
 
   describe("Custom style context menu menu", () => {
     beforeEach(async () => {
-      createTableStyle(model, "MyStyle");
+      await createTableStyle(model, "MyStyle");
       await mountPopover();
       await click(fixture, ".o-notebook-tab[data-id='custom']");
     });

@@ -43,13 +43,13 @@ describe("population pyramid chart", () => {
       model = await createModel();
     });
 
-    test("Runtime is a stacked bar chart, with the second dataset converted to negative values", () => {
-      setCellContent(model, "A1", "5");
-      setCellContent(model, "A2", "12");
-      setCellContent(model, "B1", "10");
-      setCellContent(model, "B2", "3");
+    test("Runtime is a stacked bar chart, with the second dataset converted to negative values", async () => {
+      await setCellContent(model, "A1", "5");
+      await setCellContent(model, "A2", "12");
+      await setCellContent(model, "B1", "10");
+      await setCellContent(model, "B2", "3");
       const dataSets = [{ dataRange: "A1:A2" }, { dataRange: "B1:B2" }];
-      createChart(model, { type: "pyramid", dataSets, dataSetsHaveTitle: false }, "id");
+      await createChart(model, { type: "pyramid", dataSets, dataSetsHaveTitle: false }, "id");
       const runtime = model.getters.getChartRuntime("id") as any;
       const data = runtime.chartJsConfig.data;
       expect(data.datasets).toHaveLength(2);
@@ -58,13 +58,13 @@ describe("population pyramid chart", () => {
       expect(runtime.chartJsConfig.options?.scales?.x?.stacked).toBe(true);
     });
 
-    test("Negatives values are ignored in the runtime", () => {
-      setCellContent(model, "A1", "5");
-      setCellContent(model, "A2", "-12");
-      setCellContent(model, "B1", "-10");
-      setCellContent(model, "B2", "3");
+    test("Negatives values are ignored in the runtime", async () => {
+      await setCellContent(model, "A1", "5");
+      await setCellContent(model, "A2", "-12");
+      await setCellContent(model, "B1", "-10");
+      await setCellContent(model, "B2", "3");
       const dataSets = [{ dataRange: "A1:A2" }, { dataRange: "B1:B2" }];
-      createChart(model, { type: "pyramid", dataSets, dataSetsHaveTitle: false }, "id");
+      await createChart(model, { type: "pyramid", dataSets, dataSetsHaveTitle: false }, "id");
       const runtime = model.getters.getChartRuntime("id") as any;
       const data = runtime.chartJsConfig.data;
       expect(data.datasets).toHaveLength(2);
@@ -72,12 +72,12 @@ describe("population pyramid chart", () => {
       expect(data.datasets[1]).toMatchObject({ data: [0, -3] });
     });
 
-    test("Axis ticks and tooltips do not show negative values", () => {
-      setCellContent(model, "A1", "5");
-      setCellContent(model, "A2", "10");
-      setFormat(model, "A1:A2", "#,##0[$€]");
+    test("Axis ticks and tooltips do not show negative values", async () => {
+      await setCellContent(model, "A1", "5");
+      await setCellContent(model, "A2", "10");
+      await setFormat(model, "A1:A2", "#,##0[$€]");
 
-      createChart(
+      await createChart(
         model,
         { type: "pyramid", dataSets: [{ dataRange: "A1" }, { dataRange: "A2" }] },
         "id"
@@ -96,11 +96,11 @@ describe("population pyramid chart", () => {
       expect(tooltipValues).toEqual({ beforeLabel: "dataSetLabel", label: "10€" });
     });
 
-    test("The negative and positive values have the same max value", () => {
-      setCellContent(model, "A1", "5");
-      setCellContent(model, "A2", "33");
+    test("The negative and positive values have the same max value", async () => {
+      await setCellContent(model, "A1", "5");
+      await setCellContent(model, "A2", "33");
 
-      createChart(
+      await createChart(
         model,
         {
           type: "pyramid",
@@ -115,8 +115,8 @@ describe("population pyramid chart", () => {
       expect(options?.scales?.x?.suggestedMax).toBe(33);
     });
 
-    test("Pyramid chart showValues plugin does not display negative or zero values", () => {
-      createChart(
+    test("Pyramid chart showValues plugin does not display negative or zero values", async () => {
+      await createChart(
         model,
         {
           dataSets: [{ dataRange: "A1:A2" }, { dataRange: "A3:A4" }],
@@ -137,7 +137,7 @@ describe("population pyramid chart", () => {
 
 test("Humanization is taken into account for the axis ticks of a pyramid chart", async () => {
   model = await createModel();
-  createChart(
+  await createChart(
     model,
     {
       type: "pyramid",
@@ -150,7 +150,7 @@ test("Humanization is taken into account for the axis ticks of a pyramid chart",
   let axis = getChartConfiguration(model, "1").options.scales.x;
   const valuesBefore = [1e3, 1e6].map(axis.ticks.callback);
   expect(valuesBefore).toEqual(["1,000", "1,000,000"]);
-  updateChart(model, "1", { humanize: true });
+  await updateChart(model, "1", { humanize: true });
   axis = getChartConfiguration(model, "1").options.scales.x;
   const valuesAfter = [1e3, 1e6].map(axis.ticks.callback);
   expect(valuesAfter).toEqual(["1,000", "1,000k"]);

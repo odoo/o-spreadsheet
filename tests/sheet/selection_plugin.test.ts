@@ -72,7 +72,7 @@ describe("simple selection", () => {
     });
 
     expect(model.getters.getSelectedZones()).toEqual([{ left: 0, top: 0, right: 0, bottom: 0 }]);
-    addCellToSelection(model, "A2");
+    await addCellToSelection(model, "A2");
     expect(model.getters.getSelectedZones()).toEqual([
       { left: 0, top: 0, right: 0, bottom: 0 },
       { left: 0, top: 1, right: 1, bottom: 2 },
@@ -84,86 +84,86 @@ describe("simple selection", () => {
       sheets: [{ colNumber: 10, rowNumber: 10, merges: ["B1:C2"] }],
     });
     expect(model.getters.getSelectedZones()[0]).toEqual({ left: 0, top: 0, right: 0, bottom: 0 });
-    resizeAnchorZone(model, "right");
+    await resizeAnchorZone(model, "right");
     expect(model.getters.getSelectedZones()[0]).toEqual({ left: 0, top: 0, right: 2, bottom: 1 });
   });
 
   test("can grow/shrink selection with shift-arrow", async () => {
     const model = await createModel();
     expect(model.getters.getSelectedZones()[0]).toEqual({ left: 0, top: 0, right: 0, bottom: 0 });
-    resizeAnchorZone(model, "right");
+    await resizeAnchorZone(model, "right");
     expect(model.getters.getSelectedZones()[0]).toEqual({ left: 0, top: 0, right: 1, bottom: 0 });
-    resizeAnchorZone(model, "left");
+    await resizeAnchorZone(model, "left");
     expect(model.getters.getSelectedZones()[0]).toEqual({ left: 0, top: 0, right: 0, bottom: 0 });
   });
 
   test("cannot expand select selection with shift-arrow if it is out of bound", async () => {
     const model = await createModel({ sheets: [{ colNumber: 10, rowNumber: 10 }] });
-    selectCell(model, "A2");
-    resizeAnchorZone(model, "up");
+    await selectCell(model, "A2");
+    await resizeAnchorZone(model, "up");
     expect(model.getters.getSelectedZones()[0]).toEqual({ left: 0, top: 0, right: 0, bottom: 1 });
-    resizeAnchorZone(model, "up");
+    await resizeAnchorZone(model, "up");
     expect(model.getters.getSelectedZones()[0]).toEqual({ left: 0, top: 0, right: 0, bottom: 1 });
 
-    selectCell(model, "J1");
-    resizeAnchorZone(model, "right");
+    await selectCell(model, "J1");
+    await resizeAnchorZone(model, "right");
     expect(model.getters.getSelectedZones()[0]).toEqual({ left: 9, top: 0, right: 9, bottom: 0 });
-    selectCell(model, "A10");
-    resizeAnchorZone(model, "down");
+    await selectCell(model, "A10");
+    await resizeAnchorZone(model, "down");
     expect(model.getters.getSelectedZones()[0]).toEqual({ left: 0, top: 9, right: 0, bottom: 9 });
   });
 
   test("Can extend selection with Shift-arrow through merges horizontally", async () => {
     const model = await createModel();
-    merge(model, "A1:B2");
-    merge(model, "C1:D2");
-    merge(model, "E1:F2");
+    await merge(model, "A1:B2");
+    await merge(model, "C1:D2");
+    await merge(model, "E1:F2");
 
-    selectCell(model, "A1");
-    resizeAnchorZone(model, "right");
-    resizeAnchorZone(model, "right");
+    await selectCell(model, "A1");
+    await resizeAnchorZone(model, "right");
+    await resizeAnchorZone(model, "right");
     expect(model.getters.getSelectedZone()).toEqual(toZone("A1:F2"));
 
-    selectCell(model, "B1");
-    resizeAnchorZone(model, "right");
-    resizeAnchorZone(model, "right");
+    await selectCell(model, "B1");
+    await resizeAnchorZone(model, "right");
+    await resizeAnchorZone(model, "right");
     expect(model.getters.getSelectedZone()).toEqual(toZone("A1:F2"));
 
-    selectCell(model, "E1");
-    resizeAnchorZone(model, "left");
-    resizeAnchorZone(model, "left");
+    await selectCell(model, "E1");
+    await resizeAnchorZone(model, "left");
+    await resizeAnchorZone(model, "left");
     expect(model.getters.getSelectedZone()).toEqual(toZone("A1:F2"));
 
-    selectCell(model, "F1");
-    resizeAnchorZone(model, "left");
-    resizeAnchorZone(model, "left");
+    await selectCell(model, "F1");
+    await resizeAnchorZone(model, "left");
+    await resizeAnchorZone(model, "left");
     expect(model.getters.getSelectedZone()).toEqual(toZone("A1:F2"));
   });
 
   test("Can extend selection with Shift-arrow through merges horizontally", async () => {
     const model = await createModel();
-    merge(model, "A1:B2");
-    merge(model, "A3:B4");
-    merge(model, "A5:B6");
+    await merge(model, "A1:B2");
+    await merge(model, "A3:B4");
+    await merge(model, "A5:B6");
 
-    selectCell(model, "A1");
-    resizeAnchorZone(model, "down");
-    resizeAnchorZone(model, "down");
+    await selectCell(model, "A1");
+    await resizeAnchorZone(model, "down");
+    await resizeAnchorZone(model, "down");
     expect(model.getters.getSelectedZone()).toEqual(toZone("A1:B6"));
 
-    selectCell(model, "A2");
-    resizeAnchorZone(model, "down");
-    resizeAnchorZone(model, "down");
+    await selectCell(model, "A2");
+    await resizeAnchorZone(model, "down");
+    await resizeAnchorZone(model, "down");
     expect(model.getters.getSelectedZone()).toEqual(toZone("A1:B6"));
 
-    selectCell(model, "A5");
-    resizeAnchorZone(model, "up");
-    resizeAnchorZone(model, "up");
+    await selectCell(model, "A5");
+    await resizeAnchorZone(model, "up");
+    await resizeAnchorZone(model, "up");
     expect(model.getters.getSelectedZone()).toEqual(toZone("A1:B6"));
 
-    selectCell(model, "A6");
-    resizeAnchorZone(model, "up");
-    resizeAnchorZone(model, "up");
+    await selectCell(model, "A6");
+    await resizeAnchorZone(model, "up");
+    await resizeAnchorZone(model, "up");
     expect(model.getters.getSelectedZone()).toEqual(toZone("A1:B6"));
   });
 
@@ -172,7 +172,7 @@ describe("simple selection", () => {
       sheets: [{ colNumber: 10, rowNumber: 10, merges: ["B1:C2"] }],
     });
     expect(model.getters.getSelectedZones()[0]).toEqual({ left: 0, top: 0, right: 0, bottom: 0 });
-    setAnchorCorner(model, "B1");
+    await setAnchorCorner(model, "B1");
     expect(model.getters.getSelectedZones()[0]).toEqual({ left: 0, top: 0, right: 2, bottom: 1 });
   });
 
@@ -180,23 +180,23 @@ describe("simple selection", () => {
     const model = await createModel({
       sheets: [{ colNumber: 10, rowNumber: 10, merges: ["C1:D2"] }],
     });
-    selectCell(model, "B1");
+    await selectCell(model, "B1");
 
     // move to the right, inside the merge
-    resizeAnchorZone(model, "right");
+    await resizeAnchorZone(model, "right");
 
     expect(model.getters.getSelectedZones()[0]).toEqual({ top: 0, right: 3, left: 1, bottom: 1 });
     expect(getSelectionAnchorCellXc(model)).toBe("B1");
 
     // move to the left, outside the merge
-    resizeAnchorZone(model, "left");
+    await resizeAnchorZone(model, "left");
     expect(model.getters.getSelectedZones()[0]).toEqual({ top: 0, right: 1, left: 1, bottom: 1 });
     expect(getSelectionAnchorCellXc(model)).toBe("B1");
   });
 
   test("select a cell outside the sheet", async () => {
     const model = await createModel({ sheets: [{ colNumber: 3, rowNumber: 3 }] });
-    selectCell(model, "D4");
+    await selectCell(model, "D4");
     const A1Zone = toZone("A1");
     expect(model.getters.getSelection()).toEqual({
       anchor: {
@@ -212,16 +212,16 @@ describe("simple selection", () => {
       sheets: [{ colNumber: 10, rowNumber: 10, merges: ["B2:C3"] }],
     });
     // move sell to B4
-    selectCell(model, "B4");
+    await selectCell(model, "B4");
     expect(getSelectionAnchorCellXc(model)).toBe("B4");
 
     // move up, inside the merge
-    resizeAnchorZone(model, "up");
+    await resizeAnchorZone(model, "up");
 
     expect(model.getters.getSelectedZones()[0]).toEqual({ top: 1, right: 2, left: 1, bottom: 3 });
 
     // move to the left, outside the merge
-    resizeAnchorZone(model, "left");
+    await resizeAnchorZone(model, "left");
     expect(model.getters.getSelectedZones()[0]).toEqual({ top: 1, right: 2, left: 0, bottom: 3 });
   });
 
@@ -230,11 +230,11 @@ describe("simple selection", () => {
       sheets: [{ colNumber: 10, rowNumber: 10, merges: ["B2:B3", "C2:D2"] }],
     });
     // move sell to B4
-    selectCell(model, "B3");
+    await selectCell(model, "B3");
     expect(getSelectionAnchorCellXc(model)).toBe("B3");
 
     // select right cell C3
-    setAnchorCorner(model, "C3");
+    await setAnchorCorner(model, "C3");
     expect(model.getters.getSelectedZone()).toEqual(toZone("B2:D3"));
   });
 
@@ -242,36 +242,36 @@ describe("simple selection", () => {
     const model = await createModel({
       sheets: [{ colNumber: 10, rowNumber: 10, merges: ["B2:B3", "E2:G2"] }],
     });
-    selectCell(model, "B2");
-    resizeAnchorZone(model, "down");
+    await selectCell(model, "B2");
+    await resizeAnchorZone(model, "down");
     expect(model.getters.getSelectedZone()).toEqual(toZone("B2:B4"));
 
-    selectCell(model, "B2");
-    resizeAnchorZone(model, "up");
+    await selectCell(model, "B2");
+    await resizeAnchorZone(model, "up");
     expect(model.getters.getSelectedZone()).toEqual(toZone("B1:B3"));
 
-    selectCell(model, "B3");
-    resizeAnchorZone(model, "down");
+    await selectCell(model, "B3");
+    await resizeAnchorZone(model, "down");
     expect(model.getters.getSelectedZone()).toEqual(toZone("B2:B4"));
 
-    selectCell(model, "B3");
-    resizeAnchorZone(model, "up");
+    await selectCell(model, "B3");
+    await resizeAnchorZone(model, "up");
     expect(model.getters.getSelectedZone()).toEqual(toZone("B1:B3"));
 
-    selectCell(model, "E2");
-    resizeAnchorZone(model, "right");
+    await selectCell(model, "E2");
+    await resizeAnchorZone(model, "right");
     expect(model.getters.getSelectedZone()).toEqual(toZone("E2:H2"));
 
-    selectCell(model, "E2");
-    resizeAnchorZone(model, "left");
+    await selectCell(model, "E2");
+    await resizeAnchorZone(model, "left");
     expect(model.getters.getSelectedZone()).toEqual(toZone("D2:G2"));
 
-    selectCell(model, "G2");
-    resizeAnchorZone(model, "right");
+    await selectCell(model, "G2");
+    await resizeAnchorZone(model, "right");
     expect(model.getters.getSelectedZone()).toEqual(toZone("E2:H2"));
 
-    selectCell(model, "G2");
-    resizeAnchorZone(model, "left");
+    await selectCell(model, "G2");
+    await resizeAnchorZone(model, "left");
     expect(model.getters.getSelectedZone()).toEqual(toZone("D2:G2"));
   });
 
@@ -281,10 +281,10 @@ describe("simple selection", () => {
         { colNumber: 5, rowNumber: 1, cols: { 2: { isHidden: true }, 3: { isHidden: true } } },
       ],
     });
-    selectCell(model, "B1");
-    resizeAnchorZone(model, "right");
+    await selectCell(model, "B1");
+    await resizeAnchorZone(model, "right");
     expect(model.getters.getSelectedZone()).toEqual(toZone("B1:E1"));
-    resizeAnchorZone(model, "left");
+    await resizeAnchorZone(model, "left");
     expect(model.getters.getSelectedZone()).toEqual(toZone("B1"));
   });
 
@@ -294,20 +294,20 @@ describe("simple selection", () => {
         { colNumber: 1, rowNumber: 5, rows: { 2: { isHidden: true }, 3: { isHidden: true } } },
       ],
     });
-    selectCell(model, "A5");
-    resizeAnchorZone(model, "up");
+    await selectCell(model, "A5");
+    await resizeAnchorZone(model, "up");
     expect(model.getters.getSelectedZone()).toEqual(toZone("A2:A5"));
-    resizeAnchorZone(model, "down");
+    await resizeAnchorZone(model, "down");
     expect(model.getters.getSelectedZone()).toEqual(toZone("A5"));
   });
 
   test("move selection left through hidden cols, with scrolling", async () => {
     const model = await createModel({ sheets: [{ colNumber: 100, rowNumber: 1 }] });
-    hideColumns(model, ["B"]);
-    selectCell(model, "C1");
-    setViewportOffset(model, DEFAULT_CELL_WIDTH, 0);
+    await hideColumns(model, ["B"]);
+    await selectCell(model, "C1");
+    await setViewportOffset(model, DEFAULT_CELL_WIDTH, 0);
 
-    moveAnchorCell(model, "left");
+    await moveAnchorCell(model, "left");
     expect(model.getters.getSelectedZone()).toEqual(toZone("A1"));
     expect(model.getters.getActiveSheetScrollInfo()).toEqual({ scrollX: 0, scrollY: 0 });
   });
@@ -316,9 +316,12 @@ describe("simple selection", () => {
     const model = await createModel({ sheets: [{ colNumber: 100, rowNumber: 1 }] });
     const visibleCols = model.getters.getSheetViewVisibleCols();
     const lastVisibleCol = visibleCols[visibleCols.length - 1];
-    hideColumns(model, [numberToLetters(lastVisibleCol + 1), numberToLetters(lastVisibleCol + 2)]);
-    selectCell(model, toXC(lastVisibleCol, 0));
-    moveAnchorCell(model, "right");
+    await hideColumns(model, [
+      numberToLetters(lastVisibleCol + 1),
+      numberToLetters(lastVisibleCol + 2),
+    ]);
+    await selectCell(model, toXC(lastVisibleCol, 0));
+    await moveAnchorCell(model, "right");
 
     expect(model.getters.getSelectedZone()).toEqual(toZone(toXC(lastVisibleCol + 3, 0)));
     expect(model.getters.getActiveSheetScrollInfo()).toEqual({
@@ -330,11 +333,11 @@ describe("simple selection", () => {
 
   test("move selection up through hidden rows, with scrolling", async () => {
     const model = await createModel({ sheets: [{ colNumber: 1, rowNumber: 100 }] });
-    hideRows(model, [1]);
-    selectCell(model, "A3");
-    setViewportOffset(model, 0, DEFAULT_CELL_HEIGHT);
+    await hideRows(model, [1]);
+    await selectCell(model, "A3");
+    await setViewportOffset(model, 0, DEFAULT_CELL_HEIGHT);
 
-    moveAnchorCell(model, "up");
+    await moveAnchorCell(model, "up");
     expect(model.getters.getSelectedZone()).toEqual(toZone("A1"));
     expect(model.getters.getActiveSheetScrollInfo()).toEqual({ scrollX: 0, scrollY: 0 });
   });
@@ -343,10 +346,10 @@ describe("simple selection", () => {
     const model = await createModel({ sheets: [{ colNumber: 1, rowNumber: 100 }] });
     const visibleRows = model.getters.getSheetViewVisibleRows();
     const lastVisibleRow = visibleRows[visibleRows.length - 1];
-    hideRows(model, [lastVisibleRow + 1, lastVisibleRow + 2]);
-    selectCell(model, toXC(0, lastVisibleRow));
+    await hideRows(model, [lastVisibleRow + 1, lastVisibleRow + 2]);
+    await selectCell(model, toXC(0, lastVisibleRow));
 
-    moveAnchorCell(model, "down");
+    await moveAnchorCell(model, "down");
     expect(model.getters.getSelectedZone()).toEqual(toZone(toXC(0, lastVisibleRow + 3)));
     expect(model.getters.getActiveSheetScrollInfo()).toEqual({
       scrollX: 0,
@@ -357,7 +360,7 @@ describe("simple selection", () => {
 
   test("can select a whole column", async () => {
     const model = await createModel({ sheets: [{ colNumber: 10, rowNumber: 10 }] });
-    selectColumn(model, 4, "overrideSelection");
+    await selectColumn(model, 4, "overrideSelection");
 
     expect(getSelectionAnchorCellXc(model)).toBe("E1");
 
@@ -368,7 +371,7 @@ describe("simple selection", () => {
     const model = await createModel({
       sheets: [{ colNumber: 10, rowNumber: 10, merges: ["A1:B1"] }],
     });
-    selectColumn(model, 0, "overrideSelection");
+    await selectColumn(model, 0, "overrideSelection");
 
     expect(getSelectionAnchorCellXc(model)).toBe("A1");
     expect(model.getters.getSelectedZones()[0]).toEqual({ left: 0, top: 0, right: 0, bottom: 9 });
@@ -376,7 +379,7 @@ describe("simple selection", () => {
 
   test("selection is clipped to sheet size", async () => {
     const model = await createModel({ sheets: [{ colNumber: 3, rowNumber: 3 }] });
-    setSelection(model, ["A1:Z20"]);
+    await setSelection(model, ["A1:Z20"]);
     const zone = toZone("A1:C3");
     expect(model.getters.getSelection()).toEqual({
       anchor: { cell: { col: 0, row: 0 }, zone },
@@ -387,7 +390,7 @@ describe("simple selection", () => {
   test("can select a whole row", async () => {
     const model = await createModel({ sheets: [{ colNumber: 10, rowNumber: 10 }] });
 
-    selectRow(model, 4, "overrideSelection");
+    await selectRow(model, 4, "overrideSelection");
     expect(getSelectionAnchorCellXc(model)).toBe("A5");
 
     expect(model.getters.getSelectedZones()[0]).toEqual({ left: 0, top: 4, right: 9, bottom: 4 });
@@ -398,34 +401,34 @@ describe("simple selection", () => {
       sheets: [{ colNumber: 10, rowNumber: 10, merges: ["A1:A2"] }],
     });
 
-    selectRow(model, 0, "overrideSelection");
+    await selectRow(model, 0, "overrideSelection");
     expect(getSelectionAnchorCellXc(model)).toBe("A1");
     expect(model.getters.getSelectedZones()[0]).toEqual({ left: 0, top: 0, right: 9, bottom: 0 });
   });
 
   test("cannot select out of bound row", async () => {
     const model = await createModel({ sheets: [{ colNumber: 10, rowNumber: 10 }] });
-    expect(selectRow(model, -1, "overrideSelection")).toBeCancelledBecause(
+    expect(await selectRow(model, -1, "overrideSelection")).toBeCancelledBecause(
       CommandResult.SelectionOutOfBound
     );
-    expect(selectRow(model, 11, "overrideSelection")).toBeCancelledBecause(
+    expect(await selectRow(model, 11, "overrideSelection")).toBeCancelledBecause(
       CommandResult.SelectionOutOfBound
     );
   });
 
   test("cannot select out of bound column", async () => {
     const model = await createModel({ sheets: [{ colNumber: 10, rowNumber: 10 }] });
-    expect(selectColumn(model, -1, "overrideSelection")).toBeCancelledBecause(
+    expect(await selectColumn(model, -1, "overrideSelection")).toBeCancelledBecause(
       CommandResult.SelectionOutOfBound
     );
-    expect(selectColumn(model, 11, "overrideSelection")).toBeCancelledBecause(
+    expect(await selectColumn(model, 11, "overrideSelection")).toBeCancelledBecause(
       CommandResult.SelectionOutOfBound
     );
   });
 
   test("can select the whole sheet", async () => {
     const model = await createModel({ sheets: [{ colNumber: 10, rowNumber: 10 }] });
-    selectAll(model);
+    await selectAll(model);
     expect(getSelectionAnchorCellXc(model)).toBe("A1");
 
     expect(model.getters.getSelectedZones()[0]).toEqual({ left: 0, top: 0, right: 9, bottom: 9 });
@@ -433,19 +436,19 @@ describe("simple selection", () => {
 
   test("invalid selection is updated after undo", async () => {
     const model = await createModel({ sheets: [{ id: "42", colNumber: 3, rowNumber: 3 }] });
-    addColumns(model, "after", "A", 1);
-    selectCell(model, "D1");
-    undo(model);
+    await addColumns(model, "after", "A", 1);
+    await selectCell(model, "D1");
+    await undo(model);
     expect(getActivePosition(model)).toBe("C1");
     expect(model.getters.getSheetPosition("42")).toEqual({ sheetId: "42", ...toCartesian("C1") });
   });
 
   test("invalid selection is updated after redo", async () => {
     const model = await createModel({ sheets: [{ id: "42", colNumber: 3, rowNumber: 3 }] });
-    deleteColumns(model, ["A"]);
-    undo(model);
-    selectCell(model, "C1");
-    redo(model);
+    await deleteColumns(model, ["A"]);
+    await undo(model);
+    await selectCell(model, "C1");
+    await redo(model);
     expect(getActivePosition(model)).toBe("B1");
     expect(model.getters.getSheetPosition("42")).toEqual({ sheetId: "42", ...toCartesian("B1") });
   });
@@ -482,10 +485,10 @@ describe("simple selection", () => {
     const model = await createModel({
       sheets: [{ colNumber: 3, rowNumber: 2, merges: ["A1:B2"], cols: { 0: { isHidden: true } } }],
     });
-    selectCell(model, "B1");
+    await selectCell(model, "B1");
     expect(model.getters.getSelectedZone()).toEqual(toZone("A1:B2"));
-    selectCell(model, "C2");
-    moveAnchorCell(model, "left");
+    await selectCell(model, "C2");
+    await moveAnchorCell(model, "left");
     expect(model.getters.getSelectedZone()).toEqual(toZone("A1:B2"));
   });
 
@@ -493,16 +496,16 @@ describe("simple selection", () => {
     const model = await createModel({
       sheets: [{ colNumber: 2, rowNumber: 3, merges: ["A1:B2"], rows: { 0: { isHidden: true } } }],
     });
-    selectCell(model, "A2");
+    await selectCell(model, "A2");
     expect(model.getters.getSelectedZone()).toEqual(toZone("A1:B2"));
-    selectCell(model, "A3");
-    moveAnchorCell(model, "up");
+    await selectCell(model, "A3");
+    await moveAnchorCell(model, "up");
     expect(model.getters.getSelectedZone()).toEqual(toZone("A1:B2"));
   });
 
   test("Selecting figure and undo cleanup selectedFigureId in selection plugin", async () => {
     const model = await createModel();
-    createFigure(model, {
+    await createFigure(model, {
       sheetId: model.getters.getActiveSheetId(),
       id: "someuuid",
       offset: {
@@ -515,9 +518,9 @@ describe("simple selection", () => {
       height: 100,
     });
     expect(model.getters.getSelectedFigureId()).toBe(null);
-    selectFigure(model, "someuuid");
+    await selectFigure(model, "someuuid");
     expect(model.getters.getSelectedFigureId()).toBe("someuuid");
-    undo(model);
+    await undo(model);
     expect(model.getters.getSelectedFigureId()).toBe(null);
   });
 });
@@ -525,17 +528,17 @@ describe("simple selection", () => {
 describe("multiple selections", () => {
   test("can select a new range", async () => {
     const model = await createModel({ sheets: [{ colNumber: 10, rowNumber: 10 }] });
-    selectCell(model, "C3");
+    await selectCell(model, "C3");
     let selection = model.getters.getSelection();
     expect(selection.zones.length).toBe(1);
     expect(selection.anchor.cell).toEqual(toCartesian("C3"));
-    setAnchorCorner(model, "C4");
+    await setAnchorCorner(model, "C4");
     selection = model.getters.getSelection();
     expect(selection.zones.length).toBe(1);
     expect(selection.anchor.cell).toEqual(toCartesian("C3"));
 
     // create new range
-    addCellToSelection(model, "F3");
+    await addCellToSelection(model, "F3");
     selection = model.getters.getSelection();
     expect(selection.zones).toHaveLength(2);
     expect(selection.anchor.cell).toEqual(toCartesian("F3"));
@@ -546,56 +549,56 @@ describe("multiple sheets", () => {
   test("activating same sheet does not change selection", async () => {
     const model = await createModel();
     const sheet1 = model.getters.getSheetIds()[0];
-    selectCell(model, "C3");
+    await selectCell(model, "C3");
     expect(model.getters.getSelectedZones()).toEqual([toZone("C3")]);
 
-    activateSheet(model, sheet1);
+    await activateSheet(model, sheet1);
     expect(model.getters.getSelectedZones()).toEqual([toZone("C3")]);
   });
 
   test("selection is restored when coming back to previous sheet", async () => {
     const model = await createModel();
-    selectCell(model, "C3");
+    await selectCell(model, "C3");
     expect(model.getters.getSelectedZones()).toEqual([toZone("C3")]);
-    createSheet(model, { activate: true, sheetId: "42" });
+    await createSheet(model, { activate: true, sheetId: "42" });
     expect(model.getters.getSelectedZones()).toEqual([toZone("A1")]);
-    selectCell(model, "B2");
+    await selectCell(model, "B2");
     expect(model.getters.getSelectedZones()).toEqual([toZone("B2")]);
 
     const sheet1 = model.getters.getSheetIds()[0];
     const sheet2 = model.getters.getSheetIds()[1];
-    activateSheet(model, sheet1);
+    await activateSheet(model, sheet1);
     expect(model.getters.getSelectedZones()).toEqual([toZone("C3")]);
-    activateSheet(model, sheet2);
+    await activateSheet(model, sheet2);
     expect(model.getters.getSelectedZones()).toEqual([toZone("B2")]);
   });
 
   test("Selection is updated when deleting the active sheet", async () => {
     const model = await createModel();
-    selectCell(model, "B2");
+    await selectCell(model, "B2");
     const firstSheetId = model.getters.getActiveSheetId();
     const secondSheetId = "42";
-    createSheet(model, { sheetId: secondSheetId, activate: true });
-    selectCell(model, "C4");
-    activateSheet(model, firstSheetId);
-    deleteSheet(model, firstSheetId);
+    await createSheet(model, { sheetId: secondSheetId, activate: true });
+    await selectCell(model, "C4");
+    await activateSheet(model, firstSheetId);
+    await deleteSheet(model, firstSheetId);
     expect(model.getters.getSelectedZone()).toEqual(toZone("C4"));
     expect(model.getters.getActiveSheetId()).toBe(secondSheetId);
-    moveAnchorCell(model, "right");
+    await moveAnchorCell(model, "right");
     expect(model.getters.getSelectedZone()).toEqual(toZone("D4"));
     expect(model.getters.getActiveSheetId()).toBe(secondSheetId);
   });
 
   test("Do not share selections between sheets", async () => {
     const model = await createModel();
-    selectCell(model, "B2");
+    await selectCell(model, "B2");
     const sheetId = model.getters.getActiveSheetId();
-    createSheet(model, { sheetId: "42", activate: true });
-    selectCell(model, "C4");
-    activateSheet(model, sheetId);
+    await createSheet(model, { sheetId: "42", activate: true });
+    await selectCell(model, "C4");
+    await activateSheet(model, sheetId);
     // any action that can be undone
-    createSheet(model, { sheetId: "test to undo" });
-    undo(model);
+    await createSheet(model, { sheetId: "test to undo" });
+    await undo(model);
     expect(model.getters.getSheetPosition(sheetId)).toEqual({ sheetId, ...toCartesian("B2") });
     expect(model.getters.getSheetPosition("42")).toEqual({ sheetId: "42", ...toCartesian("C4") });
   });
@@ -615,7 +618,7 @@ describe("multiple sheets", () => {
       ],
     });
     expect(model.getters.getSelectedZone()).toEqual(toZone("A1"));
-    activateSheet(model, "Sheet2");
+    await activateSheet(model, "Sheet2");
     expect(model.getters.getSelectedZone()).toEqual(toZone("C2:C3"));
   });
 });
@@ -623,23 +626,23 @@ describe("multiple sheets", () => {
 describe("Alter selection starting from hidden cells", () => {
   test("Cannot change selection if the current one is completely hidden", async () => {
     const model = await createModel({ sheets: [{ colNumber: 5, rowNumber: 2 }] });
-    selectCell(model, "C1");
-    hideColumns(model, ["C"]);
-    hideRows(model, [0]);
+    await selectCell(model, "C1");
+    await hideColumns(model, ["C"]);
+    await hideRows(model, [0]);
 
-    const alter1 = resizeAnchorZone(model, "down");
+    const alter1 = await resizeAnchorZone(model, "down");
     expect(alter1).toBeCancelledBecause(CommandResult.SelectionOutOfBound);
-    const alter2 = resizeAnchorZone(model, "right");
+    const alter2 = await resizeAnchorZone(model, "right");
     expect(alter2).toBeCancelledBecause(CommandResult.SelectionOutOfBound);
   });
 
   test("Cannot move position vertically from hidden column", async () => {
     const model = await createModel({ sheets: [{ colNumber: 5, rowNumber: 2 }] });
-    selectCell(model, "C1");
-    hideColumns(model, ["C"]);
-    const move1 = moveAnchorCell(model, "down");
+    await selectCell(model, "C1");
+    await hideColumns(model, ["C"]);
+    const move1 = await moveAnchorCell(model, "down");
     expect(move1).toBeCancelledBecause(CommandResult.SelectionOutOfBound);
-    const move2 = moveAnchorCell(model, "up");
+    const move2 = await moveAnchorCell(model, "up");
     expect(move2).toBeCancelledBecause(CommandResult.SelectionOutOfBound);
   });
 
@@ -659,9 +662,9 @@ describe("Alter selection starting from hidden cells", () => {
     "Alter selection horizontally from hidden col",
     async (hiddenCols, startPosition, direction, endPosition) => {
       const model = await createModel();
-      selectCell(model, startPosition);
-      hideColumns(model, hiddenCols);
-      resizeAnchorZone(model, direction as Direction);
+      await selectCell(model, startPosition);
+      await hideColumns(model, hiddenCols);
+      await resizeAnchorZone(model, direction as Direction);
       expect(model.getters.getSelectedZone()).toEqual(toZone(endPosition));
     }
   );
@@ -675,9 +678,9 @@ describe("Alter selection starting from hidden cells", () => {
     "Alter selection vertically from hidden col needs at least one visible selected cell",
     async (hiddenCols, startPosition, endPosition) => {
       const model = await createModel();
-      setSelection(model, [startPosition]);
-      hideColumns(model, hiddenCols);
-      resizeAnchorZone(model, "down");
+      await setSelection(model, [startPosition]);
+      await hideColumns(model, hiddenCols);
+      await resizeAnchorZone(model, "down");
       expect(model.getters.getSelectedZone()).toEqual(toZone(endPosition));
     }
   );
@@ -698,9 +701,9 @@ describe("Alter selection starting from hidden cells", () => {
     "Alter selection vertically from hidden col",
     async (hiddenRows, startPosition, direction, endPosition) => {
       const model = await createModel();
-      selectCell(model, startPosition);
-      hideRows(model, hiddenRows);
-      resizeAnchorZone(model, direction as Direction);
+      await selectCell(model, startPosition);
+      await hideRows(model, hiddenRows);
+      await resizeAnchorZone(model, direction as Direction);
       expect(model.getters.getSelectedZone()).toEqual(toZone(endPosition));
     }
   );
@@ -714,9 +717,9 @@ describe("Alter selection starting from hidden cells", () => {
     "Alter selection horizontally from hidden col",
     async (hiddenRows, startPosition, endPosition) => {
       const model = await createModel();
-      setSelection(model, [startPosition]);
-      hideRows(model, hiddenRows);
-      resizeAnchorZone(model, "right");
+      await setSelection(model, [startPosition]);
+      await hideRows(model, hiddenRows);
+      await resizeAnchorZone(model, "right");
       expect(model.getters.getSelectedZone()).toEqual(toZone(endPosition));
     }
   );
@@ -733,12 +736,12 @@ describe("Change selection to sheet extremities", () => {
     "Move selection horizontally to sheet extremities",
     async (hiddenCols, merges, selection, direction, result) => {
       const model = await createModel();
-      selectCell(model, selection);
+      await selectCell(model, selection);
       for (const mergeXc of merges) {
-        merge(model, mergeXc);
+        await merge(model, mergeXc);
       }
-      hideColumns(model, hiddenCols);
-      moveAnchorCell(model, direction as Direction, "end");
+      await hideColumns(model, hiddenCols);
+      await moveAnchorCell(model, direction as Direction, "end");
       expect(model.getters.getSelectedZone()).toEqual(toZone(result));
     }
   );
@@ -753,12 +756,12 @@ describe("Change selection to sheet extremities", () => {
     "Move selection vertically to sheet extremities",
     async (hiddenRows, merges, selection, direction, result) => {
       const model = await createModel();
-      selectCell(model, selection);
+      await selectCell(model, selection);
       for (const mergeXc of merges) {
-        merge(model, mergeXc);
+        await merge(model, mergeXc);
       }
-      hideRows(model, hiddenRows);
-      moveAnchorCell(model, direction as Direction, "end");
+      await hideRows(model, hiddenRows);
+      await moveAnchorCell(model, direction as Direction, "end");
       expect(model.getters.getSelectedZone()).toEqual(toZone(result));
     }
   );
@@ -773,12 +776,12 @@ describe("Change selection to sheet extremities", () => {
     "Alter selection horizontally to sheet extremities",
     async (hiddenCols, merges, selection, direction, result) => {
       const model = await createModel();
-      selectCell(model, selection);
+      await selectCell(model, selection);
       for (const mergeXc of merges) {
-        merge(model, mergeXc);
+        await merge(model, mergeXc);
       }
-      hideColumns(model, hiddenCols);
-      resizeAnchorZone(model, direction as Direction, "end");
+      await hideColumns(model, hiddenCols);
+      await resizeAnchorZone(model, direction as Direction, "end");
       expect(model.getters.getSelectedZone()).toEqual(toZone(result));
     }
   );
@@ -793,12 +796,12 @@ describe("Change selection to sheet extremities", () => {
     "Alter selection vertically to sheet extremities",
     async (hiddenRows, merges, selection, direction, result) => {
       const model = await createModel();
-      selectCell(model, selection);
+      await selectCell(model, selection);
       for (const mergeXc of merges) {
-        merge(model, mergeXc);
+        await merge(model, mergeXc);
       }
-      hideRows(model, hiddenRows);
-      resizeAnchorZone(model, direction as Direction, "end");
+      await hideRows(model, hiddenRows);
+      await resizeAnchorZone(model, direction as Direction, "end");
       expect(model.getters.getSelectedZone()).toEqual(toZone(result));
     }
   );
@@ -847,13 +850,16 @@ describe("Change selection to next clusters", () => {
     ["I11", "left", ["H11", "G11", "C11", "A11"]],
     ["I13", "left", ["D13", "B13", "A13"]],
     ["A1", "left", ["A1", "A1"]],
-  ])("Move selection horizontally", (startPosition: string, direction, targetXCs: string[]) => {
-    selectCell(model, startPosition);
-    for (const targetXC of targetXCs) {
-      moveAnchorCell(model, direction as Direction, "end");
-      expect(model.getters.getSelectedZone()).toEqual(toZone(targetXC));
+  ])(
+    "Move selection horizontally",
+    async (startPosition: string, direction, targetXCs: string[]) => {
+      await selectCell(model, startPosition);
+      for (const targetXC of targetXCs) {
+        await moveAnchorCell(model, direction as Direction, "end");
+        expect(model.getters.getSelectedZone()).toEqual(toZone(targetXC));
+      }
     }
-  });
+  );
 
   test.each([
     ["A1", "down", ["A11", "A16"]],
@@ -868,10 +874,10 @@ describe("Change selection to next clusters", () => {
     ["F16", "up", ["F1"]],
     ["G16", "up", ["G11", "G3", "G2", "G1"]],
     ["A1", "up", ["A1", "A1"]],
-  ])("Move selection vertically", (startPosition: string, direction, targetXCs: string[]) => {
-    selectCell(model, startPosition);
+  ])("Move selection vertically", async (startPosition: string, direction, targetXCs: string[]) => {
+    await selectCell(model, startPosition);
     for (const targetXC of targetXCs) {
-      moveAnchorCell(model, direction as Direction, "end");
+      await moveAnchorCell(model, direction as Direction, "end");
       expect(model.getters.getSelectedZone()).toEqual(toZone(targetXC));
     }
   });
@@ -891,10 +897,10 @@ describe("Change selection to next clusters", () => {
     ["I11", "I11", "left", ["H11:I11", "G11:I11", "C11:I11", "A11:I11"]],
   ])(
     "Alter selection horizontally",
-    (anchor: string, selection: string, direction, targetXCs: string[]) => {
-      setSelection(model, [selection], { anchor });
+    async (anchor: string, selection: string, direction, targetXCs: string[]) => {
+      await setSelection(model, [selection], { anchor });
       for (const targetXC of targetXCs) {
-        resizeAnchorZone(model, direction as Direction, "end");
+        await resizeAnchorZone(model, direction as Direction, "end");
         expect(model.getters.getSelectedZone()).toEqual(toZone(targetXC));
       }
     }
@@ -917,10 +923,10 @@ describe("Change selection to next clusters", () => {
     ["A1", "A1", "up", ["A1", "A1"]],
   ])(
     "Alter selection vertically",
-    (anchor: string, selection: string, direction, targetXCs: string[]) => {
-      setSelection(model, [selection], { anchor });
+    async (anchor: string, selection: string, direction, targetXCs: string[]) => {
+      await setSelection(model, [selection], { anchor });
       for (const targetXC of targetXCs) {
-        resizeAnchorZone(model, direction as Direction, "end");
+        await resizeAnchorZone(model, direction as Direction, "end");
         expect(model.getters.getSelectedZone()).toEqual(toZone(targetXC));
       }
     }
@@ -953,10 +959,10 @@ describe("Alter Selection with content in selection", () => {
     ["D3", "C3:D4", "right", ["D3:D4"]],
   ])(
     "Alter selection horizontally",
-    (anchor: string, selection: string, direction, targetXCs: string[]) => {
-      setSelection(model, [selection], { anchor });
+    async (anchor: string, selection: string, direction, targetXCs: string[]) => {
+      await setSelection(model, [selection], { anchor });
       for (const targetXC of targetXCs) {
-        resizeAnchorZone(model, direction as Direction, "end");
+        await resizeAnchorZone(model, direction as Direction, "end");
         expect(model.getters.getSelectedZone()).toEqual(toZone(targetXC));
       }
     }
@@ -971,10 +977,10 @@ describe("Alter Selection with content in selection", () => {
     ["C5", "C2:D5", "down", ["C3:D5", "C4:D5", "C5:D9"]],
   ])(
     "Alter selection vertically",
-    (anchor: string, selection: string, direction, targetXCs: string[]) => {
-      setSelection(model, [selection], { anchor });
+    async (anchor: string, selection: string, direction, targetXCs: string[]) => {
+      await setSelection(model, [selection], { anchor });
       for (const targetXC of targetXCs) {
-        resizeAnchorZone(model, direction as Direction, "end");
+        await resizeAnchorZone(model, direction as Direction, "end");
         expect(model.getters.getSelectedZone()).toEqual(toZone(targetXC));
       }
     }
@@ -987,46 +993,46 @@ describe("move elements(s)", () => {
       sheets: [{ id: "1", colNumber: 10, rowNumber: 10, merges: ["C3:D4", "G7:H8"] }],
     });
   });
-  test("can't move columns whose merges overflow from the selection", () => {
-    const result = moveColumns(model, "F", ["B", "C"]);
+  test("can't move columns whose merges overflow from the selection", async () => {
+    const result = await moveColumns(model, "F", ["B", "C"]);
     expect(result).toBeCancelledBecause(CommandResult.WillRemoveExistingMerge);
   });
-  test("can't move columns between columns containing common merged ", () => {
-    const result = moveColumns(model, "H", ["B", "C"]);
+  test("can't move columns between columns containing common merged ", async () => {
+    const result = await moveColumns(model, "H", ["B", "C"]);
     expect(result).toBeCancelledBecause(CommandResult.WillRemoveExistingMerge);
   });
-  test("can't move rows whose merges overflow from the selection", () => {
-    const result = moveRows(model, 5, [1, 2]);
+  test("can't move rows whose merges overflow from the selection", async () => {
+    const result = await moveRows(model, 5, [1, 2]);
     expect(result).toBeCancelledBecause(CommandResult.WillRemoveExistingMerge);
   });
-  test("can't move rows between rows containing common merged ", () => {
-    const result = moveRows(model, 7, [1, 2]);
+  test("can't move rows between rows containing common merged ", async () => {
+    const result = await moveRows(model, 7, [1, 2]);
     expect(result).toBeCancelledBecause(CommandResult.WillRemoveExistingMerge);
   });
 
-  test("rejects moving part of a table with headers", () => {
-    createTable(model, "A1:A4", { numberOfHeaders: 2 });
-    const result = moveRows(model, 5, [1]);
+  test("rejects moving part of a table with headers", async () => {
+    await createTable(model, "A1:A4", { numberOfHeaders: 2 });
+    const result = await moveRows(model, 5, [1]);
     expect(result).toBeCancelledBecause(CommandResult.CannotMoveTableHeader);
   });
 
-  test("allows moving the whole table with headers", () => {
-    createTable(model, "A1:A2");
+  test("allows moving the whole table with headers", async () => {
+    await createTable(model, "A1:A2");
     expect(getTable(model, "A1")!.range.zone).toEqual(toZone("A1:A2"));
-    moveRows(model, 9, [0, 1], "after");
+    await moveRows(model, 9, [0, 1], "after");
     expect(getTable(model, "A9")!.range.zone).toEqual(toZone("A9:A10"));
   });
 
   test("Move a resized column preserves its size", async () => {
     const model = await createModel();
-    resizeColumns(model, ["A"], 10);
-    resizeColumns(model, ["C"], 20);
-    moveColumns(model, "C", ["A"], "after");
+    await resizeColumns(model, ["A"], 10);
+    await resizeColumns(model, ["C"], 20);
+    await moveColumns(model, "C", ["A"], "after");
     const sheetId = model.getters.getActiveSheetId();
     expect(model.getters.getColSize(sheetId, 0)).toEqual(DEFAULT_CELL_WIDTH);
     expect(model.getters.getColSize(sheetId, 1)).toEqual(20);
     expect(model.getters.getColSize(sheetId, 2)).toEqual(10);
-    moveColumns(model, "A", ["C"], "before");
+    await moveColumns(model, "A", ["C"], "before");
     expect(model.getters.getColSize(sheetId, 0)).toEqual(10);
     expect(model.getters.getColSize(sheetId, 1)).toEqual(DEFAULT_CELL_WIDTH);
     expect(model.getters.getColSize(sheetId, 2)).toEqual(20);
@@ -1045,10 +1051,10 @@ describe("move elements(s)", () => {
     addTestPlugin(corePluginRegistry, CommandSpy);
 
     const model = await createModel();
-    resizeColumns(model, ["A", "B"], 10);
-    resizeColumns(model, ["C", "D"], 20);
+    await resizeColumns(model, ["A", "B"], 10);
+    await resizeColumns(model, ["C", "D"], 20);
 
-    moveColumns(model, "A", ["C", "D"]);
+    await moveColumns(model, "A", ["C", "D"]);
 
     const sheetId = model.getters.getActiveSheetId();
     expect(model.getters.getColSize(sheetId, 0)).toEqual(20);
@@ -1067,14 +1073,14 @@ describe("move elements(s)", () => {
 
   test("Move a resized row preserves its size", async () => {
     const model = await createModel();
-    resizeRows(model, [0], 10);
-    resizeRows(model, [2], 20);
-    moveRows(model, 2, [0], "after");
+    await resizeRows(model, [0], 10);
+    await resizeRows(model, [2], 20);
+    await moveRows(model, 2, [0], "after");
     const sheetId = model.getters.getActiveSheetId();
     expect(model.getters.getRowSize(sheetId, 0)).toEqual(DEFAULT_CELL_HEIGHT);
     expect(model.getters.getRowSize(sheetId, 1)).toEqual(20);
     expect(model.getters.getRowSize(sheetId, 2)).toEqual(10);
-    moveRows(model, 0, [2], "before");
+    await moveRows(model, 0, [2], "before");
     expect(model.getters.getRowSize(sheetId, 0)).toEqual(10);
     expect(model.getters.getRowSize(sheetId, 1)).toEqual(DEFAULT_CELL_HEIGHT);
     expect(model.getters.getRowSize(sheetId, 2)).toEqual(20);
@@ -1094,10 +1100,10 @@ describe("move elements(s)", () => {
 
     const model = await createModel();
 
-    resizeRows(model, [1, 2], 10);
-    resizeRows(model, [3, 4], 20);
+    await resizeRows(model, [1, 2], 10);
+    await resizeRows(model, [3, 4], 20);
 
-    moveRows(model, 1, [3, 4]);
+    await moveRows(model, 1, [3, 4]);
 
     const sheetId = model.getters.getActiveSheetId();
     expect(model.getters.getRowSize(sheetId, 1)).toEqual(20);
@@ -1117,30 +1123,30 @@ describe("move elements(s)", () => {
   test("Move multiline row preserves its size", async () => {
     const model = await createModel();
     const sheetId = model.getters.getActiveSheetId();
-    setCellContent(model, "A3", "Hello\nWorld");
+    await setCellContent(model, "A3", "Hello\nWorld");
     expect(model.getters.getRowSize(sheetId, 2)).toEqual(36);
-    moveRows(model, 1, [2], "before");
+    await moveRows(model, 1, [2], "before");
     expect(model.getters.getRowSize(sheetId, 1)).toEqual(36);
-    moveRows(model, 2, [1], "before");
+    await moveRows(model, 2, [1], "before");
     expect(model.getters.getRowSize(sheetId, 2)).toEqual(36);
   });
 
   test("Moving a row with wrapped text should not convert its height to fixed row size", async () => {
     const model = await createModel();
     const sheetId = model.getters.getActiveSheetId();
-    setCellContent(model, "A3", "Hello\nWorld");
-    setFormatting(model, "A3", { wrapping: "wrap" });
-    moveRows(model, 1, [2], "before");
+    await setCellContent(model, "A3", "Hello\nWorld");
+    await setFormatting(model, "A3", { wrapping: "wrap" });
+    await moveRows(model, 1, [2], "before");
     expect(model.getters.getUserRowSize(sheetId, 1)).toEqual(undefined);
   });
 
   test("Moving a resized row above does not change next row's size", async () => {
     const model = await createModel();
     const sheetId = model.getters.getActiveSheetId();
-    setCellContent(model, "A2", "Hello\nRow1");
-    resizeRows(model, [1], 50);
-    setCellContent(model, "A3", "Hello\nRow2");
-    moveRows(model, 0, [1], "before");
+    await setCellContent(model, "A2", "Hello\nRow1");
+    await resizeRows(model, [1], 50);
+    await setCellContent(model, "A3", "Hello\nRow2");
+    await moveRows(model, 0, [1], "before");
     expect(model.getters.getRowSize(sheetId, 0)).toEqual(50);
     expect(model.getters.getRowSize(sheetId, 2)).toEqual(36);
   });
@@ -1148,10 +1154,10 @@ describe("move elements(s)", () => {
   test("Moving a row above a resized row should not inherit its size", async () => {
     const model = await createModel();
     const sheetId = model.getters.getActiveSheetId();
-    setCellContent(model, "A1", "Hello\nWorld");
-    resizeRows(model, [0], 50);
-    setCellContent(model, "A2", "Hello");
-    moveRows(model, 0, [1], "before");
+    await setCellContent(model, "A1", "Hello\nWorld");
+    await resizeRows(model, [0], 50);
+    await setCellContent(model, "A2", "Hello");
+    await moveRows(model, 0, [1], "before");
     expect(model.getters.getRowSize(sheetId, 0)).toEqual(23);
     expect(model.getters.getRowSize(sheetId, 1)).toEqual(50);
   });
@@ -1159,31 +1165,31 @@ describe("move elements(s)", () => {
   test("Preserves wrapped row height when a row is moved above it", async () => {
     const model = await createModel();
     const sheetId = model.getters.getActiveSheetId();
-    setCellContent(model, "A2", "Hello\nWorld");
-    setFormatting(model, "A2", { wrapping: "wrap" });
-    moveRows(model, 1, [2], "before");
+    await setCellContent(model, "A2", "Hello\nWorld");
+    await setFormatting(model, "A2", { wrapping: "wrap" });
+    await moveRows(model, 1, [2], "before");
     expect(model.getters.getRowSize(sheetId, 2)).toEqual(36);
   });
 
   test("Can move a column to the end of the sheet", async () => {
     const model = await createModel();
-    setCellContent(model, "A1", "5");
-    moveColumns(model, "Z", ["A"], "after");
+    await setCellContent(model, "A1", "5");
+    await moveColumns(model, "Z", ["A"], "after");
     expect(getCellContent(model, "Z1")).toEqual("5");
   });
 
   test("Can move a row to the end of the sheet", async () => {
     const model = await createModel();
-    setCellContent(model, "A1", "5");
-    moveRows(model, 99, [0], "after");
+    await setCellContent(model, "A1", "5");
+    await moveRows(model, 99, [0], "after");
     expect(getCellContent(model, "A100")).toEqual("5");
   });
 
   test("cannot move column out of bound", async () => {
     const model = await createModel();
-    let result = moveColumns(model, "AAA", ["A"]);
+    let result = await moveColumns(model, "AAA", ["A"]);
     expect(result).toBeCancelledBecause(CommandResult.InvalidHeaderIndex);
-    result = moveColumns(model, "A", ["AAA"]);
+    result = await moveColumns(model, "A", ["AAA"]);
     expect(result).toBeCancelledBecause(CommandResult.InvalidHeaderIndex);
     result = model.dispatch("MOVE_COLUMNS_ROWS", {
       sheetId: model.getters.getActiveSheetId(),
@@ -1198,32 +1204,32 @@ describe("move elements(s)", () => {
 
   test("cannot move row out of bound", async () => {
     const model = await createModel();
-    let result = moveRows(model, 100, [0]);
+    let result = await moveRows(model, 100, [0]);
     expect(result).toBeCancelledBecause(CommandResult.InvalidHeaderIndex);
-    result = moveRows(model, 19, [100]);
+    result = await moveRows(model, 19, [100]);
     expect(result).toBeCancelledBecause(CommandResult.InvalidHeaderIndex);
-    result = moveRows(model, -1, [0]);
+    result = await moveRows(model, -1, [0]);
     expect(result).toBeCancelledBecause(CommandResult.InvalidHeaderIndex);
   });
 
   test("Selection stays on the moved column", async () => {
     const model = await createModel();
-    selectColumn(model, 1, "overrideSelection");
-    moveColumns(model, "D", ["B"]);
+    await selectColumn(model, 1, "overrideSelection");
+    await moveColumns(model, "D", ["B"]);
     expect(model.getters.getSelectedZone()).toEqual(toZone("D1:D100"));
   });
 
   test("Selection stays on the moved row", async () => {
     const model = await createModel();
-    selectRow(model, 1, "overrideSelection");
-    moveRows(model, 3, [1]);
+    await selectRow(model, 1, "overrideSelection");
+    await moveRows(model, 3, [1]);
     expect(model.getters.getSelectedZone()).toEqual(toZone("A4:Z4"));
   });
 
   test("Can move a row with an array formula", async () => {
     const model = await createModel();
-    setCellContent(model, "A4", "=MUNIT(2)");
-    moveRows(model, 0, [3], "before");
+    await setCellContent(model, "A4", "=MUNIT(2)");
+    await moveRows(model, 0, [3], "before");
     expect(getCellRawContent(model, "A1")).toEqual("=MUNIT(2)");
     expect(getCellContent(model, "A1")).toEqual("1");
     expect(getCell(model, "B1")).toEqual(undefined);
@@ -1231,8 +1237,8 @@ describe("move elements(s)", () => {
 
   test("Moving a column with spreaded results do not copy them", async () => {
     const model = await createModel();
-    setCellContent(model, "C1", "=MUNIT(2)");
-    moveColumns(model, "A", ["D"], "before");
+    await setCellContent(model, "C1", "=MUNIT(2)");
+    await moveColumns(model, "A", ["D"], "before");
     expect(getCell(model, "A1")).toEqual(undefined);
     expect(getCellRawContent(model, "D1")).toEqual("=MUNIT(2)");
   });
@@ -1249,7 +1255,7 @@ describe("move elements(s)", () => {
       C4: "2",
       D4: "=A2+A3",
     });
-    moveColumns(model, "C", ["A"], "after");
+    await moveColumns(model, "C", ["A"], "after");
 
     // A -> C
     expect(getCellText(model, "C1", "Sheet1")).toBe("A Col");
@@ -1292,7 +1298,7 @@ describe("move elements(s)", () => {
       C4: "=B2+C2",
       D4: "=B3+C3",
     });
-    moveRows(model, 2, [0], "after");
+    await moveRows(model, 2, [0], "after");
 
     //  1 -> 3
     expect(getCellText(model, "A3", "Sheet1")).toBe("R1");
@@ -1319,9 +1325,9 @@ describe("move elements(s)", () => {
 test("Preserves wrapped row height when inserting a row above", async () => {
   const model = await createModel();
   const sheetId = model.getters.getActiveSheetId();
-  setCellContent(model, "A2", "Hello\nWorld");
-  setFormatting(model, "A2", { wrapping: "wrap" });
-  addRows(model, "before", 1, 1);
+  await setCellContent(model, "A2", "Hello\nWorld");
+  await setFormatting(model, "A2", { wrapping: "wrap" });
+  await addRows(model, "before", 1, 1);
   expect(model.getters.getRowSize(sheetId, 2)).toEqual(36);
 });
 
@@ -1360,8 +1366,8 @@ describe("Selection loop (ctrl + a)", () => {
       ["A6", ["A1:J10", "A6"]],
       ["E8", ["C8:E8", "A1:J10", "E8"]],
       ["A9", ["A9:A10", "A1:J10", "A9"]],
-    ])("Selection loop with anchor %s", (anchor: string, expectedZones: string[]) => {
-      selectCell(model, anchor);
+    ])("Selection loop with anchor %s", async (anchor: string, expectedZones: string[]) => {
+      await selectCell(model, anchor);
       for (const zone of expectedZones) {
         model.selection.loopSelection();
         const selection = model.getters.getSelectedZone();
@@ -1377,8 +1383,8 @@ describe("Selection loop (ctrl + a)", () => {
       ["E3", "B2:E4"],
       ["A1", "A1"],
       ["A6", "A6"],
-    ])("Select table around the anchor %s", (anchor: string, expectedZone: string) => {
-      selectCell(model, anchor);
+    ])("Select table around the anchor %s", async (anchor: string, expectedZone: string) => {
+      await selectCell(model, anchor);
       model.selection.selectTableAroundSelection();
       const selection = model.getters.getSelectedZone();
       expect(zoneToXc(selection)).toEqual(expectedZone);
@@ -1392,11 +1398,11 @@ describe("Selection loop (ctrl + a)", () => {
       model = await createModel();
     });
 
-    test("Selection loop doesn't scroll the viewport", () => {
-      setCellContent(model, "A1", "a");
-      setCellContent(model, "A2", "a");
-      selectCell(model, "A2");
-      setViewportOffset(model, 0, DEFAULT_CELL_HEIGHT);
+    test("Selection loop doesn't scroll the viewport", async () => {
+      await setCellContent(model, "A1", "a");
+      await setCellContent(model, "A2", "a");
+      await selectCell(model, "A2");
+      await setViewportOffset(model, 0, DEFAULT_CELL_HEIGHT);
       const initialScroll = model.getters.getActiveSheetScrollInfo();
 
       model.selection.loopSelection();
@@ -1412,11 +1418,11 @@ describe("Selection loop (ctrl + a)", () => {
       expect(model.getters.getActiveSheetScrollInfo()).toEqual(initialScroll);
     });
 
-    test("selectTableAroundSelection doesn't scroll the viewport", () => {
-      setCellContent(model, "A1", "a");
-      setCellContent(model, "A2", "a");
-      selectCell(model, "A2");
-      setViewportOffset(model, 0, DEFAULT_CELL_HEIGHT);
+    test("selectTableAroundSelection doesn't scroll the viewport", async () => {
+      await setCellContent(model, "A1", "a");
+      await setCellContent(model, "A2", "a");
+      await selectCell(model, "A2");
+      await setViewportOffset(model, 0, DEFAULT_CELL_HEIGHT);
       const initialScroll = model.getters.getActiveSheetScrollInfo();
 
       model.selection.selectTableAroundSelection();
@@ -1429,8 +1435,8 @@ describe("Selection loop (ctrl + a)", () => {
 describe("Multiple selection updates after insertion and deletion", () => {
   test("after inserting column before", async () => {
     const model = await createModel({ sheets: [{ colNumber: 20, rowNumber: 10 }] });
-    selectColumn(model, 4, "overrideSelection"); // select E
-    selectColumn(model, 9, "newAnchor"); // select J
+    await selectColumn(model, 4, "overrideSelection"); // select E
+    await selectColumn(model, 9, "newAnchor"); // select J
     let selection = model.getters.getSelection();
     expect(selection.zones).toEqual([
       { left: 4, right: 4, top: 0, bottom: 9 },
@@ -1438,7 +1444,7 @@ describe("Multiple selection updates after insertion and deletion", () => {
     ]);
     expect(selection.anchor.cell).toEqual(toCartesian("J1"));
 
-    addColumns(model, "before", "A", 1);
+    await addColumns(model, "before", "A", 1);
     selection = model.getters.getSelection();
     expect(selection.anchor.cell).toEqual(toCartesian("K1"));
     expect(selection.zones).toEqual([
@@ -1449,8 +1455,8 @@ describe("Multiple selection updates after insertion and deletion", () => {
 
   test("after inserting column between", async () => {
     const model = await createModel({ sheets: [{ colNumber: 20, rowNumber: 10 }] });
-    selectColumn(model, 4, "overrideSelection"); // select E
-    selectColumn(model, 9, "newAnchor"); // select J
+    await selectColumn(model, 4, "overrideSelection"); // select E
+    await selectColumn(model, 9, "newAnchor"); // select J
     let selection = model.getters.getSelection();
     expect(selection.zones).toEqual([
       { left: 4, right: 4, top: 0, bottom: 9 },
@@ -1458,7 +1464,7 @@ describe("Multiple selection updates after insertion and deletion", () => {
     ]);
     expect(selection.anchor.cell).toEqual(toCartesian("J1"));
 
-    addColumns(model, "before", "H", 1);
+    await addColumns(model, "before", "H", 1);
     selection = model.getters.getSelection();
     expect(selection.anchor.cell).toEqual(toCartesian("K1"));
     expect(selection.zones).toEqual([
@@ -1469,8 +1475,8 @@ describe("Multiple selection updates after insertion and deletion", () => {
 
   test("after inserting column after", async () => {
     const model = await createModel({ sheets: [{ colNumber: 20, rowNumber: 10 }] });
-    selectColumn(model, 4, "overrideSelection"); // select E
-    selectColumn(model, 9, "newAnchor"); // select J
+    await selectColumn(model, 4, "overrideSelection"); // select E
+    await selectColumn(model, 9, "newAnchor"); // select J
     let selection = model.getters.getSelection();
     expect(selection.zones).toEqual([
       { left: 4, right: 4, top: 0, bottom: 9 },
@@ -1478,7 +1484,7 @@ describe("Multiple selection updates after insertion and deletion", () => {
     ]);
     expect(selection.anchor.cell).toEqual(toCartesian("J1"));
 
-    addColumns(model, "after", "K", 1);
+    await addColumns(model, "after", "K", 1);
     selection = model.getters.getSelection();
     expect(selection.anchor.cell).toEqual(toCartesian("J1"));
     expect(selection.zones).toEqual([
@@ -1489,8 +1495,8 @@ describe("Multiple selection updates after insertion and deletion", () => {
 
   test("after inserting row before", async () => {
     const model = await createModel({ sheets: [{ colNumber: 10, rowNumber: 20 }] });
-    selectRow(model, 4, "overrideSelection"); // select 5
-    selectRow(model, 9, "newAnchor"); // select 10
+    await selectRow(model, 4, "overrideSelection"); // select 5
+    await selectRow(model, 9, "newAnchor"); // select 10
     let selection = model.getters.getSelection();
     expect(selection.zones).toEqual([
       { left: 0, right: 9, top: 4, bottom: 4 },
@@ -1498,7 +1504,7 @@ describe("Multiple selection updates after insertion and deletion", () => {
     ]);
     expect(selection.anchor.cell).toEqual(toCartesian("A10"));
 
-    addRows(model, "before", 0, 1);
+    await addRows(model, "before", 0, 1);
     selection = model.getters.getSelection();
     expect(selection.anchor.cell).toEqual(toCartesian("A11"));
     expect(selection.zones).toEqual([
@@ -1509,8 +1515,8 @@ describe("Multiple selection updates after insertion and deletion", () => {
 
   test("after inserting row between", async () => {
     const model = await createModel({ sheets: [{ colNumber: 10, rowNumber: 20 }] });
-    selectRow(model, 4, "overrideSelection"); // select 5
-    selectRow(model, 9, "newAnchor"); // select 10
+    await selectRow(model, 4, "overrideSelection"); // select 5
+    await selectRow(model, 9, "newAnchor"); // select 10
     let selection = model.getters.getSelection();
     expect(selection.zones).toEqual([
       { left: 0, right: 9, top: 4, bottom: 4 },
@@ -1518,7 +1524,7 @@ describe("Multiple selection updates after insertion and deletion", () => {
     ]);
     expect(selection.anchor.cell).toEqual(toCartesian("A10"));
 
-    addRows(model, "before", 6, 1);
+    await addRows(model, "before", 6, 1);
     selection = model.getters.getSelection();
     expect(selection.anchor.cell).toEqual(toCartesian("A11"));
     expect(selection.zones).toEqual([
@@ -1529,8 +1535,8 @@ describe("Multiple selection updates after insertion and deletion", () => {
 
   test("after inserting rows after", async () => {
     const model = await createModel({ sheets: [{ colNumber: 10, rowNumber: 20 }] });
-    selectRow(model, 4, "overrideSelection"); // select 5
-    selectRow(model, 9, "newAnchor"); // select 10
+    await selectRow(model, 4, "overrideSelection"); // select 5
+    await selectRow(model, 9, "newAnchor"); // select 10
     let selection = model.getters.getSelection();
     expect(selection.zones).toEqual([
       { left: 0, right: 9, top: 4, bottom: 4 },
@@ -1538,7 +1544,7 @@ describe("Multiple selection updates after insertion and deletion", () => {
     ]);
     expect(selection.anchor.cell).toEqual(toCartesian("A10"));
 
-    addRows(model, "after", 11, 1);
+    await addRows(model, "after", 11, 1);
     selection = model.getters.getSelection();
     expect(selection.anchor.cell).toEqual(toCartesian("A10"));
     expect(selection.zones).toEqual([
@@ -1549,8 +1555,8 @@ describe("Multiple selection updates after insertion and deletion", () => {
 
   test("after deleting column before", async () => {
     const model = await createModel({ sheets: [{ colNumber: 20, rowNumber: 10 }] });
-    selectColumn(model, 4, "overrideSelection"); // select E
-    selectColumn(model, 9, "newAnchor"); // select J
+    await selectColumn(model, 4, "overrideSelection"); // select E
+    await selectColumn(model, 9, "newAnchor"); // select J
     let selection = model.getters.getSelection();
     expect(selection.zones).toEqual([
       { left: 4, right: 4, top: 0, bottom: 9 },
@@ -1558,7 +1564,7 @@ describe("Multiple selection updates after insertion and deletion", () => {
     ]);
     expect(selection.anchor.cell).toEqual(toCartesian("J1"));
 
-    deleteColumns(model, ["A"]);
+    await deleteColumns(model, ["A"]);
     selection = model.getters.getSelection();
     expect(selection.anchor.cell).toEqual(toCartesian("I1"));
     expect(selection.zones).toEqual([
@@ -1569,8 +1575,8 @@ describe("Multiple selection updates after insertion and deletion", () => {
 
   test("after deleting column between", async () => {
     const model = await createModel({ sheets: [{ colNumber: 20, rowNumber: 10 }] });
-    selectColumn(model, 4, "overrideSelection"); // select E
-    selectColumn(model, 9, "newAnchor"); // select J
+    await selectColumn(model, 4, "overrideSelection"); // select E
+    await selectColumn(model, 9, "newAnchor"); // select J
     let selection = model.getters.getSelection();
     expect(selection.zones).toEqual([
       { left: 4, right: 4, top: 0, bottom: 9 },
@@ -1578,7 +1584,7 @@ describe("Multiple selection updates after insertion and deletion", () => {
     ]);
     expect(selection.anchor.cell).toEqual(toCartesian("J1"));
 
-    deleteColumns(model, ["H"]);
+    await deleteColumns(model, ["H"]);
     selection = model.getters.getSelection();
     expect(selection.anchor.cell).toEqual(toCartesian("I1"));
     expect(selection.zones).toEqual([
@@ -1589,8 +1595,8 @@ describe("Multiple selection updates after insertion and deletion", () => {
 
   test("after deleting column after", async () => {
     const model = await createModel({ sheets: [{ colNumber: 20, rowNumber: 10 }] });
-    selectColumn(model, 4, "overrideSelection"); // select E
-    selectColumn(model, 9, "newAnchor"); // select J
+    await selectColumn(model, 4, "overrideSelection"); // select E
+    await selectColumn(model, 9, "newAnchor"); // select J
     let selection = model.getters.getSelection();
     expect(selection.zones).toEqual([
       { left: 4, right: 4, top: 0, bottom: 9 },
@@ -1598,7 +1604,7 @@ describe("Multiple selection updates after insertion and deletion", () => {
     ]);
     expect(selection.anchor.cell).toEqual(toCartesian("J1"));
 
-    deleteColumns(model, ["K"]);
+    await deleteColumns(model, ["K"]);
     selection = model.getters.getSelection();
     expect(selection.anchor.cell).toEqual(toCartesian("J1"));
     expect(selection.zones).toEqual([
@@ -1609,8 +1615,8 @@ describe("Multiple selection updates after insertion and deletion", () => {
 
   test("after deleting row before", async () => {
     const model = await createModel({ sheets: [{ colNumber: 10, rowNumber: 20 }] });
-    selectRow(model, 4, "overrideSelection"); // select 5
-    selectRow(model, 9, "newAnchor"); // select 10
+    await selectRow(model, 4, "overrideSelection"); // select 5
+    await selectRow(model, 9, "newAnchor"); // select 10
     let selection = model.getters.getSelection();
     expect(selection.zones).toEqual([
       { left: 0, right: 9, top: 4, bottom: 4 },
@@ -1618,7 +1624,7 @@ describe("Multiple selection updates after insertion and deletion", () => {
     ]);
     expect(selection.anchor.cell).toEqual(toCartesian("A10"));
 
-    deleteRows(model, [1]);
+    await deleteRows(model, [1]);
     selection = model.getters.getSelection();
     expect(selection.anchor.cell).toEqual(toCartesian("A9"));
     expect(selection.zones).toEqual([
@@ -1629,8 +1635,8 @@ describe("Multiple selection updates after insertion and deletion", () => {
 
   test("after deleting row between", async () => {
     const model = await createModel({ sheets: [{ colNumber: 10, rowNumber: 20 }] });
-    selectRow(model, 4, "overrideSelection"); // select 5
-    selectRow(model, 9, "newAnchor"); // select 10
+    await selectRow(model, 4, "overrideSelection"); // select 5
+    await selectRow(model, 9, "newAnchor"); // select 10
     let selection = model.getters.getSelection();
     expect(selection.zones).toEqual([
       { left: 0, right: 9, top: 4, bottom: 4 },
@@ -1638,7 +1644,7 @@ describe("Multiple selection updates after insertion and deletion", () => {
     ]);
     expect(selection.anchor.cell).toEqual(toCartesian("A10"));
 
-    deleteRows(model, [6]);
+    await deleteRows(model, [6]);
     selection = model.getters.getSelection();
     expect(selection.anchor.cell).toEqual(toCartesian("A9"));
     expect(selection.zones).toEqual([
@@ -1649,8 +1655,8 @@ describe("Multiple selection updates after insertion and deletion", () => {
 
   test("after deleting row after", async () => {
     const model = await createModel({ sheets: [{ colNumber: 10, rowNumber: 20 }] });
-    selectRow(model, 4, "overrideSelection"); // select 5
-    selectRow(model, 9, "newAnchor"); // select 10
+    await selectRow(model, 4, "overrideSelection"); // select 5
+    await selectRow(model, 9, "newAnchor"); // select 10
     let selection = model.getters.getSelection();
     expect(selection.zones).toEqual([
       { left: 0, right: 9, top: 4, bottom: 4 },
@@ -1658,7 +1664,7 @@ describe("Multiple selection updates after insertion and deletion", () => {
     ]);
     expect(selection.anchor.cell).toEqual(toCartesian("A10"));
 
-    deleteRows(model, [10]);
+    await deleteRows(model, [10]);
     selection = model.getters.getSelection();
     expect(selection.anchor.cell).toEqual(toCartesian("A10"));
     expect(selection.zones).toEqual([
@@ -1675,14 +1681,14 @@ describe("Grid selection updates zones correctly when deselecting zone", () => {
     model = await createModel({ sheets: [{ colNumber: 5, rowNumber: 5 }] });
   });
 
-  test("can deselect zone from a larger zone", () => {
-    setSelection(model, ["A1:C4"]);
+  test("can deselect zone from a larger zone", async () => {
+    await setSelection(model, ["A1:C4"]);
     let selection = model.getters.getSelection();
     expect(selection.zones.length).toBe(1);
 
-    addCellToSelection(model, "B2");
-    setAnchorCorner(model, "B3");
-    commitSelection(model);
+    await addCellToSelection(model, "B2");
+    await setAnchorCorner(model, "B3");
+    await commitSelection(model);
     selection = model.getters.getSelection();
     expect(selection.anchor.cell).toEqual(toCartesian("A1"));
     expect(selection.zones).toEqual([
@@ -1693,15 +1699,15 @@ describe("Grid selection updates zones correctly when deselecting zone", () => {
     ]);
   });
 
-  test("can deselect merged cell from selection", () => {
-    merge(model, "A1:A2");
+  test("can deselect merged cell from selection", async () => {
+    await merge(model, "A1:A2");
 
-    setSelection(model, ["A1:B3"]);
+    await setSelection(model, ["A1:B3"]);
     let selection = model.getters.getSelection();
     expect(selection.zones.length).toBe(1);
 
-    addCellToSelection(model, "A1");
-    commitSelection(model);
+    await addCellToSelection(model, "A1");
+    await commitSelection(model);
     selection = model.getters.getSelection();
     expect(selection.anchor.cell).toEqual(toCartesian("B1"));
     expect(selection.zones).toEqual([

@@ -27,13 +27,16 @@ describe("Data validation", () => {
   });
 
   describe("allowDispatch results", () => {
-    test("Cannot add unknown criterion type", () => {
-      const result = addDataValidation(model, "A1", "id", { type: "random" as any, values: ["1"] });
+    test("Cannot add unknown criterion type", async () => {
+      const result = await addDataValidation(model, "A1", "id", {
+        type: "random" as any,
+        values: ["1"],
+      });
       expect(result).toBeCancelledBecause(CommandResult.UnknownDataValidationCriterionType);
     });
 
-    test("Dispatch a ADD_DATA_VALIDATION_RULE with a wrong sheet id is rejected", () => {
-      const result = addDataValidation(
+    test("Dispatch a ADD_DATA_VALIDATION_RULE with a wrong sheet id is rejected", async () => {
+      const result = await addDataValidation(
         model,
         "A1",
         "id",
@@ -44,8 +47,8 @@ describe("Data validation", () => {
       expect(result).toBeCancelledBecause(CommandResult.InvalidSheetId);
     });
 
-    test("Data validation with a wrong sheet in ranges", () => {
-      const result = addDataValidation(
+    test("Data validation with a wrong sheet in ranges", async () => {
+      const result = await addDataValidation(
         model,
         "A1:5",
         "dvId",
@@ -59,48 +62,48 @@ describe("Data validation", () => {
       expect(result).toBeCancelledBecause(CommandResult.InvalidSheetId);
     });
 
-    test("Dispatch a REMOVE_DATA_VALIDATION with a wrong sheet id is rejected", () => {
-      const result = removeDataValidation(model, "id", "wrong-sheet-id");
+    test("Dispatch a REMOVE_DATA_VALIDATION with a wrong sheet id is rejected", async () => {
+      const result = await removeDataValidation(model, "id", "wrong-sheet-id");
       expect(result).toBeCancelledBecause(CommandResult.InvalidSheetId);
     });
 
-    test("Cannot add invalid criterion values", () => {
-      let result = addDataValidation(model, "A1", "id", {
+    test("Cannot add invalid criterion values", async () => {
+      let result = await addDataValidation(model, "A1", "id", {
         type: "isBetween",
         values: ["abc", "oi"],
       });
       expect(result).toBeCancelledBecause(CommandResult.InvalidDataValidationCriterionValue);
 
-      result = addDataValidation(model, "A1", "id", {
+      result = await addDataValidation(model, "A1", "id", {
         type: "isValueInList",
         values: ["=56", "oi"], // Formulas are not allowed in isValueInList
         displayStyle: "arrow",
       });
       expect(result).toBeCancelledBecause(CommandResult.InvalidDataValidationCriterionValue);
 
-      result = addDataValidation(model, "A1", "id", {
+      result = await addDataValidation(model, "A1", "id", {
         type: "customFormula",
         values: ["oi"], // Only formulas are allowed in customFormula
       });
       expect(result).toBeCancelledBecause(CommandResult.InvalidDataValidationCriterionValue);
     });
 
-    test("Cannot have too few or too many criterion values", () => {
-      let result = addDataValidation(model, "A1", "id", {
+    test("Cannot have too few or too many criterion values", async () => {
+      let result = await addDataValidation(model, "A1", "id", {
         type: "isBetween",
         values: ["5"],
       });
       expect(result).toBeCancelledBecause(CommandResult.InvalidNumberOfCriterionValues);
 
-      result = addDataValidation(model, "A1", "id", {
+      result = await addDataValidation(model, "A1", "id", {
         type: "isBetween",
         values: ["5", "8", "78"],
       });
       expect(result).toBeCancelledBecause(CommandResult.InvalidNumberOfCriterionValues);
     });
 
-    test("Cannot remove invalid data validation", () => {
-      const result = removeDataValidation(model, "notAnExistingId");
+    test("Cannot remove invalid data validation", async () => {
+      const result = await removeDataValidation(model, "notAnExistingId");
       expect(result).toBeCancelledBecause(CommandResult.UnknownDataValidationRule);
     });
 
@@ -114,8 +117,8 @@ describe("Data validation", () => {
     });
   });
 
-  test("Can add a data validation rule", () => {
-    addDataValidation(model, "A1", "id", { type: "containsText", values: ["1"] });
+  test("Can add a data validation rule", async () => {
+    await addDataValidation(model, "A1", "id", { type: "containsText", values: ["1"] });
     expect(getDataValidationRules(model, sheetId)).toMatchObject([
       {
         id: "id",
@@ -125,8 +128,8 @@ describe("Data validation", () => {
     ]);
   });
 
-  test("Duplicate values will be filtered out when adding a rule for value in the list", () => {
-    addDataValidation(model, "A1", "id", {
+  test("Duplicate values will be filtered out when adding a rule for value in the list", async () => {
+    await addDataValidation(model, "A1", "id", {
       type: "isValueInList",
       values: ["1", "1", "2", "3", "2"],
       displayStyle: "arrow",
@@ -135,9 +138,9 @@ describe("Data validation", () => {
     expect(getDataValidationRules(model, sheetId)[0].criterion.values).toEqual(["1", "2", "3"]);
   });
 
-  test("Adding a rule with an existing id will replace the old one", () => {
-    addDataValidation(model, "A1", "id", { type: "containsText", values: ["1"] });
-    addDataValidation(model, "A1:C2", "id", { type: "isBetween", values: ["1", "5"] });
+  test("Adding a rule with an existing id will replace the old one", async () => {
+    await addDataValidation(model, "A1", "id", { type: "containsText", values: ["1"] });
+    await addDataValidation(model, "A1:C2", "id", { type: "isBetween", values: ["1", "5"] });
 
     expect(getDataValidationRules(model, sheetId)).toMatchObject([
       {
@@ -148,19 +151,19 @@ describe("Data validation", () => {
     ]);
   });
 
-  test("Can add data validation on an unbounded zone", () => {
+  test("Can add data validation on an unbounded zone", async () => {
     const criterion: DataValidationCriterion = { type: "containsText", values: ["1"] };
-    addDataValidation(model, "A:A", "id", criterion);
+    await addDataValidation(model, "A:A", "id", criterion);
     expect(getDataValidationRules(model, sheetId)).toMatchObject([
       { id: "id", criterion, ranges: ["A:A"] },
     ]);
   });
 
   describe("Cell can only have a single rule applied to them", () => {
-    test("Overlapping ranges", () => {
-      addDataValidation(model, "A1:A5", "id", { type: "containsText", values: ["1"] });
-      addDataValidation(model, "2:2", "id2", { type: "containsText", values: ["2"] });
-      addDataValidation(model, "A2:B3", "id3", { type: "containsText", values: ["3"] });
+    test("Overlapping ranges", async () => {
+      await addDataValidation(model, "A1:A5", "id", { type: "containsText", values: ["1"] });
+      await addDataValidation(model, "2:2", "id2", { type: "containsText", values: ["2"] });
+      await addDataValidation(model, "A2:B3", "id3", { type: "containsText", values: ["3"] });
 
       expect(getDataValidationRules(model, sheetId)).toMatchObject([
         { id: "id", ranges: ["A1", "A4:A5"], criterion: { type: "containsText", values: ["1"] } },
@@ -169,11 +172,11 @@ describe("Data validation", () => {
       ]);
     });
 
-    test("When modifying existing range", () => {
-      addDataValidation(model, "A1:A5", "id", { type: "containsText", values: ["1"] });
-      addDataValidation(model, "B1:B5", "id2", { type: "containsText", values: ["2"] });
+    test("When modifying existing range", async () => {
+      await addDataValidation(model, "A1:A5", "id", { type: "containsText", values: ["1"] });
+      await addDataValidation(model, "B1:B5", "id2", { type: "containsText", values: ["2"] });
 
-      addDataValidation(model, "A1:A2", "id2", { type: "containsText", values: ["2"] });
+      await addDataValidation(model, "A1:A2", "id2", { type: "containsText", values: ["2"] });
 
       expect(getDataValidationRules(model, sheetId)).toMatchObject([
         { id: "id", ranges: ["A3:A5"], criterion: { type: "containsText", values: ["1"] } },
@@ -181,9 +184,9 @@ describe("Data validation", () => {
       ]);
     });
 
-    test("Rule is removed if another rule is applied to all its cells", () => {
-      addDataValidation(model, "A1:A5", "id", { type: "containsText", values: ["1"] });
-      addDataValidation(model, "A1:B6", "id2", { type: "containsText", values: ["1"] });
+    test("Rule is removed if another rule is applied to all its cells", async () => {
+      await addDataValidation(model, "A1:A5", "id", { type: "containsText", values: ["1"] });
+      await addDataValidation(model, "A1:B6", "id2", { type: "containsText", values: ["1"] });
 
       expect(getDataValidationRules(model, sheetId)).toMatchObject([
         { id: "id2", ranges: ["A1:B6"], criterion: { type: "containsText", values: ["1"] } },
@@ -191,24 +194,24 @@ describe("Data validation", () => {
     });
   });
 
-  test("data validation on sheet duplication", () => {
+  test("data validation on sheet duplication", async () => {
     const criterion: DataValidationCriterion = { type: "isBetween", values: ["1", "5"] };
-    addDataValidation(model, "A1", "id", criterion);
+    await addDataValidation(model, "A1", "id", criterion);
     expect(getDataValidationRules(model, sheetId)).toMatchObject([
       { id: "id", criterion, ranges: ["A1"] },
     ]);
 
-    duplicateSheet(model, sheetId, "newSheet");
+    await duplicateSheet(model, sheetId, "newSheet");
     expect(getDataValidationRules(model, "newSheet")).toMatchObject([
       { id: "id", criterion, ranges: ["A1"] },
     ]);
   });
 
-  test("Can remove a rule", () => {
-    addDataValidation(model, "A1", "id", { type: "containsText", values: ["1"] });
+  test("Can remove a rule", async () => {
+    await addDataValidation(model, "A1", "id", { type: "containsText", values: ["1"] });
     expect(getDataValidationRules(model, sheetId)).not.toEqual([]);
 
-    removeDataValidation(model, "id");
+    await removeDataValidation(model, "id");
     expect(getDataValidationRules(model, sheetId)).toEqual([]);
   });
 
@@ -238,9 +241,9 @@ describe("Data validation", () => {
     "Deleting content of a cell doesn't remove  %s data validation rule",
     async (criterion) => {
       //@ts-ignore
-      addDataValidation(model, "A1", "id", criterion);
+      await addDataValidation(model, "A1", "id", criterion);
       expect(model.getters.getDataValidationRules(sheetId)).toHaveLength(1);
-      deleteContent(model, ["A1"]);
+      await deleteContent(model, ["A1"]);
       expect(model.getters.getDataValidationRules(sheetId)).toHaveLength(1);
     }
   );
@@ -268,9 +271,9 @@ describe("Data validation", () => {
     [{ type: "isBetween", values: ["=A1", "=F5"] }, ["=A1", "=G5"]],
     [{ type: "isNotBetween", values: ["=A1", "=F5"] }, ["=A1", "=G5"]],
     [{ type: "customFormula", values: ["=F5"] }, ["=G5"]],
-  ])("Adapt %s data validation rule on column addition", (criterion, expectedValue) => {
-    addDataValidation(model, "A1", "id", criterion as DataValidationCriterion);
-    addColumns(model, "after", "C", 1);
+  ])("Adapt %s data validation rule on column addition", async (criterion, expectedValue) => {
+    await addDataValidation(model, "A1", "id", criterion as DataValidationCriterion);
+    await addColumns(model, "after", "C", 1);
     expect(model.getters.getDataValidationRules(sheetId)).toHaveLength(1);
     expect(model.getters.getDataValidationRules(sheetId)[0].criterion.values).toEqual(
       expectedValue
@@ -300,9 +303,9 @@ describe("Data validation", () => {
     [{ type: "isBetween", values: ["=A1", "=F5"] }, ["=A1", "=F6"]],
     [{ type: "isNotBetween", values: ["=A1", "=F5"] }, ["=A1", "=F6"]],
     [{ type: "customFormula", values: ["=F5"] }, ["=F6"]],
-  ])("Adapt %s data validation rule on row addition", (criterion, expectedValue) => {
-    addDataValidation(model, "A1", "id", criterion as DataValidationCriterion);
-    addRows(model, "after", 3, 1);
+  ])("Adapt %s data validation rule on row addition", async (criterion, expectedValue) => {
+    await addDataValidation(model, "A1", "id", criterion as DataValidationCriterion);
+    await addRows(model, "after", 3, 1);
     expect(model.getters.getDataValidationRules(sheetId)).toHaveLength(1);
     expect(model.getters.getDataValidationRules(sheetId)[0].criterion.values).toEqual(
       expectedValue
@@ -332,9 +335,9 @@ describe("Data validation", () => {
     [{ type: "isBetween", values: ["=A1", "=F5"] }, ["=A1", "=E5"]],
     [{ type: "isNotBetween", values: ["=A1", "=F5"] }, ["=A1", "=E5"]],
     [{ type: "customFormula", values: ["=F5"] }, ["=E5"]],
-  ])("Adapt %s data validation rule on column deletion", (criterion, expectedValue) => {
-    addDataValidation(model, "A1", "id", criterion as DataValidationCriterion);
-    deleteColumns(model, ["C"]);
+  ])("Adapt %s data validation rule on column deletion", async (criterion, expectedValue) => {
+    await addDataValidation(model, "A1", "id", criterion as DataValidationCriterion);
+    await deleteColumns(model, ["C"]);
     expect(model.getters.getDataValidationRules(sheetId)).toHaveLength(1);
     expect(model.getters.getDataValidationRules(sheetId)[0].criterion.values).toEqual(
       expectedValue
@@ -364,9 +367,9 @@ describe("Data validation", () => {
     [{ type: "isBetween", values: ["=A1", "=F5"] }, ["=A1", "=F4"]],
     [{ type: "isNotBetween", values: ["=A1", "=F5"] }, ["=A1", "=F4"]],
     [{ type: "customFormula", values: ["=F5"] }, ["=F4"]],
-  ])("Adapt %s data validation rule on row deletion", (criterion, expectedValue) => {
-    addDataValidation(model, "A1", "id", criterion as DataValidationCriterion);
-    deleteRows(model, [3]);
+  ])("Adapt %s data validation rule on row deletion", async (criterion, expectedValue) => {
+    await addDataValidation(model, "A1", "id", criterion as DataValidationCriterion);
+    await deleteRows(model, [3]);
     expect(model.getters.getDataValidationRules(sheetId)).toHaveLength(1);
     expect(model.getters.getDataValidationRules(sheetId)[0].criterion.values).toEqual(
       expectedValue
@@ -374,8 +377,8 @@ describe("Data validation", () => {
   });
 
   describe("Reference to other sheet", () => {
-    beforeEach(() => {
-      createSheet(model, { sheetId: "s2", name: "OtherSheet" });
+    beforeEach(async () => {
+      await createSheet(model, { sheetId: "s2", name: "OtherSheet" });
     });
 
     test.each([
@@ -422,10 +425,10 @@ describe("Data validation", () => {
         ["=OtherSheet!A1", "=OtherSheet!F4"],
       ],
       [{ type: "customFormula", values: ["=OtherSheet!F5"] }, ["=OtherSheet!F4"]],
-    ])("Adapt %s data validation rule on other sheet", (criterion, expectedValue) => {
-      addDataValidation(model, "A1", "id", criterion as DataValidationCriterion);
+    ])("Adapt %s data validation rule on other sheet", async (criterion, expectedValue) => {
+      await addDataValidation(model, "A1", "id", criterion as DataValidationCriterion);
       expect(model.getters.getDataValidationRules(sheetId)).toHaveLength(1);
-      deleteRows(model, [3], "s2");
+      await deleteRows(model, [3], "s2");
       expect(model.getters.getDataValidationRules(sheetId)[0].criterion.values).toEqual(
         expectedValue
       );
@@ -434,50 +437,50 @@ describe("Data validation", () => {
 
   describe("Clearing dropdown list content", () => {
     beforeEach(async () => {
-      addDataValidation(model, "A1", "id", {
+      await addDataValidation(model, "A1", "id", {
         type: "isValueInList",
         values: ["ok", "hello", "okay"],
         displayStyle: "arrow",
       });
     });
 
-    test("Dropdown lists are kept when clearing the content of a non-empty cell", () => {
+    test("Dropdown lists are kept when clearing the content of a non-empty cell", async () => {
       expect(getDataValidationRules(model, sheetId)).toMatchObject([
         { criterion: { type: "isValueInList" }, ranges: ["A1"] },
       ]);
-      setCellContent(model, "A1", "hello");
-      deleteContent(model, ["A1"]);
+      await setCellContent(model, "A1", "hello");
+      await deleteContent(model, ["A1"]);
       expect(getDataValidationRules(model, sheetId)).toMatchObject([
         { criterion: { type: "isValueInList" }, ranges: ["A1"] },
       ]);
       expect(getCellContent(model, "A1")).toBe("");
     });
 
-    test("Dropdown lists are removed when clearing the content of an empty cell", () => {
+    test("Dropdown lists are removed when clearing the content of an empty cell", async () => {
       expect(getDataValidationRules(model, sheetId)).toMatchObject([
         { criterion: { type: "isValueInList" }, ranges: ["A1"] },
       ]);
-      setCellContent(model, "A1", "");
-      deleteContent(model, ["A1"]);
+      await setCellContent(model, "A1", "");
+      await deleteContent(model, ["A1"]);
       expect(getDataValidationRules(model, sheetId)).toEqual([]);
     });
 
-    test("Dropdown lists are kept when setting the content of a cell to an empty string", () => {
+    test("Dropdown lists are kept when setting the content of a cell to an empty string", async () => {
       expect(getDataValidationRules(model, sheetId)).toMatchObject([
         { criterion: { type: "isValueInList" }, ranges: ["A1"] },
       ]);
-      setCellContent(model, "A1", "");
+      await setCellContent(model, "A1", "");
       expect(getDataValidationRules(model, sheetId)).toMatchObject([
         { criterion: { type: "isValueInList" }, ranges: ["A1"] },
       ]);
     });
   });
 
-  test("Can undo/redo adding a rule", () => {
-    addDataValidation(model, "A1", "id", { type: "containsText", values: ["1"] });
-    addDataValidation(model, "A1:C2", "id", { type: "isBetween", values: ["1", "5"] });
+  test("Can undo/redo adding a rule", async () => {
+    await addDataValidation(model, "A1", "id", { type: "containsText", values: ["1"] });
+    await addDataValidation(model, "A1:C2", "id", { type: "isBetween", values: ["1", "5"] });
 
-    undo(model);
+    await undo(model);
     expect(getDataValidationRules(model, sheetId)).toMatchObject([
       {
         id: "id",
@@ -485,10 +488,10 @@ describe("Data validation", () => {
         ranges: ["A1"],
       },
     ]);
-    undo(model);
+    await undo(model);
     expect(getDataValidationRules(model, sheetId)).toEqual([]);
 
-    redo(model);
+    await redo(model);
     expect(getDataValidationRules(model, sheetId)).toMatchObject([
       {
         id: "id",
@@ -496,7 +499,7 @@ describe("Data validation", () => {
         ranges: ["A1"],
       },
     ]);
-    redo(model);
+    await redo(model);
     expect(getDataValidationRules(model, sheetId)).toMatchObject([
       {
         id: "id",
@@ -506,11 +509,11 @@ describe("Data validation", () => {
     ]);
   });
 
-  test("Can undo/redo removing a rule", () => {
-    addDataValidation(model, "A1", "id", { type: "containsText", values: ["1"] });
-    removeDataValidation(model, "id");
+  test("Can undo/redo removing a rule", async () => {
+    await addDataValidation(model, "A1", "id", { type: "containsText", values: ["1"] });
+    await removeDataValidation(model, "id");
 
-    undo(model);
+    await undo(model);
     expect(getDataValidationRules(model, sheetId)).toMatchObject([
       {
         id: "id",
@@ -519,13 +522,19 @@ describe("Data validation", () => {
       },
     ]);
 
-    redo(model);
+    await redo(model);
     expect(getDataValidationRules(model, sheetId)).toEqual([]);
   });
 
   test("Can import/export data validation rules", async () => {
-    addDataValidation(model, "A1", "id", { type: "containsText", values: ["1"] });
-    addDataValidation(model, "B:B", "id2", { type: "isBetween", values: ["1", "8"] }, "blocking");
+    await addDataValidation(model, "A1", "id", { type: "containsText", values: ["1"] });
+    await addDataValidation(
+      model,
+      "B:B",
+      "id2",
+      { type: "isBetween", values: ["1", "8"] },
+      "blocking"
+    );
 
     const exported = model.exportData();
 
@@ -564,13 +573,13 @@ describe("Data validation", () => {
   describe("Grid manipulation", () => {
     const criterion: DataValidationCriterion = { type: "containsText", values: ["1"] };
 
-    test("On row addition", () => {
-      addDataValidation(model, "A1", "id1", criterion);
-      addDataValidation(model, "B1:B2", "id2", criterion);
-      addDataValidation(model, "C4:D4", "id3", criterion);
-      addDataValidation(model, "F1, F7", "id4", criterion);
+    test("On row addition", async () => {
+      await addDataValidation(model, "A1", "id1", criterion);
+      await addDataValidation(model, "B1:B2", "id2", criterion);
+      await addDataValidation(model, "C4:D4", "id3", criterion);
+      await addDataValidation(model, "F1, F7", "id4", criterion);
 
-      addRows(model, "after", 0, 2);
+      await addRows(model, "after", 0, 2);
 
       expect(getDataValidationRules(model, sheetId)).toMatchObject([
         { id: "id1", ranges: ["A1"], criterion, isBlocking: false },
@@ -580,13 +589,13 @@ describe("Data validation", () => {
       ]);
     });
 
-    test("On column addition", () => {
-      addDataValidation(model, "A1", "id1", criterion);
-      addDataValidation(model, "A2:B2", "id2", criterion);
-      addDataValidation(model, "C4:D5", "id3", criterion);
-      addDataValidation(model, "A7, F7", "id4", criterion);
+    test("On column addition", async () => {
+      await addDataValidation(model, "A1", "id1", criterion);
+      await addDataValidation(model, "A2:B2", "id2", criterion);
+      await addDataValidation(model, "C4:D5", "id3", criterion);
+      await addDataValidation(model, "A7, F7", "id4", criterion);
 
-      addColumns(model, "after", "A", 2);
+      await addColumns(model, "after", "A", 2);
 
       expect(getDataValidationRules(model, sheetId)).toMatchObject([
         { id: "id1", ranges: ["A1"], criterion, isBlocking: false },
@@ -596,14 +605,14 @@ describe("Data validation", () => {
       ]);
     });
 
-    test("On row deletion", () => {
-      addDataValidation(model, "A1", "id1", criterion);
-      addDataValidation(model, "B1:B2", "id2", criterion);
-      addDataValidation(model, "E2:E3", "id3", criterion);
-      addDataValidation(model, "C4:D4", "id4", criterion);
-      addDataValidation(model, "F2, F7", "id5", criterion);
+    test("On row deletion", async () => {
+      await addDataValidation(model, "A1", "id1", criterion);
+      await addDataValidation(model, "B1:B2", "id2", criterion);
+      await addDataValidation(model, "E2:E3", "id3", criterion);
+      await addDataValidation(model, "C4:D4", "id4", criterion);
+      await addDataValidation(model, "F2, F7", "id5", criterion);
 
-      deleteRows(model, [1, 2]);
+      await deleteRows(model, [1, 2]);
 
       expect(getDataValidationRules(model, sheetId)).toMatchObject([
         { id: "id1", ranges: ["A1"], criterion, isBlocking: false },
@@ -613,14 +622,14 @@ describe("Data validation", () => {
       ]);
     });
 
-    test("On column deletion", () => {
-      addDataValidation(model, "A1", "id1", criterion);
-      addDataValidation(model, "A2:B2", "id2", criterion);
-      addDataValidation(model, "B3:C3", "id3", criterion);
-      addDataValidation(model, "D4:E5", "id4", criterion);
-      addDataValidation(model, "B7, F7", "id5", criterion);
+    test("On column deletion", async () => {
+      await addDataValidation(model, "A1", "id1", criterion);
+      await addDataValidation(model, "A2:B2", "id2", criterion);
+      await addDataValidation(model, "B3:C3", "id3", criterion);
+      await addDataValidation(model, "D4:E5", "id4", criterion);
+      await addDataValidation(model, "B7, F7", "id5", criterion);
 
-      deleteColumns(model, ["B", "C"]);
+      await deleteColumns(model, ["B", "C"]);
 
       expect(getDataValidationRules(model, sheetId)).toMatchObject([
         { id: "id1", ranges: ["A1"], criterion, isBlocking: false },

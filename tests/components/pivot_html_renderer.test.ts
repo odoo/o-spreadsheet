@@ -17,7 +17,7 @@ async function mountPivotHtmlRenderer(
     onCellClicked,
   };
   model.dispatch("PIVOT_START_PRESENCE_TRACKING", { pivotId });
-  evaluateCells(model);
+  await evaluateCells(model);
   ({ fixture } = await mountComponent(PivotHTMLRenderer, { env: { model }, props }));
 }
 
@@ -84,7 +84,7 @@ describe("Pivot HTML Renderer", () => {
       rows: [{ fieldName: "Name" }],
       measures: [{ id: "Score", fieldName: "Score", aggregator: "count" }],
     });
-    createSheet(model, { activate: true });
+    await createSheet(model, { activate: true });
     await mountPivotHtmlRenderer(model, model.getters.getPivotIds()[0]);
     expect(fixture.querySelectorAll(".o_missing_value")).toHaveLength(8);
   });

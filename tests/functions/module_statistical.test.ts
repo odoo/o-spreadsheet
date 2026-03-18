@@ -3455,7 +3455,7 @@ describe("MATTHEWS formula", () => {
 describe("SLOPE formula", () => {
   test("Slope with an empty matrix for the y values", async () => {
     const model = await createModelFromGrid({ B2: "", B3: "", C2: "1", C3: "2" });
-    setCellContent(model, "A1", "=SLOPE(B2:B3, C2:C3)");
+    await setCellContent(model, "A1", "=SLOPE(B2:B3, C2:C3)");
     expect(getEvaluatedCell(model, "A1").value).toBe("#N/A");
     expect((getEvaluatedCell(model, "A1") as ErrorCell).message).toBe(
       "SLOPE has no valid input data."
@@ -3464,7 +3464,7 @@ describe("SLOPE formula", () => {
 
   test("Slope with an empty matrix for the x values", async () => {
     const model = await createModelFromGrid({ B2: "", B3: "", C2: "1", C3: "2" });
-    setCellContent(model, "A1", "=SLOPE(C2:C3, B2:B3)");
+    await setCellContent(model, "A1", "=SLOPE(C2:C3, B2:B3)");
     expect(getEvaluatedCell(model, "A1").value).toBe("#N/A");
     expect((getEvaluatedCell(model, "A1") as ErrorCell).message).toBe(
       "SLOPE has no valid input data."
@@ -3533,7 +3533,7 @@ describe("SLOPE formula", () => {
 describe("INTERCEPT formula", () => {
   test("Intercept with an empty matrix for the y values", async () => {
     const model = await createModelFromGrid({ B2: "", B3: "", C2: "1", C3: "2" });
-    setCellContent(model, "A1", "=INTERCEPT(B2:B3, C2:C3)");
+    await setCellContent(model, "A1", "=INTERCEPT(B2:B3, C2:C3)");
     expect(getEvaluatedCell(model, "A1").value).toBe("#N/A");
     expect((getEvaluatedCell(model, "A1") as ErrorCell).message).toBe(
       "INTERCEPT has no valid input data."
@@ -3542,7 +3542,7 @@ describe("INTERCEPT formula", () => {
 
   test("Intercept with an empty matrix for the x values", async () => {
     const model = await createModelFromGrid({ B2: "", B3: "", C2: "1", C3: "2" });
-    setCellContent(model, "A1", "=INTERCEPT(C2:C3, B2:B3)");
+    await setCellContent(model, "A1", "=INTERCEPT(C2:C3, B2:B3)");
     expect(getEvaluatedCell(model, "A1").value).toBe("#N/A");
     expect((getEvaluatedCell(model, "A1") as ErrorCell).message).toBe(
       "INTERCEPT has no valid input data."
@@ -3611,7 +3611,7 @@ describe("INTERCEPT formula", () => {
 describe("FORECAST formula", () => {
   test("Forecast with an empty matrix for the y values", async () => {
     const model = await createModelFromGrid({ B2: "", B3: "", C2: "1", C3: "2" });
-    setCellContent(model, "A1", "=FORECAST(1, B2:B3, C2:C3)");
+    await setCellContent(model, "A1", "=FORECAST(1, B2:B3, C2:C3)");
     expect(getEvaluatedCell(model, "A1").value).toBe("#N/A");
     expect((getEvaluatedCell(model, "A1") as ErrorCell).message).toBe(
       "FORECAST has no valid input data."
@@ -3620,7 +3620,7 @@ describe("FORECAST formula", () => {
 
   test("Forecast with an empty matrix for the x values", async () => {
     const model = await createModelFromGrid({ B2: "", B3: "", C2: "1", C3: "2" });
-    setCellContent(model, "A1", "=FORECAST(1, C2:C3, B2:B3)");
+    await setCellContent(model, "A1", "=FORECAST(1, C2:C3, B2:B3)");
     expect(getEvaluatedCell(model, "A1").value).toBe("#N/A");
     expect((getEvaluatedCell(model, "A1") as ErrorCell).message).toBe(
       "FORECAST has no valid input data."
@@ -3756,7 +3756,7 @@ describe("STEYX formula", () => {
 describe("POLYFIT.COEFFS formula", () => {
   test("Empty matrix for the y values", async () => {
     const model = await createModelFromGrid({ B2: "", B3: "", C2: "1", C3: "2" });
-    setCellContent(model, "A1", "=POLYFIT.COEFFS(B2:B3, C2:C3, 2)");
+    await setCellContent(model, "A1", "=POLYFIT.COEFFS(B2:B3, C2:C3, 2)");
     expect(getEvaluatedCell(model, "A1").value).toBe("#N/A");
     expect((getEvaluatedCell(model, "A1") as ErrorCell).message).toBe(
       "POLYFIT.COEFFS has no valid input data."
@@ -3765,7 +3765,7 @@ describe("POLYFIT.COEFFS formula", () => {
 
   test("Empty matrix for the x values", async () => {
     const model = await createModelFromGrid({ B2: "", B3: "", C2: "1", C3: "2" });
-    setCellContent(model, "A1", "=POLYFIT.COEFFS(C2:C3, B2:B3, 2)");
+    await setCellContent(model, "A1", "=POLYFIT.COEFFS(C2:C3, B2:B3, 2)");
     expect(getEvaluatedCell(model, "A1").value).toBe("#N/A");
     expect((getEvaluatedCell(model, "A1") as ErrorCell).message).toBe(
       "POLYFIT.COEFFS has no valid input data."
@@ -3847,7 +3847,7 @@ describe("POLYFIT.COEFFS formula", () => {
 describe("POLYFIT.FORECAST formula", () => {
   test("Empty matrix for the y values", async () => {
     const model = await createModelFromGrid({ B2: "", B3: "", C2: "1", C3: "2" });
-    setCellContent(model, "A1", "=POLYFIT.FORECAST(1, B2:B3, C2:C3, 2)");
+    await setCellContent(model, "A1", "=POLYFIT.FORECAST(1, B2:B3, C2:C3, 2)");
     expect(getEvaluatedCell(model, "A1").value).toBe("#N/A");
     expect((getEvaluatedCell(model, "A1") as ErrorCell).message).toBe(
       "POLYFIT.FORECAST has no valid input data."
@@ -3856,7 +3856,7 @@ describe("POLYFIT.FORECAST formula", () => {
 
   test("Empty matrix for the x values", async () => {
     const model = await createModelFromGrid({ B2: "", B3: "", C2: "1", C3: "2" });
-    setCellContent(model, "A1", "=POLYFIT.FORECAST(1, C2:C3, B2:B3, 2)");
+    await setCellContent(model, "A1", "=POLYFIT.FORECAST(1, C2:C3, B2:B3, 2)");
     expect(getEvaluatedCell(model, "A1").value).toBe("#N/A");
     expect((getEvaluatedCell(model, "A1") as ErrorCell).message).toBe(
       "POLYFIT.FORECAST has no valid input data."

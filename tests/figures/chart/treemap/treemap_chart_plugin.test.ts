@@ -87,7 +87,7 @@ describe("TreeMap chart", () => {
 
   test("Labels and datasets are not swapped from a Sunburst chart creation context", async () => {
     const model = await createModel();
-    const chartId = createSunburstChart(model, {
+    const chartId = await createSunburstChart(model, {
       dataSets: [{ dataRange: "A1:A4" }],
       labelRange: "B1:B4",
     });
@@ -134,15 +134,15 @@ describe("TreeMap chart", () => {
     });
   });
 
-  test("TreeMap dataset", () => {
+  test("TreeMap dataset", async () => {
     // prettier-ignore
-    setGrid(model, {
+    await setGrid(model, {
       A1: "Year", B1: "Quarter", C1: "Sales",
       A2: "2024", B2: "Q1",      C2: "100",
       A3: "2024", B3: "Q2",      C3: "200",
     });
 
-    const chartId = createTreeMapChart(model, {
+    const chartId = await createTreeMapChart(model, {
       dataSets: [{ dataRange: "A1:A3" }, { dataRange: "B1:B3" }],
       labelRange: "C1:C3",
       dataSetsHaveTitle: true,
@@ -158,14 +158,14 @@ describe("TreeMap chart", () => {
     });
   });
 
-  test("TreeMap chart display dataset labels in formatted form", () => {
+  test("TreeMap chart display dataset labels in formatted form", async () => {
     // prettier-ignore
-    setGrid(model, {
+    await setGrid(model, {
         A1: "Date",       B1: "Sales",
         A2: "2/3/2010",   B2: "10",
         A3: "5/8/2015",   B3: "40",
       })
-    const chartId = createTreeMapChart(model, {
+    const chartId = await createTreeMapChart(model, {
       dataSets: [{ dataRange: "A1:A3" }],
       labelRange: "B1:B3",
       dataSetsHaveTitle: true,
@@ -182,9 +182,9 @@ describe("TreeMap chart", () => {
     });
   });
 
-  test("Can have a hierarchical dataset with some categories more detailed that others", () => {
+  test("Can have a hierarchical dataset with some categories more detailed that others", async () => {
     // prettier-ignore
-    setGrid(model, {
+    await setGrid(model, {
       A1: "Year", B1: "Quarter", C1: "Sales",
       A2: "2024", B2: "Q1",      C2: "100",
       A3: "2024", B3: "Q2",      C3: "200",
@@ -192,7 +192,7 @@ describe("TreeMap chart", () => {
       A5: "2025", B5: "",        C5: "600",
     });
 
-    const chartId = createTreeMapChart(model, {
+    const chartId = await createTreeMapChart(model, {
       dataSets: [{ dataRange: "A1:A5" }, { dataRange: "B1:B5" }],
       labelRange: "C1:C5",
       dataSetsHaveTitle: true,
@@ -210,7 +210,7 @@ describe("TreeMap chart", () => {
     });
   });
 
-  test("Can define TreeMap dataset in a tree-like manner", () => {
+  test("Can define TreeMap dataset in a tree-like manner", async () => {
     // prettier-ignore
     const grid = {
       A1: "Year", B1: "Quarter", C1: "Week", D1: "Sales",
@@ -221,9 +221,9 @@ describe("TreeMap chart", () => {
       A6: "2025", B6: "Q1",      C6: "W1",   D6: "500",
                                  C7: "W2",   D7: "600",
     };
-    setGrid(model, grid);
+    await setGrid(model, grid);
 
-    const chartId = createTreeMapChart(model, {
+    const chartId = await createTreeMapChart(model, {
       dataSets: [{ dataRange: "A1:A7" }, { dataRange: "B1:B7" }, { dataRange: "C1:C7" }],
       labelRange: "D1:D7",
       dataSetsHaveTitle: true,
@@ -241,7 +241,7 @@ describe("TreeMap chart", () => {
     });
   });
 
-  test("Invalid values are filtered out", () => {
+  test("Invalid values are filtered out", async () => {
     // prettier-ignore
     const grid = {
       A1: "",     B1: "Q1",      C1: "",     D1: "50",         // No root group value
@@ -250,9 +250,9 @@ describe("TreeMap chart", () => {
                                  C5: "W2",   D5: "400",
       A7: "2025", B7: "Q1",      C7: "W1",   D7: "",           // No data value
     };
-    setGrid(model, grid);
+    await setGrid(model, grid);
 
-    const chartId = createTreeMapChart(model, {
+    const chartId = await createTreeMapChart(model, {
       dataSets: [{ dataRange: "A1:A7" }, { dataRange: "B1:B7" }, { dataRange: "C1:C7" }],
       labelRange: "D1:D7",
       dataSetsHaveTitle: false,
@@ -264,9 +264,9 @@ describe("TreeMap chart", () => {
     ]);
   });
 
-  test("TreeMap background", () => {
-    setCellContent(model, "A1", "45");
-    const chartId = createTreeMapChart(model, {
+  test("TreeMap background", async () => {
+    await setCellContent(model, "A1", "45");
+    const chartId = await createTreeMapChart(model, {
       background: "#123456",
       dataSets: [{ dataRange: "A1" }],
     });
@@ -274,9 +274,9 @@ describe("TreeMap chart", () => {
     expect(runtime?.chartJsConfig?.options?.plugins?.background?.color).toEqual("#123456");
   });
 
-  test("TreeMap header style", () => {
-    setCellContent(model, "A1", "45");
-    const chartId = createTreeMapChart(model, {
+  test("TreeMap header style", async () => {
+    await setCellContent(model, "A1", "45");
+    const chartId = await createTreeMapChart(model, {
       dataSetsHaveTitle: false,
       dataSets: [{ dataRange: "A1" }],
       headerDesign: { bold: false, italic: true, align: "right" },
@@ -289,16 +289,16 @@ describe("TreeMap chart", () => {
     });
   });
 
-  test("TreeMap tooltip value", () => {
+  test("TreeMap tooltip value", async () => {
     // prettier-ignore
     const grid = {
       A1: "Year", B1: "Quarter", C1: "Week", D1: "Sales",
       A2: "2024", B2: "Q1",      C2: "W1",   D2: "100",
       A3: "2024", B3: "Q2",      C3: "W2",   D3: "200",
     };
-    setGrid(model, grid);
-    setFormat(model, "D1:D3", "#,##0[$€]");
-    const chartId = createTreeMapChart(model, {
+    await setGrid(model, grid);
+    await setFormat(model, "D1:D3", "#,##0[$€]");
+    const chartId = await createTreeMapChart(model, {
       dataSets: [{ dataRange: "A1:A3" }, { dataRange: "B1:B3" }, { dataRange: "C1:C3" }],
       labelRange: "D1:D3",
     });
@@ -319,15 +319,15 @@ describe("TreeMap chart", () => {
     expect(tooltipLabel(parentItem)).toBe("100€");
   });
 
-  test("TreeMap label & value style", () => {
+  test("TreeMap label & value style", async () => {
     // prettier-ignore
-    setGrid(model, {
+    await setGrid(model, {
       A1: "Year", B1: "Quarter", C1: "Sales",
       A2: "2024", B2: "Q1",      C2: "100",
       A3: "2024", B3: "Q2",      C3: "200",
     });
 
-    const chartId = createTreeMapChart(model, {
+    const chartId = await createTreeMapChart(model, {
       dataSets: [{ dataRange: "A1:A2" }, { dataRange: "B1:B2" }],
       labelRange: "C1:C2",
       valuesDesign: { bold: true, italic: true, align: "right", color: "#123456" },
@@ -344,13 +344,13 @@ describe("TreeMap chart", () => {
       "45",
     ]);
 
-    updateChart(model, chartId, { showLabels: false });
+    await updateChart(model, chartId, { showLabels: false });
     labelConfig = getTreeMapDatasetConfig(chartId).labels as any;
     expect(labelConfig?.formatter?.(getTreeMapElement({ value: 45, group: "Parent" }))).toEqual([
       "45",
     ]);
 
-    updateChart(model, chartId, { showValues: false });
+    await updateChart(model, chartId, { showValues: false });
     labelConfig = getTreeMapDatasetConfig(chartId).labels as any;
     expect(labelConfig?.display).toEqual(false);
   });
@@ -363,7 +363,7 @@ describe("TreeMap chart", () => {
       ) => string;
     }
 
-    test("TreeMap category colors without highlight", () => {
+    test("TreeMap category colors without highlight", async () => {
       // prettier-ignore
       const grid = {
             A1: "Year", B1: "Quarter", C1: "Sales",
@@ -371,8 +371,8 @@ describe("TreeMap chart", () => {
             A3: "2024", B3: "Q2",      C3: "100",
             A4: "2025", B4: "Q2",      C4: "200",
       };
-      setGrid(model, grid);
-      const chartId = createTreeMapChart(model, {
+      await setGrid(model, grid);
+      const chartId = await createTreeMapChart(model, {
         dataSets: [{ dataRange: "A1:A4" }, { dataRange: "B1:B4" }],
         labelRange: "C1:C4",
         coloringOptions: {
@@ -396,7 +396,7 @@ describe("TreeMap chart", () => {
       );
     });
 
-    test("TreeMap category colors with highlight of bigger values", () => {
+    test("TreeMap category colors with highlight of bigger values", async () => {
       // prettier-ignore
       const grid = {
             A1: "Year", B1: "Quarter", C1: "Sales",
@@ -404,8 +404,8 @@ describe("TreeMap chart", () => {
             A3: "2023", B3: "Q2",      C3: "200",
             A4: "2023", B4: "Q3",      C4: "300",
       };
-      setGrid(model, grid);
-      const chartId = createTreeMapChart(model, {
+      await setGrid(model, grid);
+      const chartId = await createTreeMapChart(model, {
         dataSets: [{ dataRange: "A1:A4" }, { dataRange: "B1:B4" }],
         labelRange: "C1:C4",
         coloringOptions: {
@@ -427,7 +427,7 @@ describe("TreeMap chart", () => {
       ).toEqual("#112233");
     });
 
-    test("TreeMap color scale", () => {
+    test("TreeMap color scale", async () => {
       // prettier-ignore
       const grid = {
             A1: "Year", B1: "Quarter", C1: "Sales",
@@ -435,8 +435,8 @@ describe("TreeMap chart", () => {
             A3: "2024", B3: "Q2",      C3: "200",
             A4: "2025", B4: "Q2",      C4: "300",
       };
-      setGrid(model, grid);
-      const chartId = createTreeMapChart(model, {
+      await setGrid(model, grid);
+      const chartId = await createTreeMapChart(model, {
         dataSets: [{ dataRange: "A1:A4" }, { dataRange: "B1:B4" }],
         labelRange: "C1:C4",
         coloringOptions: {
@@ -458,13 +458,13 @@ describe("TreeMap chart", () => {
       );
     });
 
-    test("TreeMap color scale with no visible data", () => {
+    test("TreeMap color scale with no visible data", async () => {
       const grid = {
         A1: "Year",
         B1: "2025",
       };
-      setGrid(model, grid);
-      const chartId = createTreeMapChart(model, {
+      await setGrid(model, grid);
+      const chartId = await createTreeMapChart(model, {
         dataSets: [{ dataRange: "A1" }],
         labelRange: "B1",
         dataSetsHaveTitle: false,
@@ -476,19 +476,19 @@ describe("TreeMap chart", () => {
         },
       });
       expect(getTreeMapDatasetConfig(chartId).tree).toHaveLength(1);
-      hideColumns(model, ["B"]);
+      await hideColumns(model, ["B"]);
       expect(getTreeMapDatasetConfig(chartId).tree).toHaveLength(0);
     });
 
-    test("TreeMap category colors with single level", () => {
+    test("TreeMap category colors with single level", async () => {
       // prettier-ignore
       const grid = {
             A1: "Year", C1: "Sales",
             A2: "2023", C2: "20",
             A3: "2024", C3: "100",
       };
-      setGrid(model, grid);
-      const chartId = createTreeMapChart(model, {
+      await setGrid(model, grid);
+      const chartId = await createTreeMapChart(model, {
         dataSets: [{ dataRange: "A1:A3" }],
         labelRange: "C1:C3",
         coloringOptions: {

@@ -825,9 +825,9 @@ describe("Import", () => {
     });
     const sheet1 = model.getters.getSheetIds()[0];
     const sheet2 = model.getters.getSheetIds()[1];
-    activateSheet(model, sheet2);
+    await activateSheet(model, sheet2);
     expect(Object.keys(getMerges(model))).toHaveLength(0);
-    activateSheet(model, sheet1);
+    await activateSheet(model, sheet1);
     expect(Object.keys(getMerges(model))).toHaveLength(1);
     expect(getMerges(model)[1]).toMatchObject(toZone("A2:B2"));
   });
@@ -843,13 +843,13 @@ describe("Import", () => {
 describe("Export", () => {
   test("Can export col size", async () => {
     const model = await createModel({ sheets: [{ colNumber: 10, rowNumber: 10 }] });
-    resizeColumns(model, ["B"], 150);
+    await resizeColumns(model, ["B"], 150);
     const exp = model.exportData();
     expect(exp.sheets![0].cols![1].size).toBe(150);
   });
   test("Can export row size", async () => {
     const model = await createModel({ sheets: [{ colNumber: 10, rowNumber: 10 }] });
-    resizeRows(model, [1], 150);
+    await resizeRows(model, [1], 150);
     const exp = model.exportData();
     expect(exp.sheets![0].rows![1].size).toBe(150);
   });
@@ -870,7 +870,7 @@ describe("Export", () => {
   });
   test("empty content is not exported", async () => {
     const model = await createModel();
-    setFormatting(model, "A1", { fillColor: "#123456" });
+    await setFormatting(model, "A1", { fillColor: "#123456" });
     const exp = model.exportData();
     expect(exp.sheets[0].styles.A1).toEqual(1);
   });
@@ -899,7 +899,7 @@ describe("Export", () => {
         },
       ],
     });
-    deleteFigure(model, "otheruuid", "someuuid");
+    await deleteFigure(model, "otheruuid", "someuuid");
     expect(model.exportData()).toMatchObject({
       sheets: [
         {
@@ -1035,9 +1035,9 @@ test("can import cells outside sheet size", async () => {
 });
 test("Data of a duplicate sheet are correctly duplicated", async () => {
   const model = await createModel();
-  setCellContent(model, "A1", "hello");
+  await setCellContent(model, "A1", "hello");
   const sheetId = model.getters.getActiveSheetId();
-  duplicateSheet(model, sheetId, "42");
+  await duplicateSheet(model, sheetId, "42");
   expect(getCellContent(model, "A1", sheetId)).toBe("hello");
   expect(getCellContent(model, "A1", "42")).toBe("hello");
   const data = model.exportData();

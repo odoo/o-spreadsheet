@@ -58,11 +58,11 @@ describe("selection input plugin", () => {
   test("focused input should change with selection", async () => {
     const { store, model, container } = await makeStore(SelectionInputStore);
     store.focusById(idOfRange(store, 0));
-    selectCell(model, "C2");
+    await selectCell(model, "C2");
     expect(store.selectionInputs[0].xc).toBe("C2");
     const firstColor = store.selectionInputs[0].color;
     expect(highlightedZones(container)).toStrictEqual(["C2"]);
-    selectCell(model, "D4");
+    await selectCell(model, "D4");
     const secondColor = store.selectionInputs[0].color;
     expect(store.selectionInputs[0].xc).toBe("D4");
     expect(highlightedZones(container)).toStrictEqual(["D4"]);
@@ -71,32 +71,32 @@ describe("selection input plugin", () => {
 
   test("select cell inside a merge expands the selection", async () => {
     const { store, model, container } = await makeStore(SelectionInputStore);
-    merge(model, "A2:A4");
+    await merge(model, "A2:A4");
     store.focusById(idOfRange(store, 0));
-    setSelection(model, ["A3:A5"]);
+    await setSelection(model, ["A3:A5"]);
     expect(store.selectionInputs[0].xc).toBe("A2:A5");
     expect(highlightedZones(container)).toStrictEqual(["A2:A5"]);
   });
 
   test("select cell inside a merge expands the selection of a single range input", async () => {
     const { store, model, container } = await makeStore(SelectionInputStore, [], true);
-    selectCell(model, "B1");
-    merge(model, "A2:A4");
+    await selectCell(model, "B1");
+    await merge(model, "A2:A4");
     store.focusById(idOfRange(store, 0));
-    addCellToSelection(model, "A4");
-    setAnchorCorner(model, "A3");
+    await addCellToSelection(model, "A4");
+    await setAnchorCorner(model, "A3");
     expect(store.selectionInputs[0].xc).toBe("A2");
     expect(highlightedZones(container)).toStrictEqual(["A2:A4"]);
-    setAnchorCorner(model, "A2");
+    await setAnchorCorner(model, "A2");
     expect(store.selectionInputs[0].xc).toBe("A2");
     expect(highlightedZones(container)).toStrictEqual(["A2:A4"]);
   });
 
   test("selecting the range of a spilled formula does not create a spill reference", async () => {
     const { store, model } = await makeStore(SelectionInputStore);
-    setCellContent(model, "A1", "=MUNIT(2)");
+    await setCellContent(model, "A1", "=MUNIT(2)");
     store.focusById(idOfRange(store, 0));
-    setSelection(model, ["A1:B2"]);
+    await setSelection(model, ["A1:B2"]);
     expect(store.selectionInputs[0].xc).not.toBe("A1#");
     expect(store.selectionInputs[0].xc).toBe("A1:B2");
   });
@@ -114,18 +114,18 @@ describe("selection input plugin", () => {
     const composerStore = container.get(CellComposerStore);
     store.focusById(idOfRange(store, 0));
     composerStore.startEdition("=");
-    selectCell(model, "C2");
+    await selectCell(model, "C2");
     expect(store.selectionInputs[0].xc).toBe("");
   });
 
   test("expanding a selection fills empty input then adds a new input", async () => {
     const { store, model, container } = await makeStore(SelectionInputStore);
     store.focusById(idOfRange(store, 0));
-    selectCell(model, "C2");
+    await selectCell(model, "C2");
     expect(store.selectionInputs.length).toBe(1);
     expect(store.selectionInputs.map((i) => i.xc)).toEqual(["C2"]);
     expect(highlightedZones(container)).toStrictEqual(["C2"]);
-    addCellToSelection(model, "D2");
+    await addCellToSelection(model, "D2");
     expect(store.selectionInputs.length).toBe(2);
     expect(store.selectionInputs.map((i) => i.xc)).toEqual(["C2", "D2"]);
     expect(highlightedZones(container)).toStrictEqual(["C2", "D2"]);
@@ -136,15 +136,15 @@ describe("selection input plugin", () => {
   test("expanding a selection focuses the last range", async () => {
     const { store, model } = await makeStore(SelectionInputStore);
     store.focusById(idOfRange(store, 0));
-    selectCell(model, "C2");
-    addCellToSelection(model, "D2");
+    await selectCell(model, "C2");
+    await addCellToSelection(model, "D2");
     expect(store.selectionInputs[1].isFocused).toBe(true);
   });
 
   test("expanding a selection does not add input if maximum is reached", async () => {
     const { store, model } = await makeStore(SelectionInputStore, [], true);
-    selectCell(model, "C2");
-    addCellToSelection(model, "D2");
+    await selectCell(model, "C2");
+    await addCellToSelection(model, "D2");
     expect(store.selectionInputs).toHaveLength(1);
     expect(store.selectionInputs[0].xc).toBe("D2");
   });
@@ -220,9 +220,9 @@ describe("selection input plugin", () => {
 
   test("same range is updated while selecting", async () => {
     const { store, model } = await makeStore(SelectionInputStore);
-    selectCell(model, "C2");
+    await selectCell(model, "C2");
     expect(store.selectionInputs[0].xc).toBe("C2");
-    selectCell(model, "D2");
+    await selectCell(model, "D2");
     expect(store.selectionInputs[0].xc).toBe("D2");
   });
 
@@ -230,43 +230,43 @@ describe("selection input plugin", () => {
     const { store, model } = await makeStore(SelectionInputStore, ["A1"]);
     store.addEmptyRange();
 
-    addCellToSelection(model, "C2");
+    await addCellToSelection(model, "C2");
     expect(store.selectionInputs[1].xc).toBe("C2");
-    setAnchorCorner(model, "D2");
+    await setAnchorCorner(model, "D2");
     expect(store.selectionInputs[1].xc).toBe("C2:D2");
   });
 
   test("same color while selecting", async () => {
     const { store, model } = await makeStore(SelectionInputStore);
-    selectCell(model, "C2");
+    await selectCell(model, "C2");
     const color = store.selectionInputs[0].color;
     expect(color).toBeTruthy();
-    selectCell(model, "D2");
+    await selectCell(model, "D2");
     expect(store.selectionInputs[0].color).toBe(color);
   });
 
   test("same color with new selection in same range", async () => {
     const { store, model } = await makeStore(SelectionInputStore);
-    selectCell(model, "C2");
+    await selectCell(model, "C2");
     const color = store.selectionInputs[0].color;
-    selectCell(model, "D2");
+    await selectCell(model, "D2");
     expect(store.selectionInputs[0].color).toBe(color);
   });
 
   test("color changes when expanding selection", async () => {
     const { store, model } = await makeStore(SelectionInputStore);
-    selectCell(model, "C2");
+    await selectCell(model, "C2");
     const color = store.selectionInputs[0].color;
-    addCellToSelection(model, "D2");
+    await addCellToSelection(model, "D2");
     expect(store.selectionInputs[1].color).not.toEqual(color);
   });
 
   test("color changes in new input", async () => {
     const { store, model } = await makeStore(SelectionInputStore);
-    selectCell(model, "C2");
+    await selectCell(model, "C2");
     const color = store.selectionInputs[0].color;
     store.addEmptyRange();
-    selectCell(model, "C2");
+    await selectCell(model, "C2");
     expect(store.selectionInputs[1].color).not.toBe(color);
   });
 
@@ -397,10 +397,10 @@ describe("selection input plugin", () => {
 
   test("selection expansion adds as many input as needed", async () => {
     const { store, model, container } = await makeStore(SelectionInputStore, ["C4"]);
-    selectCell(model, "C2");
+    await selectCell(model, "C2");
     store.focusById(idOfRange(store, 0));
     expect(highlightedZones(container)).toEqual(["C4"]);
-    addCellToSelection(model, "D2");
+    await addCellToSelection(model, "D2");
     expect(highlightedZones(container)).toEqual(["C4", "D2"]);
     expect(store.selectionInputs[0].xc).toBe("C4");
     expect(store.selectionInputs[1].xc).toBe("D2");
@@ -408,22 +408,22 @@ describe("selection input plugin", () => {
 
   test("multiple alter selection in a single range component", async () => {
     const { store, model, container } = await makeStore(SelectionInputStore, ["C4"], true);
-    selectCell(model, "C2");
+    await selectCell(model, "C2");
     store.focusById(idOfRange(store, 0));
-    addCellToSelection(model, "E1");
-    setAnchorCorner(model, "E2");
-    setAnchorCorner(model, "E3");
+    await addCellToSelection(model, "E1");
+    await setAnchorCorner(model, "E2");
+    await setAnchorCorner(model, "E3");
     expect(highlightedZones(container)).toEqual(["E1:E3"]);
     expect(store.selectionInputs[0].xc).toBe("E1:E3");
   });
 
   test("selection expansion by altering selection adds inputs", async () => {
     const { store, model, container } = await makeStore(SelectionInputStore, ["D4"]);
-    selectCell(model, "C2");
+    await selectCell(model, "C2");
     store.focusById(idOfRange(store, 0));
-    addCellToSelection(model, "D2");
+    await addCellToSelection(model, "D2");
     expect(highlightedZones(container)).toEqual(["D4", "D2"]);
-    resizeAnchorZone(model, "right");
+    await resizeAnchorZone(model, "right");
     expect(highlightedZones(container)).toEqual(["D4", "D2:E2"]);
     expect(store.selectionInputs[0].xc).toBe("D4");
     expect(store.selectionInputs[1].xc).toBe("D2:E2");
@@ -431,11 +431,11 @@ describe("selection input plugin", () => {
 
   test("Selections are not shared between selection inputs", async () => {
     const { store, model, container } = await makeStore(SelectionInputStore, ["D4"]);
-    selectCell(model, "C2");
+    await selectCell(model, "C2");
     store.focusById(idOfRange(store, 0));
-    addCellToSelection(model, "D2");
+    await addCellToSelection(model, "D2");
     expect(highlightedZones(container)).toEqual(["D4", "D2"]);
-    resizeAnchorZone(model, "right");
+    await resizeAnchorZone(model, "right");
     expect(highlightedZones(container)).toEqual(["D4", "D2:E2"]);
     expect(store.selectionInputs[0].xc).toBe("D4");
     expect(store.selectionInputs[1].xc).toBe("D2:E2");
@@ -471,12 +471,12 @@ describe("selection input plugin", () => {
 
   test("Pre-existing ranges from other sheets are selected", async () => {
     const { store, model, container } = await makeStore(SelectionInputStore, ["Sheet2!A2"]);
-    createSheet(model, { sheetId: "42", name: "Sheet2", activate: false });
+    await createSheet(model, { sheetId: "42", name: "Sheet2", activate: false });
     expect(store.selectionInputs[0].xc).toBe("Sheet2!A2");
     store.focusById(idOfRange(store, 0));
     expect(highlightedZones(container)).toEqual([]);
     const firstSheetId = model.getters.getActiveSheetId();
-    activateSheet(model, "42", firstSheetId);
+    await activateSheet(model, "42", firstSheetId);
     expect(highlightedZones(container)).toEqual(["A2"]);
     flattenHighlightRange;
     expect(flattenHighlightRange(store.highlights[0])).toMatchObject({
@@ -487,23 +487,23 @@ describe("selection input plugin", () => {
 
   test("can select multiple ranges in another sheet", async () => {
     const { store, model, container } = await makeStore(SelectionInputStore);
-    selectCell(model, "A1");
+    await selectCell(model, "A1");
     expect(store.selectionInputs[0].xc).toBe("A1");
     expect(highlightedZones(container)).toEqual(["A1"]);
     const firstSheetId = model.getters.getActiveSheetId();
-    createSheet(model, { sheetId: "42", activate: true });
-    addCellToSelection(model, "B2");
+    await createSheet(model, { sheetId: "42", activate: true });
+    await addCellToSelection(model, "B2");
     expect(store.selectionInputs).toHaveLength(2);
     expect(store.selectionInputs[0].xc).toBe("A1");
     expect(store.selectionInputs[1].xc).toBe("Sheet2!B2");
     expect(highlightedZones(container)).toEqual(["B2"]);
-    addCellToSelection(model, "B3");
+    await addCellToSelection(model, "B3");
     expect(store.selectionInputs).toHaveLength(3);
     expect(store.selectionInputs[0].xc).toBe("A1");
     expect(store.selectionInputs[1].xc).toBe("Sheet2!B2");
     expect(store.selectionInputs[2].xc).toBe("Sheet2!B3");
     expect(highlightedZones(container)).toEqual(["B2", "B3"]);
-    activateSheet(model, firstSheetId);
+    await activateSheet(model, firstSheetId);
     expect(highlightedZones(container)).toEqual(["A1"]);
   });
 
@@ -511,16 +511,16 @@ describe("selection input plugin", () => {
     "can select a range  with special characters in its name: %s",
     async (sheetName) => {
       const { store, model } = await makeStore(SelectionInputStore);
-      createSheetWithName(model, { sheetId: "42", activate: true }, sheetName);
-      selectCell(model, "A1");
+      await createSheetWithName(model, { sheetId: "42", activate: true }, sheetName);
+      await selectCell(model, "A1");
       expect(store.selectionInputs[0].xc).toBe(`'${sheetName}'!A1`);
     }
   );
 
   test("focus while in other sheet", async () => {
     const { store, model } = await makeStore(SelectionInputStore);
-    selectCell(model, "A1");
-    createSheet(model, { sheetId: "42", activate: true });
+    await selectCell(model, "A1");
+    await createSheet(model, { sheetId: "42", activate: true });
     store.unfocus();
     let [range] = store.selectionInputs;
     store.focusById(range.id);
@@ -530,7 +530,7 @@ describe("selection input plugin", () => {
 
   test("mixing ranges from different sheets in the same input", async () => {
     const { store, model, container } = await makeStore(SelectionInputStore);
-    createSheet(model, { sheetId: "42", position: 1 });
+    await createSheet(model, { sheetId: "42", position: 1 });
     expect(model.getters.getActiveSheet()).not.toBe("42");
     store.changeRange(idOfRange(store, 0), "A1, Sheet2!B3");
     const [range1, range2] = store.selectionInputs;
@@ -541,7 +541,7 @@ describe("selection input plugin", () => {
 
   test("mixing ranges from different sheets in the same input in another sheet", async () => {
     const { store, model, container } = await makeStore(SelectionInputStore);
-    createSheet(model, { sheetId: "42", activate: true });
+    await createSheet(model, { sheetId: "42", activate: true });
     store.changeRange(idOfRange(store, 0), "Sheet2!B3, A1");
     const [range1, range2] = store.selectionInputs;
     expect(highlightedZones(container)).toEqual(["B3"]);
@@ -552,7 +552,7 @@ describe("selection input plugin", () => {
 
   test("manually adding a range from another sheet", async () => {
     const { store, model } = await makeStore(SelectionInputStore, ["A1"]);
-    createSheet(model, { sheetId: "42", activate: true });
+    await createSheet(model, { sheetId: "42", activate: true });
     expect(store.selectionInputs[0].xc).toBe("A1");
     store.focusById(idOfRange(store, 0));
     store.changeRange(idOfRange(store, 0), "A1, C5");
@@ -563,33 +563,33 @@ describe("selection input plugin", () => {
 
   test("highlights are set when activating another sheet", async () => {
     const { store, model, container } = await makeStore(SelectionInputStore);
-    createSheet(model, { sheetId: "42", position: 1 });
+    await createSheet(model, { sheetId: "42", position: 1 });
     store.changeRange(idOfRange(store, 0), "Sheet2!B3, A1");
     expect(highlightedZones(container)).toEqual(["A1"]);
-    activateSheet(model, "42");
+    await activateSheet(model, "42");
     expect(highlightedZones(container)).toEqual(["B3"]);
   });
 
   test("input not focused when changing sheet", async () => {
     const { store, model } = await makeStore(SelectionInputStore, ["Sheet2!B2"]);
-    createSheet(model, { sheetId: "42", position: 1 });
+    await createSheet(model, { sheetId: "42", position: 1 });
     store.focusById(idOfRange(store, 0));
     store.unfocus();
     expect(store.selectionInputs[0].isFocused).toBe(false);
-    activateSheet(model, "42");
+    await activateSheet(model, "42");
     expect(store.selectionInputs[0].isFocused).toBe(false);
   });
 
   test("input selection is reset only when changing sheet", async () => {
     const { store, model, container } = await makeStore(SelectionInputStore);
-    createSheet(model, { sheetId: "42" });
+    await createSheet(model, { sheetId: "42" });
     store.focusById(idOfRange(store, 0));
-    selectCell(model, "B7");
-    activateSheet(model, "42");
-    moveAnchorCell(model, "down");
+    await selectCell(model, "B7");
+    await activateSheet(model, "42");
+    await moveAnchorCell(model, "down");
     expect(highlightedZones(container)).toEqual(["A2"]);
-    activateSheet(model, "42");
-    moveAnchorCell(model, "down");
+    await activateSheet(model, "42");
+    await moveAnchorCell(model, "down");
     expect(highlightedZones(container)).toEqual(["A3"]);
   });
 
@@ -625,15 +625,15 @@ describe("selection input plugin", () => {
 
   test("Selection input is deactivated/ falls back on grid selection on a PASTE", async () => {
     const { store, model } = await makeStore(SelectionInputStore, ["B1:B2"]);
-    setCellContent(model, "A1", "1");
-    setSelection(model, ["A1:A2"]);
-    copy(model, "A1:A2");
+    await setCellContent(model, "A1", "1");
+    await setSelection(model, ["A1:A2"]);
+    await copy(model, "A1:A2");
     store.focusById(idOfRange(store, 0));
     let input = store.selectionInputs;
     expect(input.length).toBe(1);
     expect(input[0]).toMatchObject({ xc: "B1:B2", isFocused: true });
     expect(model.getters.isGridSelectionActive()).toBe(false);
-    paste(model, "C1:C2");
+    await paste(model, "C1:C2");
     input = store.selectionInputs;
     expect(input.length).toBe(1);
     expect(input[0]).toMatchObject({ xc: "B1:B2", isFocused: false });

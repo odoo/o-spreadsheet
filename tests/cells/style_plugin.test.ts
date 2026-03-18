@@ -24,59 +24,61 @@ import { createModel } from "../test_helpers/helpers";
 describe("styles", () => {
   test("update formatting with the same format as before", async () => {
     const model = await createModel();
-    expect(setFormat(model, "A1", "#,##0.0")).toBeSuccessfullyDispatched();
-    expect(setFormat(model, "A1", "#,##0.0")).toBeCancelledBecause(CommandResult.NoChanges);
-    expect(setFormat(model, "A1:A2", "#,##0.0")).toBeSuccessfullyDispatched();
-    expect(setFormat(model, "A1:A2", "#,##0.0")).toBeCancelledBecause(CommandResult.NoChanges);
+    expect(await setFormat(model, "A1", "#,##0.0")).toBeSuccessfullyDispatched();
+    expect(await setFormat(model, "A1", "#,##0.0")).toBeCancelledBecause(CommandResult.NoChanges);
+    expect(await setFormat(model, "A1:A2", "#,##0.0")).toBeSuccessfullyDispatched();
+    expect(await setFormat(model, "A1:A2", "#,##0.0")).toBeCancelledBecause(
+      CommandResult.NoChanges
+    );
   });
 
   test("update style with the same style as before", async () => {
     const model = await createModel();
-    expect(setFormatting(model, "A1", { bold: true })).toBeSuccessfullyDispatched();
-    expect(setFormatting(model, "A1", { bold: true })).toBeCancelledBecause(
+    expect(await setFormatting(model, "A1", { bold: true })).toBeSuccessfullyDispatched();
+    expect(await setFormatting(model, "A1", { bold: true })).toBeCancelledBecause(
       CommandResult.NoChanges
     );
-    expect(setFormatting(model, "A1:A2", { bold: true })).toBeSuccessfullyDispatched();
-    expect(setFormatting(model, "A1:A2", { bold: true })).toBeCancelledBecause(
+    expect(await setFormatting(model, "A1:A2", { bold: true })).toBeSuccessfullyDispatched();
+    expect(await setFormatting(model, "A1:A2", { bold: true })).toBeCancelledBecause(
       CommandResult.NoChanges
     );
   });
 
   test("can undo and redo a setStyle operation on an empty cell", async () => {
     const model = await createModel();
-    setFormatting(model, "B1", { fillColor: "red" });
+    await setFormatting(model, "B1", { fillColor: "red" });
 
     expect(getCellContent(model, "B1")).toBe("");
     expect(getCell(model, "B1")!.style).toBeDefined();
-    undo(model);
+    await undo(model);
     expect(getCell(model, "B1")).toBeUndefined();
   });
 
   test("can undo and redo a setStyle operation on an non empty cell", async () => {
     const model = await createModel();
-    setCellContent(model, "B1", "some content");
-    setFormatting(model, "B1", { fillColor: "red" });
+    await setCellContent(model, "B1", "some content");
+    await setFormatting(model, "B1", { fillColor: "red" });
     expect(getCellContent(model, "B1")).toBe("some content");
     expect(getCell(model, "B1")!.style).toBeDefined();
-    undo(model);
+    await undo(model);
     expect(getCellContent(model, "B1")).toBe("some content");
     expect(getCell(model, "B1")!.style).not.toBeDefined();
   });
 
   test("can clear formatting (style)", async () => {
     const model = await createModel();
-    setCellContent(model, "B1", "b1");
-    selectCell(model, "B1");
-    setFormatting(model, "B1", { fillColor: "red" });
+    await setCellContent(model, "B1", "b1");
+    await selectCell(model, "B1");
+    await setFormatting(model, "B1", { fillColor: "red" });
     expect(getCell(model, "B1")!.style).toBeDefined();
-    clearFormatting(model, "B1");
+    await clearFormatting(model, "B1");
     expect(getCellContent(model, "B1")).toBe("b1");
     expect(getCell(model, "B1")!.style).not.toBeDefined();
   });
 
   test("default style values are not exported", async () => {
     const model = await createModel();
-    setFormatting(model, "A1", DEFAULT_STYLE);
+    await setFormatting(model, "A1", DEFAULT_STYLE);
     const data = model.exportData();
     expect(data.sheets[0].styles.A1).toBeUndefined();
     expect(data.styles).toEqual({});
@@ -84,7 +86,7 @@ describe("styles", () => {
 
   test("textColor black(#000000) is exported as non default style", async () => {
     const model = await createModel();
-    setFormatting(model, "A1", { textColor: "#000000" });
+    await setFormatting(model, "A1", { textColor: "#000000" });
     const data = model.exportData();
     expect(data.sheets[0].styles.A1).toBe(1);
     expect(data.styles).toEqual({ 1: { textColor: "#000000" } });
@@ -92,7 +94,7 @@ describe("styles", () => {
 
   test("only non default style values are exported", async () => {
     const model = await createModel();
-    setFormatting(model, "A1", {
+    await setFormatting(model, "A1", {
       bold: true,
       italic: false,
     });
@@ -105,14 +107,14 @@ describe("styles", () => {
 
   test("align left is exported for number and formula but not text", async () => {
     const model = await createModel();
-    setFormatting(model, "A1:A3", { align: "left" });
-    setFormatting(model, "B1:B3", { align: "right" });
-    setCellContent(model, "A1", "1");
-    setCellContent(model, "B1", "1");
-    setCellContent(model, "A2", "TEXT");
-    setCellContent(model, "B2", "TEXT");
-    setCellContent(model, "A3", "=1");
-    setCellContent(model, "B3", "=1");
+    await setFormatting(model, "A1:A3", { align: "left" });
+    await setFormatting(model, "B1:B3", { align: "right" });
+    await setCellContent(model, "A1", "1");
+    await setCellContent(model, "B1", "1");
+    await setCellContent(model, "A2", "TEXT");
+    await setCellContent(model, "B2", "TEXT");
+    await setCellContent(model, "A3", "=1");
+    await setCellContent(model, "B3", "=1");
 
     const data = model.exportData();
     expect(data.sheets[0].styles.A1).toBe(1);
@@ -126,39 +128,39 @@ describe("styles", () => {
 
   test("clearing format on a cell with no content actually remove it", async () => {
     const model = await createModel();
-    setFormatting(model, "B1", { fillColor: "red" });
-    setFormat(model, "B1", "#,##0.0");
+    await setFormatting(model, "B1", { fillColor: "red" });
+    await setFormat(model, "B1", "#,##0.0");
     expect(getCell(model, "B1")!.style).toBeDefined();
     expect(getCell(model, "B1")!.format).toBeDefined();
-    clearFormatting(model, "B1");
+    await clearFormatting(model, "B1");
     expect(getCell(model, "B1")).toBeUndefined();
   });
 
   test("clearing format operation can be undone", async () => {
     const model = await createModel();
-    setCellContent(model, "B1", "b1");
-    setFormatting(model, "B1", { fillColor: "red" });
-    setFormat(model, "B1", "#,##0.0");
+    await setCellContent(model, "B1", "b1");
+    await setFormatting(model, "B1", { fillColor: "red" });
+    await setFormat(model, "B1", "#,##0.0");
     expect(getCell(model, "B1")!.style).toBeDefined();
     expect(getCell(model, "B1")!.format).toBeDefined();
-    clearFormatting(model, "B1");
+    await clearFormatting(model, "B1");
     expect(getCell(model, "B1")!.style).not.toBeDefined();
-    undo(model);
+    await undo(model);
     expect(getCell(model, "B1")!.style).toBeDefined();
     expect(getCell(model, "B1")!.format).toBeDefined();
   });
 
   test("clear formatting should remove format", async () => {
     const model = await createModel();
-    setFormat(model, "A1", "#,##0.0");
-    clearFormatting(model, "A1");
+    await setFormat(model, "A1", "#,##0.0");
+    await clearFormatting(model, "A1");
     expect(getCell(model, "A1")?.format).toBeUndefined();
   });
 
   test("Can set a format in another than the active one", async () => {
     const model = await createModel();
-    createSheet(model, { sheetId: "42" });
-    setFormatting(model, "A1", { fillColor: "red" }, "42");
+    await createSheet(model, { sheetId: "42" });
+    await setFormatting(model, "A1", { fillColor: "red" }, "42");
     expect(getCell(model, "A1")).toBeUndefined();
     expect(getCell(model, "A1", "42")!.style).toBeDefined();
   });
@@ -166,10 +168,10 @@ describe("styles", () => {
   test("getCellWidth use computed style", async () => {
     const model = await createModel();
     const sheetId = model.getters.getActiveSheetId();
-    setCellContent(model, "A1", "H");
-    setCellContent(model, "A2", "H");
+    await setCellContent(model, "A1", "H");
+    await setCellContent(model, "A2", "H");
     const fontSize = 36;
-    addEqualCf(model, "A1", { fontSize }, "H");
+    await addEqualCf(model, "A1", { fontSize }, "H");
     const A1 = toCartesian("A1");
     const A2 = toCartesian("A2");
     expect(model.getters.getCellWidth({ sheetId, col: A1.col, row: A1.row })).toBe(
@@ -182,13 +184,13 @@ describe("styles", () => {
 
   test("getCellWidth with chip", async () => {
     const model = await createModel();
-    addDataValidation(model, "A1", "id", {
+    await addDataValidation(model, "A1", "id", {
       type: "isValueInList",
       values: ["A"],
       displayStyle: "chip",
     });
     const sheetId = model.getters.getActiveSheetId();
-    setCellContent(model, "A1", "A");
+    await setCellContent(model, "A1", "A");
     const A1 = { sheetId, col: 0, row: 0 };
     const chipIcon = model.getters.getCellIcons(A1)[0];
     expect(model.getters.getCellWidth(A1)).toBe(
@@ -202,22 +204,22 @@ describe("styles", () => {
 
   test("Style is not updated if not explicitely provided in commands", async () => {
     const model = await createModel();
-    setCellContent(model, "A1", "hello");
-    setFormatting(model, "A1", { fillColor: "#fefefe" });
-    setFormatting(model, "A1", undefined);
+    await setCellContent(model, "A1", "hello");
+    await setFormatting(model, "A1", { fillColor: "#fefefe" });
+    await setFormatting(model, "A1", undefined);
     expect(getStyle(model, "A1")).toEqual({ fillColor: "#fefefe" });
 
-    setFormatting(model, "A1", { fillColor: "#fefefe" });
-    setCellStyle(model, "A1", undefined);
+    await setFormatting(model, "A1", { fillColor: "#fefefe" });
+    await setCellStyle(model, "A1", undefined);
     expect(getStyle(model, "A1")).toEqual({ fillColor: "#fefefe" });
   });
 
   test("Style is overwritten through an UPDATE_CELL command", async () => {
     const model = await createModel();
-    setCellContent(model, "A1", "hello");
-    setFormatting(model, "A1", { fillColor: "#fefefe", bold: true });
+    await setCellContent(model, "A1", "hello");
+    await setFormatting(model, "A1", { fillColor: "#fefefe", bold: true });
 
-    setCellStyle(model, "A1", { fillColor: "#123456" });
+    await setCellStyle(model, "A1", { fillColor: "#123456" });
     expect(getStyle(model, "A1")).toEqual({ fillColor: "#123456" });
   });
 });

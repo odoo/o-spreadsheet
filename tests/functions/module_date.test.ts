@@ -92,8 +92,8 @@ describe("DATE formula", () => {
   });
   test("Return format is locale dependant", async () => {
     const model = await createModel();
-    updateLocale(model, FR_LOCALE);
-    setCellContent(model, "A1", "=DATE(2020, 12, 5)");
+    await updateLocale(model, FR_LOCALE);
+    await setCellContent(model, "A1", "=DATE(2020, 12, 5)");
     expect(getEvaluatedCell(model, "A1").format).toBe(FR_LOCALE.dateFormat);
   });
 });
@@ -271,8 +271,8 @@ describe("EDATE formula", () => {
   });
   test("Return format is locale dependant", async () => {
     const model = await createModel();
-    updateLocale(model, FR_LOCALE);
-    setCellContent(model, "A1", '=EDATE("7/7/1969", 1)');
+    await updateLocale(model, FR_LOCALE);
+    await setCellContent(model, "A1", '=EDATE("7/7/1969", 1)');
     expect(getEvaluatedCell(model, "A1").format).toBe(FR_LOCALE.dateFormat);
   });
 });
@@ -308,8 +308,8 @@ describe("EOMONTH formula", () => {
   });
   test("Return format is locale dependant", async () => {
     const model = await createModel();
-    updateLocale(model, FR_LOCALE);
-    setCellContent(model, "A1", '=EOMONTH("7/7/2020", 0)');
+    await updateLocale(model, FR_LOCALE);
+    await setCellContent(model, "A1", '=EOMONTH("7/7/2020", 0)');
     expect(getEvaluatedCell(model, "A1").format).toBe(FR_LOCALE.dateFormat);
   });
 });
@@ -558,8 +558,8 @@ describe("NOW formula", () => {
   });
   test("Return format is locale dependant", async () => {
     const model = await createModel();
-    updateLocale(model, FR_LOCALE);
-    setCellContent(model, "A1", "=NOW()");
+    await updateLocale(model, FR_LOCALE);
+    await setCellContent(model, "A1", "=NOW()");
     expect(getEvaluatedCell(model, "A1").format).toBe("dd/mm/yyyy hh:mm:ss");
   });
 });
@@ -613,8 +613,8 @@ describe("TIME formula", () => {
   });
   test("Return format is locale dependant", async () => {
     const model = await createModel();
-    updateLocale(model, FR_LOCALE);
-    setCellContent(model, "A1", "=TIME(9, 9, 9)");
+    await updateLocale(model, FR_LOCALE);
+    await setCellContent(model, "A1", "=TIME(9, 9, 9)");
     expect(getEvaluatedCell(model, "A1").format).toBe(FR_LOCALE.timeFormat);
   });
 });
@@ -650,8 +650,8 @@ describe("TODAY formula", () => {
   });
   test("Return format is locale dependant", async () => {
     const model = await createModel();
-    updateLocale(model, FR_LOCALE);
-    setCellContent(model, "A1", "=TODAY()");
+    await updateLocale(model, FR_LOCALE);
+    await setCellContent(model, "A1", "=TODAY()");
     expect(getEvaluatedCell(model, "A1").format).toBe(FR_LOCALE.dateFormat);
   });
 });
@@ -881,8 +881,8 @@ describe("WORKDAY formula", () => {
   });
   test("Return format is locale dependant", async () => {
     const model = await createModel();
-    updateLocale(model, FR_LOCALE);
-    setCellContent(model, "A1", "=WORKDAY(5000, 3)");
+    await updateLocale(model, FR_LOCALE);
+    await setCellContent(model, "A1", "=WORKDAY(5000, 3)");
     expect(getEvaluatedCell(model, "A1").format).toBe(FR_LOCALE.dateFormat);
   });
 });
@@ -1030,8 +1030,8 @@ describe("WORKDAY.INTL formula", () => {
   });
   test("Return format is locale dependant", async () => {
     const model = await createModel();
-    updateLocale(model, FR_LOCALE);
-    setCellContent(model, "A1", "=WORKDAY.INTL(5000, 3)");
+    await updateLocale(model, FR_LOCALE);
+    await setCellContent(model, "A1", "=WORKDAY.INTL(5000, 3)");
     expect(getEvaluatedCell(model, "A1").format).toBe(FR_LOCALE.dateFormat);
   });
 });
@@ -1451,8 +1451,8 @@ describe("MONTH.START formula", () => {
   });
   test("Return format is locale dependant", async () => {
     const model = await createModel();
-    updateLocale(model, FR_LOCALE);
-    setCellContent(model, "A1", '=MONTH.START("7/7/2020")');
+    await updateLocale(model, FR_LOCALE);
+    await setCellContent(model, "A1", '=MONTH.START("7/7/2020")');
     expect(getEvaluatedCell(model, "A1").format).toBe(FR_LOCALE.dateFormat);
   });
 });
@@ -1482,8 +1482,8 @@ describe("MONTH.END formula", () => {
   });
   test("Return format is locale dependant", async () => {
     const model = await createModel();
-    updateLocale(model, FR_LOCALE);
-    setCellContent(model, "A1", '=MONTH.END("7/7/2020")');
+    await updateLocale(model, FR_LOCALE);
+    await setCellContent(model, "A1", '=MONTH.END("7/7/2020")');
     expect(getEvaluatedCell(model, "A1").format).toBe(FR_LOCALE.dateFormat);
   });
 });
@@ -1527,8 +1527,8 @@ describe("QUARTER.START formula", () => {
   });
   test("Return format is locale dependant", async () => {
     const model = await createModel();
-    updateLocale(model, FR_LOCALE);
-    setCellContent(model, "A1", '=QUARTER.START("7/7/2020")');
+    await updateLocale(model, FR_LOCALE);
+    await setCellContent(model, "A1", '=QUARTER.START("7/7/2020")');
     expect(getEvaluatedCell(model, "A1").format).toBe(FR_LOCALE.dateFormat);
   });
 });
@@ -1572,8 +1572,8 @@ describe("QUARTER.END formula", () => {
   });
   test("Return format is locale dependant", async () => {
     const model = await createModel();
-    updateLocale(model, FR_LOCALE);
-    setCellContent(model, "A1", '=QUARTER.END("7/7/2020")');
+    await updateLocale(model, FR_LOCALE);
+    await setCellContent(model, "A1", '=QUARTER.END("7/7/2020")');
     expect(getEvaluatedCell(model, "A1").format).toBe(FR_LOCALE.dateFormat);
   });
 });
@@ -1604,8 +1604,8 @@ describe("YEAR.START formula", () => {
   });
   test("Return format is locale dependant", async () => {
     const model = await createModel();
-    updateLocale(model, FR_LOCALE);
-    setCellContent(model, "A1", '=YEAR.START("7/7/2020")');
+    await updateLocale(model, FR_LOCALE);
+    await setCellContent(model, "A1", '=YEAR.START("7/7/2020")');
     expect(getEvaluatedCell(model, "A1").format).toBe(FR_LOCALE.dateFormat);
   });
 });
@@ -1649,8 +1649,8 @@ describe("YEAR.END formula", () => {
   });
   test("Return format is locale dependant", async () => {
     const model = await createModel();
-    updateLocale(model, FR_LOCALE);
-    setCellContent(model, "A1", '=YEAR.END("7/7/2020")');
+    await updateLocale(model, FR_LOCALE);
+    await setCellContent(model, "A1", '=YEAR.END("7/7/2020")');
     expect(getEvaluatedCell(model, "A1").format).toBe(FR_LOCALE.dateFormat);
   });
 });

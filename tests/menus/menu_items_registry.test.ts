@@ -178,13 +178,13 @@ describe("Menu Item actions", () => {
   });
 
   test("Edit -> undo", async () => {
-    setCellContent(model, "A1", "coucou");
+    await setCellContent(model, "A1", "coucou");
     await doAction(["edit", "undo"], env);
     expect(dispatch).toHaveBeenCalledWith("REQUEST_UNDO");
   });
 
   test("Edit -> redo", async () => {
-    setCellContent(model, "A1", "coucou");
+    await setCellContent(model, "A1", "coucou");
     await doAction(["edit", "redo"], env);
     expect(dispatch).toHaveBeenCalledWith("REQUEST_REDO");
   });
@@ -208,11 +208,11 @@ describe("Menu Item actions", () => {
   });
 
   test("Edit -> paste from OS clipboard if copied from outside world last", async () => {
-    setCellContent(model, "A1", "a1");
-    selectCell(model, "A1");
+    await setCellContent(model, "A1", "a1");
+    await selectCell(model, "A1");
     await doAction(["edit", "copy"], env); // first copy from grid
     await env.clipboard!.writeText("Then copy in OS clipboard");
-    selectCell(model, "C3");
+    await selectCell(model, "C3");
     await doAction(["edit", "paste"], env);
     expect(getCellContent(model, "C3")).toEqual("Then copy in OS clipboard");
   });
@@ -226,10 +226,10 @@ describe("Menu Item actions", () => {
   });
 
   test("'Edit -> paste' if copied from grid and content altered before paste", async () => {
-    setCellContent(model, "A1", "a1");
+    await setCellContent(model, "A1", "a1");
     await doAction(["edit", "copy"], env); // first copy from grid
-    setCellContent(model, "A1", "os clipboard");
-    selectCell(model, "C3");
+    await setCellContent(model, "A1", "os clipboard");
+    await selectCell(model, "C3");
     await doAction(["edit", "paste"], env);
     expect(dispatch).toHaveBeenCalledWith("PASTE", {
       target: env.model.getters.getSelectedZones(),
@@ -240,7 +240,7 @@ describe("Menu Item actions", () => {
 
   test("Paste only-format from OS clipboard should paste nothing", async () => {
     await env.clipboard!.writeText("Copy in OS clipboard");
-    selectCell(model, "A1");
+    await selectCell(model, "A1");
     await doAction(["edit", "paste_special", "paste_special_format"], env);
     expect(dispatch).toHaveBeenCalledWith("PASTE_FROM_OS_CLIPBOARD", {
       clipboardContent: { text: "Copy in OS clipboard" },
@@ -251,19 +251,19 @@ describe("Menu Item actions", () => {
   });
 
   test("Internal copy followed by OS copy should not bring paste format from internal copy", async () => {
-    setCellContent(model, "C1", "c1");
-    setFormatting(model, "C1", { fillColor: "#FA0000" });
-    selectCell(model, "C1");
+    await setCellContent(model, "C1", "c1");
+    await setFormatting(model, "C1", { fillColor: "#FA0000" });
+    await selectCell(model, "C1");
     await doAction(["edit", "copy"], env); // first copy from grid
     await env.clipboard!.writeText("Then copy in OS clipboard");
-    selectCell(model, "A1");
+    await selectCell(model, "A1");
     await doAction(["edit", "paste_special", "paste_special_format"], env);
     expect(getStyle(model, "A1").fillColor).toBeUndefined();
     expect(getCellContent(model, "A1")).toEqual("");
   });
 
-  test("Edit -> paste_special should be hidden after a CUT ", () => {
-    cut(model);
+  test("Edit -> paste_special should be hidden after a CUT ", async () => {
+    await cut(model);
     expect(getNode(["edit", "paste_special"], env).isVisible(env)).toBeFalsy();
   });
 
@@ -298,8 +298,8 @@ describe("Menu Item actions", () => {
     expect(pivotSubmenu.secondaryIcon(pivotEnv)).toBe("o-spreadsheet-Icon.UNUSED_PIVOT_WARNING");
   });
 
-  test("Edit -> paste_special should not be hidden after a COPY ", () => {
-    copy(model, env.model.getters.getSelectedZones().map(zoneToXc).join(","));
+  test("Edit -> paste_special should not be hidden after a COPY ", async () => {
+    await copy(model, env.model.getters.getSelectedZones().map(zoneToXc).join(","));
     expect(getNode(["edit", "paste_special"], env).isVisible(env)).toBeTruthy();
   });
 
@@ -354,14 +354,14 @@ describe("Menu Item actions", () => {
   describe("Edit -> edit_delete_row", () => {
     const path = ["edit", "delete", "edit_delete_row"];
 
-    test("A selected row", () => {
-      selectRow(model, 4, "overrideSelection");
+    test("A selected row", async () => {
+      await selectRow(model, 4, "overrideSelection");
       expect(getName(path, env)).toBe("Delete row 5");
     });
 
     test("Multiple selected rows", async () => {
-      selectRow(model, 4, "overrideSelection");
-      selectRow(model, 5, "updateAnchor");
+      await selectRow(model, 4, "overrideSelection");
+      await selectRow(model, 5, "updateAnchor");
       expect(getName(path, env)).toBe("Delete rows 5 - 6");
       await doAction(path, env);
       expect(dispatch).toHaveBeenLastCalledWith("REMOVE_COLUMNS_ROWS", {
@@ -373,8 +373,8 @@ describe("Menu Item actions", () => {
     });
 
     test("Multiple zones of selected rows", async () => {
-      selectRow(model, 4, "newAnchor");
-      selectRow(model, 5, "updateAnchor");
+      await selectRow(model, 4, "newAnchor");
+      await selectRow(model, 5, "updateAnchor");
       expect(getName(path, env)).toBe("Delete rows");
       await doAction(path, env);
       expect(dispatch).toHaveBeenLastCalledWith("REMOVE_COLUMNS_ROWS", {
@@ -385,14 +385,14 @@ describe("Menu Item actions", () => {
       });
     });
 
-    test("A selected cell", () => {
-      selectCell(model, "D4");
+    test("A selected cell", async () => {
+      await selectCell(model, "D4");
       expect(getName(path, env)).toBe("Delete row 4");
     });
 
     test("Multiple selected cells", async () => {
-      selectCell(model, "D4");
-      setAnchorCorner(model, "E5");
+      await selectCell(model, "D4");
+      await setAnchorCorner(model, "E5");
       expect(getName(path, env)).toBe("Delete rows 4 - 5");
       await doAction(path, env);
       expect(dispatch).toHaveBeenLastCalledWith("REMOVE_COLUMNS_ROWS", {
@@ -407,26 +407,26 @@ describe("Menu Item actions", () => {
       const sheetId = model.getters.getActiveSheetId();
       const lastRow = model.getters.getNumberRows(sheetId) - 1;
 
-      freezeRows(model, 4, sheetId);
-      selectRow(model, 4, "newAnchor");
-      selectRow(model, lastRow, "updateAnchor");
+      await freezeRows(model, 4, sheetId);
+      await selectRow(model, 4, "newAnchor");
+      await selectRow(model, lastRow, "updateAnchor");
 
       expect(getNode(path, env).isVisible(env)).toBeFalsy();
     });
 
-    test("Delete row option unavailable when selecting all rows with folded row grouping", () => {
+    test("Delete row option unavailable when selecting all rows with folded row grouping", async () => {
       const lastRow = model.getters.getNumberRows(sheetId) - 1;
 
-      groupHeaders(model, "ROW", 0, 2, sheetId);
-      foldHeaderGroup(model, "ROW", 0, 2, sheetId);
+      await groupHeaders(model, "ROW", 0, 2, sheetId);
+      await foldHeaderGroup(model, "ROW", 0, 2, sheetId);
 
-      selectRow(model, 3, "newAnchor");
-      selectRow(model, lastRow, "updateAnchor");
+      await selectRow(model, 3, "newAnchor");
+      await selectRow(model, lastRow, "updateAnchor");
       expect(getNode(path, env).isVisible(env)).toBeFalsy();
     });
 
     test("Selecting column should hide the option for row deletion", async () => {
-      selectColumn(model, 4, "overrideSelection");
+      await selectColumn(model, 4, "overrideSelection");
       expect(getNode(path, env).isVisible(env)).toBeFalsy();
     });
   });
@@ -435,7 +435,7 @@ describe("Menu Item actions", () => {
     const path = ["edit", "delete", "edit_delete_column"];
 
     test("A selected column", async () => {
-      selectColumn(model, 4, "overrideSelection");
+      await selectColumn(model, 4, "overrideSelection");
       expect(getName(path, env)).toBe("Delete column E");
       await doAction(path, env);
       expect(dispatch).toHaveBeenLastCalledWith("REMOVE_COLUMNS_ROWS", {
@@ -447,8 +447,8 @@ describe("Menu Item actions", () => {
     });
 
     test("Multiple selected columns", async () => {
-      selectColumn(model, 4, "overrideSelection");
-      selectColumn(model, 5, "updateAnchor");
+      await selectColumn(model, 4, "overrideSelection");
+      await selectColumn(model, 5, "updateAnchor");
       expect(getName(path, env)).toBe("Delete columns E - F");
       await doAction(path, env);
       expect(dispatch).toHaveBeenLastCalledWith("REMOVE_COLUMNS_ROWS", {
@@ -460,8 +460,8 @@ describe("Menu Item actions", () => {
     });
 
     test("Multiple zones of selected columns", async () => {
-      selectColumn(model, 4, "newAnchor");
-      selectColumn(model, 5, "updateAnchor");
+      await selectColumn(model, 4, "newAnchor");
+      await selectColumn(model, 5, "updateAnchor");
       expect(getName(path, env)).toBe("Delete columns");
       await doAction(path, env);
       expect(dispatch).toHaveBeenLastCalledWith("REMOVE_COLUMNS_ROWS", {
@@ -473,7 +473,7 @@ describe("Menu Item actions", () => {
     });
 
     test("A selected cell", async () => {
-      selectCell(model, "D4");
+      await selectCell(model, "D4");
       expect(getName(path, env)).toBe("Delete column D");
       await doAction(path, env);
       expect(dispatch).toHaveBeenLastCalledWith("REMOVE_COLUMNS_ROWS", {
@@ -485,8 +485,8 @@ describe("Menu Item actions", () => {
     });
 
     test("Multiple selected cells", async () => {
-      selectCell(model, "D4");
-      setAnchorCorner(model, "E5");
+      await selectCell(model, "D4");
+      await setAnchorCorner(model, "E5");
       expect(getName(path, env)).toBe("Delete columns D - E");
       await doAction(path, env);
       expect(dispatch).toHaveBeenLastCalledWith("REMOVE_COLUMNS_ROWS", {
@@ -501,15 +501,15 @@ describe("Menu Item actions", () => {
       const sheetId = model.getters.getActiveSheetId();
       const lastColumn = model.getters.getNumberCols(sheetId) - 1;
 
-      freezeColumns(model, 3, sheetId);
-      selectColumn(model, 3, "newAnchor");
-      selectColumn(model, lastColumn, "updateAnchor");
+      await freezeColumns(model, 3, sheetId);
+      await selectColumn(model, 3, "newAnchor");
+      await selectColumn(model, lastColumn, "updateAnchor");
 
       expect(getNode(path, env).isVisible(env)).toBeFalsy();
     });
 
     test("Selecting row should hide the option for column deletion", async () => {
-      selectRow(model, 4, "overrideSelection");
+      await selectRow(model, 4, "overrideSelection");
       expect(getNode(path, env).isVisible(env)).toBeFalsy();
     });
   });
@@ -517,15 +517,15 @@ describe("Menu Item actions", () => {
   describe("Insert -> Row above", () => {
     const insertRowBeforePath = ["insert", "insert_row", "insert_row_before"];
 
-    test("A selected row", () => {
-      selectRow(model, 4, "overrideSelection");
+    test("A selected row", async () => {
+      await selectRow(model, 4, "overrideSelection");
       expect(getName(insertRowBeforePath, env)).toBe("Row above");
       expect(getNode(insertRowBeforePath, env).isVisible(env)).toBeTruthy();
     });
 
     test("Multiple consecutive selected rows", async () => {
-      selectRow(model, 4, "overrideSelection");
-      selectRow(model, 5, "updateAnchor");
+      await selectRow(model, 4, "overrideSelection");
+      await selectRow(model, 5, "updateAnchor");
       expect(getName(insertRowBeforePath, env)).toBe("2 Rows above");
       await doAction(insertRowBeforePath, env);
       expect(dispatch).toHaveBeenLastCalledWith("ADD_COLUMNS_ROWS", {
@@ -539,26 +539,26 @@ describe("Menu Item actions", () => {
       expect(getNode(insertRowBeforePath, env).isVisible(env)).toBeTruthy();
     });
 
-    test("Multiple inconsecutive selected rows", () => {
-      selectRow(model, 4, "overrideSelection");
-      selectRow(model, 6, "newAnchor");
+    test("Multiple inconsecutive selected rows", async () => {
+      await selectRow(model, 4, "overrideSelection");
+      await selectRow(model, 6, "newAnchor");
       expect(getNode(insertRowBeforePath, env).isVisible(env)).toBeFalsy();
     });
 
-    test("A selected column should hide the item", () => {
-      selectColumn(model, 4, "overrideSelection");
+    test("A selected column should hide the item", async () => {
+      await selectColumn(model, 4, "overrideSelection");
       expect(getNode(insertRowBeforePath, env).isVisible(env)).toBeFalsy();
     });
 
-    test("A selected cell", () => {
-      selectCell(model, "D4");
+    test("A selected cell", async () => {
+      await selectCell(model, "D4");
       expect(getName(insertRowBeforePath, env)).toBe("Row above");
       expect(getNode(insertRowBeforePath, env).isVisible(env)).toBeTruthy();
     });
 
     test("Multiple selected cells", async () => {
-      selectCell(model, "D4");
-      setAnchorCorner(model, "E5");
+      await selectCell(model, "D4");
+      await setAnchorCorner(model, "E5");
       expect(getName(insertRowBeforePath, env)).toBe("2 Rows above");
       await doAction(insertRowBeforePath, env);
       expect(dispatch).toHaveBeenLastCalledWith("ADD_COLUMNS_ROWS", {
@@ -576,15 +576,15 @@ describe("Menu Item actions", () => {
   describe("Insert row above via row menu", () => {
     const addRowBeforePath = ["add_row_before"];
 
-    test("A selected row", () => {
-      selectRow(model, 4, "overrideSelection");
+    test("A selected row", async () => {
+      await selectRow(model, 4, "overrideSelection");
       expect(getName(addRowBeforePath, env, rowMenuRegistry)).toBe("Insert row above");
       expect(getNode(addRowBeforePath, env, rowMenuRegistry).isVisible(env)).toBeTruthy();
     });
 
     test("Multiple consecutive selected rows", async () => {
-      selectRow(model, 4, "overrideSelection");
-      selectRow(model, 5, "updateAnchor");
+      await selectRow(model, 4, "overrideSelection");
+      await selectRow(model, 5, "updateAnchor");
       expect(getName(addRowBeforePath, env, rowMenuRegistry)).toBe("Insert 2 rows above");
       await doAction(addRowBeforePath, env, rowMenuRegistry);
       expect(dispatch).toHaveBeenLastCalledWith("ADD_COLUMNS_ROWS", {
@@ -598,14 +598,14 @@ describe("Menu Item actions", () => {
       expect(getNode(addRowBeforePath, env, rowMenuRegistry).isVisible(env)).toBeTruthy();
     });
 
-    test("Multiple inconsecutive selected rows", () => {
-      selectRow(model, 4, "overrideSelection");
-      selectRow(model, 6, "newAnchor");
+    test("Multiple inconsecutive selected rows", async () => {
+      await selectRow(model, 4, "overrideSelection");
+      await selectRow(model, 6, "newAnchor");
       expect(getNode(addRowBeforePath, env, rowMenuRegistry).isVisible(env)).toBeFalsy();
     });
 
-    test("Full sheet selected", () => {
-      selectAll(model);
+    test("Full sheet selected", async () => {
+      await selectAll(model);
       expect(getNode(addRowBeforePath, env, rowMenuRegistry).isVisible(env)).toBeTruthy();
     });
   });
@@ -613,15 +613,15 @@ describe("Menu Item actions", () => {
   describe("Insert -> Row below", () => {
     const insertRowAfterPath = ["insert", "insert_row", "insert_row_after"];
 
-    test("A selected row", () => {
-      selectRow(model, 4, "overrideSelection");
+    test("A selected row", async () => {
+      await selectRow(model, 4, "overrideSelection");
       expect(getName(insertRowAfterPath, env)).toBe("Row below");
       expect(getNode(insertRowAfterPath, env).isVisible(env)).toBeTruthy();
     });
 
     test("Multiple consecutive selected rows", async () => {
-      selectRow(model, 4, "overrideSelection");
-      selectRow(model, 5, "updateAnchor");
+      await selectRow(model, 4, "overrideSelection");
+      await selectRow(model, 5, "updateAnchor");
       expect(getName(insertRowAfterPath, env)).toBe("2 Rows below");
       await doAction(insertRowAfterPath, env);
       expect(dispatch).toHaveBeenLastCalledWith("ADD_COLUMNS_ROWS", {
@@ -635,26 +635,26 @@ describe("Menu Item actions", () => {
       expect(getNode(insertRowAfterPath, env).isVisible(env)).toBeTruthy();
     });
 
-    test("Multiple inconsecutive selected rows", () => {
-      selectRow(model, 4, "overrideSelection");
-      selectRow(model, 6, "newAnchor");
+    test("Multiple inconsecutive selected rows", async () => {
+      await selectRow(model, 4, "overrideSelection");
+      await selectRow(model, 6, "newAnchor");
       expect(getNode(insertRowAfterPath, env).isVisible(env)).toBeFalsy();
     });
 
-    test("A selected column should hide the item", () => {
-      selectColumn(model, 4, "overrideSelection");
+    test("A selected column should hide the item", async () => {
+      await selectColumn(model, 4, "overrideSelection");
       expect(getNode(insertRowAfterPath, env).isVisible(env)).toBeFalsy();
     });
 
-    test("A selected cell", () => {
-      selectCell(model, "D4");
+    test("A selected cell", async () => {
+      await selectCell(model, "D4");
       expect(getName(insertRowAfterPath, env)).toBe("Row below");
       expect(getNode(insertRowAfterPath, env).isVisible(env)).toBeTruthy();
     });
 
     test("Multiple selected cells", async () => {
-      selectCell(model, "D4");
-      setAnchorCorner(model, "E5");
+      await selectCell(model, "D4");
+      await setAnchorCorner(model, "E5");
       expect(getName(insertRowAfterPath, env)).toBe("2 Rows below");
       await doAction(insertRowAfterPath, env);
       expect(dispatch).toHaveBeenLastCalledWith("ADD_COLUMNS_ROWS", {
@@ -672,15 +672,15 @@ describe("Menu Item actions", () => {
   describe("Insert row below via row menu", () => {
     const addRowAfterPath = ["add_row_after"];
 
-    test("A selected row", () => {
-      selectRow(model, 4, "overrideSelection");
+    test("A selected row", async () => {
+      await selectRow(model, 4, "overrideSelection");
       expect(getName(addRowAfterPath, env, rowMenuRegistry)).toBe("Insert row below");
       expect(getNode(addRowAfterPath, env, rowMenuRegistry).isVisible(env)).toBeTruthy();
     });
 
     test("Multiple consecutive selected rows", async () => {
-      selectRow(model, 4, "overrideSelection");
-      selectRow(model, 5, "updateAnchor");
+      await selectRow(model, 4, "overrideSelection");
+      await selectRow(model, 5, "updateAnchor");
       expect(getName(addRowAfterPath, env, rowMenuRegistry)).toBe("Insert 2 rows below");
       await doAction(addRowAfterPath, env, rowMenuRegistry);
       expect(dispatch).toHaveBeenLastCalledWith("ADD_COLUMNS_ROWS", {
@@ -694,14 +694,14 @@ describe("Menu Item actions", () => {
       expect(getNode(addRowAfterPath, env, rowMenuRegistry).isVisible(env)).toBeTruthy();
     });
 
-    test("Multiple inconsecutive selected rows", () => {
-      selectRow(model, 4, "overrideSelection");
-      selectRow(model, 6, "newAnchor");
+    test("Multiple inconsecutive selected rows", async () => {
+      await selectRow(model, 4, "overrideSelection");
+      await selectRow(model, 6, "newAnchor");
       expect(getNode(addRowAfterPath, env, rowMenuRegistry).isVisible(env)).toBeFalsy();
     });
 
-    test("Full sheet selected", () => {
-      selectAll(model);
+    test("Full sheet selected", async () => {
+      await selectAll(model);
       expect(getNode(addRowAfterPath, env, rowMenuRegistry).isVisible(env)).toBeTruthy();
     });
   });
@@ -709,15 +709,15 @@ describe("Menu Item actions", () => {
   describe("Insert -> Column left", () => {
     const insertColBeforePath = ["insert", "insert_column", "insert_column_before"];
 
-    test("A selected column", () => {
-      selectColumn(model, 4, "overrideSelection");
+    test("A selected column", async () => {
+      await selectColumn(model, 4, "overrideSelection");
       expect(getName(insertColBeforePath, env)).toBe("Column left");
       expect(getNode(insertColBeforePath, env).isVisible(env)).toBeTruthy();
     });
 
     test("Multiple consecutive selected columns", async () => {
-      selectColumn(model, 4, "overrideSelection");
-      selectColumn(model, 5, "updateAnchor");
+      await selectColumn(model, 4, "overrideSelection");
+      await selectColumn(model, 5, "updateAnchor");
       expect(getName(insertColBeforePath, env)).toBe("2 Columns left");
       await doAction(insertColBeforePath, env);
       expect(dispatch).toHaveBeenLastCalledWith("ADD_COLUMNS_ROWS", {
@@ -731,26 +731,26 @@ describe("Menu Item actions", () => {
       expect(getNode(insertColBeforePath, env).isVisible(env)).toBeTruthy();
     });
 
-    test("Multiple inconsecutive selected columns", () => {
-      selectColumn(model, 4, "overrideSelection");
-      selectColumn(model, 6, "newAnchor");
+    test("Multiple inconsecutive selected columns", async () => {
+      await selectColumn(model, 4, "overrideSelection");
+      await selectColumn(model, 6, "newAnchor");
       expect(getNode(insertColBeforePath, env).isVisible(env)).toBeFalsy();
     });
 
-    test("A selected row should hide the item", () => {
-      selectRow(model, 4, "overrideSelection");
+    test("A selected row should hide the item", async () => {
+      await selectRow(model, 4, "overrideSelection");
       expect(getNode(insertColBeforePath, env).isVisible(env)).toBeFalsy();
     });
 
-    test("A selected cell", () => {
-      selectCell(model, "D4");
+    test("A selected cell", async () => {
+      await selectCell(model, "D4");
       expect(getName(insertColBeforePath, env)).toBe("Column left");
       expect(getNode(insertColBeforePath, env).isVisible(env)).toBeTruthy();
     });
 
     test("Multiple selected cells", async () => {
-      selectCell(model, "D4");
-      setAnchorCorner(model, "E5");
+      await selectCell(model, "D4");
+      await setAnchorCorner(model, "E5");
       expect(getName(insertColBeforePath, env)).toBe("2 Columns left");
       await doAction(insertColBeforePath, env);
       expect(dispatch).toHaveBeenLastCalledWith("ADD_COLUMNS_ROWS", {
@@ -768,15 +768,15 @@ describe("Menu Item actions", () => {
   describe("Insert column left via column Menu", () => {
     const addColBeforePath = ["add_column_before"];
 
-    test("A selected column", () => {
-      selectColumn(model, 4, "overrideSelection");
+    test("A selected column", async () => {
+      await selectColumn(model, 4, "overrideSelection");
       expect(getName(addColBeforePath, env, colMenuRegistry)).toBe("Insert column left");
       expect(getNode(addColBeforePath, env, colMenuRegistry).isVisible(env)).toBeTruthy();
     });
 
     test("Multiple consecutive selected columns", async () => {
-      selectColumn(model, 4, "overrideSelection");
-      selectColumn(model, 5, "updateAnchor");
+      await selectColumn(model, 4, "overrideSelection");
+      await selectColumn(model, 5, "updateAnchor");
       expect(getName(addColBeforePath, env, colMenuRegistry)).toBe("Insert 2 columns left");
       await doAction(addColBeforePath, env, colMenuRegistry);
       expect(dispatch).toHaveBeenLastCalledWith("ADD_COLUMNS_ROWS", {
@@ -790,14 +790,14 @@ describe("Menu Item actions", () => {
       expect(getNode(addColBeforePath, env, colMenuRegistry).isVisible(env)).toBeTruthy();
     });
 
-    test("Multiple inconsecutive selected columns", () => {
-      selectColumn(model, 4, "overrideSelection");
-      selectColumn(model, 6, "newAnchor");
+    test("Multiple inconsecutive selected columns", async () => {
+      await selectColumn(model, 4, "overrideSelection");
+      await selectColumn(model, 6, "newAnchor");
       expect(getNode(addColBeforePath, env, colMenuRegistry).isVisible(env)).toBeFalsy();
     });
 
-    test("Full sheet selected", () => {
-      selectAll(model);
+    test("Full sheet selected", async () => {
+      await selectAll(model);
       expect(getNode(addColBeforePath, env, colMenuRegistry).isVisible(env)).toBeTruthy();
     });
   });
@@ -805,15 +805,15 @@ describe("Menu Item actions", () => {
   describe("Insert -> Column right", () => {
     const insertColAfterPath = ["insert", "insert_column", "insert_column_after"];
 
-    test("A selected column", () => {
-      selectColumn(model, 4, "overrideSelection");
+    test("A selected column", async () => {
+      await selectColumn(model, 4, "overrideSelection");
       expect(getName(insertColAfterPath, env)).toBe("Column right");
       expect(getNode(insertColAfterPath, env).isVisible(env)).toBeTruthy();
     });
 
     test("Multiple consecutive selected columns", async () => {
-      selectColumn(model, 4, "overrideSelection");
-      selectColumn(model, 5, "updateAnchor");
+      await selectColumn(model, 4, "overrideSelection");
+      await selectColumn(model, 5, "updateAnchor");
       expect(getName(insertColAfterPath, env)).toBe("2 Columns right");
       await doAction(insertColAfterPath, env);
       expect(dispatch).toHaveBeenLastCalledWith("ADD_COLUMNS_ROWS", {
@@ -827,26 +827,26 @@ describe("Menu Item actions", () => {
       expect(getNode(insertColAfterPath, env).isVisible(env)).toBeTruthy();
     });
 
-    test("Multiple inconsecutive selected columns", () => {
-      selectColumn(model, 4, "overrideSelection");
-      selectColumn(model, 6, "newAnchor");
+    test("Multiple inconsecutive selected columns", async () => {
+      await selectColumn(model, 4, "overrideSelection");
+      await selectColumn(model, 6, "newAnchor");
       expect(getNode(insertColAfterPath, env).isVisible(env)).toBeFalsy();
     });
 
-    test("A selected row should hide the item", () => {
-      selectRow(model, 4, "overrideSelection");
+    test("A selected row should hide the item", async () => {
+      await selectRow(model, 4, "overrideSelection");
       expect(getNode(insertColAfterPath, env).isVisible(env)).toBeFalsy();
     });
 
-    test("A selected cell", () => {
-      selectCell(model, "D4");
+    test("A selected cell", async () => {
+      await selectCell(model, "D4");
       expect(getName(insertColAfterPath, env)).toBe("Column right");
       expect(getNode(insertColAfterPath, env).isVisible(env)).toBeTruthy();
     });
 
     test("Multiple selected cells", async () => {
-      selectCell(model, "D4");
-      setAnchorCorner(model, "E5");
+      await selectCell(model, "D4");
+      await setAnchorCorner(model, "E5");
       expect(getName(insertColAfterPath, env)).toBe("2 Columns right");
       await doAction(insertColAfterPath, env);
       expect(dispatch).toHaveBeenLastCalledWith("ADD_COLUMNS_ROWS", {
@@ -864,15 +864,15 @@ describe("Menu Item actions", () => {
   describe("Insert column right via column menu", () => {
     const addColAfterPath = ["add_column_after"];
 
-    test("A selected column", () => {
-      selectColumn(model, 4, "overrideSelection");
+    test("A selected column", async () => {
+      await selectColumn(model, 4, "overrideSelection");
       expect(getName(addColAfterPath, env, colMenuRegistry)).toBe("Insert column right");
       expect(getNode(addColAfterPath, env, colMenuRegistry).isVisible(env)).toBeTruthy();
     });
 
     test("Multiple consecutive selected columns", async () => {
-      selectColumn(model, 4, "overrideSelection");
-      selectColumn(model, 5, "updateAnchor");
+      await selectColumn(model, 4, "overrideSelection");
+      await selectColumn(model, 5, "updateAnchor");
       expect(getName(addColAfterPath, env, colMenuRegistry)).toBe("Insert 2 columns right");
       await doAction(addColAfterPath, env, colMenuRegistry);
       expect(dispatch).toHaveBeenLastCalledWith("ADD_COLUMNS_ROWS", {
@@ -886,14 +886,14 @@ describe("Menu Item actions", () => {
       expect(getNode(addColAfterPath, env, colMenuRegistry).isVisible(env)).toBeTruthy();
     });
 
-    test("Multiple inconsecutive selected columns", () => {
-      selectColumn(model, 4, "overrideSelection");
-      selectColumn(model, 6, "newAnchor");
+    test("Multiple inconsecutive selected columns", async () => {
+      await selectColumn(model, 4, "overrideSelection");
+      await selectColumn(model, 6, "newAnchor");
       expect(getNode(addColAfterPath, env, colMenuRegistry).isVisible(env)).toBeFalsy();
     });
 
-    test("Full sheet selected", () => {
-      selectAll(model);
+    test("Full sheet selected", async () => {
+      await selectAll(model);
       expect(getNode(addColAfterPath, env, colMenuRegistry).isVisible(env)).toBeTruthy();
     });
   });
@@ -901,42 +901,42 @@ describe("Menu Item actions", () => {
   describe("Insert -> Insert cells and shift down", () => {
     const insertCellShiftDownPath = ["insert", "insert_cell", "insert_cell_down"];
 
-    test("A selected row should hide the item", () => {
-      selectRow(model, 4, "overrideSelection");
+    test("A selected row should hide the item", async () => {
+      await selectRow(model, 4, "overrideSelection");
       expect(getNode(insertCellShiftDownPath, env).isVisible(env)).toBeFalsy();
     });
 
-    test("A selected column should hide the item", () => {
-      selectColumn(model, 4, "overrideSelection");
+    test("A selected column should hide the item", async () => {
+      await selectColumn(model, 4, "overrideSelection");
       expect(getNode(insertCellShiftDownPath, env).isVisible(env)).toBeFalsy();
     });
 
-    test("Multiple consecutive selected columns should hide the item", () => {
-      selectColumn(model, 4, "overrideSelection");
-      selectColumn(model, 5, "updateAnchor");
+    test("Multiple consecutive selected columns should hide the item", async () => {
+      await selectColumn(model, 4, "overrideSelection");
+      await selectColumn(model, 5, "updateAnchor");
       expect(getNode(insertCellShiftDownPath, env).isVisible(env)).toBeFalsy();
     });
 
-    test("Multiple inconsecutive selected columns should hide the item", () => {
-      selectColumn(model, 4, "overrideSelection");
-      selectColumn(model, 6, "newAnchor");
+    test("Multiple inconsecutive selected columns should hide the item", async () => {
+      await selectColumn(model, 4, "overrideSelection");
+      await selectColumn(model, 6, "newAnchor");
       expect(getNode(insertCellShiftDownPath, env).isVisible(env)).toBeFalsy();
     });
 
-    test("Multiple consecutive selected rows should hide the item", () => {
-      selectRow(model, 4, "overrideSelection");
-      selectRow(model, 5, "updateAnchor");
+    test("Multiple consecutive selected rows should hide the item", async () => {
+      await selectRow(model, 4, "overrideSelection");
+      await selectRow(model, 5, "updateAnchor");
       expect(getNode(insertCellShiftDownPath, env).isVisible(env)).toBeFalsy();
     });
 
-    test("Multiple inconsecutive selected rows should hide the item", () => {
-      selectRow(model, 4, "overrideSelection");
-      selectRow(model, 6, "newAnchor");
+    test("Multiple inconsecutive selected rows should hide the item", async () => {
+      await selectRow(model, 4, "overrideSelection");
+      await selectRow(model, 6, "newAnchor");
       expect(getNode(insertCellShiftDownPath, env).isVisible(env)).toBeFalsy();
     });
 
     test("A selected cell", async () => {
-      selectCell(model, "D4");
+      await selectCell(model, "D4");
       expect(getName(insertCellShiftDownPath, env)).toBe("Shift down");
       await doAction(insertCellShiftDownPath, env);
       expect(dispatch).toHaveBeenLastCalledWith("INSERT_CELL", {
@@ -947,8 +947,8 @@ describe("Menu Item actions", () => {
     });
 
     test("Multiple selected cells", async () => {
-      selectCell(model, "D4");
-      setAnchorCorner(model, "E5");
+      await selectCell(model, "D4");
+      await setAnchorCorner(model, "E5");
       expect(getName(insertCellShiftDownPath, env)).toBe("Shift down");
       await doAction(insertCellShiftDownPath, env);
       expect(dispatch).toHaveBeenLastCalledWith("INSERT_CELL", {
@@ -962,42 +962,42 @@ describe("Menu Item actions", () => {
   describe("Insert -> Insert cells and shift right", () => {
     const insertCellShiftRightPath = ["insert", "insert_cell", "insert_cell_right"];
 
-    test("A selected row should hide the item", () => {
-      selectRow(model, 4, "overrideSelection");
+    test("A selected row should hide the item", async () => {
+      await selectRow(model, 4, "overrideSelection");
       expect(getNode(insertCellShiftRightPath, env).isVisible(env)).toBeFalsy();
     });
 
-    test("A selected column should hide the item", () => {
-      selectColumn(model, 4, "overrideSelection");
+    test("A selected column should hide the item", async () => {
+      await selectColumn(model, 4, "overrideSelection");
       expect(getNode(insertCellShiftRightPath, env).isVisible(env)).toBeFalsy();
     });
 
-    test("Multiple consecutive selected columns should hide the item", () => {
-      selectColumn(model, 4, "overrideSelection");
-      selectColumn(model, 5, "updateAnchor");
+    test("Multiple consecutive selected columns should hide the item", async () => {
+      await selectColumn(model, 4, "overrideSelection");
+      await selectColumn(model, 5, "updateAnchor");
       expect(getNode(insertCellShiftRightPath, env).isVisible(env)).toBeFalsy();
     });
 
-    test("Multiple inconsecutive selected columns should hide the item", () => {
-      selectColumn(model, 4, "overrideSelection");
-      selectColumn(model, 6, "newAnchor");
+    test("Multiple inconsecutive selected columns should hide the item", async () => {
+      await selectColumn(model, 4, "overrideSelection");
+      await selectColumn(model, 6, "newAnchor");
       expect(getNode(insertCellShiftRightPath, env).isVisible(env)).toBeFalsy();
     });
 
-    test("Multiple consecutive selected rows should hide the item", () => {
-      selectRow(model, 4, "overrideSelection");
-      selectRow(model, 5, "updateAnchor");
+    test("Multiple consecutive selected rows should hide the item", async () => {
+      await selectRow(model, 4, "overrideSelection");
+      await selectRow(model, 5, "updateAnchor");
       expect(getNode(insertCellShiftRightPath, env).isVisible(env)).toBeFalsy();
     });
 
-    test("Multiple inconsecutive selected rows should hide the item", () => {
-      selectRow(model, 4, "overrideSelection");
-      selectRow(model, 6, "newAnchor");
+    test("Multiple inconsecutive selected rows should hide the item", async () => {
+      await selectRow(model, 4, "overrideSelection");
+      await selectRow(model, 6, "newAnchor");
       expect(getNode(insertCellShiftRightPath, env).isVisible(env)).toBeFalsy();
     });
 
     test("A selected cell", async () => {
-      selectCell(model, "D4");
+      await selectCell(model, "D4");
       expect(getName(insertCellShiftRightPath, env)).toBe("Shift right");
       await doAction(insertCellShiftRightPath, env);
       expect(dispatch).toHaveBeenLastCalledWith("INSERT_CELL", {
@@ -1008,8 +1008,8 @@ describe("Menu Item actions", () => {
     });
 
     test("Multiple selected cells", async () => {
-      selectCell(model, "D4");
-      setAnchorCorner(model, "E5");
+      await selectCell(model, "D4");
+      await setAnchorCorner(model, "E5");
       expect(getName(insertCellShiftRightPath, env)).toBe("Shift right");
       await doAction(insertCellShiftRightPath, env);
       expect(dispatch).toHaveBeenLastCalledWith("INSERT_CELL", {
@@ -1056,7 +1056,7 @@ describe("Menu Item actions", () => {
   });
 
   test("Insert -> Checkbox", async () => {
-    selectCell(model, "A1");
+    await selectCell(model, "A1");
     await doAction(["insert", "insert_checkbox"], env);
     expect(getDataValidationRules(model, sheetId)).toMatchObject([
       { criterion: { type: "isBoolean" }, ranges: ["A1"] },
@@ -1130,11 +1130,14 @@ describe("Menu Item actions", () => {
       ["format_number_time", "22:43:00"],
       ["format_number_date_time", "26/09/2023 22:43:00"],
       ["format_number_duration", "27:51:38"],
-    ])("number formatting description with custom locale", (actionId, expectedDescription) => {
-      updateLocale(model, FR_LOCALE);
-      const action = getNode(["format", "format_number", actionId], env);
-      expect(action.description(env)).toBe(expectedDescription);
-    });
+    ])(
+      "number formatting description with custom locale",
+      async (actionId, expectedDescription) => {
+        await updateLocale(model, FR_LOCALE);
+        const action = getNode(["format", "format_number", actionId], env);
+        expect(action.description(env)).toBe(expectedDescription);
+      }
+    );
 
     test("Percent", async () => {
       await doAction(["format", "format_number", "format_number_percent"], env);
@@ -1187,7 +1190,7 @@ describe("Menu Item actions", () => {
     test("currency format description with locale and custom default currency", async () => {
       const model = await createModel({}, { defaultCurrency: TEST_CURRENCY });
       env = await makeTestEnv({ model });
-      updateLocale(model, FR_LOCALE);
+      await updateLocale(model, FR_LOCALE);
       const action = getNode(["format", "format_number", "format_number_currency"], env);
       expect(action.description(env)).toBe("€1 000,120");
     });
@@ -1256,9 +1259,9 @@ describe("Menu Item actions", () => {
       expect(spyOpenSidePanel).toHaveBeenCalledWith("MoreFormats", { category: "number" });
     });
 
-    test("Automatic format is active when format is computed", () => {
-      selectCell(env.model, "A1");
-      setCellContent(env.model, "A1", "1");
+    test("Automatic format is active when format is computed", async () => {
+      await selectCell(env.model, "A1");
+      await setCellContent(env.model, "A1", "1");
       const setNumberFormatAction = getNode(
         ["format", "format_number", "format_number_number"],
         env
@@ -1269,10 +1272,10 @@ describe("Menu Item actions", () => {
       );
       setNumberFormatAction.execute?.(env);
       expect(getCell(model, "A1")?.format).toBe("#,##0.00");
-      setCellContent(env.model, "B1", "=A1");
+      await setCellContent(env.model, "B1", "=A1");
       expect(getCell(model, "B1")?.format).toBeUndefined();
       expect(getEvaluatedCell(model, "B1")?.format).toBe("#,##0.00");
-      selectCell(env.model, "B1");
+      await selectCell(env.model, "B1");
       expect(setAutoFormatAction.isActive?.(env)).toBe(true);
       expect(setNumberFormatAction.isActive?.(env)).toBe(false);
     });
@@ -1293,23 +1296,23 @@ describe("Menu Item actions", () => {
           .map((node) => node.name(env));
       }
 
-      test("Custom date and currency formats are present in the number format item", () => {
+      test("Custom date and currency formats are present in the number format item", async () => {
         expect(getNumberFormatsInMenu()).not.toContain("#.##0[$£]");
-        setFormat(model, "A1", "#.##0[$£]");
+        await setFormat(model, "A1", "#.##0[$£]");
         expect(getNumberFormatsInMenu()).toContain("#.##0[$£]");
 
         expect(getNumberFormatsInMenu()).not.toContain("dd/mm/yyyy");
-        setFormat(model, "A1", "dd/mm/yyyy");
+        await setFormat(model, "A1", "dd/mm/yyyy");
         expect(getNumberFormatsInMenu()).toContain("dd/mm/yyyy");
       });
 
-      test("Custom formats that are nether dates nor currencies are not present", () => {
-        setFormat(model, "A1", "#.####0");
+      test("Custom formats that are nether dates nor currencies are not present", async () => {
+        await setFormat(model, "A1", "#.####0");
         expect(getNumberFormatsInMenu()).not.toContain("#.####0");
       });
 
-      test("Default formats are not re-added in custom formats", () => {
-        setFormat(model, "A1", "m/d/yyyy");
+      test("Default formats are not re-added in custom formats", async () => {
+        await setFormat(model, "A1", "m/d/yyyy");
         expect(getNumberFormatsInMenu()).not.toContain("m/d/yyyy");
       });
     });
@@ -1452,14 +1455,14 @@ describe("Menu Item actions", () => {
     expect(spyOpenSidePanel).toHaveBeenCalledWith("SplitToColumns", {});
   });
 
-  test("Data -> Split to columns is disabled when multiple cols are selected", () => {
-    setSelection(model, ["A1"]);
+  test("Data -> Split to columns is disabled when multiple cols are selected", async () => {
+    await setSelection(model, ["A1"]);
     expect(getNode(["data", "split_to_columns"], env).isEnabled(env)).toBeTruthy();
 
-    setSelection(model, ["A1:C1"]);
+    await setSelection(model, ["A1:C1"]);
     expect(getNode(["data", "split_to_columns"], env).isEnabled(env)).toBeFalsy();
 
-    setSelection(model, ["A1", "B1"]);
+    await setSelection(model, ["A1", "B1"]);
     expect(getNode(["data", "split_to_columns"], env).isEnabled(env)).toBeFalsy();
   });
 
@@ -1488,14 +1491,14 @@ describe("Menu Item actions", () => {
   describe("Data -> Sort", () => {
     const pathSort = ["data", "sort_range"];
 
-    test("A selected zone", () => {
-      setSelection(model, ["A1:A2"]);
+    test("A selected zone", async () => {
+      await setSelection(model, ["A1:A2"]);
       expect(getName(pathSort, env)).toBe("Sort range");
       expect(getNode(pathSort, env).isVisible(env)).toBeTruthy();
     });
 
-    test("Multiple selected zones", () => {
-      setSelection(model, ["A1:A2", "B1:B2"]);
+    test("Multiple selected zones", async () => {
+      await setSelection(model, ["A1:A2", "B1:B2"]);
       expect(getNode(pathSort, env).isVisible(env)).toBeFalsy();
     });
   });
@@ -1503,7 +1506,7 @@ describe("Menu Item actions", () => {
     const hidePath = ["hide_columns"];
     const unhidePath = ["unhide_columns"];
     test("Action on single column selection", async () => {
-      selectColumn(model, 1, "overrideSelection");
+      await selectColumn(model, 1, "overrideSelection");
       expect(getName(hidePath, env, colMenuRegistry)).toBe("Hide column B");
       expect(getNode(hidePath, env, colMenuRegistry).isVisible(env)).toBeTruthy();
       await doAction(hidePath, env, colMenuRegistry);
@@ -1514,7 +1517,7 @@ describe("Menu Item actions", () => {
       });
     });
     test("Action with at least one active column", async () => {
-      setSelection(model, ["B1:B100", "C5"]);
+      await setSelection(model, ["B1:B100", "C5"]);
       expect(getName(hidePath, env, colMenuRegistry)).toBe("Hide columns B - C");
       expect(getNode(hidePath, env, colMenuRegistry).isVisible(env)).toBeTruthy();
       await doAction(hidePath, env, colMenuRegistry);
@@ -1525,7 +1528,7 @@ describe("Menu Item actions", () => {
       });
     });
     test("Action without any active column", async () => {
-      setSelection(model, ["B1"]);
+      await setSelection(model, ["B1"]);
       expect(getName(hidePath, env, colMenuRegistry)).toBe("Hide columns");
       expect(getNode(hidePath, env, colMenuRegistry).isVisible(env)).toBeTruthy();
       await doAction(hidePath, env, colMenuRegistry);
@@ -1536,14 +1539,14 @@ describe("Menu Item actions", () => {
       });
     });
 
-    test("Inactive menu item on invalid selection", () => {
-      setSelection(model, ["A1:A100", "A4:Z4"]);
+    test("Inactive menu item on invalid selection", async () => {
+      await setSelection(model, ["A1:A100", "A4:Z4"]);
       expect(getNode(hidePath, env, colMenuRegistry).isVisible(env)).toBeFalsy();
     });
 
     test("Unhide cols from Col menu", async () => {
-      hideColumns(model, ["C"]);
-      setSelection(model, ["B1:E100"]);
+      await hideColumns(model, ["C"]);
+      await setSelection(model, ["B1:E100"]);
       expect(getNode(unhidePath, env, colMenuRegistry).isVisible(env)).toBeTruthy();
       await doAction(unhidePath, env, colMenuRegistry);
       expect(dispatch).toHaveBeenCalledWith("UNHIDE_COLUMNS_ROWS", {
@@ -1552,14 +1555,14 @@ describe("Menu Item actions", () => {
         dimension: "COL",
       });
     });
-    test("Unhide rows from Col menu without hidden cols", () => {
-      setSelection(model, ["B1:E100"]);
+    test("Unhide rows from Col menu without hidden cols", async () => {
+      await setSelection(model, ["B1:E100"]);
       expect(getNode(unhidePath, env, colMenuRegistry).isVisible(env)).toBeFalsy();
     });
     test("Unhide all cols from top menu", async () => {
       // no hidden rows
       expect(getNode(["edit", "edit_unhide_columns"], env).isVisible(env)).toBeFalsy();
-      hideColumns(model, ["C"]);
+      await hideColumns(model, ["C"]);
       expect(getNode(["edit", "edit_unhide_columns"], env).isVisible(env)).toBeTruthy();
       await doAction(["edit", "edit_unhide_columns"], env);
       const sheetId = env.model.getters.getActiveSheetId();
@@ -1574,7 +1577,7 @@ describe("Menu Item actions", () => {
     const hidePath = ["hide_rows"];
     const unhidePath = ["unhide_rows"];
     test("Action on single row selection", async () => {
-      selectRow(model, 1, "overrideSelection");
+      await selectRow(model, 1, "overrideSelection");
       expect(getName(hidePath, env, rowMenuRegistry)).toBe("Hide row 2");
       expect(getNode(hidePath, env, rowMenuRegistry).isVisible(env)).toBeTruthy();
       await doAction(hidePath, env, rowMenuRegistry);
@@ -1585,7 +1588,7 @@ describe("Menu Item actions", () => {
       });
     });
     test("Action with at least one active row", async () => {
-      setSelection(model, ["A2:Z2", "C3"]);
+      await setSelection(model, ["A2:Z2", "C3"]);
       expect(getName(hidePath, env, rowMenuRegistry)).toBe("Hide rows 2 - 3");
       expect(getNode(hidePath, env, rowMenuRegistry).isVisible(env)).toBeTruthy();
       await doAction(hidePath, env, rowMenuRegistry);
@@ -1596,7 +1599,7 @@ describe("Menu Item actions", () => {
       });
     });
     test("Action without any active column", async () => {
-      setSelection(model, ["B1"]);
+      await setSelection(model, ["B1"]);
       expect(getName(hidePath, env, rowMenuRegistry)).toBe("Hide rows");
       expect(getNode(hidePath, env, rowMenuRegistry).isVisible(env)).toBeTruthy();
       await doAction(hidePath, env, rowMenuRegistry);
@@ -1607,14 +1610,14 @@ describe("Menu Item actions", () => {
       });
     });
 
-    test("Inactive menu item on invalid selection", () => {
-      setSelection(model, ["A1:A100", "A4:Z4"]);
+    test("Inactive menu item on invalid selection", async () => {
+      await setSelection(model, ["A1:A100", "A4:Z4"]);
       expect(getNode(hidePath, env, rowMenuRegistry).isVisible(env)).toBeFalsy();
     });
 
     test("Unhide rows from Row menu with hidden rows", async () => {
-      hideRows(model, [2]);
-      setSelection(model, ["A1:Z4"]);
+      await hideRows(model, [2]);
+      await setSelection(model, ["A1:Z4"]);
       expect(getNode(unhidePath, env, rowMenuRegistry).isVisible(env)).toBeTruthy();
       await doAction(unhidePath, env, rowMenuRegistry);
       expect(dispatch).toHaveBeenCalledWith("UNHIDE_COLUMNS_ROWS", {
@@ -1623,15 +1626,15 @@ describe("Menu Item actions", () => {
         dimension: "ROW",
       });
     });
-    test("Unhide rows from Row menu without hidden rows", () => {
-      setSelection(model, ["A1:Z4"]);
+    test("Unhide rows from Row menu without hidden rows", async () => {
+      await setSelection(model, ["A1:Z4"]);
       expect(getNode(unhidePath, env, rowMenuRegistry).isVisible(env)).toBeFalsy();
     });
 
     test("Unhide all rows from top menu", async () => {
       // no hidden rows
       expect(getNode(["edit", "edit_unhide_rows"], env).isVisible(env)).toBeFalsy();
-      hideRows(model, [2]);
+      await hideRows(model, [2]);
       expect(getNode(["edit", "edit_unhide_rows"], env).isVisible(env)).toBeTruthy();
       await doAction(["edit", "edit_unhide_rows"], env);
       const sheetId = env.model.getters.getActiveSheetId();
@@ -1642,14 +1645,14 @@ describe("Menu Item actions", () => {
       });
     });
 
-    test("Hide row option unavailable when selecting all rows with folded row grouping", () => {
+    test("Hide row option unavailable when selecting all rows with folded row grouping", async () => {
       const lastRow = model.getters.getNumberRows(sheetId) - 1;
 
-      groupHeaders(model, "ROW", 0, 2, sheetId);
-      foldHeaderGroup(model, "ROW", 0, 2, sheetId);
+      await groupHeaders(model, "ROW", 0, 2, sheetId);
+      await foldHeaderGroup(model, "ROW", 0, 2, sheetId);
 
-      selectRow(model, 3, "newAnchor");
-      selectRow(model, lastRow, "updateAnchor");
+      await selectRow(model, 3, "newAnchor");
+      await selectRow(model, lastRow, "updateAnchor");
       expect(getNode(hidePath, env, rowMenuRegistry).isVisible(env)).toBeFalsy();
     });
 
@@ -1659,7 +1662,7 @@ describe("Menu Item actions", () => {
       const editTablePath = ["edit", "edit_table"];
 
       test("Insert -> Table", async () => {
-        setSelection(model, ["A1:A5"]);
+        await setSelection(model, ["A1:A5"]);
         expect(getName(insertTablePath, env)).toBe("Table");
         await doAction(insertTablePath, env);
         expect(model.getters.getTable({ sheetId, row: 0, col: 0 })).toMatchObject({
@@ -1668,7 +1671,7 @@ describe("Menu Item actions", () => {
       });
 
       test("Insert -> Table on a whole column make it into an unbounded zone", async () => {
-        setSelection(model, ["A1:A100"]);
+        await setSelection(model, ["A1:A100"]);
         expect(getName(insertTablePath, env)).toBe("Table");
         await doAction(insertTablePath, env);
         expect(model.getters.getTable({ sheetId, row: 0, col: 0 })).toMatchObject({
@@ -1676,20 +1679,20 @@ describe("Menu Item actions", () => {
         });
       });
 
-      test("Insert -> Table is not visible if there is already a table in the selection, or if the selection is not continuous", () => {
-        setSelection(model, ["A1", "B2"]);
+      test("Insert -> Table is not visible if there is already a table in the selection, or if the selection is not continuous", async () => {
+        await setSelection(model, ["A1", "B2"]);
         expect(getNode(insertTablePath, env).isVisible(env)).toBeFalsy();
 
-        setSelection(model, ["A1:A5"]);
+        await setSelection(model, ["A1:A5"]);
         expect(getNode(insertTablePath, env).isVisible(env)).toBeTruthy();
 
-        createTable(model, "A1:A5");
+        await createTable(model, "A1:A5");
         expect(getNode(insertTablePath, env).isVisible(env)).toBeFalsy();
       });
 
       test("Insert -> Table creates a dynamic table if it's called on a spreading cell", async () => {
-        setCellContent(model, "A1", "=MUNIT(5)");
-        setSelection(model, ["A1"]);
+        await setCellContent(model, "A1", "=MUNIT(5)");
+        await setSelection(model, ["A1"]);
         await doAction(insertTablePath, env);
         expect(model.getters.getCoreTable({ sheetId, row: 0, col: 0 })).toMatchObject({
           range: { zone: toZone("A1") },
@@ -1701,8 +1704,8 @@ describe("Menu Item actions", () => {
       });
 
       test("Insert -> select the whole spreading zone and create a dynamic if it is called on a single spreaded cell", async () => {
-        setCellContent(model, "A1", "=MUNIT(5)");
-        setSelection(model, ["B1"]);
+        await setCellContent(model, "A1", "=MUNIT(5)");
+        await setSelection(model, ["B1"]);
         await doAction(insertTablePath, env);
         expect(model.getters.getSelectedZone()).toEqual(toZone("A1:E5"));
         expect(model.getters.getCoreTable({ sheetId, row: 0, col: 0 })).toMatchObject({
@@ -1715,8 +1718,8 @@ describe("Menu Item actions", () => {
       });
 
       test("Insert -> Table creates a dynamic table if it's called on all the spreading cells of a formula", async () => {
-        setCellContent(model, "A1", "=MUNIT(5)");
-        setSelection(model, ["A1:E5"]);
+        await setCellContent(model, "A1", "=MUNIT(5)");
+        await setSelection(model, ["A1:E5"]);
         await doAction(insertTablePath, env);
         expect(model.getters.getCoreTable({ sheetId, row: 0, col: 0 })).toMatchObject({
           range: { zone: toZone("A1") },
@@ -1728,8 +1731,8 @@ describe("Menu Item actions", () => {
       });
 
       test("Insert -> Table creates a dynamic table if it's called on a #SPILL! error", async () => {
-        setCellContent(model, "A1", "=MUNIT(500)");
-        setSelection(model, ["A1"]);
+        await setCellContent(model, "A1", "=MUNIT(500)");
+        await setSelection(model, ["A1"]);
         expect(getEvaluatedCell(model, "A1")?.value).toBe("#SPILL!");
         await doAction(insertTablePath, env);
         expect(model.getters.getCoreTable({ sheetId, row: 0, col: 0 })).toMatchObject({
@@ -1739,10 +1742,10 @@ describe("Menu Item actions", () => {
       });
 
       test("Insert -> Table do not creates a dynamic table if it's called on cell referencing a #SPILL! error", async () => {
-        setCellContent(model, "A1", "=A3");
-        setCellContent(model, "A3", "=MUNIT(500)");
+        await setCellContent(model, "A1", "=A3");
+        await setCellContent(model, "A3", "=MUNIT(500)");
         expect(getEvaluatedCell(model, "A1")?.value).toBe("#SPILL!");
-        setSelection(model, ["A1"]);
+        await setSelection(model, ["A1"]);
         await doAction(insertTablePath, env);
         expect(model.getters.getCoreTable({ sheetId, row: 0, col: 0 })).toMatchObject({
           range: { zone: toZone("A1") },
@@ -1752,60 +1755,60 @@ describe("Menu Item actions", () => {
 
       test("Edit -> Table (topbar)", async () => {
         const spyOpenSidePanel = jest.spyOn(env, "openSidePanel");
-        createTable(model, "A1:A5");
+        await createTable(model, "A1:A5");
         expect(getName(editTablePath, env)).toBe("Edit table");
         await doAction(editTablePath, env);
         expect(spyOpenSidePanel).toHaveBeenCalledWith("TableSidePanel", {});
       });
 
-      test("Edit -> Table (topbar) is not visible if there is no table in the selection", () => {
+      test("Edit -> Table (topbar) is not visible if there is no table in the selection", async () => {
         expect(getNode(editTablePath, env).isVisible(env)).toBeFalsy();
-        createTable(model, "A1:A5");
+        await createTable(model, "A1:A5");
         expect(getNode(editTablePath, env).isVisible(env)).toBeTruthy();
       });
 
       test("Edit table (cellRegistry)", async () => {
         const spyOpenSidePanel = jest.spyOn(env, "openSidePanel");
-        createTable(model, "A1:A5");
+        await createTable(model, "A1:A5");
         expect(getName(["edit_table"], env, cellMenuRegistry)).toBe("Edit table");
         await doAction(["edit_table"], env, cellMenuRegistry);
         expect(spyOpenSidePanel).toHaveBeenCalledWith("TableSidePanel", {});
       });
 
       test("Delete table (cellRegistry)", async () => {
-        createTable(model, "A1:A5");
+        await createTable(model, "A1:A5");
         expect(getName(["delete_table"], env, cellMenuRegistry)).toBe("Delete table");
         await doAction(["delete_table"], env, cellMenuRegistry);
         expect(model.getters.getTable({ sheetId, row: 0, col: 0 })).toBeUndefined();
       });
 
       test("Delete table (cellRegistry) on a dynamic table", async () => {
-        setCellContent(model, "A1", "=MUNIT(5)");
-        createDynamicTable(model, "A1");
-        setSelection(model, ["C3"]);
+        await setCellContent(model, "A1", "=MUNIT(5)");
+        await createDynamicTable(model, "A1");
+        await setSelection(model, ["C3"]);
         await doAction(["delete_table"], env, cellMenuRegistry);
         expect(model.getters.getTable({ sheetId, row: 0, col: 0 })).toBeUndefined();
       });
 
-      test("Edit/delete table (cellRegistry) visible only with a single table in the selection", () => {
+      test("Edit/delete table (cellRegistry) visible only with a single table in the selection", async () => {
         expect(getNode(["edit_table"], env, cellMenuRegistry).isVisible(env)).toBeFalsy();
         expect(getNode(["delete_table"], env, cellMenuRegistry).isVisible(env)).toBeFalsy();
 
-        createTable(model, "A1:A5");
+        await createTable(model, "A1:A5");
         expect(getNode(["edit_table"], env, cellMenuRegistry).isVisible(env)).toBeTruthy();
         expect(getNode(["delete_table"], env, cellMenuRegistry).isVisible(env)).toBeTruthy();
 
-        setSelection(model, ["A1:B5"]);
+        await setSelection(model, ["A1:B5"]);
         expect(getNode(["edit_table"], env, cellMenuRegistry).isVisible(env)).toBeTruthy();
         expect(getNode(["delete_table"], env, cellMenuRegistry).isVisible(env)).toBeTruthy();
 
-        createTable(model, "B1:B5");
+        await createTable(model, "B1:B5");
         expect(getNode(["edit_table"], env, cellMenuRegistry).isVisible(env)).toBeFalsy();
         expect(getNode(["delete_table"], env, cellMenuRegistry).isVisible(env)).toBeFalsy();
       });
 
       test("Filters -> Create filter", async () => {
-        setSelection(model, ["A1:A5"]);
+        await setSelection(model, ["A1:A5"]);
         expect(getName(filterPath, env)).toBe("Add filters");
         await doAction(filterPath, env);
         expect(model.getters.getTable({ sheetId, row: 0, col: 0 })).toMatchObject({
@@ -1815,15 +1818,15 @@ describe("Menu Item actions", () => {
       });
 
       test("Filters -> Add filters on existing table", async () => {
-        createTable(model, "A1:A5");
-        updateTableConfig(model, "A1:A5", { hasFilters: false });
+        await createTable(model, "A1:A5");
+        await updateTableConfig(model, "A1:A5", { hasFilters: false });
         await doAction(filterPath, env);
         expect(model.getters.getTable({ sheetId, row: 0, col: 0 })?.config.hasFilters).toBe(true);
       });
 
       test("Filters -> Remove filter", async () => {
-        createTableWithFilter(model, "A1:A5");
-        setSelection(model, ["A1:A5"]);
+        await createTableWithFilter(model, "A1:A5");
+        await setSelection(model, ["A1:A5"]);
         expect(getName(filterPath, env)).toBe("Remove selected filters");
         await doAction(filterPath, env);
         const table = model.getters.getTable({ sheetId, row: 0, col: 0 });
@@ -1831,12 +1834,12 @@ describe("Menu Item actions", () => {
       });
 
       test("Filters -> Add/Remove filters with multiple table in the selection works only on first table", async () => {
-        createTable(model, "A1:A5");
-        createTable(model, "B1:B5");
-        updateTableConfig(model, "A1:A5", { hasFilters: false });
-        updateTableConfig(model, "B1:B5", { hasFilters: false });
+        await createTable(model, "A1:A5");
+        await createTable(model, "B1:B5");
+        await updateTableConfig(model, "A1:A5", { hasFilters: false });
+        await updateTableConfig(model, "B1:B5", { hasFilters: false });
 
-        setSelection(model, ["A1:B5"]);
+        await setSelection(model, ["A1:B5"]);
         await doAction(filterPath, env);
         expect(model.getters.getTables(sheetId)).toMatchObject([
           { range: { zone: toZone("A1:A5") }, config: { hasFilters: true } },
@@ -1850,26 +1853,26 @@ describe("Menu Item actions", () => {
         ]);
       });
 
-      test("Filters -> Create filter is disabled when the selection is not continuous", () => {
-        setSelection(model, ["A1", "B6"]);
+      test("Filters -> Create filter is disabled when the selection is not continuous", async () => {
+        await setSelection(model, ["A1", "B6"]);
         expect(getNode(filterPath, env).isVisible(env)).toBeTruthy();
         expect(getNode(filterPath, env).isEnabled(env)).toBeFalsy();
       });
 
-      test("Filters -> Create filter is enabled for continuous selection of multiple zones", () => {
-        setSelection(model, ["A1", "A2:A5", "B1:B5"]);
+      test("Filters -> Create filter is enabled for continuous selection of multiple zones", async () => {
+        await setSelection(model, ["A1", "A2:A5", "B1:B5"]);
         expect(getNode(filterPath, env).isVisible(env)).toBeTruthy();
         expect(getNode(filterPath, env).isEnabled(env)).toBeTruthy();
       });
 
-      test("Filters -> Remove filter is displayed instead of add filter when the selection contains a filter", () => {
-        setSelection(model, ["A1:A5"]);
+      test("Filters -> Remove filter is displayed instead of add filter when the selection contains a filter", async () => {
+        await setSelection(model, ["A1:A5"]);
         expect(getName(filterPath, env)).toBe("Add filters");
 
-        createTableWithFilter(model, "A1:B5");
+        await createTableWithFilter(model, "A1:B5");
         expect(getName(filterPath, env)).toBe("Remove selected filters");
 
-        setSelection(model, ["A1:B9"]);
+        await setSelection(model, ["A1:B9"]);
         expect(getName(filterPath, env)).toBe("Remove selected filters");
       });
     });
@@ -1887,13 +1890,13 @@ describe("Menu Item actions", () => {
     const path_gridlines = ["view", "show", "view_gridlines"];
     const sheetId = model.getters.getActiveSheetId();
 
-    setGridLinesVisibility(model, true);
+    await setGridLinesVisibility(model, true);
 
     expect(getName(path_gridlines, env)).toBe("Gridlines");
     expect(getNode(path_gridlines, env).isVisible(env)).toBeTruthy();
     expect(getNode(path_gridlines, env).isActive?.(env)).toBeTruthy();
 
-    setGridLinesVisibility(model, false);
+    await setGridLinesVisibility(model, false);
     expect(getName(path_gridlines, env)).toBe("Gridlines");
     expect(getNode(path_gridlines, env).isVisible(env)).toBeTruthy();
     expect(getNode(path_gridlines, env).isActive?.(env)).toBeFalsy();
@@ -1903,7 +1906,7 @@ describe("Menu Item actions", () => {
       sheetId,
       areGridLinesVisible: true,
     });
-    setGridLinesVisibility(model, true);
+    await setGridLinesVisibility(model, true);
 
     await doAction(path_gridlines, env);
     expect(dispatch).toHaveBeenCalledWith("SET_GRID_LINES_VISIBILITY", {
@@ -1936,7 +1939,7 @@ describe("Menu Item actions", () => {
     const ungroupRowsPath = ["view", "group_headers", "ungroup_rows"];
 
     test("Can group columns", async () => {
-      setSelection(model, ["A1:C3"]);
+      await setSelection(model, ["A1:C3"]);
       expect(getName(groupColsPath, env)).toBe("Group columns A - C");
       await doAction(groupColsPath, env);
       expect(model.getters.getHeaderGroups(sheetId, "COL")[0]).toMatchObject({
@@ -1945,35 +1948,35 @@ describe("Menu Item actions", () => {
       });
     });
 
-    test("Cannot group multiple selections", () => {
-      setSelection(model, ["A1:B3", "C1:C3"]);
+    test("Cannot group multiple selections", async () => {
+      await setSelection(model, ["A1:B3", "C1:C3"]);
       expect(getNode(groupColsPath, env).isVisible(env)).toBeFalsy();
     });
 
-    test("Cannot re-group same selection of columns", () => {
-      setSelection(model, ["A1:B3"]);
+    test("Cannot re-group same selection of columns", async () => {
+      await setSelection(model, ["A1:B3"]);
       getNode(groupColsPath, env).execute?.(env);
       expect(getNode(groupColsPath, env).isVisible(env)).toBeFalsy();
     });
 
     test("Can ungroup columns", async () => {
-      groupColumns(model, "A", "C");
-      setSelection(model, ["A1:C3"]);
+      await groupColumns(model, "A", "C");
+      await setSelection(model, ["A1:C3"]);
       expect(getName(ungroupColsPath, env)).toBe("Ungroup columns A - C");
       await doAction(ungroupColsPath, env);
       expect(model.getters.getHeaderGroups(sheetId, "COL")).toHaveLength(0);
     });
 
-    test("Cannot ungroup columns when there's no group in the selection", () => {
-      setSelection(model, ["A1:C3"]);
+    test("Cannot ungroup columns when there's no group in the selection", async () => {
+      await setSelection(model, ["A1:C3"]);
       expect(getNode(ungroupColsPath, env).isVisible(env)).toBeFalsy();
 
-      groupColumns(model, "A", "C");
+      await groupColumns(model, "A", "C");
       expect(getNode(ungroupColsPath, env).isVisible(env)).toBeTruthy();
     });
 
     test("Can group rows", async () => {
-      setSelection(model, ["A1:C3"]);
+      await setSelection(model, ["A1:C3"]);
       expect(getName(groupRowsPath, env)).toBe("Group rows 1 - 3");
       await doAction(groupRowsPath, env);
       expect(model.getters.getHeaderGroups(sheetId, "ROW")[0]).toMatchObject({
@@ -1982,30 +1985,30 @@ describe("Menu Item actions", () => {
       });
     });
 
-    test("Cannot group multiple selections", () => {
-      setSelection(model, ["A1:C1", "A2:C2"]);
+    test("Cannot group multiple selections", async () => {
+      await setSelection(model, ["A1:C1", "A2:C2"]);
       expect(getNode(groupRowsPath, env).isVisible(env)).toBeFalsy();
     });
 
-    test("Cannot re-group same selection of rows", () => {
-      setSelection(model, ["A1:B3"]);
+    test("Cannot re-group same selection of rows", async () => {
+      await setSelection(model, ["A1:B3"]);
       getNode(groupRowsPath, env).execute?.(env);
       expect(getNode(groupRowsPath, env).isVisible(env)).toBeFalsy();
     });
 
     test("Can ungroup rows", async () => {
-      groupRows(model, 0, 2);
-      setSelection(model, ["A1:C3"]);
+      await groupRows(model, 0, 2);
+      await setSelection(model, ["A1:C3"]);
       expect(getName(ungroupRowsPath, env)).toBe("Ungroup rows 1 - 3");
       await doAction(ungroupRowsPath, env);
       expect(model.getters.getHeaderGroups(sheetId, "ROW")).toHaveLength(0);
     });
 
-    test("Cannot ungroup rows when there's no group in the selection", () => {
-      setSelection(model, ["A1:C3"]);
+    test("Cannot ungroup rows when there's no group in the selection", async () => {
+      await setSelection(model, ["A1:C3"]);
       expect(getNode(ungroupRowsPath, env).isVisible(env)).toBeFalsy();
 
-      groupRows(model, 0, 2);
+      await groupRows(model, 0, 2);
       expect(getNode(ungroupRowsPath, env).isVisible(env)).toBeTruthy();
     });
   });
@@ -2017,7 +2020,7 @@ describe("Menu Item actions", () => {
       expect(model.getters.getPaneDivisions(sheetId)).toEqual({ xSplit: 1, ySplit: 0 });
       await doAction(["view", "freeze_panes", "freeze_second_col"], env);
       expect(model.getters.getPaneDivisions(sheetId)).toEqual({ xSplit: 2, ySplit: 0 });
-      setSelection(model, ["G5"]);
+      await setSelection(model, ["G5"]);
       await doAction(["view", "freeze_panes", "freeze_current_col"], env);
       expect(model.getters.getPaneDivisions(sheetId)).toEqual({ xSplit: 7, ySplit: 0 });
       await doAction(["view", "freeze_panes", "unfreeze_columns"], env);
@@ -2030,33 +2033,33 @@ describe("Menu Item actions", () => {
       expect(model.getters.getPaneDivisions(sheetId)).toEqual({ xSplit: 0, ySplit: 1 });
       await doAction(["view", "freeze_panes", "freeze_second_row"], env);
       expect(model.getters.getPaneDivisions(sheetId)).toEqual({ xSplit: 0, ySplit: 2 });
-      setSelection(model, ["G5"]);
+      await setSelection(model, ["G5"]);
       await doAction(["view", "freeze_panes", "freeze_current_row"], env);
       expect(model.getters.getPaneDivisions(sheetId)).toEqual({ xSplit: 0, ySplit: 5 });
       await doAction(["view", "freeze_panes", "unfreeze_rows"], env);
       expect(model.getters.getPaneDivisions(sheetId)).toEqual({ xSplit: 0, ySplit: 0 });
     });
 
-    test("Unfreeze columns and rows", () => {
+    test("Unfreeze columns and rows", async () => {
       const sheetId = model.getters.getActiveSheetId();
       const view = topbarMenuRegistry.getMenuItems().find((item) => item.id === "view")!;
       const unfreeze_panes = view
         .children({} as SpreadsheetChildEnv)
         .find((item) => item.id === "unfreeze_panes")!;
       expect(unfreeze_panes.isVisible(env)).toBe(false);
-      freezeColumns(model, 1);
+      await freezeColumns(model, 1);
       expect(unfreeze_panes.isVisible(env)).toBe(true);
       unfreeze_panes.execute?.(env);
       expect(model.getters.getPaneDivisions(sheetId));
       expect(unfreeze_panes.isVisible(env)).toBe(false);
-      freezeRows(model, 3);
+      await freezeRows(model, 3);
       expect(unfreeze_panes.isVisible(env)).toBe(true);
       unfreeze_panes.execute?.(env);
       expect(model.getters.getPaneDivisions(sheetId));
       expect(unfreeze_panes.isVisible(env)).toBe(false);
     });
 
-    test("unfreeze actions visibility", () => {
+    test("unfreeze actions visibility", async () => {
       const unfreezeColAction = getNode(["view", "freeze_panes", "unfreeze_columns"], env);
       const unfreezeRowAction = getNode(["view", "freeze_panes", "unfreeze_rows"], env);
       const unfreezeAllAction = getNode(["view", "unfreeze_panes"], env);
@@ -2065,12 +2068,12 @@ describe("Menu Item actions", () => {
       expect(unfreezeRowAction.isVisible(env)).toBe(false);
       expect(unfreezeAllAction.isVisible(env)).toBe(false);
 
-      freezeColumns(model, 1);
+      await freezeColumns(model, 1);
       expect(unfreezeColAction.isVisible(env)).toBe(true);
       expect(unfreezeRowAction.isVisible(env)).toBe(false);
       expect(unfreezeAllAction.isVisible(env)).toBe(true);
 
-      freezeRows(model, 3);
+      await freezeRows(model, 3);
       expect(unfreezeColAction.isVisible(env)).toBe(true);
       expect(unfreezeRowAction.isVisible(env)).toBe(true);
       expect(unfreezeAllAction.isVisible(env)).toBe(true);

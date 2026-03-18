@@ -796,7 +796,7 @@ describe("SPLIT function", () => {
   test("Simple split", async () => {
     const grid = { A1: "Hello there, General Kenobi" };
     const model = await createModelFromGrid(grid);
-    setCellContent(model, "A5", '=SPLIT(A1, " ")');
+    await setCellContent(model, "A5", '=SPLIT(A1, " ")');
     expect(getRangeValuesAsMatrix(model, "A5:D5")).toEqual([
       ["Hello", "there,", "General", "Kenobi"],
     ]);
@@ -805,7 +805,7 @@ describe("SPLIT function", () => {
   test("Split with multiple characters", async () => {
     const grid = { A1: "Hello there, General Kenobi" };
     const model = await createModelFromGrid(grid);
-    setCellContent(model, "A5", '=SPLIT(A1, " e")');
+    await setCellContent(model, "A5", '=SPLIT(A1, " e")');
     expect(getRangeValuesAsMatrix(model, "A5:J5")).toEqual([
       ["H", "llo", "th", "r", ",", "G", "n", "ral", "K", "nobi"],
     ]);
@@ -814,32 +814,32 @@ describe("SPLIT function", () => {
   test("split_by_each argument", async () => {
     const grid = { A1: "Hello there, General Kenobi" };
     const model = await createModelFromGrid(grid);
-    setCellContent(model, "A5", '=SPLIT(A1, ", ", 1)');
+    await setCellContent(model, "A5", '=SPLIT(A1, ", ", 1)');
     expect(getRangeValuesAsMatrix(model, "A5:D5")).toEqual([
       ["Hello", "there", "General", "Kenobi"],
     ]);
     expect(checkFunctionDoesntSpreadBeyondRange(model, "A1:D1")).toBeTruthy();
-    setCellContent(model, "A5", '=SPLIT(A1, ", ", 0)');
+    await setCellContent(model, "A5", '=SPLIT(A1, ", ", 0)');
     expect(getRangeValuesAsMatrix(model, "A5:B5")).toEqual([["Hello there", "General Kenobi"]]);
     expect(checkFunctionDoesntSpreadBeyondRange(model, "A5:B5")).toBeTruthy();
   });
   test("remove_empty_text argument", async () => {
     const grid = { A1: "Hello     there" };
     const model = await createModelFromGrid(grid);
-    setCellContent(model, "A5", '=SPLIT(A1, " ", 1, 1)');
+    await setCellContent(model, "A5", '=SPLIT(A1, " ", 1, 1)');
     expect(getRangeValuesAsMatrix(model, "A5:B5")).toEqual([["Hello", "there"]]);
     expect(checkFunctionDoesntSpreadBeyondRange(model, "A5:B5")).toBeTruthy();
-    setCellContent(model, "A5", '=SPLIT(A1, " ", 1, 0)');
+    await setCellContent(model, "A5", '=SPLIT(A1, " ", 1, 0)');
     expect(getRangeValuesAsMatrix(model, "A5:F5")).toEqual([["Hello", "", "", "", "", "there"]]);
     expect(checkFunctionDoesntSpreadBeyondRange(model, "A5:F5")).toBeTruthy();
   });
   test("Split with regex characters", async () => {
     const model = await createModel();
-    setCellContent(model, "A1", "Hello.there");
-    setCellContent(model, "A5", '=SPLIT(A1, ".", 1, 1)');
+    await setCellContent(model, "A1", "Hello.there");
+    await setCellContent(model, "A5", '=SPLIT(A1, ".", 1, 1)');
     expect(getRangeValuesAsMatrix(model, "A5:B5")).toEqual([["Hello", "there"]]);
-    setCellContent(model, "A1", "Hello\\nthere");
-    setCellContent(model, "A5", '=SPLIT(A1, "\\n", 1, 1)');
+    await setCellContent(model, "A1", "Hello\\nthere");
+    await setCellContent(model, "A5", '=SPLIT(A1, "\\n", 1, 1)');
     expect(getRangeValuesAsMatrix(model, "A5:B5")).toEqual([["Hello", "there"]]);
   });
 });
@@ -869,25 +869,25 @@ describe("TEXTSPLIT function", () => {
   test("Split into columns", async () => {
     const grid = { A1: "Red,Green,Blue" };
     const model = await createModelFromGrid(grid);
-    setCellContent(model, "A2", '=TEXTSPLIT(A1, ",")');
+    await setCellContent(model, "A2", '=TEXTSPLIT(A1, ",")');
     expect(getRangeValuesAsMatrix(model, "A2:C2")).toEqual([["Red", "Green", "Blue"]]);
   });
   test("Split into rows", async () => {
     const grid = { A1: "Red;Green;Blue" };
     const model = await createModelFromGrid(grid);
-    setCellContent(model, "A2", '=TEXTSPLIT(A1, , ";")');
+    await setCellContent(model, "A2", '=TEXTSPLIT(A1, , ";")');
     expect(getRangeValuesAsMatrix(model, "A2:A4")).toEqual([["Red"], ["Green"], ["Blue"]]);
   });
   test("Split by substring", async () => {
     const grid = { A1: "2023--11--05" };
     const model = await createModelFromGrid(grid);
-    setCellContent(model, "A2", '=TEXTSPLIT(A1, "--")');
+    await setCellContent(model, "A2", '=TEXTSPLIT(A1, "--")');
     expect(getRangeValuesAsMatrix(model, "A2:C2")).toEqual([["2023", "11", "05"]]);
   });
   test("Split into columns and rows", async () => {
     const grid = { A1: "Name, Age=City, Country" };
     const model = await createModelFromGrid(grid);
-    setCellContent(model, "A2", '=TEXTSPLIT(A1, ", ", "=")');
+    await setCellContent(model, "A2", '=TEXTSPLIT(A1, ", ", "=")');
     expect(getRangeValuesAsMatrix(model, "A2:B3")).toEqual([
       ["Name", "Age"],
       ["City", "Country"],
@@ -901,7 +901,7 @@ describe("TEXTSPLIT function", () => {
       H3: "test",
     };
     const model = await createModelFromGrid(grid);
-    setCellContent(model, "A2", '=TEXTSPLIT(A1, H1:H3, ";")');
+    await setCellContent(model, "A2", '=TEXTSPLIT(A1, H1:H3, ";")');
     expect(getRangeValuesAsMatrix(model, "A2:F2")).toEqual([
       ["Apple", "Banana", "Orange", "Grapes", "Tomato", "Potato"],
     ]);
@@ -909,7 +909,7 @@ describe("TEXTSPLIT function", () => {
   test("Multiple one-character delimiters", async () => {
     const grid = { A1: "Apple, Banana;Orange, Grapes;Tomato", F1: ", ", F2: ";" };
     const model = await createModelFromGrid(grid);
-    setCellContent(model, "A2", "=TEXTSPLIT(A1, F1:F2)");
+    await setCellContent(model, "A2", "=TEXTSPLIT(A1, F1:F2)");
     expect(getRangeValuesAsMatrix(model, "A2:E2")).toEqual([
       ["Apple", "Banana", "Orange", "Grapes", "Tomato"],
     ]);
@@ -922,7 +922,7 @@ describe("TEXTSPLIT function", () => {
       H3: "test",
     };
     const model = await createModelFromGrid(grid);
-    setCellContent(model, "A2", "=TEXTSPLIT(A1, H1:H3)");
+    await setCellContent(model, "A2", "=TEXTSPLIT(A1, H1:H3)");
     expect(getRangeValuesAsMatrix(model, "A2:F2")).toEqual([
       ["Apple", "Banana", "Orange", "Grapes", "Tomato", "Potato"],
     ]);
@@ -930,13 +930,13 @@ describe("TEXTSPLIT function", () => {
   test("Ignore empty values at column split", async () => {
     const grid = { A1: "Dog,,Cat,,Bird" };
     const model = await createModelFromGrid(grid);
-    setCellContent(model, "A2", '=TEXTSPLIT(A1, ",", , TRUE)');
+    await setCellContent(model, "A2", '=TEXTSPLIT(A1, ",", , TRUE)');
     expect(getRangeValuesAsMatrix(model, "A2:C2")).toEqual([["Dog", "Cat", "Bird"]]);
   });
   test("Ignore empty values at column split with multiple delimiters", async () => {
     const grid = { A1: "Do. Or do not. There is no try. -Anonymous", H1: ".", H2: "-" };
     const model = await createModelFromGrid(grid);
-    setCellContent(model, "A2", "=TEXTSPLIT(A1,H1:H2,,FALSE)");
+    await setCellContent(model, "A2", "=TEXTSPLIT(A1,H1:H2,,FALSE)");
     expect(getRangeValuesAsMatrix(model, "A2:E2")).toEqual([
       ["Do", " Or do not", " There is no try", " ", "Anonymous"],
     ]);
@@ -944,13 +944,13 @@ describe("TEXTSPLIT function", () => {
   test("Ignore empty values at row split", async () => {
     const grid = { A1: "Dog,,Cat,,Bird" };
     const model = await createModelFromGrid(grid);
-    setCellContent(model, "A2", '=TEXTSPLIT(A1,,",", TRUE)');
+    await setCellContent(model, "A2", '=TEXTSPLIT(A1,,",", TRUE)');
     expect(getRangeValuesAsMatrix(model, "A2:A4")).toEqual([["Dog"], ["Cat"], ["Bird"]]);
   });
   test("Ignore empty values at column and row split", async () => {
     const grid = { A1: "Name=MERA, , Result=Excellent" };
     const model = await createModelFromGrid(grid);
-    setCellContent(model, "A2", '=TEXTSPLIT(A1, "=", ", ", TRUE)');
+    await setCellContent(model, "A2", '=TEXTSPLIT(A1, "=", ", ", TRUE)');
     expect(getRangeValuesAsMatrix(model, "A2:B4")).toEqual([
       ["Name", "MERA"],
       ["Result", "Excellent"],
@@ -960,13 +960,13 @@ describe("TEXTSPLIT function", () => {
   test("Case-insensitive split", async () => {
     const grid = { A1: "AppleDELIMbanaNADelimcHerry" };
     const model = await createModelFromGrid(grid);
-    setCellContent(model, "A2", '=TEXTSPLIT(A1, "delim",,,1)');
+    await setCellContent(model, "A2", '=TEXTSPLIT(A1, "delim",,,1)');
     expect(getRangeValuesAsMatrix(model, "A2:C2")).toEqual([["Apple", "banaNA", "cHerry"]]);
   });
   test("Case-sensitive split", async () => {
     const grid = { A1: "AppleDELIMbanaNADelimcHerry" };
     const model = await createModelFromGrid(grid);
-    setCellContent(model, "A2", '=TEXTSPLIT(A1, "delim",,,0)');
+    await setCellContent(model, "A2", '=TEXTSPLIT(A1, "delim",,,0)');
     expect(getRangeValuesAsMatrix(model, "A2:C2")).toEqual([
       ["AppleDELIMbanaNADelimcHerry", null, null],
     ]);
@@ -974,7 +974,7 @@ describe("TEXTSPLIT function", () => {
   test("Pad missing values with custom value", async () => {
     const grid = { A1: "Name=MERA, Score, Result=Excellent" };
     const model = await createModelFromGrid(grid);
-    setCellContent(model, "A2", '=TEXTSPLIT(A1, "=",", ",,,"HOLA_PAD")');
+    await setCellContent(model, "A2", '=TEXTSPLIT(A1, "=",", ",,,"HOLA_PAD")');
     expect(getRangeValuesAsMatrix(model, "A2:B4")).toEqual([
       ["Name", "MERA"],
       ["Score", "HOLA_PAD"],
@@ -984,7 +984,7 @@ describe("TEXTSPLIT function", () => {
   test("Pad missing values with default value", async () => {
     const grid = { A1: "Name=MERA, Score, Result=Excellent" };
     const model = await createModelFromGrid(grid);
-    setCellContent(model, "A2", '=TEXTSPLIT(A1, "=",", ",,,)');
+    await setCellContent(model, "A2", '=TEXTSPLIT(A1, "=",", ",,,)');
     expect(getRangeValuesAsMatrix(model, "A2:B4")).toEqual([
       ["Name", "MERA"],
       ["Score", "#N/A"],
@@ -994,7 +994,7 @@ describe("TEXTSPLIT function", () => {
   test("Pad missing values with empty string", async () => {
     const grid = { A1: "Name=MERA, Score, Result=Excellent" };
     const model = await createModelFromGrid(grid);
-    setCellContent(model, "A2", '=TEXTSPLIT(A1, "=",", ",,,"")');
+    await setCellContent(model, "A2", '=TEXTSPLIT(A1, "=",", ",,,"")');
     expect(getRangeValuesAsMatrix(model, "A2:B4")).toEqual([
       ["Name", "MERA"],
       ["Score", ""],
@@ -1004,7 +1004,7 @@ describe("TEXTSPLIT function", () => {
   test("Split dates", async () => {
     const grid = { A1: "2024/05/09" };
     const model = await createModelFromGrid(grid);
-    setCellContent(model, "A2", '=TEXTSPLIT(TEXT(A1, "m/d/yyyy"), "/")');
+    await setCellContent(model, "A2", '=TEXTSPLIT(TEXT(A1, "m/d/yyyy"), "/")');
     expect(getRangeValuesAsMatrix(model, "A2:C2")).toEqual([["5", "9", "2024"]]);
   });
 });

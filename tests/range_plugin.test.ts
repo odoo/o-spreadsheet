@@ -104,34 +104,34 @@ describe("range plugin", () => {
 
   describe("adapting the ranges to changes", () => {
     describe("create a range and remove a column", () => {
-      test("in the middle", () => {
-        deleteColumns(m, ["C"]);
+      test("in the middle", async () => {
+        await deleteColumns(m, ["C"]);
         expect(m.getters.getUsedRanges()).toEqual(["B2:C4"]);
       });
 
-      test("in the start", () => {
-        deleteColumns(m, ["C"]);
+      test("in the start", async () => {
+        await deleteColumns(m, ["C"]);
         expect(m.getters.getUsedRanges()).toEqual(["B2:C4"]);
       });
 
-      test("in the end", () => {
-        deleteColumns(m, ["D"]);
+      test("in the end", async () => {
+        await deleteColumns(m, ["D"]);
         expect(m.getters.getUsedRanges()).toEqual(["B2:C4"]);
       });
 
-      test("before the start", () => {
-        deleteColumns(m, ["A"]);
+      test("before the start", async () => {
+        await deleteColumns(m, ["A"]);
         expect(m.getters.getUsedRanges()).toEqual(["A2:C4"]);
       });
 
-      test("after the end", () => {
-        deleteColumns(m, ["F"]);
+      test("after the end", async () => {
+        await deleteColumns(m, ["F"]);
         expect(m.getters.getUsedRanges()).toEqual(["B2:D4"]);
       });
 
-      test("in another sheet", () => {
-        createSheet(m, { sheetId: "42" });
-        deleteColumns(m, ["A"], "42");
+      test("in another sheet", async () => {
+        await createSheet(m, { sheetId: "42" });
+        await deleteColumns(m, ["A"], "42");
         expect(m.getters.getUsedRanges()).toEqual(["B2:D4"]);
       });
     });
@@ -147,77 +147,77 @@ describe("range plugin", () => {
         useRange(m, "C2:F5");
       });
 
-      test("in the middle", () => {
-        deleteColumns(m, ["D", "E"]);
+      test("in the middle", async () => {
+        await deleteColumns(m, ["D", "E"]);
         expect(m.getters.getUsedRanges()).toEqual(["C2:D5"]);
       });
 
-      test("in the start", () => {
-        deleteColumns(m, ["B", "C"]);
+      test("in the start", async () => {
+        await deleteColumns(m, ["B", "C"]);
         expect(m.getters.getUsedRanges()).toEqual(["B2:D5"]);
       });
 
-      test("in the end", () => {
-        deleteColumns(m, ["E", "F"]);
+      test("in the end", async () => {
+        await deleteColumns(m, ["E", "F"]);
         expect(m.getters.getUsedRanges()).toEqual(["C2:D5"]);
       });
 
-      test("before the start", () => {
-        deleteColumns(m, ["A", "B"]);
+      test("before the start", async () => {
+        await deleteColumns(m, ["A", "B"]);
         expect(m.getters.getUsedRanges()).toEqual(["A2:D5"]);
       });
 
-      test("after the end", () => {
-        deleteColumns(m, ["G", "H"]);
+      test("after the end", async () => {
+        await deleteColumns(m, ["G", "H"]);
         expect(m.getters.getUsedRanges()).toEqual(["C2:F5"]);
       });
 
-      test("including one column before the start and the first column", () => {
-        deleteColumns(m, ["C", "B"]);
+      test("including one column before the start and the first column", async () => {
+        await deleteColumns(m, ["C", "B"]);
         expect(m.getters.getUsedRanges()).toEqual(["B2:D5"]);
       });
 
-      test("including one column after the end and the last column", () => {
-        deleteColumns(m, ["G", "F"]);
+      test("including one column after the end and the last column", async () => {
+        await deleteColumns(m, ["G", "F"]);
         expect(m.getters.getUsedRanges()).toEqual(["C2:E5"]);
       });
 
-      test("delete columns causing invalid reference will be marked as #REF", () => {
+      test("delete columns causing invalid reference will be marked as #REF", async () => {
         useRange(m, "C1");
-        deleteColumns(m, ["B", "C"]);
+        await deleteColumns(m, ["B", "C"]);
         expect(m.getters.getUsedRanges()[1]).toEqual("#REF");
       });
     });
 
     describe("create a range and remove a row", () => {
-      test("in the middle", () => {
-        deleteRows(m, [2]);
+      test("in the middle", async () => {
+        await deleteRows(m, [2]);
         expect(m.getters.getUsedRanges()).toEqual(["B2:D3"]);
       });
 
-      test("in the start", () => {
-        deleteRows(m, [2]);
+      test("in the start", async () => {
+        await deleteRows(m, [2]);
         expect(m.getters.getUsedRanges()).toEqual(["B2:D3"]);
       });
 
-      test("in the end", () => {
-        deleteRows(m, [3]);
+      test("in the end", async () => {
+        await deleteRows(m, [3]);
         expect(m.getters.getUsedRanges()).toEqual(["B2:D3"]);
       });
 
-      test("before the start", () => {
-        deleteRows(m, [0]);
+      test("before the start", async () => {
+        await deleteRows(m, [0]);
         expect(m.getters.getUsedRanges()).toEqual(["B1:D3"]);
       });
 
-      test("after the end", () => {
-        deleteRows(m, [5]);
+      test("after the end", async () => {
+        await deleteRows(m, [5]);
         expect(m.getters.getUsedRanges()).toEqual(["B2:D4"]);
       });
 
-      test("in another sheet", () => {
-        createSheet(m, { sheetId: "42" });
-        deleteRows(m, [0], "42");
+      test("in another sheet", async () => {
+        await createSheet(m, { sheetId: "42" });
+        await deleteRows(m, [0], "42");
         expect(m.getters.getUsedRanges()).toEqual(["B2:D4"]);
       });
     });
@@ -233,44 +233,44 @@ describe("range plugin", () => {
         useRange(m, "C3:F7");
       });
 
-      test("in the middle", () => {
-        deleteRows(m, [3, 4]);
+      test("in the middle", async () => {
+        await deleteRows(m, [3, 4]);
         expect(m.getters.getUsedRanges()).toEqual(["C3:F5"]);
       });
 
-      test("in the start", () => {
-        deleteRows(m, [2, 3]);
+      test("in the start", async () => {
+        await deleteRows(m, [2, 3]);
         expect(m.getters.getUsedRanges()).toEqual(["C3:F5"]);
       });
 
-      test("in the end", () => {
-        deleteRows(m, [5, 6]);
+      test("in the end", async () => {
+        await deleteRows(m, [5, 6]);
         expect(m.getters.getUsedRanges()).toEqual(["C3:F5"]);
       });
 
-      test("including one row before start and the first row", () => {
-        deleteRows(m, [1, 2]);
+      test("including one row before start and the first row", async () => {
+        await deleteRows(m, [1, 2]);
         expect(m.getters.getUsedRanges()).toEqual(["C2:F5"]);
       });
 
-      test("including one row after end and the last row", () => {
-        deleteRows(m, [6, 7]);
+      test("including one row after end and the last row", async () => {
+        await deleteRows(m, [6, 7]);
         expect(m.getters.getUsedRanges()).toEqual(["C3:F6"]);
       });
 
-      test("before the start", () => {
-        deleteRows(m, [0, 1]);
+      test("before the start", async () => {
+        await deleteRows(m, [0, 1]);
         expect(m.getters.getUsedRanges()).toEqual(["C1:F5"]);
       });
 
-      test("after the end", () => {
-        deleteRows(m, [7, 8]);
+      test("after the end", async () => {
+        await deleteRows(m, [7, 8]);
         expect(m.getters.getUsedRanges()).toEqual(["C3:F7"]);
       });
 
-      test("delete rows causing invalid reference will be marked as #REF", () => {
+      test("delete rows causing invalid reference will be marked as #REF", async () => {
         useRange(m, "C3");
-        deleteRows(m, [1, 2]);
+        await deleteRows(m, [1, 2]);
         expect(m.getters.getUsedRanges().length).toEqual(2);
         expect(m.getters.getUsedRanges()[0]).toEqual("C2:F5");
         expect(m.getters.getUsedRanges()[1]).toEqual("#REF");
@@ -278,145 +278,145 @@ describe("range plugin", () => {
     });
 
     describe("create a range and add a column", () => {
-      test("after, in the middle", () => {
-        addColumns(m, "after", "C", 1);
+      test("after, in the middle", async () => {
+        await addColumns(m, "after", "C", 1);
         expect(m.getters.getUsedRanges()).toEqual(["B2:E4"]);
       });
 
-      test("after, in the start", () => {
-        addColumns(m, "after", "B", 1);
+      test("after, in the start", async () => {
+        await addColumns(m, "after", "B", 1);
         expect(m.getters.getUsedRanges()).toEqual(["B2:E4"]);
       });
 
-      test("after, in the end", () => {
-        addColumns(m, "after", "D", 1);
+      test("after, in the end", async () => {
+        await addColumns(m, "after", "D", 1);
         expect(m.getters.getUsedRanges()).toEqual(["B2:D4"]);
       });
 
-      test("after, before the start", () => {
-        addColumns(m, "after", "A", 1);
+      test("after, before the start", async () => {
+        await addColumns(m, "after", "A", 1);
         expect(m.getters.getUsedRanges()).toEqual(["C2:E4"]);
       });
 
-      test("after, after the end", () => {
-        addColumns(m, "after", "E", 1);
+      test("after, after the end", async () => {
+        await addColumns(m, "after", "E", 1);
         expect(m.getters.getUsedRanges()).toEqual(["B2:D4"]);
       });
 
-      test("before, in the middle", () => {
-        addColumns(m, "before", "C", 1);
+      test("before, in the middle", async () => {
+        await addColumns(m, "before", "C", 1);
         expect(m.getters.getUsedRanges()).toEqual(["B2:E4"]);
       });
 
-      test("before, in the start", () => {
-        addColumns(m, "before", "B", 1);
+      test("before, in the start", async () => {
+        await addColumns(m, "before", "B", 1);
         expect(m.getters.getUsedRanges()).toEqual(["C2:E4"]);
       });
 
-      test("before, in the end", () => {
-        addColumns(m, "before", "D", 1);
+      test("before, in the end", async () => {
+        await addColumns(m, "before", "D", 1);
         expect(m.getters.getUsedRanges()).toEqual(["B2:E4"]);
       });
 
-      test("before, before the start", () => {
-        addColumns(m, "before", "A", 1);
+      test("before, before the start", async () => {
+        await addColumns(m, "before", "A", 1);
         expect(m.getters.getUsedRanges()).toEqual(["C2:E4"]);
       });
 
-      test("before, before the end", () => {
-        addColumns(m, "before", "E", 1);
+      test("before, before the end", async () => {
+        await addColumns(m, "before", "E", 1);
         expect(m.getters.getUsedRanges()).toEqual(["B2:D4"]);
       });
 
-      test("in another sheet", () => {
-        createSheet(m, { sheetId: "42" });
-        addColumns(m, "before", "A", 1, "42");
+      test("in another sheet", async () => {
+        await createSheet(m, { sheetId: "42" });
+        await addColumns(m, "before", "A", 1, "42");
         expect(m.getters.getUsedRanges()).toEqual(["B2:D4"]);
       });
     });
 
     describe("create a range and add a row", () => {
-      test("after, in the middle", () => {
-        addRows(m, "after", 2, 1);
+      test("after, in the middle", async () => {
+        await addRows(m, "after", 2, 1);
         expect(m.getters.getUsedRanges()).toEqual(["B2:D5"]);
       });
 
-      test("after, in the start", () => {
-        addRows(m, "after", 1, 1);
+      test("after, in the start", async () => {
+        await addRows(m, "after", 1, 1);
         expect(m.getters.getUsedRanges()).toEqual(["B2:D5"]);
       });
 
-      test("after, in the end", () => {
-        addRows(m, "after", 3, 1);
+      test("after, in the end", async () => {
+        await addRows(m, "after", 3, 1);
         expect(m.getters.getUsedRanges()).toEqual(["B2:D4"]);
       });
 
-      test("after, before the start", () => {
-        addRows(m, "after", 0, 1);
+      test("after, before the start", async () => {
+        await addRows(m, "after", 0, 1);
         expect(m.getters.getUsedRanges()).toEqual(["B3:D5"]);
       });
 
-      test("after, after the end", () => {
-        addRows(m, "after", 4, 1);
+      test("after, after the end", async () => {
+        await addRows(m, "after", 4, 1);
         expect(m.getters.getUsedRanges()).toEqual(["B2:D4"]);
       });
 
-      test("before, in the middle", () => {
-        addRows(m, "before", 2, 1);
+      test("before, in the middle", async () => {
+        await addRows(m, "before", 2, 1);
         expect(m.getters.getUsedRanges()).toEqual(["B2:D5"]);
       });
 
-      test("before, in the start", () => {
-        addRows(m, "before", 1, 1);
+      test("before, in the start", async () => {
+        await addRows(m, "before", 1, 1);
         expect(m.getters.getUsedRanges()).toEqual(["B3:D5"]);
       });
 
-      test("before, in the end", () => {
-        addRows(m, "before", 3, 1);
+      test("before, in the end", async () => {
+        await addRows(m, "before", 3, 1);
         expect(m.getters.getUsedRanges()).toEqual(["B2:D5"]);
       });
 
-      test("before, before the start", () => {
-        addRows(m, "before", 0, 1);
+      test("before, before the start", async () => {
+        await addRows(m, "before", 0, 1);
         expect(m.getters.getUsedRanges()).toEqual(["B3:D5"]);
       });
 
-      test("before, before the end", () => {
-        addRows(m, "before", 5, 1);
+      test("before, before the end", async () => {
+        await addRows(m, "before", 5, 1);
         expect(m.getters.getUsedRanges()).toEqual(["B2:D4"]);
       });
 
-      test("in another sheet", () => {
-        createSheet(m, { sheetId: "42" });
-        addRows(m, "before", 1, 1, "42");
+      test("in another sheet", async () => {
+        await createSheet(m, { sheetId: "42" });
+        await addRows(m, "before", 1, 1, "42");
         expect(m.getters.getUsedRanges()).toEqual(["B2:D4"]);
       });
     });
 
     describe("create a range and delete a sheet", () => {
-      test("delete sheet does not delete ranges from other sheets", () => {
-        deleteSheet(m, "s2");
+      test("delete sheet does not delete ranges from other sheets", async () => {
+        await deleteSheet(m, "s2");
         expect(m.getters.getUsedRanges()).toEqual(["B2:D4"]);
       });
 
-      test("delete sheet delete ranges in the same sheet", () => {
+      test("delete sheet delete ranges in the same sheet", async () => {
         useRange(m, "A1", "s2");
         expect(m.getters.getUsedRanges()).toEqual(["B2:D4", "'s 2'!A1"]);
-        deleteSheet(m, "s2");
+        await deleteSheet(m, "s2");
         expect(m.getters.getUsedRanges()).toEqual(["B2:D4", "#REF"]);
       });
     });
 
     describe("create a range and delete a sheet", () => {
-      test("delete sheet does not delete ranges from other sheets", () => {
-        deleteSheet(m, "s2");
+      test("delete sheet does not delete ranges from other sheets", async () => {
+        await deleteSheet(m, "s2");
         expect(m.getters.getUsedRanges()).toEqual(["B2:D4"]);
       });
 
-      test("delete sheet delete ranges in the same sheet", () => {
+      test("delete sheet delete ranges in the same sheet", async () => {
         useRange(m, "A1", "s2");
         expect(m.getters.getUsedRanges()).toEqual(["B2:D4", "'s 2'!A1"]);
-        deleteSheet(m, "s2");
+        await deleteSheet(m, "s2");
         expect(m.getters.getUsedRanges()).toEqual(["B2:D4", "#REF"]);
       });
     });
@@ -547,8 +547,8 @@ describe("range plugin", () => {
 
     test.each(["Sheet 0", "<Sheet1>", "&Sheet2", "Sheet4;", "Sheet5🐻"])(
       "sheet name with special character %s",
-      (name) => {
-        renameSheet(m, "s1", name);
+      async (name) => {
+        await renameSheet(m, "s1", name);
         const range = m.getters.getRangeFromSheetXC("s1", "A1");
         expect(m.getters.getRangeString(range, "tao")).toBe(`'${name}'!A1`);
       }
@@ -573,11 +573,11 @@ describe("range plugin", () => {
     );
   });
 
-  test("getRangeString does not crash with deleted sheet", () => {
+  test("getRangeString does not crash with deleted sheet", async () => {
     const range = m.getters.getRangeFromSheetXC("s1", "A1");
     expect(m.getters.getRangeString(range)).toBe("s1!A1");
-    createSheet(m, { sheetId: "s2" });
-    deleteSheet(m, "s1");
+    await createSheet(m, { sheetId: "s2" });
+    await deleteSheet(m, "s1");
     expect(m.getters.getRangeString(range)).toBe(CellErrorType.InvalidReference);
   });
 
@@ -629,45 +629,45 @@ describe("full column range", () => {
   afterEach(() => {
     jest.restoreAllMocks();
   });
-  test("delete col before range", () => {
-    deleteColumns(m, ["A"]);
+  test("delete col before range", async () => {
+    await deleteColumns(m, ["A"]);
     expect(m.getters.getUsedRanges()).toEqual(["A:B"]);
   });
-  test("delete col inside range", () => {
-    deleteColumns(m, ["C"]);
+  test("delete col inside range", async () => {
+    await deleteColumns(m, ["C"]);
     expect(m.getters.getUsedRanges()).toEqual(["B:B"]);
   });
-  test("delete col after range", () => {
-    deleteColumns(m, ["D"]);
+  test("delete col after range", async () => {
+    await deleteColumns(m, ["D"]);
     expect(m.getters.getUsedRanges()).toEqual(["B:C"]);
   });
-  test("delete row", () => {
-    deleteRows(m, [3, 4, 5, 6]);
+  test("delete row", async () => {
+    await deleteRows(m, [3, 4, 5, 6]);
     expect(m.getters.getUsedRanges()).toEqual(["B:C"]);
   });
-  test("insert col before range", () => {
-    addColumns(m, "before", "B", 1);
+  test("insert col before range", async () => {
+    await addColumns(m, "before", "B", 1);
     expect(m.getters.getUsedRanges()).toEqual(["C:D"]);
   });
-  test("insert col inside range", () => {
-    addColumns(m, "before", "C", 1);
+  test("insert col inside range", async () => {
+    await addColumns(m, "before", "C", 1);
     expect(m.getters.getUsedRanges()).toEqual(["B:D"]);
   });
-  test("insert col after range", () => {
-    addColumns(m, "after", "C", 1);
+  test("insert col after range", async () => {
+    await addColumns(m, "after", "C", 1);
     expect(m.getters.getUsedRanges()).toEqual(["B:C"]);
   });
-  test("insert row inside", () => {
-    addRows(m, "after", 1, 5);
+  test("insert row inside", async () => {
+    await addRows(m, "after", 1, 5);
     expect(m.getters.getUsedRanges()).toEqual(["B:C"]);
   });
-  test("insert row before'", () => {
-    addRows(m, "before", 0, 1);
+  test("insert row before'", async () => {
+    await addRows(m, "before", 0, 1);
     expect(m.getters.getUsedRanges()).toEqual(["B:C"]);
   });
-  test("insert row before (2)", () => {
+  test("insert row before (2)", async () => {
     useRange(m, "B1:C");
-    addRows(m, "before", 0, 1);
+    await addRows(m, "before", 0, 1);
     expect(m.getters.getUsedRanges()[1]).toEqual("B2:C");
   });
 });
@@ -680,45 +680,45 @@ describe("full row range", () => {
   afterEach(() => {
     jest.restoreAllMocks();
   });
-  test("delete row before range", () => {
-    deleteRows(m, [0]);
+  test("delete row before range", async () => {
+    await deleteRows(m, [0]);
     expect(m.getters.getUsedRanges()).toEqual(["1:2"]);
   });
-  test("delete row inside range", () => {
-    deleteRows(m, [1]);
+  test("delete row inside range", async () => {
+    await deleteRows(m, [1]);
     expect(m.getters.getUsedRanges()).toEqual(["2:2"]);
   });
-  test("delete row after range", () => {
-    deleteRows(m, [4]);
+  test("delete row after range", async () => {
+    await deleteRows(m, [4]);
     expect(m.getters.getUsedRanges()).toEqual(["2:3"]);
   });
-  test("delete col", () => {
-    deleteColumns(m, ["A", "B", "C"]);
+  test("delete col", async () => {
+    await deleteColumns(m, ["A", "B", "C"]);
     expect(m.getters.getUsedRanges()).toEqual(["2:3"]);
   });
-  test("insert row before range", () => {
-    addRows(m, "before", 0, 1);
+  test("insert row before range", async () => {
+    await addRows(m, "before", 0, 1);
     expect(m.getters.getUsedRanges()).toEqual(["3:4"]);
   });
-  test("insert row inside range", () => {
-    addRows(m, "after", 1, 1);
+  test("insert row inside range", async () => {
+    await addRows(m, "after", 1, 1);
     expect(m.getters.getUsedRanges()).toEqual(["2:4"]);
   });
-  test("insert row after range", () => {
-    addRows(m, "after", 5, 1);
+  test("insert row after range", async () => {
+    await addRows(m, "after", 5, 1);
     expect(m.getters.getUsedRanges()).toEqual(["2:3"]);
   });
-  test("insert col in range", () => {
-    addColumns(m, "after", "C", 5);
+  test("insert col in range", async () => {
+    await addColumns(m, "after", "C", 5);
     expect(m.getters.getUsedRanges()).toEqual(["2:3"]);
   });
-  test("insert col before range", () => {
-    addColumns(m, "before", "A", 1);
+  test("insert col before range", async () => {
+    await addColumns(m, "before", "A", 1);
     expect(m.getters.getUsedRanges()).toEqual(["2:3"]);
   });
-  test("insert col before range (1)", () => {
+  test("insert col before range (1)", async () => {
     useRange(m, "A2:3");
-    addColumns(m, "before", "A", 1);
+    await addColumns(m, "before", "A", 1);
     expect(m.getters.getUsedRanges()[1]).toEqual("B2:3");
   });
 });
@@ -758,7 +758,7 @@ test("Plugins cannot dispatch a command during adaptRanges", async () => {
   addTestPlugin(corePluginRegistry, PluginDispatchInAdaptRanges);
 
   const model = await createModel({});
-  expect(() => {
-    addColumns(model, "before", "A", 1);
-  }).toThrowError("Plugins cannot dispatch commands during adaptRanges phase");
+  await expect(async () => {
+    await addColumns(model, "before", "A", 1);
+  }).rejects.toThrow("Plugins cannot dispatch commands during adaptRanges phase");
 });

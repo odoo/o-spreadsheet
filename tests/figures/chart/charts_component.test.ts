@@ -90,26 +90,38 @@ extendMockGetBoundingClientRect({
 });
 type AllChartType = ChartType | "basicChart";
 
-function createTestChart(
+async function createTestChart(
   type: AllChartType,
   newChartId: UID = chartId,
   partialFigure: Partial<CreateFigureCommand> = {}
 ) {
   switch (type) {
     case "scorecard":
-      createScorecardChart(model, TEST_CHART_DATA.scorecard, newChartId, undefined, partialFigure);
+      await createScorecardChart(
+        model,
+        TEST_CHART_DATA.scorecard,
+        newChartId,
+        undefined,
+        partialFigure
+      );
       break;
     case "gauge":
-      createGaugeChart(model, TEST_CHART_DATA.gauge, newChartId, undefined, partialFigure);
+      await createGaugeChart(model, TEST_CHART_DATA.gauge, newChartId, undefined, partialFigure);
       break;
     case "basicChart":
-      createChart(model, TEST_CHART_DATA.basicChart, newChartId, undefined, partialFigure);
+      await createChart(model, TEST_CHART_DATA.basicChart, newChartId, undefined, partialFigure);
       break;
     case "calendar":
-      createCalendarChart(model, TEST_CHART_DATA.calendar, newChartId, undefined, partialFigure);
+      await createCalendarChart(
+        model,
+        TEST_CHART_DATA.calendar,
+        newChartId,
+        undefined,
+        partialFigure
+      );
       break;
     default:
-      createChart(
+      await createChart(
         model,
         { ...TEST_CHART_DATA.basicChart, type },
         chartId,
@@ -185,13 +197,13 @@ describe("charts", () => {
 
   test.each(CHART_TYPES)("Can open a chart sidePanel", async (chartType) => {
     await mountSpreadsheet();
-    createTestChart(chartType);
+    await createTestChart(chartType);
     await openChartConfigSidePanel(model, env, chartId);
     expect(fixture.querySelector(".o-figure")).toBeTruthy();
   });
 
-  test.each(TEST_CHART_TYPES)("can export a chart %s", (chartType) => {
-    createTestChart(chartType, undefined, {
+  test.each(TEST_CHART_TYPES)("can export a chart %s", async (chartType) => {
+    await createTestChart(chartType, undefined, {
       size: { height: 335, width: 536 },
       figureId: "figureId",
     });
@@ -220,7 +232,7 @@ describe("charts", () => {
 
   test.each(TEST_CHART_TYPES)("charts have a menu button", async (chartType) => {
     await mountSpreadsheet();
-    createTestChart(chartType);
+    await createTestChart(chartType);
     await nextTick();
     expect(fixture.querySelector(".o-figure")).not.toBeNull();
     expect(fixture.querySelector(".o-figure-menu-item")).not.toBeNull();
@@ -230,7 +242,7 @@ describe("charts", () => {
     "charts don't have a menu button in dashboard mode",
     async (chartType) => {
       await mountSpreadsheet();
-      createTestChart(chartType);
+      await createTestChart(chartType);
       model.updateMode("dashboard");
       await nextTick();
       expect(fixture.querySelector(".o-figure")).not.toBeNull();
@@ -242,7 +254,7 @@ describe("charts", () => {
     "charts don't have a menu button in readonly mode",
     async (chartType) => {
       await mountSpreadsheet();
-      createTestChart(chartType);
+      await createTestChart(chartType);
       model.updateMode("readonly");
       await nextTick();
       expect(fixture.querySelector(".o-figure")).not.toBeNull();
@@ -251,7 +263,7 @@ describe("charts", () => {
   );
 
   test.each(TEST_CHART_TYPES)("Click on Edit button will prefill sidepanel", async (chartType) => {
-    createTestChart(chartType);
+    await createTestChart(chartType);
     await mountChartSidePanel();
 
     expect(fixture.querySelector(".o-chart")).toBeTruthy();
@@ -305,7 +317,7 @@ describe("charts", () => {
 
   test.each(TEST_CHART_TYPES)("Double click on chart will open sidepanel", async (chartType) => {
     await mountSpreadsheet();
-    createTestChart(chartType, "chartID", { figureId: "figureId" });
+    await createTestChart(chartType, "chartID", { figureId: "figureId" });
     await nextTick();
     expect(document.querySelector(".o-chart-container")).toBeTruthy();
     await doubleClick(fixture, ".o-chart-container");
@@ -314,7 +326,7 @@ describe("charts", () => {
   });
 
   test.each(TEST_CHART_TYPES)("can edit charts %s", async (chartType) => {
-    createTestChart(chartType);
+    await createTestChart(chartType);
     await mountChartSidePanel();
 
     const dataSeries = fixture.querySelectorAll(".o-chart .o-data-series")[0] as HTMLInputElement;
@@ -375,7 +387,7 @@ describe("charts", () => {
   });
 
   test("Clicking in the input does not reset the title", async () => {
-    createChart(model, { type: "bar", title: { text: "Title" } }, chartId);
+    await createChart(model, { type: "bar", title: { text: "Title" } }, chartId);
     await mountSpreadsheet();
     await openChartDesignSidePanel(model, env, fixture, chartId);
 
@@ -390,7 +402,7 @@ describe("charts", () => {
     async (chartType) => {
       const notifyUser = jest.fn();
       await mountSpreadsheet({ notifyUser });
-      createTestChart(chartType);
+      await createTestChart(chartType);
       await nextTick();
       await simulateClick(".o-figure");
       await simulateClick(".o-figure-menu-item");
@@ -417,7 +429,7 @@ describe("charts", () => {
   );
 
   test("can edit chart title color", async () => {
-    createChart(
+    await createChart(
       model,
       {
         dataSets: [{ dataRange: "C1:C4" }],
@@ -445,7 +457,7 @@ describe("charts", () => {
   test.each(["Left", "Center", "Right"])(
     "can edit chart title alignment",
     async (alignment: string) => {
-      createChart(
+      await createChart(
         model,
         {
           dataSets: [{ dataRange: "C1:C4" }],
@@ -471,7 +483,7 @@ describe("charts", () => {
   );
 
   test("can edit chart title style", async () => {
-    createChart(
+    await createChart(
       model,
       {
         dataSets: [{ dataRange: "C1:C4" }],
@@ -514,7 +526,7 @@ describe("charts", () => {
   });
 
   test("can edit chart axis title font size", async () => {
-    createChart(
+    await createChart(
       model,
       {
         dataSets: [{ dataRange: "C1:C4" }],
@@ -540,7 +552,7 @@ describe("charts", () => {
   });
 
   test("can edit chart axis title color", async () => {
-    createChart(
+    await createChart(
       model,
       {
         dataSets: [{ dataRange: "C1:C4" }],
@@ -569,7 +581,7 @@ describe("charts", () => {
   test.each(["Left", "Center", "Right"])(
     "can edit chart axis title alignment",
     async (alignment: string) => {
-      createChart(
+      await createChart(
         model,
         {
           dataSets: [{ dataRange: "C1:C4" }],
@@ -597,7 +609,7 @@ describe("charts", () => {
   );
 
   test("can edit chart axis title style", async () => {
-    createChart(
+    await createChart(
       model,
       {
         dataSets: [{ dataRange: "C1:C4" }],
@@ -635,7 +647,7 @@ describe("charts", () => {
   });
 
   test("can edit multiple chart axis title style", async () => {
-    createChart(
+    await createChart(
       model,
       {
         dataSets: [{ dataRange: "C1:C4" }],
@@ -685,7 +697,7 @@ describe("charts", () => {
       A1: "0", B1: "1",
       A2: "1", B2: "4",
     });
-    createChart(
+    await createChart(
       model,
       {
         dataSets: [{ dataRange: "B1:B2" }],
@@ -710,7 +722,7 @@ describe("charts", () => {
 
   test("Axis boundaries are hidden for categorical horizontal axis", async () => {
     const model = await createModelFromGrid({ A1: "A", B1: "1" });
-    createChart(
+    await createChart(
       model,
       {
         dataSets: [{ dataRange: "B1" }],
@@ -727,7 +739,7 @@ describe("charts", () => {
   });
 
   test("can edit chart vertical axis boundaries", async () => {
-    createChart(
+    await createChart(
       model,
       {
         dataSets: [{ dataRange: "C1:C4" }],
@@ -752,7 +764,7 @@ describe("charts", () => {
 
   test("Axis scale type is not editable for categorical axis", async () => {
     const model = await createModelFromGrid({ A1: "A", B1: "1" });
-    createChart(
+    await createChart(
       model,
       {
         dataSets: [{ dataRange: "B1" }],
@@ -772,7 +784,7 @@ describe("charts", () => {
       A1: "0", B1: "1",
       A2: "1", B2: "2",
     });
-    createChart(
+    await createChart(
       model,
       {
         dataSets: [{ dataRange: "B1:B2" }],
@@ -804,7 +816,7 @@ describe("charts", () => {
 
   test("can't toggle chart major or minor gridline for categorical axis", async () => {
     const model = await createModelFromGrid({ A1: "A", B1: "1" });
-    createChart(
+    await createChart(
       model,
       {
         dataSets: [{ dataRange: "B1" }],
@@ -826,7 +838,7 @@ describe("charts", () => {
   });
 
   test("can edit chart data series color", async () => {
-    createChart(
+    await createChart(
       model,
       {
         dataSets: [
@@ -880,7 +892,7 @@ describe("charts", () => {
   });
 
   test("can edit pie chart slices color", async () => {
-    createChart(
+    await createChart(
       model,
       {
         dataSets: [
@@ -911,7 +923,7 @@ describe("charts", () => {
   });
 
   test("can edit chart data series vertical axis", async () => {
-    createChart(
+    await createChart(
       model,
       {
         dataSets: [{ dataRange: "C1:C4" }],
@@ -934,7 +946,7 @@ describe("charts", () => {
   });
 
   test("can edit chart data series label", async () => {
-    createChart(
+    await createChart(
       model,
       {
         dataSets: [{ dataRange: "C1:C4" }],
@@ -957,7 +969,7 @@ describe("charts", () => {
   });
 
   test("can open design panel of chart with duplicated dataset", async () => {
-    createChart(
+    await createChart(
       model,
       { dataSets: [{ dataRange: "C1:C4" }, { dataRange: "C1:C4" }], type: "line" },
       chartId
@@ -968,7 +980,7 @@ describe("charts", () => {
   });
 
   test("selecting a chart then selecting another chart and editing property change the second chart", async () => {
-    createChart(
+    await createChart(
       model,
       {
         dataSets: [{ dataRange: "C1:C4" }],
@@ -978,7 +990,7 @@ describe("charts", () => {
       },
       "1"
     );
-    createChart(
+    await createChart(
       model,
       {
         dataSets: [{ dataRange: "C1:C4" }],
@@ -1003,7 +1015,7 @@ describe("charts", () => {
   test.each(TEST_CHART_TYPES)(
     "defocusing sidepanel after modifying chart title w/o saving should maintain the new title %s",
     async (chartType) => {
-      createTestChart(chartType);
+      await createTestChart(chartType);
       await mountSpreadsheet();
       await openChartDesignSidePanel(model, env, fixture, chartId);
 
@@ -1019,7 +1031,7 @@ describe("charts", () => {
   test.each(["basicChart", "combo", "scorecard"] as const)(
     "can edit charts %s background",
     async (chartType) => {
-      createTestChart(chartType);
+      await createTestChart(chartType);
       await mountSpreadsheet();
       const dispatch = spyModelDispatch(model);
       await openChartDesignSidePanel(model, env, fixture, chartId);
@@ -1053,7 +1065,7 @@ describe("charts", () => {
   test.each(TEST_CHART_TYPES)(
     "can close color picker when click elsewhere %s",
     async (chartType) => {
-      createTestChart(chartType);
+      await createTestChart(chartType);
       await mountChartSidePanel();
       await openChartDesignSidePanel(model, env, fixture, chartId);
 
@@ -1069,7 +1081,7 @@ describe("charts", () => {
     ["combo", [".o-data-labels"], ["labelRange"]],
     ["scorecard", [".o-data-labels"], ["baseline"]],
   ] as const)("remove ranges in chart %s", async (chartType, rangesDomClasses, nameInChartDef) => {
-    createTestChart(chartType);
+    await createTestChart(chartType);
     await mountChartSidePanel();
 
     for (let i = 0; i < rangesDomClasses.length; i++) {
@@ -1102,7 +1114,7 @@ describe("charts", () => {
     });
 
     test("can reorder ranges in chart panel (last to first)", async () => {
-      createChart(
+      await createChart(
         model,
         {
           dataSets: [
@@ -1131,7 +1143,7 @@ describe("charts", () => {
     });
 
     test("can reorder ranges in chart panel (first to last)", async () => {
-      createChart(
+      await createChart(
         model,
         {
           dataSets: [
@@ -1160,7 +1172,7 @@ describe("charts", () => {
     });
 
     test("default colors are switched when reordering data series", async () => {
-      createChart(
+      await createChart(
         model,
         {
           dataSets: [
@@ -1192,7 +1204,7 @@ describe("charts", () => {
   });
 
   test("drawing of chart will receive new data after update", async () => {
-    createTestChart("basicChart");
+    await createTestChart("basicChart");
     await mountSpreadsheet();
     await openChartConfigSidePanel(model, env, chartId);
 
@@ -1209,9 +1221,9 @@ describe("charts", () => {
   });
 
   test("updating a chart from another sheet does not change it s sheetId", async () => {
-    createTestChart("basicChart");
+    await createTestChart("basicChart");
     await mountChartSidePanel();
-    createSheet(model, { sheetId: "42", activate: true });
+    await createSheet(model, { sheetId: "42", activate: true });
     await changeChartType("pie");
 
     expect(model.getters.getChart(chartId)?.sheetId).toBe(sheetId);
@@ -1225,7 +1237,7 @@ describe("charts", () => {
   });
 
   test.each(TEST_CHART_TYPES)("deleting chart %s will close sidePanel", async (chartType) => {
-    createTestChart(chartType);
+    await createTestChart(chartType);
     await mountSpreadsheet();
 
     await simulateClick(".o-figure");
@@ -1237,18 +1249,18 @@ describe("charts", () => {
   });
 
   test("deleting another chart does not close the side panel", async () => {
-    createTestChart("basicChart", "chartId1", { figureId: "figureId1" });
-    createTestChart("basicChart", "chartId2", { figureId: "figureId2" });
+    await createTestChart("basicChart", "chartId1", { figureId: "figureId1" });
+    await createTestChart("basicChart", "chartId2", { figureId: "figureId2" });
     const sheetId = model.getters.getActiveSheetId();
     await mountChartSidePanel("chartId1");
     expect(fixture.querySelector(".o-chart")).toBeTruthy();
-    deleteFigure(model, "figureId2", sheetId); // could be deleted by another user
+    await deleteFigure(model, "figureId2", sheetId); // could be deleted by another user
     await nextTick();
     expect(fixture.querySelector(".o-chart")).toBeTruthy();
   });
 
   test("Deleting a chart with active selection input does not produce a traceback", async () => {
-    createTestChart("basicChart");
+    await createTestChart("basicChart");
     await mountSpreadsheet();
     await openChartConfigSidePanel(model, env, chartId);
 
@@ -1262,16 +1274,16 @@ describe("charts", () => {
   });
 
   test("Undo a chart insertion will close the chart side panel", async () => {
-    createTestChart("basicChart");
+    await createTestChart("basicChart");
     await mountSpreadsheet();
     await openChartConfigSidePanel(model, env, chartId);
-    undo(model);
+    await undo(model);
     await nextTick();
     expect(fixture.querySelector(".o-chart")).toBeFalsy();
   });
 
   test("double click a chart in readonly mode does not open the side panel", async () => {
-    createTestChart("basicChart");
+    await createTestChart("basicChart");
     await mountSpreadsheet();
 
     expect(fixture.querySelector(".o-chart")).toBeFalsy();
@@ -1284,7 +1296,7 @@ describe("charts", () => {
   });
 
   test("restores scroll position when switching tabs in side panel", async () => {
-    createTestChart("basicChart");
+    await createTestChart("basicChart");
     await mountSpreadsheet();
     await openChartDesignSidePanel(model, env, fixture, chartId);
 
@@ -1301,7 +1313,7 @@ describe("charts", () => {
   });
 
   test("selection input is closed when switching tab", async () => {
-    createTestChart("basicChart");
+    await createTestChart("basicChart");
     await mountChartSidePanel();
     const highlightStore = env.getStore(HighlightStore);
 
@@ -1317,7 +1329,7 @@ describe("charts", () => {
   });
 
   test("confirm buttons stay displayed if input is changed and unconfirmed and then selections input are closed and reset when switching tab", async () => {
-    createTestChart("basicChart");
+    await createTestChart("basicChart");
     await mountChartSidePanel();
 
     const element = document.querySelector(".o-data-series .o-selection-input input");
@@ -1336,8 +1348,8 @@ describe("charts", () => {
 
   describe.each(TEST_CHART_TYPES)("selecting other chart will adapt sidepanel", (chartType) => {
     test.each(["click", "SELECT_FIGURE command"])("when using %s", async (selectMethod: string) => {
-      createTestChart(chartType);
-      createChart(
+      await createTestChart(chartType);
+      await createChart(
         model,
         {
           dataSets: [{ dataRange: "C1:C4" }],
@@ -1356,7 +1368,7 @@ describe("charts", () => {
         await simulateClick(figures[1]);
       } else {
         const figureId = model.getters.getFigureIdFromChartId("secondChartId")!;
-        selectFigure(model, figureId);
+        await selectFigure(model, figureId);
       }
 
       await nextTick();
@@ -1379,7 +1391,7 @@ describe("charts", () => {
   });
 
   test("Can remove the last data series", async () => {
-    createTestChart("basicChart");
+    await createTestChart("basicChart");
     await mountChartSidePanel();
 
     await simulateClick(".o-data-series .o-add-selection");
@@ -1398,7 +1410,7 @@ describe("charts", () => {
   });
 
   test("Can remove an empty data series range", async () => {
-    createTestChart("basicChart");
+    await createTestChart("basicChart");
     await mountChartSidePanel();
     await simulateClick(".o-data-series .o-add-selection");
     await simulateClick(".o-data-series .o-add-selection");
@@ -1411,7 +1423,7 @@ describe("charts", () => {
   });
 
   test("Removing a data series only create a single history step", async () => {
-    createChart(
+    await createChart(
       model,
       { type: "bar", dataSets: [{ dataRange: "B1" }, { dataRange: "C1" }] },
       chartId
@@ -1424,19 +1436,19 @@ describe("charts", () => {
     ]);
     expect(errorMessages()).toEqual([]);
 
-    undo(model);
+    await undo(model);
     expect((model.getters.getChartDefinition(chartId) as BarChartDefinition).dataSets).toEqual([
       { dataRange: "B1" },
       { dataRange: "C1" },
     ]);
 
-    undo(model);
+    await undo(model);
     expect(model.getters.getFigures(model.getters.getActiveSheetId())).toHaveLength(0);
   });
 
   test("Custom design is kept when removing a data series", async () => {
-    createTestChart("basicChart");
-    updateChart(model, chartId, {
+    await createTestChart("basicChart");
+    await updateChart(model, chartId, {
       dataSets: [
         { dataRange: "B1:B4", backgroundColor: "#FF0000", label: "serie_01" },
         { dataRange: "C1:C4", backgroundColor: "#00FF00", label: "serie_02" },
@@ -1452,8 +1464,8 @@ describe("charts", () => {
   });
 
   test("Defaults colors are correctly kept when removing data series", async () => {
-    createTestChart("basicChart");
-    updateChart(model, chartId, {
+    await createTestChart("basicChart");
+    await updateChart(model, chartId, {
       dataSets: [{ dataRange: "B1:B4" }, { dataRange: "C1:C4" }],
     });
     const definition = model.getters.getChartDefinition(chartId) as BarChartDefinition;
@@ -1470,7 +1482,7 @@ describe("charts", () => {
   });
 
   test("Can add multiple ranges all in once", async () => {
-    createTestChart("basicChart");
+    await createTestChart("basicChart");
     await mountChartSidePanel();
 
     await simulateClick(".o-data-series .o-add-selection");
@@ -1495,7 +1507,7 @@ describe("charts", () => {
   });
 
   test("Can add multiple ranges all in once with fullRow range", async () => {
-    createChart(
+    await createChart(
       model,
       {
         dataSets: [],
@@ -1518,7 +1530,7 @@ describe("charts", () => {
   });
 
   test("Can add multiple ranges all in once with fullColumn range", async () => {
-    createChart(
+    await createChart(
       model,
       {
         dataSets: [],
@@ -1548,7 +1560,7 @@ describe("charts", () => {
     ])(
       "update %s with empty labels/baseline",
       async (chartType, expectedResults: CommandResult[]) => {
-        createTestChart(chartType);
+        await createTestChart(chartType);
         await mountChartSidePanel();
 
         await simulateClick(".o-data-labels input");
@@ -1565,7 +1577,7 @@ describe("charts", () => {
     test.each(TEST_CHART_TYPES)(
       "update chart with valid dataset/keyValue/dataRange show confirm button",
       async (chartType) => {
-        createTestChart(chartType);
+        await createTestChart(chartType);
         await mountChartSidePanel();
 
         await simulateClick(".o-data-series input");
@@ -1577,7 +1589,7 @@ describe("charts", () => {
     test.each(TEST_CHART_TYPES)(
       "update chart with invalid dataset/keyValue/dataRange disable confirm button",
       async (chartType) => {
-        createTestChart(chartType);
+        await createTestChart(chartType);
         await mountChartSidePanel();
 
         await simulateClick(".o-data-series input");
@@ -1587,7 +1599,7 @@ describe("charts", () => {
     );
 
     test("does not update the chart with an invalid dataset", async () => {
-      createTestChart("basicChart");
+      await createTestChart("basicChart");
       await mountChartSidePanel();
 
       await simulateClick(".o-data-series input");
@@ -1600,7 +1612,7 @@ describe("charts", () => {
     test.each(TEST_CHART_TYPES)(
       "Clicking on reset button on dataset/keyValue/dataRange put back the last valid dataset/keyValue/dataRange",
       async (chartType) => {
-        createTestChart(chartType);
+        await createTestChart(chartType);
         await mountChartSidePanel();
 
         await simulateClick(".o-data-series input");
@@ -1620,7 +1632,7 @@ describe("charts", () => {
     test.each(["basicChart", "combo", "scorecard"] as const)(
       "resetting chart label works as expected",
       async (chartType) => {
-        createTestChart(chartType);
+        await createTestChart(chartType);
         await mountChartSidePanel();
 
         await simulateClick(".o-data-labels input");
@@ -1642,7 +1654,7 @@ describe("charts", () => {
     );
 
     test("Scorecard > no error when confirming unchanged key value", async () => {
-      createTestChart("scorecard");
+      await createTestChart("scorecard");
       await mountChartSidePanel();
 
       expect(errorMessages()).toEqual([]);
@@ -1652,7 +1664,7 @@ describe("charts", () => {
     });
 
     test("Scorecard > error displayed on input fields", async () => {
-      createTestChart("scorecard");
+      await createTestChart("scorecard");
       await mountChartSidePanel();
 
       // empty dataset/key value
@@ -1674,7 +1686,7 @@ describe("charts", () => {
   test.each(["basicChart", "combo", "scorecard"] as const)(
     "Can open context menu on right click",
     async (chartType) => {
-      createTestChart(chartType);
+      await createTestChart(chartType);
       await mountSpreadsheet();
       triggerMouseEvent(".o-chart-container", "contextmenu");
       await nextTick();
@@ -1685,8 +1697,12 @@ describe("charts", () => {
   test.each(TEST_CHART_TYPES)(
     "Can edit a chart with empty main range without traceback",
     async (chartType) => {
-      createTestChart(chartType);
-      updateChart(model, chartId, { keyValue: undefined, dataRange: undefined, dataSets: [] });
+      await createTestChart(chartType);
+      await updateChart(model, chartId, {
+        keyValue: undefined,
+        dataRange: undefined,
+        dataSets: [],
+      });
       await mountSpreadsheet();
       await openChartConfigSidePanel(model, env, chartId);
 
@@ -1697,7 +1713,7 @@ describe("charts", () => {
   );
 
   test("Only yAxisId option is copied when spreading a range of a selection input", async () => {
-    createChart(
+    await createChart(
       model,
       {
         type: "bar",
@@ -1719,8 +1735,8 @@ describe("charts", () => {
   });
 
   test("Deleting the second chart after selecting it closes the side panel", async () => {
-    createTestChart("basicChart", chartId);
-    createTestChart("basicChart", "secondChartId");
+    await createTestChart("basicChart", chartId);
+    await createTestChart("basicChart", "secondChartId");
     await mountSpreadsheet();
     await openChartConfigSidePanel(model, env, chartId);
     const store = env.getStore(SidePanelStore);
@@ -1730,12 +1746,12 @@ describe("charts", () => {
     expect(store.mainPanelProps?.chartId).toBe(chartId);
     expect(fixture.querySelector(".o-sidePanel")).not.toBeNull();
 
-    selectFigure(model, figures[1].id);
+    await selectFigure(model, figures[1].id);
     await nextTick();
     expect(store.mainPanelProps?.chartId).toBe("secondChartId");
     expect(fixture.querySelector(".o-sidePanel")).not.toBeNull();
 
-    deleteFigure(model, figures[1].id, sheetId);
+    await deleteFigure(model, figures[1].id, sheetId);
     await nextTick();
     expect(store.isMainPanelOpen).toBeFalsy();
     expect(fixture.querySelector(".o-sidePanel")).toBeNull();
@@ -1743,7 +1759,7 @@ describe("charts", () => {
 
   describe("Scorecard specific tests", () => {
     test("can edit chart baseline colors", async () => {
-      createTestChart("scorecard");
+      await createTestChart("scorecard");
       const dispatch = spyModelDispatch(model);
       await mountChartSidePanel();
       await openChartDesignSidePanel(model, env, fixture, chartId);
@@ -1800,8 +1816,8 @@ describe("charts", () => {
 
   describe("labelAsText", () => {
     test("labelAsText checkbox displayed for line charts with number dataset and labels", async () => {
-      createTestChart("basicChart");
-      updateChart(model, chartId, {
+      await createTestChart("basicChart");
+      await updateChart(model, chartId, {
         type: "line",
         labelRange: "C2:C4",
         dataSets: [{ dataRange: "B2:B4" }],
@@ -1812,34 +1828,37 @@ describe("charts", () => {
     });
 
     test("labelAsText checkbox not displayed for pie charts", async () => {
-      createTestChart("basicChart");
-      updateChart(model, chartId, { type: "pie" });
+      await createTestChart("basicChart");
+      await updateChart(model, chartId, { type: "pie" });
       await mountChartSidePanel();
 
       expect(document.querySelector("input[name='labelsAsText']")).toBeFalsy();
     });
 
     test("labelAsText checkbox not displayed for bar charts", async () => {
-      createTestChart("basicChart");
-      updateChart(model, chartId, { type: "bar" });
+      await createTestChart("basicChart");
+      await updateChart(model, chartId, { type: "bar" });
       await mountChartSidePanel();
 
       expect(document.querySelector("input[name='labelsAsText']")).toBeFalsy();
     });
 
     test("labelAsText checkbox not displayed for text labels", async () => {
-      createTestChart("basicChart");
-      updateChart(model, chartId, { type: "line" });
-      updateChart(model, chartId, { labelRange: "A2:A4", dataSets: [{ dataRange: "B2:B4" }] });
+      await createTestChart("basicChart");
+      await updateChart(model, chartId, { type: "line" });
+      await updateChart(model, chartId, {
+        labelRange: "A2:A4",
+        dataSets: [{ dataRange: "B2:B4" }],
+      });
       await mountChartSidePanel();
 
       expect(document.querySelector("input[name='labelsAsText']")).toBeFalsy();
     });
 
     test("labelAsText checkbox displayed for date labels", async () => {
-      setFormat(model, "C2:C4", "m/d/yyyy");
-      createTestChart("basicChart");
-      updateChart(model, chartId, {
+      await setFormat(model, "C2:C4", "m/d/yyyy");
+      await createTestChart("basicChart");
+      await updateChart(model, chartId, {
         type: "line",
         labelRange: "C2:C4",
         dataSets: [{ dataRange: "B2:B4" }],
@@ -1850,8 +1869,8 @@ describe("charts", () => {
     });
 
     test("labelAsText checkbox updates the chart", async () => {
-      createTestChart("basicChart");
-      updateChart(model, chartId, {
+      await createTestChart("basicChart");
+      await updateChart(model, chartId, {
         type: "line",
         labelRange: "C2:C4",
         dataSets: [{ dataRange: "B2:B4" }],
@@ -1869,8 +1888,8 @@ describe("charts", () => {
     });
 
     test("labelAsText checkbox reset the x-axis boundaries", async () => {
-      createTestChart("basicChart");
-      updateChart(model, chartId, {
+      await createTestChart("basicChart");
+      await updateChart(model, chartId, {
         type: "scatter",
         labelRange: "C2:C4",
         dataSets: [{ dataRange: "B2:B4" }],
@@ -1894,9 +1913,9 @@ describe("charts", () => {
     });
 
     test("labelAsText checkbox not displayed for text labels with date format", async () => {
-      createTestChart("basicChart");
-      setFormat(model, "C2:C4", "m/d/yyyy");
-      updateChart(model, chartId, {
+      await createTestChart("basicChart");
+      await setFormat(model, "C2:C4", "m/d/yyyy");
+      await updateChart(model, chartId, {
         type: "line",
         labelRange: "A2:A4",
         dataSets: [{ dataRange: "B2:B4" }],
@@ -1907,8 +1926,8 @@ describe("charts", () => {
     });
 
     test("labelAsText checkbox not displayed for charts with empty labels", async () => {
-      createTestChart("basicChart");
-      updateChart(model, chartId, {
+      await createTestChart("basicChart");
+      await updateChart(model, chartId, {
         type: "line",
         labelRange: "F2:F4",
         dataSets: [{ dataRange: "B2:B4" }],
@@ -1919,8 +1938,8 @@ describe("charts", () => {
     });
 
     test("Side panel correctly reacts to has_header checkbox check/uncheck (with only one point)", async () => {
-      createTestChart("basicChart");
-      updateChart(model, chartId, {
+      await createTestChart("basicChart");
+      await updateChart(model, chartId, {
         type: "line",
         labelRange: "C2",
         dataSets: [{ dataRange: "A1" }],
@@ -1936,8 +1955,8 @@ describe("charts", () => {
     });
 
     test("Side panel correctly reacts to has_header checkbox check/uncheck (with two datasets)", async () => {
-      createTestChart("basicChart");
-      updateChart(model, chartId, {
+      await createTestChart("basicChart");
+      await updateChart(model, chartId, {
         type: "line",
         labelRange: "C2",
         dataSets: [{ dataRange: "A1:A2" }, { dataRange: "A1" }],
@@ -1992,8 +2011,8 @@ describe("charts", () => {
       ],
     },
   ])("Cannot flip non-contigous zone", async (definition: Partial<LineChartDefinition>) => {
-    createTestChart("basicChart");
-    updateChart(model, chartId, {
+    await createTestChart("basicChart");
+    await updateChart(model, chartId, {
       type: "line",
       ...definition,
     });
@@ -2003,8 +2022,8 @@ describe("charts", () => {
   });
 
   test("Flipping datasetOrientation updates the chart", async () => {
-    createTestChart("basicChart");
-    updateChart(model, chartId, {
+    await createTestChart("basicChart");
+    await updateChart(model, chartId, {
       type: "line",
       labelRange: "B2:B3",
       dataSets: [
@@ -2028,8 +2047,8 @@ describe("charts", () => {
   });
 
   test("Transposed dataset with only one series empties the chart label and keep the series", async () => {
-    createTestChart("basicChart");
-    updateChart(model, chartId, {
+    await createTestChart("basicChart");
+    await updateChart(model, chartId, {
       type: "line",
       labelRange: "",
       dataSets: [{ dataRange: "C2:C3" }],
@@ -2047,8 +2066,8 @@ describe("charts", () => {
   });
 
   test("Can add multiple series in transposed dataset and keep the current orientation", async () => {
-    createTestChart("basicChart");
-    updateChart(model, chartId, {
+    await createTestChart("basicChart");
+    await updateChart(model, chartId, {
       type: "line",
       labelRange: "",
       dataSets: [{ dataRange: "B1:C4" }],
@@ -2080,7 +2099,7 @@ describe("charts", () => {
   test.each<ChartType>(["bar", "line", "waterfall", "radar", "calendar"])(
     "showValues checkbox updates the chart",
     async (type: ChartType) => {
-      createTestChart(type);
+      await createTestChart(type);
       await mountChartSidePanel();
       await openChartDesignSidePanel(model, env, fixture, chartId);
 
@@ -2100,7 +2119,7 @@ describe("charts", () => {
   test.each<ChartType>(["line", "combo", "radar"])(
     "show data marker checkbox updates the chart",
     async (type: ChartType) => {
-      createTestChart("bar");
+      await createTestChart("bar");
       await mountChartSidePanel();
       await changeChartType(type);
       await openChartDesignSidePanel(model, env, fixture, chartId);
@@ -2124,7 +2143,7 @@ describe("charts", () => {
   test.each<ChartType>(["bar", "line", "waterfall", "treemap", "sunburst"])(
     "humanizeNumbers checkbox updates the %s chart",
     async (type: ChartType) => {
-      createTestChart(type);
+      await createTestChart(type);
       await mountChartSidePanel();
       await openChartDesignSidePanel(model, env, fixture, chartId);
 
@@ -2139,11 +2158,11 @@ describe("charts", () => {
     test.each(["bar", "pie", "line", "scatter", "combo"] as const)(
       "aggregate checkbox is checked for string-count charts",
       async (type: "bar" | "pie" | "line" | "scatter" | "combo") => {
-        setCellContent(model, "A1", "London");
-        setCellContent(model, "A2", "Berlin");
-        setCellContent(model, "A3", "Paris");
-        setCellContent(model, "A4", "Paris");
-        createChart(
+        await setCellContent(model, "A1", "London");
+        await setCellContent(model, "A2", "Berlin");
+        await setCellContent(model, "A3", "Paris");
+        await setCellContent(model, "A4", "Paris");
+        await createChart(
           model,
           {
             dataSets: [{ dataRange: "K1:K6" }],
@@ -2165,8 +2184,8 @@ describe("charts", () => {
     );
 
     test("aggregate value is kept when changing chart type", async () => {
-      createTestChart("basicChart");
-      updateChart(model, chartId, { aggregated: true, type: "pie" });
+      await createTestChart("basicChart");
+      await updateChart(model, chartId, { aggregated: true, type: "pie" });
       await mountChartSidePanel();
 
       for (const chartType of ["bar", "line", "scatter", "pie"] as const) {
@@ -2177,8 +2196,8 @@ describe("charts", () => {
     });
 
     test("dataSetsHaveTitle value is kept when changing to a chart without aggregate option then back again", async () => {
-      createTestChart("basicChart");
-      updateChart(model, chartId, { dataSetsHaveTitle: true, type: "pie" });
+      await createTestChart("basicChart");
+      await updateChart(model, chartId, { dataSetsHaveTitle: true, type: "pie" });
       await mountChartSidePanel();
       let checkbox = document.querySelector("input[name='dataSetsHaveTitle']") as HTMLInputElement;
       expect(checkbox.checked).toBe(true);
@@ -2192,8 +2211,8 @@ describe("charts", () => {
     });
 
     test("Context creation is not shared between charts", async () => {
-      createChart(model, { type: "line" }, "chart1");
-      createTestChart("scorecard", "chart2");
+      await createChart(model, { type: "line" }, "chart1");
+      await createTestChart("scorecard", "chart2");
 
       await mountChartSidePanel("chart1");
       await click(fixture, "input[name='cumulative']");
@@ -2201,7 +2220,7 @@ describe("charts", () => {
       await changeChartType("bar"); // save chart1 context creation the side panel store
 
       const figure2id = model.getters.getFigureIdFromChartId("chart2")!;
-      selectFigure(model, figure2id);
+      await selectFigure(model, figure2id);
       await nextTick();
       await changeChartType("line");
       // check that chart2 cumulative option is the line chart default (undefined) and not the chart1 value
@@ -2209,7 +2228,10 @@ describe("charts", () => {
     });
 
     test("Chart datasets are kept when switching from a bar to a chart accepting a single dataset then back to a bar chart", async () => {
-      createChart(model, { type: "bar", dataSets: [{ dataRange: "A1" }, { dataRange: "B1" }] });
+      await createChart(model, {
+        type: "bar",
+        dataSets: [{ dataRange: "A1" }, { dataRange: "B1" }],
+      });
       const chartId = model.getters.getChartIds(sheetId)[0];
       await mountChartSidePanel(chartId);
 
@@ -2223,12 +2245,15 @@ describe("charts", () => {
     });
 
     test("Chart datasets from old chart type are discarded as soon as a dataset is changed in the new type", async () => {
-      createChart(model, { type: "bar", dataSets: [{ dataRange: "A1" }, { dataRange: "B1" }] });
+      await createChart(model, {
+        type: "bar",
+        dataSets: [{ dataRange: "A1" }, { dataRange: "B1" }],
+      });
       const chartId = model.getters.getChartIds(sheetId)[0];
       await mountChartSidePanel(chartId);
 
       await changeChartType("pie");
-      updateChart(model, chartId, { dataSets: [{ dataRange: "C1" }] });
+      await updateChart(model, chartId, { dataSets: [{ dataRange: "C1" }] });
       await nextTick();
 
       await changeChartType("bar");
@@ -2239,9 +2264,9 @@ describe("charts", () => {
   });
 
   describe("trend line", () => {
-    beforeEach(() => {
+    beforeEach(async () => {
       //prettier-ignore
-      setGrid(model, {
+      await setGrid(model, {
         A1: "1", B1: "1",
         A2: "2", B2: "4",
         A3: "3", B3: "27",
@@ -2251,7 +2276,7 @@ describe("charts", () => {
     test.each(["bar", "line", "scatter", "combo"] as const)(
       "trend line check/uncheck",
       async (type: "bar" | "line" | "scatter" | "combo") => {
-        createChart(
+        await createChart(
           model,
           {
             dataSets: [{ dataRange: "B1:B4" }],
@@ -2295,7 +2320,7 @@ describe("charts", () => {
     test.each(["bar", "line", "scatter", "combo"] as const)(
       "Can change trend type",
       async (type: "bar" | "line" | "scatter" | "combo") => {
-        createChart(
+        await createChart(
           model,
           {
             dataSets: [
@@ -2334,7 +2359,7 @@ describe("charts", () => {
     test.each(["bar", "line", "scatter", "combo"] as const)(
       "Can change polynome degree",
       async (type: "bar" | "line" | "scatter" | "combo") => {
-        createChart(
+        await createChart(
           model,
           {
             dataSets: [
@@ -2366,7 +2391,7 @@ describe("charts", () => {
     test.each(["bar", "line", "scatter", "combo"] as const)(
       "Can change moving average window size",
       async (type: "bar" | "line" | "scatter" | "combo") => {
-        createChart(
+        await createChart(
           model,
           {
             dataSets: [
@@ -2402,7 +2427,7 @@ describe("charts", () => {
     test.each(["bar", "line", "scatter", "combo"] as const)(
       "Polynomial degree choices are limited by the number of points",
       async (type: "bar" | "line" | "scatter" | "combo") => {
-        createChart(
+        await createChart(
           model,
           {
             dataSets: [
@@ -2429,7 +2454,7 @@ describe("charts", () => {
     test.each(["bar", "line", "scatter", "combo"] as const)(
       "Can change trend line color",
       async (type: "bar" | "line" | "scatter" | "combo") => {
-        createChart(
+        await createChart(
           model,
           {
             dataSets: [
@@ -2463,7 +2488,7 @@ describe("charts", () => {
 
     test("Trend line is not in the choice of data series to edit", async () => {
       const trend: TrendConfiguration = { type: "polynomial", order: 3, display: true };
-      createChart(
+      await createChart(
         model,
         { dataSets: [{ dataRange: "E1:E4", trend }], type: "line", dataSetsHaveTitle: false },
         chartId
@@ -2480,8 +2505,8 @@ describe("charts", () => {
 
   test("When a figure is selected, pressing Ctrl+A will not propagate to the grid to select all cells", async () => {
     await mountSpreadsheet();
-    selectCell(model, "A1");
-    createTestChart("gauge", undefined, { figureId: "someuuid" });
+    await selectCell(model, "A1");
+    await createTestChart("gauge", undefined, { figureId: "someuuid" });
     await nextTick();
 
     await simulateClick(".o-figure");
@@ -2493,15 +2518,15 @@ describe("charts", () => {
 
   test("Can undo multiple times after pasting figure", async () => {
     await mountSpreadsheet();
-    setCellContent(model, "D6", "HELLO");
-    createTestChart("gauge", undefined, { figureId: "someuuid" });
+    await setCellContent(model, "D6", "HELLO");
+    await createTestChart("gauge", undefined, { figureId: "someuuid" });
     await nextTick();
-    selectFigure(model, "someuuid");
+    await selectFigure(model, "someuuid");
     await nextTick();
 
-    copy(model);
+    await copy(model);
     await simulateClick(".o-grid-overlay", 0, 0);
-    paste(model, "A1");
+    await paste(model, "A1");
     await nextTick();
 
     await keyDown({ key: "Z", ctrlKey: true });
@@ -2519,8 +2544,8 @@ describe("charts", () => {
   });
 
   test("Pie chart border color matches the background color", async () => {
-    createTestChart("basicChart");
-    updateChart(model, chartId, { type: "pie", background: "#FF0000" });
+    await createTestChart("basicChart");
+    await updateChart(model, chartId, { type: "pie", background: "#FF0000" });
     const runtime = model.getters.getChartRuntime(chartId) as PieChartRuntime;
     expect(runtime.chartJsConfig.data?.datasets?.[0].borderColor).toBe("#FF0000");
   });
@@ -2528,9 +2553,9 @@ describe("charts", () => {
   test("Chart is re-rendered if its label format change", async () => {
     await mountSpreadsheet();
     const updateChart = jest.spyOn((window as any).Chart.prototype, "update");
-    createTestChart("basicChart");
+    await createTestChart("basicChart");
     await nextTick();
-    setCellFormat(model, "B2", "#,##0.00");
+    await setCellFormat(model, "B2", "#,##0.00");
     await nextTick();
     expect(updateChart).toHaveBeenCalled();
   });
@@ -2538,7 +2563,7 @@ describe("charts", () => {
   test("Chart is re-rendered once if window.devicePixelRatio changes", async () => {
     await mountSpreadsheet();
     const updateChart = jest.spyOn((window as any).Chart.prototype, "update");
-    createTestChart("basicChart");
+    await createTestChart("basicChart");
     await nextTick();
     expect(updateChart).not.toHaveBeenCalled();
     window.devicePixelRatio = 2;
@@ -2548,7 +2573,7 @@ describe("charts", () => {
   });
 
   test("Cannot change series axis on horizontal bar chart", async () => {
-    createChart(model, { type: "bar", horizontal: true }, chartId);
+    await createChart(model, { type: "bar", horizontal: true }, chartId);
     await mountChartSidePanel();
     await openChartDesignSidePanel(model, env, fixture, chartId);
     expect(fixture.querySelector(".o-vertical-axis-selection ")).toBeNull();
@@ -2629,7 +2654,7 @@ describe("charts with multiple sheets", () => {
 
   test("delete sheet containing chart data does not crash", async () => {
     expect(model.getters.getSheetName(model.getters.getActiveSheetId())).toBe("Sheet1");
-    deleteSheet(model, model.getters.getActiveSheetId());
+    await deleteSheet(model, model.getters.getActiveSheetId());
     const runtimeChart = model.getters.getChartRuntime(chartId);
     expect(runtimeChart).toBeDefined();
     await nextTick();
@@ -2643,22 +2668,22 @@ describe("Default background on runtime tests", () => {
   });
 
   test("Creating a 'basicChart' without background should have no background on runtime", async () => {
-    createChart(model, { type: "bar", dataSets: [{ dataRange: "A1" }] }, chartId, sheetId);
+    await createChart(model, { type: "bar", dataSets: [{ dataRange: "A1" }] }, chartId, sheetId);
     expect(model.getters.getChartDefinition(chartId)?.background).toBeUndefined();
     const runtime = model.getters.getChartRuntime(chartId) as BarChartRuntime;
     expect(runtime.chartJsConfig.options?.plugins?.background?.color).toBeUndefined();
   });
   test("Creating a 'basicChart' without background and updating its type should have default background on runtime", async () => {
-    createChart(model, { type: "bar", dataSets: [{ dataRange: "A1" }] }, chartId, sheetId);
-    updateChart(model, chartId, { type: "line" }, sheetId);
+    await createChart(model, { type: "bar", dataSets: [{ dataRange: "A1" }] }, chartId, sheetId);
+    await updateChart(model, chartId, { type: "line" }, sheetId);
     const runtime = model.getters.getChartRuntime(chartId) as BarChartRuntime;
     expect(model.getters.getChartDefinition(chartId)?.background).toBeUndefined();
     expect(runtime.chartJsConfig.options?.plugins?.background?.color).toBe(undefined);
   });
-  test("Creating a 'basicChart' on a single cell with style and converting into scorecard should have cell background as chart background", () => {
-    setFormatting(model, "A1", { fillColor: "#FA0000" }, sheetId);
-    createChart(model, { type: "bar", dataSets: [{ dataRange: "A1" }] }, chartId, sheetId);
-    updateChart(model, chartId, { type: "scorecard", keyValue: "A1" }, sheetId);
+  test("Creating a 'basicChart' on a single cell with style and converting into scorecard should have cell background as chart background", async () => {
+    await setFormatting(model, "A1", { fillColor: "#FA0000" }, sheetId);
+    await createChart(model, { type: "bar", dataSets: [{ dataRange: "A1" }] }, chartId, sheetId);
+    await updateChart(model, chartId, { type: "scorecard", keyValue: "A1" }, sheetId);
     const runtime = model.getters.getChartRuntime(chartId) as ScorecardChartRuntime;
     expect(model.getters.getChartDefinition(chartId)?.background).toBeUndefined();
     expect(runtime.background).toBe("#FA0000");
@@ -2668,11 +2693,11 @@ describe("Default background on runtime tests", () => {
 test("ChartJS charts are correctly destroyed on chart deletion", async () => {
   model = await createModel();
   await mountSpreadsheet();
-  createChart(model, { type: "bar", dataSets: [{ dataRange: "A1" }] }, chartId);
+  await createChart(model, { type: "bar", dataSets: [{ dataRange: "A1" }] }, chartId);
   await nextTick();
   const spyDelete = jest.spyOn((window as any).Chart.prototype, "destroy");
   const figureId = model.getters.getFigureIdFromChartId(chartId);
-  deleteFigure(model, figureId);
+  await deleteFigure(model, figureId);
   await nextTick();
   expect(spyDelete).toHaveBeenCalled();
 });
@@ -2681,7 +2706,7 @@ test("ChartJS charts are correctly destroyed and re-created when runtime change 
   model = await createModel();
   await mountSpreadsheet();
 
-  createChart(model, { type: "pie", isDoughnut: false }, chartId);
+  await createChart(model, { type: "pie", isDoughnut: false }, chartId);
   expect(model.getters.getChartDefinition(chartId).type).toEqual("pie");
   expect(model.getters.getChartRuntime(chartId)).toMatchObject({
     chartJsConfig: { type: "pie" },
@@ -2690,7 +2715,7 @@ test("ChartJS charts are correctly destroyed and re-created when runtime change 
   const spyConstructor = jest.spyOn((window as any).Chart.prototype, "constructorMock");
   const spyDelete = jest.spyOn((window as any).Chart.prototype, "destroy");
 
-  updateChart(model, chartId, { isDoughnut: true }, sheetId);
+  await updateChart(model, chartId, { isDoughnut: true }, sheetId);
   expect(model.getters.getChartDefinition(chartId).type).toEqual("pie");
   expect(model.getters.getChartRuntime(chartId)).toMatchObject({
     chartJsConfig: { type: "doughnut" },
@@ -2706,7 +2731,7 @@ test("ChartJS charts extensions are loaded when mounting a spreadsheet, are only
   model = await createModel();
   const spyRegister = jest.spyOn(window.Chart, "register");
   const spyUnregister = jest.spyOn(window.Chart, "unregister");
-  createChart(model, { type: "bar" }, chartId);
+  await createChart(model, { type: "bar" }, chartId);
   await mountSpreadsheet();
   const numberOfExtensions = window.Chart.registry.plugins["items"].length;
   expect(spyRegister).toHaveBeenCalledTimes(numberOfExtensions);
@@ -2724,7 +2749,7 @@ test("ChartJS charts extensions are loaded when mounting a spreadsheet, are only
     "background",
   ]);
 
-  createChart(model, { type: "line" }, "chart2");
+  await createChart(model, { type: "line" }, "chart2");
   await nextTick();
   expect(spyRegister).toHaveBeenCalledTimes(numberOfExtensions);
 
@@ -2743,7 +2768,7 @@ describe("Change chart type", () => {
     "Can change chart type between simple and stacked %s",
     async (type) => {
       const uiType = type === "bar" ? "column" : type;
-      createChart(model, { type }, chartId);
+      await createChart(model, { type }, chartId);
       await mountChartSidePanel(chartId);
 
       const select = fixture.querySelector(".o-type-selector") as HTMLDivElement;
@@ -2766,11 +2791,11 @@ describe("Change chart type", () => {
   );
 
   test("Can change chart type between bar and horizontal bar chart", async () => {
-    createChart(model, { type: "bar", horizontal: false }, chartId);
+    await createChart(model, { type: "bar", horizontal: false }, chartId);
     await mountChartSidePanel(chartId);
     const select = fixture.querySelector(".o-type-selector") as HTMLDivElement;
 
-    updateChart(model, chartId, { horizontal: true }, sheetId);
+    await updateChart(model, chartId, { horizontal: true }, sheetId);
     await nextTick();
     expect(model.getters.getChartDefinition(chartId)).toMatchObject({ horizontal: true });
     expect(select.textContent).toBe("Bar");
@@ -2781,11 +2806,11 @@ describe("Change chart type", () => {
   });
 
   test("Can change chart type between pie and doughnut chart", async () => {
-    createChart(model, { type: "pie", isDoughnut: false }, chartId);
+    await createChart(model, { type: "pie", isDoughnut: false }, chartId);
     await mountChartSidePanel(chartId);
     const select = fixture.querySelector(".o-type-selector") as HTMLDivElement;
 
-    updateChart(model, chartId, { isDoughnut: true }, sheetId);
+    await updateChart(model, chartId, { isDoughnut: true }, sheetId);
     await nextTick();
     expect(model.getters.getChartRuntime(chartId)).toMatchObject({
       chartJsConfig: { type: "doughnut" },
@@ -2800,11 +2825,11 @@ describe("Change chart type", () => {
   });
 
   test("Can change from (stacked)line to (stacked)area chart", async () => {
-    createChart(model, { type: "line", stacked: false, fillArea: false }, chartId);
+    await createChart(model, { type: "line", stacked: false, fillArea: false }, chartId);
     await mountChartSidePanel(chartId);
     const select = fixture.querySelector(".o-type-selector") as HTMLDivElement;
 
-    updateChart(model, chartId, { fillArea: true }, sheetId);
+    await updateChart(model, chartId, { fillArea: true }, sheetId);
     await nextTick();
     expect(model.getters.getChartDefinition(chartId)).toMatchObject({
       stacked: false,
@@ -2819,7 +2844,7 @@ describe("Change chart type", () => {
     });
     expect(select.textContent).toBe("Stacked Area");
 
-    updateChart(model, chartId, { fillArea: false }, sheetId);
+    await updateChart(model, chartId, { fillArea: false }, sheetId);
     await nextTick();
     expect(model.getters.getChartDefinition(chartId)).toMatchObject({
       stacked: true,
@@ -2829,25 +2854,25 @@ describe("Change chart type", () => {
   });
 
   test("Changing chart type updates the stacked checkbox label accordingly", async () => {
-    createChart(model, { type: "line" }, chartId);
+    await createChart(model, { type: "line" }, chartId);
     await mountChartSidePanel(chartId);
 
     expect(fixture.querySelector("label.o-checkbox")!.textContent).toBe("Stacked line chart");
 
-    updateChart(model, chartId, { fillArea: true }, sheetId);
+    await updateChart(model, chartId, { fillArea: true }, sheetId);
     await nextTick();
     expect(fixture.querySelector("label.o-checkbox")!.textContent).toBe("Stacked area chart");
 
     await changeChartType("bar");
     expect(fixture.querySelector("label.o-checkbox")!.textContent).toBe("Stacked bar chart");
 
-    updateChart(model, chartId, { horizontal: false }, sheetId);
+    await updateChart(model, chartId, { horizontal: false }, sheetId);
     await nextTick();
     expect(fixture.querySelector("label.o-checkbox")!.textContent).toBe("Stacked column chart");
   });
 
   test("Changing an empty bar chart to scorecard does not crash and leaves keyValue undefined", async () => {
-    createChart(model, { type: "bar", dataSets: [] }, chartId);
+    await createChart(model, { type: "bar", dataSets: [] }, chartId);
     await mountChartSidePanel(chartId);
 
     await changeChartType("scorecard");
@@ -2861,7 +2886,7 @@ describe("Change chart type", () => {
   });
 
   test("Changing an empty bar chart to gauge does not crash and leaves data range undefined", async () => {
-    createChart(model, { type: "bar", dataSets: [] }, chartId);
+    await createChart(model, { type: "bar", dataSets: [] }, chartId);
     await mountChartSidePanel(chartId);
 
     await changeChartType("gauge");
@@ -2875,11 +2900,11 @@ describe("Change chart type", () => {
   });
 
   test("Can change chart type between radar and filled radar chart", async () => {
-    createChart(model, { type: "radar", fillArea: false }, chartId);
+    await createChart(model, { type: "radar", fillArea: false }, chartId);
     await mountChartSidePanel(chartId);
     const select = fixture.querySelector(".o-type-selector") as HTMLDivElement;
 
-    updateChart(model, chartId, { fillArea: true }, sheetId);
+    await updateChart(model, chartId, { fillArea: true }, sheetId);
     await nextTick();
 
     expect(model.getters.getChartDefinition(chartId)).toMatchObject({ fillArea: true });

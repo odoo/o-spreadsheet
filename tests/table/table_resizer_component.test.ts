@@ -47,7 +47,7 @@ describe("Table resizer component", () => {
   });
 
   test("Can resize a table with drag & drop", async () => {
-    createTable(model, "A1:B2");
+    await createTable(model, "A1:B2");
     await nextTick();
 
     let dragEndPosition = { x: DEFAULT_CELL_WIDTH * 4, y: DEFAULT_CELL_HEIGHT * 4 };
@@ -60,7 +60,7 @@ describe("Table resizer component", () => {
   });
 
   test("Highlight appear during the table drag & drop", async () => {
-    createTable(model, "A1:B2");
+    await createTable(model, "A1:B2");
     await nextTick();
     const dragEndPosition = { x: DEFAULT_CELL_WIDTH * 4, y: DEFAULT_CELL_HEIGHT * 4 };
     await clickAndDrag(".o-table-resizer", dragEndPosition, undefined, false);
@@ -74,7 +74,7 @@ describe("Table resizer component", () => {
   });
 
   test("Cannot drag & drop to position above/left of the table", async () => {
-    createTable(model, "C3:D4");
+    await createTable(model, "C3:D4");
     await nextTick();
 
     await clickAndDrag(".o-table-resizer", { x: 0, y: 0 }, undefined, false);
@@ -86,9 +86,9 @@ describe("Table resizer component", () => {
   });
 
   test("Table formula are auto-filled on resize table down", async () => {
-    createTable(model, "A1:B2");
-    setCellContent(model, "A2", "=A1+1");
-    setCellContent(model, "B2", "string content");
+    await createTable(model, "A1:B2");
+    await setCellContent(model, "A2", "=A1+1");
+    await setCellContent(model, "B2", "string content");
     await nextTick();
 
     const dragEndPosition = { x: DEFAULT_CELL_WIDTH, y: DEFAULT_CELL_HEIGHT * 2 };
@@ -100,8 +100,8 @@ describe("Table resizer component", () => {
   });
 
   test("Cannot resize a dynamic table", async () => {
-    setCellContent(model, "A1", "=MUNIT(5)");
-    createDynamicTable(model, "A1");
+    await setCellContent(model, "A1", "=MUNIT(5)");
+    await createDynamicTable(model, "A1");
     await nextTick();
 
     expect(document.querySelector(".o-table-resizer")).toBeNull();

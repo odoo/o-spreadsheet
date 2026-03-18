@@ -60,9 +60,9 @@ describe("FORMAT.LARGE.NUMBER formula", () => {
   test("Result does not contain decimals", async () => {
     // < 100k
     const model = await createModel();
-    setCellContent(model, "A1", "100.60");
-    setCellFormat(model, "A1", "#,000.00");
-    setCellContent(model, "A2", "=FORMAT.LARGE.NUMBER(A1)");
+    await setCellContent(model, "A1", "100.60");
+    await setCellFormat(model, "A1", "#,000.00");
+    await setCellContent(model, "A2", "=FORMAT.LARGE.NUMBER(A1)");
     expect(getCellContent(model, "A2")).toBe("101");
     // < 100m
     expect(await evaluateCellText("A1", { A1: "=FORMAT.LARGE.NUMBER(100000.60)" })).toBe("100k");
@@ -75,7 +75,7 @@ describe("FORMAT.LARGE.NUMBER formula", () => {
   });
   test("not a number", async () => {
     const model = await createModel();
-    setCellContent(model, "A1", `=FORMAT.LARGE.NUMBER("a string")`);
+    await setCellContent(model, "A1", `=FORMAT.LARGE.NUMBER("a string")`);
     expect(getCellContent(model, "A1")).toBe("#ERROR");
     expect(getCellError(model, "A1")).toBe(
       "The function FORMAT.LARGE.NUMBER expects a number value, but 'a string' is a string, and cannot be coerced to a number."
@@ -155,42 +155,42 @@ describe("FORMAT.LARGE.NUMBER formula", () => {
   });
   test("Original currency format is kept", async () => {
     const model = await createModel();
-    setCellContent(model, "A1", "100000");
-    setFormat(model, "A1", "#,##0[$€]");
-    setCellContent(model, "A2", "=FORMAT.LARGE.NUMBER(A1)");
+    await setCellContent(model, "A1", "100000");
+    await setFormat(model, "A1", "#,##0[$€]");
+    await setCellContent(model, "A2", "=FORMAT.LARGE.NUMBER(A1)");
     expect(getCellContent(model, "A2")).toBe("100k€");
   });
   test("Chaining FORMAT.LARGE.NUMBER does nothing with automatic/same unit", async () => {
     const model = await createModel();
-    setCellContent(model, "A1", "500000");
-    setCellContent(model, "A2", "=FORMAT.LARGE.NUMBER(A1)");
-    setCellContent(model, "A3", "=FORMAT.LARGE.NUMBER(A2)");
+    await setCellContent(model, "A1", "500000");
+    await setCellContent(model, "A2", "=FORMAT.LARGE.NUMBER(A1)");
+    await setCellContent(model, "A3", "=FORMAT.LARGE.NUMBER(A2)");
     expect(getCellContent(model, "A2")).toBe("500k");
     expect(getCellContent(model, "A3")).toBe("500k");
-    setCellContent(model, "B1", "=FORMAT.LARGE.NUMBER(FORMAT.LARGE.NUMBER(500000))");
+    await setCellContent(model, "B1", "=FORMAT.LARGE.NUMBER(FORMAT.LARGE.NUMBER(500000))");
     expect(getCellContent(model, "B1")).toBe("500k");
   });
   test("Chaining FORMAT.LARGE.NUMBER with different units", async () => {
     const model = await createModel();
-    setCellContent(model, "A1", "5000000000");
-    setCellContent(model, "A2", '=FORMAT.LARGE.NUMBER(A1, "m")');
-    setCellContent(model, "A3", '=FORMAT.LARGE.NUMBER(A2, "b")');
+    await setCellContent(model, "A1", "5000000000");
+    await setCellContent(model, "A2", '=FORMAT.LARGE.NUMBER(A1, "m")');
+    await setCellContent(model, "A3", '=FORMAT.LARGE.NUMBER(A2, "b")');
     expect(getCellContent(model, "A2")).toBe("5,000m");
     expect(getCellContent(model, "A3")).toBe("5b");
   });
   test("FORMAT.LARGE.NUMBER breaks with custom currency that have the same look as the unit", async () => {
     const model = await createModel();
-    setFormat(model, "A1", "#,##0[$k]");
-    setCellContent(model, "A1", "5000000000");
-    setCellContent(model, "A2", '=FORMAT.LARGE.NUMBER(A1, "m")');
+    await setFormat(model, "A1", "#,##0[$k]");
+    await setCellContent(model, "A1", "5000000000");
+    await setCellContent(model, "A2", '=FORMAT.LARGE.NUMBER(A1, "m")');
     // should be "5,000mk" in a perfect world. But we cannot tell the difference between a custom currency and a unit in a format.
     expect(getCellContent(model, "A2")).toBe("5,000m");
   });
   test("Percentage in decimal part is preserved by FORMAT.LARGE.NUMBER", async () => {
     const model = await createModel();
-    setCellContent(model, "A1", "100000");
-    setFormat(model, "A1", "#,##0.0%");
-    setCellContent(model, "A2", "=FORMAT.LARGE.NUMBER(A1)");
+    await setCellContent(model, "A1", "100000");
+    await setFormat(model, "A1", "#,##0.0%");
+    await setCellContent(model, "A2", "=FORMAT.LARGE.NUMBER(A1)");
     expect(getCellContent(model, "A2")).toBe("10,000k%");
   });
 });

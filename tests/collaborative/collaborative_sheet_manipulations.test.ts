@@ -56,10 +56,10 @@ describe("Collaborative Sheet manipulation", () => {
 
   test("create and delete sheet concurrently", async () => {
     const sheet1 = alice.getters.getActiveSheetId();
-    createSheet(alice, { sheetId: "42" });
+    await createSheet(alice, { sheetId: "42" });
     await network.concurrent(async () => {
-      createSheet(alice, { sheetId: "2" });
-      deleteSheet(bob, "42");
+      await createSheet(alice, { sheetId: "2" });
+      await deleteSheet(bob, "42");
     });
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
       (user) => user.getters.getSheetIds(),
@@ -70,10 +70,10 @@ describe("Collaborative Sheet manipulation", () => {
 
   test("color and delete sheet concurrently", async () => {
     const sheet1 = alice.getters.getActiveSheetId();
-    createSheet(alice, { sheetId: "42" });
+    await createSheet(alice, { sheetId: "42" });
     await network.concurrent(async () => {
-      colorSheet(alice, "42", "#FF0000");
-      deleteSheet(bob, "42");
+      await colorSheet(alice, "42", "#FF0000");
+      await deleteSheet(bob, "42");
     });
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
       (user) => user.getters.getSheetIds(),
@@ -85,8 +85,8 @@ describe("Collaborative Sheet manipulation", () => {
   test("Create two sheets concurrently", async () => {
     const sheet1 = alice.getters.getActiveSheetId();
     await network.concurrent(async () => {
-      createSheet(alice, { sheetId: "2" });
-      createSheet(bob, { sheetId: "3" });
+      await createSheet(alice, { sheetId: "2" });
+      await createSheet(bob, { sheetId: "3" });
     });
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
       (user) => user.getters.getSheetIds(),
@@ -99,8 +99,8 @@ describe("Collaborative Sheet manipulation", () => {
   test("Create two sheets concurrently with the same id", async () => {
     const { network, alice, bob, charlie } = await setupCollaborativeEnv();
     await network.concurrent(async () => {
-      createSheet(alice, { sheetId: "sheet2", name: "Sheet2" });
-      createSheet(charlie, { sheetId: "sheet2", name: "Sheet2" });
+      await createSheet(alice, { sheetId: "sheet2", name: "Sheet2" });
+      await createSheet(charlie, { sheetId: "sheet2", name: "Sheet2" });
     });
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
       (user) => user.getters.getSheetIds(),
@@ -116,21 +116,21 @@ describe("Collaborative Sheet manipulation", () => {
   test("recreate a sheet with the same id from an undo", async () => {
     const { network, alice, bob, charlie } = await setupCollaborativeEnv();
     const firstSheetId = alice.getters.getActiveSheetId();
-    createSheet(alice, { sheetId: "sheet2" });
-    deleteSheet(alice, firstSheetId);
+    await createSheet(alice, { sheetId: "sheet2" });
+    await deleteSheet(alice, firstSheetId);
     await network.concurrent(async () => {
-      undo(alice); // Sheet1 is recreated
-      createSheet(charlie, { sheetId: firstSheetId, name: "from Charlie" });
+      await undo(alice); // Sheet1 is recreated
+      await createSheet(charlie, { sheetId: firstSheetId, name: "from Charlie" });
     });
-    redo(alice);
+    await redo(alice);
     expect([alice, bob, charlie]).toHaveSynchronizedExportedData();
   });
 
   test("concurrently create three numbered sheets with the same name", async () => {
     await network.concurrent(async () => {
-      createSheet(alice, { sheetId: "alice42", name: "Sheet2" });
-      createSheet(bob, { sheetId: "bob42", name: "Sheet2" });
-      createSheet(charlie, { sheetId: "charlie42", name: "Sheet2" });
+      await createSheet(alice, { sheetId: "alice42", name: "Sheet2" });
+      await createSheet(bob, { sheetId: "bob42", name: "Sheet2" });
+      await createSheet(charlie, { sheetId: "charlie42", name: "Sheet2" });
     });
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
       (user) => user.getters.getSheetIds().map(user.getters.getSheetName),
@@ -140,9 +140,9 @@ describe("Collaborative Sheet manipulation", () => {
 
   test("concurrently create three sheets with the same name", async () => {
     await network.concurrent(async () => {
-      createSheet(alice, { sheetId: "alice42", name: "Sheet" });
-      createSheet(bob, { sheetId: "bob42", name: "Sheet" });
-      createSheet(charlie, { sheetId: "charlie42", name: "Sheet" });
+      await createSheet(alice, { sheetId: "alice42", name: "Sheet" });
+      await createSheet(bob, { sheetId: "bob42", name: "Sheet" });
+      await createSheet(charlie, { sheetId: "charlie42", name: "Sheet" });
     });
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
       (user) => user.getters.getSheetIds().map(user.getters.getSheetName),
@@ -152,10 +152,10 @@ describe("Collaborative Sheet manipulation", () => {
 
   test("create sheet and move sheet concurrently", async () => {
     const sheet1 = alice.getters.getActiveSheetId();
-    createSheet(bob, { sheetId: "42", activate: true });
+    await createSheet(bob, { sheetId: "42", activate: true });
     await network.concurrent(async () => {
-      createSheet(alice, { sheetId: "2", position: 1 });
-      moveSheet(bob, 1, sheet1);
+      await createSheet(alice, { sheetId: "2", position: 1 });
+      await moveSheet(bob, 1, sheet1);
     });
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
       (user) => user.getters.getSheetIds(),
@@ -166,11 +166,11 @@ describe("Collaborative Sheet manipulation", () => {
 
   test("Move two sheets concurrently", async () => {
     const sheet1 = alice.getters.getActiveSheetId();
-    createSheet(bob, { sheetId: "1", activate: true, position: 1 });
-    createSheet(bob, { sheetId: "2", activate: true, position: 2 });
+    await createSheet(bob, { sheetId: "1", activate: true, position: 1 });
+    await createSheet(bob, { sheetId: "2", activate: true, position: 2 });
     await network.concurrent(async () => {
-      moveSheet(alice, 1, sheet1);
-      moveSheet(bob, -1, "2");
+      await moveSheet(alice, 1, sheet1);
+      await moveSheet(bob, -1, "2");
     });
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
       (user) => user.getters.getSheetIds(),
@@ -181,8 +181,8 @@ describe("Collaborative Sheet manipulation", () => {
 
   test("delete sheet and update figure concurrently", async () => {
     const sheetId = "42";
-    createSheet(bob, { sheetId, activate: true });
-    createFigure(bob, {
+    await createSheet(bob, { sheetId, activate: true });
+    await createFigure(bob, {
       sheetId,
       height: 100,
       width: 100,
@@ -195,8 +195,8 @@ describe("Collaborative Sheet manipulation", () => {
       row: 0,
     });
     await network.concurrent(async () => {
-      deleteSheet(alice, sheetId);
-      updateFigure(bob, {
+      await deleteSheet(alice, sheetId);
+      await updateFigure(bob, {
         figureId: "456",
         sheetId,
         col: 0,
@@ -212,8 +212,8 @@ describe("Collaborative Sheet manipulation", () => {
   test("delete sheet and update chart concurrently", async () => {
     const sheetId = "42";
     const chartId = "24";
-    createSheet(bob, { sheetId, activate: true });
-    createChart(
+    await createSheet(bob, { sheetId, activate: true });
+    await createChart(
       bob,
       {
         type: "bar",
@@ -224,8 +224,8 @@ describe("Collaborative Sheet manipulation", () => {
       sheetId
     );
     await network.concurrent(async () => {
-      deleteSheet(alice, sheetId);
-      updateChart(
+      await deleteSheet(alice, sheetId);
+      await updateChart(
         bob,
         chartId,
         {
@@ -244,8 +244,8 @@ describe("Collaborative Sheet manipulation", () => {
     const sheetId = alice.getters.getActiveSheetId();
     const sheetName = bob.getters.getSheet(sheetId).name;
     await network.concurrent(async () => {
-      renameSheet(alice, sheetId, "NewName");
-      setCellContent(bob, "A1", `=${sheetName}!A2`);
+      await renameSheet(alice, sheetId, "NewName");
+      await setCellContent(bob, "A1", `=${sheetName}!A2`);
     });
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
       (user) => getCellText(user, "A1"),
@@ -253,51 +253,51 @@ describe("Collaborative Sheet manipulation", () => {
     );
   });
 
-  test("adding columns after adapts selection", () => {
-    selectCell(alice, "B1");
-    selectCell(bob, "A1");
-    selectCell(charlie, "F1");
-    addColumns(alice, "after", "B", 2);
+  test("adding columns after adapts selection", async () => {
+    await selectCell(alice, "B1");
+    await selectCell(bob, "A1");
+    await selectCell(charlie, "F1");
+    await addColumns(alice, "after", "B", 2);
     expect(bob.getters.getSelectedZone()).toEqual(toZone("A1"));
     expect(charlie.getters.getSelectedZone()).toEqual(toZone("H1"));
     expect(alice.getters.getSelectedZone()).toEqual(toZone("B1"));
   });
 
-  test("adding columns before adapts selection", () => {
-    selectCell(alice, "B1");
-    selectCell(bob, "A1");
-    selectCell(charlie, "F1");
-    addColumns(alice, "before", "B", 2);
+  test("adding columns before adapts selection", async () => {
+    await selectCell(alice, "B1");
+    await selectCell(bob, "A1");
+    await selectCell(charlie, "F1");
+    await addColumns(alice, "before", "B", 2);
     expect(bob.getters.getSelectedZone()).toEqual(toZone("A1"));
     expect(charlie.getters.getSelectedZone()).toEqual(toZone("H1"));
     expect(alice.getters.getSelectedZone()).toEqual(toZone("D1"));
   });
 
-  test("adding rows after adapts selection", () => {
-    selectCell(alice, "A3");
-    selectCell(bob, "A1");
-    selectCell(charlie, "A10");
-    addRows(alice, "after", 2, 2);
+  test("adding rows after adapts selection", async () => {
+    await selectCell(alice, "A3");
+    await selectCell(bob, "A1");
+    await selectCell(charlie, "A10");
+    await addRows(alice, "after", 2, 2);
     expect(bob.getters.getSelectedZone()).toEqual(toZone("A1"));
     expect(charlie.getters.getSelectedZone()).toEqual(toZone("A12"));
     expect(alice.getters.getSelectedZone()).toEqual(toZone("A3"));
   });
 
-  test("adding rows before adapts selection", () => {
-    selectCell(alice, "A3");
-    selectCell(bob, "A1");
-    selectCell(charlie, "A10");
-    addRows(alice, "before", 2, 2);
+  test("adding rows before adapts selection", async () => {
+    await selectCell(alice, "A3");
+    await selectCell(bob, "A1");
+    await selectCell(charlie, "A10");
+    await addRows(alice, "before", 2, 2);
     expect(bob.getters.getSelectedZone()).toEqual(toZone("A1"));
     expect(charlie.getters.getSelectedZone()).toEqual(toZone("A12"));
     expect(alice.getters.getSelectedZone()).toEqual(toZone("A5"));
   });
 
-  test("removing rows adapts selection", () => {
-    selectCell(alice, "A3");
-    selectCell(bob, "A1");
-    selectCell(charlie, "A10");
-    deleteRows(alice, [1]);
+  test("removing rows adapts selection", async () => {
+    await selectCell(alice, "A3");
+    await selectCell(bob, "A1");
+    await selectCell(charlie, "A10");
+    await deleteRows(alice, [1]);
     expect(alice.getters.getSelectedZone()).toEqual(toZone("A2"));
     expect(bob.getters.getSelectedZone()).toEqual(toZone("A1"));
     expect(charlie.getters.getSelectedZone()).toEqual(toZone("A9"));
@@ -305,92 +305,92 @@ describe("Collaborative Sheet manipulation", () => {
 
   test("selection is correctly updated with concurrent add rows", async () => {
     await network.concurrent(async () => {
-      addRows(alice, "before", 1, 1);
-      addRows(bob, "after", 0, 1);
-      selectCell(bob, "A2");
+      await addRows(alice, "before", 1, 1);
+      await addRows(bob, "after", 0, 1);
+      await selectCell(bob, "A2");
     });
     expect(bob.getters.getSelectedZone()).toEqual(toZone("A2"));
   });
 
-  test("remove the selected row and all following rows", () => {
+  test("remove the selected row and all following rows", async () => {
     const sheetId = alice.getters.getActiveSheetId();
-    selectCell(bob, "A10");
+    await selectCell(bob, "A10");
     const nRows = bob.getters.getNumberRows(sheetId);
-    deleteRows(alice, range(2, nRows));
+    await deleteRows(alice, range(2, nRows));
     expect(bob.getters.getSelectedZones()).toEqual([toZone("A2")]);
   });
 
-  test("remove the selected col when it is the last col", () => {
+  test("remove the selected col when it is the last col", async () => {
     const sheetId = alice.getters.getActiveSheetId();
-    selectCell(bob, "F1");
+    await selectCell(bob, "F1");
     const nCols = bob.getters.getNumberCols(sheetId);
-    deleteColumns(alice, range(2, nCols).map(numberToLetters));
+    await deleteColumns(alice, range(2, nCols).map(numberToLetters));
     expect(bob.getters.getSelectedZones()).toEqual([toZone("B1")]);
   });
 
-  test("adding rows adapts selection", () => {
-    selectCell(alice, "A3");
-    selectCell(bob, "A1");
-    selectCell(charlie, "A10");
-    addRows(alice, "before", 2, 2);
+  test("adding rows adapts selection", async () => {
+    await selectCell(alice, "A3");
+    await selectCell(bob, "A1");
+    await selectCell(charlie, "A10");
+    await addRows(alice, "before", 2, 2);
     expect(bob.getters.getSelectedZone()).toEqual(toZone("A1"));
     expect(charlie.getters.getSelectedZone()).toEqual(toZone("A12"));
     expect(alice.getters.getSelectedZone()).toEqual(toZone("A5"));
   });
 
-  test("removing the selected column", () => {
-    selectCell(alice, "B3");
-    selectCell(bob, "B1");
-    selectCell(charlie, "B10");
-    deleteColumns(alice, ["B"]);
+  test("removing the selected column", async () => {
+    await selectCell(alice, "B3");
+    await selectCell(bob, "B1");
+    await selectCell(charlie, "B10");
+    await deleteColumns(alice, ["B"]);
     expect(alice.getters.getSelectedZone()).toEqual(toZone("B3"));
     expect(bob.getters.getSelectedZone()).toEqual(toZone("B1"));
     expect(charlie.getters.getSelectedZone()).toEqual(toZone("B10"));
   });
 
-  test("removing the first column while selected", () => {
-    selectCell(alice, "A3");
-    selectCell(bob, "A1");
-    selectCell(charlie, "A10");
-    deleteColumns(alice, ["A"]);
+  test("removing the first column while selected", async () => {
+    await selectCell(alice, "A3");
+    await selectCell(bob, "A1");
+    await selectCell(charlie, "A10");
+    await deleteColumns(alice, ["A"]);
     expect(alice.getters.getSelectedZone()).toEqual(toZone("A3"));
     expect(bob.getters.getSelectedZone()).toEqual(toZone("A1"));
     expect(charlie.getters.getSelectedZone()).toEqual(toZone("A10"));
   });
 
-  test("removing the selected row", () => {
-    selectCell(alice, "B2");
-    selectCell(bob, "C2");
-    selectCell(charlie, "D2");
-    deleteRows(alice, [1]);
+  test("removing the selected row", async () => {
+    await selectCell(alice, "B2");
+    await selectCell(bob, "C2");
+    await selectCell(charlie, "D2");
+    await deleteRows(alice, [1]);
     expect(alice.getters.getSelectedZone()).toEqual(toZone("B2"));
     expect(bob.getters.getSelectedZone()).toEqual(toZone("C2"));
     expect(charlie.getters.getSelectedZone()).toEqual(toZone("D2"));
   });
 
-  test("removing the first rows while selected", () => {
-    selectCell(alice, "C1");
-    selectCell(bob, "A1");
-    selectCell(charlie, "K1");
-    deleteRows(alice, [0]);
+  test("removing the first rows while selected", async () => {
+    await selectCell(alice, "C1");
+    await selectCell(bob, "A1");
+    await selectCell(charlie, "K1");
+    await deleteRows(alice, [0]);
     expect(alice.getters.getSelectedZone()).toEqual(toZone("C1"));
     expect(bob.getters.getSelectedZone()).toEqual(toZone("A1"));
     expect(charlie.getters.getSelectedZone()).toEqual(toZone("K1"));
   });
 
-  test("Adding/removing columns/rows does not update the selection of clients on another sheet", () => {
-    selectCell(bob, "D4");
-    createSheet(alice, { sheetId: "42", activate: true });
-    activateSheet(charlie, "42");
-    selectCell(charlie, "D4");
+  test("Adding/removing columns/rows does not update the selection of clients on another sheet", async () => {
+    await selectCell(bob, "D4");
+    await createSheet(alice, { sheetId: "42", activate: true });
+    await activateSheet(charlie, "42");
+    await selectCell(charlie, "D4");
     /** Columns */
-    addColumns(alice, "before", "A", 5);
-    deleteColumns(alice, ["A"]);
+    await addColumns(alice, "before", "A", 5);
+    await deleteColumns(alice, ["A"]);
     expect(bob.getters.getSelectedZone()).toEqual(toZone("D4"));
     expect(charlie.getters.getSelectedZone()).toEqual(toZone("H4"));
     /** Rows */
-    addRows(alice, "before", 0, 5);
-    deleteRows(alice, [0]);
+    await addRows(alice, "before", 0, 5);
+    await deleteRows(alice, [0]);
     expect(bob.getters.getSelectedZone()).toEqual(toZone("D4"));
     expect(charlie.getters.getSelectedZone()).toEqual(toZone("H8"));
   });
@@ -398,8 +398,8 @@ describe("Collaborative Sheet manipulation", () => {
   test("Hide and add columns concurrently", async () => {
     const sheetId = alice.getters.getActiveSheetId();
     await network.concurrent(async () => {
-      addColumns(alice, "before", "A", 10, sheetId);
-      hideColumns(bob, ["C"], sheetId);
+      await addColumns(alice, "before", "A", 10, sheetId);
+      await hideColumns(bob, ["C"], sheetId);
     });
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
       (user) => user.getters.getHiddenColsGroups(sheetId),
@@ -410,8 +410,8 @@ describe("Collaborative Sheet manipulation", () => {
   test("Hide and remove rows concurrently", async () => {
     const sheetId = alice.getters.getActiveSheetId();
     await network.concurrent(async () => {
-      deleteRows(alice, [2], sheetId);
-      hideRows(bob, [4], sheetId);
+      await deleteRows(alice, [2], sheetId);
+      await hideRows(bob, [4], sheetId);
     });
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
       (user) => user.getters.getHiddenRowsGroups(sheetId),
@@ -422,8 +422,8 @@ describe("Collaborative Sheet manipulation", () => {
   test("Hide and add rows concurrently", async () => {
     const sheetId = alice.getters.getActiveSheetId();
     await network.concurrent(async () => {
-      addRows(alice, "after", 5, 10, sheetId);
-      hideRows(bob, [2], sheetId);
+      await addRows(alice, "after", 5, 10, sheetId);
+      await hideRows(bob, [2], sheetId);
     });
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
       (user) => user.getters.getHiddenRowsGroups(sheetId),
@@ -433,10 +433,10 @@ describe("Collaborative Sheet manipulation", () => {
 
   test("Unhide and add rows concurrently", async () => {
     const sheetId = alice.getters.getActiveSheetId();
-    hideRows(alice, [2], sheetId);
+    await hideRows(alice, [2], sheetId);
     await network.concurrent(async () => {
-      addRows(alice, "before", 0, 10, sheetId);
-      unhideRows(bob, [2], sheetId);
+      await addRows(alice, "before", 0, 10, sheetId);
+      await unhideRows(bob, [2], sheetId);
     });
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
       (user) => user.getters.getHiddenRowsGroups(sheetId),
@@ -446,10 +446,10 @@ describe("Collaborative Sheet manipulation", () => {
 
   test("Unhide and remove columns concurrently", async () => {
     const sheetId = alice.getters.getActiveSheetId();
-    hideColumns(alice, ["F", "H"], sheetId);
+    await hideColumns(alice, ["F", "H"], sheetId);
     await network.concurrent(async () => {
-      deleteColumns(alice, ["F"], sheetId);
-      unhideColumns(bob, ["F"], sheetId);
+      await deleteColumns(alice, ["F"], sheetId);
+      await unhideColumns(bob, ["F"], sheetId);
     });
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
       (user) => user.getters.getHiddenColsGroups(sheetId),
@@ -459,10 +459,10 @@ describe("Collaborative Sheet manipulation", () => {
 
   test("Unhide and add columns concurrently", async () => {
     const sheetId = alice.getters.getActiveSheetId();
-    hideColumns(alice, ["C", "D"], sheetId);
+    await hideColumns(alice, ["C", "D"], sheetId);
     await network.concurrent(async () => {
-      addColumns(alice, "after", "F", 10, sheetId);
-      unhideColumns(bob, ["C"], sheetId);
+      await addColumns(alice, "after", "F", 10, sheetId);
+      await unhideColumns(bob, ["C"], sheetId);
     });
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
       (user) => user.getters.getHiddenColsGroups(sheetId),
@@ -473,9 +473,9 @@ describe("Collaborative Sheet manipulation", () => {
   test("Hide different rows concurrent", async () => {
     const sheetId = alice.getters.getActiveSheetId();
     await network.concurrent(async () => {
-      hideRows(alice, [1], sheetId);
+      await hideRows(alice, [1], sheetId);
       expect(alice.getters.getHiddenRowsGroups(sheetId)).toEqual([[1]]);
-      hideRows(bob, [2, 3], sheetId);
+      await hideRows(bob, [2, 3], sheetId);
       expect(bob.getters.getHiddenRowsGroups(sheetId)).toEqual([[2, 3]]);
     });
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
@@ -486,11 +486,11 @@ describe("Collaborative Sheet manipulation", () => {
 
   test("Unhide different rows concurrent", async () => {
     const sheetId = alice.getters.getActiveSheetId();
-    hideRows(alice, [5, 6, 8], sheetId);
+    await hideRows(alice, [5, 6, 8], sheetId);
     await network.concurrent(async () => {
-      unhideRows(alice, [5], sheetId);
+      await unhideRows(alice, [5], sheetId);
       expect(alice.getters.getHiddenRowsGroups(sheetId)).toEqual([[6], [8]]);
-      unhideRows(bob, [6], sheetId);
+      await unhideRows(bob, [6], sheetId);
       expect(bob.getters.getHiddenRowsGroups(sheetId)).toEqual([[5], [8]]);
     });
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
@@ -501,14 +501,14 @@ describe("Collaborative Sheet manipulation", () => {
 
   test("Hide and unhide columns concurrently", async () => {
     const sheetId = alice.getters.getActiveSheetId();
-    hideColumns(alice, ["C"], sheetId);
+    await hideColumns(alice, ["C"], sheetId);
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
       (user) => user.getters.getHiddenColsGroups(sheetId),
       [[2]]
     );
     await network.concurrent(async () => {
-      hideColumns(alice, ["B", "C", "D"], sheetId);
-      unhideColumns(bob, ["C"]);
+      await hideColumns(alice, ["B", "C", "D"], sheetId);
+      await unhideColumns(bob, ["C"]);
     });
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
       (user) => user.getters.getHiddenColsGroups(sheetId),
@@ -517,10 +517,10 @@ describe("Collaborative Sheet manipulation", () => {
   });
 
   test("Delete cells on columns deleted", async () => {
-    setCellContent(alice, "F1", "hello");
+    await setCellContent(alice, "F1", "hello");
     await network.concurrent(async () => {
-      deleteColumns(alice, ["D"]);
-      deleteCells(bob, "C1:E1", "left");
+      await deleteColumns(alice, ["D"]);
+      await deleteCells(bob, "C1:E1", "left");
     });
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
       (user) => getCellContent(user, "C1"),
@@ -533,8 +533,8 @@ describe("Collaborative Sheet manipulation", () => {
       const sheetId = bob.getters.getActiveSheetId();
       const rule = createEqualCF("1", { fillColor: "#FF0000" }, "1").rule;
       await network.concurrent(async () => {
-        addColumns(alice, "before", "D", 2);
-        addCfRule(bob, "A1:A3,C1:D3,F1:F3", rule, "1");
+        await addColumns(alice, "before", "D", 2);
+        await addCfRule(bob, "A1:A3,C1:D3,F1:F3", rule, "1");
       });
       expect([alice, bob, charlie]).toHaveSynchronizedValue(
         (user) => user.getters.getConditionalFormats(sheetId),
@@ -552,8 +552,8 @@ describe("Collaborative Sheet manipulation", () => {
       const sheetId = bob.getters.getActiveSheetId();
       const rule = createEqualCF("1", { fillColor: "#FF0000" }, "1").rule;
       await network.concurrent(async () => {
-        deleteColumns(alice, ["C", "D", "F"]);
-        addCfRule(bob, "A1:A3,C1:D3,F1:G3", rule, "1");
+        await deleteColumns(alice, ["C", "D", "F"]);
+        await addCfRule(bob, "A1:A3,C1:D3,F1:G3", rule, "1");
       });
       expect([alice, bob, charlie]).toHaveSynchronizedValue(
         (user) => user.getters.getConditionalFormats(sheetId),
@@ -571,8 +571,8 @@ describe("Collaborative Sheet manipulation", () => {
       const sheetId = bob.getters.getActiveSheetId();
       const rule = createEqualCF("1", { fillColor: "#FF0000" }, "1").rule;
       await network.concurrent(async () => {
-        addRows(alice, "before", 9, 2);
-        addCfRule(bob, "A1:A3,A4:A10,A11:A12", rule, "1");
+        await addRows(alice, "before", 9, 2);
+        await addCfRule(bob, "A1:A3,A4:A10,A11:A12", rule, "1");
       });
       expect([alice, bob, charlie]).toHaveSynchronizedValue(
         (user) => user.getters.getConditionalFormats(sheetId),
@@ -590,8 +590,8 @@ describe("Collaborative Sheet manipulation", () => {
       const sheetId = bob.getters.getActiveSheetId();
       const rule = createEqualCF("1", { fillColor: "#FF0000" }, "1").rule;
       await network.concurrent(async () => {
-        deleteRows(alice, [3, 4, 10]);
-        addCfRule(bob, "A1:A3,A4:A5,A11:A12", rule, "1");
+        await deleteRows(alice, [3, 4, 10]);
+        await addCfRule(bob, "A1:A3,A4:A5,A11:A12", rule, "1");
       });
       expect([alice, bob, charlie]).toHaveSynchronizedValue(
         (user) => user.getters.getConditionalFormats(sheetId),
@@ -611,8 +611,8 @@ describe("Collaborative Sheet manipulation", () => {
       const newSheetName = "NewName";
       const rule = createEqualCF(`=${sheetName}!A1`, { fillColor: "#FF0000" }, "1").rule;
       await network.concurrent(async () => {
-        renameSheet(alice, sheetId, newSheetName);
-        addCfRule(bob, "A2", rule, "1");
+        await renameSheet(alice, sheetId, newSheetName);
+        await addCfRule(bob, "A2", rule, "1");
       });
       expect([alice, bob, charlie]).toHaveSynchronizedValue(
         (user) => user.getters.getConditionalFormats(sheetId),
@@ -627,7 +627,7 @@ describe("Collaborative Sheet manipulation", () => {
           },
         ]
       );
-      undo(alice);
+      await undo(alice);
       expect([alice, bob, charlie]).toHaveSynchronizedValue(
         (user) => user.getters.getConditionalFormats(sheetId),
         [
@@ -647,11 +647,11 @@ describe("Collaborative Sheet manipulation", () => {
       const sheetId = bob.getters.getActiveSheetId();
       const secondSheetId = "42";
       const secondSheetName = "SecondSheet";
-      createSheet(alice, { sheetId: secondSheetId, name: secondSheetName, activate: true });
+      await createSheet(alice, { sheetId: secondSheetId, name: secondSheetName, activate: true });
       const rule = createEqualCF(`=${secondSheetName}!A1`, { fillColor: "#FF0000" }, "1").rule;
       await network.concurrent(async () => {
-        deleteSheet(alice, secondSheetId);
-        addCfRule(bob, "A2", rule, "1");
+        await deleteSheet(alice, secondSheetId);
+        await addCfRule(bob, "A2", rule, "1");
       });
       expect([alice, bob, charlie]).toHaveSynchronizedValue(
         (user) => user.getters.getConditionalFormats(sheetId),
@@ -666,7 +666,7 @@ describe("Collaborative Sheet manipulation", () => {
           },
         ]
       );
-      undo(alice);
+      await undo(alice);
       expect([alice, bob, charlie]).toHaveSynchronizedValue(
         (user) => user.getters.getConditionalFormats(sheetId),
         [
@@ -700,8 +700,8 @@ describe("Collaborative Sheet manipulation", () => {
 
     test(`Concurrently chart creation & update and add columns`, async () => {
       await network.concurrent(async () => {
-        addColumns(alice, "before", "D", 2);
-        createChart(bob, chartDef, chartId);
+        await addColumns(alice, "before", "D", 2);
+        await createChart(bob, chartDef, chartId);
       });
       expect([alice, bob, charlie]).toHaveSynchronizedValue(
         (user) => user.getters.getChartDefinition(chartId),
@@ -712,8 +712,8 @@ describe("Collaborative Sheet manipulation", () => {
         }
       );
       await network.concurrent(async () => {
-        addColumns(alice, "before", "D", 2);
-        updateChart(bob, chartId, {
+        await addColumns(alice, "before", "D", 2);
+        await updateChart(bob, chartId, {
           dataSets: [{ dataRange: "A1:A3" }, { dataRange: "F1:F3" }],
           labelRange: "F3",
           dataSetsHaveTitle: false,
@@ -731,8 +731,8 @@ describe("Collaborative Sheet manipulation", () => {
 
     test(`Concurrently chart creation & update and removed columns`, async () => {
       await network.concurrent(async () => {
-        deleteColumns(alice, ["C", "F"]);
-        createChart(
+        await deleteColumns(alice, ["C", "F"]);
+        await createChart(
           bob,
           {
             ...chartDef,
@@ -750,8 +750,8 @@ describe("Collaborative Sheet manipulation", () => {
         }
       );
       await network.concurrent(async () => {
-        deleteColumns(alice, ["C", "F"]);
-        updateChart(bob, chartId, {
+        await deleteColumns(alice, ["C", "F"]);
+        await updateChart(bob, chartId, {
           dataSets: [{ dataRange: "A1:A3" }, { dataRange: "C1:C3" }, { dataRange: "F1:G3" }],
         });
       });
@@ -767,8 +767,8 @@ describe("Collaborative Sheet manipulation", () => {
 
     test(`Concurrently chart creation & update and new rows`, async () => {
       await network.concurrent(async () => {
-        addRows(alice, "before", 9, 2);
-        createChart(
+        await addRows(alice, "before", 9, 2);
+        await createChart(
           bob,
           {
             ...chartDef,
@@ -787,8 +787,8 @@ describe("Collaborative Sheet manipulation", () => {
         }
       );
       await network.concurrent(async () => {
-        addRows(alice, "before", 9, 2);
-        updateChart(bob, chartId, {
+        await addRows(alice, "before", 9, 2);
+        await updateChart(bob, chartId, {
           dataSets: [{ dataRange: "A1:A3" }, { dataRange: "A4:A10" }, { dataRange: "A11:A12" }],
           labelRange: "F10",
         });
@@ -803,13 +803,13 @@ describe("Collaborative Sheet manipulation", () => {
       );
     });
 
-    test("Set grid lines visibility is correctly shared", () => {
-      createSheet(alice, { sheetId: "42" });
+    test("Set grid lines visibility is correctly shared", async () => {
+      await createSheet(alice, { sheetId: "42" });
       expect([alice, bob, charlie]).toHaveSynchronizedValue(
         (user) => user.getters.getGridLinesVisibility("42"),
         true
       );
-      setGridLinesVisibility(alice, false, "42");
+      await setGridLinesVisibility(alice, false, "42");
       expect([alice, bob, charlie]).toHaveSynchronizedValue(
         (user) => user.getters.getGridLinesVisibility("42"),
         false
@@ -817,10 +817,10 @@ describe("Collaborative Sheet manipulation", () => {
     });
 
     test("Set grid lines visibility with a sheet deletion", async () => {
-      createSheet(alice, { sheetId: "42" });
+      await createSheet(alice, { sheetId: "42" });
       await network.concurrent(async () => {
-        deleteSheet(bob, "42");
-        setGridLinesVisibility(alice, false, "42");
+        await deleteSheet(bob, "42");
+        await setGridLinesVisibility(alice, false, "42");
       });
       expect([alice, bob, charlie]).toHaveSynchronizedValue(
         (user) => user.getters.tryGetSheet("42"),
@@ -830,8 +830,8 @@ describe("Collaborative Sheet manipulation", () => {
 
     test(`Concurrently chart creation & update and removed rows`, async () => {
       await network.concurrent(async () => {
-        deleteRows(alice, [3, 4, 10]);
-        createChart(
+        await deleteRows(alice, [3, 4, 10]);
+        await createChart(
           bob,
           {
             ...chartDef,
@@ -850,8 +850,8 @@ describe("Collaborative Sheet manipulation", () => {
         }
       );
       await network.concurrent(async () => {
-        deleteRows(alice, [3, 4, 10]);
-        updateChart(bob, chartId, {
+        await deleteRows(alice, [3, 4, 10]);
+        await updateChart(bob, chartId, {
           dataSets: [{ dataRange: "A1:A3" }, { dataRange: "A4:A5" }, { dataRange: "A11:A12" }],
           labelRange: "10:10",
         });
@@ -872,11 +872,11 @@ describe("Collaborative Sheet manipulation", () => {
       const sheetName2 = "sheet2";
       const sheetId2 = "sh2";
       const newName = "NewName";
-      createSheet(bob, { sheetId: sheetId2, name: sheetName2, activate: true });
-      createChart(alice, chartDef, chartId, sheetId);
+      await createSheet(bob, { sheetId: sheetId2, name: sheetName2, activate: true });
+      await createChart(alice, chartDef, chartId, sheetId);
       await network.concurrent(async () => {
-        renameSheet(alice, sheetId2, newName);
-        updateChart(bob, chartId, {
+        await renameSheet(alice, sheetId2, newName);
+        await updateChart(bob, chartId, {
           dataSets: [{ dataRange: `${sheetName2}!A1:A3` }],
           labelRange: `${sheetName2}!F3`,
         });
@@ -889,7 +889,7 @@ describe("Collaborative Sheet manipulation", () => {
           labelRange: `${newName}!F3`,
         }
       );
-      undo(alice);
+      await undo(alice);
       expect([alice, bob, charlie]).toHaveSynchronizedValue(
         (user) => user.getters.getChartDefinition(chartId),
         {
@@ -903,8 +903,8 @@ describe("Collaborative Sheet manipulation", () => {
 
   test(`Concurrently Add a pane split and remove columns`, async () => {
     await network.concurrent(async () => {
-      deleteColumns(alice, ["G"]);
-      freezeColumns(bob, 4);
+      await deleteColumns(alice, ["G"]);
+      await freezeColumns(bob, 4);
     });
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
       (user) => user.getters.getPaneDivisions(user.getters.getActiveSheetId()),
@@ -914,11 +914,11 @@ describe("Collaborative Sheet manipulation", () => {
       }
     );
     await network.concurrent(async () => {
-      unfreezeColumns(bob);
+      await unfreezeColumns(bob);
     });
     await network.concurrent(async () => {
-      deleteColumns(alice, ["C", "F"]);
-      freezeColumns(bob, 4);
+      await deleteColumns(alice, ["C", "F"]);
+      await freezeColumns(bob, 4);
     });
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
       (user) => user.getters.getPaneDivisions(user.getters.getActiveSheetId()),
@@ -928,8 +928,8 @@ describe("Collaborative Sheet manipulation", () => {
       }
     );
     await network.concurrent(async () => {
-      deleteColumns(alice, ["A"]);
-      unfreezeColumns(bob);
+      await deleteColumns(alice, ["A"]);
+      await unfreezeColumns(bob);
     });
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
       (user) => user.getters.getPaneDivisions(user.getters.getActiveSheetId()),
@@ -942,8 +942,8 @@ describe("Collaborative Sheet manipulation", () => {
 
   test(`Concurrently Add a pane split and add columns`, async () => {
     await network.concurrent(async () => {
-      addColumns(alice, "after", "G", 5);
-      freezeColumns(bob, 4);
+      await addColumns(alice, "after", "G", 5);
+      await freezeColumns(bob, 4);
     });
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
       (user) => user.getters.getPaneDivisions(user.getters.getActiveSheetId()),
@@ -953,11 +953,11 @@ describe("Collaborative Sheet manipulation", () => {
       }
     );
     await network.concurrent(async () => {
-      unfreezeColumns(bob);
+      await unfreezeColumns(bob);
     });
     await network.concurrent(async () => {
-      addColumns(alice, "after", "C", 1);
-      freezeColumns(bob, 4);
+      await addColumns(alice, "after", "C", 1);
+      await freezeColumns(bob, 4);
     });
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
       (user) => user.getters.getPaneDivisions(user.getters.getActiveSheetId()),
@@ -967,8 +967,8 @@ describe("Collaborative Sheet manipulation", () => {
       }
     );
     await network.concurrent(async () => {
-      addColumns(alice, "before", "A", 1);
-      unfreezeColumns(bob);
+      await addColumns(alice, "before", "A", 1);
+      await unfreezeColumns(bob);
     });
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
       (user) => user.getters.getPaneDivisions(user.getters.getActiveSheetId()),
@@ -981,8 +981,8 @@ describe("Collaborative Sheet manipulation", () => {
 
   test(`Concurrently Add a pane split and remove rows`, async () => {
     await network.concurrent(async () => {
-      deleteRows(alice, [6]);
-      freezeRows(bob, 4);
+      await deleteRows(alice, [6]);
+      await freezeRows(bob, 4);
     });
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
       (user) => user.getters.getPaneDivisions(user.getters.getActiveSheetId()),
@@ -992,11 +992,11 @@ describe("Collaborative Sheet manipulation", () => {
       }
     );
     await network.concurrent(async () => {
-      unfreezeRows(bob);
+      await unfreezeRows(bob);
     });
     await network.concurrent(async () => {
-      deleteRows(alice, [2, 5]);
-      freezeRows(bob, 4);
+      await deleteRows(alice, [2, 5]);
+      await freezeRows(bob, 4);
     });
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
       (user) => user.getters.getPaneDivisions(user.getters.getActiveSheetId()),
@@ -1006,8 +1006,8 @@ describe("Collaborative Sheet manipulation", () => {
       }
     );
     await network.concurrent(async () => {
-      deleteRows(alice, [0]);
-      unfreezeRows(bob);
+      await deleteRows(alice, [0]);
+      await unfreezeRows(bob);
     });
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
       (user) => user.getters.getPaneDivisions(user.getters.getActiveSheetId()),
@@ -1020,8 +1020,8 @@ describe("Collaborative Sheet manipulation", () => {
 
   test(`Concurrently Add a pane split and add rows`, async () => {
     await network.concurrent(async () => {
-      addRows(alice, "after", 6, 5);
-      freezeRows(bob, 4);
+      await addRows(alice, "after", 6, 5);
+      await freezeRows(bob, 4);
     });
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
       (user) => user.getters.getPaneDivisions(user.getters.getActiveSheetId()),
@@ -1031,11 +1031,11 @@ describe("Collaborative Sheet manipulation", () => {
       }
     );
     await network.concurrent(async () => {
-      unfreezeRows(bob);
+      await unfreezeRows(bob);
     });
     await network.concurrent(async () => {
-      addRows(alice, "after", 2, 1);
-      freezeRows(bob, 4);
+      await addRows(alice, "after", 2, 1);
+      await freezeRows(bob, 4);
     });
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
       (user) => user.getters.getPaneDivisions(user.getters.getActiveSheetId()),
@@ -1045,8 +1045,8 @@ describe("Collaborative Sheet manipulation", () => {
       }
     );
     await network.concurrent(async () => {
-      addRows(alice, "before", 0, 1);
-      unfreezeRows(bob);
+      await addRows(alice, "before", 0, 1);
+      await unfreezeRows(bob);
     });
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
       (user) => user.getters.getPaneDivisions(user.getters.getActiveSheetId()),
@@ -1057,12 +1057,12 @@ describe("Collaborative Sheet manipulation", () => {
     );
   });
 
-  test("merge does not prevent freeze in other sheet", () => {
+  test("merge does not prevent freeze in other sheet", async () => {
     const firstSheetId = alice.getters.getActiveSheetId();
-    createSheet(bob, { sheetId: "sheet2", activate: true });
-    merge(alice, "A1:A10");
+    await createSheet(bob, { sheetId: "sheet2", activate: true });
+    await merge(alice, "A1:A10");
     // Bob's active sheet is sheet2, Alice's is sheet1
-    freezeRows(bob, 4, "sheet2");
+    await freezeRows(bob, 4, "sheet2");
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
       (user) => user.getters.getPaneDivisions("sheet2"),
       {
@@ -1095,8 +1095,8 @@ test("test undo redo", async () => {
     ],
   });
 
-  setCellContent(alice, "E1", "25", otherSheetId);
-  deleteColumns(alice, ["C"], otherSheetId);
+  await setCellContent(alice, "E1", "25", otherSheetId);
+  await deleteColumns(alice, ["C"], otherSheetId);
 
   expect([alice, bob, charlie]).toHaveSynchronizedValue(
     (user) =>
@@ -1104,8 +1104,8 @@ test("test undo redo", async () => {
     "25"
   );
 
-  setCellContent(bob, "A1", "=" + otherSheetName + "!D1", sheetId);
-  renameSheet(bob, otherSheetId, newSheetName);
+  await setCellContent(bob, "A1", "=" + otherSheetName + "!D1", sheetId);
+  await renameSheet(bob, otherSheetId, newSheetName);
 
   expect([alice, bob, charlie]).toHaveSynchronizedValue(
     (user) =>
@@ -1115,7 +1115,7 @@ test("test undo redo", async () => {
     "=" + newSheetName + "!D1"
   );
 
-  undo(alice);
+  await undo(alice);
 
   expect([alice, bob, charlie]).toHaveSynchronizedValue(
     (user) =>
@@ -1125,7 +1125,7 @@ test("test undo redo", async () => {
     "=" + newSheetName + "!E1"
   );
 
-  redo(alice);
+  await redo(alice);
 
   expect([alice, bob, charlie]).toHaveSynchronizedValue(
     (user) =>
@@ -1135,8 +1135,8 @@ test("test undo redo", async () => {
     "=" + newSheetName + "!D1"
   );
 
-  setCellContent(alice, "A4", "=" + newSheetName + "!D1", sheetId);
-  undo(bob);
+  await setCellContent(alice, "A4", "=" + newSheetName + "!D1", sheetId);
+  await undo(bob);
 
   expect([alice, bob, charlie]).toHaveSynchronizedValue(
     (user) =>
@@ -1158,8 +1158,11 @@ test("Concurrent datavalidation create and rename sheet", async () => {
   });
 
   await network.concurrent(async () => {
-    renameSheet(alice, sheetId, newSheetName);
-    addDataValidation(bob, "B1", "id", { type: "containsText", values: [`=${sheetName}!A1`] });
+    await renameSheet(alice, sheetId, newSheetName);
+    await addDataValidation(bob, "B1", "id", {
+      type: "containsText",
+      values: [`=${sheetName}!A1`],
+    });
   });
 
   expect([alice, bob, charlie]).toHaveSynchronizedValue(
@@ -1173,7 +1176,7 @@ test("Concurrent datavalidation create and rename sheet", async () => {
       },
     ]
   );
-  undo(alice);
+  await undo(alice);
   expect([alice, bob, charlie]).toHaveSynchronizedValue(
     (user) => getDataValidationRules(user, sheetId),
     [
@@ -1196,13 +1199,13 @@ test("concurrent pivot computed measure and rename sheet", async () => {
     sheets: [{ id: sheetId, name: sheetName }],
   });
 
-  setCellContent(alice, "A1", "1", sheetId);
-  setCellContent(alice, "B1", "2", sheetId);
-  setCellContent(alice, "A2", "3", sheetId);
-  setCellContent(alice, "B2", "4", sheetId);
+  await setCellContent(alice, "A1", "1", sheetId);
+  await setCellContent(alice, "B1", "2", sheetId);
+  await setCellContent(alice, "A2", "3", sheetId);
+  await setCellContent(alice, "B2", "4", sheetId);
 
   await network.concurrent(async () => {
-    renameSheet(bob, sheetId, newSheetName);
+    await renameSheet(bob, sheetId, newSheetName);
     addPivot(
       alice,
       "A1:B2",
@@ -1232,7 +1235,7 @@ test("concurrent pivot computed measure and rename sheet", async () => {
     ]
   );
 
-  undo(bob);
+  await undo(bob);
   expect([alice, bob, charlie]).toHaveSynchronizedValue(
     (user) => user.getters.getPivotCoreDefinition("pivot1").measures,
     [
@@ -1255,15 +1258,15 @@ test("concurrent pivot computed measure and delete sheet", async () => {
   const { network, alice, bob, charlie } = await setupCollaborativeEnv({
     sheets: [{ id: sheetId, name: sheetName }],
   });
-  createSheet(bob, { sheetId: secondSheetId, name: secondSheetName });
+  await createSheet(bob, { sheetId: secondSheetId, name: secondSheetName });
 
-  setCellContent(alice, "A1", "1", sheetId);
-  setCellContent(alice, "B1", "2", sheetId);
-  setCellContent(alice, "A2", "3", sheetId);
-  setCellContent(alice, "B2", "4", sheetId);
+  await setCellContent(alice, "A1", "1", sheetId);
+  await setCellContent(alice, "B1", "2", sheetId);
+  await setCellContent(alice, "A2", "3", sheetId);
+  await setCellContent(alice, "B2", "4", sheetId);
 
   await network.concurrent(async () => {
-    deleteSheet(alice, secondSheetId);
+    await deleteSheet(alice, secondSheetId);
     addPivot(
       bob,
       "A1:B2",
@@ -1293,7 +1296,7 @@ test("concurrent pivot computed measure and delete sheet", async () => {
     ]
   );
 
-  undo(alice);
+  await undo(alice);
   expect([alice, bob, charlie]).toHaveSynchronizedValue(
     (user) => user.getters.getPivotCoreDefinition("pivot1").measures,
     [

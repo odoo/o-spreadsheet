@@ -20,7 +20,7 @@ describe("chart conversion", () => {
   test("convert chart to image", async () => {
     const model = await createModel();
     const sheetId = model.getters.getActiveSheetId();
-    createChart(model, TEST_CHART_DATA.basicChart, chartId, undefined, { figureId });
+    await createChart(model, TEST_CHART_DATA.basicChart, chartId, undefined, { figureId });
     const figure = model.getters.getFigure(sheetId, figureId)!;
     const runtime = model.getters.getChartRuntime(chartId);
     const imageUrl = await chartToImageUrl(runtime, figure, "bar");
@@ -34,7 +34,7 @@ describe("chart conversion", () => {
     const spy = jest.spyOn(console, "log").mockImplementation(() => {});
     const model = await createModel();
     const sheetId = model.getters.getActiveSheetId();
-    createChart(model, TEST_CHART_DATA.basicChart, chartId, undefined, { figureId });
+    await createChart(model, TEST_CHART_DATA.basicChart, chartId, undefined, { figureId });
     const figure = model.getters.getFigure(sheetId, figureId)!;
     const runtime = model.getters.getChartRuntime(chartId);
     const imageUrl = await chartToImageUrl(runtime, figure, "bar");
@@ -47,7 +47,7 @@ describe("chart conversion", () => {
   test("export Chart.js chart check type from runtime config, not the given chart type", async () => {
     const model = await createModel();
     const sheetId = model.getters.getActiveSheetId();
-    createChart(model, TEST_CHART_DATA.combo, chartId, undefined, { figureId });
+    await createChart(model, TEST_CHART_DATA.combo, chartId, undefined, { figureId });
     const figure = model.getters.getFigure(sheetId, figureId)!;
     const runtime = model.getters.getChartRuntime(chartId) as any;
     expect(runtime.chartJsConfig.type).toBe("bar");
@@ -68,7 +68,7 @@ describe("chart conversion", () => {
     const spy = jest.spyOn(console, "log").mockImplementation(() => {});
     const model = await createModel();
     const sheetId = model.getters.getActiveSheetId();
-    createChart(model, TEST_CHART_DATA.combo, chartId, undefined, { figureId });
+    await createChart(model, TEST_CHART_DATA.combo, chartId, undefined, { figureId });
     const figure = model.getters.getFigure(sheetId, figureId)!;
     const originalRuntime = model.getters.getChartRuntime(chartId) as any;
     const runtime = {

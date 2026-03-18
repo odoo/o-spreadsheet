@@ -9,8 +9,8 @@ describe("cell popover store", () => {
   test("Anchor rect is correct on a merge", async () => {
     const { store: cellPopovers, model, container } = await makeStore(CellPopoverStore);
     const hoveredCellStore = container.get(DelayedHoveredCellStore);
-    merge(model, "A1:B2");
-    setCellContent(model, "A1", "=0/0");
+    await merge(model, "A1:B2");
+    await setCellContent(model, "A1", "=0/0");
     hoveredCellStore.hover(toCartesian("B2"));
     expect(cellPopovers.cellPopover).toMatchObject({
       anchorRect: {

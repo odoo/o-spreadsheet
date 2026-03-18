@@ -45,8 +45,8 @@ describe("Error tooltip component", () => {
 
   test("Can display a data validation error message", async () => {
     const model = await createModel();
-    addDataValidation(model, "A1", "id", { type: "containsText", values: ["hi"] });
-    setCellContent(model, "A1", "hello");
+    await addDataValidation(model, "A1", "id", { type: "containsText", values: ["hi"] });
+    await setCellContent(model, "A1", "hello");
     await mountErrorTooltip(model, "A1");
     expect(".o-error-tooltip-title").toHaveText("Invalid");
     expect(".o-error-tooltip-message").toHaveText('The value must be a text that contains "hi"');
@@ -54,9 +54,9 @@ describe("Error tooltip component", () => {
 
   test("Can display multiple error messages", async () => {
     const model = await createModel();
-    addDataValidation(model, "A2", "id", { type: "containsText", values: ["hi"] });
-    setCellContent(model, "A1", "=1/0");
-    setCellContent(model, "A2", "=A1");
+    await addDataValidation(model, "A2", "id", { type: "containsText", values: ["hi"] });
+    await setCellContent(model, "A1", "=1/0");
+    await setCellContent(model, "A2", "=A1");
     await mountErrorTooltip(model, "A2");
     const titles = fixture.querySelectorAll(".o-error-tooltip-title");
     const messages = fixture.querySelectorAll(".o-error-tooltip-message");
@@ -72,16 +72,16 @@ describe("Error tooltip component", () => {
 
   test("can display error origin position", async () => {
     const model = await createModel();
-    setCellContent(model, "A1", "=1/0");
-    setCellContent(model, "A2", "=A1");
+    await setCellContent(model, "A1", "=1/0");
+    await setCellContent(model, "A2", "=A1");
     await mountErrorTooltip(model, "A2");
     expect(".fst-italic").toHaveText(" Caused by A1");
   });
 
   test("Do not display error origin position in dashboard", async () => {
     const model = await createModel();
-    setCellContent(model, "A1", "=1/0");
-    setCellContent(model, "A2", "=A1");
+    await setCellContent(model, "A1", "=1/0");
+    await setCellContent(model, "A2", "=A1");
     model.updateMode("dashboard");
     await mountErrorTooltip(model, "A2");
     expect(".fst-italic").toHaveCount(0);
@@ -89,18 +89,18 @@ describe("Error tooltip component", () => {
 
   test("can display error position from another sheet", async () => {
     const model = await createModel();
-    createSheet(model, { sheetId: "sheet2" });
-    setCellContent(model, "A1", "=1/0", "sheet2");
-    setCellContent(model, "A2", "=Sheet2!A1");
+    await createSheet(model, { sheetId: "sheet2" });
+    await setCellContent(model, "A1", "=1/0", "sheet2");
+    await setCellContent(model, "A2", "=Sheet2!A1");
     await mountErrorTooltip(model, "A2");
     expect(".fst-italic").toHaveText(" Caused by Sheet2!A1");
   });
 
   test("clicking on error position selects the position", async () => {
     const model = await createModel();
-    createSheet(model, { sheetId: "sheet2" });
-    setCellContent(model, "J10", "=1/0", "sheet2");
-    setCellContent(model, "A2", "=Sheet2!J10");
+    await createSheet(model, { sheetId: "sheet2" });
+    await setCellContent(model, "J10", "=1/0", "sheet2");
+    await setCellContent(model, "A2", "=Sheet2!J10");
     await mountErrorTooltip(model, "A2");
     await click(fixture, ".o-button-link");
     expect(model.getters.getActivePosition()).toEqual(toCellPosition("sheet2", "J10"));
@@ -108,14 +108,14 @@ describe("Error tooltip component", () => {
 
   test("does not display error origin position if it is the same cell", async () => {
     const model = await createModel();
-    setCellContent(model, "A1", "=1/0");
+    await setCellContent(model, "A1", "=1/0");
     await mountErrorTooltip(model, "A1");
     expect(".fst-italic").toHaveCount(0);
   });
 
   test("Can add missing headers if the formula is #SPILL", async () => {
     const model = await createModel({ sheets: [{ id: "sheet1", colNumber: 1, rowNumber: 1 }] });
-    setCellContent(model, "A1", "=MUNIT(3)");
+    await setCellContent(model, "A1", "=MUNIT(3)");
     await mountErrorTooltip(model, "A1");
     await click(fixture, ".o-button-link");
     expect(model.getters.getNumberRows("sheet1")).toBe(3 + 50); // +50/+20 because we add some padding
@@ -124,8 +124,8 @@ describe("Error tooltip component", () => {
 
   test("Button to add missing header is not there for #SPILL not caused by too few headers", async () => {
     const model = await createModel();
-    setCellContent(model, "A1", "=MUNIT(3)");
-    setCellContent(model, "B1", "BlockingSpill");
+    await setCellContent(model, "A1", "=MUNIT(3)");
+    await setCellContent(model, "B1", "BlockingSpill");
     expect(getCellContent(model, "A1")).toBe("#SPILL!");
 
     await mountErrorTooltip(model, "A1");
@@ -134,10 +134,10 @@ describe("Error tooltip component", () => {
 
   test("Button to add missing header is not there for #SPILL of referenced cell", async () => {
     const model = await createModel({ sheets: [{ id: "sheet1", colNumber: 10, rowNumber: 1 }] });
-    setCellContent(model, "A1", "=MUNIT(3)");
+    await setCellContent(model, "A1", "=MUNIT(3)");
     expect(getCellContent(model, "A1")).toBe("#SPILL!");
 
-    setCellContent(model, "F1", "=A1");
+    await setCellContent(model, "F1", "=A1");
     await mountErrorTooltip(model, "F1");
     expect(".o-button-link").toHaveCount(0);
   });
@@ -157,28 +157,28 @@ describe("Grid integration", () => {
   });
 
   test("can display error on A1", async () => {
-    setCellContent(model, "A1", "=1/0");
+    await setCellContent(model, "A1", "=1/0");
     await hoverCell(model, "A1", 400);
     expect(document.querySelector(".o-error-tooltip")).not.toBeNull();
   });
 
   test("can display invalid data validation error", async () => {
-    setCellContent(model, "A1", "hello");
-    addDataValidation(model, "A1", "id", { type: "containsText", values: ["hi"] });
+    await setCellContent(model, "A1", "hello");
+    await addDataValidation(model, "A1", "id", { type: "containsText", values: ["hi"] });
     await hoverCell(model, "A1", 400);
     expect(document.querySelector(".o-error-tooltip")).not.toBeNull();
   });
 
   test("can display both cell error and data validation error", async () => {
-    setCellContent(model, "A1", "=1/0");
-    addDataValidation(model, "A1", "id", { type: "containsText", values: ["1"] });
+    await setCellContent(model, "A1", "=1/0");
+    await addDataValidation(model, "A1", "id", { type: "containsText", values: ["1"] });
     await hoverCell(model, "A1", 400);
     expect(document.querySelectorAll(".o-error-tooltip-title")).toHaveLength(2);
   });
 
   test("don't display error on #N/A", async () => {
     Date.now = jest.fn(() => 0);
-    setCellContent(model, "A1", "=NA()");
+    await setCellContent(model, "A1", "=NA()");
     await nextTick();
     await gridMouseEvent(model, "pointermove", "A1");
     Date.now = jest.fn(() => 500);
@@ -189,7 +189,7 @@ describe("Grid integration", () => {
 
   test("Display error on #N/A 'non-silent' ", async () => {
     Date.now = jest.fn(() => 0);
-    setCellContent(model, "A1", "=VLOOKUP(6,A1:A2,B2:B4)");
+    await setCellContent(model, "A1", "=VLOOKUP(6,A1:A2,B2:B4)");
     await nextTick();
     await gridMouseEvent(model, "pointermove", "A1");
     Date.now = jest.fn(() => 500);
@@ -199,7 +199,7 @@ describe("Grid integration", () => {
   });
 
   test("can display error tooltip", async () => {
-    setCellContent(model, "C8", "=1/0");
+    await setCellContent(model, "C8", "=1/0");
     await hoverCell(model, "C8", 200);
     expect(document.querySelector(".o-error-tooltip")).toBeNull();
     await hoverCell(model, "C8", 400);
@@ -212,15 +212,15 @@ describe("Grid integration", () => {
   });
 
   test("can display error when move on merge", async () => {
-    merge(model, "C1:C8");
-    setCellContent(model, "C1", "=1/0");
+    await merge(model, "C1:C8");
+    await setCellContent(model, "C1", "=1/0");
     await hoverCell(model, "C8", 400);
     expect(document.querySelector(".o-error-tooltip")).not.toBeNull();
   });
 
   test("Hovering over a figure should not open popovers", async () => {
-    createChart(model, { ...TEST_CHART_DATA.basicChart }, "figureId");
-    updateFigure(model, {
+    await createChart(model, { ...TEST_CHART_DATA.basicChart }, "figureId");
+    await updateFigure(model, {
       figureId: "figureId",
       offset: {
         y: 200,
@@ -233,7 +233,7 @@ describe("Grid integration", () => {
       sheetId: model.getters.getActiveSheetId(),
     });
     await nextTick();
-    setCellContent(model, "C3", "[label](url.com)");
+    await setCellContent(model, "C3", "[label](url.com)");
 
     triggerMouseEvent(".o-figure", "pointermove", DEFAULT_CELL_WIDTH * 2, DEFAULT_CELL_HEIGHT * 2);
     jest.advanceTimersByTime(400);
@@ -244,15 +244,15 @@ describe("Grid integration", () => {
 
   test("composer content is set when clicking on merged cell (not top left)", async () => {
     const composerStore = makeTestComposerStore(model);
-    merge(model, "C1:C8");
-    setCellContent(model, "C1", "Hello");
+    await merge(model, "C1:C8");
+    await setCellContent(model, "C1", "Hello");
     await nextTick();
     await clickCell(model, "C8");
     expect(composerStore.currentContent).toBe("Hello");
   });
 
   test("Wheel events on error tooltip are scrolling the grid", async () => {
-    setCellContent(model, "C1", "=0/0");
+    await setCellContent(model, "C1", "=0/0");
     await hoverCell(model, "C1", 400);
     triggerWheelEvent(".o-error-tooltip", { deltaY: 300, deltaX: 300 });
     await nextTick();

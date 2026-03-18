@@ -146,7 +146,7 @@ describe("Grid component", () => {
 
   test("can render a sheet with a merge", async () => {
     const sheet1 = model.getters.getSheetIds()[0];
-    merge(model, "B2:B3", sheet1);
+    await merge(model, "B2:B3", sheet1);
     expect(fixture.querySelector(".o-grid-overlay")).not.toBeNull();
   });
 
@@ -156,14 +156,14 @@ describe("Grid component", () => {
   });
 
   test("can click on a cell to select it", async () => {
-    setCellContent(model, "B2", "b2");
-    setCellContent(model, "B3", "b3");
+    await setCellContent(model, "B2", "b2");
+    await setCellContent(model, "B3", "b3");
     await clickCell(model, "C8");
     expect(getSelectionAnchorCellXc(model)).toBe("C8");
   });
 
   test("can click on a partially vertically scrolled cell to select it", async () => {
-    setViewportOffset(model, 0, DEFAULT_CELL_HEIGHT / 2);
+    await setViewportOffset(model, 0, DEFAULT_CELL_HEIGHT / 2);
     await nextTick();
     expect(model.getters.getVisibleRect(toZone("A1"))).toMatchObject({
       x: HEADER_WIDTH,
@@ -196,7 +196,7 @@ describe("Grid component", () => {
   });
 
   test("can click on a partially horizontally scrolled cell to select it", async () => {
-    setViewportOffset(model, DEFAULT_CELL_WIDTH / 2, 0);
+    await setViewportOffset(model, DEFAULT_CELL_WIDTH / 2, 0);
     await nextTick();
     expect(model.getters.getVisibleRect(toZone("A1"))).toMatchObject({
       x: HEADER_WIDTH,
@@ -229,16 +229,16 @@ describe("Grid component", () => {
   });
 
   test("can click on resizer, then move selection with keyboard", async () => {
-    setCellContent(model, "B2", "b2");
-    setCellContent(model, "B3", "b3");
+    await setCellContent(model, "B2", "b2");
+    await setCellContent(model, "B3", "b3");
     triggerMouseEvent(".o-overlay", "click", 300, 20);
     await keyDown({ key: "ArrowDown" });
     expect(getSelectionAnchorCellXc(model)).toBe("A2");
   });
 
   test("can shift-click on a cell to update selection", async () => {
-    setCellContent(model, "B2", "b2");
-    setCellContent(model, "B3", "b3");
+    await setCellContent(model, "B2", "b2");
+    await setCellContent(model, "B3", "b3");
     await clickCell(model, "C8", { shiftKey: true });
     expect(model.getters.getSelectedZones()[0]).toEqual({
       top: 0,
@@ -313,7 +313,7 @@ describe("Grid component", () => {
   test("Double clicking only opens composer when actually targetting grid overlay", async () => {
     // creating a child  node
     mockChart();
-    createChart(model, { type: "bar" }, "chartId");
+    await createChart(model, { type: "bar" }, "chartId");
     await nextTick();
     await simulateClick(".o-figure", 0, 0);
     await nextTick();
@@ -330,8 +330,8 @@ describe("Grid component", () => {
   });
 
   test("Double clicking on gridOverlay opens composer in different edition modes", async () => {
-    setCellContent(model, "A1", "things");
-    merge(model, "A1:A2", model.getters.getActiveSheetId(), true);
+    await setCellContent(model, "A1", "things");
+    await merge(model, "A1:A2", model.getters.getActiveSheetId(), true);
     await nextTick();
     // double click A1
     triggerMouseEvent(
@@ -413,7 +413,7 @@ describe("Grid component", () => {
   });
 
   test("Double clicking on an icon does not open the composer", async () => {
-    createTableWithFilter(model, "A1:A2");
+    await createTableWithFilter(model, "A1:A2");
     await nextTick();
 
     const { x, y } = getGridIconEventPosition(model, "A1");
@@ -441,7 +441,7 @@ describe("Grid component", () => {
     });
 
     test.each(["Backspace", "Delete"])("pressing %s remove the content of a cell", async (key) => {
-      setCellContent(model, "A1", "test");
+      await setCellContent(model, "A1", "test");
       const dispatch = spyModelDispatch(model);
       await keyDown({ key });
       expect(getSelectionAnchorCellXc(model)).toBe("A1");
@@ -454,7 +454,7 @@ describe("Grid component", () => {
     });
 
     test("pressing shift+ENTER in edit mode stop editing and move one cell up", async () => {
-      selectCell(model, "A2");
+      await selectCell(model, "A2");
       expect(getSelectionAnchorCellXc(model)).toBe("A2");
       await typeInComposerGrid("a");
       await keyDown({ key: "Enter", shiftKey: true });
@@ -477,7 +477,7 @@ describe("Grid component", () => {
     });
 
     test("pressing shift+TAB move to previous cell", async () => {
-      selectCell(model, "B1");
+      await selectCell(model, "B1");
       expect(getSelectionAnchorCellXc(model)).toBe("B1");
       await keyDown({ key: "Tab", shiftKey: true });
       expect(getSelectionAnchorCellXc(model)).toBe("A1");
@@ -491,7 +491,7 @@ describe("Grid component", () => {
     ])(
       "pressing $label cycles within the selection",
       async ({ key, shiftKey, anchor, expected }) => {
-        setSelection(model, ["A1:B2"], { anchor });
+        await setSelection(model, ["A1:B2"], { anchor });
         await keyDown({ key, shiftKey });
         expect(getSelectionAnchorCellXc(model)).toBe(expected);
         expect(zoneToXc(model.getters.getSelectedZone())).toBe("A1:B2");
@@ -499,24 +499,24 @@ describe("Grid component", () => {
     );
 
     test("pressing TAB skips hidden columns in the selection", async () => {
-      setSelection(model, ["A1:C1"]);
-      hideColumns(model, ["B"]);
+      await setSelection(model, ["A1:C1"]);
+      await hideColumns(model, ["B"]);
       await keyDown({ key: "Tab" });
       expect(getSelectionAnchorCellXc(model)).toBe("C1");
       expect(zoneToXc(model.getters.getSelectedZone())).toBe("A1:C1");
     });
 
     test("pressing ENTER skips hidden rows in the selection", async () => {
-      setSelection(model, ["A1:A3"]);
-      hideRows(model, [1]);
+      await setSelection(model, ["A1:A3"]);
+      await hideRows(model, [1]);
       await keyDown({ key: "Enter" });
       expect(getSelectionAnchorCellXc(model)).toBe("A3");
       expect(zoneToXc(model.getters.getSelectedZone())).toBe("A1:A3");
     });
 
     test("pressing TAB skips merge interior cells in the selection", async () => {
-      merge(model, "B1:B3");
-      setSelection(model, ["A1:B3"], { anchor: "A1" });
+      await merge(model, "B1:B3");
+      await setSelection(model, ["A1:B3"], { anchor: "A1" });
       await keyDown({ key: "Tab" });
       expect(getSelectionAnchorCellXc(model)).toBe("B1");
       await keyDown({ key: "Tab" });
@@ -526,8 +526,8 @@ describe("Grid component", () => {
     });
 
     test("pressing ENTER skips merge interior cells in the selection", async () => {
-      merge(model, "A2:C2");
-      setSelection(model, ["A1:C2"], { anchor: "A1" });
+      await merge(model, "A2:C2");
+      await setSelection(model, ["A1:C2"], { anchor: "A1" });
       await keyDown({ key: "Enter" });
       expect(getSelectionAnchorCellXc(model)).toBe("A2");
       await keyDown({ key: "Enter" });
@@ -540,7 +540,7 @@ describe("Grid component", () => {
       { key: "F4", ctrlKey: false },
       { key: "Y", ctrlKey: true },
     ])("can undo/redo with keyboard CTRL+Z/%s", async (redoKey) => {
-      setFormatting(model, "A1", { fillColor: "red" });
+      await setFormatting(model, "A1", { fillColor: "red" });
       expect(getCell(model, "A1")!.style).toBeDefined();
       await keyDown({ key: "z", ctrlKey: true });
       expect(getCell(model, "A1")).toBeUndefined();
@@ -550,7 +550,7 @@ describe("Grid component", () => {
     });
 
     test("can undo/redo with keyboard (uppercase version)", async () => {
-      setFormatting(model, "A1", { fillColor: "red" });
+      await setFormatting(model, "A1", { fillColor: "red" });
       expect(getCell(model, "A1")!.style).toBeDefined();
       await keyDown({ key: "Z", ctrlKey: true });
       expect(getCell(model, "A1")).toBeUndefined();
@@ -564,8 +564,8 @@ describe("Grid component", () => {
         await keyDown({ key: "A", ctrlKey: true });
       }
 
-      setCellContent(model, "A1", "3");
-      setCellContent(model, "A2", "3");
+      await setCellContent(model, "A1", "3");
+      await setCellContent(model, "A2", "3");
 
       await pressCtrlA();
       expect(getSelectionAnchorCellXc(model)).toBe("A1");
@@ -582,7 +582,7 @@ describe("Grid component", () => {
     });
 
     test("toggle bold with Ctrl+B", async () => {
-      setCellContent(model, "A1", "hello");
+      await setCellContent(model, "A1", "hello");
       expect(getCell(model, "A1")!.style).not.toBeDefined();
       await keyDown({ key: "B", ctrlKey: true });
       expect(getCell(model, "A1")!.style).toEqual({ bold: true });
@@ -593,7 +593,7 @@ describe("Grid component", () => {
     });
 
     test("toggle Italic with Ctrl+I", async () => {
-      setCellContent(model, "A1", "hello");
+      await setCellContent(model, "A1", "hello");
       expect(getCell(model, "A1")!.style).toBeUndefined();
       await keyDown({ key: "I", ctrlKey: true });
       expect(getCell(model, "A1")!.style).toEqual({ italic: true });
@@ -621,7 +621,7 @@ describe("Grid component", () => {
     });
 
     test("set left align with Ctrl+SHIFT+L", async () => {
-      setCellContent(model, "A1", "hello");
+      await setCellContent(model, "A1", "hello");
       expect(getCell(model, "A1")!.style).toBeUndefined();
       document.activeElement!.dispatchEvent(
         new KeyboardEvent("keydown", { key: "L", ctrlKey: true, shiftKey: true, bubbles: true })
@@ -631,7 +631,7 @@ describe("Grid component", () => {
     });
 
     test("set center align with Ctrl+SHIFT+E", async () => {
-      setCellContent(model, "A1", "hello");
+      await setCellContent(model, "A1", "hello");
       expect(getCell(model, "A1")!.style).toBeUndefined();
       document.activeElement!.dispatchEvent(
         new KeyboardEvent("keydown", { key: "E", ctrlKey: true, shiftKey: true, bubbles: true })
@@ -641,7 +641,7 @@ describe("Grid component", () => {
     });
 
     test("set right align with Ctrl+SHIFT+R", async () => {
-      setCellContent(model, "A1", "hello");
+      await setCellContent(model, "A1", "hello");
       expect(getCell(model, "A1")!.style).toBeUndefined();
       document.activeElement!.dispatchEvent(
         new KeyboardEvent("keydown", { key: "R", ctrlKey: true, shiftKey: true, bubbles: true })
@@ -652,8 +652,8 @@ describe("Grid component", () => {
 
     test("clean formatting with CTRL+SHIFT+<", async () => {
       const style = { fillColor: "red", align: "right" as Align, bold: true };
-      setCellContent(model, "A1", "hello");
-      setFormatting(model, "A1", style);
+      await setCellContent(model, "A1", "hello");
+      await setFormatting(model, "A1", style);
       expect(getCell(model, "A1")!.style).toEqual(style);
       document.activeElement!.dispatchEvent(
         new KeyboardEvent("keydown", { key: "<", ctrlKey: true, shiftKey: true, bubbles: true })
@@ -664,8 +664,8 @@ describe("Grid component", () => {
 
     test("clean formatting with CTRL+<", async () => {
       const style = { fillColor: "red", align: "right" as Align, bold: true };
-      setCellContent(model, "A1", "hello");
-      setFormatting(model, "A1", style);
+      await setCellContent(model, "A1", "hello");
+      await setFormatting(model, "A1", style);
       expect(getCell(model, "A1")!.style).toEqual(style);
       document.activeElement!.dispatchEvent(
         new KeyboardEvent("keydown", { key: "<", ctrlKey: true, bubbles: true })
@@ -676,8 +676,8 @@ describe("Grid component", () => {
 
     test("open a web link with ALT+ENTER", async () => {
       const windowOpen = jest.spyOn(window, "open").mockImplementation();
-      setCellContent(model, "A1", "[label](url.com)");
-      selectCell(model, "A1");
+      await setCellContent(model, "A1", "[label](url.com)");
+      await selectCell(model, "A1");
       document.activeElement!.dispatchEvent(
         new KeyboardEvent("keydown", { key: "Enter", altKey: true, bubbles: true })
       );
@@ -686,11 +686,11 @@ describe("Grid component", () => {
 
     test("open a sheet link with ALT+ENTER", async () => {
       const sheetId = "42";
-      createSheet(model, { sheetId });
-      setCellContent(model, "A1", `[label](${buildSheetLink(sheetId)})`);
+      await createSheet(model, { sheetId });
+      await setCellContent(model, "A1", `[label](${buildSheetLink(sheetId)})`);
       expect(model.getters.getActiveSheetId()).not.toBe(sheetId);
 
-      selectCell(model, "A1");
+      await selectCell(model, "A1");
       document.activeElement!.dispatchEvent(
         new KeyboardEvent("keydown", { key: "Enter", altKey: true, bubbles: true })
       );
@@ -698,8 +698,8 @@ describe("Grid component", () => {
     });
 
     test("can automatically sum with ALT+=", async () => {
-      setCellContent(model, "B2", "2");
-      selectCell(model, "B5");
+      await setCellContent(model, "B2", "2");
+      await selectCell(model, "B5");
       await keyDown({ key: "=", altKey: true });
       expect(document.activeElement).toBe(document.querySelector(".o-grid-composer .o-composer"));
       expect(composerStore.editionMode).toBe("editing");
@@ -709,7 +709,7 @@ describe("Grid component", () => {
     });
 
     test("can automatically sum in an empty sheet with ALT+=", async () => {
-      selectCell(model, "B5");
+      await selectCell(model, "B5");
       await keyDown({ key: "=", altKey: true });
       expect(composerStore.editionMode).toBe("selecting");
       expect(composerStore.composerSelection).toEqual({ start: 5, end: 5 });
@@ -717,7 +717,7 @@ describe("Grid component", () => {
     });
 
     test("can automatically sum multiple zones in an empty sheet with ALT+=", async () => {
-      setSelection(model, ["A1:B2", "C4:C6"]);
+      await setSelection(model, ["A1:B2", "C4:C6"]);
       await keyDown({ key: "=", altKey: true });
       expect(composerStore.editionMode).toBe("selecting");
       expect(composerStore.composerSelection).toEqual({ start: 5, end: 5 });
@@ -725,29 +725,29 @@ describe("Grid component", () => {
     });
 
     test("automatically sum zoned xc is merged", async () => {
-      setCellContent(model, "B2", "2");
-      merge(model, "B2:B4");
-      selectCell(model, "B5");
+      await setCellContent(model, "B2", "2");
+      await merge(model, "B2:B4");
+      await selectCell(model, "B5");
       await keyDown({ key: "=", altKey: true });
       expect(composerStore.currentContent).toBe("=SUM(B2)");
     });
 
     test("automatically sum from merged cell", async () => {
-      setCellContent(model, "A1", "2");
-      merge(model, "B1:B2");
-      selectCell(model, "B2");
+      await setCellContent(model, "A1", "2");
+      await merge(model, "B1:B2");
+      await selectCell(model, "B2");
       await keyDown({ key: "=", altKey: true });
       expect(composerStore.currentContent).toBe("=SUM(A1)");
       composerStore.cancelEdition();
-      selectCell(model, "B1");
+      await selectCell(model, "B1");
       await keyDown({ key: "=", altKey: true });
       expect(composerStore.currentContent).toBe("=SUM(A1)");
     });
 
     test("automatic sum does not open composer when multiple zones are summed", async () => {
-      setCellContent(model, "A1", "2");
-      setCellContent(model, "B1", "2");
-      setSelection(model, ["A2:B2"]);
+      await setCellContent(model, "A1", "2");
+      await setCellContent(model, "B1", "2");
+      await setSelection(model, ["A2:B2"]);
 
       await keyDown({ key: "=", altKey: true });
       expect(composerStore.editionMode).toBe("inactive");
@@ -756,9 +756,9 @@ describe("Grid component", () => {
     });
 
     test("automatic sum does not open composer with column full of data", async () => {
-      setCellContent(model, "A1", "2");
-      setCellContent(model, "A2", "2");
-      setSelection(model, ["A1:A2"]);
+      await setCellContent(model, "A1", "2");
+      await setCellContent(model, "A2", "2");
+      await setSelection(model, ["A1:A2"]);
 
       await keyDown({ key: "=", altKey: true });
       expect(composerStore.editionMode).toBe("inactive");
@@ -766,17 +766,17 @@ describe("Grid component", () => {
     });
 
     test("automatic sum opens composer if selection is one cell even if it's not empty", async () => {
-      setCellContent(model, "A2", "2");
-      selectCell(model, "A2");
+      await setCellContent(model, "A2", "2");
+      await selectCell(model, "A2");
       await keyDown({ key: "=", altKey: true });
       expect(composerStore.editionMode).toBe("selecting");
       expect(composerStore.currentContent).toBe("=SUM()");
     });
 
     test("automatic sum opens composer if selection is one merge even if it's not empty", async () => {
-      setCellContent(model, "A2", "2");
-      merge(model, "A2:A3");
-      selectCell(model, "A2");
+      await setCellContent(model, "A2", "2");
+      await merge(model, "A2:A3");
+      await selectCell(model, "A2");
       await keyDown({ key: "=", altKey: true });
       expect(composerStore.editionMode).toBe("selecting");
       expect(composerStore.currentContent).toBe("=SUM()");
@@ -785,26 +785,26 @@ describe("Grid component", () => {
     test("Pressing CTRL+HOME moves you to first visible top-left cell", async () => {
       await keyDown({ key: "Home", ctrlKey: true });
       expect(model.getters.getSelectedZone()).toEqual(toZone("A1"));
-      hideRows(model, [0]);
+      await hideRows(model, [0]);
       await keyDown({ key: "Home", ctrlKey: true });
       expect(model.getters.getSelectedZone()).toEqual(toZone("A2"));
     });
     test("Pressing CTRL+END moves you to last visible top-left cell", async () => {
       await keyDown({ key: "End", ctrlKey: true });
       expect(model.getters.getSelectedZone()).toEqual(toZone("Z100"));
-      hideColumns(model, ["Z", "Y"]);
+      await hideColumns(model, ["Z", "Y"]);
       await keyDown({ key: "End", ctrlKey: true });
       expect(model.getters.getSelectedZone()).toEqual(toZone("X100"));
     });
 
     test("Pressing Ctrl+Space selects the columns of the selection", async () => {
-      setSelection(model, ["A1:C2"]);
+      await setSelection(model, ["A1:C2"]);
       await keyDown({ key: " ", ctrlKey: true });
       expect(model.getters.getSelectedZone()).toEqual(toZone("A1:C100"));
     });
 
     test("Pressing Shift+Space selects the rows of the selection", async () => {
-      setSelection(model, ["A1:C2"]);
+      await setSelection(model, ["A1:C2"]);
       await keyDown({ key: " ", shiftKey: true });
       expect(model.getters.getSelectedZone()).toEqual(toZone("A1:Z2"));
     });
@@ -818,11 +818,11 @@ describe("Grid component", () => {
       expect(model.getters.getSelectedZone()).toEqual(toZone("A1:Z100"));
     });
 
-    test("Pressing CTRL+ALT+= when a column is selected inserts a column left", () => {
+    test("Pressing CTRL+ALT+= when a column is selected inserts a column left", async () => {
       const activeSheetId = model.getters.getActiveSheetId();
       const numOfCols = model.getters.getNumberCols(activeSheetId);
-      setCellContent(model, "A1", "hello");
-      selectColumn(model, 0, "overrideSelection");
+      await setCellContent(model, "A1", "hello");
+      await selectColumn(model, 0, "overrideSelection");
       document.activeElement!.dispatchEvent(
         new KeyboardEvent("keydown", { key: "=", ctrlKey: true, altKey: true, bubbles: true })
       );
@@ -832,13 +832,13 @@ describe("Grid component", () => {
       expect(getCellContent(model, "B1")).toBe("hello");
     });
 
-    test("Pressing CTRL+ALT+= when multiple columns are selected as one group inserts the same number of columns left", () => {
+    test("Pressing CTRL+ALT+= when multiple columns are selected as one group inserts the same number of columns left", async () => {
       const activeSheetId = model.getters.getActiveSheetId();
       const numOfCols = model.getters.getNumberCols(activeSheetId);
-      setCellContent(model, "A1", "hello");
-      selectColumn(model, 0, "overrideSelection");
-      selectColumn(model, 1, "updateAnchor");
-      selectColumn(model, 2, "updateAnchor");
+      await setCellContent(model, "A1", "hello");
+      await selectColumn(model, 0, "overrideSelection");
+      await selectColumn(model, 1, "updateAnchor");
+      await selectColumn(model, 2, "updateAnchor");
       document.activeElement!.dispatchEvent(
         new KeyboardEvent("keydown", { key: "=", ctrlKey: true, altKey: true, bubbles: true })
       );
@@ -848,24 +848,24 @@ describe("Grid component", () => {
       expect(getCellContent(model, "D1")).toBe("hello");
     });
 
-    test("Pressing CTRL+ALT+= when multiple columns are selected as multiple groups won't insert columns left", () => {
+    test("Pressing CTRL+ALT+= when multiple columns are selected as multiple groups won't insert columns left", async () => {
       const activeSheetId = model.getters.getActiveSheetId();
       const numOfCols = model.getters.getNumberCols(activeSheetId);
-      setCellContent(model, "A1", "hello");
-      selectColumn(model, 0, "overrideSelection");
-      selectColumn(model, 1, "newAnchor");
-      selectColumn(model, 2, "newAnchor");
+      await setCellContent(model, "A1", "hello");
+      await selectColumn(model, 0, "overrideSelection");
+      await selectColumn(model, 1, "newAnchor");
+      await selectColumn(model, 2, "newAnchor");
       document.activeElement!.dispatchEvent(
         new KeyboardEvent("keydown", { key: "=", ctrlKey: true, altKey: true, bubbles: true })
       );
       expect(model.getters.getNumberCols(activeSheetId)).toEqual(numOfCols);
     });
 
-    test("Pressing CTRL+ALT+= when a row is selected inserts a row above", () => {
+    test("Pressing CTRL+ALT+= when a row is selected inserts a row above", async () => {
       const activeSheetId = model.getters.getActiveSheetId();
       const numOfRows = model.getters.getNumberRows(activeSheetId);
-      setCellContent(model, "A1", "hello");
-      selectRow(model, 0, "overrideSelection");
+      await setCellContent(model, "A1", "hello");
+      await selectRow(model, 0, "overrideSelection");
       document.activeElement!.dispatchEvent(
         new KeyboardEvent("keydown", { key: "=", ctrlKey: true, altKey: true, bubbles: true })
       );
@@ -875,13 +875,13 @@ describe("Grid component", () => {
       expect(getCellContent(model, "A2")).toBe("hello");
     });
 
-    test("Pressing CTRL+ALT+= when multiple rows are selected as one group inserts the same number of rows above", () => {
+    test("Pressing CTRL+ALT+= when multiple rows are selected as one group inserts the same number of rows above", async () => {
       const activeSheetId = model.getters.getActiveSheetId();
       const numOfRows = model.getters.getNumberRows(activeSheetId);
-      setCellContent(model, "A1", "hello");
-      selectRow(model, 0, "overrideSelection");
-      selectRow(model, 1, "updateAnchor");
-      selectRow(model, 2, "updateAnchor");
+      await setCellContent(model, "A1", "hello");
+      await selectRow(model, 0, "overrideSelection");
+      await selectRow(model, 1, "updateAnchor");
+      await selectRow(model, 2, "updateAnchor");
       document.activeElement!.dispatchEvent(
         new KeyboardEvent("keydown", { key: "=", ctrlKey: true, altKey: true, bubbles: true })
       );
@@ -891,26 +891,26 @@ describe("Grid component", () => {
       expect(getCellContent(model, "A4")).toBe("hello");
     });
 
-    test("Pressing CTRL+ALT+= when multiple rows are selected as multiple groups won't insert rows above", () => {
+    test("Pressing CTRL+ALT+= when multiple rows are selected as multiple groups won't insert rows above", async () => {
       const activeSheetId = model.getters.getActiveSheetId();
       const numOfRows = model.getters.getNumberRows(activeSheetId);
-      setCellContent(model, "A1", "hello");
-      selectRow(model, 0, "overrideSelection");
-      selectRow(model, 1, "newAnchor");
-      selectRow(model, 2, "newAnchor");
+      await setCellContent(model, "A1", "hello");
+      await selectRow(model, 0, "overrideSelection");
+      await selectRow(model, 1, "newAnchor");
+      await selectRow(model, 2, "newAnchor");
       document.activeElement!.dispatchEvent(
         new KeyboardEvent("keydown", { key: "=", ctrlKey: true, altKey: true, bubbles: true })
       );
       expect(model.getters.getNumberRows(activeSheetId)).toEqual(numOfRows);
     });
 
-    test("Pressing CTRL+ALT+= when both row(s) and column(s) are selected will not work", () => {
+    test("Pressing CTRL+ALT+= when both row(s) and column(s) are selected will not work", async () => {
       const activeSheetId = model.getters.getActiveSheetId();
       const numOfRows = model.getters.getNumberRows(activeSheetId);
       const numOfCols = model.getters.getNumberCols(activeSheetId);
-      setCellContent(model, "A1", "hello");
-      selectRow(model, 0, "overrideSelection");
-      selectColumn(model, 2, "newAnchor");
+      await setCellContent(model, "A1", "hello");
+      await selectRow(model, 0, "overrideSelection");
+      await selectColumn(model, 2, "newAnchor");
       document.activeElement!.dispatchEvent(
         new KeyboardEvent("keydown", { key: "=", ctrlKey: true, altKey: true, bubbles: true })
       );
@@ -920,13 +920,13 @@ describe("Grid component", () => {
       expect(getCellContent(model, "A1")).toBe("hello");
     });
 
-    test("Pressing CTRL+ALT+- when a column is selected deletes this column", () => {
+    test("Pressing CTRL+ALT+- when a column is selected deletes this column", async () => {
       const activeSheetId = model.getters.getActiveSheetId();
       const numOfCols = model.getters.getNumberCols(activeSheetId);
-      setCellContent(model, "A1", "hello1");
-      setCellContent(model, "B1", "hello2");
-      setCellContent(model, "C1", "hello3");
-      selectColumn(model, 1, "overrideSelection");
+      await setCellContent(model, "A1", "hello1");
+      await setCellContent(model, "B1", "hello2");
+      await setCellContent(model, "C1", "hello3");
+      await selectColumn(model, 1, "overrideSelection");
       document.activeElement!.dispatchEvent(
         new KeyboardEvent("keydown", { key: "-", ctrlKey: true, altKey: true, bubbles: true })
       );
@@ -935,14 +935,14 @@ describe("Grid component", () => {
       expect(getCellContent(model, "B1")).toBe("hello3");
     });
 
-    test("Pressing CTRL+ALT+- when multiple columns are selected deletes these column", () => {
+    test("Pressing CTRL+ALT+- when multiple columns are selected deletes these column", async () => {
       const activeSheetId = model.getters.getActiveSheetId();
       const numOfCols = model.getters.getNumberCols(activeSheetId);
-      setCellContent(model, "A1", "hello1");
-      setCellContent(model, "B1", "hello2");
-      setCellContent(model, "C1", "hello3");
-      selectColumn(model, 0, "overrideSelection");
-      selectColumn(model, 2, "newAnchor");
+      await setCellContent(model, "A1", "hello1");
+      await setCellContent(model, "B1", "hello2");
+      await setCellContent(model, "C1", "hello3");
+      await selectColumn(model, 0, "overrideSelection");
+      await selectColumn(model, 2, "newAnchor");
       document.activeElement!.dispatchEvent(
         new KeyboardEvent("keydown", { key: "-", ctrlKey: true, altKey: true, bubbles: true })
       );
@@ -950,13 +950,13 @@ describe("Grid component", () => {
       expect(getCellContent(model, "A1")).toBe("hello2");
     });
 
-    test("Pressing CTRL+ALT+- when a row is selected deletes this row", () => {
+    test("Pressing CTRL+ALT+- when a row is selected deletes this row", async () => {
       const activeSheetId = model.getters.getActiveSheetId();
       const numOfRows = model.getters.getNumberRows(activeSheetId);
-      setCellContent(model, "A1", "hello1");
-      setCellContent(model, "A2", "hello2");
-      setCellContent(model, "A3", "hello3");
-      selectRow(model, 1, "overrideSelection");
+      await setCellContent(model, "A1", "hello1");
+      await setCellContent(model, "A2", "hello2");
+      await setCellContent(model, "A3", "hello3");
+      await selectRow(model, 1, "overrideSelection");
       document.activeElement!.dispatchEvent(
         new KeyboardEvent("keydown", { key: "-", ctrlKey: true, altKey: true, bubbles: true })
       );
@@ -965,14 +965,14 @@ describe("Grid component", () => {
       expect(getCellContent(model, "A2")).toBe("hello3");
     });
 
-    test("Pressing CTRL+ALT+- when multiple rows are selected deletes these rows", () => {
+    test("Pressing CTRL+ALT+- when multiple rows are selected deletes these rows", async () => {
       const activeSheetId = model.getters.getActiveSheetId();
       const numOfRows = model.getters.getNumberRows(activeSheetId);
-      setCellContent(model, "A1", "hello1");
-      setCellContent(model, "A2", "hello2");
-      setCellContent(model, "A3", "hello3");
-      selectRow(model, 0, "overrideSelection");
-      selectRow(model, 2, "newAnchor");
+      await setCellContent(model, "A1", "hello1");
+      await setCellContent(model, "A2", "hello2");
+      await setCellContent(model, "A3", "hello3");
+      await selectRow(model, 0, "overrideSelection");
+      await selectRow(model, 2, "newAnchor");
       document.activeElement!.dispatchEvent(
         new KeyboardEvent("keydown", { key: "-", ctrlKey: true, altKey: true, bubbles: true })
       );
@@ -980,13 +980,13 @@ describe("Grid component", () => {
       expect(getCellContent(model, "A1")).toBe("hello2");
     });
 
-    test("Pressing CTRL+ALT+- when both row(s) and column(s) are selected will not work", () => {
+    test("Pressing CTRL+ALT+- when both row(s) and column(s) are selected will not work", async () => {
       const activeSheetId = model.getters.getActiveSheetId();
       const numOfRows = model.getters.getNumberRows(activeSheetId);
       const numOfCols = model.getters.getNumberCols(activeSheetId);
-      setCellContent(model, "A1", "hello");
-      selectRow(model, 0, "overrideSelection");
-      selectColumn(model, 2, "newAnchor");
+      await setCellContent(model, "A1", "hello");
+      await selectRow(model, 0, "overrideSelection");
+      await selectColumn(model, 2, "newAnchor");
       document.activeElement!.dispatchEvent(
         new KeyboardEvent("keydown", { key: "-", ctrlKey: true, altKey: true, bubbles: true })
       );
@@ -998,8 +998,8 @@ describe("Grid component", () => {
 
     test("Pressing Shift+PageDown activates the next sheet", async () => {
       const sheetId = model.getters.getActiveSheetId();
-      createSheet(model, { sheetId: "second", activate: true });
-      createSheet(model, { sheetId: "third", position: 2 });
+      await createSheet(model, { sheetId: "second", activate: true });
+      await createSheet(model, { sheetId: "third", position: 2 });
 
       expect(model.getters.getActiveSheetId()).toBe("second");
       await keyDown({ key: "PageDown", shiftKey: true });
@@ -1009,8 +1009,8 @@ describe("Grid component", () => {
     });
     test("Pressing Shift+PageUp activates the previous sheet", async () => {
       const sheetId = model.getters.getActiveSheetId();
-      createSheet(model, { sheetId: "second", activate: true });
-      createSheet(model, { sheetId: "third", position: 2 });
+      await createSheet(model, { sheetId: "second", activate: true });
+      await createSheet(model, { sheetId: "third", position: 2 });
 
       expect(model.getters.getActiveSheetId()).toBe("second");
       await keyDown({ key: "PageUp", shiftKey: true });
@@ -1032,8 +1032,8 @@ describe("Grid component", () => {
       expect(fixture.querySelector(".o-link-editor")).not.toBeNull();
     });
 
-    test("Filter icon is correctly rendered", () => {
-      createTableWithFilter(model, "B2:C3");
+    test("Filter icon is correctly rendered", async () => {
+      await createTableWithFilter(model, "B2:C3");
 
       const y = DEFAULT_CELL_HEIGHT + 1 + MIN_CELL_TEXT_MARGIN + HEADER_HEIGHT; // +1 to skip grid lines
       const leftB =
@@ -1049,35 +1049,35 @@ describe("Grid component", () => {
       expect(rectC).toMatchObject({ y, x: leftC });
     });
 
-    test("Filter icon changes when filter is active", () => {
+    test("Filter icon changes when filter is active", async () => {
       const activeFilterSVG = getDataFilterIcon(true, true, false);
       const inactiveFilterSVG = getDataFilterIcon(false, true, false);
-      createTableWithFilter(model, "A1:A2");
+      await createTableWithFilter(model, "A1:A2");
       const sheetId = model.getters.getActiveSheetId();
       expect(getCellIcons(model, "A1")[0].svg).toEqual(inactiveFilterSVG);
 
-      updateFilter(model, "A1", ["5"]);
+      await updateFilter(model, "A1", ["5"]);
       expect(model.getters.isFilterActive({ sheetId, ...toCartesian("A1") })).toBeTruthy();
       expect(getCellIcons(model, "A1")[0].svg).toEqual(activeFilterSVG);
     });
 
-    test("Filter icon changes color on high contrast background", () => {
-      createTableWithFilter(model, "A1:A2");
-      updateTableConfig(model, "A1", { styleId: "None" });
+    test("Filter icon changes color on high contrast background", async () => {
+      await createTableWithFilter(model, "A1:A2");
+      await updateTableConfig(model, "A1", { styleId: "None" });
       let icon = getCellIcons(model, "A1")[0];
       expect(icon?.svg?.paths[0].fillColor).toBe(FILTERS_COLOR);
 
-      updateTableConfig(model, "A1", { styleId: "TableStyleLight8" });
+      await updateTableConfig(model, "A1", { styleId: "TableStyleLight8" });
       icon = getCellIcons(model, "A1")[0];
       expect(icon?.svg?.paths[0].fillColor).toBe("#defade");
 
-      setFormatting(model, "A1", { fillColor: "#fff" });
+      await setFormatting(model, "A1", { fillColor: "#fff" });
       icon = getCellIcons(model, "A1")[0];
       expect(icon?.svg?.paths[0].fillColor).toBe(FILTERS_COLOR);
     });
 
     test("Clicking on a filter icon correctly open context menu", async () => {
-      createTableWithFilter(model, "A1:A2");
+      await createTableWithFilter(model, "A1:A2");
       await nextTick();
       await clickGridIcon(model, "A1");
       expect(fixture.querySelectorAll(".o-filter-menu")).toHaveLength(1);
@@ -1098,14 +1098,14 @@ describe("Grid component", () => {
     });
 
     test("A1 is not set as hovered by default when opening the spreadsheet without mouse events", async () => {
-      setCellContent(model, "A1", "=1/0");
+      await setCellContent(model, "A1", "=1/0");
       jest.advanceTimersByTime(400);
       await nextTick();
       expect(fixture.querySelector(".o-error-tooltip")).toBeNull();
     });
 
     test("Scrolling the grid remove hover popover", async () => {
-      setCellContent(model, "A10", "=1/0");
+      await setCellContent(model, "A10", "=1/0");
       await hoverCell(model, "A10", 400);
       expect(fixture.querySelector(".o-error-tooltip")).not.toBeNull();
       await scrollGrid({ deltaY: 100 });
@@ -1147,10 +1147,10 @@ describe("Grid component", () => {
     });
 
     test("can paste format and borders with mouse once", async () => {
-      setCellContent(model, "B2", "b2");
-      selectCell(model, "B2");
-      setFormatting(model, "B2", { bold: true });
-      setBorders(model, "B2", { top: DEFAULT_BORDER_DESC });
+      await setCellContent(model, "B2", "b2");
+      await selectCell(model, "B2");
+      await setFormatting(model, "B2", { bold: true });
+      await setBorders(model, "B2", { top: DEFAULT_BORDER_DESC });
       paintFormatStore.activate({ persistent: false });
       await gridMouseEvent(model, "pointerdown", "C8");
       expect(getCell(model, "C8")).toBeUndefined();
@@ -1165,8 +1165,8 @@ describe("Grid component", () => {
     });
 
     test("Paste format works with table style", async () => {
-      createTableWithFilter(model, "A1:B2", { styleId: "TableStyleLight11" });
-      selectCell(model, "A1");
+      await createTableWithFilter(model, "A1:B2", { styleId: "TableStyleLight11" });
+      await selectCell(model, "A1");
       paintFormatStore.activate({ persistent: false });
       await gridMouseEvent(model, "pointerdown", "C8");
       await gridMouseEvent(model, "pointerup", "C8");
@@ -1176,8 +1176,8 @@ describe("Grid component", () => {
 
     test("Paste format works with conditional format", async () => {
       const sheetId = model.getters.getActiveSheetId();
-      addEqualCf(model, "A1", { fillColor: "#0000FF" }, "1", "cf2");
-      selectCell(model, "A1");
+      await addEqualCf(model, "A1", { fillColor: "#0000FF" }, "1", "cf2");
+      await selectCell(model, "A1");
       paintFormatStore.activate({ persistent: false });
       await gridMouseEvent(model, "pointerdown", "C8");
       await gridMouseEvent(model, "pointerup", "C8");
@@ -1187,8 +1187,8 @@ describe("Grid component", () => {
 
     test("Pasting format from merged cells applies merge and updates selection", async () => {
       const sheetId = model.getters.getActiveSheetId();
-      merge(model, "B1:B3");
-      setSelection(model, ["B1:B3"]);
+      await merge(model, "B1:B3");
+      await setSelection(model, ["B1:B3"]);
 
       expect(model.getters.getMerges(sheetId)).toMatchObject([toZone("B1:B3")]);
       expect(model.getters.getSelectedZones()).toMatchObject([toZone("B1:B3")]);
@@ -1203,9 +1203,9 @@ describe("Grid component", () => {
     });
 
     test("can keep the paint format mode persistently", async () => {
-      setCellContent(model, "B2", "b2");
-      selectCell(model, "B2");
-      setFormatting(model, "B2", { bold: true });
+      await setCellContent(model, "B2", "b2");
+      await selectCell(model, "B2");
+      await setFormatting(model, "B2", { bold: true });
       paintFormatStore.activate({ persistent: true });
       await gridMouseEvent(model, "pointerdown", "C8");
       expect(getCell(model, "C8")).toBeUndefined();
@@ -1219,9 +1219,9 @@ describe("Grid component", () => {
     });
 
     test("can paste format with key", async () => {
-      setCellContent(model, "B2", "b2");
-      selectCell(model, "B2");
-      setFormatting(model, "B2", { bold: true });
+      await setCellContent(model, "B2", "b2");
+      await selectCell(model, "B2");
+      await setFormatting(model, "B2", { bold: true });
       paintFormatStore.activate({ persistent: false });
       expect(getCell(model, "C2")).toBeUndefined();
       await keyDown({ key: "ArrowRight" });
@@ -1229,9 +1229,9 @@ describe("Grid component", () => {
     });
 
     test("can exit the paint format mode via ESC key", async () => {
-      setCellContent(model, "B2", "b2");
-      selectCell(model, "B2");
-      setFormatting(model, "B2", { bold: true });
+      await setCellContent(model, "B2", "b2");
+      await selectCell(model, "B2");
+      await setFormatting(model, "B2", { bold: true });
       paintFormatStore.activate({ persistent: false });
       await keyDown({ key: "Escape" });
       await gridMouseEvent(model, "pointerdown", "C8");
@@ -1241,11 +1241,11 @@ describe("Grid component", () => {
     });
 
     test("in persistent mode, updating the style of origin cell won't change the copied style", async () => {
-      setCellContent(model, "B2", "b2");
-      selectCell(model, "B2");
-      setFormatting(model, "B2", { bold: true });
+      await setCellContent(model, "B2", "b2");
+      await selectCell(model, "B2");
+      await setFormatting(model, "B2", { bold: true });
       paintFormatStore.activate({ persistent: true });
-      setFormatting(model, "B2", { bold: false });
+      await setFormatting(model, "B2", { bold: false });
 
       await gridMouseEvent(model, "pointerdown", "D8");
       expect(getCell(model, "D8")).toBeUndefined();
@@ -1254,7 +1254,7 @@ describe("Grid component", () => {
     });
 
     test("zone to paint is highlighted", async () => {
-      selectCell(model, "B2");
+      await selectCell(model, "B2");
       paintFormatStore.activate({ persistent: false });
       expect(highlightStore.highlights.map(flattenHighlightRange)).toMatchObject([
         { zone: toZone("B2") },
@@ -1265,9 +1265,9 @@ describe("Grid component", () => {
     });
 
     test("paint format does not destroy clipboard content", async () => {
-      setCellContent(model, "A1", "hello");
-      setFormatting(model, "A1", { bold: true });
-      copy(model, "A1");
+      await setCellContent(model, "A1", "hello");
+      await setFormatting(model, "A1", { bold: true });
+      await copy(model, "A1");
 
       const clipboardContent = await model.getters.getClipboardTextAndImageContent();
       paintFormatStore.activate({ persistent: false });
@@ -1275,10 +1275,10 @@ describe("Grid component", () => {
     });
 
     test("can paint format after a cut", async () => {
-      setCellContent(model, "B2", "b2");
-      cut(model, "A1");
-      selectCell(model, "B2");
-      setFormatting(model, "B2", { bold: true });
+      await setCellContent(model, "B2", "b2");
+      await cut(model, "A1");
+      await selectCell(model, "B2");
+      await setFormatting(model, "B2", { bold: true });
       paintFormatStore.activate({ persistent: false });
       expect(model.getters.isCutOperation());
 
@@ -1288,9 +1288,9 @@ describe("Grid component", () => {
     });
 
     test("Paint format does a single history step", async () => {
-      selectCell(model, "B2");
-      setFormatting(model, "B2", { bold: true });
-      setBorders(model, "B2", { top: DEFAULT_BORDER_DESC });
+      await selectCell(model, "B2");
+      await setFormatting(model, "B2", { bold: true });
+      await setBorders(model, "B2", { top: DEFAULT_BORDER_DESC });
 
       paintFormatStore.activate({ persistent: false });
       await gridMouseEvent(model, "pointerdown", "D8");
@@ -1299,7 +1299,7 @@ describe("Grid component", () => {
       expect(getStyle(model, "D8")).toEqual({ bold: true });
       expect(getBorder(model, "D8")).toEqual({ top: DEFAULT_BORDER_DESC });
 
-      undo(model);
+      await undo(model);
       expect(getStyle(model, "D8")).toEqual({});
       expect(getBorder(model, "D8")).toEqual(null);
     });
@@ -1359,9 +1359,9 @@ describe("Grid component", () => {
   });
 
   test("Hovering an interactive icon changes the cursor", async () => {
-    setCellContent(model, "A1", "5");
-    addIconCF(model, "A1", ["3", "7"], "arrows");
-    createTableWithFilter(model, "B1:B2");
+    await setCellContent(model, "A1", "5");
+    await addIconCF(model, "A1", ["3", "7"], "arrows");
+    await createTableWithFilter(model, "B1:B2");
     const overlay = fixture.querySelector<HTMLElement>(".o-grid-overlay")!;
     expect(overlay!.style.cursor).toBe("default");
 
@@ -1454,8 +1454,8 @@ describe("Multi User selection", () => {
   test("Jump to client switch to correct sheet", async () => {
     jest.useFakeTimers();
     const clientFocusStore = env.getStore(ClientFocusStore);
-    createSheet(model, { sheetId: "AliceSheet", name: "Alice Sheet", position: 1 });
-    createSheet(model, { sheetId: "BobSheet", name: "Bob Sheet", position: 2 });
+    await createSheet(model, { sheetId: "AliceSheet", name: "Alice Sheet", position: 1 });
+    await createSheet(model, { sheetId: "BobSheet", name: "Bob Sheet", position: 2 });
 
     await transportService.sendMessage({
       type: "CLIENT_JOINED",
@@ -1564,7 +1564,7 @@ describe("Events on Grid update viewport correctly", () => {
     });
   });
   test("Move selection horizontally (left to right) through pane division resets the scroll", async () => {
-    freezeColumns(model, 3);
+    await freezeColumns(model, 3);
     triggerWheelEvent(document.activeElement!, { deltaY: 4 * DEFAULT_CELL_WIDTH, shiftKey: true });
 
     await clickCell(model, "C1");
@@ -1577,7 +1577,7 @@ describe("Events on Grid update viewport correctly", () => {
   });
 
   test("Move selection horizontally (right to left) through pane division does not reset the scroll", async () => {
-    freezeColumns(model, 3);
+    await freezeColumns(model, 3);
     triggerWheelEvent(document.activeElement!, { deltaY: 4 * DEFAULT_CELL_WIDTH, shiftKey: true });
     await clickCell(model, "H1");
     expect(model.getters.getSelectedZone()).toEqual(toZone("H1"));
@@ -1597,7 +1597,7 @@ describe("Events on Grid update viewport correctly", () => {
   });
 
   test("Move selection vertically (top to bottom) through pane division resets the scroll", async () => {
-    freezeRows(model, 3);
+    await freezeRows(model, 3);
     triggerWheelEvent(document.activeElement!, { deltaY: 4 * DEFAULT_CELL_HEIGHT });
     await clickCell(model, "A3");
     expect(model.getters.getActiveMainViewport().top).toEqual(7);
@@ -1609,7 +1609,7 @@ describe("Events on Grid update viewport correctly", () => {
   });
 
   test("Move selection vertically (bottom to top) through pane division does not reset the scroll", async () => {
-    freezeRows(model, 3);
+    await freezeRows(model, 3);
     triggerWheelEvent(document.activeElement!, { deltaY: 4 * DEFAULT_CELL_HEIGHT });
     await clickCell(model, "A8");
     expect(model.getters.getActiveMainViewport().top).toEqual(7);
@@ -1646,7 +1646,7 @@ describe("Events on Grid update viewport correctly", () => {
   });
 
   test("Alter selection horizontally (left to right) through pane division resets the scroll", async () => {
-    freezeColumns(model, 3);
+    await freezeColumns(model, 3);
     triggerWheelEvent(document.activeElement!, { deltaY: 4 * DEFAULT_CELL_WIDTH, shiftKey: true });
     await clickCell(model, "C1");
     expect(model.getters.getActiveMainViewport().left).toEqual(7);
@@ -1658,7 +1658,7 @@ describe("Events on Grid update viewport correctly", () => {
   });
 
   test("Alter selection horizontally (right to left) through pane division does not reset the scroll", async () => {
-    freezeColumns(model, 3);
+    await freezeColumns(model, 3);
     triggerWheelEvent(document.activeElement!, { deltaY: 4 * DEFAULT_CELL_WIDTH, shiftKey: true });
     await clickCell(model, "H1");
     expect(model.getters.getActiveMainViewport().left).toEqual(7);
@@ -1676,7 +1676,7 @@ describe("Events on Grid update viewport correctly", () => {
   });
 
   test("Alter selection vertically (top to bottom) through pane division resets the scroll", async () => {
-    freezeRows(model, 3);
+    await freezeRows(model, 3);
     triggerWheelEvent(document.activeElement!, { deltaY: 4 * DEFAULT_CELL_HEIGHT });
     await clickCell(model, "A3");
     expect(model.getters.getActiveMainViewport().top).toEqual(7);
@@ -1688,7 +1688,7 @@ describe("Events on Grid update viewport correctly", () => {
   });
 
   test("Alter selection vertically (bottom to to) through pane division does not reset the scroll", async () => {
-    freezeRows(model, 3);
+    await freezeRows(model, 3);
     triggerWheelEvent(document.activeElement!, { deltaY: 4 * DEFAULT_CELL_HEIGHT });
     await clickCell(model, "A8");
     expect(model.getters.getActiveMainViewport().top).toEqual(7);
@@ -1711,7 +1711,7 @@ describe("Events on Grid update viewport correctly", () => {
     const { width: viewportWidth } = model.getters.getSheetViewDimensionWithHeaders();
     triggerWheelEvent(document.activeElement!, { deltaY: width - viewportWidth, shiftKey: true });
     const viewport = model.getters.getActiveMainViewport();
-    selectCell(model, "Y1");
+    await selectCell(model, "Y1");
     await nextTick();
     expect(model.getters.getActiveMainViewport()).toMatchObject(viewport);
     await keyDown({ key: "ArrowRight", shiftKey: true });
@@ -1754,7 +1754,7 @@ describe("Events on Grid update viewport correctly", () => {
   });
 
   test("Partially scrolled (horizontally) cell becomes fully visible when selected with the keyboard", async () => {
-    setViewportOffset(model, DEFAULT_CELL_WIDTH / 2, 0);
+    await setViewportOffset(model, DEFAULT_CELL_WIDTH / 2, 0);
     await clickCell(model, "B1");
     await nextTick();
     expect(model.getters.getVisibleRect(toZone("A1"))).toMatchObject({
@@ -1774,7 +1774,7 @@ describe("Events on Grid update viewport correctly", () => {
 
   test("Partially scrolled (vertically) cell becomes fully visible when selected with the keyboard", async () => {
     const offset = Math.round(DEFAULT_CELL_HEIGHT / 2);
-    setViewportOffset(model, 0, offset);
+    await setViewportOffset(model, 0, offset);
     await nextTick();
     await clickCell(model, "A2"); //++ cassé
     expect(model.getters.getSelectedZone()).toEqual(toZone("A2"));
@@ -1887,15 +1887,15 @@ describe("Copy paste keyboard shortcut", () => {
 
   test("Can paste from OS", async () => {
     clipboardData.setData(ClipboardMIMEType.PlainText, "Excalibur");
-    selectCell(model, "A1");
+    await selectCell(model, "A1");
     document.body.dispatchEvent(getClipboardEvent("paste", clipboardData));
     await nextTick();
     expect(getCellContent(model, "A1")).toEqual("Excalibur");
   });
 
   test("Can copy/paste cells", async () => {
-    setCellContent(model, "A1", "things");
-    selectCell(model, "A1");
+    await setCellContent(model, "A1", "things");
+    await selectCell(model, "A1");
     document.body.dispatchEvent(getClipboardEvent("copy", clipboardData));
     await nextTick();
     const clipboard = await parent.env.clipboard.read!();
@@ -1913,15 +1913,15 @@ describe("Copy paste keyboard shortcut", () => {
         clipboardHtmlData
       )}'>things</div>`,
     });
-    selectCell(model, "A2");
+    await selectCell(model, "A2");
     document.body.dispatchEvent(getClipboardEvent("paste", clipboardData));
     await nextTick();
     expect(getCellContent(model, "A2")).toEqual("things");
   });
 
   test("Can cut/paste cells", async () => {
-    setCellContent(model, "A1", "things");
-    selectCell(model, "A1");
+    await setCellContent(model, "A1", "things");
+    await selectCell(model, "A1");
     document.body.dispatchEvent(getClipboardEvent("cut", clipboardData));
     await nextTick();
     const clipboard = await parent.env.clipboard.read!();
@@ -1939,7 +1939,7 @@ describe("Copy paste keyboard shortcut", () => {
         clipboardHtmlData
       )}'>things</div>`,
     });
-    selectCell(model, "A2");
+    await selectCell(model, "A2");
     document.body.dispatchEvent(getClipboardEvent("paste", clipboardData));
     await nextTick();
     expect(getCellContent(model, "A1")).toEqual("");
@@ -1947,18 +1947,18 @@ describe("Copy paste keyboard shortcut", () => {
   });
 
   test("cut zone gets cleared on paste if content/style is altered after cut", async () => {
-    setCellContent(model, "A1", "things");
-    setFormatting(model, "A1", { bold: true });
-    selectCell(model, "A1");
+    await setCellContent(model, "A1", "things");
+    await setFormatting(model, "A1", { bold: true });
+    await selectCell(model, "A1");
     document.body.dispatchEvent(getClipboardEvent("cut", clipboardData));
     await nextTick();
     const clipboard = await parent.env.clipboard.read!();
     if (clipboard.status === "ok") {
       clipboardData.content = clipboard.content;
     }
-    setCellContent(model, "A1", "new content");
-    setFormatting(model, "A1", { bold: false });
-    selectCell(model, "A2");
+    await setCellContent(model, "A1", "new content");
+    await setFormatting(model, "A1", { bold: false });
+    await selectCell(model, "A2");
     document.body.dispatchEvent(getClipboardEvent("paste", clipboardData));
     await nextTick();
     expect(getCellContent(model, "A2")).toEqual("things");
@@ -1967,9 +1967,9 @@ describe("Copy paste keyboard shortcut", () => {
   });
 
   test("Cut of a formula cell, and enabling showFormulas should return content", async () => {
-    setFormulaVisibility(model, true);
-    setCellContent(model, "A1", "1");
-    setCellFormat(model, "A1", "m/d/yyyy");
+    await setFormulaVisibility(model, true);
+    await setCellContent(model, "A1", "1");
+    await setCellFormat(model, "A1", "m/d/yyyy");
     document.body.dispatchEvent(getClipboardEvent("cut", clipboardData));
     await nextTick();
     const clipboard = await parent.env.clipboard.read!();
@@ -1978,16 +1978,16 @@ describe("Copy paste keyboard shortcut", () => {
     }
     const clipboardContent = clipboardData.content;
     expect(clipboardContent[ClipboardMIMEType.PlainText]).toEqual(getCellContent(model, "A1"));
-    setFormulaVisibility(model, false);
-    selectCell(model, "A2");
+    await setFormulaVisibility(model, false);
+    await selectCell(model, "A2");
     document.body.dispatchEvent(getClipboardEvent("paste", clipboardData));
     await nextTick();
     expect(getCellContent(model, "A2")).toEqual("12/31/1899");
   });
 
   test("Cut of a formula cell, or non-formula cell with showFormulas should return its formattedValue", async () => {
-    setCellContent(model, "A1", "1");
-    setCellFormat(model, "A1", "m/d/yyyy");
+    await setCellContent(model, "A1", "1");
+    await setCellFormat(model, "A1", "m/d/yyyy");
     document.body.dispatchEvent(getClipboardEvent("cut", clipboardData));
     await nextTick();
     let clipboard = await parent.env.clipboard.read!();
@@ -1998,14 +1998,14 @@ describe("Copy paste keyboard shortcut", () => {
     expect(clipboardContent[ClipboardMIMEType.PlainText]).toEqual(
       getEvaluatedCell(model, "A1").formattedValue
     );
-    selectCell(model, "A2");
+    await selectCell(model, "A2");
     document.body.dispatchEvent(getClipboardEvent("paste", clipboardData));
     await nextTick();
     expect(getCellContent(model, "A2")).toEqual("12/31/1899");
 
-    setFormulaVisibility(model, true);
-    setCellContent(model, "B1", "1");
-    selectCell(model, "B1");
+    await setFormulaVisibility(model, true);
+    await setCellContent(model, "B1", "1");
+    await selectCell(model, "B1");
     document.body.dispatchEvent(getClipboardEvent("cut", clipboardData));
     await nextTick();
     clipboard = await parent.env.clipboard.read!();
@@ -2016,8 +2016,8 @@ describe("Copy paste keyboard shortcut", () => {
     expect(clipboardContent[ClipboardMIMEType.PlainText]).toEqual(
       getEvaluatedCell(model, "B1").formattedValue
     );
-    setFormulaVisibility(model, false);
-    selectCell(model, "B2");
+    await setFormulaVisibility(model, false);
+    await selectCell(model, "B2");
     document.body.dispatchEvent(getClipboardEvent("paste", clipboardData));
     await nextTick();
     expect(getCellContent(model, "B2")).toEqual("1");
@@ -2025,9 +2025,9 @@ describe("Copy paste keyboard shortcut", () => {
 
   test("can paste as value with CTRL+SHIFT+V", async () => {
     const content = "things";
-    setCellContent(model, "A1", content);
-    setFormatting(model, "A1", { fillColor: "red", align: "right", bold: true });
-    selectCell(model, "A1");
+    await setCellContent(model, "A1", content);
+    await setFormatting(model, "A1", { fillColor: "red", align: "right", bold: true });
+    await selectCell(model, "A1");
     const ev = getClipboardEvent("copy", clipboardData);
     document.body.dispatchEvent(ev);
     await nextTick();
@@ -2039,7 +2039,7 @@ describe("Copy paste keyboard shortcut", () => {
     // to make paste come from spreadsheet clipboard
     // which support paste as values
     await parent.env.clipboard.write(clipboardData.content);
-    selectCell(model, "A2");
+    await selectCell(model, "A2");
     document.activeElement!.dispatchEvent(
       new KeyboardEvent("keydown", { key: "V", ctrlKey: true, bubbles: true, shiftKey: true })
     );
@@ -2050,41 +2050,41 @@ describe("Copy paste keyboard shortcut", () => {
   });
 
   test("can copy and paste above cell(s) using CTRL+D", async () => {
-    setCellContent(model, "B1", "b1");
-    setCellContent(model, "B2", "b2");
-    selectCell(model, "B2");
+    await setCellContent(model, "B1", "b1");
+    await setCellContent(model, "B2", "b2");
+    await selectCell(model, "B2");
     await keyDown({ key: "D", ctrlKey: true });
     expect(getCellRawContent(model, "B2")).toBe("b1");
 
-    setCellContent(model, "B2", "b2");
-    setCellContent(model, "C1", "c1");
-    setCellContent(model, "D1", "d1");
-    setSelection(model, ["B2:D2"]);
+    await setCellContent(model, "B2", "b2");
+    await setCellContent(model, "C1", "c1");
+    await setCellContent(model, "D1", "d1");
+    await setSelection(model, ["B2:D2"]);
     await keyDown({ key: "D", ctrlKey: true });
     expect(getCellRawContent(model, "B2")).toBe("b1");
     expect(getCellRawContent(model, "C2")).toBe("c1");
     expect(getCellRawContent(model, "D2")).toBe("d1");
   });
 
-  test("raise error if copied zone contains merged cells", () => {
-    setCellContent(model, "A1", "a1");
-    merge(model, "A2:A3");
-    setSelection(model, ["A1:A3"]);
+  test("raise error if copied zone contains merged cells", async () => {
+    await setCellContent(model, "A1", "a1");
+    await merge(model, "A2:A3");
+    await setSelection(model, ["A1:A3"]);
     handleCopyPasteResult(env, { type: "COPY_PASTE_CELLS_ON_ZONE" });
     const notificationStore = env.getStore(NotificationStore);
     expect(notificationStore.raiseError).toHaveBeenCalled();
   });
 
   test("can copy and paste cell(s) on left using CTRL+R", async () => {
-    setCellContent(model, "A2", "a2");
-    setCellContent(model, "B2", "b2");
-    selectCell(model, "B2");
+    await setCellContent(model, "A2", "a2");
+    await setCellContent(model, "B2", "b2");
+    await selectCell(model, "B2");
     await keyDown({ key: "R", ctrlKey: true });
     expect(getCellRawContent(model, "B2")).toBe("a2");
 
-    setCellContent(model, "A3", "a3");
-    setCellContent(model, "A4", "a4");
-    setSelection(model, ["B2:B4"]);
+    await setCellContent(model, "A3", "a3");
+    await setCellContent(model, "A4", "a4");
+    await setSelection(model, ["B2:B4"]);
     await keyDown({ key: "R", ctrlKey: true });
     expect(getCellRawContent(model, "B2")).toBe("a2");
     expect(getCellRawContent(model, "B3")).toBe("a3");
@@ -2092,8 +2092,8 @@ describe("Copy paste keyboard shortcut", () => {
   });
 
   test("can copy and paste cell(s) on zone using CTRL+ENTER", async () => {
-    setCellContent(model, "A1", "a1");
-    setSelection(model, ["A1:B2"]);
+    await setCellContent(model, "A1", "a1");
+    await setSelection(model, ["A1:B2"]);
     await keyDown({ key: "Enter", ctrlKey: true });
     expect(getCellRawContent(model, "A1")).toBe("a1");
     expect(getCellRawContent(model, "A2")).toBe("a1");
@@ -2102,7 +2102,7 @@ describe("Copy paste keyboard shortcut", () => {
   });
 
   test("Alt+T -> Table", async () => {
-    setSelection(model, ["A1:A5"]);
+    await setSelection(model, ["A1:A5"]);
     await keyDown({ key: "T", altKey: true });
     expect(model.getters.getTable({ sheetId, row: 0, col: 0 })).toMatchObject({
       range: { zone: toZone("A1:A5") },
@@ -2110,31 +2110,31 @@ describe("Copy paste keyboard shortcut", () => {
   });
 
   test("Clipboard visible zones (copy) will be cleaned after hitting esc", async () => {
-    setCellContent(model, "A1", "things");
-    selectCell(model, "A1");
-    copy(model, "A1");
-    selectCell(model, "A2");
+    await setCellContent(model, "A1", "things");
+    await selectCell(model, "A1");
+    await copy(model, "A1");
+    await selectCell(model, "A2");
     expect(getClipboardVisibleZones(model).length).toBe(1);
     await keyDown({ key: "Escape" });
     expect(getClipboardVisibleZones(model).length).toBe(0);
   });
 
   test("Clipboard visible zones (cut) will be cleaned after hitting esc", async () => {
-    setCellContent(model, "A1", "things");
-    selectCell(model, "A1");
-    cut(model, "A1");
-    selectCell(model, "A2");
+    await setCellContent(model, "A1", "things");
+    await selectCell(model, "A1");
+    await cut(model, "A1");
+    await selectCell(model, "A2");
     expect(getClipboardVisibleZones(model).length).toBe(1);
     await keyDown({ key: "Escape" });
     expect(getClipboardVisibleZones(model).length).toBe(0);
   });
 
   test("When there is a opened cell popover, hitting esc key will only close the popover and not clean the clipboard visible zones", async () => {
-    setCellContent(model, "A1", "things");
-    createTableWithFilter(model, "A1:A2");
-    selectCell(model, "A1");
-    copy(model, "A1");
-    selectCell(model, "A2");
+    await setCellContent(model, "A1", "things");
+    await createTableWithFilter(model, "A1:A2");
+    await selectCell(model, "A1");
+    await copy(model, "A1");
+    await selectCell(model, "A2");
     await nextTick();
     await clickGridIcon(model, "A1");
     expect(fixture.querySelectorAll(".o-filter-menu")).toHaveLength(1);
@@ -2148,8 +2148,8 @@ describe("Copy paste keyboard shortcut", () => {
   });
 
   test("When there is a opened context menu, hitting esc key will only close the menu and not clean the clipboard visible zones", async () => {
-    setCellContent(model, "A1", "things");
-    copy(model, "A1");
+    await setCellContent(model, "A1", "things");
+    await copy(model, "A1");
     await rightClickCell(model, "A2");
     expect(fixture.querySelectorAll(".o-menu")).toHaveLength(1);
     expect(getClipboardVisibleZones(model).length).toBe(1);
@@ -2162,9 +2162,9 @@ describe("Copy paste keyboard shortcut", () => {
   });
 
   test("Can copy/paste chart", async () => {
-    selectCell(model, "A1");
-    createChart(model, { type: "bar" }, "chartId", undefined, { figureId: "figureId" });
-    selectFigure(model, "figureId");
+    await selectCell(model, "A1");
+    await createChart(model, { type: "bar" }, "chartId", undefined, { figureId: "figureId" });
+    await selectFigure(model, "figureId");
     document.body.dispatchEvent(getClipboardEvent("copy", clipboardData));
     await nextTick();
     const clipboard = await parent.env.clipboard.read!();
@@ -2181,9 +2181,9 @@ describe("Copy paste keyboard shortcut", () => {
   });
 
   test("Can cut/paste chart", async () => {
-    selectCell(model, "A1");
-    createChart(model, { type: "bar" }, "chartId", undefined, { figureId: "figureId" });
-    selectFigure(model, "figureId");
+    await selectCell(model, "A1");
+    await createChart(model, { type: "bar" }, "chartId", undefined, { figureId: "figureId" });
+    await selectFigure(model, "figureId");
     document.body.dispatchEvent(getClipboardEvent("cut", clipboardData));
     await nextTick();
     const clipboard = await parent.env.clipboard.read!();
@@ -2205,9 +2205,9 @@ describe("Copy paste keyboard shortcut", () => {
     "%s a chart doesn't  push it in the clipboard",
     async (operation) => {
       mockChart();
-      selectCell(model, "A1");
-      createChart(model, { type: "bar" }, "chartId", undefined, { figureId: "figId" });
-      selectFigure(model, "figId");
+      await selectCell(model, "A1");
+      await createChart(model, { type: "bar" }, "chartId", undefined, { figureId: "figId" });
+      await selectFigure(model, "figId");
       document.body.dispatchEvent(getClipboardEvent(operation, clipboardData));
       await nextTick();
       const clipboard = await parent.env.clipboard.read!();
@@ -2233,9 +2233,9 @@ describe("Copy paste keyboard shortcut", () => {
   test.each<"cut" | "copy">(["copy", "cut"])(
     "%s an image pushes it in the clipboard as attachment",
     async (operation) => {
-      selectCell(model, "A1");
-      createImage(model, { figureId: "imageId" });
-      selectFigure(model, "imageId");
+      await selectCell(model, "A1");
+      await createImage(model, { figureId: "imageId" });
+      await selectFigure(model, "imageId");
       document.body.dispatchEvent(getClipboardEvent(operation, clipboardData));
       await nextTick();
       // copying to the clipboard might take more than one tick
@@ -2271,7 +2271,7 @@ describe("Copy paste keyboard shortcut", () => {
   test("Paste an image from the clipboard uploads it on the server and adds it to the sheet", async () => {
     const image = new File(["image"], "image.png", { type: "image/png" });
     clipboardData.setData("image/png", image);
-    selectCell(model, "A1");
+    await selectCell(model, "A1");
     document.body.dispatchEvent(getClipboardEvent("paste", clipboardData));
     await nextTick();
     const figures = model.getters.getFigures(sheetId);
@@ -2284,7 +2284,7 @@ describe("Copy paste keyboard shortcut", () => {
     const image = new File(["image"], "image.png", { type: "image/png" });
     clipboardData.setData("image/png", image);
     clipboardData.setData(ClipboardMIMEType.PlainText, "Hi !");
-    selectCell(model, "A1");
+    await selectCell(model, "A1");
     document.body.dispatchEvent(getClipboardEvent("paste", clipboardData));
     await nextTick();
 
@@ -2303,7 +2303,7 @@ describe("Header grouping shortcuts", () => {
 
   describe.each(["COL", "ROW"] as const)("With selected header", (dimension) => {
     test("ALT+SHIFT+ARROWRIGHT: group selected header", async () => {
-      selectHeader(model, dimension, 1, "overrideSelection");
+      await selectHeader(model, dimension, 1, "overrideSelection");
       await keyDown({ key: "ArrowRight", altKey: true, shiftKey: true });
       expect(model.getters.getHeaderGroups(sheetId, dimension)).toMatchObject([
         { start: 1, end: 1 },
@@ -2311,23 +2311,23 @@ describe("Header grouping shortcuts", () => {
     });
 
     test("ALT+SHIFT+ARROWLEFT: ungroup selected header", async () => {
-      groupHeaders(model, dimension, 1, 1);
-      selectHeader(model, dimension, 1, "overrideSelection");
+      await groupHeaders(model, dimension, 1, 1);
+      await selectHeader(model, dimension, 1, "overrideSelection");
       await keyDown({ key: "ArrowLeft", altKey: true, shiftKey: true });
       expect(model.getters.getHeaderGroups(sheetId, dimension)).toMatchObject([]);
     });
 
     test("ALT+SHIFT+ARROWUP: fold selected header", async () => {
-      groupHeaders(model, dimension, 1, 1);
-      selectHeader(model, dimension, 1, "overrideSelection");
+      await groupHeaders(model, dimension, 1, 1);
+      await selectHeader(model, dimension, 1, "overrideSelection");
       await keyDown({ key: "ArrowUp", altKey: true, shiftKey: true });
       expect(model.getters.isGroupFolded(sheetId, dimension, 1, 1)).toBe(true);
     });
 
     test("ALT+SHIFT+ARROWDOWN: unfold selected header", async () => {
-      groupHeaders(model, dimension, 1, 1);
-      foldHeaderGroup(model, dimension, 1, 1);
-      selectHeader(model, dimension, 1, "overrideSelection");
+      await groupHeaders(model, dimension, 1, 1);
+      await foldHeaderGroup(model, dimension, 1, 1);
+      await selectHeader(model, dimension, 1, "overrideSelection");
       await keyDown({ key: "ArrowDown", altKey: true, shiftKey: true });
       expect(model.getters.isGroupFolded(sheetId, dimension, 1, 1)).toBe(false);
     });
@@ -2335,7 +2335,7 @@ describe("Header grouping shortcuts", () => {
 
   describe("With selected zone ", () => {
     test("ALT+SHIFT+ARROWRIGHT: open group context menu", async () => {
-      setSelection(model, ["A1:B2"]);
+      await setSelection(model, ["A1:B2"]);
       await keyDown({ key: "ArrowRight", altKey: true, shiftKey: true });
       await nextTick();
       expect(fixture.querySelectorAll(".o-menu")).toHaveLength(1);
@@ -2344,9 +2344,9 @@ describe("Header grouping shortcuts", () => {
     });
 
     test("ALT+SHIFT+ARROWLEFT: open ungroup context menu", async () => {
-      setSelection(model, ["A1:B2"]);
-      groupHeaders(model, "COL", 1, 2);
-      groupHeaders(model, "ROW", 1, 2);
+      await setSelection(model, ["A1:B2"]);
+      await groupHeaders(model, "COL", 1, 2);
+      await groupHeaders(model, "ROW", 1, 2);
       await keyDown({ key: "ArrowLeft", altKey: true, shiftKey: true });
       await nextTick();
       expect(fixture.querySelectorAll(".o-menu")).toHaveLength(1);
@@ -2355,20 +2355,20 @@ describe("Header grouping shortcuts", () => {
     });
 
     test("ALT+SHIFT+ARROWUP: fold column and row groups", async () => {
-      setSelection(model, ["A1:B2"]);
-      groupHeaders(model, "COL", 1, 2);
-      groupHeaders(model, "ROW", 1, 2);
+      await setSelection(model, ["A1:B2"]);
+      await groupHeaders(model, "COL", 1, 2);
+      await groupHeaders(model, "ROW", 1, 2);
       await keyDown({ key: "ArrowUp", altKey: true, shiftKey: true });
       expect(model.getters.isGroupFolded(sheetId, "COL", 1, 2)).toBe(true);
       expect(model.getters.isGroupFolded(sheetId, "ROW", 1, 2)).toBe(true);
     });
 
     test("ALT+SHIFT+ARROWDOWN: unfold column and row groups", async () => {
-      setSelection(model, ["A1:B2"]);
-      groupHeaders(model, "COL", 1, 2);
-      groupHeaders(model, "ROW", 1, 2);
-      foldHeaderGroup(model, "COL", 1, 2);
-      foldHeaderGroup(model, "ROW", 1, 2);
+      await setSelection(model, ["A1:B2"]);
+      await groupHeaders(model, "COL", 1, 2);
+      await groupHeaders(model, "ROW", 1, 2);
+      await foldHeaderGroup(model, "COL", 1, 2);
+      await foldHeaderGroup(model, "ROW", 1, 2);
       await keyDown({ key: "ArrowDown", altKey: true, shiftKey: true });
       expect(model.getters.isGroupFolded(sheetId, "COL", 1, 2)).toBe(false);
       expect(model.getters.isGroupFolded(sheetId, "ROW", 1, 2)).toBe(false);
@@ -2376,14 +2376,14 @@ describe("Header grouping shortcuts", () => {
   });
 
   describe("With the whole sheet selected", () => {
-    beforeEach(() => {
+    beforeEach(async () => {
       const sheetSize = model.getters.getSheetZone(sheetId);
-      setSelection(model, [zoneToXc(sheetSize)]);
+      await setSelection(model, [zoneToXc(sheetSize)]);
     });
 
     test("ALT+SHIFT+ARROWUP: fold all groups", async () => {
-      groupHeaders(model, "COL", 1, 2);
-      groupHeaders(model, "ROW", 1, 2);
+      await groupHeaders(model, "COL", 1, 2);
+      await groupHeaders(model, "ROW", 1, 2);
 
       await keyDown({ key: "ArrowUp", altKey: true, shiftKey: true });
       expect(model.getters.isGroupFolded(sheetId, "COL", 1, 2)).toBe(true);
@@ -2391,10 +2391,10 @@ describe("Header grouping shortcuts", () => {
     });
 
     test("ALT+SHIFT+ARROWDOWN: unfold all groups", async () => {
-      groupHeaders(model, "COL", 1, 2);
-      groupHeaders(model, "ROW", 1, 2);
-      foldHeaderGroup(model, "COL", 1, 2);
-      foldHeaderGroup(model, "ROW", 1, 2);
+      await groupHeaders(model, "COL", 1, 2);
+      await groupHeaders(model, "ROW", 1, 2);
+      await foldHeaderGroup(model, "COL", 1, 2);
+      await foldHeaderGroup(model, "ROW", 1, 2);
 
       await keyDown({ key: "ArrowDown", altKey: true, shiftKey: true });
       expect(model.getters.isGroupFolded(sheetId, "COL", 1, 2)).toBe(false);

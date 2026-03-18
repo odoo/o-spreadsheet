@@ -45,72 +45,72 @@ describe("evaluate formulas that use/return an array", () => {
     });
   });
 
-  test("a simple reference to a range cannot return an array", () => {
-    setCellContent(model, "A1", "=B2:B3");
-    setCellContent(model, "B2", "Hi");
-    setCellContent(model, "B3", "Hello");
+  test("a simple reference to a range cannot return an array", async () => {
+    await setCellContent(model, "A1", "=B2:B3");
+    await setCellContent(model, "B2", "Hi");
+    await setCellContent(model, "B3", "Hello");
     expect(getEvaluatedCell(model, "A1").value).toBe("Hi");
     expect(getEvaluatedCell(model, "A2").value).toBe("Hello");
   });
 
-  test("can spread array", () => {
-    setCellContent(model, "A1", "=MFILL(2, 2, 42)");
+  test("can spread array", async () => {
+    await setCellContent(model, "A1", "=MFILL(2, 2, 42)");
     expect(getEvaluatedCell(model, "A1").value).toBe(42);
     expect(getEvaluatedCell(model, "A2").value).toBe(42);
     expect(getEvaluatedCell(model, "B1").value).toBe(42);
     expect(getEvaluatedCell(model, "B2").value).toBe(42);
   });
 
-  test("can use result array in formula that accept array", () => {
-    setCellContent(model, "A1", "=SUM(MFILL(2, 2, 42))");
+  test("can use result array in formula that accept array", async () => {
+    await setCellContent(model, "A1", "=SUM(MFILL(2, 2, 42))");
     expect(getEvaluatedCell(model, "A1").value).toBe(168);
   });
 
-  test("can reference spilled range with spill operator", () => {
-    setCellContent(model, "A1", "=MFILL(2, 2, 5)");
-    setCellContent(model, "D1", "=SUM(A1#)");
+  test("can reference spilled range with spill operator", async () => {
+    await setCellContent(model, "A1", "=MFILL(2, 2, 5)");
+    await setCellContent(model, "D1", "=SUM(A1#)");
     expect(getEvaluatedCell(model, "D1").value).toBe(20);
   });
 
-  test("can use result array in formula that accept scalar only (vectorization)", () => {
-    setCellContent(model, "A1", "=ABS(MFILL(2, 2, -42))");
+  test("can use result array in formula that accept scalar only (vectorization)", async () => {
+    await setCellContent(model, "A1", "=ABS(MFILL(2, 2, -42))");
     expect(getEvaluatedCell(model, "A1").value).toBe(42);
     expect(getEvaluatedCell(model, "A2").value).toBe(42);
     expect(getEvaluatedCell(model, "B1").value).toBe(42);
     expect(getEvaluatedCell(model, "B2").value).toBe(42);
   });
 
-  test("can use 1x1 result array in formula that accept scalar", () => {
-    setCellContent(model, "A1", "=ABS(MFILL(1, 1, -42))");
+  test("can use 1x1 result array in formula that accept scalar", async () => {
+    await setCellContent(model, "A1", "=ABS(MFILL(1, 1, -42))");
     expect(getEvaluatedCell(model, "A1").value).toBe(42);
   });
 
-  test("reference to a formula result array is possible", () => {
-    setCellContent(model, "E5", "=B2");
-    setCellContent(model, "A1", "=MFILL(3,3,42)");
-    setCellContent(model, "D4", "=C3");
+  test("reference to a formula result array is possible", async () => {
+    await setCellContent(model, "E5", "=B2");
+    await setCellContent(model, "A1", "=MFILL(3,3,42)");
+    await setCellContent(model, "D4", "=C3");
     expect(getEvaluatedCell(model, "E5").value).toBe(42);
     expect(getEvaluatedCell(model, "D4").value).toBe(42);
   });
 
-  test("reference to a formula result array is null when removing the array formula", () => {
-    setCellContent(model, "E5", "=B2");
-    setCellContent(model, "A1", "=MFILL(3,3,42)");
-    setCellContent(model, "D4", "=C3");
-    setCellContent(model, "A1", "");
+  test("reference to a formula result array is null when removing the array formula", async () => {
+    await setCellContent(model, "E5", "=B2");
+    await setCellContent(model, "A1", "=MFILL(3,3,42)");
+    await setCellContent(model, "D4", "=C3");
+    await setCellContent(model, "A1", "");
     expect(getEvaluatedCell(model, "E5").value).toBe(0);
     expect(getEvaluatedCell(model, "D4").value).toBe(0);
   });
 
-  test("can spread array with errors", () => {
-    setCellContent(model, "A1", "42");
-    setCellContent(model, "A2", "=SQRT(-1)");
-    setCellContent(model, "B1", "=TRANSPOSE(A1:A2)");
+  test("can spread array with errors", async () => {
+    await setCellContent(model, "A1", "42");
+    await setCellContent(model, "A2", "=SQRT(-1)");
+    await setCellContent(model, "B1", "=TRANSPOSE(A1:A2)");
     expect(getEvaluatedCell(model, "B1").value).toBe(42);
     expect(getEvaluatedCell(model, "C1").value).toBe("#ERROR");
   });
 
-  test("can interpolate function name when error is returned", () => {
+  test("can interpolate function name when error is returned", async () => {
     addToRegistry(functionRegistry, "GETERR", {
       description: "Get error",
       compute: () => {
@@ -122,36 +122,36 @@ describe("evaluate formulas that use/return an array", () => {
       },
       args: [],
     });
-    setCellContent(model, "A1", "=GETERR()");
+    await setCellContent(model, "A1", "=GETERR()");
     expect((getEvaluatedCell(model, "A2") as ErrorCell).message).toBe("Function GETERR failed");
   });
 
-  test("delete blocking content spills the result", () => {
-    setCellContent(model, "A1", "=MFILL(3,3, 42)");
-    setCellContent(model, "A2", "coucou");
+  test("delete blocking content spills the result", async () => {
+    await setCellContent(model, "A1", "=MFILL(3,3, 42)");
+    await setCellContent(model, "A2", "coucou");
     expect(getEvaluatedCell(model, "A1").value).toBe("#SPILL!");
 
-    addColumns(model, "before", "A", 1); // this forces a full re-evaluation
-    deleteContent(model, ["B2"]);
+    await addColumns(model, "before", "A", 1); // this forces a full re-evaluation
+    await deleteContent(model, ["B2"]);
     expect(getEvaluatedCell(model, "B1").value).toBe(42);
   });
 
-  test("1x1 matrix do not have any spreading relation", () => {
-    setCellContent(model, "A1", "=MUNIT(1)");
+  test("1x1 matrix do not have any spreading relation", async () => {
+    await setCellContent(model, "A1", "=MUNIT(1)");
     const positionA1 = model.getters.getActivePosition();
     expect(model.getters.getArrayFormulaSpreadingOn(positionA1)).not.toBeDefined();
   });
 
-  test("Spreading relations are properly cleared upon cell content change", () => {
-    setCellContent(model, "A1", "=MUNIT(2)");
+  test("Spreading relations are properly cleared upon cell content change", async () => {
+    await setCellContent(model, "A1", "=MUNIT(2)");
     const positionA1 = model.getters.getActivePosition();
     expect(model.getters.getArrayFormulaSpreadingOn(positionA1)).toBeDefined();
-    setCellContent(model, "A1", "42");
+    await setCellContent(model, "A1", "42");
     expect(model.getters.getArrayFormulaSpreadingOn(positionA1)).not.toBeDefined();
   });
 
   describe("spread matrix with format", () => {
-    test("can spread matrix of values with matrix of format", () => {
+    test("can spread matrix of values with matrix of format", async () => {
       addToRegistry(functionRegistry, "MATRIX.2.2", {
         description: "Return an 2*2 matrix with some values",
         args: [],
@@ -163,8 +163,8 @@ describe("evaluate formulas that use/return an array", () => {
         },
       });
 
-      setFormat(model, "A1:A2", "0%");
-      setCellContent(model, "A1", "=MATRIX.2.2()");
+      await setFormat(model, "A1:A2", "0%");
+      await setCellContent(model, "A1", "=MATRIX.2.2()");
 
       expect(getCellContent(model, "A1")).toBe("100%");
       expect(getCellContent(model, "A2")).toBe("200%");
@@ -173,7 +173,7 @@ describe("evaluate formulas that use/return an array", () => {
       expect(getCellContent(model, "B2")).toBe("4");
     });
 
-    test("can spread matrix of format depending on matrix of format", () => {
+    test("can spread matrix of format depending on matrix of format", async () => {
       addToRegistry(functionRegistry, "MATRIX", {
         description: "Return the matrix passed as argument",
         args: [arg("matrix (range<number>)", "a matrix")],
@@ -182,18 +182,18 @@ describe("evaluate formulas that use/return an array", () => {
         },
       });
 
-      setCellContent(model, "A1", "42");
-      setCellContent(model, "A2", "24");
+      await setCellContent(model, "A1", "42");
+      await setCellContent(model, "A2", "24");
 
-      setFormat(model, "A1", "0%");
-      setFormat(model, "A2", "0.00");
+      await setFormat(model, "A1", "0%");
+      await setFormat(model, "A2", "0.00");
 
-      setCellContent(model, "B1", "=MATRIX(A1:A2)");
+      await setCellContent(model, "B1", "=MATRIX(A1:A2)");
 
       expect(getCellContent(model, "B1")).toBe("4200%");
       expect(getCellContent(model, "B2")).toBe("24.00");
 
-      setCellContent(model, "C1", "=MATRIX(B1:B2)");
+      await setCellContent(model, "C1", "=MATRIX(B1:B2)");
 
       expect(getCellContent(model, "C1")).toBe("4200%");
       expect(getCellContent(model, "C2")).toBe("24.00");
@@ -201,77 +201,77 @@ describe("evaluate formulas that use/return an array", () => {
   });
 
   describe("cut/past reference", () => {
-    test("reference to a spread is keep when we cut/past the spread formula", () => {
-      setCellContent(model, "A1", "=MFILL(2,2,42)");
-      setCellContent(model, "A3", "=B2");
+    test("reference to a spread is keep when we cut/past the spread formula", async () => {
+      await setCellContent(model, "A1", "=MFILL(2,2,42)");
+      await setCellContent(model, "A3", "=B2");
       expect(getEvaluatedCell(model, "A3").value).toBe(42);
-      cut(model, "A1:B2");
-      paste(model, "C1");
+      await cut(model, "A1:B2");
+      await paste(model, "C1");
       expect(getEvaluatedCell(model, "A3").value).toBe(42);
-      setCellContent(model, "C1", "=MFILL(2,2,24)");
+      await setCellContent(model, "C1", "=MFILL(2,2,24)");
       expect(getEvaluatedCell(model, "A3").value).toBe(24);
     });
 
-    test("references to a spread are keep when we cut/past the spread formula", () => {
-      setCellContent(model, "A1", "=MFILL(2,2,42)");
-      setCellContent(model, "A3", "=TRANSPOSE(A1:B2)");
+    test("references to a spread are keep when we cut/past the spread formula", async () => {
+      await setCellContent(model, "A1", "=MFILL(2,2,42)");
+      await setCellContent(model, "A3", "=TRANSPOSE(A1:B2)");
       expect(getEvaluatedCell(model, "A3").value).toBe(42);
       expect(getEvaluatedCell(model, "B4").value).toBe(42);
-      cut(model, "A1:B2");
-      paste(model, "C1");
+      await cut(model, "A1:B2");
+      await paste(model, "C1");
       expect(getEvaluatedCell(model, "A3").value).toBe(42);
       expect(getEvaluatedCell(model, "B4").value).toBe(42);
-      setCellContent(model, "C1", "=MFILL(2,2,24)");
+      await setCellContent(model, "C1", "=MFILL(2,2,24)");
       expect(getEvaluatedCell(model, "A3").value).toBe(24);
       expect(getEvaluatedCell(model, "B4").value).toBe(24);
     });
 
-    test("reference to a spread is keep when we cut/past the reference", () => {
-      setCellContent(model, "A1", "=MFILL(2,2,42)");
-      setCellContent(model, "A3", "=B2");
+    test("reference to a spread is keep when we cut/past the reference", async () => {
+      await setCellContent(model, "A1", "=MFILL(2,2,42)");
+      await setCellContent(model, "A3", "=B2");
       expect(getEvaluatedCell(model, "A3").value).toBe(42);
-      cut(model, "A3");
-      paste(model, "C3");
+      await cut(model, "A3");
+      await paste(model, "C3");
       expect(getEvaluatedCell(model, "C3").value).toBe(42);
-      setCellContent(model, "A1", "=MFILL(2,2,24)");
+      await setCellContent(model, "A1", "=MFILL(2,2,24)");
       expect(getEvaluatedCell(model, "C3").value).toBe(24);
     });
 
-    test("references to a spread are keep when we cut/past the references", () => {
-      setCellContent(model, "A1", "=MFILL(2,2,42)");
-      setCellContent(model, "A3", "=TRANSPOSE(A1:B2)");
+    test("references to a spread are keep when we cut/past the references", async () => {
+      await setCellContent(model, "A1", "=MFILL(2,2,42)");
+      await setCellContent(model, "A3", "=TRANSPOSE(A1:B2)");
       expect(getEvaluatedCell(model, "A3").value).toBe(42);
       expect(getEvaluatedCell(model, "B4").value).toBe(42);
-      cut(model, "A3:B4");
-      paste(model, "C3");
+      await cut(model, "A3:B4");
+      await paste(model, "C3");
       expect(getEvaluatedCell(model, "C3").value).toBe(42);
       expect(getEvaluatedCell(model, "D4").value).toBe(42);
-      setCellContent(model, "A1", "=MFILL(2,2,24)");
+      await setCellContent(model, "A1", "=MFILL(2,2,24)");
       expect(getEvaluatedCell(model, "C3").value).toBe(24);
       expect(getEvaluatedCell(model, "D4").value).toBe(24);
     });
   });
 
   describe("result array can collides with other cell", () => {
-    test("throw error on the formula when collide with cell having content", () => {
-      setCellContent(model, "B2", "kikou");
-      setCellContent(model, "A1", "=MFILL(2,2, 42)");
+    test("throw error on the formula when collide with cell having content", async () => {
+      await setCellContent(model, "B2", "kikou");
+      await setCellContent(model, "A1", "=MFILL(2,2, 42)");
       expect(getEvaluatedCell(model, "A1").value).toBe("#SPILL!");
       expect(getCellError(model, "A1")).toBe(
         "Array result was not expanded because it would overwrite data in B2."
       );
 
-      setCellContent(model, "A4", "kikou");
-      setCellContent(model, "A3", "=MFILL(2,2, 42)");
+      await setCellContent(model, "A4", "kikou");
+      await setCellContent(model, "A3", "=MFILL(2,2, 42)");
       expect(getEvaluatedCell(model, "A3").value).toBe("#SPILL!");
       expect(getCellError(model, "A3")).toBe(
         "Array result was not expanded because it would overwrite data in A4."
       );
     });
 
-    test("throw error on the formula when collide with other formula ", () => {
-      setCellContent(model, "B2", "=SUM(42+24)");
-      setCellContent(model, "A1", "=MFILL(2,2, 42)");
+    test("throw error on the formula when collide with other formula ", async () => {
+      await setCellContent(model, "B2", "=SUM(42+24)");
+      await setCellContent(model, "A1", "=MFILL(2,2, 42)");
       expect(getEvaluatedCell(model, "A1").value).toBe("#SPILL!");
       expect(getCellError(model, "A1")).toBe(
         "Array result was not expanded because it would overwrite data in B2."
@@ -281,20 +281,20 @@ describe("evaluate formulas that use/return an array", () => {
       expect(getEvaluatedCell(model, "B2").value).toBe(66);
     });
 
-    test("throw error message concerning the first cell encountered vertically", () => {
-      setCellContent(model, "A1", "=MFILL(1,3, 42)");
-      setCellContent(model, "A2", "kikou");
-      setCellContent(model, "A3", "kikou");
+    test("throw error message concerning the first cell encountered vertically", async () => {
+      await setCellContent(model, "A1", "=MFILL(1,3, 42)");
+      await setCellContent(model, "A2", "kikou");
+      await setCellContent(model, "A3", "kikou");
       expect(getEvaluatedCell(model, "A1").value).toBe("#SPILL!");
       expect(getCellError(model, "A1")).toBe(
         "Array result was not expanded because it would overwrite data in A2."
       );
     });
 
-    test("throw error message concerning the first cell encountered horizontally", () => {
-      setCellContent(model, "A1", "=MFILL(3,1, 42)");
-      setCellContent(model, "B1", "kikou");
-      setCellContent(model, "C1", "kikou");
+    test("throw error message concerning the first cell encountered horizontally", async () => {
+      await setCellContent(model, "A1", "=MFILL(3,1, 42)");
+      await setCellContent(model, "B1", "kikou");
+      await setCellContent(model, "C1", "kikou");
       expect(getEvaluatedCell(model, "A1").value).toBe("#SPILL!");
       expect(getCellError(model, "A1")).toBe(
         "Array result was not expanded because it would overwrite data in B1."
@@ -302,27 +302,27 @@ describe("evaluate formulas that use/return an array", () => {
     });
 
     describe("do not spread result when collide", () => {
-      test("write collision first", () => {
-        setCellContent(model, "B2", "kikou");
-        setCellContent(model, "A1", "=MFILL(2,2, 42)");
+      test("write collision first", async () => {
+        await setCellContent(model, "B2", "kikou");
+        await setCellContent(model, "A1", "=MFILL(2,2, 42)");
         expect(getEvaluatedCell(model, "A2").value).toBe(null);
         expect(getEvaluatedCell(model, "B1").value).toBe(null);
         expect(getEvaluatedCell(model, "B2").value).toBe("kikou");
       });
 
-      test("write formula first", () => {
-        setCellContent(model, "A1", "=MFILL(2,2, 42)");
-        setCellContent(model, "B2", "kikou");
+      test("write formula first", async () => {
+        await setCellContent(model, "A1", "=MFILL(2,2, 42)");
+        await setCellContent(model, "B2", "kikou");
         expect(getEvaluatedCell(model, "A2").value).toBe(null);
         expect(getEvaluatedCell(model, "B1").value).toBe(null);
         expect(getEvaluatedCell(model, "B2").value).toBe("kikou");
       });
 
-      test("do not spread result when collision removed then added again", () => {
-        setCellContent(model, "A1", "=MFILL(2,2, 42)");
-        setCellContent(model, "B2", "kikou");
-        setCellContent(model, "B2", "");
-        setCellContent(model, "B2", "kikou");
+      test("do not spread result when collision removed then added again", async () => {
+        await setCellContent(model, "A1", "=MFILL(2,2, 42)");
+        await setCellContent(model, "B2", "kikou");
+        await setCellContent(model, "B2", "");
+        await setCellContent(model, "B2", "kikou");
         expect(getEvaluatedCell(model, "A2").value).toBe(null);
         expect(getEvaluatedCell(model, "B1").value).toBe(null);
         expect(getEvaluatedCell(model, "B2").value).toBe("kikou");
@@ -330,20 +330,20 @@ describe("evaluate formulas that use/return an array", () => {
     });
 
     describe("spread result when remove collision", () => {
-      test("write collision first", () => {
-        setCellContent(model, "B2", "kikou");
-        setCellContent(model, "A1", "=MFILL(2,2, 42)");
-        setCellContent(model, "B2", "");
+      test("write collision first", async () => {
+        await setCellContent(model, "B2", "kikou");
+        await setCellContent(model, "A1", "=MFILL(2,2, 42)");
+        await setCellContent(model, "B2", "");
         expect(getEvaluatedCell(model, "A1").value).toBe(42);
         expect(getEvaluatedCell(model, "A2").value).toBe(42);
         expect(getEvaluatedCell(model, "B1").value).toBe(42);
         expect(getEvaluatedCell(model, "B2").value).toBe(42);
       });
 
-      test("write formula first", () => {
-        setCellContent(model, "A1", "=MFILL(2,2, 42)");
-        setCellContent(model, "B2", "kikou");
-        setCellContent(model, "B2", "");
+      test("write formula first", async () => {
+        await setCellContent(model, "A1", "=MFILL(2,2, 42)");
+        await setCellContent(model, "B2", "kikou");
+        await setCellContent(model, "B2", "");
         expect(getEvaluatedCell(model, "A1").value).toBe(42);
         expect(getEvaluatedCell(model, "A2").value).toBe(42);
         expect(getEvaluatedCell(model, "B1").value).toBe(42);
@@ -352,22 +352,22 @@ describe("evaluate formulas that use/return an array", () => {
     });
 
     describe("spread result when remove several collision", () => {
-      test("write collision first", () => {
-        setCellContent(model, "B1", "kikou 1");
-        setCellContent(model, "B2", "kikou 2");
-        setCellContent(model, "A1", "=MFILL(2,2, 42)");
-        deleteContent(model, ["B1:B2"]);
+      test("write collision first", async () => {
+        await setCellContent(model, "B1", "kikou 1");
+        await setCellContent(model, "B2", "kikou 2");
+        await setCellContent(model, "A1", "=MFILL(2,2, 42)");
+        await deleteContent(model, ["B1:B2"]);
         expect(getEvaluatedCell(model, "A1").value).toBe(42);
         expect(getEvaluatedCell(model, "A2").value).toBe(42);
         expect(getEvaluatedCell(model, "B1").value).toBe(42);
         expect(getEvaluatedCell(model, "B2").value).toBe(42);
       });
 
-      test("write formula first", () => {
-        setCellContent(model, "A1", "=MFILL(2,2, 42)");
-        setCellContent(model, "B1", "kikou 1");
-        setCellContent(model, "B2", "kikou 2");
-        deleteContent(model, ["B1:B2"]);
+      test("write formula first", async () => {
+        await setCellContent(model, "A1", "=MFILL(2,2, 42)");
+        await setCellContent(model, "B1", "kikou 1");
+        await setCellContent(model, "B2", "kikou 2");
+        await deleteContent(model, ["B1:B2"]);
         expect(getEvaluatedCell(model, "A1").value).toBe(42);
         expect(getEvaluatedCell(model, "A2").value).toBe(42);
         expect(getEvaluatedCell(model, "B1").value).toBe(42);
@@ -376,20 +376,20 @@ describe("evaluate formulas that use/return an array", () => {
     });
 
     describe("keep collide when change collision", () => {
-      test("write collision first", () => {
-        setCellContent(model, "B2", "kikou");
-        setCellContent(model, "A1", "=MFILL(2,2, 42)");
-        setCellContent(model, "B2", "Aquecoucou");
+      test("write collision first", async () => {
+        await setCellContent(model, "B2", "kikou");
+        await setCellContent(model, "A1", "=MFILL(2,2, 42)");
+        await setCellContent(model, "B2", "Aquecoucou");
         expect(getEvaluatedCell(model, "A1").value).toBe("#SPILL!");
         expect(getEvaluatedCell(model, "A2").value).toBe(null);
         expect(getEvaluatedCell(model, "B1").value).toBe(null);
         expect(getEvaluatedCell(model, "B2").value).toBe("Aquecoucou");
       });
 
-      test("write formula first", () => {
-        setCellContent(model, "A1", "=MFILL(2,2, 42)");
-        setCellContent(model, "B2", "kikou");
-        setCellContent(model, "B2", "Aquecoucou");
+      test("write formula first", async () => {
+        await setCellContent(model, "A1", "=MFILL(2,2, 42)");
+        await setCellContent(model, "B2", "kikou");
+        await setCellContent(model, "B2", "Aquecoucou");
         expect(getEvaluatedCell(model, "A1").value).toBe("#SPILL!");
         expect(getEvaluatedCell(model, "A2").value).toBe(null);
         expect(getEvaluatedCell(model, "B1").value).toBe(null);
@@ -398,61 +398,61 @@ describe("evaluate formulas that use/return an array", () => {
     });
 
     describe("collision tests on several limit positions", () => {
-      test("limit located on the formula column", () => {
-        setCellContent(model, "A1", "=MFILL(3,3,42)");
-        setCellContent(model, "A4", "kikou");
+      test("limit located on the formula column", async () => {
+        await setCellContent(model, "A1", "=MFILL(3,3,42)");
+        await setCellContent(model, "A4", "kikou");
         expect(getEvaluatedCell(model, "A1").value).toBe(42);
 
-        setCellContent(model, "A3", "kikou");
+        await setCellContent(model, "A3", "kikou");
         expect(getEvaluatedCell(model, "A1").value).toBe("#SPILL!");
       });
 
-      test("limit located on the formula row", () => {
-        setCellContent(model, "A1", "=MFILL(3,3,42)");
-        setCellContent(model, "D1", "kikou");
+      test("limit located on the formula row", async () => {
+        await setCellContent(model, "A1", "=MFILL(3,3,42)");
+        await setCellContent(model, "D1", "kikou");
         expect(getEvaluatedCell(model, "A1").value).toBe(42);
 
-        setCellContent(model, "C1", "kikou");
+        await setCellContent(model, "C1", "kikou");
         expect(getEvaluatedCell(model, "A1").value).toBe("#SPILL!");
       });
 
-      test("limit located before the formula column", () => {
-        setCellContent(model, "B1", "=MFILL(3,3,42)");
-        setCellContent(model, "A3", "kikou");
+      test("limit located before the formula column", async () => {
+        await setCellContent(model, "B1", "=MFILL(3,3,42)");
+        await setCellContent(model, "A3", "kikou");
         expect(getEvaluatedCell(model, "B1").value).toBe(42);
       });
 
-      test("limit located before the formula row", () => {
-        setCellContent(model, "A2", "=MFILL(3,3,42)");
-        setCellContent(model, "C1", "kikou");
+      test("limit located before the formula row", async () => {
+        await setCellContent(model, "A2", "=MFILL(3,3,42)");
+        await setCellContent(model, "C1", "kikou");
         expect(getEvaluatedCell(model, "A2").value).toBe(42);
       });
 
-      test("limit located adter the formula column", () => {
-        setCellContent(model, "A1", "=MFILL(1,3,42)");
-        setCellContent(model, "B3", "kikou");
+      test("limit located adter the formula column", async () => {
+        await setCellContent(model, "A1", "=MFILL(1,3,42)");
+        await setCellContent(model, "B3", "kikou");
         expect(getEvaluatedCell(model, "A1").value).toBe(42);
 
-        setCellContent(model, "A1", "=MFILL(2,3,42)");
+        await setCellContent(model, "A1", "=MFILL(2,3,42)");
         expect(getEvaluatedCell(model, "A1").value).toBe("#SPILL!");
       });
 
-      test("limit located after the formula row", () => {
-        setCellContent(model, "A1", "=MFILL(1,3,42)");
-        setCellContent(model, "C2", "kikou");
+      test("limit located after the formula row", async () => {
+        await setCellContent(model, "A1", "=MFILL(1,3,42)");
+        await setCellContent(model, "C2", "kikou");
         expect(getEvaluatedCell(model, "A1").value).toBe(42);
 
-        setCellContent(model, "A1", "=MFILL(3,2,42)");
+        await setCellContent(model, "A1", "=MFILL(3,2,42)");
         expect(getEvaluatedCell(model, "A1").value).toBe("#SPILL!");
       });
 
-      test("multiple limit test", () => {
-        setCellContent(model, "A1", "=MFILL(5,3,42)");
-        setCellContent(model, "B4", "kikou");
+      test("multiple limit test", async () => {
+        await setCellContent(model, "A1", "=MFILL(5,3,42)");
+        await setCellContent(model, "B4", "kikou");
         expect(getEvaluatedCell(model, "A1").value).toBe(42);
-        setCellContent(model, "C5", "kikou");
+        await setCellContent(model, "C5", "kikou");
         expect(getEvaluatedCell(model, "A1").value).toBe(42);
-        setCellContent(model, "D3", "colision");
+        await setCellContent(model, "D3", "colision");
         expect(getEvaluatedCell(model, "A1").value).toBe("#SPILL!");
       });
     });
@@ -472,72 +472,72 @@ describe("evaluate formulas that use/return an array", () => {
       });
     });
 
-    test("throw error message concerning the column encountered horizontally", () => {
-      setCellContent(model, "B1", "=MFILL(3,3, 42)");
+    test("throw error message concerning the column encountered horizontally", async () => {
+      await setCellContent(model, "B1", "=MFILL(3,3, 42)");
       expect(getEvaluatedCell(model, "B1").value).toBe("#SPILL!");
       expect(getCellError(model, "B1")).toBe("Result couldn't be automatically expanded.");
     });
 
-    test("throw error message concerning the row encountered verticaly", () => {
-      setCellContent(model, "A2", "=MFILL(3,3, 42)");
+    test("throw error message concerning the row encountered verticaly", async () => {
+      await setCellContent(model, "A2", "=MFILL(3,3, 42)");
       expect(getEvaluatedCell(model, "A2").value).toBe("#SPILL!");
       expect(getCellError(model, "A2")).toBe("Result couldn't be automatically expanded.");
     });
 
-    test("throw error message concerning the row and column encountered", () => {
-      setCellContent(model, "B2", "=MFILL(3,3, 42)");
+    test("throw error message concerning the row and column encountered", async () => {
+      await setCellContent(model, "B2", "=MFILL(3,3, 42)");
       expect(getEvaluatedCell(model, "B2").value).toBe("#SPILL!");
       expect(getCellError(model, "B2")).toBe("Result couldn't be automatically expanded.");
     });
 
-    test("do not spread result when collide", () => {
-      setCellContent(model, "B2", "=MFILL(3,3, 42)");
+    test("do not spread result when collide", async () => {
+      await setCellContent(model, "B2", "=MFILL(3,3, 42)");
       expect(getEvaluatedCell(model, "B2").value).toBe("#SPILL!");
       expect(getEvaluatedCell(model, "B3").value).toBe(null);
       expect(getEvaluatedCell(model, "C2").value).toBe(null);
       expect(getEvaluatedCell(model, "C3").value).toBe(null);
     });
 
-    test("spread result when add columns", () => {
-      setCellContent(model, "C1", "=MFILL(3,3, 42)");
+    test("spread result when add columns", async () => {
+      await setCellContent(model, "C1", "=MFILL(3,3, 42)");
       expect(getEvaluatedCell(model, "C1").value).toBe("#SPILL!");
 
-      addColumns(model, "after", "C", 1);
+      await addColumns(model, "after", "C", 1);
       expect(getEvaluatedCell(model, "C1").value).toBe("#SPILL!");
 
-      addColumns(model, "after", "D", 1);
+      await addColumns(model, "after", "D", 1);
       expect(getEvaluatedCell(model, "C1").value).toBe(42);
       expect(getEvaluatedCell(model, "E3").value).toBe(42);
     });
 
-    test("spread result when add rows", () => {
-      setCellContent(model, "A3", "=MFILL(3,3, 42)");
+    test("spread result when add rows", async () => {
+      await setCellContent(model, "A3", "=MFILL(3,3, 42)");
       expect(getEvaluatedCell(model, "A3").value).toBe("#SPILL!");
 
-      addRows(model, "after", 2, 1);
+      await addRows(model, "after", 2, 1);
       expect(getEvaluatedCell(model, "A3").value).toBe("#SPILL!");
 
-      addRows(model, "after", 3, 1);
+      await addRows(model, "after", 3, 1);
       expect(getEvaluatedCell(model, "A3").value).toBe(42);
       expect(getEvaluatedCell(model, "C5").value).toBe(42);
     });
 
-    test("do not spread result when delete columns", () => {
-      setCellContent(model, "A1", "=MFILL(3,3, 42)");
+    test("do not spread result when delete columns", async () => {
+      await setCellContent(model, "A1", "=MFILL(3,3, 42)");
       expect(getEvaluatedCell(model, "A1").value).toBe(42);
       expect(getEvaluatedCell(model, "C3").value).toBe(42);
 
-      deleteColumns(model, ["B"]);
+      await deleteColumns(model, ["B"]);
       expect(getEvaluatedCell(model, "A1").value).toBe("#SPILL!");
       expect(getEvaluatedCell(model, "B1").value).toBe(null);
     });
 
-    test("do not spread result when delete rows", () => {
-      setCellContent(model, "A1", "=MFILL(3,3, 42)");
+    test("do not spread result when delete rows", async () => {
+      await setCellContent(model, "A1", "=MFILL(3,3, 42)");
       expect(getEvaluatedCell(model, "A1").value).toBe(42);
       expect(getEvaluatedCell(model, "C3").value).toBe(42);
 
-      deleteRows(model, [2]);
+      await deleteRows(model, [2]);
       expect(getEvaluatedCell(model, "A1").value).toBe("#SPILL!");
       expect(getEvaluatedCell(model, "A2").value).toBe(null);
     });
@@ -549,71 +549,71 @@ describe("evaluate formulas that use/return an array", () => {
     const result = 42;
 
     describe("regardless the position of the result array", () => {
-      test("reference located at the top/left of the result array", () => {
-        setCellContent(model, "A1", ref);
-        setCellContent(model, "B2", formula);
+      test("reference located at the top/left of the result array", async () => {
+        await setCellContent(model, "A1", ref);
+        await setCellContent(model, "B2", formula);
         expect(getEvaluatedCell(model, "A1").value).toBe(result);
       });
 
-      test("reference located at the top/right of the result array", () => {
-        setCellContent(model, "E1", ref);
-        setCellContent(model, "B2", formula);
+      test("reference located at the top/right of the result array", async () => {
+        await setCellContent(model, "E1", ref);
+        await setCellContent(model, "B2", formula);
         expect(getEvaluatedCell(model, "E1").value).toBe(result);
       });
 
-      test("reference located at the bottom/left of the result array", () => {
-        setCellContent(model, "A5", ref);
-        setCellContent(model, "B2", formula);
+      test("reference located at the bottom/left of the result array", async () => {
+        await setCellContent(model, "A5", ref);
+        await setCellContent(model, "B2", formula);
         expect(getEvaluatedCell(model, "A5").value).toBe(result);
       });
 
-      test("reference located at the bottom/right of the result array", () => {
-        setCellContent(model, "E5", ref);
-        setCellContent(model, "B2", formula);
+      test("reference located at the bottom/right of the result array", async () => {
+        await setCellContent(model, "E5", ref);
+        await setCellContent(model, "B2", formula);
         expect(getEvaluatedCell(model, "E5").value).toBe(result);
       });
     });
 
     describe("regardless the order we set the formulas", () => {
-      test("reference located at the top/left of the result array, set the formula ref first", () => {
-        setCellContent(model, "A1", ref);
-        setCellContent(model, "B2", formula);
+      test("reference located at the top/left of the result array, set the formula ref first", async () => {
+        await setCellContent(model, "A1", ref);
+        await setCellContent(model, "B2", formula);
         expect(getEvaluatedCell(model, "A1").value).toBe(result);
       });
 
-      test("reference located at the top/left of the result array, set the result array first", () => {
-        setCellContent(model, "B2", formula);
-        setCellContent(model, "A1", ref);
+      test("reference located at the top/left of the result array, set the result array first", async () => {
+        await setCellContent(model, "B2", formula);
+        await setCellContent(model, "A1", ref);
         expect(getEvaluatedCell(model, "A1").value).toBe(result);
       });
 
-      test("reference located at the bottom/right of the result array, set the formula ref first", () => {
-        setCellContent(model, "E5", ref);
-        setCellContent(model, "B2", formula);
+      test("reference located at the bottom/right of the result array, set the formula ref first", async () => {
+        await setCellContent(model, "E5", ref);
+        await setCellContent(model, "B2", formula);
         expect(getEvaluatedCell(model, "E5").value).toBe(result);
       });
 
-      test("reference located at the bottom/right of the result array, set the result array first", () => {
-        setCellContent(model, "B2", formula);
-        setCellContent(model, "E5", ref);
+      test("reference located at the bottom/right of the result array, set the result array first", async () => {
+        await setCellContent(model, "B2", formula);
+        await setCellContent(model, "E5", ref);
         expect(getEvaluatedCell(model, "E5").value).toBe(result);
       });
     });
   });
 
   describe("formula with spread dependencies", () => {
-    test("formula with own spread dependencies have only one cycle", () => {
-      setCellContent(model, "A1", "=MFILL(2,2,B1+1)");
+    test("formula with own spread dependencies have only one cycle", async () => {
+      await setCellContent(model, "A1", "=MFILL(2,2,B1+1)");
       expect(getEvaluatedCell(model, "A1").value).toBe(1);
       expect(getEvaluatedCell(model, "A2").value).toBe(1);
       expect(getEvaluatedCell(model, "B1").value).toBe(1);
       expect(getEvaluatedCell(model, "B2").value).toBe(1);
     });
 
-    test("formulas with cross spread dependencies depends on a cycle limit", () => {
+    test("formulas with cross spread dependencies depends on a cycle limit", async () => {
       const spy = jest.spyOn(console, "warn").mockImplementation(); // Avoid unwanted logs spam
-      setCellContent(model, "A1", "=MFILL(2,1,D1+1)");
-      setCellContent(model, "C1", "=MFILL(2,1,B1+1)");
+      await setCellContent(model, "A1", "=MFILL(2,1,D1+1)");
+      await setCellContent(model, "C1", "=MFILL(2,1,B1+1)");
       expect(getEvaluatedCell(model, "A1").value).toBe(31);
       expect(getEvaluatedCell(model, "B1").value).toBe(31);
       expect(getEvaluatedCell(model, "C1").value).toBe(30);
@@ -621,7 +621,7 @@ describe("evaluate formulas that use/return an array", () => {
       expect(spy).toHaveBeenCalledWith("Maximum iteration reached while evaluating cells");
     });
 
-    test("Spreaded formulas with range deps Do not invalidate themselves on evaluation", () => {
+    test("Spreaded formulas with range deps Do not invalidate themselves on evaluation", async () => {
       let c = 0;
       addToRegistry(functionRegistry, "INCREMENTONEVAL", {
         description: "returns the input, but fancy. Like transpose(transpose(range))",
@@ -632,15 +632,15 @@ describe("evaluate formulas that use/return an array", () => {
         },
         isExported: true,
       });
-      setCellContent(model, "A1", "0");
-      setCellContent(model, "A2", "1");
-      setCellContent(model, "A3", "2");
-      setCellContent(model, "A4", "3");
-      setCellContent(model, "A5", "=INCREMENTONEVAL(A2:A3)");
+      await setCellContent(model, "A1", "0");
+      await setCellContent(model, "A2", "1");
+      await setCellContent(model, "A3", "2");
+      await setCellContent(model, "A4", "3");
+      await setCellContent(model, "A5", "=INCREMENTONEVAL(A2:A3)");
       expect(c).toEqual(1);
-      setCellContent(model, "A5", "=INCREMENTONEVAL(A1:A2)");
+      await setCellContent(model, "A5", "=INCREMENTONEVAL(A1:A2)");
       expect(c).toEqual(2);
-      setCellContent(model, "A5", "=INCREMENTONEVAL(A1:B2)");
+      await setCellContent(model, "A5", "=INCREMENTONEVAL(A1:B2)");
       expect(c).toEqual(3);
     });
 
@@ -670,18 +670,18 @@ describe("evaluate formulas that use/return an array", () => {
 
     test("Formula depending on array formula is reevaluated when the array formula result changes", async () => {
       const model = await createModel();
-      setCellContent(model, "A1", "=sumifs(E4:E7,H4:H7,1)");
-      setCellContent(model, "C4", "=MUNIT(4)");
-      setCellContent(model, "H4", "=C4");
-      setCellContent(model, "H6", "=E6");
+      await setCellContent(model, "A1", "=sumifs(E4:E7,H4:H7,1)");
+      await setCellContent(model, "C4", "=MUNIT(4)");
+      await setCellContent(model, "H4", "=C4");
+      await setCellContent(model, "H6", "=E6");
       expect(getEvaluatedCell(model, "A1").value).toBe(1);
 
       // Force a reevaluation to avoid the incremental evaluation following each update_cell
-      evaluateCells(model);
+      await evaluateCells(model);
       expect(getEvaluatedCell(model, "A1").value).toBe(1);
     });
 
-    test("Spreaded formulas with range deps invalidate only once the dependencies of themselves", () => {
+    test("Spreaded formulas with range deps invalidate only once the dependencies of themselves", async () => {
       let c = 0;
       addToRegistry(functionRegistry, "INCREMENTONEVAL", {
         description: "",
@@ -692,16 +692,16 @@ describe("evaluate formulas that use/return an array", () => {
         },
         isExported: false,
       });
-      setCellContent(model, "A1", "0");
-      setCellContent(model, "A2", "1");
-      setCellContent(model, "A5", "=TRANSPOSE(A1:A2)");
-      setCellContent(model, "B1", "=INCREMENTONEVAL(A5)"); // depends on array formula (main cell)
+      await setCellContent(model, "A1", "0");
+      await setCellContent(model, "A2", "1");
+      await setCellContent(model, "A5", "=TRANSPOSE(A1:A2)");
+      await setCellContent(model, "B1", "=INCREMENTONEVAL(A5)"); // depends on array formula (main cell)
       expect(c).toEqual(1);
-      setCellContent(model, "A2", "2");
+      await setCellContent(model, "A2", "2");
       expect(c).toEqual(2);
     });
 
-    test("Spreaded formulas with range deps invalidate only once the dependencies of result", () => {
+    test("Spreaded formulas with range deps invalidate only once the dependencies of result", async () => {
       let c = 0;
       addToRegistry(functionRegistry, "INCREMENTONEVAL", {
         description: "",
@@ -712,34 +712,34 @@ describe("evaluate formulas that use/return an array", () => {
         },
         isExported: false,
       });
-      setCellContent(model, "A1", "0");
-      setCellContent(model, "A2", "1");
-      setCellContent(model, "A5", "=TRANSPOSE(A1:A2)");
-      setCellContent(model, "B1", "=INCREMENTONEVAL(B5)"); // depends on array formula (not the main cell)
+      await setCellContent(model, "A1", "0");
+      await setCellContent(model, "A2", "1");
+      await setCellContent(model, "A5", "=TRANSPOSE(A1:A2)");
+      await setCellContent(model, "B1", "=INCREMENTONEVAL(B5)"); // depends on array formula (not the main cell)
       expect(c).toEqual(1);
-      setCellContent(model, "A2", "2");
+      await setCellContent(model, "A2", "2");
       expect(c).toEqual(2);
     });
 
-    test("Cells that no longer depend on the array formula are removed from the spreading dependencies", () => {
-      setCellContent(model, "A1", "=TRANSPOSE(A3:A4)");
-      setCellContent(model, "A3", "3");
-      setCellContent(model, "A4", "4");
+    test("Cells that no longer depend on the array formula are removed from the spreading dependencies", async () => {
+      await setCellContent(model, "A1", "=TRANSPOSE(A3:A4)");
+      await setCellContent(model, "A3", "3");
+      await setCellContent(model, "A4", "4");
       expect(getEvaluatedCell(model, "B1").value).toEqual(4);
       const sheetId = model.getters.getActiveSheetId();
       expect(model.getters.getCorrespondingFormulaCell({ sheetId, ...toCartesian("B1") })).toBe(
         model.getters.getCorrespondingFormulaCell({ sheetId, ...toCartesian("A1") })
       );
-      setCellContent(model, "A1", "=TRANSPOSE(A3)");
+      await setCellContent(model, "A1", "=TRANSPOSE(A3)");
       expect(
         model.getters.getCorrespondingFormulaCell({ sheetId, ...toCartesian("B1") })
       ).toBeUndefined();
     });
 
-    test("have collision when spread size zone change", () => {
-      setCellContent(model, "A1", "1");
-      setCellContent(model, "B1", "=MFILL(1,A1+1,42)");
-      setCellContent(model, "A3", "=TRANSPOSE(B1:B2)");
+    test("have collision when spread size zone change", async () => {
+      await setCellContent(model, "A1", "1");
+      await setCellContent(model, "B1", "=MFILL(1,A1+1,42)");
+      await setCellContent(model, "A3", "=TRANSPOSE(B1:B2)");
 
       expect(getEvaluatedCell(model, "B1").value).toBe(42);
       expect(getEvaluatedCell(model, "B2").value).toBe(42);
@@ -747,7 +747,7 @@ describe("evaluate formulas that use/return an array", () => {
       expect(getEvaluatedCell(model, "A3").value).toBe(42);
       expect(getEvaluatedCell(model, "B3").value).toBe(42);
 
-      setCellContent(model, "A1", "2");
+      await setCellContent(model, "A1", "2");
 
       expect(getEvaluatedCell(model, "B1").value).toBe(42);
       expect(getEvaluatedCell(model, "B2").value).toBe(42);
@@ -756,11 +756,11 @@ describe("evaluate formulas that use/return an array", () => {
       expect(getEvaluatedCell(model, "A3").value).toBe("#SPILL!");
     });
 
-    test("recompute when spread if filled by a formula", () => {
-      setCellContent(model, "A1", "=MFILL(1,2,42)");
+    test("recompute when spread if filled by a formula", async () => {
+      await setCellContent(model, "A1", "=MFILL(1,2,42)");
       expect(getEvaluatedCell(model, "A1").value).toBe(42);
       expect(getEvaluatedCell(model, "A2").value).toBe(42);
-      setCellContent(model, "A2", "=MFILL(1,2,421)");
+      await setCellContent(model, "A2", "=MFILL(1,2,421)");
       expect(getEvaluatedCell(model, "A1").value).toBe("#SPILL!");
       expect(getEvaluatedCell(model, "A2").value).toBe(421);
       expect(getEvaluatedCell(model, "A3").value).toBe(421);
@@ -809,10 +809,10 @@ describe("evaluate formulas that use/return an array", () => {
   });
 
   describe("result array can collides with other result array", () => {
-    test("throw error on the formula when collide", () => {
+    test("throw error on the formula when collide", async () => {
       const formula = "=MFILL(2,2,42)";
-      setCellContent(model, "B1", formula);
-      setCellContent(model, "A2", formula);
+      await setCellContent(model, "B1", formula);
+      await setCellContent(model, "A2", formula);
       expect(getEvaluatedCell(model, "B1").value).toBe(42);
       expect(getEvaluatedCell(model, "A2").value).toBe("#SPILL!");
       expect(getCellError(model, "A2")).toBe(
@@ -820,9 +820,9 @@ describe("evaluate formulas that use/return an array", () => {
       );
     });
 
-    test("throw error message concerning the first cell encountered vertically", () => {
-      setCellContent(model, "A2", "=MFILL(2,2,42)");
-      setCellContent(model, "B1", "=MFILL(1,3,42)");
+    test("throw error message concerning the first cell encountered vertically", async () => {
+      await setCellContent(model, "A2", "=MFILL(2,2,42)");
+      await setCellContent(model, "B1", "=MFILL(1,3,42)");
       expect(getEvaluatedCell(model, "B1").value).toBe("#SPILL!");
       expect(getEvaluatedCell(model, "A2").value).toBe(42);
       expect(getCellError(model, "B1")).toBe(
@@ -830,9 +830,9 @@ describe("evaluate formulas that use/return an array", () => {
       );
     });
 
-    test("throw error message concerning the first cell encountered horizontally", () => {
-      setCellContent(model, "A2", "=MFILL(3,1,42)");
-      setCellContent(model, "B1", "=MFILL(2,2,42)");
+    test("throw error message concerning the first cell encountered horizontally", async () => {
+      await setCellContent(model, "A2", "=MFILL(3,1,42)");
+      await setCellContent(model, "B1", "=MFILL(2,2,42)");
       expect(getEvaluatedCell(model, "B1").value).toBe("#SPILL!");
       expect(getEvaluatedCell(model, "A2").value).toBe(42);
       expect(getCellError(model, "B1")).toBe(
@@ -840,10 +840,10 @@ describe("evaluate formulas that use/return an array", () => {
       );
     });
 
-    test("do not spread result when collide", () => {
+    test("do not spread result when collide", async () => {
       const formula = "=MFILL(2,2,42)";
-      setCellContent(model, "B1", formula);
-      setCellContent(model, "A2", formula);
+      await setCellContent(model, "B1", formula);
+      await setCellContent(model, "A2", formula);
       expect(getEvaluatedCell(model, "B1").value).toBe(42);
       expect(getEvaluatedCell(model, "B2").value).toBe(42);
       expect(getEvaluatedCell(model, "A2").value).toBe("#SPILL!");
@@ -851,15 +851,15 @@ describe("evaluate formulas that use/return an array", () => {
       expect(getEvaluatedCell(model, "B3").value).toBe(null);
     });
 
-    test("spread result when remove collision", () => {
-      setCellContent(model, "B1", "=MFILL(2,2,24)");
-      setCellContent(model, "A2", "=MFILL(2,2,42)");
+    test("spread result when remove collision", async () => {
+      await setCellContent(model, "B1", "=MFILL(2,2,24)");
+      await setCellContent(model, "A2", "=MFILL(2,2,42)");
       expect(getEvaluatedCell(model, "B1").value).toBe(24);
       expect(getEvaluatedCell(model, "B2").value).toBe(24);
       expect(getEvaluatedCell(model, "A2").value).toBe("#SPILL!");
       expect(getEvaluatedCell(model, "A3").value).toBe(null);
       expect(getEvaluatedCell(model, "B3").value).toBe(null);
-      setCellContent(model, "B1", "");
+      await setCellContent(model, "B1", "");
       expect(getEvaluatedCell(model, "B1").value).toBe(null);
       expect(getEvaluatedCell(model, "A2").value).toBe(42);
       expect(getEvaluatedCell(model, "A3").value).toBe(42);
@@ -871,44 +871,44 @@ describe("evaluate formulas that use/return an array", () => {
       const result = 42;
       const formula = "=MFILL(2,2,42)";
 
-      test("covering formula located on the covered formula columns", () => {
-        setCellContent(model, "B4", formula);
-        setCellContent(model, "C3", formula);
+      test("covering formula located on the covered formula columns", async () => {
+        await setCellContent(model, "B4", formula);
+        await setCellContent(model, "C3", formula);
         expect(getEvaluatedCell(model, "B4").value).toBe(result);
         expect(getEvaluatedCell(model, "C3").value).toBe("#SPILL!");
       });
 
-      test("covering formula located on the covered formula rows", () => {
-        setCellContent(model, "C3", formula);
-        setCellContent(model, "D2", formula);
+      test("covering formula located on the covered formula rows", async () => {
+        await setCellContent(model, "C3", formula);
+        await setCellContent(model, "D2", formula);
         expect(getEvaluatedCell(model, "C3").value).toBe(result);
         expect(getEvaluatedCell(model, "D2").value).toBe("#SPILL!");
       });
 
-      test("covering formula located before the covered formula columns", () => {
-        setCellContent(model, "A4", formula);
-        setCellContent(model, "C3", formula);
+      test("covering formula located before the covered formula columns", async () => {
+        await setCellContent(model, "A4", formula);
+        await setCellContent(model, "C3", formula);
         expect(getEvaluatedCell(model, "A4").value).toBe(result);
         expect(getEvaluatedCell(model, "C3").value).toBe(result);
       });
 
-      test("covering formula located before the covered formula rows", () => {
-        setCellContent(model, "C3", formula);
-        setCellContent(model, "D1", formula);
+      test("covering formula located before the covered formula rows", async () => {
+        await setCellContent(model, "C3", formula);
+        await setCellContent(model, "D1", formula);
         expect(getEvaluatedCell(model, "D1").value).toBe(result);
         expect(getEvaluatedCell(model, "C3").value).toBe(result);
       });
 
-      test("covering formula located after the covered formula columns", () => {
-        setCellContent(model, "C3", formula);
-        setCellContent(model, "E4", formula);
+      test("covering formula located after the covered formula columns", async () => {
+        await setCellContent(model, "C3", formula);
+        await setCellContent(model, "E4", formula);
         expect(getEvaluatedCell(model, "E4").value).toBe(result);
         expect(getEvaluatedCell(model, "C3").value).toBe(result);
       });
 
-      test("covering formula located after the covered formula rows", () => {
-        setCellContent(model, "C3", formula);
-        setCellContent(model, "D5", formula);
+      test("covering formula located after the covered formula rows", async () => {
+        await setCellContent(model, "C3", formula);
+        await setCellContent(model, "D5", formula);
         expect(getEvaluatedCell(model, "D5").value).toBe(result);
         expect(getEvaluatedCell(model, "C3").value).toBe(result);
       });
@@ -917,16 +917,16 @@ describe("evaluate formulas that use/return an array", () => {
     describe("throw error according to the order we set the formula", () => {
       const result = 42;
       const formula = "=MFILL(2,2,42)";
-      test("order 1: set A2, set B1 --> error on B1", () => {
-        setCellContent(model, "A2", formula);
-        setCellContent(model, "B1", formula);
+      test("order 1: set A2, set B1 --> error on B1", async () => {
+        await setCellContent(model, "A2", formula);
+        await setCellContent(model, "B1", formula);
         expect(getEvaluatedCell(model, "A2").value).toBe(result);
         expect(getEvaluatedCell(model, "B1").value).toBe("#SPILL!");
       });
 
-      test("order 2: set B1, set A2 --> error on A2", () => {
-        setCellContent(model, "B1", formula);
-        setCellContent(model, "A2", formula);
+      test("order 2: set B1, set A2 --> error on A2", async () => {
+        await setCellContent(model, "B1", formula);
+        await setCellContent(model, "A2", formula);
         expect(getEvaluatedCell(model, "A2").value).toBe("#SPILL!");
         expect(getEvaluatedCell(model, "B1").value).toBe(result);
       });
@@ -935,16 +935,16 @@ describe("evaluate formulas that use/return an array", () => {
     describe("throw error regardless the order we get the result", () => {
       const result = 42;
       const formula = "=MFILL(2,2,42)";
-      test("order 1: get A2, get B1", () => {
-        setCellContent(model, "A2", formula);
-        setCellContent(model, "B1", formula);
+      test("order 1: get A2, get B1", async () => {
+        await setCellContent(model, "A2", formula);
+        await setCellContent(model, "B1", formula);
         expect(getEvaluatedCell(model, "A2").value).toBe(result);
         expect(getEvaluatedCell(model, "B1").value).toBe("#SPILL!");
       });
 
-      test("order 2: get B1, get A2", () => {
-        setCellContent(model, "A2", formula);
-        setCellContent(model, "B1", formula);
+      test("order 2: get B1, get A2", async () => {
+        await setCellContent(model, "A2", formula);
+        await setCellContent(model, "B1", formula);
         expect(getEvaluatedCell(model, "B1").value).toBe("#SPILL!");
         expect(getEvaluatedCell(model, "A2").value).toBe(result);
       });
@@ -952,8 +952,8 @@ describe("evaluate formulas that use/return an array", () => {
   });
 
   describe("Spread formula getters", () => {
-    test("getArrayFormulaSpreadingOn works on the root of an array formula", () => {
-      setCellContent(model, "A1", "=MFILL(2,2,42)");
+    test("getArrayFormulaSpreadingOn works on the root of an array formula", async () => {
+      await setCellContent(model, "A1", "=MFILL(2,2,42)");
       expect(model.getters.getArrayFormulaSpreadingOn({ sheetId, col: 0, row: 0 })).toEqual({
         sheetId,
         col: 0,
@@ -961,70 +961,70 @@ describe("evaluate formulas that use/return an array", () => {
       });
     });
 
-    test("getSpreadZone getter returns the cells the formula spread on, as well as the cell the formula is on", () => {
-      setCellContent(model, "A1", "=MFILL(2,2,42)");
+    test("getSpreadZone getter returns the cells the formula spread on, as well as the cell the formula is on", async () => {
+      await setCellContent(model, "A1", "=MFILL(2,2,42)");
       const sheetId = model.getters.getActiveSheetId();
       expect(model.getters.getSpreadZone({ sheetId, col: 0, row: 0 })).toEqual(toZone("A1:B2"));
     });
 
-    test("getSpreadZone does only return self if the formula could not spread", () => {
-      setCellContent(model, "A1", "=MFILL(2,2,42)");
-      setCellContent(model, "A2", "(ツ)_/¯");
+    test("getSpreadZone does only return self if the formula could not spread", async () => {
+      await setCellContent(model, "A1", "=MFILL(2,2,42)");
+      await setCellContent(model, "A2", "(ツ)_/¯");
       expect(model.getters.getSpreadZone({ sheetId, col: 0, row: 0 })).toEqual(toZone("A1"));
     });
 
-    test("getSpreadZone is correct after the evaluation changed so the formula can spread again", () => {
-      setCellContent(model, "H1", "5");
-      setCellContent(model, "A1", "=MFILL(H1,H1,42)");
+    test("getSpreadZone is correct after the evaluation changed so the formula can spread again", async () => {
+      await setCellContent(model, "H1", "5");
+      await setCellContent(model, "A1", "=MFILL(H1,H1,42)");
 
       expect(model.getters.getSpreadZone({ sheetId, col: 0, row: 0 })).toEqual(toZone("A1:E5"));
 
-      setCellContent(model, "A4", "Block spread");
+      await setCellContent(model, "A4", "Block spread");
       expect(model.getters.getSpreadZone({ sheetId, col: 0, row: 0 })).toEqual(toZone("A1"));
 
-      setCellContent(model, "H1", "2");
+      await setCellContent(model, "H1", "2");
       expect(model.getters.getSpreadZone({ sheetId, col: 0, row: 0 })).toEqual(toZone("A1:B2"));
     });
 
-    test("getSpreadZone is updated after changing the cell content to a scalar value", () => {
-      setCellContent(model, "A1", "=MFILL(2,2,42)");
+    test("getSpreadZone is updated after changing the cell content to a scalar value", async () => {
+      await setCellContent(model, "A1", "=MFILL(2,2,42)");
       expect(model.getters.getSpreadZone({ sheetId, col: 0, row: 0 })).toEqual(toZone("A1:B2"));
-      setCellContent(model, "A1", "5");
+      await setCellContent(model, "A1", "5");
       expect(model.getters.getSpreadZone({ sheetId, col: 0, row: 0 })).not.toBeDefined();
     });
   });
 
   describe("result array can collides with merged cells", () => {
-    test("do not spread result upon collision", () => {
-      setCellContent(model, "A1", "=MFILL(2, 2, 42)");
-      merge(model, "A2:A3");
+    test("do not spread result upon collision", async () => {
+      await setCellContent(model, "A1", "=MFILL(2, 2, 42)");
+      await merge(model, "A2:A3");
       expect(getEvaluatedCell(model, "A1").value).toBe("#SPILL!");
       expect(getEvaluatedCell(model, "A2").value).toBe(null);
       expect(getEvaluatedCell(model, "B1").value).toBe(null);
       expect(getEvaluatedCell(model, "B2").value).toBe(null);
     });
 
-    test("spread result upon collision removal", () => {
-      setCellContent(model, "A1", "=MFILL(2, 2, 42)");
-      merge(model, "A2:A3");
+    test("spread result upon collision removal", async () => {
+      await setCellContent(model, "A1", "=MFILL(2, 2, 42)");
+      await merge(model, "A2:A3");
       expect(getEvaluatedCell(model, "A1").value).toBe("#SPILL!");
 
-      unMerge(model, "A2:A3");
+      await unMerge(model, "A2:A3");
       expect(getEvaluatedCell(model, "A1").value).toBe(42);
       expect(getEvaluatedCell(model, "A2").value).toBe(42);
       expect(getEvaluatedCell(model, "B1").value).toBe(42);
       expect(getEvaluatedCell(model, "B2").value).toBe(42);
     });
 
-    test("correctly checks for merges in the specified zone", () => {
-      setCellContent(model, "A1", "=MFILL(1, 2, 42)");
-      merge(model, "B1:B2");
+    test("correctly checks for merges in the specified zone", async () => {
+      await setCellContent(model, "A1", "=MFILL(1, 2, 42)");
+      await merge(model, "B1:B2");
 
       expect(getEvaluatedCell(model, "A1").value).toBe(42);
       expect(getEvaluatedCell(model, "A2").value).toBe(42);
 
-      setCellContent(model, "F6", "=MFILL(2, 1, 42)");
-      merge(model, "F7:G7");
+      await setCellContent(model, "F6", "=MFILL(2, 1, 42)");
+      await merge(model, "F7:G7");
 
       expect(getEvaluatedCell(model, "F6").value).toBe(42);
       expect(getEvaluatedCell(model, "G6").value).toBe(42);
@@ -1032,53 +1032,53 @@ describe("evaluate formulas that use/return an array", () => {
   });
 
   describe("evaluate literals array", () => {
-    test("literal array with one row only", () => {
-      setCellContent(model, "A1", "={1,2,3}");
+    test("literal array with one row only", async () => {
+      await setCellContent(model, "A1", "={1,2,3}");
       expect(getEvaluatedCell(model, "A1").value).toBe(1);
       expect(getEvaluatedCell(model, "B1").value).toBe(2);
       expect(getEvaluatedCell(model, "C1").value).toBe(3);
     });
 
-    test("literal array with one column only", () => {
-      setCellContent(model, "A1", "={1;2;3}");
+    test("literal array with one column only", async () => {
+      await setCellContent(model, "A1", "={1;2;3}");
       expect(getEvaluatedCell(model, "A1").value).toBe(1);
       expect(getEvaluatedCell(model, "A2").value).toBe(2);
       expect(getEvaluatedCell(model, "A3").value).toBe(3);
     });
 
-    test("literal array as table", () => {
-      setCellContent(model, "A1", "={1,2;3,4}");
+    test("literal array as table", async () => {
+      await setCellContent(model, "A1", "={1,2;3,4}");
       expect(getEvaluatedCell(model, "A1").value).toBe(1);
       expect(getEvaluatedCell(model, "B1").value).toBe(2);
       expect(getEvaluatedCell(model, "A2").value).toBe(3);
       expect(getEvaluatedCell(model, "B2").value).toBe(4);
     });
 
-    test("literal array no matter argument type", () => {
-      setCellContent(model, "A1", `={1,"test";TRUE,"42"}`);
+    test("literal array no matter argument type", async () => {
+      await setCellContent(model, "A1", `={1,"test";TRUE,"42"}`);
       expect(getEvaluatedCell(model, "A1").value).toBe(1);
       expect(getEvaluatedCell(model, "B1").value).toBe("test");
       expect(getEvaluatedCell(model, "A2").value).toBe(true);
       expect(getEvaluatedCell(model, "B2").value).toBe("42");
     });
 
-    test("literal array with formula", () => {
-      setCellContent(model, "A1", `={1,2,SUM(1,2)}`);
+    test("literal array with formula", async () => {
+      await setCellContent(model, "A1", `={1,2,SUM(1,2)}`);
       expect(getEvaluatedCell(model, "A1").value).toBe(1);
       expect(getEvaluatedCell(model, "B1").value).toBe(2);
       expect(getEvaluatedCell(model, "C1").value).toBe(3);
     });
 
-    test("literal array with array formula", () => {
-      setCellContent(model, "A1", `={"1","2";SPLIT("3,4",",")}`);
+    test("literal array with array formula", async () => {
+      await setCellContent(model, "A1", `={"1","2";SPLIT("3,4",",")}`);
       expect(getEvaluatedCell(model, "A1").value).toBe("1");
       expect(getEvaluatedCell(model, "B1").value).toBe("2");
       expect(getEvaluatedCell(model, "A2").value).toBe("3");
       expect(getEvaluatedCell(model, "B2").value).toBe("4");
     });
 
-    test("literal array with literal array", () => {
-      setCellContent(model, "A1", `={{1,2;3,4},{"A","B";"C","D"}}`);
+    test("literal array with literal array", async () => {
+      await setCellContent(model, "A1", `={{1,2;3,4},{"A","B";"C","D"}}`);
       expect(getEvaluatedCell(model, "A1").value).toBe(1);
       expect(getEvaluatedCell(model, "B1").value).toBe(2);
       expect(getEvaluatedCell(model, "C1").value).toBe("A");
@@ -1088,7 +1088,7 @@ describe("evaluate formulas that use/return an array", () => {
       expect(getEvaluatedCell(model, "C2").value).toBe("C");
       expect(getEvaluatedCell(model, "D2").value).toBe("D");
 
-      setCellContent(model, "A1", `={{1,2;3,4};{"A","B";"C","D"}}`);
+      await setCellContent(model, "A1", `={{1,2;3,4};{"A","B";"C","D"}}`);
       expect(getEvaluatedCell(model, "A1").value).toBe(1);
       expect(getEvaluatedCell(model, "B1").value).toBe(2);
       expect(getEvaluatedCell(model, "A2").value).toBe(3);
@@ -1099,25 +1099,25 @@ describe("evaluate formulas that use/return an array", () => {
       expect(getEvaluatedCell(model, "B4").value).toBe("D");
     });
 
-    test("literal array can only combine row argument with same number of columns", () => {
-      setCellContent(model, "A1", `={"A","B";"C","D","E"}`);
+    test("literal array can only combine row argument with same number of columns", async () => {
+      await setCellContent(model, "A1", `={"A","B";"C","D","E"}`);
       expect(getEvaluatedCell(model, "A1").value).toBe("#ERROR");
       expect(getCellError(model, "A1")).toBe(
         "All ranges in ARRAY.LITERAL must have the same number of columns (got 2, 3)."
       );
     });
 
-    test("literal array can only combine column argument with same number of rows", () => {
-      setCellContent(model, "A1", `={{"A";"B"},{"C";"D";"E"}}`);
+    test("literal array can only combine column argument with same number of rows", async () => {
+      await setCellContent(model, "A1", `={{"A";"B"},{"C";"D";"E"}}`);
       expect(getEvaluatedCell(model, "A1").value).toBe("#ERROR");
       expect(getCellError(model, "A1")).toBe(
         "All ranges in ARRAY.ROW must have the same number of columns (got 2, 3)."
       );
     });
 
-    test("literal array as argument", () => {
-      setCellContent(model, "A1", "=SUM({1,2,3})");
-      setCellContent(model, "A2", "=INDEX({1,2;3,4},2,1)");
+    test("literal array as argument", async () => {
+      await setCellContent(model, "A1", "=SUM({1,2,3})");
+      await setCellContent(model, "A2", "=INDEX({1,2;3,4},2,1)");
       expect(getEvaluatedCell(model, "A1").value).toBe(6);
       expect(getEvaluatedCell(model, "A2").value).toBe(3);
     });

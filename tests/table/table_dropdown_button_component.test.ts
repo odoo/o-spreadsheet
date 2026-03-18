@@ -32,7 +32,7 @@ beforeEach(async () => {
 
 describe("Table dropdown button", () => {
   test("Can insert a table with the widget", async () => {
-    setSelection(model, ["A1:C3"]);
+    await setSelection(model, ["A1:C3"]);
     await click(fixture, ".o-table-widget .o-menu-item-button");
     await click(fixture, '.o-table-style-popover div[title="Red, TableStyleMedium3"]');
 
@@ -56,8 +56,8 @@ describe("Table dropdown button", () => {
   });
 
   test("Clicking on the widget toggle the side panel if the selection contains a table", async () => {
-    setSelection(model, ["A1:C3"]);
-    createTable(model, "A1:C3");
+    await setSelection(model, ["A1:C3"]);
+    await createTable(model, "A1:C3");
     await click(fixture, ".o-table-widget .o-menu-item-button");
     await nextTick();
     expect(fixture.querySelector(".o-table-panel")).toBeTruthy();
@@ -66,7 +66,7 @@ describe("Table dropdown button", () => {
   });
 
   test("Can insert a table with a custom style with the widget", async () => {
-    setSelection(model, ["A1:C3"]);
+    await setSelection(model, ["A1:C3"]);
     await click(fixture, ".o-table-widget .o-menu-item-button");
     await click(fixture, ".o-notebook-tab[data-id='custom']");
     await click(fixture, ".o-new-table-style");
@@ -81,9 +81,9 @@ describe("Table dropdown button", () => {
   });
 
   test("Clicking on the widget open the pivot side panel if there is a pivot in the selection", async () => {
-    setGrid(model, { A1: "Price", A2: "10", A3: "=PIVOT(1)" });
+    await setGrid(model, { A1: "Price", A2: "10", A3: "=PIVOT(1)" });
     addPivot(model, "A1:A2", {});
-    setSelection(model, ["A3"]);
+    await setSelection(model, ["A3"]);
     await nextTick();
 
     expect(".o-table-widget .o-menu-item-button").toHaveAttribute("title", "Edit pivot style");

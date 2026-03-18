@@ -28,7 +28,13 @@ describe("Data validation with blocking rule", () => {
     const raiseError = jest.fn();
     const env = { raiseError };
     await mountSpreadsheet({ model }, env);
-    addDataValidation(model, "A1", "id", { type: "containsText", values: ["ok"] }, "blocking");
+    await addDataValidation(
+      model,
+      "A1",
+      "id",
+      { type: "containsText", values: ["ok"] },
+      "blocking"
+    );
 
     await typeInComposerGrid("hey");
     await keyDown({ key: "Enter" });
@@ -38,7 +44,7 @@ describe("Data validation with blocking rule", () => {
   });
 
   test("User can input wrong value in non-blocking DV rule", async () => {
-    addDataValidation(model, "A1", "id", { type: "containsText", values: ["ok"] });
+    await addDataValidation(model, "A1", "id", { type: "containsText", values: ["ok"] });
 
     composerStore.startEdition("hey");
     composerStore.stopEdition();
@@ -48,7 +54,7 @@ describe("Data validation with blocking rule", () => {
   });
 
   test("User can input correct number value in blocking DV rule", async () => {
-    addDataValidation(model, "A1", "id", { type: "isEqual", values: ["3"] }, "blocking");
+    await addDataValidation(model, "A1", "id", { type: "isEqual", values: ["3"] }, "blocking");
 
     composerStore.startEdition("3");
     composerStore.stopEdition();
@@ -58,8 +64,8 @@ describe("Data validation with blocking rule", () => {
   });
 
   test("User can input correct localized number value in blocking DV rule", async () => {
-    updateLocale(model, FR_LOCALE);
-    addDataValidation(model, "A1", "id", { type: "isEqual", values: ["3.5"] }, "blocking");
+    await updateLocale(model, FR_LOCALE);
+    await addDataValidation(model, "A1", "id", { type: "isEqual", values: ["3.5"] }, "blocking");
 
     composerStore.startEdition("3,5");
     composerStore.stopEdition();
@@ -69,7 +75,13 @@ describe("Data validation with blocking rule", () => {
   });
 
   test("User cannot input wrong number value in blocking DV rule", async () => {
-    addDataValidation(model, "A1", "id", { type: "isBetween", values: ["5", "8"] }, "blocking");
+    await addDataValidation(
+      model,
+      "A1",
+      "id",
+      { type: "isBetween", values: ["5", "8"] },
+      "blocking"
+    );
     composerStore.startEdition("9");
     composerStore.stopEdition();
 
@@ -77,8 +89,14 @@ describe("Data validation with blocking rule", () => {
   });
 
   test("User cannot input formula with wrong result in blocking DV rule", async () => {
-    setCellContent(model, "B1", "5");
-    addDataValidation(model, "A1", "id", { type: "isBetween", values: ["5", "8"] }, "blocking");
+    await setCellContent(model, "B1", "5");
+    await addDataValidation(
+      model,
+      "A1",
+      "id",
+      { type: "isBetween", values: ["5", "8"] },
+      "blocking"
+    );
     composerStore.startEdition("=SUM(B1, 10)");
     composerStore.stopEdition();
 
@@ -86,8 +104,14 @@ describe("Data validation with blocking rule", () => {
   });
 
   test("User can input formula with correct result in blocking DV rule", async () => {
-    setCellContent(model, "B1", "i");
-    addDataValidation(model, "A1", "id", { type: "containsText", values: ["hi"] }, "blocking");
+    await setCellContent(model, "B1", "i");
+    await addDataValidation(
+      model,
+      "A1",
+      "id",
+      { type: "containsText", values: ["hi"] },
+      "blocking"
+    );
     composerStore.startEdition('=CONCAT("h", B1)');
     composerStore.stopEdition();
 
@@ -95,9 +119,9 @@ describe("Data validation with blocking rule", () => {
   });
 
   test("User can input localized formula with correct result in blocking DV rule", async () => {
-    setCellContent(model, "B1", "5.5");
-    updateLocale(model, FR_LOCALE);
-    addDataValidation(model, "A1", "id", { type: "isEqual", values: ["10"] }, "blocking");
+    await setCellContent(model, "B1", "5.5");
+    await updateLocale(model, FR_LOCALE);
+    await addDataValidation(model, "A1", "id", { type: "isEqual", values: ["10"] }, "blocking");
     composerStore.startEdition("=SUM(4,5; B1)");
     composerStore.stopEdition();
 
@@ -105,7 +129,13 @@ describe("Data validation with blocking rule", () => {
   });
 
   test("User cannot input formula in error in blocking DV rule", async () => {
-    addDataValidation(model, "A1", "id", { type: "containsText", values: ["hi"] }, "blocking");
+    await addDataValidation(
+      model,
+      "A1",
+      "id",
+      { type: "containsText", values: ["hi"] },
+      "blocking"
+    );
     composerStore.startEdition("=0/0");
     composerStore.stopEdition();
 
@@ -113,7 +143,13 @@ describe("Data validation with blocking rule", () => {
   });
 
   test("User can input spreading formula in blocking DV rule", async () => {
-    addDataValidation(model, "A1", "id", { type: "containsText", values: ["hi"] }, "blocking");
+    await addDataValidation(
+      model,
+      "A1",
+      "id",
+      { type: "containsText", values: ["hi"] },
+      "blocking"
+    );
     composerStore.startEdition("=MUNIT(6)");
     composerStore.stopEdition();
 
@@ -121,7 +157,13 @@ describe("Data validation with blocking rule", () => {
   });
 
   test("User cannot input formula returning 1x1 matrix that fails blocking DV rule", async () => {
-    addDataValidation(model, "A1", "id", { type: "containsText", values: ["hi"] }, "blocking");
+    await addDataValidation(
+      model,
+      "A1",
+      "id",
+      { type: "containsText", values: ["hi"] },
+      "blocking"
+    );
     composerStore.startEdition('=IF(TRUE, A2, "something else")');
     composerStore.stopEdition();
 

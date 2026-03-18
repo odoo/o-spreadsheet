@@ -50,7 +50,7 @@ describe("combo charts", () => {
   });
 
   test("can edit chart data series type", async () => {
-    createChart(
+    await createChart(
       model,
       {
         dataSets: [{ dataRange: "B1:B4" }, { dataRange: "C1:C4", type: "bar" }],

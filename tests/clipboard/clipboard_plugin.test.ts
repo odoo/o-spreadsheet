@@ -66,8 +66,8 @@ import {
   setSelection,
   setViewportOffset,
   setZoneBorders,
-  unMerge,
   undo,
+  unMerge,
   updateFilter,
   updateLocale,
 } from "../test_helpers/commands_helpers";
@@ -98,14 +98,14 @@ let model: Model;
 describe("clipboard", () => {
   test("can copy and paste a cell", async () => {
     const model = await createModel();
-    setCellContent(model, "B2", "b2");
+    await setCellContent(model, "B2", "b2");
 
     expect(getCell(model, "B2")).toMatchObject({
       content: "b2",
     });
 
-    copy(model, "B2");
-    paste(model, "D2");
+    await copy(model, "B2");
+    await paste(model, "D2");
     expect(getCell(model, "B2")).toMatchObject({
       content: "b2",
     });
@@ -117,17 +117,17 @@ describe("clipboard", () => {
 
   test("can cut and paste a cell", async () => {
     const model = await createModel();
-    setCellContent(model, "B2", "b2");
+    await setCellContent(model, "B2", "b2");
     expect(getCell(model, "B2")).toMatchObject({
       content: "b2",
     });
 
-    cut(model, "B2");
+    await cut(model, "B2");
     expect(getCell(model, "B2")).toMatchObject({
       content: "b2",
     });
     expect(model.getters.isCutOperation()).toBe(true);
-    paste(model, "D2");
+    await paste(model, "D2");
     expect(model.getters.isCutOperation()).toBe(false);
 
     expect(getCell(model, "B2")).toBeUndefined();
@@ -138,89 +138,89 @@ describe("clipboard", () => {
     expect(getClipboardVisibleZones(model).length).toBe(0);
 
     // select D3 and paste. it should do nothing
-    paste(model, "D3");
+    await paste(model, "D3");
 
     expect(getCell(model, "D3")).toBeUndefined();
   });
 
   test("can clean the clipboard visible zones (copy)", async () => {
     const model = await createModel();
-    setCellContent(model, "B2", "b2");
-    copy(model, "B2");
+    await setCellContent(model, "B2", "b2");
+    await copy(model, "B2");
     expect(getClipboardVisibleZones(model).length).toBe(1);
-    cleanClipBoardHighlight(model);
+    await cleanClipBoardHighlight(model);
     expect(getClipboardVisibleZones(model).length).toBe(0);
   });
 
   test("can clean the clipboard visible zones (cut)", async () => {
     const model = await createModel();
-    setCellContent(model, "B2", "b2");
-    cut(model, "B2");
+    await setCellContent(model, "B2", "b2");
+    await cut(model, "B2");
     expect(getClipboardVisibleZones(model).length).toBe(1);
-    cleanClipBoardHighlight(model);
+    await cleanClipBoardHighlight(model);
     expect(getClipboardVisibleZones(model).length).toBe(0);
   });
 
   test("cut command will cut the selection if no target were given", async () => {
     const model = await createModel();
-    setCellContent(model, "B2", "b2");
-    setSelection(model, ["B2"]);
-    cut(model);
-    paste(model, "D2");
+    await setCellContent(model, "B2", "b2");
+    await setSelection(model, ["B2"]);
+    await cut(model);
+    await paste(model, "D2");
     expect(getCellRawContent(model, "D2")).toBe("b2");
   });
 
   test("paste without copied value", async () => {
     const model = await createModel();
-    const result = paste(model, "D2");
+    const result = await paste(model, "D2");
     expect(result).toBeCancelledBecause(CommandResult.EmptyClipboard);
   });
 
   test("can cut and paste a cell in different sheets", async () => {
     const model = await createModel();
-    setCellContent(model, "A1", "a1");
-    cut(model, "A1");
+    await setCellContent(model, "A1", "a1");
+    await cut(model, "A1");
     const to = model.getters.getActiveSheetId();
-    createSheet(model, { sheetId: "42", activate: true });
-    setCellContent(model, "A1", "a1Sheet2");
-    paste(model, "B2");
+    await createSheet(model, { sheetId: "42", activate: true });
+    await setCellContent(model, "A1", "a1Sheet2");
+    await paste(model, "B2");
     expect(getCell(model, "A1")).toMatchObject({
       content: "a1Sheet2",
     });
     expect(getCell(model, "B2")).toMatchObject({
       content: "a1",
     });
-    activateSheet(model, to);
+    await activateSheet(model, to);
     expect(model.getters.getEvaluatedCells(to)).toEqual([]);
 
     expect(getClipboardVisibleZones(model).length).toBe(0);
 
     // select D3 and paste. it should do nothing
-    paste(model, "D3");
+    await paste(model, "D3");
 
     expect(getCell(model, "D3")).toBeUndefined();
   });
 
   test("can cut and paste a zone inside the cut zone", async () => {
     const model = await createModel();
-    setCellContent(model, "A1", "a1");
-    setCellContent(model, "A2", "a2");
+    await setCellContent(model, "A1", "a1");
+    await setCellContent(model, "A2", "a2");
 
-    cut(model, "A1:A2");
+    await cut(model, "A1:A2");
     expect(getGrid(model)).toEqual({ A1: "a1", A2: "a2" });
 
-    paste(model, "A2");
+    await paste(model, "A2");
     expect(getGrid(model)).toEqual({ A2: "a1", A3: "a2" });
   });
 
   test("can copy a cell with style", async () => {
     const model = await createModel();
-    setCellContent(model, "B2", "b2");
-    setFormatting(model, "B2", { bold: true });
+    await setCellContent(model, "B2", "b2");
+    await setFormatting(model, "B2", { bold: true });
     expect(getCell(model, "B2")!.style).toEqual({ bold: true });
 
-    copy(model, "B2");
-    paste(model, "C2");
+    await copy(model, "B2");
+    await paste(model, "C2");
 
     expect(getCell(model, "B2")!.style).toEqual({ bold: true });
     expect(getCell(model, "C2")!.style).toEqual({ bold: true });
@@ -232,23 +232,23 @@ describe("clipboard", () => {
     clipboardData.setData(ClipboardMIMEType.PlainText, "Excalibur");
 
     const content = clipboardData.getData(ClipboardMIMEType.PlainText);
-    pasteFromOSClipboard(model, "C2", { text: content });
+    await pasteFromOSClipboard(model, "C2", { text: content });
     expect(getCellContent(model, "C2")).toBe(content);
-    pasteFromOSClipboard(model, "C3", { text: content }, "onlyFormat");
+    await pasteFromOSClipboard(model, "C3", { text: content }, "onlyFormat");
     expect(getCellContent(model, "C3")).toBe("");
   });
 
   test("cannot paste multiple times after cut", async () => {
     const model = await createModel();
-    setCellContent(model, "B2", "b2");
-    setFormatting(model, "B2", { bold: true });
+    await setCellContent(model, "B2", "b2");
+    await setFormatting(model, "B2", { bold: true });
 
-    cut(model, "B2");
-    paste(model, "C2");
+    await cut(model, "B2");
+    await paste(model, "C2");
     expect(getCellContent(model, "C2")).toBe("b2");
     expect(getCell(model, "C2")!.style).toEqual({ bold: true });
 
-    paste(model, "E5");
+    await paste(model, "E5");
     expect(getCell(model, "E5")).toBe(undefined);
   });
 
@@ -256,15 +256,15 @@ describe("clipboard", () => {
     const model = await createModel();
     const sheet1Id = model.getters.getActiveSheetId();
     const sheet2Id = "sheet2";
-    createSheet(model, { sheetId: sheet2Id });
+    await createSheet(model, { sheetId: sheet2Id });
 
-    setCellContent(model, "A1", "Apple", sheet1Id);
-    setFormatting(model, "A1", { bold: true });
-    cut(model, "A1");
+    await setCellContent(model, "A1", "Apple", sheet1Id);
+    await setFormatting(model, "A1", { bold: true });
+    await cut(model, "A1");
 
-    activateSheet(model, sheet2Id);
-    deleteSheet(model, sheet1Id);
-    paste(model, "A2");
+    await activateSheet(model, sheet2Id);
+    await deleteSheet(model, sheet1Id);
+    await paste(model, "A2");
     expect(getCell(model, "A2", sheet2Id)).toBe(undefined);
   });
 
@@ -272,15 +272,15 @@ describe("clipboard", () => {
     const model = await createModel();
     const sheet1Id = model.getters.getActiveSheetId();
     const sheet2Id = "sheet2";
-    createSheet(model, { sheetId: sheet2Id });
+    await createSheet(model, { sheetId: sheet2Id });
 
-    setCellContent(model, "A1", "Apple", sheet1Id);
-    setFormatting(model, "A1", { bold: true });
-    copy(model, "A1");
+    await setCellContent(model, "A1", "Apple", sheet1Id);
+    await setFormatting(model, "A1", { bold: true });
+    await copy(model, "A1");
 
-    activateSheet(model, sheet2Id);
-    deleteSheet(model, sheet1Id);
-    paste(model, "A2");
+    await activateSheet(model, sheet2Id);
+    await deleteSheet(model, sheet1Id);
+    await paste(model, "A2");
     expect(getCellContent(model, "A2", sheet2Id)).toBe("Apple");
     expect(getCell(model, "A2", sheet2Id)!.style).toEqual({ bold: true });
   });
@@ -288,18 +288,18 @@ describe("clipboard", () => {
   test("can copy into a cell with style", async () => {
     const model = await createModel();
     // set value and style in B2
-    setCellContent(model, "B2", "b2");
-    selectCell(model, "B2");
-    setFormatting(model, "B2", { bold: true });
+    await setCellContent(model, "B2", "b2");
+    await selectCell(model, "B2");
+    await setFormatting(model, "B2", { bold: true });
     expect(getCell(model, "B2")!.style).toEqual({ bold: true });
 
     // set value in A1, select and copy it
-    setCellContent(model, "A1", "a1");
-    selectCell(model, "A1");
-    copy(model, "A1");
+    await setCellContent(model, "A1", "a1");
+    await selectCell(model, "A1");
+    await copy(model, "A1");
 
     // select B2 again and paste
-    paste(model, "B2");
+    await paste(model, "B2");
 
     expect(getEvaluatedCell(model, "B2").value).toBe("a1");
     expect(getCell(model, "B2")!.style).not.toBeDefined();
@@ -308,28 +308,28 @@ describe("clipboard", () => {
   test("can copy from an empty cell into a cell with style", async () => {
     const model = await createModel();
     // set value and style in B2
-    setCellContent(model, "B2", "b2");
-    selectCell(model, "B2");
-    setFormatting(model, "B2", { bold: true });
+    await setCellContent(model, "B2", "b2");
+    await selectCell(model, "B2");
+    await setFormatting(model, "B2", { bold: true });
     expect(getCell(model, "B2")!.style).toEqual({ bold: true });
 
     // set value in A1, select and copy it
-    selectCell(model, "A1");
-    copy(model, "A1");
+    await selectCell(model, "A1");
+    await copy(model, "A1");
 
-    paste(model, "B2");
+    await paste(model, "B2");
 
     expect(getCell(model, "B2")).toBeUndefined();
   });
 
   test("can copy a cell with borders", async () => {
     const model = await createModel();
-    selectCell(model, "B2");
-    setZoneBorders(model, { position: "bottom" });
+    await selectCell(model, "B2");
+    await setZoneBorders(model, { position: "bottom" });
     expect(getBorder(model, "B2")).toEqual({ bottom: DEFAULT_BORDER_DESC });
 
-    copy(model, "B2");
-    paste(model, "C2");
+    await copy(model, "B2");
+    await paste(model, "C2");
 
     expect(getBorder(model, "B2")).toEqual({ bottom: DEFAULT_BORDER_DESC });
     expect(getBorder(model, "C2")).toEqual({ bottom: DEFAULT_BORDER_DESC });
@@ -338,9 +338,9 @@ describe("clipboard", () => {
   test("paste cell does not overwrite existing borders", async () => {
     const model = await createModel();
     const sheetId = model.getters.getActiveSheetId();
-    setZoneBorders(model, { position: "all" }, ["A1"]);
-    copy(model, "B2");
-    paste(model, "A1");
+    await setZoneBorders(model, { position: "all" }, ["A1"]);
+    await copy(model, "B2");
+    await paste(model, "A1");
     expect(model.getters.getCellBorder({ sheetId, col: 0, row: 0 })).toEqual({
       top: DEFAULT_BORDER_DESC,
       bottom: DEFAULT_BORDER_DESC,
@@ -351,13 +351,13 @@ describe("clipboard", () => {
 
   test("can copy a cell with a format", async () => {
     const model = await createModel();
-    setCellContent(model, "B2", "0.451");
-    selectCell(model, "B2");
-    setFormat(model, "B2", "0.00%");
+    await setCellContent(model, "B2", "0.451");
+    await selectCell(model, "B2");
+    await setFormat(model, "B2", "0.00%");
     expect(getCellContent(model, "B2")).toBe("45.10%");
 
-    copy(model, "B2");
-    paste(model, "C2");
+    await copy(model, "B2");
+    await paste(model, "C2");
 
     expect(getCellContent(model, "C2")).toBe("45.10%");
   });
@@ -366,8 +366,8 @@ describe("clipboard", () => {
     const model = await createModel({
       sheets: [{ id: "s1", colNumber: 5, rowNumber: 5, merges: ["B1:C2"] }],
     });
-    copy(model, "B1");
-    paste(model, "B4");
+    await copy(model, "B1");
+    await paste(model, "B4");
     expect(model.getters.getMerges("s1")).toMatchObject([toZone("B1:C2"), toZone("B4:C5")]);
   });
 
@@ -375,8 +375,8 @@ describe("clipboard", () => {
     const model = await createModel({
       sheets: [{ id: "s2", colNumber: 5, rowNumber: 5, merges: ["B1:C2"] }],
     });
-    cut(model, "B1:C2");
-    paste(model, "B4");
+    await cut(model, "B1:C2");
+    await paste(model, "B4");
     expect(model.getters.getMerges("s2")).toHaveLength(1);
     expect(model.getters.getMerges("s2")).toMatchObject([toZone("B4:C5")]);
   });
@@ -385,9 +385,9 @@ describe("clipboard", () => {
     const model = await createModel({
       sheets: [{ id: "s1", colNumber: 5, rowNumber: 5, merges: ["B1:C2"] }, { id: "s2" }],
     });
-    cut(model, "B1:C2");
-    activateSheet(model, "s2");
-    paste(model, "B4");
+    await cut(model, "B1:C2");
+    await activateSheet(model, "s2");
+    await paste(model, "B4");
     expect(model.getters.getMerges("s1")).toEqual([]);
     expect(model.getters.getMerges("s2")).toMatchObject([toZone("B4:C5")]);
   });
@@ -404,8 +404,8 @@ describe("clipboard", () => {
         },
       ],
     });
-    copy(model, "A1");
-    paste(model, "C1");
+    await copy(model, "A1");
+    await paste(model, "C1");
     expect(model.getters.isInMerge({ sheetId: "s1", ...toCartesian("C1") })).toBe(true);
     expect(model.getters.isInMerge({ sheetId: "s1", ...toCartesian("D2") })).toBe(true);
     expect(getCellContent(model, "C1")).toBe("merge");
@@ -420,9 +420,9 @@ describe("clipboard", () => {
       ],
     });
     const sheet2 = "s2";
-    copy(model, "B2");
-    activateSheet(model, sheet2);
-    paste(model, "A1");
+    await copy(model, "B2");
+    await activateSheet(model, sheet2);
+    await paste(model, "A1");
     expect(model.getters.isInMerge({ sheetId: sheet2, ...toCartesian("A1") })).toBe(true);
     expect(model.getters.isInMerge({ sheetId: sheet2, ...toCartesian("A2") })).toBe(true);
     expect(model.getters.isInMerge({ sheetId: sheet2, ...toCartesian("B1") })).toBe(true);
@@ -439,9 +439,9 @@ describe("clipboard", () => {
 
     expect(getCellText(model, "A1", "s1")).toBe("=A2");
 
-    copy(model, "A1");
-    activateSheet(model, "s2");
-    paste(model, "A1");
+    await copy(model, "A1");
+    await activateSheet(model, "s2");
+    await paste(model, "A1");
 
     expect(getCellText(model, "A1", "s1")).toBe("=A2");
     expect(getCellText(model, "A1", "s2")).toBe("=A2");
@@ -450,19 +450,19 @@ describe("clipboard", () => {
   test("Pasting content that will destroy a merge will fail", async () => {
     const model = await createModel();
     const sheetId = model.getters.getActiveSheetId();
-    merge(model, "B2:C3");
-    copy(model, "B2");
-    const result = paste(model, "A1");
+    await merge(model, "B2:C3");
+    await copy(model, "B2");
+    const result = await paste(model, "A1");
     expect(result).toBeCancelledBecause(CommandResult.WillRemoveExistingMerge);
     expect(model.getters.getMerges(sheetId).map(zoneToXc)).toEqual(["B2:C3"]);
   });
 
   test("Can paste a single cell on a merge", async () => {
     const model = await createModel();
-    setCellContent(model, "A1", "thingies");
-    merge(model, "B1:B2");
-    copy(model, "A1");
-    paste(model, "B1:B2");
+    await setCellContent(model, "A1", "thingies");
+    await merge(model, "B1:B2");
+    await copy(model, "A1");
+    await paste(model, "B1:B2");
     expect(getCellContent(model, "B1")).toEqual("thingies");
   });
 
@@ -470,8 +470,8 @@ describe("clipboard", () => {
     const model = await createModel({
       sheets: [{ id: "s1", merges: ["A1:A3", "C1:C3"] }],
     });
-    copy(model, "A1:C3");
-    paste(model, "E1");
+    await copy(model, "A1:C3");
+    await paste(model, "E1");
     const sheetId = model.getters.getActiveSheetId();
     expect(model.getters.getMerges(sheetId).map(zoneToXc)).toEqual([
       "A1:A3",
@@ -485,8 +485,8 @@ describe("clipboard", () => {
     const model = await createModel({
       sheets: [{ id: "s1", merges: ["A1:A3", "C1:C3"] }],
     });
-    copy(model, "A1", "C1");
-    paste(model, "E1");
+    await copy(model, "A1", "C1");
+    await paste(model, "E1");
     const sheetId = model.getters.getActiveSheetId();
     expect(model.getters.getMerges(sheetId).map(zoneToXc)).toEqual([
       "A1:A3",
@@ -500,11 +500,11 @@ describe("clipboard", () => {
     const model = await createModel();
     const sheetId = model.getters.getActiveSheetId();
 
-    merge(model, "A1:C3");
-    copy(model, "A1");
+    await merge(model, "A1:C3");
+    await copy(model, "A1");
 
-    unMerge(model, "A1:C3");
-    paste(model, "E1");
+    await unMerge(model, "A1:C3");
+    await paste(model, "E1");
 
     expect(model.getters.getMerges(sheetId).map(zoneToXc)).toEqual(["E1:G3"]);
   });
@@ -513,13 +513,13 @@ describe("clipboard", () => {
     const model = await createModel();
     const sheetId = model.getters.getActiveSheetId();
 
-    merge(model, "A1:A3");
-    merge(model, "C1:C3");
-    copy(model, "A1:C3");
+    await merge(model, "A1:A3");
+    await merge(model, "C1:C3");
+    await copy(model, "A1:C3");
 
-    unMerge(model, "A1:A3");
-    unMerge(model, "C1:C3");
-    paste(model, "E1");
+    await unMerge(model, "A1:A3");
+    await unMerge(model, "C1:C3");
+    await paste(model, "E1");
 
     expect(model.getters.getMerges(sheetId).map(zoneToXc)).toEqual(["E1:E3", "G1:G3"]);
   });
@@ -528,27 +528,27 @@ describe("clipboard", () => {
     const model = await createModel();
     const sheetId = model.getters.getActiveSheetId();
 
-    merge(model, "A1:A3");
-    merge(model, "C1:C3");
-    copy(model, "A1:C3");
+    await merge(model, "A1:A3");
+    await merge(model, "C1:C3");
+    await copy(model, "A1:C3");
 
     const newSheetId = "Sheet2";
-    createSheet(model, { sheetId: newSheetId });
-    activateSheet(model, newSheetId);
-    deleteSheet(model, sheetId);
+    await createSheet(model, { sheetId: newSheetId });
+    await activateSheet(model, newSheetId);
+    await deleteSheet(model, sheetId);
 
-    paste(model, "E1");
+    await paste(model, "E1");
 
     expect(model.getters.getMerges(newSheetId).map(zoneToXc)).toEqual(["E1:E3", "G1:G3"]);
   });
 
   test("cutting a cell with style remove the cell", async () => {
     const model = await createModel();
-    setCellContent(model, "B2", "b2");
-    selectCell(model, "B2");
-    setFormatting(model, "B2", { bold: true });
-    cut(model, "B2");
-    paste(model, "C2");
+    await setCellContent(model, "B2", "b2");
+    await selectCell(model, "B2");
+    await setFormatting(model, "B2", { bold: true });
+    await cut(model, "B2");
+    await paste(model, "C2");
 
     expect(getCell(model, "C2")).toMatchObject({
       style: { bold: true },
@@ -559,14 +559,14 @@ describe("clipboard", () => {
 
   test("Clipboard text content export formatted string", async () => {
     const model = await createModel();
-    setCellContent(model, "B2", "abc");
-    selectCell(model, "B2");
-    copy(model, "B2");
+    await setCellContent(model, "B2", "abc");
+    await selectCell(model, "B2");
+    await copy(model, "B2");
     expect(model.getters.getClipboardTextContent()).toBe("abc");
 
-    setCellContent(model, "B2", "= 1 + 2");
-    selectCell(model, "B2");
-    copy(model, "B2");
+    await setCellContent(model, "B2", "= 1 + 2");
+    await selectCell(model, "B2");
+    await copy(model, "B2");
     expect(model.getters.getClipboardTextContent()).toBe("3");
   });
 
@@ -577,10 +577,10 @@ describe("clipboard", () => {
     });
 
     test("Copied HTML table snapshot", async () => {
-      setCellContent(model, "A1", "1");
-      setCellContent(model, "B1", "2");
-      setCellContent(model, "A2", "3");
-      copy(model, "A1:B2");
+      await setCellContent(model, "A1", "1");
+      await setCellContent(model, "B1", "2");
+      await setCellContent(model, "A2", "3");
+      await copy(model, "A1:B2");
       const osClipboardContent = await model.getters.getClipboardTextAndImageContent();
       const htmlContent = osClipboardContent[ClipboardMIMEType.Html]!;
       const cbPlugin = getPlugin(model, ClipboardPlugin);
@@ -593,10 +593,10 @@ describe("clipboard", () => {
     });
 
     test("Copied group of cells are represented as a valid HTML table in the clipboard", async () => {
-      setCellContent(model, "A1", "1");
-      setCellContent(model, "B1", "2");
-      setCellContent(model, "A2", "3");
-      copy(model, "A1:B2");
+      await setCellContent(model, "A1", "1");
+      await setCellContent(model, "B1", "2");
+      await setCellContent(model, "A2", "3");
+      await copy(model, "A1:B2");
       const osClipboardContent = await model.getters.getClipboardTextAndImageContent();
       const htmlContent = osClipboardContent[ClipboardMIMEType.Html]!;
       const parsedHTML = parseXML(new XMLString(htmlContent), "text/html");
@@ -614,9 +614,9 @@ describe("clipboard", () => {
     });
 
     test("Copied HTML table style", async () => {
-      setCellContent(model, "A1", "1");
-      setCellContent(model, "A2", "3");
-      copy(model, "A1:A2");
+      await setCellContent(model, "A1", "1");
+      await setCellContent(model, "A2", "3");
+      await copy(model, "A1:A2");
       const osClipboardContent = await model.getters.getClipboardTextAndImageContent();
       const htmlContent = osClipboardContent[ClipboardMIMEType.Html]!;
 
@@ -625,11 +625,11 @@ describe("clipboard", () => {
     });
 
     test("Copied cells have their style in the HTML", async () => {
-      setCellContent(model, "A1", "1");
-      setCellContent(model, "A2", "3");
-      setFormatting(model, "A1", { bold: true });
-      addEqualCf(model, "A1", { fillColor: "#123456" }, "1");
-      copy(model, "A1:A2");
+      await setCellContent(model, "A1", "1");
+      await setCellContent(model, "A2", "3");
+      await setFormatting(model, "A1", { bold: true });
+      await addEqualCf(model, "A1", { fillColor: "#123456" }, "1");
+      await copy(model, "A1:A2");
       const osClipboardContent = await model.getters.getClipboardTextAndImageContent();
       const htmlContent = osClipboardContent[ClipboardMIMEType.Html]!;
       const firstCellStyle = htmlContent
@@ -642,9 +642,9 @@ describe("clipboard", () => {
 
     test("Copied cells have their content escaped", async () => {
       const cellContent = "<div>1</div>";
-      setCellContent(model, "A1", cellContent);
-      setCellContent(model, "A2", "3");
-      copy(model, "A1:A2");
+      await setCellContent(model, "A1", cellContent);
+      await setCellContent(model, "A2", "3");
+      await copy(model, "A1:A2");
       const osClipboardContent = await model.getters.getClipboardTextAndImageContent();
       const htmlContent = osClipboardContent[ClipboardMIMEType.Html]!;
 
@@ -653,8 +653,8 @@ describe("clipboard", () => {
 
     test("Copied single cells are not in a html table", async () => {
       const model = await createModel();
-      setCellContent(model, "A1", "1");
-      copy(model, "A1");
+      await setCellContent(model, "A1", "1");
+      await copy(model, "A1");
       const cbPlugin = getPlugin(model, ClipboardPlugin);
       const clipboardId = model.getters.getClipboardId();
       const clipboardData = JSON.stringify(cbPlugin["getSheetData"]());
@@ -669,19 +669,19 @@ describe("clipboard", () => {
 
   test("can copy a rectangular selection", async () => {
     const model = await createModel();
-    setCellContent(model, "B2", "b2");
-    setCellContent(model, "B3", "b3");
-    setCellContent(model, "C2", "c2");
-    setCellContent(model, "C3", "c3");
+    await setCellContent(model, "B2", "b2");
+    await setCellContent(model, "B3", "b3");
+    await setCellContent(model, "C2", "c2");
+    await setCellContent(model, "C3", "c3");
 
-    copy(model, "B2:C3");
+    await copy(model, "B2:C3");
 
     expect(getCell(model, "D1")).toBeUndefined();
     expect(getCell(model, "D2")).toBeUndefined();
     expect(getCell(model, "E1")).toBeUndefined();
     expect(getCell(model, "E2")).toBeUndefined();
 
-    paste(model, "D1");
+    await paste(model, "D1");
 
     expect(getCellContent(model, "D1")).toBe("b2");
     expect(getCellContent(model, "D2")).toBe("b3");
@@ -696,17 +696,17 @@ describe("clipboard", () => {
 
   test("Clipboard Text exports multiple cells", async () => {
     const model = await createModel();
-    setCellContent(model, "B2", "b2");
-    setCellContent(model, "B3", "b3");
-    setCellContent(model, "C2", "c2");
-    setCellContent(model, "C3", "c3");
-    copy(model, "B2:C3");
+    await setCellContent(model, "B2", "b2");
+    await setCellContent(model, "B3", "b3");
+    await setCellContent(model, "C2", "c2");
+    await setCellContent(model, "C3", "c3");
+    await copy(model, "B2:C3");
     expect(model.getters.getClipboardTextContent()).toBe("b2\tc2\nb3\tc3");
   });
 
   test("can paste multiple cells from os clipboard", async () => {
     const model = await createModel();
-    pasteFromOSClipboard(model, "C1", { text: "a\t1\nb\t2" });
+    await pasteFromOSClipboard(model, "C1", { text: "a\t1\nb\t2" });
 
     expect(getCellContent(model, "C1")).toBe("a");
     expect(getCellContent(model, "C2")).toBe("b");
@@ -717,8 +717,8 @@ describe("clipboard", () => {
   test("Pasting content from os that will destroy a merge will fail", async () => {
     const model = await createModel();
     const sheetId = model.getters.getActiveSheetId();
-    merge(model, "B2:C3");
-    const result = pasteFromOSClipboard(model, "B2", {
+    await merge(model, "B2:C3");
+    const result = await pasteFromOSClipboard(model, "B2", {
       text: "a\t1\nb\t2",
     });
     expect(result).toBeCancelledBecause(CommandResult.WillRemoveExistingMerge);
@@ -728,13 +728,13 @@ describe("clipboard", () => {
   test("pasting from OS will not change the viewport", async () => {
     const model = await createModel();
     const viewport = model.getters.getActiveMainViewport();
-    pasteFromOSClipboard(model, "C60", { text: "a\t1\nb\t2" });
+    await pasteFromOSClipboard(model, "C60", { text: "a\t1\nb\t2" });
     expect(model.getters.getActiveMainViewport()).toEqual(viewport);
   });
 
   test("pasting numbers from windows clipboard => interpreted as number", async () => {
     const model = await createModel();
-    pasteFromOSClipboard(model, "C1", { text: "1\r\n2\r\n3" });
+    await pasteFromOSClipboard(model, "C1", { text: "1\r\n2\r\n3" });
 
     expect(getCellContent(model, "C1")).toBe("1");
     expect(getEvaluatedCell(model, "C1").value).toBe(1);
@@ -746,30 +746,30 @@ describe("clipboard", () => {
 
   test("incompatible multiple selections: only last one is actually copied", async () => {
     const model = await createModel();
-    setCellContent(model, "A1", "a1");
-    setCellContent(model, "A2", "a2");
-    setCellContent(model, "C1", "c1");
-    copy(model, "A1:A2", "C1");
+    await setCellContent(model, "A1", "a1");
+    await setCellContent(model, "A2", "a2");
+    await setCellContent(model, "C1", "c1");
+    await copy(model, "A1:A2", "C1");
 
     expect(getClipboardVisibleZones(model).length).toBe(1);
 
-    selectCell(model, "E1");
-    paste(model, "E1");
+    await selectCell(model, "E1");
+    await paste(model, "E1");
     expect(getCellContent(model, "E1")).toBe("c1");
     expect(getCell(model, "E2")).toBeUndefined();
   });
 
   test("compatible multiple selections: each column is copied", async () => {
     const model = await createModel();
-    setCellContent(model, "A1", "a1");
-    setCellContent(model, "A2", "a2");
-    setCellContent(model, "C1", "c1");
-    setCellContent(model, "C2", "c2");
-    copy(model, "A1:A2", " C1:C2");
+    await setCellContent(model, "A1", "a1");
+    await setCellContent(model, "A2", "a2");
+    await setCellContent(model, "C1", "c1");
+    await setCellContent(model, "C2", "c2");
+    await copy(model, "A1:A2", " C1:C2");
 
     expect(getClipboardVisibleZones(model).length).toBe(2);
 
-    paste(model, "E1");
+    await paste(model, "E1");
     expect(getCellContent(model, "E1")).toBe("a1");
     expect(getCellContent(model, "E2")).toBe("a2");
     expect(getCellContent(model, "F1")).toBe("c1");
@@ -778,22 +778,22 @@ describe("clipboard", () => {
 
   test("Viewport won't move after pasting", async () => {
     const model = await createModel();
-    copy(model, "A1:B2");
+    await copy(model, "A1:B2");
 
-    setSelection(model, ["C60:D70"]);
-    setViewportOffset(model, 0, 0);
+    await setSelection(model, ["C60:D70"]);
+    await setViewportOffset(model, 0, 0);
     const viewport = model.getters.getActiveMainViewport();
 
-    paste(model, "C60:D70");
+    await paste(model, "C60:D70");
     expect(model.getters.getActiveMainViewport()).toEqual(viewport);
   });
 
   describe("copy/paste a zone in a larger selection will duplicate the zone on the selection as long as it does not exceed it", () => {
     test("paste a value (zone with hight=1 and width=1)", async () => {
       const model = await createModel();
-      setCellContent(model, "A1", "1");
-      copy(model, "A1");
-      paste(model, "C2:D3");
+      await setCellContent(model, "A1", "1");
+      await copy(model, "A1");
+      await paste(model, "C2:D3");
       expect(getCellContent(model, "C2")).toBe("1");
       expect(getCellContent(model, "C3")).toBe("1");
       expect(getCellContent(model, "D2")).toBe("1");
@@ -802,10 +802,10 @@ describe("clipboard", () => {
 
     test("paste a zone with hight zone > 1", async () => {
       const model = await createModel();
-      setCellContent(model, "A1", "a1");
-      setCellContent(model, "A2", "a2");
-      copy(model, "A1:A2");
-      paste(model, "A3:A7");
+      await setCellContent(model, "A1", "a1");
+      await setCellContent(model, "A2", "a2");
+      await copy(model, "A1:A2");
+      await paste(model, "A3:A7");
       expect(getCellContent(model, "A3")).toBe("a1");
       expect(getCellContent(model, "A4")).toBe("a2");
       expect(getCellContent(model, "A5")).toBe("a1");
@@ -815,10 +815,10 @@ describe("clipboard", () => {
 
     test("paste a zone with width zone > 1", async () => {
       const model = await createModel();
-      setCellContent(model, "A1", "a1");
-      setCellContent(model, "B1", "b1");
-      copy(model, "A1:B1");
-      paste(model, "C1:G1");
+      await setCellContent(model, "A1", "a1");
+      await setCellContent(model, "B1", "b1");
+      await copy(model, "A1:B1");
+      await paste(model, "C1:G1");
       expect(getCellContent(model, "C1")).toBe("a1");
       expect(getCellContent(model, "D1")).toBe("b1");
       expect(getCellContent(model, "E1")).toBe("a1");
@@ -828,14 +828,14 @@ describe("clipboard", () => {
 
     test("selection is updated to contain exactly the new pasted zone", async () => {
       const model = await createModel();
-      copy(model, "A1:B2");
+      await copy(model, "A1:B2");
 
       // select C3:G7
-      selectCell(model, "C3");
-      setAnchorCorner(model, "G7");
+      await selectCell(model, "C3");
+      await setAnchorCorner(model, "G7");
       expect(model.getters.getSelectedZones()[0]).toEqual({ top: 2, left: 2, bottom: 6, right: 6 });
 
-      paste(model, "C3:G7");
+      await paste(model, "C3:G7");
       expect(model.getters.getSelectedZones()[0]).toEqual({ top: 2, left: 2, bottom: 5, right: 5 });
     });
   });
@@ -843,9 +843,9 @@ describe("clipboard", () => {
   describe("cut/paste a zone in a larger selection will paste the zone only once", () => {
     test("paste a value (zone with hight=1 and width=1)", async () => {
       const model = await createModel();
-      setCellContent(model, "A1", "1");
-      cut(model, "A1");
-      paste(model, "C2:D3");
+      await setCellContent(model, "A1", "1");
+      await cut(model, "A1");
+      await paste(model, "C2:D3");
       expect(getCellContent(model, "C2")).toBe("1");
       expect(getCellContent(model, "C3")).toBe("");
       expect(getCellContent(model, "D2")).toBe("");
@@ -854,10 +854,10 @@ describe("clipboard", () => {
 
     test("with hight zone > 1", async () => {
       const model = await createModel();
-      setCellContent(model, "A1", "a1");
-      setCellContent(model, "A2", "a2");
-      cut(model, "A1:A2");
-      paste(model, "A3:A7");
+      await setCellContent(model, "A1", "a1");
+      await setCellContent(model, "A2", "a2");
+      await cut(model, "A1:A2");
+      await paste(model, "A3:A7");
       expect(getCellContent(model, "A3")).toBe("a1");
       expect(getCellContent(model, "A4")).toBe("a2");
       expect(getCellContent(model, "A5")).toBe("");
@@ -867,10 +867,10 @@ describe("clipboard", () => {
 
     test("with width zone > 1", async () => {
       const model = await createModel();
-      setCellContent(model, "A1", "a1");
-      setCellContent(model, "B1", "b1");
-      cut(model, "A1:B1");
-      paste(model, "C1:G1");
+      await setCellContent(model, "A1", "a1");
+      await setCellContent(model, "B1", "b1");
+      await cut(model, "A1:B1");
+      await paste(model, "C1:G1");
       expect(getCellContent(model, "C1")).toBe("a1");
       expect(getCellContent(model, "D1")).toBe("b1");
       expect(getCellContent(model, "E1")).toBe("");
@@ -880,15 +880,15 @@ describe("clipboard", () => {
 
     test("selection is updated to contain exactly the cut and pasted zone", async () => {
       const model = await createModel();
-      cut(model, "A1:B2");
+      await cut(model, "A1:B2");
 
       // select C3:G7
-      selectCell(model, "C3");
-      setAnchorCorner(model, "G7");
+      await selectCell(model, "C3");
+      await setAnchorCorner(model, "G7");
 
       expect(model.getters.getSelectedZones()[0]).toEqual({ top: 2, left: 2, bottom: 6, right: 6 });
 
-      paste(model, "C3:G7");
+      await paste(model, "C3:G7");
       expect(model.getters.getSelectedZones()[0]).toEqual({ top: 2, left: 2, bottom: 3, right: 3 });
     });
   });
@@ -896,30 +896,30 @@ describe("clipboard", () => {
   describe("copy/paste a zone in several selection will duplicate the zone on each selection", () => {
     test("paste a value (zone with hight=1 and width=1)", async () => {
       const model = await createModel();
-      setCellContent(model, "A1", "33");
-      copy(model, "A1");
-      paste(model, "C1, E1");
+      await setCellContent(model, "A1", "33");
+      await copy(model, "A1");
+      await paste(model, "C1, E1");
       expect(getCellContent(model, "C1")).toBe("33");
       expect(getCellContent(model, "E1")).toBe("33");
     });
 
     test("selection is updated to contain exactly the new pasted zones", async () => {
       const model = await createModel();
-      copy(model, "A1");
+      await copy(model, "A1");
 
       // select C1 and E1
-      selectCell(model, "C1");
-      addCellToSelection(model, "E1");
+      await selectCell(model, "C1");
+      await addCellToSelection(model, "E1");
 
-      paste(model, "C1, E1");
+      await paste(model, "C1, E1");
       expect(model.getters.getSelectedZones()[0]).toEqual({ top: 0, left: 2, bottom: 0, right: 2 });
       expect(model.getters.getSelectedZones()[1]).toEqual({ top: 0, left: 4, bottom: 0, right: 4 });
     });
 
     test("paste a zone with more than one value is not allowed", async () => {
       const model = await createModel();
-      copy(model, "A1:B2");
-      const result = paste(model, "C1, E1");
+      await copy(model, "A1:B2");
+      const result = await paste(model, "C1, E1");
       expect(result).toBeCancelledBecause(CommandResult.WrongPasteSelection);
     });
   });
@@ -927,30 +927,30 @@ describe("clipboard", () => {
   describe("cut/paste a zone in several selection will paste the zone only once", () => {
     test("paste a value (zone with hight=1 and width=1)", async () => {
       const model = await createModel();
-      setCellContent(model, "A1", "33");
-      cut(model, "A1");
-      paste(model, "E1, C1");
+      await setCellContent(model, "A1", "33");
+      await cut(model, "A1");
+      await paste(model, "E1, C1");
       expect(getCellContent(model, "E1")).toBe("33");
       expect(getCellContent(model, "C1")).toBe("");
     });
 
     test("selection is updated to contain exactly the new pasted zones", async () => {
       const model = await createModel();
-      cut(model, "A1");
+      await cut(model, "A1");
 
       // select C1 and E1
-      selectCell(model, "C1");
-      addCellToSelection(model, "E1");
+      await selectCell(model, "C1");
+      await addCellToSelection(model, "E1");
 
-      paste(model, "C1, E1");
+      await paste(model, "C1, E1");
       expect(model.getters.getSelectedZones()[0]).toEqual({ top: 0, left: 2, bottom: 0, right: 2 });
       expect(model.getters.getSelectedZones().length).toBe(1);
     });
 
     test("paste a zone with more than one value is not allowed", async () => {
       const model = await createModel();
-      cut(model, "A1:B2");
-      const result = paste(model, "C1, E1");
+      await cut(model, "A1:B2");
+      const result = await paste(model, "C1, E1");
       expect(result).toBeCancelledBecause(CommandResult.WrongPasteSelection);
     });
   });
@@ -958,7 +958,7 @@ describe("clipboard", () => {
   describe("cut/paste several zones", () => {
     test("cutting is not allowed if multiple selection", async () => {
       const model = await createModel();
-      const result = cut(model, "A1", "A2");
+      const result = await cut(model, "A1", "A2");
       expect(result).toBeCancelledBecause(CommandResult.WrongCutSelection);
     });
   });
@@ -966,137 +966,137 @@ describe("clipboard", () => {
   describe("copy/paste several zones", () => {
     beforeEach(async () => {
       model = await createModel();
-      setCellContent(model, "A1", "a1");
-      setCellContent(model, "A2", "a2");
-      setCellContent(model, "A3", "a3");
-      setCellContent(model, "B1", "b1");
-      setCellContent(model, "B2", "b2");
-      setCellContent(model, "B3", "b3");
-      setCellContent(model, "C1", "c1");
-      setCellContent(model, "C2", "c2");
-      setCellContent(model, "C3", "c3");
+      await setCellContent(model, "A1", "a1");
+      await setCellContent(model, "A2", "a2");
+      await setCellContent(model, "A3", "a3");
+      await setCellContent(model, "B1", "b1");
+      await setCellContent(model, "B2", "b2");
+      await setCellContent(model, "B3", "b3");
+      await setCellContent(model, "C1", "c1");
+      await setCellContent(model, "C2", "c2");
+      await setCellContent(model, "C3", "c3");
     });
 
     describe("if they have same left and same right", () => {
-      test("copy all zones", () => {
-        copy(model, "A1:B1", " A2:B2");
+      test("copy all zones", async () => {
+        await copy(model, "A1:B1", " A2:B2");
         expect(getClipboardVisibleZones(model)[0]).toEqual(toZone("A1:B1"));
         expect(getClipboardVisibleZones(model)[1]).toEqual(toZone("A2:B2"));
         expect(getClipboardVisibleZones(model).length).toBe(2);
-        paste(model, "F6");
+        await paste(model, "F6");
         expect(getCellContent(model, "F6")).toBe("a1");
         expect(getCellContent(model, "F7")).toBe("a2");
         expect(getCellContent(model, "G6")).toBe("b1");
         expect(getCellContent(model, "G7")).toBe("b2");
       });
 
-      test("Copy cells only once", () => {
-        copy(model, "A1:A3", "A1:A2", "A2:A3", "A1", "A2", "A3");
+      test("Copy cells only once", async () => {
+        await copy(model, "A1:A3", "A1:A2", "A2:A3", "A1", "A2", "A3");
         expect(getClipboardVisibleZones(model)[0]).toEqual(toZone("A1:A3"));
         expect(getClipboardVisibleZones(model).length).toBe(1);
-        paste(model, "F6");
+        await paste(model, "F6");
         expect(getCellContent(model, "F6")).toBe("a1");
         expect(getCellContent(model, "F7")).toBe("a2");
         expect(getCellContent(model, "F8")).toBe("a3");
         expect(getCellContent(model, "F9")).toBe("");
       });
 
-      test("paste zones without gap", () => {
+      test("paste zones without gap", async () => {
         // gap between 1st selection and 2nd selection is one row
-        copy(model, "A1:B1", "A3:B3");
+        await copy(model, "A1:B1", "A3:B3");
         expect(getClipboardVisibleZones(model)[0]).toEqual(toZone("A1:B1"));
         expect(getClipboardVisibleZones(model)[1]).toEqual(toZone("A3:B3"));
         expect(getClipboardVisibleZones(model).length).toBe(2);
-        paste(model, "F6");
+        await paste(model, "F6");
         expect(getCellContent(model, "F6")).toBe("a1");
         expect(getCellContent(model, "F7")).toBe("a3");
         expect(getCellContent(model, "G6")).toBe("b1");
         expect(getCellContent(model, "G7")).toBe("b3");
       });
 
-      test("paste zones selected from different orders does not influence the final result", () => {
-        copy(model, "A1", "A2");
-        paste(model, "F6");
+      test("paste zones selected from different orders does not influence the final result", async () => {
+        await copy(model, "A1", "A2");
+        await paste(model, "F6");
         expect(getCellContent(model, "F6")).toBe("a1");
         expect(getCellContent(model, "F7")).toBe("a2");
 
-        copy(model, "A2", "A1");
-        paste(model, "F6");
+        await copy(model, "A2", "A1");
+        await paste(model, "F6");
         expect(getCellContent(model, "F6")).toBe("a1");
         expect(getCellContent(model, "F7")).toBe("a2");
       });
     });
 
     describe("if zones have same top and same bottom", () => {
-      test("copy all zones", () => {
-        copy(model, "A1:A2", "B1:B2");
+      test("copy all zones", async () => {
+        await copy(model, "A1:A2", "B1:B2");
         expect(getClipboardVisibleZones(model)[0]).toEqual(toZone("A1:A2"));
         expect(getClipboardVisibleZones(model)[1]).toEqual(toZone("B1:B2"));
         expect(getClipboardVisibleZones(model).length).toBe(2);
-        paste(model, "F6");
+        await paste(model, "F6");
         expect(getCellContent(model, "F6")).toBe("a1");
         expect(getCellContent(model, "F7")).toBe("a2");
         expect(getCellContent(model, "G6")).toBe("b1");
         expect(getCellContent(model, "G7")).toBe("b2");
       });
 
-      test("Copy cells only once", () => {
-        copy(model, "A1:C1", "A1:B1", "B1:C1", "A1", "B1", "C1");
+      test("Copy cells only once", async () => {
+        await copy(model, "A1:C1", "A1:B1", "B1:C1", "A1", "B1", "C1");
         expect(getClipboardVisibleZones(model)[0]).toEqual(toZone("A1:C1"));
         expect(getClipboardVisibleZones(model).length).toBe(1);
-        paste(model, "F6");
+        await paste(model, "F6");
         expect(getCellContent(model, "F6")).toBe("a1");
         expect(getCellContent(model, "G6")).toBe("b1");
         expect(getCellContent(model, "H6")).toBe("c1");
         expect(getCellContent(model, "I6")).toBe("");
       });
 
-      test("paste zones without gap", () => {
+      test("paste zones without gap", async () => {
         // gap between 1st selection and 2nd selection is one column
-        copy(model, "A1:A2", "C1:C2");
-        paste(model, "F6");
+        await copy(model, "A1:A2", "C1:C2");
+        await paste(model, "F6");
         expect(getCellContent(model, "F6")).toBe("a1");
         expect(getCellContent(model, "F7")).toBe("a2");
         expect(getCellContent(model, "G6")).toBe("c1");
         expect(getCellContent(model, "G7")).toBe("c2");
       });
 
-      test("paste zones selected from different orders does not influence the final result", () => {
-        copy(model, "A1", "B1");
-        paste(model, "F6");
+      test("paste zones selected from different orders does not influence the final result", async () => {
+        await copy(model, "A1", "B1");
+        await paste(model, "F6");
         expect(getCellContent(model, "F6")).toBe("a1");
         expect(getCellContent(model, "G6")).toBe("b1");
 
-        copy(model, "A1", "B1");
-        paste(model, "F6");
+        await copy(model, "A1", "B1");
+        await paste(model, "F6");
         expect(getCellContent(model, "F6")).toBe("a1");
         expect(getCellContent(model, "G6")).toBe("b1");
       });
     });
 
     describe("copy/paste the last zone if zones don't have [same top and same bottom] or [same left and same right]", () => {
-      test("test with dissociated zones", () => {
-        copy(model, "A1:A2", "B2:B3");
+      test("test with dissociated zones", async () => {
+        await copy(model, "A1:A2", "B2:B3");
         expect(getClipboardVisibleZones(model)[0]).toEqual(toZone("B2:B3"));
         expect(getClipboardVisibleZones(model).length).toBe(1);
-        paste(model, "F6");
+        await paste(model, "F6");
         expect(getCellContent(model, "F6")).toBe("b2");
         expect(getCellContent(model, "F7")).toBe("b3");
       });
 
-      test("test with overlapped zones", () => {
-        copy(model, "A1:B2", "B2:B3");
+      test("test with overlapped zones", async () => {
+        await copy(model, "A1:B2", "B2:B3");
         expect(getClipboardVisibleZones(model)[0]).toEqual(toZone("B2:B3"));
         expect(getClipboardVisibleZones(model).length).toBe(1);
-        paste(model, "F6");
+        await paste(model, "F6");
         expect(getCellContent(model, "F6")).toBe("b2");
         expect(getCellContent(model, "F7")).toBe("b3");
       });
     });
 
-    test("can paste zones in a larger selection", () => {
-      copy(model, "A1", "C1");
-      paste(model, "E1:I1");
+    test("can paste zones in a larger selection", async () => {
+      await copy(model, "A1", "C1");
+      await paste(model, "E1:I1");
       expect(getCellContent(model, "E1")).toBe("a1");
       expect(getCellContent(model, "F1")).toBe("c1");
       expect(getCellContent(model, "G1")).toBe("a1");
@@ -1104,21 +1104,21 @@ describe("clipboard", () => {
       expect(getCellContent(model, "I1")).toBe("");
     });
 
-    test("is not allowed if paste in several selection", () => {
-      copy(model, "A1", "C1");
-      const result = paste(model, "A2, B2");
+    test("is not allowed if paste in several selection", async () => {
+      await copy(model, "A1", "C1");
+      const result = await paste(model, "A2, B2");
       expect(result).toBeCancelledBecause(CommandResult.WrongPasteSelection);
     });
   });
   test("can copy and paste a cell with STRING content", async () => {
     const model = await createModel();
-    setCellContent(model, "B2", '="test"');
+    await setCellContent(model, "B2", '="test"');
 
     expect(getCellText(model, "B2")).toEqual('="test"');
     expect(getEvaluatedCell(model, "B2").value).toEqual("test");
 
-    copy(model, "B2");
-    paste(model, "D2");
+    await copy(model, "B2");
+    await paste(model, "D2");
     expect(getCellText(model, "B2")).toEqual('="test"');
     expect(getEvaluatedCell(model, "B2").value).toEqual("test");
     expect(getCellText(model, "D2")).toEqual('="test"');
@@ -1128,51 +1128,51 @@ describe("clipboard", () => {
 
   test("can undo a paste operation", async () => {
     const model = await createModel();
-    setCellContent(model, "B2", "b2");
+    await setCellContent(model, "B2", "b2");
 
-    copy(model, "B2");
-    paste(model, "D2");
+    await copy(model, "B2");
+    await paste(model, "D2");
     expect(getCell(model, "D2")).toBeDefined();
-    undo(model);
+    await undo(model);
     expect(getCell(model, "D2")).toBeUndefined();
   });
 
   test("can paste-format a cell with style", async () => {
     const model = await createModel();
-    setCellContent(model, "B2", "b2");
-    selectCell(model, "B2");
-    setFormatting(model, "B2", { bold: true });
+    await setCellContent(model, "B2", "b2");
+    await selectCell(model, "B2");
+    await setFormatting(model, "B2", { bold: true });
     expect(getCell(model, "B2")!.style).toEqual({ bold: true });
 
-    copy(model, "B2");
-    paste(model, "C2", "onlyFormat");
+    await copy(model, "B2");
+    await paste(model, "C2", "onlyFormat");
     expect(getCellContent(model, "C2")).toBe("");
     expect(getCell(model, "C2")!.style).toEqual({ bold: true });
   });
 
   test("can copy and paste format", async () => {
     const model = await createModel();
-    setCellContent(model, "B2", "b2");
-    setFormatting(model, "B2", { bold: true });
-    selectCell(model, "B2");
+    await setCellContent(model, "B2", "b2");
+    await setFormatting(model, "B2", { bold: true });
+    await selectCell(model, "B2");
     expect(getCell(model, "B2")!.style).toEqual({ bold: true });
 
-    copy(model, "B2");
-    paste(model, "C2", "onlyFormat");
+    await copy(model, "B2");
+    await paste(model, "C2", "onlyFormat");
     expect(getCellContent(model, "C2")).toBe("");
     expect(getCell(model, "C2")!.style).toEqual({ bold: true });
   });
 
   test("paste format does not remove content", async () => {
     const model = await createModel();
-    setCellContent(model, "B2", "b2");
-    setCellContent(model, "C2", "c2");
-    setFormatting(model, "B2", { bold: true });
-    selectCell(model, "B2");
+    await setCellContent(model, "B2", "b2");
+    await setCellContent(model, "C2", "c2");
+    await setFormatting(model, "B2", { bold: true });
+    await selectCell(model, "B2");
     expect(getCell(model, "B2")!.style).toEqual({ bold: true });
 
-    copy(model, "B2");
-    paste(model, "C2", "onlyFormat");
+    await copy(model, "B2");
+    await paste(model, "C2", "onlyFormat");
 
     expect(getCellContent(model, "C2")).toBe("c2");
     expect(getCell(model, "C2")!.style).toEqual({ bold: true });
@@ -1180,37 +1180,37 @@ describe("clipboard", () => {
 
   test("can undo a paste format", async () => {
     const model = await createModel();
-    setCellContent(model, "B2", "b2");
-    setFormatting(model, "B2", { bold: true });
-    selectCell(model, "B2");
-    copy(model, "B2");
-    paste(model, "C2", "onlyFormat");
+    await setCellContent(model, "B2", "b2");
+    await setFormatting(model, "B2", { bold: true });
+    await selectCell(model, "B2");
+    await copy(model, "B2");
+    await paste(model, "C2", "onlyFormat");
 
     expect(getCellContent(model, "C2")).toBe("");
     expect(getCell(model, "C2")!.style).toEqual({ bold: true });
 
-    undo(model);
+    await undo(model);
     expect(getCell(model, "C2")).toBeUndefined();
   });
 
   test("can copy and paste as value", async () => {
     const model = await createModel();
-    setCellContent(model, "B2", "b2");
-    selectCell(model, "B2");
-    copy(model, "B2");
-    paste(model, "C2", "asValue");
+    await setCellContent(model, "B2", "b2");
+    await selectCell(model, "B2");
+    await copy(model, "B2");
+    await paste(model, "C2", "asValue");
     expect(getCellContent(model, "C2")).toBe("b2");
   });
 
   test("can copy a cell with a style and paste as value", async () => {
     const model = await createModel();
-    setCellContent(model, "B2", "b2");
-    setFormatting(model, "B2", { bold: true });
-    selectCell(model, "B2");
+    await setCellContent(model, "B2", "b2");
+    await setFormatting(model, "B2", { bold: true });
+    await selectCell(model, "B2");
     expect(getCell(model, "B2")!.style).toEqual({ bold: true });
 
-    copy(model, "B2");
-    paste(model, "C2", "asValue");
+    await copy(model, "B2");
+    await paste(model, "C2", "asValue");
 
     expect(getEvaluatedCell(model, "C2").value).toBe("b2");
     expect(getCell(model, "C2")!.style).not.toBeDefined();
@@ -1218,13 +1218,13 @@ describe("clipboard", () => {
 
   test("can copy a cell with a border and paste as value", async () => {
     const model = await createModel();
-    setCellContent(model, "B2", "b2");
-    selectCell(model, "B2");
-    setZoneBorders(model, { position: "bottom" });
+    await setCellContent(model, "B2", "b2");
+    await selectCell(model, "B2");
+    await setZoneBorders(model, { position: "bottom" });
     expect(getBorder(model, "B2")).toEqual({ bottom: DEFAULT_BORDER_DESC });
 
-    copy(model, "B2");
-    paste(model, "C2", "asValue");
+    await copy(model, "B2");
+    await paste(model, "C2", "asValue");
 
     expect(getEvaluatedCell(model, "C2").value).toBe("b2");
     expect(getBorder(model, "C2")).toBeNull();
@@ -1232,16 +1232,16 @@ describe("clipboard", () => {
 
   test("can copy a cell with a conditional format and paste as value", async () => {
     const model = await createModel({ sheets: [{ colNumber: 5, rowNumber: 5 }] });
-    setCellContent(model, "A1", "1");
-    setCellContent(model, "A2", "2");
-    setCellContent(model, "C1", "1");
-    setCellContent(model, "C2", "2");
-    const result = addEqualCf(model, "A1,A2", { fillColor: "#FF0000" }, "1");
+    await setCellContent(model, "A1", "1");
+    await setCellContent(model, "A2", "2");
+    await setCellContent(model, "C1", "1");
+    await setCellContent(model, "C2", "2");
+    const result = await addEqualCf(model, "A1,A2", { fillColor: "#FF0000" }, "1");
     expect(result).toBeSuccessfullyDispatched();
-    copy(model, "A1");
-    paste(model, "C1", "asValue");
-    copy(model, "A2");
-    paste(model, "C2", "asValue");
+    await copy(model, "A1");
+    await paste(model, "C1", "asValue");
+    await copy(model, "A2");
+    await paste(model, "C2", "asValue");
     expect(getStyle(model, "A1")).toEqual({
       fillColor: "#FF0000",
     });
@@ -1252,14 +1252,14 @@ describe("clipboard", () => {
 
   test("paste as value does not remove style", async () => {
     const model = await createModel();
-    setCellContent(model, "B2", "b2");
-    setCellContent(model, "C3", "c3");
-    selectCell(model, "C3");
-    setFormatting(model, "C3", { bold: true });
+    await setCellContent(model, "B2", "b2");
+    await setCellContent(model, "C3", "c3");
+    await selectCell(model, "C3");
+    await setFormatting(model, "C3", { bold: true });
     expect(getCell(model, "C3")!.style).toEqual({ bold: true });
 
-    copy(model, "B2");
-    paste(model, "C3", "asValue");
+    await copy(model, "B2");
+    await paste(model, "C3", "asValue");
 
     expect(getCellContent(model, "C3")).toBe("b2");
     expect(getCell(model, "C3")!.style).toEqual({ bold: true });
@@ -1267,13 +1267,13 @@ describe("clipboard", () => {
 
   test("paste as value does not remove border", async () => {
     const model = await createModel();
-    setCellContent(model, "B2", "b2");
-    setCellContent(model, "C3", "c3");
-    setZoneBorders(model, { position: "bottom" }, ["C3"]);
+    await setCellContent(model, "B2", "b2");
+    await setCellContent(model, "C3", "c3");
+    await setZoneBorders(model, { position: "bottom" }, ["C3"]);
     expect(getBorder(model, "C3")).toEqual({ bottom: DEFAULT_BORDER_DESC });
     expect(getBorder(model, "C4")).toBeNull();
-    copy(model, "B2");
-    paste(model, "C3", "asValue");
+    await copy(model, "B2");
+    await paste(model, "C3", "asValue");
 
     expect(getCellContent(model, "C3")).toBe("b2");
     expect(getBorder(model, "C3")).toEqual({ bottom: DEFAULT_BORDER_DESC });
@@ -1282,32 +1282,32 @@ describe("clipboard", () => {
 
   test("paste as value does remove number format", async () => {
     const model = await createModel();
-    setCellContent(model, "B2", "0.451");
-    setFormat(model, "B2", "0.00%");
+    await setCellContent(model, "B2", "0.451");
+    await setFormat(model, "B2", "0.00%");
     expect(getCellContent(model, "B2")).toBe("45.10%");
 
-    setCellContent(model, "C3", "42");
-    setFormat(model, "C3", "#,##0.00");
+    await setCellContent(model, "C3", "42");
+    await setFormat(model, "C3", "#,##0.00");
     expect(getCellContent(model, "C3")).toBe("42.00");
 
-    copy(model, "B2");
-    paste(model, "C3", "asValue");
+    await copy(model, "B2");
+    await paste(model, "C3", "asValue");
     expect(getCellContent(model, "C3")).toBe("0.45");
   });
 
   test("paste as value works with both no core format and empty string core format", async () => {
     const model = await createModel();
-    setCellContent(model, "D4", "=DATE(2024,6,5)");
+    await setCellContent(model, "D4", "=DATE(2024,6,5)");
 
-    copy(model, "D4");
-    paste(model, "E4", "asValue");
+    await copy(model, "D4");
+    await paste(model, "E4", "asValue");
     expect(getCell(model, "E4")).toMatchObject({ content: "45448", format: undefined });
 
-    setFormat(model, "D4", ""); // An empty string format is equivalent to no format
+    await setFormat(model, "D4", ""); // An empty string format is equivalent to no format
     expect(getCellContent(model, "D4")).toBe("6/5/2024");
 
-    copy(model, "D4");
-    paste(model, "E5", "asValue");
+    await copy(model, "D4");
+    await paste(model, "E5", "asValue");
     expect(getCell(model, "E5")).toMatchObject({ content: "45448", format: undefined });
   });
 
@@ -1318,13 +1318,13 @@ describe("clipboard", () => {
     "can copy a cell with a format and paste as value",
     async (originalContent, format, formatedContent) => {
       const model = await createModel();
-      setCellContent(model, "B2", originalContent);
-      setFormat(model, "B2", format);
+      await setCellContent(model, "B2", originalContent);
+      await setFormat(model, "B2", format);
       expect(getCellContent(model, "B2")).toBe(formatedContent);
       expect(getCell(model, "B2")!.format).toEqual(format);
 
-      copy(model, "B2");
-      paste(model, "C2", "asValue");
+      await copy(model, "B2");
+      await paste(model, "C2", "asValue");
 
       expect(getCellContent(model, "C2")).toBe(originalContent);
       expect(getCell(model, "C2")!.format).not.toBeDefined();
@@ -1333,14 +1333,14 @@ describe("clipboard", () => {
 
   test("copy as value : the cell take the format of the target cell", async () => {
     const model = await createModel();
-    setCellContent(model, "B2", "46023");
-    setFormat(model, "B2", "0.00%");
+    await setCellContent(model, "B2", "46023");
+    await setFormat(model, "B2", "0.00%");
     expect(getCellContent(model, "B2")).toBe("4602300.00%");
     expect(getCell(model, "B2")!.format).toEqual("0.00%");
 
-    setFormat(model, "C2", "m/d/yyyy");
-    copy(model, "B2");
-    paste(model, "C2", "asValue");
+    await setFormat(model, "C2", "m/d/yyyy");
+    await copy(model, "B2");
+    await paste(model, "C2", "asValue");
 
     expect(getCellContent(model, "C2")).toBe("1/1/2026");
     expect(getCell(model, "C2")!.format).toEqual("m/d/yyyy");
@@ -1348,11 +1348,11 @@ describe("clipboard", () => {
 
   test("can copy a formula and paste as value", async () => {
     const model = await createModel();
-    setCellContent(model, "A1", "=SUM(1+2)");
-    setCellContent(model, "A2", "=EQ(42,42)");
-    setCellContent(model, "A3", '=CONCAT("Ki","kou")');
-    copy(model, "A1:A3");
-    paste(model, "B1", "asValue");
+    await setCellContent(model, "A1", "=SUM(1+2)");
+    await setCellContent(model, "A2", "=EQ(42,42)");
+    await setCellContent(model, "A3", '=CONCAT("Ki","kou")');
+    await copy(model, "A1:A3");
+    await paste(model, "B1", "asValue");
     expect(getCellContent(model, "B1")).toBe("3");
     expect(getCellContent(model, "B2")).toBe("TRUE");
     expect(getCellContent(model, "B3")).toBe("Kikou");
@@ -1360,11 +1360,11 @@ describe("clipboard", () => {
 
   test("Can paste localized content as value", async () => {
     const model = await createModel();
-    updateLocale(model, DEFAULT_LOCALES[1]);
-    setCellContent(model, "A1", "5.4");
-    setCellContent(model, "A2", "=SUM(4.5)");
-    copy(model, "A1:A2");
-    paste(model, "B1", "asValue");
+    await updateLocale(model, DEFAULT_LOCALES[1]);
+    await setCellContent(model, "A1", "5.4");
+    await setCellContent(model, "A2", "=SUM(4.5)");
+    await copy(model, "A1:A2");
+    await paste(model, "B1", "asValue");
     expect(getCellRawContent(model, "B1")).toBe("5.4");
     expect(getCellRawContent(model, "B2")).toBe("4.5");
   });
@@ -1373,35 +1373,35 @@ describe("clipboard", () => {
     const model = await createModel();
 
     // formula without format
-    setCellContent(model, "A1", "=SUM(1+2)");
+    await setCellContent(model, "A1", "=SUM(1+2)");
 
     // formula with format seted on it
-    setCellContent(model, "A2", "=SUM(1+2)");
-    setCellFormat(model, "A2", "0%");
+    await setCellContent(model, "A2", "=SUM(1+2)");
+    await setCellFormat(model, "A2", "0%");
 
     // formula that return value with format
-    setCellContent(model, "A3", "=DATE(2042,1,1)");
+    await setCellContent(model, "A3", "=DATE(2042,1,1)");
 
     // formula that return value with format and other format seted on it
-    setCellContent(model, "A4", "=DATE(2042,1,1)");
-    setCellFormat(model, "A4", "0%");
+    await setCellContent(model, "A4", "=DATE(2042,1,1)");
+    await setCellFormat(model, "A4", "0%");
 
     // formula that return value with format infered from reference
-    setCellContent(model, "A5", "3");
-    setCellFormat(model, "A5", "0%");
-    setCellContent(model, "A6", "=SUM(1+A5)");
+    await setCellContent(model, "A5", "3");
+    await setCellFormat(model, "A5", "0%");
+    await setCellContent(model, "A6", "=SUM(1+A5)");
 
     // formula that return value with format infered from reference and other format seted on it
-    setCellContent(model, "A7", "3");
-    setCellFormat(model, "A7", "0%");
-    setCellContent(model, "A8", "=SUM(1+A7)");
-    setCellFormat(model, "A8", "#,##0[$$]");
+    await setCellContent(model, "A7", "3");
+    await setCellFormat(model, "A7", "0%");
+    await setCellContent(model, "A8", "=SUM(1+A7)");
+    await setCellFormat(model, "A8", "#,##0[$$]");
 
-    copy(model, "A1:A8");
-    paste(model, "B1");
+    await copy(model, "A1:A8");
+    await paste(model, "B1");
 
-    setCellFormat(model, "B5", "#,##0[$$]");
-    setCellFormat(model, "B7", "0%");
+    await setCellFormat(model, "B5", "#,##0[$$]");
+    await setCellFormat(model, "B7", "0%");
 
     expect(getCellContent(model, "B1")).toBe("3");
     expect(getCellContent(model, "B2")).toBe("300%");
@@ -1415,39 +1415,39 @@ describe("clipboard", () => {
     const model = await createModel();
 
     // formula without format
-    setCellContent(model, "A1", "=SUM(1+2)");
+    await setCellContent(model, "A1", "=SUM(1+2)");
 
     // formula with format seted on it
-    setCellContent(model, "A2", "=SUM(1+2)");
-    setCellFormat(model, "A2", "0%");
+    await setCellContent(model, "A2", "=SUM(1+2)");
+    await setCellFormat(model, "A2", "0%");
 
     // formula that return value with format
-    setCellContent(model, "A3", "=DATE(2042,1,1)");
+    await setCellContent(model, "A3", "=DATE(2042,1,1)");
 
     // formula that return value with format and other format seted on it
-    setCellContent(model, "A4", "=DATE(2042,1,1)");
-    setCellFormat(model, "A4", "0%");
+    await setCellContent(model, "A4", "=DATE(2042,1,1)");
+    await setCellFormat(model, "A4", "0%");
 
     // formula that return value with format infered from reference
-    setCellContent(model, "A5", "3");
-    setCellFormat(model, "A5", "0%");
-    setCellContent(model, "A6", "=SUM(1+A5)");
+    await setCellContent(model, "A5", "3");
+    await setCellFormat(model, "A5", "0%");
+    await setCellContent(model, "A6", "=SUM(1+A5)");
 
     // formula that return value with format infered from reference and other format seted on it
-    setCellContent(model, "A7", "3");
-    setCellFormat(model, "A7", "0%");
-    setCellContent(model, "A8", "=SUM(1+A7)");
-    setCellFormat(model, "A8", "#,##0[$$]");
+    await setCellContent(model, "A7", "3");
+    await setCellFormat(model, "A7", "0%");
+    await setCellContent(model, "A8", "=SUM(1+A7)");
+    await setCellFormat(model, "A8", "#,##0[$$]");
 
-    setCellContent(model, "B1", "42");
-    setCellContent(model, "B2", "42");
-    setCellContent(model, "B3", "42");
-    setCellContent(model, "B4", "42");
-    setCellContent(model, "B6", "42");
-    setCellContent(model, "B8", "42");
+    await setCellContent(model, "B1", "42");
+    await setCellContent(model, "B2", "42");
+    await setCellContent(model, "B3", "42");
+    await setCellContent(model, "B4", "42");
+    await setCellContent(model, "B6", "42");
+    await setCellContent(model, "B8", "42");
 
-    copy(model, "A1:A8");
-    paste(model, "B1", "onlyFormat");
+    await copy(model, "A1:A8");
+    await paste(model, "B1", "onlyFormat");
 
     expect(getCellContent(model, "B1")).toBe("42");
     expect(getCellContent(model, "B2")).toBe("4200%");
@@ -1459,41 +1459,41 @@ describe("clipboard", () => {
 
   test("can undo a paste as value", async () => {
     const model = await createModel();
-    setCellContent(model, "B2", "b2");
-    selectCell(model, "B2");
-    setFormatting(model, "B2", { bold: true });
-    copy(model, "B2");
-    paste(model, "C2", "asValue");
+    await setCellContent(model, "B2", "b2");
+    await selectCell(model, "B2");
+    await setFormatting(model, "B2", { bold: true });
+    await copy(model, "B2");
+    await paste(model, "C2", "asValue");
 
     expect(getCellContent(model, "C2")).toBe("b2");
     expect(getCell(model, "C2")!.style).not.toBeDefined();
 
-    undo(model);
+    await undo(model);
     expect(getCell(model, "C2")).toBeUndefined();
   });
 
   test("cut and paste as value is not allowed", async () => {
     const model = await createModel();
-    setCellContent(model, "B2", "b2");
-    cut(model, "B2");
-    const result = paste(model, "C3", "asValue");
+    await setCellContent(model, "B2", "b2");
+    await cut(model, "B2");
+    const result = await paste(model, "C3", "asValue");
     expect(result).toBeCancelledBecause(CommandResult.WrongPasteOption);
   });
 
   test("cut and paste format only is not allowed", async () => {
     const model = await createModel();
-    setCellContent(model, "B2", "b2");
-    cut(model, "B2");
-    const result = paste(model, "C3", "onlyFormat");
+    await setCellContent(model, "B2", "b2");
+    await cut(model, "B2");
+    const result = await paste(model, "C3", "onlyFormat");
     expect(result).toBeCancelledBecause(CommandResult.WrongPasteOption);
   });
 
   describe("copy/paste a formula with references", () => {
     test("update the references", async () => {
       const model = await createModel();
-      setCellContent(model, "A1", "=SUM(C1:C2)");
-      copy(model, "A1");
-      paste(model, "B2");
+      await setCellContent(model, "A1", "=SUM(C1:C2)");
+      await copy(model, "A1");
+      await paste(model, "B2");
       expect(getCellText(model, "B2")).toBe("=SUM(D2:D3)");
     });
 
@@ -1515,55 +1515,55 @@ describe("clipboard", () => {
       ["=SUM($C1:D$1)", "=SUM($C$1:E2)"], //excel and g-sheet compatibility ($C2:E$1 <=> $C$1:E2)
     ])("does not update fixed references", async (value, expected) => {
       const model = await createModel();
-      setCellContent(model, "A1", value);
-      copy(model, "A1");
-      paste(model, "B2");
+      await setCellContent(model, "A1", value);
+      await copy(model, "A1");
+      await paste(model, "B2");
       expect(getCellText(model, "B2")).toBe(expected);
     });
 
     test("update cross-sheet reference", async () => {
       const model = await createModel();
-      createSheet(model, { sheetId: "42" });
-      setCellContent(model, "B2", "=Sheet2!B2");
-      copy(model, "B2");
-      paste(model, "B3");
+      await createSheet(model, { sheetId: "42" });
+      await setCellContent(model, "B2", "=Sheet2!B2");
+      await copy(model, "B2");
+      await paste(model, "B3");
       expect(getCellText(model, "B3")).toBe("=Sheet2!B3");
     });
 
     test("update cross-sheet reference with a space in the name", async () => {
       const model = await createModel();
-      createSheetWithName(model, { sheetId: "42" }, "Sheet 2");
-      setCellContent(model, "B2", "='Sheet 2'!B2");
-      copy(model, "B2");
-      paste(model, "B3");
+      await createSheetWithName(model, { sheetId: "42" }, "Sheet 2");
+      await setCellContent(model, "B2", "='Sheet 2'!B2");
+      await copy(model, "B2");
+      await paste(model, "B3");
       expect(getCellText(model, "B3")).toBe("='Sheet 2'!B3");
     });
 
     test("update cross-sheet reference in a smaller sheet", async () => {
       const model = await createModel();
-      createSheet(model, { sheetId: "42", rows: 2, cols: 2 });
-      setCellContent(model, "A1", "=Sheet2!A1:A2");
-      copy(model, "A1");
-      paste(model, "A2");
+      await createSheet(model, { sheetId: "42", rows: 2, cols: 2 });
+      await setCellContent(model, "A1", "=Sheet2!A1:A2");
+      await copy(model, "A1");
+      await paste(model, "A2");
       expect(getCellText(model, "A2")).toBe("=Sheet2!A2:A3");
     });
 
     test("update cross-sheet reference to a range", async () => {
       const model = await createModel();
-      createSheet(model, { sheetId: "42" });
-      setCellContent(model, "A1", "=SUM(Sheet2!A2:A5)");
-      copy(model, "A1");
-      paste(model, "B1");
+      await createSheet(model, { sheetId: "42" });
+      await setCellContent(model, "A1", "=SUM(Sheet2!A2:A5)");
+      await copy(model, "A1");
+      await paste(model, "B1");
       expect(getCellText(model, "B1")).toBe("=SUM(Sheet2!B2:B5)");
     });
   });
 
   test("can cut and paste an invalid formula", async () => {
     const model = await createModel();
-    setCellContent(model, "A1", "=(+)");
-    setCellContent(model, "A2", "=C1{C2");
-    cut(model, "A1:A2");
-    paste(model, "C1");
+    await setCellContent(model, "A1", "=(+)");
+    await setCellContent(model, "A2", "=C1{C2");
+    await cut(model, "A1:A2");
+    await paste(model, "C1");
     expect(getCellText(model, "C1")).toBe("=(+)");
     expect(getCellText(model, "C2")).toBe("=C1{C2");
     expect(getCellText(model, "A1")).toBe("");
@@ -1572,79 +1572,79 @@ describe("clipboard", () => {
 
   test("cut/paste a formula with references does not update references in the formula", async () => {
     const model = await createModel();
-    setCellContent(model, "A1", "=SUM(C1:C2)");
-    cut(model, "A1");
-    paste(model, "B2");
+    await setCellContent(model, "A1", "=SUM(C1:C2)");
+    await cut(model, "A1");
+    await paste(model, "B2");
     expect(getCellText(model, "B2")).toBe("=SUM(C1:C2)");
   });
 
   test("cut/paste a formula with references in another sheet updates the sheet references in the formula", async () => {
     const model = await createModel();
-    createSheet(model, { sheetId: "sh2", name: "Sheet2" });
-    setCellContent(model, "A1", "=SUM(C1:C2)");
-    setCellContent(model, "B1", "=Sheet2!A1 + A2");
-    cut(model, "A1:B1");
+    await createSheet(model, { sheetId: "sh2", name: "Sheet2" });
+    await setCellContent(model, "A1", "=SUM(C1:C2)");
+    await setCellContent(model, "B1", "=Sheet2!A1 + A2");
+    await cut(model, "A1:B1");
 
-    activateSheet(model, "sh2");
-    paste(model, "A1");
+    await activateSheet(model, "sh2");
+    await paste(model, "A1");
     expect(getCellText(model, "A1")).toBe("=SUM(Sheet1!C1:C2)");
     expect(getCellText(model, "B1")).toBe("=A1+Sheet1!A2");
   });
 
   test("copy/paste a zone present in formulas references does not update references", async () => {
     const model = await createModel();
-    setCellContent(model, "A1", "=B2");
-    copy(model, "B2");
-    paste(model, "C3");
+    await setCellContent(model, "A1", "=B2");
+    await copy(model, "B2");
+    await paste(model, "C3");
     expect(getCellText(model, "A1")).toBe("=B2");
   });
 
   describe("cut/paste a zone present in formulas references", () => {
     test("update references", async () => {
       const model = await createModel();
-      setCellContent(model, "A1", "=B2");
-      cut(model, "B2");
-      paste(model, "C3");
+      await setCellContent(model, "A1", "=B2");
+      await cut(model, "B2");
+      await paste(model, "C3");
       expect(getCellText(model, "A1")).toBe("=C3");
     });
 
     test("update references to a range", async () => {
       const model = await createModel();
-      setCellContent(model, "A1", "=SUM(B2:C3)");
-      cut(model, "B2:C3");
-      paste(model, "D4");
+      await setCellContent(model, "A1", "=SUM(B2:C3)");
+      await cut(model, "B2:C3");
+      await paste(model, "D4");
       expect(getCellText(model, "A1")).toBe("=SUM(D4:E5)");
     });
 
     test("update fixed references", async () => {
       const model = await createModel();
-      setCellContent(model, "A1", "=$B$2");
-      cut(model, "B2");
-      paste(model, "C3");
+      await setCellContent(model, "A1", "=$B$2");
+      await cut(model, "B2");
+      await paste(model, "C3");
       expect(getCellText(model, "A1")).toBe("=$C$3");
     });
 
     test("update cross-sheet reference", async () => {
       const model = await createModel();
-      createSheet(model, { sheetId: "Sheet2" });
-      setCellContent(model, "A1", "=Sheet2!$B$2");
+      await createSheet(model, { sheetId: "Sheet2" });
+      await setCellContent(model, "A1", "=Sheet2!$B$2");
 
-      activateSheet(model, "Sheet2");
-      cut(model, "B2");
+      await activateSheet(model, "Sheet2");
+      await cut(model, "B2");
 
-      createSheet(model, { activate: true, sheetId: "Sheet3" });
-      paste(model, "C3");
+      await createSheet(model, { activate: true, sheetId: "Sheet3" });
+      await paste(model, "C3");
 
-      activateSheet(model, "Sheet1");
+      await activateSheet(model, "Sheet1");
       expect(getCellText(model, "A1")).toBe("=Sheet3!$C$3");
     });
 
     test("update references even if the formula is present in the cutting zone", async () => {
       const model = await createModel();
-      setCellContent(model, "A1", "=B1");
-      setCellContent(model, "B1", "b1");
-      cut(model, "A1:B1");
-      paste(model, "A2");
+      await setCellContent(model, "A1", "=B1");
+      await setCellContent(model, "B1", "b1");
+      await cut(model, "A1:B1");
+      await paste(model, "A2");
 
       expect(getCellText(model, "A1")).toBe("");
       expect(getCellText(model, "B1")).toBe("");
@@ -1654,18 +1654,18 @@ describe("clipboard", () => {
 
     test("does not update reference if it isn't fully included in the zone", async () => {
       const model = await createModel();
-      setCellContent(model, "A1", "=SUM(B1:C1)+B1");
-      cut(model, "B1");
-      paste(model, "B2");
+      await setCellContent(model, "A1", "=SUM(B1:C1)+B1");
+      await cut(model, "B1");
+      await paste(model, "B2");
       expect(getCellText(model, "A1")).toBe("=SUM(B1:C1)+B2");
     });
 
     test("does not update reference if it isn't fully included in the zone even if the formula is present in the cutting zone", async () => {
       const model = await createModel();
-      setCellContent(model, "A1", "=SUM(B1:C1)+B1");
-      setCellContent(model, "B1", "b1");
-      cut(model, "A1:B1");
-      paste(model, "A2");
+      await setCellContent(model, "A1", "=SUM(B1:C1)+B1");
+      await setCellContent(model, "B1", "b1");
+      await cut(model, "A1:B1");
+      await paste(model, "A2");
 
       expect(getCellText(model, "A1")).toBe("");
       expect(getCellText(model, "B1")).toBe("");
@@ -1680,9 +1680,9 @@ describe("clipboard", () => {
     ["=SUM($A:D$2)", "=SUM($A$2:E)"],
   ])("can copy and paste formula with full cols/rows", async (value, expected) => {
     const model = await createModel();
-    setCellContent(model, "A1", value);
-    copy(model, "A1");
-    paste(model, "B2");
+    await setCellContent(model, "A1", value);
+    await copy(model, "A1");
+    await paste(model, "B2");
     expect(getCellText(model, "B2")).toBe(expected);
   });
 
@@ -1690,16 +1690,16 @@ describe("clipboard", () => {
     const model = await createModel();
 
     // write something in B2 and set its format
-    setCellContent(model, "B2", "b2");
-    selectCell(model, "B2");
-    setFormatting(model, "B2", { bold: true });
+    await setCellContent(model, "B2", "b2");
+    await selectCell(model, "B2");
+    await setFormatting(model, "B2", { bold: true });
     expect(getCell(model, "B2")!.style).toEqual({ bold: true });
 
     // select A1 and copy format
-    copy(model, "A1");
+    await copy(model, "A1");
 
     // select B2 and paste format
-    paste(model, "B2", "onlyFormat");
+    await paste(model, "B2", "onlyFormat");
 
     expect(getCellContent(model, "B2")).toBe("b2");
     expect(getCell(model, "B2")!.style).not.toBeDefined();
@@ -1707,15 +1707,15 @@ describe("clipboard", () => {
 
   test("can copy and paste a conditional formatted cell", async () => {
     const model = await createModel({ sheets: [{ colNumber: 5, rowNumber: 5 }] });
-    setCellContent(model, "A1", "1");
-    setCellContent(model, "A2", "2");
-    setCellContent(model, "C1", "1");
-    setCellContent(model, "C2", "2");
-    addEqualCf(model, "A1,A2", { fillColor: "#FF0000" }, "1");
-    copy(model, "A1");
-    paste(model, "C1");
-    copy(model, "A2");
-    paste(model, "C2");
+    await setCellContent(model, "A1", "1");
+    await setCellContent(model, "A2", "2");
+    await setCellContent(model, "C1", "1");
+    await setCellContent(model, "C2", "2");
+    await addEqualCf(model, "A1,A2", { fillColor: "#FF0000" }, "1");
+    await copy(model, "A1");
+    await paste(model, "C1");
+    await copy(model, "A2");
+    await paste(model, "C2");
     expect(getStyle(model, "A1")).toEqual({
       fillColor: "#FF0000",
     });
@@ -1727,15 +1727,15 @@ describe("clipboard", () => {
   });
   test("can cut and paste a conditional formatted cell", async () => {
     const model = await createModel({ sheets: [{ colNumber: 5, rowNumber: 5 }] });
-    setCellContent(model, "A1", "1");
-    setCellContent(model, "A2", "2");
-    setCellContent(model, "C1", "1");
-    setCellContent(model, "C2", "2");
-    addEqualCf(model, "A1,A2", { fillColor: "#FF0000" }, "1");
-    cut(model, "A1");
-    paste(model, "C1");
-    cut(model, "A2");
-    paste(model, "C2");
+    await setCellContent(model, "A1", "1");
+    await setCellContent(model, "A2", "2");
+    await setCellContent(model, "C1", "1");
+    await setCellContent(model, "C2", "2");
+    await addEqualCf(model, "A1,A2", { fillColor: "#FF0000" }, "1");
+    await cut(model, "A1");
+    await paste(model, "C1");
+    await cut(model, "A2");
+    await paste(model, "C2");
     expect(getStyle(model, "A1")).toEqual({});
     expect(getStyle(model, "A2")).toEqual({});
     expect(getStyle(model, "C1")).toEqual({
@@ -1747,11 +1747,11 @@ describe("clipboard", () => {
   test("can cut and paste a conditional format in another sheet", async () => {
     const model = await createModel();
     const sheet1Id = model.getters.getActiveSheetId();
-    createSheet(model, { sheetId: "sheet2Id" });
-    addEqualCf(model, "A1:A2", { fillColor: "#FF0000" }, "1");
-    cut(model, "A1:A2");
-    activateSheet(model, "sheet2Id");
-    paste(model, "C1");
+    await createSheet(model, { sheetId: "sheet2Id" });
+    await addEqualCf(model, "A1:A2", { fillColor: "#FF0000" }, "1");
+    await cut(model, "A1:A2");
+    await activateSheet(model, "sheet2Id");
+    await paste(model, "C1");
     expect(model.getters.getConditionalFormats(sheet1Id)).toEqual([]);
     expect(model.getters.getConditionalFormats("sheet2Id")).toMatchObject([
       { ranges: ["C1:C2"], rule: { type: "CellIsRule", style: { fillColor: "#FF0000" } } },
@@ -1760,10 +1760,10 @@ describe("clipboard", () => {
 
   test("copy cells with CF => remove origin CF => paste => it should paste with original CF", async () => {
     const model = await createModel();
-    addEqualCf(model, "A1:A3", { fillColor: "#00FF00" }, "1", "cfId");
-    copy(model, "A1:A3");
-    removeCF(model, "cfId");
-    paste(model, "D1");
+    await addEqualCf(model, "A1:A3", { fillColor: "#00FF00" }, "1", "cfId");
+    await copy(model, "A1:A3");
+    await removeCF(model, "cfId");
+    await paste(model, "D1");
     expect(model.getters.getConditionalFormats(model.getters.getActiveSheetId())).toMatchObject([
       { ranges: ["D1:D3"], rule: { style: { fillColor: "#00FF00" } } },
     ]);
@@ -1772,12 +1772,12 @@ describe("clipboard", () => {
   test("copy cells with multiple independent CF => remove all copied CF => paste => it should paste with all original CF in the correct positions", async () => {
     const model = await createModel();
     const sheetId = model.getters.getActiveSheetId();
-    addEqualCf(model, "A1:A3", { fillColor: "#00FF00" }, "1", "cf1");
-    addEqualCf(model, "C1:C3", { fillColor: "#0000FF" }, "1", "cf2");
-    copy(model, "A1:C3");
-    removeCF(model, "cf1");
-    removeCF(model, "cf2");
-    paste(model, "E1");
+    await addEqualCf(model, "A1:A3", { fillColor: "#00FF00" }, "1", "cf1");
+    await addEqualCf(model, "C1:C3", { fillColor: "#0000FF" }, "1", "cf2");
+    await copy(model, "A1:C3");
+    await removeCF(model, "cf1");
+    await removeCF(model, "cf2");
+    await paste(model, "E1");
     expect(model.getters.getConditionalFormats(sheetId)).toMatchObject([
       { ranges: ["E1:E3"], rule: { style: { fillColor: "#00FF00" } } },
       { ranges: ["G1:G3"], rule: { style: { fillColor: "#0000FF" } } },
@@ -1787,13 +1787,13 @@ describe("clipboard", () => {
   test("copy cells with multiple independent CF => remove origin sheet => paste => it should paste with all original CF in the correct positions", async () => {
     const model = await createModel();
     const sheetId = model.getters.getActiveSheetId();
-    addEqualCf(model, "A1:A3", { fillColor: "#00FF00" }, "1", "cf1");
-    addEqualCf(model, "C1:C3", { fillColor: "#0000FF" }, "1", "cf2");
-    copy(model, "A1:C3");
+    await addEqualCf(model, "A1:A3", { fillColor: "#00FF00" }, "1", "cf1");
+    await addEqualCf(model, "C1:C3", { fillColor: "#0000FF" }, "1", "cf2");
+    await copy(model, "A1:C3");
     const newSheetId = "Sheet2";
-    createSheet(model, { sheetId: newSheetId, activate: true });
-    deleteSheet(model, sheetId);
-    paste(model, "E1");
+    await createSheet(model, { sheetId: newSheetId, activate: true });
+    await deleteSheet(model, sheetId);
+    await paste(model, "E1");
     expect(model.getters.getConditionalFormats(newSheetId)).toMatchObject([
       { ranges: ["E1:E3"], rule: { style: { fillColor: "#00FF00" } } },
       { ranges: ["G1:G3"], rule: { style: { fillColor: "#0000FF" } } },
@@ -1802,12 +1802,12 @@ describe("clipboard", () => {
 
   test("can copy and paste a conditional formatted zone", async () => {
     const model = await createModel({ sheets: [{ colNumber: 5, rowNumber: 5 }] });
-    setCellContent(model, "A1", "1");
-    setCellContent(model, "A2", "2");
-    addEqualCf(model, "A1,A2", { fillColor: "#FF0000" }, "1");
-    copy(model, "A1:A2");
-    paste(model, "B1");
-    paste(model, "C1");
+    await setCellContent(model, "A1", "1");
+    await setCellContent(model, "A2", "2");
+    await addEqualCf(model, "A1,A2", { fillColor: "#FF0000" }, "1");
+    await copy(model, "A1:A2");
+    await paste(model, "B1");
+    await paste(model, "C1");
     expect(getStyle(model, "A1")).toEqual({
       fillColor: "#FF0000",
     });
@@ -1820,8 +1820,8 @@ describe("clipboard", () => {
       fillColor: "#FF0000",
     });
     expect(getStyle(model, "C2")).toEqual({});
-    setCellContent(model, "C1", "2");
-    setCellContent(model, "C2", "1");
+    await setCellContent(model, "C1", "2");
+    await setCellContent(model, "C2", "1");
     expect(getStyle(model, "C1")).toEqual({});
     expect(getStyle(model, "C2")).toEqual({
       fillColor: "#FF0000",
@@ -1830,19 +1830,19 @@ describe("clipboard", () => {
 
   test("can cut and paste a conditional formatted zone", async () => {
     const model = await createModel({ sheets: [{ colNumber: 5, rowNumber: 5 }] });
-    setCellContent(model, "A1", "1");
-    setCellContent(model, "A2", "2");
-    addEqualCf(model, "A1,A2", { fillColor: "#FF0000" }, "1");
-    cut(model, "A1:A2");
-    paste(model, "B1");
+    await setCellContent(model, "A1", "1");
+    await setCellContent(model, "A2", "2");
+    await addEqualCf(model, "A1,A2", { fillColor: "#FF0000" }, "1");
+    await cut(model, "A1:A2");
+    await paste(model, "B1");
     expect(getStyle(model, "A1")).toEqual({});
     expect(getStyle(model, "A2")).toEqual({});
     expect(getStyle(model, "B1")).toEqual({
       fillColor: "#FF0000",
     });
     expect(getStyle(model, "B2")).toEqual({});
-    setCellContent(model, "B1", "2");
-    setCellContent(model, "B2", "1");
+    await setCellContent(model, "B1", "2");
+    await setCellContent(model, "B2", "1");
     expect(getStyle(model, "B1")).toEqual({});
     expect(getStyle(model, "B2")).toEqual({
       fillColor: "#FF0000",
@@ -1856,18 +1856,18 @@ describe("clipboard", () => {
         { id: "s2", colNumber: 5, rowNumber: 5 },
       ],
     });
-    setCellContent(model, "A1", "1");
-    setCellContent(model, "A2", "2");
-    addEqualCf(model, "A1,A2", { fillColor: "#FF0000" }, "1");
-    copy(model, "A1:A2");
-    activateSheet(model, "s2");
-    paste(model, "A1");
+    await setCellContent(model, "A1", "1");
+    await setCellContent(model, "A2", "2");
+    await addEqualCf(model, "A1,A2", { fillColor: "#FF0000" }, "1");
+    await copy(model, "A1:A2");
+    await activateSheet(model, "s2");
+    await paste(model, "A1");
     expect(getStyle(model, "A1", "s2")).toEqual({
       fillColor: "#FF0000",
     });
     expect(getStyle(model, "A2", "s2")).toEqual({});
-    setCellContent(model, "A1", "2");
-    setCellContent(model, "A2", "1");
+    await setCellContent(model, "A1", "2");
+    await setCellContent(model, "A2", "1");
     expect(getStyle(model, "A1", "s2")).toEqual({});
     expect(getStyle(model, "A2", "s2")).toEqual({
       fillColor: "#FF0000",
@@ -1876,10 +1876,10 @@ describe("clipboard", () => {
 
   test("can cut and paste a conditional formatted zone to another page", async () => {
     const model = await createModel({ sheets: [{ id: "sheet1" }, { id: "sheet2" }] });
-    addEqualCf(model, "A1:A2", { fillColor: "#FF0000" }, "1");
-    cut(model, "A1:A2");
-    activateSheet(model, "sheet2");
-    paste(model, "A1");
+    await addEqualCf(model, "A1:A2", { fillColor: "#FF0000" }, "1");
+    await cut(model, "A1:A2");
+    await activateSheet(model, "sheet2");
+    await paste(model, "A1");
     expect(model.getters.getConditionalFormats("sheet2")).toMatchObject([
       { ranges: ["A1:A2"], rule: { style: { fillColor: "#FF0000" } } },
     ]);
@@ -1888,23 +1888,23 @@ describe("clipboard", () => {
 
   test("copy paste CF in another sheet => change CF => copy paste again does not overwrite the previously pasted CF", async () => {
     const model = await createModel();
-    createSheet(model, {});
+    await createSheet(model, {});
     const sheet1Id = model.getters.getSheetIds()[0];
     const sheet2Id = model.getters.getSheetIds()[1];
 
-    addEqualCf(model, "A1", { fillColor: "#00FF00" }, "2", "cfId");
-    copy(model, "A1");
-    activateSheet(model, sheet2Id);
-    paste(model, "A1");
+    await addEqualCf(model, "A1", { fillColor: "#00FF00" }, "2", "cfId");
+    await copy(model, "A1");
+    await activateSheet(model, sheet2Id);
+    await paste(model, "A1");
     expect(model.getters.getConditionalFormats(sheet2Id)).toMatchObject([
       { ranges: ["A1"], rule: { style: { fillColor: "#00FF00" } } },
     ]);
 
-    addEqualCf(model, "A1", { fillColor: "#FF0000" }, "2", "cfId", sheet1Id);
-    activateSheet(model, sheet1Id);
-    copy(model, "A1");
-    activateSheet(model, sheet2Id);
-    paste(model, "B2");
+    await addEqualCf(model, "A1", { fillColor: "#FF0000" }, "2", "cfId", sheet1Id);
+    await activateSheet(model, sheet1Id);
+    await copy(model, "A1");
+    await activateSheet(model, sheet2Id);
+    await paste(model, "B2");
     expect(model.getters.getConditionalFormats(sheet2Id)).toMatchObject([
       { ranges: ["A1"], rule: { style: { fillColor: "#00FF00" } } },
       { ranges: ["B2"], rule: { style: { fillColor: "#FF0000" } } },
@@ -1920,10 +1920,10 @@ describe("clipboard", () => {
 
     const model = await createModel({ sheets: [{ colNumber: 5, rowNumber: 5 }] });
     const sheetId = model.getters.getActiveSheetId();
-    addEqualCf(model, "A1,A2", { fillColor: "#FF0000" }, "1");
+    await addEqualCf(model, "A1,A2", { fillColor: "#FF0000" }, "1");
 
-    copy(model, "A1:A2");
-    paste(model, "B1");
+    await copy(model, "A1:A2");
+    await paste(model, "B1");
 
     expect(model.getters.getConditionalFormats(sheetId)).toMatchObject([{ ranges: ["A1:B2"] }]);
     expect(commands.filter((c) => c.type === "ADD_CONDITIONAL_FORMAT")).toHaveLength(2);
@@ -1931,41 +1931,41 @@ describe("clipboard", () => {
 
   test("can copy and paste a cell which contains a cross-sheet reference", async () => {
     const model = await createModel();
-    createSheet(model, { sheetId: "42" });
-    setCellContent(model, "B2", "=Sheet2!B2");
+    await createSheet(model, { sheetId: "42" });
+    await setCellContent(model, "B2", "=Sheet2!B2");
 
-    copy(model, "B2");
-    paste(model, "B3");
+    await copy(model, "B2");
+    await paste(model, "B3");
     expect(getCellText(model, "B3")).toBe("=Sheet2!B3");
   });
 
   test("can copy and paste a cell which contains a cross-sheet reference with a space in the name", async () => {
     const model = await createModel();
-    createSheetWithName(model, { sheetId: "42" }, "Sheet 2");
-    setCellContent(model, "B2", "='Sheet 2'!B2");
+    await createSheetWithName(model, { sheetId: "42" }, "Sheet 2");
+    await setCellContent(model, "B2", "='Sheet 2'!B2");
 
-    copy(model, "B2");
-    paste(model, "B3");
+    await copy(model, "B2");
+    await paste(model, "B3");
     expect(getCellText(model, "B3")).toBe("='Sheet 2'!B3");
   });
 
   test("can copy and paste a cell which contains a cross-sheet reference in a smaller sheet", async () => {
     const model = await createModel();
-    createSheet(model, { sheetId: "42", rows: 2, cols: 2 });
-    setCellContent(model, "A1", "=Sheet2!A1:A2");
+    await createSheet(model, { sheetId: "42", rows: 2, cols: 2 });
+    await setCellContent(model, "A1", "=Sheet2!A1:A2");
 
-    copy(model, "A1");
-    paste(model, "A2");
+    await copy(model, "A1");
+    await paste(model, "A2");
     expect(getCellText(model, "A2")).toBe("=Sheet2!A2:A3");
   });
 
   test("can copy and paste a cell which contains a cross-sheet reference to a range", async () => {
     const model = await createModel();
-    createSheet(model, { sheetId: "42" });
-    setCellContent(model, "A1", "=SUM(Sheet2!A2:A5)");
+    await createSheet(model, { sheetId: "42" });
+    await setCellContent(model, "A1", "=SUM(Sheet2!A2:A5)");
 
-    copy(model, "A1");
-    paste(model, "B1");
+    await copy(model, "A1");
+    await paste(model, "B1");
     expect(getCellText(model, "B1")).toBe("=SUM(Sheet2!B2:B5)");
   });
 
@@ -1974,12 +1974,12 @@ describe("clipboard", () => {
     ["=SUM(A1:B1)", "=SUM(#REF)"],
   ])("Copy invalid ranges due to row deletion", async (initialFormula, expectedInvalidFormula) => {
     const model = await createModel();
-    setCellContent(model, "A3", initialFormula);
-    deleteRows(model, [0]);
+    await setCellContent(model, "A3", initialFormula);
+    await deleteRows(model, [0]);
     expect(getCellRawContent(model, "A2")).toBe(expectedInvalidFormula);
 
-    copy(model, "A2");
-    paste(model, "C5");
+    await copy(model, "A2");
+    await paste(model, "C5");
     expect(getCellRawContent(model, "C5")).toBe(expectedInvalidFormula);
   });
 
@@ -1990,12 +1990,12 @@ describe("clipboard", () => {
     "Copy invalid ranges due to column deletion",
     async (initialFormula, expectedInvalidFormula) => {
       const model = await createModel();
-      setCellContent(model, "C1", initialFormula);
-      deleteColumns(model, ["A"]);
+      await setCellContent(model, "C1", initialFormula);
+      await deleteColumns(model, ["A"]);
       expect(getCellRawContent(model, "B1")).toBe(expectedInvalidFormula);
 
-      copy(model, "B1");
-      paste(model, "C3");
+      await copy(model, "B1");
+      await paste(model, "C3");
       expect(getCellRawContent(model, "C3")).toBe(expectedInvalidFormula);
     }
   );
@@ -2005,12 +2005,12 @@ describe("clipboard", () => {
     ["=SUM(A1:B1)", "=SUM(#REF)"],
   ])("Cut invalid ranges due to row deletion", async (initialFormula, expectedInvalidFormula) => {
     const model = await createModel();
-    setCellContent(model, "A3", initialFormula);
-    deleteRows(model, [0]);
+    await setCellContent(model, "A3", initialFormula);
+    await deleteRows(model, [0]);
     expect(getCellRawContent(model, "A2")).toBe(expectedInvalidFormula);
 
-    cut(model, "A2");
-    paste(model, "C5");
+    await cut(model, "A2");
+    await paste(model, "C5");
     expect(getCellRawContent(model, "C5")).toBe(expectedInvalidFormula);
   });
 
@@ -2021,12 +2021,12 @@ describe("clipboard", () => {
     "Cut invalid ranges due to column deletion",
     async (initialFormula, expectedInvalidFormula) => {
       const model = await createModel();
-      setCellContent(model, "C1", initialFormula);
-      deleteColumns(model, ["A"]);
+      await setCellContent(model, "C1", initialFormula);
+      await deleteColumns(model, ["A"]);
       expect(getCellRawContent(model, "B1")).toBe(expectedInvalidFormula);
 
-      cut(model, "B1");
-      paste(model, "C3");
+      await cut(model, "B1");
+      await paste(model, "C3");
       expect(getCellRawContent(model, "C3")).toBe(expectedInvalidFormula);
     }
   );
@@ -2039,10 +2039,10 @@ describe("clipboard", () => {
       B4: "b4", C4: "c4", D4: "d4",
     });
 
-    createTableWithFilter(model, "B2:D4");
-    updateFilter(model, "C3", ["c3"]);
-    copy(model, "B2:D4");
-    paste(model, "B5");
+    await createTableWithFilter(model, "B2:D4");
+    await updateFilter(model, "C3", ["c3"]);
+    await copy(model, "B2:D4");
+    await paste(model, "B5");
 
     expect(getEvaluatedGrid(model, "B5:D7")).toEqual([
       ["b2", "c2", "d2"],
@@ -2059,10 +2059,10 @@ describe("clipboard", () => {
       B4: "b4", C4: "c4", D4: "d4",
     });
 
-    createTableWithFilter(model, "B2:D4");
-    updateFilter(model, "C3", ["c3"]);
-    cut(model, "B2:D4");
-    paste(model, "B5");
+    await createTableWithFilter(model, "B2:D4");
+    await updateFilter(model, "C3", ["c3"]);
+    await cut(model, "B2:D4");
+    await paste(model, "B5");
 
     expect(getEvaluatedGrid(model, "B5:D7")).toEqual([
       ["b2", "c2", "d2"],
@@ -2079,10 +2079,10 @@ describe("clipboard", () => {
       B4: "b4", C4: "c4", D4: "d4",
     });
 
-    hideRows(model, [2]);
-    hideColumns(model, ["C"]);
-    copy(model, "B2:D4");
-    paste(model, "E1");
+    await hideRows(model, [2]);
+    await hideColumns(model, ["C"]);
+    await copy(model, "B2:D4");
+    await paste(model, "E1");
 
     expect(getEvaluatedGrid(model, "E1:G3")).toEqual([
       ["b2", "c2", "d2"],
@@ -2099,10 +2099,10 @@ describe("clipboard", () => {
       B4: "b4", C4: "c4", D4: "d4",
     });
 
-    hideRows(model, [2]);
-    hideColumns(model, ["C"]);
-    cut(model, "B2:D4");
-    paste(model, "E1");
+    await hideRows(model, [2]);
+    await hideColumns(model, ["C"]);
+    await cut(model, "B2:D4");
+    await paste(model, "E1");
 
     expect(getEvaluatedGrid(model, "E1:G3")).toEqual([
       ["b2", "c2", "d2"],
@@ -2126,15 +2126,15 @@ describe("clipboard", () => {
     });
 
     // copy 1 cell
-    copy(model, "D1"); // copy the header Total
-    paste(model, "G4");
+    await copy(model, "D1"); // copy the header Total
+    await paste(model, "G4");
     expect(getEvaluatedCell(model, "G4").value).toBe("Total");
     expect(getCellRawContent(model, "G4")).toBe("=PIVOT.HEADER(1)");
 
     // copy part of pivot
-    copy(model, "C1:D4");
-    paste(model, "G4");
-    setFormulaVisibility(model, true);
+    await copy(model, "C1:D4");
+    await paste(model, "G4");
+    await setFormulaVisibility(model, true);
     // prettier-ignore
     expect(getEvaluatedGrid(model, "G4:H7")).toEqual([
       ["",                                      "=PIVOT.HEADER(1)"],
@@ -2158,13 +2158,13 @@ describe("clipboard", () => {
       measures: [{ id: "Price:sum", fieldName: "Price", aggregator: "sum" }],
     });
 
-    copy(model, "C1:D5");
-    paste(model, "G4");
+    await copy(model, "C1:D5");
+    await paste(model, "G4");
     expect(getCellRawContent(model, "G4")).toBe("=PIVOT(1)");
     expect(getCell(model, "G5")).toBeUndefined();
 
-    cut(model, "C1:D5");
-    paste(model, "G20");
+    await cut(model, "C1:D5");
+    await paste(model, "G20");
     expect(getCellRawContent(model, "G20")).toBe("=PIVOT(1)");
     expect(getCell(model, "G21")).toBeUndefined();
   });
@@ -2178,7 +2178,7 @@ describe("clipboard", () => {
     };
     const model = await createModelFromGrid(grid);
 
-    setFormat(model, "B2:B3", "#,##0[$$]");
+    await setFormat(model, "B2:B3", "#,##0[$$]");
 
     addPivot(model, "A1:B3", {
       columns: [],
@@ -2186,9 +2186,9 @@ describe("clipboard", () => {
       measures: [{ id: "Price:sum", fieldName: "Price", aggregator: "sum" }],
     });
 
-    setFormat(model, "D5", "#,##0.0");
-    copy(model, "D4:D5");
-    paste(model, "G4");
+    await setFormat(model, "D5", "#,##0.0");
+    await copy(model, "D4:D5");
+    await paste(model, "G4");
 
     // automatic format on G4
     expect(getCellRawContent(model, "G4")).toBe('=PIVOT.VALUE(1,"Price:sum","Customer","Bob")');
@@ -2215,8 +2215,8 @@ describe("clipboard", () => {
       measures: [{ id: "Price:sum", fieldName: "Price", aggregator: "sum" }],
     });
 
-    copy(model, "D4");
-    paste(model, "G4");
+    await copy(model, "D4");
+    await paste(model, "G4");
     expect(getCellRawContent(model, "G4")).toBe('=PIVOT.VALUE(1,"Price:sum","Customer","Alice")');
   });
 
@@ -2234,9 +2234,9 @@ describe("clipboard", () => {
       measures: [{ fieldName: "Price", aggregator: "sum", id: "Price:sum" }],
     });
 
-    copy(model, "C1:D4");
-    paste(model, "G4");
-    setFormulaVisibility(model, true);
+    await copy(model, "C1:D4");
+    await paste(model, "G4");
+    await setFormulaVisibility(model, true);
     // prettier-ignore
     expect(getEvaluatedGrid(model, "G4:H7")).toEqual([
       ["",                                      "=PIVOT.HEADER(1)"],
@@ -2260,8 +2260,8 @@ describe("clipboard", () => {
       measures: [{ id: "Price:sum", fieldName: "Price", aggregator: "sum" }],
     });
 
-    copy(model, "C1");
-    paste(model, "G4");
+    await copy(model, "C1");
+    await paste(model, "G4");
     expect(getCellRawContent(model, "G4")).toBe("=PIVOT(1)");
   });
 
@@ -2279,8 +2279,8 @@ describe("clipboard", () => {
       rows: [{ fieldName: "Customer" }],
       measures: [{ id: "Price:sum", fieldName: "Price", aggregator: "sum" }],
     });
-    copy(model, "C2");
-    paste(model, "G4");
+    await copy(model, "C2");
+    await paste(model, "G4");
     expect(getCellRawContent(model, "G4")).toBe('=PIVOT.VALUE(G3,"Price","Customer","Bob")');
   });
 });
@@ -2288,12 +2288,12 @@ describe("clipboard", () => {
 describe("clipboard: pasting outside of sheet", () => {
   test("can copy and paste a full column", async () => {
     const model = await createModel();
-    setCellContent(model, "A1", "txt");
+    await setCellContent(model, "A1", "txt");
     const activeSheetId = model.getters.getActiveSheetId();
     const currentRowNumber = model.getters.getNumberRows(activeSheetId);
 
-    copy(model, zoneToXc(model.getters.getColsZone(activeSheetId, 0, 0)));
-    paste(model, "B2");
+    await copy(model, zoneToXc(model.getters.getColsZone(activeSheetId, 0, 0)));
+    await paste(model, "B2");
     expect(model.getters.getNumberRows(activeSheetId)).toBe(currentRowNumber + 1);
     expect(getCellContent(model, "B2")).toBe("txt");
     expect(model.getters.getSelectedZones()).toEqual([toZone("B2:B101")]);
@@ -2301,13 +2301,13 @@ describe("clipboard: pasting outside of sheet", () => {
 
   test("can copy and paste a full row", async () => {
     const model = await createModel();
-    setCellContent(model, "A1", "txt");
+    await setCellContent(model, "A1", "txt");
 
     const activeSheetId = model.getters.getActiveSheetId();
     const currentColNumber = model.getters.getNumberCols(activeSheetId);
 
-    copy(model, zoneToXc(model.getters.getRowsZone(activeSheetId, 0, 0)));
-    paste(model, "B2");
+    await copy(model, zoneToXc(model.getters.getRowsZone(activeSheetId, 0, 0)));
+    await paste(model, "B2");
     expect(model.getters.getNumberCols(activeSheetId)).toBe(currentColNumber + 1);
     expect(getCellContent(model, "B2")).toBe("txt");
     expect(model.getters.getSelectedZones()).toEqual([toZone("B2:AA2")]);
@@ -2315,51 +2315,51 @@ describe("clipboard: pasting outside of sheet", () => {
 
   test("fill down on cell(s) of edge row should do nothing", async () => {
     const model = await createModel();
-    setCellContent(model, "B1", "b1");
-    selectCell(model, "B1");
-    copyPasteAboveCells(model);
+    await setCellContent(model, "B1", "b1");
+    await selectCell(model, "B1");
+    await copyPasteAboveCells(model);
     expect(getCellContent(model, "B1")).toBe("b1");
 
-    setCellContent(model, "C1", "c1");
-    setSelection(model, ["B1:C1"]);
-    copyPasteAboveCells(model);
+    await setCellContent(model, "C1", "c1");
+    await setSelection(model, ["B1:C1"]);
+    await copyPasteAboveCells(model);
     expect(getCellContent(model, "B1")).toBe("b1");
     expect(getCellContent(model, "C1")).toBe("c1");
   });
 
   test("fill right on cell(s) of edge column should do nothing", async () => {
     const model = await createModel();
-    setCellContent(model, "A2", "a2");
-    selectCell(model, "A2");
-    copyPasteCellsOnLeft(model);
+    await setCellContent(model, "A2", "a2");
+    await selectCell(model, "A2");
+    await copyPasteCellsOnLeft(model);
     expect(getCellContent(model, "A2")).toBe("a2");
 
-    setCellContent(model, "A3", "a3");
-    setSelection(model, ["A2:A3"]);
-    copyPasteCellsOnLeft(model);
+    await setCellContent(model, "A3", "a3");
+    await setSelection(model, ["A2:A3"]);
+    await copyPasteCellsOnLeft(model);
     expect(getCellContent(model, "A2")).toBe("a2");
     expect(getCellContent(model, "A3")).toBe("a3");
   });
 
   test("fill down selection with single row -> for each cell, replicates the cell above it", async () => {
     const model = await createModel();
-    setCellContent(model, "B2", "b2");
-    selectCell(model, "B2");
-    copyPasteAboveCells(model);
+    await setCellContent(model, "B2", "b2");
+    await selectCell(model, "B2");
+    await copyPasteAboveCells(model);
     expect(getCell(model, "B2")).toBe(undefined);
 
-    setCellContent(model, "B1", "b1");
-    setFormatting(model, "B1", { bold: true, fillColor: "red" });
-    setCellContent(model, "B2", "b2");
-    selectCell(model, "B2");
-    copyPasteAboveCells(model);
+    await setCellContent(model, "B1", "b1");
+    await setFormatting(model, "B1", { bold: true, fillColor: "red" });
+    await setCellContent(model, "B2", "b2");
+    await selectCell(model, "B2");
+    await copyPasteAboveCells(model);
     expect(getCellContent(model, "B2")).toBe("b1");
     expect(getStyle(model, "B2")).toEqual({ bold: true, fillColor: "red" });
 
-    setCellContent(model, "C1", "c1");
-    setCellContent(model, "D1", "d1");
-    setSelection(model, ["B2:D2"]);
-    copyPasteAboveCells(model);
+    await setCellContent(model, "C1", "c1");
+    await setCellContent(model, "D1", "d1");
+    await setSelection(model, ["B2:D2"]);
+    await copyPasteAboveCells(model);
     expect(getCellContent(model, "B2")).toBe("b1");
     expect(getStyle(model, "B2")).toEqual({ bold: true, fillColor: "red" });
     expect(getCellContent(model, "C2")).toBe("c1");
@@ -2368,50 +2368,50 @@ describe("clipboard: pasting outside of sheet", () => {
 
   test("do not fill down if filling down would unmerge cells", async () => {
     const model = await createModel();
-    setCellContent(model, "A1", "a1");
-    merge(model, "A2:A3");
-    setSelection(model, ["A1:A3"]);
-    const result = copyPasteAboveCells(model);
+    await setCellContent(model, "A1", "a1");
+    await merge(model, "A2:A3");
+    await setSelection(model, ["A1:A3"]);
+    const result = await copyPasteAboveCells(model);
     expect(result).toBeCancelledBecause(CommandResult.WillRemoveExistingMerge);
   });
 
   test("do not fill right if filling right would unmerge cells", async () => {
     const model = await createModel();
-    setCellContent(model, "A1", "a1");
-    merge(model, "B1:C1");
-    setSelection(model, ["A1:C1"]);
-    const result = copyPasteCellsOnLeft(model);
+    await setCellContent(model, "A1", "a1");
+    await merge(model, "B1:C1");
+    await setSelection(model, ["A1:C1"]);
+    const result = await copyPasteCellsOnLeft(model);
     expect(result).toBeCancelledBecause(CommandResult.WillRemoveExistingMerge);
   });
 
   test("do not fill if filling would unmerge cells", async () => {
     const model = await createModel();
-    setCellContent(model, "A1", "a1");
-    merge(model, "A2:A3");
-    setSelection(model, ["A1:A3"]);
-    const result = copyPasteCellsOnZone(model);
+    await setCellContent(model, "A1", "a1");
+    await merge(model, "A2:A3");
+    await setSelection(model, ["A1:A3"]);
+    const result = await copyPasteCellsOnZone(model);
     expect(result).toBeCancelledBecause(CommandResult.WillRemoveExistingMerge);
   });
 
   test("fill right selection with single column -> for each cell, replicates the cell on its left", async () => {
     const model = await createModel();
-    setCellContent(model, "B1", "b1");
-    selectCell(model, "B1");
-    copyPasteCellsOnLeft(model);
+    await setCellContent(model, "B1", "b1");
+    await selectCell(model, "B1");
+    await copyPasteCellsOnLeft(model);
     expect(getCell(model, "B1")).toBe(undefined);
 
-    setCellContent(model, "A1", "a1");
-    setFormatting(model, "A1", { bold: true, fillColor: "red" });
-    setCellContent(model, "B1", "b1");
-    selectCell(model, "B1");
-    copyPasteCellsOnLeft(model);
+    await setCellContent(model, "A1", "a1");
+    await setFormatting(model, "A1", { bold: true, fillColor: "red" });
+    await setCellContent(model, "B1", "b1");
+    await selectCell(model, "B1");
+    await copyPasteCellsOnLeft(model);
     expect(getCellContent(model, "B1")).toBe("a1");
     expect(getStyle(model, "B1")).toEqual({ bold: true, fillColor: "red" });
 
-    setCellContent(model, "A2", "a2");
-    setCellContent(model, "A3", "a3");
-    setSelection(model, ["B1:B3"]);
-    copyPasteCellsOnLeft(model);
+    await setCellContent(model, "A2", "a2");
+    await setCellContent(model, "A3", "a3");
+    await setSelection(model, ["B1:B3"]);
+    await copyPasteCellsOnLeft(model);
     expect(getCellContent(model, "B1")).toBe("a1");
     expect(getStyle(model, "B1")).toEqual({ bold: true, fillColor: "red" });
     expect(getCellContent(model, "B2")).toBe("a2");
@@ -2420,18 +2420,18 @@ describe("clipboard: pasting outside of sheet", () => {
 
   test("fill down selection with multiple rows -> copies first row and pastes in each subsequent row", async () => {
     const model = await createModel();
-    setCellContent(model, "B3", "b3");
-    setSelection(model, ["B2:B3"]);
-    copyPasteAboveCells(model);
+    await setCellContent(model, "B3", "b3");
+    await setSelection(model, ["B2:B3"]);
+    await copyPasteAboveCells(model);
     expect(getCell(model, "B2")).toBe(undefined);
     expect(getCell(model, "B3")).toBe(undefined);
 
-    setCellContent(model, "B1", "b1");
-    setCellContent(model, "B2", "b2");
-    setFormatting(model, "B2", { bold: true, fillColor: "red" });
-    setCellContent(model, "C2", "c2");
-    setSelection(model, ["B2:C3"]);
-    copyPasteAboveCells(model);
+    await setCellContent(model, "B1", "b1");
+    await setCellContent(model, "B2", "b2");
+    await setFormatting(model, "B2", { bold: true, fillColor: "red" });
+    await setCellContent(model, "C2", "c2");
+    await setSelection(model, ["B2:C3"]);
+    await copyPasteAboveCells(model);
     expect(getCellContent(model, "B2")).toBe("b2");
     expect(getStyle(model, "B2")).toEqual({ bold: true, fillColor: "red" });
     expect(getCellContent(model, "B3")).toBe("b2");
@@ -2442,51 +2442,51 @@ describe("clipboard: pasting outside of sheet", () => {
 
   test("CopyPasteAboveCell and copyPasteCellsOnLeft do not change the clipboard state", async () => {
     const model = await createModel();
-    setCellContent(model, "B3", "b3");
-    cut(model, "B3");
-    setSelection(model, ["A1:B2"]);
-    copyPasteAboveCells(model);
+    await setCellContent(model, "B3", "b3");
+    await cut(model, "B3");
+    await setSelection(model, ["A1:B2"]);
+    await copyPasteAboveCells(model);
 
     expect(model.getters.isCutOperation()).toBe(true);
-    paste(model, "A2");
+    await paste(model, "A2");
     expect(getCellContent(model, "A2")).toBe("b3");
 
-    setCellContent(model, "B3", "b3");
-    cut(model, "B3");
-    setSelection(model, ["A1:B2"]);
-    copyPasteCellsOnLeft(model);
+    await setCellContent(model, "B3", "b3");
+    await cut(model, "B3");
+    await setSelection(model, ["A1:B2"]);
+    await copyPasteCellsOnLeft(model);
 
     expect(model.getters.isCutOperation()).toBe(true);
-    paste(model, "A2");
+    await paste(model, "A2");
     expect(getCellContent(model, "A2")).toBe("b3");
   });
 
   test("Delete Cell and Insert Cell do not invalidate the clipboard", async () => {
     const model = await createModel();
-    setCellContent(model, "B3", "b3");
-    copy(model, "B3");
+    await setCellContent(model, "B3", "b3");
+    await copy(model, "B3");
 
-    deleteCells(model, "A1", "up");
+    await deleteCells(model, "A1", "up");
     expect(model.getters.isCutOperation()).toBe(false);
-    paste(model, "A2");
+    await paste(model, "A2");
     expect(getCellContent(model, "A2")).toBe("b3");
 
-    insertCells(model, "A1", "down");
+    await insertCells(model, "A1", "down");
     expect(model.getters.isCutOperation()).toBe(false);
-    paste(model, "A5");
+    await paste(model, "A5");
     expect(getCellContent(model, "A5")).toBe("b3");
   });
 
   test("Can insert and delete cells inside an array formula", async () => {
     const model = await createModelFromGrid({ A1: "=MUNIT(2)" });
-    createDynamicTable(model, "A1");
+    await createDynamicTable(model, "A1");
 
-    insertCells(model, "B1", "down");
+    await insertCells(model, "B1", "down");
     expect(getCellRawContent(model, "A1")).toBe("=MUNIT(2)");
     expect(getCellContent(model, "A1")).toBe("1");
     expect(getCell(model, "B2")).toBe(undefined);
 
-    deleteCells(model, "A2", "left");
+    await deleteCells(model, "A2", "left");
     expect(getCellRawContent(model, "A1")).toBe("=MUNIT(2)");
     expect(getCellContent(model, "A1")).toBe("1");
     expect(getCell(model, "A2")).toBe(undefined);
@@ -2494,18 +2494,18 @@ describe("clipboard: pasting outside of sheet", () => {
 
   test("fill right selection with multiple columns -> copies first column and pastes in each subsequent column, ", async () => {
     const model = await createModel();
-    setCellContent(model, "C1", "c1");
-    setSelection(model, ["B1:C1"]);
-    copyPasteCellsOnLeft(model);
+    await setCellContent(model, "C1", "c1");
+    await setSelection(model, ["B1:C1"]);
+    await copyPasteCellsOnLeft(model);
     expect(getCell(model, "B1")).toBe(undefined);
     expect(getCell(model, "C1")).toBe(undefined);
 
-    setCellContent(model, "A1", "a1");
-    setCellContent(model, "B2", "b2");
-    setCellContent(model, "B1", "b1");
-    setFormatting(model, "B1", { bold: true, fillColor: "red" });
-    setSelection(model, ["B1:C2"]);
-    copyPasteCellsOnLeft(model);
+    await setCellContent(model, "A1", "a1");
+    await setCellContent(model, "B2", "b2");
+    await setCellContent(model, "B1", "b1");
+    await setFormatting(model, "B1", { bold: true, fillColor: "red" });
+    await setSelection(model, ["B1:C2"]);
+    await copyPasteCellsOnLeft(model);
     expect(getCellContent(model, "B1")).toBe("b1");
     expect(getStyle(model, "B1")).toEqual({ bold: true, fillColor: "red" });
     expect(getCellContent(model, "B2")).toBe("b2");
@@ -2516,49 +2516,49 @@ describe("clipboard: pasting outside of sheet", () => {
 
   test("Copy a formula which lead to #REF", async () => {
     const model = await createModel();
-    setCellContent(model, "B3", "=A1");
-    copy(model, "B3");
-    paste(model, "B2");
+    await setCellContent(model, "B3", "=A1");
+    await copy(model, "B3");
+    await paste(model, "B2");
     expect(getCellContent(model, "B2", "#BAD_EXPR"));
     expect(getCellError(model, "B2")).toEqual("Invalid reference");
   });
 
   test("Can cut & paste a formula", async () => {
     const model = await createModel();
-    setCellContent(model, "A1", "=1");
-    cut(model, "A1");
-    paste(model, "B1");
+    await setCellContent(model, "A1", "=1");
+    await cut(model, "A1");
+    await paste(model, "B1");
     expect(getCellContent(model, "A1")).toBe("");
     expect(getCellText(model, "B1")).toBe("=1");
   });
 
   test("Cut & paste a formula update offsets only if the range is in the zone", async () => {
     const model = await createModel();
-    setCellContent(model, "B1", "2");
-    setCellContent(model, "B2", "=B1");
-    setCellContent(model, "B3", "=B2");
-    cut(model, "B2:B3");
-    paste(model, "C2");
+    await setCellContent(model, "B1", "2");
+    await setCellContent(model, "B2", "=B1");
+    await setCellContent(model, "B3", "=B2");
+    await cut(model, "B2:B3");
+    await paste(model, "C2");
     expect(getCellText(model, "C2")).toBe("=B1");
     expect(getCellText(model, "C3")).toBe("=C2");
   });
 
   test("can paste multiple cells from os to outside of sheet", async () => {
     const model = await createModel();
-    createSheet(model, { activate: true, sheetId: "2", rows: 2, cols: 2 });
-    pasteFromOSClipboard(model, "B2", { text: "A\nque\tcoucou\nBOB" });
+    await createSheet(model, { activate: true, sheetId: "2", rows: 2, cols: 2 });
+    await pasteFromOSClipboard(model, "B2", { text: "A\nque\tcoucou\nBOB" });
     expect(getCellContent(model, "B2")).toBe("A");
     expect(getCellContent(model, "B3")).toBe("que");
     expect(getCellContent(model, "C3")).toBe("coucou");
     expect(getCellContent(model, "B4")).toBe("BOB");
 
-    createSheet(model, {
+    await createSheet(model, {
       activate: true,
       sheetId: "3",
       rows: 2,
       cols: 2,
     });
-    pasteFromOSClipboard(model, "B2", { text: "A\nque\tcoucou\tPatrick" });
+    await pasteFromOSClipboard(model, "B2", { text: "A\nque\tcoucou\tPatrick" });
     expect(getCellContent(model, "B2")).toBe("A");
     expect(getCellContent(model, "B3")).toBe("que");
     expect(getCellContent(model, "C3")).toBe("coucou");
@@ -2567,13 +2567,13 @@ describe("clipboard: pasting outside of sheet", () => {
 
   test("Can paste localized formula from the OS", async () => {
     const model = await createModel();
-    updateLocale(model, {
+    await updateLocale(model, {
       ...DEFAULT_LOCALE,
       decimalSeparator: ",",
       formulaArgSeparator: ";",
       thousandsSeparator: " ",
     });
-    pasteFromOSClipboard(model, "A1", { text: "=SUM(5 ; 3,14)" });
+    await pasteFromOSClipboard(model, "A1", { text: "=SUM(5 ; 3,14)" });
     expect(getCellRawContent(model, "A1")).toBe("=SUM(5,3.14)");
     expect(getEvaluatedCell(model, "A1").value).toBe(8.14);
   });
@@ -2582,7 +2582,7 @@ describe("clipboard: pasting outside of sheet", () => {
     const model = await createModel();
     const width = 2000;
     const height = 2000;
-    pasteFromOSClipboard(model, "B2", {
+    await pasteFromOSClipboard(model, "B2", {
       imageData: {
         path: "data:image/png;base64,",
         size: { width, height },
@@ -2612,9 +2612,9 @@ describe("clipboard: pasting outside of sheet", () => {
     const model = await createModel({}, { external: { fileStore: new FileStore() } });
     model.on("notify-ui", this, spyNotifyUI);
 
-    createImage(model, { figureId: "test" });
-    selectFigure(model, "test");
-    copy(model);
+    await createImage(model, { figureId: "test" });
+    await selectFigure(model, "test");
+    await copy(model);
     await model.getters.getClipboardTextAndImageContent();
     expect(spyNotifyUI).toHaveBeenCalledWith({
       sticky: false,
@@ -2625,24 +2625,24 @@ describe("clipboard: pasting outside of sheet", () => {
 
   test("Can copy parts of the spread values", async () => {
     const model = await createModel();
-    setCellContent(model, "A1", "1");
-    setCellContent(model, "A2", "2");
-    setCellContent(model, "A3", "3");
-    setCellContent(model, "B1", "=TRANSPOSE(A1:A3)");
-    copy(model, "C1:D1");
-    paste(model, "C2");
+    await setCellContent(model, "A1", "1");
+    await setCellContent(model, "A2", "2");
+    await setCellContent(model, "A3", "3");
+    await setCellContent(model, "B1", "=TRANSPOSE(A1:A3)");
+    await copy(model, "C1:D1");
+    await paste(model, "C2");
     expect(getEvaluatedCell(model, "C2").value).toBe(2);
     expect(getEvaluatedCell(model, "D2").value).toBe(3);
   });
 
   test("Cutting parts of the spread values will make a copy of the values", async () => {
     const model = await createModel();
-    setCellContent(model, "A1", "1");
-    setCellContent(model, "A2", "2");
-    setCellContent(model, "A3", "3");
-    setCellContent(model, "B1", "=TRANSPOSE(A1:A3)");
-    cut(model, "C1:D1");
-    paste(model, "C2");
+    await setCellContent(model, "A1", "1");
+    await setCellContent(model, "A2", "2");
+    await setCellContent(model, "A3", "3");
+    await setCellContent(model, "B1", "=TRANSPOSE(A1:A3)");
+    await cut(model, "C1:D1");
+    await paste(model, "C2");
     expect(getEvaluatedCell(model, "B1").value).toBe(1);
     expect(getEvaluatedCell(model, "C1").value).toBe(2);
     expect(getEvaluatedCell(model, "C2").value).toBe(2);
@@ -2654,38 +2654,38 @@ describe("clipboard: pasting outside of sheet", () => {
     const model = await createModel();
 
     // formula without format
-    setCellContent(model, "A1", "=SUM(1+2)");
+    await setCellContent(model, "A1", "=SUM(1+2)");
 
     // formula with format set on it
-    setCellContent(model, "A2", "=SUM(1+2)");
-    setCellFormat(model, "A2", "0%");
+    await setCellContent(model, "A2", "=SUM(1+2)");
+    await setCellFormat(model, "A2", "0%");
 
     // formula that return value with format
-    setCellContent(model, "A3", "=DATE(2042,1,1)");
+    await setCellContent(model, "A3", "=DATE(2042,1,1)");
 
     // formula that return value with format and other format seted on it
-    setCellContent(model, "A4", "=DATE(2042,1,1)");
-    setCellFormat(model, "A4", "0%");
+    await setCellContent(model, "A4", "=DATE(2042,1,1)");
+    await setCellFormat(model, "A4", "0%");
 
     // formula that return value with format inferred from reference
-    setCellContent(model, "A5", "3");
-    setCellFormat(model, "A5", "0%");
-    setCellContent(model, "A6", "=SUM(1+A5)");
+    await setCellContent(model, "A5", "3");
+    await setCellFormat(model, "A5", "0%");
+    await setCellContent(model, "A6", "=SUM(1+A5)");
 
     // formula that return value with format inferred from reference and other format seted on it
-    setCellContent(model, "A7", "3");
-    setCellFormat(model, "A7", "0%");
-    setCellContent(model, "A8", "=SUM(1+A7)");
-    setCellFormat(model, "A8", "#,##0[$$]");
+    await setCellContent(model, "A7", "3");
+    await setCellFormat(model, "A7", "0%");
+    await setCellContent(model, "A8", "=SUM(1+A7)");
+    await setCellFormat(model, "A8", "#,##0[$$]");
 
-    setCellContent(model, "B1", "=TRANSPOSE(A1:A8)");
+    await setCellContent(model, "B1", "=TRANSPOSE(A1:A8)");
 
     for (const cell of ["C2", "D2", "E2", "F2", "G2", "H2", "I2"]) {
-      setCellContent(model, cell, "42");
+      await setCellContent(model, cell, "42");
     }
 
-    copy(model, "C1:I1");
-    paste(model, "C2", "onlyFormat");
+    await copy(model, "C1:I1");
+    await paste(model, "C2", "onlyFormat");
 
     expect(getCellContent(model, "C2")).toBe("4200%");
     expect(getCellContent(model, "D2")).toBe("2/10/1900");
@@ -2699,12 +2699,12 @@ describe("clipboard: pasting outside of sheet", () => {
   describe("add col/row can invalidate the clipboard of cut", () => {
     test("adding a column before a cut zone is invalidating the clipboard", async () => {
       const model = await createModel();
-      setCellContent(model, "A1", "1");
-      setCellContent(model, "B1", "2");
+      await setCellContent(model, "A1", "1");
+      await setCellContent(model, "B1", "2");
 
-      cut(model, "A1:B1");
-      addColumns(model, "before", "A", 1);
-      paste(model, "A2");
+      await cut(model, "A1:B1");
+      await addColumns(model, "before", "A", 1);
+      await paste(model, "A2");
       expect(getCellContent(model, "B1")).toBe("1");
       expect(getCellContent(model, "C1")).toBe("2");
       expect(getCellContent(model, "A2")).toBe("");
@@ -2714,12 +2714,12 @@ describe("clipboard: pasting outside of sheet", () => {
 
     test("adding a column after a cut zone is not invalidating the clipboard", async () => {
       const model = await createModel();
-      setCellContent(model, "A1", "1");
-      setCellContent(model, "B1", "2");
+      await setCellContent(model, "A1", "1");
+      await setCellContent(model, "B1", "2");
 
-      cut(model, "A1:B1");
-      addColumns(model, "after", "B", 1);
-      paste(model, "A2");
+      await cut(model, "A1:B1");
+      await addColumns(model, "after", "B", 1);
+      await paste(model, "A2");
       expect(getCellContent(model, "A1")).toBe("");
       expect(getCellContent(model, "B1")).toBe("");
       expect(getCellContent(model, "A2")).toBe("1");
@@ -2728,12 +2728,12 @@ describe("clipboard: pasting outside of sheet", () => {
 
     test("adding a column inside a cut zone is invalidating the clipboard", async () => {
       const model = await createModel();
-      setCellContent(model, "A1", "1");
-      setCellContent(model, "B1", "2");
+      await setCellContent(model, "A1", "1");
+      await setCellContent(model, "B1", "2");
 
-      cut(model, "A1:B1");
-      addColumns(model, "after", "A", 1);
-      paste(model, "A2");
+      await cut(model, "A1:B1");
+      await addColumns(model, "after", "A", 1);
+      await paste(model, "A2");
       expect(getCellContent(model, "A1")).toBe("1");
       expect(getCellContent(model, "C1")).toBe("2");
       expect(getCellContent(model, "A2")).toBe("");
@@ -2742,12 +2742,12 @@ describe("clipboard: pasting outside of sheet", () => {
 
     test("adding multipe columns inside a cut zone is invalidating the clipboard", async () => {
       const model = await createModel();
-      setCellContent(model, "A1", "1");
-      setCellContent(model, "B1", "2");
+      await setCellContent(model, "A1", "1");
+      await setCellContent(model, "B1", "2");
 
-      cut(model, "A1:B1");
-      addColumns(model, "after", "A", 5);
-      paste(model, "A2");
+      await cut(model, "A1:B1");
+      await addColumns(model, "after", "A", 5);
+      await paste(model, "A2");
       expect(getCellContent(model, "A1")).toBe("1");
       expect(getCellContent(model, "G1")).toBe("2");
       expect(getCellContent(model, "A2")).toBe("");
@@ -2756,12 +2756,12 @@ describe("clipboard: pasting outside of sheet", () => {
 
     test("adding a row before a cut zone is invalidating the clipboard", async () => {
       const model = await createModel();
-      setCellContent(model, "A1", "1");
-      setCellContent(model, "A2", "2");
+      await setCellContent(model, "A1", "1");
+      await setCellContent(model, "A2", "2");
 
-      cut(model, "A1:A2");
-      addRows(model, "before", 0, 1);
-      paste(model, "C1");
+      await cut(model, "A1:A2");
+      await addRows(model, "before", 0, 1);
+      await paste(model, "C1");
       expect(getCellContent(model, "A2")).toBe("1");
       expect(getCellContent(model, "A3")).toBe("2");
       expect(getCellContent(model, "C1")).toBe("");
@@ -2771,12 +2771,12 @@ describe("clipboard: pasting outside of sheet", () => {
 
     test("adding a row after a cut zone is not invalidating the clipboard", async () => {
       const model = await createModel();
-      setCellContent(model, "A1", "1");
-      setCellContent(model, "A2", "2");
+      await setCellContent(model, "A1", "1");
+      await setCellContent(model, "A2", "2");
 
-      cut(model, "A1:A2");
-      addRows(model, "after", 2, 1);
-      paste(model, "C1");
+      await cut(model, "A1:A2");
+      await addRows(model, "after", 2, 1);
+      await paste(model, "C1");
       expect(getCellContent(model, "A1")).toBe("");
       expect(getCellContent(model, "A2")).toBe("");
       expect(getCellContent(model, "C1")).toBe("1");
@@ -2785,12 +2785,12 @@ describe("clipboard: pasting outside of sheet", () => {
 
     test("adding a row inside a cut zone is invalidating the clipboard", async () => {
       const model = await createModel();
-      setCellContent(model, "A1", "1");
-      setCellContent(model, "A2", "2");
+      await setCellContent(model, "A1", "1");
+      await setCellContent(model, "A2", "2");
 
-      cut(model, "A1:A2");
-      addRows(model, "after", 0, 1);
-      paste(model, "C1");
+      await cut(model, "A1:A2");
+      await addRows(model, "after", 0, 1);
+      await paste(model, "C1");
       expect(getCellContent(model, "A1")).toBe("1");
       expect(getCellContent(model, "A3")).toBe("2");
       expect(getCellContent(model, "C1")).toBe("");
@@ -2799,12 +2799,12 @@ describe("clipboard: pasting outside of sheet", () => {
 
     test("adding multiple rows inside a cut zone is invalidating the clipboard", async () => {
       const model = await createModel();
-      setCellContent(model, "A1", "1");
-      setCellContent(model, "A2", "2");
+      await setCellContent(model, "A1", "1");
+      await setCellContent(model, "A2", "2");
 
-      cut(model, "A1:A2");
-      addRows(model, "after", 0, 5);
-      paste(model, "C1");
+      await cut(model, "A1:A2");
+      await addRows(model, "after", 0, 5);
+      await paste(model, "C1");
       expect(getCellContent(model, "A1")).toBe("1");
       expect(getCellContent(model, "A7")).toBe("2");
       expect(getCellContent(model, "C1")).toBe("");
@@ -2813,14 +2813,14 @@ describe("clipboard: pasting outside of sheet", () => {
 
     test("Adding rows in another sheet does not invalidate the clipboard", async () => {
       const model = await createModel();
-      setCellContent(model, "A1", "1");
-      setCellContent(model, "A2", "2");
-      cut(model, "A1:A2");
+      await setCellContent(model, "A1", "1");
+      await setCellContent(model, "A2", "2");
+      await cut(model, "A1:A2");
 
-      createSheet(model, { activate: true });
-      addRows(model, "after", 0, 5);
+      await createSheet(model, { activate: true });
+      await addRows(model, "after", 0, 5);
 
-      paste(model, "A1");
+      await paste(model, "A1");
       expect(getCellContent(model, "A1")).toBe("1");
       expect(getCellContent(model, "A2")).toBe("2");
     });
@@ -2829,12 +2829,12 @@ describe("clipboard: pasting outside of sheet", () => {
   describe("remove col/row can invalidate the clipboard of cut", () => {
     test("removing a column before a cut zone is invalidating the clipboard", async () => {
       const model = await createModel();
-      setCellContent(model, "B2", "1");
-      setCellContent(model, "C2", "2");
+      await setCellContent(model, "B2", "1");
+      await setCellContent(model, "C2", "2");
 
-      cut(model, "B2:C2");
-      deleteColumns(model, ["A"]);
-      paste(model, "D1");
+      await cut(model, "B2:C2");
+      await deleteColumns(model, ["A"]);
+      await paste(model, "D1");
       expect(getCellContent(model, "A2")).toBe("1");
       expect(getCellContent(model, "B2")).toBe("2");
       expect(getCellContent(model, "D1")).toBe("");
@@ -2843,12 +2843,12 @@ describe("clipboard: pasting outside of sheet", () => {
 
     test("removing a column after a cut zone is not invalidating the clipboard", async () => {
       const model = await createModel();
-      setCellContent(model, "B2", "1");
-      setCellContent(model, "C2", "2");
+      await setCellContent(model, "B2", "1");
+      await setCellContent(model, "C2", "2");
 
-      cut(model, "B2:C2");
-      deleteColumns(model, ["D"]);
-      paste(model, "D1");
+      await cut(model, "B2:C2");
+      await deleteColumns(model, ["D"]);
+      await paste(model, "D1");
       expect(getCellContent(model, "B2")).toBe("");
       expect(getCellContent(model, "C2")).toBe("");
       expect(getCellContent(model, "D1")).toBe("1");
@@ -2857,24 +2857,24 @@ describe("clipboard: pasting outside of sheet", () => {
 
     test("removing a column inside a cut zone is invalidating the clipboard", async () => {
       const model = await createModel();
-      setCellContent(model, "B2", "1");
-      setCellContent(model, "C2", "2");
+      await setCellContent(model, "B2", "1");
+      await setCellContent(model, "C2", "2");
 
-      cut(model, "B2:C2");
-      deleteColumns(model, ["C"]);
-      paste(model, "D1");
+      await cut(model, "B2:C2");
+      await deleteColumns(model, ["C"]);
+      await paste(model, "D1");
       expect(getCellContent(model, "B2")).toBe("1");
       expect(getCellContent(model, "D1")).toBe("");
     });
 
     test("removing a row before a cut zone is invalidating the clipboard", async () => {
       const model = await createModel();
-      setCellContent(model, "B2", "1");
-      setCellContent(model, "C2", "2");
+      await setCellContent(model, "B2", "1");
+      await setCellContent(model, "C2", "2");
 
-      cut(model, "B2:C2");
-      deleteRows(model, [0]);
-      paste(model, "D1");
+      await cut(model, "B2:C2");
+      await deleteRows(model, [0]);
+      await paste(model, "D1");
       expect(getCellContent(model, "B1")).toBe("1");
       expect(getCellContent(model, "C1")).toBe("2");
       expect(getCellContent(model, "D1")).toBe("");
@@ -2883,12 +2883,12 @@ describe("clipboard: pasting outside of sheet", () => {
 
     test("removing a row after a cut zone is not invalidating the clipboard", async () => {
       const model = await createModel();
-      setCellContent(model, "B2", "1");
-      setCellContent(model, "C2", "2");
+      await setCellContent(model, "B2", "1");
+      await setCellContent(model, "C2", "2");
 
-      cut(model, "B2:C2");
-      deleteRows(model, [3]);
-      paste(model, "D1");
+      await cut(model, "B2:C2");
+      await deleteRows(model, [3]);
+      await paste(model, "D1");
       expect(getCellContent(model, "B2")).toBe("");
       expect(getCellContent(model, "C2")).toBe("");
       expect(getCellContent(model, "D1")).toBe("1");
@@ -2897,26 +2897,26 @@ describe("clipboard: pasting outside of sheet", () => {
 
     test("removing a row inside a cut zone is invalidating the clipboard", async () => {
       const model = await createModel();
-      setCellContent(model, "B2", "1");
-      setCellContent(model, "B3", "2");
+      await setCellContent(model, "B2", "1");
+      await setCellContent(model, "B3", "2");
 
-      cut(model, "B2:B3");
-      deleteRows(model, [2]);
-      paste(model, "D1");
+      await cut(model, "B2:B3");
+      await deleteRows(model, [2]);
+      await paste(model, "D1");
       expect(getCellContent(model, "B2")).toBe("1");
       expect(getCellContent(model, "D1")).toBe("");
     });
 
     test("Removing rows in another sheet does not invalidate the clipboard", async () => {
       const model = await createModel();
-      setCellContent(model, "A1", "1");
-      setCellContent(model, "A2", "2");
-      cut(model, "A1:A2");
+      await setCellContent(model, "A1", "1");
+      await setCellContent(model, "A2", "2");
+      await cut(model, "A1:A2");
 
-      createSheet(model, { activate: true });
-      deleteRows(model, [1]);
+      await createSheet(model, { activate: true });
+      await deleteRows(model, [1]);
 
-      paste(model, "A1");
+      await paste(model, "A1");
       expect(getCellContent(model, "A1")).toBe("1");
       expect(getCellContent(model, "A2")).toBe("2");
     });
@@ -2929,20 +2929,20 @@ describe("cross spreadsheet copy/paste", () => {
     const modelB = await createModel();
     const cellStyle = { bold: true, fillColor: "#00FF00", fontSize: 20 };
 
-    setCellContent(modelA, "B2", "b2");
-    setFormatting(modelA, "B2", cellStyle);
+    await setCellContent(modelA, "B2", "b2");
+    await setFormatting(modelA, "B2", cellStyle);
 
     expect(getCell(modelA, "B2")).toMatchObject({
       content: "b2",
       style: cellStyle,
     });
 
-    copy(modelA, "B2");
+    await copy(modelA, "B2");
     const clipboardContent = await modelA.getters.getClipboardTextAndImageContent();
 
     expect(clipboardContent["text/plain"]).toBe("b2");
     const osClipboardContent = parseOSClipboardContent(clipboardContent);
-    pasteFromOSClipboard(modelB, "D2", osClipboardContent);
+    await pasteFromOSClipboard(modelB, "D2", osClipboardContent);
 
     expect(getCellRawContent(modelA, "B2")).toBe("b2");
     expect(getCellRawContent(modelB, "D2")).toBe("b2");
@@ -2954,15 +2954,15 @@ describe("cross spreadsheet copy/paste", () => {
     const modelA = await createModel();
     const modelB = await createModel();
 
-    selectCell(modelA, "B2");
-    setZoneBorders(modelA, { position: "top" });
+    await selectCell(modelA, "B2");
+    await setZoneBorders(modelA, { position: "top" });
 
     expect(getBorder(modelA, "B2")).toEqual({ top: DEFAULT_BORDER_DESC });
 
-    copy(modelA, "B2");
+    await copy(modelA, "B2");
     const clipboardContent = await modelA.getters.getClipboardTextAndImageContent();
     const osClipboardContent = await parseOSClipboardContent(clipboardContent);
-    pasteFromOSClipboard(modelB, "D2", osClipboardContent);
+    await pasteFromOSClipboard(modelB, "D2", osClipboardContent);
 
     expect(getBorder(modelA, "B2")).toEqual({ top: DEFAULT_BORDER_DESC });
     expect(getBorder(modelB, "D2")).toEqual({ top: DEFAULT_BORDER_DESC });
@@ -2972,18 +2972,18 @@ describe("cross spreadsheet copy/paste", () => {
     const modelA = await createModel();
     const modelB = await createModel();
 
-    setCellContent(modelA, "A1", "=SUM(1,2)");
-    setCellContent(modelA, "A2", "=SUM(1,2)");
-    setCellFormat(modelA, "A2", "0%");
-    setCellContent(modelA, "A3", "=DATE(2024,1,1)");
-    setCellContent(modelA, "A4", "=DATE(2024,1,1)");
-    setCellFormat(modelA, "A4", "m/d/yyyy hh:mm:ss a");
-    setCellContent(modelA, "A5", "=SOMME(1,2)");
+    await setCellContent(modelA, "A1", "=SUM(1,2)");
+    await setCellContent(modelA, "A2", "=SUM(1,2)");
+    await setCellFormat(modelA, "A2", "0%");
+    await setCellContent(modelA, "A3", "=DATE(2024,1,1)");
+    await setCellContent(modelA, "A4", "=DATE(2024,1,1)");
+    await setCellFormat(modelA, "A4", "m/d/yyyy hh:mm:ss a");
+    await setCellContent(modelA, "A5", "=SOMME(1,2)");
 
-    copy(modelA, "A1:A5");
+    await copy(modelA, "A1:A5");
     const clipboardContent = await modelA.getters.getClipboardTextAndImageContent();
     const osClipboardContent = await parseOSClipboardContent(clipboardContent);
-    pasteFromOSClipboard(modelB, "D1", osClipboardContent);
+    await pasteFromOSClipboard(modelB, "D1", osClipboardContent);
 
     expect(getCellRawContent(modelB, "D1")).toBe("=SUM(1,2)");
     expect(getCellRawContent(modelB, "D2")).toBe("=SUM(1,2)");
@@ -2998,11 +2998,11 @@ describe("cross spreadsheet copy/paste", () => {
     const url = "https://www.odoo.com";
     const urlLabel = "Odoo Website";
 
-    setCellContent(modelA, "A1", markdownLink(urlLabel, url));
-    copy(modelA, "A1");
+    await setCellContent(modelA, "A1", markdownLink(urlLabel, url));
+    await copy(modelA, "A1");
     const clipboardContent = await modelA.getters.getClipboardTextAndImageContent();
     const osClipboardContent = await parseOSClipboardContent(clipboardContent);
-    pasteFromOSClipboard(modelB, "D1", osClipboardContent);
+    await pasteFromOSClipboard(modelB, "D1", osClipboardContent);
 
     const cell = getEvaluatedCell(modelB, "D1");
     expect(cell.link?.label).toBe(urlLabel);
@@ -3017,15 +3017,15 @@ describe("cross spreadsheet copy/paste", () => {
     const modelA = await createModel();
     const modelB = await createModel();
 
-    createTable(modelA, "A1:B2");
+    await createTable(modelA, "A1:B2");
     const tableA = modelA.getters.getCoreTables(modelA.getters.getActiveSheetId())[0];
 
     expect(tableA).toMatchObject({ range: { zone: toZone("A1:B2") }, type: "static" });
 
-    copy(modelA, "A1:B2");
+    await copy(modelA, "A1:B2");
     const clipboardContent = await modelA.getters.getClipboardTextAndImageContent();
     const osClipboardContent = await parseOSClipboardContent(clipboardContent);
-    pasteFromOSClipboard(modelB, "D1", osClipboardContent);
+    await pasteFromOSClipboard(modelB, "D1", osClipboardContent);
 
     const tableB = modelB.getters.getCoreTables(modelA.getters.getActiveSheetId())[0];
 
@@ -3038,10 +3038,10 @@ describe("cross spreadsheet copy/paste", () => {
     const modelB = await createModel();
     const cellStyle = { bold: true, fillColor: "#00FF00", fontSize: 20 };
 
-    setCellContent(modelA, "A1", "a1");
-    setFormatting(modelA, "A1", cellStyle);
-    setCellContent(modelB, "C1", "c1");
-    setFormatting(modelB, "C1", cellStyle);
+    await setCellContent(modelA, "A1", "a1");
+    await setFormatting(modelA, "A1", cellStyle);
+    await setCellContent(modelB, "C1", "c1");
+    await setFormatting(modelB, "C1", cellStyle);
 
     expect(getCell(modelA, "A1")).toMatchObject({
       content: "a1",
@@ -3053,12 +3053,12 @@ describe("cross spreadsheet copy/paste", () => {
       style: cellStyle,
     });
 
-    copy(modelB, "C1");
-    copy(modelA, "A1");
+    await copy(modelB, "C1");
+    await copy(modelA, "A1");
     const clipboardContent = await modelA.getters.getClipboardTextAndImageContent();
     expect(clipboardContent["text/plain"]).toBe("a1");
     const osClipboardContent = await parseOSClipboardContent(clipboardContent);
-    pasteFromOSClipboard(modelB, "B1", osClipboardContent);
+    await pasteFromOSClipboard(modelB, "B1", osClipboardContent);
     expect(getCell(modelA, "A1")).toMatchObject({
       content: "a1",
     });
@@ -3073,15 +3073,15 @@ describe("cross spreadsheet copy/paste", () => {
     const modelA = await createModel({ sheets: [{ id: "sheetA" }] });
     const modelB = await createModel({ sheets: [{ id: "sheetB" }] });
 
-    setCellContent(modelA, "C1", "=A1*B1");
-    setCellContent(modelA, "C2", "=A2*B2");
-    setCellContent(modelA, "C3", "=A3*B3");
+    await setCellContent(modelA, "C1", "=A1*B1");
+    await setCellContent(modelA, "C2", "=A2*B2");
+    await setCellContent(modelA, "C3", "=A3*B3");
 
-    copy(modelA, "A1:C3");
+    await copy(modelA, "A1:C3");
     const osClipboardContent = await parseOSClipboardContent(
       await modelA.getters.getClipboardTextAndImageContent()
     );
-    pasteFromOSClipboard(modelB, "E1", osClipboardContent);
+    await pasteFromOSClipboard(modelB, "E1", osClipboardContent);
 
     expect(getCellRawContent(modelB, "G1")).toBe("=E1*F1");
     expect(getCellRawContent(modelB, "G2")).toBe("=E2*F2");
@@ -3093,13 +3093,13 @@ describe("cross spreadsheet copy/paste", () => {
     const modelB = await createModel();
 
     const escapableString = ` & " < > / \ '`;
-    setCellContent(modelA, "A1", escapableString);
-    copy(modelA, "A1");
+    await setCellContent(modelA, "A1", escapableString);
+    await copy(modelA, "A1");
     const clipboardContent = await modelA.getters.getClipboardTextAndImageContent();
 
     expect(clipboardContent["text/plain"]).toBe(escapableString);
     const osClipboardContent = await parseOSClipboardContent(clipboardContent);
-    pasteFromOSClipboard(modelB, "D2", osClipboardContent);
+    await pasteFromOSClipboard(modelB, "D2", osClipboardContent);
     expect(getCellRawContent(modelA, "A1")).toBe(escapableString);
     expect(getCellRawContent(modelB, "D2")).toBe(escapableString);
   });
@@ -3108,8 +3108,8 @@ describe("cross spreadsheet copy/paste", () => {
     const modelA = await createModel();
     const modelB = await createModel();
 
-    setCellContent(modelA, "A1", "oldContent");
-    copy(modelA, "A1");
+    await setCellContent(modelA, "A1", "oldContent");
+    await copy(modelA, "A1");
     const cbPlugin = getPlugin(model, ClipboardPlugin);
     const oldHTML = await cbPlugin["getHTMLContent"]();
 
@@ -3117,14 +3117,14 @@ describe("cross spreadsheet copy/paste", () => {
       "text/html": `<html xmlns:o="urn:schemas-microsoft-com:office:office">${oldHTML}</body></html>`,
       "text/plain": "newContent",
     });
-    pasteFromOSClipboard(modelB, "D2", content);
+    await pasteFromOSClipboard(modelB, "D2", content);
     expect(getCellContent(modelB, "D2")).toBe("newContent");
 
     content = parseOSClipboardContent({
       "text/html": `<html xmlns:o="urn:schemas-microsoft-com:office:office"><body>${oldHTML}<div>randomContent</div></body></html>`,
       "text/plain": "newContent",
     });
-    pasteFromOSClipboard(modelB, "D2", content);
+    await pasteFromOSClipboard(modelB, "D2", content);
     expect(getCellContent(modelB, "D2")).toBe("newContent");
   });
 
@@ -3142,11 +3142,11 @@ describe("cross spreadsheet copy/paste", () => {
 test("Can use clipboard handlers to paste in a sheet other than the active sheet", async () => {
   model = await createModel();
   const sheetId = model.getters.getActiveSheetId();
-  createSheet(model, { sheetId: "sh2" });
+  await createSheet(model, { sheetId: "sh2" });
 
-  setCellContent(model, "A1", "1");
-  addEqualCf(model, "A1", { fillColor: "#FF0000" }, "1");
-  createTable(model, "A1");
+  await setCellContent(model, "A1", "1");
+  await addEqualCf(model, "A1", { fillColor: "#FF0000" }, "1");
+  await createTable(model, "A1");
 
   const handlers = clipboardHandlersRegistries.cellHandlers
     .getAll()

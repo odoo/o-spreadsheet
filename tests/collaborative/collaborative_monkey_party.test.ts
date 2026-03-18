@@ -139,9 +139,9 @@ function actionsToTestCode(testTitle: string, actions: UserAction[][]) {
 function appendCommand(code: FunctionCodeBuilder, { user, command }: UserAction) {
   const userName = user.getters.getCurrentClient().name.toLowerCase();
   if (command.type === "REQUEST_UNDO") {
-    code.append(`undo(${userName});`);
+    code.append(`await undo(${userName});`);
   } else if (command.type === "REQUEST_REDO") {
-    code.append(`redo(${userName});`);
+    code.append(`await redo(${userName});`);
   } else {
     const cmdPayload = JSON.stringify({ ...command, type: undefined });
     code.append(`${userName}.dispatch("${command.type}", ${cmdPayload});`);

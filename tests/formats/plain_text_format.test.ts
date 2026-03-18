@@ -29,11 +29,15 @@ describe("Plain text format", () => {
     ["=DATE(2022, 06, 30)", 44742, "44742"],
   ])(
     "Set plain text format to a cell %s %s %s",
-    (cellContent: string, beforePlainText: string | boolean | number, plainTextValue: string) => {
-      setCellContent(model, "A1", cellContent);
+    async (
+      cellContent: string,
+      beforePlainText: string | boolean | number,
+      plainTextValue: string
+    ) => {
+      await setCellContent(model, "A1", cellContent);
       expect(getEvaluatedCell(model, "A1").value).toBe(beforePlainText);
 
-      setFormat(model, "A1", "@");
+      await setFormat(model, "A1", "@");
       expect(getEvaluatedCell(model, "A1").value).toBe(plainTextValue);
     }
   );
@@ -47,15 +51,15 @@ describe("Plain text format", () => {
     ["'false", "false"],
     ["'12/20/2015", "12/20/2015"],
     ["'=SUM(3, 5)", "=SUM(3, 5)"],
-  ])("use single quote to input plain text in a cell", (cellContent, expectedValue) => {
-    setCellContent(model, "A1", cellContent);
+  ])("use single quote to input plain text in a cell", async (cellContent, expectedValue) => {
+    await setCellContent(model, "A1", cellContent);
     expect(getEvaluatedCell(model, "A1").value).toBe(expectedValue);
     expect(getCellRawContent(model, "A1")).toBe(cellContent);
   });
 
-  test("Set more complex text format to a cell", () => {
-    setCellContent(model, "A1", "89");
-    setFormat(model, "A1", "@ $");
+  test("Set more complex text format to a cell", async () => {
+    await setCellContent(model, "A1", "89");
+    await setFormat(model, "A1", "@ $");
     expect(getEvaluatedCell(model, "A1")).toMatchObject({
       value: "89",
       type: CellValueType.text,
@@ -76,25 +80,25 @@ describe("Plain text format", () => {
     ["=DATE(2022, 06, 30)", "44742"],
   ])(
     "Set content to a cell formatted with plain text %s %s: text should be kept as is, not parsed",
-    (inputValue: string, expectedCellValue: string) => {
-      setFormat(model, "A1", "@");
-      setCellContent(model, "A1", inputValue);
+    async (inputValue: string, expectedCellValue: string) => {
+      await setFormat(model, "A1", "@");
+      await setCellContent(model, "A1", inputValue);
       expect(getEvaluatedCell(model, "A1").value).toBe(expectedCellValue);
     }
   );
 
-  test("Input localized date on a plain text cell", () => {
-    updateLocale(model, FR_LOCALE);
-    setFormat(model, "A1", "@");
-    setCellContent(model, "A1", "30/05/2015");
+  test("Input localized date on a plain text cell", async () => {
+    await updateLocale(model, FR_LOCALE);
+    await setFormat(model, "A1", "@");
+    await setCellContent(model, "A1", "30/05/2015");
 
     expect(getCellRawContent(model, "A1")).toBe("30/05/2015");
     expect(getEvaluatedCell(model, "A1").value).toBe("30/05/2015");
 
-    setCellContent(model, "A2", "=A1+1");
+    await setCellContent(model, "A2", "=A1+1");
     expect(getEvaluatedCell(model, "A2").value).toBe("42155"); // Not pretty, but same behavior as Excel
 
-    updateLocale(model, DEFAULT_LOCALE);
+    await updateLocale(model, DEFAULT_LOCALE);
     expect(getCellRawContent(model, "A1")).toBe("30/05/2015");
     expect(getEvaluatedCell(model, "A1").value).toBe("30/05/2015");
 
@@ -103,8 +107,8 @@ describe("Plain text format", () => {
   });
 
   test("can export/import plain text format", async () => {
-    setFormat(model, "A1", "@");
-    setCellContent(model, "A1", "00009");
+    await setFormat(model, "A1", "@");
+    await setCellContent(model, "A1", "00009");
 
     expect(getCellContent(model, "A1")).toBe("00009");
     const exported = model.exportData();
@@ -114,8 +118,8 @@ describe("Plain text format", () => {
     expect(getCellContent(importedModel, "A1")).toBe("00009");
   });
 
-  test("Cells with no content stay empty with a text format", () => {
-    setFormat(model, "A1", "@");
+  test("Cells with no content stay empty with a text format", async () => {
+    await setFormat(model, "A1", "@");
     expect(getCellRawContent(model, "A1")).toBe("");
     expect(getEvaluatedCell(model, "A1").value).toBe(null);
     expect(getEvaluatedCell(model, "A1").type).toBe(CellValueType.empty);

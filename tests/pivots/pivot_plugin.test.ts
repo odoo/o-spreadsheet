@@ -25,9 +25,9 @@ describe("Pivot plugin", () => {
     expect(isSpillPivotFormula("A1")).toBe(false); //Dataset
     expect(isSpillPivotFormula("C1")).toBe(true); // PIVOT Formula
     expect(isSpillPivotFormula("D2")).toBe(true); // Spill result
-    setCellContent(model, "G1", "=PIVOT.VALUE(1)");
+    await setCellContent(model, "G1", "=PIVOT.VALUE(1)");
     expect(isSpillPivotFormula("G1")).toBe(false);
-    setCellContent(model, "G1", "=PIVOT.HEADER(1)");
+    await setCellContent(model, "G1", "=PIVOT.HEADER(1)");
     expect(isSpillPivotFormula("G1")).toBe(false);
   });
   test("getPivotCellFromPosition doesn't throw with invalid pivot domain", async () => {
@@ -43,7 +43,7 @@ describe("Pivot plugin", () => {
       rows: [{ fieldName: "Customer" }],
       measures: [{ id: "Price:sum", fieldName: "Price", aggregator: "sum" }],
     });
-    selectCell(model, "C1");
+    await selectCell(model, "C1");
     expect(model.getters.getPivotCellFromPosition(model.getters.getActivePosition())).toMatchObject(
       EMPTY_PIVOT_CELL
     );
@@ -188,7 +188,7 @@ describe("Pivot plugin", () => {
       rows: [{ fieldName: "Customer" }],
       measures: [{ id: "price:sum", fieldName: "Price", aggregator: "sum" }],
     });
-    selectCell(model, "C5");
+    await selectCell(model, "C5");
     expect(model.getters.getPivotCellFromPosition(model.getters.getActivePosition())).toEqual(
       EMPTY_PIVOT_CELL
     );
@@ -206,13 +206,13 @@ describe("Pivot plugin", () => {
       rows: [{ fieldName: "Stage" }],
       measures: [{ id: "price:sum", fieldName: "Price", aggregator: "sum" }],
     });
-    selectCell(model, "C1");
+    await selectCell(model, "C1");
     expect(model.getters.getPivotCellFromPosition(model.getters.getActivePosition())).toMatchObject(
       {
         domain: [{ field: "Stage", type: "integer", value: 1 }],
       }
     );
-    selectCell(model, "C2");
+    await selectCell(model, "C2");
     expect(model.getters.getPivotCellFromPosition(model.getters.getActivePosition())).toMatchObject(
       {
         domain: [{ field: "Stage", type: "integer", value: 2 }],
@@ -315,7 +315,7 @@ describe("Pivot plugin", () => {
     const model = await createModelFromGrid(grid);
     const sheetId = model.getters.getActiveSheetId();
     const name = "forbidden: /";
-    renameSheet(model, sheetId, "forbidden:   (copy) (Pivot #2)");
+    await renameSheet(model, sheetId, "forbidden:   (copy) (Pivot #2)");
     addPivot(model, "A1:A2", { name }, "pivot1");
     model.dispatch("DUPLICATE_PIVOT_IN_NEW_SHEET", {
       newPivotId: "pivot2",
@@ -338,20 +338,20 @@ describe("Pivot plugin", () => {
       measures: [{ id: "testCount", fieldName: "__count", aggregator: "sum" }],
     });
     const sheetId = model.getters.getActiveSheetId();
-    setCellContent(model, "C1", "=PIVOT(1,,,false)");
+    await setCellContent(model, "C1", "=PIVOT(1,,,false)");
     expect(model.getters.getPivotCellFromPosition(toCellPosition(sheetId, "D1"))).toMatchObject({
       type: "MEASURE_HEADER",
     });
-    setCellContent(model, "C1", "=PIVOT(1,,,false,,false)");
+    await setCellContent(model, "C1", "=PIVOT(1,,,false,,false)");
     expect(model.getters.getPivotCellFromPosition(toCellPosition(sheetId, "D1"))).toMatchObject({
       measure: "testCount",
       type: "VALUE",
     });
-    setCellContent(model, "C1", "=PIVOT(1,,,0)");
+    await setCellContent(model, "C1", "=PIVOT(1,,,0)");
     expect(model.getters.getPivotCellFromPosition(toCellPosition(sheetId, "D1"))).toMatchObject({
       type: "MEASURE_HEADER",
     });
-    setCellContent(model, "C1", "=PIVOT(1,,,0,,0)");
+    await setCellContent(model, "C1", "=PIVOT(1,,,0,,0)");
     expect(model.getters.getPivotCellFromPosition(toCellPosition(sheetId, "D1"))).toMatchObject({
       measure: "testCount",
       type: "VALUE",
@@ -360,24 +360,24 @@ describe("Pivot plugin", () => {
       measure: "testCount",
       type: "VALUE",
     });
-    setCellContent(model, "C1", `=PIVOT(1,,,"FALSE")`);
+    await setCellContent(model, "C1", `=PIVOT(1,,,"FALSE")`);
     expect(model.getters.getPivotCellFromPosition(toCellPosition(sheetId, "D1"))).toMatchObject({
       type: "MEASURE_HEADER",
     });
-    setCellContent(model, "C1", `=PIVOT(1,,,"FALSE",,"FALSE")`);
+    await setCellContent(model, "C1", `=PIVOT(1,,,"FALSE",,"FALSE")`);
     expect(model.getters.getPivotCellFromPosition(toCellPosition(sheetId, "D1"))).toMatchObject({
       measure: "testCount",
       type: "VALUE",
     });
-    setCellContent(model, "C1", "=PIVOT(1,,,true)");
+    await setCellContent(model, "C1", "=PIVOT(1,,,true)");
     expect(model.getters.getPivotCellFromPosition(toCellPosition(sheetId, "D1"))).toMatchObject({
       type: "HEADER",
     });
-    setCellContent(model, "C1", "=PIVOT(1,,,1)");
+    await setCellContent(model, "C1", "=PIVOT(1,,,1)");
     expect(model.getters.getPivotCellFromPosition(toCellPosition(sheetId, "D1"))).toMatchObject({
       type: "HEADER",
     });
-    setCellContent(model, "C1", `=PIVOT(1,,,"TRUE")`);
+    await setCellContent(model, "C1", `=PIVOT(1,,,"TRUE")`);
     expect(model.getters.getPivotCellFromPosition(toCellPosition(sheetId, "D1"))).toMatchObject({
       type: "HEADER",
     });
@@ -396,11 +396,11 @@ describe("Pivot plugin", () => {
       measures: [{ id: "testCount", fieldName: "__count", aggregator: "sum" }],
     });
     const D1 = toCellPosition(model.getters.getActiveSheetId(), "D1");
-    setCellContent(model, "C1", "=PIVOT(1)");
+    await setCellContent(model, "C1", "=PIVOT(1)");
     expect(model.getters.getPivotCellFromPosition(D1)).toMatchObject({ type: "HEADER" });
     updatePivot(model, "1", { style: { displayColumnHeaders: false } });
     expect(model.getters.getPivotCellFromPosition(D1)).toMatchObject({ type: "MEASURE_HEADER" });
-    setCellContent(model, "C1", "=PIVOT(1,,,TRUE)");
+    await setCellContent(model, "C1", "=PIVOT(1,,,TRUE)");
     expect(model.getters.getPivotCellFromPosition(D1)).toMatchObject({ type: "HEADER" });
   });
   test("DUPLICATE_PIVOT_IN_NEW_SHEET is prevented if the pivot is in error", async () => {

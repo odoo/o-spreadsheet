@@ -235,7 +235,7 @@ describe("Side Panel", () => {
   });
 
   test("Side panel does not lose focus upon sheet change", async () => {
-    createSheet(model, { activate: true });
+    await createSheet(model, { activate: true });
     addToRegistry(sidePanelRegistry, "CUSTOM_PANEL_1", {
       title: "Custom Panel 1",
       Body: Body,

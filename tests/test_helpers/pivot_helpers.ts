@@ -121,6 +121,6 @@ export async function createModelWithTestPivotDataset(
     ...pivotDefinition,
   };
   addPivot(model, "A1:E18", pivotDefinition, pivotId);
-  setCellContent(model, "A20", "=PIVOT(1)");
+  await setCellContent(model, "A20", "=PIVOT(1)");
   return model;
 }

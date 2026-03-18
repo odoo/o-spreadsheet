@@ -6,7 +6,7 @@ import { createModel, setGrid } from "../test_helpers/helpers";
 describe("Insert pivot command", () => {
   test("Can insert a pivot in a cell", async () => {
     const model = await createModel();
-    insertPivot(model, "A1", "pivot1", "Sheet2");
+    await insertPivot(model, "A1", "pivot1", "Sheet2");
     expect(model.getters.getActiveSheetId()).toEqual("Sheet2");
     expect(getCellText(model, "A1")).toEqual("=PIVOT(1)");
     expect(model.getters.getPivotIds()).toHaveLength(1);
@@ -14,8 +14,8 @@ describe("Insert pivot command", () => {
   });
   test("Can insert a pivot from a zone", async () => {
     const model = await createModel();
-    setGrid(model, { A1: "Header1", B1: "Header2", A2: "Data1", B2: "Data2" });
-    insertPivot(model, "A1:B2", "pivot1", "Sheet2");
+    await setGrid(model, { A1: "Header1", B1: "Header2", A2: "Data1", B2: "Data2" });
+    await insertPivot(model, "A1:B2", "pivot1", "Sheet2");
     expect(model.getters.getPivotCoreDefinition("pivot1")["dataSet"].zone).toEqual(toZone("A1:B2"));
     expect(getTable(model, "A1", "Sheet2")).toMatchObject({
       range: { zone: toZone("A1:A3") },
@@ -36,7 +36,7 @@ describe("Insert pivot command", () => {
         },
       ],
     });
-    insertPivot(model, "A1", "pivot1", "Sheet2");
+    await insertPivot(model, "A1", "pivot1", "Sheet2");
     expect(model.getters.getPivotCoreDefinition("pivot1")["dataSet"].zone).toEqual(toZone("A1:B2"));
   });
 });

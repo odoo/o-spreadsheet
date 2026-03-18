@@ -32,43 +32,43 @@ describe("Simple filter test", () => {
     sheetId = model.getters.getActiveSheetId();
   });
 
-  test("Can update  a filter", () => {
-    createTableWithFilter(model, "A1:A5");
-    updateFilter(model, "A1", ["2", "A"]);
+  test("Can update  a filter", async () => {
+    await createTableWithFilter(model, "A1:A5");
+    await updateFilter(model, "A1", ["2", "A"]);
     expect(model.getters.getFilterHiddenValues({ sheetId, col: 0, row: 0 })).toEqual(["2", "A"]);
   });
 
-  test("Can update  a filter in readonly mode", () => {
-    createTableWithFilter(model, "A1:A5");
+  test("Can update  a filter in readonly mode", async () => {
+    await createTableWithFilter(model, "A1:A5");
     model.updateMode("readonly");
-    updateFilter(model, "A1", ["2", "A"]);
+    await updateFilter(model, "A1", ["2", "A"]);
     expect(model.getters.getFilterHiddenValues({ sheetId, col: 0, row: 0 })).toEqual(["2", "A"]);
   });
 
-  test("Update filter is correctly rejected when target is not inside a table", () => {
-    createTableWithFilter(model, "A1:A10");
-    expect(updateFilter(model, "B1", [])).toBeCancelledBecause(CommandResult.FilterNotFound);
+  test("Update filter is correctly rejected when target is not inside a table", async () => {
+    await createTableWithFilter(model, "A1:A10");
+    expect(await updateFilter(model, "B1", [])).toBeCancelledBecause(CommandResult.FilterNotFound);
   });
 
-  test("Filter is disabled if its header row is hidden by the user", () => {
-    createTableWithFilter(model, "A1:A3");
-    setCellContent(model, "A2", "28");
-    updateFilter(model, "A1", ["28"]);
+  test("Filter is disabled if its header row is hidden by the user", async () => {
+    await createTableWithFilter(model, "A1:A3");
+    await setCellContent(model, "A2", "28");
+    await updateFilter(model, "A1", ["28"]);
     expect(model.getters.isRowHidden(sheetId, 1)).toBe(true);
 
-    hideRows(model, [0]);
+    await hideRows(model, [0]);
     expect(model.getters.isRowHidden(sheetId, 1)).toBe(false);
   });
 
-  test("Filter is disabled if its header row is hidden by another filter", () => {
-    createTableWithFilter(model, "A2:A3");
-    setCellContent(model, "A3", "15");
-    updateFilter(model, "A2", ["15"]);
+  test("Filter is disabled if its header row is hidden by another filter", async () => {
+    await createTableWithFilter(model, "A2:A3");
+    await setCellContent(model, "A3", "15");
+    await updateFilter(model, "A2", ["15"]);
     expect(model.getters.isRowHidden(sheetId, 2)).toBe(true);
 
-    createTableWithFilter(model, "B1:B2");
-    setCellContent(model, "B2", "28");
-    updateFilter(model, "B1", ["28"]);
+    await createTableWithFilter(model, "B1:B2");
+    await setCellContent(model, "B2", "28");
+    await updateFilter(model, "B1", ["28"]);
     expect(model.getters.isRowHidden(sheetId, 1)).toBe(true);
     expect(model.getters.isRowHidden(sheetId, 2)).toBe(false);
   });
@@ -76,24 +76,24 @@ describe("Simple filter test", () => {
   test("Filtered rows should persist after hiding and unhiding multiple rows", async () => {
     const model = await createModel();
 
-    setCellContent(model, "A4", "D");
+    await setCellContent(model, "A4", "D");
 
-    createTableWithFilter(model, "A3:A4");
-    updateFilter(model, "A3", ["D"]);
+    await createTableWithFilter(model, "A3:A4");
+    await updateFilter(model, "A3", ["D"]);
     expect(model.getters.isRowFiltered(sheetId, 3)).toEqual(true);
-    hideRows(model, [2, 3]);
-    unhideRows(model, [2, 3]);
+    await hideRows(model, [2, 3]);
+    await unhideRows(model, [2, 3]);
     expect(model.getters.isRowFiltered(sheetId, 3)).toEqual(true);
   });
 
-  test("Can delete row/columns on duplicated sheet with filters", () => {
-    createTableWithFilter(model, "B1:B3");
-    updateFilter(model, "B1", ["C"]);
+  test("Can delete row/columns on duplicated sheet with filters", async () => {
+    await createTableWithFilter(model, "B1:B3");
+    await updateFilter(model, "B1", ["C"]);
 
     const sheet2Id = "42";
-    duplicateSheet(model, sheetId, sheet2Id);
+    await duplicateSheet(model, sheetId, sheet2Id);
     expect(getFilterHiddenValues(model, sheet2Id)).toMatchObject([{ zone: "B1:B3", value: ["C"] }]);
-    deleteColumns(model, ["A"], sheet2Id);
+    await deleteColumns(model, ["A"], sheet2Id);
 
     expect(getFilterHiddenValues(model, sheetId)).toMatchObject([{ zone: "B1:B3", value: ["C"] }]);
     expect(getFilterHiddenValues(model, sheet2Id)).toMatchObject([{ zone: "A1:A3", value: ["C"] }]);
@@ -108,24 +108,24 @@ describe("Filter Evaluation", () => {
     model = await createModel();
     sheetId = model.getters.getActiveSheetId();
 
-    createTableWithFilter(model, "A1:A5");
-    setCellContent(model, "A1", "A1");
-    setCellContent(model, "A2", "A2");
-    setCellContent(model, "A3", "A3");
-    setCellContent(model, "A4", "A4");
-    setCellContent(model, "A5", "A5");
+    await createTableWithFilter(model, "A1:A5");
+    await setCellContent(model, "A1", "A1");
+    await setCellContent(model, "A2", "A2");
+    await setCellContent(model, "A3", "A3");
+    await setCellContent(model, "A4", "A4");
+    await setCellContent(model, "A5", "A5");
 
-    createTableWithFilter(model, "B1:B5");
-    setCellContent(model, "B1", "Header");
-    setCellContent(model, "B2", "1");
-    setCellContent(model, "B3", "1");
-    setCellContent(model, "B4", "2");
-    setCellContent(model, "B5", "2");
+    await createTableWithFilter(model, "B1:B5");
+    await setCellContent(model, "B1", "Header");
+    await setCellContent(model, "B2", "1");
+    await setCellContent(model, "B3", "1");
+    await setCellContent(model, "B4", "2");
+    await setCellContent(model, "B5", "2");
   });
 
-  test.each(["normal", "readonly", "dashboard"] as const)("Can filter a row", (mode) => {
+  test.each(["normal", "readonly", "dashboard"] as const)("Can filter a row", async (mode) => {
     model.updateMode(mode);
-    updateFilter(model, "A1", ["A2", "A3"]);
+    await updateFilter(model, "A1", ["A2", "A3"]);
     expect(model.getters.isRowHidden(sheetId, 0)).toEqual(false);
     expect(model.getters.isRowHidden(sheetId, 1)).toEqual(true);
     expect(model.getters.isRowHidden(sheetId, 2)).toEqual(true);
@@ -133,56 +133,56 @@ describe("Filter Evaluation", () => {
     expect(model.getters.isRowHidden(sheetId, 4)).toEqual(false);
   });
 
-  test("Filters use the formatted value of the cells", () => {
-    setCellContent(model, "A2", "2");
-    setFormat(model, "A2", "m/d/yyyy");
-    updateFilter(model, "A2", ["1/1/1900"]);
+  test("Filters use the formatted value of the cells", async () => {
+    await setCellContent(model, "A2", "2");
+    await setFormat(model, "A2", "m/d/yyyy");
+    await updateFilter(model, "A2", ["1/1/1900"]);
     expect(model.getters.isRowHidden(sheetId, 1)).toEqual(true);
   });
 
   test("deleting a table show rows again", async () => {
     const model = await createModel();
-    createTableWithFilter(model, "A1:A3");
-    setCellContent(model, "A2", "Hi");
-    updateFilter(model, "A2", ["Hi"]);
+    await createTableWithFilter(model, "A1:A3");
+    await setCellContent(model, "A2", "Hi");
+    await updateFilter(model, "A2", ["Hi"]);
     expect(model.getters.isRowHidden(sheetId, 1)).toEqual(true);
-    deleteTable(model, "A1:A3");
+    await deleteTable(model, "A1:A3");
     expect(model.getters.isRowHidden(sheetId, 1)).toEqual(false);
   });
 
-  test("Filters ignore lowercase/uppercase", () => {
-    setCellContent(model, "A2", "A");
-    setCellContent(model, "A3", "a");
-    updateFilter(model, "A2", ["A"]);
+  test("Filters ignore lowercase/uppercase", async () => {
+    await setCellContent(model, "A2", "A");
+    await setCellContent(model, "A3", "a");
+    await updateFilter(model, "A2", ["A"]);
     expect(model.getters.isRowHidden(sheetId, 1)).toEqual(true);
     expect(model.getters.isRowHidden(sheetId, 2)).toEqual(true);
   });
 
-  test("Filters ignore whitespaces", () => {
-    setCellContent(model, "A2", "a");
-    setCellContent(model, "A3", " a");
-    setCellContent(model, "A4", "a ");
-    updateFilter(model, "A2", ["a"]);
+  test("Filters ignore whitespaces", async () => {
+    await setCellContent(model, "A2", "a");
+    await setCellContent(model, "A3", " a");
+    await setCellContent(model, "A4", "a ");
+    await updateFilter(model, "A2", ["a"]);
     expect(model.getters.isRowHidden(sheetId, 1)).toEqual(true);
     expect(model.getters.isRowHidden(sheetId, 2)).toEqual(true);
     expect(model.getters.isRowHidden(sheetId, 3)).toEqual(true);
   });
 
-  test("Header is not filtered", () => {
-    updateFilter(model, "A1", ["A1"]);
+  test("Header is not filtered", async () => {
+    await updateFilter(model, "A1", ["A1"]);
     expect(model.getters.isRowHidden(sheetId, 0)).toEqual(false);
   });
 
-  test("All filters are correctly applied", () => {
-    updateFilter(model, "A1", ["A2"]);
-    updateFilter(model, "B1", ["1"]);
+  test("All filters are correctly applied", async () => {
+    await updateFilter(model, "A1", ["A2"]);
+    await updateFilter(model, "B1", ["1"]);
     expect(model.getters.isRowHidden(sheetId, 0)).toEqual(false);
     expect(model.getters.isRowHidden(sheetId, 1)).toEqual(true);
     expect(model.getters.isRowHidden(sheetId, 2)).toEqual(true);
     expect(model.getters.isRowHidden(sheetId, 3)).toEqual(false);
     expect(model.getters.isRowHidden(sheetId, 4)).toEqual(false);
 
-    updateFilter(model, "A1", []);
+    await updateFilter(model, "A1", []);
     expect(model.getters.isRowHidden(sheetId, 0)).toEqual(false);
     expect(model.getters.isRowHidden(sheetId, 1)).toEqual(true);
     expect(model.getters.isRowHidden(sheetId, 2)).toEqual(true);
@@ -190,52 +190,52 @@ describe("Filter Evaluation", () => {
     expect(model.getters.isRowHidden(sheetId, 4)).toEqual(false);
   });
 
-  test("Hidden rows are updated when the value of a filtered cell change", () => {
-    setCellContent(model, "D1", "5");
-    setCellContent(model, "A2", "=D1");
-    updateFilter(model, "A1", ["5"]);
+  test("Hidden rows are updated when the value of a filtered cell change", async () => {
+    await setCellContent(model, "D1", "5");
+    await setCellContent(model, "A2", "=D1");
+    await updateFilter(model, "A1", ["5"]);
     expect(model.getters.isRowHidden(sheetId, 1)).toEqual(true);
 
-    setCellContent(model, "D1", "9");
+    await setCellContent(model, "D1", "9");
     expect(model.getters.isRowHidden(sheetId, 1)).toEqual(false);
   });
 
-  test("Updating a table zone keep the filtered values if the filter header did not move", () => {
-    updateFilter(model, "A1", ["A2"]);
+  test("Updating a table zone keep the filtered values if the filter header did not move", async () => {
+    await updateFilter(model, "A1", ["A2"]);
     expect(getFilterHiddenValues(model, sheetId)).toMatchObject([{ zone: "A1:A5", value: ["A2"] }]);
     expect(model.getters.isRowHidden(sheetId, 1)).toEqual(true);
 
-    updateTableZone(model, "A1:A5", "A1:A6");
+    await updateTableZone(model, "A1:A5", "A1:A6");
     expect(getFilterHiddenValues(model, sheetId)).toMatchObject([{ zone: "A1:A6", value: ["A2"] }]);
     expect(model.getters.isRowHidden(sheetId, 1)).toEqual(true);
   });
 
-  test("Updating a table zone drops the filtered values if the filter header moved", () => {
-    updateFilter(model, "A1", ["A3"]);
+  test("Updating a table zone drops the filtered values if the filter header moved", async () => {
+    await updateFilter(model, "A1", ["A3"]);
     expect(getFilterHiddenValues(model, sheetId)).toMatchObject([{ zone: "A1:A5", value: ["A3"] }]);
     expect(model.getters.isRowHidden(sheetId, 2)).toEqual(true);
 
-    updateTableZone(model, "A1:A5", "A2:A5");
+    await updateTableZone(model, "A1:A5", "A2:A5");
     expect(getFilterHiddenValues(model, sheetId)).toMatchObject([{ zone: "A2:A5", value: [] }]);
     expect(model.getters.isRowHidden(sheetId, 2)).toEqual(false);
   });
 
-  test("Updating a table zone updates the hidden rows", () => {
-    updateFilter(model, "A1", ["A2"]);
+  test("Updating a table zone updates the hidden rows", async () => {
+    await updateFilter(model, "A1", ["A2"]);
     expect(getFilterHiddenValues(model, sheetId)).toMatchObject([{ zone: "A1:A5", value: ["A2"] }]);
     expect(model.getters.isRowHidden(sheetId, 1)).toEqual(true);
 
-    updateTableZone(model, "A1:A5", "E1:E3");
+    await updateTableZone(model, "A1:A5", "E1:E3");
     expect(getFilterHiddenValues(model, sheetId)).toMatchObject([{ zone: "E1:E3", value: [] }]);
     expect(model.getters.isRowHidden(sheetId, 1)).toEqual(false);
   });
 
-  test("Removing the filters from a table updates the hidden rows", () => {
-    updateFilter(model, "A1", ["A2"]);
+  test("Removing the filters from a table updates the hidden rows", async () => {
+    await updateFilter(model, "A1", ["A2"]);
     expect(getFilterHiddenValues(model, sheetId)).toMatchObject([{ zone: "A1:A5", value: ["A2"] }]);
     expect(model.getters.isRowHidden(sheetId, 1)).toEqual(true);
 
-    updateTableConfig(model, "A1:A5", { hasFilters: false });
+    await updateTableConfig(model, "A1:A5", { hasFilters: false });
     expect(model.getters.getFilter({ sheetId, col: 0, row: 0 })).toBeUndefined();
     expect(model.getters.isRowHidden(sheetId, 1)).toEqual(false);
   });
@@ -255,24 +255,24 @@ describe("Filter Evaluation", () => {
       ],
     });
     expect(model.getters.getFilter({ sheetId: "sh1", col: 0, row: 0 })).toBeTruthy();
-    duplicateSheet(model, "sh1", "sh2");
+    await duplicateSheet(model, "sh1", "sh2");
     expect(model.getters.getFilter({ sheetId: "sh2", col: 0, row: 0 })).toBeTruthy();
   });
 
   test("Inserting rows above or below the table header updates the filtered rows", async () => {
     const model = await createModel();
 
-    createTableWithFilter(model, "A1:A2");
-    setCellContent(model, "A2", "Hi");
+    await createTableWithFilter(model, "A1:A2");
+    await setCellContent(model, "A2", "Hi");
 
-    updateFilter(model, "A1", ["Hi"]);
+    await updateFilter(model, "A1", ["Hi"]);
     expect(model.getters.isRowFiltered(sheetId, 1)).toEqual(true);
 
-    addRows(model, "before", 0, 1);
+    await addRows(model, "before", 0, 1);
     expect(model.getters.isRowFiltered(sheetId, 1)).toEqual(false);
     expect(model.getters.isRowFiltered(sheetId, 2)).toEqual(true);
 
-    addRows(model, "after", 1, 1);
+    await addRows(model, "after", 1, 1);
     expect(model.getters.isRowFiltered(sheetId, 2)).toEqual(false);
     expect(model.getters.isRowFiltered(sheetId, 3)).toEqual(true);
   });
@@ -280,15 +280,15 @@ describe("Filter Evaluation", () => {
   test("Removing rows above the table header updates the filtered rows", async () => {
     const model = await createModel();
 
-    createTableWithFilter(model, "A4:A6");
-    setCellContent(model, "A5", "Hi");
-    setCellContent(model, "A6", "Hi");
+    await createTableWithFilter(model, "A4:A6");
+    await setCellContent(model, "A5", "Hi");
+    await setCellContent(model, "A6", "Hi");
 
-    updateFilter(model, "A4", ["Hi"]);
+    await updateFilter(model, "A4", ["Hi"]);
     expect(model.getters.isRowFiltered(sheetId, 4)).toEqual(true);
     expect(model.getters.isRowFiltered(sheetId, 5)).toEqual(true);
 
-    deleteRows(model, [0, 1, 2]);
+    await deleteRows(model, [0, 1, 2]);
 
     expect(model.getters.isRowFiltered(sheetId, 1)).toEqual(true);
     expect(model.getters.isRowFiltered(sheetId, 2)).toEqual(true);
@@ -298,14 +298,14 @@ describe("Filter Evaluation", () => {
     const model = await createModel({ sheets: [{ colNumber: 5, rowNumber: 5 }] });
     const sheetId = model.getters.getActiveSheetId();
 
-    groupHeaders(model, "ROW", 0, 3);
+    await groupHeaders(model, "ROW", 0, 3);
 
-    createTableWithFilter(model, "A4:A5");
-    setCellContent(model, "A5", "Hi");
-    updateFilter(model, "A4", ["Hi"]);
+    await createTableWithFilter(model, "A4:A5");
+    await setCellContent(model, "A5", "Hi");
+    await updateFilter(model, "A4", ["Hi"]);
 
     expect(model.getters.isRowFiltered(sheetId, 4)).toEqual(true);
-    foldHeaderGroup(model, "ROW", 0, 3);
+    await foldHeaderGroup(model, "ROW", 0, 3);
     expect(model.getters.isRowFiltered(sheetId, 4)).toEqual(false);
   });
 
@@ -313,15 +313,15 @@ describe("Filter Evaluation", () => {
     const model = await createModel({ sheets: [{ colNumber: 8, rowNumber: 8 }] });
     const sheetId = model.getters.getActiveSheetId();
 
-    groupHeaders(model, "ROW", 0, 5);
+    await groupHeaders(model, "ROW", 0, 5);
 
-    createTableWithFilter(model, "A6:A8");
-    setCellContent(model, "A7", "Hi");
-    setCellContent(model, "A8", "Hi");
-    updateFilter(model, "A6", ["Hi"]);
+    await createTableWithFilter(model, "A6:A8");
+    await setCellContent(model, "A7", "Hi");
+    await setCellContent(model, "A8", "Hi");
+    await updateFilter(model, "A6", ["Hi"]);
 
-    foldHeaderGroup(model, "ROW", 0, 5);
-    groupHeaders(model, "ROW", 6, 7);
+    await foldHeaderGroup(model, "ROW", 0, 5);
+    await groupHeaders(model, "ROW", 6, 7);
 
     expect(model.getters.getHeaderGroups(sheetId, "ROW")).toMatchObject([{ start: 0, end: 7 }]);
     expect(model.getters.isRowFiltered(sheetId, 6)).toEqual(true);
@@ -332,11 +332,11 @@ describe("Filter Evaluation", () => {
     const model = await createModel();
     const sheetId = model.getters.getActiveSheetId();
 
-    createTableWithFilter(model, "A6:A8");
-    setCellContent(model, "A7", "Hi");
-    updateFilter(model, "A6", ["Hi"]);
+    await createTableWithFilter(model, "A6:A8");
+    await setCellContent(model, "A7", "Hi");
+    await updateFilter(model, "A6", ["Hi"]);
 
-    createSheet(model, { sheetId: "sh2", activate: true });
+    await createSheet(model, { sheetId: "sh2", activate: true });
     expect(model.getters.isRowFiltered(sheetId, 6)).toEqual(true);
   });
 });
@@ -362,15 +362,15 @@ describe("Filter criterion test", () => {
     ["isEqualText", ["there"], [1, 3]],
   ])(
     "Can filter based on a text criterion %s",
-    (type: string, criterionValues: string[], expectedFilteredRows: number[]) => {
+    async (type: string, criterionValues: string[], expectedFilteredRows: number[]) => {
       const grid = {
         A2: "hello",
         A3: "there",
         A4: "",
       };
-      setGrid(model, grid);
-      createTableWithFilter(model, "A1:A4");
-      updateFilterCriterion(model, "A1", {
+      await setGrid(model, grid);
+      await createTableWithFilter(model, "A1:A4");
+      await updateFilterCriterion(model, "A1", {
         type: type as FilterCriterionType,
         values: criterionValues,
       });
@@ -385,15 +385,15 @@ describe("Filter criterion test", () => {
     ["isEqualText", [2, 3]],
   ])(
     "Filters based on a text criterion %s do not ignore whitespaces",
-    (type: string, expectedFilteredRows: number[]) => {
+    async (type: string, expectedFilteredRows: number[]) => {
       const grid = {
         A2: "a",
         A3: " a",
         A4: "a ",
       };
-      setGrid(model, grid);
-      createTableWithFilter(model, "A1:A4");
-      updateFilterCriterion(model, "A1", {
+      await setGrid(model, grid);
+      await createTableWithFilter(model, "A1:A4");
+      await updateFilterCriterion(model, "A1", {
         type: type as FilterCriterionType,
         values: ["a"],
       });
@@ -413,15 +413,15 @@ describe("Filter criterion test", () => {
     ["isNotBetween", ["2", "3"], [2, 3]],
   ])(
     "Can filter based on a number criterion %s",
-    (type: string, criterionValues: string[], expectedFilteredRows: number[]) => {
+    async (type: string, criterionValues: string[], expectedFilteredRows: number[]) => {
       const grid = {
         A2: "1",
         A3: "2",
         A4: "3",
       };
-      setGrid(model, grid);
-      createTableWithFilter(model, "A1:A4");
-      updateFilterCriterion(model, "A1", {
+      await setGrid(model, grid);
+      await createTableWithFilter(model, "A1:A4");
+      await updateFilterCriterion(model, "A1", {
         type: type as FilterCriterionType,
         values: criterionValues,
       });
@@ -440,15 +440,15 @@ describe("Filter criterion test", () => {
     ["dateIsNotBetween", ["01/01/2025", "05/01/2025"], [1, 2]],
   ])(
     "Can filter based on a date criterion %s",
-    (type: string, criterionValues: string[], expectedFilteredRows: number[]) => {
+    async (type: string, criterionValues: string[], expectedFilteredRows: number[]) => {
       const grid = {
         A2: "01/20/2025",
         A3: "04/15/2025",
         A4: "07/10/2025",
       };
-      setGrid(model, grid);
-      createTableWithFilter(model, "A1:A4");
-      updateFilterCriterion(model, "A1", {
+      await setGrid(model, grid);
+      await createTableWithFilter(model, "A1:A4");
+      await updateFilterCriterion(model, "A1", {
         type: type as FilterCriterionType,
         values: criterionValues,
         dateValue: "exactDate",
@@ -458,15 +458,15 @@ describe("Filter criterion test", () => {
     }
   );
 
-  test("applies filter correctly when formula returns a 1x1 matrix", () => {
+  test("applies filter correctly when formula returns a 1x1 matrix", async () => {
     const grid = {
       A2: "text",
       A3: "random",
     };
-    setGrid(model, grid);
-    createTableWithFilter(model, "A1:A3");
+    await setGrid(model, grid);
+    await createTableWithFilter(model, "A1:A3");
 
-    updateFilterCriterion(model, "A1", {
+    await updateFilterCriterion(model, "A1", {
       type: "containsText",
       values: ['=IF(TRUE, $A$2, "something else")'],
     });

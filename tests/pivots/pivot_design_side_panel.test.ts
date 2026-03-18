@@ -23,7 +23,7 @@ describe("Spreadsheet pivot side panel", () => {
       A2: "Alice",    B2: "Chair",   C2: "10",
       A3: "Bob",      B3: "Table",   C3: "20",
     };
-    setGrid(model, grid);
+    await setGrid(model, grid);
 
     addPivot(model, "A1:C3", {}, "1");
     env.openSidePanel("PivotSidePanel", { pivotId: "1" });
@@ -94,7 +94,7 @@ describe("Spreadsheet pivot side panel", () => {
   });
 
   test("Editing the pivot style will warn the user if the sheet has only static pivot cells", async () => {
-    setCellContent(model, "E1", "=PIVOT.HEADER(1)");
+    await setCellContent(model, "E1", "=PIVOT.HEADER(1)");
     await setInputValueAndTrigger("input.o-pivot-n-of-rows", "12");
 
     expect(notifyUser).toHaveBeenCalledWith({

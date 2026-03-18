@@ -54,10 +54,10 @@ describe("functions", () => {
       },
       args: [arg("number (number)", "blabla")],
     });
-    setCellContent(model, "A1", "21");
-    setCellContent(model, "A2", "42");
-    setCellContent(model, "B1", "=RETURN.VALUE.DEPENDING.ON.INPUT.VALUE(A1)");
-    setCellContent(model, "B2", "=RETURN.VALUE.DEPENDING.ON.INPUT.VALUE(A2)");
+    await setCellContent(model, "A1", "21");
+    await setCellContent(model, "A2", "42");
+    await setCellContent(model, "B1", "=RETURN.VALUE.DEPENDING.ON.INPUT.VALUE(A1)");
+    await setCellContent(model, "B2", "=RETURN.VALUE.DEPENDING.ON.INPUT.VALUE(A2)");
     expect(getEvaluatedCell(model, "B1").value).toBe(42);
     expect(getEvaluatedCell(model, "B2").value).toBe(84);
   });
@@ -70,9 +70,9 @@ describe("functions", () => {
       },
       args: [arg("arg (any)", "blabla")],
     });
-    setCellContent(model, "A1", "=SQRT(-1)");
-    setCellContent(model, "B1", "=RETURN.VALUE.DEPENDING.ON.INPUT.ERROR(A1)");
-    setCellContent(model, "B2", "=RETURN.VALUE.DEPENDING.ON.INPUT.ERROR(A2)");
+    await setCellContent(model, "A1", "=SQRT(-1)");
+    await setCellContent(model, "B1", "=RETURN.VALUE.DEPENDING.ON.INPUT.ERROR(A1)");
+    await setCellContent(model, "B2", "=RETURN.VALUE.DEPENDING.ON.INPUT.ERROR(A2)");
     expect(getEvaluatedCell(model, "B1").value).toBe(true);
     expect(getEvaluatedCell(model, "B2").value).toBe(false);
   });
@@ -86,8 +86,8 @@ describe("functions", () => {
       },
       args: [arg("arg (any)", "blabla")],
     });
-    setCellContent(model, "B1", "=RETURN.ERROR.DEPENDING.ON.INPUT.VALUE(true)");
-    setCellContent(model, "B2", "=RETURN.ERROR.DEPENDING.ON.INPUT.VALUE(false)");
+    await setCellContent(model, "B1", "=RETURN.ERROR.DEPENDING.ON.INPUT.VALUE(true)");
+    await setCellContent(model, "B2", "=RETURN.ERROR.DEPENDING.ON.INPUT.VALUE(false)");
     expect(getEvaluatedCell(model, "B1")?.value).toBe("#ERROR");
     expect(getCellError(model, "B1")).toBe("Les calculs sont pas bons KEVIN !");
     expect(getEvaluatedCell(model, "B2").value).toBe("ceci n'est pas une erreur");
@@ -103,9 +103,9 @@ describe("functions", () => {
       },
       args: [arg("arg (any)", "blabla")],
     });
-    setCellContent(model, "A1", "=ThatDoesNotMeanAnything");
-    setCellContent(model, "B1", "=RETURN.ERROR.DEPENDING.ON.INPUT.ERROR(A1)");
-    setCellContent(model, "B2", "=RETURN.ERROR.DEPENDING.ON.INPUT.ERROR(SQRT(-1))");
+    await setCellContent(model, "A1", "=ThatDoesNotMeanAnything");
+    await setCellContent(model, "B1", "=RETURN.ERROR.DEPENDING.ON.INPUT.ERROR(A1)");
+    await setCellContent(model, "B2", "=RETURN.ERROR.DEPENDING.ON.INPUT.ERROR(SQRT(-1))");
     expect(getEvaluatedCell(model, "B1").value).toBe("#CYCLE");
     expect(getEvaluatedCell(model, "B2").value).toBe("#REF");
   });
@@ -118,12 +118,12 @@ describe("functions", () => {
       },
       args: [arg("number (number)", "blabla")],
     });
-    setCellContent(model, "A1", "42");
-    setCellFormat(model, "A1", "0%");
-    setCellContent(model, "A2", "42");
-    setCellFormat(model, "A2", "#,##0.00");
-    setCellContent(model, "B1", "=RETURN.FORMAT.DEPENDING.ON.INPUT.FORMAT(A1)");
-    setCellContent(model, "B2", "=RETURN.FORMAT.DEPENDING.ON.INPUT.FORMAT(A2)");
+    await setCellContent(model, "A1", "42");
+    await setCellFormat(model, "A1", "0%");
+    await setCellContent(model, "A2", "42");
+    await setCellFormat(model, "A2", "#,##0.00");
+    await setCellContent(model, "B1", "=RETURN.FORMAT.DEPENDING.ON.INPUT.FORMAT(A1)");
+    await setCellContent(model, "B2", "=RETURN.FORMAT.DEPENDING.ON.INPUT.FORMAT(A2)");
     expect(getEvaluatedCell(model, "B1").format).toBe("0%");
     expect(getEvaluatedCell(model, "B2").format).toBe("#,##0.00");
   });
@@ -140,10 +140,10 @@ describe("functions", () => {
       },
       args: [arg("number (number)", "blabla")],
     });
-    setCellContent(model, "A1", "42");
-    setCellContent(model, "A2", "-42");
-    setCellContent(model, "B1", "=RETURN.FORMAT.DEPENDING.ON.INPUT.VALUE(A1)");
-    setCellContent(model, "B2", "=RETURN.FORMAT.DEPENDING.ON.INPUT.VALUE(A2)");
+    await setCellContent(model, "A1", "42");
+    await setCellContent(model, "A2", "-42");
+    await setCellContent(model, "B1", "=RETURN.FORMAT.DEPENDING.ON.INPUT.VALUE(A1)");
+    await setCellContent(model, "B2", "=RETURN.FORMAT.DEPENDING.ON.INPUT.VALUE(A2)");
     expect(getEvaluatedCell(model, "B1").format).toBe("0%");
     expect(getEvaluatedCell(model, "B2").format).toBe("#,##0.00");
   });
@@ -163,7 +163,7 @@ describe("functions", () => {
       },
       args: [],
     });
-    setCellContent(model, "A1", "=GETCOUCOU()");
+    await setCellContent(model, "A1", "=GETCOUCOU()");
     expect(getEvaluatedCell(model, "A1").value).toBe("Raoul");
   });
   test("Can use a getter in a function", async () => {
@@ -245,36 +245,36 @@ describe("functions", () => {
       const m = await createModel();
       const errorMessage =
         "Function RANGEEXPECTED expects the parameter '1' to be reference to a cell or range.";
-      setCellContent(m, "A1", "=RANGEEXPECTED(42)");
+      await setCellContent(m, "A1", "=RANGEEXPECTED(42)");
       expect(getEvaluatedCell(m, "A1").value).toBe("#BAD_EXPR");
       expect(getCellError(m, "A1")).toBe(errorMessage);
-      setCellContent(m, "B1", '=RANGEEXPECTED("test")');
+      await setCellContent(m, "B1", '=RANGEEXPECTED("test")');
       expect(getEvaluatedCell(m, "B1").value).toBe("#BAD_EXPR");
       expect(getCellError(m, "B1")).toBe(errorMessage);
-      setCellContent(m, "C1", "=RANGEEXPECTED(TRUE)");
+      await setCellContent(m, "C1", "=RANGEEXPECTED(TRUE)");
       expect(getEvaluatedCell(m, "C1").value).toBe("#BAD_EXPR");
       expect(getCellError(m, "C1")).toBe(errorMessage);
-      setCellContent(m, "D1", "=RANGEEXPECTED(FORMULA_NOT_RETURNING_RANGE())");
+      await setCellContent(m, "D1", "=RANGEEXPECTED(FORMULA_NOT_RETURNING_RANGE())");
       expect(getEvaluatedCell(m, "D1").value).toBe("#BAD_EXPR");
       expect(getCellError(m, "D1")).toBe(errorMessage);
-      setCellContent(m, "E1", "=RANGEEXPECTED(A1)");
+      await setCellContent(m, "E1", "=RANGEEXPECTED(A1)");
       expect(getEvaluatedCell(m, "E1").value).toBe(true);
-      setCellContent(m, "F1", "=RANGEEXPECTED(A1:A1)");
+      await setCellContent(m, "F1", "=RANGEEXPECTED(A1:A1)");
       expect(getEvaluatedCell(m, "F1").value).toBe(true);
-      setCellContent(m, "G1", "=RANGEEXPECTED(A1:A2)");
+      await setCellContent(m, "G1", "=RANGEEXPECTED(A1:A2)");
       expect(getEvaluatedCell(m, "G1").value).toBe(true);
-      setCellContent(m, "H1", "=RANGEEXPECTED(A1:A$2)");
+      await setCellContent(m, "H1", "=RANGEEXPECTED(A1:A$2)");
       expect(getEvaluatedCell(m, "H1").value).toBe(true);
-      setCellContent(m, "I1", "=RANGEEXPECTED(sheet1!A1:A$2)");
+      await setCellContent(m, "I1", "=RANGEEXPECTED(sheet1!A1:A$2)");
       expect(getEvaluatedCell(m, "I1").value).toBe(true);
-      setCellContent(m, "J1", "=RANGEEXPECTED(FORMULA_RETURNING_RANGE())");
+      await setCellContent(m, "J1", "=RANGEEXPECTED(FORMULA_RETURNING_RANGE())");
       expect(getEvaluatedCell(m, "J1").value).toBe(true);
-      setCellContent(m, "K1", "=RANGEEXPECTED(FORMULA_TROWING_ERROR())");
+      await setCellContent(m, "K1", "=RANGEEXPECTED(FORMULA_TROWING_ERROR())");
       expect(getEvaluatedCell(m, "K1").value).toBe("#BAD_EXPR");
       expect(getCellError(m, "K1")).toBe(errorMessage);
-      setCellContent(m, "L1", "=RANGEEXPECTED(FORMULA_RETURNING_RANGE_WITH_ERROR())");
+      await setCellContent(m, "L1", "=RANGEEXPECTED(FORMULA_RETURNING_RANGE_WITH_ERROR())");
       expect(getEvaluatedCell(m, "L1").value).toBe(true);
-      setCellContent(m, "M1", "=RANGEEXPECTED(FORMULA_RETURNING_RANGE_TROWING_ERROR())");
+      await setCellContent(m, "M1", "=RANGEEXPECTED(FORMULA_RETURNING_RANGE_TROWING_ERROR())");
       expect(getEvaluatedCell(m, "M1").value).toBe("#BAD_EXPR");
       expect(getCellError(m, "M1")).toBe(errorMessage);
     });
@@ -287,9 +287,9 @@ describe("functions", () => {
         },
         args: [{ name: "arg1", description: "", type: ["NUMBER"] }],
       });
-      setCellContent(m, "B1", "=SIMPLE_VALUE_EXPECTED(A1)");
+      await setCellContent(m, "B1", "=SIMPLE_VALUE_EXPECTED(A1)");
       expect(getEvaluatedCell(m, "B1").value).toBe(true);
-      setCellContent(m, "B2", "=SIMPLE_VALUE_EXPECTED(A1:A2)");
+      await setCellContent(m, "B2", "=SIMPLE_VALUE_EXPECTED(A1:A2)");
       expect(getEvaluatedCell(m, "B2").value).toBe(true);
       expect(getEvaluatedCell(m, "B3").value).toBe(true);
     });

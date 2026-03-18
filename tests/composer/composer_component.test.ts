@@ -145,7 +145,7 @@ describe("ranges and highlights", () => {
   });
 
   test("=Key LEFT in A2, should select and highlight A1", async () => {
-    selectCell(model, "B1");
+    await selectCell(model, "B1");
     composerEl = await startComposition("=");
     await keyDown({ key: "ArrowLeft" });
     expect(composerEl.textContent).toBe("=A1");
@@ -207,21 +207,21 @@ describe("ranges and highlights", () => {
   });
 
   test("=Key UP in B2, should select and highlight B1", async () => {
-    selectCell(model, "B2");
+    await selectCell(model, "B2");
     composerEl = await typeInComposer("=");
     await keyDown({ key: "ArrowUp" });
     expect(composerEl.textContent).toBe("=B1");
   });
 
   test("=Key LEFT in B2, should select and highlight A2", async () => {
-    selectCell(model, "B2");
+    await selectCell(model, "B2");
     composerEl = await typeInComposer("=");
     await keyDown({ key: "ArrowLeft" });
     expect(composerEl.textContent).toBe("=A2");
   });
 
   test("=Key DOWN and UP in B2, should select and highlight B2", async () => {
-    selectCell(model, "B2");
+    await selectCell(model, "B2");
     composerEl = await typeInComposer("=");
     await keyDown({ key: "ArrowDown" });
     await keyDown({ key: "ArrowUp" });
@@ -229,7 +229,7 @@ describe("ranges and highlights", () => {
   });
 
   test("=key UP 2 times and key DOWN in B2, should select and highlight B2", async () => {
-    selectCell(model, "B2");
+    await selectCell(model, "B2");
     composerEl = await typeInComposer("=");
     await keyDown({ key: "ArrowUp" });
     await keyDown({ key: "ArrowUp" });
@@ -252,11 +252,11 @@ describe("ranges and highlights", () => {
   });
 
   test("Create a ref with merges with keyboard -> the merge should be treated as one cell", async () => {
-    selectCell(model, "B2");
-    resizeAnchorZone(model, "down");
-    resizeAnchorZone(model, "right");
-    merge(model, "B2:C3");
-    selectCell(model, "C1");
+    await selectCell(model, "B2");
+    await resizeAnchorZone(model, "down");
+    await resizeAnchorZone(model, "right");
+    await merge(model, "B2:C3");
+    await selectCell(model, "C1");
     composerEl = await typeInComposer("=");
     await keyDown({ key: "ArrowDown" });
     expect(composerEl.textContent).toBe("=B2");
@@ -267,8 +267,8 @@ describe("ranges and highlights", () => {
   });
 
   test("Create a ref overlapping merges by typing -> the merge is ignored if the range covers several cells", async () => {
-    merge(model, "B2:C3");
-    selectCell(model, "C1");
+    await merge(model, "B2:C3");
+    await selectCell(model, "C1");
     composerEl = await typeInComposer("=B2:B10");
     expect(composerEl.textContent).toBe("=B2:B10");
     expect(composerStore.highlights).toHaveLength(1);
@@ -284,7 +284,7 @@ describe("ranges and highlights", () => {
   describe("change highlight position in the grid", () => {
     test("change the associated range in the composer ", async () => {
       composerEl = await typeInComposer("=SUM(B2)");
-      startChangeHighlight(model, "B2");
+      await startChangeHighlight(model, "B2");
       model.selection.selectZone(
         { cell: toCartesian("C3"), zone: toZone("C3") },
         { unbounded: true }
@@ -295,7 +295,7 @@ describe("ranges and highlights", () => {
 
     test("highlights change handle unbounded ranges ", async () => {
       composerEl = await typeInComposer("=SUM(B:B)");
-      startChangeHighlight(model, "B1:B100");
+      await startChangeHighlight(model, "B1:B100");
       model.selection.selectZone(
         { cell: toCartesian("C1"), zone: toZone("C1:C100") },
         { unbounded: true }
@@ -306,7 +306,7 @@ describe("ranges and highlights", () => {
 
     test("change the first associated range in the composer when ranges are the same", async () => {
       composerEl = await typeInComposer("=SUM(B2, B2)");
-      startChangeHighlight(model, "B2");
+      await startChangeHighlight(model, "B2");
       model.selection.selectZone(
         { cell: toCartesian("C3"), zone: toZone("C3") },
         { unbounded: true }
@@ -317,7 +317,7 @@ describe("ranges and highlights", () => {
 
     test("the first range doesn't change if other highlight transit by the first range state ", async () => {
       composerEl = await typeInComposer("=SUM(B2, B1)");
-      startChangeHighlight(model, "B1");
+      await startChangeHighlight(model, "B1");
       model.selection.selectZone(
         { cell: toCartesian("B2"), zone: toZone("B2") },
         { unbounded: true }
@@ -334,7 +334,7 @@ describe("ranges and highlights", () => {
     test("Changing superimposed highlights gives priority to the token at cursor", async () => {
       composerEl = await typeInComposer("=SUM(B1,B1,B1)");
       composerStore.changeComposerCursorSelection(9, 9);
-      startChangeHighlight(model, "B1");
+      await startChangeHighlight(model, "B1");
       model.selection.selectZone(
         { cell: toCartesian("B4"), zone: toZone("B4") },
         { unbounded: true }
@@ -345,7 +345,7 @@ describe("ranges and highlights", () => {
 
     test("can change references of different length", async () => {
       composerEl = await typeInComposer("=SUM(B1)");
-      startChangeHighlight(model, "B1");
+      await startChangeHighlight(model, "B1");
       model.selection.selectZone(
         { cell: toCartesian("B1"), zone: toZone("B1:B2") },
         { unbounded: true }
@@ -356,8 +356,8 @@ describe("ranges and highlights", () => {
 
     test("can change references with sheetname", async () => {
       composerEl = await typeInComposer("=Sheet42!B1");
-      createSheetWithName(model, { sheetId: "42", activate: true }, "Sheet42");
-      startChangeHighlight(model, "B1");
+      await createSheetWithName(model, { sheetId: "42", activate: true }, "Sheet42");
+      await startChangeHighlight(model, "B1");
       model.selection.selectZone(
         { cell: toCartesian("B2"), zone: toZone("B2") },
         { unbounded: true }
@@ -368,8 +368,8 @@ describe("ranges and highlights", () => {
 
     test("change references of the current sheet", async () => {
       composerEl = await typeInComposer("=SUM(B1,Sheet42!B1)");
-      createSheetWithName(model, { sheetId: "42", activate: true }, "Sheet42");
-      startChangeHighlight(model, "B1");
+      await createSheetWithName(model, { sheetId: "42", activate: true }, "Sheet42");
+      await startChangeHighlight(model, "B1");
       model.selection.selectZone(
         { cell: toCartesian("B2"), zone: toZone("B2") },
         { unbounded: true }
@@ -383,7 +383,7 @@ describe("ranges and highlights", () => {
       ["=$b1", "=$C1"],
     ])("can change cells reference with index fixed", async (ref, resultRef) => {
       composerEl = await typeInComposer(ref);
-      startChangeHighlight(model, "B1");
+      await startChangeHighlight(model, "B1");
       model.selection.selectZone(
         { cell: toCartesian("C1"), zone: toZone("C1") },
         { unbounded: true }
@@ -404,7 +404,7 @@ describe("ranges and highlights", () => {
       ["=$B$1:$B$2", "=$C$1:$C$2"],
     ])("can change ranges reference with index fixed", async (ref, resultRef) => {
       composerEl = await typeInComposer(ref);
-      startChangeHighlight(model, "B1:B2");
+      await startChangeHighlight(model, "B1:B2");
       model.selection.selectZone(
         { cell: toCartesian("C1"), zone: toZone("C1:C2") },
         { unbounded: true }
@@ -414,9 +414,9 @@ describe("ranges and highlights", () => {
     });
 
     test("can change cells merged reference", async () => {
-      merge(model, "B1:B2");
+      await merge(model, "B1:B2");
       composerEl = await typeInComposer("=B1");
-      startChangeHighlight(model, "B1:B2");
+      await startChangeHighlight(model, "B1:B2");
       model.selection.selectZone(
         { cell: toCartesian("C1"), zone: toZone("C1") },
         { unbounded: true }
@@ -425,7 +425,7 @@ describe("ranges and highlights", () => {
       expect(composerEl.textContent).toBe("=C1");
 
       composerEl = await typeInComposer("+B2", false);
-      startChangeHighlight(model, "B1:B2");
+      await startChangeHighlight(model, "B1:B2");
       model.selection.selectZone(
         { cell: toCartesian("C2"), zone: toZone("C2") },
         { unbounded: true }
@@ -435,9 +435,9 @@ describe("ranges and highlights", () => {
     });
 
     test("can change cells merged reference with index fixed", async () => {
-      merge(model, "B1:B2");
+      await merge(model, "B1:B2");
       composerEl = await typeInComposer("=B$2");
-      startChangeHighlight(model, "B1:B2");
+      await startChangeHighlight(model, "B1:B2");
       model.selection.selectZone(
         { cell: toCartesian("C1"), zone: toZone("C1:C2") },
         { unbounded: true }
@@ -447,9 +447,9 @@ describe("ranges and highlights", () => {
     });
 
     test("references are expanded to include merges", async () => {
-      merge(model, "C1:D1");
+      await merge(model, "C1:D1");
       composerEl = await typeInComposer("=A1:B1");
-      startChangeHighlight(model, "A1:B1");
+      await startChangeHighlight(model, "A1:B1");
       model.selection.selectZone(
         { cell: toCartesian("B1"), zone: toZone("B1:C1") },
         { unbounded: true }
@@ -460,7 +460,7 @@ describe("ranges and highlights", () => {
 
     test("can change references of different length with index fixed", async () => {
       composerEl = await typeInComposer("=SUM($B$1)");
-      startChangeHighlight(model, "B1");
+      await startChangeHighlight(model, "B1");
       model.selection.selectZone(
         { cell: toCartesian("B1"), zone: toZone("B1:B2") },
         { unbounded: true }
@@ -470,9 +470,9 @@ describe("ranges and highlights", () => {
     });
 
     test("changing highlight to a spilled range adds the spill operator", async () => {
-      setCellContent(model, "C3", "=MUNIT(2)");
+      await setCellContent(model, "C3", "=MUNIT(2)");
       composerEl = await typeInComposer("=SUM(B2)");
-      startChangeHighlight(model, "B2");
+      await startChangeHighlight(model, "B2");
       model.selection.selectZone(
         { cell: toCartesian("C3"), zone: toZone("C3:D4") },
         { unbounded: true }
@@ -503,7 +503,7 @@ describe("ranges and highlights", () => {
 describe("composer", () => {
   test("type '=', select a cell, press enter", async () => {
     composerEl = await typeInComposer("=");
-    selectCell(model, "C8");
+    await selectCell(model, "C8");
     await nextTick();
     expect(composerEl.textContent).toBe("=C8");
     await keyDown({ key: "Enter" });
@@ -513,7 +513,7 @@ describe("composer", () => {
 
   test("type '+', select a cell, press enter", async () => {
     composerEl = await typeInComposer("+");
-    selectCell(model, "C8");
+    await selectCell(model, "C8");
     await nextTick();
     expect(composerEl.textContent).toBe("+C8");
     await keyDown({ key: "Enter" });
@@ -567,7 +567,7 @@ describe("composer", () => {
   });
 
   test("edit link cell changes the label", async () => {
-    setCellContent(model, "A1", "[label](http://odoo.com)");
+    await setCellContent(model, "A1", "[label](http://odoo.com)");
     composerEl = await startComposition();
     await typeInComposer(" updated");
     await keyDown({ key: "Enter" });
@@ -842,7 +842,7 @@ describe("composer", () => {
 
   test("Move cursor while in edit mode with non empty cell", async () => {
     const composerEl = fixture.querySelector<HTMLElement>("div.o-composer")!;
-    setCellContent(model, "A1", "Hello");
+    await setCellContent(model, "A1", "Hello");
     await nextTick();
     await simulateClick("div.o-composer");
     await moveToEnd(composerEl);
@@ -877,7 +877,7 @@ describe("composer", () => {
   });
 
   test("Select a left-to-right range with the keyboard in a non empty cell", async () => {
-    setCellContent(model, "A1", "Hello");
+    await setCellContent(model, "A1", "Hello");
     await nextTick();
     await simulateClick("div.o-composer");
     composerEl = fixture.querySelector<HTMLElement>("div.o-composer")!;
@@ -905,7 +905,7 @@ describe("composer", () => {
   });
 
   test("Can select a right-to-left range that spans multiple span elements", async () => {
-    setCellContent(model, "A1", "=A1+SUM(A2)");
+    await setCellContent(model, "A1", "=A1+SUM(A2)");
     await nextTick();
     await simulateClick("div.o-composer");
     composerEl = fixture.querySelector<HTMLElement>("div.o-composer")!;
@@ -931,7 +931,7 @@ describe("composer", () => {
 
   test("type '=', stop editing with enter, click on the modified cell --> the edition mode should be inactive", async () => {
     // type '=' in C8
-    selectCell(model, "C8");
+    await selectCell(model, "C8");
     await nextTick();
     composerEl = await typeInComposer("=");
     expect(composerStore.editionMode).toBe("selecting");
@@ -944,7 +944,7 @@ describe("composer", () => {
     expect(composerStore.editionMode).toBe("inactive");
 
     // click on the modified cell C8
-    selectCell(model, "C8");
+    await selectCell(model, "C8");
     await nextTick();
     expect(getSelectionAnchorCellXc(model)).toBe("C8");
     expect(composerStore.editionMode).toBe("inactive");
@@ -1014,8 +1014,8 @@ describe("composer", () => {
   );
 
   test("Composer content is localized", async () => {
-    updateLocale(model, FR_LOCALE);
-    setCellContent(model, "A1", "1.2");
+    await updateLocale(model, FR_LOCALE);
+    await setCellContent(model, "A1", "1.2");
     await startComposition();
     expect(composerStore.currentContent).toEqual("1,2");
   });
@@ -1027,7 +1027,7 @@ describe("composer", () => {
     await nextTick();
     expect(composerStore.currentContent).toBe("5.");
 
-    updateLocale(model, FR_LOCALE);
+    await updateLocale(model, FR_LOCALE);
     await keyDown({ code: "NumpadDecimal", key: "." });
     await keyUp({ code: "NumpadDecimal", key: "." });
     await nextTick();
@@ -1519,7 +1519,7 @@ describe("composer set background on matching parenthesis ", () => {
 
 describe("composer highlights color", () => {
   test("colors start with first color", async () => {
-    setCellContent(model, "A1", "=a1+a2");
+    await setCellContent(model, "A1", "=a1+a2");
     await startComposition();
     expect(composerStore.highlights.length).toBe(2);
     expect(composerStore.highlights[0].color).toBe(colors[0]);
@@ -1527,7 +1527,7 @@ describe("composer highlights color", () => {
   });
 
   test("colors start with first color using +", async () => {
-    setCellContent(model, "A1", "+a1+a2");
+    await setCellContent(model, "A1", "+a1+a2");
     await startComposition();
     expect(composerStore.highlights.length).toBe(2);
     expect(composerStore.highlights[0].color).toBe(colors[0]);
@@ -1535,8 +1535,8 @@ describe("composer highlights color", () => {
   });
 
   test("colors always start with first color", async () => {
-    setCellContent(model, "A1", "=b1+b2");
-    setCellContent(model, "A2", "=b1+b3");
+    await setCellContent(model, "A1", "=b1+b2");
+    await setCellContent(model, "A2", "=b1+b3");
     await startComposition();
     expect(composerStore.highlights.length).toBe(2);
     expect(composerStore.highlights[0].color).toBe(colors[0]);
@@ -1550,7 +1550,7 @@ describe("composer highlights color", () => {
   });
 
   test("duplicate highlights when there are several same ranges", async () => {
-    setCellContent(model, "A1", "=a1+a1");
+    await setCellContent(model, "A1", "=a1+a1");
     await startComposition();
     expect(composerStore.highlights.length).toBe(2);
     expect(composerStore.highlights[0].color).toBe(colors[0]);
@@ -1558,7 +1558,7 @@ describe("composer highlights color", () => {
   });
 
   test("highlight range", async () => {
-    setCellContent(model, "A1", "=sum(a1:a10)");
+    await setCellContent(model, "A1", "=sum(a1:a10)");
     composerEl = await startComposition();
     expect(composerStore.highlights.length).toBe(1);
     expect(composerStore.highlights[0].color).toBe(colors[0]);
@@ -1566,7 +1566,7 @@ describe("composer highlights color", () => {
   });
 
   test("highlight range using +", async () => {
-    setCellContent(model, "A1", "+sum(A1:A10)");
+    await setCellContent(model, "A1", "+sum(A1:A10)");
     composerEl = await startComposition();
     expect(composerStore.highlights.length).toBe(1);
     expect(composerStore.highlights[0].color).toBe(colors[0]);
@@ -1574,7 +1574,7 @@ describe("composer highlights color", () => {
   });
 
   test("highlight 'reverse' ranges", async () => {
-    setCellContent(model, "A1", "=sum(B3:a1)");
+    await setCellContent(model, "A1", "=sum(B3:a1)");
     await startComposition();
     expect(composerStore.highlights[0].range.zone).toEqual({
       left: 0,
@@ -1585,15 +1585,15 @@ describe("composer highlights color", () => {
   });
 
   test("Do not highlight invalid ref", async () => {
-    setCellContent(model, "A1", "=A1A");
+    await setCellContent(model, "A1", "=A1A");
     composerEl = await startComposition();
     expect(composerStore.highlights.length).toBe(0);
     expect(composerEl.textContent).toBe("=A1A");
   });
 
   test("highlight cross-sheet ranges", async () => {
-    createSheet(model, { sheetId: "42" });
-    setCellContent(model, "A1", "=B1+Sheet2!A1");
+    await createSheet(model, { sheetId: "42" });
+    await setCellContent(model, "A1", "=B1+Sheet2!A1");
     await startComposition();
     const highlights = composerStore.highlights;
     expect(highlights).toHaveLength(2);
@@ -1604,8 +1604,8 @@ describe("composer highlights color", () => {
   });
 
   test("highlight cross-sheet ranges using +", async () => {
-    createSheet(model, { sheetId: "42" });
-    setCellContent(model, "A1", "+B1+Sheet2!A1");
+    await createSheet(model, { sheetId: "42" });
+    await setCellContent(model, "A1", "+B1+Sheet2!A1");
     await startComposition();
     const highlights = composerStore.highlights;
     expect(highlights).toHaveLength(2);

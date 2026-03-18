@@ -87,11 +87,11 @@ describe("Collaborative session", () => {
         client: { id: "alice", name: "Alice" },
       }
     );
-    setCellContent(model, "A1", "hello"); // send a revision
+    await setCellContent(model, "A1", "hello"); // send a revision
     const spy = jest.spyOn(transport, "sendMessage");
     await transport.concurrent(async () => {
       // send another revision
-      setCellContent(model, "A2", "world");
+      await setCellContent(model, "A2", "world");
       // and leave before receiving the acknowledgement
 
       await model.leaveSession();
@@ -253,7 +253,7 @@ describe("Collaborative session", () => {
         position: { sheetId, col: 0, row: 0 },
       },
     });
-    selectCell(model, "B1");
+    await selectCell(model, "B1");
     expect(spy).toHaveBeenCalledWith({
       type: "CLIENT_MOVED",
       version: MESSAGE_VERSION,

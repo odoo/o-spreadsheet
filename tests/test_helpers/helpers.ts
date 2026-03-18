@@ -265,13 +265,18 @@ export async function makeTestEnv(
   };
 }
 
-export function testUndoRedo(model: Model, expect: jest.Expect, command: CommandTypes, args: any) {
+export async function testUndoRedo(
+  model: Model,
+  expect: jest.Expect,
+  command: CommandTypes,
+  args: any
+) {
   const before = model.exportData();
   model.dispatch(command, args);
   const after = model.exportData();
-  undo(model);
+  await undo(model);
   expect(model).toExport(before);
-  redo(model);
+  await redo(model);
   expect(model).toExport(after);
 }
 
@@ -437,30 +442,30 @@ export function getGridStyle(model: Model, range?: string): GridStyleDescr {
   return result;
 }
 
-export function setGrid(model: Model, grid: GridDescr) {
+export async function setGrid(model: Model, grid: GridDescr) {
   for (const [xc, value] of Object.entries(grid)) {
     if (value === undefined) {
       continue;
     }
-    setCellContent(model, xc, value);
+    await setCellContent(model, xc, value);
   }
 }
 
-export function setGridFormat(model: Model, grid: GridFormatDescr) {
+export async function setGridFormat(model: Model, grid: GridFormatDescr) {
   for (const [xc, format] of Object.entries(grid)) {
     if (format === undefined) {
       continue;
     }
-    setFormat(model, xc, format);
+    await setFormat(model, xc, format);
   }
 }
 
-export function setGridStyle(model: Model, grid: GridStyleDescr) {
+export async function setGridStyle(model: Model, grid: GridStyleDescr) {
   for (const [xc, style] of Object.entries(grid)) {
     if (style === undefined) {
       continue;
     }
-    setFormatting(model, xc, style);
+    await setFormatting(model, xc, style);
   }
 }
 
@@ -485,7 +490,7 @@ export async function evaluateGridText(grid: GridDescr): Promise<FormattedGridDe
   const model = await createModel();
   for (const xc in grid) {
     if (grid[xc] !== undefined) {
-      setCellContent(model, xc, grid[xc]!);
+      await setCellContent(model, xc, grid[xc]!);
     }
   }
   const result = {};
@@ -499,7 +504,7 @@ export async function evaluateGridFormat(grid: GridDescr): Promise<FormattedGrid
   const model = await createModel();
   for (const xc in grid) {
     if (grid[xc] !== undefined) {
-      setCellContent(model, xc, grid[xc]!);
+      await setCellContent(model, xc, grid[xc]!);
     }
   }
   const result = {};
@@ -571,7 +576,7 @@ export async function createModelFromGrid(grid: GridDescr): Promise<Model> {
   const model = await createModel();
   for (const xc in grid) {
     if (grid[xc] !== undefined) {
-      setCellContent(model, xc, grid[xc]!);
+      await setCellContent(model, xc, grid[xc]!);
     }
   }
   return model;
@@ -910,7 +915,7 @@ export async function exportPrettifiedXlsx(model: Model): Promise<XLSXExport> {
 }
 
 export async function getExportedExcelData(model: Model): Promise<ExcelWorkbookData> {
-  evaluateCells(model);
+  await evaluateCells(model);
   let data = createEmptyExcelWorkbookData();
   for (const handler of model["handlers"]) {
     if (handler instanceof BasePlugin) {

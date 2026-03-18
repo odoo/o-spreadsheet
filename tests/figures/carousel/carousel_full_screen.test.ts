@@ -15,8 +15,8 @@ describe("full screen carousel", () => {
   });
 
   test("Can make a carousel fullscreen in dashboard", async () => {
-    createCarousel(model, { items: [] }, "carouselId");
-    addNewChartToCarousel(model, "carouselId");
+    await createCarousel(model, { items: [] }, "carouselId");
+    await addNewChartToCarousel(model, "carouselId");
     await nextTick();
     expect(".o-figure .o-carousel-full-screen-button").toHaveCount(0);
 
@@ -30,8 +30,8 @@ describe("full screen carousel", () => {
   });
 
   test("Can exit fullscreen mode", async () => {
-    createCarousel(model, { items: [] }, "carouselId");
-    addNewChartToCarousel(model, "carouselId");
+    await createCarousel(model, { items: [] }, "carouselId");
+    await addNewChartToCarousel(model, "carouselId");
     model.updateMode("dashboard");
     await nextTick();
     expect(".o-carousel-full-screen-button").toHaveClass("fa-expand");
@@ -45,8 +45,8 @@ describe("full screen carousel", () => {
   });
 
   test("Cannot use the data view in full screen", async () => {
-    createCarousel(model, { items: [{ type: "carouselDataView" }] }, "carouselId");
-    addNewChartToCarousel(model, "carouselId", { type: "radar" });
+    await createCarousel(model, { items: [{ type: "carouselDataView" }] }, "carouselId");
+    await addNewChartToCarousel(model, "carouselId", { type: "radar" });
     model.updateMode("dashboard");
     await nextTick();
     expect(".o-figure .o-carousel-full-screen-button").toHaveClass("invisible");

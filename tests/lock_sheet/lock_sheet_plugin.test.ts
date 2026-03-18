@@ -35,7 +35,7 @@ describe("Lock Sheet plugin", () => {
     "Cannot dispatch blacklisted command %s on a locked sheet",
     async (cmdType) => {
       const model = await createModel();
-      lockSheet(model);
+      await lockSheet(model);
       const result = model.dispatch(cmdType, TEST_COMMANDS[cmdType]);
       expect(result.reasons).toContain(CommandResult.SheetLocked);
     }
@@ -43,8 +43,8 @@ describe("Lock Sheet plugin", () => {
 
   test("Can dispatch white-listed commands on a locked sheet", async () => {
     const model = await createModel();
-    createSheet(model, { name: "Another sheet", position: 0 });
-    lockSheet(model);
+    await createSheet(model, { name: "Another sheet", position: 0 });
+    await lockSheet(model);
     for (const cmdType of allowedCommands) {
       const result = model.dispatch(cmdType, TEST_COMMANDS[cmdType]);
       expect(result).toBeSuccessfullyDispatched();
@@ -54,10 +54,10 @@ describe("Lock Sheet plugin", () => {
   test("read only commands bypass lock in dashboard mode", async () => {
     for (const cmdType of readonlyCommands) {
       const model = await createModel();
-      createSheet(model, { name: "Another sheet", position: 0 });
-      createChart(model, { type: "bar" }, "chartId");
+      await createSheet(model, { name: "Another sheet", position: 0 });
+      await createChart(model, { type: "bar" }, "chartId");
       addPivot(model);
-      lockSheet(model);
+      await lockSheet(model);
       model.updateMode("dashboard");
       const result = model.dispatch(cmdType, TEST_COMMANDS[cmdType]);
       expect(result).toBeSuccessfullyDispatched();

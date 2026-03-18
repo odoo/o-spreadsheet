@@ -28,7 +28,7 @@ describe("Funnel chart side panel", () => {
 
   describe("Config panel", () => {
     test("Funnel config panel is correctly initialized", async () => {
-      const chartId = createFunnelChart(model, {
+      const chartId = await createFunnelChart(model, {
         dataSets: [{ dataRange: "A1:A3" }],
         labelRange: "B1:B3",
         dataSetsHaveTitle: true,
@@ -45,7 +45,7 @@ describe("Funnel chart side panel", () => {
     });
 
     test("Can make chart cumulative", async () => {
-      const chartId = createFunnelChart(model);
+      const chartId = await createFunnelChart(model);
       await openChartConfigSidePanel(model, env, chartId);
 
       expect(model.getters.getChartDefinition(chartId)).toMatchObject({ cumulative: false });
@@ -59,9 +59,9 @@ describe("Funnel chart side panel", () => {
 
   describe("Design panel", () => {
     test("Waterfall design panel is correctly initialized", async () => {
-      setCellContent(model, "A2", "50");
-      setCellContent(model, "A3", "60");
-      const chartId = createFunnelChart(model, {
+      await setCellContent(model, "A2", "50");
+      await setCellContent(model, "A3", "60");
+      const chartId = await createFunnelChart(model, {
         dataSets: [{ dataRange: "A1:A3" }],
         title: { text: "My Funnel chart" },
         showValues: true,
@@ -77,9 +77,9 @@ describe("Funnel chart side panel", () => {
     });
 
     test("Can change funnel colors", async () => {
-      setCellContent(model, "A2", "50");
-      setCellContent(model, "A3", "60");
-      const chartId = createFunnelChart(model, {
+      await setCellContent(model, "A2", "50");
+      await setCellContent(model, "A3", "60");
+      const chartId = await createFunnelChart(model, {
         dataSets: [{ dataRange: "A1:A3" }],
         title: { text: "My Funnel chart" },
         showValues: true,
@@ -98,10 +98,10 @@ describe("Funnel chart side panel", () => {
     });
 
     test("Labels are displayed next to the color pickers", async () => {
-      setCellContent(model, "A2", "This is a label");
-      setCellContent(model, "B2", "50");
-      setCellContent(model, "B3", "60");
-      const chartId = createFunnelChart(model, {
+      await setCellContent(model, "A2", "This is a label");
+      await setCellContent(model, "B2", "50");
+      await setCellContent(model, "B3", "60");
+      const chartId = await createFunnelChart(model, {
         dataSets: [{ dataRange: "B1:B3" }],
         labelRange: "A1:A3",
         title: { text: "My Funnel chart" },

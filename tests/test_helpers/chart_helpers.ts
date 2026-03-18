@@ -47,7 +47,7 @@ export async function openChartConfigSidePanel(
   if (!figureId) {
     throw new Error(`No figure found for chart ID: ${chartId}`);
   }
-  selectFigure(model, figureId);
+  await selectFigure(model, figureId);
   env.openSidePanel("ChartPanel");
   await nextTick();
 }

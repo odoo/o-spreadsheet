@@ -37,7 +37,7 @@ describe("Pivot table style", () => {
       rows: [],
       measures: [{ id: "revenue:sum", fieldName: "Expected Revenue", aggregator: "sum" }],
     });
-    setCellContent(model, "A25", "=PIVOT(1)");
+    await setCellContent(model, "A25", "=PIVOT(1)");
   });
 
   afterEach(() => {
@@ -110,7 +110,7 @@ describe("Pivot table style", () => {
     });
   });
 
-  test("Row headers have the correct style when some rows are hidden", () => {
+  test("Row headers have the correct style when some rows are hidden", async () => {
     tableStyle.wholeTable = { style: wholePivotStyle };
     tableStyle.mainSubHeaderRow = { style: mainSubHeaderRowStyle };
     tableStyle.firstAlternatingSubHeaderRow = { style: firstAlternatingSubHeaderRow };
@@ -119,7 +119,7 @@ describe("Pivot table style", () => {
       rows: [{ fieldName: "Created on", granularity: "month" }, { fieldName: "Active" }],
       style: { tableStyleId: "TestStyle" },
     });
-    hideRows(model, [26, 28]);
+    await hideRows(model, [26, 28]);
 
     // prettier-ignore
     expect(getGridStyle(model)).toMatchObject({
@@ -266,7 +266,7 @@ describe("Pivot table style", () => {
     });
   });
 
-  test("Banded row style takes hidden rows into account", () => {
+  test("Banded row style takes hidden rows into account", async () => {
     tableStyle.wholeTable = { style: wholePivotStyle };
     tableStyle.headerRow = { style: headerRowStyle };
     tableStyle.firstRowStripe = { style: firstRowStripeStyle };
@@ -279,7 +279,7 @@ describe("Pivot table style", () => {
       ],
       style: { tableStyleId: "TestStyle", bandedRows: true },
     });
-    hideRows(model, [27, 29]);
+    await hideRows(model, [27, 29]);
 
     // prettier-ignore
     expect(getGridStyle(model, "A25:B31")).toEqual({
@@ -316,7 +316,7 @@ describe("Pivot table style", () => {
     });
   });
 
-  test("Banded columns style takes hidden columns into account", () => {
+  test("Banded columns style takes hidden columns into account", async () => {
     tableStyle.firstColumnStripe = { style: firstColumnStripeStyle };
     tableStyle.secondColumnStripe = { style: secondColumnStripeStyle };
 
@@ -327,7 +327,7 @@ describe("Pivot table style", () => {
       ],
       style: { tableStyleId: "TestStyle", bandedColumns: true },
     });
-    hideColumns(model, ["B"]);
+    await hideColumns(model, ["B"]);
 
     // prettier-ignore
     expect(getGridStyle(model)).toMatchObject({
@@ -335,7 +335,7 @@ describe("Pivot table style", () => {
     });
   });
 
-  test("Table style take the pivot function arguments into account", () => {
+  test("Table style take the pivot function arguments into account", async () => {
     tableStyle.wholeTable = { style: wholePivotStyle };
     tableStyle.headerRow = { style: headerRowStyle };
     tableStyle.measureHeader = { style: measureHeaderStyle };
@@ -345,7 +345,7 @@ describe("Pivot table style", () => {
       rows: [{ fieldName: "Created on", granularity: "year" }],
       style: { tableStyleId: "TestStyle" },
     });
-    setCellContent(model, "A25", "=PIVOT(1, , , FALSE, , FALSE)"); // No column title/measure header
+    await setCellContent(model, "A25", "=PIVOT(1, , , FALSE, , FALSE)"); // No column title/measure header
 
     expect(getTables(model, sheetId)[0]).toMatchObject({ zone: "A25:B26" });
     // prettier-ignore
@@ -355,11 +355,11 @@ describe("Pivot table style", () => {
     });
   });
 
-  test("Pivot formula do not have style if it is not the first function of the formula", () => {
+  test("Pivot formula do not have style if it is not the first function of the formula", async () => {
     updatePivot(model, "1", {
       style: { tableStyleId: "TestStyle" },
     });
-    setCellContent(model, "A25", "=TRANSPOSE(PIVOT(1))");
+    await setCellContent(model, "A25", "=TRANSPOSE(PIVOT(1))");
 
     expect(getTables(model, sheetId)).toHaveLength(0);
   });

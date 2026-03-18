@@ -427,7 +427,7 @@ describe("Data validation autocomplete", () => {
   });
 
   test("should not display close button in autocomplete for data validation", async () => {
-    addDataValidation(model, "A1", "id", {
+    await addDataValidation(model, "A1", "id", {
       type: "isValueInList",
       values: ["1", "2", "3"],
       displayStyle: "arrow",
@@ -438,7 +438,7 @@ describe("Data validation autocomplete", () => {
   });
 
   test("closing formula assistant should not affect data validation autocomplete visibility", async () => {
-    addDataValidation(model, "A1", "id", {
+    await addDataValidation(model, "A1", "id", {
       type: "isValueInList",
       values: [" 1", "2", "3"],
       displayStyle: "arrow",
@@ -461,7 +461,7 @@ describe("Data validation autocomplete", () => {
   });
 
   test("after force-closing formula assistant, Enter in data validation still selects from dropdown", async () => {
-    addDataValidation(model, "A1", "id", {
+    await addDataValidation(model, "A1", "id", {
       type: "isValueInList",
       values: [" 1", "2", "3"],
       displayStyle: "arrow",
@@ -531,7 +531,7 @@ describe("Autocomplete parenthesis", () => {
   test("=sum(1,2) + enter + edit sum does not add parenthesis", async () => {
     await typeInComposer("=sum(1,2)");
     await keyDown({ key: "Enter" });
-    selectCell(model, "A1");
+    await selectCell(model, "A1");
     //edit A1
     parent.setEdition({});
     composerStore.changeComposerCursorSelection(1, 4);

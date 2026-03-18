@@ -63,9 +63,9 @@ describe("Table style", () => {
     const totalColor = style.totalRow!.style!.fillColor;
     const bandedRowColor = style.firstColumnStripe!.style!.fillColor;
 
-    test("Table style is correctly applied", () => {
-      createTable(model, "A1:A4");
-      updateTableConfig(model, "A1:A4", {
+    test("Table style is correctly applied", async () => {
+      await createTable(model, "A1:A4");
+      await updateTableConfig(model, "A1:A4", {
         styleId: "TableStyleMedium9",
         numberOfHeaders: 1,
         totalRow: true,
@@ -77,30 +77,30 @@ describe("Table style", () => {
       expect(getCellStyle("A4")).toMatchObject({ fillColor: totalColor });
     });
 
-    test("Table style do not overwrite cell style", () => {
-      createTable(model, "A1:A4");
-      updateTableConfig(model, "A1:A4", { styleId: "TableStyleMedium9", numberOfHeaders: 1 });
-      setFormatting(model, "A1", { fillColor: "#f00" });
+    test("Table style do not overwrite cell style", async () => {
+      await createTable(model, "A1:A4");
+      await updateTableConfig(model, "A1:A4", { styleId: "TableStyleMedium9", numberOfHeaders: 1 });
+      await setFormatting(model, "A1", { fillColor: "#f00" });
       expect(getCellStyle("A1")).toMatchObject({ fillColor: "#f00" });
     });
 
-    test("Falsy cell style do not overwrite table", () => {
-      createTable(model, "A1:A4");
-      updateTableConfig(model, "A1:A4", { styleId: "TableStyleMedium9", numberOfHeaders: 1 });
-      setFormatting(model, "A1", { fillColor: undefined, bold: false });
+    test("Falsy cell style do not overwrite table", async () => {
+      await createTable(model, "A1:A4");
+      await updateTableConfig(model, "A1:A4", { styleId: "TableStyleMedium9", numberOfHeaders: 1 });
+      await setFormatting(model, "A1", { fillColor: undefined, bold: false });
       expect(getCellStyle("A1")).toMatchObject({ fillColor: headerColor, bold: true });
     });
 
-    test("Table style is applied correctly with hidden headers", () => {
-      createTable(model, "A1:B5");
-      updateTableConfig(model, "A1:B5", {
+    test("Table style is applied correctly with hidden headers", async () => {
+      await createTable(model, "A1:B5");
+      await updateTableConfig(model, "A1:B5", {
         styleId: "TableStyleMedium9",
         numberOfHeaders: 2,
         bandedRows: true,
         firstColumn: true,
       });
-      hideRows(model, [0, 3]);
-      hideColumns(model, ["A"]);
+      await hideRows(model, [0, 3]);
+      await hideColumns(model, ["A"]);
 
       expect(getCellStyle("A1")).toEqual({}); // hidden
       expect(getCellStyle("B1")).toMatchObject({}); // hidden
@@ -118,10 +118,10 @@ describe("Table style", () => {
       bandedRows: false,
     } as const;
 
-    test("Table borders are correct", () => {
-      createTable(model, "A7:B9");
+    test("Table borders are correct", async () => {
+      await createTable(model, "A7:B9");
       // Style with only outer borders
-      updateTableConfig(model, "A7:B9", outerBordersTableStyle);
+      await updateTableConfig(model, "A7:B9", outerBordersTableStyle);
 
       const zone = toZone("A7:B9");
       const styleBorderDescr = { style: "thin", color: "#000000" };
@@ -138,10 +138,10 @@ describe("Table style", () => {
       }
     });
 
-    test("Table borders don't overwrite cell borders", () => {
-      setZoneBorders(model, { position: "left", color: "#f00" }, ["A7:A9"]);
-      createTable(model, "A7:A9");
-      updateTableConfig(model, "A7:B9", outerBordersTableStyle);
+    test("Table borders don't overwrite cell borders", async () => {
+      await setZoneBorders(model, { position: "left", color: "#f00" }, ["A7:A9"]);
+      await createTable(model, "A7:A9");
+      await updateTableConfig(model, "A7:B9", outerBordersTableStyle);
       const styleBorderDescr = { style: "thin", color: "#000000" };
 
       const zone = toZone("A7:A9");
@@ -157,13 +157,13 @@ describe("Table style", () => {
       }
     });
 
-    test("Outer table borders still appear if the outers col/rows are hidden", () => {
-      createTable(model, "A7:E14");
-      updateTableConfig(model, "A7:B9", outerBordersTableStyle);
+    test("Outer table borders still appear if the outers col/rows are hidden", async () => {
+      await createTable(model, "A7:E14");
+      await updateTableConfig(model, "A7:B9", outerBordersTableStyle);
       const styleBorderDescr = { style: "thin", color: "#000000" };
 
-      hideColumns(model, ["E", "A", "B"]);
-      hideRows(model, [6, 12, 13]);
+      await hideColumns(model, ["E", "A", "B"]);
+      await hideRows(model, [6, 12, 13]);
 
       const zone = toZone("C8:D12");
       for (let row = zone.top; row <= zone.bottom; row++) {
@@ -179,20 +179,20 @@ describe("Table style", () => {
       }
     });
 
-    test("Cell style is updated when a table is deleted with DELETE_CONTENT", () => {
-      createTable(model, "A1:B4");
+    test("Cell style is updated when a table is deleted with DELETE_CONTENT", async () => {
+      await createTable(model, "A1:B4");
       expect(getCellStyle("A1")).not.toEqual({});
 
-      deleteContent(model, ["A1:B4"]);
+      await deleteContent(model, ["A1:B4"]);
       expect(getTable(model, "A1")).toBeUndefined();
       expect(getCellStyle("A1")).toEqual({});
     });
   });
 
   describe("Table style is updated when sheet changes", () => {
-    beforeEach(() => {
-      createTable(model, "A1:B4");
-      updateTableConfig(model, "A1:B4", {
+    beforeEach(async () => {
+      await createTable(model, "A1:B4");
+      await updateTableConfig(model, "A1:B4", {
         styleId: "TableStyleMedium13",
         numberOfHeaders: 1,
         totalRow: true,
@@ -201,86 +201,86 @@ describe("Table style", () => {
       });
     });
 
-    test("Table style is updated when (un)hiding a header", () => {
+    test("Table style is updated when (un)hiding a header", async () => {
       const tableStyle = getFullTableStyle("A1:B4");
-      hideRows(model, [0]);
+      await hideRows(model, [0]);
       expect(getFullTableStyle("A1:B4")).not.toEqual(tableStyle);
-      unhideRows(model, [0]);
+      await unhideRows(model, [0]);
       expect(getFullTableStyle("A1:B4")).toEqual(tableStyle);
 
-      hideColumns(model, ["A"]);
+      await hideColumns(model, ["A"]);
       expect(getFullTableStyle("A1:B4")).not.toEqual(tableStyle);
-      unhideColumns(model, ["A"]);
+      await unhideColumns(model, ["A"]);
       expect(getFullTableStyle("A1:B4")).toEqual(tableStyle);
     });
 
-    test("Table style is updated when (un)folding headers", () => {
+    test("Table style is updated when (un)folding headers", async () => {
       const tableStyle = getFullTableStyle("A1:B4");
-      groupRows(model, 0, 2);
-      foldHeaderGroup(model, "ROW", 0, 2);
+      await groupRows(model, 0, 2);
+      await foldHeaderGroup(model, "ROW", 0, 2);
       expect(getFullTableStyle("A1:B4")).not.toEqual(tableStyle);
-      unfoldHeaderGroup(model, "ROW", 0, 2);
+      await unfoldHeaderGroup(model, "ROW", 0, 2);
       expect(getFullTableStyle("A1:B4")).toEqual(tableStyle);
 
-      foldHeaderGroupsInZone(model, "ROW", "B1:B2");
+      await foldHeaderGroupsInZone(model, "ROW", "B1:B2");
       expect(getFullTableStyle("A1:B4")).not.toEqual(tableStyle);
-      unfoldHeaderGroupsInZone(model, "ROW", "B1:B2");
+      await unfoldHeaderGroupsInZone(model, "ROW", "B1:B2");
       expect(getFullTableStyle("A1:B4")).toEqual(tableStyle);
 
-      foldAllHeaderGroups(model, "ROW");
+      await foldAllHeaderGroups(model, "ROW");
       expect(getFullTableStyle("A1:B4")).not.toEqual(tableStyle);
-      unfoldAllHeaderGroups(model, "ROW");
+      await unfoldAllHeaderGroups(model, "ROW");
       expect(getFullTableStyle("A1:B4")).toEqual(tableStyle);
     });
 
-    test("Table style is updated when removing a header group", () => {
+    test("Table style is updated when removing a header group", async () => {
       const tableStyle = getFullTableStyle("A1:B4");
-      groupRows(model, 0, 2);
-      foldHeaderGroup(model, "ROW", 0, 2);
+      await groupRows(model, 0, 2);
+      await foldHeaderGroup(model, "ROW", 0, 2);
       expect(getFullTableStyle("A1:B4")).not.toEqual(tableStyle);
-      ungroupHeaders(model, "ROW", 0, 2);
+      await ungroupHeaders(model, "ROW", 0, 2);
       expect(getFullTableStyle("A1:B4")).toEqual(tableStyle);
     });
 
     test("Table style is updated when (un)filtering headers", async () => {
       model = await createModel();
-      createTableWithFilter(model, "A1:B4");
+      await createTableWithFilter(model, "A1:B4");
       const tableStyle = getFullTableStyle("A1:B4");
-      setCellContent(model, "A2", "test");
-      updateFilter(model, "A1", ["test"]);
+      await setCellContent(model, "A2", "test");
+      await updateFilter(model, "A1", ["test"]);
       expect(getFullTableStyle("A1:B4")).not.toEqual(tableStyle);
-      updateFilter(model, "A1", []);
+      await updateFilter(model, "A1", []);
       expect(getFullTableStyle("A1:B4")).toEqual(tableStyle);
     });
 
-    test("Table style is updated when updating the evaluation", () => {
-      updateFilter(model, "A1", ["test"]);
-      setCellContent(model, "A2", "=C1");
+    test("Table style is updated when updating the evaluation", async () => {
+      await updateFilter(model, "A1", ["test"]);
+      await setCellContent(model, "A2", "=C1");
       const tableStyle = getFullTableStyle("A1:B4");
-      setCellContent(model, "C1", "test");
+      await setCellContent(model, "C1", "test");
       expect(getFullTableStyle("A1:B4")).not.toEqual(tableStyle);
     });
 
-    test("Table style is updated when updating a table", () => {
+    test("Table style is updated when updating a table", async () => {
       const tableStyle = getFullTableStyle("A1:B4");
-      updateTableConfig(model, "A1:B4", { styleId: "TableStyleLight1" });
+      await updateTableConfig(model, "A1:B4", { styleId: "TableStyleLight1" });
       expect(getFullTableStyle("A1:B4")).not.toEqual(tableStyle);
     });
 
-    test("Table style is updated with undo/redo", () => {
-      updateTableConfig(model, "A1:B4", { styleId: "TableStyleLight1" });
+    test("Table style is updated with undo/redo", async () => {
+      await updateTableConfig(model, "A1:B4", { styleId: "TableStyleLight1" });
       const tableStyle = getFullTableStyle("A1:B4");
 
-      undo(model);
+      await undo(model);
       expect(getFullTableStyle("A1:B4")).not.toEqual(tableStyle);
-      redo(model);
+      await redo(model);
       expect(getFullTableStyle("A1:B4")).toEqual(tableStyle);
     });
 
-    test("Style is updated when deleting a table", () => {
-      setFormatting(model, "A1", { fillColor: "#f00" });
+    test("Style is updated when deleting a table", async () => {
+      await setFormatting(model, "A1", { fillColor: "#f00" });
       const tableStyle = getFullTableStyle("A1:B4");
-      deleteTable(model, "A1:B4");
+      await deleteTable(model, "A1:B4");
       expect(getFullTableStyle("A1:B4")).not.toEqual(tableStyle);
     });
   });

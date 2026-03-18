@@ -90,8 +90,8 @@ afterEach(() => {
 
 describe("Drag And Drop horizontal tests", () => {
   test("Start Drag&Drop in XRight then moving to XLeft edge-scroll XRight to the left", async () => {
-    freezeColumns(model, 4, sheetId);
-    setViewportOffset(model, 6 * DEFAULT_CELL_WIDTH, 6 * DEFAULT_CELL_HEIGHT);
+    await freezeColumns(model, 4, sheetId);
+    await setViewportOffset(model, 6 * DEFAULT_CELL_WIDTH, 6 * DEFAULT_CELL_HEIGHT);
     await nextTick();
     expect(model.getters.getActiveMainViewport()).toMatchObject({
       left: 10,
@@ -113,8 +113,8 @@ describe("Drag And Drop horizontal tests", () => {
   });
 
   test("Start Drag&Drop in XLeft then moving to XRight unscroll XRight", async () => {
-    freezeColumns(model, 4, sheetId);
-    setViewportOffset(model, 6 * DEFAULT_CELL_WIDTH, 6 * DEFAULT_CELL_HEIGHT);
+    await freezeColumns(model, 4, sheetId);
+    await setViewportOffset(model, 6 * DEFAULT_CELL_WIDTH, 6 * DEFAULT_CELL_HEIGHT);
     await nextTick();
     expect(model.getters.getActiveMainViewport()).toMatchObject({
       left: 10,
@@ -134,7 +134,7 @@ describe("Drag And Drop horizontal tests", () => {
   });
 
   test("Start Drag&Drop in XRight then moving it outside right scroll XRight to the right", async () => {
-    freezeColumns(model, 4, sheetId);
+    await freezeColumns(model, 4, sheetId);
     await nextTick();
     expect(model.getters.getActiveMainViewport()).toMatchObject({
       left: 4,
@@ -154,7 +154,7 @@ describe("Drag And Drop horizontal tests", () => {
   });
 
   test("Start Drag&Drop in XLeft then moving it outside right scroll XRight to the right", async () => {
-    freezeColumns(model, 4, sheetId);
+    await freezeColumns(model, 4, sheetId);
     await nextTick();
     expect(model.getters.getActiveMainViewport()).toMatchObject({
       left: 4,
@@ -176,8 +176,8 @@ describe("Drag And Drop horizontal tests", () => {
 
   test("drag And Drop through hidden columns", async () => {
     const { right } = model.getters.getActiveMainViewport();
-    addColumns(model, "after", "Z", 100);
-    hideColumns(model, [numberToLetters(right + 1)]);
+    await addColumns(model, "after", "Z", 100);
+    await hideColumns(model, [numberToLetters(right + 1)]);
     const { width, height } = model.getters.getSheetViewDimension();
     const y = height / 2;
     triggerMouseEvent(".o-fake-grid", "pointerdown", width / 2, y);
@@ -190,7 +190,7 @@ describe("Drag And Drop horizontal tests", () => {
       left: 6,
       right: 17,
     });
-    setViewportOffset(model, (right + 2) * DEFAULT_CELL_WIDTH, 0);
+    await setViewportOffset(model, (right + 2) * DEFAULT_CELL_WIDTH, 0);
     await nextTick();
     triggerMouseEvent(".o-fake-grid", "pointerdown", width / 2, y);
     triggerMouseEvent(".o-fake-grid", "pointermove", -1.5 * width, y);
@@ -204,8 +204,8 @@ describe("Drag And Drop horizontal tests", () => {
   });
 
   test("Drag&Drop beyond the grid: correct col value is given to the callback", async () => {
-    freezeColumns(model, 4, sheetId);
-    setViewportOffset(model, 6 * DEFAULT_CELL_WIDTH, 6 * DEFAULT_CELL_HEIGHT);
+    await freezeColumns(model, 4, sheetId);
+    await setViewportOffset(model, 6 * DEFAULT_CELL_WIDTH, 6 * DEFAULT_CELL_HEIGHT);
     await nextTick();
     const { x: offsetCorrectionX } = model.getters.getMainViewportCoordinates();
     const x = offsetCorrectionX + DEFAULT_CELL_WIDTH;
@@ -225,8 +225,8 @@ describe("Drag And Drop horizontal tests", () => {
 
 describe("Drag And Drop vertical tests", () => {
   test("Start Drag&Drop in XBottom then moving to XTop edge-scroll XBottom way-up", async () => {
-    freezeRows(model, 4, sheetId);
-    setViewportOffset(model, 6 * DEFAULT_CELL_WIDTH, 6 * DEFAULT_CELL_HEIGHT);
+    await freezeRows(model, 4, sheetId);
+    await setViewportOffset(model, 6 * DEFAULT_CELL_WIDTH, 6 * DEFAULT_CELL_HEIGHT);
     await nextTick();
     expect(model.getters.getActiveMainViewport()).toMatchObject({
       top: 10,
@@ -248,8 +248,8 @@ describe("Drag And Drop vertical tests", () => {
   });
 
   test("Start Drag&Drop in XTop then moving to XBottom unscroll XBottom", async () => {
-    freezeRows(model, 4, sheetId);
-    setViewportOffset(model, 6 * DEFAULT_CELL_WIDTH, 6 * DEFAULT_CELL_HEIGHT);
+    await freezeRows(model, 4, sheetId);
+    await setViewportOffset(model, 6 * DEFAULT_CELL_WIDTH, 6 * DEFAULT_CELL_HEIGHT);
     await nextTick();
     expect(model.getters.getActiveMainViewport()).toMatchObject({
       top: 10,
@@ -269,7 +269,7 @@ describe("Drag And Drop vertical tests", () => {
   });
 
   test("Start Drag&Drop in XBottom then moving it under the viewport scroll XBottom upside-down", async () => {
-    freezeRows(model, 4, sheetId);
+    await freezeRows(model, 4, sheetId);
     await nextTick();
     expect(model.getters.getActiveMainViewport()).toMatchObject({
       top: 4,
@@ -289,7 +289,7 @@ describe("Drag And Drop vertical tests", () => {
   });
 
   test("Start Drag&Drop in XTop then moving it under the viewport scroll XBottom upside-down", async () => {
-    freezeRows(model, 4, sheetId);
+    await freezeRows(model, 4, sheetId);
     await nextTick();
     expect(model.getters.getActiveMainViewport()).toMatchObject({
       top: 4,
@@ -310,8 +310,8 @@ describe("Drag And Drop vertical tests", () => {
   });
 
   test("Drag&Drop beyond the grid: correct row value is given to the callback", async () => {
-    freezeRows(model, 4, sheetId);
-    setViewportOffset(model, 6 * DEFAULT_CELL_WIDTH, 6 * DEFAULT_CELL_HEIGHT);
+    await freezeRows(model, 4, sheetId);
+    await setViewportOffset(model, 6 * DEFAULT_CELL_WIDTH, 6 * DEFAULT_CELL_HEIGHT);
     await nextTick();
     const { y: offsetCorrectionY } = model.getters.getMainViewportCoordinates();
     const y = offsetCorrectionY + DEFAULT_CELL_HEIGHT;
@@ -330,8 +330,8 @@ describe("Drag And Drop vertical tests", () => {
 });
 
 describe("Drag And Drop vertical tests without frozen panes", () => {
-  test("Start Drag&Drop in viewport then moving outside-left edge-scroll the viewport to the left", () => {
-    setViewportOffset(model, 6 * DEFAULT_CELL_WIDTH, 6 * DEFAULT_CELL_HEIGHT);
+  test("Start Drag&Drop in viewport then moving outside-left edge-scroll the viewport to the left", async () => {
+    await setViewportOffset(model, 6 * DEFAULT_CELL_WIDTH, 6 * DEFAULT_CELL_HEIGHT);
     expect(model.getters.getActiveMainViewport()).toMatchObject({
       left: 6,
       right: 16,
@@ -348,8 +348,8 @@ describe("Drag And Drop vertical tests without frozen panes", () => {
       right: 14,
     });
   });
-  test("Start Drag&Drop in viewport then moving outside-top edge-scroll the viewport to the top", () => {
-    setViewportOffset(model, 6 * DEFAULT_CELL_WIDTH, 6 * DEFAULT_CELL_HEIGHT);
+  test("Start Drag&Drop in viewport then moving outside-top edge-scroll the viewport to the top", async () => {
+    await setViewportOffset(model, 6 * DEFAULT_CELL_WIDTH, 6 * DEFAULT_CELL_HEIGHT);
     expect(model.getters.getActiveMainViewport()).toMatchObject({
       top: 6,
       bottom: 49,
@@ -368,8 +368,8 @@ describe("Drag And Drop vertical tests without frozen panes", () => {
 
   test("drag And Drop through hidden rows", async () => {
     const { bottom } = model.getters.getActiveMainViewport();
-    addRows(model, "after", 80, 100);
-    hideRows(model, [bottom + 1]);
+    await addRows(model, "after", 80, 100);
+    await hideRows(model, [bottom + 1]);
     const { width, height } = model.getters.getSheetViewDimension();
     const x = width / 2;
     triggerMouseEvent(".o-fake-grid", "pointerdown", x, height / 2);
@@ -382,7 +382,7 @@ describe("Drag And Drop vertical tests without frozen panes", () => {
       top: 6,
       bottom: 50,
     });
-    setViewportOffset(model, 0, (bottom + 2) * DEFAULT_CELL_HEIGHT);
+    await setViewportOffset(model, 0, (bottom + 2) * DEFAULT_CELL_HEIGHT);
     await nextTick();
     triggerMouseEvent(".o-fake-grid", "pointerdown", x, height / 2);
     triggerMouseEvent(".o-fake-grid", "pointermove", x, -1.5 * height);
@@ -434,10 +434,10 @@ test("Drag&drop is stopped when mouseup is called on an element that stops point
 });
 
 test("drag And Drop is based on the current active sheet", async () => {
-  setViewportOffset(model, 6 * DEFAULT_CELL_WIDTH, 6 * DEFAULT_CELL_HEIGHT);
-  hideColumns(model, [numberToLetters(5)]);
-  createSheet(model, { sheetId: "sh2", activate: true });
-  setViewportOffset(model, 6 * DEFAULT_CELL_WIDTH, 6 * DEFAULT_CELL_HEIGHT);
+  await setViewportOffset(model, 6 * DEFAULT_CELL_WIDTH, 6 * DEFAULT_CELL_HEIGHT);
+  await hideColumns(model, [numberToLetters(5)]);
+  await createSheet(model, { sheetId: "sh2", activate: true });
+  await setViewportOffset(model, 6 * DEFAULT_CELL_WIDTH, 6 * DEFAULT_CELL_HEIGHT);
   await nextTick();
 
   expect(model.getters.getActiveMainViewport()).toMatchObject({

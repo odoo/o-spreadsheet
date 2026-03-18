@@ -47,7 +47,7 @@ describe("settings sidePanel component", () => {
     test("Side panel is updated when model is updated", async () => {
       await mountSettingsSidePanel();
       expect(".o-settings-panel .o-select").toHaveText("English (US)");
-      updateLocale(model, FR_LOCALE);
+      await updateLocale(model, FR_LOCALE);
       await nextTick();
 
       expect(".o-settings-panel .o-select").toHaveText("French");
@@ -69,7 +69,7 @@ describe("settings sidePanel component", () => {
         dateTimePreview: "31/12/1899 14:24:00",
       });
 
-      updateLocale(model, DEFAULT_LOCALE);
+      await updateLocale(model, DEFAULT_LOCALE);
       await nextTick();
       expect(getLocalePreview()).toEqual({
         numberPreview: "1,234,567.89",

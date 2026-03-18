@@ -408,7 +408,7 @@ describe("Pivot calculated measure", () => {
       ],
     });
     expect(getEvaluatedCell(model, "E3").value).toEqual(20);
-    setCellContent(model, "A5", "3");
+    await setCellContent(model, "A5", "3");
     expect(getEvaluatedCell(model, "E3").value).toEqual(30);
   });
 
@@ -433,7 +433,7 @@ describe("Pivot calculated measure", () => {
       ],
     });
     expect(getEvaluatedCell(model, "E3").value).toEqual(20);
-    setCellContent(model, "A5", "3");
+    await setCellContent(model, "A5", "3");
     expect(getEvaluatedCell(model, "E3").value).toEqual(30);
   });
 
@@ -494,8 +494,8 @@ describe("Pivot calculated measure", () => {
     };
     const model = await createModelFromGrid(grid);
     const sheetId = model.getters.getActiveSheetId();
-    createSheet(model, { sheetId: "sheet2" });
-    setCellContent(model, "A5", "A5 in sheet 2", "sheet2");
+    await createSheet(model, { sheetId: "sheet2" });
+    await setCellContent(model, "A5", "A5 in sheet 2", "sheet2");
     addPivot(model, "A1:A2", {
       measures: [
         {
@@ -885,7 +885,7 @@ describe("Pivot calculated measure", () => {
       A5: '=PIVOT.VALUE(1, "double")',
     };
     const model = await createModelFromGrid(grid);
-    setFormat(model, "B2:B3", "#,##0[$€]");
+    await setFormat(model, "B2:B3", "#,##0[$€]");
     const sheetId = model.getters.getActiveSheetId();
     addPivot(model, "A1:B3", {
       rows: [{ fieldName: "Customer" }],
@@ -916,7 +916,7 @@ describe("Pivot calculated measure", () => {
       A6: '=PIVOT.VALUE(1, "double", "Customer", "Alice", "Country", "BE")',
     };
     const model = await createModelFromGrid(grid);
-    setFormat(model, "C2:C3", "#,##0[$€]");
+    await setFormat(model, "C2:C3", "#,##0[$€]");
     const sheetId = model.getters.getActiveSheetId();
     addPivot(model, "A1:C3", {
       rows: [
@@ -1002,7 +1002,7 @@ describe("Pivot calculated measure", () => {
       ],
     });
     expect(getEvaluatedCell(model, "B5").value).toEqual("B1");
-    setCellContent(model, "B1", "B1 bis");
+    await setCellContent(model, "B1", "B1 bis");
     expect(getEvaluatedCell(model, "B5").value).toEqual("B1 bis");
   });
 
@@ -1129,7 +1129,7 @@ describe("Pivot calculated measure", () => {
       ],
     });
     expect(getEvaluatedCell(model, "A4").value).toEqual(42);
-    addRows(model, "before", 2, 1);
+    await addRows(model, "before", 2, 1);
     expect(model.getters.getPivotCoreDefinition("1").measures).toEqual([
       {
         id: "calculated",
@@ -1140,9 +1140,9 @@ describe("Pivot calculated measure", () => {
     ]);
     expect(getEvaluatedCell(model, "A5").value).toEqual(42);
 
-    undo(model);
+    await undo(model);
     expect(getEvaluatedCell(model, "A4").value).toEqual(42);
-    redo(model);
+    await redo(model);
     expect(getEvaluatedCell(model, "A5").value).toEqual(42);
   });
 
@@ -1167,7 +1167,7 @@ describe("Pivot calculated measure", () => {
       ],
     });
     expect(getEvaluatedCell(model, "A4").value).toEqual(42);
-    renameSheet(model, sheetId, "MyNameIs");
+    await renameSheet(model, sheetId, "MyNameIs");
     expect(model.getters.getPivotCoreDefinition("1").measures).toEqual([
       {
         id: "calculated",
@@ -1188,7 +1188,7 @@ describe("Pivot calculated measure", () => {
     const model = await createModelFromGrid(grid);
     const sheetId = model.getters.getActiveSheetId();
     const sheetId2 = "sheetId2";
-    createSheet(model, { sheetId: sheetId2 });
+    await createSheet(model, { sheetId: sheetId2 });
     addPivot(model, "A1:A2", {
       measures: [
         {
@@ -1199,10 +1199,10 @@ describe("Pivot calculated measure", () => {
         },
       ],
     });
-    activateSheet(model, sheetId2);
-    setCellContent(model, "A3", "42");
+    await activateSheet(model, sheetId2);
+    await setCellContent(model, "A3", "42");
     expect(getEvaluatedCell(model, "A4", sheetId).value).toEqual(42);
-    deleteSheet(model, sheetId2);
+    await deleteSheet(model, sheetId2);
     expect(model.getters.getPivotCoreDefinition("1").measures).toEqual([
       {
         id: "calculated",
@@ -1238,10 +1238,10 @@ describe("Pivot calculated measure", () => {
       ],
     });
 
-    setCellContent(model, "E2", '=PIVOT.VALUE(1, "calculated", "Year", 2020)');
+    await setCellContent(model, "E2", '=PIVOT.VALUE(1, "calculated", "Year", 2020)');
     expect(getEvaluatedCell(model, "E2").value).toEqual(40);
 
-    setCellContent(model, "E3", '=PIVOT.VALUE(1, "calculated", "Year", 2021)');
+    await setCellContent(model, "E3", '=PIVOT.VALUE(1, "calculated", "Year", 2021)');
     expect(getEvaluatedCell(model, "E3").value).toEqual(60);
 
     updatePivot(model, "1", {
@@ -1312,7 +1312,7 @@ test("measure takes indirect dependency into account for recalculation", async (
       },
     ],
   });
-  setCellContent(model, "A3", "43");
+  await setCellContent(model, "A3", "43");
   expect(getEvaluatedCell(model, "A4").value).toEqual(43);
   expect(getEvaluatedCell(model, "A5").value).toEqual(43);
 });
@@ -1325,8 +1325,8 @@ test("calculated measure do not break meta formula", async () => {
     A4: '=INDIRECT("A3") & PIVOT.VALUE(1, "calculated") & INDIRECT("A3")',
   };
   const model = await createModelFromGrid(grid);
-  createSheet(model, { sheetId: "sheet2" });
-  setCellContent(model, "A3", "1", "sheet2");
+  await createSheet(model, { sheetId: "sheet2" });
+  await setCellContent(model, "A3", "1", "sheet2");
   addPivot(model, "A1:A2", {
     measures: [
       {

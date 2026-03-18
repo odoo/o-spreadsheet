@@ -73,43 +73,43 @@ beforeEach(async () => {
 });
 
 describe("basic search", () => {
-  test("simple search for search scope activeSheet", () => {
-    setCellContent(model, "A1", "1");
-    setCellContent(model, "A2", "test");
-    createSheet(model, { sheetId: "sh2", activate: true });
-    setCellContent(model, "A1", "test");
-    setCellContent(model, "A2", "test");
+  test("simple search for search scope activeSheet", async () => {
+    await setCellContent(model, "A1", "1");
+    await setCellContent(model, "A2", "test");
+    await createSheet(model, { sheetId: "sh2", activate: true });
+    await setCellContent(model, "A1", "test");
+    await setCellContent(model, "A2", "test");
     updateSearch(model, "test", { searchScope: "activeSheet" });
     expect(store.searchMatches).toEqual([match("sh2", "A1"), match("sh2", "A2")]);
     expect(store.selectedMatchIndex).toStrictEqual(0);
-    activateSheet(model, sheetId1);
+    await activateSheet(model, sheetId1);
     expect(store.searchMatches).toStrictEqual([match(sheetId1, "A2")]);
     expect(store.selectedMatchIndex).toStrictEqual(0);
   });
 
-  test("default search scope is set to activeSheet", () => {
-    setCellContent(model, "A1", "1");
-    setCellContent(model, "A2", "test");
-    createSheet(model, { sheetId: "sh2", activate: true });
-    setCellContent(model, "A1", "test");
-    setCellContent(model, "A2", "test");
+  test("default search scope is set to activeSheet", async () => {
+    await setCellContent(model, "A1", "1");
+    await setCellContent(model, "A2", "test");
+    await createSheet(model, { sheetId: "sh2", activate: true });
+    await setCellContent(model, "A1", "test");
+    await setCellContent(model, "A2", "test");
     updateSearch(model, "test");
     expect(store.searchMatches).toEqual([match("sh2", "A1"), match("sh2", "A2")]);
     expect(store.selectedMatchIndex).toStrictEqual(0);
   });
 
-  test("simple search for search scope allSheet", () => {
-    setCellContent(model, "A2", "test");
-    createSheet(model, { sheetId: "sh2" });
-    setCellContent(model, "A2", "test", "sh2");
+  test("simple search for search scope allSheet", async () => {
+    await setCellContent(model, "A2", "test");
+    await createSheet(model, { sheetId: "sh2" });
+    await setCellContent(model, "A2", "test", "sh2");
     updateSearch(model, "test", { searchScope: "allSheets" });
     expect(store.selectedMatchIndex).toStrictEqual(0);
     expect(store.searchMatches).toEqual([match(sheetId1, "A2"), match("sh2", "A2")]);
   });
 
-  test("simple search for search scope specificRange", () => {
-    setCellContent(model, "A1", "test");
-    setCellContent(model, "A2", "test");
+  test("simple search for search scope specificRange", async () => {
+    await setCellContent(model, "A1", "test");
+    await setCellContent(model, "A2", "test");
     updateSearch(model, "test", {
       searchScope: "specificRange",
       specificRange: model.getters.getRangeFromSheetXC(sheetId1, "A1:B1"),
@@ -119,8 +119,8 @@ describe("basic search", () => {
   });
 
   test("Specific range is following the active sheet", async () => {
-    createSheet(model, { sheetId: sheetId2 });
-    setCellContent(model, "A1", "test");
+    await createSheet(model, { sheetId: sheetId2 });
+    await setCellContent(model, "A1", "test");
 
     updateSearch(model, "test", {
       searchScope: "specificRange",
@@ -128,31 +128,31 @@ describe("basic search", () => {
     });
     expect(store.searchMatches).toStrictEqual([match(sheetId1, "A1")]);
 
-    activateSheet(model, sheetId2);
+    await activateSheet(model, sheetId2);
     expect(store.searchMatches).toStrictEqual([]);
     expect(store.searchOptions.specificRange?.sheetId).toBe(sheetId2);
 
-    setCellContent(model, "A1", "test", sheetId2);
+    await setCellContent(model, "A1", "test", sheetId2);
     expect(store.searchMatches).toStrictEqual([match(sheetId2, "A1")]);
   });
 
-  test("search with a regexp characters", () => {
-    setCellContent(model, "A1", "hello (world).*");
+  test("search with a regexp characters", async () => {
+    await setCellContent(model, "A1", "hello (world).*");
     updateSearch(model, "hello (world).*");
     expect(store.searchMatches).toStrictEqual([match(sheetId1, "A1")]);
   });
 
-  test("Update search automatically select the first match", () => {
+  test("Update search automatically select the first match", async () => {
     expect(model.getters.getSelectedZones()).toEqual([toZone("A1")]);
-    setCellContent(model, "A2", "1");
+    await setCellContent(model, "A2", "1");
     updateSearch(model, "1");
     expect(model.getters.getSelectedZones()).toEqual([toZone("A2")]);
   });
 
-  test("change the search for activeSheet searchScope", () => {
-    setCellContent(model, "A1", "hello");
-    setCellContent(model, "A2", "Hello1");
-    setCellContent(model, "A3", "=111");
+  test("change the search for activeSheet searchScope", async () => {
+    await setCellContent(model, "A1", "hello");
+    await setCellContent(model, "A2", "Hello1");
+    await setCellContent(model, "A3", "=111");
     updateSearch(model, "hello", { searchScope: "activeSheet" });
     store.selectNextMatch();
     expect(store.selectedMatchIndex).toStrictEqual(1);
@@ -162,11 +162,11 @@ describe("basic search", () => {
     expect(store.searchMatches).toStrictEqual([match(sheetId1, "A2"), match(sheetId1, "A3")]);
   });
 
-  test("change the search for allSheet searchScope", () => {
-    setCellContent(model, "A1", "hello");
-    setCellContent(model, "A2", "hello1");
-    createSheet(model, { sheetId: sheetId2 });
-    setCellContent(model, "A1", "=111", sheetId2);
+  test("change the search for allSheet searchScope", async () => {
+    await setCellContent(model, "A1", "hello");
+    await setCellContent(model, "A2", "hello1");
+    await createSheet(model, { sheetId: sheetId2 });
+    await setCellContent(model, "A1", "=111", sheetId2);
 
     updateSearch(model, "hello", { searchScope: "allSheets" });
     store.selectNextMatch();
@@ -177,10 +177,10 @@ describe("basic search", () => {
     expect(store.searchMatches).toStrictEqual([match(sheetId1, "A2"), match(sheetId2, "A1")]);
   });
 
-  test("change the search for specificRange searchScope", () => {
-    setCellContent(model, "A1", "hello");
-    createSheet(model, { sheetId: sheetId2 });
-    setCellContent(model, "A2", "=111", sheetId2);
+  test("change the search for specificRange searchScope", async () => {
+    await setCellContent(model, "A1", "hello");
+    await createSheet(model, { sheetId: sheetId2 });
+    await setCellContent(model, "A2", "=111", sheetId2);
     updateSearch(model, "hello", {
       searchScope: "specificRange",
       specificRange: model.getters.getRangeFromSheetXC(sheetId2, "A1:A3"),
@@ -194,39 +194,39 @@ describe("basic search", () => {
     expect(store.searchMatches).toStrictEqual([match(sheetId2, "A2")]);
   });
 
-  test("search is refreshed when active sheet is deleted", () => {
-    setCellContent(model, "A1", "test");
-    createSheet(model, { sheetId: sheetId2 });
+  test("search is refreshed when active sheet is deleted", async () => {
+    await setCellContent(model, "A1", "test");
+    await createSheet(model, { sheetId: sheetId2 });
 
     updateSearch(model, "test", { searchScope: "activeSheet" });
     expect(store.searchMatches).toStrictEqual([match(sheetId1, "A1")]);
     expect(store.selectedMatchIndex).toStrictEqual(0);
 
-    deleteSheet(model, sheetId1);
+    await deleteSheet(model, sheetId1);
     expect(store.searchMatches).toStrictEqual([]);
     expect(store.selectedMatchIndex).toStrictEqual(null);
   });
 
-  test("specific range is cleared when its sheet is deleted", () => {
-    createSheet(model, { sheetId: sheetId2 });
+  test("specific range is cleared when its sheet is deleted", async () => {
+    await createSheet(model, { sheetId: sheetId2 });
     updateSearch(model, "test", {
       searchScope: "specificRange",
       specificRange: model.getters.getRangeFromSheetXC(sheetId1, "A1:B2"),
     });
 
     expect(store.searchOptions.specificRange?.sheetId).toBe(sheetId1);
-    deleteSheet(model, sheetId1);
+    await deleteSheet(model, sheetId1);
 
     expect(store.searchOptions.specificRange).toBeUndefined();
   });
 
   test("refresh search when cell is updated", async () => {
-    setCellContent(model, "A1", "hello");
+    await setCellContent(model, "A1", "hello");
     updateSearch(model, "hello");
     expect(store.selectedMatchIndex).toStrictEqual(0);
     expect(store.searchMatches).toStrictEqual([match(sheetId1, "A1")]);
-    setCellContent(model, "B1", "hello");
-    setCellContent(model, "B2", '="hello"');
+    await setCellContent(model, "B1", "hello");
+    await setCellContent(model, "B2", '="hello"');
     expect(store.selectedMatchIndex).toStrictEqual(0);
     expect(store.searchMatches).toStrictEqual([
       match(sheetId1, "A1"),
@@ -242,40 +242,40 @@ describe("basic search", () => {
       compute: () => value,
       args: [],
     });
-    setCellContent(model, "A1", "hello");
-    setCellContent(model, "B1", "=GETVALUE()");
+    await setCellContent(model, "A1", "hello");
+    await setCellContent(model, "B1", "=GETVALUE()");
     updateSearch(model, "hello");
     expect(store.selectedMatchIndex).toStrictEqual(0);
     expect(store.searchMatches).toStrictEqual([match(sheetId1, "A1")]);
     value = "hello";
-    evaluateCells(model);
+    await evaluateCells(model);
     expect(getCellContent(model, "B1")).toBe(value);
     expect(store.selectedMatchIndex).toStrictEqual(0);
     expect(store.searchMatches).toStrictEqual([match(sheetId1, "A1"), match(sheetId1, "B1")]);
   });
 
-  test("search on empty string does not match anything", () => {
-    setCellContent(model, "A1", "hello");
+  test("search on empty string does not match anything", async () => {
+    await setCellContent(model, "A1", "hello");
     updateSearch(model, "");
     expect(store.searchMatches).toHaveLength(0);
   });
 
-  test("search on empty string clears matches", () => {
-    setCellContent(model, "A1", "hello");
-    setCellContent(model, "A2", "hello");
+  test("search on empty string clears matches", async () => {
+    await setCellContent(model, "A1", "hello");
+    await setCellContent(model, "A2", "hello");
     updateSearch(model, "hello");
     expect(store.searchMatches).toHaveLength(2);
     updateSearch(model, "");
     expect(store.searchMatches).toHaveLength(0);
   });
 
-  test("search begins from current sheet with index starting at the first sheet in allSheets search scope", () => {
-    setCellContent(model, "A1", "hello");
-    setCellContent(model, "A2", "hello1");
-    setCellContent(model, "A3", "1");
-    createSheet(model, { sheetId: sheetId2 });
-    setCellContent(model, "A2", "=111", sheetId2);
-    activateSheet(model, sheetId2);
+  test("search begins from current sheet with index starting at the first sheet in allSheets search scope", async () => {
+    await setCellContent(model, "A1", "hello");
+    await setCellContent(model, "A2", "hello1");
+    await setCellContent(model, "A3", "1");
+    await createSheet(model, { sheetId: sheetId2 });
+    await setCellContent(model, "A2", "=111", sheetId2);
+    await activateSheet(model, sheetId2);
     updateSearch(model, "1", { searchScope: "allSheets" });
     expect(getActivePosition(model)).toBe("A2");
     expect(store.selectedMatchIndex).toStrictEqual(2);
@@ -286,107 +286,107 @@ describe("basic search", () => {
     ]);
   });
 
-  test("Changing sheet updated the activeSheet search", () => {
-    setCellContent(model, "A3", "1");
-    createSheet(model, { sheetId: sheetId2 });
-    setCellContent(model, "A2", "=111", sheetId2);
+  test("Changing sheet updated the activeSheet search", async () => {
+    await setCellContent(model, "A3", "1");
+    await createSheet(model, { sheetId: sheetId2 });
+    await setCellContent(model, "A2", "=111", sheetId2);
     updateSearch(model, "1", { searchScope: "activeSheet" });
     expect(getActivePosition(model)).toBe("A3");
     expect(store.searchMatches).toStrictEqual([match(sheetId1, "A3")]);
-    activateSheet(model, "s2");
+    await activateSheet(model, "s2");
     expect(getActivePosition(model)).toBe("A2");
     expect(store.searchMatches).toStrictEqual([match(sheetId2, "A2")]);
   });
 
-  test("Update search if column or row is added", () => {
-    setCellContent(model, "A3", "1");
-    setCellContent(model, "A4", "1");
+  test("Update search if column or row is added", async () => {
+    await setCellContent(model, "A3", "1");
+    await setCellContent(model, "A4", "1");
     updateSearch(model, "1");
     expect(store.selectedMatchIndex).toStrictEqual(0);
     expect(store.searchMatches).toStrictEqual([match(sheetId1, "A3"), match(sheetId1, "A4")]);
-    addRows(model, "after", 1, 1);
+    await addRows(model, "after", 1, 1);
     expect(store.selectedMatchIndex).toStrictEqual(0);
     expect(store.searchMatches).toStrictEqual([match(sheetId1, "A4"), match(sheetId1, "A5")]);
   });
 
-  test("Search is updated if column or row is removed", () => {
-    setCellContent(model, "A2", "1");
-    setCellContent(model, "A3", "111");
+  test("Search is updated if column or row is removed", async () => {
+    await setCellContent(model, "A2", "1");
+    await setCellContent(model, "A3", "111");
     updateSearch(model, "1");
     store.selectNextMatch();
     expect(store.selectedMatchIndex).toStrictEqual(1);
     expect(store.searchMatches).toStrictEqual([match(sheetId1, "A2"), match(sheetId1, "A3")]);
-    deleteRows(model, [1]);
+    await deleteRows(model, [1]);
     expect(store.selectedMatchIndex).toStrictEqual(0);
     expect(store.searchMatches).toStrictEqual([match(sheetId1, "A2")]);
   });
 
-  test("Update search upon undo/redo operations, which can update the cell", () => {
-    setCellContent(model, "A2", "1");
-    setCellContent(model, "A3", "1");
+  test("Update search upon undo/redo operations, which can update the cell", async () => {
+    await setCellContent(model, "A2", "1");
+    await setCellContent(model, "A3", "1");
     updateSearch(model, "1");
     expect(store.searchMatches).toHaveLength(2);
     expect(store.selectedMatchIndex).toStrictEqual(0);
-    deleteRows(model, [1]);
+    await deleteRows(model, [1]);
     expect(store.searchMatches).toHaveLength(1);
     expect(store.selectedMatchIndex).toStrictEqual(0);
-    undo(model);
+    await undo(model);
     expect(store.searchMatches).toHaveLength(2);
     expect(store.selectedMatchIndex).toStrictEqual(0);
-    redo(model);
+    await redo(model);
     expect(store.searchMatches).toHaveLength(1);
     expect(store.selectedMatchIndex).toStrictEqual(0);
   });
 
-  test("hidden cells should not be included in match", () => {
-    setCellContent(model, "A2", "1");
-    setCellContent(model, "A3", "1");
+  test("hidden cells should not be included in match", async () => {
+    await setCellContent(model, "A2", "1");
+    await setCellContent(model, "A3", "1");
     updateSearch(model, "1");
     expect(store.searchMatches).toHaveLength(2);
     expect(store.selectedMatchIndex).toStrictEqual(0);
-    hideRows(model, [1]);
+    await hideRows(model, [1]);
     expect(store.searchMatches).toHaveLength(1);
     expect(store.selectedMatchIndex).toStrictEqual(0);
-    unhideRows(model, [1]);
+    await unhideRows(model, [1]);
     expect(store.searchMatches).toHaveLength(2);
     expect(store.selectedMatchIndex).toStrictEqual(0);
   });
 
-  test("Need to update search if updating or removing the filter", () => {
-    setCellContent(model, "A2", "1");
-    setCellContent(model, "A3", "=111");
-    createTableWithFilter(model, "A1:A6");
+  test("Need to update search if updating or removing the filter", async () => {
+    await setCellContent(model, "A2", "1");
+    await setCellContent(model, "A3", "=111");
+    await createTableWithFilter(model, "A1:A6");
     updateSearch(model, "1");
     expect(store.searchMatches).toHaveLength(2);
     expect(store.selectedMatchIndex).toStrictEqual(0);
-    updateFilter(model, "A1", ["1"]);
+    await updateFilter(model, "A1", ["1"]);
     expect(store.searchMatches).toHaveLength(1);
     expect(store.selectedMatchIndex).toStrictEqual(0);
-    deleteTable(model, "A1:A6");
+    await deleteTable(model, "A1:A6");
     expect(store.searchMatches).toHaveLength(2);
     expect(store.selectedMatchIndex).toStrictEqual(0);
   });
 
-  test("Switching sheet properly recomputes search results and shows them in the viewport", () => {
-    setCellContent(model, "A2", "Hello");
-    setCellContent(model, "A3", "Hello");
-    createSheet(model, { sheetId: "s2" });
-    setCellContent(model, "Z100", "hello", "s2");
+  test("Switching sheet properly recomputes search results and shows them in the viewport", async () => {
+    await setCellContent(model, "A2", "Hello");
+    await setCellContent(model, "A3", "Hello");
+    await createSheet(model, { sheetId: "s2" });
+    await setCellContent(model, "Z100", "hello", "s2");
     updateSearch(model, "hello", { searchScope: "allSheets" });
     expect(store.activeSheetMatchesCount).toBe(2);
     expect(store.allSheetMatchesCount).toBe(3);
     expect(store.specificRangeMatchesCount).toBe(0);
     expect(model.getters.getActiveMainViewport()).toMatchObject(toZone("A1:K44"));
-    activateSheet(model, "s2");
+    await activateSheet(model, "s2");
     expect(store.activeSheetMatchesCount).toBe(1);
     expect(store.allSheetMatchesCount).toBe(3);
     expect(store.specificRangeMatchesCount).toBe(0);
     expect(model.getters.getActiveMainViewport()).toMatchObject(toZone("P57:Z100"));
   });
 
-  test("Search results and range are highlighted", () => {
-    setCellContent(model, "A2", "Hello");
-    setCellContent(model, "A3", "Hello");
+  test("Search results and range are highlighted", async () => {
+    await setCellContent(model, "A2", "Hello");
+    await setCellContent(model, "A3", "Hello");
     updateSearch(model, "hello", {
       searchScope: "specificRange",
       specificRange: model.getters.getRangeFromSheetXC(sheetId1, "A1:A3"),
@@ -400,21 +400,21 @@ describe("basic search", () => {
   });
 });
 
-test("simple search with array formula", () => {
-  setCellContent(model, "A1", "hell0");
-  setCellContent(model, "A2", "hello");
-  setCellContent(model, "A3", "=1");
-  setCellContent(model, "B1", "=TRANSPOSE(A1:A3)");
+test("simple search with array formula", async () => {
+  await setCellContent(model, "A1", "hell0");
+  await setCellContent(model, "A2", "hello");
+  await setCellContent(model, "A3", "=1");
+  await setCellContent(model, "B1", "=TRANSPOSE(A1:A3)");
   updateSearch(model, "hello");
   expect(store.selectedMatchIndex).toStrictEqual(0);
   expect(store.searchMatches).toStrictEqual([match(sheetId1, "C1"), match(sheetId1, "A2")]);
 });
 
-test("replace don't replace value resulting from array formula", () => {
-  setCellContent(model, "A1", "hell0");
-  setCellContent(model, "A2", "hello");
-  setCellContent(model, "A3", "=1");
-  setCellContent(model, "B1", "=TRANSPOSE(A1:A3)");
+test("replace don't replace value resulting from array formula", async () => {
+  await setCellContent(model, "A1", "hell0");
+  await setCellContent(model, "A2", "hello");
+  await setCellContent(model, "A3", "=1");
+  await setCellContent(model, "B1", "=TRANSPOSE(A1:A3)");
   updateSearch(model, "hello");
   replaceAll("kikou");
   expect(store.searchMatches).toHaveLength(0);
@@ -429,21 +429,21 @@ test("replace don't replace value resulting from array formula", () => {
   expect(getCellContent(model, "C1")).toBe("kikou");
 });
 
-test("Only change sheet on search related command", () => {
-  setCellContent(model, "A1", "hello");
+test("Only change sheet on search related command", async () => {
+  await setCellContent(model, "A1", "hello");
   updateSearch(model, "hello", { searchScope: "allSheets" });
-  createSheet(model, { sheetId: "sh2", activate: true });
+  await createSheet(model, { sheetId: "sh2", activate: true });
   expect(store.searchMatches).toHaveLength(1);
   expect(store.selectedMatchIndex).toStrictEqual(0);
-  setCellContent(model, "A1", "test");
+  await setCellContent(model, "A1", "test");
   expect(model.getters.getActiveSheetId()).toBe("sh2");
 });
 
 describe("next/previous cycle", () => {
-  beforeEach(() => {
-    setCellContent(model, "A1", "1");
-    setCellContent(model, "A2", "1");
-    setCellContent(model, "A3", "1");
+  beforeEach(async () => {
+    await setCellContent(model, "A1", "1");
+    await setCellContent(model, "A2", "1");
+    await setCellContent(model, "A3", "1");
   });
   test("Next will select the next match", () => {
     updateSearch(model, "1");
@@ -556,10 +556,10 @@ describe("next/previous cycle", () => {
     ]);
   });
 
-  test("Selecting previous match will select the last match of the previous sheet", () => {
-    createSheet(model, { sheetId: "s2" });
-    setCellContent(model, "A1", "1", "s2");
-    setCellContent(model, "Z26", "1", "s2");
+  test("Selecting previous match will select the last match of the previous sheet", async () => {
+    await createSheet(model, { sheetId: "s2" });
+    await setCellContent(model, "A1", "1", "s2");
+    await setCellContent(model, "Z26", "1", "s2");
     updateSearch(model, "1", { searchScope: "allSheets" });
     expect(model.getters.getActiveSheetId()).toBe(sheetId1);
     expect(getActivePosition(model)).toBe("A1");
@@ -570,49 +570,49 @@ describe("next/previous cycle", () => {
 });
 
 describe("next/previous with single match", () => {
-  beforeEach(() => {
-    setCellContent(model, "A1", "1");
+  beforeEach(async () => {
+    await setCellContent(model, "A1", "1");
     updateSearch(model, "1", { searchScope: "activeSheet" });
   });
 
   test.each(["selectNext", "selectPrevious"] as const)(
     "%s after changing selection will re-select the match",
-    (cmd) => {
-      setSelection(model, ["B3"]);
+    async (cmd) => {
+      await setSelection(model, ["B3"]);
       expect(model.getters.getSelectedZones()).toEqual([toZone("B3")]);
       cmd === "selectNext" ? store.selectNextMatch() : store.selectPreviousMatch();
       expect(model.getters.getSelectedZones()).toEqual([toZone("A1")]);
     }
   );
 
-  test("Updating search after changing selection will re-select the match", () => {
-    setSelection(model, ["B3"]);
+  test("Updating search after changing selection will re-select the match", async () => {
+    await setSelection(model, ["B3"]);
     expect(model.getters.getSelectedZones()).toEqual([toZone("B3")]);
     updateSearch(model, "1");
     expect(model.getters.getSelectedZones()).toEqual([toZone("A1")]);
   });
 
-  test("Updating search with external change will not re-select the match", () => {
-    setSelection(model, ["B3"]);
+  test("Updating search with external change will not re-select the match", async () => {
+    await setSelection(model, ["B3"]);
     expect(zoneToXc(model.getters.getSelectedZone())).toEqual("B3");
-    setCellContent(model, "C9", "2");
+    await setCellContent(model, "C9", "2");
     expect(zoneToXc(model.getters.getSelectedZone())).toEqual("B3");
   });
 
   test.each(["selectNext", "selectPrevious"] as const)(
     "%s after scrolling will re-scroll to the match",
-    (cmd) => {
+    async (cmd) => {
       const viewportAfterSearch = model.getters.getActiveMainViewport();
-      setViewportOffset(model, 1000, 1000);
+      await setViewportOffset(model, 1000, 1000);
       expect(model.getters.getActiveMainViewport()).not.toMatchObject(viewportAfterSearch);
       cmd === "selectNext" ? store.selectNextMatch() : store.selectPreviousMatch();
       expect(model.getters.getActiveMainViewport()).toMatchObject(viewportAfterSearch);
     }
   );
 
-  test("Updating search after scrolling will re-scroll to the match", () => {
+  test("Updating search after scrolling will re-scroll to the match", async () => {
     const viewportAfterSearch = model.getters.getActiveMainViewport();
-    setViewportOffset(model, 1000, 1000);
+    await setViewportOffset(model, 1000, 1000);
     expect(model.getters.getActiveMainViewport()).not.toMatchObject(viewportAfterSearch);
     updateSearch(model, "1");
     expect(model.getters.getActiveMainViewport()).toMatchObject(viewportAfterSearch);
@@ -620,12 +620,12 @@ describe("next/previous with single match", () => {
 });
 
 describe("search options", () => {
-  beforeEach(() => {
-    setCellContent(model, "A1", "hello=sum");
-    setCellContent(model, "A2", "Hello");
-    setCellContent(model, "A3", "=SUM(1,3)");
-    setCellContent(model, "A4", "hell");
-    setCellContent(model, "A5", "Hell");
+  beforeEach(async () => {
+    await setCellContent(model, "A1", "hello=sum");
+    await setCellContent(model, "A2", "Hello");
+    await setCellContent(model, "A3", "=SUM(1,3)");
+    await setCellContent(model, "A4", "hell");
+    await setCellContent(model, "A5", "Hell");
   });
 
   test("Can search matching case", () => {
@@ -659,9 +659,9 @@ describe("search options", () => {
     expect(store.selectedMatchIndex).toBe(null);
   });
 
-  test("Search in formula searches cell content of a cell in error", () => {
-    setCellContent(model, "A6", "=notASumifFunction(2)");
-    setCellContent(model, "A7", '=SUMIF("a")');
+  test("Search in formula searches cell content of a cell in error", async () => {
+    await setCellContent(model, "A6", "=notASumifFunction(2)");
+    await setCellContent(model, "A7", '=SUMIF("a")');
     expect(getCellError(model, "A6")).toBeDefined();
     expect(getCellError(model, "A7")).toBeDefined();
     updateSearch(model, "sumif", { searchScope: "activeSheet", searchFormulas: true });
@@ -703,8 +703,8 @@ describe("search options", () => {
 });
 
 describe("Replace", () => {
-  test("Can replace a simple text value", () => {
-    setCellContent(model, "A1", "hello");
+  test("Can replace a simple text value", async () => {
+    await setCellContent(model, "A1", "hello");
     updateSearch(model, "hello");
     replaceSearch("kikou");
     expect(store.searchMatches).toHaveLength(0);
@@ -712,8 +712,8 @@ describe("Replace", () => {
     expect(getCellText(model, "A1")).toBe("kikou");
   });
 
-  test("Can replace a value in a formula", () => {
-    setCellContent(model, "A1", "=SUM(2,2)");
+  test("Can replace a value in a formula", async () => {
+    await setCellContent(model, "A1", "=SUM(2,2)");
     updateSearch(model, "2", { searchFormulas: true, searchScope: "activeSheet" });
     replaceSearch("4");
     expect(store.searchMatches).toHaveLength(0);
@@ -721,9 +721,9 @@ describe("Replace", () => {
     expect(getCellText(model, "A1")).toBe("=SUM(4,4)");
   });
 
-  test("Replaced value is changed to canonical form in model", () => {
-    setCellContent(model, "A1", "=SUM(2,2)");
-    updateLocale(model, {
+  test("Replaced value is changed to canonical form in model", async () => {
+    await setCellContent(model, "A1", "=SUM(2,2)");
+    await updateLocale(model, {
       ...DEFAULT_LOCALE,
       decimalSeparator: ",",
       formulaArgSeparator: ";",
@@ -736,8 +736,8 @@ describe("Replace", () => {
     expect(getCellRawContent(model, "A1")).toBe("=SUM(2.5,2.5)");
   });
 
-  test("formulas wont be modified if not looking in formulas or not modifying formulas", () => {
-    setCellContent(model, "A1", "=SUM(2,2)");
+  test("formulas wont be modified if not looking in formulas or not modifying formulas", async () => {
+    await setCellContent(model, "A1", "=SUM(2,2)");
     updateSearch(model, "4");
     expect(store.searchMatches).toHaveLength(1);
     replaceSearch("2");
@@ -746,11 +746,11 @@ describe("Replace", () => {
     expect(getCellText(model, "A1")).toBe("=SUM(2,2)");
   });
 
-  test("Replace all in activeSheet", () => {
+  test("Replace all in activeSheet", async () => {
     const sheetId2 = "test";
-    createSheet(model, { sheetId: sheetId2 });
-    setCellContent(model, "A1", "hello");
-    setCellContent(model, "A1", "hello", sheetId2);
+    await createSheet(model, { sheetId: sheetId2 });
+    await setCellContent(model, "A1", "hello");
+    await setCellContent(model, "A1", "hello", sheetId2);
     updateSearch(model, "hell", { searchScope: "activeSheet" });
     replaceAll("kikou");
     expect(store.searchMatches).toHaveLength(0);
@@ -759,11 +759,11 @@ describe("Replace", () => {
     expect(getCellText(model, "A1", sheetId2)).toBe("hello");
   });
 
-  test("Replace all in allSheet", () => {
+  test("Replace all in allSheet", async () => {
     const sheetId2 = "test";
-    createSheet(model, { sheetId: sheetId2 });
-    setCellContent(model, "A1", "hello");
-    setCellContent(model, "A1", "hello", sheetId2);
+    await createSheet(model, { sheetId: sheetId2 });
+    await setCellContent(model, "A1", "hello");
+    await setCellContent(model, "A1", "hello", sheetId2);
     updateSearch(model, "hell", { searchScope: "allSheets" });
     replaceAll("kikou");
     expect(store.searchMatches).toHaveLength(0);
@@ -772,11 +772,11 @@ describe("Replace", () => {
     expect(getCellText(model, "A1", sheetId2)).toBe("kikouo");
   });
 
-  test("Replace all in specificRange", () => {
-    createSheet(model, { sheetId: sheetId2 });
-    setCellContent(model, "A1", "hello");
-    setCellContent(model, "A1", "hello", sheetId2);
-    setCellContent(model, "B1", "hello", sheetId2);
+  test("Replace all in specificRange", async () => {
+    await createSheet(model, { sheetId: sheetId2 });
+    await setCellContent(model, "A1", "hello");
+    await setCellContent(model, "A1", "hello", sheetId2);
+    await setCellContent(model, "B1", "hello", sheetId2);
     updateSearch(model, "hell", {
       searchScope: "specificRange",
       specificRange: model.getters.getRangeFromSheetXC(sheetId2, "A1:A3"),
@@ -790,10 +790,10 @@ describe("Replace", () => {
     expect(getCellText(model, "B1", sheetId2)).toBe("hello");
   });
 
-  test("replace all won't update the active cell", () => {
-    setCellContent(model, "A1", "hello");
-    setCellContent(model, "A2", "hell");
-    setCellContent(model, "A3", "hell");
+  test("replace all won't update the active cell", async () => {
+    await setCellContent(model, "A1", "hello");
+    await setCellContent(model, "A2", "hell");
+    await setCellContent(model, "A3", "hell");
     updateSearch(model, "hell");
     expect(getActivePosition(model)).toBe("A1");
     replaceAll("kikou");
@@ -802,10 +802,10 @@ describe("Replace", () => {
     expect(getActivePosition(model)).toBe("A1");
   });
 
-  test("replacing correctly moves the selection to the next match", () => {
-    setCellContent(model, "A1", "hello");
-    setCellContent(model, "A3", "helly");
-    setCellContent(model, "A4", "hell");
+  test("replacing correctly moves the selection to the next match", async () => {
+    await setCellContent(model, "A1", "hello");
+    await setCellContent(model, "A3", "helly");
+    await setCellContent(model, "A4", "hell");
 
     updateSearch(model, "hell");
     store.selectNextMatch();
@@ -818,10 +818,10 @@ describe("Replace", () => {
     expect(store.searchMatches).toHaveLength(0);
   });
 
-  test("replacing correctly moves the selection to the next match starting from the second match", () => {
-    setCellContent(model, "A1", "hello");
-    setCellContent(model, "A3", "helly");
-    setCellContent(model, "A4", "hell");
+  test("replacing correctly moves the selection to the next match starting from the second match", async () => {
+    await setCellContent(model, "A1", "hello");
+    await setCellContent(model, "A3", "helly");
+    await setCellContent(model, "A4", "hell");
 
     updateSearch(model, "hell");
     expect(getActivePosition(model)).toBe("A1");
@@ -835,14 +835,14 @@ describe("Replace", () => {
 });
 
 describe("number of match counts", () => {
-  beforeEach(() => {
-    setCellContent(model, "A1", "hello");
-    setCellContent(model, "A2", "=SUM(2,2)");
-    setCellContent(model, "A3", "hell");
+  beforeEach(async () => {
+    await setCellContent(model, "A1", "hello");
+    await setCellContent(model, "A2", "=SUM(2,2)");
+    await setCellContent(model, "A3", "hell");
 
-    createSheet(model, { sheetId: sheetId2 });
-    setCellContent(model, "A1", "hello", sheetId2);
-    setCellContent(model, "A2", "=SUM(2,2)", sheetId2);
+    await createSheet(model, { sheetId: sheetId2 });
+    await setCellContent(model, "A1", "hello", sheetId2);
+    await setCellContent(model, "A2", "=SUM(2,2)", sheetId2);
   });
 
   test.each(["allSheets", "activeSheet"] as const)(
@@ -865,12 +865,12 @@ describe("number of match counts", () => {
   });
 });
 
-test("Selecting a previous match located in a previous sheet will select the last occurrence of the previous sheet and go backward in order", () => {
-  setCellContent(model, "A1", "9", sheetId1);
-  setCellContent(model, "B2", "9", sheetId1);
-  setCellContent(model, "P14", "9", sheetId1);
-  createSheet(model, { sheetId: "sh2" });
-  setCellContent(model, "H34", "9", "sh2");
+test("Selecting a previous match located in a previous sheet will select the last occurrence of the previous sheet and go backward in order", async () => {
+  await setCellContent(model, "A1", "9", sheetId1);
+  await setCellContent(model, "B2", "9", sheetId1);
+  await setCellContent(model, "P14", "9", sheetId1);
+  await createSheet(model, { sheetId: "sh2" });
+  await setCellContent(model, "H34", "9", "sh2");
 
   updateSearch(model, "9", { searchScope: "allSheets" });
   expect(store.activeSheetMatchesCount).toStrictEqual(3);
@@ -895,8 +895,8 @@ test("Selecting a previous match located in a previous sheet will select the las
 });
 
 describe("replace warnings", () => {
-  test("no warning when replacing a match successfully", () => {
-    setCellContent(model, "A1", "2024");
+  test("no warning when replacing a match successfully", async () => {
+    await setCellContent(model, "A1", "2024");
 
     const notificationStore = container.get(NotificationStore);
     const spyNotify = jest.spyOn(notificationStore, "notifyUser");
@@ -907,8 +907,8 @@ describe("replace warnings", () => {
     expect(spyNotify).not.toHaveBeenCalled();
   });
 
-  test("warns when trying to replace a match in a formula", () => {
-    setCellContent(model, "A2", "=DATE(2024, 1, 1)");
+  test("warns when trying to replace a match in a formula", async () => {
+    await setCellContent(model, "A2", "=DATE(2024, 1, 1)");
 
     const notificationStore = container.get(NotificationStore);
     const spyNotify = jest.spyOn(notificationStore, "notifyUser");
@@ -923,12 +923,12 @@ describe("replace warnings", () => {
     });
   });
 
-  test("warns correctly when replacing all matches across all sheets including formulas", () => {
-    setCellContent(model, "A1", "2024");
-    setCellContent(model, "A2", "=DATE(2024, 1, 1)");
-    createSheet(model, { sheetId: "sh2", activate: true });
-    setCellContent(model, "A1", "2024");
-    setCellContent(model, "A2", "=DATE(2024, 1, 1)");
+  test("warns correctly when replacing all matches across all sheets including formulas", async () => {
+    await setCellContent(model, "A1", "2024");
+    await setCellContent(model, "A2", "=DATE(2024, 1, 1)");
+    await createSheet(model, { sheetId: "sh2", activate: true });
+    await setCellContent(model, "A1", "2024");
+    await setCellContent(model, "A2", "=DATE(2024, 1, 1)");
 
     const notificationStore = container.get(NotificationStore);
     const spyNotify = jest.spyOn(notificationStore, "notifyUser");
@@ -943,9 +943,9 @@ describe("replace warnings", () => {
     });
   });
 
-  test("warns with correct counts when replacing all matches in active sheet", () => {
-    setCellContent(model, "A1", "2024");
-    setCellContent(model, "A2", "=DATE(2024, 1, 1)");
+  test("warns with correct counts when replacing all matches in active sheet", async () => {
+    await setCellContent(model, "A1", "2024");
+    await setCellContent(model, "A2", "=DATE(2024, 1, 1)");
 
     const notificationStore = container.get(NotificationStore);
     const spyNotify = jest.spyOn(notificationStore, "notifyUser");
@@ -960,10 +960,10 @@ describe("replace warnings", () => {
     });
   });
 
-  test("warns correctly when replacing all matches and attempting to replace again", () => {
-    setCellContent(model, "A1", "2024");
-    createSheet(model, { sheetId: "sh2", activate: true });
-    setCellContent(model, "A2", "=DATE(2024, 1, 1)");
+  test("warns correctly when replacing all matches and attempting to replace again", async () => {
+    await setCellContent(model, "A1", "2024");
+    await createSheet(model, { sheetId: "sh2", activate: true });
+    await setCellContent(model, "A2", "=DATE(2024, 1, 1)");
 
     const notificationStore = container.get(NotificationStore);
     const spyNotify = jest.spyOn(notificationStore, "notifyUser");
@@ -986,13 +986,13 @@ describe("replace warnings", () => {
     });
   });
 
-  test("warns when trying to replace a match in locked sheet", () => {
-    setCellContent(model, "A2", "=DATE(2024, 1, 1)");
+  test("warns when trying to replace a match in locked sheet", async () => {
+    await setCellContent(model, "A2", "=DATE(2024, 1, 1)");
 
     const notificationStore = container.get(NotificationStore);
     const spyNotify = jest.spyOn(notificationStore, "notifyUser");
 
-    lockSheet(model);
+    await lockSheet(model);
     updateSearch(model, "2024");
     replaceSearch("2025");
 

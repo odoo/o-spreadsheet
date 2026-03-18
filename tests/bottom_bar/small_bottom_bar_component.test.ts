@@ -23,7 +23,7 @@ const composerSelector = ".o-spreadsheet-small-bottom-bar .o-composer";
 describe("Small Bottom Bar", () => {
   describe("Composer", () => {
     test("Clicking the validate button confirms the edition in the bottom bar composer", async () => {
-      setCellContent(model, "A1", "lop");
+      await setCellContent(model, "A1", "lop");
       await click(fixture, composerSelector);
       expect(fixture.querySelector(".o-selection-button")).not.toBeNull();
 
@@ -50,8 +50,8 @@ describe("Small Bottom Bar", () => {
     });
 
     test("Spreaded cell has no value in the composer but has a placeholder", async () => {
-      setCellContent(model, "A1", "=MUNIT(3)");
-      selectCell(model, "A2");
+      await setCellContent(model, "A1", "=MUNIT(3)");
+      await selectCell(model, "A2");
       await nextTick();
 
       expect(".o-small-composer .o-composer").toHaveText("");

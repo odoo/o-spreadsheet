@@ -17,7 +17,7 @@ describe("Filter Icon Overlay component", () => {
   });
   test("MouseEvent on filter icon selects the underlying cell", async () => {
     const model = await createModel();
-    createTableWithFilter(model, "B2:B3");
+    await createTableWithFilter(model, "B2:B3");
     const sheetId = model.getters.getActiveSheetId();
     await mountSpreadsheet({ model });
     expect(model.getters.getActivePosition()).toEqual({ sheetId, col: 0, row: 0 });

@@ -42,8 +42,8 @@ beforeEach(async () => {
 });
 
 describe("datasource tests", function () {
-  test("create a scorecard chart", () => {
-    createScorecardChart(
+  test("create a scorecard chart", async () => {
+    await createScorecardChart(
       model,
       {
         keyValue: "B8",
@@ -64,8 +64,8 @@ describe("datasource tests", function () {
     });
   });
 
-  test("create empty scorecard chart", () => {
-    createScorecardChart(
+  test("create empty scorecard chart", async () => {
+    await createScorecardChart(
       model,
       {
         type: "scorecard",
@@ -100,8 +100,8 @@ describe("datasource tests", function () {
     });
   });
 
-  test("ranges in scorecard definition change automatically", () => {
-    createScorecardChart(
+  test("ranges in scorecard definition change automatically", async () => {
+    await createScorecardChart(
       model,
       {
         keyValue: "Sheet1!B1:B4",
@@ -109,14 +109,14 @@ describe("datasource tests", function () {
       },
       "1"
     );
-    addColumns(model, "before", "A", 2);
+    await addColumns(model, "before", "A", 2);
     const chart = model.getters.getChartDefinition("1") as ScorecardChartDefinition;
     expect(chart.keyValue!).toStrictEqual("Sheet1!D1:D4");
     expect(chart.baseline!).toStrictEqual("Sheet1!C2:C4");
   });
 
   test("can delete an imported scorecard chart", async () => {
-    createScorecardChart(
+    await createScorecardChart(
       model,
       {
         keyValue: "B7:B8",
@@ -129,13 +129,13 @@ describe("datasource tests", function () {
     const newModel = await createModel(exportedData);
     expect(newModel.getters.getVisibleFigures()).toHaveLength(1);
     expect(newModel.getters.getChartRuntime("1")).toBeTruthy();
-    deleteFigure(newModel, model.getters.getFigureIdFromChartId("1"));
+    await deleteFigure(newModel, model.getters.getFigureIdFromChartId("1"));
     expect(newModel.getters.getVisibleFigures()).toHaveLength(0);
     expect(() => newModel.getters.getChartRuntime("1")).toThrow();
   });
 
-  test("update scorecard chart", () => {
-    createScorecardChart(
+  test("update scorecard chart", async () => {
+    await createScorecardChart(
       model,
       {
         keyValue: "B7:B8",
@@ -143,7 +143,7 @@ describe("datasource tests", function () {
       },
       "1"
     );
-    updateChart(model, "1", {
+    await updateChart(model, "1", {
       keyValue: "A7",
       baseline: "E3",
       baselineMode: "percentage",
@@ -159,8 +159,8 @@ describe("datasource tests", function () {
     });
   });
 
-  test("create scorecard chart with invalid ranges", () => {
-    let result = createScorecardChart(
+  test("create scorecard chart with invalid ranges", async () => {
+    let result = await createScorecardChart(
       model,
       {
         keyValue: "this is invalid",
@@ -168,7 +168,7 @@ describe("datasource tests", function () {
       "1"
     );
     expect(result).toBeCancelledBecause(CommandResult.InvalidScorecardKeyValue);
-    result = createScorecardChart(
+    result = await createScorecardChart(
       model,
       {
         keyValue: "A1",
@@ -179,9 +179,9 @@ describe("datasource tests", function () {
     expect(result).toBeCancelledBecause(CommandResult.InvalidScorecardBaseline);
   });
 
-  test("Scorecard Chart is deleted on sheet deletion", () => {
-    createSheet(model, { sheetId: "2", position: 1 });
-    createScorecardChart(
+  test("Scorecard Chart is deleted on sheet deletion", async () => {
+    await createSheet(model, { sheetId: "2", position: 1 });
+    await createScorecardChart(
       model,
       {
         keyValue: "Sheet1!B1:B4",
@@ -190,14 +190,14 @@ describe("datasource tests", function () {
       "2"
     );
     expect(model.getters.getChartRuntime("1")).not.toBeUndefined();
-    deleteSheet(model, "2");
+    await deleteSheet(model, "2");
     expect(() => model.getters.getChartRuntime("1")).toThrow();
   });
 
-  test("Scorecard chart is copied on sheet duplication", () => {
+  test("Scorecard chart is copied on sheet duplication", async () => {
     const firstSheetId = model.getters.getActiveSheetId();
     const secondSheetId = "42";
-    createScorecardChart(
+    await createScorecardChart(
       model,
       {
         title: { text: "test" },
@@ -207,7 +207,7 @@ describe("datasource tests", function () {
       firstSheetId
     );
     const figure = model.getters.getFigures(firstSheetId)[0]!;
-    duplicateSheet(model, firstSheetId, secondSheetId);
+    await duplicateSheet(model, firstSheetId, secondSheetId);
 
     expect(model.getters.getFigures(secondSheetId)).toHaveLength(1);
     const duplicatedFigure = model.getters.getFigures(secondSheetId)[0];
@@ -223,15 +223,15 @@ describe("datasource tests", function () {
     expect(duplicatedFigure).toMatchObject({ ...figure, id: expect.any(String) });
     expect(duplicatedFigure.id).not.toBe(figure?.id);
     // duplicated chart is not deleted if original sheet is deleted
-    deleteSheet(model, firstSheetId);
+    await deleteSheet(model, firstSheetId);
     expect(model.getters.getSheetIds()).toHaveLength(1);
     expect(model.getters.getFigures(secondSheetId)).toEqual([duplicatedFigure]);
   });
 
-  test("percentage with key value smaller than baseline", () => {
-    setCellContent(model, "A1", "40");
-    setCellContent(model, "A2", "100");
-    createScorecardChart(model, {
+  test("percentage with key value smaller than baseline", async () => {
+    await setCellContent(model, "A1", "40");
+    await setCellContent(model, "A2", "100");
+    await createScorecardChart(model, {
       keyValue: "A1",
       baseline: "A2",
       baselineMode: "percentage",
@@ -245,10 +245,10 @@ describe("datasource tests", function () {
     });
   });
 
-  test("percentage with key value greater than baseline", () => {
-    setCellContent(model, "A1", "140");
-    setCellContent(model, "A2", "100");
-    createScorecardChart(model, {
+  test("percentage with key value greater than baseline", async () => {
+    await setCellContent(model, "A1", "140");
+    await setCellContent(model, "A2", "100");
+    await createScorecardChart(model, {
       keyValue: "A1",
       baseline: "A2",
       baselineMode: "percentage",
@@ -262,10 +262,10 @@ describe("datasource tests", function () {
     });
   });
 
-  test("percentage with key value equal to baseline", () => {
-    setCellContent(model, "A1", "140");
-    setCellContent(model, "A2", "140");
-    createScorecardChart(model, {
+  test("percentage with key value equal to baseline", async () => {
+    await setCellContent(model, "A1", "140");
+    await setCellContent(model, "A2", "140");
+    await createScorecardChart(model, {
       keyValue: "A1",
       baseline: "A2",
       baselineMode: "percentage",
@@ -279,9 +279,9 @@ describe("datasource tests", function () {
     });
   });
 
-  test("percentage with key value not defined", () => {
-    setCellContent(model, "A2", "140");
-    createScorecardChart(model, {
+  test("percentage with key value not defined", async () => {
+    await setCellContent(model, "A2", "140");
+    await createScorecardChart(model, {
       keyValue: "A1",
       baseline: "A2",
       baselineMode: "percentage",
@@ -295,9 +295,9 @@ describe("datasource tests", function () {
     });
   });
 
-  test("percentage with baseline value not defined", () => {
-    setCellContent(model, "A1", "140");
-    createScorecardChart(model, {
+  test("percentage with baseline value not defined", async () => {
+    await setCellContent(model, "A1", "140");
+    await createScorecardChart(model, {
       keyValue: "A1",
       baseline: "A2",
       baselineMode: "percentage",
@@ -311,8 +311,8 @@ describe("datasource tests", function () {
     });
   });
 
-  test("percentage with key value not defined and baseline value not defined", () => {
-    createScorecardChart(model, {
+  test("percentage with key value not defined and baseline value not defined", async () => {
+    await createScorecardChart(model, {
       keyValue: "A1",
       baseline: "A2",
       baselineMode: "percentage",
@@ -326,10 +326,10 @@ describe("datasource tests", function () {
     });
   });
 
-  test("percentage with baseline value being 0", () => {
-    setCellContent(model, "A1", "1");
-    setCellContent(model, "A2", "0");
-    createScorecardChart(model, {
+  test("percentage with baseline value being 0", async () => {
+    await setCellContent(model, "A1", "1");
+    await setCellContent(model, "A2", "0");
+    await createScorecardChart(model, {
       keyValue: "A1",
       baseline: "A2",
       baselineMode: "percentage",
@@ -342,10 +342,10 @@ describe("datasource tests", function () {
     });
   });
 
-  test("percentage with key value and baseline value being 0", () => {
-    setCellContent(model, "A1", "0");
-    setCellContent(model, "A2", "0");
-    createScorecardChart(model, {
+  test("percentage with key value and baseline value being 0", async () => {
+    await setCellContent(model, "A1", "0");
+    await setCellContent(model, "A2", "0");
+    await createScorecardChart(model, {
       keyValue: "A1",
       baseline: "A2",
       baselineMode: "percentage",
@@ -358,10 +358,10 @@ describe("datasource tests", function () {
     });
   });
 
-  test("progress bar with positive baseline/key ratio", () => {
-    setCellContent(model, "A1", "40");
-    setCellContent(model, "A2", "100");
-    createScorecardChart(model, {
+  test("progress bar with positive baseline/key ratio", async () => {
+    await setCellContent(model, "A1", "40");
+    await setCellContent(model, "A2", "100");
+    await createScorecardChart(model, {
       keyValue: "A1",
       baseline: "A2",
       baselineMode: "progress",
@@ -378,10 +378,10 @@ describe("datasource tests", function () {
     });
   });
 
-  test("progress bar with negative baseline/key ratio", () => {
-    setCellContent(model, "A1", "-40");
-    setCellContent(model, "A2", "100");
-    createScorecardChart(model, {
+  test("progress bar with negative baseline/key ratio", async () => {
+    await setCellContent(model, "A1", "-40");
+    await setCellContent(model, "A2", "100");
+    await createScorecardChart(model, {
       keyValue: "A1",
       baseline: "A2",
       baselineMode: "progress",
@@ -439,9 +439,9 @@ describe("multiple sheets", () => {
     });
   });
 
-  test("create a scorecard chart with data from another sheet", () => {
-    createSheet(model, { sheetId: "42", activate: true });
-    createScorecardChart(
+  test("create a scorecard chart with data from another sheet", async () => {
+    await createSheet(model, { sheetId: "42", activate: true });
+    await createScorecardChart(
       model,
       {
         keyValue: "Sheet1!B1",
@@ -456,18 +456,18 @@ describe("multiple sheets", () => {
 });
 
 describe("undo/redo", () => {
-  test("undo/redo scorecard chart creation", () => {
+  test("undo/redo scorecard chart creation", async () => {
     const before = model.exportData();
-    createScorecardChart(model, { keyValue: "Sheet1!B1:B4" });
+    await createScorecardChart(model, { keyValue: "Sheet1!B1:B4" });
     const after = model.exportData();
-    undo(model);
+    await undo(model);
     expect(model).toExport(before);
-    redo(model);
+    await redo(model);
     expect(model).toExport(after);
   });
 
-  test("undo/redo scorecard chart data rebuild the chart runtime", () => {
-    createScorecardChart(
+  test("undo/redo scorecard chart data rebuild the chart runtime", async () => {
+    await createScorecardChart(
       model,
       {
         keyValue: "Sheet1!A2",
@@ -475,23 +475,23 @@ describe("undo/redo", () => {
       "27"
     );
     let chart = model.getters.getChartRuntime("27") as ScorecardChartRuntime;
-    setCellContent(model, "A2", "99");
+    await setCellContent(model, "A2", "99");
     chart = model.getters.getChartRuntime("27") as ScorecardChartRuntime;
     expect(chart.keyValue).toEqual("99");
-    setCellContent(model, "A2", "12");
+    await setCellContent(model, "A2", "12");
     chart = model.getters.getChartRuntime("27") as ScorecardChartRuntime;
     expect(chart.keyValue).toEqual("12");
-    undo(model);
+    await undo(model);
     chart = model.getters.getChartRuntime("27") as ScorecardChartRuntime;
     expect(chart.keyValue).toEqual("99");
-    redo(model);
+    await redo(model);
     chart = model.getters.getChartRuntime("27") as ScorecardChartRuntime;
     expect(chart.keyValue).toEqual("12");
   });
 });
 
-test("font color is white with a dark background color", () => {
-  createScorecardChart(
+test("font color is white with a dark background color", async () => {
+  await createScorecardChart(
     model,
     {
       keyValue: "Sheet1!A2",
@@ -504,10 +504,10 @@ test("font color is white with a dark background color", () => {
   );
 });
 
-test("Scorecard with formula cell", () => {
-  setCellContent(model, "A2", "=MULTIPLY(1, 2)");
-  setCellContent(model, "A1", "=SUM(1, 3)");
-  createScorecardChart(
+test("Scorecard with formula cell", async () => {
+  await setCellContent(model, "A2", "=MULTIPLY(1, 2)");
+  await setCellContent(model, "A1", "=SUM(1, 3)");
+  await createScorecardChart(
     model,
     {
       keyValue: "A1",

@@ -40,7 +40,7 @@ describe("scatter chart", () => {
       B3: "15",
     });
 
-    createChart(
+    await createChart(
       model,
       {
         type: "scatter",
@@ -51,7 +51,7 @@ describe("scatter chart", () => {
       "1"
     );
 
-    updateChart(model, "1", {
+    await updateChart(model, "1", {
       axesDesign: {
         x: { min: 1, max: 3, gridLines: "minor" },
         y: { min: -10, max: 10, gridLines: "both" },

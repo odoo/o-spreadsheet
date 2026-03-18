@@ -615,12 +615,12 @@ describe("Measure display", () => {
       expect(getEvaluatedCell(model, "B22").value).toEqual("");
       expect(getEvaluatedCell(model, "C22").value).toEqual("");
 
-      setCellContent(model, "A2", "02/02/2024");
-      setCellContent(model, "C2", ""); // Empty Expected Revenue for Bob in February
+      await setCellContent(model, "A2", "02/02/2024");
+      await setCellContent(model, "C2", ""); // Empty Expected Revenue for Bob in February
       expect(getEvaluatedCell(model, "B22").value).toEqual("");
       expect(getEvaluatedCell(model, "C22").value).toEqual("");
 
-      setCellContent(model, "C2", "0"); // 0 Expected Revenue for Bob in February
+      await setCellContent(model, "C2", "0"); // 0 Expected Revenue for Bob in February
       expect(getEvaluatedCell(model, "B22").value).toEqual(CellErrorType.DivisionByZero);
       expect(getEvaluatedCell(model, "C22").value).toEqual(CellErrorType.DivisionByZero);
     });
@@ -942,12 +942,12 @@ describe("Measure display", () => {
       expect(getEvaluatedCell(model, "B22").value).toEqual("");
       expect(getEvaluatedCell(model, "C22").value).toEqual("");
 
-      setCellContent(model, "A2", "02/02/2024");
-      setCellContent(model, "C2", ""); // Empty Expected Revenue for Bob in February
+      await setCellContent(model, "A2", "02/02/2024");
+      await setCellContent(model, "C2", ""); // Empty Expected Revenue for Bob in February
       expect(getEvaluatedCell(model, "B22").value).toEqual("");
       expect(getEvaluatedCell(model, "C22").value).toEqual("");
 
-      setCellContent(model, "C2", "0"); // 0 Expected Revenue for Bob in February
+      await setCellContent(model, "C2", "0"); // 0 Expected Revenue for Bob in February
       expect(getEvaluatedCell(model, "B22").value).toEqual(CellErrorType.DivisionByZero);
       expect(getEvaluatedCell(model, "C22").value).toEqual("");
     });
@@ -1396,7 +1396,11 @@ describe("Measure display", () => {
 
     test("PIVOT.VALUE running total falls back to the previous value for a missing date bucket", async () => {
       const model = await createModelWithTestPivotDataset();
-      setCellContent(model, "A40", `=PIVOT.VALUE(1, "${measureId}", "Created on:month_number", 5)`);
+      await setCellContent(
+        model,
+        "A40",
+        `=PIVOT.VALUE(1, "${measureId}", "Created on:month_number", 5)`
+      );
       expect(getEvaluatedCell(model, "A40").value).toBe("");
       updatePivotMeasureDisplay(model, pivotId, measureId, {
         type: "running_total",
@@ -1413,12 +1417,12 @@ describe("Measure display", () => {
         ],
         columns: [{ fieldName: "Salesperson", order: "asc" }],
       });
-      setCellContent(
+      await setCellContent(
         model,
         "A40",
         `=PIVOT.VALUE(1, "${measureId}", "Created on:month_number", 4, "Stage", "New", "Salesperson", "Alice")`
       );
-      setCellContent(
+      await setCellContent(
         model,
         "A41",
         `=PIVOT.VALUE(1, "${measureId}", "Created on:month_number", 5, "Stage", "New", "Salesperson", "Alice")`
@@ -1445,12 +1449,12 @@ describe("Measure display", () => {
         ],
       });
 
-      setCellContent(
+      await setCellContent(
         model,
         "A40",
         `=PIVOT.VALUE(1, "${measureId}", "Created on:month_number", 4, "Salesperson", "Alice", "Active", false)`
       );
-      setCellContent(
+      await setCellContent(
         model,
         "A41",
         `=PIVOT.VALUE(1, "${measureId}", "Created on:month_number", 5, "Salesperson", "Alice", "Active", false)`
@@ -1473,12 +1477,12 @@ describe("Measure display", () => {
         rows: [{ fieldName: "Created on", granularity: "month", order: "asc" }],
         columns: [{ fieldName: "Stage", order: "asc" }],
       });
-      setCellContent(
+      await setCellContent(
         model,
         "A40",
         `=PIVOT.VALUE(1, "${measureId}", "Created on:month", DATE(2024,4,1), "Stage", "New")`
       );
-      setCellContent(
+      await setCellContent(
         model,
         "A41",
         `=PIVOT.VALUE(1, "${measureId}", "Created on:month", DATE(2024,5,1), "Stage", "New")`
@@ -1498,7 +1502,11 @@ describe("Measure display", () => {
 
     test("PIVOT.VALUE running total returns empty before the first date bucket", async () => {
       const model = await createModelWithTestPivotDataset();
-      setCellContent(model, "A40", `=PIVOT.VALUE(1, "${measureId}", "Created on:month_number", 1)`);
+      await setCellContent(
+        model,
+        "A40",
+        `=PIVOT.VALUE(1, "${measureId}", "Created on:month_number", 1)`
+      );
       expect(getEvaluatedCell(model, "A40").value).toBe("");
       updatePivotMeasureDisplay(model, pivotId, measureId, {
         type: "running_total",
@@ -1511,8 +1519,16 @@ describe("Measure display", () => {
       const model = await createModelWithTestPivotDataset({
         rows: [{ fieldName: "Created on", granularity: "month_number", order: "desc" }],
       });
-      setCellContent(model, "A40", `=PIVOT.VALUE(1, "${measureId}", "Created on:month_number", 1)`);
-      setCellContent(model, "A41", `=PIVOT.VALUE(1, "${measureId}", "Created on:month_number", 5)`);
+      await setCellContent(
+        model,
+        "A40",
+        `=PIVOT.VALUE(1, "${measureId}", "Created on:month_number", 1)`
+      );
+      await setCellContent(
+        model,
+        "A41",
+        `=PIVOT.VALUE(1, "${measureId}", "Created on:month_number", 5)`
+      );
       expect(getEvaluatedCell(model, "A40").value).toBe("");
       expect(getEvaluatedCell(model, "A41").value).toBe("");
       updatePivotMeasureDisplay(model, pivotId, measureId, {

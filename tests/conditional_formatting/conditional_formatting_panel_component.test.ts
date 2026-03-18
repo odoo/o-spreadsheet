@@ -163,13 +163,13 @@ describe("UI of conditional formats", () => {
         }
       ));
       sheetId = model.getters.getActiveSheetId();
-      addEqualCf(model, "A1:A2", { fillColor: "#FF0000" }, "2", "1");
+      await addEqualCf(model, "A1:A2", { fillColor: "#FF0000" }, "2", "1");
       const rule = createColorScale(
         "2",
         { type: "value", color: 0xff00ff, value: "" },
         { type: "value", color: 0x123456, value: "" }
       ).rule;
-      addCfRule(model, "B1:B5", rule, "2");
+      await addCfRule(model, "B1:B5", rule, "2");
       await nextTick();
     });
 
@@ -196,8 +196,8 @@ describe("UI of conditional formats", () => {
     });
 
     test("previews are localized", async () => {
-      updateLocale(model, FR_LOCALE);
-      addEqualCf(model, "A1:A2", { fillColor: "#FF0000" }, "1.5", "3");
+      await updateLocale(model, FR_LOCALE);
+      await addEqualCf(model, "A1:A2", { fillColor: "#FF0000" }, "1.5", "3");
       await nextTick();
 
       const previews = document.querySelectorAll(selectors.listPreview);
@@ -217,7 +217,7 @@ describe("UI of conditional formats", () => {
     });
 
     test("the list preview should be bold when the rule is bold", async () => {
-      addEqualCf(model, "C1:C5", { bold: true, fillColor: "#ff0000" }, "2", "99");
+      await addEqualCf(model, "C1:C5", { bold: true, fillColor: "#ff0000" }, "2", "99");
 
       await nextTick();
 
@@ -229,8 +229,8 @@ describe("UI of conditional formats", () => {
     test("displayed range is updated if range changes", async () => {
       const previews = document.querySelectorAll(selectors.listPreview);
       expect(previews[0].querySelector(selectors.description.range)!.textContent).toBe("A1:A2");
-      copy(model, "A1:A2");
-      paste(model, "C1");
+      await copy(model, "A1:A2");
+      await paste(model, "C1");
       await nextTick();
       expect(previews[0].querySelector(selectors.description.range)!.textContent).toBe(
         "A1:A2,C1:C2"
@@ -260,7 +260,7 @@ describe("UI of conditional formats", () => {
       await clickAndDrag(previewEl, { x: 0, y: 200 });
 
       expect(previewEl.parentElement!.style.transition).toBe("top 0s");
-      addEqualCf(model, "C1:C5", { bold: true, fillColor: "#ff0000" }, "2", "99");
+      await addEqualCf(model, "C1:C5", { bold: true, fillColor: "#ff0000" }, "2", "99");
       await nextTick();
 
       expect(previewEl.style.transition).toBe("");
@@ -301,7 +301,7 @@ describe("UI of conditional formats", () => {
         props: { cf: { ...cf, ranges }, isNewCf: false, onCloseSidePanel: () => {} },
       }));
       sheetId = model.getters.getActiveSheetId();
-      addEqualCf(model, "A1:A2", { fillColor: "#FF0000" }, "2", "1");
+      await addEqualCf(model, "A1:A2", { fillColor: "#FF0000" }, "2", "1");
       await nextTick();
     });
 
@@ -670,7 +670,7 @@ describe("UI of conditional formats", () => {
       // Open the panel
       await click(fixture, selectors.listPreview);
       // Someone else changes the CF in the meantime
-      addEqualCf(model, "A1:A2", { fillColor: "#ff0000" }, "2", cfId);
+      await addEqualCf(model, "A1:A2", { fillColor: "#ff0000" }, "2", cfId);
       // Press cancel
       await click(fixture, selectors.buttonCancel);
       expect(model.getters.getConditionalFormats(sheetId)[0].rule).toMatchObject({
@@ -830,20 +830,20 @@ describe("UI of conditional formats", () => {
 
     test("Undo the creation of a new CF will switch the panel to the list mode", async () => {
       await click(fixture, selectors.buttonAdd);
-      undo(model);
+      await undo(model);
       await nextTick();
       await nextTick();
       expect(selectors.listPreviewPanel).toHaveCount(1);
     });
 
     test("Undoing an edit on an existing CF does not close the editor panel", async () => {
-      addEqualCf(model, "A1:A2", { fillColor: "#FF0000" }, "2", "1");
+      await addEqualCf(model, "A1:A2", { fillColor: "#FF0000" }, "2", "1");
       await nextTick();
       await click(fixture, selectors.listPreview);
       await nextTick();
       await click(fixture, selectors.ruleEditor.editor.bold);
 
-      undo(model);
+      await undo(model);
       await nextTick();
       await nextTick();
       expect(selectors.editorPanel).toHaveCount(1);
@@ -851,7 +851,7 @@ describe("UI of conditional formats", () => {
     });
 
     test("Highlights are removed when cf preview is unmounted", async () => {
-      addEqualCf(model, "A1:A2", { fillColor: "#FF0000" }, "2", "1");
+      await addEqualCf(model, "A1:A2", { fillColor: "#FF0000" }, "2", "1");
       await nextTick();
 
       triggerMouseEvent(selectors.listPreview, "mouseenter");
@@ -874,7 +874,7 @@ describe("UI of conditional formats", () => {
 
     describe("CellIsRule", () => {
       test("CellIsRule editor displays the right preview", async () => {
-        addEqualCf(
+        await addEqualCf(
           model,
           "A1:A2",
           {
@@ -942,7 +942,7 @@ describe("UI of conditional formats", () => {
       });
 
       test("can edit an existing CellIsRule", async () => {
-        addEqualCf(model, "A1:A2", { fillColor: "#FF0000" }, "2", "1");
+        await addEqualCf(model, "A1:A2", { fillColor: "#FF0000" }, "2", "1");
         await nextTick();
         await click(fixture.querySelectorAll(selectors.listPreview)[0]);
         await nextTick();
@@ -985,7 +985,7 @@ describe("UI of conditional formats", () => {
       });
 
       test("can edit a date CellIsRule", async () => {
-        addEqualCf(model, "A1:A2", { fillColor: "#FF0000" }, "2", "1");
+        await addEqualCf(model, "A1:A2", { fillColor: "#FF0000" }, "2", "1");
         await nextTick();
         await click(fixture.querySelectorAll(selectors.listPreview)[0]);
         await nextTick();
@@ -1271,7 +1271,7 @@ describe("UI of conditional formats", () => {
           { type: "value", color: 0xff00ff, value: "" },
           { type: "value", color: 0x123456, value: "" }
         ).rule;
-        addCfRule(model, "B1:B5", rule, "2");
+        await addCfRule(model, "B1:B5", rule, "2");
         await nextTick();
         await click(fixture.querySelectorAll(selectors.listPreview)[0]);
         await nextTick();
@@ -1558,7 +1558,7 @@ describe("UI of conditional formats", () => {
     });
 
     test("CF rule values are canonicalized when sending them to the model", async () => {
-      updateLocale(model, FR_LOCALE);
+      await updateLocale(model, FR_LOCALE);
       await click(fixture, selectors.buttonAdd);
       await nextTick();
 
@@ -1575,7 +1575,7 @@ describe("UI of conditional formats", () => {
     });
 
     test("CF date rule values are canonicalized when sending them to the model", async () => {
-      updateLocale(model, FR_LOCALE);
+      await updateLocale(model, FR_LOCALE);
       await click(fixture, selectors.buttonAdd);
       await nextTick();
 
@@ -1606,7 +1606,7 @@ describe("Integration tests", () => {
   });
 
   test("Make a multiple selection, open CF panel, create a rule => Should create one line per selection", async () => {
-    setSelection(model, ["B2", "C3"]);
+    await setSelection(model, ["B2", "C3"]);
     env.openSidePanel("ConditionalFormatting");
     await nextTick();
     await click(fixture, selectors.buttonAdd);
@@ -1620,8 +1620,8 @@ describe("Integration tests", () => {
   test("switching sheet resets CF Editor to list", async () => {
     const cf = createEqualCF("2", { bold: true, fillColor: "#ff0000" }, "99");
     const range = "A1:A2";
-    addEqualCf(model, range, { bold: true, fillColor: "#ff0000" }, "2", "99");
-    createSheet(model, { sheetId: "42" });
+    await addEqualCf(model, range, { bold: true, fillColor: "#ff0000" }, "2", "99");
+    await createSheet(model, { sheetId: "42" });
     env.openSidePanel("ConditionalFormattingEditor", {
       cf: { ...cf, ranges: [range] },
       isNewCf: true,
@@ -1629,7 +1629,7 @@ describe("Integration tests", () => {
     await nextTick();
     expect(fixture.querySelector(selectors.listPreview)).toBeNull();
     expect(fixture.querySelector(selectors.ruleEditor.range! as "input")!.value).toBe("A1:A2");
-    activateSheet(model, "42");
+    await activateSheet(model, "42");
     await nextTick();
     expect(fixture.querySelector(selectors.ruleEditor.range)).toBeNull();
     expect(fixture.querySelector(selectors.listPreview)).toBeDefined();
@@ -1638,8 +1638,8 @@ describe("Integration tests", () => {
   test("CF standalone composer becomes inactive on sheet change", async () => {
     const cf = createEqualCF("2", { bold: true, fillColor: "#ff0000" }, "99");
     const range = "A1:A2";
-    addEqualCf(model, range, { bold: true, fillColor: "#ff0000" }, "2", "99");
-    createSheet(model, { sheetId: "42" });
+    await addEqualCf(model, range, { bold: true, fillColor: "#ff0000" }, "2", "99");
+    await createSheet(model, { sheetId: "42" });
     env.openSidePanel("ConditionalFormattingEditor", {
       cf: { ...cf, ranges: [range] },
       isNewCf: true,
@@ -1651,7 +1651,7 @@ describe("Integration tests", () => {
     const composerFocusStore = env.getStore(ComposerFocusStore);
     expect(composerFocusStore.activeComposer.id).toBe("standaloneComposer");
     expect(composerFocusStore.activeComposer.editionMode).toBe("selecting");
-    activateSheet(model, "42");
+    await activateSheet(model, "42");
     await nextTick();
     await nextTick();
     expect(composerFocusStore.activeComposer.editionMode).toBe("inactive");

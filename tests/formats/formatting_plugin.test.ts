@@ -61,109 +61,109 @@ function setContextualFormat(model: Model, targetXc: string, format: Format) {
 describe("formatting values (with formatters)", () => {
   test("can set a format to a cell", async () => {
     const model = await createModel();
-    setCellContent(model, "A1", "3");
+    await setCellContent(model, "A1", "3");
     expect(getCellContent(model, "A1")).toBe("3");
-    setFormat(model, "A1", "0.00%");
+    await setFormat(model, "A1", "0.00%");
     expect(getCell(model, "A1")!.format).toBe("0.00%");
     expect(getCellContent(model, "A1")).toBe("300.00%");
   });
 
   test("can set a date format to a cell containing a date", async () => {
     const model = await createModel();
-    setCellContent(model, "A1", "3 14 2014");
+    await setCellContent(model, "A1", "3 14 2014");
     expect(getCellContent(model, "A1")).toBe("3 14 2014");
-    setFormat(model, "A1", "mm/dd/yyyy");
+    await setFormat(model, "A1", "mm/dd/yyyy");
     expect(getCell(model, "A1")!.format).toBe("mm/dd/yyyy");
     expect(getCellContent(model, "A1")).toBe("03/14/2014");
   });
 
   test("can set a date format to a cell containing a number", async () => {
     const model = await createModel();
-    setCellContent(model, "A1", "1");
+    await setCellContent(model, "A1", "1");
     expect(getCellContent(model, "A1")).toBe("1");
-    setFormat(model, "A1", "mm/dd/yyyy");
+    await setFormat(model, "A1", "mm/dd/yyyy");
     expect(getCell(model, "A1")!.format).toBe("mm/dd/yyyy");
     expect(getCellContent(model, "A1")).toBe("12/31/1899");
   });
 
   test("can set a number format to a cell containing a date", async () => {
     const model = await createModel();
-    setCellContent(model, "A1", "1/1/2000");
+    await setCellContent(model, "A1", "1/1/2000");
     expect(getCellContent(model, "A1")).toBe("1/1/2000");
-    setFormat(model, "A1", "0.00%");
+    await setFormat(model, "A1", "0.00%");
     expect(getCell(model, "A1")!.format).toBe("0.00%");
     expect(getCellContent(model, "A1")).toBe("3652600.00%");
   });
 
   test("can set a format to an empty cell", async () => {
     const model = await createModel();
-    selectCell(model, "A1");
-    setFormat(model, "A1", "0.00%");
+    await selectCell(model, "A1");
+    await setFormat(model, "A1", "0.00%");
     expect(getCell(model, "A1")!.format).toBe("0.00%");
     expect(getCellContent(model, "A1")).toBe("");
-    setCellContent(model, "A1", "0.431");
+    await setCellContent(model, "A1", "0.431");
     expect(getCellContent(model, "A1")).toBe("43.10%");
   });
 
   test("can set the default format to a cell with value = 0", async () => {
     const model = await createModel();
-    setCellContent(model, "A1", "0");
-    setFormat(model, "A1", "");
+    await setCellContent(model, "A1", "0");
+    await setFormat(model, "A1", "");
     expect(getCell(model, "A1")!.format).not.toBeDefined();
     expect(getCellContent(model, "A1")).toBe("0");
   });
 
   test("can clear a format in a non empty cell", async () => {
     const model = await createModel();
-    setCellContent(model, "A1", "3");
-    setFormat(model, "A1", "0.00%");
+    await setCellContent(model, "A1", "3");
+    await setFormat(model, "A1", "0.00%");
     expect(getCell(model, "A1")!.format).toBeDefined();
     expect(getCellContent(model, "A1")).toBe("300.00%");
-    setFormat(model, "A1", "");
+    await setFormat(model, "A1", "");
     expect(getCellContent(model, "A1")).toBe("3");
     expect(getCell(model, "A1")!.format).not.toBeDefined();
   });
 
   test("can clear a format in an empty cell", async () => {
     const model = await createModel();
-    setFormat(model, "A1", "0.00%");
+    await setFormat(model, "A1", "0.00%");
     expect(getCell(model, "A1")!.format).toBe("0.00%");
-    setFormat(model, "A1", "");
+    await setFormat(model, "A1", "");
     expect(getCell(model, "A1")).toBeUndefined();
   });
 
   test("setting an empty format in an empty cell does nothing", async () => {
     const model = await createModel();
-    setFormat(model, "A1", "");
+    await setFormat(model, "A1", "");
     expect(getCell(model, "A1")).toBeUndefined();
   });
 
   test("does not format errors", async () => {
     const model = await createModel();
-    setCellContent(model, "A1", "3");
-    setFormat(model, "A1", "0.00%");
+    await setCellContent(model, "A1", "3");
+    await setFormat(model, "A1", "0.00%");
     expect(getCellContent(model, "A1")).toBe("300.00%");
-    setCellContent(model, "A1", "=A1");
+    await setCellContent(model, "A1", "=A1");
     expect(getCellContent(model, "A1")).toBe("#CYCLE");
   });
 
   test("Can set number format to text value", async () => {
     const model = await createModel();
-    setCellContent(model, "A1", "Test");
-    setFormat(model, "A1", "0.00%");
+    await setCellContent(model, "A1", "Test");
+    await setFormat(model, "A1", "0.00%");
     expect(getCellContent(model, "A1")).toBe("Test");
   });
 
   test("Can set date format to text value", async () => {
     const model = await createModel();
-    setCellContent(model, "A1", "Test");
-    setFormat(model, "A1", "mm/dd/yyyy");
+    await setCellContent(model, "A1", "Test");
+    await setFormat(model, "A1", "mm/dd/yyyy");
     expect(getCellContent(model, "A1")).toBe("Test");
   });
 
   test("Cannot set format in invalid sheet", async () => {
     const model = await createModel();
-    expect(setFormat(model, "A1", "", "invalid sheet Id")).toBeCancelledBecause(
+    expect(await setFormat(model, "A1", "", "invalid sheet Id")).toBeCancelledBecause(
       CommandResult.InvalidSheetId
     );
   });
@@ -180,91 +180,91 @@ describe("formatting values (with formatters)", () => {
       },
     });
     const model = await createModel();
-    setCellContent(model, "A1", '=SET.DYN.FORMAT(5, "0.00")');
-    selectCell(model, "A1");
-    setDecimal(model, "A1", 1);
+    await setCellContent(model, "A1", '=SET.DYN.FORMAT(5, "0.00")');
+    await selectCell(model, "A1");
+    await setDecimal(model, "A1", 1);
     expect(getCell(model, "A1")?.format).toBe("0.000");
   });
 
   test("SET_DECIMAL on long number that are truncated due to default format don't lose truncated digits", async () => {
     const model = await createModel();
-    setCellContent(model, "A1", "10.123456789123");
+    await setCellContent(model, "A1", "10.123456789123");
     expect(getEvaluatedCell(model, "A1")?.formattedValue).toEqual("10.12345679");
 
-    setDecimal(model, "A1", 1);
+    await setDecimal(model, "A1", 1);
     expect(getCell(model, "A1")?.format).toBe("0." + "0".repeat(9));
     expect(getEvaluatedCell(model, "A1")?.formattedValue).toEqual("10.123456789");
 
-    setDecimal(model, "A1", -1);
+    await setDecimal(model, "A1", -1);
     expect(getCell(model, "A1")?.format).toBe("0." + "0".repeat(8));
     expect(getEvaluatedCell(model, "A1")?.formattedValue).toEqual("10.12345679");
 
-    setDecimal(model, "A1", -1);
+    await setDecimal(model, "A1", -1);
     expect(getCell(model, "A1")?.format).toBe("0." + "0".repeat(7));
     expect(getEvaluatedCell(model, "A1")?.formattedValue).toEqual("10.1234568");
 
-    setDecimal(model, "A1", 1);
+    await setDecimal(model, "A1", 1);
     expect(getCell(model, "A1")?.format).toBe("0." + "0".repeat(8));
     expect(getEvaluatedCell(model, "A1")?.formattedValue).toEqual("10.12345679");
   });
 
   test("SET_DECIMAL on format with escaped string", async () => {
     const model = await createModel();
-    setCellContent(model, "A1", "10");
+    await setCellContent(model, "A1", "10");
 
-    setFormat(model, "A1", "0.0\\€");
-    setDecimal(model, "A1", 1);
+    await setFormat(model, "A1", "0.0\\€");
+    await setDecimal(model, "A1", 1);
     expect(getCell(model, "A1")?.format).toBe("0.00\\€");
 
-    setFormat(model, "A1", "0.0\\€");
-    setDecimal(model, "A1", -1);
+    await setFormat(model, "A1", "0.0\\€");
+    await setDecimal(model, "A1", -1);
     expect(getCell(model, "A1")?.format).toBe("0\\€");
 
-    setFormat(model, "A1", "0.0$0");
-    setDecimal(model, "A1", -1);
+    await setFormat(model, "A1", "0.0$0");
+    await setDecimal(model, "A1", -1);
     expect(getCell(model, "A1")?.format).toBe("0.0$");
-    setDecimal(model, "A1", -1);
+    await setDecimal(model, "A1", -1);
     expect(getCell(model, "A1")?.format).toBe("0$");
   });
 
   test("SET_DECIMAL on multi-part format", async () => {
     const model = await createModel();
-    setCellContent(model, "A1", "10");
+    await setCellContent(model, "A1", "10");
 
-    setFormat(model, "A1", "0.0\\€;$0.#; 0 ;@");
-    setDecimal(model, "A1", 1);
+    await setFormat(model, "A1", "0.0\\€;$0.#; 0 ;@");
+    await setDecimal(model, "A1", 1);
     expect(getCell(model, "A1")?.format).toBe("0.00\\€;$0.#0; 0.0 ;@");
 
-    setFormat(model, "A1", "0.0\\€;$0.#; 0 ;@");
-    setDecimal(model, "A1", -1);
+    await setFormat(model, "A1", "0.0\\€;$0.#; 0 ;@");
+    await setDecimal(model, "A1", -1);
     expect(getCell(model, "A1")?.format).toBe("0\\€;$0; 0 ;@");
 
-    setFormat(model, "A1", ";;;@");
-    setDecimal(model, "A1", -1);
+    await setFormat(model, "A1", ";;;@");
+    await setDecimal(model, "A1", -1);
     expect(getCell(model, "A1")?.format).toBe(";;;@");
   });
 
   test("SET_DECIMAL on scientific format", async () => {
     const model = await createModel();
-    setCellContent(model, "A1", "1234");
+    await setCellContent(model, "A1", "1234");
 
-    setFormat(model, "A1", "0.00e");
-    setDecimal(model, "A1", 1);
+    await setFormat(model, "A1", "0.00e");
+    await setDecimal(model, "A1", 1);
     expect(getCell(model, "A1")?.format).toBe("0.000e");
     expect(getEvaluatedCell(model, "A1").formattedValue).toBe("1.234e+03");
 
-    setDecimal(model, "A1", -1);
-    setDecimal(model, "A1", -1);
+    await setDecimal(model, "A1", -1);
+    await setDecimal(model, "A1", -1);
     expect(getCell(model, "A1")?.format).toBe("0.0e");
     expect(getEvaluatedCell(model, "A1").formattedValue).toBe("1.2e+03");
   });
 
   test("UPDATE_CELL on long number that are truncated due to default format don't loose truncated digits", async () => {
     const model = await createModel();
-    setCellContent(model, "A1", "10.123456789123");
+    await setCellContent(model, "A1", "10.123456789123");
     expect(getEvaluatedCell(model, "A1").value).toEqual(10.123456789123);
 
-    updateCell(model, "A1", { style: { fillColor: "#555" }, format: "[$$]#,##0.00" });
+    await updateCell(model, "A1", { style: { fillColor: "#555" }, format: "[$$]#,##0.00" });
     expect(getEvaluatedCell(model, "A1").value).toEqual(10.123456789123);
   });
 });
@@ -344,7 +344,7 @@ describe("pivot contextual formatting", () => {
     addPivot(model, "A1:A2", {
       measures: [{ id: "Price", fieldName: "Price", aggregator: "sum" }],
     });
-    setFormat(model, "B5", "0.0%");
+    await setFormat(model, "B5", "0.0%");
     setContextualFormat(model, "B5", "[$$]#,##0.00");
     expect(getCell(model, "B5")?.format).toBeUndefined();
     expect(getEvaluatedCell(model, "B5").formattedValue).toBe("$10.00");
@@ -407,15 +407,15 @@ describe("pivot contextual formatting", () => {
     const env = await makeTestEnv();
     const { model } = env;
 
-    setCellContent(model, "A1", "Price");
-    setCellContent(model, "A2", "10");
-    setCellContent(model, "B1", "=PIVOT(1)");
+    await setCellContent(model, "A1", "Price");
+    await setCellContent(model, "A2", "10");
+    await setCellContent(model, "B1", "=PIVOT(1)");
 
     addPivot(model, "A1:A2", {
       measures: [{ id: "Price", fieldName: "Price", aggregator: "sum" }],
     });
     setContextualFormat(model, "C3", "[$$]#,##0.00");
-    selectCell(model, "C3");
+    await selectCell(model, "C3");
 
     const action = getNode(["format", "format_number", "format_number_currency"], env);
     expect(action.isActive?.(env)).toBe(true);
@@ -425,20 +425,20 @@ describe("pivot contextual formatting", () => {
 describe("formatting values (when change decimal)", () => {
   test("Can't change decimal format of a cell that isn't 'number' type", async () => {
     const model = await createModel();
-    setCellContent(model, "A1", "kikou");
+    await setCellContent(model, "A1", "kikou");
     expect(getCellContent(model, "A1")).toBe("kikou");
-    selectCell(model, "A1");
-    setDecimal(model, "A1", 1);
+    await selectCell(model, "A1");
+    await setDecimal(model, "A1", 1);
     expect(getCell(model, "A1")!.format).toBe(undefined);
     expect(getCellContent(model, "A1")).toBe("kikou");
   });
 
   test("Can't change decimal format of a cell when value not exist", async () => {
     const model = await createModel();
-    setCellContent(model, "A1", "42%");
-    deleteContent(model, ["A1"]);
+    await setCellContent(model, "A1", "42%");
+    await deleteContent(model, ["A1"]);
     expect(getCell(model, "A1")!.format).toBe("0%");
-    setDecimal(model, "A1", 1);
+    await setDecimal(model, "A1", 1);
     expect(getCell(model, "A1")!.format).toBe("0%");
   });
 
@@ -456,28 +456,28 @@ describe("formatting values (when change decimal)", () => {
     async (noneDecimal, oneDecimal, twoDecimal) => {
       const model = await createModel();
 
-      setCellContent(model, "A1", "42");
-      selectCell(model, "A1");
-      setFormat(model, "A1", oneDecimal);
-      setDecimal(model, "A1", 1);
+      await setCellContent(model, "A1", "42");
+      await selectCell(model, "A1");
+      await setFormat(model, "A1", oneDecimal);
+      await setDecimal(model, "A1", 1);
       expect(getCell(model, "A1")!.format).toBe(twoDecimal);
 
-      setCellContent(model, "A2", "42");
-      selectCell(model, "A2");
-      setFormat(model, "A2", oneDecimal);
-      setDecimal(model, "A2", -1);
+      await setCellContent(model, "A2", "42");
+      await selectCell(model, "A2");
+      await setFormat(model, "A2", oneDecimal);
+      await setDecimal(model, "A2", -1);
       expect(getCell(model, "A2")!.format).toBe(noneDecimal);
 
-      setCellContent(model, "A3", "42");
-      selectCell(model, "A3");
-      setFormat(model, "A3", noneDecimal);
-      setDecimal(model, "A3", 1);
+      await setCellContent(model, "A3", "42");
+      await selectCell(model, "A3");
+      await setFormat(model, "A3", noneDecimal);
+      await setDecimal(model, "A3", 1);
       expect(getCell(model, "A3")!.format).toBe(oneDecimal);
 
-      setCellContent(model, "A4", "42");
-      selectCell(model, "A4");
-      setFormat(model, "A4", noneDecimal);
-      setDecimal(model, "A4", -1);
+      await setCellContent(model, "A4", "42");
+      await selectCell(model, "A4");
+      await setFormat(model, "A4", noneDecimal);
+      await setDecimal(model, "A4", -1);
       expect(getCell(model, "A4")!.format).toBe(noneDecimal);
     }
   );
@@ -485,28 +485,28 @@ describe("formatting values (when change decimal)", () => {
   test("Can change decimal format of a cell that hasn't format (case 'number' type only)", async () => {
     const model = await createModel();
 
-    setCellContent(model, "A1", "123");
+    await setCellContent(model, "A1", "123");
     expect(getCell(model, "A1")!.format).toBe(undefined);
-    selectCell(model, "A1");
-    setDecimal(model, "A1", 1);
+    await selectCell(model, "A1");
+    await setDecimal(model, "A1", 1);
     expect(getCell(model, "A1")!.format).toBe("0.0");
 
-    setCellContent(model, "A2", "456");
+    await setCellContent(model, "A2", "456");
     expect(getCell(model, "A2")!.format).toBe(undefined);
-    selectCell(model, "A2");
-    setDecimal(model, "A2", -1);
+    await selectCell(model, "A2");
+    await setDecimal(model, "A2", -1);
     expect(getCell(model, "A2")!.format).toBe("0");
 
-    setCellContent(model, "B1", "123.456");
+    await setCellContent(model, "B1", "123.456");
     expect(getCell(model, "B1")!.format).toBe(undefined);
-    selectCell(model, "B1");
-    setDecimal(model, "B1", 1);
+    await selectCell(model, "B1");
+    await setDecimal(model, "B1", 1);
     expect(getCell(model, "B1")!.format).toBe("0.0000");
 
-    setCellContent(model, "B2", "456.789");
+    await setCellContent(model, "B2", "456.789");
     expect(getCell(model, "B2")!.format).toBe(undefined);
-    selectCell(model, "B2");
-    setDecimal(model, "B2", -1);
+    await selectCell(model, "B2");
+    await setDecimal(model, "B2", -1);
     expect(getCell(model, "B2")!.format).toBe("0.00");
   });
 
@@ -515,33 +515,33 @@ describe("formatting values (when change decimal)", () => {
 
     const nineteenZerosA1 = "0.0000000000000000000";
     const twentyZerosA1 = "0.00000000000000000000";
-    setCellContent(model, "A1", "123");
-    setFormat(model, "A1", nineteenZerosA1);
-    setDecimal(model, "A1", 1);
-    setDecimal(model, "A1", 1);
-    setDecimal(model, "A1", 1);
+    await setCellContent(model, "A1", "123");
+    await setFormat(model, "A1", nineteenZerosA1);
+    await setDecimal(model, "A1", 1);
+    await setDecimal(model, "A1", 1);
+    await setDecimal(model, "A1", 1);
     expect(getCell(model, "A1")!.format).toBe(twentyZerosA1);
 
     const seventeenZerosB1 = "0.00000000000000000%";
     const twentyZerosB1 = "0.00000000000000000000%";
-    setCellContent(model, "B1", "9%");
-    setFormat(model, "B1", seventeenZerosB1);
-    setDecimal(model, "B1", 1);
-    setDecimal(model, "B1", 1);
-    setDecimal(model, "B1", 1);
-    setDecimal(model, "B1", 1);
-    setDecimal(model, "B1", 1);
-    setDecimal(model, "B1", 1);
+    await setCellContent(model, "B1", "9%");
+    await setFormat(model, "B1", seventeenZerosB1);
+    await setDecimal(model, "B1", 1);
+    await setDecimal(model, "B1", 1);
+    await setDecimal(model, "B1", 1);
+    await setDecimal(model, "B1", 1);
+    await setDecimal(model, "B1", 1);
+    await setDecimal(model, "B1", 1);
     expect(getCell(model, "B1")!.format).toBe(twentyZerosB1);
 
     const eighteenZerosC1 = "#,##0.000000000000000000";
     const twentyZerosC1 = "#,##0.00000000000000000000";
-    setCellContent(model, "C1", "3456.789");
-    setFormat(model, "C1", eighteenZerosC1);
-    setDecimal(model, "C1", 1);
-    setDecimal(model, "C1", 1);
-    setDecimal(model, "C1", 1);
-    setDecimal(model, "C1", 1);
+    await setCellContent(model, "C1", "3456.789");
+    await setFormat(model, "C1", eighteenZerosC1);
+    await setDecimal(model, "C1", 1);
+    await setDecimal(model, "C1", 1);
+    await setDecimal(model, "C1", 1);
+    await setDecimal(model, "C1", 1);
     expect(getCell(model, "C1")!.format).toBe(twentyZerosC1);
   });
 
@@ -550,25 +550,25 @@ describe("formatting values (when change decimal)", () => {
 
     // give values ​​with different formats
 
-    setCellContent(model, "A2", "Hey Jude");
-    setFormat(model, "A2", "0.00%");
+    await setCellContent(model, "A2", "Hey Jude");
+    await setFormat(model, "A2", "0.00%");
     expect(getCellContent(model, "A2")).toBe("Hey Jude");
 
-    setCellContent(model, "A3", "12/12/2012");
-    selectCell(model, "A3");
+    await setCellContent(model, "A3", "12/12/2012");
+    await selectCell(model, "A3");
     expect(getCellContent(model, "A3")).toBe("12/12/2012");
 
-    setCellContent(model, "C1", "LEBLEBI");
+    await setCellContent(model, "C1", "LEBLEBI");
     expect(getCellContent(model, "C1")).toBe("LEBLEBI");
 
     // select A1, then expand selection to A1:C3
-    selectCell(model, "A1");
+    await selectCell(model, "A1");
 
-    setAnchorCorner(model, "C3");
+    await setAnchorCorner(model, "C3");
 
     // increase decimalFormat on the selection
 
-    setDecimal(model, "A1:C3", 1);
+    await setDecimal(model, "A1:C3", 1);
 
     expect(getCellContent(model, "A2")).toBe("Hey Jude");
     expect(getCellContent(model, "A3")).toBe("12/12/2012");
@@ -581,10 +581,10 @@ describe("formatting values (when change decimal)", () => {
 
   test("Check multiple format in selected zone", async () => {
     const model = await createModel();
-    setCellContent(model, "A1", "100%");
-    setCellContent(model, "B1", "$190.12");
-    setCellContent(model, "C1", "$21");
-    setDecimal(model, "A1:C1", 1);
+    await setCellContent(model, "A1", "100%");
+    await setCellContent(model, "B1", "$190.12");
+    await setCellContent(model, "C1", "$21");
+    await setDecimal(model, "A1:C1", 1);
     expect(getCellContent(model, "A1")).toEqual("100.0%");
     expect(getCellContent(model, "B1")).toEqual("$190.120");
     expect(getCellContent(model, "C1")).toEqual("$21.0");
@@ -592,14 +592,14 @@ describe("formatting values (when change decimal)", () => {
 
   test("Check multiple format in multiple zone", async () => {
     const model = await createModel();
-    setCellContent(model, "A1", "100%");
-    setCellContent(model, "B1", "$190.12");
-    setCellContent(model, "C1", "$21");
-    setCellContent(model, "A3", "100%");
-    setCellContent(model, "B3", "$190.12");
-    setCellContent(model, "C3", "$21");
-    setDecimal(model, "A1:C1", 1);
-    setDecimal(model, "A3:C3", 1);
+    await setCellContent(model, "A1", "100%");
+    await setCellContent(model, "B1", "$190.12");
+    await setCellContent(model, "C1", "$21");
+    await setCellContent(model, "A3", "100%");
+    await setCellContent(model, "B3", "$190.12");
+    await setCellContent(model, "C3", "$21");
+    await setDecimal(model, "A1:C1", 1);
+    await setDecimal(model, "A3:C3", 1);
     expect(getCellContent(model, "A1")).toEqual("100.0%");
     expect(getCellContent(model, "B1")).toEqual("$190.120");
     expect(getCellContent(model, "C1")).toEqual("$21.0");
@@ -627,17 +627,17 @@ describe("Autoresize", () => {
     sizes = [TEXT, LONG_TEXT].map((text) => ctx.measureText(text).width);
   });
 
-  test("Can autoresize a column", () => {
-    setCellContent(model, "A1", TEXT);
+  test("Can autoresize a column", async () => {
+    await setCellContent(model, "A1", TEXT);
     const initCellWidth = sizes[0] + hPadding;
-    autoresizeColumns(model, [0]);
+    await autoresizeColumns(model, [0]);
     expect(model.getters.getColSize(sheetId, 0)).toBe(initCellWidth);
   });
 
-  test("Can autoresize a column with multiline content", () => {
+  test("Can autoresize a column with multiline content", async () => {
     const content = `Hello this is \nmultiline content for test`;
-    setCellContent(model, "A1", content);
-    autoresizeColumns(model, [0]);
+    await setCellContent(model, "A1", content);
+    await autoresizeColumns(model, [0]);
     const position = { sheetId, ...toCartesian("A1") };
     const style = model.getters.getCellComputedStyle(position);
     const multiLineText = content.split(NEWLINE);
@@ -646,95 +646,95 @@ describe("Autoresize", () => {
     );
   });
 
-  test("Can autoresize a column with text width smaller than cell width", () => {
-    setCellContent(model, "A1", TEXT);
+  test("Can autoresize a column with text width smaller than cell width", async () => {
+    await setCellContent(model, "A1", TEXT);
     const initCellWidth = sizes[0] + hPadding;
     const newCellWidth = initCellWidth * 2;
-    resizeColumns(model, ["A"], newCellWidth);
+    await resizeColumns(model, ["A"], newCellWidth);
     expect(model.getters.getColSize(sheetId, 0)).toBe(newCellWidth);
-    autoresizeColumns(model, [0]);
+    await autoresizeColumns(model, [0]);
     expect(model.getters.getColSize(sheetId, 0)).toBe(initCellWidth);
   });
 
-  test("Can autoresize a column with text width smaller than cell width, and cell in wrap mode", () => {
-    setCellContent(model, "A1", TEXT);
+  test("Can autoresize a column with text width smaller than cell width, and cell in wrap mode", async () => {
+    await setCellContent(model, "A1", TEXT);
     const initCellWidth = sizes[0] + hPadding;
     const newCellWidth = initCellWidth * 2;
-    resizeColumns(model, ["A"], newCellWidth);
-    setFormatting(model, "A1", { wrapping: "wrap" });
+    await resizeColumns(model, ["A"], newCellWidth);
+    await setFormatting(model, "A1", { wrapping: "wrap" });
     expect(model.getters.getColSize(sheetId, 0)).toBe(newCellWidth);
-    autoresizeColumns(model, [0]);
+    await autoresizeColumns(model, [0]);
     expect(model.getters.getColSize(sheetId, 0)).toBe(initCellWidth);
   });
 
-  test("Can autoresize a column with text width greater than cell width", () => {
-    setCellContent(model, "A1", LONG_TEXT);
+  test("Can autoresize a column with text width greater than cell width", async () => {
+    await setCellContent(model, "A1", LONG_TEXT);
     const initCellWidth = sizes[1] + hPadding;
     const newCellWidth = initCellWidth / 2;
-    resizeColumns(model, ["A"], newCellWidth);
+    await resizeColumns(model, ["A"], newCellWidth);
     expect(model.getters.getColSize(sheetId, 0)).toBe(newCellWidth);
-    autoresizeColumns(model, [0]);
+    await autoresizeColumns(model, [0]);
     expect(model.getters.getColSize(sheetId, 0)).toBe(initCellWidth);
   });
 
-  test("Can't autoresize a column with text width greater than cell width, and cell in wrap mode", () => {
-    setCellContent(model, "A1", "size0");
+  test("Can't autoresize a column with text width greater than cell width, and cell in wrap mode", async () => {
+    await setCellContent(model, "A1", "size0");
     const initCellWidth = sizes[0] + hPadding;
     const newCellWidth = initCellWidth / 2;
-    resizeColumns(model, ["A"], newCellWidth);
-    setFormatting(model, "A1", { wrapping: "wrap" });
+    await resizeColumns(model, ["A"], newCellWidth);
+    await setFormatting(model, "A1", { wrapping: "wrap" });
     expect(model.getters.getColSize(sheetId, 0)).toBe(newCellWidth);
-    autoresizeColumns(model, [0]);
+    await autoresizeColumns(model, [0]);
     expect(model.getters.getColSize(sheetId, 0)).toBe(newCellWidth);
   });
 
-  test("Can autoresize two columns", () => {
-    setCellContent(model, "A1", TEXT);
-    setCellContent(model, "C1", LONG_TEXT);
-    autoresizeColumns(model, [0, 2]);
+  test("Can autoresize two columns", async () => {
+    await setCellContent(model, "A1", TEXT);
+    await setCellContent(model, "C1", LONG_TEXT);
+    await autoresizeColumns(model, [0, 2]);
     expect(model.getters.getColSize(sheetId, 0)).toBe(sizes[0] + hPadding);
     expect(model.getters.getColSize(sheetId, 2)).toBe(sizes[1] + hPadding);
   });
 
-  test("Autoresize includes filter icon to compute the size", () => {
-    setCellContent(model, "A1", TEXT);
-    createTableWithFilter(model, "A1");
-    autoresizeColumns(model, [0]);
+  test("Autoresize includes filter icon to compute the size", async () => {
+    await setCellContent(model, "A1", TEXT);
+    await createTableWithFilter(model, "A1");
+    await autoresizeColumns(model, [0]);
     expect(model.getters.getColSize(sheetId, 0)).toBe(
       sizes[0] + hPadding + GRID_ICON_EDGE_LENGTH + GRID_ICON_MARGIN
     );
   });
 
-  test("Autoresize includes cells with only a filter icon", () => {
-    createTableWithFilter(model, "A1");
-    autoresizeColumns(model, [0]);
+  test("Autoresize includes cells with only a filter icon", async () => {
+    await createTableWithFilter(model, "A1");
+    await autoresizeColumns(model, [0]);
     expect(model.getters.getColSize(sheetId, 0)).toBe(
       hPadding + GRID_ICON_EDGE_LENGTH + GRID_ICON_MARGIN
     );
   });
 
-  test("Can autoresize a row", () => {
-    resizeRows(model, [0], DEFAULT_CELL_HEIGHT + 42);
-    setCellContent(model, "A1", "test");
-    autoresizeRows(model, [0]);
+  test("Can autoresize a row", async () => {
+    await resizeRows(model, [0], DEFAULT_CELL_HEIGHT + 42);
+    await setCellContent(model, "A1", "test");
+    await autoresizeRows(model, [0]);
     expect(model.getters.getRowSize(sheetId, 0)).toBe(DEFAULT_CELL_HEIGHT);
   });
 
-  test("Can autoresize two rows", () => {
-    resizeRows(model, [0, 2], DEFAULT_CELL_HEIGHT + 30);
-    setCellContent(model, "A1", "test");
-    setCellContent(model, "A3", "test");
-    setFormatting(model, "A3", { fontSize: 24 });
-    autoresizeRows(model, [0, 2]);
+  test("Can autoresize two rows", async () => {
+    await resizeRows(model, [0, 2], DEFAULT_CELL_HEIGHT + 30);
+    await setCellContent(model, "A1", "test");
+    await setCellContent(model, "A3", "test");
+    await setFormatting(model, "A3", { fontSize: 24 });
+    await autoresizeRows(model, [0, 2]);
     expect(model.getters.getRowSize(sheetId, 0)).toBe(DEFAULT_CELL_HEIGHT);
     expect(model.getters.getRowSize(sheetId, 2)).toBe(fontSizeInPixels(24) + vPadding);
   });
 
-  test("Only a single resize command is dispatched when auto-resizing multiple rows", () => {
+  test("Only a single resize command is dispatched when auto-resizing multiple rows", async () => {
     const rows = [0, 1, 2];
-    resizeRows(model, rows, DEFAULT_CELL_HEIGHT + 30);
+    await resizeRows(model, rows, DEFAULT_CELL_HEIGHT + 30);
     const handleCmd = spyUiPluginHandle(model);
-    autoresizeRows(model, [0, 1, 2]);
+    await autoresizeRows(model, [0, 1, 2]);
     expect(handleCmd).toHaveBeenCalledTimes(2);
     expect(handleCmd).toHaveBeenNthCalledWith(1, { type: "AUTORESIZE_ROWS", sheetId, rows });
     expect(handleCmd).toHaveBeenNthCalledWith(2, {
@@ -746,10 +746,10 @@ describe("Autoresize", () => {
     });
   });
 
-  test("Can autoresize a row with evaluated multi-line content", () => {
-    setCellContent(model, "A1", '="Hello\nThere"');
+  test("Can autoresize a row with evaluated multi-line content", async () => {
+    await setCellContent(model, "A1", '="Hello\nThere"');
     expect(model.getters.getRowSize(sheetId, 0)).toBe(DEFAULT_CELL_HEIGHT);
-    autoresizeRows(model, [0]);
+    await autoresizeRows(model, [0]);
     const numberOfLines = 2;
     const lineHeight = 13; // default font size in px
     const expectedHeight =
@@ -759,27 +759,27 @@ describe("Autoresize", () => {
     expect(model.getters.getRowSize(sheetId, 0)).toBe(expectedHeight);
   });
 
-  test("Evaluated multi-line content have no impact on autoresize if it's not taller than non-evaluated content", () => {
-    setCellContent(model, "A1", '="Hello\nThere"');
+  test("Evaluated multi-line content have no impact on autoresize if it's not taller than non-evaluated content", async () => {
+    await setCellContent(model, "A1", '="Hello\nThere"');
 
-    setCellContent(model, "B1", "Hello\nThere\nGeneral");
-    autoresizeRows(model, [0]);
+    await setCellContent(model, "B1", "Hello\nThere\nGeneral");
+    await autoresizeRows(model, [0]);
     expect(model.getters.getUserRowSize(sheetId, 0)).toBe(undefined);
 
-    setCellContent(model, "B1", "Hello\nThere");
-    autoresizeRows(model, [0]);
+    await setCellContent(model, "B1", "Hello\nThere");
+    await autoresizeRows(model, [0]);
     expect(model.getters.getUserRowSize(sheetId, 0)).toBe(undefined);
 
-    setCellContent(model, "B1", "Hello");
-    autoresizeRows(model, [0]);
+    await setCellContent(model, "B1", "Hello");
+    await autoresizeRows(model, [0]);
     expect(model.getters.getUserRowSize(sheetId, 0)).toBe(36);
   });
 
-  test("Auto-resizes a row correctly when it contains an array formula result", () => {
-    setCellContent(model, "A1", "=RANDARRAY(2, 2)");
+  test("Auto-resizes a row correctly when it contains an array formula result", async () => {
+    await setCellContent(model, "A1", "=RANDARRAY(2, 2)");
     expect(model.getters.getRowSize(sheetId, 1)).toBe(DEFAULT_CELL_HEIGHT);
-    setFormatting(model, "A2", { fontSize: 40 });
-    autoresizeRows(model, [1]);
+    await setFormatting(model, "A2", { fontSize: 40 });
+    await autoresizeRows(model, [1]);
     const position = { sheetId, ...toCartesian("A2") };
     const evaluatedSize = getCellContentHeight(
       ctx,
@@ -790,83 +790,83 @@ describe("Autoresize", () => {
     expect(model.getters.getRowSize(sheetId, 1)).toBe(evaluatedSize);
   });
 
-  test("Can autoresize a column in another sheet", () => {
+  test("Can autoresize a column in another sheet", async () => {
     const initialSize = model.getters.getColSize(sheetId, 0);
     const newSheetId = "42";
-    createSheet(model, { sheetId: newSheetId });
-    setCellContent(model, "A1", TEXT, newSheetId);
-    autoresizeColumns(model, [0], newSheetId);
+    await createSheet(model, { sheetId: newSheetId });
+    await setCellContent(model, "A1", TEXT, newSheetId);
+    await autoresizeColumns(model, [0], newSheetId);
     expect(model.getters.getColSize(sheetId, 0)).toBe(initialSize);
     expect(model.getters.getColSize(newSheetId, 0)).toBe(sizes[0] + hPadding);
   });
 
-  test("Can autoresize a row in another sheet", () => {
+  test("Can autoresize a row in another sheet", async () => {
     const initialSize = model.getters.getRowSize(sheetId, 0);
     const newSheetId = "42";
-    createSheet(model, { sheetId: newSheetId });
-    resizeRows(model, [0], DEFAULT_CELL_HEIGHT + 30, "42");
-    setCellContent(model, "A1", "test", newSheetId);
-    autoresizeRows(model, [0], newSheetId);
+    await createSheet(model, { sheetId: newSheetId });
+    await resizeRows(model, [0], DEFAULT_CELL_HEIGHT + 30, "42");
+    await setCellContent(model, "A1", "test", newSheetId);
+    await autoresizeRows(model, [0], newSheetId);
     expect(model.getters.getRowSize(sheetId, 0)).toBe(initialSize);
     expect(model.getters.getRowSize(newSheetId, 0)).toBe(DEFAULT_CELL_HEIGHT);
   });
 
-  test("Autoresizing empty cols has no effect", () => {
+  test("Autoresizing empty cols has no effect", async () => {
     const initialSize = model.getters.getColSize(sheetId, 0);
-    autoresizeColumns(model, [0]);
+    await autoresizeColumns(model, [0]);
     expect(model.getters.getColSize(sheetId, 0)).toBe(initialSize);
-    setCellContent(model, "A1", '=""');
-    autoresizeColumns(model, [0]);
+    await setCellContent(model, "A1", '=""');
+    await autoresizeColumns(model, [0]);
     expect(model.getters.getColSize(sheetId, 0)).toBe(initialSize);
   });
 
   test("row height does not take into account line breaks in the formula", async () => {
     const initialSize = model.getters.getRowSize(sheetId, 0);
-    setCellContent(model, "A1", "=5\n\n-3\n\n-9");
+    await setCellContent(model, "A1", "=5\n\n-3\n\n-9");
     expect(getCellContent(model, "A1")).toEqual("-7");
     expect(model.getters.getRowSize(sheetId, 0)).toEqual(initialSize);
   });
 
   test.each([-Math.PI / 2, -Math.PI / 3, -Math.PI / 4, 0, Math.PI / 4, Math.PI / 3, Math.PI / 2])(
     "Autoresize work with rotated text %s",
-    (rotation) => {
+    async (rotation) => {
       const noRotationStyle = { fontSize: 20 };
 
-      setFormatting(model, "A1", { rotation, ...noRotationStyle });
+      await setFormatting(model, "A1", { rotation, ...noRotationStyle });
 
       const cos = Math.abs(Math.cos(rotation));
       const sin = Math.abs(Math.sin(rotation));
       let width, height;
 
-      setCellContent(model, "A1", "ABC");
+      await setCellContent(model, "A1", "ABC");
       ({ width, height } = model.getters.getMultilineTextSize(["ABC"], noRotationStyle));
-      autoresizeColumns(model, [0]);
+      await autoresizeColumns(model, [0]);
       expect(model.getters.getColSize(sheetId, 0)).toEqual(
         Math.round(cos * width + sin * height + 2 * PADDING_AUTORESIZE_HORIZONTAL)
       );
-      autoresizeRows(model, [0]);
+      await autoresizeRows(model, [0]);
       expect(model.getters.getRowSize(sheetId, 0)).toEqual(
         Math.round(sin * width + cos * height + 2 * PADDING_AUTORESIZE_VERTICAL)
       );
 
-      setCellContent(model, "A1", "ABC\n123");
+      await setCellContent(model, "A1", "ABC\n123");
       ({ width, height } = model.getters.getMultilineTextSize(["ABC", "123"], noRotationStyle));
-      autoresizeColumns(model, [0]);
+      await autoresizeColumns(model, [0]);
       expect(model.getters.getColSize(sheetId, 0)).toEqual(
         Math.round(cos * width + sin * height + 2 * PADDING_AUTORESIZE_HORIZONTAL)
       );
-      autoresizeRows(model, [0]);
+      await autoresizeRows(model, [0]);
       expect(model.getters.getRowSize(sheetId, 0)).toEqual(
         Math.round(sin * width + cos * height + 2 * PADDING_AUTORESIZE_VERTICAL)
       );
 
-      setCellContent(model, "A1", "ABC-123");
+      await setCellContent(model, "A1", "ABC-123");
       ({ width, height } = model.getters.getMultilineTextSize(["ABC-123"], noRotationStyle));
-      autoresizeColumns(model, [0]);
+      await autoresizeColumns(model, [0]);
       expect(model.getters.getColSize(sheetId, 0)).toEqual(
         Math.round(cos * width + sin * height + 2 * PADDING_AUTORESIZE_HORIZONTAL)
       );
-      autoresizeRows(model, [0]);
+      await autoresizeRows(model, [0]);
       expect(model.getters.getRowSize(sheetId, 0)).toEqual(
         Math.round(sin * width + cos * height + 2 * PADDING_AUTORESIZE_VERTICAL)
       );

@@ -33,7 +33,7 @@ describe("ARRAY.CONSTRAIN function", () => {
       A3: "A3", B3: "B2", C3: "C3",
     };
     const model = await createModelFromGrid(grid);
-    setCellContent(model, "D1", "=ARRAY.CONSTRAIN(A1:C3, 2, 2)");
+    await setCellContent(model, "D1", "=ARRAY.CONSTRAIN(A1:C3, 2, 2)");
     expect(getRangeValuesAsMatrix(model, "D1:F3")).toEqual([
       ["A1", "B1", null],
       ["A2", "B2", null],
@@ -48,7 +48,7 @@ describe("ARRAY.CONSTRAIN function", () => {
       A2: '01/10/2020',
     };
     const model = await createModelFromGrid(grid);
-    setCellContent(model, "D1", "=ARRAY.CONSTRAIN(A1:B2, 2, 2)");
+    await setCellContent(model, "D1", "=ARRAY.CONSTRAIN(A1:B2, 2, 2)");
     expect(getRangeFormatsAsMatrix(model, "D1:E2")).toEqual([
       ["0%", ""],
       ["mm/dd/yyyy", ""],
@@ -62,7 +62,7 @@ describe("ARRAY.CONSTRAIN function", () => {
       A3: "A3", B3: "B3", C3: "C3",
     };
     const model = await createModelFromGrid(grid);
-    setCellContent(model, "D1", "=ARRAY.CONSTRAIN(A1:C3, 11, 569)");
+    await setCellContent(model, "D1", "=ARRAY.CONSTRAIN(A1:C3, 11, 569)");
     expect(getRangeValuesAsMatrix(model, "D1:G4")).toEqual([
       ["A1", "B1", "C1", null],
       ["A2", "B2", "C2", null],
@@ -74,7 +74,7 @@ describe("ARRAY.CONSTRAIN function", () => {
   test("Undefined values are transformed to zeroes", async () => {
     const grid = { A1: "A1", B1: "B1" };
     const model = await createModelFromGrid(grid);
-    setCellContent(model, "D1", "=ARRAY.CONSTRAIN(A1:B2, 2, 2)");
+    await setCellContent(model, "D1", "=ARRAY.CONSTRAIN(A1:B2, 2, 2)");
     expect(getRangeValuesAsMatrix(model, "D1:F3")).toEqual([
       ["A1", "B1", null],
       [0, 0, null],
@@ -85,15 +85,15 @@ describe("ARRAY.CONSTRAIN function", () => {
   test("Constraint single cell", async () => {
     const grid = { A1: "A1" };
     const model = await createModelFromGrid(grid);
-    setCellContent(model, "D1", "=ARRAY.CONSTRAIN(A1, 2, 2)");
+    await setCellContent(model, "D1", "=ARRAY.CONSTRAIN(A1, 2, 2)");
     expect(getRangeValuesAsMatrix(model, "D1")).toEqual([["A1"]]);
-    setCellContent(model, "D1", '=ARRAY.CONSTRAIN("oi", 2, 2)');
+    await setCellContent(model, "D1", '=ARRAY.CONSTRAIN("oi", 2, 2)');
     expect(getRangeValuesAsMatrix(model, "D1")).toEqual([["oi"]]);
   });
   test("ARRAY.CONSTRAIN accepts errors in the first argument", async () => {
     const grid = { A1: "=KABOUM", A2: "42", B1: "=1/0" };
     const model = await createModelFromGrid(grid);
-    setCellContent(model, "C1", "=ARRAY.CONSTRAIN(A1:B3, 2, 2)");
+    await setCellContent(model, "C1", "=ARRAY.CONSTRAIN(A1:B3, 2, 2)");
     expect(getRangeValuesAsMatrix(model, "C1:D2")).toEqual([
       ["#BAD_EXPR", "#DIV/0!"],
       [42, 0],
@@ -127,15 +127,15 @@ describe("CHOOSECOLS function", () => {
   test("Chose a single cell", async () => {
     const grid = { A1: "A1" };
     const model = await createModelFromGrid(grid);
-    setCellContent(model, "D1", "=CHOOSECOLS(A1:B3, 1)");
+    await setCellContent(model, "D1", "=CHOOSECOLS(A1:B3, 1)");
     expect(getRangeValuesAsMatrix(model, "D1")).toEqual([["A1"]]);
-    setCellContent(model, "D1", '=CHOOSECOLS("A1", 1)');
+    await setCellContent(model, "D1", '=CHOOSECOLS("A1", 1)');
     expect(getRangeValuesAsMatrix(model, "D1")).toEqual([["A1"]]);
   });
   test("Chose a column", async () => {
     const grid = { A1: "A1", A2: "A2", A3: "A3", B1: "B1", B2: "B2", B3: "B3" };
     const model = await createModelFromGrid(grid);
-    setCellContent(model, "D1", "=CHOOSECOLS(A1:B3, 1)");
+    await setCellContent(model, "D1", "=CHOOSECOLS(A1:B3, 1)");
     expect(getRangeValuesAsMatrix(model, "D1:E3")).toEqual([
       ["A1", null],
       ["A2", null],
@@ -146,7 +146,7 @@ describe("CHOOSECOLS function", () => {
   test("Chose multiple columns", async () => {
     const grid = { A1: "A1", A2: "A2", A3: "A3", B1: "B1", B2: "B2", B3: "B3" };
     const model = await createModelFromGrid(grid);
-    setCellContent(model, "D1", "=CHOOSECOLS(A1:B3, 1, 2)");
+    await setCellContent(model, "D1", "=CHOOSECOLS(A1:B3, 1, 2)");
     expect(getRangeValuesAsMatrix(model, "D1:E3")).toEqual([
       ["A1", "B1"],
       ["A2", "B2"],
@@ -157,7 +157,7 @@ describe("CHOOSECOLS function", () => {
   test("Chose multiple column with a range", async () => {
     const grid = { A1: "A1", A2: "A2", A3: "A3", B1: "B1", B2: "B2", B3: "B3", C1: "1", C2: "2" };
     const model = await createModelFromGrid(grid);
-    setCellContent(model, "D1", "=CHOOSECOLS(A1:B3, C1:C2)");
+    await setCellContent(model, "D1", "=CHOOSECOLS(A1:B3, C1:C2)");
     expect(getRangeValuesAsMatrix(model, "D1:E3")).toEqual([
       ["A1", "B1"],
       ["A2", "B2"],
@@ -168,7 +168,7 @@ describe("CHOOSECOLS function", () => {
   test("Accept negative index", async () => {
     const grid = { A1: "A1", B1: "B1", C1: "C1" };
     const model = await createModelFromGrid(grid);
-    setCellContent(model, "D1", "=CHOOSECOLS(A1:C1, -1)");
+    await setCellContent(model, "D1", "=CHOOSECOLS(A1:C1, -1)");
     expect(getRangeValuesAsMatrix(model, "D1")).toEqual([["C1"]]);
   });
   test("CHOOSECOLS: result format depends on range's format", async () => {
@@ -179,7 +179,7 @@ describe("CHOOSECOLS function", () => {
       A3: "1"
     };
     const model = await createModelFromGrid(grid);
-    setCellContent(model, "D1", "=CHOOSECOLS(A1:B3, 1, 2)");
+    await setCellContent(model, "D1", "=CHOOSECOLS(A1:B3, 1, 2)");
     expect(getRangeFormatsAsMatrix(model, "D1:E3")).toEqual([
       ["0%", ""],
       ["mm/dd/yyyy", ""],
@@ -194,7 +194,7 @@ describe("CHOOSECOLS function", () => {
       A3: "A3", B3: "B3", C3: "C3",
     };
     const model = await createModelFromGrid(grid);
-    setCellContent(model, "D5", "=CHOOSECOLS(A1:C3, D1:E2, 2)");
+    await setCellContent(model, "D5", "=CHOOSECOLS(A1:C3, D1:E2, 2)");
     expect(getRangeValuesAsMatrix(model, "D5:H7")).toEqual([
       ["A1", "B1", "C1", "A1", "B1"],
       ["A2", "B2", "C2", "A2", "B2"],
@@ -205,14 +205,14 @@ describe("CHOOSECOLS function", () => {
   test("Undefined values are transformed to zeroes", async () => {
     const grid = { A1: "A1", A2: "A2", A3: undefined };
     const model = await createModelFromGrid(grid);
-    setCellContent(model, "D1", "=CHOOSECOLS(A1:A3, 1)");
+    await setCellContent(model, "D1", "=CHOOSECOLS(A1:A3, 1)");
     expect(getRangeValuesAsMatrix(model, "D1:D3")).toEqual([["A1"], ["A2"], [0]]);
     expect(checkFunctionDoesntSpreadBeyondRange(model, "D1:D3")).toBeTruthy();
   });
   test("CHOOSECOLS accepts errors in the first argument", async () => {
     const grid = { A1: "=KABOUM", A2: "42", A3: "=1/0" };
     const model = await createModelFromGrid(grid);
-    setCellContent(model, "B1", "=CHOOSECOLS(A1:A3, 1)");
+    await setCellContent(model, "B1", "=CHOOSECOLS(A1:A3, 1)");
     expect(getRangeValuesAsMatrix(model, "B1:B3")).toEqual([["#BAD_EXPR"], [42], ["#DIV/0!"]]);
   });
 });
@@ -236,15 +236,15 @@ describe("CHOOSEROWS function", () => {
   test("Chose a single cell", async () => {
     const grid = { A1: "A1" };
     const model = await createModelFromGrid(grid);
-    setCellContent(model, "D1", "=CHOOSEROWS(A1:B3, 1)");
+    await setCellContent(model, "D1", "=CHOOSEROWS(A1:B3, 1)");
     expect(getRangeValuesAsMatrix(model, "D1")).toEqual([["A1"]]);
-    setCellContent(model, "D1", '=CHOOSEROWS("A1", 1)');
+    await setCellContent(model, "D1", '=CHOOSEROWS("A1", 1)');
     expect(getRangeValuesAsMatrix(model, "D1")).toEqual([["A1"]]);
   });
   test("Chose a row", async () => {
     const grid = { A1: "A1", A2: "A2", B1: "B1", B2: "B2", C1: "C1", C2: "C2" };
     const model = await createModelFromGrid(grid);
-    setCellContent(model, "D1", "=CHOOSEROWS(A1:C2, 1)");
+    await setCellContent(model, "D1", "=CHOOSEROWS(A1:C2, 1)");
     expect(getRangeValuesAsMatrix(model, "D1:F2")).toEqual([
       ["A1", "B1", "C1"],
       [null, null, null],
@@ -254,7 +254,7 @@ describe("CHOOSEROWS function", () => {
   test("Chose multiple rows", async () => {
     const grid = { A1: "A1", A2: "A2", A3: "A3", B1: "B1", B2: "B2", B3: "B3" };
     const model = await createModelFromGrid(grid);
-    setCellContent(model, "D1", "=CHOOSEROWS(A1:C2, 1, 2)");
+    await setCellContent(model, "D1", "=CHOOSEROWS(A1:C2, 1, 2)");
     expect(getRangeValuesAsMatrix(model, "D1:E3")).toEqual([
       ["A1", "B1"],
       ["A2", "B2"],
@@ -265,7 +265,7 @@ describe("CHOOSEROWS function", () => {
   test("Chose multiple rows with a range", async () => {
     const grid = { A1: "A1", A2: "A2", A3: "A3", B1: "B1", B2: "B2", B3: "B3", C1: "1", C2: "2" };
     const model = await createModelFromGrid(grid);
-    setCellContent(model, "D1", "=CHOOSEROWS(A1:B3, C1:C2)");
+    await setCellContent(model, "D1", "=CHOOSEROWS(A1:B3, C1:C2)");
     expect(getRangeValuesAsMatrix(model, "D1:E3")).toEqual([
       ["A1", "B1"],
       ["A2", "B2"],
@@ -276,7 +276,7 @@ describe("CHOOSEROWS function", () => {
   test("Accept negative index", async () => {
     const grid = { A1: "A1", A2: "A2", A3: "A3" };
     const model = await createModelFromGrid(grid);
-    setCellContent(model, "D1", "=CHOOSEROWS(A1:A3, -1)");
+    await setCellContent(model, "D1", "=CHOOSEROWS(A1:A3, -1)");
     expect(getRangeValuesAsMatrix(model, "D1")).toEqual([["A3"]]);
   });
   test("CHOOSEROWS: result format depends on range's format", async () => {
@@ -287,7 +287,7 @@ describe("CHOOSEROWS function", () => {
       A3: "1",
     };
     const model = await createModelFromGrid(grid);
-    setCellContent(model, "D1", "=CHOOSEROWS(A1:C2, 1, 2)");
+    await setCellContent(model, "D1", "=CHOOSEROWS(A1:C2, 1, 2)");
     expect(getRangeFormatsAsMatrix(model, "D1:E3")).toEqual([
       ["0%", ""],
       ["mm/dd/yyyy", ""],
@@ -302,7 +302,7 @@ describe("CHOOSEROWS function", () => {
       A3: "A3", B3: "B3", C3: "C3",
     };
     const model = await createModelFromGrid(grid);
-    setCellContent(model, "D5", "=CHOOSEROWS(A1:C3, D1:E2, 2)");
+    await setCellContent(model, "D5", "=CHOOSEROWS(A1:C3, D1:E2, 2)");
     expect(getRangeValuesAsMatrix(model, "D5:F9")).toEqual([
       ["A1", "B1", "C1"],
       ["A2", "B2", "C2"],
@@ -315,14 +315,14 @@ describe("CHOOSEROWS function", () => {
   test("Undefined values are transformed to zeroes", async () => {
     const grid = { A1: "A1", B1: "B1", C1: undefined };
     const model = await createModelFromGrid(grid);
-    setCellContent(model, "D1", "=CHOOSEROWS(A1:C1, 1)");
+    await setCellContent(model, "D1", "=CHOOSEROWS(A1:C1, 1)");
     expect(getRangeValuesAsMatrix(model, "D1:F1")).toEqual([["A1", "B1", 0]]);
     expect(checkFunctionDoesntSpreadBeyondRange(model, "D1:F1")).toBeTruthy();
   });
   test("CHOOSEROWS accepts errors in the first argument", async () => {
     const grid = { A1: "=KABOUM", B1: "42", C1: "=1/0" };
     const model = await createModelFromGrid(grid);
-    setCellContent(model, "A2", "=CHOOSEROWS(A1:C1, 1)");
+    await setCellContent(model, "A2", "=CHOOSEROWS(A1:C1, 1)");
     expect(getRangeValuesAsMatrix(model, "A2:C2")).toEqual([["#BAD_EXPR", 42, "#DIV/0!"]]);
   });
 });
@@ -350,7 +350,7 @@ describe("EXPAND function", () => {
       A2: "A2", B2: "B2"
     };
     const model = await createModelFromGrid(grid);
-    setCellContent(model, "D1", "=EXPAND(A1:B2, 3)");
+    await setCellContent(model, "D1", "=EXPAND(A1:B2, 3)");
     expect(getRangeValuesAsMatrix(model, "D1:F3")).toEqual([
       ["A1", "B1", null],
       ["A2", "B2", null],
@@ -365,7 +365,7 @@ describe("EXPAND function", () => {
       A2: "A2", B2: "B2"
     };
     const model = await createModelFromGrid(grid);
-    setCellContent(model, "D1", "=EXPAND(A1:B2, 2, 3)");
+    await setCellContent(model, "D1", "=EXPAND(A1:B2, 2, 3)");
     expect(getRangeValuesAsMatrix(model, "D1:F3")).toEqual([
       ["A1", "B1", 0],
       ["A2", "B2", 0],
@@ -380,7 +380,7 @@ describe("EXPAND function", () => {
       A2: "A2", B2: "B2"
     };
     const model = await createModelFromGrid(grid);
-    setCellContent(model, "D1", "=EXPAND(A1:B2, 3, 3, 66)");
+    await setCellContent(model, "D1", "=EXPAND(A1:B2, 3, 3, 66)");
     expect(getRangeValuesAsMatrix(model, "D1:F3")).toEqual([
       ["A1", "B1", 66],
       ["A2", "B2", 66],
@@ -391,12 +391,12 @@ describe("EXPAND function", () => {
   test("Expand single value", async () => {
     const grid = { A1: "A1" };
     const model = await createModelFromGrid(grid);
-    setCellContent(model, "D1", "=EXPAND(A1, 2, 2)");
+    await setCellContent(model, "D1", "=EXPAND(A1, 2, 2)");
     expect(getRangeValuesAsMatrix(model, "D1:E2")).toEqual([
       ["A1", 0],
       [0, 0],
     ]);
-    setCellContent(model, "D1", '=EXPAND("A1", 2, 2)');
+    await setCellContent(model, "D1", '=EXPAND("A1", 2, 2)');
     expect(getRangeValuesAsMatrix(model, "D1:E2")).toEqual([
       ["A1", 0],
       [0, 0],
@@ -409,7 +409,7 @@ describe("EXPAND function", () => {
       A2: "01/10/2020", B2: "test"
     };
     const model = await createModelFromGrid(grid);
-    setCellContent(model, "D1", "=EXPAND(A1:B2, 3, 3, A1)");
+    await setCellContent(model, "D1", "=EXPAND(A1:B2, 3, 3, A1)");
     expect(getRangeFormatsAsMatrix(model, "D1:F3")).toEqual([
       ["0%", "", "0%"],
       ["mm/dd/yyyy", "", "0%"],
@@ -419,7 +419,7 @@ describe("EXPAND function", () => {
   test("Falsy values aren't replaced with the pad_with argument", async () => {
     const grid = { A1: "0", A2: "", B1: undefined, B2: "=FALSE" };
     const model = await createModelFromGrid(grid);
-    setCellContent(model, "D1", "=EXPAND(A1:B2, 3, 3, 66)");
+    await setCellContent(model, "D1", "=EXPAND(A1:B2, 3, 3, 66)");
     expect(getRangeValuesAsMatrix(model, "D1:F3")).toEqual([
       [0, 0, 66],
       [0, false, 66],
@@ -429,12 +429,12 @@ describe("EXPAND function", () => {
   test("EXPAND accepts errors in the first argument", async () => {
     const grid = { A1: "=KABOUM", B1: "42", C1: "=1/0" };
     const model = await createModelFromGrid(grid);
-    setCellContent(model, "A2", "=EXPAND(A1:C1, 1, 4, 24)");
+    await setCellContent(model, "A2", "=EXPAND(A1:C1, 1, 4, 24)");
     expect(getRangeValuesAsMatrix(model, "A2:D2")).toEqual([["#BAD_EXPR", 42, "#DIV/0!", 24]]);
   });
   test("EXPAND accepts error on the last argument", async () => {
     const model = await createModelFromGrid({ A1: "42" });
-    setCellContent(model, "A2", "=EXPAND(A1, 1, 2, 1/0)");
+    await setCellContent(model, "A2", "=EXPAND(A1, 1, 2, 1/0)");
     expect(getRangeValuesAsMatrix(model, "A2:B2")).toEqual([[42, "#DIV/0!"]]);
   });
 });
@@ -447,27 +447,27 @@ describe("FLATTEN function", () => {
   test("Flatten a column returns the column", async () => {
     const grid = { A1: "A1", A2: "A2", A3: "A3" };
     const model = await createModelFromGrid(grid);
-    setCellContent(model, "D1", "=FLATTEN(A1:A3)");
+    await setCellContent(model, "D1", "=FLATTEN(A1:A3)");
     expect(getRangeValuesAsMatrix(model, "D1:D3")).toEqual([["A1"], ["A2"], ["A3"]]);
     expect(checkFunctionDoesntSpreadBeyondRange(model, "D1:D3")).toBeTruthy();
   });
   test("Flatten a row", async () => {
     const grid = { A1: "A1", B1: "B1", C1: "C1" };
     const model = await createModelFromGrid(grid);
-    setCellContent(model, "D1", "=FLATTEN(A1:C1)");
+    await setCellContent(model, "D1", "=FLATTEN(A1:C1)");
     expect(getRangeValuesAsMatrix(model, "D1:D3")).toEqual([["A1"], ["B1"], ["C1"]]);
     expect(checkFunctionDoesntSpreadBeyondRange(model, "D1:D3")).toBeTruthy();
   });
   test("FLATTEN: result format depends on range's format", async () => {
     const grid = { A1: "1%", B1: "01/10/2020", C1: "1" };
     const model = await createModelFromGrid(grid);
-    setCellContent(model, "D1", "=FLATTEN(A1:C1)");
+    await setCellContent(model, "D1", "=FLATTEN(A1:C1)");
     expect(getRangeFormatsAsMatrix(model, "D1:D3")).toEqual([["0%"], ["mm/dd/yyyy"], [""]]);
   });
   test("Flatten a range goes row-first", async () => {
     const grid = { A1: "A1", A2: "A2", B1: "B1", B2: "B2", C1: "C1", C2: "C2" };
     const model = await createModelFromGrid(grid);
-    setCellContent(model, "D1", "=FLATTEN(A1:C2)");
+    await setCellContent(model, "D1", "=FLATTEN(A1:C2)");
     expect(getRangeValuesAsMatrix(model, "D1:D6")).toEqual([
       ["A1"],
       ["B1"],
@@ -481,7 +481,7 @@ describe("FLATTEN function", () => {
   test("Flatten a range with undefined values transform them to zeroes", async () => {
     const grid = { A1: "A1", A2: undefined, B1: undefined, B2: "B2", C1: "C1", C2: "C2" };
     const model = await createModelFromGrid(grid);
-    setCellContent(model, "D1", "=FLATTEN(A1:C2)");
+    await setCellContent(model, "D1", "=FLATTEN(A1:C2)");
     expect(getRangeValuesAsMatrix(model, "D1:D6")).toEqual([
       ["A1"],
       [0],
@@ -495,7 +495,7 @@ describe("FLATTEN function", () => {
   test("Flatten multiple ranges", async () => {
     const grid = { A1: "A1", A2: "A2", B1: "B1", B2: "B2", D1: "D1", D2: "D2" };
     const model = await createModelFromGrid(grid);
-    setCellContent(model, "E1", '=FLATTEN(A1:B2, D1:D2, "ok", A1)');
+    await setCellContent(model, "E1", '=FLATTEN(A1:B2, D1:D2, "ok", A1)');
     expect(getRangeValuesAsMatrix(model, "E1:E8")).toEqual([
       ["A1"],
       ["B1"],
@@ -511,7 +511,7 @@ describe("FLATTEN function", () => {
   test("FLATTEN accepts errors in arguments", async () => {
     const grid = { A1: "=KABOUM", B1: "42", C1: "=1/0" };
     const model = await createModelFromGrid(grid);
-    setCellContent(model, "A2", "=FLATTEN(A1, B1:C1)");
+    await setCellContent(model, "A2", "=FLATTEN(A1, B1:C1)");
     expect(getRangeValuesAsMatrix(model, "A2:A4")).toEqual([["#BAD_EXPR"], [42], ["#DIV/0!"]]);
   });
 });
@@ -525,13 +525,13 @@ describe("FREQUENCY function", () => {
   test("Frequency with single class test", async () => {
     const grid = { A1: "1", A2: "2", A3: "3" };
     const model = await createModelFromGrid(grid);
-    setCellContent(model, "D1", "=FREQUENCY(A1:A3, A1)");
+    await setCellContent(model, "D1", "=FREQUENCY(A1:A3, A1)");
     expect(getRangeValuesAsMatrix(model, "D1:D2")).toEqual([
       [1], // elements <= 1
       [2], // elements > 1
     ]);
     expect(checkFunctionDoesntSpreadBeyondRange(model, "D1:D2")).toBeTruthy();
-    setCellContent(model, "D1", "=FREQUENCY(A1:A3, 1)");
+    await setCellContent(model, "D1", "=FREQUENCY(A1:A3, 1)");
     expect(getRangeValuesAsMatrix(model, "D1:D2")).toEqual([
       [1], // elements <= 1
       [2], // elements > 1
@@ -548,7 +548,7 @@ describe("FREQUENCY function", () => {
       A5: "4",
      };
     const model = await createModelFromGrid(grid);
-    setCellContent(model, "D1", "=FREQUENCY(A1:A6, C1:C3)");
+    await setCellContent(model, "D1", "=FREQUENCY(A1:A6, C1:C3)");
     expect(getRangeValuesAsMatrix(model, "D1:D4")).toEqual([
       [1], // elements <= 1
       [2], // 1 < elements <= 3
@@ -567,7 +567,7 @@ describe("FREQUENCY function", () => {
       A5: "5",
      };
     const model = await createModelFromGrid(grid);
-    setCellContent(model, "D1", "=FREQUENCY(A1:A6, C1:C3)");
+    await setCellContent(model, "D1", "=FREQUENCY(A1:A6, C1:C3)");
     expect(getRangeValuesAsMatrix(model, "D1:D4")).toEqual([[2], [1], [2], [0]]);
     expect(checkFunctionDoesntSpreadBeyondRange(model, "D1:D4")).toBeTruthy();
   });
@@ -581,7 +581,7 @@ describe("FREQUENCY function", () => {
       A5: "5",
      };
     const model = await createModelFromGrid(grid);
-    setCellContent(model, "E1", "=FREQUENCY(A1:A6, C1:D2)");
+    await setCellContent(model, "E1", "=FREQUENCY(A1:A6, C1:D2)");
     expect(getRangeValuesAsMatrix(model, "E1:E4")).toEqual([[2], [1], [2], [0]]);
     expect(checkFunctionDoesntSpreadBeyondRange(model, "E1:E4")).toBeTruthy();
   });
@@ -595,7 +595,7 @@ describe("FREQUENCY function", () => {
       A5: "5", B5: "6",
      };
     const model = await createModelFromGrid(grid);
-    setCellContent(model, "D1", "=FREQUENCY(A1:B6, C1:C3)");
+    await setCellContent(model, "D1", "=FREQUENCY(A1:B6, C1:C3)");
     expect(getRangeValuesAsMatrix(model, "D1:D4")).toEqual([[4], [2], [3], [1]]);
     expect(checkFunctionDoesntSpreadBeyondRange(model, "D1:D4")).toBeTruthy();
   });
@@ -611,14 +611,14 @@ describe("FREQUENCY function", () => {
       A7 : undefined, B7 : "=A6",
      };
     const model = await createModelFromGrid(grid);
-    setCellContent(model, "D1", "=FREQUENCY(A1:B7, C1:C5)");
+    await setCellContent(model, "D1", "=FREQUENCY(A1:B7, C1:C5)");
     expect(getRangeValuesAsMatrix(model, "D1:D4")).toEqual([[4], [2], [3], [1]]);
     expect(checkFunctionDoesntSpreadBeyondRange(model, "D1:D4")).toBeTruthy();
   });
   test("Number strings and empty cells are ignored", async () => {
     const grid = { A1: '="1"', A2: "2", A3: '=CONCAT(3, "")', A4: undefined };
     const model = await createModelFromGrid(grid);
-    setCellContent(model, "D1", "=FREQUENCY(A1:A4, 1)");
+    await setCellContent(model, "D1", "=FREQUENCY(A1:A4, 1)");
     expect(getRangeValues(model, "D1:D2")).toEqual([
       0, // elements <= 1
       1, // elements > 1
@@ -640,14 +640,14 @@ describe("HSTACK function", () => {
   test("HSTACK with single values", async () => {
     const grid = { E1: "hey" };
     const model = await createModelFromGrid(grid);
-    setCellContent(model, "A1", "=HSTACK(5, 9, E1)");
+    await setCellContent(model, "A1", "=HSTACK(5, 9, E1)");
     expect(getRangeValuesAsMatrix(model, "A1:C1")).toEqual([[5, 9, "hey"]]);
     expect(checkFunctionDoesntSpreadBeyondRange(model, "A1:C1")).toBeTruthy();
   });
   test("HSTACK with ranges of same dimensions", async () => {
     const grid = { A1: "A1", A2: "A2", A3: "A3", B1: "B1", B2: "B2", B3: "B3" };
     const model = await createModelFromGrid(grid);
-    setCellContent(model, "D1", "=HSTACK(A1:A3, B1:B3)");
+    await setCellContent(model, "D1", "=HSTACK(A1:A3, B1:B3)");
     expect(getRangeValuesAsMatrix(model, "D1:E3")).toEqual([
       ["A1", "B1"],
       ["A2", "B2"],
@@ -658,7 +658,7 @@ describe("HSTACK function", () => {
   test("HSTACK with ranges of different dimensions: padded with zeroes", async () => {
     const grid = { A1: "A1", A2: "A2", A3: "A3", B1: "B1", B2: "B2", B3: "B3" };
     const model = await createModelFromGrid(grid);
-    setCellContent(model, "D1", "=HSTACK(A1:A3, A1:B2, 9)");
+    await setCellContent(model, "D1", "=HSTACK(A1:A3, A1:B2, 9)");
     expect(getRangeValuesAsMatrix(model, "D1:G3")).toEqual([
       ["A1", "A1", "B1", 9],
       ["A2", "A2", "B2", 0],
@@ -674,7 +674,7 @@ describe("HSTACK function", () => {
       A3: ""
     };
     const model = await createModelFromGrid(grid);
-    setCellContent(model, "D1", "=HSTACK(A1:A3, A1:B2, 9)");
+    await setCellContent(model, "D1", "=HSTACK(A1:A3, A1:B2, 9)");
     expect(getRangeFormatsAsMatrix(model, "D1:G3")).toEqual([
       ["0%", "0%", "mm/dd/yyyy", ""],
       ["", "", "mm/dd", ""],
@@ -684,7 +684,7 @@ describe("HSTACK function", () => {
   test("undefined values are replaced with zeroes", async () => {
     const grid = { A1: "A1", A2: undefined, B1: undefined, B2: "B2" };
     const model = await createModelFromGrid(grid);
-    setCellContent(model, "D1", "=HSTACK(A1:A2, B1:B2)");
+    await setCellContent(model, "D1", "=HSTACK(A1:A2, B1:B2)");
     expect(getRangeValuesAsMatrix(model, "D1:E2")).toEqual([
       ["A1", 0],
       [0, "B2"],
@@ -694,7 +694,7 @@ describe("HSTACK function", () => {
   test("HSTACK accepts errors in arguments", async () => {
     const grid = { A1: "=KABOUM", B1: "42", B2: "=1/0" };
     const model = await createModelFromGrid(grid);
-    setCellContent(model, "C1", "=HSTACK(A1, B1:B2)");
+    await setCellContent(model, "C1", "=HSTACK(A1, B1:B2)");
     expect(getRangeValuesAsMatrix(model, "C1:D2")).toEqual([
       ["#BAD_EXPR", 42],
       [0, "#DIV/0!"],
@@ -747,7 +747,7 @@ describe("MDETERM function", () => {
   });
   test("Determinant of an empty matrix", async () => {
     const model = await createModelFromGrid({});
-    setCellContent(model, "D1", "=MDETERM(A1:C3)");
+    await setCellContent(model, "D1", "=MDETERM(A1:C3)");
     expect(getEvaluatedCell(model, "D1").value).toBe("#ERROR");
     expect((getEvaluatedCell(model, "D1") as ErrorCell).message).toBe(
       "Function MDETERM expects number values for square_matrix, but got an empty value."
@@ -782,7 +782,7 @@ describe("MINVERSE function", () => {
   });
   test("Inverse of an empty matrix", async () => {
     const model = await createModelFromGrid({});
-    setCellContent(model, "D1", "=MINVERSE(A1:C3)");
+    await setCellContent(model, "D1", "=MINVERSE(A1:C3)");
     expect(getEvaluatedCell(model, "D1").value).toBe("#ERROR");
     expect((getEvaluatedCell(model, "D1") as ErrorCell).message).toBe(
       "Function MINVERSE expects number values for square_matrix, but got an empty value."
@@ -796,7 +796,7 @@ describe("MINVERSE function", () => {
       A3: "0", B3: "2", C3: "0",
      };
     let model = await createModelFromGrid(grid);
-    setCellContent(model, "D1", "=MINVERSE(A1:C3)");
+    await setCellContent(model, "D1", "=MINVERSE(A1:C3)");
     expect(getRangeValuesAsMatrix(model, "D1:F3")).toEqual([
       [1, 0, -0.5],
       [0, 0, 0.5],
@@ -810,7 +810,7 @@ describe("MINVERSE function", () => {
       A3: "0", B3: "1", C3: "0",
      };
     model = await createModelFromGrid(grid);
-    setCellContent(model, "D1", "=MINVERSE(A1:C3)");
+    await setCellContent(model, "D1", "=MINVERSE(A1:C3)");
     expect(getRangeValuesAsMatrix(model, "D1:F3")).toEqual([
       [-0.2, 0, 0.2],
       [0, 0, 1],
@@ -847,28 +847,28 @@ describe("MMULT function", () => {
       A3: "7", B3: "8", C3: "9",
      };
     const model = await createModelFromGrid(grid);
-    setCellContent(model, "D1", "=MMULT(A1:C3, A1:C3)");
+    await setCellContent(model, "D1", "=MMULT(A1:C3, A1:C3)");
     expect(getRangeValuesAsMatrix(model, "D1:F3")).toEqual([
       [30, 36, 42],
       [66, 81, 96],
       [102, 126, 150],
     ]);
     expect(checkFunctionDoesntSpreadBeyondRange(model, "D1:F3")).toBeTruthy();
-    setCellContent(model, "D1", "=MMULT(A1:C3, A1:A3)");
+    await setCellContent(model, "D1", "=MMULT(A1:C3, A1:A3)");
     expect(getRangeValuesAsMatrix(model, "D1:F3")).toEqual([
       [30, null, null],
       [66, null, null],
       [102, null, null],
     ]);
     expect(checkFunctionDoesntSpreadBeyondRange(model, "D1:F3")).toBeTruthy();
-    setCellContent(model, "D1", "=MMULT(A1:B1, A1:C2)");
+    await setCellContent(model, "D1", "=MMULT(A1:B1, A1:C2)");
     expect(getRangeValuesAsMatrix(model, "D1:F3")).toEqual([
       [9, 12, 15],
       [null, null, null],
       [null, null, null],
     ]);
     expect(checkFunctionDoesntSpreadBeyondRange(model, "D1:F3")).toBeTruthy();
-    setCellContent(model, "D1", "=MMULT(A1:A3, A1:C1)");
+    await setCellContent(model, "D1", "=MMULT(A1:A3, A1:C1)");
     expect(getRangeValuesAsMatrix(model, "D1:F3")).toEqual([
       [1, 2, 3],
       [4, 8, 12],
@@ -911,9 +911,9 @@ describe("SUMPRODUCT function", () => {
   test("Undefined or non-number values are replaced by zeroes", async () => {
     const grid = { A1: "1", A2: "1", A3: "1", B1: '="5"', B2: undefined, B3: "hello" };
     const model = await createModelFromGrid(grid);
-    setCellContent(model, "D1", "=SUMPRODUCT(A1:A3, B1:B3)");
+    await setCellContent(model, "D1", "=SUMPRODUCT(A1:A3, B1:B3)");
     expect(getCellContent(model, "D1")).toBe("0");
-    setCellContent(model, "D1", '=SUMPRODUCT("3")');
+    await setCellContent(model, "D1", '=SUMPRODUCT("3")');
     expect(getCellContent(model, "D1")).toBe("0");
   });
   test("SUMPRODUCT accepts errors in arguments", async () => {
@@ -949,9 +949,9 @@ describe("SUMX2MY2 function", () => {
   test("Non-number values are ignored", async () => {
     const grid = { A1: "1", A2: "2", A3: "3", B1: "2", B2: '="5"', B3: undefined };
     const model = await createModelFromGrid(grid);
-    setCellContent(model, "E1", "=SUMX2MY2(A1:A3, B1:B3)");
+    await setCellContent(model, "E1", "=SUMX2MY2(A1:A3, B1:B3)");
     expect(getEvaluatedCell(model, "E1").value).toEqual(-3);
-    setCellContent(model, "E1", "=SUMX2MY2(A2:A3, B2:B3)");
+    await setCellContent(model, "E1", "=SUMX2MY2(A2:A3, B2:B3)");
     expect(getEvaluatedCell(model, "E1").value).toEqual("#ERROR"); // No valid X/Y pairs
   });
   test("SUMX2MY2 accepts errors in arguments", async () => {
@@ -987,9 +987,9 @@ describe("SUMX2PY2 function", () => {
   test("Non-number values are ignored", async () => {
     const grid = { A1: "1", A2: "2", A3: "3", B1: "2", B2: '="5"', B3: undefined };
     const model = await createModelFromGrid(grid);
-    setCellContent(model, "E1", "=SUMX2PY2(A1:A3, B1:B3)");
+    await setCellContent(model, "E1", "=SUMX2PY2(A1:A3, B1:B3)");
     expect(getEvaluatedCell(model, "E1").value).toEqual(5);
-    setCellContent(model, "E1", "=SUMX2PY2(A2:A3, B2:B3)");
+    await setCellContent(model, "E1", "=SUMX2PY2(A2:A3, B2:B3)");
     expect(getEvaluatedCell(model, "E1").value).toEqual("#ERROR"); // No valid X/Y pairs
   });
   test("SUMX2PY2 accepts errors in arguments", async () => {
@@ -1025,9 +1025,9 @@ describe("SUMXMY2 function", () => {
   test("Non-number values are ignored", async () => {
     const grid = { A1: "1", A2: "2", A3: "3", B1: "2", B2: '="5"', B3: undefined };
     const model = await createModelFromGrid(grid);
-    setCellContent(model, "E1", "=SUMXMY2(A1:A3, B1:B3)");
+    await setCellContent(model, "E1", "=SUMXMY2(A1:A3, B1:B3)");
     expect(getEvaluatedCell(model, "E1").value).toEqual(1);
-    setCellContent(model, "E1", "=SUMXMY2(A2:A3, B2:B3)");
+    await setCellContent(model, "E1", "=SUMXMY2(A2:A3, B2:B3)");
     expect(getEvaluatedCell(model, "E1").value).toEqual("#ERROR"); // No valid X/Y pairs
   });
   test("SUMX2PY2 accepts errors in arguments", async () => {
@@ -1055,7 +1055,7 @@ describe("TOCOL function", () => {
   test("Simple TOCOL call", async () => {
     const grid = { A1: "A1", A2: "A2", A3: "A3", B1: "B1", B2: "B2", B3: "B3" };
     const model = await createModelFromGrid(grid);
-    setCellContent(model, "D1", "=TOCOL(A1:B3)");
+    await setCellContent(model, "D1", "=TOCOL(A1:B3)");
     expect(getRangeValuesAsMatrix(model, "D1:D6")).toEqual([
       ["A1"],
       ["B1"],
@@ -1074,7 +1074,7 @@ describe("TOCOL function", () => {
       A3: ""
     };
     const model = await createModelFromGrid(grid);
-    setCellContent(model, "D1", "=TOCOL(A1:B3)");
+    await setCellContent(model, "D1", "=TOCOL(A1:B3)");
     expect(getRangeFormatsAsMatrix(model, "D1:D6")).toEqual([
       ["0%"],
       ["mm/dd/yyyy"],
@@ -1087,7 +1087,7 @@ describe("TOCOL function", () => {
   test("TOCOL: undefined values are replaced by zeroes", async () => {
     const grid = { A1: "A1", A2: "A2", B1: "B1", B2: undefined };
     const model = await createModelFromGrid(grid);
-    setCellContent(model, "D1", "=TOCOL(A1:B2)");
+    await setCellContent(model, "D1", "=TOCOL(A1:B2)");
     expect(getRangeValuesAsMatrix(model, "D1:D4")).toEqual([["A1"], ["B1"], ["A2"], [0]]);
     expect(checkFunctionDoesntSpreadBeyondRange(model, "D1:D4")).toBeTruthy();
   });
@@ -1095,32 +1095,32 @@ describe("TOCOL function", () => {
     const grid = { A1: "=KABOUM", B1: "B1", B2: "B2" };
     // ignore=0, keep all
     const model = await createModelFromGrid(grid);
-    setCellContent(model, "D1", "=TOCOL(A1:B2, 0)");
+    await setCellContent(model, "D1", "=TOCOL(A1:B2, 0)");
     expect(getRangeValuesAsMatrix(model, "D1:D4")).toEqual([["#BAD_EXPR"], ["B1"], [0], ["B2"]]);
     expect(checkFunctionDoesntSpreadBeyondRange(model, "D1:D4")).toBeTruthy();
     // ignore=1, ignore empty cells
-    setCellContent(model, "D1", "=TOCOL(A1:B2, 1)");
+    await setCellContent(model, "D1", "=TOCOL(A1:B2, 1)");
     expect(getRangeValuesAsMatrix(model, "D1:D4")).toEqual([["#BAD_EXPR"], ["B1"], ["B2"], [null]]);
     expect(checkFunctionDoesntSpreadBeyondRange(model, "D1:D3")).toBeTruthy();
     // ignore=2, ignore error cells
-    setCellContent(model, "D1", "=TOCOL(A1:B2, 2)");
+    await setCellContent(model, "D1", "=TOCOL(A1:B2, 2)");
     expect(getRangeValuesAsMatrix(model, "D1:D4")).toEqual([["B1"], [0], ["B2"], [null]]);
     expect(checkFunctionDoesntSpreadBeyondRange(model, "D1:D3")).toBeTruthy();
     // ignore=3, ignore empty cells and error cells
-    setCellContent(model, "D1", "=TOCOL(A1:B2, 3)");
+    await setCellContent(model, "D1", "=TOCOL(A1:B2, 3)");
     expect(getRangeValuesAsMatrix(model, "D1:D4")).toEqual([["B1"], ["B2"], [null], [null]]);
     expect(checkFunctionDoesntSpreadBeyondRange(model, "D1:D2")).toBeTruthy();
   });
   test("No results returns #N/A", async () => {
     const grid = { A1: undefined, A2: undefined };
     const model = await createModelFromGrid(grid);
-    setCellContent(model, "D1", "=TOCOL(A1:A2, 1)");
+    await setCellContent(model, "D1", "=TOCOL(A1:A2, 1)");
     expect(getCellContent(model, "D1")).toEqual("#N/A"); // @compatibility: on google sheets, return #REF!
   });
   test("Argument scan_by_column", async () => {
     const grid = { A1: "A1", A2: "A2", A3: "A3", B1: "B1", B2: "B2", B3: "B3" };
     const model = await createModelFromGrid(grid);
-    setCellContent(model, "D1", "=TOCOL(A1:B3, 0, 1)");
+    await setCellContent(model, "D1", "=TOCOL(A1:B3, 0, 1)");
     expect(getRangeValuesAsMatrix(model, "D1:D6")).toEqual([
       ["A1"],
       ["A2"],
@@ -1151,7 +1151,7 @@ describe("TOROW function", () => {
   test("Simple TOROW call", async () => {
     const grid = { A1: "A1", A2: "A2", A3: "A3", B1: "B1", B2: "B2", B3: "B3" };
     const model = await createModelFromGrid(grid);
-    setCellContent(model, "D1", "=TOROW(A1:B3)");
+    await setCellContent(model, "D1", "=TOROW(A1:B3)");
     expect(getRangeValuesAsMatrix(model, "D1:I1")).toEqual([["A1", "B1", "A2", "B2", "A3", "B3"]]);
     expect(checkFunctionDoesntSpreadBeyondRange(model, "D1:I1")).toBeTruthy();
   });
@@ -1163,7 +1163,7 @@ describe("TOROW function", () => {
       A3: ""
     };
     const model = await createModelFromGrid(grid);
-    setCellContent(model, "D1", "=TOROW(A1:B3)");
+    await setCellContent(model, "D1", "=TOROW(A1:B3)");
     expect(getRangeFormatsAsMatrix(model, "D1:I1")).toEqual([
       ["0%", "mm/dd/yyyy", "", "mm/dd", "", ""],
     ]);
@@ -1171,7 +1171,7 @@ describe("TOROW function", () => {
   test("TOROW: undefined values are replaced by zeroes", async () => {
     const grid = { A1: "A1", A2: "A2", B1: "B1", B2: undefined };
     const model = await createModelFromGrid(grid);
-    setCellContent(model, "D1", "=TOROW(A1:B2)");
+    await setCellContent(model, "D1", "=TOROW(A1:B2)");
     expect(getRangeValuesAsMatrix(model, "D1:G1")).toEqual([["A1", "B1", "A2", 0]]);
     expect(checkFunctionDoesntSpreadBeyondRange(model, "D1:G1")).toBeTruthy();
   });
@@ -1179,32 +1179,32 @@ describe("TOROW function", () => {
     const grid = { A1: "=KABOUM", B1: "B1", B2: "B2" };
     // ignore=0, keep all
     const model = await createModelFromGrid(grid);
-    setCellContent(model, "D1", "=TOROW(A1:B2, 0)");
+    await setCellContent(model, "D1", "=TOROW(A1:B2, 0)");
     expect(getRangeValuesAsMatrix(model, "D1:G1")).toEqual([["#BAD_EXPR", "B1", 0, "B2"]]);
     expect(checkFunctionDoesntSpreadBeyondRange(model, "D1:G1")).toBeTruthy();
     // ignore=1, ignore empty cells
-    setCellContent(model, "D1", "=TOROW(A1:B2, 1)");
+    await setCellContent(model, "D1", "=TOROW(A1:B2, 1)");
     expect(getRangeValuesAsMatrix(model, "D1:G1")).toEqual([["#BAD_EXPR", "B1", "B2", null]]);
     expect(checkFunctionDoesntSpreadBeyondRange(model, "D1:F1")).toBeTruthy();
     // // ignore=2, ignore error cells
-    setCellContent(model, "D1", "=TOROW(A1:B2, 2)");
+    await setCellContent(model, "D1", "=TOROW(A1:B2, 2)");
     expect(getRangeValuesAsMatrix(model, "D1:G1")).toEqual([["B1", 0, "B2", null]]);
     expect(checkFunctionDoesntSpreadBeyondRange(model, "D1:F1")).toBeTruthy();
     // // ignore=3, ignore empty cells and error cells
-    setCellContent(model, "D1", "=TOROW(A1:B2, 3)");
+    await setCellContent(model, "D1", "=TOROW(A1:B2, 3)");
     expect(getRangeValuesAsMatrix(model, "D1:G1")).toEqual([["B1", "B2", null, null]]);
     expect(checkFunctionDoesntSpreadBeyondRange(model, "D1:E1")).toBeTruthy();
   });
   test("No results returns #N/A", async () => {
     const grid = { A1: undefined, A2: undefined };
     const model = await createModelFromGrid(grid);
-    setCellContent(model, "D1", "=TOROW(A1:A2, 1)");
+    await setCellContent(model, "D1", "=TOROW(A1:A2, 1)");
     expect(getCellContent(model, "D1")).toEqual("#N/A"); // @compatibility: on google sheets, return #REF!
   });
   test("Argument scan_by_column", async () => {
     const grid = { A1: "A1", A2: "A2", A3: "A3", B1: "B1", B2: "B2", B3: "B3" };
     const model = await createModelFromGrid(grid);
-    setCellContent(model, "D1", "=TOROW(A1:B3, 0, 1)");
+    await setCellContent(model, "D1", "=TOROW(A1:B3, 0, 1)");
     expect(getRangeValuesAsMatrix(model, "D1:I1")).toEqual([["A1", "A2", "A3", "B1", "B2", "B3"]]);
     expect(checkFunctionDoesntSpreadBeyondRange(model, "D1:I1")).toBeTruthy();
   });
@@ -1218,7 +1218,7 @@ describe("TRANSPOSE function", () => {
   test("Transpose matrix", async () => {
     const grid = { A1: "A1", A2: "A2", B1: "B1", B2: "B2" };
     const model = await createModelFromGrid(grid);
-    setCellContent(model, "D1", "=TRANSPOSE(A1:B2)");
+    await setCellContent(model, "D1", "=TRANSPOSE(A1:B2)");
     expect(getRangeValuesAsMatrix(model, "D1:E2")).toEqual([
       ["A1", "A2"],
       ["B1", "B2"],
@@ -1228,7 +1228,7 @@ describe("TRANSPOSE function", () => {
   test("Transpose matrix with empty cells", async () => {
     const grid = { A1: "A1", A2: undefined, B1: "B1", B2: undefined };
     const model = await createModelFromGrid(grid);
-    setCellContent(model, "D1", "=TRANSPOSE(A1:C2)");
+    await setCellContent(model, "D1", "=TRANSPOSE(A1:C2)");
     expect(getRangeValuesAsMatrix(model, "D1:E2")).toEqual([
       ["A1", 0],
       ["B1", 0],
@@ -1238,28 +1238,28 @@ describe("TRANSPOSE function", () => {
   test("Transpose single cell", async () => {
     const grid = { A1: "A1" };
     const model = await createModelFromGrid(grid);
-    setCellContent(model, "D1", "=TRANSPOSE(A1)");
+    await setCellContent(model, "D1", "=TRANSPOSE(A1)");
     expect(getRangeValuesAsMatrix(model, "D1")).toEqual([["A1"]]);
     expect(checkFunctionDoesntSpreadBeyondRange(model, "D1")).toBeTruthy();
   });
   test("Transpose single value", async () => {
     const model = await createModel();
-    setCellContent(model, "D1", "=TRANSPOSE(5)");
+    await setCellContent(model, "D1", "=TRANSPOSE(5)");
     expect(getRangeValuesAsMatrix(model, "D1")).toEqual([[5]]);
     expect(checkFunctionDoesntSpreadBeyondRange(model, "D1")).toBeTruthy();
   });
   test("Format is transposed", async () => {
     const grid = { A1: "1", A2: "5" };
     const model = await createModelFromGrid(grid);
-    setFormat(model, "A1", "0.00");
-    setFormat(model, "A2", "0.000");
-    setCellContent(model, "D1", "=TRANSPOSE(A1:A2)");
+    await setFormat(model, "A1", "0.00");
+    await setFormat(model, "A2", "0.000");
+    await setCellContent(model, "D1", "=TRANSPOSE(A1:A2)");
     expect(getRangeFormatsAsMatrix(model, "D1:E1")).toEqual([["0.00", "0.000"]]);
   });
   test("TRANSPOSE accepts errors in first arguments", async () => {
     const grid = { A1: "=KABOUM", A2: "42", B1: "24", B2: "=1/0" };
     const model = await createModelFromGrid(grid);
-    setCellContent(model, "C1", "=TRANSPOSE(A1:B2)");
+    await setCellContent(model, "C1", "=TRANSPOSE(A1:B2)");
     expect(getRangeValuesAsMatrix(model, "C1:D2")).toEqual([
       ["#BAD_EXPR", 42],
       [24, "#DIV/0!"],
@@ -1275,14 +1275,14 @@ describe("VSTACK function", () => {
   test("VSTACK with single values", async () => {
     const grid = { E1: "oi" };
     const model = await createModelFromGrid(grid);
-    setCellContent(model, "A1", "=VSTACK(5, 9, E1)");
+    await setCellContent(model, "A1", "=VSTACK(5, 9, E1)");
     expect(getRangeValuesAsMatrix(model, "A1:A3")).toEqual([[5], [9], ["oi"]]);
     expect(checkFunctionDoesntSpreadBeyondRange(model, "A1:A3")).toBeTruthy();
   });
   test("VSTACK with ranges of same dimensions", async () => {
     const grid = { A1: "A1", A2: "A2", A3: "A3", B1: "B1", B2: "B2", B3: "B3" };
     const model = await createModelFromGrid(grid);
-    setCellContent(model, "D1", "=VSTACK(A1:B1, A3:B3, A2:B2)");
+    await setCellContent(model, "D1", "=VSTACK(A1:B1, A3:B3, A2:B2)");
     expect(getRangeValuesAsMatrix(model, "D1:E3")).toEqual([
       ["A1", "B1"],
       ["A3", "B3"],
@@ -1293,7 +1293,7 @@ describe("VSTACK function", () => {
   test("VSTACK with ranges of different dimensions: padded with zeroes", async () => {
     const grid = { A1: "A1", A2: "A2", A3: "A3", B1: "B1", B2: "B2", B3: "B3" };
     const model = await createModelFromGrid(grid);
-    setCellContent(model, "D1", "=VSTACK(A1:B1, B2:B3, 9)");
+    await setCellContent(model, "D1", "=VSTACK(A1:B1, B2:B3, 9)");
     expect(getRangeValuesAsMatrix(model, "D1:E4")).toEqual([
       ["A1", "B1"],
       ["B2", 0],
@@ -1310,7 +1310,7 @@ describe("VSTACK function", () => {
       A3: ""
     };
     const model = await createModelFromGrid(grid);
-    setCellContent(model, "D1", "=VSTACK(A1:B1, B2:B3, 9)");
+    await setCellContent(model, "D1", "=VSTACK(A1:B1, B2:B3, 9)");
     expect(getRangeFormatsAsMatrix(model, "D1:E4")).toEqual([
       ["0%", "mm/dd/yyyy"],
       ["mm/dd", ""],
@@ -1321,7 +1321,7 @@ describe("VSTACK function", () => {
   test("undefined values are replaced with zeroes", async () => {
     const grid = { A1: "A1", A2: undefined, B1: undefined, B2: "B2" };
     const model = await createModelFromGrid(grid);
-    setCellContent(model, "D1", "=VSTACK(A1:B1, A2:B2)");
+    await setCellContent(model, "D1", "=VSTACK(A1:B1, A2:B2)");
     expect(getRangeValuesAsMatrix(model, "D1:E2")).toEqual([
       ["A1", 0],
       [0, "B2"],
@@ -1331,7 +1331,7 @@ describe("VSTACK function", () => {
   test("VSTACK accepts errors in arguments", async () => {
     const grid = { A1: "=KABOUM", B1: "=1/0", C1: "42" };
     const model = await createModelFromGrid(grid);
-    setCellContent(model, "A2", "=VSTACK(A1,B1:C1)");
+    await setCellContent(model, "A2", "=VSTACK(A1,B1:C1)");
     expect(getRangeValuesAsMatrix(model, "A2:B3")).toEqual([
       ["#BAD_EXPR", 0],
       ["#DIV/0!", 42],
@@ -1353,17 +1353,17 @@ describe("WRAPCOLS function", () => {
   test("with single cells", async () => {
     const grid = { A1: "A1" };
     const model = await createModelFromGrid(grid);
-    setCellContent(model, "D1", "=WRAPCOLS(A1, 2)");
+    await setCellContent(model, "D1", "=WRAPCOLS(A1, 2)");
     expect(getRangeValuesAsMatrix(model, "D1:D2")).toEqual([["A1"], [0]]);
     expect(checkFunctionDoesntSpreadBeyondRange(model, "D1:D2")).toBeTruthy();
-    setCellContent(model, "D1", "=WRAPCOLS(56, 2)");
+    await setCellContent(model, "D1", "=WRAPCOLS(56, 2)");
     expect(getRangeValuesAsMatrix(model, "D1:D2")).toEqual([[56], [0]]);
     expect(checkFunctionDoesntSpreadBeyondRange(model, "D1:D2")).toBeTruthy();
   });
   test("with single column", async () => {
     const grid = { A1: "A1", A2: "A2", A3: "A3", A4: "A4" };
     const model = await createModelFromGrid(grid);
-    setCellContent(model, "D1", "=WRAPCOLS(A1:A4, 2)");
+    await setCellContent(model, "D1", "=WRAPCOLS(A1:A4, 2)");
     expect(getRangeValuesAsMatrix(model, "D1:E2")).toEqual([
       ["A1", "A3"],
       ["A2", "A4"],
@@ -1373,7 +1373,7 @@ describe("WRAPCOLS function", () => {
   test("with single row", async () => {
     const grid = { A1: "A1", B1: "B1", C1: "C1", D1: "D1" };
     const model = await createModelFromGrid(grid);
-    setCellContent(model, "E1", "=WRAPCOLS(A1:D1, 2)");
+    await setCellContent(model, "E1", "=WRAPCOLS(A1:D1, 2)");
     expect(getRangeValuesAsMatrix(model, "E1:F2")).toEqual([
       ["A1", "C1"],
       ["B1", "D1"],
@@ -1383,7 +1383,7 @@ describe("WRAPCOLS function", () => {
   test("WRAPCOLS: result format depends on range's format", async () => {
     const grid = { A1: "1%", B1: "5", C1: "01/10/2020", D1: "01/01" };
     const model = await createModelFromGrid(grid);
-    setCellContent(model, "E1", "=WRAPCOLS(A1:D1, 3, A1)");
+    await setCellContent(model, "E1", "=WRAPCOLS(A1:D1, 3, A1)");
     expect(getRangeFormatsAsMatrix(model, "E1:F3")).toEqual([
       ["0%", "mm/dd"],
       ["", "0%"],
@@ -1394,14 +1394,14 @@ describe("WRAPCOLS function", () => {
     const grid = { A1: "A1", A2: "A2", A3: "A3" };
     // pad with 0 by default
     const model = await createModelFromGrid(grid);
-    setCellContent(model, "D1", "=WRAPCOLS(A1:A3, 2)");
+    await setCellContent(model, "D1", "=WRAPCOLS(A1:A3, 2)");
     expect(getRangeValuesAsMatrix(model, "D1:E2")).toEqual([
       ["A1", "A3"],
       ["A2", 0],
     ]);
     expect(checkFunctionDoesntSpreadBeyondRange(model, "D1:E2")).toBeTruthy();
     // pad_with argument value
-    setCellContent(model, "D1", '=WRAPCOLS(A1:A3, 2, "padding")');
+    await setCellContent(model, "D1", '=WRAPCOLS(A1:A3, 2, "padding")');
     expect(getRangeValuesAsMatrix(model, "D1:E2")).toEqual([
       ["A1", "A3"],
       ["A2", "padding"],
@@ -1411,7 +1411,7 @@ describe("WRAPCOLS function", () => {
   test("undefined values are replaced by zeroes", async () => {
     const grid = { A1: "A1", B1: undefined, C1: undefined, D1: "D1" };
     const model = await createModelFromGrid(grid);
-    setCellContent(model, "E1", "=WRAPCOLS(A1:D1, 2)");
+    await setCellContent(model, "E1", "=WRAPCOLS(A1:D1, 2)");
     expect(getRangeValuesAsMatrix(model, "E1:F2")).toEqual([
       ["A1", 0],
       [0, "D1"],
@@ -1421,7 +1421,7 @@ describe("WRAPCOLS function", () => {
   test("WRAPCOLS accepts errors in first argument", async () => {
     const grid = { A1: "=KABOUM", B1: "42", C1: "=1/0" };
     const model = await createModelFromGrid(grid);
-    setCellContent(model, "A2", "=WRAPCOLS(A1:C1, 2)");
+    await setCellContent(model, "A2", "=WRAPCOLS(A1:C1, 2)");
     expect(getRangeValuesAsMatrix(model, "A2:B3")).toEqual([
       ["#BAD_EXPR", "#DIV/0!"],
       [42, 0],
@@ -1443,17 +1443,17 @@ describe("WRAPROWS function", () => {
   test("with single cells", async () => {
     const grid = { A1: "A1" };
     const model = await createModelFromGrid(grid);
-    setCellContent(model, "D1", "=WRAPROWS(A1, 2)");
+    await setCellContent(model, "D1", "=WRAPROWS(A1, 2)");
     expect(getRangeValuesAsMatrix(model, "D1:E1")).toEqual([["A1", 0]]);
     expect(checkFunctionDoesntSpreadBeyondRange(model, "D1:E1")).toBeTruthy();
-    setCellContent(model, "D1", "=WRAPROWS(56, 2)");
+    await setCellContent(model, "D1", "=WRAPROWS(56, 2)");
     expect(getRangeValuesAsMatrix(model, "D1:E1")).toEqual([[56, 0]]);
     expect(checkFunctionDoesntSpreadBeyondRange(model, "D1:E1")).toBeTruthy();
   });
   test("with single column", async () => {
     const grid = { A1: "A1", A2: "A2", A3: "A3", A4: "A4" };
     const model = await createModelFromGrid(grid);
-    setCellContent(model, "D1", "=WRAPROWS(A1:A4, 2)");
+    await setCellContent(model, "D1", "=WRAPROWS(A1:A4, 2)");
     expect(getRangeValuesAsMatrix(model, "D1:E2")).toEqual([
       ["A1", "A2"],
       ["A3", "A4"],
@@ -1463,7 +1463,7 @@ describe("WRAPROWS function", () => {
   test("with single row", async () => {
     const grid = { A1: "A1", B1: "B1", C1: "C1", D1: "D1" };
     const model = await createModelFromGrid(grid);
-    setCellContent(model, "E1", "=WRAPROWS(A1:D1, 2)");
+    await setCellContent(model, "E1", "=WRAPROWS(A1:D1, 2)");
     expect(getRangeValuesAsMatrix(model, "E1:F2")).toEqual([
       ["A1", "B1"],
       ["C1", "D1"],
@@ -1473,7 +1473,7 @@ describe("WRAPROWS function", () => {
   test("WRAPROWS: result format depends on range's format", async () => {
     const grid = { A1: "1%", B1: "5", C1: "01/10/2020", D1: "01/01" };
     const model = await createModelFromGrid(grid);
-    setCellContent(model, "E1", "=WRAPROWS(A1:D1, 3, A1)");
+    await setCellContent(model, "E1", "=WRAPROWS(A1:D1, 3, A1)");
     expect(getRangeFormatsAsMatrix(model, "E1:G2")).toEqual([
       ["0%", "", "mm/dd/yyyy"],
       ["mm/dd", "0%", "0%"],
@@ -1483,14 +1483,14 @@ describe("WRAPROWS function", () => {
     const grid = { A1: "A1", A2: "A2", A3: "A3", A4: "A4" };
     // pad with 0 by default
     const model = await createModelFromGrid(grid);
-    setCellContent(model, "D1", "=WRAPROWS(A1:A4, 3)");
+    await setCellContent(model, "D1", "=WRAPROWS(A1:A4, 3)");
     expect(getRangeValuesAsMatrix(model, "D1:F2")).toEqual([
       ["A1", "A2", "A3"],
       ["A4", 0, 0],
     ]);
     expect(checkFunctionDoesntSpreadBeyondRange(model, "D1:F2")).toBeTruthy();
     // pad_with argument value
-    setCellContent(model, "D1", '=WRAPROWS(A1:A4, 3, "padding")');
+    await setCellContent(model, "D1", '=WRAPROWS(A1:A4, 3, "padding")');
     expect(getRangeValuesAsMatrix(model, "D1:F2")).toEqual([
       ["A1", "A2", "A3"],
       ["A4", "padding", "padding"],
@@ -1500,7 +1500,7 @@ describe("WRAPROWS function", () => {
   test("undefined values are replaced by zeroes", async () => {
     const grid = { A1: "A1", B1: undefined, C1: undefined, D1: "D1" };
     const model = await createModelFromGrid(grid);
-    setCellContent(model, "E1", "=WRAPROWS(A1:D1, 2)");
+    await setCellContent(model, "E1", "=WRAPROWS(A1:D1, 2)");
     expect(getRangeValuesAsMatrix(model, "E1:F2")).toEqual([
       ["A1", 0],
       [0, "D1"],
@@ -1510,7 +1510,7 @@ describe("WRAPROWS function", () => {
   test("WRAPROWS accepts errors in first argument", async () => {
     const grid = { A1: "=KABOUM", B1: "42", C1: "=1/0" };
     const model = await createModelFromGrid(grid);
-    setCellContent(model, "A2", "=WRAPROWS(A1:C1, 2)");
+    await setCellContent(model, "A2", "=WRAPROWS(A1:C1, 2)");
     expect(getRangeValuesAsMatrix(model, "A2:B3")).toEqual([
       ["#BAD_EXPR", 42],
       ["#DIV/0!", 0],

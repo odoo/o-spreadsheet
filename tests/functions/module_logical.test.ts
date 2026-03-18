@@ -125,9 +125,9 @@ describe("IF formula", () => {
       A1: "true",  B1: "B1", 
       A2: "false", B2: "B2" 
     });
-    setCellContent(model, "A3", "=IF(A1, 42, B1:B2)");
+    await setCellContent(model, "A3", "=IF(A1, 42, B1:B2)");
     expect(getRangeValuesAsMatrix(model, "A3:A4")).toEqual([[42], [null]]);
-    setCellContent(model, "A3", "=IF(A2, 42, B1:B2)");
+    await setCellContent(model, "A3", "=IF(A2, 42, B1:B2)");
     expect(getRangeValuesAsMatrix(model, "A3:A4")).toEqual([["B1"], ["B2"]]);
   });
   test("apply vectorization to arguments when logical expression is a matrix", async () => {
@@ -137,12 +137,12 @@ describe("IF formula", () => {
       A2: "true", B2: "true"
     };
     const model = await createModelFromGrid(grid);
-    setCellContent(model, "A3", "=IF(A1:A2, 42, C1:E1)");
+    await setCellContent(model, "A3", "=IF(A1:A2, 42, C1:E1)");
     expect(getRangeValuesAsMatrix(model, "A3:C4")).toEqual([
       [42, 42, 42],
       [42, 42, 42],
     ]);
-    setCellContent(model, "A3", "=IF(B1:B2, 42, C1:E1)");
+    await setCellContent(model, "A3", "=IF(B1:B2, 42, C1:E1)");
     expect(getRangeValuesAsMatrix(model, "A3:C4")).toEqual([
       ["C1", "D1", "E1"],
       [42, 42, 42],
@@ -196,16 +196,16 @@ describe("IFERROR formula", () => {
   });
   test("format is preserved from value", async () => {
     const model = await createModel();
-    setCellContent(model, "A1", "1");
-    setCellFormat(model, "A1", "0.00%");
-    setCellContent(model, "A3", "=IFERROR(A1, 2)");
+    await setCellContent(model, "A1", "1");
+    await setCellFormat(model, "A1", "0.00%");
+    await setCellContent(model, "A3", "=IFERROR(A1, 2)");
     expect(getEvaluatedCell(model, "A3").formattedValue).toBe("100.00%");
   });
   test("format is preserved from error value", async () => {
     const model = await createModel();
-    setCellContent(model, "A1", "1");
-    setCellFormat(model, "A1", "0.00%");
-    setCellContent(model, "A3", "=IFERROR(0/0, A1)");
+    await setCellContent(model, "A1", "1");
+    await setCellFormat(model, "A1", "0.00%");
+    await setCellContent(model, "A3", "=IFERROR(0/0, A1)");
     expect(getEvaluatedCell(model, "A3").formattedValue).toBe("100.00%");
   });
   test("do not apply vectorization to arguments not surrounded by the logical expression", async () => {
@@ -215,9 +215,9 @@ describe("IFERROR formula", () => {
       A2: "=1/0",
       B2: "B2",
     });
-    setCellContent(model, "A3", "=IFERROR(A1, B1:B2)");
+    await setCellContent(model, "A3", "=IFERROR(A1, B1:B2)");
     expect(getRangeValuesAsMatrix(model, "A3:A4")).toEqual([[42], [null]]);
-    setCellContent(model, "A3", "=IFERROR(A2, B1:B2)");
+    await setCellContent(model, "A3", "=IFERROR(A2, B1:B2)");
     expect(getRangeValuesAsMatrix(model, "A3:A4")).toEqual([["B1"], ["B2"]]);
   });
   test("apply vectorization to arguments when logical expression is a matrix", async () => {
@@ -227,12 +227,12 @@ describe("IFERROR formula", () => {
       A2: "53", B2: "64"
     };
     const model = await createModelFromGrid(grid);
-    setCellContent(model, "A3", "=IFERROR(A1:A2, C1:E1)");
+    await setCellContent(model, "A3", "=IFERROR(A1:A2, C1:E1)");
     expect(getRangeValuesAsMatrix(model, "A3:C4")).toEqual([
       [42, 42, 42],
       [53, 53, 53],
     ]);
-    setCellContent(model, "A3", "=IFERROR(B1:B2, C1:E1)");
+    await setCellContent(model, "A3", "=IFERROR(B1:B2, C1:E1)");
     expect(getRangeValuesAsMatrix(model, "A3:C4")).toEqual([
       ["C1", "D1", "E1"],
       [64, 64, 64],
@@ -273,9 +273,9 @@ describe("IFNA formula", () => {
   });
   test("do not apply vectorization to arguments not surrounded by the logical expression", async () => {
     const model = await createModelFromGrid({ B1: "B1", B2: "B2" });
-    setCellContent(model, "A3", "=IFNA(42, B1:B2)");
+    await setCellContent(model, "A3", "=IFNA(42, B1:B2)");
     expect(getRangeValuesAsMatrix(model, "A3:A4")).toEqual([[42], [null]]);
-    setCellContent(model, "A3", "=IFNA(NA(), B1:B2)");
+    await setCellContent(model, "A3", "=IFNA(NA(), B1:B2)");
     expect(getRangeValuesAsMatrix(model, "A3:A4")).toEqual([["B1"], ["B2"]]);
   });
   test("apply vectorization to arguments when logical expression is a matrix", async () => {
@@ -285,12 +285,12 @@ describe("IFNA formula", () => {
       A2: "53", B2: "64"
     };
     const model = await createModelFromGrid(grid);
-    setCellContent(model, "A3", "=IFNA(A1:A2, C1:E1)");
+    await setCellContent(model, "A3", "=IFNA(A1:A2, C1:E1)");
     expect(getRangeValuesAsMatrix(model, "A3:C4")).toEqual([
       [42, 42, 42],
       [53, 53, 53],
     ]);
-    setCellContent(model, "A3", "=IFNA(B1:B2, C1:E1)");
+    await setCellContent(model, "A3", "=IFNA(B1:B2, C1:E1)");
     expect(getRangeValuesAsMatrix(model, "A3:C4")).toEqual([
       ["C1", "D1", "E1"],
       [64, 64, 64],
@@ -416,11 +416,11 @@ describe("IFS formula", () => {
       A1: "true",  B1: "true",  C1: "C1", 
       A2: "false", B2: "false", C2: "C2",
     });
-    setCellContent(model, "A3", "=IFS(A1, 42, B1, C1:C2)");
+    await setCellContent(model, "A3", "=IFS(A1, 42, B1, C1:C2)");
     expect(getRangeValuesAsMatrix(model, "A3:A4")).toEqual([[42], [null]]);
-    setCellContent(model, "A3", "=IFS(A1, 42, B1:B2, C1:C2)");
+    await setCellContent(model, "A3", "=IFS(A1, 42, B1:B2, C1:C2)");
     expect(getRangeValuesAsMatrix(model, "A3:A4")).toEqual([[42], [null]]);
-    setCellContent(model, "A3", "=IFS(A2, 42, B1, C1:C2)");
+    await setCellContent(model, "A3", "=IFS(A2, 42, B1, C1:C2)");
     expect(getRangeValuesAsMatrix(model, "A3:A4")).toEqual([["C1"], ["C2"]]);
   });
   test("apply vectorization to arguments when logical expression is a matrix", async () => {
@@ -429,22 +429,22 @@ describe("IFS formula", () => {
       A1: "true", B1: "true",  C1: "C1",   D1: "D1",   E1: "E1",
       A2: "true", B2: "false", C2: "true", D2: "true", E2: "true",
     });
-    setCellContent(model, "A3", "=IFS(A1:A2, 42, true, C1:E1)");
+    await setCellContent(model, "A3", "=IFS(A1:A2, 42, true, C1:E1)");
     expect(getRangeValuesAsMatrix(model, "A3:C4")).toEqual([
       [42, 42, 42],
       [42, 42, 42],
     ]);
-    setCellContent(model, "A3", "=IFS(A1:A2, 42, C1:E1, true)");
+    await setCellContent(model, "A3", "=IFS(A1:A2, 42, C1:E1, true)");
     expect(getRangeValuesAsMatrix(model, "A3:C4")).toEqual([
       [42, 42, 42],
       [42, 42, 42],
     ]);
-    setCellContent(model, "A3", "=IFS(B1:B2, 42, true, C1:E1)");
+    await setCellContent(model, "A3", "=IFS(B1:B2, 42, true, C1:E1)");
     expect(getRangeValuesAsMatrix(model, "A3:C4")).toEqual([
       [42, 42, 42],
       ["C1", "D1", "E1"],
     ]);
-    setCellContent(model, "A3", "=IFS(B1:B2, 42, C2:E2, 24)");
+    await setCellContent(model, "A3", "=IFS(B1:B2, 42, C2:E2, 24)");
     expect(getRangeValuesAsMatrix(model, "A3:C4")).toEqual([
       [42, 42, 42],
       [24, 24, 24],

@@ -41,7 +41,7 @@ describe("Table side panel", () => {
   beforeEach(async () => {
     model = await createModel();
     sheetId = model.getters.getActiveSheetId();
-    createTable(model, "A1:C3");
+    await createTable(model, "A1:C3");
     ({ fixture, env } = await mountComponentWithPortalTarget(SidePanels, { model }));
     env.openSidePanel("TableSidePanel", {});
     await nextTick();
@@ -64,7 +64,7 @@ describe("Table side panel", () => {
   });
 
   test("Cannot add filters to a table without headers", async () => {
-    updateTableConfig(model, "A1:C3", { numberOfHeaders: 0 });
+    await updateTableConfig(model, "A1:C3", { numberOfHeaders: 0 });
     await nextTick();
     const checkbox = fixture.querySelector("input[name='hasFilters']") as HTMLInputElement;
     expect(checkbox.checked).toBe(false);
@@ -73,7 +73,7 @@ describe("Table side panel", () => {
   });
 
   test("Can change number of headers", async () => {
-    updateTableConfig(model, "A1:C3", { numberOfHeaders: 0 });
+    await updateTableConfig(model, "A1:C3", { numberOfHeaders: 0 });
     await nextTick();
     expect(fixture.querySelector("input.o-table-n-of-headers")).toBeNull();
     await click(fixture, "input[name='headerRow']");
@@ -110,8 +110,8 @@ describe("Table side panel", () => {
   });
 
   test("Updating table zone does the equivalent of a ctrl+a if selecting a single cell", async () => {
-    setCellContent(model, "D4", "5");
-    setCellContent(model, "D5", "6");
+    await setCellContent(model, "D4", "5");
+    await setCellContent(model, "D5", "6");
     await simulateClick(".o-selection input");
     await setInputValueAndTrigger(".o-selection input", "D5");
     await click(fixture, ".o-selection .o-selection-ok");
@@ -120,7 +120,7 @@ describe("Table side panel", () => {
   });
 
   test("Table is auto-filled if the new zone expands the table down", async () => {
-    setCellContent(model, "A4", "=A3+1");
+    await setCellContent(model, "A4", "=A3+1");
     await simulateClick(".o-selection input");
     await setInputValueAndTrigger(".o-selection input", "A1:C5");
     await click(fixture, ".o-selection .o-selection-ok");
@@ -138,7 +138,7 @@ describe("Table side panel", () => {
   });
 
   test("Changing the table zone to an array formula cell make the table dynamic", async () => {
-    setCellContent(model, "E1", "=MUNIT(2)");
+    await setCellContent(model, "E1", "=MUNIT(2)");
     await simulateClick(".o-selection input");
     await setInputValueAndTrigger(".o-selection input", "E1");
     await click(fixture, ".o-selection .o-selection-ok");
@@ -152,7 +152,7 @@ describe("Table side panel", () => {
   });
 
   test("Errors messages are displayed when wrong zone is entered", async () => {
-    createTable(model, "D1:D2");
+    await createTable(model, "D1:D2");
     await simulateClick(".o-selection input");
     await setInputValueAndTrigger(".o-selection input", "D1:D5");
     expect(fixture.querySelector(".o-validation-error")).not.toBeNull();
@@ -162,7 +162,7 @@ describe("Table side panel", () => {
   });
 
   test("Can update a table after entering an invalid range", async () => {
-    createTable(model, "D1:D2");
+    await createTable(model, "D1:D2");
     await simulateClick(".o-selection input");
     await setInputValueAndTrigger(".o-selection input", "OK");
     await simulateClick(".o-checkbox");
@@ -175,28 +175,34 @@ describe("Table side panel", () => {
   });
 
   test("Changing the selection changes the edited table", async () => {
-    createTable(model, "D1:D2");
-    updateTableConfig(model, "D1:D2", { numberOfHeaders: 0 });
+    await createTable(model, "D1:D2");
+    await updateTableConfig(model, "D1:D2", { numberOfHeaders: 0 });
 
     expect(fixture.querySelector<HTMLInputElement>("input[name='headerRow']")!.checked).toBe(true);
     expect(fixture.querySelector<HTMLInputElement>(".o-selection input")!.value).toBe("A1:C3");
 
-    setSelection(model, ["D1"]);
+    await setSelection(model, ["D1"]);
     await nextTick();
     expect(fixture.querySelector<HTMLInputElement>("input[name='headerRow']")!.checked).toBe(false);
     expect(fixture.querySelector<HTMLInputElement>(".o-selection input")!.value).toBe("D1:D2");
   });
 
   test("Selecting a cell without a table closes the side panel", async () => {
-    setSelection(model, ["D1"]);
+    await setSelection(model, ["D1"]);
     await nextTick();
     expect(fixture.querySelector(".o-table-panel")).toBeNull();
   });
 
   test("Selecting a cell with a pivot table closes the table panel", async () => {
-    setGrid(model, { A1: "Header1", B1: "Header2", A2: "Data1", B2: "Data2", F1: "=PIVOT(1)" });
+    await setGrid(model, {
+      A1: "Header1",
+      B1: "Header2",
+      A2: "Data1",
+      B2: "Data2",
+      F1: "=PIVOT(1)",
+    });
     addPivot(model, "A1:B2", { style: { tableStyleId: "PivotTableStyleMedium9" } });
-    setSelection(model, ["F1"]);
+    await setSelection(model, ["F1"]);
     await nextTick();
     expect(fixture.querySelector(".o-table-panel")).toBeNull();
   });
@@ -219,7 +225,7 @@ describe("Table side panel", () => {
   });
 
   test("Table style picker only contain styles of the same category as the current one", async () => {
-    updateTableConfig(model, "A1:C3", { styleId: "TableStyleMedium1" });
+    await updateTableConfig(model, "A1:C3", { styleId: "TableStyleMedium1" });
     await nextTick();
 
     const getDisplayedStyleIds = () => {
@@ -230,8 +236,8 @@ describe("Table side panel", () => {
     const expectedStyles = Object.keys(TABLE_PRESETS).filter((key) => key.includes("Medium"));
     expect(getDisplayedStyleIds()).toEqual(expectedStyles);
 
-    createTableStyle(model, "CustomStyle");
-    updateTableConfig(model, "A1:C3", { styleId: "CustomStyle" });
+    await createTableStyle(model, "CustomStyle");
+    await updateTableConfig(model, "A1:C3", { styleId: "CustomStyle" });
     await nextTick();
 
     expect(getDisplayedStyleIds()).toEqual(["CustomStyle"]);
@@ -258,13 +264,13 @@ describe("Table side panel", () => {
   });
 
   test("Panel is closed when the table is deleted", async () => {
-    deleteTable(model, "A1:C3");
+    await deleteTable(model, "A1:C3");
     await nextTick();
     expect(fixture.querySelector(".o-table-panel")).toBeNull();
   });
 
   test("automaticAutofill checkbox is disabled when the table is dynamic", async () => {
-    setCellContent(model, "A1", "=MUNIT(3)");
+    await setCellContent(model, "A1", "=MUNIT(3)");
     await nextTick();
     expect(
       fixture.querySelector<HTMLInputElement>(`input[name="automaticAutofill"]`)?.disabled
@@ -281,7 +287,7 @@ describe("Table side panel", () => {
     ).toBeTruthy();
     expect(model.getters.getCoreTable({ sheetId, col: 0, row: 0 })?.type).toBe("static");
 
-    setCellContent(model, "A1", "=MUNIT(3)");
+    await setCellContent(model, "A1", "=MUNIT(3)");
     await nextTick();
     expect(
       fixture.querySelector<HTMLInputElement>(`input[name="isDynamic"]`)?.disabled
@@ -292,7 +298,7 @@ describe("Table side panel", () => {
     expect(model.getters.getCoreTable({ sheetId, col: 0, row: 0 })?.type).toBe("static");
     expect(fixture.querySelector<HTMLInputElement>(".o-selection input")!.value).toBe("A1:C3");
 
-    setCellContent(model, "A1", "=MUNIT(3)");
+    await setCellContent(model, "A1", "=MUNIT(3)");
     await nextTick();
     const checkbox = fixture.querySelector(`input[name="isDynamic"]`) as HTMLInputElement;
     expect(checkbox.checked).toBe(false);

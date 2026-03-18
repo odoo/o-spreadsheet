@@ -52,10 +52,14 @@ describe("line chart", () => {
         },
       ],
     });
-    createChart(model, { type: "line", dataSets: [{ dataRange: "Sheet1!B1:B4" }] }, "chartId");
+    await createChart(
+      model,
+      { type: "line", dataSets: [{ dataRange: "Sheet1!B1:B4" }] },
+      "chartId"
+    );
     expect(isChartAxisStacked(model, "chartId", "x")).toBeFalsy();
     expect(isChartAxisStacked(model, "chartId", "y")).toBeFalsy();
-    updateChart(model, "chartId", { stacked: true });
+    await updateChart(model, "chartId", { stacked: true });
     const runtime = model.getters.getChartRuntime("chartId") as any;
     expect(isChartAxisStacked(model, "chartId", "x")).toBeUndefined();
     expect(isChartAxisStacked(model, "chartId", "y")).toBe(true);
@@ -82,14 +86,14 @@ describe("line chart", () => {
         },
       ],
     });
-    createChart(
+    await createChart(
       model,
       { type: "line", dataSets: [{ dataRange: "B1:B4" }, { dataRange: "C1:C4" }] },
       "chartId"
     );
     let runtime = model.getters.getChartRuntime("chartId") as any;
     expect(runtime.chartJsConfig.data.datasets[0].fill).toBeFalsy();
-    updateChart(model, "chartId", { fillArea: true });
+    await updateChart(model, "chartId", { fillArea: true });
     runtime = model.getters.getChartRuntime("chartId") as any;
     expect(runtime.chartJsConfig.data.datasets[0].fill).toBe("origin");
     expect(runtime.chartJsConfig.data.datasets[0].backgroundColor).toBe("#4EA7F266");
@@ -119,14 +123,14 @@ describe("line chart", () => {
         },
       ],
     });
-    createChart(
+    await createChart(
       model,
       { type: "line", dataSets: [{ dataRange: "B1:B4" }, { dataRange: "C1:C4" }] },
       "chartId"
     );
     let runtime = model.getters.getChartRuntime("chartId") as any;
     expect(runtime.chartJsConfig.data.datasets[0].fill).toBeFalsy();
-    updateChart(model, "chartId", { fillArea: true, stacked: true });
+    await updateChart(model, "chartId", { fillArea: true, stacked: true });
     runtime = model.getters.getChartRuntime("chartId") as any;
     expect(runtime.chartJsConfig.data.datasets[0].fill).toBe("origin");
     expect(runtime.chartJsConfig.data.datasets[0].backgroundColor).toBe("#4EA7F266");
@@ -137,10 +141,10 @@ describe("line chart", () => {
   });
   test("Trend lines have no fill color in area chart", async () => {
     const model = await createModel();
-    setCellContent(model, "A1", "data");
-    setCellContent(model, "A2", "3");
-    setCellContent(model, "A3", "4");
-    createChart(
+    await setCellContent(model, "A1", "data");
+    await setCellContent(model, "A2", "3");
+    await setCellContent(model, "A3", "4");
+    await createChart(
       model,
       {
         type: "line",
@@ -161,7 +165,7 @@ describe("line chart", () => {
       A3: "3",
       A4: "4",
     });
-    createChart(
+    await createChart(
       model,
       {
         dataSets: [
@@ -203,7 +207,7 @@ describe("line chart", () => {
       B1: "Series A",
       B2: "5",
     });
-    createChart(
+    await createChart(
       model,
       {
         type: "line",
@@ -212,7 +216,7 @@ describe("line chart", () => {
       },
       "1"
     );
-    updateChart(model, "1", {
+    await updateChart(model, "1", {
       axesDesign: {
         x: { min: 0, max: 2, gridLines: "both" },
         y: { min: 5, max: 25, gridLines: "minor" },

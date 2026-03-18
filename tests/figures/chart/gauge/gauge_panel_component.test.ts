@@ -27,7 +27,7 @@ const chartId = "chartId";
 
 beforeEach(async () => {
   model = await createModel();
-  createGaugeChart(model, TEST_CHART_DATA.gauge, chartId);
+  await createGaugeChart(model, TEST_CHART_DATA.gauge, chartId);
   ({ fixture, env } = await mountComponentWithPortalTarget(SidePanels, { model }));
   await openChartConfigSidePanel(model, env, chartId);
 });

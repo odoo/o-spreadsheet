@@ -31,7 +31,7 @@ describe("charts", () => {
       A2: "=DATE(2022,1,1)",
       A3: "=DATE(2022,1,2)",
     });
-    createChart(
+    await createChart(
       model,
       {
         dataSets: [{ dataRange: "B2:B3" }],
@@ -63,7 +63,7 @@ describe("charts", () => {
       A2: "=DATE(2022,1,1)",
       A3: "=DATE(2022,1,2)",
     });
-    createChart(
+    await createChart(
       model,
       {
         dataSets: [{ dataRange: "B2:B3" }],

@@ -27,7 +27,7 @@ describe("chart menu for dashboard", () => {
   });
 
   test("Can make a chart fullscreen in dashboard", async () => {
-    createWaterfallChart(model);
+    await createWaterfallChart(model);
     model.updateMode("dashboard");
     await nextTick();
 
@@ -37,7 +37,7 @@ describe("chart menu for dashboard", () => {
   });
 
   test("Expand icon changes to collapse in full screen", async () => {
-    createWaterfallChart(model);
+    await createWaterfallChart(model);
     model.updateMode("dashboard");
     await nextTick();
 
@@ -50,7 +50,7 @@ describe("chart menu for dashboard", () => {
   });
 
   test("Cannot make scorecard chart fullscreen ", async () => {
-    createScorecardChart(model, {});
+    await createScorecardChart(model, {});
     model.updateMode("dashboard");
     await nextTick();
 
@@ -59,7 +59,7 @@ describe("chart menu for dashboard", () => {
   });
 
   test("Can exit fullscreen mode", async () => {
-    createWaterfallChart(model);
+    await createWaterfallChart(model);
     model.updateMode("dashboard");
     await nextTick();
 
@@ -89,7 +89,7 @@ describe("chart menu for dashboard", () => {
   });
 
   test("Keeps fullscreen open when pointerdown is inside and pointerup is outside", async () => {
-    createWaterfallChart(model);
+    await createWaterfallChart(model);
     model.updateMode("dashboard");
     await nextTick();
 

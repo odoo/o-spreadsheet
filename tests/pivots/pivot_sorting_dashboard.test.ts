@@ -87,7 +87,7 @@ describe("Dashboard Pivot Sorting", () => {
     ] as const;
     for (const { align, expectedClass } of cases) {
       model.updateMode("normal");
-      setFormatting(model, "B5", { verticalAlign: align });
+      await setFormatting(model, "B5", { verticalAlign: align });
       await nextTick();
       model.updateMode("dashboard");
       await nextTick();
@@ -132,7 +132,7 @@ describe("Dashboard Pivot Sorting", () => {
       rows: [{ fieldName: "Customer" }],
       measures: [{ id: "Price:sum", fieldName: "Price", aggregator: "sum" }],
     });
-    setFormatting(model, "B5", { textColor: "#FF0000", fillColor: "#00FF00" });
+    await setFormatting(model, "B5", { textColor: "#FF0000", fillColor: "#00FF00" });
     await mountSpreadsheet({ model });
     model.updateMode("dashboard");
     await nextTick();
@@ -157,7 +157,7 @@ describe("Dashboard Pivot Sorting", () => {
       rows: [{ fieldName: "Customer" }],
       measures: [{ id: "Price:sum", fieldName: "Price", aggregator: "sum" }],
     });
-    createTable(model, "A4", {}, "dynamic");
+    await createTable(model, "A4", {}, "dynamic");
     const table = model.getters.getTable(toCellPosition(model.getters.getActiveSheetId(), "B5"))!;
     const tableStyle = model.getters.getTableStyle(table.config.styleId);
     const { env } = await mountSpreadsheet({ model });

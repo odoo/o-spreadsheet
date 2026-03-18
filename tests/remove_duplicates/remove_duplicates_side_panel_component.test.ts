@@ -38,7 +38,7 @@ describe("remove duplicates", () => {
   });
 
   test("displayed column names correspond to columns in selection", async () => {
-    setSelection(model, ["B2:C6"]);
+    await setSelection(model, ["B2:C6"]);
     await nextTick();
     const nodeList = fixture.querySelectorAll(selectors.checkBoxColumnsLabel);
     expect(nodeList.length).toBe(3);
@@ -48,9 +48,9 @@ describe("remove duplicates", () => {
   });
 
   test("select 'Data has header row' change the column label if content", async () => {
-    setCellContent(model, "B2", "Bachibouzouk");
-    setCellContent(model, "C2", "Cucurbitacee");
-    setSelection(model, ["B2:D3"]);
+    await setCellContent(model, "B2", "Bachibouzouk");
+    await setCellContent(model, "C2", "Cucurbitacee");
+    await setSelection(model, ["B2:D3"]);
     await click(fixture, selectors.checkBoxHasHeaderRow);
     const checkBox = fixture.querySelectorAll(selectors.checkBoxColumnsLabel);
     expect(checkBox.length).toBe(4);
@@ -61,7 +61,7 @@ describe("remove duplicates", () => {
   });
 
   test("display corresponding statistical information on the number of row/col selected", async () => {
-    setSelection(model, ["E3:H7"]);
+    await setSelection(model, ["E3:H7"]);
     await nextTick();
     expect(fixture.querySelector(selectors.statisticalInformation)!.textContent).toBe(
       "5 rows and 4 columns selected"
@@ -69,13 +69,13 @@ describe("remove duplicates", () => {
   });
 
   test("update statistical information when selection change", async () => {
-    setSelection(model, ["E3:H7"]);
+    await setSelection(model, ["E3:H7"]);
     await nextTick();
     expect(fixture.querySelector(selectors.statisticalInformation)!.textContent).toBe(
       "5 rows and 4 columns selected"
     );
 
-    setSelection(model, ["A1:B2"]);
+    await setSelection(model, ["A1:B2"]);
     await nextTick();
     expect(fixture.querySelector(selectors.statisticalInformation)!.textContent).toBe(
       "2 rows and 2 columns selected"
@@ -95,7 +95,7 @@ describe("remove duplicates", () => {
     ({ parent, fixture } = await mountSpreadsheet({ model }));
     parent.env.openSidePanel("RemoveDuplicates");
     await nextTick();
-    setSelection(model, ["A1:A5"]);
+    await setSelection(model, ["A1:A5"]);
     await click(fixture, selectors.checkBoxHasHeaderRow);
     await click(fixture, selectors.removeDuplicateButton);
 
@@ -103,8 +103,8 @@ describe("remove duplicates", () => {
   });
 
   test("checkboxes columns evolve with correct state ", async () => {
-    setCellContent(model, "A1", "Atchoum");
-    setSelection(model, ["A1:B2"]);
+    await setCellContent(model, "A1", "Atchoum");
+    await setSelection(model, ["A1:B2"]);
     await nextTick();
 
     const checkBoxes = fixture.querySelectorAll(selectors.checkBoxColumnsInput);
@@ -147,8 +147,8 @@ describe("remove duplicates", () => {
   });
 
   test("the state of the checkboxes of the columns is preserved when extending the selection", async () => {
-    setCellContent(model, "A1", "Atchoum");
-    setSelection(model, ["A1:B2"]);
+    await setCellContent(model, "A1", "Atchoum");
+    await setSelection(model, ["A1:B2"]);
     await nextTick();
 
     const checkBoxes = fixture.querySelectorAll(selectors.checkBoxColumnsInput);
@@ -164,7 +164,7 @@ describe("remove duplicates", () => {
     expect((checkBoxB as HTMLInputElement).checked).toBe(false);
 
     // extend selection to C --> keep the state of the checkboxes A and B
-    setSelection(model, ["A1:C2"]);
+    await setSelection(model, ["A1:C2"]);
     await nextTick();
     expect((checkBoxAll as HTMLInputElement).checked).toBe(false);
     expect((checkBoxA as HTMLInputElement).checked).toBe(true);
@@ -175,7 +175,7 @@ describe("remove duplicates", () => {
   });
 
   test("if no content selected --> display error message and disable ", async () => {
-    setSelection(model, ["A1:B2"]);
+    await setSelection(model, ["A1:B2"]);
     await nextTick();
     const errors = fixture.querySelectorAll(selectors.sidePanelError);
     expect(errors.length).toBe(1);
@@ -186,7 +186,7 @@ describe("remove duplicates", () => {
   });
 
   test("if more than one selection --> display error message and disable ", async () => {
-    setSelection(model, ["A1:B2", "C3:D4"]);
+    await setSelection(model, ["A1:B2", "C3:D4"]);
     await nextTick();
     const errors = fixture.querySelectorAll(selectors.sidePanelError);
     expect(errors.length).toBe(1);
@@ -197,9 +197,9 @@ describe("remove duplicates", () => {
   });
 
   test("if merges zone --> display error message and disable", async () => {
-    merge(model, "A1:B1");
-    merge(model, "A2:B2");
-    setSelection(model, ["A1:B2"]);
+    await merge(model, "A1:B1");
+    await merge(model, "A2:B2");
+    await setSelection(model, ["A1:B2"]);
     await nextTick();
     const errors = fixture.querySelectorAll(selectors.sidePanelError);
     expect(errors.length).toBe(1);
@@ -215,7 +215,7 @@ describe("remove duplicates", () => {
     const cells = { B1: "42", B2: "42" };
     model = await createModel({ sheets: [{ cells }] });
     ({ parent, fixture } = await mountSpreadsheet({ model }));
-    setSelection(model, ["B1:B2"]);
+    await setSelection(model, ["B1:B2"]);
     parent.env.openSidePanel("RemoveDuplicates");
     await nextTick();
 
@@ -240,7 +240,7 @@ describe("remove duplicate action", () => {
     const { fixture, model } = await mountSpreadsheet({
       model: await createModel({ sheets: [{ cells }] }),
     });
-    setSelection(model, ["B2"]);
+    await setSelection(model, ["B2"]);
     await nextTick();
     await click(fixture, ".o-topbar-menu[data-id='data']");
     await click(fixture, ".o-menu-item[data-name='data_cleanup']");

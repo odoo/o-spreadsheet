@@ -20,32 +20,32 @@ describe("Settings plugin", () => {
   });
 
   describe("Locale", () => {
-    test("Can set the locale", () => {
-      updateLocale(model, CUSTOM_LOCALE);
+    test("Can set the locale", async () => {
+      await updateLocale(model, CUSTOM_LOCALE);
       expect(model.getters.getLocale()).toEqual(CUSTOM_LOCALE);
     });
 
-    test("Cannot set invalid locale", () => {
-      let result = updateLocale(model, { ...CUSTOM_LOCALE, dateFormat: "💀" });
+    test("Cannot set invalid locale", async () => {
+      let result = await updateLocale(model, { ...CUSTOM_LOCALE, dateFormat: "💀" });
       expect(result).toBeCancelledBecause(CommandResult.InvalidLocale);
 
-      result = updateLocale(model, { ...CUSTOM_LOCALE, timeFormat: "💀" });
+      result = await updateLocale(model, { ...CUSTOM_LOCALE, timeFormat: "💀" });
       expect(result).toBeCancelledBecause(CommandResult.InvalidLocale);
 
-      result = updateLocale(model, {} as Locale);
+      result = await updateLocale(model, {} as Locale);
       expect(result).toBeCancelledBecause(CommandResult.InvalidLocale);
     });
 
-    test("Can undo/redo change in locale", () => {
-      updateLocale(model, CUSTOM_LOCALE);
-      undo(model);
+    test("Can undo/redo change in locale", async () => {
+      await updateLocale(model, CUSTOM_LOCALE);
+      await undo(model);
       expect(model.getters.getLocale()).toEqual(DEFAULT_LOCALE);
-      redo(model);
+      await redo(model);
       expect(model.getters.getLocale()).toEqual(CUSTOM_LOCALE);
     });
 
     test("Can import/export locale", async () => {
-      updateLocale(model, CUSTOM_LOCALE);
+      await updateLocale(model, CUSTOM_LOCALE);
       const exported = model.exportData();
       expect(exported.settings.locale).toEqual(CUSTOM_LOCALE);
 
@@ -64,70 +64,70 @@ describe("Settings plugin", () => {
       expect(model.getters.getLocale()).toEqual(DEFAULT_LOCALE);
     });
 
-    test("locale thousand separator", () => {
-      setCellContent(model, "A1", "1000000");
-      setFormat(model, "A1", "#,##0");
+    test("locale thousand separator", async () => {
+      await setCellContent(model, "A1", "1000000");
+      await setFormat(model, "A1", "#,##0");
       expect(getCellContent(model, "A1")).toEqual("1,000,000");
 
       const locale = { ...CUSTOM_LOCALE, thousandsSeparator: "¤" };
-      updateLocale(model, locale);
+      await updateLocale(model, locale);
       expect(getCellContent(model, "A1")).toEqual("1¤000¤000");
     });
 
-    test("locale decimal separator", () => {
-      setCellContent(model, "A1", "9.89");
-      setFormat(model, "A1", "#,##0.00");
+    test("locale decimal separator", async () => {
+      await setCellContent(model, "A1", "9.89");
+      await setFormat(model, "A1", "#,##0.00");
       expect(getCellContent(model, "A1")).toEqual("9.89");
 
       const locale = { ...CUSTOM_LOCALE, decimalSeparator: "♥" };
-      updateLocale(model, locale);
+      await updateLocale(model, locale);
       expect(getCellContent(model, "A1")).toEqual("9♥89");
     });
 
-    test("locale thousand separator", () => {
-      setCellContent(model, "A1", "1000000");
-      setFormat(model, "A1", "#,##0");
+    test("locale thousand separator", async () => {
+      await setCellContent(model, "A1", "1000000");
+      await setFormat(model, "A1", "#,##0");
       expect(getCellContent(model, "A1")).toEqual("1,000,000");
 
       const locale = { ...CUSTOM_LOCALE, thousandsSeparator: "¤" };
-      updateLocale(model, locale);
+      await updateLocale(model, locale);
       expect(getCellContent(model, "A1")).toEqual("1¤000¤000");
     });
 
-    test("locale decimal separator", () => {
-      setCellContent(model, "A1", "9.89");
-      setFormat(model, "A1", "#,##0.00");
+    test("locale decimal separator", async () => {
+      await setCellContent(model, "A1", "9.89");
+      await setFormat(model, "A1", "#,##0.00");
       expect(getCellContent(model, "A1")).toEqual("9.89");
 
       const locale = { ...CUSTOM_LOCALE, decimalSeparator: "♥" };
-      updateLocale(model, locale);
+      await updateLocale(model, locale);
       expect(getCellContent(model, "A1")).toEqual("9♥89");
     });
 
-    test("Changing the locale changes the format of the cells that are formatted with the locale date(time) format", () => {
-      setFormat(model, "A1", DEFAULT_LOCALE.dateFormat);
-      setFormat(model, "A2", DEFAULT_LOCALE.timeFormat);
-      setFormat(model, "A3", getDateTimeFormat(DEFAULT_LOCALE));
+    test("Changing the locale changes the format of the cells that are formatted with the locale date(time) format", async () => {
+      await setFormat(model, "A1", DEFAULT_LOCALE.dateFormat);
+      await setFormat(model, "A2", DEFAULT_LOCALE.timeFormat);
+      await setFormat(model, "A3", getDateTimeFormat(DEFAULT_LOCALE));
 
       const locale = { ...CUSTOM_LOCALE, dateFormat: "yyyy/mm/dd", timeFormat: "hh:mm" };
-      updateLocale(model, locale);
+      await updateLocale(model, locale);
       expect(getCell(model, "A1")?.format).toEqual("yyyy/mm/dd");
       expect(getCell(model, "A2")?.format).toEqual("hh:mm");
       expect(getCell(model, "A3")?.format).toEqual("yyyy/mm/dd hh:mm");
     });
 
-    test("can use dot as thousand separator", () => {
+    test("can use dot as thousand separator", async () => {
       const locale = { ...CUSTOM_LOCALE, decimalSeparator: ",", thousandsSeparator: "." };
-      updateLocale(model, locale);
-      setCellContent(model, "A1", "1000000");
-      setFormat(model, "A1", "#,##0.00");
+      await updateLocale(model, locale);
+      await setCellContent(model, "A1", "1000000");
+      await setFormat(model, "A1", "#,##0.00");
       expect(getCellContent(model, "A1")).toEqual("1.000.000,00");
 
-      setCellContent(model, "A2", '="1,2" + 1');
+      await setCellContent(model, "A2", '="1,2" + 1');
       expect(getEvaluatedCell(model, "A2")?.value).toEqual(2.2);
       expect(getCellContent(model, "A2")).toEqual("2,2");
 
-      setCellContent(model, "A2", '="1.000,2" + 1');
+      await setCellContent(model, "A2", '="1.000,2" + 1');
       expect(getEvaluatedCell(model, "A2")?.value).toEqual(1001.2);
       expect(getCellContent(model, "A2")).toEqual("1001,2");
     });

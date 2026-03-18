@@ -102,7 +102,7 @@ describe("Simple Spreadsheet Component", () => {
 
     test("Can use  an external dependency in a function", async () => {
       const model = await createModel({ sheets: [{ id: 1 }] }, { custom: { env: { myKey: [] } } });
-      setCellContent(model, "A1", "=GETACTIVESHEET()");
+      await setCellContent(model, "A1", "=GETACTIVESHEET()");
       expect(getCellContent(model, "A1")).toBe("Sheet");
       expect(env).toMatchObject({ myKey: [] });
     });
@@ -242,21 +242,21 @@ test("Warn user only once when the viewport is too small for its frozen panes", 
   const notifyUser = jest.fn();
   ({ parent, model, fixture } = await mountSpreadsheet(undefined, { notifyUser }));
   expect(notifyUser).not.toHaveBeenCalled();
-  freezeRows(model, 51);
+  await freezeRows(model, 51);
   await nextTick();
   expect(notifyUser).toHaveBeenCalledTimes(1);
   //dispatching commands that do not alter the viewport/pane status and rerendering won't notify
-  addRows(model, "after", 0, 1);
+  await addRows(model, "after", 0, 1);
   await nextTick();
   expect(notifyUser).toHaveBeenCalledTimes(1);
 
   // resetting the status - the panes no longer exceed limit size
-  freezeRows(model, 3);
+  await freezeRows(model, 3);
   await nextTick();
   expect(notifyUser).toHaveBeenCalledTimes(1);
 
   // dispatching that makes the panes exceed the limit size in viewport notifies again
-  freezeRows(model, 51);
+  await freezeRows(model, 51);
   await nextTick();
   expect(notifyUser).toHaveBeenCalledTimes(2);
 });
@@ -318,7 +318,7 @@ describe("Composer / selectionInput interactions", () => {
   test.each(["=A1", "=Sheet1!A1", "=SHEET1!A1", "=sheet1!A1"])(
     "Moving Highlight update composer",
     async (xc) => {
-      selectCell(model, "D2");
+      await selectCell(model, "D2");
       await nextTick();
       await typeInComposerGrid(xc);
 
@@ -340,7 +340,7 @@ describe("Composer / selectionInput interactions", () => {
   test("Switching from selection input to composer should update the highlihts", async () => {
     const composerStore = env.getStore(CellComposerStore);
     //open cf sidepanel
-    selectCell(model, "B2");
+    await selectCell(model, "B2");
     OPEN_CF_SIDEPANEL_ACTION(env);
     await nextTick();
     await simulateClick(".o-selection-input input");
@@ -363,7 +363,7 @@ describe("Composer / selectionInput interactions", () => {
   test.each(["A", "="])(
     "Switching from grid composer to selection input should update the highlights and hide the highlight components",
     async (composerContent) => {
-      selectCell(model, "B2");
+      await selectCell(model, "B2");
       OPEN_CF_SIDEPANEL_ACTION(env);
       await nextTick();
 
@@ -378,7 +378,7 @@ describe("Composer / selectionInput interactions", () => {
 
   test("Switching from composer to selection input should update the highlights and the highlight components", async () => {
     const highlightStore = env.getStore(HighlightStore);
-    selectCell(model, "B2");
+    await selectCell(model, "B2");
     OPEN_CF_SIDEPANEL_ACTION(env);
     await nextTick();
 
@@ -398,7 +398,7 @@ describe("Composer / selectionInput interactions", () => {
 
   test("Switching from composer to focusing a figure should resubscribe grid_selection", async () => {
     mockChart();
-    createChart(
+    await createChart(
       model,
       {
         dataSets: [{ dataRange: "Sheet1!B1:B4" }, { dataRange: "Sheet1!C1:C4" }],
@@ -414,7 +414,7 @@ describe("Composer / selectionInput interactions", () => {
   });
 
   test("switching to selection input deactivates the autofill", async () => {
-    selectCell(model, "B2");
+    await selectCell(model, "B2");
     OPEN_CF_SIDEPANEL_ACTION(env);
     await nextTick();
 
@@ -426,7 +426,7 @@ describe("Composer / selectionInput interactions", () => {
 
 test("cell icon takes over a focused selection input", async () => {
   const { model, env, fixture } = await mountSpreadsheet();
-  addDataValidation(model, "B1:B3", "id", {
+  await addDataValidation(model, "B1:B3", "id", {
     type: "isValueInList",
     values: ["hello", "world"],
     displayStyle: "arrow",
@@ -447,7 +447,7 @@ test("cell popovers to be closed on clicking outside grid", async () => {
   jest.useFakeTimers();
   ({ model, fixture } = await mountSpreadsheet());
 
-  setCellContent(model, "A1", "=SUM(");
+  await setCellContent(model, "A1", "=SUM(");
   await nextTick();
   await hoverCell(model, "A1", 400);
   expect(fixture.querySelector(".o-popover .o-error-tooltip")).not.toBeNull();
@@ -499,8 +499,8 @@ test("Commands rejected on locked sheet trigger a notification", async () => {
   const model = await createModel();
   const notifyFn = jest.fn();
   ({ parent, fixture } = await mountSpreadsheet({ model, notifyUser: notifyFn }));
-  lockSheet(model);
-  const result = deleteSheet(model, model.getters.getActiveSheetId());
+  await lockSheet(model);
+  const result = await deleteSheet(model, model.getters.getActiveSheetId());
   expect(result.reasons).toContain(CommandResult.SheetLocked);
   expect(notifyFn).toHaveBeenCalledWith({
     text: "This sheet is locked and cannot be modified. Please unlock it first.",

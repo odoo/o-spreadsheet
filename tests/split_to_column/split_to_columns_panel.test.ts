@@ -100,7 +100,7 @@ describe("split to columns sidePanel component", () => {
   });
 
   test("Multiple columns selected : confirm button disabled + error message", async () => {
-    setSelection(model, ["A1:B3"]);
+    await setSelection(model, ["A1:B3"]);
     await nextTick();
 
     expect(confirmButton.classList).toContain("o-disabled");
@@ -115,8 +115,8 @@ describe("split to columns sidePanel component", () => {
   });
 
   test("No separator in selection : confirm button disabled + error message", async () => {
-    setSelection(model, ["A1"]);
-    setCellContent(model, "A1", "hello");
+    await setSelection(model, ["A1"]);
+    await setCellContent(model, "A1", "hello");
     await editSelectComponent(".o-split-to-cols-panel .o-select", " ");
     setCheckboxValueAndTrigger(checkBox, false, "change");
     await nextTick();
@@ -126,8 +126,8 @@ describe("split to columns sidePanel component", () => {
   });
 
   test("Warning if we will overwrite some content", async () => {
-    setSelection(model, ["A1"]);
-    setGrid(model, { A1: "hello there", B1: "content" });
+    await setSelection(model, ["A1"]);
+    await setGrid(model, { A1: "hello there", B1: "content" });
     await editSelectComponent(".o-split-to-cols-panel .o-select", " ");
     setCheckboxValueAndTrigger(checkBox, false, "change");
     await nextTick();
@@ -137,8 +137,8 @@ describe("split to columns sidePanel component", () => {
   });
 
   test("Warning not displayed if there's an error", async () => {
-    setSelection(model, ["A1:B1"]);
-    setGrid(model, { A1: "hello there", B1: "content" });
+    await setSelection(model, ["A1:B1"]);
+    await setGrid(model, { A1: "hello there", B1: "content" });
     await editSelectComponent(".o-split-to-cols-panel .o-select", " ");
     setCheckboxValueAndTrigger(checkBox, false, "change");
     await nextTick();
@@ -148,8 +148,8 @@ describe("split to columns sidePanel component", () => {
   });
 
   test("Errors updated on separator selection change", async () => {
-    setSelection(model, ["A1"]);
-    setCellContent(model, "A1", "hello there");
+    await setSelection(model, ["A1"]);
+    await setCellContent(model, "A1", "hello there");
     await editSelectComponent(".o-split-to-cols-panel .o-select", " ");
 
     expect(fixture.querySelectorAll(".o-validation-error")).toHaveLength(0);
@@ -179,8 +179,8 @@ describe("split to columns sidePanel component", () => {
   });
 
   test("Panel is closed after a successful split", async () => {
-    setSelection(model, ["A1"]);
-    setCellContent(model, "A1", "hello there");
+    await setSelection(model, ["A1"]);
+    await setCellContent(model, "A1", "hello there");
     await click(confirmButton);
     await nextTick();
     expect(onCloseSidePanel).toHaveBeenCalled();

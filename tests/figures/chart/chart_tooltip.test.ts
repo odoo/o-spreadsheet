@@ -51,7 +51,7 @@ function openTooltip(chartConfig: ChartJSRuntime, args: TooltipArgs) {
 describe("Chart tooltip", () => {
   test("Basic chart tooltip", async () => {
     const model = await createModel();
-    createChart(model, { type: "bar" }, "chartId");
+    await createChart(model, { type: "bar" }, "chartId");
     const runtime = model.getters.getChartRuntime("chartId") as ChartJSRuntime;
     const tooltipItem = { parsed: { y: 20 }, dataset: { yAxisID: "y", label: "Ds 1" } };
     const fixture = openTooltip(runtime, {
@@ -67,7 +67,7 @@ describe("Chart tooltip", () => {
   });
   test("Opening a new tooltip closes the previous one", async () => {
     const model = await createModel();
-    createChart(model, { type: "bar" }, "chartId");
+    await createChart(model, { type: "bar" }, "chartId");
     const runtime = model.getters.getChartRuntime("chartId") as ChartJSRuntime;
     const tooltipItem = { parsed: { y: 20 }, dataset: { yAxisID: "y", label: "Ds 1" } };
     openTooltip(runtime, { tooltipItem, title: "Marc" });
@@ -79,7 +79,7 @@ describe("Chart tooltip", () => {
   });
   test("Title div isn't displayed if there is no title", async () => {
     const model = await createModel();
-    createChart(model, { type: "bar" }, "chartId");
+    await createChart(model, { type: "bar" }, "chartId");
     const runtime = model.getters.getChartRuntime("chartId") as ChartJSRuntime;
     const tooltipItem = { parsed: { y: 20 }, dataset: { yAxisID: "y", label: "Ds 1" } };
     openTooltip(runtime, { tooltipItem, title: "" });
@@ -87,7 +87,7 @@ describe("Chart tooltip", () => {
   });
   test("Can handle label with colons", async () => {
     const model = await createModel();
-    createChart(model, { type: "bar" }, "chartId");
+    await createChart(model, { type: "bar" }, "chartId");
     const runtime = model.getters.getChartRuntime("chartId") as ChartJSRuntime;
     const tooltipItem = {
       parsed: { y: 20 },
@@ -99,7 +99,7 @@ describe("Chart tooltip", () => {
   });
   test("Chart tooltip can be humanized", async () => {
     const model = await createModel();
-    createChart(model, { type: "bar", humanize: false }, "chartId");
+    await createChart(model, { type: "bar", humanize: false }, "chartId");
     let runtime = model.getters.getChartRuntime("chartId") as ChartJSRuntime;
     const tooltipItem = { parsed: { y: 1000000 }, dataset: { yAxisID: "y", label: "Ds 1" } };
     openTooltip(runtime, {
@@ -108,7 +108,7 @@ describe("Chart tooltip", () => {
       title: "Marc",
     });
     expect(".o-tooltip-value").toHaveText("1,000,000");
-    updateChart(model, "chartId", {
+    await updateChart(model, "chartId", {
       humanize: true,
     });
     runtime = model.getters.getChartRuntime("chartId") as ChartJSRuntime;

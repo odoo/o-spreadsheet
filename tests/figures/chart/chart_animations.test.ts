@@ -36,17 +36,17 @@ beforeEach(() => {
 describe("Chart animations in dashboard", () => {
   test("Charts are animated only at first render", async () => {
     const model = await createModel();
-    createChart(model, { type: "bar" });
+    await createChart(model, { type: "bar" });
     model.updateMode("dashboard");
     await mountSpreadsheet({ model });
     expect(".o-figure").toHaveCount(1);
     expect(mockedChart.config.options.animation.animateRotate).toBe(true);
     // Scroll the figure out of the viewport and back in
-    setViewportOffset(model, 0, 500);
+    await setViewportOffset(model, 0, 500);
     await nextTick();
     expect(".o-figure").toHaveCount(0);
 
-    setViewportOffset(model, 0, 0);
+    await setViewportOffset(model, 0, 0);
     await nextTick();
     expect(".o-figure").toHaveCount(1);
     expect(mockedChart.config.options.animation).toBe(false);
@@ -54,16 +54,16 @@ describe("Chart animations in dashboard", () => {
   test("Animations are replayed only when chart data changes", async () => {
     readonlyAllowedCommands.add("UPDATE_CELL");
     const model = await createModel();
-    createChart(model, { type: "bar", dataSets: [{ dataRange: "A1:A6" }] });
+    await createChart(model, { type: "bar", dataSets: [{ dataRange: "A1:A6" }] });
     model.updateMode("dashboard");
     await mountSpreadsheet({ model });
     expect(mockedChart.config.options.animation).toEqual({ animateRotate: true });
     // Dispatch a command that doesn't change the chart data
-    setCellContent(model, "A50", "6");
+    await setCellContent(model, "A50", "6");
     await nextTick();
     expect(mockedChart.config.options.animation).toBe(false);
     // Change the chart data
-    setCellContent(model, "A2", "6");
+    await setCellContent(model, "A2", "6");
     await nextTick();
     expect(mockedChart.config.options.animation).toEqual({ animateRotate: true });
     readonlyAllowedCommands.delete("UPDATE_CELL");
@@ -71,32 +71,32 @@ describe("Chart animations in dashboard", () => {
   test("Treemap animation are not replayed when data does not change but runtime is re-created", async () => {
     readonlyAllowedCommands.add("UPDATE_CELL");
     const model = await createModel();
-    createChart(model, { type: "treemap", dataSets: [{ dataRange: "A1:A6" }] });
-    setCellContent(model, "A2", "1");
+    await createChart(model, { type: "treemap", dataSets: [{ dataRange: "A1:A6" }] });
+    await setCellContent(model, "A2", "1");
     model.updateMode("dashboard");
     await mountSpreadsheet({ model });
     expect(mockedChart.config.options.animation).toEqual({ animateRotate: true });
-    setCellContent(model, "B1", "6");
+    await setCellContent(model, "B1", "6");
     await nextTick();
     expect(mockedChart.config.options.animation).toBe(false);
     readonlyAllowedCommands.delete("UPDATE_CELL");
   });
   test("Charts are animated when chart type changes", async () => {
     const model = await createModel();
-    createChart(model, { type: "bar", dataSets: [{ dataRange: "A1:A6" }] }, "chartId");
+    await createChart(model, { type: "bar", dataSets: [{ dataRange: "A1:A6" }] }, "chartId");
     model.updateMode("dashboard");
     await mountSpreadsheet({ model });
 
-    evaluateCells(model);
+    await evaluateCells(model);
     await nextTick();
     expect(mockedChart.config.options.animation).toBe(false);
-    updateChart(model, "chartId", { type: "pie" });
+    await updateChart(model, "chartId", { type: "pie" });
     await nextTick();
     expect(mockedChart.config.options.animation.animateRotate).toBe(true);
   });
   test("Non-zoomable full screen charts are animated separately from their counterparts", async () => {
     const model = await createModel();
-    createChart(model, { type: "pie", dataSets: [{ dataRange: "A1:A6" }] }, "chartId");
+    await createChart(model, { type: "pie", dataSets: [{ dataRange: "A1:A6" }] }, "chartId");
     model.updateMode("dashboard");
     const { env, fixture } = await mountSpreadsheet({ model });
     const store = env.getStore(ChartAnimationStore);
@@ -107,7 +107,7 @@ describe("Chart animations in dashboard", () => {
   });
   test("Non-zoomable full screen charts will be animated each time we open them", async () => {
     const model = await createModel();
-    createChart(model, { type: "pie", dataSets: [{ dataRange: "A1:A6" }] }, "chartId");
+    await createChart(model, { type: "pie", dataSets: [{ dataRange: "A1:A6" }] }, "chartId");
     model.updateMode("dashboard");
     const { env, fixture } = await mountSpreadsheet({ model });
     const store = env.getStore(ChartAnimationStore) as ChartAnimationStore;
@@ -117,7 +117,7 @@ describe("Chart animations in dashboard", () => {
   });
   test("Zoomable chart isn't animated when moving the slicer in full screen", async () => {
     const model = await createModel();
-    createChart(
+    await createChart(
       model,
       { type: "bar", dataSets: [{ dataRange: "A1:A6" }], zoomable: true },
       "chartId"

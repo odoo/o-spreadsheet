@@ -22,8 +22,8 @@ describe("CELL formula", () => {
       A4: '=CELL("address", Sheet1!E1:E2)',
     };
     const model = await createModel();
-    createSheet(model, { sheetId: "sh2", name: "Sheet2" });
-    setGrid(model, grid);
+    await createSheet(model, { sheetId: "sh2", name: "Sheet2" });
+    await setGrid(model, grid);
     expect(getCellContent(model, "A1")).toBe("$B$1");
     expect(getCellContent(model, "A2")).toBe("$C$2");
     expect(getCellContent(model, "A3")).toBe("Sheet2!$C$2");
@@ -36,8 +36,8 @@ describe("CELL formula", () => {
       A3: '=CELL("col", Sheet2!D2:D4)',
     };
     const model = await createModel();
-    createSheet(model, { sheetId: "sh2", name: "Sheet2" });
-    setGrid(model, grid);
+    await createSheet(model, { sheetId: "sh2", name: "Sheet2" });
+    await setGrid(model, grid);
     expect(getCellContent(model, "A1")).toBe("2");
     expect(getCellContent(model, "A2")).toBe("3");
     expect(getCellContent(model, "A3")).toBe("4");
@@ -49,8 +49,8 @@ describe("CELL formula", () => {
       A3: '=CELL("row", Sheet2!D5:D9)',
     };
     const model = await createModel();
-    createSheet(model, { sheetId: "sh2", name: "Sheet2" });
-    setGrid(model, grid);
+    await createSheet(model, { sheetId: "sh2", name: "Sheet2" });
+    await setGrid(model, grid);
     expect(getCellContent(model, "A1")).toBe("1");
     expect(getCellContent(model, "A2")).toBe("2");
     expect(getCellContent(model, "A3")).toBe("5");
@@ -64,9 +64,9 @@ describe("CELL formula", () => {
       C2: "hello",
     };
     const model = await createModel();
-    createSheet(model, { sheetId: "sh2", name: "Sheet2" });
-    setCellContent(model, "D5", "=1+1", "sh2");
-    setGrid(model, grid);
+    await createSheet(model, { sheetId: "sh2", name: "Sheet2" });
+    await setCellContent(model, "D5", "=1+1", "sh2");
+    await setGrid(model, grid);
     expect(getCellContent(model, "A1")).toBe("1");
     expect(getCellContent(model, "A2")).toBe("hello");
     expect(getCellContent(model, "A3")).toBe("2");
@@ -81,9 +81,9 @@ describe("CELL formula", () => {
       B3: "9",
     };
     const model = await createModel();
-    setFormat(model, "B1", "d/m/yyyy");
-    setFormat(model, "C1", "0.00");
-    setGrid(model, grid);
+    await setFormat(model, "B1", "d/m/yyyy");
+    await setFormat(model, "C1", "0.00");
+    await setGrid(model, grid);
     expect(getCellContent(model, "A1")).toBe("d/m/yyyy");
     expect(getCellContent(model, "A2")).toBe("0.00");
     expect(getCellContent(model, "A3")).toBe("");
@@ -105,8 +105,8 @@ describe("CELL formula", () => {
   test("CELL can be called without grid context", async () => {
     const model = await createModel();
     const sheetId = model.getters.getActiveSheetId();
-    createSheet(model, { sheetId: "sh2", name: "Sh2" });
-    setCellContent(model, "D5", "=1+1", sheetId);
+    await createSheet(model, { sheetId: "sh2", name: "Sh2" });
+    await setCellContent(model, "D5", "=1+1", sheetId);
     expect(model.getters.evaluateFormula(sheetId, '=CELL("address", Sh2!B1)')).toBe("Sh2!$B$1");
     expect(model.getters.evaluateFormula(sheetId, '=CELL("contents", D5)')).toBe(2);
   });
