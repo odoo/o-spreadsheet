@@ -21,7 +21,7 @@ import {
 } from "./tree_map_chart";
 import { WaterfallChartDefinition, WaterfallChartRuntime } from "./waterfall_chart";
 
-import { Align, Color, VerticalAlign } from "../..";
+import { Align, Color, FunctionResultObject, UID, VerticalAlign } from "../..";
 import { COLORSCHEMES } from "../../helpers/color";
 import { Format } from "../format";
 import { Locale } from "../locale";
@@ -45,26 +45,35 @@ export const CHART_TYPES = [
 ] as const;
 export type ChartType = (typeof CHART_TYPES)[number];
 
-export type ChartDefinition =
-  | LineChartDefinition
-  | PieChartDefinition
-  | BarChartDefinition
-  | ScorecardChartDefinition
-  | GaugeChartDefinition
-  | ScatterChartDefinition
-  | ComboChartDefinition
-  | WaterfallChartDefinition
-  | PyramidChartDefinition
-  | RadarChartDefinition
-  | GeoChartDefinition
-  | FunnelChartDefinition
-  | SunburstChartDefinition
-  | TreeMapChartDefinition
-  | CalendarChartDefinition;
+export type ChartDefinitionWithDataSource<T extends string | Range = Range> =
+  | LineChartDefinition<T>
+  | PieChartDefinition<T>
+  | BarChartDefinition<T>
+  | ScatterChartDefinition<T>
+  | ComboChartDefinition<T>
+  | WaterfallChartDefinition<T>
+  | PyramidChartDefinition<T>
+  | RadarChartDefinition<T>
+  | GeoChartDefinition<T>
+  | FunnelChartDefinition<T>
+  | SunburstChartDefinition<T>
+  | TreeMapChartDefinition<T>
+  | CalendarChartDefinition<T>;
 
-export type ChartWithDataSetDefinition = Extract<
-  ChartDefinition,
-  { dataSets: CustomizedDataSet[]; labelRange?: string; humanize?: boolean }
+export type ChartDefinition<T extends string | Range = string> =
+  | ChartDefinitionWithDataSource<T>
+  | ScorecardChartDefinition<T>
+  | GaugeChartDefinition<T>;
+
+/**
+ * `ChartTypeDefinition<"bar", Range>`
+ * `ChartTypeDefinition<"bar", string>`
+ * `ChartTypeDefinition<"pie", Range>`
+ *  ... for each chart type and for Range or string data source.
+ */
+export type ChartTypeDefinition<T extends ChartType, R extends string | Range> = Extract<
+  ChartDefinition<R>,
+  { type: T }
 >;
 
 export type ChartWithColorScaleDefinition = Extract<
@@ -74,12 +83,7 @@ export type ChartWithColorScaleDefinition = Extract<
 
 export type ChartWithTitleDefinition = Extract<ChartDefinition, { title?: TitleDesign }>;
 
-export type ChartWithAxisDefinition = Extract<
-  ChartWithDataSetDefinition,
-  { axesDesign?: AxesDesign }
->;
-
-export type ZoomableChartDefinition = Extract<ChartWithAxisDefinition, { zoomable?: boolean }>;
+export type ChartWithAxisDefinition = Extract<ChartDefinition<Range>, { axesDesign?: AxesDesign }>;
 
 export type ChartJSRuntime =
   | LineChartRuntime
@@ -97,14 +101,17 @@ export type ChartJSRuntime =
 
 export type ChartRuntime = ChartJSRuntime | ScorecardChartRuntime | GaugeChartRuntime;
 
-export interface LabelValues {
-  readonly values: string[];
-  readonly formattedValues: string[];
-}
+export type customizableSeriesChartRuntime = Extract<
+  ChartRuntime,
+  { customizableSeries: { dataSetId: string; label: string }[] }
+>;
+
+export type LabelValues = FunctionResultObject[];
 
 export interface DatasetValues {
-  readonly label?: string;
-  readonly data: any[];
+  readonly dataSetId: UID;
+  readonly label: string;
+  readonly data: FunctionResultObject[];
   readonly hidden?: boolean;
 }
 
@@ -151,22 +158,38 @@ export interface TrendConfiguration {
   window?: number;
 }
 
+export type DataSetStyle = Record<UID, CustomizedDataSet>;
+
 export type CustomizedDataSet = {
-  readonly dataRange: string;
   readonly trend?: TrendConfiguration;
 } & DatasetDesign;
+
+export interface ChartRangeDataSource<T extends string | Range = Range> {
+  readonly type: "range";
+  readonly dataSets: { dataSetId: UID; dataRange: T }[];
+  readonly dataSetsHaveTitle: boolean;
+  readonly labelRange?: T;
+}
+
+export interface ChartPivotDataSource {
+  readonly type: "pivot";
+  readonly pivotId: UID;
+}
+
+export type ChartDataSource<T extends string | Range = Range> =
+  | ChartRangeDataSource<T>
+  | { type: "none" };
+
+export type ChartDataSourceType = ChartDataSource["type"];
 
 export type AxisType = "category" | "linear" | "time";
 
 export type ChartDatasetOrientation = "rows" | "columns";
 
 export interface DataSet {
-  readonly labelCell?: Range; // range of the label
-  readonly dataRange: Range; // range of the data
-  readonly rightYAxis?: boolean; // if the dataset should be on the right Y axis
-  readonly backgroundColor?: Color;
-  readonly customLabel?: string;
-  readonly trend?: TrendConfiguration;
+  readonly dataSetId: UID;
+  readonly labelCell?: Range;
+  readonly dataRange: Range;
 }
 export interface ExcelChartDataset {
   readonly label?: { text?: string } | { reference?: string };
@@ -210,15 +233,15 @@ export interface ExcelChartDefinition {
 }
 
 export interface ChartCreationContext {
-  readonly range?: CustomizedDataSet[];
-  readonly hierarchicalRanges?: CustomizedDataSet[];
+  readonly dataSetStyles?: DataSetStyle;
+  readonly hierarchicalDataSource?: ChartDataSource<string>;
+  readonly dataSource?: Partial<ChartDataSource<string>> & { type: ChartDataSource["type"] };
   readonly title?: TitleDesign;
   readonly background?: Color;
   readonly auxiliaryRange?: string;
   readonly aggregated?: boolean;
   readonly stacked?: boolean;
   readonly cumulative?: boolean;
-  readonly dataSetsHaveTitle?: boolean;
   readonly labelsAsText?: boolean;
   readonly showSubTotals?: boolean;
   readonly showConnectorLines?: boolean;
@@ -245,6 +268,11 @@ export interface ChartCreationContext {
 
 export type ChartAxisFormats = { [axisId: string]: Format | undefined } | undefined;
 
+export interface ChartData {
+  dataSetsValues: DatasetValues[];
+  labelValues: LabelValues;
+}
+
 export interface ChartRuntimeGenerationArgs {
   dataSetsValues: DatasetValues[];
   axisFormats: ChartAxisFormats;
@@ -255,12 +283,8 @@ export interface ChartRuntimeGenerationArgs {
   topPadding?: number;
 }
 
-/** Generic definition of chart to create a runtime: omit the chart type and the dataRange of the dataSets*/
-export type GenericDefinition<T extends ChartWithDataSetDefinition> = Partial<
-  Omit<T, "dataSets" | "type">
-> & {
-  dataSets?: Omit<T["dataSets"][number], "dataRange">[];
-};
+/** Generic definition of chart to create a runtime: omit the chart type*/
+export type GenericDefinition<T extends ChartDefinitionWithDataSource> = Partial<Omit<T, "type">>;
 
 export interface ChartColorScale {
   minColor: Color;

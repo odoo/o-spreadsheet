@@ -7,10 +7,11 @@ import { hexaToInt } from "@odoo/o-spreadsheet-engine/xlsx/conversion";
 import { adaptFormulaToExcel } from "@odoo/o-spreadsheet-engine/xlsx/functions/cells";
 import { escapeXml, parseXML } from "@odoo/o-spreadsheet-engine/xlsx/helpers/xml_helpers";
 import { buildSheetLink, toXC } from "../../src/helpers";
-import { CellIsRule, ConditionalFormatRule, CustomizedDataSet, Dimension } from "../../src/types";
+import { CellIsRule, ConditionalFormatRule, Dimension } from "../../src/types";
 
 import { arg } from "@odoo/o-spreadsheet-engine/functions/arguments";
 import { functionRegistry } from "@odoo/o-spreadsheet-engine/functions/function_registry";
+import { toChartDataSource } from "../test_helpers/chart_helpers";
 import {
   addCfRule,
   createChart,
@@ -976,11 +977,13 @@ describe("Test XLSX export", () => {
       createChart(
         model,
         {
-          dataSets: [
-            { dataRange: "Sheet1!B2:B", trend: { type: "polynomial", order: 2, display: true } },
-            { dataRange: "Sheet1!C4:4", trend: { type: "polynomial", order: 1, display: true } },
-          ],
-          labelRange: "Sheet1!A2:A",
+          ...toChartDataSource({
+            dataSets: [
+              { dataRange: "Sheet1!B2:B", trend: { type: "polynomial", order: 2, display: true } },
+              { dataRange: "Sheet1!C4:4", trend: { type: "polynomial", order: 1, display: true } },
+            ],
+            labelRange: "Sheet1!A2:A",
+          }),
           type: "line",
         },
         "1"
@@ -988,11 +991,13 @@ describe("Test XLSX export", () => {
       createChart(
         model,
         {
-          dataSets: [
-            { dataRange: "Sheet1!B2:B", trend: { type: "exponential", display: true } },
-            { dataRange: "Sheet1!C4:4", trend: { type: "logarithmic", display: true } },
-          ],
-          labelRange: "Sheet1!A2:A",
+          ...toChartDataSource({
+            dataSets: [
+              { dataRange: "Sheet1!B2:B", trend: { type: "exponential", display: true } },
+              { dataRange: "Sheet1!C4:4", trend: { type: "logarithmic", display: true } },
+            ],
+            labelRange: "Sheet1!A2:A",
+          }),
           type: "bar",
         },
         "2"
@@ -1000,8 +1005,10 @@ describe("Test XLSX export", () => {
       createChart(
         model,
         {
-          dataSets: [{ dataRange: "Sheet1!B2:B" }, { dataRange: "Sheet1!C4:4" }],
-          labelRange: "Sheet1!A2:A",
+          ...toChartDataSource({
+            dataSets: [{ dataRange: "Sheet1!B2:B" }, { dataRange: "Sheet1!C4:4" }],
+            labelRange: "Sheet1!A2:A",
+          }),
           type: "pie",
         },
         "3"
@@ -1009,17 +1016,19 @@ describe("Test XLSX export", () => {
       createChart(
         model,
         {
-          dataSets: [
-            {
-              dataRange: "Sheet1!B2:B",
-              trend: { type: "trailingMovingAverage", window: 3, display: true },
-            },
-            {
-              dataRange: "Sheet1!C4:4",
-              trend: { type: "polynomial", order: 7, display: true },
-            },
-          ],
-          labelRange: "Sheet1!A2:A",
+          ...toChartDataSource({
+            dataSets: [
+              {
+                dataRange: "Sheet1!B2:B",
+                trend: { type: "trailingMovingAverage", window: 3, display: true },
+              },
+              {
+                dataRange: "Sheet1!C4:4",
+                trend: { type: "polynomial", order: 7, display: true },
+              },
+            ],
+            labelRange: "Sheet1!A2:A",
+          }),
           type: "scatter",
         },
         "4"
@@ -1028,8 +1037,10 @@ describe("Test XLSX export", () => {
       createChart(
         model,
         {
-          dataSets: [{ dataRange: "Sheet1!B2:B" }, { dataRange: "Sheet1!C4:4" }],
-          labelRange: "Sheet1!A2:A",
+          ...toChartDataSource({
+            dataSets: [{ dataRange: "Sheet1!B2:B" }, { dataRange: "Sheet1!C4:4" }],
+            labelRange: "Sheet1!A2:A",
+          }),
           type: "radar",
         },
         "5"
@@ -1265,22 +1276,18 @@ describe("Test XLSX export", () => {
       ["combo", [{ dataRange: "Sheet1!B1:B4" }]],
       ["pie", [{ dataRange: "Sheet1!B1:B4" }]],
       ["radar", [{ dataRange: "Sheet1!B1:B4" }]],
-    ])(
-      "simple %s chart with dataset %s",
-      async (chartType: string, dataSets: CustomizedDataSet[]) => {
-        const model = new Model(chartData);
-        createChart(
-          model,
-          {
-            dataSets,
-            labelRange: "Sheet1!A2:A4",
-            type: chartType as "line" | "bar" | "pie" | "combo",
-          },
-          "1"
-        );
-        expect(await exportPrettifiedXlsx(model)).toMatchSnapshot();
-      }
-    );
+    ])("simple %s chart with dataset %s", async (chartType: string, dataSets) => {
+      const model = new Model(chartData);
+      createChart(
+        model,
+        {
+          ...toChartDataSource({ dataSets, labelRange: "Sheet1!A2:A4" }),
+          type: chartType as "line" | "bar" | "pie" | "combo",
+        },
+        "1"
+      );
+      expect(await exportPrettifiedXlsx(model)).toMatchSnapshot();
+    });
 
     test.each(["line", "scatter", "bar", "combo", "radar"])(
       "simple %s chart with customized dataset",
@@ -1289,15 +1296,17 @@ describe("Test XLSX export", () => {
         createChart(
           model,
           {
-            dataSets: [
-              {
-                dataRange: "Sheet1!B1:B4",
-                backgroundColor: "#FF0000",
-                yAxisId: "y",
-                label: "coucou",
-              },
-            ],
-            labelRange: "Sheet1!A2:A4",
+            ...toChartDataSource({
+              dataSets: [
+                {
+                  dataRange: "Sheet1!B1:B4",
+                  backgroundColor: "#FF0000",
+                  yAxisId: "y",
+                  label: "coucou",
+                },
+              ],
+              labelRange: "Sheet1!A2:A4",
+            }),
             type: chartType as "line" | "bar" | "pie" | "combo",
           },
           "1"
@@ -1313,7 +1322,10 @@ describe("Test XLSX export", () => {
         createChart(
           model,
           {
-            dataSets: [{ dataRange: "Sheet1!B1:B4" }],
+            ...toChartDataSource({
+              dataSets: [{ dataRange: "Sheet1!B1:B4" }],
+              labelRange: "Sheet1!A2:A4",
+            }),
             title: {
               text: "Coucou",
               align: "right",
@@ -1321,7 +1333,6 @@ describe("Test XLSX export", () => {
               italic: true,
               color: "#ff0000",
             },
-            labelRange: "Sheet1!A2:A4",
             type: chartType as "line" | "bar" | "pie" | "combo" | "radar",
           },
           "1"
@@ -1337,7 +1348,10 @@ describe("Test XLSX export", () => {
         createChart(
           model,
           {
-            dataSets: [{ dataRange: "Sheet1!B1:B4", yAxisId: "y1" }],
+            ...toChartDataSource({
+              dataSets: [{ dataRange: "Sheet1!B1:B4", yAxisId: "y1" }],
+              labelRange: "Sheet1!A2:A4",
+            }),
             axesDesign: {
               x: {
                 title: {
@@ -1367,7 +1381,6 @@ describe("Test XLSX export", () => {
                 },
               },
             },
-            labelRange: "Sheet1!A2:A4",
             type: chartType as "line" | "bar" | "pie" | "combo" | "radar",
           },
           "1"
@@ -1382,9 +1395,11 @@ describe("Test XLSX export", () => {
         model,
         {
           type: "bar",
-          dataSets: [{ dataRange: "Sheet1!B1:B4" }, { dataRange: "Sheet1!C1:C4" }],
-          labelRange: "Sheet1!A1:A4",
-          dataSetsHaveTitle: true,
+          ...toChartDataSource({
+            dataSets: [{ dataRange: "Sheet1!B1:B4" }, { dataRange: "Sheet1!C1:C4" }],
+            labelRange: "Sheet1!A1:A4",
+            dataSetsHaveTitle: true,
+          }),
         },
         "1"
       );
@@ -1392,14 +1407,15 @@ describe("Test XLSX export", () => {
         model,
         {
           type: "bar",
-          dataSets: [{ dataRange: "Sheet1!B1:B4" }, { dataRange: "Sheet1!C1:C4" }],
-          labelRange: "Sheet1!A2:A4",
-          dataSetsHaveTitle: true,
+          ...toChartDataSource({
+            dataSets: [{ dataRange: "Sheet1!B1:B4" }, { dataRange: "Sheet1!C1:C4" }],
+            labelRange: "Sheet1!A2:A4",
+            dataSetsHaveTitle: true,
+          }),
         },
         "2"
       );
-      const exported = await getExportedExcelData(model);
-      expect(exported.sheets[0].charts[0].data).toEqual(exported.sheets[0].charts[1].data);
+      expect(await exportPrettifiedXlsx(model)).toMatchSnapshot();
     });
 
     test("multiple charts in the same sheet", async () => {
@@ -1407,8 +1423,10 @@ describe("Test XLSX export", () => {
       createChart(
         model,
         {
-          dataSets: [{ dataRange: "Sheet1!B1:B4" }, { dataRange: "Sheet1!C1:C4" }],
-          labelRange: "Sheet1!A2:A4",
+          ...toChartDataSource({
+            dataSets: [{ dataRange: "Sheet1!B1:B4" }, { dataRange: "Sheet1!C1:C4" }],
+            labelRange: "Sheet1!A2:A4",
+          }),
           type: "line",
         },
         "1"
@@ -1416,8 +1434,10 @@ describe("Test XLSX export", () => {
       createChart(
         model,
         {
-          dataSets: [{ dataRange: "Sheet1!B1:B4" }, { dataRange: "Sheet1!C1:C4" }],
-          labelRange: "Sheet1!A2:A4",
+          ...toChartDataSource({
+            dataSets: [{ dataRange: "Sheet1!B1:B4" }, { dataRange: "Sheet1!C1:C4" }],
+            labelRange: "Sheet1!A2:A4",
+          }),
           type: "bar",
         },
         "2"
@@ -1430,8 +1450,10 @@ describe("Test XLSX export", () => {
       createChart(
         model,
         {
-          dataSets: [{ dataRange: "Sheet1!B1:B4" }, { dataRange: "Sheet1!C1:C4" }],
-          labelRange: "Sheet1!A2:A4",
+          ...toChartDataSource({
+            dataSets: [{ dataRange: "Sheet1!B1:B4" }, { dataRange: "Sheet1!C1:C4" }],
+            labelRange: "Sheet1!A2:A4",
+          }),
           type: "bar",
           horizontal: true,
         },
@@ -1445,8 +1467,10 @@ describe("Test XLSX export", () => {
       createChart(
         model,
         {
-          dataSets: [{ dataRange: "Sheet1!B1:B4" }, { dataRange: "Sheet1!C1:C4" }],
-          labelRange: "Sheet1!A2:A4",
+          ...toChartDataSource({
+            dataSets: [{ dataRange: "Sheet1!B1:B4" }, { dataRange: "Sheet1!C1:C4" }],
+            labelRange: "Sheet1!A2:A4",
+          }),
           type: "pie",
           isDoughnut: true,
           pieHolePercentage: 50,
@@ -1461,8 +1485,10 @@ describe("Test XLSX export", () => {
       createChart(
         model,
         {
-          dataSets: [{ dataRange: "Sheet1!B1:B4" }, { dataRange: "Sheet1!C1:C4" }],
-          labelRange: "Sheet1!A2:A4",
+          ...toChartDataSource({
+            dataSets: [{ dataRange: "Sheet1!B1:B4" }, { dataRange: "Sheet1!C1:C4" }],
+            labelRange: "Sheet1!A2:A4",
+          }),
           type: "pyramid",
         },
         "2"
@@ -1506,8 +1532,10 @@ describe("Test XLSX export", () => {
       createChart(
         model,
         {
-          dataSets: [{ dataRange: "Sheet1!B1:B4" }, { dataRange: "Sheet1!C1:C4" }],
-          labelRange: "Sheet1!A2:A4",
+          ...toChartDataSource({
+            dataSets: [{ dataRange: "Sheet1!B1:B4" }, { dataRange: "Sheet1!C1:C4" }],
+            labelRange: "Sheet1!A2:A4",
+          }),
           stacked: true,
           type: "bar",
         },
@@ -1522,8 +1550,10 @@ describe("Test XLSX export", () => {
       createChart(
         model,
         {
-          dataSets: [{ dataRange: "Sheet1!B1:B4" }, { dataRange: "Sheet1!C1:C4" }],
-          labelRange: "Sheet1!A2:A4",
+          ...toChartDataSource({
+            dataSets: [{ dataRange: "Sheet1!B1:B4" }, { dataRange: "Sheet1!C1:C4" }],
+            labelRange: "Sheet1!A2:A4",
+          }),
           type: "line",
         },
         "1"
@@ -1531,8 +1561,10 @@ describe("Test XLSX export", () => {
       createChart(
         model,
         {
-          dataSets: [{ dataRange: "Sheet1!B1:B4" }, { dataRange: "Sheet1!C1:C4" }],
-          labelRange: "Sheet1!A2:A4",
+          ...toChartDataSource({
+            dataSets: [{ dataRange: "Sheet1!B1:B4" }, { dataRange: "Sheet1!C1:C4" }],
+            labelRange: "Sheet1!A2:A4",
+          }),
           type: "bar",
         },
         "2",
@@ -1546,10 +1578,12 @@ describe("Test XLSX export", () => {
       createChart(
         model,
         {
-          dataSets: [{ dataRange: "Sheet1!B2:B4" }, { dataRange: "Sheet1!C2:C4" }],
-          labelRange: "Sheet1!A2:A4",
+          ...toChartDataSource({
+            dataSets: [{ dataRange: "Sheet1!B2:B4" }, { dataRange: "Sheet1!C2:C4" }],
+            labelRange: "Sheet1!A2:A4",
+            dataSetsHaveTitle: false,
+          }),
           type: "bar",
-          dataSetsHaveTitle: false,
         },
         "1"
       );
@@ -1562,8 +1596,10 @@ describe("Test XLSX export", () => {
       createChart(
         model,
         {
-          dataSets: [{ dataRange: "Sheet1!B2:B4" }, { dataRange: "Sheet1!C2:C4" }],
-          labelRange: "Sheet1!A2:A4",
+          ...toChartDataSource({
+            dataSets: [{ dataRange: "Sheet1!B2:B4" }, { dataRange: "Sheet1!C2:C4" }],
+            labelRange: "Sheet1!A2:A4",
+          }),
           type: "bar",
           background: "#EFEFEF",
         },
@@ -1572,8 +1608,10 @@ describe("Test XLSX export", () => {
       createChart(
         model,
         {
-          dataSets: [{ dataRange: "Sheet1!B2:B4" }, { dataRange: "Sheet1!C2:C4" }],
-          labelRange: "Sheet1!A2:A4",
+          ...toChartDataSource({
+            dataSets: [{ dataRange: "Sheet1!B2:B4" }, { dataRange: "Sheet1!C2:C4" }],
+            labelRange: "Sheet1!A2:A4",
+          }),
           type: "pie",
           background: "#EEEEEE",
         },
@@ -1582,8 +1620,10 @@ describe("Test XLSX export", () => {
       createChart(
         model,
         {
-          dataSets: [{ dataRange: "Sheet1!B2:B4" }, { dataRange: "Sheet1!C2:C4" }],
-          labelRange: "Sheet1!A2:A4",
+          ...toChartDataSource({
+            dataSets: [{ dataRange: "Sheet1!B2:B4" }, { dataRange: "Sheet1!C2:C4" }],
+            labelRange: "Sheet1!A2:A4",
+          }),
           type: "line",
           background: "#DDDDDD",
         },
@@ -1592,8 +1632,10 @@ describe("Test XLSX export", () => {
       createChart(
         model,
         {
-          dataSets: [{ dataRange: "Sheet2!B2:B4" }, { dataRange: "Sheet2!C2:C4" }],
-          labelRange: "She!et2!A2:A4",
+          ...toChartDataSource({
+            dataSets: [{ dataRange: "Sheet2!B2:B4" }, { dataRange: "Sheet2!C2:C4" }],
+            labelRange: "She!et2!A2:A4",
+          }),
           type: "pie",
           background: "#EEEEEE",
         },
@@ -1602,8 +1644,10 @@ describe("Test XLSX export", () => {
       createChart(
         model,
         {
-          dataSets: [{ dataRange: "Sheet1!B2:B4" }, { dataRange: "Sheet1!C2:C4" }],
-          labelRange: "Sheet1!A2:A4",
+          ...toChartDataSource({
+            dataSets: [{ dataRange: "Sheet1!B2:B4" }, { dataRange: "Sheet1!C2:C4" }],
+            labelRange: "Sheet1!A2:A4",
+          }),
           type: "scatter",
           background: "#EEEEEE",
         },
@@ -1612,8 +1656,10 @@ describe("Test XLSX export", () => {
       createChart(
         model,
         {
-          dataSets: [{ dataRange: "Sheet1!B2:B4" }, { dataRange: "Sheet1!C2:C4" }],
-          labelRange: "Sheet1!A2:A4",
+          ...toChartDataSource({
+            dataSets: [{ dataRange: "Sheet1!B2:B4" }, { dataRange: "Sheet1!C2:C4" }],
+            labelRange: "Sheet1!A2:A4",
+          }),
           type: "radar",
           background: "#EEEEEE",
         },
@@ -1627,8 +1673,10 @@ describe("Test XLSX export", () => {
       createChart(
         model,
         {
-          dataSets: [{ dataRange: "Sheet1!B2:B5" }, { dataRange: "Sheet1!C2:C5" }],
-          labelRange: "Sheet1!A2:A5",
+          ...toChartDataSource({
+            dataSets: [{ dataRange: "Sheet1!B2:B5" }, { dataRange: "Sheet1!C2:C5" }],
+            labelRange: "Sheet1!A2:A5",
+          }),
           type: "bar",
           legendPosition: "none",
         },
@@ -1642,9 +1690,11 @@ describe("Test XLSX export", () => {
       createChart(
         model,
         {
-          dataSets: [{ dataRange: "Sheet1!A1" }], // only the title cell, no data
+          ...toChartDataSource({
+            dataSets: [{ dataRange: "Sheet1!A1" }], // only the title cell, no data
+            dataSetsHaveTitle: true,
+          }),
           type: "pie",
-          dataSetsHaveTitle: true,
         },
         "1"
       );
@@ -1656,10 +1706,12 @@ describe("Test XLSX export", () => {
       createChart(
         model,
         {
-          dataSets: [{ dataRange: "Sheet1!B2:B4" }, { dataRange: "Sheet1!C2:C4" }],
-          labelRange: "Sheet1!A2:A4",
+          ...toChartDataSource({
+            dataSets: [{ dataRange: "Sheet1!B2:B4" }, { dataRange: "Sheet1!C2:C4" }],
+            labelRange: "Sheet1!A2:A4",
+            dataSetsHaveTitle: false,
+          }),
           type: "bar",
-          dataSetsHaveTitle: false,
         },
         "chartId",
         undefined,
@@ -1753,10 +1805,12 @@ describe("Test XLSX export", () => {
     createChart(
       model,
       {
-        dataSets: [{ dataRange: "Sheet1!B2:B4" }, { dataRange: "Sheet1!C2:C4" }],
-        labelRange: "Sheet1!A2:A4",
+        ...toChartDataSource({
+          dataSets: [{ dataRange: "Sheet1!B2:B4" }, { dataRange: "Sheet1!C2:C4" }],
+          labelRange: "Sheet1!A2:A4",
+          dataSetsHaveTitle: false,
+        }),
         type: "bar",
-        dataSetsHaveTitle: false,
       },
       "1"
     );
@@ -2051,8 +2105,10 @@ describe("Test XLSX export", () => {
     setCellContent(model, "A1", `='${longSheetNameWithSpaces}'!A1`);
     createChart(model, {
       type: "bar",
-      dataSets: [{ dataRange: `${longSheetName}!A1:A4` }],
-      labelRange: `${longSheetName}!A1:A4`,
+      ...toChartDataSource({
+        dataSets: [{ dataRange: `${longSheetName}!A1:A4` }],
+        labelRange: `${longSheetName}!A1:A4`,
+      }),
     });
 
     const fixedSheetName = "a".repeat(31);

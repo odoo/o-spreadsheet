@@ -6,6 +6,7 @@ import {
   Cell,
   CellValue,
   CellValueType,
+  ChartRangeDataSource,
   EvaluatedCell,
   FormattedValue,
   Merge,
@@ -171,7 +172,9 @@ export function getRangeFormattedValues(
   xc: string,
   sheetId: UID = model.getters.getActiveSheetId()
 ): FormattedValue[] {
-  return model.getters.getRangeFormattedValues(model.getters.getRangeFromSheetXC(sheetId, xc));
+  return model.getters
+    .getRangeValues(model.getters.getRangeFromSheetXC(sheetId, xc))
+    .map((cell) => cell.formattedValue);
 }
 
 export function getRangeValues(
@@ -179,7 +182,9 @@ export function getRangeValues(
   xc: string,
   sheetId: UID = model.getters.getActiveSheetId()
 ): (CellValue | undefined)[] {
-  return model.getters.getRangeValues(model.getters.getRangeFromSheetXC(sheetId, xc));
+  return model.getters
+    .getRangeValues(model.getters.getRangeFromSheetXC(sheetId, xc))
+    .map((cell) => cell.value);
 }
 
 /**
@@ -276,4 +281,15 @@ export function getTables(model: Model, sheetId: UID) {
   return model.getters
     .getTables(sheetId)
     .map((table) => ({ ...table, zone: zoneToXc(table.range.zone) }));
+}
+
+export function getChartDataSource(
+  model: Model,
+  chartId: UID
+): ChartRangeDataSource<string> | undefined {
+  const definition = model.getters.getChartDefinition(chartId);
+  if (!definition?.dataSource || definition.dataSource.type !== "range") {
+    return undefined;
+  }
+  return definition.dataSource;
 }

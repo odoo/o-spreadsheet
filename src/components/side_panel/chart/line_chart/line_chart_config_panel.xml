@@ -16,22 +16,13 @@
           onChange.bind="onUpdateCumulative"
         />
       </Section>
-      <ChartDataSeries
-        ranges="this.getDataSeriesRanges()"
-        onSelectionChanged.bind="onDataSeriesRangesChanged"
-        onSelectionConfirmed.bind="onDataSeriesConfirmed"
-        onSelectionReordered.bind="onDataSeriesReordered"
-        onSelectionRemoved.bind="onDataSeriesRemoved"
-        canChangeDatasetOrientation="canChangeDatasetOrientation"
-        datasetOrientation="datasetOrientation"
-        onFlipAxis.bind="setDatasetOrientation"
-      />
-      <ChartLabelRange
-        range="this.getLabelRange()"
-        isInvalid="isLabelInvalid"
-        onSelectionChanged.bind="onLabelRangeChanged"
-        onSelectionConfirmed.bind="onLabelRangeConfirmed"
-        options="this.getLabelRangeOptions()"
+      <ChartDataSourceSidePanel
+        chartId="props.chartId"
+        definition="props.definition"
+        updateChart="props.updateChart"
+        canUpdateChart="props.canUpdateChart"
+        onErrorMessagesChanged.bind="onErrorMessagesChanged"
+        getLabelRangeOptions.bind="getLabelRangeOptions"
       />
 
       <ChartErrorSection t-if="errorMessages.length" messages="errorMessages"/>

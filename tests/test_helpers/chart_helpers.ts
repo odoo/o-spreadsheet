@@ -1,6 +1,13 @@
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { TooltipItem } from "chart.js";
-import { ChartCreationContext, ChartJSRuntime, Model, UID } from "../../src";
+import {
+  ChartCreationContext,
+  ChartJSRuntime,
+  ChartRangeDataSource,
+  CustomizedDataSet,
+  Model,
+  UID,
+} from "../../src";
 import { range, toHex } from "../../src/helpers";
 import { click, simulateClick } from "./dom_helper";
 import { nextTick } from "./helpers";
@@ -35,6 +42,51 @@ export function getCategoryAxisTickLabels(model: Model, chartId: UID) {
   return range(0, labels.length).map((index) =>
     runtime.chartJsConfig.options.scales.x.ticks.callback.bind(fakeChart)(index)
   );
+}
+
+interface ChartDataInput {
+  dataSets?: (CustomizedDataSet & {
+    dataRange: string;
+    dataSetId?: UID;
+    type?: "bar" | "line"; // for combo charts
+  })[];
+  labelRange?: string;
+  dataSetsHaveTitle?: boolean;
+}
+
+interface ChartDataOutput {
+  dataSource: ChartRangeDataSource<string>;
+  dataSetStyles: Record<string, CustomizedDataSet>;
+}
+
+export function toChartDataSource(args: ChartDataInput): ChartDataOutput {
+  const { labelRange } = args;
+  const dataSets =
+    args.dataSets?.map((dataSet, i) => ({
+      ...dataSet,
+      dataSetId: dataSet.dataSetId ?? `${i}`,
+    })) ?? [];
+  const dataSetStyles: Record<string, CustomizedDataSet> = {};
+  for (const { dataSetId, dataRange, ...style } of dataSets) {
+    if (Object.keys(style).length !== 0) {
+      dataSetStyles[dataSetId] = style;
+    }
+  }
+  const result: ChartDataOutput = {
+    dataSource: {
+      type: "range",
+      dataSets: dataSets.map(({ dataRange, dataSetId }) => ({ dataRange, dataSetId })),
+      dataSetsHaveTitle: args.dataSetsHaveTitle ?? true,
+    },
+    dataSetStyles,
+  };
+  if ("labelRange" in args) {
+    result.dataSource = {
+      ...result.dataSource,
+      labelRange,
+    };
+  }
+  return result;
 }
 
 export async function openChartConfigSidePanel(
@@ -108,13 +160,19 @@ export function getChartTooltipValues(
 export const GENERAL_CHART_CREATION_CONTEXT: Required<ChartCreationContext> = {
   background: "#123456",
   title: { text: "hello there" },
-  range: [{ dataRange: "Sheet1!B1:B4" }],
-  hierarchicalRanges: [],
+  ...toChartDataSource({
+    dataSets: [{ dataRange: "Sheet1!B1:B4" }],
+    dataSetsHaveTitle: true,
+  }),
+  hierarchicalDataSource: {
+    type: "range",
+    dataSets: [],
+    dataSetsHaveTitle: true,
+  },
   auxiliaryRange: "Sheet1!A1:A4",
   legendPosition: "bottom",
   cumulative: true,
   labelsAsText: true,
-  dataSetsHaveTitle: true,
   aggregated: true,
   stacked: true,
   firstValueAsSubtotal: true,

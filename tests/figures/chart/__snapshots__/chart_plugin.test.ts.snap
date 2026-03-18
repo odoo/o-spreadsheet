@@ -53,6 +53,7 @@ exports[`datasource tests create a chart with stacked bar 1`] = `
         },
       },
       "maintainAspectRatio": false,
+      "onClick": [Function],
       "plugins": {
         "background": {
           "color": undefined,
@@ -60,7 +61,7 @@ exports[`datasource tests create a chart with stacked bar 1`] = `
         "chartShowValuesPlugin": {
           "background": [Function],
           "callback": [Function],
-          "horizontal": undefined,
+          "horizontal": false,
           "showValues": false,
           "type": "bar",
         },
@@ -137,6 +138,12 @@ exports[`datasource tests create a chart with stacked bar 1`] = `
     },
     "type": "bar",
   },
+  "customizableSeries": [
+    {
+      "dataSetId": "0",
+      "label": "P4",
+    },
+  ],
   "masterChartConfig": {
     "data": {
       "datasets": [
@@ -192,6 +199,7 @@ exports[`datasource tests create a chart with stacked bar 1`] = `
         },
       },
       "maintainAspectRatio": false,
+      "onClick": [Function],
       "plugins": {
         "background": {
           "color": undefined,
@@ -324,6 +332,7 @@ exports[`datasource tests create chart with column datasets 1`] = `
         },
       },
       "maintainAspectRatio": false,
+      "onClick": [Function],
       "plugins": {
         "background": {
           "color": undefined,
@@ -409,6 +418,16 @@ exports[`datasource tests create chart with column datasets 1`] = `
     },
     "type": "line",
   },
+  "customizableSeries": [
+    {
+      "dataSetId": "0",
+      "label": "first column dataset",
+    },
+    {
+      "dataSetId": "1",
+      "label": "second column dataset",
+    },
+  ],
   "masterChartConfig": {
     "data": {
       "datasets": [
@@ -481,6 +500,7 @@ exports[`datasource tests create chart with column datasets 1`] = `
         },
       },
       "maintainAspectRatio": false,
+      "onClick": [Function],
       "plugins": {
         "background": {
           "color": undefined,

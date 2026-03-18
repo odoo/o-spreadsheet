@@ -1,8 +1,8 @@
 import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "@odoo/o-spreadsheet-engine/constants";
 import { parseOSClipboardContent } from "@odoo/o-spreadsheet-engine/helpers/clipboard/clipboard_helpers";
-import { BarChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart";
 import { CommandResult, Model } from "../../src";
 import { UID } from "../../src/types";
+import { toChartDataSource } from "../test_helpers/chart_helpers";
 import {
   activateSheet,
   addNewChartToCarousel,
@@ -172,8 +172,13 @@ describe.each(["chart", "image"])("Clipboard for %s figures", (type: string) => 
       model,
       {
         type: "bar",
-        dataSets: [{ dataRange: "Sheet1!A1:A5" }, { dataRange: "Sheet2!B1:B5" }],
-        labelRange: "B1",
+        ...toChartDataSource({
+          dataSets: [
+            { dataRange: "Sheet1!A1:A5", dataSetId: "0" },
+            { dataRange: "Sheet2!B1:B5", dataSetId: "1" },
+          ],
+          labelRange: "B1",
+        }),
       },
       "chartId",
       undefined,
@@ -185,10 +190,12 @@ describe.each(["chart", "image"])("Clipboard for %s figures", (type: string) => 
     paste(model, "A1");
     expect(model.getters.getFigures("sheet2Id")).toHaveLength(1);
     const newChartId = model.getters.getChartIds("sheet2Id")[0];
-    expect(model.getters.getChartDefinition(newChartId)).toMatchObject({
-      dataSets: [{ dataRange: "B1:B5" }],
-      labelRange: undefined,
-    });
+    expect(model.getters.getChartDefinition(newChartId)).toMatchObject(
+      toChartDataSource({
+        dataSets: [{ dataRange: "B1:B5", dataSetId: "1" }],
+        labelRange: undefined,
+      })
+    );
   });
 
   test("Chart clipboard content is not serialized at copy", async () => {
@@ -226,8 +233,12 @@ describe("chart specific Clipboard test", () => {
     const model = new Model();
     const chartId = "thisIsAnId";
     createChart(model, { type: "bar" }, chartId);
-    updateChart(model, chartId, { dataSets: [{ dataRange: "A1:A5" }], labelRange: "B1" });
-    const chartDef = model.getters.getChartDefinition(chartId) as BarChartDefinition;
+    updateChart(
+      model,
+      chartId,
+      toChartDataSource({ dataSets: [{ dataRange: "A1:A5" }], labelRange: "B1" })
+    );
+    const chartDef = model.getters.getChartDefinition(chartId);
     model.dispatch("SELECT_FIGURE", { figureId: model.getters.getFigureIdFromChartId(chartId) });
     copy(model);
     createSheet(model, { sheetId: "42" });
@@ -236,8 +247,7 @@ describe("chart specific Clipboard test", () => {
     const newChartId = model.getters.getChartIds("42")[0];
     expect(model.getters.getChartDefinition(newChartId)).toEqual({
       ...chartDef,
-      dataSets: [{ dataRange: "Sheet1!A1:A5" }],
-      labelRange: "Sheet1!B1",
+      ...toChartDataSource({ dataSets: [{ dataRange: "Sheet1!A1:A5" }], labelRange: "Sheet1!B1" }),
     });
   });
 });
@@ -281,9 +291,12 @@ describe("Carousel clipboard test", () => {
     createCarousel(model, { items: [] }, "carouselId");
     const chartId = addNewChartToCarousel(model, "carouselId", {
       type: "radar",
-      dataSets: [{ dataRange: "A1:A5" }],
+      ...toChartDataSource({ dataSets: [{ dataRange: "A1:A5" }] }),
     });
-    const chartId2 = addNewChartToCarousel(model, "carouselId", { type: "bar", labelRange: "B1" });
+    const chartId2 = addNewChartToCarousel(model, "carouselId", {
+      type: "bar",
+      ...toChartDataSource({ labelRange: "B1", dataSets: [] }),
+    });
     model.dispatch("SELECT_FIGURE", { figureId: "carouselId" });
     copy(model);
     paste(model, "A1");
@@ -298,11 +311,11 @@ describe("Carousel clipboard test", () => {
     ]);
     expect(model.getters.getChartDefinition(copiedCarousel.items[0]["chartId"])).toMatchObject({
       type: "radar",
-      dataSets: [{ dataRange: "A1:A5" }],
+      ...toChartDataSource({ dataSets: [{ dataRange: "A1:A5" }] }),
     });
     expect(model.getters.getChartDefinition(copiedCarousel.items[1]["chartId"])).toMatchObject({
       type: "bar",
-      labelRange: "B1",
+      ...toChartDataSource({ labelRange: "B1", dataSets: [] }),
     });
   });
 
@@ -310,7 +323,7 @@ describe("Carousel clipboard test", () => {
     createCarousel(model, { items: [] }, "carouselId");
     addNewChartToCarousel(model, "carouselId", {
       type: "line",
-      dataSets: [{ dataRange: "A1:A5" }],
+      ...toChartDataSource({ dataSets: [{ dataRange: "A1:A5" }] }),
     });
     model.dispatch("SELECT_FIGURE", { figureId: "carouselId" });
     copy(model);
@@ -323,7 +336,7 @@ describe("Carousel clipboard test", () => {
     const copiedCarousel = model.getters.getCarousel(copiedFigure.id);
     expect(model.getters.getChartDefinition(copiedCarousel.items[0]["chartId"])).toMatchObject({
       type: "line",
-      dataSets: [{ dataRange: "Sheet1!A1:A5" }],
+      ...toChartDataSource({ dataSets: [{ dataRange: "Sheet1!A1:A5" }] }),
     });
   });
 
@@ -331,7 +344,7 @@ describe("Carousel clipboard test", () => {
     createCarousel(model, { items: [{ type: "carouselDataView" }] }, "carouselId");
     const chartId = addNewChartToCarousel(model, "carouselId", {
       type: "line",
-      dataSets: [{ dataRange: "A1:A5" }],
+      ...toChartDataSource({ dataSets: [{ dataRange: "A1:A5" }] }),
     });
     model.dispatch("SELECT_FIGURE", { figureId: "carouselId" });
     copy(model);

@@ -11,6 +11,7 @@ import {
   UpdateChartCommand,
   UpdateTableCommand,
 } from "../../../src/types";
+import { toChartDataSource } from "../../test_helpers/chart_helpers";
 import {
   OT_TESTS_HEADER_GROUP_COMMANDS,
   OT_TESTS_SINGLE_CELL_COMMANDS,
@@ -584,11 +585,13 @@ describe("Transform adapt string formulas on col addition", () => {
 describe("OT with AddColumns and UPDATE_CHART/CREATE_CHART", () => {
   const sheetId = "sheet1";
   const sheetName = "Sheet1";
-  const definition: BarChartDefinition = {
+  const definition: BarChartDefinition<string> = {
     type: "bar",
-    dataSets: [{ dataRange: "Sheet1!M1:M10" }, { dataRange: "Sheet2!M1:M10" }],
-    dataSetsHaveTitle: false,
-    labelRange: "Sheet1!M1:M10",
+    ...toChartDataSource({
+      dataSets: [{ dataRange: "Sheet1!M1:M10" }, { dataRange: "Sheet2!M1:M10" }],
+      dataSetsHaveTitle: false,
+      labelRange: "Sheet1!M1:M10",
+    }),
     legendPosition: "top",
     stacked: false,
     title: { text: "test" },
@@ -623,15 +626,21 @@ describe("OT with AddColumns and UPDATE_CHART/CREATE_CHART", () => {
     let result = transform(toTransform, addColumnsBefore) as CreateChartCommand;
     expect(result.definition).toEqual({
       ...definition,
-      dataSets: [{ dataRange: "Sheet1!O1:O10" }, { dataRange: "Sheet2!M1:M10" }],
-      labelRange: "Sheet1!O1:O10",
+      ...toChartDataSource({
+        dataSets: [{ dataRange: "Sheet1!O1:O10" }, { dataRange: "Sheet2!M1:M10" }],
+        labelRange: "Sheet1!O1:O10",
+        dataSetsHaveTitle: false,
+      }),
     });
 
     result = transform(toTransform, addColOnSheet2) as CreateChartCommand;
     expect(result.definition).toEqual({
       ...definition,
-      dataSets: [{ dataRange: "Sheet1!M1:M10" }, { dataRange: "Sheet2!O1:O10" }],
-      labelRange: "Sheet1!M1:M10",
+      ...toChartDataSource({
+        dataSets: [{ dataRange: "Sheet1!M1:M10" }, { dataRange: "Sheet2!O1:O10" }],
+        labelRange: "Sheet1!M1:M10",
+        dataSetsHaveTitle: false,
+      }),
     });
   });
 
@@ -647,15 +656,21 @@ describe("OT with AddColumns and UPDATE_CHART/CREATE_CHART", () => {
     let result = transform(toTransform, addColumnsBefore) as UpdateChartCommand;
     expect(result.definition).toEqual({
       ...definition,
-      dataSets: [{ dataRange: "Sheet1!O1:O10" }, { dataRange: "Sheet2!M1:M10" }],
-      labelRange: "Sheet1!O1:O10",
+      ...toChartDataSource({
+        dataSets: [{ dataRange: "Sheet1!O1:O10" }, { dataRange: "Sheet2!M1:M10" }],
+        labelRange: "Sheet1!O1:O10",
+        dataSetsHaveTitle: false,
+      }),
     });
 
     result = transform(toTransform, addColOnSheet2) as UpdateChartCommand;
     expect(result.definition).toEqual({
       ...definition,
-      dataSets: [{ dataRange: "Sheet1!M1:M10" }, { dataRange: "Sheet2!O1:O10" }],
-      labelRange: "Sheet1!M1:M10",
+      ...toChartDataSource({
+        dataSets: [{ dataRange: "Sheet1!M1:M10" }, { dataRange: "Sheet2!O1:O10" }],
+        labelRange: "Sheet1!M1:M10",
+        dataSetsHaveTitle: false,
+      }),
     });
   });
 });

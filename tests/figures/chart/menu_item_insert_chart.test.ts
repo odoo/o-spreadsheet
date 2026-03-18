@@ -5,8 +5,9 @@ import {
   DEFAULT_FIGURE_WIDTH,
 } from "@odoo/o-spreadsheet-engine/constants";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
-import { ChartDefinition, CustomizedDataSet, Model } from "../../../src";
+import { ChartDefinition, ChartRangeDataSource, Model } from "../../../src";
 import { toXC, zoneToXc } from "../../../src/helpers";
+import { toChartDataSource } from "../../test_helpers/chart_helpers";
 import {
   addColumns,
   addRows,
@@ -110,12 +111,15 @@ describe("Insert chart menu item", () => {
       chartId: expect.any(String),
       sheetId: expect.any(String),
       definition: {
-        dataSets: [{ dataRange: "A1", yAxisId: "y" }],
-        dataSetsHaveTitle: false,
+        ...toChartDataSource({
+          dataSets: [{ dataRange: "A1", yAxisId: "y" }],
+          dataSetsHaveTitle: false,
+        }),
         stacked: false,
         legendPosition: "none",
         title: {},
         type: "bar",
+        humanize: true,
       },
     };
   });
@@ -392,19 +396,26 @@ describe("Insert chart menu item", () => {
   test("Chart of single cell will extend the selection to find a 'table'", () => {
     setSelection(model, ["A2"]);
     insertChart();
-    const payload = { ...defaultPayload };
-    payload.definition.dataSets = [
-      { dataRange: "B1:B5" },
-      { dataRange: "C1:C5" },
-      { dataRange: "D1:D5" },
-      { dataRange: "E1:E5" },
-      { dataRange: "F1:F5" },
-      { dataRange: "G1:G5" },
-      { dataRange: "H1:H5" },
-    ];
-    payload.definition.labelRange = "A1:A5";
-    payload.definition.dataSetsHaveTitle = true;
-    payload.definition.legendPosition = "top";
+    const payload = {
+      ...defaultPayload,
+      definition: {
+        ...defaultPayload.definition,
+        legendPosition: "top",
+        ...toChartDataSource({
+          dataSets: [
+            { dataRange: "B1:B5" },
+            { dataRange: "C1:C5" },
+            { dataRange: "D1:D5" },
+            { dataRange: "E1:E5" },
+            { dataRange: "F1:F5" },
+            { dataRange: "G1:G5" },
+            { dataRange: "H1:H5" },
+          ],
+          labelRange: "A1:A5",
+          dataSetsHaveTitle: true,
+        }),
+      },
+    };
     expect(dispatchSpy).toHaveBeenCalledWith("CREATE_CHART", payload);
     expect(zoneToXc(model.getters.getSelectedZone())).toBe("A1:H5");
   });
@@ -413,10 +424,12 @@ describe("Insert chart menu item", () => {
     setSelection(model, ["A1:B100"], { unbounded: true });
     insertChart();
     const chartId = model.getters.getChartIds(model.getters.getActiveSheetId())[0];
-    expect(model.getters.getChartDefinition(chartId)).toMatchObject({
-      dataSets: [{ dataRange: "B:B" }],
-      labelRange: "A:A",
-    });
+    expect(model.getters.getChartDefinition(chartId)).toMatchObject(
+      toChartDataSource({
+        dataSets: [{ dataRange: "B:B" }],
+        labelRange: "A:A",
+      })
+    );
   });
 });
 
@@ -476,37 +489,40 @@ describe("Smart chart type detection", () => {
     });
   });
 
-  test.each<[DatasetDescriptor, Partial<ChartDefinition>]>([
-    [["percentage"], { type: "pie" }],
-    [["number"], { type: "bar" }],
-    [["text"], { type: "pie", labelRange: "A1:A6", aggregated: true }], // categorical pie chart, the data range is also the label range
-    [["date"], { type: "line" }],
+  test.each([
+    [["percentage"], { type: "pie", dataSetsHaveTitle: false }],
+    [["number"], { type: "bar", dataSetsHaveTitle: false }],
+    [["text"], { type: "pie", labelRange: "A1:A6", aggregated: true, dataSetsHaveTitle: true }], // categorical pie chart, the data range is also the label range
+    [["date"], { type: "line", dataSetsHaveTitle: false }],
     [["percentage_with_header"], { type: "pie", dataSetsHaveTitle: true }],
     [["date_with_header"], { type: "line", dataSetsHaveTitle: true }],
-  ])("Single column %s creates %s chart", (datasetPattern, expected) => {
-    createDatasetFromDescription(datasetPattern);
+  ] as const)("Single column %s creates chart", (datasetPattern, expected) => {
+    createDatasetFromDescription([...datasetPattern]);
     doAction(["insert", "insert_chart"], env);
 
     const chartId = model.getters.getChartIds(model.getters.getActiveSheetId())[0];
 
     const definition = model.getters.getChartDefinition(chartId);
     expect(definition).toMatchObject({
-      ...expected,
-      dataSets: [{ dataRange: "A1:A6" }],
-      labelRange: "labelRange" in expected ? expected.labelRange : undefined,
+      type: expected.type,
+      ...toChartDataSource({
+        dataSets: [{ dataRange: "A1:A6" }],
+        labelRange: "labelRange" in expected ? expected.labelRange : undefined,
+        dataSetsHaveTitle: expected.dataSetsHaveTitle,
+      }),
     });
   });
 
-  test.each<[DatasetDescriptor, Partial<ChartDefinition>]>([
-    [["text", "percentage"], { type: "pie" }],
-    [["number", "percentage"], { type: "pie" }],
-    [["date", "percentage"], { type: "pie" }],
-    [["number", "number"], { type: "scatter" }],
-    [["date", "number"], { type: "line" }],
-    [["text", "number"], { type: "bar" }],
-    [["text_repeated", "number"], { type: "treemap" }],
-    [["text", "date"], { type: "bar" }],
-    [["number", "text"], { type: "bar" }],
+  test.each([
+    [["text", "percentage"], { type: "pie", dataSetsHaveTitle: false }],
+    [["number", "percentage"], { type: "pie", dataSetsHaveTitle: false }],
+    [["date", "percentage"], { type: "pie", dataSetsHaveTitle: false }],
+    [["number", "number"], { type: "scatter", dataSetsHaveTitle: false }],
+    [["date", "number"], { type: "line", dataSetsHaveTitle: false }],
+    [["text", "number"], { type: "bar", dataSetsHaveTitle: false }],
+    [["text_repeated", "number"], { type: "treemap", dataSetsHaveTitle: false }],
+    [["text", "date"], { type: "bar", dataSetsHaveTitle: false }],
+    [["number", "text"], { type: "bar", dataSetsHaveTitle: true }],
     [["text", "number_with_header"], { type: "bar", dataSetsHaveTitle: true }],
     [["number", "number_with_header"], { type: "scatter", dataSetsHaveTitle: true }],
   ])("Two columns %s creates %s chart", (datasetPattern, expected) => {
@@ -519,63 +535,78 @@ describe("Smart chart type detection", () => {
 
     const chartId = model.getters.getChartIds(model.getters.getActiveSheetId())[0];
     expect(model.getters.getChartDefinition(chartId)).toMatchObject({
-      ...expected,
-      dataSets: expectedDataset,
-      labelRange: expectedLabelRange,
+      type: expected.type,
+      ...toChartDataSource({
+        dataSets: expectedDataset,
+        labelRange: expectedLabelRange,
+        dataSetsHaveTitle: expected.dataSetsHaveTitle,
+      }),
     });
   });
 
-  test.each<[DatasetDescriptor, Partial<ChartDefinition>]>([
-    [["text", "text", "number"], { type: "treemap" }],
-    [["text", "text", "text", "number"], { type: "sunburst" }],
-    [["text", "text", "percentage"], { type: "treemap" }],
-    [["text", "text", "text", "percentage"], { type: "sunburst" }],
+  test.each([
+    [["text", "text", "number"], { type: "treemap", dataSetsHaveTitle: false }],
+    [["text", "text", "text", "number"], { type: "sunburst", dataSetsHaveTitle: false }],
+    [["text", "text", "percentage"], { type: "treemap", dataSetsHaveTitle: false }],
+    [["text", "text", "text", "percentage"], { type: "sunburst", dataSetsHaveTitle: false }],
     [["text", "text", "text", "number_with_header"], { type: "sunburst", dataSetsHaveTitle: true }],
   ])("Multiple text columns  %s create a %s hierarchical chart", (datasetPattern, expected) => {
     createDatasetFromDescription(datasetPattern);
     doAction(["insert", "insert_chart"], env);
 
     const datasetLastCol = datasetPattern.findIndex((p) => !p.includes("text"));
-    const expectedDatasets: CustomizedDataSet[] = [];
+    const expectedDatasets: ChartRangeDataSource<string>["dataSets"] = [];
     for (let i = 0; i < datasetLastCol; i++) {
-      expectedDatasets.push({ dataRange: toXC(i, 0) + ":" + toXC(i, 5) });
+      expectedDatasets.push({ dataRange: toXC(i, 0) + ":" + toXC(i, 5), dataSetId: i.toString() });
     }
     const expectedLabelRange = toXC(datasetLastCol, 0) + ":" + toXC(datasetLastCol, 5);
 
     const chartId = model.getters.getChartIds(model.getters.getActiveSheetId())[0];
     expect(model.getters.getChartDefinition(chartId)).toMatchObject({
-      ...expected,
-      dataSets: expectedDatasets,
-      labelRange: expectedLabelRange,
+      type: expected.type,
+      ...toChartDataSource({
+        dataSets: expectedDatasets,
+        labelRange: expectedLabelRange,
+        dataSetsHaveTitle: expected.dataSetsHaveTitle,
+      }),
     });
   });
 
-  test.each<[DatasetDescriptor, Partial<ChartDefinition>]>([
-    [["text", "percentage", "percentage"], { type: "pie" }],
-    [["number", "percentage", "percentage", "percentage"], { type: "pie" }],
-    [["date", "number", "number"], { type: "line" }],
+  test.each([
+    [["text", "percentage", "percentage"], { type: "pie", dataSetsHaveTitle: false }],
+    [
+      ["number", "percentage", "percentage", "percentage"],
+      { type: "pie", dataSetsHaveTitle: false },
+    ],
+    [["date", "number", "number"], { type: "line", dataSetsHaveTitle: false }],
     // Any other combination should give a bar chart with correct datasets
-    [["text", "number", "percentage"], { type: "bar" }],
-    [["text", "number", "date"], { type: "bar" }],
-    [["text", "number", "number"], { type: "bar" }],
-    [["number", "number", "number"], { type: "bar" }],
-    [["date", "date", "number", "text"], { type: "bar" }],
+    [["text", "number", "percentage"], { type: "bar", dataSetsHaveTitle: false }],
+    [["text", "number", "date"], { type: "bar", dataSetsHaveTitle: false }],
+    [["text", "number", "number"], { type: "bar", dataSetsHaveTitle: false }],
+    [["number", "number", "number"], { type: "bar", dataSetsHaveTitle: false }],
+    [["date", "date", "number", "text"], { type: "bar", dataSetsHaveTitle: false }],
     [["text", "number_with_header", "percentage"], { type: "bar", dataSetsHaveTitle: true }],
     [["text", "number", "date_with_header"], { type: "bar", dataSetsHaveTitle: true }],
   ])("Multiple columns  %s create a %s chart", (datasetPattern, expected) => {
     createDatasetFromDescription(datasetPattern);
     doAction(["insert", "insert_chart"], env);
 
-    const expectedDatasets: CustomizedDataSet[] = [];
+    const expectedDatasets: ChartRangeDataSource<string>["dataSets"] = [];
     for (let i = 1; i < datasetPattern.length; i++) {
-      expectedDatasets.push({ dataRange: toXC(i, 0) + ":" + toXC(i, 5) });
+      expectedDatasets.push({
+        dataRange: toXC(i, 0) + ":" + toXC(i, 5),
+        dataSetId: (i - 1).toString(),
+      });
     }
 
     const chartId = model.getters.getChartIds(model.getters.getActiveSheetId())[0];
     expect(model.getters.getChartDefinition(chartId)).toMatchObject({
-      ...expected,
-      dataSets: expectedDatasets,
-      labelRange: "A1:A6",
+      type: expected.type,
+      ...toChartDataSource({
+        dataSets: expectedDatasets,
+        labelRange: "A1:A6",
+        dataSetsHaveTitle: expected.dataSetsHaveTitle,
+      }),
     });
   });
 
@@ -585,8 +616,10 @@ describe("Smart chart type detection", () => {
     const chartId = model.getters.getChartIds(model.getters.getActiveSheetId())[0];
     expect(model.getters.getChartDefinition(chartId)).toMatchObject({
       type: "bar",
-      dataSets: [{ dataRange: "A1:A6" }, { dataRange: "B1:B6" }],
-      dataSetsHaveTitle: false,
+      ...toChartDataSource({
+        dataSets: [{ dataRange: "A1:A6" }, { dataRange: "B1:B6" }],
+        dataSetsHaveTitle: false,
+      }),
     });
   });
 
@@ -597,8 +630,11 @@ describe("Smart chart type detection", () => {
     const chartId = model.getters.getChartIds(model.getters.getActiveSheetId())[0];
     expect(model.getters.getChartDefinition(chartId)).toMatchObject({
       type: "scatter",
-      dataSets: [{ dataRange: "C1:C6" }],
-      labelRange: "A1:A6",
+      ...toChartDataSource({
+        dataSets: [{ dataRange: "C1:C6" }],
+        labelRange: "A1:A6",
+        dataSetsHaveTitle: false,
+      }),
     });
   });
 

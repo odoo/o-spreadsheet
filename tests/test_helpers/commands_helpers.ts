@@ -19,7 +19,7 @@ import {
   BorderData,
   Carousel,
   ChartDefinition,
-  ChartWithDataSetDefinition,
+  ChartDefinitionWithDataSource,
   ClipboardPasteOptions,
   Color,
   ConditionalFormatRule,
@@ -45,7 +45,16 @@ import {
 import { createEqualCF, target, toRangeData, toRangesData } from "./helpers";
 
 import { ICON_SETS } from "@odoo/o-spreadsheet-engine/components/icons/icons";
-import { SunburstChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart";
+import { Chart } from "@odoo/o-spreadsheet-engine/helpers/figures/chart";
+import { chartDataSourceRegistry } from "@odoo/o-spreadsheet-engine/registries/chart_data_source_registry";
+import { chartTypeRegistry } from "@odoo/o-spreadsheet-engine/registries/chart_registry";
+import {
+  ChartCreationContext,
+  ChartRangeDataSource,
+  ChartType,
+  ChartTypeDefinition,
+  SunburstChartDefinition,
+} from "@odoo/o-spreadsheet-engine/types/chart";
 import { CalendarChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/calendar_chart";
 import { ComboChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/combo_chart";
 import { FunnelChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/funnel_chart";
@@ -62,6 +71,7 @@ import {
   CriterionFilter,
   TableConfig,
 } from "@odoo/o-spreadsheet-engine/types/table";
+import { toChartDataSource } from "./chart_helpers";
 
 /**
  * Dispatch an UNDO to the model
@@ -217,33 +227,30 @@ export function createImage(
  */
 export function createChart(
   model: Model,
-  data: { type: ChartDefinition["type"] } & Partial<ChartWithDataSetDefinition>,
+  data: { type: ChartDefinition["type"] } & Partial<ChartDefinitionWithDataSource<string>>,
   chartId?: UID,
   sheetId?: UID,
   figureData: Partial<CreateFigureCommand> = {}
 ) {
   const id = chartId || model.uuidGenerator.uuidv4();
   sheetId = sheetId || model.getters.getActiveSheetId();
+
+  // definition with all possible fields filled
   const definition = {
+    verticalAxisPosition: "left" as const,
+    legendPosition: "top" as const,
+    horizontalGroupBy: "day_of_week" as const,
+    verticalGroupBy: "month_number" as const,
+    stacked: false,
+    labelsAsText: false,
+    aggregated: false,
+    cumulative: false,
+    showSubTotals: false,
+    showConnectorLines: false,
+    title: { text: "test" },
     ...data,
-    title: data.title || { text: "test" },
-    dataSets: ("dataSets" in data && data.dataSets) || [],
-    dataSetsHaveTitle:
-      "dataSetsHaveTitle" in data && data.dataSetsHaveTitle !== undefined
-        ? data.dataSetsHaveTitle
-        : true,
-    labelRange: "labelRange" in data ? data.labelRange : undefined,
-    verticalAxisPosition: ("verticalAxisPosition" in data && data.verticalAxisPosition) || "left",
-    background: data.background,
-    legendPosition: ("legendPosition" in data && data.legendPosition) || "top",
-    stacked: ("stacked" in data && data.stacked) || false,
-    labelsAsText: ("labelsAsText" in data && data.labelsAsText) || false,
-    aggregated: ("aggregated" in data && data.aggregated) || false,
-    cumulative: ("cumulative" in data && data.cumulative) || false,
-    showSubTotals: ("showSubTotals" in data && data.showSubTotals) || false,
-    showConnectorLines: ("showConnectorLines" in data && data.showConnectorLines) || false,
-    horizontalGroupBy: ("horizontalGroupBy" in data && data.horizontalGroupBy) || "day_of_week",
-    verticalGroupBy: ("verticalGroupBy" in data && data.verticalGroupBy) || "month_number",
+    dataSource: data.dataSource ?? { type: "range", dataSets: [], dataSetsHaveTitle: false },
+    dataSetStyles: data.dataSetStyles ?? {},
   };
   return model.dispatch("CREATE_CHART", {
     figureId: figureData.figureId || model.uuidGenerator.smallUuid(),
@@ -254,13 +261,13 @@ export function createChart(
     size: { width: 536, height: 335 },
     offset: { x: 0, y: 0 },
     ...figureData,
-    definition,
+    definition: Chart.deleteInvalidKeys(definition),
   });
 }
 
 export function createComboChart(
   model: Model,
-  data: Partial<ComboChartDefinition>,
+  data: Partial<ComboChartDefinition<string>>,
   chartId?: UID,
   sheetId?: UID,
   figureData: Partial<CreateFigureCommand> = {}
@@ -279,9 +286,12 @@ export function createComboChart(
     ...figureData,
     definition: {
       title: data.title || { text: "test" },
-      dataSets: data.dataSets || [],
-      dataSetsHaveTitle: data.dataSetsHaveTitle !== undefined ? data.dataSetsHaveTitle : true,
-      labelRange: data.labelRange,
+      dataSource: data.dataSource ?? {
+        type: "range",
+        dataSets: [],
+        dataSetsHaveTitle: true,
+      },
+      dataSetStyles: data.dataSetStyles ?? {},
       type: "combo",
       background: data.background,
       legendPosition: data.legendPosition || "top",
@@ -293,7 +303,7 @@ export function createComboChart(
 
 export function createRadarChart(
   model: Model,
-  data: Partial<RadarChartDefinition>,
+  data: Partial<RadarChartDefinition<string>>,
   chartId?: UID,
   sheetId?: UID,
   figureData: Partial<CreateFigureCommand> = {}
@@ -312,9 +322,8 @@ export function createRadarChart(
     ...figureData,
     definition: {
       title: data.title || { text: "test" },
-      dataSets: data.dataSets || [],
-      dataSetsHaveTitle: data.dataSetsHaveTitle !== undefined ? data.dataSetsHaveTitle : true,
-      labelRange: data.labelRange,
+      dataSource: data.dataSource ?? { type: "range", dataSets: [], dataSetsHaveTitle: false },
+      dataSetStyles: data.dataSetStyles ?? {},
       type: "radar",
       background: data.background,
       legendPosition: data.legendPosition || "top",
@@ -328,7 +337,7 @@ export function createRadarChart(
 
 export function createCalendarChart(
   model: Model,
-  data: Partial<CalendarChartDefinition>,
+  data: Partial<CalendarChartDefinition<string>>,
   chartId?: UID,
   sheetId?: UID,
   figureData: Partial<CreateFigureCommand> = {}
@@ -347,9 +356,8 @@ export function createCalendarChart(
     ...figureData,
     definition: {
       title: data.title || { text: "test" },
-      dataSets: data.dataSets ?? [],
-      dataSetsHaveTitle: data.dataSetsHaveTitle !== undefined ? data.dataSetsHaveTitle : true,
-      labelRange: data.labelRange,
+      dataSource: data.dataSource ?? { type: "range", dataSets: [], dataSetsHaveTitle: false },
+      dataSetStyles: data.dataSetStyles ?? {},
       type: "calendar",
       background: data.background,
       horizontalGroupBy: data.horizontalGroupBy ?? "day_of_week",
@@ -360,24 +368,33 @@ export function createCalendarChart(
   });
 }
 
-export function createWaterfallChart(model: Model, def?: Partial<WaterfallChartDefinition>): UID {
+export function createWaterfallChart(
+  model: Model,
+  def?: Partial<WaterfallChartDefinition<string>>
+): UID {
   createChart(model, { ...def, type: "waterfall" });
   const sheetId = model.getters.getActiveSheetId();
   return model.getters.getChartIds(sheetId)[0];
 }
 
-export function createFunnelChart(model: Model, def?: Partial<FunnelChartDefinition>): UID {
+export function createFunnelChart(model: Model, def?: Partial<FunnelChartDefinition<string>>): UID {
   createChart(model, { ...def, type: "funnel" });
   const sheetId = model.getters.getActiveSheetId();
   return model.getters.getChartIds(sheetId)[0];
 }
 
-export function createSunburstChart(model: Model, def?: Partial<SunburstChartDefinition>): UID {
+export function createSunburstChart(
+  model: Model,
+  def?: Partial<SunburstChartDefinition<string>>
+): UID {
   createChart(model, { ...def, type: "sunburst" });
   return model.getters.getChartIds(model.getters.getActiveSheetId())[0];
 }
 
-export function createTreeMapChart(model: Model, def?: Partial<TreeMapChartDefinition>): UID {
+export function createTreeMapChart(
+  model: Model,
+  def?: Partial<TreeMapChartDefinition<string>>
+): UID {
   createChart(model, { ...def, type: "treemap" });
   const sheetId = model.getters.getActiveSheetId();
   return model.getters.getChartIds(sheetId)[0];
@@ -468,7 +485,7 @@ export function createGaugeChart(
 
 export function createGeoChart(
   model: Model,
-  data: Partial<GeoChartDefinition>,
+  data: Partial<GeoChartDefinition<string>>,
   chartId: UID = "chartId",
   sheetId: UID = model.getters.getActiveSheetId(),
   figureData: Partial<CreateFigureCommand> = {}
@@ -486,9 +503,8 @@ export function createGeoChart(
     ...figureData,
     definition: {
       title: data.title || { text: "test" },
-      dataSets: data.dataSets || [],
-      dataSetsHaveTitle: data.dataSetsHaveTitle !== undefined ? data.dataSetsHaveTitle : true,
-      labelRange: data.labelRange,
+      dataSource: data.dataSource ?? { type: "range", dataSets: [], dataSetsHaveTitle: false },
+      dataSetStyles: data.dataSetStyles ?? {},
       type: "geo",
       background: data.background,
       legendPosition: data.legendPosition || "top",
@@ -500,6 +516,19 @@ export function createGeoChart(
   });
 }
 
+export function createChartDefinitionFromContext<TType extends ChartType>(
+  type: TType,
+  context: ChartCreationContext
+): ChartTypeDefinition<TType, string> {
+  const DataSourceBuilder = chartDataSourceRegistry.get("range");
+  return chartTypeRegistry
+    .get(type)
+    ?.getDefinitionFromContextCreation(context, DataSourceBuilder) as ChartTypeDefinition<
+    TType,
+    string
+  >;
+}
+
 /**
  * Update a chart
  */
@@ -509,16 +538,51 @@ export function updateChart(
   definition: Partial<ChartDefinition>,
   sheetId: UID = model.getters.getActiveSheetId()
 ): DispatchResult {
-  const def: ChartDefinition = {
-    ...model.getters.getChartDefinition(chartId),
-    ...definition,
-  } as ChartDefinition;
+  const currentDefinition = model.getters.getChartDefinition(chartId);
+  let updatedDef: ChartDefinition;
+  if (definition.type && definition.type !== currentDefinition.type) {
+    const context = model.getters.getContextCreationChart(chartId);
+    const converted = createChartDefinitionFromContext(definition.type, context ?? {});
+    updatedDef = { ...converted, ...definition } as ChartDefinition;
+  } else {
+    updatedDef = {
+      ...currentDefinition,
+      ...definition,
+    } as ChartDefinition;
+  }
   return model.dispatch("UPDATE_CHART", {
     figureId: model.getters.getFigureIdFromChartId(chartId),
     chartId,
     sheetId,
-    definition: def,
+    definition: updatedDef,
   });
+}
+
+export function updateChartDataSource(
+  model: Model,
+  chartId: UID,
+  dataSource: Partial<ChartRangeDataSource<string>>,
+  sheetId: UID = model.getters.getActiveSheetId()
+): DispatchResult {
+  const currentDefinition = model.getters.getChartDefinition(
+    chartId
+  ) as ChartDefinitionWithDataSource<string>;
+  if (!("dataSource" in currentDefinition)) {
+    throw new Error("Chart has no data source");
+  }
+  const ds = toChartDataSource({
+    ...currentDefinition.dataSource,
+    ...dataSource,
+  });
+  const updatedDef = {
+    ...currentDefinition,
+    ...ds,
+    dataSetStyles: {
+      ...currentDefinition.dataSetStyles,
+      ...ds.dataSetStyles,
+    },
+  };
+  return updateChart(model, chartId, updatedDef, sheetId);
 }
 
 /**

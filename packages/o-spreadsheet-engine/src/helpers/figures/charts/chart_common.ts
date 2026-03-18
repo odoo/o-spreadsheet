@@ -2,38 +2,29 @@ import { DEFAULT_WINDOW_SIZE, MAX_CHAR_LABEL } from "../../../constants";
 import { _t } from "../../../translation";
 import {
   ChartAxisFormats,
-  ChartWithDataSetDefinition,
-  CustomizedDataSet,
+  ChartDefinitionWithDataSource,
+  ChartRangeDataSource,
   DataSet,
+  DataSetStyle,
   DatasetValues,
   ExcelChartDataset,
   ExcelChartTrendConfiguration,
-  GenericDefinition,
 } from "../../../types/chart";
 import { CommandResult } from "../../../types/commands";
 import { CoreGetters } from "../../../types/core_getters";
-import { CellErrorType } from "../../../types/errors";
 import { LocaleFormat } from "../../../types/format";
 import { Getters } from "../../../types/getters";
 import { Locale } from "../../../types/locale";
-import {
-  ApplyRangeChange,
-  Color,
-  RangeAdapter,
-  UID,
-  UnboundedZone,
-  Zone,
-} from "../../../types/misc";
+import { Color, RangeAdapterFunctions, UID, UnboundedZone, Zone } from "../../../types/misc";
 import { Range } from "../../../types/range";
 import { DOMCoordinates, DOMDimension } from "../../../types/rendering";
 import { MAX_XLSX_POLYNOMIAL_DEGREE } from "../../../xlsx/constants";
 import { ColorGenerator, relativeLuminance } from "../../color";
 import { formatValue, humanizeNumber } from "../../format/format";
-import { adaptStringRange } from "../../formulas";
-import { isDefined, largeMax } from "../../misc";
+import { largeMax } from "../../misc";
 import { createRange, duplicateRangeInDuplicatedSheet } from "../../range";
 import { rangeReference } from "../../references";
-import { getZoneArea, isFullRow, toUnboundedZone, zoneToDimension, zoneToXc } from "../../zones";
+import { isFullRow, toUnboundedZone, zoneToDimension, zoneToXc } from "../../zones";
 
 export const TREND_LINE_XAXIS_ID = "x1";
 export const MOVING_AVERAGE_TREND_LINE_XAXIS_ID = "xMovingAverage";
@@ -48,78 +39,6 @@ export const SPREADSHEET_TO_EXCEL_TRENDLINE_TYPE_MAPPING = {
  * This file contains helpers that are common to different charts (mainly
  * line, bar and pie charts)
  */
-
-/**
- * Adapt ranges of a chart which support DataSet (dataSets and LabelRange).
- */
-export function updateChartRangesWithDataSets(
-  getters: CoreGetters,
-  applyChange: ApplyRangeChange,
-  chartDataSets: DataSet[],
-  chartLabelRange?: Range
-) {
-  let isStale = false;
-  const dataSetsWithUndefined: (DataSet | undefined)[] = [];
-  for (const index in chartDataSets) {
-    let ds: DataSet | undefined = chartDataSets[index]!;
-    if (ds.labelCell) {
-      const labelCell = adaptChartRange(ds.labelCell, applyChange);
-      if (ds.labelCell !== labelCell) {
-        isStale = true;
-        ds = {
-          ...ds,
-          labelCell: labelCell,
-        };
-      }
-    }
-    const dataRange = adaptChartRange(ds.dataRange, applyChange);
-    if (
-      dataRange === undefined ||
-      getters.getRangeString(dataRange, dataRange.sheetId) === CellErrorType.InvalidReference
-    ) {
-      isStale = true;
-      ds = undefined;
-    } else if (dataRange !== ds.dataRange) {
-      isStale = true;
-      ds = {
-        ...ds,
-        dataRange,
-      };
-    }
-    dataSetsWithUndefined[index] = ds;
-  }
-  let labelRange = chartLabelRange;
-  const range = adaptChartRange(labelRange, applyChange);
-  if (range !== labelRange) {
-    isStale = true;
-    labelRange = range;
-  }
-  const dataSets = dataSetsWithUndefined.filter(isDefined);
-  return {
-    isStale,
-    dataSets,
-    labelRange,
-  };
-}
-
-/**
- * Duplicate the dataSets. All ranges on sheetIdFrom are adapted to target
- * sheetIdTo.
- */
-export function duplicateDataSetsInDuplicatedSheet(
-  sheetIdFrom: UID,
-  sheetIdTo: UID,
-  dataSets: DataSet[]
-): DataSet[] {
-  return dataSets.map((ds) => {
-    return {
-      dataRange: duplicateRangeInDuplicatedSheet(sheetIdFrom, sheetIdTo, ds.dataRange),
-      labelCell: ds.labelCell
-        ? duplicateRangeInDuplicatedSheet(sheetIdFrom, sheetIdTo, ds.labelCell)
-        : undefined,
-    };
-  });
-}
 
 /**
  * Duplicate a range. If the range is on the sheetIdFrom, the range will target
@@ -138,7 +57,7 @@ export function duplicateLabelRangeInDuplicatedSheet(
  */
 export function adaptChartRange(
   range: Range | undefined,
-  applyChange: ApplyRangeChange
+  { applyChange }: RangeAdapterFunctions
 ): Range | undefined {
   if (!range) {
     return undefined;
@@ -157,12 +76,11 @@ export function adaptChartRange(
  */
 export function createDataSets(
   getters: CoreGetters,
-  customizedDataSets: CustomizedDataSet[],
   sheetId: UID,
-  dataSetsHaveTitle: boolean
+  dataSource: ChartRangeDataSource<string>
 ): DataSet[] {
   const dataSets: DataSet[] = [];
-  for (const dataSet of customizedDataSets) {
+  for (const dataSet of dataSource.dataSets) {
     const dataRange = getters.getRangeFromSheetXC(sheetId, dataSet.dataRange);
     const { unboundedZone: zone, sheetId: dataSetSheetId, invalidSheetName, invalidXc } = dataRange;
     if (invalidSheetName || invalidXc) {
@@ -174,7 +92,7 @@ export function createDataSets(
         // Should never happens because of the allowDispatch of charts, but just making sure
         continue;
       }
-
+      let dataSetId = dataSet.dataSetId;
       for (let column = zone.left; column <= zone.right; column++) {
         const columnZone = {
           ...zone,
@@ -186,7 +104,7 @@ export function createDataSets(
             getters,
             dataSetSheetId,
             columnZone,
-            dataSetsHaveTitle
+            dataSource.dataSetsHaveTitle
               ? {
                   top: columnZone.top,
                   bottom: columnZone.top,
@@ -195,11 +113,9 @@ export function createDataSets(
                 }
               : undefined
           ),
-          backgroundColor: dataSet.backgroundColor,
-          rightYAxis: dataSet.yAxisId === "y1",
-          customLabel: dataSet.label,
-          trend: dataSet.trend,
+          dataSetId,
         });
+        dataSetId = `${dataSetId}_${column}`;
       }
     } else {
       /* 1 cell, 1 row or 1 column */
@@ -208,7 +124,7 @@ export function createDataSets(
           getters,
           dataSetSheetId,
           zone,
-          dataSetsHaveTitle
+          dataSource.dataSetsHaveTitle
             ? {
                 top: zone.top,
                 bottom: zone.top,
@@ -217,10 +133,7 @@ export function createDataSets(
               }
             : undefined
         ),
-        backgroundColor: dataSet.backgroundColor,
-        rightYAxis: dataSet.yAxisId === "y1",
-        customLabel: dataSet.label,
-        trend: dataSet.trend,
+        dataSetId: dataSet.dataSetId,
       });
     }
   }
@@ -232,7 +145,7 @@ function createDataSet(
   sheetId: UID,
   fullZone: Zone | UnboundedZone,
   titleZone: Zone | UnboundedZone | undefined
-): DataSet {
+): Pick<DataSet, "dataRange" | "labelCell"> {
   if (fullZone.left !== fullZone.right && fullZone.top !== fullZone.bottom) {
     throw new Error(`Zone should be a single column or row: ${zoneToXc(fullZone)}`);
   }
@@ -254,7 +167,11 @@ function createDataSet(
 /**
  * Transform a dataSet to a ExcelDataSet
  */
-export function toExcelDataset(getters: CoreGetters, ds: DataSet): ExcelChartDataset {
+export function toExcelDataset(
+  getters: CoreGetters,
+  dataSetStyles: DataSetStyle,
+  ds: DataSet
+): ExcelChartDataset {
   const labelZone = ds.labelCell?.zone;
   let dataZone = ds.dataRange.zone;
   if (labelZone) {
@@ -265,12 +182,13 @@ export function toExcelDataset(getters: CoreGetters, ds: DataSet): ExcelChartDat
       dataZone = { ...dataZone, top: dataZone.top + 1 };
     }
   }
+  const dataSetStyle = dataSetStyles[ds.dataSetId] ?? {};
 
   const dataRange = createRange({ ...ds.dataRange, zone: dataZone }, getters.getSheetSize);
   let label = {};
-  if (ds.customLabel) {
+  if (dataSetStyle.label) {
     label = {
-      text: ds.customLabel,
+      text: dataSetStyle.label,
     };
   } else if (ds.labelCell) {
     label = {
@@ -281,22 +199,24 @@ export function toExcelDataset(getters: CoreGetters, ds: DataSet): ExcelChartDat
   }
 
   let trend: ExcelChartTrendConfiguration | undefined;
-  if (ds.trend?.type) {
+  if (dataSetStyle.trend?.type) {
     trend = {
       type:
-        ds.trend.type === "polynomial" && ds.trend.order === 1
+        dataSetStyle.trend.type === "polynomial" && dataSetStyle.trend.order === 1
           ? "linear"
-          : SPREADSHEET_TO_EXCEL_TRENDLINE_TYPE_MAPPING[ds.trend.type],
-      color: ds.trend.color,
-      order: ds.trend.order ? Math.min(ds.trend.order, MAX_XLSX_POLYNOMIAL_DEGREE) : undefined,
-      window: ds.trend.window || DEFAULT_WINDOW_SIZE,
+          : SPREADSHEET_TO_EXCEL_TRENDLINE_TYPE_MAPPING[dataSetStyle.trend.type],
+      color: dataSetStyle.trend.color,
+      order: dataSetStyle.trend.order
+        ? Math.min(dataSetStyle.trend.order, MAX_XLSX_POLYNOMIAL_DEGREE)
+        : undefined,
+      window: dataSetStyle.trend.window || DEFAULT_WINDOW_SIZE,
     };
   }
   return {
     label,
     range: getters.getRangeString(dataRange, "forceSheetReference", { useBoundedReference: true }),
-    backgroundColor: ds.backgroundColor,
-    rightYAxis: ds.rightYAxis,
+    backgroundColor: dataSetStyle.backgroundColor,
+    rightYAxis: dataSetStyle.yAxisId === "y1",
     trend,
   };
 }
@@ -320,49 +240,6 @@ export function toExcelLabelRange(
 }
 
 /**
- * Transform a chart definition which supports dataSets (dataSets and LabelRange)
- * with an executed command
- */
-export function transformChartDefinitionWithDataSetsWithZone<T extends ChartWithDataSetDefinition>(
-  chartSheetId: UID,
-  definition: T,
-  applyChange: RangeAdapter
-): T {
-  let labelRange: string | undefined;
-  if (definition.labelRange) {
-    const { changeType, range: adaptedRange } = adaptStringRange(
-      chartSheetId,
-      definition.labelRange,
-      applyChange
-    );
-    if (changeType !== "REMOVE") {
-      labelRange = adaptedRange;
-    }
-  }
-
-  const dataSets: CustomizedDataSet[] = [];
-  for (const dataSet of definition.dataSets) {
-    const newDataSet = { ...dataSet };
-    const { changeType, range: adaptedRange } = adaptStringRange(
-      chartSheetId,
-      dataSet.dataRange,
-      applyChange
-    );
-
-    if (changeType !== "REMOVE") {
-      newDataSet.dataRange = adaptedRange;
-      dataSets.push(newDataSet);
-    }
-  }
-
-  return {
-    ...definition,
-    dataSets,
-    labelRange,
-  };
-}
-
-/**
  * Choose a font color based on a background color.
  * The font is white with a dark background.
  */
@@ -380,24 +257,22 @@ export function chartMutedFontColor(backgroundColor: Color | undefined): Color {
   return relativeLuminance(backgroundColor) < 0.3 ? "#C8C8C8" : "#666666";
 }
 
-export function checkDataset(definition: ChartWithDataSetDefinition): CommandResult {
-  if (definition.dataSets) {
-    const invalidRanges =
-      definition.dataSets.find((range) => !rangeReference.test(range.dataRange)) !== undefined;
-    if (invalidRanges) {
-      return CommandResult.InvalidDataSet;
-    }
-    const zones = definition.dataSets.map((ds) => toUnboundedZone(ds.dataRange));
-    if (zones.some((zone) => zone.top !== zone.bottom && isFullRow(zone))) {
-      return CommandResult.InvalidDataSet;
-    }
+export function checkDataset(dataSource: ChartRangeDataSource<string>): CommandResult {
+  const invalidRanges =
+    dataSource.dataSets.find((range) => !rangeReference.test(range.dataRange)) !== undefined;
+  if (invalidRanges) {
+    return CommandResult.InvalidDataSet;
+  }
+  const zones = dataSource.dataSets.map((ds) => toUnboundedZone(ds.dataRange));
+  if (zones.some((zone) => zone.top !== zone.bottom && isFullRow(zone))) {
+    return CommandResult.InvalidDataSet;
   }
   return CommandResult.Success;
 }
 
-export function checkLabelRange(definition: ChartWithDataSetDefinition): CommandResult {
-  if (definition.labelRange) {
-    const invalidLabels = !rangeReference.test(definition.labelRange || "");
+export function checkLabelRange(dataSource: ChartRangeDataSource<string>): CommandResult {
+  if (dataSource.labelRange) {
+    const invalidLabels = !rangeReference.test(dataSource.labelRange || "");
     if (invalidLabels) {
       return CommandResult.InvalidLabelRange;
     }
@@ -406,25 +281,11 @@ export function checkLabelRange(definition: ChartWithDataSetDefinition): Command
 }
 
 export function shouldRemoveFirstLabel(
-  labelRange: Range | undefined,
-  dataset: DataSet | undefined,
+  numberOfLabels: number,
+  numberOfDataPoints: number | undefined,
   dataSetsHaveTitle: boolean
 ) {
-  if (!dataSetsHaveTitle) {
-    return false;
-  }
-  if (!labelRange) {
-    return false;
-  }
-  if (!dataset) {
-    return true;
-  }
-  const datasetLength = getZoneArea(dataset.dataRange.zone);
-  const labelLength = getZoneArea(labelRange.zone);
-  if (labelLength < datasetLength) {
-    return false;
-  }
-  return true;
+  return dataSetsHaveTitle && !!numberOfDataPoints && numberOfLabels >= numberOfDataPoints;
 }
 
 export function getChartPositionAtCenterOfViewport(
@@ -441,7 +302,9 @@ export function getChartPositionAtCenterOfViewport(
   }; // Position at the center of the scrollable viewport
 }
 
-export function getDefinedAxis(definition: GenericDefinition<ChartWithDataSetDefinition>): {
+export function getDefinedAxis(
+  definition: Partial<ChartDefinitionWithDataSource<string | Range>>
+): {
   useLeftAxis: boolean;
   useRightAxis: boolean;
 } {
@@ -450,8 +313,8 @@ export function getDefinedAxis(definition: GenericDefinition<ChartWithDataSetDef
   if ("horizontal" in definition && definition.horizontal) {
     return { useLeftAxis: true, useRightAxis: false };
   }
-  for (const design of definition.dataSets || []) {
-    if (design.yAxisId === "y1") {
+  for (const design of Object.values(definition.dataSetStyles ?? {})) {
+    if (design?.yAxisId === "y1") {
       useRightAxis = true;
     } else {
       useLeftAxis = true;

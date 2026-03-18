@@ -129,6 +129,52 @@ function _createEvaluatedCell(
   return textCell(value, format, formattedValue);
 }
 
+export function isNumberResult(
+  result: FunctionResultObject | undefined
+): result is { value: number } {
+  return !!result && getEvaluatedCellType(result) === CellValueType.number;
+}
+
+export function isTextResult(
+  result: FunctionResultObject | undefined
+): result is { value: string } {
+  return !!result && getEvaluatedCellType(result) === CellValueType.text;
+}
+
+export function isBooleanResult(
+  result: FunctionResultObject | undefined
+): result is { value: boolean } {
+  return !!result && getEvaluatedCellType(result) === CellValueType.boolean;
+}
+
+export function isEmptyResult(result: FunctionResultObject | undefined): result is { value: null } {
+  return !!result && getEvaluatedCellType(result) === CellValueType.empty;
+}
+
+export function isErrorResult(
+  result: FunctionResultObject | undefined
+): result is { value: string } {
+  return !!result && getEvaluatedCellType(result) === CellValueType.error;
+}
+
+function getEvaluatedCellType({ value, format }: FunctionResultObject): CellValueType {
+  if (value === null) {
+    return CellValueType.empty;
+  } else if (isEvaluationError(value)) {
+    return CellValueType.error;
+  } else if (isTextFormat(format)) {
+    return CellValueType.text;
+  }
+  switch (typeof value) {
+    case "number":
+      return CellValueType.number;
+    case "boolean":
+      return CellValueType.boolean;
+    case "string":
+      return CellValueType.text;
+  }
+}
+
 function textCell(
   value: string,
   format: string | undefined,
