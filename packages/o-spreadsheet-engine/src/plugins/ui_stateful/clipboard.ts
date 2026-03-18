@@ -741,16 +741,16 @@ export class ClipboardPlugin extends UIPlugin {
     if (this.status !== "visible" || !this.copiedData) {
       return;
     }
-    const { sheetId, zones } = this.copiedData;
-    if (sheetId !== this.getters.getActiveSheetId() || !zones || !zones.length) {
+    const { sheetId: copiedSheetId, zones } = this.copiedData;
+    const { ctx, thinLineWidth, viewports, sheetId } = renderingContext;
+    if (sheetId !== copiedSheetId || !zones || !zones.length) {
       return;
     }
-    const { ctx, thinLineWidth } = renderingContext;
     ctx.setLineDash([8, 5]);
     ctx.strokeStyle = SELECTION_BORDER_COLOR;
     ctx.lineWidth = 3.3 * thinLineWidth;
     for (const zone of zones) {
-      const { x, y, width, height } = this.getters.getVisibleRect(zone);
+      const { x, y, width, height } = viewports.getVisibleRect(sheetId, zone);
       if (width > 0 && height > 0) {
         ctx.strokeRect(x, y, width, height);
       }

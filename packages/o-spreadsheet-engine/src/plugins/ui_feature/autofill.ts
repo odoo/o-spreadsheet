@@ -551,8 +551,8 @@ export class AutofillPlugin extends UIPlugin {
     if (!this.autofillZone) {
       return;
     }
-    const { ctx, thinLineWidth } = renderingContext;
-    const { x, y, width, height } = this.getters.getVisibleRect(this.autofillZone);
+    const { ctx, thinLineWidth, viewports, sheetId } = renderingContext;
+    const { x, y, width, height } = viewports.getVisibleRect(sheetId, this.autofillZone);
     if (width > 0 && height > 0) {
       ctx.strokeStyle = "black";
       ctx.lineWidth = thinLineWidth;
