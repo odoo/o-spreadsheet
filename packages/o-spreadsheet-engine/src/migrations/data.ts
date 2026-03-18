@@ -1,4 +1,4 @@
-import { SquishedCoreCommand } from "../collaborative/commandSquisher";
+import { SquishedCoreCommand } from "../collaborative/command_squisher";
 import { DEFAULT_REVISION_ID } from "../constants";
 import { UuidGenerator } from "../helpers";
 import { isValidLocale } from "../helpers/locale";

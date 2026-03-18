@@ -27,7 +27,7 @@ import { Command, CoreCommand } from "../types/commands";
 import { HistoryChange } from "../types/history";
 import { Lazy, UID } from "../types/misc";
 import { WorkbookData } from "../types/workbook_data";
-import { ICommandSquisher } from "./commandSquisher";
+import { ICommandSquisher } from "./command_squisher";
 import { transformAll } from "./ot/ot";
 import { Revision } from "./revisions";
 

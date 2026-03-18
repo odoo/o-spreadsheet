@@ -1,4 +1,4 @@
-import { CommandSquisher } from "./collaborative/commandSquisher";
+import { CommandSquisher } from "./collaborative/command_squisher";
 import { LocalTransportService } from "./collaborative/local_transport_service";
 import { ReadonlyTransportFilter } from "./collaborative/readonly_transport_filter";
 import { Session } from "./collaborative/session";

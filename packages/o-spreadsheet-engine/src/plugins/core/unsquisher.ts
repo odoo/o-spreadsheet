@@ -1,4 +1,4 @@
-import { SquishedCoreCommand } from "../../collaborative/commandSquisher";
+import { SquishedCoreCommand } from "../../collaborative/command_squisher";
 import { CompiledFormula } from "../../formulas/compiler";
 import { toCartesian } from "../../helpers/coordinates";
 import { expandRange, expandXc } from "../../helpers/expand_range";
@@ -203,7 +203,6 @@ export class Unsquisher {
    * @param squishedContent
    * @param sheetId
    * @param getters
-   * @param yieldTransformer - a function that transforms the position and unsquished data into the desired output format (e.g. a command or a cell update object)
    * @private
    */
   private *applyStrategy<T>(

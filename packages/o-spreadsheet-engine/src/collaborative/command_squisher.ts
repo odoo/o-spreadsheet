@@ -8,9 +8,23 @@ import { UpdateCellData } from "../types/misc";
 
 /**
 When squishing, commands go through 3 stages:
-  1. The original command is dispatched, it is UpdateCellCommand (content is a string, position is defined by row and column)
-  2. The command is squished, it becomes UpdateCellSquishCommand (content can be a string or a SquishedFormula, position is still defined by row and column)
-  3. The commands with similar content are grouped together into a single UpdateCellSquishMultiCommand (position is defined by a range like "A1:A5")
+
+  STEP1 (content is a string, position is defined by row and column)
+
+        { sheetId: "Sheet1", col: 0, row: 0, content: "1", type: "UPDATE_CELL" },
+        { sheetId: "Sheet1", col: 0, row: 1, content: "2", type: "UPDATE_CELL" },
+        { sheetId: "Sheet1", col: 0, row: 2, content: "3", type: "UPDATE_CELL" },
+
+  STEP2 (content can be a string or a SquishedFormula, position is still defined by row and column)
+
+        { sheetId: "Sheet1", col: 0, row: 0, content: "1", type: "UPDATE_CELL" },
+        { sheetId: "Sheet1", col: 0, row: 1, content: { N: "+1" }, type: "UPDATE_CELL" },
+        { sheetId: "Sheet1", col: 0, row: 2, content: { N: "+1" }, type: "UPDATE_CELL" },
+
+  STEP3 (position can be defined by a range like "A1:A5")
+
+        { sheetId: "Sheet1", col: 0, row: 0, content: "1", type: "UPDATE_CELL" },
+        { sheetId: "Sheet1", targetRange: "A2:A3", content: { N: "+1" }, type: "SQUISHED_UPDATE_CELL" },
 */
 interface SquishedCellData extends Omit<UpdateCellData, "content"> {
   content?: string | SquishedFormula;
@@ -62,7 +76,15 @@ export class CommandSquisher implements ICommandSquisher {
 
     for (const commands of this.collectConsecutiveUpdateCellCommands(revisionCommands)) {
       if (commands[0].type === "UPDATE_CELL" && commands.length > 1) {
-        squishedCommands.push(...this.sortAndSquishUpdateCells(commands as UpdateCellCommand[]));
+        const commandsBySheet = Object.groupBy(
+          commands as UpdateCellCommand[],
+          (command) => command.sheetId
+        );
+        const sortAndSquishUpdateCells = Object.values(commandsBySheet).reduce(
+          this.sortAndSquishUpdateCellsBySheet.bind(this),
+          []
+        );
+        squishedCommands.push(...sortAndSquishUpdateCells);
       } else {
         squishedCommands.push(...commands);
       }
@@ -105,21 +127,6 @@ export class CommandSquisher implements ICommandSquisher {
         yield [command];
       }
     }
-  }
-
-  /**
-   * Takes a block of UPDATE_CELL commands and try to squish them together.
-   * @param updateCellBlock a series of consecutive UPDATE_CELL commands
-   */
-  private sortAndSquishUpdateCells(
-    updateCellBlock: UpdateCellCommand[]
-  ): (CoreCommand | SquishedCoreCommand)[] {
-    const commandsBySheet = Object.groupBy(updateCellBlock, (command) => command.sheetId);
-
-    return Object.values(commandsBySheet).reduce(
-      this.sortAndSquishUpdateCellsBySheet.bind(this),
-      []
-    );
   }
 
   private sortAndSquishUpdateCellsBySheet(

@@ -1,7 +1,7 @@
 import {
   ICommandSquisher,
   SquishedCoreCommand,
-} from "@odoo/o-spreadsheet-engine/collaborative/commandSquisher";
+} from "@odoo/o-spreadsheet-engine/collaborative/command_squisher";
 import { Session } from "@odoo/o-spreadsheet-engine/collaborative/session";
 import { DEFAULT_REVISION_ID, MESSAGE_VERSION } from "@odoo/o-spreadsheet-engine/constants";
 import { buildRevisionLog } from "@odoo/o-spreadsheet-engine/history/factory";

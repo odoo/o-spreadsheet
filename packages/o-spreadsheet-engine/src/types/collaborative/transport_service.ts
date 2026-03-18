@@ -1,4 +1,4 @@
-import { SquishedCoreCommand } from "../../collaborative/commandSquisher";
+import { SquishedCoreCommand } from "../../collaborative/command_squisher";
 import { CoreCommand } from "../commands";
 import { UID } from "../misc";
 import { WorkbookData } from "../workbook_data";
