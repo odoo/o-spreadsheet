@@ -882,9 +882,11 @@ export class GridSelectionPlugin extends UIPlugin {
     if (this.getters.isDashboard()) {
       return;
     }
-    const { ctx, thinLineWidth } = renderingContext;
+    // FIXME: during the rendering process, we need to render the sheet/viewports of the GridRenderingContext
+    // But in plugins, there's nothing preventing us to call the getters or to use the plugin state, and draw
+    // at the wrong position. We should think of a way to improve that.
+    const { ctx, thinLineWidth, viewports, sheetId, selectedZones: zones } = renderingContext;
     // selection
-    const zones = this.getSelectedZones();
     ctx.fillStyle = "#f3f7fe";
     const onlyOneCell =
       zones.length === 1 && zones[0].left === zones[0].right && zones[0].top === zones[0].bottom;
@@ -892,7 +894,7 @@ export class GridSelectionPlugin extends UIPlugin {
     ctx.strokeStyle = SELECTION_BORDER_COLOR;
     ctx.lineWidth = 1.5 * thinLineWidth;
     for (const zone of zones) {
-      const { x, y, width, height } = this.getters.getVisibleRect(zone);
+      const { x, y, width, height } = viewports.getVisibleRect(sheetId, zone);
       ctx.globalCompositeOperation = "multiply";
       ctx.fillRect(x, y, width, height);
       ctx.globalCompositeOperation = "source-over";
@@ -901,7 +903,10 @@ export class GridSelectionPlugin extends UIPlugin {
 
     ctx.globalCompositeOperation = "source-over";
     // active zone
-    const position = this.getActivePosition();
+    const position = renderingContext.activePosition;
+    if (!position) {
+      return;
+    }
 
     ctx.strokeStyle = SELECTION_BORDER_COLOR;
     ctx.lineWidth = 3 * thinLineWidth;
@@ -911,7 +916,7 @@ export class GridSelectionPlugin extends UIPlugin {
     } else {
       zone = positionToZone(position);
     }
-    const { x, y, width, height } = this.getters.getVisibleRect(zone);
+    const { x, y, width, height } = viewports.getVisibleRect(sheetId, zone);
     if (width > 0 && height > 0) {
       ctx.strokeRect(x, y, width, height);
     }

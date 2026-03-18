@@ -87,18 +87,17 @@ export class CollaborativePlugin extends UIPlugin {
     if (this.getters.isDashboard()) {
       return;
     }
-    const { ctx, thinLineWidth } = renderingContext;
+    const { ctx, thinLineWidth, viewports, sheetId } = renderingContext;
 
-    const activeSheetId = this.getters.getActiveSheetId();
     for (const client of this.getClientsToDisplay()) {
       const { row, col } = client.position!;
-      const zone = this.getters.expandZone(activeSheetId, {
+      const zone = this.getters.expandZone(sheetId, {
         top: row,
         bottom: row,
         left: col,
         right: col,
       });
-      const { x, y, width, height } = this.getters.getVisibleRect(zone);
+      const { x, y, width, height } = viewports.getVisibleRect(sheetId, zone);
       if (width <= 0 || height <= 0) {
         continue;
       }
