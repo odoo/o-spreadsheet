@@ -15,8 +15,8 @@ export class InternalViewport {
   canScrollHorizontally: boolean;
   viewportWidth: Pixel;
   viewportHeight: Pixel;
-  offsetCorrectionX: Pixel;
-  offsetCorrectionY: Pixel;
+  viewportX: Pixel;
+  viewportY: Pixel;
 
   constructor(
     private getters: RenderingGetters,
@@ -24,7 +24,8 @@ export class InternalViewport {
     private boundaries: Zone,
     sizeInGrid: DOMDimension,
     options: { canScrollVertically: boolean; canScrollHorizontally: boolean },
-    offsets: DOMCoordinates
+    offsets: DOMCoordinates,
+    position: DOMCoordinates
   ) {
     if (sizeInGrid.width < 0 || sizeInGrid.height < 0) {
       throw new Error("Viewport size cannot be negative");
@@ -40,14 +41,19 @@ export class InternalViewport {
     this.canScrollVertically = options.canScrollVertically;
     this.canScrollHorizontally = options.canScrollHorizontally;
 
-    this.offsetCorrectionX = this.getters.getColDimensions(
-      this.sheetId,
-      this.boundaries.left
-    ).start;
-    this.offsetCorrectionY = this.getters.getRowDimensions(this.sheetId, this.boundaries.top).start;
+    this.viewportX = position.x;
+    this.viewportY = position.y;
 
     this.adjustViewportOffsetX();
     this.adjustViewportOffsetY();
+  }
+
+  get leftBoundaryStart() {
+    return this.getters.getColDimensions(this.sheetId, this.boundaries.left).start;
+  }
+
+  get topBoundaryStart() {
+    return this.getters.getRowDimensions(this.sheetId, this.boundaries.top).start;
   }
 
   // PUBLIC
@@ -69,12 +75,12 @@ export class InternalViewport {
     const { end: lastColEnd } = this.getters.getColDimensions(this.sheetId, lastCol);
     const { end: lastRowEnd } = this.getters.getRowDimensions(this.sheetId, lastRow);
 
-    let width = lastColEnd - this.offsetCorrectionX;
+    let width = lastColEnd - this.leftBoundaryStart;
     if (this.canScrollHorizontally) {
       width = Math.max(width, this.viewportWidth); // if the viewport grid size is smaller than its client width, return client width
     }
 
-    let height = lastRowEnd - this.offsetCorrectionY;
+    let height = lastRowEnd - this.topBoundaryStart;
     if (this.canScrollVertically) {
       height = Math.max(height, this.viewportHeight); // if the viewport grid size is smaller than its client height, return client height
 
@@ -92,14 +98,10 @@ export class InternalViewport {
    * It returns -1 if no column is found.
    */
   getColIndex(x: Pixel): HeaderIndex {
-    if (x < this.offsetCorrectionX || x > this.offsetCorrectionX + this.viewportWidth) {
+    if (x < this.viewportX || x > this.viewportX + this.viewportWidth) {
       return -1;
     }
-    return this.searchHeaderIndex(
-      "COL",
-      x - this.offsetCorrectionX + this.snapCorrection.x,
-      this.left
-    );
+    return this.searchHeaderIndex("COL", x - this.viewportX + this.snapCorrection.x, this.left);
   }
 
   /**
@@ -108,14 +110,10 @@ export class InternalViewport {
    * It returns -1 if no row is found.
    */
   getRowIndex(y: Pixel): HeaderIndex {
-    if (y < this.offsetCorrectionY || y > this.offsetCorrectionY + this.viewportHeight) {
+    if (y < this.viewportY || y > this.viewportY + this.viewportHeight) {
       return -1;
     }
-    return this.searchHeaderIndex(
-      "ROW",
-      y - this.offsetCorrectionY + this.snapCorrection.y,
-      this.top
-    );
+    return this.searchHeaderIndex("ROW", y - this.viewportY + this.snapCorrection.y, this.top);
   }
 
   /**
@@ -141,10 +139,10 @@ export class InternalViewport {
     const sheetId = this.sheetId;
     const { start, end } = this.getters.getColDimensions(sheetId, targetCol);
 
-    if (this.offsetX + this.viewportWidth + this.offsetCorrectionX < end) {
-      this.offsetX = end - this.viewportWidth;
-    } else if (this.offsetX + this.offsetCorrectionX > start) {
-      this.offsetX = start - this.offsetCorrectionX;
+    if (this.offsetX + this.viewportWidth + this.leftBoundaryStart < end) {
+      this.offsetX = end - this.viewportWidth - this.leftBoundaryStart;
+    } else if (this.offsetX + this.leftBoundaryStart > start) {
+      this.offsetX = start - this.leftBoundaryStart;
     }
     this.adjustViewportZoneX();
   }
@@ -152,10 +150,10 @@ export class InternalViewport {
   private adjustPositionY(targetRow: HeaderIndex) {
     const sheetId = this.sheetId;
     const { start, end } = this.getters.getRowDimensions(sheetId, targetRow);
-    if (this.offsetY + this.viewportHeight + this.offsetCorrectionY < end) {
+    if (this.offsetY + this.viewportHeight + this.topBoundaryStart < end) {
       this.offsetY = end - this.viewportHeight;
-    } else if (this.offsetY + this.offsetCorrectionY > start) {
-      this.offsetY = start - this.offsetCorrectionY;
+    } else if (this.offsetY + this.topBoundaryStart > start) {
+      this.offsetY = start - this.topBoundaryStart;
     }
     this.adjustViewportZoneY();
   }
@@ -189,12 +187,12 @@ export class InternalViewport {
     if (targetZone) {
       const x =
         this.getters.getColRowOffset("COL", this.left, targetZone.left, this.sheetId) +
-        this.offsetCorrectionX -
+        this.viewportX -
         (this.left !== targetZone.left ? scrollDeltaX : 0);
 
       const y =
         this.getters.getColRowOffset("ROW", this.top, targetZone.top, this.sheetId) +
-        this.offsetCorrectionY -
+        this.viewportY -
         (this.top !== targetZone.top ? scrollDeltaY : 0);
 
       const width = Math.min(
@@ -223,11 +221,9 @@ export class InternalViewport {
     const scrollDeltaY = this.snapCorrection.y;
     if (targetZone) {
       const x =
-        this.getters.getColRowOffset("COL", this.left, zone.left, this.sheetId) +
-        this.offsetCorrectionX;
+        this.getters.getColRowOffset("COL", this.left, zone.left, this.sheetId) + this.viewportX;
       const y =
-        this.getters.getColRowOffset("ROW", this.top, zone.top, this.sheetId) +
-        this.offsetCorrectionY;
+        this.getters.getColRowOffset("ROW", this.top, zone.top, this.sheetId) + this.viewportY;
       const width = this.getters.getColRowOffset("COL", zone.left, zone.right + 1, this.sheetId);
 
       const height = this.getters.getColRowOffset("ROW", zone.top, zone.bottom + 1, this.sheetId);

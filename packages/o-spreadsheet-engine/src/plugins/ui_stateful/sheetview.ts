@@ -169,17 +169,15 @@ export class SheetViewPlugin extends UIPlugin {
         break;
       case "SHIFT_VIEWPORT_DOWN":
         const sheetId = this.getters.getActiveSheetId();
-        const { top, viewportHeight, offsetCorrectionY } =
-          this.viewports.getMainInternalViewport(sheetId);
+        const { top, viewportHeight, viewportY } = this.viewports.getMainInternalViewport(sheetId);
         const topRowDims = this.getters.getRowDimensions(sheetId, top);
-        this.shiftVertically(topRowDims.start + viewportHeight - offsetCorrectionY);
+        this.shiftVertically(topRowDims.start + viewportHeight - viewportY);
         break;
       case "SHIFT_VIEWPORT_UP": {
         const sheetId = this.getters.getActiveSheetId();
-        const { top, viewportHeight, offsetCorrectionY } =
-          this.viewports.getMainInternalViewport(sheetId);
+        const { top, viewportHeight, viewportY } = this.viewports.getMainInternalViewport(sheetId);
         const topRowDims = this.getters.getRowDimensions(sheetId, top);
-        this.shiftVertically(topRowDims.end - offsetCorrectionY - viewportHeight);
+        this.shiftVertically(topRowDims.end - viewportY - viewportHeight);
         break;
       }
       case "REMOVE_TABLE":

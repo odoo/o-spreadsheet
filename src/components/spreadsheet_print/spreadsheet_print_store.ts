@@ -177,8 +177,13 @@ export class SpreadsheetPrintStore extends SpreadsheetStore {
 
     const sheetViewWidth = lastColEnd - firstColStart;
     const sheetViewHeight = lastRowEnd - firstRowStart;
-    const viewports = new ViewportCollection(this.getters, sheetViewWidth, sheetViewHeight, zoom);
-    viewports.setSheetViewOffset(sheetId, firstColStart, firstRowStart);
+    const viewports = new ViewportCollection(
+      this.getters,
+      sheetViewWidth,
+      sheetViewHeight,
+      zoom,
+      zone
+    );
 
     return {
       sheetId,
