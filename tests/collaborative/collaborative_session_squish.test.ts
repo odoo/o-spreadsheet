@@ -6,8 +6,13 @@ import { CoreCommand, Model, RemoteRevisionMessage } from "../../src";
 import { toZone } from "../../src/helpers";
 import { MockTransportService } from "../__mocks__/transport_service";
 import { getCellContent } from "../test_helpers";
-import { autofill } from "../test_helpers/autofill_helpers";
-import { addRows, deleteRows, setCellContent, undo } from "../test_helpers/commands_helpers";
+import {
+  addRows,
+  autofill,
+  deleteRows,
+  setCellContent,
+  undo,
+} from "../test_helpers/commands_helpers";
 import { setupCollaborativeEnv } from "./collaborative_helpers";
 
 describe("Collaborative session", () => {
@@ -29,7 +34,7 @@ describe("Collaborative session", () => {
           content: "Hello",
           format: "",
           style: null,
-          type: "UPDATE_CELL_SQUISH",
+          type: "SQUISHED_UPDATE_CELL",
         },
         {
           sheetId: "sheet1",
@@ -44,7 +49,7 @@ describe("Collaborative session", () => {
     });
   });
 
-  test("receiving an UPDATE_CELL_SQUISH message should unsquish", () => {
+  test("receiving an SQUISHED_UPDATE_CELL message should unsquish", () => {
     const model = new Model(
       { sheets: [{ id: "sheet1", name: "Sheet 1", cells: { A1: "Hello" } }] },
       { transportService: new MockTransportService(), client: { id: "alice", name: "Alice" } },
@@ -64,7 +69,7 @@ describe("Collaborative session", () => {
               content: "Hello",
               format: "",
               style: null,
-              type: "UPDATE_CELL_SQUISH",
+              type: "SQUISHED_UPDATE_CELL",
             },
           ],
           nextRevisionId: expect.any(String),
@@ -247,7 +252,7 @@ describe("Collaborative session", () => {
           content: { R: "+R1" },
           format: "",
           style: null,
-          type: "UPDATE_CELL_SQUISH",
+          type: "SQUISHED_UPDATE_CELL",
         },
         {
           sheetId: "Sheet1",
@@ -299,7 +304,7 @@ describe("Collaborative session", () => {
           content: { N: "+1" },
           format: "",
           style: null,
-          type: "UPDATE_CELL_SQUISH",
+          type: "SQUISHED_UPDATE_CELL",
         },
         {
           sheetId: "Sheet1",
@@ -336,7 +341,7 @@ describe("commands", () => {
       { sheetId: "Sheet1", col: 0, row: 2, content: "hello", type: "UPDATE_CELL" },
     ];
     const result: (CoreCommand | SquishedCoreCommand)[] = [
-      { sheetId: "Sheet1", targetRange: "A1:A2", content: "hello", type: "UPDATE_CELL_SQUISH" },
+      { sheetId: "Sheet1", targetRange: "A1:A2", content: "hello", type: "SQUISHED_UPDATE_CELL" },
       {
         sheetId: "Sheet1",
         target: [{ left: 0, right: 0, top: 1, bottom: 1 }],
@@ -366,7 +371,7 @@ describe("commands", () => {
       { sheetId: "Sheet1", col: 0, row: 3, content: "hello", type: "UPDATE_CELL" },
     ];
     const result: (CoreCommand | SquishedCoreCommand)[] = [
-      { sheetId: "Sheet1", targetRange: "A1:A2", content: "hello", type: "UPDATE_CELL_SQUISH" },
+      { sheetId: "Sheet1", targetRange: "A1:A2", content: "hello", type: "SQUISHED_UPDATE_CELL" },
       { sheetId: "Sheet1", col: 0, row: 3, content: "hello", type: "UPDATE_CELL" },
     ];
     const model = new Model();
@@ -394,8 +399,8 @@ describe("commands", () => {
       { sheetId: "Sheet1", col: 1, row: 1, content: "hello", type: "UPDATE_CELL" },
     ];
     const result: (CoreCommand | SquishedCoreCommand)[] = [
-      { sheetId: "Sheet1", targetRange: "A1:A2", content: "hello", type: "UPDATE_CELL_SQUISH" },
-      { sheetId: "Sheet1", targetRange: "B1:B2", content: "hello", type: "UPDATE_CELL_SQUISH" },
+      { sheetId: "Sheet1", targetRange: "A1:A2", content: "hello", type: "SQUISHED_UPDATE_CELL" },
+      { sheetId: "Sheet1", targetRange: "B1:B2", content: "hello", type: "SQUISHED_UPDATE_CELL" },
     ];
     const model = new Model();
     expect(new CommandSquisher(model.getters).squish(commands)).toStrictEqual(result);
@@ -410,8 +415,8 @@ describe("commands", () => {
       { sheetId: "Sheet1", col: 0, row: 1, content: "hello", type: "UPDATE_CELL" },
     ];
     const result: (CoreCommand | SquishedCoreCommand)[] = [
-      { sheetId: "Sheet1", targetRange: "A1:A2", content: "hello", type: "UPDATE_CELL_SQUISH" },
-      { sheetId: "Sheet1", targetRange: "B1:B2", content: "hello", type: "UPDATE_CELL_SQUISH" },
+      { sheetId: "Sheet1", targetRange: "A1:A2", content: "hello", type: "SQUISHED_UPDATE_CELL" },
+      { sheetId: "Sheet1", targetRange: "B1:B2", content: "hello", type: "SQUISHED_UPDATE_CELL" },
     ];
     const model = new Model();
     expect(new CommandSquisher(model.getters).squish(commands)).toStrictEqual(result);
@@ -435,13 +440,13 @@ describe("commands", () => {
         sheetId: "Sheet1",
         targetRange: "A2:A3",
         content: { N: "+1" },
-        type: "UPDATE_CELL_SQUISH",
+        type: "SQUISHED_UPDATE_CELL",
       },
       {
         sheetId: "Sheet1",
         targetRange: "B1:B3",
         content: { N: "+1" },
-        type: "UPDATE_CELL_SQUISH",
+        type: "SQUISHED_UPDATE_CELL",
       },
     ];
     const model = new Model();
@@ -455,14 +460,14 @@ describe("commands", () => {
         sheetId: "Sheet1",
         targetRange: "B1:B3",
         content: { N: "+1" },
-        type: "UPDATE_CELL_SQUISH",
+        type: "SQUISHED_UPDATE_CELL",
       },
       { sheetId: "Sheet1", col: 0, row: 0, content: "=1", type: "UPDATE_CELL" },
       {
         sheetId: "Sheet1",
         targetRange: "A2:A3",
         content: { N: "+1" },
-        type: "UPDATE_CELL_SQUISH",
+        type: "SQUISHED_UPDATE_CELL",
       },
     ];
     const model = new Model();
@@ -480,9 +485,19 @@ describe("commands", () => {
     ];
     const result: (CoreCommand | SquishedCoreCommand)[] = [
       { sheetId: "Sheet1", col: 0, row: 0, content: "1", type: "UPDATE_CELL" },
-      { sheetId: "Sheet1", targetRange: "A2:A3", content: { N: "+1" }, type: "UPDATE_CELL_SQUISH" },
+      {
+        sheetId: "Sheet1",
+        targetRange: "A2:A3",
+        content: { N: "+1" },
+        type: "SQUISHED_UPDATE_CELL",
+      },
       { sheetId: "Sheet2", col: 0, row: 0, content: "4", type: "UPDATE_CELL" },
-      { sheetId: "Sheet2", targetRange: "A2:A3", content: { N: "+1" }, type: "UPDATE_CELL_SQUISH" },
+      {
+        sheetId: "Sheet2",
+        targetRange: "A2:A3",
+        content: { N: "+1" },
+        type: "SQUISHED_UPDATE_CELL",
+      },
     ];
     const model = new Model();
     expect(new CommandSquisher(model.getters).squish(commands)).toStrictEqual(result);

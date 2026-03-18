@@ -36,18 +36,16 @@ export class Unsquisher {
   }
 
   /**
-   * Expands a list of commands that may contain squished update_cell_squished commands back to a list of full commands.
-   * @param commands
-   * @param getters
+   * Expands a list of commands that may contain SQUISHED_UPDATE_CELL commands back to a list of full commands.
    */
   *unsquishCommands(
-    commands: (CoreCommand | SquishedCoreCommand)[] | readonly CoreCommand[],
+    commands: readonly (CoreCommand | SquishedCoreCommand)[],
     getters: CoreGetters
   ): Generator<CoreCommand> {
     let strategy: UnsquishMethod | undefined;
     for (const command of commands) {
-      if (command.type !== "UPDATE_CELL" && command.type !== "UPDATE_CELL_SQUISH") {
-        yield command as CoreCommand;
+      if (command.type !== "UPDATE_CELL" && command.type !== "SQUISHED_UPDATE_CELL") {
+        yield command;
         continue;
       }
 
@@ -58,17 +56,17 @@ export class Unsquisher {
         strategy = this.chooseStrategy(current, strategy, command.sheetId, getters);
       }
 
-      let positionsOfKey: Iterable<Position>;
-      if (command.type === "UPDATE_CELL_SQUISH" && "targetRange" in command) {
+      let targetPositions: Iterable<Position>;
+      if (command.type === "SQUISHED_UPDATE_CELL" && "targetRange" in command) {
         const [start, end] = command.targetRange.split(":");
-        positionsOfKey = expandRange(start, end);
+        targetPositions = expandRange(start, end);
       } else {
-        positionsOfKey = [{ row: command.row, col: command.col }];
+        targetPositions = [{ row: command.row, col: command.col }];
       }
 
       yield* this.applyStrategy(
         strategy,
-        positionsOfKey,
+        targetPositions,
         current,
         command.sheetId,
         getters,
@@ -109,7 +107,7 @@ export class Unsquisher {
    * @param getters
    */
   *unsquishSheet(
-    squished: { [key: string]: SquishedContent | undefined }, //key is either a single cell like "A1" or a range like "A1:A5"
+    squished: { [cellRefOrRange: string]: SquishedContent | undefined },
     sheetId: UID,
     getters: CoreGetters
   ): Generator<{
@@ -138,11 +136,11 @@ export class Unsquisher {
       }
 
       const parts = key.split(":");
-      const positionsOfKey = parts.length === 1 ? expandXc(key) : expandRange(parts[0], parts[1]);
+      const targetPositions = parts.length === 1 ? expandXc(key) : expandRange(parts[0], parts[1]);
 
       yield* this.applyStrategy(
         strategy,
-        positionsOfKey,
+        targetPositions,
         current,
         sheetId,
         getters,
@@ -153,18 +151,14 @@ export class Unsquisher {
 
   /**
    * Determines the unsquishing strategy based on the current content and previous state. This logic is the same for both unsquishing commands and sheets.
-   * @param current
-   * @param strategy
-   * @param sheetId
-   * @param getters
-   * @private
    */
   private chooseStrategy(
     current: SquishedContent,
-    strategy: UnsquishMethod | undefined,
+    previousStrategy: UnsquishMethod | undefined,
     sheetId: UID,
     getters: CoreGetters
   ): UnsquishMethod | undefined {
+    let strategy = previousStrategy;
     if (typeof current === "string") {
       if (current.startsWith("=")) {
         strategy = "NEW_FORMULA";
@@ -215,8 +209,8 @@ export class Unsquisher {
    * Applies the given unsquishing strategy to the current cell content and yields the resulting commands or cell updates.
    * This logic is the same for both unsquishing commands and sheets.
    * @param strategy - the unsquishing strategy to apply, determined by the current content and previous state
-   * @param positionsOfKey - the positions that the current squished content applies to (can be multiples in case of range keys)
-   * @param current - the current squished content to unsquish
+   * @param targetPositions - the positions that the current squished content applies to (can be multiples in case of range keys)
+   * @param squishedContent
    * @param sheetId
    * @param getters
    * @param yieldTransformer - a function that transforms the position and unsquished data into the desired output format (e.g. a command or a cell update object)
@@ -224,8 +218,8 @@ export class Unsquisher {
    */
   private *applyStrategy<T>(
     strategy: UnsquishMethod | undefined,
-    positionsOfKey: Iterable<Position>,
-    current: SquishedContent | undefined,
+    targetPositions: Iterable<Position>,
+    squishedContent: SquishedContent | undefined,
     sheetId: UID,
     getters: CoreGetters,
     yieldTransformer: (
@@ -233,15 +227,16 @@ export class Unsquisher {
       data: { content?: string; compiled?: CompiledFormula }
     ) => T
   ): Generator<T> {
+    const current = squishedContent;
     switch (strategy) {
       case "NEW_FORMULA":
-        for (const position of positionsOfKey) {
+        for (const position of targetPositions) {
           yield yieldTransformer(position, { compiled: this.previousFormula });
         }
         break;
 
       case "NOT_A_FORMULA":
-        for (const position of positionsOfKey) {
+        for (const position of targetPositions) {
           yield yieldTransformer(position, { content: current as string | undefined });
         }
         break;
@@ -249,7 +244,7 @@ export class Unsquisher {
       case "FIRST_OFFSET": {
         const currentOffset = current as SquishedFormula;
         this.previousOffset = currentOffset;
-        for (const position of positionsOfKey) {
+        for (const position of targetPositions) {
           const result = this.unsquishFormula(currentOffset, sheetId, getters);
           yield yieldTransformer(position, { compiled: result });
         }
@@ -264,14 +259,14 @@ export class Unsquisher {
         this.previousOffset.N = currentOffset.N ?? this.previousOffset.N;
         this.previousOffset.S = currentOffset.S ?? this.previousOffset.S;
         this.previousOffset.R = currentOffset.R ?? this.previousOffset.R;
-        for (const position of positionsOfKey) {
+        for (const position of targetPositions) {
           const result = this.unsquishFormula(this.previousOffset, sheetId, getters);
           yield yieldTransformer(position, { compiled: result });
         }
         break;
       }
       case "NEW_NUMBER": {
-        for (const position of positionsOfKey) {
+        for (const position of targetPositions) {
           yield yieldTransformer(position, { content: current as string | undefined });
         }
         break;
@@ -287,7 +282,7 @@ export class Unsquisher {
         }
         const offsetValue = parseFloat(offset);
 
-        for (const position of positionsOfKey) {
+        for (const position of targetPositions) {
           yield yieldTransformer(position, {
             content: (this.previousNumber += offsetValue).toString(),
           });
@@ -299,17 +294,13 @@ export class Unsquisher {
 
   /**
    * Unsquishes the given squished formula by applying the offsets to the previous formula's literal values and range dependencies.
-   * @param squishedElement
-   * @param sheetId
-   * @param getters
-   * @private
    */
   private unsquishFormula(
-    squishedElement: SquishedFormula,
+    squishedFormula: SquishedFormula,
     sheetId: UID,
     getters: CoreGetters
   ): CompiledFormula {
-    if (typeof squishedElement === "object" && this.previousFormula) {
+    if (typeof squishedFormula === "object" && this.previousFormula) {
       const current: {
         numbers: { value: number }[];
         strings: { value: string }[];
@@ -319,24 +310,24 @@ export class Unsquisher {
         strings: [],
         dependencies: [],
       };
-      if (squishedElement.N !== undefined && squishedElement.N.length > 0) {
-        current.numbers = squishedElement.N.split(SEPARATOR).map(this.adjustNumbers);
+      if (squishedFormula.N !== undefined && squishedFormula.N.length > 0) {
+        current.numbers = squishedFormula.N.split(SEPARATOR).map(this.adjustNumbers);
       } else {
         current.numbers = this.previousFormula.literalValues.numbers;
       }
-      if (squishedElement.S !== undefined && squishedElement.S.length > 0) {
-        current.strings = squishedElement.S.map(this.adjustStrings);
+      if (squishedFormula.S !== undefined && squishedFormula.S.length > 0) {
+        current.strings = squishedFormula.S.map(this.adjustStrings);
       } else {
         current.strings = this.previousFormula.literalValues.strings;
       }
-      if (squishedElement.R !== undefined && this.previousFormula) {
+      if (squishedFormula.R !== undefined && this.previousFormula) {
         // references
         let references: string[];
-        if (typeof squishedElement.R !== "string") {
+        if (typeof squishedFormula.R !== "string") {
           // special case when the sheet name contains the separator
-          references = squishedElement.R;
+          references = squishedFormula.R;
         } else {
-          references = squishedElement.R.split(SEPARATOR);
+          references = squishedFormula.R.split(SEPARATOR);
         }
         current.dependencies = references.map((refStr: string, index: number) => {
           if (refStr === NO_CHANGE) {

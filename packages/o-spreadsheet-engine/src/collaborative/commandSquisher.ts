@@ -4,10 +4,10 @@ import { SquishedFormula, Squisher } from "../plugins/core/squisher";
 import { Unsquisher } from "../plugins/core/unsquisher";
 import { CoreCommand, UpdateCellCommand } from "../types/commands";
 import { CoreGetters } from "../types/core_getters";
-import { UID, UpdateCellData } from "../types/misc";
+import { UpdateCellData } from "../types/misc";
 
 /**
-When squishing, the commands go though 3 stages:
+When squishing, commands go through 3 stages:
   1. The original command is dispatched, it is UpdateCellCommand (content is a string, position is defined by row and column)
   2. The command is squished, it becomes UpdateCellSquishCommand (content can be a string or a SquishedFormula, position is still defined by row and column)
   3. The commands with similar content are grouped together into a single UpdateCellSquishMultiCommand (position is defined by a range like "A1:A5")
@@ -17,7 +17,7 @@ interface SquishedCellData extends Omit<UpdateCellData, "content"> {
 }
 
 interface UpdateCellSquishCommand extends SquishedCellData {
-  type: "UPDATE_CELL_SQUISH";
+  type: "SQUISHED_UPDATE_CELL";
   sheetId: string;
   targetRange: string; // range like "A1:A5"
 }
@@ -26,15 +26,13 @@ export type SquishedCoreCommand = UpdateCellSquishCommand;
 
 /**
  * The CommandSquisher is responsible for squishing consecutive UPDATE_CELL commands into a single
- * UPDATE_CELL_SQUISH command to optimize the size of messages sent over the network in collaborative mode.
- * It also unsquishes UPDATE_CELL_SQUISH commands back into individual UPDATE_CELL commands when receiving messages from the network.
+ * SQUISHED_UPDATE_CELL command to optimize the size of messages sent over the network in collaborative mode.
+ * It also unsquishes SQUISHED_UPDATE_CELL commands back into individual UPDATE_CELL commands when receiving messages from the network.
  *
  * The interface is useful to extract the dependency to the getters and be able to test the squishing and unsquishing logic in isolation.
  */
 export interface ICommandSquisher {
-  squish: (
-    allCommands: (CoreCommand | SquishedCoreCommand)[] | readonly CoreCommand[]
-  ) => (CoreCommand | SquishedCoreCommand)[];
+  squish: (commands: readonly CoreCommand[]) => (CoreCommand | SquishedCoreCommand)[];
 
   unsquish: (
     commands: (CoreCommand | SquishedCoreCommand)[] | readonly CoreCommand[]
@@ -45,18 +43,8 @@ export class CommandSquisher implements ICommandSquisher {
   public constructor(private getters: CoreGetters) {}
 
   /**
-   * Takes a list of commands and unsquish them, meaning that it transforms
-   * UPDATE_CELL_SQUISH commands into multiple UPDATE_CELL commands.
-   */
-  public unsquish(
-    commands: (CoreCommand | SquishedCoreCommand)[] | readonly CoreCommand[]
-  ): CoreCommand[] {
-    return [...new Unsquisher().unsquishCommands(commands, this.getters)];
-  }
-
-  /**
    * Takes a list of commands and squish them, meaning that it transforms
-   * consecutive UPDATE_CELL commands with the same value or similar change to value into a single UPDATE_CELL_SQUISH command.
+   * consecutive UPDATE_CELL commands with the same value or similar change to value into a single SQUISHED_UPDATE_CELL command.
    * The logic to find similar value is the same as the one used in the export of the cells, in squisher.ts.
    *
    * We do not squish UPDATE_CELL commands if there are duplicates (same cell updated multiple times),
@@ -69,9 +57,7 @@ export class CommandSquisher implements ICommandSquisher {
    * @param revisionCommands all the commands of a given revision
    * @returns all the commands of the revision, with consecutive UPDATE_CELL commands squished together when possible
    */
-  public squish(
-    revisionCommands: (CoreCommand | SquishedCoreCommand)[] | readonly CoreCommand[]
-  ): (CoreCommand | SquishedCoreCommand)[] {
+  public squish(revisionCommands: readonly CoreCommand[]): (CoreCommand | SquishedCoreCommand)[] {
     const squishedCommands: (CoreCommand | SquishedCoreCommand)[] = [];
 
     for (const commands of this.collectConsecutiveUpdateCellCommands(revisionCommands)) {
@@ -85,12 +71,22 @@ export class CommandSquisher implements ICommandSquisher {
   }
 
   /**
+   * Takes a list of commands and unsquish them, meaning that it transforms
+   * SQUISHED_UPDATE_CELL commands into multiple UPDATE_CELL commands.
+   */
+  public unsquish(
+    commands: (CoreCommand | SquishedCoreCommand)[] | readonly CoreCommand[]
+  ): CoreCommand[] {
+    return [...new Unsquisher().unsquishCommands(commands, this.getters)];
+  }
+
+  /**
    * Create a block of consecutive UPDATE_CELL commands, meaning a block of
    * commands where all UPDATE_CELL commands are consecutive and uninterrupted by other command types.
    */
   private *collectConsecutiveUpdateCellCommands(
-    commands: (CoreCommand | SquishedCoreCommand)[] | readonly CoreCommand[]
-  ): Generator<(CoreCommand | SquishedCoreCommand)[]> {
+    commands: readonly CoreCommand[]
+  ): Generator<CoreCommand[]> {
     for (let i = 0; i < commands.length; i++) {
       const command = commands[i];
       if (command.type === "UPDATE_CELL") {
@@ -118,11 +114,7 @@ export class CommandSquisher implements ICommandSquisher {
   private sortAndSquishUpdateCells(
     updateCellBlock: UpdateCellCommand[]
   ): (CoreCommand | SquishedCoreCommand)[] {
-    const commandsBySheet: Record<UID, UpdateCellCommand[]> = {};
-    for (const command of updateCellBlock) {
-      commandsBySheet[command.sheetId] ??= [];
-      commandsBySheet[command.sheetId].push(command);
-    }
+    const commandsBySheet = Object.groupBy(updateCellBlock, (command) => command.sheetId);
 
     return Object.values(commandsBySheet).reduce(
       this.sortAndSquishUpdateCellsBySheet.bind(this),
@@ -130,12 +122,6 @@ export class CommandSquisher implements ICommandSquisher {
     );
   }
 
-  /**
-   * Takes a block of UPDATE_CELL commands of the same sheet and try to squish them together.
-   * @param squishedCommandsResult
-   * @param updateCellBlock a series of consecutive UPDATE_CELL commands of the same sheet
-   * @private
-   */
   private sortAndSquishUpdateCellsBySheet(
     squishedCommandsResult: (CoreCommand | SquishedCoreCommand)[],
     updateCellBlock: UpdateCellCommand[]
@@ -157,7 +143,7 @@ export class CommandSquisher implements ICommandSquisher {
     const squisher = new Squisher(this.getters);
     const squishedContentCommands = updateCellBlock.map((command) => ({
       ...command,
-      content: squisher.squishContent(command),
+      content: squisher.squishCommand(command),
     }));
 
     for (let startIndex = 0; startIndex < squishedContentCommands.length; startIndex++) {
@@ -197,7 +183,7 @@ export class CommandSquisher implements ICommandSquisher {
           startKey.row + mergedRowCount
         )}`; // example A4:A6
         const updateCellSquished: UpdateCellSquishCommand = {
-          type: "UPDATE_CELL_SQUISH",
+          type: "SQUISHED_UPDATE_CELL",
           sheetId: currentCommand.sheetId,
           targetRange: rangeKey,
         };

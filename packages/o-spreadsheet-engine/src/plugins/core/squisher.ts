@@ -163,8 +163,8 @@ export class Squisher {
     return cell.content;
   }
 
-  public squishContent(command: UpdateCellCommand): string | SquishedFormula | undefined {
-    if (typeof command.content === "string") {
+  public squishCommand(command: UpdateCellCommand): string | SquishedFormula | undefined {
+    if (command.content) {
       const cell = createCell(
         this.getters,
         -1,
@@ -182,15 +182,14 @@ export class Squisher {
    * Read all the consecutive cells with either the same content or the same transformation and merge their key into one zone
    * Do not join cells from different columns
    * */
-
   squishSheet(
-    cells: { [key: string]: string | SquishedContent },
+    cells: { [key: string]: SquishedContent },
     sheetId: UID
   ): {
-    [key: string]: string | SquishedContent;
+    [key: string]: SquishedContent;
   } {
     const allKeys = Object.keys(cells);
-    const result: { [key: string]: string | SquishedContent } = {};
+    const result: { [key: string]: SquishedContent } = {};
     for (let startIndex = 0; startIndex < allKeys.length; startIndex++) {
       const startKey = toCartesian(allKeys[startIndex]);
       let mergedRowCount = 0;
