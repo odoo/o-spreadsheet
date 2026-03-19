@@ -151,8 +151,8 @@ exports[`Chart title Can render a chart title component 1`] = `
             class="o-color-picker-button o-hoverable-button o-menu-item-button"
             title="Text color"
           >
-            <span
-              style="border-bottom-style: hidden"
+            <div
+              class="position-relative"
             >
               <svg
                 class="o-icon"
@@ -163,7 +163,12 @@ exports[`Chart title Can render a chart title component 1`] = `
                   fill="currentColor"
                 />
               </svg>
-            </span>
+              
+              <div
+                class="o-colored-border position-absolute bottom-0 w-100 os-theme-dependant"
+                style="border-bottom-style: hidden"
+              />
+            </div>
           </span>
           
         </div>

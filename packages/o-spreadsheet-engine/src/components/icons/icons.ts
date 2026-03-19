@@ -137,29 +137,45 @@ export function getHoveredCaretDownSvg(color: Style): ImageSVG {
   };
 }
 
-export const CHECKBOX_UNCHECKED: ImageSVG = {
+export const getThemeCheckboxUncheckedSvg = (isDarkMode: boolean): ImageSVG => ({
   name: "CHECKBOX_UNCHECKED",
   width: 512,
   height: 512,
-  paths: [{ fillColor: GRAY_300, path: "M45,45 h422 v422 h-422 v-422 m30,30 v362 h362 v-362" }],
-};
+  paths: [
+    {
+      fillColor: isDarkMode ? GRAY_300 : "#91959d",
+      path: "M45,45 h422 v422 h-422 v-422 m30,30 v362 h362 v-362",
+    },
+  ],
+});
 
-export const CHECKBOX_UNCHECKED_HOVERED: ImageSVG = {
+export const getThemeCheckboxUncheckedHoveredSvg = (isDarkMode: boolean): ImageSVG => ({
   name: "CHECKBOX_UNCHECKED",
   width: 512,
   height: 512,
-  paths: [{ fillColor: ACTION_COLOR, path: "M45,45 h422 v422 h-422 v-422 m30,30 v362 h362 v-362" }],
-};
+  paths: [
+    {
+      fillColor: isDarkMode ? "#82d1d5" : ACTION_COLOR,
+      path: "M45,45 h422 v422 h-422 v-422 m30,30 v362 h362 v-362",
+    },
+  ],
+});
 
-export const CHECKBOX_CHECKED: ImageSVG = {
+export const getThemeCheckboxCheckedSvg = (isDarkMode: boolean): ImageSVG => ({
   name: "CHECKBOX_CHECKED",
   width: 512,
   height: 512,
   paths: [
-    { fillColor: ACTION_COLOR, path: "M45,45 h422 v422 h-422 v-422" },
-    { fillColor: "#FFF", path: "M165,240 l45,45 l135,-135 h60 l-195,195 l-105,-105" },
+    {
+      fillColor: isDarkMode ? "#82d1d5" : ACTION_COLOR,
+      path: "M45,45 h422 v422 h-422 v-422",
+    },
+    {
+      fillColor: isDarkMode ? "#505050" : "#FFF",
+      path: "M165,240 l45,45 l135,-135 h60 l-195,195 l-105,-105",
+    },
   ],
-};
+});
 
 export function getPivotIconSvg(isCollapsed: boolean, isHovered: boolean): ImageSVG {
   const symbolPath = isCollapsed

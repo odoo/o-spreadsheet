@@ -32,6 +32,7 @@ export interface ModelConfig {
   readonly notifyUI: (payload: InformationNotification) => void;
   readonly raiseBlockingErrorUI: (text: string) => void;
   readonly customColors: Color[];
+  readonly colorScheme?: "light" | "dark";
 }
 
 export interface ModelExternalConfig {

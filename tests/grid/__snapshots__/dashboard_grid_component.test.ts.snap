@@ -33,6 +33,7 @@ exports[`Grid component in dashboard mode simple dashboard rendering snapshot 1`
     </div>
     
     <canvas
+      class="os-theme-dependant"
       height="985"
       style="width:985px;height:985px;zoom:1;"
       width="985"

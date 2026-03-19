@@ -385,8 +385,8 @@ exports[`TopBar component simple rendering 1`] = `
                 class="o-color-picker-button o-hoverable-button o-menu-item-button o-toolbar-button"
                 title="Text Color"
               >
-                <span
-                  style="border-color: #000000"
+                <div
+                  class="position-relative"
                 >
                   <svg
                     class="o-icon"
@@ -397,7 +397,12 @@ exports[`TopBar component simple rendering 1`] = `
                       fill="currentColor"
                     />
                   </svg>
-                </span>
+                  
+                  <div
+                    class="o-colored-border position-absolute bottom-0 w-100 os-theme-dependant"
+                    style="border-color: #000000"
+                  />
+                </div>
               </span>
               
             </div>
@@ -423,8 +428,8 @@ exports[`TopBar component simple rendering 1`] = `
                 class="o-color-picker-button o-hoverable-button o-menu-item-button o-toolbar-button"
                 title="Fill Color"
               >
-                <span
-                  style="border-color: #ffffff"
+                <div
+                  class="position-relative"
                 >
                   <svg
                     class="o-icon"
@@ -435,7 +440,12 @@ exports[`TopBar component simple rendering 1`] = `
                       fill="currentColor"
                     />
                   </svg>
-                </span>
+                  
+                  <div
+                    class="o-colored-border position-absolute bottom-0 w-100 os-theme-dependant"
+                    style="border-color: #ffffff"
+                  />
+                </div>
               </span>
               
             </div>
