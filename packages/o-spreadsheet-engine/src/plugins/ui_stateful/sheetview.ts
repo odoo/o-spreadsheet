@@ -14,6 +14,7 @@ import {
   Dimension,
   HeaderDimensions,
   HeaderIndex,
+  PaneDivision,
   Pixel,
   PixelPosition,
   UID,
@@ -70,7 +71,10 @@ export class SheetViewPlugin extends UIPlugin {
     "getViewportCollection",
   ] as const;
 
-  private viewports: ViewportCollection = new ViewportCollection(this.getters);
+  private viewports: ViewportCollection = new ViewportCollection(
+    this.getters,
+    this.getPaneDivisions()
+  );
 
   private sheetsWithDirtyViewports: Set<UID> = new Set();
   private shouldAdjustViewports: boolean = false;
@@ -182,14 +186,17 @@ export class SheetViewPlugin extends UIPlugin {
         this.shiftVertically(topRowDims.end - offsetCorrectionY - viewportHeight);
         break;
       }
-      case "REMOVE_TABLE":
-      case "UPDATE_TABLE":
-      case "UPDATE_FILTER":
       case "UNFREEZE_ROWS":
       case "UNFREEZE_COLUMNS":
       case "FREEZE_COLUMNS":
       case "FREEZE_ROWS":
       case "UNFREEZE_COLUMNS_ROWS":
+        this.sheetsWithDirtyViewports.add(cmd.sheetId);
+        this.viewports.setPaneDivision(cmd.sheetId, this.getters.getPaneDivisions(cmd.sheetId));
+        break;
+      case "REMOVE_TABLE":
+      case "UPDATE_TABLE":
+      case "UPDATE_FILTER":
       case "REMOVE_COLUMNS_ROWS":
       case "RESIZE_COLUMNS_ROWS":
       case "HIDE_COLUMNS_ROWS":
@@ -473,5 +480,13 @@ export class SheetViewPlugin extends UIPlugin {
 
   getViewportCollection(): ViewportCollection {
     return this.viewports;
+  }
+
+  private getPaneDivisions(): Record<UID, PaneDivision> {
+    const paneDivisions: Record<UID, PaneDivision> = {};
+    for (const sheetId of this.getters.getSheetIds()) {
+      paneDivisions[sheetId] = this.getters.getPaneDivisions(sheetId);
+    }
+    return paneDivisions;
   }
 }
