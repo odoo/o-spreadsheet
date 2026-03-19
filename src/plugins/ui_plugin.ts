@@ -25,6 +25,7 @@ export interface UIPluginConfig {
   readonly defaultCurrency?: Partial<Currency>;
   readonly customColors: Color[];
   readonly external: ModelConfig["external"];
+  readonly colorScheme: ModelConfig["colorScheme"];
 }
 
 export interface UIPluginConstructor {

@@ -9,7 +9,7 @@ import {
   SpreadsheetPivotTable,
   TableStyle,
 } from "../../src";
-import { BACKGROUND_CHART_COLOR, DEFAULT_BORDER_DESC } from "../../src/constants";
+import { DEFAULT_BORDER_DESC } from "../../src/constants";
 import { DEFAULT_TABLE_CONFIG } from "../../src/helpers/table_presets";
 import { toZone } from "../../src/helpers/zones";
 import { PivotCoreDefinition } from "../../src/types/pivot";
@@ -30,7 +30,7 @@ export const TEST_CHART_DATA = {
       dataSetsHaveTitle: true,
     }),
     title: { text: "hello" },
-    background: BACKGROUND_CHART_COLOR,
+    background: "#FFFFFF",
     stacked: false,
     legendPosition: "top" as const,
     humanize: true,
@@ -47,7 +47,7 @@ export const TEST_CHART_DATA = {
       dataSetsHaveTitle: true,
     }),
     title: { text: "hello" },
-    background: BACKGROUND_CHART_COLOR,
+    background: "#FFFFFF",
     legendPosition: "top" as const,
     humanize: true,
   },
@@ -92,7 +92,7 @@ export const TEST_CHART_DATA = {
       labelRange: "A1",
     }),
     title: { text: "hello" },
-    background: BACKGROUND_CHART_COLOR,
+    background: "#FFFFFF",
   },
 };
 

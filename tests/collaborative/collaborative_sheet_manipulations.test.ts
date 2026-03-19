@@ -1,5 +1,4 @@
 import { CellIsRule, FormulaCell, LiteralCell, Model } from "../../src";
-import { BACKGROUND_CHART_COLOR } from "../../src/constants";
 import { lettersToNumber, numberToLetters } from "../../src/helpers/coordinates";
 import { range } from "../../src/helpers/misc";
 import { toZone } from "../../src/helpers/zones";
@@ -699,7 +698,7 @@ describe("Collaborative Sheet manipulation", () => {
       title: { text: "chart title" },
       type: "bar",
       stacked: false,
-      background: BACKGROUND_CHART_COLOR,
+      background: "#FFFFFF",
       legendPosition: "top",
       aggregated: false,
       humanize: false,

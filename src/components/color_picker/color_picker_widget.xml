@@ -8,9 +8,13 @@
         t-att-title="props.title"
         t-att-class="props.class ? props.class : 'o-color-picker-button-style'"
         t-att-disabled="props.disabled">
-        <span t-att-style="iconStyle">
+        <div class="position-relative">
           <t t-call="{{props.icon}}"/>
-        </span>
+          <div
+            class="o-colored-border position-absolute bottom-0 w-100 os-theme-dependant"
+            t-att-style="iconStyle"
+          />
+        </div>
       </span>
       <ColorPicker
         t-if="props.showColorPicker"

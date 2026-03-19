@@ -1,5 +1,4 @@
 import { ChartConfiguration } from "chart.js";
-import { BACKGROUND_CHART_COLOR } from "../../../constants";
 import { ChartTypeBuilder } from "../../../registries/chart_registry";
 import { PyramidChartRuntime } from "../../../types/chart/pyramid_chart";
 import { CommandResult } from "../../../types/commands";
@@ -87,8 +86,8 @@ export const PyramidChart: ChartTypeBuilder<"pyramid"> = {
     return {
       ...definition,
       horizontal: true,
-      backgroundColor: toXlsxHexColor(definition.background || BACKGROUND_CHART_COLOR),
-      fontColor: toXlsxHexColor(chartFontColor(definition.background)),
+      backgroundColor: toXlsxHexColor(chartData.background || "#FFFFFF"),
+      fontColor: toXlsxHexColor(chartFontColor(chartData.background)),
       dataSets,
       labelRange,
       verticalAxis: getDefinedAxis(definition),
@@ -116,7 +115,7 @@ export const PyramidChart: ChartTypeBuilder<"pyramid"> = {
           legend: getBarChartLegend(definition, chartData),
           tooltip: getPyramidChartTooltip(definition, chartData),
           chartShowValuesPlugin: getPyramidChartShowValues(definition, chartData),
-          background: { color: definition.background },
+          background: { color: chartData.background },
         },
         ...eventHandlers,
       },

@@ -3049,7 +3049,7 @@ describe("Default background on runtime tests", () => {
     model = new Model();
   });
 
-  test("Creating a 'basicChart' without background should have no background on runtime", async () => {
+  test("Creating a 'basicChart' without background should have white background on runtime", async () => {
     createChart(
       model,
       { type: "bar", ...toChartDataSource({ dataSets: [{ dataRange: "A1" }] }) },
@@ -3058,8 +3058,9 @@ describe("Default background on runtime tests", () => {
     );
     expect(model.getters.getChartDefinition(chartId)?.background).toBeUndefined();
     const runtime = model.getters.getChartRuntime(chartId) as BarChartRuntime;
-    expect(runtime.chartJsConfig.options?.plugins?.background?.color).toBeUndefined();
+    expect(runtime.chartJsConfig.options?.plugins?.background?.color).toBe("#FFFFFF");
   });
+
   test("Creating a 'basicChart' without background and updating its type should have default background on runtime", async () => {
     createChart(
       model,
@@ -3070,8 +3071,9 @@ describe("Default background on runtime tests", () => {
     updateChart(model, chartId, { type: "line" }, sheetId);
     const runtime = model.getters.getChartRuntime(chartId) as BarChartRuntime;
     expect(model.getters.getChartDefinition(chartId)?.background).toBeUndefined();
-    expect(runtime.chartJsConfig.options?.plugins?.background?.color).toBe(undefined);
+    expect(runtime.chartJsConfig.options?.plugins?.background?.color).toBe("#FFFFFF");
   });
+
   test("Creating a 'basicChart' on a single cell with style and converting into scorecard should have cell background as chart background", () => {
     setFormatting(model, "A1", { fillColor: "#FA0000" }, sheetId);
     createChart(

@@ -1,7 +1,7 @@
 <templates>
   <t t-name="o-spreadsheet-GridAddRowsFooter">
     <div
-      class="o-grid-add-rows mt-2 ms-2 w-100 d-flex position-relative align-items-center"
+      class="o-grid-add-rows mt-2 ms-2 w-100 d-flex position-relative align-items-center os-theme-dependant"
       t-att-style="addRowsPosition"
       t-on-pointerdown.stop.prevent="">
       <button

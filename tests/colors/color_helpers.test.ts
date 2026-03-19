@@ -1,5 +1,6 @@
 import { Color, HSLA, RGBA } from "../../src";
 import {
+  adaptForDarkMode,
   colorToNumber,
   colorToRGBA,
   getColorScale,
@@ -261,4 +262,14 @@ test("setColorAlpha", () => {
   expect(setColorAlpha("light-dark(rgb(0,0,0),    rgba(0,255,255,0.5))", 0.4)).toEqual(
     "light-dark(#00000066, #00FFFF66)"
   );
+});
+
+describe("adaptForDarkMode", () => {
+  test("basic functionality", () => {
+    expect(adaptForDarkMode("#FFFFFF")).toBeSameColorAs("#1C1B1B");
+    expect(adaptForDarkMode("#000000")).toBeSameColorAs("#FFFFFF");
+    expect(adaptForDarkMode("#1A1C2E")).toBeSameColorAs("#F9F7FF");
+    expect(adaptForDarkMode("#4EA7F2")).toBeSameColorAs("#4586E1");
+    expect(adaptForDarkMode("#EA6175")).toBeSameColorAs("#FD7D7C");
+  });
 });

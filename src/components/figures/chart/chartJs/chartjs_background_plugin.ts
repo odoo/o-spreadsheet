@@ -1,5 +1,4 @@
 import { ChartType, Plugin } from "chart.js";
-import { BACKGROUND_CHART_COLOR } from "../../../../constants";
 
 export interface ChartBackgroundPluginOptions {
   color: string | undefined;
@@ -18,7 +17,7 @@ export const chartBackgroundPlugin: Plugin = {
     const { ctx } = chart;
     ctx.save();
     ctx.globalCompositeOperation = "destination-over";
-    ctx.fillStyle = options.color || BACKGROUND_CHART_COLOR;
+    ctx.fillStyle = options.color || "#FFFFFF";
     ctx.fillRect(0, 0, chart.width, chart.height);
     ctx.restore();
   },

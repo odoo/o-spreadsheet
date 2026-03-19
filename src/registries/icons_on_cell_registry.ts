@@ -1,11 +1,11 @@
 import {
-  CHECKBOX_CHECKED,
-  CHECKBOX_UNCHECKED,
-  CHECKBOX_UNCHECKED_HOVERED,
   getCaretDownSvg,
   getCaretUpSvg,
   getHoveredCaretDownSvg,
   getPivotIconSvg,
+  getThemeCheckboxCheckedSvg,
+  getThemeCheckboxUncheckedHoveredSvg,
+  getThemeCheckboxUncheckedSvg,
   ICONS,
 } from "../components/icons/icons";
 import {
@@ -49,9 +49,19 @@ iconsOnCellRegistry.add("data_validation_checkbox", (getters, position) => {
   const hasIcon = getters.isCellValidCheckbox(position);
   if (hasIcon) {
     const value = !!getters.getEvaluatedCell(position).value;
+    const isDark = getters.isDarkMode();
+    let svg: ImageSVG;
+    let hoverSvg: ImageSVG;
+    if (value) {
+      svg = getThemeCheckboxCheckedSvg(isDark);
+      hoverSvg = getThemeCheckboxCheckedSvg(isDark);
+    } else {
+      svg = getThemeCheckboxUncheckedSvg(isDark);
+      hoverSvg = getThemeCheckboxUncheckedHoveredSvg(isDark);
+    }
     return {
-      svg: value ? CHECKBOX_CHECKED : CHECKBOX_UNCHECKED,
-      hoverSvg: value ? CHECKBOX_CHECKED : CHECKBOX_UNCHECKED_HOVERED,
+      svg,
+      hoverSvg,
       priority: 2,
       horizontalAlign: "center",
       size: GRID_ICON_EDGE_LENGTH,
