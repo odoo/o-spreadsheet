@@ -8,6 +8,7 @@ import {
   Dimension,
   HeaderDimensions,
   HeaderIndex,
+  PaneDivision,
   Pixel,
   PixelPosition,
   Position,
@@ -79,6 +80,7 @@ export class ViewportCollection {
 
   constructor(
     getters: RenderingGetters,
+    private paneDivision: Record<UID, PaneDivision>,
     private sheetViewWidth: Pixel = getDefaultSheetViewSize(),
     private sheetViewHeight: Pixel = getDefaultSheetViewSize(),
     private zoomLevel: number = 1
@@ -176,7 +178,7 @@ export class ViewportCollection {
    */
   getMainViewportRect(sheetId: UID): Rect {
     const viewport = this.getMainInternalViewport(sheetId);
-    const { xSplit, ySplit } = this.getters.getPaneDivisions(sheetId);
+    const { xSplit, ySplit } = this.getPaneDivisions(sheetId);
     const { width, height } = viewport.getMaxSize();
     const x = this.getters.getColDimensions(sheetId, xSplit).start;
     const y = this.getters.getRowDimensions(sheetId, ySplit).start;
@@ -245,7 +247,7 @@ export class ViewportCollection {
      * A. previous in Left > right
      * with X a position taken in the bottomRIght (aka scrollable) viewport
      */
-    const { xSplit } = this.getters.getPaneDivisions(sheetId);
+    const { xSplit } = this.getPaneDivisions(sheetId);
     const { width } = this.getSheetViewDimension();
     const { x: offsetCorrectionX } = this.getMainViewportCoordinates(sheetId);
     const currentOffsetX = this.getSheetScrollInfo(sheetId).scrollX;
@@ -280,7 +282,7 @@ export class ViewportCollection {
      * B. previous in Left > right
      * with X a position taken in the bottomRIght (aka scrollable) viewport
      */
-    const { ySplit } = this.getters.getPaneDivisions(sheetId);
+    const { ySplit } = this.getPaneDivisions(sheetId);
 
     const { height } = this.getSheetViewDimension();
     const { y: offsetCorrectionY } = this.getMainViewportCoordinates(sheetId);
@@ -356,7 +358,7 @@ export class ViewportCollection {
    * situated before the pane divisions.
    */
   getMainViewportCoordinates(sheetId: UID): DOMCoordinates {
-    const { xSplit, ySplit } = this.getters.getPaneDivisions(sheetId);
+    const { xSplit, ySplit } = this.getPaneDivisions(sheetId);
     const x = this.getters.getColDimensions(sheetId, xSplit).start;
     const y = this.getters.getRowDimensions(sheetId, ySplit).start;
     return { x, y };
@@ -525,7 +527,7 @@ export class ViewportCollection {
     if (!this.getters.tryGetSheet(sheetId)) {
       return;
     }
-    const { xSplit, ySplit } = this.getters.getPaneDivisions(sheetId);
+    const { xSplit, ySplit } = this.getPaneDivisions(sheetId);
     const nCols = this.getters.getNumberCols(sheetId);
     const nRows = this.getters.getNumberRows(sheetId);
     const colOffset = Math.min(
@@ -718,7 +720,7 @@ export class ViewportCollection {
   }
 
   getFrozenSheetViewRatio(sheetId: UID) {
-    const { xSplit, ySplit } = this.getters.getPaneDivisions(sheetId);
+    const { xSplit, ySplit } = this.getPaneDivisions(sheetId);
     const offsetCorrectionX = this.getters.getColDimensions(sheetId, xSplit).start;
     const offsetCorrectionY = this.getters.getRowDimensions(sheetId, ySplit).start;
     const width = this.sheetViewWidth + this.gridOffsetX;
@@ -765,5 +767,16 @@ export class ViewportCollection {
 
   setZoomLevel(zoomLevel: number) {
     this.zoomLevel = zoomLevel;
+  }
+
+  private getPaneDivisions(sheetId: UID): PaneDivision {
+    return this.paneDivision[sheetId] || { xSplit: 0, ySplit: 0 };
+  }
+
+  setPaneDivision(sheetId: UID, paneDivision: PaneDivision) {
+    // FIXME: the pane divisions that should be used are set here, but there is nothing preventing us from
+    // using getters.getPaneDivisions anyways. We should either fix the typing/getters access, or handle pane divisions for
+    // arbitrary viewports
+    this.paneDivision[sheetId] = paneDivision;
   }
 }
