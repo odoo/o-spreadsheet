@@ -64,34 +64,31 @@ export class Unsquisher {
         targetPositions = [{ row: command.row, col: command.col }];
       }
 
-      yield* this.applyStrategy(
+      for (const { position, compiled, content } of this.applyStrategy(
         strategy,
         targetPositions,
         current,
         command.sheetId,
-        getters,
-        (position, data) => {
-          const finalContent = data.compiled
-            ? data.compiled.toFormulaString(getters)
-            : data.content;
-          const originalCommand: UpdateCellCommand = {
-            type: "UPDATE_CELL",
-            sheetId: command.sheetId,
-            row: position.row,
-            col: position.col,
-          };
-          if ("content" in command || data.compiled) {
-            originalCommand.content = finalContent;
-          }
-          if ("style" in command) {
-            originalCommand.style = command.style;
-          }
-          if ("format" in command) {
-            originalCommand.format = command.format;
-          }
-          return originalCommand;
+        getters
+      )) {
+        const finalContent = compiled ? compiled.toFormulaString(getters) : content;
+        const originalCommand: UpdateCellCommand = {
+          type: "UPDATE_CELL",
+          sheetId: command.sheetId,
+          row: position.row,
+          col: position.col,
+        };
+        if ("content" in command || compiled) {
+          originalCommand.content = finalContent;
         }
-      );
+        if ("style" in command) {
+          originalCommand.style = command.style;
+        }
+        if ("format" in command) {
+          originalCommand.format = command.format;
+        }
+        yield originalCommand;
+      }
     }
   }
 
@@ -138,14 +135,7 @@ export class Unsquisher {
       const parts = key.split(":");
       const targetPositions = parts.length === 1 ? expandXc(key) : expandRange(parts[0], parts[1]);
 
-      yield* this.applyStrategy(
-        strategy,
-        targetPositions,
-        current,
-        sheetId,
-        getters,
-        (position, data) => ({ position, ...data })
-      );
+      yield* this.applyStrategy(strategy, targetPositions, current, sheetId, getters);
     }
   }
 
@@ -221,23 +211,19 @@ export class Unsquisher {
     targetPositions: Iterable<Position>,
     squishedContent: SquishedContent | undefined,
     sheetId: UID,
-    getters: CoreGetters,
-    yieldTransformer: (
-      position: Position,
-      data: { content?: string; compiled?: CompiledFormula }
-    ) => T
-  ): Generator<T> {
+    getters: CoreGetters
+  ): Generator<{ content?: string; compiled?: CompiledFormula; position: Position }> {
     const current = squishedContent;
     switch (strategy) {
       case "NEW_FORMULA":
         for (const position of targetPositions) {
-          yield yieldTransformer(position, { compiled: this.previousFormula });
+          yield { position, compiled: this.previousFormula };
         }
         break;
 
       case "NOT_A_FORMULA":
         for (const position of targetPositions) {
-          yield yieldTransformer(position, { content: current as string | undefined });
+          yield { position, content: current as string | undefined };
         }
         break;
 
@@ -246,7 +232,7 @@ export class Unsquisher {
         this.previousOffset = currentOffset;
         for (const position of targetPositions) {
           const result = this.unsquishFormula(currentOffset, sheetId, getters);
-          yield yieldTransformer(position, { compiled: result });
+          yield { position, compiled: result };
         }
         break;
       }
@@ -261,13 +247,13 @@ export class Unsquisher {
         this.previousOffset.R = currentOffset.R ?? this.previousOffset.R;
         for (const position of targetPositions) {
           const result = this.unsquishFormula(this.previousOffset, sheetId, getters);
-          yield yieldTransformer(position, { compiled: result });
+          yield { position, compiled: result };
         }
         break;
       }
       case "NEW_NUMBER": {
         for (const position of targetPositions) {
-          yield yieldTransformer(position, { content: current as string | undefined });
+          yield { position, content: current as string | undefined };
         }
         break;
       }
@@ -283,9 +269,7 @@ export class Unsquisher {
         const offsetValue = parseFloat(offset);
 
         for (const position of targetPositions) {
-          yield yieldTransformer(position, {
-            content: (this.previousNumber += offsetValue).toString(),
-          });
+          yield { position, content: (this.previousNumber += offsetValue).toString() };
         }
         break;
       }
