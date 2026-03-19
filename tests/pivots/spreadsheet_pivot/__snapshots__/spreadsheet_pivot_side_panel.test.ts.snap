@@ -517,7 +517,7 @@ exports[`Spreadsheet pivot side panel It should correctly be displayed 1`] = `
                         class="o-table-preview"
                       >
                         <canvas
-                          class="w-100 h-100"
+                          class="w-100 h-100 os-theme-dependant"
                         />
                       </div>
                       
@@ -532,7 +532,7 @@ exports[`Spreadsheet pivot side panel It should correctly be displayed 1`] = `
                         class="o-table-preview"
                       >
                         <canvas
-                          class="w-100 h-100"
+                          class="w-100 h-100 os-theme-dependant"
                         />
                       </div>
                       
@@ -547,7 +547,7 @@ exports[`Spreadsheet pivot side panel It should correctly be displayed 1`] = `
                         class="o-table-preview"
                       >
                         <canvas
-                          class="w-100 h-100"
+                          class="w-100 h-100 os-theme-dependant"
                         />
                       </div>
                       
@@ -562,7 +562,7 @@ exports[`Spreadsheet pivot side panel It should correctly be displayed 1`] = `
                         class="o-table-preview"
                       >
                         <canvas
-                          class="w-100 h-100"
+                          class="w-100 h-100 os-theme-dependant"
                         />
                       </div>
                       
@@ -577,7 +577,7 @@ exports[`Spreadsheet pivot side panel It should correctly be displayed 1`] = `
                         class="o-table-preview"
                       >
                         <canvas
-                          class="w-100 h-100"
+                          class="w-100 h-100 os-theme-dependant"
                         />
                       </div>
                       
@@ -592,7 +592,7 @@ exports[`Spreadsheet pivot side panel It should correctly be displayed 1`] = `
                         class="o-table-preview"
                       >
                         <canvas
-                          class="w-100 h-100"
+                          class="w-100 h-100 os-theme-dependant"
                         />
                       </div>
                       
@@ -607,7 +607,7 @@ exports[`Spreadsheet pivot side panel It should correctly be displayed 1`] = `
                         class="o-table-preview"
                       >
                         <canvas
-                          class="w-100 h-100"
+                          class="w-100 h-100 os-theme-dependant"
                         />
                       </div>
                       
@@ -622,7 +622,7 @@ exports[`Spreadsheet pivot side panel It should correctly be displayed 1`] = `
                         class="o-table-preview"
                       >
                         <canvas
-                          class="w-100 h-100"
+                          class="w-100 h-100 os-theme-dependant"
                         />
                       </div>
                       
@@ -637,7 +637,7 @@ exports[`Spreadsheet pivot side panel It should correctly be displayed 1`] = `
                         class="o-table-preview"
                       >
                         <canvas
-                          class="w-100 h-100"
+                          class="w-100 h-100 os-theme-dependant"
                         />
                       </div>
                       
@@ -652,7 +652,7 @@ exports[`Spreadsheet pivot side panel It should correctly be displayed 1`] = `
                         class="o-table-preview"
                       >
                         <canvas
-                          class="w-100 h-100"
+                          class="w-100 h-100 os-theme-dependant"
                         />
                       </div>
                       
@@ -667,7 +667,7 @@ exports[`Spreadsheet pivot side panel It should correctly be displayed 1`] = `
                         class="o-table-preview"
                       >
                         <canvas
-                          class="w-100 h-100"
+                          class="w-100 h-100 os-theme-dependant"
                         />
                       </div>
                       
@@ -682,7 +682,7 @@ exports[`Spreadsheet pivot side panel It should correctly be displayed 1`] = `
                         class="o-table-preview"
                       >
                         <canvas
-                          class="w-100 h-100"
+                          class="w-100 h-100 os-theme-dependant"
                         />
                       </div>
                       
@@ -697,7 +697,7 @@ exports[`Spreadsheet pivot side panel It should correctly be displayed 1`] = `
                         class="o-table-preview"
                       >
                         <canvas
-                          class="w-100 h-100"
+                          class="w-100 h-100 os-theme-dependant"
                         />
                       </div>
                       
@@ -712,7 +712,7 @@ exports[`Spreadsheet pivot side panel It should correctly be displayed 1`] = `
                         class="o-table-preview"
                       >
                         <canvas
-                          class="w-100 h-100"
+                          class="w-100 h-100 os-theme-dependant"
                         />
                       </div>
                       
@@ -727,7 +727,7 @@ exports[`Spreadsheet pivot side panel It should correctly be displayed 1`] = `
                         class="o-table-preview"
                       >
                         <canvas
-                          class="w-100 h-100"
+                          class="w-100 h-100 os-theme-dependant"
                         />
                       </div>
                       
@@ -742,7 +742,7 @@ exports[`Spreadsheet pivot side panel It should correctly be displayed 1`] = `
                         class="o-table-preview"
                       >
                         <canvas
-                          class="w-100 h-100"
+                          class="w-100 h-100 os-theme-dependant"
                         />
                       </div>
                       
@@ -757,7 +757,7 @@ exports[`Spreadsheet pivot side panel It should correctly be displayed 1`] = `
                         class="o-table-preview"
                       >
                         <canvas
-                          class="w-100 h-100"
+                          class="w-100 h-100 os-theme-dependant"
                         />
                       </div>
                       
@@ -772,7 +772,7 @@ exports[`Spreadsheet pivot side panel It should correctly be displayed 1`] = `
                         class="o-table-preview"
                       >
                         <canvas
-                          class="w-100 h-100"
+                          class="w-100 h-100 os-theme-dependant"
                         />
                       </div>
                       
@@ -787,7 +787,7 @@ exports[`Spreadsheet pivot side panel It should correctly be displayed 1`] = `
                         class="o-table-preview"
                       >
                         <canvas
-                          class="w-100 h-100"
+                          class="w-100 h-100 os-theme-dependant"
                         />
                       </div>
                       
@@ -802,7 +802,7 @@ exports[`Spreadsheet pivot side panel It should correctly be displayed 1`] = `
                         class="o-table-preview"
                       >
                         <canvas
-                          class="w-100 h-100"
+                          class="w-100 h-100 os-theme-dependant"
                         />
                       </div>
                       
@@ -817,7 +817,7 @@ exports[`Spreadsheet pivot side panel It should correctly be displayed 1`] = `
                         class="o-table-preview"
                       >
                         <canvas
-                          class="w-100 h-100"
+                          class="w-100 h-100 os-theme-dependant"
                         />
                       </div>
                       
@@ -832,7 +832,7 @@ exports[`Spreadsheet pivot side panel It should correctly be displayed 1`] = `
                         class="o-table-preview"
                       >
                         <canvas
-                          class="w-100 h-100"
+                          class="w-100 h-100 os-theme-dependant"
                         />
                       </div>
                       
@@ -847,7 +847,7 @@ exports[`Spreadsheet pivot side panel It should correctly be displayed 1`] = `
                         class="o-table-preview"
                       >
                         <canvas
-                          class="w-100 h-100"
+                          class="w-100 h-100 os-theme-dependant"
                         />
                       </div>
                       
@@ -862,7 +862,7 @@ exports[`Spreadsheet pivot side panel It should correctly be displayed 1`] = `
                         class="o-table-preview"
                       >
                         <canvas
-                          class="w-100 h-100"
+                          class="w-100 h-100 os-theme-dependant"
                         />
                       </div>
                       
@@ -877,7 +877,7 @@ exports[`Spreadsheet pivot side panel It should correctly be displayed 1`] = `
                         class="o-table-preview"
                       >
                         <canvas
-                          class="w-100 h-100"
+                          class="w-100 h-100 os-theme-dependant"
                         />
                       </div>
                       
@@ -892,7 +892,7 @@ exports[`Spreadsheet pivot side panel It should correctly be displayed 1`] = `
                         class="o-table-preview"
                       >
                         <canvas
-                          class="w-100 h-100"
+                          class="w-100 h-100 os-theme-dependant"
                         />
                       </div>
                       
@@ -907,7 +907,7 @@ exports[`Spreadsheet pivot side panel It should correctly be displayed 1`] = `
                         class="o-table-preview"
                       >
                         <canvas
-                          class="w-100 h-100"
+                          class="w-100 h-100 os-theme-dependant"
                         />
                       </div>
                       
@@ -922,7 +922,7 @@ exports[`Spreadsheet pivot side panel It should correctly be displayed 1`] = `
                         class="o-table-preview"
                       >
                         <canvas
-                          class="w-100 h-100"
+                          class="w-100 h-100 os-theme-dependant"
                         />
                       </div>
                       
@@ -937,7 +937,7 @@ exports[`Spreadsheet pivot side panel It should correctly be displayed 1`] = `
                         class="o-table-preview"
                       >
                         <canvas
-                          class="w-100 h-100"
+                          class="w-100 h-100 os-theme-dependant"
                         />
                       </div>
                       
@@ -1471,7 +1471,7 @@ exports[`Spreadsheet pivot side panel It should display only the selection input
                         class="o-table-preview"
                       >
                         <canvas
-                          class="w-100 h-100"
+                          class="w-100 h-100 os-theme-dependant"
                         />
                       </div>
                       
@@ -1486,7 +1486,7 @@ exports[`Spreadsheet pivot side panel It should display only the selection input
                         class="o-table-preview"
                       >
                         <canvas
-                          class="w-100 h-100"
+                          class="w-100 h-100 os-theme-dependant"
                         />
                       </div>
                       
@@ -1501,7 +1501,7 @@ exports[`Spreadsheet pivot side panel It should display only the selection input
                         class="o-table-preview"
                       >
                         <canvas
-                          class="w-100 h-100"
+                          class="w-100 h-100 os-theme-dependant"
                         />
                       </div>
                       
@@ -1516,7 +1516,7 @@ exports[`Spreadsheet pivot side panel It should display only the selection input
                         class="o-table-preview"
                       >
                         <canvas
-                          class="w-100 h-100"
+                          class="w-100 h-100 os-theme-dependant"
                         />
                       </div>
                       
@@ -1531,7 +1531,7 @@ exports[`Spreadsheet pivot side panel It should display only the selection input
                         class="o-table-preview"
                       >
                         <canvas
-                          class="w-100 h-100"
+                          class="w-100 h-100 os-theme-dependant"
                         />
                       </div>
                       
@@ -1546,7 +1546,7 @@ exports[`Spreadsheet pivot side panel It should display only the selection input
                         class="o-table-preview"
                       >
                         <canvas
-                          class="w-100 h-100"
+                          class="w-100 h-100 os-theme-dependant"
                         />
                       </div>
                       
@@ -1561,7 +1561,7 @@ exports[`Spreadsheet pivot side panel It should display only the selection input
                         class="o-table-preview"
                       >
                         <canvas
-                          class="w-100 h-100"
+                          class="w-100 h-100 os-theme-dependant"
                         />
                       </div>
                       
@@ -1576,7 +1576,7 @@ exports[`Spreadsheet pivot side panel It should display only the selection input
                         class="o-table-preview"
                       >
                         <canvas
-                          class="w-100 h-100"
+                          class="w-100 h-100 os-theme-dependant"
                         />
                       </div>
                       
@@ -1591,7 +1591,7 @@ exports[`Spreadsheet pivot side panel It should display only the selection input
                         class="o-table-preview"
                       >
                         <canvas
-                          class="w-100 h-100"
+                          class="w-100 h-100 os-theme-dependant"
                         />
                       </div>
                       
@@ -1606,7 +1606,7 @@ exports[`Spreadsheet pivot side panel It should display only the selection input
                         class="o-table-preview"
                       >
                         <canvas
-                          class="w-100 h-100"
+                          class="w-100 h-100 os-theme-dependant"
                         />
                       </div>
                       
@@ -1621,7 +1621,7 @@ exports[`Spreadsheet pivot side panel It should display only the selection input
                         class="o-table-preview"
                       >
                         <canvas
-                          class="w-100 h-100"
+                          class="w-100 h-100 os-theme-dependant"
                         />
                       </div>
                       
@@ -1636,7 +1636,7 @@ exports[`Spreadsheet pivot side panel It should display only the selection input
                         class="o-table-preview"
                       >
                         <canvas
-                          class="w-100 h-100"
+                          class="w-100 h-100 os-theme-dependant"
                         />
                       </div>
                       
@@ -1651,7 +1651,7 @@ exports[`Spreadsheet pivot side panel It should display only the selection input
                         class="o-table-preview"
                       >
                         <canvas
-                          class="w-100 h-100"
+                          class="w-100 h-100 os-theme-dependant"
                         />
                       </div>
                       
@@ -1666,7 +1666,7 @@ exports[`Spreadsheet pivot side panel It should display only the selection input
                         class="o-table-preview"
                       >
                         <canvas
-                          class="w-100 h-100"
+                          class="w-100 h-100 os-theme-dependant"
                         />
                       </div>
                       
@@ -1681,7 +1681,7 @@ exports[`Spreadsheet pivot side panel It should display only the selection input
                         class="o-table-preview"
                       >
                         <canvas
-                          class="w-100 h-100"
+                          class="w-100 h-100 os-theme-dependant"
                         />
                       </div>
                       
@@ -1696,7 +1696,7 @@ exports[`Spreadsheet pivot side panel It should display only the selection input
                         class="o-table-preview"
                       >
                         <canvas
-                          class="w-100 h-100"
+                          class="w-100 h-100 os-theme-dependant"
                         />
                       </div>
                       
@@ -1711,7 +1711,7 @@ exports[`Spreadsheet pivot side panel It should display only the selection input
                         class="o-table-preview"
                       >
                         <canvas
-                          class="w-100 h-100"
+                          class="w-100 h-100 os-theme-dependant"
                         />
                       </div>
                       
@@ -1726,7 +1726,7 @@ exports[`Spreadsheet pivot side panel It should display only the selection input
                         class="o-table-preview"
                       >
                         <canvas
-                          class="w-100 h-100"
+                          class="w-100 h-100 os-theme-dependant"
                         />
                       </div>
                       
@@ -1741,7 +1741,7 @@ exports[`Spreadsheet pivot side panel It should display only the selection input
                         class="o-table-preview"
                       >
                         <canvas
-                          class="w-100 h-100"
+                          class="w-100 h-100 os-theme-dependant"
                         />
                       </div>
                       
@@ -1756,7 +1756,7 @@ exports[`Spreadsheet pivot side panel It should display only the selection input
                         class="o-table-preview"
                       >
                         <canvas
-                          class="w-100 h-100"
+                          class="w-100 h-100 os-theme-dependant"
                         />
                       </div>
                       
@@ -1771,7 +1771,7 @@ exports[`Spreadsheet pivot side panel It should display only the selection input
                         class="o-table-preview"
                       >
                         <canvas
-                          class="w-100 h-100"
+                          class="w-100 h-100 os-theme-dependant"
                         />
                       </div>
                       
@@ -1786,7 +1786,7 @@ exports[`Spreadsheet pivot side panel It should display only the selection input
                         class="o-table-preview"
                       >
                         <canvas
-                          class="w-100 h-100"
+                          class="w-100 h-100 os-theme-dependant"
                         />
                       </div>
                       
@@ -1801,7 +1801,7 @@ exports[`Spreadsheet pivot side panel It should display only the selection input
                         class="o-table-preview"
                       >
                         <canvas
-                          class="w-100 h-100"
+                          class="w-100 h-100 os-theme-dependant"
                         />
                       </div>
                       
@@ -1816,7 +1816,7 @@ exports[`Spreadsheet pivot side panel It should display only the selection input
                         class="o-table-preview"
                       >
                         <canvas
-                          class="w-100 h-100"
+                          class="w-100 h-100 os-theme-dependant"
                         />
                       </div>
                       
@@ -1831,7 +1831,7 @@ exports[`Spreadsheet pivot side panel It should display only the selection input
                         class="o-table-preview"
                       >
                         <canvas
-                          class="w-100 h-100"
+                          class="w-100 h-100 os-theme-dependant"
                         />
                       </div>
                       
@@ -1846,7 +1846,7 @@ exports[`Spreadsheet pivot side panel It should display only the selection input
                         class="o-table-preview"
                       >
                         <canvas
-                          class="w-100 h-100"
+                          class="w-100 h-100 os-theme-dependant"
                         />
                       </div>
                       
@@ -1861,7 +1861,7 @@ exports[`Spreadsheet pivot side panel It should display only the selection input
                         class="o-table-preview"
                       >
                         <canvas
-                          class="w-100 h-100"
+                          class="w-100 h-100 os-theme-dependant"
                         />
                       </div>
                       
@@ -1876,7 +1876,7 @@ exports[`Spreadsheet pivot side panel It should display only the selection input
                         class="o-table-preview"
                       >
                         <canvas
-                          class="w-100 h-100"
+                          class="w-100 h-100 os-theme-dependant"
                         />
                       </div>
                       
@@ -1891,7 +1891,7 @@ exports[`Spreadsheet pivot side panel It should display only the selection input
                         class="o-table-preview"
                       >
                         <canvas
-                          class="w-100 h-100"
+                          class="w-100 h-100 os-theme-dependant"
                         />
                       </div>
                       

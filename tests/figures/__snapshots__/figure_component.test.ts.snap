@@ -2,7 +2,7 @@
 
 exports[`figures selected figure snapshot 1`] = `
 <div
-  class="o-figure-wrapper o-figure-selected"
+  class="o-figure-wrapper os-theme-dependant o-figure-selected"
   style="left:1px; top:1px; width:100px; height:100px; "
 >
   <div

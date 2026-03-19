@@ -1,5 +1,4 @@
 import { ChartConfiguration } from "chart.js";
-import { BACKGROUND_CHART_COLOR } from "../../../constants";
 import { ChartTypeBuilder } from "../../../registries/chart_registry";
 import { ScatterChartRuntime } from "../../../types/chart/scatter_chart";
 import { CommandResult } from "../../../types/commands";
@@ -64,7 +63,7 @@ export const ScatterChart: ChartTypeBuilder<"scatter"> = {
   getDefinitionForExcel(getters, definition, { dataSets, labelRange }) {
     return {
       ...definition,
-      backgroundColor: toXlsxHexColor(definition.background || BACKGROUND_CHART_COLOR),
+      backgroundColor: toXlsxHexColor(definition.background || "#FFFFFF"),
       fontColor: toXlsxHexColor(chartFontColor(definition.background)),
       dataSets,
       labelRange,
@@ -93,7 +92,7 @@ export const ScatterChart: ChartTypeBuilder<"scatter"> = {
           legend: getScatterChartLegend(definition, chartData),
           tooltip: getLineChartTooltip(definition, chartData),
           chartShowValuesPlugin: getChartShowValues(definition, chartData),
-          background: { color: definition.background },
+          background: { color: chartData.background },
         },
         ...eventHandlers,
       },

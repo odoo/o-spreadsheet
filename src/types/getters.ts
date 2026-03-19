@@ -15,6 +15,7 @@ import { AutomaticSumPlugin } from "../plugins/ui_feature/automatic_sum";
 import { CellComputedStylePlugin } from "../plugins/ui_feature/cell_computed_style";
 import { CheckboxTogglePlugin } from "../plugins/ui_feature/checkbox_toggle";
 import { CollaborativePlugin } from "../plugins/ui_feature/collaborative";
+import { ColorThemeUIPlugin } from "../plugins/ui_feature/color_theme";
 import { DynamicTranslate } from "../plugins/ui_feature/dynamic_translate";
 import { GeoFeaturePlugin } from "../plugins/ui_feature/geo_features";
 import { HeaderVisibilityUIPlugin } from "../plugins/ui_feature/header_visibility_ui";
@@ -80,7 +81,8 @@ export type RenderingGetters = {
   PluginGetters<typeof DynamicTranslate> &
   PluginGetters<typeof FormulaTrackerPlugin> &
   PluginGetters<typeof LockSheetPlugin> &
-  PluginGetters<typeof CarouselUIPlugin>;
+  PluginGetters<typeof CarouselUIPlugin> &
+  PluginGetters<typeof ColorThemeUIPlugin>;
 
 export type Getters = RenderingGetters &
   PluginGetters<typeof SheetViewPlugin> &

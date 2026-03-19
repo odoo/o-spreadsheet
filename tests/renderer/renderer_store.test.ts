@@ -12,10 +12,7 @@ import {
 } from "../../src";
 import { HoveredTableStore } from "../../src/components/tables/hovered_table_store";
 import {
-  BACKGROUND_HEADER_ACTIVE_COLOR,
-  BACKGROUND_HEADER_SELECTED_COLOR,
   CANVAS_SHIFT,
-  CELL_BORDER_COLOR,
   DEFAULT_CELL_HEIGHT,
   DEFAULT_CELL_WIDTH,
   HEADER_HEIGHT,
@@ -29,6 +26,11 @@ import {
 import { blendColors, toHex } from "../../src/helpers/color";
 import { fontSizeInPixels, getContextFontSize } from "../../src/helpers/text_helper";
 import { toZone } from "../../src/helpers/zones";
+import {
+  BACKGROUND_HEADER_ACTIVE_COLOR,
+  BACKGROUND_HEADER_SELECTED_COLOR,
+  CELL_BORDER_COLOR,
+} from "../../src/plugins/ui_feature/color_theme";
 import { FormulaFingerprintStore } from "../../src/stores/formula_fingerprints_store";
 import { GridRenderer } from "../../src/stores/grid_renderer_store";
 import { RendererStore } from "../../src/stores/renderer_store";

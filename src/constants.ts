@@ -6,14 +6,7 @@ export const CANVAS_SHIFT = 0.5;
 
 // Colors
 export const HIGHLIGHT_COLOR = "#017E84";
-export const BACKGROUND_HEADER_COLOR = "#F8F9FA";
-export const BACKGROUND_HEADER_SELECTED_COLOR = "#E8EAED";
-export const BACKGROUND_HEADER_ACTIVE_COLOR = "#595959";
-export const TEXT_HEADER_COLOR = "#666666";
 export const SELECTION_BORDER_COLOR = "#3266ca";
-export const HEADER_BORDER_COLOR = "#C0C0C0";
-export const CELL_BORDER_COLOR = "#E2E3E3";
-export const BACKGROUND_CHART_COLOR = "#FFFFFF";
 export const DEFAULT_COLOR_SCALE_MIDPOINT_COLOR = 0xb6d7a8;
 export const LINK_COLOR = HIGHLIGHT_COLOR;
 export const FILTERS_COLOR = "#188038";

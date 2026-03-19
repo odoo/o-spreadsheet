@@ -92,7 +92,7 @@ export const SunburstChart: ChartTypeBuilder<"sunburst"> = {
           tooltip: getSunburstChartTooltip(definition, chartData),
           sunburstLabelsPlugin: getSunburstShowValues(definition, chartData),
           sunburstHoverPlugin: { enabled: true },
-          background: { color: definition.background },
+          background: { color: chartData.background },
         },
         ...eventHandlers,
       },

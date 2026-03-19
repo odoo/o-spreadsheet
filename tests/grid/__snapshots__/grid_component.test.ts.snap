@@ -24,8 +24,8 @@ exports[`Grid component simple rendering snapshot 1`] = `
   >
     
     <div
-      class="o-grid-add-rows mt-2 ms-2 w-100 d-flex position-relative align-items-center"
-      style="top:2300px; "
+      class="o-grid-add-rows mt-2 ms-2 w-100 d-flex position-relative align-items-center os-theme-dependant"
+      style="top:2300px; z-index:1; "
     >
       <button
         class="o-button flex-grow-0 me-2"
@@ -102,6 +102,7 @@ exports[`Grid component simple rendering snapshot 1`] = `
   </div>
   
   <canvas
+    class="os-theme-dependant pe-none"
     height="1011"
     style="width:1033px; height:1011px; "
     width="1033"

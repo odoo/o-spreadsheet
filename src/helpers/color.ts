@@ -402,6 +402,87 @@ export function lightenColor(color: Color, percentage: number): Color {
   return hslaToHex(hsla);
 }
 
+export const DARK_MODE_FILTER = {
+  invert: 1,
+  hueRotate: 170,
+  contrast: 0.85,
+  brightness: 1.2,
+};
+
+export const DARK_MODE_FILTER_STRING = `invert(${DARK_MODE_FILTER.invert}) hue-rotate(${DARK_MODE_FILTER.hueRotate}deg) contrast(${DARK_MODE_FILTER.contrast}) brightness(${DARK_MODE_FILTER.brightness})`;
+
+/**
+ * Computes the 3x3 matrix for a hue-rotate filter.
+ * https://www.w3.org/TR/filter-effects-1/#feColorMatrixElement
+ */
+function getHueRotateMatrix(degrees: number): number[][] {
+  const radians = (degrees * Math.PI) / 180;
+  const cos = Math.cos(radians);
+  const sin = Math.sin(radians);
+  return [
+    [
+      0.213 + cos * 0.787 - sin * 0.213,
+      0.715 - cos * 0.715 - sin * 0.715,
+      0.072 - cos * 0.072 + sin * 0.928,
+    ],
+    [
+      0.213 - cos * 0.213 + sin * 0.143,
+      0.715 + cos * 0.285 + sin * 0.14,
+      0.072 - cos * 0.072 - sin * 0.283,
+    ],
+    [
+      0.213 - cos * 0.213 - sin * 0.787,
+      0.715 - cos * 0.715 + sin * 0.715,
+      0.072 + cos * 0.928 + sin * 0.072,
+    ],
+  ];
+}
+
+/**
+ * Converts a desired "displayed" color into the pre-inverted color that must be
+ * stored in the theme so that, after the dark-mode CSS filter is applied, the
+ * desired color is actually shown.
+ *
+ * This function computes the exact inverse of the DARK_MODE_FILTER chain.
+ */
+export function adaptForDarkMode(displayedColor: Color): Color {
+  const { r, g, b, a } = colorToRGBA(displayedColor);
+
+  // Normalize RGB channels to [0, 1]
+  let rn = r / 255;
+  let gn = g / 255;
+  let bn = b / 255;
+
+  // Step 1 – reverse brightness: c = c / brightness
+  rn /= DARK_MODE_FILTER.brightness;
+  gn /= DARK_MODE_FILTER.brightness;
+  bn /= DARK_MODE_FILTER.brightness;
+
+  // Step 2 – reverse contrast: c = (c - 0.5) / contrast + 0.5
+  rn = (rn - 0.5) / DARK_MODE_FILTER.contrast + 0.5;
+  gn = (gn - 0.5) / DARK_MODE_FILTER.contrast + 0.5;
+  bn = (bn - 0.5) / DARK_MODE_FILTER.contrast + 0.5;
+
+  // Clamp to [0, 1] (contrast reversal can push very dark channels below 0)
+  rn = Math.max(0, Math.min(1, rn));
+  gn = Math.max(0, Math.min(1, gn));
+  bn = Math.max(0, Math.min(1, bn));
+
+  // Step 3 – reverse hue-rotate(θ) by applying hue-rotate(-θ)
+  const matrix = getHueRotateMatrix(-DARK_MODE_FILTER.hueRotate);
+  const hr = Math.max(0, Math.min(1, matrix[0][0] * rn + matrix[0][1] * gn + matrix[0][2] * bn));
+  const hg = Math.max(0, Math.min(1, matrix[1][0] * rn + matrix[1][1] * gn + matrix[1][2] * bn));
+  const hb = Math.max(0, Math.min(1, matrix[2][0] * rn + matrix[2][1] * gn + matrix[2][2] * bn));
+
+  // Step 4 – reverse invert(1): c = 1 - c (self-inverse) and convert back to [0, 255]
+  return rgbaToHex({
+    r: Math.round((1 - hr) * 255),
+    g: Math.round((1 - hg) * 255),
+    b: Math.round((1 - hb) * 255),
+    a,
+  });
+}
+
 export function darkenColor(color: Color, percentage: number): Color {
   const hsla = hexToHSLA(color);
   if (percentage === 1) {

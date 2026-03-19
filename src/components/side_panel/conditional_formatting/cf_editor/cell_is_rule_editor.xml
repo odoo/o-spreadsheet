@@ -21,7 +21,7 @@
       <div class="o-section-subtitle pt-3">Formatting style</div>
 
       <div
-        class="o-cf-preview-display border"
+        class="o-cf-preview-display border os-theme-dependant"
         t-attf-style="font-weight:{{this.rule.style.bold ?'bold':'normal'}};
                        text-decoration:{{this.getTextDecoration(this.rule.style)}};
                        font-style:{{this.rule.style.italic?'italic':'normal'}};

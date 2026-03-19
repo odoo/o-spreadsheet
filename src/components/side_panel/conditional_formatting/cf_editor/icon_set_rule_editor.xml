@@ -5,7 +5,7 @@
         <div class="o-section-subtitle">Icons</div>
         <div class="o-cf-iconsets d-flex flex-row">
           <div
-            class="o-cf-iconset o-cf-clickable-icon d-flex flex-row justify-content-between border rounded"
+            class="o-cf-iconset o-cf-clickable-icon d-flex flex-row justify-content-between border rounded os-theme-dependant"
             t-foreach="['arrows', 'smiley', 'dots']"
             t-as="iconSet"
             t-key="iconSet"
@@ -30,7 +30,8 @@
           <tr>
             <td>
               <div t-on-click.stop="() => this.props.store.toggleMenu('iconSet-upperIcon')">
-                <div class="o-cf-icon-button o-cf-clickable-icon me-3 border rounded">
+                <div
+                  class="o-cf-icon-button o-cf-clickable-icon me-3 border rounded os-theme-dependant">
                   <t t-call="{{this.getIconTemplate(this.rule.icons.upper)}}"/>
                 </div>
               </div>

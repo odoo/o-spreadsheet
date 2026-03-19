@@ -48,7 +48,7 @@ exports[`UI of conditional formats Conditional formatting list panel simple snap
         </div>
         
         <div
-          class="o-cf-preview-icon d-flex justify-content-around align-items-center me-3 flex-shrink-0 border"
+          class="o-cf-preview-icon d-flex justify-content-around align-items-center me-3 flex-shrink-0 border os-theme-dependant"
           style="background:#FF0000; "
         >
            123 
@@ -131,7 +131,7 @@ exports[`UI of conditional formats Conditional formatting list panel simple snap
         </div>
         
         <div
-          class="o-cf-preview-icon d-flex justify-content-around align-items-center me-3 flex-shrink-0 border"
+          class="o-cf-preview-icon d-flex justify-content-around align-items-center me-3 flex-shrink-0 border os-theme-dependant"
           style="background-image: linear-gradient(to right, #FF00FF, #123456)"
         >
            123 

@@ -108,7 +108,7 @@ export const CalendarChart: ChartTypeBuilder<"calendar"> = {
           tooltip: getCalendarChartTooltip(definition, chartData),
           chartShowValuesPlugin: getCalendarChartShowValues(definition, chartData),
           chartColorScalePlugin: getCalendarColorScale(definition, chartData),
-          background: { color: definition.background },
+          background: { color: chartData.background },
         },
       },
     };

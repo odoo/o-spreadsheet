@@ -11,6 +11,7 @@ import {
   useSubEnv,
 } from "@odoo/owl";
 import { GROUP_LAYER_WIDTH, MAXIMAL_FREEZABLE_RATIO } from "../../constants";
+import { DARK_MODE_FILTER_STRING } from "../../helpers/color";
 import { unregisterChartJsExtensions } from "../../helpers/figures/charts/chart_js_extension";
 import { ImageProvider } from "../../helpers/figures/images/image_provider";
 import { batched } from "../../helpers/misc";
@@ -60,7 +61,6 @@ import { instantiateClipboard } from "./../../helpers/clipboard/navigator_clipbo
 
 export interface SpreadsheetProps extends Partial<NotificationStoreMethods> {
   model: Model;
-  colorScheme?: "dark" | "light";
 }
 
 export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv> {
@@ -70,7 +70,6 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
     notifyUser: { type: Function, optional: true },
     raiseError: { type: Function, optional: true },
     askConfirmation: { type: Function, optional: true },
-    colorScheme: { type: String, optional: true },
   };
   static components = {
     TopBar,
@@ -104,7 +103,8 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
     const properties: CSSProperties = {};
     const scrollbarWidth = this.env.model.getters.getScrollBarWidth();
     properties["--os-scrollbar-width"] = `${scrollbarWidth}px`;
-    properties["color-scheme"] = this.props.colorScheme;
+    properties["--os-dark-mode-filter"] = DARK_MODE_FILTER_STRING;
+    properties["color-scheme"] = this.props.model.getters.isDarkMode() ? "dark" : "light";
 
     if (this.state.printModeEnabled) {
       properties["display"] = `block`;
@@ -351,7 +351,7 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
   getSpreadSheetClasses() {
     return [
       this.env.isSmall ? "o-spreadsheet-mobile" : "",
-      this.props.colorScheme === "dark" ? "dark" : "",
+      this.props.model.getters.isDarkMode() ? "dark" : "",
     ].join(" ");
   }
 

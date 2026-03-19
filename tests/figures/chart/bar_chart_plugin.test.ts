@@ -1,6 +1,5 @@
 import { ChartConfiguration } from "chart.js";
 import { ChartCreationContext, Model } from "../../../src";
-import { BACKGROUND_CHART_COLOR } from "../../../src/constants";
 import { BarChartRuntime } from "../../../src/types/chart/bar_chart";
 import {
   GENERAL_CHART_CREATION_CONTEXT,
@@ -256,7 +255,7 @@ describe("bar chart", () => {
       "chartId"
     );
     let runtime = model.getters.getChartRuntime("chartId") as BarChartRuntime;
-    expect(runtime.chartJsConfig.data.datasets[0].borderColor).toBe(BACKGROUND_CHART_COLOR);
+    expect(runtime.chartJsConfig.data.datasets[0].borderColor).toBe("#FFFFFF");
 
     updateChart(model, "chartId", { background: "#f00" });
     runtime = model.getters.getChartRuntime("chartId") as BarChartRuntime;

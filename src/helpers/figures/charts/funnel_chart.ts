@@ -84,7 +84,7 @@ export const FunnelChart: ChartTypeBuilder<"funnel"> = {
           legend: { display: false },
           tooltip: getFunnelChartTooltip(definition, chartData),
           chartShowValuesPlugin: getChartShowValues(definition, chartData),
-          background: { color: definition.background },
+          background: { color: chartData.background },
         },
         ...eventHandlers,
       },

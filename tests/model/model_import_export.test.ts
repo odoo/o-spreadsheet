@@ -9,7 +9,6 @@ import {
   schemeToColorScale,
 } from "../../src";
 import {
-  BACKGROUND_CHART_COLOR,
   DEFAULT_CELL_HEIGHT,
   DEFAULT_CELL_WIDTH,
   DEFAULT_REVISION_ID,
@@ -189,7 +188,7 @@ describe("Migrations", () => {
         dataSets: [{ dataRange: "B26:B35" }, { dataRange: "C26:C35" }],
         dataSetsHaveTitle: true,
       }),
-      background: BACKGROUND_CHART_COLOR,
+      background: "#FFFFFF",
       legendPosition: "top",
       stacked: false,
       humanize: true,
@@ -203,7 +202,7 @@ describe("Migrations", () => {
         dataSets: [{ dataRange: "B27:B35" }, { dataRange: "C27:C35" }],
         dataSetsHaveTitle: false,
       }),
-      background: BACKGROUND_CHART_COLOR,
+      background: "#FFFFFF",
       legendPosition: "top",
       stacked: false,
       humanize: true,
@@ -217,7 +216,7 @@ describe("Migrations", () => {
         dataSets: [{ dataRange: "B26:B27" }],
         dataSetsHaveTitle: true,
       }),
-      background: BACKGROUND_CHART_COLOR,
+      background: "#FFFFFF",
       legendPosition: "top",
       stacked: false,
       humanize: true,
@@ -231,12 +230,13 @@ describe("Migrations", () => {
         dataSets: [{ dataRange: "B27" }],
         dataSetsHaveTitle: false,
       }),
-      background: BACKGROUND_CHART_COLOR,
+      background: "#FFFFFF",
       legendPosition: "top",
       stacked: false,
       humanize: true,
     });
   });
+
   test.each(FORBIDDEN_SHEETNAME_CHARS)("migrate version 7: sheet Names", (char) => {
     const model = new Model({
       version: 7,

@@ -92,7 +92,7 @@ export const WaterfallChart: ChartTypeBuilder<"waterfall"> = {
           tooltip: getWaterfallChartTooltip(definition, chartData),
           chartShowValuesPlugin: getWaterfallChartShowValues(definition, chartData),
           waterfallLinesPlugin: { showConnectorLines: definition.showConnectorLines },
-          background: { color: definition.background },
+          background: { color: chartData.background },
         },
         ...eventHandlers,
       },

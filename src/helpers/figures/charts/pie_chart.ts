@@ -1,5 +1,4 @@
 import type { ChartConfiguration } from "chart.js";
-import { BACKGROUND_CHART_COLOR } from "../../../constants";
 import { ChartTypeBuilder } from "../../../registries/chart_registry";
 import { PieChartRuntime } from "../../../types/chart/pie_chart";
 import { CommandResult } from "../../../types/commands";
@@ -65,7 +64,7 @@ export const PieChart: ChartTypeBuilder<"pie"> = {
   getDefinitionForExcel(getters, definition, { dataSets, labelRange }) {
     return {
       ...definition,
-      backgroundColor: toXlsxHexColor(definition.background || BACKGROUND_CHART_COLOR),
+      backgroundColor: toXlsxHexColor(definition.background || "#FFFFFF"),
       fontColor: toXlsxHexColor(chartFontColor(definition.background)),
       dataSets,
       labelRange,
@@ -94,7 +93,7 @@ export const PieChart: ChartTypeBuilder<"pie"> = {
           legend: getPieChartLegend(definition, chartData),
           tooltip: getPieChartTooltip(definition, chartData),
           chartShowValuesPlugin: getChartShowValues(definition, chartData),
-          background: { color: definition.background },
+          background: { color: chartData.background },
         },
         ...eventHandlers,
       },

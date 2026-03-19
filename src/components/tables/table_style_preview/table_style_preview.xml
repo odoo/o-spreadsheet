@@ -8,7 +8,7 @@
       t-on-click="props.onClick"
       t-on-contextmenu.prevent="(ev) => this.onContextMenu(ev)">
       <div class="o-table-preview">
-        <canvas t-ref="canvas" class="w-100 h-100"/>
+        <canvas t-ref="canvas" class="w-100 h-100 os-theme-dependant"/>
       </div>
       <div
         class="o-table-style-edit-button position-absolute d-none bg-white border"

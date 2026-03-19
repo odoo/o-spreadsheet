@@ -2,7 +2,7 @@
   <t t-name="o-spreadsheet-IconPicker">
     <div class="o-icon-picker bg-white">
       <t t-foreach="iconSets" t-as="iconSet" t-key="iconSet">
-        <div class="o-cf-icon-line">
+        <div class="o-cf-icon-line os-theme-dependant">
           <div
             class="o-icon-picker-item p-1"
             t-on-click="() => this.onIconClick(iconSets[iconSet].good)">

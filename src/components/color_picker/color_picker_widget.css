@@ -19,11 +19,11 @@
     }
 
     .o-color-picker-button {
-      > span {
-        border-bottom: 4px solid;
+      > div {
         height: 20px;
-        margin-top: 2px;
-        display: block;
+      }
+      .o-colored-border {
+        border-bottom: 4px solid;
       }
       &[disabled] {
         pointer-events: none;
