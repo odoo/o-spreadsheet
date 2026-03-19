@@ -1,4 +1,4 @@
-import { BACKGROUND_CHART_COLOR, DEFAULT_CAROUSEL_TITLE_STYLE, GRAY_400 } from "../../constants";
+import { DEFAULT_CAROUSEL_TITLE_STYLE, GRAY_400 } from "../../constants";
 import { chartStyleToCellStyle, computeTextFont, deepCopy } from "../../helpers";
 import { drawChartOnCanvas } from "../../helpers/figures/charts";
 import { DisposableStore, Get, Store } from "../../store_engine";
@@ -104,7 +104,8 @@ export class FigureRendererStore extends DisposableStore {
     } else if (title.text) {
       ctx.save();
 
-      ctx.fillStyle = chartDefinition?.background || BACKGROUND_CHART_COLOR;
+      ctx.fillStyle =
+        chartDefinition?.background || this.getters.getSpreadsheetTheme().backgroundColor;
       ctx.fillRect(x, y, figure.width, headerSize);
 
       const font = computeTextFont(chartStyleToCellStyle(title));

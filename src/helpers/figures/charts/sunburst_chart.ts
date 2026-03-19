@@ -216,7 +216,7 @@ export function createSunburstChartRuntime(
         tooltip: getSunburstChartTooltip(definition, chartData),
         sunburstLabelsPlugin: getSunburstShowValues(definition, chartData),
         sunburstHoverPlugin: { enabled: true },
-        background: { color: chart.background },
+        background: { color: chartData.background },
       },
     },
   };

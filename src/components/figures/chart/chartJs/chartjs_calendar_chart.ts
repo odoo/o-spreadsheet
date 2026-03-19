@@ -7,7 +7,6 @@ import {
   Chart,
   ChartComponent,
 } from "chart.js";
-import { BACKGROUND_CHART_COLOR } from "../../../../constants";
 
 export function getCalendarChartController(): ChartComponent & {
   prototype: BarController;
@@ -31,7 +30,7 @@ export function getCalendarChartController(): ChartComponent & {
 
       // Remove the element background at the start of an animation
       const chartBackground = this.chart.config.options?.plugins?.background?.color;
-      const backgroundColor = chartBackground || BACKGROUND_CHART_COLOR;
+      const backgroundColor = chartBackground;
       for (let i = start; i < start + count; i++) {
         if (mode === "reset") {
           this.updateElement(rects[i], i, { options: { backgroundColor } }, mode);

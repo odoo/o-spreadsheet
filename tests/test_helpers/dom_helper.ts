@@ -588,7 +588,7 @@ export async function changeRoundColorPickerColor(selector: string, color: strin
 export function getColorPickerWidgetColor(selector: string, widgetTitle: string) {
   const el = document
     .querySelector<HTMLElement>(selector)!
-    .querySelector<HTMLElement>(`.o-color-picker-button[title="${widgetTitle}"] span`);
+    .querySelector<HTMLElement>(`.o-color-picker-button[title="${widgetTitle}"] .o-colored-border`);
 
   const color = el?.style.borderColor;
   return toHex(color ?? "");

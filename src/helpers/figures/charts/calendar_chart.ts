@@ -239,7 +239,7 @@ export function createCalendarChartRuntime(
         tooltip: getCalendarChartTooltip(definition, chartData),
         chartShowValuesPlugin: getCalendarChartShowValues(definition, chartData),
         chartColorScalePlugin: getCalendarColorScale(definition, chartData),
-        background: { color: chart.background },
+        background: { color: chartData.background },
       },
     },
   };

@@ -36,6 +36,7 @@ import { AutomaticSumPlugin } from "./ui_feature/automatic_sum";
 import { CellComputedStylePlugin } from "./ui_feature/cell_computed_style";
 import { CheckboxTogglePlugin } from "./ui_feature/checkbox_toggle";
 import { CollaborativePlugin } from "./ui_feature/collaborative";
+import { ColorThemeUIPlugin } from "./ui_feature/color_theme";
 import { DataValidationInsertionPlugin } from "./ui_feature/datavalidation_insertion";
 import { DynamicTranslate } from "./ui_feature/dynamic_translate";
 import { FormatPlugin } from "./ui_feature/format";
@@ -102,7 +103,8 @@ export const featurePluginRegistry = new Registry<UIPluginConstructor>()
   .add("checkbox_toggle", CheckboxTogglePlugin)
   .add("dynamic_translate", DynamicTranslate)
   .add("geo_features", GeoFeaturePlugin)
-  .add("data_cleanup", DataCleanupPlugin);
+  .add("data_cleanup", DataCleanupPlugin)
+  .add("color_theme", ColorThemeUIPlugin);
 
 // Plugins which have a state, but which should not be shared in collaborative
 export const statefulUIPluginRegistry = new Registry<UIPluginConstructor>()

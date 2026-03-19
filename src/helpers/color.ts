@@ -402,6 +402,60 @@ export function lightenColor(color: Color, percentage: number): Color {
   return hslaToHex(hsla);
 }
 
+/**
+ * Converts a desired "displayed" color into the pre-inverted color that must be
+ * stored in the theme so that, after the dark-mode CSS filter is applied, the
+ * desired color is actually shown.
+ *
+ * The dark-mode CSS filter chain applied to theme-dependent elements is:
+ *   filter: invert(1) hue-rotate(180deg) contrast(0.9) brightness(1.5)
+ *
+ * This function computes the exact inverse of that filter chain:
+ *   1. Reverse brightness(1.5)  ->  c / 1.5
+ *   2. Reverse contrast(0.9)    ->  (c − 0.5) / 0.9 + 0.5
+ *   3. Reverse hue-rotate(180°) ->  apply the CSS hue-rotate matrix (self-inverse)
+ *   4. Reverse invert(1)        ->  1 − c (self-inverse)
+ */
+export function adaptForDarkMode(displayedColor: Color): Color {
+  const { r, g, b, a } = colorToRGBA(displayedColor);
+
+  // Normalize RGB channels to [0, 1]
+  let rn = r / 255;
+  let gn = g / 255;
+  let bn = b / 255;
+
+  // Step 1 – reverse brightness(1.5): c = c / 1.5
+  rn /= 1.5;
+  gn /= 1.5;
+  bn /= 1.5;
+
+  // Step 2 – reverse contrast(0.9): c = (c − 0.5) / 0.9 + 0.5
+  rn = (rn - 0.5) / 0.9 + 0.5;
+  gn = (gn - 0.5) / 0.9 + 0.5;
+  bn = (bn - 0.5) / 0.9 + 0.5;
+
+  // Clamp to [0, 1] (contrast reversal can push very dark channels below 0)
+  rn = Math.max(0, Math.min(1, rn));
+  gn = Math.max(0, Math.min(1, gn));
+  bn = Math.max(0, Math.min(1, bn));
+
+  // Step 3 – reverse hue-rotate(180°) using the CSS color matrix.
+  // CSS hue-rotate(θ) applies a linear RGB matrix derived from cos(θ) and sin(θ).
+  // For θ=180°: cos=-1, sin=0, giving the matrix coefficients below.
+  // H²=I so applying it once is sufficient to invert the forward operation.
+  const hr = Math.max(0, Math.min(1, -0.574 * rn + 1.43 * gn + 0.144 * bn));
+  const hg = Math.max(0, Math.min(1, 0.426 * rn + 0.43 * gn + 0.144 * bn));
+  const hb = Math.max(0, Math.min(1, 0.426 * rn + 1.43 * gn - 0.856 * bn));
+
+  // Step 4 – reverse invert(1): c = 1 − c (self-inverse) and convert back to [0, 255]
+  return rgbaToHex({
+    r: Math.round((1 - hr) * 255),
+    g: Math.round((1 - hg) * 255),
+    b: Math.round((1 - hb) * 255),
+    a,
+  });
+}
+
 export function darkenColor(color: Color, percentage: number): Color {
   const hsla = hexToHSLA(color);
   if (percentage === 1) {

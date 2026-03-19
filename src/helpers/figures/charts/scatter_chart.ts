@@ -1,5 +1,4 @@
 import { ChartConfiguration } from "chart.js";
-import { BACKGROUND_CHART_COLOR } from "../../../constants";
 import {
   Color,
   CommandResult,
@@ -192,7 +191,7 @@ export class ScatterChart extends AbstractChart {
     const definition = this.getDefinition();
     return {
       ...definition,
-      backgroundColor: toXlsxHexColor(this.background || BACKGROUND_CHART_COLOR),
+      backgroundColor: toXlsxHexColor(this.background || "#FFFFFF"),
       fontColor: toXlsxHexColor(chartFontColor(this.background)),
       dataSets,
       labelRange,
@@ -245,7 +244,7 @@ export function createScatterChartRuntime(
         legend: getScatterChartLegend(definition, chartData),
         tooltip: getLineChartTooltip(definition, chartData),
         chartShowValuesPlugin: getChartShowValues(definition, chartData),
-        background: { color: chart.background },
+        background: { color: chartData.background },
       },
     },
   };

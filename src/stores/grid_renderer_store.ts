@@ -3,21 +3,13 @@ import { HoveredIconStore } from "../components/grid_overlay/hovered_icon_store"
 import { getPath2D } from "../components/icons/icons";
 import { HoveredTableStore } from "../components/tables/hovered_table_store";
 import {
-  BACKGROUND_HEADER_ACTIVE_COLOR,
-  BACKGROUND_HEADER_COLOR,
-  BACKGROUND_HEADER_SELECTED_COLOR,
   CANVAS_SHIFT,
-  CELL_BORDER_COLOR,
   DATA_VALIDATION_CHIP_MARGIN,
   DEFAULT_FONT,
-  FROZEN_PANE_BORDER_COLOR,
-  FROZEN_PANE_HEADER_BORDER_COLOR,
-  HEADER_BORDER_COLOR,
   HEADER_FONT_SIZE,
   HEADER_HEIGHT,
   HEADER_WIDTH,
   MIN_CELL_TEXT_MARGIN,
-  TEXT_HEADER_COLOR,
 } from "../constants";
 import {
   blendColors,
@@ -36,6 +28,7 @@ import {
   overlap,
   positionToZone,
   recomputeZones,
+  toHex,
   union,
   zoneToXc,
 } from "../helpers/index";
@@ -207,7 +200,7 @@ export class GridRenderer extends DisposableStore {
     const { width, height } = viewports.getSheetViewDimensionWithHeaders();
 
     // white background
-    ctx.fillStyle = "#ffffff";
+    ctx.fillStyle = this.getters.getSpreadsheetTheme().backgroundColor;
     ctx.fillRect(0, 0, width + CANVAS_SHIFT, height + CANVAS_SHIFT);
   }
 
@@ -220,11 +213,12 @@ export class GridRenderer extends DisposableStore {
     const inset = areGridLinesVisible ? 0.1 * thinLineWidth : 0;
 
     if (areGridLinesVisible) {
+      const theme = this.getters.getSpreadsheetTheme();
+      ctx.strokeStyle = theme.gridBorderColor;
       for (const box of boxes) {
         if (box.style.hideGridLines) {
           continue;
         }
-        ctx.strokeStyle = CELL_BORDER_COLOR;
         ctx.lineWidth = thinLineWidth;
         ctx.strokeRect(box.x + inset, box.y + inset, box.width - 2 * inset, box.height - 2 * inset);
       }
@@ -235,8 +229,9 @@ export class GridRenderer extends DisposableStore {
     const { ctx } = renderingContext;
     for (const box of boxes) {
       const style = box.style;
-      if (style.fillColor && style.fillColor !== "#ffffff") {
-        ctx.fillStyle = style.fillColor || "#ffffff";
+      const fillColor = toHex(style.fillColor || "#ffffff");
+      if (fillColor !== "#FFFFFF") {
+        ctx.fillStyle = fillColor;
         // We shift the canvas by CANVAS_SHIFT to avoid blurry lines (lines are drawn between pixels), but fillRect
         // are drawn at the exact pixel position, so we need to compensate this shift here. We also want to extend
         // the fill by 1px to draw over the gridLines.
@@ -254,7 +249,7 @@ export class GridRenderer extends DisposableStore {
         ctx.fillRect(box.x, box.y, width, box.height);
       }
       if (box.overlayColor) {
-        ctx.fillStyle = blendColors(style.fillColor || "#ffffff", box.overlayColor);
+        ctx.fillStyle = blendColors(fillColor, box.overlayColor);
         ctx.fillRect(
           box.x - CANVAS_SHIFT,
           box.y - CANVAS_SHIFT,
@@ -307,7 +302,7 @@ export class GridRenderer extends DisposableStore {
             (box.clipRect?.x || box.x + box.width / 2 - box.content.width / 2) + thinLineWidth / 2;
           width = clipWidth - 2 * thinLineWidth;
         }
-        ctx.fillStyle = "#ffffff";
+        ctx.fillStyle = this.getters.getSpreadsheetTheme().backgroundColor;
         ctx.fillRect(x, y, width, height);
       }
     }
@@ -512,11 +507,12 @@ export class GridRenderer extends DisposableStore {
     const activeCols = renderingContext.activeCols;
     const activeRows = renderingContext.activeRows;
 
+    const theme = this.getters.getSpreadsheetTheme();
     ctx.font = `400 ${HEADER_FONT_SIZE}px ${DEFAULT_FONT}`;
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
     ctx.lineWidth = thinLineWidth;
-    ctx.strokeStyle = "#333";
+    ctx.strokeStyle = theme.headerTextColor;
 
     // Columns headers background
     for (const col of visibleCols) {
@@ -525,11 +521,11 @@ export class GridRenderer extends DisposableStore {
       const isColActive = activeCols.has(col);
       const isColSelected = selectedCols.has(col);
       if (isColActive) {
-        ctx.fillStyle = BACKGROUND_HEADER_ACTIVE_COLOR;
+        ctx.fillStyle = theme.headerActiveBackgroundColor;
       } else if (isColSelected) {
-        ctx.fillStyle = BACKGROUND_HEADER_SELECTED_COLOR;
+        ctx.fillStyle = theme.headerSelectedBackgroundColor;
       } else {
-        ctx.fillStyle = BACKGROUND_HEADER_COLOR;
+        ctx.fillStyle = theme.headerBackgroundColor;
       }
       ctx.fillRect(x, 0, width, HEADER_HEIGHT);
     }
@@ -542,11 +538,11 @@ export class GridRenderer extends DisposableStore {
       const isRowActive = activeRows.has(row);
       const isRowSelected = selectedRows.has(row);
       if (isRowActive) {
-        ctx.fillStyle = BACKGROUND_HEADER_ACTIVE_COLOR;
+        ctx.fillStyle = theme.headerActiveBackgroundColor;
       } else if (isRowSelected) {
-        ctx.fillStyle = BACKGROUND_HEADER_SELECTED_COLOR;
+        ctx.fillStyle = theme.headerSelectedBackgroundColor;
       } else {
-        ctx.fillStyle = BACKGROUND_HEADER_COLOR;
+        ctx.fillStyle = theme.headerBackgroundColor;
       }
       ctx.fillRect(0, y, HEADER_WIDTH, height);
     }
@@ -557,13 +553,13 @@ export class GridRenderer extends DisposableStore {
     ctx.lineTo(HEADER_WIDTH, height);
     ctx.moveTo(0, HEADER_HEIGHT);
     ctx.lineTo(width, HEADER_HEIGHT);
-    ctx.strokeStyle = HEADER_BORDER_COLOR;
+    ctx.strokeStyle = theme.headerBorderColor;
     ctx.stroke();
 
     // column text + separator
     for (const col of visibleCols) {
       const colName = numberToLetters(col);
-      ctx.fillStyle = activeCols.has(col) ? "#fff" : TEXT_HEADER_COLOR;
+      ctx.fillStyle = activeCols.has(col) ? "#fff" : theme.headerTextColor;
       const zone = { left: col, right: col, top: top, bottom: top };
       const { x: colStart, width: colSize } = viewports.getRect(sheetId, zone);
       const { x, width } = viewports.getVisibleRect(sheetId, zone);
@@ -581,7 +577,7 @@ export class GridRenderer extends DisposableStore {
 
     // row text + separator
     for (const row of visibleRows) {
-      ctx.fillStyle = activeRows.has(row) ? "#fff" : TEXT_HEADER_COLOR;
+      ctx.fillStyle = activeRows.has(row) ? "#fff" : theme.headerTextColor;
       const zone = { top: row, bottom: row, left: left, right: left };
       const { y: rowStart, height: rowSize } = viewports.getRect(sheetId, zone);
       const { y, height } = viewports.getVisibleRect(sheetId, zone);
@@ -607,7 +603,7 @@ export class GridRenderer extends DisposableStore {
     const widthCorrection = viewports.getGridOffsetX();
     const heightCorrection = viewports.getGridOffsetY();
     ctx.lineWidth = 6 * thinLineWidth;
-    ctx.strokeStyle = FROZEN_PANE_HEADER_BORDER_COLOR;
+    ctx.strokeStyle = this.getters.getSpreadsheetTheme().frozenPaneHeaderBorderColor;
     ctx.beginPath();
     if (offsetCorrectionX) {
       ctx.moveTo(widthCorrection + offsetCorrectionX, 0);
@@ -638,7 +634,7 @@ export class GridRenderer extends DisposableStore {
     const widthCorrection = viewports.getGridOffsetX();
     const heightCorrection = viewports.getGridOffsetY();
     ctx.lineWidth = 6 * thinLineWidth;
-    ctx.strokeStyle = FROZEN_PANE_BORDER_COLOR;
+    ctx.strokeStyle = this.getters.getSpreadsheetTheme().frozenPaneBorderColor;
     ctx.beginPath();
     if (offsetCorrectionX) {
       ctx.moveTo(widthCorrection + offsetCorrectionX, heightCorrection);

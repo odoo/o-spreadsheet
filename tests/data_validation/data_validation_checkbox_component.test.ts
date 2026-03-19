@@ -1,5 +1,8 @@
 import { Model } from "../../src";
-import { CHECKBOX_CHECKED, CHECKBOX_UNCHECKED } from "../../src/components/icons/icons";
+import {
+  getThemeCheckboxCheckedSvg,
+  getThemeCheckboxUncheckedSvg,
+} from "../../src/components/icons/icons";
 import {
   addDataValidation,
   createTableWithFilter,
@@ -10,6 +13,9 @@ import {
 import { clickGridIcon, keyDown } from "../test_helpers/dom_helper";
 import { getCellContent, getCellIcons, getStyle } from "../test_helpers/getters_helpers";
 import { mountSpreadsheet } from "../test_helpers/helpers";
+
+const CHECKBOX_UNCHECKED = getThemeCheckboxUncheckedSvg(false);
+const CHECKBOX_CHECKED = getThemeCheckboxCheckedSvg(false);
 
 describe("Checkbox in model", () => {
   let model: Model;

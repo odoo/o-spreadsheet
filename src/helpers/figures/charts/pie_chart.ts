@@ -1,5 +1,4 @@
 import type { ChartConfiguration } from "chart.js";
-import { BACKGROUND_CHART_COLOR } from "../../../constants";
 import {
   Color,
   CommandResult,
@@ -174,7 +173,7 @@ export class PieChart extends AbstractChart {
     );
     return {
       ...this.getDefinition(),
-      backgroundColor: toXlsxHexColor(this.background || BACKGROUND_CHART_COLOR),
+      backgroundColor: toXlsxHexColor(this.background || "#FFFFFF"),
       fontColor: toXlsxHexColor(chartFontColor(this.background)),
       dataSets,
       labelRange,
@@ -218,7 +217,7 @@ export function createPieChartRuntime(chart: PieChart, getters: Getters): PieCha
         legend: getPieChartLegend(definition, chartData),
         tooltip: getPieChartTooltip(definition, chartData),
         chartShowValuesPlugin: getChartShowValues(definition, chartData),
-        background: { color: chart.background },
+        background: { color: chartData.background },
       },
     },
   };

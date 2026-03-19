@@ -1,5 +1,4 @@
 import { ChartConfiguration } from "chart.js";
-import { BACKGROUND_CHART_COLOR } from "../../../constants";
 import {
   Color,
   CommandResult,
@@ -194,7 +193,7 @@ export class RadarChart extends AbstractChart {
     const definition = this.getDefinition();
     return {
       ...definition,
-      backgroundColor: toXlsxHexColor(this.background || BACKGROUND_CHART_COLOR),
+      backgroundColor: toXlsxHexColor(this.background || "#FFFFFF"),
       fontColor: toXlsxHexColor(chartFontColor(this.background)),
       dataSets,
       labelRange,
@@ -235,7 +234,7 @@ export function createRadarChartRuntime(chart: RadarChart, getters: Getters): Ra
         legend: getRadarChartLegend(definition, chartData),
         tooltip: getRadarChartTooltip(definition, chartData),
         chartShowValuesPlugin: getChartShowValues(definition, chartData),
-        background: { color: chart.background },
+        background: { color: chartData.background },
       },
     },
   };

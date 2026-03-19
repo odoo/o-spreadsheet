@@ -1,5 +1,4 @@
 import { Model } from "../../../src";
-import { BACKGROUND_CHART_COLOR } from "../../../src/constants";
 import { Color, UID } from "../../../src/types";
 import { GaugeChartRuntime, ScorecardChartRuntime } from "../../../src/types/chart";
 import {
@@ -53,11 +52,11 @@ describe("Single cell chart background color", () => {
     "chart %s background color change with main cell CF background color",
     (chartType: string) => {
       createTestChart(chartType, "A1");
-      expect(getGaugeOrScorecardRuntime(model, chartId).background).toEqual(BACKGROUND_CHART_COLOR);
+      expect(getGaugeOrScorecardRuntime(model, chartId).background).toEqual("#FFFFFF");
       addCfToA1("#FF0000");
       expect(getGaugeOrScorecardRuntime(model, chartId).background).toEqual("#FF0000");
       setCellContent(model, "A1", "random value not in CF");
-      expect(getGaugeOrScorecardRuntime(model, chartId).background).toEqual(BACKGROUND_CHART_COLOR);
+      expect(getGaugeOrScorecardRuntime(model, chartId).background).toEqual("#FFFFFF");
     }
   );
 
@@ -65,7 +64,7 @@ describe("Single cell chart background color", () => {
     "chart %s background color change with main cell background color",
     (chartType: string) => {
       createTestChart(chartType, "A1");
-      expect(getGaugeOrScorecardRuntime(model, chartId).background).toEqual(BACKGROUND_CHART_COLOR);
+      expect(getGaugeOrScorecardRuntime(model, chartId).background).toEqual("#FFFFFF");
       addFillToA1("#00FF00");
       expect(getGaugeOrScorecardRuntime(model, chartId).background).toEqual("#00FF00");
     }

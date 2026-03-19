@@ -249,7 +249,7 @@ export function createWaterfallChartRuntime(
         tooltip: getWaterfallChartTooltip(definition, chartData),
         chartShowValuesPlugin: getWaterfallChartShowValues(definition, chartData),
         waterfallLinesPlugin: { showConnectorLines: definition.showConnectorLines },
-        background: { color: chart.background },
+        background: { color: chartData.background },
       },
     },
   };

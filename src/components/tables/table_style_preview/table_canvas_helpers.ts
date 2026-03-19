@@ -26,7 +26,11 @@ function drawBackgrounds(
   ctx.save();
   for (let col = 0; col < numberOfCols; col++) {
     for (let row = 0; row < numberOfRows; row++) {
-      ctx.fillStyle = tableStyle.styles[col][row].fillColor || "#fff";
+      const fillColor = tableStyle.styles[col][row].fillColor;
+      if (!fillColor) {
+        continue;
+      }
+      ctx.fillStyle = fillColor;
 
       // We also want to fill the last pixel corresponding to the outside border if there is no border
       const width = col === numberOfCols - 1 ? colWidth + 1 : colWidth;

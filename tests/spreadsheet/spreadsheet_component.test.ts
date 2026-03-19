@@ -489,8 +489,8 @@ test("components take the small screen into account", async () => {
 });
 
 test("Spreadsheet color scheme can be set to dark", async () => {
-  const model = new Model();
-  await mountSpreadsheet({ model, colorScheme: "dark" });
+  const model = new Model({}, { colorScheme: "dark" });
+  await mountSpreadsheet({ model });
   expect(".o-spreadsheet").toHaveStyle({ "color-scheme": "dark" });
 });
 

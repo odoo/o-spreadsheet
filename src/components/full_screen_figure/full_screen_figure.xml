@@ -13,7 +13,7 @@
       </button>
       <div class="flex-fill">
         <div
-          class="o-fullscreen-figure o-figure position-relative border rounded shadow"
+          class="o-fullscreen-figure os-theme-dependant o-figure position-relative border rounded shadow"
           tabindex="1"
           t-ref="fullScreenFigure"
           t-on-click.stop=""

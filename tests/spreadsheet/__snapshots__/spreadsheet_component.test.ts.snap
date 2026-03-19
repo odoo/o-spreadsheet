@@ -3,7 +3,7 @@
 exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
 <div
   class="o-spreadsheet h-100 w-100"
-  style="--os-scrollbar-width:15px; grid-template-rows:min-content auto min-content; grid-template-columns:auto auto; "
+  style="--os-scrollbar-width:15px; color-scheme:light; grid-template-rows:min-content auto min-content; grid-template-columns:auto auto; "
 >
   
   
@@ -430,8 +430,8 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
                     class="o-color-picker-button o-hoverable-button o-menu-item-button o-toolbar-button"
                     title="Text Color"
                   >
-                    <span
-                      style="border-color: #000000"
+                    <div
+                      class="position-relative"
                     >
                       <svg
                         class="o-icon"
@@ -442,7 +442,12 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
                           fill="currentColor"
                         />
                       </svg>
-                    </span>
+                      
+                      <div
+                        class="o-colored-border position-absolute bottom-0 w-100 os-theme-dependant"
+                        style="border-color: #000000"
+                      />
+                    </div>
                   </span>
                   
                 </div>
@@ -468,8 +473,8 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
                     class="o-color-picker-button o-hoverable-button o-menu-item-button o-toolbar-button"
                     title="Fill Color"
                   >
-                    <span
-                      style="border-color: #ffffff"
+                    <div
+                      class="position-relative"
                     >
                       <svg
                         class="o-icon"
@@ -480,7 +485,12 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
                           fill="currentColor"
                         />
                       </svg>
-                    </span>
+                      
+                      <div
+                        class="o-colored-border position-absolute bottom-0 w-100 os-theme-dependant"
+                        style="border-color: #ffffff"
+                      />
+                    </div>
                   </span>
                   
                 </div>
@@ -866,8 +876,8 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
         >
           
           <div
-            class="o-grid-add-rows mt-2 ms-2 w-100 d-flex position-relative align-items-center"
-            style="top:2300px; "
+            class="o-grid-add-rows mt-2 ms-2 w-100 d-flex position-relative align-items-center os-theme-dependant"
+            style="top:2300px; z-index:1; "
           >
             <button
               class="o-button flex-grow-0 me-2"
@@ -944,6 +954,7 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
         </div>
         
         <canvas
+          class="os-theme-dependant pe-none"
           height="985"
           style="width:985px; height:985px; "
           width="985"
@@ -1143,7 +1154,7 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
 exports[`components take the small screen into account 1`] = `
 <div
   class="o-spreadsheet h-100 w-100 o-spreadsheet-mobile"
-  style="--os-scrollbar-width:15px; grid-template-rows:min-content auto min-content; grid-template-columns:auto auto; "
+  style="--os-scrollbar-width:15px; color-scheme:light; grid-template-rows:min-content auto min-content; grid-template-columns:auto auto; "
 >
   
   
@@ -1519,8 +1530,8 @@ exports[`components take the small screen into account 1`] = `
                     class="o-color-picker-button o-hoverable-button o-menu-item-button o-toolbar-button"
                     title="Text Color"
                   >
-                    <span
-                      style="border-color: #000000"
+                    <div
+                      class="position-relative"
                     >
                       <svg
                         class="o-icon"
@@ -1531,7 +1542,12 @@ exports[`components take the small screen into account 1`] = `
                           fill="currentColor"
                         />
                       </svg>
-                    </span>
+                      
+                      <div
+                        class="o-colored-border position-absolute bottom-0 w-100 os-theme-dependant"
+                        style="border-color: #000000"
+                      />
+                    </div>
                   </span>
                   
                 </div>
@@ -1557,8 +1573,8 @@ exports[`components take the small screen into account 1`] = `
                     class="o-color-picker-button o-hoverable-button o-menu-item-button o-toolbar-button"
                     title="Fill Color"
                   >
-                    <span
-                      style="border-color: #ffffff"
+                    <div
+                      class="position-relative"
                     >
                       <svg
                         class="o-icon"
@@ -1569,7 +1585,12 @@ exports[`components take the small screen into account 1`] = `
                           fill="currentColor"
                         />
                       </svg>
-                    </span>
+                      
+                      <div
+                        class="o-colored-border position-absolute bottom-0 w-100 os-theme-dependant"
+                        style="border-color: #ffffff"
+                      />
+                    </div>
                   </span>
                   
                 </div>
@@ -1912,8 +1933,8 @@ exports[`components take the small screen into account 1`] = `
         >
           
           <div
-            class="o-grid-add-rows mt-2 ms-2 w-100 d-flex position-relative align-items-center"
-            style="top:2300px; "
+            class="o-grid-add-rows mt-2 ms-2 w-100 d-flex position-relative align-items-center os-theme-dependant"
+            style="top:2300px; z-index:1; "
           >
             <button
               class="o-button flex-grow-0 me-2"
@@ -1990,6 +2011,7 @@ exports[`components take the small screen into account 1`] = `
         </div>
         
         <canvas
+          class="os-theme-dependant pe-none"
           height="985"
           style="width:485px; height:985px; "
           width="485"

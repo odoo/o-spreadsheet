@@ -27,7 +27,7 @@
             />
           </div>
         </GridOverlay>
-        <canvas t-ref="canvas"/>
+        <canvas t-ref="canvas" class="os-theme-dependant"/>
         <GridPopover
           gridRect="getGridRect()"
           onMouseWheel.bind="onMouseWheel"

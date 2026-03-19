@@ -1,5 +1,5 @@
 import { SpreadsheetPivotTable } from "../../src";
-import { BACKGROUND_CHART_COLOR, DEFAULT_BORDER_DESC } from "../../src/constants";
+import { DEFAULT_BORDER_DESC } from "../../src/constants";
 import { toZone } from "../../src/helpers";
 import { DEFAULT_TABLE_CONFIG } from "../../src/helpers/table_presets";
 import {
@@ -27,7 +27,7 @@ export const TEST_CHART_DATA = {
     labelRange: "A2:A4",
     dataSetsHaveTitle: true,
     title: { text: "hello" },
-    background: BACKGROUND_CHART_COLOR,
+    background: "#FFFFFF",
     stacked: false,
     legendPosition: "top" as const,
   },
@@ -41,7 +41,7 @@ export const TEST_CHART_DATA = {
     labelRange: "A2:A4",
     dataSetsHaveTitle: true,
     title: { text: "hello" },
-    background: BACKGROUND_CHART_COLOR,
+    background: "#FFFFFF",
     legendPosition: "top" as const,
   },
   scorecard: {
@@ -81,7 +81,7 @@ export const TEST_CHART_DATA = {
     dataSets: [{ dataRange: "B1" }],
     labelRange: "A1",
     title: { text: "hello" },
-    background: BACKGROUND_CHART_COLOR,
+    background: "#FFFFFF",
   },
 };
 
