@@ -419,7 +419,52 @@ describe("Export data to xlsx then import it", () => {
     const newChart = importedModel.getters.getChartDefinition(newChartId);
     expect(newChart).toMatchObject(chartDef);
   });
+  test("Chart title color is preserved after export/import", async () => {
+    setCellContent(model, "B1", "first column dataset");
+    setCellContent(model, "B2", "10");
+    setCellContent(model, "B3", "11");
+    setCellContent(model, "B4", "12");
+    createChart(
+      model,
+      {
+        dataSets: [{ dataRange: "Sheet1!B1:B4" }],
+        labelRange: "Sheet1!A2:A4",
+        type: "bar",
+        title: { text: "My Chart", color: "#ff0000" },
+      },
+      "1"
+    );
+    const importedModel = await exportToXlsxThenImport(model);
+    const newChartId = importedModel.getters.getChartIds(sheetId)[0];
+    const newChart = importedModel.getters.getChartDefinition(newChartId) as any;
+    expect(newChart.title.text).toBe("My Chart");
+    expect(newChart.title.color?.toUpperCase()).toBe("#FF0000");
+  });
 
+  test("Chart axis title color is preserved after export/import", async () => {
+    setCellContent(model, "B1", "first column dataset");
+    setCellContent(model, "B2", "10");
+    setCellContent(model, "B3", "11");
+    setCellContent(model, "B4", "12");
+    createChart(
+      model,
+      {
+        dataSets: [{ dataRange: "Sheet1!B1:B4" }],
+        labelRange: "Sheet1!A2:A4",
+        type: "bar",
+        axesDesign: {
+          x: { title: { text: "X axis", color: "#ff0000" } },
+          y: { title: { text: "Y axis", color: "#00ff00" } },
+        },
+      },
+      "1"
+    );
+    const importedModel = await exportToXlsxThenImport(model);
+    const newChartId = importedModel.getters.getChartIds(sheetId)[0];
+    const newChart = importedModel.getters.getChartDefinition(newChartId) as any;
+    expect(newChart.axesDesign.x.title.color?.toUpperCase()).toBe("#FF0000");
+    expect(newChart.axesDesign.y.title.color?.toUpperCase()).toBe("#00FF00");
+  });
   test("hyperlinks", async () => {
     createSheet(model, { sheetId: "42", name: "she!et2" });
     const sheetLink = buildSheetLink("42");

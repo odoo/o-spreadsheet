@@ -1,9 +1,11 @@
 import { isColorValid, toHex } from "../../helpers/color";
 import {
+  AxesDesign,
   ExcelChartDataset,
   ExcelChartDefinition,
   ExcelChartTrendConfiguration,
   ExcelTrendlineType,
+  TitleDesign,
 } from "../../types/chart";
 import { XLSX_CHART_TYPES, XLSXChartType } from "../../types/xlsx";
 import { CHART_TYPE_CONVERSION_MAP, DRAWING_LEGEND_POSITION_CONVERSION_MAP } from "../conversion";
@@ -30,6 +32,7 @@ export class XlsxChartExtractor extends XlsxBaseExtractor {
             return textElement.textContent || "";
           }
         ).join("");
+        const chartTitleColor = this.extractChartTitleColor(rootChartElement);
         const barChartGrouping = this.extractChildAttr(rootChartElement, "c:grouping", "val", {
           default: "clustered",
         }).asString();
@@ -45,8 +48,9 @@ export class XlsxChartExtractor extends XlsxBaseExtractor {
           (el) => el.attributes.getNamedItem("val")?.value === "1"
         );
         return {
-          title: { text: chartTitle },
+          title: { text: chartTitle, color: chartTitleColor },
           type: CHART_TYPE_CONVERSION_MAP[chartType]!,
+          axesDesign: this.extractAxesDesign(rootChartElement),
           dataSets: this.extractChartDatasets(
             this.querySelectorAll(rootChartElement, `c:${chartType}`)!,
             chartType
@@ -95,6 +99,7 @@ export class XlsxChartExtractor extends XlsxBaseExtractor {
         return textElement.textContent || "";
       }
     ).join("");
+    const chartTitleColor = this.extractChartTitleColor(chartElement);
     const barChartGrouping = this.extractChildAttr(chartElement, "c:grouping", "val", {
       default: "clustered",
     }).asString();
@@ -103,8 +108,9 @@ export class XlsxChartExtractor extends XlsxBaseExtractor {
       (el) => el.attributes.getNamedItem("val")?.value === "1"
     );
     return {
-      title: { text: chartTitle },
+      title: { text: chartTitle, color: chartTitleColor },
       type: "combo",
+      axesDesign: this.extractAxesDesign(chartElement),
       dataSets: [
         ...this.extractChartDatasets(
           this.querySelectorAll(chartElement, `c:barChart`),
@@ -134,6 +140,59 @@ export class XlsxChartExtractor extends XlsxBaseExtractor {
       fontColor: "000000",
       showValues,
     };
+  }
+
+  private extractChartTitleColor(chartElement: Element): string | undefined {
+    const chartTitleColorRaw = this.extractChildAttr(
+      chartElement,
+      "c:chart > c:title a:p a:pPr a:defRPr a:solidFill a:srgbClr",
+      "val"
+    )?.asString();
+    return chartTitleColorRaw && isColorValid(chartTitleColorRaw)
+      ? toHex(chartTitleColorRaw)
+      : undefined;
+  }
+
+  private extractAxisTitleDesign(axElement: Element | null): TitleDesign | undefined {
+    if (axElement === null) {
+      return undefined;
+    }
+    const titleText = this.mapOnElements(
+      { parent: axElement, query: "c:title a:t" },
+      (el) => el.textContent || ""
+    ).join("");
+    if (!titleText) {
+      return undefined;
+    }
+    const colorRaw = this.extractChildAttr(
+      axElement,
+      "c:title a:p a:pPr a:defRPr a:solidFill a:srgbClr",
+      "val"
+    )?.asString();
+    const color = colorRaw && isColorValid(colorRaw) ? toHex(colorRaw) : undefined;
+    return { text: titleText, color };
+  }
+
+  private extractAxesDesign(chartElement: Element): AxesDesign | undefined {
+    const catAx = this.querySelector(chartElement, "c:catAx");
+    const valAx = this.querySelector(chartElement, "c:valAx");
+    const axPos = catAx ? this.extractChildAttr(catAx, "c:axPos", "val")?.asString() : undefined;
+    const isHorizontalChart = axPos === "l" || axPos === "r";
+    const xAx = isHorizontalChart ? valAx : catAx;
+    const yAx = isHorizontalChart ? catAx : valAx;
+    const xTitle = this.extractAxisTitleDesign(xAx);
+    const yTitle = this.extractAxisTitleDesign(yAx);
+    if (!xTitle && !yTitle) {
+      return undefined;
+    }
+    const axesDesign: AxesDesign = {};
+    if (xTitle) {
+      axesDesign.x = { title: xTitle };
+    }
+    if (yTitle) {
+      axesDesign.y = { title: yTitle };
+    }
+    return axesDesign;
   }
 
   private extractChartDatasets(

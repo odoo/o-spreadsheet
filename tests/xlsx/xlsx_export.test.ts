@@ -1652,6 +1652,53 @@ describe("Test XLSX export", () => {
       expect(await exportPrettifiedXlsx(model)).toMatchSnapshot();
     });
 
+    test("chart title color is exported", async () => {
+      const model = new Model(chartData);
+      createChart(
+        model,
+        {
+          dataSets: [{ dataRange: "Sheet1!B1:B4" }],
+          title: {
+            text: "My title",
+            color: "#ff0000",
+          },
+          labelRange: "Sheet1!A2:A4",
+          type: "bar",
+        },
+        "1"
+      );
+      const exportedXlsx = await exportPrettifiedXlsx(model);
+      const chartFile = exportedXlsx.files.find((f) => f["contentType"] === "chart")!;
+      const content = chartFile["content"] as string;
+      // The chart-level <c:title> appears before <c:autoTitleDeleted>
+      const chartTitleSection = content.split("<c:autoTitleDeleted")[0];
+      expect(chartTitleSection).toContain('val="FF0000"');
+    });
+
+    test("chart axis title color is exported", async () => {
+      const model = new Model(chartData);
+      createChart(
+        model,
+        {
+          dataSets: [{ dataRange: "Sheet1!B1:B4" }],
+          axesDesign: {
+            x: { title: { text: "X axis", color: "#ff0000" } },
+            y: { title: { text: "Y axis", color: "#00ff00" } },
+          },
+          labelRange: "Sheet1!A2:A4",
+          type: "bar",
+        },
+        "1"
+      );
+      const exportedXlsx = await exportPrettifiedXlsx(model);
+      const chartFile = exportedXlsx.files.find((f) => f["contentType"] === "chart")!;
+      const content = chartFile["content"] as string;
+      const catAxSection = content.match(/<c:catAx>[\s\S]*?<\/c:catAx>/)?.[0] ?? "";
+      const valAxSection = content.match(/<c:valAx>[\s\S]*?<\/c:valAx>/)?.[0] ?? "";
+      expect(catAxSection).toContain('val="FF0000"');
+      expect(valAxSection).toContain('val="00FF00"');
+    });
+
     test("Export chart overflowing outside the sheet", async () => {
       const model = new Model(chartData);
       createChart(
