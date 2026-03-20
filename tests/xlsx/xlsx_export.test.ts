@@ -7,7 +7,12 @@ import { CellIsRule, ConditionalFormatRule, Dimension } from "../../src/types";
 import { XLSXExportXMLFile, XMLString } from "../../src/types/xlsx";
 import { hexaToInt } from "../../src/xlsx/conversion";
 import { adaptFormulaToExcel } from "../../src/xlsx/functions/cells";
-import { escapeXml, parseXML } from "../../src/xlsx/helpers/xml_helpers";
+import {
+  escapeQueryNameSpaces,
+  escapeTagNamespaces,
+  escapeXml,
+  parseXML,
+} from "../../src/xlsx/helpers/xml_helpers";
 
 import { arg } from "../../src/functions/arguments";
 import { functionRegistry } from "../../src/functions/function_registry";
@@ -1714,6 +1719,67 @@ describe("Test XLSX export", () => {
         "1"
       );
       expect(await exportPrettifiedXlsx(model)).toMatchSnapshot();
+    });
+
+    test("chart title color is exported", async () => {
+      const model = new Model(chartData);
+      createChart(
+        model,
+        {
+          dataSets: [{ dataRange: "Sheet1!B1:B4" }],
+          title: {
+            text: "My title",
+            color: "#ff0000",
+          },
+          labelRange: "Sheet1!A2:A4",
+          type: "bar",
+        },
+        "1"
+      );
+      const exportedXlsx = await exportPrettifiedXlsx(model);
+
+      const chartFile = exportedXlsx.files.find((f) => f["contentType"] === "chart")!;
+      const xml = parseXML(new XMLString(escapeTagNamespaces(chartFile["content"].toString())));
+      const srgbClr = xml.querySelector(
+        escapeQueryNameSpaces("c:chart > c:title a:solidFill a:srgbClr")
+      );
+      expect(srgbClr?.getAttribute("val")).toBe("FF0000");
+    });
+
+    test("chart axis title style is exported", async () => {
+      const model = new Model(chartData);
+      createChart(
+        model,
+        {
+          dataSets: [{ dataRange: "Sheet1!B1:B4" }],
+          axesDesign: {
+            x: { title: { text: "X axis", color: "#ff0000", bold: true, fontSize: 16 } },
+            y: { title: { text: "Y axis", color: "#00ff00", italic: true } },
+          },
+          labelRange: "Sheet1!A2:A4",
+          type: "bar",
+        },
+        "1"
+      );
+      const exportedXlsx = await exportPrettifiedXlsx(model);
+      const chartFile = exportedXlsx.files.find((f) => f["contentType"] === "chart")!;
+      const xml = parseXML(new XMLString(escapeTagNamespaces(chartFile["content"].toString())));
+
+      const catAxDefRPr = xml.querySelector(escapeQueryNameSpaces("c:catAx c:title a:defRPr"));
+      expect(catAxDefRPr?.getAttribute("b")).toBe("1");
+      const catAxRPr = xml.querySelector(escapeQueryNameSpaces("c:catAx c:title a:defRPr"));
+      expect(catAxRPr?.getAttribute("sz")).toBe("1600");
+      const catAxSrgbClr = catAxDefRPr?.querySelector(
+        escapeQueryNameSpaces("a:solidFill a:srgbClr")
+      );
+      expect(catAxSrgbClr?.getAttribute("val")).toBe("FF0000");
+
+      const valAxDefRPr = xml.querySelector(escapeQueryNameSpaces("c:valAx c:title a:defRPr"));
+      expect(valAxDefRPr?.getAttribute("i")).toBe("1");
+      const valAxSrgbClr = valAxDefRPr?.querySelector(
+        escapeQueryNameSpaces("a:solidFill a:srgbClr")
+      );
+      expect(valAxSrgbClr?.getAttribute("val")).toBe("00FF00");
     });
 
     test("Export chart overflowing outside the sheet", async () => {
