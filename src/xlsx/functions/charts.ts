@@ -64,7 +64,9 @@ export function createChart(
   // <manualLayout/> to manually position the chart in the figure container
   let title = escapeXml``;
   if (chart.data.title?.text) {
-    const titleColor = toXlsxHexColor(chartMutedFontColor(chart.data.backgroundColor));
+    const titleColor = chart.data.title.color
+      ? toXlsxHexColor(chart.data.title.color)
+      : toXlsxHexColor(chartMutedFontColor(chart.data.backgroundColor));
     const fontSize = chart.data.title.fontSize ?? CHART_TITLE_FONT_SIZE;
     title = escapeXml/*xml*/ `
       <c:title>
@@ -179,13 +181,14 @@ function insertText(
         <a:lstStyle />
         <a:p>
           <a:pPr lvl="0">
-            <a:defRPr b="${style?.bold ? 1 : 0}" i="${style?.italic ? 1 : 0}">
+            <a:defRPr b="${style?.bold ? 1 : 0}" i="${style?.italic ? 1 : 0}" sz="${
+    fontsize * 100
+  }">
               ${solidFill(fontColor)}
               <a:latin typeface="+mn-lt"/>
             </a:defRPr>
           </a:pPr>
           <a:r> <!-- Runs -->
-            <a:rPr b="${style?.bold ? 1 : 0}" i="${style?.italic ? 1 : 0}" sz="${fontsize * 100}"/>
             <a:t>${text}</a:t>
           </a:r>
         </a:p>
