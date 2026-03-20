@@ -104,4 +104,13 @@ describe("Table resizer component", () => {
 
     expect(document.querySelector(".o-table-resizer")).toBeNull();
   });
+
+  test("Table resizer is not loaded in readonly mode", async () => {
+    createTable(model, "A1:B2");
+    await nextTick();
+    expect(".o-table-resizer").toHaveCount(1);
+    model.updateMode("readonly");
+    await nextTick();
+    expect(".o-table-resizer").toHaveCount(0);
+  });
 });
