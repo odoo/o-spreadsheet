@@ -2,14 +2,76 @@ import { CellValue } from "../types/cells";
 import { BadExpressionError, EvaluationError } from "../types/errors";
 
 import { _t } from "../translation";
-import { ComputeFunction, EvalContext, FunctionDescription } from "../types/functions";
+import {
+  AddFunctionDescription,
+  ComputeFunction,
+  EvalContext,
+  FunctionDescription,
+} from "../types/functions";
 import { Arg, FunctionResultObject, isMatrix, Matrix } from "../types/misc";
-import { argTargeting } from "./arguments";
+import { addMetaInfoFromArg, argTargeting } from "./arguments";
 import { applyVectorization, isEvaluationError, matrixForEach, matrixMap } from "./helpers";
+
+export function createErrorHandlingCompute(
+  addDescr: AddFunctionDescription,
+  name: string
+): ComputeFunction<FunctionResultObject | Matrix<FunctionResultObject>> {
+  const descr = addMetaInfoFromArg(name, { ...addDescr });
+
+  function computeFunctionToObject(
+    this: EvalContext,
+    ...args: Arg[]
+  ): FunctionResultObject | Matrix<FunctionResultObject> {
+    if (this.debug) {
+      // eslint-disable-next-line no-debugger
+      debugger;
+      this.debug = false;
+    }
+    const result = descr.compute.apply(this, args);
+
+    if (!isMatrix(result)) {
+      if (typeof result === "object" && result !== null && "value" in result) {
+        return result;
+      }
+      return { value: result };
+    }
+
+    if (typeof result[0][0] === "object" && result[0][0] !== null && "value" in result[0][0]) {
+      return result as Matrix<FunctionResultObject>;
+    }
+
+    return matrixMap(result as Matrix<CellValue>, (row) => ({ value: row }));
+  }
+
+  return function errorHandlingCompute(
+    this: EvalContext,
+    ...args: Arg[]
+  ): Matrix<FunctionResultObject> | FunctionResultObject {
+    const argsToFocus = argTargeting(descr, args.length);
+    for (let i = 0; i < args.length; i++) {
+      const arg = args[i];
+      const argDefinition = descr.args[argsToFocus[i].index];
+
+      // Early exit if the argument is an error and the function does not accept errors.
+      // We only check scalar arguments, not matrix arguments for performance reasons.
+      // Casting helpers are responsible for handling errors in matrix arguments.
+      if (!argDefinition.acceptErrors && !isMatrix(arg) && isEvaluationError(arg?.value)) {
+        return arg;
+      }
+    }
+    try {
+      return computeFunctionToObject.apply(this, args);
+    } catch (e) {
+      return handleError(e, name);
+    }
+  };
+}
 
 export function createComputeFunction(
   descr: FunctionDescription
 ): ComputeFunction<Matrix<FunctionResultObject> | FunctionResultObject> {
+  const errorHandlingCompute = createErrorHandlingCompute(descr, descr.name);
+
   function vectorizedCompute(
     this: EvalContext,
     ...args: Arg[]
@@ -48,55 +110,6 @@ export function createComputeFunction(
       matrixForEach(result, (result) => replaceFunctionNamePlaceholder(result, descr.name));
     }
     return result;
-  }
-
-  function errorHandlingCompute(
-    this: EvalContext,
-    ...args: Arg[]
-  ): Matrix<FunctionResultObject> | FunctionResultObject {
-    const argsToFocus = argTargeting(descr, args.length);
-    for (let i = 0; i < args.length; i++) {
-      const arg = args[i];
-      const argDefinition = descr.args[argsToFocus[i].index];
-
-      // Early exit if the argument is an error and the function does not accept errors
-      // We only check scalar arguments, not matrix arguments for performance reasons.
-      // Casting helpers are responsible for handling errors in matrix arguments.
-      if (!argDefinition.acceptErrors && !isMatrix(arg) && isEvaluationError(arg?.value)) {
-        return arg;
-      }
-    }
-    try {
-      return computeFunctionToObject.apply(this, args);
-    } catch (e) {
-      return handleError(e, descr.name);
-    }
-  }
-
-  function computeFunctionToObject(
-    this: EvalContext,
-    ...args: Arg[]
-  ): FunctionResultObject | Matrix<FunctionResultObject> {
-    if (this.debug) {
-      // eslint-disable-next-line no-debugger
-      debugger;
-      this.debug = false;
-    }
-    const result = descr.compute.apply(this, args);
-
-    if (!isMatrix(result)) {
-      if (typeof result === "object" && result !== null && "value" in result) {
-        return result;
-      }
-      descr.name;
-      return { value: result };
-    }
-
-    if (typeof result[0][0] === "object" && result[0][0] !== null && "value" in result[0][0]) {
-      return result as Matrix<FunctionResultObject>;
-    }
-
-    return matrixMap(result as Matrix<CellValue>, (row) => ({ value: row }));
   }
 
   return vectorizedCompute;
