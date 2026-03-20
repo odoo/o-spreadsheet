@@ -109,7 +109,6 @@ export class GeoFeaturePlugin extends UIPlugin {
     this.geoJsonCache[region] = new Promise<void>(async (resolve) => {
       const json = await this.geoJsonService?.getTopoJson(region);
       this.geoJsonCache[region] = this.convertToGeoJson(json);
-      this.dispatch("EVALUATE_CHARTS");
       resolve();
     });
     return undefined;

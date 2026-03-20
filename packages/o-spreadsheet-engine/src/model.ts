@@ -399,8 +399,20 @@ export class Model extends EventBus<any> implements CommandDispatcher {
 
   private setupExternalConfig(external: Partial<ModelExternalConfig>): ModelExternalConfig {
     const loadLocales = external.loadLocales || (() => Promise.resolve(DEFAULT_LOCALES));
+    let geoJsonService = external.geoJsonService;
+    if (geoJsonService) {
+      geoJsonService = {
+        ...geoJsonService,
+        getTopoJson: async (region) => {
+          const topoJson = await external.geoJsonService!.getTopoJson(region);
+          this.dispatch("EVALUATE_CHARTS"); // doesn't actually evaluate, it just invalidates and trigger a re-render.
+          return topoJson;
+        },
+      };
+    }
     return {
       ...external,
+      geoJsonService,
       loadLocales,
     };
   }
