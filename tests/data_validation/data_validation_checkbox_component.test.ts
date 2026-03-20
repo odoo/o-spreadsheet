@@ -1,6 +1,6 @@
 import {
-  CHECKBOX_CHECKED,
-  CHECKBOX_UNCHECKED,
+  getThemeCheckboxCheckedSvg,
+  getThemeCheckboxUncheckedSvg,
 } from "@odoo/o-spreadsheet-engine/components/icons/icons";
 import { Model } from "../../src";
 import {
@@ -13,6 +13,9 @@ import {
 import { clickGridIcon, keyDown } from "../test_helpers/dom_helper";
 import { getCellContent, getCellIcons, getStyle } from "../test_helpers/getters_helpers";
 import { mountSpreadsheet } from "../test_helpers/helpers";
+
+const CHECKBOX_UNCHECKED = getThemeCheckboxUncheckedSvg(false);
+const CHECKBOX_CHECKED = getThemeCheckboxCheckedSvg(false);
 
 describe("Checkbox in model", () => {
   let model: Model;

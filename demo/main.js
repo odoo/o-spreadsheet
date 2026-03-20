@@ -63,7 +63,7 @@ let start;
 
 class Demo extends Component {
   setup() {
-    this.state = useState({ key: 0, displayHeader: false, colorScheme: "light" });
+    this.state = useState({ key: 0, displayHeader: false });
     this.stateUpdateMessages = [];
     this.client = {
       id: uuidGenerator.uuidv4(),
@@ -108,9 +108,11 @@ class Demo extends Component {
       name: "Toggle dark mode",
       sequence: 12.5,
       isReadonlyAllowed: true,
-      execute: () =>
-        (this.state.colorScheme = this.state.colorScheme === "dark" ? "light" : "dark"),
-
+      execute: () => {
+        this.model.dispatch("UPDATE_COLOR_SCHEME", {
+          colorScheme: this.model.getters.isDarkMode() ? "light" : "dark",
+        });
+      },
       icon: "o-spreadsheet-Icon.DARK_MODE",
       isEnabledOnLockedSheet: true,
     });
@@ -404,11 +406,11 @@ Demo.template = xml/* xml */ `
   <div t-if="state.displayHeader" class="d-flex flex flex-column justify-content w-100 h-100">
     <div class="p-3 border-bottom">A header</div>
     <div class="flex-fill">
-      <Spreadsheet model="model" notifyUser="notifyUser" t-key="state.key" colorScheme="state.colorScheme"/>
+      <Spreadsheet model="model" notifyUser="notifyUser" t-key="state.key"/>
     </div>
   </div>
   <div t-else="" class="w-100 h-100">
-    <Spreadsheet model="model" t-key="state.key" notifyUser="notifyUser" colorScheme="state.colorScheme"/>
+    <Spreadsheet model="model" t-key="state.key" notifyUser="notifyUser"/>
   </div>
 `;
 Demo.components = { Spreadsheet };

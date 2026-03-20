@@ -1,8 +1,5 @@
 import {
-  BACKGROUND_HEADER_ACTIVE_COLOR,
-  BACKGROUND_HEADER_SELECTED_COLOR,
   CANVAS_SHIFT,
-  CELL_BORDER_COLOR,
   DEFAULT_CELL_HEIGHT,
   DEFAULT_CELL_WIDTH,
   HEADER_HEIGHT,
@@ -13,6 +10,11 @@ import {
   SELECTION_BORDER_COLOR,
   TABLE_HOVER_BACKGROUND_COLOR,
 } from "@odoo/o-spreadsheet-engine/constants";
+import {
+  BACKGROUND_HEADER_ACTIVE_COLOR,
+  BACKGROUND_HEADER_SELECTED_COLOR,
+  CELL_BORDER_COLOR,
+} from "@odoo/o-spreadsheet-engine/plugins/ui_feature/color_theme";
 import { Mode } from "@odoo/o-spreadsheet-engine/types/model";
 import { LiteralCell, Model } from "../../src";
 import { HoveredTableStore } from "../../src/components/tables/hovered_table_store";

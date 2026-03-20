@@ -1,4 +1,4 @@
-import { CHECKBOX_CHECKED } from "@odoo/o-spreadsheet-engine/components/icons/icons";
+import { getThemeCheckboxCheckedSvg } from "@odoo/o-spreadsheet-engine/components/icons/icons";
 import {
   DEFAULT_CELL_HEIGHT,
   DEFAULT_CELL_WIDTH,
@@ -249,7 +249,7 @@ describe("Grid component in dashboard mode", () => {
     type: "debug_icon",
     position: { sheetId: "s1", col: 0, row: 0 },
     priority: 1,
-    svg: CHECKBOX_CHECKED,
+    svg: getThemeCheckboxCheckedSvg(false),
     onClick: () => {},
   };
 

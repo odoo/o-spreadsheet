@@ -876,15 +876,20 @@ export class GridSelectionPlugin extends UIPlugin {
     const { ctx, thinLineWidth } = renderingContext;
     // selection
     const zones = this.getSelectedZones();
-    ctx.fillStyle = "#f3f7fe";
+    const theme = this.getters.getSpreadsheetTheme();
     const onlyOneCell =
       zones.length === 1 && zones[0].left === zones[0].right && zones[0].top === zones[0].bottom;
-    ctx.fillStyle = onlyOneCell ? "#f3f7fe" : "#e9f0ff";
+    ctx.fillStyle = onlyOneCell
+      ? theme.singleCellSelectionBackgroundColor
+      : theme.multipleCellsSelectionBackgroundColor;
     ctx.strokeStyle = SELECTION_BORDER_COLOR;
     ctx.lineWidth = 1.5 * thinLineWidth;
+    const isDarkMode = this.getters.isDarkMode();
     for (const zone of zones) {
       const { x, y, width, height } = this.getters.getVisibleRect(zone);
-      ctx.globalCompositeOperation = "multiply";
+      if (!isDarkMode) {
+        ctx.globalCompositeOperation = "multiply";
+      }
       ctx.fillRect(x, y, width, height);
       ctx.globalCompositeOperation = "source-over";
       ctx.strokeRect(x, y, width, height);
