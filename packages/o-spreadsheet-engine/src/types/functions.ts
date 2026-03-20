@@ -31,6 +31,7 @@ export interface ArgDefinition {
   default?: boolean;
   defaultValue?: any;
   proposalValues?: ArgProposal[];
+  requiresIndexing?: boolean;
 }
 
 export type ArgProposal = { value: CellValue; label?: string };
