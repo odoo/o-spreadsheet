@@ -14,6 +14,7 @@
       criterionType="props.criterion.type"
       disableFormulas="props.disableFormulas"
       focused="props.autofocus"
+      isDateType="true"
     />
   </t>
 </templates>

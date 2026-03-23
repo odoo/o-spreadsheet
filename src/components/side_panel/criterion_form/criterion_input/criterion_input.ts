@@ -5,6 +5,7 @@ import { _t } from "../../../../translation";
 import { DataValidationCriterionType } from "../../../../types";
 import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
 import { StandaloneComposer } from "../../../composer/standalone_composer/standalone_composer";
+import { DateInput } from "../../../date_input/date_input";
 
 interface Props {
   value: string;
@@ -27,14 +28,16 @@ export class CriterionInput extends Component<Props, SpreadsheetChildEnv> {
     onBlur: { type: Function, optional: true },
     onFocus: { type: Function, optional: true },
     disableFormulas: { type: Boolean, optional: true },
+    isDateType: { type: Boolean, optional: true },
   };
   static defaultProps = {
     value: "",
     onKeyDown: () => {},
     focused: false,
     onBlur: () => {},
+    isDateType: false,
   };
-  static components = { StandaloneComposer: StandaloneComposer };
+  static components = { DateInput, StandaloneComposer: StandaloneComposer };
 
   inputRef = useRef("input");
 
@@ -75,9 +78,9 @@ export class CriterionInput extends Component<Props, SpreadsheetChildEnv> {
     return allowedValues ?? "any";
   }
 
-  onInputValueChanged(ev: Event) {
+  onInputValueChanged(value: string) {
     this.state.shouldDisplayError = true;
-    this.props.onValueChanged((ev.target as HTMLInputElement).value);
+    this.props.onValueChanged(value);
   }
 
   onChangeComposerValue(str: string) {
