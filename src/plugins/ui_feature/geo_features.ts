@@ -40,10 +40,12 @@ export class GeoFeaturePlugin extends UIPlugin {
       }
       case "UPDATE_CHART_REGION": {
         const chart = this.getters.getChart(cmd.chartId);
-        if (!chart || !chart.type.includes("geo")) {
+        const definition = this.getters.getChartDefinition(
+          cmd.chartId
+        ) as GeoChartDefinition<string>;
+        if (!chart || definition.type !== "geo") {
           break;
         }
-        const definition = this.getters.getChartDefinition(cmd.chartId) as GeoChartDefinition;
         this.dispatch("UPDATE_CHART", {
           chartId: cmd.chartId,
           sheetId: chart.sheetId,
@@ -56,9 +58,8 @@ export class GeoFeaturePlugin extends UIPlugin {
   }
 
   private trackInitialRegion(chartId: UID) {
-    const chart = this.getters.getChart(chartId);
-    if (chart?.type.includes("geo")) {
-      const def = this.getters.getChartDefinition(chartId) as GeoChartDefinition;
+    const def = this.getters.getChartDefinition(chartId) as GeoChartDefinition<string>;
+    if (def?.type === "geo") {
       const availableRegions = this.getGeoChartAvailableRegions();
       this.initialRegions[chartId] = def.region || availableRegions[0]?.id || "";
     }
@@ -80,8 +81,8 @@ export class GeoFeaturePlugin extends UIPlugin {
     if (!this.geoJsonService) {
       return [];
     }
-    const chart = this.getters.getChart(chartId);
-    if (!chart || !chart.type.includes("geo")) {
+    const definition = this.getters.getChartDefinition(chartId);
+    if (!definition || definition.type !== "geo") {
       return [];
     }
     const initialRegion = this.initialRegions[chartId];

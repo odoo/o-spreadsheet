@@ -1,8 +1,8 @@
 import { ChartCreationContext, Model, UID } from "../../../../src";
 import { ColorGenerator, lightenColor } from "../../../../src/helpers";
-import { TreeMapChart } from "../../../../src/helpers/figures/charts/tree_map_chart";
 import { TreeMapChartRuntime } from "../../../../src/types/chart/tree_map_chart";
 import {
+  createChartDefinitionFromContext,
   createSunburstChart,
   createTreeMapChart,
   hideColumns,
@@ -10,7 +10,10 @@ import {
   setFormat,
   updateChart,
 } from "../../../test_helpers";
-import { GENERAL_CHART_CREATION_CONTEXT } from "../../../test_helpers/chart_helpers";
+import {
+  GENERAL_CHART_CREATION_CONTEXT,
+  toChartDataSource,
+} from "../../../test_helpers/chart_helpers";
 import { setGrid } from "../../../test_helpers/helpers";
 
 interface TreeMapElementCtx {
@@ -70,17 +73,27 @@ describe("TreeMap chart", () => {
     // of the usual chart structure.
     const context: Required<ChartCreationContext> = {
       ...GENERAL_CHART_CREATION_CONTEXT,
-      range: [{ dataRange: "Sheet1!B1:B4" }, { dataRange: "Sheet1!C1:C4" }],
+      ...toChartDataSource({
+        dataSets: [{ dataRange: "Sheet1!B1:B4" }, { dataRange: "Sheet1!C1:C4" }],
+        dataSetsHaveTitle: true,
+      }),
       auxiliaryRange: "Sheet1!A1:A4",
     };
-    const definition = TreeMapChart.getDefinitionFromContextCreation(context);
-    expect(definition).toMatchObject({
-      dataSets: [{ dataRange: "Sheet1!A1:A4" }],
-      labelRange: "Sheet1!B1:B4",
-    });
-    const chart = new TreeMapChart(definition, "Sheet1", model.getters);
-    expect(chart.getContextCreation()).toMatchObject({
-      range: [{ dataRange: "Sheet1!B1:B4" }],
+    const definition = createChartDefinitionFromContext("treemap", context);
+    expect(definition).toMatchObject(
+      toChartDataSource({
+        dataSets: [{ dataRange: "Sheet1!A1:A4" }],
+        labelRange: "Sheet1!B1:B4",
+      })
+    );
+    const chartId = createTreeMapChart(model, definition);
+    expect(model.getters.getChart(chartId)?.getContextCreation()).toMatchObject({
+      hierarchicalDataSource: {
+        dataSets: [{ dataRange: "A1:A4" }],
+      },
+      ...toChartDataSource({
+        dataSets: [{ dataRange: "Sheet1!B1:B4" }],
+      }),
       auxiliaryRange: "A1:A4",
     });
   });
@@ -88,15 +101,19 @@ describe("TreeMap chart", () => {
   test("Labels and datasets are not swapped from a Sunburst chart creation context", () => {
     const model = new Model();
     const chartId = createSunburstChart(model, {
-      dataSets: [{ dataRange: "A1:A4" }],
-      labelRange: "B1:B4",
+      ...toChartDataSource({
+        dataSets: [{ dataRange: "A1:A4" }],
+        labelRange: "B1:B4",
+      }),
     });
     const context = model.getters.getChart(chartId)!.getContextCreation();
-    const definition = TreeMapChart.getDefinitionFromContextCreation(context);
-    expect(definition).toMatchObject({
-      dataSets: [{ dataRange: "A1:A4" }],
-      labelRange: "B1:B4",
-    });
+    const definition = createChartDefinitionFromContext("treemap", context);
+    expect(definition).toMatchObject(
+      toChartDataSource({
+        dataSets: [{ dataRange: "A1:A4" }],
+        labelRange: "B1:B4",
+      })
+    );
   });
 
   test("create TreeMap chart from creation context", () => {
@@ -104,9 +121,12 @@ describe("TreeMap chart", () => {
       ...GENERAL_CHART_CREATION_CONTEXT,
       background: "#123456",
       title: { text: "hello there" },
-      range: [{ dataRange: "Sheet1!B1:B4", yAxisId: "y1" }],
+      ...toChartDataSource({
+        dataSets: [{ dataRange: "Sheet1!B1:B4", yAxisId: "y1" }],
+        labelRange: "Sheet1!A1:A4",
+        dataSetsHaveTitle: true,
+      }),
       auxiliaryRange: "Sheet1!A1:A4",
-      dataSetsHaveTitle: true,
       aggregated: true,
       showValues: false,
       headerDesign: { bold: false },
@@ -115,15 +135,17 @@ describe("TreeMap chart", () => {
       valuesDesign: { italic: true },
       treemapColoringOptions: { type: "categoryColor", colors: [], useValueBasedGradient: true },
     };
-    const definition = TreeMapChart.getDefinitionFromContextCreation(context);
+    const definition = createChartDefinitionFromContext("treemap", context);
     expect(definition).toEqual({
       type: "treemap",
       background: "#123456",
       title: { text: "hello there" },
-      dataSets: [{ dataRange: "Sheet1!A1:A4", yAxisId: "y1" }],
-      labelRange: "Sheet1!B1:B4",
+      ...toChartDataSource({
+        dataSets: [{ dataRange: "Sheet1!A1:A4", yAxisId: "y1" }],
+        labelRange: "Sheet1!B1:B4",
+        dataSetsHaveTitle: true,
+      }),
       legendPosition: "bottom",
-      dataSetsHaveTitle: true,
       showValues: false,
       headerDesign: { bold: false },
       showHeaders: true,
@@ -143,9 +165,11 @@ describe("TreeMap chart", () => {
     });
 
     const chartId = createTreeMapChart(model, {
-      dataSets: [{ dataRange: "A1:A3" }, { dataRange: "B1:B3" }],
-      labelRange: "C1:C3",
-      dataSetsHaveTitle: true,
+      ...toChartDataSource({
+        dataSets: [{ dataRange: "A1:A3" }, { dataRange: "B1:B3" }],
+        labelRange: "C1:C3",
+        dataSetsHaveTitle: true,
+      }),
     });
     const datasetConfig = getTreeMapDatasetConfig(chartId);
     expect(datasetConfig).toMatchObject({
@@ -165,11 +189,14 @@ describe("TreeMap chart", () => {
         A2: "2/3/2010",   B2: "10",
         A3: "5/8/2015",   B3: "40",
       })
-    const chartId = createTreeMapChart(model, {
-      dataSets: [{ dataRange: "A1:A3" }],
-      labelRange: "B1:B3",
-      dataSetsHaveTitle: true,
-    });
+    const chartId = createTreeMapChart(
+      model,
+      toChartDataSource({
+        dataSets: [{ dataRange: "A1:A3" }],
+        labelRange: "B1:B3",
+        dataSetsHaveTitle: true,
+      })
+    );
 
     const datasetConfig = getTreeMapDatasetConfig(chartId);
     expect(datasetConfig).toMatchObject({
@@ -193,9 +220,11 @@ describe("TreeMap chart", () => {
     });
 
     const chartId = createTreeMapChart(model, {
-      dataSets: [{ dataRange: "A1:A5" }, { dataRange: "B1:B5" }],
-      labelRange: "C1:C5",
-      dataSetsHaveTitle: true,
+      ...toChartDataSource({
+        dataSets: [{ dataRange: "A1:A5" }, { dataRange: "B1:B5" }],
+        labelRange: "C1:C5",
+        dataSetsHaveTitle: true,
+      }),
     });
     const datasetConfig = getTreeMapDatasetConfig(chartId);
     expect(datasetConfig).toMatchObject({
@@ -224,9 +253,11 @@ describe("TreeMap chart", () => {
     setGrid(model, grid);
 
     const chartId = createTreeMapChart(model, {
-      dataSets: [{ dataRange: "A1:A7" }, { dataRange: "B1:B7" }, { dataRange: "C1:C7" }],
-      labelRange: "D1:D7",
-      dataSetsHaveTitle: true,
+      ...toChartDataSource({
+        dataSets: [{ dataRange: "A1:A7" }, { dataRange: "B1:B7" }, { dataRange: "C1:C7" }],
+        labelRange: "D1:D7",
+        dataSetsHaveTitle: true,
+      }),
     });
     const datasetConfig = getTreeMapDatasetConfig(chartId);
     expect(datasetConfig).toMatchObject({
@@ -253,9 +284,11 @@ describe("TreeMap chart", () => {
     setGrid(model, grid);
 
     const chartId = createTreeMapChart(model, {
-      dataSets: [{ dataRange: "A1:A7" }, { dataRange: "B1:B7" }, { dataRange: "C1:C7" }],
-      labelRange: "D1:D7",
-      dataSetsHaveTitle: false,
+      ...toChartDataSource({
+        dataSets: [{ dataRange: "A1:A7" }, { dataRange: "B1:B7" }, { dataRange: "C1:C7" }],
+        labelRange: "D1:D7",
+        dataSetsHaveTitle: false,
+      }),
     });
     const datasetConfig = getTreeMapDatasetConfig(chartId);
     expect(datasetConfig.tree).toEqual([
@@ -268,7 +301,9 @@ describe("TreeMap chart", () => {
     setCellContent(model, "A1", "45");
     const chartId = createTreeMapChart(model, {
       background: "#123456",
-      dataSets: [{ dataRange: "A1" }],
+      ...toChartDataSource({
+        dataSets: [{ dataRange: "A1" }],
+      }),
     });
     const runtime = model.getters.getChartRuntime(chartId) as TreeMapChartRuntime;
     expect(runtime?.chartJsConfig?.options?.plugins?.background?.color).toEqual("#123456");
@@ -277,8 +312,10 @@ describe("TreeMap chart", () => {
   test("TreeMap header style", () => {
     setCellContent(model, "A1", "45");
     const chartId = createTreeMapChart(model, {
-      dataSetsHaveTitle: false,
-      dataSets: [{ dataRange: "A1" }],
+      ...toChartDataSource({
+        dataSetsHaveTitle: false,
+        dataSets: [{ dataRange: "A1" }],
+      }),
       headerDesign: { bold: false, italic: true, align: "right" },
     });
     const datasetConfig = getTreeMapDatasetConfig(chartId);
@@ -299,8 +336,10 @@ describe("TreeMap chart", () => {
     setGrid(model, grid);
     setFormat(model, "D1:D3", "#,##0[$€]");
     const chartId = createTreeMapChart(model, {
-      dataSets: [{ dataRange: "A1:A3" }, { dataRange: "B1:B3" }, { dataRange: "C1:C3" }],
-      labelRange: "D1:D3",
+      ...toChartDataSource({
+        dataSets: [{ dataRange: "A1:A3" }, { dataRange: "B1:B3" }, { dataRange: "C1:C3" }],
+        labelRange: "D1:D3",
+      }),
     });
     const config = getTreeMapConfig(chartId);
 
@@ -328,8 +367,10 @@ describe("TreeMap chart", () => {
     });
 
     const chartId = createTreeMapChart(model, {
-      dataSets: [{ dataRange: "A1:A2" }, { dataRange: "B1:B2" }],
-      labelRange: "C1:C2",
+      ...toChartDataSource({
+        dataSets: [{ dataRange: "A1:A2" }, { dataRange: "B1:B2" }],
+        labelRange: "C1:C2",
+      }),
       valuesDesign: { bold: true, italic: true, align: "right", color: "#123456" },
     });
     let labelConfig = getTreeMapDatasetConfig(chartId).labels as any;
@@ -373,8 +414,10 @@ describe("TreeMap chart", () => {
       };
       setGrid(model, grid);
       const chartId = createTreeMapChart(model, {
-        dataSets: [{ dataRange: "A1:A4" }, { dataRange: "B1:B4" }],
-        labelRange: "C1:C4",
+        ...toChartDataSource({
+          dataSets: [{ dataRange: "A1:A4" }, { dataRange: "B1:B4" }],
+          labelRange: "C1:C4",
+        }),
         coloringOptions: {
           type: "categoryColor",
           useValueBasedGradient: false,
@@ -406,8 +449,10 @@ describe("TreeMap chart", () => {
       };
       setGrid(model, grid);
       const chartId = createTreeMapChart(model, {
-        dataSets: [{ dataRange: "A1:A4" }, { dataRange: "B1:B4" }],
-        labelRange: "C1:C4",
+        ...toChartDataSource({
+          dataSets: [{ dataRange: "A1:A4" }, { dataRange: "B1:B4" }],
+          labelRange: "C1:C4",
+        }),
         coloringOptions: {
           type: "categoryColor",
           useValueBasedGradient: true,
@@ -437,8 +482,10 @@ describe("TreeMap chart", () => {
       };
       setGrid(model, grid);
       const chartId = createTreeMapChart(model, {
-        dataSets: [{ dataRange: "A1:A4" }, { dataRange: "B1:B4" }],
-        labelRange: "C1:C4",
+        ...toChartDataSource({
+          dataSets: [{ dataRange: "A1:A4" }, { dataRange: "B1:B4" }],
+          labelRange: "C1:C4",
+        }),
         coloringOptions: {
           type: "colorScale",
           minColor: "#112233",
@@ -465,9 +512,11 @@ describe("TreeMap chart", () => {
       };
       setGrid(model, grid);
       const chartId = createTreeMapChart(model, {
-        dataSets: [{ dataRange: "A1" }],
-        labelRange: "B1",
-        dataSetsHaveTitle: false,
+        ...toChartDataSource({
+          dataSets: [{ dataRange: "A1" }],
+          labelRange: "B1",
+          dataSetsHaveTitle: false,
+        }),
         coloringOptions: {
           type: "colorScale",
           minColor: "#112233",
@@ -489,8 +538,10 @@ describe("TreeMap chart", () => {
       };
       setGrid(model, grid);
       const chartId = createTreeMapChart(model, {
-        dataSets: [{ dataRange: "A1:A3" }],
-        labelRange: "C1:C3",
+        ...toChartDataSource({
+          dataSets: [{ dataRange: "A1:A3" }],
+          labelRange: "C1:C3",
+        }),
         coloringOptions: {
           type: "categoryColor",
           useValueBasedGradient: true,

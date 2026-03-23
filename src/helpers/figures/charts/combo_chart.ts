@@ -1,40 +1,11 @@
 import { ChartConfiguration } from "chart.js";
 import { BACKGROUND_CHART_COLOR } from "../../../constants";
-import {
-  ChartCreationContext,
-  Color,
-  CommandResult,
-  DataSet,
-  ExcelChartDefinition,
-  Getters,
-  Range,
-  RangeAdapter,
-  RangeAdapterFunctions,
-  UID,
-} from "../../../types";
-import { AxesDesign, CustomizedDataSet, LegendPosition } from "../../../types/chart";
-import {
-  ComboChartDataSet,
-  ComboChartDefinition,
-  ComboChartRuntime,
-} from "../../../types/chart/combo_chart";
-import { CoreGetters } from "../../../types/core_getters";
-import { Validator } from "../../../types/validator";
+import { ChartTypeBuilder } from "../../../registries/chart_registry";
+import { CommandResult } from "../../../types";
+import { ComboChartDataSetStyle, ComboChartRuntime } from "../../../types/chart/combo_chart";
 import { toXlsxHexColor } from "../../../xlsx/helpers/colors";
-import { createValidRange } from "../../range";
 import { AbstractChart } from "./abstract_chart";
-import {
-  chartFontColor,
-  checkDataset,
-  checkLabelRange,
-  createDataSets,
-  duplicateDataSetsInDuplicatedSheet,
-  duplicateLabelRangeInDuplicatedSheet,
-  getDefinedAxis,
-  shouldRemoveFirstLabel,
-  transformChartDefinitionWithDataSetsWithZone,
-  updateChartRangesWithDataSets,
-} from "./chart_common";
+import { chartFontColor, getDefinedAxis } from "./chart_common";
 import { CHART_COMMON_OPTIONS } from "./chart_ui_common";
 import {
   getBarChartData,
@@ -47,152 +18,65 @@ import {
 } from "./runtime";
 import { getChartLayout } from "./runtime/chartjs_layout";
 
-export class ComboChart extends AbstractChart {
-  readonly dataSets: DataSet[];
-  readonly labelRange?: Range;
-  readonly background?: Color;
-  readonly legendPosition: LegendPosition;
-  readonly aggregated?: boolean;
-  readonly dataSetsHaveTitle: boolean;
-  readonly dataSetDesign?: ComboChartDataSet[];
-  readonly axesDesign?: AxesDesign;
-  readonly type = "combo";
-  readonly showValues?: boolean;
-  readonly hideDataMarkers?: boolean;
-  readonly zoomable?: boolean;
+export const ComboChart: ChartTypeBuilder<"combo"> = {
+  sequence: 15,
+  allowedDefinitionKeys: [
+    ...AbstractChart.commonKeys,
+    "dataSource",
+    "legendPosition",
+    "dataSetStyles",
+    "aggregated",
+    "axesDesign",
+    "showValues",
+    "hideDataMarkers",
+    "zoomable",
+  ] as const,
 
-  constructor(definition: ComboChartDefinition, sheetId: UID, getters: CoreGetters) {
-    super(definition, sheetId, getters);
-    this.dataSets = createDataSets(
-      getters,
-      definition.dataSets,
-      sheetId,
-      definition.dataSetsHaveTitle
-    );
-    this.labelRange = createValidRange(getters, sheetId, definition.labelRange);
-    this.background = definition.background;
-    this.legendPosition = definition.legendPosition;
-    this.aggregated = definition.aggregated;
-    this.dataSetsHaveTitle = definition.dataSetsHaveTitle;
-    this.dataSetDesign = definition.dataSets;
-    this.axesDesign = definition.axesDesign;
-    this.showValues = definition.showValues;
-    this.hideDataMarkers = definition.hideDataMarkers;
-    this.zoomable = definition.zoomable;
-  }
+  fromStrDefinition: (definition) => definition,
 
-  static transformDefinition(
-    chartSheetId: UID,
-    definition: ComboChartDefinition,
-    applyChange: RangeAdapter
-  ): ComboChartDefinition {
-    return transformChartDefinitionWithDataSetsWithZone(chartSheetId, definition, applyChange);
-  }
+  toStrDefinition: (definition) => definition,
 
-  static validateChartDefinition(
-    validator: Validator,
-    definition: ComboChartDefinition
-  ): CommandResult | CommandResult[] {
-    return validator.checkValidations(definition, checkDataset, checkLabelRange);
-  }
+  copyInSheetId: (definition) => definition,
 
-  getContextCreation(): ChartCreationContext {
-    const range: CustomizedDataSet[] = [];
-    for (const [i, dataSet] of this.dataSets.entries()) {
-      range.push({
-        ...this.dataSetDesign?.[i],
-        dataRange: this.getters.getRangeString(dataSet.dataRange, this.sheetId),
-      });
-    }
-    return {
-      ...this,
-      range,
-      auxiliaryRange: this.labelRange
-        ? this.getters.getRangeString(this.labelRange, this.sheetId)
-        : undefined,
-    };
-  }
+  duplicateInDuplicatedSheet: (definition) => definition,
 
-  getDefinition(): ComboChartDefinition {
-    return this.getDefinitionWithSpecificDataSets(this.dataSets, this.labelRange);
-  }
+  transformDefinition: (definition) => definition,
 
-  getDefinitionWithSpecificDataSets(
-    dataSets: DataSet[],
-    labelRange: Range | undefined,
-    targetSheetId?: UID
-  ): ComboChartDefinition {
-    const ranges: ComboChartDataSet[] = [];
-    for (const [i, dataSet] of dataSets.entries()) {
-      ranges.push({
-        ...this.dataSetDesign?.[i],
-        dataRange: this.getters.getRangeString(dataSet.dataRange, targetSheetId || this.sheetId),
-        type: this.dataSetDesign?.[i]?.type ?? (i ? "line" : "bar"),
-      });
-    }
-    return {
-      type: "combo",
-      dataSetsHaveTitle: dataSets.length ? Boolean(dataSets[0].labelCell) : false,
-      background: this.background,
-      dataSets: ranges,
-      legendPosition: this.legendPosition,
-      labelRange: labelRange
-        ? this.getters.getRangeString(labelRange, targetSheetId || this.sheetId)
-        : undefined,
-      title: this.title,
-      aggregated: this.aggregated,
-      axesDesign: this.axesDesign,
-      showValues: this.showValues,
-      hideDataMarkers: this.hideDataMarkers,
-      zoomable: this.zoomable,
-      humanize: this.humanize,
-    };
-  }
+  validateDefinition: () => CommandResult.Success,
 
-  getDefinitionForExcel(): ExcelChartDefinition | undefined {
-    const { dataSets, labelRange } = this.getCommonDataSetAttributesForExcel(
-      this.labelRange,
-      this.dataSets,
-      shouldRemoveFirstLabel(this.labelRange, this.dataSets[0], this.dataSetsHaveTitle)
-    );
-    const definition = this.getDefinition();
+  updateRanges: (definition) => definition,
+
+  getContextCreation: (definition) => definition,
+
+  getDefinitionForExcel(getters, definition, { dataSets, labelRange }) {
     return {
       ...definition,
-      backgroundColor: toXlsxHexColor(this.background || BACKGROUND_CHART_COLOR),
-      fontColor: toXlsxHexColor(chartFontColor(this.background)),
+      backgroundColor: toXlsxHexColor(definition.background || BACKGROUND_CHART_COLOR),
+      fontColor: toXlsxHexColor(chartFontColor(definition.background)),
       dataSets,
       labelRange,
       verticalAxis: getDefinedAxis(definition),
     };
-  }
+  },
 
-  updateRanges({ applyChange }: RangeAdapterFunctions): ComboChart {
-    const { dataSets, labelRange, isStale } = updateChartRangesWithDataSets(
-      this.getters,
-      applyChange,
-      this.dataSets,
-      this.labelRange
-    );
-    if (!isStale) {
-      return this;
+  getDefinitionFromContextCreation(context, dataSourceBuilder) {
+    const dataSetStyles: ComboChartDataSetStyle = context.dataSetStyles ?? {};
+    if (context.dataSource?.type === "range") {
+      const firstDataSetId = context.dataSource?.dataSets?.[0]?.dataSetId;
+      for (const dataSet of context.dataSource?.dataSets || []) {
+        dataSetStyles[dataSet.dataSetId] = {
+          ...(context.dataSetStyles?.[dataSet.dataSetId] || {}),
+          type: dataSet.dataSetId === firstDataSetId ? "bar" : "line",
+        };
+      }
     }
-    const definition = this.getDefinitionWithSpecificDataSets(dataSets, labelRange);
-    return new ComboChart(definition, this.sheetId, this.getters);
-  }
-
-  static getDefinitionFromContextCreation(context: ChartCreationContext): ComboChartDefinition {
-    const dataSets: ComboChartDataSet[] = (context.range ?? []).map((ds, index) => ({
-      ...ds,
-      type: index ? "line" : "bar",
-    }));
     return {
       background: context.background,
-      dataSets,
-      dataSetsHaveTitle: context.dataSetsHaveTitle ?? false,
+      dataSource: dataSourceBuilder.fromContextCreation(context),
+      dataSetStyles,
       aggregated: context.aggregated,
       legendPosition: context.legendPosition ?? "top",
       title: context.title || { text: "" },
-      labelRange: context.auxiliaryRange || undefined,
       type: "combo",
       axesDesign: context.axesDesign,
       showValues: context.showValues,
@@ -200,52 +84,39 @@ export class ComboChart extends AbstractChart {
       zoomable: context.zoomable,
       humanize: context.humanize,
     };
-  }
+  },
 
-  duplicateInDuplicatedSheet(newSheetId: UID): ComboChart {
-    const dataSets = duplicateDataSetsInDuplicatedSheet(this.sheetId, newSheetId, this.dataSets);
-    const labelRange = duplicateLabelRangeInDuplicatedSheet(
-      this.sheetId,
-      newSheetId,
-      this.labelRange
-    );
-    const definition = this.getDefinitionWithSpecificDataSets(dataSets, labelRange, newSheetId);
-    return new ComboChart(definition, newSheetId, this.getters);
-  }
+  getRuntime(getters, definition, { extractData }, sheetId, eventHandlers): ComboChartRuntime {
+    const data = extractData();
+    const chartData = getBarChartData(definition, data, getters);
 
-  copyInSheetId(sheetId: UID): ComboChart {
-    const definition = this.getDefinitionWithSpecificDataSets(
-      this.dataSets,
-      this.labelRange,
-      sheetId
-    );
-    return new ComboChart(definition, sheetId, this.getters);
-  }
-}
-
-export function createComboChartRuntime(chart: ComboChart, getters: Getters): ComboChartRuntime {
-  const definition = chart.getDefinition();
-  const chartData = getBarChartData(definition, chart.dataSets, chart.labelRange, getters);
-
-  const config: ChartConfiguration = {
-    type: "bar",
-    data: {
-      labels: chartData.labels,
-      datasets: getComboChartDatasets(definition, chartData),
-    },
-    options: {
-      ...CHART_COMMON_OPTIONS,
-      layout: getChartLayout(definition, chartData),
-      scales: getBarChartScales(definition, chartData),
-      plugins: {
-        title: getChartTitle(definition, getters),
-        legend: getComboChartLegend(definition, chartData),
-        tooltip: getBarChartTooltip(definition, chartData),
-        chartShowValuesPlugin: getChartShowValues(definition, chartData),
-        background: { color: chart.background },
+    const config: ChartConfiguration = {
+      type: "bar",
+      data: {
+        labels: chartData.labels,
+        datasets: getComboChartDatasets(definition, chartData),
       },
-    },
-  };
+      options: {
+        ...CHART_COMMON_OPTIONS,
+        layout: getChartLayout(definition, chartData),
+        scales: getBarChartScales(definition, chartData),
+        plugins: {
+          title: getChartTitle(definition, getters),
+          legend: getComboChartLegend(definition, chartData),
+          tooltip: getBarChartTooltip(definition, chartData),
+          chartShowValuesPlugin: getChartShowValues(definition, chartData),
+          background: { color: definition.background },
+        },
+        ...eventHandlers,
+      },
+    };
 
-  return { chartJsConfig: config };
-}
+    return {
+      chartJsConfig: config,
+      customizableSeries: chartData.dataSetsValues.map(({ dataSetId, label }) => ({
+        dataSetId,
+        label,
+      })),
+    };
+  },
+};

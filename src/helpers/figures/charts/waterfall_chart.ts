@@ -1,38 +1,8 @@
 import type { ChartConfiguration } from "chart.js";
-import {
-  Color,
-  CommandResult,
-  Getters,
-  Range,
-  RangeAdapter,
-  RangeAdapterFunctions,
-  UID,
-} from "../../../types";
-import {
-  AxesDesign,
-  ChartCreationContext,
-  CustomizedDataSet,
-  DataSet,
-  ExcelChartDefinition,
-} from "../../../types/chart/chart";
-import { LegendPosition, VerticalAxisPosition } from "../../../types/chart/common_chart";
-import {
-  WaterfallChartDefinition,
-  WaterfallChartRuntime,
-} from "../../../types/chart/waterfall_chart";
-import { CoreGetters } from "../../../types/core_getters";
-import { Validator } from "../../../types/validator";
-import { createValidRange } from "../../range";
+import { ChartTypeBuilder } from "../../../registries/chart_registry";
+import { CommandResult } from "../../../types";
+import { WaterfallChartRuntime } from "../../../types/chart/waterfall_chart";
 import { AbstractChart } from "./abstract_chart";
-import {
-  checkDataset,
-  checkLabelRange,
-  createDataSets,
-  duplicateDataSetsInDuplicatedSheet,
-  duplicateLabelRangeInDuplicatedSheet,
-  transformChartDefinitionWithDataSetsWithZone,
-  updateChartRangesWithDataSets,
-} from "./chart_common";
 import { CHART_COMMON_OPTIONS } from "./chart_ui_common";
 import {
   getBarChartData,
@@ -45,78 +15,52 @@ import {
 } from "./runtime";
 import { getChartLayout } from "./runtime/chartjs_layout";
 
-export class WaterfallChart extends AbstractChart {
-  readonly dataSets: DataSet[];
-  readonly labelRange?: Range | undefined;
-  readonly background?: Color;
-  readonly verticalAxisPosition: VerticalAxisPosition;
-  readonly legendPosition: LegendPosition;
-  readonly aggregated?: boolean;
-  readonly type = "waterfall";
-  readonly dataSetsHaveTitle: boolean;
-  readonly showSubTotals: boolean;
-  readonly firstValueAsSubtotal?: boolean;
-  readonly showConnectorLines: boolean;
-  readonly positiveValuesColor?: Color;
-  readonly negativeValuesColor?: Color;
-  readonly subTotalValuesColor?: Color;
-  readonly dataSetDesign: CustomizedDataSet[];
-  readonly axesDesign?: AxesDesign;
-  readonly showValues?: boolean;
-  readonly zoomable?: boolean;
+export const WaterfallChart: ChartTypeBuilder<"waterfall"> = {
+  sequence: 70,
+  allowedDefinitionKeys: [
+    ...AbstractChart.commonKeys,
+    "dataSource",
+    "legendPosition",
+    "dataSetStyles",
+    "verticalAxisPosition",
+    "aggregated",
+    "showSubTotals",
+    "showConnectorLines",
+    "firstValueAsSubtotal",
+    "positiveValuesColor",
+    "negativeValuesColor",
+    "subTotalValuesColor",
+    "zoomable",
+    "axesDesign",
+    "showValues",
+  ],
 
-  constructor(definition: WaterfallChartDefinition, sheetId: UID, getters: CoreGetters) {
-    super(definition, sheetId, getters);
-    this.dataSets = createDataSets(
-      getters,
-      definition.dataSets,
-      sheetId,
-      definition.dataSetsHaveTitle
-    );
-    this.labelRange = createValidRange(getters, sheetId, definition.labelRange);
-    this.background = definition.background;
-    this.verticalAxisPosition = definition.verticalAxisPosition;
-    this.legendPosition = definition.legendPosition;
-    this.aggregated = definition.aggregated;
-    this.dataSetsHaveTitle = definition.dataSetsHaveTitle;
-    this.showSubTotals = definition.showSubTotals;
-    this.showConnectorLines = definition.showConnectorLines;
-    this.positiveValuesColor = definition.positiveValuesColor;
-    this.negativeValuesColor = definition.negativeValuesColor;
-    this.subTotalValuesColor = definition.subTotalValuesColor;
-    this.firstValueAsSubtotal = definition.firstValueAsSubtotal;
-    this.dataSetDesign = definition.dataSets;
-    this.axesDesign = definition.axesDesign;
-    this.showValues = definition.showValues;
-    this.zoomable = definition.zoomable;
-  }
+  fromStrDefinition: (definition) => definition,
 
-  static transformDefinition(
-    chartSheetId: UID,
-    definition: WaterfallChartDefinition,
-    applyChange: RangeAdapter
-  ): WaterfallChartDefinition {
-    return transformChartDefinitionWithDataSetsWithZone(chartSheetId, definition, applyChange);
-  }
+  toStrDefinition: (definition) => definition,
 
-  static validateChartDefinition(
-    validator: Validator,
-    definition: WaterfallChartDefinition
-  ): CommandResult | CommandResult[] {
-    return validator.checkValidations(definition, checkDataset, checkLabelRange);
-  }
+  copyInSheetId: (definition) => definition,
 
-  static getDefinitionFromContextCreation(context: ChartCreationContext): WaterfallChartDefinition {
+  duplicateInDuplicatedSheet: (definition) => definition,
+
+  transformDefinition: (definition) => definition,
+
+  validateDefinition: () => CommandResult.Success,
+
+  updateRanges: (definition) => definition,
+
+  getContextCreation: (definition) => definition,
+
+  getDefinitionFromContextCreation(context, dataSourceBuilder) {
     return {
       background: context.background,
-      dataSets: context.range ? context.range : [],
-      dataSetsHaveTitle: context.dataSetsHaveTitle ?? false,
+      dataSource: dataSourceBuilder.fromContextCreation(context),
+      dataSetStyles: context.dataSetStyles ? context.dataSetStyles : {},
       aggregated: context.aggregated ?? false,
       legendPosition: context.legendPosition ?? "top",
       title: context.title || { text: "" },
       type: "waterfall",
       verticalAxisPosition: "left",
-      labelRange: context.auxiliaryRange || undefined,
       showSubTotals: context.showSubTotals ?? false,
       showConnectorLines: context.showConnectorLines ?? true,
       firstValueAsSubtotal: context.firstValueAsSubtotal ?? false,
@@ -125,134 +69,37 @@ export class WaterfallChart extends AbstractChart {
       zoomable: context.zoomable ?? false,
       humanize: context.humanize,
     };
-  }
+  },
 
-  getContextCreation(): ChartCreationContext {
-    const range: CustomizedDataSet[] = [];
-    for (const [i, dataSet] of this.dataSets.entries()) {
-      range.push({
-        ...this.dataSetDesign?.[i],
-        dataRange: this.getters.getRangeString(dataSet.dataRange, this.sheetId),
-      });
-    }
-    return {
-      ...this,
-      range,
-      auxiliaryRange: this.labelRange
-        ? this.getters.getRangeString(this.labelRange, this.sheetId)
-        : undefined,
-    };
-  }
+  getDefinitionForExcel: () => undefined,
 
-  duplicateInDuplicatedSheet(newSheetId: UID): WaterfallChart {
-    const dataSets = duplicateDataSetsInDuplicatedSheet(this.sheetId, newSheetId, this.dataSets);
-    const labelRange = duplicateLabelRangeInDuplicatedSheet(
-      this.sheetId,
-      newSheetId,
-      this.labelRange
-    );
-    const definition = this.getDefinitionWithSpecificDataSets(dataSets, labelRange, newSheetId);
-    return new WaterfallChart(definition, newSheetId, this.getters);
-  }
+  getRuntime(getters, definition, { extractData }, sheetId, eventHandlers): WaterfallChartRuntime {
+    const data = extractData();
+    const chartData = getBarChartData(definition, data, getters);
 
-  copyInSheetId(sheetId: UID): WaterfallChart {
-    const definition = this.getDefinitionWithSpecificDataSets(
-      this.dataSets,
-      this.labelRange,
-      sheetId
-    );
-    return new WaterfallChart(definition, sheetId, this.getters);
-  }
-
-  getDefinition(): WaterfallChartDefinition {
-    return this.getDefinitionWithSpecificDataSets(this.dataSets, this.labelRange);
-  }
-
-  private getDefinitionWithSpecificDataSets(
-    dataSets: DataSet[],
-    labelRange: Range | undefined,
-    targetSheetId?: UID
-  ): WaterfallChartDefinition {
-    const ranges: CustomizedDataSet[] = [];
-    for (const [i, dataSet] of dataSets.entries()) {
-      ranges.push({
-        ...this.dataSetDesign?.[i],
-        dataRange: this.getters.getRangeString(dataSet.dataRange, targetSheetId || this.sheetId),
-      });
-    }
-    return {
-      type: "waterfall",
-      dataSetsHaveTitle: dataSets.length ? Boolean(dataSets[0].labelCell) : false,
-      background: this.background,
-      dataSets: ranges,
-      legendPosition: this.legendPosition,
-      verticalAxisPosition: this.verticalAxisPosition,
-      labelRange: labelRange
-        ? this.getters.getRangeString(labelRange, targetSheetId || this.sheetId)
-        : undefined,
-      title: this.title,
-      aggregated: this.aggregated,
-      showSubTotals: this.showSubTotals,
-      showConnectorLines: this.showConnectorLines,
-      positiveValuesColor: this.positiveValuesColor,
-      negativeValuesColor: this.negativeValuesColor,
-      subTotalValuesColor: this.subTotalValuesColor,
-      firstValueAsSubtotal: this.firstValueAsSubtotal,
-      axesDesign: this.axesDesign,
-      showValues: this.showValues,
-      zoomable: this.zoomable,
-      humanize: this.humanize,
-    };
-  }
-
-  getDefinitionForExcel(): ExcelChartDefinition | undefined {
-    // TODO: implement export excel
-    return undefined;
-  }
-
-  updateRanges({ applyChange }: RangeAdapterFunctions): WaterfallChart {
-    const { dataSets, labelRange, isStale } = updateChartRangesWithDataSets(
-      this.getters,
-      applyChange,
-      this.dataSets,
-      this.labelRange
-    );
-    if (!isStale) {
-      return this;
-    }
-    const definition = this.getDefinitionWithSpecificDataSets(dataSets, labelRange);
-    return new WaterfallChart(definition, this.sheetId, this.getters);
-  }
-}
-
-export function createWaterfallChartRuntime(
-  chart: WaterfallChart,
-  getters: Getters
-): WaterfallChartRuntime {
-  const definition = chart.getDefinition();
-  const chartData = getBarChartData(definition, chart.dataSets, chart.labelRange, getters);
-
-  const { labels, datasets } = getWaterfallDatasetAndLabels(definition, chartData);
-  const config: ChartConfiguration = {
-    type: "bar",
-    data: {
-      labels,
-      datasets,
-    },
-    options: {
-      ...CHART_COMMON_OPTIONS,
-      layout: getChartLayout(definition, chartData),
-      scales: getWaterfallChartScales(definition, chartData),
-      plugins: {
-        title: getChartTitle(definition, getters),
-        legend: getWaterfallChartLegend(definition, chartData),
-        tooltip: getWaterfallChartTooltip(definition, chartData),
-        chartShowValuesPlugin: getWaterfallChartShowValues(definition, chartData),
-        waterfallLinesPlugin: { showConnectorLines: definition.showConnectorLines },
-        background: { color: chart.background },
+    const { labels, datasets } = getWaterfallDatasetAndLabels(definition, chartData);
+    const config: ChartConfiguration = {
+      type: "bar",
+      data: {
+        labels,
+        datasets,
       },
-    },
-  };
+      options: {
+        ...CHART_COMMON_OPTIONS,
+        layout: getChartLayout(definition, chartData),
+        scales: getWaterfallChartScales(definition, chartData),
+        plugins: {
+          title: getChartTitle(definition, getters),
+          legend: getWaterfallChartLegend(definition, chartData),
+          tooltip: getWaterfallChartTooltip(definition, chartData),
+          chartShowValuesPlugin: getWaterfallChartShowValues(definition, chartData),
+          waterfallLinesPlugin: { showConnectorLines: definition.showConnectorLines },
+          background: { color: definition.background },
+        },
+        ...eventHandlers,
+      },
+    };
 
-  return { chartJsConfig: config };
-}
+    return { chartJsConfig: config };
+  },
+};

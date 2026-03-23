@@ -1,28 +1,34 @@
 import { ChartCreationContext } from "../../../src";
-import { ScatterChart } from "../../../src/helpers/figures/charts/scatter_chart";
+import { createChart, createChartDefinitionFromContext, updateChart } from "../../test_helpers";
 import {
   GENERAL_CHART_CREATION_CONTEXT,
   getChartConfiguration,
+  toChartDataSource,
 } from "../../test_helpers/chart_helpers";
-import { createChart, updateChart } from "../../test_helpers/commands_helpers";
 import { createModelFromGrid } from "../../test_helpers/helpers";
 
 describe("scatter chart", () => {
   test("create scatter chart from creation context", () => {
     const context: Required<ChartCreationContext> = {
       ...GENERAL_CHART_CREATION_CONTEXT,
-      range: [{ dataRange: "Sheet1!B1:B4", yAxisId: "y1" }],
+      ...toChartDataSource({
+        dataSets: [{ dataRange: "Sheet1!B1:B4", yAxisId: "y1" }],
+        labelRange: "Sheet1!A1:A4",
+        dataSetsHaveTitle: true,
+      }),
     };
-    const definition = ScatterChart.getDefinitionFromContextCreation(context);
+    const definition = createChartDefinitionFromContext("scatter", context);
     expect(definition).toEqual({
       aggregated: true,
       type: "scatter",
       background: "#123456",
       title: { text: "hello there" },
-      dataSets: [{ dataRange: "Sheet1!B1:B4", yAxisId: "y1" }],
-      labelRange: "Sheet1!A1:A4",
+      ...toChartDataSource({
+        dataSets: [{ dataRange: "Sheet1!B1:B4", yAxisId: "y1" }],
+        labelRange: "Sheet1!A1:A4",
+        dataSetsHaveTitle: true,
+      }),
       legendPosition: "bottom",
-      dataSetsHaveTitle: true,
       labelsAsText: true,
       axesDesign: {},
       showValues: false,
@@ -44,8 +50,10 @@ describe("scatter chart", () => {
       model,
       {
         type: "scatter",
-        labelRange: "A2:A3",
-        dataSets: [{ dataRange: "B2:B3", yAxisId: "y" }],
+        ...toChartDataSource({
+          labelRange: "A2:A3",
+          dataSets: [{ dataRange: "B2:B3", yAxisId: "y" }],
+        }),
         labelsAsText: false,
       },
       "1"

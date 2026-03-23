@@ -3,6 +3,7 @@ import { BACKGROUND_CHART_COLOR } from "../../src/constants";
 import { lettersToNumber, numberToLetters, range, toZone } from "../../src/helpers";
 import { BarChartDefinition } from "../../src/types/chart/bar_chart";
 import { MockTransportService } from "../__mocks__/transport_service";
+import { toChartDataSource } from "../test_helpers/chart_helpers";
 import {
   activateSheet,
   addCfRule,
@@ -217,8 +218,10 @@ describe("Collaborative Sheet manipulation", () => {
       bob,
       {
         type: "bar",
-        dataSets: [{ dataRange: "A1:A10" }],
-        labelRange: "A1",
+        ...toChartDataSource({
+          dataSets: [{ dataRange: "A1:A10" }],
+          labelRange: "A1",
+        }),
       },
       chartId,
       sheetId
@@ -228,9 +231,9 @@ describe("Collaborative Sheet manipulation", () => {
       updateChart(
         bob,
         chartId,
-        {
+        toChartDataSource({
           dataSets: [{ dataRange: "A1:A11" }],
-        },
+        }),
         sheetId
       );
     });
@@ -685,11 +688,13 @@ describe("Collaborative Sheet manipulation", () => {
 
   describe("Chart creation & update", () => {
     const chartId = "42";
-    const chartDef: BarChartDefinition = {
-      dataSets: [{ dataRange: "A1:A3", yAxisId: "y" }, { dataRange: "F1:F3" }],
-      labelRange: "F3",
+    const chartDef: BarChartDefinition<string> = {
+      ...toChartDataSource({
+        dataSets: [{ dataRange: "A1:A3", yAxisId: "y" }, { dataRange: "F1:F3" }],
+        labelRange: "F3",
+        dataSetsHaveTitle: false,
+      }),
       title: { text: "chart title" },
-      dataSetsHaveTitle: false,
       type: "bar",
       stacked: false,
       background: BACKGROUND_CHART_COLOR,
@@ -707,24 +712,32 @@ describe("Collaborative Sheet manipulation", () => {
         (user) => user.getters.getChartDefinition(chartId),
         {
           ...chartDef,
-          dataSets: [{ dataRange: "A1:A3", yAxisId: "y" }, { dataRange: "H1:H3" }],
-          labelRange: "H3",
+          ...toChartDataSource({
+            dataSets: [{ dataRange: "A1:A3", yAxisId: "y" }, { dataRange: "H1:H3" }],
+            labelRange: "H3",
+            dataSetsHaveTitle: false,
+          }),
         }
       );
       network.concurrent(() => {
         addColumns(alice, "before", "D", 2);
         updateChart(bob, chartId, {
-          dataSets: [{ dataRange: "A1:A3" }, { dataRange: "F1:F3" }],
-          labelRange: "F3",
-          dataSetsHaveTitle: false,
+          ...toChartDataSource({
+            dataSets: [{ dataRange: "A1:A3" }, { dataRange: "F1:F3" }],
+            labelRange: "F3",
+            dataSetsHaveTitle: false,
+          }),
         });
       });
       expect([alice, bob, charlie]).toHaveSynchronizedValue(
         (user) => user.getters.getChartDefinition(chartId),
         {
           ...chartDef,
-          dataSets: [{ dataRange: "A1:A3" }, { dataRange: "H1:H3" }],
-          labelRange: "H3",
+          ...toChartDataSource({
+            dataSets: [{ dataRange: "A1:A3" }, { dataRange: "H1:H3" }],
+            labelRange: "H3",
+            dataSetsHaveTitle: false,
+          }),
         }
       );
     });
@@ -736,7 +749,14 @@ describe("Collaborative Sheet manipulation", () => {
           bob,
           {
             ...chartDef,
-            dataSets: [{ dataRange: "A1:A3" }, { dataRange: "C1:C3" }, { dataRange: "F:G" }],
+            ...toChartDataSource({
+              dataSets: [
+                { dataRange: "A1:A3", dataSetId: "0" },
+                { dataRange: "C1:C3", dataSetId: "1" },
+                { dataRange: "F:G", dataSetId: "2" },
+              ],
+              dataSetsHaveTitle: false,
+            }),
           },
           chartId
         );
@@ -745,22 +765,37 @@ describe("Collaborative Sheet manipulation", () => {
         (user) => user.getters.getChartDefinition(chartId),
         {
           ...chartDef,
-          dataSets: [{ dataRange: "A1:A3" }, { dataRange: "E:E" }],
-          labelRange: undefined,
+          ...toChartDataSource({
+            dataSets: [
+              { dataRange: "A1:A3", dataSetId: "0" },
+              { dataRange: "E:E", dataSetId: "2" },
+            ],
+            dataSetsHaveTitle: false,
+          }),
         }
       );
       network.concurrent(() => {
         deleteColumns(alice, ["C", "F"]);
         updateChart(bob, chartId, {
-          dataSets: [{ dataRange: "A1:A3" }, { dataRange: "C1:C3" }, { dataRange: "F1:G3" }],
+          ...toChartDataSource({
+            dataSets: [
+              { dataRange: "A1:A3", dataSetId: "0" },
+              { dataRange: "C1:C3", dataSetId: "1" },
+              { dataRange: "F1:G3", dataSetId: "2" },
+            ],
+          }),
         });
       });
       expect([alice, bob, charlie]).toHaveSynchronizedValue(
         (user) => user.getters.getChartDefinition(chartId),
         {
           ...chartDef,
-          dataSets: [{ dataRange: "A1:A3" }, { dataRange: "E1:E3" }],
-          labelRange: undefined,
+          ...toChartDataSource({
+            dataSets: [
+              { dataRange: "A1:A3", dataSetId: "0" },
+              { dataRange: "E1:E3", dataSetId: "2" },
+            ],
+          }),
         }
       );
     });
@@ -772,8 +807,11 @@ describe("Collaborative Sheet manipulation", () => {
           bob,
           {
             ...chartDef,
-            dataSets: [{ dataRange: "A1:A3" }, { dataRange: "A4:A10" }, { dataRange: "A11:A12" }],
-            labelRange: "F10",
+            ...toChartDataSource({
+              dataSets: [{ dataRange: "A1:A3" }, { dataRange: "A4:A10" }, { dataRange: "A11:A12" }],
+              labelRange: "F10",
+              dataSetsHaveTitle: false,
+            }),
           },
           chartId
         );
@@ -782,23 +820,30 @@ describe("Collaborative Sheet manipulation", () => {
         (user) => user.getters.getChartDefinition(chartId),
         {
           ...chartDef,
-          dataSets: [{ dataRange: "A1:A3" }, { dataRange: "A4:A12" }, { dataRange: "A13:A14" }],
-          labelRange: "F12",
+          ...toChartDataSource({
+            dataSets: [{ dataRange: "A1:A3" }, { dataRange: "A4:A12" }, { dataRange: "A13:A14" }],
+            labelRange: "F12",
+            dataSetsHaveTitle: false,
+          }),
         }
       );
       network.concurrent(() => {
         addRows(alice, "before", 9, 2);
         updateChart(bob, chartId, {
-          dataSets: [{ dataRange: "A1:A3" }, { dataRange: "A4:A10" }, { dataRange: "A11:A12" }],
-          labelRange: "F10",
+          ...toChartDataSource({
+            dataSets: [{ dataRange: "A1:A3" }, { dataRange: "A4:A10" }, { dataRange: "A11:A12" }],
+            labelRange: "F10",
+          }),
         });
       });
       expect([alice, bob, charlie]).toHaveSynchronizedValue(
         (user) => user.getters.getChartDefinition(chartId),
         {
           ...chartDef,
-          dataSets: [{ dataRange: "A1:A3" }, { dataRange: "A4:A12" }, { dataRange: "A13:A14" }],
-          labelRange: "F12",
+          ...toChartDataSource({
+            dataSets: [{ dataRange: "A1:A3" }, { dataRange: "A4:A12" }, { dataRange: "A13:A14" }],
+            labelRange: "F12",
+          }),
         }
       );
     });
@@ -835,8 +880,15 @@ describe("Collaborative Sheet manipulation", () => {
           bob,
           {
             ...chartDef,
-            dataSets: [{ dataRange: "A1:A3" }, { dataRange: "A4:A5" }, { dataRange: "A11:A12" }],
-            labelRange: "F10",
+            ...toChartDataSource({
+              dataSets: [
+                { dataRange: "A1:A3", dataSetId: "0" },
+                { dataRange: "A4:A5", dataSetId: "1" },
+                { dataRange: "A11:A12", dataSetId: "2" },
+              ],
+              labelRange: "F10",
+              dataSetsHaveTitle: false,
+            }),
           },
           chartId
         );
@@ -845,23 +897,40 @@ describe("Collaborative Sheet manipulation", () => {
         (user) => user.getters.getChartDefinition(chartId),
         {
           ...chartDef,
-          dataSets: [{ dataRange: "A1:A3" }, { dataRange: "A9" }],
-          labelRange: "F8",
+          ...toChartDataSource({
+            dataSets: [
+              { dataRange: "A1:A3", dataSetId: "0" },
+              { dataRange: "A9", dataSetId: "2" },
+            ],
+            labelRange: "F8",
+            dataSetsHaveTitle: false,
+          }),
         }
       );
       network.concurrent(() => {
         deleteRows(alice, [3, 4, 10]);
         updateChart(bob, chartId, {
-          dataSets: [{ dataRange: "A1:A3" }, { dataRange: "A4:A5" }, { dataRange: "A11:A12" }],
-          labelRange: "10:10",
+          ...toChartDataSource({
+            dataSets: [
+              { dataRange: "A1:A3", dataSetId: "0" },
+              { dataRange: "A4:A5", dataSetId: "1" },
+              { dataRange: "A11:A12", dataSetId: "2" },
+            ],
+            labelRange: "10:10",
+          }),
         });
       });
       expect([alice, bob, charlie]).toHaveSynchronizedValue(
         (user) => user.getters.getChartDefinition(chartId),
         {
           ...chartDef,
-          dataSets: [{ dataRange: "A1:A3" }, { dataRange: "A9" }],
-          labelRange: "8:8",
+          ...toChartDataSource({
+            dataSets: [
+              { dataRange: "A1:A3", dataSetId: "0" },
+              { dataRange: "A9", dataSetId: "2" },
+            ],
+            labelRange: "8:8",
+          }),
         }
       );
     });
@@ -877,16 +946,20 @@ describe("Collaborative Sheet manipulation", () => {
       network.concurrent(() => {
         renameSheet(alice, sheetId2, newName);
         updateChart(bob, chartId, {
-          dataSets: [{ dataRange: `${sheetName2}!A1:A3` }],
-          labelRange: `${sheetName2}!F3`,
+          ...toChartDataSource({
+            dataSets: [{ dataRange: `${sheetName2}!A1:A3` }],
+            labelRange: `${sheetName2}!F3`,
+          }),
         });
       });
       expect([alice, bob, charlie]).toHaveSynchronizedValue(
         (user) => user.getters.getChartDefinition(chartId),
         {
           ...chartDef,
-          dataSets: [{ dataRange: `${newName}!A1:A3` }],
-          labelRange: `${newName}!F3`,
+          ...toChartDataSource({
+            dataSets: [{ dataRange: `${newName}!A1:A3` }],
+            labelRange: `${newName}!F3`,
+          }),
         }
       );
       undo(alice);
@@ -894,8 +967,10 @@ describe("Collaborative Sheet manipulation", () => {
         (user) => user.getters.getChartDefinition(chartId),
         {
           ...chartDef,
-          dataSets: [{ dataRange: `${sheetName2}!A1:A3` }],
-          labelRange: `${sheetName2}!F3`,
+          ...toChartDataSource({
+            dataSets: [{ dataRange: `${sheetName2}!A1:A3` }],
+            labelRange: `${sheetName2}!F3`,
+          }),
         }
       );
     });

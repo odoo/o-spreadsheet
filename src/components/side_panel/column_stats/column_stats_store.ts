@@ -261,14 +261,14 @@ export class ColumnStatisticsStore extends SpreadsheetStore {
 
     const { sheetId, col } = getters.getActivePosition();
     this.selectedColumn = col;
-    const formatsInDataset = getters.getRangeFormats(
-      getters.getRangeFromZone(sheetId, {
+    const formatsInDataset = getters
+      .getEvaluatedCellsInZone(sheetId, {
         top: 0,
         left: col,
         bottom: getters.getNumberRows(sheetId) - 1,
         right: col,
       })
-    );
+      .map((cell) => cell.format);
     this.dataFormat = formatsInDataset.find(isDefined) ?? "0.00";
 
     const numberOfRows = getters.getNumberRows(sheetId);

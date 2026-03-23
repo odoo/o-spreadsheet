@@ -1,6 +1,7 @@
 import { Chart } from "chart.js";
 import { Model, readonlyAllowedCommands } from "../../../src";
 import { ChartAnimationStore } from "../../../src/components/figures/chart/chartJs/chartjs_animation_store";
+import { toChartDataSource } from "../../test_helpers/chart_helpers";
 import {
   createChart,
   evaluateCells,
@@ -62,7 +63,10 @@ describe("Chart animations in dashboard", () => {
     readonlyAllowedCommands.add("UPDATE_CELL");
 
     const model = new Model();
-    createChart(model, { type: "bar", dataSets: [{ dataRange: "A1:A6" }] });
+    createChart(model, {
+      type: "bar",
+      ...toChartDataSource({ dataSets: [{ dataRange: "A1:A6" }] }),
+    });
     model.updateMode("dashboard");
     await mountSpreadsheet({ model });
 
@@ -85,7 +89,10 @@ describe("Chart animations in dashboard", () => {
     readonlyAllowedCommands.add("UPDATE_CELL");
 
     const model = new Model();
-    createChart(model, { type: "treemap", dataSets: [{ dataRange: "A1:A6" }] });
+    createChart(model, {
+      type: "treemap",
+      ...toChartDataSource({ dataSets: [{ dataRange: "A1:A6" }] }),
+    });
     setCellContent(model, "A2", "1");
     model.updateMode("dashboard");
     await mountSpreadsheet({ model });
@@ -101,7 +108,11 @@ describe("Chart animations in dashboard", () => {
 
   test("Charts are animated when chart type changes", async () => {
     const model = new Model();
-    createChart(model, { type: "bar", dataSets: [{ dataRange: "A1:A6" }] }, "chartId");
+    createChart(
+      model,
+      { type: "bar", ...toChartDataSource({ dataSets: [{ dataRange: "A1:A6" }] }) },
+      "chartId"
+    );
     model.updateMode("dashboard");
     await mountSpreadsheet({ model });
 
@@ -116,7 +127,11 @@ describe("Chart animations in dashboard", () => {
 
   test("Non-zoomable full screen charts are animated separately from their counterparts", async () => {
     const model = new Model();
-    createChart(model, { type: "pie", dataSets: [{ dataRange: "A1:A6" }] }, "chartId");
+    createChart(
+      model,
+      { type: "pie", ...toChartDataSource({ dataSets: [{ dataRange: "A1:A6" }] }) },
+      "chartId"
+    );
     model.updateMode("dashboard");
     const { env, fixture } = await mountSpreadsheet({ model });
     const store = env.getStore(ChartAnimationStore);
@@ -130,7 +145,11 @@ describe("Chart animations in dashboard", () => {
 
   test("Non-zoomable full screen charts will be animated each time we open them", async () => {
     const model = new Model();
-    createChart(model, { type: "pie", dataSets: [{ dataRange: "A1:A6" }] }, "chartId");
+    createChart(
+      model,
+      { type: "pie", ...toChartDataSource({ dataSets: [{ dataRange: "A1:A6" }] }) },
+      "chartId"
+    );
     model.updateMode("dashboard");
     const { env, fixture } = await mountSpreadsheet({ model });
     const store = env.getStore(ChartAnimationStore) as ChartAnimationStore;
@@ -144,7 +163,7 @@ describe("Chart animations in dashboard", () => {
     const model = new Model();
     createChart(
       model,
-      { type: "bar", dataSets: [{ dataRange: "A1:A6" }], zoomable: true },
+      { type: "bar", ...toChartDataSource({ dataSets: [{ dataRange: "A1:A6" }] }), zoomable: true },
       "chartId"
     );
     model.updateMode("dashboard");

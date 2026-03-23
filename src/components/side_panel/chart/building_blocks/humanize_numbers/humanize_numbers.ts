@@ -1,13 +1,13 @@
 import { Component } from "@odoo/owl";
 import { formatLargeNumber, formatValue } from "../../../../../helpers/format/format";
 import { _t } from "../../../../../translation";
-import { ChartWithDataSetDefinition } from "../../../../../types";
+import { ChartDefinitionWithDataSource } from "../../../../../types";
 import { SpreadsheetChildEnv } from "../../../../../types/spreadsheet_env";
 import { Checkbox } from "../../../components/checkbox/checkbox";
 import { ChartSidePanelProps, ChartSidePanelPropsObject } from "../../common";
 
 export class ChartHumanizeNumbers extends Component<
-  ChartSidePanelProps<ChartWithDataSetDefinition>,
+  ChartSidePanelProps<ChartDefinitionWithDataSource<string>>,
   SpreadsheetChildEnv
 > {
   static template = "o-spreadsheet-ChartHumanizeNumbers";

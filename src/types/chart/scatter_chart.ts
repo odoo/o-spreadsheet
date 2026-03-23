@@ -1,7 +1,11 @@
+import { Range } from "../range";
 import { LineChartDefinition, LineChartRuntime } from "./line_chart";
 
-export interface ScatterChartDefinition
-  extends Omit<LineChartDefinition, "type" | "stacked" | "cumulative" | "zoomable"> {
+export interface ScatterChartDefinition<T extends string | Range = Range>
+  extends Omit<
+    LineChartDefinition<T>,
+    "type" | "stacked" | "cumulative" | "zoomable" | "hideDataMarkers"
+  > {
   readonly type: "scatter";
 }
 

@@ -1,7 +1,7 @@
 import { Component } from "@odoo/owl";
 import { getDefinedAxis } from "../../../../helpers/figures/charts";
 import { _t } from "../../../../translation";
-import { ChartWithDataSetDefinition } from "../../../../types/index";
+import { ChartDefinitionWithDataSource } from "../../../../types";
 import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
 import { SidePanelCollapsible } from "../../components/collapsible/side_panel_collapsible";
 import { Section } from "../../components/section/section";
@@ -17,7 +17,7 @@ import { ChartShowValues } from "../building_blocks/show_values/show_values";
 import { ChartSidePanelProps, ChartSidePanelPropsObject } from "../common";
 
 export class ChartWithAxisDesignPanel<
-  P extends ChartSidePanelProps<ChartWithDataSetDefinition>
+  P extends ChartSidePanelProps<ChartDefinitionWithDataSource<string>>
 > extends Component<P, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-ChartWithAxisDesignPanel";
   static components = {

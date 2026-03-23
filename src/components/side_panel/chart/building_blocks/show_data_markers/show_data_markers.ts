@@ -1,11 +1,11 @@
 import { Component } from "@odoo/owl";
-import { ChartWithDataSetDefinition } from "../../../../../types";
+import { ChartDefinitionWithDataSource } from "../../../../../types";
 import { SpreadsheetChildEnv } from "../../../../../types/spreadsheet_env";
 import { Checkbox } from "../../../components/checkbox/checkbox";
 import { ChartSidePanelProps, ChartSidePanelPropsObject } from "../../common";
 
 export class ChartShowDataMarkers extends Component<
-  ChartSidePanelProps<ChartWithDataSetDefinition>,
+  ChartSidePanelProps<ChartDefinitionWithDataSource<string>>,
   SpreadsheetChildEnv
 > {
   static template = "o-spreadsheet-ChartShowDataMarkers";

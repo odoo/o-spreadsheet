@@ -7,6 +7,7 @@ import {
   click,
   createWaterfallChart,
   editSelectComponent,
+  getChartDataSource,
   getHTMLCheckboxValue,
   getHTMLInputValue,
   getHTMLRadioValue,
@@ -14,15 +15,15 @@ import {
   setInputValueAndTrigger,
   simulateClick,
 } from "../../../test_helpers";
-import { openChartConfigSidePanel } from "../../../test_helpers/chart_helpers";
+import { openChartConfigSidePanel, toChartDataSource } from "../../../test_helpers/chart_helpers";
 import { mountComponentWithPortalTarget } from "../../../test_helpers/helpers";
 
 let model: Model;
 let fixture: HTMLElement;
 let env: SpreadsheetChildEnv;
 
-function getWaterfallDefinition(chartId: UID): WaterfallChartDefinition {
-  return model.getters.getChartDefinition(chartId) as WaterfallChartDefinition;
+function getWaterfallDefinition(chartId: UID): WaterfallChartDefinition<string> {
+  return model.getters.getChartDefinition(chartId) as WaterfallChartDefinition<string>;
 }
 
 describe("Waterfall chart side panel", () => {
@@ -34,9 +35,11 @@ describe("Waterfall chart side panel", () => {
   describe("Config panel", () => {
     test("Waterfall config panel is correctly initialized", async () => {
       const chartId = createWaterfallChart(model, {
-        dataSets: [{ dataRange: "A1:A3" }],
-        labelRange: "B1:B3",
-        dataSetsHaveTitle: true,
+        ...toChartDataSource({
+          dataSets: [{ dataRange: "A1:A3" }],
+          labelRange: "B1:B3",
+          dataSetsHaveTitle: true,
+        }),
         aggregated: true,
       });
       await openChartConfigSidePanel(model, env, chartId);
@@ -49,26 +52,32 @@ describe("Waterfall chart side panel", () => {
 
     test("Can change chart values in config side panel", async () => {
       const chartId = createWaterfallChart(model, {
-        dataSets: [{ dataRange: "A1:A3" }],
-        labelRange: "B1:B3",
-        dataSetsHaveTitle: true,
+        ...toChartDataSource({
+          dataSets: [{ dataRange: "A1:A3" }],
+          labelRange: "B1:B3",
+          dataSetsHaveTitle: true,
+        }),
         aggregated: true,
       });
       await openChartConfigSidePanel(model, env, chartId);
 
       await setInputValueAndTrigger(".o-data-labels input", "C1:C3");
       await simulateClick(".o-data-labels .o-selection-ok");
-      expect(getWaterfallDefinition(chartId)?.labelRange).toEqual("C1:C3");
+      expect(getChartDataSource(model, chartId)?.labelRange).toEqual("C1:C3");
 
       await setInputValueAndTrigger(".o-data-series input", "B1:B3");
       await simulateClick(".o-data-series .o-selection-ok");
-      expect(getWaterfallDefinition(chartId)?.dataSets).toEqual([{ dataRange: "B1:B3" }]);
+      expect(getWaterfallDefinition(chartId)).toMatchObject(
+        toChartDataSource({
+          dataSets: [{ dataRange: "B1:B3" }],
+        })
+      );
 
       await simulateClick('input[name="aggregated"]');
       expect(getWaterfallDefinition(chartId)?.aggregated).toEqual(false);
 
       await simulateClick('input[name="dataSetsHaveTitle"]');
-      expect(getWaterfallDefinition(chartId)?.dataSetsHaveTitle).toEqual(false);
+      expect(getChartDataSource(model, chartId)?.dataSetsHaveTitle).toEqual(false);
     });
   });
 

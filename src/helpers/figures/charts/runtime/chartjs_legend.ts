@@ -8,8 +8,8 @@ import { _t } from "../../../../translation";
 import { DeepPartial } from "../../../../types";
 import {
   BarChartDefinition,
+  ChartDefinitionWithDataSource,
   ChartRuntimeGenerationArgs,
-  ChartWithDataSetDefinition,
   GenericDefinition,
   LineChartDefinition,
   PieChartDefinition,
@@ -25,7 +25,7 @@ import { chartFontColor, getPieColors, isTrendLineAxis, truncateLabel } from "..
 type ChartLegend = DeepPartial<LegendOptions<any>>;
 
 function getLegendDisplayOptions(
-  definition: GenericDefinition<ChartWithDataSetDefinition>,
+  definition: GenericDefinition<ChartDefinitionWithDataSource>,
   args: ChartRuntimeGenerationArgs
 ): ChartLegend {
   return {

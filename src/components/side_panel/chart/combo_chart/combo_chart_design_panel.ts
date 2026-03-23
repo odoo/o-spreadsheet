@@ -1,4 +1,5 @@
 import { _t } from "../../../../translation";
+import { CustomizableSeriesChartRuntime, UID } from "../../../../types";
 import { ComboChartDefinition } from "../../../../types/chart/combo_chart";
 import { RadioSelection } from "../../components/radio_selection/radio_selection";
 import { ChartShowDataMarkers } from "../building_blocks/show_data_markers/show_data_markers";
@@ -6,7 +7,7 @@ import { ChartSidePanelProps } from "../common";
 import { GenericZoomableChartDesignPanel } from "../zoomable_chart/design_panel";
 
 export class ComboChartDesignPanel extends GenericZoomableChartDesignPanel<
-  ChartSidePanelProps<ComboChartDefinition>
+  ChartSidePanelProps<ComboChartDefinition<string>>
 > {
   static template = "o-spreadsheet-ComboChartDesignPanel";
   static components = {
@@ -19,23 +20,28 @@ export class ComboChartDesignPanel extends GenericZoomableChartDesignPanel<
     { value: "line", label: _t("Line") },
   ];
 
-  updateDataSeriesType(index: number, type: "bar" | "line") {
-    const dataSets = [...this.props.definition.dataSets];
-    if (!dataSets?.[index]) {
-      return;
-    }
-    dataSets[index] = {
-      ...dataSets[index],
+  updateDataSeriesType(dataSetId: UID, type: "bar" | "line") {
+    const dataSetStyles = { ...this.props.definition.dataSetStyles };
+    dataSetStyles[dataSetId] = {
+      ...dataSetStyles[dataSetId],
       type,
     };
-    this.props.updateChart(this.props.chartId, { dataSets });
+    this.props.updateChart(this.props.chartId, { dataSetStyles });
   }
 
-  getDataSeriesType(index: number) {
-    const dataSets = this.props.definition.dataSets as ComboChartDefinition["dataSets"];
-    if (!dataSets?.[index]) {
-      return "bar";
+  getDataSeriesType(dataSetId: UID) {
+    const dataSetStyles = this.props.definition
+      .dataSetStyles as ComboChartDefinition["dataSetStyles"];
+    const type = dataSetStyles?.[dataSetId]?.type;
+    if (!type) {
+      const runtime = this.env.model.getters.getChartRuntime(
+        this.props.chartId
+      ) as CustomizableSeriesChartRuntime;
+      const dataSetIndex = runtime.customizableSeries.findIndex(
+        (series) => series.dataSetId === dataSetId
+      );
+      return dataSetIndex === 0 ? "bar" : "line";
     }
-    return dataSets[index].type ?? "line";
+    return type;
   }
 }

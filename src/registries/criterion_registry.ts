@@ -745,7 +745,7 @@ criterionEvaluatorRegistry.add("top10", {
 
     const numberValues: number[] = [];
     for (const range of criterionRanges) {
-      for (const value of getters.getRangeValues(range)) {
+      for (const { value } of getters.getVisibleRangeValues(range)) {
         if (typeof value === "number") {
           numberValues.push(value);
         }
@@ -898,7 +898,7 @@ function getOccurrencesInRanges(
 ): Record<string, number> {
   const occurrences: Record<string, number> = {};
   for (const range of criterionRanges) {
-    for (const cellValue of getters.getRangeValues(range)) {
+    for (const cellValue of getters.getVisibleRangeValues(range)) {
       const key = toString(cellValue).toLowerCase();
       if (key) {
         occurrences[key] = (occurrences[key] || 0) + 1;
