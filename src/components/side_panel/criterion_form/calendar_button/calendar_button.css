@@ -1,0 +1,13 @@
+.o-spreadsheet {
+  .o-calendar-button {
+    position: relative;
+    display: inline-block;
+  }
+  .o-calendar-input {
+    position: absolute;
+    pointer-events: none;
+    right: 0;
+    bottom: 0;
+    visibility: hidden;
+  }
+}

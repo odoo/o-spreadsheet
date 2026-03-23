@@ -6,14 +6,15 @@
       selectedValue="this.currentDateValue"
       onChange.bind="this.onDateValueChanged"
     />
-
-    <CriterionInput
-      t-if="this.currentDateValue === 'exactDate'"
-      value="this.props.criterion.values[0]"
-      onValueChanged.bind="this.onValueChanged"
-      criterionType="this.props.criterion.type"
-      disableFormulas="this.props.disableFormulas"
-      focused="this.props.autofocus"
-    />
+    <div class="d-flex align-items-center" t-if="this.currentDateValue === 'exactDate'">
+      <CriterionInput
+        value="this.props.criterion.values[0]"
+        onValueChanged.bind="this.onValueChanged"
+        criterionType="this.props.criterion.type"
+        disableFormulas="this.props.disableFormulas"
+        focused="this.props.autofocus"
+      />
+      <CalendarButton onChange.bind="this.onValueChanged" value="this.props.criterion.values[0]"/>
+    </div>
   </t>
 </templates>
