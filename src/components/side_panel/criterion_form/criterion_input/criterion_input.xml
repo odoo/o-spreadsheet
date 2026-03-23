@@ -19,7 +19,10 @@
         />
       </t>
       <t t-else="">
-        <StandaloneComposer t-props="this.getDataValidationRuleInputComposerProps()"/>
+        <StandaloneComposer
+          t-props="this.getDataValidationRuleInputComposerProps()"
+          t-key="this.props.value"
+        />
       </t>
       <span
         t-if="this.errorMessage"
