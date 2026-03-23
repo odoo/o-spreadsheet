@@ -141,6 +141,46 @@ describe("data validation sidePanel component", () => {
     ]);
   });
 
+  test("Date criteria have a date input with a calendar button", async () => {
+    await simulateClick(".o-dv-add");
+    await nextTick();
+    await setInputValueAndTrigger(".o-selection-input input", "A1:A5");
+    await changeCriterionType("dateIs");
+
+    expect(fixture.querySelector(".o-dv-date-value")).toBeTruthy();
+    await setInputValueAndTrigger(".o-calendar-button input", "2021-05-03");
+
+    await simulateClick(".o-dv-save");
+    expect(getDataValidationRules(model, sheetId)).toEqual([
+      {
+        id: expect.any(String),
+        criterion: { type: "dateIs", dateValue: "exactDate", values: ["5/3/2021"] },
+        ranges: ["A1:A5"],
+      },
+    ]);
+  });
+
+  //MATHO ce test ne passe pas
+  test("Calendar button input respect the locale", async () => {
+    updateLocale(model, FR_LOCALE);
+    await simulateClick(".o-dv-add");
+    await nextTick();
+    await setInputValueAndTrigger(".o-selection-input input", "A1:A5");
+    await changeCriterionType("dateIs");
+
+    expect(fixture.querySelector(".o-dv-date-value")).toBeTruthy();
+    await setInputValueAndTrigger(".o-calendar-button input", "2021-05-03");
+
+    await simulateClick(".o-dv-save");
+    expect(getDataValidationRules(model, sheetId)).toEqual([
+      {
+        id: expect.any(String),
+        criterion: { type: "dateIs", dateValue: "exactDate", values: ["5/3/2021"] },
+        ranges: ["A1:A5"],
+      },
+    ]);
+  });
+
   test("date input is focused when criterion type is changed", async () => {
     await simulateClick(".o-dv-add");
     expect(document.activeElement).not.toBe(fixture.querySelector(".o-dv-input .o-composer"));
