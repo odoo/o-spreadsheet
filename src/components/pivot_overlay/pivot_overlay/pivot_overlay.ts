@@ -16,8 +16,9 @@ import {
   PivotDragAndDropState,
   PivotDragEndEvent,
   useDragAndDropPivotItems,
-} from "../../helpers/drag_and_drop_dom_items_hook of_doom";
+} from "../../helpers/drag_and_drop_dom_pivot_items";
 
+import { HIGHLIGHT_COLOR } from "@odoo/o-spreadsheet-engine/constants";
 import {
   PivotDragAndDropItem,
   PivotDragAndDropStore,
@@ -41,34 +42,19 @@ type PivotArea = {
   rect: Rect;
 };
 
-const PIVOT_AREA_COLORS: Record<DimensionType, string> = {
-  rows: "#FF0000",
-  columns: "#00FF00",
-  measures: "#0000FF",
-};
-
-interface DragAndDropState {
-  dimension: PivotDimension | PivotMeasure;
-  dimensionType: DimensionType;
-  index: number;
-}
-
 interface State {
-  // ADRM TODO: remove externalDragState ?
-  externalDragState?: DragAndDropState;
   hoveredPivotArea: DimensionType | undefined;
 }
 // ADRM TODO: do something about zoom
-// ADRM TODO: set the correct position of the dragged item at the start of dnd
 // ADRM TODO: do something about duplicated dragged item before mousemove
 // ADRM TODO: something better than itemsStyle['placeholder-item']
-// ADRM TODO: display placeholder os starting drag container
-// ADRM TODO: hide dragged item in original container on mouseLeave
+// ADRM TODO: display placeholder on starting drag container
 // ADRM TODO: history steps on drag & drop
 // ADRM TODO: cancel REMOVE action if ADD did not work
 // ADRM TODO: #SPILL
 // ADRM TODO: drag & drop on rows when there are no rows looks strange
 // ADRM TODO: add margin to columns placeholder w/o modifying layout on drag start
+// ADRM TODO: traceback on add count measure
 
 export class PivotOverlay extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-PivotOverlay";
@@ -119,34 +105,42 @@ export class PivotOverlay extends Component<Props, SpreadsheetChildEnv> {
       if (!overlayRef.el) {
         return;
       }
+
+      // ADRM TODO: use ref or resize observer ?
+      const measuresContainerRect = this.measuresSectionRef.el?.getBoundingClientRect();
+      if (!measuresContainerRect) {
+        return;
+      }
+      const { width, height } = measuresContainerRect;
+      this.props.onOverlayResized(width + 1, height + 1);
+
       // const position = this.pivotFormulaPosition!; // ADRM TODO
       // const rect = this.env.model.getters.getRect(positionToZone(position));
       // const rect = this.env.model.getters.getRect(positionToZone(position));
+      // let heightOffset = 0;
+      // const horizontalOverlays = overlayRef.el.querySelectorAll(
+      //   ".o-pivot-measures, .o-pivot-columns"
+      // );
+      // for (const horizontalOverlay of horizontalOverlays) {
+      //   heightOffset = Math.max(heightOffset, horizontalOverlay.getBoundingClientRect().height);
+      // }
+      // heightOffset = Math.ceil(heightOffset);
 
-      let heightOffset = 0;
-      const horizontalOverlays = overlayRef.el.querySelectorAll(
-        ".o-pivot-measures, .o-pivot-columns"
-      );
-      for (const horizontalOverlay of horizontalOverlays) {
-        heightOffset = Math.max(heightOffset, horizontalOverlay.getBoundingClientRect().height);
-      }
-      heightOffset = Math.ceil(heightOffset);
+      // const verticalOverlays = overlayRef.el.querySelectorAll<HTMLElement>(
+      //   ".o-pivot-measures, .o-pivot-rows"
+      // );
+      // const width = 250;
+      // for (const verticalOverlay of verticalOverlays) {
+      //   // verticalOverlay.style.width = width + "px"; // ADRM TODO: use real grid & stop being stupid
+      // }
 
-      const verticalOverlays = overlayRef.el.querySelectorAll<HTMLElement>(
-        ".o-pivot-measures, .o-pivot-rows"
-      );
-      const width = 250;
-      for (const verticalOverlay of verticalOverlays) {
-        verticalOverlay.style.width = width + "px"; // ADRM TODO: use real grid & stop being stupid
-      }
+      // this.props.onOverlayResized(width, heightOffset);
 
-      this.props.onOverlayResized(width, heightOffset);
+      // // const y = Math.max(rect.y - heightOffset);
+      // // const x = Math.max(rect.x - widthOffset);
 
-      // const y = Math.max(rect.y - heightOffset);
-      // const x = Math.max(rect.x - widthOffset);
-
-      overlayRef.el.style.left = 0 + "px";
-      overlayRef.el.style.top = 0 + "px";
+      // overlayRef.el.style.left = 0 + "px";
+      // overlayRef.el.style.top = 0 + "px";
       // const sheetViewDims = this.env.model.getters.getSheetViewDimension();
       // overlayRef.el.style.maxWidth = sheetViewDims.width + "px"; // ADRM TODO
       // overlayRef.el.style.maxHeight = sheetViewDims.height + "px"; // ADRM TODO
@@ -185,19 +179,6 @@ export class PivotOverlay extends Component<Props, SpreadsheetChildEnv> {
 
   get definition() {
     return this.env.model.getters.getPivot(this.pivotId).definition;
-  }
-
-  getDisplayedColumnsGroups() {
-    const columns = this.definition.columns;
-    // insert d&d placeholder
-    if (this.state.externalDragState && this.state.externalDragState.dimensionType === "columns") {
-      const newColumns = [...columns];
-      const draggedDimension = this.state.externalDragState.dimension;
-      newColumns.splice(this.state.externalDragState.index, 0, draggedDimension as PivotDimension);
-      return newColumns;
-    }
-
-    return columns;
   }
 
   onRemoveColumn(column: PivotDimension) {
@@ -396,6 +377,7 @@ export class PivotOverlay extends Component<Props, SpreadsheetChildEnv> {
   }
 
   getPivotsAreasInGrid(): PivotArea[] {
+    // ADRM TODO: cache this, or cache getPivotCellFromPosition
     if (!this.pivotDragAndDropStore.draggedItem) {
       return [];
     }
@@ -412,10 +394,8 @@ export class PivotOverlay extends Component<Props, SpreadsheetChildEnv> {
     for (const position of cellPositions(sheetId, spread)) {
       const zone = positionToZone(position);
       const pivotCell = this.env.model.getters.getPivotCellFromPosition(position);
-      if (pivotCell.type === "VALUE") {
+      if (pivotCell.type === "VALUE" || pivotCell.type === "MEASURE_HEADER") {
         measuresZone = measuresZone ? union(measuresZone, zone) : zone;
-      } else if (pivotCell.type === "MEASURE_HEADER") {
-        columnsZone = columnsZone ? union(columnsZone, zone) : zone;
       } else if (pivotCell.type === "HEADER" && pivotCell.dimension === "COL") {
         columnsZone = columnsZone ? union(columnsZone, zone) : zone;
       } else if (pivotCell.type === "HEADER" && pivotCell.dimension === "ROW") {
@@ -441,14 +421,14 @@ export class PivotOverlay extends Component<Props, SpreadsheetChildEnv> {
   }
 
   getPivotAreaStyle(area: PivotArea) {
-    const opacity = this.state.hoveredPivotArea === area.type ? 0.3 : 0.1;
     return cssPropertiesToCss({
       left: area.rect.x + "px",
       top: area.rect.y + "px",
       width: area.rect.width + "px",
       height: area.rect.height + "px",
-      background: setColorAlpha(PIVOT_AREA_COLORS[area.type], opacity),
-      "border-color": PIVOT_AREA_COLORS[area.type],
+      background:
+        this.state.hoveredPivotArea === area.type ? setColorAlpha(HIGHLIGHT_COLOR, 0.3) : "",
+      "border-color": HIGHLIGHT_COLOR,
     });
   }
 
@@ -470,6 +450,9 @@ export class PivotOverlay extends Component<Props, SpreadsheetChildEnv> {
   }
 
   getHighlightsForMeasure(measure: PivotMeasure): Highlight[] {
+    if (this.pivotDragAndDropStore.draggedItem) {
+      return [];
+    }
     const sheetId = this.env.model.getters.getActiveSheetId();
     const spread = this.env.model.getters.getSpreadZone(this.pivotFormulaPosition);
     if (!spread) {
@@ -485,14 +468,17 @@ export class PivotOverlay extends Component<Props, SpreadsheetChildEnv> {
       }
     }
     return recomputeZones(zones).map((zone) => ({
-      color: PIVOT_AREA_COLORS["measures"],
-      fillAlpha: 0.3,
+      color: HIGHLIGHT_COLOR,
+      fillAlpha: 0.12,
       range: this.env.model.getters.getRangeFromZone(sheetId, zone),
     }));
   }
 
   // ADRM TODO: the code to loop on all pivot cells is repeated thrice. Create mapOnPivotCells ?
   getHighlightsForDimension(dimensionType: DimensionType, dimension: PivotDimension): Highlight[] {
+    if (this.pivotDragAndDropStore.draggedItem) {
+      return [];
+    }
     const sheetId = this.env.model.getters.getActiveSheetId();
     const spread = this.env.model.getters.getSpreadZone(this.pivotFormulaPosition);
     if (!spread) {
@@ -515,9 +501,13 @@ export class PivotOverlay extends Component<Props, SpreadsheetChildEnv> {
       }
     }
     return recomputeZones(zones).map((zone) => ({
-      color: PIVOT_AREA_COLORS[dimensionType],
-      fillAlpha: 0.3,
+      color: HIGHLIGHT_COLOR,
+      fillAlpha: 0.12,
       range: this.env.model.getters.getRangeFromZone(sheetId, zone),
     }));
+  }
+
+  exitPivotEdition() {
+    // ADRM TODO
   }
 }

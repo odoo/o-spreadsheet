@@ -1,55 +1,59 @@
 <templates>
   <t t-name="o-spreadsheet-PivotOverlay">
     <div
-      class="o-pivot-overlay position-absolute d-flex flex-column h-100 w-100"
+      class="o-pivot-overlay position-absolute h-100 w-100 top-0 start-0"
       t-att-style="overlayStyle"
       t-ref="pivotOverlay"
       t-if="hasPivotFormula">
       <div
-        class="o-pivot-overlay-top d-flex flex-row border-bottom align-items-end top-0 start-0 position-sticky bg-white">
+        class="o-pivot-measures o-pivot-overlay-section bg-white p-3 border-end border-bottom d-flex flex-column"
+        t-ref="measuresContainer">
+        <span class="o-pivot-overlay-title mb-2">Measures</span>
         <div
-          class="o-pivot-measures o-pivot-overlay-section bg-white p-3 border-end d-flex flex-column"
-          t-ref="measuresContainer">
-          <span class="o-pivot-overlay-title mb-2">Measures</span>
-          <div
-            t-foreach="definition.measures"
-            class="py-1"
-            t-as="measure"
-            t-key="measure_index"
-            t-att-style="dragAndDropMeasures.itemsStyle[measure.id]">
-            <PivotFacet
-              icon="'measure'"
-              label="measure.displayName"
-              name="measure.id"
-              onClickIcon="() => {}"
-              getHighlightsOnHover="() => this.getHighlightsForMeasure(measure)"
-              onClickRemove="() => this.onRemoveMeasure(measure)"
-            />
-          </div>
-          <div
-            t-if="dragAndDropMeasures.itemsStyle['placeholder-item']"
-            class="border rounded"
-            t-att-style="dragAndDropMeasures.itemsStyle['placeholder-item']"
+          t-foreach="definition.measures"
+          class="py-1"
+          t-as="measure"
+          t-key="measure_index"
+          t-att-style="dragAndDropMeasures.itemsStyle[measure.id]">
+          <PivotFacet
+            icon="'measure'"
+            label="measure.displayName"
+            name="measure.id"
+            onClickIcon="() => {}"
+            getHighlightsOnHover="() => this.getHighlightsForMeasure(measure)"
+            onClickRemove="() => this.onRemoveMeasure(measure)"
           />
-          <AddDimensionButton
-            onFieldPicked.bind="onAddMeasure"
-            fields="this.pivotStore.measureFields">
-            <t t-set-slot="button">
-              <PivotFacet
-                icon="'add'"
-                class="'o-add-group mt-1'"
-                label.translate="Add measure"
-                onClickIcon="() => {}"
-              />
-            </t>
-          </AddDimensionButton>
         </div>
         <div
-          class="o-pivot-columns o-pivot-overlay-section bg-white p-3 d-flex flex-row align-items-center"
+          t-if="dragAndDropMeasures.itemsStyle['placeholder-item']"
+          class="border rounded"
+          t-att-style="dragAndDropMeasures.itemsStyle['placeholder-item']"
+        />
+        <AddDimensionButton
+          onFieldPicked.bind="onAddMeasure"
+          fields="this.pivotStore.measureFields">
+          <t t-set-slot="button">
+            <PivotFacet
+              icon="'add'"
+              class="'o-add-group mt-1'"
+              label.translate="Add measure"
+              onClickIcon="() => {}"
+            />
+          </t>
+        </AddDimensionButton>
+      </div>
+      <div class="d-flex flex-column h-100 w-100">
+        <button
+          class="o-exit-pivot-edition o-button pe-auto flex-grow-0 align-self-end me-4 mt-2"
+          t-on-click="this.exitPivotEdition">
+          Exit pivot edition
+        </button>
+        <div class="o-pivot-overlay-title p-3 pb-2">Columns</div>
+        <div
+          class="o-pivot-columns o-pivot-overlay-section w-100 bg-white p-3 pt-0 d-flex flex-row align-items-center border-bottom mt-auto"
           t-ref="columnsContainer">
-          <div class="o-pivot-overlay-title me-4">Columns</div>
           <div
-            t-foreach="getDisplayedColumnsGroups()"
+            t-foreach="definition.columns"
             t-as="column"
             t-key="column_index"
             class="d-flex flex-row align-items-center bg-white ps-1"
@@ -83,7 +87,7 @@
           </AddDimensionButton>
         </div>
       </div>
-      <div class="o-pivot-rows h-100 p-3 d-flex flex-column start-0 position-sticky border-end">
+      <div class="o-pivot-rows p-3 d-flex flex-column border-end">
         <span class="o-pivot-overlay-title mb-2">Rows</span>
         <div
           class="o-pivot-overlay-section d-flex flex-column align-items-start"
@@ -123,6 +127,7 @@
           </AddDimensionButton>
         </div>
       </div>
+      <div/>
 
       <t t-foreach="getPivotsAreasInGrid()" t-as="pivotArea" t-key="pivotArea_index">
         <div

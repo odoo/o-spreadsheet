@@ -989,7 +989,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
 
     // ADRM TODO: one history step
     const sheetName = this.env.model.getters.getNextSheetName("FakeSheet Pivot");
-    const sheetId = this.env.model.uuidGenerator.smallUuid();
+    const sheetId = "FakeSheet-" + this.env.model.uuidGenerator.smallUuid();
     this.env.model.dispatch("CREATE_SHEET", { sheetId, position: 0, name: sheetName });
     this.env.model.dispatch("ADD_COLUMNS_ROWS", {
       sheetId,

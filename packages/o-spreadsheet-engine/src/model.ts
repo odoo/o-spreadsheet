@@ -540,7 +540,9 @@ export class Model extends EventBus<any> implements CommandDispatcher {
             console.debug(type, time, "ms");
           }
         });
+        // if (!command["sheetId"]?.includes("FakeSheet")) {
         this.session.save(command, commands, changes);
+        // }
         this.status = Status.Ready;
         this.trigger("update");
         break;

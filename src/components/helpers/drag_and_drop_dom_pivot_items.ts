@@ -22,6 +22,7 @@ interface DragAndDropItemsPartial {
   id: UID;
   size: Pixel;
   position: Pixel;
+  sizeInOtherDirection: Pixel;
 }
 
 export type PivotDragEndEvent =
@@ -84,11 +85,13 @@ export function useDragAndDropPivotItems(hookArgs: Args) {
       const position = hookArgs.direction === "horizontal" ? "left" : "top";
       const dimension = hookArgs.direction === "horizontal" ? "width" : "height";
       const otherDimension = hookArgs.direction === "horizontal" ? "height" : "width";
-      const placeHolderSize =
-        draggedItems.find((item) => item.id === "placeholder-item")?.size || 0;
+      const placeHolderItem = draggedItems.find((item) => item.id === "placeholder-item");
+      const placeHolderSize = placeHolderItem?.size || 0;
+      const sizeInOtherDirection = placeHolderItem?.sizeInOtherDirection || 0;
       if (styles["placeholder-item"] && placeHolderSize) {
         styles["placeholder-item"][dimension] = placeHolderSize + "px";
-        styles["placeholder-item"][otherDimension] = "stretch";
+
+        styles["placeholder-item"][otherDimension] = sizeInOtherDirection + "px";
         styles["placeholder-item"].background = "rgba(0, 0, 0, 0.1)";
         if (operation === "REMOVE") {
           styles["placeholder-item"].visibility = "hidden";
@@ -146,11 +149,16 @@ export function useDragAndDropPivotItems(hookArgs: Args) {
       onCancel: state.cancel,
       dragMode: "swap",
     });
-    const stopListening = startDnd((ev: PointerEvent) => {
-      store.moveItem(containerId, { x: ev.clientX, y: ev.clientY });
-      dndHelper?.onMouseMove(ev);
-      onChange();
-    }, dndHelper.onMouseUp.bind(dndHelper));
+    const stopListening = startDnd(
+      (ev: PointerEvent) => {
+        store.moveItem(containerId, { x: ev.clientX, y: ev.clientY });
+        dndHelper?.onMouseMove(ev);
+        onChange();
+      },
+      (ev) => {
+        dndHelper?.onMouseUp(ev);
+      }
+    );
     cleanupFns.push(stopListening);
 
     const onScroll = dndHelper.onScroll.bind(dndHelper);
@@ -175,6 +183,8 @@ export function useDragAndDropPivotItems(hookArgs: Args) {
       id: item.id,
       position: hookArgs.direction === "horizontal" ? item.rect.x : item.rect.y,
       size: hookArgs.direction === "horizontal" ? item.rect.width : item.rect.height,
+      sizeInOtherDirection:
+        hookArgs.direction === "horizontal" ? item.rect.height : item.rect.width,
     }));
     store.startDragAndDrop(containerId, draggedItem, { x: ev.clientX, y: ev.clientY });
     const id = draggedItem.id;
@@ -185,9 +195,8 @@ export function useDragAndDropPivotItems(hookArgs: Args) {
       return;
     }
     const placeholderItem: DragAndDropItemsPartial = {
+      ...dragAndDropItems[draggedItemIndex],
       id: "placeholder-item",
-      size: dragAndDropItems[draggedItemIndex].size,
-      position: dragAndDropItems[draggedItemIndex].position,
     };
     dragAndDropItems.splice(draggedItemIndex, 1, placeholderItem);
     console.log(dragAndDropItems);
@@ -219,6 +228,8 @@ export function useDragAndDropPivotItems(hookArgs: Args) {
       id: item.id,
       position: hookArgs.direction === "horizontal" ? item.rect.x : item.rect.y,
       size: hookArgs.direction === "horizontal" ? item.rect.width : item.rect.height,
+      sizeInOtherDirection:
+        hookArgs.direction === "horizontal" ? item.rect.height : item.rect.width,
     }));
     const mousePosition = hookArgs.direction === "horizontal" ? ev.clientX : ev.clientY;
     let indexAtCursor = dragAndDropItems.findIndex(
@@ -228,6 +239,7 @@ export function useDragAndDropPivotItems(hookArgs: Args) {
       indexAtCursor = dragAndDropItems.length;
     }
     const placeHolderSize = dragAndDropItems[0]?.size || 100;
+    const sizeInOtherDirection = dragAndDropItems[0]?.sizeInOtherDirection || 100;
     const lastItem = dragAndDropItems[dragAndDropItems.length - 1];
     const placeHolderPosition =
       dragAndDropItems[indexAtCursor]?.position ||
@@ -236,6 +248,7 @@ export function useDragAndDropPivotItems(hookArgs: Args) {
       id: "placeholder-item",
       size: placeHolderSize,
       position: placeHolderPosition,
+      sizeInOtherDirection,
     };
     itemOffsets["placeholder-item"] = lastItem
       ? placeHolderPosition - (lastItem.position + lastItem.size)

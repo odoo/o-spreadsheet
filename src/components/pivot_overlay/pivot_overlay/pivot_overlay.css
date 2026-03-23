@@ -1,11 +1,19 @@
 .o-spreadsheet .o-pivot-overlay {
   pointer-events: none;
   z-index: 1;
-
+  display: grid;
+  grid-template-columns: auto 1fr;
+  grid-template-rows: auto 1fr;
+  justify-content: start; /* don't stretch horizontally */
+  align-content: start; /* don't stretch vertically */
   .o-pivot-overlay-section {
-    height: fit-content;
-    width: fit-content;
+    /* height: fit-content;
+    width: fit-content; */
     pointer-events: auto;
+  }
+
+  .o-pivot-columns {
+    align-self: end;
   }
 
   .o-pivot-overlay-title {
@@ -24,5 +32,9 @@
   .o-pivot-area {
     pointer-events: auto;
     border: 2px solid;
+  }
+
+  .o-exit-pivot-edition {
+    width: fit-content;
   }
 }
