@@ -150,6 +150,50 @@ describe("Sunburst chart chart", () => {
     ]);
   });
 
+  test("Sunburst chart display dataset labels in formatted form", () => {
+    // prettier-ignore
+    setGrid(model, {
+      A2: "2/3/2010",   B2: "10",
+      A3: "5/8/2015",   B3: "40",
+    })
+    const chartId = createSunburstChart(model, {
+      ...toChartDataSource({
+        dataSets: [{ dataRange: "A1:A3" }],
+        labelRange: "B1:B3",
+      }),
+    });
+
+    const config = getSunburstRuntime(chartId).chartJsConfig;
+    expect(config.data.datasets).toHaveLength(1);
+    expect(config.data.datasets[0].data).toMatchObject([
+      { value: 40, label: "5/8/2015", groups: ["5/8/2015"] },
+      { value: 10, label: "2/3/2010", groups: ["2/3/2010"] },
+    ]);
+  });
+
+  test("Sunburst chart display treats same value with different formats", () => {
+    // prettier-ignore
+    setGrid(model, {
+      A2: "1",   B2: "10",
+      A3: "1",   B3: "40",
+    })
+    setFormat(model, "A2", "0.00");
+    setFormat(model, "A3", "0.0");
+    const chartId = createSunburstChart(model, {
+      ...toChartDataSource({
+        dataSets: [{ dataRange: "A1:A3" }],
+        labelRange: "B1:B3",
+      }),
+    });
+
+    const config = getSunburstRuntime(chartId).chartJsConfig;
+    expect(config.data.datasets).toHaveLength(1);
+    expect(config.data.datasets[0].data).toMatchObject([
+      { value: 40, label: "1.0", groups: ["1.0"] },
+      { value: 10, label: "1.00", groups: ["1.00"] },
+    ]);
+  });
+
   test("Sunburst data is sorted", () => {
     // prettier-ignore
     setGrid(model, {

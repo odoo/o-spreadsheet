@@ -18,6 +18,7 @@ import { Getters } from "../../../types/getters";
 import { FunctionResultObject } from "../../../types/misc";
 import { Range } from "../../../types/range";
 import { isErrorResult, isNumberResult, isTextResult } from "../../cells/cell_evaluation";
+import { formatValue } from "../../format/format";
 import { isDefined } from "../../misc";
 import { createValidRange, duplicateRangeInDuplicatedSheet } from "../../range";
 import { recomputeZones } from "../../recompute_zones";
@@ -353,18 +354,22 @@ function getHierarchicalDatasetValues(getters: Getters, dataSets: DataSet[]): Da
 
   let currentValues: FunctionResultObject[] = [];
   const leafDatasetIndex = dataSets.length - 1;
-
+  const locale = getters.getLocale();
   for (let i = 0; i < minLength; i++) {
     for (let dsIndex = 0; dsIndex < dataSetsData.length; dsIndex++) {
       let cell = dataSetsData[dsIndex][i];
       if ((cell === undefined || cell.value === null) && dsIndex !== leafDatasetIndex) {
         cell = currentValues[dsIndex];
       }
-      if (cell?.value !== currentValues[dsIndex]?.value) {
+      const formattedValue = formatValue(cell.value, { format: cell.format, locale });
+      if (
+        cell?.value !== currentValues[dsIndex]?.value ||
+        cell?.format !== currentValues[dsIndex]?.format
+      ) {
         currentValues = currentValues.slice(0, dsIndex);
         currentValues[dsIndex] = cell;
       }
-      datasetValues[dsIndex].data.push(cell ?? EMPTY);
+      datasetValues[dsIndex].data.push(cell ? { value: formattedValue } : EMPTY);
     }
   }
 
