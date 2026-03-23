@@ -14,7 +14,7 @@ import {
 } from "../..";
 import { DEFAULT_STYLE } from "../../constants";
 import { PositionMap } from "../../helpers/cells/position_map";
-import { getItemId, ItemsDic } from "../../helpers/data_normalization";
+import { ItemsDic, mapToId, mapToValue } from "../../helpers/data_normalization";
 import { recomputeZones } from "../../helpers/recompute_zones";
 import { cellPositions, getZoneArea } from "../../helpers/zones";
 import { Cell } from "../../types/cells";
@@ -707,40 +707,6 @@ export class DefaultPlugin extends CorePlugin<defaultState> implements defaultSt
   // Export
   // ---------------------------------------------------------------------------
 
-  mapToId<T>(defaults: defaultValue<T>, dict: ItemsDic<T>): defaultValue<number> {
-    const defaultsIds: defaultValue<number> = {
-      colDefault: [],
-      rowDefault: [],
-    };
-    if (defaults.sheetDefault) {
-      defaultsIds.sheetDefault = getItemId(defaults.sheetDefault, dict);
-    }
-    for (const colIndex in defaults.colDefault) {
-      defaultsIds.colDefault![colIndex] = getItemId(defaults.colDefault[colIndex], dict);
-    }
-    for (const rowIndex in defaults.rowDefault) {
-      defaultsIds.rowDefault![rowIndex] = getItemId(defaults.rowDefault[rowIndex], dict);
-    }
-    return defaultsIds;
-  }
-
-  mapToValue<T>(defaultIds: defaultValue<number>, dict: ItemsDic<T>): defaultValue<T> {
-    const defaults: defaultValue<T> = {
-      colDefault: [],
-      rowDefault: [],
-    };
-    if (defaultIds.sheetDefault) {
-      defaults.sheetDefault = dict[defaultIds.sheetDefault];
-    }
-    for (const colIndex in defaultIds.colDefault) {
-      defaults.colDefault![colIndex] = dict[defaultIds.colDefault[colIndex]];
-    }
-    for (const rowIndex in defaultIds.rowDefault) {
-      defaults.rowDefault![rowIndex] = dict[defaultIds.rowDefault[rowIndex]];
-    }
-    return defaults;
-  }
-
   mapStyleToId(defaults: defaultStyle, dict: ItemsDic<Style>): defaultValue<number> {
     const colDefaultDict = defaultDict({});
     const rowDefaultDict = defaultDict({});
@@ -768,7 +734,7 @@ export class DefaultPlugin extends CorePlugin<defaultState> implements defaultSt
       rowDefault[row] = value;
     }
 
-    return this.mapToId(
+    return mapToId(
       {
         colDefault,
         rowDefault,
@@ -782,9 +748,7 @@ export class DefaultPlugin extends CorePlugin<defaultState> implements defaultSt
     for (const sheet of data.sheets) {
       const sheetFormat = this.format[sheet.id];
       sheet.defaultFormat =
-        sheetFormat && !isObjectEmpty(sheetFormat)
-          ? this.mapToId(sheetFormat, data.formats)
-          : undefined;
+        sheetFormat && !isObjectEmpty(sheetFormat) ? mapToId(sheetFormat, data.formats) : undefined;
       const sheetStyle = this.style[sheet.id];
       sheet.defaultStyle =
         sheetStyle && !isObjectEmpty(sheetStyle)
@@ -798,10 +762,10 @@ export class DefaultPlugin extends CorePlugin<defaultState> implements defaultSt
       this.history.update(
         "format",
         sheet.id,
-        sheet.defaultFormat && this.mapToValue(sheet.defaultFormat, data.formats)
+        sheet.defaultFormat && mapToValue(sheet.defaultFormat, data.formats)
       );
       if (sheet.defaultStyle) {
-        const defaultStyle = this.mapToValue(sheet.defaultStyle, data.styles);
+        const defaultStyle = mapToValue(sheet.defaultStyle, data.styles);
         for (const key in defaultStyle.sheetDefault) {
           this.history.update(
             "style",
