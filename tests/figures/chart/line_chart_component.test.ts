@@ -4,7 +4,7 @@ import { parseDateTime } from "../../../src/helpers/dates";
 import { UID } from "../../../src/types";
 import { LineChartDefinition } from "../../../src/types/chart/line_chart";
 import { SpreadsheetChildEnv } from "../../../src/types/spreadsheet_env";
-import { openChartDesignSidePanel } from "../../test_helpers/chart_helpers";
+import { openChartDesignSidePanel, toChartDataSource } from "../../test_helpers/chart_helpers";
 import { createChart } from "../../test_helpers/commands_helpers";
 import { setInputValueAndTrigger } from "../../test_helpers/dom_helper";
 import {
@@ -34,8 +34,10 @@ describe("charts", () => {
     createChart(
       model,
       {
-        dataSets: [{ dataRange: "B2:B3" }],
-        labelRange: "A2:A3",
+        ...toChartDataSource({
+          dataSets: [{ dataRange: "B2:B3" }],
+          labelRange: "A2:A3",
+        }),
         type: "line",
         labelsAsText: false,
       },
@@ -49,12 +51,12 @@ describe("charts", () => {
     const locale = model.getters.getLocale();
 
     await setInputValueAndTrigger(minInput, "2022-01-02");
-    let definition = model.getters.getChartDefinition(chartId) as LineChartDefinition;
+    let definition = model.getters.getChartDefinition(chartId) as LineChartDefinition<string>;
     expect(definition.axesDesign?.x?.min).toEqual(parseDateTime("2022-01-02", locale)!.value);
 
     const maxInput = fixture.querySelector(".time-axis-max-input") as HTMLInputElement;
     await setInputValueAndTrigger(maxInput, "2022-01-04");
-    definition = model.getters.getChartDefinition(chartId) as LineChartDefinition;
+    definition = model.getters.getChartDefinition(chartId) as LineChartDefinition<string>;
     expect(definition.axesDesign?.x?.max).toEqual(parseDateTime("2022-01-04", locale)!.value);
   });
 
@@ -66,8 +68,10 @@ describe("charts", () => {
     createChart(
       model,
       {
-        dataSets: [{ dataRange: "B2:B3" }],
-        labelRange: "A2:A3",
+        ...toChartDataSource({
+          dataSets: [{ dataRange: "B2:B3" }],
+          labelRange: "A2:A3",
+        }),
         type: "line",
         labelsAsText: false,
       },

@@ -1,12 +1,13 @@
 import { Component } from "@odoo/owl";
 import { _t } from "../../../../../translation";
-import { ChartDatasetOrientation, Color, CustomizedDataSet } from "../../../../../types";
+import { ChartDatasetOrientation, Color, DataSetStyle, UID } from "../../../../../types";
 import { SpreadsheetChildEnv } from "../../../../../types/spreadsheet_env";
 import { SelectionInput } from "../../../../selection_input/selection_input";
 import { Section } from "../../../components/section/section";
 
 interface Props {
-  ranges: CustomizedDataSet[];
+  ranges: { dataRange: string; dataSetId: UID }[];
+  dataSetStyles: DataSetStyle;
   hasSingleRange?: boolean;
   onSelectionChanged: (ranges: string[]) => void;
   onSelectionReordered?: (indexes: number[]) => void;
@@ -24,6 +25,7 @@ export class ChartDataSeries extends Component<Props, SpreadsheetChildEnv> {
   static components = { SelectionInput, Section };
   static props = {
     ranges: Array,
+    dataSetStyles: Object,
     hasSingleRange: { type: Boolean, optional: true },
     onSelectionChanged: Function,
     onSelectionReordered: { type: Function, optional: true },
@@ -47,7 +49,7 @@ export class ChartDataSeries extends Component<Props, SpreadsheetChildEnv> {
   }
 
   get colors(): (Color | undefined)[] {
-    return this.props.ranges.map((r) => r.backgroundColor);
+    return this.props.ranges.map((r) => this.props.dataSetStyles?.[r.dataSetId]?.backgroundColor);
   }
 
   get title() {

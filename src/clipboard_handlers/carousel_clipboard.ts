@@ -1,5 +1,5 @@
 import { deepCopy, UuidGenerator } from "../helpers";
-import { AbstractChart } from "../helpers/figures/charts";
+import { SpreadsheetChart } from "../helpers/figures/chart";
 import {
   Carousel,
   ClipboardFigureData,
@@ -17,7 +17,7 @@ type ClipboardContent = {
   copiedSheetId: UID;
   copiedFigure: Figure;
   copiedCarousel: Carousel;
-  copiedCharts: { [chartId: UID]: AbstractChart };
+  copiedCharts: { [chartId: UID]: SpreadsheetChart };
 };
 
 export class CarouselClipboardHandler extends AbstractFigureClipboardHandler<ClipboardContent> {
@@ -32,14 +32,14 @@ export class CarouselClipboardHandler extends AbstractFigureClipboardHandler<Cli
     }
     const copiedFigure = { ...figure };
     const copiedCarousel = this.getters.getCarousel(data.figureId);
-    const copiedCharts: { [chartId: UID]: AbstractChart } = {};
+    const copiedCharts: { [chartId: UID]: SpreadsheetChart } = {};
     for (const item of copiedCarousel.items) {
       if (item.type === "chart") {
         const chart = this.getters.getChart(item.chartId);
         if (!chart) {
           throw new Error(`No chart for the given id: ${item.chartId}`);
         }
-        copiedCharts[item.chartId] = chart.copyInSheetId(sheetId);
+        copiedCharts[item.chartId] = chart;
       }
     }
     return {
@@ -92,7 +92,11 @@ export class CarouselClipboardHandler extends AbstractFigureClipboardHandler<Cli
       }
       const chart = clippedContent.copiedCharts[item.chartId];
       const newId = uuidGenerator.smallUuid();
-      const definition = chart.copyInSheetId(sheetId).getDefinition();
+      const definition = SpreadsheetChart.fromDefinition(
+        this.getters,
+        sheetId,
+        chart.copyInSheetId(sheetId)
+      ).getDefinition();
       this.dispatch("CREATE_CHART", { figureId, chartId: newId, sheetId, definition });
       item.chartId = newId;
     }

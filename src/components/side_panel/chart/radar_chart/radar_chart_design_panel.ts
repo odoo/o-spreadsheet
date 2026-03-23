@@ -12,7 +12,7 @@ import { ChartShowValues } from "../building_blocks/show_values/show_values";
 import { ChartSidePanelProps, ChartSidePanelPropsObject } from "../common";
 
 export class RadarChartDesignPanel extends Component<
-  ChartSidePanelProps<RadarChartDefinition>,
+  ChartSidePanelProps<RadarChartDefinition<string>>,
   SpreadsheetChildEnv
 > {
   static template = "o-spreadsheet-RadarChartDesignPanel";

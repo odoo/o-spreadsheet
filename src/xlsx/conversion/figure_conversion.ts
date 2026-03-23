@@ -2,10 +2,12 @@ import { DEFAULT_WINDOW_SIZE, FIGURE_BORDER_WIDTH } from "../../constants";
 import { getFullReference, splitReference } from "../../helpers";
 import { isDefined } from "../../helpers/misc";
 import { toUnboundedZone, zoneToXc } from "../../helpers/zones";
-import { chartRegistry } from "../../registries/chart_registry";
+import { chartDataSourceRegistry } from "../../registries/chart_data_source_registry";
+import { chartTypeRegistry } from "../../registries/chart_registry";
 import {
   ChartCreationContext,
   ChartDefinition,
+  DataSetStyle,
   ExcelChartDefinition,
   ExcelChartTrendConfiguration,
   TrendConfiguration,
@@ -80,21 +82,26 @@ function isImageData(data: ExcelChartDefinition | ExcelImage): data is ExcelImag
   return "imageSrc" in data;
 }
 
-function convertChartData(chartData: ExcelChartDefinition): ChartDefinition | undefined {
+function convertChartData(chartData: ExcelChartDefinition): ChartDefinition<string> | undefined {
   const dataSetsHaveTitle = chartData.dataSets.some((ds) => "reference" in (ds.label ?? {}));
+  const dataSetsStyling: DataSetStyle = {};
   const labelRange = chartData.labelRange
     ? convertExcelRangeToSheetXC(chartData.labelRange, dataSetsHaveTitle)
     : undefined;
-  const dataSets = chartData.dataSets.map((data) => {
+  const dataSets = chartData.dataSets.map((data, i) => {
     let label: string | undefined = undefined;
     if (data.label && "text" in data.label) {
       label = data.label.text;
     }
-    return {
-      dataRange: convertExcelRangeToSheetXC(data.range, dataSetsHaveTitle),
+    const dataSetId = i.toString();
+    dataSetsStyling[dataSetId] = {
       label,
       backgroundColor: data.backgroundColor,
       trend: convertExcelTrendline(data.trend),
+    };
+    return {
+      dataSetId,
+      dataRange: convertExcelRangeToSheetXC(data.range, dataSetsHaveTitle),
     };
   });
   // For doughnut charts, in chartJS first dataset = outer dataset, in excel first dataset = inner dataset
@@ -102,8 +109,8 @@ function convertChartData(chartData: ExcelChartDefinition): ChartDefinition | un
     dataSets.reverse();
   }
   const creationContext: ChartCreationContext = {
-    range: dataSets,
-    dataSetsHaveTitle,
+    dataSource: { dataSets, dataSetsHaveTitle, labelRange, type: "range" },
+    dataSetStyles: dataSetsStyling,
     auxiliaryRange: labelRange,
     title: chartData.title ?? { text: "" },
     background: convertColor({ rgb: chartData.backgroundColor }) || "#FFFFFF",
@@ -118,8 +125,9 @@ function convertChartData(chartData: ExcelChartDefinition): ChartDefinition | un
     showValues: chartData.showValues,
   };
   try {
-    const ChartClass = chartRegistry.get(chartData.type);
-    return ChartClass.getChartDefinitionFromContextCreation(creationContext);
+    const ChartTypeBuilder = chartTypeRegistry.get(chartData.type);
+    const DataSourceBuilder = chartDataSourceRegistry.get("range");
+    return ChartTypeBuilder.getDefinitionFromContextCreation(creationContext, DataSourceBuilder);
   } catch (e) {
     return undefined;
   }

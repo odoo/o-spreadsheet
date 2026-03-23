@@ -1,6 +1,7 @@
 import { Model } from "../../src";
 import { LineChartDefinition } from "../../src/types/chart";
 import { MockTransportService } from "../__mocks__/transport_service";
+import { toChartDataSource } from "../test_helpers/chart_helpers";
 import {
   addColumns,
   addDataValidation,
@@ -110,9 +111,11 @@ describe("Collaborative range manipulation", () => {
     createChart(
       alice,
       {
-        dataSets: [{ dataRange: "A2" }],
-        labelRange: "A1",
-        dataSetsHaveTitle: false,
+        ...toChartDataSource({
+          dataSets: [{ dataRange: "A2" }],
+          labelRange: "A1",
+          dataSetsHaveTitle: false,
+        }),
         type: "line",
       },
       "1"
@@ -120,8 +123,13 @@ describe("Collaborative range manipulation", () => {
     cut(alice, "A2");
     paste(alice, "D4");
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
-      (user) => (user.getters.getChartDefinition("1") as LineChartDefinition).dataSets[0].dataRange,
-      "D4"
+      (user) => (user.getters.getChartDefinition("1") as LineChartDefinition<string>).dataSource,
+      {
+        type: "range",
+        dataSets: [{ dataRange: "D4", dataSetId: expect.any(String) }],
+        labelRange: "A1",
+        dataSetsHaveTitle: false,
+      }
     );
   });
 

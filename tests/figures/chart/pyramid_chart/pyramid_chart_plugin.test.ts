@@ -1,12 +1,13 @@
 import { ChartCreationContext, ChartJSRuntime, Model } from "../../../../src";
-import { PyramidChart } from "../../../../src/helpers/figures/charts/pyramid_chart";
 import {
   GENERAL_CHART_CREATION_CONTEXT,
   getChartConfiguration,
   getChartTooltipValues,
+  toChartDataSource,
 } from "../../../test_helpers/chart_helpers";
 import {
   createChart,
+  createChartDefinitionFromContext,
   setCellContent,
   setFormat,
   updateChart,
@@ -17,17 +18,23 @@ describe("population pyramid chart", () => {
   test("create pyramid chart from creation context", () => {
     const context: Required<ChartCreationContext> = {
       ...GENERAL_CHART_CREATION_CONTEXT,
-      range: [{ dataRange: "Sheet1!B1:B4", yAxisId: "y1" }],
+      ...toChartDataSource({
+        dataSets: [{ dataRange: "Sheet1!B1:B4", yAxisId: "y1" }],
+        dataSetsHaveTitle: true,
+        labelRange: "Sheet1!A1:A4",
+      }),
     };
-    const definition = PyramidChart.getDefinitionFromContextCreation(context);
+    const definition = createChartDefinitionFromContext("pyramid", context);
     expect(definition).toEqual({
       type: "pyramid",
       background: "#123456",
       title: { text: "hello there" },
-      dataSets: [{ dataRange: "Sheet1!B1:B4", yAxisId: "y1" }],
-      labelRange: "Sheet1!A1:A4",
+      ...toChartDataSource({
+        dataSets: [{ dataRange: "Sheet1!B1:B4", yAxisId: "y1" }],
+        labelRange: "Sheet1!A1:A4",
+        dataSetsHaveTitle: true,
+      }),
       legendPosition: "bottom",
-      dataSetsHaveTitle: true,
       aggregated: true,
       stacked: true,
       axesDesign: {},
@@ -48,7 +55,8 @@ describe("population pyramid chart", () => {
       setCellContent(model, "B1", "10");
       setCellContent(model, "B2", "3");
       const dataSets = [{ dataRange: "A1:A2" }, { dataRange: "B1:B2" }];
-      createChart(model, { type: "pyramid", dataSets, dataSetsHaveTitle: false }, "id");
+      const dataSource = toChartDataSource({ dataSets, dataSetsHaveTitle: false });
+      createChart(model, { type: "pyramid", ...dataSource }, "id");
       const runtime = model.getters.getChartRuntime("id") as any;
       const data = runtime.chartJsConfig.data;
       expect(data.datasets).toHaveLength(2);
@@ -63,7 +71,8 @@ describe("population pyramid chart", () => {
       setCellContent(model, "B1", "-10");
       setCellContent(model, "B2", "3");
       const dataSets = [{ dataRange: "A1:A2" }, { dataRange: "B1:B2" }];
-      createChart(model, { type: "pyramid", dataSets, dataSetsHaveTitle: false }, "id");
+      const dataSource = toChartDataSource({ dataSets, dataSetsHaveTitle: false });
+      createChart(model, { type: "pyramid", ...dataSource }, "id");
       const runtime = model.getters.getChartRuntime("id") as any;
       const data = runtime.chartJsConfig.data;
       expect(data.datasets).toHaveLength(2);
@@ -78,7 +87,13 @@ describe("population pyramid chart", () => {
 
       createChart(
         model,
-        { type: "pyramid", dataSets: [{ dataRange: "A1" }, { dataRange: "A2" }] },
+        {
+          type: "pyramid",
+          ...toChartDataSource({
+            dataSets: [{ dataRange: "A1" }, { dataRange: "A2" }],
+            dataSetsHaveTitle: false,
+          }),
+        },
         "id"
       );
       const runtime = model.getters.getChartRuntime("id") as any;
@@ -103,8 +118,10 @@ describe("population pyramid chart", () => {
         model,
         {
           type: "pyramid",
-          dataSets: [{ dataRange: "A1" }, { dataRange: "A2" }],
-          dataSetsHaveTitle: false,
+          ...toChartDataSource({
+            dataSets: [{ dataRange: "A1" }, { dataRange: "A2" }],
+            dataSetsHaveTitle: false,
+          }),
         },
         "id"
       );
@@ -118,8 +135,10 @@ describe("population pyramid chart", () => {
       createChart(
         model,
         {
-          dataSets: [{ dataRange: "A1:A2" }, { dataRange: "A3:A4" }],
           type: "pyramid",
+          ...toChartDataSource({
+            dataSets: [{ dataRange: "A1:A2" }, { dataRange: "A3:A4" }],
+          }),
         },
         "43"
       );
@@ -140,8 +159,10 @@ test("Humanization is taken into account for the axis ticks of a pyramid chart",
     model,
     {
       type: "pyramid",
-      labelRange: "A2",
-      dataSets: [{ dataRange: "B2" }],
+      ...toChartDataSource({
+        dataSets: [{ dataRange: "B2" }],
+        labelRange: "A2",
+      }),
       humanize: false,
     },
     "1"

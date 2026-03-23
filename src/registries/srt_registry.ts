@@ -1,5 +1,5 @@
 import { CoreCommand } from "../types/commands";
-import { ApplyRenameNamedRange, RangeAdapter } from "../types/misc";
+import { RangeAdapterFunctions } from "../types/misc";
 import { Registry } from "./registry";
 
 /*
@@ -14,8 +14,7 @@ import { Registry } from "./registry";
 
 type CommandAdaptRangeFunction<C extends CoreCommand> = (
   cmd: C,
-  applyChange: RangeAdapter,
-  namedRangeAdapter: ApplyRenameNamedRange
+  rangeAdapters: RangeAdapterFunctions
 ) => C;
 
 class SpecificRangeTransformRegistry extends Registry<CommandAdaptRangeFunction<CoreCommand>> {

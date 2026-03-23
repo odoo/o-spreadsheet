@@ -10,7 +10,7 @@ import {
   invalidateDependenciesCommands,
   invalidateEvaluationCommands,
 } from "../../../types/commands";
-import { Format, FormattedValue } from "../../../types/format";
+import { Format } from "../../../types/format";
 import {
   CellPosition,
   FunctionResultObject,
@@ -147,9 +147,7 @@ export class EvaluationPlugin extends CoreViewPlugin {
     "evaluateFormulaResult",
     "evaluateCompiledFormula",
     "getCorrespondingFormulaCell",
-    "getRangeFormattedValues",
-    "getRangeValues",
-    "getRangeFormats",
+    "getVisibleRangeValues",
     "getEvaluatedCell",
     "getEvaluatedCells",
     "getEvaluatedCellsInZone",
@@ -252,36 +250,14 @@ export class EvaluationPlugin extends CoreViewPlugin {
   }
 
   /**
-   * Return the value of each cell in the range as they are displayed in the grid.
-   */
-  getRangeFormattedValues(range: Range): FormattedValue[] {
-    const sheet = this.getters.tryGetSheet(range.sheetId);
-    if (sheet === undefined) {
-      return [];
-    }
-    return this.mapVisiblePositions(range, (p) => this.getters.getEvaluatedCell(p).formattedValue);
-  }
-
-  /**
    * Return the value of each cell in the range.
    */
-  getRangeValues(range: Range): CellValue[] {
+  getVisibleRangeValues(range: Range): EvaluatedCell[] {
     const sheet = this.getters.tryGetSheet(range.sheetId);
     if (sheet === undefined) {
       return [];
     }
-    return this.mapVisiblePositions(range, (p) => this.getters.getEvaluatedCell(p).value);
-  }
-
-  /**
-   * Return the format of each cell in the range.
-   */
-  getRangeFormats(range: Range): (Format | undefined)[] {
-    const sheet = this.getters.tryGetSheet(range.sheetId);
-    if (sheet === undefined) {
-      return [];
-    }
-    return this.getters.getEvaluatedCellsInZone(sheet.id, range.zone).map((cell) => cell.format);
+    return this.mapVisiblePositions(range, (p) => this.getters.getEvaluatedCell(p));
   }
 
   getEvaluatedCell(position: CellPosition): EvaluatedCell {
