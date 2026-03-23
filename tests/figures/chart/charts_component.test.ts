@@ -949,14 +949,14 @@ describe("charts", () => {
 
     await click(colorMenu);
     await click(fixture, ".o-color-picker-line-item[data-color='#EFEFEF'");
-    let definition = model.getters.getChartDefinition(chartId) as PieChartDefinition;
+    let definition = model.getters.getChartDefinition(chartId) as PieChartDefinition<string>;
     expect(definition.slicesColors).toEqual(["#EFEFEF", "", ""]);
     expect(colorMenu).toHaveStyle({ background: "#EFEFEF" });
 
     await editSelectComponent(".o-pie-slice-selector", "2");
     await click(colorMenu);
     await click(fixture, ".o-color-picker-line-item[data-color='#FF0000'");
-    definition = model.getters.getChartDefinition(chartId) as PieChartDefinition;
+    definition = model.getters.getChartDefinition(chartId) as PieChartDefinition<string>;
     expect(definition.slicesColors).toEqual(["#EFEFEF", "", "#FF0000"]);
   });
 

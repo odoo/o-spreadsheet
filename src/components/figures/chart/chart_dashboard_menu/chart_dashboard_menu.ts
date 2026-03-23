@@ -86,7 +86,7 @@ export class ChartDashboardMenu extends Component<Props, SpreadsheetChildEnv> {
     if (!definition.type.includes("geo")) {
       return "";
     }
-    const geoDef = definition as GeoChartDefinition;
+    const geoDef = definition as GeoChartDefinition<string>;
     const availableRegions = this.env.model.getters.getGeoChartAvailableRegions();
     return geoDef.region || availableRegions[0]?.id || "";
   }

@@ -346,7 +346,14 @@ function getHierarchicalDatasetValues(getters: Getters, dataSets: DataSet[]): Da
     label: "",
     dataSetId: ds.dataSetId,
   }));
-  const dataSetsData = dataSets.map((ds) => getData(getters, ds));
+  const locale = getters.getLocale();
+  const dataSetsData: FunctionResultObject[][] = dataSets
+    .map((ds) => getData(getters, ds))
+    .map((values) =>
+      values.map(({ value, format }) =>
+        value === null ? EMPTY : { value: formatValue(value, { format, locale }) }
+      )
+    );
   if (!dataSetsData.length) {
     return datasetValues;
   }
@@ -354,22 +361,17 @@ function getHierarchicalDatasetValues(getters: Getters, dataSets: DataSet[]): Da
 
   let currentValues: FunctionResultObject[] = [];
   const leafDatasetIndex = dataSets.length - 1;
-  const locale = getters.getLocale();
   for (let i = 0; i < minLength; i++) {
     for (let dsIndex = 0; dsIndex < dataSetsData.length; dsIndex++) {
       let cell = dataSetsData[dsIndex][i];
       if ((cell === undefined || cell.value === null) && dsIndex !== leafDatasetIndex) {
         cell = currentValues[dsIndex];
       }
-      const formattedValue = formatValue(cell.value, { format: cell.format, locale });
-      if (
-        cell?.value !== currentValues[dsIndex]?.value ||
-        cell?.format !== currentValues[dsIndex]?.format
-      ) {
+      if (cell?.value !== currentValues[dsIndex]?.value) {
         currentValues = currentValues.slice(0, dsIndex);
         currentValues[dsIndex] = cell;
       }
-      datasetValues[dsIndex].data.push(cell ? { value: formattedValue } : EMPTY);
+      datasetValues[dsIndex].data.push(cell ?? EMPTY);
     }
   }
 
