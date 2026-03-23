@@ -1,3 +1,4 @@
+import { defaultValue, sparseDefaultValue } from "../plugins/core/default";
 import { Format } from "../types/format";
 import { Border, CellPosition, Position, Style, UID } from "../types/misc";
 import { WorkbookData } from "../types/workbook_data";
@@ -126,4 +127,44 @@ export function addStyleToWorkbookData(
     zonifiedData[zoneToXc(remainingZone)] = existingStyle;
   }
   zonifiedData[zoneToXc(zone)] = id;
+}
+
+export function mapToId<T>(
+  defaults: defaultValue<T>,
+  dict: ItemsDic<T>
+): sparseDefaultValue<number> {
+  const defaultsIds: sparseDefaultValue<number> = {
+    colDefault: {},
+    rowDefault: {},
+  };
+  if (defaults.sheetDefault) {
+    defaultsIds.sheetDefault = getItemId(defaults.sheetDefault, dict);
+  }
+  for (const colIndex in defaults.colDefault) {
+    defaultsIds.colDefault![colIndex] = getItemId(defaults.colDefault[colIndex], dict);
+  }
+  for (const rowIndex in defaults.rowDefault) {
+    defaultsIds.rowDefault![rowIndex] = getItemId(defaults.rowDefault[rowIndex], dict);
+  }
+  return defaultsIds;
+}
+
+export function mapToValue<T>(
+  defaultIds: sparseDefaultValue<number>,
+  dict: ItemsDic<T>
+): defaultValue<T> {
+  const defaults: defaultValue<T> = {
+    colDefault: [],
+    rowDefault: [],
+  };
+  if (defaultIds.sheetDefault) {
+    defaults.sheetDefault = dict[defaultIds.sheetDefault];
+  }
+  for (const colIndex in defaultIds.colDefault) {
+    defaults.colDefault![colIndex] = dict[defaultIds.colDefault[colIndex]];
+  }
+  for (const rowIndex in defaultIds.rowDefault) {
+    defaults.rowDefault![rowIndex] = dict[defaultIds.rowDefault[rowIndex]];
+  }
+  return defaults;
 }
