@@ -28,6 +28,7 @@ import { StateObserver } from "./state_observer";
 import { _t, setDefaultTranslationMethod } from "./translation";
 import { StateUpdateMessage } from "./types/collaborative/transport_service";
 import {
+  AsyncEvaluation,
   canExecuteInReadonly,
   Command,
   CommandDispatcher,
@@ -54,6 +55,7 @@ const enum Status {
   Running,
   RunningCore,
   Finalizing,
+  Evaluating,
 }
 
 /**
@@ -326,13 +328,14 @@ export class Model extends EventBus<any> implements CommandDispatcher {
   }
 
   private onRemoteRevisionReceived({ commands }: { commands: readonly CoreCommand[] }) {
+    this.cancelEvaluationIfPending();
     for (const command of commands) {
       const previousStatus = this.status;
       this.status = Status.RunningCore;
       this.dispatchToHandlers(this.statefulUIPlugins, command);
       this.status = previousStatus;
     }
-    this.finalize();
+    this.finalizeAndStartAsyncEvaluation();
   }
 
   private setupSession(revisionId: UID): Session {
@@ -363,12 +366,14 @@ export class Model extends EventBus<any> implements CommandDispatcher {
   private setupSessionEvents() {
     this.session.on("remote-revision-received", this, this.onRemoteRevisionReceived);
     this.session.on("revision-undone", this, ({ commands }) => {
+      this.cancelEvaluationIfPending();
       this.dispatchFromCorePlugin("UNDO", { commands });
-      this.finalize();
+      this.finalizeAndStartAsyncEvaluation();
     });
     this.session.on("revision-redone", this, ({ commands }) => {
+      this.cancelEvaluationIfPending();
       this.dispatchFromCorePlugin("REDO", { commands });
-      this.finalize();
+      this.finalizeAndStartAsyncEvaluation();
     });
     // How could we improve communication between the session and UI?
     // It feels weird to have the model piping specific session events to its own bus.
@@ -402,6 +407,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
       notifyUI: (payload) => this.trigger("notify-ui", payload),
       raiseBlockingErrorUI: (text) => this.trigger("raise-error-ui", { text }),
       customColors: config.customColors || [],
+      asyncEvaluation: config.asyncEvaluation || false,
     };
   }
 
@@ -434,6 +440,10 @@ export class Model extends EventBus<any> implements CommandDispatcher {
       defaultCurrency: this.config.defaultCurrency,
       customColors: this.config.customColors || [],
       external: this.config.external,
+      asyncEvaluation: this.config.asyncEvaluation,
+      onEvaluationProgress: this.config.asyncEvaluation
+        ? (progress: number) => this.trigger("evaluation-progress", { progress })
+        : undefined,
     };
   }
 
@@ -488,13 +498,69 @@ export class Model extends EventBus<any> implements CommandDispatcher {
     return this.uiHandlers.map((handler) => handler.allowDispatch(command));
   }
 
-  private finalize() {
+  private finalize(): AsyncEvaluation | undefined {
     this.status = Status.Finalizing;
+    let asyncEval: AsyncEvaluation | undefined;
     for (const h of this.handlers) {
-      h.finalize();
+      const result = h.finalize();
+      if (result && "promise" in result) {
+        if (asyncEval) {
+          throw new Error("Multiple handlers returned an AsyncEvaluation from finalize()");
+        }
+        asyncEval = result;
+      }
     }
     this.status = Status.Ready;
     this.trigger("command-finalized");
+    return asyncEval;
+  }
+
+  private pendingEvaluation: Promise<void> = Promise.resolve();
+  private cancelPendingEval: (() => void) | undefined;
+
+  /**
+   * Returns a promise that resolves when the current async evaluation completes,
+   * or immediately if no evaluation is in progress.
+   */
+  waitForEvaluation(): Promise<void> {
+    return this.pendingEvaluation;
+  }
+
+  private async startAsyncEvaluation(asyncEval: AsyncEvaluation) {
+    this.cancelPendingEval = asyncEval.cancel;
+    this.status = Status.Evaluating;
+    const evaluation = asyncEval.promise
+      .then(() => {
+        if (this.cancelPendingEval !== asyncEval.cancel) {
+          return; // cancelled by a newer evaluation
+        }
+        this.cancelPendingEval = undefined;
+        this.trigger("evaluation-progress", { progress: 1 });
+        this.status = Status.Ready;
+        this.dispatch("EVALUATION_COMPLETED");
+      })
+      .catch((e) => {
+        this.cancelPendingEval = undefined;
+        this.status = Status.Ready;
+        console.error("Async evaluation failed", e);
+      });
+    this.pendingEvaluation = evaluation;
+    await evaluation;
+  }
+
+  private cancelEvaluationIfPending() {
+    if (this.status === Status.Evaluating) {
+      this.cancelPendingEval?.();
+      this.cancelPendingEval = undefined;
+      this.status = Status.Ready;
+    }
+  }
+
+  private finalizeAndStartAsyncEvaluation() {
+    const asyncEval = this.finalize();
+    if (asyncEval) {
+      this.startAsyncEvaluation(asyncEval);
+    }
   }
 
   /**
@@ -532,7 +598,10 @@ export class Model extends EventBus<any> implements CommandDispatcher {
       return new DispatchResult(CommandResult.WaitingSessionConfirmation);
     }
     switch (status) {
-      case Status.Ready:
+      case Status.Evaluating:
+        this.cancelEvaluationIfPending();
+        return this.dispatch(type, payload);
+      case Status.Ready: {
         const result = this.checkDispatchAllowed(command);
         if (!result.isSuccessful) {
           this.trigger("update");
@@ -540,13 +609,14 @@ export class Model extends EventBus<any> implements CommandDispatcher {
           return result;
         }
         this.status = Status.Running;
+        let asyncEval: AsyncEvaluation | undefined;
         const { changes, commands } = this.state.recordChanges(() => {
           const start = performance.now();
           if (isCoreCommand(command)) {
             this.state.addCommand(command);
           }
           this.dispatchToHandlers(this.handlers, command);
-          this.finalize();
+          asyncEval = this.finalize();
           const time = performance.now() - start;
           if (time > 5) {
             console.debug(type, time, "ms");
@@ -555,7 +625,11 @@ export class Model extends EventBus<any> implements CommandDispatcher {
         this.session.save(command, commands, changes);
         this.status = Status.Ready;
         this.trigger("update");
+        if (asyncEval) {
+          this.startAsyncEvaluation(asyncEval);
+        }
         break;
+      }
       case Status.Running:
         if (isCoreCommand(command)) {
           const dispatchResult = this.checkDispatchAllowed(command);

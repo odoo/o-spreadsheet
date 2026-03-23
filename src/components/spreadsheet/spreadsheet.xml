@@ -5,6 +5,7 @@
       t-att-class="getSpreadSheetClasses()"
       t-ref="spreadsheet"
       t-att-style="getStyle()">
+      <EvaluationProgressBar t-if="model.config.asyncEvaluation" model="model"/>
       <t t-if="env.isDashboard()">
         <SpreadsheetDashboard getGridSize.bind="getGridSize"/>
         <FullScreenFigure/>

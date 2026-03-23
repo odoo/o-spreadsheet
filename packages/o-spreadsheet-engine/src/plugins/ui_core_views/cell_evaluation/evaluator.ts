@@ -41,6 +41,7 @@ import { ModelConfig } from "../../../types/model";
 import { BoundedRange, Range } from "../../../types/range";
 
 const MAX_ITERATION = 30;
+const ASYNC_YIELD_INTERVAL = 500;
 const ERROR_CYCLE_CELL = Object.freeze(
   createEvaluatedCell({ ...new CircularDependencyError(), origin: undefined })
 );
@@ -54,6 +55,15 @@ export class Evaluator {
   private formulaDependencies = lazy(new FormulaDependencyGraph());
   private blockedArrayFormulas = new PositionSet({});
   private spreadingRelations = new SpreadingRelation();
+
+  /**
+   * Working state references used during evaluation.
+   * In sync mode, these point to the same objects as the live state above.
+   * In async mode (double buffer), these will point to shadow copies.
+   */
+  private workingCells: PositionMap<EvaluatedCell> = this.evaluatedCells;
+  private workingSpreading: SpreadingRelation = this.spreadingRelations;
+  private workingBlocked: PositionSet = this.blockedArrayFormulas;
 
   constructor(private readonly context: ModelConfig["custom"], getters: Getters) {
     this.getters = getters;
@@ -200,8 +210,10 @@ export class Evaluator {
   }
 
   buildDependencyGraph() {
-    this.blockedArrayFormulas = this.createEmptyPositionSet();
-    this.spreadingRelations = new SpreadingRelation();
+    this.workingBlocked = this.createEmptyPositionSet();
+    this.blockedArrayFormulas = this.workingBlocked;
+    this.workingSpreading = new SpreadingRelation();
+    this.spreadingRelations = this.workingSpreading;
     this.formulaDependencies = lazy(() => {
       const graph = new FormulaDependencyGraph();
       for (const sheetId of this.getters.getSheetIds()) {
@@ -218,7 +230,8 @@ export class Evaluator {
 
   evaluateAllCells() {
     const start = performance.now();
-    this.evaluatedCells = new PositionMap();
+    this.workingCells = new PositionMap();
+    this.evaluatedCells = this.workingCells;
     const ranges: BoundedRange[] = [];
     for (const sheetId of this.getters.getSheetIds()) {
       const zone = this.getters.getSheetZone(sheetId);
@@ -226,6 +239,40 @@ export class Evaluator {
     }
     this.evaluate(ranges);
     console.debug("evaluate all cells", performance.now() - start, "ms");
+  }
+
+  /**
+   * Async version of evaluateAllCells with double buffer and periodic yielding.
+   * Evaluates into a shadow buffer. On completion, swaps shadow into live state.
+   * If cancelled (isCurrent returns false), the shadow is abandoned.
+   */
+  async evaluateAllCellsAsync(
+    isCurrent: () => boolean,
+    onProgress: (progress: number) => void
+  ): Promise<void> {
+    onProgress(0);
+    // Setup shadow state
+    this.workingCells = new PositionMap();
+    this.workingSpreading = new SpreadingRelation();
+    this.workingBlocked = this.createEmptyPositionSet();
+
+    const ranges: BoundedRange[] = [];
+    for (const sheetId of this.getters.getSheetIds()) {
+      const zone = this.getters.getSheetZone(sheetId);
+      ranges.push({ sheetId, zone });
+    }
+    await this.evaluateAsync(ranges, isCurrent, onProgress);
+
+    if (!isCurrent()) {
+      // Cancelled: a newer evaluation has already set up its own shadow state.
+      // Do not restore working refs — that would clobber the newer evaluation's shadow.
+      return;
+    }
+
+    // Commit: swap shadow -> live
+    this.evaluatedCells = this.workingCells;
+    this.spreadingRelations = this.workingSpreading;
+    this.blockedArrayFormulas = this.workingBlocked;
   }
 
   evaluateFormulaResult(
@@ -266,10 +313,10 @@ export class Evaluator {
    */
   private getArrayFormulasBlockedBy(sheetId: UID, zone: Zone): RangeSet {
     const arrayFormulaPositions = new RangeSet();
-    const arrayFormulas = this.spreadingRelations.searchFormulaPositionsSpreadingOn(sheetId, zone);
+    const arrayFormulas = this.workingSpreading.searchFormulaPositionsSpreadingOn(sheetId, zone);
     arrayFormulaPositions.addManyPositions(arrayFormulas);
     const spilledPositions = [...arrayFormulas].filter(
-      (position) => !this.blockedArrayFormulas.has(position)
+      (position) => !this.workingBlocked.has(position)
     );
     if (spilledPositions.length) {
       // ignore the formula spreading on the position. Keep only the blocked ones
@@ -303,7 +350,61 @@ export class Evaluator {
             }
             const evaluatedCell = this.computeCell(position);
             if (evaluatedCell !== EMPTY_CELL) {
-              this.evaluatedCells.set(position, evaluatedCell);
+              this.workingCells.set(position, evaluatedCell);
+            }
+          }
+        }
+      }
+      onIterationEndEvaluationRegistry.getAll().forEach((callback) => callback(this.getters));
+    }
+    if (currentIteration >= MAX_ITERATION) {
+      console.warn("Maximum iteration reached while evaluating cells");
+    }
+  }
+
+  private async evaluateAsync(
+    ranges: Iterable<BoundedRange>,
+    isCurrent: () => boolean,
+    onProgress: (progress: number) => void
+  ) {
+    this.cellsBeingComputed = new Set<number>();
+    this.nextRangesToUpdate = new RangeSet(ranges);
+
+    let cellCount = 0;
+    let totalCells = 0;
+
+    let currentIteration = 0;
+    while (!this.nextRangesToUpdate.isEmpty() && currentIteration++ < MAX_ITERATION) {
+      this.updateCompilationParameters();
+      const currentRanges = [...this.nextRangesToUpdate];
+      this.nextRangesToUpdate.clear();
+      this.clearEvaluatedRanges(currentRanges);
+
+      // Recompute total on each iteration to account for new ranges from dependencies
+      for (const range of currentRanges) {
+        const { left, right, top, bottom } = range.zone;
+        totalCells += (right - left + 1) * (bottom - top + 1);
+      }
+
+      for (const range of currentRanges) {
+        const { left, bottom, right, top } = range.zone;
+        for (let col = left; col <= right; col++) {
+          for (let row = top; row <= bottom; row++) {
+            const position = { sheetId: range.sheetId, col, row };
+            if (this.nextRangesToUpdate.hasPosition(position)) {
+              continue;
+            }
+            const evaluatedCell = this.computeCell(position);
+            if (evaluatedCell !== EMPTY_CELL) {
+              this.workingCells.set(position, evaluatedCell);
+            }
+
+            if (++cellCount % ASYNC_YIELD_INTERVAL === 0) {
+              onProgress(Math.min(cellCount / Math.max(totalCells, 1), 0.99));
+              await new Promise<void>((resolve) => setTimeout(resolve, 0));
+              if (!isCurrent()) {
+                return;
+              }
             }
           }
         }
@@ -320,24 +421,24 @@ export class Evaluator {
       const { left, bottom, right, top } = range.zone;
       for (let col = left; col <= right; col++) {
         for (let row = top; row <= bottom; row++) {
-          this.evaluatedCells.delete({ sheetId: range.sheetId, col, row });
+          this.workingCells.delete({ sheetId: range.sheetId, col, row });
         }
       }
     }
   }
 
   private computeCell(position: CellPosition): EvaluatedCell {
-    const evaluation = this.evaluatedCells.get(position);
+    const evaluation = this.workingCells.get(position);
     if (evaluation) {
       return evaluation; // already computed
     }
 
-    if (!this.blockedArrayFormulas.has(position)) {
+    if (!this.workingBlocked.has(position)) {
       this.invalidateSpreading(position);
     }
 
-    if (this.spreadingRelations.isArrayFormula(position)) {
-      this.spreadingRelations.removeNode(position);
+    if (this.workingSpreading.isArrayFormula(position)) {
+      this.workingSpreading.removeNode(position);
     }
 
     const cell = this.getters.getCell(position);
@@ -367,8 +468,8 @@ export class Evaluator {
 
   private computeAndSave(position: CellPosition) {
     const evaluatedCell = this.computeCell(position);
-    if (!this.evaluatedCells.has(position)) {
-      this.evaluatedCells.set(position, evaluatedCell);
+    if (!this.workingCells.has(position)) {
+      this.workingCells.set(position, evaluatedCell);
     }
     return evaluatedCell;
   }
@@ -417,7 +518,7 @@ export class Evaluator {
       left: formulaPosition.col,
       right: formulaPosition.col + nbColumns - 1,
     };
-    this.spreadingRelations.addRelation({ resultZone, arrayFormulaPosition: formulaPosition });
+    this.workingSpreading.addRelation({ resultZone, arrayFormulaPosition: formulaPosition });
     this.assertNoMergedCellsInSpreadZone(formulaPosition, formulaReturn);
     forEachSpreadPositionInMatrix(nbColumns, nbRows, this.checkCollision(formulaPosition));
     forEachSpreadPositionInMatrix(
@@ -487,9 +588,9 @@ export class Evaluator {
       if (
         rawCell?.isFormula ||
         rawCell?.content ||
-        this.getters.getEvaluatedCell(position).type !== CellValueType.empty
+        (this.workingCells.get(position) || EMPTY_CELL).type !== CellValueType.empty
       ) {
-        this.blockedArrayFormulas.add(formulaPosition);
+        this.workingBlocked.add(formulaPosition);
         throw new SplillBlockedError(
           _t(
             "Array result was not expanded because it would overwrite data in %s.",
@@ -497,7 +598,7 @@ export class Evaluator {
           )
         );
       }
-      this.blockedArrayFormulas.delete(formulaPosition);
+      this.workingBlocked.delete(formulaPosition);
     };
     return checkCollision;
   }
@@ -518,13 +619,13 @@ export class Evaluator {
       if (evaluatedCell.type === CellValueType.error) {
         evaluatedCell.errorOriginPosition = matrixResult[i][j].errorOriginPosition ?? position;
       }
-      this.evaluatedCells.set(position, evaluatedCell);
+      this.workingCells.set(position, evaluatedCell);
     };
     return spreadValues;
   }
 
   private invalidateSpreading(position: CellPosition) {
-    const zone = this.spreadingRelations.getArrayResultZone(position);
+    const zone = this.workingSpreading.getArrayResultZone(position);
     if (!zone) {
       return;
     }
@@ -537,7 +638,7 @@ export class Evaluator {
           // there's still a collision
           continue;
         }
-        this.evaluatedCells.delete(resultPosition);
+        this.workingCells.delete(resultPosition);
       }
     }
     const sheetId = position.sheetId;

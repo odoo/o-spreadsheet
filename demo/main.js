@@ -339,6 +339,7 @@ class Demo extends Component {
         transportService: this.transportService,
         client: this.client,
         mode: "normal",
+        asyncEvaluation: true,
       },
       this.stateUpdateMessages
     );
@@ -346,7 +347,6 @@ class Demo extends Component {
     markRaw(this.model);
     o_spreadsheet.__DEBUG__ = o_spreadsheet.__DEBUG__ || {};
     o_spreadsheet.__DEBUG__.model = this.model;
-    this.model.joinSession();
     this.activateFirstSheet();
   }
 

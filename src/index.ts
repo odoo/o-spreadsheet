@@ -167,6 +167,7 @@ import {
 import { errorTypes } from "@odoo/o-spreadsheet-engine/types/errors";
 import { CellComposerStore } from "./components/composer/composer/cell_composer_store";
 import { ClickableCellSortIcon } from "./components/dashboard/clickable_cell_sort_icon/clickable_cell_sort_icon";
+import { EvaluationProgressBar } from "./components/evaluation_progress_bar/evaluation_progress_bar";
 import { ZoomableChartJsComponent } from "./components/figures/chart/chartJs/zoomable_chart/zoomable_chartjs";
 import { ChartDashboardMenu } from "./components/figures/chart/chart_dashboard_menu/chart_dashboard_menu";
 import { GaugeChartComponent } from "./components/figures/chart/gauge/gauge_chart_component";
@@ -484,6 +485,7 @@ export const components = {
   RadioSelection,
   GeoChartRegionSelectSection,
   ChartDashboardMenu,
+  EvaluationProgressBar,
   FullScreenFigure,
   NumberInput,
   TopBar,

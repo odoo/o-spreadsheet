@@ -32,6 +32,7 @@ import {
 import { BottomBar } from "../bottom_bar/bottom_bar";
 import { ComposerFocusStore } from "../composer/composer_focus_store";
 import { SpreadsheetDashboard } from "../dashboard/dashboard";
+import { EvaluationProgressBar } from "../evaluation_progress_bar/evaluation_progress_bar";
 import { FullScreenFigure } from "../full_screen_figure/full_screen_figure";
 import { Grid } from "../grid/grid";
 import { HeaderGroupContainer } from "../header_group/header_group_container";
@@ -78,6 +79,7 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
     SpreadsheetDashboard,
     HeaderGroupContainer,
     FullScreenFigure,
+    EvaluationProgressBar,
   };
 
   sidePanel!: Store<SidePanelStore>;

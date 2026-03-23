@@ -47,6 +47,7 @@ export class FilterEvaluationPlugin extends UIPlugin {
       case "REDO":
       case "UPDATE_CELL":
       case "EVALUATE_CELLS":
+      case "EVALUATION_COMPLETED":
       case "ACTIVATE_SHEET":
       case "REMOVE_TABLE":
       case "ADD_COLUMNS_ROWS":

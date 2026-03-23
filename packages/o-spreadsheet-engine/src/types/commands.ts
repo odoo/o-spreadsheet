@@ -167,6 +167,7 @@ export const invalidateDependenciesCommands = new Set<CommandTypes>(["MOVE_RANGE
 
 export const invalidateCFEvaluationCommands = new Set<CommandTypes>([
   "EVALUATE_CELLS",
+  "EVALUATION_COMPLETED",
   "ADD_CONDITIONAL_FORMAT",
   "REMOVE_CONDITIONAL_FORMAT",
   "CHANGE_CONDITIONAL_FORMAT_PRIORITY",
@@ -965,6 +966,10 @@ export interface EvaluateCellsCommand {
   cellIds?: number[];
 }
 
+export interface EvaluationCompletedCommand {
+  type: "EVALUATION_COMPLETED";
+}
+
 export interface EvaluateChartsCommand {
   type: "EVALUATE_CHARTS";
 }
@@ -1346,7 +1351,8 @@ export type LocalCommand =
   | DuplicateCarouselChartCommand
   | UpdateCarouselActiveItemCommand
   | PopOutChartFromCarouselCommand
-  | UpdateChartRegionCommand;
+  | UpdateChartRegionCommand
+  | EvaluationCompletedCommand;
 
 export type Command = CoreCommand | LocalCommand;
 
@@ -1526,11 +1532,16 @@ export const enum CommandResult {
   InvalidZoomLevel = "InvalidZoomLevel",
 }
 
+export interface AsyncEvaluation {
+  promise: Promise<void>;
+  cancel: () => void;
+}
+
 export interface CommandHandler<T> {
   allowDispatch(command: T): CommandResult | CommandResult[];
   beforeHandle(command: T): void;
   handle(command: T): void;
-  finalize(): void;
+  finalize(): AsyncEvaluation | void;
 }
 
 export interface CommandDispatcher {

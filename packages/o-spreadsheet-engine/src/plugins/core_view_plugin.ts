@@ -15,6 +15,8 @@ export interface CoreViewPluginConfig {
   readonly defaultCurrency?: Partial<Currency>;
   readonly customColors: Color[];
   readonly external: ModelConfig["external"];
+  readonly asyncEvaluation: boolean;
+  readonly onEvaluationProgress?: (progress: number) => void;
 }
 
 export interface CoreViewPluginConstructor {

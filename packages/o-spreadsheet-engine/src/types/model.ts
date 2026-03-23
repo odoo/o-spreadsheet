@@ -32,6 +32,12 @@ export interface ModelConfig {
   readonly notifyUI: (payload: InformationNotification) => void;
   readonly raiseBlockingErrorUI: (text: string) => void;
   readonly customColors: Color[];
+  /**
+   * When true, cell evaluation runs asynchronously with periodic yielding
+   * to allow UI updates (e.g., progress bar). Uses a double buffer to
+   * maintain state consistency. When false (default), evaluation is synchronous.
+   */
+  readonly asyncEvaluation: boolean;
 }
 
 export interface ModelExternalConfig {

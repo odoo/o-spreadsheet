@@ -6,6 +6,7 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
   style="grid-template-rows:min-content auto min-content; grid-template-columns:auto auto; --os-scrollbar-width:15px; "
 >
   
+  
   <div
     class="o-spreadsheet-topbar-wrapper o-two-columns"
   >
@@ -1108,6 +1109,7 @@ exports[`components take the small screen into account 1`] = `
   class="o-spreadsheet h-100 w-100 o-spreadsheet-mobile"
   style="grid-template-rows:min-content auto min-content; grid-template-columns:auto auto; --os-scrollbar-width:15px; "
 >
+  
   
   <div
     class="o-spreadsheet-topbar-wrapper o-two-columns"

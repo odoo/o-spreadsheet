@@ -5,6 +5,7 @@ import { getItemId } from "../../../helpers/data_normalization";
 import { positions } from "../../../helpers/zones";
 import { CellValue, CellValueType, EvaluatedCell, FormulaCell } from "../../../types/cells";
 import {
+  AsyncEvaluation,
   Command,
   CoreViewCommand,
   invalidateDependenciesCommands,
@@ -164,10 +165,22 @@ export class EvaluationPlugin extends CoreViewPlugin {
 
   private evaluator: Evaluator;
   private positionsToUpdate: CellPosition[] = [];
+  private readonly asyncEvaluation: boolean;
+  private readonly onEvaluationProgress: (progress: number) => void;
+
+  /**
+   * Generation counter for async evaluation. Incremented each time a new
+   * async evaluation starts or the current one is cancelled. The evaluator
+   * compares its captured generation against the current value to detect
+   * cancellation.
+   */
+  private evalGeneration = 0;
 
   constructor(config: CoreViewPluginConfig) {
     super(config);
     this.evaluator = new Evaluator(config.custom, this.getters);
+    this.asyncEvaluation = config.asyncEvaluation;
+    this.onEvaluationProgress = config.onEvaluationProgress || (() => {});
   }
 
   // ---------------------------------------------------------------------------
@@ -208,12 +221,41 @@ export class EvaluationPlugin extends CoreViewPlugin {
     }
   }
 
-  finalize() {
+  finalize(): AsyncEvaluation | void {
     if (this.shouldRebuildDependenciesGraph) {
       this.evaluator.buildDependencyGraph();
-      this.evaluator.evaluateAllCells();
       this.shouldRebuildDependenciesGraph = false;
+      if (this.asyncEvaluation) {
+        const gen = ++this.evalGeneration;
+        const isCurrent = () => gen === this.evalGeneration;
+        const onProgress = this.onEvaluationProgress;
+        const promise = this.evaluator.evaluateAllCellsAsync(isCurrent, onProgress);
+        this.positionsToUpdate = [];
+        return {
+          promise,
+          cancel: () => {
+            this.evalGeneration++;
+            this.shouldRebuildDependenciesGraph = true;
+          },
+        };
+      }
+      this.evaluator.evaluateAllCells();
     } else if (this.positionsToUpdate.length) {
+      if (this.asyncEvaluation) {
+        const gen = ++this.evalGeneration;
+        const isCurrent = () => gen === this.evalGeneration;
+        const onProgress = this.onEvaluationProgress;
+        // TODO: implement incremental async evaluation instead of full re-evaluation
+        const promise = this.evaluator.evaluateAllCellsAsync(isCurrent, onProgress);
+        this.positionsToUpdate = [];
+        return {
+          promise,
+          cancel: () => {
+            this.evalGeneration++;
+            this.shouldRebuildDependenciesGraph = true;
+          },
+        };
+      }
       this.evaluator.evaluateCells(this.positionsToUpdate);
     }
     this.positionsToUpdate = [];

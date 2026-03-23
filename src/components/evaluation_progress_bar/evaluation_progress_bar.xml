@@ -1,0 +1,7 @@
+<templates>
+  <t t-name="o-spreadsheet-EvaluationProgressBar">
+    <div t-if="isVisible" class="o-evaluation-progress-bar">
+      <div class="o-evaluation-progress-bar-fill" t-att-style="barStyle"/>
+    </div>
+  </t>
+</templates>

@@ -1,0 +1,18 @@
+.o-spreadsheet {
+  .o-evaluation-progress-bar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    z-index: 1000;
+    background-color: transparent;
+    pointer-events: none;
+  }
+
+  .o-evaluation-progress-bar-fill {
+    height: 100%;
+    background-color: var(--os-action-color, #017e84);
+    transition: width 0.1s ease-out;
+  }
+}
