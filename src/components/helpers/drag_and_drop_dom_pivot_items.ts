@@ -73,8 +73,7 @@ export function useDragAndDropPivotItems(hookArgs: Args) {
     draggedItemId: string,
     draggedItems: DragAndDropItemsPartial[]
   ) => {
-    const onChange = () => {
-      document.body.style.cursor = "move";
+    const updateItems = () => {
       if (!dndHelper) {
         return;
       }
@@ -149,11 +148,12 @@ export function useDragAndDropPivotItems(hookArgs: Args) {
       onCancel: state.cancel,
       dragMode: "swap",
     });
+    updateItems();
     const stopListening = startDnd(
       (ev: PointerEvent) => {
         store.moveItem(containerId, { x: ev.clientX, y: ev.clientY });
         dndHelper?.onMouseMove(ev);
-        onChange();
+        updateItems();
       },
       (ev) => {
         dndHelper?.onMouseUp(ev);

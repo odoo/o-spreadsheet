@@ -79,7 +79,7 @@
             <t t-set-slot="button">
               <PivotFacet
                 icon="'add'"
-                class="'o-add-group'"
+                class="'o-add-group ms-1'"
                 label.translate="Add group"
                 onClickIcon="() => {}"
               />

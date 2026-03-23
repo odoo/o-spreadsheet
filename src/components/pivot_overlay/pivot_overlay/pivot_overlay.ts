@@ -1,6 +1,19 @@
-import { _t, deepCopy, Highlight, isDefined, Rect, Zone } from "@odoo/o-spreadsheet-engine";
+import {
+  _t,
+  debounce,
+  deepCopy,
+  Highlight,
+  isDefined,
+  Rect,
+  Zone,
+} from "@odoo/o-spreadsheet-engine";
 import { getNewMeasureId } from "@odoo/o-spreadsheet-engine/helpers/pivot/pivot_helpers";
-import { Aggregator, PivotDimension, PivotMeasure } from "@odoo/o-spreadsheet-engine/types/pivot";
+import {
+  Aggregator,
+  PivotCoreDefinition,
+  PivotDimension,
+  PivotMeasure,
+} from "@odoo/o-spreadsheet-engine/types/pivot";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { Store } from "@odoo/o-spreadsheet-engine/types/store_engine";
 import { Component, useEffect, useRef, useState } from "@odoo/owl";
@@ -45,17 +58,21 @@ type PivotArea = {
 interface State {
   hoveredPivotArea: DimensionType | undefined;
 }
+
+type PivotUpdateError = { updateType: "error"; message: string };
+
+type PivotUpdate =
+  | { updateType: "change"; definition: Partial<PivotCoreDefinition> }
+  | PivotUpdateError;
+
 // ADRM TODO: do something about zoom
 // ADRM TODO: do something about duplicated dragged item before mousemove
-// ADRM TODO: something better than itemsStyle['placeholder-item']
 // ADRM TODO: display placeholder on starting drag container
-// ADRM TODO: history steps on drag & drop
-// ADRM TODO: cancel REMOVE action if ADD did not work
 // ADRM TODO: #SPILL
 // ADRM TODO: drag & drop on rows when there are no rows looks strange
-// ADRM TODO: add margin to columns placeholder w/o modifying layout on drag start
 // ADRM TODO: traceback on add count measure
-
+// ADRM TODO: something better than itemsStyle['placeholder-item']
+// ADRM TODO: go though drag_and_drop_dom_pivot_items and clean the code
 export class PivotOverlay extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-PivotOverlay";
   static props = { "*": Object }; // ADRM TODO
@@ -75,6 +92,8 @@ export class PivotOverlay extends Component<Props, SpreadsheetChildEnv> {
   pivotDragAndDropStore!: Store<PivotDragAndDropStore>;
 
   draggedItemOverPivotArea: PivotDragAndDropItem | undefined = undefined;
+
+  private pendingPivotUpdate: PivotUpdate[] = [];
 
   setup() {
     this.pivotDragAndDropStore = useStore(PivotDragAndDropStore);
@@ -280,6 +299,17 @@ export class PivotOverlay extends Component<Props, SpreadsheetChildEnv> {
   }
 
   private onDragEnd(type: DimensionType, dragEndEvent: PivotDragEndEvent) {
+    const pivotUpdate = this.getPivotUpdateOnDragEnd(type, dragEndEvent);
+    if (pivotUpdate) {
+      this.pendingPivotUpdate.push(pivotUpdate);
+      this.debouncedApplyPendingPivotUpdates();
+    }
+  }
+
+  private getPivotUpdateOnDragEnd(
+    type: DimensionType,
+    dragEndEvent: PivotDragEndEvent
+  ): PivotUpdate | undefined {
     console.log("onDragEnd", type, dragEndEvent.type);
     const items = deepCopy(this.definition[type]);
     const getItemId = (item: PivotDimension | PivotMeasure) =>
@@ -293,30 +323,37 @@ export class PivotOverlay extends Component<Props, SpreadsheetChildEnv> {
       const tmp = newItems[dragEndEvent.moveToIndex];
       newItems[dragEndEvent.moveToIndex] = newItems[originalIndex];
       newItems[originalIndex] = tmp;
-      this.pivotStore.update({ [type]: newItems });
+      return { updateType: "change", definition: { [type]: newItems } };
     } else if (dragEndEvent.type === "REMOVE") {
       const newItems = items.filter((item) => dragEndEvent.item.id !== getItemId(item));
-      this.pivotStore.update({ [type]: newItems });
+      return { updateType: "change", definition: { [type]: newItems } };
     } else if (dragEndEvent.type === "ADD") {
-      this.insertNewItemInPivot(type, dragEndEvent.item, dragEndEvent.index);
+      return this.insertNewItemInPivot(type, dragEndEvent.item, dragEndEvent.index);
     }
+    return undefined;
   }
 
-  private insertNewItemInPivot(type: DimensionType, item: PivotDragAndDropItem, index?: number) {
+  private insertNewItemInPivot(
+    type: DimensionType,
+    item: PivotDragAndDropItem,
+    index?: number
+  ): PivotUpdate | undefined {
     const items = deepCopy(this.definition[type]);
     const newItem =
       type === "measures"
         ? this.createMeasureFromPivotDragItem(item)
         : this.createDimensionFromPivotDragItem(item);
-    if (!newItem) {
-      return;
+    if ("updateType" in newItem && newItem.updateType === "error") {
+      return newItem;
     }
     const newItems = [...items];
-    newItems.splice(index ?? newItems.length, 0, newItem);
-    this.pivotStore.update({ [type]: newItems });
+    newItems.splice(index ?? newItems.length, 0, newItem as PivotDimension | PivotMeasure);
+    return { updateType: "change", definition: { [type]: newItems } };
   }
 
-  private createMeasureFromPivotDragItem(item: PivotDragAndDropItem): PivotMeasure {
+  private createMeasureFromPivotDragItem(
+    item: PivotDragAndDropItem
+  ): PivotMeasure | PivotUpdateError {
     switch (item.type) {
       case "measure":
         return item.measure;
@@ -328,16 +365,16 @@ export class PivotOverlay extends Component<Props, SpreadsheetChildEnv> {
     }
   }
 
-  private createDimensionFromPivotDragItem(item: PivotDragAndDropItem): PivotDimension | undefined {
+  private createDimensionFromPivotDragItem(
+    item: PivotDragAndDropItem
+  ): PivotDimension | PivotUpdateError {
     switch (item.type) {
       case "measure":
         if (item.measure.computedBy) {
-          this.env.notifyUser({
-            sticky: false,
-            type: "warning",
-            text: _t("Cannot use a calculated measure as a pivot dimension."),
-          });
-          return undefined;
+          return {
+            updateType: "error",
+            message: _t("Cannot use a calculated measure as a pivot dimension."),
+          };
         }
         return this.fieldToDimension(item.measure.fieldName);
       case "column":
@@ -510,4 +547,21 @@ export class PivotOverlay extends Component<Props, SpreadsheetChildEnv> {
   exitPivotEdition() {
     // ADRM TODO
   }
+
+  private debouncedApplyPendingPivotUpdates = debounce(() => {
+    if (this.pendingPivotUpdate.some((update) => update.updateType === "error")) {
+      const errorUpdate = this.pendingPivotUpdate.find((update) => update.updateType === "error")!;
+      this.env.notifyUser({ sticky: false, type: "warning", text: errorUpdate.message });
+    } else {
+      const newPivotDefinition: Partial<PivotCoreDefinition> = {};
+      for (const update of this.pendingPivotUpdate) {
+        if (update.updateType === "change") {
+          Object.assign(newPivotDefinition, update.definition);
+        }
+      }
+      this.pivotStore.update(newPivotDefinition);
+    }
+
+    this.pendingPivotUpdate = [];
+  }, 0);
 }
