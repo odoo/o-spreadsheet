@@ -4,7 +4,7 @@ import { getPivotHighlights } from "../../../../helpers/pivot/pivot_highlight";
 import { pivotSidePanelRegistry } from "../../../../helpers/pivot/pivot_side_panel_registry";
 import { Pixel, UID } from "../../../../types";
 import { useHighlights } from "../../../helpers/highlight_hook";
-import { PivotFieldList } from "../pivot_field_list/pivot_field_list";
+import { Section } from "../../components/section/section";
 import { PivotLayoutConfigurator } from "../pivot_layout_configurator/pivot_layout_configurator";
 import { PivotDesignPanel } from "./pivot_design_panel/pivot_design_panel";
 
@@ -28,8 +28,8 @@ export class PivotSidePanel extends Component<Props, SpreadsheetChildEnv> {
   static defaultProps = { openTab: "configuration" };
   static components = {
     PivotLayoutConfigurator,
+    Section,
     PivotDesignPanel,
-    PivotFieldList,
   };
 
   state = useState<State>({ panel: this.props.openTab || "configuration" });
