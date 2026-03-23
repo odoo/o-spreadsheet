@@ -1,3 +1,4 @@
+import { defaultValue } from "../plugins/core/default";
 import { Position, UID } from "../types/misc";
 import { recomputeZones } from "./recompute_zones";
 import { positionToZone, toZone, zoneToXc } from "./zones";
@@ -89,4 +90,41 @@ export function getCanonicalRepresentation(item: any): string {
   }
   repr += "}";
   return repr;
+}
+
+export function mapToId<T>(defaults: defaultValue<T>, dict: ItemsDic<T>): defaultValue<number> {
+  const defaultsIds: defaultValue<number> = {
+    colDefault: [],
+    rowDefault: [],
+  };
+  if (defaults.sheetDefault) {
+    defaultsIds.sheetDefault = getItemId(defaults.sheetDefault, dict);
+  }
+  for (const colIndex in defaults.colDefault) {
+    defaultsIds.colDefault![colIndex] = getItemId(defaults.colDefault[colIndex], dict);
+  }
+  for (const rowIndex in defaults.rowDefault) {
+    defaultsIds.rowDefault![rowIndex] = getItemId(defaults.rowDefault[rowIndex], dict);
+  }
+  return defaultsIds;
+}
+
+export function mapToValue<T>(
+  defaultIds: defaultValue<number>,
+  dict: ItemsDic<T>
+): defaultValue<T> {
+  const defaults: defaultValue<T> = {
+    colDefault: [],
+    rowDefault: [],
+  };
+  if (defaultIds.sheetDefault) {
+    defaults.sheetDefault = dict[defaultIds.sheetDefault];
+  }
+  for (const colIndex in defaultIds.colDefault) {
+    defaults.colDefault![colIndex] = dict[defaultIds.colDefault[colIndex]];
+  }
+  for (const rowIndex in defaultIds.rowDefault) {
+    defaults.rowDefault![rowIndex] = dict[defaultIds.rowDefault[rowIndex]];
+  }
+  return defaults;
 }
