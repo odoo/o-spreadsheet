@@ -151,7 +151,7 @@ export class DOMDndHelper {
     this.items = args.items.map((item, i) => ({
       ...item,
       positionAtStart: item.position,
-      size: args.items[i + 1] ? args.items[i + 1].position - item.position : item.size, // ADRM TODO: remove siz from args (because it depends on gaps, margins & whatnot)
+      size: args.items[i + 1] ? args.items[i + 1].position - item.position : item.size,
     }));
     this.draggedItemId = args.draggedItemId;
     this.container = args.container;

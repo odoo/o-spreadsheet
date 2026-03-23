@@ -14,8 +14,6 @@ import {
   VerticalContainer,
 } from "./drag_and_drop_dom_items_hook";
 
-// ADRM TODO: un-duplicate, and rename the file
-
 type Direction = "horizontal" | "vertical";
 
 interface DragAndDropItemsPartial {

@@ -985,18 +985,18 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
   }
 
   onPivotIconClicked(info: PivotIcon) {
-    this.env.openSidePanel("PivotSidePanel", { pivotId: info.pivotId });
-
     // ADRM TODO: one history step
-    const sheetName = this.env.model.getters.getNextSheetName("FakeSheet Pivot");
+    const pivotName = this.env.model.getters.getPivotName(info.pivotId);
+    const sheetName = this.env.model.getters.getNextSheetName(pivotName);
     const sheetId = "FakeSheet-" + this.env.model.uuidGenerator.smallUuid();
     this.env.model.dispatch("CREATE_SHEET", { sheetId, position: 0, name: sheetName });
+    // ADRM TODO: handle #SPILL correctly,
     this.env.model.dispatch("ADD_COLUMNS_ROWS", {
       sheetId,
       dimension: "COL",
       base: 0,
       position: "after",
-      quantity: 1000,
+      quantity: 200,
       sheetName,
     });
     this.env.model.dispatch("ADD_COLUMNS_ROWS", {
@@ -1004,7 +1004,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
       dimension: "ROW",
       base: 0,
       position: "after",
-      quantity: 1000,
+      quantity: 200,
       sheetName,
     });
 

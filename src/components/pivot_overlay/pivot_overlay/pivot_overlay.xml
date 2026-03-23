@@ -3,7 +3,6 @@
     <div
       class="o-pivot-overlay position-absolute h-100 w-100 top-0 start-0"
       t-att-style="overlayStyle"
-      t-ref="pivotOverlay"
       t-if="hasPivotFormula">
       <div
         class="o-pivot-measures o-pivot-overlay-section bg-white p-3 border-end border-bottom d-flex flex-column"

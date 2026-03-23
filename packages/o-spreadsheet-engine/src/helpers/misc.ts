@@ -11,10 +11,10 @@ import {
   Cloneable,
   ConsecutiveIndexes,
   DebouncedFunction,
-  isMatrix,
   Lazy,
   Style,
   UID,
+  isMatrix,
 } from "../types/misc";
 
 const sanitizeSheetNameRegex = new RegExp(FORBIDDEN_SHEETNAME_CHARS_IN_EXCEL_REGEX, "g");
@@ -807,6 +807,6 @@ export function getMissingHeadersForSpreadResult(
 }
 
 export function isFakePivotSheet(getters: Getters, sheetId: UID): boolean {
-  const sheetName = getters.getSheetName(sheetId);
-  return sheetName.startsWith("FakeSheet");
+  // ADRM TODO
+  return sheetId.startsWith("FakeSheet");
 }

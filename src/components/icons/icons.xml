@@ -1136,7 +1136,6 @@
     </svg>
   </t>
   <t t-name="o-spreadsheet-Icon.CLOSE">
-    <!-- ADRM TODO: extracted from odoo icons. Maybe import the whole font file ? -->
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="-16 -200 1136 1200" class="o-icon">
       <path
         fill="currentColor"
