@@ -176,6 +176,7 @@ function createComputeFunction(
   ): FunctionResultObject | Matrix<FunctionResultObject> {
     if (this.debug) {
       debugger;
+      this.debug = false;
     }
     const result = descr.compute.apply(this, args);
 
