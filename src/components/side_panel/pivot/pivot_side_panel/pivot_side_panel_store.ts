@@ -16,10 +16,11 @@ import { deepCopy, deepEquals } from "../../../../helpers";
 import { Get } from "../../../../store_engine";
 import { NotificationStore } from "../../../../stores/notification_store";
 import { SpreadsheetStore } from "../../../../stores/spreadsheet_store";
-import { Command, UID } from "../../../../types";
+import { CellPosition, Command, UID } from "../../../../types";
 
 import { getPivotTooBigErrorMessage } from "@odoo/o-spreadsheet-engine/components/translations_terms";
 import { getFirstPivotFunction } from "@odoo/o-spreadsheet-engine/helpers/pivot/pivot_composer_helpers";
+import { CellPopoverStore } from "../../../popover";
 
 export class PivotSidePanelStore extends SpreadsheetStore {
   mutators = ["reset", "deferUpdates", "applyUpdate", "discardPendingUpdate", "update"] as const;
@@ -27,6 +28,7 @@ export class PivotSidePanelStore extends SpreadsheetStore {
   private _updatesAreDeferred: boolean;
   private draft: PivotCoreDefinition | null = null;
   private notification = this.get(NotificationStore);
+  private cellPopover = this.get(CellPopoverStore);
   private alreadyNotified = false;
   private alreadyNotifiedForPivotSize = false;
 
@@ -241,7 +243,31 @@ export class PivotSidePanelStore extends SpreadsheetStore {
     this.draft = cleanedWithGranularity;
     if (!this.updatesAreDeferred) {
       this.applyUpdate();
+      this.showSpillErrorIfNeeded();
     }
+  }
+
+  private showSpillErrorIfNeeded() {
+    for (const position of this.getters.getVisibleCellPositions()) {
+      const isSpillError = this.getters.isSpillErrorBecauseOfMissingHeaders(position);
+      if (isSpillError && this.getPivotFunction(position) === "PIVOT") {
+        this.cellPopover.open(position, "ErrorToolTip");
+        return;
+      }
+    }
+  }
+
+  private getPivotFunction(position: CellPosition): string | undefined {
+    const pivotFormulaId = this.getters.getPivotFormulaId(this.pivotId);
+    const cell = this.getters.getCell(position);
+    if (cell?.isFormula) {
+      const pivotFunction = getFirstPivotFunction(cell.compiledFormula, this.getters);
+      const firstArg = pivotFunction?.args[0]?.value;
+      if (pivotFunction && firstArg.toString() === pivotFormulaId) {
+        return pivotFunction.functionName;
+      }
+    }
+    return undefined;
   }
 
   /**
@@ -250,21 +276,16 @@ export class PivotSidePanelStore extends SpreadsheetStore {
    */
   private isUpdatedPivotVisibleInViewportOnlyAsStaticPivot() {
     let staticPivotCount = 0;
-    const updatedPivotFormulaId = this.getters.getPivotFormulaId(this.pivotId);
     for (const position of this.getters.getVisibleCellPositions()) {
-      const cell = this.getters.getCell(position);
-      if (cell?.isFormula) {
-        const pivotFunction = getFirstPivotFunction(cell.compiledFormula, this.getters);
-        const pivotFormulaId = pivotFunction?.args[0]?.value;
-        if (pivotFunction && updatedPivotFormulaId === pivotFormulaId.toString()) {
-          if (pivotFunction.functionName === "PIVOT") {
-            // if we have at least one dynamic pivot visible inserted the viewport
-            // we return false
-            return false;
-          } else {
-            staticPivotCount++;
-          }
-        }
+      const pivotFunctionName = this.getPivotFunction(position);
+      if (pivotFunctionName === undefined) {
+        continue;
+      } else if (pivotFunctionName === "PIVOT") {
+        // if we have at least one dynamic pivot visible inserted the viewport
+        // we return false
+        return false;
+      } else {
+        staticPivotCount++;
       }
     }
     // we return true if there are only static pivots visible inserted the viewport,

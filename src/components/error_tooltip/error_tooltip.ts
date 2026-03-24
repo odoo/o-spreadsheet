@@ -2,7 +2,7 @@ import { _t } from "@odoo/o-spreadsheet-engine";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { Component } from "@odoo/owl";
 import { deepEquals, getMissingHeadersForSpreadResult, positionToZone } from "../../helpers";
-import { CellErrorType, CellPosition, CellValueType } from "../../types";
+import { CellPosition, CellValueType } from "../../types";
 import { CellPopoverComponent, PopoverBuilders } from "../../types/cell_popovers";
 
 const ERROR_TOOLTIP_MAX_HEIGHT = 80;
@@ -64,12 +64,7 @@ export class ErrorToolTip extends Component<ErrorToolTipProps, SpreadsheetChildE
   }
 
   get isSpillErrorBecauseOfMissingHeaders() {
-    const evaluationError = this.evaluationError;
-    return (
-      evaluationError?.value === CellErrorType.SpilledBlocked &&
-      !evaluationError.errorOriginPosition &&
-      !this.env.model.getters.getSpreadZone(this.props.cellPosition, { ignoreSpillError: true })
-    );
+    return this.env.model.getters.isSpillErrorBecauseOfMissingHeaders(this.props.cellPosition);
   }
 
   getMissingHeadersForSpread() {
@@ -123,22 +118,28 @@ export class ErrorToolTip extends Component<ErrorToolTipProps, SpreadsheetChildE
   }
 }
 
+const popoverBuilder: PopoverBuilders["onHover"] = (
+  position,
+  getters
+): CellPopoverComponent<typeof ErrorToolTip> => {
+  const cell = getters.getEvaluatedCell(position);
+  if (
+    (cell.type === CellValueType.error && !!cell.message) ||
+    getters.getInvalidDataValidationMessage(position)
+  ) {
+    return {
+      isOpen: true,
+      props: {
+        cellPosition: position,
+      },
+      Component: ErrorToolTip,
+      cellCorner: "top-right",
+    };
+  }
+  return { isOpen: false };
+};
+
 export const ErrorToolTipPopoverBuilder: PopoverBuilders = {
-  onHover: (position, getters): CellPopoverComponent<typeof ErrorToolTip> => {
-    const cell = getters.getEvaluatedCell(position);
-    if (
-      (cell.type === CellValueType.error && !!cell.message) ||
-      getters.getInvalidDataValidationMessage(position)
-    ) {
-      return {
-        isOpen: true,
-        props: {
-          cellPosition: position,
-        },
-        Component: ErrorToolTip,
-        cellCorner: "top-right",
-      };
-    }
-    return { isOpen: false };
-  },
+  onOpen: popoverBuilder,
+  onHover: popoverBuilder,
 };

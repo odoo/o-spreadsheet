@@ -10,6 +10,7 @@ import {
   invalidateDependenciesCommands,
   invalidateEvaluationCommands,
 } from "../../../types/commands";
+import { CellErrorType } from "../../../types/errors";
 import { Format, FormattedValue } from "../../../types/format";
 import {
   CellPosition,
@@ -158,6 +159,7 @@ export class EvaluationPlugin extends CoreViewPlugin {
     "getArrayFormulaSpreadingOn",
     "isArrayFormulaSpillBlocked",
     "isEmpty",
+    "isSpillErrorBecauseOfMissingHeaders",
   ] as const;
 
   private shouldRebuildDependenciesGraph = true;
@@ -326,6 +328,16 @@ export class EvaluationPlugin extends CoreViewPlugin {
     return positions(zone)
       .map(({ col, row }) => this.getEvaluatedCell({ sheetId, col, row }))
       .every((cell) => cell.type === CellValueType.empty);
+  }
+
+  isSpillErrorBecauseOfMissingHeaders(position: CellPosition): boolean {
+    const cell = this.getters.getEvaluatedCell(position);
+    return (
+      cell?.type === CellValueType.error &&
+      cell?.value === CellErrorType.SpilledBlocked &&
+      !cell.errorOriginPosition &&
+      !this.getters.getSpreadZone(position, { ignoreSpillError: true })
+    );
   }
 
   /**
