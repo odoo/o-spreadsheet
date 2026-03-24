@@ -118,8 +118,4 @@ export class CriterionInput extends Component<Props, SpreadsheetChildEnv> {
       canonicalizeContent(this.props.value, this.env.model.getters.getLocale())
     );
   }
-
-  shouldDisplayDatePicker() {
-    return this.props.isDateType;
-  }
 }
