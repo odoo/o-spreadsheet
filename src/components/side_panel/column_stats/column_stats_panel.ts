@@ -44,7 +44,7 @@ export class ColumnStatsPanel extends Component<Props, SpreadsheetChildEnv> {
       () => {
         this.updateChart();
       },
-      () => [this.store.countChartData, this.store.histogramData]
+      () => [this.store.countChartData, this.store.histogramData, this.state.currentChart]
     );
   }
 
@@ -258,8 +258,6 @@ export class ColumnStatsPanel extends Component<Props, SpreadsheetChildEnv> {
 
   switchChart(chartType: string) {
     this.state.currentChart = chartType;
-    this.destroyChart();
-    this.createChart();
   }
 
   switchFrequencyOrder(order: string) {
