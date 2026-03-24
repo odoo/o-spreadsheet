@@ -18,18 +18,18 @@ jobs:
         # parse-message will fail on invalid commit title/body
         run: |
           npm i @actions/core @actions/github --no-save &&\
-          echo "data=$(node tools/parse_message.cjs)" >> $GITHUB_OUTPUT
+          node tools/parse_message.cjs
       # generate all builds
       - name: Build
         run: npm ci && npm run dist
       - name: Release
         uses: ncipollo/release-action@v1.12.0
         with:
-          tag: ${{ fromJSON(steps.parse.outputs.data).version }}
-          body: ${{ fromJSON(steps.parse.outputs.data).body }}
+          tag: ${{ steps.parse.outputs.version }}
+          body: ${{ steps.parse.outputs.body }}
           artifacts: "./dist/*.*"
           makeLatest: true
-          prerelease: ${{ fromJSON(steps.parse.outputs.data).prerelease }}
+          prerelease: ${{ steps.parse.outputs.prerelease }}
       - name: Publish
         run: npm publish
         env:
