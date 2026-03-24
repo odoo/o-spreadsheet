@@ -180,6 +180,7 @@ function createComputeFunction(
     if (this.debug) {
       // eslint-disable-next-line no-debugger
       debugger;
+      this.debug = false;
     }
     const result = descr.compute.apply(this, args);
 
