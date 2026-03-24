@@ -193,10 +193,10 @@ interface SpreadsheetChildEnvWithStores extends SpreadsheetChildEnv {
   __spreadsheet_stores__: DependencyContainer;
 }
 
-export function makeTestEnv(
+export async function makeTestEnv(
   mockEnv: Partial<SpreadsheetChildEnvWithStores> = {}
-): SpreadsheetChildEnvWithStores {
-  const model = mockEnv.model || new Model();
+): Promise<SpreadsheetChildEnvWithStores> {
+  const model = mockEnv.model || (await createModel());
   if (mockEnv.__spreadsheet_stores__) {
     throw new Error("Cannot call makeTestEnv on a partial env that already have a store container");
   }
@@ -265,13 +265,18 @@ export function makeTestEnv(
   };
 }
 
-export function testUndoRedo(model: Model, expect: jest.Expect, command: CommandTypes, args: any) {
+export async function testUndoRedo(
+  model: Model,
+  expect: jest.Expect,
+  command: CommandTypes,
+  args: any
+) {
   const before = model.exportData();
   model.dispatch(command, args);
   const after = model.exportData();
-  undo(model);
+  await undo(model);
   expect(model).toExport(before);
-  redo(model);
+  await redo(model);
   expect(model).toExport(after);
 }
 
@@ -325,9 +330,9 @@ export async function mountComponent<Props extends { [key: string]: any }>(
   component: ComponentConstructor<Props, SpreadsheetChildEnv>,
   optionalArgs: MountComponentArgs<Props> = {}
 ): Promise<MountComponentReturn<Props>> {
-  const model = optionalArgs.model || optionalArgs.env?.model || new Model();
+  const model = optionalArgs.model || optionalArgs.env?.model || (await createModel());
   model.drawLayer = () => {};
-  const env = makeTestEnv({ ...optionalArgs.env, model: model });
+  const env = await makeTestEnv({ ...optionalArgs.env, model: model });
   const props = optionalArgs.props || ({} as Props);
   const app = new App(component, {
     props,
@@ -359,7 +364,7 @@ export async function mountComponent<Props extends { [key: string]: any }>(
 
 // Requires to be called wit jest realTimers
 export async function mountSpreadsheet(
-  props: SpreadsheetProps = { model: new Model() },
+  props: SpreadsheetProps | undefined = undefined,
   partialEnv: Partial<SpreadsheetChildEnv> = {}
 ): Promise<{
   app: App;
@@ -368,6 +373,7 @@ export async function mountSpreadsheet(
   fixture: HTMLElement;
   env: SpreadsheetChildEnv;
 }> {
+  props = props ?? { model: await createModel() };
   const { app, parent, model, fixture, env } = await mountComponent(Spreadsheet, {
     props,
     env: partialEnv,
@@ -436,30 +442,30 @@ export function getGridStyle(model: Model, range?: string): GridStyleDescr {
   return result;
 }
 
-export function setGrid(model: Model, grid: GridDescr) {
+export async function setGrid(model: Model, grid: GridDescr) {
   for (const [xc, value] of Object.entries(grid)) {
     if (value === undefined) {
       continue;
     }
-    setCellContent(model, xc, value);
+    await setCellContent(model, xc, value);
   }
 }
 
-export function setGridFormat(model: Model, grid: GridFormatDescr) {
+export async function setGridFormat(model: Model, grid: GridFormatDescr) {
   for (const [xc, format] of Object.entries(grid)) {
     if (format === undefined) {
       continue;
     }
-    setFormat(model, xc, format);
+    await setFormat(model, xc, format);
   }
 }
 
-export function setGridStyle(model: Model, grid: GridStyleDescr) {
+export async function setGridStyle(model: Model, grid: GridStyleDescr) {
   for (const [xc, style] of Object.entries(grid)) {
     if (style === undefined) {
       continue;
     }
-    setFormatting(model, xc, style);
+    await setFormatting(model, xc, style);
   }
 }
 
@@ -471,8 +477,8 @@ export function setGridStyle(model: Model, grid: GridStyleDescr) {
  *   {A1: "=sum(B2:B3)", B2: "2", B3: "3"} => {A1: 5, B2: 2, B3: 3}
  *   {B5: "5", D8: "2.6", W4: "=round(A2)"} => {B5: 5, D8: 2.6, W4: 3}
  */
-export function evaluateGrid(grid: GridDescr): GridResult {
-  const model = new Model({ sheets: [{ cells: grid }] });
+export async function evaluateGrid(grid: GridDescr): Promise<GridResult> {
+  const model = await createModel({ sheets: [{ cells: grid }] });
   const result = {};
   for (const xc in grid) {
     result[xc] = getEvaluatedCell(model, xc).value;
@@ -480,11 +486,11 @@ export function evaluateGrid(grid: GridDescr): GridResult {
   return result;
 }
 
-export function evaluateGridText(grid: GridDescr): FormattedGridDescr {
-  const model = new Model();
+export async function evaluateGridText(grid: GridDescr): Promise<FormattedGridDescr> {
+  const model = await createModel();
   for (const xc in grid) {
     if (grid[xc] !== undefined) {
-      setCellContent(model, xc, grid[xc]!);
+      await setCellContent(model, xc, grid[xc]!);
     }
   }
   const result = {};
@@ -494,11 +500,11 @@ export function evaluateGridText(grid: GridDescr): FormattedGridDescr {
   return result;
 }
 
-export function evaluateGridFormat(grid: GridDescr): FormattedGridDescr {
-  const model = new Model();
+export async function evaluateGridFormat(grid: GridDescr): Promise<FormattedGridDescr> {
+  const model = await createModel();
   for (const xc in grid) {
     if (grid[xc] !== undefined) {
-      setCellContent(model, xc, grid[xc]!);
+      await setCellContent(model, xc, grid[xc]!);
     }
   }
   const result = {};
@@ -516,8 +522,8 @@ export function evaluateGridFormat(grid: GridDescr): FormattedGridDescr {
  *   "A2", {A1: "41", A2: "42", A3: "43"} => 42
  *   "A1", {A1: "=sum(A2:A4)", A2: "2", A3: "3", "A4": "4"} => 9
  */
-export function evaluateCell(xc: string, grid: GridDescr): any {
-  const gridResult = evaluateGrid(grid);
+export async function evaluateCell(xc: string, grid: GridDescr): Promise<any> {
+  const gridResult = await evaluateGrid(grid);
   return gridResult[xc];
 }
 
@@ -560,23 +566,29 @@ export function getRangeCellsAsMatrix(
   return rangeValue;
 }
 
-export function createModelFromGrid(grid: GridDescr): Model {
-  const model = new Model();
+export async function createModel(...args: ConstructorParameters<typeof Model>): Promise<Model> {
+  const model = new Model(...args);
+  await model.startModel();
+  return model;
+}
+
+export async function createModelFromGrid(grid: GridDescr): Promise<Model> {
+  const model = await createModel();
   for (const xc in grid) {
     if (grid[xc] !== undefined) {
-      setCellContent(model, xc, grid[xc]!);
+      await setCellContent(model, xc, grid[xc]!);
     }
   }
   return model;
 }
 
-export function evaluateCellText(xc: string, grid: GridDescr): string {
-  const gridResult = evaluateGridText(grid);
+export async function evaluateCellText(xc: string, grid: GridDescr): Promise<string> {
+  const gridResult = await evaluateGridText(grid);
   return gridResult[xc] || "";
 }
 
-export function evaluateCellFormat(xc: string, grid: GridDescr): string {
-  const gridResult = evaluateGridFormat(grid);
+export async function evaluateCellFormat(xc: string, grid: GridDescr): Promise<string> {
+  const gridResult = await evaluateGridFormat(grid);
   return gridResult[xc] || "";
 }
 
@@ -903,7 +915,7 @@ export async function exportPrettifiedXlsx(model: Model): Promise<XLSXExport> {
 }
 
 export async function getExportedExcelData(model: Model): Promise<ExcelWorkbookData> {
-  evaluateCells(model);
+  await evaluateCells(model);
   let data = createEmptyExcelWorkbookData();
   for (const handler of model["handlers"]) {
     if (handler instanceof BasePlugin) {
@@ -1150,7 +1162,7 @@ export class ComposerWrapper extends Component<ComposerWrapperProps, Spreadsheet
 }
 
 export async function mountComposerWrapper(
-  model: Model = new Model(),
+  model: Model | undefined = undefined,
   composerProps: Partial<CellComposerProps> = {},
   focusComposer: ComposerFocusType = "inactive"
 ): Promise<{
@@ -1159,6 +1171,7 @@ export async function mountComposerWrapper(
   fixture: HTMLElement;
   env: SpreadsheetChildEnv;
 }> {
+  model = model ?? (await createModel());
   const { parent, fixture, env } = await mountComponent(ComposerWrapper, {
     props: { composerProps, focusComposer },
     model,

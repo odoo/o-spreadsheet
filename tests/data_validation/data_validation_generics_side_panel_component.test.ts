@@ -292,7 +292,7 @@ describe("data validation sidePanel component", () => {
   });
 
   test("Clicking the preview opens the data validation editor", async () => {
-    addDataValidation(model, "A1", "id1", { type: "isEqual", values: ["5"] });
+    await addDataValidation(model, "A1", "id1", { type: "isEqual", values: ["5"] });
     await nextTick();
 
     await click(fixture.querySelector(".o-dv-preview")!);
@@ -301,8 +301,8 @@ describe("data validation sidePanel component", () => {
   });
 
   test("Preserves rule order when editing and saving via data validation preview panel", async () => {
-    addDataValidation(model, "A1", "id1", { type: "isEqual", values: ["5"] });
-    addDataValidation(model, "A2", "id2", { type: "isEqual", values: ["10"] });
+    await addDataValidation(model, "A1", "id1", { type: "isEqual", values: ["5"] });
+    await addDataValidation(model, "A2", "id2", { type: "isEqual", values: ["10"] });
 
     await nextTick();
     expect(getDataValidationRules(model, sheetId)).toMatchObject([{ id: "id1" }, { id: "id2" }]);
@@ -315,7 +315,7 @@ describe("data validation sidePanel component", () => {
   });
 
   test("DV stays on original sheet when range is selected from another sheet and saved", async () => {
-    createSheet(model, { sheetId: "sh2" });
+    await createSheet(model, { sheetId: "sh2" });
 
     await simulateClick(".o-dv-add");
     await nextTick();
@@ -323,7 +323,7 @@ describe("data validation sidePanel component", () => {
     await changeCriterionType("isValueInRange");
 
     const rangeInput = fixture.querySelectorAll<HTMLInputElement>(".o-selection-input input")[1];
-    activateSheet(model, "sh2");
+    await activateSheet(model, "sh2");
     await setInputValueAndTrigger(rangeInput, "A1:A5");
     await simulateClick(".o-dv-save");
 
@@ -339,15 +339,15 @@ describe("data validation sidePanel component", () => {
 
   describe("Locale", () => {
     test("Number preview is localized", async () => {
-      updateLocale(model, FR_LOCALE);
-      addDataValidation(model, "A1", "id", { type: "isEqual", values: ["5.5"] });
+      await updateLocale(model, FR_LOCALE);
+      await addDataValidation(model, "A1", "id", { type: "isEqual", values: ["5.5"] });
       await nextTick();
       expect(fixture.querySelector(".o-dv-preview-description")?.textContent).toContain("5,5");
     });
 
     test("Date preview is localized", async () => {
-      updateLocale(model, FR_LOCALE);
-      addDataValidation(model, "A1", "id", {
+      await updateLocale(model, FR_LOCALE);
+      await addDataValidation(model, "A1", "id", {
         type: "dateIs",
         values: ["3/5/2021"],
         dateValue: "exactDate",
@@ -359,8 +359,8 @@ describe("data validation sidePanel component", () => {
     });
 
     test("Formula preview is localized", async () => {
-      updateLocale(model, FR_LOCALE);
-      addDataValidation(model, "A1", "id", { type: "isEqualText", values: ["=SUM(5.5,3)"] });
+      await updateLocale(model, FR_LOCALE);
+      await addDataValidation(model, "A1", "id", { type: "isEqualText", values: ["=SUM(5.5,3)"] });
       await nextTick();
       expect(fixture.querySelector(".o-dv-preview-description")?.textContent).toContain(
         "=SUM(5,5;3)"
@@ -368,7 +368,7 @@ describe("data validation sidePanel component", () => {
     });
 
     test("Can input number localized value, and the value is canonicalized when saved", async () => {
-      updateLocale(model, FR_LOCALE);
+      await updateLocale(model, FR_LOCALE);
       await simulateClick(".o-dv-add");
       await nextTick();
       await changeCriterionType("isEqual");
@@ -390,7 +390,7 @@ describe("data validation sidePanel component", () => {
     });
 
     test("Can input date localized value, and the value is canonicalized when saved", async () => {
-      updateLocale(model, FR_LOCALE);
+      await updateLocale(model, FR_LOCALE);
       await simulateClick(".o-dv-add");
       await nextTick();
       await changeCriterionType("dateIs");
@@ -412,7 +412,7 @@ describe("data validation sidePanel component", () => {
     });
 
     test("Can input formula localized value, and the value is canonicalized when saved", async () => {
-      updateLocale(model, FR_LOCALE);
+      await updateLocale(model, FR_LOCALE);
       await simulateClick(".o-dv-add");
       await nextTick();
       await changeCriterionType("isEqualText");

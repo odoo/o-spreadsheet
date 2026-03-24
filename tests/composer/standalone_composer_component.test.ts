@@ -162,7 +162,7 @@ describe("Spreadsheet integrations tests", () => {
 
   test("content with references from another sheet", async () => {
     const sheet1Id = model.getters.getActiveSheetId();
-    createSheet(model, { sheetId: "sheet2", activate: true });
+    await createSheet(model, { sheetId: "sheet2", activate: true });
     await openSidePanelWithComposer({
       composerContent: "=A1",
       defaultRangeSheetId: sheet1Id,
@@ -174,7 +174,7 @@ describe("Spreadsheet integrations tests", () => {
   test("content with references from another sheet having space in name adds single quotes", async () => {
     await openSidePanelWithComposer({ defaultStatic: true });
     await editStandaloneComposer(composerSelector, "=", { confirm: false });
-    createSheet(model, { sheetId: "sheet2", name: "second sheet", activate: true });
+    await createSheet(model, { sheetId: "sheet2", name: "second sheet", activate: true });
     await simulateClick(".o-grid-overlay", 300, 200);
     expect(composerEl.textContent).toBe("='second sheet'!$D$9");
   });
@@ -190,7 +190,7 @@ describe("Spreadsheet integrations tests", () => {
   });
 
   test("Standalone composer works with non-default locale", async () => {
-    updateLocale(model, FR_LOCALE);
+    await updateLocale(model, FR_LOCALE);
     await openSidePanelWithComposer({ composerContent: "=SUM(1,2.5)" });
     expect(composerEl.textContent).toBe("=SUM(1;2,5)");
 

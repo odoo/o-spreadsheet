@@ -9,41 +9,41 @@ describe("Hovered Table Store", () => {
   let model: Model;
   let sheetId: UID;
 
-  beforeEach(() => {
-    ({ model, store: hoveredTableStore } = makeStore(HoveredTableStore));
+  beforeEach(async () => {
+    ({ model, store: hoveredTableStore } = await makeStore(HoveredTableStore));
     sheetId = model.getters.getActiveSheetId();
   });
 
-  test("Should not store overlay for header cells, regardless of data", () => {
+  test("Should not store overlay for header cells, regardless of data", async () => {
     const A1 = { col: 0, row: 0 };
-    createTable(model, "A1");
+    await createTable(model, "A1");
 
     model.updateMode("dashboard");
     hoveredTableStore.hover(A1);
     expect(hoveredTableStore.overlayColors.has({ sheetId, ...A1 })).toBe(false);
 
     model.updateMode("normal");
-    setCellContent(model, "A1", "Header");
+    await setCellContent(model, "A1", "Header");
 
     model.updateMode("dashboard");
     hoveredTableStore.hover(A1);
     expect(hoveredTableStore.overlayColors.has({ sheetId, ...A1 })).toBe(false);
   });
 
-  test("Should not store overlay for empty data cells in dashboard mode", () => {
+  test("Should not store overlay for empty data cells in dashboard mode", async () => {
     const A2 = { col: 0, row: 1 };
-    createTable(model, "A1:A2");
+    await createTable(model, "A1:A2");
 
     model.updateMode("dashboard");
     hoveredTableStore.hover(A2);
     expect(hoveredTableStore.overlayColors.has({ sheetId, ...A2 })).toBe(false);
   });
 
-  test("Should store overlay for full data rows with content in dashboard mode", () => {
+  test("Should store overlay for full data rows with content in dashboard mode", async () => {
     const A2 = { col: 0, row: 1 };
     const B2 = { col: 1, row: 1 };
-    createTable(model, "A1:B2");
-    setCellContent(model, "A2", "Data");
+    await createTable(model, "A1:B2");
+    await setCellContent(model, "A2", "Data");
 
     model.updateMode("dashboard");
     hoveredTableStore.hover(A2);
@@ -54,10 +54,10 @@ describe("Hovered Table Store", () => {
     );
   });
 
-  test("Overlay colors are applied only in dashboard mode", () => {
+  test("Overlay colors are applied only in dashboard mode", async () => {
     const A2 = { col: 0, row: 1 };
-    createTable(model, "A1:A2");
-    setCellContent(model, "A2", "Data");
+    await createTable(model, "A1:A2");
+    await setCellContent(model, "A2", "Data");
 
     model.updateMode("normal");
     hoveredTableStore.hover(A2);
@@ -75,10 +75,10 @@ describe("Hovered Table Store", () => {
     );
   });
 
-  test("Hidden columns should be ignored when applying overlay colors", () => {
+  test("Hidden columns should be ignored when applying overlay colors", async () => {
     const B2 = { col: 1, row: 1 };
-    createTable(model, "A1:B2");
-    setCellContent(model, "A2", "Some data");
+    await createTable(model, "A1:B2");
+    await setCellContent(model, "A2", "Some data");
 
     model.updateMode("dashboard");
     hoveredTableStore.hover(B2);
@@ -87,7 +87,7 @@ describe("Hovered Table Store", () => {
     hoveredTableStore.clear();
 
     model.updateMode("normal");
-    hideColumns(model, ["A"]);
+    await hideColumns(model, ["A"]);
     model.updateMode("dashboard");
     hoveredTableStore.hover(B2);
     expect(hoveredTableStore.overlayColors.has({ sheetId, ...B2 })).toBe(false);

@@ -65,7 +65,7 @@ import {
   setZoneBorders,
 } from "../test_helpers/commands_helpers";
 import { getCell } from "../test_helpers/getters_helpers";
-import { getFingerprint, target } from "../test_helpers/helpers";
+import { createModel, getFingerprint, target } from "../test_helpers/helpers";
 import { createModelWithTestPivotDataset } from "../test_helpers/pivot_helpers";
 import { watchClipboardOutline } from "../test_helpers/renderer_helpers";
 import { makeStoreWithModel } from "../test_helpers/stores";
@@ -112,7 +112,8 @@ interface ContextObserver {
   onFunctionCall?(fn: string, args: any[], renderingContext: MockGridRenderingContext): void;
 }
 
-function setRenderer(model: Model = new Model()) {
+async function setRenderer(model?: Model) {
+  model = model ?? (await createModel());
   const { container, store: gridRendererStore } = makeStoreWithModel(model, GridRenderer);
   gridRendererStore["getBoxesWithAnimations"] = (boxes) => boxes;
   const rendererManager = container.get(RendererStore);
@@ -125,13 +126,14 @@ function setRenderer(model: Model = new Model()) {
 class MockGridRenderingContext implements GridRenderingContext {
   _context = document.createElement("canvas").getContext("2d");
   ctx: CanvasRenderingContext2D;
-  viewport: Viewport;
+  viewport!: Viewport;
   dpr = 1;
   thinLineWidth = 0.4;
 
   constructor(model: Model, width: number, height: number, observer: ContextObserver) {
-    resizeSheetView(model, height - HEADER_HEIGHT, width - HEADER_WIDTH);
-    this.viewport = model.getters.getActiveMainViewport();
+    void resizeSheetView(model, height - HEADER_HEIGHT, width - HEADER_WIDTH).then(() => {
+      this.viewport = model.getters.getActiveMainViewport();
+    });
 
     const handler = {
       get: (target, val) => {
@@ -162,10 +164,10 @@ class MockGridRenderingContext implements GridRenderingContext {
 }
 
 describe("renderer", () => {
-  test("snapshot for a simple grid rendering", () => {
-    const { drawGridRenderer, model } = setRenderer();
+  test("snapshot for a simple grid rendering", async () => {
+    const { drawGridRenderer, model } = await setRenderer();
 
-    setCellContent(model, "A1", "1");
+    await setCellContent(model, "A1", "1");
     const instructions: string[] = [];
     const ctx = new MockGridRenderingContext(model, 1000, 1000, {
       onSet: (key, value) => {
@@ -212,9 +214,9 @@ describe("renderer", () => {
     let ctx: MockGridRenderingContext;
     let drawGridRenderer: (ctx: GridRenderingContext) => void;
 
-    beforeEach(() => {
-      ({ drawGridRenderer, model } = setRenderer(
-        new Model({ sheets: [{ colNumber: 2, rowNumber: 2 }] })
+    beforeEach(async () => {
+      ({ drawGridRenderer, model } = await setRenderer(
+        await createModel({ sheets: [{ colNumber: 2, rowNumber: 2 }] })
       ));
       const { width, height } = model.getters.getSheetViewDimension();
       instructions = [];
@@ -229,11 +231,11 @@ describe("renderer", () => {
           instructions.push(`ctx.${key}(${args.map((a) => JSON.stringify(a)).join(", ")})`);
         },
       });
-      setSheetviewSize(model, height, width);
+      await setSheetviewSize(model, height, width);
     });
 
-    test("Color of headers containing the selection", () => {
-      setSelection(model, ["A1"]);
+    test("Color of headers containing the selection", async () => {
+      await setSelection(model, ["A1"]);
       drawGridRenderer(ctx);
 
       const fillColHeaderInstr = getFirstColHeaderFillColor();
@@ -242,8 +244,8 @@ describe("renderer", () => {
       expect(fillRowHeaderInstr).toEqual(BACKGROUND_HEADER_SELECTED_COLOR);
     });
 
-    test("Color of active headers", () => {
-      setSelection(model, ["A1:B2"]);
+    test("Color of active headers", async () => {
+      await setSelection(model, ["A1:B2"]);
       drawGridRenderer(ctx);
 
       const fillColHeaderInstr = getFirstColHeaderFillColor();
@@ -253,11 +255,11 @@ describe("renderer", () => {
     });
   });
 
-  test("formulas evaluating to a string are properly aligned", () => {
-    const { drawGridRenderer, model } = setRenderer();
+  test("formulas evaluating to a string are properly aligned", async () => {
+    const { drawGridRenderer, model } = await setRenderer();
 
-    setCellContent(model, "A1", "1");
-    setCellContent(model, "A2", "=A1");
+    await setCellContent(model, "A1", "1");
+    await setCellContent(model, "A2", "=A1");
 
     let textAligns: string[] = [];
     const ctx = new MockGridRenderingContext(model, 1000, 1000, {
@@ -272,35 +274,15 @@ describe("renderer", () => {
     expect(textAligns).toEqual(["right", "right", "center"]); // center for headers
 
     textAligns = [];
-    setCellContent(model, "A1", "asdf");
+    await setCellContent(model, "A1", "asdf");
     drawGridRenderer(ctx);
     expect(textAligns).toEqual(["left", "left", "center"]); // center for headers
   });
 
-  test("formulas referencing an empty cell are properly aligned", () => {
-    const { drawGridRenderer, model } = setRenderer();
+  test("formulas referencing an empty cell are properly aligned", async () => {
+    const { drawGridRenderer, model } = await setRenderer();
 
-    setCellContent(model, "A1", "=A2");
-
-    const textAligns: string[] = [];
-    const ctx = new MockGridRenderingContext(model, 1000, 1000, {
-      onSet: (key, value) => {
-        if (key === "textAlign") {
-          textAligns.push(value);
-        }
-      },
-    });
-
-    drawGridRenderer(ctx);
-
-    expect(textAligns).toEqual(["right", "center"]); // center for headers
-  });
-
-  test("numbers are aligned right when overflowing vertically", () => {
-    const { drawGridRenderer, model } = setRenderer();
-
-    setCellContent(model, "A1", "1");
-    setFormatting(model, "A1", { fontSize: 36 });
+    await setCellContent(model, "A1", "=A2");
 
     const textAligns: string[] = [];
     const ctx = new MockGridRenderingContext(model, 1000, 1000, {
@@ -316,9 +298,29 @@ describe("renderer", () => {
     expect(textAligns).toEqual(["right", "center"]); // center for headers
   });
 
-  test("Cells evaluating to a number are properly aligned on overflow", () => {
-    const { drawGridRenderer, model } = setRenderer(
-      new Model({
+  test("numbers are aligned right when overflowing vertically", async () => {
+    const { drawGridRenderer, model } = await setRenderer();
+
+    await setCellContent(model, "A1", "1");
+    await setFormatting(model, "A1", { fontSize: 36 });
+
+    const textAligns: string[] = [];
+    const ctx = new MockGridRenderingContext(model, 1000, 1000, {
+      onSet: (key, value) => {
+        if (key === "textAlign") {
+          textAligns.push(value);
+        }
+      },
+    });
+
+    drawGridRenderer(ctx);
+
+    expect(textAligns).toEqual(["right", "center"]); // center for headers
+  });
+
+  test("Cells evaluating to a number are properly aligned on overflow", async () => {
+    const { drawGridRenderer, model } = await setRenderer(
+      await createModel({
         sheets: [
           {
             id: "1",
@@ -361,19 +363,19 @@ describe("renderer", () => {
     expect(textAligns).toEqual(["left", "left", "left", "left", "center"]); // A1-C1-A2-C2 and center for headers
 
     textAligns = [];
-    setCellContent(model, "A1", "1");
-    setCellContent(model, "C1", "1");
+    await setCellContent(model, "A1", "1");
+    await setCellContent(model, "C1", "1");
     drawGridRenderer(ctx);
 
     expect(textAligns).toEqual(["right", "right", "right", "right", "center"]); // A1-C1-A2-C2 and center for headers
   });
 
-  test("fillstyle of cell will be rendered", () => {
-    const { drawGridRenderer, model } = setRenderer(
-      new Model({ sheets: [{ colNumber: 1, rowNumber: 3 }] })
+  test("fillstyle of cell will be rendered", async () => {
+    const { drawGridRenderer, model } = await setRenderer(
+      await createModel({ sheets: [{ colNumber: 1, rowNumber: 3 }] })
     );
 
-    setFormatting(model, "A1", { fillColor: "#DC6CDF" });
+    await setFormatting(model, "A1", { fillColor: "#DC6CDF" });
 
     let fillStyle: any[] = [];
     let fillStyleColor1Called = false;
@@ -410,7 +412,7 @@ describe("renderer", () => {
     ]);
 
     fillStyle = [];
-    setFormatting(model, "A1", { fillColor: "#DC6CDE" });
+    await setFormatting(model, "A1", { fillColor: "#DC6CDE" });
     drawGridRenderer(ctx);
 
     expect(removeOffsetOfFillStyles(fillStyle)).toEqual([
@@ -418,12 +420,12 @@ describe("renderer", () => {
     ]);
   });
 
-  test("fillstyle of merge will be rendered for all cells in merge", () => {
-    const { drawGridRenderer, model } = setRenderer(
-      new Model({ sheets: [{ colNumber: 1, rowNumber: 3 }] })
+  test("fillstyle of merge will be rendered for all cells in merge", async () => {
+    const { drawGridRenderer, model } = await setRenderer(
+      await createModel({ sheets: [{ colNumber: 1, rowNumber: 3 }] })
     );
-    setFormatting(model, "A1", { fillColor: "#DC6CDF" });
-    merge(model, "A1:A3");
+    await setFormatting(model, "A1", { fillColor: "#DC6CDF" });
+    await merge(model, "A1:A3");
 
     let fillStyle: any[] = [];
     let fillStyleColor1Called = false;
@@ -460,7 +462,7 @@ describe("renderer", () => {
     ]);
 
     fillStyle = [];
-    setFormatting(model, "A1", { fillColor: "#DC6CDE" });
+    await setFormatting(model, "A1", { fillColor: "#DC6CDE" });
     drawGridRenderer(ctx);
 
     expect(removeOffsetOfFillStyles(fillStyle)).toEqual([
@@ -468,11 +470,11 @@ describe("renderer", () => {
     ]);
   });
 
-  test("fillstyle of cell works with CF", () => {
-    const { drawGridRenderer, model } = setRenderer(
-      new Model({ sheets: [{ colNumber: 1, rowNumber: 3 }] })
+  test("fillstyle of cell works with CF", async () => {
+    const { drawGridRenderer, model } = await setRenderer(
+      await createModel({ sheets: [{ colNumber: 1, rowNumber: 3 }] })
     );
-    addEqualCf(model, "A1", { fillColor: "#DC6CDF" }, "1", "1");
+    await addEqualCf(model, "A1", { fillColor: "#DC6CDF" }, "1", "1");
 
     let fillStyle: any[] = [];
     let fillStyleColor1Called = false;
@@ -495,7 +497,7 @@ describe("renderer", () => {
     expect(removeOffsetOfFillStyles(fillStyle)).toEqual([]);
 
     fillStyle = [];
-    setCellContent(model, "A1", "1");
+    await setCellContent(model, "A1", "1");
     drawGridRenderer(ctx);
 
     expect(removeOffsetOfFillStyles(fillStyle)).toEqual([
@@ -503,15 +505,15 @@ describe("renderer", () => {
     ]);
   });
 
-  test("fill style of hovered clickable cells goes over regular fill style", () => {
-    const { drawGridRenderer, model, container } = setRenderer(
-      new Model({ sheets: [{ colNumber: 1, rowNumber: 3 }] })
+  test("fill style of hovered clickable cells goes over regular fill style", async () => {
+    const { drawGridRenderer, model, container } = await setRenderer(
+      await createModel({ sheets: [{ colNumber: 1, rowNumber: 3 }] })
     );
     const background = "#DC6CDF";
     const hoverColor = blendColors(background, TABLE_HOVER_BACKGROUND_COLOR);
-    createTable(model, "A1", { numberOfHeaders: 0 });
-    setFormatting(model, "A1", { fillColor: background });
-    setCellContent(model, "A1", "Data");
+    await createTable(model, "A1", { numberOfHeaders: 0 });
+    await setFormatting(model, "A1", { fillColor: background });
+    await setCellContent(model, "A1", "Data");
     model.updateMode("dashboard");
 
     let fillStyle = "";
@@ -547,12 +549,12 @@ describe("renderer", () => {
     ]);
   });
 
-  test("fillstyle of merge works with CF", () => {
-    const { drawGridRenderer, model } = setRenderer(
-      new Model({ sheets: [{ colNumber: 1, rowNumber: 3 }] })
+  test("fillstyle of merge works with CF", async () => {
+    const { drawGridRenderer, model } = await setRenderer(
+      await createModel({ sheets: [{ colNumber: 1, rowNumber: 3 }] })
     );
-    addEqualCf(model, "A1", { fillColor: "#DC6CDF" }, "1", "1");
-    merge(model, "A1:A3");
+    await addEqualCf(model, "A1", { fillColor: "#DC6CDF" }, "1", "1");
+    await merge(model, "A1:A3");
     let fillStyle: any[] = [];
     let fillStyleColor1Called = false;
     const ctx = new MockGridRenderingContext(model, 1000, 1000, {
@@ -574,7 +576,7 @@ describe("renderer", () => {
     expect(removeOffsetOfFillStyles(fillStyle)).toEqual([]);
 
     fillStyle = [];
-    setCellContent(model, "A1", "1");
+    await setCellContent(model, "A1", "1");
     drawGridRenderer(ctx);
 
     expect(removeOffsetOfFillStyles(fillStyle)).toEqual([
@@ -582,23 +584,23 @@ describe("renderer", () => {
     ]);
   });
 
-  test("formula fingerprints", () => {
-    const { drawGridRenderer, model, gridRendererStore, container } = setRenderer(
-      new Model({ sheets: [{ colNumber: 1, rowNumber: 6 }] })
+  test("formula fingerprints", async () => {
+    const { drawGridRenderer, model, gridRendererStore, container } = await setRenderer(
+      await createModel({ sheets: [{ colNumber: 1, rowNumber: 6 }] })
     );
     const fingerprints = container.get(FormulaFingerprintStore);
     fingerprints.enable();
 
     // a colored cell but no fingerprint (it's a string)
-    setFormatting(model, "A2", { fillColor: "#DC6CDF" });
-    setCellContent(model, "A2", "Hi");
+    await setFormatting(model, "A2", { fillColor: "#DC6CDF" });
+    await setCellContent(model, "A2", "Hi");
 
     // a cell with a formula
-    setCellContent(model, "A3", '="hello"');
+    await setCellContent(model, "A3", '="hello"');
 
     // a formula within a merge
-    merge(model, "A4:A5");
-    setCellContent(model, "A4", '="merge"');
+    await merge(model, "A4:A5");
+    await setCellContent(model, "A4", '="merge"');
 
     const renderingCtx = new MockGridRenderingContext(model, 1000, 1000, {});
     drawGridRenderer(renderingCtx);
@@ -617,11 +619,11 @@ describe("renderer", () => {
     });
   });
 
-  test("formulas in a merge, evaluating to a string are properly aligned", () => {
-    const { drawGridRenderer, model } = setRenderer();
-    merge(model, "A2:B2");
-    setCellContent(model, "A1", "1");
-    setCellContent(model, "A2", "=A1");
+  test("formulas in a merge, evaluating to a string are properly aligned", async () => {
+    const { drawGridRenderer, model } = await setRenderer();
+    await merge(model, "A2:B2");
+    await setCellContent(model, "A1", "1");
+    await setCellContent(model, "A2", "=A1");
 
     let textAligns: string[] = [];
 
@@ -636,7 +638,7 @@ describe("renderer", () => {
 
     expect(textAligns).toEqual(["right", "right", "center"]); // center for headers
 
-    setCellContent(model, "A1", "asdf");
+    await setCellContent(model, "A1", "asdf");
 
     textAligns = [];
     drawGridRenderer(ctx);
@@ -644,11 +646,11 @@ describe("renderer", () => {
     expect(textAligns).toEqual(["left", "left", "center"]); // center for headers
   });
 
-  test("formulas evaluating to a boolean are properly aligned", () => {
-    const { drawGridRenderer, model } = setRenderer();
+  test("formulas evaluating to a boolean are properly aligned", async () => {
+    const { drawGridRenderer, model } = await setRenderer();
 
-    setCellContent(model, "A1", "1");
-    setCellContent(model, "A2", "=A1");
+    await setCellContent(model, "A1", "1");
+    await setCellContent(model, "A2", "=A1");
 
     let textAligns: string[] = [];
     const ctx = new MockGridRenderingContext(model, 1000, 1000, {
@@ -663,15 +665,15 @@ describe("renderer", () => {
     expect(textAligns).toEqual(["right", "right", "center"]); // center for headers
 
     textAligns = [];
-    setCellContent(model, "A1", "true");
+    await setCellContent(model, "A1", "true");
     drawGridRenderer(ctx);
 
     expect(textAligns).toEqual(["center", "center", "center"]); // center for headers
   });
 
-  test("Cells in a merge evaluating to a number are properly aligned on overflow", () => {
-    const { drawGridRenderer, model } = setRenderer(
-      new Model({
+  test("Cells in a merge evaluating to a number are properly aligned on overflow", async () => {
+    const { drawGridRenderer, model } = await setRenderer(
+      await createModel({
         sheets: [
           {
             id: "1",
@@ -720,18 +722,18 @@ describe("renderer", () => {
     expect(textAligns).toEqual(["left", "left", "left", "left", "center"]); // A1-C1-A2:B2-C2:D2 and center for headers
 
     textAligns = [];
-    setCellContent(model, "A1", "1");
-    setCellContent(model, "C1", "1");
+    await setCellContent(model, "A1", "1");
+    await setCellContent(model, "C1", "1");
     drawGridRenderer(ctx);
 
     expect(textAligns).toEqual(["right", "left", "right", "right", "center"]); // A1-C1-A2:B2-C2:D2 and center for headers. C1 is stil lin overflow
   });
 
-  test("formulas in a merge, evaluating to a boolean are properly aligned", () => {
-    const { drawGridRenderer, model } = setRenderer();
-    merge(model, "A2:B2");
-    setCellContent(model, "A1", "1");
-    setCellContent(model, "A2", "=A1");
+  test("formulas in a merge, evaluating to a boolean are properly aligned", async () => {
+    const { drawGridRenderer, model } = await setRenderer();
+    await merge(model, "A2:B2");
+    await setCellContent(model, "A1", "1");
+    await setCellContent(model, "A2", "=A1");
 
     let textAligns: string[] = [];
 
@@ -746,7 +748,7 @@ describe("renderer", () => {
 
     expect(textAligns).toEqual(["right", "right", "center"]); // center for headers
 
-    setCellContent(model, "A1", "false");
+    await setCellContent(model, "A1", "false");
 
     textAligns = [];
     drawGridRenderer(ctx);
@@ -754,10 +756,10 @@ describe("renderer", () => {
     expect(textAligns).toEqual(["center", "center", "center"]); // center for headers
   });
 
-  test("errors are aligned to the center", () => {
-    const { drawGridRenderer, model } = setRenderer();
+  test("errors are aligned to the center", async () => {
+    const { drawGridRenderer, model } = await setRenderer();
 
-    setCellContent(model, "A1", "=A1");
+    await setCellContent(model, "A1", "=A1");
 
     const textAligns: string[] = [];
 
@@ -774,10 +776,10 @@ describe("renderer", () => {
     expect(textAligns).toEqual(["center", "center"]);
   });
 
-  test("dates are aligned to the right", () => {
-    const { drawGridRenderer, model } = setRenderer();
+  test("dates are aligned to the right", async () => {
+    const { drawGridRenderer, model } = await setRenderer();
 
-    setCellContent(model, "A1", "03/23/2010");
+    await setCellContent(model, "A1", "03/23/2010");
 
     const textAligns: string[] = [];
 
@@ -794,11 +796,11 @@ describe("renderer", () => {
     expect(textAligns).toEqual(["right", "center"]);
   });
 
-  test("functions are aligned to the left", () => {
-    const { drawGridRenderer, model } = setRenderer();
+  test("functions are aligned to the left", async () => {
+    const { drawGridRenderer, model } = await setRenderer();
 
-    setCellContent(model, "A1", "=SUM(1,2)");
-    setFormulaVisibility(model, true);
+    await setCellContent(model, "A1", "=SUM(1,2)");
+    await setFormulaVisibility(model, true);
     const textAligns: string[] = [];
 
     const ctx = new MockGridRenderingContext(model, 1000, 1000, {
@@ -822,12 +824,12 @@ describe("renderer", () => {
     );
   });
 
-  test("functions with centered content are aligned to the left", () => {
-    const { drawGridRenderer, model } = setRenderer();
-    setFormatting(model, "A1", { align: "center" });
+  test("functions with centered content are aligned to the left", async () => {
+    const { drawGridRenderer, model } = await setRenderer();
+    await setFormatting(model, "A1", { align: "center" });
 
-    setCellContent(model, "A1", "=SUM(1,2)");
-    setFormulaVisibility(model, true);
+    await setCellContent(model, "A1", "=SUM(1,2)");
+    await setFormulaVisibility(model, true);
     const textAligns: string[] = [];
 
     const ctx = new MockGridRenderingContext(model, 1000, 1000, {
@@ -851,9 +853,9 @@ describe("renderer", () => {
     );
   });
 
-  test("CF on empty cell", () => {
-    const { drawGridRenderer, model } = setRenderer(
-      new Model({ sheets: [{ colNumber: 1, rowNumber: 1 }] })
+  test("CF on empty cell", async () => {
+    const { drawGridRenderer, model } = await setRenderer(
+      await createModel({ sheets: [{ colNumber: 1, rowNumber: 1 }] })
     );
     let fillStyle: any[] = [];
     let fillStyleColor1Called = false;
@@ -881,7 +883,7 @@ describe("renderer", () => {
       values: [],
       style: { fillColor: "#DC6CDF" },
     };
-    const result = addCfRule(model, "A1", rule, "1");
+    const result = await addCfRule(model, "A1", rule, "1");
     expect(result).toBeSuccessfullyDispatched();
     drawGridRenderer(ctx);
 
@@ -890,12 +892,12 @@ describe("renderer", () => {
     ]);
   });
 
-  test("horizontal align on pivot header", () => {
-    const pivotModel = createModelWithTestPivotDataset();
-    createSheet(pivotModel, { sheetId: "2", activate: true });
-    setCellContent(pivotModel, "A1", "=PIVOT(1)");
-    const { drawGridRenderer, model, gridRendererStore } = setRenderer(pivotModel);
-    setFormatting(model, "B1", { align: "right" });
+  test("horizontal align on pivot header", async () => {
+    const pivotModel = await createModelWithTestPivotDataset();
+    await createSheet(pivotModel, { sheetId: "2", activate: true });
+    await setCellContent(pivotModel, "A1", "=PIVOT(1)");
+    const { drawGridRenderer, model, gridRendererStore } = await setRenderer(pivotModel);
+    await setFormatting(model, "B1", { align: "right" });
     const contex2D = new MockGridRenderingContext(model, 1000, 1000, {});
     drawGridRenderer(contex2D);
     const box = getBoxFromText(gridRendererStore, "Alice");
@@ -905,10 +907,10 @@ describe("renderer", () => {
 
   test.each(["I am a very long text", "100000000000000"])(
     "Overflowing left-aligned content is correctly clipped",
-    (overflowingContent) => {
+    async (overflowingContent) => {
       let box: Box;
-      const { drawGridRenderer, model, gridRendererStore } = setRenderer(
-        new Model({
+      const { drawGridRenderer, model, gridRendererStore } = await setRenderer(
+        await createModel({
           sheets: [
             {
               id: "sheet1",
@@ -932,7 +934,7 @@ describe("renderer", () => {
       expect(box.isOverflow).toBeTruthy();
 
       // no clipping at the left
-      setCellContent(model, "A1", "Content at the left");
+      await setCellContent(model, "A1", "Content at the left");
       drawGridRenderer(ctx);
 
       box = getBoxFromText(gridRendererStore, overflowingContent);
@@ -940,7 +942,7 @@ describe("renderer", () => {
       expect(box.isOverflow).toBeTruthy();
 
       // clipping at the right
-      setCellContent(model, "C1", "Content at the right");
+      await setCellContent(model, "C1", "Content at the right");
       drawGridRenderer(ctx);
 
       box = getBoxFromText(gridRendererStore, overflowingContent);
@@ -955,11 +957,11 @@ describe("renderer", () => {
 
   test.each([{ align: "left" }, { align: undefined }])(
     "Overflowing number with % align is correctly clipped",
-    (style) => {
+    async (style) => {
       const overflowingNumber = "100000000000000";
       let box: Box;
-      const { drawGridRenderer, model, gridRendererStore } = setRenderer(
-        new Model({
+      const { drawGridRenderer, model, gridRendererStore } = await setRenderer(
+        await createModel({
           sheets: [
             {
               id: "sheet1",
@@ -983,7 +985,7 @@ describe("renderer", () => {
       expect(box.isOverflow).toBeTruthy();
 
       // no clipping at the left
-      setCellContent(model, "A1", "Content at the left");
+      await setCellContent(model, "A1", "Content at the left");
       drawGridRenderer(ctx);
 
       box = getBoxFromText(gridRendererStore, overflowingNumber);
@@ -991,7 +993,7 @@ describe("renderer", () => {
       expect(box.isOverflow).toBeTruthy();
 
       // clipping at the right
-      setCellContent(model, "C1", "Content at the right");
+      await setCellContent(model, "C1", "Content at the right");
       drawGridRenderer(ctx);
 
       box = getBoxFromText(gridRendererStore, overflowingNumber);
@@ -1004,11 +1006,11 @@ describe("renderer", () => {
     }
   );
 
-  test("Overflowing right-aligned text is correctly clipped", () => {
+  test("Overflowing right-aligned text is correctly clipped", async () => {
     const overflowingText = "I am a very long text";
     let box: Box;
-    const { drawGridRenderer, model, gridRendererStore } = setRenderer(
-      new Model({
+    const { drawGridRenderer, model, gridRendererStore } = await setRenderer(
+      await createModel({
         sheets: [
           {
             id: "sheet1",
@@ -1032,7 +1034,7 @@ describe("renderer", () => {
     expect(box.isOverflow).toBeTruthy();
 
     // no clipping at the right
-    setCellContent(model, "C1", "Content at the left");
+    await setCellContent(model, "C1", "Content at the left");
     drawGridRenderer(ctx);
 
     box = getBoxFromText(gridRendererStore, overflowingText);
@@ -1040,7 +1042,7 @@ describe("renderer", () => {
     expect(box.isOverflow).toBeTruthy();
 
     // clipping at the left
-    setCellContent(model, "A1", "Content at the right");
+    await setCellContent(model, "A1", "Content at the right");
     drawGridRenderer(ctx);
 
     box = getBoxFromText(gridRendererStore, overflowingText);
@@ -1052,12 +1054,12 @@ describe("renderer", () => {
     });
   });
 
-  test("Overflowing centered content is clipped on left side correctly without overlapping", () => {
+  test("Overflowing centered content is clipped on left side correctly without overlapping", async () => {
     const overflowingContent = "I am a very long long long long long long text";
     // using alternative col size to clarify the computations
     const colSize = 5;
-    const { drawGridRenderer, model, gridRendererStore } = setRenderer(
-      new Model({
+    const { drawGridRenderer, model, gridRendererStore } = await setRenderer(
+      await createModel({
         sheets: [
           {
             id: "sheet1",
@@ -1083,12 +1085,12 @@ describe("renderer", () => {
     });
   });
 
-  test("Overflowing centered content is clipped on right side correctly without overlapping", () => {
+  test("Overflowing centered content is clipped on right side correctly without overlapping", async () => {
     const overflowingContent = "I am a very long long long long long long text";
     // using alternative col size to clarify the computations
     const colSize = 5;
-    const { drawGridRenderer, model, gridRendererStore } = setRenderer(
-      new Model({
+    const { drawGridRenderer, model, gridRendererStore } = await setRenderer(
+      await createModel({
         sheets: [
           {
             id: "sheet1",
@@ -1120,10 +1122,10 @@ describe("renderer", () => {
 
   test.each(["left", "right", "center"])(
     "Content in merge is clipped and cannot overflow",
-    (align) => {
+    async (align) => {
       const overflowingText = "I am a very long text";
-      const { drawGridRenderer, model, gridRendererStore } = setRenderer(
-        new Model({
+      const { drawGridRenderer, model, gridRendererStore } = await setRenderer(
+        await createModel({
           sheets: [
             {
               id: "sheet1",
@@ -1156,10 +1158,10 @@ describe("renderer", () => {
     ["right", "A1:A2"],
     ["left", "C1:C2"],
     ["center", "A1:A2", "C1:C2"],
-  ])("Content cannot overflow over merge with align %s", (align, ...merges) => {
+  ])("Content cannot overflow over merge with align %s", async (align, ...merges) => {
     const overflowingText = "I am a very long text";
-    const { drawGridRenderer, model, gridRendererStore } = setRenderer(
-      new Model({
+    const { drawGridRenderer, model, gridRendererStore } = await setRenderer(
+      await createModel({
         sheets: [
           {
             id: "sheet1",
@@ -1189,10 +1191,10 @@ describe("renderer", () => {
 
   test.each(["left", "right", "center"])(
     'Cells with the wrapping style "wrap" cannot overflow long text content',
-    (align) => {
+    async (align) => {
       const overflowingText = "I am a very very very long text";
-      const { drawGridRenderer, model, gridRendererStore } = setRenderer(
-        new Model({
+      const { drawGridRenderer, model, gridRendererStore } = await setRenderer(
+        await createModel({
           sheets: [
             {
               id: "sheet1",
@@ -1222,10 +1224,10 @@ describe("renderer", () => {
 
   test.each(["left", "right", "center"])(
     'Cells with the wrapping style "crop" cannot overflow long text content',
-    (align) => {
+    async (align) => {
       const overflowingText = "I am a very very very long text";
-      const { drawGridRenderer, model, gridRendererStore } = setRenderer(
-        new Model({
+      const { drawGridRenderer, model, gridRendererStore } = await setRenderer(
+        await createModel({
           sheets: [
             {
               id: "sheet1",
@@ -1253,12 +1255,12 @@ describe("renderer", () => {
     }
   );
 
-  test("cells with a fontsize too big for the row height are clipped", () => {
+  test("cells with a fontsize too big for the row height are clipped", async () => {
     const overflowingText = "TOO HIGH";
     const fontSize = 26;
     let box: Box;
-    const { drawGridRenderer, model, gridRendererStore } = setRenderer(
-      new Model({
+    const { drawGridRenderer, model, gridRendererStore } = await setRenderer(
+      await createModel({
         sheets: [
           {
             id: "sheet1",
@@ -1279,7 +1281,7 @@ describe("renderer", () => {
     box = getBoxFromText(gridRendererStore, overflowingText);
     expect(box.clipRect).toBeUndefined();
 
-    resizeRows(model, [0], Math.floor(fontSizeInPixels(fontSize) / 2));
+    await resizeRows(model, [0], Math.floor(fontSizeInPixels(fontSize) / 2));
     drawGridRenderer(ctx);
 
     box = getBoxFromText(gridRendererStore, overflowingText);
@@ -1291,15 +1293,15 @@ describe("renderer", () => {
     });
   });
 
-  test("cells overflowing in Y have a correct clipRect", () => {
-    const { drawGridRenderer, model, gridRendererStore } = setRenderer();
+  test("cells overflowing in Y have a correct clipRect", async () => {
+    const { drawGridRenderer, model, gridRendererStore } = await setRenderer();
     const overflowingText = "I am a very very very long text that is also too high";
     const fontSize = 26;
 
-    setCellContent(model, "A1", overflowingText);
-    setFormatting(model, "A1", { fontSize });
-    resizeRows(model, [0], Math.floor(fontSizeInPixels(fontSize) / 2));
-    resizeColumns(model, ["A"], 10);
+    await setCellContent(model, "A1", overflowingText);
+    await setFormatting(model, "A1", { fontSize });
+    await resizeRows(model, [0], Math.floor(fontSizeInPixels(fontSize) / 2));
+    await resizeColumns(model, ["A"], 10);
 
     const ctx = new MockGridRenderingContext(model, 1000, 1000, {});
     drawGridRenderer(ctx);
@@ -1312,11 +1314,11 @@ describe("renderer", () => {
     });
   });
 
-  test("cells with icon CF are correctly clipped", () => {
+  test("cells with icon CF are correctly clipped", async () => {
     let box: Box;
     const cellContent = "10000";
-    const { drawGridRenderer, model, gridRendererStore } = setRenderer(
-      new Model({
+    const { drawGridRenderer, model, gridRendererStore } = await setRenderer(
+      await createModel({
         sheets: [
           {
             id: "sheet1",
@@ -1375,7 +1377,7 @@ describe("renderer", () => {
       height: DEFAULT_CELL_HEIGHT,
     });
 
-    resizeColumns(model, ["A"], maxIconBoxWidth - 3);
+    await resizeColumns(model, ["A"], maxIconBoxWidth - 3);
     instructions = [];
     drawGridRenderer(ctx);
 
@@ -1391,14 +1393,14 @@ describe("renderer", () => {
     });
   });
 
-  test("Cells are clipped with data validation icons", () => {
+  test("Cells are clipped with data validation icons", async () => {
     let box: Box;
     const cellContent = "This is a long text that should be clipped";
-    const { drawGridRenderer, model, gridRendererStore } = setRenderer();
-    resizeColumns(model, ["A"], 10);
-    setCellContent(model, "A1", cellContent);
+    const { drawGridRenderer, model, gridRendererStore } = await setRenderer();
+    await resizeColumns(model, ["A"], 10);
+    await setCellContent(model, "A1", cellContent);
 
-    addDataValidation(model, "B1", "id", { type: "isBoolean", values: [] });
+    await addDataValidation(model, "B1", "id", { type: "isBoolean", values: [] });
 
     const ctx = new MockGridRenderingContext(model, 1000, 1000, {});
     drawGridRenderer(ctx);
@@ -1407,7 +1409,7 @@ describe("renderer", () => {
     const expectedClipRect = { x: 0, y: 0, width: 10, height: DEFAULT_CELL_HEIGHT };
     expect(box.clipRect).toEqual(expectedClipRect);
 
-    addDataValidation(model, "B1", "id", {
+    await addDataValidation(model, "B1", "id", {
       type: "isValueInList",
       values: ["a"],
       displayStyle: "arrow",
@@ -1431,10 +1433,10 @@ describe("renderer", () => {
     ["center", ["left"], { left: 1, right: 2, top: 1, bottom: 1 }], // align center, right border => clipped left
   ])(
     "cells aligned %s with borders %s are correctly clipped",
-    (align: string, borders: string[], expectedClipRectZone: Zone | undefined) => {
+    async (align: string, borders: string[], expectedClipRectZone: Zone | undefined) => {
       const cellContent = "This is a long text larger than a cell";
-      const { drawGridRenderer, model, gridRendererStore } = setRenderer(
-        new Model({
+      const { drawGridRenderer, model, gridRendererStore } = await setRenderer(
+        await createModel({
           sheets: [
             {
               id: "sheet1",
@@ -1447,10 +1449,10 @@ describe("renderer", () => {
         })
       );
 
-      setFormatting(model, "B2", { align: align as Align });
+      await setFormatting(model, "B2", { align: align as Align });
 
       for (const border of borders) {
-        setZoneBorders(model, { position: border as BorderPosition }, ["B2"]);
+        await setZoneBorders(model, { position: border as BorderPosition }, ["B2"]);
       }
 
       const ctx = new MockGridRenderingContext(model, 1000, 1000, {});
@@ -1463,16 +1465,16 @@ describe("renderer", () => {
     }
   );
 
-  test("Cell overflowing text centered is cut correctly when there's a border", () => {
+  test("Cell overflowing text centered is cut correctly when there's a border", async () => {
     const cellContent = "This is a long text larger than a cell";
 
-    const model = new Model();
-    resizeColumns(model, ["B"], 10);
-    setCellContent(model, "B2", cellContent);
-    setFormatting(model, "B2", { align: "center" });
-    setZoneBorders(model, { position: "right" }, ["B2"]);
+    const model = await createModel();
+    await resizeColumns(model, ["B"], 10);
+    await setCellContent(model, "B2", cellContent);
+    await setFormatting(model, "B2", { align: "center" });
+    await setZoneBorders(model, { position: "right" }, ["B2"]);
 
-    const { drawGridRenderer, gridRendererStore } = setRenderer(model);
+    const { drawGridRenderer, gridRendererStore } = await setRenderer(model);
 
     const ctx = new MockGridRenderingContext(model, 1000, 1000, {});
     drawGridRenderer(ctx);
@@ -1500,10 +1502,10 @@ describe("renderer", () => {
     ["center", { left: 1, right: 3, top: 0, bottom: 0 }], // align center, right border => clipped left
   ])(
     "Cell text overflowing on multiple cells is cut as soon as it encounter a border with align %s",
-    (align: string, expectedClipRectZone: Zone | undefined) => {
+    async (align: string, expectedClipRectZone: Zone | undefined) => {
       const cellContent = "This is a very vey very very very very long text larger than a cell";
-      const { drawGridRenderer, model, gridRendererStore } = setRenderer(
-        new Model({
+      const { drawGridRenderer, model, gridRendererStore } = await setRenderer(
+        await createModel({
           sheets: [
             {
               id: "sheet1",
@@ -1516,9 +1518,9 @@ describe("renderer", () => {
         })
       );
 
-      setZoneBorders(model, { position: "right" }, ["A1"]);
-      setFormatting(model, "C1", { align: align as Align });
-      setZoneBorders(model, { position: "left" }, ["E1"]);
+      await setZoneBorders(model, { position: "right" }, ["A1"]);
+      await setFormatting(model, "C1", { align: align as Align });
+      await setZoneBorders(model, { position: "left" }, ["E1"]);
 
       const ctx = new MockGridRenderingContext(model, 1000, 1000, {});
       drawGridRenderer(ctx);
@@ -1529,17 +1531,17 @@ describe("renderer", () => {
       );
     }
   );
-  test("Box clip rect computation take the text margin into account", () => {
+  test("Box clip rect computation take the text margin into account", async () => {
     let box: Box;
-    const { drawGridRenderer, model, gridRendererStore } = setRenderer(
-      new Model({ sheets: [{ id: "sheet1", colNumber: 1, rowNumber: 1 }] })
+    const { drawGridRenderer, model, gridRendererStore } = await setRenderer(
+      await createModel({ sheets: [{ id: "sheet1", colNumber: 1, rowNumber: 1 }] })
     );
-    resizeColumns(model, ["A"], 10);
+    await resizeColumns(model, ["A"], 10);
 
     // Text + MIN_CELL_TEXT_MARGIN  <= col size, no clip
     let ctx = new MockGridRenderingContext(model, 1000, 1000, {});
     let text = "a".repeat(10 - MIN_CELL_TEXT_MARGIN);
-    setCellContent(model, "A1", text);
+    await setCellContent(model, "A1", text);
     drawGridRenderer(ctx);
 
     box = getBoxFromText(gridRendererStore, text);
@@ -1548,7 +1550,7 @@ describe("renderer", () => {
     // Text + MIN_CELL_TEXT_MARGIN  > col size, clip text
     ctx = new MockGridRenderingContext(model, 1000, 1000, {});
     text = "a".repeat(10);
-    setCellContent(model, "A1", text);
+    await setCellContent(model, "A1", text);
     drawGridRenderer(ctx);
 
     box = getBoxFromText(gridRendererStore, text);
@@ -1557,15 +1559,15 @@ describe("renderer", () => {
 
   test.each(["A1", "A1:A2", "A1:A2,B1:B2", "A1,C1"])(
     "compatible copied zones %s are all outlined with dots",
-    (targetXc) => {
-      const { drawGridRenderer, model } = setRenderer();
-      copy(model, ...targetXc.split(","));
+    async (targetXc) => {
+      const { drawGridRenderer, model } = await setRenderer();
+      await copy(model, ...targetXc.split(","));
       const { ctx, isDotOutlined, reset } = watchClipboardOutline(model);
       drawGridRenderer(ctx);
 
       const copiedTarget = target(targetXc);
       expect(isDotOutlined(copiedTarget)).toBeTruthy();
-      paste(model, "A10");
+      await paste(model, "A10");
       reset();
       drawGridRenderer(ctx);
 
@@ -1575,16 +1577,16 @@ describe("renderer", () => {
 
   test.each(["A1,A2", "A1:A2,A4:A5"])(
     "only last copied non-compatible zones %s is outlined with dots",
-    (targetXc) => {
-      const { drawGridRenderer, model } = setRenderer();
-      copy(model, ...targetXc.split(","));
+    async (targetXc) => {
+      const { drawGridRenderer, model } = await setRenderer();
+      await copy(model, ...targetXc.split(","));
       const { ctx, isDotOutlined, reset } = watchClipboardOutline(model);
       drawGridRenderer(ctx);
 
       const copiedTarget = target(targetXc);
       const expectedOutlinedZone = copiedTarget.slice(-1);
       expect(isDotOutlined(expectedOutlinedZone)).toBeTruthy();
-      paste(model, "A10");
+      await paste(model, "A10");
       reset();
       drawGridRenderer(ctx);
 
@@ -1593,18 +1595,18 @@ describe("renderer", () => {
   );
 
   test.each([
-    (model) => setCellContent(model, "B15", "hello"),
-    (model) => addColumns(model, "after", "B", 1),
-    (model) => deleteColumns(model, ["K"]),
-  ])("copied zone outline is removed at first change to the grid", (coreOperation) => {
-    const { drawGridRenderer, model } = setRenderer();
-    copy(model, "A1:A2");
+    async (model) => await setCellContent(model, "B15", "hello"),
+    async (model) => await addColumns(model, "after", "B", 1),
+    async (model) => await deleteColumns(model, ["K"]),
+  ])("copied zone outline is removed at first change to the grid", async (coreOperation) => {
+    const { drawGridRenderer, model } = await setRenderer();
+    await copy(model, "A1:A2");
     const { ctx, isDotOutlined, reset } = watchClipboardOutline(model);
     drawGridRenderer(ctx);
 
     const copiedTarget = target("A1:A2");
     expect(isDotOutlined(copiedTarget)).toBeTruthy();
-    coreOperation(model);
+    await coreOperation(model);
     reset();
     drawGridRenderer(ctx);
 
@@ -1614,18 +1616,18 @@ describe("renderer", () => {
   test.each([
     ["dashboard" as Mode, { x: 0, y: 0, width: DEFAULT_CELL_WIDTH, height: DEFAULT_CELL_HEIGHT }],
     ["normal" as Mode, { x: 0, y: 0, width: DEFAULT_CELL_WIDTH, height: DEFAULT_CELL_HEIGHT }],
-  ])("A1 starts at the upper left corner with mode %s", (mode, expectedRect) => {
-    const model = new Model({}, { mode });
+  ])("A1 starts at the upper left corner with mode %s", async (mode, expectedRect) => {
+    const model = await createModel({}, { mode });
     const rect = model.getters.getVisibleRect(toZone("A1"));
     expect(rect).toEqual(expectedRect);
   });
 
-  test("Error red triangle is correctly displayed/hidden", () => {
+  test("Error red triangle is correctly displayed/hidden", async () => {
     /* Test if the error upper-right red triangle is correctly displayed
      * according to the kind of error
      */
-    const { drawGridRenderer, model, gridRendererStore } = setRenderer(
-      new Model({
+    const { drawGridRenderer, model, gridRendererStore } = await setRenderer(
+      await createModel({
         sheets: [
           {
             id: "sheet1",
@@ -1683,10 +1685,10 @@ describe("renderer", () => {
     expect(filled[4][1]).toBe(boxF1.y);
   });
 
-  test("Do not draw gridLines over colored cells in dashboard mode", () => {
+  test("Do not draw gridLines over colored cells in dashboard mode", async () => {
     const CellFillColor = "#fe0000";
-    const { drawGridRenderer, model } = setRenderer(
-      new Model({
+    const { drawGridRenderer, model } = await setRenderer(
+      await createModel({
         sheets: [{ id: "Sheet1", name: "Sheet1", styles: { A1: 1, A2: 1 } }],
         styles: { 1: { fillColor: CellFillColor } },
       })
@@ -1716,10 +1718,10 @@ describe("renderer", () => {
     expect(strokeColors).toEqual([]);
   });
 
-  test("Do not draw gridLines over colored cells while hiding grid lines", () => {
+  test("Do not draw gridLines over colored cells while hiding grid lines", async () => {
     const CellFillColor = "#fe0000";
-    const { drawGridRenderer, model } = setRenderer(
-      new Model({
+    const { drawGridRenderer, model } = await setRenderer(
+      await createModel({
         sheets: [{ id: "Sheet1", name: "Sheet1", styles: { A1: 1, A2: 2 } }],
         styles: { 1: { fillColor: CellFillColor } },
       })
@@ -1742,7 +1744,7 @@ describe("renderer", () => {
     expect(strokeColors).toContain(SELECTION_BORDER_COLOR);
 
     // model without grid lines
-    setGridLinesVisibility(model, false);
+    await setGridLinesVisibility(model, false);
     strokeColors = [];
     drawGridRenderer(ctx);
 
@@ -1752,9 +1754,9 @@ describe("renderer", () => {
     ]);
   });
 
-  test("draw text position depends on vertical align", () => {
-    const { drawGridRenderer, model } = setRenderer(
-      new Model({
+  test("draw text position depends on vertical align", async () => {
+    const { drawGridRenderer, model } = await setRenderer(
+      await createModel({
         sheets: [
           {
             id: 1,
@@ -1777,29 +1779,29 @@ describe("renderer", () => {
 
     // vertical top point
     let verticalStartPoints: any[] = [];
-    setFormatting(model, "A1", { verticalAlign: "top" });
+    await setFormatting(model, "A1", { verticalAlign: "top" });
     drawGridRenderer(ctx);
 
     expect(verticalStartPoints[0]).toEqual(5);
 
     // vertical middle point
     verticalStartPoints = [];
-    setFormatting(model, "A1", { verticalAlign: "middle" });
+    await setFormatting(model, "A1", { verticalAlign: "middle" });
     drawGridRenderer(ctx);
 
     expect(verticalStartPoints[0]).toEqual(18);
 
     // vertical bottom point
     verticalStartPoints = [];
-    setFormatting(model, "A1", { verticalAlign: "bottom" });
+    await setFormatting(model, "A1", { verticalAlign: "bottom" });
     drawGridRenderer(ctx);
 
     expect(verticalStartPoints[0]).toEqual(30);
   });
 
-  test("keep the text vertically align to the top if not enough spaces to display it", () => {
-    const { drawGridRenderer, model } = setRenderer(
-      new Model({
+  test("keep the text vertically align to the top if not enough spaces to display it", async () => {
+    const { drawGridRenderer, model } = await setRenderer(
+      await createModel({
         sheets: [
           {
             id: 1,
@@ -1822,25 +1824,25 @@ describe("renderer", () => {
       },
     });
 
-    setFormatting(model, "A1", { wrapping: "wrap" });
+    await setFormatting(model, "A1", { wrapping: "wrap" });
 
     // with verticalAlign top
     let verticalStartPoints: any[] = [];
-    setFormatting(model, "A1", { verticalAlign: "top" });
+    await setFormatting(model, "A1", { verticalAlign: "top" });
     drawGridRenderer(ctx);
 
     expect(verticalStartPoints[0]).toEqual(5);
 
     // with verticalAlign middle
     verticalStartPoints = [];
-    setFormatting(model, "A1", { verticalAlign: "middle" });
+    await setFormatting(model, "A1", { verticalAlign: "middle" });
     drawGridRenderer(ctx);
 
     expect(verticalStartPoints[0]).toEqual(5);
 
     // with verticalAlign bottom
     verticalStartPoints = [];
-    setFormatting(model, "A1", { verticalAlign: "bottom" });
+    await setFormatting(model, "A1", { verticalAlign: "bottom" });
     drawGridRenderer(ctx);
 
     expect(verticalStartPoints[0]).toEqual(5);
@@ -1867,9 +1869,9 @@ describe("renderer", () => {
       };
     }
 
-    beforeEach(() => {
-      ({ drawGridRenderer, model, gridRendererStore } = setRenderer(
-        new Model({ sheets: [{ colNumber: 10, rowNumber: 10 }] })
+    beforeEach(async () => {
+      ({ drawGridRenderer, model, gridRendererStore } = await setRenderer(
+        await createModel({ sheets: [{ colNumber: 10, rowNumber: 10 }] })
       ));
       fillWhiteRectInstructions = [];
       let drawingWhiteBackground = false;
@@ -1886,17 +1888,17 @@ describe("renderer", () => {
       });
     });
 
-    test("Non-overflowing cell have no overflowing background", () => {
-      setCellContent(model, "A1", "Short text");
+    test("Non-overflowing cell have no overflowing background", async () => {
+      await setCellContent(model, "A1", "Short text");
       drawGridRenderer(ctx);
 
       expect(getCellOverflowingBackgroundDims()).toBeUndefined();
     });
 
-    test("Cell overflowing in x overflowing background", () => {
+    test("Cell overflowing in x overflowing background", async () => {
       const overflowingText = "Text longer than a column";
-      setCellContent(model, "A1", overflowingText);
-      resizeColumns(model, ["A"], 10);
+      await setCellContent(model, "A1", overflowingText);
+      await resizeColumns(model, ["A"], 10);
       drawGridRenderer(ctx);
 
       const box = getBoxFromText(gridRendererStore, overflowingText);
@@ -1908,12 +1910,12 @@ describe("renderer", () => {
       });
     });
 
-    test("Multi-line text overflowing in x overflowing background", () => {
+    test("Multi-line text overflowing in x overflowing background", async () => {
       const longLine = "Text longer than a column";
       const longerLine = "Text longer than a column but even longer";
 
-      setCellContent(model, "A1", longLine + NEWLINE + longerLine);
-      resizeColumns(model, ["A"], 10);
+      await setCellContent(model, "A1", longLine + NEWLINE + longerLine);
+      await resizeColumns(model, ["A"], 10);
       drawGridRenderer(ctx);
 
       const box = getBoxFromText(gridRendererStore, longLine + " " + longerLine);
@@ -1925,12 +1927,12 @@ describe("renderer", () => {
       });
     });
 
-    test("Cell overflowing in y overflowing background", () => {
+    test("Cell overflowing in y overflowing background", async () => {
       const overflowingText = "TOO HIGH";
       const fontSize = 26;
-      setCellContent(model, "A1", overflowingText);
-      setFormatting(model, "A1", { fontSize });
-      resizeRows(model, [0], Math.floor(fontSizeInPixels(fontSize) / 2));
+      await setCellContent(model, "A1", overflowingText);
+      await setFormatting(model, "A1", { fontSize });
+      await resizeRows(model, [0], Math.floor(fontSizeInPixels(fontSize) / 2));
       drawGridRenderer(ctx);
 
       const box = getBoxFromText(gridRendererStore, overflowingText);
@@ -1950,8 +1952,8 @@ describe("renderer", () => {
     let drawGridRenderer: (ctx: GridRenderingContext) => void;
     let gridRendererStore: GridRenderer;
 
-    beforeEach(() => {
-      ({ drawGridRenderer, model, gridRendererStore } = setRenderer());
+    beforeEach(async () => {
+      ({ drawGridRenderer, model, gridRendererStore } = await setRenderer());
       renderedTexts = [];
       ctx = new MockGridRenderingContext(model, 1000, 1000, {
         onFunctionCall: (fn, args) => {
@@ -1962,11 +1964,11 @@ describe("renderer", () => {
       });
     });
 
-    test("Wrapped text is displayed over multiple lines", () => {
+    test("Wrapped text is displayed over multiple lines", async () => {
       const overFlowingContent = "ThisIsAVeryVeryLongText";
-      setCellContent(model, "A1", overFlowingContent);
-      setFormatting(model, "A1", { wrapping: "wrap" });
-      resizeColumns(model, ["A"], 14);
+      await setCellContent(model, "A1", overFlowingContent);
+      await setFormatting(model, "A1", { wrapping: "wrap" });
+      await resizeColumns(model, ["A"], 14);
 
       // Split length = 14 - 2*MIN_CELL_TEXT_MARGIN = 6 letters (1 letter = 1px in the tests)
       const splittedText = ["ThisIs", "AVeryV", "eryLon", "gText"];
@@ -1976,30 +1978,30 @@ describe("renderer", () => {
       expect(renderedTexts.slice(0, 4)).toEqual(splittedText);
     });
 
-    test("Wrapped text try to not split words in multiple lines if the word is small enough", () => {
+    test("Wrapped text try to not split words in multiple lines if the word is small enough", async () => {
       const overFlowingContent = "W Word2 W3 WordThatIsTooLong";
-      setCellContent(model, "A1", overFlowingContent);
-      setFormatting(model, "A1", { wrapping: "wrap" });
-      resizeColumns(model, ["A"], 16);
+      await setCellContent(model, "A1", overFlowingContent);
+      await setFormatting(model, "A1", { wrapping: "wrap" });
+      await resizeColumns(model, ["A"], 16);
 
       drawGridRenderer(ctx);
 
       expect(renderedTexts.slice(0, 5)).toEqual(["W Word2", "W3", "WordThat", "IsTooLon", "g"]);
     });
 
-    test("Texts with newlines are displayed over multiple lines", () => {
-      setCellContent(model, "A1", "Line1\nLine2\rLine3\r\nLine4");
+    test("Texts with newlines are displayed over multiple lines", async () => {
+      await setCellContent(model, "A1", "Line1\nLine2\rLine3\r\nLine4");
       drawGridRenderer(ctx);
 
       expect(renderedTexts.slice(0, 4)).toEqual(["Line1", "Line2", "Line3", "Line4"]);
     });
 
-    test("Box of Multi-line text have the width of the longest line", () => {
+    test("Box of Multi-line text have the width of the longest line", async () => {
       const longLine = "Text longer than a column";
       const longerLine = "Text longer than a column but even longer";
 
-      setCellContent(model, "A1", longLine + NEWLINE + longerLine);
-      resizeColumns(model, ["A"], 10);
+      await setCellContent(model, "A1", longLine + NEWLINE + longerLine);
+      await resizeColumns(model, ["A"], 10);
       drawGridRenderer(ctx);
 
       const box = getBoxFromText(gridRendererStore, longLine + " " + longerLine);
@@ -2008,8 +2010,8 @@ describe("renderer", () => {
     });
   });
 
-  test("Can render borders with different colors on the same cell", () => {
-    const { drawGridRenderer, model } = setRenderer();
+  test("Can render borders with different colors on the same cell", async () => {
+    const { drawGridRenderer, model } = await setRenderer();
     const colors = {
       left: "#FF0000",
       right: "#888800",
@@ -2017,7 +2019,7 @@ describe("renderer", () => {
       bottom: "#008888",
     };
     for (const [position, color] of Object.entries(colors)) {
-      setZoneBorders(
+      await setZoneBorders(
         model,
         {
           position: position as BorderPosition,
@@ -2069,9 +2071,9 @@ describe("renderer", () => {
     });
   });
 
-  test("Thin border is correctly rendered", () => {
-    const { drawGridRenderer, model } = setRenderer();
-    setZoneBorders(
+  test("Thin border is correctly rendered", async () => {
+    const { drawGridRenderer, model } = await setRenderer();
+    await setZoneBorders(
       model,
       {
         position: "left",
@@ -2111,9 +2113,9 @@ describe("renderer", () => {
     expect(borderRenderingContext).toEqual([[1, []]]);
   });
 
-  test("Medium border is correctly rendered", () => {
-    const { drawGridRenderer, model } = setRenderer();
-    setZoneBorders(
+  test("Medium border is correctly rendered", async () => {
+    const { drawGridRenderer, model } = await setRenderer();
+    await setZoneBorders(
       model,
       {
         position: "left",
@@ -2154,9 +2156,9 @@ describe("renderer", () => {
     expect(borderRenderingContext).toEqual([[2, []]]);
   });
 
-  test("Thick border is correctly rendered", () => {
-    const { drawGridRenderer, model } = setRenderer();
-    setZoneBorders(
+  test("Thick border is correctly rendered", async () => {
+    const { drawGridRenderer, model } = await setRenderer();
+    await setZoneBorders(
       model,
       {
         position: "left",
@@ -2196,9 +2198,9 @@ describe("renderer", () => {
     expect(borderRenderingContext).toEqual([[3, []]]);
   });
 
-  test("Dashed border is correctly rendered", () => {
-    const { drawGridRenderer, model } = setRenderer();
-    setZoneBorders(
+  test("Dashed border is correctly rendered", async () => {
+    const { drawGridRenderer, model } = await setRenderer();
+    await setZoneBorders(
       model,
       {
         position: "left",
@@ -2238,9 +2240,9 @@ describe("renderer", () => {
     expect(borderRenderingContext).toEqual([[1, [[1, 3]]]]);
   });
 
-  test("Dotted border is correctly rendered", () => {
-    const { drawGridRenderer, model } = setRenderer();
-    setZoneBorders(
+  test("Dotted border is correctly rendered", async () => {
+    const { drawGridRenderer, model } = await setRenderer();
+    await setZoneBorders(
       model,
       {
         position: "left",
@@ -2280,11 +2282,11 @@ describe("renderer", () => {
     expect(borderRenderingContext).toEqual([[1, [[1, 1]]]]);
   });
 
-  test("Cells of splilled formula are empty is we display the formulas", () => {
-    const model = new Model({ sheets: [{ colNumber: 2, rowNumber: 2 }] });
-    setFormulaVisibility(model, true);
-    setCellContent(model, "A1", "=MUNIT(2)");
-    const { drawGridRenderer, gridRendererStore } = setRenderer(model);
+  test("Cells of splilled formula are empty is we display the formulas", async () => {
+    const model = await createModel({ sheets: [{ colNumber: 2, rowNumber: 2 }] });
+    await setFormulaVisibility(model, true);
+    await setCellContent(model, "A1", "=MUNIT(2)");
+    const { drawGridRenderer, gridRendererStore } = await setRenderer(model);
     const ctx = new MockGridRenderingContext(model, 1000, 1000, {});
     drawGridRenderer(ctx);
     const boxes = gridRendererStore["getGridBoxes"](toZone("A1:B2"));
@@ -2298,8 +2300,8 @@ describe("renderer", () => {
     let model: Model;
     let drawGridRenderer: (ctx: GridRenderingContext) => void;
 
-    beforeEach(() => {
-      ({ drawGridRenderer, model } = setRenderer());
+    beforeEach(async () => {
+      ({ drawGridRenderer, model } = await setRenderer());
       renderedTexts = [];
       ctx = new MockGridRenderingContext(model, 1000, 1000, {
         onFunctionCall: (fn, args) => {
@@ -2310,24 +2312,24 @@ describe("renderer", () => {
       });
     });
 
-    test("Valid checkbox value is not rendered", () => {
-      addDataValidation(model, "B2", "id", { type: "isBoolean", values: [] });
-      setCellContent(model, "B2", "TRUE");
+    test("Valid checkbox value is not rendered", async () => {
+      await addDataValidation(model, "B2", "id", { type: "isBoolean", values: [] });
+      await setCellContent(model, "B2", "TRUE");
       drawGridRenderer(ctx);
       expect(renderedTexts).not.toContain("TRUE");
     });
 
-    test("Invalid checkbox value is rendered", () => {
-      addDataValidation(model, "B2", "id", { type: "isBoolean", values: [] });
-      setCellContent(model, "B2", "hello");
+    test("Invalid checkbox value is rendered", async () => {
+      await addDataValidation(model, "B2", "id", { type: "isBoolean", values: [] });
+      await setCellContent(model, "B2", "hello");
       drawGridRenderer(ctx);
       expect(renderedTexts).toContain("hello");
     });
   });
 
   describe("chip DataValidations are correctly rendered", () => {
-    test("chip is rendered", () => {
-      const { drawGridRenderer, model } = setRenderer();
+    test("chip is rendered", async () => {
+      const { drawGridRenderer, model } = await setRenderer();
       const roundRectArgs: any[] = [];
       let fillStyle: string = "";
       const criterion: DataValidationCriterion = {
@@ -2336,7 +2338,7 @@ describe("renderer", () => {
         colors: { hello: "#123456" },
         displayStyle: "chip",
       };
-      addDataValidation(model, "A1", "id", criterion);
+      await addDataValidation(model, "A1", "id", criterion);
       const ctx = new MockGridRenderingContext(model, 1000, 1000, {
         onFunctionCall: (key, args) => {
           if (key === "roundRect") {
@@ -2350,25 +2352,25 @@ describe("renderer", () => {
           }
         },
       });
-      setCellContent(model, "A1", "hello");
+      await setCellContent(model, "A1", "hello");
       drawGridRenderer(ctx);
       expect(roundRectArgs).toHaveLength(1);
       expect(roundRectArgs[0]).toEqual([5, 5, 86, 15, 10]);
     });
 
-    test("chip boxes are colored", () => {
-      const { drawGridRenderer, model, gridRendererStore } = setRenderer();
+    test("chip boxes are colored", async () => {
+      const { drawGridRenderer, model, gridRendererStore } = await setRenderer();
       const criterion: DataValidationCriterion = {
         type: "isValueInList",
         values: ["hello"],
         displayStyle: "chip",
       };
-      addDataValidation(model, "A1", "id", criterion);
+      await addDataValidation(model, "A1", "id", criterion);
       const ctx = new MockGridRenderingContext(model, 1000, 1000, {});
       drawGridRenderer(ctx);
       let [box] = gridRendererStore["getGridBoxes"](toZone("A1"));
       expect(box.chip).toBeUndefined();
-      setCellContent(model, "A1", "hello");
+      await setCellContent(model, "A1", "hello");
       drawGridRenderer(ctx);
       [box] = gridRendererStore["getGridBoxes"](toZone("A1"));
       expect(box.style.textColor).toBeUndefined();
@@ -2379,7 +2381,7 @@ describe("renderer", () => {
         x: 5,
         y: 5,
       });
-      addDataValidation(model, "A1", "id", {
+      await addDataValidation(model, "A1", "id", {
         ...criterion,
         colors: { hello: "#FF0000" },
       });
@@ -2395,16 +2397,16 @@ describe("renderer", () => {
       });
     });
 
-    test("chip is rendered next to CF icon", () => {
-      const { drawGridRenderer, model, gridRendererStore } = setRenderer();
+    test("chip is rendered next to CF icon", async () => {
+      const { drawGridRenderer, model, gridRendererStore } = await setRenderer();
       const criterion: DataValidationCriterion = {
         type: "isValueInList",
         values: ["1"],
         displayStyle: "chip",
       };
-      addIconCF(model, "A1:A5", ["7", "7"], "arrows");
-      addDataValidation(model, "A1", "id", criterion);
-      setCellContent(model, "A1", "1");
+      await addIconCF(model, "A1:A5", ["7", "7"], "arrows");
+      await addDataValidation(model, "A1", "id", criterion);
+      await setCellContent(model, "A1", "1");
       const ctx = new MockGridRenderingContext(model, 1000, 1000, {});
       drawGridRenderer(ctx);
       const [box] = gridRendererStore["getGridBoxes"](toZone("A1"));
@@ -2418,11 +2420,11 @@ describe("renderer", () => {
     });
   });
 
-  test("Repeated character in format is repeated to fill the column", () => {
-    const { drawGridRenderer, model, gridRendererStore } = setRenderer();
-    setCellContent(model, "A1", "1");
-    setFormat(model, "A1", "* 0");
-    resizeColumns(model, ["A"], 20);
+  test("Repeated character in format is repeated to fill the column", async () => {
+    const { drawGridRenderer, model, gridRendererStore } = await setRenderer();
+    await setCellContent(model, "A1", "1");
+    await setFormat(model, "A1", "* 0");
+    await resizeColumns(model, ["A"], 20);
 
     const ctx = new MockGridRenderingContext(model, 1000, 1000, {});
     drawGridRenderer(ctx);
@@ -2431,15 +2433,15 @@ describe("renderer", () => {
     const expectedSpaces = 20 - 2 * MIN_CELL_TEXT_MARGIN;
     expect(box.content?.textLines).toEqual(["1".padStart(expectedSpaces)]);
 
-    setFormat(model, "A1", "0*c");
+    await setFormat(model, "A1", "0*c");
     drawGridRenderer(ctx);
     box = gridRendererStore["getGridBoxes"](toZone("A1")).filter((box) => box.content)[0];
     expect(box.content?.textLines).toEqual(["1".padEnd(expectedSpaces, "c")]);
   });
 
-  test("Cells with repeated character format are aligned to the left", () => {
-    const { drawGridRenderer, model } = setRenderer();
-    setCellContent(model, "A1", "1");
+  test("Cells with repeated character format are aligned to the left", async () => {
+    const { drawGridRenderer, model } = await setRenderer();
+    await setCellContent(model, "A1", "1");
 
     let textAligns: string[] = [];
     const ctx = new MockGridRenderingContext(model, 1000, 1000, {
@@ -2450,17 +2452,17 @@ describe("renderer", () => {
     expect(textAligns).toEqual(["right", "center"]); // center for headers
 
     textAligns = [];
-    setCellFormat(model, "A1", "dd* ");
+    await setCellFormat(model, "A1", "dd* ");
     drawGridRenderer(ctx);
     expect(textAligns).toEqual(["left", "center"]); // center for headers
   });
 
-  test("Each frozen pane is clipped in the grid", () => {
-    const model = new Model({ sheets: [{ colNumber: 7, rowNumber: 7 }] });
-    const { drawGridRenderer } = setRenderer(model);
-    setCellContent(model, "A1", "1");
-    freezeColumns(model, 2);
-    freezeRows(model, 1);
+  test("Each frozen pane is clipped in the grid", async () => {
+    const model = await createModel({ sheets: [{ colNumber: 7, rowNumber: 7 }] });
+    const { drawGridRenderer } = await setRenderer(model);
+    await setCellContent(model, "A1", "1");
+    await freezeColumns(model, 2);
+    await freezeRows(model, 1);
     // Don't account for headers for the grid
     model.updateMode("dashboard");
     const spyFn = jest.fn();
@@ -2503,9 +2505,9 @@ describe("renderer", () => {
     expect(spyFn).toHaveBeenNthCalledWith(8, "clip", []);
   });
 
-  test("Applying style hideGridLines on a cell skips the drawing of the grid lines for this cell", () => {
-    const model = new Model();
-    const { drawGridRenderer } = setRenderer(model);
+  test("Applying style hideGridLines on a cell skips the drawing of the grid lines for this cell", async () => {
+    const model = await createModel();
+    const { drawGridRenderer } = await setRenderer(model);
 
     let strokeRectCalls: string[];
     const ctx = new MockGridRenderingContext(model, 1000, 1000, {
@@ -2521,7 +2523,7 @@ describe("renderer", () => {
 
     const baseNumberOfStrokeRect = strokeRectCalls.length;
 
-    setFormatting(model, "A1:B2", { hideGridLines: true });
+    await setFormatting(model, "A1:B2", { hideGridLines: true });
     strokeRectCalls = [];
     drawGridRenderer(ctx);
 

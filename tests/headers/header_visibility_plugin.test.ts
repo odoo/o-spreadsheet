@@ -19,7 +19,7 @@ import {
   unhideColumns,
   unhideRows,
 } from "../test_helpers/commands_helpers";
-import { getPlugin } from "../test_helpers/helpers";
+import { createModel, getPlugin } from "../test_helpers/helpers";
 
 //------------------------------------------------------------------------------
 // Hide/unhide
@@ -29,215 +29,219 @@ let model: Model;
 
 describe("Hide Columns", () => {
   const sheetId = "1";
-  beforeEach(() => {
-    model = new Model({ sheets: [{ id: sheetId, colNumber: 6, rowNumber: 2 }] });
+  beforeEach(async () => {
+    model = await createModel({ sheets: [{ id: sheetId, colNumber: 6, rowNumber: 2 }] });
   });
 
-  test("hide single column", () => {
-    hideColumns(model, ["B"]);
+  test("hide single column", async () => {
+    await hideColumns(model, ["B"]);
     expect(model.getters.getHiddenColsGroups(sheetId)).toEqual([[1]]);
   });
 
-  test("hide multiple columns", () => {
-    hideColumns(model, ["B", "E", "F"]);
+  test("hide multiple columns", async () => {
+    await hideColumns(model, ["B", "E", "F"]);
     expect(model.getters.getHiddenColsGroups(sheetId)).toEqual([[1], [4, 5]]);
   });
 
-  test("unhide columns", () => {
-    hideColumns(model, ["B", "E", "F"]);
-    unhideColumns(model, ["F"]);
+  test("unhide columns", async () => {
+    await hideColumns(model, ["B", "E", "F"]);
+    await unhideColumns(model, ["F"]);
     expect(model.getters.getHiddenColsGroups(sheetId)).toEqual([[1], [4]]);
   });
 
-  test("Cannot hide columns on invalid sheetId", () => {
-    expect(hideColumns(model, ["A"], "INVALID")).toBeCancelledBecause(CommandResult.InvalidSheetId);
+  test("Cannot hide columns on invalid sheetId", async () => {
+    expect(await hideColumns(model, ["A"], "INVALID")).toBeCancelledBecause(
+      CommandResult.InvalidSheetId
+    );
   });
 
-  test("delete column before hidden column", () => {
-    hideColumns(model, ["B"]);
-    deleteColumns(model, ["A"]);
+  test("delete column before hidden column", async () => {
+    await hideColumns(model, ["B"]);
+    await deleteColumns(model, ["A"]);
     expect(model.getters.getHiddenColsGroups(sheetId)).toEqual([[0]]);
   });
 
-  test("delete column after hidden column", () => {
-    hideColumns(model, ["B"]);
-    deleteColumns(model, ["C"]);
+  test("delete column after hidden column", async () => {
+    await hideColumns(model, ["B"]);
+    await deleteColumns(model, ["C"]);
     expect(model.getters.getHiddenColsGroups(sheetId)).toEqual([[1]]);
   });
 
-  test("delete hidden column", () => {
-    hideColumns(model, ["B"]);
-    deleteColumns(model, ["B"]);
+  test("delete hidden column", async () => {
+    await hideColumns(model, ["B"]);
+    await deleteColumns(model, ["B"]);
     expect(model.getters.getHiddenColsGroups(sheetId)).toEqual([]);
   });
 
-  test("add columns before hidden column", () => {
-    hideColumns(model, ["B"]);
-    addColumns(model, "before", "B", 2);
+  test("add columns before hidden column", async () => {
+    await hideColumns(model, ["B"]);
+    await addColumns(model, "before", "B", 2);
     expect(model.getters.getHiddenColsGroups(sheetId)).toEqual([[3]]);
   });
 
-  test("add columns after hidden column", () => {
-    hideColumns(model, ["B"]);
-    addColumns(model, "after", "B", 2);
+  test("add columns after hidden column", async () => {
+    await hideColumns(model, ["B"]);
+    await addColumns(model, "after", "B", 2);
     expect(model.getters.getHiddenColsGroups(sheetId)).toEqual([[1]]);
   });
 
-  test("hide/unhide Column on small sheet", () => {
-    model = new Model({ sheets: [{ colNumber: 5, rowNumber: 1 }] });
-    setSheetviewSize(model, 1000, DEFAULT_CELL_WIDTH);
+  test("hide/unhide Column on small sheet", async () => {
+    model = await createModel({ sheets: [{ colNumber: 5, rowNumber: 1 }] });
+    await setSheetviewSize(model, 1000, DEFAULT_CELL_WIDTH);
     const sheet = model.getters.getActiveSheet();
     const dimensions = model.getters.getMainViewportRect();
-    hideColumns(model, ["B", "C", "D"], sheet.id);
+    await hideColumns(model, ["B", "C", "D"], sheet.id);
     let dimensions2 = model.getters.getMainViewportRect();
     expect(dimensions2.width).toEqual(dimensions.width - 3 * DEFAULT_CELL_WIDTH);
-    unhideColumns(model, ["D"], sheet.id);
+    await unhideColumns(model, ["D"], sheet.id);
     dimensions2 = model.getters.getMainViewportRect();
     expect(dimensions2.width).toEqual(dimensions.width - 2 * DEFAULT_CELL_WIDTH);
   });
 
-  test("hide/ unhide Column on big sheet", () => {
-    model = new Model();
+  test("hide/ unhide Column on big sheet", async () => {
+    model = await createModel();
     const sheet = model.getters.getActiveSheet();
     const dimensions = model.getters.getMainViewportRect();
-    hideColumns(model, ["B", "C", "D"], sheet.id);
+    await hideColumns(model, ["B", "C", "D"], sheet.id);
     let dimensions2 = model.getters.getMainViewportRect();
     expect(dimensions2.width).toEqual(dimensions.width - 3 * DEFAULT_CELL_WIDTH);
-    unhideColumns(model, ["D"], sheet.id);
+    await unhideColumns(model, ["D"], sheet.id);
     dimensions2 = model.getters.getMainViewportRect();
     expect(dimensions2.width).toEqual(dimensions.width - 2 * DEFAULT_CELL_WIDTH);
   });
 
-  test("undo/redo hiding", () => {
-    model = new Model();
+  test("undo/redo hiding", async () => {
+    model = await createModel();
     const beforeHidden = model.exportData();
-    hideColumns(model, ["B"]);
+    await hideColumns(model, ["B"]);
     const afterHidden1 = model.exportData();
-    unhideColumns(model, ["B"]);
+    await unhideColumns(model, ["B"]);
     const afterUnhidden1 = model.exportData();
-    hideColumns(model, ["D"]);
+    await hideColumns(model, ["D"]);
     const afterHidden2 = model.exportData();
-    undo(model);
+    await undo(model);
     expect(model).toExport(afterUnhidden1);
-    redo(model);
+    await redo(model);
     expect(model).toExport(afterHidden2);
-    undo(model);
-    undo(model);
+    await undo(model);
+    await undo(model);
     expect(model).toExport(afterHidden1);
-    undo(model);
+    await undo(model);
     expect(model).toExport(beforeHidden);
   });
 
-  test("update selection when hiding one columns", () => {
-    model = new Model();
-    setSelection(model, ["E1:E4"]);
+  test("update selection when hiding one columns", async () => {
+    model = await createModel();
+    await setSelection(model, ["E1:E4"]);
     expect(model.getters.getSelectedZone()).toEqual(toZone("E1:E4"));
-    hideColumns(model, ["E"]);
+    await hideColumns(model, ["E"]);
     expect(model.getters.getSelectedZone()).toEqual(toZone("E1:E4"));
   });
 
-  test("don't update selection when hiding a column within a merge", () => {
-    model = new Model();
-    merge(model, "A4:D4");
-    setSelection(model, ["A1:A4"]);
-    hideColumns(model, ["A"]);
+  test("don't update selection when hiding a column within a merge", async () => {
+    model = await createModel();
+    await merge(model, "A4:D4");
+    await setSelection(model, ["A1:A4"]);
+    await hideColumns(model, ["A"]);
     expect(model.getters.getSelectedZones()).toEqual([toZone("A1:D4")]);
   });
 
-  test("update selection when hiding multiple columns", () => {
-    model = new Model();
-    setSelection(model, ["A1:A4", "E1:E4"]);
-    hideColumns(model, ["A", "E"]);
+  test("update selection when hiding multiple columns", async () => {
+    model = await createModel();
+    await setSelection(model, ["A1:A4", "E1:E4"]);
+    await hideColumns(model, ["A", "E"]);
     expect(model.getters.getSelectedZones()).toEqual([toZone("A1:A4"), toZone("E1:E4")]);
   });
 });
 
 describe("Hide Rows", () => {
   const sheetId = "2";
-  beforeEach(() => {
-    model = new Model({ sheets: [{ id: sheetId, colNumber: 2, rowNumber: 6 }] });
+  beforeEach(async () => {
+    model = await createModel({ sheets: [{ id: sheetId, colNumber: 2, rowNumber: 6 }] });
   });
 
-  test("hide single row", () => {
-    hideRows(model, [1]);
+  test("hide single row", async () => {
+    await hideRows(model, [1]);
     expect(model.getters.getHiddenRowsGroups(sheetId)).toEqual([[1]]);
   });
 
-  test("hide multiple rows", () => {
-    hideRows(model, [1, 4, 5]);
+  test("hide multiple rows", async () => {
+    await hideRows(model, [1, 4, 5]);
     expect(model.getters.getHiddenRowsGroups(sheetId)).toEqual([[1], [4, 5]]);
   });
 
-  test("unhide rows", () => {
-    hideRows(model, [1, 4, 5]);
-    unhideRows(model, [5]);
+  test("unhide rows", async () => {
+    await hideRows(model, [1, 4, 5]);
+    await unhideRows(model, [5]);
     expect(model.getters.getHiddenRowsGroups(sheetId)).toEqual([[1], [4]]);
   });
 
-  test("Cannot hide rows on invalid sheetId", () => {
-    expect(hideRows(model, [0], "INVALID")).toBeCancelledBecause(CommandResult.InvalidSheetId);
+  test("Cannot hide rows on invalid sheetId", async () => {
+    expect(await hideRows(model, [0], "INVALID")).toBeCancelledBecause(
+      CommandResult.InvalidSheetId
+    );
   });
 
-  test("hide/unhide Row on small sheet", () => {
-    model = new Model({ sheets: [{ colNumber: 1, rowNumber: 5 }] });
-    setSheetviewSize(model, DEFAULT_CELL_HEIGHT, 1000);
+  test("hide/unhide Row on small sheet", async () => {
+    model = await createModel({ sheets: [{ colNumber: 1, rowNumber: 5 }] });
+    await setSheetviewSize(model, DEFAULT_CELL_HEIGHT, 1000);
     const sheet = model.getters.getActiveSheet();
     const dimensions = model.getters.getMainViewportRect();
-    hideRows(model, [1, 2, 3], sheet.id);
+    await hideRows(model, [1, 2, 3], sheet.id);
     let dimensions2 = model.getters.getMainViewportRect();
     expect(dimensions2.height).toEqual(dimensions.height - 3 * DEFAULT_CELL_HEIGHT);
-    unhideRows(model, [3], sheet.id);
+    await unhideRows(model, [3], sheet.id);
     dimensions2 = model.getters.getMainViewportRect();
     expect(dimensions2.height).toEqual(dimensions.height - 2 * DEFAULT_CELL_HEIGHT);
   });
 
-  test("hide/ unhide Row on big sheet", () => {
-    model = new Model();
+  test("hide/ unhide Row on big sheet", async () => {
+    model = await createModel();
     const sheet = model.getters.getActiveSheet();
     const dimensions = model.getters.getMainViewportRect();
-    hideRows(model, [1, 2, 3], sheet.id);
+    await hideRows(model, [1, 2, 3], sheet.id);
     let dimensions2 = model.getters.getMainViewportRect();
     expect(dimensions2.height).toEqual(dimensions.height - 3 * DEFAULT_CELL_HEIGHT);
-    unhideRows(model, [3], sheet.id);
+    await unhideRows(model, [3], sheet.id);
     dimensions2 = model.getters.getMainViewportRect();
     expect(dimensions2.height).toEqual(dimensions.height - 2 * DEFAULT_CELL_HEIGHT);
   });
 
-  test("undo/redo hiding", () => {
-    model = new Model();
+  test("undo/redo hiding", async () => {
+    model = await createModel();
     const beforeHidden = model.exportData();
-    hideRows(model, [1]);
+    await hideRows(model, [1]);
     const afterHidden1 = model.exportData();
-    unhideRows(model, [1]);
+    await unhideRows(model, [1]);
     const afterUnhidden1 = model.exportData();
-    hideRows(model, [3]);
+    await hideRows(model, [3]);
     const afterHidden2 = model.exportData();
-    undo(model);
+    await undo(model);
     expect(model).toExport(afterUnhidden1);
-    redo(model);
+    await redo(model);
     expect(model).toExport(afterHidden2);
-    undo(model);
-    undo(model);
+    await undo(model);
+    await undo(model);
     expect(model).toExport(afterHidden1);
-    undo(model);
+    await undo(model);
     expect(model).toExport(beforeHidden);
   });
 
-  test("delete row before hidden row", () => {
-    hideRows(model, [2]);
-    deleteRows(model, [1]);
+  test("delete row before hidden row", async () => {
+    await hideRows(model, [2]);
+    await deleteRows(model, [1]);
     expect(model.getters.getHiddenRowsGroups(sheetId)).toEqual([[1]]);
   });
 
-  test("delete row after hidden row", () => {
-    hideRows(model, [2]);
-    deleteRows(model, [3]);
+  test("delete row after hidden row", async () => {
+    await hideRows(model, [2]);
+    await deleteRows(model, [3]);
     expect(model.getters.getHiddenRowsGroups(sheetId)).toEqual([[2]]);
   });
 
-  test("delete hidden row", () => {
-    hideRows(model, [2]);
-    deleteRows(model, [2]);
+  test("delete hidden row", async () => {
+    await hideRows(model, [2]);
+    await deleteRows(model, [2]);
     expect(model.getters.getHiddenRowsGroups(sheetId)).toEqual([]);
   });
 
@@ -246,79 +250,79 @@ describe("Hide Rows", () => {
     [2, 9],
   ])(
     "delete multiple rows with alphabetical order different from natural order",
-    (...deletedRows) => {
-      model = new Model({ sheets: [{ id: sheetId, colNumber: 10, rowNumber: 10 }] });
-      hideRows(model, [5, 8]);
-      deleteRows(model, deletedRows);
+    async (...deletedRows) => {
+      model = await createModel({ sheets: [{ id: sheetId, colNumber: 10, rowNumber: 10 }] });
+      await hideRows(model, [5, 8]);
+      await deleteRows(model, deletedRows);
       expect(model.getters.getHiddenRowsGroups(sheetId)).toEqual([[4], [7]]);
     }
   );
 
-  test("add rows before hidden row", () => {
-    hideRows(model, [1]);
-    addRows(model, "after", 0, 2);
+  test("add rows before hidden row", async () => {
+    await hideRows(model, [1]);
+    await addRows(model, "after", 0, 2);
     expect(model.getters.getHiddenRowsGroups(sheetId)).toEqual([[3]]);
   });
 
-  test("add rows after hidden row", () => {
-    hideRows(model, [1]);
-    addRows(model, "after", 1, 2);
+  test("add rows after hidden row", async () => {
+    await hideRows(model, [1]);
+    await addRows(model, "after", 1, 2);
     expect(model.getters.getHiddenRowsGroups(sheetId)).toEqual([[1]]);
   });
 
-  test("update selection when hiding a single row", () => {
-    model = new Model();
-    setSelection(model, ["A3:D3"]);
-    hideRows(model, [2]);
+  test("update selection when hiding a single row", async () => {
+    model = await createModel();
+    await setSelection(model, ["A3:D3"]);
+    await hideRows(model, [2]);
     expect(model.getters.getSelectedZone()).toEqual(toZone("A3:D3"));
   });
 
-  test("update selection when hiding multiple rows", () => {
-    model = new Model();
+  test("update selection when hiding multiple rows", async () => {
+    model = await createModel();
     const zone1 = toZone("A1:D1");
     const zone2 = toZone("A3:D3");
-    setSelection(model, ["A1:D1", "A3:D3"]);
-    hideRows(model, [0, 2]);
+    await setSelection(model, ["A1:D1", "A3:D3"]);
+    await hideRows(model, [0, 2]);
     expect(model.getters.getSelectedZones()).toEqual([zone1, zone2]);
   });
 
-  test("don't update selection when hiding a row within a merge", () => {
-    model = new Model();
-    merge(model, "A4:D4");
-    setSelection(model, ["A1:A4"]);
-    hideRows(model, [0]);
+  test("don't update selection when hiding a row within a merge", async () => {
+    model = await createModel();
+    await merge(model, "A4:D4");
+    await setSelection(model, ["A1:A4"]);
+    await hideRows(model, [0]);
     expect(model.getters.getSelectedZones()).toEqual([toZone("A1:D4")]);
   });
 
-  test("Cannot hide unexisting columns", () => {
-    model = new Model();
+  test("Cannot hide unexisting columns", async () => {
+    model = await createModel();
     const sheetId = model.getters.getActiveSheetId();
     const originalNumberCols = model.getters.getNumberCols(sheetId);
-    const result = hideColumns(model, [1, 2, originalNumberCols + 10].map(numberToLetters));
+    const result = await hideColumns(model, [1, 2, originalNumberCols + 10].map(numberToLetters));
     expect(result).toBeCancelledBecause(CommandResult.InvalidHeaderIndex);
-    hideColumns(model, [1, 2].map(numberToLetters));
+    await hideColumns(model, [1, 2].map(numberToLetters));
     expect(model.getters.getHiddenColsGroups(sheetId)).toEqual([[1, 2]]);
   });
 
-  test("Cannot hide unexisting rows", () => {
-    model = new Model();
+  test("Cannot hide unexisting rows", async () => {
+    model = await createModel();
     const sheetId = model.getters.getActiveSheetId();
     const originalNumberRows = model.getters.getNumberRows(sheetId);
-    const result = hideRows(model, [1, 2, originalNumberRows + 1]);
+    const result = await hideRows(model, [1, 2, originalNumberRows + 1]);
     expect(result).toBeCancelledBecause(CommandResult.InvalidHeaderIndex);
-    hideRows(model, [1, 2]);
+    await hideRows(model, [1, 2]);
     expect(model.getters.getHiddenRowsGroups(sheetId)).toEqual([[1, 2]]);
   });
 
-  test("Do not compute row of empty cell", () => {
-    model = new Model();
+  test("Do not compute row of empty cell", async () => {
+    model = await createModel();
     const sheetId = model.getters.getActiveSheetId();
     // Will force an UPDATE_CELL subcommand upon addRows
-    setFormatting(model, "A100", { fillColor: "red" });
-    addRows(model, "after", 99, 1);
+    await setFormatting(model, "A100", { fillColor: "red" });
+    await addRows(model, "after", 99, 1);
     const plugin = getPlugin(model, HeaderSizePlugin);
     expect(plugin.sizes[sheetId].ROW.length).toEqual(101);
-    duplicateSheet(model, sheetId, "sheet2");
+    await duplicateSheet(model, sheetId, "sheet2");
     expect(plugin.sizes["sheet2"].ROW.length).toEqual(101);
   });
 });

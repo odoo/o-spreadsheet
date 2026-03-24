@@ -19,7 +19,11 @@ import {
   openChartConfigSidePanel,
   openChartDesignSidePanel,
 } from "../../../test_helpers/chart_helpers";
-import { mountComponentWithPortalTarget, setGrid } from "../../../test_helpers/helpers";
+import {
+  createModel,
+  mountComponentWithPortalTarget,
+  setGrid,
+} from "../../../test_helpers/helpers";
 
 let model: Model;
 let fixture: HTMLElement;
@@ -31,13 +35,13 @@ function getTreeMapChartDefinition(chartId: UID): TreeMapChartDefinition {
 
 describe("TreeMap chart side panel", () => {
   beforeEach(async () => {
-    model = new Model();
+    model = await createModel();
     ({ fixture, env } = await mountComponentWithPortalTarget(SidePanels, { model }));
   });
 
   describe("Config panel", () => {
     test("TreeMap config panel is correctly initialized", async () => {
-      const chartId = createTreeMapChart(model, {
+      const chartId = await createTreeMapChart(model, {
         dataSets: [{ dataRange: "A1:A3" }],
         labelRange: "B1:B3",
         dataSetsHaveTitle: true,
@@ -50,7 +54,7 @@ describe("TreeMap chart side panel", () => {
     });
 
     test("Can change chart values in config side panel", async () => {
-      const chartId = createTreeMapChart(model, {
+      const chartId = await createTreeMapChart(model, {
         dataSets: [{ dataRange: "A1:A3" }],
         labelRange: "B1:B3",
         dataSetsHaveTitle: true,
@@ -72,7 +76,7 @@ describe("TreeMap chart side panel", () => {
 
   describe("Design panel", () => {
     test("TreeMap design panel is correctly initialized", async () => {
-      setGrid(model, {
+      await setGrid(model, {
         A1: "Category",
         A2: "Category1",
         A3: "Category2",
@@ -80,7 +84,7 @@ describe("TreeMap chart side panel", () => {
         B2: "30",
         B3: "20",
       });
-      const chartId = createTreeMapChart(model, {
+      const chartId = await createTreeMapChart(model, {
         dataSets: [{ dataRange: "A1:A3" }],
         labelRange: "B1:B3",
         title: { text: "My TreeMap chart" },
@@ -115,7 +119,7 @@ describe("TreeMap chart side panel", () => {
     });
 
     test("Can change headers style", async () => {
-      const chartId = createTreeMapChart(model, {});
+      const chartId = await createTreeMapChart(model, {});
       await openChartDesignSidePanel(model, env, fixture, chartId);
 
       await simulateClick(".o-header-style [title=Italic]");
@@ -132,7 +136,7 @@ describe("TreeMap chart side panel", () => {
     });
 
     test("Can change values style", async () => {
-      const chartId = createTreeMapChart(model, {});
+      const chartId = await createTreeMapChart(model, {});
       await openChartDesignSidePanel(model, env, fixture, chartId);
 
       await simulateClick(".o-values-style [title=Italic]");
@@ -154,7 +158,7 @@ describe("TreeMap chart side panel", () => {
     });
 
     test("Can change categories colors", async () => {
-      setGrid(model, {
+      await setGrid(model, {
         A1: "Category",
         A2: "Category1",
         A3: "Category2",
@@ -162,7 +166,7 @@ describe("TreeMap chart side panel", () => {
         B2: "30",
         B3: "20",
       });
-      const chartId = createTreeMapChart(model, {
+      const chartId = await createTreeMapChart(model, {
         dataSets: [{ dataRange: "A1:A3" }],
         labelRange: "B1:B3",
       });
@@ -185,8 +189,8 @@ describe("TreeMap chart side panel", () => {
     });
 
     test("Can highlight bigger values", async () => {
-      setGrid(model, { A1: "Category", A2: "Category1", B1: "Value", B3: "20" });
-      const chartId = createTreeMapChart(model, {
+      await setGrid(model, { A1: "Category", A2: "Category1", B1: "Value", B3: "20" });
+      const chartId = await createTreeMapChart(model, {
         dataSets: [{ dataRange: "A1:A2" }],
         labelRange: "B1:B2",
         coloringOptions: { type: "categoryColor", useValueBasedGradient: false, colors: [] },
@@ -200,7 +204,7 @@ describe("TreeMap chart side panel", () => {
     });
 
     test("Can change color scale colors", async () => {
-      const chartId = createTreeMapChart(model, {});
+      const chartId = await createTreeMapChart(model, {});
       await openChartDesignSidePanel(model, env, fixture, chartId);
       await click(fixture, "button[data-id='colorScale']");
 
@@ -217,8 +221,8 @@ describe("TreeMap chart side panel", () => {
     });
 
     test("changes are kept when switching back and forth between coloring options types", async () => {
-      setGrid(model, { A2: "Category1", B2: "10" });
-      const chartId = createTreeMapChart(model, {
+      await setGrid(model, { A2: "Category1", B2: "10" });
+      const chartId = await createTreeMapChart(model, {
         dataSets: [{ dataRange: "A1:A2" }],
         labelRange: "B1:B2",
       });

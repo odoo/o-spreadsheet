@@ -19,6 +19,7 @@ import {
   ComposerWrapper,
   addToRegistry,
   clearFunctions,
+  createModel,
   getInputSelection,
   mountComposerWrapper,
   nextTick,
@@ -426,7 +427,7 @@ describe("Data validation autocomplete", () => {
   });
 
   test("should not display close button in autocomplete for data validation", async () => {
-    addDataValidation(model, "A1", "id", {
+    await addDataValidation(model, "A1", "id", {
       type: "isValueInList",
       values: ["1", "2", "3"],
       displayStyle: "arrow",
@@ -437,7 +438,7 @@ describe("Data validation autocomplete", () => {
   });
 
   test("closing formula assistant should not affect data validation autocomplete visibility", async () => {
-    addDataValidation(model, "A1", "id", {
+    await addDataValidation(model, "A1", "id", {
       type: "isValueInList",
       values: [" 1", "2", "3"],
       displayStyle: "arrow",
@@ -460,7 +461,7 @@ describe("Data validation autocomplete", () => {
   });
 
   test("after force-closing formula assistant, Enter in data validation still selects from dropdown", async () => {
-    addDataValidation(model, "A1", "id", {
+    await addDataValidation(model, "A1", "id", {
       type: "isValueInList",
       values: [" 1", "2", "3"],
       displayStyle: "arrow",
@@ -530,7 +531,7 @@ describe("Autocomplete parenthesis", () => {
   test("=sum(1,2) + enter + edit sum does not add parenthesis", async () => {
     await typeInComposer("=sum(1,2)");
     await keyDown({ key: "Enter" });
-    selectCell(model, "A1");
+    await selectCell(model, "A1");
     //edit A1
     parent.setEdition({});
     composerStore.changeComposerCursorSelection(1, 4);
@@ -591,7 +592,7 @@ describe("Autocomplete parenthesis", () => {
 
 describe("composer Assistant", () => {
   test("render below the cell by default", async () => {
-    ({ model, fixture, parent } = await mountComposerWrapper(new Model(), {
+    ({ model, fixture, parent } = await mountComposerWrapper(await createModel(), {
       delimitation: { width: 500, height: 500 },
       rect: { width: DEFAULT_CELL_WIDTH, height: DEFAULT_CELL_HEIGHT, x: 150, y: 150 },
     }));
@@ -606,7 +607,7 @@ describe("composer Assistant", () => {
 
   test("render above the cell when not enough place below", async () => {
     const rect = { width: DEFAULT_CELL_WIDTH, height: DEFAULT_CELL_HEIGHT, x: 150, y: 150 };
-    ({ model, fixture, parent } = await mountComposerWrapper(new Model(), {
+    ({ model, fixture, parent } = await mountComposerWrapper(await createModel(), {
       delimitation: { width: 200, height: 200 },
       rect,
     }));
@@ -621,7 +622,7 @@ describe("composer Assistant", () => {
   });
 
   test("composer assistant min-width is the same as the underlying cell", async () => {
-    ({ model, fixture, parent } = await mountComposerWrapper(new Model(), {
+    ({ model, fixture, parent } = await mountComposerWrapper(await createModel(), {
       rect: { width: 60, height: DEFAULT_CELL_HEIGHT, x: 150, y: 150 },
     }));
     await typeInComposer("=s");
@@ -629,7 +630,7 @@ describe("composer Assistant", () => {
   });
 
   test("composer assistant min-width is capped for large cells", async () => {
-    ({ model, fixture, parent } = await mountComposerWrapper(new Model(), {
+    ({ model, fixture, parent } = await mountComposerWrapper(await createModel(), {
       rect: { width: 1000, height: DEFAULT_CELL_HEIGHT, x: 150, y: 150 },
     }));
     await typeInComposer("=s");

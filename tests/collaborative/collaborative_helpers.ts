@@ -1,6 +1,7 @@
 import { Model } from "@odoo/o-spreadsheet-engine/model";
 import { deepCopy } from "../../src/helpers";
 import { MockTransportService } from "../__mocks__/transport_service";
+import { createModel } from "../test_helpers/helpers";
 interface CollaborativeEnv {
   network: MockTransportService;
   alice: Model;
@@ -17,21 +18,21 @@ interface CollaborativeEnv {
  * first, meaning she will also resend her pending messages first.
  * Similarly, Bob's messages are resent before Charlie's.
  */
-export function setupCollaborativeEnv(
+export async function setupCollaborativeEnv(
   modelData?: any,
   mockTransportService?: MockTransportService
-): CollaborativeEnv {
+): Promise<CollaborativeEnv> {
   const network = mockTransportService || new MockTransportService();
-  const emptySheetData = new Model(modelData).exportData();
-  const alice = new Model(deepCopy(emptySheetData), {
+  const emptySheetData = (await createModel(modelData)).exportData();
+  const alice = await createModel(deepCopy(emptySheetData), {
     transportService: network,
     client: { id: "alice", name: "Alice" },
   });
-  const bob = new Model(deepCopy(emptySheetData), {
+  const bob = await createModel(deepCopy(emptySheetData), {
     transportService: network,
     client: { id: "bob", name: "Bob" },
   });
-  const charlie = new Model(deepCopy(emptySheetData), {
+  const charlie = await createModel(deepCopy(emptySheetData), {
     transportService: network,
     client: { id: "charlie", name: "Charlie" },
   });

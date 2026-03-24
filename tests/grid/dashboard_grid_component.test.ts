@@ -61,7 +61,7 @@ describe("Grid component in dashboard mode", () => {
 
   test("Can click on a link in dashboard mode", async () => {
     expect(fixture.querySelectorAll(".o-dashboard-clickable-cell")).toHaveLength(0);
-    setCellContent(model, "A1", "https://odoo.com");
+    await setCellContent(model, "A1", "https://odoo.com");
     model.updateMode("dashboard");
     await nextTick();
     const cells = fixture.querySelectorAll(".o-dashboard-clickable-cell");
@@ -72,7 +72,7 @@ describe("Grid component in dashboard mode", () => {
   });
 
   test("Filter icon is correctly rendered", async () => {
-    createTableWithFilter(model, "B2:C3");
+    await createTableWithFilter(model, "B2:C3");
     model.updateMode("dashboard");
     await nextTick();
 
@@ -89,7 +89,7 @@ describe("Grid component in dashboard mode", () => {
   });
 
   test("Clicking on a filter icon correctly open the filter popover", async () => {
-    createTableWithFilter(model, "A1:A2");
+    await createTableWithFilter(model, "A1:A2");
     model.updateMode("dashboard");
     await nextTick();
     await clickGridIcon(model, "A1");
@@ -97,7 +97,7 @@ describe("Grid component in dashboard mode", () => {
   });
 
   test("Clicking on a filter icon correctly closes the filter popover", async () => {
-    createTableWithFilter(model, "A1:A2");
+    await createTableWithFilter(model, "A1:A2");
     model.updateMode("dashboard");
     await nextTick();
     await clickGridIcon(model, "A1");
@@ -109,7 +109,7 @@ describe("Grid component in dashboard mode", () => {
   });
 
   test("When filter menu is open, clicking on a random grid correctly closes filter popover", async () => {
-    createTableWithFilter(model, "A1:A2");
+    await createTableWithFilter(model, "A1:A2");
     model.updateMode("dashboard");
     await nextTick();
     await clickGridIcon(model, "A1");
@@ -124,11 +124,11 @@ describe("Grid component in dashboard mode", () => {
     model.updateMode("dashboard");
     await nextTick();
     const spy = spyDispatch(parent);
-    setCellContent(model, "A1", "things");
-    selectCell(model, "A1");
+    await setCellContent(model, "A1", "things");
+    await selectCell(model, "A1");
     document.body.dispatchEvent(getEmptyClipboardEvent("copy"));
     expect(spy).not.toHaveBeenCalledWith("COPY");
-    selectCell(model, "A2");
+    await selectCell(model, "A2");
     document.body.dispatchEvent(getEmptyClipboardEvent("paste"));
     expect(spy).not.toHaveBeenCalledWith("PASTE");
   });
@@ -146,15 +146,15 @@ describe("Grid component in dashboard mode", () => {
       execute: (position) => fn(position.col, position.row),
       sequence: 5,
     });
-    setCellContent(model, "A1", "__test1");
-    setCellContent(model, "B10", "__test1");
+    await setCellContent(model, "A1", "__test1");
+    await setCellContent(model, "B10", "__test1");
     model.updateMode("dashboard");
     await nextTick();
 
     await simulateClick("div.o-dashboard-clickable-cell", 10, 10); // first visible cell
     expect(fn).toHaveBeenCalledWith(0, 0);
 
-    setViewportOffset(
+    await setViewportOffset(
       model,
       DEFAULT_CELL_WIDTH /** scroll to column B */,
       9 * DEFAULT_CELL_HEIGHT /** scroll to row 10 */
@@ -176,7 +176,7 @@ describe("Grid component in dashboard mode", () => {
       execute: (position) => {},
       sequence: 5,
     });
-    setCellContent(model, "A1", "coucou");
+    await setCellContent(model, "A1", "coucou");
     model.updateMode("dashboard");
     await nextTick();
     expect(fn).toHaveBeenCalledTimes(1);
@@ -198,7 +198,7 @@ describe("Grid component in dashboard mode", () => {
       execute: (_, __, isMiddleClick) => fn(isMiddleClick),
       sequence: 5,
     });
-    setCellContent(model, "A1", "__test1");
+    await setCellContent(model, "A1", "__test1");
     model.updateMode("dashboard");
     await nextTick();
     await simulateClick("div.o-dashboard-clickable-cell", 10, 10, { bubbles: true, button: 0 });
@@ -234,7 +234,7 @@ describe("Grid component in dashboard mode", () => {
       },
       sequence: 5,
     });
-    setCellContent(model, "A1", "Magical Françoise");
+    await setCellContent(model, "A1", "Magical Françoise");
     model.updateMode("dashboard");
     await nextTick();
     expect(fixture.querySelector("div.o-dashboard-clickable-cell")?.getAttribute("title")).toBe(
@@ -271,7 +271,7 @@ describe("Grid component in dashboard mode", () => {
     expect("div.o-dashboard-clickable-cell").toHaveCount(0); // because center icon => no clickable cell
 
     horizontalAlign = "right";
-    evaluateCells(model);
+    await evaluateCells(model);
     await nextTick();
     expect("div.o-dashboard-clickable-cell").toHaveStyle({
       left: "0px",
@@ -280,7 +280,7 @@ describe("Grid component in dashboard mode", () => {
     });
 
     horizontalAlign = "left";
-    evaluateCells(model);
+    await evaluateCells(model);
     await nextTick();
     expect("div.o-dashboard-clickable-cell").toHaveStyle({
       left: 20 + 2 + "px",

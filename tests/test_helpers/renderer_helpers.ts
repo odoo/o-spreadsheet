@@ -17,13 +17,14 @@ interface ContextObserver {
 export class MockGridRenderingContext implements GridRenderingContext {
   _context = document.createElement("canvas").getContext("2d");
   ctx: CanvasRenderingContext2D;
-  viewport: Viewport;
+  viewport!: Viewport;
   dpr = 1;
   thinLineWidth = 0.4;
 
   constructor(model: Model, width: number, height: number, observer: ContextObserver) {
-    setSheetviewSize(model, height, width, false);
-    this.viewport = model.getters.getActiveMainViewport();
+    void setSheetviewSize(model, height, width, false).then(() => {
+      this.viewport = model.getters.getActiveMainViewport();
+    });
 
     const handler = {
       get: (target, val) => {

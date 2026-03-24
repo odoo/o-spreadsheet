@@ -4,7 +4,7 @@ import {
   ComboChartRuntime,
 } from "@odoo/o-spreadsheet-engine/types/chart/combo_chart";
 import { ChartConfiguration } from "chart.js";
-import { ChartCreationContext, Model } from "../../../src";
+import { ChartCreationContext } from "../../../src";
 import {
   GENERAL_CHART_CREATION_CONTEXT,
   getChartConfiguration,
@@ -17,9 +17,8 @@ import {
   setCellFormat,
   updateChart,
 } from "../../test_helpers/commands_helpers";
-import { createModelFromGrid } from "../../test_helpers/helpers";
+import { createModel, createModelFromGrid } from "../../test_helpers/helpers";
 import { ComboChart } from "./../../../src/helpers/figures/charts/combo_chart";
-
 describe("combo chart", () => {
   test("create combo chart from creation context", () => {
     const context: Required<ChartCreationContext> = {
@@ -43,14 +42,11 @@ describe("combo chart", () => {
       humanize: false,
     });
   });
-
-  test("both axis and tooltips formats are based on their data set", () => {
-    const model = new Model();
-
-    setCellFormat(model, "B1", "0.00%"); // first data set
-    setCellFormat(model, "C1", "0.00[$$]"); // second data set
-
-    createChart(
+  test("both axis and tooltips formats are based on their data set", async () => {
+    const model = await createModel();
+    await setCellFormat(model, "B1", "0.00%"); // first data set
+    await setCellFormat(model, "C1", "0.00[$$]"); // second data set
+    await createChart(
       model,
       {
         type: "combo",
@@ -68,27 +64,22 @@ describe("combo chart", () => {
     const scales = runtime.chartJsConfig.options?.scales as any;
     expect(scales?.y?.ticks?.callback?.apply(null, [1])).toBe("100.00%");
     expect(scales?.y1?.ticks?.callback?.apply(null, [1])).toBe("1.00$");
-
     let tooltipItem = { parsed: { y: 20 }, dataIndex: 0, dataset: { yAxisID: "y", label: "Ds 1" } };
     let tooltipValues = getChartTooltipValues(runtime, tooltipItem);
     expect(tooltipValues).toEqual({ beforeLabel: "Ds 1", label: "2000.00%" });
-
     tooltipItem = { parsed: { y: 20 }, dataIndex: 1, dataset: { yAxisID: "y1", label: "Ds 2" } };
     tooltipValues = getChartTooltipValues(runtime, tooltipItem);
     expect(tooltipValues).toEqual({ beforeLabel: "Ds 2", label: "20.00$" });
   });
-
-  test("Can edit the type of the series", () => {
-    const model = new Model();
-
-    setCellContent(model, "A1", "Alice");
-    setCellContent(model, "A2", "Bob");
-    setCellContent(model, "B1", "1");
-    setCellContent(model, "B2", "2");
-    setCellContent(model, "C1", "10");
-    setCellContent(model, "C2", "20");
-
-    createChart(
+  test("Can edit the type of the series", async () => {
+    const model = await createModel();
+    await setCellContent(model, "A1", "Alice");
+    await setCellContent(model, "A2", "Bob");
+    await setCellContent(model, "B1", "1");
+    await setCellContent(model, "B2", "2");
+    await setCellContent(model, "C1", "10");
+    await setCellContent(model, "C2", "20");
+    await createChart(
       model,
       {
         type: "combo",
@@ -100,21 +91,20 @@ describe("combo chart", () => {
     );
     let runtime = model.getters.getChartRuntime("1") as ComboChartRuntime;
     expect(runtime.chartJsConfig.data?.datasets?.[1].type).toBe("line");
-    updateChart(model, "1", {
+    await updateChart(model, "1", {
       dataSets: [{ dataRange: "B1:B2" }, { dataRange: "C1:C2", type: "bar" }],
     });
     runtime = model.getters.getChartRuntime("1") as ComboChartRuntime;
     expect(runtime.chartJsConfig.data?.datasets?.[1].type).toBe("bar");
   });
-
-  test("Combo chart legend", () => {
-    const model = createModelFromGrid({
+  test("Combo chart legend", async () => {
+    const model = await createModelFromGrid({
       A1: "1",
       A2: "2",
       A3: "3",
       A4: "4",
     });
-    createChart(
+    await createChart(
       model,
       {
         dataSets: [
@@ -149,31 +139,26 @@ describe("combo chart", () => {
       },
     ]);
   });
-
-  test("Bar spacing is adapted to the number of bar datasets", () => {
-    const model = createModelFromGrid({ A2: "2", B2: "3", C2: "4" });
-
+  test("Bar spacing is adapted to the number of bar datasets", async () => {
+    const model = await createModelFromGrid({ A2: "2", B2: "3", C2: "4" });
     let dataSets: ComboChartDataSet[] = [
       { dataRange: "A1:A3", type: "bar" },
       { dataRange: "B1:B3", type: "line" },
     ];
-    createChart(model, { type: "combo", dataSets }, "chartId");
-
+    await createChart(model, { type: "combo", dataSets }, "chartId");
     let runtime = model.getters.getChartRuntime("chartId") as BarChartRuntime;
     let config = runtime.chartJsConfig as ChartConfiguration<"bar">;
     expect(config.data.datasets[0].barPercentage).toEqual(0.9);
     expect(config.data.datasets[0].categoryPercentage).toEqual(1);
-
     dataSets = [...dataSets, { dataRange: "C1:C3", type: "bar" }];
-    updateChart(model, "chartId", { dataSets });
+    await updateChart(model, "chartId", { dataSets });
     runtime = model.getters.getChartRuntime("chartId") as BarChartRuntime;
     config = runtime.chartJsConfig as ChartConfiguration<"bar">;
     expect(config.data.datasets.map((ds) => ds.barPercentage)).toEqual([0.9, undefined, 0.9]); // undefined for line dataset
     expect(config.data.datasets.map((ds) => ds.categoryPercentage)).toEqual([0.8, undefined, 0.8]);
   });
-
-  test("combo chart runtime reflects axis bounds on both vertical axes", () => {
-    const model = createModelFromGrid({
+  test("combo chart runtime reflects axis bounds on both vertical axes", async () => {
+    const model = await createModelFromGrid({
       A1: "Month",
       A2: "Jan",
       B1: "Series A",
@@ -181,8 +166,7 @@ describe("combo chart", () => {
       C1: "Series B",
       C2: "50",
     });
-
-    createChart(
+    await createChart(
       model,
       {
         type: "combo",
@@ -195,15 +179,13 @@ describe("combo chart", () => {
       },
       "1"
     );
-
-    updateChart(model, "1", {
+    await updateChart(model, "1", {
       axesDesign: {
         x: { min: 0, max: 2 },
         y: { min: 5, max: 30, gridLines: "minor" },
         y1: { min: 40, max: 80, gridLines: "both" },
       },
     });
-
     const scales = getChartConfiguration(model, "1").options?.scales;
     expect(scales.x?.min).toBe(0);
     expect(scales.y?.min).toBe(5);

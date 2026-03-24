@@ -17,8 +17,8 @@ const pivotId = "pivotId";
 const measureId = "measureId";
 
 describe("Measure display", () => {
-  test("Can display measures with no calculations", () => {
-    const model = createModelWithTestPivotDataset();
+  test("Can display measures with no calculations", async () => {
+    const model = await createModelWithTestPivotDataset();
     updatePivotMeasureDisplay(model, pivotId, measureId, { type: "no_calculations" });
 
     expect(model.getters.getPivotCoreDefinition(pivotId).measures[0].display).toEqual({
@@ -35,8 +35,8 @@ describe("Measure display", () => {
     });
   });
 
-  test("%_of_grand_total display type", () => {
-    const model = createModelWithTestPivotDataset();
+  test("%_of_grand_total display type", async () => {
+    const model = await createModelWithTestPivotDataset();
     updatePivotMeasureDisplay(model, pivotId, measureId, { type: "%_of_grand_total" });
 
     // prettier-ignore
@@ -49,8 +49,8 @@ describe("Measure display", () => {
     });
   });
 
-  test("Displayed measure are updated when changing the aggregator", () => {
-    const model = createModelWithTestPivotDataset();
+  test("Displayed measure are updated when changing the aggregator", async () => {
+    const model = await createModelWithTestPivotDataset();
     updatePivot(model, pivotId, {
       measures: [
         {
@@ -72,8 +72,8 @@ describe("Measure display", () => {
     });
   });
 
-  test("%_of_col_total display type", () => {
-    const model = createModelWithTestPivotDataset();
+  test("%_of_col_total display type", async () => {
+    const model = await createModelWithTestPivotDataset();
     updatePivotMeasureDisplay(model, pivotId, measureId, { type: "%_of_col_total" });
 
     // prettier-ignore
@@ -86,8 +86,8 @@ describe("Measure display", () => {
     });
   });
 
-  test("%_of_row_total display type", () => {
-    const model = createModelWithTestPivotDataset();
+  test("%_of_row_total display type", async () => {
+    const model = await createModelWithTestPivotDataset();
     updatePivotMeasureDisplay(model, pivotId, measureId, { type: "%_of_row_total" });
 
     // prettier-ignore
@@ -100,8 +100,8 @@ describe("Measure display", () => {
     });
   });
 
-  test("%_of_parent_row_total display type", () => {
-    const model = createModelWithTestPivotDataset({
+  test("%_of_parent_row_total display type", async () => {
+    const model = await createModelWithTestPivotDataset({
       rows: [
         { fieldName: "Created on", granularity: "month_number", order: "asc" },
         { fieldName: "Active", order: "asc" },
@@ -131,8 +131,8 @@ describe("Measure display", () => {
     });
   });
 
-  test("%_of_parent_col_total display type", () => {
-    const model = createModelWithTestPivotDataset();
+  test("%_of_parent_col_total display type", async () => {
+    const model = await createModelWithTestPivotDataset();
     updatePivot(model, pivotId, {
       columns: [
         { fieldName: "Salesperson", order: "asc" },
@@ -160,12 +160,12 @@ describe("Measure display", () => {
   });
 
   describe("%_of_parent_total", () => {
-    test("%_of_parent_total on row", () => {
+    test("%_of_parent_total on row", async () => {
       const measureDisplay: PivotMeasureDisplay = {
         type: "%_of_parent_total",
         fieldNameWithGranularity: "Created on:month_number",
       };
-      const model = createModelWithTestPivotDataset({
+      const model = await createModelWithTestPivotDataset({
         rows: [
           { fieldName: "Created on", granularity: "month_number", order: "asc" },
           { fieldName: "Active", order: "asc" },
@@ -205,12 +205,12 @@ describe("Measure display", () => {
       });
     });
 
-    test("Can display measure as percentage of given parent field on non-root parent row", () => {
+    test("Can display measure as percentage of given parent field on non-root parent row", async () => {
       const measureDisplay: PivotMeasureDisplay = {
         type: "%_of_parent_total",
         fieldNameWithGranularity: "Active",
       };
-      const model = createModelWithTestPivotDataset({
+      const model = await createModelWithTestPivotDataset({
         rows: [
           { fieldName: "Created on", granularity: "month_number", order: "asc" },
           { fieldName: "Active", order: "asc" },
@@ -250,12 +250,12 @@ describe("Measure display", () => {
       });
     });
 
-    test("Can display measure as percentage of given parent field on a parent column", () => {
+    test("Can display measure as percentage of given parent field on a parent column", async () => {
       const measureDisplay: PivotMeasureDisplay = {
         type: "%_of_parent_total",
         fieldNameWithGranularity: "Salesperson",
       };
-      const model = createModelWithTestPivotDataset({
+      const model = await createModelWithTestPivotDataset({
         columns: [
           { fieldName: "Salesperson", order: "asc" },
           { fieldName: "Stage", order: "asc" },
@@ -281,12 +281,12 @@ describe("Measure display", () => {
       });
     });
 
-    test("%_of_parent_total with field not in the pivot", () => {
+    test("%_of_parent_total with field not in the pivot", async () => {
       const measureDisplay: PivotMeasureDisplay = {
         type: "%_of_parent_total",
         fieldNameWithGranularity: "Active",
       };
-      const model = createModelWithTestPivotDataset({
+      const model = await createModelWithTestPivotDataset({
         measures: [
           {
             fieldName: "Expected Revenue",
@@ -312,13 +312,13 @@ describe("Measure display", () => {
   });
 
   describe("%_of", () => {
-    test("Can display measure as %_of given row field value", () => {
+    test("Can display measure as %_of given row field value", async () => {
       const measureDisplay: PivotMeasureDisplay = {
         type: "%_of",
         fieldNameWithGranularity: "Created on:month_number",
         value: 2,
       };
-      const model = createModelWithTestPivotDataset({
+      const model = await createModelWithTestPivotDataset({
         measures: [
           {
             fieldName: "Expected Revenue",
@@ -339,13 +339,13 @@ describe("Measure display", () => {
       });
     });
 
-    test("Can display measure as %_of given col field value", () => {
+    test("Can display measure as %_of given col field value", async () => {
       const measureDisplay: PivotMeasureDisplay = {
         type: "%_of",
         fieldNameWithGranularity: "Salesperson",
         value: "Alice",
       };
-      const model = createModelWithTestPivotDataset({
+      const model = await createModelWithTestPivotDataset({
         measures: [
           {
             fieldName: "Expected Revenue",
@@ -366,13 +366,13 @@ describe("Measure display", () => {
       });
     });
 
-    test("%_of with multi level grouping", () => {
+    test("%_of with multi level grouping", async () => {
       const measureDisplay: PivotMeasureDisplay = {
         type: "%_of",
         fieldNameWithGranularity: "Active",
         value: false,
       };
-      const model = createModelWithTestPivotDataset({
+      const model = await createModelWithTestPivotDataset({
         rows: [
           { fieldName: "Created on", granularity: "month_number", order: "asc" },
           { fieldName: "Active", order: "asc" },
@@ -412,13 +412,13 @@ describe("Measure display", () => {
       });
     });
 
-    test("%_of (previous)", () => {
+    test("%_of (previous)", async () => {
       const measureDisplay: PivotMeasureDisplay = {
         type: "%_of",
         fieldNameWithGranularity: "Created on:month_number",
         value: PREVIOUS_VALUE,
       };
-      const model = createModelWithTestPivotDataset({
+      const model = await createModelWithTestPivotDataset({
         measures: [
           {
             fieldName: "Expected Revenue",
@@ -439,13 +439,13 @@ describe("Measure display", () => {
       });
     });
 
-    test("%_of (next)", () => {
+    test("%_of (next)", async () => {
       const measureDisplay: PivotMeasureDisplay = {
         type: "%_of",
         fieldNameWithGranularity: "Salesperson",
         value: NEXT_VALUE,
       };
-      const model = createModelWithTestPivotDataset({
+      const model = await createModelWithTestPivotDataset({
         measures: [
           {
             fieldName: "Expected Revenue",
@@ -466,13 +466,13 @@ describe("Measure display", () => {
       });
     });
 
-    test("%_of (previous) with multi level grouping", () => {
+    test("%_of (previous) with multi level grouping", async () => {
       const measureDisplay: PivotMeasureDisplay = {
         type: "%_of",
         fieldNameWithGranularity: "Active",
         value: PREVIOUS_VALUE,
       };
-      const model = createModelWithTestPivotDataset({
+      const model = await createModelWithTestPivotDataset({
         rows: [
           { fieldName: "Created on", granularity: "month_number", order: "asc" },
           { fieldName: "Active", order: "asc" },
@@ -512,13 +512,13 @@ describe("Measure display", () => {
       });
     });
 
-    test("%_of (previous) with field sorted in descending order", () => {
+    test("%_of (previous) with field sorted in descending order", async () => {
       const measureDisplay: PivotMeasureDisplay = {
         type: "%_of",
         fieldNameWithGranularity: "Created on:month_number",
         value: PREVIOUS_VALUE,
       };
-      const model = createModelWithTestPivotDataset({
+      const model = await createModelWithTestPivotDataset({
         rows: [{ fieldName: "Created on", granularity: "month_number", order: "desc" }],
         measures: [
           {
@@ -540,13 +540,13 @@ describe("Measure display", () => {
       });
     });
 
-    test("%_of with field not in pivot", () => {
+    test("%_of with field not in pivot", async () => {
       const measureDisplay: PivotMeasureDisplay = {
         type: "%_of",
         fieldNameWithGranularity: "Stages",
         value: "Won",
       };
-      const model = createModelWithTestPivotDataset({
+      const model = await createModelWithTestPivotDataset({
         measures: [
           {
             fieldName: "Expected Revenue",
@@ -567,13 +567,13 @@ describe("Measure display", () => {
       });
     });
 
-    test("%_of with field value not in pivot", () => {
+    test("%_of with field value not in pivot", async () => {
       const measureDisplay: PivotMeasureDisplay = {
         type: "%_of",
         fieldNameWithGranularity: "Salesperson",
         value: "Annette",
       };
-      const model = createModelWithTestPivotDataset({
+      const model = await createModelWithTestPivotDataset({
         measures: [
           {
             fieldName: "Expected Revenue",
@@ -594,13 +594,13 @@ describe("Measure display", () => {
       });
     });
 
-    test("%_of make the difference between value 0 and empty value", () => {
+    test("%_of make the difference between value 0 and empty value", async () => {
       const measureDisplay: PivotMeasureDisplay = {
         type: "%_of",
         fieldNameWithGranularity: "Salesperson",
         value: "Bob",
       };
-      const model = createModelWithTestPivotDataset({
+      const model = await createModelWithTestPivotDataset({
         measures: [
           {
             fieldName: "Expected Revenue",
@@ -615,25 +615,25 @@ describe("Measure display", () => {
       expect(getEvaluatedCell(model, "B22").value).toEqual("");
       expect(getEvaluatedCell(model, "C22").value).toEqual("");
 
-      setCellContent(model, "A2", "02/02/2024");
-      setCellContent(model, "C2", ""); // Empty Expected Revenue for Bob in February
+      await setCellContent(model, "A2", "02/02/2024");
+      await setCellContent(model, "C2", ""); // Empty Expected Revenue for Bob in February
       expect(getEvaluatedCell(model, "B22").value).toEqual("");
       expect(getEvaluatedCell(model, "C22").value).toEqual("");
 
-      setCellContent(model, "C2", "0"); // 0 Expected Revenue for Bob in February
+      await setCellContent(model, "C2", "0"); // 0 Expected Revenue for Bob in February
       expect(getEvaluatedCell(model, "B22").value).toEqual(CellErrorType.DivisionByZero);
       expect(getEvaluatedCell(model, "C22").value).toEqual(CellErrorType.DivisionByZero);
     });
   });
 
   describe("difference_from", () => {
-    test("Can display measure as difference_from given row field value", () => {
+    test("Can display measure as difference_from given row field value", async () => {
       const measureDisplay: PivotMeasureDisplay = {
         type: "difference_from",
         fieldNameWithGranularity: "Created on:month_number",
         value: 2,
       };
-      const model = createModelWithTestPivotDataset({
+      const model = await createModelWithTestPivotDataset({
         measures: [
           {
             fieldName: "Expected Revenue",
@@ -654,13 +654,13 @@ describe("Measure display", () => {
       });
     });
 
-    test("Can display measure as difference_from given col field value", () => {
+    test("Can display measure as difference_from given col field value", async () => {
       const measureDisplay: PivotMeasureDisplay = {
         type: "difference_from",
         fieldNameWithGranularity: "Salesperson",
         value: "Alice",
       };
-      const model = createModelWithTestPivotDataset({
+      const model = await createModelWithTestPivotDataset({
         measures: [
           {
             fieldName: "Expected Revenue",
@@ -681,13 +681,13 @@ describe("Measure display", () => {
       });
     });
 
-    test("difference_from with multi level grouping", () => {
+    test("difference_from with multi level grouping", async () => {
       const measureDisplay: PivotMeasureDisplay = {
         type: "difference_from",
         fieldNameWithGranularity: "Active",
         value: true,
       };
-      const model = createModelWithTestPivotDataset({
+      const model = await createModelWithTestPivotDataset({
         rows: [
           { fieldName: "Created on", granularity: "month_number", order: "asc" },
           { fieldName: "Active", order: "asc" },
@@ -727,13 +727,13 @@ describe("Measure display", () => {
       });
     });
 
-    test("difference_from (previous) with multi level grouping", () => {
+    test("difference_from (previous) with multi level grouping", async () => {
       const measureDisplay: PivotMeasureDisplay = {
         type: "difference_from",
         fieldNameWithGranularity: "Active",
         value: PREVIOUS_VALUE,
       };
-      const model = createModelWithTestPivotDataset({
+      const model = await createModelWithTestPivotDataset({
         rows: [
           { fieldName: "Created on", granularity: "month_number", order: "asc" },
           { fieldName: "Active", order: "asc" },
@@ -775,13 +775,13 @@ describe("Measure display", () => {
   });
 
   describe("%_difference_from", () => {
-    test("Can display measure as %_difference_from given row field value", () => {
+    test("Can display measure as %_difference_from given row field value", async () => {
       const measureDisplay: PivotMeasureDisplay = {
         type: "%_difference_from",
         fieldNameWithGranularity: "Created on:month_number",
         value: 2,
       };
-      const model = createModelWithTestPivotDataset({
+      const model = await createModelWithTestPivotDataset({
         measures: [
           {
             fieldName: "Expected Revenue",
@@ -802,13 +802,13 @@ describe("Measure display", () => {
       });
     });
 
-    test("Can display measure as %_difference_from given col field value", () => {
+    test("Can display measure as %_difference_from given col field value", async () => {
       const measureDisplay: PivotMeasureDisplay = {
         type: "%_difference_from",
         fieldNameWithGranularity: "Salesperson",
         value: "Alice",
       };
-      const model = createModelWithTestPivotDataset({
+      const model = await createModelWithTestPivotDataset({
         measures: [
           {
             fieldName: "Expected Revenue",
@@ -829,13 +829,13 @@ describe("Measure display", () => {
       });
     });
 
-    test("%_difference_from with multi level grouping", () => {
+    test("%_difference_from with multi level grouping", async () => {
       const measureDisplay: PivotMeasureDisplay = {
         type: "%_difference_from",
         fieldNameWithGranularity: "Active",
         value: true,
       };
-      const model = createModelWithTestPivotDataset({
+      const model = await createModelWithTestPivotDataset({
         rows: [
           { fieldName: "Created on", granularity: "month_number", order: "asc" },
           { fieldName: "Active", order: "asc" },
@@ -875,13 +875,13 @@ describe("Measure display", () => {
       });
     });
 
-    test("%_difference_from (previous) with multi level grouping", () => {
+    test("%_difference_from (previous) with multi level grouping", async () => {
       const measureDisplay: PivotMeasureDisplay = {
         type: "%_difference_from",
         fieldNameWithGranularity: "Active",
         value: PREVIOUS_VALUE,
       };
-      const model = createModelWithTestPivotDataset({
+      const model = await createModelWithTestPivotDataset({
         rows: [
           { fieldName: "Created on", granularity: "month_number", order: "asc" },
           { fieldName: "Active", order: "asc" },
@@ -921,13 +921,13 @@ describe("Measure display", () => {
       });
     });
 
-    test("%_difference_from make the difference between value 0 and empty value", () => {
+    test("%_difference_from make the difference between value 0 and empty value", async () => {
       const measureDisplay: PivotMeasureDisplay = {
         type: "%_difference_from",
         fieldNameWithGranularity: "Salesperson",
         value: "Bob",
       };
-      const model = createModelWithTestPivotDataset({
+      const model = await createModelWithTestPivotDataset({
         measures: [
           {
             fieldName: "Expected Revenue",
@@ -942,20 +942,20 @@ describe("Measure display", () => {
       expect(getEvaluatedCell(model, "B22").value).toEqual("");
       expect(getEvaluatedCell(model, "C22").value).toEqual("");
 
-      setCellContent(model, "A2", "02/02/2024");
-      setCellContent(model, "C2", ""); // Empty Expected Revenue for Bob in February
+      await setCellContent(model, "A2", "02/02/2024");
+      await setCellContent(model, "C2", ""); // Empty Expected Revenue for Bob in February
       expect(getEvaluatedCell(model, "B22").value).toEqual("");
       expect(getEvaluatedCell(model, "C22").value).toEqual("");
 
-      setCellContent(model, "C2", "0"); // 0 Expected Revenue for Bob in February
+      await setCellContent(model, "C2", "0"); // 0 Expected Revenue for Bob in February
       expect(getEvaluatedCell(model, "B22").value).toEqual(CellErrorType.DivisionByZero);
       expect(getEvaluatedCell(model, "C22").value).toEqual("");
     });
   });
 
   describe("index", () => {
-    test("Can display measure as index with simple grouping", () => {
-      const model = createModelWithTestPivotDataset();
+    test("Can display measure as index with simple grouping", async () => {
+      const model = await createModelWithTestPivotDataset();
       updatePivotMeasureDisplay(model, pivotId, measureId, { type: "index" });
 
       // prettier-ignore
@@ -968,8 +968,8 @@ describe("Measure display", () => {
       });
     });
 
-    test("Can display measure as index with multi-level grouping", () => {
-      const model = createModelWithTestPivotDataset({
+    test("Can display measure as index with multi-level grouping", async () => {
+      const model = await createModelWithTestPivotDataset({
         rows: [
           { fieldName: "Created on", granularity: "month_number", order: "asc" },
           { fieldName: "Active", order: "asc" },
@@ -1011,8 +1011,8 @@ describe("Measure display", () => {
   });
 
   describe("rank_asc", () => {
-    test("Can display measure as ascending ranking on a row field", () => {
-      const model = createModelWithTestPivotDataset();
+    test("Can display measure as ascending ranking on a row field", async () => {
+      const model = await createModelWithTestPivotDataset();
       updatePivotMeasureDisplay(model, pivotId, measureId, {
         type: "rank_asc",
         fieldNameWithGranularity: "Created on:month_number",
@@ -1028,12 +1028,12 @@ describe("Measure display", () => {
       });
     });
 
-    test("Can display measure as ascending ranking on multi-level row fields", () => {
+    test("Can display measure as ascending ranking on multi-level row fields", async () => {
       const display: PivotMeasureDisplay = {
         type: "rank_asc",
         fieldNameWithGranularity: "Created on:month_number",
       };
-      const model = createModelWithTestPivotDataset({
+      const model = await createModelWithTestPivotDataset({
         rows: [
           { fieldName: "Created on", granularity: "month_number", order: "asc" },
           { fieldName: "Active", order: "asc" },
@@ -1120,8 +1120,8 @@ describe("Measure display", () => {
       });
     });
 
-    test("Can display measure as ascending ranking on a column field", () => {
-      const model = createModelWithTestPivotDataset();
+    test("Can display measure as ascending ranking on a column field", async () => {
+      const model = await createModelWithTestPivotDataset();
       updatePivotMeasureDisplay(model, pivotId, measureId, {
         type: "rank_asc",
         fieldNameWithGranularity: "Salesperson",
@@ -1139,8 +1139,8 @@ describe("Measure display", () => {
   });
 
   describe("rank_desc", () => {
-    test("Can display measure as descending ranking on a row field", () => {
-      const model = createModelWithTestPivotDataset();
+    test("Can display measure as descending ranking on a row field", async () => {
+      const model = await createModelWithTestPivotDataset();
       updatePivotMeasureDisplay(model, pivotId, measureId, {
         type: "rank_desc",
         fieldNameWithGranularity: "Created on:month_number",
@@ -1156,12 +1156,12 @@ describe("Measure display", () => {
       });
     });
 
-    test("Can display measure as descending ranking on multi-level row fields", () => {
+    test("Can display measure as descending ranking on multi-level row fields", async () => {
       const display: PivotMeasureDisplay = {
         type: "rank_desc",
         fieldNameWithGranularity: "Active",
       };
-      const model = createModelWithTestPivotDataset({
+      const model = await createModelWithTestPivotDataset({
         rows: [
           { fieldName: "Created on", granularity: "month_number", order: "asc" },
           { fieldName: "Active", order: "asc" },
@@ -1194,8 +1194,8 @@ describe("Measure display", () => {
       });
     });
 
-    test("Can display measure as descending ranking on a column field", () => {
-      const model = createModelWithTestPivotDataset();
+    test("Can display measure as descending ranking on a column field", async () => {
+      const model = await createModelWithTestPivotDataset();
       updatePivotMeasureDisplay(model, pivotId, measureId, {
         type: "rank_desc",
         fieldNameWithGranularity: "Salesperson",
@@ -1213,8 +1213,8 @@ describe("Measure display", () => {
   });
 
   describe("running_total", () => {
-    test("Can display measure as running total of a row field", () => {
-      const model = createModelWithTestPivotDataset();
+    test("Can display measure as running total of a row field", async () => {
+      const model = await createModelWithTestPivotDataset();
       updatePivotMeasureDisplay(model, pivotId, measureId, {
         type: "running_total",
         fieldNameWithGranularity: "Created on:month_number",
@@ -1230,12 +1230,12 @@ describe("Measure display", () => {
       });
     });
 
-    test("Can display measure as running total of multi-level row fields", () => {
+    test("Can display measure as running total of multi-level row fields", async () => {
       const display: PivotMeasureDisplay = {
         type: "running_total",
         fieldNameWithGranularity: "Created on:month_number",
       };
-      const model = createModelWithTestPivotDataset({
+      const model = await createModelWithTestPivotDataset({
         rows: [
           { fieldName: "Created on", granularity: "month_number", order: "asc" },
           { fieldName: "Active", order: "asc" },
@@ -1324,8 +1324,8 @@ describe("Measure display", () => {
       });
     });
 
-    test("Can display measure as running_total of a column field", () => {
-      const model = createModelWithTestPivotDataset();
+    test("Can display measure as running_total of a column field", async () => {
+      const model = await createModelWithTestPivotDataset();
       updatePivotMeasureDisplay(model, pivotId, measureId, {
         type: "running_total",
         fieldNameWithGranularity: "Salesperson",
@@ -1341,12 +1341,12 @@ describe("Measure display", () => {
       });
     });
 
-    test("Running total with row sorted in descending order", () => {
+    test("Running total with row sorted in descending order", async () => {
       const display: PivotMeasureDisplay = {
         type: "running_total",
         fieldNameWithGranularity: "Created on:month_number",
       };
-      const model = createModelWithTestPivotDataset({
+      const model = await createModelWithTestPivotDataset({
         rows: [{ fieldName: "Created on", granularity: "month_number", order: "desc" }],
         measures: [{ fieldName: "Expected Revenue", aggregator: "sum", id: measureId, display }],
       });
@@ -1361,8 +1361,8 @@ describe("Measure display", () => {
       });
     });
 
-    test("Running total with multiple measures", () => {
-      const model = createModelWithTestPivotDataset({
+    test("Running total with multiple measures", async () => {
+      const model = await createModelWithTestPivotDataset({
         measures: [
           {
             fieldName: "Expected Revenue",
@@ -1394,9 +1394,13 @@ describe("Measure display", () => {
       });
     });
 
-    test("PIVOT.VALUE running total falls back to the previous value for a missing date bucket", () => {
-      const model = createModelWithTestPivotDataset();
-      setCellContent(model, "A40", `=PIVOT.VALUE(1, "${measureId}", "Created on:month_number", 5)`);
+    test("PIVOT.VALUE running total falls back to the previous value for a missing date bucket", async () => {
+      const model = await createModelWithTestPivotDataset();
+      await setCellContent(
+        model,
+        "A40",
+        `=PIVOT.VALUE(1, "${measureId}", "Created on:month_number", 5)`
+      );
       expect(getEvaluatedCell(model, "A40").value).toBe("");
       updatePivotMeasureDisplay(model, pivotId, measureId, {
         type: "running_total",
@@ -1405,20 +1409,20 @@ describe("Measure display", () => {
       expect(getEvaluatedCell(model, "A40").value).toBe(320200);
     });
 
-    test("PIVOT.VALUE running total supports child row and column domains", () => {
-      const model = createModelWithTestPivotDataset({
+    test("PIVOT.VALUE running total supports child row and column domains", async () => {
+      const model = await createModelWithTestPivotDataset({
         rows: [
           { fieldName: "Created on", granularity: "month_number", order: "asc" },
           { fieldName: "Stage", order: "asc" },
         ],
         columns: [{ fieldName: "Salesperson", order: "asc" }],
       });
-      setCellContent(
+      await setCellContent(
         model,
         "A40",
         `=PIVOT.VALUE(1, "${measureId}", "Created on:month_number", 4, "Stage", "New", "Salesperson", "Alice")`
       );
-      setCellContent(
+      await setCellContent(
         model,
         "A41",
         `=PIVOT.VALUE(1, "${measureId}", "Created on:month_number", 5, "Stage", "New", "Salesperson", "Alice")`
@@ -1436,8 +1440,8 @@ describe("Measure display", () => {
       expect(getEvaluatedCell(model, "A41").value).toBe(154600);
     });
 
-    test("PIVOT.VALUE running total fallback works with multi-level col domain", () => {
-      const model = createModelWithTestPivotDataset({
+    test("PIVOT.VALUE running total fallback works with multi-level col domain", async () => {
+      const model = await createModelWithTestPivotDataset({
         rows: [{ fieldName: "Created on", granularity: "month_number", order: "asc" }],
         columns: [
           { fieldName: "Salesperson", order: "asc" },
@@ -1445,12 +1449,12 @@ describe("Measure display", () => {
         ],
       });
 
-      setCellContent(
+      await setCellContent(
         model,
         "A40",
         `=PIVOT.VALUE(1, "${measureId}", "Created on:month_number", 4, "Salesperson", "Alice", "Active", false)`
       );
-      setCellContent(
+      await setCellContent(
         model,
         "A41",
         `=PIVOT.VALUE(1, "${measureId}", "Created on:month_number", 5, "Salesperson", "Alice", "Active", false)`
@@ -1468,17 +1472,17 @@ describe("Measure display", () => {
       expect(getEvaluatedCell(model, "A41").value).toBe(193100);
     });
 
-    test("PIVOT.VALUE running total handles Month & Year granularity with column domain", () => {
-      const model = createModelWithTestPivotDataset({
+    test("PIVOT.VALUE running total handles Month & Year granularity with column domain", async () => {
+      const model = await createModelWithTestPivotDataset({
         rows: [{ fieldName: "Created on", granularity: "month", order: "asc" }],
         columns: [{ fieldName: "Stage", order: "asc" }],
       });
-      setCellContent(
+      await setCellContent(
         model,
         "A40",
         `=PIVOT.VALUE(1, "${measureId}", "Created on:month", DATE(2024,4,1), "Stage", "New")`
       );
-      setCellContent(
+      await setCellContent(
         model,
         "A41",
         `=PIVOT.VALUE(1, "${measureId}", "Created on:month", DATE(2024,5,1), "Stage", "New")`
@@ -1496,9 +1500,13 @@ describe("Measure display", () => {
       expect(getEvaluatedCell(model, "A41").value).toBe(204600);
     });
 
-    test("PIVOT.VALUE running total returns empty before the first date bucket", () => {
-      const model = createModelWithTestPivotDataset();
-      setCellContent(model, "A40", `=PIVOT.VALUE(1, "${measureId}", "Created on:month_number", 1)`);
+    test("PIVOT.VALUE running total returns empty before the first date bucket", async () => {
+      const model = await createModelWithTestPivotDataset();
+      await setCellContent(
+        model,
+        "A40",
+        `=PIVOT.VALUE(1, "${measureId}", "Created on:month_number", 1)`
+      );
       expect(getEvaluatedCell(model, "A40").value).toBe("");
       updatePivotMeasureDisplay(model, pivotId, measureId, {
         type: "running_total",
@@ -1507,12 +1515,20 @@ describe("Measure display", () => {
       expect(getEvaluatedCell(model, "A40").value).toBe("");
     });
 
-    test("PIVOT.VALUE running total picks the previous bucket in descending date order", () => {
-      const model = createModelWithTestPivotDataset({
+    test("PIVOT.VALUE running total picks the previous bucket in descending date order", async () => {
+      const model = await createModelWithTestPivotDataset({
         rows: [{ fieldName: "Created on", granularity: "month_number", order: "desc" }],
       });
-      setCellContent(model, "A40", `=PIVOT.VALUE(1, "${measureId}", "Created on:month_number", 1)`);
-      setCellContent(model, "A41", `=PIVOT.VALUE(1, "${measureId}", "Created on:month_number", 5)`);
+      await setCellContent(
+        model,
+        "A40",
+        `=PIVOT.VALUE(1, "${measureId}", "Created on:month_number", 1)`
+      );
+      await setCellContent(
+        model,
+        "A41",
+        `=PIVOT.VALUE(1, "${measureId}", "Created on:month_number", 5)`
+      );
       expect(getEvaluatedCell(model, "A40").value).toBe("");
       expect(getEvaluatedCell(model, "A41").value).toBe("");
       updatePivotMeasureDisplay(model, pivotId, measureId, {
@@ -1525,8 +1541,8 @@ describe("Measure display", () => {
   });
 
   describe("%_running_total", () => {
-    test("Can display measure as percentage of running total of a row field", () => {
-      const model = createModelWithTestPivotDataset();
+    test("Can display measure as percentage of running total of a row field", async () => {
+      const model = await createModelWithTestPivotDataset();
       updatePivotMeasureDisplay(model, pivotId, measureId, {
         type: "%_running_total",
         fieldNameWithGranularity: "Created on:month_number",
@@ -1542,12 +1558,12 @@ describe("Measure display", () => {
       });
     });
 
-    test("Can display measure as percentage of running total of multi-level row fields", () => {
+    test("Can display measure as percentage of running total of multi-level row fields", async () => {
       const display: PivotMeasureDisplay = {
         type: "%_running_total",
         fieldNameWithGranularity: "Created on:month_number",
       };
-      const model = createModelWithTestPivotDataset({
+      const model = await createModelWithTestPivotDataset({
         rows: [
           { fieldName: "Created on", granularity: "month_number", order: "asc" },
           { fieldName: "Active", order: "asc" },
@@ -1636,8 +1652,8 @@ describe("Measure display", () => {
       });
     });
 
-    test("Can display measure as percentage of running total of a column field", () => {
-      const model = createModelWithTestPivotDataset();
+    test("Can display measure as percentage of running total of a column field", async () => {
+      const model = await createModelWithTestPivotDataset();
       updatePivotMeasureDisplay(model, pivotId, measureId, {
         type: "%_running_total",
         fieldNameWithGranularity: "Salesperson",
@@ -1654,13 +1670,13 @@ describe("Measure display", () => {
     });
   });
 
-  test("Display measure as works with PIVOT.VALUE formulas", () => {
+  test("Display measure as works with PIVOT.VALUE formulas", async () => {
     const measureDisplay: PivotMeasureDisplay = {
       type: "%_of",
       fieldNameWithGranularity: "Created on:month_number",
       value: 2,
     };
-    const model = createModelWithTestPivotDataset({
+    const model = await createModelWithTestPivotDataset({
       measures: [
         {
           fieldName: "Expected Revenue",
@@ -1691,13 +1707,13 @@ describe("Measure display", () => {
     });
   });
 
-  test("calculated measure uses the displayed values", () => {
+  test("calculated measure uses the displayed values", async () => {
     const measureDisplay: PivotMeasureDisplay = {
       type: "%_of_grand_total",
       fieldNameWithGranularity: "Created on:month_number",
       value: 2,
     };
-    const model = createModelWithTestPivotDataset();
+    const model = await createModelWithTestPivotDataset();
     const sheetId = model.getters.getActiveSheetId();
     updatePivot(model, pivotId, {
       measures: [
@@ -1728,13 +1744,13 @@ describe("Measure display", () => {
     });
   });
 
-  test("Can change measure display with calculated measure", () => {
+  test("Can change measure display with calculated measure", async () => {
     const measureDisplay: PivotMeasureDisplay = {
       type: "%_of_grand_total",
       fieldNameWithGranularity: "Created on:month_number",
       value: 2,
     };
-    const model = createModelWithTestPivotDataset();
+    const model = await createModelWithTestPivotDataset();
     const sheetId = model.getters.getActiveSheetId();
     updatePivot(model, pivotId, {
       measures: [

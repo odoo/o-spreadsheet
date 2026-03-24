@@ -51,16 +51,16 @@ describe("Filter menu component", () => {
 
   describe("Filter Tests", () => {
     beforeEach(async () => {
-      createTableWithFilter(model, "A1:A5");
-      setCellContent(model, "A1", "header");
-      setCellContent(model, "A2", "1");
-      setCellContent(model, "A3", "1");
-      setCellContent(model, "A4", "2");
+      await createTableWithFilter(model, "A1:A5");
+      await setCellContent(model, "A1", "header");
+      await setCellContent(model, "A2", "1");
+      await setCellContent(model, "A3", "1");
+      await setCellContent(model, "A4", "2");
 
-      createTableWithFilter(model, "B1:B4");
-      setCellContent(model, "B2", "B2");
-      setCellContent(model, "B3", "B3");
-      setCellContent(model, "B4", "B4");
+      await createTableWithFilter(model, "B1:B4");
+      await setCellContent(model, "B2", "B2");
+      await setCellContent(model, "B3", "B3");
+      await setCellContent(model, "B4", "B4");
       await nextTick();
     });
 
@@ -86,10 +86,10 @@ describe("Filter menu component", () => {
     });
 
     test("Uppercase/Lowercase are not displayed twice. Only the first occurrence is displayed", async () => {
-      setCellContent(model, "A2", "PercevaL");
-      setCellContent(model, "A3", "perceval");
-      setCellContent(model, "A4", "gauviN");
-      setCellContent(model, "A5", "Gauvin");
+      await setCellContent(model, "A2", "PercevaL");
+      await setCellContent(model, "A3", "perceval");
+      await setCellContent(model, "A4", "gauviN");
+      await setCellContent(model, "A5", "Gauvin");
 
       await openFilterMenu();
       const values = getFilterMenuValues();
@@ -98,10 +98,10 @@ describe("Filter menu component", () => {
 
     test("Displayed values are sorted using natural sorting", async () => {
       // Sort order should be 2,10,a,B and not 10,2,B,a (the default string comparison)
-      setCellContent(model, "A2", "10");
-      setCellContent(model, "A3", "2");
-      setCellContent(model, "A4", "B");
-      setCellContent(model, "A5", "a");
+      await setCellContent(model, "A2", "10");
+      await setCellContent(model, "A3", "2");
+      await setCellContent(model, "A4", "B");
+      await setCellContent(model, "A5", "a");
 
       await openFilterMenu();
       const values = getFilterMenuValues();
@@ -109,21 +109,21 @@ describe("Filter menu component", () => {
     });
 
     test("We display the formated value of the cells", async () => {
-      setFormat(model, "A4", "m/d/yyyy");
+      await setFormat(model, "A4", "m/d/yyyy");
       await openFilterMenu();
       const values = getFilterMenuValues();
       expect(values.map((val) => val.value)).toEqual(["(Blanks)", "1", "1/1/1900"]);
     });
 
     test("Repeated character in format is not shown", async () => {
-      setFormat(model, "A4", "$* 0");
+      await setFormat(model, "A4", "$* 0");
       await openFilterMenu();
       const values = getFilterMenuValues();
       expect(values.map((val) => val.value)).toEqual(["(Blanks)", "$2", "1"]);
     });
 
     test("Values are checked depending on the filter state", async () => {
-      updateFilter(model, "A1", ["1"]);
+      await updateFilter(model, "A1", ["1"]);
       await openFilterMenu();
       const values = getFilterMenuValues();
       expect(values).toEqual([
@@ -134,21 +134,21 @@ describe("Filter menu component", () => {
     });
 
     test("Hidden values are not displayed", async () => {
-      hideRows(model, [3]);
+      await hideRows(model, [3]);
       await openFilterMenu();
       const values = getFilterMenuValues();
       expect(values.map((val) => val.value)).toEqual(["(Blanks)", "1"]);
     });
 
     test("Values hidden by another filter are not displayed", async () => {
-      updateFilter(model, "B1", ["B2", "B3"]);
+      await updateFilter(model, "B1", ["B2", "B3"]);
       await openFilterMenu();
       const values = getFilterMenuValues();
       expect(values.map((val) => val.value)).toEqual(["(Blanks)", "2"]);
     });
 
     test("All values are displayed and unchecked if a criterion is active", async () => {
-      updateFilterCriterion(model, "A1", { type: "isEmpty", values: [] });
+      await updateFilterCriterion(model, "A1", { type: "isEmpty", values: [] });
       await openFilterMenu();
       expect(getFilterMenuValues()).toEqual([
         { value: "(Blanks)", isChecked: false },
@@ -158,7 +158,7 @@ describe("Filter menu component", () => {
     });
 
     test("Updating the list of value when a criterion filter is active replace the criterion filter with a value filter", async () => {
-      updateFilterCriterion(model, "A1", { type: "isEmpty", values: [] });
+      await updateFilterCriterion(model, "A1", { type: "isEmpty", values: [] });
       await openFilterMenu();
       await simulateClick(".o-filter-menu-value .o-checkbox");
       await simulateClick(".o-filter-menu-confirm");
@@ -188,7 +188,7 @@ describe("Filter menu component", () => {
     });
 
     test("Confirm button updates the filter with formatted cell value", async () => {
-      setFormat(model, "A4", "m/d/yyyy");
+      await setFormat(model, "A4", "m/d/yyyy");
       expect(model.getters.getFilterHiddenValues({ sheetId, col: 0, row: 0 })).toEqual([]);
       await openFilterMenu();
       await simulateClick(".o-filter-menu-value:nth-of-type(2) .o-checkbox");
@@ -263,7 +263,7 @@ describe("Filter menu component", () => {
     });
 
     test("All the values are unchecked if a criterion filter is active", async () => {
-      updateFilterCriterion(model, "A1", { type: "isEmpty", values: [] });
+      await updateFilterCriterion(model, "A1", { type: "isEmpty", values: [] });
       await openFilterMenu();
       expect(getFilterMenuValues()).toEqual([
         { value: "(Blanks)", isChecked: false },
@@ -288,10 +288,10 @@ describe("Filter menu component", () => {
       });
 
       test("Search bar uses fuzzy search", async () => {
-        setCellContent(model, "A2", "Florida");
-        setCellContent(model, "A3", "Alaska");
-        setCellContent(model, "A4", "Texas");
-        setCellContent(model, "A5", "Illinois");
+        await setCellContent(model, "A2", "Florida");
+        await setCellContent(model, "A3", "Alaska");
+        await setCellContent(model, "A4", "Texas");
+        await setCellContent(model, "A5", "Illinois");
 
         await openFilterMenu();
         await setInputValueAndTrigger(".o-filter-menu input", "lo");
@@ -326,18 +326,18 @@ describe("Filter menu component", () => {
   });
 
   test("Sort filter", async () => {
-    createTableWithFilter(model, "A10:B15");
-    setCellContent(model, "A10", "header");
-    setCellContent(model, "A11", "olà");
-    setCellContent(model, "A12", "1");
-    setCellContent(model, "A13", "-1");
-    setCellContent(model, "A14", "2");
+    await createTableWithFilter(model, "A10:B15");
+    await setCellContent(model, "A10", "header");
+    await setCellContent(model, "A11", "olà");
+    await setCellContent(model, "A12", "1");
+    await setCellContent(model, "A13", "-1");
+    await setCellContent(model, "A14", "2");
 
-    setCellContent(model, "B10", "header");
-    setCellContent(model, "B11", "");
-    setCellContent(model, "B12", "ab");
-    setCellContent(model, "B13", "ba");
-    setCellContent(model, "B14", "ca");
+    await setCellContent(model, "B10", "header");
+    await setCellContent(model, "B11", "");
+    await setCellContent(model, "B12", "ab");
+    await setCellContent(model, "B13", "ba");
+    await setCellContent(model, "B14", "ca");
     await nextTick();
 
     await openFilterMenu("A10");
@@ -371,7 +371,7 @@ describe("Filter menu component", () => {
   });
 
   test("cannot sort filter table in readonly mode", async () => {
-    createTableWithFilter(model, "A10:B15");
+    await createTableWithFilter(model, "A10:B15");
     await nextTick();
     await openFilterMenu("A10");
     expect(
@@ -385,8 +385,8 @@ describe("Filter menu component", () => {
   });
 
   test("cannot sort dynamic table", async () => {
-    setCellContent(model, "A10", "=MUNIT(2)");
-    createDynamicTable(model, "A10", { hasFilters: true });
+    await setCellContent(model, "A10", "=MUNIT(2)");
+    await createDynamicTable(model, "A10", { hasFilters: true });
     await nextTick();
     await openFilterMenu("A10");
     expect(
@@ -396,9 +396,9 @@ describe("Filter menu component", () => {
 
   test("Only the first 50 values are displayed by default", async () => {
     for (let i = 1; i < 61; i++) {
-      setCellContent(model, `A${i}`, `${i}`);
+      await setCellContent(model, `A${i}`, `${i}`);
     }
-    createTableWithFilter(model, "A1:A61");
+    await createTableWithFilter(model, "A1:A61");
     await nextTick();
     await openFilterMenu();
 
@@ -410,9 +410,9 @@ describe("Filter menu component", () => {
 
   test("Search/Clear/Select all all works when some values are not displayed", async () => {
     for (let i = 1; i < 61; i++) {
-      setCellContent(model, `A${i}`, `${i}`);
+      await setCellContent(model, `A${i}`, `${i}`);
     }
-    createTableWithFilter(model, "A1:A61");
+    await createTableWithFilter(model, "A1:A61");
     await nextTick();
     await openFilterMenu();
     expect(fixture.querySelectorAll(".o-filter-menu-value")).toHaveLength(50); // Only 50 values are displayed
@@ -436,7 +436,7 @@ describe("Filter menu component", () => {
 
   describe("Filter criterion tests", () => {
     beforeEach(async () => {
-      createTableWithFilter(model, "A1:A5");
+      await createTableWithFilter(model, "A1:A5");
       await nextTick();
     });
 
@@ -477,7 +477,7 @@ describe("Filter menu component", () => {
           .sort();
       };
 
-      setGrid(model, { A2: "Hello", A3: "World" });
+      await setGrid(model, { A2: "Hello", A3: "World" });
       await openFilterMenu();
       expect(".collapsor").toHaveText("Filter by criterion");
       await simulateClick(".o-filter-criterion-type");
@@ -486,7 +486,7 @@ describe("Filter menu component", () => {
       );
       await simulateClick(".o-filter-menu-confirm");
 
-      setGrid(model, { A2: "1", A3: "2", A4: "string in the minority" });
+      await setGrid(model, { A2: "1", A3: "2", A4: "string in the minority" });
       await openFilterMenu();
       await simulateClick(".o-filter-criterion-type");
       expect(await getAvailableCriterionTypes()).toEqual(
@@ -494,7 +494,7 @@ describe("Filter menu component", () => {
       );
       await simulateClick(".o-filter-menu-confirm");
 
-      setFormat(model, "A1:A4", "m/d/yyyy");
+      await setFormat(model, "A1:A4", "m/d/yyyy");
       await openFilterMenu();
       await simulateClick(".o-filter-criterion-type");
       expect(await getAvailableCriterionTypes()).toEqual(

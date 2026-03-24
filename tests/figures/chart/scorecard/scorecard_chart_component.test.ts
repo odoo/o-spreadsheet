@@ -3,8 +3,8 @@ import {
   DEFAULT_SCORECARD_BASELINE_COLOR_UP,
 } from "@odoo/o-spreadsheet-engine/constants";
 import {
-  ScorecardChartConfig,
   getScorecardConfiguration,
+  ScorecardChartConfig,
 } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/scorecard_chart_config_builder";
 import {
   ScorecardChartDefinition,
@@ -31,7 +31,11 @@ import {
 } from "../../../test_helpers/commands_helpers";
 import { FR_LOCALE } from "../../../test_helpers/constants";
 import { getCellContent } from "../../../test_helpers/getters_helpers";
-import { mountComponentWithPortalTarget, nextTick } from "../../../test_helpers/helpers";
+import {
+  createModel,
+  mountComponentWithPortalTarget,
+  nextTick,
+} from "../../../test_helpers/helpers";
 
 let model: Model;
 let chartId: string;
@@ -41,9 +45,9 @@ let env: SpreadsheetChildEnv;
 
 const mutedFontColor = chartMutedFontColor("#fff");
 
-function updateScorecardChartSize(width: Pixel, height: Pixel) {
+async function updateScorecardChartSize(width: Pixel, height: Pixel) {
   const figureId = model.getters.getFigureIdFromChartId(chartId);
-  updateFigure(model, {
+  await updateFigure(model, {
     sheetId,
     figureId,
     offset: {
@@ -81,7 +85,7 @@ function renderScorecardChart(model: Model, chartId: UID, sheetId: UID, canvas: 
   drawScoreChart(design, canvas);
 }
 
-test("Scorecard chart canvas adapt to figure size", () => {
+test("Scorecard chart canvas adapt to figure size", async () => {
   chartId = "someuuid";
   sheetId = "Sheet1";
   const data = {
@@ -102,16 +106,16 @@ test("Scorecard chart canvas adapt to figure size", () => {
       },
     ],
   };
-  model = new Model(data);
+  model = await createModel(data);
   canvas = document.createElement("canvas");
 
-  createScorecardChart(
+  await createScorecardChart(
     model,
     { keyValue: "A1", baseline: "B2", title: { text: "This is a title" } },
     chartId
   );
 
-  updateScorecardChartSize(100, 100);
+  await updateScorecardChartSize(100, 100);
   renderScorecardChart(model, chartId, sheetId, canvas);
 
   expect(canvas.width).toEqual(100);
@@ -119,7 +123,7 @@ test("Scorecard chart canvas adapt to figure size", () => {
 });
 
 describe("Scorecard charts computation", () => {
-  beforeEach(() => {
+  beforeEach(async () => {
     chartId = "someuuid";
     sheetId = "Sheet1";
     const data = {
@@ -140,11 +144,11 @@ describe("Scorecard charts computation", () => {
         },
       ],
     };
-    model = new Model(data);
+    model = await createModel(data);
   });
 
-  test("Chart display correct info", () => {
-    createScorecardChart(
+  test("Chart display correct info", async () => {
+    await createScorecardChart(
       model,
       { keyValue: "A1", baseline: "B1", title: { text: "hello" }, baselineDescr: { text: "desc" } },
       chartId
@@ -157,10 +161,10 @@ describe("Scorecard charts computation", () => {
     expect(chartDesign.key?.text).toEqual("2");
   });
 
-  test("Baseline = 0 correctly displayed", () => {
-    setCellContent(model, "B1", "0");
-    setCellContent(model, "A1", "0");
-    createScorecardChart(model, { keyValue: "A1", baseline: "B1" }, chartId);
+  test("Baseline = 0 correctly displayed", async () => {
+    await setCellContent(model, "B1", "0");
+    await setCellContent(model, "A1", "0");
+    await createScorecardChart(model, { keyValue: "A1", baseline: "B1" }, chartId);
     const chartDesign = getChartDesign(model, chartId, sheetId);
 
     expect(chartDesign.key?.text).toEqual("0");
@@ -169,8 +173,8 @@ describe("Scorecard charts computation", () => {
     expect(chartDesign.baselineArrow).toBeUndefined();
   });
 
-  test("Percentage baseline display a percentage", () => {
-    createScorecardChart(
+  test("Percentage baseline display a percentage", async () => {
+    await createScorecardChart(
       model,
       { keyValue: "A1", baseline: "B1", baselineMode: "percentage" },
       chartId
@@ -180,16 +184,20 @@ describe("Scorecard charts computation", () => {
     expect(chartDesign.baseline?.text).toEqual("100.0%");
   });
 
-  test("Baseline with mode 'text' is plainly displayed", () => {
-    createScorecardChart(model, { keyValue: "A1", baseline: "B1", baselineMode: "text" }, chartId);
+  test("Baseline with mode 'text' is plainly displayed", async () => {
+    await createScorecardChart(
+      model,
+      { keyValue: "A1", baseline: "B1", baselineMode: "text" },
+      chartId
+    );
     const chartDesign = getChartDesign(model, chartId, sheetId);
 
     expect(chartDesign.baseline?.text).toEqual("1");
     expect(chartDesign.baseline?.style.color).toBeSameColorAs(mutedFontColor);
   });
 
-  test("Baseline description and arrow with mode 'progress' are not displayed", () => {
-    createScorecardChart(
+  test("Baseline description and arrow with mode 'progress' are not displayed", async () => {
+    await createScorecardChart(
       model,
       { keyValue: "A1", baseline: "B1", baselineMode: "progress" },
       chartId
@@ -202,8 +210,8 @@ describe("Scorecard charts computation", () => {
     expect(chartDesign.baseline?.text).toEqual("200.0%");
   });
 
-  test("Progress bar color is equal to up color for positive percentage", () => {
-    createScorecardChart(
+  test("Progress bar color is equal to up color for positive percentage", async () => {
+    await createScorecardChart(
       model,
       { keyValue: "A1", baseline: "B1", baselineMode: "progress" },
       chartId
@@ -215,9 +223,9 @@ describe("Scorecard charts computation", () => {
     );
   });
 
-  test("Progress bar color is equal to down color for negative percentage", () => {
-    setCellContent(model, "A1", "-5");
-    createScorecardChart(
+  test("Progress bar color is equal to down color for negative percentage", async () => {
+    await setCellContent(model, "A1", "-5");
+    await createScorecardChart(
       model,
       { keyValue: "A1", baseline: "B1", baselineMode: "progress" },
       chartId
@@ -229,20 +237,20 @@ describe("Scorecard charts computation", () => {
     );
   });
 
-  test("Number are humanized if stipulated in the chart definition", () => {
-    setCellContent(model, "A1", "123456789");
-    setCellContent(model, "B1", "10.5");
-    createScorecardChart(model, { keyValue: "A1", baseline: "B1", humanize: true }, chartId);
+  test("Number are humanized if stipulated in the chart definition", async () => {
+    await setCellContent(model, "A1", "123456789");
+    await setCellContent(model, "B1", "10.5");
+    await createScorecardChart(model, { keyValue: "A1", baseline: "B1", humanize: true }, chartId);
     const chartDesign = getChartDesign(model, chartId, sheetId);
 
     expect(chartDesign.key?.text).toBe("123m");
     expect(chartDesign.baseline?.text).toBe("123m");
   });
 
-  test("Number are humanized if stipulated in the chart definition even in text mode", () => {
-    setCellContent(model, "A1", "123456789");
-    setCellContent(model, "B1", "122222342");
-    createScorecardChart(
+  test("Number are humanized if stipulated in the chart definition even in text mode", async () => {
+    await setCellContent(model, "A1", "123456789");
+    await setCellContent(model, "B1", "122222342");
+    await createScorecardChart(
       model,
       { keyValue: "A1", baseline: "B1", humanize: true, baselineMode: "text" },
       chartId
@@ -253,8 +261,8 @@ describe("Scorecard charts computation", () => {
     expect(chartDesign.baseline?.text).toBe("122m");
   });
 
-  test("Key < baseline display in red with down arrow", () => {
-    createScorecardChart(model, { keyValue: "A1", baseline: "B3" }, chartId);
+  test("Key < baseline display in red with down arrow", async () => {
+    await createScorecardChart(model, { keyValue: "A1", baseline: "B3" }, chartId);
     const chartDesign = getChartDesign(model, chartId, sheetId);
 
     expect(chartDesign.baselineArrow?.direction).toBe("down");
@@ -267,8 +275,8 @@ describe("Scorecard charts computation", () => {
     expect(chartDesign.baseline?.text).toEqual("1");
   });
 
-  test("Key > baseline display in green with up arrow", () => {
-    createScorecardChart(model, { keyValue: "A1", baseline: "B1" }, chartId);
+  test("Key > baseline display in green with up arrow", async () => {
+    await createScorecardChart(model, { keyValue: "A1", baseline: "B1" }, chartId);
     const chartDesign = getChartDesign(model, chartId, sheetId);
 
     expect(chartDesign.baselineArrow?.direction).toBe("up");
@@ -279,8 +287,8 @@ describe("Scorecard charts computation", () => {
     expect(chartDesign.baseline?.text).toEqual("1");
   });
 
-  test("Key = baseline display default font color with no arrow", () => {
-    createScorecardChart(model, { keyValue: "A1", baseline: "B2" }, chartId);
+  test("Key = baseline display default font color with no arrow", async () => {
+    await createScorecardChart(model, { keyValue: "A1", baseline: "B2" }, chartId);
     const chartDesign = getChartDesign(model, chartId, sheetId);
 
     expect(chartDesign.baselineArrow).toBeUndefined();
@@ -288,65 +296,65 @@ describe("Scorecard charts computation", () => {
     expect(chartDesign.baseline?.text).toEqual("0");
   });
 
-  test("Key value is displayed with the cell evaluated format", () => {
-    createScorecardChart(model, { keyValue: "C1" }, chartId);
-    setCellContent(model, "C1", "=A1");
-    setFormat(model, "A1", "0%");
+  test("Key value is displayed with the cell evaluated format", async () => {
+    await createScorecardChart(model, { keyValue: "C1" }, chartId);
+    await setCellContent(model, "C1", "=A1");
+    await setFormat(model, "A1", "0%");
     const chartDesign = getChartDesign(model, chartId, sheetId);
     expect(chartDesign.key?.text).toEqual("200%");
   });
 
-  test("Baseline is displayed with the spreadsheet locale", () => {
-    setCellContent(model, "C1", "=B2");
-    createScorecardChart(model, { keyValue: "A3", baseline: "C1" }, chartId);
+  test("Baseline is displayed with the spreadsheet locale", async () => {
+    await setCellContent(model, "C1", "=B2");
+    await createScorecardChart(model, { keyValue: "A3", baseline: "C1" }, chartId);
     let chartDesign = getChartDesign(model, chartId, sheetId);
     expect(chartDesign.baseline?.text).toEqual("0.12");
 
-    updateLocale(model, FR_LOCALE);
+    await updateLocale(model, FR_LOCALE);
     chartDesign = getChartDesign(model, chartId, sheetId);
     expect(chartDesign.baseline?.text).toEqual("0,12");
   });
 
-  test("Baseline is displayed with the cell evaluated format", () => {
-    setCellContent(model, "C1", "=B2");
-    createScorecardChart(model, { keyValue: "A3", baseline: "C1" }, chartId);
+  test("Baseline is displayed with the cell evaluated format", async () => {
+    await setCellContent(model, "C1", "=B2");
+    await createScorecardChart(model, { keyValue: "A3", baseline: "C1" }, chartId);
     let chartDesign = getChartDesign(model, chartId, sheetId);
     expect(chartDesign.baseline?.text).toEqual("0.12");
 
-    setFormat(model, "B2", "[$$]#,##0.00");
+    await setFormat(model, "B2", "[$$]#,##0.00");
     chartDesign = getChartDesign(model, chartId, sheetId);
     expect(chartDesign.baseline?.text).toEqual("$0.12");
   });
 
-  test("Baseline with lot of decimal is truncated", () => {
-    setCellContent(model, "C1", "=B2");
-    createScorecardChart(model, { keyValue: "A3", baseline: "B2" }, chartId);
+  test("Baseline with lot of decimal is truncated", async () => {
+    await setCellContent(model, "C1", "=B2");
+    await createScorecardChart(model, { keyValue: "A3", baseline: "B2" }, chartId);
     const chartDesign = getChartDesign(model, chartId, sheetId);
     expect(chartDesign.baseline?.text).toEqual("0.12");
     expect(getCellContent(model, "A3")).toEqual("2.1234");
   });
 
-  test("Baseline with lot of decimal isn't truncated if the cell has a format", () => {
-    createScorecardChart(model, { keyValue: "A3", baseline: "B2" }, chartId);
-    setFormat(model, "B2", "[$$]#,####0.0000");
+  test("Baseline with lot of decimal isn't truncated if the cell has a format", async () => {
+    await createScorecardChart(model, { keyValue: "A3", baseline: "B2" }, chartId);
+    await setFormat(model, "B2", "[$$]#,####0.0000");
     const chartDesign = getChartDesign(model, chartId, sheetId);
     expect(chartDesign.baseline?.text).toEqual("$0.1234");
   });
 
-  test("Baseline percentage mode format has priority over cell format", () => {
-    createScorecardChart(
+  test("Baseline percentage mode format has priority over cell format", async () => {
+    await createScorecardChart(
       model,
       { keyValue: "A1", baseline: "B1", baselineMode: "percentage" },
       chartId
     );
-    setFormat(model, "B2", "[$$]#,####0.0000");
+    await setFormat(model, "B2", "[$$]#,####0.0000");
     const chartDesign = getChartDesign(model, chartId, sheetId);
     expect(chartDesign.baseline?.text).toEqual("100.0%");
   });
 
-  test("Key value and baseline are displayed with the cell style", () => {
-    createScorecardChart(model, { keyValue: "A1", baseline: "A1" }, chartId);
-    setFormatting(model, "A1", {
+  test("Key value and baseline are displayed with the cell style", async () => {
+    await createScorecardChart(model, { keyValue: "A1", baseline: "A1" }, chartId);
+    await setFormatting(model, "A1", {
       textColor: "#FF0000",
       bold: true,
       italic: true,
@@ -363,11 +371,11 @@ describe("Scorecard charts computation", () => {
     }
   });
 
-  test("Scorecard elements take the bold/italic style into account when finding the best font size", () => {
+  test("Scorecard elements take the bold/italic style into account when finding the best font size", async () => {
     const string = "This is a long string that will be the keyvalue";
-    setCellContent(model, "A3", string);
-    setFormatting(model, "A3", { bold: true, italic: true });
-    createScorecardChart(model, { baseline: "A3", keyValue: "A3" }, chartId);
+    await setCellContent(model, "A3", string);
+    await setFormatting(model, "A3", { bold: true, italic: true });
+    await createScorecardChart(model, { baseline: "A3", keyValue: "A3" }, chartId);
     const chartDesign = getChartDesign(model, chartId, sheetId);
 
     expect(chartDesign.baseline?.style.font.includes("bold")).toBeTruthy();
@@ -376,21 +384,21 @@ describe("Scorecard charts computation", () => {
     expect(chartDesign.key?.style.font.includes("italic")).toBeTruthy();
   });
 
-  test("Baseline mode percentage don't inherit of the style/format of the cell", () => {
-    createScorecardChart(
+  test("Baseline mode percentage don't inherit of the style/format of the cell", async () => {
+    await createScorecardChart(
       model,
       { keyValue: "A1", baseline: "B1", baselineMode: "percentage" },
       chartId
     );
-    setFormatting(model, "A1", { bold: true });
-    setFormat(model, "A1", "0.0");
+    await setFormatting(model, "A1", { bold: true });
+    await setFormat(model, "A1", "0.0");
     const chartDesign = getChartDesign(model, chartId, sheetId);
     expect(chartDesign.baseline?.style.font.includes("bold")).toBeFalsy();
     expect(chartDesign.baseline?.text).toEqual("100.0%");
   });
 
-  test("High contrast font colors with dark background", () => {
-    createScorecardChart(
+  test("High contrast font colors with dark background", async () => {
+    await createScorecardChart(
       model,
       {
         keyValue: "A1",
@@ -409,14 +417,14 @@ describe("Scorecard charts computation", () => {
     expect(chartDesign.key?.style.color).toBeSameColorAs("#FFFFFF");
   });
 
-  test("Font size stays the same if we put a long key value", () => {
-    createScorecardChart(
+  test("Font size stays the same if we put a long key value", async () => {
+    await createScorecardChart(
       model,
       { keyValue: "A1", baseline: "B2", title: { text: "This is a title" } },
       chartId
     );
     const chartDesign1 = getChartDesign(model, chartId, sheetId);
-    setCellContent(model, "A1", "123456789123456789123456789");
+    await setCellContent(model, "A1", "123456789123456789123456789");
     const chartDesign2 = getChartDesign(model, chartId, sheetId);
     expect(getContextFontSize(chartDesign2.baseline!.style.font)).toEqual(
       getContextFontSize(chartDesign1.baseline!.style.font)
@@ -436,12 +444,12 @@ describe("Scorecard charts computation", () => {
       operator: "isNotEmpty",
       style: { textColor: "#FF0000", fillColor: "#00FF00" },
     };
-    addCfRule(model, "A1", rule);
-    setCellContent(model, "A1", "30");
-    createScorecardChart(model, { keyValue: "A1" }, chartId);
+    await addCfRule(model, "A1", rule);
+    await setCellContent(model, "A1", "30");
+    await createScorecardChart(model, { keyValue: "A1" }, chartId);
     let chartDesign = getChartDesign(model, chartId, sheetId);
     expect(chartDesign.key?.style.color).toBeSameColorAs("#FF0000");
-    setFormatting(model, "A1", { textColor: "#FFAAAA" });
+    await setFormatting(model, "A1", { textColor: "#FFAAAA" });
     chartDesign = getChartDesign(model, chartId, sheetId);
     expect(chartDesign.key?.style.color).toBeSameColorAs("#FF0000");
   });
@@ -469,7 +477,7 @@ describe("Scorecard charts rendering", () => {
         },
       ],
     };
-    model = new Model(data);
+    model = await createModel(data);
     scorecardChartStyle = {
       title: {},
       key: {},
@@ -523,39 +531,43 @@ describe("Scorecard charts rendering", () => {
     jest.spyOn(MockCanvasRenderingContext2D.prototype, "fillText").mockRestore();
   });
 
-  test("Baseline with mode 'text' is plainly displayed", () => {
-    createScorecardChart(model, { keyValue: "A1", baseline: "B1", baselineMode: "text" }, chartId);
+  test("Baseline with mode 'text' is plainly displayed", async () => {
+    await createScorecardChart(
+      model,
+      { keyValue: "A1", baseline: "B1", baselineMode: "text" },
+      chartId
+    );
     renderScorecardChart(model, chartId, sheetId, canvas);
     expect(scorecardChartStyle.baseline.color).toBeSameColorAs(mutedFontColor);
   });
 
-  test("Key < baseline display in red with down arrow", () => {
-    createScorecardChart(model, { keyValue: "A1", baseline: "B3" }, chartId);
+  test("Key < baseline display in red with down arrow", async () => {
+    await createScorecardChart(model, { keyValue: "A1", baseline: "B3" }, chartId);
     renderScorecardChart(model, chartId, sheetId, canvas);
     expect(scorecardChartStyle.baseline.color).toBeSameColorAs(
       DEFAULT_SCORECARD_BASELINE_COLOR_DOWN
     );
   });
 
-  test("Key > baseline display in green with up arrow", () => {
-    createScorecardChart(model, { keyValue: "A1", baseline: "B1" }, chartId);
+  test("Key > baseline display in green with up arrow", async () => {
+    await createScorecardChart(model, { keyValue: "A1", baseline: "B1" }, chartId);
     renderScorecardChart(model, chartId, sheetId, canvas);
     expect(scorecardChartStyle.baseline.color).toBeSameColorAs(DEFAULT_SCORECARD_BASELINE_COLOR_UP);
   });
 
-  test("Key = baseline display default font color with no arrow", () => {
-    createScorecardChart(model, { keyValue: "A1", baseline: "B2" }, chartId);
+  test("Key = baseline display default font color with no arrow", async () => {
+    await createScorecardChart(model, { keyValue: "A1", baseline: "B2" }, chartId);
     renderScorecardChart(model, chartId, sheetId, canvas);
     expect(scorecardChartStyle.baseline.color).toBeSameColorAs(mutedFontColor);
   });
 
-  test("Key value and baseline are displayed with the cell style", () => {
-    setFormatting(model, "A1", {
+  test("Key value and baseline are displayed with the cell style", async () => {
+    await setFormatting(model, "A1", {
       textColor: "#FF0000",
       bold: true,
       italic: true,
     });
-    createScorecardChart(model, { keyValue: "A1", baseline: "A1" }, chartId);
+    await createScorecardChart(model, { keyValue: "A1", baseline: "A1" }, chartId);
     renderScorecardChart(model, chartId, sheetId, canvas);
     for (const style of [scorecardChartStyle.key, scorecardChartStyle.baseline]) {
       expect(style.italic).toEqual(true);
@@ -564,8 +576,8 @@ describe("Scorecard charts rendering", () => {
     }
   });
 
-  test("Key value and baseline descriptions are displayed with the chosen style if no cell style", () => {
-    createScorecardChart(
+  test("Key value and baseline descriptions are displayed with the chosen style if no cell style", async () => {
+    await createScorecardChart(
       model,
       {
         keyValue: "A1",
@@ -583,8 +595,8 @@ describe("Scorecard charts rendering", () => {
     }
   });
 
-  test("Changing description style affect render", () => {
-    createScorecardChart(
+  test("Changing description style affect render", async () => {
+    await createScorecardChart(
       model,
       {
         keyValue: "A1",
@@ -604,7 +616,7 @@ describe("Scorecard charts rendering", () => {
       expect(style.bold).toEqual(false);
     }
 
-    updateChart(model, chartId, { keyDescr: { text: "keykey", bold: true } });
+    await updateChart(model, chartId, { keyDescr: { text: "keykey", bold: true } });
     renderScorecardChart(model, chartId, sheetId, canvas);
 
     expect(scorecardChartStyle.key.bold).toEqual(false);
@@ -612,7 +624,7 @@ describe("Scorecard charts rendering", () => {
     expect(scorecardChartStyle.baseline.bold).toEqual(false);
     expect(scorecardChartStyle.baselineDescr.bold).toEqual(false);
 
-    updateChart(model, chartId, { baselineDescr: { text: "baselineDescr", bold: true } });
+    await updateChart(model, chartId, { baselineDescr: { text: "baselineDescr", bold: true } });
     renderScorecardChart(model, chartId, sheetId, canvas);
 
     expect(scorecardChartStyle.key.bold).toEqual(false);
@@ -622,7 +634,7 @@ describe("Scorecard charts rendering", () => {
   });
 
   test("Changing key description style in panel affect render", async () => {
-    createScorecardChart(
+    await createScorecardChart(
       model,
       {
         keyValue: "A1",
@@ -680,7 +692,7 @@ describe("Scorecard charts rendering", () => {
   });
 
   test("Changing baseline description style in panel affect render", async () => {
-    createScorecardChart(
+    await createScorecardChart(
       model,
       {
         keyValue: "A1",
@@ -737,10 +749,10 @@ describe("Scorecard charts rendering", () => {
     expect(definition.keyDescr?.fontSize).toEqual(64);
   });
 
-  test("Baseline mode percentage don't inherit of the style of the cell", () => {
-    setFormatting(model, "A1", { bold: true });
-    setFormat(model, "A1", "0.0");
-    createScorecardChart(
+  test("Baseline mode percentage don't inherit of the style of the cell", async () => {
+    await setFormatting(model, "A1", { bold: true });
+    await setFormat(model, "A1", "0.0");
+    await createScorecardChart(
       model,
       { keyValue: "A1", baseline: "B1", baselineMode: "percentage" },
       chartId

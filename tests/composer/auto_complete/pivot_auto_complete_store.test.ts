@@ -8,7 +8,7 @@ import { makeStoreWithModel } from "../../test_helpers/stores";
 
 describe("spreadsheet pivot auto complete", () => {
   test("PIVOT.VALUE.* autocomplete pivot id", async () => {
-    const model = createModelWithPivot("A1:I5");
+    const model = await createModelWithPivot("A1:I5");
     const { store: composer } = makeStoreWithModel(model, CellComposerStore);
     addPivot(
       model,
@@ -54,7 +54,7 @@ describe("spreadsheet pivot auto complete", () => {
   });
 
   test("do not show autocomplete if pivot id already set", async () => {
-    const model = createModelWithPivot("A1:I5");
+    const model = await createModelWithPivot("A1:I5");
     addPivot(model, "A1:A4", {
       columns: [],
       rows: [],
@@ -77,7 +77,7 @@ describe("spreadsheet pivot auto complete", () => {
   });
 
   test("PIVOT.VALUE measures", async () => {
-    const model = createModelWithPivot("A1:I5");
+    const model = await createModelWithPivot("A1:I5");
     updatePivot(model, "1", {
       columns: [],
       rows: [],
@@ -110,7 +110,7 @@ describe("spreadsheet pivot auto complete", () => {
   });
 
   test("PIVOT.VALUE measure with the pivot id as a string", async () => {
-    const model = createModelWithPivot("A1:I5");
+    const model = await createModelWithPivot("A1:I5");
     updatePivot(model, "1", {
       columns: [],
       rows: [],
@@ -123,7 +123,7 @@ describe("spreadsheet pivot auto complete", () => {
   });
 
   test("PIVOT.VALUE measure with pivot id that does not exist", async () => {
-    const model = createModelWithPivot("A1:I5");
+    const model = await createModelWithPivot("A1:I5");
     const { store: composer } = makeStoreWithModel(model, CellComposerStore);
     composer.startEdition(`=PIVOT.VALUE(9999,`);
     await nextTick();
@@ -131,7 +131,7 @@ describe("spreadsheet pivot auto complete", () => {
   });
 
   test("PIVOT.VALUE measure without any pivot id", async () => {
-    const model = createModelWithPivot("A1:I5");
+    const model = await createModelWithPivot("A1:I5");
     const { store: composer } = makeStoreWithModel(model, CellComposerStore);
     composer.startEdition(`=PIVOT.VALUE(,`);
     await nextTick();
@@ -139,7 +139,7 @@ describe("spreadsheet pivot auto complete", () => {
   });
 
   test("PIVOT.VALUE group with a single col group", async () => {
-    const model = createModelWithPivot("A1:I5");
+    const model = await createModelWithPivot("A1:I5");
     updatePivot(model, "1", {
       columns: [{ fieldName: "Stage" }],
       rows: [],
@@ -163,7 +163,7 @@ describe("spreadsheet pivot auto complete", () => {
   });
 
   test("PIVOT.VALUE group with a pivot id as string", async () => {
-    const model = createModelWithPivot("A1:I5");
+    const model = await createModelWithPivot("A1:I5");
     updatePivot(model, "1", {
       columns: [{ fieldName: "Stage" }],
       rows: [],
@@ -176,7 +176,7 @@ describe("spreadsheet pivot auto complete", () => {
   });
 
   test("PIVOT.VALUE group with a single row group", async () => {
-    const model = createModelWithPivot("A1:I5");
+    const model = await createModelWithPivot("A1:I5");
     updatePivot(model, "1", {
       columns: [],
       rows: [{ fieldName: "Stage" }],
@@ -200,7 +200,7 @@ describe("spreadsheet pivot auto complete", () => {
   });
 
   test("PIVOT.VALUE group with a single date grouped by day", async () => {
-    const model = createModelWithPivot("A1:I5");
+    const model = await createModelWithPivot("A1:I5");
     updatePivot(model, "1", {
       columns: [],
       rows: [{ fieldName: "Created on", granularity: "day" }],
@@ -224,7 +224,7 @@ describe("spreadsheet pivot auto complete", () => {
   });
 
   test("PIVOT.VALUE search field", async () => {
-    const model = createModelWithPivot("A1:I5");
+    const model = await createModelWithPivot("A1:I5");
     updatePivot(model, "1", {
       columns: [],
       rows: [{ fieldName: "Stage" }],
@@ -237,7 +237,7 @@ describe("spreadsheet pivot auto complete", () => {
   });
 
   test("PIVOT.VALUE search field with both col and row group", async () => {
-    const model = createModelWithPivot("A1:I5");
+    const model = await createModelWithPivot("A1:I5");
     updatePivot(model, "1", {
       columns: [{ fieldName: "Stage" }],
       rows: [{ fieldName: "Created on", granularity: "month_number" }],
@@ -253,7 +253,7 @@ describe("spreadsheet pivot auto complete", () => {
   });
 
   test("PIVOT.VALUE group with row and col groups for the first group", async () => {
-    const model = createModelWithPivot("A1:I5");
+    const model = await createModelWithPivot("A1:I5");
     updatePivot(model, "1", {
       columns: [{ fieldName: "Created on", granularity: "month_number" }],
       rows: [{ fieldName: "Stage" }],
@@ -269,7 +269,7 @@ describe("spreadsheet pivot auto complete", () => {
   });
 
   test("PIVOT.VALUE group with row and col groups for the col group", async () => {
-    const model = createModelWithPivot("A1:I5");
+    const model = await createModelWithPivot("A1:I5");
     updatePivot(model, "1", {
       columns: [{ fieldName: "Created on", granularity: "month_number" }],
       rows: [{ fieldName: "Stage" }],
@@ -284,7 +284,7 @@ describe("spreadsheet pivot auto complete", () => {
   });
 
   test("PIVOT.VALUE group with two rows, on the first group", async () => {
-    const model = createModelWithPivot("A1:I5");
+    const model = await createModelWithPivot("A1:I5");
     updatePivot(model, "1", {
       rows: [{ fieldName: "Stage" }, { fieldName: "Created on", granularity: "month_number" }],
       columns: [],
@@ -301,7 +301,7 @@ describe("spreadsheet pivot auto complete", () => {
   });
 
   test("PIVOT.VALUE autocomplete text field for group value", async () => {
-    const model = createModelWithPivot("A1:I5");
+    const model = await createModelWithPivot("A1:I5");
     updatePivot(model, "1", {
       columns: [],
       rows: [{ fieldName: "Stage" }],
@@ -331,7 +331,7 @@ describe("spreadsheet pivot auto complete", () => {
   });
 
   test.each(['"Ne', "Ne"])("PIVOT.VALUE search text field for group value", async (searchTerm) => {
-    const model = createModelWithPivot("A1:I5");
+    const model = await createModelWithPivot("A1:I5");
     updatePivot(model, "1", {
       columns: [],
       rows: [{ fieldName: "Stage" }],
@@ -351,7 +351,7 @@ describe("spreadsheet pivot auto complete", () => {
   });
 
   test("PIVOT.VALUE autocomplete date month_number field for group value", async () => {
-    const model = createModelWithPivot("A1:I5");
+    const model = await createModelWithPivot("A1:I5");
     updatePivot(model, "1", {
       columns: [],
       rows: [{ fieldName: "Created on", granularity: "month_number" }],
@@ -443,7 +443,7 @@ describe("spreadsheet pivot auto complete", () => {
   });
 
   test("PIVOT.VALUE autocomplete date quarter_number field for group value", async () => {
-    const model = createModelWithPivot("A1:I5");
+    const model = await createModelWithPivot("A1:I5");
     updatePivot(model, "1", {
       columns: [],
       rows: [{ fieldName: "Created on", granularity: "quarter_number" }],
@@ -487,7 +487,7 @@ describe("spreadsheet pivot auto complete", () => {
   });
 
   test("PIVOT.VALUE autocomplete date day_of_month field for group value", async () => {
-    const model = createModelWithPivot("A1:I5");
+    const model = await createModelWithPivot("A1:I5");
     updatePivot(model, "1", {
       columns: [],
       rows: [{ fieldName: "Created on", granularity: "day_of_month" }],
@@ -518,7 +518,7 @@ describe("spreadsheet pivot auto complete", () => {
   });
 
   test("PIVOT.VALUE autocomplete date iso_week_number field for group value", async () => {
-    const model = createModelWithPivot("A1:I5");
+    const model = await createModelWithPivot("A1:I5");
     updatePivot(model, "1", {
       columns: [],
       rows: [{ fieldName: "Created on", granularity: "iso_week_number" }],
@@ -549,7 +549,7 @@ describe("spreadsheet pivot auto complete", () => {
   });
 
   test("PIVOT.VALUE autocomplete date day_of_week field for group value", async () => {
-    const model = createModelWithPivot("A1:I5");
+    const model = await createModelWithPivot("A1:I5");
     updatePivot(model, "1", {
       columns: [],
       rows: [{ fieldName: "Created on", granularity: "day_of_week" }],
@@ -580,7 +580,7 @@ describe("spreadsheet pivot auto complete", () => {
   });
 
   test("PIVOT.VALUE autocomplete date hour_number field for group value", async () => {
-    const model = createModelWithPivot("A1:I5");
+    const model = await createModelWithPivot("A1:I5");
     updatePivot(model, "1", {
       columns: [],
       rows: [{ fieldName: "Created on", granularity: "hour_number" }],
@@ -611,7 +611,7 @@ describe("spreadsheet pivot auto complete", () => {
   });
 
   test("PIVOT.VALUE autocomplete date minute_number field for group value", async () => {
-    const model = createModelWithPivot("A1:I5");
+    const model = await createModelWithPivot("A1:I5");
     updatePivot(model, "1", {
       columns: [],
       rows: [{ fieldName: "Created on", granularity: "minute_number" }],
@@ -642,7 +642,7 @@ describe("spreadsheet pivot auto complete", () => {
   });
 
   test("PIVOT.VALUE autocomplete date second_number field for group value", async () => {
-    const model = createModelWithPivot("A1:I5");
+    const model = await createModelWithPivot("A1:I5");
     updatePivot(model, "1", {
       columns: [],
       rows: [{ fieldName: "Created on", granularity: "second_number" }],
@@ -673,7 +673,7 @@ describe("spreadsheet pivot auto complete", () => {
   });
 
   test("PIVOT.VALUE autocomplete field after a date field", async () => {
-    const model = createModelWithPivot("A1:I5");
+    const model = await createModelWithPivot("A1:I5");
     updatePivot(model, "1", {
       columns: [{ fieldName: "Stage" }],
       rows: [{ fieldName: "Created on", granularity: "month_number" }],
@@ -686,7 +686,7 @@ describe("spreadsheet pivot auto complete", () => {
   });
 
   test("PIVOT.VALUE no autocomplete value for wrong group field", async () => {
-    const model = createModelWithPivot("A1:I5");
+    const model = await createModelWithPivot("A1:I5");
     updatePivot(model, "1", {
       columns: [],
       rows: [{ fieldName: "Stage" }],
@@ -699,7 +699,7 @@ describe("spreadsheet pivot auto complete", () => {
   });
 
   test("PIVOT.HEADER first field", async () => {
-    const model = createModelWithPivot("A1:I5");
+    const model = await createModelWithPivot("A1:I5");
     updatePivot(model, "1", {
       columns: [{ fieldName: "Stage" }],
       rows: [],
@@ -716,7 +716,7 @@ describe("spreadsheet pivot auto complete", () => {
   });
 
   test("PIVOT.HEADER search field", async () => {
-    const model = createModelWithPivot("A1:I5");
+    const model = await createModelWithPivot("A1:I5");
     updatePivot(model, "1", {
       columns: [{ fieldName: "Stage" }],
       rows: [],
@@ -733,7 +733,7 @@ describe("spreadsheet pivot auto complete", () => {
   });
 
   test("PIVOT.HEADER group value", async () => {
-    const model = createModelWithPivot("A1:I5");
+    const model = await createModelWithPivot("A1:I5");
     updatePivot(model, "1", {
       columns: [{ fieldName: "Stage" }],
       rows: [],
@@ -750,7 +750,7 @@ describe("spreadsheet pivot auto complete", () => {
   });
 
   test("auto complete measure from stand alone composer", async () => {
-    const model = createModelWithPivot("A1:I5");
+    const model = await createModelWithPivot("A1:I5");
     updatePivot(model, "1", {
       columns: [],
       rows: [],
@@ -791,7 +791,7 @@ describe("spreadsheet pivot auto complete", () => {
   });
 
   test("auto complete dimension from stand alone composer", async () => {
-    const model = createModelWithPivot("A1:I5");
+    const model = await createModelWithPivot("A1:I5");
     updatePivot(model, "1", {
       columns: [],
       rows: [{ fieldName: "Stage" }],
@@ -824,7 +824,7 @@ describe("spreadsheet pivot auto complete", () => {
   });
 
   test("auto complete dimension starting with the cursor after an operator token", async () => {
-    const model = createModelWithPivot("A1:I5");
+    const model = await createModelWithPivot("A1:I5");
     updatePivot(model, "1", {
       columns: [],
       rows: [{ fieldName: "Stage" }],
@@ -857,7 +857,7 @@ describe("spreadsheet pivot auto complete", () => {
   });
 
   test("auto complete dimension with cursor after an operator token", async () => {
-    const model = createModelWithPivot("A1:I5");
+    const model = await createModelWithPivot("A1:I5");
     updatePivot(model, "1", {
       columns: [],
       rows: [{ fieldName: "Stage" }],
@@ -898,7 +898,7 @@ describe("spreadsheet pivot auto complete", () => {
       A1: "Level 2",  B1: "This is true", C1: "This is false",  D1: "a",
       A2: "Alice",    B2: "yes",          C2: "no",             D2: "ok",
     };
-      const model = createModelFromGrid(grid);
+      const model = await createModelFromGrid(grid);
       addPivot(model, "A1:B2", {
         measures: [
           { id: "Level 2:count", fieldName: "Level 2", aggregator: "count" },

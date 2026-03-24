@@ -32,7 +32,7 @@ import {
   getCellRawContent,
   getEvaluatedCell,
 } from "../test_helpers/getters_helpers";
-import { toRangesData } from "../test_helpers/helpers";
+import { createModel, toRangesData } from "../test_helpers/helpers";
 
 /**
  * Testing to export a model to xlsx then import this xlsx
@@ -63,55 +63,55 @@ async function exportToXlsxThenImport(model: Model) {
       imageSrc: file.imageSrc,
     };
   }
-  return new Model(dataToImport, undefined, undefined, undefined, false);
+  return createModel(dataToImport, undefined, undefined, undefined, false);
 }
 
 describe("Export data to xlsx then import it", () => {
   let model: Model;
   let sheetId;
 
-  beforeEach(() => {
-    model = new Model();
+  beforeEach(async () => {
+    model = await createModel();
     sheetId = model.getters.getActiveSheetId();
   });
 
   test("Sheet Name", async () => {
-    renameSheet(model, sheetId, "Renamed");
+    await renameSheet(model, sheetId, "Renamed");
     const importedModel = await exportToXlsxThenImport(model);
     const newSheetId = importedModel.getters.getSheetIdByName("Renamed")!;
     expect(newSheetId).toBeTruthy();
   });
 
   test("Hidden sheet", async () => {
-    hideSheet(model, sheetId);
+    await hideSheet(model, sheetId);
     const importedModel = await exportToXlsxThenImport(model);
     expect(importedModel.getters.getSheet(sheetId)).toBeTruthy();
   });
 
   test("Column size", async () => {
-    resizeColumns(model, ["A"], 50);
+    await resizeColumns(model, ["A"], 50);
     const importedModel = await exportToXlsxThenImport(model);
     expect(importedModel.getters.getColDimensions(sheetId, 0).size).toBeBetween(49.5, 50.5);
   });
 
   test("row size", async () => {
-    resizeRows(model, [0], 50);
+    await resizeRows(model, [0], 50);
     const importedModel = await exportToXlsxThenImport(model);
     expect(importedModel.getters.getRowDimensions(sheetId, 0).size).toEqual(50);
   });
 
   test("Hidden col/row", async () => {
-    hideColumns(model, ["A"]);
-    hideRows(model, [0]);
+    await hideColumns(model, ["A"]);
+    await hideRows(model, [0]);
     const importedModel = await exportToXlsxThenImport(model);
     expect(importedModel.getters.isColHidden(sheetId, 0)).toBeTruthy();
     expect(importedModel.getters.isRowHidden(sheetId, 0)).toBeTruthy();
   });
 
   test("Cell content", async () => {
-    setCellContent(model, "A1", "0");
-    setCellContent(model, "A2", "=A1");
-    setCellContent(model, "A3", "text");
+    await setCellContent(model, "A1", "0");
+    await setCellContent(model, "A2", "=A1");
+    await setCellContent(model, "A3", "text");
     const importedModel = await exportToXlsxThenImport(model);
     expect(getCellRawContent(importedModel, "A1")).toEqual("0");
     expect(getCellRawContent(importedModel, "A2")).toEqual("=A1");
@@ -127,7 +127,7 @@ describe("Export data to xlsx then import it", () => {
     { fillColor: "#151515" },
     { wrapping: "wrap" as Wrapping },
   ])("Cell style %s", async (style: Style) => {
-    setFormatting(model, "A1", style);
+    await setFormatting(model, "A1", style);
     const importedModel = await exportToXlsxThenImport(model);
     expect(getCell(importedModel, "A1")!.style).toMatchObject(style);
   });
@@ -135,7 +135,7 @@ describe("Export data to xlsx then import it", () => {
   test("Cell border", async () => {
     const descr: BorderDescr = { style: "thin", color: "#000000" };
     const border = { bottom: descr, top: descr, left: descr, right: descr };
-    setBorders(model, "A1", border);
+    await setBorders(model, "A1", border);
     const importedModel = await exportToXlsxThenImport(model);
     expect(getBorder(importedModel, "A1")).toEqual(border);
   });
@@ -143,7 +143,7 @@ describe("Export data to xlsx then import it", () => {
   test.each(["0.00%", "#,##0.00", "m/d/yyyy", "m/d/yyyy hh:mm:ss", "#,##0.00 [$€]"])(
     "Cell format %s",
     async (format: string) => {
-      setFormat(model, "A1", format);
+      await setFormat(model, "A1", format);
       const importedModel = await exportToXlsxThenImport(model);
       expect(importedModel.getters.getEvaluatedCell({ sheetId, col: 0, row: 0 }).format).toEqual(
         format
@@ -152,7 +152,7 @@ describe("Export data to xlsx then import it", () => {
   );
 
   test("merges", async () => {
-    merge(model, "A1:B5");
+    await merge(model, "A1:B5");
     const importedModel = await exportToXlsxThenImport(model);
     expect(importedModel.getters.getMerges(sheetId)).toMatchObject([toZone("A1:B5")]);
   });
@@ -204,7 +204,7 @@ describe("Export data to xlsx then import it", () => {
       },
     },
   ])("Conditional formats %s", async (rule: ConditionalFormatRule) => {
-    addCfRule(model, "A1:A3", rule, "1");
+    await addCfRule(model, "A1:A3", rule, "1");
     const importedModel = await exportToXlsxThenImport(model);
     expect(importedModel.getters.getRulesByCell(sheetId, 0, 0).values().next().value).toMatchObject(
       { rule }
@@ -266,7 +266,7 @@ describe("Export data to xlsx then import it", () => {
   });
 
   test("figure", async () => {
-    createChart(
+    await createChart(
       model,
       {
         dataSets: [{ dataRange: "Sheet1!B1:B4" }, { dataRange: "Sheet1!C1:C4" }],
@@ -412,7 +412,7 @@ describe("Export data to xlsx then import it", () => {
       showValues: true,
     },
   ])("Charts %s", async (chartDef: any) => {
-    createChart(model, chartDef, "1");
+    await createChart(model, chartDef, "1");
     chartDef = model.getters.getChartDefinition("1");
     const importedModel = await exportToXlsxThenImport(model);
     const newChartId = importedModel.getters.getChartIds(sheetId)[0];
@@ -421,9 +421,9 @@ describe("Export data to xlsx then import it", () => {
   });
 
   test("hyperlinks", async () => {
-    createSheet(model, { sheetId: "42", name: "she!et2" });
+    await createSheet(model, { sheetId: "42", name: "she!et2" });
     const sheetLink = buildSheetLink("42");
-    setCellContent(model, "A1", `[my label](${sheetLink})`);
+    await setCellContent(model, "A1", `[my label](${sheetLink})`);
     const importedModel = await exportToXlsxThenImport(model);
     const cell = getEvaluatedCell(importedModel, "A1");
     const newSheetId = importedModel.getters.getSheetIdByName("she!et2");
@@ -433,7 +433,7 @@ describe("Export data to xlsx then import it", () => {
   });
 
   test("Image", async () => {
-    createImage(model, {
+    await createImage(model, {
       figureId: "1",
       size: {
         width: 300,
@@ -456,7 +456,7 @@ describe("Export data to xlsx then import it", () => {
     { offset: { x: 0, y: 10 }, col: 5, row: 0 },
     { offset: { x: 10, y: 0 }, col: 0, row: 5 },
   ])("Figure Position", async (position) => {
-    createImage(model, {
+    await createImage(model, {
       figureId: "1",
       size: {
         width: 300,
@@ -477,7 +477,7 @@ describe("Export data to xlsx then import it", () => {
     { offset: { x: 0, y: 10 }, col: 5, row: 0 },
     { offset: { x: 10, y: 0 }, col: 0, row: 5 },
   ])("Figure Position with custom row length", async (position) => {
-    createChart(
+    await createChart(
       model,
       {
         dataSets: [{ dataRange: "Sheet1!B1:B4" }, { dataRange: "Sheet1!C1:C4" }],
@@ -495,7 +495,7 @@ describe("Export data to xlsx then import it", () => {
         ...position,
       }
     );
-    resizeRows(model, [50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60], 100);
+    await resizeRows(model, [50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60], 100);
     const figure = model.getters.getFigures(sheetId)[0];
     const importedModel = await exportToXlsxThenImport(model);
     const newFigure = importedModel.getters.getFigures(sheetId)[0];

@@ -6,10 +6,10 @@ import { DispatchResult, Model, UID } from "../../src";
 import { deepCopy, toZone } from "../../src/helpers";
 import { pivotModelData } from "../pivots/pivot_data";
 import { setCellContent } from "./commands_helpers";
-import { createModelFromGrid } from "./helpers";
+import { createModel, createModelFromGrid } from "./helpers";
 
-export function createModelWithPivot(range: string): Model {
-  return new Model(pivotModelData(range));
+export async function createModelWithPivot(range: string): Promise<Model> {
+  return createModel(pivotModelData(range));
 }
 
 function defaultPivotDefinition(sheetId: UID): SpreadsheetPivotCoreDefinition {
@@ -86,7 +86,7 @@ export function updatePivotMeasureDisplay(
   updatePivot(model, pivotId, { measures });
 }
 
-export function createModelWithTestPivotDataset(
+export async function createModelWithTestPivotDataset(
   pivotDefinition?: Partial<SpreadsheetPivotCoreDefinition>,
   pivotId = "pivotId",
   measureId = "measureId"
@@ -112,7 +112,7 @@ export function createModelWithTestPivotDataset(
     A17: "03/27/2024",  B17: "Alice",       C17: "60000",            D17: "New",   E17: "FALSE",
     A18: "03/27/2024",  B18: "Bob",         C18: "2000",             D18: "Won",   E18: "FALSE",
   };
-  const model = createModelFromGrid(grid);
+  const model = await createModelFromGrid(grid);
 
   pivotDefinition = {
     columns: [{ fieldName: "Salesperson", order: "asc" }],
@@ -121,6 +121,6 @@ export function createModelWithTestPivotDataset(
     ...pivotDefinition,
   };
   addPivot(model, "A1:E18", pivotDefinition, pivotId);
-  setCellContent(model, "A20", "=PIVOT(1)");
+  await setCellContent(model, "A20", "=PIVOT(1)");
   return model;
 }

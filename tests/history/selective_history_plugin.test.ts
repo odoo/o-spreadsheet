@@ -124,7 +124,7 @@ class MiniEditor {
 
 describe("Undo/Redo manager", () => {
   describe("Undo", () => {
-    test("undo a single step", () => {
+    test("undo a single step", async () => {
       const editor = new MiniEditor();
       editor.add("1", "A", 0);
       expect(editor.text).toBe("A");
@@ -132,7 +132,7 @@ describe("Undo/Redo manager", () => {
       expect(editor.text).toBe("");
     });
 
-    test("undo first step", () => {
+    test("undo first step", async () => {
       const editor = new MiniEditor();
       editor.add("1", "A", 0);
       editor.add("2", "B", 1);
@@ -141,7 +141,7 @@ describe("Undo/Redo manager", () => {
       expect(editor.text).toBe("B");
     });
 
-    test("undo step in the middle", () => {
+    test("undo step in the middle", async () => {
       const editor = new MiniEditor();
       editor.add("1", "A", 0);
       editor.add("2", "BBB", 1);
@@ -151,7 +151,7 @@ describe("Undo/Redo manager", () => {
       expect(editor.text).toBe("AC");
     });
 
-    test("undo step with transformation", () => {
+    test("undo step with transformation", async () => {
       const editor = new MiniEditor();
       editor.add("1", "A", 0);
       editor.add("2", "BB", 1);
@@ -160,7 +160,7 @@ describe("Undo/Redo manager", () => {
       expect(editor.text).toBe("ACCC");
     });
 
-    test("undo last two steps in execution order", () => {
+    test("undo last two steps in execution order", async () => {
       const editor = new MiniEditor();
       editor.add("1", "A", 0);
       editor.add("2", "B", 1);
@@ -172,7 +172,7 @@ describe("Undo/Redo manager", () => {
       expect(editor.text).toBe("A");
     });
 
-    test("undo first two steps in execution order", () => {
+    test("undo first two steps in execution order", async () => {
       const editor = new MiniEditor();
       editor.add("1", "A", 0);
       editor.add("2", "B", 1);
@@ -184,7 +184,7 @@ describe("Undo/Redo manager", () => {
       expect(editor.text).toBe("C");
     });
 
-    test("undo first two steps in reverse execution order", () => {
+    test("undo first two steps in reverse execution order", async () => {
       const editor = new MiniEditor();
       editor.add("1", "A", 0);
       editor.add("2", "B", 1);
@@ -196,7 +196,7 @@ describe("Undo/Redo manager", () => {
       expect(editor.text).toBe("C");
     });
 
-    test("undo last two steps in reverse execution order", () => {
+    test("undo last two steps in reverse execution order", async () => {
       const editor = new MiniEditor();
       editor.add("1", "A", 0);
       editor.add("2", "B", 1);
@@ -208,7 +208,7 @@ describe("Undo/Redo manager", () => {
       expect(editor.text).toBe("A");
     });
 
-    test("undo first two steps with different transformations", () => {
+    test("undo first two steps with different transformations", async () => {
       const editor = new MiniEditor();
       editor.add("1", "A", 0);
       editor.add("2", "BB", 1);
@@ -222,7 +222,7 @@ describe("Undo/Redo manager", () => {
   });
 
   describe("Redo", () => {
-    test("redo a single step", () => {
+    test("redo a single step", async () => {
       const editor = new MiniEditor();
       editor.add("1", "A", 0);
       editor.undo("1");
@@ -230,7 +230,7 @@ describe("Undo/Redo manager", () => {
       expect(editor.text).toBe("A");
     });
 
-    test("undo&redo a single step then add a new step", () => {
+    test("undo&redo a single step then add a new step", async () => {
       const editor = new MiniEditor();
       editor.add("1", "A", 0);
       editor.undo("1");
@@ -240,7 +240,7 @@ describe("Undo/Redo manager", () => {
       expect(editor.text).toBe("AB");
     });
 
-    test("undo&redo a single step twice with new step in between", () => {
+    test("undo&redo a single step twice with new step in between", async () => {
       const editor = new MiniEditor();
       editor.add("1", "A", 0);
       editor.undo("1");
@@ -253,7 +253,7 @@ describe("Undo/Redo manager", () => {
       expect(editor.text).toBe("AB");
     });
 
-    test("redo last step", () => {
+    test("redo last step", async () => {
       const editor = new MiniEditor();
       editor.add("1", "A", 0);
       editor.add("2", "B", 1);
@@ -262,7 +262,7 @@ describe("Undo/Redo manager", () => {
       expect(editor.text).toBe("AB");
     });
 
-    test("redo first step", () => {
+    test("redo first step", async () => {
       const editor = new MiniEditor();
       editor.add("1", "A", 0);
       editor.add("2", "B", 1);
@@ -271,7 +271,7 @@ describe("Undo/Redo manager", () => {
       expect(editor.text).toBe("AB");
     });
 
-    test("undo&redo redo first step twice with new step in between", () => {
+    test("undo&redo redo first step twice with new step in between", async () => {
       const editor = new MiniEditor();
       editor.add("1", "A", 0);
       editor.add("2", "B", 1);
@@ -286,7 +286,7 @@ describe("Undo/Redo manager", () => {
       expect(editor.text).toBe("ABC");
     });
 
-    test("redo middle step", () => {
+    test("redo middle step", async () => {
       const editor = new MiniEditor();
       editor.add("1", "A", 0);
       editor.add("2", "BB", 1);
@@ -296,7 +296,7 @@ describe("Undo/Redo manager", () => {
       expect(editor.text).toBe("ABBCCC");
     });
 
-    test("redo after two reverse undo", () => {
+    test("redo after two reverse undo", async () => {
       const editor = new MiniEditor();
       editor.add("1", "A", 0);
       editor.add("2", "BB", 1);
@@ -308,7 +308,7 @@ describe("Undo/Redo manager", () => {
       expect(editor.text).toBe("BBCCC");
     });
 
-    test("redo after two undo", () => {
+    test("redo after two undo", async () => {
       const editor = new MiniEditor();
       editor.add("1", "A", 0);
       editor.add("2", "BB", 1);
@@ -320,7 +320,7 @@ describe("Undo/Redo manager", () => {
       expect(editor.text).toBe("BBCCC");
     });
 
-    test("Two undo, redo the first undone", () => {
+    test("Two undo, redo the first undone", async () => {
       const editor = new MiniEditor();
       editor.add("1", "A", 0);
       editor.add("2", "B", 1);
@@ -335,7 +335,7 @@ describe("Undo/Redo manager", () => {
       expect(editor.text).toBe("ABD");
     });
 
-    test("Two undo and then two redo", () => {
+    test("Two undo and then two redo", async () => {
       const editor = new MiniEditor();
       editor.add("1", "A", 0);
       editor.add("2", "B", 1);
@@ -347,7 +347,7 @@ describe("Undo/Redo manager", () => {
       expect(editor.text).toBe("AB");
     });
 
-    test("Two undo and then two inverted redo", () => {
+    test("Two undo and then two inverted redo", async () => {
       const editor = new MiniEditor();
       editor.add("1", "A", 0);
       editor.add("2", "B", 1);
@@ -359,7 +359,7 @@ describe("Undo/Redo manager", () => {
       expect(editor.text).toBe("AB");
     });
 
-    test("undo/redo with in between", () => {
+    test("undo/redo with in between", async () => {
       const editor = new MiniEditor();
       editor.add("1", "A", 0);
       editor.undo("1");
@@ -369,7 +369,7 @@ describe("Undo/Redo manager", () => {
       expect(editor.text).toBe("AB");
     });
 
-    test("undo/redo with in between", () => {
+    test("undo/redo with in between", async () => {
       const editor = new MiniEditor();
       editor.add("1", "A", 0);
       editor.add("2", "B", 1);
@@ -405,7 +405,7 @@ describe("Undo/Redo manager", () => {
       expect(editor.text).toBe("ACB");
     });
 
-    test("insert before first cancelled", () => {
+    test("insert before first cancelled", async () => {
       const editor = new MiniEditor();
       editor.add("1", "A", 0);
       editor.add("2", "B", 1);
@@ -414,7 +414,7 @@ describe("Undo/Redo manager", () => {
       expect(editor.text).toBe("CB");
     });
 
-    test("insert before cancelled", () => {
+    test("insert before cancelled", async () => {
       const editor = new MiniEditor();
       editor.add("1", "A", 0);
       editor.add("2", "B", 1);
@@ -424,7 +424,7 @@ describe("Undo/Redo manager", () => {
       expect(editor.text).toBe("ADC");
     });
 
-    test("insert after a transformed command", () => {
+    test("insert after a transformed command", async () => {
       const editor = new MiniEditor();
       editor.add("1", "A", 0);
       editor.add("2", "B", 1);
@@ -437,7 +437,7 @@ describe("Undo/Redo manager", () => {
       expect(editor.text).toBe("CD");
     });
 
-    test("insert last then redo previous instruction", () => {
+    test("insert last then redo previous instruction", async () => {
       const editor = new MiniEditor();
       editor.add("1", "A", 0);
       editor.add("2", "B", 1);
@@ -449,7 +449,7 @@ describe("Undo/Redo manager", () => {
       expect(editor.text).toBe("ABCD");
     });
 
-    test("insert before cancelled, then redo ", () => {
+    test("insert before cancelled, then redo ", async () => {
       const editor = new MiniEditor();
       editor.add("1", "A", 0);
       editor.add("2", "B", 1);
@@ -461,7 +461,7 @@ describe("Undo/Redo manager", () => {
       expect(editor.text).toBe("ADBC");
     });
 
-    test("undo/redo external ", () => {
+    test("undo/redo external ", async () => {
       const editor = new MiniEditor();
       editor.add("1", "A", 0);
       editor.add("2", "B", 1);
@@ -473,7 +473,7 @@ describe("Undo/Redo manager", () => {
       expect(editor.text).toBe("ADBC");
     });
 
-    test("undo/redo with external in between", () => {
+    test("undo/redo with external in between", async () => {
       const editor = new MiniEditor();
       editor.add("1", "A", 0);
       editor.undo("1");
@@ -483,7 +483,7 @@ describe("Undo/Redo manager", () => {
       expect(editor.text).toBe("BA");
     });
 
-    test("undo/redo with external in between 2", () => {
+    test("undo/redo with external in between 2", async () => {
       const editor = new MiniEditor();
       editor.add("1", "A", 0);
       editor.undo("1");
@@ -493,7 +493,7 @@ describe("Undo/Redo manager", () => {
       expect(editor.text).toBe("BA");
     });
 
-    test("undo/redo with external in between 3", () => {
+    test("undo/redo with external in between 3", async () => {
       const editor = new MiniEditor();
       editor.add("1", "A", 0);
       editor.add("2", "C", 1);
@@ -511,7 +511,7 @@ describe("Undo/Redo manager", () => {
       expect(() => editor.execAfter("2", ["4", "C", 0])).toThrow();
     });
 
-    test("insert after undo", () => {
+    test("insert after undo", async () => {
       const editor = new MiniEditor();
       editor.add("1", "A", 0);
       editor.undo("1", "2");
@@ -520,7 +520,7 @@ describe("Undo/Redo manager", () => {
       expect(editor.text).toBe("CB");
     });
 
-    test("insert after redo", () => {
+    test("insert after redo", async () => {
       const editor = new MiniEditor();
       editor.add("1", "A", 0);
       editor.undo("1", "2");
@@ -530,7 +530,7 @@ describe("Undo/Redo manager", () => {
       expect(editor.text).toBe("ACB");
     });
 
-    test("insert after undo with different transformations", () => {
+    test("insert after undo with different transformations", async () => {
       const editor = new MiniEditor();
       editor.add("1", "AA", 0);
       editor.undo("1", "2");
@@ -538,7 +538,7 @@ describe("Undo/Redo manager", () => {
       expect(editor.text).toBe("BBB");
     });
 
-    test("insert after redo with different transformations", () => {
+    test("insert after redo with different transformations", async () => {
       const editor = new MiniEditor();
       editor.add("1", "AA", 0);
       editor.undo("1", "2");

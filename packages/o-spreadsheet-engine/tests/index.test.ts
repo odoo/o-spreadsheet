@@ -6,7 +6,7 @@ describe("o-spreadsheet engine", () => {
     console.debug = () => {};
   });
 
-  test("create a model without a DOM environment", () => {
+  test("create a model without a DOM environment", async () => {
     const model = new Model({
       sheets: [
         {
@@ -14,6 +14,7 @@ describe("o-spreadsheet engine", () => {
         },
       ],
     });
+    await model.startModel();
     expect(model).toBeDefined();
   });
 });

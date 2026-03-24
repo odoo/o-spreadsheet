@@ -9,7 +9,7 @@ import {
 } from "../../src/components/tables/table_styles_popover/table_styles_popover";
 import { createTableStyle } from "../test_helpers/commands_helpers";
 import { click, triggerMouseEvent } from "../test_helpers/dom_helper";
-import { mountComponentWithPortalTarget, nextTick } from "../test_helpers/helpers";
+import { createModel, mountComponentWithPortalTarget, nextTick } from "../test_helpers/helpers";
 
 let model: Model;
 let fixture: HTMLElement;
@@ -36,8 +36,8 @@ async function mountPopover(partialProps: Partial<TableStylesPopoverProps> = {})
 }
 
 describe("Table style popover", () => {
-  beforeEach(() => {
-    model = new Model();
+  beforeEach(async () => {
+    model = await createModel();
   });
 
   test("Only table styles given as props are displayed", async () => {
@@ -98,7 +98,7 @@ describe("Table style popover", () => {
 
   describe("Custom style context menu menu", () => {
     beforeEach(async () => {
-      createTableStyle(model, "MyStyle");
+      await createTableStyle(model, "MyStyle");
       await mountPopover();
       await click(fixture, ".o-notebook-tab[data-id='custom']");
     });

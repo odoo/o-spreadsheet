@@ -14,6 +14,7 @@ import {
   setFormatting,
   updateFigure,
 } from "../../test_helpers/commands_helpers";
+import { createModel } from "../../test_helpers/helpers";
 
 describe("Single cell chart background color", () => {
   let model: Model;
@@ -27,89 +28,89 @@ describe("Single cell chart background color", () => {
     return model.getters.getChartRuntime(chartId) as GaugeChartRuntime | ScorecardChartRuntime;
   }
 
-  beforeEach(() => {
-    model = new Model();
+  beforeEach(async () => {
+    model = await createModel();
     sheetId = model.getters.getActiveSheetId();
-    setCellContent(model, "A1", "1");
+    await setCellContent(model, "A1", "1");
   });
 
-  function addCfToA1(fillColor: Color) {
-    addEqualCf(model, "A1", { fillColor }, "1");
+  async function addCfToA1(fillColor: Color) {
+    await addEqualCf(model, "A1", { fillColor }, "1");
   }
 
-  function addFillToA1(color: Color) {
-    setFormatting(model, "A1", { fillColor: color });
+  async function addFillToA1(color: Color) {
+    await setFormatting(model, "A1", { fillColor: color });
   }
 
-  function createTestChart(chartType: string, mainCell: string, background?: Color) {
+  async function createTestChart(chartType: string, mainCell: string, background?: Color) {
     if (chartType === "scorecard") {
-      createScorecardChart(model, { background, keyValue: mainCell }, chartId);
+      await createScorecardChart(model, { background, keyValue: mainCell }, chartId);
     } else if (chartType === "gauge") {
-      createGaugeChart(model, { background, dataRange: mainCell }, chartId);
+      await createGaugeChart(model, { background, dataRange: mainCell }, chartId);
     }
   }
 
   test.each(["scorecard", "gauge"])(
     "chart %s background color change with main cell CF background color",
-    (chartType: string) => {
-      createTestChart(chartType, "A1");
+    async (chartType: string) => {
+      await createTestChart(chartType, "A1");
       expect(getGaugeOrScorecardRuntime(model, chartId).background).toEqual(BACKGROUND_CHART_COLOR);
-      addCfToA1("#FF0000");
+      await addCfToA1("#FF0000");
       expect(getGaugeOrScorecardRuntime(model, chartId).background).toEqual("#FF0000");
-      setCellContent(model, "A1", "random value not in CF");
+      await setCellContent(model, "A1", "random value not in CF");
       expect(getGaugeOrScorecardRuntime(model, chartId).background).toEqual(BACKGROUND_CHART_COLOR);
     }
   );
 
   test.each(["scorecard", "gauge"])(
     "chart %s background color change with main cell background color",
-    (chartType: string) => {
-      createTestChart(chartType, "A1");
+    async (chartType: string) => {
+      await createTestChart(chartType, "A1");
       expect(getGaugeOrScorecardRuntime(model, chartId).background).toEqual(BACKGROUND_CHART_COLOR);
-      addFillToA1("#00FF00");
+      await addFillToA1("#00FF00");
       expect(getGaugeOrScorecardRuntime(model, chartId).background).toEqual("#00FF00");
     }
   );
 
   test.each(["scorecard", "gauge"])(
     "CF color have priority over cell background color",
-    (chartType: string) => {
-      addCfToA1("#FF0000");
-      addFillToA1("#00FF00");
-      createTestChart(chartType, "A1");
+    async (chartType: string) => {
+      await addCfToA1("#FF0000");
+      await addFillToA1("#00FF00");
+      await createTestChart(chartType, "A1");
       expect(getGaugeOrScorecardRuntime(model, chartId).background).toEqual("#FF0000");
     }
   );
 
   test.each(["scorecard", "gauge"])(
     "chart background color have priority over CF color",
-    (chartType: string) => {
-      addCfToA1("#FF0000");
-      createTestChart(chartType, "A1", "#0000FF");
+    async (chartType: string) => {
+      await addCfToA1("#FF0000");
+      await createTestChart(chartType, "A1", "#0000FF");
       expect(getGaugeOrScorecardRuntime(model, chartId).background).toEqual("#0000FF");
     }
   );
 
   test.each(["scorecard", "gauge"])(
     "Chart style change based on CF of another sheet",
-    (chartType: string) => {
-      createSheet(model, { sheetId: "sheet2" });
-      activateSheet(model, "sheet2");
-      setCellContent(model, "A1", "1", sheetId);
-      addEqualCf(model, "A1", { fillColor: "#000FFF" }, "1", "cfId", sheetId);
+    async (chartType: string) => {
+      await createSheet(model, { sheetId: "sheet2" });
+      await activateSheet(model, "sheet2");
+      await setCellContent(model, "A1", "1", sheetId);
+      await addEqualCf(model, "A1", { fillColor: "#000FFF" }, "1", "cfId", sheetId);
       const sheet1Name = model.getters.getSheetName(sheetId);
-      createTestChart(chartType, `${sheet1Name}!A1`);
+      await createTestChart(chartType, `${sheet1Name}!A1`);
       expect(getGaugeOrScorecardRuntime(model, chartId).background).toEqual("#000FFF");
     }
   );
 
-  test("Duplicating a sheet preserves the figure dimensions", () => {
+  test("Duplicating a sheet preserves the figure dimensions", async () => {
     const firstSheetId = model.getters.getActiveSheetId();
     const secondSheetId = "42";
-    createChart(model, { type: "bar" });
+    await createChart(model, { type: "bar" });
     const firstSheetFigures = model.getters.getFigures(firstSheetId);
     expect(firstSheetFigures.length).toBe(1);
-    updateFigure(model, {
+    await updateFigure(model, {
       sheetId,
       figureId: firstSheetFigures[0].id,
       offset: {
@@ -121,7 +122,7 @@ describe("Single cell chart background color", () => {
       col: 0,
       row: 0,
     });
-    duplicateSheet(model, firstSheetId, secondSheetId);
+    await duplicateSheet(model, firstSheetId, secondSheetId);
     const secondSheetFigures = model.getters.getFigures(secondSheetId);
     expect(secondSheetFigures.length).toBe(1);
     expect(firstSheetFigures[0]).toMatchObject({

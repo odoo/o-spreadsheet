@@ -1,4 +1,4 @@
-const { xml, Component, whenReady } = owl; // see https://github.com/odoo/owl/blob/master/README.md
+const { xml, Component, whenReady, onWillStart } = owl; // see https://github.com/odoo/owl/blob/master/README.md
 
 const {
   Spreadsheet, // this is the OWL component that renders the spreadsheet
@@ -12,10 +12,10 @@ const {
 class Demo extends Component {
   setup() {
     // setup is the equivalent of the constructor in OWL
-    this.createModel(); // we want to create a spreadsheet model with a little data in it
+    onWillStart(async () => await this.createModel()); // we want to create a spreadsheet model with a little data in it
   }
 
-  createModel() {
+  async createModel() {
     //const emptySpreadsheet = {}; // this is an empty spreadsheet, you can use it to create a new spreadsheet from scratch
     const startingSpreadsheet = {
       // this is a spreadsheet with some data in it. The complete format is not documented,
@@ -46,6 +46,7 @@ class Demo extends Component {
       // in readonly mode, the spreadsheet can be viewed but not edited
       // in dashboard mode, the spreadsheet can be viewed at a specific width, only the first page is shown
     });
+    await this.model.startModel(); // you need to start the model to make it work.
     o_spreadsheet.__DEBUG__ = o_spreadsheet.__DEBUG__ || {}; // for debugging purposes
     o_spreadsheet.__DEBUG__.model = this.model; // use window.o_spreadsheet.__DEBUG__.model to access the model in the console
     // use window.o_spreadsheet.__DEBUG__.model.exportData() to obtain the data in the console

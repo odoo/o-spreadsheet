@@ -1,4 +1,4 @@
-import { ChartCreationContext, Model } from "../../../src";
+import { ChartCreationContext } from "../../../src";
 import { LineChart } from "../../../src/helpers/figures/charts";
 import {
   GENERAL_CHART_CREATION_CONTEXT,
@@ -7,8 +7,7 @@ import {
   isChartAxisStacked,
 } from "../../test_helpers/chart_helpers";
 import { createChart, setCellContent, updateChart } from "../../test_helpers/commands_helpers";
-import { createModelFromGrid } from "../../test_helpers/helpers";
-
+import { createModel, createModelFromGrid } from "../../test_helpers/helpers";
 describe("line chart", () => {
   test("create line chart from creation context", () => {
     const context: Required<ChartCreationContext> = {
@@ -36,9 +35,8 @@ describe("line chart", () => {
       humanize: false,
     });
   });
-
-  test("Stacked line chart", () => {
-    const model = new Model({
+  test("Stacked line chart", async () => {
+    const model = await createModel({
       sheets: [
         {
           name: "Sheet1",
@@ -54,19 +52,21 @@ describe("line chart", () => {
         },
       ],
     });
-    createChart(model, { type: "line", dataSets: [{ dataRange: "Sheet1!B1:B4" }] }, "chartId");
+    await createChart(
+      model,
+      { type: "line", dataSets: [{ dataRange: "Sheet1!B1:B4" }] },
+      "chartId"
+    );
     expect(isChartAxisStacked(model, "chartId", "x")).toBeFalsy();
     expect(isChartAxisStacked(model, "chartId", "y")).toBeFalsy();
-
-    updateChart(model, "chartId", { stacked: true });
+    await updateChart(model, "chartId", { stacked: true });
     const runtime = model.getters.getChartRuntime("chartId") as any;
     expect(isChartAxisStacked(model, "chartId", "x")).toBeUndefined();
     expect(isChartAxisStacked(model, "chartId", "y")).toBe(true);
     expect(runtime.chartJsConfig.data.datasets[0].fill).toBeFalsy();
   });
-
-  test("Area chart", () => {
-    const model = new Model({
+  test("Area chart", async () => {
+    const model = await createModel({
       sheets: [
         {
           name: "Sheet1",
@@ -86,15 +86,14 @@ describe("line chart", () => {
         },
       ],
     });
-    createChart(
+    await createChart(
       model,
       { type: "line", dataSets: [{ dataRange: "B1:B4" }, { dataRange: "C1:C4" }] },
       "chartId"
     );
     let runtime = model.getters.getChartRuntime("chartId") as any;
     expect(runtime.chartJsConfig.data.datasets[0].fill).toBeFalsy();
-
-    updateChart(model, "chartId", { fillArea: true });
+    await updateChart(model, "chartId", { fillArea: true });
     runtime = model.getters.getChartRuntime("chartId") as any;
     expect(runtime.chartJsConfig.data.datasets[0].fill).toBe("origin");
     expect(runtime.chartJsConfig.data.datasets[0].backgroundColor).toBe("#4EA7F266");
@@ -103,9 +102,8 @@ describe("line chart", () => {
     expect(isChartAxisStacked(model, "chartId", "x")).toBeFalsy();
     expect(isChartAxisStacked(model, "chartId", "y")).toBeFalsy();
   });
-
-  test("Stacked area chart", () => {
-    const model = new Model({
+  test("Stacked area chart", async () => {
+    const model = await createModel({
       sheets: [
         {
           name: "Sheet1",
@@ -125,15 +123,14 @@ describe("line chart", () => {
         },
       ],
     });
-    createChart(
+    await createChart(
       model,
       { type: "line", dataSets: [{ dataRange: "B1:B4" }, { dataRange: "C1:C4" }] },
       "chartId"
     );
     let runtime = model.getters.getChartRuntime("chartId") as any;
     expect(runtime.chartJsConfig.data.datasets[0].fill).toBeFalsy();
-
-    updateChart(model, "chartId", { fillArea: true, stacked: true });
+    await updateChart(model, "chartId", { fillArea: true, stacked: true });
     runtime = model.getters.getChartRuntime("chartId") as any;
     expect(runtime.chartJsConfig.data.datasets[0].fill).toBe("origin");
     expect(runtime.chartJsConfig.data.datasets[0].backgroundColor).toBe("#4EA7F266");
@@ -142,13 +139,12 @@ describe("line chart", () => {
     expect(isChartAxisStacked(model, "chartId", "x")).toBeUndefined();
     expect(isChartAxisStacked(model, "chartId", "y")).toBe(true);
   });
-
-  test("Trend lines have no fill color in area chart", () => {
-    const model = new Model();
-    setCellContent(model, "A1", "data");
-    setCellContent(model, "A2", "3");
-    setCellContent(model, "A3", "4");
-    createChart(
+  test("Trend lines have no fill color in area chart", async () => {
+    const model = await createModel();
+    await setCellContent(model, "A1", "data");
+    await setCellContent(model, "A2", "3");
+    await setCellContent(model, "A3", "4");
+    await createChart(
       model,
       {
         type: "line",
@@ -162,15 +158,14 @@ describe("line chart", () => {
     expect(runtime.chartJsConfig.data.datasets[0].fill).toBe("origin");
     expect(runtime.chartJsConfig.data.datasets[1].fill).toBe(false);
   });
-
-  test("Line chart legend", () => {
-    const model = createModelFromGrid({
+  test("Line chart legend", async () => {
+    const model = await createModelFromGrid({
       A1: "1",
       A2: "2",
       A3: "3",
       A4: "4",
     });
-    createChart(
+    await createChart(
       model,
       {
         dataSets: [
@@ -205,16 +200,14 @@ describe("line chart", () => {
       },
     ]);
   });
-
-  test("line chart runtime reflects axis bounds, grids and scale type", () => {
-    const model = createModelFromGrid({
+  test("line chart runtime reflects axis bounds, grids and scale type", async () => {
+    const model = await createModelFromGrid({
       A1: "Month",
       A2: "Jan",
       B1: "Series A",
       B2: "5",
     });
-
-    createChart(
+    await createChart(
       model,
       {
         type: "line",
@@ -223,14 +216,12 @@ describe("line chart", () => {
       },
       "1"
     );
-
-    updateChart(model, "1", {
+    await updateChart(model, "1", {
       axesDesign: {
         x: { min: 0, max: 2, gridLines: "both" },
         y: { min: 5, max: 25, gridLines: "minor" },
       },
     });
-
     const scales = getChartConfiguration(model, "1").options?.scales;
     expect(scales.x?.min).toBe(0);
     expect(scales.x?.max).toBe(2);

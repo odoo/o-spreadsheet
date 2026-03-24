@@ -7,7 +7,6 @@ import {
   DEFAULT_LOCALES,
   EvaluatedCell,
   FunctionResultObject,
-  Model,
   TableStyle,
 } from "../../../src";
 import { positions, removeFalsyAttributes, toZone } from "../../../src/helpers";
@@ -29,7 +28,12 @@ import {
   getEvaluatedCell,
   getEvaluatedGrid,
 } from "../../test_helpers/getters_helpers";
-import { createModelFromGrid, getGrid, getGridStyle } from "../../test_helpers/helpers";
+import {
+  createModel,
+  createModelFromGrid,
+  getGrid,
+  getGridStyle,
+} from "../../test_helpers/helpers";
 import {
   addPivot,
   createModelWithPivot,
@@ -39,13 +43,13 @@ import {
 } from "../../test_helpers/pivot_helpers";
 
 describe("Spreadsheet Pivot", () => {
-  test("Pivot is correctly registered", () => {
-    const model = createModelWithPivot("A1:D5");
+  test("Pivot is correctly registered", async () => {
+    const model = await createModelWithPivot("A1:D5");
     expect(model.getters.getPivotIds()).toEqual(["1"]);
   });
 
-  test("Pivot fields are correctly computed", () => {
-    const model = new Model({
+  test("Pivot fields are correctly computed", async () => {
+    const model = await createModel({
       sheets: [
         {
           cells: {
@@ -61,8 +65,8 @@ describe("Spreadsheet Pivot", () => {
     expect(Object.keys(fields)).toEqual(["Customer", "Order", "Date"]);
   });
 
-  test("Pivot fields with same name are correctly loaded", () => {
-    const model = new Model({
+  test("Pivot fields with same name are correctly loaded", async () => {
+    const model = await createModel({
       sheets: [
         {
           cells: {
@@ -77,8 +81,8 @@ describe("Spreadsheet Pivot", () => {
     expect(Object.keys(fields)).toEqual(["Customer", "Customer2"]);
   });
 
-  test("Pivot fields are correctly loaded after evaluation", () => {
-    const model = new Model({
+  test("Pivot fields are correctly loaded after evaluation", async () => {
+    const model = await createModel({
       sheets: [
         {
           cells: {
@@ -93,8 +97,8 @@ describe("Spreadsheet Pivot", () => {
     expect(Object.keys(fields)).toEqual(["Customer", "Hello"]);
   });
 
-  test("Types are correctly inferred", () => {
-    const model = new Model({
+  test("Types are correctly inferred", async () => {
+    const model = await createModel({
       sheets: [
         {
           cells: {
@@ -154,14 +158,14 @@ describe("Spreadsheet Pivot", () => {
     ]);
   });
 
-  test("Pivot does not create empty row when number is added in char field", () => {
+  test("Pivot does not create empty row when number is added in char field", async () => {
     // prettier-ignore
     const grid = {
       A1: "Text",     B1: "Value",    C1: "=PIVOT(1)",
       A2: "Hello",    B2: "10",
       A3: "45",       B3: "20",
     };
-    const model = createModelFromGrid(grid);
+    const model = await createModelFromGrid(grid);
     addPivot(model, "A1:B3", {
       rows: [{ fieldName: "Text", order: "asc" }],
       measures: [{ id: "Value:sum", fieldName: "Value", aggregator: "sum" }],
@@ -169,25 +173,25 @@ describe("Spreadsheet Pivot", () => {
     expect(getEvaluatedGrid(model, "C3:C4")).toEqual([["45"], ["Hello"]]);
   });
 
-  test("Values aren't detected as date if they have a date format but a non-numeric value", () => {
-    const model = new Model();
-    setCellContent(model, "A1", "Col1");
-    setFormat(model, "A2", "dd/mm/yyyy");
+  test("Values aren't detected as date if they have a date format but a non-numeric value", async () => {
+    const model = await createModel();
+    await setCellContent(model, "A1", "Col1");
+    await setFormat(model, "A2", "dd/mm/yyyy");
     addPivot(model, "A1:A2", {});
-    setCellContent(model, "B1", "=PIVOT(1)");
+    await setCellContent(model, "B1", "=PIVOT(1)");
 
-    setCellContent(model, "A2", "notADate");
+    await setCellContent(model, "A2", "notADate");
     expect(model.getters.getPivot("1").getFields()).toMatchObject({ Col1: { type: "char" } });
 
-    setCellContent(model, "A2", "TRUE");
+    await setCellContent(model, "A2", "TRUE");
     expect(model.getters.getPivot("1").getFields()).toMatchObject({ Col1: { type: "boolean" } });
 
-    setCellContent(model, "A2", "125");
+    await setCellContent(model, "A2", "125");
     expect(model.getters.getPivot("1").getFields()).toMatchObject({ Col1: { type: "datetime" } });
   });
 
-  test("Pivot fields are not loaded if a cell is in error", () => {
-    const model = new Model({
+  test("Pivot fields are not loaded if a cell is in error", async () => {
+    const model = await createModel({
       sheets: [
         {
           cells: {
@@ -201,9 +205,9 @@ describe("Spreadsheet Pivot", () => {
     expect(model.getters.getPivot("1").isValid()).toBeFalsy();
   });
 
-  test("Pivot Columns are ordered", () => {
-    const model = createModelWithPivot("A1:I5");
-    setCellContent(model, "A26", `=pivot(1)`);
+  test("Pivot Columns are ordered", async () => {
+    const model = await createModelWithPivot("A1:I5");
+    await setCellContent(model, "A26", `=pivot(1)`);
 
     updatePivot(model, "1", {
       columns: [{ fieldName: "Contact Name", order: "asc" }],
@@ -247,9 +251,9 @@ describe("Spreadsheet Pivot", () => {
     expect(getEvaluatedGrid(model, "B26:D26")).toEqual([["2024", "Total", ""]]);
   });
 
-  test("Pivot Rows are ordered", () => {
-    const model = createModelWithPivot("A1:I5");
-    setCellContent(model, "A26", `=pivot(1)`);
+  test("Pivot Rows are ordered", async () => {
+    const model = await createModelWithPivot("A1:I5");
+    await setCellContent(model, "A26", `=pivot(1)`);
 
     updatePivot(model, "1", {
       rows: [{ fieldName: "Contact Name", order: "asc" }],
@@ -297,9 +301,9 @@ describe("Spreadsheet Pivot", () => {
     expect(getEvaluatedGrid(model, "A28:A30")).toEqual([["2024"], ["Total"], [""]]);
   });
 
-  test("Group Columns by multiple fields", () => {
-    const model = createModelWithPivot("A1:I5");
-    setCellContent(model, "A26", `=pivot(1)`);
+  test("Group Columns by multiple fields", async () => {
+    const model = await createModelWithPivot("A1:I5");
+    await setCellContent(model, "A26", `=pivot(1)`);
 
     updatePivot(model, "1", {
       columns: [
@@ -314,9 +318,9 @@ describe("Spreadsheet Pivot", () => {
     ]);
   });
 
-  test("Group Rows by multiple fields", () => {
-    const model = createModelWithPivot("A1:I5");
-    setCellContent(model, "A26", `=pivot(1)`);
+  test("Group Rows by multiple fields", async () => {
+    const model = await createModelWithPivot("A1:I5");
+    await setCellContent(model, "A26", `=pivot(1)`);
 
     updatePivot(model, "1", {
       rows: [
@@ -338,31 +342,31 @@ describe("Spreadsheet Pivot", () => {
     ]);
   });
 
-  test("Date fields without granularity are defaulted as month", () => {
-    const model = new Model();
-    setCellContent(model, "A1", "Col1");
-    setCellContent(model, "A2", "45323");
+  test("Date fields without granularity are defaulted as month", async () => {
+    const model = await createModel();
+    await setCellContent(model, "A1", "Col1");
+    await setCellContent(model, "A2", "45323");
     addPivot(model, "A1:A2", {
       rows: [{ fieldName: "Col1", order: "asc" }],
     });
-    setCellContent(model, "B1", "=PIVOT(1)");
+    await setCellContent(model, "B1", "=PIVOT(1)");
     expect(model.getters.getPivot("1").getFields()).toMatchObject({ Col1: { type: "integer" } });
 
     // field is now a date, but no granularity is specified since it was a integer when added to the pivot
-    setFormat(model, "A2", "dd/mm/yyyy");
+    await setFormat(model, "A2", "dd/mm/yyyy");
     expect(model.getters.getPivot("1").getFields()).toMatchObject({ Col1: { type: "datetime" } });
 
-    setCellContent(model, "E1", "=PIVOT(1)");
+    await setCellContent(model, "E1", "=PIVOT(1)");
     expect(getCellContent(model, "E3")).toEqual("February 2024");
   });
 
-  test("Empty string values are treated the same as blank cells", () => {
-    const model = createModelWithPivot("A1:I5");
-    setCellContent(model, "C3", '=""');
-    setCellContent(model, "C5", "");
-    setCellContent(model, "A2", '=""');
-    setCellContent(model, "A3", "");
-    setCellContent(model, "A26", "=pivot(1)");
+  test("Empty string values are treated the same as blank cells", async () => {
+    const model = await createModelWithPivot("A1:I5");
+    await setCellContent(model, "C3", '=""');
+    await setCellContent(model, "C5", "");
+    await setCellContent(model, "A2", '=""');
+    await setCellContent(model, "A3", "");
+    await setCellContent(model, "A26", "=pivot(1)");
 
     updatePivot(model, "1", {
       columns: [{ fieldName: "Contact Name", order: "asc" }],
@@ -375,61 +379,61 @@ describe("Spreadsheet Pivot", () => {
     ]);
   });
 
-  test("Cannot load a pivot with a field in error", () => {
-    const model = createModelWithPivot("A1:I5");
-    setCellContent(model, "A1", `=1/0`);
-    setCellContent(model, "A26", `=pivot(1)`);
+  test("Cannot load a pivot with a field in error", async () => {
+    const model = await createModelWithPivot("A1:I5");
+    await setCellContent(model, "A1", `=1/0`);
+    await setCellContent(model, "A26", `=pivot(1)`);
     expect(() => model.getters.getPivot("1").assertIsValid({ throwOnError: true })).toThrow();
     expect(model.getters.getPivot("1").isValid()).toBeFalsy();
     expect(getCellError(model, "A26")).toBe(
       "The pivot cannot be created because cell A1 contains an error"
     );
-    setCellContent(model, "A1", "Customer");
+    await setCellContent(model, "A1", "Customer");
     expect(() => model.getters.getPivot("1").assertIsValid({ throwOnError: true })).not.toThrow();
     expect(model.getters.getPivot("1").isValid()).toBeTruthy();
     expect(getCellError(model, "A26")).toBeUndefined();
 
-    undo(model);
+    await undo(model);
     expect(() => model.getters.getPivot("1").assertIsValid({ throwOnError: true })).toThrow();
     expect(model.getters.getPivot("1").isValid()).toBeFalsy();
     expect(getCellError(model, "A26")).toBe(
       "The pivot cannot be created because cell A1 contains an error"
     );
 
-    redo(model);
+    await redo(model);
     expect(() => model.getters.getPivot("1").assertIsValid({ throwOnError: true })).not.toThrow();
     expect(model.getters.getPivot("1").isValid()).toBeTruthy();
     expect(getCellError(model, "A26")).toBeUndefined();
   });
 
-  test("Cannot load a pivot with a reserved field name", () => {
-    const model = createModelWithPivot("A1:I5");
-    setCellContent(model, "A1", `__count`);
-    setCellContent(model, "A26", `=pivot(1)`);
+  test("Cannot load a pivot with a reserved field name", async () => {
+    const model = await createModelWithPivot("A1:I5");
+    await setCellContent(model, "A1", `__count`);
+    await setCellContent(model, "A26", `=pivot(1)`);
     expect(() => model.getters.getPivot("1").assertIsValid({ throwOnError: true })).toThrow();
     expect(model.getters.getPivot("1").isValid()).toBeFalsy();
     expect(getCellError(model, "A26")).toBe(
       "The pivot cannot be created because cell A1 contains a reserved value"
     );
-    setCellContent(model, "A1", "Customer");
+    await setCellContent(model, "A1", "Customer");
     expect(() => model.getters.getPivot("1").assertIsValid({ throwOnError: true })).not.toThrow();
     expect(model.getters.getPivot("1").isValid()).toBeTruthy();
     expect(getCellError(model, "A26")).toBeUndefined();
 
-    undo(model);
+    await undo(model);
     expect(() => model.getters.getPivot("1").assertIsValid({ throwOnError: true })).toThrow();
     expect(model.getters.getPivot("1").isValid()).toBeFalsy();
     expect(getCellError(model, "A26")).toBe(
       "The pivot cannot be created because cell A1 contains a reserved value"
     );
 
-    redo(model);
+    await redo(model);
     expect(() => model.getters.getPivot("1").assertIsValid({ throwOnError: true })).not.toThrow();
     expect(model.getters.getPivot("1").isValid()).toBeTruthy();
     expect(getCellError(model, "A26")).toBeUndefined();
   });
 
-  test("Pivot with day_of_week", () => {
+  test("Pivot with day_of_week", async () => {
     resetMapValueDimensionDate();
     // prettier-ignore
     const grid = {
@@ -437,7 +441,7 @@ describe("Spreadsheet Pivot", () => {
       A2: "2024-03-31", B2: "10", // Sunday
       A3: "2024-04-01", B3: "20", // Monday
     };
-    const model = createModelFromGrid(grid);
+    const model = await createModelFromGrid(grid);
     addPivot(model, "A1:B3", {
       columns: [],
       rows: [{ fieldName: "Date", granularity: "day_of_week" }],
@@ -452,7 +456,7 @@ describe("Spreadsheet Pivot", () => {
     ]);
   });
 
-  test("Pivot with day_of_week with locale with startWeek = 1", () => {
+  test("Pivot with day_of_week with locale with startWeek = 1", async () => {
     resetMapValueDimensionDate();
     // prettier-ignore
     const grid = {
@@ -460,7 +464,7 @@ describe("Spreadsheet Pivot", () => {
       A2: "2024-03-31", B2: "10", // Sunday
       A3: "2024-04-01", B3: "20", // Monday
     };
-    const model = createModelFromGrid(grid);
+    const model = await createModelFromGrid(grid);
     const locale = DEFAULT_LOCALES[1];
     expect(locale.weekStart).toBe(1);
     model.dispatch("UPDATE_LOCALE", { locale });
@@ -478,14 +482,14 @@ describe("Spreadsheet Pivot", () => {
     ]);
   });
 
-  test("Pivot with hour_number", () => {
+  test("Pivot with hour_number", async () => {
     // prettier-ignore
     const grid = {
       A1: "Date",               B1: "Price", C1: "=PIVOT(1)",
       A2: "2024-04-03 1:07:12", B2: "10",
       A3: "2024-04-02 2:08:14", B3: "20",
     };
-    const model = createModelFromGrid(grid);
+    const model = await createModelFromGrid(grid);
     addPivot(model, "A1:B3", {
       columns: [],
       rows: [{ fieldName: "Date", granularity: "hour_number" }],
@@ -494,14 +498,14 @@ describe("Spreadsheet Pivot", () => {
     expect(getEvaluatedGrid(model, "C1:C5")).toEqual([["Pivot"], [""], ["1h"], ["2h"], ["Total"]]);
   });
 
-  test("Pivot with minute_number", () => {
+  test("Pivot with minute_number", async () => {
     // prettier-ignore
     const grid = {
       A1: "Date",               B1: "Price", C1: "=PIVOT(1)",
       A2: "2024-04-03 1:07:12", B2: "10",
       A3: "2024-04-02 2:08:14", B3: "20",
     };
-    const model = createModelFromGrid(grid);
+    const model = await createModelFromGrid(grid);
     addPivot(model, "A1:B3", {
       columns: [],
       rows: [{ fieldName: "Date", granularity: "minute_number" }],
@@ -510,14 +514,14 @@ describe("Spreadsheet Pivot", () => {
     expect(getEvaluatedGrid(model, "C1:C5")).toEqual([["Pivot"], [""], ["7'"], ["8'"], ["Total"]]);
   });
 
-  test("Pivot with second_number", () => {
+  test("Pivot with second_number", async () => {
     // prettier-ignore
     const grid = {
       A1: "Date",               B1: "Price", C1: "=PIVOT(1)",
       A2: "2024-04-03 1:07:12", B2: "10",
       A3: "2024-04-02 2:08:14", B3: "20",
     };
-    const model = createModelFromGrid(grid);
+    const model = await createModelFromGrid(grid);
     addPivot(model, "A1:B3", {
       columns: [],
       rows: [{ fieldName: "Date", granularity: "second_number" }],
@@ -532,43 +536,43 @@ describe("Spreadsheet Pivot", () => {
     ]);
   });
 
-  test("Pivot is correctly marked as error when a field name is empty", () => {
-    const model = createModelWithPivot("A1:I5");
-    deleteContent(model, ["A1"]);
-    setCellContent(model, "A26", `=pivot(1)`);
+  test("Pivot is correctly marked as error when a field name is empty", async () => {
+    const model = await createModelWithPivot("A1:I5");
+    await deleteContent(model, ["A1"]);
+    await setCellContent(model, "A26", `=pivot(1)`);
     expect(model.getters.getPivot("1").isValid()).toBeFalsy();
     expect(getCellError(model, "A26")).toBe("The pivot cannot be created because cell A1 is empty");
   });
 
-  test("Pivot is correctly marked as error when a field name is an empty formula result", () => {
-    const model = createModelWithPivot("A1:I5");
-    setCellContent(model, "A1", `=""`);
-    setCellContent(model, "A26", `=pivot(1)`);
+  test("Pivot is correctly marked as error when a field name is an empty formula result", async () => {
+    const model = await createModelWithPivot("A1:I5");
+    await setCellContent(model, "A1", `=""`);
+    await setCellContent(model, "A26", `=pivot(1)`);
     expect(model.getters.getPivot("1").isValid()).toBeFalsy();
     expect(getCellError(model, "A26")).toBe("The pivot cannot be created because cell A1 is empty");
   });
 
-  test("Order of pivot date dimensions is not overridden by the default one if specified", () => {
-    const model = createModelWithPivot("A1:I5");
+  test("Order of pivot date dimensions is not overridden by the default one if specified", async () => {
+    const model = await createModelWithPivot("A1:I5");
     updatePivot(model, "1", {
       rows: [{ fieldName: "Created on", order: "desc", granularity: "day_of_month" }],
     });
-    setCellContent(model, "A26", `=pivot(1)`);
+    await setCellContent(model, "A26", `=pivot(1)`);
     expect(model.getters.getPivot("1").definition.rows[0].order).toEqual("desc");
     expect(getCellContent(model, "A28")).toBe("3");
     expect(getCellContent(model, "A29")).toBe("2");
   });
 
-  test("Order of pivot dimensions of a non-date field is auto by default", () => {
-    const model = createModelWithPivot("A1:I5");
+  test("Order of pivot dimensions of a non-date field is auto by default", async () => {
+    const model = await createModelWithPivot("A1:I5");
     updatePivot(model, "1", {
       rows: [{ fieldName: "Contact name" }],
     });
-    setCellContent(model, "A26", `=pivot(1)`);
+    await setCellContent(model, "A26", `=pivot(1)`);
     expect(model.getters.getPivot("1").definition.rows[0].order).toBeUndefined();
   });
 
-  test("Order of undefined value is correct when ordered asc", () => {
+  test("Order of undefined value is correct when ordered asc", async () => {
     // prettier-ignore
     const grid = {
       A1: "Customer",   B1: "Price", C1: "=PIVOT(1)",
@@ -576,7 +580,7 @@ describe("Spreadsheet Pivot", () => {
       A3: "",           B3: "20",
       A4: "Olaf",       B4: "30",
     };
-    const model = createModelFromGrid(grid);
+    const model = await createModelFromGrid(grid);
     addPivot(model, "A1:B4", {
       rows: [{ fieldName: "Customer", order: "asc" }],
       columns: [],
@@ -592,7 +596,7 @@ describe("Spreadsheet Pivot", () => {
     ]);
   });
 
-  test("Order of undefined value is correct when ordered desc", () => {
+  test("Order of undefined value is correct when ordered desc", async () => {
     // prettier-ignore
     const grid = {
       A1: "Customer",   B1: "Price", C1: "=PIVOT(1)",
@@ -600,7 +604,7 @@ describe("Spreadsheet Pivot", () => {
       A3: "",           B3: "20",
       A4: "Olaf",       B4: "30",
     };
-    const model = createModelFromGrid(grid);
+    const model = await createModelFromGrid(grid);
     addPivot(model, "A1:B4", {
       rows: [{ fieldName: "Customer", order: "desc" }],
       columns: [],
@@ -616,18 +620,18 @@ describe("Spreadsheet Pivot", () => {
     ]);
   });
 
-  test("Measure count as a correct label", () => {
-    const model = createModelWithPivot("A1:I5");
+  test("Measure count as a correct label", async () => {
+    const model = await createModelWithPivot("A1:I5");
     updatePivot(model, "1", {
       measures: [{ id: "__count:sum", fieldName: "__count", aggregator: "sum" }],
     });
-    setCellContent(model, "A26", `=pivot(1)`);
+    await setCellContent(model, "A26", `=pivot(1)`);
     expect(getCellContent(model, "B27")).toEqual("Count");
   });
 
-  test("Pivot is correctly marked as error when the dataSet is undefined", () => {
-    const model = createModelWithPivot("A1:I5");
-    setCellContent(model, "A26", `=pivot(1)`);
+  test("Pivot is correctly marked as error when the dataSet is undefined", async () => {
+    const model = await createModelWithPivot("A1:I5");
+    await setCellContent(model, "A26", `=pivot(1)`);
     updatePivot(model, "1", {
       dataSet: undefined,
     });
@@ -637,80 +641,80 @@ describe("Spreadsheet Pivot", () => {
     );
   });
 
-  test("Deleting the sheet that contains data would set the pivot in error", () => {
-    const model = createModelWithPivot("A1:I5");
+  test("Deleting the sheet that contains data would set the pivot in error", async () => {
+    const model = await createModelWithPivot("A1:I5");
     const sheetId = model.getters.getActiveSheetId();
-    createSheet(model, { activate: true });
-    setCellContent(model, "A1", `=pivot(1)`);
+    await createSheet(model, { activate: true });
+    await setCellContent(model, "A1", `=pivot(1)`);
     expect(model.getters.getPivot("1").isValid()).toBeTruthy();
-    deleteSheet(model, sheetId);
+    await deleteSheet(model, sheetId);
     expect(model.getters.getPivot("1").isValid()).toBeFalsy();
     expect(getCellError(model, "A1")).toBe(
       "The pivot cannot be created because the dataset is missing."
     );
   });
 
-  test("Modifying a sheet structure adapts the pivot range", () => {
-    const model = createModelWithPivot("A1:I5");
-    setCellContent(model, "A26", `=pivot(1)`);
+  test("Modifying a sheet structure adapts the pivot range", async () => {
+    const model = await createModelWithPivot("A1:I5");
+    await setCellContent(model, "A26", `=pivot(1)`);
     expect(model.getters.getPivot("1").isValid()).toBeTruthy();
     expect(getEvaluatedCell(model, "A26").value).toEqual("My pivot");
-    addRows(model, "before", 0, 1);
+    await addRows(model, "before", 0, 1);
     expect(model.getters.getPivot("1").isValid()).toBeTruthy();
     expect(getEvaluatedCell(model, "A27").value).toEqual("My pivot");
-    undo(model);
+    await undo(model);
     expect(model.getters.getPivot("1").isValid()).toBeTruthy();
     expect(getEvaluatedCell(model, "A26").value).toEqual("My pivot");
-    redo(model);
+    await redo(model);
     expect(model.getters.getPivot("1").isValid()).toBeTruthy();
     expect(getEvaluatedCell(model, "A27").value).toEqual("My pivot");
   });
 
-  test("Sum with a field that contains a string should work", () => {
-    const model = createModelWithPivot("A1:I5");
+  test("Sum with a field that contains a string should work", async () => {
+    const model = await createModelWithPivot("A1:I5");
     updatePivot(model, "1", {
       columns: [],
       rows: [],
       measures: [{ id: "Expected Revenue:sum", fieldName: "Expected Revenue", aggregator: "sum" }],
     });
-    setCellContent(model, "A26", `=pivot(1)`);
+    await setCellContent(model, "A26", `=pivot(1)`);
     expect(getCellContent(model, "B28")).toBe("$17,500.00");
 
     expect(getCellContent(model, "F2")).toBe("$2,000.00");
-    setCellContent(model, "F2", "Hello");
+    await setCellContent(model, "F2", "Hello");
     expect(getCellContent(model, "B28")).toBe("$15,500.00");
   });
 
-  test("quarter_number should be supported", () => {
-    const model = createModelWithPivot("A1:I5");
+  test("quarter_number should be supported", async () => {
+    const model = await createModelWithPivot("A1:I5");
     updatePivot(model, "1", {
       columns: [{ fieldName: "Created on", granularity: "quarter_number", order: "asc" }],
       rows: [],
       measures: [{ id: "Expected Revenue:sum", fieldName: "Expected Revenue", aggregator: "sum" }],
     });
-    setCellContent(model, "A26", `=pivot(1)`);
+    await setCellContent(model, "A26", `=pivot(1)`);
     expect(getEvaluatedGrid(model, "B26:E26")).toEqual([["Q1", "Q2", "Total", ""]]);
   });
 
-  test("iso_week_number should be supported", () => {
-    const model = createModelWithPivot("A1:I5");
+  test("iso_week_number should be supported", async () => {
+    const model = await createModelWithPivot("A1:I5");
     updatePivot(model, "1", {
       columns: [{ fieldName: "Created on", granularity: "iso_week_number", order: "asc" }],
       rows: [],
       measures: [{ id: "Expected Revenue:sum", fieldName: "Expected Revenue", aggregator: "sum" }],
     });
-    setCellContent(model, "A26", `=pivot(1)`);
+    await setCellContent(model, "A26", `=pivot(1)`);
     expect(getEvaluatedGrid(model, "B26:F26")).toEqual([["5", "9", "14", "Total", ""]]);
   });
 
-  test("month should be supported and correctly ordered", () => {
-    const model = createModelWithPivot("A1:I5");
+  test("month should be supported and correctly ordered", async () => {
+    const model = await createModelWithPivot("A1:I5");
     updatePivot(model, "1", {
       columns: [{ fieldName: "Created on", granularity: "month", order: "asc" }],
       rows: [],
       measures: [{ id: "Expected Revenue:sum", fieldName: "Expected Revenue", aggregator: "sum" }],
     });
-    setCellContent(model, "A26", `=pivot(1)`);
+    await setCellContent(model, "A26", `=pivot(1)`);
     expect(getEvaluatedGrid(model, "B26:F26")).toEqual([
       ["February 2024", "March 2024", "April 2024", "Total", ""],
     ]);
@@ -725,41 +729,41 @@ describe("Spreadsheet Pivot", () => {
     ]);
   });
 
-  test("PIVOT.VALUE and PIVOT.HEADER with wrong pivot id", () => {
-    const model = createModelWithPivot("A1:I5");
-    setCellContent(model, "A26", "=PIVOT.HEADER(10)");
+  test("PIVOT.VALUE and PIVOT.HEADER with wrong pivot id", async () => {
+    const model = await createModelWithPivot("A1:I5");
+    await setCellContent(model, "A26", "=PIVOT.HEADER(10)");
     expect(getEvaluatedCell(model, "A26").value).toBe("#ERROR");
     expect(getEvaluatedCell(model, "A26").message).toBe('There is no pivot with id "10"');
 
-    setCellContent(model, "A27", '=PIVOT.VALUE(10, "Expected Revenue")');
+    await setCellContent(model, "A27", '=PIVOT.VALUE(10, "Expected Revenue")');
     expect(getEvaluatedCell(model, "A27").value).toBe("#ERROR");
     expect(getEvaluatedCell(model, "A27").message).toBe('There is no pivot with id "10"');
   });
 
-  test("PIVOT.VALUE grand total with a wrong measure", () => {
-    const model = createModelWithPivot("A1:I5");
+  test("PIVOT.VALUE grand total with a wrong measure", async () => {
+    const model = await createModelWithPivot("A1:I5");
 
-    setCellContent(model, "A26", "=PIVOT.VALUE(1, )"); // missing measure
+    await setCellContent(model, "A26", "=PIVOT.VALUE(1, )"); // missing measure
     expect(getEvaluatedCell(model, "A26").value).toBe("#ERROR");
     expect(getEvaluatedCell(model, "A26").message).toBe(
       "The argument  is not a valid measure. Here are the measures: (__count:sum)"
     );
 
-    setCellContent(model, "A27", '=PIVOT.VALUE(1, "wrong measure")');
+    await setCellContent(model, "A27", '=PIVOT.VALUE(1, "wrong measure")');
     expect(getEvaluatedCell(model, "A27").value).toBe("#ERROR");
     expect(getEvaluatedCell(model, "A27").message).toBe(
       "The argument wrong measure is not a valid measure. Here are the measures: (__count:sum)"
     );
   });
 
-  test("sorted PIVOT include_total=FALSE with no column groups includes column data", () => {
+  test("sorted PIVOT include_total=FALSE with no column groups includes column data", async () => {
     // prettier-ignore
     const grid = {
       A1: "Person", B1: "Price", C1: "=PIVOT(1,,FALSE)",
       A2: "Alice",  B2: "10",
       A3: "Bob",    B3: "20",
     };
-    const model = createModelFromGrid(grid);
+    const model = await createModelFromGrid(grid);
     addPivot(model, "A1:B3", {
       rows: [{ fieldName: "Person" }],
       measures: [{ id: "Price:sum", fieldName: "Price", aggregator: "sum" }],
@@ -779,8 +783,8 @@ describe("Spreadsheet Pivot", () => {
     ]);
   });
 
-  test("Pivot with columns and without measures", () => {
-    const model = createModelWithTestPivotDataset();
+  test("Pivot with columns and without measures", async () => {
+    const model = await createModelWithTestPivotDataset();
 
     // prettier-ignore
     expect(getEvaluatedGrid(model, "A20:D25")).toEqual([
@@ -792,7 +796,7 @@ describe("Spreadsheet Pivot", () => {
       ["Total",    "230200",           "90000",            "320200"],
     ]);
 
-    setCellContent(model, "A20", "=PIVOT(1,,,,,false)");
+    await setCellContent(model, "A20", "=PIVOT(1,,,,,false)");
     // prettier-ignore
     expect(getEvaluatedGrid(model, "A20:D25")).toEqual([
       ["Pivot",    "Alice",  "Bob",   "Total"],
@@ -804,8 +808,8 @@ describe("Spreadsheet Pivot", () => {
     ]);
   });
 
-  test("Pivot without columns and with measures", () => {
-    const model = createModelWithTestPivotDataset();
+  test("Pivot without columns and with measures", async () => {
+    const model = await createModelWithTestPivotDataset();
 
     // prettier-ignore
     expect(getEvaluatedGrid(model, "A20:D25")).toEqual([
@@ -817,7 +821,7 @@ describe("Spreadsheet Pivot", () => {
       ["Total",    "230200",           "90000",            "320200"],
     ]);
 
-    setCellContent(model, "A20", "=PIVOT(1,,,FALSE)");
+    await setCellContent(model, "A20", "=PIVOT(1,,,FALSE)");
     // prettier-ignore
     expect(getEvaluatedGrid(model, "A20:D25")).toEqual([
       ["Pivot",    "Expected Revenue", "Expected Revenue", "Expected Revenue"],
@@ -828,7 +832,7 @@ describe("Spreadsheet Pivot", () => {
       ["",         "",                 "",                 ""],
     ]);
 
-    setCellContent(model, "A20", "=PIVOT(1,,,FALSE,,FALSE)");
+    await setCellContent(model, "A20", "=PIVOT(1,,,FALSE,,FALSE)");
     // prettier-ignore
     expect(getEvaluatedGrid(model, "A20:D25")).toEqual([
       ["February", "22500",  "",      "22500"],
@@ -840,7 +844,7 @@ describe("Spreadsheet Pivot", () => {
     ]);
   });
 
-  test("PIVOT with limited columns count.", () => {
+  test("PIVOT with limited columns count.", async () => {
     // prettier-ignore
     const grid = {
       A1: "Date",       B1: "Price", C1: "=PIVOT(1)",
@@ -848,7 +852,7 @@ describe("Spreadsheet Pivot", () => {
       A3: "2024-11-28", B3: "20",
       A4: "1995-04-14", B4: "30",
     };
-    const model = createModelFromGrid(grid);
+    const model = await createModelFromGrid(grid);
     addPivot(model, "A1:B4", {
       rows: [],
       columns: [{ fieldName: "Date", granularity: "day" }],
@@ -861,14 +865,14 @@ describe("Spreadsheet Pivot", () => {
       ["",           "Price",       "Price",       "Price",      "Price", ""],
     ]);
 
-    setCellContent(model, "C1", "=PIVOT(1,,,,0)");
+    await setCellContent(model, "C1", "=PIVOT(1,,,,0)");
     // prettier-ignore
     expect(getEvaluatedGrid(model, "C1:D2")).toEqual([
       ["Pivot",      ""],
       ["",           ""],
     ]);
 
-    setCellContent(model, "C1", "=PIVOT(1,,,,1)");
+    await setCellContent(model, "C1", "=PIVOT(1,,,,1)");
     // prettier-ignore
     expect(getEvaluatedGrid(model, "C1:E2")).toEqual([
       ["Pivot",      "14 Apr 1995", ""],
@@ -876,7 +880,7 @@ describe("Spreadsheet Pivot", () => {
     ]);
   });
 
-  test("Pivot style is applied to the result of PIVOT formula.", () => {
+  test("Pivot style is applied to the result of PIVOT formula.", async () => {
     // prettier-ignore
     const grid = {
       A1: "Date",       B1: "Price", C1: "=PIVOT(1)",
@@ -884,7 +888,7 @@ describe("Spreadsheet Pivot", () => {
       A3: "2024-11-28", B3: "20",
       A4: "1995-04-14", B4: "30",
     };
-    const model = createModelFromGrid(grid);
+    const model = await createModelFromGrid(grid);
     addPivot(model, "A1:B4", {
       rows: [],
       columns: [{ fieldName: "Date", granularity: "day" }],
@@ -944,7 +948,7 @@ describe("Spreadsheet Pivot", () => {
     ]);
   });
 
-  test("Pivot style is overridden by the arguments of the pivot formula", () => {
+  test("Pivot style is overridden by the arguments of the pivot formula", async () => {
     // prettier-ignore
     const grid = {
       A1: "Date",       B1: "Price", C1: "=PIVOT(1)",
@@ -952,7 +956,7 @@ describe("Spreadsheet Pivot", () => {
       A3: "2024-11-28", B3: "20",
       A4: "1995-04-14", B4: "30",
     };
-    const model = createModelFromGrid(grid);
+    const model = await createModelFromGrid(grid);
     addPivot(model, "A1:B4", {
       rows: [],
       columns: [{ fieldName: "Date", granularity: "day" }],
@@ -966,7 +970,7 @@ describe("Spreadsheet Pivot", () => {
       ["",           "Price",       "",],
     ]);
 
-    setCellContent(model, "C1", "=PIVOT(1,,,,3)");
+    await setCellContent(model, "C1", "=PIVOT(1,,,,3)");
     // prettier-ignore
     expect(getEvaluatedGrid(model, "C1:G2")).toEqual([
       ["Pivot",      "14 Apr 1995", "28 Nov 2024", "28 Dec 2024", "",],
@@ -974,7 +978,7 @@ describe("Spreadsheet Pivot", () => {
     ]);
   });
 
-  test("PIVOT row headers are indented relative to the groupBy depth.", () => {
+  test("PIVOT row headers are indented relative to the groupBy depth.", async () => {
     // prettier-ignore
     const grid = {
       A1: "Date",       B1: "Price", C1: "=PIVOT(1)",
@@ -982,7 +986,7 @@ describe("Spreadsheet Pivot", () => {
       A3: "2024-11-28", B3: "20",
       A4: "1995-04-14", B4: "30",
     };
-    const model = createModelFromGrid(grid);
+    const model = await createModelFromGrid(grid);
     addPivot(model, "A1:B4", {
       rows: [
         { fieldName: "Date", granularity: "year" },
@@ -1016,14 +1020,14 @@ describe("Spreadsheet Pivot", () => {
     ]);
   });
 
-  test("Pivot column headers are aligned left with their format", () => {
+  test("Pivot column headers are aligned left with their format", async () => {
     // prettier-ignore
     const grid = {
           A1: "Date",       B1: "Price", C1: "Active", D1: "=PIVOT(1)",
           A2: "2024-12-28", B2: "10",    C2: "TRUE",
           A3: "2024-12-29", B3: "20",    C3: "FALSE",
     };
-    const model = createModelFromGrid(grid);
+    const model = await createModelFromGrid(grid);
     addPivot(model, "A1:C3", {
       rows: [],
       columns: [{ fieldName: "Date", granularity: "year" }, { fieldName: "Active" }],
@@ -1035,14 +1039,14 @@ describe("Spreadsheet Pivot", () => {
     expect(getEvaluatedCell(model, "F2")).toMatchObject({ value: "FALSE", format: "@* " });
   });
 
-  test("PIVOT.HEADER grand total", () => {
-    const model = createModelWithPivot("A1:I5");
+  test("PIVOT.HEADER grand total", async () => {
+    const model = await createModelWithPivot("A1:I5");
     updatePivot(model, "1", {
       columns: [],
       rows: [],
       measures: [{ id: "Expected Revenue:sum", fieldName: "Expected Revenue", aggregator: "sum" }],
     });
-    setCellContent(model, "A26", "=PIVOT.HEADER(1)");
+    await setCellContent(model, "A26", "=PIVOT.HEADER(1)");
     expect(getEvaluatedCell(model, "A26").value).toBe("Total");
   });
 
@@ -1055,20 +1059,20 @@ describe("Spreadsheet Pivot", () => {
     ["avg", (10 + 15 + 15) / 3],
     ["bool_and", true],
     ["bool_or", true],
-  ])("PIVOT.VALUE number measure %s grand total", (aggregator, aggregatedValue) => {
+  ])("PIVOT.VALUE number measure %s grand total", async (aggregator, aggregatedValue) => {
     const grid = {
       A1: "Price",
       A2: "10",
       A3: "15",
       A4: "15",
     };
-    const model = createModelFromGrid(grid);
+    const model = await createModelFromGrid(grid);
     addPivot(model, "A1:A4", {
       columns: [],
       rows: [],
       measures: [{ id: "Price:sum", fieldName: "Price", aggregator }],
     });
-    setCellContent(model, "A27", '=PIVOT.VALUE(1, "Price:sum")');
+    await setCellContent(model, "A27", '=PIVOT.VALUE(1, "Price:sum")');
     expect(getEvaluatedCell(model, "A27").value).toBe(aggregatedValue);
   });
 
@@ -1079,20 +1083,20 @@ describe("Spreadsheet Pivot", () => {
     ["max", 0],
     ["min", 0],
     ["avg", "#DIV/0!"],
-  ])("PIVOT.VALUE text measure %s grand total", (aggregator, aggregatedValue) => {
+  ])("PIVOT.VALUE text measure %s grand total", async (aggregator, aggregatedValue) => {
     const grid = {
       A1: "Name",
       A2: "Alice",
       A3: "Bob",
       A4: "Bob",
     };
-    const model = createModelFromGrid(grid);
+    const model = await createModelFromGrid(grid);
     addPivot(model, "A1:A4", {
       columns: [],
       rows: [],
       measures: [{ id: `Name:${aggregator}`, fieldName: "Name", aggregator }],
     });
-    setCellContent(model, "A27", `=PIVOT.VALUE(1, "Name:${aggregator}")`);
+    await setCellContent(model, "A27", `=PIVOT.VALUE(1, "Name:${aggregator}")`);
     expect(getEvaluatedCell(model, "A27").value).toBe(aggregatedValue);
   });
 
@@ -1103,32 +1107,35 @@ describe("Spreadsheet Pivot", () => {
     ["max", 10],
     ["min", 5],
     ["avg", 7.5],
-  ])("PIVOT.VALUE measure mixing text and number %s grand total", (aggregator, aggregatedValue) => {
-    const grid = {
-      A1: "Name",
-      A2: "Alice",
-      A3: "5",
-      A4: "10",
-    };
-    const model = createModelFromGrid(grid);
-    addPivot(model, "A1:A4", {
-      columns: [],
-      rows: [],
-      measures: [{ id: `Name:${aggregator}`, fieldName: "Name", aggregator }],
-    });
-    setCellContent(model, "A27", `=PIVOT.VALUE(1, "Name:${aggregator}")`);
-    expect(getEvaluatedCell(model, "A27").value).toBe(aggregatedValue);
-  });
+  ])(
+    "PIVOT.VALUE measure mixing text and number %s grand total",
+    async (aggregator, aggregatedValue) => {
+      const grid = {
+        A1: "Name",
+        A2: "Alice",
+        A3: "5",
+        A4: "10",
+      };
+      const model = await createModelFromGrid(grid);
+      addPivot(model, "A1:A4", {
+        columns: [],
+        rows: [],
+        measures: [{ id: `Name:${aggregator}`, fieldName: "Name", aggregator }],
+      });
+      await setCellContent(model, "A27", `=PIVOT.VALUE(1, "Name:${aggregator}")`);
+      expect(getEvaluatedCell(model, "A27").value).toBe(aggregatedValue);
+    }
+  );
 
-  test("min and max aggregate format is inferred", () => {
+  test("min and max aggregate format is inferred", async () => {
     // prettier-ignore
     const grid = {
       A1: "Name",   B1: "Revenue",
       A2: "Alice",  B2: "Hi",
       A3: "Bob",    B3: "5",
     };
-    const model = createModelFromGrid(grid);
-    setFormat(model, "B3", "[$$]#,##0");
+    const model = await createModelFromGrid(grid);
+    await setFormat(model, "B3", "[$$]#,##0");
     addPivot(model, "A1:B3", {
       columns: [],
       rows: [{ fieldName: "Name" }],
@@ -1137,8 +1144,8 @@ describe("Spreadsheet Pivot", () => {
         { id: "Revenue:min", fieldName: "Revenue", aggregator: "min" },
       ],
     });
-    setCellContent(model, "A27", '=PIVOT.VALUE(1, "Revenue:max")');
-    setCellContent(model, "A28", '=PIVOT.VALUE(1, "Revenue:min")');
+    await setCellContent(model, "A27", '=PIVOT.VALUE(1, "Revenue:max")');
+    await setCellContent(model, "A28", '=PIVOT.VALUE(1, "Revenue:min")');
     expect(getEvaluatedCell(model, "A27").format).toBe("[$$]#,##0");
     expect(getEvaluatedCell(model, "A28").format).toBe("[$$]#,##0");
   });
@@ -1148,24 +1155,24 @@ describe("Spreadsheet Pivot", () => {
     ["bool_or", true],
     ["count", 3],
     ["count_distinct", 2],
-  ])("PIVOT.VALUE boolean measure %s grand total", (aggregator, aggregatedValue) => {
+  ])("PIVOT.VALUE boolean measure %s grand total", async (aggregator, aggregatedValue) => {
     const grid = {
       A1: "closed",
       A2: "true",
       A3: "false",
       A4: "false",
     };
-    const model = createModelFromGrid(grid);
+    const model = await createModelFromGrid(grid);
     addPivot(model, "A1:A4", {
       columns: [],
       rows: [],
       measures: [{ id: `closed:${aggregator}`, fieldName: "closed", aggregator }],
     });
-    setCellContent(model, "A27", `=PIVOT.VALUE(1, "closed:${aggregator}")`);
+    await setCellContent(model, "A27", `=PIVOT.VALUE(1, "closed:${aggregator}")`);
     expect(getEvaluatedCell(model, "A27").value).toBe(aggregatedValue);
   });
 
-  test("PIVOT.VALUE grouped by year", () => {
+  test("PIVOT.VALUE grouped by year", async () => {
     // prettier-ignore
     const grid = {
       A1: "Date", B1: "Price",
@@ -1173,25 +1180,25 @@ describe("Spreadsheet Pivot", () => {
       A3: "2024-12-31", B3: "20",
       A4: "1995-04-14", B4: "30",
     };
-    const model = createModelFromGrid(grid);
+    const model = await createModelFromGrid(grid);
     addPivot(model, "A1:B4", {
       columns: [],
       rows: [{ fieldName: "Date", granularity: "year" }],
       measures: [{ id: "Price:sum", fieldName: "Price", aggregator: "sum" }],
     });
-    setCellContent(model, "A27", '=PIVOT.VALUE(1, "Price:sum", "Date:year", 2024)');
+    await setCellContent(model, "A27", '=PIVOT.VALUE(1, "Price:sum", "Date:year", 2024)');
     expect(getEvaluatedCell(model, "A27").value).toBe(30);
 
     // year as string
-    setCellContent(model, "A27", '=PIVOT.VALUE(1, "Price:sum", "Date:year", "2024")');
+    await setCellContent(model, "A27", '=PIVOT.VALUE(1, "Price:sum", "Date:year", "2024")');
     expect(getEvaluatedCell(model, "A27").value).toBe(30);
 
     // no matching value
-    setCellContent(model, "A27", '=PIVOT.VALUE(1, "Price:sum", "Date:year", 1900)');
+    await setCellContent(model, "A27", '=PIVOT.VALUE(1, "Price:sum", "Date:year", 1900)');
     expect(getEvaluatedCell(model, "A27").value).toBe("");
   });
 
-  test("PIVOT.VALUE grouped by quarter_number", () => {
+  test("PIVOT.VALUE grouped by quarter_number", async () => {
     // prettier-ignore
     const grid = {
       A1: "Date", B1: "Price",
@@ -1199,25 +1206,25 @@ describe("Spreadsheet Pivot", () => {
       A3: "2024-12-31", B3: "20",
       A4: "1995-04-14", B4: "30",
     };
-    const model = createModelFromGrid(grid);
+    const model = await createModelFromGrid(grid);
     addPivot(model, "A1:B4", {
       columns: [],
       rows: [{ fieldName: "Date", granularity: "quarter_number" }],
       measures: [{ id: "Price:sum", fieldName: "Price", aggregator: "sum" }],
     });
-    setCellContent(model, "A27", '=PIVOT.VALUE(1, "Price:sum", "Date:quarter_number", 4)');
+    await setCellContent(model, "A27", '=PIVOT.VALUE(1, "Price:sum", "Date:quarter_number", 4)');
     expect(getEvaluatedCell(model, "A27").value).toBe(30);
 
     // quarter as string
-    setCellContent(model, "A27", '=PIVOT.VALUE(1, "Price:sum", "Date:quarter_number", "4")');
+    await setCellContent(model, "A27", '=PIVOT.VALUE(1, "Price:sum", "Date:quarter_number", "4")');
     expect(getEvaluatedCell(model, "A27").value).toBe(30);
 
     // no matching value
-    setCellContent(model, "A27", '=PIVOT.VALUE(1, "Price:sum", "Date:quarter_number", 1)');
+    await setCellContent(model, "A27", '=PIVOT.VALUE(1, "Price:sum", "Date:quarter_number", 1)');
     expect(getEvaluatedCell(model, "A27").value).toBe("");
   });
 
-  test("PIVOT.VALUE grouped by month_number", () => {
+  test("PIVOT.VALUE grouped by month_number", async () => {
     // prettier-ignore
     const grid = {
       A1: "Date", B1: "Price",
@@ -1225,25 +1232,25 @@ describe("Spreadsheet Pivot", () => {
       A3: "2024-12-31", B3: "20",
       A4: "1995-04-14", B4: "30",
     };
-    const model = createModelFromGrid(grid);
+    const model = await createModelFromGrid(grid);
     addPivot(model, "A1:B4", {
       columns: [],
       rows: [{ fieldName: "Date", granularity: "month_number" }],
       measures: [{ id: "Price:sum", fieldName: "Price", aggregator: "sum" }],
     });
-    setCellContent(model, "A27", '=PIVOT.VALUE(1, "Price:sum", "Date:month_number", 12)');
+    await setCellContent(model, "A27", '=PIVOT.VALUE(1, "Price:sum", "Date:month_number", 12)');
     expect(getEvaluatedCell(model, "A27").value).toBe(30);
 
     // month as string
-    setCellContent(model, "A27", '=PIVOT.VALUE(1, "Price:sum", "Date:month_number", "12")');
+    await setCellContent(model, "A27", '=PIVOT.VALUE(1, "Price:sum", "Date:month_number", "12")');
     expect(getEvaluatedCell(model, "A27").value).toBe(30);
 
     // no matching value
-    setCellContent(model, "A27", '=PIVOT.VALUE(1, "Price:sum", "Date:month_number", 1)');
+    await setCellContent(model, "A27", '=PIVOT.VALUE(1, "Price:sum", "Date:month_number", 1)');
     expect(getEvaluatedCell(model, "A27").value).toBe("");
   });
 
-  test("PIVOT.VALUE grouped by month", () => {
+  test("PIVOT.VALUE grouped by month", async () => {
     // prettier-ignore
     const grid = {
       A1: "Date", B1: "Price",
@@ -1251,22 +1258,22 @@ describe("Spreadsheet Pivot", () => {
       A3: "2024-12-31", B3: "20",
       A4: "1995-04-14", B4: "30",
     };
-    const model = createModelFromGrid(grid);
+    const model = await createModelFromGrid(grid);
     addPivot(model, "A1:B4", {
       columns: [],
       rows: [{ fieldName: "Date", granularity: "month" }],
       measures: [{ id: "Price:sum", fieldName: "Price", aggregator: "sum" }],
     });
 
-    setCellContent(model, "A27", '=PIVOT.VALUE(1, "Price:sum", "Date:month", "12/2024")');
+    await setCellContent(model, "A27", '=PIVOT.VALUE(1, "Price:sum", "Date:month", "12/2024")');
     expect(getEvaluatedCell(model, "A27").value).toBe(30);
 
     // no matching value
-    setCellContent(model, "A27", '=PIVOT.VALUE(1, "Price:sum", "Date:month", "1/2024")');
+    await setCellContent(model, "A27", '=PIVOT.VALUE(1, "Price:sum", "Date:month", "1/2024")');
     expect(getEvaluatedCell(model, "A27").value).toBe("");
   });
 
-  test("PIVOT.VALUE grouped by iso_week_number", () => {
+  test("PIVOT.VALUE grouped by iso_week_number", async () => {
     // prettier-ignore
     const grid = {
       A1: "Date", B1: "Price",
@@ -1274,25 +1281,29 @@ describe("Spreadsheet Pivot", () => {
       A3: "2024-12-28", B3: "20",
       A4: "1995-04-14", B4: "30",
     };
-    const model = createModelFromGrid(grid);
+    const model = await createModelFromGrid(grid);
     addPivot(model, "A1:B4", {
       columns: [],
       rows: [{ fieldName: "Date", granularity: "iso_week_number" }],
       measures: [{ id: "Price:sum", fieldName: "Price", aggregator: "sum" }],
     });
-    setCellContent(model, "A27", '=PIVOT.VALUE(1, "Price:sum", "Date:iso_week_number", 52)');
+    await setCellContent(model, "A27", '=PIVOT.VALUE(1, "Price:sum", "Date:iso_week_number", 52)');
     expect(getEvaluatedCell(model, "A27").value).toBe(30);
 
     // week as string
-    setCellContent(model, "A27", '=PIVOT.VALUE(1, "Price:sum", "Date:iso_week_number", "52")');
+    await setCellContent(
+      model,
+      "A27",
+      '=PIVOT.VALUE(1, "Price:sum", "Date:iso_week_number", "52")'
+    );
     expect(getEvaluatedCell(model, "A27").value).toBe(30);
 
     // no matching value
-    setCellContent(model, "A27", '=PIVOT.VALUE(1, "Price:sum", "Date:iso_week_number", 1)');
+    await setCellContent(model, "A27", '=PIVOT.VALUE(1, "Price:sum", "Date:iso_week_number", 1)');
     expect(getEvaluatedCell(model, "A27").value).toBe("");
   });
 
-  test("PIVOT.VALUE grouped by day_of_month", () => {
+  test("PIVOT.VALUE grouped by day_of_month", async () => {
     // prettier-ignore
     const grid = {
       A1: "Date", B1: "Price",
@@ -1300,25 +1311,25 @@ describe("Spreadsheet Pivot", () => {
       A3: "2024-11-28", B3: "20",
       A4: "1995-04-14", B4: "30",
     };
-    const model = createModelFromGrid(grid);
+    const model = await createModelFromGrid(grid);
     addPivot(model, "A1:B4", {
       columns: [],
       rows: [{ fieldName: "Date", granularity: "day_of_month" }],
       measures: [{ id: "Price:sum", fieldName: "Price", aggregator: "sum" }],
     });
-    setCellContent(model, "A27", '=PIVOT.VALUE(1, "Price:sum", "Date:day_of_month", 28)');
+    await setCellContent(model, "A27", '=PIVOT.VALUE(1, "Price:sum", "Date:day_of_month", 28)');
     expect(getEvaluatedCell(model, "A27").value).toBe(30);
 
     // day as string
-    setCellContent(model, "A27", '=PIVOT.VALUE(1, "Price:sum", "Date:day_of_month", "28")');
+    await setCellContent(model, "A27", '=PIVOT.VALUE(1, "Price:sum", "Date:day_of_month", "28")');
     expect(getEvaluatedCell(model, "A27").value).toBe(30);
 
     // no matching value
-    setCellContent(model, "A27", '=PIVOT.VALUE(1, "Price:sum", "Date:day_of_month", 1)');
+    await setCellContent(model, "A27", '=PIVOT.VALUE(1, "Price:sum", "Date:day_of_month", 1)');
     expect(getEvaluatedCell(model, "A27").value).toBe("");
   });
 
-  test("PIVOT.VALUE grouped by day.", () => {
+  test("PIVOT.VALUE grouped by day.", async () => {
     // prettier-ignore
     const grid = {
       A1: "Date", B1: "Price",
@@ -1326,7 +1337,7 @@ describe("Spreadsheet Pivot", () => {
       A3: "2024-12-28", B3: "20",
       A4: "1995-04-14", B4: "30",
     };
-    const model = createModelFromGrid(grid);
+    const model = await createModelFromGrid(grid);
     addPivot(model, "A1:B4", {
       columns: [],
       rows: [{ fieldName: "Date", granularity: "day" }],
@@ -1334,637 +1345,641 @@ describe("Spreadsheet Pivot", () => {
     });
 
     // hardcoded date string
-    setCellContent(model, "A27", '=PIVOT.VALUE(1, "Price:sum", "Date:day", "2024-12-28")');
+    await setCellContent(model, "A27", '=PIVOT.VALUE(1, "Price:sum", "Date:day", "2024-12-28")');
     expect(getEvaluatedCell(model, "A27").value).toBe(30);
 
     // DATE function
-    setCellContent(model, "A27", '=PIVOT.VALUE(1, "Price:sum", "Date:day", DATE(2024, 12, 28))');
+    await setCellContent(
+      model,
+      "A27",
+      '=PIVOT.VALUE(1, "Price:sum", "Date:day", DATE(2024, 12, 28))'
+    );
     expect(getEvaluatedCell(model, "A27").value).toBe(30);
 
     // no matching value
-    setCellContent(model, "A27", '=PIVOT.VALUE(1, "Price:sum", "Date:day", "2020-12-28")');
+    await setCellContent(model, "A27", '=PIVOT.VALUE(1, "Price:sum", "Date:day", "2020-12-28")');
     expect(getEvaluatedCell(model, "A27").value).toBe("");
   });
 
-  test("PIVOT.HEADER number groupby", () => {
+  test("PIVOT.HEADER number groupby", async () => {
     const grid = {
       A1: "Price",
       A2: "10",
     };
-    const model = createModelFromGrid(grid);
+    const model = await createModelFromGrid(grid);
     addPivot(model, "A1:A4", {
       columns: [],
       rows: [{ fieldName: "Price" }],
       measures: [],
     });
-    setCellContent(model, "A27", '=PIVOT.HEADER(1, "Price", 10)');
+    await setCellContent(model, "A27", '=PIVOT.HEADER(1, "Price", 10)');
     expect(getEvaluatedCell(model, "A27").value).toBe(10);
 
     // not part of the dataset
-    setCellContent(model, "A27", '=PIVOT.HEADER(1, "Price", 10000)');
+    await setCellContent(model, "A27", '=PIVOT.HEADER(1, "Price", 10000)');
     expect(getEvaluatedCell(model, "A27").value).toBe("");
 
     // not part of the dataset and not a number
-    setCellContent(model, "A27", '=PIVOT.HEADER(1, "Price", "hello")');
+    await setCellContent(model, "A27", '=PIVOT.HEADER(1, "Price", "hello")');
     expect(getEvaluatedCell(model, "A27").value).toBe("#ERROR");
     expect(getEvaluatedCell(model, "A27").message).toBe(
       "The function PIVOT.HEADER expects a number value, but 'hello' is a string, and cannot be coerced to a number."
     );
 
     // missing header value
-    setCellContent(model, "A27", '=PIVOT.HEADER(1, "Price", )');
+    await setCellContent(model, "A27", '=PIVOT.HEADER(1, "Price", )');
     expect(getEvaluatedCell(model, "A27").value).toBe("");
   });
 
-  test("PIVOT.HEADER text groupby", () => {
+  test("PIVOT.HEADER text groupby", async () => {
     const grid = {
       A1: "Name",
       A2: "Alice",
     };
-    const model = createModelFromGrid(grid);
+    const model = await createModelFromGrid(grid);
     addPivot(model, "A1:A2", {
       columns: [],
       rows: [{ fieldName: "Name" }],
       measures: [],
     });
-    setCellContent(model, "A27", '=PIVOT.HEADER(1, "Name", "Alice")');
+    await setCellContent(model, "A27", '=PIVOT.HEADER(1, "Name", "Alice")');
     expect(getEvaluatedCell(model, "A27").value).toBe("Alice");
 
     // not part of the dataset
-    setCellContent(model, "A28", '=PIVOT.HEADER(1, "Name", "Bob")');
+    await setCellContent(model, "A28", '=PIVOT.HEADER(1, "Name", "Bob")');
     expect(getEvaluatedCell(model, "A28").value).toBe("");
 
     // missing header value
-    setCellContent(model, "A29", '=PIVOT.HEADER(1, "Name", )');
+    await setCellContent(model, "A29", '=PIVOT.HEADER(1, "Name", )');
     expect(getEvaluatedCell(model, "A29").value).toBe("");
   });
 
-  test("PIVOT.HEADER boolean groupby", () => {
+  test("PIVOT.HEADER boolean groupby", async () => {
     const grid = {
       A1: "closed",
       A2: "true",
       A3: "false",
     };
-    const model = createModelFromGrid(grid);
+    const model = await createModelFromGrid(grid);
     addPivot(model, "A1:A3", {
       columns: [],
       rows: [{ fieldName: "closed" }],
       measures: [],
     });
-    setCellContent(model, "A27", '=PIVOT.HEADER(1, "closed", true)');
+    await setCellContent(model, "A27", '=PIVOT.HEADER(1, "closed", true)');
     expect(getEvaluatedCell(model, "A27").value).toBe(true);
 
-    setCellContent(model, "A28", '=PIVOT.HEADER(1, "closed", false)');
+    await setCellContent(model, "A28", '=PIVOT.HEADER(1, "closed", false)');
     expect(getEvaluatedCell(model, "A28").value).toBe(false);
 
     // missing header value
-    setCellContent(model, "A29", '=PIVOT.HEADER(1, "closed", )');
+    await setCellContent(model, "A29", '=PIVOT.HEADER(1, "closed", )');
     expect(getEvaluatedCell(model, "A29").value).toBe(false);
   });
 
-  test("PIVOT.HEADER date wrong granularity groupby", () => {
+  test("PIVOT.HEADER date wrong granularity groupby", async () => {
     const grid = {
       A1: "Date",
       A2: "2024-12-31",
       A4: "1995-04-14",
     };
-    const model = createModelFromGrid(grid);
+    const model = await createModelFromGrid(grid);
     addPivot(model, "A1:A4", {
       columns: [],
       rows: [{ fieldName: "Date", granularity: "year" }],
       measures: [],
     });
-    setCellContent(model, "A27", '=PIVOT.HEADER(1, "Date:not_a_granularity", 2024)');
+    await setCellContent(model, "A27", '=PIVOT.HEADER(1, "Date:not_a_granularity", 2024)');
     expect(getEvaluatedCell(model, "A27").message).toBe(
       "Dimensions don't match the pivot definition. Consider using a dynamic pivot formula: =PIVOT(1). Or re-insert the static pivot from the Data menu."
     );
   });
 
-  test("PIVOT.HEADER date year groupby", () => {
+  test("PIVOT.HEADER date year groupby", async () => {
     const grid = {
       A1: "Date",
       A2: "2024-12-31",
       A4: "1995-04-14",
     };
-    const model = createModelFromGrid(grid);
+    const model = await createModelFromGrid(grid);
     addPivot(model, "A1:A4", {
       columns: [],
       rows: [{ fieldName: "Date", granularity: "year" }],
       measures: [],
     });
-    setCellContent(model, "A27", '=PIVOT.HEADER(1, "Date:year", 2024)');
+    await setCellContent(model, "A27", '=PIVOT.HEADER(1, "Date:year", 2024)');
     expect(getEvaluatedCell(model, "A27").value).toBe(2024);
     expect(getEvaluatedCell(model, "A27").format).toBe("0");
 
-    setCellContent(model, "A28", '=PIVOT.HEADER(1, "Date:year", "2024")');
+    await setCellContent(model, "A28", '=PIVOT.HEADER(1, "Date:year", "2024")');
     expect(getEvaluatedCell(model, "A28").value).toBe(2024);
 
     // not in the dataset
-    setCellContent(model, "A29", '=PIVOT.HEADER(1, "Date:year", 2000)');
+    await setCellContent(model, "A29", '=PIVOT.HEADER(1, "Date:year", 2000)');
     expect(getEvaluatedCell(model, "A29").value).toBe(2000);
 
     // missing header value
-    setCellContent(model, "A30", '=PIVOT.HEADER(1, "Date:year", )');
+    await setCellContent(model, "A30", '=PIVOT.HEADER(1, "Date:year", )');
     expect(getEvaluatedCell(model, "A30").value).toBe(0);
 
     // without granularity
-    setCellContent(model, "A31", '=PIVOT.HEADER(1, "Date", )');
+    await setCellContent(model, "A31", '=PIVOT.HEADER(1, "Date", )');
     expect(getEvaluatedCell(model, "A31").message).toBe(
       "Dimensions don't match the pivot definition. Consider using a dynamic pivot formula: =PIVOT(1). Or re-insert the static pivot from the Data menu."
     );
 
     // no a number
-    setCellContent(model, "A32", '=PIVOT.HEADER(1, "Date:year", "not a number")');
+    await setCellContent(model, "A32", '=PIVOT.HEADER(1, "Date:year", "not a number")');
     expect(getEvaluatedCell(model, "A32").message).toBe(
       "The function PIVOT.HEADER expects a number value, but 'not a number' is a string, and cannot be coerced to a number."
     );
   });
 
-  test("PIVOT.HEADER date quarter_number groupby", () => {
+  test("PIVOT.HEADER date quarter_number groupby", async () => {
     const grid = {
       A1: "Date",
       A2: "2024-12-31",
       A4: "1995-04-14",
     };
-    const model = createModelFromGrid(grid);
+    const model = await createModelFromGrid(grid);
     addPivot(model, "A1:A4", {
       columns: [],
       rows: [{ fieldName: "Date", granularity: "quarter_number" }],
       measures: [],
     });
-    setCellContent(model, "A27", '=PIVOT.HEADER(1, "Date:quarter_number", 4)');
+    await setCellContent(model, "A27", '=PIVOT.HEADER(1, "Date:quarter_number", 4)');
     expect(getEvaluatedCell(model, "A27").value).toBe("Q4");
     expect(getEvaluatedCell(model, "A27").format).toBe("@");
 
     // quarter as string
-    setCellContent(model, "A28", '=PIVOT.HEADER(1, "Date:quarter_number", "4")');
+    await setCellContent(model, "A28", '=PIVOT.HEADER(1, "Date:quarter_number", "4")');
     expect(getEvaluatedCell(model, "A28").value).toBe("Q4");
 
     // not in the dataset
-    setCellContent(model, "A29", '=PIVOT.HEADER(1, "Date:quarter_number", 1)');
+    await setCellContent(model, "A29", '=PIVOT.HEADER(1, "Date:quarter_number", 1)');
     expect(getEvaluatedCell(model, "A29").value).toBe("Q1");
 
     // missing header value
-    setCellContent(model, "A30", '=PIVOT.HEADER(1, "Date:quarter_number", )');
+    await setCellContent(model, "A30", '=PIVOT.HEADER(1, "Date:quarter_number", )');
     expect(getEvaluatedCell(model, "A30").message).toBe(
       "0 is not a valid quarter (it should be a number between 1 and 4)"
     );
 
     // without granularity
-    setCellContent(model, "A31", '=PIVOT.HEADER(1, "Date", )');
+    await setCellContent(model, "A31", '=PIVOT.HEADER(1, "Date", )');
     expect(getEvaluatedCell(model, "A31").message).toBe(
       "Dimensions don't match the pivot definition. Consider using a dynamic pivot formula: =PIVOT(1). Or re-insert the static pivot from the Data menu."
     );
-    setCellContent(model, "A32", '=PIVOT.HEADER(1, "Date:quarter_number", "not a number")');
+    await setCellContent(model, "A32", '=PIVOT.HEADER(1, "Date:quarter_number", "not a number")');
     expect(getEvaluatedCell(model, "A32").message).toBe(
       "The function PIVOT.HEADER expects a number value, but 'not a number' is a string, and cannot be coerced to a number."
     );
 
     // not a valid quarter
-    setCellContent(model, "A33", '=PIVOT.HEADER(1, "Date:quarter_number", 5)');
+    await setCellContent(model, "A33", '=PIVOT.HEADER(1, "Date:quarter_number", 5)');
     expect(getEvaluatedCell(model, "A33").message).toBe(
       "5 is not a valid quarter (it should be a number between 1 and 4)"
     );
   });
 
-  test("PIVOT.HEADER date month_number groupby", () => {
+  test("PIVOT.HEADER date month_number groupby", async () => {
     const grid = {
       A1: "Date",
       A2: "2024-12-31",
       A4: "1995-04-14",
     };
-    const model = createModelFromGrid(grid);
+    const model = await createModelFromGrid(grid);
     addPivot(model, "A1:A4", {
       columns: [],
       rows: [{ fieldName: "Date", granularity: "month_number" }],
       measures: [],
     });
-    setCellContent(model, "A27", '=PIVOT.HEADER(1, "Date:month_number", 4)');
+    await setCellContent(model, "A27", '=PIVOT.HEADER(1, "Date:month_number", 4)');
     expect(getEvaluatedCell(model, "A27").value).toBe("April");
 
-    setCellContent(model, "A28", '=PIVOT.HEADER(1, "Date:month_number", "4")');
+    await setCellContent(model, "A28", '=PIVOT.HEADER(1, "Date:month_number", "4")');
     expect(getEvaluatedCell(model, "A28").value).toBe("April");
 
     // not in the dataset
-    setCellContent(model, "A29", '=PIVOT.HEADER(1, "Date:month_number", 1)');
+    await setCellContent(model, "A29", '=PIVOT.HEADER(1, "Date:month_number", 1)');
     expect(getEvaluatedCell(model, "A29").value).toBe("January");
 
     // missing header value
-    setCellContent(model, "A30", '=PIVOT.HEADER(1, "Date:month_number", )');
+    await setCellContent(model, "A30", '=PIVOT.HEADER(1, "Date:month_number", )');
     expect(getEvaluatedCell(model, "A30").message).toBe(
       "0 is not a valid month (it should be a number between 1 and 12)"
     );
 
     // missing header value
-    setCellContent(model, "A31", '=PIVOT.HEADER(1, "Date:month_number")');
+    await setCellContent(model, "A31", '=PIVOT.HEADER(1, "Date:month_number")');
     expect(getEvaluatedCell(model, "A31").message).toBe(
       "Invalid number of arguments for the PIVOT.HEADER function. Repeatable arguments should be supplied in groups of 2, with up to 0 optional. Got 1 too many."
     );
 
     // without granularity
-    setCellContent(model, "A32", '=PIVOT.HEADER(1, "Date", )');
+    await setCellContent(model, "A32", '=PIVOT.HEADER(1, "Date", )');
     expect(getEvaluatedCell(model, "A32").message).toBe(
       "Dimensions don't match the pivot definition. Consider using a dynamic pivot formula: =PIVOT(1). Or re-insert the static pivot from the Data menu."
     );
 
     // not a number
-    setCellContent(model, "A33", '=PIVOT.HEADER(1, "Date:month_number", "not a number")');
+    await setCellContent(model, "A33", '=PIVOT.HEADER(1, "Date:month_number", "not a number")');
     expect(getEvaluatedCell(model, "A33").message).toBe(
       "The function PIVOT.HEADER expects a number value, but 'not a number' is a string, and cannot be coerced to a number."
     );
 
     // not a valid month
-    setCellContent(model, "A34", '=PIVOT.HEADER(1, "Date:month_number", 13)');
+    await setCellContent(model, "A34", '=PIVOT.HEADER(1, "Date:month_number", 13)');
     expect(getEvaluatedCell(model, "A34").message).toBe(
       "13 is not a valid month (it should be a number between 1 and 12)"
     );
   });
 
-  test("PIVOT.HEADER date month groupby", () => {
+  test("PIVOT.HEADER date month groupby", async () => {
     const grid = {
       A1: "Date",
       A2: "2024-12-31",
       A4: "1995-04-14",
     };
-    const model = createModelFromGrid(grid);
+    const model = await createModelFromGrid(grid);
     addPivot(model, "A1:A4", {
       columns: [],
       rows: [{ fieldName: "Date", granularity: "month" }],
       measures: [],
     });
-    setCellContent(model, "A27", '=PIVOT.HEADER(1, "Date:month", "4/2024")');
+    await setCellContent(model, "A27", '=PIVOT.HEADER(1, "Date:month", "4/2024")');
     expect(getEvaluatedCell(model, "A27").formattedValue).toBe("April 2024");
 
     // not in the dataset
-    setCellContent(model, "A29", '=PIVOT.HEADER(1, "Date:month", "1/2024")');
+    await setCellContent(model, "A29", '=PIVOT.HEADER(1, "Date:month", "1/2024")');
     expect(getEvaluatedCell(model, "A29").formattedValue).toBe("January 2024");
 
     // missing header value
-    setCellContent(model, "A31", '=PIVOT.HEADER(1, "Date:month")');
+    await setCellContent(model, "A31", '=PIVOT.HEADER(1, "Date:month")');
     expect(getEvaluatedCell(model, "A31").message).toBe(
       "Invalid number of arguments for the PIVOT.HEADER function. Repeatable arguments should be supplied in groups of 2, with up to 0 optional. Got 1 too many."
     );
 
     // without granularity
-    setCellContent(model, "A32", '=PIVOT.HEADER(1, "Date", "4/2024")');
+    await setCellContent(model, "A32", '=PIVOT.HEADER(1, "Date", "4/2024")');
     expect(getEvaluatedCell(model, "A32").message).toBe(
       "Dimensions don't match the pivot definition. Consider using a dynamic pivot formula: =PIVOT(1). Or re-insert the static pivot from the Data menu."
     );
 
     // not a valid month
-    setCellContent(model, "A34", '=PIVOT.HEADER(1, "Date:month", "14/2024")');
+    await setCellContent(model, "A34", '=PIVOT.HEADER(1, "Date:month", "14/2024")');
     expect(getEvaluatedCell(model, "A34").message).toBe(
       "The function PIVOT.HEADER expects a number value, but '14/2024' is a string, and cannot be coerced to a number."
     );
   });
 
-  test("PIVOT.HEADER date iso_week_number groupby", () => {
+  test("PIVOT.HEADER date iso_week_number groupby", async () => {
     const grid = {
       A1: "Date",
       A2: "2024-12-31",
       A4: "1995-04-14",
     };
-    const model = createModelFromGrid(grid);
+    const model = await createModelFromGrid(grid);
     addPivot(model, "A1:A4", {
       columns: [],
       rows: [{ fieldName: "Date", granularity: "iso_week_number" }],
       measures: [],
     });
-    setCellContent(model, "A27", '=PIVOT.HEADER(1, "Date:iso_week_number", 4)');
+    await setCellContent(model, "A27", '=PIVOT.HEADER(1, "Date:iso_week_number", 4)');
     expect(getEvaluatedCell(model, "A27").value).toBe(4);
     expect(getEvaluatedCell(model, "A27").format).toBe("0");
 
-    setCellContent(model, "A28", '=PIVOT.HEADER(1, "Date:iso_week_number", "4")');
+    await setCellContent(model, "A28", '=PIVOT.HEADER(1, "Date:iso_week_number", "4")');
     expect(getEvaluatedCell(model, "A28").value).toBe(4);
 
     // not in the dataset
-    setCellContent(model, "A29", '=PIVOT.HEADER(1, "Date:iso_week_number", 53)');
+    await setCellContent(model, "A29", '=PIVOT.HEADER(1, "Date:iso_week_number", 53)');
     expect(getEvaluatedCell(model, "A29").value).toBe(53);
 
     // missing header value
-    setCellContent(model, "A30", '=PIVOT.HEADER(1, "Date:iso_week_number", )');
+    await setCellContent(model, "A30", '=PIVOT.HEADER(1, "Date:iso_week_number", )');
     expect(getEvaluatedCell(model, "A30").value).toBe(0);
 
     // without granularity
-    setCellContent(model, "A31", '=PIVOT.HEADER(1, "Date", )');
+    await setCellContent(model, "A31", '=PIVOT.HEADER(1, "Date", )');
     expect(getEvaluatedCell(model, "A31").message).toBe(
       "Dimensions don't match the pivot definition. Consider using a dynamic pivot formula: =PIVOT(1). Or re-insert the static pivot from the Data menu."
     );
 
     // not a number
-    setCellContent(model, "A32", '=PIVOT.HEADER(1, "Date:iso_week_number", "not a number")');
+    await setCellContent(model, "A32", '=PIVOT.HEADER(1, "Date:iso_week_number", "not a number")');
     expect(getEvaluatedCell(model, "A32").message).toBe(
       "The function PIVOT.HEADER expects a number value, but 'not a number' is a string, and cannot be coerced to a number."
     );
 
     // not a valid week
-    setCellContent(model, "A33", '=PIVOT.HEADER(1, "Date:iso_week_number", 54)');
+    await setCellContent(model, "A33", '=PIVOT.HEADER(1, "Date:iso_week_number", 54)');
     expect(getEvaluatedCell(model, "A33").message).toBe(
       "54 is not a valid week (it should be a number between 0 and 53)"
     );
 
-    setCellContent(model, "A34", '=PIVOT.HEADER(1, "Date:iso_week_number", -1)');
+    await setCellContent(model, "A34", '=PIVOT.HEADER(1, "Date:iso_week_number", -1)');
     expect(getEvaluatedCell(model, "A34").message).toBe(
       "-1 is not a valid week (it should be a number between 0 and 53)"
     );
   });
 
-  test("PIVOT.HEADER date day_of_month groupby", () => {
+  test("PIVOT.HEADER date day_of_month groupby", async () => {
     const grid = {
       A1: "Date",
       A2: "2024-12-31",
       A4: "1995-04-14",
     };
-    const model = createModelFromGrid(grid);
+    const model = await createModelFromGrid(grid);
     addPivot(model, "A1:A4", {
       columns: [],
       rows: [{ fieldName: "Date", granularity: "day_of_month" }],
       measures: [],
     });
-    setCellContent(model, "A27", '=PIVOT.HEADER(1, "Date:day_of_month", 4)');
+    await setCellContent(model, "A27", '=PIVOT.HEADER(1, "Date:day_of_month", 4)');
     expect(getEvaluatedCell(model, "A27").value).toBe(4);
     expect(getEvaluatedCell(model, "A27").format).toBe("0");
 
-    setCellContent(model, "A28", '=PIVOT.HEADER(1, "Date:day_of_month", "4")');
+    await setCellContent(model, "A28", '=PIVOT.HEADER(1, "Date:day_of_month", "4")');
     expect(getEvaluatedCell(model, "A28").value).toBe(4);
 
     // not in the dataset
-    setCellContent(model, "A29", '=PIVOT.HEADER(1, "Date:day_of_month", 31)');
+    await setCellContent(model, "A29", '=PIVOT.HEADER(1, "Date:day_of_month", 31)');
     expect(getEvaluatedCell(model, "A29").value).toBe(31);
 
     // missing header value
-    setCellContent(model, "A30", '=PIVOT.HEADER(1, "Date:day_of_month", )');
+    await setCellContent(model, "A30", '=PIVOT.HEADER(1, "Date:day_of_month", )');
     expect(getEvaluatedCell(model, "A30").message).toBe(
       "0 is not a valid day of month (it should be a number between 1 and 31)"
     );
 
     // without granularity
-    setCellContent(model, "A31", '=PIVOT.HEADER(1, "Date", )');
+    await setCellContent(model, "A31", '=PIVOT.HEADER(1, "Date", )');
     expect(getEvaluatedCell(model, "A31").message).toBe(
       "Dimensions don't match the pivot definition. Consider using a dynamic pivot formula: =PIVOT(1). Or re-insert the static pivot from the Data menu."
     );
 
     // not a number
-    setCellContent(model, "A32", '=PIVOT.HEADER(1, "Date:day_of_month", "not a number")');
+    await setCellContent(model, "A32", '=PIVOT.HEADER(1, "Date:day_of_month", "not a number")');
     expect(getEvaluatedCell(model, "A32").message).toBe(
       "The function PIVOT.HEADER expects a number value, but 'not a number' is a string, and cannot be coerced to a number."
     );
 
     // not a valid day of month
-    setCellContent(model, "A33", '=PIVOT.HEADER(1, "Date:day_of_month", 32)');
+    await setCellContent(model, "A33", '=PIVOT.HEADER(1, "Date:day_of_month", 32)');
     expect(getEvaluatedCell(model, "A33").message).toBe(
       "32 is not a valid day of month (it should be a number between 1 and 31)"
     );
-    setCellContent(model, "A34", '=PIVOT.HEADER(1, "Date:day_of_month", 0)');
+    await setCellContent(model, "A34", '=PIVOT.HEADER(1, "Date:day_of_month", 0)');
     expect(getEvaluatedCell(model, "A34").message).toBe(
       "0 is not a valid day of month (it should be a number between 1 and 31)"
     );
   });
 
-  test("PIVOT.HEADER date day_of_week groupby", () => {
+  test("PIVOT.HEADER date day_of_week groupby", async () => {
     const grid = {
       A1: "Date",
       A2: "2024-04-03", // Wednesday
       A4: "2024-04-02", // Tuesday
     };
-    const model = createModelFromGrid(grid);
+    const model = await createModelFromGrid(grid);
     addPivot(model, "A1:A4", {
       columns: [],
       rows: [{ fieldName: "Date", granularity: "day_of_week" }],
       measures: [],
     });
-    setCellContent(model, "A27", '=PIVOT.HEADER(1, "Date:day_of_week", 4)');
+    await setCellContent(model, "A27", '=PIVOT.HEADER(1, "Date:day_of_week", 4)');
     expect(getEvaluatedCell(model, "A27").value).toBe("Wednesday");
     expect(getEvaluatedCell(model, "A27").format).toBe("@");
 
-    setCellContent(model, "A28", '=PIVOT.HEADER(1, "Date:day_of_week", "4")');
+    await setCellContent(model, "A28", '=PIVOT.HEADER(1, "Date:day_of_week", "4")');
     expect(getEvaluatedCell(model, "A28").value).toBe("Wednesday");
 
     // not in the dataset
-    setCellContent(model, "A29", '=PIVOT.HEADER(1, "Date:day_of_week", 7)');
+    await setCellContent(model, "A29", '=PIVOT.HEADER(1, "Date:day_of_week", 7)');
     expect(getEvaluatedCell(model, "A29").value).toBe("Saturday");
 
     // missing header value
-    setCellContent(model, "A30", '=PIVOT.HEADER(1, "Date:day_of_week", )');
+    await setCellContent(model, "A30", '=PIVOT.HEADER(1, "Date:day_of_week", )');
     expect(getEvaluatedCell(model, "A30").message).toBe(
       "0 is not a valid day of week (it should be a number between 1 and 7)"
     );
 
     // without granularity
-    setCellContent(model, "A31", '=PIVOT.HEADER(1, "Date", )');
+    await setCellContent(model, "A31", '=PIVOT.HEADER(1, "Date", )');
     expect(getEvaluatedCell(model, "A31").message).toContain(
       "Dimensions don't match the pivot definition"
     );
 
     // not a number
-    setCellContent(model, "A32", '=PIVOT.HEADER(1, "Date:day_of_week", "not a number")');
+    await setCellContent(model, "A32", '=PIVOT.HEADER(1, "Date:day_of_week", "not a number")');
     expect(getEvaluatedCell(model, "A32").message).toBe(
       "The function PIVOT.HEADER expects a number value, but 'not a number' is a string, and cannot be coerced to a number."
     );
 
     // not a valid day of week
-    setCellContent(model, "A33", '=PIVOT.HEADER(1, "Date:day_of_week", 8)');
+    await setCellContent(model, "A33", '=PIVOT.HEADER(1, "Date:day_of_week", 8)');
     expect(getEvaluatedCell(model, "A33").message).toBe(
       "8 is not a valid day of week (it should be a number between 1 and 7)"
     );
-    setCellContent(model, "A34", '=PIVOT.HEADER(1, "Date:day_of_week", 0)');
+    await setCellContent(model, "A34", '=PIVOT.HEADER(1, "Date:day_of_week", 0)');
     expect(getEvaluatedCell(model, "A34").message).toBe(
       "0 is not a valid day of week (it should be a number between 1 and 7)"
     );
   });
 
-  test("PIVOT.HEADER date hour_number groupby", () => {
+  test("PIVOT.HEADER date hour_number groupby", async () => {
     const grid = {
       A1: "Date",
       A2: "2024-04-03 1:07:12",
       A4: "2024-04-02 2:08:14",
     };
-    const model = createModelFromGrid(grid);
+    const model = await createModelFromGrid(grid);
     addPivot(model, "A1:A4", {
       columns: [],
       rows: [{ fieldName: "Date", granularity: "hour_number" }],
       measures: [],
     });
-    setCellContent(model, "A27", '=PIVOT.HEADER(1, "Date:hour_number", 1)');
+    await setCellContent(model, "A27", '=PIVOT.HEADER(1, "Date:hour_number", 1)');
     expect(getEvaluatedCell(model, "A27").value).toBe("1h");
     expect(getEvaluatedCell(model, "A27").format).toBe("@");
 
-    setCellContent(model, "A28", '=PIVOT.HEADER(1, "Date:hour_number", "1")');
+    await setCellContent(model, "A28", '=PIVOT.HEADER(1, "Date:hour_number", "1")');
     expect(getEvaluatedCell(model, "A28").value).toBe("1h");
 
     // not in the dataset
-    setCellContent(model, "A29", '=PIVOT.HEADER(1, "Date:hour_number", 7)');
+    await setCellContent(model, "A29", '=PIVOT.HEADER(1, "Date:hour_number", 7)');
     expect(getEvaluatedCell(model, "A29").value).toBe("7h");
 
     // missing header value
-    setCellContent(model, "A30", '=PIVOT.HEADER(1, "Date:hour_number", )');
+    await setCellContent(model, "A30", '=PIVOT.HEADER(1, "Date:hour_number", )');
     expect(getEvaluatedCell(model, "A30").value).toBe("0h");
 
     // without granularity
-    setCellContent(model, "A31", '=PIVOT.HEADER(1, "Date", )');
+    await setCellContent(model, "A31", '=PIVOT.HEADER(1, "Date", )');
     expect(getEvaluatedCell(model, "A31").message).toContain(
       "Dimensions don't match the pivot definition"
     );
 
     // not a number
-    setCellContent(model, "A32", '=PIVOT.HEADER(1, "Date:hour_number", "not a number")');
+    await setCellContent(model, "A32", '=PIVOT.HEADER(1, "Date:hour_number", "not a number")');
     expect(getEvaluatedCell(model, "A32").message).toBe(
       "The function PIVOT.HEADER expects a number value, but 'not a number' is a string, and cannot be coerced to a number."
     );
 
     // not a valid hour
-    setCellContent(model, "A33", '=PIVOT.HEADER(1, "Date:hour_number", 24)');
+    await setCellContent(model, "A33", '=PIVOT.HEADER(1, "Date:hour_number", 24)');
     expect(getEvaluatedCell(model, "A33").message).toBe(
       "24 is not a valid hour (it should be a number between 0 and 23)"
     );
-    setCellContent(model, "A34", '=PIVOT.HEADER(1, "Date:hour_number", -1)');
+    await setCellContent(model, "A34", '=PIVOT.HEADER(1, "Date:hour_number", -1)');
     expect(getEvaluatedCell(model, "A34").message).toBe(
       "-1 is not a valid hour (it should be a number between 0 and 23)"
     );
   });
 
-  test("PIVOT.HEADER date minute_number groupby", () => {
+  test("PIVOT.HEADER date minute_number groupby", async () => {
     const grid = {
       A1: "Date",
       A2: "2024-04-03 1:07:12",
       A4: "2024-04-02 2:08:14",
     };
-    const model = createModelFromGrid(grid);
+    const model = await createModelFromGrid(grid);
     addPivot(model, "A1:A4", {
       columns: [],
       rows: [{ fieldName: "Date", granularity: "minute_number" }],
       measures: [],
     });
-    setCellContent(model, "A27", '=PIVOT.HEADER(1, "Date:minute_number", 7)');
+    await setCellContent(model, "A27", '=PIVOT.HEADER(1, "Date:minute_number", 7)');
     expect(getEvaluatedCell(model, "A27").value).toBe("7'");
     expect(getEvaluatedCell(model, "A27").format).toBe("@");
 
-    setCellContent(model, "A28", '=PIVOT.HEADER(1, "Date:minute_number", "7")');
+    await setCellContent(model, "A28", '=PIVOT.HEADER(1, "Date:minute_number", "7")');
     expect(getEvaluatedCell(model, "A28").value).toBe("7'");
 
     // not in the dataset
-    setCellContent(model, "A29", '=PIVOT.HEADER(1, "Date:minute_number", 1)');
+    await setCellContent(model, "A29", '=PIVOT.HEADER(1, "Date:minute_number", 1)');
     expect(getEvaluatedCell(model, "A29").value).toBe("1'");
 
     // missing header value
-    setCellContent(model, "A30", '=PIVOT.HEADER(1, "Date:minute_number", )');
+    await setCellContent(model, "A30", '=PIVOT.HEADER(1, "Date:minute_number", )');
     expect(getEvaluatedCell(model, "A30").value).toBe("0'");
 
     // without granularity
-    setCellContent(model, "A31", '=PIVOT.HEADER(1, "Date", )');
+    await setCellContent(model, "A31", '=PIVOT.HEADER(1, "Date", )');
     expect(getEvaluatedCell(model, "A31").message).toContain(
       "Dimensions don't match the pivot definition"
     );
 
     // not a number
-    setCellContent(model, "A32", '=PIVOT.HEADER(1, "Date:minute_number", "not a number")');
+    await setCellContent(model, "A32", '=PIVOT.HEADER(1, "Date:minute_number", "not a number")');
     expect(getEvaluatedCell(model, "A32").message).toBe(
       "The function PIVOT.HEADER expects a number value, but 'not a number' is a string, and cannot be coerced to a number."
     );
 
     // not a valid minute
-    setCellContent(model, "A33", '=PIVOT.HEADER(1, "Date:minute_number", 60)');
+    await setCellContent(model, "A33", '=PIVOT.HEADER(1, "Date:minute_number", 60)');
     expect(getEvaluatedCell(model, "A33").message).toBe(
       "60 is not a valid minute (it should be a number between 0 and 59)"
     );
-    setCellContent(model, "A34", '=PIVOT.HEADER(1, "Date:minute_number", -1)');
+    await setCellContent(model, "A34", '=PIVOT.HEADER(1, "Date:minute_number", -1)');
     expect(getEvaluatedCell(model, "A34").message).toBe(
       "-1 is not a valid minute (it should be a number between 0 and 59)"
     );
   });
 
-  test("PIVOT.HEADER date second_number groupby", () => {
+  test("PIVOT.HEADER date second_number groupby", async () => {
     const grid = {
       A1: "Date",
       A2: "2024-04-03 1:07:12",
       A4: "2024-04-02 2:08:14",
     };
-    const model = createModelFromGrid(grid);
+    const model = await createModelFromGrid(grid);
     addPivot(model, "A1:A4", {
       columns: [],
       rows: [{ fieldName: "Date", granularity: "second_number" }],
       measures: [],
     });
-    setCellContent(model, "A27", '=PIVOT.HEADER(1, "Date:second_number", 7)');
+    await setCellContent(model, "A27", '=PIVOT.HEADER(1, "Date:second_number", 7)');
     expect(getEvaluatedCell(model, "A27").value).toBe("7''");
     expect(getEvaluatedCell(model, "A27").format).toBe("@");
 
-    setCellContent(model, "A28", '=PIVOT.HEADER(1, "Date:second_number", "7")');
+    await setCellContent(model, "A28", '=PIVOT.HEADER(1, "Date:second_number", "7")');
     expect(getEvaluatedCell(model, "A28").value).toBe("7''");
 
     // not in the dataset
-    setCellContent(model, "A29", '=PIVOT.HEADER(1, "Date:second_number", 1)');
+    await setCellContent(model, "A29", '=PIVOT.HEADER(1, "Date:second_number", 1)');
     expect(getEvaluatedCell(model, "A29").value).toBe("1''");
 
     // missing header value
-    setCellContent(model, "A30", '=PIVOT.HEADER(1, "Date:second_number", )');
+    await setCellContent(model, "A30", '=PIVOT.HEADER(1, "Date:second_number", )');
     expect(getEvaluatedCell(model, "A30").value).toBe("0''");
 
     // without granularity
-    setCellContent(model, "A31", '=PIVOT.HEADER(1, "Date", )');
+    await setCellContent(model, "A31", '=PIVOT.HEADER(1, "Date", )');
     expect(getEvaluatedCell(model, "A31").message).toContain(
       "Dimensions don't match the pivot definition"
     );
 
     // not a number
-    setCellContent(model, "A32", '=PIVOT.HEADER(1, "Date:second_number", "not a number")');
+    await setCellContent(model, "A32", '=PIVOT.HEADER(1, "Date:second_number", "not a number")');
     expect(getEvaluatedCell(model, "A32").message).toBe(
       "The function PIVOT.HEADER expects a number value, but 'not a number' is a string, and cannot be coerced to a number."
     );
 
     // not a valid second
-    setCellContent(model, "A33", '=PIVOT.HEADER(1, "Date:second_number", 60)');
+    await setCellContent(model, "A33", '=PIVOT.HEADER(1, "Date:second_number", 60)');
     expect(getEvaluatedCell(model, "A33").message).toBe(
       "60 is not a valid second (it should be a number between 0 and 59)"
     );
-    setCellContent(model, "A34", '=PIVOT.HEADER(1, "Date:second_number", -1)');
+    await setCellContent(model, "A34", '=PIVOT.HEADER(1, "Date:second_number", -1)');
     expect(getEvaluatedCell(model, "A34").message).toBe(
       "-1 is not a valid second (it should be a number between 0 and 59)"
     );
   });
 
-  test("PIVOT.HEADER date day groupby", () => {
+  test("PIVOT.HEADER date day groupby", async () => {
     const grid = {
       A1: "Date",
       A2: "2024-12-31",
       A4: "1995-04-14",
     };
-    const model = createModelFromGrid(grid);
+    const model = await createModelFromGrid(grid);
     addPivot(model, "A1:A4", {
       columns: [],
       rows: [{ fieldName: "Date", granularity: "day" }],
       measures: [],
     });
-    setCellContent(model, "A27", '=PIVOT.HEADER(1, "Date:day", DATE(2024, 12, 31))');
+    await setCellContent(model, "A27", '=PIVOT.HEADER(1, "Date:day", DATE(2024, 12, 31))');
     expect(getEvaluatedCell(model, "A27").value).toBe(45657);
     expect(getEvaluatedCell(model, "A27").format).toBe("dd mmm yyyy");
 
-    setCellContent(model, "A28", '=PIVOT.HEADER(1, "Date:day", "2024-12-31")');
+    await setCellContent(model, "A28", '=PIVOT.HEADER(1, "Date:day", "2024-12-31")');
     expect(getEvaluatedCell(model, "A28").value).toBe(45657);
 
     // not in the dataset
-    setCellContent(model, "A29", '=PIVOT.HEADER(1, "Date:day", "2020-04-14")');
+    await setCellContent(model, "A29", '=PIVOT.HEADER(1, "Date:day", "2020-04-14")');
     expect(getEvaluatedCell(model, "A29").value).toBe(43935);
 
     // missing header value
-    setCellContent(model, "A30", '=PIVOT.HEADER(1, "Date:day", )');
+    await setCellContent(model, "A30", '=PIVOT.HEADER(1, "Date:day", )');
     expect(getEvaluatedCell(model, "A30").value).toBe(0);
 
     // without granularity
-    setCellContent(model, "A31", '=PIVOT.HEADER(1, "Date", )');
+    await setCellContent(model, "A31", '=PIVOT.HEADER(1, "Date", )');
     expect(getEvaluatedCell(model, "A31").message).toBe(
       "Dimensions don't match the pivot definition. Consider using a dynamic pivot formula: =PIVOT(1). Or re-insert the static pivot from the Data menu."
     );
 
     // not a number
-    setCellContent(model, "A32", '=PIVOT.HEADER(1, "Date:day", "not a number")');
+    await setCellContent(model, "A32", '=PIVOT.HEADER(1, "Date:day", "not a number")');
     expect(getEvaluatedCell(model, "A32").message).toBe(
       "The function PIVOT.HEADER expects a number value, but 'not a number' is a string, and cannot be coerced to a number."
     );
   });
 
-  test("Pivot with date and datetime measures", () => {
-    const model = createModelFromGrid({
+  test("Pivot with date and datetime measures", async () => {
+    const model = await createModelFromGrid({
       A1: "Date",
       B1: "Datetime",
       A2: "2024/02/03",
@@ -1982,18 +1997,18 @@ describe("Spreadsheet Pivot", () => {
         { id: "Datetime:min", fieldName: "Datetime", aggregator: "min" },
       ],
     });
-    setCellContent(model, "A26", '=PIVOT.VALUE(1,"Date:max")');
-    setCellContent(model, "B26", '=PIVOT.VALUE(1,"Datetime:max")');
-    setCellContent(model, "A27", '=PIVOT.VALUE(1,"Date:min")');
-    setCellContent(model, "B27", '=PIVOT.VALUE(1,"Datetime:min")');
+    await setCellContent(model, "A26", '=PIVOT.VALUE(1,"Date:max")');
+    await setCellContent(model, "B26", '=PIVOT.VALUE(1,"Datetime:max")');
+    await setCellContent(model, "A27", '=PIVOT.VALUE(1,"Date:min")');
+    await setCellContent(model, "B27", '=PIVOT.VALUE(1,"Datetime:min")');
     expect(getEvaluatedCell(model, "A26").formattedValue).toBe("2024/02/03");
     expect(getEvaluatedCell(model, "B26").formattedValue).toBe("2024/02/03 12:34:56");
     expect(getEvaluatedCell(model, "A27").formattedValue).toBe("2022/04/14");
     expect(getEvaluatedCell(model, "B27").formattedValue).toBe("2022/04/14 01:02:03");
   });
 
-  test("Pivot aggregates duration fields with correct SUM and AVG values", () => {
-    const model = createModelFromGrid({
+  test("Pivot aggregates duration fields with correct SUM and AVG values", async () => {
+    const model = await createModelFromGrid({
       A1: "Duration",
       A2: "01:30:00",
       A3: "02:00:00",
@@ -2007,8 +2022,8 @@ describe("Spreadsheet Pivot", () => {
         { id: "Duration:sum", fieldName: "Duration", aggregator: "sum" },
       ],
     });
-    setCellContent(model, "A6", '=PIVOT.VALUE(1,"Duration:avg")');
-    setCellContent(model, "B6", '=PIVOT.VALUE(1,"Duration:sum")');
+    await setCellContent(model, "A6", '=PIVOT.VALUE(1,"Duration:avg")');
+    await setCellContent(model, "B6", '=PIVOT.VALUE(1,"Duration:sum")');
 
     const pivot = model.getters.getPivot("1");
     expect(pivot.getFields().Duration?.type).toBe("datetime");
@@ -2016,14 +2031,14 @@ describe("Spreadsheet Pivot", () => {
     expect(getEvaluatedCell(model, "B6").formattedValue).toBe("04:15:00");
   });
 
-  test("Pivot with measure AVG on text values does not crash", () => {
-    const model = createModelFromGrid({ A1: "Customer", A2: "Jean", A3: "Marc" });
+  test("Pivot with measure AVG on text values does not crash", async () => {
+    const model = await createModelFromGrid({ A1: "Customer", A2: "Jean", A3: "Marc" });
     addPivot(model, "A1:A3", {
       columns: [],
       rows: [],
       measures: [{ id: "Customer:avg", fieldName: "Customer", aggregator: "avg" }],
     });
-    setCellContent(model, "A26", `=pivot(1)`);
+    await setCellContent(model, "A26", `=pivot(1)`);
     expect(getCellContent(model, "A26")).toBe(model.getters.getPivotName("1"));
     expect(getEvaluatedCell(model, "B28")).toMatchObject({
       value: CellErrorType.DivisionByZero,
@@ -2032,14 +2047,14 @@ describe("Spreadsheet Pivot", () => {
     });
   });
 
-  test("can group by value in error", () => {
+  test("can group by value in error", async () => {
     // prettier-ignore
     const grid = {
       A1: "Customer", B1: "Price", C1: "=PIVOT(1)",
       A2: "Alice",    B2: "10",
       A3: "=0/0",     B3: "20",
     };
-    const model = createModelFromGrid(grid);
+    const model = await createModelFromGrid(grid);
     addPivot(model, "A1:B3", {
       columns: [],
       rows: [{ fieldName: "Customer" }],
@@ -2055,24 +2070,24 @@ describe("Spreadsheet Pivot", () => {
     ]);
   });
 
-  test("Cannot use PIVOT function inside its range", () => {
-    const model = createModelWithPivot("A1:I5");
-    setCellContent(model, "B3", `=PIVOT("1")`);
+  test("Cannot use PIVOT function inside its range", async () => {
+    const model = await createModelWithPivot("A1:I5");
+    await setCellContent(model, "B3", `=PIVOT("1")`);
     expect(getCellContent(model, "B3")).toBe("#CYCLE");
-    setCellContent(model, "B3", `=PIVOT.VALUE("1", "__count:sum")`);
+    await setCellContent(model, "B3", `=PIVOT.VALUE("1", "__count:sum")`);
     expect(getCellContent(model, "B3")).toBe("#CYCLE");
-    setCellContent(model, "B3", `=PIVOT.HEADER("1")`);
+    await setCellContent(model, "B3", `=PIVOT.HEADER("1")`);
     expect(getCellContent(model, "B3")).toBe("#CYCLE");
   });
 
-  test("Date dimensions should support empty cells", () => {
+  test("Date dimensions should support empty cells", async () => {
     const grid = {
       A1: "Date",
       A2: "",
       A3: "2024-03-01",
       A4: "=pivot(1)",
     };
-    const model = createModelFromGrid(grid);
+    const model = await createModelFromGrid(grid);
     addPivot(model, "A1:A3", {
       columns: [{ fieldName: "Date", granularity: "month_number" }],
       measures: [{ id: "__count:sum", fieldName: "__count", aggregator: "sum" }],
@@ -2080,14 +2095,14 @@ describe("Spreadsheet Pivot", () => {
     expect(getEvaluatedGrid(model, "B4:E4")).toEqual([["March", "(Undefined)", "Total", ""]]);
   });
 
-  test("fieldsType is not mandatory in INSERT_PIVOT command", () => {
+  test("fieldsType is not mandatory in INSERT_PIVOT command", async () => {
     // prettier-ignore
     const grid = {
       A1: "Name", B1: "Price",
       A2: "Alice", B2: "10",
       A3: "Bob", B3: "20",
     };
-    const model = createModelFromGrid(grid);
+    const model = await createModelFromGrid(grid);
     addPivot(model, "A1:B3", {
       columns: [],
       rows: [{ fieldName: "Price" }],
@@ -2107,7 +2122,7 @@ describe("Spreadsheet Pivot", () => {
       },
     });
     expect(getEvaluatedGrid(model, "C3:C4")).toEqual([["10"], ["20"]]);
-    setFormulaVisibility(model, true);
+    await setFormulaVisibility(model, true);
     // With fieldsType = undefined, arguments are stringified
     expect(getEvaluatedGrid(model, "C3:C4")).toEqual([
       [`=PIVOT.HEADER(1,"Price","10")`],
@@ -2120,9 +2135,9 @@ describe("Spreadsheet Pivot", () => {
       sheetId: model.getters.getActiveSheetId(),
       table,
     });
-    setFormulaVisibility(model, false);
+    await setFormulaVisibility(model, false);
     expect(getEvaluatedGrid(model, "C3:C4")).toEqual([["10"], ["20"]]);
-    setFormulaVisibility(model, true);
+    await setFormulaVisibility(model, true);
     // With fieldsType set, arguments are correctly normalized
     expect(getEvaluatedGrid(model, "C3:C4")).toEqual([
       [`=PIVOT.HEADER(1,"Price",10)`],
@@ -2130,8 +2145,8 @@ describe("Spreadsheet Pivot", () => {
     ]);
   });
 
-  test("PIVOT.VALUE works after migration", () => {
-    const model = new Model({
+  test("PIVOT.VALUE works after migration", async () => {
+    const model = await createModel({
       version: 17,
       sheets: [
         {
@@ -2161,14 +2176,14 @@ describe("Spreadsheet Pivot", () => {
     expect(getEvaluatedCell(model, "A1").value).toBe(1);
   });
 
-  test("PIVOT with the same measures", () => {
+  test("PIVOT with the same measures", async () => {
     // prettier-ignore
     const grid = {
       A1: "Date",       B1: "Price", C1: "=PIVOT(1)",
       A2: "2024-12-28", B2: "10",
       A3: "2024-11-28", B3: "20",
     };
-    const model = createModelFromGrid(grid);
+    const model = await createModelFromGrid(grid);
     addPivot(model, "A1:B3", {
       rows: [],
       columns: [{ fieldName: "Date", granularity: "day" }],
@@ -2185,14 +2200,14 @@ describe("Spreadsheet Pivot", () => {
     ]);
   });
 
-  test("PIVOT with the same measures with custom name", () => {
+  test("PIVOT with the same measures with custom name", async () => {
     // prettier-ignore
     const grid = {
       A1: "Date",       B1: "Price", C1: "=PIVOT(1)",
       A2: "2024-12-28", B2: "10",
       A3: "2024-11-28", B3: "20",
     };
-    const model = createModelFromGrid(grid);
+    const model = await createModelFromGrid(grid);
     addPivot(model, "A1:B3", {
       rows: [],
       columns: [{ fieldName: "Date", granularity: "day" }],
@@ -2209,14 +2224,14 @@ describe("Spreadsheet Pivot", () => {
     ]);
   });
 
-  test("PIVOT.HEADER with custom measure name", () => {
+  test("PIVOT.HEADER with custom measure name", async () => {
     // prettier-ignore
     const grid = {
       A1: "Date",       B1: "Price", C1: `=PIVOT.HEADER(1, "measure", "Price:sum")`,
       A2: "2024-12-28", B2: "10",
       A3: "2024-11-28", B3: "20",
     };
-    const model = createModelFromGrid(grid);
+    const model = await createModelFromGrid(grid);
     addPivot(model, "A1:B3", {
       rows: [],
       columns: [{ fieldName: "Date", granularity: "day" }],
@@ -2233,8 +2248,8 @@ describe("Spreadsheet Pivot", () => {
   });
 
   describe("Pivot reevaluation", () => {
-    test("Pivot fields reevaluation", () => {
-      const model = new Model({
+    test("Pivot fields reevaluation", async () => {
+      const model = await createModel({
         sheets: [
           {
             cells: {
@@ -2246,28 +2261,28 @@ describe("Spreadsheet Pivot", () => {
         ],
       });
       addPivot(model, "A1:C5", {});
-      setCellContent(model, "D1", `=PIVOT("1")`);
+      await setCellContent(model, "D1", `=PIVOT("1")`);
       expect(Object.keys(model.getters.getPivot("1").getFields())).toEqual([
         "Customer",
         "Order",
         "Date",
       ]);
-      setCellContent(model, "A1", "Tabouret");
+      await setCellContent(model, "A1", "Tabouret");
       expect(Object.keys(model.getters.getPivot("1").getFields())).toEqual([
         "Tabouret",
         "Order",
         "Date",
       ]);
-      setCellContent(model, "A1", "=1/0");
+      await setCellContent(model, "A1", "=1/0");
       expect(Object.keys(model.getters.getPivot("1").getFields())).toEqual([]);
       expect(model.getters.getPivot("1").isValid()).toBeFalsy();
-      setCellContent(model, "A1", "Tabouret");
+      await setCellContent(model, "A1", "Tabouret");
       expect(model.getters.getPivot("1").isValid()).toBeTruthy();
     });
   });
 
-  test("Pivot is removed on command REMOVE_PIVOT", () => {
-    const model = createModelWithPivot("A1:I5");
+  test("Pivot is removed on command REMOVE_PIVOT", async () => {
+    const model = await createModelWithPivot("A1:I5");
     expect(model.getters.getPivotIds()).toEqual(["1"]);
     expect(model.getters.getPivotCoreDefinition("1")).toBeTruthy();
     expect(model.getters.getPivot("1")).toBeTruthy();
@@ -2276,15 +2291,15 @@ describe("Spreadsheet Pivot", () => {
     expect(model.getters.getPivotIds()).toEqual([]);
     expect(() => model.getters.getPivotCoreDefinition("1")).toThrow();
     expect(() => model.getters.getPivot("1")).toThrow();
-    undo(model);
+    await undo(model);
     expect(model.getters.getPivotIds()).toEqual(["1"]);
     expect(model.getters.getPivotCoreDefinition("1")).toBeTruthy();
     expect(model.getters.getPivot("1")).toBeTruthy();
   });
 
   describe("Pivot tabular form", () => {
-    test("Can display a pivot in simple tabular form", () => {
-      const model = createModelWithPivot("A1:I22");
+    test("Can display a pivot in simple tabular form", async () => {
+      const model = await createModelWithPivot("A1:I22");
       updatePivot(model, "1", {
         columns: [],
         rows: [
@@ -2294,7 +2309,7 @@ describe("Spreadsheet Pivot", () => {
         measures: [{ id: "revenue:sum", fieldName: "Expected Revenue", aggregator: "sum" }],
         style: { tabularForm: true },
       });
-      setCellContent(model, "A25", "=PIVOT(1)");
+      await setCellContent(model, "A25", "=PIVOT(1)");
 
       // prettier-ignore
       const tabularPivotGrid = {
@@ -2316,8 +2331,8 @@ describe("Spreadsheet Pivot", () => {
       expect(getGrid(model)).not.toMatchObject(tabularPivotGrid);
     });
 
-    test("Pivot in tabular form has no indent/collapse icons", () => {
-      const model = createModelWithPivot("A1:I22");
+    test("Pivot in tabular form has no indent/collapse icons", async () => {
+      const model = await createModelWithPivot("A1:I22");
       updatePivot(model, "1", {
         columns: [],
         rows: [
@@ -2327,7 +2342,7 @@ describe("Spreadsheet Pivot", () => {
         measures: [{ id: "revenue:sum", fieldName: "Expected Revenue", aggregator: "sum" }],
         style: { tabularForm: true },
       });
-      setCellContent(model, "A25", "=PIVOT(1)");
+      await setCellContent(model, "A25", "=PIVOT(1)");
 
       for (const position of positions(toZone("A25:B35"))) {
         const cellPosition = { ...position, sheetId: model.getters.getActiveSheetId() };
@@ -2335,8 +2350,8 @@ describe("Spreadsheet Pivot", () => {
       }
     });
 
-    test("Can display a pivot in tabular form with columns", () => {
-      const model = createModelWithPivot("A1:I22");
+    test("Can display a pivot in tabular form with columns", async () => {
+      const model = await createModelWithPivot("A1:I22");
       updatePivot(model, "1", {
         columns: [{ fieldName: "Salesperson", order: "asc" }],
         rows: [
@@ -2346,7 +2361,7 @@ describe("Spreadsheet Pivot", () => {
         measures: [{ id: "revenue:sum", fieldName: "Expected Revenue", aggregator: "sum" }],
         style: { tabularForm: true },
       });
-      setCellContent(model, "A25", "=PIVOT(1)");
+      await setCellContent(model, "A25", "=PIVOT(1)");
 
       // prettier-ignore
       expect(getGrid(model)).toMatchObject({
@@ -2364,8 +2379,8 @@ describe("Spreadsheet Pivot", () => {
       });
     });
 
-    test("Can display a pivot in tabular form with multiple measures", () => {
-      const model = createModelWithPivot("A1:I22");
+    test("Can display a pivot in tabular form with multiple measures", async () => {
+      const model = await createModelWithPivot("A1:I22");
       updatePivot(model, "1", {
         columns: [],
         rows: [
@@ -2378,7 +2393,7 @@ describe("Spreadsheet Pivot", () => {
         ],
         style: { tabularForm: true },
       });
-      setCellContent(model, "A25", "=PIVOT(1)");
+      await setCellContent(model, "A25", "=PIVOT(1)");
 
       // prettier-ignore
       expect(getGrid(model)).toMatchObject({
@@ -2396,8 +2411,8 @@ describe("Spreadsheet Pivot", () => {
       });
     });
 
-    test("Can display a pivot in tabular form without column title", () => {
-      const model = createModelWithPivot("A1:I22");
+    test("Can display a pivot in tabular form without column title", async () => {
+      const model = await createModelWithPivot("A1:I22");
       updatePivot(model, "1", {
         columns: [],
         rows: [
@@ -2407,7 +2422,7 @@ describe("Spreadsheet Pivot", () => {
         measures: [{ id: "revenue:sum", fieldName: "Expected Revenue", aggregator: "sum" }],
         style: { tabularForm: true, displayColumnHeaders: false },
       });
-      setCellContent(model, "A25", "=PIVOT(1)");
+      await setCellContent(model, "A25", "=PIVOT(1)");
 
       // prettier-ignore
       expect(getGrid(model)).toMatchObject({
@@ -2424,8 +2439,8 @@ describe("Spreadsheet Pivot", () => {
       });
     });
 
-    test("Can display a pivot in tabular form without measure title", () => {
-      const model = createModelWithPivot("A1:I22");
+    test("Can display a pivot in tabular form without measure title", async () => {
+      const model = await createModelWithPivot("A1:I22");
       updatePivot(model, "1", {
         columns: [],
         rows: [
@@ -2435,7 +2450,7 @@ describe("Spreadsheet Pivot", () => {
         measures: [{ id: "revenue:sum", fieldName: "Expected Revenue", aggregator: "sum" }],
         style: { tabularForm: true, displayMeasuresRow: false },
       });
-      setCellContent(model, "A25", "=PIVOT(1)");
+      await setCellContent(model, "A25", "=PIVOT(1)");
 
       // prettier-ignore
       expect(getGrid(model)).toMatchObject({
@@ -2452,8 +2467,8 @@ describe("Spreadsheet Pivot", () => {
       });
     });
 
-    test("Can display a pivot in tabular form without totals", () => {
-      const model = createModelWithPivot("A1:I22");
+    test("Can display a pivot in tabular form without totals", async () => {
+      const model = await createModelWithPivot("A1:I22");
       updatePivot(model, "1", {
         columns: [],
         rows: [
@@ -2463,7 +2478,7 @@ describe("Spreadsheet Pivot", () => {
         measures: [{ id: "revenue:sum", fieldName: "Expected Revenue", aggregator: "sum" }],
         style: { tabularForm: true, displayTotals: false },
       });
-      setCellContent(model, "A25", "=PIVOT(1)");
+      await setCellContent(model, "A25", "=PIVOT(1)");
 
       // prettier-ignore
       expect(getGrid(model, "A25:C35")).toMatchObject({
@@ -2481,8 +2496,8 @@ describe("Spreadsheet Pivot", () => {
       });
     });
 
-    test("Can display a pivot in tabular form with limited number of columns/rows", () => {
-      const model = createModelWithPivot("A1:I22");
+    test("Can display a pivot in tabular form with limited number of columns/rows", async () => {
+      const model = await createModelWithPivot("A1:I22");
       updatePivot(model, "1", {
         columns: [{ fieldName: "Salesperson", order: "asc" }],
         rows: [
@@ -2492,7 +2507,7 @@ describe("Spreadsheet Pivot", () => {
         measures: [{ id: "revenue:sum", fieldName: "Expected Revenue", aggregator: "sum" }],
         style: { tabularForm: true, numberOfColumns: 1, numberOfRows: 2 },
       });
-      setCellContent(model, "A25", "=PIVOT(1)");
+      await setCellContent(model, "A25", "=PIVOT(1)");
 
       // prettier-ignore
       expect(getGrid(model, "A25:D29")).toMatchObject({
@@ -2504,7 +2519,7 @@ describe("Spreadsheet Pivot", () => {
       });
     });
 
-    test("Pivot table style works on tabular form", () => {
+    test("Pivot table style works on tabular form", async () => {
       const header = { fillColor: "#f00" };
       const subHeader = { fillColor: "#0f0" };
       const subSubHeader1 = { fillColor: "#00f" };
@@ -2523,7 +2538,7 @@ describe("Spreadsheet Pivot", () => {
       };
       PIVOT_TABLE_PRESETS.TestStyle = customStyle;
 
-      const model = createModelWithPivot("A1:I22");
+      const model = await createModelWithPivot("A1:I22");
       updatePivot(model, "1", {
         columns: [{ fieldName: "Salesperson", order: "asc" }],
         rows: [
@@ -2536,7 +2551,7 @@ describe("Spreadsheet Pivot", () => {
         measures: [{ id: "revenue:sum", fieldName: "Expected Revenue", aggregator: "sum" }],
         style: { tabularForm: true, tableStyleId: "TestStyle" },
       });
-      setCellContent(model, "A25", "=PIVOT(1)");
+      await setCellContent(model, "A25", "=PIVOT(1)");
 
       // prettier-ignore
       expect(getGridStyle(model, "A25:F30")).toMatchObject({
@@ -2551,7 +2566,7 @@ describe("Spreadsheet Pivot", () => {
       delete PIVOT_TABLE_PRESETS.TestStyle;
     });
 
-    test("Pivot table style works with hidden columns on tabular form", () => {
+    test("Pivot table style works with hidden columns on tabular form", async () => {
       const header = { fillColor: "#f00" };
       const subHeader = { fillColor: "#0f0" };
       const subSubHeader1 = { fillColor: "#00f" };
@@ -2570,7 +2585,7 @@ describe("Spreadsheet Pivot", () => {
       };
       PIVOT_TABLE_PRESETS.TestStyle = customStyle;
 
-      const model = createModelWithPivot("A1:I22");
+      const model = await createModelWithPivot("A1:I22");
       updatePivot(model, "1", {
         columns: [{ fieldName: "Salesperson", order: "asc" }],
         rows: [
@@ -2581,8 +2596,8 @@ describe("Spreadsheet Pivot", () => {
         measures: [{ id: "revenue:sum", fieldName: "Expected Revenue", aggregator: "sum" }],
         style: { tabularForm: true, tableStyleId: "TestStyle" },
       });
-      hideColumns(model, ["A", "C"]);
-      setCellContent(model, "A25", "=PIVOT(1)");
+      await hideColumns(model, ["A", "C"]);
+      await setCellContent(model, "A25", "=PIVOT(1)");
 
       // prettier-ignore
       expect(getGridStyle(model, "A25:F30")).toMatchObject({
@@ -2598,8 +2613,8 @@ describe("Spreadsheet Pivot", () => {
     });
   });
 
-  test("Splitting a pivot in tabular form transform it to a normal pivot", () => {
-    const model = createModelWithPivot("A1:I22");
+  test("Splitting a pivot in tabular form transform it to a normal pivot", async () => {
+    const model = await createModelWithPivot("A1:I22");
     updatePivot(model, "1", {
       columns: [],
       rows: [
@@ -2608,7 +2623,7 @@ describe("Spreadsheet Pivot", () => {
       ],
       measures: [{ id: "revenue:sum", fieldName: "Expected Revenue", aggregator: "sum" }],
     });
-    setCellContent(model, "A25", "=PIVOT(1)");
+    await setCellContent(model, "A25", "=PIVOT(1)");
     const standardPivotGrid = removeFalsyAttributes(getGrid(model));
 
     updatePivot(model, "1", { style: { tabularForm: true } });
@@ -2620,8 +2635,8 @@ describe("Spreadsheet Pivot", () => {
     expect(removeFalsyAttributes(getGrid(model))).toMatchObject(standardPivotGrid);
   });
 
-  test("Tabular form ignores collapsed headers", () => {
-    const model = createModelWithPivot("A1:I22");
+  test("Tabular form ignores collapsed headers", async () => {
+    const model = await createModelWithPivot("A1:I22");
     updatePivot(model, "1", {
       columns: [],
       rows: [
@@ -2631,7 +2646,7 @@ describe("Spreadsheet Pivot", () => {
       measures: [{ id: "revenue:sum", fieldName: "Expected Revenue", aggregator: "sum" }],
       style: { tabularForm: true },
     });
-    setCellContent(model, "A25", "=PIVOT(1)");
+    await setCellContent(model, "A25", "=PIVOT(1)");
 
     const oldGrid = getGrid(model);
     updatePivot(model, "1", {
@@ -2646,14 +2661,14 @@ describe("Spreadsheet arguments parsing", () => {
     return args.map((value) => ({ value }));
   }
 
-  test("Date arguments are correctly parsed", () => {
+  test("Date arguments are correctly parsed", async () => {
     // prettier-ignore
     const grid = {
       A1: "Date", B1: "Price",
       A2: "2024-12-31", B2: "10",
       A3: "2024-12-31", B3: "20",
     };
-    const model = createModelFromGrid(grid);
+    const model = await createModelFromGrid(grid);
     addPivot(model, "A1:B3", {
       columns: [],
       rows: [{ fieldName: "Date", granularity: "year" }],
@@ -2680,14 +2695,14 @@ describe("Spreadsheet arguments parsing", () => {
     expect(() => pivot.parseArgsToPivotDomain(toFunctionResultObject(["Date", 2024]))).toThrow();
   });
 
-  test("Number arguments are correctly parsed", () => {
+  test("Number arguments are correctly parsed", async () => {
     // prettier-ignore
     const grid = {
       A1: "Amount", B1: "Price",
       A2: "1", B2: "10",
       A3: "2", B3: "20",
     };
-    const model = createModelFromGrid(grid);
+    const model = await createModelFromGrid(grid);
     addPivot(model, "A1:B3", {
       columns: [],
       rows: [{ fieldName: "Amount", granularity: "year" }],
@@ -2713,18 +2728,18 @@ describe("Spreadsheet arguments parsing", () => {
     ).toThrow();
   });
 
-  test("Can customize the name of a measure", () => {
+  test("Can customize the name of a measure", async () => {
     const grid = {
       A1: "Amount",
       A2: "1",
     };
-    const model = createModelFromGrid(grid);
+    const model = await createModelFromGrid(grid);
     addPivot(model, "A1:A2", {
       columns: [],
       rows: [],
       measures: [{ id: "Amount:sum", fieldName: "Amount", aggregator: "sum" }],
     });
-    setCellContent(model, "A26", `=PIVOT.HEADER("1", "measure", "Amount:sum")`);
+    await setCellContent(model, "A26", `=PIVOT.HEADER("1", "measure", "Amount:sum")`);
     expect(getCellContent(model, "A26")).toBe("Amount");
     updatePivot(model, "1", {
       measures: [
@@ -2739,14 +2754,14 @@ describe("Spreadsheet arguments parsing", () => {
     expect(getCellContent(model, "A26")).toBe("A lovely name");
   });
 
-  test("Boolean arguments are correctly parsed", () => {
+  test("Boolean arguments are correctly parsed", async () => {
     // prettier-ignore
     const grid = {
       A1: "Active", B1: "Price",
       A2: "TRUE", B2: "10",
       A3: "FALSE", B3: "20",
     };
-    const model = createModelFromGrid(grid);
+    const model = await createModelFromGrid(grid);
     addPivot(model, "A1:B3", {
       columns: [],
       rows: [{ fieldName: "Active" }],
@@ -2772,14 +2787,14 @@ describe("Spreadsheet arguments parsing", () => {
     ).toThrow();
   });
 
-  test("String arguments are correctly parsed", () => {
+  test("String arguments are correctly parsed", async () => {
     // prettier-ignore
     const grid = {
       A1: "Name", B1: "Price",
       A2: "Alice", B2: "10",
       A3: "Bob", B3: "20",
     };
-    const model = createModelFromGrid(grid);
+    const model = await createModelFromGrid(grid);
     addPivot(model, "A1:B3", {
       columns: [],
       rows: [{ fieldName: "Name" }],
@@ -2816,7 +2831,7 @@ describe("Spreadsheet arguments parsing", () => {
     ]);
   });
 
-  test("update PIVOT.VALUE when data set changes", () => {
+  test("update PIVOT.VALUE when data set changes", async () => {
     const grid = {
       A1: "Price",
       B1: "Customer",
@@ -2824,18 +2839,18 @@ describe("Spreadsheet arguments parsing", () => {
       B2: "Alice",
       A3: '=PIVOT.VALUE(1, "Price:sum")',
     };
-    const model = createModelFromGrid(grid);
+    const model = await createModelFromGrid(grid);
     addPivot(model, "A1:B2", {
       columns: [],
       rows: [{ fieldName: "Customer" }],
       measures: [{ id: "Price:sum", fieldName: "Price", aggregator: "sum" }],
     });
     expect(getEvaluatedCell(model, "A3").value).toBe(2);
-    setCellContent(model, "A2", "3");
+    await setCellContent(model, "A2", "3");
     expect(getEvaluatedCell(model, "A3").value).toBe(3);
   });
 
-  test("update PIVOT.HEADER when data set changes", () => {
+  test("update PIVOT.HEADER when data set changes", async () => {
     const grid = {
       A1: "Price",
       B1: "Customer",
@@ -2843,24 +2858,24 @@ describe("Spreadsheet arguments parsing", () => {
       B2: "Alice",
       A3: '=PIVOT.HEADER(1, "Customer", "Alice")',
     };
-    const model = createModelFromGrid(grid);
+    const model = await createModelFromGrid(grid);
     addPivot(model, "A1:B2", {
       columns: [],
       rows: [{ fieldName: "Customer" }],
       measures: [{ id: "Price:sum", fieldName: "Price", aggregator: "sum" }],
     });
     expect(getEvaluatedCell(model, "A3").value).toBe("Alice");
-    setCellContent(model, "B2", "Bob");
+    await setCellContent(model, "B2", "Bob");
     expect(getEvaluatedCell(model, "A3").value).toBe("");
   });
 
-  test("can hide measures", () => {
+  test("can hide measures", async () => {
     const grid = {
       A1: "Price",
       A2: "10",
       A5: "=PIVOT(1)",
     };
-    const model = createModelFromGrid(grid);
+    const model = await createModelFromGrid(grid);
     const sheetId = model.getters.getActiveSheetId();
     const measures = [
       { id: "Price:sum", fieldName: "Price", aggregator: "sum" },
@@ -2893,7 +2908,7 @@ describe("Spreadsheet arguments parsing", () => {
     ]);
   });
 
-  test("Column headers are correct when hiding a measure", () => {
+  test("Column headers are correct when hiding a measure", async () => {
     // prettier-ignore
     const grid = {
       A1: "Price",      B1: "Tax",    C1: "Salesman",
@@ -2901,7 +2916,7 @@ describe("Spreadsheet arguments parsing", () => {
       A3: "20",         B3: "4",      C3: "Bob",
       A5: "=PIVOT(1)",
     };
-    const model = createModelFromGrid(grid);
+    const model = await createModelFromGrid(grid);
     addPivot(model, "A1:C3", {
       rows: [],
       columns: [{ fieldName: "Salesman" }],

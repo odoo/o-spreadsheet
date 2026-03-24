@@ -15,7 +15,7 @@ describe("Pivot collapse icon", () => {
         A2: "Alice",    B2: "10",     C2: "2020",
         A3: "Alice",    B3: "20",     C3: "2021",
     };
-    const model = createModelFromGrid(grid);
+    const model = await createModelFromGrid(grid);
     addPivot(model, "A1:C3", {
       rows: [{ fieldName: "Customer" }, { fieldName: "Year" }],
       measures: [{ id: "Price", fieldName: "Price", aggregator: "sum" }],
@@ -46,7 +46,7 @@ describe("Pivot collapse icon", () => {
         A2: "Alice",    B2: "10",     C2: "2020",
         A3: "Alice",    B3: "20",     C3: "2021",
     };
-    const model = createModelFromGrid(grid);
+    const model = await createModelFromGrid(grid);
     addPivot(model, "A1:C3", {
       columns: [{ fieldName: "Customer" }, { fieldName: "Year" }],
       measures: [{ id: "Price", fieldName: "Price", aggregator: "sum" }],

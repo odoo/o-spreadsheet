@@ -214,7 +214,7 @@ export function getMerges(model: Model): Record<number, Merge> {
   return Object.fromEntries(merges.map((merge) => [merge.id, merge]));
 }
 
-export function automaticSum(
+export async function automaticSum(
   model: Model,
   xc: string,
   { anchor }: { anchor?: string } = {},
@@ -223,13 +223,13 @@ export function automaticSum(
   return automaticSumMulti(model, [xc], { anchor }, sheetId);
 }
 
-export function automaticSumMulti(
+export async function automaticSumMulti(
   model: Model,
   xcs: string[],
   { anchor }: { anchor?: string } = {},
   sheetId?: UID
 ) {
-  setSelection(model, xcs, { anchor });
+  await setSelection(model, xcs, { anchor });
   return model.dispatch("SUM_SELECTION");
 }
 

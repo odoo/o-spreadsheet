@@ -1,11 +1,10 @@
 import { MESSAGE_VERSION } from "@odoo/o-spreadsheet-engine/constants";
-import { Model } from "@odoo/o-spreadsheet-engine/model";
 import { corePluginRegistry, featurePluginRegistry } from "@odoo/o-spreadsheet-engine/plugins";
 import { UIPlugin } from "@odoo/o-spreadsheet-engine/plugins/ui_plugin";
 import { ModelConfig } from "@odoo/o-spreadsheet-engine/types/model";
-import { CollaborationMessage, CommandResult, CorePlugin } from "../../src";
+import { CollaborationMessage, CommandResult, CorePlugin, Model } from "../../src";
 import { toZone } from "../../src/helpers";
-import { Command, CommandTypes, CoreCommand, DispatchResult, coreTypes } from "../../src/types";
+import { Command, CommandTypes, CoreCommand, coreTypes, DispatchResult } from "../../src/types";
 import { MockTransportService } from "../__mocks__/transport_service";
 import { getTextXlsxFiles } from "../__xlsx__/read_demo_xlsx";
 import { setupCollaborativeEnv } from "../collaborative/collaborative_helpers";
@@ -16,10 +15,10 @@ import {
   getCellText,
   getEvaluatedCell,
 } from "../test_helpers/getters_helpers";
-import { addTestPlugin } from "../test_helpers/helpers";
+import { addTestPlugin, createModel } from "../test_helpers/helpers";
 
 describe("Model", () => {
-  test("core plugin can refuse command from UI plugin", () => {
+  test("core plugin can refuse command from UI plugin", async () => {
     class MyCorePlugin extends CorePlugin {
       allowDispatch(cmd: CoreCommand) {
         if (cmd.type === "UPDATE_CELL") {
@@ -43,12 +42,12 @@ describe("Model", () => {
     }
     addTestPlugin(featurePluginRegistry, MyUIPlugin);
     addTestPlugin(corePluginRegistry, MyCorePlugin);
-    const model = new Model();
-    copy(model, "A1");
+    const model = await createModel();
+    await copy(model, "A1");
     expect(result).toBeCancelledBecause(CommandResult.CancelledForUnknownReason);
   });
 
-  test("core plugin cannot refuse command from core plugin", () => {
+  test("core plugin cannot refuse command from core plugin", async () => {
     let result: DispatchResult | undefined = undefined;
     class MyCorePlugin extends CorePlugin {
       allowDispatch(cmd: CoreCommand) {
@@ -69,13 +68,13 @@ describe("Model", () => {
       }
     }
     addTestPlugin(corePluginRegistry, MyCorePlugin);
-    const model = new Model();
-    createSheet(model, { sheetId: "42", position: 1 });
+    const model = await createModel();
+    await createSheet(model, { sheetId: "42", position: 1 });
     expect(result).toBeSuccessfullyDispatched();
     expect(getCellText(model, "A1", "42")).toBe("Hello");
   });
 
-  test("UI plugin cannot refuse command from UI plugin", () => {
+  test("UI plugin cannot refuse command from UI plugin", async () => {
     let result: DispatchResult | undefined = undefined;
     class MyUIPlugin extends UIPlugin {
       allowDispatch(cmd: Command) {
@@ -93,14 +92,14 @@ describe("Model", () => {
       }
     }
     addTestPlugin(featurePluginRegistry, MyUIPlugin);
-    const model = new Model();
-    setCellContent(model, "A1", "copy&paste me");
-    copy(model, "A1");
+    const model = await createModel();
+    await setCellContent(model, "A1", "copy&paste me");
+    await copy(model, "A1");
     expect(result).toBeSuccessfullyDispatched();
     expect(getCellText(model, "A2")).toBe("copy&paste me");
   });
 
-  test("UI plugins can refuse local core commands", () => {
+  test("UI plugins can refuse local core commands", async () => {
     class MyUIPlugin extends UIPlugin {
       allowDispatch(cmd: Command) {
         if (cmd.type === "UPDATE_CELL") {
@@ -110,13 +109,13 @@ describe("Model", () => {
       }
     }
     addTestPlugin(featurePluginRegistry, MyUIPlugin);
-    const model = new Model();
+    const model = await createModel();
 
-    setCellContent(model, "A1", "hello");
+    await setCellContent(model, "A1", "hello");
     expect(getCellContent(model, "A1")).toBe("");
   });
 
-  test("Core plugins allowDispatch don't receive UI commands", () => {
+  test("Core plugins allowDispatch don't receive UI commands", async () => {
     const receivedCommands: CommandTypes[] = [];
     class MyCorePlugin extends CorePlugin {
       allowDispatch(cmd: CoreCommand): CommandResult {
@@ -125,12 +124,12 @@ describe("Model", () => {
       }
     }
     addTestPlugin(corePluginRegistry, MyCorePlugin);
-    const model = new Model();
-    copy(model);
+    const model = await createModel();
+    await copy(model);
     expect(receivedCommands).not.toContain("COPY");
   });
 
-  test("Core plugins handle don't receive UI commands", () => {
+  test("Core plugins handle don't receive UI commands", async () => {
     const receivedCommands: CommandTypes[] = [];
     class MyCorePlugin extends CorePlugin {
       handle(cmd: CoreCommand) {
@@ -138,12 +137,12 @@ describe("Model", () => {
       }
     }
     addTestPlugin(corePluginRegistry, MyCorePlugin);
-    const model = new Model();
-    copy(model);
+    const model = await createModel();
+    await copy(model);
     expect(receivedCommands).not.toContain("COPY");
   });
 
-  test("canDispatch method is exposed and works", () => {
+  test("canDispatch method is exposed and works", async () => {
     class MyCorePlugin extends CorePlugin {
       allowDispatch(cmd: CoreCommand) {
         if (cmd.type === "CREATE_SHEET") {
@@ -153,44 +152,44 @@ describe("Model", () => {
       }
     }
     addTestPlugin(corePluginRegistry, MyCorePlugin);
-    const model = new Model();
+    const model = await createModel();
     expect(
       model.canDispatch("CREATE_SHEET", { sheetId: "42", position: 1, name: "Sheet42" })
     ).toBeCancelledBecause(CommandResult.CancelledForUnknownReason);
     expect(
-      createSheet(model, { sheetId: "42", position: 1, name: "Sheet42" })
+      await createSheet(model, { sheetId: "42", position: 1, name: "Sheet42" })
     ).toBeCancelledBecause(CommandResult.CancelledForUnknownReason);
 
     const sheetId = model.getters.getActiveSheetId();
     expect(
       model.canDispatch("UPDATE_CELL", { sheetId, col: 0, row: 0, content: "hey" })
     ).toBeSuccessfullyDispatched();
-    expect(setCellContent(model, "A1", "hey")).toBeSuccessfullyDispatched();
+    expect(await setCellContent(model, "A1", "hey")).toBeSuccessfullyDispatched();
     corePluginRegistry.remove("myCorePlugin");
   });
 
-  test("Can open a model in readonly mode", () => {
-    const model = new Model({}, { mode: "readonly" });
+  test("Can open a model in readonly mode", async () => {
+    const model = await createModel({}, { mode: "readonly" });
     expect(model.getters.isReadonly()).toBe(true);
   });
 
-  test("Some commands are not dispatched in readonly mode", () => {
-    const model = new Model({}, { mode: "readonly" });
-    expect(setCellContent(model, "A1", "hello")).toBeCancelledBecause(CommandResult.Readonly);
+  test("Some commands are not dispatched in readonly mode", async () => {
+    const model = await createModel({}, { mode: "readonly" });
+    expect(await setCellContent(model, "A1", "hello")).toBeCancelledBecause(CommandResult.Readonly);
   });
 
-  test("Moving the selection is allowed in readonly mode", () => {
-    const model = new Model({}, { mode: "readonly" });
-    expect(selectCell(model, "A15")).toBeSuccessfullyDispatched();
+  test("Moving the selection is allowed in readonly mode", async () => {
+    const model = await createModel({}, { mode: "readonly" });
+    expect(await selectCell(model, "A15")).toBeSuccessfullyDispatched();
   });
 
-  test("Can add custom elements in the config of model", () => {
-    const model = new Model({}, { custom: "42" } as unknown as ModelConfig);
+  test("Can add custom elements in the config of model", async () => {
+    const model = await createModel({}, { custom: "42" } as unknown as ModelConfig);
     expect(model["config"]["custom"]).toBe("42");
   });
 
-  test("type property in command payload is ignored", () => {
-    const model = new Model();
+  test("type property in command payload is ignored", async () => {
+    const model = await createModel();
     const payload = {
       col: 0,
       row: 0,
@@ -238,7 +237,7 @@ describe("Model", () => {
     expect(() => new Model()).toThrowError(`Getter "getSomething" is already defined.`);
   });
 
-  test("Replayed commands are not send to UI plugins", () => {
+  test("Replayed commands are not send to UI plugins", async () => {
     let numberCall = 0;
     //@ts-ignore
     coreTypes.add("MY_CMD_1");
@@ -269,16 +268,16 @@ describe("Model", () => {
     }
     addTestPlugin(corePluginRegistry, MyCorePlugin);
 
-    const { alice, bob, network } = setupCollaborativeEnv();
-    network.concurrent(() => {
-      setCellContent(alice, "A1", "Hello");
+    const { alice, bob, network } = await setupCollaborativeEnv();
+    await network.concurrent(async () => {
+      await setCellContent(alice, "A1", "Hello");
       //@ts-ignore
       bob.dispatch("MY_CMD_1");
     });
     expect(numberCall).toEqual(1);
   });
 
-  test("Initial commands are not sent to UI plugins", () => {
+  test("Initial commands are not sent to UI plugins", async () => {
     class MyUIPlugin extends UIPlugin {
       handle(cmd: Command) {
         if (cmd.type === "UPDATE_CELL") {
@@ -291,7 +290,7 @@ describe("Model", () => {
       sheets: [{ id: "sheet1" }],
       revisionId: "initialRevision",
     };
-    const model = new Model(data, {}, [
+    const model = await createModel(data, {}, [
       {
         type: "REMOTE_REVISION",
         nextRevisionId: "1",
@@ -312,7 +311,7 @@ describe("Model", () => {
     expect(getEvaluatedCell(model, "A1").value).toBe(6);
   });
 
-  test("Core commands which dispatch UPDATE_CELL should trigger evaluation", () => {
+  test("Core commands which dispatch UPDATE_CELL should trigger evaluation", async () => {
     //@ts-ignore
     coreTypes.add("MY_CMD_1");
     class MyCorePlugin extends CorePlugin {
@@ -331,8 +330,8 @@ describe("Model", () => {
     }
     addTestPlugin(corePluginRegistry, MyCorePlugin);
 
-    const { alice, bob, charlie } = setupCollaborativeEnv();
-    setCellContent(alice, "A1", "=3");
+    const { alice, bob, charlie } = await setupCollaborativeEnv();
+    await setCellContent(alice, "A1", "=3");
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
       (user) => getCellContent(user, "A1"),
       "3"
@@ -345,7 +344,7 @@ describe("Model", () => {
     );
   });
 
-  test("export formula with unbound zone stays unbound", () => {
+  test("export formula with unbound zone stays unbound", async () => {
     const modelData = {
       sheets: [
         {
@@ -356,7 +355,7 @@ describe("Model", () => {
         },
       ],
     };
-    const model = new Model(modelData);
+    const model = await createModel(modelData);
     expect(model.exportData()).toMatchObject({
       sheets: [
         {
@@ -373,7 +372,7 @@ describe("Model", () => {
     const transport = new MockTransportService();
     const spy = jest.spyOn(transport, "sendMessage");
     const xlsxData = await getTextXlsxFiles();
-    new Model(xlsxData, {
+    await createModel(xlsxData, {
       transportService: transport,
       client: { id: "test", name: "Test" },
     });
@@ -391,11 +390,16 @@ describe("Model", () => {
     const transport = new MockTransportService();
     transport.onNewMessage("listener", (message) => messages.push(message));
     const xlsxData = await getTextXlsxFiles();
-    new Model(xlsxData, {
+    await createModel(xlsxData, {
       transportService: transport,
       client: { id: "test", name: "Test" },
       mode: "readonly",
     });
     expect(messages.map((m) => m.type)).not.toContain("SNAPSHOT_CREATED");
+  });
+
+  test("Cannot dispatch a command if START is not yet dispatched", () => {
+    const model = new Model();
+    expect(() => model.dispatch("EVALUATE_CELLS")).toThrow();
   });
 });

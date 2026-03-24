@@ -15,65 +15,70 @@ import {
   undo,
   updateChart,
 } from "../test_helpers/commands_helpers";
-import { createColorScale } from "../test_helpers/helpers";
+import { createColorScale, createModel } from "../test_helpers/helpers";
 
 describe("custom colors are correctly handled when formatting cells", () => {
   let model: Model;
 
-  beforeEach(() => {
-    model = new Model();
+  beforeEach(async () => {
+    model = await createModel();
   });
 
-  test("Adding style to cell add custom colors in the plugin", () => {
+  test("Adding style to cell add custom colors in the plugin", async () => {
     expect(model.getters.getCustomColors()).toEqual([]);
-    setFormatting(model, "A1", { fillColor: "#505050" });
+    await setFormatting(model, "A1", { fillColor: "#505050" });
     expect(model.getters.getCustomColors()).toEqual(["#505050"]);
-    setFormatting(model, "B1", { textColor: "#101010" });
+    await setFormatting(model, "B1", { textColor: "#101010" });
     expect(model.getters.getCustomColors()).toEqual(["#505050", "#101010"]);
   });
 
-  test("Classical colors are not taken into account by the plugin", () => {
-    setFormatting(model, "A1", { fillColor: "#FFFFFF", textColor: "#FF0000" });
+  test("Classical colors are not taken into account by the plugin", async () => {
+    await setFormatting(model, "A1", { fillColor: "#FFFFFF", textColor: "#FF0000" });
     expect(model.getters.getCustomColors()).toEqual([]);
   });
 
-  test("Removing style to cell keep custom colors in the plugin", () => {
-    setFormatting(model, "A1", { fillColor: "#123456", textColor: "#2468BD" });
+  test("Removing style to cell keep custom colors in the plugin", async () => {
+    await setFormatting(model, "A1", { fillColor: "#123456", textColor: "#2468BD" });
     expect(model.getters.getCustomColors()).toEqual(["#2468BD", "#123456"]);
-    clearFormatting(model, "A1");
+    await clearFormatting(model, "A1");
     expect(model.getters.getCustomColors()).toEqual(["#2468BD", "#123456"]);
   });
 
-  test("Adding conditional formatting add custom colors in the plugin", () => {
-    addEqualCf(model, "A1:A3,C1:D3,F1:F3", { fillColor: "#123456", textColor: "#2468BD" }, "1");
+  test("Adding conditional formatting add custom colors in the plugin", async () => {
+    await addEqualCf(
+      model,
+      "A1:A3,C1:D3,F1:F3",
+      { fillColor: "#123456", textColor: "#2468BD" },
+      "1"
+    );
     expect(model.getters.getCustomColors()).toEqual(["#2468BD", "#123456"]);
     const rule = createColorScale(
       "2",
       { type: "value", color: 0xf500ff, value: "" },
       { type: "value", color: 0x123456, value: "" }
     ).rule;
-    addCfRule(model, "B1:B5", rule);
+    await addCfRule(model, "B1:B5", rule);
     expect(model.getters.getCustomColors()).toEqual(["#2468BD", "#F500FF", "#123456"]);
   });
 
-  test("Non-HEX6 lowercase colors are correctly converted", () => {
+  test("Non-HEX6 lowercase colors are correctly converted", async () => {
     expect(model.getters.getCustomColors()).toEqual([]);
-    setFormatting(model, "A1", { fillColor: "#123", textColor: "#F0F000" });
+    await setFormatting(model, "A1", { fillColor: "#123", textColor: "#F0F000" });
     expect(model.getters.getCustomColors()).toEqual(["#F0F000", "#112233"]);
   });
 
-  test("duplicated colors on cells only appears once", () => {
-    setFormatting(model, "A1", { fillColor: "#123456", textColor: "#123456" });
+  test("duplicated colors on cells only appears once", async () => {
+    await setFormatting(model, "A1", { fillColor: "#123456", textColor: "#123456" });
     expect(model.getters.getCustomColors()).toEqual(["#123456"]);
   });
 
-  test("Custom colors with undo/redo", () => {
-    setFormatting(model, "A1", { fillColor: "#123456" });
-    setFormatting(model, "A2", { fillColor: "#FF0058" });
+  test("Custom colors with undo/redo", async () => {
+    await setFormatting(model, "A1", { fillColor: "#123456" });
+    await setFormatting(model, "A2", { fillColor: "#FF0058" });
     expect(model.getters.getCustomColors()).toEqual(["#123456", "#FF0058"]);
-    undo(model);
+    await undo(model);
     expect(model.getters.getCustomColors()).toEqual(["#123456"]);
-    redo(model);
+    await redo(model);
     expect(model.getters.getCustomColors()).toEqual(["#123456", "#FF0058"]);
   });
 });
@@ -82,13 +87,13 @@ describe("custom colors are correctly handled when editing charts", () => {
   let model: Model;
   let sheetId: UID;
 
-  beforeEach(() => {
-    model = new Model();
+  beforeEach(async () => {
+    model = await createModel();
     sheetId = model.getters.getActiveSheetId();
   });
-  test("Chart background colors are taken into account", () => {
+  test("Chart background colors are taken into account", async () => {
     expect(model.getters.getCustomColors()).toEqual([]);
-    createChart(
+    await createChart(
       model,
       {
         type: "bar",
@@ -100,7 +105,7 @@ describe("custom colors are correctly handled when editing charts", () => {
       sheetId
     );
     expect(model.getters.getCustomColors()).toEqual(["#123456"]);
-    updateChart(model, "1", {
+    await updateChart(model, "1", {
       title: { text: "a title" },
       dataSets: [],
       type: "bar",
@@ -111,13 +116,13 @@ describe("custom colors are correctly handled when editing charts", () => {
       aggregated: false,
     });
     expect(model.getters.getCustomColors()).toEqual(["#112233", "#123456"]);
-    deleteFigure(model, "1", sheetId);
+    await deleteFigure(model, "1", sheetId);
     expect(model.getters.getCustomColors()).toEqual(["#112233", "#123456"]);
   });
 
-  test("Gauge colors are taken into account", () => {
+  test("Gauge colors are taken into account", async () => {
     expect(model.getters.getCustomColors()).toEqual([]);
-    createGaugeChart(model, {
+    await createGaugeChart(model, {
       title: { text: "a title" },
       type: "gauge",
       dataRange: "B1:B4",
@@ -144,9 +149,9 @@ describe("custom colors are correctly handled when editing charts", () => {
     expect(model.getters.getCustomColors()).toEqual(["#2468BD", "#112233", "#123456"]);
   });
 
-  test("Scorecard colors are taken into account", () => {
+  test("Scorecard colors are taken into account", async () => {
     expect(model.getters.getCustomColors()).toEqual([]);
-    createScorecardChart(
+    await createScorecardChart(
       model,
       {
         baselineColorDown: "#112233",
@@ -157,9 +162,9 @@ describe("custom colors are correctly handled when editing charts", () => {
     expect(model.getters.getCustomColors()).toEqual(["#112233", "#123456"]);
   });
 
-  test("Chart data series colors are taken into account", () => {
+  test("Chart data series colors are taken into account", async () => {
     expect(model.getters.getCustomColors()).toEqual([]);
-    createChart(
+    await createChart(
       model,
       {
         type: "bar",
@@ -176,9 +181,9 @@ describe("custom colors are correctly handled when editing charts", () => {
     expect(model.getters.getCustomColors()).toEqual(["#112233", "#123456"]);
   });
 
-  test("duplicated colors on cell and chart only appears once", () => {
-    setFormatting(model, "A1", { fillColor: "#123456" });
-    createChart(
+  test("duplicated colors on cell and chart only appears once", async () => {
+    await setFormatting(model, "A1", { fillColor: "#123456" });
+    await createChart(
       model,
       {
         type: "bar",
@@ -192,17 +197,17 @@ describe("custom colors are correctly handled when editing charts", () => {
     expect(model.getters.getCustomColors()).toEqual(["#123456"]);
   });
 
-  test("custom colors from model imported data", () => {
-    setFormatting(model, "A1", { fillColor: "#123456" });
-    createChart(model, { type: "bar", background: "#654987" }, "1", sheetId);
-    const importedModel = new Model(model.exportData());
+  test("custom colors from model imported data", async () => {
+    await setFormatting(model, "A1", { fillColor: "#123456" });
+    await createChart(model, { type: "bar", background: "#654987" }, "1", sheetId);
+    const importedModel = await createModel(model.exportData());
     expect(importedModel.getters.getCustomColors()).toEqual(["#654987", "#123456"]);
   });
 });
 
-test("custom colors from config", () => {
+test("custom colors from config", async () => {
   const data = {};
-  const model = new Model(data, { customColors: ["#875A7B", "not a valid color"] });
+  const model = await createModel(data, { customColors: ["#875A7B", "not a valid color"] });
   expect(model.getters.getCustomColors()).toEqual(["#875A7B"]);
 });
 
@@ -218,22 +223,30 @@ describe("Custom colors with table styles", () => {
     primaryColor: "#123456",
   };
 
-  beforeEach(() => {
+  beforeEach(async () => {
     TABLE_PRESETS["customStyle"] = customStyle;
-    model = new Model();
+    model = await createModel();
   });
 
   afterEach(() => {
     delete TABLE_PRESETS["customStyle"];
   });
 
-  test("Custom colors are added from table styles", () => {
-    createTable(model, "A1:B2", { styleId: "customStyle", totalRow: true, firstColumn: true });
+  test("Custom colors are added from table styles", async () => {
+    await createTable(model, "A1:B2", {
+      styleId: "customStyle",
+      totalRow: true,
+      firstColumn: true,
+    });
     expect(model.getters.getCustomColors()).toEqual(["#345678", "#234567", "#123456"]);
   });
 
-  test("Table elements that are not displayed are not added to custom colors", () => {
-    createTable(model, "A1:B2", { styleId: "customStyle", totalRow: false, firstColumn: false });
+  test("Table elements that are not displayed are not added to custom colors", async () => {
+    await createTable(model, "A1:B2", {
+      styleId: "customStyle",
+      totalRow: false,
+      firstColumn: false,
+    });
     expect(model.getters.getCustomColors()).toEqual(["#123456"]);
   });
 });

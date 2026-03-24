@@ -32,7 +32,7 @@ import {
   getEvaluatedCell,
   getStyle,
 } from "../test_helpers/getters_helpers";
-import { spyUiPluginHandle, target } from "../test_helpers/helpers";
+import { createModel, spyUiPluginHandle, target } from "../test_helpers/helpers";
 import { addPivot, removePivot, updatePivot } from "../test_helpers/pivot_helpers";
 import { setupCollaborativeEnv } from "./collaborative_helpers";
 
@@ -43,93 +43,93 @@ describe("Collaborative local history", () => {
   let charlie: Model;
   let all: Model[];
 
-  beforeEach(() => {
-    ({ network, alice, bob, charlie } = setupCollaborativeEnv());
+  beforeEach(async () => {
+    ({ network, alice, bob, charlie } = await setupCollaborativeEnv());
     all = [alice, bob, charlie];
   });
 
-  test("Undo is propagated to other clients", () => {
-    setCellContent(alice, "A1", "hello");
-    undo(alice);
+  test("Undo is propagated to other clients", async () => {
+    await setCellContent(alice, "A1", "hello");
+    await undo(alice);
     expect(all).toHaveSynchronizedValue((user) => getCell(user, "A1"), undefined);
   });
 
-  test("Redo is propagated to other clients", () => {
-    setCellContent(alice, "A1", "hello");
-    undo(alice);
-    redo(alice);
+  test("Redo is propagated to other clients", async () => {
+    await setCellContent(alice, "A1", "hello");
+    await undo(alice);
+    await redo(alice);
     expect(all).toHaveSynchronizedValue((user) => getCellContent(user, "A1"), "hello");
   });
 
-  test("Can undo two consecutive operations, and then redo them", () => {
-    setCellContent(alice, "A1", "hello");
-    setCellContent(alice, "A1", "test");
+  test("Can undo two consecutive operations, and then redo them", async () => {
+    await setCellContent(alice, "A1", "hello");
+    await setCellContent(alice, "A1", "test");
 
-    undo(alice);
+    await undo(alice);
     expect(all).toHaveSynchronizedValue((user) => getCellContent(user, "A1"), "hello");
 
-    undo(alice);
+    await undo(alice);
     expect(all).toHaveSynchronizedValue((user) => getCell(user, "A1"), undefined);
 
-    redo(alice);
+    await redo(alice);
     expect(all).toHaveSynchronizedValue((user) => getCellContent(user, "A1"), "hello");
 
-    redo(alice);
+    await redo(alice);
     expect(all).toHaveSynchronizedValue((user) => getCellContent(user, "A1"), "test");
   });
 
-  test("Concurrent undo, undo last", () => {
-    setCellContent(alice, "A1", "hello");
-    network.concurrent(() => {
-      setCellContent(bob, "B1", "hello");
-      undo(alice);
+  test("Concurrent undo, undo last", async () => {
+    await setCellContent(alice, "A1", "hello");
+    await network.concurrent(async () => {
+      await setCellContent(bob, "B1", "hello");
+      await undo(alice);
     });
     expect(all).toHaveSynchronizedValue((user) => getCell(user, "A1"), undefined);
     expect(all).toHaveSynchronizedValue((user) => getCellContent(user, "B1"), "hello");
     expect(all).toHaveSynchronizedExportedData();
   });
 
-  test("Concurrent undo, undo first", () => {
-    setCellContent(alice, "A1", "A1");
-    network.concurrent(() => {
-      undo(alice);
-      setCellContent(bob, "B1", "B1");
+  test("Concurrent undo, undo first", async () => {
+    await setCellContent(alice, "A1", "A1");
+    await network.concurrent(async () => {
+      await undo(alice);
+      await setCellContent(bob, "B1", "B1");
     });
     expect(all).toHaveSynchronizedValue((user) => getCell(user, "A1"), undefined);
     expect(all).toHaveSynchronizedValue((user) => getCellContent(user, "B1"), "B1");
     expect(all).toHaveSynchronizedExportedData();
   });
 
-  test("Undo a pending revision", () => {
-    network.concurrent(() => {
-      setCellContent(alice, "A1", "hello");
-      undo(alice);
-      setCellContent(bob, "B1", "hello");
+  test("Undo a pending revision", async () => {
+    await network.concurrent(async () => {
+      await setCellContent(alice, "A1", "hello");
+      await undo(alice);
+      await setCellContent(bob, "B1", "hello");
     });
     expect(all).toHaveSynchronizedValue((user) => getCell(user, "A1"), undefined);
     expect(all).toHaveSynchronizedValue((user) => getCellContent(user, "B1"), "hello");
     expect(all).toHaveSynchronizedExportedData();
   });
 
-  test("Concurrent undo and a non-related pending revision", () => {
-    setCellContent(alice, "A1", "hello");
-    network.concurrent(() => {
-      undo(alice);
-      setCellContent(bob, "B1", "hello");
+  test("Concurrent undo and a non-related pending revision", async () => {
+    await setCellContent(alice, "A1", "hello");
+    await network.concurrent(async () => {
+      await undo(alice);
+      await setCellContent(bob, "B1", "hello");
     });
     expect(all).toHaveSynchronizedValue((user) => getCell(user, "A1"), undefined);
     expect(all).toHaveSynchronizedValue((user) => getCellContent(user, "B1"), "hello");
     expect(all).toHaveSynchronizedExportedData();
   });
 
-  test("Concurrent undo, redo last", () => {
-    setCellContent(alice, "A1", "hello");
-    setCellContent(bob, "B1", "hello");
-    setCellContent(bob, "C1", "hello");
-    undo(bob);
-    network.concurrent(() => {
-      undo(alice);
-      redo(bob);
+  test("Concurrent undo, redo last", async () => {
+    await setCellContent(alice, "A1", "hello");
+    await setCellContent(bob, "B1", "hello");
+    await setCellContent(bob, "C1", "hello");
+    await undo(bob);
+    await network.concurrent(async () => {
+      await undo(alice);
+      await redo(bob);
     });
     expect(all).toHaveSynchronizedValue((user) => getCell(user, "A1"), undefined);
     expect(all).toHaveSynchronizedValue((user) => getCellContent(user, "B1"), "hello");
@@ -137,34 +137,34 @@ describe("Collaborative local history", () => {
     expect(all).toHaveSynchronizedExportedData();
   });
 
-  test("Concurrent redo, undo first", () => {
-    setCellContent(alice, "A1", "hello");
-    setCellContent(bob, "B1", "hello");
-    undo(bob);
-    network.concurrent(() => {
-      redo(bob);
-      undo(alice);
+  test("Concurrent redo, undo first", async () => {
+    await setCellContent(alice, "A1", "hello");
+    await setCellContent(bob, "B1", "hello");
+    await undo(bob);
+    await network.concurrent(async () => {
+      await redo(bob);
+      await undo(alice);
     });
     expect(all).toHaveSynchronizedValue((user) => getCell(user, "A1"), undefined);
     expect(all).toHaveSynchronizedValue((user) => getCellContent(user, "B1"), "hello");
     expect(all).toHaveSynchronizedExportedData();
   });
 
-  test("revision id changes with each command", () => {
+  test("revision id changes with each command", async () => {
     expect(all).toHaveSynchronizedValue(
       (user) => user.exportData().revisionId,
       DEFAULT_REVISION_ID
     );
-    setCellContent(alice, "A1", "hello");
+    await setCellContent(alice, "A1", "hello");
     expect(alice.exportData().revisionId).not.toBe(DEFAULT_REVISION_ID);
     expect(bob.exportData().revisionId).not.toBe(DEFAULT_REVISION_ID);
     expect(charlie.exportData().revisionId).not.toBe(DEFAULT_REVISION_ID);
   });
 
-  test("Add a column and set a formatting on it", () => {
-    addColumns(alice, "before", "C", 4);
-    undo(alice);
-    setFormatting(bob, "H2:J6", { fillColor: "#121212" });
+  test("Add a column and set a formatting on it", async () => {
+    await addColumns(alice, "before", "C", 4);
+    await undo(alice);
+    await setFormatting(bob, "H2:J6", { fillColor: "#121212" });
     expect([alice, bob, charlie]).toHaveSynchronizedExportedData();
     expect([alice, bob, charlie]).toHaveSynchronizedValue((user) => getStyle(user, "H2"), {
       fillColor: "#121212",
@@ -175,7 +175,7 @@ describe("Collaborative local history", () => {
     );
   });
 
-  test("Load model with a simple initial messages", () => {
+  test("Load model with a simple initial messages", async () => {
     const initialMessages: StateUpdateMessage[] = [
       {
         type: "REMOTE_REVISION",
@@ -186,7 +186,7 @@ describe("Collaborative local history", () => {
         serverRevisionId: "initial_revision",
       },
     ];
-    const model = new Model(
+    const model = await createModel(
       {
         revisionId: "initial_revision",
         sheets: [{ id: "sheet1" }],
@@ -201,7 +201,7 @@ describe("Collaborative local history", () => {
     expect(model.exportData().revisionId).toBe("1");
   });
 
-  test("Load empty model with initial messages, with wrong sheetId", () => {
+  test("Load empty model with initial messages, with wrong sheetId", async () => {
     const initialMessages: StateUpdateMessage[] = [
       {
         type: "REMOTE_REVISION",
@@ -214,11 +214,11 @@ describe("Collaborative local history", () => {
         serverRevisionId: DEFAULT_REVISION_ID,
       },
     ];
-    const model = new Model({}, {}, initialMessages);
+    const model = await createModel({}, {}, initialMessages);
     expect(getCellContent(model, "A1")).toBe("Hello");
   });
 
-  test("Load empty model with initial messages, with multiple sheets and wrong sheetIds", () => {
+  test("Load empty model with initial messages, with multiple sheets and wrong sheetIds", async () => {
     const initialMessages: StateUpdateMessage[] = [
       {
         type: "REMOTE_REVISION",
@@ -265,13 +265,13 @@ describe("Collaborative local history", () => {
         ],
       },
     ];
-    const model = new Model({}, {}, initialMessages);
+    const model = await createModel({}, {}, initialMessages);
     expect(getCellContent(model, "A1")).toBe("Hello");
     expect(getCellContent(model, "B1")).toBe("Good morning");
     expect(getCellContent(model, "A1", "newSheetId")).toBe("Hi");
   });
 
-  test("Load model with initial messages, with undo", () => {
+  test("Load model with initial messages, with undo", async () => {
     const initialMessages: StateUpdateMessage[] = [
       {
         type: "REMOTE_REVISION",
@@ -289,7 +289,7 @@ describe("Collaborative local history", () => {
         undoneRevisionId: "1",
       },
     ];
-    const model = new Model(
+    const model = await createModel(
       {
         revisionId: "initial_revision",
         sheets: [{ id: "sheet1" }],
@@ -304,12 +304,12 @@ describe("Collaborative local history", () => {
     expect(model.exportData().revisionId).toBe("2");
   });
 
-  test("The revisions are rebased", () => {
-    addRows(alice, "after", 11, 1);
-    network.concurrent(() => {
-      undo(alice);
-      setCellContent(charlie, "A1", "Hello"); // This command is not transformed
-      setCellContent(charlie, "A13", "Hello"); // This command is transformed (and destroyed)
+  test("The revisions are rebased", async () => {
+    await addRows(alice, "after", 11, 1);
+    await network.concurrent(async () => {
+      await undo(alice);
+      await setCellContent(charlie, "A1", "Hello"); // This command is not transformed
+      await setCellContent(charlie, "A13", "Hello"); // This command is transformed (and destroyed)
     });
     expect(all).toHaveSynchronizedValue((user) => getCellContent(user, "A1"), "Hello");
     expect(all).toHaveSynchronizedValue((user) => getCell(user, "A12"), undefined);
@@ -317,7 +317,7 @@ describe("Collaborative local history", () => {
     expect([alice, bob, charlie]).toHaveSynchronizedExportedData();
   });
 
-  test("Load model with initial messages, with redo", () => {
+  test("Load model with initial messages, with redo", async () => {
     const initialMessages: StateUpdateMessage[] = [
       {
         type: "REMOTE_REVISION",
@@ -342,7 +342,7 @@ describe("Collaborative local history", () => {
         redoneRevisionId: "1",
       },
     ];
-    const model = new Model(
+    const model = await createModel(
       {
         revisionId: "initial_revision",
         sheets: [{ id: "sheet1" }],
@@ -357,7 +357,7 @@ describe("Collaborative local history", () => {
     expect(model.exportData().revisionId).toBe("3");
   });
 
-  test("Initial sort command is dropped", () => {
+  test("Initial sort command is dropped", async () => {
     const initialMessages: StateUpdateMessage[] = [
       {
         type: "REMOTE_REVISION",
@@ -387,13 +387,13 @@ describe("Collaborative local history", () => {
         },
       ],
     };
-    const model = new Model(data, {}, initialMessages);
+    const model = await createModel(data, {}, initialMessages);
     expect(getCellContent(model, "A1")).toBe("1");
     expect(getCellContent(model, "A2")).toBe("2");
     expect(getCellContent(model, "A3")).toBe("3");
   });
 
-  test("Initial set decimal command is dropped", () => {
+  test("Initial set decimal command is dropped", async () => {
     const initialMessages: StateUpdateMessage[] = [
       {
         type: "REMOTE_REVISION",
@@ -421,353 +421,353 @@ describe("Collaborative local history", () => {
         },
       ],
     };
-    const model = new Model(data, {}, initialMessages);
+    const model = await createModel(data, {}, initialMessages);
     expect(getCell(model, "A1")?.format).toBeUndefined();
   });
 
-  test("Undo/redo your own change only", () => {
-    setCellContent(alice, "A1", "hello in A1");
-    setCellContent(bob, "B2", "hello in B2");
+  test("Undo/redo your own change only", async () => {
+    await setCellContent(alice, "A1", "hello in A1");
+    await setCellContent(bob, "B2", "hello in B2");
 
     expect(all).toHaveSynchronizedValue((user) => getCellContent(user, "A1"), "hello in A1");
     expect(all).toHaveSynchronizedValue((user) => getCellContent(user, "B2"), "hello in B2");
-    undo(alice);
+    await undo(alice);
     expect(all).toHaveSynchronizedValue((user) => getCell(user, "A1"), undefined);
     expect(all).toHaveSynchronizedValue((user) => getCellContent(user, "B2"), "hello in B2");
-    redo(alice);
+    await redo(alice);
     expect(all).toHaveSynchronizedValue((user) => getCellContent(user, "A1"), "hello in A1");
     expect(all).toHaveSynchronizedValue((user) => getCellContent(user, "B2"), "hello in B2");
   });
 
-  test("Undo two commands from different users, Alice first", () => {
-    addColumns(alice, "before", "B", 1);
-    addColumns(bob, "after", "A", 1);
-    setCellContent(charlie, "D1", "hello in D1");
+  test("Undo two commands from different users, Alice first", async () => {
+    await addColumns(alice, "before", "B", 1);
+    await addColumns(bob, "after", "A", 1);
+    await setCellContent(charlie, "D1", "hello in D1");
     expect(all).toHaveSynchronizedValue((user) => getCellContent(user, "D1"), "hello in D1");
-    undo(alice);
+    await undo(alice);
     expect(all).toHaveSynchronizedValue((user) => getCellContent(user, "C1"), "hello in D1");
-    undo(bob);
+    await undo(bob);
     expect(all).toHaveSynchronizedValue((user) => getCellContent(user, "B1"), "hello in D1");
   });
 
-  test("Undo two commands from different users, Bob first", () => {
-    addColumns(alice, "before", "B", 1);
-    addColumns(bob, "after", "A", 1);
-    setCellContent(charlie, "D1", "hello in D1");
+  test("Undo two commands from different users, Bob first", async () => {
+    await addColumns(alice, "before", "B", 1);
+    await addColumns(bob, "after", "A", 1);
+    await setCellContent(charlie, "D1", "hello in D1");
     expect(all).toHaveSynchronizedValue((user) => getCellContent(user, "D1"), "hello in D1");
 
-    undo(bob);
+    await undo(bob);
     expect(all).toHaveSynchronizedValue((user) => getCellContent(user, "C1"), "hello in D1");
-    undo(alice);
+    await undo(alice);
     expect(all).toHaveSynchronizedExportedData();
     expect(all).toHaveSynchronizedValue((user) => getCellContent(user, "B1"), "hello in D1");
   });
 
-  test("Undo with pending which requires a transformation", () => {
-    addColumns(alice, "before", "A", 1);
-    network.concurrent(() => {
-      undo(alice);
-      setCellContent(bob, "B1", "hello");
+  test("Undo with pending which requires a transformation", async () => {
+    await addColumns(alice, "before", "A", 1);
+    await network.concurrent(async () => {
+      await undo(alice);
+      await setCellContent(bob, "B1", "hello");
     });
     expect(all).toHaveSynchronizedValue((user) => getCellContent(user, "A1"), "hello");
     expect(all).toHaveSynchronizedValue((user) => getCell(user, "B1"), undefined);
   });
 
-  test("Undo or redo block the next commands until it's accepted", () => {
-    setCellContent(alice, "A1", "hello");
-    network.concurrent(() => {
-      undo(alice);
-      expect(setCellContent(alice, "A2", "test")).toBeCancelledBecause(
+  test("Undo or redo block the next commands until it's accepted", async () => {
+    await setCellContent(alice, "A1", "hello");
+    await network.concurrent(async () => {
+      await undo(alice);
+      expect(await setCellContent(alice, "A2", "test")).toBeCancelledBecause(
         CommandResult.WaitingSessionConfirmation
       );
     });
     expect(all).toHaveSynchronizedValue((user) => getCell(user, "A2"), undefined);
-    expect(setCellContent(alice, "A2", "test")).toBeSuccessfullyDispatched();
+    expect(await setCellContent(alice, "A2", "test")).toBeSuccessfullyDispatched();
     expect(all).toHaveSynchronizedValue((user) => getCellContent(user, "A2"), "test");
   });
 
-  test("Update cell, undo, remove sheet, redo", () => {
+  test("Update cell, undo, remove sheet, redo", async () => {
     const sheetId = "42";
-    createSheet(charlie, { sheetId });
+    await createSheet(charlie, { sheetId });
     expect(all).toHaveSynchronizedExportedData();
-    setCellContent(alice, "A1", "hello", sheetId);
-    undo(alice);
-    deleteSheet(bob, sheetId);
-    redo(alice);
+    await setCellContent(alice, "A1", "hello", sheetId);
+    await undo(alice);
+    await deleteSheet(bob, sheetId);
+    await redo(alice);
     expect(all).toHaveSynchronizedExportedData();
   });
 
-  test("Update, remove column, undo and redo", () => {
-    setCellContent(alice, "A1", "hello");
-    deleteColumns(bob, ["A"]);
+  test("Update, remove column, undo and redo", async () => {
+    await setCellContent(alice, "A1", "hello");
+    await deleteColumns(bob, ["A"]);
     expect(all).toHaveSynchronizedValue((user) => getCell(user, "A1"), undefined);
-    undo(bob);
+    await undo(bob);
     expect(all).toHaveSynchronizedValue((user) => getCellContent(user, "A1"), "hello");
-    redo(bob);
+    await redo(bob);
     expect(all).toHaveSynchronizedValue((user) => getCell(user, "A1"), undefined);
   });
 
-  test("add column, update cell in col, undo and redo", () => {
-    addColumns(alice, "after", "A", 1);
-    setCellContent(bob, "B1", "hello");
+  test("add column, update cell in col, undo and redo", async () => {
+    await addColumns(alice, "after", "A", 1);
+    await setCellContent(bob, "B1", "hello");
     expect(all).toHaveSynchronizedValue((user) => getCellContent(user, "B1"), "hello");
-    undo(alice);
+    await undo(alice);
     expect(all).toHaveSynchronizedValue((user) => getCell(user, "A1"), undefined);
     expect(all).toHaveSynchronizedValue((user) => getCell(user, "B1"), undefined);
-    redo(alice);
+    await redo(alice);
     expect(all).toHaveSynchronizedValue((user) => getCellContent(user, "B1"), "hello");
   });
 
-  test("Redo which requires a transformation", () => {
-    setCellContent(alice, "A1", "hello");
-    undo(alice);
-    addColumns(bob, "before", "A", 1);
-    redo(alice);
+  test("Redo which requires a transformation", async () => {
+    await setCellContent(alice, "A1", "hello");
+    await undo(alice);
+    await addColumns(bob, "before", "A", 1);
+    await redo(alice);
     expect(all).toHaveSynchronizedValue((user) => getCell(user, "A1"), undefined);
     expect(all).toHaveSynchronizedValue((user) => getCellContent(user, "B1"), "hello");
   });
 
-  test("Undo a concurrent command which requires a transformation", () => {
-    setCellContent(alice, "A1", "salut");
-    setCellContent(alice, "A1", "hello");
-    network.concurrent(() => {
-      addColumns(bob, "before", "A", 1);
-      undo(alice);
+  test("Undo a concurrent command which requires a transformation", async () => {
+    await setCellContent(alice, "A1", "salut");
+    await setCellContent(alice, "A1", "hello");
+    await network.concurrent(async () => {
+      await addColumns(bob, "before", "A", 1);
+      await undo(alice);
     });
     expect(all).toHaveSynchronizedValue((user) => getCell(user, "A1"), undefined);
 
     expect(all).toHaveSynchronizedValue((user) => getCellContent(user, "B1"), "salut");
   });
 
-  test("Remove columns and undo/redo the change", () => {
-    deleteColumns(alice, ["A", "B", "F"]);
-    setCellContent(bob, "A1", "hello");
-    undo(alice);
+  test("Remove columns and undo/redo the change", async () => {
+    await deleteColumns(alice, ["A", "B", "F"]);
+    await setCellContent(bob, "A1", "hello");
+    await undo(alice);
     expect(all).toHaveSynchronizedValue((user) => getCellContent(user, "C1"), "hello");
-    redo(alice);
+    await redo(alice);
     expect(all).toHaveSynchronizedValue((user) => getCellContent(user, "A1"), "hello");
   });
 
-  test("Remove rows and undo/redo the change", () => {
-    deleteRows(alice, [0, 1, 5]);
-    setCellContent(bob, "A1", "hello");
-    undo(alice);
+  test("Remove rows and undo/redo the change", async () => {
+    await deleteRows(alice, [0, 1, 5]);
+    await setCellContent(bob, "A1", "hello");
+    await undo(alice);
     expect(all).toHaveSynchronizedValue((user) => getCellContent(user, "A3"), "hello");
-    redo(alice);
+    await redo(alice);
     expect(all).toHaveSynchronizedValue((user) => getCellContent(user, "A1"), "hello");
   });
 
-  test("Undo a create sheet command", () => {
+  test("Undo a create sheet command", async () => {
     const sheet1Id = alice.getters.getActiveSheetId();
     const sheetId = "42";
-    createSheet(alice, { sheetId, position: 0 });
-    setCellContent(bob, "A1", "Hello in A1", sheetId);
+    await createSheet(alice, { sheetId, position: 0 });
+    await setCellContent(bob, "A1", "Hello in A1", sheetId);
     expect(all).toHaveSynchronizedValue(
       (user) => getCellContent(user, "A1", sheetId),
       "Hello in A1"
     );
-    undo(alice);
+    await undo(alice);
     expect(all).toHaveSynchronizedValue((user) => user.getters.getSheetIds(), [sheet1Id]);
   });
 
-  test("Add column, update cell, undo/redo", () => {
-    addColumns(alice, "after", "A", 1);
-    setCellContent(bob, "B1", "hello");
-    undo(alice);
-    redo(alice);
+  test("Add column, update cell, undo/redo", async () => {
+    await addColumns(alice, "after", "A", 1);
+    await setCellContent(bob, "B1", "hello");
+    await undo(alice);
+    await redo(alice);
     expect(all).toHaveSynchronizedValue((user) => getCellContent(user, "B1"), "hello");
   });
 
-  test("undo twice, redo twice", () => {
-    setCellContent(bob, "F9", "hello");
-    setCellContent(bob, "F9", "hello world");
-    undo(bob);
+  test("undo twice, redo twice", async () => {
+    await setCellContent(bob, "F9", "hello");
+    await setCellContent(bob, "F9", "hello world");
+    await undo(bob);
     expect(all).toHaveSynchronizedValue((user) => getCellContent(user, "F9"), "hello");
-    undo(bob);
+    await undo(bob);
     expect(all).toHaveSynchronizedValue((user) => getCellContent(user, "F9"), "");
-    redo(bob);
+    await redo(bob);
     expect(all).toHaveSynchronizedValue((user) => getCellContent(user, "F9"), "hello");
-    redo(bob);
+    await redo(bob);
     expect(all).toHaveSynchronizedValue((user) => getCellContent(user, "F9"), "hello world");
   });
 
-  test("Undo a add column, and redo", () => {
-    addColumns(alice, "after", "A", 1);
-    setCellContent(bob, "B1", "hello");
+  test("Undo a add column, and redo", async () => {
+    await addColumns(alice, "after", "A", 1);
+    await setCellContent(bob, "B1", "hello");
     expect(all).toHaveSynchronizedValue((user) => getCellContent(user, "B1"), "hello");
-    undo(alice);
+    await undo(alice);
 
     expect(all).toHaveSynchronizedValue((user) => getCell(user, "B1"), undefined);
-    redo(alice);
+    await redo(alice);
     expect(all).toHaveSynchronizedValue((user) => getCellContent(user, "B1"), "hello");
   });
 
-  test("Add column, undo and redo does not impact the selection", () => {
-    setCellContent(alice, "A1", "salut");
-    addColumns(bob, "before", "A", 1);
+  test("Add column, undo and redo does not impact the selection", async () => {
+    await setCellContent(alice, "A1", "salut");
+    await addColumns(bob, "before", "A", 1);
     const aliceSelection = alice.getters.getSelectedZone();
     const bobSelection = bob.getters.getSelectedZone();
-    undo(alice);
-    redo(alice);
+    await undo(alice);
+    await redo(alice);
     expect(aliceSelection).toEqual(alice.getters.getSelectedZone());
     expect(bobSelection).toEqual(bob.getters.getSelectedZone());
   });
 
-  test("Add two columns, fill them, then undo redo", () => {
-    addColumns(alice, "after", "B", 1);
-    addColumns(alice, "after", "C", 1);
-    setCellContent(bob, "D1", "hello in D");
-    setCellContent(bob, "C1", "hello in C");
+  test("Add two columns, fill them, then undo redo", async () => {
+    await addColumns(alice, "after", "B", 1);
+    await addColumns(alice, "after", "C", 1);
+    await setCellContent(bob, "D1", "hello in D");
+    await setCellContent(bob, "C1", "hello in C");
     expect(all).toHaveSynchronizedValue((user) => getCellContent(user, "C1"), "hello in C");
     expect(all).toHaveSynchronizedValue((user) => getCellContent(user, "D1"), "hello in D");
-    undo(alice);
-    undo(alice);
+    await undo(alice);
+    await undo(alice);
     expect(all).toHaveSynchronizedValue((user) => getCell(user, "A1"), undefined);
     expect(all).toHaveSynchronizedValue((user) => getCell(user, "B1"), undefined);
     expect(all).toHaveSynchronizedValue((user) => getCell(user, "C1"), undefined);
     expect(all).toHaveSynchronizedValue((user) => getCell(user, "D1"), undefined);
-    redo(alice);
+    await redo(alice);
     expect(all).toHaveSynchronizedValue((user) => getCell(user, "A1"), undefined);
     expect(all).toHaveSynchronizedValue((user) => getCell(user, "B1"), undefined);
     expect(all).toHaveSynchronizedValue((user) => getCellContent(user, "C1"), "hello in C");
     expect(all).toHaveSynchronizedValue((user) => getCell(user, "D1"), undefined);
-    redo(alice);
+    await redo(alice);
     expect(all).toHaveSynchronizedValue((user) => getCell(user, "A1"), undefined);
     expect(all).toHaveSynchronizedValue((user) => getCell(user, "B1"), undefined);
     expect(all).toHaveSynchronizedValue((user) => getCellContent(user, "C1"), "hello in C");
     expect(all).toHaveSynchronizedValue((user) => getCellContent(user, "D1"), "hello in D");
   });
 
-  test("Add two columns, fill them and another, then undo redo", () => {
-    addColumns(alice, "after", "B", 1);
-    setCellContent(bob, "F1", "hello in F");
-    setCellContent(bob, "G1", "hello in G");
-    setCellContent(charlie, "C1", "hello in C");
-    undo(bob);
-    undo(bob);
-    undo(alice);
-    redo(alice);
+  test("Add two columns, fill them and another, then undo redo", async () => {
+    await addColumns(alice, "after", "B", 1);
+    await setCellContent(bob, "F1", "hello in F");
+    await setCellContent(bob, "G1", "hello in G");
+    await setCellContent(charlie, "C1", "hello in C");
+    await undo(bob);
+    await undo(bob);
+    await undo(alice);
+    await redo(alice);
     expect(all).toHaveSynchronizedValue((user) => getCellContent(user, "C1"), "hello in C");
   });
 
-  test("Add two columns, fill one, undo, fill two, then undo redo", () => {
-    addColumns(alice, "after", "B", 1);
-    setCellContent(bob, "F1", "hello in F");
-    undo(bob);
-    setCellContent(bob, "G1", "hello in G");
-    setCellContent(charlie, "C1", "hello in C");
-    undo(bob);
-    undo(alice);
-    redo(alice);
+  test("Add two columns, fill one, undo, fill two, then undo redo", async () => {
+    await addColumns(alice, "after", "B", 1);
+    await setCellContent(bob, "F1", "hello in F");
+    await undo(bob);
+    await setCellContent(bob, "G1", "hello in G");
+    await setCellContent(charlie, "C1", "hello in C");
+    await undo(bob);
+    await undo(alice);
+    await redo(alice);
     expect(all).toHaveSynchronizedValue((user) => getCellContent(user, "C1"), "hello in C");
   });
 
-  test("undo ADD_COLUMNS_ROWS with dimension COL when the column has been removed", () => {
-    addColumns(alice, "after", "B", 1);
-    setCellContent(bob, "F1", "hello");
-    deleteColumns(bob, ["A", "B", "C", "D", "E"]);
+  test("undo ADD_COLUMNS_ROWS with dimension COL when the column has been removed", async () => {
+    await addColumns(alice, "after", "B", 1);
+    await setCellContent(bob, "F1", "hello");
+    await deleteColumns(bob, ["A", "B", "C", "D", "E"]);
     expect(all).toHaveSynchronizedValue((user) => getCellContent(user, "A1"), "hello");
-    undo(alice);
+    await undo(alice);
     expect(all).toHaveSynchronizedValue((user) => getCellContent(user, "A1"), "hello");
-    undo(bob);
+    await undo(bob);
     expect(all).toHaveSynchronizedValue((user) => getCellContent(user, "E1"), "hello");
   });
 
-  test("undo/redo ADD_COLUMNS_ROWS with dimension COL when the column has been removed", () => {
-    addColumns(alice, "after", "B", 1);
-    setCellContent(bob, "F1", "hello");
-    deleteColumns(bob, ["A", "B", "C", "D", "E"]);
+  test("undo/redo ADD_COLUMNS_ROWS with dimension COL when the column has been removed", async () => {
+    await addColumns(alice, "after", "B", 1);
+    await setCellContent(bob, "F1", "hello");
+    await deleteColumns(bob, ["A", "B", "C", "D", "E"]);
     expect(all).toHaveSynchronizedValue((user) => getCellContent(user, "A1"), "hello");
-    undo(alice);
-    redo(alice);
+    await undo(alice);
+    await redo(alice);
     expect(all).toHaveSynchronizedValue((user) => getCellContent(user, "A1"), "hello");
-    undo(bob);
+    await undo(bob);
     expect(all).toHaveSynchronizedValue((user) => getCellContent(user, "F1"), "hello");
   });
 
-  test("Active sheet is correctly recomputed after concurrent sheet modifications", () => {
+  test("Active sheet is correctly recomputed after concurrent sheet modifications", async () => {
     const firstSheetId = alice.getters.getActiveSheetId();
-    createSheet(bob, { sheetId: "sheet2", name: "Sheet2", position: 1 });
-    network.concurrent(() => {
-      deleteSheet(bob, "sheet2");
-      createSheet(alice, { sheetId: "sheet3", position: 1, name: "Sheet3" });
-      deleteSheet(charlie, firstSheetId);
+    await createSheet(bob, { sheetId: "sheet2", name: "Sheet2", position: 1 });
+    await network.concurrent(async () => {
+      await deleteSheet(bob, "sheet2");
+      await createSheet(alice, { sheetId: "sheet3", position: 1, name: "Sheet3" });
+      await deleteSheet(charlie, firstSheetId);
     });
     expect([alice, bob, charlie]).toHaveSynchronizedExportedData();
   });
 
-  test("local history is cleared and cannot repeat last command after snapshot", () => {
-    setCellContent(alice, "A1", "hello");
-    setCellContent(alice, "A2", "hello");
-    undo(alice);
-    snapshot(bob);
-    expect(undo(alice)).toBeCancelledBecause(CommandResult.EmptyUndoStack);
-    expect(redo(alice)).toBeCancelledBecause(CommandResult.EmptyRedoStack);
+  test("local history is cleared and cannot repeat last command after snapshot", async () => {
+    await setCellContent(alice, "A1", "hello");
+    await setCellContent(alice, "A2", "hello");
+    await undo(alice);
+    await snapshot(bob);
+    expect(await undo(alice)).toBeCancelledBecause(CommandResult.EmptyUndoStack);
+    expect(await redo(alice)).toBeCancelledBecause(CommandResult.EmptyRedoStack);
   });
 
-  test("concurrently dispatch after history cleared", () => {
+  test("concurrently dispatch after history cleared", async () => {
     const bobData = bob.exportData();
-    network.concurrent(() => {
-      snapshot(bob);
-      setCellContent(alice, "A2", "Hi");
+    await network.concurrent(async () => {
+      await snapshot(bob);
+      await setCellContent(alice, "A2", "Hi");
     });
-    expect(new Model(network.snapshot)).toExport(bobData);
+    expect(await createModel(network.snapshot)).toExport(bobData);
     expect(all).toHaveSynchronizedValue((user) => getCellContent(user, "A2"), "Hi");
   });
 
-  test("concurrently clear history after dispatch", () => {
+  test("concurrently clear history after dispatch", async () => {
     const bobData = bob.exportData();
-    network.concurrent(() => {
-      setCellContent(alice, "A2", "Hi");
-      snapshot(bob);
+    await network.concurrent(async () => {
+      await setCellContent(alice, "A2", "Hi");
+      await snapshot(bob);
     });
     expect(network.snapshot).not.toEqual(bobData);
     expect(all).toHaveSynchronizedValue((user) => getCellContent(user, "A2"), "Hi");
   });
 
-  test("concurrent snapshot is refused if arrives after", () => {
-    setCellContent(alice, "A1", "hello");
-    setCellContent(alice, "A2", "hello");
+  test("concurrent snapshot is refused if arrives after", async () => {
+    await setCellContent(alice, "A1", "hello");
+    await setCellContent(alice, "A2", "hello");
     const bobData = bob.exportData();
-    network.concurrent(() => {
-      undo(alice);
-      snapshot(bob);
+    await network.concurrent(async () => {
+      await undo(alice);
+      await snapshot(bob);
     });
     expect(network.snapshot).not.toEqual(bobData);
     expect(getCellContent(alice, "A2")).toBeFalsy();
-    setCellContent(alice, "A2", "Hi"); // can still dispatch
+    await setCellContent(alice, "A2", "Hi"); // can still dispatch
     expect(all).toHaveSynchronizedValue((user) => getCellContent(user, "A2"), "Hi");
   });
 
-  test("local history can be cleared while undoing: clear first", () => {
-    setCellContent(alice, "A1", "hello");
-    network.concurrent(() => {
-      snapshot(bob);
-      undo(alice);
+  test("local history can be cleared while undoing: clear first", async () => {
+    await setCellContent(alice, "A1", "hello");
+    await network.concurrent(async () => {
+      await snapshot(bob);
+      await undo(alice);
     });
     expect(getCellContent(alice, "A1")).toBe("hello");
-    setCellContent(alice, "A2", "Hi"); // can still dispatch
+    await setCellContent(alice, "A2", "Hi"); // can still dispatch
     expect(all).toHaveSynchronizedValue((user) => getCellContent(user, "A2"), "Hi");
   });
 
-  test("snapshot is sent", () => {
+  test("snapshot is sent", async () => {
     const data = alice.exportData();
-    new Model(data, { transportService: network, snapshotRequested: true });
-    expect(new Model(network.snapshot)).toExport(data);
+    await createModel(data, { transportService: network, snapshotRequested: true });
+    expect(await createModel(network.snapshot)).toExport(data);
   });
 
-  test("snapshot is sent with a new revision id", () => {
+  test("snapshot is sent with a new revision id", async () => {
     const revisionId = alice.exportData().revisionId;
-    snapshot(alice);
+    await snapshot(alice);
     expect(network.snapshot?.revisionId).not.toBe(revisionId);
   });
 
-  test("undone & redone commands are transformed", () => {
-    const david = new Model(alice.exportData(), {
+  test("undone & redone commands are transformed", async () => {
+    const david = await createModel(alice.exportData(), {
       transportService: network,
       client: { id: "david", name: "David" },
     });
-    const elisa = new Model(alice.exportData(), {
+    const elisa = await createModel(alice.exportData(), {
       transportService: network,
       client: { id: "elisa", name: "Elisa" },
     });
@@ -778,13 +778,13 @@ describe("Collaborative local history", () => {
       sheetId: david.getters.getActiveSheetId(),
       content: "hello",
     };
-    network.concurrent(() => {
-      addColumns(alice, "before", "A", 1);
+    await network.concurrent(async () => {
+      await addColumns(alice, "before", "A", 1);
       david.dispatch(command.type, command);
     });
     const davidPluginHandle = spyUiPluginHandle(david);
     const elisePluginHandle = spyUiPluginHandle(elisa);
-    undo(david);
+    await undo(david);
     expect(davidPluginHandle).toHaveBeenCalledWith({
       type: "UNDO",
       commands: [{ ...command, col: 1 }],
@@ -793,7 +793,7 @@ describe("Collaborative local history", () => {
       type: "UNDO",
       commands: [{ ...command, col: 1 }],
     });
-    redo(david);
+    await redo(david);
     expect(davidPluginHandle).toHaveBeenCalledWith({
       type: "REDO",
       commands: [{ ...command, col: 1 }],
@@ -803,13 +803,13 @@ describe("Collaborative local history", () => {
       commands: [{ ...command, col: 1 }],
     });
   });
-  test("dispatch command after concurrent action with another user", () => {
-    addColumns(bob, "before", "A", 1);
-    network.concurrent(() => {
-      undo(bob);
-      setCellContent(charlie, "D25", "D");
+  test("dispatch command after concurrent action with another user", async () => {
+    await addColumns(bob, "before", "A", 1);
+    await network.concurrent(async () => {
+      await undo(bob);
+      await setCellContent(charlie, "D25", "D");
     });
-    setCellContent(bob, "A13", "A");
+    await setCellContent(bob, "A13", "A");
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
       (user) => getCellContent(user, "A13"),
       "A"
@@ -817,67 +817,67 @@ describe("Collaborative local history", () => {
     expect([alice, bob, charlie]).toHaveSynchronizedExportedData();
   });
 
-  test("Concurrent undo with actions from at least two users", () => {
-    setCellContent(bob, "A1", "Hello");
-    network.concurrent(() => {
-      undo(bob);
-      addColumns(alice, "before", "A", 1);
-      setCellContent(charlie, "B2", "Alice");
+  test("Concurrent undo with actions from at least two users", async () => {
+    await setCellContent(bob, "A1", "Hello");
+    await network.concurrent(async () => {
+      await undo(bob);
+      await addColumns(alice, "before", "A", 1);
+      await setCellContent(charlie, "B2", "Alice");
     });
     expect([alice, bob, charlie]).toHaveSynchronizedExportedData();
   });
 
-  test("Concurrent redo with actions from at least two users", () => {
-    setCellContent(bob, "A1", "Hello");
-    undo(bob);
-    network.concurrent(() => {
-      redo(bob);
-      addColumns(alice, "before", "A", 1);
-      setCellContent(charlie, "B2", "Alice");
+  test("Concurrent redo with actions from at least two users", async () => {
+    await setCellContent(bob, "A1", "Hello");
+    await undo(bob);
+    await network.concurrent(async () => {
+      await redo(bob);
+      await addColumns(alice, "before", "A", 1);
+      await setCellContent(charlie, "B2", "Alice");
     });
     expect([alice, bob, charlie]).toHaveSynchronizedExportedData();
   });
 
-  test("dont remove last sheet with undo", () => {
+  test("dont remove last sheet with undo", async () => {
     const firstSheetId = alice.getters.getActiveSheetId();
-    createSheet(alice, {});
-    deleteSheet(bob, firstSheetId);
-    undo(alice);
+    await createSheet(alice, {});
+    await deleteSheet(bob, firstSheetId);
+    await undo(alice);
     expect(all).toHaveSynchronizedValue(
       (user) => user.getters.getVisibleSheetIds(),
       [firstSheetId]
     );
   });
 
-  test("Evaluation is re-triggered after a replay of dupplicate sheet", () => {
-    const { network, alice, bob, charlie } = setupCollaborativeEnv();
-    network.concurrent(() => {
-      deleteRows(bob, [0], "Sheet1");
-      setCellContent(alice, "A1", "hello", "Sheet1");
+  test("Evaluation is re-triggered after a replay of dupplicate sheet", async () => {
+    const { network, alice, bob, charlie } = await setupCollaborativeEnv();
+    await network.concurrent(async () => {
+      await deleteRows(bob, [0], "Sheet1");
+      await setCellContent(alice, "A1", "hello", "Sheet1");
     });
-    network.concurrent(() => {
-      clearCells(alice, ["A1:B2"], "Sheet1");
-      duplicateSheet(charlie, "Sheet1", "duplicateSheetId");
-    });
-    expect([alice, bob, charlie]).toHaveSynchronizedEvaluation();
-    expect([alice, bob, charlie]).toHaveSynchronizedExportedData();
-  });
-
-  test("Evaluation is the same after a sheet deletion replayed", () => {
-    const { network, alice, bob, charlie } = setupCollaborativeEnv();
-    setCellContent(alice, "A1", "hello");
-    duplicateSheet(charlie, "Sheet1", "duplicateSheetId");
-    network.concurrent(() => {
-      hideSheet(bob, "Sheet1");
-      deleteSheet(charlie, "Sheet1");
+    await network.concurrent(async () => {
+      await clearCells(alice, ["A1:B2"], "Sheet1");
+      await duplicateSheet(charlie, "Sheet1", "duplicateSheetId");
     });
     expect([alice, bob, charlie]).toHaveSynchronizedEvaluation();
     expect([alice, bob, charlie]).toHaveSynchronizedExportedData();
   });
 
-  test("Replay a REMOVE_TABLE in empty sheet after a local CREATE_TABLE", () => {
-    const { network, alice, bob, charlie } = setupCollaborativeEnv();
-    setCellContent(charlie, "A1", "Hello", "Sheet1");
+  test("Evaluation is the same after a sheet deletion replayed", async () => {
+    const { network, alice, bob, charlie } = await setupCollaborativeEnv();
+    await setCellContent(alice, "A1", "hello");
+    await duplicateSheet(charlie, "Sheet1", "duplicateSheetId");
+    await network.concurrent(async () => {
+      await hideSheet(bob, "Sheet1");
+      await deleteSheet(charlie, "Sheet1");
+    });
+    expect([alice, bob, charlie]).toHaveSynchronizedEvaluation();
+    expect([alice, bob, charlie]).toHaveSynchronizedExportedData();
+  });
+
+  test("Replay a REMOVE_TABLE in empty sheet after a local CREATE_TABLE", async () => {
+    const { network, alice, bob, charlie } = await setupCollaborativeEnv();
+    await setCellContent(charlie, "A1", "Hello", "Sheet1");
     alice.dispatch("REMOVE_TABLE", {
       target: [
         { left: 4, right: 7, top: 4, bottom: 5 },
@@ -885,58 +885,58 @@ describe("Collaborative local history", () => {
       ],
       sheetId: "Sheet1",
     });
-    network.concurrent(() => {
-      undo(charlie);
-      createTable(alice, "3:11", {});
+    await network.concurrent(async () => {
+      await undo(charlie);
+      await createTable(alice, "3:11", {});
     });
     expect([alice, bob, charlie]).toHaveSynchronizedEvaluation();
     expect([alice, bob, charlie]).toHaveSynchronizedExportedData();
   });
 
-  test("transform target command with column addition before the target edge", () => {
-    addColumns(charlie, "before", "B", 1);
-    network.concurrent(() => {
-      undo(charlie);
-      setFormatting(bob, "A1", { bold: true });
+  test("transform target command with column addition before the target edge", async () => {
+    await addColumns(charlie, "before", "B", 1);
+    await network.concurrent(async () => {
+      await undo(charlie);
+      await setFormatting(bob, "A1", { bold: true });
     });
     expect(all).toHaveSynchronizedValue((user) => getCell(user, "A1")?.style, { bold: true });
     expect(all).toHaveSynchronizedValue((user) => getCell(user, "B1")?.style, undefined);
-    redo(charlie);
+    await redo(charlie);
     expect(all).toHaveSynchronizedValue((user) => getCell(user, "A1")?.style, { bold: true });
     expect(all).toHaveSynchronizedValue((user) => getCell(user, "B1")?.style, undefined);
     expect(all).toHaveSynchronizedExportedData();
   });
 
-  test("Pivot payload replayed is the same as the original", () => {
-    const { network, alice, bob, charlie } = setupCollaborativeEnv();
-    network.concurrent(() => {
-      setCellContent(alice, "A1", "hello");
+  test("Pivot payload replayed is the same as the original", async () => {
+    const { network, alice, bob, charlie } = await setupCollaborativeEnv();
+    await network.concurrent(async () => {
+      await setCellContent(alice, "A1", "hello");
       addPivot(charlie, "A1:A2", { name: "pivot" }, "1");
-      renamePivot(charlie, "1", "newName");
+      await renamePivot(charlie, "1", "newName");
     });
-    undo(charlie);
+    await undo(charlie);
     expect([alice, bob, charlie]).toHaveSynchronizedEvaluation();
     expect([alice, bob, charlie]).toHaveSynchronizedExportedData();
   });
 
-  test("updated pivot payload transformed is the same as the original", () => {
-    const { network, alice, bob, charlie } = setupCollaborativeEnv();
+  test("updated pivot payload transformed is the same as the original", async () => {
+    const { network, alice, bob, charlie } = await setupCollaborativeEnv();
     addPivot(charlie, "A1:A2", { name: "pivot" }, "1");
-    deleteRows(alice, [0]);
-    redo(alice);
-    network.concurrent(() => {
-      setCellContent(charlie, "A10", "hello");
+    await deleteRows(alice, [0]);
+    await redo(alice);
+    await network.concurrent(async () => {
+      await setCellContent(charlie, "A10", "hello");
       updatePivot(alice, "1", {
         dataSet: { sheetId: alice.getters.getActiveSheetId(), zone: toZone("A1:B1") },
       });
-      renamePivot(alice, "1", "newName");
-      undo(alice);
+      await renamePivot(alice, "1", "newName");
+      await undo(alice);
     });
     expect([alice, bob, charlie]).toHaveSynchronizedEvaluation();
     expect([alice, bob, charlie]).toHaveSynchronizedExportedData();
   });
 
-  test("remove pivot, new user joins, then undo", () => {
+  test("remove pivot, new user joins, then undo", async () => {
     const network = new MockTransportService();
     const data = {
       revisionId: DEFAULT_REVISION_ID,
@@ -970,7 +970,7 @@ describe("Collaborative local history", () => {
     const messages: StateUpdateMessage[] = [];
     network.onNewMessage("dd", (message) => messages.push(message));
 
-    const alice = new Model(data, {
+    const alice = await createModel(data, {
       transportService: network,
       client: { id: "alice", name: "Alice" },
     });
@@ -981,12 +981,12 @@ describe("Collaborative local history", () => {
       transportService: network,
       client: { id: "bob", name: "Bob" },
     };
-    const bob = new Model(data, configBob, messages);
-    undo(alice);
+    const bob = await createModel(data, configBob, messages);
+    await undo(alice);
     expect(getEvaluatedCell(bob, "B3").value).toEqual(10);
   });
 
-  test("Concurrently undo a command on which another is based", () => {
+  test("Concurrently undo a command on which another is based", async () => {
     /**
      * This test is a bit tricky. Let's begin with the use case:
      * 1) A command is created by Alice
@@ -1006,38 +1006,38 @@ describe("Collaborative local history", () => {
      * To solve this, the behavior is to rebase the command (and all the following)
      * if the *local* command is empty.
      */
-    createSheet(alice, { sheetId: "sheet2" });
-    network.concurrent(() => {
-      undo(alice);
-      setCellContent(bob, "B2", "B2", "sheet2");
+    await createSheet(alice, { sheetId: "sheet2" });
+    await network.concurrent(async () => {
+      await undo(alice);
+      await setCellContent(bob, "B2", "B2", "sheet2");
     });
-    redo(alice);
+    await redo(alice);
     expect([alice, bob, charlie]).toHaveSynchronizedExportedData();
   });
 
-  test("do not transformed revisions with concurrently rejected commands", () => {
-    const { network, alice, bob, charlie } = setupCollaborativeEnv();
+  test("do not transformed revisions with concurrently rejected commands", async () => {
+    const { network, alice, bob, charlie } = await setupCollaborativeEnv();
     const initialCols = alice.getters.getNumberCols("Sheet1");
-    duplicateSheet(charlie, "Sheet1");
-    network.concurrent(() => {
-      undo(charlie);
+    await duplicateSheet(charlie, "Sheet1");
+    await network.concurrent(async () => {
+      await undo(charlie);
 
       // DELETE_SHEET is initially accepted (there's 2 sheets) but later
       // rejected because there's only one sheet left when DUPLICATE_SHEET is undone
-      deleteSheet(bob, "Sheet1");
+      await deleteSheet(bob, "Sheet1");
     });
-    network.concurrent(() => {
-      undo(bob);
+    await network.concurrent(async () => {
+      await undo(bob);
 
       // ADD_COLUMNS_ROWS no longer makes sense because the sheet has been finally deleted
       // and the transformation drops the command
-      addRows(alice, "after", 0, 1, "Sheet1");
+      await addRows(alice, "after", 0, 1, "Sheet1");
     });
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
       (user) => user.getters.getNumberCols("Sheet1"),
       initialCols
     );
-    redo(charlie);
+    await redo(charlie);
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
       (user) => user.getters.getNumberCols("Sheet1"),
       initialCols
@@ -1045,31 +1045,31 @@ describe("Collaborative local history", () => {
     expect([alice, bob, charlie]).toHaveSynchronizedExportedData();
   });
 
-  test("Concurrent undo where the transformation partially destroys the other", () => {
-    addColumns(alice, "before", "C", 3);
-    network.concurrent(() => {
-      undo(alice);
-      resizeColumns(bob, ["A", "B", "C", "D", "E"], 20);
+  test("Concurrent undo where the transformation partially destroys the other", async () => {
+    await addColumns(alice, "before", "C", 3);
+    await network.concurrent(async () => {
+      await undo(alice);
+      await resizeColumns(bob, ["A", "B", "C", "D", "E"], 20);
     });
-    redo(alice);
+    await redo(alice);
     expect([alice, bob, charlie]).toHaveSynchronizedExportedData();
   });
 
-  test("Transform command with preceding concurrent command when previous command is redone", () => {
-    setCellContent(alice, "E10", "hello");
-    addColumns(alice, "before", "F", 3);
-    undo(alice);
-    network.concurrent(() => {
-      addColumns(bob, "before", "B", 2);
+  test("Transform command with preceding concurrent command when previous command is redone", async () => {
+    await setCellContent(alice, "E10", "hello");
+    await addColumns(alice, "before", "F", 3);
+    await undo(alice);
+    await network.concurrent(async () => {
+      await addColumns(bob, "before", "B", 2);
       // Charlie's command should be transformed with Bob's command when Alice redo
       // her command
-      addColumns(charlie, "before", "E", 1);
+      await addColumns(charlie, "before", "E", 1);
     });
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
       (user) => getCellContent(user, "H10"),
       "hello"
     );
-    redo(alice);
+    await redo(alice);
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
       (user) => getCellContent(user, "G10"),
       "hello"
@@ -1077,17 +1077,17 @@ describe("Collaborative local history", () => {
     expect([alice, bob, charlie]).toHaveSynchronizedExportedData();
   });
 
-  test("inverse delete rows then replay the command", () => {
-    deleteRows(bob, [6, 5, 4, 3, 2]);
-    network.concurrent(() => {
-      undo(bob);
-      setCellContent(alice, "C4", "hello");
+  test("inverse delete rows then replay the command", async () => {
+    await deleteRows(bob, [6, 5, 4, 3, 2]);
+    await network.concurrent(async () => {
+      await undo(bob);
+      await setCellContent(alice, "C4", "hello");
     });
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
       (user) => getCellContent(user, "C9"),
       "hello"
     );
-    redo(bob);
+    await redo(bob);
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
       (user) => getCellContent(user, "C4"),
       "hello"
@@ -1095,14 +1095,14 @@ describe("Collaborative local history", () => {
     expect([alice, bob, charlie]).toHaveSynchronizedExportedData();
   });
 
-  test("All locals commands", () => {
-    createSheet(alice, { sheetId: "sheet2" });
-    network.concurrent(() => {
-      undo(alice);
-      setCellContent(bob, "B2", "B2", "sheet2");
-      setCellContent(bob, "A1", "Hello");
+  test("All locals commands", async () => {
+    await createSheet(alice, { sheetId: "sheet2" });
+    await network.concurrent(async () => {
+      await undo(alice);
+      await setCellContent(bob, "B2", "B2", "sheet2");
+      await setCellContent(bob, "A1", "Hello");
     });
-    redo(alice);
+    await redo(alice);
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
       (user) => getCellContent(user, "A1"),
       "Hello"
@@ -1114,101 +1114,101 @@ describe("Collaborative local history", () => {
     expect([alice, bob, charlie]).toHaveSynchronizedExportedData();
   });
 
-  test("redo destroyed command", () => {
-    setCellContent(charlie, "A1", "hi");
-    network.concurrent(() => {
-      deleteRows(bob, [6, 5, 4, 3, 2]);
-      setCellContent(charlie, "C5", "hi");
-      undo(charlie);
+  test("redo destroyed command", async () => {
+    await setCellContent(charlie, "A1", "hi");
+    await network.concurrent(async () => {
+      await deleteRows(bob, [6, 5, 4, 3, 2]);
+      await setCellContent(charlie, "C5", "hi");
+      await undo(charlie);
     });
-    const result = redo(charlie);
+    const result = await redo(charlie);
     expect(result).toBeSuccessfullyDispatched();
     expect([alice, bob, charlie]).toHaveSynchronizedValue((user) => getCell(user, "C5"), undefined);
     expect(all).toHaveSynchronizedExportedData();
   });
 
-  test("can undo/redo command previous to a destroyed command", () => {
-    setCellContent(charlie, "A1", "hello");
-    network.concurrent(() => {
-      deleteRows(bob, [6, 5, 4, 3, 2]);
-      setCellContent(charlie, "C5", "hi");
+  test("can undo/redo command previous to a destroyed command", async () => {
+    await setCellContent(charlie, "A1", "hello");
+    await network.concurrent(async () => {
+      await deleteRows(bob, [6, 5, 4, 3, 2]);
+      await setCellContent(charlie, "C5", "hi");
     });
-    undo(charlie);
+    await undo(charlie);
     expect(all).toHaveSynchronizedValue((user) => getCellContent(user, "A1"), "hello");
     expect(all).toHaveSynchronizedValue((user) => getCell(user, "C5"), undefined);
-    undo(charlie);
+    await undo(charlie);
     expect(all).toHaveSynchronizedValue((user) => getCell(user, "A1"), undefined);
     expect(all).toHaveSynchronizedValue((user) => getCell(user, "C5"), undefined);
-    redo(charlie);
+    await redo(charlie);
     expect(all).toHaveSynchronizedValue((user) => getCellContent(user, "C5"), "");
     expect(all).toHaveSynchronizedValue((user) => getCellContent(user, "A1"), "hello");
     expect(all).toHaveSynchronizedExportedData();
   });
 
-  test("cannot redo command after a destroyed command", () => {
-    setCellContent(charlie, "A1", "hello");
-    undo(charlie);
-    network.concurrent(() => {
-      deleteRows(bob, [6, 5, 4, 3, 2]);
-      setCellContent(charlie, "C5", "hi");
+  test("cannot redo command after a destroyed command", async () => {
+    await setCellContent(charlie, "A1", "hello");
+    await undo(charlie);
+    await network.concurrent(async () => {
+      await deleteRows(bob, [6, 5, 4, 3, 2]);
+      await setCellContent(charlie, "C5", "hi");
     });
 
-    redo(charlie);
+    await redo(charlie);
     expect(all).toHaveSynchronizedExportedData();
   });
 
-  test("undo operation before unfreeze and sheet creation", () => {
+  test("undo operation before unfreeze and sheet creation", async () => {
     const firstSheetId = alice.getters.getActiveSheetId();
-    freezeColumns(alice, 1, firstSheetId);
-    setCellContent(alice, "A1", "hello");
-    unfreezeColumns(charlie, firstSheetId);
+    await freezeColumns(alice, 1, firstSheetId);
+    await setCellContent(alice, "A1", "hello");
+    await unfreezeColumns(charlie, firstSheetId);
     // charlies's active sheet is "sheet2" but "sheet2" does not exists when
     // "UNFREEZE_COLUMNS" is replayed.
-    createSheet(charlie, { sheetId: "sheet2", activate: true });
-    undo(alice);
+    await createSheet(charlie, { sheetId: "sheet2", activate: true });
+    await undo(alice);
     expect(all).toHaveSynchronizedValue((user) => user.getters.getPaneDivisions(firstSheetId), {
       xSplit: 0,
       ySplit: 0,
     });
   });
 
-  test("can repeat command after receiving remote revisions", () => {
-    setCellContent(alice, "A1", "hello there");
-    setCellContent(bob, "A2", "general kenobi");
-    setSelection(alice, ["A3"]);
-    redo(alice);
+  test("can repeat command after receiving remote revisions", async () => {
+    await setCellContent(alice, "A1", "hello there");
+    await setCellContent(bob, "A2", "general kenobi");
+    await setSelection(alice, ["A3"]);
+    await redo(alice);
     expect(all).toHaveSynchronizedValue((user) => getCellContent(user, "A3"), "hello there");
   });
 
-  test("can repeat command concurrently with remote revisions", () => {
-    setCellContent(alice, "A1", "hello there");
-    setSelection(alice, ["A3"]);
-    network.concurrent(() => {
-      setCellContent(bob, "A3", "general kenobi");
-      redo(alice);
+  test("can repeat command concurrently with remote revisions", async () => {
+    await setCellContent(alice, "A1", "hello there");
+    await setSelection(alice, ["A3"]);
+    await network.concurrent(async () => {
+      await setCellContent(bob, "A3", "general kenobi");
+      await redo(alice);
     });
     expect(all).toHaveSynchronizedValue((user) => getCellContent(user, "A3"), "hello there");
   });
 
-  test("Can concurrently hide and delete a sheet", () => {
-    const { network, alice, bob, charlie } = setupCollaborativeEnv();
-    duplicateSheet(charlie, "Sheet1", "duplicateSheetId");
-    network.concurrent(() => {
-      hideSheet(bob, "Sheet1");
-      deleteSheet(charlie, "Sheet1");
+  test("Can concurrently hide and delete a sheet", async () => {
+    const { network, alice, bob, charlie } = await setupCollaborativeEnv();
+    await duplicateSheet(charlie, "Sheet1", "duplicateSheetId");
+    await network.concurrent(async () => {
+      await hideSheet(bob, "Sheet1");
+      await deleteSheet(charlie, "Sheet1");
     });
     expect([alice, bob, charlie]).toHaveSynchronizedExportedData();
   });
 
-  test("rejected new sheet with the same name", () => {
+  test("rejected new sheet with the same name", async () => {
     const name = "Sheet2";
-    createSheet(bob, { name, position: 1, sheetId: "Sheet2" });
-    deleteSheet(bob, "Sheet2");
-    network.concurrent(() => {
-      undo(bob);
+    await createSheet(bob, { name, position: 1, sheetId: "Sheet2" });
+    await deleteSheet(bob, "Sheet2");
+    await network.concurrent(async () => {
+      await undo(bob);
       // this create sheet is rejected because it has a duplicated
       // sheet name
-      createSheet(alice, { name, position: 1, sheetId: "Sheet2bis" });
+      await createSheet(alice, { name, position: 1, sheetId: "Sheet2bis" });
     });
     expect([alice, bob, charlie]).toHaveSynchronizedExportedData();
   });

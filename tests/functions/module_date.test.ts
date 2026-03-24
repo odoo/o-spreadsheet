@@ -1,18 +1,16 @@
-import { Model } from "../../src";
 import { setCellContent, updateLocale } from "../test_helpers/commands_helpers";
 import { FR_LOCALE } from "../test_helpers/constants";
 import { getEvaluatedCell } from "../test_helpers/getters_helpers";
 import {
+  createModel,
   evaluateCell,
   evaluateCellFormat,
   evaluateGrid,
   evaluateGridText,
 } from "../test_helpers/helpers";
-
 // All these tests should pass no matter the machine timezone.
-
 describe("DATE formula", () => {
-  test("functional tests on cell arguments", () => {
+  test("functional tests on cell arguments", async () => {
     // prettier-ignore
     const grid = {
       // YEAR / MONTH / DAY
@@ -46,8 +44,7 @@ describe("DATE formula", () => {
       A29: "=DATE(B29, C29, D29)", B29: "2000"  , C29: "-12" , D29: "-5",
       A30: "=DATE(B30, C30, D30)", B30: "0"     , C30: "-12" , D30: "-5",
     };
-
-    const gridResult = evaluateGridText(grid);
+    const gridResult = await evaluateGridText(grid);
     expect(gridResult.A2).toBe("#ERROR");
     expect(gridResult.A3).toBe("1/1/1900");
     expect(gridResult.A4).toBe("12/5/2028");
@@ -74,8 +71,7 @@ describe("DATE formula", () => {
     expect(gridResult.A29).toBe("11/25/1998");
     expect(gridResult.A30).toBe("#ERROR");
   });
-
-  test("DATE: casting tests on cell arguments", () => {
+  test("DATE: casting tests on cell arguments", async () => {
     // prettier-ignore
     const grid = {
       A33: "=DATE(B33, C33, D33)", B33: "2028", C33:"12", D33:'="5"'  ,
@@ -83,117 +79,110 @@ describe("DATE formula", () => {
       A35: "=DATE(B35, C35, D35)", B35: "TRUE", C35:"12", D35:"TRUE"  ,
       A36: "=DATE(B36, C36, D36)", B36: '="5"', C36:"12", D36:"TRUE"  ,
     };
-
-    const gridResult = evaluateGridText(grid);
+    const gridResult = await evaluateGridText(grid);
     expect(gridResult.A33).toBe("12/5/2028");
     expect(gridResult.A34).toBe("12/1/2028");
     expect(gridResult.A35).toBe("12/1/1901");
     expect(gridResult.A36).toBe("12/1/1905");
   });
-
-  test("return value with formatting", () => {
+  test("return value with formatting", async () => {
     expect(
-      evaluateCellFormat("A1", { A1: "=DATE(B1, C1, D1)", B1: "2028", C1: "12", D1: "5" })
+      await evaluateCellFormat("A1", { A1: "=DATE(B1, C1, D1)", B1: "2028", C1: "12", D1: "5" })
     ).toBe("m/d/yyyy");
   });
-
-  test("Return format is locale dependant", () => {
-    const model = new Model();
-    updateLocale(model, FR_LOCALE);
-    setCellContent(model, "A1", "=DATE(2020, 12, 5)");
+  test("Return format is locale dependant", async () => {
+    const model = await createModel();
+    await updateLocale(model, FR_LOCALE);
+    await setCellContent(model, "A1", "=DATE(2020, 12, 5)");
     expect(getEvaluatedCell(model, "A1").format).toBe(FR_LOCALE.dateFormat);
   });
 });
-
 describe("DATEDIF formula", () => {
-  test("takes 3 arguments", () => {
+  test("takes 3 arguments", async () => {
     // @compatibility: on google sheets, all return #N/A
-    expect(evaluateCell("A1", { A1: "=DATEDIF()" })).toBe("#BAD_EXPR");
-    expect(evaluateCell("A1", { A1: '=DATEDIF("2001/01/01")' })).toBe("#BAD_EXPR");
-    expect(evaluateCell("A1", { A1: '=DATEDIF("2001/01/01","2001/01/02")' })).toBe("#BAD_EXPR");
+    expect(await evaluateCell("A1", { A1: "=DATEDIF()" })).toBe("#BAD_EXPR");
+    expect(await evaluateCell("A1", { A1: '=DATEDIF("2001/01/01")' })).toBe("#BAD_EXPR");
+    expect(await evaluateCell("A1", { A1: '=DATEDIF("2001/01/01","2001/01/02")' })).toBe(
+      "#BAD_EXPR"
+    );
   });
-
-  test("the first two arguments can be functions returning a DATE, or numbers", () => {
-    expect(evaluateCell("A1", { A1: '=DATEDIF("2001/01/01","2001/01/02","D")' })).toBe(1);
-    expect(evaluateCell("A1", { A1: '=DATEDIF("2001-01-01","2001-01-02","D")' })).toBe(1);
+  test("the first two arguments can be functions returning a DATE, or numbers", async () => {
+    expect(await evaluateCell("A1", { A1: '=DATEDIF("2001/01/01","2001/01/02","D")' })).toBe(1);
+    expect(await evaluateCell("A1", { A1: '=DATEDIF("2001-01-01","2001-01-02","D")' })).toBe(1);
     expect(
-      evaluateCell("A1", { A1: '=DATEDIF("2001/01/01 23:10:30","2001/01/02 02:09:31","D")' })
+      await evaluateCell("A1", { A1: '=DATEDIF("2001/01/01 23:10:30","2001/01/02 02:09:31","D")' })
     ).toBe(1);
-    expect(evaluateCell("A1", { A1: '=DATEDIF(Date(2001,1,1),"2001/01/02","D")' })).toBe(1);
-    expect(evaluateCell("A1", { A1: '=DATEDIF("2001/01/01",Date(2001,1,2),"D")' })).toBe(1);
-    expect(evaluateCell("A1", { A1: '=DATEDIF(1,2,"D")' })).toBe(1);
-    expect(evaluateCell("A1", { A1: '=DATEDIF(1.1,1.2,"D")' })).toBe(0);
-    expect(evaluateCell("A1", { A1: '=DATEDIF(FALSE,TRUE,"D")' })).toBe(1);
+    expect(await evaluateCell("A1", { A1: '=DATEDIF(Date(2001,1,1),"2001/01/02","D")' })).toBe(1);
+    expect(await evaluateCell("A1", { A1: '=DATEDIF("2001/01/01",Date(2001,1,2),"D")' })).toBe(1);
+    expect(await evaluateCell("A1", { A1: '=DATEDIF(1,2,"D")' })).toBe(1);
+    expect(await evaluateCell("A1", { A1: '=DATEDIF(1.1,1.2,"D")' })).toBe(0);
+    expect(await evaluateCell("A1", { A1: '=DATEDIF(FALSE,TRUE,"D")' })).toBe(1);
   });
-
-  test("the first two arguments can be references to cells with DATE", () => {
+  test("the first two arguments can be references to cells with DATE", async () => {
     expect(
-      evaluateCell("A3", {
+      await evaluateCell("A3", {
         A1: "=DATE(2002,1,1)",
         A2: "=DATE(2002,1,2)",
         A3: '=DATEDIF(A1,A2,"D")',
       })
     ).toBe(1);
   });
-
-  test("invalid first two arguments", () => {
-    expect(evaluateCell("A1", { A1: '=DATEDIF("ABC","CDE","D")' })).toBe("#ERROR"); // @compatibility: on google sheets, all return #VALUE
+  test("invalid first two arguments", async () => {
+    expect(await evaluateCell("A1", { A1: '=DATEDIF("ABC","CDE","D")' })).toBe("#ERROR"); // @compatibility: on google sheets, all return #VALUE
   });
-
-  test("start_date has to be on or before end_date", () => {
-    expect(evaluateCell("A1", { A1: '=DATEDIF("2001/01/01","2000/12/31","D")' })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM
+  test("start_date has to be on or before end_date", async () => {
+    expect(await evaluateCell("A1", { A1: '=DATEDIF("2001/01/01","2000/12/31","D")' })).toBe(
+      "#ERROR"
+    ); // @compatibility: on google sheets, return #NUM
   });
-
-  test("unit has to be one of the pre-defined units", () => {
-    expect(evaluateCell("A1", { A1: '=DATEDIF("2001/01/01","2001/01/02",123)' })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM
-    expect(evaluateCell("A1", { A1: '=DATEDIF("2001/01/01","2001/01/02","ABC")' })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM
+  test("unit has to be one of the pre-defined units", async () => {
+    expect(await evaluateCell("A1", { A1: '=DATEDIF("2001/01/01","2001/01/02",123)' })).toBe(
+      "#ERROR"
+    ); // @compatibility: on google sheets, return #NUM
+    expect(await evaluateCell("A1", { A1: '=DATEDIF("2001/01/01","2001/01/02","ABC")' })).toBe(
+      "#ERROR"
+    ); // @compatibility: on google sheets, return #NUM
   });
-
-  test("functional tests on units", () => {
-    expect(evaluateCell("A1", { A1: '=DATEDIF("2001/09/15","2003/06/10","D")' })).toBe(633);
-    expect(evaluateCell("A1", { A1: '=DATEDIF("2001/09/15","2003/06/10","M")' })).toBe(20);
-    expect(evaluateCell("A1", { A1: '=DATEDIF("2001/09/15","2003/06/10","Y")' })).toBe(1);
-    expect(evaluateCell("A1", { A1: '=DATEDIF("2001/09/15","2003/06/10","YM")' })).toBe(8);
-    expect(evaluateCell("A1", { A1: '=DATEDIF("2001/09/15","2003/06/10","MD")' })).toBe(26);
-    expect(evaluateCell("A1", { A1: '=DATEDIF("2001/09/15","2003/06/10","YD")' })).toBe(268);
+  test("functional tests on units", async () => {
+    expect(await evaluateCell("A1", { A1: '=DATEDIF("2001/09/15","2003/06/10","D")' })).toBe(633);
+    expect(await evaluateCell("A1", { A1: '=DATEDIF("2001/09/15","2003/06/10","M")' })).toBe(20);
+    expect(await evaluateCell("A1", { A1: '=DATEDIF("2001/09/15","2003/06/10","Y")' })).toBe(1);
+    expect(await evaluateCell("A1", { A1: '=DATEDIF("2001/09/15","2003/06/10","YM")' })).toBe(8);
+    expect(await evaluateCell("A1", { A1: '=DATEDIF("2001/09/15","2003/06/10","MD")' })).toBe(26);
+    expect(await evaluateCell("A1", { A1: '=DATEDIF("2001/09/15","2003/06/10","YD")' })).toBe(268);
   });
 });
-
 describe("DATEVALUE formula", () => {
-  test("functional tests on simple arguments", () => {
-    expect(evaluateCell("A1", { A1: "=DATEVALUE(40931)" })).toBe("#ERROR"); // @compatibility, retrun #VALUE! on Google Sheet
-    expect(evaluateCell("A1", { A1: "=DATEVALUE(1/23/2012)" })).toBe("#ERROR"); // @compatibility, retrun #VALUE! on Google Sheet
-    expect(evaluateCell("A1", { A1: '=DATEVALUE("1/23/2012")' })).toBe(40931);
-    expect(evaluateCell("A1", { A1: '=DATEVALUE("1/23/2012 8:10:30")' })).toBe(40931);
-    expect(evaluateCell("A1", { A1: '=DATEVALUE("2012/1/23")' })).toBe(40931);
-    expect(evaluateCell("A1", { A1: '=DATEVALUE("2012-1-23")' })).toBe(40931);
-    expect(evaluateCell("A1", { A1: '=DATEVALUE("1/23/2012")' })).toBe(40931);
-    expect(evaluateCell("A1", { A1: '=DATEVALUE("13/8/1999")' })).toBe("#ERROR"); // @compatibility, retrun #VALUE! on Google Sheet
+  test("functional tests on simple arguments", async () => {
+    expect(await evaluateCell("A1", { A1: "=DATEVALUE(40931)" })).toBe("#ERROR"); // @compatibility, retrun #VALUE! on Google Sheet
+    expect(await evaluateCell("A1", { A1: "=DATEVALUE(1/23/2012)" })).toBe("#ERROR"); // @compatibility, retrun #VALUE! on Google Sheet
+    expect(await evaluateCell("A1", { A1: '=DATEVALUE("1/23/2012")' })).toBe(40931);
+    expect(await evaluateCell("A1", { A1: '=DATEVALUE("1/23/2012 8:10:30")' })).toBe(40931);
+    expect(await evaluateCell("A1", { A1: '=DATEVALUE("2012/1/23")' })).toBe(40931);
+    expect(await evaluateCell("A1", { A1: '=DATEVALUE("2012-1-23")' })).toBe(40931);
+    expect(await evaluateCell("A1", { A1: '=DATEVALUE("1/23/2012")' })).toBe(40931);
+    expect(await evaluateCell("A1", { A1: '=DATEVALUE("13/8/1999")' })).toBe("#ERROR"); // @compatibility, retrun #VALUE! on Google Sheet
   });
-
-  test("functional tests on cell arguments", () => {
-    expect(evaluateCell("A1", { A1: "=DATEVALUE(A2)", A2: "36380" })).toBe("#ERROR"); // @compatibility, retrun #VALUE! on Google Sheet
-    expect(evaluateCell("A1", { A1: "=DATEVALUE(A2)", A2: "8/8/1999" })).toBe("#ERROR"); // @compatibility, retrun 8/8/1999 on Google Sheet
-    expect(evaluateCell("A1", { A1: "=DATEVALUE(A2)", A2: "13/8/1999" })).toBe("#ERROR"); // @compatibility, retrun #VALUE! on Google Sheet
+  test("functional tests on cell arguments", async () => {
+    expect(await evaluateCell("A1", { A1: "=DATEVALUE(A2)", A2: "36380" })).toBe("#ERROR"); // @compatibility, retrun #VALUE! on Google Sheet
+    expect(await evaluateCell("A1", { A1: "=DATEVALUE(A2)", A2: "8/8/1999" })).toBe("#ERROR"); // @compatibility, retrun 8/8/1999 on Google Sheet
+    expect(await evaluateCell("A1", { A1: "=DATEVALUE(A2)", A2: "13/8/1999" })).toBe("#ERROR"); // @compatibility, retrun #VALUE! on Google Sheet
   });
 });
-
 describe("DAY formula", () => {
-  test("functional tests on simple arguments", () => {
-    expect(evaluateCell("A1", { A1: '=DAY("3/28/2017")' })).toBe(28);
-    expect(evaluateCell("A1", { A1: '=DAY("5/31/2012")' })).toBe(31);
-    expect(evaluateCell("A1", { A1: '=DAY("41060")' })).toBe(31);
-    expect(evaluateCell("A1", { A1: "=DAY(41060)" })).toBe(31);
+  test("functional tests on simple arguments", async () => {
+    expect(await evaluateCell("A1", { A1: '=DAY("3/28/2017")' })).toBe(28);
+    expect(await evaluateCell("A1", { A1: '=DAY("5/31/2012")' })).toBe(31);
+    expect(await evaluateCell("A1", { A1: '=DAY("41060")' })).toBe(31);
+    expect(await evaluateCell("A1", { A1: "=DAY(41060)" })).toBe(31);
   });
-
-  test("functional tests on cell arguments", () => {
-    expect(evaluateCell("A1", { A1: "=DAY(A2)", A2: "5/31/2012" })).toBe(31);
-    expect(evaluateCell("A1", { A1: "=DAY(A2)", A2: "41060" })).toBe(31);
+  test("functional tests on cell arguments", async () => {
+    expect(await evaluateCell("A1", { A1: "=DAY(A2)", A2: "5/31/2012" })).toBe(31);
+    expect(await evaluateCell("A1", { A1: "=DAY(A2)", A2: "41060" })).toBe(31);
   });
 });
-
 describe("DAYS formula", () => {
-  test("functional tests on simple arguments", () => {
+  test("functional tests on simple arguments", async () => {
     const grid = {
       A1: '=DAYS("2/13/2015", "2/23/2014")',
       A2: '=DAYS("7/15/2020", "7/16/2016")',
@@ -203,7 +192,7 @@ describe("DAYS formula", () => {
       A6: '=DAYS("7/16/2017", "7/16/2016")',
       A7: '=DAYS("7/16/2020", "7/16/2019")',
     };
-    const gridResult = evaluateGrid(grid);
+    const gridResult = await evaluateGrid(grid);
     expect(gridResult.A1).toBe(355);
     expect(gridResult.A2).toBe(1460);
     expect(gridResult.A3).toBe(-4008);
@@ -213,16 +202,14 @@ describe("DAYS formula", () => {
     expect(gridResult.A7).toBe(366);
   });
 });
-
 describe("DAYS360 function", () => {
-  test("DAYS360 takes 2-3 arguments", () => {
-    expect(evaluateCell("A1", { A1: "=DAYS360()" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
-    expect(evaluateCell("A1", { A1: "=DAYS360(0)" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
-    expect(evaluateCell("A1", { A1: "=DAYS360(0, 0)" })).toBe(0);
-    expect(evaluateCell("A1", { A1: "=DAYS360(0, 0, 0)" })).toBe(0);
-    expect(evaluateCell("A1", { A1: "=DAYS360(0, 0, 0, 0)" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+  test("DAYS360 takes 2-3 arguments", async () => {
+    expect(await evaluateCell("A1", { A1: "=DAYS360()" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+    expect(await evaluateCell("A1", { A1: "=DAYS360(0)" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+    expect(await evaluateCell("A1", { A1: "=DAYS360(0, 0)" })).toBe(0);
+    expect(await evaluateCell("A1", { A1: "=DAYS360(0, 0, 0)" })).toBe(0);
+    expect(await evaluateCell("A1", { A1: "=DAYS360(0, 0, 0, 0)" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
   });
-
   test.each([
     ["01/30/2006", "12/31/2006", "FALSE", 330],
     ["01/30/2006", "12/01/2006", "FALSE", 301],
@@ -242,17 +229,16 @@ describe("DAYS360 function", () => {
     ["03/31/2008", "04/30/2008", "FALSE", 30],
   ])(
     "function result =DASY360(%s, %s, %s)",
-    (startDate: string, endDate: string, method: string, expectedResult: number) => {
-      const cellValue = evaluateCell("A1", {
+    async (startDate: string, endDate: string, method: string, expectedResult: number) => {
+      const cellValue = await evaluateCell("A1", {
         A1: `=DAYS360("${startDate}", "${endDate}", "${method}")`,
       });
       expect(cellValue).toBeCloseTo(expectedResult, 4);
     }
   );
 });
-
 describe("EDATE formula", () => {
-  test("functional tests on simple arguments", () => {
+  test("functional tests on simple arguments", async () => {
     const grid = {
       A1: '=EDATE("7/20/1969", 0)',
       A2: '=EDATE("7/21/1969", 1)',
@@ -262,7 +248,7 @@ describe("EDATE formula", () => {
       A6: '=EDATE("7/21/1969", 1.9)',
       A7: '=EDATE("12/31/2005", -6)',
     };
-    const gridResult = evaluateGridText(grid);
+    const gridResult = await evaluateGridText(grid);
     expect(gridResult.A1).toBe("7/20/1969");
     expect(gridResult.A2).toBe("8/21/1969");
     expect(gridResult.A3).toBe("5/22/1969");
@@ -271,31 +257,27 @@ describe("EDATE formula", () => {
     expect(gridResult.A6).toBe("8/21/1969");
     expect(gridResult.A7).toBe("6/30/2005");
   });
-
-  test("casting tests on cell arguments", () => {
+  test("casting tests on cell arguments", async () => {
     const grid = {
       A7: '=EDATE("7/21/1969", "1")',
       A8: '=EDATE("7/21/1969", True)',
     };
-    const gridResult = evaluateGridText(grid);
+    const gridResult = await evaluateGridText(grid);
     expect(gridResult.A7).toBe("8/21/1969");
     expect(gridResult.A8).toBe("8/21/1969");
   });
-
-  test("return value with formatting", () => {
-    expect(evaluateCellFormat("A1", { A1: '=EDATE("7/21/1969", 1)' })).toBe("m/d/yyyy");
+  test("return value with formatting", async () => {
+    expect(await evaluateCellFormat("A1", { A1: '=EDATE("7/21/1969", 1)' })).toBe("m/d/yyyy");
   });
-
-  test("Return format is locale dependant", () => {
-    const model = new Model();
-    updateLocale(model, FR_LOCALE);
-    setCellContent(model, "A1", '=EDATE("7/7/1969", 1)');
+  test("Return format is locale dependant", async () => {
+    const model = await createModel();
+    await updateLocale(model, FR_LOCALE);
+    await setCellContent(model, "A1", '=EDATE("7/7/1969", 1)');
     expect(getEvaluatedCell(model, "A1").format).toBe(FR_LOCALE.dateFormat);
   });
 });
-
 describe("EOMONTH formula", () => {
-  test("functional tests on simple arguments", () => {
+  test("functional tests on simple arguments", async () => {
     const grid = {
       A1: '=EOMONTH("7/20/2020", 0)',
       A2: '=EOMONTH("7/21/2020", 1)',
@@ -304,7 +286,7 @@ describe("EOMONTH formula", () => {
       A5: '=EOMONTH("7/24/2020", 1234)',
       A6: '=EOMONTH("7/25/2020", 1.9)',
     };
-    const gridResult = evaluateGridText(grid);
+    const gridResult = await evaluateGridText(grid);
     expect(gridResult.A1).toBe("7/31/2020");
     expect(gridResult.A2).toBe("8/31/2020");
     expect(gridResult.A3).toBe("5/31/2020");
@@ -312,104 +294,93 @@ describe("EOMONTH formula", () => {
     expect(gridResult.A5).toBe("5/31/2123");
     expect(gridResult.A6).toBe("8/31/2020");
   });
-
-  test("casting tests on cell arguments", () => {
+  test("casting tests on cell arguments", async () => {
     const grid = {
       A7: '=EOMONTH("7/21/1920", "1")',
       A8: '=EOMONTH("7/21/2020", True)',
     };
-    const gridResult = evaluateGridText(grid);
+    const gridResult = await evaluateGridText(grid);
     expect(gridResult.A7).toBe("8/31/1920");
     expect(gridResult.A8).toBe("8/31/2020");
   });
-
-  test("return value with formatting", () => {
-    expect(evaluateCellFormat("A1", { A1: '=EOMONTH("7/20/2020", 0)' })).toBe("m/d/yyyy");
+  test("return value with formatting", async () => {
+    expect(await evaluateCellFormat("A1", { A1: '=EOMONTH("7/20/2020", 0)' })).toBe("m/d/yyyy");
   });
-
-  test("Return format is locale dependant", () => {
-    const model = new Model();
-    updateLocale(model, FR_LOCALE);
-    setCellContent(model, "A1", '=EOMONTH("7/7/2020", 0)');
+  test("Return format is locale dependant", async () => {
+    const model = await createModel();
+    await updateLocale(model, FR_LOCALE);
+    await setCellContent(model, "A1", '=EOMONTH("7/7/2020", 0)');
     expect(getEvaluatedCell(model, "A1").format).toBe(FR_LOCALE.dateFormat);
   });
 });
-
 describe("HOUR formula", () => {
-  test("functional tests on simple arguments", () => {
-    expect(evaluateCell("A1", { A1: '=HOUR("11:23:13")' })).toBe(11);
-    expect(evaluateCell("A1", { A1: '=HOUR("2020 12 12 23:40:12")' })).toBe(23);
-    expect(evaluateCell("A1", { A1: '=HOUR("3:00")' })).toBe(3);
-    expect(evaluateCell("A1", { A1: '=HOUR("2015 01 01")' })).toBe(0);
-    expect(evaluateCell("A1", { A1: "=HOUR(0.125)" })).toBe(3);
-    expect(evaluateCell("A1", { A1: "=HOUR(12345.125)" })).toBe(3);
+  test("functional tests on simple arguments", async () => {
+    expect(await evaluateCell("A1", { A1: '=HOUR("11:23:13")' })).toBe(11);
+    expect(await evaluateCell("A1", { A1: '=HOUR("2020 12 12 23:40:12")' })).toBe(23);
+    expect(await evaluateCell("A1", { A1: '=HOUR("3:00")' })).toBe(3);
+    expect(await evaluateCell("A1", { A1: '=HOUR("2015 01 01")' })).toBe(0);
+    expect(await evaluateCell("A1", { A1: "=HOUR(0.125)" })).toBe(3);
+    expect(await evaluateCell("A1", { A1: "=HOUR(12345.125)" })).toBe(3);
   });
-
-  test("functional tests on cell arguments", () => {
-    expect(evaluateCell("A1", { A1: "=HOUR(A2)", A2: "11:23:13" })).toBe(11);
-    expect(evaluateCell("A1", { A1: "=HOUR(A2)", A2: "2020 12 12 23:40:12" })).toBe(23);
-    expect(evaluateCell("A1", { A1: "=HOUR(A2)", A2: "0.25" })).toBe(6);
-    expect(evaluateCell("A1", { A1: "=HOUR(A2)", A2: "54321.5" })).toBe(12);
+  test("functional tests on cell arguments", async () => {
+    expect(await evaluateCell("A1", { A1: "=HOUR(A2)", A2: "11:23:13" })).toBe(11);
+    expect(await evaluateCell("A1", { A1: "=HOUR(A2)", A2: "2020 12 12 23:40:12" })).toBe(23);
+    expect(await evaluateCell("A1", { A1: "=HOUR(A2)", A2: "0.25" })).toBe(6);
+    expect(await evaluateCell("A1", { A1: "=HOUR(A2)", A2: "54321.5" })).toBe(12);
   });
 });
-
 describe("ISOWEEKNUM formula", () => {
-  test("functional tests on cell arguments", () => {
-    expect(evaluateCell("A1", { A1: "=ISOWEEKNUM(A2)", A2: "1/1/2016" })).toBe(53);
-    expect(evaluateCell("A1", { A1: "=ISOWEEKNUM(A2)", A2: "1/3/2016" })).toBe(53);
-    expect(evaluateCell("A1", { A1: "=ISOWEEKNUM(A2)", A2: "1/4/2016" })).toBe(1);
-    expect(evaluateCell("A1", { A1: "=ISOWEEKNUM(A2)", A2: "1/1/2017" })).toBe(52);
-    expect(evaluateCell("A1", { A1: "=ISOWEEKNUM(A2)", A2: "1/2/2017" })).toBe(1);
-    expect(evaluateCell("A1", { A1: "=ISOWEEKNUM(A2)", A2: "1/1/2018" })).toBe(1);
-    expect(evaluateCell("A1", { A1: "=ISOWEEKNUM(A2)", A2: "1/7/2018" })).toBe(1);
-    expect(evaluateCell("A1", { A1: "=ISOWEEKNUM(A2)", A2: "1/8/2018" })).toBe(2);
-    expect(evaluateCell("A1", { A1: "=ISOWEEKNUM(A2)", A2: "1/1/2020" })).toBe(1);
-    expect(evaluateCell("A1", { A1: "=ISOWEEKNUM(A2)", A2: "1/5/2020" })).toBe(1);
-    expect(evaluateCell("A1", { A1: "=ISOWEEKNUM(A2)", A2: "1/6/2020" })).toBe(2);
-    expect(evaluateCell("A1", { A1: "=ISOWEEKNUM(A2)", A2: "1/1/2021" })).toBe(53);
-    expect(evaluateCell("A1", { A1: "=ISOWEEKNUM(A2)", A2: "1/3/2021" })).toBe(53);
-    expect(evaluateCell("A1", { A1: "=ISOWEEKNUM(A2)", A2: "1/4/2021" })).toBe(1);
+  test("functional tests on cell arguments", async () => {
+    expect(await evaluateCell("A1", { A1: "=ISOWEEKNUM(A2)", A2: "1/1/2016" })).toBe(53);
+    expect(await evaluateCell("A1", { A1: "=ISOWEEKNUM(A2)", A2: "1/3/2016" })).toBe(53);
+    expect(await evaluateCell("A1", { A1: "=ISOWEEKNUM(A2)", A2: "1/4/2016" })).toBe(1);
+    expect(await evaluateCell("A1", { A1: "=ISOWEEKNUM(A2)", A2: "1/1/2017" })).toBe(52);
+    expect(await evaluateCell("A1", { A1: "=ISOWEEKNUM(A2)", A2: "1/2/2017" })).toBe(1);
+    expect(await evaluateCell("A1", { A1: "=ISOWEEKNUM(A2)", A2: "1/1/2018" })).toBe(1);
+    expect(await evaluateCell("A1", { A1: "=ISOWEEKNUM(A2)", A2: "1/7/2018" })).toBe(1);
+    expect(await evaluateCell("A1", { A1: "=ISOWEEKNUM(A2)", A2: "1/8/2018" })).toBe(2);
+    expect(await evaluateCell("A1", { A1: "=ISOWEEKNUM(A2)", A2: "1/1/2020" })).toBe(1);
+    expect(await evaluateCell("A1", { A1: "=ISOWEEKNUM(A2)", A2: "1/5/2020" })).toBe(1);
+    expect(await evaluateCell("A1", { A1: "=ISOWEEKNUM(A2)", A2: "1/6/2020" })).toBe(2);
+    expect(await evaluateCell("A1", { A1: "=ISOWEEKNUM(A2)", A2: "1/1/2021" })).toBe(53);
+    expect(await evaluateCell("A1", { A1: "=ISOWEEKNUM(A2)", A2: "1/3/2021" })).toBe(53);
+    expect(await evaluateCell("A1", { A1: "=ISOWEEKNUM(A2)", A2: "1/4/2021" })).toBe(1);
   });
 });
-
 describe("MINUTE formula", () => {
-  test("functional tests on simple arguments", () => {
-    expect(evaluateCell("A1", { A1: '=MINUTE("11:23:13")' })).toBe(23);
-    expect(evaluateCell("A1", { A1: '=MINUTE("2020 12 12 23:40:12")' })).toBe(40);
-    expect(evaluateCell("A1", { A1: '=MINUTE("0:21")' })).toBe(21);
-    expect(evaluateCell("A1", { A1: '=MINUTE("2015 01 01")' })).toBe(0);
-    expect(evaluateCell("A1", { A1: "=MINUTE(0.126)" })).toBe(1);
-    expect(evaluateCell("A1", { A1: "=MINUTE(12345.129)" })).toBe(5);
+  test("functional tests on simple arguments", async () => {
+    expect(await evaluateCell("A1", { A1: '=MINUTE("11:23:13")' })).toBe(23);
+    expect(await evaluateCell("A1", { A1: '=MINUTE("2020 12 12 23:40:12")' })).toBe(40);
+    expect(await evaluateCell("A1", { A1: '=MINUTE("0:21")' })).toBe(21);
+    expect(await evaluateCell("A1", { A1: '=MINUTE("2015 01 01")' })).toBe(0);
+    expect(await evaluateCell("A1", { A1: "=MINUTE(0.126)" })).toBe(1);
+    expect(await evaluateCell("A1", { A1: "=MINUTE(12345.129)" })).toBe(5);
   });
-
-  test("functional tests on cell arguments", () => {
-    expect(evaluateCell("A1", { A1: "=MINUTE(A2)", A2: "11:23:13" })).toBe(23);
-    expect(evaluateCell("A1", { A1: "=MINUTE(A2)", A2: "2020 12 12 23:40:12" })).toBe(40);
-    expect(evaluateCell("A1", { A1: "=MINUTE(A2)", A2: "0.2532" })).toBe(4);
-    expect(evaluateCell("A1", { A1: "=MINUTE(A2)", A2: "54321.789" })).toBe(56);
+  test("functional tests on cell arguments", async () => {
+    expect(await evaluateCell("A1", { A1: "=MINUTE(A2)", A2: "11:23:13" })).toBe(23);
+    expect(await evaluateCell("A1", { A1: "=MINUTE(A2)", A2: "2020 12 12 23:40:12" })).toBe(40);
+    expect(await evaluateCell("A1", { A1: "=MINUTE(A2)", A2: "0.2532" })).toBe(4);
+    expect(await evaluateCell("A1", { A1: "=MINUTE(A2)", A2: "54321.789" })).toBe(56);
   });
 });
-
 describe("MONTH formula", () => {
-  test("functional tests on cell arguments", () => {
-    expect(evaluateCell("A1", { A1: "=MONTH(A2)", A2: "1/2/1954" })).toBe(1);
-    expect(evaluateCell("A1", { A1: "=MONTH(A2)", A2: "5/13/1954" })).toBe(5);
-    expect(evaluateCell("A1", { A1: "=MONTH(A2)", A2: "43964" })).toBe(5); // 43964 corespond to 5/13/195
-    expect(evaluateCell("A1", { A1: "=MONTH(A2)", A2: "0" })).toBe(12); // 0 corespond to 12/30/1899
-    expect(evaluateCell("A1", { A1: "=MONTH(A2)", A2: "1" })).toBe(12); // 1 corespond to 12/31/1899
-    expect(evaluateCell("A1", { A1: "=MONTH(A2)", A2: "2" })).toBe(1); // 2 corespond to 1/1/1900
-    expect(evaluateCell("A1", { A1: "=MONTH(A2)", A2: '="43964"' })).toBe(5);
-    expect(evaluateCell("A1", { A1: "=MONTH(A2)", A2: "TRUE" })).toBe(12);
+  test("functional tests on cell arguments", async () => {
+    expect(await evaluateCell("A1", { A1: "=MONTH(A2)", A2: "1/2/1954" })).toBe(1);
+    expect(await evaluateCell("A1", { A1: "=MONTH(A2)", A2: "5/13/1954" })).toBe(5);
+    expect(await evaluateCell("A1", { A1: "=MONTH(A2)", A2: "43964" })).toBe(5); // 43964 corespond to 5/13/195
+    expect(await evaluateCell("A1", { A1: "=MONTH(A2)", A2: "0" })).toBe(12); // 0 corespond to 12/30/1899
+    expect(await evaluateCell("A1", { A1: "=MONTH(A2)", A2: "1" })).toBe(12); // 1 corespond to 12/31/1899
+    expect(await evaluateCell("A1", { A1: "=MONTH(A2)", A2: "2" })).toBe(1); // 2 corespond to 1/1/1900
+    expect(await evaluateCell("A1", { A1: "=MONTH(A2)", A2: '="43964"' })).toBe(5);
+    expect(await evaluateCell("A1", { A1: "=MONTH(A2)", A2: "TRUE" })).toBe(12);
   });
 });
-
 describe("NETWORKDAYS formula", () => {
-  test("functional tests on cell arguments", () => {
+  test("functional tests on cell arguments", async () => {
     // prettier-ignore
     const grid = {
       A1: "1/1/2013",  A2: "1/21/2013", A3: "2/18/2013",   A4: "5/27/2013",
       A5: "1/21/2013", A6: "1/12/2013", A7: "Hello there", A8: "1/1/2015",
-
       A15: "1/1/2013", B15: "2/1/2013", C15: "=NETWORKDAYS(A15,B15)",
       A16: "1/1/2013", B16: "2/1/2013", C16: "=NETWORKDAYS(A16,B16,A1:A5)",
       A17: "3/1/2013", B17: "7/1/2013", C17: '=NETWORKDAYS("3/1/2013","7/1/2013",A1:A5)',
@@ -421,8 +392,7 @@ describe("NETWORKDAYS formula", () => {
       A23: "1/1/2013", B23: "2/1/2013", C23: "=NETWORKDAYS(A23,B23,A6)",
       A24: "1/1/2013", B24: "2/1/2013", C24: "=NETWORKDAYS(A24,B24,A8)",
     };
-    const gridResult = evaluateGrid(grid);
-
+    const gridResult = await evaluateGrid(grid);
     expect(gridResult.C15).toBe(24);
     expect(gridResult.C16).toBe(22);
     expect(gridResult.C17).toBe(86);
@@ -435,9 +405,8 @@ describe("NETWORKDAYS formula", () => {
     expect(gridResult.C24).toBe(24);
   });
 });
-
 describe("NETWORKDAYS.INTL formula", () => {
-  test("functional tests on cell arguments, string method", () => {
+  test("functional tests on cell arguments, string method", async () => {
     // prettier-ignore
     const grid = {
       B2:  "5/4/2020", C2:  "5/17/2020", D2:  "=NETWORKDAYS.INTL(B2, C2)",
@@ -453,7 +422,6 @@ describe("NETWORKDAYS.INTL formula", () => {
       B12: "5/4/2020", C12: "5/17/2020", D12: '=NETWORKDAYS.INTL(B12, C12, "1000211")',
                        C13: "5/17/2020", D13: '=NETWORKDAYS.INTL(B13, C13, "0000000")',
       B14: "5/4/2020",                   D14: '=NETWORKDAYS.INTL(B14, C14, "0000000")',
-
       B75: "5/4/2020", C75: "5/17/2020", D75: '=NETWORKDAYS.INTL(B75, C75, "0000000")',
       B76: "5/4/2020", C76: "5/8/2020" , D76: '=NETWORKDAYS.INTL(B76, C76, "0000011")',
       B77: "5/9/2020", C77: "5/10/2020", D77: '=NETWORKDAYS.INTL(B77, C77, "0000011")',
@@ -463,9 +431,8 @@ describe("NETWORKDAYS.INTL formula", () => {
       B81: "5/8/2020", C81: "5/11/2020", D81: '=NETWORKDAYS.INTL(B81, C81, "1000111")',
       B82: "5/7/2020", C82: "5/7/2020" , D82: '=NETWORKDAYS.INTL(B82, C82, "1110111")',
       B83: "5/8/2020", C83: "5/12/2020", D83: '=NETWORKDAYS.INTL(B83, C83, "1110111")',
-
     };
-    const gridResult = evaluateGrid(grid);
+    const gridResult = await evaluateGrid(grid);
     expect(gridResult.D2).toBe(10);
     expect(gridResult.D3).toBe("#ERROR"); // @compatibility on Google Sheets, return  #NUM!
     expect(gridResult.D4).toBe("#ERROR"); // @compatibility on Google Sheets, return  #NUM!
@@ -480,7 +447,6 @@ describe("NETWORKDAYS.INTL formula", () => {
     // To do:
     //expect(gridResult.D13).toBe(43969);
     //expect(gridResult.D14).toBe(-43956);
-
     expect(gridResult.D75).toBe(14);
     expect(gridResult.D76).toBe(5);
     expect(gridResult.D77).toBe(0);
@@ -491,8 +457,7 @@ describe("NETWORKDAYS.INTL formula", () => {
     expect(gridResult.D82).toBe(1);
     expect(gridResult.D83).toBe(0);
   });
-
-  test("functional tests on cell arguments, number method", () => {
+  test("functional tests on cell arguments, number method", async () => {
     // prettier-ignore
     const grid = {
       B18: "5/4/2020",  C18: "5/17/2020", D18: '=NETWORKDAYS.INTL(B18, C18, 0)',
@@ -511,7 +476,6 @@ describe("NETWORKDAYS.INTL formula", () => {
       B31: "5/15/2020", C31: "5/16/2020", D31: '=NETWORKDAYS.INTL(B31, C31, 7)',
       B32: "5/16/2020", C32: "5/17/2020", D32: '=NETWORKDAYS.INTL(B32, C32, 7)',
       B33: "5/16/2020", C33: "5/17/2020", D33: '=NETWORKDAYS.INTL(B33, C33, 8)',
-
       B39: "5/4/2020",  C39: "5/17/2020", D39: '=NETWORKDAYS.INTL(B39, C39, 10)',
       B40: "5/9/2020",  C40: "5/9/2020" , D40: '=NETWORKDAYS.INTL(B40, C40, 11)',
       B41: "5/10/2020", C41: "5/10/2020", D41: '=NETWORKDAYS.INTL(B41, C41, 11)',
@@ -529,7 +493,7 @@ describe("NETWORKDAYS.INTL formula", () => {
       B53: "5/16/2020", C53: "5/16/2020", D53: '=NETWORKDAYS.INTL(B53, C53, 17)',
       B54: "5/16/2020", C54: "5/16/2020", D54: '=NETWORKDAYS.INTL(B54, C54, 18)',
     };
-    const gridResult = evaluateGrid(grid);
+    const gridResult = await evaluateGrid(grid);
     expect(gridResult.D18).toBe("#ERROR"); // @compatibility on Google Sheets, return  #NUM!
     expect(gridResult.D19).toBe(0);
     expect(gridResult.D20).toBe(1);
@@ -546,7 +510,6 @@ describe("NETWORKDAYS.INTL formula", () => {
     expect(gridResult.D31).toBe(0);
     expect(gridResult.D32).toBe(1);
     expect(gridResult.D33).toBe("#ERROR"); // @compatibility on Google Sheets, return  #NUM!
-
     expect(gridResult.D39).toBe("#ERROR"); // @compatibility on Google Sheets, return  #NUM!
     expect(gridResult.D40).toBe(1);
     expect(gridResult.D41).toBe(0);
@@ -564,8 +527,7 @@ describe("NETWORKDAYS.INTL formula", () => {
     expect(gridResult.D53).toBe(0);
     expect(gridResult.D54).toBe("#ERROR"); // @compatibility on Google Sheets, return  #NUM!
   });
-
-  test("casting tests on cell arguments", () => {
+  test("casting tests on cell arguments", async () => {
     // prettier-ignore
     const grid = {
       B68: "5/4/2020",  C68: "5/17/2020", D68: '=NETWORKDAYS.INTL(B68, C68, 1110111)',
@@ -574,7 +536,7 @@ describe("NETWORKDAYS.INTL formula", () => {
       B71: "5/11/2020", C71: "5/12/2020", D71: '=NETWORKDAYS.INTL(B71, C71, A71)',
       B72: "5/11/2020", C72: "5/17/2020", D72: '=NETWORKDAYS.INTL(B72, C72)',
     };
-    const gridResult = evaluateGrid(grid);
+    const gridResult = await evaluateGrid(grid);
     expect(gridResult.D68).toBe("#ERROR"); // @compatibility on Google Sheets, return  #NUM!
     expect(gridResult.D69).toBe("#ERROR"); // @compatibility on Google Sheets, return  #NUM!
     expect(gridResult.D70).toBe("#ERROR"); // @compatibility on Google Sheets, return  #NUM!
@@ -582,50 +544,43 @@ describe("NETWORKDAYS.INTL formula", () => {
     expect(gridResult.D72).toBe(5);
   });
 });
-
 describe("NOW formula", () => {
   const MockDate = require("mockdate");
-
   test("functional tests on simple arguments", async () => {
     MockDate.set(new Date(2042, 3, 2, 4, 7, 30, 999));
-    expect(evaluateCell("A1", { A1: "=NOW()" })).toBe(51958.171875);
+    expect(await evaluateCell("A1", { A1: "=NOW()" })).toBe(51958.171875);
     MockDate.reset();
   });
-
   test("return value with formatting", async () => {
     MockDate.set(new Date(2042, 3, 2, 4, 7, 30, 999));
-    expect(evaluateCellFormat("A1", { A1: "=NOW()" })).toBe("m/d/yyyy hh:mm:ss a");
+    expect(await evaluateCellFormat("A1", { A1: "=NOW()" })).toBe("m/d/yyyy hh:mm:ss a");
     MockDate.reset();
   });
-
-  test("Return format is locale dependant", () => {
-    const model = new Model();
-    updateLocale(model, FR_LOCALE);
-    setCellContent(model, "A1", "=NOW()");
+  test("Return format is locale dependant", async () => {
+    const model = await createModel();
+    await updateLocale(model, FR_LOCALE);
+    await setCellContent(model, "A1", "=NOW()");
     expect(getEvaluatedCell(model, "A1").format).toBe("dd/mm/yyyy hh:mm:ss");
   });
 });
-
 describe("SECOND formula", () => {
-  test("functional tests on simple arguments", () => {
-    expect(evaluateCell("A1", { A1: '=SECOND("11:23:13")' })).toBe(13);
-    expect(evaluateCell("A1", { A1: '=SECOND("2020 12 12 23:40:12")' })).toBe(12);
-    expect(evaluateCell("A1", { A1: '=SECOND("0:21:42")' })).toBe(42);
-    expect(evaluateCell("A1", { A1: '=SECOND("2015 01 01")' })).toBe(0);
-    expect(evaluateCell("A1", { A1: "=SECOND(0.126)" })).toBe(26);
-    expect(evaluateCell("A1", { A1: "=SECOND(12345.129)" })).toBe(46);
+  test("functional tests on simple arguments", async () => {
+    expect(await evaluateCell("A1", { A1: '=SECOND("11:23:13")' })).toBe(13);
+    expect(await evaluateCell("A1", { A1: '=SECOND("2020 12 12 23:40:12")' })).toBe(12);
+    expect(await evaluateCell("A1", { A1: '=SECOND("0:21:42")' })).toBe(42);
+    expect(await evaluateCell("A1", { A1: '=SECOND("2015 01 01")' })).toBe(0);
+    expect(await evaluateCell("A1", { A1: "=SECOND(0.126)" })).toBe(26);
+    expect(await evaluateCell("A1", { A1: "=SECOND(12345.129)" })).toBe(46);
   });
-
-  test("functional tests on cell arguments", () => {
-    expect(evaluateCell("A1", { A1: "=SECOND(A2)", A2: "11:23:13" })).toBe(13);
-    expect(evaluateCell("A1", { A1: "=SECOND(A2)", A2: "2020 12 12 23:40:12" })).toBe(12);
-    expect(evaluateCell("A1", { A1: "=SECOND(A2)", A2: "0.2532" })).toBe(36);
-    expect(evaluateCell("A1", { A1: "=SECOND(A2)", A2: "54321.789" })).toBe(10);
+  test("functional tests on cell arguments", async () => {
+    expect(await evaluateCell("A1", { A1: "=SECOND(A2)", A2: "11:23:13" })).toBe(13);
+    expect(await evaluateCell("A1", { A1: "=SECOND(A2)", A2: "2020 12 12 23:40:12" })).toBe(12);
+    expect(await evaluateCell("A1", { A1: "=SECOND(A2)", A2: "0.2532" })).toBe(36);
+    expect(await evaluateCell("A1", { A1: "=SECOND(A2)", A2: "54321.789" })).toBe(10);
   });
 });
-
 describe("TIME formula", () => {
-  test("functional tests on cell arguments", () => {
+  test("functional tests on cell arguments", async () => {
     // prettier-ignore
     const grid = {
       A1:   "=TIME(B1,  C1,   D1 )",  B1:  "9",  C1:  "11",  D1:  "31",
@@ -640,8 +595,7 @@ describe("TIME formula", () => {
       A10:  "=TIME(B10, C10,  D10 )", B10: "14", C10: "-5",  D10: "-59",
       A11:  "=TIME(B11, C11,  D11 )", B11: "1",  C11: "-61", D11: "-61",
     };
-
-    const gridResult = evaluateGridText(grid);
+    const gridResult = await evaluateGridText(grid);
     expect(gridResult.A1).toBe("09:11:31 AM"); // @compatibility on Google Sheet return 9:11:31 AM
     expect(gridResult.A2).toBe("02:59:59 PM"); // @compatibility on Google Sheet return 2:59:59 PM
     expect(gridResult.A3).toBe("02:00:00 AM"); // @compatibility on Google Sheet return 2:00:00 AM
@@ -654,58 +608,55 @@ describe("TIME formula", () => {
     expect(gridResult.A10).toBe("01:54:01 PM"); // @compatibility on Google Sheet return 1:54:01 PM
     expect(gridResult.A11).toBe("#ERROR"); // @compatibility on Google Sheets, return  #NUM!
   });
-
   test("return value with formatting", async () => {
-    expect(evaluateCellFormat("A1", { A1: "=TIME(9, 11, 31)" })).toBe("hh:mm:ss a");
+    expect(await evaluateCellFormat("A1", { A1: "=TIME(9, 11, 31)" })).toBe("hh:mm:ss a");
   });
-
-  test("Return format is locale dependant", () => {
-    const model = new Model();
-    updateLocale(model, FR_LOCALE);
-    setCellContent(model, "A1", "=TIME(9, 9, 9)");
+  test("Return format is locale dependant", async () => {
+    const model = await createModel();
+    await updateLocale(model, FR_LOCALE);
+    await setCellContent(model, "A1", "=TIME(9, 9, 9)");
     expect(getEvaluatedCell(model, "A1").format).toBe(FR_LOCALE.timeFormat);
   });
 });
-
 describe("TIMEVALUE formula", () => {
-  test("functional tests on simple arguments", () => {
-    expect(evaluateCell("A1", { A1: "=TIMEVALUE(40931.5678)" })).toBe("#ERROR"); // @compatibility, retrun #VALUE! on Google Sheet
-    expect(evaluateCell("A1", { A1: "=TIMEVALUE(1/23/2012)" })).toBe("#ERROR"); // @compatibility, retrun #VALUE! on Google Sheet
-    expect(evaluateCell("A1", { A1: '=TIMEVALUE("1/23/2012")' })).toBe(0);
-    expect(evaluateCell("A1", { A1: '=TIMEVALUE("1/23/2012 12:09:00")' })).toBeCloseTo(0.50625, 5);
-    expect(evaluateCell("A1", { A1: '=TIMEVALUE("1899 10 08 18:00")' })).toBe(0.75);
+  test("functional tests on simple arguments", async () => {
+    expect(await evaluateCell("A1", { A1: "=TIMEVALUE(40931.5678)" })).toBe("#ERROR"); // @compatibility, retrun #VALUE! on Google Sheet
+    expect(await evaluateCell("A1", { A1: "=TIMEVALUE(1/23/2012)" })).toBe("#ERROR"); // @compatibility, retrun #VALUE! on Google Sheet
+    expect(await evaluateCell("A1", { A1: '=TIMEVALUE("1/23/2012")' })).toBe(0);
+    expect(await evaluateCell("A1", { A1: '=TIMEVALUE("1/23/2012 12:09:00")' })).toBeCloseTo(
+      0.50625,
+      5
+    );
+    expect(await evaluateCell("A1", { A1: '=TIMEVALUE("1899 10 08 18:00")' })).toBe(0.75);
   });
-
-  test("functional tests on cell arguments", () => {
-    expect(evaluateCell("A1", { A1: "=TIMEVALUE(A2)", A2: "36380.5678" })).toBe("#ERROR"); // @compatibility, retrun #VALUE! on Google Sheet
-    expect(evaluateCell("A1", { A1: "=TIMEVALUE(A2)", A2: "8/8/1999 12:09:00" })).toBe("#ERROR"); // @compatibility, retrun 8/8/1999 on Google Sheet
+  test("functional tests on cell arguments", async () => {
+    expect(await evaluateCell("A1", { A1: "=TIMEVALUE(A2)", A2: "36380.5678" })).toBe("#ERROR"); // @compatibility, retrun #VALUE! on Google Sheet
+    expect(await evaluateCell("A1", { A1: "=TIMEVALUE(A2)", A2: "8/8/1999 12:09:00" })).toBe(
+      "#ERROR"
+    ); // @compatibility, retrun 8/8/1999 on Google Sheet
   });
 });
-
 describe("TODAY formula", () => {
   const MockDate = require("mockdate");
   test("functional tests on simple arguments", async () => {
     MockDate.set(new Date(2042, 3, 2, 4, 7, 30, 999));
-    expect(evaluateCell("A1", { A1: "=TODAY()" })).toBe(51958);
+    expect(await evaluateCell("A1", { A1: "=TODAY()" })).toBe(51958);
     MockDate.reset();
   });
-
   test("return value with formatting", async () => {
     MockDate.set(new Date(2042, 3, 2, 4, 7, 30, 999));
-    expect(evaluateCellFormat("A1", { A1: "=TODAY()" })).toBe("m/d/yyyy");
+    expect(await evaluateCellFormat("A1", { A1: "=TODAY()" })).toBe("m/d/yyyy");
     MockDate.reset();
   });
-
-  test("Return format is locale dependant", () => {
-    const model = new Model();
-    updateLocale(model, FR_LOCALE);
-    setCellContent(model, "A1", "=TODAY()");
+  test("Return format is locale dependant", async () => {
+    const model = await createModel();
+    await updateLocale(model, FR_LOCALE);
+    await setCellContent(model, "A1", "=TODAY()");
     expect(getEvaluatedCell(model, "A1").format).toBe(FR_LOCALE.dateFormat);
   });
 });
-
 describe("WEEKDAY formula", () => {
-  test("functional tests on cell arguments, option 1", () => {
+  test("functional tests on cell arguments, option 1", async () => {
     // prettier-ignore
     const grid = {
       A3: "1/1/2020", B3: "1", C3: "=WEEKDAY(A3,B3)",
@@ -716,7 +667,7 @@ describe("WEEKDAY formula", () => {
       A8: "1/6/2020", B8: "1", C8: "=WEEKDAY(A8,B8)",
       A9: "1/7/2020", B9: "1", C9: "=WEEKDAY(A9,B9)",
     };
-    const gridResult = evaluateGrid(grid);
+    const gridResult = await evaluateGrid(grid);
     expect(gridResult.C3).toBe(4);
     expect(gridResult.C4).toBe(5);
     expect(gridResult.C5).toBe(6);
@@ -725,8 +676,7 @@ describe("WEEKDAY formula", () => {
     expect(gridResult.C8).toBe(2);
     expect(gridResult.C9).toBe(3);
   });
-
-  test("functional tests on cell arguments, option 2", () => {
+  test("functional tests on cell arguments, option 2", async () => {
     // prettier-ignore
     const grid = {
       A11: "1/1/2020", B11: "2", C11: "=WEEKDAY(A11,B11)",
@@ -737,7 +687,7 @@ describe("WEEKDAY formula", () => {
       A16: "1/6/2020", B16: "2", C16: "=WEEKDAY(A16,B16)",
       A17: "1/7/2020", B17: "2", C17: "=WEEKDAY(A17,B17)",
     };
-    const gridResult = evaluateGrid(grid);
+    const gridResult = await evaluateGrid(grid);
     expect(gridResult.C11).toBe(3);
     expect(gridResult.C12).toBe(4);
     expect(gridResult.C13).toBe(5);
@@ -746,8 +696,7 @@ describe("WEEKDAY formula", () => {
     expect(gridResult.C16).toBe(1);
     expect(gridResult.C17).toBe(2);
   });
-
-  test("functional tests on cell arguments, option 3", () => {
+  test("functional tests on cell arguments, option 3", async () => {
     // prettier-ignore
     const grid = {
       A19: "1/1/2020", B19: "3", C19: "=WEEKDAY(A19,B19)",
@@ -758,7 +707,7 @@ describe("WEEKDAY formula", () => {
       A24: "1/6/2020", B24: "3", C24: "=WEEKDAY(A24,B24)",
       A25: "1/7/2020", B25: "3", C25: "=WEEKDAY(A25,B25)",
     };
-    const gridResult = evaluateGrid(grid);
+    const gridResult = await evaluateGrid(grid);
     expect(gridResult.C19).toBe(2);
     expect(gridResult.C20).toBe(3);
     expect(gridResult.C21).toBe(4);
@@ -767,7 +716,6 @@ describe("WEEKDAY formula", () => {
     expect(gridResult.C24).toBe(0);
     expect(gridResult.C25).toBe(1);
   });
-
   test.each([
     [11, [1, 2, 3, 4, 5, 6, 7]],
     [12, [7, 1, 2, 3, 4, 5, 6]],
@@ -776,7 +724,7 @@ describe("WEEKDAY formula", () => {
     [15, [4, 5, 6, 7, 1, 2, 3]],
     [16, [3, 4, 5, 6, 7, 1, 2]],
     [17, [2, 3, 4, 5, 6, 7, 1]],
-  ])("functional tests on other type", (type, results) => {
+  ])("functional tests on other type", async (type, results) => {
     const grid = {
       A1: "08/11/2025", // This date is a Monday
       A2: "08/12/2025", // This date is a Tuesday
@@ -793,7 +741,7 @@ describe("WEEKDAY formula", () => {
       C6: `=WEEKDAY(A6,${type})`,
       C7: `=WEEKDAY(A7,${type})`,
     };
-    const gridResult = evaluateGrid(grid);
+    const gridResult = await evaluateGrid(grid);
     expect(gridResult.C1).toBe(results[0]);
     expect(gridResult.C2).toBe(results[1]);
     expect(gridResult.C3).toBe(results[2]);
@@ -803,9 +751,8 @@ describe("WEEKDAY formula", () => {
     expect(gridResult.C7).toBe(results[6]);
   });
 });
-
 describe("WEEKNUM formula", () => {
-  test("functional tests on cell arguments", () => {
+  test("functional tests on cell arguments", async () => {
     // prettier-ignore
     const grid = {
       A11: "12/31/2019", B11: "1" , C11: "=WEEKNUM(A11, B11)",
@@ -853,8 +800,7 @@ describe("WEEKNUM formula", () => {
       A53: "1/1/2020"  , B53: "0" , C53: "=WEEKNUM(A53, B53)",
       A54: "1/1/2020"  , B54: "10", C54: "=WEEKNUM(A54, B54)",
     };
-    const gridResult = evaluateGrid(grid);
-
+    const gridResult = await evaluateGrid(grid);
     expect(gridResult.C11).toBe(53);
     expect(gridResult.C12).toBe(1);
     expect(gridResult.C13).toBe(1);
@@ -901,14 +847,12 @@ describe("WEEKNUM formula", () => {
     expect(gridResult.C54).toBe("#ERROR"); // @compatibility on Google Sheets, return  #NUM!
   });
 });
-
 describe("WORKDAY formula", () => {
-  test("functional tests on cell arguments", () => {
+  test("functional tests on cell arguments", async () => {
     // prettier-ignore
     const grid = {
       A1: "1/1/2013" , A2: "1/21/2013", A3: "2/18/2013", A4: "5/27/2013",
       A5: "1/21/2013", A6: "1/12/2013", A7: "1/2/2013" , A8: "12/31/2012",
-
       A11: "1/1/2013", B11: "3"  , C11: "=WORKDAY(A11, B11)",
       A12: "1/1/2013", B12: "3"  , C12: "=WORKDAY(A12, B12, A1)",
       A13: "1/1/2013", B13: "3"  , C13: '=WORKDAY(A13, B13, A7)',
@@ -919,8 +863,7 @@ describe("WORKDAY formula", () => {
       A18: "1/1/2013", B18: "-3" , C18: "=WORKDAY(A18, B18, A1)",
       A19: "1/1/2013", B19: "-3" , C19: "=WORKDAY(A19, B19, A8)",
     };
-    const gridResult = evaluateGridText(grid);
-
+    const gridResult = await evaluateGridText(grid);
     expect(gridResult.C11).toBe("1/4/2013");
     expect(gridResult.C12).toBe("1/4/2013");
     expect(gridResult.C13).toBe("1/7/2013");
@@ -931,23 +874,20 @@ describe("WORKDAY formula", () => {
     expect(gridResult.C18).toBe("12/27/2012");
     expect(gridResult.C19).toBe("12/26/2012");
   });
-
   test("return value with formatting", async () => {
-    expect(evaluateCellFormat("A1", { A1: "=WORKDAY(B1, C1)", B1: "1/1/2013", C1: "3" })).toBe(
-      "m/d/yyyy"
-    );
+    expect(
+      await evaluateCellFormat("A1", { A1: "=WORKDAY(B1, C1)", B1: "1/1/2013", C1: "3" })
+    ).toBe("m/d/yyyy");
   });
-
-  test("Return format is locale dependant", () => {
-    const model = new Model();
-    updateLocale(model, FR_LOCALE);
-    setCellContent(model, "A1", "=WORKDAY(5000, 3)");
+  test("Return format is locale dependant", async () => {
+    const model = await createModel();
+    await updateLocale(model, FR_LOCALE);
+    await setCellContent(model, "A1", "=WORKDAY(5000, 3)");
     expect(getEvaluatedCell(model, "A1").format).toBe(FR_LOCALE.dateFormat);
   });
 });
-
 describe("WORKDAY.INTL formula", () => {
-  test("functional tests on cell arguments, string method", () => {
+  test("functional tests on cell arguments, string method", async () => {
     // prettier-ignore
     const grid = {
       B2:  "5/4/2020", C2:  "4", D2:  '=WORKDAY.INTL(B2,  C2)',
@@ -963,7 +903,6 @@ describe("WORKDAY.INTL formula", () => {
       B12: "5/4/2020", C12: "4", D12: '=WORKDAY.INTL(B12, C12, "1000211")',
                        C13: "4", D13: '=WORKDAY.INTL(B13, C13, "0000000")',
       B14: "5/4/2020",           D14: '=WORKDAY.INTL(B14, C14, "0000000")',
-
       B75: "5/4/2020", C75: "7" , D75: '=WORKDAY.INTL(B75, C75, "0000000")',
       B76: "5/4/2020", C76: "-3", D76: '=WORKDAY.INTL(B76, C76, "0000011")',
       B77: "5/9/2020", C77: "1" , D77: '=WORKDAY.INTL(B77, C77, "0000011")',
@@ -974,8 +913,7 @@ describe("WORKDAY.INTL formula", () => {
       B82: "5/7/2020", C82: "-4", D82: '=WORKDAY.INTL(B82, C82, "1110111")',
       B83: "5/8/2020", C83: "4" , D83: '=WORKDAY.INTL(B83, C83, "1110111")',
     };
-
-    const gridResult = evaluateGridText(grid);
+    const gridResult = await evaluateGridText(grid);
     expect(gridResult.D2).toBe("5/8/2020"); // @compatibility on Google Sheets, return  #VALUE!
     expect(gridResult.D3).toBe("#ERROR"); // @compatibility on Google Sheets, return  #NUM!
     expect(gridResult.D4).toBe("#ERROR"); // @compatibility on Google Sheets, return  #NUM!
@@ -989,7 +927,6 @@ describe("WORKDAY.INTL formula", () => {
     expect(gridResult.D12).toBe("#ERROR"); // @compatibility on Google Sheets, return  #NUM!
     expect(gridResult.D13).toBe("1/3/1900");
     expect(gridResult.D14).toBe("5/4/2020");
-
     expect(gridResult.D75).toBe("5/11/2020");
     expect(gridResult.D76).toBe("4/29/2020");
     expect(gridResult.D77).toBe("5/11/2020");
@@ -1000,8 +937,7 @@ describe("WORKDAY.INTL formula", () => {
     expect(gridResult.D82).toBe("4/9/2020");
     expect(gridResult.D83).toBe("6/4/2020");
   });
-
-  test("functional tests on cell arguments, number method", () => {
+  test("functional tests on cell arguments, number method", async () => {
     // prettier-ignore
     const grid = {
       B18: "5/4/2020",  C18: "1", D18: '=WORKDAY.INTL(B18, C18, 0)',
@@ -1020,7 +956,6 @@ describe("WORKDAY.INTL formula", () => {
       B31: "5/15/2020", C31: "1", D31: '=WORKDAY.INTL(B31, C31, 7)',
       B32: "5/16/2020", C32: "1", D32: '=WORKDAY.INTL(B32, C32, 7)',
       B33: "5/16/2020", C33: "1", D33: '=WORKDAY.INTL(B33, C33, 8)',
-
       B39: "5/4/2020",  C39: "1", D39: '=WORKDAY.INTL(B39, C39, 10)',
       B40: "5/9/2020",  C40: "1", D40: '=WORKDAY.INTL(B40, C40, 11)',
       B41: "5/10/2020", C41: "1", D41: '=WORKDAY.INTL(B41, C41, 11)',
@@ -1038,7 +973,7 @@ describe("WORKDAY.INTL formula", () => {
       B53: "5/16/2020", C53: "1", D53: '=WORKDAY.INTL(B53, C53, 17)',
       B54: "5/16/2020", C54: "1", D54: '=WORKDAY.INTL(B54, C54, 18)',
     };
-    const gridResult = evaluateGridText(grid);
+    const gridResult = await evaluateGridText(grid);
     expect(gridResult.D18).toBe("#ERROR"); // @compatibility on Google Sheets, return  #NUM!
     expect(gridResult.D19).toBe("5/11/2020");
     expect(gridResult.D20).toBe("5/11/2020");
@@ -1055,7 +990,6 @@ describe("WORKDAY.INTL formula", () => {
     expect(gridResult.D31).toBe("5/17/2020");
     expect(gridResult.D32).toBe("5/17/2020");
     expect(gridResult.D33).toBe("#ERROR"); // @compatibility on Google Sheets, return  #NUM!
-
     expect(gridResult.D39).toBe("#ERROR"); // @compatibility on Google Sheets, return  #NUM!
     expect(gridResult.D40).toBe("5/11/2020");
     expect(gridResult.D41).toBe("5/11/2020");
@@ -1073,8 +1007,7 @@ describe("WORKDAY.INTL formula", () => {
     expect(gridResult.D53).toBe("5/17/2020");
     expect(gridResult.D54).toBe("#ERROR"); // @compatibility on Google Sheets, return  #NUM!
   });
-
-  test("casting tests on cell arguments", () => {
+  test("casting tests on cell arguments", async () => {
     // prettier-ignore
     const grid = {
       B68: "5/4/2020",  C68: "1", D68: '=WORKDAY.INTL(B68, C68, 1110111)',
@@ -1083,62 +1016,55 @@ describe("WORKDAY.INTL formula", () => {
       B71: "5/11/2020", C71: "1", D71: '=WORKDAY.INTL(B71, C71, A71)',
       B72: "5/11/2020", C72: "1", D72: '=WORKDAY.INTL(B72, C72)',
     };
-    const gridResult = evaluateGridText(grid);
+    const gridResult = await evaluateGridText(grid);
     expect(gridResult.D68).toBe("#ERROR"); // @compatibility on Google Sheets, return  #NUM!
     expect(gridResult.D69).toBe("#ERROR"); // @compatibility on Google Sheets, return  #NUM!
     expect(gridResult.D70).toBe("#ERROR"); // @compatibility on Google Sheets, return  #NUM!
     expect(gridResult.D71).toBe("#ERROR"); // @compatibility on Google Sheets, return  #VALUE!
     expect(gridResult.D72).toBe("5/12/2020");
   });
-
   test("return value with formatting", async () => {
-    expect(evaluateCellFormat("A1", { A1: "=WORKDAY.INTL(B1, C1)", B1: "1/1/2013", C1: "3" })).toBe(
-      "m/d/yyyy"
-    );
+    expect(
+      await evaluateCellFormat("A1", { A1: "=WORKDAY.INTL(B1, C1)", B1: "1/1/2013", C1: "3" })
+    ).toBe("m/d/yyyy");
   });
-
-  test("Return format is locale dependant", () => {
-    const model = new Model();
-    updateLocale(model, FR_LOCALE);
-    setCellContent(model, "A1", "=WORKDAY.INTL(5000, 3)");
+  test("Return format is locale dependant", async () => {
+    const model = await createModel();
+    await updateLocale(model, FR_LOCALE);
+    await setCellContent(model, "A1", "=WORKDAY.INTL(5000, 3)");
     expect(getEvaluatedCell(model, "A1").format).toBe(FR_LOCALE.dateFormat);
   });
 });
-
 describe("YEAR formula", () => {
-  test("functional tests on cell arguments", () => {
-    expect(evaluateCell("A1", { A1: "=YEAR(A2)", A2: "5/13/1950" })).toBe(1950);
-    expect(evaluateCell("A1", { A1: "=YEAR(A2)", A2: "5/13/2020" })).toBe(2020);
-    expect(evaluateCell("A1", { A1: "=YEAR(A2)", A2: "43964" })).toBe(2020); // 43964 corespond to 5/13/2020
-    expect(evaluateCell("A1", { A1: "=YEAR(A2)", A2: "0" })).toBe(1899); // 0 corespond to 12/30/1899
-    expect(evaluateCell("A1", { A1: "=YEAR(A2)", A2: "1" })).toBe(1899); // 1 corespond to 12/31/1899
-    expect(evaluateCell("A1", { A1: "=YEAR(A2)", A2: "2" })).toBe(1900); // 2 corespond to 1/1/1900
-    expect(evaluateCell("A1", { A1: "=YEAR(A2)", A2: '="43964"' })).toBe(2020);
-    expect(evaluateCell("A1", { A1: "=YEAR(A2)", A2: "TRUE" })).toBe(1899);
+  test("functional tests on cell arguments", async () => {
+    expect(await evaluateCell("A1", { A1: "=YEAR(A2)", A2: "5/13/1950" })).toBe(1950);
+    expect(await evaluateCell("A1", { A1: "=YEAR(A2)", A2: "5/13/2020" })).toBe(2020);
+    expect(await evaluateCell("A1", { A1: "=YEAR(A2)", A2: "43964" })).toBe(2020); // 43964 corespond to 5/13/2020
+    expect(await evaluateCell("A1", { A1: "=YEAR(A2)", A2: "0" })).toBe(1899); // 0 corespond to 12/30/1899
+    expect(await evaluateCell("A1", { A1: "=YEAR(A2)", A2: "1" })).toBe(1899); // 1 corespond to 12/31/1899
+    expect(await evaluateCell("A1", { A1: "=YEAR(A2)", A2: "2" })).toBe(1900); // 2 corespond to 1/1/1900
+    expect(await evaluateCell("A1", { A1: "=YEAR(A2)", A2: '="43964"' })).toBe(2020);
+    expect(await evaluateCell("A1", { A1: "=YEAR(A2)", A2: "TRUE" })).toBe(1899);
   });
 });
-
 describe("YEARFRAC formula", () => {
-  test("take at 2 or 3 arguments", () => {
-    expect(evaluateCell("A1", { A1: "=YEARFRAC(1)" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
-    expect(evaluateCell("A1", { A1: "=YEARFRAC(1, 365)" })).toBeCloseTo(1, 6);
-    expect(evaluateCell("A1", { A1: "=YEARFRAC(1, 365, 0)" })).toBeCloseTo(1, 6);
-    expect(evaluateCell("A1", { A1: "=YEARFRAC(1, 365, 0, 42)" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+  test("take at 2 or 3 arguments", async () => {
+    expect(await evaluateCell("A1", { A1: "=YEARFRAC(1)" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+    expect(await evaluateCell("A1", { A1: "=YEARFRAC(1, 365)" })).toBeCloseTo(1, 6);
+    expect(await evaluateCell("A1", { A1: "=YEARFRAC(1, 365, 0)" })).toBeCloseTo(1, 6);
+    expect(await evaluateCell("A1", { A1: "=YEARFRAC(1, 365, 0, 42)" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
   });
-
   describe("business logic", () => {
     describe("return the YEARFRAC with convention 0", () => {
       const conv = "0";
-
       test.each([
         ["3/31/2003", "12/12/2012", 9.7],
         ["3/30/2003", "12/12/2012", 9.7],
         ["3/29/2003", "12/12/2012", 9.70278],
-      ])("start dates in 31 are replaced by 30", (d1, d2, result) => {
+      ])("start dates in 31 are replaced by 30", async (d1, d2, result) => {
         const grid = { A1: "=YEARFRAC(A2, A3, A4)", A2: d1, A3: d2, A4: conv };
-        expect(evaluateCell("A1", grid)).toBeCloseTo(result, 5);
+        expect(await evaluateCell("A1", grid)).toBeCloseTo(result, 5);
       });
-
       test.each([
         ["5/29/2007", "12/30/2012", 5.58611],
         ["5/29/2007", "12/31/2012", 5.58889],
@@ -1146,31 +1072,31 @@ describe("YEARFRAC formula", () => {
         ["5/30/2007", "12/31/2012", 5.58333],
         ["5/31/2007", "12/30/2012", 5.58333],
         ["5/31/2007", "12/31/2012", 5.58333],
-      ])("end dates in 31 are replaced by 30 if start dates are 30 or 31", (d1, d2, result) => {
-        const grid = { A1: "=YEARFRAC(A2, A3, A4)", A2: d1, A3: d2, A4: conv };
-        expect(evaluateCell("A1", grid)).toBeCloseTo(result, 5);
-      });
-
+      ])(
+        "end dates in 31 are replaced by 30 if start dates are 30 or 31",
+        async (d1, d2, result) => {
+          const grid = { A1: "=YEARFRAC(A2, A3, A4)", A2: d1, A3: d2, A4: conv };
+          expect(await evaluateCell("A1", grid)).toBeCloseTo(result, 5);
+        }
+      );
       describe("if start dates are the last day of february", () => {
         test.each([
           ["1/28/2003", "10/12/2012", 9.70556],
           ["2/28/2003", "11/12/2012", 9.7],
           ["3/30/2003", "12/12/2012", 9.7],
-        ])("start dates are replaced by 30", (d1, d2, result) => {
+        ])("start dates are replaced by 30", async (d1, d2, result) => {
           const grid = { A1: "=YEARFRAC(A2, A3, A4)", A2: d1, A3: d2, A4: conv };
-          expect(evaluateCell("A1", grid)).toBeCloseTo(result, 5);
+          expect(await evaluateCell("A1", grid)).toBeCloseTo(result, 5);
         });
-
         test.each([
           ["1/28/2004", "10/12/2013", 9.70556],
           ["2/28/2004", "11/12/2013", 9.70556],
           ["2/29/2004", "11/12/2013", 9.7],
           ["3/30/2004", "12/12/2013", 9.7],
-        ])("start dates are replaced by 30 (leap year)", (d1, d2, result) => {
+        ])("start dates are replaced by 30 (leap year)", async (d1, d2, result) => {
           const grid = { A1: "=YEARFRAC(A2, A3, A4)", A2: d1, A3: d2, A4: conv };
-          expect(evaluateCell("A1", grid)).toBeCloseTo(result, 5);
+          expect(await evaluateCell("A1", grid)).toBeCloseTo(result, 5);
         });
-
         test.each([
           ["2/27/2003", "2/27/2013", 10.0],
           ["2/27/2003", "2/28/2013", 10.00278],
@@ -1178,12 +1104,11 @@ describe("YEARFRAC formula", () => {
           ["2/28/2003", "2/28/2013", 10.0],
         ])(
           "end dates in last days of february are replaced by 30 (no leap year / no leap year)",
-          (d1, d2, result) => {
+          async (d1, d2, result) => {
             const grid = { A1: "=YEARFRAC(A2, A3, A4)", A2: d1, A3: d2, A4: conv };
-            expect(evaluateCell("A1", grid)).toBeCloseTo(result, 5);
+            expect(await evaluateCell("A1", grid)).toBeCloseTo(result, 5);
           }
         );
-
         test.each([
           ["2/27/2003", "2/28/2012", 9.00278],
           ["2/27/2003", "2/29/2012", 9.00556],
@@ -1191,12 +1116,11 @@ describe("YEARFRAC formula", () => {
           ["2/28/2003", "2/29/2012", 9.0],
         ])(
           "end dates in last days of february are replaced by 30 (no leap year / leap year)",
-          (d1, d2, result) => {
+          async (d1, d2, result) => {
             const grid = { A1: "=YEARFRAC(A2, A3, A4)", A2: d1, A3: d2, A4: conv };
-            expect(evaluateCell("A1", grid)).toBeCloseTo(result, 5);
+            expect(await evaluateCell("A1", grid)).toBeCloseTo(result, 5);
           }
         );
-
         test.each([
           ["2/28/2004", "2/27/2013", 8.99722],
           ["2/28/2004", "2/28/2013", 9.0],
@@ -1204,12 +1128,11 @@ describe("YEARFRAC formula", () => {
           ["2/29/2004", "2/28/2013", 9.0],
         ])(
           "end dates in last days of february are replaced by 30 (leap year / no leap year)",
-          (d1, d2, result) => {
+          async (d1, d2, result) => {
             const grid = { A1: "=YEARFRAC(A2, A3, A4)", A2: d1, A3: d2, A4: conv };
-            expect(evaluateCell("A1", grid)).toBeCloseTo(result, 5);
+            expect(await evaluateCell("A1", grid)).toBeCloseTo(result, 5);
           }
         );
-
         test.each([
           ["2/28/2004", "2/28/2012", 8.0],
           ["2/28/2004", "2/29/2012", 8.00278],
@@ -1217,19 +1140,16 @@ describe("YEARFRAC formula", () => {
           ["2/29/2004", "2/29/2012", 8.0],
         ])(
           "end dates in last days of february are replaced by 30 (leap year / leap year)",
-          (d1, d2, result) => {
+          async (d1, d2, result) => {
             const grid = { A1: "=YEARFRAC(A2, A3, A4)", A2: d1, A3: d2, A4: conv };
-            expect(evaluateCell("A1", grid)).toBeCloseTo(result, 5);
+            expect(await evaluateCell("A1", grid)).toBeCloseTo(result, 5);
           }
         );
       });
     });
-
     describe("return the YEARFRAC with convention 1", () => {
       const conv = "1";
-
       // note that for convention 1, Excel and googleSheet haven't same results
-
       test.each([
         // normal year / normal year
         ["3/9/2005", "2/9/2006", 0.92329], // 0.92329 on googleSheet
@@ -1247,12 +1167,11 @@ describe("YEARFRAC formula", () => {
         ["4/9/2008", "3/9/2009", 0.91507], // 0.91307 on googleSheet
       ])(
         "case: dates are different by less than a year (sitting on different years)",
-        (d1, d2, result) => {
+        async (d1, d2, result) => {
           const grid = { A1: "=YEARFRAC(A2, A3, A4)", A2: d1, A3: d2, A4: conv };
-          expect(evaluateCell("A1", grid)).toBeCloseTo(result, 5);
+          expect(await evaluateCell("A1", grid)).toBeCloseTo(result, 5);
         }
       );
-
       test.each([
         // normal year / normal year
         ["1/9/2005", "12/9/2005", 0.91507],
@@ -1268,12 +1187,11 @@ describe("YEARFRAC formula", () => {
         ["1/9/2008", "2/9/2008", 0.0847],
       ])(
         "case: dates are different by less than a year (sitting on same years)",
-        (d1, d2, result) => {
+        async (d1, d2, result) => {
           const grid = { A1: "=YEARFRAC(A2, A3, A4)", A2: d1, A3: d2, A4: conv };
-          expect(evaluateCell("A1", grid)).toBeCloseTo(result, 5);
+          expect(await evaluateCell("A1", grid)).toBeCloseTo(result, 5);
         }
       );
-
       test.each([
         // normal year / normal year
         ["3/9/2005", "2/9/2007", 1.92329], // 1.92329 on googleSheet
@@ -1301,332 +1219,321 @@ describe("YEARFRAC formula", () => {
         ["2/29/2004", "3/29/2008", 4.07772], // 4.07923 on googleSheet
         // leap year / leap year (29 Feb not include)
         ["3/9/2004", "2/9/2008", 3.91899], // 3.92077 on googleSheet
-      ])("case: dates are different by more than a year", (d1, d2, result) => {
+      ])("case: dates are different by more than a year", async (d1, d2, result) => {
         const grid = { A1: "=YEARFRAC(A2, A3, A4)", A2: d1, A3: d2, A4: conv };
-        expect(evaluateCell("A1", grid)).toBeCloseTo(result, 5);
+        expect(await evaluateCell("A1", grid)).toBeCloseTo(result, 5);
       });
     });
-
     describe("return the YEARFRAC with convention 2", () => {
       const conv = "2";
-
       test.each([
         ["12/31/2001", "12/30/2003", 2.025],
         ["2/28/2003", "2/27/2013", 10.14444],
         ["2/29/2004", "2/28/2012", 8.11389],
         ["5/31/2007", "12/31/2012", 5.66944],
-      ])("some random cases", (d1, d2, result) => {
+      ])("some random cases", async (d1, d2, result) => {
         const grid = { A1: "=YEARFRAC(A2, A3, A4)", A2: d1, A3: d2, A4: conv };
-        expect(evaluateCell("A1", grid)).toBeCloseTo(result, 5);
+        expect(await evaluateCell("A1", grid)).toBeCloseTo(result, 5);
       });
     });
-
     describe("return the YEARFRAC with convention 3", () => {
       const conv = "3";
-
       test.each([
         ["12/31/2001", "12/30/2003", 1.99726],
         ["2/28/2003", "2/27/2013", 10.00548],
         ["2/29/2004", "2/28/2012", 8.00274],
         ["5/31/2007", "12/31/2012", 5.59178],
-      ])("some random cases", (d1, d2, result) => {
+      ])("some random cases", async (d1, d2, result) => {
         const grid = { A1: "=YEARFRAC(A2, A3, A4)", A2: d1, A3: d2, A4: conv };
-        expect(evaluateCell("A1", grid)).toBeCloseTo(result, 5);
+        expect(await evaluateCell("A1", grid)).toBeCloseTo(result, 5);
       });
     });
-
     describe("return the YEARFRAC with convention 4", () => {
       const conv = "4";
-
       test.each([
         ["12/31/2001", "12/30/2003", 2.0],
         ["2/28/2003", "2/27/2013", 9.99722],
         ["2/29/2004", "2/28/2012", 7.99722],
         ["5/31/2007", "12/31/2012", 5.58333],
-      ])("some random cases", (d1, d2, result) => {
+      ])("some random cases", async (d1, d2, result) => {
         const grid = { A1: "=YEARFRAC(A2, A3, A4)", A2: d1, A3: d2, A4: conv };
-        expect(evaluateCell("A1", grid)).toBeCloseTo(result, 5);
+        expect(await evaluateCell("A1", grid)).toBeCloseTo(result, 5);
       });
-
       test.each([
         ["3/31/2003", "12/12/2012", 9.7],
         ["3/30/2003", "12/12/2012", 9.7],
         ["3/29/2003", "12/12/2012", 9.70278],
-      ])("start dates in 31 are replaced by 30", (d1, d2, result) => {
+      ])("start dates in 31 are replaced by 30", async (d1, d2, result) => {
         const grid = { A1: "=YEARFRAC(A2, A3, A4)", A2: d1, A3: d2, A4: conv };
-        expect(evaluateCell("A1", grid)).toBeCloseTo(result, 5);
+        expect(await evaluateCell("A1", grid)).toBeCloseTo(result, 5);
       });
-
       test.each([
         ["5/29/2007", "12/29/2012", 5.58333],
         ["5/29/2007", "12/30/2012", 5.58611],
         ["5/29/2007", "12/31/2012", 5.58611],
-      ])("end dates in 31 are replaced by 30", (d1, d2, result) => {
+      ])("end dates in 31 are replaced by 30", async (d1, d2, result) => {
         const grid = { A1: "=YEARFRAC(A2, A3, A4)", A2: d1, A3: d2, A4: conv };
-        expect(evaluateCell("A1", grid)).toBeCloseTo(result, 5);
+        expect(await evaluateCell("A1", grid)).toBeCloseTo(result, 5);
       });
     });
-
-    test("parameter 1 must be greater than or equal to 0", () => {
-      expect(evaluateCell("A1", { A1: "=YEARFRAC(0, 365)" })).toBeCloseTo(1, 5);
-      expect(evaluateCell("A1", { A1: "=YEARFRAC(-1, 365)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+    test("parameter 1 must be greater than or equal to 0", async () => {
+      expect(await evaluateCell("A1", { A1: "=YEARFRAC(0, 365)" })).toBeCloseTo(1, 5);
+      expect(await evaluateCell("A1", { A1: "=YEARFRAC(-1, 365)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
       expect(
-        evaluateCell("A1", { A1: "=YEARFRAC(A2, A3)", A2: "12/30/1899", A3: "12/30/1900" })
+        await evaluateCell("A1", { A1: "=YEARFRAC(A2, A3)", A2: "12/30/1899", A3: "12/30/1900" })
       ).toBeCloseTo(1, 5);
       expect(
-        evaluateCell("A1", { A1: "=YEARFRAC(A2, A3)", A2: "12/29/1899", A3: "12/29/1900" })
+        await evaluateCell("A1", { A1: "=YEARFRAC(A2, A3)", A2: "12/29/1899", A3: "12/29/1900" })
       ).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
     });
-
-    test("parameter 1 is truncated", () => {
+    test("parameter 1 is truncated", async () => {
       expect(
-        evaluateCell("A1", { A1: "=YEARFRAC(A2, A3)", A2: "6/6/2006", A3: "6/6/2007" })
+        await evaluateCell("A1", { A1: "=YEARFRAC(A2, A3)", A2: "6/6/2006", A3: "6/6/2007" })
       ).toBeCloseTo(1, 5);
       expect(
-        evaluateCell("A1", { A1: "=YEARFRAC(A2, A3)", A2: "6/6/2006 23:00", A3: "6/6/2007" })
-      ).toBeCloseTo(1, 5);
-    });
-
-    test("parameter 2 must be greater than or equal to 0", () => {
-      expect(evaluateCell("A1", { A1: "=YEARFRAC(365, 0)" })).toBeCloseTo(1, 5);
-      expect(evaluateCell("A1", { A1: "=YEARFRAC(364, -1)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
-    });
-
-    test("parameter 2 is truncated", () => {
-      expect(
-        evaluateCell("A1", { A1: "=YEARFRAC(A2, A3)", A2: "6/6/2006", A3: "6/6/2007" })
-      ).toBeCloseTo(1, 5);
-      expect(
-        evaluateCell("A1", { A1: "=YEARFRAC(A2, A3)", A2: "6/6/2006", A3: "6/6/2007 23:00" })
+        await evaluateCell("A1", { A1: "=YEARFRAC(A2, A3)", A2: "6/6/2006 23:00", A3: "6/6/2007" })
       ).toBeCloseTo(1, 5);
     });
-
-    test("inverting parameters 1 and 2 gives the same result", () => {
+    test("parameter 2 must be greater than or equal to 0", async () => {
+      expect(await evaluateCell("A1", { A1: "=YEARFRAC(365, 0)" })).toBeCloseTo(1, 5);
+      expect(await evaluateCell("A1", { A1: "=YEARFRAC(364, -1)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+    });
+    test("parameter 2 is truncated", async () => {
       expect(
-        evaluateCell("A1", { A1: "=YEARFRAC(A2, A3)", A2: "2/29/2004", A3: "11/12/2013" })
+        await evaluateCell("A1", { A1: "=YEARFRAC(A2, A3)", A2: "6/6/2006", A3: "6/6/2007" })
+      ).toBeCloseTo(1, 5);
+      expect(
+        await evaluateCell("A1", { A1: "=YEARFRAC(A2, A3)", A2: "6/6/2006", A3: "6/6/2007 23:00" })
+      ).toBeCloseTo(1, 5);
+    });
+    test("inverting parameters 1 and 2 gives the same result", async () => {
+      expect(
+        await evaluateCell("A1", { A1: "=YEARFRAC(A2, A3)", A2: "2/29/2004", A3: "11/12/2013" })
       ).toBeCloseTo(9.7, 5);
       expect(
-        evaluateCell("A1", { A1: "=YEARFRAC(A2, A3)", A2: "11/12/2013", A3: "2/29/2004" })
+        await evaluateCell("A1", { A1: "=YEARFRAC(A2, A3)", A2: "11/12/2013", A3: "2/29/2004" })
       ).toBeCloseTo(9.7, 5);
     });
-
-    test("parameter 3 must be between 0 and 4 inclusive", () => {
+    test("parameter 3 must be between 0 and 4 inclusive", async () => {
       expect(
-        evaluateCell("A1", { A1: "=YEARFRAC(A2, A3, -1)", A2: "6/6/2006", A3: "6/6/2007" })
+        await evaluateCell("A1", { A1: "=YEARFRAC(A2, A3, -1)", A2: "6/6/2006", A3: "6/6/2007" })
       ).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
       expect(
-        evaluateCell("A1", { A1: "=YEARFRAC(A2, A3, 0)", A2: "6/6/2006", A3: "6/6/2007" })
+        await evaluateCell("A1", { A1: "=YEARFRAC(A2, A3, 0)", A2: "6/6/2006", A3: "6/6/2007" })
       ).toBeCloseTo(1, 5);
       expect(
-        evaluateCell("A1", { A1: "=YEARFRAC(A2, A3, 4)", A2: "6/6/2006", A3: "6/6/2007" })
+        await evaluateCell("A1", { A1: "=YEARFRAC(A2, A3, 4)", A2: "6/6/2006", A3: "6/6/2007" })
       ).toBeCloseTo(1, 5);
       expect(
-        evaluateCell("A1", { A1: "=YEARFRAC(A2, A3, 5)", A2: "6/6/2006", A3: "6/6/2007" })
+        await evaluateCell("A1", { A1: "=YEARFRAC(A2, A3, 5)", A2: "6/6/2006", A3: "6/6/2007" })
       ).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
     });
-
-    test("parameter 3 is truncated", () => {
+    test("parameter 3 is truncated", async () => {
       expect(
-        evaluateCell("A1", { A1: "=YEARFRAC(A2, A3, 2)", A2: "6/6/2006", A3: "3/6/2007" })
+        await evaluateCell("A1", { A1: "=YEARFRAC(A2, A3, 2)", A2: "6/6/2006", A3: "3/6/2007" })
       ).toBeCloseTo(0.75833, 5);
       expect(
-        evaluateCell("A1", { A1: "=YEARFRAC(A2, A3, 2.9)", A2: "6/6/2006", A3: "3/6/2007" })
+        await evaluateCell("A1", { A1: "=YEARFRAC(A2, A3, 2.9)", A2: "6/6/2006", A3: "3/6/2007" })
       ).toBeCloseTo(0.75833, 5);
     });
-
-    test("parameter 3 default value is 0", () => {
+    test("parameter 3 default value is 0", async () => {
       expect(
-        evaluateCell("A1", { A1: "=YEARFRAC(A2, A3)", A2: "6/6/2006", A3: "12/12/2012" })
+        await evaluateCell("A1", { A1: "=YEARFRAC(A2, A3)", A2: "6/6/2006", A3: "12/12/2012" })
       ).toBeCloseTo(6.51667, 5);
       expect(
-        evaluateCell("A1", { A1: "=YEARFRAC(A2, A3, 0)", A2: "6/6/2006", A3: "12/12/2012" })
+        await evaluateCell("A1", { A1: "=YEARFRAC(A2, A3, 0)", A2: "6/6/2006", A3: "12/12/2012" })
       ).toBeCloseTo(6.51667, 5);
     });
   });
-
   describe("casting", () => {
     describe("on 1st argument", () => {
-      test("empty argument/cell are considered as 0", () => {
-        expect(evaluateCell("A1", { A1: "=YEARFRAC( , 365)" })).toBeCloseTo(1, 5);
-        expect(evaluateCell("A1", { A1: "=YEARFRAC(A2, 365)" })).toBeCloseTo(1, 5);
+      test("empty argument/cell are considered as 0", async () => {
+        expect(await evaluateCell("A1", { A1: "=YEARFRAC( , 365)" })).toBeCloseTo(1, 5);
+        expect(await evaluateCell("A1", { A1: "=YEARFRAC(A2, 365)" })).toBeCloseTo(1, 5);
       });
-      test("string/string in cell which can be cast in number are interpreted as numbers", () => {
-        expect(evaluateCell("A1", { A1: '=YEARFRAC("0", 365)' })).toBeCloseTo(1, 5);
-        expect(evaluateCell("A1", { A1: "=YEARFRAC(A2, 365)", A2: '="0"' })).toBeCloseTo(1, 5);
+      test("string/string in cell which can be cast in number are interpreted as numbers", async () => {
+        expect(await evaluateCell("A1", { A1: '=YEARFRAC("0", 365)' })).toBeCloseTo(1, 5);
+        expect(await evaluateCell("A1", { A1: "=YEARFRAC(A2, 365)", A2: '="0"' })).toBeCloseTo(
+          1,
+          5
+        );
       });
-      test("string/string in cell which cannot be cast in number return an error", () => {
-        expect(evaluateCell("A1", { A1: '=YEARFRAC(" ", 365)' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
-        expect(evaluateCell("A1", { A1: '=YEARFRAC("kikou", 365)' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
-        expect(evaluateCell("A1", { A1: "=YEARFRAC(A2, 365)", A2: "coucou" })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+      test("string/string in cell which cannot be cast in number return an error", async () => {
+        expect(await evaluateCell("A1", { A1: '=YEARFRAC(" ", 365)' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+        expect(await evaluateCell("A1", { A1: '=YEARFRAC("kikou", 365)' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+        expect(await evaluateCell("A1", { A1: "=YEARFRAC(A2, 365)", A2: "coucou" })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
       });
-      test("boolean/boolean in cell are interpreted as numbers", () => {
-        expect(evaluateCell("A1", { A1: "=YEARFRAC(TRUE, 365)" })).toBeCloseTo(1, 5);
-        expect(evaluateCell("A1", { A1: "=YEARFRAC(FALSE, 365)" })).toBeCloseTo(1, 5);
-        expect(evaluateCell("A1", { A1: "=YEARFRAC(A2, 366)", A2: "TRUE" })).toBeCloseTo(1, 5);
+      test("boolean/boolean in cell are interpreted as numbers", async () => {
+        expect(await evaluateCell("A1", { A1: "=YEARFRAC(TRUE, 365)" })).toBeCloseTo(1, 5);
+        expect(await evaluateCell("A1", { A1: "=YEARFRAC(FALSE, 365)" })).toBeCloseTo(1, 5);
+        expect(await evaluateCell("A1", { A1: "=YEARFRAC(A2, 366)", A2: "TRUE" })).toBeCloseTo(
+          1,
+          5
+        );
       });
     });
     describe("on 2nd argument", () => {
-      test("empty argument/cell are considered as 0", () => {
-        expect(evaluateCell("A1", { A1: "=YEARFRAC(365,  )" })).toBeCloseTo(1, 5);
-        expect(evaluateCell("A1", { A1: "=YEARFRAC(365, A2)" })).toBeCloseTo(1, 5);
+      test("empty argument/cell are considered as 0", async () => {
+        expect(await evaluateCell("A1", { A1: "=YEARFRAC(365,  )" })).toBeCloseTo(1, 5);
+        expect(await evaluateCell("A1", { A1: "=YEARFRAC(365, A2)" })).toBeCloseTo(1, 5);
       });
-      test("string/string in cell which can be cast in number are interpreted as numbers", () => {
-        expect(evaluateCell("A1", { A1: '=YEARFRAC(365, "0")' })).toBeCloseTo(1, 5);
-        expect(evaluateCell("A1", { A1: "=YEARFRAC(365, A2)", A2: '="0"' })).toBeCloseTo(1, 5);
+      test("string/string in cell which can be cast in number are interpreted as numbers", async () => {
+        expect(await evaluateCell("A1", { A1: '=YEARFRAC(365, "0")' })).toBeCloseTo(1, 5);
+        expect(await evaluateCell("A1", { A1: "=YEARFRAC(365, A2)", A2: '="0"' })).toBeCloseTo(
+          1,
+          5
+        );
       });
-      test("string/string in cell which cannot be cast in number return an error", () => {
-        expect(evaluateCell("A1", { A1: '=YEARFRAC(365, " ")' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
-        expect(evaluateCell("A1", { A1: '=YEARFRAC(365, "kikou")' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
-        expect(evaluateCell("A1", { A1: "=YEARFRAC(365, A2)", A2: "coucou" })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+      test("string/string in cell which cannot be cast in number return an error", async () => {
+        expect(await evaluateCell("A1", { A1: '=YEARFRAC(365, " ")' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+        expect(await evaluateCell("A1", { A1: '=YEARFRAC(365, "kikou")' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+        expect(await evaluateCell("A1", { A1: "=YEARFRAC(365, A2)", A2: "coucou" })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
       });
-      test("boolean/boolean in cell are interpreted as numbers", () => {
-        expect(evaluateCell("A1", { A1: "=YEARFRAC(365, TRUE)" })).toBeCloseTo(1, 6);
-        expect(evaluateCell("A1", { A1: "=YEARFRAC(365, FALSE)" })).toBeCloseTo(1, 5);
-        expect(evaluateCell("A1", { A1: "=YEARFRAC(366, A2)", A2: "TRUE" })).toBeCloseTo(1, 6);
+      test("boolean/boolean in cell are interpreted as numbers", async () => {
+        expect(await evaluateCell("A1", { A1: "=YEARFRAC(365, TRUE)" })).toBeCloseTo(1, 6);
+        expect(await evaluateCell("A1", { A1: "=YEARFRAC(365, FALSE)" })).toBeCloseTo(1, 5);
+        expect(await evaluateCell("A1", { A1: "=YEARFRAC(366, A2)", A2: "TRUE" })).toBeCloseTo(
+          1,
+          6
+        );
       });
     });
     describe("on 3th argument", () => {
-      test("empty argument/cell are considered as 0", () => {
-        expect(evaluateCell("A1", { A1: "=YEARFRAC(0, 365,  )" })).toBeCloseTo(1, 5);
-        expect(evaluateCell("A1", { A1: "=YEARFRAC(0, 365, A2)" })).toBeCloseTo(1, 5);
+      test("empty argument/cell are considered as 0", async () => {
+        expect(await evaluateCell("A1", { A1: "=YEARFRAC(0, 365,  )" })).toBeCloseTo(1, 5);
+        expect(await evaluateCell("A1", { A1: "=YEARFRAC(0, 365, A2)" })).toBeCloseTo(1, 5);
       });
-      test("string/string in cell which can be cast in number are interpreted as numbers", () => {
-        expect(evaluateCell("A1", { A1: '=YEARFRAC(0, 365, "0")' })).toBeCloseTo(1, 5);
-        expect(evaluateCell("A1", { A1: "=YEARFRAC(0, 365, A2)", A2: '="0"' })).toBeCloseTo(1, 5);
+      test("string/string in cell which can be cast in number are interpreted as numbers", async () => {
+        expect(await evaluateCell("A1", { A1: '=YEARFRAC(0, 365, "0")' })).toBeCloseTo(1, 5);
+        expect(await evaluateCell("A1", { A1: "=YEARFRAC(0, 365, A2)", A2: '="0"' })).toBeCloseTo(
+          1,
+          5
+        );
       });
-      test("string/string in cell which cannot be cast in number return an error", () => {
-        expect(evaluateCell("A1", { A1: '=YEARFRAC(0, 365, " ")' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
-        expect(evaluateCell("A1", { A1: '=YEARFRAC(0, 365, "kikou")' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
-        expect(evaluateCell("A1", { A1: "=YEARFRAC(0, 365, A2)", A2: "coucou" })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+      test("string/string in cell which cannot be cast in number return an error", async () => {
+        expect(await evaluateCell("A1", { A1: '=YEARFRAC(0, 365, " ")' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+        expect(await evaluateCell("A1", { A1: '=YEARFRAC(0, 365, "kikou")' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+        expect(await evaluateCell("A1", { A1: "=YEARFRAC(0, 365, A2)", A2: "coucou" })).toBe(
+          "#ERROR"
+        ); // @compatibility: on google sheets, return #VALUE!
       });
-      test("boolean/boolean in cell are interpreted as numbers", () => {
-        expect(evaluateCell("A1", { A1: "=YEARFRAC(0, 365, TRUE)" })).toBeCloseTo(1, 5);
-        expect(evaluateCell("A1", { A1: "=YEARFRAC(0, 365, FALSE)" })).toBeCloseTo(1, 5);
-        expect(evaluateCell("A1", { A1: "=YEARFRAC(0, 365, A2)", A2: "TRUE" })).toBeCloseTo(1, 5);
+      test("boolean/boolean in cell are interpreted as numbers", async () => {
+        expect(await evaluateCell("A1", { A1: "=YEARFRAC(0, 365, TRUE)" })).toBeCloseTo(1, 5);
+        expect(await evaluateCell("A1", { A1: "=YEARFRAC(0, 365, FALSE)" })).toBeCloseTo(1, 5);
+        expect(await evaluateCell("A1", { A1: "=YEARFRAC(0, 365, A2)", A2: "TRUE" })).toBeCloseTo(
+          1,
+          5
+        );
       });
     });
   });
 });
-
 describe("MONTH.START formula", () => {
-  test("functional tests on simple arguments", () => {
+  test("functional tests on simple arguments", async () => {
     const grid = {
       A1: '=MONTH.START("7/20/2020")',
       A2: '=MONTH.START("7/31/2020")',
     };
-    const gridResult = evaluateGridText(grid);
+    const gridResult = await evaluateGridText(grid);
     expect(gridResult.A1).toBe("7/1/2020");
     expect(gridResult.A2).toBe("7/1/2020");
   });
-
-  test("casting tests on cell arguments", () => {
+  test("casting tests on cell arguments", async () => {
     const grid = {
       A3: "7/10/1920",
       A4: "=MONTH.START(A3)",
     };
-    const gridResult = evaluateGridText(grid);
+    const gridResult = await evaluateGridText(grid);
     expect(gridResult.A4).toBe("7/1/1920");
   });
-
   test("return value with formatting", async () => {
-    expect(evaluateCellFormat("A1", { A1: '=MONTH.START("7/20/2020")' })).toBe("m/d/yyyy");
+    expect(await evaluateCellFormat("A1", { A1: '=MONTH.START("7/20/2020")' })).toBe("m/d/yyyy");
   });
-
-  test("Return format is locale dependant", () => {
-    const model = new Model();
-    updateLocale(model, FR_LOCALE);
-    setCellContent(model, "A1", '=MONTH.START("7/7/2020")');
+  test("Return format is locale dependant", async () => {
+    const model = await createModel();
+    await updateLocale(model, FR_LOCALE);
+    await setCellContent(model, "A1", '=MONTH.START("7/7/2020")');
     expect(getEvaluatedCell(model, "A1").format).toBe(FR_LOCALE.dateFormat);
   });
 });
-
 describe("MONTH.END formula", () => {
-  test("functional tests on simple arguments", () => {
+  test("functional tests on simple arguments", async () => {
     const grid = {
       A1: '=MONTH.END("7/20/2020")',
       A2: '=MONTH.END("2/2/2020")',
     };
-    const gridResult = evaluateGridText(grid);
+    const gridResult = await evaluateGridText(grid);
     expect(gridResult.A1).toBe("7/31/2020");
     expect(gridResult.A2).toBe("2/29/2020");
   });
-
-  test("casting tests on cell arguments", () => {
+  test("casting tests on cell arguments", async () => {
     const grid = {
       A3: "7/10/1920",
       A4: "=MONTH.END(A3)",
       A5: "2/10/1920",
       A6: "=MONTH.END(A5)",
     };
-    const gridResult = evaluateGridText(grid);
+    const gridResult = await evaluateGridText(grid);
     expect(gridResult.A4).toBe("7/31/1920");
     expect(gridResult.A6).toBe("2/29/1920");
   });
-
   test("return value with formatting", async () => {
-    expect(evaluateCellFormat("A1", { A1: '=MONTH.END("7/20/2020")' })).toBe("m/d/yyyy");
+    expect(await evaluateCellFormat("A1", { A1: '=MONTH.END("7/20/2020")' })).toBe("m/d/yyyy");
   });
-
-  test("Return format is locale dependant", () => {
-    const model = new Model();
-    updateLocale(model, FR_LOCALE);
-    setCellContent(model, "A1", '=MONTH.END("7/7/2020")');
+  test("Return format is locale dependant", async () => {
+    const model = await createModel();
+    await updateLocale(model, FR_LOCALE);
+    await setCellContent(model, "A1", '=MONTH.END("7/7/2020")');
     expect(getEvaluatedCell(model, "A1").format).toBe(FR_LOCALE.dateFormat);
   });
 });
-
 describe("QUARTER formula", () => {
-  test("functional tests on cell arguments", () => {
-    expect(evaluateCell("A1", { A1: "=QUARTER(A2)", A2: "1/2/1954" })).toBe(1);
-    expect(evaluateCell("A1", { A1: "=QUARTER(A2)", A2: "5/13/1954" })).toBe(2);
-    expect(evaluateCell("A1", { A1: "=QUARTER(A2)", A2: "7/13/1954" })).toBe(3);
-    expect(evaluateCell("A1", { A1: "=QUARTER(A2)", A2: "43964" })).toBe(2); // 43964 corespond to 5/13/195
-    expect(evaluateCell("A1", { A1: "=QUARTER(A2)", A2: "0" })).toBe(4); // 0 corespond to 12/30/1899
-    expect(evaluateCell("A1", { A1: "=QUARTER(A2)", A2: "1" })).toBe(4); // 1 corespond to 12/31/1899
-    expect(evaluateCell("A1", { A1: "=QUARTER(A2)", A2: "2" })).toBe(1); // 2 corespond to 1/1/1900
-    expect(evaluateCell("A1", { A1: "=QUARTER(A2)", A2: '="43964"' })).toBe(2);
-    expect(evaluateCell("A1", { A1: "=QUARTER(A2)", A2: "TRUE" })).toBe(4);
+  test("functional tests on cell arguments", async () => {
+    expect(await evaluateCell("A1", { A1: "=QUARTER(A2)", A2: "1/2/1954" })).toBe(1);
+    expect(await evaluateCell("A1", { A1: "=QUARTER(A2)", A2: "5/13/1954" })).toBe(2);
+    expect(await evaluateCell("A1", { A1: "=QUARTER(A2)", A2: "7/13/1954" })).toBe(3);
+    expect(await evaluateCell("A1", { A1: "=QUARTER(A2)", A2: "43964" })).toBe(2); // 43964 corespond to 5/13/195
+    expect(await evaluateCell("A1", { A1: "=QUARTER(A2)", A2: "0" })).toBe(4); // 0 corespond to 12/30/1899
+    expect(await evaluateCell("A1", { A1: "=QUARTER(A2)", A2: "1" })).toBe(4); // 1 corespond to 12/31/1899
+    expect(await evaluateCell("A1", { A1: "=QUARTER(A2)", A2: "2" })).toBe(1); // 2 corespond to 1/1/1900
+    expect(await evaluateCell("A1", { A1: "=QUARTER(A2)", A2: '="43964"' })).toBe(2);
+    expect(await evaluateCell("A1", { A1: "=QUARTER(A2)", A2: "TRUE" })).toBe(4);
   });
 });
-
 describe("QUARTER.START formula", () => {
-  test("functional tests on simple arguments", () => {
+  test("functional tests on simple arguments", async () => {
     const grid = {
       A1: '=QUARTER.START("7/20/2020")',
       A2: '=QUARTER.START("5/15/2020")',
       A3: '=QUARTER.START("1/15/2020")',
       A4: '=QUARTER.START("10/15/2020")',
     };
-    const gridResult = evaluateGridText(grid);
+    const gridResult = await evaluateGridText(grid);
     expect(gridResult.A1).toBe("7/1/2020");
     expect(gridResult.A2).toBe("4/1/2020");
     expect(gridResult.A3).toBe("1/1/2020");
     expect(gridResult.A4).toBe("10/1/2020");
   });
-
-  test("casting tests on cell arguments", () => {
+  test("casting tests on cell arguments", async () => {
     const grid = {
       A1: "7/10/1920",
       A2: "=QUARTER.START(A1)",
     };
-    const gridResult = evaluateGridText(grid);
+    const gridResult = await evaluateGridText(grid);
     expect(gridResult.A2).toBe("7/1/1920");
   });
-
   test("return value with formatting", async () => {
-    expect(evaluateCellFormat("A1", { A1: '=QUARTER.START("7/20/2020")' })).toBe("m/d/yyyy");
+    expect(await evaluateCellFormat("A1", { A1: '=QUARTER.START("7/20/2020")' })).toBe("m/d/yyyy");
   });
-
-  test("Return format is locale dependant", () => {
-    const model = new Model();
-    updateLocale(model, FR_LOCALE);
-    setCellContent(model, "A1", '=QUARTER.START("7/7/2020")');
+  test("Return format is locale dependant", async () => {
+    const model = await createModel();
+    await updateLocale(model, FR_LOCALE);
+    await setCellContent(model, "A1", '=QUARTER.START("7/7/2020")');
     expect(getEvaluatedCell(model, "A1").format).toBe(FR_LOCALE.dateFormat);
   });
 });
-
 describe("QUARTER.END formula", () => {
-  test("functional tests on simple arguments", () => {
+  test("functional tests on simple arguments", async () => {
     const grid = {
       A1: '=QUARTER.END("7/20/2020")',
       A2: '=QUARTER.END("2/2/2020")',
@@ -1635,7 +1542,7 @@ describe("QUARTER.END formula", () => {
       A5: '=QUARTER.END("7/20/2020")',
       A6: '=QUARTER.END("5/15/2020")',
     };
-    const gridResult = evaluateGridText(grid);
+    const gridResult = await evaluateGridText(grid);
     expect(gridResult.A1).toBe("9/30/2020");
     expect(gridResult.A2).toBe("3/31/2020");
     expect(gridResult.A3).toBe("3/31/2020");
@@ -1643,8 +1550,7 @@ describe("QUARTER.END formula", () => {
     expect(gridResult.A5).toBe("9/30/2020");
     expect(gridResult.A6).toBe("6/30/2020");
   });
-
-  test("casting tests on cell arguments", () => {
+  test("casting tests on cell arguments", async () => {
     const grid = {
       A1: "7/10/1920",
       A2: "=QUARTER.END(A1)",
@@ -1655,63 +1561,56 @@ describe("QUARTER.END formula", () => {
       A7: "10/10/1920",
       A8: "=QUARTER.END(A7)",
     };
-    const gridResult = evaluateGridText(grid);
+    const gridResult = await evaluateGridText(grid);
     expect(gridResult.A2).toBe("9/30/1920");
     expect(gridResult.A4).toBe("3/31/1920");
     expect(gridResult.A6).toBe("6/30/1920");
     expect(gridResult.A8).toBe("12/31/1920");
   });
-
   test("return value with formatting", async () => {
-    expect(evaluateCellFormat("A1", { A1: '=QUARTER.END("7/20/2020")' })).toBe("m/d/yyyy");
+    expect(await evaluateCellFormat("A1", { A1: '=QUARTER.END("7/20/2020")' })).toBe("m/d/yyyy");
   });
-
-  test("Return format is locale dependant", () => {
-    const model = new Model();
-    updateLocale(model, FR_LOCALE);
-    setCellContent(model, "A1", '=QUARTER.END("7/7/2020")');
+  test("Return format is locale dependant", async () => {
+    const model = await createModel();
+    await updateLocale(model, FR_LOCALE);
+    await setCellContent(model, "A1", '=QUARTER.END("7/7/2020")');
     expect(getEvaluatedCell(model, "A1").format).toBe(FR_LOCALE.dateFormat);
   });
 });
-
 describe("YEAR.START formula", () => {
-  test("functional tests on simple arguments", () => {
+  test("functional tests on simple arguments", async () => {
     const grid = {
       A1: '=YEAR.START("7/20/2020")',
       A2: '=YEAR.START("5/15/2020")',
       A3: '=YEAR.START("1/15/2020")',
       A4: '=YEAR.START("12/31/2020")',
     };
-    const gridResult = evaluateGridText(grid);
+    const gridResult = await evaluateGridText(grid);
     expect(gridResult.A1).toBe("1/1/2020");
     expect(gridResult.A2).toBe("1/1/2020");
     expect(gridResult.A3).toBe("1/1/2020");
     expect(gridResult.A4).toBe("1/1/2020");
   });
-
-  test("casting tests on cell arguments", () => {
+  test("casting tests on cell arguments", async () => {
     const grid = {
       A1: "7/10/1920",
       A2: "=YEAR.START(A1)",
     };
-    const gridResult = evaluateGridText(grid);
+    const gridResult = await evaluateGridText(grid);
     expect(gridResult.A2).toBe("1/1/1920");
   });
-
   test("return value with formatting", async () => {
-    expect(evaluateCellFormat("A1", { A1: '=YEAR.START("7/20/2020")' })).toBe("m/d/yyyy");
+    expect(await evaluateCellFormat("A1", { A1: '=YEAR.START("7/20/2020")' })).toBe("m/d/yyyy");
   });
-
-  test("Return format is locale dependant", () => {
-    const model = new Model();
-    updateLocale(model, FR_LOCALE);
-    setCellContent(model, "A1", '=YEAR.START("7/7/2020")');
+  test("Return format is locale dependant", async () => {
+    const model = await createModel();
+    await updateLocale(model, FR_LOCALE);
+    await setCellContent(model, "A1", '=YEAR.START("7/7/2020")');
     expect(getEvaluatedCell(model, "A1").format).toBe(FR_LOCALE.dateFormat);
   });
 });
-
 describe("YEAR.END formula", () => {
-  test("functional tests on simple arguments", () => {
+  test("functional tests on simple arguments", async () => {
     const grid = {
       A1: '=YEAR.END("7/20/2020")',
       A2: '=YEAR.END("2/2/2020")',
@@ -1720,7 +1619,7 @@ describe("YEAR.END formula", () => {
       A5: '=YEAR.END("7/20/2020")',
       A6: '=YEAR.END("5/15/2020")',
     };
-    const gridResult = evaluateGridText(grid);
+    const gridResult = await evaluateGridText(grid);
     expect(gridResult.A1).toBe("12/31/2020");
     expect(gridResult.A2).toBe("12/31/2020");
     expect(gridResult.A3).toBe("12/31/2020");
@@ -1728,8 +1627,7 @@ describe("YEAR.END formula", () => {
     expect(gridResult.A5).toBe("12/31/2020");
     expect(gridResult.A6).toBe("12/31/2020");
   });
-
-  test("casting tests on cell arguments", () => {
+  test("casting tests on cell arguments", async () => {
     const grid = {
       A1: "1/1/1920",
       A2: "=YEAR.END(A1)",
@@ -1740,21 +1638,19 @@ describe("YEAR.END formula", () => {
       A7: "10/10/1920",
       A8: "=YEAR.END(A7)",
     };
-    const gridResult = evaluateGridText(grid);
+    const gridResult = await evaluateGridText(grid);
     expect(gridResult.A2).toBe("12/31/1920");
     expect(gridResult.A4).toBe("12/31/1920");
     expect(gridResult.A6).toBe("12/31/1920");
     expect(gridResult.A8).toBe("12/31/1920");
   });
-
   test("return value with formatting", async () => {
-    expect(evaluateCellFormat("A1", { A1: '=YEAR.END("7/20/2020")' })).toBe("m/d/yyyy");
+    expect(await evaluateCellFormat("A1", { A1: '=YEAR.END("7/20/2020")' })).toBe("m/d/yyyy");
   });
-
-  test("Return format is locale dependant", () => {
-    const model = new Model();
-    updateLocale(model, FR_LOCALE);
-    setCellContent(model, "A1", '=YEAR.END("7/7/2020")');
+  test("Return format is locale dependant", async () => {
+    const model = await createModel();
+    await updateLocale(model, FR_LOCALE);
+    await setCellContent(model, "A1", '=YEAR.END("7/7/2020")');
     expect(getEvaluatedCell(model, "A1").format).toBe(FR_LOCALE.dateFormat);
   });
 });

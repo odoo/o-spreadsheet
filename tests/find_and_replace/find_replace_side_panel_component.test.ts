@@ -132,14 +132,14 @@ describe("find and replace sidePanel component", () => {
 
   describe("basic search", () => {
     test("simple search", async () => {
-      setCellContent(model, "A1", "1");
+      await setCellContent(model, "A1", "1");
       await inputSearchValue("1");
       expect(getMatchesCount()).toMatchObject({ allSheets: 1, currentSheet: 1 });
     });
 
     test("clicking on next", async () => {
-      setCellContent(model, "A1", "1");
-      setCellContent(model, "A2", "1");
+      await setCellContent(model, "A1", "1");
+      await setCellContent(model, "A2", "1");
       await inputSearchValue("1");
       expect(getSelectedMatchIndex()).toBe(1);
       await click(fixture, selectors.nextButton);
@@ -147,8 +147,8 @@ describe("find and replace sidePanel component", () => {
     });
 
     test("Going to the next match with Enter key", async () => {
-      setCellContent(model, "A1", "1");
-      setCellContent(model, "A2", "1");
+      await setCellContent(model, "A1", "1");
+      await setCellContent(model, "A2", "1");
       await inputSearchValue("1");
       expect(getSelectedMatchIndex()).toBe(1);
       await focusAndKeyDown(selectors.inputSearch, { key: "Enter" });
@@ -156,9 +156,9 @@ describe("find and replace sidePanel component", () => {
     });
 
     test("Going to the previous match with Shift+Enter key", async () => {
-      setCellContent(model, "A1", "1");
-      setCellContent(model, "A2", "1");
-      setCellContent(model, "A3", "1");
+      await setCellContent(model, "A1", "1");
+      await setCellContent(model, "A2", "1");
+      await setCellContent(model, "A3", "1");
       await inputSearchValue("1");
       expect(getSelectedMatchIndex()).toBe(1);
       await focusAndKeyDown(selectors.inputSearch, { key: "Enter", shiftKey: true });
@@ -168,9 +168,9 @@ describe("find and replace sidePanel component", () => {
     });
 
     test("clicking on previous", async () => {
-      setCellContent(model, "A1", "1");
-      setCellContent(model, "A2", "1");
-      setCellContent(model, "A3", "1");
+      await setCellContent(model, "A1", "1");
+      await setCellContent(model, "A2", "1");
+      await setCellContent(model, "A3", "1");
       await inputSearchValue("1");
       expect(getSelectedMatchIndex()).toBe(1);
       await click(fixture, selectors.previousButton);
@@ -183,7 +183,7 @@ describe("find and replace sidePanel component", () => {
     });
 
     test("Search is debounced", async () => {
-      setCellContent(model, "A1", "ok");
+      await setCellContent(model, "A1", "ok");
       await setInputValueAndTrigger(selectors.inputSearch, "o");
       await nextTick();
       expect(getMatchesCount()).toBeUndefined();
@@ -194,7 +194,7 @@ describe("find and replace sidePanel component", () => {
     });
 
     test("clicking on specific range and hitting confirm will search in the range", async () => {
-      setCellContent(model, "A1", "1");
+      await setCellContent(model, "A1", "1");
       await inputSearchValue("1");
 
       expect(document.querySelector(selectors.searchRange)).toBeFalsy();
@@ -211,7 +211,7 @@ describe("find and replace sidePanel component", () => {
     });
 
     test("Ranges are properly updated by with several grid selections", async () => {
-      setCellContent(model, "A1", "1");
+      await setCellContent(model, "A1", "1");
       await inputSearchValue("1");
       await changeSearchScope("specificRange");
       await nextTick();
@@ -260,7 +260,7 @@ describe("find and replace sidePanel component", () => {
     );
 
     test("Change in specific range selectionInput is confirmed when reselecting the search input", async () => {
-      setCellContent(model, "A1", "1");
+      await setCellContent(model, "A1", "1");
       await changeSearchScope("specificRange");
       await inputSearchValue("1");
       await nextTick(); // selection input need 2 nextTicks because ¯\_(ツ)_/¯
@@ -278,14 +278,14 @@ describe("find and replace sidePanel component", () => {
 
   describe("search count match", () => {
     test("search match count is displayed", async () => {
-      setCellContent(model, "A1", "Hello");
+      await setCellContent(model, "A1", "Hello");
       expect(fixture.querySelector(".o-input-count")).toBeNull();
       await inputSearchValue("Hel");
       expect(fixture.querySelector(".o-input-count")?.innerHTML).toBe("1 / 1");
     });
 
     test("search match count is removed when input is cleared", async () => {
-      setCellContent(model, "A1", "Hello");
+      await setCellContent(model, "A1", "Hello");
       await setInputValueAndTrigger(selectors.inputSearch, "Hel"); // wait the next render to check if the count is displayed
       expect(fixture.querySelector(".o-input-count")).toBeNull();
       jest.runOnlyPendingTimers();
@@ -304,7 +304,7 @@ describe("find and replace sidePanel component", () => {
 
   describe("search options", () => {
     test("Can search matching case", async () => {
-      setCellContent(model, "A1", "HELLO");
+      await setCellContent(model, "A1", "HELLO");
       await inputSearchValue("hello");
       expect(getMatchesCount()).toMatchObject({ currentSheet: 1 });
       await click(fixture, selectors.checkBoxMatchingCase);
@@ -312,7 +312,7 @@ describe("find and replace sidePanel component", () => {
     });
 
     test("Can search matching entire cell", async () => {
-      setCellContent(model, "A1", "Hello there");
+      await setCellContent(model, "A1", "Hello there");
       await inputSearchValue("hello");
       expect(getMatchesCount()).toMatchObject({ currentSheet: 1 });
       await click(fixture, selectors.checkBoxExactMatch);
@@ -320,7 +320,7 @@ describe("find and replace sidePanel component", () => {
     });
 
     test("can search in formulas", async () => {
-      setCellContent(model, "A1", "=SUM(2)");
+      await setCellContent(model, "A1", "=SUM(2)");
       await inputSearchValue("sum");
       expect(getMatchesCount()).toMatchObject({ currentSheet: 0 });
       await click(fixture, selectors.checkBoxSearchFormulas);
@@ -338,7 +338,7 @@ describe("find and replace sidePanel component", () => {
       await click(fixture, selectors.closeSidepanel);
       expect(model.getters.shouldShowFormulas()).toBe(false);
 
-      setFormulaVisibility(model, true);
+      await setFormulaVisibility(model, true);
       parent.env.openSidePanel("FindAndReplace");
       await nextTick();
 
@@ -354,7 +354,7 @@ describe("find and replace sidePanel component", () => {
     });
 
     test("Setting show formula from f&r should retain its state even it's changed via topbar", async () => {
-      setFormulaVisibility(model, true);
+      await setFormulaVisibility(model, true);
       await nextTick();
       expect(model.getters.shouldShowFormulas()).toBe(true);
       expect(
@@ -370,7 +370,7 @@ describe("find and replace sidePanel component", () => {
 
   describe("replace options", () => {
     test("Can replace a simple text value", async () => {
-      setCellContent(model, "A1", "hello");
+      await setCellContent(model, "A1", "hello");
       await inputSearchValue("hello");
       await setInputValueAndTrigger(document.querySelector(selectors.inputReplace), "kikou");
       await click(fixture, selectors.replaceButton);
@@ -378,7 +378,7 @@ describe("find and replace sidePanel component", () => {
     });
 
     test("Can replace a value in a formula", async () => {
-      setCellContent(model, "A1", "=SUM(2)");
+      await setCellContent(model, "A1", "=SUM(2)");
       await inputSearchValue("2");
       await click(fixture, selectors.checkBoxSearchFormulas);
       await setInputValueAndTrigger(document.querySelector(selectors.inputReplace), "4");
@@ -387,7 +387,7 @@ describe("find and replace sidePanel component", () => {
     });
 
     test("formulas wont be modified if not looking in formulas or not modifying formulas", async () => {
-      setCellContent(model, "A1", "=SUM(2)");
+      await setCellContent(model, "A1", "=SUM(2)");
       await inputSearchValue("4");
       await setInputValueAndTrigger(document.querySelector(selectors.inputReplace), "2");
       await click(fixture, selectors.replaceButton);
@@ -395,8 +395,8 @@ describe("find and replace sidePanel component", () => {
     });
 
     test("can replace all", async () => {
-      setCellContent(model, "A1", "hello");
-      setCellContent(model, "A2", "hell");
+      await setCellContent(model, "A1", "hello");
+      await setCellContent(model, "A2", "hell");
       await inputSearchValue("hell");
       await setInputValueAndTrigger(document.querySelector(selectors.inputReplace), "kikou");
       await click(fixture, selectors.replaceAllButton);
@@ -405,7 +405,7 @@ describe("find and replace sidePanel component", () => {
     });
 
     test("Can replace with Enter key", async () => {
-      setCellContent(model, "A1", "hell");
+      await setCellContent(model, "A1", "hell");
       await inputSearchValue("hell");
       await setInputValueAndTrigger(selectors.inputReplace, "kikou");
       await focusAndKeyDown(selectors.inputReplace, { key: "Enter" });
@@ -415,12 +415,12 @@ describe("find and replace sidePanel component", () => {
 
   describe("match counts checking", () => {
     test("match counts return number of search in allSheet, currentSheet and selected range", async () => {
-      createSheet(model, { sheetId: "sheet2" });
-      setCellContent(model, "A1", "Hello");
-      setCellContent(model, "A3", "Hello");
-      setCellContent(model, "B1", "Hello");
-      setCellContent(model, "A1", "Hello", "sheet2");
-      setCellContent(model, "A2", "Hello", "sheet2");
+      await createSheet(model, { sheetId: "sheet2" });
+      await setCellContent(model, "A1", "Hello");
+      await setCellContent(model, "A3", "Hello");
+      await setCellContent(model, "B1", "Hello");
+      await setCellContent(model, "A1", "Hello", "sheet2");
+      await setCellContent(model, "A2", "Hello", "sheet2");
       expect(fixture.querySelector(".o-matches-count")).toBeNull();
       expect(getMatchesCountContent()).toEqual([]);
       await inputSearchValue("hello");

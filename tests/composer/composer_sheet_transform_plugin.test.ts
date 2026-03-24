@@ -16,7 +16,11 @@ import {
   undo,
 } from "../test_helpers/commands_helpers";
 import { getCellContent } from "../test_helpers/getters_helpers";
-import { makeTestComposerStore, makeTestNotificationStore } from "../test_helpers/helpers";
+import {
+  createModel,
+  makeTestComposerStore,
+  makeTestNotificationStore,
+} from "../test_helpers/helpers";
 
 describe("describe", () => {
   let model: Model;
@@ -24,207 +28,207 @@ describe("describe", () => {
   let notificationStore: NotificationStore;
   let raiseErrorSpy: jest.SpyInstance;
 
-  beforeEach(() => {
-    model = new Model();
+  beforeEach(async () => {
+    model = await createModel();
     notificationStore = makeTestNotificationStore();
     raiseErrorSpy = jest.spyOn(notificationStore, "raiseError");
     composerStore = makeTestComposerStore(model, notificationStore);
   });
 
-  test("Updatecell & composer on different cells", () => {
+  test("Updatecell & composer on different cells", async () => {
     composerStore.startEdition();
-    setCellContent(model, "A2", "A2");
+    await setCellContent(model, "A2", "A2");
     composerStore.setCurrentContent("Hi");
     composerStore.stopEdition();
     expect(getCellContent(model, "A2")).toEqual("A2");
     expect(getCellContent(model, "A1")).toEqual("Hi");
   });
 
-  test("Updatecell & composer on the same cell", () => {
+  test("Updatecell & composer on the same cell", async () => {
     composerStore.startEdition();
     composerStore.setCurrentContent("bla");
-    setCellContent(model, "A1", "A1");
+    await setCellContent(model, "A1", "A1");
     expect(composerStore.editionMode).toBe("editing");
     expect(getCellContent(model, "A1")).toEqual("A1");
     composerStore.stopEdition();
     expect(getCellContent(model, "A1")).toEqual("bla");
   });
 
-  test("Updatecell & composer on the same cell when cancelling edition", () => {
+  test("Updatecell & composer on the same cell when cancelling edition", async () => {
     composerStore.startEdition();
     composerStore.setCurrentContent("bla");
-    setCellContent(model, "A1", "A1");
+    await setCellContent(model, "A1", "A1");
     expect(composerStore.editionMode).toBe("editing");
     expect(getCellContent(model, "A1")).toEqual("A1");
     composerStore.cancelEdition();
     expect(getCellContent(model, "A1")).toEqual("A1");
   });
 
-  test("Composer is moved when column is added before it", () => {
-    selectCell(model, "D2");
+  test("Composer is moved when column is added before it", async () => {
+    await selectCell(model, "D2");
     composerStore.startEdition("hello");
-    addColumns(model, "after", "B", 1);
+    await addColumns(model, "after", "B", 1);
     composerStore.stopEdition();
     expect(getCellContent(model, "E2")).toEqual("hello");
   });
 
-  test("Composer is not moved when column is added after it", () => {
-    selectCell(model, "A2");
+  test("Composer is not moved when column is added after it", async () => {
+    await selectCell(model, "A2");
     composerStore.startEdition("hello");
-    addColumns(model, "after", "B", 1);
+    await addColumns(model, "after", "B", 1);
     composerStore.stopEdition();
     expect(getCellContent(model, "A2")).toEqual("hello");
   });
 
-  test("Composer is moved when column is removed before it", () => {
-    selectCell(model, "D2");
+  test("Composer is moved when column is removed before it", async () => {
+    await selectCell(model, "D2");
     composerStore.startEdition("hello");
-    deleteColumns(model, ["B"]);
+    await deleteColumns(model, ["B"]);
     composerStore.stopEdition();
     expect(getCellContent(model, "C2")).toEqual("hello");
   });
 
-  test("Composer is not moved when column is removed after it", () => {
-    selectCell(model, "D2");
+  test("Composer is not moved when column is removed after it", async () => {
+    await selectCell(model, "D2");
     composerStore.startEdition("hello");
-    deleteColumns(model, ["E"]);
+    await deleteColumns(model, ["E"]);
     composerStore.stopEdition();
     expect(getCellContent(model, "D2")).toEqual("hello");
   });
 
-  test("Composer is moved when column is removed on it", () => {
-    selectCell(model, "D2");
+  test("Composer is moved when column is removed on it", async () => {
+    await selectCell(model, "D2");
     composerStore.startEdition("hello");
-    deleteColumns(model, ["D"]);
+    await deleteColumns(model, ["D"]);
     expect(raiseErrorSpy).toHaveBeenCalled();
     expect(composerStore.editionMode).toBe("inactive");
   });
 
-  test("Composer is moved when row is added before it", () => {
-    selectCell(model, "A4");
+  test("Composer is moved when row is added before it", async () => {
+    await selectCell(model, "A4");
     composerStore.startEdition("hello");
-    addRows(model, "after", 1, 1);
+    await addRows(model, "after", 1, 1);
     composerStore.stopEdition();
     expect(getCellContent(model, "A5")).toEqual("hello");
   });
 
-  test("Composer is not moved when row is added after it", () => {
-    selectCell(model, "A2");
+  test("Composer is not moved when row is added after it", async () => {
+    await selectCell(model, "A2");
     composerStore.startEdition("hello");
-    addRows(model, "after", 5, 1);
+    await addRows(model, "after", 5, 1);
     composerStore.stopEdition();
     expect(getCellContent(model, "A2")).toEqual("hello");
   });
 
-  test("Composer is moved when row is removed before it", () => {
-    selectCell(model, "A4");
+  test("Composer is moved when row is removed before it", async () => {
+    await selectCell(model, "A4");
     composerStore.startEdition("hello");
-    deleteRows(model, [1]);
+    await deleteRows(model, [1]);
     composerStore.stopEdition();
     expect(getCellContent(model, "A3")).toEqual("hello");
   });
 
-  test("Composer is not moved when row is removed after it", () => {
-    selectCell(model, "A4");
+  test("Composer is not moved when row is removed after it", async () => {
+    await selectCell(model, "A4");
     composerStore.startEdition("hello");
-    deleteRows(model, [10]);
+    await deleteRows(model, [10]);
     composerStore.stopEdition();
     expect(getCellContent(model, "A4")).toEqual("hello");
   });
 
-  test("Delete row & Don't notify cell is deleted when composer is active", () => {
-    selectCell(model, "A4");
+  test("Delete row & Don't notify cell is deleted when composer is active", async () => {
+    await selectCell(model, "A4");
     composerStore.startEdition("hello");
-    deleteRows(model, [3]);
+    await deleteRows(model, [3]);
     expect(raiseErrorSpy).toHaveBeenCalled();
     expect(composerStore.editionMode).toBe("inactive");
   });
 
-  test("Delete col & Don't notify cell is deleted when composer is active", () => {
-    selectCell(model, "A4");
+  test("Delete col & Don't notify cell is deleted when composer is active", async () => {
+    await selectCell(model, "A4");
     composerStore.startEdition("hello");
-    deleteColumns(model, ["A"]);
+    await deleteColumns(model, ["A"]);
     expect(raiseErrorSpy).toHaveBeenCalled();
     expect(composerStore.editionMode).toBe("inactive");
   });
 
-  test("Delete sheet & Don't notify cell is deleted when composer is active", () => {
+  test("Delete sheet & Don't notify cell is deleted when composer is active", async () => {
     const activeSheetId = model.getters.getActiveSheetId();
-    createSheet(model, { sheetId: "42" });
-    selectCell(model, "A4");
+    await createSheet(model, { sheetId: "42" });
+    await selectCell(model, "A4");
     composerStore.startEdition("hello");
-    deleteSheet(model, activeSheetId);
+    await deleteSheet(model, activeSheetId);
     expect(raiseErrorSpy).toHaveBeenCalled();
     expect(composerStore.editionMode).toBe("inactive");
   });
 
-  test("Delete row & Don't notify cell is deleted when composer is not active", () => {
-    selectCell(model, "A4");
+  test("Delete row & Don't notify cell is deleted when composer is not active", async () => {
+    await selectCell(model, "A4");
     composerStore.startEdition("hello");
     composerStore.stopEdition();
-    deleteRows(model, [3]);
+    await deleteRows(model, [3]);
     expect(raiseErrorSpy).not.toHaveBeenCalled();
     expect(composerStore.editionMode).toBe("inactive");
   });
 
-  test("Delete col & Don't notify cell is deleted when composer is not active", () => {
-    selectCell(model, "A4");
+  test("Delete col & Don't notify cell is deleted when composer is not active", async () => {
+    await selectCell(model, "A4");
     composerStore.startEdition("hello");
     composerStore.stopEdition();
-    deleteColumns(model, ["A"]);
+    await deleteColumns(model, ["A"]);
     expect(raiseErrorSpy).not.toHaveBeenCalled();
     expect(composerStore.editionMode).toBe("inactive");
   });
 
-  test("Delete sheet & Don't notify cell is deleted when composer is not active", () => {
+  test("Delete sheet & Don't notify cell is deleted when composer is not active", async () => {
     const activeSheetId = model.getters.getActiveSheetId();
-    createSheet(model, { sheetId: "42" });
-    selectCell(model, "A4");
+    await createSheet(model, { sheetId: "42" });
+    await selectCell(model, "A4");
     composerStore.startEdition("hello");
     composerStore.stopEdition();
-    deleteSheet(model, activeSheetId);
+    await deleteSheet(model, activeSheetId);
     expect(raiseErrorSpy).not.toHaveBeenCalled();
     expect(composerStore.editionMode).toBe("inactive");
   });
 
-  test("Delete sheet & Don't notify cell is deleted when composer is in selecting mode", () => {
+  test("Delete sheet & Don't notify cell is deleted when composer is in selecting mode", async () => {
     const activeSheetId = model.getters.getActiveSheetId();
-    createSheet(model, { sheetId: "42" });
-    selectCell(model, "A4");
-    setCellContent(model, "A4", "=A1+");
+    await createSheet(model, { sheetId: "42" });
+    await selectCell(model, "A4");
+    await setCellContent(model, "A4", "=A1+");
     composerStore.startEdition();
-    deleteSheet(model, activeSheetId);
+    await deleteSheet(model, activeSheetId);
     expect(composerStore.editionMode).toBe("inactive");
   });
 
-  test("Composing in a sheet when the sheet is deleted", () => {
-    createSheet(model, { sheetId: "42" });
-    activateSheet(model, "42");
-    selectCell(model, "A4");
+  test("Composing in a sheet when the sheet is deleted", async () => {
+    await createSheet(model, { sheetId: "42" });
+    await activateSheet(model, "42");
+    await selectCell(model, "A4");
     composerStore.startEdition("hello");
-    deleteSheet(model, "42");
+    await deleteSheet(model, "42");
     expect(raiseErrorSpy).toHaveBeenCalled();
     expect(composerStore.editionMode).toBe("inactive");
   });
 
-  test("Composing in a sheet when a sheet deletion is redone", () => {
-    createSheet(model, { sheetId: "42" });
-    selectCell(model, "A4");
-    deleteSheet(model, "42");
-    undo(model);
-    activateSheet(model, "42");
+  test("Composing in a sheet when a sheet deletion is redone", async () => {
+    await createSheet(model, { sheetId: "42" });
+    await selectCell(model, "A4");
+    await deleteSheet(model, "42");
+    await undo(model);
+    await activateSheet(model, "42");
     composerStore.startEdition("hello");
-    redo(model);
+    await redo(model);
     expect(raiseErrorSpy).toHaveBeenCalled();
     expect(composerStore.editionMode).toBe("inactive");
   });
 
-  test("Composing in a sheet when a sheet creation is undone", () => {
-    createSheet(model, { sheetId: "42" });
-    selectCell(model, "A4");
-    activateSheet(model, "42");
+  test("Composing in a sheet when a sheet creation is undone", async () => {
+    await createSheet(model, { sheetId: "42" });
+    await selectCell(model, "A4");
+    await activateSheet(model, "42");
     composerStore.startEdition("hello");
-    undo(model);
+    await undo(model);
     expect(raiseErrorSpy).toHaveBeenCalled();
     expect(composerStore.editionMode).toBe("inactive");
   });

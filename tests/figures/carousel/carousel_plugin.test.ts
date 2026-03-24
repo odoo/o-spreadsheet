@@ -11,20 +11,21 @@ import {
   updateCarousel,
   updateChart,
 } from "../../test_helpers/commands_helpers";
+import { createModel } from "../../test_helpers/helpers";
 
 let model: Model;
 let sheetId: UID;
 
-beforeEach(() => {
-  model = new Model();
+beforeEach(async () => {
+  model = await createModel();
   sheetId = model.getters.getActiveSheetId();
 });
 
 describe("Carousel figure", () => {
   describe("dispatch results", () => {
-    test("Cannot create carousel with duplicated figure id", () => {
-      createChart(model, { type: "bar" }, "chartId", undefined, { figureId: "figureId" });
-      const result = createCarousel(model, { items: [] }, "figureId");
+    test("Cannot create carousel with duplicated figure id", async () => {
+      await createChart(model, { type: "bar" }, "chartId", undefined, { figureId: "figureId" });
+      const result = await createCarousel(model, { items: [] }, "figureId");
       expect(result).toBeCancelledBecause(CommandResult.DuplicatedFigureId);
     });
 
@@ -37,8 +38,10 @@ describe("Carousel figure", () => {
       expect(result).toBeCancelledBecause(CommandResult.InvalidFigureId);
     });
 
-    test("Cannot add a new chart to a non carousel-figure", () => {
-      createChart(model, { type: "bar" }, "chartId", undefined, { figureId: "chartFigureId" });
+    test("Cannot add a new chart to a non carousel-figure", async () => {
+      await createChart(model, { type: "bar" }, "chartId", undefined, {
+        figureId: "chartFigureId",
+      });
 
       const sheetId = model.getters.getActiveSheetId();
       let result = model.dispatch("ADD_NEW_CHART_TO_CAROUSEL", { figureId: "invalidId", sheetId });
@@ -48,28 +51,32 @@ describe("Carousel figure", () => {
       expect(result).toBeCancelledBecause(CommandResult.InvalidFigureId);
     });
 
-    test("Cannot add an existing chart to a non-carousel figure", () => {
-      createChart(model, { type: "bar" }, "chartId", undefined, { figureId: "chartFigureId" });
-      createChart(model, { type: "bar" }, "chartId2", undefined, { figureId: "otherFigureId" });
-      createCarousel(model, { items: [] }, "carouselId");
-      createCarousel(model, { items: [] }, "otherCarouselId");
+    test("Cannot add an existing chart to a non-carousel figure", async () => {
+      await createChart(model, { type: "bar" }, "chartId", undefined, {
+        figureId: "chartFigureId",
+      });
+      await createChart(model, { type: "bar" }, "chartId2", undefined, {
+        figureId: "otherFigureId",
+      });
+      await createCarousel(model, { items: [] }, "carouselId");
+      await createCarousel(model, { items: [] }, "otherCarouselId");
 
-      let result = addChartFigureToCarousel(model, "chartFigureId", "otherFigureId");
+      let result = await addChartFigureToCarousel(model, "chartFigureId", "otherFigureId");
       expect(result).toBeCancelledBecause(CommandResult.InvalidFigureId);
 
-      result = addChartFigureToCarousel(model, "carouselId", "invalidId");
+      result = await addChartFigureToCarousel(model, "carouselId", "invalidId");
       expect(result).toBeCancelledBecause(CommandResult.InvalidFigureId);
 
-      result = addChartFigureToCarousel(model, "otherCarouselId", "carouselId");
+      result = await addChartFigureToCarousel(model, "otherCarouselId", "carouselId");
       expect(result).toBeCancelledBecause(CommandResult.InvalidFigureId);
 
-      result = addChartFigureToCarousel(model, "carouselId", "chartFigureId");
+      result = await addChartFigureToCarousel(model, "carouselId", "chartFigureId");
       expect(result).toBeSuccessfullyDispatched();
     });
 
-    test("Cannot update the carousel to a wrong state", () => {
-      createCarousel(model, { items: [] }, "carouselId");
-      const chartId = addNewChartToCarousel(model, "carouselId");
+    test("Cannot update the carousel to a wrong state", async () => {
+      await createCarousel(model, { items: [] }, "carouselId");
+      const chartId = await addNewChartToCarousel(model, "carouselId");
 
       let result = model.dispatch("UPDATE_CAROUSEL_ACTIVE_ITEM", {
         figureId: "wrongCarouselId",
@@ -100,9 +107,9 @@ describe("Carousel figure", () => {
       expect(result).toBeSuccessfullyDispatched();
     });
 
-    test("Cannot duplicate wrong carousel item", () => {
-      createCarousel(model, { items: [] }, "carouselId");
-      const chartId = addNewChartToCarousel(model, "carouselId");
+    test("Cannot duplicate wrong carousel item", async () => {
+      await createCarousel(model, { items: [] }, "carouselId");
+      const chartId = await addNewChartToCarousel(model, "carouselId");
 
       let result = model.dispatch("DUPLICATE_CAROUSEL_CHART", {
         carouselId: "wrongCarouselId",
@@ -122,25 +129,25 @@ describe("Carousel figure", () => {
     });
   });
 
-  test("Can create a carousel figure", () => {
-    createCarousel(model, { items: [] }, "carouselId");
+  test("Can create a carousel figure", async () => {
+    await createCarousel(model, { items: [] }, "carouselId");
     expect(model.getters.getFigures(sheetId)).toHaveLength(1);
     expect(model.getters.getFigures(sheetId)[0].tag).toBe("carousel");
     expect(model.getters.getCarousel("carouselId")).toEqual({ items: [] });
   });
 
-  test("Can update a carousel", () => {
-    createCarousel(model, { items: [] }, "carouselId");
+  test("Can update a carousel", async () => {
+    await createCarousel(model, { items: [] }, "carouselId");
     expect(model.getters.getCarousel("carouselId").items).toEqual([]);
 
-    updateCarousel(model, "carouselId", { items: [{ type: "carouselDataView" }] });
+    await updateCarousel(model, "carouselId", { items: [{ type: "carouselDataView" }] });
     expect(model.getters.getCarousel("carouselId").items).toEqual([{ type: "carouselDataView" }]);
   });
 
-  test("Can add a new chart to a carousel", () => {
-    createCarousel(model, { items: [] }, "carouselId");
+  test("Can add a new chart to a carousel", async () => {
+    await createCarousel(model, { items: [] }, "carouselId");
 
-    addNewChartToCarousel(model, "carouselId");
+    await addNewChartToCarousel(model, "carouselId");
 
     const carouselItems = model.getters.getCarousel("carouselId").items;
     expect(carouselItems).toMatchObject([{ type: "chart", chartId: expect.any(String) }]);
@@ -150,12 +157,14 @@ describe("Carousel figure", () => {
     expect(model.getters.getFigureIdFromChartId(carouselItems[0]["chartId"])).toBe("carouselId");
   });
 
-  test("Can add an existing chart to a carousel", () => {
-    createCarousel(model, { items: [] }, "carouselId");
-    createChart(model, { type: "radar" }, "chartId", undefined, { figureId: "chartFigureId" });
+  test("Can add an existing chart to a carousel", async () => {
+    await createCarousel(model, { items: [] }, "carouselId");
+    await createChart(model, { type: "radar" }, "chartId", undefined, {
+      figureId: "chartFigureId",
+    });
     expect(model.getters.getFigures(sheetId)).toHaveLength(2);
 
-    addChartFigureToCarousel(model, "carouselId", "chartFigureId");
+    await addChartFigureToCarousel(model, "carouselId", "chartFigureId");
 
     expect(model.getters.getCarousel("carouselId").items).toEqual([
       { type: "chart", chartId: "chartId" },
@@ -165,15 +174,15 @@ describe("Carousel figure", () => {
     expect(model.getters.getFigures(sheetId)).toHaveLength(1);
   });
 
-  test("Can pop a chart out of a carousel", () => {
-    createCarousel(model, { items: [] }, "carouselId");
-    addNewChartToCarousel(model, "carouselId");
+  test("Can pop a chart out of a carousel", async () => {
+    await createCarousel(model, { items: [] }, "carouselId");
+    await addNewChartToCarousel(model, "carouselId");
     expect(model.getters.getFigures(sheetId)).toHaveLength(1);
     const carouselFigureId = model.getters.getFigures(sheetId)![0].id;
     const carousel = model.getters.getCarousel(carouselFigureId);
     const chartId = carousel.items[0]["chartId"];
 
-    popOutChartFromCarousel(model, sheetId, carouselFigureId, chartId);
+    await popOutChartFromCarousel(model, sheetId, carouselFigureId, chartId);
     expect(model.getters.getCarousel(carouselFigureId).items).toHaveLength(0);
 
     const newFigures = model.getters.getFigures(sheetId);
@@ -183,11 +192,11 @@ describe("Carousel figure", () => {
     expect(newFigures[1].tag).toBe("chart");
   });
 
-  test("Can duplicate a sheet with a carousel", () => {
-    createCarousel(model, { items: [] }, "carouselId");
-    const chartId = addNewChartToCarousel(model, "carouselId");
+  test("Can duplicate a sheet with a carousel", async () => {
+    await createCarousel(model, { items: [] }, "carouselId");
+    const chartId = await addNewChartToCarousel(model, "carouselId");
 
-    duplicateSheet(model, sheetId, "newSheetId");
+    await duplicateSheet(model, sheetId, "newSheetId");
 
     const carouselItems = model.getters.getCarousel("carouselId").items;
     expect(carouselItems).toMatchObject([{ type: "chart", chartId }]);
@@ -207,17 +216,19 @@ describe("Carousel figure", () => {
     expect(model.getters.getFigureIdFromChartId("newSheetId??" + chartId)).toBe(newCarouselId);
   });
 
-  test("Can export/import a carousel and its charts", () => {
+  test("Can export/import a carousel and its charts", async () => {
     const title = { text: "Title1", fontSize: 20, bold: true };
-    createCarousel(model, { items: [], title }, "carouselId");
-    addNewChartToCarousel(model, "carouselId");
+    await createCarousel(model, { items: [], title }, "carouselId");
+    await addNewChartToCarousel(model, "carouselId");
     const chartId = model.getters.getCarousel("carouselId").items[0]["chartId"];
-    updateChart(model, chartId, { type: "pyramid", dataSets: [{ dataRange: "A1:A6" }] });
+    await updateChart(model, chartId, { type: "pyramid", dataSets: [{ dataRange: "A1:A6" }] });
 
-    createChart(model, { type: "radar" }, "chartId2", undefined, { figureId: "chartFigureId" });
-    addChartFigureToCarousel(model, "carouselId", "chartFigureId");
+    await createChart(model, { type: "radar" }, "chartId2", undefined, {
+      figureId: "chartFigureId",
+    });
+    await addChartFigureToCarousel(model, "carouselId", "chartFigureId");
 
-    const newModel = new Model(model.exportData());
+    const newModel = await createModel(model.exportData());
     expect(newModel.getters.getFigures(sheetId)).toHaveLength(1);
     expect(newModel.getters.getCarousel("carouselId").title).toEqual(title);
     expect(newModel.getters.getCarousel("carouselId").items).toEqual([
@@ -231,14 +242,14 @@ describe("Carousel figure", () => {
     expect(newModel.getters.getChartDefinition("chartId2")).toMatchObject({ type: "radar" });
   });
 
-  test("Carousel item is still selected when changing its name", () => {
-    createCarousel(model, { items: [{ type: "carouselDataView" }] }, "carouselId");
-    const chartId = addNewChartToCarousel(model, "carouselId");
-    selectCarouselItem(model, "carouselId", { type: "chart", chartId });
+  test("Carousel item is still selected when changing its name", async () => {
+    await createCarousel(model, { items: [{ type: "carouselDataView" }] }, "carouselId");
+    const chartId = await addNewChartToCarousel(model, "carouselId");
+    await selectCarouselItem(model, "carouselId", { type: "chart", chartId });
 
     expect(model.getters.getSelectedCarouselItem("carouselId")).toEqual({ type: "chart", chartId });
 
-    updateCarousel(model, "carouselId", {
+    await updateCarousel(model, "carouselId", {
       items: [{ type: "carouselDataView" }, { type: "chart", chartId, title: "Title" }],
     });
     expect(model.getters.getSelectedCarouselItem("carouselId")).toEqual({

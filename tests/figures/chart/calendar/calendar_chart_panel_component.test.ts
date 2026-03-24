@@ -18,7 +18,11 @@ import {
   openChartConfigSidePanel,
   openChartDesignSidePanel,
 } from "../../../test_helpers/chart_helpers";
-import { mockChart, mountComponentWithPortalTarget } from "../../../test_helpers/helpers";
+import {
+  createModel,
+  mockChart,
+  mountComponentWithPortalTarget,
+} from "../../../test_helpers/helpers";
 
 let model: Model;
 let fixture: HTMLElement;
@@ -34,15 +38,15 @@ function getCalendarChartDefinition(chartId: UID): CalendarChartDefinition {
 
 describe("Calendar chart side panel", () => {
   beforeEach(async () => {
-    model = new Model({});
+    model = await createModel({});
     ({ fixture, env } = await mountComponentWithPortalTarget(SidePanels, { model }));
   });
 
   describe("Config panel", () => {
     test("Calendar chart config panel is correctly initialized", async () => {
-      setCellContent(model, "A1", "=DATE(1,1,1) + SEQUENCE(3,1,1,15)");
-      setCellContent(model, "B1", "=RANDARRAY(3,1)");
-      createCalendarChart(
+      await setCellContent(model, "A1", "=DATE(1,1,1) + SEQUENCE(3,1,1,15)");
+      await setCellContent(model, "B1", "=RANDARRAY(3,1)");
+      await createCalendarChart(
         model,
         {
           dataSets: [{ dataRange: "B1:B3" }],
@@ -61,7 +65,7 @@ describe("Calendar chart side panel", () => {
     });
 
     test("Only one data range is enabled", async () => {
-      createCalendarChart(
+      await createCalendarChart(
         model,
         {
           dataSets: [{ dataRange: "B1:B3" }],
@@ -79,10 +83,10 @@ describe("Calendar chart side panel", () => {
     });
 
     test("Can change the horizontal group by", async () => {
-      setCellContent(model, "A1", "=DATE(1,1,1) + SEQUENCE(3,1,1,30/24)");
-      setFormat(model, "A1:A3", "mm/dd/yyyy hh:mm:ss");
-      setCellContent(model, "B1", "=RANDARRAY(3,1)");
-      createCalendarChart(
+      await setCellContent(model, "A1", "=DATE(1,1,1) + SEQUENCE(3,1,1,30/24)");
+      await setFormat(model, "A1:A3", "mm/dd/yyyy hh:mm:ss");
+      await setCellContent(model, "B1", "=RANDARRAY(3,1)");
+      await createCalendarChart(
         model,
         {
           dataSets: [{ dataRange: "B1:B3" }],
@@ -100,9 +104,9 @@ describe("Calendar chart side panel", () => {
     });
 
     test("Can change the vertical group by", async () => {
-      setCellContent(model, "A1", "=DATE(1,1,1) + SEQUENCE(3,1,1,15)");
-      setCellContent(model, "B1", "=RANDARRAY(3,1)");
-      createCalendarChart(
+      await setCellContent(model, "A1", "=DATE(1,1,1) + SEQUENCE(3,1,1,15)");
+      await setCellContent(model, "B1", "=RANDARRAY(3,1)");
+      await createCalendarChart(
         model,
         {
           dataSets: [{ dataRange: "B1:B3" }],
@@ -122,7 +126,7 @@ describe("Calendar chart side panel", () => {
 
   describe("Design panel", () => {
     test("Calendar chart design panel is correctly initialized", async () => {
-      createCalendarChart(
+      await createCalendarChart(
         model,
         {
           title: { text: "Title", bold: true },
@@ -145,7 +149,7 @@ describe("Calendar chart side panel", () => {
     });
 
     test("Can edit the color scale", async () => {
-      createCalendarChart(model, { colorScale: schemeToColorScale("purples") }, chartId);
+      await createCalendarChart(model, { colorScale: schemeToColorScale("purples") }, chartId);
       await openChartDesignSidePanel(model, env, fixture, chartId);
 
       await click(fixture, ".color-scale-container");
@@ -160,7 +164,7 @@ describe("Calendar chart side panel", () => {
     });
 
     test("Can edit a custom color scale", async () => {
-      createCalendarChart(model, {}, chartId);
+      await createCalendarChart(model, {}, chartId);
       await openChartDesignSidePanel(model, env, fixture, chartId);
 
       await click(fixture, ".color-scale-container");
@@ -178,7 +182,7 @@ describe("Calendar chart side panel", () => {
     });
 
     test("Can edit the color of the matrix element with no value", async () => {
-      createCalendarChart(model, { missingValueColor: "#f00" }, chartId);
+      await createCalendarChart(model, { missingValueColor: "#f00" }, chartId);
       await openChartDesignSidePanel(model, env, fixture, chartId);
 
       await changeRoundColorPickerColor(".o-missing-value", "#FF9900");

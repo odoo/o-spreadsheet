@@ -51,13 +51,13 @@ import {
   getEvaluatedCell,
   getStyle,
 } from "./test_helpers/getters_helpers";
-import { makeTestComposerStore, target, toRangesData } from "./test_helpers/helpers";
+import { createModel, makeTestComposerStore, target, toRangesData } from "./test_helpers/helpers";
 
 let model: Model;
 let sheetId: UID;
 
-beforeEach(() => {
-  model = new Model();
+beforeEach(async () => {
+  model = await createModel();
   sheetId = model.getters.getActiveSheetId();
 });
 
@@ -109,33 +109,33 @@ describe("Repeat commands basics", () => {
     expect(repeatableCommands).toEqual(registryKeys);
   });
 
-  test("Can repeat a command", () => {
-    setCellContent(model, "A1", "hello");
-    setSelection(model, ["B2"]);
-    redo(model);
+  test("Can repeat a command", async () => {
+    await setCellContent(model, "A1", "hello");
+    await setSelection(model, ["B2"]);
+    await redo(model);
     expect(getCellContent(model, "B2")).toBe("hello");
   });
 
-  test("Can undo repeated command", () => {
-    setCellContent(model, "A1", "hello");
-    setSelection(model, ["B2"]);
-    redo(model);
+  test("Can undo repeated command", async () => {
+    await setCellContent(model, "A1", "hello");
+    await setSelection(model, ["B2"]);
+    await redo(model);
     expect(getCellContent(model, "B2")).toBe("hello");
 
-    undo(model);
+    await undo(model);
     expect(getCellContent(model, "B2")).toBe("");
   });
 
-  test("Can undo => redo => repeat command", () => {
-    setCellContent(model, "A1", "hello");
-    undo(model);
+  test("Can undo => redo => repeat command", async () => {
+    await setCellContent(model, "A1", "hello");
+    await undo(model);
     expect(getCellContent(model, "A1")).toBe("");
 
-    redo(model);
+    await redo(model);
     expect(getCellContent(model, "A1")).toBe("hello");
 
-    setSelection(model, ["B2"]);
-    redo(model);
+    await setSelection(model, ["B2"]);
+    await redo(model);
     expect(getCellContent(model, "B2")).toBe("hello");
   });
 });
@@ -154,17 +154,17 @@ describe("Repeat command transform generics", () => {
     TEST_COMMANDS.CREATE_TABLE,
     TEST_COMMANDS.REMOVE_TABLE,
     TEST_COMMANDS.HIDE_SHEET,
-  ])("Sheet dependant command are adapted to current sheet %s", (command: CoreCommand) => {
-    createSheet(model, { sheetId: "42" });
-    activateSheet(model, "42");
+  ])("Sheet dependant command are adapted to current sheet %s", async (command: CoreCommand) => {
+    await createSheet(model, { sheetId: "42" });
+    await activateSheet(model, "42");
     const transformed = repeatCoreCommand(model.getters, command);
     expect((transformed as SheetDependentCommand)?.sheetId).toEqual("42");
   });
 
   test.each([TEST_COMMANDS.UPDATE_CELL, TEST_COMMANDS.CLEAR_CELL, TEST_COMMANDS.SET_BORDER])(
     "Position dependant commands are adapted to current selection %s",
-    (cmd: CoreCommand) => {
-      setSelection(model, ["B2:C4"]);
+    async (cmd: CoreCommand) => {
+      await setSelection(model, ["B2:C4"]);
       const transformed = repeatCoreCommand(model.getters, cmd);
       expect(transformed).toMatchObject({ col: 1, row: 1 });
     }
@@ -179,8 +179,8 @@ describe("Repeat command transform generics", () => {
     TEST_COMMANDS.CLEAR_CELLS,
   ])(
     "Target dependant commands have target equal to current current selection",
-    (command: CoreCommand) => {
-      setSelection(model, ["B2:C4"]);
+    async (command: CoreCommand) => {
+      await setSelection(model, ["B2:C4"]);
       const transformed = repeatCoreCommand(model.getters, command);
       expect(transformed).toMatchObject({ target: target("B2:C4") });
     }
@@ -188,18 +188,18 @@ describe("Repeat command transform generics", () => {
 
   test.each([TEST_COMMANDS.FOLD_HEADER_GROUPS_IN_ZONE, TEST_COMMANDS.UNFOLD_HEADER_GROUPS_IN_ZONE])(
     "Zone dependant commands have zone equal to current current selection",
-    (command: CoreCommand) => {
-      setSelection(model, ["B2:C4"]);
+    async (command: CoreCommand) => {
+      await setSelection(model, ["B2:C4"]);
       const transformed = repeatCoreCommand(model.getters, command);
       expect(transformed).toMatchObject({ zone: toZone("B2:C4") });
     }
   );
 
-  test("Repeat create table", () => {
+  test("Repeat create table", async () => {
     const toRepeat = TEST_COMMANDS.CREATE_TABLE;
-    createSheet(model, { sheetId: "42" });
-    activateSheet(model, "42");
-    setSelection(model, ["B2:C4"]);
+    await createSheet(model, { sheetId: "42" });
+    await activateSheet(model, "42");
+    await setSelection(model, ["B2:C4"]);
     const transformed = repeatCoreCommand(model.getters, toRepeat);
     expect(transformed).toMatchObject({
       ...TEST_COMMANDS.CREATE_TABLE,
@@ -216,7 +216,7 @@ describe("Repeat command transform generics", () => {
 });
 
 describe("Repeat command transform specifics", () => {
-  test("Create Chart transform", () => {
+  test("Create Chart transform", async () => {
     const command: CreateChartCommand = {
       ...TEST_COMMANDS.CREATE_CHART,
       type: "CREATE_CHART",
@@ -224,8 +224,8 @@ describe("Repeat command transform specifics", () => {
       chartId: "chartId",
       sheetId,
     };
-    createSheet(model, { sheetId: "42" });
-    activateSheet(model, "42");
+    await createSheet(model, { sheetId: "42" });
+    await activateSheet(model, "42");
     const transformed = repeatCoreCommand(model.getters, command);
     expect(transformed).toEqual({
       ...command,
@@ -235,14 +235,14 @@ describe("Repeat command transform specifics", () => {
     });
   });
 
-  test("Create image transform", () => {
+  test("Create image transform", async () => {
     const command: CreateImageOverCommand = {
       ...TEST_COMMANDS.CREATE_IMAGE,
       sheetId,
       figureId: "figureId",
     };
-    createSheet(model, { sheetId: "42" });
-    activateSheet(model, "42");
+    await createSheet(model, { sheetId: "42" });
+    await activateSheet(model, "42");
     const transformed = repeatCoreCommand(model.getters, command);
     expect(transformed).toEqual({
       ...command,
@@ -251,13 +251,13 @@ describe("Repeat command transform specifics", () => {
     });
   });
 
-  test("Create figure transform", () => {
+  test("Create figure transform", async () => {
     const command: CreateFigureCommand = {
       ...TEST_COMMANDS.CREATE_FIGURE,
       sheetId,
     };
-    createSheet(model, { sheetId: "42" });
-    activateSheet(model, "42");
+    await createSheet(model, { sheetId: "42" });
+    await activateSheet(model, "42");
     const transformed = repeatCoreCommand(model.getters, command);
 
     expect(transformed).toEqual({
@@ -267,8 +267,8 @@ describe("Repeat command transform specifics", () => {
     });
   });
 
-  test("Create sheet transform", () => {
-    createSheet(model, { sheetId: "sheetId", name: "sheetName" });
+  test("Create sheet transform", async () => {
+    await createSheet(model, { sheetId: "sheetId", name: "sheetName" });
     const command: CreateSheetCommand = {
       ...TEST_COMMANDS.CREATE_SHEET,
       sheetId: "sheetId",
@@ -280,7 +280,7 @@ describe("Repeat command transform specifics", () => {
       sheetId: expect.not.stringMatching("sheetId"),
       name: "sheetName1",
     });
-    createSheet(model, { ...repeated });
+    await createSheet(model, { ...repeated });
 
     expect(repeatCoreCommand(model.getters, repeated)).toEqual({
       ...command,
@@ -292,16 +292,16 @@ describe("Repeat command transform specifics", () => {
   test.each([
     { dim: "COL", selection: "C1:D4", newBase: 2 },
     { dim: "ROW", selection: "A5", newBase: 4 },
-  ])("Repeat add col/row command %s", (args) => {
-    createSheet(model, { sheetId: "42" });
+  ])("Repeat add col/row command %s", async (args) => {
+    await createSheet(model, { sheetId: "42" });
     const command: AddColumnsRowsCommand = {
       ...TEST_COMMANDS.ADD_COLUMNS_ROWS,
       dimension: args.dim as Dimension,
       sheetId,
       base: 0,
     };
-    activateSheet(model, "42");
-    setSelection(model, [args.selection]);
+    await activateSheet(model, "42");
+    await setSelection(model, [args.selection]);
     const transformed = repeatCoreCommand(model.getters, command);
     expect(transformed).toEqual({
       ...command,
@@ -315,8 +315,8 @@ describe("Repeat command transform specifics", () => {
     { cmd: "REMOVE_COLUMNS_ROWS" as const, dim: "ROW", selection: "A5", expected: [4] },
     { cmd: "HIDE_COLUMNS_ROWS" as const, dim: "COL", selection: "A5", expected: [0] },
     { cmd: "HIDE_COLUMNS_ROWS" as const, dim: "ROW", selection: "C1:D3", expected: [0, 1, 2] },
-  ])("Repeat delete/hide col/row command %s", (args) => {
-    createSheet(model, { sheetId: "42" });
+  ])("Repeat delete/hide col/row command %s", async (args) => {
+    await createSheet(model, { sheetId: "42" });
     const command: RemoveColumnsRowsCommand | HideColumnsRowsCommand = {
       type: args.cmd,
       dimension: args.dim as Dimension,
@@ -324,8 +324,8 @@ describe("Repeat command transform specifics", () => {
       elements: [0, 1],
       sheetName: "42",
     };
-    activateSheet(model, "42");
-    setSelection(model, [args.selection]);
+    await activateSheet(model, "42");
+    await setSelection(model, [args.selection]);
     const transformed = repeatCoreCommand(model.getters, command);
     expect(transformed).toEqual({
       ...command,
@@ -337,15 +337,15 @@ describe("Repeat command transform specifics", () => {
   test.each([
     { dim: "COL", selection: "C1:D4", affectedHeader: [2, 3] },
     { dim: "ROW", selection: "A5", affectedHeader: [4] },
-  ])("Repeat resize col/row command %s", (args) => {
-    createSheet(model, { sheetId: "42" });
+  ])("Repeat resize col/row command %s", async (args) => {
+    await createSheet(model, { sheetId: "42" });
     const command: ResizeColumnsRowsCommand = {
       ...TEST_COMMANDS.RESIZE_COLUMNS_ROWS,
       dimension: args.dim as Dimension,
       sheetId,
     };
-    activateSheet(model, "42");
-    setSelection(model, [args.selection]);
+    await activateSheet(model, "42");
+    await setSelection(model, [args.selection]);
     const transformed = repeatCoreCommand(model.getters, command);
     expect(transformed).toEqual({
       ...command,
@@ -354,15 +354,15 @@ describe("Repeat command transform specifics", () => {
     });
   });
 
-  test.each(["COL", "ROW"] as const)("Repeat group headers command %s", (dimension) => {
-    createSheet(model, { sheetId: "42" });
+  test.each(["COL", "ROW"] as const)("Repeat group headers command %s", async (dimension) => {
+    await createSheet(model, { sheetId: "42" });
     const command: GroupHeadersCommand = {
       ...TEST_COMMANDS.GROUP_HEADERS,
       dimension: dimension,
       sheetId,
     };
-    activateSheet(model, "42");
-    setSelection(model, ["A1:D4"]);
+    await activateSheet(model, "42");
+    await setSelection(model, ["A1:D4"]);
     const transformed = repeatCoreCommand(model.getters, command);
     expect(transformed).toEqual({
       ...command,
@@ -372,15 +372,15 @@ describe("Repeat command transform specifics", () => {
     });
   });
 
-  test.each(["COL", "ROW"] as const)("Repeat ungroup headers command %s", (dimension) => {
-    createSheet(model, { sheetId: "42" });
+  test.each(["COL", "ROW"] as const)("Repeat ungroup headers command %s", async (dimension) => {
+    await createSheet(model, { sheetId: "42" });
     const command: UnGroupHeadersCommand = {
       ...TEST_COMMANDS.UNGROUP_HEADERS,
       dimension: dimension,
       sheetId,
     };
-    activateSheet(model, "42");
-    setSelection(model, ["A1:D4"]);
+    await activateSheet(model, "42");
+    await setSelection(model, ["A1:D4"]);
     const transformed = repeatCoreCommand(model.getters, command);
     expect(transformed).toEqual({
       ...command,
@@ -392,20 +392,20 @@ describe("Repeat command transform specifics", () => {
 });
 
 describe("Repeat local commands", () => {
-  test("Repeat Paste", () => {
-    setCellContent(model, "A1", "A1");
-    setCellContent(model, "A2", "A2");
-    setFormatting(model, "A2", { fillColor: "red" });
+  test("Repeat Paste", async () => {
+    await setCellContent(model, "A1", "A1");
+    await setCellContent(model, "A2", "A2");
+    await setFormatting(model, "A2", { fillColor: "red" });
 
-    addEqualCf(model, "A1:A2", { fillColor: "#FF0000" }, "1");
-    createTableWithFilter(model, "A1:A2");
+    await addEqualCf(model, "A1:A2", { fillColor: "#FF0000" }, "1");
+    await createTableWithFilter(model, "A1:A2");
 
-    setSelection(model, ["A1:A2"]);
-    copy(model);
-    paste(model, "B1");
+    await setSelection(model, ["A1:A2"]);
+    await copy(model);
+    await paste(model, "B1");
 
-    setSelection(model, ["C1"]);
-    redo(model);
+    await setSelection(model, ["C1"]);
+    await redo(model);
     expect(getCellContent(model, "C1")).toEqual("A1");
     expect(getCellContent(model, "C2")).toEqual("A2");
     expect(getStyle(model, "C2")).toMatchObject({ fillColor: "red" });
@@ -413,160 +413,160 @@ describe("Repeat local commands", () => {
     expect(model.getters.getRulesByCell(sheetId, 2, 0)).toBeTruthy();
   });
 
-  test("Repeat Paste format only", () => {
-    setCellContent(model, "A1", "A1");
-    setFormatting(model, "A1", { fillColor: "red" });
+  test("Repeat Paste format only", async () => {
+    await setCellContent(model, "A1", "A1");
+    await setFormatting(model, "A1", { fillColor: "red" });
 
-    setSelection(model, ["A1"]);
-    copy(model);
-    paste(model, "B1", "onlyFormat");
+    await setSelection(model, ["A1"]);
+    await copy(model);
+    await paste(model, "B1", "onlyFormat");
 
-    setSelection(model, ["C1"]);
-    redo(model);
+    await setSelection(model, ["C1"]);
+    await redo(model);
     expect(getCellContent(model, "C1")).toEqual("");
     expect(getStyle(model, "C1")).toEqual({ fillColor: "red" });
   });
 
-  test("Local commands can be repeated multiple times", () => {
-    setCellContent(model, "A1", "A1");
-    setSelection(model, ["A1"]);
-    copy(model);
-    paste(model, "B1");
+  test("Local commands can be repeated multiple times", async () => {
+    await setCellContent(model, "A1", "A1");
+    await setSelection(model, ["A1"]);
+    await copy(model);
+    await paste(model, "B1");
 
-    setSelection(model, ["C1"]);
-    redo(model);
+    await setSelection(model, ["C1"]);
+    await redo(model);
     expect(getCellContent(model, "C1")).toEqual("A1");
 
-    setSelection(model, ["C3"]);
-    redo(model);
+    await setSelection(model, ["C3"]);
+    await redo(model);
     expect(getCellContent(model, "C3")).toEqual("A1");
   });
 
-  test("Repeat insert cell", () => {
-    setCellContent(model, "A3", "A3");
-    setCellContent(model, "B3", "B3");
-    setCellContent(model, "C3", "C3");
+  test("Repeat insert cell", async () => {
+    await setCellContent(model, "A3", "A3");
+    await setCellContent(model, "B3", "B3");
+    await setCellContent(model, "C3", "C3");
 
-    insertCells(model, "A1:A2", "down");
+    await insertCells(model, "A1:A2", "down");
 
-    setSelection(model, ["B1"]);
-    redo(model);
+    await setSelection(model, ["B1"]);
+    await redo(model);
     expect(getCellContent(model, "B3")).toEqual("");
     expect(getCellContent(model, "B4")).toEqual("B3");
 
-    setSelection(model, ["C1:C2"]);
-    redo(model);
+    await setSelection(model, ["C1:C2"]);
+    await redo(model);
     expect(getCellContent(model, "C3")).toEqual("");
     expect(getCellContent(model, "C5")).toEqual("C3");
   });
 
-  test("Repeat delete cell", () => {
-    setCellContent(model, "A3", "A3");
-    setCellContent(model, "B3", "B3");
-    setCellContent(model, "C3", "C3");
+  test("Repeat delete cell", async () => {
+    await setCellContent(model, "A3", "A3");
+    await setCellContent(model, "B3", "B3");
+    await setCellContent(model, "C3", "C3");
 
-    deleteCells(model, "A1:A2", "up");
+    await deleteCells(model, "A1:A2", "up");
 
-    setSelection(model, ["B1"]);
-    redo(model);
+    await setSelection(model, ["B1"]);
+    await redo(model);
     expect(getCellContent(model, "B3")).toEqual("");
     expect(getCellContent(model, "B2")).toEqual("B3");
 
-    setSelection(model, ["C1:C2"]);
-    redo(model);
+    await setSelection(model, ["C1:C2"]);
+    await redo(model);
     expect(getCellContent(model, "C3")).toEqual("");
     expect(getCellContent(model, "C1")).toEqual("C3");
   });
 
-  test("Repeat stop edition", () => {
+  test("Repeat stop edition", async () => {
     const composerStore = makeTestComposerStore(model);
     composerStore.startEdition();
     composerStore.setCurrentContent("kikou");
     composerStore.stopEdition();
     expect(getCellContent(model, "A1")).toEqual("kikou");
 
-    setSelection(model, ["B1"]);
-    redo(model);
+    await setSelection(model, ["B1"]);
+    await redo(model);
     expect(getCellContent(model, "B1")).toEqual("kikou");
   });
 
-  test("Repeat set decimal", () => {
-    setSelection(model, ["A1"]);
-    setCellContent(model, "A1", "1");
-    setDecimal(model, "A1", 1, sheetId);
+  test("Repeat set decimal", async () => {
+    await setSelection(model, ["A1"]);
+    await setCellContent(model, "A1", "1");
+    await setDecimal(model, "A1", 1, sheetId);
     expect(getEvaluatedCell(model, "A1").formattedValue).toEqual("1.0");
 
-    redo(model);
+    await redo(model);
     expect(getEvaluatedCell(model, "A1").formattedValue).toEqual("1.00");
   });
 
-  test("Repeat autoresize rows", () => {
-    resizeRows(model, [0, 2, 3], 100);
-    autoresizeRows(model, [0]);
+  test("Repeat autoresize rows", async () => {
+    await resizeRows(model, [0, 2, 3], 100);
+    await autoresizeRows(model, [0]);
     expect(model.getters.getRowSize(sheetId, 0)).toEqual(DEFAULT_CELL_HEIGHT);
 
-    setSelection(model, ["A3:A4"]);
-    redo(model);
+    await setSelection(model, ["A3:A4"]);
+    await redo(model);
     expect(model.getters.getRowSize(sheetId, 2)).toEqual(DEFAULT_CELL_HEIGHT);
     expect(model.getters.getRowSize(sheetId, 3)).toEqual(DEFAULT_CELL_HEIGHT);
   });
 
-  test("Repeat autoresize columns", () => {
-    setCellContent(model, "A1", "A1");
-    setCellContent(model, "C1", "C1");
-    setCellContent(model, "D1", "D1");
-    resizeColumns(model, ["A", "C", "D"], 50);
-    autoresizeColumns(model, [0]);
+  test("Repeat autoresize columns", async () => {
+    await setCellContent(model, "A1", "A1");
+    await setCellContent(model, "C1", "C1");
+    await setCellContent(model, "D1", "D1");
+    await resizeColumns(model, ["A", "C", "D"], 50);
+    await autoresizeColumns(model, [0]);
     expect(model.getters.getColSize(sheetId, 0)).toEqual(34);
 
-    setSelection(model, ["C1:D1"]);
-    redo(model);
+    await setSelection(model, ["C1:D1"]);
+    await redo(model);
     expect(model.getters.getColSize(sheetId, 2)).toEqual(34);
     expect(model.getters.getColSize(sheetId, 3)).toEqual(34);
   });
 
-  test("Repeat sort cells", () => {
-    createSheet(model, { sheetId: "42" });
-    setCellContent(model, "A1", "A1", "42");
-    setCellContent(model, "A2", "A2", "42");
-    setCellContent(model, "A3", "A3", "42");
+  test("Repeat sort cells", async () => {
+    await createSheet(model, { sheetId: "42" });
+    await setCellContent(model, "A1", "A1", "42");
+    await setCellContent(model, "A2", "A2", "42");
+    await setCellContent(model, "A3", "A3", "42");
 
-    sort(model, {
+    await sort(model, {
       sheetId,
       zone: "C2:C3",
       anchor: "C2",
       direction: "desc",
     });
 
-    activateSheet(model, "42");
-    setSelection(model, ["A1:A3"]);
-    redo(model);
+    await activateSheet(model, "42");
+    await setSelection(model, ["A1:A3"]);
+    await redo(model);
     expect(getCellContent(model, "A1")).toEqual("A3");
     expect(getCellContent(model, "A2")).toEqual("A2");
     expect(getCellContent(model, "A3")).toEqual("A1");
   });
 
-  test("Repeat sum selection", () => {
-    setCellContent(model, "A1", "1");
-    setCellContent(model, "A2", "2");
+  test("Repeat sum selection", async () => {
+    await setCellContent(model, "A1", "1");
+    await setCellContent(model, "A2", "2");
 
-    automaticSum(model, "B1:B2");
+    await automaticSum(model, "B1:B2");
 
-    setSelection(model, ["A1:A2"]);
-    redo(model);
+    await setSelection(model, ["A1:A2"]);
+    await redo(model);
     expect(getCellRawContent(model, "A3")).toEqual("=SUM(A1:A2)");
   });
 
-  test("Repeat delete unfiltered content", () => {
-    setCellContent(model, "A1", "1");
-    setCellContent(model, "A2", "2");
+  test("Repeat delete unfiltered content", async () => {
+    await setCellContent(model, "A1", "1");
+    await setCellContent(model, "A2", "2");
 
-    deleteUnfilteredContent(model, "A1");
+    await deleteUnfilteredContent(model, "A1");
     expect(getCellContent(model, "A1")).toEqual("");
     expect(getCellContent(model, "A2")).toEqual("2");
 
-    setSelection(model, ["A2"]);
-    redo(model);
+    await setSelection(model, ["A2"]);
+    await redo(model);
     expect(getCellContent(model, "A2")).toEqual("");
   });
 });

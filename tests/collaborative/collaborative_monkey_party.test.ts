@@ -41,9 +41,9 @@ describe("monkey party", () => {
 
   test.each(PARTY_COUNT === 1 ? ["deterministic-seed"] : seeds)(
     "monkey party with seed %s",
-    (seed) => {
+    async (seed) => {
       seedrandom(seed, { global: true });
-      const { network, alice, bob, charlie } = setupCollaborativeEnv();
+      const { network, alice, bob, charlie } = await setupCollaborativeEnv();
 
       // duplicate commands to test the same command interacting with itself
       const commands = deepCopy(Object.values(TEST_COMMANDS).concat(Object.values(TEST_COMMANDS)));
@@ -52,11 +52,15 @@ describe("monkey party", () => {
 
       const actions = assignUser(shuffle(commands), [alice, bob, charlie]);
       const concurrentActions = randomizeConcurrentActions(actions);
-      const { fail, executedActions } = run(network, [alice, bob, charlie], concurrentActions);
+      const { fail, executedActions } = await run(
+        network,
+        [alice, bob, charlie],
+        concurrentActions
+      );
       if (fail) {
         const generatedTestCode = actionsToTestCode(
           `failed with seed ${seed}`,
-          minimizeFailingCommands(executedActions)
+          await minimizeFailingCommands(executedActions)
         );
         console.log(generatedTestCode);
         expect([alice, bob, charlie]).toHaveSynchronizedExportedData();
@@ -111,13 +115,13 @@ function assignUser(commands: CoreCommand[], users: Model[]): UserAction[] {
 
 function actionsToTestCode(testTitle: string, actions: UserAction[][]) {
   const code = new FunctionCodeBuilder();
-  code.append(`test("${testTitle}", () => {`);
-  code.append("const { network, alice, bob, charlie } = setupCollaborativeEnv();");
+  code.append(`test("${testTitle}", async () => {`);
+  code.append("const { network, alice, bob, charlie } = await setupCollaborativeEnv();");
   for (const commandGroup of actions) {
     if (commandGroup.length === 1) {
       appendCommand(code, commandGroup[0]);
     } else {
-      code.append("network.concurrent(() => {");
+      code.append("await network.concurrent(async () => {");
       for (const action of commandGroup) {
         appendCommand(code, action);
       }
@@ -135,17 +139,17 @@ function actionsToTestCode(testTitle: string, actions: UserAction[][]) {
 function appendCommand(code: FunctionCodeBuilder, { user, command }: UserAction) {
   const userName = user.getters.getCurrentClient().name.toLowerCase();
   if (command.type === "REQUEST_UNDO") {
-    code.append(`undo(${userName});`);
+    code.append(`await undo(${userName});`);
   } else if (command.type === "REQUEST_REDO") {
-    code.append(`redo(${userName});`);
+    code.append(`await redo(${userName});`);
   } else {
     const cmdPayload = JSON.stringify({ ...command, type: undefined });
     code.append(`${userName}.dispatch("${command.type}", ${cmdPayload});`);
   }
 }
 
-function rerunTest(actions: UserAction[][]) {
-  const { network, alice, bob, charlie } = setupCollaborativeEnv();
+async function rerunTest(actions: UserAction[][]) {
+  const { network, alice, bob, charlie } = await setupCollaborativeEnv();
   const newUsers = { alice, bob, charlie };
   for (const concurrentChunk of actions) {
     for (const action of concurrentChunk) {
@@ -155,7 +159,7 @@ function rerunTest(actions: UserAction[][]) {
   return run(network, [alice, bob, charlie], actions);
 }
 
-function minimizeFailingCommands(actions: UserAction[][]) {
+async function minimizeFailingCommands(actions: UserAction[][]) {
   // try removing concurrent actions chunk by chunk
   let reduced = true;
   while (reduced) {
@@ -163,7 +167,7 @@ function minimizeFailingCommands(actions: UserAction[][]) {
     for (let chunkIndex = 0; chunkIndex < actions.length; chunkIndex++) {
       const testCase = actions.slice(0, chunkIndex).concat(actions.slice(chunkIndex + 1));
 
-      const { fail } = rerunTest(testCase);
+      const { fail } = await rerunTest(testCase);
       if (fail) {
         actions = testCase;
         reduced = true;
@@ -176,7 +180,7 @@ function minimizeFailingCommands(actions: UserAction[][]) {
           for (let cmdIndex = 0; cmdIndex < chunk.length; cmdIndex++) {
             const testChunkCase = [...actions];
             testChunkCase[chunkIndex] = chunk.slice(0, cmdIndex).concat(chunk.slice(cmdIndex + 1));
-            const { fail } = rerunTest(testChunkCase);
+            const { fail } = await rerunTest(testChunkCase);
             if (fail) {
               actions = testChunkCase;
               chunkReduced = true;
@@ -203,13 +207,13 @@ function areSynced(users: Model[]): boolean {
   return true;
 }
 
-function run(network: MockTransportService, users: Model[], actions: UserAction[][]) {
+async function run(network: MockTransportService, users: Model[], actions: UserAction[][]) {
   const executed: UserAction[][] = [];
   for (const commandGroup of actions) {
     const concurrentlyExecuted: UserAction[] = [];
     executed.push(concurrentlyExecuted);
     try {
-      network.concurrent(() => {
+      await network.concurrent(async () => {
         for (const { command, user } of commandGroup) {
           const result = user.dispatch(command.type, command);
           if (result.isSuccessful) {

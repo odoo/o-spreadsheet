@@ -14,7 +14,13 @@ import {
   updateCarousel,
 } from "../../test_helpers/commands_helpers";
 import { click, clickAndDrag, getElStyle, triggerMouseEvent } from "../../test_helpers/dom_helper";
-import { makeTestEnv, mockChart, mountSpreadsheet, nextTick } from "../../test_helpers/helpers";
+import {
+  createModel,
+  makeTestEnv,
+  mockChart,
+  mountSpreadsheet,
+  nextTick,
+} from "../../test_helpers/helpers";
 import { extendMockGetBoundingClientRect } from "../../test_helpers/mock_helpers";
 
 jest.mock("../../../src/components/helpers/dom_helpers", () => {
@@ -28,23 +34,23 @@ let model: Model;
 let sheetId: UID;
 let mockChartData: ChartConfiguration;
 
-beforeEach(() => {
-  model = new Model();
+beforeEach(async () => {
+  model = await createModel();
   sheetId = model.getters.getActiveSheetId();
   mockChartData = mockChart();
 });
 
 describe("Carousel figure component", () => {
   test("Can display an empty carousel", async () => {
-    createCarousel(model, { items: [] }, "carouselId");
+    await createCarousel(model, { items: [] }, "carouselId");
     await mountSpreadsheet({ model });
     expect(".o-carousel .o-carousel-empty").toHaveCount(1);
   });
 
   test("Can click on a carousel tab to change the displayed content", async () => {
-    createCarousel(model, { items: [] }, "carouselId");
-    const radarId = addNewChartToCarousel(model, "carouselId", { type: "radar" });
-    const barId = addNewChartToCarousel(model, "carouselId", { type: "bar" });
+    await createCarousel(model, { items: [] }, "carouselId");
+    const radarId = await addNewChartToCarousel(model, "carouselId", { type: "radar" });
+    const barId = await addNewChartToCarousel(model, "carouselId", { type: "bar" });
     const { fixture } = await mountSpreadsheet({ model });
 
     expect(model.getters.getSelectedCarouselItem("carouselId")).toMatchObject({ chartId: radarId });
@@ -61,8 +67,8 @@ describe("Carousel figure component", () => {
   });
 
   test("Carousel data view make the figure un-clickable", async () => {
-    createCarousel(model, { items: [{ type: "carouselDataView" }] }, "carouselId");
-    addNewChartToCarousel(model, "carouselId", { type: "radar" });
+    await createCarousel(model, { items: [{ type: "carouselDataView" }] }, "carouselId");
+    await addNewChartToCarousel(model, "carouselId", { type: "radar" });
 
     const { fixture } = await mountSpreadsheet({ model });
     expect(".o-carousel-header").toHaveClass("pe-auto");
@@ -73,8 +79,8 @@ describe("Carousel figure component", () => {
   });
 
   test("Carousel tabs have the correct name", async () => {
-    createCarousel(model, { items: [{ type: "carouselDataView" }] }, "carouselId");
-    addNewChartToCarousel(model, "carouselId", { type: "radar" });
+    await createCarousel(model, { items: [{ type: "carouselDataView" }] }, "carouselId");
+    await addNewChartToCarousel(model, "carouselId", { type: "radar" });
     const { fixture } = await mountSpreadsheet({ model });
 
     const tabs = fixture.querySelectorAll(".o-carousel-tab");
@@ -84,13 +90,13 @@ describe("Carousel figure component", () => {
   });
 
   test("Can drag & drop a chart on a carousel to combine them", async () => {
-    createCarousel(model, { items: [] }, "carouselId", undefined, {
+    await createCarousel(model, { items: [] }, "carouselId", undefined, {
       col: 0,
       row: 0,
       size: { width: 200, height: 200 },
       figureId: "carouselId",
     });
-    createChart(model, { type: "bar" }, "chartId", undefined, {
+    await createChart(model, { type: "bar" }, "chartId", undefined, {
       col: 0,
       row: 0,
       offset: { x: 300, y: 300 },
@@ -115,20 +121,20 @@ describe("Carousel figure component", () => {
   });
 
   test("When drag & dropping a chart, the chart merges with the closest carousel rather than the first one", async () => {
-    createCarousel(model, { items: [] }, "carouselId1", undefined, {
+    await createCarousel(model, { items: [] }, "carouselId1", undefined, {
       col: 0,
       row: 0,
       size: { width: 200, height: 200 },
       figureId: "carouselId1",
     });
-    createCarousel(model, { items: [] }, "carouselId2", undefined, {
+    await createCarousel(model, { items: [] }, "carouselId2", undefined, {
       col: 0,
       row: 0,
       offset: { x: 0, y: 200 },
       size: { width: 200, height: 200 },
       figureId: "carouselId2",
     });
-    createChart(model, { type: "bar" }, "chartId", undefined, {
+    await createChart(model, { type: "bar" }, "chartId", undefined, {
       col: 0,
       row: 0,
       offset: { x: 0, y: 0 },
@@ -144,7 +150,7 @@ describe("Carousel figure component", () => {
   });
 
   test("Can define a carousel title", async () => {
-    createCarousel(
+    await createCarousel(
       model,
       {
         items: [],
@@ -156,7 +162,7 @@ describe("Carousel figure component", () => {
       },
       "carouselId"
     );
-    updateCarousel(model, "carouselId", {
+    await updateCarousel(model, "carouselId", {
       items: [{ type: "carouselDataView" }],
     });
     await mountSpreadsheet({ model });
@@ -167,27 +173,27 @@ describe("Carousel figure component", () => {
   });
 
   test("Carousel header has the correct background color", async () => {
-    createCarousel(model, { items: [], title: { text: "Title" } }, "carouselId");
+    await createCarousel(model, { items: [], title: { text: "Title" } }, "carouselId");
     await mountSpreadsheet({ model });
 
     // Empty carousel
     expect(".o-carousel-header").toHaveStyle({ "background-color": "#FFFFFF" });
 
     // Carousel with data view
-    updateCarousel(model, "carouselId", { items: [{ type: "carouselDataView" }] });
+    await updateCarousel(model, "carouselId", { items: [{ type: "carouselDataView" }] });
     await nextTick();
     expect(".o-carousel-header").toHaveStyle({ "background-color": "#FFFFFF" });
 
     // Carousel with chart
-    const chartId = addNewChartToCarousel(model, "carouselId", { background: "#123456" });
-    selectCarouselItem(model, "carouselId", { type: "chart", chartId });
+    const chartId = await addNewChartToCarousel(model, "carouselId", { background: "#123456" });
+    await selectCarouselItem(model, "carouselId", { type: "chart", chartId });
     await nextTick();
     expect(".o-carousel-header").toHaveStyle({ "background-color": "#123456" });
   });
 
   test("display chart menu", async () => {
-    createCarousel(model, { items: [{ type: "carouselDataView" }] }, "carouselId");
-    addNewChartToCarousel(model, "carouselId", { type: "bar" });
+    await createCarousel(model, { items: [{ type: "carouselDataView" }] }, "carouselId");
+    await addNewChartToCarousel(model, "carouselId", { type: "bar" });
     model.updateMode("dashboard");
     const { fixture } = await mountSpreadsheet({ model });
     expect(".o-chart-dashboard-item").toHaveCount(0); // nothing for the data view
@@ -196,9 +202,9 @@ describe("Carousel figure component", () => {
   });
 
   test("Chart animation is played at each carousel tab change", async () => {
-    createCarousel(model, { items: [] }, "carouselId");
-    const radarId = addNewChartToCarousel(model, "carouselId", { type: "radar" });
-    const barId = addNewChartToCarousel(model, "carouselId", { type: "bar" });
+    await createCarousel(model, { items: [] }, "carouselId");
+    const radarId = await addNewChartToCarousel(model, "carouselId", { type: "radar" });
+    const barId = await addNewChartToCarousel(model, "carouselId", { type: "bar" });
     model.updateMode("dashboard");
 
     const { fixture, env } = await mountSpreadsheet({ model });
@@ -225,8 +231,8 @@ describe("Carousel figure component", () => {
         isHidden: tab.style.display === "none",
       }));
 
-    createCarousel(model, { items: [{ type: "carouselDataView" }] }, "carouselId");
-    addNewChartToCarousel(model, "carouselId", { type: "pie" });
+    await createCarousel(model, { items: [{ type: "carouselDataView" }] }, "carouselId");
+    await addNewChartToCarousel(model, "carouselId", { type: "pie" });
     const { fixture } = await mountSpreadsheet({ model });
 
     expect(getCarouselTabs()).toEqual([
@@ -235,8 +241,8 @@ describe("Carousel figure component", () => {
     ]);
     expect(".o-carousel-tabs-dropdown").toHaveStyle({ display: "none" });
 
-    const radarChartId = addNewChartToCarousel(model, "carouselId", { type: "radar" });
-    addNewChartToCarousel(model, "carouselId", { type: "line" });
+    const radarChartId = await addNewChartToCarousel(model, "carouselId", { type: "radar" });
+    await addNewChartToCarousel(model, "carouselId", { type: "line" });
     await nextTick();
 
     expect(getCarouselTabs()).toEqual([
@@ -259,7 +265,7 @@ describe("Carousel figure component", () => {
   });
 
   test("Can open carousel context menu with both right click and the menu icon", async () => {
-    createCarousel(model, { items: [] }, "carouselId");
+    await createCarousel(model, { items: [] }, "carouselId");
     const { fixture } = await mountSpreadsheet({ model });
 
     triggerMouseEvent(".o-figure", "contextmenu");
@@ -281,38 +287,38 @@ describe("Carousel figure component", () => {
       return getCarouselMenuActions(figureId, env).find((action) => action.id === actionId);
     }
 
-    beforeEach(() => {
+    beforeEach(async () => {
       openSidePanel = jest.fn();
-      env = makeTestEnv({ model, openSidePanel });
+      env = await makeTestEnv({ model, openSidePanel });
     });
 
-    test("Can edit the carousel", () => {
-      createCarousel(model, { items: [] }, "carouselId");
+    test("Can edit the carousel", async () => {
+      await createCarousel(model, { items: [] }, "carouselId");
 
       const action = getCarouselMenuItem("carouselId", "edit_carousel");
       action?.execute?.(env);
       expect(openSidePanel).toHaveBeenCalledWith("CarouselPanel", { figureId: "carouselId" });
     });
 
-    test("Can edit a carousel chart", () => {
-      createCarousel(model, { items: [{ type: "carouselDataView" }] }, "carouselId");
-      addNewChartToCarousel(model, "carouselId", { type: "radar" });
+    test("Can edit a carousel chart", async () => {
+      await createCarousel(model, { items: [{ type: "carouselDataView" }] }, "carouselId");
+      await addNewChartToCarousel(model, "carouselId", { type: "radar" });
 
       const action = getCarouselMenuItem("carouselId", "edit_chart");
       action?.execute?.(env);
       expect(openSidePanel).toHaveBeenCalledWith("ChartPanel", {});
     });
 
-    test("Can delete the figure", () => {
-      createCarousel(model, { items: [] }, "carouselId");
+    test("Can delete the figure", async () => {
+      await createCarousel(model, { items: [] }, "carouselId");
 
       const action = getCarouselMenuItem("carouselId", "delete");
       action?.execute?.(env);
       expect(model.getters.getFigures(sheetId)).toHaveLength(0);
     });
 
-    test("Can delete a carousel item", () => {
-      createCarousel(model, { items: [{ type: "carouselDataView" }] }, "carouselId");
+    test("Can delete a carousel item", async () => {
+      await createCarousel(model, { items: [{ type: "carouselDataView" }] }, "carouselId");
 
       const action = getCarouselMenuItem("carouselId", "delete_carousel_item");
       expect(action?.isVisible(env)).toBe(true);
@@ -322,28 +328,28 @@ describe("Carousel figure component", () => {
       expect(action?.isVisible(env)).toBe(false);
     });
 
-    test("Can copy the carousel", () => {
-      createCarousel(model, { items: [] }, "carouselId");
+    test("Can copy the carousel", async () => {
+      await createCarousel(model, { items: [] }, "carouselId");
       const action = getCarouselMenuItem("carouselId", "copy");
       action?.execute?.(env);
 
-      paste(model, "A1");
+      await paste(model, "A1");
       expect(model.getters.getFigures(sheetId)).toHaveLength(2);
     });
 
-    test("Can cut the carousel", () => {
-      createCarousel(model, { items: [] }, "carouselId");
+    test("Can cut the carousel", async () => {
+      await createCarousel(model, { items: [] }, "carouselId");
       const action = getCarouselMenuItem("carouselId", "cut");
       action?.execute?.(env);
 
-      paste(model, "A1");
+      await paste(model, "A1");
       expect(model.getters.getFigures(sheetId)).toHaveLength(1);
       expect(model.getters.getFigure(sheetId, "carouselId")).toBeUndefined();
     });
 
     test("Can copy the carousel chart as image", async () => {
-      createCarousel(model, { items: [] }, "carouselId");
-      addNewChartToCarousel(model, "carouselId", { type: "radar" });
+      await createCarousel(model, { items: [] }, "carouselId");
+      await addNewChartToCarousel(model, "carouselId", { type: "radar" });
       const action = getCarouselMenuItem("carouselId", "copy_as_image");
       action?.execute?.(env);
       await nextTick();
@@ -363,8 +369,8 @@ describe("Carousel figure component", () => {
     });
 
     test("Can download the carousel chart as image", async () => {
-      createCarousel(model, { items: [] }, "carouselId");
-      addNewChartToCarousel(model, "carouselId", { type: "radar" });
+      await createCarousel(model, { items: [] }, "carouselId");
+      await addNewChartToCarousel(model, "carouselId", { type: "radar" });
 
       const action = getCarouselMenuItem("carouselId", "download");
       action?.execute?.(env);
@@ -372,14 +378,14 @@ describe("Carousel figure component", () => {
       expect(downloadFile).toHaveBeenCalled();
     });
 
-    test("Chart menu items are not visible when the carousel selected item is not a chart", () => {
-      createCarousel(model, { items: [] }, "carouselId");
+    test("Chart menu items are not visible when the carousel selected item is not a chart", async () => {
+      await createCarousel(model, { items: [] }, "carouselId");
 
       expect(getCarouselMenuItem("carouselId", "edit_chart")?.isVisible(env)).toBe(false);
       expect(getCarouselMenuItem("carouselId", "copy_as_image")?.isVisible(env)).toBe(false);
       expect(getCarouselMenuItem("carouselId", "download")?.isVisible(env)).toBe(false);
 
-      addNewChartToCarousel(model, "carouselId", { type: "radar" });
+      await addNewChartToCarousel(model, "carouselId", { type: "radar" });
       expect(getCarouselMenuItem("carouselId", "edit_chart")?.isVisible(env)).toBe(true);
       expect(getCarouselMenuItem("carouselId", "copy_as_image")?.isVisible(env)).toBe(true);
       expect(getCarouselMenuItem("carouselId", "download")?.isVisible(env)).toBe(true);

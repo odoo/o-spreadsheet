@@ -11,14 +11,14 @@ import { createModelFromGrid } from "../test_helpers/helpers";
 import { addPivot } from "../test_helpers/pivot_helpers";
 
 describe("Pivot collapse", () => {
-  test("Can collapse pivot row", () => {
+  test("Can collapse pivot row", async () => {
     // prettier-ignore
     const grid = {
         A1: "Customer", B1: "Price",  C1: "Year", D1: "=PIVOT(1)",
         A2: "Alice",    B2: "10",     C2: "2020",
         A3: "Alice",    B3: "20",     C3: "2021",
     };
-    const model = createModelFromGrid(grid);
+    const model = await createModelFromGrid(grid);
     addPivot(model, "A1:C3", {
       rows: [{ fieldName: "Customer" }, { fieldName: "Year" }],
       measures: [{ id: "Price", fieldName: "Price", aggregator: "sum" }],
@@ -33,14 +33,14 @@ describe("Pivot collapse", () => {
     ]);
   });
 
-  test("Can collapse pivot column", () => {
+  test("Can collapse pivot column", async () => {
     // prettier-ignore
     const grid = {
         A1: "Customer", B1: "Price",  C1: "Year", D1: "=PIVOT(1)",
         A2: "Alice",    B2: "10",     C2: "2020",
         A3: "Alice",    B3: "20",     C3: "2021",
     };
-    const model = createModelFromGrid(grid);
+    const model = await createModelFromGrid(grid);
     addPivot(model, "A1:C3", {
       columns: [{ fieldName: "Customer" }, { fieldName: "Year" }],
       measures: [{ id: "Price", fieldName: "Price", aggregator: "sum" }],
@@ -55,14 +55,14 @@ describe("Pivot collapse", () => {
     ]);
   });
 
-  test("Can collapse pivot column with multiple measures", () => {
+  test("Can collapse pivot column with multiple measures", async () => {
     // prettier-ignore
     const grid = {
         A1: "Customer", B1: "Price",  C1: "Year", D1: "Quantity", E1: "=PIVOT(1)",
         A2: "Alice",    B2: "10",     C2: "2020", D2: "5",
         A3: "Alice",    B3: "20",     C3: "2021", D3: "10",
     };
-    const model = createModelFromGrid(grid);
+    const model = await createModelFromGrid(grid);
     addPivot(model, "A1:D3", {
       columns: [{ fieldName: "Customer" }, { fieldName: "Year" }],
       measures: [
@@ -80,14 +80,14 @@ describe("Pivot collapse", () => {
     ]);
   });
 
-  test("Can collapse calculated measure", () => {
+  test("Can collapse calculated measure", async () => {
     // prettier-ignore
     const grid = {
             A1: "Customer", B1: "Price",  C1: "Year", D1: "=PIVOT(1)",
             A2: "Alice",    B2: "10",     C2: "2020",
             A3: "Alice",    B3: "20",     C3: "2021",
     };
-    const model = createModelFromGrid(grid);
+    const model = await createModelFromGrid(grid);
     addPivot(model, "A1:C3", {
       rows: [{ fieldName: "Customer" }, { fieldName: "Year" }],
       measures: [
@@ -110,7 +110,7 @@ describe("Pivot collapse", () => {
     ]);
   });
 
-  test("Can collapse multiple levels of rows", () => {
+  test("Can collapse multiple levels of rows", async () => {
     // prettier-ignore
     const grid = {
         A1: "Customer", B1: "Price",  C1: "Year",  D1: "Active", E1: "=PIVOT(1)",
@@ -119,7 +119,7 @@ describe("Pivot collapse", () => {
         A4: "Bob",      B4: "30",     C4: "2020",  D4: "FALSE",
         A5: "Bob",      B5: "40",     C5: "2021",  D5: "TRUE",
     };
-    const model = createModelFromGrid(grid);
+    const model = await createModelFromGrid(grid);
     addPivot(model, "A1:D5", {
       rows: [{ fieldName: "Customer" }, { fieldName: "Year" }, { fieldName: "Active" }],
       measures: [{ id: "Price", fieldName: "Price", aggregator: "sum" }],
@@ -147,7 +147,7 @@ describe("Pivot collapse", () => {
     ]);
   });
 
-  test("Can collapse multiple levels of columns", () => {
+  test("Can collapse multiple levels of columns", async () => {
     // prettier-ignore
     const grid = {
         A1: "Customer", B1: "Price",  C1: "Year",  D1: "Active", E1: "=PIVOT(1)",
@@ -156,7 +156,7 @@ describe("Pivot collapse", () => {
         A4: "Bob",      B4: "30",     C4: "2020",  D4: "FALSE",
         A5: "Bob",      B5: "40",     C5: "2021",  D5: "TRUE",
     };
-    const model = createModelFromGrid(grid);
+    const model = await createModelFromGrid(grid);
     addPivot(model, "A1:D5", {
       columns: [{ fieldName: "Customer" }, { fieldName: "Year" }, { fieldName: "Active" }],
       measures: [{ id: "Price", fieldName: "Price", aggregator: "sum" }],
@@ -182,7 +182,7 @@ describe("Pivot collapse", () => {
     ]);
   });
 
-  test("Can collapse both rows and columns", () => {
+  test("Can collapse both rows and columns", async () => {
     // prettier-ignore
     const grid = {
         A1: "Customer", B1: "Price",  C1: "Year",  D1: "Active", E1: "Client", F1: "=PIVOT(1)",
@@ -191,7 +191,7 @@ describe("Pivot collapse", () => {
         A4: "Bob",      B4: "30",     C4: "2020",  D4: "FALSE",  E4: "Marc",
         A5: "Bob",      B5: "40",     C5: "2021",  D5: "TRUE",   E5: "Marc",
     };
-    const model = createModelFromGrid(grid);
+    const model = await createModelFromGrid(grid);
     addPivot(model, "A1:E5", {
       columns: [{ fieldName: "Customer" }, { fieldName: "Year" }],
       rows: [{ fieldName: "Client" }, { fieldName: "Active" }],
@@ -241,8 +241,8 @@ describe("Pivot collapse icon", () => {
     return result;
   }
 
-  test("Icons are only on non-leaf fields", () => {
-    const model = createModelFromGrid(grid);
+  test("Icons are only on non-leaf fields", async () => {
+    const model = await createModelFromGrid(grid);
     addPivot(model, "A1:E5", {
       columns: [{ fieldName: "Customer" }, { fieldName: "Year" }],
       rows: [{ fieldName: "Client" }, { fieldName: "Active" }],
@@ -260,8 +260,8 @@ describe("Pivot collapse icon", () => {
     ]);
   });
 
-  test("Leaf fields still have an icon size but no icon component to have the correct indent", () => {
-    const model = createModelFromGrid(grid);
+  test("Leaf fields still have an icon size but no icon component to have the correct indent", async () => {
+    const model = await createModelFromGrid(grid);
     addPivot(model, "A1:E5", {
       rows: [{ fieldName: "Customer" }, { fieldName: "Year" }],
       measures: [{ id: "Price", fieldName: "Price", aggregator: "sum" }],
@@ -284,8 +284,8 @@ describe("Pivot collapse icon", () => {
     });
   });
 
-  test("There's no icon, but still indent in dashboard", () => {
-    const model = createModelFromGrid(grid);
+  test("There's no icon, but still indent in dashboard", async () => {
+    const model = await createModelFromGrid(grid);
     addPivot(model, "A1:E5", {
       rows: [{ fieldName: "Customer" }, { fieldName: "Year" }],
       measures: [{ id: "Price", fieldName: "Price", aggregator: "sum" }],

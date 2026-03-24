@@ -34,6 +34,7 @@ import {
 import { getCellContent } from "../test_helpers/getters_helpers";
 import {
   addToRegistry,
+  createModel,
   doAction,
   mockChart,
   mountComponent,
@@ -68,14 +69,14 @@ beforeEach(() => {
 describe("Simple Spreadsheet Component", () => {
   test("simple rendering snapshot", async () => {
     ({ model, parent, fixture } = await mountSpreadsheet({
-      model: new Model({ sheets: [{ id: "sh1" }] }),
+      model: await createModel({ sheets: [{ id: "sh1" }] }),
     }));
     expect(fixture.querySelector(".o-spreadsheet")).toMatchSnapshot();
   });
 
   test("focus is properly set, initially and after switching sheet", async () => {
     ({ model, fixture } = await mountSpreadsheet({
-      model: new Model({ sheets: [{ id: "sh1" }] }),
+      model: await createModel({ sheets: [{ id: "sh1" }] }),
     }));
     const defaultComposer = fixture.querySelector(".o-grid div.o-composer");
     expect(document.activeElement).toBe(defaultComposer);
@@ -99,16 +100,16 @@ describe("Simple Spreadsheet Component", () => {
       });
     });
 
-    test("Can use  an external dependency in a function", () => {
-      const model = new Model({ sheets: [{ id: 1 }] }, { custom: { env: { myKey: [] } } });
-      setCellContent(model, "A1", "=GETACTIVESHEET()");
+    test("Can use  an external dependency in a function", async () => {
+      const model = await createModel({ sheets: [{ id: 1 }] }, { custom: { env: { myKey: [] } } });
+      await setCellContent(model, "A1", "=GETACTIVESHEET()");
       expect(getCellContent(model, "A1")).toBe("Sheet");
       expect(env).toMatchObject({ myKey: [] });
     });
 
     test("Can use an external dependency in a function at model start", async () => {
       await mountSpreadsheet({
-        model: new Model(
+        model: await createModel(
           {
             version: 2,
             sheets: [
@@ -133,7 +134,7 @@ describe("Simple Spreadsheet Component", () => {
 
   test("Clipboard is in spreadsheet env", async () => {
     ({ env } = await mountSpreadsheet({
-      model: new Model({ sheets: [{ id: "sh1" }] }),
+      model: await createModel({ sheets: [{ id: "sh1" }] }),
     }));
     expect(env.clipboard["clipboard"]).toBe(navigator.clipboard);
   });
@@ -179,7 +180,7 @@ describe("Simple Spreadsheet Component", () => {
 
   test("Mac user use metaKey, not CtrlKey", async () => {
     ({ model, parent, fixture } = await mountSpreadsheet({
-      model: new Model({ sheets: [{ id: "sh1" }] }),
+      model: await createModel({ sheets: [{ id: "sh1" }] }),
     }));
     const mockUserAgent = jest.spyOn(navigator, "userAgent", "get");
     mockUserAgent.mockImplementation(
@@ -205,7 +206,7 @@ describe("Simple Spreadsheet Component", () => {
 
 test("Can instantiate a spreadsheet with a given client id-name", async () => {
   const client = { id: "alice", name: "Alice" };
-  ({ model } = await mountSpreadsheet({ model: new Model({}, { client }) }));
+  ({ model } = await mountSpreadsheet({ model: await createModel({}, { client }) }));
   expect(model.getters.getCurrentClient()).toEqual({
     id: "alice",
     name: "Alice",
@@ -219,7 +220,7 @@ test("Can instantiate a spreadsheet with a given client id-name", async () => {
 
 test("Spreadsheet detects frozen panes that exceed the limit size at start", async () => {
   const notifyUser = jest.fn();
-  const model = new Model({ sheets: [{ panes: { xSplit: 12, ySplit: 50 } }] });
+  const model = await createModel({ sheets: [{ panes: { xSplit: 12, ySplit: 50 } }] });
   ({ parent, fixture } = await mountSpreadsheet({ model }, { notifyUser }));
   expect(notifyUser).toHaveBeenCalled();
 });
@@ -230,7 +231,7 @@ test("Warns user when viewport is too small for frozen panes but stops warning a
   // Setting the sheet viewport size to 0 to represent the "real life" scenario where the default size is 0
   setDefaultSheetViewSize(0);
   const notifyUser = jest.fn();
-  const model = new Model({ sheets: [{ panes: { xSplit: 0, ySplit: 20 } }] });
+  const model = await createModel({ sheets: [{ panes: { xSplit: 0, ySplit: 20 } }] });
   ({ parent, fixture } = await mountSpreadsheet({ model }, { notifyUser }));
   expect(notifyUser).toHaveBeenCalledTimes(0);
 
@@ -241,21 +242,21 @@ test("Warn user only once when the viewport is too small for its frozen panes", 
   const notifyUser = jest.fn();
   ({ parent, model, fixture } = await mountSpreadsheet(undefined, { notifyUser }));
   expect(notifyUser).not.toHaveBeenCalled();
-  freezeRows(model, 51);
+  await freezeRows(model, 51);
   await nextTick();
   expect(notifyUser).toHaveBeenCalledTimes(1);
   //dispatching commands that do not alter the viewport/pane status and rerendering won't notify
-  addRows(model, "after", 0, 1);
+  await addRows(model, "after", 0, 1);
   await nextTick();
   expect(notifyUser).toHaveBeenCalledTimes(1);
 
   // resetting the status - the panes no longer exceed limit size
-  freezeRows(model, 3);
+  await freezeRows(model, 3);
   await nextTick();
   expect(notifyUser).toHaveBeenCalledTimes(1);
 
   // dispatching that makes the panes exceed the limit size in viewport notifies again
-  freezeRows(model, 51);
+  await freezeRows(model, 51);
   await nextTick();
   expect(notifyUser).toHaveBeenCalledTimes(2);
 });
@@ -310,14 +311,14 @@ describe("Composer / selectionInput interactions", () => {
   };
   beforeEach(async () => {
     ({ model, parent, fixture, env } = await mountSpreadsheet({
-      model: new Model(modelDataCf),
+      model: await createModel(modelDataCf),
     }));
   });
 
   test.each(["=A1", "=Sheet1!A1", "=SHEET1!A1", "=sheet1!A1"])(
     "Moving Highlight update composer",
     async (xc) => {
-      selectCell(model, "D2");
+      await selectCell(model, "D2");
       await nextTick();
       await typeInComposerGrid(xc);
 
@@ -339,7 +340,7 @@ describe("Composer / selectionInput interactions", () => {
   test("Switching from selection input to composer should update the highlihts", async () => {
     const composerStore = env.getStore(CellComposerStore);
     //open cf sidepanel
-    selectCell(model, "B2");
+    await selectCell(model, "B2");
     OPEN_CF_SIDEPANEL_ACTION(env);
     await nextTick();
     await simulateClick(".o-selection-input input");
@@ -362,7 +363,7 @@ describe("Composer / selectionInput interactions", () => {
   test.each(["A", "="])(
     "Switching from grid composer to selection input should update the highlights and hide the highlight components",
     async (composerContent) => {
-      selectCell(model, "B2");
+      await selectCell(model, "B2");
       OPEN_CF_SIDEPANEL_ACTION(env);
       await nextTick();
 
@@ -377,7 +378,7 @@ describe("Composer / selectionInput interactions", () => {
 
   test("Switching from composer to selection input should update the highlights and the highlight components", async () => {
     const highlightStore = env.getStore(HighlightStore);
-    selectCell(model, "B2");
+    await selectCell(model, "B2");
     OPEN_CF_SIDEPANEL_ACTION(env);
     await nextTick();
 
@@ -397,7 +398,7 @@ describe("Composer / selectionInput interactions", () => {
 
   test("Switching from composer to focusing a figure should resubscribe grid_selection", async () => {
     mockChart();
-    createChart(
+    await createChart(
       model,
       {
         dataSets: [{ dataRange: "Sheet1!B1:B4" }, { dataRange: "Sheet1!C1:C4" }],
@@ -413,7 +414,7 @@ describe("Composer / selectionInput interactions", () => {
   });
 
   test("switching to selection input deactivates the autofill", async () => {
-    selectCell(model, "B2");
+    await selectCell(model, "B2");
     OPEN_CF_SIDEPANEL_ACTION(env);
     await nextTick();
 
@@ -425,7 +426,7 @@ describe("Composer / selectionInput interactions", () => {
 
 test("cell icon takes over a focused selection input", async () => {
   const { model, env, fixture } = await mountSpreadsheet();
-  addDataValidation(model, "B1:B3", "id", {
+  await addDataValidation(model, "B1:B3", "id", {
     type: "isValueInList",
     values: ["hello", "world"],
     displayStyle: "arrow",
@@ -446,7 +447,7 @@ test("cell popovers to be closed on clicking outside grid", async () => {
   jest.useFakeTimers();
   ({ model, fixture } = await mountSpreadsheet());
 
-  setCellContent(model, "A1", "=SUM(");
+  await setCellContent(model, "A1", "=SUM(");
   await nextTick();
   await hoverCell(model, "A1", 400);
   expect(fixture.querySelector(".o-popover .o-error-tooltip")).not.toBeNull();
@@ -481,7 +482,7 @@ test("*isSmall* is properly recomputed when changing window size", async () => {
 });
 
 test("components take the small screen into account", async () => {
-  const model = new Model();
+  const model = await createModel();
   spreadsheetWidth = 500;
   const { fixture } = await mountSpreadsheet({ model }, { isSmall: true });
   expect(fixture.querySelector(".o-spreadsheet")).toMatchSnapshot();
@@ -489,17 +490,17 @@ test("components take the small screen into account", async () => {
 });
 
 test("Spreadsheet color scheme can be set to dark", async () => {
-  const model = new Model();
+  const model = await createModel();
   await mountSpreadsheet({ model, colorScheme: "dark" });
   expect(".o-spreadsheet").toHaveStyle({ "color-scheme": "dark" });
 });
 
 test("Commands rejected on locked sheet trigger a notification", async () => {
-  const model = new Model();
+  const model = await createModel();
   const notifyFn = jest.fn();
   ({ parent, fixture } = await mountSpreadsheet({ model, notifyUser: notifyFn }));
-  lockSheet(model);
-  const result = deleteSheet(model, model.getters.getActiveSheetId());
+  await lockSheet(model);
+  const result = await deleteSheet(model, model.getters.getActiveSheetId());
   expect(result.reasons).toContain(CommandResult.SheetLocked);
   expect(notifyFn).toHaveBeenCalledWith({
     text: "This sheet is locked and cannot be modified. Please unlock it first.",

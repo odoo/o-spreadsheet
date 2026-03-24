@@ -54,7 +54,7 @@ describe("link editor component", () => {
   });
 
   test("open existing link editor from top bar menu", async () => {
-    setCellContent(model, "A1", "[label](url.com)");
+    await setCellContent(model, "A1", "[label](url.com)");
     await simulateClick(".o-topbar-menu[data-id='insert']");
     await simulateClick(".o-menu-item[data-name='insert_link']");
     const editor = fixture.querySelector(".o-link-editor");
@@ -81,7 +81,7 @@ describe("link editor component", () => {
   test.each(["hello", "4", "TRUE", "10/10/2021", "=4", '="hello"', "=TRUE", "=10/10/2021"])(
     "open link editor in a simple cell: %s",
     async (cellContent) => {
-      setCellContent(model, "A1", cellContent);
+      await setCellContent(model, "A1", cellContent);
       await openLinkEditor(model, "A1");
       expect(labelInput().value).toBe(getEvaluatedCell(model, "A1").formattedValue);
       expect(urlInput().value).toBe("");
@@ -89,15 +89,15 @@ describe("link editor component", () => {
   );
 
   test("open link editor in a merged cell", async () => {
-    merge(model, "A1:A2");
-    setCellContent(model, "A1", "hello");
+    await merge(model, "A1:A2");
+    await setCellContent(model, "A1", "hello");
     await openLinkEditor(model, "A2");
     expect(labelInput().value).toBe("hello");
     expect(urlInput().value).toBe("");
   });
 
   test("open link editor in a web link cell", async () => {
-    setCellContent(model, "A1", "[label](url.com)");
+    await setCellContent(model, "A1", "[label](url.com)");
     await openLinkEditor(model, "A1");
     expect(labelInput().value).toBe("label");
     expect(urlInput().value).toBe("https://url.com");
@@ -105,8 +105,8 @@ describe("link editor component", () => {
 
   test("open link editor in a sheet link cell", async () => {
     const sheetId = "42";
-    createSheet(model, { sheetId });
-    setCellContent(model, "A1", `[label](${buildSheetLink(sheetId)})`);
+    await createSheet(model, { sheetId });
+    await setCellContent(model, "A1", `[label](${buildSheetLink(sheetId)})`);
     await openLinkEditor(model, "A1");
     expect(labelInput().value).toBe("label");
     expect(urlInput().value).toBe(model.getters.getSheetName(sheetId));
@@ -114,14 +114,14 @@ describe("link editor component", () => {
   });
 
   test("open link editor in a hyperlink formula cell with a url and a label", async () => {
-    setCellContent(model, "A1", '=HYPERLINK("url.com", "label")');
+    await setCellContent(model, "A1", '=HYPERLINK("url.com", "label")');
     await openLinkEditor(model, "A1");
     expect(labelInput().value).toBe("label");
     expect(urlInput().value).toBe("https://url.com");
   });
 
   test("open link editor in a hyperlink formula cell without label", async () => {
-    setCellContent(model, "B1", '=HYPERLINK("url2.com")');
+    await setCellContent(model, "B1", '=HYPERLINK("url2.com")');
     await openLinkEditor(model, "B1");
     expect(labelInput().value).toBe("url2.com");
     expect(urlInput().value).toBe("https://url2.com");
@@ -148,7 +148,7 @@ describe("link editor component", () => {
 
   test("insert sheet link", async () => {
     const sheetId = "42";
-    createSheet(model, { sheetId });
+    await createSheet(model, { sheetId });
     await openLinkEditor(model, "A1");
     await simulateClick("button.o-special-link");
     await simulateClick(".o-menu-item[data-name='sheet']");
@@ -160,7 +160,7 @@ describe("link editor component", () => {
 
   test("special link menu position", async () => {
     const sheetId = "42";
-    createSheet(model, { sheetId });
+    await createSheet(model, { sheetId });
     await openLinkEditor(model, "A1");
     await simulateClick("button.o-special-link");
     const popover = fixture.querySelector(".o-menu")!.closest<HTMLElement>(".o-popover")!;
@@ -169,7 +169,7 @@ describe("link editor component", () => {
   });
 
   test("label is changed to canonical form in model", async () => {
-    updateLocale(model, {
+    await updateLocale(model, {
       ...DEFAULT_LOCALE,
       formulaArgSeparator: ";",
       decimalSeparator: ",",
@@ -193,7 +193,7 @@ describe("link editor component", () => {
 
   test("clicking the main popover closes the special link menus", async () => {
     const sheetId = "42";
-    createSheet(model, { sheetId });
+    await createSheet(model, { sheetId });
     await openLinkEditor(model, "A1");
     await simulateClick("button.o-special-link");
     await simulateClick(".o-menu-item[data-name='sheet']");
@@ -203,7 +203,7 @@ describe("link editor component", () => {
   });
 
   test("remove current link", async () => {
-    setCellContent(model, "A1", "[label](url.com)");
+    await setCellContent(model, "A1", "[label](url.com)");
     await openLinkEditor(model, "A1");
     expect(urlInput().value).toBe("https://url.com");
     await simulateClick(".o-remove-url");
@@ -211,7 +211,7 @@ describe("link editor component", () => {
   });
 
   test("remove link from HYPERLINK function", async () => {
-    setCellContent(model, "B1", '=HYPERLINK("url.com", "label")');
+    await setCellContent(model, "B1", '=HYPERLINK("url.com", "label")');
     await openLinkEditor(model, "B1");
     expect(urlInput().value).toBe("https://url.com");
     await simulateClick(".o-remove-url");
@@ -237,16 +237,16 @@ describe("link editor component", () => {
 
   test("switching sheet closes the editor", async () => {
     const sheetId = "42";
-    createSheet(model, { sheetId });
+    await createSheet(model, { sheetId });
     await openLinkEditor(model, "A1");
     expect(fixture.querySelector(".o-link-editor")).toBeTruthy();
-    activateSheet(model, sheetId);
+    await activateSheet(model, sheetId);
     await nextTick();
     expect(fixture.querySelector(".o-link-editor")).toBeNull();
   });
 
   test("clicking another link cell closes the editor", async () => {
-    setCellContent(model, "B2", "[label](url.com)");
+    await setCellContent(model, "B2", "[label](url.com)");
     await openLinkEditor(model, "A1");
     expect(fixture.querySelector(".o-link-editor")).toBeTruthy();
     await clickCell(model, "B2");

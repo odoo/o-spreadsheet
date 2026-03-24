@@ -36,70 +36,70 @@ import {
   getEvaluatedCell,
   getStyle,
 } from "../test_helpers/getters_helpers";
-import { addTestPlugin, getGrid, setGrid } from "../test_helpers/helpers";
+import { addTestPlugin, createModel, getGrid, setGrid } from "../test_helpers/helpers";
 
 describe("getCellText", () => {
-  test("Update cell with a format is correctly set", () => {
-    const model = new Model();
-    updateCell(model, "A1", { content: "5%", format: "bla" });
-    updateCell(model, "B2", { content: "12/30/1899", format: "bla" });
-    updateCell(model, "C3", { content: "=DATE(2021,1,1)", format: "bla" });
+  test("Update cell with a format is correctly set", async () => {
+    const model = await createModel();
+    await updateCell(model, "A1", { content: "5%", format: "bla" });
+    await updateCell(model, "B2", { content: "12/30/1899", format: "bla" });
+    await updateCell(model, "C3", { content: "=DATE(2021,1,1)", format: "bla" });
     expect(getCell(model, "A1")?.format).toBe("bla");
     expect(getCell(model, "B2")?.format).toBe("bla");
     expect(getCell(model, "C3")?.format).toBe("bla");
   });
 
-  test("update cell outside of sheet", () => {
-    const model = new Model();
-    const result = setCellContent(model, "ZZ9999", "hello");
+  test("update cell outside of sheet", async () => {
+    const model = await createModel();
+    const result = await setCellContent(model, "ZZ9999", "hello");
     expect(result).toBeCancelledBecause(CommandResult.TargetOutOfSheet);
   });
 
-  test("update cell outside of sheet (without any modification)", () => {
-    const model = new Model();
-    const result = updateCell(model, "ZZ9999", {});
+  test("update cell outside of sheet (without any modification)", async () => {
+    const model = await createModel();
+    const result = await updateCell(model, "ZZ9999", {});
     expect(result).toBeCancelledBecause(CommandResult.TargetOutOfSheet, CommandResult.NoChanges);
   });
 
-  test("update cell without any modification", () => {
-    const model = new Model();
-    const result = updateCell(model, "A1", {});
+  test("update cell without any modification", async () => {
+    const model = await createModel();
+    const result = await updateCell(model, "A1", {});
     expect(result).toBeCancelledBecause(CommandResult.NoChanges);
   });
 
-  test("update cell with only the same content as before", () => {
-    const model = new Model();
-    setCellContent(model, "A1", "hello");
-    setCellFormat(model, "A1", "#,##0.0");
-    setFormatting(model, "A1", { bold: true });
-    const result = setCellContent(model, "A1", "hello");
+  test("update cell with only the same content as before", async () => {
+    const model = await createModel();
+    await setCellContent(model, "A1", "hello");
+    await setCellFormat(model, "A1", "#,##0.0");
+    await setFormatting(model, "A1", { bold: true });
+    const result = await setCellContent(model, "A1", "hello");
     expect(result).toBeCancelledBecause(CommandResult.NoChanges);
   });
 
-  test("update cell with only the same format as before", () => {
-    const model = new Model();
-    setCellContent(model, "A1", "0");
-    setCellFormat(model, "A1", "#,##0.0");
-    setFormatting(model, "A1", { bold: true });
-    const result = setCellFormat(model, "A1", "#,##0.0");
+  test("update cell with only the same format as before", async () => {
+    const model = await createModel();
+    await setCellContent(model, "A1", "0");
+    await setCellFormat(model, "A1", "#,##0.0");
+    await setFormatting(model, "A1", { bold: true });
+    const result = await setCellFormat(model, "A1", "#,##0.0");
     expect(result).toBeCancelledBecause(CommandResult.NoChanges);
   });
 
-  test("update cell with only the same style as before", () => {
-    const model = new Model();
-    setCellContent(model, "A1", "0");
-    setCellFormat(model, "A1", "#,##0.0");
-    setFormatting(model, "A1", { bold: true });
-    const result = setCellStyle(model, "A1", { bold: true });
+  test("update cell with only the same style as before", async () => {
+    const model = await createModel();
+    await setCellContent(model, "A1", "0");
+    await setCellFormat(model, "A1", "#,##0.0");
+    await setFormatting(model, "A1", { bold: true });
+    const result = await setCellStyle(model, "A1", { bold: true });
     expect(result).toBeCancelledBecause(CommandResult.NoChanges);
   });
 
-  test("update cell with the same style, content and format as before", () => {
-    const model = new Model();
-    setCellContent(model, "A1", "hello");
-    setCellFormat(model, "A1", "#,##0.0");
-    setFormatting(model, "A1", { bold: true });
-    const result = updateCell(model, "A1", {
+  test("update cell with the same style, content and format as before", async () => {
+    const model = await createModel();
+    await setCellContent(model, "A1", "hello");
+    await setCellFormat(model, "A1", "#,##0.0");
+    await setFormatting(model, "A1", { bold: true });
+    const result = await updateCell(model, "A1", {
       content: "hello",
       format: "#,##0.0",
       style: { bold: true },
@@ -107,96 +107,96 @@ describe("getCellText", () => {
     expect(result).toBeCancelledBecause(CommandResult.NoChanges);
   });
 
-  test("clear content", () => {
-    const model = new Model();
-    setCellContent(model, "A1", "hello");
-    clearCell(model, "A1");
+  test("clear content", async () => {
+    const model = await createModel();
+    await setCellContent(model, "A1", "hello");
+    await clearCell(model, "A1");
     expect(getCell(model, "A1")).toBeUndefined();
   });
 
-  test("clear some content", () => {
-    const model = new Model();
-    setCellContent(model, "A1", "hello");
-    setCellContent(model, "A2", "there");
-    clearCells(model, ["A1:A2"]);
-    expect(getCell(model, "A1")).toBeUndefined();
-    expect(getCell(model, "A2")).toBeUndefined();
-  });
-
-  test("clear some style", () => {
-    const model = new Model();
-    setFormatting(model, "A1", { bold: true });
-    clearCell(model, "A1");
-    expect(getCell(model, "A1")).toBeUndefined();
-  });
-
-  test("clear some style", () => {
-    const model = new Model();
-    setFormatting(model, "A1", { bold: true });
-    setFormatting(model, "A2", { italic: true });
-    clearCells(model, ["A1:A2"]);
+  test("clear some content", async () => {
+    const model = await createModel();
+    await setCellContent(model, "A1", "hello");
+    await setCellContent(model, "A2", "there");
+    await clearCells(model, ["A1:A2"]);
     expect(getCell(model, "A1")).toBeUndefined();
     expect(getCell(model, "A2")).toBeUndefined();
   });
 
-  test("clear format", () => {
-    const model = new Model();
-    setCellFormat(model, "A1", "#,##0.0");
-    clearCell(model, "A1");
+  test("clear some style", async () => {
+    const model = await createModel();
+    await setFormatting(model, "A1", { bold: true });
+    await clearCell(model, "A1");
     expect(getCell(model, "A1")).toBeUndefined();
   });
 
-  test("clear some format", () => {
-    const model = new Model();
-    setCellFormat(model, "A1", "#,##0.0");
-    setCellFormat(model, "A2", "0%");
-    clearCells(model, ["A1:A2"]);
-    expect(getCell(model, "A1")).toBeUndefined();
-  });
-
-  test("clear content, style and format", () => {
-    const model = new Model();
-    setCellContent(model, "A1", "hello");
-    setFormatting(model, "A1", { bold: true });
-    setCellFormat(model, "A1", "#,##0.0");
-    clearCell(model, "A1");
-    expect(getCell(model, "A1")).toBeUndefined();
-  });
-
-  test("clear some content, style and format", () => {
-    const model = new Model();
-    setCellContent(model, "A1", "hello");
-    setCellContent(model, "A2", "there");
-    setFormatting(model, "A1", { bold: true });
-    setFormatting(model, "A2", { italic: true });
-    setCellFormat(model, "A1", "#,##0.0");
-    setCellFormat(model, "A2", "0%");
-    clearCells(model, ["A1", "A2"]);
+  test("clear some style", async () => {
+    const model = await createModel();
+    await setFormatting(model, "A1", { bold: true });
+    await setFormatting(model, "A2", { italic: true });
+    await clearCells(model, ["A1:A2"]);
     expect(getCell(model, "A1")).toBeUndefined();
     expect(getCell(model, "A2")).toBeUndefined();
   });
 
-  test("clear cell outside of sheet", () => {
-    const model = new Model();
-    const result = clearCell(model, "AAA999");
+  test("clear format", async () => {
+    const model = await createModel();
+    await setCellFormat(model, "A1", "#,##0.0");
+    await clearCell(model, "A1");
+    expect(getCell(model, "A1")).toBeUndefined();
+  });
+
+  test("clear some format", async () => {
+    const model = await createModel();
+    await setCellFormat(model, "A1", "#,##0.0");
+    await setCellFormat(model, "A2", "0%");
+    await clearCells(model, ["A1:A2"]);
+    expect(getCell(model, "A1")).toBeUndefined();
+  });
+
+  test("clear content, style and format", async () => {
+    const model = await createModel();
+    await setCellContent(model, "A1", "hello");
+    await setFormatting(model, "A1", { bold: true });
+    await setCellFormat(model, "A1", "#,##0.0");
+    await clearCell(model, "A1");
+    expect(getCell(model, "A1")).toBeUndefined();
+  });
+
+  test("clear some content, style and format", async () => {
+    const model = await createModel();
+    await setCellContent(model, "A1", "hello");
+    await setCellContent(model, "A2", "there");
+    await setFormatting(model, "A1", { bold: true });
+    await setFormatting(model, "A2", { italic: true });
+    await setCellFormat(model, "A1", "#,##0.0");
+    await setCellFormat(model, "A2", "0%");
+    await clearCells(model, ["A1", "A2"]);
+    expect(getCell(model, "A1")).toBeUndefined();
+    expect(getCell(model, "A2")).toBeUndefined();
+  });
+
+  test("clear cell outside of sheet", async () => {
+    const model = await createModel();
+    const result = await clearCell(model, "AAA999");
     expect(result).toBeCancelledBecause(CommandResult.TargetOutOfSheet, CommandResult.NoChanges);
   });
 
-  test("clear cell is cancelled if there is nothing on the cell", () => {
-    const model = new Model();
-    const result = clearCell(model, "A1");
+  test("clear cell is cancelled if there is nothing on the cell", async () => {
+    const model = await createModel();
+    const result = await clearCell(model, "A1");
     expect(result).toBeCancelledBecause(CommandResult.NoChanges);
   });
 
-  test("escape character is not display when formatting string", () => {
-    const model = new Model();
-    setCellContent(model, "A1", '="hello \\"world\\""');
+  test("escape character is not display when formatting string", async () => {
+    const model = await createModel();
+    await setCellContent(model, "A1", '="hello \\"world\\""');
     expect(getEvaluatedCell(model, "A1")?.formattedValue).toBe('hello "world"');
   });
 
-  test("Non breaking spaces are kept on cell insertion", () => {
-    const model = new Model();
-    setCellContent(model, "A1", "hello\u00A0world");
+  test("Non breaking spaces are kept on cell insertion", async () => {
+    const model = await createModel();
+    await setCellContent(model, "A1", "hello\u00A0world");
     expect(getCellText(model, "A1")).toBe("hello\u00A0world");
   });
 });
@@ -204,9 +204,9 @@ describe("getCellText", () => {
 describe("link cell", () => {
   test.each(["http://odoo.com", "https://odoo.com"])(
     "can create a markdown link cell: %s",
-    (url) => {
-      const model = new Model();
-      setCellContent(model, "A1", `[my label](${url})`);
+    async (url) => {
+      const model = await createModel();
+      await setCellContent(model, "A1", `[my label](${url})`);
       const cell = getEvaluatedCell(model, "A1");
       expect(cell.link?.label).toBe("my label");
       expect(cell.link?.url).toBe(url);
@@ -219,9 +219,9 @@ describe("link cell", () => {
 
   test.each(["http://odoo.com", "https://odoo.com"])(
     "can create a link cell using HYPERLINK function: %s",
-    (url) => {
-      const model = new Model();
-      setCellContent(model, "B1", `=HYPERLINK("${url}","Odoo")`);
+    async (url) => {
+      const model = await createModel();
+      await setCellContent(model, "B1", `=HYPERLINK("${url}","Odoo")`);
       const cell = getEvaluatedCell(model, "B1");
       expect(cell.link?.label).toBe("Odoo");
       expect(cell.link?.url).toBe(url);
@@ -234,9 +234,9 @@ describe("link cell", () => {
 
   test.each(["[Odoo](odoo.com)", '=HYPERLINK("odoo.com", "Odoo")'])(
     "https prefix is added if it's missing: %s",
-    (content) => {
-      const model = new Model();
-      setCellContent(model, "A1", content);
+    async (content) => {
+      const model = await createModel();
+      await setCellContent(model, "A1", content);
       const cell = getEvaluatedCell(model, "A1");
       expect(cell.link?.url).toBe("https://odoo.com");
       expect(urlRepresentation(cell.link!, model.getters)).toBe("https://odoo.com");
@@ -251,9 +251,9 @@ describe("link cell", () => {
     '=HYPERLINK("", "")',
   ])(
     "url which is empty or only contains whitespaces in HYPERLINK should not be converted into link cell",
-    (content) => {
-      const model = new Model();
-      setCellContent(model, "A1", content);
+    async (content) => {
+      const model = await createModel();
+      await setCellContent(model, "A1", content);
       const cell = getEvaluatedCell(model, "A1");
       expect(cell.link).toBeUndefined();
     }
@@ -261,59 +261,59 @@ describe("link cell", () => {
 
   test.each(['=HYPERLINK("www.odoo.com", "")', '=HYPERLINK("www.odoo.com", "   ")'])(
     "HYPERLINK cell with non-empty url but specified empty label will still be converted into link cell",
-    (content) => {
-      const model = new Model();
-      setCellContent(model, "A1", content);
+    async (content) => {
+      const model = await createModel();
+      await setCellContent(model, "A1", content);
       const cell = getEvaluatedCell(model, "A1");
       expect(cell.link?.url).toBe("https://www.odoo.com");
     }
   );
 
-  test("literal number in markdown is parsed", () => {
-    const model = new Model();
-    setCellContent(model, "A1", `[3](odoo.com)`);
+  test("literal number in markdown is parsed", async () => {
+    const model = await createModel();
+    await setCellContent(model, "A1", `[3](odoo.com)`);
     expect(getEvaluatedCell(model, "A1").value).toBe(3);
   });
 
-  test("literal boolean in markdown is parsed", () => {
-    const model = new Model();
-    setCellContent(model, "A1", `[true](odoo.com)`);
+  test("literal boolean in markdown is parsed", async () => {
+    const model = await createModel();
+    await setCellContent(model, "A1", `[true](odoo.com)`);
     expect(getEvaluatedCell(model, "A1").value).toBe(true);
   });
 
-  test("literal date in markdown is parsed and preserves format", () => {
-    const model = new Model();
-    setCellContent(model, "A1", `[12/31/1999](odoo.com)`);
+  test("literal date in markdown is parsed and preserves format", async () => {
+    const model = await createModel();
+    await setCellContent(model, "A1", `[12/31/1999](odoo.com)`);
     expect(getEvaluatedCell(model, "A1").value).toBe(36525);
     expect(getEvaluatedCell(model, "A1").format).toBe("m/d/yyyy");
   });
 
-  test("literal number format is preserved", () => {
-    const model = new Model();
-    setCellContent(model, "A1", `[3%](odoo.com)`);
+  test("literal number format is preserved", async () => {
+    const model = await createModel();
+    await setCellContent(model, "A1", `[3%](odoo.com)`);
     expect(getEvaluatedCell(model, "A1").value).toBe(0.03);
     expect(getEvaluatedCell(model, "A1").format).toBe("0%");
   });
 
-  test("can use link labels in formula", () => {
-    const model = new Model();
-    setCellContent(model, "A1", `[3](odoo.com)`);
-    setCellContent(model, "A2", `[1](odoo.com)`);
-    setCellContent(model, "A3", `=A1+A2`);
+  test("can use link labels in formula", async () => {
+    const model = await createModel();
+    await setCellContent(model, "A1", `[3](odoo.com)`);
+    await setCellContent(model, "A2", `[1](odoo.com)`);
+    await setCellContent(model, "A3", `=A1+A2`);
     expect(getEvaluatedCell(model, "A3").value).toBe(4);
   });
 
-  test("user defined format is preserved over markdown format", () => {
-    const model = new Model();
-    setCellFormat(model, "A1", "#,##0.0");
-    setCellContent(model, "A1", `[300%](odoo.com)`);
+  test("user defined format is preserved over markdown format", async () => {
+    const model = await createModel();
+    await setCellFormat(model, "A1", "#,##0.0");
+    await setCellContent(model, "A1", `[300%](odoo.com)`);
     expect(getEvaluatedCell(model, "A1").value).toBe(3);
     expect(getEvaluatedCell(model, "A1").format).toBe("#,##0.0");
   });
 
-  test("simple url becomes a link cell", () => {
-    const model = new Model();
-    setCellContent(model, "A1", "http://odoo.com");
+  test("simple url becomes a link cell", async () => {
+    const model = await createModel();
+    await setCellContent(model, "A1", "http://odoo.com");
     const cell = getEvaluatedCell(model, "A1");
     expect(getCellRawContent(model, "A1")).toBe("http://odoo.com");
     expect(cell.link?.label).toBe("http://odoo.com");
@@ -326,18 +326,18 @@ describe("link cell", () => {
     "https://url",
     "https://url with spaces.com",
     "http://odoo.com postfix",
-  ])("invalid url %s are not recognized as web links", (url) => {
-    const model = new Model();
-    setCellContent(model, "A1", url);
+  ])("invalid url %s are not recognized as web links", async (url) => {
+    const model = await createModel();
+    await setCellContent(model, "A1", url);
     expect(getCellRawContent(model, "A1")).toBe(url);
     expect(getEvaluatedCell(model, "A1").type).toBe(CellValueType.text);
   });
 
   test.each(["[]()", "[ ]()", "[]( )", " [label](url) "])(
     "invalid markdown %s is not recognized as link",
-    (markdown) => {
-      const model = new Model();
-      setCellContent(model, "A1", markdown);
+    async (markdown) => {
+      const model = await createModel();
+      await setCellContent(model, "A1", markdown);
       const cell = getEvaluatedCell(model, "A1");
       expect(cell.value).toBe(markdown);
       expect(cell.type).toBe(CellValueType.text);
@@ -351,19 +351,19 @@ describe("link cell", () => {
     ["[lab[el](url)", "lab[el", "https://url"],
     ["[lab]el](url)", "lab]el", "https://url"],
     ["[[label]](url)", "[label]", "https://url"],
-  ])("valid markdown %s is recognized as link", (markdown, label, link) => {
-    const model = new Model();
-    setCellContent(model, "A1", markdown);
+  ])("valid markdown %s is recognized as link", async (markdown, label, link) => {
+    const model = await createModel();
+    await setCellContent(model, "A1", markdown);
     const cell = getEvaluatedCell(model, "A1");
     expect(cell.link?.label).toBe(label);
     expect(cell.link?.url).toBe(link);
   });
 
-  test("can create a sheet link", () => {
-    const model = new Model();
+  test("can create a sheet link", async () => {
+    const model = await createModel();
     const sheetId = model.getters.getActiveSheetId();
     const sheetLink = buildSheetLink(sheetId);
-    setCellContent(model, "A1", `[my label](${sheetLink})`);
+    await setCellContent(model, "A1", `[my label](${sheetLink})`);
     const cell = getEvaluatedCell(model, "A1");
     expect(cell.link?.label).toBe("my label");
     expect(cell.link?.url).toBe(sheetLink);
@@ -371,26 +371,26 @@ describe("link cell", () => {
     expect(getCellText(model, "A1")).toBe("my label");
   });
 
-  test("sheet url representation is updated when sheet is renamed", () => {
-    const model = new Model();
+  test("sheet url representation is updated when sheet is renamed", async () => {
+    const model = await createModel();
     const sheetId = model.getters.getActiveSheetId();
     const sheetLink = buildSheetLink(sheetId);
-    setCellContent(model, "A1", `[my label](${sheetLink})`);
+    await setCellContent(model, "A1", `[my label](${sheetLink})`);
     const cell = getEvaluatedCell(model, "A1");
 
-    renameSheet(model, sheetId, "new name");
+    await renameSheet(model, sheetId, "new name");
     expect(cell.link?.label).toBe("my label");
     expect(cell.link?.url).toBe(sheetLink);
     expect(urlRepresentation(cell.link!, model.getters)).toBe("new name");
     expect(getCellText(model, "A1")).toBe("my label");
-    undo(model);
+    await undo(model);
     expect(urlRepresentation(cell.link!, model.getters)).toBe("Sheet1");
   });
 
-  test("can create an invalid sheet link", () => {
-    const model = new Model();
+  test("can create an invalid sheet link", async () => {
+    const model = await createModel();
     const sheetLink = buildSheetLink("invalidSheetId");
-    setCellContent(model, "A1", `[my label](${sheetLink})`);
+    await setCellContent(model, "A1", `[my label](${sheetLink})`);
     const cell = getEvaluatedCell(model, "A1");
     expect(cell.link?.label).toBe("my label");
     expect(cell.link?.url).toBe(sheetLink);
@@ -398,26 +398,26 @@ describe("link cell", () => {
     expect(getCellText(model, "A1")).toBe("my label");
   });
 
-  test("sheet link is updated if the sheet is deleted", () => {
-    const model = new Model();
-    createSheet(model, { sheetId: "42" });
+  test("sheet link is updated if the sheet is deleted", async () => {
+    const model = await createModel();
+    await createSheet(model, { sheetId: "42" });
     const sheetLink = buildSheetLink("42");
-    setCellContent(model, "A1", `[my label](${sheetLink})`);
-    deleteSheet(model, "42");
+    await setCellContent(model, "A1", `[my label](${sheetLink})`);
+    await deleteSheet(model, "42");
     const cell = getEvaluatedCell(model, "A1");
     expect(cell.link?.label).toBe("my label");
     expect(cell.link?.url).toBe(sheetLink);
     expect(urlRepresentation(cell.link!, model.getters).toString()).toBe("Invalid sheet");
     expect(getCellText(model, "A1")).toBe("my label");
-    undo(model);
+    await undo(model);
     expect(urlRepresentation(cell.link!, model.getters)).toBe("Sheet2");
   });
 
   test.each(["[my label](odoo.com)", '=HYPERLINK("odoo.com")'])(
     "link text color is applied if a custom style is specified",
-    (content) => {
-      const model = new Model();
-      updateCell(model, "A1", {
+    async (content) => {
+      const model = await createModel();
+      await updateCell(model, "A1", {
         content,
         style: { fillColor: "#555", bold: true, textColor: "#111" },
       });
@@ -431,10 +431,10 @@ describe("link cell", () => {
 
   test.each(["[my label](odoo.com)", '=HYPERLINK("odoo.com")'])(
     "link text color is not overwritten if there is a custom style",
-    (content) => {
-      const model = new Model();
-      setCellStyle(model, "A1", { fillColor: "#555", bold: true, textColor: "#111" });
-      setCellContent(model, "A1", content);
+    async (content) => {
+      const model = await createModel();
+      await setCellStyle(model, "A1", { fillColor: "#555", bold: true, textColor: "#111" });
+      await setCellContent(model, "A1", content);
       expect(getCell(model, "A1")?.style).toEqual({
         fillColor: "#555",
         bold: true,
@@ -443,12 +443,12 @@ describe("link cell", () => {
     }
   );
 
-  test("copy-paste web links", () => {
-    const model = new Model();
-    setCellContent(model, "B2", `[my label](odoo.com)`);
+  test("copy-paste web links", async () => {
+    const model = await createModel();
+    await setCellContent(model, "B2", `[my label](odoo.com)`);
     const B2 = getEvaluatedCell(model, "B2");
-    copy(model, "B2");
-    paste(model, "D2");
+    await copy(model, "B2");
+    await paste(model, "D2");
     const B2After = getEvaluatedCell(model, "B2");
     const D2 = getEvaluatedCell(model, "D2");
     expect(B2After.link).toEqual(B2.link);
@@ -456,14 +456,14 @@ describe("link cell", () => {
     expect(getCell(model, "D2")?.style).toEqual(getCell(model, "B2")?.style);
   });
 
-  test("copy-paste sheet links", () => {
-    const model = new Model();
+  test("copy-paste sheet links", async () => {
+    const model = await createModel();
     const sheetId = model.getters.getActiveSheetId();
     const sheetLink = buildSheetLink(sheetId);
-    setCellContent(model, "B2", `[my label](${sheetLink})`);
+    await setCellContent(model, "B2", `[my label](${sheetLink})`);
     const B2 = getEvaluatedCell(model, "B2")!;
-    copy(model, "B2");
-    paste(model, "D2");
+    await copy(model, "B2");
+    await paste(model, "D2");
     const B2After = getEvaluatedCell(model, "B2");
     const D2 = getEvaluatedCell(model, "D2");
     expect(B2After.link).toEqual(B2.link);
@@ -471,14 +471,14 @@ describe("link cell", () => {
     expect(getCell(model, "D2")?.style).toEqual(getCell(model, "B2")?.style);
   });
 
-  test("copy-paste custom style", () => {
-    const model = new Model();
-    updateCell(model, "B2", {
+  test("copy-paste custom style", async () => {
+    const model = await createModel();
+    await updateCell(model, "B2", {
       content: "[my label](odoo.com)",
       style: { fillColor: "#555", bold: true, textColor: "#111" },
     });
-    copy(model, "B2");
-    paste(model, "D2");
+    await copy(model, "B2");
+    await paste(model, "D2");
     expect(getCell(model, "D2")?.style).toEqual({
       fillColor: "#555",
       bold: true,
@@ -493,9 +493,9 @@ test.each([
   ["Line\r\nLine2", "Line\nLine2"],
 ])(
   "Content string given to update cell are properly sanitized %s",
-  (originalString: string, sanitizedString: string) => {
-    const model = new Model();
-    setCellContent(model, "A1", originalString);
+  async (originalString: string, sanitizedString: string) => {
+    const model = await createModel();
+    await setCellContent(model, "A1", originalString);
     expect(getCellContent(model, "A1")).toEqual(sanitizedString);
   }
 );
@@ -506,9 +506,9 @@ test.each([
   ["50.69%", "0.5069", "0.00%"],
 ])(
   "Special literal string %s is stored and exported as a number + format",
-  (literal, value, format) => {
-    const model = new Model();
-    setCellContent(model, "A1", literal);
+  async (literal, value, format) => {
+    const model = await createModel();
+    await setCellContent(model, "A1", literal);
     expect(getCell(model, "A1")).toMatchObject({ content: value, format: format });
     const exportedData = model.exportData();
     expect(exportedData.sheets[0].cells.A1).toBe(value);
@@ -519,9 +519,9 @@ test.each([
 
 test.each(["5 \n", " \n 5", "5\n5", "fougere\n", "12:00 \n AM"])(
   "content with a newline character is automatically a string",
-  (content) => {
-    const model = new Model();
-    setCellContent(model, "A1", content);
+  async (content) => {
+    const model = await createModel();
+    await setCellContent(model, "A1", content);
     expect(getCellContent(model, "A1")).toEqual(content);
     const evaluatedCell = getEvaluatedCell(model, "A1");
     expect(evaluatedCell.type).toBe(CellValueType.text);
@@ -532,39 +532,39 @@ test.each(["5 \n", " \n 5", "5\n5", "fougere\n", "12:00 \n AM"])(
 describe("Cell dependencies and tokens are updated", () => {
   let model: Model;
 
-  beforeEach(() => {
-    model = new Model();
+  beforeEach(async () => {
+    model = await createModel();
   });
 
-  test("on row addition", () => {
-    setCellContent(model, "A1", "=C3");
-    addRows(model, "before", 2, 1);
+  test("on row addition", async () => {
+    await setCellContent(model, "A1", "=C3");
+    await addRows(model, "before", 2, 1);
 
     expect(getCellText(model, "A1")).toBe("=C4");
   });
 
-  test("on row removed", () => {
-    setCellContent(model, "A1", "=C3");
-    deleteRows(model, [1]);
+  test("on row removed", async () => {
+    await setCellContent(model, "A1", "=C3");
+    await deleteRows(model, [1]);
 
     expect(getCellText(model, "A1")).toBe("=C2");
   });
 
-  test("on column added", () => {
-    setCellContent(model, "A1", "=C3");
-    addColumns(model, "before", "B", 1);
+  test("on column added", async () => {
+    await setCellContent(model, "A1", "=C3");
+    await addColumns(model, "before", "B", 1);
 
     expect(getCellText(model, "A1")).toBe("=D3");
   });
 
-  test("on column removed", () => {
-    setCellContent(model, "A1", "=C3");
-    deleteColumns(model, ["B"]);
+  test("on column removed", async () => {
+    await setCellContent(model, "A1", "=C3");
+    await deleteColumns(model, ["B"]);
 
     expect(getCellText(model, "A1")).toBe("=B3");
   });
 
-  test("Do not dispatch UPDATE_CELL subcommands if the content is empty", () => {
+  test("Do not dispatch UPDATE_CELL subcommands if the content is empty", async () => {
     let counter = 0;
     class SubCommandCounterRange extends CorePlugin {
       static getters = [];
@@ -575,10 +575,10 @@ describe("Cell dependencies and tokens are updated", () => {
       }
     }
     addTestPlugin(corePluginRegistry, SubCommandCounterRange);
-    const model = new Model();
-    setFormatting(model, "A1", { bold: true });
+    const model = await createModel();
+    await setFormatting(model, "A1", { bold: true });
     counter = 0;
-    deleteContent(model, ["A1"]);
+    await deleteContent(model, ["A1"]);
     expect(counter).toBe(0);
   });
 });
@@ -586,34 +586,34 @@ describe("Cell dependencies and tokens are updated", () => {
 describe("Delete cell content", () => {
   let model: Model;
 
-  beforeEach(() => {
-    model = new Model();
+  beforeEach(async () => {
+    model = await createModel();
   });
 
-  test("With DELETE_CONTENT command", () => {
-    setCellContent(model, "A1", "hello");
-    deleteContent(model, ["A1"]);
+  test("With DELETE_CONTENT command", async () => {
+    await setCellContent(model, "A1", "hello");
+    await deleteContent(model, ["A1"]);
     expect(getCellContent(model, "A1")).toBe("");
   });
 
-  test("With DELETE_UNFILTERED_CONTENT command", () => {
-    setCellContent(model, "A1", "hello");
-    deleteUnfilteredContent(model, "A1");
+  test("With DELETE_UNFILTERED_CONTENT command", async () => {
+    await setCellContent(model, "A1", "hello");
+    await deleteUnfilteredContent(model, "A1");
     expect(getCellContent(model, "A1")).toBe("");
   });
 
-  test("DELETE_UNFILTERED_CONTENT ignores filtered rows", () => {
-    setGrid(model, { A2: "A1", A3: "A3", A4: "A4", B2: "B2", B3: "B3", B4: "B4" });
-    createTableWithFilter(model, "A1:B4");
-    updateFilter(model, "A1", ["A3"]);
-    deleteUnfilteredContent(model, "A1:B4");
+  test("DELETE_UNFILTERED_CONTENT ignores filtered rows", async () => {
+    await setGrid(model, { A2: "A1", A3: "A3", A4: "A4", B2: "B2", B3: "B3", B4: "B4" });
+    await createTableWithFilter(model, "A1:B4");
+    await updateFilter(model, "A1", ["A3"]);
+    await deleteUnfilteredContent(model, "A1:B4");
     expect(getGrid(model)).toEqual({ A3: "A3", B3: "B3" });
   });
 
-  test("DELETE_UNFILTERED_CONTENT removes content of hidden rows", () => {
-    setGrid(model, { A2: "A1", A3: "A3", A4: "A4", B2: "B2", B3: "B3", B4: "B4" });
-    hideRows(model, [2]);
-    deleteUnfilteredContent(model, "A1:B4");
+  test("DELETE_UNFILTERED_CONTENT removes content of hidden rows", async () => {
+    await setGrid(model, { A2: "A1", A3: "A3", A4: "A4", B2: "B2", B3: "B3", B4: "B4" });
+    await hideRows(model, [2]);
+    await deleteUnfilteredContent(model, "A1:B4");
     expect(getGrid(model)).toEqual({});
   });
 });

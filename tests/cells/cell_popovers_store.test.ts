@@ -6,11 +6,11 @@ import { merge, setCellContent } from "../test_helpers";
 import { makeStore } from "../test_helpers/stores";
 
 describe("cell popover store", () => {
-  test("Anchor rect is correct on a merge", () => {
-    const { store: cellPopovers, model, container } = makeStore(CellPopoverStore);
+  test("Anchor rect is correct on a merge", async () => {
+    const { store: cellPopovers, model, container } = await makeStore(CellPopoverStore);
     const hoveredCellStore = container.get(DelayedHoveredCellStore);
-    merge(model, "A1:B2");
-    setCellContent(model, "A1", "=0/0");
+    await merge(model, "A1:B2");
+    await setCellContent(model, "A1", "=0/0");
     hoveredCellStore.hover(toCartesian("B2"));
     expect(cellPopovers.cellPopover).toMatchObject({
       anchorRect: {
@@ -22,8 +22,8 @@ describe("cell popover store", () => {
     });
   });
 
-  test("cannot open popover which does not exists", () => {
-    const { store: cellPopovers } = makeStore(CellPopoverStore);
+  test("cannot open popover which does not exists", async () => {
+    const { store: cellPopovers } = await makeStore(CellPopoverStore);
     cellPopovers.open(
       { col: 0, row: 0 },
       /** @ts-ignore */

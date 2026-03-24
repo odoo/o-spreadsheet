@@ -8,6 +8,7 @@ import { PivotMeasureDisplayPanel } from "../../../src/components/side_panel/piv
 import { setCellContent, setFormat } from "../../test_helpers";
 import { click, editSelectComponent } from "../../test_helpers/dom_helper";
 import {
+  createModel,
   mountComponentWithPortalTarget,
   mountSpreadsheet,
   nextTick,
@@ -40,10 +41,10 @@ describe("Standalone side panel tests", () => {
     }));
   }
 
-  beforeEach(() => {
-    model = new Model();
+  beforeEach(async () => {
+    model = await createModel();
     sheetId = model.getters.getActiveSheetId();
-    setCellContent(model, "A1", "TestMeasure");
+    await setCellContent(model, "A1", "TestMeasure");
     addPivot(
       model,
       "A1:A2",
@@ -53,10 +54,10 @@ describe("Standalone side panel tests", () => {
   });
 
   test("Initial panel state is correct", async () => {
-    setCellContent(model, "B1", "FieldA");
-    setCellContent(model, "B2", "Alice");
-    setCellContent(model, "B3", "Bob");
-    setCellContent(model, "C1", "FieldB");
+    await setCellContent(model, "B1", "FieldA");
+    await setCellContent(model, "B2", "Alice");
+    await setCellContent(model, "B3", "Bob");
+    await setCellContent(model, "C1", "FieldB");
     updatePivot(model, pivotId, {
       columns: [{ fieldName: "FieldA" }, { fieldName: "FieldB" }],
       dataSet: { sheetId, zone: toZone("A1:C3") },
@@ -81,8 +82,8 @@ describe("Standalone side panel tests", () => {
   });
 
   test("Can change base field of measure display type that requires it", async () => {
-    setCellContent(model, "B1", "FieldA");
-    setCellContent(model, "C1", "FieldB");
+    await setCellContent(model, "B1", "FieldA");
+    await setCellContent(model, "C1", "FieldB");
     updatePivot(model, pivotId, {
       columns: [{ fieldName: "FieldA" }, { fieldName: "FieldB" }],
       dataSet: { sheetId, zone: toZone("A1:C2") },
@@ -116,9 +117,9 @@ describe("Standalone side panel tests", () => {
   });
 
   test("Can change base value of measure display type that requires it", async () => {
-    setCellContent(model, "B1", "FieldA");
-    setCellContent(model, "B2", "Alice");
-    setCellContent(model, "B3", "Bob");
+    await setCellContent(model, "B1", "FieldA");
+    await setCellContent(model, "B2", "Alice");
+    await setCellContent(model, "B3", "Bob");
     updatePivot(model, pivotId, {
       columns: [{ fieldName: "FieldA" }],
       dataSet: { sheetId, zone: toZone("A1:B3") },
@@ -143,9 +144,9 @@ describe("Standalone side panel tests", () => {
   });
 
   test("Changing the base field change the selected value to a valid one", async () => {
-    setCellContent(model, "B1", "FieldA");
-    setCellContent(model, "B2", "Alice");
-    setCellContent(model, "C1", "FieldB");
+    await setCellContent(model, "B1", "FieldA");
+    await setCellContent(model, "B2", "Alice");
+    await setCellContent(model, "C1", "FieldB");
     updatePivot(model, pivotId, {
       columns: [{ fieldName: "FieldA" }, { fieldName: "FieldB" }],
       dataSet: { sheetId, zone: toZone("A1:C3") },
@@ -169,11 +170,11 @@ describe("Standalone side panel tests", () => {
   });
 
   test("Values are formatted in the side panel", async () => {
-    setCellContent(model, "B1", "FieldA");
-    setCellContent(model, "B2", "5");
-    setFormat(model, "B2", "#,##0[$ Tabourets]");
-    setCellContent(model, "C1", "FieldB");
-    setCellContent(model, "C2", "01/01/2021");
+    await setCellContent(model, "B1", "FieldA");
+    await setCellContent(model, "B2", "5");
+    await setFormat(model, "B2", "#,##0[$ Tabourets]");
+    await setCellContent(model, "C1", "FieldB");
+    await setCellContent(model, "C2", "01/01/2021");
     updatePivot(model, pivotId, {
       columns: [
         { fieldName: "FieldA" },
@@ -201,9 +202,9 @@ describe("Standalone side panel tests", () => {
   });
 
   test("Can change base value of measure display type that requires it", async () => {
-    setCellContent(model, "B1", "FieldA");
-    setCellContent(model, "B2", "Alice");
-    setCellContent(model, "B3", "Bob");
+    await setCellContent(model, "B1", "FieldA");
+    await setCellContent(model, "B2", "Alice");
+    await setCellContent(model, "B3", "Bob");
     updatePivot(model, pivotId, {
       columns: [{ fieldName: "FieldA" }],
       dataSet: { sheetId, zone: toZone("A1:B3") },

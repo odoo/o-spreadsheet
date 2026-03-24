@@ -10,8 +10,11 @@ describe("reconnection recovery", () => {
   let alice: Model;
   let bob: Model;
 
-  beforeEach(() => {
-    ({ network, alice, bob } = setupCollaborativeEnv(undefined, new MockTransportServiceAsync()));
+  beforeEach(async () => {
+    ({ network, alice, bob } = await setupCollaborativeEnv(
+      undefined,
+      new MockTransportServiceAsync()
+    ));
   });
 
   test("disconnecting than reconnecting re-send all messages and swallows the error", async () => {

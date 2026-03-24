@@ -37,7 +37,7 @@ import {
   setGrid,
 } from "../../test_helpers/helpers";
 import { extendMockGetBoundingClientRect } from "../../test_helpers/mock_helpers";
-import { SELECTORS, addPivot, updatePivot } from "../../test_helpers/pivot_helpers";
+import { addPivot, SELECTORS, updatePivot } from "../../test_helpers/pivot_helpers";
 
 describe("Spreadsheet pivot side panel", () => {
   let model: Model;
@@ -56,7 +56,7 @@ describe("Spreadsheet pivot side panel", () => {
       A2: "Alice",    B2: "Chair",   C2: "10",
       A3: "Bob",      B3: "Table",   C3: "20",
     };
-    setGrid(model, grid);
+    await setGrid(model, grid);
 
     addPivot(model, "A1:C3", {}, "1");
     env.openSidePanel("PivotSidePanel", { pivotId: "1" });
@@ -81,9 +81,9 @@ describe("Spreadsheet pivot side panel", () => {
   });
 
   test("It should be able to defer updates", async () => {
-    setCellContent(model, "A1", "amount");
-    setCellContent(model, "A2", "10");
-    setCellContent(model, "A3", "20");
+    await setCellContent(model, "A1", "amount");
+    await setCellContent(model, "A2", "10");
+    await setCellContent(model, "A3", "20");
     addPivot(model, "A1:A3", {}, "3");
     env.openSidePanel("PivotSidePanel", { pivotId: "3" });
     await nextTick();
@@ -99,9 +99,9 @@ describe("Spreadsheet pivot side panel", () => {
   });
 
   test("single quotes are escaped for measure ids", async () => {
-    setCellContent(model, "A1", "Goa'uld");
-    setCellContent(model, "A2", "Anubis");
-    setCellContent(model, "A3", "Teal'c");
+    await setCellContent(model, "A1", "Goa'uld");
+    await setCellContent(model, "A2", "Anubis");
+    await setCellContent(model, "A3", "Teal'c");
     addPivot(model, "A1:A3", {}, "3");
     env.openSidePanel("PivotSidePanel", { pivotId: "3" });
     await nextTick();
@@ -119,9 +119,9 @@ describe("Spreadsheet pivot side panel", () => {
   });
 
   test("can add a calculated measure", async () => {
-    setCellContent(model, "A1", "amount");
-    setCellContent(model, "A2", "10");
-    setCellContent(model, "A3", "20");
+    await setCellContent(model, "A1", "amount");
+    await setCellContent(model, "A2", "10");
+    await setCellContent(model, "A3", "20");
     addPivot(model, "A1:A3", {}, "3");
     env.openSidePanel("PivotSidePanel", { pivotId: "3" });
     await nextTick();
@@ -155,9 +155,9 @@ describe("Spreadsheet pivot side panel", () => {
   });
 
   test("can add a calculated measure without leading equal", async () => {
-    setCellContent(model, "A1", "amount");
-    setCellContent(model, "A2", "10");
-    setCellContent(model, "A3", "20");
+    await setCellContent(model, "A1", "amount");
+    await setCellContent(model, "A2", "10");
+    await setCellContent(model, "A3", "20");
     addPivot(model, "A1:A3", {}, "3");
     env.openSidePanel("PivotSidePanel", { pivotId: "3" });
     await nextTick();
@@ -187,9 +187,9 @@ describe("Spreadsheet pivot side panel", () => {
   });
 
   test("can have a computed measure without aggregate", async () => {
-    setCellContent(model, "A1", "amount");
-    setCellContent(model, "A2", "10");
-    setCellContent(model, "A3", "20");
+    await setCellContent(model, "A1", "amount");
+    await setCellContent(model, "A2", "10");
+    await setCellContent(model, "A3", "20");
     addPivot(model, "A1:A3", {}, "3");
     const sheetId = model.getters.getActiveSheetId();
     env.openSidePanel("PivotSidePanel", { pivotId: "3" });
@@ -208,35 +208,35 @@ describe("Spreadsheet pivot side panel", () => {
   });
 
   test("can select a cell in the grid in several sheets", async () => {
-    setCellContent(model, "A1", "amount");
-    setCellContent(model, "A2", "10");
-    setCellContent(model, "A3", "20");
+    await setCellContent(model, "A1", "amount");
+    await setCellContent(model, "A2", "10");
+    await setCellContent(model, "A3", "20");
     addPivot(model, "A1:A3", {}, "3");
     const sheet1Id = model.getters.getActiveSheetId();
     const sheet2Id = "sheet2";
-    createSheet(model, { sheetId: sheet2Id });
+    await createSheet(model, { sheetId: sheet2Id });
     env.openSidePanel("PivotSidePanel", { pivotId: "3" });
     await nextTick();
     await click(fixture.querySelectorAll(".add-dimension")[2]);
     expect(fixture.querySelector(".o-popover")).toBeDefined();
     await click(fixture, ".add-calculated-measure");
     await editStandaloneComposer(".pivot-dimension .o-composer", "=", { confirm: false });
-    selectCell(model, "A1");
+    await selectCell(model, "A1");
     await nextTick();
     expect(fixture.querySelector(".pivot-dimension .o-composer")?.textContent).toEqual("=A1");
     await editStandaloneComposer(".pivot-dimension .o-composer", "+", {
       confirm: false,
       fromScratch: false,
     });
-    activateSheet(model, sheet2Id);
-    selectCell(model, "A1");
+    await activateSheet(model, sheet2Id);
+    await selectCell(model, "A1");
     await nextTick();
     expect(fixture.querySelector(".pivot-dimension .o-composer")?.textContent).toEqual(
       "=A1+Sheet2!A1"
     );
     await keyDown({ key: "Enter" });
 
-    activateSheet(model, sheet2Id);
+    await activateSheet(model, sheet2Id);
     // close the side panel and reopen it while the second sheet is active
     await click(fixture.querySelector(".o-sidePanelClose")!);
     env.openSidePanel("PivotSidePanel", { pivotId: "3" });
@@ -247,7 +247,7 @@ describe("Spreadsheet pivot side panel", () => {
 
     // reopen in the original sheet
     await click(fixture.querySelector(".o-sidePanelClose")!);
-    activateSheet(model, sheet1Id);
+    await activateSheet(model, sheet1Id);
     env.openSidePanel("PivotSidePanel", { pivotId: "3" });
     await nextTick();
     expect(fixture.querySelector(".pivot-dimension .o-composer")?.textContent).toEqual(
@@ -256,10 +256,10 @@ describe("Spreadsheet pivot side panel", () => {
   });
 
   test("Calculated measure tokens are correctly colored", async () => {
-    setCellContent(model, "C1", "Amount with spaces");
-    setCellContent(model, "D1", "Date");
-    setCellContent(model, "D2", "01/05/2024");
-    setCellContent(model, "D3", "01/05/2025");
+    await setCellContent(model, "C1", "Amount with spaces");
+    await setCellContent(model, "D1", "Date");
+    await setCellContent(model, "D2", "01/05/2024");
+    await setCellContent(model, "D3", "01/05/2025");
     addPivot(
       model,
       "A1:D3",
@@ -368,7 +368,7 @@ describe("Spreadsheet pivot side panel", () => {
       config: { styleId: PIVOT_INSERT_TABLE_STYLE_ID },
     });
 
-    undo(model);
+    await undo(model);
 
     expect(model.getters.getPivotId("2")).toBeUndefined();
     expect(model.getters.getSheetIds()).toHaveLength(1);
@@ -377,7 +377,7 @@ describe("Spreadsheet pivot side panel", () => {
   });
 
   test("Can duplicate a pivot when a duplicate sheet name already exists", async () => {
-    createSheet(model, { name: "Pivot (copy) (Pivot #2)" });
+    await createSheet(model, { name: "Pivot (copy) (Pivot #2)" });
     await click(fixture, SELECTORS.COG_WHEEL);
     await click(fixture, SELECTORS.DUPLICATE_PIVOT);
     const pivotId = model.getters.getPivotId("2")!;
@@ -408,9 +408,9 @@ describe("Spreadsheet pivot side panel", () => {
   });
 
   test("Pivot dimensions are ordered 'asc' by default", async () => {
-    setCellContent(model, "A1", "amount");
-    setCellContent(model, "A2", "10");
-    setCellContent(model, "A3", "20");
+    await setCellContent(model, "A1", "amount");
+    await setCellContent(model, "A2", "10");
+    await setCellContent(model, "A3", "20");
     addPivot(model, "A1:A3", {}, "3");
     env.openSidePanel("PivotSidePanel", { pivotId: "3" });
     await nextTick();
@@ -448,18 +448,18 @@ describe("Spreadsheet pivot side panel", () => {
   });
 
   test("filter unsupported measures", async () => {
-    setCellContent(model, "A1", "integer");
-    setCellContent(model, "A2", "10");
-    setCellContent(model, "B1", "float");
-    setCellContent(model, "B2", "10.1");
-    setCellContent(model, "C1", "bool");
-    setCellContent(model, "C2", "true");
-    setCellContent(model, "D1", "date");
-    setCellContent(model, "D2", "2024/01/01");
-    setCellContent(model, "E1", "datetime");
-    setCellContent(model, "E2", "2024/01/01 08:00:00");
-    setCellContent(model, "F1", "text");
-    setCellContent(model, "F2", "hi");
+    await setCellContent(model, "A1", "integer");
+    await setCellContent(model, "A2", "10");
+    await setCellContent(model, "B1", "float");
+    await setCellContent(model, "B2", "10.1");
+    await setCellContent(model, "C1", "bool");
+    await setCellContent(model, "C2", "true");
+    await setCellContent(model, "D1", "date");
+    await setCellContent(model, "D2", "2024/01/01");
+    await setCellContent(model, "E1", "datetime");
+    await setCellContent(model, "E2", "2024/01/01 08:00:00");
+    await setCellContent(model, "F1", "text");
+    await setCellContent(model, "F2", "hi");
     addPivot(model, "A1:F2", {}, "3");
     env.openSidePanel("PivotSidePanel", { pivotId: "3" });
     await nextTick();
@@ -486,10 +486,10 @@ describe("Spreadsheet pivot side panel", () => {
   });
 
   test("Measures have the correct default aggregator", async () => {
-    setCellContent(model, "A1", "amount");
-    setCellContent(model, "A2", "10");
-    setCellContent(model, "B1", "person");
-    setCellContent(model, "B2", "Alice");
+    await setCellContent(model, "A1", "amount");
+    await setCellContent(model, "A2", "10");
+    await setCellContent(model, "B1", "person");
+    await setCellContent(model, "B2", "Alice");
     addPivot(model, "A1:B2", {}, "3");
     env.openSidePanel("PivotSidePanel", { pivotId: "3" });
     await nextTick();
@@ -509,10 +509,10 @@ describe("Spreadsheet pivot side panel", () => {
   });
 
   test("Supports SUM and AVG aggregators for duration fields", async () => {
-    setCellContent(model, "A1", "name");
-    setCellContent(model, "A2", "Alice");
-    setCellContent(model, "B1", "duration");
-    setCellContent(model, "B2", "01:30:00");
+    await setCellContent(model, "A1", "name");
+    await setCellContent(model, "A2", "Alice");
+    await setCellContent(model, "B1", "duration");
+    await setCellContent(model, "B2", "01:30:00");
     addPivot(model, "A1:B2", {}, "3");
     env.openSidePanel("PivotSidePanel", { pivotId: "3" });
     await nextTick();
@@ -536,10 +536,10 @@ describe("Spreadsheet pivot side panel", () => {
   });
 
   test("can add a datetime measure", async () => {
-    setCellContent(model, "A1", "name");
-    setCellContent(model, "A2", "Alice");
-    setCellContent(model, "B1", "birthdate");
-    setCellContent(model, "B2", "1995/12/15");
+    await setCellContent(model, "A1", "name");
+    await setCellContent(model, "A2", "Alice");
+    await setCellContent(model, "B1", "birthdate");
+    await setCellContent(model, "B2", "1995/12/15");
     addPivot(model, "A1:B2", {}, "3");
     env.openSidePanel("PivotSidePanel", { pivotId: "3" });
     await nextTick();
@@ -551,10 +551,10 @@ describe("Spreadsheet pivot side panel", () => {
   });
 
   test("Can add date dimension", async () => {
-    setCellContent(model, "G1", "=PIVOT(1)"); // TODO: remove once task 4781740 is done
-    setCellContent(model, "A1", "Date");
-    setCellContent(model, "A2", "2023-01-01");
-    setCellContent(model, "A3", "2023-01-02");
+    await setCellContent(model, "G1", "=PIVOT(1)"); // TODO: remove once task 4781740 is done
+    await setCellContent(model, "A1", "Date");
+    await setCellContent(model, "A2", "2023-01-01");
+    await setCellContent(model, "A3", "2023-01-02");
     updatePivot(model, "1", {
       columns: [],
       measures: [{ id: "Amount:sum", fieldName: "Amount", aggregator: "sum" }],
@@ -577,10 +577,10 @@ describe("Spreadsheet pivot side panel", () => {
   });
 
   test("All granularities are displayed in order and not more than once", async () => {
-    setCellContent(model, "G1", "=PIVOT(1)"); // TODO: remove once task 4781740 is done
-    setCellContent(model, "A1", "Date");
-    setCellContent(model, "A2", "2023-01-01");
-    setCellContent(model, "A3", "2023-01-02");
+    await setCellContent(model, "G1", "=PIVOT(1)"); // TODO: remove once task 4781740 is done
+    await setCellContent(model, "A1", "Date");
+    await setCellContent(model, "A2", "2023-01-01");
+    await setCellContent(model, "A3", "2023-01-02");
     updatePivot(model, "1", {
       columns: [],
       measures: [{ id: "Amount:sum", fieldName: "Amount", aggregator: "sum" }],
@@ -614,10 +614,10 @@ describe("Spreadsheet pivot side panel", () => {
   });
 
   test("Date dimensions with undefined granularity is correctly displayed as month", async () => {
-    setCellContent(model, "G1", "=PIVOT(1)"); // TODO: remove once task 4781740 is done
-    setCellContent(model, "A1", "Date");
-    setCellContent(model, "A2", "2023-01-01");
-    setCellContent(model, "A3", "2023-01-02");
+    await setCellContent(model, "G1", "=PIVOT(1)"); // TODO: remove once task 4781740 is done
+    await setCellContent(model, "A1", "Date");
+    await setCellContent(model, "A2", "2023-01-01");
+    await setCellContent(model, "A3", "2023-01-02");
     updatePivot(model, "1", {
       columns: [{ fieldName: "Date" }],
       measures: [{ id: "Amount:sum", fieldName: "Amount", aggregator: "sum" }],
@@ -677,10 +677,10 @@ describe("Spreadsheet pivot side panel", () => {
   });
 
   test("Can add the same measure multiple times", async () => {
-    setCellContent(model, "A1", "amount");
-    setCellContent(model, "A2", "10");
-    setCellContent(model, "B1", "person");
-    setCellContent(model, "B2", "Alice");
+    await setCellContent(model, "A1", "amount");
+    await setCellContent(model, "A2", "10");
+    await setCellContent(model, "B1", "person");
+    await setCellContent(model, "B2", "Alice");
     addPivot(model, "A1:B2", {}, "3");
     env.openSidePanel("PivotSidePanel", { pivotId: "3" });
     await nextTick();
@@ -696,10 +696,10 @@ describe("Spreadsheet pivot side panel", () => {
   });
 
   test("Can update the name of a measure", async () => {
-    setCellContent(model, "A1", "amount");
-    setCellContent(model, "A2", "10");
-    setCellContent(model, "B1", "person");
-    setCellContent(model, "B2", "Alice");
+    await setCellContent(model, "A1", "amount");
+    await setCellContent(model, "A2", "10");
+    await setCellContent(model, "B1", "person");
+    await setCellContent(model, "B2", "Alice");
     addPivot(
       model,
       "A1:B2",
@@ -727,7 +727,7 @@ describe("Spreadsheet pivot side panel", () => {
   });
 
   test("notify when no dynamic pivot is visible", async () => {
-    setCellContent(model, "A4", "=PIVOT(1)");
+    await setCellContent(model, "A4", "=PIVOT(1)");
     const mockNotify = jest.fn();
     const notificationStore = env.getStore(NotificationStore);
     notificationStore.updateNotificationCallbacks({
@@ -740,11 +740,11 @@ describe("Spreadsheet pivot side panel", () => {
     expect(mockNotify).toHaveBeenCalledTimes(0);
 
     // scroll beyond the =PIVOT formula
-    setViewportOffset(model, 0, 1000);
+    await setViewportOffset(model, 0, 1000);
 
     // add a static pivot in the viewport
     const { bottom: row, right: col } = model.getters.getActiveMainViewport();
-    setCellContent(model, toXC(col, row), '=PIVOT.VALUE(1, "amount:sum")');
+    await setCellContent(model, toXC(col, row), '=PIVOT.VALUE(1, "amount:sum")');
     await click(fixture.querySelector(".o-pivot-measure .add-dimension")!);
     await click(fixture.querySelectorAll(".o-autocomplete-value")[1]);
     expect(mockNotify).toHaveBeenCalledWith({
@@ -769,7 +769,7 @@ describe("Spreadsheet pivot side panel", () => {
     addPivot(model, "B1:B2", pivotData, "2");
     // insert the first pivot as static pivot in a new empty sheet
     const sheet2Id = "sheet2";
-    createSheet(model, { sheetId: sheet2Id, activate: true });
+    await createSheet(model, { sheetId: sheet2Id, activate: true });
     const reinsertStaticPivotPath = ["data", "reinsert_static_pivot", "reinsert_static_pivot_1"];
     await doAction(reinsertStaticPivotPath, env, topbarMenuRegistry);
     env.openSidePanel("PivotSidePanel", { pivotId: "2" });
@@ -780,8 +780,8 @@ describe("Spreadsheet pivot side panel", () => {
   });
 
   test("Invalid pivot dimensions are displayed as such in the side panel", async () => {
-    setCellContent(model, "A1", "ValidDimension");
-    setCellContent(model, "A2", "10");
+    await setCellContent(model, "A1", "ValidDimension");
+    await setCellContent(model, "A2", "10");
     addPivot(
       model,
       "A1:A2",
@@ -804,8 +804,8 @@ describe("Spreadsheet pivot side panel", () => {
   });
 
   test("Can update the name of a computed measure", async () => {
-    setCellContent(model, "B1", "person");
-    setCellContent(model, "B2", "Alice");
+    await setCellContent(model, "B1", "person");
+    await setCellContent(model, "B2", "Alice");
     const sheetId = model.getters.getActiveSheetId();
     addPivot(
       model,
@@ -893,8 +893,8 @@ describe("Spreadsheet pivot side panel", () => {
   });
 
   test("Pivot with multiple time the same dimension does not crash the side panel", async () => {
-    setCellContent(model, "A1", "ValidDimension");
-    setCellContent(model, "A2", "10");
+    await setCellContent(model, "A1", "ValidDimension");
+    await setCellContent(model, "A2", "10");
     addPivot(model, "A1:A2", {
       columns: [{ fieldName: "ValidDimension" }, { fieldName: "ValidDimension" }],
     });
@@ -959,7 +959,7 @@ describe("Spreadsheet pivot side panel", () => {
   });
 
   test("Trying to load a very big pivot will raise an error message", async () => {
-    setCellContent(model, "G1", "=PIVOT(1)");
+    await setCellContent(model, "G1", "=PIVOT(1)");
     env.openSidePanel("PivotSidePanel", { pivotId: "1" });
     await nextTick();
 

@@ -22,7 +22,7 @@ describe("Spreadsheet zoom tests", () => {
   describe.each(ZOOM_VALUES.map((zoom) => zoom / 100))("Zoom tests selection %s", (zoom) => {
     beforeEach(async () => {
       ({ model, fixture } = await mountSpreadsheet());
-      setZoom(model, zoom);
+      await setZoom(model, zoom);
       await nextTick();
     });
     test("can render a sheet with zoom", async () => {
@@ -30,15 +30,15 @@ describe("Spreadsheet zoom tests", () => {
     });
 
     test("can click on a cell to select it", async () => {
-      setCellContent(model, "B2", "b2");
-      setCellContent(model, "B3", "b3");
+      await setCellContent(model, "B2", "b2");
+      await setCellContent(model, "B3", "b3");
       await clickCell(model, "C8", {}, { clickInMiddle: true });
       expect(getSelectionAnchorCellXc(model)).toBe("C8");
     });
 
     test("can click on the edge of a cell to select it", async () => {
-      setCellContent(model, "B2", "b2");
-      setCellContent(model, "B3", "b3");
+      await setCellContent(model, "B2", "b2");
+      await setCellContent(model, "B3", "b3");
       // by default we click on top left
       await clickCell(model, "C8");
       expect(getSelectionAnchorCellXc(model)).toBe("C8");
@@ -52,21 +52,21 @@ describe("Spreadsheet zoom tests", () => {
     });
 
     test("can select a COL header", async () => {
-      setCellContent(model, "B2", "b2");
-      setCellContent(model, "B3", "b3");
+      await setCellContent(model, "B2", "b2");
+      await setCellContent(model, "B3", "b3");
       await clickHeader(model, "COL", 2, {});
       expect(getSelectionAnchorCellXc(model)).toBe("C1");
     });
 
     test("can select a ROW header", async () => {
-      setCellContent(model, "B2", "b2");
-      setCellContent(model, "B3", "b3");
+      await setCellContent(model, "B2", "b2");
+      await setCellContent(model, "B3", "b3");
       await clickHeader(model, "ROW", 2, {});
       expect(getSelectionAnchorCellXc(model)).toBe("A4");
     });
 
     test("can hover a cell to show its error", async () => {
-      setCellContent(model, "A10", "=1/0");
+      await setCellContent(model, "A10", "=1/0");
       expect(fixture.querySelector(".o-error-tooltip")).toBeFalsy();
       await hoverCell(model, "A10", 400);
       expect(fixture.querySelector(".o-error-tooltip")).toBeTruthy();
@@ -78,8 +78,8 @@ describe("Dashboard zoom tests", () => {
   describe.each(ZOOM_VALUES.map((zoom) => zoom / 100))("Zoom tests selection %s", (zoom) => {
     beforeEach(async () => {
       ({ model, fixture } = await mountSpreadsheet());
-      setZoom(model, zoom);
-      setCellContent(model, "C8", "=1/0");
+      await setZoom(model, zoom);
+      await setCellContent(model, "C8", "=1/0");
       model.updateMode("dashboard");
       await nextTick();
     });

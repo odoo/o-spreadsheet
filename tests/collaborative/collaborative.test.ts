@@ -63,7 +63,7 @@ import {
   getMerges,
   getStyle,
 } from "../test_helpers/getters_helpers";
-import { addToRegistry, getDataValidationRules } from "../test_helpers/helpers";
+import { addToRegistry, createModel, getDataValidationRules } from "../test_helpers/helpers";
 import { addPivot, updatePivot } from "../test_helpers/pivot_helpers";
 import { setupCollaborativeEnv } from "./collaborative_helpers";
 
@@ -73,15 +73,15 @@ describe("Multi users synchronisation", () => {
   let bob: Model;
   let charlie: Model;
 
-  beforeEach(() => {
-    ({ network, alice, bob, charlie } = setupCollaborativeEnv());
+  beforeEach(async () => {
+    ({ network, alice, bob, charlie } = await setupCollaborativeEnv());
   });
 
-  test("update two different cells concurrently", () => {
-    network.concurrent(() => {
-      setCellContent(alice, "A1", "hello in A1");
+  test("update two different cells concurrently", async () => {
+    await network.concurrent(async () => {
+      await setCellContent(alice, "A1", "hello in A1");
 
-      setCellContent(bob, "B2", "hello in B2");
+      await setCellContent(bob, "B2", "hello in B2");
     });
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
       (user) => getCellContent(user, "A1"),
@@ -93,12 +93,12 @@ describe("Multi users synchronisation", () => {
     );
   });
 
-  test("update the same cell concurrently", () => {
-    network.concurrent(() => {
-      setCellContent(alice, "A1", "hello Bob");
+  test("update the same cell concurrently", async () => {
+    await network.concurrent(async () => {
+      await setCellContent(alice, "A1", "hello Bob");
       expect(getCellContent(alice, "A1")).toBe("hello Bob");
 
-      setCellContent(bob, "A1", "Hi Alice");
+      await setCellContent(bob, "A1", "Hi Alice");
       expect(getCellContent(bob, "A1")).toBe("Hi Alice");
     });
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
@@ -107,42 +107,42 @@ describe("Multi users synchronisation", () => {
     );
   });
 
-  test("update the same cell sequentially", () => {
-    setCellContent(alice, "A1", "hello Bob");
+  test("update the same cell sequentially", async () => {
+    await setCellContent(alice, "A1", "hello Bob");
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
       (user) => getCellContent(user, "A1"),
       "hello Bob"
     );
 
-    setCellContent(bob, "A1", "Hi Alice");
+    await setCellContent(bob, "A1", "Hi Alice");
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
       (user) => getCellContent(user, "A1"),
       "Hi Alice"
     );
   });
 
-  test("update and delete the same cell concurrently", () => {
-    setCellContent(alice, "A1", "Hi");
+  test("update and delete the same cell concurrently", async () => {
+    await setCellContent(alice, "A1", "Hi");
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
       (user) => getCellContent(user, "A1"),
       "Hi"
     );
 
-    network.concurrent(() => {
-      setCellContent(alice, "A1", "hello");
+    await network.concurrent(async () => {
+      await setCellContent(alice, "A1", "hello");
       expect(getCellContent(alice, "A1")).toBe("hello");
 
-      clearCell(bob, "A1");
+      await clearCell(bob, "A1");
       expect(getCell(bob, "A1")).toBeUndefined();
     });
 
     expect([alice, bob, charlie]).toHaveSynchronizedValue((user) => getCell(user, "A1"), undefined);
   });
 
-  test("Command while the previous command is not acknowledged", () => {
-    network.concurrent(() => {
-      setCellContent(alice, "A1", "hello A1");
-      setCellContent(alice, "B1", "hello B1");
+  test("Command while the previous command is not acknowledged", async () => {
+    await network.concurrent(async () => {
+      await setCellContent(alice, "A1", "hello A1");
+      await setCellContent(alice, "B1", "hello B1");
     });
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
       (user) => getCellContent(user, "A1"),
@@ -158,14 +158,14 @@ describe("Multi users synchronisation", () => {
     let called = false;
     alice["session"].on("collaborative-event-received", alice, () => (called = true));
     await alice.leaveSession();
-    setCellContent(bob, "A1", "salut");
+    await setCellContent(bob, "A1", "salut");
     expect(called).toBe(false);
   });
 
-  test("The server response to our own message is signaled", () => {
+  test("The server response to our own message is signaled", async () => {
     const notif = jest.fn();
     alice["session"].on("collaborative-event-received", alice, notif);
-    setCellContent(alice, "A1", "salut");
+    await setCellContent(alice, "A1", "salut");
     expect(notif).toHaveBeenCalled();
   });
 
@@ -174,7 +174,7 @@ describe("Multi users synchronisation", () => {
     alice.exportData();
   });
 
-  test("Do not listen for new message before catchup messages", () => {
+  test("Do not listen for new message before catchup messages", async () => {
     const transport = new MockTransportService();
     const command: CoreCommand = {
       type: "UPDATE_CELL",
@@ -205,11 +205,11 @@ describe("Multi users synchronisation", () => {
       callback(nextMessage);
     });
     const data = alice.exportData();
-    const david = new Model(data, { transportService: transport }, [catchupMessage]);
+    const david = await createModel(data, { transportService: transport }, [catchupMessage]);
     expect(getCellContent(david, "A1")).toBe("second command");
   });
 
-  test("Correctly set the active sheet after a sheet deletion", () => {
+  test("Correctly set the active sheet after a sheet deletion", async () => {
     const sheetId = "sheet1";
     const message: CollaborationMessage = {
       type: "REMOTE_REVISION",
@@ -219,7 +219,7 @@ describe("Multi users synchronisation", () => {
       clientId: "alice",
       commands: [{ type: "DELETE_SHEET", sheetId, sheetName: "" }],
     };
-    const model = new Model(
+    const model = await createModel(
       {
         sheets: [{ id: sheetId }, { id: "sheet2" }],
         activeSheetId: sheetId,
@@ -230,16 +230,16 @@ describe("Multi users synchronisation", () => {
     expect(model.getters.getActiveSheetId()).toBe("sheet2");
   });
 
-  test("delete and update the same empty cell concurrently", () => {
-    setCellContent(alice, "A1", "hello");
+  test("delete and update the same empty cell concurrently", async () => {
+    await setCellContent(alice, "A1", "hello");
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
       (user) => getCellContent(user, "A1"),
       "hello"
     );
 
-    network.concurrent(() => {
-      clearCell(alice, "A1");
-      setCellContent(bob, "A1", "Hi");
+    await network.concurrent(async () => {
+      await clearCell(alice, "A1");
+      await setCellContent(bob, "A1", "Hi");
     });
 
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
@@ -248,10 +248,10 @@ describe("Multi users synchronisation", () => {
     );
   });
 
-  test("Update a cell and merge a cell concurrently", () => {
-    network.concurrent(() => {
-      setCellContent(alice, "B2", "Hi Bob");
-      merge(bob, "A1:B2", bob.getters.getActiveSheetId(), false);
+  test("Update a cell and merge a cell concurrently", async () => {
+    await network.concurrent(async () => {
+      await setCellContent(alice, "B2", "Hi Bob");
+      await merge(bob, "A1:B2", bob.getters.getActiveSheetId(), false);
     });
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
       (user) => getCellContent(user, "B2"),
@@ -260,11 +260,11 @@ describe("Multi users synchronisation", () => {
     expect([alice, bob, charlie]).toHaveSynchronizedValue((user) => getMerges(user), {});
   });
 
-  test("copy/paste style", () => {
-    setCellContent(alice, "A1", "hello");
-    setCellStyle(alice, "A1", { fillColor: "#fefefe" });
-    copy(alice, "A1");
-    paste(alice, "A2");
+  test("copy/paste style", async () => {
+    await setCellContent(alice, "A1", "hello");
+    await setCellStyle(alice, "A1", { fillColor: "#fefefe" });
+    await copy(alice, "A1");
+    await paste(alice, "A2");
     expect([alice, bob, charlie]).toHaveSynchronizedValue((user) => getCell(user, "A1")!.style, {
       fillColor: "#fefefe",
     });
@@ -273,42 +273,42 @@ describe("Multi users synchronisation", () => {
     });
   });
 
-  test("copy/paste on styled cell", () => {
-    setCellContent(alice, "A1", "hello");
-    setCellStyle(alice, "B2", { fillColor: "#fefefe" });
-    copy(alice, "A1");
-    paste(alice, "B2");
+  test("copy/paste on styled cell", async () => {
+    await setCellContent(alice, "A1", "hello");
+    await setCellStyle(alice, "B2", { fillColor: "#fefefe" });
+    await copy(alice, "A1");
+    await paste(alice, "B2");
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
       (user) => getCell(user, "B2")!.style,
       undefined
     );
   });
 
-  test("update a cell without changing its style", () => {
-    setCellContent(alice, "A1", "hello");
-    setFormatting(alice, "A1", { fillColor: "#fefefe" });
-    setCellStyle(alice, "A1", undefined);
+  test("update a cell without changing its style", async () => {
+    await setCellContent(alice, "A1", "hello");
+    await setFormatting(alice, "A1", { fillColor: "#fefefe" });
+    await setCellStyle(alice, "A1", undefined);
     expect([alice, bob, charlie]).toHaveSynchronizedValue((user) => getCell(user, "A1")?.style, {
       fillColor: "#fefefe",
     });
   });
 
-  test("clear a cell style through UPDATE_CELL", () => {
-    setFormatting(alice, "A1", { fillColor: "#fefefe", underline: true });
+  test("clear a cell style through UPDATE_CELL", async () => {
+    await setFormatting(alice, "A1", { fillColor: "#fefefe", underline: true });
 
-    setCellStyle(alice, "A1", null);
+    await setCellStyle(alice, "A1", null);
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
       (user) => getCell(user, "A1")?.style,
       undefined
     );
   });
 
-  test("Merge a cell and update a cell concurrently", () => {
+  test("Merge a cell and update a cell concurrently", async () => {
     const sheetId = alice.getters.getActiveSheetId();
-    setCellContent(bob, "C1", "hello");
-    network.concurrent(() => {
-      merge(alice, "A1:B3");
-      setCellContent(bob, "B3", "Hi Alice");
+    await setCellContent(bob, "C1", "hello");
+    await network.concurrent(async () => {
+      await merge(alice, "A1:B3");
+      await setCellContent(bob, "B3", "Hi Alice");
     });
 
     expect([alice, bob, charlie]).toHaveSynchronizedValue((user) => getCell(user, "B3"), undefined);
@@ -321,56 +321,56 @@ describe("Multi users synchronisation", () => {
     expect(charlie.getters.getMerges(sheetId)).toMatchObject([
       { bottom: 2, left: 0, top: 0, right: 1 },
     ]);
-    undo(bob);
+    await undo(bob);
     expect([alice, bob, charlie]).toHaveSynchronizedValue((user) => getCell(user, "B3"), undefined);
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
       (user) => getCellContent(user, "C1"),
       "hello"
     );
-    undo(bob);
+    await undo(bob);
     expect([alice, bob, charlie]).toHaveSynchronizedValue((user) => getCell(user, "B3"), undefined);
     expect([alice, bob, charlie]).toHaveSynchronizedValue((user) => getCell(user, "C1"), undefined);
-    expect(undo(bob)).toBeCancelledBecause(CommandResult.EmptyUndoStack);
+    expect(await undo(bob)).toBeCancelledBecause(CommandResult.EmptyUndoStack);
   });
 
-  test("2-Merge a cell and update a cell concurrently, then remove the merge", () => {
-    network.concurrent(() => {
-      merge(alice, "A1:B2");
-      setCellContent(bob, "B2", "Hi Alice");
+  test("2-Merge a cell and update a cell concurrently, then remove the merge", async () => {
+    await network.concurrent(async () => {
+      await merge(alice, "A1:B2");
+      await setCellContent(bob, "B2", "Hi Alice");
     });
     const sheetId = alice.getters.getActiveSheetId();
     expect(alice.getters.getMerges(sheetId)).toHaveLength(1);
-    unMerge(alice, "A1:B2");
+    await unMerge(alice, "A1:B2");
     expect(alice.getters.getMerges(sheetId)).toHaveLength(0);
     expect(bob.getters.getMerges(sheetId)).toHaveLength(0);
     expect(charlie.getters.getMerges(sheetId)).toHaveLength(0);
   });
 
-  test("delete content & merge concurrently", () => {
-    setCellContent(alice, "B2", "hello");
-    network.concurrent(() => {
-      merge(alice, "B2:C3");
-      deleteContent(bob, ["A1:B2"]);
+  test("delete content & merge concurrently", async () => {
+    await setCellContent(alice, "B2", "hello");
+    await network.concurrent(async () => {
+      await merge(alice, "B2:C3");
+      await deleteContent(bob, ["A1:B2"]);
     });
     expect([alice, bob, charlie]).toHaveSynchronizedValue((user) => getCellContent(user, "B2"), "");
     expect([alice, bob, charlie]).toHaveSynchronizedExportedData();
   });
 
-  test("Set formatting & merge concurrently", () => {
-    network.concurrent(() => {
-      merge(alice, "A1:B2");
-      setZoneBorders(bob, { position: "external" }, ["B2:C3"]);
+  test("Set formatting & merge concurrently", async () => {
+    await network.concurrent(async () => {
+      await merge(alice, "A1:B2");
+      await setZoneBorders(bob, { position: "external" }, ["B2:C3"]);
     });
     expect([alice, bob, charlie]).toHaveSynchronizedExportedData();
     expect([alice, bob, charlie]).toHaveSynchronizedValue((user) => getCellContent(user, "B2"), "");
     expect([alice, bob, charlie]).toHaveSynchronizedValue((user) => getBorder(user, "B2"), null);
   });
 
-  test("merge is transformed to fit sheet size", () => {
+  test("merge is transformed to fit sheet size", async () => {
     const sheetId = alice.getters.getActiveSheetId();
-    network.concurrent(() => {
-      merge(alice, "A80:A100");
-      deleteRows(bob, [98, 99]);
+    await network.concurrent(async () => {
+      await merge(alice, "A80:A100");
+      await deleteRows(bob, [98, 99]);
     });
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
       (user) => user.getters.getMerges(sheetId),
@@ -383,13 +383,13 @@ describe("Multi users synchronisation", () => {
     );
   });
 
-  test("concurrent overlapping and non overlapping merge operations", () => {
+  test("concurrent overlapping and non overlapping merge operations", async () => {
     const sheetId = alice.getters.getActiveSheetId();
-    merge(alice, "A2:A3");
-    merge(alice, "F1:F2");
-    network.concurrent(() => {
-      merge(alice, "A1:A3, C1:C2");
-      unMerge(bob, "A2:A3, F1:F2");
+    await merge(alice, "A2:A3");
+    await merge(alice, "F1:F2");
+    await network.concurrent(async () => {
+      await merge(alice, "A1:A3, C1:C2");
+      await unMerge(bob, "A2:A3, F1:F2");
     });
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
       (user) => user.getters.getMerges(sheetId).map(zoneToXc),
@@ -397,42 +397,42 @@ describe("Multi users synchronisation", () => {
     );
   });
 
-  test("Command not allowed is not dispatched to others users", () => {
+  test("Command not allowed is not dispatched to others users", async () => {
     const spy = jest.spyOn(network, "sendMessage");
-    setCellContent(alice, "A1", "hello", "invalidSheetId");
+    await setCellContent(alice, "A1", "hello", "invalidSheetId");
     expect(spy).toHaveBeenCalledTimes(0);
     expect([alice, bob, charlie]).toHaveSynchronizedValue((user) => getCellContent(user, "A1"), "");
     expect([alice, bob, charlie]).toHaveSynchronizedExportedData();
   });
 
-  test("UI remote commands are transformed with the pending ones.", () => {
-    createSheet(charlie, {});
-    network.concurrent(() => {
-      setCellContent(bob, "A1", "coucou", "Sheet1");
-      addRows(alice, "after", 14, 1);
-      deleteSheet(bob, "Sheet1");
+  test("UI remote commands are transformed with the pending ones.", async () => {
+    await createSheet(charlie, {});
+    await network.concurrent(async () => {
+      await setCellContent(bob, "A1", "coucou", "Sheet1");
+      await addRows(alice, "after", 14, 1);
+      await deleteSheet(bob, "Sheet1");
     });
   });
 
-  test("duplicate sheet does not activate sheet", () => {
+  test("duplicate sheet does not activate sheet", async () => {
     const firstSheetId = alice.getters.getActiveSheetId();
-    duplicateSheet(alice, firstSheetId, "42");
+    await duplicateSheet(alice, firstSheetId, "42");
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
       (user) => user.getters.getActiveSheetId(),
       firstSheetId
     );
-    activateSheet(alice, "42");
+    await activateSheet(alice, "42");
     expect(alice.getters.getActiveSheetId()).toBe("42");
     expect(bob.getters.getActiveSheetId()).toBe(firstSheetId);
     expect(charlie.getters.getActiveSheetId()).toBe(firstSheetId);
   });
 
-  test("cannot delete all sheets concurrently", () => {
+  test("cannot delete all sheets concurrently", async () => {
     const firstSheetId = alice.getters.getActiveSheetId();
-    createSheet(alice, { sheetId: "sheet2" });
-    network.concurrent(() => {
-      deleteSheet(alice, firstSheetId);
-      deleteSheet(bob, "sheet2");
+    await createSheet(alice, { sheetId: "sheet2" });
+    await network.concurrent(async () => {
+      await deleteSheet(alice, firstSheetId);
+      await deleteSheet(bob, "sheet2");
     });
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
       (user) => user.getters.getVisibleSheetIds(),
@@ -440,12 +440,12 @@ describe("Multi users synchronisation", () => {
     );
   });
 
-  test("hide all sheets concurrently", () => {
+  test("hide all sheets concurrently", async () => {
     const firstSheetId = alice.getters.getActiveSheetId();
-    createSheet(charlie, { sheetId: "sheet2" });
-    network.concurrent(() => {
-      hideSheet(alice, firstSheetId);
-      hideSheet(bob, "sheet2");
+    await createSheet(charlie, { sheetId: "sheet2" });
+    await network.concurrent(async () => {
+      await hideSheet(alice, firstSheetId);
+      await hideSheet(bob, "sheet2");
     });
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
       (user) => user.getters.getVisibleSheetIds(),
@@ -453,12 +453,12 @@ describe("Multi users synchronisation", () => {
     );
   });
 
-  test("hide all columns concurrently", () => {
+  test("hide all columns concurrently", async () => {
     const sheetId = alice.getters.getActiveSheetId();
     const nRows = alice.getters.getNumberRows(sheetId);
-    network.concurrent(() => {
-      hideRows(alice, range(0, 10));
-      hideRows(bob, range(10, nRows));
+    await network.concurrent(async () => {
+      await hideRows(alice, range(0, 10));
+      await hideRows(bob, range(10, nRows));
     });
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
       (user) => user.getters.getHiddenRowsGroups(sheetId),
@@ -466,17 +466,17 @@ describe("Multi users synchronisation", () => {
     );
   });
 
-  test("Do not resend pending revisions with a non-core command", () => {
-    network.concurrent(() => {
-      setCellContent(alice, "A1", "hello");
+  test("Do not resend pending revisions with a non-core command", async () => {
+    await network.concurrent(async () => {
+      await setCellContent(alice, "A1", "hello");
       const spy = jest.spyOn(network, "sendMessage");
-      copy(alice);
+      await copy(alice);
       expect(spy).not.toHaveBeenCalled();
     });
   });
 
-  test("duplicated chart are the same", () => {
-    createChart(
+  test("duplicated chart are the same", async () => {
+    await createChart(
       alice,
       {
         dataSets: [
@@ -492,38 +492,38 @@ describe("Multi users synchronisation", () => {
       },
       "1"
     );
-    duplicateSheet(alice);
+    await duplicateSheet(alice);
     expect([alice, bob, charlie]).toHaveSynchronizedExportedData();
   });
 
-  test("duplicate charts in deterministic order", () => {
-    const { network, alice, bob, charlie } = setupCollaborativeEnv();
-    createChart(bob, { type: "bar" }, "figureId");
-    redo(bob);
-    setCellContent(alice, "A1", "hello");
-    duplicateSheet(charlie, "Sheet1", "duplicateSheetId");
-    network.concurrent(() => {
-      undo(alice);
-      deleteFigure(charlie, "figureId");
+  test("duplicate charts in deterministic order", async () => {
+    const { network, alice, bob, charlie } = await setupCollaborativeEnv();
+    await createChart(bob, { type: "bar" }, "figureId");
+    await redo(bob);
+    await setCellContent(alice, "A1", "hello");
+    await duplicateSheet(charlie, "Sheet1", "duplicateSheetId");
+    await network.concurrent(async () => {
+      await undo(alice);
+      await deleteFigure(charlie, "figureId");
     });
     expect([alice, bob, charlie]).toHaveSynchronizedExportedData();
   });
 
-  test("duplicate table in deterministic order", () => {
-    const { network, alice, bob, charlie } = setupCollaborativeEnv();
-    createTable(charlie, "C5:G7");
-    redo(charlie);
-    duplicateSheet(charlie, "Sheet1", "duplicateSheetId");
-    network.concurrent(() => {
-      setCellContent(bob, "A1", "hello");
-      deleteSheet(alice, "Sheet1");
+  test("duplicate table in deterministic order", async () => {
+    const { network, alice, bob, charlie } = await setupCollaborativeEnv();
+    await createTable(charlie, "C5:G7");
+    await redo(charlie);
+    await duplicateSheet(charlie, "Sheet1", "duplicateSheetId");
+    await network.concurrent(async () => {
+      await setCellContent(bob, "A1", "hello");
+      await deleteSheet(alice, "Sheet1");
     });
-    undo(charlie);
+    await undo(charlie);
     expect([alice, bob, charlie]).toHaveSynchronizedEvaluation();
     expect([alice, bob, charlie]).toHaveSynchronizedExportedData();
   });
 
-  test("Delete the same figure concurrently", () => {
+  test("Delete the same figure concurrently", async () => {
     const sheetId = alice.getters.getActiveSheetId();
     const figure = {
       id: "someuuid",
@@ -534,14 +534,14 @@ describe("Multi users synchronisation", () => {
       row: 6,
       offset: { x: 7, y: 8 },
     };
-    createFigure(alice, figure);
+    await createFigure(alice, figure);
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
       (user) => user.getters.getFigures(sheetId),
       [figure]
     );
-    network.concurrent(() => {
-      deleteFigure(alice, "someuuid");
-      deleteFigure(bob, "someuuid");
+    await network.concurrent(async () => {
+      await deleteFigure(alice, "someuuid");
+      await deleteFigure(bob, "someuuid");
     });
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
       (user) => user.getters.getFigures(sheetId),
@@ -573,13 +573,13 @@ describe("Multi users synchronisation", () => {
       commands,
     };
     // The message is received once as initial message and once from the network
-    const david = new Model(data, { transportService: network }, [message]);
+    const david = await createModel(data, { transportService: network }, [message]);
     await network.sendMessage(message);
     expect(david.getters.getNumberCols(david.getters.getActiveSheetId())).toBe(length + 50);
   });
 
-  test("Selected figure Id is not modified if the create sheet comes from someone else", () => {
-    createFigure(alice, {
+  test("Selected figure Id is not modified if the create sheet comes from someone else", async () => {
+    await createFigure(alice, {
       figureId: "42",
       col: 0,
       row: 0,
@@ -589,31 +589,34 @@ describe("Multi users synchronisation", () => {
         height: 100,
       },
     });
-    selectFigure(alice, "42");
+    await selectFigure(alice, "42");
     expect(alice.getters.getSelectedFigureId()).toBe("42");
     expect(bob.getters.getSelectedFigureId()).toBeNull();
   });
 
-  test("Spreadsheet in readonly still receive commands", () => {
-    const david = new Model(alice.exportData(), { transportService: network, mode: "readonly" });
-    setCellContent(alice, "A1", "hello");
+  test("Spreadsheet in readonly still receive commands", async () => {
+    const david = await createModel(alice.exportData(), {
+      transportService: network,
+      mode: "readonly",
+    });
+    await setCellContent(alice, "A1", "hello");
     expect([alice, bob, charlie, david]).toHaveSynchronizedValue(
       (user) => getCellContent(user, "A1"),
       "hello"
     );
-    setCellContent(david, "A1", "I'm David and I want access !");
+    await setCellContent(david, "A1", "I'm David and I want access !");
     expect([alice, bob, charlie, david]).toHaveSynchronizedValue(
       (user) => getCellContent(user, "A1"),
       "hello"
     );
   });
 
-  test("autofill overwrite style and format", () => {
-    setCellContent(alice, "A1", "hello");
-    network.concurrent(() => {
-      setFormatting(alice, "A2", { bold: true });
-      setFormat(alice, "A2", "0.0%");
-      autofill(bob, "A1", "A2");
+  test("autofill overwrite style and format", async () => {
+    await setCellContent(alice, "A1", "hello");
+    await network.concurrent(async () => {
+      await setFormatting(alice, "A2", { bold: true });
+      await setFormat(alice, "A2", "0.0%");
+      await autofill(bob, "A1", "A2");
     });
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
       (user) => getCell(user, "A2")?.style,
@@ -627,9 +630,9 @@ describe("Multi users synchronisation", () => {
 
   test.each(["readonly", "dashboard"] as const)(
     "Spreadsheet in readonly never sends commands",
-    (mode) => {
-      const david = new Model(alice.exportData(), { transportService: network, mode });
-      setCellContent(alice, "A1", "hello");
+    async (mode) => {
+      const david = await createModel(alice.exportData(), { transportService: network, mode });
+      await setCellContent(alice, "A1", "hello");
       addPivot(alice, "A1", {
         measures: [{ id: "__count", fieldName: "__count", aggregator: "sum" }],
       });
@@ -657,7 +660,7 @@ describe("Multi users synchronisation", () => {
       "Bob",
       "Charlie",
     ]);
-    const david = new Model(alice.exportData(), {
+    const david = await createModel(alice.exportData(), {
       transportService: network,
       mode: "readonly",
       client: { id: "david", name: "David" },
@@ -680,30 +683,30 @@ describe("Multi users synchronisation", () => {
   });
 
   describe("Evaluation", () => {
-    test("Evaluation is correctly triggered after cell updated", () => {
-      setCellContent(alice, "A1", "=5");
+    test("Evaluation is correctly triggered after cell updated", async () => {
+      await setCellContent(alice, "A1", "=5");
       expect(getEvaluatedCell(alice, "A1").value).toBe(5);
       expect(getEvaluatedCell(bob, "A1").value).toBe(5);
     });
-    test("Cell value is correctly re-evaluated after undo", () => {
-      setCellContent(alice, "A1", "=5");
+    test("Cell value is correctly re-evaluated after undo", async () => {
+      await setCellContent(alice, "A1", "=5");
       expect([alice, bob, charlie]).toHaveSynchronizedValue(
         (user) => getEvaluatedCell(user, "A1").value,
         5
       );
-      setCellContent(alice, "A1", "=10");
+      await setCellContent(alice, "A1", "=10");
       expect([alice, bob, charlie]).toHaveSynchronizedValue(
         (user) => getEvaluatedCell(user, "A1").value,
         10
       );
-      undo(alice);
+      await undo(alice);
       expect([alice, bob, charlie]).toHaveSynchronizedValue(
         (user) => getEvaluatedCell(user, "A1").value,
         5
       );
     });
 
-    test("async computation resolving when in other sheet", () => {
+    test("async computation resolving when in other sheet", async () => {
       let value: string | number = "LOADING...";
       addToRegistry(functionRegistry, "GET.ASYNC.VALUE", {
         description: "Get value",
@@ -711,23 +714,23 @@ describe("Multi users synchronisation", () => {
         args: [],
       });
       const firstSheetId = alice.getters.getActiveSheetId();
-      createSheet(alice, { sheetId: "sheet2" });
-      activateSheet(bob, "sheet2");
+      await createSheet(alice, { sheetId: "sheet2" });
+      await activateSheet(bob, "sheet2");
 
       // the cell is evaluated once, with the pending value
-      setCellContent(alice, "A1", "=GET.ASYNC.VALUE()", "sheet2");
+      await setCellContent(alice, "A1", "=GET.ASYNC.VALUE()", "sheet2");
       expect(getEvaluatedCell(bob, "A1", "sheet2").value).toBe("LOADING...");
-      activateSheet(bob, firstSheetId);
+      await activateSheet(bob, firstSheetId);
       // the value resolves while Bob is on another sheet
       // the active sheet is re-evaluated
       value = 2;
-      evaluateCells(bob);
+      await evaluateCells(bob);
 
-      activateSheet(bob, "sheet2");
+      await activateSheet(bob, "sheet2");
       expect(getEvaluatedCell(bob, "A1", "sheet2").value).toBe(2);
     });
 
-    test("reference to async computation resolving when in other sheet", () => {
+    test("reference to async computation resolving when in other sheet", async () => {
       let value: string | number = "LOADING...";
       addToRegistry(functionRegistry, "GET.ASYNC.VALUE", {
         description: "Get value",
@@ -735,32 +738,32 @@ describe("Multi users synchronisation", () => {
         args: [],
       });
       const firstSheetId = alice.getters.getActiveSheetId();
-      createSheet(alice, { sheetId: "sheet2" });
-      setCellContent(alice, "A1", "=Sheet2!A1", firstSheetId);
-      activateSheet(bob, "sheet2");
+      await createSheet(alice, { sheetId: "sheet2" });
+      await setCellContent(alice, "A1", "=Sheet2!A1", firstSheetId);
+      await activateSheet(bob, "sheet2");
 
       // the cell is evaluated once, with the pending value
-      setCellContent(alice, "A1", "=GET.ASYNC.VALUE()", "sheet2");
+      await setCellContent(alice, "A1", "=GET.ASYNC.VALUE()", "sheet2");
 
-      activateSheet(bob, firstSheetId);
+      await activateSheet(bob, firstSheetId);
       // the value resolves while Bob is on another sheet,
       // the active sheet is re-evaluated
       value = 2;
-      evaluateCells(bob);
+      await evaluateCells(bob);
 
       expect(getEvaluatedCell(bob, "A1", firstSheetId).value).toBe(2);
       expect(getEvaluatedCell(bob, "A1", "sheet2").value).toBe(2);
     });
 
-    test("evaluation is recomputed after command is rejected because of a concurrent update", () => {
-      createSheet(bob, { sheetId: "sheet2" });
-      network.concurrent(() => {
-        hideSheet(alice, "sheet2");
+    test("evaluation is recomputed after command is rejected because of a concurrent update", async () => {
+      await createSheet(bob, { sheetId: "sheet2" });
+      await network.concurrent(async () => {
+        await hideSheet(alice, "sheet2");
         // this command is first accepted on Charlie's side
         // but later rejected because there's actually only one visible sheet
-        deleteSheet(charlie, "Sheet1");
+        await deleteSheet(charlie, "Sheet1");
       });
-      setCellContent(charlie, "A1", "hello", "Sheet1");
+      await setCellContent(charlie, "A1", "hello", "Sheet1");
       expect([alice, bob, charlie]).toHaveSynchronizedExportedData();
       expect([alice, bob, charlie]).toHaveSynchronizedValue(
         (user) => getEvaluatedCell(user, "A1").value,
@@ -769,15 +772,15 @@ describe("Multi users synchronisation", () => {
     });
   });
 
-  test("Reorder formatting rules concurrently", () => {
+  test("Reorder formatting rules concurrently", async () => {
     const sheetId = alice.getters.getActiveSheetId();
-    setCellContent(alice, "A1", "1");
-    addEqualCf(alice, "A1", { fillColor: "#FF0000" }, "1", "1");
-    addEqualCf(alice, "A1", { fillColor: "#0000FF" }, "1", "2");
-    addEqualCf(alice, "A1", { fillColor: "#00FF00" }, "1", "3");
-    network.concurrent(() => {
-      changeCFPriority(bob, "3", 1, sheetId);
-      changeCFPriority(alice, "3", 1, sheetId);
+    await setCellContent(alice, "A1", "1");
+    await addEqualCf(alice, "A1", { fillColor: "#FF0000" }, "1", "1");
+    await addEqualCf(alice, "A1", { fillColor: "#0000FF" }, "1", "2");
+    await addEqualCf(alice, "A1", { fillColor: "#00FF00" }, "1", "3");
+    await network.concurrent(async () => {
+      await changeCFPriority(bob, "3", 1, sheetId);
+      await changeCFPriority(alice, "3", 1, sheetId);
     });
     expect([alice, bob, charlie]).toHaveSynchronizedValue((user) => getStyle(user, "A1"), {
       fillColor: "#00FF00",
@@ -796,25 +799,25 @@ describe("Multi users synchronisation", () => {
     );
   });
 
-  test("Reorder and delete formatting rules concurrently", () => {
+  test("Reorder and delete formatting rules concurrently", async () => {
     const sheetId = alice.getters.getActiveSheetId();
-    setCellContent(alice, "A1", "1");
-    addEqualCf(alice, "A1", { fillColor: "#FF0000" }, "1", "1");
-    addEqualCf(alice, "A1", { fillColor: "#0000FF" }, "1", "2");
-    network.concurrent(() => {
-      changeCFPriority(bob, "2", -1, sheetId);
-      removeCF(alice, "2");
+    await setCellContent(alice, "A1", "1");
+    await addEqualCf(alice, "A1", { fillColor: "#FF0000" }, "1", "1");
+    await addEqualCf(alice, "A1", { fillColor: "#0000FF" }, "1", "2");
+    await network.concurrent(async () => {
+      await changeCFPriority(bob, "2", -1, sheetId);
+      await removeCF(alice, "2");
     });
     expect([alice, bob]).toHaveSynchronizedValue((user) => getStyle(user, "A1"), {
       fillColor: "#FF0000",
     });
   });
 
-  test("Create overlapping tables concurrently", () => {
+  test("Create overlapping tables concurrently", async () => {
     const sheetId = alice.getters.getActiveSheetId();
-    network.concurrent(() => {
-      createTable(alice, "A1:B4");
-      createTable(bob, "B1:C4");
+    await network.concurrent(async () => {
+      await createTable(alice, "A1:B4");
+      await createTable(bob, "B1:C4");
     });
 
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
@@ -827,11 +830,11 @@ describe("Multi users synchronisation", () => {
     );
   });
 
-  test("Create overlapping tables then merges concurrently", () => {
+  test("Create overlapping tables then merges concurrently", async () => {
     const sheetId = alice.getters.getActiveSheetId();
-    network.concurrent(() => {
-      createTable(alice, "A1:B4");
-      merge(bob, "B1:C4");
+    await network.concurrent(async () => {
+      await createTable(alice, "A1:B4");
+      await merge(bob, "B1:C4");
     });
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
       (user) => user.getters.getTables(sheetId).length,
@@ -843,11 +846,11 @@ describe("Multi users synchronisation", () => {
     );
   });
 
-  test("Create overlapping merges then tables concurrently", () => {
+  test("Create overlapping merges then tables concurrently", async () => {
     const sheetId = alice.getters.getActiveSheetId();
-    network.concurrent(() => {
-      merge(bob, "B1:C4");
-      createTable(alice, "A1:B4");
+    await network.concurrent(async () => {
+      await merge(bob, "B1:C4");
+      await createTable(alice, "A1:B4");
     });
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
       (user) => user.getters.getMerges(sheetId).length,
@@ -859,11 +862,11 @@ describe("Multi users synchronisation", () => {
     );
   });
 
-  test("duplicate sheet and create tables concurrently", () => {
+  test("duplicate sheet and create tables concurrently", async () => {
     const firstSheetId = alice.getters.getActiveSheetId();
-    network.concurrent(() => {
-      duplicateSheet(alice, "Sheet1", "sheet2");
-      createTableWithFilter(charlie, "A1:B4", undefined, undefined, firstSheetId);
+    await network.concurrent(async () => {
+      await duplicateSheet(alice, "Sheet1", "sheet2");
+      await createTableWithFilter(charlie, "A1:B4", undefined, undefined, firstSheetId);
     });
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
       (user) => user.getters.getTables("sheet2"),
@@ -875,13 +878,13 @@ describe("Multi users synchronisation", () => {
     );
   });
 
-  test("row size for a duplicated sheet and the original sheet deleted", () => {
+  test("row size for a duplicated sheet and the original sheet deleted", async () => {
     const firstSheetId = alice.getters.getActiveSheetId();
-    network.concurrent(() => {
-      setFormatting(bob, "A1", { fontSize: 36 });
-      setCellContent(bob, "A1", "text");
-      duplicateSheet(charlie, firstSheetId, "sheet2");
-      deleteSheet(charlie, firstSheetId);
+    await network.concurrent(async () => {
+      await setFormatting(bob, "A1", { fontSize: 36 });
+      await setCellContent(bob, "A1", "text");
+      await duplicateSheet(charlie, firstSheetId, "sheet2");
+      await deleteSheet(charlie, firstSheetId);
     });
     const colSize = alice.getters.getColSize("sheet2", 0);
     const ctx = document.createElement("canvas").getContext("2d")!;
@@ -891,26 +894,26 @@ describe("Multi users synchronisation", () => {
     );
   });
 
-  test("background color is updated for each client", () => {
-    setCellContent(alice, "A1", "Hi");
+  test("background color is updated for each client", async () => {
+    await setCellContent(alice, "A1", "Hi");
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
       (user) => getStyle(user, "A1").fillColor,
       undefined
     );
-    setFormatting(bob, "A1", { fillColor: "#112233" });
+    await setFormatting(bob, "A1", { fillColor: "#112233" });
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
       (user) => getStyle(user, "A1").fillColor,
       "#112233"
     );
   });
 
-  test.each(["COL", "ROW"] as const)("Can group headers concurrently", (dimension) => {
+  test.each(["COL", "ROW"] as const)("Can group headers concurrently", async (dimension) => {
     const sheetId = alice.getters.getActiveSheetId();
 
-    network.concurrent(() => {
-      groupHeaders(bob, dimension, 0, 1);
-      groupHeaders(alice, dimension, 2, 4); // Should merge with first group since they are contiguous
-      groupHeaders(charlie, dimension, 3, 6); // Intersects with merged group => group starts should be swapped
+    await network.concurrent(async () => {
+      await groupHeaders(bob, dimension, 0, 1);
+      await groupHeaders(alice, dimension, 2, 4); // Should merge with first group since they are contiguous
+      await groupHeaders(charlie, dimension, 3, 6); // Intersects with merged group => group starts should be swapped
     });
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
       (user) => user.getters.getHeaderGroups(sheetId, dimension).sort((a, b) => a.start - b.start),
@@ -921,15 +924,15 @@ describe("Multi users synchronisation", () => {
     );
   });
 
-  test.each(["COL", "ROW"] as const)("Can ungroup headers concurrently", (dimension) => {
+  test.each(["COL", "ROW"] as const)("Can ungroup headers concurrently", async (dimension) => {
     const sheetId = alice.getters.getActiveSheetId();
-    groupHeaders(alice, dimension, 0, 1);
-    groupHeaders(alice, dimension, 0, 5);
+    await groupHeaders(alice, dimension, 0, 1);
+    await groupHeaders(alice, dimension, 0, 5);
 
-    network.concurrent(() => {
+    await network.concurrent(async () => {
       // First ungroup should remove header from group [0, 1], second ungroup from group [0, 5]
-      ungroupHeaders(bob, dimension, 0, 0);
-      ungroupHeaders(alice, dimension, 0, 0);
+      await ungroupHeaders(bob, dimension, 0, 0);
+      await ungroupHeaders(alice, dimension, 0, 0);
     });
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
       (user) => user.getters.getHeaderGroups(sheetId, dimension),
@@ -940,11 +943,11 @@ describe("Multi users synchronisation", () => {
     );
   });
 
-  test("Overlapping data validation rules created concurrently", () => {
+  test("Overlapping data validation rules created concurrently", async () => {
     const criterion: DataValidationCriterion = { type: "containsText", values: ["1"] };
-    network.concurrent(() => {
-      addDataValidation(alice, "A1:A5", "id", criterion);
-      addDataValidation(bob, "A3:A7", "id2", criterion);
+    await network.concurrent(async () => {
+      await addDataValidation(alice, "A1:A5", "id", criterion);
+      await addDataValidation(bob, "A3:A7", "id2", criterion);
     });
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
       (user) => getDataValidationRules(user),
@@ -955,13 +958,13 @@ describe("Multi users synchronisation", () => {
     );
   });
 
-  test("do not send message while waiting an acknowledgement", () => {
+  test("do not send message while waiting an acknowledgement", async () => {
     const spy = jest.spyOn(network, "sendMessage");
-    network.concurrent(() => {
-      setCellContent(alice, "A1", "hello");
+    await network.concurrent(async () => {
+      await setCellContent(alice, "A1", "hello");
       expect(spy).toHaveBeenCalledTimes(1); // send the first revision
 
-      setCellContent(alice, "A2", "hello");
+      await setCellContent(alice, "A2", "hello");
       expect(spy).toHaveBeenCalledTimes(1); // do not send the second revision because the first one is not acknowledged
 
       // we simulate the server is sending the first message
@@ -969,18 +972,18 @@ describe("Multi users synchronisation", () => {
       // It should send the second message to the server
       network.notifyListeners(network["pendingMessages"][0]); // acknowledge the first message
       expect(spy).toHaveBeenCalledTimes(2); // the second message is sent
-      setCellContent(alice, "A3", "hello");
+      await setCellContent(alice, "A3", "hello");
       expect(spy).toHaveBeenCalledTimes(2); // do not send any message because the second one is not acknowledged
     });
     expect(spy).toHaveBeenCalledTimes(3);
   });
 
   describe("Table style", () => {
-    test("Create a table with a style, and delete the style at the same time", () => {
-      createTableStyle(alice, "MyStyle");
-      network.concurrent(() => {
-        removeTableStyle(alice, "MyStyle");
-        createTable(bob, "A1:B4", { styleId: "MyStyle" });
+    test("Create a table with a style, and delete the style at the same time", async () => {
+      await createTableStyle(alice, "MyStyle");
+      await network.concurrent(async () => {
+        await removeTableStyle(alice, "MyStyle");
+        await createTable(bob, "A1:B4", { styleId: "MyStyle" });
       });
       expect([alice, bob, charlie]).toHaveSynchronizedValue(
         (user) => user.getters.getTables(user.getters.getActiveSheetId())[0].config.styleId,
@@ -988,12 +991,12 @@ describe("Multi users synchronisation", () => {
       );
     });
 
-    test("Update a table with a style, and delete the style at the same time", () => {
-      createTableStyle(alice, "MyStyle");
-      createTable(alice, "A1:B4");
-      network.concurrent(() => {
-        removeTableStyle(alice, "MyStyle");
-        updateTableConfig(bob, "A1:B4", { styleId: "MyStyle" });
+    test("Update a table with a style, and delete the style at the same time", async () => {
+      await createTableStyle(alice, "MyStyle");
+      await createTable(alice, "A1:B4");
+      await network.concurrent(async () => {
+        await removeTableStyle(alice, "MyStyle");
+        await updateTableConfig(bob, "A1:B4", { styleId: "MyStyle" });
       });
       expect([alice, bob, charlie]).toHaveSynchronizedValue(
         (user) => user.getters.getTables(user.getters.getActiveSheetId())[0].config.styleId,
@@ -1001,39 +1004,39 @@ describe("Multi users synchronisation", () => {
       );
     });
 
-    test("Undo create table style with another user that created a table with this style", () => {
-      createTableStyle(alice, "MyStyle");
-      createTable(bob, "A1:B4", { styleId: "MyStyle" });
+    test("Undo create table style with another user that created a table with this style", async () => {
+      await createTableStyle(alice, "MyStyle");
+      await createTable(bob, "A1:B4", { styleId: "MyStyle" });
       expect([alice, bob, charlie]).toHaveSynchronizedValue(
         (user) => user.getters.getTables(user.getters.getActiveSheetId())[0].config.styleId,
         "MyStyle"
       );
 
-      undo(alice);
+      await undo(alice);
       expect([alice, bob, charlie]).toHaveSynchronizedValue(
         (user) => user.getters.getTables(user.getters.getActiveSheetId())[0].config.styleId,
         DEFAULT_TABLE_CONFIG.styleId
       );
 
-      redo(alice);
+      await redo(alice);
       expect([alice, bob, charlie]).toHaveSynchronizedValue(
         (user) => user.getters.getTables(user.getters.getActiveSheetId())[0].config.styleId,
         "MyStyle"
       );
     });
 
-    test("Undo delete table style have synchronized values", () => {
-      createTableStyle(alice, "MyStyle");
-      network.concurrent(() => {
-        removeTableStyle(alice, "MyStyle");
-        createTable(bob, "A1:B4", { styleId: "MyStyle" });
+    test("Undo delete table style have synchronized values", async () => {
+      await createTableStyle(alice, "MyStyle");
+      await network.concurrent(async () => {
+        await removeTableStyle(alice, "MyStyle");
+        await createTable(bob, "A1:B4", { styleId: "MyStyle" });
       });
       expect([alice, bob, charlie]).toHaveSynchronizedValue(
         (user) => user.getters.getTables(user.getters.getActiveSheetId())[0].config.styleId,
         DEFAULT_TABLE_CONFIG.styleId
       );
 
-      undo(alice);
+      await undo(alice);
       expect([alice, bob, charlie]).toHaveSynchronizedValue(
         (user) => user.getters.getTables(user.getters.getActiveSheetId())[0].config.styleId,
         DEFAULT_TABLE_CONFIG.styleId
@@ -1041,25 +1044,25 @@ describe("Multi users synchronisation", () => {
     });
   });
 
-  test("updating a cell content (through UPDATE_CELL) only updates on actual content", () => {
-    setCellContent(alice, "A1", "23");
-    setCellContent(alice, "A1", undefined);
+  test("updating a cell content (through UPDATE_CELL) only updates on actual content", async () => {
+    await setCellContent(alice, "A1", "23");
+    await setCellContent(alice, "A1", undefined);
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
       (user) => getCellContent(user, "A1"),
       "23"
     );
   });
 
-  test("pasting an empty content empties the target cell", () => {
-    setCellContent(alice, "A1", "23");
-    copy(alice, "A2");
-    paste(alice, "A1");
+  test("pasting an empty content empties the target cell", async () => {
+    await setCellContent(alice, "A1", "23");
+    await copy(alice, "A2");
+    await paste(alice, "A1");
     expect([alice, bob, charlie]).toHaveSynchronizedValue((user) => getCellContent(user, "A1"), "");
   });
 
-  test("updating a cell format (through UPDATE_CELL) only if format is defined in command", () => {
-    setCellFormat(alice, "A1", "%");
-    updateCell(alice, "A1", { content: "10", format: undefined });
+  test("updating a cell format (through UPDATE_CELL) only if format is defined in command", async () => {
+    await setCellFormat(alice, "A1", "%");
+    await updateCell(alice, "A1", { content: "10", format: undefined });
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
       (user) => getCell(user, "A1")?.format,
       "%"
@@ -1067,7 +1070,7 @@ describe("Multi users synchronisation", () => {
   });
 });
 
-test("UI plugins cannot refuse core command and de-synchronize the users", () => {
+test("UI plugins cannot refuse core command and de-synchronize the users", async () => {
   class MyUIPlugin extends UIPlugin {
     allowDispatch(cmd: Command) {
       if (cmd.type === "UPDATE_CELL") {
@@ -1079,16 +1082,16 @@ test("UI plugins cannot refuse core command and de-synchronize the users", () =>
     }
   }
   addToRegistry(featurePluginRegistry, "myUIPlugin", MyUIPlugin);
-  const { alice, bob } = setupCollaborativeEnv();
+  const { alice, bob } = await setupCollaborativeEnv();
 
-  setCellContent(alice, "A1", "hello");
+  await setCellContent(alice, "A1", "hello");
   expect([alice, bob]).toHaveSynchronizedValue((user) => getCellContent(user, "A1"), "hello");
   featurePluginRegistry.remove("myUIPlugin");
 });
 
-test("Export of figures should be in the same order in all users", () => {
-  const { network, alice, bob, charlie } = setupCollaborativeEnv();
-  createFigure(charlie, {
+test("Export of figures should be in the same order in all users", async () => {
+  const { network, alice, bob, charlie } = await setupCollaborativeEnv();
+  await createFigure(charlie, {
     figureId: "figureId",
     tag: "tag",
     offset: { x: 0, y: 0 },
@@ -1097,14 +1100,14 @@ test("Export of figures should be in the same order in all users", () => {
     size: { width: 100, height: 100 },
     sheetId: "Sheet1",
   });
-  redo(charlie);
+  await redo(charlie);
 
-  setCellContent(charlie, "E8", "2", "Sheet1");
-  undo(charlie);
-  duplicateSheet(alice, "Sheet1");
-  network.concurrent(() => {
-    redo(charlie);
-    deleteFigure(bob, "figureId");
+  await setCellContent(charlie, "E8", "2", "Sheet1");
+  await undo(charlie);
+  await duplicateSheet(alice, "Sheet1");
+  await network.concurrent(async () => {
+    await redo(charlie);
+    await deleteFigure(bob, "figureId");
   });
   expect([alice, bob, charlie]).toHaveSynchronizedEvaluation();
   expect([alice, bob, charlie]).toHaveSynchronizedExportedData();

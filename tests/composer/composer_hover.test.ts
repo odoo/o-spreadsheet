@@ -81,7 +81,7 @@ describe("Composer hover", () => {
   }
 
   test("Hovering a composer token will spawn a speech bubble with the evaluation result", async () => {
-    setCellContent(model, "B1", "56");
+    await setCellContent(model, "B1", "56");
     await typeInComposer("=B1");
     await hoverComposerContent("=");
     expect(composerStore.hoveredContentEvaluation).toEqual("56");
@@ -132,7 +132,7 @@ describe("Composer hover", () => {
   });
 
   test("Can hover an error", async () => {
-    setCellContent(model, "B1", "=SUM(");
+    await setCellContent(model, "B1", "=SUM(");
     await typeInComposer("=B1 + DIVIDE(1, 0)");
 
     await hoverComposerContent("=");
@@ -146,7 +146,7 @@ describe("Composer hover", () => {
   });
 
   test("Can hover a reference", async () => {
-    setCellContent(model, "B1", "128");
+    await setCellContent(model, "B1", "128");
     await typeInComposer("=B1");
     await hoverComposerContent("B1");
 
@@ -154,8 +154,8 @@ describe("Composer hover", () => {
   });
 
   test("Can hover a range", async () => {
-    setCellContent(model, "B1", "128");
-    setCellContent(model, "C2", "256");
+    await setCellContent(model, "B1", "128");
+    await setCellContent(model, "C2", "256");
 
     await typeInComposer("=SUM(B1:C2)");
     await hoverComposerContent("B1:C2");
@@ -164,7 +164,7 @@ describe("Composer hover", () => {
   });
 
   test("Can hover any token to get an evaluation result", async () => {
-    setCellContent(model, "B1", "10");
+    await setCellContent(model, "B1", "10");
     await typeInComposer("=SUM(B1 + B1)");
 
     await hoverComposerContent("=");
@@ -207,10 +207,10 @@ describe("Composer hover", () => {
   });
 
   test("Speech bubble content is formatted", async () => {
-    setCellContent(model, "B1", "5");
-    setFormat(model, "B1", "0.0$");
+    await setCellContent(model, "B1", "5");
+    await setFormat(model, "B1", "0.0$");
 
-    setCellContent(model, "C1", "1.1000000001");
+    await setCellContent(model, "C1", "1.1000000001");
     expect(getEvaluatedCell(model, "C1").formattedValue).toEqual("1.1"); // default format
 
     await typeInComposer("=B1+DATE(2025,1,1)+C1");
@@ -225,8 +225,8 @@ describe("Composer hover", () => {
   });
 
   test("Can hover localized content", async () => {
-    setCellContent(model, "B1", "1.5");
-    updateLocale(model, FR_LOCALE);
+    await setCellContent(model, "B1", "1.5");
+    await updateLocale(model, FR_LOCALE);
     await typeInComposer("=B1 + SUM(1,5;12)");
 
     await hoverComposerContent("=");
@@ -395,7 +395,7 @@ describe("Composer hover integration test", () => {
   });
 
   test("Can hover functions that require the cell position as context in grid composer", async () => {
-    setCellContent(model, "B2", "5");
+    await setCellContent(model, "B2", "5");
     await typeInComposerGrid("=ROW() + COLUMN() + B2");
     await hoverComposerContent("ROW");
     expect(".o-speech-bubble").toHaveText("1");
@@ -407,7 +407,7 @@ describe("Composer hover integration test", () => {
 
   test("Hover is deactivated in a standalone composer", async () => {
     const sheetId = model.getters.getActiveSheetId();
-    addEqualCf(model, "B1:D3", { fillColor: "#b6d7a8" }, "=ROW() + COLUMN() + B2");
+    await addEqualCf(model, "B1:D3", { fillColor: "#b6d7a8" }, "=ROW() + COLUMN() + B2");
     const cf = model.getters.getConditionalFormats(sheetId)[0];
     env.openSidePanel("ConditionalFormattingEditor", { cf, isNewCf: false });
     await nextTick();

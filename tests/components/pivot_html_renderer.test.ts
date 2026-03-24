@@ -17,7 +17,7 @@ async function mountPivotHtmlRenderer(
     onCellClicked,
   };
   model.dispatch("PIVOT_START_PRESENCE_TRACKING", { pivotId });
-  evaluateCells(model);
+  await evaluateCells(model);
   ({ fixture } = await mountComponent(PivotHTMLRenderer, { env: { model }, props }));
 }
 
@@ -29,7 +29,7 @@ describe("Pivot HTML Renderer", () => {
       A2: "Alice", B2: "25",  C2: "90",
       A3: "Bob",   B3: "30",  C3: "85",
     };
-    const model = createModelFromGrid(grid);
+    const model = await createModelFromGrid(grid);
     addPivot(model, "A1:C3", {
       rows: [{ fieldName: "Name" }],
       measures: [{ id: "Score", fieldName: "Score", aggregator: "count" }],
@@ -52,7 +52,7 @@ describe("Pivot HTML Renderer", () => {
       A8: `=PIVOT.HEADER(1,"Name","Bob")`,   B8: `=PIVOT.VALUE(1,"Score","Name","Bob")`,
       A9: "=PIVOT.HEADER(1)",                B9: `=PIVOT.VALUE(1,"Score")`,
     };
-    const model = createModelFromGrid(grid);
+    const model = await createModelFromGrid(grid);
     addPivot(model, "A1:C3", {
       rows: [{ fieldName: "Name" }],
       measures: [{ id: "Score", fieldName: "Score", aggregator: "count" }],
@@ -79,12 +79,12 @@ describe("Pivot HTML Renderer", () => {
       A8: `=PIVOT.HEADER(1,"Name","Bob")`,   B8: `=PIVOT.VALUE(1,"Score","Name","Bob")`,
       A9: "=PIVOT.HEADER(1)",                B9: `=PIVOT.VALUE(1,"Score")`,
     };
-    const model = createModelFromGrid(grid);
+    const model = await createModelFromGrid(grid);
     addPivot(model, "A1:C3", {
       rows: [{ fieldName: "Name" }],
       measures: [{ id: "Score", fieldName: "Score", aggregator: "count" }],
     });
-    createSheet(model, { activate: true });
+    await createSheet(model, { activate: true });
     await mountPivotHtmlRenderer(model, model.getters.getPivotIds()[0]);
     expect(fixture.querySelectorAll(".o_missing_value")).toHaveLength(8);
   });

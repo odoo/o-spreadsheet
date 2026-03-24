@@ -45,6 +45,7 @@ import {
   updateLocale,
 } from "../../test_helpers/commands_helpers";
 import {
+  createModel,
   createModelFromGrid,
   getPlugin,
   mockChart,
@@ -77,8 +78,8 @@ import { FR_LOCALE } from "../../test_helpers/constants";
 
 let model: Model;
 
-beforeEach(() => {
-  model = new Model({
+beforeEach(async () => {
+  model = await createModel({
     sheets: [
       {
         name: "Sheet1",
@@ -119,8 +120,8 @@ beforeEach(() => {
 });
 
 describe("datasource tests", function () {
-  test("create chart with column datasets", () => {
-    createChart(
+  test("create chart with column datasets", async () => {
+    await createChart(
       model,
       {
         dataSets: [{ dataRange: "Sheet1!B1:B4" }, { dataRange: "Sheet1!C1:C4" }],
@@ -147,8 +148,8 @@ describe("datasource tests", function () {
     expect(runtime).toMatchSnapshot();
   });
 
-  test("create chart with rectangle dataset", () => {
-    createChart(
+  test("create chart with rectangle dataset", async () => {
+    await createChart(
       model,
       {
         dataSets: [{ dataRange: "Sheet1!B1:C4" }],
@@ -174,8 +175,8 @@ describe("datasource tests", function () {
     });
   });
 
-  test("create chart with column datasets without series title", () => {
-    createChart(
+  test("create chart with column datasets without series title", async () => {
+    await createChart(
       model,
       {
         dataSets: [{ dataRange: "Sheet1!B2:B4" }, { dataRange: "Sheet1!C2:C4" }],
@@ -203,8 +204,8 @@ describe("datasource tests", function () {
     });
   });
 
-  test("create chart with column datasets with category title", () => {
-    createChart(
+  test("create chart with column datasets with category title", async () => {
+    await createChart(
       model,
       {
         dataSets: [{ dataRange: "Sheet1!B1:B4" }, { dataRange: "Sheet1!C1:C4" }],
@@ -224,8 +225,8 @@ describe("datasource tests", function () {
     });
   });
 
-  test("create chart with row datasets", () => {
-    createChart(
+  test("create chart with row datasets", async () => {
+    await createChart(
       model,
       {
         dataSets: [{ dataRange: "A8:D8" }, { dataRange: "A9:D9" }],
@@ -251,8 +252,8 @@ describe("datasource tests", function () {
     });
   });
 
-  test("create chart with full rows/columns datasets", () => {
-    createChart(
+  test("create chart with full rows/columns datasets", async () => {
+    await createChart(
       model,
       {
         dataSets: [{ dataRange: "8:8" }, { dataRange: "A:B" }],
@@ -267,8 +268,8 @@ describe("datasource tests", function () {
     ]);
   });
 
-  test("create chart with row datasets without series title", () => {
-    createChart(
+  test("create chart with row datasets without series title", async () => {
+    await createChart(
       model,
       {
         dataSets: [{ dataRange: "Sheet1!B8:D8" }, { dataRange: "Sheet1!B9:D9" }],
@@ -295,8 +296,8 @@ describe("datasource tests", function () {
     });
   });
 
-  test("create chart with row datasets with category title", () => {
-    createChart(
+  test("create chart with row datasets with category title", async () => {
+    await createChart(
       model,
       {
         dataSets: [{ dataRange: "Sheet1!A8:D8" }, { dataRange: "Sheet1!A9:D9" }],
@@ -316,8 +317,8 @@ describe("datasource tests", function () {
     });
   });
 
-  test("create chart with only the dataset title (no data)", () => {
-    createChart(
+  test("create chart with only the dataset title (no data)", async () => {
+    await createChart(
       model,
       {
         dataSets: [{ dataRange: "Sheet1!B8" }],
@@ -337,8 +338,8 @@ describe("datasource tests", function () {
     expect(data.datasets[0].hidden).toBeTruthy();
   });
 
-  test("create chart with a dataset of one cell (no title)", () => {
-    createChart(
+  test("create chart with a dataset of one cell (no title)", async () => {
+    await createChart(
       model,
       {
         dataSets: [{ dataRange: "B8" }],
@@ -363,10 +364,10 @@ describe("datasource tests", function () {
     });
   });
 
-  test("create chart dataset of one cell referencing an empty cell", () => {
-    setCellContent(model, "A1", "");
-    setCellContent(model, "B1", "=A1");
-    createChart(
+  test("create chart dataset of one cell referencing an empty cell", async () => {
+    await setCellContent(model, "A1", "");
+    await setCellContent(model, "B1", "=A1");
+    await createChart(
       model,
       {
         dataSets: [{ dataRange: "B1" }],
@@ -383,8 +384,8 @@ describe("datasource tests", function () {
     expect(config?.data?.datasets?.[0].data).toEqual([0]);
   });
 
-  test("empty datasets are filtered", () => {
-    model = new Model({
+  test("empty datasets are filtered", async () => {
+    model = await createModel({
       sheets: [
         {
           name: "Sheet1",
@@ -407,7 +408,7 @@ describe("datasource tests", function () {
         },
       ],
     });
-    createChart(
+    await createChart(
       model,
       {
         dataSets: [{ dataRange: "Sheet1!B1:B4" }, { dataRange: "Sheet1!C1:C4" }],
@@ -425,13 +426,13 @@ describe("datasource tests", function () {
 
   test.each(["line", "bar"] as const)(
     "%s chart filter out points with no label and an invalid value",
-    (chartType) => {
-      setCellContent(model, "G1", "not a number");
-      setCellContent(model, "F2", "label");
-      setCellContent(model, "G2", "neither is this, but this have a label");
-      setCellContent(model, "G3", "12");
+    async (chartType) => {
+      await setCellContent(model, "G1", "not a number");
+      await setCellContent(model, "F2", "label");
+      await setCellContent(model, "G2", "neither is this, but this have a label");
+      await setCellContent(model, "G3", "12");
 
-      createChart(
+      await createChart(
         model,
         {
           dataSets: [{ dataRange: "G1:G3" }],
@@ -448,8 +449,8 @@ describe("datasource tests", function () {
     }
   );
 
-  test("empty datasets are filtered in different locales", () => {
-    model = new Model({
+  test("empty datasets are filtered in different locales", async () => {
+    model = await createModel({
       sheets: [
         {
           name: "Sheet1",
@@ -471,7 +472,7 @@ describe("datasource tests", function () {
         locale: FR_LOCALE,
       },
     });
-    createChart(
+    await createChart(
       model,
       {
         dataSets: [{ dataRange: "Sheet1!B1:B2" }, { dataRange: "Sheet1!C1:C2" }],
@@ -487,8 +488,8 @@ describe("datasource tests", function () {
     expect(chart.chartJsConfig.data!.datasets?.[1].hidden).toBeTruthy();
   });
 
-  test("create a chart with stacked bar", () => {
-    createChart(
+  test("create a chart with stacked bar", async () => {
+    await createChart(
       model,
       {
         dataSets: [{ dataRange: "B7:B8" }],
@@ -504,8 +505,8 @@ describe("datasource tests", function () {
     expect(runtime).toMatchSnapshot();
   });
 
-  test("ranges in definition change automatically", () => {
-    createChart(
+  test("ranges in definition change automatically", async () => {
+    await createChart(
       model,
       {
         dataSets: [{ dataRange: "Sheet1!B1:B4" }, { dataRange: "Sheet1!C1:C4" }],
@@ -514,15 +515,15 @@ describe("datasource tests", function () {
       },
       "1"
     );
-    addColumns(model, "before", "A", 2);
+    await addColumns(model, "before", "A", 2);
     const chart = model.getters.getChartDefinition("1") as LineChartDefinition;
     expect(chart.dataSets[0].dataRange).toStrictEqual("D1:D4");
     expect(chart.dataSets[1].dataRange).toStrictEqual("E1:E4");
     expect(chart.labelRange).toStrictEqual("Sheet1!C2:C4");
   });
 
-  test("pie chart tooltip title display the correct dataset", () => {
-    createChart(
+  test("pie chart tooltip title display the correct dataset", async () => {
+    await createChart(
       model,
       {
         dataSets: [{ dataRange: "B7:B8" }],
@@ -539,23 +540,26 @@ describe("datasource tests", function () {
     expect(title([{ dataset: { label: "dataset 2" } }])).toBe("dataset 2");
   });
 
-  test.each(["bar", "line"] as const)("chart %s tooltip title is not dynamic", (chartType) => {
-    createChart(
-      model,
-      {
-        dataSets: [{ dataRange: "B7:B8" }],
-        dataSetsHaveTitle: true,
-        labelRange: "B7",
-        type: chartType,
-      },
-      "1"
-    );
-    const title = getChartConfiguration(model, "1").options?.plugins?.tooltip?.callbacks?.title;
-    expect(title?.([{ dataset: { axisId: "y" } }])).toBeUndefined();
-  });
+  test.each(["bar", "line"] as const)(
+    "chart %s tooltip title is not dynamic",
+    async (chartType) => {
+      await createChart(
+        model,
+        {
+          dataSets: [{ dataRange: "B7:B8" }],
+          dataSetsHaveTitle: true,
+          labelRange: "B7",
+          type: chartType,
+        },
+        "1"
+      );
+      const title = getChartConfiguration(model, "1").options?.plugins?.tooltip?.callbacks?.title;
+      expect(title?.([{ dataset: { axisId: "y" } }])).toBeUndefined();
+    }
+  );
 
-  test("can delete an imported chart", () => {
-    createChart(
+  test("can delete an imported chart", async () => {
+    await createChart(
       model,
       {
         dataSets: [{ dataRange: "B7:B8" }],
@@ -566,16 +570,16 @@ describe("datasource tests", function () {
     );
     const figureId = model.getters.getFigureIdFromChartId("1")!;
     const exportedData = model.exportData();
-    const newModel = new Model(exportedData);
+    const newModel = await createModel(exportedData);
     expect(newModel.getters.getVisibleFigures()).toHaveLength(1);
     expect(newModel.getters.getChartRuntime("1")).toBeTruthy();
-    deleteFigure(newModel, figureId);
+    await deleteFigure(newModel, figureId);
     expect(newModel.getters.getVisibleFigures()).toHaveLength(0);
     expect(() => newModel.getters.getChartRuntime("1")).toThrow();
   });
 
-  test("update dataset of imported chart", () => {
-    createChart(
+  test("update dataset of imported chart", async () => {
+    await createChart(
       model,
       {
         dataSets: [{ dataRange: "Sheet1!B1:B4" }],
@@ -584,16 +588,16 @@ describe("datasource tests", function () {
       },
       "1"
     );
-    const newModel = new Model(model.exportData());
+    const newModel = await createModel(model.exportData());
     let data = getChartConfiguration(newModel, "1").data;
     expect(data.datasets![0].data).toEqual([10, 11, 12]);
-    setCellContent(newModel, "B2", "99");
+    await setCellContent(newModel, "B2", "99");
     data = getChartConfiguration(newModel, "1").data;
     expect(data.datasets![0].data).toEqual([99, 11, 12]);
   });
 
-  test("update existing chart", () => {
-    createChart(
+  test("update existing chart", async () => {
+    await createChart(
       model,
       {
         dataSets: [{ dataRange: "Sheet1!B1:B4" }],
@@ -605,7 +609,7 @@ describe("datasource tests", function () {
     let config = getChartConfiguration(model, "1");
     expect(config.data!.datasets![0].data).toEqual([10, 11, 12]);
     expect(config.type).toEqual("line");
-    updateChart(model, "1", {
+    await updateChart(model, "1", {
       type: "bar",
       dataSets: [{ dataRange: "Sheet1!A8:D8" }, { dataRange: "Sheet1!A9:D9" }],
       labelRange: "Sheet1!C7:D7",
@@ -624,8 +628,8 @@ describe("datasource tests", function () {
     expect(config.type).toEqual("bar");
   });
 
-  test("remove labels from existing chart", () => {
-    createChart(
+  test("remove labels from existing chart", async () => {
+    await createChart(
       model,
       {
         dataSets: [{ dataRange: "Sheet1!A8:D8" }],
@@ -634,14 +638,14 @@ describe("datasource tests", function () {
       },
       "1"
     );
-    updateChart(model, "1", { labelRange: undefined });
+    await updateChart(model, "1", { labelRange: undefined });
     expect(
       (model.getters.getChartDefinition("1") as LineChartDefinition).labelRange
     ).toBeUndefined();
   });
 
-  test("deleting a random sheet does not affect a chart", () => {
-    createChart(
+  test("deleting a random sheet does not affect a chart", async () => {
+    await createChart(
       model,
       {
         dataSets: [{ dataRange: "Sheet1!A8:D8" }],
@@ -651,14 +655,14 @@ describe("datasource tests", function () {
       "1"
     );
     const chartDefinitionBefore = model.getters.getChartDefinition("1");
-    createSheet(model, { sheetId: "42" });
-    deleteSheet(model, "42");
+    await createSheet(model, { sheetId: "42" });
+    await deleteSheet(model, "42");
     const chartDefinitionAfter = model.getters.getChartDefinition("1");
     expect(chartDefinitionBefore).toEqual(chartDefinitionAfter);
   });
 
-  test("deleting a col on another sheet does not affect a chart", () => {
-    createChart(
+  test("deleting a col on another sheet does not affect a chart", async () => {
+    await createChart(
       model,
       {
         dataSets: [{ dataRange: "Sheet1!A8:D8" }],
@@ -668,14 +672,14 @@ describe("datasource tests", function () {
       "1"
     );
     const chartDefinitionBefore = model.getters.getChartDefinition("1");
-    createSheet(model, { sheetId: "42" });
-    deleteColumns(model, ["A"], "42");
+    await createSheet(model, { sheetId: "42" });
+    await deleteColumns(model, ["A"], "42");
     const chartDefinitionAfter = model.getters.getChartDefinition("1");
     expect(chartDefinitionBefore).toEqual(chartDefinitionAfter);
   });
 
-  test("delete a data source column", () => {
-    createChart(
+  test("delete a data source column", async () => {
+    await createChart(
       model,
       {
         dataSets: [{ dataRange: "Sheet1!B1:B4" }, { dataRange: "Sheet1!C1:C4" }],
@@ -684,15 +688,15 @@ describe("datasource tests", function () {
       },
       "1"
     );
-    deleteColumns(model, ["B"]);
+    await deleteColumns(model, ["B"]);
     const data = getChartConfiguration(model, "1").data;
     expect(data.datasets![0].data).toEqual([20, 19, 18]);
     expect(data.datasets![1]).toBe(undefined);
     expect(data.labels).toEqual(["P1", "P2", "P3"]);
   });
 
-  test("delete a data set labels column", () => {
-    createChart(
+  test("delete a data set labels column", async () => {
+    await createChart(
       model,
       {
         dataSets: [{ dataRange: "Sheet1!B1:B4" }, { dataRange: "Sheet1!C1:C4" }],
@@ -701,7 +705,7 @@ describe("datasource tests", function () {
       },
       "1"
     );
-    deleteColumns(model, ["A"]);
+    await deleteColumns(model, ["A"]);
     // dataset in col B becomes labels in col A
     const data = getChartConfiguration(model, "1").data;
     expect(data.labels).toEqual(["", "", ""]);
@@ -709,8 +713,8 @@ describe("datasource tests", function () {
     expect(data.datasets![1].data).toEqual([20, 19, 18]);
   });
 
-  test("delete last row of dataset", () => {
-    createChart(
+  test("delete last row of dataset", async () => {
+    await createChart(
       model,
       {
         dataSets: [{ dataRange: "Sheet1!B1:B5" }, { dataRange: "Sheet1!C1:C5" }],
@@ -720,15 +724,15 @@ describe("datasource tests", function () {
       },
       "1"
     );
-    deleteRows(model, [4]);
+    await deleteRows(model, [4]);
     const data = getChartConfiguration(model, "1").data;
     expect(data.datasets![0].data).toEqual([10, 11, 12]);
     expect(data.datasets![1].data).toEqual([20, 19, 18]);
     expect(data.labels).toEqual(["P1", "P2", "P3"]);
   });
 
-  test("delete last col of dataset", () => {
-    createChart(
+  test("delete last col of dataset", async () => {
+    await createChart(
       model,
       {
         dataSets: [{ dataRange: "Sheet1!B1:B5" }, { dataRange: "Sheet1!C1:C5" }],
@@ -738,15 +742,15 @@ describe("datasource tests", function () {
       },
       "1"
     );
-    deleteColumns(model, ["C"]);
+    await deleteColumns(model, ["C"]);
     const data = getChartConfiguration(model, "1").data;
     expect(data.datasets![0].data).toEqual([10, 11, 12, 13]);
     expect(data.datasets![1]).toBeUndefined();
     expect(data.labels).toEqual(["P1", "P2", "P3", "P4"]);
   });
 
-  test("add row in dataset", () => {
-    createChart(
+  test("add row in dataset", async () => {
+    await createChart(
       model,
       {
         dataSets: [{ dataRange: "Sheet1!B1:B5" }, { dataRange: "Sheet1!C1:C5" }],
@@ -756,15 +760,15 @@ describe("datasource tests", function () {
       },
       "1"
     );
-    addRows(model, "before", 2, 1);
+    await addRows(model, "before", 2, 1);
     const data = getChartConfiguration(model, "1").data;
     expect(data.datasets![0].data).toEqual([10, 11, 12, 13]);
     expect(data.datasets![1].data).toEqual([20, 19, 18, 17]);
     expect(data.labels).toEqual(["P1", "P2", "P3", "P4"]);
   });
 
-  test("Add a row on another sheet does not affect a chart", () => {
-    createChart(
+  test("Add a row on another sheet does not affect a chart", async () => {
+    await createChart(
       model,
       {
         dataSets: [{ dataRange: "Sheet1!A8:D8" }],
@@ -774,14 +778,14 @@ describe("datasource tests", function () {
       "1"
     );
     const chartDefinitionBefore = model.getters.getChartDefinition("1");
-    createSheet(model, { sheetId: "42" });
-    addRows(model, "before", 0, 1, "42");
+    await createSheet(model, { sheetId: "42" });
+    await addRows(model, "before", 0, 1, "42");
     const chartDefinitionAfter = model.getters.getChartDefinition("1");
     expect(chartDefinitionBefore).toEqual(chartDefinitionAfter);
   });
 
-  test("delete all the dataset except for the title", () => {
-    createChart(
+  test("delete all the dataset except for the title", async () => {
+    await createChart(
       model,
       {
         dataSets: [{ dataRange: "Sheet1!B1:B5" }, { dataRange: "Sheet1!C1:C5" }],
@@ -791,7 +795,7 @@ describe("datasource tests", function () {
       },
       "1"
     );
-    deleteRows(model, [1, 2, 3, 4]);
+    await deleteRows(model, [1, 2, 3, 4]);
     const data = getChartConfiguration(model, "1").data;
     expect(data.datasets).toHaveLength(2);
     expect(data.datasets[0].hidden).toBeTruthy();
@@ -799,8 +803,8 @@ describe("datasource tests", function () {
     expect(data.labels).toEqual([]);
   });
 
-  test("update dataset cell updates chart runtime", () => {
-    createChart(
+  test("update dataset cell updates chart runtime", async () => {
+    await createChart(
       model,
       {
         dataSets: [{ dataRange: "Sheet1!B1:B4" }, { dataRange: "Sheet1!C1:C4" }],
@@ -812,15 +816,15 @@ describe("datasource tests", function () {
     let dataSets = getChartConfiguration(model, "1").data.datasets;
     expect(dataSets[0].data).toEqual([10, 11, 12]);
     expect(dataSets[0].label).toEqual("first column dataset");
-    setCellContent(model, "B2", "99");
-    setCellContent(model, "B1", "new dataset label");
+    await setCellContent(model, "B2", "99");
+    await setCellContent(model, "B1", "new dataset label");
     dataSets = getChartConfiguration(model, "1").data.datasets;
     expect(dataSets![0].data).toEqual([99, 11, 12]);
     expect(dataSets![0].label).toEqual("new dataset label");
   });
 
-  test("create chart with invalid dataset", () => {
-    const result = createChart(
+  test("create chart with invalid dataset", async () => {
+    const result = await createChart(
       model,
       {
         dataSets: [{ dataRange: "Sheet1!B1:B4" }, { dataRange: "this is invalid" }],
@@ -832,9 +836,9 @@ describe("datasource tests", function () {
     expect(result).toBeCancelledBecause(CommandResult.InvalidDataSet);
   });
 
-  test("cannot duplicate chart ids", () => {
-    const model = new Model();
-    const cmd1 = createChart(
+  test("cannot duplicate chart ids", async () => {
+    const model = await createModel();
+    const cmd1 = await createChart(
       model,
       {
         dataSets: [{ dataRange: "Sheet1!B1:B4" }],
@@ -845,7 +849,7 @@ describe("datasource tests", function () {
     );
     expect(cmd1).toBeSuccessfullyDispatched();
 
-    const cmd2 = createChart(
+    const cmd2 = await createChart(
       model,
       {
         dataSets: [{ dataRange: "Sheet1!C1:C4" }],
@@ -855,8 +859,8 @@ describe("datasource tests", function () {
       "1"
     );
     expect(cmd2).toBeCancelledBecause(CommandResult.DuplicatedChartId);
-    createSheet(model, { sheetId: "42" });
-    const cmd3 = createChart(
+    await createSheet(model, { sheetId: "42" });
+    const cmd3 = await createChart(
       model,
       {
         dataSets: [{ dataRange: "Sheet1!C1:C4" }],
@@ -869,9 +873,9 @@ describe("datasource tests", function () {
     expect(cmd3).toBeCancelledBecause(CommandResult.DuplicatedChartId);
   });
 
-  test("Cannot have duplicate chart id at model creation", () => {
+  test("Cannot have duplicate chart id at model creation", async () => {
     const figure = { id: "figureId", tag: "chart", width: 400, height: 300, x: 100, y: 100 };
-    const model = new Model({
+    const model = await createModel({
       version: 7,
       sheets: [
         {
@@ -893,8 +897,8 @@ describe("datasource tests", function () {
     expect(chartIds[0]).not.toEqual(chartIds[1]);
   });
 
-  test("reject updates that target a inexistent chart", () => {
-    createChart(
+  test("reject updates that target a inexistent chart", async () => {
+    await createChart(
       model,
       {
         dataSets: [{ dataRange: "Sheet1!B1:B4" }],
@@ -903,7 +907,7 @@ describe("datasource tests", function () {
       },
       "1"
     );
-    createSheet(model, { sheetId: "42" });
+    await createSheet(model, { sheetId: "42" });
     const result = model.dispatch("UPDATE_CHART", {
       definition: model.getters.getChartDefinition("1"),
       sheetId: model.getters.getActiveSheetId(),
@@ -911,12 +915,12 @@ describe("datasource tests", function () {
       chartId: "2",
     });
 
-    updateChart(model, "1", { legendPosition: "left" });
+    await updateChart(model, "1", { legendPosition: "left" });
     expect(result).toBeCancelledBecause(CommandResult.ChartDoesNotExist);
   });
 
-  test("reject updates that target a figure that is not a chart", () => {
-    createFigure(model, { figureId: "2", tag: "not a chart" });
+  test("reject updates that target a figure that is not a chart", async () => {
+    await createFigure(model, { figureId: "2", tag: "not a chart" });
 
     const result = model.dispatch("UPDATE_CHART", {
       definition: {
@@ -934,15 +938,15 @@ describe("datasource tests", function () {
     expect(result).toBeCancelledBecause(CommandResult.ChartDoesNotExist);
   });
 
-  test("reject update that does not change the chart", () => {
-    createChart(model, { type: "line" }, "1");
-    const result = updateChart(model, "1", {});
+  test("reject update that does not change the chart", async () => {
+    await createChart(model, { type: "line" }, "1");
+    const result = await updateChart(model, "1", {});
     expect(result).toBeCancelledBecause(CommandResult.NoChanges);
   });
 
-  test("chart is not selected after creation and update", () => {
+  test("chart is not selected after creation and update", async () => {
     const chartId = "1234";
-    createChart(
+    await createChart(
       model,
       {
         type: "bar",
@@ -952,11 +956,11 @@ describe("datasource tests", function () {
       chartId
     );
     expect(model.getters.getSelectedFigureId()).toBeNull();
-    selectFigure(model, chartId);
+    await selectFigure(model, chartId);
     expect(model.getters.getSelectedFigureId()).toBe(chartId);
-    selectCell(model, "A1");
+    await selectCell(model, "A1");
     expect(model.getters.getSelectedFigureId()).toBeNull();
-    updateChart(model, chartId, {
+    await updateChart(model, chartId, {
       dataSets: [{ dataRange: "B1:B4" }],
       labelRange: "A2:A4",
       title: { text: "updated chart" },
@@ -964,8 +968,8 @@ describe("datasource tests", function () {
     expect(model.getters.getSelectedFigureId()).toBeNull();
   });
 
-  test("create chart with invalid labels", () => {
-    const result = createChart(
+  test("create chart with invalid labels", async () => {
+    const result = await createChart(
       model,
       {
         dataSets: [{ dataRange: "Sheet1!B1:B4" }],
@@ -977,8 +981,8 @@ describe("datasource tests", function () {
     expect(result).toBeCancelledBecause(CommandResult.InvalidLabelRange);
   });
 
-  test("create chart with invalid SheetName in dataset will ignore invalid data", () => {
-    createChart(
+  test("create chart with invalid SheetName in dataset will ignore invalid data", async () => {
+    await createChart(
       model,
       {
         type: "bar",
@@ -998,8 +1002,8 @@ describe("datasource tests", function () {
     expect(config.type).toEqual("bar");
   });
 
-  test("create chart with empty labels", () => {
-    const result = createChart(
+  test("create chart with empty labels", async () => {
+    const result = await createChart(
       model,
       {
         type: "bar",
@@ -1012,8 +1016,8 @@ describe("datasource tests", function () {
   });
   test.each([[["Sheet1!B1:B4", "This is invalid"]], [["1:4"]]])(
     "update chart with invalid dataset",
-    (invalidDataset: string[]) => {
-      createChart(
+    async (invalidDataset: string[]) => {
+      await createChart(
         model,
         {
           type: "bar",
@@ -1023,15 +1027,15 @@ describe("datasource tests", function () {
         "1"
       );
       expect(
-        updateChart(model, "1", {
+        await updateChart(model, "1", {
           dataSets: invalidDataset.map((ds) => ({ dataRange: ds })),
         })
       ).toBeCancelledBecause(CommandResult.InvalidDataSet);
     }
   );
 
-  test("update chart with invalid labels", () => {
-    createChart(
+  test("update chart with invalid labels", async () => {
+    await createChart(
       model,
       {
         type: "bar",
@@ -1041,13 +1045,13 @@ describe("datasource tests", function () {
       "1"
     );
     expect(
-      updateChart(model, "1", {
+      await updateChart(model, "1", {
         labelRange: "This is invalid",
       })
     ).toBeCancelledBecause(CommandResult.InvalidLabelRange);
   });
-  test("duplicate a sheet with and without a chart", () => {
-    const model = new Model({
+  test("duplicate a sheet with and without a chart", async () => {
+    const model = await createModel({
       sheets: [
         {
           id: "1",
@@ -1062,7 +1066,7 @@ describe("datasource tests", function () {
         },
       ],
     });
-    createChart(
+    await createChart(
       model,
       {
         type: "bar",
@@ -1072,17 +1076,17 @@ describe("datasource tests", function () {
       "1",
       "2"
     );
-    duplicateSheet(model, "1", "SheetNoFigure");
-    activateSheet(model, "SheetNoFigure");
+    await duplicateSheet(model, "1", "SheetNoFigure");
+    await activateSheet(model, "SheetNoFigure");
     expect(model.getters.getVisibleFigures()).toEqual([]);
-    duplicateSheet(model, "2", "SheetWithFigure");
-    activateSheet(model, "2");
+    await duplicateSheet(model, "2", "SheetWithFigure");
+    await activateSheet(model, "2");
     const { x, y, width, height, tag } = model.getters.getVisibleFigures()[0];
-    activateSheet(model, "SheetWithFigure");
+    await activateSheet(model, "SheetWithFigure");
     expect(model.getters.getVisibleFigures()).toMatchObject([{ x, y, height, width, tag }]);
   });
-  test("extend data source to new values manually", () => {
-    createChart(
+  test("extend data source to new values manually", async () => {
+    await createChart(
       model,
       {
         type: "bar",
@@ -1091,7 +1095,7 @@ describe("datasource tests", function () {
       },
       "1"
     );
-    updateChart(model, "1", {
+    await updateChart(model, "1", {
       dataSets: [{ dataRange: "Sheet1!B1:B5" }, { dataRange: "Sheet1!C1:C5" }],
       labelRange: "Sheet1!A2:A5",
       dataSetsHaveTitle: true,
@@ -1100,8 +1104,8 @@ describe("datasource tests", function () {
     expect(dataSets![0].data).toEqual([10, 11, 12, 13]);
     expect(dataSets![1].data).toEqual([20, 19, 18, 17]);
   });
-  test("extend data set labels to new values manually", () => {
-    createChart(
+  test("extend data set labels to new values manually", async () => {
+    await createChart(
       model,
       {
         type: "bar",
@@ -1111,7 +1115,7 @@ describe("datasource tests", function () {
       },
       "1"
     );
-    updateChart(model, "1", {
+    await updateChart(model, "1", {
       dataSets: [{ dataRange: "Sheet1!B1:B5" }, { dataRange: "Sheet1!C1:C5" }],
       labelRange: "Sheet1!A2:A5",
       dataSetsHaveTitle: true,
@@ -1120,9 +1124,9 @@ describe("datasource tests", function () {
     expect(config.data!.labels).toEqual(["P1", "P2", "P3", "P4"]);
   });
 
-  test("Chart is deleted on sheet deletion", () => {
-    createSheet(model, { sheetId: "2", position: 1 });
-    createChart(
+  test("Chart is deleted on sheet deletion", async () => {
+    await createSheet(model, { sheetId: "2", position: 1 });
+    await createChart(
       model,
       {
         dataSets: [{ dataRange: "Sheet1!B1:B4" }, { dataRange: "Sheet1!C1:C4" }],
@@ -1133,16 +1137,16 @@ describe("datasource tests", function () {
       "2"
     );
     expect(model.getters.getChartRuntime("1")).not.toBeUndefined();
-    deleteSheet(model, "2");
+    await deleteSheet(model, "2");
     expect(() => model.getters.getChartRuntime("1")).toThrow();
   });
 
-  test("Chart is copied on sheet duplication", () => {
+  test("Chart is copied on sheet duplication", async () => {
     const firstSheetId = model.getters.getActiveSheetId();
     const secondSheetId = "42";
     const dataSets = [{ dataRange: "B1:B4" }, { dataRange: "C1:C4" }];
 
-    createChart(
+    await createChart(
       model,
       {
         type: "bar",
@@ -1152,7 +1156,7 @@ describe("datasource tests", function () {
       firstSheetId
     );
     const figure = model.getters.getFigures(firstSheetId)[0]!;
-    duplicateSheet(model, firstSheetId, secondSheetId);
+    await duplicateSheet(model, firstSheetId, secondSheetId);
 
     expect(model.getters.getFigures(secondSheetId)).toHaveLength(1);
     const duplicatedFigure = model.getters.getFigures(secondSheetId)[0];
@@ -1171,16 +1175,16 @@ describe("datasource tests", function () {
     expect(duplicatedFigure.id).not.toBe(figure?.id);
 
     // duplicated chart is not deleted if original sheet is deleted
-    deleteSheet(model, firstSheetId);
+    await deleteSheet(model, firstSheetId);
     expect(model.getters.getSheetIds()).toHaveLength(1);
     expect(model.getters.getFigures(secondSheetId)).toEqual([duplicatedFigure]);
   });
 
-  test("Duplicate sheet > export > import > duplicate sheet contains 2 distinct charts", () => {
+  test("Duplicate sheet > export > import > duplicate sheet contains 2 distinct charts", async () => {
     const firstSheetId = model.getters.getActiveSheetId();
     const secondSheetId = "42";
     const thirdSheetId = "third";
-    createChart(
+    await createChart(
       model,
       {
         type: "bar",
@@ -1190,10 +1194,10 @@ describe("datasource tests", function () {
       "myChart",
       firstSheetId
     );
-    duplicateSheet(model, firstSheetId, secondSheetId);
+    await duplicateSheet(model, firstSheetId, secondSheetId);
 
-    const newModel = new Model(model.exportData());
-    duplicateSheet(newModel, secondSheetId, thirdSheetId);
+    const newModel = await createModel(model.exportData());
+    await duplicateSheet(newModel, secondSheetId, thirdSheetId);
 
     const figuresSh1 = newModel.getters.getFigures(firstSheetId);
     const figuresSh2 = newModel.getters.getFigures(secondSheetId);
@@ -1223,13 +1227,13 @@ describe("datasource tests", function () {
     expect(chartSh3).not.toEqual(chartSh1);
   });
 
-  test("Chart foreign ranges unchanged on sheet duplication", () => {
+  test("Chart foreign ranges unchanged on sheet duplication", async () => {
     const firstSheetId = model.getters.getActiveSheetId();
     const secondSheetName = "FixedRef";
     const secondSheetId = "41";
     const thirdSheetId = "42";
-    createSheetWithName(model, { sheetId: secondSheetId }, secondSheetName);
-    createChart(
+    await createSheetWithName(model, { sheetId: secondSheetId }, secondSheetName);
+    await createChart(
       model,
       {
         type: "bar",
@@ -1238,7 +1242,7 @@ describe("datasource tests", function () {
       },
       firstSheetId
     );
-    duplicateSheet(model, firstSheetId, thirdSheetId);
+    await duplicateSheet(model, firstSheetId, thirdSheetId);
     const duplicatedChartId = model.getters.getChartIds(thirdSheetId)[0];
     const duplicatedChartDefinition = model.getters.getChartDefinition(duplicatedChartId);
     expect(duplicatedChartDefinition).toMatchObject({
@@ -1248,8 +1252,8 @@ describe("datasource tests", function () {
     });
   });
 
-  test("Chart on columns deletion", () => {
-    createChart(
+  test("Chart on columns deletion", async () => {
+    await createChart(
       model,
       {
         dataSets: [{ dataRange: "B1:B4" }, { dataRange: "C1:C4" }],
@@ -1258,7 +1262,7 @@ describe("datasource tests", function () {
       },
       "1"
     );
-    deleteColumns(model, ["A", "B"]);
+    await deleteColumns(model, ["A", "B"]);
     const def = model.getters.getChartDefinition("1") as LineChartDefinition;
     expect(def.dataSets).toHaveLength(1);
     expect(def.dataSets[0].dataRange).toEqual("A1:A4");
@@ -1267,8 +1271,8 @@ describe("datasource tests", function () {
 });
 
 describe("title", function () {
-  test("change title manually", () => {
-    createChart(
+  test("change title manually", async () => {
+    await createChart(
       model,
       {
         type: "bar",
@@ -1281,13 +1285,13 @@ describe("title", function () {
     let options = getChartConfiguration(model, "1").options;
     expect(options!.plugins!.title!.text).toEqual("title");
 
-    updateChart(model, "1", { title: { text: "newTitle" } });
+    await updateChart(model, "1", { title: { text: "newTitle" } });
     options = getChartConfiguration(model, "1").options;
     expect(options!.plugins!.title!.text).toEqual("newTitle");
   });
 
-  test("Title is not displayed if empty", () => {
-    createChart(
+  test("Title is not displayed if empty", async () => {
+    await createChart(
       model,
       {
         type: "bar",
@@ -1300,14 +1304,14 @@ describe("title", function () {
       "1"
     );
     expect(getChartConfiguration(model, "1").options?.plugins?.title?.display).toBe(true);
-    updateChart(model, "1", { title: { text: "" } });
+    await updateChart(model, "1", { title: { text: "" } });
     expect(getChartConfiguration(model, "1").options?.plugins?.title?.display).toBe(false);
   });
 
   test.each(["line", "bar", "pyramid", "pie", "combo", "waterfall", "scatter"] as const)(
     "Title alignment is taken into account",
-    (type) => {
-      createChart(
+    async (type) => {
+      await createChart(
         model,
         {
           dataSets: [{ dataRange: "A1:B1" }],
@@ -1320,18 +1324,18 @@ describe("title", function () {
         "1"
       );
       expect(getChartConfiguration(model, "1").options?.plugins?.title?.align).toBe("start");
-      updateChart(model, "1", { title: { text: "title", align: "center" } });
+      await updateChart(model, "1", { title: { text: "title", align: "center" } });
       expect(getChartConfiguration(model, "1").options?.plugins?.title?.align).toBe("center");
-      updateChart(model, "1", { title: { text: "title", align: "right" } });
+      await updateChart(model, "1", { title: { text: "title", align: "right" } });
       expect(getChartConfiguration(model, "1").options?.plugins?.title?.align).toBe("end");
-      updateChart(model, "1", { title: { text: "title", align: "left" } });
+      await updateChart(model, "1", { title: { text: "title", align: "left" } });
       expect(getChartConfiguration(model, "1").options?.plugins?.title?.align).toBe("start");
     }
   );
   test.each(["line", "bar", "pyramid", "pie", "combo", "waterfall", "scatter"] as const)(
     "Title color is taken into account",
-    (type) => {
-      createChart(
+    async (type) => {
+      await createChart(
         model,
         {
           dataSets: [{ dataRange: "A1:B1" }],
@@ -1350,8 +1354,8 @@ describe("title", function () {
 
   test.each(["line", "bar", "pyramid", "pie", "combo", "waterfall", "scatter"] as const)(
     "Title bold style is taken into account",
-    (type) => {
-      createChart(
+    async (type) => {
+      await createChart(
         model,
         {
           dataSets: [{ dataRange: "A1:B1" }],
@@ -1367,7 +1371,7 @@ describe("title", function () {
       expect(getChartConfiguration(model, "1").options?.plugins?.title?.font).toMatchObject({
         weight: "bold",
       });
-      updateChart(model, "1", { title: { text: "title", bold: false } });
+      await updateChart(model, "1", { title: { text: "title", bold: false } });
       expect(getChartConfiguration(model, "1").options?.plugins?.title?.font).toMatchObject({
         weight: "normal",
       });
@@ -1376,8 +1380,8 @@ describe("title", function () {
 
   test.each(["line", "bar", "pyramid", "pie", "combo", "waterfall", "scatter"] as const)(
     "Title italic style is taken into account",
-    (type) => {
-      createChart(
+    async (type) => {
+      await createChart(
         model,
         {
           dataSets: [{ dataRange: "A1:B1" }],
@@ -1393,7 +1397,7 @@ describe("title", function () {
       expect(getChartConfiguration(model, "1").options?.plugins?.title?.font).toMatchObject({
         style: "italic",
       });
-      updateChart(model, "1", { title: { text: "title", italic: false } });
+      await updateChart(model, "1", { title: { text: "title", italic: false } });
       expect(getChartConfiguration(model, "1").options?.plugins?.title?.font).toMatchObject({
         style: "normal",
       });
@@ -1402,8 +1406,8 @@ describe("title", function () {
 
   test.each(["line", "bar", "pyramid", "combo", "waterfall", "scatter"] as const)(
     "Axis title alignment is taken into account for %s chart",
-    (type) => {
-      createChart(
+    async (type) => {
+      await createChart(
         model,
         {
           dataSets: [{ dataRange: "A1:B1" }],
@@ -1421,7 +1425,7 @@ describe("title", function () {
       );
       let scales = getChartConfiguration(model, "1").options.scales;
       expect(scales.x!["title"].align).toEqual("center");
-      updateChart(model, "1", {
+      await updateChart(model, "1", {
         axesDesign: {
           x: {
             title: {
@@ -1433,7 +1437,7 @@ describe("title", function () {
       });
       scales = getChartConfiguration(model, "1").options.scales;
       expect(scales.x!["title"].align).toEqual("start");
-      updateChart(model, "1", {
+      await updateChart(model, "1", {
         axesDesign: {
           x: {
             title: {
@@ -1445,7 +1449,7 @@ describe("title", function () {
       });
       scales = getChartConfiguration(model, "1").options.scales;
       expect(scales.x!["title"].align).toEqual("center");
-      updateChart(model, "1", {
+      await updateChart(model, "1", {
         axesDesign: {
           x: {
             title: {
@@ -1462,8 +1466,8 @@ describe("title", function () {
 
   test.each(["line", "bar", "pyramid", "combo", "waterfall", "scatter"] as const)(
     "Axis title color is taken into account for %s chart",
-    (type) => {
-      createChart(
+    async (type) => {
+      await createChart(
         model,
         {
           dataSets: [{ dataRange: "A1:B1" }],
@@ -1487,8 +1491,8 @@ describe("title", function () {
 
   test.each(["line", "bar", "pyramid", "combo", "waterfall", "scatter"] as const)(
     "Axis bold style is taken into account for %s chart",
-    (type) => {
-      createChart(
+    async (type) => {
+      await createChart(
         model,
         {
           dataSets: [{ dataRange: "A1:B1" }],
@@ -1506,7 +1510,7 @@ describe("title", function () {
       );
       let scales = getChartConfiguration(model, "1").options.scales;
       expect(scales.x!["title"].font.weight).toEqual("normal");
-      updateChart(model, "1", {
+      await updateChart(model, "1", {
         axesDesign: {
           x: {
             title: {
@@ -1523,8 +1527,8 @@ describe("title", function () {
 
   test.each(["line", "bar", "pyramid", "combo", "waterfall", "scatter"] as const)(
     "Axis italic style is taken into account for %s chart",
-    (type) => {
-      createChart(
+    async (type) => {
+      await createChart(
         model,
         {
           dataSets: [{ dataRange: "A1:B1" }],
@@ -1542,7 +1546,7 @@ describe("title", function () {
       );
       let scales = getChartConfiguration(model, "1").options.scales;
       expect(scales.x!["title"].font.style).toEqual("normal");
-      updateChart(model, "1", {
+      await updateChart(model, "1", {
         axesDesign: {
           x: {
             title: {
@@ -1559,9 +1563,9 @@ describe("title", function () {
 });
 
 describe("multiple sheets", function () {
-  test("create a chart with data from another sheet", () => {
-    createSheet(model, { sheetId: "42", activate: true });
-    createChart(
+  test("create a chart with data from another sheet", async () => {
+    await createSheet(model, { sheetId: "42", activate: true });
+    await createChart(
       model,
       {
         type: "bar",
@@ -1578,9 +1582,9 @@ describe("multiple sheets", function () {
       dataSets: [{ dataRange: "Sheet1!B1:B4" }, { dataRange: "Sheet1!C1:C4" }],
     });
   });
-  test("create a chart with dataset label from another sheet", () => {
-    createSheet(model, { sheetId: "42", activate: true });
-    createChart(
+  test("create a chart with dataset label from another sheet", async () => {
+    await createSheet(model, { sheetId: "42", activate: true });
+    await createChart(
       model,
       {
         type: "bar",
@@ -1595,9 +1599,9 @@ describe("multiple sheets", function () {
       labelRange: "Sheet1!A2:A4",
     });
   });
-  test("change source data then activate the chart sheet (it should be up-to-date)", () => {
-    createSheet(model, { sheetId: "42", activate: true });
-    createChart(
+  test("change source data then activate the chart sheet (it should be up-to-date)", async () => {
+    await createSheet(model, { sheetId: "42", activate: true });
+    await createChart(
       model,
       {
         type: "bar",
@@ -1606,14 +1610,14 @@ describe("multiple sheets", function () {
       },
       "28"
     );
-    activateSheet(model, "Sheet1");
-    setCellContent(model, "B2", "99");
-    activateSheet(model, "42");
+    await activateSheet(model, "Sheet1");
+    await setCellContent(model, "B2", "99");
+    await activateSheet(model, "42");
     expect(getChartConfiguration(model, "28").data.datasets[0].data).toEqual([99, 11, 12]);
   });
-  test("change dataset label then activate the chart sheet (it should be up-to-date)", () => {
-    createSheet(model, { sheetId: "42", activate: true });
-    createChart(
+  test("change dataset label then activate the chart sheet (it should be up-to-date)", async () => {
+    await createSheet(model, { sheetId: "42", activate: true });
+    await createChart(
       model,
       {
         type: "bar",
@@ -1622,14 +1626,14 @@ describe("multiple sheets", function () {
       },
       "28"
     );
-    activateSheet(model, "Sheet1");
-    setCellContent(model, "A3", "miam");
-    activateSheet(model, "42");
+    await activateSheet(model, "Sheet1");
+    await setCellContent(model, "A3", "miam");
+    await activateSheet(model, "42");
     expect(getChartConfiguration(model, "28").data.labels).toEqual(["P1", "miam", "P3"]);
   });
-  test("create a chart with data from another sheet", () => {
-    createSheet(model, { sheetId: "42", activate: true });
-    createChart(
+  test("create a chart with data from another sheet", async () => {
+    await createSheet(model, { sheetId: "42", activate: true });
+    await createChart(
       model,
       {
         type: "bar",
@@ -1647,8 +1651,8 @@ describe("multiple sheets", function () {
     });
   });
   describe("multiple sheets with formulas", function () {
-    beforeEach(() => {
-      model = new Model({
+    beforeEach(async () => {
+      model = await createModel({
         version: "18.4.1",
         sheets: [
           {
@@ -1688,25 +1692,25 @@ describe("multiple sheets", function () {
         ],
       });
     });
-    test("new model with chart with formulas from another sheet (not evaluated yet)", () => {
+    test("createModel with chart with formulas from another sheet (not evaluated yet)", () => {
       expect(getChartConfiguration(model, "1").data!.datasets![0].data).toEqual([2, 4]);
     });
-    test("chart is updated with new data", () => {
+    test("chart is updated with new data", async () => {
       let dataSets = getChartConfiguration(model, "1").data.datasets;
       expect(dataSets[0].data).toEqual([2, 4]);
-      setCellContent(model, "A1", "=Sheet1!B1*3", "Sheet2");
+      await setCellContent(model, "A1", "=Sheet1!B1*3", "Sheet2");
       dataSets = getChartConfiguration(model, "1").data.datasets;
       expect(dataSets[0].data).toEqual([3, 4]);
-      setCellContent(model, "B2", "5", "Sheet1");
+      await setCellContent(model, "B2", "5", "Sheet1");
       dataSets = getChartConfiguration(model, "1").data.datasets;
       expect(dataSets[0].data).toEqual([3, 10]);
     });
   });
 
-  test("export with chart data from a sheet that was deleted, than import data does not crash", () => {
+  test("export with chart data from a sheet that was deleted, than import data does not crash", async () => {
     const originSheet = model.getters.getActiveSheetId();
-    createSheet(model, { sheetId: "42", activate: true });
-    createChart(
+    await createSheet(model, { sheetId: "42", activate: true });
+    await createChart(
       model,
       {
         type: "bar",
@@ -1715,29 +1719,29 @@ describe("multiple sheets", function () {
       },
       "28"
     );
-    deleteSheet(model, originSheet);
+    await deleteSheet(model, originSheet);
     const exportedData = model.exportData();
-    const newModel = new Model(exportedData);
+    const newModel = await createModel(exportedData);
     const chart = newModel.getters.getChartRuntime("28")!;
     expect(chart).toBeDefined();
   });
 });
 
 describe("undo/redo", () => {
-  test("undo/redo chart creation", () => {
+  test("undo/redo chart creation", async () => {
     const before = model.exportData();
-    createChart(model, {
+    await createChart(model, {
       type: "bar",
       dataSets: [{ dataRange: "Sheet1!B1:B4" }, { dataRange: "Sheet1!C1:C4" }],
     });
     const after = model.exportData();
-    undo(model);
+    await undo(model);
     expect(model).toExport(before);
-    redo(model);
+    await redo(model);
     expect(model).toExport(after);
   });
-  test("undo/redo chart dataset rebuild the chart runtime", () => {
-    createChart(
+  test("undo/redo chart dataset rebuild the chart runtime", async () => {
+    await createChart(
       model,
       {
         dataSets: [{ dataRange: "Sheet1!B1:B4" }],
@@ -1747,11 +1751,11 @@ describe("undo/redo", () => {
       "27"
     );
     expect(getChartConfiguration(model, "27").data!.datasets![0].data).toEqual([10, 11, 12]);
-    setCellContent(model, "B2", "99");
+    await setCellContent(model, "B2", "99");
     expect(getChartConfiguration(model, "27").data!.datasets![0].data).toEqual([99, 11, 12]);
-    undo(model);
+    await undo(model);
     expect(getChartConfiguration(model, "27").data!.datasets![0].data).toEqual([10, 11, 12]);
-    redo(model);
+    await redo(model);
     expect(getChartConfiguration(model, "27").data!.datasets![0].data).toEqual([99, 11, 12]);
   });
 });
@@ -1778,43 +1782,43 @@ describe("Chart without labels", () => {
     aggregated: false,
   };
 
-  test("The legend is displayed even when there is only one dataSet or no label", () => {
-    createChart(model, defaultChart, "42");
+  test("The legend is displayed even when there is only one dataSet or no label", async () => {
+    await createChart(model, defaultChart, "42");
     expect(getChartConfiguration(model, "42").options?.plugins?.legend?.position).toBe("top");
 
-    createChart(
+    await createChart(
       model,
       { ...defaultChart, dataSets: [{ dataRange: "A1:A2" }, { dataRange: "A3:A4" }] },
       "43"
     );
     expect(getChartConfiguration(model, "43").options?.plugins?.legend?.position).toBe("top");
 
-    createChart(model, { ...defaultChart, labelRange: "B1:B2" }, "44");
+    await createChart(model, { ...defaultChart, labelRange: "B1:B2" }, "44");
     expect(getChartConfiguration(model, "44").options?.plugins?.legend?.position).toBe("top");
   });
 
-  test("The legend is not displayed if there is no label for pie charts", () => {
-    createChart(model, pieChart, "42");
+  test("The legend is not displayed if there is no label for pie charts", async () => {
+    await createChart(model, pieChart, "42");
     expect(getChartConfiguration(model, "42").options?.plugins?.legend?.position).toBe(undefined);
 
-    createChart(
+    await createChart(
       model,
       { ...pieChart, dataSets: [{ dataRange: "A1:A2" }, { dataRange: "A3:A4" }] },
       "43"
     );
     expect(getChartConfiguration(model, "43").options?.plugins?.legend?.position).toBe(undefined);
 
-    createChart(model, { ...pieChart, labelRange: "B1:B2" }, "44");
+    await createChart(model, { ...pieChart, labelRange: "B1:B2" }, "44");
     expect(getChartConfiguration(model, "44").options?.plugins?.legend?.position).toBe(undefined);
   });
 
-  test("Labels are not generated if there is no label", () => {
-    setCellContent(model, "A1", "1");
-    setCellContent(model, "A2", "2");
-    createChart(model, defaultChart, "42");
+  test("Labels are not generated if there is no label", async () => {
+    await setCellContent(model, "A1", "1");
+    await setCellContent(model, "A2", "2");
+    await createChart(model, defaultChart, "42");
     expect(getChartConfiguration(model, "42").data?.labels).toEqual(["", ""]);
 
-    createChart(
+    await createChart(
       model,
       { ...defaultChart, dataSets: [{ dataRange: "A1:A2" }, { dataRange: "A3:A4" }] },
       "43"
@@ -1823,21 +1827,21 @@ describe("Chart without labels", () => {
     expect(dataSets[0].label).toEqual(`${ChartTerms.Series.toString()} 1`);
     expect(dataSets[1].label).toEqual(`${ChartTerms.Series.toString()} 2`);
 
-    setCellContent(model, "B1", "B1");
-    setCellContent(model, "B2", "B2");
-    createChart(model, { ...defaultChart, type: "bar", labelRange: "B1:B2" }, "44");
+    await setCellContent(model, "B1", "B1");
+    await setCellContent(model, "B2", "B2");
+    await createChart(model, { ...defaultChart, type: "bar", labelRange: "B1:B2" }, "44");
     expect(getChartConfiguration(model, "44").data?.labels).toEqual(["B1", "B2"]);
   });
 
-  test("Combo chart has bar if the type is set to bar and line else", () => {
-    setCellContent(model, "A1", "1");
-    setCellContent(model, "A2", "2");
-    setCellContent(model, "A3", "3");
-    setCellContent(model, "A4", "4");
-    setCellContent(model, "A5", "5");
-    setCellContent(model, "A6", "6");
+  test("Combo chart has bar if the type is set to bar and line else", async () => {
+    await setCellContent(model, "A1", "1");
+    await setCellContent(model, "A2", "2");
+    await setCellContent(model, "A3", "3");
+    await setCellContent(model, "A4", "4");
+    await setCellContent(model, "A5", "5");
+    await setCellContent(model, "A6", "6");
 
-    createComboChart(
+    await createComboChart(
       model,
       {
         dataSets: [
@@ -1869,30 +1873,30 @@ describe("Chart design configuration", () => {
     humanize: false,
   };
 
-  test("Legend position", () => {
-    createChart(model, defaultChart, "42");
+  test("Legend position", async () => {
+    await createChart(model, defaultChart, "42");
     expect(getChartConfiguration(model, "42").options?.plugins?.legend?.position).toBe("top");
 
-    updateChart(model, "42", { legendPosition: "left" });
+    await updateChart(model, "42", { legendPosition: "left" });
     expect(getChartConfiguration(model, "42").options?.plugins?.legend?.position).toBe("left");
 
-    updateChart(model, "42", { legendPosition: "right" });
+    await updateChart(model, "42", { legendPosition: "right" });
     expect(getChartConfiguration(model, "42").options?.plugins?.legend?.position).toBe("right");
 
-    updateChart(model, "42", { legendPosition: "bottom" });
+    await updateChart(model, "42", { legendPosition: "bottom" });
     expect(getChartConfiguration(model, "42").options?.plugins?.legend?.position).toBe("bottom");
   });
 
-  test("Background is correctly updated", () => {
-    createChart(model, defaultChart, "42");
+  test("Background is correctly updated", async () => {
+    await createChart(model, defaultChart, "42");
     expect(model.getters.getChartDefinition("42")!.background).toBe("#FFFFFF");
 
-    updateChart(model, "42", { background: "#000000" });
+    await updateChart(model, "42", { background: "#000000" });
     expect(model.getters.getChartDefinition("42")!.background).toBe("#000000");
   });
 
-  test("empty data points are not displayed in the chart", () => {
-    const model = new Model({
+  test("empty data points are not displayed in the chart", async () => {
+    const model = await createModel({
       sheets: [
         {
           colNumber: 10,
@@ -1914,7 +1918,7 @@ describe("Chart design configuration", () => {
       ],
     });
 
-    createChart(
+    await createChart(
       model,
       {
         type: "bar",
@@ -1929,11 +1933,11 @@ describe("Chart design configuration", () => {
     expect(data.datasets![1].data).toEqual([null, null, 20]);
   });
 
-  test("value without matching index in the label set", () => {
-    const model = new Model();
+  test("value without matching index in the label set", async () => {
+    const model = await createModel();
     // corresponding label would be A8, but it's not part of the label range
-    setCellContent(model, "B8", "30");
-    createChart(
+    await setCellContent(model, "B8", "30");
+    await createChart(
       model,
       { type: "bar", labelRange: "A2:A3", dataSets: [{ dataRange: "B1:B15" }] },
       "1"
@@ -1943,11 +1947,11 @@ describe("Chart design configuration", () => {
     expect(data.datasets![0].data).toEqual([30]);
   });
 
-  test("label without matching index in the data set", () => {
-    const model = new Model();
+  test("label without matching index in the data set", async () => {
+    const model = await createModel();
     // corresponding value would be B8, but it's not part of the data range
-    setCellContent(model, "A8", "P1");
-    createChart(
+    await setCellContent(model, "A8", "P1");
+    await createChart(
       model,
       { type: "bar", labelRange: "A2:A15", dataSets: [{ dataRange: "B1:B3" }] },
       "1"
@@ -1958,9 +1962,9 @@ describe("Chart design configuration", () => {
     expect(data.datasets[0].hidden).toBeTruthy();
   });
 
-  test("no data points at all", () => {
-    const model = new Model();
-    createChart(
+  test("no data points at all", async () => {
+    const model = await createModel();
+    await createChart(
       model,
       { type: "bar", labelRange: "A2:A3", dataSets: [{ dataRange: "B1:B3" }] },
       "1"
@@ -1973,14 +1977,14 @@ describe("Chart design configuration", () => {
 
   test.each([{ format: "0.00%" }, { style: { textColor: "#FFF" } }])(
     "no data points but style on a label",
-    (formatting) => {
-      const model = new Model();
+    async (formatting) => {
+      const model = await createModel();
       model.dispatch("SET_FORMATTING", {
         sheetId: model.getters.getActiveSheetId(),
         target: target("A2:A3"),
         ...formatting,
       });
-      createChart(
+      await createChart(
         model,
         { type: "bar", labelRange: "A2:A3", dataSets: [{ dataRange: "B1:B3" }] },
         "1"
@@ -1994,14 +1998,14 @@ describe("Chart design configuration", () => {
 
   test.each([{ format: "0.00%" }, { style: { textColor: "#FFF" } }])(
     "no data points but style on a value",
-    (formatting) => {
-      const model = new Model();
+    async (formatting) => {
+      const model = await createModel();
       model.dispatch("SET_FORMATTING", {
         sheetId: model.getters.getActiveSheetId(),
         target: target("B1:B3"),
         ...formatting,
       });
-      createChart(
+      await createChart(
         model,
         { type: "bar", labelRange: "A2:A3", dataSets: [{ dataRange: "B1:B3" }] },
         "1"
@@ -2013,10 +2017,10 @@ describe("Chart design configuration", () => {
     }
   );
 
-  test("data point with only a zero value", () => {
-    const model = new Model();
-    setCellContent(model, "B2", "0");
-    createChart(
+  test("data point with only a zero value", async () => {
+    const model = await createModel();
+    await setCellContent(model, "B2", "0");
+    await createChart(
       model,
       { type: "bar", labelRange: "A2:A3", dataSets: [{ dataRange: "B1:B3" }] },
       "1"
@@ -2026,10 +2030,10 @@ describe("Chart design configuration", () => {
     expect(data.datasets![0].data).toEqual([0]);
   });
 
-  test("data point with only a zero label", () => {
-    const model = new Model();
-    setCellContent(model, "A2", "0");
-    createChart(
+  test("data point with only a zero label", async () => {
+    const model = await createModel();
+    await setCellContent(model, "A2", "0");
+    await createChart(
       model,
       { type: "bar", labelRange: "A2:A3", dataSets: [{ dataRange: "B1:B3" }] },
       "1"
@@ -2040,11 +2044,11 @@ describe("Chart design configuration", () => {
     expect(data.datasets[0].hidden).toBeTruthy();
   });
 
-  test("Changing the format of a cell reevaluates a chart runtime", () => {
-    const model = new Model();
-    setCellContent(model, "A2", "2022/03/01");
-    setCellContent(model, "A3", "2022/03/02");
-    createChart(
+  test("Changing the format of a cell reevaluates a chart runtime", async () => {
+    const model = await createModel();
+    await setCellContent(model, "A2", "2022/03/01");
+    await setCellContent(model, "A3", "2022/03/02");
+    await createChart(
       model,
       {
         type: "bar",
@@ -2055,15 +2059,15 @@ describe("Chart design configuration", () => {
       "1"
     );
     expect(getChartConfiguration(model, "1").data!.labels).toEqual(["2022/03/01", "2022/03/02"]);
-    setCellFormat(model, "A2", "m/d/yyyy");
+    await setCellFormat(model, "A2", "m/d/yyyy");
     expect(getChartConfiguration(model, "1").data!.labels).toEqual(["3/1/2022", "2022/03/02"]);
   });
 
   describe("Format of Y values at Runtime", () => {
     test.each(["bar", "line", "scatter", "waterfall"])(
       "Bar/Line chart Y axis, cell without format: thousand separator",
-      (chartType) => {
-        createChart(model, { ...defaultChart, type: chartType as "bar" | "line" }, "42");
+      async (chartType) => {
+        await createChart(model, { ...defaultChart, type: chartType as "bar" | "line" }, "42");
         const options = getChartConfiguration(model, "42").options;
         //@ts-ignore
         expect(options.scales.y?.ticks.callback!(60000000)).toEqual("60,000,000");
@@ -2074,9 +2078,9 @@ describe("Chart design configuration", () => {
 
     test.each(["bar", "line", "scatter", "waterfall"])(
       "Bar/Line chart Y axis, cell without format: thousand separator is locale dependant",
-      (chartType) => {
-        updateLocale(model, FR_LOCALE);
-        createChart(model, { ...defaultChart, type: chartType as "bar" | "line" }, "42");
+      async (chartType) => {
+        await updateLocale(model, FR_LOCALE);
+        await createChart(model, { ...defaultChart, type: chartType as "bar" | "line" }, "42");
         const options = getChartConfiguration(model, "42").options;
         //@ts-ignore
         expect(options.scales.y?.ticks.callback!(60000000)).toEqual("60 000 000");
@@ -2087,14 +2091,14 @@ describe("Chart design configuration", () => {
 
     test.each(["bar", "line", "scatter", "waterfall"])(
       "Bar/Line chart Y axis, cell with format",
-      (chartType) => {
-        setCellFormat(model, "A2", "[$$]#,##0.00");
-        createChart(model, { ...defaultChart, type: chartType as "bar" | "line" }, "42");
+      async (chartType) => {
+        await setCellFormat(model, "A2", "[$$]#,##0.00");
+        await createChart(model, { ...defaultChart, type: chartType as "bar" | "line" }, "42");
         expect(
           getChartConfiguration(model, "42").options.scales.y?.ticks.callback!(60000000)
         ).toEqual("$60,000,000.00");
 
-        setCellFormat(model, "A2", "[$$]*A#,##"); // We should ignore repeated characters in format
+        await setCellFormat(model, "A2", "[$$]*A#,##"); // We should ignore repeated characters in format
         expect(
           getChartConfiguration(model, "42").options.scales.y?.ticks.callback!(60000000)
         ).toEqual("$60,000,000");
@@ -2103,8 +2107,8 @@ describe("Chart design configuration", () => {
 
     test.each<ChartWithDataSetDefinition["type"]>(["bar", "line", "scatter", "combo"])(
       "%s chart: both Y axis can have different formats, which are applied to the ticks and tooltips",
-      (chartType) => {
-        createChart(
+      async (chartType) => {
+        await createChart(
           model,
           {
             ...defaultChart,
@@ -2116,8 +2120,8 @@ describe("Chart design configuration", () => {
           },
           "42"
         );
-        setCellFormat(model, "A2", "[$$]#,#");
-        setCellFormat(model, "B1", "0%");
+        await setCellFormat(model, "A2", "[$$]#,#");
+        await setCellFormat(model, "B1", "0%");
 
         const config = model.getters.getChartRuntime("42") as any;
         const scales = config.chartJsConfig?.options?.scales;
@@ -2136,9 +2140,9 @@ describe("Chart design configuration", () => {
 
     test.each(["bar", "line", "scatter", "waterfall"] as const)(
       "Bar/Line chart Y axis, date format is ignored",
-      (chartType) => {
-        setCellFormat(model, "A2", "m/d/yyyy");
-        createChart(model, { ...defaultChart, type: chartType }, "42");
+      async (chartType) => {
+        await setCellFormat(model, "A2", "m/d/yyyy");
+        await createChart(model, { ...defaultChart, type: chartType }, "42");
         //@ts-ignore
         expect(getChartConfiguration(model, "42").options.scales.y?.ticks.callback!(600)).toEqual(
           "600"
@@ -2148,9 +2152,13 @@ describe("Chart design configuration", () => {
 
     test.each(["bar", "line"])(
       "Basic chart tooltip label, cell without format: thousand separator for positive values",
-      (chartType) => {
-        setCellContent(model, "A2", "60000000");
-        createChart(model, { ...defaultChart, type: chartType as "bar" | "line" | "pie" }, "42");
+      async (chartType) => {
+        await setCellContent(model, "A2", "60000000");
+        await createChart(
+          model,
+          { ...defaultChart, type: chartType as "bar" | "line" | "pie" },
+          "42"
+        );
         const runtime = model.getters.getChartRuntime("42") as BarChartRuntime;
         const tooltipItem = getChartTooltipItemFromDataset(runtime, 0, 0);
         const labelValues = getChartTooltipValues(runtime, tooltipItem);
@@ -2160,9 +2168,13 @@ describe("Chart design configuration", () => {
 
     test.each(["bar", "line"])(
       "Basic chart tooltip label, cell without format: thousand separator for negative values",
-      (chartType) => {
-        setCellContent(model, "A2", "-60000000");
-        createChart(model, { ...defaultChart, type: chartType as "bar" | "line" | "pie" }, "42");
+      async (chartType) => {
+        await setCellContent(model, "A2", "-60000000");
+        await createChart(
+          model,
+          { ...defaultChart, type: chartType as "bar" | "line" | "pie" },
+          "42"
+        );
         const runtime = model.getters.getChartRuntime("42") as BarChartRuntime;
         const tooltipItem = getChartTooltipItemFromDataset(runtime, 0, 0);
         const labelValues = getChartTooltipValues(runtime, tooltipItem);
@@ -2170,20 +2182,27 @@ describe("Chart design configuration", () => {
       }
     );
 
-    test.each(["bar", "line"])("Basic chart tooltip label, date format is ignored", (chartType) => {
-      setCellContent(model, "A2", "6000");
-      setCellFormat(model, "A2", "m/d/yyyy");
-      createChart(model, { ...defaultChart, type: chartType as "bar" | "line" | "pie" }, "42");
-      const runtime = model.getters.getChartRuntime("42") as BarChartRuntime;
-      const tooltipItem = getChartTooltipItemFromDataset(runtime, 0, 0);
-      const labelValues = getChartTooltipValues(runtime, tooltipItem);
-      expect(labelValues).toEqual({ label: "6,000", beforeLabel: "" });
-    });
+    test.each(["bar", "line"])(
+      "Basic chart tooltip label, date format is ignored",
+      async (chartType) => {
+        await setCellContent(model, "A2", "6000");
+        await setCellFormat(model, "A2", "m/d/yyyy");
+        await createChart(
+          model,
+          { ...defaultChart, type: chartType as "bar" | "line" | "pie" },
+          "42"
+        );
+        const runtime = model.getters.getChartRuntime("42") as BarChartRuntime;
+        const tooltipItem = getChartTooltipItemFromDataset(runtime, 0, 0);
+        const labelValues = getChartTooltipValues(runtime, tooltipItem);
+        expect(labelValues).toEqual({ label: "6,000", beforeLabel: "" });
+      }
+    );
 
     test.each(["line", "scatter", "combo", "bar"] as const)(
       "%s chart with no title and no legend have the correct padding",
-      (chartType) => {
-        createChart(
+      async (chartType) => {
+        await createChart(
           model,
           {
             type: chartType,
@@ -2204,9 +2223,9 @@ describe("Chart design configuration", () => {
 
     test.each(["bar", "line"])(
       "Basic chart tooltip label, zero-values are properly displayed",
-      (chartType) => {
-        setCellContent(model, "A2", "0");
-        createChart(model, { ...defaultChart, type: chartType as "bar" | "line" }, "42");
+      async (chartType) => {
+        await setCellContent(model, "A2", "0");
+        await createChart(model, { ...defaultChart, type: chartType as "bar" | "line" }, "42");
         const runtime = model.getters.getChartRuntime("42") as BarChartRuntime;
         const tooltipItem = getChartTooltipItemFromDataset(runtime, 0, 0);
         const labelValues = getChartTooltipValues(runtime, tooltipItem);
@@ -2216,8 +2235,8 @@ describe("Chart design configuration", () => {
 
     test.each(["line", "scatter", "combo", "bar"] as const)(
       "%s chart with no title but a legend have the correct padding",
-      (chartType) => {
-        createChart(
+      async (chartType) => {
+        await createChart(
           model,
           {
             type: chartType,
@@ -2237,7 +2256,7 @@ describe("Chart design configuration", () => {
           bottom: CHART_PADDING,
         });
 
-        updateChart(model, "1", { legendPosition: "top" });
+        await updateChart(model, "1", { legendPosition: "top" });
         config = getChartConfiguration(model, "1");
         expect(config.options.plugins.title.padding).toEqual({ bottom: 0 });
       }
@@ -2245,11 +2264,11 @@ describe("Chart design configuration", () => {
   });
 
   describe("Pie Chart tooltip", () => {
-    test("pie chart tooltip label to include percentage", () => {
-      setCellContent(model, "A1", "P1");
-      setCellContent(model, "A2", "100");
-      setCellContent(model, "A3", "150");
-      createChart(
+    test("pie chart tooltip label to include percentage", async () => {
+      await setCellContent(model, "A1", "P1");
+      await setCellContent(model, "A2", "100");
+      await setCellContent(model, "A3", "150");
+      await createChart(
         model,
         {
           dataSets: [{ dataRange: "A1:A3" }],
@@ -2264,11 +2283,11 @@ describe("Chart design configuration", () => {
       expect(labelValues).toEqual({ beforeLabel: "P1", label: "150 (60.00%)" });
     });
 
-    test("pie chart tooltip label with format", () => {
-      setCellContent(model, "A1", "P1");
-      setCellContent(model, "A2", "6000");
-      setCellFormat(model, "A2", "[$$]#,##0.00");
-      createChart(
+    test("pie chart tooltip label with format", async () => {
+      await setCellContent(model, "A1", "P1");
+      await setCellContent(model, "A2", "6000");
+      await setCellFormat(model, "A2", "[$$]#,##0.00");
+      await createChart(
         model,
         {
           dataSets: [{ dataRange: "A1:A2" }],
@@ -2285,13 +2304,13 @@ describe("Chart design configuration", () => {
     });
   });
 
-  test("scatter chart tooltip label", () => {
-    setCellContent(model, "A2", "5");
-    setCellFormat(model, "A2", "0%");
-    setCellContent(model, "B1", "Dataset 1");
-    setCellContent(model, "B2", "6000");
-    setCellFormat(model, "B2", "[$$]#,##0.00");
-    createChart(
+  test("scatter chart tooltip label", async () => {
+    await setCellContent(model, "A2", "5");
+    await setCellFormat(model, "A2", "0%");
+    await setCellContent(model, "B1", "Dataset 1");
+    await setCellContent(model, "B2", "6000");
+    await setCellFormat(model, "B2", "[$$]#,##0.00");
+    await createChart(
       model,
       {
         labelRange: "A2",
@@ -2308,10 +2327,10 @@ describe("Chart design configuration", () => {
     expect(labelValues).toEqual({ beforeLabel: "Dataset 1", label: "(500%, $6,000.00)" });
   });
 
-  test("scatter chart trend line tooltip label", () => {
-    setGrid(model, { A1: "1", A2: "2", B1: "12", B2: "15" });
+  test("scatter chart trend line tooltip label", async () => {
+    await setGrid(model, { A1: "1", A2: "2", B1: "12", B2: "15" });
 
-    createChart(
+    await createChart(
       model,
       {
         labelRange: "A1:A2",
@@ -2329,13 +2348,13 @@ describe("Chart design configuration", () => {
 
   test.each(["line", "scatter", "bar", "combo"] as const)(
     "%s chart correctly use right axis if set up in definition, and the grid lines are only displayed once",
-    (chartType) => {
-      setCellContent(model, "A1", "1");
-      setCellContent(model, "A2", "2");
-      setCellContent(model, "A3", "3");
-      setCellContent(model, "A4", "4");
+    async (chartType) => {
+      await setCellContent(model, "A1", "1");
+      await setCellContent(model, "A2", "2");
+      await setCellContent(model, "A3", "3");
+      await setCellContent(model, "A4", "4");
 
-      createChart(
+      await createChart(
         model,
         {
           dataSets: [
@@ -2357,7 +2376,7 @@ describe("Chart design configuration", () => {
       expect(config.options?.scales?.y1).toMatchObject({
         position: "right",
       });
-      updateChart(model, "43", {
+      await updateChart(model, "43", {
         dataSets: [
           { dataRange: "A1:A2", yAxisId: "y1" },
           { dataRange: "A3:A4", yAxisId: "y1" },
@@ -2371,7 +2390,7 @@ describe("Chart design configuration", () => {
         position: "right",
         grid: { display: true },
       });
-      updateChart(model, "43", {
+      await updateChart(model, "43", {
         dataSets: [
           { dataRange: "A1:A2", yAxisId: "y" },
           { dataRange: "A3:A4", yAxisId: "y" },
@@ -2390,11 +2409,11 @@ describe("Chart design configuration", () => {
 
   test.each(["line", "bar", "combo"] as const)(
     "%s chart does not display vertical grid lines",
-    (chartType) => {
-      setCellContent(model, "A1", "1");
-      setCellContent(model, "A2", "2");
+    async (chartType) => {
+      await setCellContent(model, "A1", "1");
+      await setCellContent(model, "A2", "2");
 
-      createChart(
+      await createChart(
         model,
         {
           dataSets: [{ dataRange: "A1:A2", yAxisId: "y" }],
@@ -2409,11 +2428,11 @@ describe("Chart design configuration", () => {
     }
   );
 
-  test("scatter chart displays vertical grid lines", () => {
-    setCellContent(model, "A1", "1");
-    setCellContent(model, "A2", "2");
+  test("scatter chart displays vertical grid lines", async () => {
+    await setCellContent(model, "A1", "1");
+    await setCellContent(model, "A2", "2");
 
-    createChart(
+    await createChart(
       model,
       {
         dataSets: [{ dataRange: "A1:A2", yAxisId: "y" }],
@@ -2432,11 +2451,11 @@ describe("Chart design configuration", () => {
     ["scatter", false, "46"],
   ] as const)(
     "%s chart allows toggling horizontal gridlines without a title",
-    (chartType, majorEnabled, chartId) => {
-      setCellContent(model, "A1", "1");
-      setCellContent(model, "A2", "2");
+    async (chartType, majorEnabled, chartId) => {
+      await setCellContent(model, "A1", "1");
+      await setCellContent(model, "A2", "2");
 
-      createChart(
+      await createChart(
         model,
         {
           dataSets: [{ dataRange: "A1:A2", yAxisId: "y" }],
@@ -2445,7 +2464,7 @@ describe("Chart design configuration", () => {
         chartId
       );
 
-      updateChart(model, chartId, {
+      await updateChart(model, chartId, {
         axesDesign: { x: { gridLines: majorEnabled ? "both" : "minor" } },
       });
 
@@ -2455,11 +2474,11 @@ describe("Chart design configuration", () => {
     }
   );
 
-  test("horizontal bar chart displays vertical but not horizontal grid lines", () => {
-    setCellContent(model, "A1", "1");
-    setCellContent(model, "A2", "2");
+  test("horizontal bar chart displays vertical but not horizontal grid lines", async () => {
+    await setCellContent(model, "A1", "1");
+    await setCellContent(model, "A2", "2");
 
-    createChart(
+    await createChart(
       model,
       {
         dataSets: [{ dataRange: "A1:A2", yAxisId: "y" }],
@@ -2476,13 +2495,13 @@ describe("Chart design configuration", () => {
 
   test.each(["line", "scatter", "combo"] as const)(
     "%s chart correctly use dataset colors set up in definition",
-    (chartType) => {
-      setCellContent(model, "A1", "1");
-      setCellContent(model, "A2", "2");
-      setCellContent(model, "A3", "3");
-      setCellContent(model, "A4", "4");
+    async (chartType) => {
+      await setCellContent(model, "A1", "1");
+      await setCellContent(model, "A2", "2");
+      await setCellContent(model, "A3", "3");
+      await setCellContent(model, "A4", "4");
 
-      createChart(
+      await createChart(
         model,
         {
           dataSets: [
@@ -2503,13 +2522,13 @@ describe("Chart design configuration", () => {
 
   test.each(["bar", "pyramid"] as const)(
     "%s chart correctly use dataset colors set up in definition",
-    (chartType) => {
-      setCellContent(model, "A1", "1");
-      setCellContent(model, "A2", "2");
-      setCellContent(model, "A3", "3");
-      setCellContent(model, "A4", "4");
+    async (chartType) => {
+      await setCellContent(model, "A1", "1");
+      await setCellContent(model, "A2", "2");
+      await setCellContent(model, "A3", "3");
+      await setCellContent(model, "A4", "4");
 
-      createChart(
+      await createChart(
         model,
         {
           dataSets: [
@@ -2530,13 +2549,13 @@ describe("Chart design configuration", () => {
 
   test.each(["line", "scatter", "combo"] as const)(
     "%s chart take into account dataset colors set up in definition for color generator",
-    (chartType) => {
-      setCellContent(model, "A1", "1");
-      setCellContent(model, "A2", "2");
-      setCellContent(model, "A3", "3");
-      setCellContent(model, "A4", "4");
+    async (chartType) => {
+      await setCellContent(model, "A1", "1");
+      await setCellContent(model, "A2", "2");
+      await setCellContent(model, "A3", "3");
+      await setCellContent(model, "A4", "4");
 
-      createChart(
+      await createChart(
         model,
         {
           dataSets: [{ dataRange: "A1:A2" }, { dataRange: "A3:A4" }],
@@ -2548,7 +2567,7 @@ describe("Chart design configuration", () => {
       expect(config.data?.datasets![0]["backgroundColor"]).toEqual("#4EA7F2");
       expect(config.data?.datasets![1]["backgroundColor"]).toEqual("#EA6175");
 
-      updateChart(model, "43", {
+      await updateChart(model, "43", {
         dataSets: [{ dataRange: "A1:A2", backgroundColor: "#EA6175" }, { dataRange: "A3:A4" }],
       });
 
@@ -2560,15 +2579,15 @@ describe("Chart design configuration", () => {
 
   test.each(["line", "scatter"] as const)(
     "%s chart correctly use dataset colors set up in definition",
-    (chartType) => {
-      setCellContent(model, "A1", "1");
-      setCellContent(model, "A2", "2");
-      setCellContent(model, "A3", "3");
-      setCellContent(model, "A4", "4");
-      setCellContent(model, "A5", "5");
-      setCellContent(model, "A6", "6");
+    async (chartType) => {
+      await setCellContent(model, "A1", "1");
+      await setCellContent(model, "A2", "2");
+      await setCellContent(model, "A3", "3");
+      await setCellContent(model, "A4", "4");
+      await setCellContent(model, "A5", "5");
+      await setCellContent(model, "A6", "6");
 
-      createChart(
+      await createChart(
         model,
         {
           dataSets: [
@@ -2590,7 +2609,7 @@ describe("Chart aggregate labels", () => {
   let aggregatedChart: BarChartDefinition;
   let aggregatedModel: Model;
 
-  beforeEach(() => {
+  beforeEach(async () => {
     aggregatedChart = {
       background: "#FFFFFF",
       dataSets: [{ dataRange: "B2:B9", yAxisId: "y" }],
@@ -2602,7 +2621,7 @@ describe("Chart aggregate labels", () => {
       stacked: false,
       aggregated: false,
     };
-    aggregatedModel = new Model({
+    aggregatedModel = await createModel({
       sheets: [
         {
           name: "Sheet1",
@@ -2644,45 +2663,45 @@ describe("Chart aggregate labels", () => {
 
   test.each(["bar", "line", "pie", "scatter"] as const)(
     "One dataset: all data complete",
-    (type) => {
-      createChart(aggregatedModel, aggregatedChart, "42");
-      updateChart(aggregatedModel, "42", { type });
+    async (type) => {
+      await createChart(aggregatedModel, aggregatedChart, "42");
+      await updateChart(aggregatedModel, "42", { type });
       let data = getChartConfiguration(aggregatedModel, "42").data;
       expect(data.datasets![0].data).toEqual([10, 11, 12, 13, 14, 15, 16, 17]);
       expect(data.labels).toEqual(["P1", "P2", "P3", "P4", "P1", "P2", "P3", "P4"]);
 
-      updateChart(aggregatedModel, "42", { aggregated: true });
+      await updateChart(aggregatedModel, "42", { aggregated: true });
       data = getChartConfiguration(aggregatedModel, "42").data;
       expect(data.datasets![0].data).toEqual([24, 26, 28, 30]);
       expect(data.labels).toEqual(["P1", "P2", "P3", "P4"]);
     }
   );
 
-  test("Empty cells are ignored when aggregating data", () => {
-    createChart(aggregatedModel, aggregatedChart, "42");
-    setCellContent(aggregatedModel, "B3", "");
-    setCellContent(aggregatedModel, "B6", "");
-    updateChart(aggregatedModel, "42", { aggregated: true });
+  test("Empty cells are ignored when aggregating data", async () => {
+    await createChart(aggregatedModel, aggregatedChart, "42");
+    await setCellContent(aggregatedModel, "B3", "");
+    await setCellContent(aggregatedModel, "B6", "");
+    await updateChart(aggregatedModel, "42", { aggregated: true });
     const data = getChartConfiguration(aggregatedModel, "42").data;
     expect(data.datasets![0].data).toEqual([10, 15, 28, 30]);
     expect(data.labels).toEqual(["P1", "P2", "P3", "P4"]);
   });
 
-  test("Label with no values aggregates to zero", () => {
-    createChart(aggregatedModel, aggregatedChart, "42");
-    setCellContent(aggregatedModel, "B2", "");
-    setCellContent(aggregatedModel, "B6", "");
-    updateChart(aggregatedModel, "42", { aggregated: true });
+  test("Label with no values aggregates to zero", async () => {
+    await createChart(aggregatedModel, aggregatedChart, "42");
+    await setCellContent(aggregatedModel, "B2", "");
+    await setCellContent(aggregatedModel, "B6", "");
+    await updateChart(aggregatedModel, "42", { aggregated: true });
     const data = getChartConfiguration(aggregatedModel, "42").data;
     expect(data.datasets![0].data).toEqual([0, 26, 28, 30]);
     expect(data.labels).toEqual(["P1", "P2", "P3", "P4"]);
   });
 
-  test("Non-number cells are ignored", () => {
-    createChart(aggregatedModel, aggregatedChart, "42");
-    setCellContent(aggregatedModel, "B3", "I am a string");
-    setCellContent(aggregatedModel, "B6", "I am a string too");
-    updateChart(aggregatedModel, "42", { aggregated: true });
+  test("Non-number cells are ignored", async () => {
+    await createChart(aggregatedModel, aggregatedChart, "42");
+    await setCellContent(aggregatedModel, "B3", "I am a string");
+    await setCellContent(aggregatedModel, "B6", "I am a string too");
+    await updateChart(aggregatedModel, "42", { aggregated: true });
     const data = getChartConfiguration(aggregatedModel, "42").data;
     expect(data.datasets![0].data).toEqual([10, 15, 28, 30]);
     expect(data.labels).toEqual(["P1", "P2", "P3", "P4"]);
@@ -2690,19 +2709,19 @@ describe("Chart aggregate labels", () => {
 
   test.each(["bar", "line", "pie", "scatter"] as const)(
     "Multiple datasets: all data complete",
-    (type) => {
+    async (type) => {
       aggregatedChart = {
         ...aggregatedChart,
         dataSets: [{ dataRange: "B2:B9" }, { dataRange: "C2:C9" }],
       };
-      createChart(aggregatedModel, aggregatedChart, "42");
-      updateChart(aggregatedModel, "42", { type });
+      await createChart(aggregatedModel, aggregatedChart, "42");
+      await updateChart(aggregatedModel, "42", { type });
       let data = getChartConfiguration(aggregatedModel, "42").data;
       expect(data.datasets![0].data).toEqual([10, 11, 12, 13, 14, 15, 16, 17]);
       expect(data.datasets![1].data).toEqual([31, 32, 33, 34, 21, 22, 23, 24]);
       expect(data.labels).toEqual(["P1", "P2", "P3", "P4", "P1", "P2", "P3", "P4"]);
 
-      updateChart(aggregatedModel, "42", { aggregated: true });
+      await updateChart(aggregatedModel, "42", { aggregated: true });
       data = getChartConfiguration(aggregatedModel, "42").data;
       expect(data.datasets![0].data).toEqual([24, 26, 28, 30]);
       expect(data.datasets![1].data).toEqual([52, 54, 56, 58]);
@@ -2712,18 +2731,18 @@ describe("Chart aggregate labels", () => {
 
   test.each(["bar", "line", "pie"] as const)(
     "Labels will not be sorted when aggregated in %s chart",
-    (type) => {
-      createChart(aggregatedModel, aggregatedChart, "42");
-      updateChart(aggregatedModel, "42", { type });
+    async (type) => {
+      await createChart(aggregatedModel, aggregatedChart, "42");
+      await updateChart(aggregatedModel, "42", { type });
 
-      setCellContent(aggregatedModel, "A3", "2023");
-      setCellContent(aggregatedModel, "A7", "2024");
+      await setCellContent(aggregatedModel, "A3", "2023");
+      await setCellContent(aggregatedModel, "A7", "2024");
 
       let data = getChartConfiguration(aggregatedModel, "42").data;
       expect(data.datasets![0].data).toEqual([10, 11, 12, 13, 14, 15, 16, 17]);
       expect(data.labels).toEqual(["P1", "2023", "P3", "P4", "P1", "2024", "P3", "P4"]);
 
-      updateChart(aggregatedModel, "42", { aggregated: true });
+      await updateChart(aggregatedModel, "42", { aggregated: true });
       data = getChartConfiguration(aggregatedModel, "42").data;
       expect(data.datasets![0].data).toEqual([24, 11, 28, 30, 15]);
       expect(data.labels).toEqual(["P1", "2023", "P3", "P4", "2024"]);
@@ -2738,8 +2757,8 @@ describe("Linear/Time charts", () => {
     mockChart(); // mock chart.js with luxon time adapter installed
   });
 
-  test("linear axis for line chart with numbers labels/dataset", () => {
-    createChart(
+  test("linear axis for line chart with numbers labels/dataset", async () => {
+    await createChart(
       model,
       {
         type: "line",
@@ -2754,9 +2773,9 @@ describe("Linear/Time charts", () => {
 
   test.each(["mm/dd/yyyy", "yyyy-mm-dd"])(
     "time axis for line/bar chart with date labels in format %s",
-    (format: string) => {
-      setFormat(model, "C2:C5", format);
-      createChart(
+    async (format: string) => {
+      await setFormat(model, "C2:C5", format);
+      await createChart(
         model,
         {
           type: "line",
@@ -2779,12 +2798,12 @@ describe("Linear/Time charts", () => {
     }
   );
 
-  test("time axis for line/bar chart with formulas w/ date format as labels", () => {
-    setCellContent(model, "C2", "=DATE(2022,1,1)");
-    setCellContent(model, "C3", "=DATE(2022,1,2)");
-    setCellContent(model, "C4", "=DATE(2022,1,3)");
-    setCellContent(model, "C5", "=DATE(2022,1,4)");
-    createChart(
+  test("time axis for line/bar chart with formulas w/ date format as labels", async () => {
+    await setCellContent(model, "C2", "=DATE(2022,1,1)");
+    await setCellContent(model, "C3", "=DATE(2022,1,2)");
+    await setCellContent(model, "C4", "=DATE(2022,1,3)");
+    await setCellContent(model, "C5", "=DATE(2022,1,4)");
+    await createChart(
       model,
       {
         type: "line",
@@ -2798,8 +2817,8 @@ describe("Linear/Time charts", () => {
     expect(chart.chartJsConfig.options?.scales?.x?.type).toEqual("time");
   });
 
-  test("time axis: the axis unit are correct", () => {
-    createChart(
+  test("time axis: the axis unit are correct", async () => {
+    await createChart(
       model,
       {
         type: "line",
@@ -2809,33 +2828,33 @@ describe("Linear/Time charts", () => {
       },
       chartId
     );
-    setFormat(model, "C2:C3", "mm/dd/yyyy");
-    setCellContent(model, "C2", "1/1/2022");
+    await setFormat(model, "C2:C3", "mm/dd/yyyy");
+    await setCellContent(model, "C2", "1/1/2022");
 
-    setCellContent(model, "C3", "1/1/2025");
+    await setCellContent(model, "C3", "1/1/2025");
     expect(getChartConfiguration(model, chartId).options!.scales!.x!.time!.unit).toEqual("year");
 
-    setCellContent(model, "C3", "5/1/2022");
+    await setCellContent(model, "C3", "5/1/2022");
     expect(getChartConfiguration(model, chartId).options!.scales!.x!.time!.unit).toEqual("month");
 
-    setCellContent(model, "C3", "1/10/2022");
+    await setCellContent(model, "C3", "1/10/2022");
     expect(getChartConfiguration(model, chartId).options!.scales!.x!.time!.unit).toEqual("day");
 
-    setFormat(model, "C2:C3", "hh:mm:ss");
+    await setFormat(model, "C2:C3", "hh:mm:ss");
 
-    setCellContent(model, "C3", "1/1/2022 00:00:15");
+    await setCellContent(model, "C3", "1/1/2022 00:00:15");
     expect(getChartConfiguration(model, chartId).options!.scales!.x!.time!.unit).toEqual("second");
 
-    setCellContent(model, "C3", "1/1/2022 00:15:00");
+    await setCellContent(model, "C3", "1/1/2022 00:15:00");
     expect(getChartConfiguration(model, chartId).options!.scales!.x!.time!.unit).toEqual("minute");
 
-    setCellContent(model, "C3", "1/1/2022 15:00:00");
+    await setCellContent(model, "C3", "1/1/2022 15:00:00");
     expect(getChartConfiguration(model, chartId).options!.scales!.x!.time!.unit).toEqual("hour");
   });
 
-  test("date chart: empty label with a value is replaced by arbitrary label with no value", () => {
-    setFormat(model, "C2:C5", "m/d/yyyy");
-    createChart(
+  test("date chart: empty label with a value is replaced by arbitrary label with no value", async () => {
+    await setFormat(model, "C2:C5", "m/d/yyyy");
+    await createChart(
       model,
       {
         type: "line",
@@ -2846,16 +2865,16 @@ describe("Linear/Time charts", () => {
       },
       chartId
     );
-    setCellContent(model, "C3", "");
+    await setCellContent(model, "C3", "");
     const data = getChartConfiguration(model, chartId).data;
     expect(data.labels![1]).toEqual("1/17/1900");
     expect(data.datasets![0].data![1]).toEqual({ y: undefined, x: "1/17/1900" });
   });
 
-  test("date chart: rows datasets/labels are supported", () => {
-    setGrid(model, { A1: "2", B1: "3", A2: "1", B2: "10" });
-    setFormat(model, "B1", "mm/dd/yyyy");
-    createChart(
+  test("date chart: rows datasets/labels are supported", async () => {
+    await setGrid(model, { A1: "2", B1: "3", A2: "1", B2: "10" });
+    await setFormat(model, "B1", "mm/dd/yyyy");
+    await createChart(
       model,
       {
         type: "line",
@@ -2875,12 +2894,12 @@ describe("Linear/Time charts", () => {
     expect(chart.options?.scales?.x?.type).toEqual("time");
   });
 
-  test("linear chart: label 0 isn't set to undefined", () => {
-    setCellContent(model, "B2", "0");
-    setCellContent(model, "B3", "1");
-    setCellContent(model, "C2", "0");
-    setCellContent(model, "C3", "1");
-    createChart(
+  test("linear chart: label 0 isn't set to undefined", async () => {
+    await setCellContent(model, "B2", "0");
+    await setCellContent(model, "B3", "1");
+    await setCellContent(model, "C2", "0");
+    await setCellContent(model, "C3", "1");
+    await createChart(
       model,
       {
         type: "line",
@@ -2899,8 +2918,8 @@ describe("Linear/Time charts", () => {
     ]);
   });
 
-  test("linear chart: empty label with a value is set to undefined instead of empty string", () => {
-    createChart(
+  test("linear chart: empty label with a value is set to undefined instead of empty string", async () => {
+    await createChart(
       model,
       {
         type: "line",
@@ -2911,15 +2930,15 @@ describe("Linear/Time charts", () => {
       },
       chartId
     );
-    setCellContent(model, "C3", "");
+    await setCellContent(model, "C3", "");
     const data = getChartConfiguration(model, chartId).data;
     expect(data.labels![1]).toEqual("");
     expect(data.datasets![0].data![1]).toEqual({ y: 11, x: undefined });
   });
 
-  test("can create linear chart with non-number header in the label range", () => {
-    setGrid(model, { A1: "x", A2: "1", B1: "y", B2: "10" });
-    createChart(
+  test("can create linear chart with non-number header in the label range", async () => {
+    await setGrid(model, { A1: "x", A2: "1", B1: "y", B2: "10" });
+    await createChart(
       model,
       {
         type: "line",
@@ -2936,8 +2955,8 @@ describe("Linear/Time charts", () => {
     expect(chart.data!.datasets![0].data).toEqual([{ y: 10, x: "1" }]);
   });
 
-  test("ChartJS configuration for linear chart", () => {
-    createChart(
+  test("ChartJS configuration for linear chart", async () => {
+    await createChart(
       model,
       {
         type: "line",
@@ -2965,9 +2984,9 @@ describe("Linear/Time charts", () => {
     });
   });
 
-  test("ChartJS configuration for date chart", () => {
-    setFormat(model, "C2:C5", "m/d/yyyy");
-    createChart(
+  test("ChartJS configuration for date chart", async () => {
+    await setFormat(model, "C2:C5", "m/d/yyyy");
+    await createChart(
       model,
       {
         type: "line",
@@ -3003,8 +3022,8 @@ describe("Linear/Time charts", () => {
     });
   });
 
-  test("font color is white with a dark background color", () => {
-    createChart(
+  test("font color is white with a dark background color", async () => {
+    await createChart(
       model,
       {
         type: "line",
@@ -3020,12 +3039,12 @@ describe("Linear/Time charts", () => {
     expect(runtime.chartJsConfig.options?.scales?.y?.ticks?.color).toBe("#FFFFFF");
   });
 
-  test("Displays date labels correctly when 'Use row X as labels' is checked", () => {
-    setCellContent(model, "A2", "2024-01-01");
-    setCellContent(model, "B1", "first dataset");
-    setCellContent(model, "B2", "10");
+  test("Displays date labels correctly when 'Use row X as labels' is checked", async () => {
+    await setCellContent(model, "A2", "2024-01-01");
+    await setCellContent(model, "B1", "first dataset");
+    await setCellContent(model, "B2", "10");
 
-    createChart(
+    await createChart(
       model,
       {
         type: "line",
@@ -3043,12 +3062,12 @@ describe("Linear/Time charts", () => {
 });
 
 describe("Chart evaluation", () => {
-  test("Chart runtime is correctly updated when a value is changed", () => {
-    const model = new Model();
-    setCellContent(model, "A2", "group");
-    setCellContent(model, "B1", "title");
-    setCellContent(model, "B2", "=C3");
-    createChart(
+  test("Chart runtime is correctly updated when a value is changed", async () => {
+    const model = await createModel();
+    await setCellContent(model, "A2", "group");
+    await setCellContent(model, "B1", "title");
+    await setCellContent(model, "B2", "=C3");
+    await createChart(
       model,
       {
         type: "bar",
@@ -3059,30 +3078,30 @@ describe("Chart evaluation", () => {
       "1"
     );
     expect(getChartConfiguration(model, "1").data!.datasets![0]!.data![0]).toBe(0);
-    setCellContent(model, "C3", "1");
+    await setCellContent(model, "C3", "1");
     expect(getChartConfiguration(model, "1").data!.datasets![0]!.data![0]).toBe(1);
-    deleteColumns(model, ["C"]);
+    await deleteColumns(model, ["C"]);
     expect(getChartConfiguration(model, "1").data!.datasets.length).toBe(1);
     expect(getChartConfiguration(model, "1").data!.datasets[0].hidden).toBeTruthy();
   });
 
-  test("undo/redo invalidates the chart runtime", () => {
+  test("undo/redo invalidates the chart runtime", async () => {
     const chartId = "test";
-    setCellContent(model, "A1", "oui");
-    setCellContent(model, "A2", "non");
-    createChart(model, { type: "bar" }, chartId);
+    await setCellContent(model, "A1", "oui");
+    await setCellContent(model, "A2", "non");
+    await createChart(model, { type: "bar" }, chartId);
 
-    updateChart(model, chartId, { labelRange: "A1:A2" });
+    await updateChart(model, chartId, { labelRange: "A1:A2" });
     expect(getChartConfiguration(model, chartId).data?.labels).toEqual(["oui", "non"]);
-    undo(model);
+    await undo(model);
     expect(getChartConfiguration(model, chartId).data?.labels).toEqual([]);
-    redo(model);
+    await redo(model);
     expect(getChartConfiguration(model, chartId).data?.labels).toEqual(["oui", "non"]);
   });
 
   describe("hidden col/rows", () => {
-    beforeEach(() => {
-      model = new Model({
+    beforeEach(async () => {
+      model = await createModel({
         sheets: [
           {
             name: "Sheet1",
@@ -3108,7 +3127,7 @@ describe("Chart evaluation", () => {
           },
         ],
       });
-      createChart(
+      await createChart(
         model,
         {
           dataSets: [{ dataRange: "Sheet1!B1:B5" }, { dataRange: "Sheet1!C1:C5" }],
@@ -3120,83 +3139,83 @@ describe("Chart evaluation", () => {
       );
     });
 
-    test("hidden columns are filtered", () => {
+    test("hidden columns are filtered", async () => {
       let chart = model.getters.getChartRuntime("1")! as LineChartRuntime;
       expect(chart.chartJsConfig.data.datasets).toHaveLength(2);
       expect(chart.chartJsConfig.data.datasets[1].hidden).toBeFalsy();
-      hideColumns(model, ["C"]);
+      await hideColumns(model, ["C"]);
       chart = model.getters.getChartRuntime("1")! as LineChartRuntime;
       expect(chart.chartJsConfig.data.datasets).toHaveLength(2);
       expect(chart.chartJsConfig.data.datasets[1].hidden).toBeTruthy();
       expect(chart.chartJsConfig.data.datasets![0].label).toBe("first column dataset");
-      unhideColumns(model, ["C"]);
+      await unhideColumns(model, ["C"]);
       chart = model.getters.getChartRuntime("1")! as LineChartRuntime;
       expect(chart.chartJsConfig.data.datasets).toHaveLength(2);
       expect(chart.chartJsConfig.data.datasets[1].hidden).toBeFalsy();
     });
 
-    test("folded group of columns are filtered", () => {
+    test("folded group of columns are filtered", async () => {
       let chart = model.getters.getChartRuntime("1")! as LineChartRuntime;
       expect(chart.chartJsConfig.data.datasets).toHaveLength(2);
       expect(chart.chartJsConfig.data.datasets[1].hidden).toBeFalsy();
-      groupHeaders(model, "COL", 2, 2);
-      foldHeaderGroup(model, "COL", 2, 2);
+      await groupHeaders(model, "COL", 2, 2);
+      await foldHeaderGroup(model, "COL", 2, 2);
       chart = model.getters.getChartRuntime("1")! as LineChartRuntime;
       expect(chart.chartJsConfig.data.datasets).toHaveLength(2);
       expect(chart.chartJsConfig.data.datasets[1].hidden).toBeTruthy();
       expect(chart.chartJsConfig.data.datasets![0].label).toBe("first column dataset");
-      unfoldHeaderGroup(model, "COL", 2, 2);
+      await unfoldHeaderGroup(model, "COL", 2, 2);
       chart = model.getters.getChartRuntime("1")! as LineChartRuntime;
       expect(chart.chartJsConfig.data.datasets).toHaveLength(2);
       expect(chart.chartJsConfig.data.datasets[1].hidden).toBeFalsy();
     });
 
-    test("hidden rows are filtered", () => {
+    test("hidden rows are filtered", async () => {
       let chart = model.getters.getChartRuntime("1")! as LineChartRuntime;
       expect(chart.chartJsConfig.data.datasets![0].data?.length).toEqual(4);
       expect(chart.chartJsConfig.data.labels).toEqual(["P1", "P2", "P3", "P4"]);
-      hideRows(model, [2]);
+      await hideRows(model, [2]);
       chart = model.getters.getChartRuntime("1")! as LineChartRuntime;
       expect(chart.chartJsConfig.data.datasets![0].data?.length).toEqual(3);
       expect(chart.chartJsConfig.data.labels).toEqual(["P1", "P3", "P4"]);
-      unhideRows(model, [2]);
+      await unhideRows(model, [2]);
       chart = model.getters.getChartRuntime("1")! as LineChartRuntime;
       expect(chart.chartJsConfig.data.datasets![0].data?.length).toEqual(4);
       expect(chart.chartJsConfig.data.labels).toEqual(["P1", "P2", "P3", "P4"]);
     });
 
-    test("folded groups of rows are filtered", () => {
+    test("folded groups of rows are filtered", async () => {
       let chart = model.getters.getChartRuntime("1")! as LineChartRuntime;
       expect(chart.chartJsConfig.data.datasets![0].data?.length).toEqual(4);
       expect(chart.chartJsConfig.data.labels).toEqual(["P1", "P2", "P3", "P4"]);
-      groupHeaders(model, "ROW", 2, 2);
-      foldHeaderGroup(model, "ROW", 2, 2);
+      await groupHeaders(model, "ROW", 2, 2);
+      await foldHeaderGroup(model, "ROW", 2, 2);
       chart = model.getters.getChartRuntime("1")! as LineChartRuntime;
       expect(chart.chartJsConfig.data.datasets![0].data?.length).toEqual(3);
       expect(chart.chartJsConfig.data.labels).toEqual(["P1", "P3", "P4"]);
-      unfoldHeaderGroup(model, "ROW", 2, 2);
+      await unfoldHeaderGroup(model, "ROW", 2, 2);
       chart = model.getters.getChartRuntime("1")! as LineChartRuntime;
       expect(chart.chartJsConfig.data.datasets![0].data?.length).toEqual(4);
       expect(chart.chartJsConfig.data.labels).toEqual(["P1", "P2", "P3", "P4"]);
     });
 
-    test("rows with filtered cell are ignored", () => {
+    test("rows with filtered cell are ignored", async () => {
       let chart = model.getters.getChartRuntime("1")! as LineChartRuntime;
       expect(chart.chartJsConfig.data.datasets![0].data?.length).toEqual(4);
       expect(chart.chartJsConfig.data.labels).toEqual(["P1", "P2", "P3", "P4"]);
-      createTableWithFilter(model, "A1:C5");
-      updateFilter(model, "B3", ["11"]);
+      await createTableWithFilter(model, "A1:C5");
+      await updateFilter(model, "B3", ["11"]);
       chart = model.getters.getChartRuntime("1")! as LineChartRuntime;
       expect(chart.chartJsConfig.data.datasets![0].data?.length).toEqual(3);
       expect(chart.chartJsConfig.data.labels).toEqual(["P1", "P3", "P4"]);
-      updateFilter(model, "B3", []);
+      await updateFilter(model, "B3", []);
       chart = model.getters.getChartRuntime("1")! as LineChartRuntime;
       expect(chart.chartJsConfig.data.datasets![0].data?.length).toEqual(4);
       expect(chart.chartJsConfig.data.labels).toEqual(["P1", "P2", "P3", "P4"]);
     });
 
-    test("configuration is synchronized between the definition the runtime", () => {
-      updateChart(model, "1", {
+    test("configuration is synchronized between the definition the runtime", async () => {
+      await updateChart(model, "1", {
         dataSets: [
           { dataRange: "B2:B5", label: "first", backgroundColor: "#123456" },
           { dataRange: "C2:C5", label: "second", backgroundColor: "#222222" },
@@ -3205,7 +3224,7 @@ describe("Chart evaluation", () => {
       const definition = model.getters.getChartDefinition("1") as LineChartDefinition;
       let runtime = model.getters.getChartRuntime("1")! as LineChartRuntime;
       expect(runtime.chartJsConfig.data.datasets).toHaveLength(2);
-      hideColumns(model, ["B"]);
+      await hideColumns(model, ["B"]);
       runtime = model.getters.getChartRuntime("1")! as LineChartRuntime;
       expect(runtime.chartJsConfig.data.datasets).toHaveLength(2);
       expect(runtime.chartJsConfig.data.datasets![0].label).toEqual(definition.dataSets![0].label);
@@ -3219,8 +3238,8 @@ describe("Chart evaluation", () => {
     });
   });
 
-  test("hidden labels are not displayed", () => {
-    model = new Model({
+  test("hidden labels are not displayed", async () => {
+    model = await createModel({
       sheets: [
         {
           name: "Sheet1",
@@ -3246,7 +3265,7 @@ describe("Chart evaluation", () => {
         },
       ],
     });
-    createChart(
+    await createChart(
       model,
       {
         dataSets: [{ dataRange: "Sheet1!B1:B5" }, { dataRange: "Sheet1!C1:C5" }],
@@ -3258,16 +3277,16 @@ describe("Chart evaluation", () => {
     );
     let chart = model.getters.getChartRuntime("1")! as LineChartRuntime;
     expect(chart.chartJsConfig.data!.labels).toEqual(["P1", "P2", "P3", "P4"]);
-    hideColumns(model, ["A"]);
+    await hideColumns(model, ["A"]);
     chart = model.getters.getChartRuntime("1")! as LineChartRuntime;
     expect(chart.chartJsConfig.data!.labels).toEqual(["", "", "", ""]);
   });
 });
 
 describe("Cumulative Data line chart", () => {
-  test("Chart to display cumulative data", () => {
-    setCellContent(model, "A7", "random label");
-    createChart(
+  test("Chart to display cumulative data", async () => {
+    await setCellContent(model, "A7", "random label");
+    await createChart(
       model,
       {
         dataSets: [{ dataRange: "B2:B8" }],
@@ -3285,17 +3304,17 @@ describe("Cumulative Data line chart", () => {
 
     expect(chartData).toEqual(initialData);
 
-    updateChart(model, "1", { cumulative: true });
+    await updateChart(model, "1", { cumulative: true });
     const updatedChartData = getChartConfiguration(model, "1").data!.datasets![0].data;
     expect(updatedChartData).toEqual(expectedCumulativeData);
   });
 
-  test("Cumulative data with linear chart", () => {
-    setCellContent(model, "A1", "1");
-    setCellContent(model, "A2", "2");
-    setCellContent(model, "B1", "10");
-    setCellContent(model, "B2", "20");
-    createChart(
+  test("Cumulative data with linear chart", async () => {
+    await setCellContent(model, "A1", "1");
+    await setCellContent(model, "A2", "2");
+    await setCellContent(model, "B1", "10");
+    await setCellContent(model, "B2", "20");
+    await createChart(
       model,
       {
         dataSets: [{ dataRange: "B1:B2" }],
@@ -3316,9 +3335,9 @@ describe("Cumulative Data line chart", () => {
 });
 
 describe("Pie chart invalid values", () => {
-  test("Pie chart to exclude negative values and labels in single dataset", () => {
-    setCellContent(model, "D6", "-23");
-    createChart(
+  test("Pie chart to exclude negative values and labels in single dataset", async () => {
+    await setCellContent(model, "D6", "-23");
+    await createChart(
       model,
       {
         dataSets: [{ dataRange: "D5:D10" }],
@@ -3336,10 +3355,10 @@ describe("Pie chart invalid values", () => {
     expect(data.labels).toEqual(expectedLabels);
   });
 
-  test("Pie chart to replace negative values with 0 in multiple dataset", () => {
-    setCellContent(model, "D6", "-23");
-    setCellContent(model, "D8", "-3");
-    createChart(
+  test("Pie chart to replace negative values with 0 in multiple dataset", async () => {
+    await setCellContent(model, "D6", "-23");
+    await setCellContent(model, "D8", "-3");
+    await createChart(
       model,
       {
         dataSets: [{ dataRange: "D5:D9" }, { dataRange: "B1:B5" }],
@@ -3358,21 +3377,21 @@ describe("Pie chart invalid values", () => {
     expect(data.labels).toEqual(expectedLabels);
   });
 
-  test("Zeros values are removed from the pie chart", () => {
-    setCellContent(model, "F6", "0");
-    setCellContent(model, "F8", "3");
-    createChart(model, { dataSets: [{ dataRange: "F5:F8" }], type: "pie" }, "1");
+  test("Zeros values are removed from the pie chart", async () => {
+    await setCellContent(model, "F6", "0");
+    await setCellContent(model, "F8", "3");
+    await createChart(model, { dataSets: [{ dataRange: "F5:F8" }], type: "pie" }, "1");
 
     const data = getChartConfiguration(model, "1").data;
     expect(data.datasets[0].data).toEqual([3]);
   });
 
-  test("Non-number values are removed from the pie chart", () => {
-    setCellContent(model, "F6", "Not a number");
-    setCellContent(model, "F7", "45");
-    setCellContent(model, "G8", "Label");
-    setCellContent(model, "F8", "Not a number, but has a label");
-    createChart(
+  test("Non-number values are removed from the pie chart", async () => {
+    await setCellContent(model, "F6", "Not a number");
+    await setCellContent(model, "F7", "45");
+    await setCellContent(model, "G8", "Label");
+    await setCellContent(model, "F8", "Not a number, but has a label");
+    await createChart(
       model,
       { dataSets: [{ dataRange: "F5:F8" }], labelRange: "G5:G8", type: "pie" },
       "1"
@@ -3385,8 +3404,8 @@ describe("Pie chart invalid values", () => {
   });
 });
 
-test("Duplicating a sheet dispatches CREATE_CHART for each chart", () => {
-  createChart(
+test("Duplicating a sheet dispatches CREATE_CHART for each chart", async () => {
+  await createChart(
     model,
     {
       dataSets: [{ dataRange: "D5:D10" }, { dataRange: "E5:E10" }],
@@ -3394,7 +3413,7 @@ test("Duplicating a sheet dispatches CREATE_CHART for each chart", () => {
     },
     "24"
   );
-  createChart(
+  await createChart(
     model,
     {
       dataSets: [{ dataRange: "D5:D10" }, { dataRange: "E5:E10" }],
@@ -3411,7 +3430,7 @@ test("Duplicating a sheet dispatches CREATE_CHART for each chart", () => {
   const spyFigureDispatch = jest.spyOn(figurePlugin, "dispatch");
 
   const sheetId = model.getters.getActiveSheetId();
-  duplicateSheet(model, sheetId);
+  await duplicateSheet(model, sheetId);
   expect(spyChartDispatch).toHaveBeenNthCalledWith(1, "CREATE_CHART", expect.any(Object));
   expect(spyChartDispatch).toHaveBeenNthCalledWith(2, "CREATE_CHART", expect.any(Object));
 
@@ -3420,7 +3439,7 @@ test("Duplicating a sheet dispatches CREATE_CHART for each chart", () => {
 });
 
 test("trend line dataset are put after original dataset in the runtime", async () => {
-  createChart(
+  await createChart(
     model,
     {
       dataSets: [
@@ -3456,8 +3475,8 @@ test("trend line dataset are put after original dataset in the runtime", async (
 });
 
 describe("trending line", () => {
-  beforeEach(() => {
-    setGrid(model, {
+  beforeEach(async () => {
+    await setGrid(model, {
       B1: "1",
       C1: "1",
       B2: "4",
@@ -3469,7 +3488,7 @@ describe("trending line", () => {
       B5: "36",
       C5: "6",
     });
-    createChart(
+    await createChart(
       model,
       {
         type: "line",
@@ -3494,8 +3513,8 @@ describe("trending line", () => {
     }
   });
 
-  test("trend line works with datetime values as labels", () => {
-    setFormat(model, "C1:C5", "m/d/yyyy");
+  test("trend line works with datetime values as labels", async () => {
+    await setFormat(model, "C1:C5", "m/d/yyyy");
     mockChart();
     const step = (6 - 1) / 25;
     const data = getChartConfiguration(model, "1").data.datasets[1].data;
@@ -3520,16 +3539,16 @@ describe("trending line", () => {
     }
   });
 
-  test("empty labels are correctly predicted", () => {
+  test("empty labels are correctly predicted", async () => {
     // prettier-ignore
-    setGrid(model, {
+    await setGrid(model, {
       B6:  "", C6:  "6",
       B7:  "", C7:  "7",
       B8:  "", C8:  "8",
       B9:  "", C9:  "9",
       B10: "", C10: "10",
     });
-    updateChart(model, "1", {
+    await updateChart(model, "1", {
       dataSets: [{ dataRange: "B1:B10", trend: { display: true, type: "polynomial", order: 2 } }],
       labelRange: "C1:C10",
     });
@@ -3544,22 +3563,22 @@ describe("trending line", () => {
     }
   });
 
-  test("non-invertible matrix doesn't throw error", () => {
+  test("non-invertible matrix doesn't throw error", async () => {
     // prettier-ignore
-    setGrid(model, {
+    await setGrid(model, {
       A1: "label",
       A2: "0",
       A3: "1",
     });
-    updateChart(model, "1", {
+    await updateChart(model, "1", {
       dataSets: [{ dataRange: "A1:A3", trend: { display: true, type: "polynomial", order: 2 } }],
     });
     const runtime = model.getters.getChartRuntime("1") as LineChartRuntime;
     expect(runtime.chartJsConfig.data.datasets[1].data.every((x) => isNaN(Number(x)))).toBeTruthy();
   });
 
-  test("trend line works with real date values as labels", () => {
-    setGrid(model, {
+  test("trend line works with real date values as labels", async () => {
+    await setGrid(model, {
       B1: "1",
       C1: "1/7/2024",
       B2: "4",
@@ -3583,10 +3602,10 @@ describe("trending line", () => {
     }
   });
 
-  test("trend line is bypassed without sufficient dataset values", () => {
-    const model = new Model();
-    setCellContent(model, "A1", "test");
-    createChart(
+  test("trend line is bypassed without sufficient dataset values", async () => {
+    const model = await createModel();
+    await setCellContent(model, "A1", "test");
+    await createChart(
       model,
       {
         type: "line",
@@ -3598,12 +3617,12 @@ describe("trending line", () => {
     );
     let runtime = model.getters.getChartRuntime("chartId") as LineChartRuntime;
     expect(runtime.chartJsConfig.data.datasets).toHaveLength(1);
-    setCellContent(model, "A1", "5");
+    await setCellContent(model, "A1", "5");
     runtime = model.getters.getChartRuntime("chartId") as LineChartRuntime;
     expect(runtime.chartJsConfig.data.datasets).toHaveLength(1);
   });
 
-  test("trend line ignores invalid input data", () => {
+  test("trend line ignores invalid input data", async () => {
     const grid = {
       A1: "1",
       A2: "2",
@@ -3614,8 +3633,8 @@ describe("trending line", () => {
       B3: "9",
       B4: "16",
     };
-    const model = createModelFromGrid(grid);
-    createChart(
+    const model = await createModelFromGrid(grid);
+    await createChart(
       model,
       {
         type: "line",
@@ -3638,7 +3657,7 @@ describe("trending line", () => {
     }
   });
 
-  test("Trend line dataset is correctly styled", () => {
+  test("Trend line dataset is correctly styled", async () => {
     let runtime = model.getters.getChartRuntime("1") as LineChartRuntime;
     expect(runtime.chartJsConfig.data.datasets[1]).toMatchObject({
       label: "Trend line for Series 1",
@@ -3648,7 +3667,7 @@ describe("trending line", () => {
       pointRadius: 0,
     });
 
-    updateChart(model, "1", {
+    await updateChart(model, "1", {
       dataSets: [
         {
           dataRange: "B1:B10",
@@ -3668,16 +3687,16 @@ describe("trending line", () => {
   });
 });
 
-test("moving average trend line", () => {
+test("moving average trend line", async () => {
   // prettier-ignore
-  setGrid(model, {
+  await setGrid(model, {
       B1: "Label 1", C1: "1",
       B2: "Label 2", C2: "2",
       B3: "Label 3", C3: "3",
       B4: "Label 4", C4: "4",
       B5: "Label 5", C5: "5",
     });
-  createChart(
+  await createChart(
     model,
     {
       type: "line",
@@ -3698,7 +3717,7 @@ test("moving average trend line", () => {
     { x: 4, y: 3 },
     { x: 5, y: 4 },
   ]);
-  updateChart(model, "1", {
+  await updateChart(model, "1", {
     dataSets: [
       { dataRange: "C1:C5", trend: { display: true, type: "trailingMovingAverage", window: 2 } },
     ],
@@ -3716,13 +3735,13 @@ test("moving average trend line", () => {
 describe("Chart labels truncation", () => {
   test.each(["bar", "line", "combo", "radar"] as const)(
     "chart %s labels are not truncated in the data",
-    (type) => {
-      const model = new Model();
+    async (type) => {
+      const model = await createModel();
       const longLabel = "This is a very long label name that should not be truncated";
-      setCellContent(model, "A2", longLabel);
-      setCellContent(model, "B2", "10");
+      await setCellContent(model, "A2", longLabel);
+      await setCellContent(model, "B2", "10");
 
-      createChart(
+      await createChart(
         model,
         { type, dataSets: [{ dataRange: "B1:B2" }], labelRange: "A1:A2" },
         "chartId"
@@ -3732,19 +3751,19 @@ describe("Chart labels truncation", () => {
     }
   );
 
-  test("Moving average trend line dataset uses the right axis when combined with other datasets", () => {
+  test("Moving average trend line dataset uses the right axis when combined with other datasets", async () => {
     mockChart(); // mock chart.js with luxon time adapter installed
     // prettier-ignore
-    setGrid(model, {
+    await setGrid(model, {
       A1: "A", B1: "=DATE(2025,1,1)", C1: "1", D1: "4",
       A2: "B", B2: "=DATE(2025,1,2)", C2: "4", D2: "12",
       A3: "C", B3: "=DATE(2025,1,3)", C3: "9", D3: "34",
       A4: "D", B4: "=DATE(2025,1,4)", C4: "16", D4: "45",
       A5: "E", B5: "=DATE(2025,1,5)", C5: "36", D5: "51",
     });
-    setFormat(model, "B1:B5", "m/d/yyyy hh:mm:ss a");
+    await setFormat(model, "B1:B5", "m/d/yyyy hh:mm:ss a");
     // Line chart with date labels
-    createChart(
+    await createChart(
       model,
       {
         type: "line",
@@ -3770,7 +3789,7 @@ describe("Chart labels truncation", () => {
     expect(scales.xMovingAverage!["type"]).toEqual("category");
 
     // Line chart with numerical labels
-    updateChart(model, "1", {
+    await updateChart(model, "1", {
       labelRange: "C1:C5",
     });
     runtime = model.getters.getChartRuntime("1") as LineChartRuntime;
@@ -3781,7 +3800,7 @@ describe("Chart labels truncation", () => {
     expect(scales.xMovingAverage!["type"]).toEqual("category");
 
     // Line chart with categorical labels
-    updateChart(model, "1", {
+    await updateChart(model, "1", {
       labelRange: "A1:A5",
     });
     runtime = model.getters.getChartRuntime("1") as LineChartRuntime;
@@ -3792,7 +3811,7 @@ describe("Chart labels truncation", () => {
     expect(scales.xMovingAverage!["type"]).toEqual("category");
 
     // Bar chart with date labels
-    updateChart(model, "1", {
+    await updateChart(model, "1", {
       type: "bar",
       labelRange: "B1:B5",
     });
@@ -3804,7 +3823,7 @@ describe("Chart labels truncation", () => {
     expect(scales.xMovingAverage!["offset"]).toEqual(true);
 
     // Bar chart with numerical labels
-    updateChart(model, "1", {
+    await updateChart(model, "1", {
       labelRange: "C1:C5",
     });
     runtime = model.getters.getChartRuntime("1") as LineChartRuntime;
@@ -3814,7 +3833,7 @@ describe("Chart labels truncation", () => {
     expect(scales.xMovingAverage!["offset"]).toEqual(true);
 
     // Bar chart with categorical labels
-    updateChart(model, "1", {
+    await updateChart(model, "1", {
       labelRange: "A1:A5",
     });
     runtime = model.getters.getChartRuntime("1") as LineChartRuntime;
@@ -3826,12 +3845,16 @@ describe("Chart labels truncation", () => {
 
   test.each(["bar", "line", "combo", "radar"] as const)(
     "long labels are truncated in %s chart legends",
-    (type) => {
-      const model = new Model();
-      setCellContent(model, "B1", "This is a very long dataset name that should be truncated");
-      setCellContent(model, "B2", "10");
+    async (type) => {
+      const model = await createModel();
+      await setCellContent(
+        model,
+        "B1",
+        "This is a very long dataset name that should be truncated"
+      );
+      await setCellContent(model, "B2", "10");
 
-      createChart(
+      await createChart(
         model,
         { type, dataSets: [{ dataRange: "B1:B2" }], dataSetsHaveTitle: true },
         "chartId"
@@ -3845,15 +3868,15 @@ describe("Chart labels truncation", () => {
 
   test.each(["bar", "line", "combo"] as const)(
     "long labels are truncated in %s chart X axis ticks",
-    (type) => {
-      const model = new Model();
+    async (type) => {
+      const model = await createModel();
       const longLabel = "This is a very long label name that should not be truncated";
-      setCellContent(model, "A2", longLabel);
-      setCellContent(model, "B2", "10");
-      setCellContent(model, "A3", "shortLabel");
-      setCellContent(model, "B3", "20");
+      await setCellContent(model, "A2", longLabel);
+      await setCellContent(model, "B2", "10");
+      await setCellContent(model, "A3", "shortLabel");
+      await setCellContent(model, "B3", "20");
 
-      createChart(
+      await createChart(
         model,
         { type, dataSets: [{ dataRange: "B1:B3" }], labelRange: "A1:A3" },
         "chartId"
@@ -3869,17 +3892,17 @@ describe("Chart labels truncation", () => {
 
 test.each(["line", "bar", "pyramid", "pie", "combo", "waterfall", "scatter"] as const)(
   "Chart %s use custom tooltip instead of default ChartJS one",
-  (chartType) => {
-    createChart(model, { type: chartType }, "chartId");
+  async (chartType) => {
+    await createChart(model, { type: chartType }, "chartId");
     const runtime = model.getters.getChartRuntime("chartId") as LineChartRuntime;
     expect(runtime.chartJsConfig.options!.plugins!.tooltip!.external).toBeDefined();
     expect(runtime.chartJsConfig.options!.plugins!.tooltip!.enabled).toBe(false);
   }
 );
 
-test("logarithmic trending line", () => {
+test("logarithmic trending line", async () => {
   // prettier-ignore
-  setGrid(model, {
+  await setGrid(model, {
       B1: "12", C1: "=LN(B1)",
       B2: "16", C2: "=LN(B2)",
       B3: "19", C3: "=LN(B3)",
@@ -3889,7 +3912,7 @@ test("logarithmic trending line", () => {
       B7: "45", C7: "=LN(B7)",
       B8: "64", C8: "=LN(B8)",
     });
-  createChart(
+  await createChart(
     model,
     {
       type: "scatter",
@@ -3915,9 +3938,9 @@ test("logarithmic trending line", () => {
   ]);
 });
 
-test("logarithmic trending line with negative values", () => {
+test("logarithmic trending line with negative values", async () => {
   // prettier-ignore
-  setGrid(model, {
+  await setGrid(model, {
       B1: "2", C1: "-12",
       B2: "3", C2: "-10",
       B3: "4", C3: "-7",
@@ -3927,7 +3950,7 @@ test("logarithmic trending line with negative values", () => {
       B7: "8", C7: "26",
       B8: "9", C8: "33",
     });
-  createChart(
+  await createChart(
     model,
     {
       type: "scatter",
@@ -3953,9 +3976,9 @@ test("logarithmic trending line with negative values", () => {
   ]);
 });
 
-test("logarithmic trending line with values between 0 and 1", () => {
+test("logarithmic trending line with values between 0 and 1", async () => {
   // prettier-ignore
-  setGrid(model, {
+  await setGrid(model, {
       B1: "0.25", C1: "=LN(B1)",
       B2: "0.3",  C2: "=LN(B2)",
       B3: "0.35", C3: "=LN(B3)",
@@ -3965,7 +3988,7 @@ test("logarithmic trending line with values between 0 and 1", () => {
       B7: "0.6",  C7: "=LN(B7)",
       B8: "0.75", C8: "=LN(B8)",
     });
-  createChart(
+  await createChart(
     model,
     {
       type: "scatter",
@@ -3996,7 +4019,7 @@ describe("Can make numbers human-readable", () => {
   test.each(["bar", "combo"] as const)(
     "Humanization is taken into account for the axis ticks of a %s chart",
     async (type: "bar" | "combo") => {
-      createChart(
+      await createChart(
         model,
         {
           type,
@@ -4009,7 +4032,7 @@ describe("Can make numbers human-readable", () => {
       let axis = getChartConfiguration(model, "1").options.scales.y;
       const valuesBefore = [1e3, 1e6, 0.1, 0.123456789, 1e-5].map(axis.ticks.callback);
       expect(valuesBefore).toEqual(["1,000", "1,000,000", "0.1", "0.123456789", "0.00001"]);
-      updateChart(model, "1", { humanize: true });
+      await updateChart(model, "1", { humanize: true });
       axis = getChartConfiguration(model, "1").options.scales.y;
       const valuesAfter = [1e3, 1e6, 0.1, 0.123456789, 1e-5].map(axis.ticks.callback);
       expect(valuesAfter).toEqual(["1,000", "1,000k", "0.1", "0.12", "1.00e-05"]);
@@ -4019,7 +4042,7 @@ describe("Can make numbers human-readable", () => {
   test.each(["line", "scatter"] as const)(
     "Humanization is taken into account for the axis ticks of a %s chart",
     async (type: "line" | "scatter") => {
-      createChart(
+      await createChart(
         model,
         {
           type,
@@ -4032,7 +4055,7 @@ describe("Can make numbers human-readable", () => {
       let axis = getChartConfiguration(model, "1").options.scales.y;
       const valuesBefore = [1e3, 1e6].map(axis.ticks.callback);
       expect(valuesBefore).toEqual(["1,000", "1,000,000"]);
-      updateChart(model, "1", { humanize: true });
+      await updateChart(model, "1", { humanize: true });
       axis = getChartConfiguration(model, "1").options.scales.y;
       const valuesAfter = [1e3, 1e6].map(axis.ticks.callback);
       expect(valuesAfter).toEqual(["1,000", "1,000k"]);
@@ -4042,7 +4065,7 @@ describe("Can make numbers human-readable", () => {
   test.each(["line", "bar", "scatter", "combo"] as const)(
     "%s chart showValues plugin takes humanization into account",
     async (type: ChartWithAxisDefinition["type"]) => {
-      createChart(
+      await createChart(
         model,
         {
           type,
@@ -4055,7 +4078,7 @@ describe("Can make numbers human-readable", () => {
       let plugin = getChartConfiguration(model, "1").options?.plugins?.chartShowValuesPlugin;
       const valuesBefore = [1e3, 1e6].map((v) => plugin.callback(v, "x"));
       expect(valuesBefore).toEqual(["1,000", "1,000,000"]);
-      updateChart(model, "1", { humanize: true });
+      await updateChart(model, "1", { humanize: true });
       plugin = getChartConfiguration(model, "1").options?.plugins?.chartShowValuesPlugin;
       const valuesAfter = [1e3, 1e6].map((v) => plugin.callback(v, "x"));
       expect(valuesAfter).toEqual(["1,000", "1,000k"]);

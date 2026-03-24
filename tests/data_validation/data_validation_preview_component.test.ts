@@ -9,6 +9,7 @@ import { DataValidationRuleData, DEFAULT_LOCALE } from "../../src/types";
 import { updateLocale } from "../test_helpers/commands_helpers";
 import { click, triggerMouseEvent } from "../test_helpers/dom_helper";
 import {
+  createModel,
   flattenHighlightRange,
   getHighlightsFromStore,
   mountComponent,
@@ -28,7 +29,7 @@ describe("Data validation preview", () => {
   let env: SpreadsheetChildEnv;
 
   async function mountDataValidationPreview(ruleData: DataValidationRuleData) {
-    model = new Model();
+    model = await createModel();
     const sheetId = model.getters.getActiveSheetId();
     const rule = {
       ...ruleData,
@@ -89,8 +90,8 @@ describe("Data validation preview", () => {
   });
 
   describe("Date rules previews", () => {
-    beforeEach(() => {
-      model = new Model();
+    beforeEach(async () => {
+      model = await createModel();
     });
 
     function getCriterionPreview(criterion: DataValidationCriterion) {
@@ -144,8 +145,8 @@ describe("Data validation preview", () => {
       expect(description).toBe("Date is 12/30/1899");
     });
 
-    test("Date is formatted based on locale", () => {
-      updateLocale(model, { ...DEFAULT_LOCALE, dateFormat: "yyyy-mm-dd" });
+    test("Date is formatted based on locale", async () => {
+      await updateLocale(model, { ...DEFAULT_LOCALE, dateFormat: "yyyy-mm-dd" });
 
       const description = getCriterionPreview({
         type: "dateIs",

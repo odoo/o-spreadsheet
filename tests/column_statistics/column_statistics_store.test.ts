@@ -30,8 +30,8 @@ describe("column statistics sidePanel store", () => {
   });
 
   test("Store computes correct statistics for numerical data", async () => {
-    setGrid(model, { A1: "10", A2: "20", A3: "30", A4: "40", A5: "50", A6: "10" });
-    selectCell(model, "A1");
+    await setGrid(model, { A1: "10", A2: "20", A3: "30", A4: "40", A5: "50", A6: "10" });
+    await selectCell(model, "A1");
     const store = env.getStore(ColumnStatisticsStore);
     const statistics = getStoreStatistics(store);
 
@@ -54,8 +54,8 @@ describe("column statistics sidePanel store", () => {
   });
 
   test("Store computes correct statistics for string data", async () => {
-    setGrid(model, { A1: "a", A2: "b", A3: "c", A4: "d", A5: "e", A6: "a" });
-    selectCell(model, "A1");
+    await setGrid(model, { A1: "a", A2: "b", A3: "c", A4: "d", A5: "e", A6: "a" });
+    await selectCell(model, "A1");
     const store = env.getStore(ColumnStatisticsStore);
     const statistics = getStoreStatistics(store);
 
@@ -78,7 +78,7 @@ describe("column statistics sidePanel store", () => {
   });
 
   test("Store computes correct statistics for empty data", async () => {
-    selectCell(model, "A1");
+    await selectCell(model, "A1");
     const store = env.getStore(ColumnStatisticsStore);
     const statistics = getStoreStatistics(store);
 
@@ -95,8 +95,8 @@ describe("column statistics sidePanel store", () => {
   });
 
   test("String data are ignored in the store when there is numerical data in the same column", async () => {
-    setGrid(model, { A1: "a", A2: "10", A3: "20", A4: "30", A5: "b", A6: "c" });
-    selectCell(model, "A1");
+    await setGrid(model, { A1: "a", A2: "10", A3: "20", A4: "30", A5: "b", A6: "c" });
+    await selectCell(model, "A1");
     const store = env.getStore(ColumnStatisticsStore);
     const statistics = getStoreStatistics(store);
 
@@ -117,20 +117,20 @@ describe("column statistics sidePanel store", () => {
   });
 
   test("Store reacts to change of selected column", async () => {
-    setGrid(model, { A1: "10", A2: "20", B1: "30", B2: "40" });
-    selectCell(model, "A1");
+    await setGrid(model, { A1: "10", A2: "20", B1: "30", B2: "40" });
+    await selectCell(model, "A1");
     const store = env.getStore(ColumnStatisticsStore);
 
     expect(store.statisticFnResults["Sum"]?.value?.()).toBe(30);
 
-    selectCell(model, "B1");
+    await selectCell(model, "B1");
 
     expect(store.statisticFnResults["Sum"]?.value?.()).toBe(70);
   });
 
   test("Store take into account ignored rows", async () => {
-    setGrid(model, { A1: "10", A2: "20", A3: "30", A4: "40" });
-    selectCell(model, "A1");
+    await setGrid(model, { A1: "10", A2: "20", A3: "30", A4: "40" });
+    await selectCell(model, "A1");
     const store = env.getStore(ColumnStatisticsStore);
 
     expect(store.statisticFnResults["Sum"]?.value?.()).toBe(100);
@@ -141,33 +141,33 @@ describe("column statistics sidePanel store", () => {
   });
 
   test("Store reacts to change of cell content", async () => {
-    setGrid(model, { A1: "10", A2: "20" });
-    selectCell(model, "A1");
+    await setGrid(model, { A1: "10", A2: "20" });
+    await selectCell(model, "A1");
     const store = env.getStore(ColumnStatisticsStore);
 
     expect(store.statisticFnResults["Sum"]?.value?.()).toBe(30);
 
-    setCellContent(model, "A3", "30");
+    await setCellContent(model, "A3", "30");
 
     expect(store.statisticFnResults["Sum"]?.value?.()).toBe(60);
   });
 
   test("Store reacts to deletion of row", async () => {
-    setGrid(model, { A1: "10", A2: "20", A3: "30" });
-    selectCell(model, "A1");
+    await setGrid(model, { A1: "10", A2: "20", A3: "30" });
+    await selectCell(model, "A1");
     const store = env.getStore(ColumnStatisticsStore);
 
     expect(store.statisticFnResults["Unique values"]?.value?.()).toBe(3);
 
-    deleteRows(model, [1]);
+    await deleteRows(model, [1]);
 
     expect(store.statisticFnResults["Unique values"]?.value?.()).toBe(2);
   });
 
   test("Store use correct number format", async () => {
-    setGrid(model, { A1: "10.5", A2: "20.3", A3: "30.7" });
-    setCellFormat(model, "A1", "[$$]#,##0.00");
-    selectCell(model, "A1");
+    await setGrid(model, { A1: "10.5", A2: "20.3", A3: "30.7" });
+    await setCellFormat(model, "A1", "[$$]#,##0.00");
+    await selectCell(model, "A1");
     const store = env.getStore(ColumnStatisticsStore);
 
     const localeFormat = { locale: model.getters.getLocale(), format: "[$$]#,##0.00" };

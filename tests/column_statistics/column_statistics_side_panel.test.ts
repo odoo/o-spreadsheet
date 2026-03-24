@@ -23,8 +23,8 @@ describe("column statistics sidePanel component", () => {
   });
 
   test("Column stats side panel is correctly filled", async () => {
-    setGrid(model, { A1: "10", A2: "20", A3: "30", A4: "40", A5: "50", A6: "10" });
-    selectCell(model, "A1");
+    await setGrid(model, { A1: "10", A2: "20", A3: "30", A4: "40", A5: "50", A6: "10" });
+    await selectCell(model, "A1");
     env.openSidePanel("ColumnStats");
     await nextTick();
 
@@ -47,8 +47,8 @@ describe("column statistics sidePanel component", () => {
   });
 
   test("Column stats side panel is showing an error message when selecting multiple columns", async () => {
-    setGrid(model, { A1: "10", A2: "20", B1: "30", B2: "40" });
-    setSelection(model, ["A1", "B1"]);
+    await setGrid(model, { A1: "10", A2: "20", B1: "30", B2: "40" });
+    await setSelection(model, ["A1", "B1"]);
     env.openSidePanel("ColumnStats");
     await nextTick();
 
@@ -57,7 +57,7 @@ describe("column statistics sidePanel component", () => {
   });
 
   test("Can switch to the next/previous column", async () => {
-    selectCell(model, "A1");
+    await selectCell(model, "A1");
     env.openSidePanel("ColumnStats");
     await nextTick();
 
@@ -72,8 +72,8 @@ describe("column statistics sidePanel component", () => {
   });
 
   test("Can ignore header rows", async () => {
-    setGrid(model, { A1: "Header", A2: "Header 2", A3: "a", A4: "b", A5: "c" });
-    selectCell(model, "A1");
+    await setGrid(model, { A1: "Header", A2: "Header 2", A3: "a", A4: "b", A5: "c" });
+    await selectCell(model, "A1");
     env.openSidePanel("ColumnStats");
     await nextTick();
 
@@ -97,22 +97,22 @@ describe("column statistics sidePanel component", () => {
   });
 
   test("Content of the first row is set as side panel title if string", async () => {
-    setGrid(model, { A1: "10", A2: "20" });
-    selectCell(model, "A1");
+    await setGrid(model, { A1: "10", A2: "20" });
+    await selectCell(model, "A1");
     env.openSidePanel("ColumnStats");
     await nextTick();
 
     expect(".o-column-stats-title").toHaveText("Column A");
 
-    setCellContent(model, "A1", "Header");
+    await setCellContent(model, "A1", "Header");
     await nextTick();
 
     expect(".o-column-stats-title").toHaveText("Header");
   });
 
   test("Can change the order of frequency table", async () => {
-    setGrid(model, { A1: "b", A2: "a", A3: "c", A4: "a", A5: "b", A6: "a" });
-    selectCell(model, "A1");
+    await setGrid(model, { A1: "b", A2: "a", A3: "c", A4: "a", A5: "b", A6: "a" });
+    await selectCell(model, "A1");
     env.openSidePanel("ColumnStats");
     await nextTick();
 

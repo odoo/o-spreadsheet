@@ -1,12 +1,11 @@
 import { Session } from "@odoo/o-spreadsheet-engine/collaborative/session";
 import { MESSAGE_VERSION } from "@odoo/o-spreadsheet-engine/constants";
 import { buildRevisionLog } from "@odoo/o-spreadsheet-engine/history/factory";
-import { Model } from "../../src";
 import { lazy } from "../../src/helpers";
 import { Client, CommandResult, WorkbookData } from "../../src/types";
 import { MockTransportService } from "../__mocks__/transport_service";
 import { selectCell, setCellContent } from "../test_helpers/commands_helpers";
-import { nextTick } from "../test_helpers/helpers";
+import { createModel, nextTick } from "../test_helpers/helpers";
 
 describe("Collaborative session", () => {
   let transport: MockTransportService;
@@ -81,22 +80,21 @@ describe("Collaborative session", () => {
   });
 
   test("do not snapshot when leaving if there are pending change", async () => {
-    const model = new Model(
+    const model = await createModel(
       {},
       {
         transportService: transport,
         client: { id: "alice", name: "Alice" },
       }
     );
-    setCellContent(model, "A1", "hello"); // send a revision
+    await setCellContent(model, "A1", "hello"); // send a revision
     const spy = jest.spyOn(transport, "sendMessage");
-    transport.concurrent(() => {
+    await transport.concurrent(async () => {
       // send another revision
-      setCellContent(model, "A2", "world");
+      await setCellContent(model, "A2", "world");
       // and leave before receiving the acknowledgement
 
-      // As concurrent is not yet async
-      void model.leaveSession();
+      await model.leaveSession();
     });
     await nextTick();
     expect(spy).toHaveBeenCalledTimes(2);
@@ -105,7 +103,7 @@ describe("Collaborative session", () => {
   });
 
   test("do not snapshot when leaving in read-only mode", async () => {
-    const model = new Model(
+    const model = await createModel(
       {},
       {
         mode: "readonly",
@@ -130,7 +128,7 @@ describe("Collaborative session", () => {
   });
 
   test("do not snapshot when leaving if there are no revisions since the last snapshot", async () => {
-    const model = new Model(
+    const model = await createModel(
       {},
       { transportService: transport, client: { id: "alice", name: "Alice" } }
     );
@@ -235,9 +233,9 @@ describe("Collaborative session", () => {
     });
   });
 
-  test("Can send custom data in client", () => {
+  test("Can send custom data in client", async () => {
     const spy = jest.spyOn(transport, "sendMessage");
-    const model = new Model(
+    const model = await createModel(
       {},
       {
         transportService: transport,
@@ -255,7 +253,7 @@ describe("Collaborative session", () => {
         position: { sheetId, col: 0, row: 0 },
       },
     });
-    selectCell(model, "B1");
+    await selectCell(model, "B1");
     expect(spy).toHaveBeenCalledWith({
       type: "CLIENT_MOVED",
       version: MESSAGE_VERSION,

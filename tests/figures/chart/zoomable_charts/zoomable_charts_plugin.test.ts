@@ -3,16 +3,17 @@ import { Scale } from "chart.js";
 import { Model } from "../../../../src";
 import { TREND_LINE_XAXIS_ID } from "../../../../src/helpers/figures/charts";
 import { createChart, setCellContent } from "../../../test_helpers/commands_helpers";
+import { createModel } from "../../../test_helpers/helpers";
 
 let model: Model;
 
-beforeEach(() => {
-  model = new Model();
+beforeEach(async () => {
+  model = await createModel();
 });
 
 describe("Zoomable chart configuration tests", () => {
-  test("Master charts do not contain title/legend/tooltips", () => {
-    createChart(
+  test("Master charts do not contain title/legend/tooltips", async () => {
+    await createChart(
       model,
       { type: "line", legendPosition: "top", title: { text: "myTitle" }, showValues: true },
       "chartId"
@@ -26,10 +27,10 @@ describe("Zoomable chart configuration tests", () => {
     expect(runtime.masterChartConfig?.options?.plugins?.chartShowValuesPlugin).toBe(undefined);
   });
 
-  test("Master chart do not have Y axis", () => {
-    setCellContent(model, "B2", "5");
-    setCellContent(model, "C2", "10");
-    createChart(
+  test("Master chart do not have Y axis", async () => {
+    await setCellContent(model, "B2", "5");
+    await setCellContent(model, "C2", "10");
+    await createChart(
       model,
       { type: "line", dataSets: [{ dataRange: "B1:B5" }, { dataRange: "C1:C5", yAxisId: "y1" }] },
       "chartId"
@@ -44,10 +45,10 @@ describe("Zoomable chart configuration tests", () => {
     expect(runtime.masterChartConfig?.options?.scales?.y1?.display).toBe(false);
   });
 
-  test("Master chart X axis does not have a title and labels are truncated", () => {
-    setCellContent(model, "A2", "Long label 1");
-    setCellContent(model, "B2", "5");
-    createChart(
+  test("Master chart X axis does not have a title and labels are truncated", async () => {
+    await setCellContent(model, "A2", "Long label 1");
+    await setCellContent(model, "B2", "5");
+    await createChart(
       model,
       {
         type: "line",
@@ -69,10 +70,10 @@ describe("Zoomable chart configuration tests", () => {
     expect(callback?.call(fakeScale, 0, 0, [])).toBe("Long …");
   });
 
-  test("Trend lines are not present in master charts", () => {
-    setCellContent(model, "B2", "5");
-    setCellContent(model, "B3", "10");
-    createChart(
+  test("Trend lines are not present in master charts", async () => {
+    await setCellContent(model, "B2", "5");
+    await setCellContent(model, "B3", "10");
+    await createChart(
       model,
       {
         type: "line",
@@ -90,8 +91,8 @@ describe("Zoomable chart configuration tests", () => {
     expect(runtime.masterChartConfig?.options?.scales?.[TREND_LINE_XAXIS_ID]).toBeUndefined();
   });
 
-  test("Scatter chart master chart does not show lines and has smaller point size", () => {
-    createChart(model, { type: "scatter", dataSets: [{ dataRange: "A1:A5" }] }, "chartId");
+  test("Scatter chart master chart does not show lines and has smaller point size", async () => {
+    await createChart(model, { type: "scatter", dataSets: [{ dataRange: "A1:A5" }] }, "chartId");
     const runtime = model.getters.getChartRuntime("chartId") as ScatterChartRuntime;
 
     expect(runtime.chartJsConfig.data.datasets[0].showLine).toBe(false);

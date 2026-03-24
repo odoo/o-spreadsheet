@@ -4,7 +4,7 @@ import { toZone, zoneToXc } from "../src/helpers/index";
 import { CellErrorType, CellValueType, CommandResult, DEFAULT_LOCALE, UID } from "../src/types";
 import { merge, redo, setCellContent, sort, undo } from "./test_helpers/commands_helpers";
 import { getEvaluatedCell } from "./test_helpers/getters_helpers";
-import { getCellsObject } from "./test_helpers/helpers";
+import { createModel, getCellsObject } from "./test_helpers/helpers";
 
 let model: Model;
 const dateFormat = "mm/dd/yyyy";
@@ -12,7 +12,7 @@ const locale = DEFAULT_LOCALE;
 
 describe("Basic Sorting", () => {
   const sheetId: UID = "sheetId";
-  test("Sort Numbers then undo then redo", () => {
+  test("Sort Numbers then undo then redo", async () => {
     const cells = {
       A1: "4",
       A2: "23",
@@ -21,8 +21,10 @@ describe("Basic Sorting", () => {
       A5: "16",
       A6: "15",
     };
-    model = new Model({ sheets: [{ id: sheetId, colNumber: 1, rowNumber: 6, cells: cells }] });
-    sort(model, {
+    model = await createModel({
+      sheets: [{ id: sheetId, colNumber: 1, rowNumber: 6, cells: cells }],
+    });
+    await sort(model, {
       zone: "A1:A6",
       anchor: "A2",
       direction: "asc",
@@ -35,7 +37,7 @@ describe("Basic Sorting", () => {
       A5: { content: "23" },
       A6: { content: "42" },
     });
-    undo(model);
+    await undo(model);
     expect(getCellsObject(model, sheetId)).toMatchObject({
       A1: { content: "4" },
       A2: { content: "23" },
@@ -44,7 +46,7 @@ describe("Basic Sorting", () => {
       A5: { content: "16" },
       A6: { content: "15" },
     });
-    redo(model);
+    await redo(model);
     expect(getCellsObject(model, sheetId)).toMatchObject({
       A1: { content: "4" },
       A2: { content: "8" },
@@ -54,8 +56,8 @@ describe("Basic Sorting", () => {
       A6: { content: "42" },
     });
   });
-  test("Sort Text", () => {
-    model = new Model({
+  test("Sort Text", async () => {
+    model = await createModel({
       sheets: [
         {
           id: sheetId,
@@ -72,7 +74,7 @@ describe("Basic Sorting", () => {
         },
       ],
     });
-    sort(model, {
+    await sort(model, {
       zone: "A1:A6",
       anchor: "A2",
       direction: "asc",
@@ -86,8 +88,8 @@ describe("Basic Sorting", () => {
       A6: { content: "Zulu" },
     });
   });
-  test("Sort Dates", () => {
-    model = new Model({
+  test("Sort Dates", async () => {
+    model = await createModel({
       sheets: [
         {
           id: sheetId,
@@ -106,7 +108,7 @@ describe("Basic Sorting", () => {
       ],
       formats: { 1: dateFormat },
     });
-    sort(model, {
+    await sort(model, {
       zone: "A1:A6",
       anchor: "A1",
       direction: "asc",
@@ -121,8 +123,8 @@ describe("Basic Sorting", () => {
       A6: { value: parseDateTime("11/08/2016", locale)!.value },
     });
   });
-  test("Sort Formulas", () => {
-    model = new Model({
+  test("Sort Formulas", async () => {
+    model = await createModel({
       sheets: [
         {
           id: sheetId,
@@ -143,7 +145,7 @@ describe("Basic Sorting", () => {
         },
       ],
     });
-    sort(model, {
+    await sort(model, {
       zone: "C1:C6",
       anchor: "C1",
       direction: "asc",
@@ -161,8 +163,8 @@ describe("Basic Sorting", () => {
     expect(getEvaluatedCell(model, "C3").type).toBe(CellValueType.error);
     expect(getEvaluatedCell(model, "C4").type).toBe(CellValueType.error);
   });
-  test("Sort all types of cells then undo then redo", () => {
-    model = new Model({
+  test("Sort all types of cells then undo then redo", async () => {
+    model = await createModel({
       sheets: [
         {
           id: sheetId,
@@ -183,7 +185,7 @@ describe("Basic Sorting", () => {
         },
       ],
     });
-    sort(model, {
+    await sort(model, {
       zone: "A1:A11",
       anchor: "A1",
       direction: "asc",
@@ -204,7 +206,7 @@ describe("Basic Sorting", () => {
     });
     expect(getEvaluatedCell(model, "A6").type).toBe(CellValueType.error);
     expect(getEvaluatedCell(model, "A7").type).toBe(CellValueType.error);
-    undo(model);
+    await undo(model);
     expect(getCellsObject(model, sheetId)).toMatchObject({
       A1: { content: "23" },
       A2: { content: "4" },
@@ -217,7 +219,7 @@ describe("Basic Sorting", () => {
       A10: { value: parseDateTime("2020/09/01", locale)!.value },
       A11: { content: "=B1/B2" },
     });
-    redo(model);
+    await redo(model);
     expect(getCellsObject(model, sheetId)).toMatchObject({
       A1: { content: "4" },
       A2: { content: "23" },
@@ -235,9 +237,9 @@ describe("Basic Sorting", () => {
     expect(getEvaluatedCell(model, "A6").type).toBe(CellValueType.error);
     expect(getEvaluatedCell(model, "A7").type).toBe(CellValueType.error);
   });
-  test("Sort style", () => {
+  test("Sort style", async () => {
     const myStyle = { textColor: "#fe0000" };
-    model = new Model({
+    model = await createModel({
       sheets: [
         {
           id: sheetId,
@@ -258,7 +260,7 @@ describe("Basic Sorting", () => {
       ],
       styles: { 1: myStyle },
     });
-    sort(model, {
+    await sort(model, {
       zone: "A1:A3",
       anchor: "A2",
       direction: "asc",
@@ -270,8 +272,8 @@ describe("Basic Sorting", () => {
     });
   });
 
-  test("Sort with empty cells", () => {
-    model = new Model({
+  test("Sort with empty cells", async () => {
+    model = await createModel({
       sheets: [
         {
           id: sheetId,
@@ -287,7 +289,7 @@ describe("Basic Sorting", () => {
         },
       ],
     });
-    sort(model, {
+    await sort(model, {
       zone: "A1:A7",
       anchor: "A2",
       direction: "asc",
@@ -301,8 +303,8 @@ describe("Basic Sorting", () => {
     });
   });
 
-  test("Sort with emptyCellAsZero option", () => {
-    model = new Model({
+  test("Sort with emptyCellAsZero option", async () => {
+    model = await createModel({
       sheets: [
         {
           id: sheetId,
@@ -318,7 +320,7 @@ describe("Basic Sorting", () => {
         },
       ],
     });
-    sort(model, {
+    await sort(model, {
       zone: "A1:A7",
       anchor: "A2",
       direction: "asc",
@@ -332,7 +334,7 @@ describe("Basic Sorting", () => {
       A7: { content: "ba" },
     });
 
-    sort(model, {
+    await sort(model, {
       zone: "A1:A7",
       anchor: "A2",
       direction: "desc",
@@ -347,8 +349,8 @@ describe("Basic Sorting", () => {
     });
   });
 
-  test("Sort with a cell that will be removed because it is considered empty", () => {
-    model = new Model({
+  test("Sort with a cell that will be removed because it is considered empty", async () => {
+    model = await createModel({
       sheets: [
         {
           id: sheetId,
@@ -361,7 +363,7 @@ describe("Basic Sorting", () => {
         },
       ],
     });
-    sort(model, {
+    await sort(model, {
       zone: "A2:A3",
       anchor: "A2",
       direction: "asc",
@@ -374,38 +376,38 @@ describe("Basic Sorting", () => {
 });
 
 describe("Sorting allowDispatch", () => {
-  beforeEach(() => {
-    model = new Model();
+  beforeEach(async () => {
+    model = await createModel();
   });
 
-  test("Sort with anchor outside of the sorting zone", () => {
-    expect(sort(model, { zone: "A1:A3", anchor: "A6", direction: "asc" })).toBeCancelledBecause(
-      CommandResult.InvalidSortAnchor
-    );
+  test("Sort with anchor outside of the sorting zone", async () => {
+    expect(
+      await sort(model, { zone: "A1:A3", anchor: "A6", direction: "asc" })
+    ).toBeCancelledBecause(CommandResult.InvalidSortAnchor);
   });
 
-  test("Sort with both merges and cells", () => {
-    merge(model, "A1:A2");
-    expect(sort(model, { zone: "A1:A3", anchor: "A1", direction: "asc" })).toBeCancelledBecause(
-      CommandResult.InvalidSortZone
-    );
+  test("Sort with both merges and cells", async () => {
+    await merge(model, "A1:A2");
+    expect(
+      await sort(model, { zone: "A1:A3", anchor: "A1", direction: "asc" })
+    ).toBeCancelledBecause(CommandResult.InvalidSortZone);
   });
 
-  test("Sort with merges of difference sizes", () => {
-    merge(model, "A1:A2");
-    merge(model, "A3:A5");
-    expect(sort(model, { zone: "A1:A5", anchor: "A1", direction: "asc" })).toBeCancelledBecause(
-      CommandResult.InvalidSortZone
-    );
+  test("Sort with merges of difference sizes", async () => {
+    await merge(model, "A1:A2");
+    await merge(model, "A3:A5");
+    expect(
+      await sort(model, { zone: "A1:A5", anchor: "A1", direction: "asc" })
+    ).toBeCancelledBecause(CommandResult.InvalidSortZone);
   });
 
-  test("Sort with array formula", () => {
-    setCellContent(model, "A1", "8");
-    setCellContent(model, "A2", "4");
-    setCellContent(model, "A3", "=FILTER(A1:A2, A1:A2 > 1)");
-    expect(sort(model, { zone: "A1:A4", anchor: "A1", direction: "asc" })).toBeCancelledBecause(
-      CommandResult.SortZoneWithArrayFormulas
-    );
+  test("Sort with array formula", async () => {
+    await setCellContent(model, "A1", "8");
+    await setCellContent(model, "A2", "4");
+    await setCellContent(model, "A3", "=FILTER(A1:A2, A1:A2 > 1)");
+    expect(
+      await sort(model, { zone: "A1:A4", anchor: "A1", direction: "asc" })
+    ).toBeCancelledBecause(CommandResult.SortZoneWithArrayFormulas);
   });
 });
 
@@ -437,12 +439,12 @@ describe("Sort multi adjacent columns", () => {
    * Interactive tests for same are moved to helpers/ui.test.ts
    * Manually calling the getContiguousZone function.
    */
-  test("Sort on second column w/ contiguous", () => {
-    model = new Model(modelData);
+  test("Sort on second column w/ contiguous", async () => {
+    model = await createModel(modelData);
     const zone = toZone("B2:B3");
     const sheetId = model.getters.getActiveSheetId();
     const contiguousZone = model.getters.getContiguousZone(sheetId, zone);
-    sort(model, {
+    await sort(model, {
       zone: zoneToXc(contiguousZone),
       anchor: "B2",
       direction: "desc",
@@ -460,11 +462,11 @@ describe("Sort multi adjacent columns", () => {
       D5: { content: "6" },
     });
   });
-  test("Sort on third column  w/ contiguous", () => {
-    model = new Model(modelData);
+  test("Sort on third column  w/ contiguous", async () => {
+    model = await createModel(modelData);
     const zone = toZone("C2:C4");
     const contiguousZone = model.getters.getContiguousZone(sheetId, zone);
-    sort(model, {
+    await sort(model, {
       zone: zoneToXc(contiguousZone),
       anchor: "C2",
       direction: "desc",
@@ -482,11 +484,11 @@ describe("Sort multi adjacent columns", () => {
       D5: { content: "6" },
     });
   });
-  test("Sort on fourth column w/ contiguous", () => {
-    model = new Model(modelData);
+  test("Sort on fourth column w/ contiguous", async () => {
+    model = await createModel(modelData);
     const zone = toZone("D2:D5");
     const contiguousZone = model.getters.getContiguousZone(sheetId, zone);
-    sort(model, {
+    await sort(model, {
       zone: zoneToXc(contiguousZone),
       anchor: "D5",
       direction: "desc",
@@ -505,9 +507,9 @@ describe("Sort multi adjacent columns", () => {
     });
   });
 
-  test("Sort w/ multicolumn selection", () => {
-    model = new Model(modelData);
-    sort(model, {
+  test("Sort w/ multicolumn selection", async () => {
+    model = await createModel(modelData);
+    await sort(model, {
       zone: "B2:C3",
       anchor: "B3",
       direction: "asc",
@@ -529,8 +531,8 @@ describe("Sort multi adjacent columns", () => {
 
 describe("Sort adjacent columns with headers", () => {
   const sheetId: UID = "sheet4";
-  beforeEach(() => {
-    model = new Model({
+  beforeEach(async () => {
+    model = await createModel({
       sheets: [
         {
           id: sheetId,
@@ -554,8 +556,8 @@ describe("Sort adjacent columns with headers", () => {
       ],
     });
   });
-  test("Presence of header", () => {
-    sort(model, {
+  test("Presence of header", async () => {
+    await sort(model, {
       zone: "A1:C4",
       anchor: "A1",
       direction: "asc",
@@ -576,8 +578,8 @@ describe("Sort adjacent columns with headers", () => {
     });
   });
 
-  test("No header with option sortHeaders set to true", () => {
-    sort(model, {
+  test("No header with option sortHeaders set to true", async () => {
+    await sort(model, {
       zone: "B1:C4",
       anchor: "B1",
       direction: "asc",
@@ -595,9 +597,9 @@ describe("Sort adjacent columns with headers", () => {
     });
   });
 
-  test("Empty TopLeft cell does not alter the presence of header", () => {
-    setCellContent(model, "A1", "", sheetId);
-    sort(model, {
+  test("Empty TopLeft cell does not alter the presence of header", async () => {
+    await setCellContent(model, "A1", "", sheetId);
+    await sort(model, {
       zone: "A1:C4",
       anchor: "A1",
       direction: "asc",
@@ -616,9 +618,9 @@ describe("Sort adjacent columns with headers", () => {
       C4: { value: parseDateTime("09/13/2020", locale)!.value },
     });
   });
-  test("No header when there is an empty cell on top row (other than topLeft)", () => {
-    setCellContent(model, "C1", "", sheetId);
-    sort(model, {
+  test("No header when there is an empty cell on top row (other than topLeft)", async () => {
+    await setCellContent(model, "C1", "", sheetId);
+    await sort(model, {
       zone: "A1:C4",
       anchor: "B1",
       direction: "asc",
@@ -637,15 +639,15 @@ describe("Sort adjacent columns with headers", () => {
       C3: { value: parseDateTime("09/14/2020", locale)!.value },
     });
   });
-  test("No header when comparing top row cells to empty cells", () => {
+  test("No header when comparing top row cells to empty cells", async () => {
     // disqualify cols 1 and 2 by giving them the same type of cell as the one below
-    setCellContent(model, "A1", "Zulu", sheetId);
-    setCellContent(model, "B1", "44", sheetId);
+    await setCellContent(model, "A1", "Zulu", sheetId);
+    await setCellContent(model, "B1", "44", sheetId);
 
     // arrange empty cell in second row of 3rd col
-    setCellContent(model, "C2", "", sheetId);
+    await setCellContent(model, "C2", "", sheetId);
 
-    sort(model, {
+    await sort(model, {
       zone: "A1:C4",
       anchor: "A1",
       direction: "asc",
@@ -699,13 +701,13 @@ describe("Sort Merges", () => {
       },
     ],
   };
-  beforeEach(() => {
-    model = new Model(modelData);
+  beforeEach(async () => {
+    model = await createModel(modelData);
   });
-  test("Sort of merges w/ contiguous", () => {
+  test("Sort of merges w/ contiguous", async () => {
     const zone = toZone("B2:B4");
     const contiguousZone = model.getters.getContiguousZone(sheetId, zone);
-    sort(model, {
+    await sort(model, {
       zone: zoneToXc(contiguousZone),
       anchor: "B2",
       direction: "asc",
@@ -723,8 +725,8 @@ describe("Sort Merges", () => {
     });
   });
 
-  test("Sort w/ multicolumn selection", () => {
-    sort(model, {
+  test("Sort w/ multicolumn selection", async () => {
+    await sort(model, {
       zone: "B5:C10",
       anchor: "B5",
       direction: "desc",
@@ -742,13 +744,13 @@ describe("Sort Merges", () => {
     });
   });
 
-  test("Sort merges with headers", () => {
+  test("Sort merges with headers", async () => {
     // Add header i.e. text in a column of dates
-    setCellContent(model, "D2", "Header", sheetId);
+    await setCellContent(model, "D2", "Header", sheetId);
 
     const zone = toZone("B2");
     const contiguousZone = model.getters.getContiguousZone(sheetId, zone);
-    sort(model, {
+    await sort(model, {
       zone: zoneToXc(contiguousZone),
       anchor: "D2",
       direction: "asc",

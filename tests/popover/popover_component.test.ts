@@ -2,7 +2,7 @@ import { App, Component, useSubEnv, xml } from "@odoo/owl";
 import { Model } from "../../src";
 import { Popover, PopoverProps } from "../../src/components/popover/popover";
 import { Pixel, Rect } from "../../src/types";
-import { getStylePropertyInPx, mountComponent } from "../test_helpers/helpers";
+import { createModel, getStylePropertyInPx, mountComponent } from "../test_helpers/helpers";
 import { extendMockGetBoundingClientRect } from "../test_helpers/mock_helpers";
 
 const POPOVER_HEIGHT = 200;
@@ -55,7 +55,7 @@ async function mountTestPopover(args: MountPopoverArgs) {
 }
 
 beforeEach(async () => {
-  model = new Model();
+  model = await createModel();
   extendMockGetBoundingClientRect({
     "o-popover-content": (el: HTMLElement) => {
       const popover = el.closest<HTMLElement>(".o-popover")!;

@@ -26,63 +26,63 @@ import {
   getRangeFormattedValues,
   getRangeValues,
 } from "../test_helpers/getters_helpers";
-import { makeTestComposerStore, toRangesData } from "../test_helpers/helpers";
+import { createModel, makeTestComposerStore, toRangesData } from "../test_helpers/helpers";
 
 describe("core", () => {
   describe("format", () => {
-    test("format cell that point to an empty cell properly", () => {
-      const model = new Model();
-      setCellContent(model, "A1", "=A2");
+    test("format cell that point to an empty cell properly", async () => {
+      const model = await createModel();
+      await setCellContent(model, "A1", "=A2");
 
       expect(getCellContent(model, "A1")).toBe("0");
     });
 
-    test("format cell without content: empty string", () => {
-      const model = new Model();
-      selectCell(model, "B2");
-      setZoneBorders(model, { position: "bottom" });
+    test("format cell without content: empty string", async () => {
+      const model = await createModel();
+      await selectCell(model, "B2");
+      await setZoneBorders(model, { position: "bottom" });
       expect(getCellContent(model, "B2")).toBe("");
     });
 
-    test("format cell with the zero value", () => {
-      const model = new Model();
-      setCellContent(model, "A1", "0");
-      selectCell(model, "A1");
-      setFormat(model, "A1", "0.00000");
+    test("format cell with the zero value", async () => {
+      const model = await createModel();
+      await setCellContent(model, "A1", "0");
+      await selectCell(model, "A1");
+      await setFormat(model, "A1", "0.00000");
       expect(getCellContent(model, "A1")).toBe("0.00000");
-      setCellContent(model, "A2", "0");
-      setFormat(model, "A2", "0.00%");
+      await setCellContent(model, "A2", "0");
+      await setFormat(model, "A2", "0.00%");
       expect(getCellContent(model, "A2")).toBe("0.00%");
     });
 
-    test("evaluate properly a cell with a style just recently applied", () => {
-      const model = new Model();
-      setCellContent(model, "A1", "=sum(A2) + 1");
-      setFormatting(model, "A1", { bold: true });
+    test("evaluate properly a cell with a style just recently applied", async () => {
+      const model = await createModel();
+      await setCellContent(model, "A1", "=sum(A2) + 1");
+      await setFormatting(model, "A1", { bold: true });
       expect(getCellContent(model, "A1")).toEqual("1");
     });
 
-    test("format cell to a boolean value", () => {
-      const model = new Model();
-      setCellContent(model, "A1", "=false");
-      setCellContent(model, "A2", "=true");
+    test("format cell to a boolean value", async () => {
+      const model = await createModel();
+      await setCellContent(model, "A1", "=false");
+      await setCellContent(model, "A2", "=true");
 
       expect(getCellContent(model, "A1")).toBe("FALSE");
       expect(getCellContent(model, "A2")).toBe("TRUE");
     });
 
     describe("detect format number automatically", () => {
-      test("if contain currency", () => {
-        const model = new Model();
-        setCellContent(model, "A1", "3$");
-        setCellContent(model, "A2", "-$3");
-        setCellContent(model, "A3", "$-3");
-        setCellContent(model, "A4", "$-3.123");
+      test("if contain currency", async () => {
+        const model = await createModel();
+        await setCellContent(model, "A1", "3$");
+        await setCellContent(model, "A2", "-$3");
+        await setCellContent(model, "A3", "$-3");
+        await setCellContent(model, "A4", "$-3.123");
 
-        setCellContent(model, "A5", "3€");
-        setCellContent(model, "A6", "-€3");
-        setCellContent(model, "A7", "€-3");
-        setCellContent(model, "A8", "€-3.123");
+        await setCellContent(model, "A5", "3€");
+        await setCellContent(model, "A6", "-€3");
+        await setCellContent(model, "A7", "€-3");
+        await setCellContent(model, "A8", "€-3.123");
 
         expect(getCellContent(model, "A1")).toBe("3$");
         expect(getEvaluatedCell(model, "A1").format).toBe("#,##0[$$]");
@@ -103,122 +103,122 @@ describe("core", () => {
         expect(getEvaluatedCell(model, "A8").format).toBe("[$€]#,##0.00");
       });
 
-      test("if contain percent", () => {
-        const model = new Model();
-        setCellContent(model, "A1", "3%");
-        setCellContent(model, "A2", "3.4%");
+      test("if contain percent", async () => {
+        const model = await createModel();
+        await setCellContent(model, "A1", "3%");
+        await setCellContent(model, "A2", "3.4%");
         expect(getCellContent(model, "A1")).toBe("3%");
         expect(getEvaluatedCell(model, "A1").format).toBe("0%");
         expect(getCellContent(model, "A2")).toBe("3.40%");
         expect(getEvaluatedCell(model, "A2").format).toBe("0.00%");
       });
 
-      test("currency format most important than percent format", () => {
-        const model = new Model();
-        setCellContent(model, "A1", "12300%$");
+      test("currency format most important than percent format", async () => {
+        const model = await createModel();
+        await setCellContent(model, "A1", "12300%$");
         expect(getCellContent(model, "A1")).toBe("123$");
         expect(getEvaluatedCell(model, "A1").format).toBe("#,##0[$$]");
 
-        setCellContent(model, "A2", "€12300%");
+        await setCellContent(model, "A2", "€12300%");
         expect(getCellContent(model, "A2")).toBe("€123");
         expect(getEvaluatedCell(model, "A2").format).toBe("[$€]#,##0");
       });
     });
     describe("detect format formula automatically", () => {
-      test("from formula without return format", () => {
-        const model = new Model();
-        setCellContent(model, "A1", "=CONCAT(4,2)");
+      test("from formula without return format", async () => {
+        const model = await createModel();
+        await setCellContent(model, "A1", "=CONCAT(4,2)");
         expect(getEvaluatedCell(model, "A1").format).toBe(undefined);
       });
 
-      test("from formula without return format and format seted on the formula", () => {
-        const model = new Model();
-        setCellContent(model, "A1", "=CONCAT(4,2)");
-        setCellFormat(model, "A1", "#,##0[$$]");
+      test("from formula without return format and format seted on the formula", async () => {
+        const model = await createModel();
+        await setCellContent(model, "A1", "=CONCAT(4,2)");
+        await setCellFormat(model, "A1", "#,##0[$$]");
         expect(getEvaluatedCell(model, "A1").format).toBe("#,##0[$$]");
       });
 
-      test("from formula with return format", () => {
-        const model = new Model();
-        setCellContent(model, "A1", "=TIME(42,42,42)");
+      test("from formula with return format", async () => {
+        const model = await createModel();
+        await setCellContent(model, "A1", "=TIME(42,42,42)");
         expect(getEvaluatedCell(model, "A1").format).toBe("hh:mm:ss a");
       });
 
-      test("from formula with return format and format seted on the formula", () => {
-        const model = new Model();
-        setCellContent(model, "A1", "=TIME(42,42,42)");
-        setCellFormat(model, "A1", "#,##0[$$]");
+      test("from formula with return format and format seted on the formula", async () => {
+        const model = await createModel();
+        await setCellContent(model, "A1", "=TIME(42,42,42)");
+        await setCellFormat(model, "A1", "#,##0[$$]");
         expect(getEvaluatedCell(model, "A1").format).toBe("#,##0[$$]");
       });
 
       describe("from formula depending on the reference", () => {
-        test("with the reference declared before the formula", () => {
-          const model = new Model();
-          setCellContent(model, "A1", "3%");
+        test("with the reference declared before the formula", async () => {
+          const model = await createModel();
+          await setCellContent(model, "A1", "3%");
           expect(getEvaluatedCell(model, "A1").format).toBe("0%");
 
-          setCellContent(model, "A2", "=1+A1");
+          await setCellContent(model, "A2", "=1+A1");
           expect(getEvaluatedCell(model, "A1").format).toBe("0%");
           expect(getEvaluatedCell(model, "A2").format).toBe("0%");
         });
 
-        test("with a reference to an empty cell", () => {
-          const model = new Model();
-          setCellFormat(model, "A1", "#,##0[$$]");
-          setCellContent(model, "A2", "=A1");
+        test("with a reference to an empty cell", async () => {
+          const model = await createModel();
+          await setCellFormat(model, "A1", "#,##0[$$]");
+          await setCellContent(model, "A2", "=A1");
           expect(getEvaluatedCell(model, "A2")?.format).toBe("#,##0[$$]");
         });
 
-        test("with the reference declared before the formula and format applied on the formula", () => {
-          const model = new Model();
-          setCellContent(model, "A1", "3%");
+        test("with the reference declared before the formula and format applied on the formula", async () => {
+          const model = await createModel();
+          await setCellContent(model, "A1", "3%");
           expect(getEvaluatedCell(model, "A1").format).toBe("0%");
 
-          setCellContent(model, "A2", "=1+A1");
-          setCellFormat(model, "A2", "#,##0[$$]");
+          await setCellContent(model, "A2", "=1+A1");
+          await setCellFormat(model, "A2", "#,##0[$$]");
           expect(getEvaluatedCell(model, "A1").format).toBe("0%");
           expect(getEvaluatedCell(model, "A2").format).toBe("#,##0[$$]");
         });
 
-        test("with the reference declared before the formula and format applied on the reference", () => {
-          const model = new Model();
-          setCellContent(model, "A1", "3%");
+        test("with the reference declared before the formula and format applied on the reference", async () => {
+          const model = await createModel();
+          await setCellContent(model, "A1", "3%");
           expect(getEvaluatedCell(model, "A1").format).toBe("0%");
 
-          setCellContent(model, "A2", "=1+A1");
-          setCellFormat(model, "A1", "#,##0[$$]");
+          await setCellContent(model, "A2", "=1+A1");
+          await setCellFormat(model, "A1", "#,##0[$$]");
           expect(getEvaluatedCell(model, "A1").format).toBe("#,##0[$$]");
           expect(getEvaluatedCell(model, "A2").format).toBe("#,##0[$$]");
         });
 
-        test("with the formula declared before the reference ", () => {
-          const model = new Model();
-          setCellContent(model, "A1", "=1+A2");
+        test("with the formula declared before the reference ", async () => {
+          const model = await createModel();
+          await setCellContent(model, "A1", "=1+A2");
           expect(getEvaluatedCell(model, "A1").format).toBe(undefined);
 
-          setCellContent(model, "A2", "3%");
+          await setCellContent(model, "A2", "3%");
           expect(getEvaluatedCell(model, "A1").format).toBe("0%");
           expect(getEvaluatedCell(model, "A2").format).toBe("0%");
         });
 
-        test("with the formula declared before the reference and format seted on the formula", () => {
-          const model = new Model();
-          setCellContent(model, "A1", "=1+A2");
+        test("with the formula declared before the reference and format seted on the formula", async () => {
+          const model = await createModel();
+          await setCellContent(model, "A1", "=1+A2");
           expect(getEvaluatedCell(model, "A1").format).toBe(undefined);
 
-          setCellFormat(model, "A1", "#,##0[$$]");
-          setCellContent(model, "A2", "3%");
+          await setCellFormat(model, "A1", "#,##0[$$]");
+          await setCellContent(model, "A2", "3%");
           expect(getEvaluatedCell(model, "A1").format).toBe("#,##0[$$]");
           expect(getEvaluatedCell(model, "A2").format).toBe("0%");
         });
 
-        test("with the formula declared before the reference and format seted on the reference", () => {
-          const model = new Model();
-          setCellContent(model, "A1", "=1+A2");
+        test("with the formula declared before the reference and format seted on the reference", async () => {
+          const model = await createModel();
+          await setCellContent(model, "A1", "=1+A2");
           expect(getEvaluatedCell(model, "A1").format).toBe(undefined);
 
-          setCellContent(model, "A2", "3%");
-          setCellFormat(model, "A2", "#,##0[$$]");
+          await setCellContent(model, "A2", "3%");
+          await setCellFormat(model, "A2", "#,##0[$$]");
           expect(getEvaluatedCell(model, "A1").format).toBe("#,##0[$$]");
           expect(getEvaluatedCell(model, "A2").format).toBe("#,##0[$$]");
         });
@@ -226,10 +226,10 @@ describe("core", () => {
     });
   });
 
-  test("does not reevaluate cells if edition does not change content", () => {
-    const model = new Model();
+  test("does not reevaluate cells if edition does not change content", async () => {
+    const model = await createModel();
     const composerStore = makeTestComposerStore(model);
-    setCellContent(model, "A1", "=rand()");
+    await setCellContent(model, "A1", "=rand()");
 
     expect(getEvaluatedCell(model, "A1").value).toBeDefined();
     const val = getEvaluatedCell(model, "A1").value;
@@ -239,14 +239,14 @@ describe("core", () => {
     expect(getEvaluatedCell(model, "A1").value).toBe(val);
   });
 
-  test("core cell getter does not crash if invalid col/row", () => {
-    const model = new Model();
+  test("core cell getter does not crash if invalid col/row", async () => {
+    const model = await createModel();
     const sheetId = model.getters.getActiveSheetId();
     expect(model.getters.getCell({ sheetId, col: -1, row: -1 })).toBeUndefined();
   });
 
-  test("single cell XC conversion", () => {
-    const model = new Model({});
+  test("single cell XC conversion", async () => {
+    const model = await createModel({});
     expect(
       model.getters.zoneToXC(
         model.getters.getActiveSheetId(),
@@ -255,8 +255,8 @@ describe("core", () => {
     ).toBe("A1");
   });
 
-  test("multi cell zone XC conversion", () => {
-    const model = new Model({});
+  test("multi cell zone XC conversion", async () => {
+    const model = await createModel({});
     expect(
       model.getters.zoneToXC(
         model.getters.getActiveSheetId(),
@@ -265,8 +265,10 @@ describe("core", () => {
     ).toBe("A1:B2");
   });
 
-  test("xc is expanded to overlapping merges", () => {
-    const model = new Model({ sheets: [{ colNumber: 10, rowNumber: 10, merges: ["A1:B2"] }] });
+  test("xc is expanded to overlapping merges", async () => {
+    const model = await createModel({
+      sheets: [{ colNumber: 10, rowNumber: 10, merges: ["A1:B2"] }],
+    });
     expect(
       model.getters.zoneToXC(
         model.getters.getActiveSheetId(),
@@ -275,8 +277,8 @@ describe("core", () => {
     ).toBe("A1:B3");
   });
 
-  test("zone is across two merges", () => {
-    const model = new Model({
+  test("zone is across two merges", async () => {
+    const model = await createModel({
       sheets: [{ colNumber: 10, rowNumber: 10, merges: ["A1:B2", "A4:B5"] }],
     });
     expect(
@@ -287,8 +289,10 @@ describe("core", () => {
     ).toBe("A1:B5");
   });
 
-  test("merge is considered as one single cell", () => {
-    const model = new Model({ sheets: [{ colNumber: 10, rowNumber: 10, merges: ["A1:B2"] }] });
+  test("merge is considered as one single cell", async () => {
+    const model = await createModel({
+      sheets: [{ colNumber: 10, rowNumber: 10, merges: ["A1:B2"] }],
+    });
     expect(
       model.getters.zoneToXC(
         model.getters.getActiveSheetId(),
@@ -297,19 +301,19 @@ describe("core", () => {
     ).toBe("A1");
   });
 
-  test("can get row/col of inactive sheet", () => {
-    const model = new Model();
-    createSheet(model, { sheetId: "42" });
+  test("can get row/col of inactive sheet", async () => {
+    const model = await createModel();
+    await createSheet(model, { sheetId: "42" });
     const [, sheet2Id] = model.getters.getSheetIds();
-    resizeRows(model, [0], 24, sheet2Id);
-    resizeColumns(model, ["A"], 42, sheet2Id);
+    await resizeRows(model, [0], 24, sheet2Id);
+    await resizeColumns(model, ["A"], 42, sheet2Id);
     expect(sheet2Id).not.toBe(model.getters.getActiveSheetId());
     expect(model.getters.getRowSize(sheet2Id, 0)).toEqual(24);
     expect(model.getters.getColSize(sheet2Id, 0)).toEqual(42);
   });
 
-  test("can get row/col number of inactive sheet", () => {
-    const model = new Model({
+  test("can get row/col number of inactive sheet", async () => {
+    const model = await createModel({
       sheets: [
         { colNumber: 10, rowNumber: 10, id: "1" },
         { colNumber: 19, rowNumber: 29, id: "2" },
@@ -320,67 +324,67 @@ describe("core", () => {
     expect(model.getters.getNumberCols("2")).toEqual(19);
   });
 
-  test("Range with absolute references are correctly updated on rows manipulation", () => {
-    const model = new Model();
-    setFormulaVisibility(model, true);
-    setCellContent(model, "A1", "=SUM($C$1:$C$5)");
-    addRows(model, "after", 2, 1);
+  test("Range with absolute references are correctly updated on rows manipulation", async () => {
+    const model = await createModel();
+    await setFormulaVisibility(model, true);
+    await setCellContent(model, "A1", "=SUM($C$1:$C$5)");
+    await addRows(model, "after", 2, 1);
     expect(getCellContent(model, "A1")).toBe("=SUM($C$1:$C$6)");
-    addRows(model, "before", 0, 1);
+    await addRows(model, "before", 0, 1);
     expect(getCellContent(model, "A2")).toBe("=SUM($C$2:$C$7)");
   });
 
-  test("Absolute references are correctly updated on rows manipulation", () => {
-    const model = new Model();
-    setFormulaVisibility(model, true);
-    setCellContent(model, "A1", "=SUM($C$1)");
-    addRows(model, "after", 2, 1);
+  test("Absolute references are correctly updated on rows manipulation", async () => {
+    const model = await createModel();
+    await setFormulaVisibility(model, true);
+    await setCellContent(model, "A1", "=SUM($C$1)");
+    await addRows(model, "after", 2, 1);
     expect(getCellContent(model, "A1")).toBe("=SUM($C$1)");
-    addRows(model, "before", 0, 1);
+    await addRows(model, "before", 0, 1);
     expect(getCellContent(model, "A2")).toBe("=SUM($C$2)");
   });
 
-  test("Range with absolute references are correctly updated on columns manipulation", () => {
-    const model = new Model();
-    setFormulaVisibility(model, true);
-    setCellContent(model, "A1", "=SUM($A$2:$E$2)");
-    addColumns(model, "after", "C", 1);
+  test("Range with absolute references are correctly updated on columns manipulation", async () => {
+    const model = await createModel();
+    await setFormulaVisibility(model, true);
+    await setCellContent(model, "A1", "=SUM($A$2:$E$2)");
+    await addColumns(model, "after", "C", 1);
     expect(getCellContent(model, "A1")).toBe("=SUM($A$2:$F$2)");
-    addColumns(model, "before", "A", 1);
+    await addColumns(model, "before", "A", 1);
     expect(getCellContent(model, "B1")).toBe("=SUM($B$2:$G$2)");
   });
 
-  test("Absolute references are correctly updated on columns manipulation", () => {
-    const model = new Model();
-    setFormulaVisibility(model, true);
-    setCellContent(model, "A1", "=SUM($A$2)");
-    addColumns(model, "after", "C", 1);
+  test("Absolute references are correctly updated on columns manipulation", async () => {
+    const model = await createModel();
+    await setFormulaVisibility(model, true);
+    await setCellContent(model, "A1", "=SUM($A$2)");
+    await addColumns(model, "after", "C", 1);
     expect(getCellContent(model, "A1")).toBe("=SUM($A$2)");
-    addColumns(model, "before", "A", 1);
+    await addColumns(model, "before", "A", 1);
     expect(getCellContent(model, "B1")).toBe("=SUM($B$2)");
   });
 });
 
 describe("history", () => {
-  test("can undo and redo a add cell operation", () => {
-    const model = new Model();
+  test("can undo and redo a add cell operation", async () => {
+    const model = await createModel();
 
     expect(model.getters.canUndo()).toBe(false);
 
-    setCellContent(model, "A1", "abc");
+    await setCellContent(model, "A1", "abc");
     expect(model.getters.canUndo()).toBe(true);
 
-    undo(model);
+    await undo(model);
     expect(getCell(model, "A1")).toBeUndefined();
     expect(model.getters.canUndo()).toBe(false);
 
-    redo(model);
+    await redo(model);
     expect(getCellContent(model, "A1")).toBe("abc");
     expect(model.getters.canUndo()).toBe(true);
   });
 
-  test("can undo and redo a cell update", () => {
-    const model = new Model({
+  test("can undo and redo a cell update", async () => {
+    const model = await createModel({
       sheets: [{ colNumber: 10, rowNumber: 10, cells: { A1: "1" } }],
     });
     const composerStore = makeTestComposerStore(model);
@@ -393,101 +397,101 @@ describe("history", () => {
     expect(getCellContent(model, "A1")).toBe("abc");
     expect(model.getters.canUndo()).toBe(true);
 
-    undo(model);
+    await undo(model);
     expect(getCellContent(model, "A1")).toBe("1");
     expect(model.getters.canUndo()).toBe(false);
 
-    redo(model);
+    await redo(model);
     expect(getCellContent(model, "A1")).toBe("abc");
     expect(model.getters.canUndo()).toBe(true);
   });
 
-  test("can undo and redo a delete cell operation", () => {
-    const model = new Model();
-    setCellContent(model, "A2", "3");
+  test("can undo and redo a delete cell operation", async () => {
+    const model = await createModel();
+    await setCellContent(model, "A2", "3");
 
     expect(getCellContent(model, "A2")).toBe("3");
-    deleteContent(model, ["A2"]);
+    await deleteContent(model, ["A2"]);
     expect(getCell(model, "A2")).toBeUndefined();
 
-    undo(model);
+    await undo(model);
     expect(getCellContent(model, "A2")).toBe("3");
 
-    redo(model);
+    await redo(model);
     expect(getCell(model, "A2")).toBeUndefined();
   });
 
-  test("can delete a cell with a style", () => {
-    const model = new Model();
-    setCellContent(model, "A1", "3");
-    setFormatting(model, "A1", { bold: true });
+  test("can delete a cell with a style", async () => {
+    const model = await createModel();
+    await setCellContent(model, "A1", "3");
+    await setFormatting(model, "A1", { bold: true });
     expect(getCellContent(model, "A1")).toBe("3");
 
-    deleteContent(model, ["A1"]);
+    await deleteContent(model, ["A1"]);
     expect(getCellContent(model, "A1")).toBe("");
   });
 
-  test("can delete a cell with a border", () => {
-    const model = new Model();
-    setCellContent(model, "A1", "3");
-    setZoneBorders(model, { position: "bottom" }, ["A1"]);
+  test("can delete a cell with a border", async () => {
+    const model = await createModel();
+    await setCellContent(model, "A1", "3");
+    await setZoneBorders(model, { position: "bottom" }, ["A1"]);
 
     expect(getCellContent(model, "A1")).toBe("3");
 
-    deleteContent(model, ["A1"]);
+    await deleteContent(model, ["A1"]);
     expect(getCellContent(model, "A1")).toBe("");
   });
 
-  test("can delete a cell with a format", () => {
-    const model = new Model();
-    setCellContent(model, "A1", "3");
-    setFormat(model, "A1", "#,##0.00");
+  test("can delete a cell with a format", async () => {
+    const model = await createModel();
+    await setCellContent(model, "A1", "3");
+    await setFormat(model, "A1", "#,##0.00");
 
     expect(getCellContent(model, "A1")).toBe("3.00");
 
-    deleteContent(model, ["A1"]);
+    await deleteContent(model, ["A1"]);
     expect(getCellContent(model, "A1")).toBe("");
   });
 
-  test("setting a date to a cell will reformat it", () => {
-    const model = new Model();
-    setCellContent(model, "A1", "03/2/2011");
-    setCellContent(model, "A2", " 03/12/2011");
+  test("setting a date to a cell will reformat it", async () => {
+    const model = await createModel();
+    await setCellContent(model, "A1", "03/2/2011");
+    await setCellContent(model, "A2", " 03/12/2011");
     expect(getCellContent(model, "A1")).toBe("03/02/2011");
     expect(getCellContent(model, "A2")).toBe("03/12/2011");
   });
 
-  test("get cell formula text", () => {
-    const model = new Model();
-    setCellContent(model, "A1", "=SUM(1,2)");
-    setCellContent(model, "A2", "This is Patrick");
-    setFormulaVisibility(model, true);
+  test("get cell formula text", async () => {
+    const model = await createModel();
+    await setCellContent(model, "A1", "=SUM(1,2)");
+    await setCellContent(model, "A2", "This is Patrick");
+    await setFormulaVisibility(model, true);
     expect(getCellContent(model, "A1")).toBe("=SUM(1,2)");
     expect(getCellContent(model, "A2")).toBe("This is Patrick");
-    setFormulaVisibility(model, false);
+    await setFormulaVisibility(model, false);
     expect(getCellContent(model, "A1")).toBe("3");
     expect(getCellContent(model, "A2")).toBe("This is Patrick");
   });
 
-  test("set formula visibility is idempotent", () => {
-    const model = new Model();
-    setFormulaVisibility(model, true);
+  test("set formula visibility is idempotent", async () => {
+    const model = await createModel();
+    await setFormulaVisibility(model, true);
     expect(model.getters.shouldShowFormulas()).toBe(true);
-    setFormulaVisibility(model, true);
+    await setFormulaVisibility(model, true);
     expect(model.getters.shouldShowFormulas()).toBe(true);
-    setFormulaVisibility(model, false);
+    await setFormulaVisibility(model, false);
     expect(model.getters.shouldShowFormulas()).toBe(false);
   });
 
   test("Cannot update a cell in invalid sheet", async () => {
-    const model = new Model();
-    expect(setCellContent(model, "B2", "hello", "invalid")).toBeCancelledBecause(
+    const model = await createModel();
+    expect(await setCellContent(model, "B2", "hello", "invalid")).toBeCancelledBecause(
       CommandResult.InvalidSheetId
     );
   });
 
   test("Can select a cell in another sheet", async () => {
-    const model = new Model({
+    const model = await createModel({
       sheets: [
         { id: "1", cells: { A1: "Sheet1A1" } },
         { id: "2", cells: { A1: "Sheet2A1" } },
@@ -498,10 +502,10 @@ describe("history", () => {
   });
 
   describe("getters", () => {
-    test("getRangeFormattedValues", () => {
+    test("getRangeFormattedValues", async () => {
       const sheet1Id = "42";
       const sheet2Id = "43";
-      const model = new Model({
+      const model = await createModel({
         sheets: [
           {
             id: sheet1Id,
@@ -536,7 +540,7 @@ describe("history", () => {
         ],
         formats: { "1": "#,##0", "2": "mm/dd/yyyy" },
       });
-      activateSheet(model, sheet2Id); // evaluate Sheet2
+      await activateSheet(model, sheet2Id); // evaluate Sheet2
       expect(getRangeFormattedValues(model, "A1:A3", sheet1Id)).toEqual(["1,000", "", "2,000"]);
       expect(getRangeFormattedValues(model, "$A$1:$A$3", sheet1Id)).toEqual(["1,000", "", "2,000"]);
       expect(getRangeFormattedValues(model, "Sheet1!A1:A3", sheet1Id)).toEqual([
@@ -566,10 +570,10 @@ describe("history", () => {
       expect(getRangeFormattedValues(model, "'Sheet2'!B2", sheet1Id)).toEqual(["TRUE"]);
     });
 
-    test("getRangeValues", () => {
+    test("getRangeValues", async () => {
       const sheet1Id = "42";
       const sheet2Id = "43";
-      const model = new Model({
+      const model = await createModel({
         sheets: [
           {
             id: sheet1Id,
@@ -616,10 +620,10 @@ describe("Generic allowDispatch", () => {
     return model.dispatch(type, payload);
   }
 
-  beforeEach(() => {
+  beforeEach(async () => {
     //@ts-ignore
     coreTypes.add("MY_CORE_CMD");
-    model = new Model();
+    model = await createModel();
     sheetId = model.getters.getActiveSheetId();
   });
 

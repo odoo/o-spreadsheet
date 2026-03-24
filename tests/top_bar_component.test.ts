@@ -39,6 +39,7 @@ import {
 import { getBorder, getCell, getStyle, getTable } from "./test_helpers/getters_helpers";
 import {
   addToRegistry,
+  createModel,
   getFigureIds,
   getInputSelection,
   getNode,
@@ -122,9 +123,10 @@ class Comp2 extends Comp {
 }
 
 async function mountParent(
-  model: Model = new Model(),
+  model: Model | undefined = undefined,
   testEnv?: Partial<SpreadsheetChildEnv>
 ): Promise<{ parent: Parent; model: Model; fixture: HTMLElement }> {
+  model = model ?? (await createModel());
   const env = {
     ...testEnv,
     model,
@@ -142,8 +144,8 @@ describe("TopBar component", () => {
   });
 
   test("opening a second menu closes the first one", async () => {
-    const model = new Model();
-    setCellContent(model, "B2", "b2");
+    const model = await createModel();
+    await setCellContent(model, "B2", "b2");
     await mountParent(model);
     expect(fixture.querySelectorAll(".o-dropdown-content").length).toBe(0);
     await nextTick();
@@ -169,13 +171,13 @@ describe("TopBar component", () => {
     const mergeTool = () => fixture.querySelector('.o-menu-item-button[title="Merge cells"]')!;
 
     // Case 1: A selected zone contains merged cells → should be active
-    merge(model, "A1:B2");
-    setSelection(model, ["A1:C3", "D1:F3"]);
+    await merge(model, "A1:B2");
+    await setSelection(model, ["A1:C3", "D1:F3"]);
     await nextTick();
     expect(mergeTool().classList.contains("active")).toBeTruthy();
 
     // Case 2: No selected zone contains merged cells → should not be active
-    setSelection(model, ["D1:F3", "H1:J3"]);
+    await setSelection(model, ["D1:F3", "H1:J3"]);
     await nextTick();
     expect(mergeTool().classList.contains("active")).toBeFalsy();
   });
@@ -183,13 +185,13 @@ describe("TopBar component", () => {
   test("disables the merge button when selected zones share overlapping cells", async () => {
     const { model } = await mountParent();
 
-    setSelection(model, ["A1:B2", "C1:D2"]);
+    await setSelection(model, ["A1:B2", "C1:D2"]);
     await nextTick();
 
     const mergeTool = fixture.querySelector('.o-menu-item-button[title="Merge cells"]')!;
     expect(mergeTool.classList.contains("o-disabled")).toBeFalsy();
 
-    setSelection(model, ["A1:B2", "B1:C2"]);
+    await setSelection(model, ["A1:B2", "B1:C2"]);
     await nextTick();
 
     expect(mergeTool.classList.contains("o-disabled")).toBeTruthy();
@@ -198,24 +200,24 @@ describe("TopBar component", () => {
   test("disables the merge button when any one zone crosses a frozen pane", async () => {
     const { model } = await mountParent();
 
-    freezeColumns(model, 2);
-    freezeRows(model, 2);
+    await freezeColumns(model, 2);
+    await freezeRows(model, 2);
 
     const mergeTool = fixture.querySelector('.o-menu-item-button[title="Merge cells"]')!;
 
-    setSelection(model, ["B1:C1"]);
+    await setSelection(model, ["B1:C1"]);
     await nextTick();
     expect(mergeTool.classList.contains("o-disabled")).toBeTruthy();
 
-    setSelection(model, ["A2:A3"]);
+    await setSelection(model, ["A2:A3"]);
     await nextTick();
     expect(mergeTool.classList.contains("o-disabled")).toBeTruthy();
 
-    setSelection(model, ["D5:E7", "B1:C1"]);
+    await setSelection(model, ["D5:E7", "B1:C1"]);
     await nextTick();
     expect(mergeTool.classList.contains("o-disabled")).toBeTruthy();
 
-    setSelection(model, ["D5:E7", "A2:A3"]);
+    await setSelection(model, ["D5:E7", "A2:A3"]);
     await nextTick();
     expect(mergeTool.classList.contains("o-disabled")).toBeTruthy();
   });
@@ -224,7 +226,7 @@ describe("TopBar component", () => {
     const { model } = await mountParent();
     const sheetId = model.getters.getActiveSheetId();
 
-    setSelection(model, ["A1:B2", "C1:D2"]);
+    await setSelection(model, ["A1:B2", "C1:D2"]);
     await nextTick();
 
     const mergeTool = fixture.querySelector('.o-menu-item-button[title="Merge cells"]')!;
@@ -243,7 +245,7 @@ describe("TopBar component", () => {
     const sheetId = model.getters.getActiveSheetId();
 
     // First select zones without merged cells
-    setSelection(model, ["A1:C3", "D1:E2"]);
+    await setSelection(model, ["A1:C3", "D1:E2"]);
     await nextTick();
 
     const mergeTool = fixture.querySelector('.o-menu-item-button[title="Merge cells"]')!;
@@ -259,7 +261,7 @@ describe("TopBar component", () => {
     ]);
 
     // Now select a zone with merged cells
-    setSelection(model, ["G1:H2", "A1:C3", "D1:E2"]);
+    await setSelection(model, ["G1:H2", "A1:C3", "D1:E2"]);
     await nextTick();
 
     expect(mergeTool.classList.contains("active")).toBeTruthy();
@@ -278,12 +280,12 @@ describe("TopBar component", () => {
     expect(undoTool.classList.contains("o-disabled")).toBeTruthy();
     expect(redoTool.classList.contains("o-disabled")).toBeTruthy();
 
-    setSelection(model, ["A2"]); // non repeatable command
+    await setSelection(model, ["A2"]); // non repeatable command
     await nextTick();
     expect(undoTool.classList.contains("o-disabled")).toBeTruthy();
     expect(redoTool.classList.contains("o-disabled")).toBeTruthy();
 
-    setFormatting(model, "A1", { bold: true });
+    await setFormatting(model, "A1", { bold: true });
     await nextTick();
     expect(undoTool.classList.contains("o-disabled")).toBeFalsy();
     expect(redoTool.classList.contains("o-disabled")).toBeFalsy();
@@ -364,47 +366,47 @@ describe("TopBar component", () => {
     });
 
     test("Filter tool is enabled with single selection", async () => {
-      setSelection(model, ["A2:B3"]);
+      await setSelection(model, ["A2:B3"]);
       await nextTick();
       const filterTool = fixture.querySelector(createFilterTool)!;
       expect(filterTool.classList.contains("o-disabled")).toBeFalsy();
     });
 
     test("Filter tool is enabled with selection of multiple continuous zones", async () => {
-      setSelection(model, ["A1", "A2"]);
+      await setSelection(model, ["A1", "A2"]);
       await nextTick();
       const filterTool = fixture.querySelector(createFilterTool)!;
       expect(filterTool.classList.contains("o-disabled")).toBeFalsy();
     });
 
     test("Filter tool is disabled with selection of multiple non-continuous zones", async () => {
-      setSelection(model, ["A1", "B5"]);
+      await setSelection(model, ["A1", "B5"]);
       await nextTick();
       const filterTool = fixture.querySelector(createFilterTool)!;
       expect(filterTool.classList.contains("o-disabled")).toBeTruthy();
     });
 
     test("Filter tool change from create filter to remove filter when a filter is selected", async () => {
-      createTableWithFilter(model, "A2:B3");
+      await createTableWithFilter(model, "A2:B3");
       await nextTick();
       expect(fixture.querySelectorAll(removeFilterTool).length).toEqual(0);
       expect(fixture.querySelectorAll(createFilterTool).length).toEqual(1);
 
-      setSelection(model, ["A1", "B2"]);
+      await setSelection(model, ["A1", "B2"]);
       await nextTick();
       expect(fixture.querySelectorAll(removeFilterTool).length).toEqual(1);
       expect(fixture.querySelectorAll(createFilterTool).length).toEqual(0);
     });
 
     test("Adjacent cells selection while creating table on single cell", async () => {
-      setCellContent(model, "A1", "A");
-      setCellContent(model, "A2", "A3");
-      setCellContent(model, "B2", "B");
-      setCellContent(model, "B3", "3");
-      setCellContent(model, "C3", "B4");
-      setCellContent(model, "C4", "Hello");
-      setCellContent(model, "D4", "2");
-      selectCell(model, "A1");
+      await setCellContent(model, "A1", "A");
+      await setCellContent(model, "A2", "A3");
+      await setCellContent(model, "B2", "B");
+      await setCellContent(model, "B3", "3");
+      await setCellContent(model, "C3", "B4");
+      await setCellContent(model, "C4", "Hello");
+      await setCellContent(model, "D4", "2");
+      await selectCell(model, "A1");
       await simulateClick(createFilterTool);
       await nextTick();
       const selection = model.getters.getSelectedZone();
@@ -414,9 +416,9 @@ describe("TopBar component", () => {
   });
 
   test("can clear formatting", async () => {
-    const model = new Model();
-    selectCell(model, "B1");
-    setZoneBorders(model, { position: "all" });
+    const model = await createModel();
+    await selectCell(model, "B1");
+    await setZoneBorders(model, { position: "all" });
     expect(getBorder(model, "B1")).toBeDefined();
     await mountParent(model);
     const clearFormatTool = fixture.querySelector(
@@ -499,9 +501,9 @@ describe("TopBar component", () => {
     ])(
       "alignment icon options in top bar matches the selected cell (content: %s, style: %s)",
       async (content, style, expectedTitleActive) => {
-        const model = new Model();
-        setCellContent(model, "A1", content);
-        setFormatting(model, "A1", style as Style);
+        const model = await createModel();
+        await setCellContent(model, "A1", content);
+        await setFormatting(model, "A1", style as Style);
         await mountParent(model);
         await click(fixture, '.o-menu-item-button[title="Horizontal align"]');
         const expectedButtonActive = fixture.querySelector(
@@ -532,9 +534,9 @@ describe("TopBar component", () => {
     ])(
       "alignment icon options in top bar matches the selected cell (content: %s, style: %s)",
       async (content, style, expectedTitleActive) => {
-        const model = new Model();
-        setCellContent(model, "A1", content);
-        setFormatting(model, "A1", style as Style);
+        const model = await createModel();
+        await setCellContent(model, "A1", content);
+        await setFormatting(model, "A1", style as Style);
         await mountParent(model);
         await click(fixture, '.o-menu-item-button[title="Vertical align"]');
         const expectedButtonActive = fixture.querySelector(
@@ -565,9 +567,9 @@ describe("TopBar component", () => {
     ])(
       "wrapping icon options in the top bar matches the selected cell (content: %s, style: %s)",
       async (content, style, expectedTitleActive) => {
-        const model = new Model();
-        setCellContent(model, "A1", content);
-        setFormatting(model, "A1", style as Style);
+        const model = await createModel();
+        await setCellContent(model, "A1", content);
+        await setFormatting(model, "A1", style as Style);
         await mountParent(model);
         await click(fixture, '.o-menu-item-button[title="Wrapping"]');
         const expectedButtonActive = fixture.querySelector(
@@ -579,8 +581,8 @@ describe("TopBar component", () => {
   });
 
   test("opening, then closing same menu", async () => {
-    const model = new Model();
-    setCellContent(model, "B2", "b2");
+    const model = await createModel();
+    await setCellContent(model, "B2", "b2");
     await mountParent(model);
 
     expect(fixture.querySelectorAll(".o-dropdown-content").length).toBe(0);
@@ -703,7 +705,7 @@ describe("TopBar component", () => {
   });
 
   test("Cannot edit cell in a readonly spreadsheet", async () => {
-    const model = new Model({}, { mode: "readonly" });
+    const model = await createModel({}, { mode: "readonly" });
     ({ fixture, parent } = await mountParent(model));
     const composerStore = parent.env.getStore(CellComposerStore);
 
@@ -719,7 +721,7 @@ describe("TopBar component", () => {
   });
 
   test("Keep focus on the composer when clicked in readonly mode", async () => {
-    ({ fixture } = await mountParent(new Model({}, { mode: "readonly" })));
+    ({ fixture } = await mountParent(await createModel({}, { mode: "readonly" })));
 
     const topBarComposerEl = fixture.querySelector<HTMLElement>(".o-topbar-composer")!;
     expect(topBarComposerEl.classList).toContain("o-topbar-composer-readonly");
@@ -763,7 +765,7 @@ describe("TopBar component", () => {
 
   test("can insert an image", async () => {
     const fileStore = new FileStore();
-    const model = new Model({}, { external: { fileStore } });
+    const model = await createModel({}, { external: { fileStore } });
     await mountParent(model);
     const sheetId = model.getters.getActiveSheetId();
     await simulateClick(".o-topbar-menu[data-id='insert']");
@@ -776,7 +778,7 @@ describe("TopBar component", () => {
     const topbarComposerElement = fixture.querySelector(
       ".o-spreadsheet-topbar .o-composer-container div"
     )!;
-    setCellContent(model, "A1", "=A1+A2");
+    await setCellContent(model, "A1", "=A1+A2");
     await nextTick();
     expect(topbarComposerElement.textContent).toBe("=A1+A2");
   });
@@ -803,7 +805,7 @@ test("Can show/hide a TopBarComponent based on condition", async () => {
 describe("TopBar - Custom currency", () => {
   test("can open custom currency sidepanel from tool", async () => {
     const { fixture } = await mountSpreadsheet({
-      model: new Model({}, { external: { loadCurrencies: async () => [] as Currency[] } }),
+      model: await createModel({}, { external: { loadCurrencies: async () => [] as Currency[] } }),
     });
     await click(fixture, ".o-menu-item-button[title='More formats']");
     await click(fixture, ".o-menu-item[title='Custom currency']");
@@ -814,10 +816,10 @@ describe("TopBar - Custom currency", () => {
 describe("Format", () => {
   test("can clear format", async () => {
     const { model, fixture } = await mountSpreadsheet();
-    setFormatting(model, "A1, B2:B3", { fillColor: "#000000" });
-    selectCell(model, "A1");
-    addCellToSelection(model, "B2");
-    setAnchorCorner(model, "B3");
+    await setFormatting(model, "A1, B2:B3", { fillColor: "#000000" });
+    await selectCell(model, "A1");
+    await addCellToSelection(model, "B2");
+    await setAnchorCorner(model, "B3");
     expect(getCell(model, "A1")?.style).toEqual({ fillColor: "#000000" });
     expect(getCell(model, "B2")?.style).toEqual({ fillColor: "#000000" });
     expect(getCell(model, "B3")?.style).toEqual({ fillColor: "#000000" });
@@ -840,8 +842,8 @@ describe("TopBar - CF", () => {
 
   test("open sidepanel with one CF in selected zone", async () => {
     const { model, fixture } = await mountSpreadsheet();
-    addEqualCf(model, "A1:C7", { fillColor: "#FF0000" }, "2");
-    setSelection(model, ["A1:K11"]);
+    await addEqualCf(model, "A1:C7", { fillColor: "#FF0000" }, "2");
+    await setSelection(model, ["A1:K11"]);
 
     await click(fixture, ".o-topbar-menu[data-id='format']");
     await click(fixture, ".o-menu-item[data-name='format_cf']");
@@ -851,9 +853,9 @@ describe("TopBar - CF", () => {
 
   test("open sidepanel with with more then one CF in selected zone", async () => {
     const { model, fixture } = await mountSpreadsheet();
-    addEqualCf(model, "A1:C7", { fillColor: "#FF0000" }, "2", "1");
-    addEqualCf(model, "A1:C7", { fillColor: "#FE0001" }, "3", "2");
-    setSelection(model, ["A1:K11"]);
+    await addEqualCf(model, "A1:C7", { fillColor: "#FF0000" }, "2", "1");
+    await addEqualCf(model, "A1:C7", { fillColor: "#FE0001" }, "3", "2");
+    await setSelection(model, ["A1:K11"]);
 
     await click(fixture, ".o-topbar-menu[data-id='format']");
     await click(fixture, ".o-menu-item[data-name='format_cf']");
@@ -864,15 +866,15 @@ describe("TopBar - CF", () => {
   test("will update sidepanel if we reopen it from other cell", async () => {
     const { model, fixture } = await mountSpreadsheet();
 
-    addEqualCf(model, "A1:A10", { fillColor: "#FF1200" }, "2", "1");
-    addEqualCf(model, "F1", { fillColor: "#FF1200" }, "2", "2");
-    setSelection(model, ["A1:A11"]);
+    await addEqualCf(model, "A1:A10", { fillColor: "#FF1200" }, "2", "1");
+    await addEqualCf(model, "F1", { fillColor: "#FF1200" }, "2", "2");
+    await setSelection(model, ["A1:A11"]);
     await click(fixture, ".o-topbar-menu[data-id='format']");
     await click(fixture, ".o-menu-item[data-name='format_cf']");
     expect(fixture.querySelector(".o-sidePanel .o-sidePanelBody .o-cf-preview-list")).toBeFalsy();
     expect(fixture.querySelector(".o-sidePanel .o-sidePanelBody .o-cf-editor")).toBeTruthy();
 
-    setSelection(model, ["A1:F1"]);
+    await setSelection(model, ["A1:F1"]);
     await click(fixture, ".o-topbar-menu[data-id='format']");
     await click(fixture, ".o-menu-item[data-name='format_cf']");
     expect(fixture.querySelector(".o-sidePanel .o-sidePanelBody .o-cf-preview-list")).toBeTruthy();
@@ -899,7 +901,7 @@ describe("Topbar - menu item resizing with viewport", () => {
     expect(parseInt(height)).toBe(
       model.getters.getVisibleRect(model.getters.getActiveMainViewport()).height
     );
-    resizeSheetView(model, 100, 300);
+    await resizeSheetView(model, 100, 300);
     spreadsheetHeight = 100;
     window.resizers.resize();
     await nextTick();
@@ -916,7 +918,7 @@ describe("Topbar - menu item resizing with viewport", () => {
     expect(parseInt(height)).toBe(
       model.getters.getVisibleRect(model.getters.getActiveMainViewport()).height
     );
-    resizeSheetView(model, 100, 300);
+    await resizeSheetView(model, 100, 300);
     spreadsheetHeight = 100;
     window.resizers.resize();
     await nextTick();
@@ -944,7 +946,7 @@ test("prettified formula should have the cursor", async () => {
   // I'll set the cursor in between the fours
   const firstPart = "=SUM(11111111, 22222222, 33333333, 4444";
   const secondPart = "4444, 55555555, 66666666, 77777777, 88888888)";
-  setCellContent(model, "A1", firstPart + secondPart);
+  await setCellContent(model, "A1", firstPart + secondPart);
   await nextTick();
   const composerEl: HTMLElement = document.querySelector(".o-spreadsheet-topbar .o-composer")!;
   composerEl.focus();
@@ -1007,8 +1009,8 @@ describe("Topbar svg icon", () => {
     [{ wrapping: "wrap" }, "Wrapping", "wrapping-wrap"],
     [{ wrapping: "overflow" }, "Wrapping", "wrapping-overflow"],
   ])("Icon in top bar matches the selected cell style", async (style, buttonTitle, iconClass) => {
-    const model = new Model();
-    setFormatting(model, "A1", style as Style);
+    const model = await createModel();
+    await setFormatting(model, "A1", style as Style);
 
     ({ fixture } = await mountSpreadsheet({ model }));
 
@@ -1020,7 +1022,7 @@ describe("Topbar svg icon", () => {
 test("Clicking on a topbar button triggers two renders", async () => {
   const transportService = new MockTransportService();
 
-  const model = new Model({}, { transportService });
+  const model = await createModel({}, { transportService });
   const { fixture, env } = await mountSpreadsheet({ model });
 
   const modelRender = jest.fn();
@@ -1142,7 +1144,7 @@ describe("Responsive Top bar behaviour", () => {
     const index = categories.findIndex((category) => category === "cellStyle");
     spreadsheetWidth = index * toolWidth + moreToolsContainerWidth + 1;
 
-    const model = new Model();
+    const model = await createModel();
     await mountParent(model);
     await nextTick();
     await click(fixture, ".more-tools");
@@ -1155,7 +1157,7 @@ describe("Responsive Top bar behaviour", () => {
     // Hide a section with an action button
     const index = categories.findIndex((category) => category === "textStyle");
     spreadsheetWidth = index * toolWidth + moreToolsContainerWidth + 1;
-    const model = new Model();
+    const model = await createModel();
     await mountParent(model);
     await nextTick();
     await click(fixture, ".more-tools");
@@ -1167,7 +1169,7 @@ describe("Responsive Top bar behaviour", () => {
 
   test("Use a dropdown item from the popover", async () => {
     spreadsheetWidth = 550;
-    const model = new Model();
+    const model = await createModel();
     await mountParent(model);
     await nextTick();
     await click(fixture, ".more-tools");

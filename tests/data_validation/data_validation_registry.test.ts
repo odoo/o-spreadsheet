@@ -19,14 +19,14 @@ import {
 } from "../../src/types";
 import { addDataValidation, setCellContent, updateLocale } from "../test_helpers/commands_helpers";
 import { FR_LOCALE } from "../test_helpers/constants";
-import { setGrid, toCellPosition } from "../test_helpers/helpers";
+import { createModel, setGrid, toCellPosition } from "../test_helpers/helpers";
 
 describe("Data validation registry", () => {
   let model: Model;
   let getters: Getters;
   let sheetId: UID;
-  beforeEach(() => {
-    model = new Model();
+  beforeEach(async () => {
+    model = await createModel();
     getters = model.getters;
     sheetId = model.getters.getActiveSheetId();
   });
@@ -40,9 +40,9 @@ describe("Data validation registry", () => {
     jest.useRealTimers();
   });
 
-  function isValueValid(testValue: string, criterion: DataValidationCriterion) {
-    addDataValidation(model, "A1", "1", criterion);
-    setCellContent(model, "A1", testValue);
+  async function isValueValid(testValue: string, criterion: DataValidationCriterion) {
+    await addDataValidation(model, "A1", "1", criterion);
+    await setCellContent(model, "A1", testValue);
     return !model.getters.isDataValidationInvalid(toCellPosition(sheetId, "A1"));
   }
 
@@ -85,9 +85,9 @@ describe("Data validation registry", () => {
       ["test1", "test", true],
       ["1125", "12", true],
       ["true", "true", true],
-    ])("Valid values %s", (testValue, criterionValue, expectedResult) => {
+    ])("Valid values %s", async (testValue, criterionValue, expectedResult) => {
       const testCriterion = { ...criterion, values: [criterionValue] };
-      expect(isValueValid(testValue, testCriterion)).toEqual(expectedResult);
+      expect(await isValueValid(testValue, testCriterion)).toEqual(expectedResult);
     });
     test("Error string", () =>
       testErrorStringEqual(criterion, 'The value must be a text that contains "test"'));
@@ -106,9 +106,9 @@ describe("Data validation registry", () => {
       ["test1", "test", false],
       ["1125", "9", true],
       ["TRUE", "false", true],
-    ])("Valid values %s", (testValue, criterionValue, expectedResult) => {
+    ])("Valid values %s", async (testValue, criterionValue, expectedResult) => {
       const testCriterion = { ...criterion, values: [criterionValue] };
-      expect(isValueValid(testValue, testCriterion)).toEqual(expectedResult);
+      expect(await isValueValid(testValue, testCriterion)).toEqual(expectedResult);
     });
 
     test("Error string", () =>
@@ -129,9 +129,9 @@ describe("Data validation registry", () => {
       ["HeLlO", "hello", true],
       ["1125", "1125", true],
       ["TRUE", "true", true],
-    ])("Valid values %s", (testValue, criterionValue, expectedResult) => {
+    ])("Valid values %s", async (testValue, criterionValue, expectedResult) => {
       const testCriterion = { ...criterion, values: [criterionValue] };
-      expect(isValueValid(testValue, testCriterion)).toEqual(expectedResult);
+      expect(await isValueValid(testValue, testCriterion)).toEqual(expectedResult);
     });
 
     test("Error string", () =>
@@ -150,8 +150,8 @@ describe("Data validation registry", () => {
       ["hello.there@gmail.com", true],
       ["hello there@gmail.com", false],
       ["hello@there@gmail.com", false],
-    ])("Valid values %s", (testValue, expectedResult) => {
-      expect(isValueValid(testValue, criterion)).toEqual(expectedResult);
+    ])("Valid values %s", async (testValue, expectedResult) => {
+      expect(await isValueValid(testValue, criterion)).toEqual(expectedResult);
     });
 
     test("Error string", () =>
@@ -166,8 +166,8 @@ describe("Data validation registry", () => {
       ["hello.com", false],
       ["http://hello.com", true],
       ["http://www.hello.com", true],
-    ])("Valid values %s", (testValue, expectedResult) => {
-      expect(isValueValid(testValue, criterion)).toEqual(expectedResult);
+    ])("Valid values %s", async (testValue, expectedResult) => {
+      expect(await isValueValid(testValue, criterion)).toEqual(expectedResult);
     });
 
     test("Error string", () => testErrorStringEqual(criterion, "The value must be a valid link"));
@@ -540,8 +540,8 @@ describe("Data validation registry", () => {
       ["31/31/01/2021", false],
       ["15", true],
       ["hello", false],
-    ])("Valid values %s", (testValue, expectedResult) => {
-      expect(isValueValid(testValue, criterion)).toEqual(expectedResult);
+    ])("Valid values %s", async (testValue, expectedResult) => {
+      expect(await isValueValid(testValue, criterion)).toEqual(expectedResult);
     });
 
     test("Error string", () => testErrorStringEqual(criterion, "The value must be a valid date"));
@@ -559,8 +559,8 @@ describe("Data validation registry", () => {
       ['="5"', false],
       ["12", false],
       ["hello", false],
-    ])("Valid values %s", (testValue, expectedResult) => {
-      expect(isValueValid(testValue, criterion)).toEqual(expectedResult);
+    ])("Valid values %s", async (testValue, expectedResult) => {
+      expect(await isValueValid(testValue, criterion)).toEqual(expectedResult);
     });
 
     test("Error string", () => testErrorStringEqual(criterion, "The value must be equal to 5"));
@@ -581,8 +581,8 @@ describe("Data validation registry", () => {
       ["12", true],
       ['="12"', true],
       ["hello", true],
-    ])("Valid values %s", (testValue, expectedResult) => {
-      expect(isValueValid(testValue, criterion)).toEqual(expectedResult);
+    ])("Valid values %s", async (testValue, expectedResult) => {
+      expect(await isValueValid(testValue, criterion)).toEqual(expectedResult);
     });
 
     test("Error string", () => testErrorStringEqual(criterion, "The value must not be equal to 5"));
@@ -602,8 +602,8 @@ describe("Data validation registry", () => {
       ['="6"', false],
       ["6", true],
       ["hello", false],
-    ])("Valid values %s", (testValue, expectedResult) => {
-      expect(isValueValid(testValue, criterion)).toEqual(expectedResult);
+    ])("Valid values %s", async (testValue, expectedResult) => {
+      expect(await isValueValid(testValue, criterion)).toEqual(expectedResult);
     });
 
     test("Error string", () => testErrorStringEqual(criterion, "The value must be greater than 5"));
@@ -623,8 +623,8 @@ describe("Data validation registry", () => {
       ['="6"', false],
       ["4", false],
       ["hello", false],
-    ])("Valid values %s", (testValue, expectedResult) => {
-      expect(isValueValid(testValue, criterion)).toEqual(expectedResult);
+    ])("Valid values %s", async (testValue, expectedResult) => {
+      expect(await isValueValid(testValue, criterion)).toEqual(expectedResult);
     });
 
     test("Error string", () =>
@@ -645,8 +645,8 @@ describe("Data validation registry", () => {
       ['="6"', false],
       ["4", true],
       ["hello", false],
-    ])("Valid values %s", (testValue, expectedResult) => {
-      expect(isValueValid(testValue, criterion)).toEqual(expectedResult);
+    ])("Valid values %s", async (testValue, expectedResult) => {
+      expect(await isValueValid(testValue, criterion)).toEqual(expectedResult);
     });
 
     test("Error string", () => testErrorStringEqual(criterion, "The value must be less than 5"));
@@ -667,8 +667,8 @@ describe("Data validation registry", () => {
       ['="8"', false],
       ["9", false],
       ["hello", false],
-    ])("Valid values %s", (testValue, expectedResult) => {
-      expect(isValueValid(testValue, criterion)).toEqual(expectedResult);
+    ])("Valid values %s", async (testValue, expectedResult) => {
+      expect(await isValueValid(testValue, criterion)).toEqual(expectedResult);
     });
 
     test("Error string", () =>
@@ -690,8 +690,8 @@ describe("Data validation registry", () => {
       ['="6"', false],
       ["9", true],
       ["hello", false],
-    ])("Valid values %s", (testValue, expectedResult) => {
-      expect(isValueValid(testValue, criterion)).toEqual(expectedResult);
+    ])("Valid values %s", async (testValue, expectedResult) => {
+      expect(await isValueValid(testValue, criterion)).toEqual(expectedResult);
     });
 
     test("Error string", () =>
@@ -708,8 +708,8 @@ describe("Data validation registry", () => {
       // ["TRUE", true],
       // ["", true],
       ["hello", false],
-    ])("Valid values %s", (testValue, expectedResult) => {
-      expect(isValueValid(testValue, criterion)).toEqual(expectedResult);
+    ])("Valid values %s", async (testValue, expectedResult) => {
+      expect(await isValueValid(testValue, criterion)).toEqual(expectedResult);
     });
 
     test("Error string", () => testErrorStringEqual(criterion, "The value must be a boolean"));
@@ -728,8 +728,8 @@ describe("Data validation registry", () => {
       ["C", true],
       ["ab", false],
       ["8", false],
-    ])("Valid values %s", (testValue, expectedResult) => {
-      expect(isValueValid(testValue, criterion)).toEqual(expectedResult);
+    ])("Valid values %s", async (testValue, expectedResult) => {
+      expect(await isValueValid(testValue, criterion)).toEqual(expectedResult);
     });
 
     test("Error string", () =>
@@ -743,8 +743,8 @@ describe("Data validation registry", () => {
     };
     const evaluator = criterionEvaluatorRegistry.get("top10");
 
-    test("Can do top X", () => {
-      setGrid(model, { A1: "10", A2: "20", A3: "30", A4: "40", A5: "50" });
+    test("Can do top X", async () => {
+      await setGrid(model, { A1: "10", A2: "20", A3: "30", A4: "40", A5: "50" });
       const range = getters.getRangeFromSheetXC(sheetId, "A1:A5");
 
       const preComputedResult = evaluator.preComputeCriterion?.(top10Criterion, [range], getters);
@@ -755,8 +755,8 @@ describe("Data validation registry", () => {
       expect(evaluator.isValueValid(10, top10Criterion, preComputedResult)).toEqual(false);
     });
 
-    test("Can do bottom X", () => {
-      setGrid(model, { A1: "10", A2: "20", A3: "30", A4: "40", A5: "50" });
+    test("Can do bottom X", async () => {
+      await setGrid(model, { A1: "10", A2: "20", A3: "30", A4: "40", A5: "50" });
       const range = getters.getRangeFromSheetXC(sheetId, "A1:A5");
 
       const criterion = { ...top10Criterion, isBottom: true };
@@ -769,8 +769,8 @@ describe("Data validation registry", () => {
       expect(evaluator.isValueValid(10, criterion, preComputedResult)).toEqual(true);
     });
 
-    test("Can do top X percents", () => {
-      setGrid(model, { A1: "10", A2: "20", A3: "30", A4: "40", A5: "50" });
+    test("Can do top X percents", async () => {
+      await setGrid(model, { A1: "10", A2: "20", A3: "30", A4: "40", A5: "50" });
       const range = getters.getRangeFromSheetXC(sheetId, "A1:A5");
 
       const criterion = { ...top10Criterion, isPercent: true, values: ["40"] };
@@ -783,8 +783,8 @@ describe("Data validation registry", () => {
       expect(evaluator.isValueValid(10, criterion, preComputedResult)).toEqual(false);
     });
 
-    test("Can do bottom X percents", () => {
-      setGrid(model, { A1: "10", A2: "20", A3: "30", A4: "40", A5: "50" });
+    test("Can do bottom X percents", async () => {
+      await setGrid(model, { A1: "10", A2: "20", A3: "30", A4: "40", A5: "50" });
       const range = getters.getRangeFromSheetXC(sheetId, "A1:A5");
 
       const criterion = { ...top10Criterion, isBottom: true, isPercent: true, values: ["40"] };
@@ -797,8 +797,8 @@ describe("Data validation registry", () => {
       expect(evaluator.isValueValid(10, criterion, preComputedResult)).toEqual(true);
     });
 
-    test("Top/bottom 1% highlight the topmost/bottommost value", () => {
-      setGrid(model, { A1: "10", A2: "20", A3: "30", A4: "40", A5: "50" });
+    test("Top/bottom 1% highlight the topmost/bottommost value", async () => {
+      await setGrid(model, { A1: "10", A2: "20", A3: "30", A4: "40", A5: "50" });
       const range = getters.getRangeFromSheetXC(sheetId, "A1:A5");
 
       let criterion = { ...top10Criterion, isBottom: true, isPercent: true, values: ["1"] };
@@ -834,8 +834,8 @@ describe("Data validation registry", () => {
     const criterion: UniqueValuesCriterion = { type: "uniqueValues", values: [] };
     const evaluator = criterionEvaluatorRegistry.get("uniqueValues");
 
-    test("Can find unique values", () => {
-      setGrid(model, { A1: "10", A2: "20", A3: "20", A4: "20.5", A5: "50" });
+    test("Can find unique values", async () => {
+      await setGrid(model, { A1: "10", A2: "20", A3: "20", A4: "20.5", A5: "50" });
       const range = getters.getRangeFromSheetXC(sheetId, "A1:A5");
 
       const preComputedResult = evaluator.preComputeCriterion?.(criterion, [range], getters);
@@ -845,8 +845,8 @@ describe("Data validation registry", () => {
       expect(evaluator.isValueValid(50, criterion, preComputedResult)).toEqual(true);
     });
 
-    test("Unique values are case/type independent", () => {
-      setGrid(model, { A1: "10", A2: '="10"', A3: "HELLO", A4: "HeLLo" });
+    test("Unique values are case/type independent", async () => {
+      await setGrid(model, { A1: "10", A2: '="10"', A3: "HELLO", A4: "HeLLo" });
       const range = getters.getRangeFromSheetXC(sheetId, "A1:A5");
 
       const preComputedResult = evaluator.preComputeCriterion?.(criterion, [range], getters);
@@ -856,8 +856,8 @@ describe("Data validation registry", () => {
       expect(evaluator.isValueValid("HeLLo", criterion, preComputedResult)).toEqual(false);
     });
 
-    test("Unique values ignore empty strings", () => {
-      setGrid(model, { A1: "'", A2: "Hello" });
+    test("Unique values ignore empty strings", async () => {
+      await setGrid(model, { A1: "'", A2: "Hello" });
       const range = getters.getRangeFromSheetXC(sheetId, "A1:A2");
 
       const preComputedResult = evaluator.preComputeCriterion?.(criterion, [range], getters);
@@ -871,8 +871,8 @@ describe("Data validation registry", () => {
     const criterion: DuplicateValuesCriterion = { type: "duplicateValues", values: [] };
     const evaluator = criterionEvaluatorRegistry.get("duplicateValues");
 
-    test("Can find duplicate values", () => {
-      setGrid(model, { A1: "10", A2: "20", A3: "20", A4: "20.5", A5: "50" });
+    test("Can find duplicate values", async () => {
+      await setGrid(model, { A1: "10", A2: "20", A3: "20", A4: "20.5", A5: "50" });
       const range = getters.getRangeFromSheetXC(sheetId, "A1:A5");
 
       const preComputedResult = evaluator.preComputeCriterion?.(criterion, [range], getters);
@@ -882,8 +882,8 @@ describe("Data validation registry", () => {
       expect(evaluator.isValueValid(50, criterion, preComputedResult)).toEqual(false);
     });
 
-    test("Duplicate values are case/type independent", () => {
-      setGrid(model, { A1: "10", A2: '="10"', A3: "HELLO", A4: "HeLLo" });
+    test("Duplicate values are case/type independent", async () => {
+      await setGrid(model, { A1: "10", A2: '="10"', A3: "HELLO", A4: "HeLLo" });
       const range = getters.getRangeFromSheetXC(sheetId, "A1:A5");
 
       const preComputedResult = evaluator.preComputeCriterion?.(criterion, [range], getters);
@@ -893,8 +893,8 @@ describe("Data validation registry", () => {
       expect(evaluator.isValueValid("HeLLo", criterion, preComputedResult)).toEqual(true);
     });
 
-    test("Duplicate values ignore empty strings", () => {
-      setGrid(model, { A1: "'", A2: '=""', A3: undefined, A4: "Hello" });
+    test("Duplicate values ignore empty strings", async () => {
+      await setGrid(model, { A1: "'", A2: '=""', A3: undefined, A4: "Hello" });
       const range = getters.getRangeFromSheetXC(sheetId, "A1:A4");
 
       const preComputedResult = evaluator.preComputeCriterion?.(criterion, [range], getters);
@@ -938,22 +938,22 @@ describe("Data validation registry", () => {
     };
     const textIs: DataValidationCriterion = { type: "isEqualText", values: ["hello"] };
 
-    test("Number criterion error message displays localized value", () => {
-      updateLocale(model, FR_LOCALE);
+    test("Number criterion error message displays localized value", async () => {
+      await updateLocale(model, FR_LOCALE);
       const evaluator = criterionEvaluatorRegistry.get(isEqual.type);
       const criterion = { ...isEqual, values: ["5.5"] };
       expect(evaluator.getErrorString(criterion, getters, sheetId)).toContain("5,5");
     });
 
-    test("Date criterion error message displays localized value", () => {
-      updateLocale(model, FR_LOCALE);
+    test("Date criterion error message displays localized value", async () => {
+      await updateLocale(model, FR_LOCALE);
       const evaluator = criterionEvaluatorRegistry.get(dateIs.type);
       const criterion = { ...dateIs, values: ["12/31/2021"] };
       expect(evaluator.getErrorString(criterion, getters, sheetId)).toContain("31/12/2021");
     });
 
-    test("Text criterion error message displays is not localized", () => {
-      updateLocale(model, FR_LOCALE);
+    test("Text criterion error message displays is not localized", async () => {
+      await updateLocale(model, FR_LOCALE);
       const evaluator = criterionEvaluatorRegistry.get(textIs.type);
       const criterion = { ...textIs, values: ["12/31/2021"] };
       expect(evaluator.getErrorString(criterion, getters, sheetId)).toContain("12/31/2021");

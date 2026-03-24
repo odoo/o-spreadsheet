@@ -1,4 +1,4 @@
-import { Model } from "../../src";
+import { Model } from "@odoo/o-spreadsheet-engine/model";
 import { ColorPicker, ColorPickerProps } from "../../src/components/color_picker/color_picker";
 import { toHex } from "../../src/helpers";
 import { Color } from "../../src/types";
@@ -8,11 +8,12 @@ import {
   setInputValueAndTrigger,
   simulateClick,
 } from "../test_helpers/dom_helper";
-import { mountComponentWithPortalTarget } from "../test_helpers/helpers";
+import { createModel, mountComponentWithPortalTarget } from "../test_helpers/helpers";
 
 let fixture: HTMLElement;
 
-async function mountColorPicker(partialProps: Partial<ColorPickerProps> = {}, model = new Model()) {
+async function mountColorPicker(partialProps: Partial<ColorPickerProps> = {}, model?: Model) {
+  model = model ?? (await createModel());
   const props = {
     onColorPicked: partialProps.onColorPicked || (() => {}),
     currentColor: partialProps.currentColor || "#000000",
@@ -134,8 +135,8 @@ describe("Color Picker buttons", () => {
   });
 
   test("initial custom color", async () => {
-    const model = new Model();
-    setFormatting(model, "A1", { fillColor: "#123456" });
+    const model = await createModel();
+    await setFormatting(model, "A1", { fillColor: "#123456" });
     await mountColorPicker({ currentColor: "#123456" }, model);
     const color = fixture.querySelector("div[data-color='#123456']") as HTMLElement;
     expect(color?.textContent).toBe(" ✓ ");

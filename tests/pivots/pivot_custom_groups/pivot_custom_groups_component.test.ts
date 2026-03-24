@@ -19,10 +19,10 @@ const TEST_CUSTOM_FIELD: PivotCustomGroupedField = {
 };
 
 beforeEach(async () => {
-  model = createModelWithPivot("A1:I5");
+  model = await createModelWithPivot("A1:I5");
   ({ fixture, env } = await mountComponentWithPortalTarget(SidePanels, { model }));
   pivotId = model.getters.getPivotIds()[0];
-  setCellContent(model, "A40", "=PIVOT(1)");
+  await setCellContent(model, "A40", "=PIVOT(1)");
 });
 
 async function openPivotSidePanel() {

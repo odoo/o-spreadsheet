@@ -18,6 +18,7 @@ import {
   setViewportOffset,
 } from "../../test_helpers/commands_helpers";
 import {
+  createModel,
   doAction,
   makeTestEnv,
   mockChart,
@@ -89,14 +90,14 @@ describe("Insert chart menu item", () => {
   }
 
   async function mountTestSpreadsheet() {
-    ({ model, env } = await mountSpreadsheet({ model: new Model(data) }));
+    ({ model, env } = await mountSpreadsheet({ model: await createModel(data) }));
     dispatchSpy = spyModelDispatch(model);
   }
 
   beforeEach(async () => {
     openSidePanelSpy = jest.fn();
-    env = makeTestEnv({
-      model: new Model(data),
+    env = await makeTestEnv({
+      model: await createModel(data),
       openSidePanel: (type, props) => openSidePanelSpy(type, props),
     });
     model = env.model;
@@ -123,7 +124,7 @@ describe("Insert chart menu item", () => {
   });
 
   test("Chart is inserted at correct position", async () => {
-    setSelection(model, ["B2"]);
+    await setSelection(model, ["B2"]);
     await insertChart();
     const { width, height } = model.getters.getSheetViewDimension();
     const figureUI = model.getters.getVisibleFigures()[0];
@@ -144,7 +145,7 @@ describe("Insert chart menu item", () => {
 
   test("Chart is selected and focused at insertion", async () => {
     await mountTestSpreadsheet();
-    setSelection(model, ["B2"]);
+    await setSelection(model, ["B2"]);
     await insertChart();
     const figureId = model.getters.getFigures(model.getters.getActiveSheetId())[0].id;
     expect(dispatchSpy).toHaveBeenCalledWith("SELECT_FIGURE", { figureId });
@@ -153,15 +154,15 @@ describe("Insert chart menu item", () => {
   });
 
   test("Chart side panel was opened at chart insertion", async () => {
-    setSelection(model, ["B2"]);
+    await setSelection(model, ["B2"]);
     await insertChart();
     expect(openSidePanelSpy).toHaveBeenCalledWith("ChartPanel", undefined);
   });
 
   test("Chart is inserted at correct position for rows freeze", async () => {
     const sheetId = model.getters.getActiveSheetId();
-    freezeRows(model, 5, sheetId);
-    setSelection(model, ["B2"]);
+    await freezeRows(model, 5, sheetId);
+    await setSelection(model, ["B2"]);
     await insertChart();
     const { width, height } = model.getters.getSheetViewDimension();
     const payload = { ...defaultPayload };
@@ -182,8 +183,8 @@ describe("Insert chart menu item", () => {
 
   test("Chart is inserted at correct position inside bottomRight pane for columns freeze", async () => {
     const sheetId = model.getters.getActiveSheetId();
-    freezeColumns(model, 4, sheetId);
-    setSelection(model, ["B2"]);
+    await freezeColumns(model, 4, sheetId);
+    await setSelection(model, ["B2"]);
     await insertChart();
     const { width, height } = model.getters.getSheetViewDimension();
     const payload = { ...defaultPayload };
@@ -204,9 +205,9 @@ describe("Insert chart menu item", () => {
 
   test("Chart is inserted at correct position inside bottomRight pane for both freeze", async () => {
     const sheetId = model.getters.getActiveSheetId();
-    freezeColumns(model, 4, sheetId);
-    freezeRows(model, 5, sheetId);
-    setSelection(model, ["B2"]);
+    await freezeColumns(model, 4, sheetId);
+    await freezeRows(model, 5, sheetId);
+    await setSelection(model, ["B2"]);
     await insertChart();
     const { width, height } = model.getters.getSheetViewDimension();
     const payload = { ...defaultPayload };
@@ -226,8 +227,8 @@ describe("Insert chart menu item", () => {
   });
 
   test("Chart is inserted at the top left of the viewport when too small", async () => {
-    setSelection(model, ["B2"]);
-    resizeSheetView(model, DEFAULT_FIGURE_HEIGHT / 2, DEFAULT_FIGURE_WIDTH / 2);
+    await setSelection(model, ["B2"]);
+    await resizeSheetView(model, DEFAULT_FIGURE_HEIGHT / 2, DEFAULT_FIGURE_WIDTH / 2);
     await insertChart();
     const payload = { ...defaultPayload };
     payload.definition = expect.any(Object);
@@ -246,12 +247,12 @@ describe("Insert chart menu item", () => {
   });
 
   test("Chart is inserted inside frozen pane if middle is frozen pane", async () => {
-    addRows(model, "before", 0, 100);
-    setSelection(model, ["B2"]);
-    resizeSheetView(model, DEFAULT_FIGURE_HEIGHT * 1.5, DEFAULT_FIGURE_WIDTH * 1.5);
+    await addRows(model, "before", 0, 100);
+    await setSelection(model, ["B2"]);
+    await resizeSheetView(model, DEFAULT_FIGURE_HEIGHT * 1.5, DEFAULT_FIGURE_WIDTH * 1.5);
     const { bottom, right } = model.getters.getActiveMainViewport();
-    freezeColumns(model, Math.floor(right / 2));
-    freezeRows(model, Math.floor(bottom / 2));
+    await freezeColumns(model, Math.floor(right / 2));
+    await freezeRows(model, Math.floor(bottom / 2));
     await insertChart();
     const { width, height } = model.getters.getSheetViewDimension();
     const payload = { ...defaultPayload };
@@ -271,11 +272,11 @@ describe("Insert chart menu item", () => {
   });
 
   test("Chart is inserted at correct position on a scrolled viewport", async () => {
-    setSelection(model, ["B2:B3"]);
+    await setSelection(model, ["B2:B3"]);
     const { width, height } = env.model.getters.getSheetViewDimension();
-    addColumns(model, "after", "D", 100);
-    addRows(model, "after", 4, 100);
-    setViewportOffset(model, 2 * DEFAULT_CELL_WIDTH, 4 * DEFAULT_CELL_HEIGHT);
+    await addColumns(model, "after", "D", 100);
+    await addRows(model, "after", 4, 100);
+    await setViewportOffset(model, 2 * DEFAULT_CELL_WIDTH, 4 * DEFAULT_CELL_HEIGHT);
     await insertChart();
     const payload = { ...defaultPayload };
     payload.definition = expect.any(Object);
@@ -295,12 +296,12 @@ describe("Insert chart menu item", () => {
 
   test("Chart is inserted at correct position on a scrolled viewport with frozen rows", async () => {
     const sheetId = model.getters.getActiveSheetId();
-    freezeRows(model, 5, sheetId);
-    setSelection(model, ["B2:B3"]);
+    await freezeRows(model, 5, sheetId);
+    await setSelection(model, ["B2:B3"]);
     const { width, height } = model.getters.getSheetViewDimension();
-    addColumns(model, "after", "D", 100);
-    addRows(model, "after", 4, 100);
-    setViewportOffset(model, 2 * DEFAULT_CELL_WIDTH, 4 * DEFAULT_CELL_HEIGHT);
+    await addColumns(model, "after", "D", 100);
+    await addRows(model, "after", 4, 100);
+    await setViewportOffset(model, 2 * DEFAULT_CELL_WIDTH, 4 * DEFAULT_CELL_HEIGHT);
     await insertChart();
     const payload = { ...defaultPayload };
     payload.definition = expect.any(Object);
@@ -320,12 +321,12 @@ describe("Insert chart menu item", () => {
 
   test("Chart is inserted at correct position on a scrolled viewport with columns frozen", async () => {
     const sheetId = model.getters.getActiveSheetId();
-    freezeColumns(model, 4, sheetId);
-    setSelection(model, ["B2:B3"]);
+    await freezeColumns(model, 4, sheetId);
+    await setSelection(model, ["B2:B3"]);
     const { width, height } = model.getters.getSheetViewDimension();
-    addColumns(model, "after", "D", 100);
-    addRows(model, "after", 4, 100);
-    setViewportOffset(model, 2 * DEFAULT_CELL_WIDTH, 4 * DEFAULT_CELL_HEIGHT);
+    await addColumns(model, "after", "D", 100);
+    await addRows(model, "after", 4, 100);
+    await setViewportOffset(model, 2 * DEFAULT_CELL_WIDTH, 4 * DEFAULT_CELL_HEIGHT);
     await insertChart();
     const payload = { ...defaultPayload };
     payload.definition = expect.any(Object);
@@ -345,13 +346,13 @@ describe("Insert chart menu item", () => {
 
   test("Chart is inserted at correct position on a scrolled viewport with both directions frozen", async () => {
     const sheetId = model.getters.getActiveSheetId();
-    freezeColumns(model, 4, sheetId);
-    freezeRows(model, 5, sheetId);
-    setSelection(model, ["B2:B3"]);
+    await freezeColumns(model, 4, sheetId);
+    await freezeRows(model, 5, sheetId);
+    await setSelection(model, ["B2:B3"]);
     const { width, height } = model.getters.getSheetViewDimension();
-    addColumns(model, "after", "D", 100);
-    addRows(model, "after", 4, 100);
-    setViewportOffset(model, 2 * DEFAULT_CELL_WIDTH, 4 * DEFAULT_CELL_HEIGHT);
+    await addColumns(model, "after", "D", 100);
+    await addRows(model, "after", 4, 100);
+    await setViewportOffset(model, 2 * DEFAULT_CELL_WIDTH, 4 * DEFAULT_CELL_HEIGHT);
     await insertChart();
     const payload = { ...defaultPayload };
     payload.definition = expect.any(Object);
@@ -370,7 +371,7 @@ describe("Insert chart menu item", () => {
   });
 
   test("Chart of single cell will extend the selection to find a 'table'", async () => {
-    setSelection(model, ["A2"]);
+    await setSelection(model, ["A2"]);
     await insertChart();
     const payload = { ...defaultPayload };
     payload.definition.dataSets = [
@@ -390,7 +391,7 @@ describe("Insert chart menu item", () => {
   });
 
   test("Chart can be inserted with unbounded ranges", async () => {
-    setSelection(model, ["A1:B100"], { unbounded: true });
+    await setSelection(model, ["A1:B100"], { unbounded: true });
     await insertChart();
     const chartId = model.getters.getChartIds(model.getters.getActiveSheetId())[0];
     expect(model.getters.getChartDefinition(chartId)).toMatchObject({
@@ -406,16 +407,16 @@ describe("Smart chart type detection", () => {
   let model: Model;
   let env: SpreadsheetChildEnv;
 
-  beforeEach(() => {
-    model = new Model();
-    env = makeTestEnv({ model });
+  beforeEach(async () => {
+    model = await createModel();
+    env = await makeTestEnv({ model });
   });
 
   /**
    * Create a dataset according to the given pattern. The pattern is a list of column types, with possible modifiers
    * (eg. ["text_with_header", "number_repeated", "empty", "date"]) would create a dataset of 4 columns.
    */
-  function createDatasetFromDescription(description: DatasetDescriptor) {
+  async function createDatasetFromDescription(description: DatasetDescriptor) {
     for (let col = 0; col < description.length; col++) {
       const colDescription = description[col];
       const hasHeader = colDescription.includes("_with_header");
@@ -425,7 +426,7 @@ describe("Smart chart type detection", () => {
       for (let row = 0; row < 6; row++) {
         const xc = toXC(col, row);
         if (row === 0 && hasHeader) {
-          setCellContent(model, xc, `Header${col}`);
+          await setCellContent(model, xc, `Header${col}`);
           continue;
         }
         if (type === "empty") {
@@ -433,21 +434,21 @@ describe("Smart chart type detection", () => {
         }
         const generator = repeatedValues ? row % 3 : row;
         if (type === "text") {
-          setCellContent(model, xc, `Text${generator}`);
+          await setCellContent(model, xc, `Text${generator}`);
         } else if (type === "number") {
-          setCellContent(model, xc, `${generator}`);
+          await setCellContent(model, xc, `${generator}`);
         } else if (type === "date") {
-          setCellContent(model, xc, `2022-10-${generator + 1}`);
+          await setCellContent(model, xc, `2022-10-${generator + 1}`);
         } else if (type === "percentage") {
-          setCellContent(model, xc, `${generator * 10}%`);
+          await setCellContent(model, xc, `${generator * 10}%`);
         }
       }
     }
   }
 
   test("Single cell: create a scorecard", async () => {
-    setCellContent(model, "C3", "100");
-    setSelection(model, ["C3"]);
+    await setCellContent(model, "C3", "100");
+    await setSelection(model, ["C3"]);
     await doAction(["insert", "insert_chart"], env);
     const chartId = model.getters.getChartIds(model.getters.getActiveSheetId())[0];
     expect(model.getters.getChartDefinition(chartId)).toMatchObject({
@@ -464,7 +465,7 @@ describe("Smart chart type detection", () => {
     [["percentage_with_header"], { type: "pie", dataSetsHaveTitle: true }],
     [["date_with_header"], { type: "line", dataSetsHaveTitle: true }],
   ])("Single column %s creates %s chart", async (datasetPattern, expected) => {
-    createDatasetFromDescription(datasetPattern);
+    await createDatasetFromDescription(datasetPattern);
     await doAction(["insert", "insert_chart"], env);
 
     const chartId = model.getters.getChartIds(model.getters.getActiveSheetId())[0];
@@ -490,7 +491,7 @@ describe("Smart chart type detection", () => {
     [["text", "number_with_header"], { type: "bar", dataSetsHaveTitle: true }],
     [["number", "number_with_header"], { type: "scatter", dataSetsHaveTitle: true }],
   ])("Two columns %s creates %s chart", async (datasetPattern, expected) => {
-    createDatasetFromDescription(datasetPattern);
+    await createDatasetFromDescription(datasetPattern);
     await doAction(["insert", "insert_chart"], env);
 
     const expectedDataset =
@@ -514,7 +515,7 @@ describe("Smart chart type detection", () => {
   ])(
     "Multiple text columns  %s create a %s hierarchical chart",
     async (datasetPattern, expected) => {
-      createDatasetFromDescription(datasetPattern);
+      await createDatasetFromDescription(datasetPattern);
       await doAction(["insert", "insert_chart"], env);
 
       const datasetLastCol = datasetPattern.findIndex((p) => !p.includes("text"));
@@ -546,7 +547,7 @@ describe("Smart chart type detection", () => {
     [["text", "number_with_header", "percentage"], { type: "bar", dataSetsHaveTitle: true }],
     [["text", "number", "date_with_header"], { type: "bar", dataSetsHaveTitle: true }],
   ])("Multiple columns  %s create a %s chart", async (datasetPattern, expected) => {
-    createDatasetFromDescription(datasetPattern);
+    await createDatasetFromDescription(datasetPattern);
     await doAction(["insert", "insert_chart"], env);
 
     const expectedDatasets: CustomizedDataSet[] = [];
@@ -563,7 +564,7 @@ describe("Smart chart type detection", () => {
   });
 
   test("Empty columns are passed in the chart dataset if the whole selection is empty", async () => {
-    setSelection(model, ["A1:B6"]);
+    await setSelection(model, ["A1:B6"]);
     await doAction(["insert", "insert_chart"], env);
     const chartId = model.getters.getChartIds(model.getters.getActiveSheetId())[0];
     expect(model.getters.getChartDefinition(chartId)).toMatchObject({
@@ -574,8 +575,8 @@ describe("Smart chart type detection", () => {
   });
 
   test("Empty columns are ignored in the chart dataset if other columns are not empty", async () => {
-    createDatasetFromDescription(["number", "empty", "number"]);
-    setSelection(model, ["A1:C6"]);
+    await createDatasetFromDescription(["number", "empty", "number"]);
+    await setSelection(model, ["A1:C6"]);
     await doAction(["insert", "insert_chart"], env);
     const chartId = model.getters.getChartIds(model.getters.getActiveSheetId())[0];
     expect(model.getters.getChartDefinition(chartId)).toMatchObject({
@@ -593,7 +594,7 @@ describe("Smart chart type detection", () => {
   ])(
     "Pie charts and charts with more than one column in their dataset %s have a legend",
     async (datasetPattern, expected) => {
-      createDatasetFromDescription(datasetPattern);
+      await createDatasetFromDescription(datasetPattern);
       await doAction(["insert", "insert_chart"], env);
 
       const chartId = model.getters.getChartIds(model.getters.getActiveSheetId())[0];

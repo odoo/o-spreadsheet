@@ -15,7 +15,7 @@ import {
   setCellContent,
   setViewportOffset,
 } from "../../../test_helpers/commands_helpers";
-import { mountSpreadsheet, nextTick } from "../../../test_helpers/helpers";
+import { createModel, mountSpreadsheet, nextTick } from "../../../test_helpers/helpers";
 
 const testRuntime: GaugeChartRuntime = {
   background: "#FFFFFF",
@@ -245,9 +245,9 @@ describe("Gauge chart component animation", () => {
   let gaugeAnimationSpy: jest.SpyInstance;
   let model: Model;
 
-  beforeEach(() => {
+  beforeEach(async () => {
     gaugeAnimationSpy = jest.spyOn(GaugeChartComponent.prototype, "drawGaugeWithAnimation");
-    model = new Model();
+    model = await createModel();
   });
 
   afterEach(() => {
@@ -255,17 +255,17 @@ describe("Gauge chart component animation", () => {
   });
 
   test("Gauge chart is animated only at first render", async () => {
-    createGaugeChart(model, {});
+    await createGaugeChart(model, {});
     model.updateMode("dashboard");
     await mountSpreadsheet({ model });
 
     expect(gaugeAnimationSpy).toHaveBeenCalledTimes(1);
 
     // Scroll the figure out of the viewport and back in
-    setViewportOffset(model, 0, 500);
+    await setViewportOffset(model, 0, 500);
     await nextTick();
     expect(".o-figure").toHaveCount(0);
-    setViewportOffset(model, 0, 0);
+    await setViewportOffset(model, 0, 0);
     await nextTick();
     expect(".o-figure").toHaveCount(1);
     expect(gaugeAnimationSpy).toHaveBeenCalledTimes(1);
@@ -274,20 +274,20 @@ describe("Gauge chart component animation", () => {
   test("Animations are replayed only when chart data changes", async () => {
     readonlyAllowedCommands.add("UPDATE_CELL");
 
-    const model = new Model();
-    createGaugeChart(model, { dataRange: "A1" });
+    const model = await createModel();
+    await createGaugeChart(model, { dataRange: "A1" });
     model.updateMode("dashboard");
     await mountSpreadsheet({ model });
 
     expect(gaugeAnimationSpy).toHaveBeenCalledTimes(1);
 
     // Dispatch a command that doesn't change the chart data
-    setCellContent(model, "A50", "6");
+    await setCellContent(model, "A50", "6");
     await nextTick();
     expect(gaugeAnimationSpy).toHaveBeenCalledTimes(1);
 
     // Change the chart data
-    setCellContent(model, "A1", "6");
+    await setCellContent(model, "A1", "6");
     await nextTick();
     expect(gaugeAnimationSpy).toHaveBeenCalledTimes(2);
 

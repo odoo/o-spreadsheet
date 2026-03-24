@@ -33,6 +33,7 @@ import {
 import { getCellContent, getCellIcons } from "../test_helpers/getters_helpers";
 import {
   ComposerWrapper,
+  createModel,
   getDataValidationRules,
   mountComponentWithPortalTarget,
   mountComposerWrapper,
@@ -47,14 +48,14 @@ let sheetId: UID;
 let env: SpreadsheetChildEnv;
 
 beforeEach(async () => {
-  model = new Model();
+  model = await createModel();
   sheetId = model.getters.getActiveSheetId();
 });
 
 describe("Edit criterion in side panel", () => {
   describe("Value in list", () => {
     beforeEach(async () => {
-      addDataValidation(model, "A1", "id", {
+      await addDataValidation(model, "A1", "id", {
         type: "isValueInList",
         values: ["ok", "hello", "okay"],
         displayStyle: "arrow",
@@ -75,7 +76,7 @@ describe("Edit criterion in side panel", () => {
     });
 
     test("Side panel is correctly pre-filled for composer criterion", async () => {
-      addDataValidation(model, "A1", "dv1", {
+      await addDataValidation(model, "A1", "dv1", {
         type: "containsText",
         values: ["hola"],
       });
@@ -184,7 +185,7 @@ describe("Edit criterion in side panel", () => {
 
   describe("Value in range", () => {
     beforeEach(async () => {
-      addDataValidation(model, "A1", "id", {
+      await addDataValidation(model, "A1", "id", {
         type: "isValueInRange",
         values: ["B1:B5"],
         displayStyle: "arrow",
@@ -228,8 +229,8 @@ describe("Edit criterion in side panel", () => {
     });
 
     test("can set a color", async () => {
-      setCellContent(model, "B1", "hello");
-      setCellContent(model, "B2", "world");
+      await setCellContent(model, "B1", "hello");
+      await setCellContent(model, "B2", "world");
       await nextTick();
       const inputs = fixture.querySelectorAll<HTMLInputElement>(".o-dv-list-values .o-input");
       expect(inputs).toHaveLength(2);
@@ -250,8 +251,8 @@ describe("Edit criterion in side panel", () => {
     });
 
     test("do not show colored value missing from the range", async () => {
-      setCellContent(model, "B1", "hello");
-      setCellContent(model, "B2", "world");
+      await setCellContent(model, "B1", "hello");
+      await setCellContent(model, "B2", "world");
       await nextTick();
       const inputs = fixture.querySelectorAll<HTMLInputElement>(".o-dv-list-values .o-input");
       expect(inputs).toHaveLength(2);
@@ -260,7 +261,7 @@ describe("Edit criterion in side panel", () => {
       await click(fixture.querySelector(".o-round-color-picker-button")!);
       await click(fixture, ".o-color-picker-line-item[data-color='#CFE2F3'");
       await click(fixture, ".o-dv-save");
-      setCellContent(model, "B1", "something else");
+      await setCellContent(model, "B1", "something else");
       await click(fixture, ".o-dv-preview");
       const newInputs = fixture.querySelectorAll<HTMLInputElement>(".o-dv-list-values .o-input");
       expect(newInputs).toHaveLength(2);
@@ -269,8 +270,8 @@ describe("Edit criterion in side panel", () => {
     });
 
     test("can remove a color", async () => {
-      setCellContent(model, "B1", "hello");
-      setCellContent(model, "B2", "world");
+      await setCellContent(model, "B1", "hello");
+      await setCellContent(model, "B2", "world");
       await nextTick();
       await click(fixture.querySelector(".o-round-color-picker-button")!);
       await click(fixture, ".o-color-picker-line-item[data-color='#CFE2F3'");
@@ -286,8 +287,8 @@ describe("Edit criterion in side panel", () => {
     });
 
     test("formatted value is displayed instead of raw value", async () => {
-      setCellContent(model, "B1", "5");
-      setFormat(model, "B1", "0.00$");
+      await setCellContent(model, "B1", "5");
+      await setFormat(model, "B1", "0.00$");
       await nextTick();
 
       const inputs = fixture.querySelectorAll<HTMLInputElement>(".o-dv-list-values .o-input");
@@ -310,7 +311,7 @@ describe("autocomplete in composer", () => {
 
   describe("Value in list", () => {
     beforeEach(async () => {
-      addDataValidation(model, "A1", "id", {
+      await addDataValidation(model, "A1", "id", {
         type: "isValueInList",
         values: ["ok", "hello", "okay"],
         displayStyle: "arrow",
@@ -352,7 +353,7 @@ describe("autocomplete in composer", () => {
     });
 
     test("Values displayed are not filtered when the user opens the composer with a valid value", async () => {
-      setCellContent(model, "A1", "hello");
+      await setCellContent(model, "A1", "hello");
       ({ fixture, parent } = await mountComposerWrapper(model));
       const composerStore = parent.env.getStore(CellComposerStore);
       await typeInComposer("");
@@ -388,11 +389,11 @@ describe("autocomplete in composer", () => {
   });
 
   test("Value in range autocomplete values", async () => {
-    setCellContent(model, "B1", "hello");
-    setCellContent(model, "B2", "=D1");
-    setCellContent(model, "D1", "ok");
-    setCellContent(model, "C2", "thing");
-    addDataValidation(model, "A1", "id", {
+    await setCellContent(model, "B1", "hello");
+    await setCellContent(model, "B2", "=D1");
+    await setCellContent(model, "D1", "ok");
+    await setCellContent(model, "C2", "thing");
+    await addDataValidation(model, "A1", "id", {
       type: "isValueInRange",
       values: ["B1:C2"],
       displayStyle: "arrow",
@@ -408,10 +409,10 @@ describe("autocomplete in composer", () => {
   });
 
   test("Duplicate values will be removed before sending proposals to the autocomplete dropdown in data validation with range", async () => {
-    setCellContent(model, "A2", "ok");
-    setCellContent(model, "A3", "hello");
-    setCellContent(model, "A4", "ok");
-    addDataValidation(model, "A1", "id", {
+    await setCellContent(model, "A2", "ok");
+    await setCellContent(model, "A3", "hello");
+    await setCellContent(model, "A4", "ok");
+    await addDataValidation(model, "A1", "id", {
       type: "isValueInRange",
       values: ["A2:A4"],
       displayStyle: "arrow",
@@ -427,7 +428,7 @@ describe("autocomplete in composer", () => {
   });
 
   test("Duplicate values will be removed before sending proposals to the autocomplete dropdown in data validation with list", async () => {
-    addDataValidation(model, "A1", "id", {
+    await addDataValidation(model, "A1", "id", {
       type: "isValueInList",
       values: ["ok", "hello", "ok", "hello"],
       displayStyle: "arrow",
@@ -443,12 +444,12 @@ describe("autocomplete in composer", () => {
   });
 
   test("Autocomplete dropdown text should have the default text color by default", async () => {
-    addDataValidation(model, "A1", "id", {
+    await addDataValidation(model, "A1", "id", {
       type: "isValueInList",
       values: ["hello"],
       displayStyle: "arrow",
     });
-    setFormatting(model, "A1", {
+    await setFormatting(model, "A1", {
       textColor: "#FFFF00",
       fillColor: "#000000",
     });
@@ -463,7 +464,7 @@ describe("autocomplete in composer", () => {
 
 describe("Selection arrow icon in grid", () => {
   beforeEach(async () => {
-    addDataValidation(model, "A1", "id", {
+    await addDataValidation(model, "A1", "id", {
       type: "isValueInList",
       values: ["ok", "hello", "okay"],
       displayStyle: "arrow",
@@ -485,7 +486,7 @@ describe("Selection arrow icon in grid", () => {
   });
 
   test("Clicking on the icon opens the composer with suggestions", async () => {
-    setSelection(model, ["B2"]);
+    await setSelection(model, ["B2"]);
     ({ fixture, env } = await mountSpreadsheet({ model }));
     const composerStore = env.getStore(CellComposerStore);
     await clickGridIcon(model, "A1");
@@ -538,8 +539,8 @@ describe("Selection arrow icon in grid", () => {
     expect(fixture.querySelectorAll(".o-autocomplete-value")).toHaveLength(3);
   });
 
-  test("Icon is not displayed when display style is plainText", () => {
-    addDataValidation(model, "A1", "id", {
+  test("Icon is not displayed when display style is plainText", async () => {
+    await addDataValidation(model, "A1", "id", {
       type: "isValueInList",
       values: ["ok", "hello", "okay"],
       displayStyle: "plainText",
@@ -547,9 +548,9 @@ describe("Selection arrow icon in grid", () => {
     expect(getCellIcons(model, "A1")).toHaveLength(0);
   });
 
-  test("Icon is not displayed in dashboard", () => {
+  test("Icon is not displayed in dashboard", async () => {
     model.updateMode("dashboard");
-    addDataValidation(model, "A1", "id", {
+    await addDataValidation(model, "A1", "id", {
       type: "isValueInList",
       values: ["ok", "hello", "okay"],
       displayStyle: "arrow",
@@ -557,13 +558,13 @@ describe("Selection arrow icon in grid", () => {
     expect(getCellIcons(model, "A1")).toHaveLength(0);
   });
 
-  test("Icon is not displayed if there is a filter icon", () => {
-    addDataValidation(model, "A1", "id", {
+  test("Icon is not displayed if there is a filter icon", async () => {
+    await addDataValidation(model, "A1", "id", {
       type: "isValueInList",
       values: ["ok", "hello", "okay"],
       displayStyle: "arrow",
     });
-    createTableWithFilter(model, "A1:A4");
+    await createTableWithFilter(model, "A1:A4");
 
     const icons = getCellIcons(model, "A1");
     expect(icons.length).toBe(1);
@@ -571,14 +572,14 @@ describe("Selection arrow icon in grid", () => {
   });
 
   test("chip color isn't taken into account in composer", async () => {
-    addDataValidation(model, "A1", "id", {
+    await addDataValidation(model, "A1", "id", {
       type: "isValueInList",
       values: ["hello"],
       displayStyle: "chip",
       colors: { hello: "#CFE2F3" },
     });
-    setCellContent(model, "A1", "hello");
-    setFormatting(model, "A1", {
+    await setCellContent(model, "A1", "hello");
+    await setFormatting(model, "A1", {
       fillColor: "#123456",
       textColor: "#654321",
     });

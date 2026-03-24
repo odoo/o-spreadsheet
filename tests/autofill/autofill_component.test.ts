@@ -76,7 +76,7 @@ describe("Autofill component", () => {
   test("tooltip position when moving the mouse", async () => {
     const autofill = fixture.querySelector(".o-autofill-handler");
     expect(fixture.querySelector(".o-autofill-nextvalue")).toBeNull();
-    setCellContent(model, "A1", "test");
+    await setCellContent(model, "A1", "test");
     await nextTick();
     triggerMouseEvent(autofill, "pointerdown", 40, 40);
     await nextTick();
@@ -102,7 +102,7 @@ describe("Autofill component", () => {
   test("tooltip position when scrolling", async () => {
     const autofill = fixture.querySelector(".o-autofill-handler");
     expect(fixture.querySelector(".o-autofill-nextvalue")).toBeNull();
-    setCellContent(model, "A1", "test");
+    await setCellContent(model, "A1", "test");
     await nextTick();
     triggerMouseEvent(autofill, "pointerdown", 40, 40);
     await nextTick();
@@ -128,8 +128,8 @@ describe("Autofill component", () => {
   test("tooltip position when viewport is not at the top", async () => {
     const autofill = fixture.querySelector(".o-autofill-handler");
     expect(fixture.querySelector(".o-autofill-nextvalue")).toBeNull();
-    setViewportOffset(model, 500, 500);
-    setCellContent(model, "F22", "test");
+    await setViewportOffset(model, 500, 500);
+    await setCellContent(model, "F22", "test");
     await clickCell(model, "F22");
     await nextTick();
     expect(fixture.querySelector(".o-autofill")).not.toBeNull();
@@ -157,7 +157,7 @@ describe("Autofill component", () => {
   test("Can display tooltip with autofill", async () => {
     const autofill = fixture.querySelector(".o-autofill-handler");
     expect(fixture.querySelector(".o-autofill-nextvalue")).toBeNull();
-    setCellContent(model, "A1", "test");
+    await setCellContent(model, "A1", "test");
     await nextTick();
     triggerMouseEvent(autofill, "pointerdown", 4, 4);
     await nextTick();
@@ -177,7 +177,7 @@ describe("Autofill component", () => {
   test("Tooltip is removed when cancelling autofill", async () => {
     const autofill = fixture.querySelector(".o-autofill-handler");
     expect(fixture.querySelector(".o-autofill-nextvalue")).toBeNull();
-    setCellContent(model, "A1", "test");
+    await setCellContent(model, "A1", "test");
     await nextTick();
     triggerMouseEvent(autofill, "pointerdown", 4, 4);
     await nextTick();
@@ -220,7 +220,7 @@ describe("Autofill component", () => {
         component: CustomTooltip,
       };
     });
-    setCellContent(model, "A1", "test");
+    await setCellContent(model, "A1", "test");
     await nextTick();
     triggerMouseEvent(autofill, "pointerdown", 4, 4);
     await nextTick();
@@ -240,8 +240,8 @@ describe("Autofill component", () => {
   });
 
   test("Autofill does not reset the viewport position if not near the viewport edge", async () => {
-    setSelection(parent.model, ["A1:A100"]);
-    setViewportOffset(parent.model, 400, 400);
+    await setSelection(parent.model, ["A1:A100"]);
+    await setViewportOffset(parent.model, 400, 400);
     const firstViewport = parent.model.getters.getActiveMainViewport();
     const autofill = fixture.querySelector(".o-autofill");
     triggerMouseEvent(autofill, "pointerdown", 4, 4);
@@ -344,7 +344,7 @@ describe("Autofill edge scrolling", () => {
   });
 
   test("Can show and remove tooltip correctly when edge scroll horizontally", async () => {
-    setCellContent(model, "A1", "test");
+    await setCellContent(model, "A1", "test");
     expect(fixture.querySelector(".o-autofill-nextvalue")).toBeNull();
     const { width } = model.getters.getSheetViewDimensionWithHeaders();
     const autofill = fixture.querySelector(".o-autofill-handler");
@@ -371,7 +371,7 @@ describe("Autofill edge scrolling", () => {
   });
 
   test("Can show and remove tooltip when edge scroll vertically", async () => {
-    setCellContent(model, "A1", "test");
+    await setCellContent(model, "A1", "test");
     expect(fixture.querySelector(".o-autofill-nextvalue")).toBeNull();
     const { height } = model.getters.getSheetViewDimensionWithHeaders();
     const autofill = fixture.querySelector(".o-autofill-handler");

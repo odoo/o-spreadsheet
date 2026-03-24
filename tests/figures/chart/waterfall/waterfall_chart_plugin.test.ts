@@ -18,7 +18,7 @@ import {
   getChartConfiguration,
   getChartTooltipValues,
 } from "../../../test_helpers/chart_helpers";
-import { nextTick } from "../../../test_helpers/helpers";
+import { createModel, nextTick } from "../../../test_helpers/helpers";
 
 let model: Model;
 
@@ -27,15 +27,15 @@ function getWaterfallRuntime(chartId: UID): WaterfallChartRuntime {
 }
 
 describe("Waterfall chart", () => {
-  beforeEach(() => {
-    model = new Model();
+  beforeEach(async () => {
+    model = await createModel();
   });
 
-  test("Waterfall runtime with single dataset", () => {
-    setCellContent(model, "A1", "10");
-    setCellContent(model, "A2", "-20");
-    setCellContent(model, "A3", "30");
-    const chartId = createWaterfallChart(model, {
+  test("Waterfall runtime with single dataset", async () => {
+    await setCellContent(model, "A1", "10");
+    await setCellContent(model, "A2", "-20");
+    await setCellContent(model, "A3", "30");
+    const chartId = await createWaterfallChart(model, {
       dataSets: [{ dataRange: "A1:A3" }],
       dataSetsHaveTitle: false,
       showSubTotals: false,
@@ -47,14 +47,14 @@ describe("Waterfall chart", () => {
     ]);
   });
 
-  test("Waterfall runtime with multiple datasets", () => {
-    setCellContent(model, "A1", "Value 1");
-    setCellContent(model, "A2", "Value 2");
-    setCellContent(model, "B1", "10");
-    setCellContent(model, "B2", "-20");
-    setCellContent(model, "C1", "30");
-    setCellContent(model, "C2", "-40");
-    const chartId = createWaterfallChart(model, {
+  test("Waterfall runtime with multiple datasets", async () => {
+    await setCellContent(model, "A1", "Value 1");
+    await setCellContent(model, "A2", "Value 2");
+    await setCellContent(model, "B1", "10");
+    await setCellContent(model, "B2", "-20");
+    await setCellContent(model, "C1", "30");
+    await setCellContent(model, "C2", "-40");
+    const chartId = await createWaterfallChart(model, {
       labelRange: "A1:A2",
       dataSets: [{ dataRange: "B1:C2" }],
       dataSetsHaveTitle: false,
@@ -74,14 +74,14 @@ describe("Waterfall chart", () => {
     ]);
   });
 
-  test("Waterfall runtime with subtotals ", () => {
-    setCellContent(model, "A1", "Value 1");
-    setCellContent(model, "A2", "Value 2");
-    setCellContent(model, "B1", "10");
-    setCellContent(model, "B2", "-20");
-    setCellContent(model, "C1", "30");
-    setCellContent(model, "C2", "-40");
-    const chartId = createWaterfallChart(model, {
+  test("Waterfall runtime with subtotals ", async () => {
+    await setCellContent(model, "A1", "Value 1");
+    await setCellContent(model, "A2", "Value 2");
+    await setCellContent(model, "B1", "10");
+    await setCellContent(model, "B2", "-20");
+    await setCellContent(model, "C1", "30");
+    await setCellContent(model, "C2", "-40");
+    const chartId = await createWaterfallChart(model, {
       labelRange: "A1:A2",
       dataSets: [{ dataRange: "B1:C2" }],
       dataSetsHaveTitle: false,
@@ -105,14 +105,14 @@ describe("Waterfall chart", () => {
     ]);
   });
 
-  test("Waterfall runtime with empty values", () => {
-    setCellContent(model, "A1", "label1");
-    setCellContent(model, "A2", "label2");
-    setCellContent(model, "A3", "label3");
-    setCellContent(model, "A4", "label4");
-    setCellContent(model, "B1", "10");
-    setCellContent(model, "B3", "30");
-    const chartId = createWaterfallChart(model, {
+  test("Waterfall runtime with empty values", async () => {
+    await setCellContent(model, "A1", "label1");
+    await setCellContent(model, "A2", "label2");
+    await setCellContent(model, "A3", "label3");
+    await setCellContent(model, "A4", "label4");
+    await setCellContent(model, "B1", "10");
+    await setCellContent(model, "B3", "30");
+    const chartId = await createWaterfallChart(model, {
       labelRange: "A1:A4",
       dataSets: [{ dataRange: "B1:B4" }],
       dataSetsHaveTitle: false,
@@ -127,16 +127,16 @@ describe("Waterfall chart", () => {
     ]);
   });
 
-  test("Waterfall runtime with aggregate", () => {
-    setCellContent(model, "A1", "label1");
-    setCellContent(model, "A2", "label2");
-    setCellContent(model, "A3", "label1");
-    setCellContent(model, "A4", "label2");
-    setCellContent(model, "B1", "10");
-    setCellContent(model, "B2", "-20");
-    setCellContent(model, "B3", "20");
-    setCellContent(model, "B4", "10");
-    const chartId = createWaterfallChart(model, {
+  test("Waterfall runtime with aggregate", async () => {
+    await setCellContent(model, "A1", "label1");
+    await setCellContent(model, "A2", "label2");
+    await setCellContent(model, "A3", "label1");
+    await setCellContent(model, "A4", "label2");
+    await setCellContent(model, "B1", "10");
+    await setCellContent(model, "B2", "-20");
+    await setCellContent(model, "B3", "20");
+    await setCellContent(model, "B4", "10");
+    const chartId = await createWaterfallChart(model, {
       labelRange: "A1:A4",
       dataSets: [{ dataRange: "B1:B4" }],
       dataSetsHaveTitle: false,
@@ -149,15 +149,15 @@ describe("Waterfall chart", () => {
     ]);
   });
 
-  test("Runtime with showConnectorLines", () => {
-    const chartId = createWaterfallChart(model, { showConnectorLines: true });
+  test("Runtime with showConnectorLines", async () => {
+    const chartId = await createWaterfallChart(model, { showConnectorLines: true });
     expect(
       (getWaterfallRuntime(chartId).chartJsConfig.options?.plugins as any).waterfallLinesPlugin
     ).toEqual({
       showConnectorLines: true,
     });
 
-    updateChart(model, chartId, { showConnectorLines: false });
+    await updateChart(model, chartId, { showConnectorLines: false });
     expect(
       (getWaterfallRuntime(chartId).chartJsConfig.options?.plugins as any).waterfallLinesPlugin
     ).toEqual({
@@ -165,10 +165,10 @@ describe("Waterfall chart", () => {
     });
   });
 
-  test("Runtime with firstValueAsSubtotal, the first bar have the subtotal color", () => {
-    setCellContent(model, "B1", "10");
-    setCellContent(model, "B2", "-20");
-    const chartId = createWaterfallChart(model, {
+  test("Runtime with firstValueAsSubtotal, the first bar have the subtotal color", async () => {
+    await setCellContent(model, "B1", "10");
+    await setCellContent(model, "B2", "-20");
+    const chartId = await createWaterfallChart(model, {
       dataSets: [{ dataRange: "B1:B2" }],
       firstValueAsSubtotal: true,
       dataSetsHaveTitle: false,
@@ -179,11 +179,11 @@ describe("Waterfall chart", () => {
     ]);
   });
 
-  test("Waterfall bar colors change for negative, positive and subtotals ", () => {
-    setCellContent(model, "A1", "20");
-    setCellContent(model, "A2", "10");
-    setCellContent(model, "A3", "-20");
-    const chartId = createWaterfallChart(model, {
+  test("Waterfall bar colors change for negative, positive and subtotals ", async () => {
+    await setCellContent(model, "A1", "20");
+    await setCellContent(model, "A2", "10");
+    await setCellContent(model, "A3", "-20");
+    const chartId = await createWaterfallChart(model, {
       dataSets: [{ dataRange: "A1:A3" }],
       dataSetsHaveTitle: false,
       showSubTotals: true,
@@ -195,7 +195,7 @@ describe("Waterfall chart", () => {
       CHART_WATERFALL_SUBTOTAL_COLOR,
     ]);
 
-    updateChart(model, chartId, {
+    await updateChart(model, chartId, {
       positiveValuesColor: "#FF0000",
       negativeValuesColor: "#00FF00",
       subTotalValuesColor: "#0000FF",
@@ -208,13 +208,13 @@ describe("Waterfall chart", () => {
     ]);
   });
 
-  test("Waterfall bar tooltip", () => {
-    setCellContent(model, "A1", "Dataset 1");
-    setCellContent(model, "B1", "Dataset 2");
-    setCellContent(model, "A2", "30");
-    setFormat(model, "A2", "0[$€]");
-    setCellContent(model, "B2", "-40");
-    const chartId = createWaterfallChart(model, {
+  test("Waterfall bar tooltip", async () => {
+    await setCellContent(model, "A1", "Dataset 1");
+    await setCellContent(model, "B1", "Dataset 2");
+    await setCellContent(model, "A2", "30");
+    await setFormat(model, "A2", "0[$€]");
+    await setCellContent(model, "B2", "-40");
+    const chartId = await createWaterfallChart(model, {
       dataSets: [{ dataRange: "A1:B2" }],
       dataSetsHaveTitle: true,
       showSubTotals: false,
@@ -230,8 +230,8 @@ describe("Waterfall chart", () => {
     expect(tooltipValues).toEqual({ beforeLabel: "Dataset 2", label: "-40€" });
   });
 
-  test("Waterfall legend", () => {
-    const chartId = createWaterfallChart(model, {});
+  test("Waterfall legend", async () => {
+    const chartId = await createWaterfallChart(model, {});
     let runtime = getWaterfallRuntime(chartId);
     const fontColor = "#000000";
     expect(
@@ -253,7 +253,7 @@ describe("Waterfall chart", () => {
       },
     ]);
 
-    updateChart(model, chartId, { showSubTotals: true });
+    await updateChart(model, chartId, { showSubTotals: true });
     runtime = getWaterfallRuntime(chartId);
     expect(
       runtime.chartJsConfig.options?.plugins?.legend?.labels?.generateLabels?.({} as any)
@@ -281,7 +281,7 @@ describe("Waterfall chart", () => {
       },
     ]);
 
-    updateChart(model, chartId, {
+    await updateChart(model, chartId, {
       positiveValuesColor: "#FF0000",
       negativeValuesColor: "#00FF00",
       subTotalValuesColor: "#0000FF",
@@ -292,12 +292,12 @@ describe("Waterfall chart", () => {
     ).toMatchObject([{ fillStyle: "#FF0000" }, { fillStyle: "#00FF00" }, { fillStyle: "#0000FF" }]);
   });
 
-  test("Waterfall legend is displayed even if there is no labels", () => {
-    const chartId = createWaterfallChart(model, {});
+  test("Waterfall legend is displayed even if there is no labels", async () => {
+    const chartId = await createWaterfallChart(model, {});
     let runtime = getWaterfallRuntime(chartId);
     expect(runtime.chartJsConfig.options?.plugins?.legend?.display).not.toEqual(false);
 
-    updateChart(model, chartId, { legendPosition: "none" });
+    await updateChart(model, chartId, { legendPosition: "none" });
     runtime = getWaterfallRuntime(chartId);
     expect(runtime.chartJsConfig.options?.plugins?.legend?.display).toEqual(false);
   });
@@ -328,15 +328,15 @@ describe("Waterfall chart", () => {
     });
   });
 
-  test("Waterfall show value is displayed as delta", () => {
-    const chartId = createWaterfallChart(model, {
+  test("Waterfall show value is displayed as delta", async () => {
+    const chartId = await createWaterfallChart(model, {
       dataSets: [{ dataRange: "A1:A4" }],
       showSubTotals: true,
     });
-    setCellContent(model, "A2", "10");
-    setCellContent(model, "A3", "20");
-    setCellContent(model, "A4", "-15");
-    setFormat(model, "A1:A3", "0$");
+    await setCellContent(model, "A2", "10");
+    await setCellContent(model, "A3", "20");
+    await setCellContent(model, "A4", "-15");
+    await setFormat(model, "A1:A3", "0$");
     const runtime = getWaterfallRuntime(chartId);
     const dataset = runtime.chartJsConfig.data.datasets[0];
     const mockDataset = { _dataset: dataset, yAxisID: "y" } as unknown as ChartMeta;
@@ -348,7 +348,7 @@ describe("Waterfall chart", () => {
   });
 
   test("Humanization is taken into account for the axis ticks of a waterfall chart", async () => {
-    const chartId = createWaterfallChart(model, {
+    const chartId = await createWaterfallChart(model, {
       dataSets: [{ dataRange: "A1:A4" }],
       showSubTotals: true,
       humanize: false,
@@ -357,7 +357,7 @@ describe("Waterfall chart", () => {
     let axis = getChartConfiguration(model, chartId).options.scales.y;
     const valuesBefore = [1e3, 1e6, 1e9, 1e12].map(axis.ticks.callback);
     expect(valuesBefore).toEqual(["1,000", "1,000,000", "1,000,000,000", "1,000,000,000,000"]);
-    updateChart(model, chartId, { humanize: true });
+    await updateChart(model, chartId, { humanize: true });
     await nextTick();
     axis = getChartConfiguration(model, chartId).options.scales.y;
     const valuesAfter = [1e3, 1e6, 1e9, 1e12].map(axis.ticks.callback);
@@ -365,14 +365,14 @@ describe("Waterfall chart", () => {
   });
 
   test("Waterfall chart showValues plugin takes humanization into account", async () => {
-    const chartId = createWaterfallChart(model, {
+    const chartId = await createWaterfallChart(model, {
       dataSets: [{ dataRange: "A1:A4" }],
       showSubTotals: true,
       humanize: false,
     });
-    setCellContent(model, "A2", "1000");
-    setCellContent(model, "A3", "1000000");
-    setCellContent(model, "A4", "1000000000");
+    await setCellContent(model, "A2", "1000");
+    await setCellContent(model, "A3", "1000000");
+    await setCellContent(model, "A4", "1000000000");
 
     const runtime = getWaterfallRuntime(chartId);
     const dataset = runtime.chartJsConfig.data.datasets[0];
@@ -381,7 +381,7 @@ describe("Waterfall chart", () => {
     expect(plugin.callback(0, ds, 0)).toEqual("+1,000");
     expect(plugin.callback(0, ds, 1)).toEqual("+1,000,000");
     expect(plugin.callback(0, ds, 2)).toEqual("+1,000,000,000");
-    updateChart(model, chartId, { humanize: true });
+    await updateChart(model, chartId, { humanize: true });
     await nextTick();
     plugin = getChartConfiguration(model, chartId).options?.plugins?.chartShowValuesPlugin;
     expect(plugin.callback(0, ds, 0)).toEqual("+1,000");

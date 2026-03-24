@@ -2,7 +2,7 @@ import { LocalTransportService } from "./collaborative/local_transport_service";
 import { ReadonlyTransportFilter } from "./collaborative/readonly_transport_filter";
 import { Session } from "./collaborative/session";
 import { DEFAULT_REVISION_ID } from "./constants";
-import { deepEquals, UuidGenerator } from "./helpers";
+import { UuidGenerator } from "./helpers";
 import { EventBus } from "./helpers/event_bus";
 import { deepCopy, lazy } from "./helpers/misc";
 import { buildRevisionLog } from "./history/factory";
@@ -119,6 +119,9 @@ export class Model extends EventBus<any> implements CommandDispatcher {
 
   private state: StateObserver;
 
+  private isStarted: boolean = false;
+  private dataIsXLSX: boolean = false;
+
   readonly selection: SelectionStreamProcessor;
 
   /**
@@ -154,6 +157,9 @@ export class Model extends EventBus<any> implements CommandDispatcher {
 
     stateUpdateMessages = repairInitialMessages(data, stateUpdateMessages);
 
+    if (data["[Content_Types].xml"]) {
+      this.dataIsXLSX = true;
+    }
     const workbookData = load(data, verboseImport);
 
     this.state = new StateObserver();
@@ -227,7 +233,6 @@ export class Model extends EventBus<any> implements CommandDispatcher {
 
     if (this.config.mode !== "export_verification") {
       // starting plugins
-      this.dispatch("START");
       // Model should be the last permanent subscriber in the list since he should render
       // after all changes have been applied to the other subscribers (plugins)
       this.selection.observe(this, {
@@ -236,19 +241,22 @@ export class Model extends EventBus<any> implements CommandDispatcher {
       // This should be done after construction of LocalHistory due to order of
       // events
       this.setupSessionEvents();
-
-      this.joinSession();
-
-      if (config.snapshotRequested || (data["[Content_Types].xml"] && !this.getters.isReadonly())) {
-        const startSnapshot = performance.now();
-        console.debug("Snapshot requested");
-        // We do not need to wait for the snapshot to be sent
-        void this.session.snapshot(this.exportData());
-        console.debug("Snapshot taken in", performance.now() - startSnapshot, "ms");
-      }
     }
     console.debug("Model created in", performance.now() - start, "ms");
     console.debug("######");
+  }
+
+  async startModel() {
+    this.dispatch("START");
+    this.joinSession();
+    if (this.config.snapshotRequested || (this.dataIsXLSX && !this.getters.isReadonly())) {
+      const startSnapshot = performance.now();
+      console.debug("Snapshot requested");
+      // We do not need to wait for the snapshot to be sent
+      void this.session.snapshot(this.exportData());
+      console.debug("Snapshot taken in", performance.now() - startSnapshot, "ms");
+    }
+    this.isStarted = true;
   }
 
   joinSession() {
@@ -512,6 +520,9 @@ export class Model extends EventBus<any> implements CommandDispatcher {
    * 2. This allows us to define its type by using the interface CommandDispatcher
    */
   dispatch: CommandDispatcher["dispatch"] = (type: CommandTypes, payload?: any) => {
+    if (!this.isStarted && type !== "START") {
+      throw new Error("Cannot dispatch commands before the model is started");
+    }
     const command: Command = createCommand(type, payload);
     const status: Status = this.status;
     if (this.getters.isReadonly() && !canExecuteInReadonly(command)) {
@@ -636,29 +647,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
    * export data out of the model.
    */
   exportData(): WorkbookData {
-    const squished = true;
-    const unsquished = false;
-    const exportSquished = this._exportData(squished);
-    const exportUnsquished = this._exportData(unsquished);
-    const verificationConfig = {
-      ...this.config,
-      mode: "export_verification" as Mode, // will not trigger evaluation or join the session
-      client: { id: "exporter", name: "exporter" },
-      snapshotRequested: false, // guarantee that no extra snapshot is requested
-      transportService: new LocalTransportService(),
-    };
-
-    const exportVerificationModel = new Model(
-      deepCopy(exportSquished), // the import itself modifies the data, so we need to deep copy it to keep the original one for comparison
-      verificationConfig
-    )._exportData(unsquished);
-
-    if (!deepEquals(exportUnsquished, exportVerificationModel)) {
-      exportUnsquished.isNotSquishable = true;
-      return exportUnsquished;
-    } else {
-      return exportSquished;
-    }
+    return this._exportData(true);
   }
 
   _exportData(shouldSquish: boolean): WorkbookData {

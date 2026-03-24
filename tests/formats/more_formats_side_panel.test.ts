@@ -4,7 +4,7 @@ import { MoreFormatsPanel } from "../../src/components/side_panel/more_formats/m
 import { click, setInputValueAndTrigger } from "../test_helpers";
 import { selectCell, setFormat } from "../test_helpers/commands_helpers";
 import { getCell } from "../test_helpers/getters_helpers";
-import { mountComponent, mountSpreadsheet, nextTick } from "../test_helpers/helpers";
+import { createModel, mountComponent, mountSpreadsheet, nextTick } from "../test_helpers/helpers";
 
 let model: Model;
 let fixture: HTMLElement;
@@ -15,8 +15,8 @@ function getExampleValues() {
 }
 
 describe("more formats side panel component", () => {
-  beforeEach(() => {
-    model = new Model();
+  beforeEach(async () => {
+    model = await createModel();
   });
 
   async function mountFormatPanel(
@@ -36,22 +36,22 @@ describe("more formats side panel component", () => {
   });
 
   test("Category is correctly detected from the selected cell format", async () => {
-    setFormat(model, "A1", "[$$]0.00");
-    setFormat(model, "B2", "dd/mm/yyyy");
-    setFormat(model, "C3", "0.00");
+    await setFormat(model, "A1", "[$$]0.00");
+    await setFormat(model, "B2", "dd/mm/yyyy");
+    await setFormat(model, "C3", "0.00");
 
-    selectCell(model, "A1");
+    await selectCell(model, "A1");
     // mount whole spreadsheet because onWillUpdateProps doesn't trigger on render if mounting only MoreFormatsPanel
     const { env } = await mountSpreadsheet({ model });
     env.openSidePanel("MoreFormats");
     await nextTick();
     expect(".o-badge-selection .selected").toHaveText("Currency");
 
-    selectCell(model, "B2");
+    await selectCell(model, "B2");
     await nextTick();
     expect(".o-badge-selection .selected").toHaveText("Date");
 
-    selectCell(model, "C3");
+    await selectCell(model, "C3");
     await nextTick();
     expect(".o-badge-selection .selected").toHaveText("Number");
   });
@@ -87,7 +87,7 @@ describe("more formats side panel component", () => {
   });
 
   test("Can change the format to automatic from the list of proposals", async () => {
-    setFormat(model, "A1", "0.00%");
+    await setFormat(model, "A1", "0.00%");
     await mountFormatPanel();
     expect(".o-custom-format-section input").toHaveValue("0.00%");
 
@@ -127,32 +127,32 @@ describe("more formats side panel component", () => {
   });
 
   test("Side panel stays in sync when the cell format changes, including reset to Automatic", async () => {
-    setFormat(model, "A1", "0.00%");
+    await setFormat(model, "A1", "0.00%");
     // mount whole spreadsheet because onWillUpdateProps doesn't trigger on render if mounting only MoreFormatsPanel
     const { env } = await mountSpreadsheet({ model });
     env.openSidePanel("MoreFormats");
     await nextTick();
     expect(".o-custom-format-section input").toHaveValue("0.00%");
 
-    setFormat(model, "A1", "#.##");
+    await setFormat(model, "A1", "#.##");
     await nextTick();
     expect(".o-custom-format-section input").toHaveValue("#.##");
 
-    setFormat(model, "A1", "");
+    await setFormat(model, "A1", "");
     await nextTick();
     expect(".format-preview.active").toHaveText("Automatic");
     expect(".o-custom-format-section input").toHaveValue("");
   });
 
   test("Focusing a cell without format resets the side panel to Automatic", async () => {
-    setFormat(model, "A1", "0.00%");
+    await setFormat(model, "A1", "0.00%");
 
     const { env } = await mountSpreadsheet({ model });
     env.openSidePanel("MoreFormats");
     await nextTick();
     expect(".o-custom-format-section input").toHaveValue("0.00%");
 
-    selectCell(model, "B1");
+    await selectCell(model, "B1");
     await nextTick();
     expect(".format-preview.active").toHaveText("Automatic");
     expect(".o-custom-format-section input").toHaveValue("");

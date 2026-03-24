@@ -12,6 +12,7 @@ import { Color, Pixel, Range } from "../../src/types";
 import { merge, resizeSheetView, setZoom } from "../test_helpers/commands_helpers";
 import { edgeScrollDelay, triggerMouseEvent } from "../test_helpers/dom_helper";
 import {
+  createModel,
   mountComponent,
   mountSpreadsheet,
   nextTick,
@@ -178,8 +179,8 @@ function expectedResult(xc: string) {
 }
 
 const genericBeforeEach = async () => {
-  model = new Model();
-  resizeSheetView(model, getDefaultSheetViewSize(), getDefaultSheetViewSize());
+  model = await createModel();
+  await resizeSheetView(model, getDefaultSheetViewSize(), getDefaultSheetViewSize());
 };
 
 describe("Corner component", () => {
@@ -244,8 +245,8 @@ describe("Corner component", () => {
   });
 
   describe("drag highlight corner to cover full columns/rows will make the final highlight zone to be unbounded", () => {
-    beforeEach(() => {
-      model = new Model({
+    beforeEach(async () => {
+      model = await createModel({
         sheets: [
           {
             colNumber: 10,
@@ -349,8 +350,8 @@ describe("Corner component", () => {
   });
 
   describe("dragging highlight corner on merged cells expands the final highlight zone", () => {
-    beforeEach(() => {
-      model = new Model({
+    beforeEach(async () => {
+      model = await createModel({
         sheets: [
           {
             colNumber: 10,
@@ -361,7 +362,7 @@ describe("Corner component", () => {
     });
 
     test("cells (not columns or rows)", async () => {
-      merge(model, "B1:C1");
+      await merge(model, "B1:C1");
       const parent = await mountHighlight("B2", "#666");
       cornerEl = fixture.querySelector(".o-corner-nw")!;
 
@@ -377,7 +378,7 @@ describe("Corner component", () => {
     });
 
     test("full columns", async () => {
-      merge(model, "B1:C1");
+      await merge(model, "B1:C1");
       const parent = await mountHighlight("A1:A10", "#666");
       cornerEl = fixture.querySelector(".o-corner-ne")!;
 
@@ -391,7 +392,7 @@ describe("Corner component", () => {
     });
 
     test("full rows", async () => {
-      merge(model, "B2:B3");
+      await merge(model, "B2:B3");
       const parent = await mountHighlight("A1:J1", "#666");
       cornerEl = fixture.querySelector(".o-corner-sw")!;
 
@@ -527,8 +528,8 @@ describe("Border component", () => {
   });
 
   describe("dragging borders will keep the unbounded zones", () => {
-    beforeEach(() => {
-      model = new Model({
+    beforeEach(async () => {
+      model = await createModel({
         sheets: [
           {
             colNumber: 10,
@@ -649,8 +650,8 @@ describe("Border component", () => {
   });
 
   describe("dragging highlight border on merged cells expands the final highlight zone", () => {
-    beforeEach(() => {
-      model = new Model({
+    beforeEach(async () => {
+      model = await createModel({
         sheets: [
           {
             colNumber: 10,
@@ -661,7 +662,7 @@ describe("Border component", () => {
     });
 
     test("cells (not columns or rows)", async () => {
-      merge(model, "B1:C1");
+      await merge(model, "B1:C1");
       const parent = await mountHighlight("A1", "#666");
       borderEl = fixture.querySelector(".o-border-n")!;
 
@@ -677,7 +678,7 @@ describe("Border component", () => {
     });
 
     test("full columns", async () => {
-      merge(model, "B1:C1");
+      await merge(model, "B1:C1");
       const parent = await mountHighlight("A1:A10", "#666");
       borderEl = fixture.querySelector(".o-border-n")!;
 
@@ -691,7 +692,7 @@ describe("Border component", () => {
     });
 
     test("full rows", async () => {
-      merge(model, "B2:B3");
+      await merge(model, "B2:B3");
       const parent = await mountHighlight("A1:J1", "#666");
       borderEl = fixture.querySelector(".o-border-n")!;
 
@@ -766,7 +767,7 @@ describe.each(ZOOM_VALUES)(
       jest.useFakeTimers();
       ({ model, fixture } = await mountSpreadsheet());
       zoom = zoomValue / 100;
-      setZoom(model, zoom);
+      await setZoom(model, zoom);
       ({ width, height } = model.getters.getSheetViewDimensionWithHeaders());
       // In test sheetviewDim is not changed based on the Zoom
       width = width * zoom;

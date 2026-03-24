@@ -1,12 +1,11 @@
-import { ChartJSRuntime, Color, Model } from "../../../src";
+import { ChartJSRuntime, Color } from "../../../src";
 import { createChart, updateChart } from "../../test_helpers/commands_helpers";
-
+import { createModel } from "../../test_helpers/helpers";
 interface TooltipArgs {
   tooltipItem: any;
   backgroundColor?: Color;
   title?: string;
 }
-
 function makeTestFixture() {
   if (document.querySelector("#fixture")) {
     return {
@@ -17,20 +16,15 @@ function makeTestFixture() {
   const fixture = document.createElement("div");
   fixture.id = "fixture";
   document.body.appendChild(fixture);
-
   const chartContainer = document.createElement("div");
   chartContainer.id = "chart-container";
   fixture.appendChild(chartContainer);
-
   const mockedChartCanvas = document.createElement("canvas");
   chartContainer.appendChild(mockedChartCanvas);
-
   return { fixture, canvas: mockedChartCanvas };
 }
-
 function openTooltip(chartConfig: ChartJSRuntime, args: TooltipArgs) {
   const tooltip = chartConfig.chartJsConfig.options?.plugins?.tooltip as any;
-
   const { fixture, canvas } = makeTestFixture();
   const mockChart = {
     canvas: canvas,
@@ -52,96 +46,77 @@ function openTooltip(chartConfig: ChartJSRuntime, args: TooltipArgs) {
     labelColors: [{ backgroundColor: args.backgroundColor || "#FF00FF" }],
   };
   tooltip!.external!({ chart: mockChart, tooltip: mockTooltipModel });
-
   return fixture;
 }
-
 describe("Chart tooltip", () => {
-  test("Basic chart tooltip", () => {
-    const model = new Model();
-    createChart(model, { type: "bar" }, "chartId");
+  test("Basic chart tooltip", async () => {
+    const model = await createModel();
+    await createChart(model, { type: "bar" }, "chartId");
     const runtime = model.getters.getChartRuntime("chartId") as ChartJSRuntime;
     const tooltipItem = { parsed: { y: 20 }, dataset: { yAxisID: "y", label: "Ds 1" } };
-
     const fixture = openTooltip(runtime, {
       tooltipItem,
       backgroundColor: "#FFF000",
       title: "Marc",
     });
-
     expect(".o-tooltip-title").toHaveText("Marc");
     expect(".o-tooltip-label").toHaveText("Ds 1");
     expect(".o-tooltip-value").toHaveText("20");
-
     const colorBadge = fixture.querySelector(".badge") as HTMLElement;
     expect(colorBadge.style.backgroundColor).toBeSameColorAs("#FFF000");
   });
-
-  test("Opening a new tooltip closes the previous one", () => {
-    const model = new Model();
-    createChart(model, { type: "bar" }, "chartId");
+  test("Opening a new tooltip closes the previous one", async () => {
+    const model = await createModel();
+    await createChart(model, { type: "bar" }, "chartId");
     const runtime = model.getters.getChartRuntime("chartId") as ChartJSRuntime;
     const tooltipItem = { parsed: { y: 20 }, dataset: { yAxisID: "y", label: "Ds 1" } };
-
     openTooltip(runtime, { tooltipItem, title: "Marc" });
     expect(".o-chart-custom-tooltip").toHaveCount(1);
     expect(".o-tooltip-title").toHaveText("Marc");
-
     openTooltip(runtime, { tooltipItem, title: "Jean" });
     expect(".o-chart-custom-tooltip").toHaveCount(1);
     expect(".o-tooltip-title").toHaveText("Jean");
   });
-
-  test("Title div isn't displayed if there is no title", () => {
-    const model = new Model();
-    createChart(model, { type: "bar" }, "chartId");
+  test("Title div isn't displayed if there is no title", async () => {
+    const model = await createModel();
+    await createChart(model, { type: "bar" }, "chartId");
     const runtime = model.getters.getChartRuntime("chartId") as ChartJSRuntime;
     const tooltipItem = { parsed: { y: 20 }, dataset: { yAxisID: "y", label: "Ds 1" } };
-
     openTooltip(runtime, { tooltipItem, title: "" });
     expect(".o-tooltip-title").toHaveCount(0);
   });
-
-  test("Can handle label with colons", () => {
-    const model = new Model();
-    createChart(model, { type: "bar" }, "chartId");
+  test("Can handle label with colons", async () => {
+    const model = await createModel();
+    await createChart(model, { type: "bar" }, "chartId");
     const runtime = model.getters.getChartRuntime("chartId") as ChartJSRuntime;
     const tooltipItem = {
       parsed: { y: 20 },
       dataset: { yAxisID: "y", label: "Avengers: Endgame" },
     };
-
     openTooltip(runtime, { tooltipItem });
     expect(".o-tooltip-label").toHaveText("Avengers: Endgame");
     expect(".o-tooltip-value").toHaveText("20");
   });
-
-  test("Chart tooltip can be humanized", () => {
-    const model = new Model();
-    createChart(model, { type: "bar", humanize: false }, "chartId");
+  test("Chart tooltip can be humanized", async () => {
+    const model = await createModel();
+    await createChart(model, { type: "bar", humanize: false }, "chartId");
     let runtime = model.getters.getChartRuntime("chartId") as ChartJSRuntime;
     const tooltipItem = { parsed: { y: 1000000 }, dataset: { yAxisID: "y", label: "Ds 1" } };
-
     openTooltip(runtime, {
       tooltipItem,
       backgroundColor: "#FFF000",
       title: "Marc",
     });
-
     expect(".o-tooltip-value").toHaveText("1,000,000");
-
-    updateChart(model, "chartId", {
+    await updateChart(model, "chartId", {
       humanize: true,
     });
-
     runtime = model.getters.getChartRuntime("chartId") as ChartJSRuntime;
-
     openTooltip(runtime, {
       tooltipItem,
       backgroundColor: "#FFF000",
       title: "Marc",
     });
-
     expect(".o-tooltip-value").toHaveText("1,000k");
   });
 });

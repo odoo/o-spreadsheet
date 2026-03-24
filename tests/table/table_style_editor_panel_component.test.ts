@@ -6,7 +6,7 @@ import { TableStyleEditorPanelProps } from "../../src/components/side_panel/tabl
 import { TableStyle } from "../../src/types";
 import { createTableStyle } from "../test_helpers/commands_helpers";
 import { click, setInputValueAndTrigger } from "../test_helpers/dom_helper";
-import { mountComponentWithPortalTarget, nextTick } from "../test_helpers/helpers";
+import { createModel, mountComponentWithPortalTarget, nextTick } from "../test_helpers/helpers";
 
 let model: Model;
 let fixture: HTMLElement;
@@ -29,8 +29,8 @@ function getTableStyleFromName(name: string): TableStyle | undefined {
 }
 
 describe("Table style editor panel", () => {
-  beforeEach(() => {
-    model = new Model();
+  beforeEach(async () => {
+    model = await createModel();
   });
 
   test("Can create a new table style", async () => {
@@ -41,7 +41,7 @@ describe("Table style editor panel", () => {
   });
 
   test("Default style name changes if there is already a style with the same name", async () => {
-    createTableStyle(model, "Custom Table Style");
+    await createTableStyle(model, "Custom Table Style");
     await mountPanel();
     expect(fixture.querySelector<HTMLInputElement>(".o-sidePanel input")?.value).toEqual(
       "Custom Table Style 2"
@@ -78,7 +78,7 @@ describe("Table style editor panel", () => {
   });
 
   test("Can delete table style from the panel", async () => {
-    createTableStyle(model, "Custom Table Style");
+    await createTableStyle(model, "Custom Table Style");
     expect(getTableStyleFromName("Custom Table Style")).not.toBeUndefined();
 
     await mountPanel({ styleId: "Custom Table Style" });
