@@ -1,3 +1,5 @@
+import { parseDateTime } from "@odoo/o-spreadsheet-engine/helpers/dates";
+import { formatValue } from "@odoo/o-spreadsheet-engine/helpers/format/format";
 import { canonicalizeContent } from "@odoo/o-spreadsheet-engine/helpers/locale";
 import { criterionEvaluatorRegistry } from "@odoo/o-spreadsheet-engine/registries/criterion_registry";
 import { _t } from "@odoo/o-spreadsheet-engine/translation";
@@ -6,6 +8,7 @@ import { Component, useEffect, useRef, useState } from "@odoo/owl";
 import { DataValidationCriterionType } from "../../../../types";
 import { StandaloneComposer } from "../../../composer/standalone_composer/standalone_composer";
 import { DateInput } from "../../../date_input/date_input";
+import { CalendarButton } from "../calendar_button/calendar_button";
 
 interface Props {
   value: string;
@@ -15,6 +18,7 @@ interface Props {
   focused: boolean;
   onBlur: () => void;
   disableFormulas?: boolean;
+  isDateType?: boolean;
 }
 
 export class CriterionInput extends Component<Props, SpreadsheetChildEnv> {
@@ -37,7 +41,7 @@ export class CriterionInput extends Component<Props, SpreadsheetChildEnv> {
     onBlur: () => {},
     isDateType: false,
   };
-  static components = { DateInput, StandaloneComposer: StandaloneComposer };
+  static components = { DateInput, StandaloneComposer: StandaloneComposer, CalendarButton };
 
   inputRef = useRef("input");
 
@@ -78,19 +82,23 @@ export class CriterionInput extends Component<Props, SpreadsheetChildEnv> {
     return allowedValues ?? "any";
   }
 
-  onInputValueChanged(value: string) {
-    this.state.shouldDisplayError = true;
-    this.props.onValueChanged(value);
+  onDateInputValueChanged(value: string) {
+    const locale = this.env.model.getters.getLocale();
+    const dateValue = parseDateTime(value, locale);
+    if (dateValue) {
+      const formatedValue = formatValue(dateValue.value, { format: locale.dateFormat, locale });
+      this.onInputValueChanged(formatedValue);
+    }
   }
 
-  onChangeComposerValue(str: string) {
+  onInputValueChanged(str: string) {
     this.state.shouldDisplayError = true;
     this.props.onValueChanged(str);
   }
 
   getDataValidationRuleInputComposerProps(): StandaloneComposer["props"] {
     return {
-      onConfirm: (str: string) => this.onChangeComposerValue(str),
+      onConfirm: (str: string) => this.onInputValueChanged(str),
       composerContent: this.props.value,
       placeholder: this.placeholder,
       class: "o-sidePanel-composer",
@@ -109,5 +117,9 @@ export class CriterionInput extends Component<Props, SpreadsheetChildEnv> {
       this.props.criterionType,
       canonicalizeContent(this.props.value, this.env.model.getters.getLocale())
     );
+  }
+
+  shouldDisplayDatePicker() {
+    return this.props.isDateType;
   }
 }
