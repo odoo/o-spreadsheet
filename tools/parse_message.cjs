@@ -52,14 +52,10 @@ try {
   // find version
   const version = package.version;
 
-  console.log(
-    JSON.stringify({
-      title,
-      version,
-      body: commitLines.join("\n"),
-      prerelease: version.includes("alpha"),
-    })
-  );
+  core.setOutput("title", title);
+  core.setOutput("version", version);
+  core.setOutput("body", commitLines.join("\n"));
+  core.setOutput("prerelease", version.includes("alpha"));
 } catch (error) {
   core.setFailed(error.message);
 }
