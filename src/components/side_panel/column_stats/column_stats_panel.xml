@@ -32,7 +32,7 @@
         </Section>
         <SidePanelCollapsible title.translate="Data visualization" isInitiallyCollapsed="false">
           <t t-set-slot="content">
-            <div class="mx-4 mb-2">
+            <Section class="'pt-0'">
               <BadgeSelection
                 choices="charts"
                 onChange.bind="switchChart"
@@ -44,21 +44,21 @@
                 </div>
               </t>
               <t t-else="">
-                <div class="text-muted mt-4" t-out="chartErrorMessage"/>
+                <div class="o-column-stats-no-data text-muted mt-4" t-out="chartErrorMessage"/>
               </t>
-            </div>
+            </Section>
           </t>
         </SidePanelCollapsible>
         <SidePanelCollapsible title.translate="General statistics" isInitiallyCollapsed="false">
           <t t-set-slot="content">
-            <div class="o-column-global-stats d-flex flex-column gap-2 mb-2">
+            <Section class="'o-column-global-stats d-flex flex-column gap-2 pt-0'">
               <t t-foreach="store.statItems" t-as="stat" t-key="stat.name">
                 <div class="o-column-stats-row d-flex justify-content-between">
                   <span class="text-muted" t-out="stat.name"/>
                   <span class="o-fw-bold" t-att-data-test-id="stat.name" t-out="stat.value"/>
                 </div>
               </t>
-            </div>
+            </Section>
           </t>
         </SidePanelCollapsible>
         <SidePanelCollapsible title.translate="Frequency" isInitiallyCollapsed="true">
