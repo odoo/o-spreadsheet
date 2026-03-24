@@ -1,7 +1,7 @@
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
-import { Component, useEffect, useExternalListener, useRef, useState } from "@odoo/owl";
+import { Component, useEffect, useRef, useState } from "@odoo/owl";
 import { ValueAndLabel } from "../../types";
-import { getRefBoundingRect, isChildEvent } from "../helpers/dom_helpers";
+import { getRefBoundingRect } from "../helpers/dom_helpers";
 import { Popover, PopoverProps } from "../popover/popover";
 
 export interface SelectProps {
@@ -38,8 +38,6 @@ export class Select extends Component<SelectProps, SpreadsheetChildEnv> {
   private state = useState<State>({ isPopoverOpen: false, hoveredValue: undefined });
 
   setup() {
-    useExternalListener(window, "pointerdown", this.onExternalClick, { capture: true });
-
     useEffect(() => {
       if (this.dropdownRef.el) {
         this.dropdownRef.el.style.width = `${this.selectRef.el?.offsetWidth}px`;
@@ -91,12 +89,6 @@ export class Select extends Component<SelectProps, SpreadsheetChildEnv> {
     }
   }
 
-  onExternalClick(ev: MouseEvent) {
-    if (!isChildEvent(this.selectRef.el, ev) && !isChildEvent(this.dropdownRef.el, ev)) {
-      this.closeDropdown();
-    }
-  }
-
   onOptionClick(value: string) {
     if (value !== this.props.selectedValue) {
       this.props.onChange(value);
@@ -122,6 +114,7 @@ export class Select extends Component<SelectProps, SpreadsheetChildEnv> {
       anchorRect: getRefBoundingRect(this.selectRef),
       positioning: "bottom-left",
       verticalOffset: 0,
+      onClose: () => this.closeDropdown(),
     };
   }
 

@@ -2,7 +2,7 @@ import { DEFAULT_COLOR_SCALE_MIDPOINT_COLOR } from "@odoo/o-spreadsheet-engine/c
 import { _t } from "@odoo/o-spreadsheet-engine/translation";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { Store } from "@odoo/o-spreadsheet-engine/types/store_engine";
-import { Component, useEffect, useExternalListener } from "@odoo/owl";
+import { Component, useEffect } from "@odoo/owl";
 import { colorNumberToHex, deepCopy } from "../../../../helpers";
 import { useLocalStore } from "../../../../store_engine";
 import {
@@ -69,7 +69,6 @@ export class ConditionalFormattingEditor extends Component<Props, SpreadsheetChi
       },
       () => [this.env.model.getters.getActiveSheetId(), this.isEditedCfRemoved]
     );
-    useExternalListener(window as any, "click", () => this.store.closeMenus());
   }
 
   get isEditedCfRemoved() {

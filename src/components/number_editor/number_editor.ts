@@ -1,17 +1,9 @@
 import { Ref } from "@odoo/o-spreadsheet-engine";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
-import {
-  Component,
-  onMounted,
-  onWillUpdateProps,
-  useExternalListener,
-  useRef,
-  useState,
-} from "@odoo/owl";
+import { Component, onMounted, onWillUpdateProps, useRef, useState } from "@odoo/owl";
 import { clip } from "../../helpers/index";
 import { Store, useStore } from "../../store_engine";
 import { DOMFocusableElementStore } from "../../stores/DOM_focus_store";
-import { isChildEvent } from "../helpers/dom_helpers";
 import { Popover, PopoverProps } from "../popover";
 
 interface State {
@@ -56,14 +48,11 @@ export class NumberEditor extends Component<Props, SpreadsheetChildEnv> {
 
   private inputRef: Ref<HTMLInputElement> = useRef("inputNumber");
   private rootEditorRef = useRef("NumberEditor");
-  private valueListRef = useRef("numberList");
 
   private DOMFocusableElementStore!: Store<DOMFocusableElementStore>;
 
   setup() {
     this.DOMFocusableElementStore = useStore(DOMFocusableElementStore);
-
-    useExternalListener(window, "click", this.onExternalClick, { capture: true });
     onWillUpdateProps((nextProps) => {
       if (this.inputRef.el && document.activeElement !== this.inputRef.el) {
         this.inputRef.el.value = nextProps.currentValue;
@@ -83,13 +72,9 @@ export class NumberEditor extends Component<Props, SpreadsheetChildEnv> {
       anchorRect: { x, y, width, height },
       positioning: "bottom-left",
       verticalOffset: 0,
+      rootElement: this.rootEditorRef.el,
+      onClose: () => this.closeList(),
     };
-  }
-
-  onExternalClick(ev: MouseEvent) {
-    if (!isChildEvent(this.valueListRef.el!, ev) && !isChildEvent(this.rootEditorRef.el!, ev)) {
-      this.closeList();
-    }
   }
 
   toggleList() {
