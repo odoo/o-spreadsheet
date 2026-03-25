@@ -6,7 +6,6 @@ import {
   isCoreCommand,
   isSheetDependent,
   lockedSheetAllowedCommands,
-  readonlyAllowedCommands,
 } from "../../src";
 import { createChart, createSheet, lockSheet } from "../test_helpers/commands_helpers";
 import { TEST_COMMANDS } from "../test_helpers/constants";
@@ -14,7 +13,6 @@ import { addPivot } from "../test_helpers/pivot_helpers";
 
 const allowedCommands: Command["type"][] = [];
 const rejectedCommands: Command["type"][] = [];
-const readonlyCommands: Command["type"][] = [];
 
 (Object.keys(TEST_COMMANDS) as CoreCommand["type"][]).forEach((cmdType, cmd) => {
   if (
@@ -24,9 +22,6 @@ const readonlyCommands: Command["type"][] = [];
     allowedCommands.push(cmdType);
   } else {
     rejectedCommands.push(cmdType);
-  }
-  if (readonlyAllowedCommands.has(cmdType)) {
-    readonlyCommands.push(cmdType);
   }
 });
 
@@ -51,8 +46,9 @@ describe("Lock Sheet plugin", () => {
     }
   });
 
-  test("read only commands bypass lock in dashboard mode", () => {
-    for (const cmdType of readonlyCommands) {
+  test.each(["UPDATE_CHART", "UPDATE_PIVOT"])(
+    "%s command bypass lock in dashboard mode",
+    (cmdType: Command["type"]) => {
       const model = new Model();
       createSheet(model, { name: "Another sheet", position: 0 });
       createChart(model, { type: "bar" }, "chartId");
@@ -62,5 +58,5 @@ describe("Lock Sheet plugin", () => {
       const result = model.dispatch(cmdType, TEST_COMMANDS[cmdType]);
       expect(result).toBeSuccessfullyDispatched();
     }
-  });
+  );
 });

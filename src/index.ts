@@ -260,7 +260,6 @@ export type {
   TransportService,
 } from "./types/collaborative/transport_service";
 export {
-  canExecuteInReadonly,
   coreTypes,
   invalidateCFEvaluationCommands,
   invalidateChartEvaluationCommands,
@@ -269,7 +268,6 @@ export {
   isCoreCommand,
   isSheetDependent,
   lockedSheetAllowedCommands,
-  readonlyAllowedCommands,
 } from "./types/commands";
 export { CellErrorType, EvaluationError } from "./types/errors";
 
