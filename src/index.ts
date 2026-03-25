@@ -252,7 +252,6 @@ export type {
   TransportService,
 } from "./types/collaborative/transport_service";
 export {
-  canExecuteInReadonly,
   CommandResult,
   coreTypes,
   DispatchResult,
@@ -263,7 +262,6 @@ export {
   isCoreCommand,
   isSheetDependent,
   lockedSheetAllowedCommands,
-  readonlyAllowedCommands,
 } from "./types/commands";
 export type { CancelledReason } from "./types/commands";
 export { CellErrorType, EvaluationError } from "./types/errors";
