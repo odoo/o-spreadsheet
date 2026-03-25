@@ -252,8 +252,8 @@ export { CoreViewPlugin } from "@odoo/o-spreadsheet-engine/plugins/core_view_plu
 export { UIPlugin } from "@odoo/o-spreadsheet-engine/plugins/ui_plugin";
 export { Registry } from "@odoo/o-spreadsheet-engine/registries/registry";
 export { setTranslationMethod } from "@odoo/o-spreadsheet-engine/translation";
-export { Client } from "@odoo/o-spreadsheet-engine/types/collaborative/session";
-export {
+export type { Client } from "@odoo/o-spreadsheet-engine/types/collaborative/session";
+export type {
   ClientJoinedMessage,
   ClientLeftMessage,
   ClientMovedMessage,
@@ -278,7 +278,8 @@ export {
 export { CellErrorType, EvaluationError } from "@odoo/o-spreadsheet-engine/types/errors";
 export { Spreadsheet } from "./components/index";
 export { AbstractChart } from "./helpers/figures/charts";
-export { CancelledReason, CommandResult, DispatchResult, addRenderingLayer } from "./types";
+export { CommandResult, DispatchResult, addRenderingLayer } from "./types";
+export type { CancelledReason } from "./types";
 
 export const SPREADSHEET_DIMENSIONS = {
   MIN_ROW_HEIGHT,

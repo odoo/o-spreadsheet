@@ -36,6 +36,7 @@ export default tseslint.config(
       "@typescript-eslint/no-non-null-asserted-optional-chain": "error", // ban non-null assertion in optional chain
       curly: ["error", "all"], // enforce curly braces for all control statements
       ...(!fastMode && { "@typescript-eslint/no-floating-promises": "error" }), // ban unawaited promises
+      ...(!fastMode && { "@typescript-eslint/consistent-type-exports": "error" }), // enforce consistent type exports
     },
   }
 );
