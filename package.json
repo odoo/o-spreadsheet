@@ -3,9 +3,9 @@
   "version": "19.3.0-alpha.7",
   "description": "A spreadsheet component",
   "type": "module",
-  "main": "dist/o-spreadsheet.cjs.js",
-  "browser": "dist/o-spreadsheet.iife.js",
-  "module": "dist/o-spreadsheet.esm.js",
+  "main": "dist/o_spreadsheet.cjs",
+  "browser": "dist/o_spreadsheet.iife.js",
+  "module": "dist/o_spreadsheet.esm.js",
   "types": "dist/o-spreadsheet.d.ts",
   "files": [
     "dist/*.js",
