@@ -1,6 +1,6 @@
 import { FigureSize } from "../../../types";
 import { FileStore, ImageProviderInterface } from "../../../types/files";
-import { Image } from "../../../types/image";
+import { type Image } from "../../../types/image";
 
 export class ImageProvider implements ImageProviderInterface {
   private fileStore: FileStore;

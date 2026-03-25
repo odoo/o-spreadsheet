@@ -1,7 +1,5 @@
-import { nodeResolve } from "@rollup/plugin-node-resolve";
-import terser from "@rollup/plugin-terser";
-import dts from "rollup-plugin-dts";
-import typescript from "rollup-plugin-typescript2";
+import path from "path";
+import { defineConfig } from "rolldown";
 import { fileURLToPath } from "url";
 import { bundle } from "./tools/bundle.cjs";
 
@@ -13,10 +11,23 @@ const EXTENSION = {
   iife: "iife.js",
 };
 
+const __dirname = fileURLToPath(new URL(".", import.meta.url));
+
+function canvasMockPlugin() {
+  const replacement = path.resolve(__dirname, "./tools/empty-module.js");
+  return {
+    name: "canvas-mock-alias",
+    resolveId(source) {
+      if (source.endsWith("canvas_mock")) {
+        return replacement;
+      }
+    },
+  };
+}
+
 /**
- * Get the rollup config based on the arguments
+ * Get the rolldown config based on the arguments
  * @param {"esm" | "cjs" | "iife"} format format of the bundle
- * @param {string} generatedFileName generated file name
  * @param {boolean} minified should it be minified
  */
 function getConfigForFormat(format, minified = false) {
@@ -29,63 +40,51 @@ function getConfigForFormat(format, minified = false) {
     globals: { "@odoo/owl": "owl", "chart.js": "Chart" },
     outro,
     banner: bundle.jsBanner(),
-    plugins: minified ? [terser()] : [],
+    minify: minified,
   };
 }
-const __dirname = fileURLToPath(new URL(".", import.meta.url));
 
-export default (commandLineArgs) => {
-  let output = [];
-  let input = "";
-  let plugins = [nodeResolve()];
-  let config = {};
-
-  if (commandLineArgs.format) {
-    const extension = EXTENSION[commandLineArgs.format];
+export default defineConfig((cliArgs) => {
+  const format = cliArgs.format;
+  if (format) {
+    const extension = EXTENSION[format];
     // Only build one version to improve speed
-    config = {
-      input: "build/js/src/index.js",
+    return {
+      input: "src/index.ts",
       external: ["@odoo/owl", "chart.js", "luxon"],
-      output: [
-        {
-          name: "o_spreadsheet",
-          extend: true,
-          outro,
-          banner: bundle.jsBanner(),
-          globals: { "@odoo/owl": "owl", "chart.js": "Chart", luxon: "luxon" },
-          file: `build/o_spreadsheet.${extension}`,
-          format: commandLineArgs.format,
-        },
-      ],
-      plugins: [nodeResolve()],
+      checks: {
+        circularDependency: true,
+      },
+      plugins: [canvasMockPlugin()],
+      output: {
+        name: "o_spreadsheet",
+        extend: true,
+        outro,
+        banner: bundle.jsBanner(),
+        globals: { "@odoo/owl": "owl", "chart.js": "Chart", luxon: "luxon" },
+        file: `build/o_spreadsheet.${extension}`,
+        format,
+        sourcemap: true,
+      },
       watch: {
-        include: ["build/js/**"],
+        include: ["src/**"],
       },
     };
-  } else {
-    input = "src/index.ts";
-    output = [
+  }
+
+  // dist build
+  return {
+    input: "src/index.ts",
+    external: ["@odoo/owl", "chart.js", "luxon"],
+    checks: {
+      circularDependency: true,
+    },
+    plugins: [canvasMockPlugin()],
+    output: [
       getConfigForFormat("esm"),
       getConfigForFormat("cjs"),
       getConfigForFormat("iife"),
       getConfigForFormat("iife", true),
-    ];
-    plugins.push(typescript({ useTsconfigDeclarationDir: true }));
-    config = [
-      {
-        input,
-        external: ["@odoo/owl", "chart.js", "luxon"],
-        output,
-        plugins,
-      },
-      {
-        input: "dist/types/index.d.ts",
-        output: [{ file: "dist/o-spreadsheet.d.ts", format: "es" }],
-        external: ["chart.js"],
-        plugins: [dts({ respectExternal: true }), nodeResolve()],
-      },
-    ];
-  }
-
-  return config;
-};
+    ],
+  };
+});
