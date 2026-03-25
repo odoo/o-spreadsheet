@@ -18,15 +18,15 @@
         </div>
       </div>
 
-      <div class="o-panel-content overflow-y-auto h-100" t-ref="panelContent">
-        <div t-att-class="state.panel !== 'configuration' ? 'd-none' : ''">
+      <div class="o-panel-content overflow-hidden h-100">
+        <div class="h-100" t-att-class="state.panel !== 'configuration' ? 'd-none' : ''">
           <t
             t-component="sidePanelEditor"
             pivotId="props.pivotId"
             onCloseSidePanel="props.onCloseSidePanel"
           />
         </div>
-        <div t-att-class="state.panel !== 'design' ? 'd-none' : ''">
+        <div class="h-100" t-att-class="state.panel !== 'design' ? 'd-none' : ''">
           <PivotDesignPanel pivotId="props.pivotId"/>
         </div>
       </div>
