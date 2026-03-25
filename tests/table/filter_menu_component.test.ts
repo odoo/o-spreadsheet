@@ -370,7 +370,7 @@ describe("Filter menu component", () => {
     });
   });
 
-  test("cannot sort filter table in readonly mode", async () => {
+  test("can sort filter table in readonly mode", async () => {
     createTableWithFilter(model, "A10:B15");
     await nextTick();
     await openFilterMenu("A10");
@@ -381,7 +381,7 @@ describe("Filter menu component", () => {
     await nextTick();
     expect(
       [...fixture.querySelectorAll(".o-filter-menu-item")].map((el) => el.textContent?.trim())
-    ).toEqual(["(Blanks)"]);
+    ).toEqual(["Sort ascending (A ⟶ Z)", "Sort descending (Z ⟶ A)", "(Blanks)"]);
   });
 
   test("cannot sort dynamic table", async () => {
