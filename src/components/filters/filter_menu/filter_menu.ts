@@ -73,7 +73,7 @@ export class FilterMenu extends OSComponent {
       this.table.range.sheetId,
       this.table.range.zone
     );
-    return !this.env.model.getters.isReadonly() && coreTable?.type !== "dynamic";
+    return coreTable?.type !== "dynamic";
   }
 
   get table() {

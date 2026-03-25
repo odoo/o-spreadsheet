@@ -11,6 +11,9 @@ export function interactiveRenameSheet(
   name: string,
   errorCallback: () => void
 ) {
+  if (env.model.getters.isReadonly()) {
+    return;
+  }
   const notificationPlugin = env.getPlugin(NotificationPlugin);
   const result = env.model.dispatch("RENAME_SHEET", {
     sheetId,
