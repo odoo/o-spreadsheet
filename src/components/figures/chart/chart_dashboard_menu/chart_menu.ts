@@ -9,9 +9,9 @@ import { Store, useStore } from "../../../../store_engine";
 import { Rect, UID, ValueAndLabel } from "../../../../types";
 import { FullScreenFigureStore } from "../../../full_screen_figure/full_screen_figure_store";
 import { getBoundingRectAsPOJO } from "../../../helpers/dom_helpers";
+import { InfoPopover } from "../../../info_popover/info_popover";
 import { MenuPopover } from "../../../menu_popover/menu_popover";
 import { Select } from "../../../select/select";
-import { InfoPopover } from "../../../info_popover/info_popover";
 
 interface Props {
   chartId: UID;
@@ -34,7 +34,7 @@ interface ChartMenuState {
 
 export class ChartMenu extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-ChartMenu";
-  static components = { MenuPopover, InfoPopover, Select};
+  static components = { MenuPopover, InfoPopover, Select };
   static props = {
     chartId: String,
     hasFullScreenButton: { type: Boolean, optional: true },
