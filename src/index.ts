@@ -230,7 +230,6 @@ export { Revision } from "./collaborative/revisions";
 export { ClientDisconnectedError } from "./collaborative/session";
 export {
   allCommands,
-  canExecuteInReadonly,
   commandSets,
   coreCommands,
   dispatcheableEvaluationCommandTypes,
@@ -247,7 +246,6 @@ export {
   isEvaluationCommand,
   localCommands,
   lockedSheetAllowedCommands,
-  readonlyAllowedCommands,
   registerCommand,
 } from "./command_registry";
 export type { CommandRegistrationOptions, CommandSetName } from "./command_registry";
