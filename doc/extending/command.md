@@ -69,7 +69,6 @@ The built-in commands are all declared this way, in `src/command_registry.ts`.
 | `inverse`                                |  ✔   |       | commands to dispatch to revert this one. Defaults to the command itself     |
 | `isEvaluationCommand`                    |      |   ✔   | the command is handled by the evaluation plugins (core commands always are) |
 | `isDispatcheableEvaluationCommand`       |      |   ✔   | the command is dispatched by the evaluation plugins                         |
-| `allowedInReadonly`                      |  ✔   |   ✔   | the command can be executed while the model is readonly                     |
 | `allowedOnLockedSheet`                   |  ✔   |   ✔   | the command can be executed on a locked sheet                               |
 | `invalidatesEvaluation`                  |  ✔   |   ✔   | the command invalidates the evaluation of the cells                         |
 | `invalidatesChartEvaluation`             |  ✔   |   ✔   | the command invalidates the chart runtimes                                  |
@@ -84,15 +83,7 @@ key (e.g. `"*invalidateEvaluationCommands"`) to react to all of them at once.
 
 ### Read-Only Mode
 
-In read-only mode, all core commands are cancelled with the `CommandResult` `Readonly` since the spreadsheet state cannot be modified.
-However, some local commands still need to be executed, such as updating the active sheet.
-To allow a new local command in read-only mode, declare it with `allowedInReadonly`:
-
-```ts
-import { registerCommand } from "@odoo/o-spreadsheet";
-
-registerCommand("MY_COMMAND_NAME", { category: "local", allowedInReadonly: true });
-```
+All commands are allowed in readonly mode. Because the spreadsheet’s state cannot be changed, a specific transport service (ReadonlyTransportFilter) is used to prevent revisions from being sent to the server.
 
 ## Reserved keywords in commands
 
