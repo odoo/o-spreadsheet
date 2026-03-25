@@ -457,6 +457,18 @@ describe("Grid component", () => {
       });
     });
 
+    test.each(["Backspace", "Delete"])(
+      "pressing %s does not remove the content of a cell in readonly mode",
+      async (key) => {
+        setCellContent(model, "A1", "test");
+        model.updateMode("readonly");
+        await keyDown({ key });
+        expect(getSelectionAnchorCellXc(model)).toBe("A1");
+        expect(composerStore.editionMode).toBe("inactive");
+        expect(getCellContent(model, "A1")).toBe("test");
+      }
+    );
+
     test("pressing shift+ENTER in edit mode stop editing and move one cell up", async () => {
       selectCell(model, "A2");
       expect(getSelectionAnchorCellXc(model)).toBe("A2");
@@ -607,6 +619,14 @@ describe("Grid component", () => {
       expect(getStyle(model, "A1")).toEqual({});
     });
 
+    test.each(["B", "I", "U"])("Ctrl+%s is not allowed in readonly mode", async (key) => {
+      setCellContent(model, "A1", "hello");
+      expect(getCell(model, "A1")!.style).toBeUndefined();
+      model.updateMode("readonly");
+      await keyDown({ key, ctrlKey: true });
+      expect(getCell(model, "A1")!.style).toBeUndefined();
+    });
+
     test("open inserting image window with CTRL+O", async () => {
       const fileStore = new FileStore();
       const data = createEmptyWorkbookData();
@@ -710,6 +730,15 @@ describe("Grid component", () => {
       expect(composerStore.composerSelection).toEqual({ start: 5, end: 10 });
       expect(composerStore.currentContent).toBe("=SUM(B2:B4)");
       expect(composerStore.highlights[0]?.range.zone).toEqual(toZone("B2:B4"));
+    });
+
+    test("ALT+= is disabled in readonly mode", async () => {
+      setCellContent(model, "B2", "2");
+      selectCell(model, "B5");
+      model.updateMode("readonly");
+      await keyDown({ key: "=", altKey: true });
+      expect(composerStore.editionMode).toBe("inactive");
+      expect(getCellText(model, "B5")).toBe("");
     });
 
     test("can automatically sum in an empty sheet with ALT+=", async () => {
@@ -2099,6 +2128,24 @@ describe("Copy paste keyboard shortcut", () => {
     expect(getCellRawContent(model, "B2")).toBe("b1");
     expect(getCellRawContent(model, "C2")).toBe("c1");
     expect(getCellRawContent(model, "D2")).toBe("d1");
+  });
+
+  test("can not copy and paste above cell(s) using CTRL+D in readonly mode", async () => {
+    setCellContent(model, "B1", "b1");
+    setCellContent(model, "B2", "b2");
+    model.updateMode("readonly");
+    selectCell(model, "B2");
+    await keyDown({ key: "D", ctrlKey: true });
+    expect(getCellRawContent(model, "B2")).toBe("b2");
+
+    setCellContent(model, "B2", "b2");
+    setCellContent(model, "C1", "c1");
+    setCellContent(model, "D1", "d1");
+    setSelection(model, ["B2:D2"]);
+    await keyDown({ key: "D", ctrlKey: true });
+    expect(getCellRawContent(model, "B2")).toBe("b2");
+    expect(getCellRawContent(model, "C2")).toBeUndefined();
+    expect(getCellRawContent(model, "D2")).toBeUndefined();
   });
 
   test("raise error if copied zone contains merged cells", () => {
