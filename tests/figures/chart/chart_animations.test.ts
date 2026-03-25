@@ -1,5 +1,5 @@
 import { Chart } from "chart.js";
-import { Model, readonlyAllowedCommands } from "../../../src";
+import { Model } from "../../../src";
 import { ChartAnimationStore } from "../../../src/components/figures/chart/chartJs/chartjs_animation_store";
 import { toChartDataSource } from "../../test_helpers/chart_helpers";
 import {
@@ -60,8 +60,6 @@ describe("Chart animations in dashboard", () => {
   });
 
   test("Animations are replayed only when chart data changes", async () => {
-    readonlyAllowedCommands.add("UPDATE_CELL");
-
     const model = new Model();
     createChart(model, {
       type: "bar",
@@ -81,13 +79,9 @@ describe("Chart animations in dashboard", () => {
     setCellContent(model, "A2", "6");
     await nextTick();
     expect(mockedChart.config.options.animation).toEqual({ animateRotate: true });
-
-    readonlyAllowedCommands.delete("UPDATE_CELL");
   });
 
   test("Treemap animation are not replayed when data does not change but runtime is re-created", async () => {
-    readonlyAllowedCommands.add("UPDATE_CELL");
-
     const model = new Model();
     createChart(model, {
       type: "treemap",
@@ -102,8 +96,6 @@ describe("Chart animations in dashboard", () => {
     setCellContent(model, "B1", "6");
     await nextTick();
     expect(mockedChart.config.options.animation).toBe(false);
-
-    readonlyAllowedCommands.delete("UPDATE_CELL");
   });
 
   test("Charts are animated when chart type changes", async () => {
