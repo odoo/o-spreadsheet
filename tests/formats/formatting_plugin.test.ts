@@ -249,6 +249,10 @@ describe("formatting values (with formatters)", () => {
     setFormat(model, "A1", ";;;@");
     setDecimal(model, "A1", -1);
     expect(getCell(model, "A1")?.format).toBe(";;;@");
+
+    setFormat(model, "A1", " - ; - ; - ; - ");
+    setDecimal(model, "A1", -1);
+    expect(getCell(model, "A1")?.format).toBe(" - ; - ; - ; - ");
   });
 
   test("SET_DECIMAL on scientific format", () => {

@@ -1,6 +1,6 @@
 import { Model } from "../../src";
 import { setCellContent, setCellFormat, setFormat } from "../test_helpers/commands_helpers";
-import { getCellContent, getCellError } from "../test_helpers/getters_helpers";
+import { getCellContent, getCellError, getEvaluatedCell } from "../test_helpers/getters_helpers";
 import { evaluateCellText } from "../test_helpers/helpers";
 
 describe("FORMAT.LARGE.NUMBER formula", () => {
@@ -177,5 +177,13 @@ describe("FORMAT.LARGE.NUMBER formula", () => {
     setFormat(model, "A1", "#,##0.0%");
     setCellContent(model, "A2", "=FORMAT.LARGE.NUMBER(A1)");
     expect(getCellContent(model, "A2")).toBe("10,000k%");
+  });
+
+  test("FORMAT.LARGE.NUMBER does not crash on format without digits", () => {
+    const model = new Model();
+    setCellContent(model, "A1", "100000");
+    setFormat(model, "A1", " - ; - ; - ; - ");
+    setCellContent(model, "A2", "=FORMAT.LARGE.NUMBER(A1)");
+    expect(getEvaluatedCell(model, "A2")?.format).toBe(" - ; - ; - ; - ");
   });
 });
