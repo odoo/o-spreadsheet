@@ -29,6 +29,9 @@ export class ChartFigure extends OSComponent {
   }
 
   onDoubleClick() {
+    if (this.model().getters.isReadonly()) {
+      return;
+    }
     this.model().dispatch("SELECT_FIGURE", { figureId: this.props.figureUI.id });
     this.sidePanelStore.open("ChartPanel");
   }

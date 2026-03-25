@@ -277,203 +277,287 @@ export class Grid extends OSComponent {
 
   // this map will handle most of the actions that should happen on key down. The arrow keys are managed in the key
   // down itself
-  private keyDownMapping: { [key: string]: Function } = {
-    Enter: () => this.editOrMoveInSelection("down"),
-    "Shift+Enter": () => this.editOrMoveInSelection("up"),
-    Tab: () => this.moveInSelection("right"),
-    "Shift+Tab": () => this.moveInSelection("left"),
-    F2: () => {
-      this.focusComposerFromActiveCell();
+  private keyDownMapping: { [key: string]: { fn: () => void; allowInReadonly: boolean } } = {
+    Enter: { fn: () => this.editOrMoveInSelection("down"), allowInReadonly: false },
+    "Shift+Enter": { fn: () => this.editOrMoveInSelection("up"), allowInReadonly: false },
+    Tab: { fn: () => this.moveInSelection("right"), allowInReadonly: true },
+    "Shift+Tab": { fn: () => this.moveInSelection("left"), allowInReadonly: true },
+    F2: {
+      fn: () => {
+        this.focusComposerFromActiveCell();
+      },
+      allowInReadonly: false,
     },
-    Delete: () => {
-      this.model().dispatch("DELETE_UNFILTERED_CONTENT", {
-        sheetId: this.model().getters.getActiveSheetId(),
-        target: this.model().getters.getSelectedZones(),
-      });
+    Delete: {
+      fn: () => {
+        this.model().dispatch("DELETE_UNFILTERED_CONTENT", {
+          sheetId: this.model().getters.getActiveSheetId(),
+          target: this.model().getters.getSelectedZones(),
+        });
+      },
+      allowInReadonly: false,
     },
-    Backspace: () => {
-      this.model().dispatch("DELETE_UNFILTERED_CONTENT", {
-        sheetId: this.model().getters.getActiveSheetId(),
-        target: this.model().getters.getSelectedZones(),
-      });
+    Backspace: {
+      fn: () => {
+        this.model().dispatch("DELETE_UNFILTERED_CONTENT", {
+          sheetId: this.model().getters.getActiveSheetId(),
+          target: this.model().getters.getSelectedZones(),
+        });
+      },
+      allowInReadonly: false,
     },
-    Escape: () => {
-      /** TODO: Clean once we introduce proper focus on sub components. Grid should not have to handle all this logic */
-      if (this.cellPopovers.isOpen) {
-        this.cellPopovers.close();
-      } else if (this.menuState.isOpen) {
-        this.closeMenu();
-      } else if (this.paintFormatStore.isActive) {
-        this.paintFormatStore.cancel();
-      } else {
-        this.model().dispatch("CLEAN_CLIPBOARD_HIGHLIGHT");
-      }
+    Escape: {
+      fn: () => {
+        /** TODO: Clean once we introduce proper focus on sub components. Grid should not have to handle all this logic */
+        if (this.cellPopovers.isOpen) {
+          this.cellPopovers.close();
+        } else if (this.menuState.isOpen) {
+          this.closeMenu();
+        } else if (this.paintFormatStore.isActive) {
+          this.paintFormatStore.cancel();
+        } else {
+          this.model().dispatch("CLEAN_CLIPBOARD_HIGHLIGHT");
+        }
+      },
+      allowInReadonly: true,
     },
-    "Ctrl+A": () => this.model().selection.loopSelection(),
-    "Ctrl+Z": () => this.model().dispatch("REQUEST_UNDO"),
-    "Ctrl+Y": () => this.model().dispatch("REQUEST_REDO"),
-    F4: () => this.model().dispatch("REQUEST_REDO"),
-    F9: () => this.model().dispatch("EVALUATE_CELLS"),
-    "Ctrl+B": () =>
-      this.model().dispatch("SET_FORMATTING", {
-        sheetId: this.model().getters.getActiveSheetId(),
-        target: this.model().getters.getSelectedZones(),
-        style: { bold: !this.model().getters.getCurrentStyle().bold },
-      }),
-    "Ctrl+I": () =>
-      this.model().dispatch("SET_FORMATTING", {
-        sheetId: this.model().getters.getActiveSheetId(),
-        target: this.model().getters.getSelectedZones(),
-        style: { italic: !this.model().getters.getCurrentStyle().italic },
-      }),
-    "Ctrl+U": () =>
-      this.model().dispatch("SET_FORMATTING", {
-        sheetId: this.model().getters.getActiveSheetId(),
-        target: this.model().getters.getSelectedZones(),
-        style: { underline: !this.model().getters.getCurrentStyle().underline },
-      }),
-    "Ctrl+O": () => CREATE_IMAGE(this.spEnv),
-    "Alt+=": () => {
-      const sheetId = this.model().getters.getActiveSheetId();
+    "Ctrl+A": { fn: () => this.model().selection.loopSelection(), allowInReadonly: true },
+    "Ctrl+Z": { fn: () => this.model().dispatch("REQUEST_UNDO"), allowInReadonly: false },
+    "Ctrl+Y": { fn: () => this.model().dispatch("REQUEST_REDO"), allowInReadonly: false },
+    F4: { fn: () => this.model().dispatch("REQUEST_REDO"), allowInReadonly: false },
+    F9: { fn: () => this.model().dispatch("EVALUATE_CELLS"), allowInReadonly: true },
+    "Ctrl+B": {
+      fn: () =>
+        this.model().dispatch("SET_FORMATTING", {
+          sheetId: this.model().getters.getActiveSheetId(),
+          target: this.model().getters.getSelectedZones(),
+          style: { bold: !this.model().getters.getCurrentStyle().bold },
+        }),
+      allowInReadonly: false,
+    },
+    "Ctrl+I": {
+      fn: () =>
+        this.model().dispatch("SET_FORMATTING", {
+          sheetId: this.model().getters.getActiveSheetId(),
+          target: this.model().getters.getSelectedZones(),
+          style: { italic: !this.model().getters.getCurrentStyle().italic },
+        }),
+      allowInReadonly: false,
+    },
+    "Ctrl+U": {
+      fn: () =>
+        this.model().dispatch("SET_FORMATTING", {
+          sheetId: this.model().getters.getActiveSheetId(),
+          target: this.model().getters.getSelectedZones(),
+          style: { underline: !this.model().getters.getCurrentStyle().underline },
+        }),
+      allowInReadonly: false,
+    },
+    "Ctrl+O": { fn: () => CREATE_IMAGE(this.spEnv), allowInReadonly: false },
+    "Alt+=": {
+      fn: () => {
+        const sheetId = this.model().getters.getActiveSheetId();
 
-      const mainSelectedZone = this.model().getters.getSelectedZone();
-      const sums = this.automaticSumStore.automaticSumsOnMainSelectedZone;
-      if (
-        this.model().getters.isSingleCellOrMerge(sheetId, mainSelectedZone) ||
-        (this.model().getters.isEmpty(sheetId, mainSelectedZone) && sums.length <= 1)
-      ) {
-        const zone = sums[0]?.zone;
-        const zoneXc = zone ? this.model().getters.zoneToXC(sheetId, sums[0].zone) : "";
-        const formula = `=SUM(${zoneXc})`;
-        this.onComposerCellFocused(formula, { start: 5, end: 5 + zoneXc.length });
-      } else {
-        this.model().dispatch("SUM_SELECTION");
-      }
+        const mainSelectedZone = this.model().getters.getSelectedZone();
+        const sums = this.automaticSumStore.automaticSumsOnMainSelectedZone;
+        if (
+          this.model().getters.isSingleCellOrMerge(sheetId, mainSelectedZone) ||
+          (this.model().getters.isEmpty(sheetId, mainSelectedZone) && sums.length <= 1)
+        ) {
+          const zone = sums[0]?.zone;
+          const zoneXc = zone ? this.model().getters.zoneToXC(sheetId, sums[0].zone) : "";
+          const formula = `=SUM(${zoneXc})`;
+          this.onComposerCellFocused(formula, { start: 5, end: 5 + zoneXc.length });
+        } else {
+          this.model().dispatch("SUM_SELECTION");
+        }
+      },
+      allowInReadonly: false,
     },
-    "Alt+Enter": () => {
-      const cell = this.model().getters.getActiveCell();
-      if (cell.link) {
-        openLink(cell.link, this.spEnv);
-      }
+    "Alt+Enter": {
+      fn: () => {
+        const cell = this.model().getters.getActiveCell();
+        if (cell.link) {
+          openLink(cell.link, this.spEnv);
+        }
+      },
+      allowInReadonly: true,
     },
-    "Ctrl+Home": () => {
-      const sheetId = this.model().getters.getActiveSheetId();
-      const { col, row } = this.model().getters.getNextVisibleCellPosition({
-        sheetId,
-        col: 0,
-        row: 0,
-      });
-      this.model().selection.selectCell(col, row);
-    },
-    "Ctrl+End": () => {
-      const sheetId = this.model().getters.getActiveSheetId();
-      const col = this.model().getters.findVisibleHeader(
-        sheetId,
-        "COL",
-        this.model().getters.getNumberCols(sheetId) - 1,
-        0
-      )!;
-      const row = this.model().getters.findVisibleHeader(
-        sheetId,
-        "ROW",
-        this.model().getters.getNumberRows(sheetId) - 1,
-        0
-      )!;
-      this.model().selection.selectCell(col, row);
-    },
-    "Shift+ ": () => {
-      const sheetId = this.model().getters.getActiveSheetId();
-      const newZone = {
-        ...this.model().getters.getSelectedZone(),
-        left: 0,
-        right: this.model().getters.getNumberCols(sheetId) - 1,
-      };
-      const position = this.model().getters.getActivePosition();
-      this.model().selection.selectZone({ cell: position, zone: newZone });
-    },
-    "Ctrl+ ": () => {
-      const sheetId = this.model().getters.getActiveSheetId();
-      const newZone = {
-        ...this.model().getters.getSelectedZone(),
-        top: 0,
-        bottom: this.model().getters.getNumberRows(sheetId) - 1,
-      };
-      const position = this.model().getters.getActivePosition();
-      this.model().selection.selectZone({ cell: position, zone: newZone });
-    },
-    "Ctrl+D": () => {
-      handleCopyPasteResult(this.spEnv, { type: "COPY_PASTE_CELLS_ABOVE" });
-    },
-    "Ctrl+R": () => {
-      handleCopyPasteResult(this.spEnv, { type: "COPY_PASTE_CELLS_ON_LEFT" });
-    },
-    "Ctrl+Enter": () => {
-      handleCopyPasteResult(this.spEnv, { type: "COPY_PASTE_CELLS_ON_ZONE" });
-    },
-    "Ctrl+H": () => this.sidePanel.open("FindAndReplace", {}),
-    "Ctrl+F": () => this.sidePanel.open("FindAndReplace", {}),
-    "Ctrl+Shift+E": () => this.setHorizontalAlign("center"),
-    "Ctrl+Shift+L": () => this.setHorizontalAlign("left"),
-    "Ctrl+Shift+R": () => this.setHorizontalAlign("right"),
-    "Ctrl+Shift+V": () => PASTE_AS_VALUE_ACTION(this.spEnv),
-    "Ctrl+Shift+<": () => this.clearFormatting(), // for qwerty
-    "Ctrl+<": () => this.clearFormatting(), // for azerty
-    "Ctrl+Shift+ ": () => {
-      this.model().selection.selectAll();
-    },
-    "Ctrl+Alt+=": () => {
-      const activeCols = this.model().getters.getActiveCols();
-      const activeRows = this.model().getters.getActiveRows();
-      const isSingleSelection = this.model().getters.getSelectedZones().length === 1;
-      const areFullCols = activeCols.size > 0 && isSingleSelection;
-      const areFullRows = activeRows.size > 0 && isSingleSelection;
-      if (areFullCols && !areFullRows) {
-        INSERT_COLUMNS_BEFORE_ACTION(this.spEnv);
-      } else if (areFullRows && !areFullCols) {
-        INSERT_ROWS_BEFORE_ACTION(this.spEnv);
-      }
-    },
-    "Ctrl+Alt+-": () => {
-      const columns = [...this.model().getters.getActiveCols()];
-      const rows = [...this.model().getters.getActiveRows()];
-      if (columns.length > 0 && rows.length === 0) {
-        this.model().dispatch("REMOVE_COLUMNS_ROWS", {
-          sheetId: this.model().getters.getActiveSheetId(),
-          sheetName: this.model().getters.getActiveSheetName(),
-          dimension: "COL",
-          elements: columns,
+    "Ctrl+Home": {
+      fn: () => {
+        const sheetId = this.model().getters.getActiveSheetId();
+        const { col, row } = this.model().getters.getNextVisibleCellPosition({
+          sheetId,
+          col: 0,
+          row: 0,
         });
-      } else if (rows.length > 0 && columns.length === 0) {
-        this.model().dispatch("REMOVE_COLUMNS_ROWS", {
-          sheetId: this.model().getters.getActiveSheetId(),
-          sheetName: this.model().getters.getActiveSheetName(),
-          dimension: "ROW",
-          elements: rows,
-        });
-      }
+        this.model().selection.selectCell(col, row);
+      },
+      allowInReadonly: true,
     },
-    "Shift+PageDown": () => {
-      this.model().dispatch("ACTIVATE_NEXT_SHEET");
+    "Ctrl+End": {
+      fn: () => {
+        const sheetId = this.model().getters.getActiveSheetId();
+        const col = this.model().getters.findVisibleHeader(
+          sheetId,
+          "COL",
+          this.model().getters.getNumberCols(sheetId) - 1,
+          0
+        )!;
+        const row = this.model().getters.findVisibleHeader(
+          sheetId,
+          "ROW",
+          this.model().getters.getNumberRows(sheetId) - 1,
+          0
+        )!;
+        this.model().selection.selectCell(col, row);
+      },
+      allowInReadonly: true,
     },
-    "Shift+PageUp": () => {
-      this.model().dispatch("ACTIVATE_PREVIOUS_SHEET");
+    "Shift+ ": {
+      fn: () => {
+        const sheetId = this.model().getters.getActiveSheetId();
+        const newZone = {
+          ...this.model().getters.getSelectedZone(),
+          left: 0,
+          right: this.model().getters.getNumberCols(sheetId) - 1,
+        };
+        const position = this.model().getters.getActivePosition();
+        this.model().selection.selectZone({ cell: position, zone: newZone });
+      },
+      allowInReadonly: true,
     },
-    "Shift+F11": () => {
-      insertSheet.execute?.(this.spEnv);
+    "Ctrl+ ": {
+      fn: () => {
+        const sheetId = this.model().getters.getActiveSheetId();
+        const newZone = {
+          ...this.model().getters.getSelectedZone(),
+          top: 0,
+          bottom: this.model().getters.getNumberRows(sheetId) - 1,
+        };
+        const position = this.model().getters.getActivePosition();
+        this.model().selection.selectZone({ cell: position, zone: newZone });
+      },
+      allowInReadonly: true,
     },
-    "Alt+T": () => {
-      insertTable.execute?.(this.spEnv);
+    "Ctrl+D": {
+      fn: () => {
+        handleCopyPasteResult(this.spEnv, { type: "COPY_PASTE_CELLS_ABOVE" });
+      },
+      allowInReadonly: false,
     },
-    PageDown: () => this.viewStore.shiftViewportDown(),
-    PageUp: () => this.viewStore.shiftViewportUp(),
-    "Ctrl+Shift+K": () => {
-      this.closeMenu();
-      INSERT_LINK(this.spEnv);
+    "Ctrl+R": {
+      fn: () => {
+        handleCopyPasteResult(this.spEnv, { type: "COPY_PASTE_CELLS_ON_LEFT" });
+      },
+      allowInReadonly: false,
     },
-    "Alt+Shift+ArrowRight": () => this.processHeaderGroupingKey("right"),
-    "Alt+Shift+ArrowLeft": () => this.processHeaderGroupingKey("left"),
-    "Alt+Shift+ArrowUp": () => this.processHeaderGroupingKey("up"),
-    "Alt+Shift+ArrowDown": () => this.processHeaderGroupingKey("down"),
+    "Ctrl+Enter": {
+      fn: () => {
+        handleCopyPasteResult(this.spEnv, { type: "COPY_PASTE_CELLS_ON_ZONE" });
+      },
+      allowInReadonly: false,
+    },
+    "Ctrl+H": { fn: () => this.sidePanel.open("FindAndReplace", {}), allowInReadonly: true },
+    "Ctrl+F": { fn: () => this.sidePanel.open("FindAndReplace", {}), allowInReadonly: true },
+    "Ctrl+Shift+E": { fn: () => this.setHorizontalAlign("center"), allowInReadonly: false },
+    "Ctrl+Shift+L": { fn: () => this.setHorizontalAlign("left"), allowInReadonly: false },
+    "Ctrl+Shift+R": { fn: () => this.setHorizontalAlign("right"), allowInReadonly: false },
+    "Ctrl+Shift+V": { fn: () => PASTE_AS_VALUE_ACTION(this.spEnv), allowInReadonly: false },
+    "Ctrl+Shift+<": { fn: () => this.clearFormatting(), allowInReadonly: false }, // for qwerty
+    "Ctrl+<": { fn: () => this.clearFormatting(), allowInReadonly: false }, // for azerty
+    "Ctrl+Shift+ ": {
+      fn: () => {
+        this.model().selection.selectAll();
+      },
+      allowInReadonly: true,
+    },
+    "Ctrl+Alt+=": {
+      fn: () => {
+        const activeCols = this.model().getters.getActiveCols();
+        const activeRows = this.model().getters.getActiveRows();
+        const isSingleSelection = this.model().getters.getSelectedZones().length === 1;
+        const areFullCols = activeCols.size > 0 && isSingleSelection;
+        const areFullRows = activeRows.size > 0 && isSingleSelection;
+        if (areFullCols && !areFullRows) {
+          INSERT_COLUMNS_BEFORE_ACTION(this.spEnv);
+        } else if (areFullRows && !areFullCols) {
+          INSERT_ROWS_BEFORE_ACTION(this.spEnv);
+        }
+      },
+      allowInReadonly: false,
+    },
+    "Ctrl+Alt+-": {
+      fn: () => {
+        const columns = [...this.model().getters.getActiveCols()];
+        const rows = [...this.model().getters.getActiveRows()];
+        if (columns.length > 0 && rows.length === 0) {
+          this.model().dispatch("REMOVE_COLUMNS_ROWS", {
+            sheetId: this.model().getters.getActiveSheetId(),
+            sheetName: this.model().getters.getActiveSheetName(),
+            dimension: "COL",
+            elements: columns,
+          });
+        } else if (rows.length > 0 && columns.length === 0) {
+          this.model().dispatch("REMOVE_COLUMNS_ROWS", {
+            sheetId: this.model().getters.getActiveSheetId(),
+            sheetName: this.model().getters.getActiveSheetName(),
+            dimension: "ROW",
+            elements: rows,
+          });
+        }
+      },
+      allowInReadonly: false,
+    },
+    "Shift+PageDown": {
+      fn: () => {
+        this.model().dispatch("ACTIVATE_NEXT_SHEET");
+      },
+      allowInReadonly: false,
+    },
+    "Shift+PageUp": {
+      fn: () => {
+        this.model().dispatch("ACTIVATE_PREVIOUS_SHEET");
+      },
+      allowInReadonly: false,
+    },
+    "Shift+F11": {
+      fn: () => {
+        insertSheet.execute?.(this.spEnv);
+      },
+      allowInReadonly: false,
+    },
+    "Alt+T": {
+      fn: () => {
+        insertTable.execute?.(this.spEnv);
+      },
+      allowInReadonly: false,
+    },
+    PageDown: { fn: () => this.viewStore.shiftViewportDown(), allowInReadonly: false },
+    PageUp: { fn: () => this.viewStore.shiftViewportUp(), allowInReadonly: false },
+    "Ctrl+Shift+K": {
+      fn: () => {
+        this.closeMenu();
+        INSERT_LINK(this.spEnv);
+      },
+      allowInReadonly: false,
+    },
+    "Alt+Shift+ArrowRight": {
+      fn: () => this.processHeaderGroupingKey("right"),
+      allowInReadonly: false,
+    },
+    "Alt+Shift+ArrowLeft": {
+      fn: () => this.processHeaderGroupingKey("left"),
+      allowInReadonly: false,
+    },
+    "Alt+Shift+ArrowUp": {
+      fn: () => this.processHeaderGroupingKey("up"),
+      allowInReadonly: false,
+    },
+    "Alt+Shift+ArrowDown": {
+      fn: () => this.processHeaderGroupingKey("down"),
+      allowInReadonly: false,
+    },
   };
 
   private focusComposerFromActiveCell() {
@@ -535,7 +619,7 @@ export class Grid extends OSComponent {
   }
 
   get isAutofillVisible(): boolean {
-    if (this.model().getters.isCurrentSheetLocked()) {
+    if (this.model().getters.isCurrentSheetLocked() || this.model().getters.isReadonly()) {
       return false;
     }
     const zone = this.model().getters.getSelectedZone();
@@ -680,9 +764,12 @@ export class Grid extends OSComponent {
     const keyDownString = keyboardEventToShortcutString(ev);
     const handler = this.keyDownMapping[keyDownString];
     if (handler) {
+      if (this.model().getters.isReadonly() && !handler.allowInReadonly) {
+        return;
+      }
       ev.preventDefault();
       ev.stopPropagation();
-      handler();
+      handler.fn();
       return;
     }
     // Space key is handled separately because the default and the propagation
@@ -839,7 +926,7 @@ export class Grid extends OSComponent {
   }
 
   async paste(ev: ClipboardEvent) {
-    if (!this.gridEl.contains(document.activeElement)) {
+    if (!this.gridEl.contains(document.activeElement) || this.model().getters.isReadonly()) {
       return;
     }
 
