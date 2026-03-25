@@ -247,9 +247,10 @@ export { CoreViewPlugin } from "./plugins/core_view_plugin";
 export { UIPlugin } from "./plugins/ui_plugin";
 export { Registry } from "./registries/registry";
 export { setTranslationMethod } from "./translation";
-export { CancelledReason, CommandResult, DispatchResult, addRenderingLayer } from "./types";
-export { Client } from "./types/collaborative/session";
-export {
+export { CommandResult, DispatchResult, addRenderingLayer } from "./types";
+export type { CancelledReason } from "./types";
+export type { Client } from "./types/collaborative/session";
+export type {
   ClientJoinedMessage,
   ClientLeftMessage,
   ClientMovedMessage,

@@ -1,1 +1,1 @@
-export * from "./selection_events";
+export type * from "./selection_events";
