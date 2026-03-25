@@ -18,7 +18,7 @@
           title.translate="Filter by criterion">
           <t t-set-slot="content">
             <FilterMenuCriterion
-              criterion="getFilterCriterionValue(props.filterPosition)"
+              criterion="this.getFilterCriterionValue(this.props.filterPosition)"
               onCriterionChanged.bind="onCriterionChanged"
               criterionOperators="criterionOperators"
             />
@@ -31,7 +31,7 @@
           title.translate="Filter by values">
           <t t-set-slot="content">
             <FilterMenuValueList
-              values="state.values"
+              values="this.state.values"
               onUpdateHiddenValues.bind="onUpdateHiddenValues"
             />
           </t>

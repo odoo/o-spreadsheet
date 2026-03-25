@@ -1,5 +1,3 @@
-import { Model } from "@odoo/o-spreadsheet-engine";
-import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { SidePanels } from "../../../../src/components/side_panel/side_panels/side_panels";
 import {
   click,
@@ -10,47 +8,45 @@ import {
 import { mountComponentWithPortalTarget, nextTick, setGrid } from "../../../test_helpers/helpers";
 import { addPivot } from "../../../test_helpers/pivot_helpers";
 
-describe("Spreadsheet pivot side panel", () => {
-  let model: Model;
-  let fixture: HTMLElement;
-  let env: SpreadsheetChildEnv;
-  let notifyUser: jest.Mock;
-
-  beforeEach(async () => {
-    notifyUser = jest.fn();
-    ({ env, model, fixture } = await mountComponentWithPortalTarget(SidePanels, {
-      env: { notifyUser },
-    }));
-    // prettier-ignore
-    const grid = {
+async function setupPivotWithFilter() {
+  const { env, model, fixture } = await mountComponentWithPortalTarget(SidePanels, {});
+  // prettier-ignore
+  const grid = {
       A1: "Customer", B1: "Product", C1: "Amount", D1: "Date",
       A2: "Alice", B2: "Chair", C2: "10", D2: "1/1/2001",
       A3: "Bob", B3: "Table", C3: "20", D3: "2/2/2002",
+      A4: "=PIVOT(1)"
     };
-    setGrid(model, grid);
+  setGrid(model, grid);
+  addPivot(model, "A1:D3", {
+    rows: [{ fieldName: "Customer", order: "asc" }],
+    columns: [],
+    measures: [{ id: "amount", fieldName: "Amount", aggregator: "sum" }],
+    filters: [{ fieldName: "Amount", filterType: "values", hiddenValues: [] }],
+  });
+  return { model, fixture, env };
+}
 
-    addPivot(model, "A1:D3", {
-      rows: [{ fieldName: "Customer", order: "asc" }],
-      columns: [],
-      measures: [{ id: "amount", fieldName: "Amount", aggregator: "sum" }],
-      filters: [{ fieldName: "Amount", filterType: "values", hiddenValues: [] }],
-    });
+describe("Spreadsheet pivot side panel", () => {
+  test("can only have a filter on a field once", async () => {
+    const { fixture, env } = await setupPivotWithFilter();
     env.openSidePanel("PivotSidePanel", { pivotId: "1" });
     await nextTick();
-  });
-
-  test("can only have a filter on a field once", async () => {
     await click(fixture.querySelectorAll(".add-dimension")[3]);
     expect(".o-autocomplete-value").toHaveCount(3);
-    expect(fixture.querySelectorAll(".o-autocomplete-value")[0].textContent).toBe("Customer");
-    expect(fixture.querySelectorAll(".o-autocomplete-value")[1].textContent).toBe("Date");
-    expect(fixture.querySelectorAll(".o-autocomplete-value")[2].textContent).toBe("Product");
-    await click(fixture.querySelectorAll(".o-autocomplete-value")[0]);
+    const fields = fixture.querySelectorAll(".o-autocomplete-value");
+    expect(fields[0]).toHaveText("Customer");
+    expect(fields[1]).toHaveText("Date");
+    expect(fields[2]).toHaveText("Product");
+    await click(fields[0]);
     await click(fixture.querySelectorAll(".add-dimension")[3]);
     expect(".o-autocomplete-value").toHaveCount(2);
   });
 
-  test.skip("shows a warning when there is a filter on a deleted field", async () => {
+  test("shows a warning when there is a filter on a deleted field", async () => {
+    const { model, env } = await setupPivotWithFilter();
+    env.openSidePanel("PivotSidePanel", { pivotId: "1" });
+    await nextTick();
     deleteColumns(model, ["C"]);
     expect(model.getters.getPivot("1").definition.filters).toEqual([
       {
@@ -64,6 +60,9 @@ describe("Spreadsheet pivot side panel", () => {
   });
 
   test("can add a filter", async () => {
+    const { model, fixture, env } = await setupPivotWithFilter();
+    env.openSidePanel("PivotSidePanel", { pivotId: "1" });
+    await nextTick();
     await click(fixture.querySelectorAll(".add-dimension")[3]);
     await click(fixture.querySelectorAll(".o-autocomplete-value")[0]);
     expect(model.getters.getPivotCoreDefinition("1").filters).toEqual([
@@ -81,11 +80,17 @@ describe("Spreadsheet pivot side panel", () => {
   });
 
   test("can remove a filter", async () => {
+    const { model, fixture, env } = await setupPivotWithFilter();
+    env.openSidePanel("PivotSidePanel", { pivotId: "1" });
+    await nextTick();
     await click(fixture.querySelectorAll(".fa-trash")[2]);
     expect(model.getters.getPivotCoreDefinition("1").filters).toEqual([]);
   });
 
   test("the list of values is correct", async () => {
+    const { fixture, env } = await setupPivotWithFilter();
+    env.openSidePanel("PivotSidePanel", { pivotId: "1" });
+    await nextTick();
     await click(fixture.querySelector(".o-pivot-filter-icon")!);
     expect(".o-popover").toHaveCount(1);
     expect(".o-filter-menu-item").toHaveCount(2);
@@ -95,8 +100,11 @@ describe("Spreadsheet pivot side panel", () => {
   });
 
   test("can update the hidden values of a values filter (caption and icon are updated as well)", async () => {
+    const { model, fixture, env } = await setupPivotWithFilter();
+    env.openSidePanel("PivotSidePanel", { pivotId: "1" });
+    await nextTick();
     expect(".o-pivot-filter-caption").toHaveText("showing all items");
-    expect(fixture.querySelector(".o-pivot-filter-icon .filter-icon")!).toBeDefined();
+    expect(".o-pivot-filter-icon .filter-icon").toHaveCount(1);
     await click(fixture.querySelector(".o-pivot-filter-icon")!);
     await click(fixture.querySelectorAll(".o-filter-menu-item .o-checkbox")[0]);
     await click(fixture, ".o-filter-menu-confirm");
@@ -109,10 +117,13 @@ describe("Spreadsheet pivot side panel", () => {
       },
     ]);
     expect(".o-pivot-filter-caption").toHaveText("showing 1 item");
-    expect(fixture.querySelector(".o-pivot-filter-icon .filter-icon-active")!).toBeDefined();
+    expect(".o-pivot-filter-icon .filter-icon-active").toHaveCount(1);
   });
 
   test("can update the criterion of a criterion filter", async () => {
+    const { model, fixture, env } = await setupPivotWithFilter();
+    env.openSidePanel("PivotSidePanel", { pivotId: "1" });
+    await nextTick();
     await click(fixture.querySelector(".o-pivot-filter-icon")!);
     await simulateClick(".o-filter-criterion-type");
     await simulateClick(fixture.querySelectorAll(".o-select-option")[1]);
@@ -128,10 +139,13 @@ describe("Spreadsheet pivot side panel", () => {
       },
     ]);
     expect(".o-pivot-filter-caption").toHaveText("Value is equal to 10");
-    expect(fixture.querySelector(".o-pivot-filter-icon .filter-icon-active")!).toBeDefined();
+    expect(".o-pivot-filter-icon .filter-icon-active").toHaveCount(1);
   });
 
   test("can update the criterion of a criterion filter with date type", async () => {
+    const { model, fixture, env } = await setupPivotWithFilter();
+    env.openSidePanel("PivotSidePanel", { pivotId: "1" });
+    await nextTick();
     await click(fixture.querySelectorAll(".add-dimension")[3]);
     await click(fixture.querySelectorAll(".o-autocomplete-value")[1]);
     await click(fixture.querySelectorAll(".o-pivot-filter-icon")[1]);
@@ -153,9 +167,7 @@ describe("Spreadsheet pivot side panel", () => {
         dateValue: "exactDate",
       },
     ]);
-    expect(fixture.querySelectorAll(".o-pivot-filter-caption")[1].textContent).toBe(
-      "Date is 1/1/2001"
-    );
-    expect(fixture.querySelector(".o-pivot-filter-icon .filter-icon-active")!).toBeDefined();
+    expect(fixture.querySelectorAll(".o-pivot-filter-caption")[1]).toHaveText("Date is 1/1/2001");
+    expect(".o-pivot-filter-icon .filter-icon-active").toHaveCount(1);
   });
 });

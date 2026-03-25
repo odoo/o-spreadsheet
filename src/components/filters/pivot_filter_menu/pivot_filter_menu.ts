@@ -80,7 +80,6 @@ export class PivotFilterMenu extends Component<Props, SpreadsheetChildEnv> {
     }
     this.props.onConfirmed(this.updatedCriterionValue);
     this.props.onClosed?.();
-    return;
   }
 
   get criterionOperators() {

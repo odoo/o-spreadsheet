@@ -118,13 +118,11 @@ export class PivotSpreadsheetSidePanel extends Component<Props, SpreadsheetChild
   }
 
   addFilter(fieldName: string) {
-    const { filters } = this.definition;
+    const { filters } = this.env.model.getters.getPivotCoreDefinition(this.props.pivotId);
     this.onFiltersUpdated({
       filters: (filters ?? []).concat([
         {
           fieldName: fieldName,
-          displayName: fieldName,
-          isValid: true,
           filterType: "values",
           hiddenValues: [],
         },

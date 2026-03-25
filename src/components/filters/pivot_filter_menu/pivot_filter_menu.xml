@@ -3,32 +3,34 @@
     <div class="o-filter-menu d-flex flex-column bg-white" t-on-wheel.stop="">
       <div class="o-filter-menu-content">
         <SidePanelCollapsible
-          isInitiallyCollapsed="props.filter.filterType !== 'criterion'"
+          isInitiallyCollapsed="this.props.filter.filterType !== 'criterion'"
           title.translate="Filter by criterion">
           <t t-set-slot="content">
             <FilterMenuCriterion
-              criterion="getFilterCriterionValue()"
-              onCriterionChanged.bind="onCriterionChanged"
-              criterionOperators="criterionOperators"
+              criterion="this.getFilterCriterionValue()"
+              onCriterionChanged.bind="this.onCriterionChanged"
+              criterionOperators="this.criterionOperators"
             />
             <div class="mb-3"/>
           </t>
         </SidePanelCollapsible>
 
         <SidePanelCollapsible
-          isInitiallyCollapsed="props.filter.filterType === 'criterion'"
+          isInitiallyCollapsed="this.props.filter.filterType === 'criterion'"
           title.translate="Filter by values">
           <t t-set-slot="content">
             <FilterMenuValueList
-              values="props.values"
-              onUpdateHiddenValues.bind="onUpdateHiddenValues"
+              values="this.props.values"
+              onUpdateHiddenValues.bind="this.onUpdateHiddenValues"
             />
           </t>
         </SidePanelCollapsible>
 
         <div class="o-filter-menu-buttons d-flex justify-content-end">
-          <button class="o-button o-filter-menu-cancel me-2" t-on-click="cancel">Discard</button>
-          <button class="o-button primary o-filter-menu-confirm" t-on-click="confirm">
+          <button class="o-button o-filter-menu-cancel me-2" t-on-click="this.cancel">
+            Discard
+          </button>
+          <button class="o-button primary o-filter-menu-confirm" t-on-click="this.confirm">
             Confirm
           </button>
         </div>

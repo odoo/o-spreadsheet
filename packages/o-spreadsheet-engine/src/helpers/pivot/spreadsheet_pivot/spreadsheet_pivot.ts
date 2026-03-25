@@ -76,11 +76,15 @@ export class SpreadsheetPivot implements Pivot<SpreadsheetPivotRuntimeDefinition
   private coreDefinition: SpreadsheetPivotCoreDefinition;
   private metaData: MetaData = { fields: {}, fieldKeys: [] };
   /**
-   * This array contains the data entries of the pivot. Each entry is an object
+   * This array contains the complete set of original data entries. Each entry is an object
    * that contains the values of the fields for a row.
    */
-  private filteredDataEntries: DataEntries = [];
   private unfilteredDataEntries: DataEntries = [];
+  /**
+   * Data entries after filters have been applied.
+   * This is the subset used for rendering and pivot calculations.
+   */
+  private filteredDataEntries: DataEntries = [];
 
   /**
    * This object contains the pivot table structure. It is created from the
@@ -202,14 +206,16 @@ export class SpreadsheetPivot implements Pivot<SpreadsheetPivotRuntimeDefinition
         if (this.invalidRangeError) {
           throw this.invalidRangeError;
         } else {
-          throw new EvaluationError(_t("At least one measure and/or dimension is not correct."));
+          throw new EvaluationError(
+            _t("At least one measure/dimension and/or filter is not correct.")
+          );
         }
       }
       return {
         value: CellErrorType.GenericError,
         message:
           this.invalidRangeError?.message ??
-          _t("At least one measure and/or dimension is not correct."),
+          _t("At least one measure/dimension and/or filter is not correct."),
       };
     }
     return undefined;
@@ -386,7 +392,7 @@ export class SpreadsheetPivot implements Pivot<SpreadsheetPivotRuntimeDefinition
     return this.isValid() && range ? this.extractDataEntriesFromRange(range) : [];
   }
 
-  private loadFilteredDataEntries(dataEntries) {
+  private loadFilteredDataEntries(dataEntries: DataEntries): DataEntries {
     const sheetId = this._definition?.range?.sheetId;
     if (!sheetId) {
       return [];
@@ -394,7 +400,7 @@ export class SpreadsheetPivot implements Pivot<SpreadsheetPivotRuntimeDefinition
     if (this._definition && this._definition.filters) {
       dataEntries = dataEntries.filter((dataEntry) => {
         let passesAllFilters = true;
-        for (const filter of this._definition!.filters!) {
+        for (const filter of this._definition?.filters ?? []) {
           const fieldData = dataEntry[filter.fieldName];
           if (!fieldData) {
             continue;

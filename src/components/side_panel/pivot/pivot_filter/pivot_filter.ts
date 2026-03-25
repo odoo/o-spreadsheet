@@ -90,7 +90,7 @@ export class PivotFilterEditor extends Component<Props, SpreadsheetChildEnv> {
   }
 
   private getFilterHiddenValues(props: Props): Value[] {
-    const pivot = this.env.model.getters.getPivot(this.props.pivotId) as SpreadsheetPivot;
+    const pivot = this.env.model.getters.getPivot(props.pivotId) as SpreadsheetPivot;
     if (pivot.type !== "SPREADSHEET") {
       throw new Error("Filters are only available on spreadsheet pivot table");
     }
@@ -100,17 +100,16 @@ export class PivotFilterEditor extends Component<Props, SpreadsheetChildEnv> {
     const values: (Value & { normalizedValue: string })[] = [];
     for (const dataEntry of dataEntries) {
       const value = dataEntry[field] ? dataEntry[field].formattedValue.toString() : "";
-      const normalizedValue = toTrimmedLowerCase(value);
-      if (!set.has(normalizedValue)) {
+      if (!set.has(value)) {
         values.push({
           string: value,
           checked:
             props.filter.filterType === "criterion"
               ? true
               : !props.filter.hiddenValues.includes(value),
-          normalizedValue,
+          normalizedValue: toTrimmedLowerCase(value),
         });
-        set.add(normalizedValue);
+        set.add(value);
       }
     }
     return values.sort((val1, val2) =>
