@@ -1,5 +1,5 @@
 import { FileStore, ImageProviderInterface } from "@odoo/o-spreadsheet-engine/types/files";
-import { Image } from "@odoo/o-spreadsheet-engine/types/image";
+import { type Image } from "@odoo/o-spreadsheet-engine/types/image";
 import { FigureSize } from "../../../types";
 
 export class ImageProvider implements ImageProviderInterface {
