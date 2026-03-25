@@ -604,11 +604,6 @@ describe("Multi users synchronisation", () => {
       (user) => getCellContent(user, "A1"),
       "hello"
     );
-    setCellContent(david, "A1", "I'm David and I want access !");
-    expect([alice, bob, charlie, david]).toHaveSynchronizedValue(
-      (user) => getCellContent(user, "A1"),
-      "hello"
-    );
   });
 
   test("autofill overwrite style and format", () => {

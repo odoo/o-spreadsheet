@@ -357,10 +357,6 @@ export function isCoreCommand(cmd: Command): cmd is CoreCommand {
   return coreTypes.has(cmd.type as any);
 }
 
-export function canExecuteInReadonly(cmd: Command): boolean {
-  return readonlyAllowedCommands.has(cmd.type);
-}
-
 //#region Core Commands
 // ------------------------------------------------
 

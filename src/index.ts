@@ -260,7 +260,6 @@ export {
   TransportService,
 } from "./types/collaborative/transport_service";
 export {
-  canExecuteInReadonly,
   coreTypes,
   invalidateCFEvaluationCommands,
   invalidateChartEvaluationCommands,
