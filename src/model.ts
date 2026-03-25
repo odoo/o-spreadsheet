@@ -3,12 +3,7 @@ import { LocalTransportService } from "./collaborative/local_transport_service";
 import { ReadonlyTransportFilter } from "./collaborative/readonly_transport_filter";
 import { Session } from "./collaborative/session";
 import { CommandHandlerRegistryClass } from "./command_handler";
-import {
-  allCommands,
-  canExecuteInReadonly,
-  isCoreCommand,
-  isDispatcheableEvaluationCommand,
-} from "./command_registry";
+import { allCommands, isCoreCommand, isDispatcheableEvaluationCommand } from "./command_registry";
 import { DEFAULT_REVISION_ID } from "./constants";
 import { EventBus } from "./helpers/event_bus";
 import { deepCopy, deepEquals, lazy } from "./helpers/misc";
@@ -565,9 +560,6 @@ export class Model extends EventBus<any> implements CommandDispatcher {
     }
     const command: Command = createCommand(type, payload);
     const status: Status = this.status;
-    if (this.getters.isReadonly() && !canExecuteInReadonly(command)) {
-      return new DispatchResult(CommandResult.Readonly);
-    }
     if (!this.session.canApplyOptimisticUpdate()) {
       return new DispatchResult(CommandResult.WaitingSessionConfirmation);
     }

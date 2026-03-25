@@ -78,6 +78,9 @@ export class CarouselFigure extends OSComponent {
   }
 
   onCarouselDoubleClick() {
+    if (this.model().getters.isReadonly()) {
+      return;
+    }
     this.model().dispatch("SELECT_FIGURE", { figureId: this.props.figureUI.id });
     this.sidePanelStore.open("CarouselPanel", { figureId: this.props.figureUI.id });
   }
