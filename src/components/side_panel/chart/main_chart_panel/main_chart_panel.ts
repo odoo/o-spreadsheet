@@ -1,8 +1,8 @@
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
-import { Component, useEffect, useRef } from "@odoo/owl";
+import { Component } from "@odoo/owl";
 import { ChartSidePanel, chartSidePanelComponentRegistry } from "..";
 import { Store, useLocalStore } from "../../../../store_engine";
-import { ChartDefinition, ChartType, Pixel, Ref, UID } from "../../../../types/index";
+import { ChartDefinition, ChartType, UID } from "../../../../types/index";
 import { Section } from "../../components/section/section";
 import { ChartTypePicker } from "../chart_type_picker/chart_type_picker";
 import { MainChartPanelStore } from "./main_chart_panel_store";
@@ -16,11 +16,6 @@ export class ChartPanel extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-ChartPanel";
   static components = { Section, ChartTypePicker };
   static props = { onCloseSidePanel: Function, chartId: String };
-  private panelContentRef!: Ref<HTMLElement>;
-  private scrollPositions: Record<"configuration" | "design", Pixel> = {
-    configuration: 0,
-    design: 0,
-  };
 
   store!: Store<MainChartPanelStore>;
 
@@ -30,25 +25,9 @@ export class ChartPanel extends Component<Props, SpreadsheetChildEnv> {
 
   setup(): void {
     this.store = useLocalStore(MainChartPanelStore);
-    this.panelContentRef = useRef("panelContent");
-
-    useEffect(
-      () => {
-        const el = this.panelContentRef.el as HTMLElement;
-        const activePanel = this.store.panel;
-        if (el) {
-          el.scrollTop = this.scrollPositions[activePanel];
-        }
-      },
-      () => [this.store.panel]
-    );
   }
 
   switchPanel(panel: "configuration" | "design") {
-    const el = this.panelContentRef.el as HTMLElement;
-    if (el) {
-      this.scrollPositions[this.store.panel] = el.scrollTop;
-    }
     this.store.activatePanel(panel);
   }
 

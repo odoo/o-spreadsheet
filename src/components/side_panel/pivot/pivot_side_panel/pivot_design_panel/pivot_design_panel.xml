@@ -1,6 +1,6 @@
 <templates>
   <t t-name="o-spreadsheet-PivotDesignPanel">
-    <Section class="'o-pivot-design'" title.translate="Display options">
+    <Section class="'o-pivot-design h-100 overflow-y-auto'" title.translate="Display options">
       <div>
         <div class="container-fluid p-0 pt-2">
           <div class="row mb-2 align-items-center">
