@@ -41,6 +41,7 @@ export const pivotProperties: ActionSpec = {
     return (!env.isSmall && pivotId && env.model.getters.isExistingPivot(pivotId)) || false;
   },
   isReadonlyAllowed: true,
+  isEnabledOnLockedSheet: true,
   icon: "o-spreadsheet-Icon.PIVOT",
 };
 
