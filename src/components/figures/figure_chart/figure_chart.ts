@@ -5,7 +5,7 @@ import { chartComponentRegistry } from "../../../registries/chart_component_regi
 import { ChartType, CSSProperties, FigureUI, MenuMouseEvent, Rect, UID } from "../../../types";
 import { getRefBoundingRect } from "../../helpers/dom_helpers";
 import { InfoPopover } from "../../info_popover/info_popover";
-import { ChartMenu } from "../chart/chart_dashboard_menu/chart_dashboard_menu";
+import { ChartMenu } from "../chart/chart_menu/chart_menu";
 
 interface Props {
   // props figure is currently necessary scorecards, we need the chart dimension at render to avoid having to force the

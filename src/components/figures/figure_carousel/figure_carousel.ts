@@ -23,7 +23,7 @@ import { cellTextStyleToCss, cssPropertiesToCss } from "../../helpers";
 import { getBoundingRectAsPOJO, getRefBoundingRect } from "../../helpers/dom_helpers";
 import { MenuPopover, MenuState } from "../../menu_popover/menu_popover";
 import { ChartAnimationStore } from "../chart/chartJs/chartjs_animation_store";
-import { ChartMenu } from "../chart/chart_dashboard_menu/chart_dashboard_menu";
+import { ChartMenu } from "../chart/chart_menu/chart_menu";
 
 interface Props {
   figureUI: FigureUI;
