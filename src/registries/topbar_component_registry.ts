@@ -17,6 +17,11 @@ class TopBarComponentRegistry extends Registry<TopbarComponent> {
   mapping: { [key: string]: Function } = {};
   uuidGenerator = new UuidGenerator();
 
+  add(name: string, value: Omit<TopbarComponent, "id">) {
+    const component: TopbarComponent = { ...value, id: this.uuidGenerator.uuidv4() };
+    return super.add(name, component);
+  }
+
   replace(name: string, value: Omit<TopbarComponent, "id">) {
     const component: TopbarComponent = { ...value, id: this.uuidGenerator.uuidv4() };
     return super.replace(name, component);

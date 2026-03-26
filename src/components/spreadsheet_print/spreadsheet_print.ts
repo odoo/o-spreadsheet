@@ -1,4 +1,5 @@
-import { Component, onWillUnmount, useExternalListener } from "@odoo/owl";
+import { onWillUnmount } from "@odoo/owl";
+import { Component, useExternalListener } from "../../owl3_compatibility_layer";
 import { Store, useLocalStore } from "../../store_engine";
 import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 import { cssPropertiesToCss } from "../helpers";

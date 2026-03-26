@@ -2,15 +2,18 @@
   <t t-name="o-spreadsheet-DataValidationPreview">
     <div
       class="o-dv-preview d-flex justify-content-between p-3 border-bottom"
-      t-on-click="onPreviewClick"
-      t-ref="dvPreview">
+      t-on-click="this.onPreviewClick"
+      t-custom-ref="dvPreview">
       <div>
-        <div class="o-dv-preview-description o-fw-bold text-truncate" t-out="descriptionString"/>
-        <div class="o-dv-preview-ranges text-truncate" t-out="rangesString"/>
+        <div
+          class="o-dv-preview-description o-fw-bold text-truncate"
+          t-out="this.descriptionString"
+        />
+        <div class="o-dv-preview-ranges text-truncate" t-out="this.rangesString"/>
       </div>
       <div
         class="o-dv-delete-button d-flex align-items-center o-button-icon px-3"
-        t-on-click.stop="deleteDataValidation">
+        t-on-click.stop="this.deleteDataValidation">
         <t t-call="o-spreadsheet-Icon.TRASH_FILLED"/>
       </div>
     </div>

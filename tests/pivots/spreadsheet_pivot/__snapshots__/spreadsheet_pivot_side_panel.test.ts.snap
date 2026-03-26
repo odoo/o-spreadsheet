@@ -194,7 +194,7 @@ exports[`Spreadsheet pivot side panel It should correctly be displayed 1`] = `
                       <button
                         class="add-dimension o-button"
                       >
-                        Add
+                         Add 
                       </button>
                       
                       
@@ -208,7 +208,7 @@ exports[`Spreadsheet pivot side panel It should correctly be displayed 1`] = `
                       <button
                         class="add-dimension o-button"
                       >
-                        Add
+                         Add 
                       </button>
                       
                       
@@ -222,7 +222,7 @@ exports[`Spreadsheet pivot side panel It should correctly be displayed 1`] = `
                       <button
                         class="add-dimension o-button"
                       >
-                        Add
+                         Add 
                       </button>
                       
                       

@@ -3,32 +3,32 @@
     <div class="o-table-style-picker d-flex flew-row justify-content-between ps-1 border rounded">
       <div
         class="d-flex flex-row overflow-hidden"
-        t-att-class="props.type === 'pivot' ? 'o-pivot-previews' : 'o-table-previews ps-2'">
-        <t t-foreach="getDisplayedTableStyles()" t-as="styleId" t-key="styleId">
+        t-att-class="this.props.type === 'pivot' ? 'o-pivot-previews' : 'o-table-previews ps-2'">
+        <t t-foreach="this.getDisplayedTableStyles()" t-as="styleId" t-key="styleId">
           <TableStylePreview
-            selected="styleId === props.tableConfig.styleId"
-            tableConfig="props.tableConfig"
-            tableStyle="props.tableStyles[styleId]"
+            selected="styleId === this.props.tableConfig.styleId"
+            tableConfig="this.props.tableConfig"
+            tableStyle="this.props.tableStyles[styleId]"
             styleId="styleId"
             onClick="() => this.onStylePicked(styleId)"
-            type="props.type"
+            type="this.props.type"
           />
         </t>
       </div>
       <div
         class="o-table-style-picker-arrow d-flex align-items-center px-1 border-start"
-        t-on-click.stop="onArrowButtonClick">
+        t-on-click.stop="this.onArrowButtonClick">
         <t t-call="o-spreadsheet-Icon.CARET_DOWN"/>
       </div>
     </div>
     <TableStylesPopover
-      tableConfig="props.tableConfig"
-      selectedStyleId="props.tableConfig.styleId"
-      onStylePicked.bind="onStylePicked"
-      popoverProps="state.popoverProps"
-      closePopover.bind="closePopover"
-      tableStyles="props.tableStyles"
-      type="props.type"
+      tableConfig="this.props.tableConfig"
+      selectedStyleId="this.props.tableConfig.styleId"
+      onStylePicked.bind="this.onStylePicked"
+      popoverProps="this.state.popoverProps"
+      closePopover.bind="this.closePopover"
+      tableStyles="this.props.tableStyles"
+      type="this.props.type"
     />
   </t>
 </templates>

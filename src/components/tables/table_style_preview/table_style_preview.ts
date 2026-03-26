@@ -1,6 +1,7 @@
-import { Component, onWillUpdateProps, useEffect, useRef, useState } from "@odoo/owl";
+import { onWillUpdateProps, proxy } from "@odoo/owl";
 import { deepEquals } from "../../../helpers";
 import { getComputedTableStyle } from "../../../helpers/table_helpers";
+import { Component, useLayoutEffect, useRef } from "../../../owl3_compatibility_layer";
 import { createTableStyleContextMenuActions } from "../../../registries/menus/table_style_menu_registry";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
 import { TableConfig, TableMetaData, TableStyle } from "../../../types/table";
@@ -29,7 +30,7 @@ export class TableStylePreview extends Component<Props, SpreadsheetChildEnv> {
   };
 
   private canvasRef = useRef<HTMLCanvasElement>("canvas");
-  menu: MenuState = useState({ isOpen: false, anchorRect: null, menuItems: [] });
+  menu: MenuState = proxy({ isOpen: false, anchorRect: null, menuItems: [] });
 
   setup() {
     onWillUpdateProps((nextProps) => {
@@ -43,7 +44,7 @@ export class TableStylePreview extends Component<Props, SpreadsheetChildEnv> {
     const resizeObserver = new ResizeObserver(() => {
       this.drawTable(this.props);
     });
-    useEffect(
+    useLayoutEffect(
       () => {
         resizeObserver.observe(this.canvasRef.el!);
         return () => {

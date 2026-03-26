@@ -1,6 +1,7 @@
-import { Component, useState } from "@odoo/owl";
+import { proxy } from "@odoo/owl";
 import { getColorsPalette, getNthColor, toHex } from "../../../../../helpers";
 import { isTrendLineAxis } from "../../../../../helpers/figures/charts";
+import { Component } from "../../../../../owl3_compatibility_layer";
 import { ChartWithDataSetDefinition, ValueAndLabel } from "../../../../../types";
 import { SpreadsheetChildEnv } from "../../../../../types/spreadsheet_env";
 import { Select } from "../../../../select/select";
@@ -26,7 +27,7 @@ export class SeriesDesignEditor extends Component<Props, SpreadsheetChildEnv> {
     slots: { type: Object, optional: true },
   };
 
-  protected state = useState({ index: 0 });
+  protected state = proxy({ index: 0 });
 
   getDataSeries() {
     const runtime = this.env.model.getters.getChartRuntime(this.props.chartId);

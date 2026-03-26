@@ -1,9 +1,9 @@
 import { KeepLast } from "../../src/helpers/concurrency";
-import { nextTick } from "../test_helpers/helpers";
+import { nextTick, useJestFakeTimers } from "../test_helpers/helpers";
 
 describe("KeepLast", () => {
   beforeEach(() => {
-    jest.useFakeTimers();
+    useJestFakeTimers();
   });
 
   test("basic use", async () => {

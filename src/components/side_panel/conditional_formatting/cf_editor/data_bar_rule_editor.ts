@@ -1,5 +1,5 @@
-import { Component } from "@odoo/owl";
 import { colorNumberToHex } from "../../../../helpers";
+import { Component } from "../../../../owl3_compatibility_layer";
 import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
 import { Store } from "../../../../types/store_engine";
 import { SelectionInput } from "../../../selection_input/selection_input";

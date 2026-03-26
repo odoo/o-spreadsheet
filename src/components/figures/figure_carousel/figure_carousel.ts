@@ -1,8 +1,9 @@
-import { Component, useEffect, useRef, useState } from "@odoo/owl";
+import { proxy } from "@odoo/owl";
 import { ActionSpec, createActions } from "../../../actions/action";
 import { BACKGROUND_CHART_COLOR, DEFAULT_CAROUSEL_TITLE_STYLE } from "../../../constants";
 import { chartStyleToCellStyle, deepEquals } from "../../../helpers";
 import { getCarouselItemTitle } from "../../../helpers/carousel_helpers";
+import { Component, useLayoutEffect, useRef } from "../../../owl3_compatibility_layer";
 import { chartComponentRegistry } from "../../../registries/chart_component_registry";
 import { Store, useStore } from "../../../store_engine";
 import { _t } from "../../../translation";
@@ -42,7 +43,7 @@ export class CarouselFigure extends Component<Props, SpreadsheetChildEnv> {
   private carouselTabsRef = useRef("carouselTabs");
   private carouselTabsDropdownRef = useRef("carouselTabsDropdown");
 
-  private menuState = useState<MenuState>({ isOpen: false, anchorRect: null, menuItems: [] });
+  private menuState = proxy<MenuState>({ isOpen: false, anchorRect: null, menuItems: [] });
   private hiddenItems: CarouselItem[] = [];
 
   protected animationStore: Store<ChartAnimationStore> | undefined;
@@ -52,7 +53,7 @@ export class CarouselFigure extends Component<Props, SpreadsheetChildEnv> {
     this.animationStore = useStore(ChartAnimationStore);
     this.fullScreenFigureStore = useStore(FullScreenFigureStore);
 
-    useEffect(() => {
+    useLayoutEffect(() => {
       if (this.selectedCarouselItem?.type === "carouselDataView") {
         this.props.editFigureStyle?.({ "pointer-events": "none" });
       } else {

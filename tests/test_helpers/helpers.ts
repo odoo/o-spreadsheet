@@ -1,4 +1,4 @@
-import { App, Component, ComponentConstructor, useState, xml } from "@odoo/owl";
+import { proxy, xml } from "@odoo/owl";
 import { type ChartConfiguration } from "chart.js";
 import format from "xml-formatter";
 import { functionCache } from "../../src";
@@ -26,6 +26,7 @@ import {
 } from "../../src/helpers/index";
 import { createEmptyExcelWorkbookData } from "../../src/migrations/data";
 import { Model } from "../../src/model";
+import { App, Component, ComponentConstructor } from "../../src/owl3_compatibility_layer";
 import { BasePlugin } from "../../src/plugins/base_plugin";
 import { MergePlugin } from "../../src/plugins/core/merge";
 import { CorePluginConstructor } from "../../src/plugins/core_plugin";
@@ -137,11 +138,8 @@ export function addToRegistry<T>(registry: Registry<T>, key: string, value: T) {
 }
 
 const realTimeSetTimeout = window.setTimeout.bind(window);
-class Root extends Component {
-  static template = xml`<div/>`;
-  static props = {};
-}
-const Scheduler = new App(Root).scheduler.constructor as unknown as { requestAnimationFrame: any };
+
+const Scheduler = new App({}).scheduler.constructor as unknown as { requestAnimationFrame: any };
 
 // modifies scheduler to make it faster to test components
 Scheduler.requestAnimationFrame = function (callback: FrameRequestCallback) {
@@ -149,9 +147,15 @@ Scheduler.requestAnimationFrame = function (callback: FrameRequestCallback) {
   return 1;
 };
 
+export async function owlPortalNextTick(): Promise<void> {
+  await new Promise((resolve) => realTimeSetTimeout(resolve));
+  await new Promise((resolve) => Scheduler.requestAnimationFrame(resolve));
+}
+
 export async function nextTick(): Promise<void> {
   await new Promise((resolve) => realTimeSetTimeout(resolve));
   await new Promise((resolve) => Scheduler.requestAnimationFrame(resolve));
+  await owlPortalNextTick();
 }
 
 /**
@@ -287,7 +291,7 @@ class ParentWithPortalTarget<Props extends ComponentProps> extends Component<
 > {
   static template = xml/*xml*/ `
     <div class="o-spreadsheet" >
-      <t t-component="props.childComponent" t-props="props.childProps"/>
+      <t t-component="this.props.childComponent" t-props="this.props.childProps"/>
     </div>
   `;
   static props = { "*": Object };
@@ -328,16 +332,15 @@ export async function mountComponent<Props extends { [key: string]: any }>(
   model.drawLayer = () => {};
   const env = makeTestEnv({ ...optionalArgs.env, model: model });
   const props = optionalArgs.props || ({} as Props);
-  const app = new App(component, {
-    props,
-    env,
+  const app = new App({
     test: true,
     translateFn: _t,
-    warnIfNoStaticProps: true,
   });
+  const root = app.createRoot(component, { props, env });
   const fixture = optionalArgs?.fixture || makeTestFixture();
-  const parent = await app.mount(fixture);
+  const parent = await root.mount(fixture);
 
+  //@ts-ignore
   const render = batched(parent.render.bind(parent, true));
   if (optionalArgs.renderOnModelUpdate === undefined || optionalArgs.renderOnModelUpdate) {
     model.on("update", null, render);
@@ -353,6 +356,7 @@ export async function mountComponent<Props extends { [key: string]: any }>(
     env.__spreadsheet_stores__.off("store-updated", null);
   });
 
+  // @ts-ignore
   return { app, parent, model, fixture, env: parent.env };
 }
 
@@ -1111,10 +1115,10 @@ export class ComposerWrapper extends Component<ComposerWrapperProps, Spreadsheet
   static components = { Composer };
   static template = xml/*xml*/ `
     <div class="o-spreadsheet"/>
-    <Composer t-props="composerProps"/>
+    <Composer t-props="this.composerProps"/>
   `;
   static props = { composerProps: Object, focusComposer: String };
-  state = useState({ focusComposer: <ComposerFocusType>"inactive" });
+  state = proxy({ focusComposer: <ComposerFocusType>"inactive" });
   composerStore!: Store<CellComposerStore>;
 
   setup() {
@@ -1270,4 +1274,9 @@ export function setMobileMode() {
   registerCleanup(() => {
     mock.mockRestore();
   });
+}
+
+export function useJestFakeTimers() {
+  //@ts-ignore
+  jest.useFakeTimers({ doNotFake: ["queueMicrotask"] });
 }

@@ -41,6 +41,7 @@ import {
   createModelFromGrid,
   setGrid,
   toCellPosition,
+  useJestFakeTimers,
 } from "../test_helpers/helpers";
 
 let model: Model;
@@ -1581,7 +1582,7 @@ describe("conditional formats types", () => {
     });
 
     test("Operator dateIsAfter", () => {
-      jest.useFakeTimers();
+      useJestFakeTimers();
       jest.setSystemTime(new Date("01/01/2021 12:00:00"));
 
       addCfRule(model, "A1", {
@@ -1601,7 +1602,7 @@ describe("conditional formats types", () => {
     });
 
     test("Operator dateIsBefore", () => {
-      jest.useFakeTimers();
+      useJestFakeTimers();
       jest.setSystemTime(new Date("01/01/2021 12:00:00"));
 
       addCfRule(model, "A1", {
@@ -1621,7 +1622,7 @@ describe("conditional formats types", () => {
     });
 
     test("Operator dateIsOnOrBefore", () => {
-      jest.useFakeTimers();
+      useJestFakeTimers();
       jest.setSystemTime(new Date("01/01/2021 12:00:00"));
 
       addCfRule(model, "A1", {
@@ -1641,7 +1642,7 @@ describe("conditional formats types", () => {
     });
 
     test("Operator dateIsOnOrAfter", () => {
-      jest.useFakeTimers();
+      useJestFakeTimers();
       jest.setSystemTime(new Date("01/01/2021 12:00:00"));
 
       addCfRule(model, "A1", {

@@ -1,12 +1,12 @@
 import { CellComposerStore } from "../../../src/components/composer/composer/cell_composer_store";
 import { autoCompleteProviders } from "../../../src/registries/auto_completes";
 import { registerCleanup } from "../../setup/jest.setup";
-import { nextTick } from "../../test_helpers/helpers";
+import { nextTick, useJestFakeTimers } from "../../test_helpers/helpers";
 import { makeStore } from "../../test_helpers/stores";
 
 describe("Async auto complete", () => {
   test("only the latest async auto-complete is taken into account", async () => {
-    jest.useFakeTimers();
+    useJestFakeTimers();
     let delay = 100;
     autoCompleteProviders.add("async_test", {
       sequence: 0,

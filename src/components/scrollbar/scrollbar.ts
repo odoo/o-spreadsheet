@@ -1,4 +1,5 @@
-import { Component, onMounted, useEffect, useRef, xml } from "@odoo/owl";
+import { onMounted, props, types, xml } from "@odoo/owl";
+import { Component, useLayoutEffect, useRef } from "../../owl3_compatibility_layer";
 import { CSSProperties, Pixel, Ref } from "../../types";
 import { ScrollDirection } from "../../types/scroll_direction";
 import { cssPropertiesToCss } from "../helpers";
@@ -14,38 +15,47 @@ interface Props {
 }
 
 export class ScrollBar extends Component<Props> {
-  static props = {
-    width: { type: Number, optional: true },
-    height: { type: Number, optional: true },
-    direction: String,
-    position: Object,
-    offset: Number,
-    onScroll: Function,
-  };
   static template = xml/*xml*/ `
     <div
-        t-attf-class="o-scrollbar {{props.direction}}"
-        t-on-scroll="onScroll"
-        t-ref="scrollbar"
-        t-att-style="positionCss">
-      <div t-att-style="sizeCss"/>
+        t-attf-class="o-scrollbar {{this.props.direction}}"
+        t-on-scroll="this.onScroll"
+        t-custom-ref="scrollbar"
+        t-att-style="this.positionCss">
+      <div t-att-style="this.sizeCss"/>
     </div>
   `;
-  static defaultProps = {
-    width: 1,
-    height: 1,
-  };
+
   private scrollbarRef!: Ref<HTMLElement>;
   private scrollbar!: ScrollBarElement;
 
+  constructor(...args: any[]) {
+    super(args);
+  }
+
   setup() {
+    this.props = props(
+      {
+        "width?": types.number,
+        "height?": types.number,
+        direction: types.customValidator(types.string as ScrollDirection, (direction) =>
+          ["horizontal", "vertical"].includes(direction)
+        ),
+        position: types.object({}),
+        offset: types.number,
+        onScroll: types.function,
+      },
+      {
+        width: 1,
+        height: 1,
+      }
+    );
     this.scrollbarRef = useRef("scrollbar");
     this.scrollbar = new ScrollBarElement(this.scrollbarRef.el, this.props.direction);
     onMounted(() => {
       this.scrollbar.el = this.scrollbarRef.el!;
     });
-    // TODO improve useEffect dependencies typing in owl
-    useEffect(
+    // TODO improve useLayoutEffect dependencies typing in owl
+    useLayoutEffect(
       () => {
         if (this.scrollbar.scroll !== this.props.offset) {
           this.scrollbar.scroll = this.props.offset;

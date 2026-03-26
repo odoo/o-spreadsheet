@@ -1,7 +1,8 @@
-import { Component, useState } from "@odoo/owl";
+import { proxy } from "@odoo/owl";
 import { getChartMenuActions } from "../../../../actions/figure_menu_actions";
 import { BACKGROUND_CHART_COLOR } from "../../../../constants";
 import { isDefined } from "../../../../helpers";
+import { Component } from "../../../../owl3_compatibility_layer";
 import { Store, useStore } from "../../../../store_engine";
 import { _t } from "../../../../translation";
 import { UID, ValueAndLabel } from "../../../../types";
@@ -33,7 +34,7 @@ export class ChartDashboardMenu extends Component<Props, SpreadsheetChildEnv> {
 
   private fullScreenFigureStore!: Store<FullScreenFigureStore>;
 
-  private menuState: MenuState = useState({ isOpen: false, anchorRect: null, menuItems: [] });
+  private menuState: MenuState = proxy({ isOpen: false, anchorRect: null, menuItems: [] });
   setup() {
     super.setup();
     this.fullScreenFigureStore = useStore(FullScreenFigureStore);

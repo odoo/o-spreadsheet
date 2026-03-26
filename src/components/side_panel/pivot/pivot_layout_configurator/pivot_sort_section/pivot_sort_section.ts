@@ -1,4 +1,3 @@
-import { Component } from "@odoo/owl";
 import { formatValue } from "../../../../../helpers";
 import {
   getFieldDisplayName,
@@ -10,6 +9,7 @@ import { PivotDomain, UID } from "../../../../../types";
 import { SpreadsheetChildEnv } from "../../../../../types/spreadsheet_env";
 import { Section } from "../../../components/section/section";
 
+import { Component } from "../../../../../owl3_compatibility_layer";
 interface Props {
   definition: PivotRuntimeDefinition;
   pivotId: UID;

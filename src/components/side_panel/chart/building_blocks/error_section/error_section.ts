@@ -1,8 +1,8 @@
-import { Component } from "@odoo/owl";
 import { SpreadsheetChildEnv } from "../../../../../types/spreadsheet_env";
-import { ValidationMessages } from "../../../../validation_messages/validation_messages";
 import { Section } from "../../../components/section/section";
 
+import { Component } from "../../../../../owl3_compatibility_layer";
+import { ValidationMessages } from "../../../../validation_messages/validation_messages";
 interface Props {
   messages: string[];
 }

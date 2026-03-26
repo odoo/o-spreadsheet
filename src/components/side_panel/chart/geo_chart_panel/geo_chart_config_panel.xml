@@ -2,32 +2,32 @@
   <t t-name="o-spreadsheet-GeoChartConfigPanel">
     <div>
       <GeoChartRegionSelectSection
-        chartId="props.chartId"
-        definition="props.definition"
-        updateChart="props.updateChart"
+        chartId="this.props.chartId"
+        definition="this.props.definition"
+        updateChart="this.props.updateChart"
       />
 
       <ChartDataSeries
-        ranges="dataRanges"
-        onSelectionChanged.bind="onDataSeriesRangesChanged"
-        onSelectionConfirmed.bind="onDataSeriesConfirmed"
-        onSelectionReordered.bind="onDataSeriesReordered"
-        onSelectionRemoved.bind="onDataSeriesRemoved"
-        maxNumberOfUsedRanges="maxNumberOfUsedRanges"
-        canChangeDatasetOrientation="canChangeDatasetOrientation"
-        datasetOrientation="datasetOrientation"
-        onFlipAxis.bind="setDatasetOrientation"
+        ranges="this.dataRanges"
+        onSelectionChanged.bind="this.onDataSeriesRangesChanged"
+        onSelectionConfirmed.bind="this.onDataSeriesConfirmed"
+        onSelectionReordered.bind="this.onDataSeriesReordered"
+        onSelectionRemoved.bind="this.onDataSeriesRemoved"
+        maxNumberOfUsedRanges="this.maxNumberOfUsedRanges"
+        canChangeDatasetOrientation="this.canChangeDatasetOrientation"
+        datasetOrientation="this.datasetOrientation"
+        onFlipAxis.bind="this.setDatasetOrientation"
       />
       <ChartLabelRange
         range="this.getLabelRange()"
-        isInvalid="isLabelInvalid"
+        isInvalid="this.isLabelInvalid"
         onSelectionChanged="(ranges) => this.onLabelRangeChanged(ranges)"
         onSelectionConfirmed="() => this.onLabelRangeConfirmed()"
         options="this.getLabelRangeOptions()"
         title.translate="Territories"
       />
 
-      <ChartErrorSection t-if="errorMessages.length" messages="errorMessages"/>
+      <ChartErrorSection t-if="this.errorMessages.length" messages="this.errorMessages"/>
     </div>
   </t>
 </templates>

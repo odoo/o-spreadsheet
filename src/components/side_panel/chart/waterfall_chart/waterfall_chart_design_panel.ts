@@ -1,4 +1,3 @@
-import { Component } from "@odoo/owl";
 import {
   CHART_WATERFALL_NEGATIVE_COLOR,
   CHART_WATERFALL_POSITIVE_COLOR,
@@ -24,6 +23,7 @@ import { ChartShowValues } from "../building_blocks/show_values/show_values";
 import { ChartSidePanelProps, ChartSidePanelPropsObject } from "../common";
 import { Checkbox } from "./../../components/checkbox/checkbox";
 
+import { Component } from "../../../../owl3_compatibility_layer";
 export class WaterfallChartDesignPanel extends Component<
   ChartSidePanelProps<WaterfallChartDefinition>,
   SpreadsheetChildEnv

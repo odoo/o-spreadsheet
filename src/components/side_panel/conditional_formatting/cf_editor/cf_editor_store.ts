@@ -1,7 +1,8 @@
-import { ComponentConstructor, useState } from "@odoo/owl";
+import { proxy } from "@odoo/owl";
 import { DEFAULT_COLOR_SCALE_MIDPOINT_COLOR } from "../../../../constants";
 import { colorNumberToHex, colorToNumber, isColorValid, rangeReference } from "../../../../helpers";
 import { canonicalizeCFRule } from "../../../../helpers/locale";
+import { ComponentConstructor } from "../../../../owl3_compatibility_layer";
 import {
   criterionComponentRegistry,
   getCriterionValueAndLabels,
@@ -72,7 +73,7 @@ export class ConditionalFormattingEditorStore extends SpreadsheetStore {
   constructor(get: Get, cf: ConditionalFormat, isNewCf: boolean) {
     super(get);
     this.cfId = cf.id;
-    this.state = useState<State>({
+    this.state = proxy<State>({
       errors: [],
       currentCFType: cf.rule.type,
       ranges: cf.ranges,

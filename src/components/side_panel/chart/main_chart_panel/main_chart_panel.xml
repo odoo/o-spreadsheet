@@ -1,47 +1,47 @@
 <templates>
   <t t-name="o-spreadsheet-ChartPanel">
-    <div class="o-chart d-flex flex-column h-100" t-if="chartId">
+    <div class="o-chart d-flex flex-column h-100" t-if="this.chartId">
       <div class="o-panel d-flex">
         <div
           class="o-sidePanel-tab o-panel-configuration d-flew flex-grow-1 text-center"
-          t-att-class="store.panel !== 'configuration' ? 'inactive' : ''"
-          t-on-click="switchPanel.bind(this, 'configuration')">
+          t-att-class="this.store.panel !== 'configuration' ? 'inactive' : ''"
+          t-on-click="this.switchPanel.bind(this, 'configuration')">
           <i class="fa fa-sliders me-1"/>
           Configuration
         </div>
         <div
           class="o-sidePanel-tab o-panel-design d-flew flex-grow-1 text-center"
-          t-att-class="store.panel !== 'design' ? 'inactive' : ''"
-          t-on-click="switchPanel.bind(this, 'design')">
+          t-att-class="this.store.panel !== 'design' ? 'inactive' : ''"
+          t-on-click="this.switchPanel.bind(this, 'design')">
           <i class="fa fa-paint-brush me-1"/>
           Design
         </div>
       </div>
 
-      <t t-set="definition" t-value="getChartDefinition(this.chartId)"/>
+      <t t-set="definition" t-value="this.getChartDefinition(this.chartId)"/>
       <div class="o-panel-content overflow-y-hidden">
-        <div class="h-100" t-att-class="store.panel !== 'configuration' ? 'd-none' : ''">
+        <div class="h-100" t-att-class="this.store.panel !== 'configuration' ? 'd-none' : ''">
           <div class="h-100 overflow-y-auto">
-            <ChartTypePicker chartId="chartId" chartPanelStore="store"/>
+            <ChartTypePicker chartId="this.chartId" chartPanelStore="this.store"/>
             <t
-              t-component="chartPanel.configuration"
+              t-component="this.chartPanel.configuration"
               definition="definition"
-              chartId="chartId"
-              updateChart.bind="updateChart"
-              canUpdateChart.bind="canUpdateChart"
-              t-key="chartId + definition.type"
+              chartId="this.chartId"
+              updateChart.bind="this.updateChart"
+              canUpdateChart.bind="this.canUpdateChart"
+              t-key="this.chartId + definition.type"
             />
           </div>
         </div>
-        <div class="h-100" t-att-class="store.panel !== 'design' ? 'd-none' : ''">
+        <div class="h-100" t-att-class="this.store.panel !== 'design' ? 'd-none' : ''">
           <div class="h-100 overflow-y-auto">
             <t
-              t-component="chartPanel.design"
+              t-component="this.chartPanel.design"
               definition="definition"
-              chartId="chartId"
-              updateChart.bind="updateChart"
-              canUpdateChart.bind="canUpdateChart"
-              t-key="chartId + definition.type"
+              chartId="this.chartId"
+              updateChart.bind="this.updateChart"
+              canUpdateChart.bind="this.canUpdateChart"
+              t-key="this.chartId + definition.type"
             />
           </div>
         </div>

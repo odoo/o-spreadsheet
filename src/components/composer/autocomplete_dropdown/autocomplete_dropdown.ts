@@ -1,4 +1,4 @@
-import { Component, useEffect, useRef } from "@odoo/owl";
+import { Component, useLayoutEffect, useRef } from "../../../owl3_compatibility_layer";
 import { AutoCompleteProposal } from "../../../registries/auto_completes";
 import { cssPropertiesToCss } from "../../helpers/css";
 import { HtmlContent } from "../composer/composer";
@@ -21,7 +21,7 @@ export class TextValueProvider extends Component<Props> {
   private autoCompleteListRef = useRef("autoCompleteList");
 
   setup() {
-    useEffect(
+    useLayoutEffect(
       () => {
         const selectedIndex = this.props.selectedIndex;
         if (selectedIndex === undefined) {

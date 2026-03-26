@@ -380,6 +380,7 @@ describe("Header group component test", () => {
       const group = fixture.querySelector<HTMLElement>(".o-header-group .o-group-border")!;
       expect(group.style["border-bottom"]).toBeTruthy();
 
+      console.log("Before hide rows");
       hideRows(model, [5]);
       await nextTick();
       expect(group.style["border-bottom"]).toBeFalsy();

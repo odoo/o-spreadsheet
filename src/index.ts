@@ -114,6 +114,7 @@ import {
   makeFieldProposal,
 } from "./helpers/pivot/pivot_composer_helpers";
 import { supportedPivotPositionalFormulaRegistry } from "./helpers/pivot/pivot_positional_formula_registry";
+import { App, Component, EnvPlugin, useExternalListener } from "./owl3_compatibility_layer";
 
 import { CellComposerStore } from "./components/composer/composer/cell_composer_store";
 import { ClickableCellSortIcon } from "./components/dashboard/clickable_cell_sort_icon/clickable_cell_sort_icon";
@@ -489,6 +490,13 @@ export const hooks = {
   useDragAndDropListItems,
   useHighlights,
   useHighlightsOnHover,
+};
+
+export const compatibility = {
+  Component,
+  useExternalListener,
+  EnvPlugin,
+  App,
 };
 
 export const stores = {

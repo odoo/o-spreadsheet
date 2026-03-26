@@ -1,20 +1,20 @@
 <templates>
   <div t-name="o-spreadsheet-RibbonMenu">
-    <div class="o-ribbon-menu d-flex flex-column" t-ref="menu">
+    <div class="o-ribbon-menu d-flex flex-column" t-custom-ref="menu">
       <div class="o-ribbon-title d-flex py-2 fw-bold">
         <div
           class="o-previous-button px-3 py-1 mx-2 rounded"
-          t-on-click="onClickBack"
-          t-att-title="backTitle">
+          t-on-click="this.onClickBack"
+          t-att-title="this.backTitle">
           <i class="fa fa-angle-left"/>
         </div>
-        <span class="d-flex align-items-center" t-out="state.title"/>
+        <span class="d-flex align-items-center" t-out="this.state.title"/>
       </div>
       <div
         class="o-ribbon-menu-wrapper overflow-auto"
-        t-ref="container"
-        t-on-scroll="updateShadows">
-        <Menu t-props="menuProps"/>
+        t-custom-ref="container"
+        t-on-scroll="this.updateShadows">
+        <Menu t-props="this.menuProps"/>
       </div>
     </div>
   </div>

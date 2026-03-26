@@ -1,8 +1,9 @@
-import { Component, useState } from "@odoo/owl";
+import { proxy } from "@odoo/owl";
 import { ActionSpec } from "../../../actions/action";
 import { DEFAULT_TABLE_CONFIG } from "../../../helpers/table_presets";
 import { interactiveCreateTable } from "../../../helpers/ui/table_interactive";
 import { positions } from "../../../helpers/zones";
+import { Component } from "../../../owl3_compatibility_layer";
 import { _t } from "../../../translation";
 import { UID } from "../../../types";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
@@ -31,7 +32,7 @@ export class TableDropdownButton extends Component<Props, SpreadsheetChildEnv> {
   };
 
   topBarToolStore!: ToolBarDropdownStore;
-  state = useState<State>({ popoverProps: undefined });
+  state = proxy<State>({ popoverProps: undefined });
 
   setup() {
     this.topBarToolStore = useToolBarDropdownStore();

@@ -11,9 +11,8 @@ import {
   mountComponentWithPortalTarget,
   nextTick,
   spyModelDispatch,
+  useJestFakeTimers,
 } from "../test_helpers/helpers";
-
-jest.useFakeTimers();
 
 const selectors = {
   availableCurrencies: ".o-more-formats-panel .o-available-currencies",
@@ -69,6 +68,8 @@ function getProposalValues() {
 async function selectProposalAtIndex(index: number) {
   await click(fixture, selectors.formatProposals + ` div:nth-child(${index + 1})`);
 }
+
+useJestFakeTimers();
 
 describe("custom currency sidePanel component", () => {
   beforeEach(async () => {

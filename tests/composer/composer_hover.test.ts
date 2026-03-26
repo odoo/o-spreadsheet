@@ -19,6 +19,7 @@ import {
   nextTick,
   typeInComposerGrid,
   typeInComposerHelper,
+  useJestFakeTimers,
 } from "../test_helpers/helpers";
 
 let model: Model;
@@ -64,7 +65,7 @@ describe("Composer hover", () => {
 
   beforeEach(async () => {
     ({ model, parent, fixture, env } = await mountComposerWrapper());
-    jest.useFakeTimers();
+    useJestFakeTimers();
     composerStore = parent.env.getStore(CellComposerStore);
   });
 
@@ -372,7 +373,7 @@ describe("Composer hover integration test", () => {
   beforeEach(async () => {
     ({ model, fixture, env } = await mountSpreadsheet());
     composerStore = env.getStore(CellComposerStore);
-    jest.useFakeTimers();
+    useJestFakeTimers();
   });
 
   afterEach(() => {
