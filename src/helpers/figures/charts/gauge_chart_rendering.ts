@@ -75,6 +75,7 @@ interface Segment {
 export function drawGaugeChart(
   canvas: CanvasSurface,
   runtime: GaugeAnimatedRuntime,
+  zoom: number = 1,
   dimensions?: DOMDimension // TODO VSC: this doesn't look used, consider removing this param
 ) {
   const size = dimensions ?? getCanvasSize(canvas);
@@ -85,10 +86,10 @@ export function drawGaugeChart(
   if (!ctx) {
     throw new Error("Unable to retrieve 2D context from canvas");
   }
-  ctx.scale(dpr, dpr);
+  ctx.scale(dpr * zoom, dpr * zoom);
 
   const config = getGaugeRenderingConfig(
-    { ...size, x: 0, y: 0 },
+    { width: size.width / zoom, height: size.height / zoom, x: 0, y: 0 },
     runtime,
     ctx as CanvasRenderingContext2D
   );
