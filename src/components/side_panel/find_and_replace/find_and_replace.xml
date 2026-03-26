@@ -1,33 +1,35 @@
 <templates>
   <t t-name="o-spreadsheet-FindAndReplacePanel">
-    <div class="o-find-and-replace" t-on-keydown="onKeydownPanel">
+    <div class="o-find-and-replace" t-on-keydown="this.onKeydownPanel">
       <Section title.translate="Search">
         <div class="o-input-search-container">
           <input
             type="text"
             t-ref="searchInput"
             class="o-input o-input-with-count o-search"
-            t-on-input="onSearchInput"
-            t-on-focus="onFocusSearch"
-            t-on-keydown="onKeydownSearch"
+            t-on-input="this.onSearchInput"
+            t-on-focus="this.onFocusSearch"
+            t-on-keydown="this.onKeydownSearch"
             placeholder="e.g. 'search me'"
           />
-          <div class="o-input-count" t-if="hasSearchResult">
-            <t t-out="store.selectedMatchIndex+1"/>
+          <div class="o-input-count" t-if="this.hasSearchResult">
+            <t t-out="this.store.selectedMatchIndex+1"/>
             /
-            <t t-out="store.searchMatches.length"/>
+            <t t-out="this.store.searchMatches.length"/>
           </div>
-          <div t-elif="!this.pendingSearch and store.toSearch !== ''" class="o-input-count">
+          <div t-elif="!this.pendingSearch and this.store.toSearch !== ''" class="o-input-count">
             0 / 0
           </div>
-          <div class="d-flex flex-row o-result-buttons align-items-center" t-if="hasSearchResult">
+          <div
+            class="d-flex flex-row o-result-buttons align-items-center"
+            t-if="this.hasSearchResult">
             <button
-              t-on-click="() => store.selectPreviousMatch()"
+              t-on-click="() => this.store.selectPreviousMatch()"
               class="o-button ms-2 d-flex justify-content-center align-items-center">
               <t t-call="o-spreadsheet-Icon.ARROW_UP"/>
             </button>
             <button
-              t-on-click="() => store.selectNextMatch()"
+              t-on-click="() => this.store.selectNextMatch()"
               class="o-button ms-1 d-flex justify-content-center align-items-center">
               <t t-call="o-spreadsheet-Icon.ARROW_DOWN"/>
             </button>
@@ -35,17 +37,17 @@
         </div>
         <Select
           class="'o-type-range-selector mt-3 mb-3'"
-          values="searchScopeOptions"
-          selectedValue="searchOptions.searchScope"
-          onChange.bind="changeSearchScope"
+          values="this.searchScopeOptions"
+          selectedValue="this.searchOptions.searchScope"
+          onChange.bind="this.changeSearchScope"
         />
 
-        <div t-if="searchOptions.searchScope === 'specificRange'">
+        <div t-if="this.searchOptions.searchScope === 'specificRange'">
           <SelectionInput
-            t-key="selectionInputKey"
-            ranges="[specificRange]"
+            t-key="this.selectionInputKey"
+            ranges="[this.specificRange]"
             onSelectionChanged="(ranges) => this.onSearchRangeChanged(ranges)"
-            onSelectionConfirmed.bind="updateDataRange"
+            onSelectionConfirmed.bind="this.updateDataRange"
             hasSingleRange="true"
             required="true"
           />
@@ -53,37 +55,37 @@
         <div>
           <t t-set="matchCaseLabel">Match case</t>
           <Checkbox
-            value="searchOptions.matchCase"
+            value="this.searchOptions.matchCase"
             label="matchCaseLabel"
-            onChange.bind="searchMatchCase"
+            onChange.bind="this.searchMatchCase"
             className="'mb-1'"
           />
           <t t-set="exactMatchLabel">Match entire cell content</t>
           <Checkbox
-            value="searchOptions.exactMatch"
+            value="this.searchOptions.exactMatch"
             label="exactMatchLabel"
-            onChange.bind="searchExactMatch"
+            onChange.bind="this.searchExactMatch"
             className="'mb-1'"
           />
           <t t-set="searchFormulasLabel">Search in formulas</t>
           <Checkbox
-            value="searchOptions.searchFormulas"
+            value="this.searchOptions.searchFormulas"
             label="searchFormulasLabel"
-            onChange.bind="searchFormulas"
+            onChange.bind="this.searchFormulas"
           />
         </div>
-        <div class="o-matches-count mt-4" t-if="searchInfo.length">
-          <ValidationMessages msgType="'info'" messages="searchInfo" singleBox="true"/>
+        <div class="o-matches-count mt-4" t-if="this.searchInfo.length">
+          <ValidationMessages msgType="'info'" messages="this.searchInfo" singleBox="true"/>
         </div>
       </Section>
-      <t t-if="!env.model.getters.isReadonly()">
+      <t t-if="!this.env.model.getters.isReadonly()">
         <Section class="'pt-0'" title.translate="Replace">
           <div class="o-input-search-container">
             <input
               type="text"
               class="o-input o-input-without-count o-replace"
-              t-on-keydown="onKeydownReplace"
-              t-model="store.toReplace"
+              t-on-keydown="this.onKeydownReplace"
+              t-model="this.store.toReplace"
               placeholder="e.g. 'replace me'"
             />
           </div>
@@ -91,14 +93,14 @@
         <Section>
           <div class="o-sidePanelButtons">
             <button
-              t-att-disabled="store.selectedMatchIndex === null"
-              t-on-click="() => store.replace()"
+              t-att-disabled="this.store.selectedMatchIndex === null"
+              t-on-click="() => this.store.replace()"
               class="o-button o-replace">
               Replace
             </button>
             <button
-              t-att-disabled="store.selectedMatchIndex === null"
-              t-on-click="() => store.replaceAll()"
+              t-att-disabled="this.store.selectedMatchIndex === null"
+              t-on-click="() => this.store.replaceAll()"
               class="o-button o-replace-all">
               Replace all
             </button>

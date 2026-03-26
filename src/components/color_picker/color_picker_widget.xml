@@ -4,20 +4,20 @@
       <span
         class="o-color-picker-button"
         t-ref="colorPickerButton"
-        t-on-click.stop="props.toggleColorPicker"
-        t-att-title="props.title"
-        t-att-class="props.class ? props.class : 'o-color-picker-button-style'"
-        t-att-disabled="props.disabled">
-        <span t-att-style="iconStyle">
-          <t t-call="{{props.icon}}"/>
+        t-on-click.stop="this.props.toggleColorPicker"
+        t-att-title="this.props.title"
+        t-att-class="this.props.class ? this.props.class : 'o-color-picker-button-style'"
+        t-att-disabled="this.props.disabled">
+        <span t-att-style="this.iconStyle">
+          <t t-call="{{this.props.icon}}"/>
         </span>
       </span>
       <ColorPicker
-        t-if="props.showColorPicker"
-        anchorRect="colorPickerAnchorRect"
-        onColorPicked="props.onColorPicked"
-        currentColor="props.currentColor"
-        maxHeight="props.dropdownMaxHeight"
+        t-if="this.props.showColorPicker"
+        anchorRect="this.colorPickerAnchorRect"
+        onColorPicked="this.props.onColorPicked"
+        currentColor="this.props.currentColor"
+        maxHeight="this.props.dropdownMaxHeight"
       />
     </div>
   </t>

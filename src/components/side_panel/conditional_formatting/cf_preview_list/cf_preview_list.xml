@@ -1,20 +1,20 @@
 <templates>
   <t t-name="o-spreadsheet-ConditionalFormatPreviewList">
     <div class="o-cf-preview-list h-100 overflow-auto" t-ref="cfList">
-      <t t-foreach="conditionalFormats" t-as="cf" t-key="cf.id">
+      <t t-foreach="this.conditionalFormats" t-as="cf" t-key="cf.id">
         <div
           class="o-cf-preview-container d-flex position-relative"
-          t-att-style="getPreviewDivStyle(cf)">
+          t-att-style="this.getPreviewDivStyle(cf)">
           <ConditionalFormatPreview
             conditionalFormat="cf"
-            class="dragAndDrop.draggedItemId === cf.id ? 'o-cf-dragging' : ''"
+            class="this.dragAndDrop.draggedItemId === cf.id ? 'o-cf-dragging' : ''"
             onMouseDown="(ev) => this.onPreviewMouseDown(cf, ev)"
           />
         </div>
       </t>
       <div
         class="o-button-link p-4 o-cf-add float-end"
-        t-on-click.prevent.stop="onAddConditionalFormat">
+        t-on-click.prevent.stop="this.onAddConditionalFormat">
         + Add another rule
       </div>
     </div>

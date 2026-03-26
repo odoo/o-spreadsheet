@@ -1,9 +1,9 @@
 <templates>
   <t t-name="o-spreadsheet-ValidationMessages">
-    <t t-foreach="alertBoxes" t-as="box" t-key="'box' + box_index">
-      <div t-att-class="divClasses" class="d-flex flex-column p-3 m-1 o-validation">
+    <t t-foreach="this.alertBoxes" t-as="box" t-key="'box' + box_index">
+      <div t-att-class="this.divClasses" class="d-flex flex-column p-3 m-1 o-validation">
         <div class="d-flex align-items-center">
-          <t t-if="props.msgType === 'info'" t-call="o-spreadsheet-Icon.CIRCLE_INFO"/>
+          <t t-if="this.props.msgType === 'info'" t-call="o-spreadsheet-Icon.CIRCLE_INFO"/>
           <t t-else="" t-call="o-spreadsheet-Icon.TRIANGLE_EXCLAMATION"/>
           <div class="d-flex flex-column overflow-hidden">
             <span
@@ -11,7 +11,7 @@
               t-as="msg"
               t-key="msg_index"
               class="ps-2"
-              t-att-class="{'text-truncate': props.singleBox }"
+              t-att-class="{'text-truncate': this.props.singleBox }"
               t-out="msg"
             />
           </div>

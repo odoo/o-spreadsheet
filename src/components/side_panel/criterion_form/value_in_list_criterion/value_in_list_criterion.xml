@@ -1,21 +1,21 @@
 <templates>
   <t t-name="o-spreadsheet-ListCriterionForm">
-    <t t-foreach="displayedValues" t-as="value" t-key="value_index">
+    <t t-foreach="this.displayedValues" t-as="value" t-key="value_index">
       <div class="o-dv-list-values d-flex align-items-center">
         <div class="me-1">
           <RoundColorPicker
-            currentColor="props.criterion.colors?.[value] || '#E7E9ED'"
+            currentColor="this.props.criterion.colors?.[value] || '#E7E9ED'"
             onColorPicked="(c) => this.onColorChanged(c, value)"
           />
         </div>
         <CriterionInput
-          value="props.criterion.values[value_index]"
+          value="this.props.criterion.values[value_index]"
           onValueChanged="(v) => this.onValueChanged(v, value_index)"
-          criterionType="props.criterion.type"
+          criterionType="this.props.criterion.type"
           onKeyDown="(ev) => this.onKeyDown(ev, value_index)"
-          focused="value_index === state.focusedValueIndex"
-          onBlur.bind="onBlurInput"
-          disableFormulas="props.disableFormulas"
+          focused="value_index === this.state.focusedValueIndex"
+          onBlur.bind="this.onBlurInput"
+          disableFormulas="this.props.disableFormulas"
         />
         <div
           class="o-dv-list-item-delete ms-2 o-button-icon"
@@ -25,16 +25,16 @@
       </div>
       <div class="mb-2"/>
     </t>
-    <button class="o-dv-list-add-value o-button mb-3" t-on-click="onAddAnotherValue">
+    <button class="o-dv-list-add-value o-button mb-3" t-on-click="this.onAddAnotherValue">
       Add another item
     </button>
 
     <div class="o-section-subtitle">Display style</div>
     <Select
       class="'o-dv-display-style'"
-      values="displayTypeOptions"
-      selectedValue="props.criterion.displayStyle"
-      onChange.bind="onChangedDisplayStyle"
+      values="this.displayTypeOptions"
+      selectedValue="this.props.criterion.displayStyle"
+      onChange.bind="this.onChangedDisplayStyle"
     />
   </t>
 </templates>

@@ -3,9 +3,9 @@
     <t t-portal="'.o-spreadsheet'">
       <div
         class="o-popover rounded"
-        t-att-class="props.class"
+        t-att-class="this.props.class"
         t-ref="popover"
-        t-on-wheel="props.onMouseWheel"
+        t-on-wheel="this.props.onMouseWheel"
         t-on-click.stop="">
         <div class="o-popover-content" t-ref="popoverContent">
           <t t-slot="default"/>

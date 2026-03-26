@@ -8,8 +8,8 @@
           selectedValue="threshold?.type || 'none'"
           class="'me-2'  + (threshold and threshold.type !== 'value' ? ' o-select-with-input' : '')"
           name="'valueType'"
-          values="getThresholdTypeSelectOptions(thresholdType)"
-          onChange.bind="(value) => store.onMidpointChange(value)"
+          values="this.getThresholdTypeSelectOptions(thresholdType)"
+          onChange.bind="(value) => this.store.onMidpointChange(value)"
         />
       </t>
       <t t-else="">
@@ -17,8 +17,8 @@
           selectedValue="threshold?.type || 'none'"
           class="'me-2'  + (threshold and threshold.type !== 'value' ? ' o-select-with-input' : '')"
           name="'valueType'"
-          values="getThresholdTypeSelectOptions(thresholdType)"
-          onChange.bind="(value) => store.updateThresholdType(thresholdType, value)"
+          values="this.getThresholdTypeSelectOptions(thresholdType)"
+          onChange.bind="(value) => this.store.updateThresholdType(thresholdType, value)"
         />
       </t>
       <div class="o-threshold-value me-2" t-if="threshold and threshold.type !== 'value'">
@@ -27,15 +27,15 @@
           type="text"
           class="o-input"
           t-att-value="threshold.value"
-          t-on-change="(ev) => store.updateThresholdValue(thresholdType, ev.target.value)"
-          t-att-class="{ 'o-invalid': isValueInvalid(thresholdType), 'invisible': threshold === undefined }"
+          t-on-change="(ev) => this.store.updateThresholdValue(thresholdType, ev.target.value)"
+          t-att-class="{ 'o-invalid': this.isValueInvalid(thresholdType), 'invisible': threshold === undefined }"
         />
-        <StandaloneComposer t-else="" t-props="getColorScaleComposerProps(thresholdType)"/>
+        <StandaloneComposer t-else="" t-props="this.getColorScaleComposerProps(thresholdType)"/>
       </div>
       <div t-attf-class="flex-shrink-0 ms-1 {{ threshold === undefined ? 'invisible' : ''}}">
         <RoundColorPicker
-          currentColor="getThresholdColor(threshold)"
-          onColorPicked="(color) => store.setColorScaleColor(thresholdType, color)"
+          currentColor="this.getThresholdColor(threshold)"
+          onColorPicked="(color) => this.store.setColorScaleColor(thresholdType, color)"
           title="fill_color"
           disableNoColor="true"
         />
@@ -46,7 +46,7 @@
   <t t-name="o-spreadsheet-ColorScaleRuleEditor">
     <div class="o-cf-color-scale-editor">
       <div class="o-section-subtitle">Preview</div>
-      <div class="o-cf-preview-display mb-4" t-attf-style="{{store.previewGradient}}">
+      <div class="o-cf-preview-display mb-4" t-attf-style="{{this.store.previewGradient}}">
         Preview text
       </div>
       <div class="o-section-subtitle">Minpoint</div>

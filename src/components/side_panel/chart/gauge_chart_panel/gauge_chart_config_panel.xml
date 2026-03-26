@@ -9,8 +9,8 @@
       />
 
       <ChartErrorSection
-        t-if="configurationErrorMessages.length"
-        messages="configurationErrorMessages"
+        t-if="this.configurationErrorMessages.length"
+        messages="this.configurationErrorMessages"
       />
     </div>
   </t>

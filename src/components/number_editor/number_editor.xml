@@ -3,32 +3,32 @@
     <div class="o-dropdown" t-ref="NumberEditor">
       <div
         class="o-number-editor d-flex align-items-center"
-        t-att-class="props.class"
-        t-att-title="props.title"
+        t-att-class="this.props.class"
+        t-att-title="this.props.title"
         t-on-click.stop="this.toggleList">
         <input
           type="number"
-          t-att-min="props.min"
-          t-att-max="props.max"
+          t-att-min="this.props.min"
+          t-att-max="this.props.max"
           class="o-font-size o-number-input bg-transparent border-0"
-          t-on-keydown="onInputKeydown"
+          t-on-keydown="this.onInputKeydown"
           t-on-wheel.prevent.stop=""
-          t-on-click.stop="props.onFocusInput"
-          t-on-focus.stop="onInputFocused"
-          t-on-change="setValueFromInput"
+          t-on-click.stop="this.props.onFocusInput"
+          t-on-focus.stop="this.onInputFocused"
+          t-on-change="this.setValueFromInput"
           t-ref="inputNumber"
         />
-        <t t-out="props.valueIcon"/>
+        <t t-out="this.props.valueIcon"/>
         <span>
           <t t-call="o-spreadsheet-Icon.CARET_DOWN"/>
         </span>
       </div>
-      <Popover t-if="dropdown.isOpen" t-props="popoverProps">
+      <Popover t-if="this.dropdown.isOpen" t-props="this.popoverProps">
         <div class="o-text-options" t-on-click.stop="" t-ref="numberList">
-          <t t-foreach="props.valueList" t-as="value" t-key="value">
+          <t t-foreach="this.props.valueList" t-as="value" t-key="value">
             <div t-att-data-size="value" t-on-click="() => this.setValueFromList(value)">
               <t t-out="value"/>
-              <t t-out="props.valueIcon"/>
+              <t t-out="this.props.valueIcon"/>
             </div>
           </t>
         </div>

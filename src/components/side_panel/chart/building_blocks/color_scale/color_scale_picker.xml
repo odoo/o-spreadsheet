@@ -4,21 +4,21 @@
       <div class="w-100" style="position:relative">
         <div
           class="color-scale-container d-flex justify-content-end"
-          t-on-click.stop="onPointerDown">
+          t-on-click.stop="this.onPointerDown">
           <span class="color-scale-label">
-            <t t-out="currentColorScaleLabel"/>
+            <t t-out="this.currentColorScaleLabel"/>
           </span>
           <div
             class="color-scale-preview w-100"
-            t-att-data-test-colorscale="selectedColorScale"
-            t-att-style="currentColorScaleStyle"
+            t-att-data-test-colorscale="this.selectedColorScale"
+            t-att-style="this.currentColorScaleStyle"
           />
           <span class="ms-1">
             <t t-call="o-spreadsheet-Icon.CARET_DOWN"/>
           </span>
         </div>
-        <Popover t-if="state.popoverProps" t-props="state.popoverProps">
-          <table t-ref="popoverRef" t-att-style="state.popoverStyle">
+        <Popover t-if="this.state.popoverProps" t-props="this.state.popoverProps">
+          <table t-ref="popoverRef" t-att-style="this.state.popoverStyle">
             <tr
               class="color-scale-container custom-color-scale-container"
               t-on-click="() => this.onColorScaleChange('custom')">
@@ -30,7 +30,7 @@
                 />
               </td>
             </tr>
-            <t t-foreach="colorScales" t-as="colorScale" t-key="colorScale.value">
+            <t t-foreach="this.colorScales" t-as="colorScale" t-key="colorScale.value">
               <tr
                 class="color-scale-container"
                 t-on-click="() => this.onColorScaleChange(colorScale.value)"
@@ -42,7 +42,7 @@
                   <div
                     class="color-scale-preview"
                     t-att-data-test-id="colorScale.className"
-                    t-att-style="colorScalePreviewStyle(colorScale.value)"
+                    t-att-style="this.colorScalePreviewStyle(colorScale.value)"
                   />
                 </td>
               </tr>
@@ -53,7 +53,7 @@
       <div class="ps-3 mt-2">
         <div class="o-min-color d-flex align-items-center mb-2">
           <RoundColorPicker
-            currentColor="currentColorScale.minColor"
+            currentColor="this.currentColorScale.minColor"
             onColorPicked="(color) => this.setCustomColorScaleColor('minColor', color)"
             disableNoColor="true"
           />
@@ -61,14 +61,14 @@
         </div>
         <div class="o-mid-color d-flex align-items-center mb-2">
           <RoundColorPicker
-            currentColor="currentColorScale.midColor"
+            currentColor="this.currentColorScale.midColor"
             onColorPicked="(color) => this.setCustomColorScaleColor('midColor', color)"
           />
           <span class="ps-2">Color of middle values</span>
         </div>
         <div class="o-max-color d-flex align-items-center">
           <RoundColorPicker
-            currentColor="currentColorScale.maxColor"
+            currentColor="this.currentColorScale.maxColor"
             onColorPicked="(color) => this.setCustomColorScaleColor('maxColor', color)"
             disableNoColor="true"
           />

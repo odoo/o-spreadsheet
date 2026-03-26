@@ -1,13 +1,13 @@
 <templates>
   <t t-name="o-spreadsheet-ConditionalFormatPreview">
-    <t t-set="cf" t-value="props.conditionalFormat"/>
+    <t t-set="cf" t-value="this.props.conditionalFormat"/>
     <div
       class="o-cf-preview w-100 d-flex align-items-center border-bottom"
       t-ref="cfPreview"
-      t-att-class="props.class"
+      t-att-class="this.props.class"
       t-att-data-id="cf.id"
-      t-on-click="editConditionalFormat"
-      t-on-pointerdown="(ev) => props.onMouseDown(ev)">
+      t-on-click="this.editConditionalFormat"
+      t-on-pointerdown="(ev) => this.props.onMouseDown(ev)">
       <div class="o-cf-drag-handle h-100 position-absolute d-flex align-items-center o-button-icon">
         <t t-call="o-spreadsheet-Icon.THIN_DRAG_HANDLE"/>
       </div>
@@ -21,7 +21,7 @@
       </t>
       <t t-else="">
         <div
-          t-att-style="previewImageStyle"
+          t-att-style="this.previewImageStyle"
           class="o-cf-preview-icon d-flex justify-content-around align-items-center me-3 flex-shrink-0 border">
           123
         </div>
@@ -29,7 +29,7 @@
       <div class="o-cf-preview-description me-3 overflow-auto">
         <div class="o-cf-preview-ruletype">
           <div class="o-cf-preview-description-rule o-fw-bold text-truncate">
-            <t t-out="description"/>
+            <t t-out="this.description"/>
           </div>
         </div>
         <div class="o-cf-preview-range text-truncate" t-out="cf.ranges.join()"/>
@@ -37,7 +37,7 @@
       <div class="o-cf-delete ms-auto">
         <div
           class="o-cf-delete-button o-button-icon"
-          t-on-click.stop="deleteConditionalFormat"
+          t-on-click.stop="this.deleteConditionalFormat"
           title="Remove rule">
           <t t-call="o-spreadsheet-Icon.TRASH_FILLED"/>
         </div>

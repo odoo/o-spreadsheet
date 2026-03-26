@@ -3,22 +3,22 @@
     <div class="position-relative">
       <input
         type="text"
-        t-ref="{{refName}}"
-        t-att-class="inputClass"
-        t-att-id="props.id"
-        t-att-placeholder="props.placeholder"
-        t-on-change="save"
-        t-on-blur="onBlur"
-        t-on-pointerdown="onMouseDown"
-        t-on-pointerup="onMouseUp"
-        t-on-focus="onFocus"
-        t-on-input="onInput"
-        t-on-keydown="onKeyDown"
+        t-ref="{{this.refName}}"
+        t-att-class="this.inputClass"
+        t-att-id="this.props.id"
+        t-att-placeholder="this.props.placeholder"
+        t-on-change="this.save"
+        t-on-blur="this.onBlur"
+        t-on-pointerdown="this.onMouseDown"
+        t-on-pointerup="this.onMouseUp"
+        t-on-focus="this.onFocus"
+        t-on-input="this.onInput"
+        t-on-keydown="this.onKeyDown"
       />
       <span
-        t-if="props.errorMessage"
+        t-if="this.props.errorMessage"
         class="os-input-error-icon text-danger position-absolute d-flex align-items-center"
-        t-att-title="props.errorMessage">
+        t-att-title="this.props.errorMessage">
         <t t-call="o-spreadsheet-Icon.ERROR"/>
       </span>
     </div>

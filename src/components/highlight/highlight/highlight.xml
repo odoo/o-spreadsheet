@@ -2,24 +2,24 @@
   <t t-name="o-spreadsheet-Highlight">
     <div class="o-highlight" t-ref="highlight">
       <t
-        t-if="!env.isMobile()"
+        t-if="!this.env.isMobile()"
         t-foreach="['n', 's', 'w', 'e']"
         t-as="orientation"
         t-key="orientation">
         <Border
           onMoveHighlight.bind="this.onMoveHighlight"
-          isMoving='highlightState.shiftingMode === "isMoving"'
+          isMoving='this.highlightState.shiftingMode === "isMoving"'
           orientation="orientation"
-          zone="props.range.zone"
+          zone="this.props.range.zone"
         />
       </t>
-      <t t-foreach="cornerOrientations" t-as="orientation" t-key="orientation">
+      <t t-foreach="this.cornerOrientations" t-as="orientation" t-key="orientation">
         <Corner
-          onResizeHighlight.bind="onResizeHighlight"
-          isResizing='highlightState.shiftingMode === "isResizing"'
+          onResizeHighlight.bind="this.onResizeHighlight"
+          isResizing='this.highlightState.shiftingMode === "isResizing"'
           orientation="orientation"
-          zone="props.range.zone"
-          color="props.color"
+          zone="this.props.range.zone"
+          color="this.props.color"
         />
       </t>
     </div>

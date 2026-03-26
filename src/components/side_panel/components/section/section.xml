@@ -1,9 +1,9 @@
 <templates>
   <t t-name="o_spreadsheet.Section">
-    <div class="o-section" t-att-class="props.class">
-      <t t-if="props.slots.title or props.title">
+    <div class="o-section" t-att-class="this.props.class">
+      <t t-if="this.props.slots.title or this.props.title">
         <div class="o-section-title">
-          <t t-out="props.title"/>
+          <t t-out="this.props.title"/>
           <t t-slot="title"/>
         </div>
       </t>

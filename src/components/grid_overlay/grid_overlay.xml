@@ -1,21 +1,21 @@
 <templates>
   <t t-name="o-spreadsheet-GridOverlay">
-    <div class="position-absolute" t-att-style="style">
+    <div class="position-absolute" t-att-style="this.style">
       <FiguresContainer/>
     </div>
     <div
       t-ref="gridOverlay"
       class="o-grid-overlay overflow-hidden o-zoomable"
-      t-att-class="{'o-paint-format-cursor': isPaintingFormat}"
-      t-att-style="style"
-      t-on-pointerdown="onPointerDown"
-      t-on-pointermove="onPointerMove"
-      t-on-click="onClick"
-      t-on-dblclick.self="onDoubleClick"
-      t-on-contextmenu.stop.prevent="onContextMenu">
+      t-att-class="{'o-paint-format-cursor': this.isPaintingFormat}"
+      t-att-style="this.style"
+      t-on-pointerdown="this.onPointerDown"
+      t-on-pointermove="this.onPointerMove"
+      t-on-click="this.onClick"
+      t-on-dblclick.self="this.onDoubleClick"
+      t-on-contextmenu.stop.prevent="this.onContextMenu">
       <GridAddRowsFooter
-        t-if="!env.model.getters.isReadonly()"
-        t-key="env.model.getters.getActiveSheetId()"
+        t-if="!this.env.model.getters.isReadonly()"
+        t-key="this.env.model.getters.getActiveSheetId()"
       />
       <t t-slot="default"/>
     </div>
