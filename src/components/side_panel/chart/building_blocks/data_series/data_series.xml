@@ -3,7 +3,7 @@
     <Section class="'o-data-series'">
       <t t-set-slot="title">
         <div class="d-flex flex-row justify-content-between">
-          <t t-esc="title"/>
+          <t t-out="title"/>
           <div t-if="props.onFlipAxis and props.canChangeDatasetOrientation" class="d-flex">
             <span
               t-if="props.datasetOrientation !== 'rows'"

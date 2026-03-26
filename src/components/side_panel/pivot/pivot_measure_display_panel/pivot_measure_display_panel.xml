@@ -9,7 +9,7 @@
       />
       <div
         class="o-pivot-measure-display-description mt-3 ps-3 border-start"
-        t-esc="measureDisplayDescription[store.measureDisplay.type]"
+        t-out="measureDisplayDescription[store.measureDisplay.type]"
       />
     </Section>
 

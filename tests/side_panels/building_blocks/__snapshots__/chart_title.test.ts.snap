@@ -14,6 +14,7 @@ exports[`Chart title Can render a chart title component 1`] = `
         Chart title
         
         
+        
       </div>
       
       <div
@@ -127,6 +128,7 @@ exports[`Chart title Can render a chart title component 1`] = `
               min="1"
               type="number"
             />
+            
             
             <span>
               <div

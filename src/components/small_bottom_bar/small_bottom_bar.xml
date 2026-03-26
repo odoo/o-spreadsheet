@@ -30,7 +30,7 @@
             t-as="symbol"
             t-key="symbol_index"
             class="o-spreadsheet-editor-symbol w-100 d-flex justify-content-center align-items-center mx-1"
-            t-esc="symbol"
+            t-out="symbol"
             tabindex="-1"
             t-att-title="symbol"
             t-on-click="() => this.insertSymbol(symbol)"

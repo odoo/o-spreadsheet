@@ -9,10 +9,12 @@ exports[`Data Series Can render a data series component 1`] = `
       class="o-section-title"
     >
       
+      
       <div
         class="d-flex flex-row justify-content-between"
       >
         Data series
+        
         
       </div>
       

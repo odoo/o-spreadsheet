@@ -4,7 +4,7 @@
       <t t-if="store.hasSingleColumn">
         <Section>
           <div class="d-flex justify-content-between align-items-center o-panel-header mb-1">
-            <span class="o-fw-bold w-100 o-column-stats-title" t-esc="columnLabel"/>
+            <span class="o-fw-bold w-100 o-column-stats-title" t-out="columnLabel"/>
             <span
               class="p-1 o-row-switcher"
               data-test-id="previous-column-button"
@@ -44,7 +44,7 @@
                 </div>
               </t>
               <t t-else="">
-                <div class="text-muted mt-4" t-esc="chartErrorMessage"/>
+                <div class="text-muted mt-4" t-out="chartErrorMessage"/>
               </t>
             </div>
           </t>
@@ -54,8 +54,8 @@
             <div class="o-column-global-stats d-flex flex-column gap-2 mb-2">
               <t t-foreach="store.statItems" t-as="stat" t-key="stat.name">
                 <div class="o-column-stats-row d-flex justify-content-between">
-                  <span class="text-muted" t-esc="stat.name"/>
-                  <span class="o-fw-bold" t-att-data-test-id="stat.name" t-esc="stat.value"/>
+                  <span class="text-muted" t-out="stat.name"/>
+                  <span class="o-fw-bold" t-att-data-test-id="stat.name" t-out="stat.value"/>
                 </div>
               </t>
             </div>
@@ -76,8 +76,8 @@
                   class="o-column-stats-row o-column-frequencies-row d-flex justify-content-between"
                   t-on-mouseenter="() => this.highlightFrequencyPositions(value.positions)"
                   t-on-mouseleave="() => this.clearHighlights()">
-                  <span class="frequency-label text-muted" t-esc="value.value"/>
-                  <span class="frequency-value o-fw-bold" t-esc="value.count"/>
+                  <span class="frequency-label text-muted" t-out="value.value"/>
+                  <span class="frequency-value o-fw-bold" t-out="value.count"/>
                 </div>
               </t>
             </div>

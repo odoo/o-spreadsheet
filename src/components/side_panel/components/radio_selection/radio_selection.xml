@@ -18,7 +18,7 @@
             t-att-checked="choice.value === props.selectedValue"
             t-on-change="() => props.onChange(choice.value)"
           />
-          <t t-esc="choice.label"/>
+          <t t-out="choice.label"/>
         </label>
       </t>
     </div>

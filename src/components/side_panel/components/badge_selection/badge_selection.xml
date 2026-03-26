@@ -8,7 +8,7 @@
           t-on-click="() => props.onChange(choice.value)"
           t-att-data-id="choice.value">
           <t t-if="choice.icon" t-call="{{choice.icon}}"/>
-          <t t-esc="choice.label"/>
+          <t t-out="choice.label"/>
         </button>
       </t>
     </div>

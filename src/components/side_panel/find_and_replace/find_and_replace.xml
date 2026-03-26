@@ -13,9 +13,9 @@
             placeholder="e.g. 'search me'"
           />
           <div class="o-input-count" t-if="hasSearchResult">
-            <t t-esc="store.selectedMatchIndex+1"/>
+            <t t-out="store.selectedMatchIndex+1"/>
             /
-            <t t-esc="store.searchMatches.length"/>
+            <t t-out="store.searchMatches.length"/>
           </div>
           <div t-elif="!this.pendingSearch and store.toSearch !== ''" class="o-input-count">
             0 / 0

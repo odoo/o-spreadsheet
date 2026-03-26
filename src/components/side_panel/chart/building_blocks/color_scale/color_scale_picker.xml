@@ -6,7 +6,7 @@
           class="color-scale-container d-flex justify-content-end"
           t-on-click.stop="onPointerDown">
           <span class="color-scale-label">
-            <t t-esc="currentColorScaleLabel"/>
+            <t t-out="currentColorScaleLabel"/>
           </span>
           <div
             class="color-scale-preview w-100"
@@ -36,7 +36,7 @@
                 t-on-click="() => this.onColorScaleChange(colorScale.value)"
                 t-att-title="colorScale.label">
                 <td class="p-1 text-end">
-                  <t t-esc="colorScale.label"/>
+                  <t t-out="colorScale.label"/>
                 </td>
                 <td class="w-100 p-1">
                   <div

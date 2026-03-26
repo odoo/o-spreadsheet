@@ -15,7 +15,7 @@ const templates = /* xml */ `
       <table class="overflow-hidden m-0">
         <thead t-if="title">
           <tr>
-            <th class="o-tooltip-title align-baseline border-0 text-truncate" t-esc="title" t-attf-style="max-width: {{ labelsMaxWidth }}"/>
+            <th class="o-tooltip-title align-baseline border-0 text-truncate" t-out="title" t-attf-style="max-width: {{ labelsMaxWidth }}"/>
           </tr>
         </thead>
         <tbody>
@@ -28,16 +28,16 @@ const templates = /* xml */ `
               <small
                 t-if="tooltipItem.label"
                 class="o-tooltip-label d-inline-block text-truncate align-middle smaller ms-2"
-                t-esc="tooltipItem.label"
+                t-out="tooltipItem.label"
                 t-attf-style="max-width: {{ labelsMaxWidth }}"
               />
             </td>
             <td class="o-tooltip-value ps-2 fw-bolder text-end">
               <small class="smaller d-inline-block text-truncate align-middle" t-attf-style="max-width: {{ valuesMaxWidth }}">
-                <t t-esc="tooltipItem.value"/>
+                <t t-out="tooltipItem.value"/>
                 <t t-if="tooltipItem.percentage">
                   (
-                  <t t-esc="tooltipItem.percentage"/>
+                  <t t-out="tooltipItem.percentage"/>
                   %)
                 </t>
               </small>

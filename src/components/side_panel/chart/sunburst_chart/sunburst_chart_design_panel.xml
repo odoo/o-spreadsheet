@@ -19,8 +19,8 @@
                 onColorPicked="(color) => this.onGroupColorChanged(item_index, color)"
               />
               <span class="ps-2">
-                <span t-esc="'(#' + (item_index +1 ) + ')'" class="o-text-bolder pe-1"/>
-                <span class="text-muted" t-esc="item.label"/>
+                <span t-out="'(#' + (item_index +1 ) + ')'" class="o-text-bolder pe-1"/>
+                <span class="text-muted" t-out="item.label"/>
               </span>
             </div>
           </t>

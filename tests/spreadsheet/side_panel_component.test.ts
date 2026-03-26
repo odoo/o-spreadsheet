@@ -32,7 +32,7 @@ class Body extends Component<any, any> {
   static template = xml`
     <div>
       <div class="main_body">test</div>
-      <div class="props_body" t-if="props.text"><t t-esc="props.text"/></div>
+      <div class="props_body" t-if="props.text"><t t-out="props.text"/></div>
       <input type="text" class="input" t-if="props.input" />
     </div>`;
   static props = {
@@ -46,7 +46,7 @@ class Body2 extends Component<any, any> {
   static template = xml`
     <div>
       <div class="main_body_2">Hello</div>
-      <div class="props_body_2" t-if="props.field"><t t-esc="props.field"/></div>
+      <div class="props_body_2" t-if="props.field"><t t-out="props.field"/></div>
     </div>`;
   static props = { field: { type: String, optional: true }, onCloseSidePanel: Function };
 }

@@ -110,6 +110,6 @@ class TooltipComponent extends Component<Props> {
     content: String,
   };
   static template = xml/* xml */ `
-    <div t-esc="props.content"/>
+    <div t-out="props.content"/>
   `;
 }

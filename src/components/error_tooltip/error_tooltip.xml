@@ -4,11 +4,11 @@
       <t t-if="evaluationError">
         <div class="o-error-tooltip-title fw-bold text-danger">Error</div>
         <div class="o-error-tooltip-message">
-          <t t-esc="evaluationError.message"/>
+          <t t-out="evaluationError.message"/>
           <div class="fst-italic" t-if="errorOriginPositionString">
             Caused by
             <span
-              t-esc="errorOriginPositionString"
+              t-out="errorOriginPositionString"
               class="o-button-link"
               t-on-click="selectCell"
               title="Click to select the cell"
@@ -19,14 +19,14 @@
             t-if="missingHeadersForSpread"
             class="o-button-link mt-4"
             t-on-click="() => this.addMissingHeaders(missingHeadersForSpread)"
-            t-esc="getAddMissingHeadersButtonText(missingHeadersForSpread)"
+            t-out="getAddMissingHeadersButtonText(missingHeadersForSpread)"
           />
         </div>
       </t>
       <t t-if="dataValidationErrorMessage">
         <div class="o-error-tooltip-title fw-bold text-danger">Invalid</div>
         <div class="o-error-tooltip-message">
-          <t t-esc="dataValidationErrorMessage"/>
+          <t t-out="dataValidationErrorMessage"/>
         </div>
       </t>
     </div>

@@ -10,7 +10,7 @@
           <span class="collapsor-arrow">
             <t t-call="o-spreadsheet-Icon.ANGLE_DOWN"/>
           </span>
-          <div class="ps-2" t-esc="props.title"/>
+          <div class="ps-2" t-out="props.title"/>
         </div>
       </div>
       <Collapse isCollapsed="state.isCollapsed">

@@ -5,7 +5,7 @@
       <div
         class="o-selection-statistic text-truncate user-select-none me-4 bg-white rounded shadow d-flex align-items-center"
         t-on-click="listSelectionStatistics">
-        <t t-esc="selectedStatistic"/>
+        <t t-out="selectedStatistic"/>
         <span class="ms-2">
           <t t-call="o-spreadsheet-Icon.CARET_DOWN"/>
         </span>

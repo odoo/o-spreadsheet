@@ -14,7 +14,7 @@
               t-on-click="(ev) => this.toggleContextMenu(menu, ev)"
               t-on-mouseover="(ev) => this.onMenuMouseOver(menu, ev)"
               t-att-data-id="menu.id">
-              <t t-esc="getMenuName(menu)"/>
+              <t t-out="getMenuName(menu)"/>
             </div>
           </t>
         </div>

@@ -8,7 +8,7 @@
           t-att-title="backTitle">
           <i class="fa fa-angle-left"/>
         </div>
-        <span class="d-flex align-items-center" t-esc="state.title"/>
+        <span class="d-flex align-items-center" t-out="state.title"/>
       </div>
       <div
         class="o-ribbon-menu-wrapper overflow-auto"

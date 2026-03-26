@@ -127,7 +127,7 @@ async function dragAnchor(anchor: string, dragX: number, dragY: number, mouseUp 
 //Test Component required as we don't especially want/need to load an entire chart
 const TEMPLATE = xml/* xml */ `
   <div class="o-fig-text">
-    <t t-esc='"coucou"'/>
+    <t t-out='"coucou"'/>
   </div>
 `;
 

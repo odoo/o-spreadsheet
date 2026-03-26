@@ -13,7 +13,7 @@
           <div>
             <t t-foreach="formulaHeaderContent" t-as="part" t-key="part_index">
               <span
-                t-esc="part.content"
+                t-out="part.content"
                 t-att-class="part.focused ? 'o-formula-assistant-focus' : ''"
               />
             </t>
@@ -32,7 +32,7 @@
         <Collapse isCollapsed="state.isCollapsed">
           <div class="o-formula-assistant-core pb-3 m-3 border-bottom">
             <div class="o-formula-assistant-gray">ABOUT</div>
-            <div t-esc="context.functionDescription.description"/>
+            <div t-out="context.functionDescription.description"/>
           </div>
 
           <t
@@ -47,19 +47,19 @@
               <div
                 t-att-class="{'o-formula-assistant-focus': context.argsToFocus.includes(arg_index)}">
                 <span t-if="arg.repeating">
-                  <span t-esc="arg.name + (context.repeatingArgGroupIndex + 1)"/>
+                  <span t-out="arg.name + (context.repeatingArgGroupIndex + 1)"/>
                 </span>
                 <span t-else="">
-                  <span t-esc="arg.name"/>
+                  <span t-out="arg.name"/>
                 </span>
                 <span
                   t-if="arg.optional || arg.default || (arg.repeating and (firstRepeatableGroupOptional or context.repeatingArgGroupIndex > 0))">&#xA0;- [optional]&#xA0;</span>
                 <span t-if="arg.default">
                   <span>default:&#xA0;</span>
-                  <t t-esc="arg.defaultValue"/>
+                  <t t-out="arg.defaultValue"/>
                 </span>
               </div>
-              <div class="o-formula-assistant-arg-description" t-esc="arg.description"/>
+              <div class="o-formula-assistant-arg-description" t-out="arg.description"/>
             </div>
           </t>
         </Collapse>
