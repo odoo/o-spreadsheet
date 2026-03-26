@@ -8,7 +8,7 @@ import { GaugeAnimatedRuntime, GaugeChartRuntime } from "@odoo/o-spreadsheet-eng
 import { Model } from "../../../../src";
 import { GaugeChartComponent } from "../../../../src/components/figures/chart/gauge/gauge_chart_component";
 import { chartMutedFontColor } from "../../../../src/helpers/figures/charts";
-import { readonlyAllowedCommands, Rect } from "../../../../src/types";
+import { Rect } from "../../../../src/types";
 import { MockCanvasRenderingContext2D } from "../../../setup/canvas.mock";
 import {
   createGaugeChart,
@@ -272,8 +272,6 @@ describe("Gauge chart component animation", () => {
   });
 
   test("Animations are replayed only when chart data changes", async () => {
-    readonlyAllowedCommands.add("UPDATE_CELL");
-
     const model = new Model();
     createGaugeChart(model, { dataRange: "A1" });
     model.updateMode("dashboard");
@@ -290,7 +288,5 @@ describe("Gauge chart component animation", () => {
     setCellContent(model, "A1", "6");
     await nextTick();
     expect(gaugeAnimationSpy).toHaveBeenCalledTimes(2);
-
-    readonlyAllowedCommands.delete("UPDATE_CELL");
   });
 });

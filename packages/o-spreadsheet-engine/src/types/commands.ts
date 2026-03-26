@@ -197,31 +197,6 @@ export const invalidSubtotalFormulasCommands = new Set<CommandTypes>([
   "UPDATE_FILTER",
 ]);
 
-export const readonlyAllowedCommands = new Set<CommandTypes>([
-  "START",
-  "ACTIVATE_SHEET",
-
-  "COPY",
-
-  "RESIZE_SHEETVIEW",
-  "SET_VIEWPORT_OFFSET",
-  "SET_ZOOM",
-
-  "EVALUATE_CELLS",
-  "EVALUATE_CHARTS",
-
-  "SET_FORMULA_VISIBILITY",
-
-  "UPDATE_FILTER",
-  "UPDATE_CHART",
-  "UPDATE_CHART_REGION",
-  "UPDATE_CAROUSEL_ACTIVE_ITEM",
-
-  "UPDATE_PIVOT",
-
-  "SORT_CELLS",
-]);
-
 export const lockedSheetAllowedCommands = new Set<Command["type"]>([
   // core commands
   "LOCK_SHEET",
@@ -357,10 +332,6 @@ export const coreTypes = new Set<CoreCommandTypes>([
 
 export function isCoreCommand(cmd: Command): cmd is CoreCommand {
   return coreTypes.has(cmd.type as any);
-}
-
-export function canExecuteInReadonly(cmd: Command): boolean {
-  return readonlyAllowedCommands.has(cmd.type);
 }
 
 //#region Core Commands

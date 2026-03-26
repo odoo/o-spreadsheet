@@ -42,15 +42,7 @@ coreTypes.add("MY_COMMAND_NAME");
 
 ### Read-Only Mode
 
-In read-only mode, all core commands are cancelled with the `CommandResult` `Readonly` since the spreadsheet state cannot be modified.
-However, some locale commands still need to be executed, such as updating the active sheet.
-To allow a new local command in read-only mode, add its type to `readonlyAllowedCommands`:
-
-```ts
-import { readonlyAllowedCommands } from "@odoo/o-spreadsheet";
-
-readonlyAllowedCommands.add("MY_COMMAND_NAME");
-```
+All commands are allowed in readonly mode. Since the spreadsheet state cannot be modified , we use a specific transport service (ReadonlyTransportFilter) blocking revision to be send to the server.
 
 ## Reserved keywords in commands
 

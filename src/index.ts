@@ -264,7 +264,6 @@ export {
   TransportService,
 } from "@odoo/o-spreadsheet-engine/types/collaborative/transport_service";
 export {
-  canExecuteInReadonly,
   coreTypes,
   invalidateCFEvaluationCommands,
   invalidateChartEvaluationCommands,
@@ -273,7 +272,6 @@ export {
   isCoreCommand,
   isSheetDependent,
   lockedSheetAllowedCommands,
-  readonlyAllowedCommands,
 } from "@odoo/o-spreadsheet-engine/types/commands";
 export { CellErrorType, EvaluationError } from "@odoo/o-spreadsheet-engine/types/errors";
 export { Spreadsheet } from "./components/index";
