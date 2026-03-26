@@ -1,6 +1,6 @@
 import { Model } from "../../src";
 import { setCellContent, setCellFormat, setFormat } from "../test_helpers/commands_helpers";
-import { getCellContent, getCellError } from "../test_helpers/getters_helpers";
+import { getCellContent, getCellError, getEvaluatedCell } from "../test_helpers/getters_helpers";
 import { evaluateCellText } from "../test_helpers/helpers";
 
 describe("FORMAT.LARGE.NUMBER formula", () => {
@@ -169,6 +169,17 @@ describe("FORMAT.LARGE.NUMBER formula", () => {
     setCellContent(model, "A2", '=FORMAT.LARGE.NUMBER(A1, "m")');
     // should be "5,000mk" in a perfect world. But we cannot tell the difference between a custom currency and a unit in a format.
     expect(getCellContent(model, "A2")).toBe("5,000m");
+  });
+
+  test("FORMAT.LARGE.NUMBER does nothing on numbers with scientific format", () => {
+    const model = new Model();
+    setCellContent(model, "A1", "100000");
+    setFormat(model, "A1", "0e");
+    setCellContent(model, "A2", "=FORMAT.LARGE.NUMBER(A1)");
+    expect(getCellContent(model, "A2")).toBe("1e+05");
+
+    setFormat(model, "A1", "0;0e;-0e;@[$Hello]");
+    expect(getEvaluatedCell(model, "A2").format).toBe("0,[$k];0e;-0e;@[$Hello]");
   });
 
   test("Percentage in decimal part is preserved by FORMAT.LARGE.NUMBER", () => {
