@@ -140,7 +140,7 @@ export function drawChartOnCanvas(
       const design = getScorecardConfiguration(size, runtime as ScorecardChartRuntime);
       drawScoreChart(design, canvas);
     } else if (type === "gauge") {
-      drawGaugeChart(canvas, runtime as GaugeChartRuntime, size);
+      drawGaugeChart(canvas, runtime as GaugeChartRuntime, 1, size);
     }
   }
 
