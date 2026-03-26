@@ -379,6 +379,9 @@ export function applyDateTimeFormat(value: number, format: Format): FormattedVal
   // of tokens dd,d,m,y,h, ... and preserves the rest
 
   const jsDate = numberToJsDate(value);
+  if (isNaN(jsDate.getTime())) {
+    return value.toString();
+  }
   const indexH = format.indexOf("h");
   let strDate: FormattedValue = "";
   let strTime: FormattedValue = "";
