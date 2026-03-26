@@ -982,6 +982,15 @@ describe("formatValue on date and time", () => {
     });
 
     test.each([
+      [-4e190, "-4e+190"],
+      [+4e190, "4e+190"],
+      [1e16, "10000000000000000"],
+      [-1e8, "-100000000"],
+    ])("values that cannot be coerced as jsdate are formatted as automatic", (value, result) => {
+      expect(formatValue(value, { format: "mm/dd/yyyy", locale })).toBe(result);
+    });
+
+    test.each([
       ["d", "1"],
       ["dd", "01"],
       ["ddd", "Sun"],
