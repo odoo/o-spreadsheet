@@ -459,6 +459,9 @@ export const isDateTimeFormat = memoize(function isDateTimeFormat(format: Format
 
 function applyDateTimeFormat(value: number, internalFormat: DateInternalFormat): FormattedValue {
   const jsDate = numberToJsDate(value);
+  if (isNaN(jsDate.getTime())) {
+    return value.toString();
+  }
 
   const isMeridian = internalFormat.tokens.some(
     (token) => token.type === "DATE_PART" && token.value === "a"
