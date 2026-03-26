@@ -409,6 +409,14 @@ describe("formatValue on number", () => {
     expect(() => formatValue(1234, { format: "# @", locale })).toThrow();
     expect(() => formatValue(1234, { format: "@0", locale })).toThrow();
   });
+
+  test("Format with no digit in them", () => {
+    expect(formatValue(200, { format: "[$Positive]", locale })).toBe("Positive");
+    expect(formatValue(-123, { format: '0;,"Negative"', locale })).toBe("Negative");
+    expect(formatValue(0, { format: '0;0;"Zero"', locale })).toBe("Zero");
+    expect(formatValue("test", { format: '"Smile"', locale })).toBe("test");
+    expect(formatValue("test", { format: '@"Smile"', locale })).toBe("testSmile");
+  });
 });
 
 describe("formatValue on large numbers", () => {
