@@ -43,6 +43,6 @@ export class ScorecardChart extends Component<Props, SpreadsheetChildEnv> {
       getZoomedRect(1 / zoom, canvas.getBoundingClientRect()),
       this.runtime
     );
-    drawScoreChart(config, canvas);
+    drawScoreChart(config, canvas, zoom);
   }
 }
