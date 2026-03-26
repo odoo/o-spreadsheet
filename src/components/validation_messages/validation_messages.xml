@@ -12,7 +12,7 @@
               t-key="msg_index"
               class="ps-2"
               t-att-class="{'text-truncate': props.singleBox }"
-              t-esc="msg"
+              t-out="msg"
             />
           </div>
         </div>

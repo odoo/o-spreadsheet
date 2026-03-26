@@ -10,19 +10,19 @@
         <div class="o-locale-preview mt-4 p-3 rounded border">
           <div>
             <span class="o-fw-bold me-1">Number:</span>
-            <span t-esc="numberFormatPreview"/>
+            <span t-out="numberFormatPreview"/>
           </div>
           <div>
             <span class="o-fw-bold me-1">Date:</span>
-            <span t-esc="dateFormatPreview"/>
+            <span t-out="dateFormatPreview"/>
           </div>
           <div>
             <span class="o-fw-bold me-1">Date time:</span>
-            <span t-esc="dateTimeFormatPreview"/>
+            <span t-out="dateTimeFormatPreview"/>
           </div>
           <div>
             <span class="o-fw-bold me-1">First day of week:</span>
-            <span t-esc="firstDayOfWeek"/>
+            <span t-out="firstDayOfWeek"/>
           </div>
         </div>
       </Section>

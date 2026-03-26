@@ -7,7 +7,7 @@
           class="o-select o-input o-type-selector"
           t-ref="selectRef"
           t-on-pointerdown.prevent="onPointerDown">
-          <t t-esc="selectedChartProperties.displayName"/>
+          <t t-out="selectedChartProperties.displayName"/>
         </div>
         <div class="o-type-selector-preview position-absolute">
           <t t-call="{{selectedChartProperties.preview}}"/>
@@ -21,7 +21,7 @@
         t-att-style="state.popoverStyle">
         <t t-foreach="categories" t-as="category" t-key="category">
           <t t-if="chartTypeByCategories[category]">
-            <h5 class="my-3" t-esc="category_value"/>
+            <h5 class="my-3" t-out="category_value"/>
             <div class="d-flex flex-wrap">
               <t
                 t-foreach="chartTypeByCategories[category]"

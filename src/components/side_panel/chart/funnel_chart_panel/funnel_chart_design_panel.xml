@@ -20,7 +20,7 @@
                 currentColor="item.color"
                 onColorPicked="(color) => this.updateFunnelItemColor(item_index, color)"
               />
-              <span class="ps-2" t-esc="item.label"/>
+              <span class="ps-2" t-out="item.label"/>
             </div>
           </t>
         </Section>

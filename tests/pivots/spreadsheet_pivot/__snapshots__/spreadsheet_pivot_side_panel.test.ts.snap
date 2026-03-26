@@ -109,6 +109,7 @@ exports[`Spreadsheet pivot side panel It should correctly be displayed 1`] = `
                       class="o-section-title"
                     >
                       
+                      
                       <div
                         class="d-flex flex-row justify-content-between align-items-center"
                       >
@@ -141,6 +142,7 @@ exports[`Spreadsheet pivot side panel It should correctly be displayed 1`] = `
                       class="o-section-title"
                     >
                       Range
+                      
                       
                       
                     </div>
@@ -266,6 +268,7 @@ exports[`Spreadsheet pivot side panel It should correctly be displayed 1`] = `
                 class="o-section-title"
               >
                 Display options
+                
                 
                 
               </div>
@@ -417,6 +420,7 @@ exports[`Spreadsheet pivot side panel It should correctly be displayed 1`] = `
                 class="o-section-title"
               >
                 Pivot table style
+                
                 
                 
               </div>
@@ -1073,6 +1077,7 @@ exports[`Spreadsheet pivot side panel It should display only the selection input
                       class="o-section-title"
                     >
                       
+                      
                       <div
                         class="d-flex flex-row justify-content-between align-items-center"
                       >
@@ -1105,6 +1110,7 @@ exports[`Spreadsheet pivot side panel It should display only the selection input
                       class="o-section-title"
                     >
                       Range
+                      
                       
                       
                     </div>
@@ -1214,6 +1220,7 @@ exports[`Spreadsheet pivot side panel It should display only the selection input
                 class="o-section-title"
               >
                 Display options
+                
                 
                 
               </div>
@@ -1365,6 +1372,7 @@ exports[`Spreadsheet pivot side panel It should display only the selection input
                 class="o-section-title"
               >
                 Pivot table style
+                
                 
                 
               </div>

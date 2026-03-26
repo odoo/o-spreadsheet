@@ -19,7 +19,7 @@
             <span
               class="text-danger sp_range_error_message"
               t-if="shouldDisplayInvalidRangeError"
-              t-esc="pivot.invalidRangeMessage"
+              t-out="pivot.invalidRangeMessage"
             />
           </Section>
 

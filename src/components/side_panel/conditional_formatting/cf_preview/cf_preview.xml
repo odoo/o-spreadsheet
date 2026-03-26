@@ -29,10 +29,10 @@
       <div class="o-cf-preview-description me-3 overflow-auto">
         <div class="o-cf-preview-ruletype">
           <div class="o-cf-preview-description-rule o-fw-bold text-truncate">
-            <t t-esc="description"/>
+            <t t-out="description"/>
           </div>
         </div>
-        <div class="o-cf-preview-range text-truncate" t-esc="cf.ranges"/>
+        <div class="o-cf-preview-range text-truncate" t-out="cf.ranges.join()"/>
       </div>
       <div class="o-cf-delete ms-auto">
         <div

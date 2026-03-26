@@ -206,6 +206,7 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
                       type="number"
                     />
                     %
+                    
                     <span>
                       <div
                         class="o-icon fa-small"
@@ -333,6 +334,7 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
                     min="1"
                     type="number"
                   />
+                  
                   
                   <span>
                     <div
@@ -1292,6 +1294,7 @@ exports[`components take the small screen into account 1`] = `
                       type="number"
                     />
                     %
+                    
                     <span>
                       <div
                         class="o-icon fa-small"
@@ -1419,6 +1422,7 @@ exports[`components take the small screen into account 1`] = `
                     min="1"
                     type="number"
                   />
+                  
                   
                   <span>
                     <div

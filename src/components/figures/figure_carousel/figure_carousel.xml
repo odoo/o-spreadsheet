@@ -11,7 +11,7 @@
         t-att-style="headerStyle">
         <div
           class="o-carousel-title text-truncate flex-shrink-0 pe-2"
-          t-esc="title"
+          t-out="title"
           t-att-title="title"
           t-att-style="titleStyle"
         />
@@ -21,7 +21,7 @@
               class="o-carousel-tab text-truncate px-2 mt-1 flex-shrink-0"
               t-att-class="{ 'selected': isItemSelected(item) }"
               t-att-data-type="item.type"
-              t-esc="getItemTitle(item)"
+              t-out="getItemTitle(item)"
               t-on-click.stop="() => this.onCarouselTabClick(item)"
             />
           </t>

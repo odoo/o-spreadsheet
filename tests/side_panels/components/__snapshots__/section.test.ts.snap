@@ -14,6 +14,7 @@ exports[`Section Can render a section with a title props 1`] = `
         My title
         
         
+        
       </div>
       
       <div
@@ -38,6 +39,7 @@ exports[`Section Can render a section with a title slot 1`] = `
       <div
         class="o-section-title"
       >
+        
         
         My title
         
@@ -66,6 +68,7 @@ exports[`Section Can render a section with both title props and slot 1`] = `
         class="o-section-title"
       >
         My title from props
+        
         My title from slot
         
       </div>

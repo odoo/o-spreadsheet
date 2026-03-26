@@ -7,7 +7,7 @@
       t-att-class="{'selected': this.props.isSelected}">
       <t t-set="value">
         <t t-if="this.props.value === ''">(Blanks)</t>
-        <t t-else="" t-esc="this.props.value"/>
+        <t t-else="" t-out="this.props.value"/>
       </t>
       <!-- toString because t-set with a body creates a LazyValue instead of a string -->
       <Checkbox

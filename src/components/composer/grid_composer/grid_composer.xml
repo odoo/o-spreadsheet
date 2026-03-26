@@ -4,7 +4,7 @@
       class="o-cell-reference rounded"
       t-if="shouldDisplayCellReference"
       t-att-style="cellReferenceStyle"
-      t-esc="cellReference"
+      t-out="cellReference"
     />
     <div class="o-grid-composer" t-att-style="containerStyle" t-ref="gridComposer">
       <Composer t-props="composerProps"/>

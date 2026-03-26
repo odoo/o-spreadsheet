@@ -15,7 +15,7 @@
         target="_blank"
         t-on-click.prevent="openLink"
         t-att-title="link.url">
-        <t t-esc="getUrlRepresentation(link)"/>
+        <t t-out="getUrlRepresentation(link)"/>
       </a>
       <a
         t-else=""
@@ -23,7 +23,7 @@
         t-on-click.prevent="openLink"
         t-on-auxclick.prevent="openLink"
         t-att-title="getUrlRepresentation(link)">
-        <t t-esc="getUrlRepresentation(link)"/>
+        <t t-out="getUrlRepresentation(link)"/>
       </a>
       <span
         t-if="!env.model.getters.isReadonly()"

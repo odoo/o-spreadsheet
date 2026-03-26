@@ -9,7 +9,7 @@
       t-att-title="props.title"
       t-on-pointerdown="onMouseDown"
       t-on-keydown="onKeyDown"
-      t-esc="selectedLabel"
+      t-out="selectedLabel"
     />
 
     <Popover t-if="state.isPopoverOpen" t-props="popoverProps">
@@ -24,7 +24,7 @@
               'o-active': value.value === activeValue
             }"
             t-att-data-id="value.value"
-            t-esc="value.label"
+            t-out="value.label"
             t-att-title="value.label"
             t-on-click="() => this.onOptionClick(value.value)"
             t-on-mouseenter="() => this.onOptionHover(value.value)"

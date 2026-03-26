@@ -22,7 +22,7 @@
               t-att-style="cell.style"
               t-att-class="{ o_missing_value: cell.isMissing }"
               t-on-click="() => props.onCellClicked(cell.formula)">
-              <t t-esc="cell.value"/>
+              <t t-out="cell.value"/>
             </th>
           </t>
         </tr>
@@ -32,13 +32,13 @@
               t-att-style="row.style"
               t-att-class="{ o_missing_value: row.isMissing }"
               t-on-click="() => props.onCellClicked(row.formula)">
-              <t t-esc="row.value"/>
+              <t t-out="row.value"/>
             </th>
             <t t-foreach="tableData.values" t-as="col" t-key="col_index">
               <td
                 t-att-class="{ o_missing_value: col[row_index].isMissing }"
                 t-on-click="() => props.onCellClicked(col[row_index].formula)">
-                <t t-esc="col[row_index].value"/>
+                <t t-out="col[row_index].value"/>
               </td>
             </t>
           </tr>

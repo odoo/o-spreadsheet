@@ -38,8 +38,8 @@
           <table class="w-100">
             <t t-foreach="examples" t-as="example" t-key="example_index">
               <tr>
-                <td class="w-25 pe-3 o-fw-bold" t-esc="example.label"/>
-                <td class="w-75 text-truncate" t-esc="example.value"/>
+                <td class="w-25 pe-3 o-fw-bold" t-out="example.label"/>
+                <td class="w-75 text-truncate" t-out="example.value"/>
               </tr>
             </t>
           </table>

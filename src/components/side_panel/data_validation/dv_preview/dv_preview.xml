@@ -5,8 +5,8 @@
       t-on-click="onPreviewClick"
       t-ref="dvPreview">
       <div>
-        <div class="o-dv-preview-description o-fw-bold text-truncate" t-esc="descriptionString"/>
-        <div class="o-dv-preview-ranges text-truncate" t-esc="rangesString"/>
+        <div class="o-dv-preview-description o-fw-bold text-truncate" t-out="descriptionString"/>
+        <div class="o-dv-preview-ranges text-truncate" t-out="rangesString"/>
       </div>
       <div
         class="o-dv-delete-button d-flex align-items-center o-button-icon px-3"

@@ -198,6 +198,7 @@ exports[`TopBar component simple rendering 1`] = `
                   type="number"
                 />
                 %
+                
                 <span>
                   <div
                     class="o-icon fa-small"
@@ -325,6 +326,7 @@ exports[`TopBar component simple rendering 1`] = `
                 min="1"
                 type="number"
               />
+              
               
               <span>
                 <div

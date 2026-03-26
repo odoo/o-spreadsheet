@@ -14,7 +14,7 @@
             t-att-class="{ 'selected': state.selectedCategory === category }"
             t-on-click="() => state.selectedCategory = category"
             t-att-data-id="category"
-            t-esc="categories[category_value]"
+            t-out="categories[category_value]"
           />
         </div>
         <div

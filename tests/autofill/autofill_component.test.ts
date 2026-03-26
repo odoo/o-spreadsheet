@@ -209,7 +209,7 @@ describe("Autofill component", () => {
     const autofill = fixture.querySelector(".o-autofill");
     class CustomTooltip extends Component {
       static template = xml/* xml */ `
-        <div class="custom_tooltip" t-esc="props.content"/>
+        <div class="custom_tooltip" t-out="props.content"/>
       `;
       static props = { content: String };
     }

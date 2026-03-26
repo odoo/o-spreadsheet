@@ -7,7 +7,7 @@
                        font-style:{{currentStyle.italic?'italic':'normal'}};
                        color:{{currentStyle.textColor || '#000'}};
                        background-color:{{currentStyle.fillColor}};">
-      <t t-if="previewText" t-esc="previewText"/>
+      <t t-if="previewText" t-out="previewText"/>
       <t t-else="">Preview text</t>
     </div>
   </t>

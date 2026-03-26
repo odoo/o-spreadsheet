@@ -15,7 +15,7 @@
         t-on-change="onChange"
         t-on-click.stop=""
       />
-      <span class="text-truncate" t-if="props.label" t-esc="props.label"/>
+      <span class="text-truncate" t-if="props.label" t-out="props.label"/>
     </label>
   </t>
 </templates>
