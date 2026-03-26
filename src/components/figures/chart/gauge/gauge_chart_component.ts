@@ -54,7 +54,8 @@ export class GaugeChartComponent extends Component<Props, SpreadsheetChildEnv> {
           animation = this.drawGaugeWithAnimation();
           this.animationStore?.disableAnimationForChart(this.animationChartId, "gauge");
         } else {
-          drawGaugeChart(this.canvasEl, this.runtime);
+          const zoom = this.env.model.getters.getViewportZoomLevel();
+          drawGaugeChart(this.canvasEl, this.runtime, zoom);
         }
 
         lastRuntime = this.runtime;
