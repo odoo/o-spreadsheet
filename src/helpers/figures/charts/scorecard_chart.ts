@@ -310,7 +310,8 @@ type Canvas2DContext = CanvasRenderingContext2D | OffscreenCanvasRenderingContex
 
 export function drawScoreChart(
   structure: ScorecardChartConfig,
-  canvas: HTMLCanvasElement | OffscreenCanvas
+  canvas: HTMLCanvasElement | OffscreenCanvas,
+  zoom: number = 1
 ) {
   const ctx = canvas.getContext("2d") as Canvas2DContext;
   if (!ctx) {
@@ -318,9 +319,9 @@ export function drawScoreChart(
   }
   const dpr = typeof globalThis.devicePixelRatio === "number" ? globalThis.devicePixelRatio : 1;
 
-  canvas.width = dpr * structure.canvas.width;
-  canvas.height = dpr * structure.canvas.height;
-  ctx.scale(dpr, dpr);
+  canvas.width = dpr * structure.canvas.width * zoom;
+  canvas.height = dpr * structure.canvas.height * zoom;
+  ctx.scale(dpr * zoom, dpr * zoom);
   const availableWidth = structure.canvas.width - CHART_PADDING;
 
   ctx.fillStyle = structure.canvas.backgroundColor;
