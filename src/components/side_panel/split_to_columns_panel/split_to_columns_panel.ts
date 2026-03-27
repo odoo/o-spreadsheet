@@ -2,8 +2,9 @@ import { SplitToColumnsTerms } from "@odoo/o-spreadsheet-engine/components/trans
 import { NEWLINE } from "@odoo/o-spreadsheet-engine/constants";
 import { _t } from "@odoo/o-spreadsheet-engine/translation";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
-import { Component, onMounted, proxy, useEffect } from "@odoo/owl";
+import { Component, onMounted, proxy } from "@odoo/owl";
 import { interactiveSplitToColumns } from "../../../helpers/ui/split_to_columns_interactive";
+import { useLayoutEffect } from "../../../owl3_compatibility_layer";
 import { useStore } from "../../../store_engine";
 import { CommandResult, ValueAndLabel } from "../../../types/index";
 import { Select } from "../../select/select";
@@ -44,7 +45,7 @@ export class SplitIntoColumnsPanel extends Component<Props, SpreadsheetChildEnv>
     const composerFocusStore = useStore(ComposerFocusStore);
     // The feature makes no sense if we are editing a cell, because then the selection isn't active
     // Stop the edition when the panel is mounted, and close the panel if the user start editing a cell
-    useEffect(
+    useLayoutEffect(
       (editionMode) => {
         if (editionMode !== "inactive") {
           this.props.onCloseSidePanel();

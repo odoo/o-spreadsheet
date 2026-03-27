@@ -16,7 +16,6 @@ import {
   onMounted,
   proxy,
   useChildSubEnv,
-  useEffect,
   useExternalListener,
   useRef,
 } from "@odoo/owl";
@@ -36,6 +35,7 @@ import {
   interactivePaste,
   interactivePasteFromOS,
 } from "../../helpers/ui/paste_interactive";
+import { useLayoutEffect } from "../../owl3_compatibility_layer";
 import { cellMenuRegistry } from "../../registries/menus/cell_menu_registry";
 import { colMenuRegistry } from "../../registries/menus/col_menu_registry";
 import {
@@ -198,7 +198,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     });
     this.cellPopovers = useStore(CellPopoverStore);
 
-    useEffect(
+    useLayoutEffect(
       (isMainPanelOpen, isSecondaryPanelOpen) => {
         if (!isMainPanelOpen && !isSecondaryPanelOpen) {
           this.DOMFocusableElementStore.focus();

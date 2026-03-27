@@ -11,13 +11,13 @@ import {
   onPatched,
   onWillUnmount,
   onWillUpdateProps,
-  useEffect,
   useExternalListener,
   useRef,
   useSubEnv,
 } from "@odoo/owl";
 import { batched } from "../../helpers";
 import { ImageProvider } from "../../helpers/figures/images/image_provider";
+import { useLayoutEffect } from "../../owl3_compatibility_layer";
 import { Store, useStore, useStoreProvider } from "../../store_engine";
 import { ModelStore } from "../../stores";
 import { NotificationStore } from "../../stores/notification_store";
@@ -156,7 +156,7 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
 
     this.notificationStore.updateNotificationCallbacks({ ...this.props });
 
-    useEffect(() => {
+    useLayoutEffect(() => {
       /**
        * Only refocus the grid if the active element is not a child of the spreadsheet
        * (i.e. activeElement is outside of the spreadsheetRef component)

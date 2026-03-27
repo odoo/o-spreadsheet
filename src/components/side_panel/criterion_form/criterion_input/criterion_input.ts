@@ -2,7 +2,8 @@ import { canonicalizeContent } from "@odoo/o-spreadsheet-engine/helpers/locale";
 import { criterionEvaluatorRegistry } from "@odoo/o-spreadsheet-engine/registries/criterion_registry";
 import { _t } from "@odoo/o-spreadsheet-engine/translation";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
-import { Component, proxy, useEffect, useRef } from "@odoo/owl";
+import { Component, proxy, useRef } from "@odoo/owl";
+import { useLayoutEffect } from "../../../../owl3_compatibility_layer";
 import { DataValidationCriterionType } from "../../../../types";
 import { StandaloneComposer } from "../../../composer/standalone_composer/standalone_composer";
 
@@ -39,7 +40,7 @@ export class CriterionInput extends Component<Props, SpreadsheetChildEnv> {
   inputRef = useRef("input");
 
   setup() {
-    useEffect(
+    useLayoutEffect(
       () => {
         if (this.props.focused && this.inputRef.el) {
           this.inputRef.el.focus();

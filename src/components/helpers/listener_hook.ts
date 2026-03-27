@@ -1,4 +1,5 @@
-import { proxy, useEffect } from "@odoo/owl";
+import { proxy } from "@odoo/owl";
+import { useLayoutEffect } from "../../owl3_compatibility_layer";
 import { Ref } from "../../types";
 
 /**
@@ -13,7 +14,7 @@ export function useRefListener(
   ref: Ref<HTMLElement>,
   ...listener: Parameters<typeof addEventListener>
 ) {
-  useEffect(
+  useLayoutEffect(
     (el: HTMLElement | null) => {
       el?.addEventListener(...listener);
       return () => el?.removeEventListener(...listener);
@@ -32,7 +33,7 @@ export function useHoveredElement(ref: Ref<HTMLElement>) {
   const resizeObserver = new ResizeObserver(() => {
     state.hovered = false;
   });
-  useEffect(
+  useLayoutEffect(
     () => {
       resizeObserver.observe(ref.el!);
       return () => {

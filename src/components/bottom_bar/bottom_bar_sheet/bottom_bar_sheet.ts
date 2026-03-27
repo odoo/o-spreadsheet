@@ -6,12 +6,12 @@ import {
   onPatched,
   onWillUnmount,
   proxy,
-  useEffect,
   useExternalListener,
   useRef,
 } from "@odoo/owl";
 import { throttle } from "../../../helpers";
 import { interactiveRenameSheet } from "../../../helpers/ui/sheet_interactive";
+import { useLayoutEffect } from "../../../owl3_compatibility_layer";
 import { MenuItemRegistry } from "../../../registries/menu_items_registry";
 import { getSheetMenuRegistry } from "../../../registries/menus";
 import { Store, useStore } from "../../../store_engine";
@@ -80,7 +80,7 @@ export class BottomBarSheet extends Component<Props, SpreadsheetChildEnv> {
     this.DOMFocusableElementStore = useStore(DOMFocusableElementStore);
     useExternalListener(window, "click", () => (this.state.pickerOpened = false));
 
-    useEffect(
+    useLayoutEffect(
       (sheetId) => {
         if (this.props.sheetId === sheetId) {
           this.scrollToSheet();

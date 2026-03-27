@@ -1,6 +1,7 @@
 import { cssPropertiesToCss } from "@odoo/o-spreadsheet-engine/components/helpers/css";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
-import { Component, proxy, useEffect, useRef } from "@odoo/owl";
+import { Component, proxy, useRef } from "@odoo/owl";
+import { useLayoutEffect } from "../../../owl3_compatibility_layer";
 import { figureRegistry } from "../../../registries/figures_registry";
 import {
   AnchorOffset,
@@ -116,7 +117,7 @@ export class FigureComponent extends Component<Props, SpreadsheetChildEnv> {
   setup() {
     const borderWidth = figureRegistry.get(this.props.figureUI.tag).borderWidth;
     this.borderWidth = borderWidth !== undefined ? borderWidth : BORDER_WIDTH;
-    useEffect(
+    useLayoutEffect(
       (selectedFigureId: UID | null, thisFigureId: UID, el: HTMLElement | null) => {
         if (selectedFigureId === thisFigureId) {
           /** Scrolling on a newly inserted figure that overflows outside the viewport

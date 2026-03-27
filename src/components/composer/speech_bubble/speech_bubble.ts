@@ -1,5 +1,6 @@
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
-import { Component, useEffect, useRef } from "@odoo/owl";
+import { Component, useRef } from "@odoo/owl";
+import { useLayoutEffect } from "../../../owl3_compatibility_layer";
 import { Rect } from "../../../types";
 import { getBoundingRectAsPOJO } from "../../helpers/dom_helpers";
 import { useSpreadsheetRect } from "../../helpers/position_hook";
@@ -20,7 +21,7 @@ export class SpeechBubble extends Component<Props, SpreadsheetChildEnv> {
   private bubbleRef = useRef("bubble");
 
   setup(): void {
-    useEffect(() => {
+    useLayoutEffect(() => {
       const el = this.bubbleRef.el;
       if (!el) {
         return;

@@ -1,7 +1,8 @@
 import { CSSProperties } from "@odoo/o-spreadsheet-engine/types/misc";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
-import { Component, onMounted, onWillUnmount, useEffect, useRef } from "@odoo/owl";
+import { Component, onMounted, onWillUnmount, useRef } from "@odoo/owl";
 import { rectIntersection } from "../../helpers/rectangle";
+import { useLayoutEffect } from "../../owl3_compatibility_layer";
 import { DOMCoordinates, DOMDimension, Pixel, Rect } from "../../types";
 import { PopoverPropsPosition } from "../../types/cell_popovers";
 import { usePopoverContainer, useSpreadsheetRect } from "../helpers/position_hook";
@@ -75,9 +76,9 @@ export class Popover extends Component<PopoverProps, SpreadsheetChildEnv> {
       resizeObserver.disconnect();
     });
 
-    // useEffect occurs after the DOM is created and the element width/height are computed, but before
+    // useLayoutEffect occurs after the DOM is created and the element width/height are computed, but before
     // the element in rendered, so we can still set its position
-    useEffect(this.computePopoverPosition.bind(this));
+    useLayoutEffect(this.computePopoverPosition.bind(this));
   }
 
   private computePopoverPosition() {

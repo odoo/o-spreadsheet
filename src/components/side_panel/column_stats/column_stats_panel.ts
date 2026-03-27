@@ -1,7 +1,7 @@
 import { Highlight } from "@odoo/o-spreadsheet-engine";
 import { _t } from "@odoo/o-spreadsheet-engine/translation";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
-import { Component, onWillUnmount, proxy, useEffect, useRef } from "@odoo/owl";
+import { Component, onWillUnmount, proxy, useRef } from "@odoo/owl";
 import { Chart, ChartConfiguration } from "chart.js/auto";
 import {
   clipTextWithEllipsis,
@@ -9,6 +9,7 @@ import {
   numberToLetters,
   positionToZone,
 } from "../../../helpers";
+import { useLayoutEffect } from "../../../owl3_compatibility_layer";
 import { Store, useStore } from "../../../store_engine";
 import { useHighlights } from "../../helpers/highlight_hook";
 import { NumberInput } from "../../number_input/number_input";
@@ -40,7 +41,7 @@ export class ColumnStatsPanel extends Component<Props, SpreadsheetChildEnv> {
     this.store = useStore(ColumnStatisticsStore);
     useHighlights(this);
     onWillUnmount(() => this.destroyChart());
-    useEffect(
+    useLayoutEffect(
       () => {
         this.updateChart();
       },
