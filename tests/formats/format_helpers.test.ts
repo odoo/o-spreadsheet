@@ -1073,6 +1073,7 @@ describe("rounding format", () => {
   test("Round multi part format", () => {
     expect(roundFormat("0.00\\€;$0.#; 0.00 ;@")).toBe("0\\€;$0; 0 ;@");
     expect(roundFormat("dd/mm/yyyy;0.#")).toBe("dd/mm/yyyy;0");
+    expect(roundFormat(" - ; - ; - ; - ")).toBe(" - ; - ; - ; - ");
   });
 });
 
