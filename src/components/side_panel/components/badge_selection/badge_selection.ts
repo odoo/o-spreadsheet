@@ -1,7 +1,6 @@
-import { Component } from "@odoo/owl";
-
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 
+import { Component } from "../../../../owl3_compatibility_layer";
 interface Choice {
   value: string;
   label: string;

@@ -3,7 +3,6 @@ import {
   MOVING_AVERAGE_TREND_LINE_XAXIS_ID,
   TREND_LINE_XAXIS_ID,
 } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_common";
-import { useRef } from "@odoo/owl";
 import { Chart, ChartConfiguration } from "chart.js/auto";
 import { clip } from "../../../../../helpers";
 import { Store, useStore } from "../../../../../store_engine";
@@ -12,6 +11,7 @@ import { withZoom } from "../../../../helpers/zoom";
 import { ChartJsComponent } from "../chartjs";
 import { Boundaries, ZoomableChartStore } from "./zoomable_chart_store";
 
+import { useRef } from "../../../../../owl3_compatibility_layer";
 export class ZoomableChartJsComponent extends ChartJsComponent {
   static template = "o-spreadsheet-ZoomableChartJsComponent";
 

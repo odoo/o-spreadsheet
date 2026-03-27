@@ -1,5 +1,10 @@
 <templates>
   <t t-name="o-spreadsheet-ClientTag">
-    <div t-if="props.active" class="o-client-tag" t-att-style="tagStyle" t-out="props.name"/>
+    <div
+      t-if="this.props.active"
+      class="o-client-tag"
+      t-att-style="this.tagStyle"
+      t-out="this.props.name"
+    />
   </t>
 </templates>

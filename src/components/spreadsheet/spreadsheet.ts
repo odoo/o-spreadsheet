@@ -5,19 +5,16 @@ import { Model } from "@odoo/o-spreadsheet-engine/model";
 import { _t } from "@odoo/o-spreadsheet-engine/translation";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { NotificationStoreMethods } from "@odoo/o-spreadsheet-engine/types/stores/notification_store_methods";
-import {
-  Component,
-  onMounted,
-  onPatched,
-  onWillUnmount,
-  onWillUpdateProps,
-  useEffect,
-  useExternalListener,
-  useRef,
-  useSubEnv,
-} from "@odoo/owl";
+import { onMounted, onPatched, onWillUnmount, onWillUpdateProps } from "@odoo/owl";
 import { batched } from "../../helpers";
 import { ImageProvider } from "../../helpers/figures/images/image_provider";
+import {
+  Component,
+  useExternalListener,
+  useLayoutEffect,
+  useRef,
+  useSubEnv,
+} from "../../owl3_compatibility_layer";
 import { Store, useStore, useStoreProvider } from "../../store_engine";
 import { ModelStore } from "../../stores";
 import { NotificationStore } from "../../stores/notification_store";
@@ -156,7 +153,7 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
 
     this.notificationStore.updateNotificationCallbacks({ ...this.props });
 
-    useEffect(() => {
+    useLayoutEffect(() => {
       /**
        * Only refocus the grid if the active element is not a child of the spreadsheet
        * (i.e. activeElement is outside of the spreadsheetRef component)

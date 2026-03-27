@@ -1,6 +1,7 @@
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
-import { Component, useRef, useState } from "@odoo/owl";
+import { proxy } from "@odoo/owl";
 import { ActionSpec, createActions } from "../../../../actions/action";
+import { Component, useRef } from "../../../../owl3_compatibility_layer";
 import { MenuMouseEvent } from "../../../../types";
 import { getBoundingRectAsPOJO } from "../../../helpers/dom_helpers";
 import { MenuPopover, MenuState } from "../../../menu_popover/menu_popover";
@@ -17,7 +18,7 @@ export class CogWheelMenu extends Component<Props, SpreadsheetChildEnv> {
   };
 
   private buttonRef = useRef("button");
-  private menuState: MenuState = useState({ isOpen: false, anchorRect: null, menuItems: [] });
+  private menuState: MenuState = proxy({ isOpen: false, anchorRect: null, menuItems: [] });
 
   private menuId = this.env.model.uuidGenerator.uuidv4();
 

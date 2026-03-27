@@ -1,7 +1,8 @@
 import { getDateTimeFormat, isValidLocale } from "@odoo/o-spreadsheet-engine/helpers/locale";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
-import { Component, onWillStart } from "@odoo/owl";
+import { onWillStart } from "@odoo/owl";
 import { DAYS, deepEquals, formatValue } from "../../../helpers";
+import { Component } from "../../../owl3_compatibility_layer";
 import { Locale, LocaleCode, ValueAndLabel } from "../../../types";
 import { Select } from "../../select/select";
 import { ValidationMessages } from "../../validation_messages/validation_messages";

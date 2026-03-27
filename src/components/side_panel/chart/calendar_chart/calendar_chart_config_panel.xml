@@ -3,18 +3,18 @@
     <div>
       <ChartDataSeries
         ranges="this.getDataSeriesRanges()"
-        onSelectionChanged.bind="onDataSeriesRangesChanged"
-        onSelectionConfirmed.bind="onDataSeriesConfirmed"
-        onSelectionReordered.bind="onDataSeriesReordered"
-        onSelectionRemoved.bind="onDataSeriesRemoved"
+        onSelectionChanged.bind="this.onDataSeriesRangesChanged"
+        onSelectionConfirmed.bind="this.onDataSeriesConfirmed"
+        onSelectionReordered.bind="this.onDataSeriesReordered"
+        onSelectionRemoved.bind="this.onDataSeriesRemoved"
         maxNumberOfUsedRanges="1"
         canChangeDatasetOrientation="false"
       />
       <ChartLabelRange
         range="this.getLabelRange()"
-        isInvalid="isLabelInvalid"
-        onSelectionChanged.bind="onLabelRangeChanged"
-        onSelectionConfirmed.bind="onLabelRangeConfirmed"
+        isInvalid="this.isLabelInvalid"
+        onSelectionChanged.bind="this.onLabelRangeChanged"
+        onSelectionConfirmed.bind="this.onLabelRangeConfirmed"
         options="this.getLabelRangeOptions()"
         title.translate="Date range"
       />
@@ -23,8 +23,8 @@
         <div class="d-flex">
           <span class="w-100">Horizontal axis</span>
           <Select
-            selectedValue="getGroupByType('horizontal') || ''"
-            values="getGroupByOptions()"
+            selectedValue="this.getGroupByType('horizontal') || ''"
+            values="this.getGroupByOptions()"
             class="'o-horizontal-group-by'"
             onChange="(value) => this.updateGroupBy('horizontal', value)"
           />
@@ -32,15 +32,15 @@
         <div class="d-flex">
           <span class="w-100">Vertical axis</span>
           <Select
-            selectedValue="getGroupByType('vertical') || ''"
-            values="getGroupByOptions()"
+            selectedValue="this.getGroupByType('vertical') || ''"
+            values="this.getGroupByOptions()"
             class="'o-vertical-group-by'"
             onChange="(value) => this.updateGroupBy('vertical', value)"
           />
         </div>
       </Section>
 
-      <ChartErrorSection t-if="errorMessages.length" messages="errorMessages"/>
+      <ChartErrorSection t-if="this.errorMessages.length" messages="this.errorMessages"/>
     </div>
   </t>
 </templates>

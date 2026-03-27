@@ -1,5 +1,4 @@
 import { Registry } from "@odoo/o-spreadsheet-engine/registries/registry";
-import { Component } from "@odoo/owl";
 import { BarConfigPanel } from "./bar_chart/bar_chart_config_panel";
 import { BarChartDesignPanel } from "./bar_chart/bar_chart_design_panel";
 import { GenericChartConfigPanel } from "./building_blocks/generic_side_panel/config_panel";
@@ -25,6 +24,7 @@ import { SunburstChartDesignPanel } from "./sunburst_chart/sunburst_chart_design
 import { TreeMapChartDesignPanel } from "./treemap_chart/treemap_chart_design_panel";
 import { WaterfallChartDesignPanel } from "./waterfall_chart/waterfall_chart_design_panel";
 
+import { Component } from "../../../owl3_compatibility_layer";
 export { BarConfigPanel } from "./bar_chart/bar_chart_config_panel";
 export { GenericChartConfigPanel } from "./building_blocks/generic_side_panel/config_panel";
 export { ChartWithAxisDesignPanel } from "./chart_with_axis/design_panel";

@@ -1,6 +1,7 @@
 import { CHART_TITLE_FONT_SIZE } from "@odoo/o-spreadsheet-engine/constants";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
-import { Component, useState } from "@odoo/owl";
+import { proxy } from "@odoo/owl";
+import { Component } from "../../../../../owl3_compatibility_layer";
 import { ChartDefinition, Color, TitleDesign } from "../../../../../types";
 import { SidePanelCollapsible } from "../../../components/collapsible/side_panel_collapsible";
 import { RadioSelection } from "../../../components/radio_selection/radio_selection";
@@ -38,7 +39,7 @@ export class GeneralDesignEditor extends Component<Props, SpreadsheetChildEnv> {
   private state!: GeneralDesignEditorState;
 
   setup() {
-    this.state = useState<GeneralDesignEditorState>({
+    this.state = proxy<GeneralDesignEditorState>({
       activeTool: "",
     });
   }

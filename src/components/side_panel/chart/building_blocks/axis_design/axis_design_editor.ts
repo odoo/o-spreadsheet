@@ -8,9 +8,10 @@ import {
   LineChartRuntime,
 } from "@odoo/o-spreadsheet-engine/types/chart";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
-import { Component, useState } from "@odoo/owl";
+import { proxy } from "@odoo/owl";
 import { deepCopy, formatValue } from "../../../../../helpers";
 import { getDefinedAxis } from "../../../../../helpers/figures/charts";
+import { Component } from "../../../../../owl3_compatibility_layer";
 import {
   AxisDesign,
   ChartWithAxisDefinition,
@@ -42,7 +43,7 @@ export class AxisDesignEditor extends Component<Props, SpreadsheetChildEnv> {
   static components = { Section, ChartTitle, BadgeSelection, Checkbox, NumberInput, DateInput };
   static props = { chartId: String, definition: Object, updateChart: Function, axesList: Array };
 
-  state: { currentAxis: AxisId } = useState({ currentAxis: "x" });
+  state: { currentAxis: AxisId } = proxy({ currentAxis: "x" });
 
   defaultFontSize = CHART_AXIS_TITLE_FONT_SIZE;
 

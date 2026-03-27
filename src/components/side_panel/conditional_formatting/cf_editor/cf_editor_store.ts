@@ -3,8 +3,9 @@ import { CfTerms } from "@odoo/o-spreadsheet-engine/components/translations_term
 import { DEFAULT_COLOR_SCALE_MIDPOINT_COLOR } from "@odoo/o-spreadsheet-engine/constants";
 import { canonicalizeCFRule } from "@odoo/o-spreadsheet-engine/helpers/locale";
 import { hexaToInt } from "@odoo/o-spreadsheet-engine/xlsx/conversion";
-import { ComponentConstructor, useState } from "@odoo/owl";
+import { proxy } from "@odoo/owl";
 import { colorNumberToHex, colorToNumber, isColorValid, rangeReference } from "../../../../helpers";
+import { ComponentConstructor } from "../../../../owl3_compatibility_layer";
 import {
   criterionComponentRegistry,
   getCriterionValueAndLabels,
@@ -72,7 +73,7 @@ export class ConditionalFormattingEditorStore extends SpreadsheetStore {
   constructor(get: Get, cf: ConditionalFormat, isNewCf: boolean) {
     super(get);
     this.cfId = cf.id;
-    this.state = useState<State>({
+    this.state = proxy<State>({
       errors: [],
       currentCFType: cf.rule.type,
       ranges: cf.ranges,

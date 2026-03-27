@@ -118,6 +118,7 @@ import {
   makeFieldProposal,
 } from "./helpers/pivot/pivot_composer_helpers";
 import { supportedPivotPositionalFormulaRegistry } from "./helpers/pivot/pivot_positional_formula_registry";
+import { Component, EnvPlugin, useExternalListener } from "./owl3_compatibility_layer";
 
 import { ChartTerms } from "@odoo/o-spreadsheet-engine/components/translations_terms";
 import { arg } from "@odoo/o-spreadsheet-engine/functions/arguments";
@@ -494,6 +495,12 @@ export const hooks = {
   useDragAndDropListItems,
   useHighlights,
   useHighlightsOnHover,
+};
+
+export const compatibility = {
+  Component,
+  useExternalListener,
+  EnvPlugin,
 };
 
 export const stores = {

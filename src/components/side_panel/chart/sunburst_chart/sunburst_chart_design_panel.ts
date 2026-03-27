@@ -5,7 +5,6 @@ import {
   SunburstChartRuntime,
 } from "@odoo/o-spreadsheet-engine/types/chart";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
-import { Component } from "@odoo/owl";
 import { deepCopy } from "../../../../helpers";
 import { Checkbox } from "../../components/checkbox/checkbox";
 import { SidePanelCollapsible } from "../../components/collapsible/side_panel_collapsible";
@@ -19,6 +18,7 @@ import { ChartShowValues } from "../building_blocks/show_values/show_values";
 import { TextStyler } from "../building_blocks/text_styler/text_styler";
 import { ChartSidePanelProps, ChartSidePanelPropsObject } from "../common";
 
+import { Component } from "../../../../owl3_compatibility_layer";
 export class SunburstChartDesignPanel extends Component<
   ChartSidePanelProps<SunburstChartDefinition>,
   SpreadsheetChildEnv

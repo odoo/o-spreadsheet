@@ -1,8 +1,9 @@
 import { COMPOSER_ASSISTANT_COLOR } from "@odoo/o-spreadsheet-engine/constants";
 import { PivotField } from "@odoo/o-spreadsheet-engine/types/pivot";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
-import { Component, useExternalListener, useRef, useState } from "@odoo/owl";
+import { proxy } from "@odoo/owl";
 import { fuzzyLookup } from "../../../../../helpers";
+import { Component, useExternalListener, useRef } from "../../../../../owl3_compatibility_layer";
 import {
   AutoCompleteProposal,
   AutoCompleteProvider,
@@ -29,8 +30,8 @@ export class AddDimensionButton extends Component<Props, SpreadsheetChildEnv> {
   };
 
   private buttonRef = useRef("button");
-  private popover = useState({ isOpen: false });
-  private search = useState({ input: "" });
+  private popover = proxy({ isOpen: false });
+  private search = proxy({ input: "" });
   private autoComplete!: Store<AutoCompleteStore>;
 
   // TODO navigation keys. (this looks a lot like auto-complete list. Could maybe be factorized)

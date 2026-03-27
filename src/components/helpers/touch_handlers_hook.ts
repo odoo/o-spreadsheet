@@ -1,7 +1,7 @@
-import { useExternalListener } from "@odoo/owl";
 import { Ref } from "../../types";
 import { useRefListener } from "./listener_hook";
 
+import { useExternalListener } from "../../owl3_compatibility_layer";
 const friction = 0.95;
 
 const verticalScrollFactor = 1;

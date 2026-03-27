@@ -2,9 +2,10 @@ import { BACKGROUND_CHART_COLOR } from "@odoo/o-spreadsheet-engine/constants";
 import { _t } from "@odoo/o-spreadsheet-engine/translation";
 import { GeoChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/geo_chart";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
-import { Component, useState } from "@odoo/owl";
+import { proxy } from "@odoo/owl";
 import { getChartMenuActions } from "../../../../actions/figure_menu_actions";
 import { isDefined } from "../../../../helpers";
+import { Component } from "../../../../owl3_compatibility_layer";
 import { Store, useStore } from "../../../../store_engine";
 import { UID, ValueAndLabel } from "../../../../types";
 import { FullScreenFigureStore } from "../../../full_screen_figure/full_screen_figure_store";
@@ -33,7 +34,7 @@ export class ChartDashboardMenu extends Component<Props, SpreadsheetChildEnv> {
 
   private fullScreenFigureStore!: Store<FullScreenFigureStore>;
 
-  private menuState: MenuState = useState({ isOpen: false, anchorRect: null, menuItems: [] });
+  private menuState: MenuState = proxy({ isOpen: false, anchorRect: null, menuItems: [] });
   setup() {
     super.setup();
     this.fullScreenFigureStore = useStore(FullScreenFigureStore);

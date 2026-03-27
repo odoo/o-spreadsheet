@@ -1,11 +1,11 @@
 import { _t } from "@odoo/o-spreadsheet-engine";
 import { formatLargeNumber, formatValue } from "@odoo/o-spreadsheet-engine/helpers/format/format";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
-import { Component } from "@odoo/owl";
 import { ChartWithDataSetDefinition } from "../../../../../types";
 import { Checkbox } from "../../../components/checkbox/checkbox";
 import { ChartSidePanelProps, ChartSidePanelPropsObject } from "../../common";
 
+import { Component } from "../../../../../owl3_compatibility_layer";
 export class ChartHumanizeNumbers extends Component<
   ChartSidePanelProps<ChartWithDataSetDefinition>,
   SpreadsheetChildEnv

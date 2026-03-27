@@ -1,5 +1,6 @@
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
-import { Component, useState } from "@odoo/owl";
+import { proxy } from "@odoo/owl";
+import { Component } from "../../../owl3_compatibility_layer";
 import { FunctionDescription } from "../../../types";
 import { Collapse } from "../../side_panel/components/collapse/collapse";
 
@@ -18,7 +19,7 @@ export class FunctionDescriptionProvider extends Component<Props, SpreadsheetChi
   };
   static components = { Collapse };
 
-  private state: { isCollapsed: boolean } = useState({
+  private state: { isCollapsed: boolean } = proxy({
     isCollapsed: true,
   });
 

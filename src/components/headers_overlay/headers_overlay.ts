@@ -5,7 +5,8 @@ import {
 } from "@odoo/o-spreadsheet-engine/components/translations_terms";
 import { MIN_COL_WIDTH, MIN_ROW_HEIGHT } from "@odoo/o-spreadsheet-engine/constants";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
-import { Component, useRef, useState } from "@odoo/owl";
+import { proxy } from "@odoo/owl";
+import { Component, useRef } from "../../owl3_compatibility_layer";
 import { Store, useStore } from "../../store_engine";
 import {
   CommandResult,
@@ -57,7 +58,7 @@ abstract class AbstractResizer extends Component<ResizerProps, SpreadsheetChildE
   MIN_ELEMENT_SIZE: number = 0;
   lastSelectedElementIndex: HeaderIndex | null = null;
 
-  state: ResizerState = useState({
+  state: ResizerState = proxy({
     resizerIsActive: false,
     isResizing: false,
     isMoving: false,

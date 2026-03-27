@@ -3,7 +3,7 @@
     <div
       class="o-link-editor rounded"
       t-on-click.stop="() => this.menu.isOpen=false"
-      t-on-keydown="onKeyDown">
+      t-on-keydown="this.onKeyDown">
       <div class="o-section">
         <div class="o-section-title">Text</div>
         <div class="d-flex">
@@ -12,20 +12,20 @@
             title="Link label"
             placeholder="e.g. 'Link label'"
             class="o-input"
-            t-model="link.label"
+            t-custom-model="this.link.label"
           />
         </div>
 
         <div class="o-section-title mt-3">Link</div>
         <div class="o-link-url">
-          <t t-if="link.isUrlEditable">
+          <t t-if="this.link.isUrlEditable">
             <input
               class="o-input"
               type="text"
               placeholder="e.g. 'http://www.odoo.com'"
               title="Link URL"
-              t-ref="urlInput"
-              t-model="link.url"
+              t-custom-ref="urlInput"
+              t-custom-model="this.link.url"
             />
           </t>
           <t t-else="">
@@ -33,36 +33,39 @@
               type="text"
               class="o-input"
               title="Link URL"
-              t-att-value="getUrlRepresentation(link)"
+              t-att-value="this.getUrlRepresentation(this.link)"
               disabled="1"
             />
           </t>
           <button
-            t-if="link.url"
-            t-on-click="removeLink"
+            t-if="this.link.url"
+            t-on-click="this.removeLink"
             class="o-remove-url o-button-icon"
             t-translation="off">
             ✖
           </button>
           <button
-            t-if="!link.url"
-            t-on-click.stop="openMenu"
+            t-if="!this.link.url"
+            t-on-click.stop="this.openMenu"
             class="o-special-link o-button-icon bg-white"
-            t-ref="linkEditorMenuButton">
+            t-custom-ref="linkEditorMenuButton">
             <t t-call="o-spreadsheet-Icon.LIST"/>
           </button>
         </div>
       </div>
       <MenuPopover
-        t-if="menu.isOpen"
-        anchorRect="menuButtonRect"
-        menuItems="menuItems"
+        t-if="this.menu.isOpen"
+        anchorRect="this.menuButtonRect"
+        menuItems="this.menuItems"
         onMenuClicked="(ev) => this.onSpecialLink(ev)"
         onClose="() => this.menu.isOpen=false"
       />
       <div class="o-buttons">
-        <button t-on-click="cancel" class="o-button o-cancel me-2">Discard</button>
-        <button t-on-click="save" class="o-button primary o-save" t-att-disabled="!link.url">
+        <button t-on-click="this.cancel" class="o-button o-cancel me-2">Discard</button>
+        <button
+          t-on-click="this.save"
+          class="o-button primary o-save"
+          t-att-disabled="!this.link.url">
           Confirm
         </button>
       </div>

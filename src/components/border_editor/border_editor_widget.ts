@@ -1,6 +1,7 @@
 import { DEFAULT_BORDER_DESC } from "@odoo/o-spreadsheet-engine/constants";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
-import { Component, onWillUpdateProps, useRef, useState } from "@odoo/owl";
+import { onWillUpdateProps, proxy } from "@odoo/owl";
+import { Component, useRef } from "../../owl3_compatibility_layer";
 import { BorderPosition, BorderStyle, Color, Pixel, Rect } from "../../types";
 import { ToolBarDropdownStore, useToolBarDropdownStore } from "../helpers/top_bar_tool_hook";
 import { BorderEditor } from "./border_editor";
@@ -28,7 +29,7 @@ export class BorderEditorWidget extends Component<Props, SpreadsheetChildEnv> {
   topBarToolStore!: ToolBarDropdownStore;
 
   borderEditorButtonRef = useRef("borderEditorButton");
-  state: State = useState({
+  state: State = proxy({
     currentColor: DEFAULT_BORDER_DESC.color,
     currentStyle: DEFAULT_BORDER_DESC.style,
     currentPosition: undefined,

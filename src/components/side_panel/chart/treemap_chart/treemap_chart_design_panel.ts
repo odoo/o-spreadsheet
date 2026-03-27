@@ -6,7 +6,6 @@ import {
   TreeMapColorScaleOptions,
 } from "@odoo/o-spreadsheet-engine/types/chart/tree_map_chart";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
-import { Component } from "@odoo/owl";
 import { BadgeSelection } from "../../components/badge_selection/badge_selection";
 import { Checkbox } from "../../components/checkbox/checkbox";
 import { SidePanelCollapsible } from "../../components/collapsible/side_panel_collapsible";
@@ -20,6 +19,7 @@ import { ChartSidePanelProps, ChartSidePanelPropsObject } from "../common";
 import { TreeMapCategoryColors } from "./treemap_category_color/treemap_category_color";
 import { TreeMapColorScale } from "./treemap_color_scale/treemap_color_scale";
 
+import { Component } from "../../../../owl3_compatibility_layer";
 const DEFAULT_COLOR_SCALE: TreeMapColorScaleOptions = {
   type: "colorScale",
   minColor: "#FFF5EB",

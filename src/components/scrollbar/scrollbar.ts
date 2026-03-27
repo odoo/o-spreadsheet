@@ -1,4 +1,5 @@
-import { Component, onMounted, useEffect, useRef, xml } from "@odoo/owl";
+import { onMounted, xml } from "@odoo/owl";
+import { Component, useLayoutEffect, useRef } from "../../owl3_compatibility_layer";
 import { CSSProperties, Pixel, Ref } from "../../types";
 import { ScrollDirection } from "../../types/scroll_direction";
 import { cssPropertiesToCss } from "../helpers";
@@ -26,7 +27,7 @@ export class ScrollBar extends Component<Props> {
     <div
         t-attf-class="o-scrollbar {{props.direction}}"
         t-on-scroll="onScroll"
-        t-ref="scrollbar"
+        t-custom-ref="scrollbar"
         t-att-style="positionCss">
       <div t-att-style="sizeCss"/>
     </div>
@@ -44,8 +45,8 @@ export class ScrollBar extends Component<Props> {
     onMounted(() => {
       this.scrollbar.el = this.scrollbarRef.el!;
     });
-    // TODO improve useEffect dependencies typing in owl
-    useEffect(
+    // TODO improve useLayoutEffect dependencies typing in owl
+    useLayoutEffect(
       () => {
         if (this.scrollbar.scroll !== this.props.offset) {
           this.scrollbar.scroll = this.props.offset;

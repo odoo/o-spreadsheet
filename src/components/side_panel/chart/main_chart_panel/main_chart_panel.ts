@@ -1,6 +1,6 @@
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
-import { Component, useEffect, useRef } from "@odoo/owl";
 import { ChartSidePanel, chartSidePanelComponentRegistry } from "..";
+import { Component, useLayoutEffect, useRef } from "../../../../owl3_compatibility_layer";
 import { Store, useLocalStore } from "../../../../store_engine";
 import { ChartDefinition, ChartType, Pixel, Ref, UID } from "../../../../types/index";
 import { Section } from "../../components/section/section";
@@ -32,7 +32,7 @@ export class ChartPanel extends Component<Props, SpreadsheetChildEnv> {
     this.store = useLocalStore(MainChartPanelStore);
     this.panelContentRef = useRef("panelContent");
 
-    useEffect(
+    useLayoutEffect(
       () => {
         const el = this.panelContentRef.el as HTMLElement;
         const activePanel = this.store.panel;

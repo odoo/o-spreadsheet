@@ -1,5 +1,5 @@
 import { _t } from "@odoo/o-spreadsheet-engine/translation";
-import { App, Component, blockDom } from "@odoo/owl";
+import { App, blockDom } from "@odoo/owl";
 
 /**
  * Custom tooltip for the charts. Mostly copied from Odoo's custom tooltip, with some slight changes to make it work
@@ -58,7 +58,7 @@ export function renderToString(templateName: string, context: any = {}) {
 
 function render(templateName: string, context: any = {}) {
   if (!app) {
-    app = new App(Component, { templates, translateFn: _t });
+    app = new App({ templates, translateFn: _t });
   }
   const templateFn = app.getTemplate(templateName);
   const bdom = templateFn(context, {});

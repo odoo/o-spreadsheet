@@ -10,8 +10,9 @@ import {
   Pixel,
 } from "@odoo/o-spreadsheet-engine/types/misc";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
-import { Component, useState } from "@odoo/owl";
+import { proxy } from "@odoo/owl";
 import { Action } from "../../actions/action";
+import { Component } from "../../owl3_compatibility_layer";
 import { createHeaderGroupContainerContextMenu } from "../../registries/menus/header_group_registry";
 import { DOMCoordinates } from "../../types";
 import { cssPropertiesToCss } from "../helpers";
@@ -31,7 +32,7 @@ export class HeaderGroupContainer extends Component<Props, SpreadsheetChildEnv> 
   };
   static components = { RowGroup, ColGroup, MenuPopover };
 
-  menu: MenuState = useState({ isOpen: false, anchorRect: null, menuItems: [] });
+  menu: MenuState = proxy({ isOpen: false, anchorRect: null, menuItems: [] });
 
   getLayerOffset(layerIndex: number): number {
     return layerIndex * GROUP_LAYER_WIDTH;

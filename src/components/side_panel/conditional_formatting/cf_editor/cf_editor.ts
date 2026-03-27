@@ -2,8 +2,12 @@ import { DEFAULT_COLOR_SCALE_MIDPOINT_COLOR } from "@odoo/o-spreadsheet-engine/c
 import { _t } from "@odoo/o-spreadsheet-engine/translation";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { Store } from "@odoo/o-spreadsheet-engine/types/store_engine";
-import { Component, useEffect, useExternalListener } from "@odoo/owl";
 import { colorNumberToHex, deepCopy } from "../../../../helpers";
+import {
+  Component,
+  useExternalListener,
+  useLayoutEffect,
+} from "../../../../owl3_compatibility_layer";
 import { useLocalStore } from "../../../../store_engine";
 import {
   ColorScaleThreshold,
@@ -58,7 +62,7 @@ export class ConditionalFormattingEditor extends Component<Props, SpreadsheetChi
       deepCopy(this.props.cf),
       this.props.isNewCf
     );
-    useEffect(
+    useLayoutEffect(
       (sheetId, isCfRemoved) => {
         if (this.activeSheetId !== sheetId || isCfRemoved) {
           this.env.replaceSidePanel(

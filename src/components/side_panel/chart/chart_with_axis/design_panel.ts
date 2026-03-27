@@ -1,6 +1,5 @@
 import { _t } from "@odoo/o-spreadsheet-engine/translation";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
-import { Component } from "@odoo/owl";
 import { getDefinedAxis } from "../../../../helpers/figures/charts";
 import { ChartWithDataSetDefinition } from "../../../../types/index";
 import { SidePanelCollapsible } from "../../components/collapsible/side_panel_collapsible";
@@ -16,6 +15,7 @@ import { SeriesWithAxisDesignEditor } from "../building_blocks/series_design/ser
 import { ChartShowValues } from "../building_blocks/show_values/show_values";
 import { ChartSidePanelProps, ChartSidePanelPropsObject } from "../common";
 
+import { Component } from "../../../../owl3_compatibility_layer";
 export class ChartWithAxisDesignPanel<
   P extends ChartSidePanelProps<ChartWithDataSetDefinition>
 > extends Component<P, SpreadsheetChildEnv> {

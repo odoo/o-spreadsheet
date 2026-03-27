@@ -1,8 +1,9 @@
 import { DEFAULT_STYLE } from "@odoo/o-spreadsheet-engine/constants";
 import { _t } from "@odoo/o-spreadsheet-engine/translation";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
-import { Component, useExternalListener, useState } from "@odoo/owl";
+import { proxy } from "@odoo/owl";
 import { ActionSpec } from "../../../../../actions/action";
+import { Component, useExternalListener } from "../../../../../owl3_compatibility_layer";
 import { Align, ChartStyle, Color, VerticalAlign } from "../../../../../types";
 import { ActionButton } from "../../../../action_button/action_button";
 import { ColorPickerWidget } from "../../../../color_picker/color_picker_widget";
@@ -40,7 +41,7 @@ export class TextStyler extends Component<Props, SpreadsheetChildEnv> {
     useExternalListener(window, "click", this.onExternalClick);
   }
 
-  state = useState({
+  state = proxy({
     activeTool: "",
   });
 

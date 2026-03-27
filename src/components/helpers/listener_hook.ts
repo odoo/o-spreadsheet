@@ -1,4 +1,5 @@
-import { useEffect, useState } from "@odoo/owl";
+import { proxy } from "@odoo/owl";
+import { useLayoutEffect } from "../../owl3_compatibility_layer";
 import { Ref } from "../../types";
 
 /**
@@ -13,7 +14,7 @@ export function useRefListener(
   ref: Ref<HTMLElement>,
   ...listener: Parameters<typeof addEventListener>
 ) {
-  useEffect(
+  useLayoutEffect(
     (el: HTMLElement | null) => {
       el?.addEventListener(...listener);
       return () => el?.removeEventListener(...listener);
@@ -23,7 +24,7 @@ export function useRefListener(
 }
 
 export function useHoveredElement(ref: Ref<HTMLElement>) {
-  const state = useState({ hovered: false });
+  const state = proxy({ hovered: false });
   useRefListener(ref, "mouseenter", () => (state.hovered = true));
   useRefListener(ref, "mouseleave", () => (state.hovered = false));
   // If a render changes the element size while the mouse is over it,
@@ -32,7 +33,7 @@ export function useHoveredElement(ref: Ref<HTMLElement>) {
   const resizeObserver = new ResizeObserver(() => {
     state.hovered = false;
   });
-  useEffect(
+  useLayoutEffect(
     () => {
       resizeObserver.observe(ref.el!);
       return () => {

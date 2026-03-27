@@ -1,14 +1,8 @@
 import { Ref } from "@odoo/o-spreadsheet-engine";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
-import {
-  Component,
-  onMounted,
-  onWillUpdateProps,
-  useExternalListener,
-  useRef,
-  useState,
-} from "@odoo/owl";
+import { onMounted, onWillUpdateProps, proxy } from "@odoo/owl";
 import { clip } from "../../helpers/index";
+import { Component, useExternalListener, useRef } from "../../owl3_compatibility_layer";
 import { Store, useStore } from "../../store_engine";
 import { DOMFocusableElementStore } from "../../stores/DOM_focus_store";
 import { isChildEvent } from "../helpers/dom_helpers";
@@ -52,7 +46,7 @@ export class NumberEditor extends Component<Props, SpreadsheetChildEnv> {
 
   static components = { Popover };
 
-  dropdown: State = useState({ isOpen: false });
+  dropdown: State = proxy({ isOpen: false });
 
   private inputRef: Ref<HTMLInputElement> = useRef("inputNumber");
   private rootEditorRef = useRef("NumberEditor");

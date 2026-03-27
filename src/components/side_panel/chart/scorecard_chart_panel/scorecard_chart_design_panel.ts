@@ -6,7 +6,6 @@ import {
 import { _t } from "@odoo/o-spreadsheet-engine/translation";
 import { ScorecardChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/scorecard_chart";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
-import { Component } from "@odoo/owl";
 import { Color, TitleDesign } from "../../../../types/index";
 import { Checkbox } from "../../components/checkbox/checkbox";
 import { SidePanelCollapsible } from "../../components/collapsible/side_panel_collapsible";
@@ -17,6 +16,7 @@ import { GeneralDesignEditor } from "../building_blocks/general_design/general_d
 import { ChartHumanizeNumbers } from "../building_blocks/humanize_numbers/humanize_numbers";
 import { ChartSidePanelProps, ChartSidePanelPropsObject } from "../common";
 
+import { Component } from "../../../../owl3_compatibility_layer";
 type ColorPickerId = undefined | "backgroundColor" | "baselineColorUp" | "baselineColorDown";
 
 export class ScorecardChartDesignPanel extends Component<

@@ -1,9 +1,9 @@
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
-import { Component } from "@odoo/owl";
 import { clip } from "../../../../../helpers";
 import { NumberInput } from "../../../../number_input/number_input";
 import { Section } from "../../../components/section/section";
 
+import { Component } from "../../../../../owl3_compatibility_layer";
 interface Props {
   onValueChange: (value: number) => void;
   value: number;

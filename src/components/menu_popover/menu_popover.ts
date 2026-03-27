@@ -5,15 +5,9 @@ import {
   MENU_WIDTH,
 } from "@odoo/o-spreadsheet-engine/constants";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
-import {
-  Component,
-  onWillUnmount,
-  onWillUpdateProps,
-  useExternalListener,
-  useRef,
-  useState,
-} from "@odoo/owl";
+import { onWillUnmount, onWillUpdateProps, proxy } from "@odoo/owl";
 import { Action, getMenuItemsAndSeparators } from "../../actions/action";
+import { Component, useExternalListener, useRef } from "../../owl3_compatibility_layer";
 import { MenuMouseEvent, Pixel, Rect, UID } from "../../types";
 import { PopoverPropsPosition } from "../../types/cell_popovers";
 import {
@@ -74,7 +68,7 @@ export class MenuPopover extends Component<Props, SpreadsheetChildEnv> {
     depth: 1,
     popoverPositioning: "top-right",
   };
-  private subMenu: MenuState = useState({
+  private subMenu: MenuState = proxy({
     isOpen: false,
     anchorRect: null,
     scrollOffset: 0,

@@ -1,5 +1,5 @@
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
-import { Component, useEffect } from "@odoo/owl";
+import { Component, useLayoutEffect } from "../../../owl3_compatibility_layer";
 import { sidePanelRegistry } from "../../../registries/side_panel_registry";
 import { Store, useStore } from "../../../store_engine";
 import { cssPropertiesToCss } from "../../helpers";
@@ -17,7 +17,7 @@ export class SidePanels extends Component<{}, SpreadsheetChildEnv> {
 
   setup() {
     this.sidePanelStore = useStore(SidePanelStore);
-    useEffect(
+    useLayoutEffect(
       () => {
         if (this.sidePanelStore.mainPanel && !this.sidePanelStore.isMainPanelOpen) {
           this.sidePanelStore.closeMainPanel();

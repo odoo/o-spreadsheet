@@ -1,7 +1,7 @@
 import { Highlight } from "@odoo/o-spreadsheet-engine";
 import { _t } from "@odoo/o-spreadsheet-engine/translation";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
-import { Component, onWillUnmount, useEffect, useRef, useState } from "@odoo/owl";
+import { onWillUnmount, proxy } from "@odoo/owl";
 import { Chart, ChartConfiguration } from "chart.js/auto";
 import {
   clipTextWithEllipsis,
@@ -9,6 +9,7 @@ import {
   numberToLetters,
   positionToZone,
 } from "../../../helpers";
+import { Component, useLayoutEffect, useRef } from "../../../owl3_compatibility_layer";
 import { Store, useStore } from "../../../store_engine";
 import { useHighlights } from "../../helpers/highlight_hook";
 import { NumberInput } from "../../number_input/number_input";
@@ -26,7 +27,7 @@ export class ColumnStatsPanel extends Component<Props, SpreadsheetChildEnv> {
   static props = { onCloseSidePanel: Function };
   static components = { NumberInput, SidePanelCollapsible, BadgeSelection, Section };
 
-  state = useState({
+  state = proxy({
     currentChart: "count",
     currentFrequencyOrder: "descending",
     highlightPositions: [] as { row: number; col: number }[],
@@ -40,7 +41,7 @@ export class ColumnStatsPanel extends Component<Props, SpreadsheetChildEnv> {
     this.store = useStore(ColumnStatisticsStore);
     useHighlights(this);
     onWillUnmount(() => this.destroyChart());
-    useEffect(
+    useLayoutEffect(
       () => {
         this.updateChart();
       },

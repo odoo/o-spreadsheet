@@ -1,10 +1,10 @@
 import { PivotDimension } from "@odoo/o-spreadsheet-engine/types/pivot";
-import { Component } from "@odoo/owl";
 
 import { _t, ValueAndLabel } from "@odoo/o-spreadsheet-engine";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { Select } from "../../../../select/select";
 
+import { Component } from "../../../../../owl3_compatibility_layer";
 interface Props {
   dimension: PivotDimension;
   onUpdated: (dimension: PivotDimension, ev: InputEvent) => void;

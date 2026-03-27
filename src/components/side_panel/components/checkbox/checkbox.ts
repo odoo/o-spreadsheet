@@ -1,7 +1,6 @@
-import { Component } from "@odoo/owl";
-
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 
+import { Component } from "../../../../owl3_compatibility_layer";
 // FIXME Encoding version used in css
 // const CHECK_SVG = /*xml*/ `
 // <svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'>

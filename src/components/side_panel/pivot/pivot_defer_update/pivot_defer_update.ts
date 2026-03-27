@@ -1,9 +1,9 @@
 import { _t } from "@odoo/o-spreadsheet-engine/translation";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
-import { Component } from "@odoo/owl";
 import { Checkbox } from "../../components/checkbox/checkbox";
 import { Section } from "../../components/section/section";
 
+import { Component } from "../../../../owl3_compatibility_layer";
 interface Props {
   deferUpdate: boolean;
   isDirty: boolean;

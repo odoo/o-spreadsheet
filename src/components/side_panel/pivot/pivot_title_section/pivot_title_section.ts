@@ -1,12 +1,12 @@
 import { _t } from "@odoo/o-spreadsheet-engine/translation";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
-import { Component } from "@odoo/owl";
 import { ActionSpec } from "../../../../actions/action";
 import { CommandResult, UID } from "../../../../types";
 import { TextInput } from "../../../text_input/text_input";
 import { CogWheelMenu } from "../../components/cog_wheel_menu/cog_wheel_menu";
 import { Section } from "../../components/section/section";
 
+import { Component } from "../../../../owl3_compatibility_layer";
 interface Props {
   pivotId: UID;
   flipAxis: () => void;

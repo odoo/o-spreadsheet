@@ -1,7 +1,7 @@
 import { cssPropertiesToCss } from "@odoo/o-spreadsheet-engine/components/helpers/css";
 import { COLOR_PICKER_DEFAULTS, ICON_EDGE_LENGTH } from "@odoo/o-spreadsheet-engine/constants";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
-import { Component, useState } from "@odoo/owl";
+import { proxy } from "@odoo/owl";
 import {
   clip,
   hexToHSLA,
@@ -12,6 +12,7 @@ import {
   toHex,
 } from "../../helpers";
 import { chartFontColor } from "../../helpers/figures/charts";
+import { Component } from "../../owl3_compatibility_layer";
 import { Color, HSLA, Pixel, PixelPosition, Rect } from "../../types";
 import { startDnd } from "../helpers/drag_and_drop";
 import { Popover, PopoverProps } from "../popover/popover";
@@ -56,7 +57,7 @@ export class ColorPicker extends Component<ColorPickerProps, SpreadsheetChildEnv
 
   COLORS = COLOR_PICKER_DEFAULTS;
 
-  private state: State = useState({
+  private state: State = proxy({
     showGradient: false,
     currentHslaColor: isColorValid(this.props.currentColor)
       ? { ...hexToHSLA(this.props.currentColor), a: 1 }

@@ -3,24 +3,24 @@
     <div>
       <ChartDataSeries
         ranges="this.getDataSeriesRanges()"
-        onSelectionChanged.bind="onDataSeriesRangesChanged"
-        onSelectionConfirmed.bind="onDataSeriesConfirmed"
-        onSelectionReordered.bind="onDataSeriesReordered"
-        onSelectionRemoved.bind="onDataSeriesRemoved"
-        maxNumberOfUsedRanges="maxNumberOfUsedRanges"
-        datasetOrientation="datasetOrientation"
-        canChangeDatasetOrientation="canChangeDatasetOrientation"
-        onFlipAxis.bind="setDatasetOrientation"
+        onSelectionChanged.bind="this.onDataSeriesRangesChanged"
+        onSelectionConfirmed.bind="this.onDataSeriesConfirmed"
+        onSelectionReordered.bind="this.onDataSeriesReordered"
+        onSelectionRemoved.bind="this.onDataSeriesRemoved"
+        maxNumberOfUsedRanges="this.maxNumberOfUsedRanges"
+        datasetOrientation="this.datasetOrientation"
+        canChangeDatasetOrientation="this.canChangeDatasetOrientation"
+        onFlipAxis.bind="this.setDatasetOrientation"
       />
       <ChartLabelRange
         range="this.getLabelRange()"
-        isInvalid="isLabelInvalid"
-        onSelectionChanged.bind="onLabelRangeChanged"
-        onSelectionConfirmed.bind="onLabelRangeConfirmed"
+        isInvalid="this.isLabelInvalid"
+        onSelectionChanged.bind="this.onLabelRangeChanged"
+        onSelectionConfirmed.bind="this.onLabelRangeConfirmed"
         options="this.getLabelRangeOptions()"
       />
 
-      <ChartErrorSection t-if="errorMessages.length" messages="errorMessages"/>
+      <ChartErrorSection t-if="this.errorMessages.length" messages="this.errorMessages"/>
     </div>
   </t>
 </templates>

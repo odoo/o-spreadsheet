@@ -1,15 +1,15 @@
 <templates>
   <t t-name="o-spreadsheet-ConditionalFormattingEditor">
     <div class="o-cf-editor">
-      <t t-set="state" t-value="store.state"/>
+      <t t-set="state" t-value="this.store.state"/>
       <Section class="'o-cf-range pb-0'" title.translate="Apply to range">
         <div class="o-selection-cf">
           <SelectionInput
             ranges="state.ranges"
             class="'o-range'"
-            isInvalid="store.isRangeValid"
-            onSelectionChanged="(ranges) => store.onRangeUpdate(ranges)"
-            onSelectionConfirmed="() => store.onRangeConfirmed()"
+            isInvalid="this.store.isRangeValid"
+            onSelectionChanged="(ranges) => this.store.onRangeUpdate(ranges)"
+            onSelectionConfirmed="() => this.store.onRangeConfirmed()"
             required="true"
           />
         </div>
@@ -17,8 +17,8 @@
       <Section class="'pb-0'" title.translate="Format rules">
         <div class="o-cf-type-selector">
           <BadgeSelection
-            choices="cfTypesValues"
-            onChange="(ruleType) => store.changeRuleType(ruleType)"
+            choices="this.cfTypesValues"
+            onChange="(ruleType) => this.store.changeRuleType(ruleType)"
             selectedValue="state.currentCFType"
           />
         </div>
@@ -41,9 +41,9 @@
       </Section>
       <Section class="'pt-1'">
         <div class="o-sidePanelButtons">
-          <button t-on-click="onCancel" class="o-button o-cf-cancel">Discard</button>
+          <button t-on-click="this.onCancel" class="o-button o-cf-cancel">Discard</button>
           <button
-            t-on-click="onSave"
+            t-on-click="this.onSave"
             class="o-button primary o-cf-save"
             t-att-disabled="state.errors.length !== 0">
             Save
@@ -51,7 +51,7 @@
         </div>
       </Section>
       <Section>
-        <ValidationMessages messages="store.errorMessages" msgType="'error'"/>
+        <ValidationMessages messages="this.store.errorMessages" msgType="'error'"/>
       </Section>
     </div>
   </t>

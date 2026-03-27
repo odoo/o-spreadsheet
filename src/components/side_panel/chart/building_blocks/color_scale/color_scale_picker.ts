@@ -1,8 +1,9 @@
 import { ChartTerms } from "@odoo/o-spreadsheet-engine/components/translations_terms";
 import { DEFAULT_CHART_COLOR_SCALE } from "@odoo/o-spreadsheet-engine/constants";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
-import { Component, useExternalListener, useRef, useState } from "@odoo/owl";
+import { proxy } from "@odoo/owl";
 import { ColorScale, COLORSCALES, COLORSCHEMES } from "../../../../../helpers";
+import { Component, useExternalListener, useRef } from "../../../../../owl3_compatibility_layer";
 import { ChartColorScale, Color, schemeToColorScale } from "../../../../../types";
 import { cssPropertiesToCss } from "../../../../helpers";
 import { Popover, PopoverProps } from "../../../../popover";
@@ -37,7 +38,7 @@ export class ColorScalePicker extends Component<Props, SpreadsheetChildEnv> {
     className: `${colorScale}-color-scale`,
   }));
 
-  state = useState<ColorScalePickerState>({ popoverProps: undefined, popoverStyle: "" });
+  state = proxy<ColorScalePickerState>({ popoverProps: undefined, popoverStyle: "" });
   popoverRef = useRef("popoverRef");
 
   setup() {

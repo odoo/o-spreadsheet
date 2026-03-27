@@ -1,12 +1,12 @@
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
-import { Component } from "@odoo/owl";
 import { chartComponentRegistry } from "../../../registries/chart_component_registry";
 import { ChartType, CSSProperties, FigureUI, Rect, UID } from "../../../types";
 import { ChartDashboardMenu } from "../chart/chart_dashboard_menu/chart_dashboard_menu";
 
+import { Component } from "../../../owl3_compatibility_layer";
 interface Props {
   // props figure is currently necessary scorecards, we need the chart dimension at render to avoid having to force the
-  // style by hand in the useEffect()
+  // style by hand in the useLayoutEffect()
   figureUI: FigureUI;
   editFigureStyle?: (properties: CSSProperties) => void;
   isFullScreen?: boolean;
