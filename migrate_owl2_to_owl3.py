@@ -127,17 +127,79 @@ def _replace_in_owl_imports(source: str, old: str, new: str) -> str:
     return pattern.sub(replace_in_block, source)
 
 
-STEP1 = ("useState → proxy", _step1_transform)
+def _ts_files(root: Path) -> list[Path]:
+    return sorted(root.rglob("*.ts"))
+
+
+STEP1 = ("useState → proxy", _step1_transform, _ts_files)
+
+
+# ---------------------------------------------------------------------------
+# Step 2 — Template directive aliases (t-ref/t-model/t-portal → t-custom-*)
+# ---------------------------------------------------------------------------
+# OWL3 reserves these directive names for signals-based usage.
+# The compatibility layer exposes t-custom-ref / t-custom-model / t-custom-portal
+# so that OWL2-style code keeps working during the migration.
+#
+# Rules:
+#   t-ref="..."           → t-custom-ref="..."
+#   t-ref="{{expr}}"      → t-custom-ref="{{expr}}"   (dynamic refs)
+#   t-model="..."         → t-custom-model="..."
+#   t-model.trim="..."    → t-custom-model.trim="..."  (modifiers preserved)
+#   t-portal="..."        → t-custom-portal="..."
+#
+# Applied to: *.xml  +  *.ts  (inline xml`` templates)
+# Skipped:    the compatibility layer itself (owl3_compatibility_layer.ts)
+# ---------------------------------------------------------------------------
+
+# Directives that take `=` directly (no modifiers)
+_EXACT_DIRECTIVES = ["t-ref", "t-portal"]
+# Directives that may have dot-modifiers before `=`
+_PREFIX_DIRECTIVES = ["t-model"]
+
+_SKIP_FILES = {"owl3_compatibility_layer.ts"}
+
+
+def _step2_transform(source: str) -> str:
+    # t-ref= and t-portal= are always followed immediately by `=`
+    for directive in _EXACT_DIRECTIVES:
+        source = re.sub(
+            rf'\b{re.escape(directive)}(?==)',
+            f"t-custom-{directive[2:]}",
+            source,
+        )
+
+    # t-model may be followed by `=` or `.modifier=`
+    for directive in _PREFIX_DIRECTIVES:
+        source = re.sub(
+            rf'\b{re.escape(directive)}(?=[.=])',
+            f"t-custom-{directive[2:]}",
+            source,
+        )
+
+    return source
+
+
+def _step2_files(root: Path) -> list[Path]:
+    xml_files = sorted(root.rglob("*.xml"))
+    ts_files = [
+        p for p in sorted(root.rglob("*.ts"))
+        if p.name not in _SKIP_FILES
+    ]
+    return xml_files + ts_files
+
+
+STEP2 = ("t-ref/t-model/t-portal → t-custom-*", _step2_transform, _step2_files)
 
 
 # ---------------------------------------------------------------------------
 # Registry of all steps (in order)
 # ---------------------------------------------------------------------------
 
-ALL_STEPS: list[tuple[str, callable]] = [
+ALL_STEPS: list[tuple] = [
     STEP1,
+    STEP2,
     # Future steps go here:
-    # STEP2,
     # STEP3,
 ]
 
@@ -146,17 +208,13 @@ ALL_STEPS: list[tuple[str, callable]] = [
 # CLI
 # ---------------------------------------------------------------------------
 
-def collect_ts_files(root: Path) -> list[Path]:
-    return sorted(root.rglob("*.ts"))
-
-
 def main() -> None:
     parser = argparse.ArgumentParser(description="Migrate OWL 2 → OWL 3")
     parser.add_argument(
         "--path",
         type=Path,
         default=Path("src"),
-        help="Root directory to scan for TypeScript files (default: src/)",
+        help="Root directory to scan for files (default: src/)",
     )
     parser.add_argument(
         "--step",
@@ -171,13 +229,11 @@ def main() -> None:
     )
     args = parser.parse_args()
 
-    files = collect_ts_files(args.path)
-    print(f"Found {len(files)} TypeScript file(s) under '{args.path}'.\n")
-
     steps = ALL_STEPS if args.step is None else [ALL_STEPS[args.step - 1]]
 
-    for i, (name, transform_fn) in enumerate(steps, start=1):
-        print(f"=== Step {i}: {name} ===")
+    for i, (name, transform_fn, collect_fn) in enumerate(steps, start=1):
+        files = collect_fn(args.path)
+        print(f"=== Step {i}: {name} ({len(files)} file(s)) ===")
         results = run_step(name, transform_fn, files, dry_run=args.dry_run)
         print_results(results, dry_run=args.dry_run)
         print()
