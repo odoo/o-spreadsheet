@@ -12,7 +12,7 @@ import { ValidationMessages } from "../../validation_messages/validation_message
 import { Checkbox } from "../components/checkbox/checkbox";
 import { Section } from "../components/section/section";
 
-interface Props {
+export interface TablePanelProps {
   table: CoreTable;
   onCloseSidePanel: () => void;
 }
@@ -25,7 +25,7 @@ interface State {
   filtersEnabledIfPossible: boolean;
 }
 
-export class TablePanel extends Component<Props, SpreadsheetChildEnv> {
+export class TablePanel extends Component<TablePanelProps, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-TablePanel";
   static components = {
     TableStylePicker,
