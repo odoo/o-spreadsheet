@@ -1,12 +1,29 @@
+import {
+  ICommandSquisher,
+  SquishedCoreCommand,
+} from "@odoo/o-spreadsheet-engine/collaborative/command_squisher";
 import { Session } from "@odoo/o-spreadsheet-engine/collaborative/session";
-import { MESSAGE_VERSION } from "@odoo/o-spreadsheet-engine/constants";
+import { DEFAULT_REVISION_ID, MESSAGE_VERSION } from "@odoo/o-spreadsheet-engine/constants";
 import { buildRevisionLog } from "@odoo/o-spreadsheet-engine/history/factory";
 import { Model } from "../../src";
 import { lazy } from "../../src/helpers";
-import { Client, CommandResult, WorkbookData } from "../../src/types";
+import { Client, CommandResult, CoreCommand, WorkbookData } from "../../src/types";
 import { MockTransportService } from "../__mocks__/transport_service";
 import { selectCell, setCellContent } from "../test_helpers/commands_helpers";
 import { nextTick } from "../test_helpers/helpers";
+
+class MockCommandSquisher implements ICommandSquisher {
+  public squish(
+    allCommands: readonly (CoreCommand | SquishedCoreCommand)[]
+  ): (CoreCommand | SquishedCoreCommand)[] {
+    return [...allCommands];
+  }
+  public unsquish(
+    commands: (CoreCommand | SquishedCoreCommand)[] | readonly CoreCommand[]
+  ): CoreCommand[] {
+    return commands as CoreCommand[];
+  }
+}
 
 describe("Collaborative session", () => {
   let transport: MockTransportService;
@@ -26,7 +43,7 @@ describe("Collaborative session", () => {
       recordChanges: () => ({ changes: [], commands: [] }),
       dispatch: () => CommandResult.Success,
     });
-    session = new Session(revisionLog, transport);
+    session = new Session(revisionLog, transport, DEFAULT_REVISION_ID, new MockCommandSquisher());
     session.join(client);
   });
 

@@ -1,3 +1,4 @@
+import { CompiledFormula } from "../../formulas/compiler";
 import { isEvaluationError, toString } from "../../functions/helpers";
 import {
   BooleanCell,
@@ -7,12 +8,14 @@ import {
   EmptyCell,
   ErrorCell,
   EvaluatedCell,
+  FormulaCell,
   LiteralCell,
   NumberCell,
 } from "../../types/cells";
-import { LocaleFormat } from "../../types/format";
+import { CoreGetters } from "../../types/core_getters";
+import { Format, LocaleFormat } from "../../types/format";
 import { DEFAULT_LOCALE, Locale } from "../../types/locale";
-import { CellPosition, FunctionResultObject } from "../../types/misc";
+import { CellPosition, FunctionResultObject, Style, UID } from "../../types/misc";
 import { parseDateTime } from "../dates";
 import {
   detectDateFormat,
@@ -36,6 +39,75 @@ export function evaluateLiteral(
       : literalCell.parsedValue;
   const functionResult = { value, format: localeFormat.format, origin: position };
   return createEvaluatedCell(functionResult, localeFormat.locale);
+}
+
+export function createCell(
+  getters: CoreGetters,
+  id: number,
+  content: string,
+  format: Format | undefined,
+  style: Style | undefined,
+  sheetId: UID
+): Cell {
+  if (!content.startsWith("=")) {
+    return createLiteralCell(getters, id, content, format, style);
+  }
+  return createFormulaCell(getters, id, content, format, style, sheetId);
+}
+
+export function createLiteralCell(
+  getters: CoreGetters,
+  id: number,
+  content: string,
+  format: Format | undefined,
+  style: Style | undefined
+): LiteralCell {
+  const locale = getters.getLocale();
+  const parsedValue = parseLiteral(content, locale);
+
+  format =
+    format ||
+    (typeof parsedValue === "number"
+      ? detectDateFormat(content, locale) || detectNumberFormat(content)
+      : undefined);
+  if (!isTextFormat(format) && !content.startsWith("'") && !isEvaluationError(content)) {
+    content = toString(parsedValue);
+  }
+  return {
+    id,
+    content,
+    style,
+    format,
+    isFormula: false,
+    parsedValue,
+  };
+}
+
+export function createFormulaCell(
+  getters: CoreGetters,
+  id: number,
+  content: string,
+  format: Format | undefined,
+  style: Style | undefined,
+  sheetId: UID
+): FormulaCell {
+  const compiledFormula = CompiledFormula.Compile(content, sheetId, getters);
+  return createFormulaCellFromCompiledFormula(id, compiledFormula, format, style);
+}
+
+export function createFormulaCellFromCompiledFormula(
+  id: number,
+  compiledFormula: CompiledFormula,
+  format: Format | undefined,
+  style: Style | undefined
+): FormulaCell {
+  return {
+    id,
+    format,
+    style,
+    isFormula: true,
+    compiledFormula,
+  };
 }
 
 export function parseLiteral(content: string, locale: Locale): CellValue {
