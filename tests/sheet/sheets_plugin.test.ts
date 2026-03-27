@@ -1238,4 +1238,24 @@ describe("sheets", () => {
       expect(newSheet?.isLocked).toBe(false);
     });
   });
+
+  test("Legacy sheet creation warning", () => {
+    const spy = jest.spyOn(console, "warn").mockImplementation(); // Avoid unwanted logs spam
+    const model = new Model();
+    // @ts-ignore -- Testing legacy sheet creation without name
+    const result = model.dispatch("CREATE_SHEET", { sheetId: "new-sheet", position: 0 });
+    expect(result).toBeSuccessfullyDispatched();
+    expect(spy).toHaveBeenCalledWith("Sheet name is missing in the command CREATE_SHEET payload.");
+    spy.mockRestore();
+  });
+
+  test("Cannot create a sheet with an empty name", () => {
+    const model = new Model();
+    expect(createSheet(model, { sheetId: "new-sheet", name: "" })).toBeCancelledBecause(
+      CommandResult.MissingSheetName
+    );
+    expect(createSheet(model, { sheetId: "new-sheet", name: "   " })).toBeCancelledBecause(
+      CommandResult.MissingSheetName
+    );
+  });
 });
