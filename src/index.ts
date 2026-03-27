@@ -125,6 +125,7 @@ import { functionRegistry } from "@odoo/o-spreadsheet-engine/functions/function_
 import { chartJsExtensionRegistry } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_js_extension";
 import {
   areDomainArgsFieldsValid,
+  collapseHierarchicalDisplayName,
   createCustomFields,
   createPivotFormula,
   getMaxObjectId,
@@ -418,6 +419,7 @@ export const helpers = {
   parseFormat,
   isFormula,
   domainToColRowDomain,
+  collapseHierarchicalDisplayName,
 };
 
 export const links = {
