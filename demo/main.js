@@ -6,23 +6,13 @@ import { currenciesData } from "./currencies.js";
 import { WebsocketTransport } from "./transport.js";
 import { FileStore } from "./file_store.js";
 import { geoJsonService } from "./geo_json/geo_json_service.js";
+import { App } from "./app_compatibility.js";
 
-const {
-  xml,
-  Component,
-  whenReady,
-  onWillStart,
-  onMounted,
-  useState,
-  onWillUnmount,
-  useExternalListener,
-  onError,
-  markRaw,
-} = owl;
-
+const { xml, whenReady, onWillStart, onMounted, proxy, onWillUnmount, onError, markRaw } = owl;
 const { Spreadsheet, Model } = o_spreadsheet;
 const { topbarMenuRegistry } = o_spreadsheet.registries;
 const { useStoreProvider } = o_spreadsheet.stores;
+const { Component, useExternalListener } = o_spreadsheet.compatibility;
 
 const uuidGenerator = new o_spreadsheet.helpers.UuidGenerator();
 
@@ -63,7 +53,7 @@ let start;
 
 class Demo extends Component {
   setup() {
-    this.state = useState({ key: 0, displayHeader: false, colorScheme: "light" });
+    this.state = proxy({ key: 0, displayHeader: false, colorScheme: "light" });
     this.stateUpdateMessages = [];
     this.client = {
       id: uuidGenerator.uuidv4(),
