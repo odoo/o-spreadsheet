@@ -1248,4 +1248,14 @@ describe("sheets", () => {
     expect(spy).toHaveBeenCalledWith("Sheet name is missing in the command CREATE_SHEET payload.");
     spy.mockRestore();
   });
+
+  test("Cannot create a sheet with an empty name", () => {
+    const model = new Model();
+    expect(createSheet(model, { sheetId: "new-sheet", name: "" })).toBeCancelledBecause(
+      CommandResult.MissingSheetName
+    );
+    expect(createSheet(model, { sheetId: "new-sheet", name: "   " })).toBeCancelledBecause(
+      CommandResult.MissingSheetName
+    );
+  });
 });
