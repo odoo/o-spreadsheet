@@ -162,16 +162,14 @@ export class SheetUIPlugin extends UIPlugin {
    */
   getCellMultiLineText(
     position: CellPosition,
-    // Keep the stable getter signature additive for compatibility.
-    // 19.3+ can use a dedicated wrapping width argument instead.
-    args: { wrapText: boolean; maxWidth: number; formatWidth?: number }
+    args: { maxWidth: number; wrapWidth?: number }
   ): string[] {
     const style = this.getters.getCellStyle(position);
     const text = this.getters.getCellText(position, {
       showFormula: this.getters.shouldShowFormulas(),
-      availableWidth: args.formatWidth,
+      availableWidth: args.maxWidth,
     });
-    return splitTextToWidth(this.ctx, text, style, args.wrapText ? args.maxWidth : undefined);
+    return splitTextToWidth(this.ctx, text, style, args.wrapWidth);
   }
 
   /** Computes the vertical start point from which a text line should be draw in a cell.
