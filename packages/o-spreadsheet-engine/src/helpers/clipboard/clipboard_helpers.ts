@@ -166,8 +166,8 @@ export function getPasteTargetFromHandlers(
       continue;
     }
     const currentTarget = handler.getPasteTarget(sheetId, zones, handlerData, options);
-    if (currentTarget.figureId) {
-      target.figureId = currentTarget.figureId;
+    if (currentTarget.figureIds) {
+      target.figureIds = { ...target.figureIds, ...currentTarget.figureIds };
     }
     for (const targetZone of currentTarget.zones) {
       selectedZones.push(targetZone);
