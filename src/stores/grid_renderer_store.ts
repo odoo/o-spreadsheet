@@ -742,12 +742,12 @@ export class GridRenderer extends SpreadsheetStore {
     /** Content */
     const wrapping = style.wrapping || "overflow";
     const wrapText = wrapping === "wrap" && !showFormula;
-    const maxWidth = width - 2 * MIN_CELL_TEXT_MARGIN;
-    const formatWidth = style.align ? 0 : maxWidth;
+    const availableWidth = width - 2 * MIN_CELL_TEXT_MARGIN;
+    const maxWidth = style.align ? 0 : availableWidth;
+    const wrapWidth = wrapText ? availableWidth : undefined;
     const multiLineText = this.getters.getCellMultiLineText(position, {
       maxWidth,
-      formatWidth,
-      wrapText,
+      wrapWidth,
     });
     const noRotatationStyle = { ...style, align: "left" as const, rotation: 0 };
     const textWidth =
