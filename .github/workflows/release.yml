@@ -8,8 +8,8 @@ jobs:
     if: contains(github.event.head_commit.message, '[REL]')
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v6
         with:
           registry-url: 'https://registry.npmjs.org'
       - name: Parse
@@ -17,8 +17,8 @@ jobs:
         # should work with le latest stable node
         # parse-message will fail on invalid commit title/body
         run: |
-          npm i @actions/core @actions/github --no-save &&\
-          node tools/parse_message.cjs
+          npm i @actions/core@3.0.0 @actions/github@9.0.0 --no-save &&\
+          node tools/parse_message.mjs
       # generate all builds
       - name: Build
         run: npm ci && npm run dist
