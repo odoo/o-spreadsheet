@@ -43,6 +43,7 @@
         <ChartErrorSection t-if="designErrorMessages.length" messages="designErrorMessages"/>
       </t>
     </SidePanelCollapsible>
+    <ChartAnnotation t-props="this.props"/>
   </t>
 
   <t t-name="o-spreadsheet-GaugeChartColorSectionTemplate">
