@@ -1,8 +1,8 @@
 <templates>
   <t t-name="o-spreadsheet-FilterMenuValueList">
     <div class="o-filter-menu-actions d-flex">
-      <div class="o-button-link me-4" t-on-click="selectAll">Select all</div>
-      <div class="o-button-link me-4" t-on-click="clearAll">Clear</div>
+      <div class="o-button-link me-4" t-on-click="this.selectAll">Select all</div>
+      <div class="o-button-link me-4" t-on-click="this.clearAll">Clear</div>
     </div>
     <div class="position-relative">
       <input
