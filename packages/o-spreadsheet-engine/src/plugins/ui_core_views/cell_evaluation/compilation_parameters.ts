@@ -95,7 +95,11 @@ class CompilationParametersBuilder {
    * Note that each col is possibly sparse: it only contain the values of cells
    * that are actually present in the grid.
    */
-  private range(range: Range, isMeta: boolean): Matrix<FunctionResultObject> {
+  private range(
+    range: Range,
+    isMeta: boolean,
+    requiresIndexing = false
+  ): Matrix<FunctionResultObject> {
     const rangeError = this.getRangeError(range);
     if (rangeError) {
       return [[rangeError]];

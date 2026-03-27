@@ -461,7 +461,12 @@ function compileTokensOrThrow(tokens: Token[]): ICompiledFormula {
      * function needs to receive as argument the coordinates of a cell rather
      * than its value. For this we have meta arguments.
      */
-    function compileAST(ast: AST, isMeta = false, hasRange = false): FunctionCode {
+    function compileAST(
+      ast: AST,
+      isMeta = false,
+      hasRange = false,
+      requiresIndexing = false
+    ): FunctionCode {
       const code = new FunctionCodeBuilder(scope);
       if (ast.type !== "REFERENCE" && !(ast.type === "BIN_OPERATION" && ast.value === ":")) {
         if (isMeta) {

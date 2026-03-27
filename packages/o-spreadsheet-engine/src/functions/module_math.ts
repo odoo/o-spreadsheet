@@ -451,7 +451,7 @@ export const COUNTBLANK = {
 export const COUNTIF = {
   description: _t("A conditional count across a range."),
   args: [
-    arg("range (range)", _t("The range that is tested against criterion.")),
+    arg("range (range, requiresIndexing)", _t("The range that is tested against criterion.")),
     arg("criterion (string)", _t("The pattern or test to apply to range.")),
   ],
   compute: function (...args: Arg[]): number {
