@@ -78,43 +78,7 @@ function getCurrentNode() {
   return currentNode;
 }
 
-/**
- * @param {any} value
- * @param {any} descr
- */
-owl.validate = function validate(value, descr) {
-  // return owl.validate(...arguments);
-};
-
-/**
- * @param {() => void} cb
- */
-owl.onWillRender = function onWillRender(cb) {
-  const node = getCurrentNode();
-  const renderFn = node.renderFn;
-  node.renderFn = () => {
-    cb.call(node.component);
-    return renderFn();
-  };
-};
-
-/**
- * @param {() => void} cb
- */
-owl.onRendered = function onRendered(cb) {
-  const node = getCurrentNode();
-  const renderFn = node.renderFn;
-  node.renderFn = () => {
-    const result = renderFn();
-    cb.call(node.component);
-    return result;
-  };
-};
-
-/**
- * @param {string} name
- */
-owl.useRef = function useRef(name) {
+export function useRef(name) {
   const node = getCurrentNode();
   if (!node.__refs__) {
     node.__refs__ = {};
@@ -124,26 +88,18 @@ owl.useRef = function useRef(name) {
       return node.__refs__[name] || null;
     },
   };
-};
+}
 
-/**
- */
-owl.useComponent = function useComponent() {
+export function useComponent() {
   return getCurrentNode().component;
-};
+}
 
-/**
- * @param {HTMLElement} target
- * @param {string} eventName
- * @param {Function} handler
- * @param {any} eventParams
- */
-owl.useExternalListener = function useExternalListener(target, eventName, handler, eventParams) {
+export function useExternalListener(target, eventName, handler, eventParams) {
   const node = getCurrentNode();
   const boundHandler = handler.bind(node.component);
   owl.onMounted(() => target.addEventListener(eventName, boundHandler, eventParams));
   owl.onWillUnmount(() => target.removeEventListener(eventName, boundHandler, eventParams));
-};
+}
 
 export function useLayoutEffect(effect, computeDependencies = () => [NaN]) {
   /** @type {Function} */
@@ -173,14 +129,9 @@ class EnvPlugin extends owl.Plugin {
   env = owl.config("env") ?? {};
 }
 
-owl.useEnv = function useEnv() {
+export function useEnv() {
   return getCurrentNode().component.env;
-};
-
-function useChildEnv() {
-  return owl.plugin(EnvPlugin).env;
 }
-owl.useChildEnv = useChildEnv;
 
 /**
  * @param {object} env
@@ -189,7 +140,6 @@ function provideEnv(env) {
   owl.providePlugins([EnvPlugin], { env });
   return env;
 }
-owl.provideEnv = provideEnv;
 
 /**
  * @param {object} extension
@@ -200,20 +150,14 @@ function extendEnv(extension) {
   return provideEnv(subEnv);
 }
 
-/**
- * @param {object} extension
- */
-owl.useSubEnv = function useSubEnv(extension) {
+export function useSubEnv(extension) {
   const component = getCurrentNode().component;
   component.env = extendEnv(extension);
-};
+}
 
-/**
- * @param {object} extension
- */
-owl.useChildSubEnv = function useChildSubEnv(extension) {
+export function useChildSubEnv(extension) {
   extendEnv(extension);
-};
+}
 
 class VPortal extends owl.blockDom.text("").constructor {
   /**
