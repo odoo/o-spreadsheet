@@ -28,7 +28,6 @@ import { StateObserver } from "./state_observer";
 import { _t, setDefaultTranslationMethod } from "./translation";
 import { StateUpdateMessage } from "./types/collaborative/transport_service";
 import {
-  canExecuteInReadonly,
   Command,
   CommandDispatcher,
   CommandHandler,
@@ -514,9 +513,6 @@ export class Model extends EventBus<any> implements CommandDispatcher {
   dispatch: CommandDispatcher["dispatch"] = (type: CommandTypes, payload?: any) => {
     const command: Command = createCommand(type, payload);
     const status: Status = this.status;
-    if (this.getters.isReadonly() && !canExecuteInReadonly(command)) {
-      return new DispatchResult(CommandResult.Readonly);
-    }
     if (!this.session.canApplyOptimisticUpdate()) {
       return new DispatchResult(CommandResult.WaitingSessionConfirmation);
     }
