@@ -5,7 +5,7 @@
       t-att-class="{'o-disabled': this.env.model.getters.isCurrentSheetLocked()}"
       title="Borders">
       <span
-        t-ref="borderEditorButton"
+        t-custom-ref="borderEditorButton"
         t-on-click.stop="this.toggleBorderEditor"
         t-att-class="this.props.class ? this.props.class : ''"
         t-att-disabled="this.props.disabled">

@@ -1,6 +1,6 @@
 <templates>
   <t t-name="o-spreadsheet-ConditionalFormatPreviewList">
-    <div class="o-cf-preview-list h-100 overflow-auto" t-ref="cfList">
+    <div class="o-cf-preview-list h-100 overflow-auto" t-custom-ref="cfList">
       <t t-foreach="this.conditionalFormats" t-as="cf" t-key="cf.id">
         <div
           class="o-cf-preview-container d-flex position-relative"

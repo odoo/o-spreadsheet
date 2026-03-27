@@ -4,14 +4,14 @@
       class="o-figure-wrapper"
       t-att-class="{'o-figure-selected': this.isSelected}"
       t-att-style="this.wrapperStyle"
-      t-ref="figureWrapper">
+      t-custom-ref="figureWrapper">
       <div
         class="o-figure w-100 h-100"
         t-att-class="this.props.class"
         t-on-pointerdown.stop="(ev) => this.onMouseDown(ev)"
         t-on-click="this.onClick"
         t-on-contextmenu.prevent.stop="(ev) => !this.env.model.getters.isReadonly() and this.onContextMenu(ev)"
-        t-ref="figure"
+        t-custom-ref="figure"
         t-att-style="this.props.style"
         t-att-data-id="this.props.figureUI.id"
         tabindex="0"
@@ -29,7 +29,7 @@
             class="o-figure-menu-item d-flex-align-items-center"
             t-if="!this.env.model.getters.isReadonly() and this.props.figureUI.tag !== 'carousel'"
             t-on-click="this.showMenu"
-            t-ref="menuButton"
+            t-custom-ref="menuButton"
             t-on-contextmenu.prevent.stop="this.showMenu">
             <t t-call="o-spreadsheet-Icon.LIST"/>
           </div>

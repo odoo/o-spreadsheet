@@ -3,7 +3,7 @@
     <div
       class="o-dv-preview d-flex justify-content-between p-3 border-bottom"
       t-on-click="this.onPreviewClick"
-      t-ref="dvPreview">
+      t-custom-ref="dvPreview">
       <div>
         <div
           class="o-dv-preview-description o-fw-bold text-truncate"

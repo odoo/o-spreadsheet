@@ -26,7 +26,7 @@ export class ScrollBar extends Component<Props> {
     <div
         t-attf-class="o-scrollbar {{props.direction}}"
         t-on-scroll="onScroll"
-        t-ref="scrollbar"
+        t-custom-ref="scrollbar"
         t-att-style="positionCss">
       <div t-att-style="sizeCss"/>
     </div>

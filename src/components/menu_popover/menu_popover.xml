@@ -1,7 +1,10 @@
 <templates>
   <t t-name="o-spreadsheet-Menu-Popover">
     <Popover t-if="this.menuItems.length" t-props="this.popoverProps">
-      <div t-ref="menu" class="o-menu-wrapper" t-on-mouseover="() => this.onMouseOverMainMenu()">
+      <div
+        t-custom-ref="menu"
+        class="o-menu-wrapper"
+        t-on-mouseover="() => this.onMouseOverMainMenu()">
         <Menu t-props="this.menuProps"/>
       </div>
       <MenuPopover

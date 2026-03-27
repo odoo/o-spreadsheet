@@ -1,6 +1,6 @@
 <templates>
   <t t-name="o-spreadsheet-Composer">
-    <div class="o-composer-container w-100 h-100" t-ref="composerContainer">
+    <div class="o-composer-container w-100 h-100" t-custom-ref="composerContainer">
       <t t-set="autoCompleteProposals" t-value="this.props.composerStore.autoCompleteProposals"/>
       <t t-set="canBeToggled" t-value="this.props.composerStore.canBeToggled"/>
       <t
@@ -23,7 +23,7 @@
           class="o-composer w-100 text-start"
           t-att-class="{ 'text-muted': this.env.model.getters.isReadonly(), 'active': this.props.focus !== 'inactive' }"
           t-att-style="this.props.inputStyle"
-          t-ref="o_composer"
+          t-custom-ref="o_composer"
           tabindex="1"
           t-att-contenteditable="this.env.model.getters.isReadonly() ? 'false' : 'plaintext-only'"
           t-att-placeHolder="this.props.placeholder"

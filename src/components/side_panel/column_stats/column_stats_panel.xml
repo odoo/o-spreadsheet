@@ -40,7 +40,7 @@
               />
               <t t-if="this.shouldShowChart">
                 <div class="o-column-stats-chart mx-2 mt-2">
-                  <canvas class="w-100 h-100" t-ref="columnStatsChart"/>
+                  <canvas class="w-100 h-100" t-custom-ref="columnStatsChart"/>
                 </div>
               </t>
               <t t-else="">

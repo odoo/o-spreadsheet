@@ -1,6 +1,6 @@
 <templates>
   <t t-name="o-spreadsheet-AddDimensionButton">
-    <button class="add-dimension o-button" t-on-click="this.togglePopover" t-ref="button">
+    <button class="add-dimension o-button" t-on-click="this.togglePopover" t-custom-ref="button">
       Add
     </button>
     <Popover
@@ -15,7 +15,7 @@
           t-on-input="(ev) => this.updateSearch(ev.target.value)"
           t-on-keydown="this.onKeyDown"
           class="border-0 w-100 pivot-dimension-search-field"
-          t-ref="autofocus"
+          t-custom-ref="autofocus"
         />
       </div>
       <TextValueProvider

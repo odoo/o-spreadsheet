@@ -7,7 +7,7 @@
       t-on-click="this.focusDefaultElement"
       t-on-keydown="this.onKeydown"
       t-on-wheel.prevent="this.onMouseWheel"
-      t-ref="grid">
+      t-custom-ref="grid">
       <GridOverlay
         onCellClicked.bind="this.onCellClicked"
         onCellDoubleClicked.bind="this.onCellDoubleClicked"
@@ -21,7 +21,7 @@
         gridDims="this.env.model.getters.getSheetViewDimensionWithHeaders()"
         onInputContextMenu.bind="this.onInputContextMenu"
       />
-      <canvas t-ref="canvas"/>
+      <canvas t-custom-ref="canvas"/>
       <t t-set="focused" t-value="this.focusedClients"/>
       <t
         t-foreach="this.env.model.getters.getClientsToDisplay()"

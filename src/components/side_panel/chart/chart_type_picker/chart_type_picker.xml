@@ -5,7 +5,7 @@
       <div class="position-relative">
         <div
           class="o-select o-input o-type-selector"
-          t-ref="selectRef"
+          t-custom-ref="selectRef"
           t-on-pointerdown.prevent="this.onPointerDown">
           <t t-out="selectedChartProperties.displayName"/>
         </div>
@@ -16,7 +16,7 @@
     </Section>
     <Popover t-if="this.state.popoverProps" t-props="this.state.popoverProps">
       <div
-        t-ref="popoverRef"
+        t-custom-ref="popoverRef"
         class="o-chart-select-popover px-3 pb-4"
         t-att-style="this.state.popoverStyle">
         <t t-foreach="this.categories" t-as="category" t-key="category">

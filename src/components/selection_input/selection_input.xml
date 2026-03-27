@@ -1,6 +1,6 @@
 <templates>
   <t t-name="o-spreadsheet-SelectionInput">
-    <div class="o-selection" t-ref="o-selection">
+    <div class="o-selection" t-custom-ref="o-selection">
       <div
         t-foreach="this.ranges"
         t-as="range"
@@ -32,7 +32,7 @@
               'o-invalid border-danger position-relative': this.isInvalid || !range.isValidRange,
               'text-decoration-underline': range.xc and range.isFocused and this.store.mode === 'select-range'
             }"
-            t-ref="{{range.isFocused ? 'focusedInput' : 'unfocusedInput' + range_index}}"
+            t-custom-ref="{{range.isFocused ? 'focusedInput' : 'unfocusedInput' + range_index}}"
           />
           <span
             t-if="this.isInvalid || !range.isValidRange"

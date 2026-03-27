@@ -1,6 +1,6 @@
 <templates>
   <t t-name="o-spreadsheet-NumberEditor">
-    <div class="o-dropdown" t-ref="NumberEditor">
+    <div class="o-dropdown" t-custom-ref="NumberEditor">
       <div
         class="o-number-editor d-flex align-items-center"
         t-att-class="this.props.class"
@@ -16,7 +16,7 @@
           t-on-click.stop="this.props.onFocusInput"
           t-on-focus.stop="this.onInputFocused"
           t-on-change="this.setValueFromInput"
-          t-ref="inputNumber"
+          t-custom-ref="inputNumber"
         />
         <t t-out="this.props.valueIcon"/>
         <span>
@@ -24,7 +24,7 @@
         </span>
       </div>
       <Popover t-if="this.dropdown.isOpen" t-props="this.popoverProps">
-        <div class="o-text-options" t-on-click.stop="" t-ref="numberList">
+        <div class="o-text-options" t-on-click.stop="" t-custom-ref="numberList">
           <t t-foreach="this.props.valueList" t-as="value" t-key="value">
             <div t-att-data-size="value" t-on-click="() => this.setValueFromList(value)">
               <t t-out="value"/>

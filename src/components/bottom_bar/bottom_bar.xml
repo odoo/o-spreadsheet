@@ -3,7 +3,7 @@
     <div
       class="o-spreadsheet-bottom-bar o-two-columns d-flex flex-fill align-items-center overflow-hidden border-top"
       t-on-click="this.props.onClick"
-      t-ref="bottomBar">
+      t-custom-ref="bottomBar">
       <Ripple class="'add-sheet-container'">
         <div
           class="o-sheet-item o-add-sheet me-2 p-1"
@@ -28,7 +28,7 @@
         />
         <div
           class="o-sheet-list d-flex w-100 px-1"
-          t-ref="sheetList"
+          t-custom-ref="sheetList"
           t-on-wheel="this.onWheel"
           t-on-scroll="this.onScroll">
           <t t-foreach="this.getVisibleSheets()" t-as="sheet" t-key="sheet.id">

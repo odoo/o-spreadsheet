@@ -4,7 +4,7 @@
       <t t-if="this.allowedValues === 'onlyLiterals'">
         <input
           type="text"
-          t-ref="input"
+          t-custom-ref="input"
           t-on-input="this.onInputValueChanged"
           t-att-value="this.props.value"
           class="o-input"

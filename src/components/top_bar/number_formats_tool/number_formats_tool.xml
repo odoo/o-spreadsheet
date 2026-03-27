@@ -1,5 +1,5 @@
 <templates>
-  <div t-name="o-spreadsheet-NumberFormatsTool" t-ref="buttonRef" t-on-click.stop="">
+  <div t-name="o-spreadsheet-NumberFormatsTool" t-custom-ref="buttonRef" t-on-click.stop="">
     <ActionButton
       action="this.formatNumberMenuItemSpec"
       hasTriangleDownIcon="true"

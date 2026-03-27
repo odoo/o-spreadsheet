@@ -6,7 +6,7 @@
       </t>
       <t t-else="">
         <div class="o-small-composer px-2 py-2 position-relative bg-white border">
-          <div class="w-100" t-ref="bottombarComposer">
+          <div class="w-100" t-custom-ref="bottombarComposer">
             <Composer t-props="this.composerProps"/>
             <span
               t-if="this.showFxIcon"

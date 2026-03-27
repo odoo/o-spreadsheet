@@ -12,7 +12,7 @@
             title="Link label"
             placeholder="e.g. 'Link label'"
             class="o-input"
-            t-model="this.link.label"
+            t-custom-model="this.link.label"
           />
         </div>
 
@@ -24,8 +24,8 @@
               type="text"
               placeholder="e.g. 'http://www.odoo.com'"
               title="Link URL"
-              t-ref="urlInput"
-              t-model="this.link.url"
+              t-custom-ref="urlInput"
+              t-custom-model="this.link.url"
             />
           </t>
           <t t-else="">
@@ -48,7 +48,7 @@
             t-if="!this.link.url"
             t-on-click.stop="this.openMenu"
             class="o-special-link o-button-icon bg-white"
-            t-ref="linkEditorMenuButton">
+            t-custom-ref="linkEditorMenuButton">
             <t t-call="o-spreadsheet-Icon.LIST"/>
           </button>
         </div>

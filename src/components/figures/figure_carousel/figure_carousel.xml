@@ -17,7 +17,9 @@
           t-att-title="this.title"
           t-att-style="this.titleStyle"
         />
-        <div class="o-carousel-tabs d-flex flex-fill justify-content-end" t-ref="carouselTabs">
+        <div
+          class="o-carousel-tabs d-flex flex-fill justify-content-end"
+          t-custom-ref="carouselTabs">
           <t t-foreach="this.visibleCarouselItems" t-as="item" t-key="item_index">
             <div
               class="o-carousel-tab text-truncate px-2 mt-1 flex-shrink-0"
@@ -31,7 +33,7 @@
         <div
           class="o-carousel-tabs-dropdown o-carousel-button flex-shrink-0 rounded p-1"
           t-att-class="{'active': this.menuState.isOpen}"
-          t-ref="carouselTabsDropdown"
+          t-custom-ref="carouselTabsDropdown"
           t-on-click="this.toggleMenu">
           <div class="fa fa-angle-down"/>
           <MenuPopover

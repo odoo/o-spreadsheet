@@ -6,7 +6,7 @@
         t-att-class="{
           'o-focused': this.state.isSelectionInputFocused
         }"
-        t-ref="namedRangePreview">
+        t-custom-ref="namedRangePreview">
         <div class="d-flex justify-content-between">
           <div class="o-named-range-container w-100 d-flex flex-column">
             <TextInput

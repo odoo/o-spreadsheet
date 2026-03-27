@@ -2,7 +2,7 @@
   <t t-name="o-spreadsheet-Select">
     <div
       tabIndex="0"
-      t-ref="selectRef"
+      t-custom-ref="selectRef"
       class="o-input o-select"
       t-att-class="this.props.class"
       t-att-name="this.props.name"
@@ -16,7 +16,7 @@
       <div
         class="o-select-dropdown overflow-hidden py-2"
         t-att-class="this.props.popoverClass"
-        t-ref="dropdownRef">
+        t-custom-ref="dropdownRef">
         <t t-foreach="this.props.values" t-as="value" t-key="value_index">
           <div
             class="o-select-option"

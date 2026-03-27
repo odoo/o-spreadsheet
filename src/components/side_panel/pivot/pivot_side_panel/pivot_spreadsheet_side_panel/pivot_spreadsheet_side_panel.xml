@@ -2,7 +2,9 @@
   <t t-name="o-spreadsheet-PivotSpreadsheetSidePanel">
     <t t-set="isReadonly" t-value="this.env.model.getters.isReadonly()"/>
     <div class="d-flex flex-column h-100 justify-content-between overflow-hidden">
-      <div class="h-100 position-relative overflow-x-hidden overflow-y-auto" t-ref="pivotSidePanel">
+      <div
+        class="h-100 position-relative overflow-x-hidden overflow-y-auto"
+        t-custom-ref="pivotSidePanel">
         <div
           t-att="isReadonly ? ['inert', 1] : []"
           t-att-class="{ 'pe-none opacity-50': isReadonly }">

@@ -3,7 +3,7 @@
     <div
       class="o-spreadsheet h-100 w-100"
       t-att-class="this.getSpreadSheetClasses()"
-      t-ref="spreadsheet"
+      t-custom-ref="spreadsheet"
       t-att-style="this.getStyle()">
       <t t-if="this.env.isDashboard()">
         <SpreadsheetDashboard getGridSize.bind="this.getGridSize"/>

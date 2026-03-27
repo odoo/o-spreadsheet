@@ -30,7 +30,7 @@
       <div
         class="d-flex o-topbar-responsive"
         t-att-class="{'o-topbar-responsive': !this.env.model.getters.isReadonly()}"
-        t-ref="toolBarContainer">
+        t-custom-ref="toolBarContainer">
         <div
           class="o-topbar-toolbar d-flex flex-grow-1"
           t-att-class="{'flex-shrink-0': this.env.model.getters.isReadonly()}">
@@ -46,10 +46,10 @@
           <div
             t-else=""
             class="o-toolbar-tools d-flex flex-grow-1 align-items-center"
-            t-ref="toolBar">
+            t-custom-ref="toolBar">
             <div
               class="d-flex h-100 o-named-range-selector-container align-items-center ms-2 me-1"
-              t-ref="namedRanges"
+              t-custom-ref="namedRanges"
               t-on-click.stop="">
               <NamedRangeSelector/>
               <div class="o-topbar-divider border-end"/>
@@ -69,11 +69,11 @@
               <div t-if="this.showDivider(category_index)" class="o-topbar-divider border-end"/>
             </div>
             <div
-              t-ref="moreToolsContainer"
+              t-custom-ref="moreToolsContainer"
               class="d-flex align-items-center flex-grow-1 me-auto more-tools-container">
               <span
                 class="o-toolbar-button o-menu-item-button o-hoverable-button  me-2 px-1 py-2 more-tools"
-                t-ref="moreToolsButton"
+                t-custom-ref="moreToolsButton"
                 t-on-click.stop="this.toggleMoreTools">
                 <t t-call="o-spreadsheet-Icon.SHORT_THIN_DRAG_HANDLE"/>
               </span>

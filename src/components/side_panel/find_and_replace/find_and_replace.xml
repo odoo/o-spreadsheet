@@ -5,7 +5,7 @@
         <div class="o-input-search-container">
           <input
             type="text"
-            t-ref="searchInput"
+            t-custom-ref="searchInput"
             class="o-input o-input-with-count o-search"
             t-on-input="this.onSearchInput"
             t-on-focus="this.onFocusSearch"
@@ -85,7 +85,7 @@
               type="text"
               class="o-input o-input-without-count o-replace"
               t-on-keydown="this.onKeydownReplace"
-              t-model="this.store.toReplace"
+              t-custom-model="this.store.toReplace"
               placeholder="e.g. 'replace me'"
             />
           </div>

@@ -2,7 +2,7 @@
   <t t-name="o-spreadsheet-NamedRangeSelector">
     <div
       class="o-named-range-selector d-flex align-items-center rounded p-1 my-1"
-      t-ref="namedRangeSelectorRef"
+      t-custom-ref="namedRangeSelectorRef"
       t-att-class="{
           'selected': this.topBarToolStore.isActive,
         }">

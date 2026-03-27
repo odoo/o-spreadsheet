@@ -3,7 +3,7 @@
     <div
       class="o-scrollbar"
       t-on-scroll="this.onScroll"
-      t-ref="scrollbar"
+      t-custom-ref="scrollbar"
       t-att-style="this.positionCss">
       <div t-att-style="this.sizeCss"/>
     </div>
