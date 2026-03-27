@@ -251,10 +251,12 @@ function applyInternalNumberFormat(value: number, format: NumberInternalFormat, 
   }
   const { integerDigits, decimalDigits } = splitNumber(Math.abs(value), maxDecimals);
 
+  const hasDigitInDecimalPart = !!format.decimalPart?.some((token) => token.type === "DIGIT");
   let formattedValue = applyIntegerFormat(
     integerDigits,
     format,
-    format.thousandsSeparator ? locale.thousandsSeparator : undefined
+    format.thousandsSeparator ? locale.thousandsSeparator : undefined,
+    hasDigitInDecimalPart
   );
 
   if (format.decimalPart !== undefined) {
@@ -273,10 +275,12 @@ function applyInternalNumberFormat(value: number, format: NumberInternalFormat, 
 function applyIntegerFormat(
   integerDigits: string,
   internalFormat: NumberInternalFormat,
-  thousandsSeparator: string | undefined
+  thousandsSeparator: string | undefined,
+  hasDigitInDecimalPart: boolean
 ): string {
   let tokens = internalFormat.integerPart;
-  if (!tokens.some((token) => token.type === "DIGIT")) {
+  // If the format has a decimal part with digits, we always want to display the integer digits
+  if (hasDigitInDecimalPart && !tokens.some((token) => token.type === "DIGIT")) {
     tokens = [...tokens, { type: "DIGIT", value: "#" }];
   }
   if (integerDigits === "0") {
