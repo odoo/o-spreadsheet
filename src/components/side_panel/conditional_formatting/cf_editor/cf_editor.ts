@@ -2,9 +2,12 @@ import { DEFAULT_COLOR_SCALE_MIDPOINT_COLOR } from "@odoo/o-spreadsheet-engine/c
 import { _t } from "@odoo/o-spreadsheet-engine/translation";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { Store } from "@odoo/o-spreadsheet-engine/types/store_engine";
-import { useExternalListener } from "@odoo/owl";
 import { colorNumberToHex, deepCopy } from "../../../../helpers";
-import { Component, useLayoutEffect } from "../../../../owl3_compatibility_layer";
+import {
+  Component,
+  useExternalListener,
+  useLayoutEffect,
+} from "../../../../owl3_compatibility_layer";
 import { useLocalStore } from "../../../../store_engine";
 import {
   ColorScaleThreshold,

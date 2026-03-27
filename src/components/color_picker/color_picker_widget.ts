@@ -1,6 +1,5 @@
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
-import { useRef } from "@odoo/owl";
-import { Component } from "../../owl3_compatibility_layer";
+import { Component, useRef } from "../../owl3_compatibility_layer";
 import { Pixel, Rect } from "../../types";
 import { ColorPicker } from "./color_picker";
 

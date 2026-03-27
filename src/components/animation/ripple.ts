@@ -3,8 +3,8 @@ import {
   getElementMargins,
 } from "@odoo/o-spreadsheet-engine/components/helpers/css";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
-import { onMounted, onWillUnmount, proxy, useRef } from "@odoo/owl";
-import { Component } from "../../owl3_compatibility_layer";
+import { onMounted, onWillUnmount, proxy } from "@odoo/owl";
+import { Component, useRef } from "../../owl3_compatibility_layer";
 import { Rect } from "../../types";
 import { getBoundingRectAsPOJO } from "../helpers/dom_helpers";
 

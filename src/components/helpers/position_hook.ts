@@ -1,4 +1,5 @@
-import { onMounted, onPatched, proxy, useComponent } from "@odoo/owl";
+import { onMounted, onPatched, proxy } from "@odoo/owl";
+import { useComponent } from "../../owl3_compatibility_layer";
 import { Rect } from "../../types";
 
 /**

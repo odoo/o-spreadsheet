@@ -1,7 +1,7 @@
 import { _t } from "@odoo/o-spreadsheet-engine/translation";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
-import { proxy, useExternalListener, useRef } from "@odoo/owl";
-import { Component } from "../../owl3_compatibility_layer";
+import { proxy } from "@odoo/owl";
+import { Component, useExternalListener, useRef } from "../../owl3_compatibility_layer";
 import { Store, useStore } from "../../store_engine";
 import { DOMFocusableElementStore } from "../../stores/DOM_focus_store";
 import { cssPropertiesToCss } from "../helpers";

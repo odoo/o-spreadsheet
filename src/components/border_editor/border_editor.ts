@@ -1,6 +1,6 @@
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
-import { proxy, useRef } from "@odoo/owl";
-import { Component } from "../../owl3_compatibility_layer";
+import { proxy } from "@odoo/owl";
+import { Component, useRef } from "../../owl3_compatibility_layer";
 import { BorderPosition, BorderStyle, Color, Pixel, Rect, borderStyles } from "../../types/index";
 import { ColorPickerWidget } from "../color_picker/color_picker_widget";
 import { Popover, PopoverProps } from "../popover/popover";

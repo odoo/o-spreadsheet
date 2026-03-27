@@ -1,7 +1,7 @@
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
-import { proxy, useRef } from "@odoo/owl";
+import { proxy } from "@odoo/owl";
 import { ActionSpec, createActions } from "../../../../actions/action";
-import { Component } from "../../../../owl3_compatibility_layer";
+import { Component, useRef } from "../../../../owl3_compatibility_layer";
 import { MenuMouseEvent } from "../../../../types";
 import { getBoundingRectAsPOJO } from "../../../helpers/dom_helpers";
 import { MenuPopover, MenuState } from "../../../menu_popover/menu_popover";

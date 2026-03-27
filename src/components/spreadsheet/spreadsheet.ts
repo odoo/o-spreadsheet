@@ -5,18 +5,16 @@ import { Model } from "@odoo/o-spreadsheet-engine/model";
 import { _t } from "@odoo/o-spreadsheet-engine/translation";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { NotificationStoreMethods } from "@odoo/o-spreadsheet-engine/types/stores/notification_store_methods";
-import {
-  onMounted,
-  onPatched,
-  onWillUnmount,
-  onWillUpdateProps,
-  useExternalListener,
-  useRef,
-  useSubEnv,
-} from "@odoo/owl";
+import { onMounted, onPatched, onWillUnmount, onWillUpdateProps } from "@odoo/owl";
 import { batched } from "../../helpers";
 import { ImageProvider } from "../../helpers/figures/images/image_provider";
-import { Component, useLayoutEffect } from "../../owl3_compatibility_layer";
+import {
+  Component,
+  useExternalListener,
+  useLayoutEffect,
+  useRef,
+  useSubEnv,
+} from "../../owl3_compatibility_layer";
 import { Store, useStore, useStoreProvider } from "../../store_engine";
 import { ModelStore } from "../../stores";
 import { NotificationStore } from "../../stores/notification_store";

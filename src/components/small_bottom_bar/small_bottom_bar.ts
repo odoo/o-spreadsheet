@@ -1,6 +1,6 @@
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
-import { proxy, useRef } from "@odoo/owl";
-import { Component, useLayoutEffect } from "../../owl3_compatibility_layer";
+import { proxy } from "@odoo/owl";
+import { Component, useLayoutEffect, useRef } from "../../owl3_compatibility_layer";
 import { Store, useStore } from "../../store_engine";
 import { ComposerFocusType, Rect } from "../../types";
 import { Ripple } from "../animation/ripple";

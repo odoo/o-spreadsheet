@@ -1,8 +1,8 @@
 import { _t } from "@odoo/o-spreadsheet-engine/translation";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
-import { onMounted, proxy, useExternalListener, useRef } from "@odoo/owl";
+import { onMounted, proxy } from "@odoo/owl";
 import { Action, getMenuItemsAndSeparators } from "../../../actions/action";
-import { Component } from "../../../owl3_compatibility_layer";
+import { Component, useExternalListener, useRef } from "../../../owl3_compatibility_layer";
 import { topbarMenuRegistry } from "../../../registries/menus";
 import { cssPropertiesToCss } from "../../helpers";
 import { Menu, MenuProps } from "../../menu/menu";

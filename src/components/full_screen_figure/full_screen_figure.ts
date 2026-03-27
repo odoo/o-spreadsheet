@@ -1,6 +1,6 @@
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
-import { onWillUpdateProps, useRef } from "@odoo/owl";
-import { Component, useLayoutEffect } from "../../owl3_compatibility_layer";
+import { onWillUpdateProps } from "@odoo/owl";
+import { Component, useLayoutEffect, useRef } from "../../owl3_compatibility_layer";
 import { figureRegistry } from "../../registries/figures_registry";
 import { Store, useStore } from "../../store_engine";
 import { ChartAnimationStore } from "../figures/chart/chartJs/chartjs_animation_store";

@@ -1,7 +1,6 @@
 import { CANVAS_SHIFT } from "@odoo/o-spreadsheet-engine/constants";
 import { Model } from "@odoo/o-spreadsheet-engine/model";
-import { useRef } from "@odoo/owl";
-import { useLayoutEffect } from "../../owl3_compatibility_layer";
+import { useLayoutEffect, useRef } from "../../owl3_compatibility_layer";
 import { useStore } from "../../store_engine";
 import { GridRenderer } from "../../stores/grid_renderer_store";
 import { RendererStore } from "../../stores/renderer_store";

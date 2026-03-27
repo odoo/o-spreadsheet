@@ -1,8 +1,8 @@
 import { cssPropertiesToCss } from "@odoo/o-spreadsheet-engine/components/helpers/css";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
-import { onWillUpdateProps, proxy, useRef } from "@odoo/owl";
+import { onWillUpdateProps, proxy } from "@odoo/owl";
 import { deepEquals, range } from "../../helpers";
-import { Component, useLayoutEffect } from "../../owl3_compatibility_layer";
+import { Component, useLayoutEffect, useRef } from "../../owl3_compatibility_layer";
 import { Store, useLocalStore, useStore } from "../../store_engine";
 import { DOMFocusableElementStore } from "../../stores/DOM_focus_store";
 import { Color } from "../../types";

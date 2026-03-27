@@ -1,5 +1,4 @@
-import { useRef } from "@odoo/owl";
-import { useLayoutEffect } from "../../owl3_compatibility_layer";
+import { useLayoutEffect, useRef } from "../../owl3_compatibility_layer";
 
 export function useAutofocus({ refName }: { refName: string }) {
   const ref = useRef(refName);

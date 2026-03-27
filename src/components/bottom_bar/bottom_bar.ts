@@ -1,8 +1,8 @@
 import { _t } from "@odoo/o-spreadsheet-engine/translation";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
-import { onWillUpdateProps, proxy, useRef } from "@odoo/owl";
+import { onWillUpdateProps, proxy } from "@odoo/owl";
 import { deepEquals } from "../../helpers";
-import { Component } from "../../owl3_compatibility_layer";
+import { Component, useRef } from "../../owl3_compatibility_layer";
 import { MenuItemRegistry } from "../../registries/menu_items_registry";
 import { MenuMouseEvent, Pixel, Rect, UID } from "../../types";
 import { Ripple } from "../animation/ripple";

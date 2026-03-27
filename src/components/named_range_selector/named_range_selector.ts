@@ -1,14 +1,14 @@
 import { _t, rangeReference } from "@odoo/o-spreadsheet-engine";
 import { HIGHLIGHT_COLOR } from "@odoo/o-spreadsheet-engine/constants";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
-import { proxy, useRef } from "@odoo/owl";
+import { proxy } from "@odoo/owl";
 import { Action, ActionSpec, createActions } from "../../actions/action";
 import { fuzzyLookup, zoneToXc } from "../../helpers";
 import {
   interactiveCreateNamedRange,
   interactiveUpdateNamedRange,
 } from "../../helpers/ui/named_range_interactive";
-import { Component } from "../../owl3_compatibility_layer";
+import { Component, useRef } from "../../owl3_compatibility_layer";
 import { Store, useStore } from "../../store_engine";
 import { DOMFocusableElementStore } from "../../stores/DOM_focus_store";
 import { HighlightStore } from "../../stores/highlight_store";

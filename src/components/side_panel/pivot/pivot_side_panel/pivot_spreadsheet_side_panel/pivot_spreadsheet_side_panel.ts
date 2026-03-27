@@ -2,8 +2,8 @@ import { SpreadsheetPivotRuntimeDefinition } from "@odoo/o-spreadsheet-engine/he
 import { SpreadsheetPivot } from "@odoo/o-spreadsheet-engine/helpers/pivot/spreadsheet_pivot/spreadsheet_pivot";
 import { SpreadsheetPivotCoreDefinition } from "@odoo/o-spreadsheet-engine/types/pivot";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
-import { proxy, useRef } from "@odoo/owl";
-import { Component } from "../../../../../owl3_compatibility_layer";
+import { proxy } from "@odoo/owl";
+import { Component, useRef } from "../../../../../owl3_compatibility_layer";
 import { Store, useLocalStore } from "../../../../../store_engine";
 import { Ref, UID } from "../../../../../types";
 import { SelectionInput } from "../../../../selection_input/selection_input";

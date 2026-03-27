@@ -3,9 +3,9 @@ import {
   buildTableStyle,
 } from "@odoo/o-spreadsheet-engine/helpers/table_presets";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
-import { proxy, useExternalListener } from "@odoo/owl";
+import { proxy } from "@odoo/owl";
 import { isColorValid } from "../../../helpers";
-import { Component } from "../../../owl3_compatibility_layer";
+import { Component, useExternalListener } from "../../../owl3_compatibility_layer";
 import { Color, TableConfig, TableStyle, TableStyleTemplateName } from "../../../types";
 import { cssPropertiesToCss } from "../../helpers";
 import { TableStylePreview } from "../../tables/table_style_preview/table_style_preview";

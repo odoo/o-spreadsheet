@@ -1,8 +1,7 @@
 import { localizeCFRule } from "@odoo/o-spreadsheet-engine/helpers/locale";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
-import { useRef } from "@odoo/owl";
 import { zoneToXc } from "../../../../helpers";
-import { Component } from "../../../../owl3_compatibility_layer";
+import { Component, useRef } from "../../../../owl3_compatibility_layer";
 import { ConditionalFormat, UID } from "../../../../types";
 import { getBoundingRectAsPOJO } from "../../../helpers/dom_helpers";
 import { useDragAndDropListItems } from "../../../helpers/drag_and_drop_dom_items_hook";

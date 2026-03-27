@@ -1,9 +1,9 @@
 import { detectLink, urlRepresentation } from "@odoo/o-spreadsheet-engine/helpers/links";
 import { canonicalizeNumberContent } from "@odoo/o-spreadsheet-engine/helpers/locale";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
-import { onMounted, proxy, useRef } from "@odoo/owl";
+import { onMounted, proxy } from "@odoo/owl";
 import { markdownLink } from "../../../helpers";
-import { Component } from "../../../owl3_compatibility_layer";
+import { Component, useRef } from "../../../owl3_compatibility_layer";
 import { linkMenuRegistry } from "../../../registries/menus/link_menu_registry";
 import { Link, Position, Rect } from "../../../types";
 import { CellPopoverComponent, PopoverBuilders } from "../../../types/cell_popovers";

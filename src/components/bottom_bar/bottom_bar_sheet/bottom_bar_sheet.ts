@@ -1,9 +1,14 @@
 import { cssPropertiesToCss } from "@odoo/o-spreadsheet-engine/components/helpers/css";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
-import { onMounted, onPatched, onWillUnmount, proxy, useExternalListener, useRef } from "@odoo/owl";
+import { onMounted, onPatched, onWillUnmount, proxy } from "@odoo/owl";
 import { throttle } from "../../../helpers";
 import { interactiveRenameSheet } from "../../../helpers/ui/sheet_interactive";
-import { Component, useLayoutEffect } from "../../../owl3_compatibility_layer";
+import {
+  Component,
+  useExternalListener,
+  useLayoutEffect,
+  useRef,
+} from "../../../owl3_compatibility_layer";
 import { MenuItemRegistry } from "../../../registries/menu_items_registry";
 import { getSheetMenuRegistry } from "../../../registries/menus";
 import { Store, useStore } from "../../../store_engine";
