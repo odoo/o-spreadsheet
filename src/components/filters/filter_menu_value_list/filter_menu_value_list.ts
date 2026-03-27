@@ -116,15 +116,28 @@ export class FilterMenuValueList extends Component<Props, SpreadsheetChildEnv> {
     this.state.selectedValue = value.string;
   }
 
+  private getSearchedValues(): Value[] {
+    return !this.state.textFilter
+      ? this.state.values
+      : fuzzyLookup(this.state.textFilter, this.state.values, (val) => val.string);
+  }
+
+  setAllChecked(checked: boolean) {
+    const searchedValues = new Set(this.getSearchedValues());
+    for (const value of this.state.values) {
+      if (searchedValues.has(value)) {
+        value.checked = checked;
+      }
+    }
+    this.updateHiddenValues();
+  }
+
   selectAll() {
-    this.state.displayedValues.forEach((value) => (value.checked = true));
-    this.props.onUpdateHiddenValues([]);
+    this.setAllChecked(true);
   }
 
   clearAll() {
-    this.state.displayedValues.forEach((value) => (value.checked = false));
-    const hiddenValues = this.state.values.map((val) => val.string);
-    this.props.onUpdateHiddenValues(hiddenValues);
+    this.setAllChecked(false);
   }
 
   updateHiddenValues() {
@@ -140,11 +153,9 @@ export class FilterMenuValueList extends Component<Props, SpreadsheetChildEnv> {
   }
 
   computeDisplayedValues() {
-    const values = !this.state.textFilter
-      ? this.state.values
-      : fuzzyLookup(this.state.textFilter, this.state.values, (val) => val.string);
-    this.state.displayedValues = values.slice(0, this.state.numberOfDisplayedValues);
-    this.state.hasMoreValues = values.length > this.state.numberOfDisplayedValues;
+    const searchedValues = this.getSearchedValues();
+    this.state.displayedValues = searchedValues.slice(0, this.state.numberOfDisplayedValues);
+    this.state.hasMoreValues = searchedValues.length > this.state.numberOfDisplayedValues;
   }
 
   loadMoreValues() {
