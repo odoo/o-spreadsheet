@@ -73,17 +73,17 @@ export class EvaluationConditionalFormatPlugin extends CoreViewPlugin {
 
   getCellConditionalFormatStyle(position: CellPosition): Style | undefined {
     const { sheetId, col, row } = position;
-    const styles = this.computedStyles[sheetId]();
+    const styles = this.computedStyles[sheetId]?.();
     return styles && styles[col]?.[row];
   }
 
   getConditionalIcon({ sheetId, col, row }: CellPosition): string | undefined {
-    const icons = this.computedIcons[sheetId]();
+    const icons = this.computedIcons[sheetId]?.();
     return icons && icons[col]?.[row];
   }
 
   getConditionalDataBar({ sheetId, col, row }: CellPosition): DataBarFill | undefined {
-    const dataBars = this.computedDataBars[sheetId]();
+    const dataBars = this.computedDataBars[sheetId]?.();
     return dataBars && dataBars[col]?.[row];
   }
 

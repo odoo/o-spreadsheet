@@ -5,7 +5,12 @@ import {
   ConditionalFormatRule,
   IconThreshold,
 } from "@odoo/o-spreadsheet-engine/types/conditional_formatting";
-import { CommandResult, ConditionalFormattingOperatorValues, UID } from "../../src/types";
+import {
+  CellPosition,
+  CommandResult,
+  ConditionalFormattingOperatorValues,
+  UID,
+} from "../../src/types";
 import {
   activateSheet,
   addCf,
@@ -2702,5 +2707,21 @@ describe("conditional formats types", () => {
       sheetId
     );
     expect(getStyle(model, "B1")).toEqual({ fillColor: undefined });
+  });
+
+  test("Evaluated CF getters do not throw on invalid position", () => {
+    const model = new Model();
+    const badSheetIdPosition = toCellPosition("fakeSSheet", "A1");
+    expect(() => model.getters.getCellConditionalFormatStyle(badSheetIdPosition)).not.toThrow();
+    expect(() => model.getters.getConditionalIcon(badSheetIdPosition)).not.toThrow();
+    expect(() => model.getters.getConditionalDataBar(badSheetIdPosition)).not.toThrow();
+    const badXCPosition: CellPosition = {
+      sheetId: model.getters.getActiveSheetId(),
+      col: -1,
+      row: -1,
+    };
+    expect(() => model.getters.getCellConditionalFormatStyle(badXCPosition)).not.toThrow();
+    expect(() => model.getters.getConditionalIcon(badXCPosition)).not.toThrow();
+    expect(() => model.getters.getConditionalDataBar(badXCPosition)).not.toThrow();
   });
 });
