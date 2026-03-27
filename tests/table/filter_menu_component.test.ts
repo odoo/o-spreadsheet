@@ -239,6 +239,8 @@ describe("Filter menu component", () => {
         { value: "1", isChecked: false },
         { value: "2", isChecked: true },
       ]);
+      await simulateClick(".o-filter-menu-confirm");
+      expect(model.getters.getFilterHiddenValues({ sheetId, col: 0, row: 0 })).toEqual(["1"]);
     });
 
     test("Select all work on the displayed values", async () => {
@@ -252,6 +254,21 @@ describe("Filter menu component", () => {
         { value: "1", isChecked: true },
         { value: "2", isChecked: false },
       ]);
+      await simulateClick(".o-filter-menu-confirm");
+      expect(model.getters.getFilterHiddenValues({ sheetId, col: 0, row: 0 })).toEqual(["", "2"]);
+    });
+
+    test("Clear all works on all values, not only the first 50", async () => {
+      for (let i = 1; i <= 60; i++) {
+        setCellContent(model, `A${i + 1}`, `${i}`);
+      }
+      createTableWithFilter(model, "A1:A61");
+      await nextTick();
+      await openFilterMenu();
+      await simulateClick(".o-filter-menu-actions .o-button-link:nth-of-type(2)");
+      await simulateClick(".o-filter-load-more");
+      expect(getFilterMenuValues()).toHaveLength(60);
+      expect(getFilterMenuValues().every((val) => !val.isChecked)).toBe(true);
     });
 
     test("Hitting esc key correctly closes the filter menu", async () => {
