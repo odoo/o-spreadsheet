@@ -22,3 +22,4 @@ tests/**/xlsx_demo_data
 **/*.xltx
 **/*.xltm
 **/*.xlam
+tools/parse_message.mjs
