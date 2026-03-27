@@ -8,13 +8,15 @@ import { datetimeGranularities } from "@odoo/o-spreadsheet-engine/helpers/pivot/
 import { SpreadsheetPivot } from "@odoo/o-spreadsheet-engine/helpers/pivot/spreadsheet_pivot/spreadsheet_pivot";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { Model, PivotSortedColumn, SpreadsheetPivotTable } from "../../../src";
+import { CellPopoverStore } from "../../../src/components/popover";
 import { SidePanels } from "../../../src/components/side_panel/side_panels/side_panels";
-import { toXC, toZone } from "../../../src/helpers";
+import { range, toXC, toZone } from "../../../src/helpers";
 import { topbarMenuRegistry } from "../../../src/registries/menus/topbar_menu_registry";
 import { NotificationStore } from "../../../src/stores/notification_store";
 import {
   activateSheet,
   createSheet,
+  deleteRows,
   selectCell,
   setCellContent,
   setViewportOffset,
@@ -901,6 +903,24 @@ describe("Spreadsheet pivot side panel", () => {
     env.openSidePanel("PivotSidePanel", { pivotId: "1" });
     await nextTick();
     expect(1).toBe(1);
+  });
+
+  test("show #SPILL error message when pivot is updated with too many cells", async () => {
+    const sheetId = model.getters.getActiveSheetId();
+    setCellContent(model, "A4", "=PIVOT(1)");
+    // delete all empty rows after the pivot
+    deleteRows(model, range(6, model.getters.getNumberRows(sheetId)));
+    expect(getEvaluatedCell(model, "A4").value).not.toBe("#SPILL!");
+    const initialNumberOfRows = model.getters.getNumberRows(sheetId);
+    const popoverCellStore = env.getStore(CellPopoverStore);
+    expect(popoverCellStore.isOpen).toBe(false);
+
+    // add a row groupby to make the pivot bigger than the available space
+    await click(fixture.querySelectorAll(".add-dimension")[1]);
+    await click(fixture.querySelectorAll(".o-autocomplete-value")[0]);
+    expect(popoverCellStore.isOpen).toBe(true);
+    expect(model.getters.getNumberRows(sheetId)).toBe(initialNumberOfRows);
+    expect(getEvaluatedCell(model, "A4").value).toBe("#SPILL!");
   });
 
   describe("Pivot sorting", () => {
