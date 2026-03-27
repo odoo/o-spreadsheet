@@ -1,10 +1,10 @@
 <templates>
   <t t-name="o-spreadsheet-PivotSortSection">
-    <Section t-if="hasValidSort" class="'o-pivot-sort'">
+    <Section t-if="this.hasValidSort" class="'o-pivot-sort'">
       <t t-set-slot="title">Sorting</t>
-      <div t-out="sortDescription" class="pb-2"/>
+      <div t-out="this.sortDescription" class="pb-2"/>
       <div class="d-flex flex-column gap-2">
-        <t t-foreach="sortValuesAndFields" t-as="valueAndField" t-key="valueAndField_index">
+        <t t-foreach="this.sortValuesAndFields" t-as="valueAndField" t-key="valueAndField_index">
           <div class="o-sort-card d-flex gap-1 px-2 border">
             <t t-if="valueAndField.field">
               <span class="fw-bolder" t-out="valueAndField.field"/>

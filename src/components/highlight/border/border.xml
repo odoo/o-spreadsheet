@@ -2,14 +2,14 @@
   <t t-name="o-spreadsheet-Border">
     <div
       class="o-border"
-      t-on-pointerdown.prevent="onMouseDown"
-      t-att-style="style"
+      t-on-pointerdown.prevent="this.onMouseDown"
+      t-att-style="this.style"
       t-att-class="{
-          'o-moving': props.isMoving,
-          'o-border-n': props.orientation === 'n',
-          'o-border-s': props.orientation === 's',
-          'o-border-w': props.orientation === 'w',
-          'o-border-e': props.orientation === 'e',
+          'o-moving': this.props.isMoving,
+          'o-border-n': this.props.orientation === 'n',
+          'o-border-s': this.props.orientation === 's',
+          'o-border-w': this.props.orientation === 'w',
+          'o-border-e': this.props.orientation === 'e',
         }"
     />
   </t>

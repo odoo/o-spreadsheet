@@ -4,27 +4,27 @@
       class="o-named-range-selector d-flex align-items-center rounded p-1 my-1"
       t-ref="namedRangeSelectorRef"
       t-att-class="{
-          'selected': topBarToolStore.isActive,
+          'selected': this.topBarToolStore.isActive,
         }">
       <TextInput
-        t-key="selectionKey"
-        value="inputValue"
-        onChange.bind="changeInputValue"
-        onInput.bind="onInput"
+        t-key="this.selectionKey"
+        value="this.inputValue"
+        onChange.bind="this.changeInputValue"
+        onInput.bind="this.onInput"
         selectContentOnFocus="true"
-        onFocused.bind="onInputFocused"
-        onBlur.bind="onInputBlur"
+        onFocused.bind="this.onInputFocused"
+        onBlur.bind="this.onInputBlur"
         resetOnBlur="true"
       />
-      <div class="o-hoverable-button" t-on-click.stop="openDropdown">
+      <div class="o-hoverable-button" t-on-click.stop="this.openDropdown">
         <t t-call="o-spreadsheet-Icon.CARET_DOWN"/>
       </div>
     </div>
 
     <MenuPopover
-      t-if="topBarToolStore.isActive"
-      anchorRect="menuState.anchorRect"
-      menuItems="menuState.menuItems"
+      t-if="this.topBarToolStore.isActive"
+      anchorRect="this.menuState.anchorRect"
+      menuItems="this.menuState.menuItems"
       onClose="() => {}"
       popoverPositioning="'bottom-left'"
     />

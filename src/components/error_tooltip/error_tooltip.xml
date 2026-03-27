@@ -1,32 +1,32 @@
 <templates>
   <t t-name="o-spreadsheet-ErrorToolTip">
     <div class="o-error-tooltip">
-      <t t-if="evaluationError">
+      <t t-if="this.evaluationError">
         <div class="o-error-tooltip-title fw-bold text-danger">Error</div>
         <div class="o-error-tooltip-message">
-          <t t-out="evaluationError.message"/>
-          <div class="fst-italic" t-if="errorOriginPositionString">
+          <t t-out="this.evaluationError.message"/>
+          <div class="fst-italic" t-if="this.errorOriginPositionString">
             Caused by
             <span
-              t-out="errorOriginPositionString"
+              t-out="this.errorOriginPositionString"
               class="o-button-link"
-              t-on-click="selectCell"
+              t-on-click="this.selectCell"
               title="Click to select the cell"
             />
           </div>
-          <t t-set="missingHeadersForSpread" t-value="getMissingHeadersForSpread()"/>
+          <t t-set="missingHeadersForSpread" t-value="this.getMissingHeadersForSpread()"/>
           <div
             t-if="missingHeadersForSpread"
             class="o-button-link mt-4"
             t-on-click="() => this.addMissingHeaders(missingHeadersForSpread)"
-            t-out="getAddMissingHeadersButtonText(missingHeadersForSpread)"
+            t-out="this.getAddMissingHeadersButtonText(missingHeadersForSpread)"
           />
         </div>
       </t>
-      <t t-if="dataValidationErrorMessage">
+      <t t-if="this.dataValidationErrorMessage">
         <div class="o-error-tooltip-title fw-bold text-danger">Invalid</div>
         <div class="o-error-tooltip-message">
-          <t t-out="dataValidationErrorMessage"/>
+          <t t-out="this.dataValidationErrorMessage"/>
         </div>
       </t>
     </div>

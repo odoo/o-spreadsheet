@@ -1,9 +1,9 @@
 <templates>
   <t t-name="o-spreadsheet-GaugeChartDesignPanel">
-    <GeneralDesignEditor t-props="props">
+    <GeneralDesignEditor t-props="this.props">
       <t t-set-slot="general-extension">
         <Section class="'pt-0'" title.translate="Number formatting">
-          <ChartHumanizeNumbers t-props="props"/>
+          <ChartHumanizeNumbers t-props="this.props"/>
         </Section>
       </t>
     </GeneralDesignEditor>
@@ -15,9 +15,9 @@
               class="'o-data-range-min'"
               placeholder.translate="Value or formula"
               title.translate="Min value or formula"
-              invalid="isRangeMinInvalid"
-              composerContent="state.sectionRule.rangeMin"
-              defaultRangeSheetId="sheetId"
+              invalid="this.isRangeMinInvalid"
+              composerContent="this.state.sectionRule.rangeMin"
+              defaultRangeSheetId="this.sheetId"
               onConfirm="(str) => this.onConfirmGaugeRange('rangeMin', str)"
             />
           </div>
@@ -26,9 +26,9 @@
               class="'o-data-range-max'"
               placeholder.translate="Value or formula"
               title.translate="Max value or formula"
-              invalid="isRangeMaxInvalid"
-              composerContent="state.sectionRule.rangeMax"
-              defaultRangeSheetId="sheetId"
+              invalid="this.isRangeMaxInvalid"
+              composerContent="this.state.sectionRule.rangeMax"
+              defaultRangeSheetId="this.sheetId"
               onConfirm="(str) => this.onConfirmGaugeRange('rangeMax', str)"
             />
           </div>
@@ -36,11 +36,14 @@
 
         <Section title.translate="Thresholds">
           <t t-call="o-spreadsheet-GaugeChartColorSectionTemplate">
-            <t t-set="sectionRule" t-value="state.sectionRule"/>
+            <t t-set="sectionRule" t-value="this.state.sectionRule"/>
           </t>
         </Section>
 
-        <ChartErrorSection t-if="designErrorMessages.length" messages="designErrorMessages"/>
+        <ChartErrorSection
+          t-if="this.designErrorMessages.length"
+          messages="this.designErrorMessages"
+        />
       </t>
     </SidePanelCollapsible>
   </t>
@@ -60,7 +63,7 @@
           <t t-set="sectionColor" t-value="sectionRule.colors.lowerColor"/>
           <t t-set="sectionType" t-value="'lowerColor'"/>
           <t t-set="inflectionPoint" t-value="'lowerInflectionPoint'"/>
-          <t t-set="isInvalid" t-value="isLowerInflectionPointInvalid"/>
+          <t t-set="isInvalid" t-value="this.isLowerInflectionPointInvalid"/>
           <t t-set="inflectionPointName" t-value="'lowerInflectionPoint'"/>
         </t>
 
@@ -68,7 +71,7 @@
           <t t-set="sectionColor" t-value="sectionRule.colors.middleColor"/>
           <t t-set="sectionType" t-value="'middleColor'"/>
           <t t-set="inflectionPoint" t-value="'upperInflectionPoint'"/>
-          <t t-set="isInvalid" t-value="isUpperInflectionPointInvalid"/>
+          <t t-set="isInvalid" t-value="this.isUpperInflectionPointInvalid"/>
           <t t-set="inflectionPointName" t-value="'upperInflectionPoint'"/>
         </t>
 
@@ -103,18 +106,18 @@
         <Select
           selectedValue="sectionRule[inflectionPoint].operator"
           name="'operatorType'"
-          values="inflectionPointOperators"
+          values="this.inflectionPointOperators"
           onChange.bind="(value) => this.updateSectionRuleOperator(inflectionPoint, value)"
         />
       </td>
       <td class="pe-2">
-        <StandaloneComposer t-props="getGaugeInflectionComposerProps(sectionType)"/>
+        <StandaloneComposer t-props="this.getGaugeInflectionComposerProps(sectionType)"/>
       </td>
       <td>
         <Select
           selectedValue="sectionRule[inflectionPoint].type"
           name="'valueType'"
-          values="inflectionPointTypes"
+          values="this.inflectionPointTypes"
           onChange.bind="(value) => this.updateSectionRulePointType(inflectionPoint, value)"
         />
       </td>

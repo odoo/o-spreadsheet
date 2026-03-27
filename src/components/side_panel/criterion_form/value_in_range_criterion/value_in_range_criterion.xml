@@ -1,17 +1,17 @@
 <templates>
   <t t-name="o-spreadsheet-ValueInRangeCriterionForm">
     <SelectionInput
-      ranges="[props.criterion.values[0] || '']"
+      ranges="[this.props.criterion.values[0] || '']"
       onSelectionChanged="(ranges) => this.onRangeChanged(ranges[0])"
       required="true"
       hasSingleRange="true"
-      autofocus="props.autofocus"
+      autofocus="this.props.autofocus"
     />
-    <t t-foreach="values" t-as="value" t-key="value_index">
+    <t t-foreach="this.values" t-as="value" t-key="value_index">
       <div class="o-dv-list-values p-1 d-flex align-items-center">
         <div class="me-2">
           <RoundColorPicker
-            currentColor="props.criterion.colors?.[value.value] || '#E7E9ED'"
+            currentColor="this.props.criterion.colors?.[value.value] || '#E7E9ED'"
             onColorPicked="(c) => this.onColorChanged(c, value.value)"
           />
         </div>
@@ -22,9 +22,9 @@
     <div class="o-section-subtitle mt-4">Display style</div>
     <Select
       class="'o-dv-display-style'"
-      values="displayTypeOptions"
-      selectedValue="props.criterion.displayStyle"
-      onChange.bind="onChangedDisplayStyle"
+      values="this.displayTypeOptions"
+      selectedValue="this.props.criterion.displayStyle"
+      onChange.bind="this.onChangedDisplayStyle"
     />
   </t>
 </templates>

@@ -4,11 +4,11 @@
       t-ref="autoCompleteList"
       t-on-pointerdown.prevent=""
       t-att-class="{
-          'o-autocomplete-dropdown': props.proposals.length}">
-      <t t-foreach="props.proposals" t-as="proposal" t-key="proposal.text + proposal_index">
+          'o-autocomplete-dropdown': this.props.proposals.length}">
+      <t t-foreach="this.props.proposals" t-as="proposal" t-key="proposal.text + proposal_index">
         <div
           class="o-autocomplete-content d-flex flex-column text-start"
-          t-att-class="{'o-autocomplete-value-focus': props.selectedIndex === proposal_index}"
+          t-att-class="{'o-autocomplete-value-focus': this.props.selectedIndex === proposal_index}"
           t-on-click="() => this.props.onValueSelected(proposal)"
           t-on-pointermove="() => this.props.onValueHovered(proposal_index)">
           <div class="d-flex align-items-center gap-2">
@@ -20,7 +20,7 @@
                 t-as="content"
                 t-key="content_index"
                 t-att-class="content.classes?.join(' ')"
-                t-att-style="getCss(content)"
+                t-att-style="this.getCss(content)"
                 t-out="content.value"
               />
             </div>
@@ -28,7 +28,7 @@
           <div
             class="o-autocomplete-description text-truncate"
             t-out="proposal.description"
-            t-if="props.selectedIndex === proposal_index || proposal.alwaysExpanded"
+            t-if="this.props.selectedIndex === proposal_index || proposal.alwaysExpanded"
           />
         </div>
       </t>

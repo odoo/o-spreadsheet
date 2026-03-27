@@ -1,30 +1,30 @@
 <templates>
   <t t-name="o-spreadsheet-WaterfallChartDesignPanel">
-    <GeneralDesignEditor t-props="props">
+    <GeneralDesignEditor t-props="this.props">
       <t t-set-slot="general-extension">
         <Section class="'o-vertical-axis-selection pt-0'" title.translate="Vertical axis position">
           <RadioSelection
-            choices="axisChoices"
-            selectedValue="props.definition.verticalAxisPosition"
+            choices="this.axisChoices"
+            selectedValue="this.props.definition.verticalAxisPosition"
             name="'axis'"
-            onChange.bind="updateVerticalAxisPosition"
+            onChange.bind="this.updateVerticalAxisPosition"
           />
         </Section>
-        <ChartLegend t-props="props"/>
+        <ChartLegend t-props="this.props"/>
         <Section class="'pt-0'" title.translate="Values">
-          <ChartShowValues t-props="props"/>
+          <ChartShowValues t-props="this.props"/>
         </Section>
         <Section class="'pt-0'" title.translate="Zoom">
           <Checkbox
             name="'zoomable'"
             label.translate="Show slicer"
-            value="props.definition.zoomable"
-            onChange.bind="onToggleZoom"
+            value="this.props.definition.zoomable"
+            onChange.bind="this.onToggleZoom"
             className="'mb-2'"
           />
         </Section>
         <Section class="'pt-0'" title.translate="Number formatting">
-          <ChartHumanizeNumbers t-props="props"/>
+          <ChartHumanizeNumbers t-props="this.props"/>
         </Section>
       </t>
     </GeneralDesignEditor>
@@ -36,43 +36,43 @@
             className="'mb-2'"
             name="'firstValueAsSubtotal'"
             label="firstValueAsSubtotal"
-            value="props.definition.firstValueAsSubtotal"
-            onChange.bind="onUpdateFirstValueAsSubtotal"
+            value="this.props.definition.firstValueAsSubtotal"
+            onChange.bind="this.onUpdateFirstValueAsSubtotal"
           />
           <t t-set="showSubTotalsLabel">Show subtotals at the end of series</t>
           <Checkbox
             className="'mb-2'"
             name="'showSubTotals'"
             label="showSubTotalsLabel"
-            value="props.definition.showSubTotals"
-            onChange.bind="onUpdateShowSubTotals"
+            value="this.props.definition.showSubTotals"
+            onChange.bind="this.onUpdateShowSubTotals"
           />
           <t t-set="showConnectorLinesLabel">Show connector lines</t>
           <Checkbox
             name="'showConnectorLines'"
             label="showConnectorLinesLabel"
-            value="props.definition.showConnectorLines"
-            onChange.bind="onUpdateShowConnectorLines"
+            value="this.props.definition.showConnectorLines"
+            onChange.bind="this.onUpdateShowConnectorLines"
           />
         </Section>
         <Section class="'pt-0'" title.translate="Colors">
           <div class="o-waterfall-positive-color d-flex align-items-center mb-2">
             <RoundColorPicker
-              currentColor="positiveValuesColor"
+              currentColor="this.positiveValuesColor"
               onColorPicked="(color) => this.updateColor('positiveValuesColor', color)"
             />
             <span class="ps-2">Color of positive values</span>
           </div>
           <div class="o-waterfall-negative-color d-flex align-items-center mb-2">
             <RoundColorPicker
-              currentColor="negativeValuesColor"
+              currentColor="this.negativeValuesColor"
               onColorPicked="(color) => this.updateColor('negativeValuesColor', color)"
             />
             <span class="ps-2">Color of negative values</span>
           </div>
           <div class="o-waterfall-subtotal-color d-flex align-items-center">
             <RoundColorPicker
-              currentColor="subTotalValuesColor"
+              currentColor="this.subTotalValuesColor"
               onColorPicked="(color) => this.updateColor('subTotalValuesColor', color)"
             />
             <span class="ps-2">Color of subtotals</span>
@@ -83,10 +83,10 @@
     <SidePanelCollapsible isInitiallyCollapsed="true" title.translate="Axes">
       <t t-set-slot="content">
         <AxisDesignEditor
-          axesList="axesList"
-          chartId="props.chartId"
-          definition="props.definition"
-          updateChart="props.updateChart"
+          axesList="this.axesList"
+          chartId="this.props.chartId"
+          definition="this.props.definition"
+          updateChart="this.props.updateChart"
         />
       </t>
     </SidePanelCollapsible>
