@@ -21,11 +21,11 @@
  * https://github.com/nektos/act
  */
 
-const core = require("@actions/core");
-const github = require("@actions/github");
-const path = require("path");
-
-const package = require(path.join(__dirname, "../package.json"));
+import * as core from "@actions/core";
+import * as github from "@actions/github";
+// Prettier 2.x cannot parse this expression, it requires Prettier 3.x which will probably bring other changes.
+// For now, we can ignore this file in the Prettier configuration and format it manually.
+import pack from '../package.json' with { type: 'json' };
 
 function trim(array) {
   while (["", "\n"].includes(array[0])) {
@@ -50,7 +50,7 @@ try {
   trim(commitLines);
 
   // find version
-  const version = package.version;
+  const version = pack.version;
 
   core.setOutput("title", title);
   core.setOutput("version", version);
