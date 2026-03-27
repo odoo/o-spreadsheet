@@ -1,6 +1,12 @@
 {
   "name": "@odoo/o-spreadsheet",
+<<<<<<< 5f4d45016ee9d8145551201f58f3aac03431fe4f
   "version": "19.1.12",
+||||||| e49594dfe42c5a1b397e961e95a4df67126132b8
+  "version": "19.0.26",
+=======
+  "version": "19.0.27",
+>>>>>>> a0eb09248f4d31ee79d24a1653d4aff053a95220
   "description": "A spreadsheet component",
   "type": "module",
   "main": "dist/o-spreadsheet.cjs.js",
