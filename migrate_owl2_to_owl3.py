@@ -196,124 +196,146 @@ STEP2 = ("t-ref/t-model/t-portal → t-custom-*", _step2_transform, _step2_files
 
 
 # ---------------------------------------------------------------------------
-# Step 3 — useEffect (owl) → useLayoutEffect (owl3_compatibility_layer)
-# ---------------------------------------------------------------------------
-# OWL3 removed useEffect; the compatibility layer re-exports useLayoutEffect
-# as a drop-in replacement with equivalent semantics for the migration.
-#
-# Per file:
-#   1. Remove `useEffect` from the `@odoo/owl` named-import list.
-#      If the list becomes empty, remove the whole import statement.
-#   2. If a `useLayoutEffect` import from the compat layer already exists,
-#      add `useLayoutEffect` to it; otherwise insert a new import line
-#      right after the last `@odoo/owl` import block, using a path relative
-#      to the file being transformed.
-#   3. Replace every `useEffect(` call with `useLayoutEffect(`.
-#
-# Applied to: *.ts  (skipping the compatibility layer itself)
+# Shared helpers for steps that move identifiers from @odoo/owl → compat layer
 # ---------------------------------------------------------------------------
 
 _COMPAT_LAYER_NAME = "owl3_compatibility_layer"
 # Absolute path of the compat layer (no .ts extension, as used in imports)
 _COMPAT_LAYER_PATH = Path("src") / _COMPAT_LAYER_NAME
 
+_OWL_IMPORT_RE = re.compile(
+    r'(import\s*\{)([^}]*?)(\}\s*from\s*["\']@odoo/owl["\'];?[ \t]*\n?)',
+    re.DOTALL,
+)
+
 
 def _relative_compat_import(ts_file: Path) -> str:
     """Return the relative import path (no extension) from *ts_file* to the compat layer."""
     rel = os.path.relpath(_COMPAT_LAYER_PATH, ts_file.parent)
-    # os.path.relpath uses OS separator; normalise to forward slashes
     rel = rel.replace(os.sep, "/")
-    # Ensure the path starts with ./ or ../
     if not rel.startswith("."):
         rel = "./" + rel
     return rel
 
 
-def _step3_transform(ts_file: Path) -> str:
-    source = ts_file.read_text(encoding="utf-8")
-    # Skip if useEffect is not present at all
-    if not re.search(r'\buseEffect\b', source):
-        return source
+def _remove_from_owl_import(source: str, identifier: str) -> str:
+    """Remove *identifier* from every `import { … } from "@odoo/owl"` block.
+    If the block becomes empty, the whole import statement is dropped."""
+    ident_re = re.compile(rf',?\s*\b{re.escape(identifier)}\b\s*,?')
 
-    compat_import = _relative_compat_import(ts_file)
-
-    # 1. Remove `useEffect` from the @odoo/owl import block
-    owl_import_re = re.compile(
-        r'(import\s*\{)([^}]*?)(\}\s*from\s*["\']@odoo/owl["\'];?[ \t]*\n?)',
-        re.DOTALL,
-    )
-
-    def remove_use_effect(m: re.Match) -> str:
-        open_brace = m.group(1)
-        body = m.group(2)
-        close = m.group(3)
-
-        # Remove `useEffect` entry (with surrounding comma / whitespace)
-        new_body = re.sub(r',?\s*\buseEffect\b\s*,?', _clean_comma, body)
-
-        # If the import list is now empty (only whitespace/newlines left), drop the whole line
+    def _clean(m: re.Match) -> str:
+        open_brace, body, close = m.group(1), m.group(2), m.group(3)
+        new_body = ident_re.sub(_drop_comma, body)
         if not re.search(r'\w', new_body):
             return ""
         return open_brace + new_body + close
 
-    source = owl_import_re.sub(remove_use_effect, source)
+    return _OWL_IMPORT_RE.sub(_clean, source)
 
-    # 2a. If compat layer is already imported, add useLayoutEffect to it
-    existing_compat_re = re.compile(
+
+def _drop_comma(m: re.Match) -> str:
+    """Keep exactly one comma when both neighbours of the removed entry exist."""
+    full = m.group(0)
+    name_start = re.search(r'\w', full).start()
+    leading_comma = "," in full[:name_start]
+    trailing_comma = "," in full[name_start:]
+    return "," if leading_comma and trailing_comma else ""
+
+
+def _add_to_compat_import(source: str, ts_file: Path, identifier: str) -> str:
+    """Ensure *identifier* appears in the compat-layer import of *ts_file*.
+    Merges into an existing compat import if present, otherwise inserts a new
+    import line right after the last @odoo/owl block."""
+    compat_import = _relative_compat_import(ts_file)
+    existing_re = re.compile(
         r'(import\s*\{)([^}]*?)(\}\s*from\s*["\']' + re.escape(compat_import) + r'["\'];?)',
         re.DOTALL,
     )
-    if existing_compat_re.search(source):
-        def add_to_existing(m: re.Match) -> str:
+
+    if existing_re.search(source):
+        def _merge(m: re.Match) -> str:
             body = m.group(2)
-            if re.search(r'\buseLayoutEffect\b', body):
-                return m.group(0)  # already there
-            # Append before the closing brace, respecting existing formatting
+            if re.search(rf'\b{re.escape(identifier)}\b', body):
+                return m.group(0)  # already present
             stripped = body.rstrip()
             sep = ",\n  " if "\n" in body else ", "
-            new_body = stripped + sep + "useLayoutEffect" + body[len(stripped):]
+            new_body = stripped + sep + identifier + body[len(stripped):]
             return m.group(1) + new_body + m.group(3)
-        source = existing_compat_re.sub(add_to_existing, source)
+        return existing_re.sub(_merge, source)
 
-    # 2b. Otherwise insert a new import line after the last @odoo/owl import
-    elif not re.search(r'\buseLayoutEffect\b', source):
-        # Find the end of the last owl import block
-        last_owl_match = None
-        for m in owl_import_re.finditer(source):
-            last_owl_match = m
-        if last_owl_match:
-            insert_pos = last_owl_match.end()
-            new_import = f'import {{ useLayoutEffect }} from "{compat_import}";\n'
-            source = source[:insert_pos] + new_import + source[insert_pos:]
+    # No compat import yet — insert after the last @odoo/owl block if present,
+    # otherwise after the last import statement of any kind.
+    last_owl = None
+    for m in _OWL_IMPORT_RE.finditer(source):
+        last_owl = m
+    if last_owl:
+        pos = last_owl.end()
+    else:
+        # Owl import may have been fully removed — anchor on the last import line
+        any_import_re = re.compile(r'^import\s.+?;\s*$', re.MULTILINE)
+        last_import = None
+        for m in any_import_re.finditer(source):
+            last_import = m
+        pos = last_import.end() + 1 if last_import else 0  # +1 to go past the newline
 
-    # 3. Replace useEffect( → useLayoutEffect(
+    new_import = f'import {{ {identifier} }} from "{compat_import}";\n'
+    source = source[:pos] + new_import + source[pos:]
+    return source
+
+
+def _ts_files_no_compat(root: Path) -> list[Path]:
+    return [p for p in sorted(root.rglob("*.ts")) if p.name not in _SKIP_FILES]
+
+
+# ---------------------------------------------------------------------------
+# Step 3 — useEffect (owl) → useLayoutEffect (owl3_compatibility_layer)
+# ---------------------------------------------------------------------------
+# OWL3 removed useEffect; the compat layer provides useLayoutEffect as a
+# drop-in replacement.  The identifier is also renamed at every call site.
+# ---------------------------------------------------------------------------
+
+def _step3_transform(ts_file: Path) -> str:
+    source = ts_file.read_text(encoding="utf-8")
+    if not re.search(r'\buseEffect\b', source):
+        return source
+    source = _remove_from_owl_import(source, "useEffect")
+    source = _add_to_compat_import(source, ts_file, "useLayoutEffect")
+    # Rename every remaining occurrence (call sites, comments, etc.)
     source = re.sub(r'\buseEffect\b', 'useLayoutEffect', source)
+    return source
+
+
+STEP3 = ("useEffect → useLayoutEffect (compat layer)", _step3_transform, _ts_files_no_compat)
+
+
+# ---------------------------------------------------------------------------
+# Step 4 — Component / ComponentConstructor (owl) → compat layer
+# ---------------------------------------------------------------------------
+# The compat-layer Component subclass adds OWL2-compatible constructor
+# behaviour (defaultProps, env wiring, etc.).  Importing from owl would
+# bypass this shim.
+# ---------------------------------------------------------------------------
+
+def _step4_transform(ts_file: Path) -> str:
+    source = ts_file.read_text(encoding="utf-8")
+    changed = False
+
+    for identifier in ("Component", "ComponentConstructor"):
+        # Check if this identifier is imported from @odoo/owl in this file
+        in_owl = bool(re.search(
+            rf'import\s*\{{[^}}]*\b{re.escape(identifier)}\b[^}}]*\}}\s*from\s*["\']@odoo/owl["\']',
+            source, re.DOTALL,
+        ))
+        if not in_owl:
+            continue
+        source = _remove_from_owl_import(source, identifier)
+        source = _add_to_compat_import(source, ts_file, identifier)
+        changed = True
 
     return source
 
 
-def _clean_comma(m: re.Match) -> str:
-    """
-    Called when removing `useEffect` from a comma-separated import list.
-    Preserve exactly one comma between the remaining neighbours.
-    """
-    full = m.group(0)
-    leading_comma = full.lstrip().startswith("useEffect") is False and "," in full[:full.index("useEffect")]
-    trailing_comma = "," in full[full.index("useEffect") + len("useEffect"):]
-    # If both neighbours exist, keep one comma+space; otherwise nothing
-    if leading_comma and trailing_comma:
-        return ","
-    return ""
-
-
-def _step3_files(root: Path) -> list[Path]:
-    return [
-        p for p in sorted(root.rglob("*.ts"))
-        if p.name not in _SKIP_FILES
-    ]
-
-
-STEP3 = ("useEffect → useLayoutEffect (compat layer)", _step3_transform, _step3_files)
+STEP4 = ("Component/ComponentConstructor → compat layer", _step4_transform, _ts_files_no_compat)
 
 
 # ---------------------------------------------------------------------------
@@ -324,6 +346,7 @@ ALL_STEPS: list[tuple] = [
     STEP1,
     STEP2,
     STEP3,
+    STEP4,
     # Future steps go here:
     # STEP3,
 ]
