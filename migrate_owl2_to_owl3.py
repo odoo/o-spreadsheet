@@ -221,25 +221,26 @@ def _relative_compat_import(ts_file: Path) -> str:
 def _remove_from_owl_import(source: str, identifier: str) -> str:
     """Remove *identifier* from every `import { … } from "@odoo/owl"` block.
     If the block becomes empty, the whole import statement is dropped."""
-    ident_re = re.compile(rf',?\s*\b{re.escape(identifier)}\b\s*,?')
 
     def _clean(m: re.Match) -> str:
         open_brace, body, close = m.group(1), m.group(2), m.group(3)
-        new_body = ident_re.sub(_drop_comma, body)
-        if not re.search(r'\w', new_body):
+
+        # Split on commas, strip each token, filter out the identifier
+        tokens = [t.strip() for t in body.split(",")]
+        tokens = [t for t in tokens if t and t != identifier]
+
+        if not tokens:
             return ""
+
+        # Preserve the original formatting style (single-line vs multi-line)
+        if "\n" in body:
+            new_body = "\n  " + ",\n  ".join(tokens) + ",\n"
+        else:
+            new_body = " " + ", ".join(tokens) + " "
+
         return open_brace + new_body + close
 
     return _OWL_IMPORT_RE.sub(_clean, source)
-
-
-def _drop_comma(m: re.Match) -> str:
-    """Keep exactly one comma when both neighbours of the removed entry exist."""
-    full = m.group(0)
-    name_start = re.search(r'\w', full).start()
-    leading_comma = "," in full[:name_start]
-    trailing_comma = "," in full[name_start:]
-    return "," if leading_comma and trailing_comma else ""
 
 
 def _add_to_compat_import(source: str, ts_file: Path, identifier: str) -> str:
@@ -339,6 +340,49 @@ STEP4 = ("Component/ComponentConstructor → compat layer", _step4_transform, _t
 
 
 # ---------------------------------------------------------------------------
+# Step 5 — owl hooks → compat layer
+# ---------------------------------------------------------------------------
+# These hooks are patched by the compat layer to preserve OWL2 semantics.
+# Importing them directly from @odoo/owl would bypass the patches.
+#
+# Moved identifiers (no renaming, no call-site changes):
+#   useRef, useComponent, useEnv, useSubEnv, useChildSubEnv, useExternalListener
+# ---------------------------------------------------------------------------
+
+_STEP5_HOOKS = (
+    "useRef",
+    "useComponent",
+    "useEnv",
+    "useSubEnv",
+    "useChildSubEnv",
+    "useExternalListener",
+)
+
+
+def _step5_transform(ts_file: Path) -> str:
+    source = ts_file.read_text(encoding="utf-8")
+
+    for identifier in _STEP5_HOOKS:
+        in_owl = bool(re.search(
+            rf'import\s*\{{[^}}]*\b{re.escape(identifier)}\b[^}}]*\}}\s*from\s*["\']@odoo/owl["\']',
+            source, re.DOTALL,
+        ))
+        if not in_owl:
+            continue
+        source = _remove_from_owl_import(source, identifier)
+        source = _add_to_compat_import(source, ts_file, identifier)
+
+    return source
+
+
+STEP5 = (
+    "useRef/useComponent/useEnv/useSubEnv/useChildSubEnv/useExternalListener → compat layer",
+    _step5_transform,
+    _ts_files_no_compat,
+)
+
+
+# ---------------------------------------------------------------------------
 # Registry of all steps (in order)
 # ---------------------------------------------------------------------------
 
@@ -347,8 +391,8 @@ ALL_STEPS: list[tuple] = [
     STEP2,
     STEP3,
     STEP4,
+    STEP5,
     # Future steps go here:
-    # STEP3,
 ]
 
 
