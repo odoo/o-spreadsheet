@@ -1,6 +1,6 @@
 import { cssPropertiesToCss } from "@odoo/o-spreadsheet-engine/components/helpers/css";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
-import { Component, onWillUpdateProps, useEffect, useRef, useState } from "@odoo/owl";
+import { Component, onWillUpdateProps, proxy, useEffect, useRef } from "@odoo/owl";
 import { deepEquals, range } from "../../helpers";
 import { Store, useLocalStore, useStore } from "../../store_engine";
 import { DOMFocusableElementStore } from "../../stores/DOM_focus_store";
@@ -62,7 +62,7 @@ export class SelectionInput extends Component<Props, SpreadsheetChildEnv> {
     disabledRanges: { type: Array, optional: true, default: [] },
     disabledRangeTitle: { type: String, optional: true },
   };
-  private state: State = useState({
+  private state: State = proxy({
     isMissing: false,
   });
   private dragAndDrop = useDragAndDropListItems();

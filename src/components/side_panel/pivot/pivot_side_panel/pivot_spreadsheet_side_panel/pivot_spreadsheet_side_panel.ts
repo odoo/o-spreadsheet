@@ -2,7 +2,7 @@ import { SpreadsheetPivotRuntimeDefinition } from "@odoo/o-spreadsheet-engine/he
 import { SpreadsheetPivot } from "@odoo/o-spreadsheet-engine/helpers/pivot/spreadsheet_pivot/spreadsheet_pivot";
 import { SpreadsheetPivotCoreDefinition } from "@odoo/o-spreadsheet-engine/types/pivot";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
-import { Component, useRef, useState } from "@odoo/owl";
+import { Component, proxy, useRef } from "@odoo/owl";
 import { Store, useLocalStore } from "../../../../../store_engine";
 import { Ref, UID } from "../../../../../types";
 import { SelectionInput } from "../../../../selection_input/selection_input";
@@ -40,7 +40,7 @@ export class PivotSpreadsheetSidePanel extends Component<Props, SpreadsheetChild
 
   setup() {
     this.store = useLocalStore(PivotSidePanelStore, this.props.pivotId);
-    this.state = useState({
+    this.state = proxy({
       range: undefined,
       rangeHasChanged: false,
     });

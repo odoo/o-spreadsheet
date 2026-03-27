@@ -5,7 +5,7 @@ import {
 } from "@odoo/o-spreadsheet-engine/constants";
 import { getCarouselItemTitle } from "@odoo/o-spreadsheet-engine/helpers/carousel_helpers";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
-import { Component, useEffect, useRef, useState } from "@odoo/owl";
+import { Component, proxy, useEffect, useRef } from "@odoo/owl";
 import { ActionSpec, createActions } from "../../../actions/action";
 import { chartStyleToCellStyle, deepEquals } from "../../../helpers";
 import { chartComponentRegistry } from "../../../registries/chart_component_registry";
@@ -45,7 +45,7 @@ export class CarouselFigure extends Component<Props, SpreadsheetChildEnv> {
   private carouselTabsRef = useRef("carouselTabs");
   private carouselTabsDropdownRef = useRef("carouselTabsDropdown");
 
-  private menuState = useState<MenuState>({ isOpen: false, anchorRect: null, menuItems: [] });
+  private menuState = proxy<MenuState>({ isOpen: false, anchorRect: null, menuItems: [] });
   private hiddenItems: CarouselItem[] = [];
 
   protected animationStore: Store<ChartAnimationStore> | undefined;

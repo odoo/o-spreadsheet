@@ -1,5 +1,5 @@
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
-import { Component, onWillUpdateProps, useRef, useState } from "@odoo/owl";
+import { Component, onWillUpdateProps, proxy, useRef } from "@odoo/owl";
 import { deepEquals, positions, toTrimmedLowerCase } from "../../../helpers";
 import { fuzzyLookup } from "../../../helpers/search";
 import { Position } from "../../../types";
@@ -33,7 +33,7 @@ export class FilterMenuValueList extends Component<Props, SpreadsheetChildEnv> {
   };
   static components = { FilterMenuValueItem };
 
-  private state: State = useState({
+  private state: State = proxy({
     values: [],
     displayedValues: [],
     textFilter: "",

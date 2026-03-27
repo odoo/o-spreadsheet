@@ -1,7 +1,7 @@
 import { getComputedTableStyle } from "@odoo/o-spreadsheet-engine/helpers/table_helpers";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { TableConfig, TableMetaData, TableStyle } from "@odoo/o-spreadsheet-engine/types/table";
-import { Component, onWillUpdateProps, useEffect, useRef, useState } from "@odoo/owl";
+import { Component, onWillUpdateProps, proxy, useEffect, useRef } from "@odoo/owl";
 import { deepEquals } from "../../../helpers";
 import { createTableStyleContextMenuActions } from "../../../registries/menus/table_style_menu_registry";
 import { MenuPopover, MenuState } from "../../menu_popover/menu_popover";
@@ -29,7 +29,7 @@ export class TableStylePreview extends Component<Props, SpreadsheetChildEnv> {
   };
 
   private canvasRef = useRef<HTMLCanvasElement>("canvas");
-  menu: MenuState = useState({ isOpen: false, anchorRect: null, menuItems: [] });
+  menu: MenuState = proxy({ isOpen: false, anchorRect: null, menuItems: [] });
 
   setup() {
     onWillUpdateProps((nextProps) => {

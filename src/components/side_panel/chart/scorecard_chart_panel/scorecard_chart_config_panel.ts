@@ -5,7 +5,7 @@ import {
   ScorecardChartDefinition,
 } from "@odoo/o-spreadsheet-engine/types/chart/scorecard_chart";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
-import { Component, useState } from "@odoo/owl";
+import { Component, proxy } from "@odoo/owl";
 import { CommandResult, DispatchResult, ValueAndLabel } from "../../../../types/index";
 import { Select } from "../../../select/select";
 import { SelectionInput } from "../../../selection_input/selection_input";
@@ -26,7 +26,7 @@ export class ScorecardChartConfigPanel extends Component<
   static components = { SelectionInput, ChartErrorSection, Section, Select };
   static props = ChartSidePanelPropsObject;
 
-  private state: PanelState = useState({
+  private state: PanelState = proxy({
     keyValueDispatchResult: undefined,
     baselineDispatchResult: undefined,
   });

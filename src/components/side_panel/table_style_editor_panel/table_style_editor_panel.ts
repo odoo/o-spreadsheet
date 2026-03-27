@@ -3,7 +3,7 @@ import {
   buildTableStyle,
 } from "@odoo/o-spreadsheet-engine/helpers/table_presets";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
-import { Component, useExternalListener, useState } from "@odoo/owl";
+import { Component, proxy, useExternalListener } from "@odoo/owl";
 import { isColorValid } from "../../../helpers";
 import { Color, TableConfig, TableStyle, TableStyleTemplateName } from "../../../types";
 import { cssPropertiesToCss } from "../../helpers";
@@ -38,7 +38,7 @@ export class TableStyleEditorPanel extends Component<
     styleId: { type: String, optional: true },
   };
 
-  state = useState<State>(this.getInitialState());
+  state = proxy<State>(this.getInitialState());
 
   setup() {
     useExternalListener(window as any, "click", () => (this.state.pickerOpened = false));

@@ -1,5 +1,5 @@
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
-import { Component, useState } from "@odoo/owl";
+import { Component, proxy } from "@odoo/owl";
 import { setStyle } from "../../../actions/menu_items_actions";
 import { ColorPickerWidget } from "../../color_picker/color_picker_widget";
 import { ToolBarDropdownStore, useToolBarDropdownStore } from "../../helpers/top_bar_tool_hook";
@@ -18,7 +18,7 @@ export class TopBarColorEditor extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-ColorEditor";
   topBarToolStore!: ToolBarDropdownStore;
 
-  state = useState({
+  state = proxy({
     isOpen: false,
   });
 

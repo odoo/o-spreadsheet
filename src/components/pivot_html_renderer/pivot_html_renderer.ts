@@ -1,7 +1,7 @@
 import { toString } from "@odoo/o-spreadsheet-engine/functions/helpers";
 import { generatePivotArgs } from "@odoo/o-spreadsheet-engine/helpers/pivot/pivot_helpers";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
-import { Component, useState } from "@odoo/owl";
+import { Component, proxy } from "@odoo/owl";
 import { FunctionResultObject, Maybe, SpreadsheetPivotTable, UID } from "../..";
 import { formatValue } from "../../helpers";
 import { Checkbox } from "../side_panel/components/checkbox/checkbox";
@@ -56,7 +56,7 @@ export class PivotHTMLRenderer extends Component<Props, SpreadsheetChildEnv> {
     rows: [],
     values: [],
   };
-  private state: State = useState({
+  private state: State = proxy({
     showMissingValuesOnly: false,
   });
 

@@ -1,6 +1,6 @@
 import { _t } from "@odoo/o-spreadsheet-engine/translation";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
-import { Component, ComponentConstructor, onWillUpdateProps, useState } from "@odoo/owl";
+import { Component, ComponentConstructor, onWillUpdateProps, proxy } from "@odoo/owl";
 import { deepCopy, deepEquals } from "../../../helpers";
 import {
   criterionComponentRegistry,
@@ -37,7 +37,7 @@ export class FilterMenuCriterion extends Component<Props, SpreadsheetChildEnv> {
       }
     });
 
-    this.state = useState({
+    this.state = proxy({
       criterion: this.getFilterCriterionValue(this.props.filterPosition),
     });
   }

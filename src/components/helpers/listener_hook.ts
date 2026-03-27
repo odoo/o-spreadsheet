@@ -1,4 +1,4 @@
-import { useEffect, useState } from "@odoo/owl";
+import { proxy, useEffect } from "@odoo/owl";
 import { Ref } from "../../types";
 
 /**
@@ -23,7 +23,7 @@ export function useRefListener(
 }
 
 export function useHoveredElement(ref: Ref<HTMLElement>) {
-  const state = useState({ hovered: false });
+  const state = proxy({ hovered: false });
   useRefListener(ref, "mouseenter", () => (state.hovered = true));
   useRefListener(ref, "mouseleave", () => (state.hovered = false));
   // If a render changes the element size while the mouse is over it,

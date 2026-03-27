@@ -1,6 +1,6 @@
 import { cssPropertiesToCss } from "@odoo/o-spreadsheet-engine/components/helpers/css";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
-import { Component, useEffect, useRef, useState } from "@odoo/owl";
+import { Component, proxy, useEffect, useRef } from "@odoo/owl";
 import { figureRegistry } from "../../../registries/figures_registry";
 import {
   AnchorOffset,
@@ -55,7 +55,7 @@ export class FigureComponent extends Component<Props, SpreadsheetChildEnv> {
     onClickAnchor: () => {},
   };
 
-  private menuState: MenuState = useState({ isOpen: false, anchorRect: null, menuItems: [] });
+  private menuState: MenuState = proxy({ isOpen: false, anchorRect: null, menuItems: [] });
 
   private figureRef = useRef("figure");
   private figureWrapperRef = useRef("figureWrapper");

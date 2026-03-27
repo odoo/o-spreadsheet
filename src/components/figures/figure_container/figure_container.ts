@@ -1,6 +1,6 @@
 import { DRAG_THRESHOLD, MIN_FIG_SIZE } from "@odoo/o-spreadsheet-engine/constants";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
-import { Component, onMounted, onWillUpdateProps, useState } from "@odoo/owl";
+import { Component, onMounted, onWillUpdateProps, proxy } from "@odoo/owl";
 import { isDefined } from "../../../helpers";
 import { rectUnion } from "../../../helpers/rectangle";
 import { figureRegistry } from "../../../registries/figures_registry";
@@ -107,7 +107,7 @@ export class FiguresContainer extends Component<Props, SpreadsheetChildEnv> {
   static props = {};
   static components = { FigureComponent };
 
-  dnd = useState<DndState>({
+  dnd = proxy<DndState>({
     draggedFigure: undefined,
     horizontalSnap: undefined,
     verticalSnap: undefined,

@@ -1,4 +1,4 @@
-import { Component, useState } from "@odoo/owl";
+import { Component, proxy } from "@odoo/owl";
 import { Collapse } from "../collapse/collapse";
 
 export class SidePanelCollapsible extends Component {
@@ -11,7 +11,7 @@ export class SidePanelCollapsible extends Component {
   };
   static components = { Collapse };
 
-  private state: { isCollapsed: boolean } = useState({
+  private state: { isCollapsed: boolean } = proxy({
     isCollapsed: this.props.isInitiallyCollapsed,
   });
 

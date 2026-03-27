@@ -5,10 +5,10 @@ import {
   onMounted,
   onPatched,
   onWillUnmount,
+  proxy,
   useEffect,
   useExternalListener,
   useRef,
-  useState,
 } from "@odoo/owl";
 import { throttle } from "../../../helpers";
 import { interactiveRenameSheet } from "../../../helpers/ui/sheet_interactive";
@@ -61,7 +61,7 @@ export class BottomBarSheet extends Component<Props, SpreadsheetChildEnv> {
     style: "",
   };
 
-  private state = useState<State>({ isEditing: false, pickerOpened: false });
+  private state = proxy<State>({ isEditing: false, pickerOpened: false });
 
   private sheetDivRef = useRef("sheetDiv");
   private iconRef = useRef("icon");

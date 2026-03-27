@@ -1,6 +1,6 @@
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { TableConfig, TableStyle } from "@odoo/o-spreadsheet-engine/types/table";
-import { Component, useState } from "@odoo/owl";
+import { Component, proxy } from "@odoo/owl";
 import { PopoverProps } from "../../popover/popover";
 import { TableStylePreview } from "../table_style_preview/table_style_preview";
 import {
@@ -29,7 +29,7 @@ export class TableStylePicker extends Component<TableStylePickerProps, Spreadshe
     type: String,
   };
 
-  state = useState<TableStylePickerState>({ popoverProps: undefined });
+  state = proxy<TableStylePickerState>({ popoverProps: undefined });
 
   getDisplayedTableStyles(): string[] {
     const allStyles = this.props.tableStyles;

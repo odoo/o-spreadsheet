@@ -4,7 +4,7 @@ import { positions } from "@odoo/o-spreadsheet-engine/helpers/zones";
 import { _t } from "@odoo/o-spreadsheet-engine/translation";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { TableConfig } from "@odoo/o-spreadsheet-engine/types/table";
-import { Component, useState } from "@odoo/owl";
+import { Component, proxy } from "@odoo/owl";
 import { ActionSpec } from "../../../actions/action";
 import { interactiveCreateTable } from "../../../helpers/ui/table_interactive";
 import { ActionButton } from "../../action_button/action_button";
@@ -31,7 +31,7 @@ export class TableDropdownButton extends Component<Props, SpreadsheetChildEnv> {
   };
 
   topBarToolStore!: ToolBarDropdownStore;
-  state = useState<State>({ popoverProps: undefined });
+  state = proxy<State>({ popoverProps: undefined });
 
   setup() {
     this.topBarToolStore = useToolBarDropdownStore();

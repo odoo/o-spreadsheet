@@ -2,7 +2,7 @@ import { deepCopy, ValueAndLabel } from "@odoo/o-spreadsheet-engine";
 import { PieChartDefinition, PieChartRuntime } from "@odoo/o-spreadsheet-engine/types/chart";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { DEFAULT_DOUGHNUT_CHART_HOLE_SIZE } from "@odoo/o-spreadsheet-engine/xlsx/constants";
-import { Component, useState } from "@odoo/owl";
+import { Component, proxy } from "@odoo/owl";
 import { Select } from "../../../select/select";
 import { Checkbox } from "../../components/checkbox/checkbox";
 import { SidePanelCollapsible } from "../../components/collapsible/side_panel_collapsible";
@@ -34,7 +34,7 @@ export class PieChartDesignPanel extends Component<
   };
   static props = ChartSidePanelPropsObject;
 
-  protected state = useState({ index: 0 });
+  protected state = proxy({ index: 0 });
 
   get runtime() {
     return this.env.model.getters.getChartRuntime(this.props.chartId) as PieChartRuntime;

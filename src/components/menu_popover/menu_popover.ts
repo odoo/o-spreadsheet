@@ -9,9 +9,9 @@ import {
   Component,
   onWillUnmount,
   onWillUpdateProps,
+  proxy,
   useExternalListener,
   useRef,
-  useState,
 } from "@odoo/owl";
 import { Action, getMenuItemsAndSeparators } from "../../actions/action";
 import { MenuMouseEvent, Pixel, Rect, UID } from "../../types";
@@ -74,7 +74,7 @@ export class MenuPopover extends Component<Props, SpreadsheetChildEnv> {
     depth: 1,
     popoverPositioning: "top-right",
   };
-  private subMenu: MenuState = useState({
+  private subMenu: MenuState = proxy({
     isOpen: false,
     anchorRect: null,
     scrollOffset: 0,

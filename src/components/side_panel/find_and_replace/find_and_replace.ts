@@ -1,14 +1,7 @@
 import { _t } from "@odoo/o-spreadsheet-engine/translation";
 import { SearchOptions } from "@odoo/o-spreadsheet-engine/types/find_and_replace";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
-import {
-  Component,
-  onMounted,
-  onWillUnmount,
-  useExternalListener,
-  useRef,
-  useState,
-} from "@odoo/owl";
+import { Component, onMounted, onWillUnmount, proxy, useExternalListener, useRef } from "@odoo/owl";
 import { debounce, zoneToXc } from "../../../helpers";
 import { Store, useLocalStore } from "../../../store_engine";
 import { DebouncedFunction, ValueAndLabel } from "../../../types/index";
@@ -81,7 +74,7 @@ export class FindAndReplacePanel extends Component<Props, SpreadsheetChildEnv> {
 
   setup() {
     this.store = useLocalStore(FindAndReplaceStore);
-    this.state = useState({ dataRange: "" });
+    this.state = proxy({ dataRange: "" });
     onMounted(() => this.searchInput.el?.focus());
     onWillUnmount(() => this.updateSearchContent.stopDebounce());
     this.updateSearchContent = debounce(this.store.updateSearchContent, 200);

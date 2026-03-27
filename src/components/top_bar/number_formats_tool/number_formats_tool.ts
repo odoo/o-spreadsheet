@@ -1,5 +1,5 @@
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
-import { Component, useRef, useState } from "@odoo/owl";
+import { Component, proxy, useRef } from "@odoo/owl";
 import { Action, createAction } from "../../../actions/action";
 import { formatNumberMenuItemSpec } from "../../../registries/menus";
 import { Rect } from "../../../types";
@@ -25,7 +25,7 @@ export class NumberFormatsTool extends Component<Props, SpreadsheetChildEnv> {
   topBarToolStore!: ToolBarDropdownStore;
 
   buttonRef = useRef("buttonRef");
-  state: State = useState({
+  state: State = proxy({
     anchorRect: { x: 0, y: 0, width: 0, height: 0 },
     menuItems: [],
   });

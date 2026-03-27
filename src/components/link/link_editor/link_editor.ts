@@ -1,7 +1,7 @@
 import { detectLink, urlRepresentation } from "@odoo/o-spreadsheet-engine/helpers/links";
 import { canonicalizeNumberContent } from "@odoo/o-spreadsheet-engine/helpers/locale";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
-import { Component, onMounted, useRef, useState } from "@odoo/owl";
+import { Component, onMounted, proxy, useRef } from "@odoo/owl";
 import { markdownLink } from "../../../helpers";
 import { linkMenuRegistry } from "../../../registries/menus/link_menu_registry";
 import { Link, Position, Rect } from "../../../types";
@@ -28,8 +28,8 @@ export class LinkEditor extends Component<LinkEditorProps, SpreadsheetChildEnv> 
   };
   static components = { MenuPopover };
   menuItems = linkMenuRegistry.getMenuItems();
-  private link: State = useState(this.defaultState);
-  private menu = useState({
+  private link: State = proxy(this.defaultState);
+  private menu = proxy({
     isOpen: false,
   });
   private linkEditorMenuButtonRef = useRef("linkEditorMenuButton");

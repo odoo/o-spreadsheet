@@ -2,7 +2,7 @@ import { ChartTerms } from "@odoo/o-spreadsheet-engine/components/translations_t
 import { chartRegistry } from "@odoo/o-spreadsheet-engine/registries/chart_registry";
 import { _t } from "@odoo/o-spreadsheet-engine/translation";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
-import { Component, useState } from "@odoo/owl";
+import { Component, proxy } from "@odoo/owl";
 import {
   createValidRange,
   isDefined,
@@ -49,7 +49,7 @@ export class GenericChartConfigPanel<
   };
   static props = ChartSidePanelPropsObject;
 
-  protected state: ChartPanelState = useState({
+  protected state: ChartPanelState = proxy({
     datasetDispatchResult: undefined,
     labelsDispatchResult: undefined,
   });

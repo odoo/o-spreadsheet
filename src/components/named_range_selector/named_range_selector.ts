@@ -1,7 +1,7 @@
 import { _t, rangeReference } from "@odoo/o-spreadsheet-engine";
 import { HIGHLIGHT_COLOR } from "@odoo/o-spreadsheet-engine/constants";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
-import { Component, useRef, useState } from "@odoo/owl";
+import { Component, proxy, useRef } from "@odoo/owl";
 import { Action, ActionSpec, createActions } from "../../actions/action";
 import { fuzzyLookup, zoneToXc } from "../../helpers";
 import {
@@ -31,7 +31,7 @@ export class NamedRangeSelector extends Component<Props, SpreadsheetChildEnv> {
   private DOMFocusableElementStore!: Store<DOMFocusableElementStore>;
 
   topBarToolStore!: ToolBarDropdownStore;
-  menuState = useState<State>({ anchorRect: null, menuItems: [] });
+  menuState = proxy<State>({ anchorRect: null, menuItems: [] });
 
   private namedRangeSelectorRef = useRef("namedRangeSelectorRef");
 

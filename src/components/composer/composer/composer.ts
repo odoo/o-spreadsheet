@@ -1,5 +1,5 @@
 import { NEWLINE, SCROLLBAR_WIDTH } from "@odoo/o-spreadsheet-engine/constants";
-import { Component, onMounted, onWillUnmount, useEffect, useRef, useState } from "@odoo/owl";
+import { Component, onMounted, onWillUnmount, proxy, useEffect, useRef } from "@odoo/owl";
 import { debounce, deepEquals, isFormula, setColorAlpha } from "../../../helpers/index";
 
 import { cssPropertiesToCss } from "@odoo/o-spreadsheet-engine/components/helpers/css";
@@ -108,19 +108,19 @@ export class Composer extends Component<CellComposerProps, SpreadsheetChildEnv> 
 
   contentHelper: ContentEditableHelper = new ContentEditableHelper(this.composerRef.el!);
 
-  composerState: ComposerState = useState({
+  composerState: ComposerState = proxy({
     positionStart: 0,
     positionEnd: 0,
     hoveredRect: undefined,
   });
 
-  functionDescriptionState: FunctionDescriptionState = useState({
+  functionDescriptionState: FunctionDescriptionState = proxy({
     showDescription: false,
     functionDescription: {} as FunctionDescription,
     argsToFocus: [],
     repeatingArgGroupIndex: 0,
   });
-  assistant = useState({
+  assistant = proxy({
     forcedClosed: false,
   });
   private compositionActive: boolean = false;

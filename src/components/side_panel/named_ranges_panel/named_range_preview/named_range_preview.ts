@@ -1,7 +1,7 @@
 import { Highlight, NamedRange } from "@odoo/o-spreadsheet-engine";
 import { HIGHLIGHT_COLOR } from "@odoo/o-spreadsheet-engine/constants";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
-import { Component, useRef, useState } from "@odoo/owl";
+import { Component, proxy, useRef } from "@odoo/owl";
 import { interactiveUpdateNamedRange } from "../../../../helpers/ui/named_range_interactive";
 import { useHighlightsOnHover } from "../../../helpers/highlight_hook";
 import { SelectionInput } from "../../../selection_input/selection_input";
@@ -23,7 +23,7 @@ export class NamedRangePreview extends Component<Props, SpreadsheetChildEnv> {
   };
   static components = { SelectionInput, TextInput };
 
-  state = useState<State>({});
+  state = proxy<State>({});
 
   private ref = useRef("namedRangePreview");
 

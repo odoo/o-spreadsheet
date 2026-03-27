@@ -4,10 +4,10 @@ import {
   Component,
   onWillStart,
   onWillUpdateProps,
+  proxy,
   useEffect,
   useExternalListener,
   useRef,
-  useState,
 } from "@odoo/owl";
 import { Action } from "../../actions/action";
 import { setStyle } from "../../actions/menu_items_actions";
@@ -57,7 +57,7 @@ export class TopBar extends Component<Props, SpreadsheetChildEnv> {
 
   toolsCategories = topBarToolBarRegistry.getCategories();
 
-  state: State = useState({
+  state: State = proxy({
     menuState: { isOpen: false, anchorRect: null, menuItems: [] },
     invisibleToolsCategories: [],
     toolsPopoverState: { isOpen: false },

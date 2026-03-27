@@ -1,5 +1,5 @@
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
-import { Component, useEffect, useExternalListener, useRef, useState } from "@odoo/owl";
+import { Component, proxy, useEffect, useExternalListener, useRef } from "@odoo/owl";
 import { ValueAndLabel } from "../../types";
 import { getRefBoundingRect, isChildEvent } from "../helpers/dom_helpers";
 import { Popover, PopoverProps } from "../popover/popover";
@@ -35,7 +35,7 @@ export class Select extends Component<SelectProps, SpreadsheetChildEnv> {
   private selectRef = useRef("selectRef");
   private dropdownRef = useRef("dropdownRef");
 
-  private state = useState<State>({ isPopoverOpen: false, hoveredValue: undefined });
+  private state = proxy<State>({ isPopoverOpen: false, hoveredValue: undefined });
 
   setup() {
     useExternalListener(window, "pointerdown", this.onExternalClick, { capture: true });

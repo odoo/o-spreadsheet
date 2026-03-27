@@ -14,11 +14,11 @@ import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadshee
 import {
   Component,
   onMounted,
+  proxy,
   useChildSubEnv,
   useEffect,
   useExternalListener,
   useRef,
-  useState,
 } from "@odoo/owl";
 import { insertSheet, insertTable } from "../../actions/insert_actions";
 import {
@@ -169,7 +169,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
 
   setup() {
     this.highlightStore = useStore(HighlightStore);
-    this.menuState = useState({
+    this.menuState = proxy({
       isOpen: false,
       anchorRect: null,
       menuItems: [],

@@ -2,7 +2,7 @@ import { SplitToColumnsTerms } from "@odoo/o-spreadsheet-engine/components/trans
 import { NEWLINE } from "@odoo/o-spreadsheet-engine/constants";
 import { _t } from "@odoo/o-spreadsheet-engine/translation";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
-import { Component, onMounted, useEffect, useState } from "@odoo/owl";
+import { Component, onMounted, proxy, useEffect } from "@odoo/owl";
 import { interactiveSplitToColumns } from "../../../helpers/ui/split_to_columns_interactive";
 import { useStore } from "../../../store_engine";
 import { CommandResult, ValueAndLabel } from "../../../types/index";
@@ -38,7 +38,7 @@ export class SplitIntoColumnsPanel extends Component<Props, SpreadsheetChildEnv>
   static components = { ValidationMessages, Section, Checkbox, Select };
   static props = { onCloseSidePanel: Function };
 
-  state = useState<State>({ separatorValue: "auto", addNewColumns: false, customSeparator: "" });
+  state = proxy<State>({ separatorValue: "auto", addNewColumns: false, customSeparator: "" });
 
   setup() {
     const composerFocusStore = useStore(ComposerFocusStore);

@@ -1,7 +1,7 @@
 import { ChartTerms } from "@odoo/o-spreadsheet-engine/components/translations_terms";
 import { GaugeChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/gauge_chart";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
-import { Component, useState } from "@odoo/owl";
+import { Component, proxy } from "@odoo/owl";
 import { CommandResult, CustomizedDataSet, DispatchResult } from "../../../../types/index";
 import { ChartDataSeries } from "../building_blocks/data_series/data_series";
 import { ChartErrorSection } from "../building_blocks/error_section/error_section";
@@ -19,7 +19,7 @@ export class GaugeChartConfigPanel extends Component<
   static components = { ChartErrorSection, ChartDataSeries };
   static props = ChartSidePanelPropsObject;
 
-  private state: PanelState = useState({
+  private state: PanelState = proxy({
     dataRangeDispatchResult: undefined,
   });
 
