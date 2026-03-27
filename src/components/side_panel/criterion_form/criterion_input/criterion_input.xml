@@ -29,7 +29,7 @@
       </div>
       <t t-if="this.props.isDateType">
         <div class="ms-1">
-          <CalendarButton onChange.bind="this.onDateInputValueChanged"/>
+          <CalendarButton onChange.bind="this.onInputValueChanged" value="this.props.value"/>
         </div>
       </t>
     </div>

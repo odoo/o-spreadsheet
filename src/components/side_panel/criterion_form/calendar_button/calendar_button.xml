@@ -6,10 +6,11 @@
       </button>
       <input
         type="date"
+        value="this.props.value"
         t-ref="hiddenDatePicker"
         style="position: absolute; opacity: 0; pointer-events: none; left: 0; top: 0; width: 0; height: 0;"
         t-att-id="this.props.id"
-        t-on-change="(ev) => this.props.onChange(ev.target.value)"
+        t-on-change="(ev) => this.onDateInputValueChanged(ev.target.value)"
       />
     </div>
   </t>

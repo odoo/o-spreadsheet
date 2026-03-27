@@ -5,9 +5,7 @@ import { _t } from "../../../../translation";
 import { DataValidationCriterionType } from "../../../../types";
 import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
 import { StandaloneComposer } from "../../../composer/standalone_composer/standalone_composer";
-import { DateInput } from "../../../date_input/date_input";
 import { CalendarButton } from "../calendar_button/calendar_button";
-import { formatValue, parseDateTime } from "../../../../helpers";
 
 interface Props {
   value: string;
@@ -40,7 +38,7 @@ export class CriterionInput extends Component<Props, SpreadsheetChildEnv> {
     onBlur: () => {},
     isDateType: false,
   };
-  static components = { DateInput, StandaloneComposer: StandaloneComposer, CalendarButton };
+  static components = { StandaloneComposer: StandaloneComposer, CalendarButton };
 
   inputRef = useRef("input");
 
@@ -79,15 +77,6 @@ export class CriterionInput extends Component<Props, SpreadsheetChildEnv> {
 
     const allowedValues = this.props.disableFormulas ? "onlyLiterals" : evaluator.allowedValues;
     return allowedValues ?? "any";
-  }
-
-  onDateInputValueChanged(value: string) {
-    const locale = this.env.model.getters.getLocale();
-    const dateValue = parseDateTime(value, locale);
-    if (dateValue) {
-      const formatedValue = formatValue(dateValue.value, { format: locale.dateFormat, locale });
-      this.onInputValueChanged(formatedValue);
-    }
   }
 
   onInputValueChanged(str: string) {
