@@ -1,7 +1,6 @@
 import { DEFAULT_PIVOT_STYLE } from "@odoo/o-spreadsheet-engine/helpers/pivot/pivot_helpers";
 import { PIVOT_TABLE_PRESETS } from "@odoo/o-spreadsheet-engine/helpers/pivot_table_presets";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
-import { Component } from "@odoo/owl";
 import { Store, useLocalStore } from "../../../../../store_engine";
 import { PivotStyle, TableConfig, TableStyle, UID } from "../../../../../types";
 import { NumberInput } from "../../../../number_input/number_input";
@@ -10,6 +9,7 @@ import { Checkbox } from "../../../components/checkbox/checkbox";
 import { Section } from "../../../components/section/section";
 import { PivotSidePanelStore } from "../pivot_side_panel_store";
 
+import { Component } from "../../../../../owl3_compatibility_layer";
 interface Props {
   pivotId: UID;
 }

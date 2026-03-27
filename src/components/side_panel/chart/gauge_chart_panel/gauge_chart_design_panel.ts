@@ -10,8 +10,9 @@ import {
   SectionRule,
 } from "@odoo/o-spreadsheet-engine/types/chart/gauge_chart";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
-import { Component, proxy } from "@odoo/owl";
+import { proxy } from "@odoo/owl";
 import { deepCopy } from "../../../../helpers/index";
+import { Component } from "../../../../owl3_compatibility_layer";
 import { Color, CommandResult, ValueAndLabel } from "../../../../types/index";
 import { StandaloneComposer } from "../../../composer/standalone_composer/standalone_composer";
 import { Select } from "../../../select/select";

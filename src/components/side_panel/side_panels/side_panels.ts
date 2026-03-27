@@ -1,6 +1,5 @@
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
-import { Component } from "@odoo/owl";
-import { useLayoutEffect } from "../../../owl3_compatibility_layer";
+import { Component, useLayoutEffect } from "../../../owl3_compatibility_layer";
 import { sidePanelRegistry } from "../../../registries/side_panel_registry";
 import { Store, useStore } from "../../../store_engine";
 import { cssPropertiesToCss } from "../../helpers";

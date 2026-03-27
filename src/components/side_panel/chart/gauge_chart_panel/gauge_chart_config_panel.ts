@@ -1,7 +1,8 @@
 import { ChartTerms } from "@odoo/o-spreadsheet-engine/components/translations_terms";
 import { GaugeChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/gauge_chart";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
-import { Component, proxy } from "@odoo/owl";
+import { proxy } from "@odoo/owl";
+import { Component } from "../../../../owl3_compatibility_layer";
 import { CommandResult, CustomizedDataSet, DispatchResult } from "../../../../types/index";
 import { ChartDataSeries } from "../building_blocks/data_series/data_series";
 import { ChartErrorSection } from "../building_blocks/error_section/error_section";

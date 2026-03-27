@@ -1,7 +1,8 @@
 import { cssPropertiesToCss } from "@odoo/o-spreadsheet-engine/components/helpers/css";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
-import { Component, onWillUnmount } from "@odoo/owl";
+import { onWillUnmount } from "@odoo/owl";
 import { Action, isRootMenu } from "../../actions/action";
+import { Component } from "../../owl3_compatibility_layer";
 import { Pixel } from "../../types";
 
 //------------------------------------------------------------------------------

@@ -1,16 +1,9 @@
 import { DEFAULT_FONT_SIZE } from "@odoo/o-spreadsheet-engine/constants";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
-import {
-  Component,
-  onWillStart,
-  onWillUpdateProps,
-  proxy,
-  useExternalListener,
-  useRef,
-} from "@odoo/owl";
+import { onWillStart, onWillUpdateProps, proxy, useExternalListener, useRef } from "@odoo/owl";
 import { Action } from "../../actions/action";
 import { setStyle } from "../../actions/menu_items_actions";
-import { useLayoutEffect } from "../../owl3_compatibility_layer";
+import { Component, useLayoutEffect } from "../../owl3_compatibility_layer";
 import { formatNumberMenuItemSpec } from "../../registries/menus";
 import { topbarMenuRegistry } from "../../registries/menus/topbar_menu_registry";
 import { topbarComponentRegistry } from "../../registries/topbar_component_registry";

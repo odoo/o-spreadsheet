@@ -5,11 +5,11 @@ import {
 import { PivotRuntimeDefinition } from "@odoo/o-spreadsheet-engine/helpers/pivot/pivot_runtime_definition";
 import { _t } from "@odoo/o-spreadsheet-engine/translation";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
-import { Component } from "@odoo/owl";
 import { formatValue } from "../../../../../helpers";
 import { PivotDomain, UID } from "../../../../../types";
 import { Section } from "../../../components/section/section";
 
+import { Component } from "../../../../../owl3_compatibility_layer";
 interface Props {
   definition: PivotRuntimeDefinition;
   pivotId: UID;

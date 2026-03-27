@@ -11,14 +11,7 @@ import { openLink } from "@odoo/o-spreadsheet-engine/helpers/links";
 import { isStaticTable } from "@odoo/o-spreadsheet-engine/helpers/table_helpers";
 import { AllowedImageMimeTypes } from "@odoo/o-spreadsheet-engine/types/image";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
-import {
-  Component,
-  onMounted,
-  proxy,
-  useChildSubEnv,
-  useExternalListener,
-  useRef,
-} from "@odoo/owl";
+import { onMounted, proxy, useChildSubEnv, useExternalListener, useRef } from "@odoo/owl";
 import { insertSheet, insertTable } from "../../actions/insert_actions";
 import {
   CREATE_IMAGE,
@@ -35,7 +28,7 @@ import {
   interactivePaste,
   interactivePasteFromOS,
 } from "../../helpers/ui/paste_interactive";
-import { useLayoutEffect } from "../../owl3_compatibility_layer";
+import { Component, useLayoutEffect } from "../../owl3_compatibility_layer";
 import { cellMenuRegistry } from "../../registries/menus/cell_menu_registry";
 import { colMenuRegistry } from "../../registries/menus/col_menu_registry";
 import {

@@ -1,4 +1,4 @@
-import { ComponentConstructor } from "@odoo/owl";
+import { ComponentConstructor } from "../owl3_compatibility_layer";
 
 /**
  * Return the prop's type of a component

@@ -1,9 +1,10 @@
 import { toString } from "@odoo/o-spreadsheet-engine/functions/helpers";
 import { generatePivotArgs } from "@odoo/o-spreadsheet-engine/helpers/pivot/pivot_helpers";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
-import { Component, proxy } from "@odoo/owl";
+import { proxy } from "@odoo/owl";
 import { FunctionResultObject, Maybe, SpreadsheetPivotTable, UID } from "../..";
 import { formatValue } from "../../helpers";
+import { Component } from "../../owl3_compatibility_layer";
 import { Checkbox } from "../side_panel/components/checkbox/checkbox";
 
 interface PivotDialogColumn {

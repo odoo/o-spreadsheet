@@ -4,10 +4,10 @@ import {
   PivotMeasure,
 } from "@odoo/o-spreadsheet-engine/types/pivot";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
-import { Component } from "@odoo/owl";
 import { TextInput } from "../../../../text_input/text_input";
 import { CogWheelMenu } from "../../../components/cog_wheel_menu/cog_wheel_menu";
 
+import { Component } from "../../../../../owl3_compatibility_layer";
 interface Props {
   dimension: PivotDimensionType | PivotMeasure;
   onRemoved: (dimension: PivotDimensionType | PivotMeasure) => void;

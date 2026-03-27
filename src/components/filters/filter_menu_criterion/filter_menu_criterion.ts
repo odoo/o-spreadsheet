@@ -1,7 +1,8 @@
 import { _t } from "@odoo/o-spreadsheet-engine/translation";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
-import { Component, ComponentConstructor, onWillUpdateProps, proxy } from "@odoo/owl";
+import { onWillUpdateProps, proxy } from "@odoo/owl";
 import { deepCopy, deepEquals } from "../../../helpers";
+import { Component, ComponentConstructor } from "../../../owl3_compatibility_layer";
 import {
   criterionComponentRegistry,
   getCriterionValueAndLabels,

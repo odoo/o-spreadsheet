@@ -1,6 +1,7 @@
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { TableConfig, TableStyle } from "@odoo/o-spreadsheet-engine/types/table";
-import { Component, proxy } from "@odoo/owl";
+import { proxy } from "@odoo/owl";
+import { Component } from "../../../owl3_compatibility_layer";
 import { PopoverProps } from "../../popover/popover";
 import { TableStylePreview } from "../table_style_preview/table_style_preview";
 import {

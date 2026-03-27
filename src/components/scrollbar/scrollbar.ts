@@ -1,5 +1,5 @@
-import { Component, onMounted, useRef, xml } from "@odoo/owl";
-import { useLayoutEffect } from "../../owl3_compatibility_layer";
+import { onMounted, useRef, xml } from "@odoo/owl";
+import { Component, useLayoutEffect } from "../../owl3_compatibility_layer";
 import { CSSProperties, Pixel, Ref } from "../../types";
 import { ScrollDirection } from "../../types/scroll_direction";
 import { cssPropertiesToCss } from "../helpers";

@@ -1,10 +1,10 @@
 import { _t } from "@odoo/o-spreadsheet-engine";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
-import { Component } from "@odoo/owl";
 import { deepEquals, getMissingHeadersForSpreadResult, positionToZone } from "../../helpers";
 import { CellErrorType, CellPosition, CellValueType } from "../../types";
 import { CellPopoverComponent, PopoverBuilders } from "../../types/cell_popovers";
 
+import { Component } from "../../owl3_compatibility_layer";
 const ERROR_TOOLTIP_MAX_HEIGHT = 80;
 
 interface ErrorToolTipProps {

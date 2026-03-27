@@ -1,6 +1,7 @@
 import { formatValue } from "@odoo/o-spreadsheet-engine/helpers/format/format";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
-import { Component, onWillUpdateProps } from "@odoo/owl";
+import { onWillUpdateProps } from "@odoo/owl";
+import { Component } from "../../../owl3_compatibility_layer";
 import { MenuItemRegistry } from "../../../registries/menu_items_registry";
 import { Store, useStore } from "../../../store_engine";
 import { Ripple } from "../../animation/ripple";

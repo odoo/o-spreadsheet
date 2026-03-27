@@ -6,7 +6,6 @@ import {
 import { _t } from "@odoo/o-spreadsheet-engine/translation";
 import { WaterfallChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/waterfall_chart";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
-import { Component } from "@odoo/owl";
 import { CHART_AXIS_CHOICES } from "../../../../helpers/figures/charts";
 import { Color } from "../../../../types";
 import { SidePanelCollapsible } from "../../components/collapsible/side_panel_collapsible";
@@ -24,6 +23,7 @@ import { ChartShowValues } from "../building_blocks/show_values/show_values";
 import { ChartSidePanelProps, ChartSidePanelPropsObject } from "../common";
 import { Checkbox } from "./../../components/checkbox/checkbox";
 
+import { Component } from "../../../../owl3_compatibility_layer";
 export class WaterfallChartDesignPanel extends Component<
   ChartSidePanelProps<WaterfallChartDefinition>,
   SpreadsheetChildEnv

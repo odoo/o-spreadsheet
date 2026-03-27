@@ -5,9 +5,10 @@ import {
 } from "@odoo/o-spreadsheet-engine/helpers/carousel_helpers";
 import { _t } from "@odoo/o-spreadsheet-engine/translation";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
-import { Component, onWillUpdateProps, useRef } from "@odoo/owl";
+import { onWillUpdateProps, useRef } from "@odoo/owl";
 import { ActionSpec } from "../../../actions/action";
 import { deepEquals } from "../../../helpers";
+import { Component } from "../../../owl3_compatibility_layer";
 import { CarouselItem, TitleDesign, UID } from "../../../types";
 import { getBoundingRectAsPOJO } from "../../helpers/dom_helpers";
 import { useDragAndDropListItems } from "../../helpers/drag_and_drop_dom_items_hook";

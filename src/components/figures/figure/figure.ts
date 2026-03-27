@@ -1,7 +1,7 @@
 import { cssPropertiesToCss } from "@odoo/o-spreadsheet-engine/components/helpers/css";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
-import { Component, proxy, useRef } from "@odoo/owl";
-import { useLayoutEffect } from "../../../owl3_compatibility_layer";
+import { proxy, useRef } from "@odoo/owl";
+import { Component, useLayoutEffect } from "../../../owl3_compatibility_layer";
 import { figureRegistry } from "../../../registries/figures_registry";
 import {
   AnchorOffset,

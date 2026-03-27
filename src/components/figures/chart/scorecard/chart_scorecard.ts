@@ -2,8 +2,8 @@ import { drawScoreChart } from "@odoo/o-spreadsheet-engine/helpers/figures/chart
 import { getScorecardConfiguration } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/scorecard_chart_config_builder";
 import { ScorecardChartRuntime } from "@odoo/o-spreadsheet-engine/types/chart/scorecard_chart";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
-import { Component, useRef } from "@odoo/owl";
-import { useLayoutEffect } from "../../../../owl3_compatibility_layer";
+import { useRef } from "@odoo/owl";
+import { Component, useLayoutEffect } from "../../../../owl3_compatibility_layer";
 import { UID } from "../../../../types";
 import { getZoomedRect } from "../../../helpers/zoom";
 

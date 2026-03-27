@@ -1,7 +1,6 @@
 import { _t } from "@odoo/o-spreadsheet-engine/translation";
 import { FunnelChartDefinition, FunnelChartRuntime } from "@odoo/o-spreadsheet-engine/types/chart";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
-import { Component } from "@odoo/owl";
 import { replaceItemAtIndex } from "../../../../helpers";
 import { getFunnelLabelColors } from "../../../../helpers/figures/charts/runtime";
 import { SidePanelCollapsible } from "../../components/collapsible/side_panel_collapsible";
@@ -12,6 +11,7 @@ import { ChartHumanizeNumbers } from "../building_blocks/humanize_numbers/humani
 import { ChartShowValues } from "../building_blocks/show_values/show_values";
 import { ChartSidePanelProps } from "../common";
 
+import { Component } from "../../../../owl3_compatibility_layer";
 export class FunnelChartDesignPanel extends Component<
   ChartSidePanelProps<FunnelChartDefinition>,
   SpreadsheetChildEnv

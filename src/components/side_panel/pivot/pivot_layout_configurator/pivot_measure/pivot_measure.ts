@@ -5,7 +5,6 @@ import { CompiledFormula } from "@odoo/o-spreadsheet-engine/formulas/compiler";
 import { Token } from "@odoo/o-spreadsheet-engine/formulas/tokenizer";
 import { getFieldDisplayName } from "@odoo/o-spreadsheet-engine/helpers/pivot/pivot_helpers";
 import { PivotRuntimeDefinition } from "@odoo/o-spreadsheet-engine/helpers/pivot/pivot_runtime_definition";
-import { Component } from "@odoo/owl";
 import { unquote } from "../../../../../helpers";
 import { createMeasureAutoComplete } from "../../../../../registries/auto_completes/pivot_dimension_auto_complete";
 import { Color, PivotMeasure, ValueAndLabel } from "../../../../../types";
@@ -13,6 +12,7 @@ import { StandaloneComposer } from "../../../../composer/standalone_composer/sta
 import { Select } from "../../../../select/select";
 import { PivotDimension } from "../pivot_dimension/pivot_dimension";
 
+import { Component } from "../../../../../owl3_compatibility_layer";
 interface Props {
   pivotId: string;
   definition: PivotRuntimeDefinition;

@@ -8,9 +8,10 @@ import {
   LineChartRuntime,
 } from "@odoo/o-spreadsheet-engine/types/chart";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
-import { Component, proxy } from "@odoo/owl";
+import { proxy } from "@odoo/owl";
 import { deepCopy, formatValue } from "../../../../../helpers";
 import { getDefinedAxis } from "../../../../../helpers/figures/charts";
+import { Component } from "../../../../../owl3_compatibility_layer";
 import {
   AxisDesign,
   ChartWithAxisDefinition,

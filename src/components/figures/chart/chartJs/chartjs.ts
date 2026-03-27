@@ -4,10 +4,10 @@ import {
 } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_js_extension";
 import { ChartJSRuntime } from "@odoo/o-spreadsheet-engine/types/chart/chart";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
-import { Component, onMounted, onWillUnmount, useRef } from "@odoo/owl";
+import { onMounted, onWillUnmount, useRef } from "@odoo/owl";
 import { Chart, ChartConfiguration } from "chart.js/auto";
 import { deepCopy, deepEquals } from "../../../../helpers";
-import { useLayoutEffect } from "../../../../owl3_compatibility_layer";
+import { Component, useLayoutEffect } from "../../../../owl3_compatibility_layer";
 import { Store, useStore } from "../../../../store_engine";
 import { UID } from "../../../../types";
 import { ChartAnimationStore } from "./chartjs_animation_store";

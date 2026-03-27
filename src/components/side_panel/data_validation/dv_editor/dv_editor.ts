@@ -6,8 +6,9 @@ import {
 } from "@odoo/o-spreadsheet-engine/helpers/locale";
 import { criterionEvaluatorRegistry } from "@odoo/o-spreadsheet-engine/registries/criterion_registry";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
-import { Component, ComponentConstructor, proxy } from "@odoo/owl";
+import { proxy } from "@odoo/owl";
 import { zoneToXc } from "../../../../helpers";
+import { Component, ComponentConstructor } from "../../../../owl3_compatibility_layer";
 import {
   criterionComponentRegistry,
   getCriterionValueAndLabels,

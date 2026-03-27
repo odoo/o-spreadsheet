@@ -1,9 +1,9 @@
 import { drawGaugeChart } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/gauge_chart_rendering";
 import { GaugeChartRuntime } from "@odoo/o-spreadsheet-engine/types/chart";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
-import { Component, useRef } from "@odoo/owl";
+import { useRef } from "@odoo/owl";
 import { deepEquals } from "../../../../helpers";
-import { useLayoutEffect } from "../../../../owl3_compatibility_layer";
+import { Component, useLayoutEffect } from "../../../../owl3_compatibility_layer";
 import { EASING_FN } from "../../../../registries/cell_animation_registry";
 import { Store, useStore } from "../../../../store_engine";
 import { UID } from "../../../../types";

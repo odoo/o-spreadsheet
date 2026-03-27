@@ -1,12 +1,12 @@
 import { TEXT_BODY_MUTED } from "@odoo/o-spreadsheet-engine/constants";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
-import { Component } from "@odoo/owl";
 import { blendColors, computeTextFontSizeInPixels } from "../../../helpers";
 import { Store, useStore } from "../../../store_engine";
 import { CellPosition, Color, SortDirection, Style } from "../../../types";
 import { cssPropertiesToCss } from "../../helpers";
 import { HoveredTableStore } from "../../tables/hovered_table_store";
 
+import { Component } from "../../../owl3_compatibility_layer";
 interface Props {
   position: CellPosition;
   sortDirection: SortDirection | "none";

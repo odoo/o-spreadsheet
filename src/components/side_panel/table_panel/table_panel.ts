@@ -1,5 +1,6 @@
-import { Component, proxy } from "@odoo/owl";
+import { proxy } from "@odoo/owl";
 import { getZoneArea, positionToZone } from "../../../helpers";
+import { Component } from "../../../owl3_compatibility_layer";
 import { CommandResult, CoreTable, DispatchResult, Range, TableConfig, Zone } from "../../../types";
 
 import { TableTerms } from "@odoo/o-spreadsheet-engine/components/translations_terms";

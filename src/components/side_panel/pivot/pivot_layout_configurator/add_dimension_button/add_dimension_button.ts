@@ -1,8 +1,9 @@
 import { COMPOSER_ASSISTANT_COLOR } from "@odoo/o-spreadsheet-engine/constants";
 import { PivotField } from "@odoo/o-spreadsheet-engine/types/pivot";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
-import { Component, proxy, useExternalListener, useRef } from "@odoo/owl";
+import { proxy, useExternalListener, useRef } from "@odoo/owl";
 import { fuzzyLookup } from "../../../../../helpers";
+import { Component } from "../../../../../owl3_compatibility_layer";
 import {
   AutoCompleteProposal,
   AutoCompleteProvider,

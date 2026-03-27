@@ -5,7 +5,8 @@ import {
   ScorecardChartDefinition,
 } from "@odoo/o-spreadsheet-engine/types/chart/scorecard_chart";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
-import { Component, proxy } from "@odoo/owl";
+import { proxy } from "@odoo/owl";
+import { Component } from "../../../../owl3_compatibility_layer";
 import { CommandResult, DispatchResult, ValueAndLabel } from "../../../../types/index";
 import { Select } from "../../../select/select";
 import { SelectionInput } from "../../../selection_input/selection_input";

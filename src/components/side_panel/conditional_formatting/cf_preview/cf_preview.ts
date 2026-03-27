@@ -3,8 +3,9 @@ import { CfTerms } from "@odoo/o-spreadsheet-engine/components/translations_term
 import { HIGHLIGHT_COLOR, TEXT_BODY } from "@odoo/o-spreadsheet-engine/constants";
 import { criterionEvaluatorRegistry } from "@odoo/o-spreadsheet-engine/registries/criterion_registry";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
-import { Component, useRef } from "@odoo/owl";
+import { useRef } from "@odoo/owl";
 import { colorNumberToHex } from "../../../../helpers";
+import { Component } from "../../../../owl3_compatibility_layer";
 import { ConditionalFormat, Highlight } from "../../../../types";
 import { cellStyleToCss, cssPropertiesToCss } from "../../../helpers";
 import { useHighlightsOnHover } from "../../../helpers/highlight_hook";

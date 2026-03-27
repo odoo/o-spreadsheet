@@ -1,8 +1,9 @@
 import { _t } from "@odoo/o-spreadsheet-engine/translation";
 import { SearchOptions } from "@odoo/o-spreadsheet-engine/types/find_and_replace";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
-import { Component, onMounted, onWillUnmount, proxy, useExternalListener, useRef } from "@odoo/owl";
+import { onMounted, onWillUnmount, proxy, useExternalListener, useRef } from "@odoo/owl";
 import { debounce, zoneToXc } from "../../../helpers";
+import { Component } from "../../../owl3_compatibility_layer";
 import { Store, useLocalStore } from "../../../store_engine";
 import { DebouncedFunction, ValueAndLabel } from "../../../types/index";
 import { keyboardEventToShortcutString } from "../../helpers/dom_helpers";

@@ -1,7 +1,8 @@
 import { cssPropertiesToCss } from "@odoo/o-spreadsheet-engine/components/helpers/css";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
-import { Component, proxy, xml } from "@odoo/owl";
+import { proxy, xml } from "@odoo/owl";
 import { clip } from "../../helpers";
+import { Component } from "../../owl3_compatibility_layer";
 import { DOMCoordinates, HeaderIndex } from "../../types";
 import { useDragAndDropBeyondTheViewport } from "../helpers/drag_and_drop_grid_hook";
 import { withZoom } from "../helpers/zoom";

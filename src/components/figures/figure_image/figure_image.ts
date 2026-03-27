@@ -1,7 +1,7 @@
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
-import { Component } from "@odoo/owl";
 import { CSSProperties, FigureUI, Rect, UID } from "../../../types";
 
+import { Component } from "../../../owl3_compatibility_layer";
 interface Props {
   figureUI: FigureUI;
   editFigureStyle?: (properties: CSSProperties) => void;

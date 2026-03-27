@@ -1,9 +1,9 @@
 import { ZOOM_VALUES } from "@odoo/o-spreadsheet-engine/constants";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
-import { Component } from "@odoo/owl";
 import { ToolBarDropdownStore, useToolBarDropdownStore } from "../../helpers/top_bar_tool_hook";
 import { NumberEditor } from "../../number_editor/number_editor";
 
+import { Component } from "../../../owl3_compatibility_layer";
 interface Props {
   class: string;
 }
