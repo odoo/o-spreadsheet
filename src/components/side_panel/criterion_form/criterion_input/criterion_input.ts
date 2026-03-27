@@ -58,6 +58,7 @@ export class CriterionInput extends Component<Props, SpreadsheetChildEnv> {
 
   state = useState({
     shouldDisplayError: !!this.props.value, // Don't display error if user inputted nothing yet
+    calendarPickCount: 0,
   });
 
   get placeholder(): string {
@@ -87,6 +88,7 @@ export class CriterionInput extends Component<Props, SpreadsheetChildEnv> {
     const dateValue = parseDateTime(value, locale);
     if (dateValue) {
       const formatedValue = formatValue(dateValue.value, { format: locale.dateFormat, locale });
+      this.state.calendarPickCount++;
       this.onInputValueChanged(formatedValue);
     }
   }
