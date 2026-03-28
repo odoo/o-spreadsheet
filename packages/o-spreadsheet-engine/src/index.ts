@@ -26,16 +26,16 @@ export { BasePlugin } from "./plugins/base_plugin";
 export { Registry } from "./registry";
 export { StateObserver } from "./state_observer";
 export * from "./translation";
-export { CellValue } from "./types/cells";
-export { SpreadsheetClipboardData } from "./types/clipboard";
-export { CoreGetters, PluginGetters } from "./types/core_getters";
+export type { CellValue } from "./types/cells";
+export type { SpreadsheetClipboardData } from "./types/clipboard";
+export type { CoreGetters, PluginGetters } from "./types/core_getters";
 export * from "./types/errors";
-export { Format } from "./types/format";
-export * from "./types/history";
+export type { Format } from "./types/format";
+export type * from "./types/history";
 export * from "./types/locale";
 export * from "./types/misc";
 export * from "./types/rendering";
-export * from "./types/validator";
+export type * from "./types/validator";
 export const __info__ = {};
 
 import "./canvas_mock"; // for node.js environment
