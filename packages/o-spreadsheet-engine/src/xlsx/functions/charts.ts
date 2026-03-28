@@ -64,7 +64,9 @@ export function createChart(
   // <manualLayout/> to manually position the chart in the figure container
   let title = escapeXml``;
   if (chart.data.title?.text) {
-    const titleColor = toXlsxHexColor(chartMutedFontColor(chart.data.backgroundColor));
+    const titleColor = chart.data.title.color
+      ? toXlsxHexColor(chart.data.title.color)
+      : toXlsxHexColor(chartMutedFontColor(chart.data.backgroundColor));
     const fontSize = chart.data.title.fontSize ?? CHART_TITLE_FONT_SIZE;
     title = escapeXml/*xml*/ `
       <c:title>
