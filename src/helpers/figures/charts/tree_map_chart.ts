@@ -116,6 +116,12 @@ export class TreeMapChart extends AbstractChart {
     };
   }
 
+  getDataRanges(): Range[] {
+    return [this.labelRange, ...this.dataSets.map((ds) => ds.dataRange)].filter(
+      (r): r is Range => r !== undefined
+    );
+  }
+
   getContextCreation(): ChartCreationContext {
     const leafRange = this.dataSets.at(-1)?.dataRange;
     return {

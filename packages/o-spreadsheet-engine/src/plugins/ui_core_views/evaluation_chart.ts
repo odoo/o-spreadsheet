@@ -2,14 +2,14 @@ import { BACKGROUND_CHART_COLOR } from "../../constants";
 import { chartFontColor } from "../../helpers/figures/charts/chart_common";
 import { chartRuntimeFactory } from "../../helpers/figures/charts/chart_factory";
 import { chartToImageUrl } from "../../helpers/figures/charts/chart_ui_common";
+import { overlap } from "../../helpers/zones";
 import { ChartRuntime, ExcelChartDefinition } from "../../types/chart";
 import {
   CoreViewCommand,
   invalidateCFEvaluationCommands,
-  invalidateChartEvaluationCommands,
   invalidateEvaluationCommands,
 } from "../../types/commands";
-import { Color, UID } from "../../types/misc";
+import { Color, UID, Zone } from "../../types/misc";
 import { Range } from "../../types/range";
 import { ExcelWorkbookData, FigureData } from "../../types/workbook_data";
 import { CoreViewPlugin } from "../core_view_plugin";
@@ -31,10 +31,11 @@ export class EvaluationChartPlugin extends CoreViewPlugin<EvaluationChartState> 
   private createRuntimeChart = chartRuntimeFactory(this.getters);
 
   handle(cmd: CoreViewCommand) {
+    // Commands that require full invalidation of all chart runtimes
     if (
       invalidateEvaluationCommands.has(cmd.type) ||
-      invalidateCFEvaluationCommands.has(cmd.type) ||
-      invalidateChartEvaluationCommands.has(cmd.type)
+      (invalidateCFEvaluationCommands.has(cmd.type) && cmd.type !== "EVALUATE_CELLS") ||
+      cmd.type === "EVALUATE_CHARTS"
     ) {
       for (const chartId in this.charts) {
         this.charts[chartId] = undefined;
@@ -56,6 +57,112 @@ export class EvaluationChartPlugin extends CoreViewPlugin<EvaluationChartState> 
           }
         }
         break;
+      // Selectively invalidate only charts whose data ranges overlap the hidden/shown headers
+      case "HIDE_COLUMNS_ROWS":
+      case "UNHIDE_COLUMNS_ROWS": {
+        const nRows = this.getters.getNumberRows(cmd.sheetId);
+        const nCols = this.getters.getNumberCols(cmd.sheetId);
+        for (const element of cmd.elements) {
+          const zone: Zone =
+            cmd.dimension === "COL"
+              ? { left: element, right: element, top: 0, bottom: nRows - 1 }
+              : { left: 0, right: nCols - 1, top: element, bottom: element };
+          this.invalidateChartsOverlappingZone(cmd.sheetId, zone);
+        }
+        break;
+      }
+      // Selectively invalidate only charts whose data ranges overlap the grouped header range
+      case "GROUP_HEADERS":
+      case "UNGROUP_HEADERS":
+      case "FOLD_HEADER_GROUP":
+      case "UNFOLD_HEADER_GROUP": {
+        const nRows = this.getters.getNumberRows(cmd.sheetId);
+        const nCols = this.getters.getNumberCols(cmd.sheetId);
+        const zone: Zone =
+          cmd.dimension === "COL"
+            ? { left: cmd.start, right: cmd.end, top: 0, bottom: nRows - 1 }
+            : { left: 0, right: nCols - 1, top: cmd.start, bottom: cmd.end };
+        this.invalidateChartsOverlappingZone(cmd.sheetId, zone);
+        break;
+      }
+      // All header groups in a dimension are folded/unfolded: treat as the entire sheet on that sheet
+      case "FOLD_ALL_HEADER_GROUPS":
+      case "UNFOLD_ALL_HEADER_GROUPS": {
+        const nRows = this.getters.getNumberRows(cmd.sheetId);
+        const nCols = this.getters.getNumberCols(cmd.sheetId);
+        this.invalidateChartsOverlappingZone(cmd.sheetId, {
+          left: 0,
+          right: nCols - 1,
+          top: 0,
+          bottom: nRows - 1,
+        });
+        break;
+      }
+      // Selectively invalidate only charts whose data ranges overlap the zone's columns/rows
+      case "FOLD_HEADER_GROUPS_IN_ZONE":
+      case "UNFOLD_HEADER_GROUPS_IN_ZONE": {
+        const nRows = this.getters.getNumberRows(cmd.sheetId);
+        const nCols = this.getters.getNumberCols(cmd.sheetId);
+        const zone: Zone =
+          cmd.dimension === "COL"
+            ? { left: cmd.zone.left, right: cmd.zone.right, top: 0, bottom: nRows - 1 }
+            : { left: 0, right: nCols - 1, top: cmd.zone.top, bottom: cmd.zone.bottom };
+        this.invalidateChartsOverlappingZone(cmd.sheetId, zone);
+        break;
+      }
+      // Selectively invalidate only charts whose data ranges overlap the updated table zone
+      case "UPDATE_TABLE":
+        this.invalidateChartsOverlappingZone(cmd.sheetId, cmd.zone);
+        break;
+      // Selectively invalidate only charts whose data ranges overlap the filter's table zone
+      case "UPDATE_FILTER": {
+        const table = this.getters.getCoreTable({
+          sheetId: cmd.sheetId,
+          col: cmd.col,
+          row: cmd.row,
+        });
+        if (table) {
+          this.invalidateChartsOverlappingZone(cmd.sheetId, table.range.zone);
+        }
+        break;
+      }
+    }
+  }
+
+  finalize() {
+    const lastEvaluated = this.getters.getLastEvaluatedRanges();
+
+    if (lastEvaluated === null) {
+      // Full re-evaluation: invalidate all chart runtimes
+      for (const chartId in this.charts) {
+        this.charts[chartId] = undefined;
+      }
+      return;
+    }
+
+    if (lastEvaluated.length === 0) {
+      return;
+    }
+
+    for (const chartId in this.charts) {
+      if (this.charts[chartId] === undefined) {
+        continue;
+      }
+      const chart = this.getters.getChart(chartId);
+      if (!chart) {
+        continue;
+      }
+      const isDirty = chart
+        .getDataRanges()
+        .some((chartRange) =>
+          lastEvaluated.some(
+            (evalRange) =>
+              evalRange.sheetId === chartRange.sheetId && overlap(evalRange.zone, chartRange.zone)
+          )
+        );
+      if (isDirty) {
+        this.charts[chartId] = undefined;
+      }
     }
   }
 
@@ -142,6 +249,24 @@ export class EvaluationChartPlugin extends CoreViewPlugin<EvaluationChartState> 
         }
       }
       sheet.charts = figures;
+    }
+  }
+
+  private invalidateChartsOverlappingZone(sheetId: UID, zone: Zone) {
+    for (const chartId in this.charts) {
+      if (this.charts[chartId] === undefined) {
+        continue;
+      }
+      const chart = this.getters.getChart(chartId);
+      if (!chart) {
+        continue;
+      }
+      const isDirty = chart
+        .getDataRanges()
+        .some((chartRange) => chartRange.sheetId === sheetId && overlap(chartRange.zone, zone));
+      if (isDirty) {
+        this.charts[chartId] = undefined;
+      }
     }
   }
 }
