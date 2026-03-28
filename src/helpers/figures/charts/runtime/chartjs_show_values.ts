@@ -22,10 +22,16 @@ export function getChartShowValues(
   args: ChartRuntimeGenerationArgs
 ): ChartShowValuesPluginOptions {
   const { axisFormats, locale } = args;
+  // show totals only for combo charts or stacked bar charts
+  const showTotals =
+    "showTotals" in definition &&
+    !!definition.showTotals &&
+    (definition.type === "combo" || (definition.type === "bar" && !!definition.stacked));
   return {
     type: definition.type,
     horizontal: "horizontal" in definition && definition.horizontal,
     showValues: "showValues" in definition ? !!definition.showValues : false,
+    showTotals,
     background: () => definition.background,
     callback: (value: number | string, dataset: ChartMeta) => {
       const axisId = getDatasetAxisId(definition, dataset);

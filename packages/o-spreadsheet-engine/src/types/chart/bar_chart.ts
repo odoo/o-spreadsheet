@@ -5,6 +5,7 @@ export interface BarChartDefinition extends CommonChartDefinition {
   readonly type: "bar";
   readonly stacked: boolean;
   readonly horizontal?: boolean;
+  readonly showTotals?: boolean;
   readonly zoomable?: boolean;
 }
 

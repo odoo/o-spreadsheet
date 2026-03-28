@@ -5,6 +5,7 @@ import { CommonChartDefinition } from "./common_chart";
 export interface ComboChartDefinition extends CommonChartDefinition {
   readonly dataSets: ComboChartDataSet[];
   readonly type: "combo";
+  readonly showTotals?: boolean;
   readonly hideDataMarkers?: boolean;
   readonly zoomable?: boolean;
 }
