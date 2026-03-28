@@ -346,6 +346,7 @@ import { clipboardHandlersRegistries } from "@odoo/o-spreadsheet-engine/registri
 import "./clipboard_handlers";
 import { Composer } from "./components/composer/composer/composer";
 import { Select } from "./components/select/select";
+import { CalendarButton } from "./components/side_panel/criterion_form/calendar_button/calendar_button";
 import { TopBar } from "./components/top_bar/top_bar";
 
 export const helpers = {
@@ -488,6 +489,7 @@ export const components = {
   NumberInput,
   TopBar,
   Composer,
+  CalendarButton,
 };
 
 export const hooks = {

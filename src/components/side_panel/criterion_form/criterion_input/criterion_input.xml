@@ -1,31 +1,40 @@
 <templates>
   <t t-name="o-spreadsheet-CriterionInput">
-    <div class="o-dv-input position-relative w-100 p-1">
-      <t t-if="allowedValues === 'onlyLiterals'">
-        <input
-          type="text"
-          t-ref="input"
-          t-on-input="onInputValueChanged"
-          t-att-value="props.value"
-          class="o-input"
-          t-att-class="{
-              'o-invalid border-danger position-relative': errorMessage,
-            }"
-          t-att-title="errorMessage"
-          t-att-placeholder="placeholder"
-          t-on-keydown="props.onKeyDown"
-          t-on-blur="props.onBlur"
-        />
+    <div class="o-dv-input d-flex align-items-center w-100 p-1">
+      <div class="position-relative flex-grow-1">
+        <t t-if="allowedValues === 'onlyLiterals'">
+          <input
+            type="text"
+            t-ref="input"
+            t-on-input="(ev) => this.onInputValueChanged(ev.target.value)"
+            t-att-value="this.props.value"
+            class="o-input w-100"
+            t-att-class="{'o-invalid border-danger': this.errorMessage}"
+            t-att-title="this.errorMessage"
+            t-att-placeholder="this.placeholder"
+            t-on-keydown="this.props.onKeyDown"
+            t-on-blur="this.props.onBlur"
+          />
+        </t>
+        <t t-else="">
+          <StandaloneComposer
+            t-key="'sc-' + state.calendarPickCount"
+            t-props="getDataValidationRuleInputComposerProps()"
+          />
+        </t>
+        <span
+          t-if="this.errorMessage"
+          class="error-icon text-danger position-absolute d-flex align-items-center"
+          style="right: 8px; top: 0; bottom: 0; pointer-events: none;"
+          t-att-title="this.errorMessage">
+          <t t-call="o-spreadsheet-Icon.ERROR"/>
+        </span>
+      </div>
+      <t t-if="this.props.isDateType">
+        <div class="ms-1">
+          <CalendarButton onChange.bind="this.onDateInputValueChanged"/>
+        </div>
       </t>
-      <t t-else="">
-        <StandaloneComposer t-props="getDataValidationRuleInputComposerProps()"/>
-      </t>
-      <span
-        t-if="errorMessage"
-        class="error-icon text-danger position-absolute d-flex align-items-center"
-        t-att-title="errorMessage">
-        <t t-call="o-spreadsheet-Icon.ERROR"/>
-      </span>
     </div>
   </t>
 </templates>
