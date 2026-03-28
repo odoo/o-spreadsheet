@@ -23,6 +23,10 @@ import {
 } from "../types/collaborative/transport_service";
 import { Command, CoreCommand } from "../types/commands";
 
+import {
+  repeatCommandTransformRegistry,
+  repeatLocalCommandTransformRegistry,
+} from "../registries/repeat_transform_registry";
 import { HistoryChange } from "../types/history";
 import { Lazy, UID } from "../types/misc";
 import { WorkbookData } from "../types/workbook_data";
@@ -94,7 +98,11 @@ export class Session extends EventBus<CollaborativeEvent> {
    * It will be transmitted to all other connected clients.
    */
   save(rootCommand: Command, commands: CoreCommand[], changes: HistoryChange[]) {
-    if (!commands.length || !changes.length || !this.canApplyOptimisticUpdate()) {
+    if (
+      !repeatCommandTransformRegistry.contains(rootCommand.type) &&
+      !repeatLocalCommandTransformRegistry.contains(rootCommand.type) && // commands that can be repeated must be part of the recorded history
+      (!commands.length || !changes.length || !this.canApplyOptimisticUpdate())
+    ) {
       return;
     }
     const revision = new Revision(

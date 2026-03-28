@@ -64,7 +64,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
     "getFormulaString",
     "getFormulaMovedInSheet",
   ] as const;
-  readonly nextId = 1;
+  nextId = 1;
   public readonly cells: { [sheetId: string]: { [id: string]: Cell } } = {};
 
   adaptRanges(adapters: RangeAdapterFunctions) {
@@ -577,9 +577,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
   }
 
   private getNextCellId(): number {
-    const id = this.nextId;
-    this.history.update("nextId", this.nextId + 1);
-    return id;
+    return this.nextId++;
   }
 
   private updateCell(sheetId: UID, col: HeaderIndex, row: HeaderIndex, after: UpdateCellData) {
