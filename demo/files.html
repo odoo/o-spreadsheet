@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, user-scalable=no, interactive-widget=resizes-content" />
+    <link rel="icon" type="image/png" href="./favicon.png" />
+    <link rel="stylesheet" href="../build/o_spreadsheet.css" />
+    <link rel="stylesheet" href="../node_modules/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="../node_modules/font-awesome/css/font-awesome.min.css" />
+    <link rel="manifest" href="manifest.json" />
+    <title>O-spreadsheet Files</title>
+    <style>
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        overflow: hidden;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      }
+      #app {
+        display: flex;
+        width: 100%;
+        height: 100%;
+      }
+      #sidebar {
+        width: 220px;
+        min-width: 220px;
+        background: #f8f9fa;
+        border-right: 1px solid #dee2e6;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+      }
+      #sidebar-header {
+        padding: 12px 16px;
+        font-size: 13px;
+        font-weight: 600;
+        color: #495057;
+        border-bottom: 1px solid #dee2e6;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+      #sidebar-header span {
+        font-size: 14px;
+        letter-spacing: 0.3px;
+      }
+      #new-file-btn {
+        background: none;
+        border: none;
+        cursor: pointer;
+        color: #6c757d;
+        font-size: 18px;
+        line-height: 1;
+        padding: 0 2px;
+        border-radius: 4px;
+        display: flex;
+        align-items: center;
+      }
+      #new-file-btn:hover,
+      #close-sidebar-btn:hover {
+        color: #212529;
+        background: #e9ecef;
+      }
+      #close-sidebar-btn {
+        background: none;
+        border: none;
+        cursor: pointer;
+        color: #6c757d;
+        font-size: 14px;
+        line-height: 1;
+        padding: 0 4px;
+        border-radius: 4px;
+        display: flex;
+        align-items: center;
+      }
+      #file-list {
+        flex: 1;
+        overflow-y: auto;
+        padding: 8px 0;
+      }
+      .file-item {
+        position: relative;
+        display: flex;
+        align-items: center;
+        padding: 7px 16px;
+        cursor: pointer;
+        font-size: 13px;
+        color: #343a40;
+        user-select: none;
+        gap: 8px;
+      }
+      .file-item:hover {
+        background: #e9ecef;
+      }
+      .file-item.active {
+        background: #e2e6ff;
+        color: #3730a3;
+        font-weight: 500;
+      }
+      .file-item .file-name {
+        flex: 1;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      .file-item .file-actions {
+        display: none;
+        gap: 4px;
+      }
+      .file-item:hover .file-actions,
+      .file-item.active .file-actions {
+        display: flex;
+      }
+      .file-action-btn {
+        background: none;
+        border: none;
+        cursor: pointer;
+        color: #6c757d;
+        padding: 1px 3px;
+        border-radius: 3px;
+        font-size: 11px;
+        line-height: 1.4;
+      }
+      .file-action-btn:hover {
+        color: #212529;
+        background: #dee2e6;
+      }
+      .file-action-btn.delete:hover {
+        color: #dc3545;
+        background: #f8d7da;
+      }
+      #spreadsheet-container {
+        flex: 1;
+        overflow: hidden;
+        position: relative;
+      }
+      #spreadsheet-container .o-spreadsheet {
+        width: 100%;
+        height: 100%;
+      }
+      #loading {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: white;
+        font-size: 14px;
+        color: #6c757d;
+      }
+      #sidebar-footer {
+        border-top: 1px solid #dee2e6;
+        padding: 8px;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 4px;
+      }
+      .sidebar-io-btn {
+        background: #f1f3f5;
+        border: 1px solid #dee2e6;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 11px;
+        color: #495057;
+        padding: 5px 4px;
+        text-align: center;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .sidebar-io-btn:hover {
+        background: #e9ecef;
+        color: #212529;
+      }
+      .file-tooltip {
+        position: fixed;
+        left: 228px;
+        z-index: 1000;
+        background: #1e293b;
+        color: #f1f5f9;
+        border-radius: 6px;
+        padding: 10px 12px;
+        font-size: 11px;
+        white-space: nowrap;
+        pointer-events: none;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+        min-width: 220px;
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+      }
+      .file-tooltip-row {
+        display: flex;
+        justify-content: space-between;
+        gap: 16px;
+      }
+      .file-tooltip-label {
+        color: #94a3b8;
+      }
+    </style>
+  </head>
+  <body>
+    <script src="../node_modules/@odoo/owl/dist/owl.iife.js"></script>
+    <script src="../node_modules/jszip/dist/jszip.min.js"></script>
+    <script src="../node_modules/file-saver/dist/FileSaver.min.js"></script>
+    <script src="../node_modules/chart.js/dist/chart.umd.js"></script>
+    <script src="../node_modules/chartjs-chart-geo/build/index.umd.js"></script>
+    <script src="../node_modules/luxon/build/global/luxon.js"></script>
+    <script src="../node_modules/chartjs-adapter-luxon/dist/chartjs-adapter-luxon.umd.js"></script>
+    <script src="lib/chart_js_treemap.js"></script>
+    <script src="../build/o_spreadsheet.iife.js"></script>
+    <script src="files.js" type="module"></script>
+  </body>
+</html>
