@@ -17,11 +17,11 @@ describe("Debounce Helper", () => {
     debouncedFunc();
     debouncedFunc();
     debouncedFunc();
-    expect(func).not.toBeCalled();
+    expect(func).not.toHaveBeenCalled();
     jest.advanceTimersByTime(100);
-    expect(func).not.toBeCalled();
+    expect(func).not.toHaveBeenCalled();
     jest.advanceTimersByTime(100);
-    expect(func).toBeCalledTimes(1);
+    expect(func).toHaveBeenCalledTimes(1);
   });
 
   test("debounce with immediate=true calls function immediately and then after wait time", () => {
@@ -29,15 +29,15 @@ describe("Debounce Helper", () => {
     const debouncedFunc = debounce(func, 200, true);
 
     debouncedFunc();
-    expect(func).toBeCalledTimes(1);
+    expect(func).toHaveBeenCalledTimes(1);
     debouncedFunc();
     debouncedFunc();
-    expect(func).toBeCalledTimes(1);
+    expect(func).toHaveBeenCalledTimes(1);
     jest.advanceTimersByTime(200);
-    expect(func).toBeCalledTimes(2);
+    expect(func).toHaveBeenCalledTimes(2);
     debouncedFunc();
-    expect(func).toBeCalledTimes(3);
+    expect(func).toHaveBeenCalledTimes(3);
     jest.advanceTimersByTime(200);
-    expect(func).toBeCalledTimes(3);
+    expect(func).toHaveBeenCalledTimes(3);
   });
 });

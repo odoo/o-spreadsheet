@@ -28,6 +28,7 @@ export const CHART_WATERFALL_NEGATIVE_COLOR = "#EA6175";
 export const CHART_WATERFALL_SUBTOTAL_COLOR = "#AAAAAA";
 
 export const GRAY_900 = "#111827";
+export const GRAY_400 = "#ced4da";
 export const GRAY_300 = "#D8DADD";
 export const GRAY_200 = "#E7E9ED";
 export const TEXT_BODY = "#374151";
@@ -249,6 +250,12 @@ export const LOADING = "Loading...";
 
 let DEFAULT_SHEETVIEW_SIZE = 0;
 
+/**
+ * The viewport dimensions are usually set by one of the components
+ * (i.e. when grid component is mounted) to properly reflect its state in the DOM.
+ * In the absence of a component (standalone model), is it mandatory to set reasonable default values
+ * to ensure the correct operation.
+ */
 export function getDefaultSheetViewSize() {
   return DEFAULT_SHEETVIEW_SIZE;
 }
@@ -287,10 +294,10 @@ export const DEFAULT_CURRENCY: Currency = {
   name: "Dollar",
 };
 
-export const DEFAULT_CAROUSEL_TITLE_STYLE: ChartStyle = {
+export const DEFAULT_CAROUSEL_TITLE_STYLE = {
   fontSize: CHART_TITLE_FONT_SIZE,
   color: TEXT_BODY,
-};
+} satisfies ChartStyle;
 
 export const DEFAULT_TOKEN_COLOR: Color = "light-dark(#000000, #ffffff)";
 const functionColor = DEFAULT_TOKEN_COLOR;

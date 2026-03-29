@@ -121,6 +121,15 @@ describe("Grid renderer animations", () => {
     expect(spyRequestAnimationFrame).not.toHaveBeenCalled();
   });
 
+  test("Animations are not prevented if a cell of another sheet is updated", () => {
+    createSheet(model, { sheetId: "sh2", name: "sh2" });
+    setCellContent(model, "A1", "=sh2!A1");
+    drawGrid();
+    setCellContent(model, "A1", "58", "sh2");
+    drawGrid();
+    expect(spyRequestAnimationFrame).toHaveBeenCalled();
+  });
+
   test("When changing sheet, animations are cancelled and no new animations are run for the new sheet", () => {
     const spyCancelAnimationFrame = jest.spyOn(window, "cancelAnimationFrame");
     createSheet(model, { sheetId: "sh2" });
@@ -138,7 +147,7 @@ describe("Grid renderer animations", () => {
     expect(gridRenderer["animations"].size).toEqual(0);
   });
 
-  test("Animations are not run the on copy/paste zone ", () => {
+  test("Animations are not run when copy/pasting ", () => {
     const style = { fillColor: "#ff0f0f" };
     const rule: CellIsRule = { type: "CellIsRule", operator: "isEmpty", values: [], style };
     addCfRule(model, "A1:A3", rule, "11");
@@ -149,10 +158,7 @@ describe("Grid renderer animations", () => {
     copy(model, "A1:A3");
     paste(model, "B1");
     drawGrid();
-    animationFrameCallback(0);
-
-    expect(gridRenderer["animations"].size).toEqual(1);
-    expect(getBoxFromXc("D8-text-slide-in")).toBeDefined();
+    expect(spyRequestAnimationFrame).not.toHaveBeenCalled();
   });
 
   test("Animations are not canceled on unrelated model update", () => {
