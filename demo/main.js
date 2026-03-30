@@ -230,7 +230,10 @@ class Demo extends Component {
       sequence: 28,
       execute: async (env) => {
         const date = new Date();
-        const name = `${date.getFullYear()}${date.getMonth()}${date.getDate()}${date.getHours()}${date.getMinutes()}.osheet.json`;
+        const num2date = (num) => num.toString().padStart(2, "0");
+        const name = `${date.getFullYear()}${num2date(date.getMonth() + 1)}${num2date(
+          date.getDate()
+        )}${num2date(date.getHours())}${num2date(date.getMinutes())}.osheet.json`;
 
         const data = await env.model.exportData();
         saveAs(
