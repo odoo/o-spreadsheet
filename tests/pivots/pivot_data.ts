@@ -18,66 +18,87 @@ export const pivotModelData = function (xc: string) {
           },
           A2: {
             content: "04/03/2024",
+            format: 2,
           },
           A3: {
             content: "03/03/2024",
+            format: 2,
           },
           A4: {
             content: "02/02/2024",
+            format: 2,
           },
           A5: {
             content: "04/02/2024",
+            format: 2,
           },
           A6: {
             content: "03/28/2024",
+            format: 2,
           },
           A7: {
             content: "04/02/2024",
+            format: 2,
           },
           A8: {
             content: "04/02/2024",
+            format: 2,
           },
           A9: {
             content: "02/27/2024",
+            format: 2,
           },
           A10: {
             content: "04/01/2024",
+            format: 2,
           },
           A11: {
             content: "04/02/2024",
+            format: 2,
           },
           A12: {
             content: "04/03/2024",
+            format: 2,
           },
           A13: {
             content: "02/03/2024",
+            format: 2,
           },
           A14: {
             content: "03/03/2024",
+            format: 2,
           },
           A15: {
             content: "01/26/2024",
+            format: 2,
           },
           A16: {
             content: "03/27/2024",
+            format: 2,
           },
           A17: {
             content: "03/27/2024",
+            format: 2,
           },
           A18: {
             content: "03/31/2024",
+            format: 2,
           },
           A19: {
             content: "01/31/2024",
+            format: 2,
           },
           A20: {
             content: "04/02/2024",
+            format: 2,
           },
           A21: {
             content: "04/05/2024",
+            format: 2,
           },
           A22: {
             content: "19/05/2024",
+            format: 2,
           },
           B1: {
             content: "Opportunity",
@@ -553,6 +574,7 @@ export const pivotModelData = function (xc: string) {
     styles: {},
     formats: {
       "1": "[$$]#,##0.00",
+      "2": "m/d/yyyy",
     },
     borders: {},
     revisionId: "fbf5c369-70ff-4a05-929e-859e0608c53a",
