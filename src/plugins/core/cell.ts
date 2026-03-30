@@ -289,7 +289,9 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
     const style = (cellData.style && normalizedStyles[cellData.style]) || undefined;
     const format = (cellData.format && normalizedFormats[cellData.format]) || undefined;
     const cellId = this.getNextUid();
-    return this.createCell(cellId, cellData?.content || "", format, style, sheetId);
+    return this.createCell(cellId, cellData?.content || "", format, style, sheetId, {
+      avoidAutomaticFormat: true,
+    });
   }
 
   exportForExcel(data: ExcelWorkbookData) {
@@ -544,10 +546,11 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
     content: string,
     format: Format | undefined,
     style: Style | undefined,
-    sheetId: UID
+    sheetId: UID,
+    options?: { avoidAutomaticFormat: boolean }
   ): Cell {
     if (!content.startsWith("=")) {
-      return this.createLiteralCell(id, content, format, style);
+      return this.createLiteralCell(id, content, format, style, options);
     }
     try {
       return this.createFormulaCell(id, content, format, style, sheetId);
@@ -560,14 +563,18 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
     id: UID,
     content: string,
     format: Format | undefined,
-    style: Style | undefined
+    style: Style | undefined,
+    options?: { avoidAutomaticFormat: boolean }
   ): LiteralCell {
     const locale = this.getters.getLocale();
+    if (!options?.avoidAutomaticFormat) {
+      format = format || detectDateFormat(content, locale) || detectNumberFormat(content);
+    }
     return {
       id,
       content: parseLiteral(content, locale).toString(),
       style,
-      format: format || detectDateFormat(content, locale) || detectNumberFormat(content),
+      format,
       isFormula: false,
     };
   }

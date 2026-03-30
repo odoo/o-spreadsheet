@@ -720,7 +720,7 @@ test("import then export (figures)", () => {
   expect(model).toExport(modelData);
 });
 
-test("import date as string and detect the format", () => {
+test("don't import date as string", () => {
   const model = new Model({
     sheets: [
       {
@@ -733,7 +733,7 @@ test("import date as string and detect the format", () => {
   expect(getEvaluatedCell(model, "A1")?.formattedValue).toBe("12/31/2020");
 });
 
-test("import localized date as string and detect the format", () => {
+test("don't import localized date as string", () => {
   const model = new Model({
     sheets: [
       {
