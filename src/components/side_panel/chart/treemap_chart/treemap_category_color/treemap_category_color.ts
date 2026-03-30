@@ -1,12 +1,13 @@
 import { Component } from "@odoo/owl";
 import { ChartConfiguration } from "chart.js";
-import { DispatchResult, UID } from "../../../../..";
+import { DeepPartial, DispatchResult, UID } from "../../../../..";
 import { deepCopy } from "../../../../../helpers";
 import {
   TreeMapCategoryColorOptions,
   TreeMapChartDefaults,
   TreeMapChartDefinition,
   TreeMapChartRuntime,
+  TreeMapGroupColor,
 } from "../../../../../types/chart/tree_map_chart";
 import { SpreadsheetChildEnv } from "../../../../../types/spreadsheet_env";
 import { Checkbox } from "../../../components/checkbox/checkbox";
@@ -39,7 +40,7 @@ export class TreeMapCategoryColors extends Component<Props, SpreadsheetChildEnv>
     return coloringOptions;
   }
 
-  getTreeGroupAndColors() {
+  getTreeGroupAndColors(): DeepPartial<TreeMapGroupColor[]> {
     const runtime = this.env.model.getters.getChartRuntime(
       this.props.chartId
     ) as TreeMapChartRuntime;

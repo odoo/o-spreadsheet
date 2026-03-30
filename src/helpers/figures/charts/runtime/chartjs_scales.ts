@@ -1,5 +1,4 @@
 import { ChartDataset, LinearScaleOptions, ScaleChartOptions, Tick } from "chart.js";
-import { DeepPartial } from "chart.js/dist/types/utils";
 import { ChartColorScalePluginOptions } from "../../../../components/figures/chart/chartJs/chartjs_colorscale_plugin";
 import {
   CHART_AXIS_TITLE_FONT_SIZE,
@@ -9,7 +8,7 @@ import {
   DEFAULT_CHART_COLOR_SCALE,
   GRAY_300,
 } from "../../../../constants";
-import { Color, LocaleFormat } from "../../../../types";
+import { Color, DeepPartial, LocaleFormat } from "../../../../types";
 import {
   AxisDesign,
   AxisType,

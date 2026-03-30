@@ -1,6 +1,6 @@
 import { TitleOptions } from "chart.js";
-import { _DeepPartialObject } from "chart.js/dist/types/utils";
 import { CHART_PADDING, CHART_TITLE_FONT_SIZE } from "../../../../constants";
+import { DeepPartial } from "../../../../types";
 import { ChartWithDataSetDefinition } from "../../../../types/chart";
 import { Getters } from "../../../../types/getters";
 import { chartMutedFontColor } from "../chart_common";
@@ -8,7 +8,7 @@ import { chartMutedFontColor } from "../chart_common";
 export function getChartTitle(
   definition: ChartWithDataSetDefinition,
   getters: Getters
-): _DeepPartialObject<TitleOptions> {
+): DeepPartial<TitleOptions> {
   const chartTitle = definition.title;
   const fontColor = chartMutedFontColor(definition.background);
   return {

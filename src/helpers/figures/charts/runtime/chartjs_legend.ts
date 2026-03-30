@@ -1,11 +1,11 @@
 import { Chart, Color, LegendItem, LegendOptions } from "chart.js";
-import { DeepPartial } from "chart.js/dist/types/utils";
 import {
   CHART_WATERFALL_NEGATIVE_COLOR,
   CHART_WATERFALL_POSITIVE_COLOR,
   CHART_WATERFALL_SUBTOTAL_COLOR,
 } from "../../../../constants";
 import { _t } from "../../../../translation";
+import { DeepPartial } from "../../../../types";
 import {
   BarChartDefinition,
   ChartRuntimeGenerationArgs,
