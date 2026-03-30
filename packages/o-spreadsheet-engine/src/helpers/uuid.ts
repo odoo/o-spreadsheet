@@ -2,7 +2,7 @@
  * https://stackoverflow.com/questions/105034/create-guid-uuid-in-javascript
  * */
 
-export class UuidGenerator {
+class UuidGeneratorClass {
   // Helper to get a crypto object in any environment
   private getCrypto(): Crypto | undefined {
     if (typeof globalThis !== "undefined" && globalThis.crypto) {
@@ -74,3 +74,5 @@ export class UuidGenerator {
     }
   }
 }
+
+export const UuidGenerator = new UuidGeneratorClass();

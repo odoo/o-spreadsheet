@@ -1,5 +1,5 @@
 import { _t } from "@odoo/o-spreadsheet-engine/translation";
-import { buildSheetLink, markdownLink } from "../helpers";
+import { buildSheetLink, markdownLink, UuidGenerator } from "../helpers";
 import { ActionSpec } from "./action";
 
 export const linkSheet: ActionSpec = {
@@ -39,7 +39,7 @@ export const duplicateSheet: ActionSpec = {
   execute: (env) => {
     const sheetIdFrom = env.model.getters.getActiveSheetId();
     const sheetNameFrom = env.model.getters.getSheetName(sheetIdFrom);
-    const sheetIdTo = env.model.uuidGenerator.smallUuid();
+    const sheetIdTo = UuidGenerator.smallUuid();
     const sheetNameTo = env.model.getters.getDuplicateSheetName(sheetNameFrom);
     env.model.dispatch("DUPLICATE_SHEET", {
       sheetId: sheetIdFrom,

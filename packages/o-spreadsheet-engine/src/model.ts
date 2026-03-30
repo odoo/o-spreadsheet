@@ -134,8 +134,6 @@ export class Model extends EventBus<any> implements CommandDispatcher {
    */
   private coreGetters: CoreGetters;
 
-  uuidGenerator: UuidGenerator;
-
   private readonly handlers: CommandHandler<Command>[] = [];
   private readonly uiHandlers: CommandHandler<Command>[] = [];
   private readonly coreHandlers: CommandHandler<CoreCommand>[] = [];
@@ -144,7 +142,6 @@ export class Model extends EventBus<any> implements CommandDispatcher {
     data: any = {},
     config: Partial<ModelConfig> = {},
     stateUpdateMessages: StateUpdateMessage[] = [],
-    uuidGenerator: UuidGenerator = new UuidGenerator(),
     verboseImport = false
   ) {
     const start = performance.now();
@@ -157,8 +154,6 @@ export class Model extends EventBus<any> implements CommandDispatcher {
     const workbookData = load(data, verboseImport);
 
     this.state = new StateObserver();
-
-    this.uuidGenerator = uuidGenerator;
 
     this.config = this.setupConfig(config);
 
@@ -372,7 +367,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
 
   private setupConfig(config: Partial<ModelConfig>): ModelConfig {
     const client = config.client || {
-      id: this.uuidGenerator.smallUuid(),
+      id: UuidGenerator.smallUuid(),
       name: _t("Anonymous").toString(),
     };
     const transportService = config.transportService || new LocalTransportService();

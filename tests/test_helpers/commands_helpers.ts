@@ -12,6 +12,7 @@ import {
   lettersToNumber,
   toCartesian,
   toZone,
+  UuidGenerator,
 } from "../../src/helpers/index";
 import {
   AnchorZone,
@@ -97,7 +98,7 @@ export function createSheet(
   model: Model,
   data: Partial<CreateSheetCommand & { activate: boolean; hidden: boolean; color: Color }>
 ) {
-  const sheetId = data.sheetId || model.uuidGenerator.uuidv4();
+  const sheetId = data.sheetId || UuidGenerator.uuidv4();
   const result = model.dispatch("CREATE_SHEET", {
     position: data.position !== undefined ? data.position : 1,
     sheetId,
@@ -159,7 +160,7 @@ export function createFigure(
 ) {
   const param = {
     sheetId: model.getters.getActiveSheetId(),
-    figureId: partialParam.id ?? model.uuidGenerator.uuidv4(),
+    figureId: partialParam.id ?? UuidGenerator.uuidv4(),
     offset: { x: 0, y: 0 },
     col: 0,
     row: 0,
@@ -204,7 +205,7 @@ export function createImage(
 ) {
   const param = {
     sheetId: model.getters.getActiveSheetId(),
-    figureId: model.uuidGenerator.uuidv4(),
+    figureId: UuidGenerator.uuidv4(),
     offset: { x: 0, y: 0 },
     col: 0,
     row: 0,
@@ -238,7 +239,7 @@ export function createChart(
   sheetId?: UID,
   figureData: Partial<CreateFigureCommand> = {}
 ) {
-  const id = chartId || model.uuidGenerator.uuidv4();
+  const id = chartId || UuidGenerator.uuidv4();
   sheetId = sheetId || model.getters.getActiveSheetId();
   const definition = {
     ...data,
@@ -262,7 +263,7 @@ export function createChart(
     verticalGroupBy: ("verticalGroupBy" in data && data.verticalGroupBy) || "month_number",
   };
   return model.dispatch("CREATE_CHART", {
-    figureId: figureData.figureId || model.uuidGenerator.smallUuid(),
+    figureId: figureData.figureId || UuidGenerator.smallUuid(),
     chartId: id,
     sheetId,
     col: 0,
@@ -281,11 +282,11 @@ export function createComboChart(
   sheetId?: UID,
   figureData: Partial<CreateFigureCommand> = {}
 ) {
-  const id = chartId || model.uuidGenerator.uuidv4();
+  const id = chartId || UuidGenerator.uuidv4();
   sheetId = sheetId || model.getters.getActiveSheetId();
 
   return model.dispatch("CREATE_CHART", {
-    figureId: figureData.figureId || model.uuidGenerator.smallUuid(),
+    figureId: figureData.figureId || UuidGenerator.smallUuid(),
     chartId: id,
     sheetId,
     col: 0,
@@ -314,11 +315,11 @@ export function createRadarChart(
   sheetId?: UID,
   figureData: Partial<CreateFigureCommand> = {}
 ) {
-  const id = chartId || model.uuidGenerator.uuidv4();
+  const id = chartId || UuidGenerator.uuidv4();
   sheetId = sheetId || model.getters.getActiveSheetId();
 
   return model.dispatch("CREATE_CHART", {
-    figureId: figureData.figureId || model.uuidGenerator.smallUuid(),
+    figureId: figureData.figureId || UuidGenerator.smallUuid(),
     chartId: id,
     sheetId,
     col: 0,
@@ -349,11 +350,11 @@ export function createCalendarChart(
   sheetId?: UID,
   figureData: Partial<CreateFigureCommand> = {}
 ) {
-  const id = chartId || model.uuidGenerator.uuidv4();
+  const id = chartId || UuidGenerator.uuidv4();
   sheetId = sheetId || model.getters.getActiveSheetId();
 
   return model.dispatch("CREATE_CHART", {
-    figureId: figureData.figureId || model.uuidGenerator.smallUuid(),
+    figureId: figureData.figureId || UuidGenerator.smallUuid(),
     chartId: id,
     sheetId: sheetId,
     col: 0,
@@ -406,11 +407,11 @@ export function createScorecardChart(
   sheetId?: UID,
   figureData: Partial<CreateFigureCommand> = {}
 ) {
-  const id = chartId || model.uuidGenerator.uuidv4();
+  const id = chartId || UuidGenerator.uuidv4();
   sheetId = sheetId || model.getters.getActiveSheetId();
 
   return model.dispatch("CREATE_CHART", {
-    figureId: figureData.figureId || model.uuidGenerator.smallUuid(),
+    figureId: figureData.figureId || UuidGenerator.smallUuid(),
     chartId: id,
     sheetId,
     col: 0,
@@ -441,11 +442,11 @@ export function createGaugeChart(
   sheetId?: UID,
   figureData: Partial<CreateFigureCommand> = {}
 ) {
-  const id = chartId || model.uuidGenerator.uuidv4();
+  const id = chartId || UuidGenerator.uuidv4();
   sheetId = sheetId || model.getters.getActiveSheetId();
 
   return model.dispatch("CREATE_CHART", {
-    figureId: figureData.figureId || model.uuidGenerator.smallUuid(),
+    figureId: figureData.figureId || UuidGenerator.smallUuid(),
     chartId: id,
     sheetId,
     col: 0,
@@ -489,10 +490,10 @@ export function createGeoChart(
   sheetId: UID = model.getters.getActiveSheetId(),
   figureData: Partial<CreateFigureCommand> = {}
 ) {
-  const id = chartId || model.uuidGenerator.uuidv4();
+  const id = chartId || UuidGenerator.uuidv4();
 
   return model.dispatch("CREATE_CHART", {
-    figureId: figureData.figureId || model.uuidGenerator.smallUuid(),
+    figureId: figureData.figureId || UuidGenerator.smallUuid(),
     chartId: id,
     sheetId,
     col: 0,
@@ -1496,7 +1497,7 @@ export function ungroupHeaders(
 export function duplicateSheet(
   model: Model,
   sheetId: UID = model.getters.getActiveSheetId(),
-  sheetIdTo: UID = model.uuidGenerator.uuidv4(),
+  sheetIdTo: UID = UuidGenerator.uuidv4(),
   sheetNameTo: string = model.getters.getDuplicateSheetName(model.getters.getSheetName(sheetId))
 ) {
   return model.dispatch("DUPLICATE_SHEET", {
@@ -1725,7 +1726,7 @@ export function createCarousel(
   figureData: Partial<CreateFigureCommand> = {}
 ) {
   return model.dispatch("CREATE_CAROUSEL", {
-    figureId: carouselId || model.uuidGenerator.smallUuid(),
+    figureId: carouselId || UuidGenerator.smallUuid(),
     sheetId: sheetId || model.getters.getActiveSheetId(),
     col: 0,
     row: 0,

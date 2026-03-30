@@ -1,3 +1,4 @@
+import { UuidGenerator } from "@odoo/o-spreadsheet-engine";
 import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "@odoo/o-spreadsheet-engine/constants";
 import { parseOSClipboardContent } from "@odoo/o-spreadsheet-engine/helpers/clipboard/clipboard_helpers";
 import { BarChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart";
@@ -36,7 +37,7 @@ describe.each(["chart", "image"])("Clipboard for %s figures", (type: string) => 
   beforeEach(async () => {
     model = new Model();
     sheetId = model.getters.getActiveSheetId();
-    figureId = model.uuidGenerator.uuidv4();
+    figureId = UuidGenerator.uuidv4();
     if (type === "chart") {
       createChart(model, { type: "bar" }, "chartId", undefined, { figureId });
     } else if (type === "image") {

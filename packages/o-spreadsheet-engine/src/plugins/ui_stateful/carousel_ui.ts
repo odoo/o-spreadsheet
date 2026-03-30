@@ -19,8 +19,6 @@ export class CarouselUIPlugin extends UIPlugin {
     "getChartIdFromFigureId",
   ] as const;
 
-  private uuidGenerator = new UuidGenerator();
-
   carouselStates: Record<UID, string | undefined> = {};
 
   allowDispatch(cmd: LocalCommand): CommandResult | CommandResult[] {
@@ -113,10 +111,10 @@ export class CarouselUIPlugin extends UIPlugin {
       y: figureUI.y + 50,
     });
 
-    const newChartFigureId = this.uuidGenerator.smallUuid();
+    const newChartFigureId = UuidGenerator.smallUuid();
     this.dispatch("CREATE_CHART", {
       ...newAnchor,
-      chartId: this.uuidGenerator.smallUuid(),
+      chartId: UuidGenerator.smallUuid(),
       figureId: newChartFigureId,
       sheetId,
       size: { width: figure.width, height: figure.height },
@@ -195,7 +193,7 @@ export class CarouselUIPlugin extends UIPlugin {
 
   private addNewChartToCarousel(figureId: string, sheetId: string) {
     const carousel = this.getters.getCarousel(figureId);
-    const chartId = this.uuidGenerator.smallUuid();
+    const chartId = UuidGenerator.smallUuid();
     this.dispatch("CREATE_CHART", {
       chartId,
       figureId,

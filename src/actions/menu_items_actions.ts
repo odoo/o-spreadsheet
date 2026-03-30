@@ -29,6 +29,7 @@ import {
   largeMax,
   largeMin,
   numberToLetters,
+  UuidGenerator,
 } from "../helpers/index";
 import { interactivePaste, interactivePasteFromOS } from "../helpers/ui/paste_interactive";
 import { interactiveCreateTable } from "../helpers/ui/table_interactive";
@@ -405,7 +406,7 @@ export const HIDE_ROWS_NAME = (env: SpreadsheetChildEnv) => {
 
 export const CREATE_CHART = (env: SpreadsheetChildEnv) => {
   const getters = env.model.getters;
-  const figureId = env.model.uuidGenerator.smallUuid();
+  const figureId = UuidGenerator.smallUuid();
   const sheetId = getters.getActiveSheetId();
   let zones = getters.getSelectedZones();
 
@@ -420,7 +421,7 @@ export const CREATE_CHART = (env: SpreadsheetChildEnv) => {
   const result = env.model.dispatch("CREATE_CHART", {
     sheetId,
     figureId,
-    chartId: env.model.uuidGenerator.smallUuid(),
+    chartId: UuidGenerator.smallUuid(),
     col,
     row,
     offset,
@@ -435,7 +436,7 @@ export const CREATE_CHART = (env: SpreadsheetChildEnv) => {
 
 export const CREATE_CAROUSEL = (env: SpreadsheetChildEnv) => {
   const getters = env.model.getters;
-  const figureId = env.model.uuidGenerator.smallUuid();
+  const figureId = UuidGenerator.smallUuid();
   const sheetId = getters.getActiveSheetId();
 
   const size = { width: DEFAULT_FIGURE_WIDTH, height: DEFAULT_FIGURE_HEIGHT };
@@ -461,8 +462,8 @@ export const CREATE_CAROUSEL = (env: SpreadsheetChildEnv) => {
 //------------------------------------------------------------------------------
 
 export const CREATE_PIVOT = (env: SpreadsheetChildEnv) => {
-  const pivotId = env.model.uuidGenerator.smallUuid();
-  const newSheetId = env.model.uuidGenerator.smallUuid();
+  const pivotId = UuidGenerator.smallUuid();
+  const newSheetId = UuidGenerator.smallUuid();
   const result = env.model.dispatch("INSERT_NEW_PIVOT", { pivotId, newSheetId });
   if (result.isSuccessful) {
     env.openSidePanel("PivotSidePanel", { pivotId });
@@ -526,7 +527,7 @@ export const REINSERT_STATIC_PIVOT_CHILDREN = (env: SpreadsheetChildEnv) =>
 export const CREATE_IMAGE = async (env: SpreadsheetChildEnv) => {
   if (env.imageProvider) {
     const sheetId = env.model.getters.getActiveSheetId();
-    const figureId = env.model.uuidGenerator.smallUuid();
+    const figureId = UuidGenerator.smallUuid();
     const image = await env.imageProvider.requestImage();
     const size = getMaxFigureSize(env.model.getters, image.size);
     const { col, row, offset } = centerFigurePosition(env.model.getters, size);

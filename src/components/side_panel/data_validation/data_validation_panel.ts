@@ -1,3 +1,4 @@
+import { UuidGenerator } from "@odoo/o-spreadsheet-engine";
 import { localizeDataValidationRule } from "@odoo/o-spreadsheet-engine/helpers/locale";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { Component } from "@odoo/owl";
@@ -17,7 +18,7 @@ export class DataValidationPanel extends Component<Props, SpreadsheetChildEnv> {
 
   addDataValidationRule() {
     this.env.replaceSidePanel("DataValidationEditor", "DataValidation", {
-      ruleId: this.env.model.uuidGenerator.smallUuid(),
+      ruleId: UuidGenerator.smallUuid(),
     });
   }
 

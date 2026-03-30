@@ -1,10 +1,10 @@
 import {
-  TABLE_STYLES_TEMPLATES,
   buildTableStyle,
+  TABLE_STYLES_TEMPLATES,
 } from "@odoo/o-spreadsheet-engine/helpers/table_presets";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { Component, useExternalListener, useState } from "@odoo/owl";
-import { isColorValid } from "../../../helpers";
+import { isColorValid, UuidGenerator } from "../../../helpers";
 import { Color, TableConfig, TableStyle, TableStyleTemplateName } from "../../../types";
 import { cssPropertiesToCss } from "../../helpers";
 import { TableStylePreview } from "../../tables/table_style_preview/table_style_preview";
@@ -70,7 +70,7 @@ export class TableStyleEditorPanel extends Component<
   }
 
   onConfirm() {
-    const tableStyleId = this.props.styleId || this.env.model.uuidGenerator.smallUuid();
+    const tableStyleId = this.props.styleId || UuidGenerator.smallUuid();
     this.env.model.dispatch("CREATE_TABLE_STYLE", {
       tableStyleId,
       tableStyleName: this.state.styleName,

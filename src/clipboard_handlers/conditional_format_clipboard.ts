@@ -25,7 +25,6 @@ export class ConditionalFormatClipboardHandler extends AbstractCellClipboardHand
   ClipboardContent,
   Maybe<ClipboardConditionalFormat>
 > {
-  private readonly uuidGenerator = new UuidGenerator();
   private queuedChanges: Record<UID, { toAdd: Zone[]; toRemove: Zone[]; cf: ConditionalFormat }[]> =
     {};
 
@@ -169,6 +168,6 @@ export class ConditionalFormatClipboardHandler extends AbstractCellClipboardHand
       )?.cf;
     }
 
-    return targetCF || { ...originCF, id: this.uuidGenerator.smallUuid(), ranges: [] };
+    return targetCF || { ...originCF, id: UuidGenerator.smallUuid(), ranges: [] };
   }
 }
