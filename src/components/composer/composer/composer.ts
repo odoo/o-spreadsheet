@@ -1,13 +1,11 @@
-import { NEWLINE, SCROLLBAR_WIDTH } from "@odoo/o-spreadsheet-engine/constants";
 import { Component, onMounted, onWillUnmount, useEffect, useRef, useState } from "@odoo/owl";
+import { NEWLINE, SCROLLBAR_WIDTH } from "../../../constants";
 import { debounce, deepEquals, isFormula, setColorAlpha } from "../../../helpers/index";
 
-import { cssPropertiesToCss } from "@odoo/o-spreadsheet-engine/components/helpers/css";
-import { DEFAULT_TOKEN_COLOR } from "@odoo/o-spreadsheet-engine/constants";
-import { EnrichedToken } from "@odoo/o-spreadsheet-engine/formulas/composer_tokenizer";
-import { argTargeting } from "@odoo/o-spreadsheet-engine/functions/arguments";
-import { functionRegistry } from "@odoo/o-spreadsheet-engine/functions/function_registry";
-import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
+import { DEFAULT_TOKEN_COLOR } from "../../../constants";
+import { EnrichedToken } from "../../../formulas/composer_tokenizer";
+import { argTargeting } from "../../../functions/arguments";
+import { functionRegistry } from "../../../functions/function_registry";
 import { AutoCompleteProposal } from "../../../registries/auto_completes";
 import { Store, useStore } from "../../../store_engine";
 import { DOMFocusableElementStore } from "../../../stores/DOM_focus_store";
@@ -20,6 +18,8 @@ import {
   FunctionDescription,
   Rect,
 } from "../../../types/index";
+import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
+import { cssPropertiesToCss } from "../../helpers/css";
 import { isIOS, keyboardEventToShortcutString } from "../../helpers/dom_helpers";
 import { useSpreadsheetRect } from "../../helpers/position_hook";
 import { updateSelectionWithArrowKeys } from "../../helpers/selection_helpers";

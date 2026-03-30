@@ -1,16 +1,16 @@
-import { ICON_SETS } from "@odoo/o-spreadsheet-engine/components/icons/icons";
-import { Model } from "@odoo/o-spreadsheet-engine/model";
-import {
-  ConditionalFormat,
-  ConditionalFormatRule,
-  IconThreshold,
-} from "@odoo/o-spreadsheet-engine/types/conditional_formatting";
+import { ICON_SETS } from "../../src/components/icons/icons";
+import { Model } from "../../src/model";
 import {
   CellPosition,
   CommandResult,
   ConditionalFormattingOperatorValues,
   UID,
 } from "../../src/types";
+import {
+  ConditionalFormat,
+  ConditionalFormatRule,
+  IconThreshold,
+} from "../../src/types/conditional_formatting";
 import {
   activateSheet,
   addCf,

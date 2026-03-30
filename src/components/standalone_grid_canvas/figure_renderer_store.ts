@@ -1,21 +1,10 @@
-import {
-  chartStyleToCellStyle,
-  deepCopy,
-  GridRenderingContext,
-  Rect,
-  UID,
-} from "@odoo/o-spreadsheet-engine";
-import {
-  BACKGROUND_CHART_COLOR,
-  DEFAULT_CAROUSEL_TITLE_STYLE,
-  GRAY_400,
-} from "@odoo/o-spreadsheet-engine/constants";
-import { computeTextFont } from "../../helpers";
+import { BACKGROUND_CHART_COLOR, DEFAULT_CAROUSEL_TITLE_STYLE, GRAY_400 } from "../../constants";
+import { chartStyleToCellStyle, computeTextFont, deepCopy } from "../../helpers";
 import { drawChartOnCanvas } from "../../helpers/figures/charts";
 import { DisposableStore, Get, Store } from "../../store_engine";
 import { ModelStore } from "../../stores";
 import { RendererStore } from "../../stores/renderer_store";
-import { FigureUI, RenderingGetters } from "../../types";
+import { FigureUI, GridRenderingContext, Rect, RenderingGetters, UID } from "../../types";
 
 /** Store that draws the figures directly onto the canvas */
 export class FigureRendererStore extends DisposableStore {

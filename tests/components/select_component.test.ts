@@ -1,4 +1,4 @@
-import { ValueAndLabel } from "@odoo/o-spreadsheet-engine";
+import { ValueAndLabel } from "../../src";
 import { Select } from "../../src/components/select/select";
 import { keyDown, simulateClick, triggerMouseEvent } from "../test_helpers";
 import { mountComponentWithPortalTarget, nextTick } from "../test_helpers/helpers";

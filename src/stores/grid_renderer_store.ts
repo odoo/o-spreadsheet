@@ -1,5 +1,7 @@
-import { Model } from "@odoo/o-spreadsheet-engine";
-import { getPath2D } from "@odoo/o-spreadsheet-engine/components/icons/icons";
+import { ModelStore } from ".";
+import { HoveredIconStore } from "../components/grid_overlay/hovered_icon_store";
+import { getPath2D } from "../components/icons/icons";
+import { HoveredTableStore } from "../components/tables/hovered_table_store";
 import {
   BACKGROUND_HEADER_ACTIVE_COLOR,
   BACKGROUND_HEADER_COLOR,
@@ -16,11 +18,7 @@ import {
   HEADER_WIDTH,
   MIN_CELL_TEXT_MARGIN,
   TEXT_HEADER_COLOR,
-} from "@odoo/o-spreadsheet-engine/constants";
-import { ViewportCollection } from "@odoo/o-spreadsheet-engine/helpers/viewport_collection";
-import { ModelStore } from ".";
-import { HoveredIconStore } from "../components/grid_overlay/hovered_icon_store";
-import { HoveredTableStore } from "../components/tables/hovered_table_store";
+} from "../constants";
 import {
   blendColors,
   computeRotationPosition,
@@ -41,6 +39,8 @@ import {
   union,
   zoneToXc,
 } from "../helpers/index";
+import { ViewportCollection } from "../helpers/viewport_collection";
+import { Model } from "../model";
 import { cellAnimationRegistry } from "../registries/cell_animation_registry";
 import { DisposableStore, Get, Store } from "../store_engine";
 import {

@@ -1,7 +1,7 @@
-import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { Component } from "@odoo/owl";
 import { chartComponentRegistry } from "../../../registries/chart_component_registry";
 import { ChartType, CSSProperties, FigureUI, Rect, UID } from "../../../types";
+import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
 import { ChartDashboardMenu } from "../chart/chart_dashboard_menu/chart_dashboard_menu";
 
 interface Props {

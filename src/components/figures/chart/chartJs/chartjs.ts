@@ -1,14 +1,14 @@
-import {
-  chartJsExtensionRegistry,
-  registerChartJSExtensions,
-} from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_js_extension";
-import { ChartJSRuntime } from "@odoo/o-spreadsheet-engine/types/chart/chart";
-import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { Component, onMounted, onWillUnmount, useEffect, useRef } from "@odoo/owl";
 import { Chart, ChartConfiguration } from "chart.js/auto";
 import { deepCopy, deepEquals } from "../../../../helpers";
+import {
+  chartJsExtensionRegistry,
+  registerChartJSExtensions,
+} from "../../../../helpers/figures/charts/chart_js_extension";
 import { Store, useStore } from "../../../../store_engine";
 import { UID } from "../../../../types";
+import { ChartJSRuntime } from "../../../../types/chart/chart";
+import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
 import { ChartAnimationStore } from "./chartjs_animation_store";
 import { chartBackgroundPlugin } from "./chartjs_background_plugin";
 import { getCalendarChartController } from "./chartjs_calendar_chart";

@@ -1,6 +1,6 @@
-import { TABLE_PRESETS } from "@odoo/o-spreadsheet-engine/helpers/table_presets";
 import { Model } from "../../src";
 import { toXC, toZone } from "../../src/helpers";
+import { TABLE_PRESETS } from "../../src/helpers/table_presets";
 import { Style, UID } from "../../src/types";
 import {
   createTable,

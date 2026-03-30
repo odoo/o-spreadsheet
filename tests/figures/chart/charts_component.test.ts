@@ -1,28 +1,13 @@
-import { ChartTerms } from "@odoo/o-spreadsheet-engine/components/translations_terms";
-import { LINE_DATA_POINT_RADIUS } from "@odoo/o-spreadsheet-engine/constants";
-import { chartSubtypeRegistry } from "@odoo/o-spreadsheet-engine/registries/chart_subtype_registry";
-import {
-  GaugeChartDefinition,
-  PieChartDefinition,
-  PieChartRuntime,
-  ScorecardChartDefinition,
-  ScorecardChartRuntime,
-  TrendConfiguration,
-} from "@odoo/o-spreadsheet-engine/types/chart";
-import {
-  BarChartDefinition,
-  BarChartRuntime,
-} from "@odoo/o-spreadsheet-engine/types/chart/bar_chart";
-import { LineChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/line_chart";
-import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
-import { xmlEscape } from "@odoo/o-spreadsheet-engine/xlsx/helpers/xml_helpers";
 import { App } from "@odoo/owl";
 import { CommandResult, Model, Spreadsheet } from "../../../src";
 import { ChartPanel } from "../../../src/components/side_panel/chart/main_chart_panel/main_chart_panel";
 import { SidePanelStore } from "../../../src/components/side_panel/side_panel/side_panel_store";
+import { ChartTerms } from "../../../src/components/translations_terms";
+import { LINE_DATA_POINT_RADIUS } from "../../../src/constants";
 import { toHex, toZone } from "../../../src/helpers";
 import { GaugeChart, ScorecardChart } from "../../../src/helpers/figures/charts";
 import { getChartColorsGenerator } from "../../../src/helpers/figures/charts/runtime";
+import { chartSubtypeRegistry } from "../../../src/registries/chart_subtype_registry";
 import { HighlightStore } from "../../../src/stores/highlight_store";
 import {
   CHART_TYPES,
@@ -32,6 +17,18 @@ import {
   CreateFigureCommand,
   UID,
 } from "../../../src/types";
+import {
+  GaugeChartDefinition,
+  PieChartDefinition,
+  PieChartRuntime,
+  ScorecardChartDefinition,
+  ScorecardChartRuntime,
+  TrendConfiguration,
+} from "../../../src/types/chart";
+import { BarChartDefinition, BarChartRuntime } from "../../../src/types/chart/bar_chart";
+import { LineChartDefinition } from "../../../src/types/chart/line_chart";
+import { SpreadsheetChildEnv } from "../../../src/types/spreadsheet_env";
+import { xmlEscape } from "../../../src/xlsx/helpers/xml_helpers";
 import {
   getChartConfiguration,
   openChartConfigSidePanel,

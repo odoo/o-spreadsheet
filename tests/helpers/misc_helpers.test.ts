@@ -1,3 +1,4 @@
+import seedrandom from "seedrandom";
 import {
   deepCopy,
   deepEquals,
@@ -8,9 +9,8 @@ import {
   memoize,
   range,
   UuidGenerator,
-} from "@odoo/o-spreadsheet-engine";
-import { DateTime } from "@odoo/o-spreadsheet-engine/helpers/dates";
-import seedrandom from "seedrandom";
+} from "../../src/helpers";
+import { DateTime } from "../../src/helpers/dates";
 
 describe("Misc", () => {
   test("range", () => {

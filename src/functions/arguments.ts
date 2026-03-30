@@ -1,4 +1,4 @@
-import { Immutable } from "..";
+import { Immutable } from "../types";
 import {
   AddFunctionDescription,
   ArgDefinition,

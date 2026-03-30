@@ -1,8 +1,9 @@
-import { PivotDimension } from "@odoo/o-spreadsheet-engine/types/pivot";
 import { Component } from "@odoo/owl";
+import { PivotDimension } from "../../../../../types/pivot";
 
-import { _t, ValueAndLabel } from "@odoo/o-spreadsheet-engine";
-import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
+import { _t } from "../../../../../translation";
+import { ValueAndLabel } from "../../../../../types";
+import { SpreadsheetChildEnv } from "../../../../../types/spreadsheet_env";
 import { Select } from "../../../../select/select";
 
 interface Props {

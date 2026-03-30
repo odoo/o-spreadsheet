@@ -1,6 +1,5 @@
-import { sum } from "@odoo/o-spreadsheet-engine/functions/helper_math";
-import { average, max, median, min } from "@odoo/o-spreadsheet-engine/functions/helper_statistical";
-import { _t } from "@odoo/o-spreadsheet-engine/translation";
+import { sum } from "../../../functions/helper_math";
+import { average, max, median, min } from "../../../functions/helper_statistical";
 import { formatValue, isDefined } from "../../../helpers";
 import {
   computeStatisticFnResults,
@@ -9,6 +8,7 @@ import {
 } from "../../../helpers/selection_statistic_functions";
 import { Get } from "../../../store_engine";
 import { SpreadsheetStore } from "../../../stores";
+import { _t } from "../../../translation";
 import {
   CellValue,
   CellValueType,

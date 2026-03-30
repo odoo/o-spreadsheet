@@ -1,4 +1,4 @@
-import { LineChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart";
+import { LineChartDefinition } from "../../../../types/chart";
 import { ChartShowDataMarkers } from "../building_blocks/show_data_markers/show_data_markers";
 import { ChartSidePanelProps } from "../common";
 import { GenericZoomableChartDesignPanel } from "../zoomable_chart/design_panel";

@@ -1,7 +1,5 @@
-import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "@odoo/o-spreadsheet-engine/constants";
-import { Model } from "@odoo/o-spreadsheet-engine/model";
-import { corePluginRegistry } from "@odoo/o-spreadsheet-engine/plugins";
 import { CoreCommand, CorePlugin } from "../../src";
+import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../../src/constants";
 import {
   numberToLetters,
   positionToZone,
@@ -10,6 +8,8 @@ import {
   toZone,
   zoneToXc,
 } from "../../src/helpers";
+import { Model } from "../../src/model";
+import { corePluginRegistry } from "../../src/plugins";
 import { CommandResult, Direction } from "../../src/types";
 import {
   activateSheet,

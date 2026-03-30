@@ -1,11 +1,8 @@
-import {
-  TABLE_STYLES_TEMPLATES,
-  buildTableStyle,
-} from "@odoo/o-spreadsheet-engine/helpers/table_presets";
-import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { Component, useExternalListener, useState } from "@odoo/owl";
 import { isColorValid } from "../../../helpers";
+import { TABLE_STYLES_TEMPLATES, buildTableStyle } from "../../../helpers/table_presets";
 import { Color, TableConfig, TableStyle, TableStyleTemplateName } from "../../../types";
+import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
 import { cssPropertiesToCss } from "../../helpers";
 import { TableStylePreview } from "../../tables/table_style_preview/table_style_preview";
 import { RoundColorPicker } from "../components/round_color_picker/round_color_picker";

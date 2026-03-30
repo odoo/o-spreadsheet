@@ -1,5 +1,4 @@
-import { transform } from "@odoo/o-spreadsheet-engine/collaborative/ot/ot";
-import { LineChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/line_chart";
+import { transform } from "../../../src/collaborative/ot/ot";
 import {
   AddColumnsRowsCommand,
   DeleteChartCommand,
@@ -11,6 +10,7 @@ import {
   UpdateFigureCommand,
   UpdateNamedRangeCommand,
 } from "../../../src/types";
+import { LineChartDefinition } from "../../../src/types/chart/line_chart";
 import { toRangeData } from "../../test_helpers/helpers";
 
 describe("OT with figures commands", () => {

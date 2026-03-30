@@ -1,10 +1,10 @@
-import { deepEquals } from "@odoo/o-spreadsheet-engine";
-import { getMaxFigureSize } from "@odoo/o-spreadsheet-engine/helpers/figures/figure/figure";
-import { _t } from "@odoo/o-spreadsheet-engine/translation";
-import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { UID } from "..";
 import { downloadFile } from "../components/helpers/dom_helpers";
+import { deepEquals } from "../helpers";
 import { chartToImageFile, chartToImageUrl } from "../helpers/figures/charts";
+import { getMaxFigureSize } from "../helpers/figures/figure/figure";
+import { _t } from "../translation";
+import { SpreadsheetChildEnv } from "../types/spreadsheet_env";
 import { Action, ActionSpec, createActions } from "./action";
 
 export function getChartMenuActions(figureId: UID, env: SpreadsheetChildEnv): Action[] {

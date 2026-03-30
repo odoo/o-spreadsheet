@@ -1,9 +1,9 @@
-import { Model } from "@odoo/o-spreadsheet-engine";
-import { HIGHLIGHT_COLOR } from "@odoo/o-spreadsheet-engine/constants";
-import { toZone } from "@odoo/o-spreadsheet-engine/helpers/zones";
-import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
+import { Model } from "../../src";
 import { NamedRangeSelector } from "../../src/components/named_range_selector/named_range_selector";
+import { HIGHLIGHT_COLOR } from "../../src/constants";
+import { toZone } from "../../src/helpers/zones";
 import { HighlightStore } from "../../src/stores/highlight_store";
+import { SpreadsheetChildEnv } from "../../src/types/spreadsheet_env";
 import {
   createNamedRange,
   createSheet,

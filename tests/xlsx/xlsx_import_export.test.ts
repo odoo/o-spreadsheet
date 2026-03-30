@@ -1,6 +1,5 @@
-import { LINK_COLOR } from "@odoo/o-spreadsheet-engine/constants";
-import { isXLSXExportXMLFile } from "@odoo/o-spreadsheet-engine/xlsx/helpers/xlsx_helper";
 import { Model } from "../../src";
+import { LINK_COLOR } from "../../src/constants";
 import { buildSheetLink, toZone } from "../../src/helpers";
 import {
   Align,
@@ -10,6 +9,7 @@ import {
   VerticalAlign,
   Wrapping,
 } from "../../src/types";
+import { isXLSXExportXMLFile } from "../../src/xlsx/helpers/xlsx_helper";
 import {
   addCfRule,
   createChart,

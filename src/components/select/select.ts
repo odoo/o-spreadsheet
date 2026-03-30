@@ -1,6 +1,6 @@
-import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { Component, useEffect, useExternalListener, useRef, useState } from "@odoo/owl";
 import { ValueAndLabel } from "../../types";
+import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 import { getRefBoundingRect, isChildEvent } from "../helpers/dom_helpers";
 import { Popover, PopoverProps } from "../popover/popover";
 

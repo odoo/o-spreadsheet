@@ -1,7 +1,7 @@
-import { functionRegistry } from "@odoo/o-spreadsheet-engine/functions/function_registry";
-import { _t } from "@odoo/o-spreadsheet-engine/translation";
+import { functionRegistry } from "../functions/function_registry";
 import { isDefined } from "../helpers";
 import { handlePasteResult } from "../helpers/ui/paste_interactive";
+import { _t } from "../translation";
 import { ActionBuilder, ActionSpec } from "./action";
 import * as ACTIONS from "./menu_items_actions";
 

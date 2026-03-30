@@ -1,6 +1,6 @@
-import { astToFormula } from "@odoo/o-spreadsheet-engine/formulas/formula_formatter";
-import { ASTFuncall, parseTokens } from "@odoo/o-spreadsheet-engine/formulas/parser";
 import { CellErrorType, parse, tokenize } from "../../src";
+import { astToFormula } from "../../src/formulas/formula_formatter";
+import { ASTFuncall, parseTokens } from "../../src/formulas/parser";
 
 describe("parser", () => {
   test("can parse a function call with no argument", () => {

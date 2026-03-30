@@ -1,14 +1,14 @@
-import { toJsDate } from "@odoo/o-spreadsheet-engine/functions/helpers";
-import { ALL_PERIODS } from "@odoo/o-spreadsheet-engine/helpers/pivot/pivot_helpers";
+import { toJsDate } from "../../../../functions/helpers";
+import { createValidRange, isDateTime } from "../../../../helpers";
+import { createDataSets } from "../../../../helpers/figures/charts";
+import { getBarChartData } from "../../../../helpers/figures/charts/runtime";
+import { ALL_PERIODS } from "../../../../helpers/pivot/pivot_helpers";
+import { DEFAULT_LOCALE, ValueAndLabel } from "../../../../types";
 import {
   CALENDAR_CHART_GRANULARITIES,
   CalendarChartDefinition,
   CalendarChartGranularity,
-} from "@odoo/o-spreadsheet-engine/types/chart/calendar_chart";
-import { createValidRange, isDateTime } from "../../../../helpers";
-import { createDataSets } from "../../../../helpers/figures/charts";
-import { getBarChartData } from "../../../../helpers/figures/charts/runtime";
-import { DEFAULT_LOCALE, ValueAndLabel } from "../../../../types";
+} from "../../../../types/chart/calendar_chart";
 import { Select } from "../../../select/select";
 import { GenericChartConfigPanel } from "../building_blocks/generic_side_panel/config_panel";
 import { ChartSidePanelProps } from "../common";

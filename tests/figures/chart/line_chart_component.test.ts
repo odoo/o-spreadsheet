@@ -1,9 +1,9 @@
-import { parseDateTime } from "@odoo/o-spreadsheet-engine/helpers/dates";
-import { LineChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/line_chart";
-import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { Model } from "../../../src";
 import { ChartPanel } from "../../../src/components/side_panel/chart/main_chart_panel/main_chart_panel";
+import { parseDateTime } from "../../../src/helpers/dates";
 import { UID } from "../../../src/types";
+import { LineChartDefinition } from "../../../src/types/chart/line_chart";
+import { SpreadsheetChildEnv } from "../../../src/types/spreadsheet_env";
 import { openChartDesignSidePanel } from "../../test_helpers/chart_helpers";
 import { createChart } from "../../test_helpers/commands_helpers";
 import { setInputValueAndTrigger } from "../../test_helpers/dom_helper";

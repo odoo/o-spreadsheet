@@ -1,9 +1,9 @@
-import { arg } from "@odoo/o-spreadsheet-engine/functions/arguments";
-import { functionRegistry } from "@odoo/o-spreadsheet-engine/functions/function_registry";
-import { toScalar } from "@odoo/o-spreadsheet-engine/functions/helper_matrices";
-import { toMatrix, toNumber } from "@odoo/o-spreadsheet-engine/functions/helpers";
-import { Model } from "@odoo/o-spreadsheet-engine/model";
+import { arg } from "../../src/functions/arguments";
+import { functionRegistry } from "../../src/functions/function_registry";
+import { toScalar } from "../../src/functions/helper_matrices";
+import { toMatrix, toNumber } from "../../src/functions/helpers";
 import { toCartesian, toZone } from "../../src/helpers";
+import { Model } from "../../src/model";
 import { DEFAULT_LOCALE, ErrorCell, UID } from "../../src/types";
 import {
   addColumns,

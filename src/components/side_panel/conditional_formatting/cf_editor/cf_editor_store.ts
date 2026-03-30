@@ -1,10 +1,7 @@
-import { ICON_SETS, ICONS } from "@odoo/o-spreadsheet-engine/components/icons/icons";
-import { CfTerms } from "@odoo/o-spreadsheet-engine/components/translations_terms";
-import { DEFAULT_COLOR_SCALE_MIDPOINT_COLOR } from "@odoo/o-spreadsheet-engine/constants";
-import { canonicalizeCFRule } from "@odoo/o-spreadsheet-engine/helpers/locale";
-import { hexaToInt } from "@odoo/o-spreadsheet-engine/xlsx/conversion";
 import { ComponentConstructor, useState } from "@odoo/owl";
+import { DEFAULT_COLOR_SCALE_MIDPOINT_COLOR } from "../../../../constants";
 import { colorNumberToHex, colorToNumber, isColorValid, rangeReference } from "../../../../helpers";
+import { canonicalizeCFRule } from "../../../../helpers/locale";
 import {
   criterionComponentRegistry,
   getCriterionValueAndLabels,
@@ -30,7 +27,10 @@ import {
   UID,
   ValueAndLabel,
 } from "../../../../types";
+import { hexaToInt } from "../../../../xlsx/conversion";
 import { cssPropertiesToCss } from "../../../helpers";
+import { ICON_SETS, ICONS } from "../../../icons/icons";
+import { CfTerms } from "../../../translations_terms";
 
 type CFType = "CellIsRule" | "ColorScaleRule" | "IconSetRule" | "DataBarRule";
 

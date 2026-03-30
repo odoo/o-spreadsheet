@@ -1,12 +1,12 @@
-import { cssPropertiesToCss } from "@odoo/o-spreadsheet-engine/components/helpers/css";
-import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { Component, toRaw, useChildSubEnv, useRef } from "@odoo/owl";
 import { Store, useLocalStore, useStore } from "../../store_engine";
 import { RendererStore } from "../../stores/renderer_store";
 import { DOMCoordinates, DOMDimension, OrderedLayers, Pixel, Rect, Ref } from "../../types/index";
+import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 import { DelayedHoveredCellStore } from "../grid/delayed_hovered_cell_store";
 import { GridOverlay } from "../grid_overlay/grid_overlay";
 import { GridPopover } from "../grid_popover/grid_popover";
+import { cssPropertiesToCss } from "../helpers/css";
 import { getRefBoundingRect, isMiddleClickOrCtrlClick } from "../helpers/dom_helpers";
 import { useGridDrawing } from "../helpers/draw_grid_hook";
 import { useTouchHandlers } from "../helpers/touch_handlers_hook";

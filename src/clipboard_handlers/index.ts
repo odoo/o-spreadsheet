@@ -1,4 +1,4 @@
-import { clipboardHandlersRegistries } from "@odoo/o-spreadsheet-engine/registries/clipboardHandlersRegistries";
+import { clipboardHandlersRegistries } from "../registries/clipboardHandlersRegistries";
 import { BorderClipboardHandler } from "./borders_clipboard";
 import { CarouselClipboardHandler } from "./carousel_clipboard";
 import { CellClipboardHandler } from "./cell_clipboard";

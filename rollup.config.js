@@ -41,20 +41,7 @@ export default (commandLineArgs) => {
   let input = "";
   let plugins = [
     alias({
-      entries: [
-        {
-          find: "@odoo/o-spreadsheet-engine",
-          replacement: path.resolve(__dirname, "./packages/o-spreadsheet-engine/src"),
-        },
-        {
-          find: "@odoo/o-spreadsheet-engine/*",
-          replacement: path.resolve(__dirname, "./packages/o-spreadsheet-engine/src/*"),
-        },
-        {
-          find: /.*canvas_mock$/,
-          replacement: path.resolve(__dirname, "./tools/empty-module.js"),
-        },
-      ],
+      entries: [],
     }),
     nodeResolve(),
   ];
@@ -79,26 +66,7 @@ export default (commandLineArgs) => {
       ],
       plugins: [
         alias({
-          entries: [
-            {
-              find: "@odoo/o-spreadsheet-engine",
-              replacement: path.resolve(
-                __dirname,
-                "./packages/o-spreadsheet-engine/build/js/o-spreadsheet-engine/src"
-              ),
-            },
-            {
-              find: "@odoo/o-spreadsheet-engine/*",
-              replacement: path.resolve(
-                __dirname,
-                "./packages/o-spreadsheet-engine/build/js/o-spreadsheet-engine/src/*"
-              ),
-            },
-            {
-              find: /.*canvas_mock$/,
-              replacement: path.resolve(__dirname, "./tools/empty-module.js"),
-            },
-          ],
+          entries: [],
         }),
         nodeResolve(),
       ],

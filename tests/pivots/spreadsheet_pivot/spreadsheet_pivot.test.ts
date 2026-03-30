@@ -1,7 +1,3 @@
-import { GRID_ICON_MARGIN, PIVOT_INDENT } from "@odoo/o-spreadsheet-engine/constants";
-import { resetMapValueDimensionDate } from "@odoo/o-spreadsheet-engine/helpers/pivot/spreadsheet_pivot/date_spreadsheet_pivot";
-import { PIVOT_TABLE_PRESETS } from "@odoo/o-spreadsheet-engine/helpers/pivot_table_presets";
-import { CellValue, CellValueType } from "@odoo/o-spreadsheet-engine/types/cells";
 import {
   CellErrorType,
   DEFAULT_LOCALES,
@@ -10,7 +6,11 @@ import {
   Model,
   TableStyle,
 } from "../../../src";
+import { GRID_ICON_MARGIN, PIVOT_INDENT } from "../../../src/constants";
 import { positions, removeFalsyAttributes, toZone } from "../../../src/helpers";
+import { resetMapValueDimensionDate } from "../../../src/helpers/pivot/spreadsheet_pivot/date_spreadsheet_pivot";
+import { PIVOT_TABLE_PRESETS } from "../../../src/helpers/pivot_table_presets";
+import { CellValue, CellValueType } from "../../../src/types/cells";
 import {
   addRows,
   createSheet,

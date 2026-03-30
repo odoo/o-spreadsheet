@@ -1,17 +1,12 @@
-import { _t } from "@odoo/o-spreadsheet-engine";
-import { DVTerms } from "@odoo/o-spreadsheet-engine/components/translations_terms";
-import {
-  canonicalizeContent,
-  localizeDataValidationRule,
-} from "@odoo/o-spreadsheet-engine/helpers/locale";
-import { criterionEvaluatorRegistry } from "@odoo/o-spreadsheet-engine/registries/criterion_registry";
-import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { Component, ComponentConstructor, useState } from "@odoo/owl";
 import { zoneToXc } from "../../../../helpers";
+import { canonicalizeContent, localizeDataValidationRule } from "../../../../helpers/locale";
 import {
   criterionComponentRegistry,
   getCriterionValueAndLabels,
 } from "../../../../registries/criterion_component_registry";
+import { criterionEvaluatorRegistry } from "../../../../registries/criterion_registry";
+import { _t } from "../../../../translation";
 import {
   AddDataValidationCommand,
   availableDataValidationOperators,
@@ -22,8 +17,10 @@ import {
   UID,
   ValueAndLabel,
 } from "../../../../types";
+import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
 import { Select } from "../../../select/select";
 import { SelectionInput } from "../../../selection_input/selection_input";
+import { DVTerms } from "../../../translations_terms";
 import { ValidationMessages } from "../../../validation_messages/validation_messages";
 import { Section } from "../../components/section/section";
 

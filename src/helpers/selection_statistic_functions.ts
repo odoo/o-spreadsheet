@@ -1,5 +1,5 @@
-import { lazy, memoize } from "@odoo/o-spreadsheet-engine/helpers/misc";
 import { CellValueType, EvaluatedCell, Lazy, Locale } from "../types";
+import { lazy, memoize } from "./misc";
 
 export interface StatisticFnResults {
   [name: string]:

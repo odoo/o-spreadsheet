@@ -1,4 +1,4 @@
-import { zoneToXc } from "@odoo/o-spreadsheet-engine/helpers/zones";
+import { zoneToXc } from "../../src/helpers/zones";
 import {
   activateSheet,
   addRows,

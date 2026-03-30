@@ -1,6 +1,3 @@
-import { Highlight } from "@odoo/o-spreadsheet-engine";
-import { _t } from "@odoo/o-spreadsheet-engine/translation";
-import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { Component, onWillUnmount, useEffect, useRef, useState } from "@odoo/owl";
 import { Chart, ChartConfiguration } from "chart.js/auto";
 import {
@@ -10,6 +7,9 @@ import {
   positionToZone,
 } from "../../../helpers";
 import { Store, useStore } from "../../../store_engine";
+import { _t } from "../../../translation";
+import { Highlight } from "../../../types";
+import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
 import { useHighlights } from "../../helpers/highlight_hook";
 import { NumberInput } from "../../number_input/number_input";
 import { BadgeSelection } from "../components/badge_selection/badge_selection";

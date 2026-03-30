@@ -1,5 +1,5 @@
-import { Pixel } from "@odoo/o-spreadsheet-engine";
-import { ComputedTableStyle, TableMetaData } from "@odoo/o-spreadsheet-engine/types/table";
+import { Pixel } from "../../..";
+import { ComputedTableStyle, TableMetaData } from "../../../types/table";
 
 interface DrawTableParams extends TableMetaData {
   colWidth: Pixel;

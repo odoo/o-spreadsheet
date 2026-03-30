@@ -1,10 +1,9 @@
-import { DEFAULT_REVISION_ID, MESSAGE_VERSION } from "@odoo/o-spreadsheet-engine/constants";
-import { functionRegistry } from "@odoo/o-spreadsheet-engine/functions/function_registry";
-import { DEFAULT_TABLE_CONFIG } from "@odoo/o-spreadsheet-engine/helpers/table_presets";
-import { featurePluginRegistry } from "@odoo/o-spreadsheet-engine/plugins";
-import { CollaborationMessage } from "@odoo/o-spreadsheet-engine/types/collaborative/transport_service";
 import { Model, UIPlugin } from "../../src";
+import { DEFAULT_REVISION_ID, MESSAGE_VERSION } from "../../src/constants";
+import { functionRegistry } from "../../src/functions/function_registry";
 import { getDefaultCellHeight, range, toZone, zoneToXc } from "../../src/helpers";
+import { DEFAULT_TABLE_CONFIG } from "../../src/helpers/table_presets";
+import { featurePluginRegistry } from "../../src/plugins";
 import {
   Command,
   CommandResult,
@@ -12,6 +11,7 @@ import {
   DataValidationCriterion,
   DEFAULT_LOCALE,
 } from "../../src/types";
+import { CollaborationMessage } from "../../src/types/collaborative/transport_service";
 import { MockTransportService } from "../__mocks__/transport_service";
 import {
   activateSheet,

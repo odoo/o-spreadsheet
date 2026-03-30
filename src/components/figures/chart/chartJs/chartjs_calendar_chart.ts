@@ -1,4 +1,3 @@
-import { BACKGROUND_CHART_COLOR } from "@odoo/o-spreadsheet-engine/constants";
 import {
   BarController,
   BarControllerChartOptions,
@@ -8,6 +7,7 @@ import {
   Chart,
   ChartComponent,
 } from "chart.js";
+import { BACKGROUND_CHART_COLOR } from "../../../../constants";
 
 export function getCalendarChartController(): ChartComponent & {
   prototype: BarController;

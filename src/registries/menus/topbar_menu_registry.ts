@@ -1,13 +1,13 @@
-import { ZOOM_VALUES } from "@odoo/o-spreadsheet-engine/constants";
-import { _t } from "@odoo/o-spreadsheet-engine/translation";
 import * as ACTION_DATA from "../../actions/data_actions";
 import * as ACTION_EDIT from "../../actions/edit_actions";
 import * as ACTION_FORMAT from "../../actions/format_actions";
 import * as ACTION_INSERT from "../../actions/insert_actions";
 import * as ACTIONS from "../../actions/menu_items_actions";
 import * as ACTION_VIEW from "../../actions/view_actions";
+import { ZOOM_VALUES } from "../../constants";
 import { getPivotHighlights } from "../../helpers/pivot/pivot_highlight";
 import { HighlightStore } from "../../stores/highlight_store";
+import { _t } from "../../translation";
 import { MenuItemRegistry } from "../menu_items_registry";
 import { formatNumberMenuItemSpec } from "./number_format_menu_registry";
 
