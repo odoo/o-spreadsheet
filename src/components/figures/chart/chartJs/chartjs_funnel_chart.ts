@@ -9,7 +9,6 @@ import {
   ChartComponent,
   TooltipPositionerFunction,
 } from "chart.js";
-import { AnyObject } from "chart.js/dist/types/basic";
 
 export function getFunnelChartController(): ChartComponent & {
   prototype: BarController;
@@ -49,7 +48,7 @@ export function getFunnelChartController(): ChartComponent & {
 
 export function getFunnelChartElement(): ChartComponent & {
   prototype: BarElement;
-  new (cfg: AnyObject): BarElement;
+  new (cfg: Record<string, unknown>): BarElement;
 } {
   if (!globalThis.Chart) {
     throw new Error("Chart.js library is not loaded");
