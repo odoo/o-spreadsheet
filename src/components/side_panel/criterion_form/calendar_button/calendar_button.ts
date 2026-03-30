@@ -25,6 +25,12 @@ export class CalendarButton extends Component<Props, SpreadsheetChildEnv> {
     }
   }
 
+  formatDateForInput(value: string) {
+    const locale = this.env.model.getters.getLocale();
+    const dateValue = parseDateTime(value, locale);
+    return dateValue ? formatValue(dateValue.value, { format: "yyyy-mm-dd", locale }) : "";
+  }
+
   onDateInputValueChanged(value: string) {
     const locale = this.env.model.getters.getLocale();
     const dateValue = parseDateTime(value, locale);

@@ -2,7 +2,7 @@
   <t t-name="o-spreadsheet-CriterionInput">
     <div class="o-dv-input d-flex align-items-center w-100 p-1">
       <div class="position-relative flex-grow-1">
-        <t t-if="allowedValues === 'onlyLiterals'">
+        <t t-if="this.allowedValues === 'onlyLiterals'">
           <input
             type="text"
             t-ref="input"
@@ -17,7 +17,10 @@
           />
         </t>
         <t t-else="">
-          <StandaloneComposer t-props="getDataValidationRuleInputComposerProps()"/>
+          <StandaloneComposer
+            t-props="getDataValidationRuleInputComposerProps()"
+            t-key="this.props.value"
+          />
         </t>
         <span
           t-if="this.errorMessage"
