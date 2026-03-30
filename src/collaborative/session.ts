@@ -65,7 +65,6 @@ export class Session extends EventBus<CollaborativeEvent> {
     | SnapshotCreatedMessage
     | undefined = undefined;
 
-  private uuidGenerator = new UuidGenerator();
   private lastLocalOperation: Revision | undefined;
   /**
    * Manages the collaboration between multiple users on the same spreadsheet.
@@ -102,7 +101,7 @@ export class Session extends EventBus<CollaborativeEvent> {
       return;
     }
     const revision = new Revision(
-      this.uuidGenerator.uuidv4(),
+      UuidGenerator.uuidv4(),
       this.clientId,
       commands,
       rootCommand,
@@ -132,7 +131,7 @@ export class Session extends EventBus<CollaborativeEvent> {
       type: "REVISION_UNDONE",
       version: MESSAGE_VERSION,
       serverRevisionId: this.serverRevisionId,
-      nextRevisionId: this.uuidGenerator.uuidv4(),
+      nextRevisionId: UuidGenerator.uuidv4(),
       undoneRevisionId: revisionId,
     });
   }
@@ -143,7 +142,7 @@ export class Session extends EventBus<CollaborativeEvent> {
       type: "REVISION_REDONE",
       version: MESSAGE_VERSION,
       serverRevisionId: this.serverRevisionId,
-      nextRevisionId: this.uuidGenerator.uuidv4(),
+      nextRevisionId: UuidGenerator.uuidv4(),
       redoneRevisionId: revisionId,
     });
   }
@@ -205,7 +204,7 @@ export class Session extends EventBus<CollaborativeEvent> {
     if (this.pendingMessages.length !== 0) {
       return;
     }
-    const snapshotId = this.uuidGenerator.uuidv4();
+    const snapshotId = UuidGenerator.uuidv4();
     await this.sendToTransport({
       type: "SNAPSHOT",
       nextRevisionId: snapshotId,

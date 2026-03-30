@@ -1,5 +1,6 @@
 import { CommandResult, Model } from "../../src";
 import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../../src/constants";
+import { UuidGenerator } from "../../src/helpers";
 import { parseOSClipboardContent } from "../../src/helpers/clipboard/clipboard_helpers";
 import { UID } from "../../src/types";
 import { toChartDataSource } from "../test_helpers/chart_helpers";
@@ -36,7 +37,7 @@ describe.each(["chart", "image"])("Clipboard for %s figures", (type: string) => 
   beforeEach(async () => {
     model = new Model();
     sheetId = model.getters.getActiveSheetId();
-    figureId = model.uuidGenerator.uuidv4();
+    figureId = UuidGenerator.uuidv4();
     if (type === "chart") {
       createChart(model, { type: "bar" }, "chartId", undefined, { figureId });
     } else if (type === "image") {
