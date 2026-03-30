@@ -45,7 +45,7 @@
     "zipXlsx": "node tools/bundle_xlsx/zip_xlsx_demo.cjs",
     "unzipXlsx": "node tools/bundle_xlsx/unzip_xlsx_demo.cjs",
     "pwa:build": "npm run build && node tools/build_pwa.cjs",
-    "pwa:serve": "npm run build && node tools/build_pwa.cjs && live-server pwa --open=files.html"
+    "pwa:serve": "npm run build && node tools/build_pwa.cjs && live-server pwa --open=index.html"
   },
   "browserslist": [
     "last 1 Chrome versions"

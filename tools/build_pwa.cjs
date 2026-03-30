@@ -120,26 +120,31 @@ copyDir(path.join(ROOT, "demo/lib"), "lib");
 
 // Copy demo assets
 copyAsset(path.join(ROOT, "demo/currencies.js"), "currencies.js");
+copyAsset(path.join(ROOT, "demo/data.js"), "data.js");
+copyAsset(path.join(ROOT, "demo/pivot.js"), "pivot.js");
+copyAsset(path.join(ROOT, "demo/file_store.js"), "file_store.js");
+copyAsset(path.join(ROOT, "demo/transport.js"), "transport.js");
 copyAsset(path.join(ROOT, "demo/favicon.png"), "favicon.png");
 copyAsset(path.join(ROOT, "demo/icon.svg"), "icon.svg");
 copyAsset(path.join(ROOT, "demo/manifest.json"), "manifest.json");
+copyAsset(path.join(ROOT, "demo/main.css"), "main.css");
 
 // ---------------------------------------------------------------------------
-// Patch and copy files.js
+// Patch and copy main.js
 // ---------------------------------------------------------------------------
-console.log("\n  Patching files.js...");
-let filesJs = fs.readFileSync(path.join(ROOT, "demo/files.js"), "utf8");
-filesJs = filesJs.replace(
+console.log("\n  Patching main.js...");
+let mainJs = fs.readFileSync(path.join(ROOT, "demo/main.js"), "utf8");
+mainJs = mainJs.replace(
   /fetch\(["']\.\.\/build\/o_spreadsheet\.xml["']\)/g,
   'fetch("./o_spreadsheet.xml")'
 );
-fs.writeFileSync(path.join(OUT, "files.js"), filesJs);
+fs.writeFileSync(path.join(OUT, "main.js"), mainJs);
 
 // ---------------------------------------------------------------------------
-// Patch and copy files.html
+// Patch and copy index.html
 // ---------------------------------------------------------------------------
-console.log("  Patching files.html...");
-let html = fs.readFileSync(path.join(ROOT, "demo/files.html"), "utf8");
+console.log("  Patching index.html...");
+let html = fs.readFileSync(path.join(ROOT, "demo/index.html"), "utf8");
 
 // Rewrite ../build/ paths
 html = html.replace(/\.\.\/build\//g, "./");
@@ -178,16 +183,21 @@ const swScript = `  <script>
 `;
 html = html.replace("</body>", `${swScript}</body>`);
 
-fs.writeFileSync(path.join(OUT, "files.html"), html);
+fs.writeFileSync(path.join(OUT, "index.html"), html);
 
 // ---------------------------------------------------------------------------
 // Collect all asset paths for precache manifest
 // ---------------------------------------------------------------------------
 const staticAssets = [
   "./",
-  "./files.html",
-  "./files.js",
+  "./index.html",
+  "./main.js",
   "./currencies.js",
+  "./data.js",
+  "./pivot.js",
+  "./file_store.js",
+  "./transport.js",
+  "./main.css",
   "./o_spreadsheet.iife.js",
   "./o_spreadsheet.css",
   "./o_spreadsheet.xml",

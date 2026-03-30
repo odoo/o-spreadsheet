@@ -4,7 +4,7 @@
   "theme_color": "#3730a3",
   "background_color": "#ffffff",
   "display": "standalone",
-  "start_url": "./files.html",
+  "start_url": "./index.html",
   "icons": [
     {
       "src": "icon.svg",
@@ -14,7 +14,7 @@
   ],
   "file_handlers": [
     {
-      "action": "./files.html",
+      "action": "./index.html",
       "accept": {
         "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": [".xlsx"],
         "application/json": [".json"]
