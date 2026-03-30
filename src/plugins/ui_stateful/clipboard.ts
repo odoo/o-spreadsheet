@@ -56,14 +56,12 @@ export class ClipboardPlugin extends UIPlugin {
   private originSheetId?: UID;
   private copiedData?: MinimalClipboardData;
   private _isCutOperation: boolean = false;
-  private clipboardId = new UuidGenerator().uuidv4();
+  private clipboardId = UuidGenerator.uuidv4();
   private fileStore?: FileStore;
-  private uuidGenerator: UuidGenerator;
 
   constructor(config: UIPluginConfig) {
     super(config);
     this.fileStore = config.external.fileStore;
-    this.uuidGenerator = new UuidGenerator();
   }
 
   // ---------------------------------------------------------------------------
@@ -161,7 +159,7 @@ export class ClipboardPlugin extends UIPlugin {
         // TODO: support multiple image import
         if (contentToPaste.imageData) {
           const sheetId = this.getters.getActiveSheetId();
-          const figureId = this.uuidGenerator.uuidv4();
+          const figureId = UuidGenerator.uuidv4();
           const definition = contentToPaste.imageData;
 
           const size = getMaxFigureSize(this.getters, definition.size);

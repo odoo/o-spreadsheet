@@ -1,5 +1,6 @@
 import { Component, useRef, useState } from "@odoo/owl";
 import { ActionSpec, createActions } from "../../../../actions/action";
+import { UuidGenerator } from "../../../../helpers";
 import { MenuMouseEvent } from "../../../../types";
 import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
 import { getBoundingRectAsPOJO } from "../../../helpers/dom_helpers";
@@ -19,7 +20,7 @@ export class CogWheelMenu extends Component<Props, SpreadsheetChildEnv> {
   private buttonRef = useRef("button");
   private menuState: MenuState = useState({ isOpen: false, anchorRect: null, menuItems: [] });
 
-  private menuId = this.env.model.uuidGenerator.uuidv4();
+  private menuId = UuidGenerator.uuidv4();
 
   toggleMenu(ev: MenuMouseEvent) {
     if (ev.closedMenuId === this.menuId) {

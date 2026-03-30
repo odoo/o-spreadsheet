@@ -165,17 +165,16 @@ function forceUnicityOfFigure(data: Partial<WorkbookData>): Partial<WorkbookData
   }
   const figureIds = new Set();
   const chartIds = new Set();
-  const uuidGenerator = new UuidGenerator();
   for (const sheet of data.sheets || []) {
     for (const figure of sheet.figures || []) {
       if (figureIds.has(figure.id)) {
-        figure.id += uuidGenerator.smallUuid();
+        figure.id += UuidGenerator.smallUuid();
       }
       figureIds.add(figure.id);
 
       if (figure.tag === "chart") {
         if (chartIds.has(figure.data?.chartId)) {
-          figure.data.chartId += uuidGenerator.smallUuid();
+          figure.data.chartId += UuidGenerator.smallUuid();
         }
         chartIds.add(figure.data?.chartId);
       }

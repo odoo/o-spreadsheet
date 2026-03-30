@@ -1,5 +1,5 @@
 import { Component, useRef } from "@odoo/owl";
-import { zoneToXc } from "../../../../helpers";
+import { UuidGenerator, zoneToXc } from "../../../../helpers";
 import { localizeCFRule } from "../../../../helpers/locale";
 import { ConditionalFormat, UID } from "../../../../types";
 import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
@@ -60,7 +60,7 @@ export class ConditionalFormatPreviewList extends Component<Props, SpreadsheetCh
     const sheetId = this.env.model.getters.getActiveSheetId();
     const zones = this.env.model.getters.getSelectedZones();
     const cf: Omit<ConditionalFormat, "ranges"> = {
-      id: this.env.model.uuidGenerator.smallUuid(),
+      id: UuidGenerator.smallUuid(),
       rule: {
         type: "CellIsRule",
         operator: "isNotEmpty",
