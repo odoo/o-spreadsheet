@@ -66,7 +66,7 @@ async function exportToXlsxThenImport(model: Model) {
       imageSrc: file.imageSrc,
     };
   }
-  return new Model(dataToImport, undefined, undefined, undefined, false);
+  return new Model(dataToImport, undefined, undefined, undefined);
 }
 
 describe("Export data to xlsx then import it", () => {
