@@ -173,6 +173,7 @@ import { GaugeChartComponent } from "./components/figures/chart/gauge/gauge_char
 import { FullScreenFigure } from "./components/full_screen_figure/full_screen_figure";
 import { NumberInput } from "./components/number_input/number_input";
 import { PivotHTMLRenderer } from "./components/pivot_html_renderer/pivot_html_renderer";
+import { BarChartDesignPanel } from "./components/side_panel/chart/bar_chart/bar_chart_design_panel";
 import { ComboChartDesignPanel } from "./components/side_panel/chart/combo_chart/combo_chart_design_panel";
 import { FunnelChartDesignPanel } from "./components/side_panel/chart/funnel_chart_panel/funnel_chart_design_panel";
 import { GeoChartDesignPanel } from "./components/side_panel/chart/geo_chart_panel/geo_chart_design_panel";
@@ -448,6 +449,7 @@ export const components = {
   GaugeChartComponent,
   LineConfigPanel,
   BarConfigPanel,
+  BarChartDesignPanel,
   PieChartDesignPanel,
   GenericChartConfigPanel,
   ChartWithAxisDesignPanel,

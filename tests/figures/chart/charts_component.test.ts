@@ -2096,6 +2096,41 @@ describe("charts", () => {
     }
   );
 
+  test.each<ChartType>(["bar", "combo"])("showTotals checkbox updates the chart", async (type) => {
+    createTestChart(type);
+    if (type === "bar") {
+      updateChart(model, chartId, { stacked: true });
+    }
+    await mountChartSidePanel();
+    await openChartDesignSidePanel(model, env, fixture, chartId);
+
+    expect("input[name='showTotals']").toHaveCount(1);
+    expect(model.getters.getChartDefinition(chartId)["showTotals"]).toBeFalsy();
+
+    let options = getChartConfiguration(model, chartId).options;
+    expect(options.plugins.chartShowValuesPlugin.showTotals).toBeFalsy();
+
+    await simulateClick("input[name='showTotals']");
+    expect(model.getters.getChartDefinition(chartId)["showTotals"]).toBeTruthy();
+
+    options = getChartConfiguration(model, chartId).options;
+    expect(options.plugins.chartShowValuesPlugin.showTotals).toBeTruthy();
+  });
+
+  test("showTotals checkbox is hidden for combo charts without bar series", async () => {
+    createTestChart("combo");
+    updateChart(model, chartId, {
+      dataSets: [
+        { dataRange: "B2:B5", type: "line" },
+        { dataRange: "C2:C5", type: "line" },
+      ],
+    });
+    await mountChartSidePanel();
+    await openChartDesignSidePanel(model, env, fixture, chartId);
+
+    expect("input[name='showTotals']").toHaveCount(0);
+  });
+
   test.each<ChartType>(["line", "combo", "radar"])(
     "show data marker checkbox updates the chart",
     async (type: ChartType) => {
