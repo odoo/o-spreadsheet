@@ -1,8 +1,8 @@
-import { _t, ValueAndLabel } from "@odoo/o-spreadsheet-engine";
-import { LegendPosition } from "@odoo/o-spreadsheet-engine/types/chart";
-import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { Component } from "@odoo/owl";
-import { ChartWithDataSetDefinition } from "../../../../../types";
+import { _t } from "../../../../../translation";
+import { ChartWithDataSetDefinition, ValueAndLabel } from "../../../../../types";
+import { LegendPosition } from "../../../../../types/chart";
+import { SpreadsheetChildEnv } from "../../../../../types/spreadsheet_env";
 import { Select } from "../../../../select/select";
 import { Section } from "../../../components/section/section";
 import { ChartSidePanelProps, ChartSidePanelPropsObject } from "../../common";

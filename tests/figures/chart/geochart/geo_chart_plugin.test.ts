@@ -1,5 +1,5 @@
-import { GeoChartRuntime } from "@odoo/o-spreadsheet-engine/types/chart/geo_chart";
 import { Model } from "../../../../src";
+import { GeoChartRuntime } from "../../../../src/types/chart/geo_chart";
 import {
   createChart,
   createGeoChart,

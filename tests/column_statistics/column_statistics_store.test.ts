@@ -1,8 +1,8 @@
-import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
-import { Store } from "@odoo/o-spreadsheet-engine/types/store_engine";
 import { Model } from "../../src";
 import { ColumnStatisticsStore } from "../../src/components/side_panel/column_stats/column_stats_store";
 import { formatValue } from "../../src/helpers";
+import { SpreadsheetChildEnv } from "../../src/types/spreadsheet_env";
+import { Store } from "../../src/types/store_engine";
 import {
   deleteRows,
   selectCell,

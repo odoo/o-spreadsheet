@@ -1,6 +1,6 @@
-import { corePluginRegistry } from "@odoo/o-spreadsheet-engine/plugins";
 import { CorePlugin, coreTypes, Model } from "../src";
 import { duplicateRangeInDuplicatedSheet, zoneToXc } from "../src/helpers";
+import { corePluginRegistry } from "../src/plugins";
 import { CellErrorType, Command, Range, RangeAdapterFunctions, UID } from "../src/types";
 import {
   addColumns,

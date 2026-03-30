@@ -1,10 +1,7 @@
-import { BarChartRuntime } from "@odoo/o-spreadsheet-engine/types/chart";
-import {
-  ComboChartDataSet,
-  ComboChartRuntime,
-} from "@odoo/o-spreadsheet-engine/types/chart/combo_chart";
 import { ChartConfiguration } from "chart.js";
 import { ChartCreationContext, Model } from "../../../src";
+import { BarChartRuntime } from "../../../src/types/chart";
+import { ComboChartDataSet, ComboChartRuntime } from "../../../src/types/chart/combo_chart";
 import {
   GENERAL_CHART_CREATION_CONTEXT,
   getChartConfiguration,

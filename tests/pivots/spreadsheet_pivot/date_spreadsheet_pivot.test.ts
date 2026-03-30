@@ -1,10 +1,10 @@
-import { DEFAULT_LOCALE, Locale } from "@odoo/o-spreadsheet-engine";
-import { pivotTimeAdapter } from "@odoo/o-spreadsheet-engine/helpers/pivot/pivot_time_adapter";
+import { DEFAULT_LOCALE, Locale } from "../../../src";
+import { pivotTimeAdapter } from "../../../src/helpers/pivot/pivot_time_adapter";
 import {
   createDate,
   resetMapValueDimensionDate,
-} from "@odoo/o-spreadsheet-engine/helpers/pivot/spreadsheet_pivot/date_spreadsheet_pivot";
-import { PivotDimension } from "@odoo/o-spreadsheet-engine/types/pivot";
+} from "../../../src/helpers/pivot/spreadsheet_pivot/date_spreadsheet_pivot";
+import { PivotDimension } from "../../../src/types/pivot";
 
 function createPivotDimension(granularity: string): PivotDimension {
   return {

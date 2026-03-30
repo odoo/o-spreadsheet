@@ -52,11 +52,10 @@ import {
 
 import { Currency, Model } from "../../src";
 
-import { FONT_SIZES } from "@odoo/o-spreadsheet-engine/constants";
-import { functionRegistry } from "@odoo/o-spreadsheet-engine/functions/function_registry";
-import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { ActionSpec, createAction, createActions } from "../../src/actions/action";
 import { CellComposerStore } from "../../src/components/composer/composer/cell_composer_store";
+import { FONT_SIZES } from "../../src/constants";
+import { functionRegistry } from "../../src/functions/function_registry";
 import { interactivePaste } from "../../src/helpers/ui/paste_interactive";
 import { MenuItemRegistry } from "../../src/registries/menu_items_registry";
 import {
@@ -65,6 +64,7 @@ import {
   rowMenuRegistry,
   topbarMenuRegistry,
 } from "../../src/registries/menus";
+import { SpreadsheetChildEnv } from "../../src/types/spreadsheet_env";
 import { FR_LOCALE } from "../test_helpers/constants";
 
 const TEST_CURRENCY: Partial<Currency> = {

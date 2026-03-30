@@ -1,10 +1,10 @@
+import { ChartType, Plugin } from "chart.js";
+import { Color, Locale } from "../../../..";
 import {
   CHART_AXIS_TITLE_FONT_SIZE,
   CHART_COLORSCALE_WIDTH,
   CHART_PADDING,
-} from "@odoo/o-spreadsheet-engine/constants";
-import { ChartType, Plugin } from "chart.js";
-import { Color, Locale } from "../../../..";
+} from "../../../../constants";
 import { getDefaultContextFont, humanizeNumber } from "../../../../helpers";
 
 export interface ChartColorScalePluginOptions {

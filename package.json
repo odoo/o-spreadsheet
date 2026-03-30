@@ -16,9 +16,6 @@
   "engines": {
     "node": ">=22.0.0"
   },
-  "workspaces": [
-    "packages/o-spreadsheet-engine"
-  ],
   "scripts": {
     "prepare": "husky install",
     "prettier": "prettier . --write",
@@ -41,10 +38,8 @@
     "serve-static": "live-server --open=demo --watch=build/o_spreadsheet.iife.js,build/o_spreadsheet.xml,build/o_spreadsheet.css,demo",
     "serve-static:wait": "wait-on build/o_spreadsheet.iife.js build/o_spreadsheet.xml build/o_spreadsheet.css && npm run serve-static",
     "server": "node tools/server/main.cjs",
-    "predist": "npm run dist --workspaces --if-present",
     "dist": "tsc --module es6 --declaration --declarationDir dist/types && rollup -c",
     "postdist": " npm run bundle:xml -- --outDir dist && npm run bundle:css -- --out dist",
-    "pretest": "npm run test --workspaces --if-present",
     "test": "tsc --noEmit --project tsconfig.jest.json && jest",
     "monkey": "SPREADSHEET_MONKEY_COUNT=$npm_config_monkey_count jest 'tests/collaborative/collaborative_monkey_party.test.ts'",
     "zipXlsx": "node tools/bundle_xlsx/zip_xlsx_demo.cjs",
@@ -132,7 +127,7 @@
     "xmlSelfClosingSpace": false
   },
   "dependencies": {
-    "@odoo/owl": "2.8.1",
+    "@odoo/owl": "2.8.3",
     "bootstrap": "^5.3.3",
     "font-awesome": "^4.7.0",
     "rbush": "^3.0.1"
@@ -146,10 +141,6 @@
       "^.+\\.ts?$": [
         "@swc/jest"
       ]
-    },
-    "moduleNameMapper": {
-      "^@odoo/o-spreadsheet-engine$": "<rootDir>/packages/o-spreadsheet-engine/src",
-      "^@odoo/o-spreadsheet-engine/(.*)$": "<rootDir>/packages/o-spreadsheet-engine/src/$1"
     },
     "verbose": false,
     "testEnvironment": "jsdom",

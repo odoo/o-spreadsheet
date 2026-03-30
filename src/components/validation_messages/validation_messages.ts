@@ -1,6 +1,6 @@
 import { Component } from "@odoo/owl";
 
-import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
+import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 
 interface Props {
   messages: string[];

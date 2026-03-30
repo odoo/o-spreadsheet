@@ -1,7 +1,7 @@
-import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { Component } from "@odoo/owl";
 import { useStore } from "../../../store_engine";
 import { GenericCriterion } from "../../../types";
+import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
 import { ComposerFocusStore } from "../../composer/composer_focus_store";
 
 interface Props<T extends GenericCriterion> {

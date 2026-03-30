@@ -1,5 +1,5 @@
-import { _t } from "@odoo/o-spreadsheet-engine";
 import { onWillStart, onWillUpdateProps } from "@odoo/owl";
+import { _t } from "../../../../translation";
 import { Color, IsValueInRangeCriterion, ValueAndLabel } from "../../../../types";
 import { Select } from "../../../select/select";
 import { SelectionInput } from "../../../selection_input/selection_input";

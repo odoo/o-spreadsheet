@@ -1,8 +1,8 @@
-import { getDataFilterIcon } from "@odoo/o-spreadsheet-engine/components/icons/icons";
-import { GRID_ICON_EDGE_LENGTH, GRID_ICON_MARGIN } from "@odoo/o-spreadsheet-engine/constants";
-import { relativeLuminance } from "@odoo/o-spreadsheet-engine/helpers/color";
-import { iconsOnCellRegistry } from "@odoo/o-spreadsheet-engine/registries/icons_on_cell_registry";
+import { getDataFilterIcon } from "../components/icons/icons";
 import { CellPopoverStore } from "../components/popover";
+import { GRID_ICON_EDGE_LENGTH, GRID_ICON_MARGIN } from "../constants";
+import { relativeLuminance } from "../helpers/color";
+import { iconsOnCellRegistry } from "./icons_on_cell_registry";
 
 iconsOnCellRegistry.add("filter_icon", (getters, position) => {
   const hasIcon = getters.isFilterHeader(position);

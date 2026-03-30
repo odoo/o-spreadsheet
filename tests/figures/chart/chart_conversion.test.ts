@@ -1,15 +1,15 @@
-import { Model } from "@odoo/o-spreadsheet-engine";
+import { Model } from "../../../src";
 import {
   chartToImageFile,
   chartToImageUrl,
-} from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_ui_common";
+} from "../../../src/helpers/figures/charts/chart_ui_common";
 import { createChart } from "../../test_helpers";
 import { TEST_CHART_DATA } from "../../test_helpers/constants";
 import { mockChart } from "../../test_helpers/helpers";
 
-jest.mock("@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_ui_common", () => {
+jest.mock("../../../src/helpers/figures/charts/chart_ui_common", () => {
   return {
-    ...jest.requireActual("@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_ui_common"),
+    ...jest.requireActual("../../../src/helpers/figures/charts/chart_ui_common"),
   };
 });
 

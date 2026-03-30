@@ -1,8 +1,8 @@
-import { _t } from "@odoo/o-spreadsheet-engine/translation";
-import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { Component } from "@odoo/owl";
 import { getDefinedAxis } from "../../../../helpers/figures/charts";
+import { _t } from "../../../../translation";
 import { ChartWithDataSetDefinition } from "../../../../types/index";
+import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
 import { SidePanelCollapsible } from "../../components/collapsible/side_panel_collapsible";
 import { Section } from "../../components/section/section";
 import {

@@ -1,20 +1,8 @@
-import {
-  AST,
-  iterateAstNodes,
-  parseTokens,
-  POSTFIX_UNARY_OPERATORS,
-} from "@odoo/o-spreadsheet-engine";
-import { DEFAULT_TOKEN_COLOR, tokenColors } from "@odoo/o-spreadsheet-engine/constants";
-import {
-  composerTokenize,
-  EnrichedToken,
-} from "@odoo/o-spreadsheet-engine/formulas/composer_tokenizer";
-import { functionRegistry } from "@odoo/o-spreadsheet-engine/functions/function_registry";
-import { canonicalizeNumberContent } from "@odoo/o-spreadsheet-engine/helpers/locale";
-import { evaluationResultToDisplayString } from "@odoo/o-spreadsheet-engine/helpers/matrix";
-import { _t } from "@odoo/o-spreadsheet-engine/translation";
-import { EvaluationError } from "@odoo/o-spreadsheet-engine/types/errors";
-import { SelectionEvent } from "@odoo/o-spreadsheet-engine/types/event_stream";
+import { DEFAULT_TOKEN_COLOR, tokenColors } from "../../../constants";
+import { composerTokenize, EnrichedToken } from "../../../formulas/composer_tokenizer";
+import { AST, iterateAstNodes, parseTokens } from "../../../formulas/parser";
+import { POSTFIX_UNARY_OPERATORS } from "../../../formulas/tokenizer";
+import { functionRegistry } from "../../../functions/function_registry";
 import { KeepLast } from "../../../helpers/concurrency";
 import {
   clip,
@@ -30,6 +18,8 @@ import {
   splitReference,
   zoneToDimension,
 } from "../../../helpers/index";
+import { canonicalizeNumberContent } from "../../../helpers/locale";
+import { evaluationResultToDisplayString } from "../../../helpers/matrix";
 import { cycleFixedReference } from "../../../helpers/reference_type";
 import {
   AutoCompleteProposal,
@@ -41,6 +31,7 @@ import { Get, Store } from "../../../store_engine";
 import { SpreadsheetStore } from "../../../stores";
 import { HighlightStore } from "../../../stores/highlight_store";
 import { NotificationStore } from "../../../stores/notification_store";
+import { _t } from "../../../translation";
 import {
   CellPosition,
   Color,
@@ -55,6 +46,8 @@ import {
   UnboundedZone,
   Zone,
 } from "../../../types";
+import { EvaluationError } from "../../../types/errors";
+import { SelectionEvent } from "../../../types/event_stream";
 import { AutoCompleteStore } from "../autocomplete_dropdown/autocomplete_dropdown_store";
 
 export interface ComposerSelection {

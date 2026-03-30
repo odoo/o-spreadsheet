@@ -1,10 +1,10 @@
-import { ValueAndLabel } from "@odoo/o-spreadsheet-engine";
-import { Currency } from "@odoo/o-spreadsheet-engine/types/currency";
-import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
-import { Store } from "@odoo/o-spreadsheet-engine/types/store_engine";
 import { Component, onWillStart, onWillUpdateProps } from "@odoo/owl";
 import { currenciesRegistry } from "../../../registries/currencies_registry";
 import { useLocalStore } from "../../../store_engine";
+import { ValueAndLabel } from "../../../types";
+import { Currency } from "../../../types/currency";
+import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
+import { Store } from "../../../types/store_engine";
 import { Select } from "../../select/select";
 import { TextInput } from "../../text_input/text_input";
 import { BadgeSelection } from "../components/badge_selection/badge_selection";

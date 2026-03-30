@@ -1,12 +1,8 @@
-import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "@odoo/o-spreadsheet-engine/constants";
-import { SquishedCell } from "@odoo/o-spreadsheet-engine/plugins/core/squisher";
-import {
-  DataValidationRuleData,
-  SheetData,
-  WorkbookData,
-} from "@odoo/o-spreadsheet-engine/types/workbook_data";
+import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../../src/constants";
 import { isSheetNameEqual, toCartesian, toXC, toZone } from "../../src/helpers";
+import { SquishedCell } from "../../src/plugins/core/squisher";
 import { Border, Color, ConditionalFormat, Style } from "../../src/types";
+import { DataValidationRuleData, SheetData, WorkbookData } from "../../src/types/workbook_data";
 
 export function getWorkbookSheet(sheetName: string, data: WorkbookData): SheetData | undefined {
   return data.sheets.find((sheet) => isSheetNameEqual(sheet.name, sheetName));

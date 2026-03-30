@@ -1,19 +1,16 @@
-import { CHECKBOX_CHECKED } from "@odoo/o-spreadsheet-engine/components/icons/icons";
+import { Align, Spreadsheet } from "../../src";
+import { CHECKBOX_CHECKED } from "../../src/components/icons/icons";
 import {
   DEFAULT_CELL_HEIGHT,
   DEFAULT_CELL_WIDTH,
   GRID_ICON_EDGE_LENGTH,
   GRID_ICON_MARGIN,
   MIN_CELL_TEXT_MARGIN,
-} from "@odoo/o-spreadsheet-engine/constants";
-import { Model } from "@odoo/o-spreadsheet-engine/model";
-import {
-  GridIcon,
-  iconsOnCellRegistry,
-} from "@odoo/o-spreadsheet-engine/registries/icons_on_cell_registry";
-import { Align, Spreadsheet } from "../../src";
+} from "../../src/constants";
 import { toZone } from "../../src/helpers";
+import { Model } from "../../src/model";
 import { clickableCellRegistry } from "../../src/registries/cell_clickable_registry";
+import { GridIcon, iconsOnCellRegistry } from "../../src/registries/icons_on_cell_registry";
 import {
   createTableWithFilter,
   evaluateCells,

@@ -1,5 +1,3 @@
-import { Ref } from "@odoo/o-spreadsheet-engine";
-import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import {
   Component,
   onMounted,
@@ -11,6 +9,8 @@ import {
 import { clip } from "../../helpers/index";
 import { Store, useStore } from "../../store_engine";
 import { DOMFocusableElementStore } from "../../stores/DOM_focus_store";
+import { Ref } from "../../types";
+import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 import { isChildEvent } from "../helpers/dom_helpers";
 import { Popover, PopoverProps } from "../popover";
 

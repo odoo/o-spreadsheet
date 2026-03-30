@@ -3,14 +3,10 @@
  */
 // @ts-ignore
 
-import {
-  HEADER_HEIGHT,
-  HEADER_WIDTH,
-  setDefaultSheetViewSize,
-} from "@odoo/o-spreadsheet-engine/constants";
-import "@odoo/o-spreadsheet-engine/types/chart/chartjs_tree_map_type";
 import { App } from "@odoo/owl";
 import * as Chart from "chart.js";
+import { HEADER_HEIGHT, HEADER_WIDTH, setDefaultSheetViewSize } from "../../src/constants";
+import "../../src/types/chart/chartjs_tree_map_type";
 import { getCompiledTemplates } from "../../tools/owl_templates/compile_templates.cjs";
 import {
   extendMockGetBoundingClientRect,
@@ -23,17 +19,17 @@ import "./resize_observer.mock";
 import { Resizers } from "./resize_observer.mock";
 
 // Mock getCanvas for all imports
-jest.mock("@odoo/o-spreadsheet-engine/helpers/text_helper", () => {
-  const actual = jest.requireActual("@odoo/o-spreadsheet-engine/helpers/text_helper");
+jest.mock("../../src/helpers/text_helper", () => {
+  const actual = jest.requireActual("../../src/helpers/text_helper");
   return {
     ...actual,
     getCanvas: () => new (require("./canvas.mock").MockCanvasRenderingContext2D)(),
   };
 });
 
-jest.mock("@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_ui_common", () => {
+jest.mock("../../src/helpers/figures/charts/chart_ui_common", () => {
   return {
-    ...jest.requireActual("@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_ui_common"),
+    ...jest.requireActual("../../src/helpers/figures/charts/chart_ui_common"),
     chartToImageUrl: () => "data:image/png;base64,randomDataThatIsActuallyABase64Image",
   };
 });

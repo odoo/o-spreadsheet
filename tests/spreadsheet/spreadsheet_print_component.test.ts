@@ -1,11 +1,9 @@
-import { Model, UID, Zone } from "@odoo/o-spreadsheet-engine";
-import { recomputeZones } from "@odoo/o-spreadsheet-engine/helpers/recompute_zones";
-import { toZone } from "@odoo/o-spreadsheet-engine/helpers/zones";
-import { Store } from "@odoo/o-spreadsheet-engine/types/store_engine";
-import { StoreConstructor } from "../../src";
+import { Model, StoreConstructor, UID, Zone } from "../../src";
 import { SpreadsheetPrint } from "../../src/components/spreadsheet_print/spreadsheet_print";
 import { SpreadsheetPrintStore } from "../../src/components/spreadsheet_print/spreadsheet_print_store";
 import { FigureRendererStore } from "../../src/components/standalone_grid_canvas/figure_renderer_store";
+import { recomputeZones, toZone } from "../../src/helpers";
+import { Store } from "../../src/store_engine";
 import { GridRenderer } from "../../src/stores/grid_renderer_store";
 import { registerCleanup } from "../setup/jest.setup";
 import {

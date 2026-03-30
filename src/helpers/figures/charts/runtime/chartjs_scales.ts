@@ -1,4 +1,6 @@
-import { isDefined, range, removeFalsyAttributes } from "@odoo/o-spreadsheet-engine";
+import { ChartDataset, LinearScaleOptions, ScaleChartOptions, Tick } from "chart.js";
+import { DeepPartial } from "chart.js/dist/types/utils";
+import { ChartColorScalePluginOptions } from "../../../../components/figures/chart/chartJs/chartjs_colorscale_plugin";
 import {
   CHART_AXIS_TITLE_FONT_SIZE,
   CHART_PADDING,
@@ -6,21 +8,8 @@ import {
   CHART_PADDING_TOP,
   DEFAULT_CHART_COLOR_SCALE,
   GRAY_300,
-} from "@odoo/o-spreadsheet-engine/constants";
-import {
-  COLORSCHEMES,
-  getColorScale,
-  relativeLuminance,
-} from "@odoo/o-spreadsheet-engine/helpers/color";
-import {
-  MOVING_AVERAGE_TREND_LINE_XAXIS_ID,
-  TREND_LINE_XAXIS_ID,
-  chartFontColor,
-  formatTickValue,
-  getDefinedAxis,
-  truncateLabel,
-} from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_common";
-import { formatValue, humanizeNumber } from "@odoo/o-spreadsheet-engine/helpers/format/format";
+} from "../../../../constants";
+import { Color, LocaleFormat } from "../../../../types";
 import {
   AxisDesign,
   AxisType,
@@ -35,19 +24,26 @@ import {
   PyramidChartDefinition,
   ScatterChartDefinition,
   WaterfallChartDefinition,
-} from "@odoo/o-spreadsheet-engine/types/chart";
-import { CalendarChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/calendar_chart";
+} from "../../../../types/chart";
+import { CalendarChartDefinition } from "../../../../types/chart/calendar_chart";
 import {
   GeoChartDefinition,
   GeoChartProjection,
   GeoChartRuntimeGenerationArgs,
-} from "@odoo/o-spreadsheet-engine/types/chart/geo_chart";
-import { RadarChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/radar_chart";
-import { ChartDataset, LinearScaleOptions, ScaleChartOptions, Tick } from "chart.js";
-import { DeepPartial } from "chart.js/dist/types/utils";
-import { ChartColorScalePluginOptions } from "../../../../components/figures/chart/chartJs/chartjs_colorscale_plugin";
-import { Color, LocaleFormat } from "../../../../types";
+} from "../../../../types/chart/geo_chart";
+import { RadarChartDefinition } from "../../../../types/chart/radar_chart";
 import { getChartTimeOptions } from "../../../chart_date";
+import { COLORSCHEMES, getColorScale, relativeLuminance } from "../../../color";
+import { formatValue, humanizeNumber } from "../../../format/format";
+import { isDefined, range, removeFalsyAttributes } from "../../../misc";
+import {
+  MOVING_AVERAGE_TREND_LINE_XAXIS_ID,
+  TREND_LINE_XAXIS_ID,
+  chartFontColor,
+  formatTickValue,
+  getDefinedAxis,
+  truncateLabel,
+} from "../chart_common";
 
 type ChartScales = DeepPartial<ScaleChartOptions<"line" | "bar" | "radar">["scales"]>;
 type GeoChartScales = DeepPartial<ScaleChartOptions<"choropleth">["scales"]>;

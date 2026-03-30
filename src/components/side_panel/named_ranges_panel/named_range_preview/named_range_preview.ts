@@ -1,8 +1,8 @@
-import { Highlight, NamedRange } from "@odoo/o-spreadsheet-engine";
-import { HIGHLIGHT_COLOR } from "@odoo/o-spreadsheet-engine/constants";
-import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { Component, useRef, useState } from "@odoo/owl";
+import { HIGHLIGHT_COLOR } from "../../../../constants";
 import { interactiveUpdateNamedRange } from "../../../../helpers/ui/named_range_interactive";
+import { Highlight, NamedRange } from "../../../../types";
+import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
 import { useHighlightsOnHover } from "../../../helpers/highlight_hook";
 import { SelectionInput } from "../../../selection_input/selection_input";
 import { TextInput } from "../../../text_input/text_input";

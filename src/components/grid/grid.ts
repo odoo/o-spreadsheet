@@ -1,17 +1,4 @@
 import {
-  AUTOFILL_EDGE_LENGTH,
-  HEADER_HEIGHT,
-  HEADER_WIDTH,
-} from "@odoo/o-spreadsheet-engine/constants";
-import {
-  getOSheetClipboardIdFromHTML,
-  parseOSClipboardContent,
-} from "@odoo/o-spreadsheet-engine/helpers/clipboard/clipboard_helpers";
-import { openLink } from "@odoo/o-spreadsheet-engine/helpers/links";
-import { isStaticTable } from "@odoo/o-spreadsheet-engine/helpers/table_helpers";
-import { AllowedImageMimeTypes } from "@odoo/o-spreadsheet-engine/types/image";
-import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
-import {
   Component,
   onMounted,
   useChildSubEnv,
@@ -29,7 +16,14 @@ import {
   PASTE_AS_VALUE_ACTION,
 } from "../../actions/menu_items_actions";
 import { canUngroupHeaders } from "../../actions/view_actions";
+import { AUTOFILL_EDGE_LENGTH, HEADER_HEIGHT, HEADER_WIDTH } from "../../constants";
+import {
+  getOSheetClipboardIdFromHTML,
+  parseOSClipboardContent,
+} from "../../helpers/clipboard/clipboard_helpers";
 import { isInside } from "../../helpers/index";
+import { openLink } from "../../helpers/links";
+import { isStaticTable } from "../../helpers/table_helpers";
 import { interactiveCut } from "../../helpers/ui/cut_interactive";
 import {
   handleCopyPasteResult,
@@ -48,6 +42,7 @@ import { DOMFocusableElementStore } from "../../stores/DOM_focus_store";
 import { ArrayFormulaHighlight } from "../../stores/array_formula_highlight";
 import { ClientFocusStore } from "../../stores/client_focus_store";
 import { HighlightStore } from "../../stores/highlight_store";
+import { AllowedImageMimeTypes } from "../../types/image";
 import {
   Align,
   CellValueType,
@@ -64,6 +59,7 @@ import {
   Ref,
   Table,
 } from "../../types/index";
+import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 import { Autofill } from "../autofill/autofill";
 import { ClientTag } from "../collaborative_client_tag/collaborative_client_tag";
 import { ComposerSelection } from "../composer/composer/abstract_composer_store";

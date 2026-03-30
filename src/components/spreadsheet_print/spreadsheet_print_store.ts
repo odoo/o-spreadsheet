@@ -1,17 +1,18 @@
+import { cellPositions, intersection } from "../../helpers";
+import { ViewportCollection } from "../../helpers/viewport_collection";
+import { SpreadsheetStore } from "../../stores";
+import { _t } from "../../translation";
 import {
-  _t,
+  CellValueType,
   Dimension,
   DOMDimension,
+  FigureUI,
   GridRenderingContext,
   HeaderIndex,
   UID,
   ValueAndLabel,
   Zone,
-} from "@odoo/o-spreadsheet-engine";
-import { ViewportCollection } from "@odoo/o-spreadsheet-engine/helpers/viewport_collection";
-import { cellPositions, intersection } from "../../helpers";
-import { SpreadsheetStore } from "../../stores";
-import { CellValueType, FigureUI } from "../../types";
+} from "../../types";
 
 // Page layouts in millimeters
 const PRINT_PAGES_LAYOUTS = {

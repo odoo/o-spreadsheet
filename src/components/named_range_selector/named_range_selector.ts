@@ -1,9 +1,7 @@
-import { _t, rangeReference } from "@odoo/o-spreadsheet-engine";
-import { HIGHLIGHT_COLOR } from "@odoo/o-spreadsheet-engine/constants";
-import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { Component, useRef, useState } from "@odoo/owl";
 import { Action, ActionSpec, createActions } from "../../actions/action";
-import { fuzzyLookup, zoneToXc } from "../../helpers";
+import { HIGHLIGHT_COLOR } from "../../constants";
+import { fuzzyLookup, rangeReference, zoneToXc } from "../../helpers";
 import {
   interactiveCreateNamedRange,
   interactiveUpdateNamedRange,
@@ -11,7 +9,9 @@ import {
 import { Store, useStore } from "../../store_engine";
 import { DOMFocusableElementStore } from "../../stores/DOM_focus_store";
 import { HighlightStore } from "../../stores/highlight_store";
+import { _t } from "../../translation";
 import { CommandResult, Highlight, Range } from "../../types";
+import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 import { getRefBoundingRect } from "../helpers/dom_helpers";
 import { ToolBarDropdownStore, useToolBarDropdownStore } from "../helpers/top_bar_tool_hook";
 import { MenuPopover, MenuState } from "../menu_popover/menu_popover";

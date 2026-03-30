@@ -1,7 +1,7 @@
-import { BACKGROUND_CHART_COLOR } from "@odoo/o-spreadsheet-engine/constants";
-import { GaugeChartRuntime, ScorecardChartRuntime } from "@odoo/o-spreadsheet-engine/types/chart";
 import { Model } from "../../../src";
+import { BACKGROUND_CHART_COLOR } from "../../../src/constants";
 import { Color, UID } from "../../../src/types";
+import { GaugeChartRuntime, ScorecardChartRuntime } from "../../../src/types/chart";
 import {
   activateSheet,
   addEqualCf,

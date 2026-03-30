@@ -1,4 +1,4 @@
-import { _t } from "@odoo/o-spreadsheet-engine/translation";
+import { _t } from "../../../../translation";
 import { DateCriterionValue, GenericDateCriterion, ValueAndLabel } from "../../../../types";
 import { Select } from "../../../select/select";
 import { CriterionForm } from "../criterion_form";

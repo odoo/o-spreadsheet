@@ -1,10 +1,3 @@
-import { cssPropertiesToCss } from "@odoo/o-spreadsheet-engine/components/helpers/css";
-import { GROUP_LAYER_WIDTH, MAXIMAL_FREEZABLE_RATIO } from "@odoo/o-spreadsheet-engine/constants";
-import { unregisterChartJsExtensions } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_js_extension";
-import { Model } from "@odoo/o-spreadsheet-engine/model";
-import { _t } from "@odoo/o-spreadsheet-engine/translation";
-import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
-import { NotificationStoreMethods } from "@odoo/o-spreadsheet-engine/types/stores/notification_store_methods";
 import {
   Component,
   onMounted,
@@ -17,12 +10,16 @@ import {
   useState,
   useSubEnv,
 } from "@odoo/owl";
+import { GROUP_LAYER_WIDTH, MAXIMAL_FREEZABLE_RATIO } from "../../constants";
 import { batched } from "../../helpers";
+import { unregisterChartJsExtensions } from "../../helpers/figures/charts/chart_js_extension";
 import { ImageProvider } from "../../helpers/figures/images/image_provider";
+import { Model } from "../../model";
 import { Store, useStore, useStoreProvider } from "../../store_engine";
 import { ModelStore } from "../../stores";
 import { NotificationStore } from "../../stores/notification_store";
 import { ScreenWidthStore } from "../../stores/screen_width_store";
+import { _t } from "../../translation";
 import {
   CommandResult,
   CSSProperties,
@@ -30,12 +27,15 @@ import {
   InformationNotification,
   Pixel,
 } from "../../types";
+import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
+import { NotificationStoreMethods } from "../../types/stores/notification_store_methods";
 import { BottomBar } from "../bottom_bar/bottom_bar";
 import { ComposerFocusStore } from "../composer/composer_focus_store";
 import { SpreadsheetDashboard } from "../dashboard/dashboard";
 import { FullScreenFigure } from "../full_screen_figure/full_screen_figure";
 import { Grid } from "../grid/grid";
 import { HeaderGroupContainer } from "../header_group/header_group_container";
+import { cssPropertiesToCss } from "../helpers/css";
 import {
   isMobileOS,
   keyboardEventToShortcutString,

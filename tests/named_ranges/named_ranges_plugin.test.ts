@@ -1,6 +1,5 @@
-import { CellErrorType, Model } from "@odoo/o-spreadsheet-engine";
-import { toZone } from "@odoo/o-spreadsheet-engine/helpers/zones";
-import { CommandResult, FormulaCell } from "../../src";
+import { CellErrorType, CommandResult, FormulaCell, Model } from "../../src";
+import { toZone } from "../../src/helpers/zones";
 import {
   createNamedRange,
   createSheet,

@@ -1,10 +1,10 @@
-import { cssPropertiesToCss } from "@odoo/o-spreadsheet-engine/components/helpers/css";
-import { CANVAS_SHIFT } from "@odoo/o-spreadsheet-engine/constants";
 import { useEffect, useRef } from "@odoo/owl";
+import { CANVAS_SHIFT } from "../../constants";
 import { Store, useLocalStore, useStore } from "../../store_engine";
 import { GridRenderer } from "../../stores/grid_renderer_store";
 import { RendererStore } from "../../stores/renderer_store";
 import { GridRenderingContext } from "../../types";
+import { cssPropertiesToCss } from "./css";
 
 interface GridDrawingArgs {
   refName: string;

@@ -1,6 +1,7 @@
-import { _t, Color, ValueAndLabel } from "@odoo/o-spreadsheet-engine";
-import { ChartColorScale, LegendPosition } from "@odoo/o-spreadsheet-engine/types/chart";
-import { GeoChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/geo_chart";
+import { _t } from "../../../../translation";
+import { Color, ValueAndLabel } from "../../../../types";
+import { ChartColorScale, LegendPosition } from "../../../../types/chart";
+import { GeoChartDefinition } from "../../../../types/chart/geo_chart";
 import { Select } from "../../../select/select";
 import { RoundColorPicker } from "../../components/round_color_picker/round_color_picker";
 import { ColorScalePicker } from "../building_blocks/color_scale/color_scale_picker";

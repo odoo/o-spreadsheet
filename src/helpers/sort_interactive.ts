@@ -1,8 +1,8 @@
-import { _t, SortDirection, UID, Zone } from "@odoo/o-spreadsheet-engine";
-import { isEqual } from "@odoo/o-spreadsheet-engine/helpers/zones";
-import { CommandResult } from "@odoo/o-spreadsheet-engine/types/commands";
-import { Position, SortOptions } from "@odoo/o-spreadsheet-engine/types/misc";
-import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
+import { _t } from "../translation";
+import { CommandResult } from "../types/commands";
+import { Position, SortDirection, SortOptions, UID, Zone } from "../types/misc";
+import { SpreadsheetChildEnv } from "../types/spreadsheet_env";
+import { isEqual } from "./zones";
 
 export function interactiveSortSelection(
   env: SpreadsheetChildEnv,

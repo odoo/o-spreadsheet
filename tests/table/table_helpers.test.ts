@@ -1,12 +1,7 @@
-import { getComputedTableStyle } from "@odoo/o-spreadsheet-engine/helpers/table_helpers";
-import {
-  ComputedTableStyle,
-  TableConfig,
-  TableMetaData,
-  TableStyle,
-} from "@odoo/o-spreadsheet-engine/types/table";
 import { deepCopy } from "../../src/helpers";
+import { getComputedTableStyle } from "../../src/helpers/table_helpers";
 import { Border, BorderDescr, Style } from "../../src/types";
+import { ComputedTableStyle, TableConfig, TableMetaData, TableStyle } from "../../src/types/table";
 
 const TEST_TABLE_STYLE: TableStyle = {
   category: "light",

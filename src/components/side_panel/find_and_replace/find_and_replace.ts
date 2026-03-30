@@ -1,6 +1,3 @@
-import { _t } from "@odoo/o-spreadsheet-engine/translation";
-import { SearchOptions } from "@odoo/o-spreadsheet-engine/types/find_and_replace";
-import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import {
   Component,
   onMounted,
@@ -11,7 +8,10 @@ import {
 } from "@odoo/owl";
 import { debounce, zoneToXc } from "../../../helpers";
 import { Store, useLocalStore } from "../../../store_engine";
+import { _t } from "../../../translation";
+import { SearchOptions } from "../../../types/find_and_replace";
 import { DebouncedFunction, ValueAndLabel } from "../../../types/index";
+import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
 import { keyboardEventToShortcutString } from "../../helpers/dom_helpers";
 import { Select } from "../../select/select";
 import { SelectionInput } from "../../selection_input/selection_input";

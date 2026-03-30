@@ -1,16 +1,9 @@
-import { _t } from "@odoo/o-spreadsheet-engine";
-import { CHART_AXIS_TITLE_FONT_SIZE } from "@odoo/o-spreadsheet-engine/constants";
-import { toNumber } from "@odoo/o-spreadsheet-engine/functions/helpers";
-import {
-  AxisGridType,
-  AxisId,
-  AxisType,
-  LineChartRuntime,
-} from "@odoo/o-spreadsheet-engine/types/chart";
-import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { Component, useState } from "@odoo/owl";
+import { CHART_AXIS_TITLE_FONT_SIZE } from "../../../../../constants";
+import { toNumber } from "../../../../../functions/helpers";
 import { deepCopy, formatValue } from "../../../../../helpers";
 import { getDefinedAxis } from "../../../../../helpers/figures/charts";
+import { _t } from "../../../../../translation";
 import {
   AxisDesign,
   ChartWithAxisDefinition,
@@ -18,6 +11,8 @@ import {
   TitleDesign,
   UID,
 } from "../../../../../types";
+import { AxisGridType, AxisId, AxisType, LineChartRuntime } from "../../../../../types/chart";
+import { SpreadsheetChildEnv } from "../../../../../types/spreadsheet_env";
 import { DateInput } from "../../../../date_input/date_input";
 import { NumberInput } from "../../../../number_input/number_input";
 import { BadgeSelection } from "../../../components/badge_selection/badge_selection";

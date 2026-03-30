@@ -1,4 +1,4 @@
-import { Model } from "@odoo/o-spreadsheet-engine";
+import { Model } from "../../src";
 import { SpreadsheetPrintStore } from "../../src/components/spreadsheet_print/spreadsheet_print_store";
 import { createChart, createSheet, setCellContent, setSelection } from "../test_helpers";
 import { makeStore } from "../test_helpers/stores";

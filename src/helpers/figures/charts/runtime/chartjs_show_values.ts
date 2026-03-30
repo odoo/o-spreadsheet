@@ -1,8 +1,6 @@
-import {
-  chartFontColor,
-  formatChartDatasetValue,
-} from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_common";
-import { humanizeNumber } from "@odoo/o-spreadsheet-engine/helpers/format/format";
+import { ChartMeta } from "chart.js";
+import { ChartShowValuesPluginOptions } from "../../../../components/figures/chart/chartJs/chartjs_show_values_plugin";
+import { ChartSunburstLabelsPluginOptions } from "../../../../components/figures/chart/chartJs/chartjs_sunburst_labels_plugin";
 import {
   ChartRuntimeGenerationArgs,
   ChartWithDataSetDefinition,
@@ -10,11 +8,10 @@ import {
   SunburstChartDefaults,
   SunburstChartDefinition,
   WaterfallChartDefinition,
-} from "@odoo/o-spreadsheet-engine/types/chart";
-import { CalendarChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/calendar_chart";
-import { ChartMeta } from "chart.js";
-import { ChartShowValuesPluginOptions } from "../../../../components/figures/chart/chartJs/chartjs_show_values_plugin";
-import { ChartSunburstLabelsPluginOptions } from "../../../../components/figures/chart/chartJs/chartjs_sunburst_labels_plugin";
+} from "../../../../types/chart";
+import { CalendarChartDefinition } from "../../../../types/chart/calendar_chart";
+import { humanizeNumber } from "../../../format/format";
+import { chartFontColor, formatChartDatasetValue } from "../chart_common";
 import { getRuntimeColorScale } from "./chartjs_scales";
 
 export function getChartShowValues(

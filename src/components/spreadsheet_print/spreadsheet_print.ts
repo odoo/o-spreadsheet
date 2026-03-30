@@ -1,6 +1,6 @@
-import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { Component, onWillUnmount, useExternalListener } from "@odoo/owl";
 import { Store, useLocalStore } from "../../store_engine";
+import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 import { cssPropertiesToCss } from "../helpers";
 import { Select } from "../select/select";
 import { BadgeSelection } from "../side_panel/components/badge_selection/badge_selection";

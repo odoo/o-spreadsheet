@@ -1,7 +1,7 @@
-import { Model } from "@odoo/o-spreadsheet-engine";
-import { toZone } from "@odoo/o-spreadsheet-engine/helpers/zones";
-import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
+import { Model } from "../../src";
 import { NamedRangesPanel } from "../../src/components/side_panel/named_ranges_panel/named_ranges_panel";
+import { toZone } from "../../src/helpers/zones";
+import { SpreadsheetChildEnv } from "../../src/types/spreadsheet_env";
 import {
   createNamedRange,
   setInputValueAndTrigger,

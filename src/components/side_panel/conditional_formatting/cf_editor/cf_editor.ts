@@ -1,10 +1,8 @@
-import { DEFAULT_COLOR_SCALE_MIDPOINT_COLOR } from "@odoo/o-spreadsheet-engine/constants";
-import { _t } from "@odoo/o-spreadsheet-engine/translation";
-import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
-import { Store } from "@odoo/o-spreadsheet-engine/types/store_engine";
 import { Component, useEffect, useExternalListener } from "@odoo/owl";
+import { DEFAULT_COLOR_SCALE_MIDPOINT_COLOR } from "../../../../constants";
 import { colorNumberToHex, deepCopy } from "../../../../helpers";
 import { useLocalStore } from "../../../../store_engine";
+import { _t } from "../../../../translation";
 import {
   ColorScaleThreshold,
   CommandResult,
@@ -12,6 +10,8 @@ import {
   UID,
   ValueAndLabel,
 } from "../../../../types";
+import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
+import { Store } from "../../../../types/store_engine";
 import { ColorPickerWidget } from "../../../color_picker/color_picker_widget";
 import { StandaloneComposer } from "../../../composer/standalone_composer/standalone_composer";
 import { getTextDecoration } from "../../../helpers";

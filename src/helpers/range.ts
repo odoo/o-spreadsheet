@@ -1,4 +1,4 @@
-import { ApplyRenameNamedRange, CoreGetters } from "../index";
+import { ApplyRenameNamedRange } from "../index";
 import { Registry } from "../registries/registry";
 import {
   AddColumnsRowsCommand,
@@ -9,6 +9,7 @@ import {
   RemoveColumnsRowsCommand,
   RenameSheetCommand,
 } from "../types/commands";
+import { CoreGetters } from "../types/core_getters";
 import { CellErrorType } from "../types/errors";
 import {
   ApplyRangeChange,

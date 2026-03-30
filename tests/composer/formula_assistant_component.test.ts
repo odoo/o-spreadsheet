@@ -1,9 +1,9 @@
-import { _t } from "@odoo/o-spreadsheet-engine";
-import { arg } from "@odoo/o-spreadsheet-engine/functions/arguments";
-import { functionRegistry } from "@odoo/o-spreadsheet-engine/functions/function_registry";
 import { setTranslationMethod } from "../../src";
 import { CellComposerStore } from "../../src/components/composer/composer/cell_composer_store";
+import { arg } from "../../src/functions/arguments";
+import { functionRegistry } from "../../src/functions/function_registry";
 import { Store } from "../../src/store_engine";
+import { _t } from "../../src/translation";
 import { DEFAULT_LOCALE } from "../../src/types";
 import { registerCleanup } from "../setup/jest.setup";
 import { updateLocale } from "../test_helpers/commands_helpers";

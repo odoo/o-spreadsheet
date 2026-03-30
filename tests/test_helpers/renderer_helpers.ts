@@ -1,10 +1,6 @@
-import {
-  getDefaultSheetViewSize,
-  HEADER_HEIGHT,
-  HEADER_WIDTH,
-} from "@odoo/o-spreadsheet-engine/constants";
-import { Model } from "../../src";
-import { GridRenderingContext, RenderingGetters, UID, Viewport, Zone } from "../../src/types";
+import { Model, RenderingGetters, UID } from "../../src";
+import { getDefaultSheetViewSize, HEADER_HEIGHT, HEADER_WIDTH } from "../../src/constants";
+import { GridRenderingContext, Viewport, Zone } from "../../src/types";
 import { MockCanvasRenderingContext2D } from "../setup/canvas.mock";
 import { resizeSheetView } from "./commands_helpers";
 

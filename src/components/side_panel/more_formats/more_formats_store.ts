@@ -1,7 +1,3 @@
-import { _t, Format, isDefined } from "@odoo/o-spreadsheet-engine";
-import { CustomCurrencyTerms } from "@odoo/o-spreadsheet-engine/components/translations_terms";
-import { Currency } from "@odoo/o-spreadsheet-engine/types/currency";
-import { Get } from "@odoo/o-spreadsheet-engine/types/store_engine";
 import { EXAMPLE_DATE } from "../../../actions/format_actions";
 import {
   createAccountingFormat,
@@ -9,10 +5,16 @@ import {
   formatValue,
   getNumberOfFormatParts,
   isDateTimeFormat,
+  isDefined,
   isFormatValid,
 } from "../../../helpers";
 import { currenciesRegistry } from "../../../registries/currencies_registry";
 import { SpreadsheetStore } from "../../../stores";
+import { _t } from "../../../translation";
+import { Format } from "../../../types";
+import { Currency } from "../../../types/currency";
+import { Get } from "../../../types/store_engine";
+import { CustomCurrencyTerms } from "../../translations_terms";
 
 export type CustomFormatCategory = "number" | "date" | "currency";
 

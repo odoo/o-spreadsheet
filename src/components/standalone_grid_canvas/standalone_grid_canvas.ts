@@ -1,8 +1,8 @@
-import { GridRenderingContext, UID, Zone } from "@odoo/o-spreadsheet-engine";
-import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { Component, onWillStart, onWillUpdateProps, useRef } from "@odoo/owl";
 import { Store, useLocalStore } from "../../store_engine";
 import { RendererStore } from "../../stores/renderer_store";
+import { GridRenderingContext, UID, Zone } from "../../types";
+import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 import { useGridDrawing } from "../helpers/draw_grid_hook";
 import { FigureRendererStore } from "./figure_renderer_store";
 

@@ -1,5 +1,5 @@
-import { ZoneSet } from "@odoo/o-spreadsheet-engine/plugins/ui_core_views/cell_evaluation/zone_set";
 import { toUnboundedZone, toZone } from "../../src/helpers";
+import { ZoneSet } from "../../src/plugins/ui_core_views/cell_evaluation/zone_set";
 
 describe("ZoneSet", () => {
   test("empty ZoneSet has nothing", () => {
