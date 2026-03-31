@@ -1,8 +1,9 @@
+import { getDefaultSheetViewSize } from "@odoo/o-spreadsheet-engine/constants";
 import {
-  getDefaultSheetViewSize,
-  HEADER_HEIGHT,
-  HEADER_WIDTH,
-} from "@odoo/o-spreadsheet-engine/constants";
+  Canvas,
+  createCanvas,
+  CanvasRenderingContext2D as NodeCanvasRenderingContext2D,
+} from "canvas";
 import { Model } from "../../src";
 import { GridRenderingContext, RenderingGetters, UID, Viewport, Zone } from "../../src/types";
 import { MockCanvasRenderingContext2D } from "../setup/canvas.mock";
@@ -18,26 +19,31 @@ interface ContextObserver {
   onFunctionCall?(fn: string, args: any[], renderingContext: MockGridRenderingContext): void;
 }
 
+/**
+ * A mock rendering context for testing purposes. By default it has no gridOffset to draw headers.
+ */
 export class MockGridRenderingContext implements GridRenderingContext {
-  _context = document.createElement("canvas").getContext("2d");
+  _context: NodeCanvasRenderingContext2D;
   ctx: CanvasRenderingContext2D;
   viewport: Viewport;
   dpr = 1;
   thinLineWidth = 0.4;
   getters: RenderingGetters;
+  private canvas: Canvas;
 
   constructor(private model: Model, width: number, height: number, observer: ContextObserver) {
     this.getters = model.getters;
-    resizeSheetView(model, height - HEADER_HEIGHT, width - HEADER_WIDTH, 0, 0);
+    resizeSheetView(model, height, width, 0, 0);
     this.viewport = model.getters.getActiveMainViewport();
 
     const handler = {
       get: (target, val) => {
-        if (val in (this._context as any).__proto__ || val === "roundRect") {
+        if (typeof target[val] === "function") {
           return (...args) => {
             if (observer.onFunctionCall) {
               observer.onFunctionCall(val, args, this);
             }
+            return target[val].apply(target, args);
           };
         } else {
           if (observer.onGet) {
@@ -54,7 +60,14 @@ export class MockGridRenderingContext implements GridRenderingContext {
         return true;
       },
     };
-    this.ctx = new Proxy({}, handler);
+
+    this.canvas = createCanvas(width, height);
+    this._context = this.canvas.getContext("2d");
+    this.ctx = new Proxy(this._context, handler);
+  }
+
+  screenshot() {
+    return this.canvas.toBuffer("image/png");
   }
 
   get sheetId(): UID {

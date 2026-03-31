@@ -1,4 +1,4 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`custom currency sidePanel component Sidepanel change code input or symbol input --> change currency proposals 1`] = `
 [
