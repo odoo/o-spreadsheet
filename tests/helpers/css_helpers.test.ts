@@ -39,7 +39,7 @@ describe("styles and component", () => {
 
     await mount(App, fixture);
     const style = getComputedStyle(fixture.querySelector(".app")!);
-    expect(style.color).toBe("red");
+    expect(style.color).toBe("rgb(255, 0, 0)");
     expect(fixture.innerHTML).toBe('<div class="app">text</div>');
   });
 
@@ -67,7 +67,7 @@ describe("styles and component", () => {
 
     await mount(SubApp, fixture);
     const style = getComputedStyle(fixture.querySelector(".app")!);
-    expect(style.color).toBe("red");
+    expect(style.color).toBe("rgb(255, 0, 0)");
     expect(style.fontWeight).toBe("bold");
     expect(fixture.innerHTML).toBe('<div class="app">text</div>');
   });

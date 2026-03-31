@@ -176,13 +176,13 @@ describe("Grid component", () => {
     triggerTouchEvent(grid, "touchstart", { clientX: 0, clientY: 150, identifier: 1 });
     // move down; we are at the top: ev not prevented
     triggerTouchEvent(grid, "touchmove", { clientX: 0, clientY: 120, identifier: 2 });
-    expect(mockCallback).toBeCalledTimes(1);
+    expect(mockCallback).toHaveBeenCalledTimes(1);
     // move up:; we are not at the top: ev prevented
     triggerTouchEvent(grid, "touchmove", { clientX: 0, clientY: 150, identifier: 3 });
-    expect(mockCallback).toBeCalledTimes(1);
+    expect(mockCallback).toHaveBeenCalledTimes(1);
     // move up again but we are at the stop: ev not prevented
     triggerTouchEvent(grid, "touchmove", { clientX: 0, clientY: 150, identifier: 4 });
-    expect(mockCallback).toBeCalledTimes(2);
+    expect(mockCallback).toHaveBeenCalledTimes(2);
   });
 
   describe("keybindings", () => {
@@ -749,7 +749,7 @@ describe("Grid component", () => {
       createFilter(model, "B2:C3");
       await nextTick();
 
-      const icons = fixture.querySelectorAll(".o-grid-cell-icon");
+      const icons = fixture.querySelectorAll<HTMLElement>(".o-grid-cell-icon");
       expect(icons).toHaveLength(2);
       const top = `${
         DEFAULT_CELL_HEIGHT * 2 - GRID_ICON_EDGE_LENGTH - GRID_ICON_MARGIN + HEADER_HEIGHT
@@ -760,8 +760,10 @@ describe("Grid component", () => {
       const leftB = `${
         DEFAULT_CELL_WIDTH * 3 - GRID_ICON_EDGE_LENGTH + HEADER_WIDTH - GRID_ICON_MARGIN
       }px`;
-      expect((icons[0] as HTMLElement).style["_values"]).toEqual({ top, left: leftA });
-      expect((icons[1] as HTMLElement).style["_values"]).toEqual({ top, left: leftB });
+      expect(icons[0].style.top).toEqual(top);
+      expect(icons[0].style.left).toEqual(leftA);
+      expect(icons[1].style.top).toEqual(top);
+      expect(icons[1].style.left).toEqual(leftB);
     });
 
     test("Filter icon change when filter is active", async () => {
