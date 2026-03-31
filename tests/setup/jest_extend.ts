@@ -1,3 +1,4 @@
+import { MatchImageSnapshotOptions, configureToMatchImageSnapshot } from "jest-image-snapshot";
 import { Model } from "../../src";
 import { isSameColor } from "../../src/helpers/color";
 import { toXC } from "../../src/helpers/coordinates";
@@ -39,6 +40,7 @@ declare global {
       toHaveCount(count: number): R;
       toHaveClass(className: string): R;
       toHaveAttribute(attribute: string, value: string): R;
+      toMatchImageSnapshot(options?: MatchImageSnapshotOptions): R;
     }
   }
 }
@@ -53,7 +55,12 @@ function getPrettyEvaluatedCells(model: Model, sheetId: string, zone: Zone) {
   });
 }
 
+const toMatchImageSnapshot = configureToMatchImageSnapshot({
+  dumpDiffToConsole: false, // Print the base64 dif in the console. Can be useful for remote tests.
+});
+
 expect.extend({
+  toMatchImageSnapshot,
   toExport(model: Model, expected: any) {
     const exportData = model.exportData();
     if (
