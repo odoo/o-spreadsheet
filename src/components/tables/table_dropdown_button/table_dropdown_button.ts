@@ -2,7 +2,6 @@ import { Component, useState } from "@odoo/owl";
 import { ActionSpec } from "../../../actions/action";
 import { DEFAULT_TABLE_CONFIG } from "../../../helpers/table_presets";
 import { interactiveCreateTable } from "../../../helpers/ui/table_interactive";
-import { positions } from "../../../helpers/zones";
 import { _t } from "../../../translation";
 import { UID } from "../../../types";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
@@ -105,17 +104,9 @@ export class TableDropdownButton extends Component<Props, SpreadsheetChildEnv> {
   }
 
   get pivotIdInSelection(): UID | undefined {
-    const selection = this.env.model.getters.getSelectedZones();
-    for (const zone of selection) {
-      for (const position of positions(zone)) {
-        const sheetId = this.env.model.getters.getActiveSheetId();
-        const pivotId = this.env.model.getters.getPivotIdFromPosition({ sheetId, ...position });
-        if (pivotId) {
-          return pivotId;
-        }
-      }
-    }
-    return undefined;
+    const selection = this.env.model.getters.getActivePosition();
+    const pivotId = this.env.model.getters.getPivotIdFromPosition(selection);
+    return pivotId;
   }
 
   get class() {
