@@ -65,6 +65,7 @@ describe("Spreadsheet integrations tests", () => {
   test("Can edit a standalone composer", async () => {
     await openSidePanelWithComposer({ composerContent: "Hello world" });
     expect(composerEl.textContent).toBe("Hello world");
+    composerEl.focus();
     const textNode = getTextNodes(composerEl)[0];
     const selection = document.getSelection()!;
     selection.addRange(document.createRange());

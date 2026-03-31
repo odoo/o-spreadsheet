@@ -61,6 +61,7 @@ beforeEach(() => {
       }
       return 0;
     });
+  HTMLElement.prototype.scrollIntoView = () => {};
   jest
     .spyOn(HTMLCanvasElement.prototype, "toBlob")
     .mockImplementation(function (callback: BlobCallback, type?: string) {
