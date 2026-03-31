@@ -17,3 +17,4 @@ doc/tsdoc
 tests/**/__snapshots__
 tests/**/xlsx_demo_data
 tools/parse_message.mjs
+*.png
