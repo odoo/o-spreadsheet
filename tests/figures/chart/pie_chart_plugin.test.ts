@@ -65,6 +65,8 @@ describe("pie chart", () => {
         pointStyle: "rect",
         strokeStyle: "#4EA7F2",
         fontColor: "#FFFFFF",
+        index: 0,
+        hidden: true,
       },
       {
         text: "P2",
@@ -73,6 +75,8 @@ describe("pie chart", () => {
         pointStyle: "rect",
         strokeStyle: "#EA6175",
         fontColor: "#FFFFFF",
+        index: 1,
+        hidden: true,
       },
     ]);
   });

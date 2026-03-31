@@ -79,7 +79,7 @@ export const RadarChart: ChartTypeBuilder<"radar"> = {
     const data = extractData();
     const chartData = getRadarChartData(definition, data, getters);
 
-    const config: ChartConfiguration = {
+    const config: ChartConfiguration<"radar"> = {
       type: "radar",
       data: {
         labels: chartData.labels,

@@ -1,4 +1,4 @@
-import { ChartConfiguration } from "chart.js";
+import { ChartConfiguration, ChartDataset } from "chart.js";
 import { BACKGROUND_CHART_COLOR } from "../../../constants";
 import { ChartTypeBuilder } from "../../../registries/chart_registry";
 import { CommandResult } from "../../../types";
@@ -11,9 +11,9 @@ import { getChartData } from "./chart_data_sources";
 import { CHART_COMMON_OPTIONS } from "./chart_ui_common";
 import {
   getBarChartDatasets,
-  getBarChartLegend,
   getChartTitle,
   getPyramidChartData,
+  getPyramidChartLegend,
   getPyramidChartScales,
   getPyramidChartShowValues,
   getPyramidChartTooltip,
@@ -102,11 +102,11 @@ export const PyramidChart: ChartTypeBuilder<"pyramid"> = {
     const data = extractData();
     const chartData = getPyramidChartData(definition, data, getters);
 
-    const config: ChartConfiguration = {
+    const config: ChartConfiguration<"bar"> = {
       type: "bar",
       data: {
         labels: chartData.labels,
-        datasets: getBarChartDatasets(definition, chartData),
+        datasets: getBarChartDatasets(definition, chartData) as ChartDataset<"bar">[],
       },
       options: {
         ...CHART_COMMON_OPTIONS,
@@ -115,7 +115,7 @@ export const PyramidChart: ChartTypeBuilder<"pyramid"> = {
         scales: getPyramidChartScales(definition, chartData),
         plugins: {
           title: getChartTitle(definition, getters),
-          legend: getBarChartLegend(definition, chartData),
+          legend: getPyramidChartLegend(definition, chartData),
           tooltip: getPyramidChartTooltip(definition, chartData),
           chartShowValuesPlugin: getPyramidChartShowValues(definition, chartData),
           background: { color: definition.background },

@@ -1,4 +1,4 @@
-import { ChartDataset, LinearScaleOptions, ScaleChartOptions, Tick } from "chart.js";
+import type { ChartDataset, ChartTypeRegistry, LinearScaleOptions, ScaleChartOptions, Tick } from "chart.js";
 import { ChartColorScalePluginOptions } from "../../../../components/figures/chart/chartJs/chartjs_colorscale_plugin";
 import {
   CHART_AXIS_TITLE_FONT_SIZE,
@@ -45,14 +45,13 @@ import {
   truncateLabel,
 } from "../chart_common";
 
-type ChartScales = DeepPartial<ScaleChartOptions<"line" | "bar" | "radar">["scales"]>;
-type GeoChartScales = DeepPartial<ScaleChartOptions<"choropleth">["scales"]>;
+type ChartScales<T extends keyof ChartTypeRegistry = any> = DeepPartial<ScaleChartOptions<T>["scales"]>;
 
 export function getBarChartScales(
   definition: GenericDefinition<BarChartDefinition>,
   args: ChartRuntimeGenerationArgs
-): DeepPartial<ScaleChartOptions<"line" | "bar">["scales"]> {
-  let scales: DeepPartial<ScaleChartOptions<"line" | "bar">["scales"]> = {};
+): ChartScales<"line" | "bar"> {
+  let scales: ChartScales<"line" | "bar"> = {};
   const { trendDataSetsValues: trendDatasets, locale, axisFormats, axisType } = args;
   const options = { stacked: definition.stacked, locale: locale };
   if (definition.horizontal) {
@@ -100,7 +99,7 @@ export function getBarChartScales(
 export function getCalendarChartScales(
   definition: GenericDefinition<BarChartDefinition>,
   datasets: ChartDataset[]
-): DeepPartial<ScaleChartOptions<"calendar">["scales"]> {
+): ChartScales<"calendar"> {
   const yLabels = datasets.map((dataset) => dataset.label || "");
   const fontColor = chartFontColor(definition.background);
   return {
@@ -178,12 +177,12 @@ export function getCalendarColorScale(
 export function getLineChartScales(
   definition: GenericDefinition<LineChartDefinition>,
   args: ChartRuntimeGenerationArgs
-): DeepPartial<ScaleChartOptions<"line">["scales"]> {
+): ChartScales<"line"> {
   const { locale, axisType, trendDataSetsValues: trendDatasets, labels, axisFormats } = args;
   const labelFormat = axisFormats?.x;
   const stacked = definition.stacked;
 
-  let scales: DeepPartial<ScaleChartOptions<"line">["scales"]> = {
+  let scales: ChartScales<"line"> = {
     x: getChartAxis(definition, "bottom", "labels", axisType, { locale }),
     y: getChartAxis(definition, "left", "values", "linear", {
       locale,
@@ -257,7 +256,7 @@ function getMinorGridColor(background?: string) {
 export function getScatterChartScales(
   definition: GenericDefinition<ScatterChartDefinition>,
   args: ChartRuntimeGenerationArgs
-): DeepPartial<ScaleChartOptions<"line">["scales"]> {
+): ChartScales<"line"> {
   const lineScales = getLineChartScales(definition, args);
   const xScale = lineScales?.x ?? {};
   const axisDesign = definition.axesDesign?.x;
@@ -278,11 +277,11 @@ export function getScatterChartScales(
 export function getWaterfallChartScales(
   definition: WaterfallChartDefinition,
   args: ChartRuntimeGenerationArgs
-): ChartScales {
+): ChartScales<"bar"> {
   const { locale, axisFormats, axisType } = args;
   const format = axisFormats?.y || axisFormats?.y1;
   const yDesign = definition.axesDesign?.y;
-  const scales: ChartScales = {
+  const scales: ChartScales<"bar"> = {
     x: {
       ...getChartAxis(definition, "bottom", "labels", axisType, { locale }),
       grid: { display: false },
@@ -320,7 +319,7 @@ export function getWaterfallChartScales(
 export function getPyramidChartScales(
   definition: PyramidChartDefinition,
   args: ChartRuntimeGenerationArgs
-): ChartScales {
+): ChartScales<"bar"> {
   const { dataSetsValues } = args;
   const scales = getBarChartScales(definition, args);
   const scalesXCallback = scales!.x!.ticks!.callback as (value: number) => string;
@@ -340,7 +339,7 @@ export function getPyramidChartScales(
 export function getRadarChartScales(
   definition: GenericDefinition<RadarChartDefinition>,
   args: ChartRuntimeGenerationArgs
-): ChartScales {
+): ChartScales<"radar"> {
   const { locale, axisFormats, dataSetsValues } = args;
   const minValue = Math.min(
     ...dataSetsValues.map((ds) =>
@@ -366,7 +365,7 @@ export function getRadarChartScales(
 export function getGeoChartScales(
   definition: GeoChartDefinition,
   args: GeoChartRuntimeGenerationArgs
-): GeoChartScales {
+): ChartScales<"choropleth"> {
   const { locale, axisFormats, availableRegions } = args;
 
   const geoLegendPosition = legendPositionToGeoLegendPosition(definition.legendPosition);
@@ -404,7 +403,7 @@ export function getGeoChartScales(
 export function getFunnelChartScales(
   definition: FunnelChartDefinition,
   args: ChartRuntimeGenerationArgs
-): ChartScales {
+): ChartScales<"funnel"> {
   const dataSet = args.dataSetsValues[0];
   return {
     x: {
