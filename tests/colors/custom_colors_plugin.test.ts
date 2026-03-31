@@ -93,7 +93,7 @@ describe("custom colors are correctly handled when editing charts", () => {
       {
         type: "bar",
         dataSets: [{ dataRange: "A1:A10" }],
-        labelRange: "A1",
+        labelRanges: ["A1"],
         background: "#123456",
       },
       "1",
@@ -183,7 +183,7 @@ describe("custom colors are correctly handled when editing charts", () => {
       {
         type: "bar",
         dataSets: [{ dataRange: "A1:A10" }],
-        labelRange: "A1",
+        labelRanges: ["A1"],
         background: "#123456",
       },
       "1",

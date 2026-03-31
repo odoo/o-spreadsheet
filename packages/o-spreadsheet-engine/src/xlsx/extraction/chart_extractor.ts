@@ -1,4 +1,6 @@
 import { isColorValid, toHex } from "../../helpers/color";
+import { splitReference } from "../../helpers/references";
+import { toZone, zoneToXc } from "../../helpers/zones";
 import {
   ExcelChartDataset,
   ExcelChartDefinition,
@@ -51,7 +53,7 @@ export class XlsxChartExtractor extends XlsxBaseExtractor {
             this.querySelectorAll(rootChartElement, `c:${chartType}`)!,
             chartType
           ),
-          labelRange: this.extractLabelRange(chartType, rootChartElement),
+          labelRanges: this.extractLabelRanges(chartType, rootChartElement),
           backgroundColor: this.extractChildAttr(
             rootChartElement,
             "c:chartSpace > c:spPr a:srgbClr",
@@ -77,14 +79,27 @@ export class XlsxChartExtractor extends XlsxBaseExtractor {
     )[0];
   }
 
-  private extractLabelRange(chartType: XLSXChartType, rootChartElement: Element) {
+  private extractLabelRanges(
+    chartType: XLSXChartType,
+    rootChartElement: Element
+  ): string[] | undefined {
     if (chartType === "scatterChart") {
-      return (
+      const range =
         this.extractChildTextContent(rootChartElement, `c:ser c:strRef c:f`) ||
-        this.extractChildTextContent(rootChartElement, `c:ser c:numRef c:f`)
-      );
+        this.extractChildTextContent(rootChartElement, `c:ser c:numRef c:f`);
+      return range ? [range] : undefined;
     }
-    return this.extractChildTextContent(rootChartElement, `c:ser c:cat c:f`);
+    // Check for multi-level categories: <c:multiLvlStrRef><c:f>Sheet1!A2:B10</c:f>
+    const multiLvlEl = this.querySelector(rootChartElement, "c:ser c:cat c:multiLvlStrRef");
+    if (multiLvlEl) {
+      const formula = this.extractChildTextContent(multiLvlEl, "c:f");
+      if (formula) {
+        return splitMultiColumnRange(formula);
+      }
+    }
+    // Single label range
+    const single = this.extractChildTextContent(rootChartElement, `c:ser c:cat c:f`);
+    return single ? [single] : undefined;
   }
 
   private extractComboChart(chartElement: Element): ExcelChartDefinition {
@@ -115,7 +130,7 @@ export class XlsxChartExtractor extends XlsxBaseExtractor {
           "comboChart"
         ),
       ],
-      labelRange: this.extractChildTextContent(chartElement, "c:ser c:cat c:f"),
+      labelRanges: this.extractLabelRanges("comboChart" as XLSXChartType, chartElement),
       backgroundColor: this.extractChildAttr(
         chartElement,
         "c:chartSpace > c:spPr a:srgbClr",
@@ -250,5 +265,28 @@ export class XlsxChartExtractor extends XlsxBaseExtractor {
       return globalTag;
     }
     throw new Error("Unknown chart type");
+  }
+}
+
+/**
+ * Split a multi-column Excel range (e.g. "Sheet1!A2:C10") back into individual
+ * column ranges (["Sheet1!A2:A10", "Sheet1!B2:B10", "Sheet1!C2:C10"]).
+ * Returns [range] unchanged if it cannot be parsed or has only one column.
+ */
+function splitMultiColumnRange(range: string): string[] {
+  try {
+    const { sheetName, xc } = splitReference(range);
+    const zone = toZone(xc);
+    if (zone.left === zone.right) {
+      return [range];
+    }
+    const ranges: string[] = [];
+    for (let col = zone.left; col <= zone.right; col++) {
+      const colXc = zoneToXc({ top: zone.top, left: col, bottom: zone.bottom, right: col });
+      ranges.push(sheetName ? `${sheetName}!${colXc}` : colXc);
+    }
+    return ranges;
+  } catch {
+    return [range];
   }
 }

@@ -6,11 +6,11 @@ import {
   checkLabelRange,
   createDataSets,
   duplicateDataSetsInDuplicatedSheet,
-  duplicateLabelRangeInDuplicatedSheet,
   transformChartDefinitionWithDataSetsWithZone,
   updateChartRangesWithDataSets,
 } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_common";
 import { CHART_COMMON_OPTIONS } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_ui_common";
+import { isDefined } from "@odoo/o-spreadsheet-engine/helpers/misc";
 import { createValidRange } from "@odoo/o-spreadsheet-engine/helpers/range";
 import {
   ChartCreationContext,
@@ -44,7 +44,7 @@ export class TreeMapChart extends AbstractChart {
     headersColor: "#000000",
   };
   readonly dataSets: DataSet[];
-  readonly labelRange?: Range | undefined;
+  readonly labelRanges: Range[];
   readonly background?: Color;
   readonly legendPosition: LegendPosition;
   readonly type = "treemap";
@@ -64,7 +64,9 @@ export class TreeMapChart extends AbstractChart {
       sheetId,
       definition.dataSetsHaveTitle
     );
-    this.labelRange = createValidRange(getters, sheetId, definition.labelRange);
+    this.labelRanges = (definition.labelRanges || [])
+      .map((r) => createValidRange(getters, sheetId, r))
+      .filter(isDefined);
     this.background = definition.background;
     this.legendPosition = definition.legendPosition;
     this.dataSetsHaveTitle = definition.dataSetsHaveTitle;
@@ -93,10 +95,19 @@ export class TreeMapChart extends AbstractChart {
 
   static getDefinitionFromContextCreation(context: ChartCreationContext): TreeMapChartDefinition {
     const dataSets: CustomizedDataSet[] = [];
+    let labelRanges: string[] | undefined;
     if (context.hierarchicalRanges?.length) {
+      // Coming from a hierarchical chart: hierarchy in hierarchicalRanges, values in range
       dataSets.push(...context.hierarchicalRanges);
-    } else if (context.auxiliaryRange) {
-      dataSets.push({ ...context.range?.[0], dataRange: context.auxiliaryRange });
+      const valueRanges = context.range?.map((r) => r.dataRange).filter(Boolean) as string[];
+      labelRanges = valueRanges?.length ? valueRanges : undefined;
+    } else {
+      // Coming from a classic chart: auxiliaryRanges holds the hierarchy in reversed order
+      // Reverse them back to restore the original hierarchical dataSets order
+      const classicHierarchy = [...(context.auxiliaryRanges || [])].reverse();
+      dataSets.push(...classicHierarchy.map((r) => ({ dataRange: r })));
+      const valueRanges = context.range?.map((r) => r.dataRange).filter(Boolean) as string[];
+      labelRanges = valueRanges?.length ? valueRanges : undefined;
     }
     return {
       background: context.background,
@@ -105,7 +116,7 @@ export class TreeMapChart extends AbstractChart {
       legendPosition: context.legendPosition ?? "top",
       title: context.title || { text: "" },
       type: "treemap",
-      labelRange: context.range?.[0]?.dataRange,
+      labelRanges,
       showValues: context.showValues,
       showHeaders: context.showHeaders,
       headerDesign: context.headerDesign,
@@ -117,45 +128,49 @@ export class TreeMapChart extends AbstractChart {
   }
 
   getContextCreation(): ChartCreationContext {
-    const leafRange = this.dataSets.at(-1)?.dataRange;
+    const hierarchicalRanges = this.dataSets.map((ds: DataSet) => ({
+      dataRange: this.getters.getRangeString(ds.dataRange, this.sheetId),
+    }));
     return {
       ...this,
-      range: this.labelRange
-        ? [{ dataRange: this.getters.getRangeString(this.labelRange, this.sheetId) }]
-        : [],
-      auxiliaryRange: leafRange ? this.getters.getRangeString(leafRange, this.sheetId) : undefined,
-      hierarchicalRanges: this.dataSets.map((ds: DataSet) => ({
-        dataRange: this.getters.getRangeString(ds.dataRange, this.sheetId),
+      // Values → range, for classic chart dataSets
+      range: this.labelRanges.map((r) => ({
+        dataRange: this.getters.getRangeString(r, this.sheetId),
       })),
+      // Hierarchy → auxiliaryRanges reversed, so principal hierarchy (dataSets[0]) is last in classic labelRanges
+      auxiliaryRanges: hierarchicalRanges.length
+        ? [...hierarchicalRanges].reverse().map((h) => h.dataRange)
+        : undefined,
+      hierarchicalRanges,
     };
   }
 
   duplicateInDuplicatedSheet(newSheetId: UID): TreeMapChart {
     const dataSets = duplicateDataSetsInDuplicatedSheet(this.sheetId, newSheetId, this.dataSets);
-    const labelRange = duplicateLabelRangeInDuplicatedSheet(
-      this.sheetId,
-      newSheetId,
-      this.labelRange
-    );
-    const definition = this.getDefinitionWithSpecificDataSets(dataSets, labelRange, newSheetId);
+    const labelRanges = this.labelRanges
+      .map((r) =>
+        createValidRange(this.getters, newSheetId, this.getters.getRangeString(r, this.sheetId))
+      )
+      .filter(isDefined);
+    const definition = this.getDefinitionWithSpecificDataSets(dataSets, labelRanges, newSheetId);
     return new TreeMapChart(definition, newSheetId, this.getters);
   }
 
   copyInSheetId(sheetId: UID): TreeMapChart {
     const definition = this.getDefinitionWithSpecificDataSets(
       this.dataSets,
-      this.labelRange,
+      this.labelRanges,
       sheetId
     );
     return new TreeMapChart(definition, sheetId, this.getters);
   }
   getDefinition(): TreeMapChartDefinition {
-    return this.getDefinitionWithSpecificDataSets(this.dataSets, this.labelRange);
+    return this.getDefinitionWithSpecificDataSets(this.dataSets, this.labelRanges);
   }
 
   private getDefinitionWithSpecificDataSets(
     dataSets: DataSet[],
-    labelRange: Range | undefined,
+    labelRanges: Range[],
     targetSheetId?: UID
   ): TreeMapChartDefinition {
     const ranges: CustomizedDataSet[] = dataSets.map((dataSet) => ({
@@ -167,8 +182,8 @@ export class TreeMapChart extends AbstractChart {
       background: this.background,
       dataSets: ranges,
       legendPosition: this.legendPosition,
-      labelRange: labelRange
-        ? this.getters.getRangeString(labelRange, targetSheetId || this.sheetId)
+      labelRanges: labelRanges.length
+        ? labelRanges.map((r) => this.getters.getRangeString(r, targetSheetId || this.sheetId))
         : undefined,
       title: this.title,
       showValues: this.showValues,
@@ -186,16 +201,16 @@ export class TreeMapChart extends AbstractChart {
   }
 
   updateRanges({ applyChange }: RangeAdapterFunctions): TreeMapChart {
-    const { dataSets, labelRange, isStale } = updateChartRangesWithDataSets(
+    const { dataSets, labelRanges, isStale } = updateChartRangesWithDataSets(
       this.getters,
       applyChange,
       this.dataSets,
-      this.labelRange
+      this.labelRanges
     );
     if (!isStale) {
       return this;
     }
-    const definition = this.getDefinitionWithSpecificDataSets(dataSets, labelRange);
+    const definition = this.getDefinitionWithSpecificDataSets(dataSets, labelRanges || []);
     return new TreeMapChart(definition, this.sheetId, this.getters);
   }
 }
@@ -205,7 +220,7 @@ export function createTreeMapChartRuntime(
   getters: Getters
 ): TreeMapChartRuntime {
   const definition = chart.getDefinition();
-  const chartData = getHierarchalChartData(definition, chart.dataSets, chart.labelRange, getters);
+  const chartData = getHierarchalChartData(definition, chart.dataSets, chart.labelRanges, getters);
 
   const config: ChartConfiguration = {
     type: "treemap",

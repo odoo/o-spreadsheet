@@ -77,6 +77,7 @@ export class ZoomableChartJsComponent extends ChartJsComponent {
             getLowerBound: () => this.lowerBound,
             getUpperBound: () => this.upperBound,
           },
+          chartGroupedLabelsPlugin: undefined, // We don't want to display grouped labels in the master chart
         },
       },
     };

@@ -7,10 +7,11 @@ import { Section } from "../../../components/section/section";
 
 interface Props {
   title?: string;
-  range: string;
+  ranges: string[];
   isInvalid: boolean;
-  onSelectionChanged: (range: string) => void;
+  onSelectionChanged: (ranges: string[]) => void;
   onSelectionConfirmed: () => void;
+  maxNumberOfUsedRanges?: number;
   options?: Array<{
     name: string;
     label: string;
@@ -24,10 +25,11 @@ export class ChartLabelRange extends Component<Props, SpreadsheetChildEnv> {
   static components = { SelectionInput, Checkbox, Section };
   static props = {
     title: { type: String, optional: true },
-    range: String,
+    ranges: Array,
     isInvalid: Boolean,
     onSelectionChanged: Function,
     onSelectionConfirmed: Function,
+    maxNumberOfUsedRanges: { type: Number, optional: true },
     options: { type: Array, optional: true },
   };
 
@@ -35,4 +37,10 @@ export class ChartLabelRange extends Component<Props, SpreadsheetChildEnv> {
     title: _t("Categories / Labels"),
     options: [],
   };
+
+  get disabledRanges(): boolean[] {
+    return this.props.ranges.map((_, i) =>
+      this.props.maxNumberOfUsedRanges ? i >= this.props.maxNumberOfUsedRanges : false
+    );
+  }
 }

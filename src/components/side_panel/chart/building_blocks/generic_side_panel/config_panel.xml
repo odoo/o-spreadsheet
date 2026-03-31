@@ -7,17 +7,18 @@
         onSelectionConfirmed.bind="onDataSeriesConfirmed"
         onSelectionReordered.bind="onDataSeriesReordered"
         onSelectionRemoved.bind="onDataSeriesRemoved"
-        maxNumberOfUsedRanges="maxNumberOfUsedRanges"
+        maxNumberOfUsedRanges="maxNumberOfUsedDataRanges"
         datasetOrientation="datasetOrientation"
         canChangeDatasetOrientation="canChangeDatasetOrientation"
         onFlipAxis.bind="setDatasetOrientation"
       />
       <ChartLabelRange
-        range="this.getLabelRange()"
+        ranges="this.getLabelRanges()"
         isInvalid="isLabelInvalid"
         onSelectionChanged.bind="onLabelRangeChanged"
         onSelectionConfirmed.bind="onLabelRangeConfirmed"
         options="this.getLabelRangeOptions()"
+        maxNumberOfUsedRanges="maxNumberOfUsedLabelRanges"
       />
 
       <ChartErrorSection t-if="errorMessages.length" messages="errorMessages"/>

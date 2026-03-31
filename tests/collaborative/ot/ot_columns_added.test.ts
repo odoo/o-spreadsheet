@@ -588,7 +588,7 @@ describe("OT with AddColumns and UPDATE_CHART/CREATE_CHART", () => {
     type: "bar",
     dataSets: [{ dataRange: "Sheet1!M1:M10" }, { dataRange: "Sheet2!M1:M10" }],
     dataSetsHaveTitle: false,
-    labelRange: "Sheet1!M1:M10",
+    labelRanges: ["Sheet1!M1:M10"],
     legendPosition: "top",
     stacked: false,
     title: { text: "test" },
@@ -624,14 +624,14 @@ describe("OT with AddColumns and UPDATE_CHART/CREATE_CHART", () => {
     expect(result.definition).toEqual({
       ...definition,
       dataSets: [{ dataRange: "Sheet1!O1:O10" }, { dataRange: "Sheet2!M1:M10" }],
-      labelRange: "Sheet1!O1:O10",
+      labelRanges: ["Sheet1!O1:O10"],
     });
 
     result = transform(toTransform, addColOnSheet2) as CreateChartCommand;
     expect(result.definition).toEqual({
       ...definition,
       dataSets: [{ dataRange: "Sheet1!M1:M10" }, { dataRange: "Sheet2!O1:O10" }],
-      labelRange: "Sheet1!M1:M10",
+      labelRanges: ["Sheet1!M1:M10"],
     });
   });
 
@@ -648,14 +648,14 @@ describe("OT with AddColumns and UPDATE_CHART/CREATE_CHART", () => {
     expect(result.definition).toEqual({
       ...definition,
       dataSets: [{ dataRange: "Sheet1!O1:O10" }, { dataRange: "Sheet2!M1:M10" }],
-      labelRange: "Sheet1!O1:O10",
+      labelRanges: ["Sheet1!O1:O10"],
     });
 
     result = transform(toTransform, addColOnSheet2) as UpdateChartCommand;
     expect(result.definition).toEqual({
       ...definition,
       dataSets: [{ dataRange: "Sheet1!M1:M10" }, { dataRange: "Sheet2!O1:O10" }],
-      labelRange: "Sheet1!M1:M10",
+      labelRanges: ["Sheet1!M1:M10"],
     });
   });
 });

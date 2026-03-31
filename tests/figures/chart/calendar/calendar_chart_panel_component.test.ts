@@ -46,7 +46,7 @@ describe("Calendar chart side panel", () => {
         model,
         {
           dataSets: [{ dataRange: "B1:B3" }],
-          labelRange: "A1:A3",
+          labelRanges: ["A1:A3"],
           horizontalGroupBy: "day_of_week",
           verticalGroupBy: "month_number",
         },
@@ -86,7 +86,7 @@ describe("Calendar chart side panel", () => {
         model,
         {
           dataSets: [{ dataRange: "B1:B3" }],
-          labelRange: "A1:A3",
+          labelRanges: ["A1:A3"],
           horizontalGroupBy: "hour_number",
         },
         chartId
@@ -106,7 +106,7 @@ describe("Calendar chart side panel", () => {
         model,
         {
           dataSets: [{ dataRange: "B1:B3" }],
-          labelRange: "A1:A3",
+          labelRanges: ["A1:A3"],
           verticalGroupBy: "day_of_week",
         },
         chartId

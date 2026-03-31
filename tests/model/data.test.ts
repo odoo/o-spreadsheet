@@ -195,7 +195,7 @@ describe("load data", () => {
                 data: {
                   type: "line",
                   title: "Line",
-                  labelRange: "Sheet1!A27:A35",
+                  labelRanges: ["Sheet1!A27:A35"],
                   dataSets: ["Sheet1!B26:B35", "Sheet1!C26:C35"],
                   dataSetsHaveTitle: true,
                 },

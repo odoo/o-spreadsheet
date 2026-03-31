@@ -44,7 +44,7 @@ describe("Geo chart side panel", () => {
     test("Geo chart config panel is correctly initialized", async () => {
       createGeoChart(model, {
         dataSets: [{ dataRange: "A1:A3" }],
-        labelRange: "B1:B3",
+        labelRanges: ["B1:B3"],
         dataSetsHaveTitle: true,
         region: "usa",
       });
