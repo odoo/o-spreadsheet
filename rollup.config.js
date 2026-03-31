@@ -1,7 +1,5 @@
-import alias from "@rollup/plugin-alias";
 import { nodeResolve } from "@rollup/plugin-node-resolve";
 import terser from "@rollup/plugin-terser";
-import path from "path";
 import dts from "rollup-plugin-dts";
 import typescript from "rollup-plugin-typescript2";
 import { fileURLToPath } from "url";
@@ -39,12 +37,7 @@ const __dirname = fileURLToPath(new URL(".", import.meta.url));
 export default (commandLineArgs) => {
   let output = [];
   let input = "";
-  let plugins = [
-    alias({
-      entries: [],
-    }),
-    nodeResolve(),
-  ];
+  let plugins = [nodeResolve()];
   let config = {};
 
   if (commandLineArgs.format) {
@@ -64,14 +57,9 @@ export default (commandLineArgs) => {
           format: commandLineArgs.format,
         },
       ],
-      plugins: [
-        alias({
-          entries: [],
-        }),
-        nodeResolve(),
-      ],
+      plugins: [nodeResolve()],
       watch: {
-        include: ["build/js/**", "./packages/o-spreadsheet-engine/build/**"],
+        include: ["build/js/**"],
       },
     };
   } else {
@@ -93,6 +81,7 @@ export default (commandLineArgs) => {
       {
         input: "dist/types/index.d.ts",
         output: [{ file: "dist/o-spreadsheet.d.ts", format: "es" }],
+<<<<<<< d735bb4198828966e0282d7f3bc55456f14c2fcb
         external: ["chart.js"],
         plugins: [
           dts({ respectExternal: true }),
@@ -116,6 +105,32 @@ export default (commandLineArgs) => {
             ],
           }),
         ],
+||||||| f8e7d2a5958df75a5c65d170cb671dec445b5d55
+        plugins: [
+          dts(),
+          nodeResolve(),
+          alias({
+            entries: [
+              {
+                find: "@odoo/o-spreadsheet-engine",
+                replacement: path.resolve(
+                  __dirname,
+                  "./packages/o-spreadsheet-engine/build/js/o-spreadsheet-engine/src"
+                ),
+              },
+              {
+                find: "@odoo/o-spreadsheet-engine/*",
+                replacement: path.resolve(
+                  __dirname,
+                  "./packages/o-spreadsheet-engine/build/js/o-spreadsheet-engine/src/*"
+                ),
+              },
+            ],
+          }),
+        ],
+=======
+        plugins: [dts(), nodeResolve()],
+>>>>>>> edc0f15c63c7db0e90c416a5404ccedbce693529
       },
     ];
   }

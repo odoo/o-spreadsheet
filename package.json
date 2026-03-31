@@ -66,9 +66,18 @@
   "homepage": "https://github.com/odoo/o-spreadsheet#readme",
   "devDependencies": {
     "@prettier/plugin-xml": "^2.2.0",
+<<<<<<< d735bb4198828966e0282d7f3bc55456f14c2fcb
     "@rollup/plugin-alias": "^6.0.0",
     "@rollup/plugin-node-resolve": "^16.0.3",
     "@rollup/plugin-terser": "^1.0.0",
+||||||| f8e7d2a5958df75a5c65d170cb671dec445b5d55
+    "@rollup/plugin-alias": "^5.1.1",
+    "@rollup/plugin-node-resolve": "^15.2.0",
+    "@rollup/plugin-terser": "^0.4.3",
+=======
+    "@rollup/plugin-node-resolve": "^15.2.0",
+    "@rollup/plugin-terser": "^0.4.3",
+>>>>>>> edc0f15c63c7db0e90c416a5404ccedbce693529
     "@swc/core": "1.6.7",
     "@swc/jest": "0.2.36",
     "@types/jest": "^27.0.1",
