@@ -5,6 +5,7 @@ import { _t } from "../../translation";
 import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 import { cssPropertiesToCss } from "../helpers";
 import { ValidationMessages } from "../validation_messages/validation_messages";
+import { MAX_ROW } from "./../../helpers/coordinates";
 
 interface Props {}
 
@@ -39,7 +40,14 @@ export class GridAddRowsFooter extends Component<Props, SpreadsheetChildEnv> {
   }
 
   get errorMessages() {
-    return [_t("Please enter a number between 0 and 10000.")];
+    return [_t("Please enter a number between 0 and %s.", this.maxAdditionalRow)];
+  }
+
+  get maxAdditionalRow() {
+    return (
+      MAX_ROW -
+      this.env.model.getters.getSheetSize(this.env.model.getters.getActiveSheetId()).numberOfRows
+    );
   }
 
   onKeydown(ev: KeyboardEvent) {
@@ -54,7 +62,8 @@ export class GridAddRowsFooter extends Component<Props, SpreadsheetChildEnv> {
     const value = (ev.target! as HTMLInputElement).value;
     this.state.inputValue = value;
     const quantity = Number(value);
-    this.state.errorFlag = Number.isNaN(quantity) || quantity <= 0 || quantity > 10000;
+    this.state.errorFlag =
+      Number.isNaN(quantity) || quantity <= 0 || quantity > this.maxAdditionalRow;
   }
 
   onConfirm() {
