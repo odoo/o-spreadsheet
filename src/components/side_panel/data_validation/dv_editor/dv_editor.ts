@@ -1,12 +1,22 @@
 import { Component, ComponentConstructor, useState } from "@odoo/owl";
 import { zoneToXc } from "../../../../helpers";
+<<<<<<< 8490ed8d266544079acdc5678894e96e8bfd8a58
 import { canonicalizeContent, localizeDataValidationRule } from "../../../../helpers/locale";
+||||||| 45e20d4f992094d0d495cf73ffb15774c2b2e405
+=======
+import { canonicalizeContent } from "../../../../helpers/locale";
+>>>>>>> 00785254412bf55cc6e4fbd752bc9894462c96db
 import {
   criterionComponentRegistry,
   getCriterionValueAndLabels,
 } from "../../../../registries/criterion_component_registry";
+<<<<<<< 8490ed8d266544079acdc5678894e96e8bfd8a58
 import { criterionEvaluatorRegistry } from "../../../../registries/criterion_registry";
 import { _t } from "../../../../translation";
+||||||| 45e20d4f992094d0d495cf73ffb15774c2b2e405
+=======
+import { criterionEvaluatorRegistry } from "../../../../registries/criterion_registry";
+>>>>>>> 00785254412bf55cc6e4fbd752bc9894462c96db
 import {
   AddDataValidationCommand,
   availableDataValidationOperators,
@@ -17,8 +27,13 @@ import {
   UID,
   ValueAndLabel,
 } from "../../../../types";
+<<<<<<< 8490ed8d266544079acdc5678894e96e8bfd8a58
 import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
 import { Select } from "../../../select/select";
+||||||| 45e20d4f992094d0d495cf73ffb15774c2b2e405
+=======
+import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
+>>>>>>> 00785254412bf55cc6e4fbd752bc9894462c96db
 import { SelectionInput } from "../../../selection_input/selection_input";
 import { DVTerms } from "../../../translations_terms";
 import { ValidationMessages } from "../../../validation_messages/validation_messages";

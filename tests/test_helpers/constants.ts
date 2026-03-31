@@ -1,6 +1,7 @@
 import { SpreadsheetPivotTable } from "../../src";
 import { BACKGROUND_CHART_COLOR, DEFAULT_BORDER_DESC } from "../../src/constants";
 import { toZone } from "../../src/helpers";
+<<<<<<< 8490ed8d266544079acdc5678894e96e8bfd8a58
 import { DEFAULT_TABLE_CONFIG } from "../../src/helpers/table_presets";
 import {
   CoreCommand,
@@ -13,6 +14,13 @@ import {
   TableStyle,
 } from "../../src/types";
 import { PivotCoreDefinition } from "../../src/types/pivot";
+||||||| 45e20d4f992094d0d495cf73ffb15774c2b2e405
+import { CoreCommand, CoreCommandTypes, DEFAULT_LOCALE, Locale, TableStyle } from "../../src/types";
+=======
+import { DEFAULT_TABLE_CONFIG } from "../../src/helpers/table_presets";
+import { CoreCommand, CoreCommandTypes, DEFAULT_LOCALE, Locale, TableStyle } from "../../src/types";
+import { PivotCoreDefinition } from "../../src/types/pivot";
+>>>>>>> 00785254412bf55cc6e4fbd752bc9894462c96db
 import { target, toRangesData } from "./helpers";
 
 export const TEST_CHART_DATA = {

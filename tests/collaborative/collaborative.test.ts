@@ -1,6 +1,12 @@
 import { Model, UIPlugin } from "../../src";
+<<<<<<< 8490ed8d266544079acdc5678894e96e8bfd8a58
 import { DEFAULT_REVISION_ID, MESSAGE_VERSION } from "../../src/constants";
 import { functionRegistry } from "../../src/functions/function_registry";
+||||||| 45e20d4f992094d0d495cf73ffb15774c2b2e405
+=======
+import { DEBOUNCE_TIME, DEFAULT_REVISION_ID, MESSAGE_VERSION } from "../../src/constants";
+import { functionRegistry } from "../../src/functions/function_registry";
+>>>>>>> 00785254412bf55cc6e4fbd752bc9894462c96db
 import { getDefaultCellHeight, range, toZone, zoneToXc } from "../../src/helpers";
 import { DEFAULT_TABLE_CONFIG } from "../../src/helpers/table_presets";
 import { featurePluginRegistry } from "../../src/plugins";

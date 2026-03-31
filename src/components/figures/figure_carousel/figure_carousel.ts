@@ -1,6 +1,11 @@
 import { Component, useEffect, useRef, useState } from "@odoo/owl";
 import { ActionSpec, createActions } from "../../../actions/action";
+<<<<<<< 8490ed8d266544079acdc5678894e96e8bfd8a58
 import { BACKGROUND_CHART_COLOR, DEFAULT_CAROUSEL_TITLE_STYLE } from "../../../constants";
+||||||| 45e20d4f992094d0d495cf73ffb15774c2b2e405
+=======
+import { DEFAULT_CAROUSEL_TITLE_STYLE } from "../../../constants";
+>>>>>>> 00785254412bf55cc6e4fbd752bc9894462c96db
 import { chartStyleToCellStyle, deepEquals } from "../../../helpers";
 import { getCarouselItemTitle } from "../../../helpers/carousel_helpers";
 import { chartComponentRegistry } from "../../../registries/chart_component_registry";

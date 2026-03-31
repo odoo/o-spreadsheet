@@ -1,3 +1,4 @@
+<<<<<<< 8490ed8d266544079acdc5678894e96e8bfd8a58
 import { Spreadsheet, TransportService } from "../../src";
 import { CellComposerStore } from "../../src/components/composer/composer/cell_composer_store";
 import { ComposerFocusStore } from "../../src/components/composer/composer_focus_store";
@@ -5,6 +6,17 @@ import { resetTimeoutDuration } from "../../src/components/helpers/touch_handler
 import { getDataFilterIcon } from "../../src/components/icons/icons";
 import { PaintFormatStore } from "../../src/components/paint_format_button/paint_format_store";
 import { CellPopoverStore } from "../../src/components/popover";
+||||||| 45e20d4f992094d0d495cf73ffb15774c2b2e405
+import { getDataFilterIcon } from "@odoo/o-spreadsheet-engine/components/icons/icons";
+=======
+import { Spreadsheet, TransportService } from "../../src";
+import { CellComposerStore } from "../../src/components/composer/composer/cell_composer_store";
+import { ComposerFocusStore } from "../../src/components/composer/composer_focus_store";
+import { resetTimeoutDuration } from "../../src/components/helpers/touch_scroll_hook";
+import { getDataFilterIcon } from "../../src/components/icons/icons";
+import { PaintFormatStore } from "../../src/components/paint_format_button/paint_format_store";
+import { CellPopoverStore } from "../../src/components/popover";
+>>>>>>> 00785254412bf55cc6e4fbd752bc9894462c96db
 import {
   DEFAULT_BORDER_DESC,
   DEFAULT_CELL_HEIGHT,
@@ -19,10 +31,17 @@ import {
   SCROLLBAR_WIDTH,
 } from "../../src/constants";
 import { buildSheetLink, toCartesian, toZone, zoneToXc } from "../../src/helpers";
+<<<<<<< 8490ed8d266544079acdc5678894e96e8bfd8a58
 import { handleCopyPasteResult } from "../../src/helpers/ui/paste_interactive";
 import { createEmptyWorkbookData } from "../../src/migrations/data";
 import { Model } from "../../src/model";
 import { ClipboardPlugin } from "../../src/plugins/ui_stateful/clipboard";
+||||||| 45e20d4f992094d0d495cf73ffb15774c2b2e405
+=======
+import { createEmptyWorkbookData } from "../../src/migrations/data";
+import { Model } from "../../src/model";
+import { ClipboardPlugin } from "../../src/plugins/ui_stateful/clipboard";
+>>>>>>> 00785254412bf55cc6e4fbd752bc9894462c96db
 import { Store } from "../../src/store_engine";
 import { ClientFocusStore } from "../../src/stores/client_focus_store";
 import { HighlightStore } from "../../src/stores/highlight_store";

@@ -1,5 +1,12 @@
 import { CellComposerStore } from "../../src/components/composer/composer/cell_composer_store";
+<<<<<<< 8490ed8d266544079acdc5678894e96e8bfd8a58
 import { Model } from "../../src/model";
+||||||| 45e20d4f992094d0d495cf73ffb15774c2b2e405
+import { toZone } from "../../src/helpers";
+=======
+import { toZone } from "../../src/helpers";
+import { Model } from "../../src/model";
+>>>>>>> 00785254412bf55cc6e4fbd752bc9894462c96db
 import { Store } from "../../src/store_engine";
 import { SpreadsheetChildEnv } from "../../src/types/spreadsheet_env";
 import { setCellContent, setFormat, updateLocale } from "../test_helpers/commands_helpers";

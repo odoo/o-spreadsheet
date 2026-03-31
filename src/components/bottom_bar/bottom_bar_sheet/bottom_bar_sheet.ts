@@ -1,3 +1,4 @@
+<<<<<<< 8490ed8d266544079acdc5678894e96e8bfd8a58
 import {
   Component,
   onMounted,
@@ -9,13 +10,27 @@ import {
   useState,
 } from "@odoo/owl";
 import { throttle } from "../../../helpers";
+||||||| 45e20d4f992094d0d495cf73ffb15774c2b2e405
+import { cssPropertiesToCss } from "@odoo/o-spreadsheet-engine/components/helpers/css";
+import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
+import { Component, onPatched, useEffect, useExternalListener, useRef, useState } from "@odoo/owl";
+=======
+import { Component, onPatched, useEffect, useExternalListener, useRef, useState } from "@odoo/owl";
+>>>>>>> 00785254412bf55cc6e4fbd752bc9894462c96db
 import { interactiveRenameSheet } from "../../../helpers/ui/sheet_interactive";
 import { MenuItemRegistry } from "../../../registries/menu_items_registry";
 import { getSheetMenuRegistry } from "../../../registries/menus";
 import { Store, useStore } from "../../../store_engine";
 import { DOMFocusableElementStore } from "../../../stores/DOM_focus_store";
+<<<<<<< 8490ed8d266544079acdc5678894e96e8bfd8a58
 import { Command, CommandResult, DispatchResult, isSheetDependent, Rect } from "../../../types";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
+||||||| 45e20d4f992094d0d495cf73ffb15774c2b2e405
+import { Rect } from "../../../types";
+=======
+import { Rect } from "../../../types";
+import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
+>>>>>>> 00785254412bf55cc6e4fbd752bc9894462c96db
 import { Ripple } from "../../animation/ripple";
 import { ColorPicker } from "../../color_picker/color_picker";
 import { cssPropertiesToCss } from "../../helpers/css";

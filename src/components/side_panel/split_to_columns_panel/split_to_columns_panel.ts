@@ -2,11 +2,20 @@ import { Component, onMounted, useEffect, useState } from "@odoo/owl";
 import { NEWLINE } from "../../../constants";
 import { interactiveSplitToColumns } from "../../../helpers/ui/split_to_columns_interactive";
 import { useStore } from "../../../store_engine";
+<<<<<<< 8490ed8d266544079acdc5678894e96e8bfd8a58
 import { _t } from "../../../translation";
 import { CommandResult, ValueAndLabel } from "../../../types/index";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
 import { Select } from "../../select/select";
 import { SplitToColumnsTerms } from "../../translations_terms";
+||||||| 45e20d4f992094d0d495cf73ffb15774c2b2e405
+import { CommandResult } from "../../../types/index";
+=======
+import { _t } from "../../../translation";
+import { CommandResult } from "../../../types/index";
+import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
+import { SplitToColumnsTerms } from "../../translations_terms";
+>>>>>>> 00785254412bf55cc6e4fbd752bc9894462c96db
 import { ValidationMessages } from "../../validation_messages/validation_messages";
 import { Checkbox } from "../components/checkbox/checkbox";
 import { Section } from "../components/section/section";

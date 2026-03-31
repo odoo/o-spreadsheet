@@ -14,10 +14,17 @@ import { mountComponentWithPortalTarget, nextTick, setGrid } from "../test_helpe
 
 import { Model } from "../../src";
 import { SidePanels } from "../../src/components/side_panel/side_panels/side_panels";
+<<<<<<< 8490ed8d266544079acdc5678894e96e8bfd8a58
 import { TableTerms } from "../../src/components/translations_terms";
 import { TABLE_PRESETS } from "../../src/helpers/table_presets";
 import { SpreadsheetChildEnv } from "../../src/types/spreadsheet_env";
 import { addPivot } from "../test_helpers/pivot_helpers";
+||||||| 45e20d4f992094d0d495cf73ffb15774c2b2e405
+=======
+import { TableTerms } from "../../src/components/translations_terms";
+import { TABLE_PRESETS } from "../../src/helpers/table_presets";
+import { SpreadsheetChildEnv } from "../../src/types/spreadsheet_env";
+>>>>>>> 00785254412bf55cc6e4fbd752bc9894462c96db
 
 function getTable(model: Model, sheetId: UID): Table {
   return model.getters.getTables(sheetId)[0];

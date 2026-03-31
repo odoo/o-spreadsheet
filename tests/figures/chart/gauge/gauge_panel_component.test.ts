@@ -1,5 +1,6 @@
 import { CommandResult, Model } from "../../../../src";
 import { SidePanels } from "../../../../src/components/side_panel/side_panels/side_panels";
+<<<<<<< 8490ed8d266544079acdc5678894e96e8bfd8a58
 import { ChartTerms } from "../../../../src/components/translations_terms";
 import { SpreadsheetChildEnv } from "../../../../src/types/spreadsheet_env";
 import {
@@ -8,6 +9,13 @@ import {
   setInputValueAndTrigger,
   simulateClick,
 } from "../../../test_helpers";
+||||||| 45e20d4f992094d0d495cf73ffb15774c2b2e405
+import { createGaugeChart, setInputValueAndTrigger, simulateClick } from "../../../test_helpers";
+=======
+import { ChartTerms } from "../../../../src/components/translations_terms";
+import { SpreadsheetChildEnv } from "../../../../src/types/spreadsheet_env";
+import { createGaugeChart, setInputValueAndTrigger, simulateClick } from "../../../test_helpers";
+>>>>>>> 00785254412bf55cc6e4fbd752bc9894462c96db
 import {
   openChartConfigSidePanel,
   openChartDesignSidePanel,

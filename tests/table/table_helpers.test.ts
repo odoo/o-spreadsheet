@@ -1,7 +1,15 @@
 import { deepCopy } from "../../src/helpers";
+<<<<<<< 8490ed8d266544079acdc5678894e96e8bfd8a58
 import { getComputedTableStyle } from "../../src/helpers/table_helpers";
 import { Border, BorderDescr, Style } from "../../src/types";
 import { ComputedTableStyle, TableConfig, TableMetaData, TableStyle } from "../../src/types/table";
+||||||| 45e20d4f992094d0d495cf73ffb15774c2b2e405
+import { Border, BorderDescr } from "../../src/types";
+=======
+import { getComputedTableStyle } from "../../src/helpers/table_helpers";
+import { Border, BorderDescr } from "../../src/types";
+import { ComputedTableStyle, TableConfig, TableStyle } from "../../src/types/table";
+>>>>>>> 00785254412bf55cc6e4fbd752bc9894462c96db
 
 const TEST_TABLE_STYLE: TableStyle = {
   category: "light",

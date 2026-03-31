@@ -5,9 +5,17 @@ import { SingleInputCriterionForm } from "../components/side_panel/criterion_for
 import { Top10CriterionForm } from "../components/side_panel/criterion_form/top_10_criterion/top_10_criterion";
 import { ListCriterionForm } from "../components/side_panel/criterion_form/value_in_list_criterion/value_in_list_criterion";
 import { ValueInRangeCriterionForm } from "../components/side_panel/criterion_form/value_in_range_criterion/value_in_range_criterion";
+<<<<<<< 8490ed8d266544079acdc5678894e96e8bfd8a58
 import { GenericCriterionType, ValueAndLabel } from "../types";
 import { criterionEvaluatorRegistry } from "./criterion_registry";
 import { Registry } from "./registry";
+||||||| 45e20d4f992094d0d495cf73ffb15774c2b2e405
+import { GenericCriterionType } from "../types";
+=======
+import { GenericCriterionType } from "../types";
+import { criterionEvaluatorRegistry } from "./criterion_registry";
+import { Registry } from "./registry";
+>>>>>>> 00785254412bf55cc6e4fbd752bc9894462c96db
 
 export type CriterionCategory = "text" | "date" | "number" | "misc" | "list" | "relative";
 export const criterionCategoriesSequences: Record<CriterionCategory, number> = {

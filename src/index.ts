@@ -51,6 +51,7 @@ import { PivotTitleSection } from "./components/side_panel/pivot/pivot_title_sec
 import { SidePanelStore } from "./components/side_panel/side_panel/side_panel_store";
 import { ValidationMessages } from "./components/validation_messages/validation_messages";
 import {
+<<<<<<< 8490ed8d266544079acdc5678894e96e8bfd8a58
   DEFAULT_CELL_HEIGHT,
   DEFAULT_CELL_WIDTH,
   DESKTOP_BOTTOMBAR_HEIGHT,
@@ -68,6 +69,25 @@ import {
 } from "./constants";
 import { isEvaluationError, toBoolean, toJsDate, toNumber, toString } from "./functions/helpers";
 import {
+||||||| 45e20d4f992094d0d495cf73ffb15774c2b2e405
+=======
+  DEFAULT_CELL_HEIGHT,
+  DEFAULT_CELL_WIDTH,
+  DESKTOP_BOTTOMBAR_HEIGHT,
+  FIGURE_ID_SPLITTER,
+  GRID_ICON_EDGE_LENGTH,
+  GRID_ICON_MARGIN,
+  HEADER_HEIGHT,
+  HEADER_WIDTH,
+  HIGHLIGHT_COLOR,
+  MIN_COL_WIDTH,
+  MIN_ROW_HEIGHT,
+  PIVOT_TABLE_CONFIG,
+  SCROLLBAR_WIDTH,
+} from "./constants";
+import { isEvaluationError, toBoolean, toJsDate, toNumber, toString } from "./functions/helpers";
+import {
+>>>>>>> 00785254412bf55cc6e4fbd752bc9894462c96db
   ColorGenerator,
   DateTime,
   UuidGenerator,
@@ -159,6 +179,7 @@ import {
 import { getPivotHighlights } from "./helpers/pivot/pivot_highlight";
 import { pivotRegistry } from "./helpers/pivot/pivot_registry";
 import { pivotSidePanelRegistry } from "./helpers/pivot/pivot_side_panel_registry";
+<<<<<<< 8490ed8d266544079acdc5678894e96e8bfd8a58
 import {
   periodYearToComparable,
   pivotTimeAdapter,
@@ -170,6 +191,16 @@ import {
   createEmptyWorkbookData,
 } from "./migrations/data";
 import { migrationStepRegistry } from "./migrations/migration_steps";
+||||||| 45e20d4f992094d0d495cf73ffb15774c2b2e405
+=======
+import { pivotTimeAdapter, pivotTimeAdapterRegistry } from "./helpers/pivot/pivot_time_adapter";
+import {
+  createEmptyExcelSheet,
+  createEmptySheet,
+  createEmptyWorkbookData,
+} from "./migrations/data";
+import { migrationStepRegistry } from "./migrations/migration_steps";
+>>>>>>> 00785254412bf55cc6e4fbd752bc9894462c96db
 import "./plugins";
 import {
   corePluginRegistry,
@@ -227,6 +258,7 @@ import { DEFAULT_LOCALE } from "./types/locale";
  */
 
 export const __info__ = {};
+<<<<<<< 8490ed8d266544079acdc5678894e96e8bfd8a58
 
 export { LocalTransportService } from "./collaborative/local_transport_service";
 export { Revision } from "./collaborative/revisions";
@@ -248,6 +280,56 @@ export { Registry } from "./registries/registry";
 export { setTranslationMethod } from "./translation";
 export { CancelledReason, CommandResult, DispatchResult, addRenderingLayer } from "./types";
 export { Client } from "./types/collaborative/session";
+||||||| 45e20d4f992094d0d495cf73ffb15774c2b2e405
+export { LocalTransportService } from "@odoo/o-spreadsheet-engine/collaborative/local_transport_service";
+export { Revision } from "@odoo/o-spreadsheet-engine/collaborative/revisions";
+export { ClientDisconnectedError } from "@odoo/o-spreadsheet-engine/collaborative/session";
+export { setDefaultSheetViewSize, tokenColors } from "@odoo/o-spreadsheet-engine/constants";
+export {
+  compile,
+  compileTokens,
+  functionCache,
+} from "@odoo/o-spreadsheet-engine/formulas/compiler";
+export { astToFormula } from "@odoo/o-spreadsheet-engine/formulas/formula_formatter";
+export {
+  convertAstNodes,
+  iterateAstNodes,
+  parse,
+  parseTokens,
+} from "@odoo/o-spreadsheet-engine/formulas/parser";
+export { tokenize } from "@odoo/o-spreadsheet-engine/formulas/tokenizer";
+export { findCellInNewZone } from "@odoo/o-spreadsheet-engine/helpers/zones";
+export { load } from "@odoo/o-spreadsheet-engine/migrations/data";
+export { Model } from "@odoo/o-spreadsheet-engine/model";
+export { CorePlugin } from "@odoo/o-spreadsheet-engine/plugins/core_plugin";
+export { CoreViewPlugin } from "@odoo/o-spreadsheet-engine/plugins/core_view_plugin";
+export { UIPlugin } from "@odoo/o-spreadsheet-engine/plugins/ui_plugin";
+export { Registry } from "@odoo/o-spreadsheet-engine/registries/registry";
+export { setTranslationMethod } from "@odoo/o-spreadsheet-engine/translation";
+export { Client } from "@odoo/o-spreadsheet-engine/types/collaborative/session";
+=======
+
+export { LocalTransportService } from "./collaborative/local_transport_service";
+export { Revision } from "./collaborative/revisions";
+export { ClientDisconnectedError } from "./collaborative/session";
+export { Spreadsheet } from "./components/index";
+export { setDefaultSheetViewSize, tokenColors } from "./constants";
+export { functionCache } from "./formulas/compiler";
+export { astToFormula } from "./formulas/formula_formatter";
+export { convertAstNodes, iterateAstNodes, parse, parseTokens } from "./formulas/parser";
+export { tokenize } from "./formulas/tokenizer";
+export { AbstractChart } from "./helpers/figures/charts";
+export { findCellInNewZone } from "./helpers/zones";
+export { load } from "./migrations/data";
+export { Model } from "./model";
+export { CorePlugin } from "./plugins/core_plugin";
+export { CoreViewPlugin } from "./plugins/core_view_plugin";
+export { UIPlugin } from "./plugins/ui_plugin";
+export { Registry } from "./registries/registry";
+export { setTranslationMethod } from "./translation";
+export { CancelledReason, CommandResult, DispatchResult, addRenderingLayer } from "./types";
+export { Client } from "./types/collaborative/session";
+>>>>>>> 00785254412bf55cc6e4fbd752bc9894462c96db
 export {
   ClientJoinedMessage,
   ClientLeftMessage,
@@ -327,6 +409,7 @@ export const registries = {
 
 import "./registries/chart_types";
 
+<<<<<<< 8490ed8d266544079acdc5678894e96e8bfd8a58
 import "./clipboard_handlers";
 import { Composer } from "./components/composer/composer/composer";
 import { Select } from "./components/select/select";
@@ -339,6 +422,30 @@ import {
 import { domainToColRowDomain } from "./helpers/pivot/pivot_domain_helpers";
 import { chartSubtypeRegistry } from "./registries/chart_subtype_registry";
 import { clipboardHandlersRegistries } from "./registries/clipboardHandlersRegistries";
+||||||| 45e20d4f992094d0d495cf73ffb15774c2b2e405
+import { parseFormat } from "@odoo/o-spreadsheet-engine/helpers/format/format_parser";
+import {
+  getFirstPivotFunction,
+  getNumberOfPivotFunctions,
+} from "@odoo/o-spreadsheet-engine/helpers/pivot/pivot_composer_helpers";
+import { chartSubtypeRegistry } from "@odoo/o-spreadsheet-engine/registries/chart_subtype_registry";
+import { clipboardHandlersRegistries } from "@odoo/o-spreadsheet-engine/registries/clipboardHandlersRegistries";
+import "./clipboard_handlers";
+import { Composer } from "./components/composer/composer/composer";
+import { TopBar } from "./components/top_bar/top_bar";
+=======
+import "./clipboard_handlers";
+import { Composer } from "./components/composer/composer/composer";
+import { TopBar } from "./components/top_bar/top_bar";
+import { getFunctionsFromTokens } from "./formulas/helpers";
+import { parseFormat } from "./helpers/format/format_parser";
+import {
+  getFirstPivotFunction,
+  getNumberOfPivotFunctions,
+} from "./helpers/pivot/pivot_composer_helpers";
+import { chartSubtypeRegistry } from "./registries/chart_subtype_registry";
+import { clipboardHandlersRegistries } from "./registries/clipboardHandlersRegistries";
+>>>>>>> 00785254412bf55cc6e4fbd752bc9894462c96db
 
 export const helpers = {
   arg,

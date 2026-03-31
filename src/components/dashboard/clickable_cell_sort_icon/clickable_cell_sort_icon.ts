@@ -1,6 +1,13 @@
 import { Component } from "@odoo/owl";
+<<<<<<< 8490ed8d266544079acdc5678894e96e8bfd8a58
 import { TEXT_BODY_MUTED } from "../../../constants";
 import { blendColors, computeTextFontSizeInPixels } from "../../../helpers";
+||||||| 45e20d4f992094d0d495cf73ffb15774c2b2e405
+import { blendColors } from "../../../helpers";
+=======
+import { TEXT_BODY_MUTED } from "../../../constants";
+import { blendColors } from "../../../helpers";
+>>>>>>> 00785254412bf55cc6e4fbd752bc9894462c96db
 import { Store, useStore } from "../../../store_engine";
 import { CellPosition, Color, SortDirection, Style } from "../../../types";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";

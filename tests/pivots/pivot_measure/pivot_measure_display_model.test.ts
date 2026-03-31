@@ -1,7 +1,16 @@
 import { CellErrorType } from "../../../src";
+<<<<<<< 8490ed8d266544079acdc5678894e96e8bfd8a58
 import { NEXT_VALUE, PivotMeasureDisplay, PREVIOUS_VALUE } from "../../../src/types/pivot";
 import { getCellRawContent, setCellContent } from "../../test_helpers";
 import { getEvaluatedCell } from "../../test_helpers/getters_helpers";
+||||||| 45e20d4f992094d0d495cf73ffb15774c2b2e405
+import { setCellContent } from "../../test_helpers";
+import { getCell, getEvaluatedCell } from "../../test_helpers/getters_helpers";
+=======
+import { NEXT_VALUE, PivotMeasureDisplay, PREVIOUS_VALUE } from "../../../src/types/pivot";
+import { setCellContent } from "../../test_helpers";
+import { getCell, getEvaluatedCell } from "../../test_helpers/getters_helpers";
+>>>>>>> 00785254412bf55cc6e4fbd752bc9894462c96db
 import { getFormattedGrid, getGrid } from "../../test_helpers/helpers";
 import {
   createModelWithTestPivotDataset,

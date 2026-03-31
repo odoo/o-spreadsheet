@@ -1,8 +1,18 @@
+<<<<<<< 8490ed8d266544079acdc5678894e96e8bfd8a58
 import { _t } from "../../../../translation";
 import { Color, ValueAndLabel } from "../../../../types";
 import { ChartColorScale, LegendPosition } from "../../../../types/chart";
 import { GeoChartDefinition } from "../../../../types/chart/geo_chart";
 import { Select } from "../../../select/select";
+||||||| 45e20d4f992094d0d495cf73ffb15774c2b2e405
+import { Color } from "@odoo/o-spreadsheet-engine";
+import { ChartColorScale, LegendPosition } from "@odoo/o-spreadsheet-engine/types/chart";
+import { GeoChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/geo_chart";
+=======
+import { Color } from "../../../../types";
+import { ChartColorScale, LegendPosition } from "../../../../types/chart";
+import { GeoChartDefinition } from "../../../../types/chart/geo_chart";
+>>>>>>> 00785254412bf55cc6e4fbd752bc9894462c96db
 import { RoundColorPicker } from "../../components/round_color_picker/round_color_picker";
 import { ColorScalePicker } from "../building_blocks/color_scale/color_scale_picker";
 import { ChartWithAxisDesignPanel } from "../chart_with_axis/design_panel";

@@ -1,3 +1,4 @@
+<<<<<<< 8490ed8d266544079acdc5678894e96e8bfd8a58
 import type { ChartConfiguration, ChartOptions } from "chart.js";
 import {
   Color,
@@ -21,6 +22,36 @@ import { CoreGetters } from "../../../types/core_getters";
 import { Validator } from "../../../types/validator";
 import { createValidRange } from "../../range";
 import { AbstractChart } from "./abstract_chart";
+||||||| 45e20d4f992094d0d495cf73ffb15774c2b2e405
+import { CoreGetters, RangeAdapterFunctions, Validator } from "@odoo/o-spreadsheet-engine";
+import { BACKGROUND_CHART_COLOR } from "@odoo/o-spreadsheet-engine/constants";
+import { AbstractChart } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/abstract_chart";
+=======
+import type { ChartConfiguration, ChartOptions } from "chart.js";
+import { BACKGROUND_CHART_COLOR } from "../../../constants";
+import {
+  Color,
+  CommandResult,
+  Getters,
+  Range,
+  RangeAdapter,
+  RangeAdapterFunctions,
+  UID,
+} from "../../../types";
+import { SunburstChartDefinition, SunburstChartRuntime } from "../../../types/chart";
+import {
+  ChartCreationContext,
+  ChartStyle,
+  CustomizedDataSet,
+  DataSet,
+  ExcelChartDefinition,
+} from "../../../types/chart/chart";
+import { LegendPosition } from "../../../types/chart/common_chart";
+import { CoreGetters } from "../../../types/core_getters";
+import { Validator } from "../../../types/validator";
+import { createValidRange } from "../../range";
+import { AbstractChart } from "./abstract_chart";
+>>>>>>> 00785254412bf55cc6e4fbd752bc9894462c96db
 import {
   checkDataset,
   checkLabelRange,

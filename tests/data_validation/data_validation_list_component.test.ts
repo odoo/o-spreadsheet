@@ -1,13 +1,30 @@
+<<<<<<< 8490ed8d266544079acdc5678894e96e8bfd8a58
 import { Model } from "../../src";
 import { CellComposerStore } from "../../src/components/composer/composer/cell_composer_store";
 import { SidePanels } from "../../src/components/side_panel/side_panels/side_panels";
+||||||| 45e20d4f992094d0d495cf73ffb15774c2b2e405
+=======
+import { Model } from "../../src";
+import { CellComposerStore } from "../../src/components/composer/composer/cell_composer_store";
+>>>>>>> 00785254412bf55cc6e4fbd752bc9894462c96db
 import {
   DEFAULT_CELL_HEIGHT,
   DEFAULT_CELL_WIDTH,
   GRAY_200,
   MIN_CELL_TEXT_MARGIN,
+<<<<<<< 8490ed8d266544079acdc5678894e96e8bfd8a58
 } from "../../src/constants";
 import { computeTextFontSizeInPixels, toZone } from "../../src/helpers";
+||||||| 45e20d4f992094d0d495cf73ffb15774c2b2e405
+} from "@odoo/o-spreadsheet-engine/constants";
+import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
+import { Model } from "../../src";
+import { CellComposerStore } from "../../src/components/composer/composer/cell_composer_store";
+import { toZone } from "../../src/helpers";
+=======
+} from "../../src/constants";
+import { toZone } from "../../src/helpers";
+>>>>>>> 00785254412bf55cc6e4fbd752bc9894462c96db
 import { IsValueInListCriterion, UID } from "../../src/types";
 import { SpreadsheetChildEnv } from "../../src/types/spreadsheet_env";
 import {

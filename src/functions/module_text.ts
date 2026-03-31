@@ -1,5 +1,13 @@
+<<<<<<< 8490ed8d266544079acdc5678894e96e8bfd8a58
 import { escapeRegExp } from "../helpers";
 import { formatLargeNumber, formatValue } from "../helpers/format/format";
+||||||| 45e20d4f992094d0d495cf73ffb15774c2b2e405
+import { escapeRegExp } from "../helpers/";
+import { formatValue } from "../helpers/format/format";
+=======
+import { escapeRegExp } from "../helpers";
+import { formatValue } from "../helpers/format/format";
+>>>>>>> 00785254412bf55cc6e4fbd752bc9894462c96db
 import { trimContent } from "../helpers/misc";
 import { _t } from "../translation";
 import { CellErrorType, EvaluationError, NotAvailableError } from "../types/errors";

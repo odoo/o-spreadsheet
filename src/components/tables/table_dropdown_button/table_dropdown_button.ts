@@ -2,11 +2,18 @@ import { Component, useState } from "@odoo/owl";
 import { ActionSpec } from "../../../actions/action";
 import { DEFAULT_TABLE_CONFIG } from "../../../helpers/table_presets";
 import { interactiveCreateTable } from "../../../helpers/ui/table_interactive";
+<<<<<<< 8490ed8d266544079acdc5678894e96e8bfd8a58
 import { positions } from "../../../helpers/zones";
 import { _t } from "../../../translation";
 import { UID } from "../../../types";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
 import { TableConfig } from "../../../types/table";
+||||||| 45e20d4f992094d0d495cf73ffb15774c2b2e405
+=======
+import { _t } from "../../../translation";
+import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
+import { TableConfig } from "../../../types/table";
+>>>>>>> 00785254412bf55cc6e4fbd752bc9894462c96db
 import { ActionButton } from "../../action_button/action_button";
 import { ToolBarDropdownStore, useToolBarDropdownStore } from "../../helpers/top_bar_tool_hook";
 import { PopoverProps } from "../../popover/popover";

@@ -4,8 +4,15 @@ import { toHex } from "../../src/helpers";
 import { interactiveRenameSheet } from "../../src/helpers/ui/sheet_interactive";
 import { Model } from "../../src/model";
 import { DOMFocusableElementStore } from "../../src/stores/DOM_focus_store";
+<<<<<<< 8490ed8d266544079acdc5678894e96e8bfd8a58
 import { CommandResult, DispatchResult, Pixel, UID } from "../../src/types";
 import { SpreadsheetChildEnv } from "../../src/types/spreadsheet_env";
+||||||| 45e20d4f992094d0d495cf73ffb15774c2b2e405
+import { Pixel, UID } from "../../src/types";
+=======
+import { Pixel, UID } from "../../src/types";
+import { SpreadsheetChildEnv } from "../../src/types/spreadsheet_env";
+>>>>>>> 00785254412bf55cc6e4fbd752bc9894462c96db
 import {
   activateSheet,
   createSheet,

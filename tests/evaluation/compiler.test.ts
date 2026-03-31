@@ -1,7 +1,17 @@
+<<<<<<< 8490ed8d266544079acdc5678894e96e8bfd8a58
 import { functionCache, Model } from "../../src";
 import { functionRegistry } from "../../src/functions/function_registry";
 
 import { CompiledFormula } from "../../src/formulas/compiler";
+||||||| 45e20d4f992094d0d495cf73ffb15774c2b2e405
+import { functionRegistry } from "@odoo/o-spreadsheet-engine/functions/function_registry";
+import { compile, functionCache, Model } from "../../src";
+
+=======
+import { functionCache, Model } from "../../src";
+import { compile } from "../../src/formulas/compiler";
+import { functionRegistry } from "../../src/functions/function_registry";
+>>>>>>> 00785254412bf55cc6e4fbd752bc9894462c96db
 import { createValidRange } from "../../src/helpers";
 import { addToRegistry, evaluateCell, evaluateCellFormat } from "../test_helpers/helpers";
 

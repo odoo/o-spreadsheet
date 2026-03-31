@@ -1,10 +1,22 @@
 import { Component } from "@odoo/owl";
+<<<<<<< 8490ed8d266544079acdc5678894e96e8bfd8a58
 import { PIVOT_TOKEN_COLOR } from "../../../../../constants";
 import { CompiledFormula } from "../../../../../formulas/compiler";
 import { Token } from "../../../../../formulas/tokenizer";
+||||||| 45e20d4f992094d0d495cf73ffb15774c2b2e405
+=======
+import { PIVOT_TOKEN_COLOR } from "../../../../../constants";
+import { compile } from "../../../../../formulas/compiler";
+import { Token } from "../../../../../formulas/tokenizer";
+>>>>>>> 00785254412bf55cc6e4fbd752bc9894462c96db
 import { unquote } from "../../../../../helpers";
+<<<<<<< 8490ed8d266544079acdc5678894e96e8bfd8a58
 import { getFieldDisplayName } from "../../../../../helpers/pivot/pivot_helpers";
 import { PivotRuntimeDefinition } from "../../../../../helpers/pivot/pivot_runtime_definition";
+||||||| 45e20d4f992094d0d495cf73ffb15774c2b2e405
+=======
+import { PivotRuntimeDefinition } from "../../../../../helpers/pivot/pivot_runtime_definition";
+>>>>>>> 00785254412bf55cc6e4fbd752bc9894462c96db
 import { createMeasureAutoComplete } from "../../../../../registries/auto_completes/pivot_dimension_auto_complete";
 import { _t } from "../../../../../translation";
 import { Color, PivotMeasure, ValueAndLabel } from "../../../../../types";

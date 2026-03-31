@@ -1,4 +1,5 @@
 import { CellComposerStore } from "../../components/composer/composer/cell_composer_store";
+<<<<<<< 8490ed8d266544079acdc5678894e96e8bfd8a58
 import { tokenColors } from "../../constants";
 import { CompiledFormula } from "../../formulas/compiler";
 import { EnrichedToken } from "../../formulas/composer_tokenizer";
@@ -24,6 +25,31 @@ export function getNumberOfPivotFunctions(
 ): number {
   return compiledFormula.getFunctionsFromTokens(PIVOT_FUNCTIONS, getters).length;
 }
+||||||| 45e20d4f992094d0d495cf73ffb15774c2b2e405
+=======
+import { tokenColors } from "../../constants";
+import { EnrichedToken } from "../../formulas/composer_tokenizer";
+import { getFunctionsFromTokens } from "../../formulas/helpers";
+import { Token } from "../../formulas/tokenizer";
+import { Granularity, PivotField, PivotMeasure } from "../../types/pivot";
+
+const PIVOT_FUNCTIONS = ["PIVOT.VALUE", "PIVOT.HEADER", "PIVOT"];
+
+/**
+ * Get the first Pivot function description of the given formula.
+ */
+export function getFirstPivotFunction(tokens: Token[]) {
+  return getFunctionsFromTokens(tokens, PIVOT_FUNCTIONS)[0];
+}
+
+/**
+ * Parse a spreadsheet formula and detect the number of PIVOT functions that are
+ * present in the given formula.
+ */
+export function getNumberOfPivotFunctions(tokens: Token[]) {
+  return getFunctionsFromTokens(tokens, PIVOT_FUNCTIONS).length;
+}
+>>>>>>> 00785254412bf55cc6e4fbd752bc9894462c96db
 
 /**
  * Create a proposal entry for the composer autocomplete

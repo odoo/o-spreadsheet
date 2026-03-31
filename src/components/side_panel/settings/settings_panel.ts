@@ -1,9 +1,17 @@
 import { Component, onWillStart } from "@odoo/owl";
 import { DAYS, deepEquals, formatValue } from "../../../helpers";
+<<<<<<< 8490ed8d266544079acdc5678894e96e8bfd8a58
 import { getDateTimeFormat, isValidLocale } from "../../../helpers/locale";
 import { Locale, LocaleCode, ValueAndLabel } from "../../../types";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
 import { Select } from "../../select/select";
+||||||| 45e20d4f992094d0d495cf73ffb15774c2b2e405
+import { Locale, LocaleCode } from "../../../types";
+=======
+import { getDateTimeFormat, isValidLocale } from "../../../helpers/locale";
+import { Locale, LocaleCode } from "../../../types";
+import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
+>>>>>>> 00785254412bf55cc6e4fbd752bc9894462c96db
 import { ValidationMessages } from "../../validation_messages/validation_messages";
 import { BadgeSelection } from "../components/badge_selection/badge_selection";
 import { Section } from "../components/section/section";

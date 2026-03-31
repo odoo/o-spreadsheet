@@ -6,10 +6,25 @@ import {
   DEFAULT_REVISION_ID,
   FORBIDDEN_SHEETNAME_CHARS,
   MESSAGE_VERSION,
+<<<<<<< 8490ed8d266544079acdc5678894e96e8bfd8a58
 } from "../../src/constants";
 import { toZone } from "../../src/helpers";
 import { DEFAULT_TABLE_CONFIG } from "../../src/helpers/table_presets";
 import { getCurrentVersion } from "../../src/migrations/data";
+||||||| 45e20d4f992094d0d495cf73ffb15774c2b2e405
+} from "@odoo/o-spreadsheet-engine/constants";
+import { DEFAULT_TABLE_CONFIG } from "@odoo/o-spreadsheet-engine/helpers/table_presets";
+import { getCurrentVersion } from "@odoo/o-spreadsheet-engine/migrations/data";
+import { LineChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart";
+import { StateUpdateMessage } from "@odoo/o-spreadsheet-engine/types/collaborative/transport_service";
+import { CellIsRule, Model } from "../../src";
+import { toCartesian, toZone } from "../../src/helpers";
+=======
+} from "../../src/constants";
+import { toCartesian, toZone } from "../../src/helpers";
+import { DEFAULT_TABLE_CONFIG } from "../../src/helpers/table_presets";
+import { getCurrentVersion } from "../../src/migrations/data";
+>>>>>>> 00785254412bf55cc6e4fbd752bc9894462c96db
 import {
   BorderDescr,
   ColorScaleRule,

@@ -1,11 +1,17 @@
 import { Model, PivotSortedColumn, SpreadsheetPivotTable } from "../../../src";
 import { SidePanels } from "../../../src/components/side_panel/side_panels/side_panels";
+<<<<<<< 8490ed8d266544079acdc5678894e96e8bfd8a58
 import { getPivotTooBigErrorMessage } from "../../../src/components/translations_terms";
 import {
   DEFAULT_TOKEN_COLOR,
   PIVOT_INSERT_TABLE_STYLE_ID,
   PIVOT_TOKEN_COLOR,
 } from "../../../src/constants";
+||||||| 45e20d4f992094d0d495cf73ffb15774c2b2e405
+=======
+import { getPivotTooBigErrorMessage } from "../../../src/components/translations_terms";
+import { DEFAULT_TOKEN_COLOR, PIVOT_TABLE_CONFIG, PIVOT_TOKEN_COLOR } from "../../../src/constants";
+>>>>>>> 00785254412bf55cc6e4fbd752bc9894462c96db
 import { toXC, toZone } from "../../../src/helpers";
 import { datetimeGranularities } from "../../../src/helpers/pivot/pivot_registry";
 import { SpreadsheetPivot } from "../../../src/helpers/pivot/spreadsheet_pivot/spreadsheet_pivot";

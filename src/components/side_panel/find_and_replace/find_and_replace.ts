@@ -8,10 +8,18 @@ import {
 } from "@odoo/owl";
 import { debounce, zoneToXc } from "../../../helpers";
 import { Store, useLocalStore } from "../../../store_engine";
+<<<<<<< 8490ed8d266544079acdc5678894e96e8bfd8a58
 import { _t } from "../../../translation";
 import { SearchOptions } from "../../../types/find_and_replace";
 import { DebouncedFunction, ValueAndLabel } from "../../../types/index";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
+||||||| 45e20d4f992094d0d495cf73ffb15774c2b2e405
+import { DebouncedFunction } from "../../../types/index";
+=======
+import { _t } from "../../../translation";
+import { DebouncedFunction } from "../../../types/index";
+import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
+>>>>>>> 00785254412bf55cc6e4fbd752bc9894462c96db
 import { keyboardEventToShortcutString } from "../../helpers/dom_helpers";
 import { Select } from "../../select/select";
 import { SelectionInput } from "../../selection_input/selection_input";

@@ -1,9 +1,24 @@
+<<<<<<< 8490ed8d266544079acdc5678894e96e8bfd8a58
 import { Component, onWillUpdateProps, useEffect, useRef, useState } from "@odoo/owl";
+||||||| 45e20d4f992094d0d495cf73ffb15774c2b2e405
+import { getComputedTableStyle } from "@odoo/o-spreadsheet-engine/helpers/table_helpers";
+import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
+import { TableConfig, TableStyle } from "@odoo/o-spreadsheet-engine/types/table";
+import { Component, onMounted, onWillUpdateProps, useRef, useState } from "@odoo/owl";
+=======
+import { Component, onMounted, onWillUpdateProps, useRef, useState } from "@odoo/owl";
+>>>>>>> 00785254412bf55cc6e4fbd752bc9894462c96db
 import { deepEquals } from "../../../helpers";
 import { getComputedTableStyle } from "../../../helpers/table_helpers";
 import { createTableStyleContextMenuActions } from "../../../registries/menus/table_style_menu_registry";
+<<<<<<< 8490ed8d266544079acdc5678894e96e8bfd8a58
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
 import { TableConfig, TableMetaData, TableStyle } from "../../../types/table";
+||||||| 45e20d4f992094d0d495cf73ffb15774c2b2e405
+=======
+import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
+import { TableConfig, TableStyle } from "../../../types/table";
+>>>>>>> 00785254412bf55cc6e4fbd752bc9894462c96db
 import { MenuPopover, MenuState } from "../../menu_popover/menu_popover";
 import { drawPreviewTable } from "./table_canvas_helpers";
 

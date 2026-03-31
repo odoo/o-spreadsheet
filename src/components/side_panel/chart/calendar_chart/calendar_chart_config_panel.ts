@@ -1,15 +1,37 @@
+<<<<<<< 8490ed8d266544079acdc5678894e96e8bfd8a58
 import { toJsDate } from "../../../../functions/helpers";
 import { createValidRange, isDateTime } from "../../../../helpers";
 import { createDataSets } from "../../../../helpers/figures/charts";
 import { getBarChartData } from "../../../../helpers/figures/charts/runtime";
 import { ALL_PERIODS } from "../../../../helpers/pivot/pivot_helpers";
 import { DEFAULT_LOCALE, ValueAndLabel } from "../../../../types";
+||||||| 45e20d4f992094d0d495cf73ffb15774c2b2e405
+import { toJsDate } from "@odoo/o-spreadsheet-engine/functions/helpers";
+import { ALL_PERIODS } from "@odoo/o-spreadsheet-engine/helpers/pivot/pivot_helpers";
+=======
+import { toJsDate } from "../../../../functions/helpers";
+import { createValidRange, isDateTime } from "../../../../helpers";
+import { createDataSets } from "../../../../helpers/figures/charts";
+import { getBarChartData } from "../../../../helpers/figures/charts/runtime";
+import { ALL_PERIODS } from "../../../../helpers/pivot/pivot_helpers";
+import { DEFAULT_LOCALE } from "../../../../types";
+>>>>>>> 00785254412bf55cc6e4fbd752bc9894462c96db
 import {
   CALENDAR_CHART_GRANULARITIES,
   CalendarChartDefinition,
   CalendarChartGranularity,
+<<<<<<< 8490ed8d266544079acdc5678894e96e8bfd8a58
 } from "../../../../types/chart/calendar_chart";
 import { Select } from "../../../select/select";
+||||||| 45e20d4f992094d0d495cf73ffb15774c2b2e405
+} from "@odoo/o-spreadsheet-engine/types/chart/calendar_chart";
+import { createValidRange, isDateTime } from "../../../../helpers";
+import { createDataSets } from "../../../../helpers/figures/charts";
+import { getBarChartData } from "../../../../helpers/figures/charts/runtime";
+import { DEFAULT_LOCALE } from "../../../../types";
+=======
+} from "../../../../types/chart/calendar_chart";
+>>>>>>> 00785254412bf55cc6e4fbd752bc9894462c96db
 import { GenericChartConfigPanel } from "../building_blocks/generic_side_panel/config_panel";
 import { ChartSidePanelProps } from "../common";
 

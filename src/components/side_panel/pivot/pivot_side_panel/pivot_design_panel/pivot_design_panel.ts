@@ -1,9 +1,21 @@
 import { Component } from "@odoo/owl";
+<<<<<<< 8490ed8d266544079acdc5678894e96e8bfd8a58
 import { DEFAULT_PIVOT_STYLE } from "../../../../../helpers/pivot/pivot_helpers";
 import { PIVOT_TABLE_PRESETS } from "../../../../../helpers/pivot_table_presets";
+||||||| 45e20d4f992094d0d495cf73ffb15774c2b2e405
+=======
+import { DEFAULT_PIVOT_STYLE } from "../../../../../helpers/pivot/pivot_helpers";
+>>>>>>> 00785254412bf55cc6e4fbd752bc9894462c96db
 import { Store, useLocalStore } from "../../../../../store_engine";
+<<<<<<< 8490ed8d266544079acdc5678894e96e8bfd8a58
 import { PivotStyle, TableConfig, TableStyle, UID } from "../../../../../types";
 import { SpreadsheetChildEnv } from "../../../../../types/spreadsheet_env";
+||||||| 45e20d4f992094d0d495cf73ffb15774c2b2e405
+import { PivotStyle, UID } from "../../../../../types";
+=======
+import { PivotStyle, UID } from "../../../../../types";
+import { SpreadsheetChildEnv } from "../../../../../types/spreadsheet_env";
+>>>>>>> 00785254412bf55cc6e4fbd752bc9894462c96db
 import { NumberInput } from "../../../../number_input/number_input";
 import { TableStylePicker } from "../../../../tables/table_style_picker/table_style_picker";
 import { Checkbox } from "../../../components/checkbox/checkbox";

@@ -1,23 +1,79 @@
+<<<<<<< 8490ed8d266544079acdc5678894e96e8bfd8a58
 import { Component, useEffect, useExternalListener } from "@odoo/owl";
 import { DEFAULT_COLOR_SCALE_MIDPOINT_COLOR } from "../../../../constants";
 import { colorNumberToHex, deepCopy } from "../../../../helpers";
 import { useLocalStore } from "../../../../store_engine";
 import { _t } from "../../../../translation";
+||||||| 45e20d4f992094d0d495cf73ffb15774c2b2e405
+import { ICONS, ICON_SETS } from "@odoo/o-spreadsheet-engine/components/icons/icons";
+import { CfTerms } from "@odoo/o-spreadsheet-engine/components/translations_terms";
+import { DEFAULT_COLOR_SCALE_MIDPOINT_COLOR } from "@odoo/o-spreadsheet-engine/constants";
+import { canonicalizeCFRule } from "@odoo/o-spreadsheet-engine/helpers/locale";
+import { criterionEvaluatorRegistry } from "@odoo/o-spreadsheet-engine/registries/criterion_registry";
+import { _t } from "@odoo/o-spreadsheet-engine/translation";
+import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
+import { hexaToInt } from "@odoo/o-spreadsheet-engine/xlsx/conversion";
+import { Component, ComponentConstructor, useExternalListener, useState } from "@odoo/owl";
+import { Action } from "../../../../actions/action";
+import { colorNumberToHex, colorToNumber, isColorValid, rangeReference } from "../../../../helpers";
+import { cycleFixedReference } from "../../../../helpers/reference_type";
+=======
+import { Component, ComponentConstructor, useExternalListener, useState } from "@odoo/owl";
+import { Action } from "../../../../actions/action";
+import { DEFAULT_COLOR_SCALE_MIDPOINT_COLOR } from "../../../../constants";
+import { colorNumberToHex, colorToNumber, isColorValid, rangeReference } from "../../../../helpers";
+import { canonicalizeCFRule } from "../../../../helpers/locale";
+import { cycleFixedReference } from "../../../../helpers/reference_type";
+>>>>>>> 00785254412bf55cc6e4fbd752bc9894462c96db
 import {
+<<<<<<< 8490ed8d266544079acdc5678894e96e8bfd8a58
+||||||| 45e20d4f992094d0d495cf73ffb15774c2b2e405
+  criterionComponentRegistry,
+  getCriterionMenuItems,
+} from "../../../../registries/criterion_component_registry";
+import {
+  CancelledReason,
+  CellIsRule,
+  Color,
+  ColorScaleRule,
+=======
+  criterionComponentRegistry,
+  getCriterionMenuItems,
+} from "../../../../registries/criterion_component_registry";
+import { criterionEvaluatorRegistry } from "../../../../registries/criterion_registry";
+import { _t } from "../../../../translation";
+import {
+  CancelledReason,
+  CellIsRule,
+  Color,
+  ColorScaleRule,
+>>>>>>> 00785254412bf55cc6e4fbd752bc9894462c96db
   ColorScaleThreshold,
   CommandResult,
   ConditionalFormat,
   UID,
   ValueAndLabel,
 } from "../../../../types";
+<<<<<<< 8490ed8d266544079acdc5678894e96e8bfd8a58
 import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
 import { Store } from "../../../../types/store_engine";
+||||||| 45e20d4f992094d0d495cf73ffb15774c2b2e405
+=======
+import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
+import { hexaToInt } from "../../../../xlsx/conversion";
+>>>>>>> 00785254412bf55cc6e4fbd752bc9894462c96db
 import { ColorPickerWidget } from "../../../color_picker/color_picker_widget";
 import { StandaloneComposer } from "../../../composer/standalone_composer/standalone_composer";
 import { getTextDecoration } from "../../../helpers";
 import { IconPicker } from "../../../icon_picker/icon_picker";
+<<<<<<< 8490ed8d266544079acdc5678894e96e8bfd8a58
 import { Select } from "../../../select/select";
+||||||| 45e20d4f992094d0d495cf73ffb15774c2b2e405
+=======
+import { ICONS, ICON_SETS } from "../../../icons/icons";
+>>>>>>> 00785254412bf55cc6e4fbd752bc9894462c96db
 import { SelectionInput } from "../../../selection_input/selection_input";
+import { CfTerms } from "../../../translations_terms";
 import { ValidationMessages } from "../../../validation_messages/validation_messages";
 import { BadgeSelection } from "../../components/badge_selection/badge_selection";
 import { RoundColorPicker } from "../../components/round_color_picker/round_color_picker";

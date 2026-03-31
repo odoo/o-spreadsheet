@@ -1,6 +1,7 @@
 import { NOW, TODAY } from "../../src/functions/module_date";
 import { RAND, RANDARRAY, RANDBETWEEN } from "../../src/functions/module_math";
 import { buildSheetLink, toXC } from "../../src/helpers";
+<<<<<<< 8490ed8d266544079acdc5678894e96e8bfd8a58
 import { DEFAULT_TABLE_CONFIG } from "../../src/helpers/table_presets";
 import { Model } from "../../src/model";
 import { CellIsRule, ConditionalFormatRule, CustomizedDataSet, Dimension } from "../../src/types";
@@ -8,6 +9,17 @@ import { XLSXExportXMLFile, XMLString } from "../../src/types/xlsx";
 import { hexaToInt } from "../../src/xlsx/conversion";
 import { adaptFormulaToExcel } from "../../src/xlsx/functions/cells";
 import { escapeXml, parseXML } from "../../src/xlsx/helpers/xml_helpers";
+||||||| 45e20d4f992094d0d495cf73ffb15774c2b2e405
+import { ConditionalFormatRule, CustomizedDataSet, Dimension } from "../../src/types";
+=======
+import { DEFAULT_TABLE_CONFIG } from "../../src/helpers/table_presets";
+import { Model } from "../../src/model";
+import { ConditionalFormatRule, CustomizedDataSet, Dimension } from "../../src/types";
+import { XLSXExportXMLFile, XMLString } from "../../src/types/xlsx";
+import { hexaToInt } from "../../src/xlsx/conversion";
+import { adaptFormulaToExcel } from "../../src/xlsx/functions/cells";
+import { escapeXml, parseXML } from "../../src/xlsx/helpers/xml_helpers";
+>>>>>>> 00785254412bf55cc6e4fbd752bc9894462c96db
 
 import { arg } from "../../src/functions/arguments";
 import { functionRegistry } from "../../src/functions/function_registry";

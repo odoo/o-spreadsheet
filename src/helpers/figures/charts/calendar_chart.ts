@@ -1,4 +1,5 @@
 import type { ChartConfiguration } from "chart.js";
+import { BACKGROUND_CHART_COLOR } from "../../../constants";
 import {
   AxesDesign,
   ChartColorScale,

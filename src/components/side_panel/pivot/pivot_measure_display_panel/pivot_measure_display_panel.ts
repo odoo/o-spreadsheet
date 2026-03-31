@@ -1,9 +1,15 @@
 import { Component } from "@odoo/owl";
 import { PivotCoreMeasure, UID, ValueAndLabel } from "../../../..";
 import { Store, useLocalStore } from "../../../../store_engine";
+<<<<<<< 8490ed8d266544079acdc5678894e96e8bfd8a58
 import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
 import { Select } from "../../../select/select";
 import { measureDisplayTerms } from "../../../translations_terms";
+||||||| 45e20d4f992094d0d495cf73ffb15774c2b2e405
+=======
+import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
+import { measureDisplayTerms } from "../../../translations_terms";
+>>>>>>> 00785254412bf55cc6e4fbd752bc9894462c96db
 import { Checkbox } from "../../components/checkbox/checkbox";
 import { RadioSelection } from "../../components/radio_selection/radio_selection";
 import { Section } from "../../components/section/section";

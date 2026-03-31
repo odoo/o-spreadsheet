@@ -18,6 +18,7 @@ import { Store, useStore, useStoreProvider } from "../../store_engine";
 import { ModelStore } from "../../stores";
 import { NotificationStore } from "../../stores/notification_store";
 import { ScreenWidthStore } from "../../stores/screen_width_store";
+<<<<<<< 8490ed8d266544079acdc5678894e96e8bfd8a58
 import { _t } from "../../translation";
 import {
   CommandResult,
@@ -28,6 +29,14 @@ import {
 } from "../../types";
 import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 import { NotificationStoreMethods } from "../../types/stores/notification_store_methods";
+||||||| 45e20d4f992094d0d495cf73ffb15774c2b2e405
+import { CSSProperties, HeaderGroup, InformationNotification, Pixel } from "../../types";
+=======
+import { _t } from "../../translation";
+import { CSSProperties, HeaderGroup, InformationNotification, Pixel } from "../../types";
+import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
+import { NotificationStoreMethods } from "../../types/stores/notification_store_methods";
+>>>>>>> 00785254412bf55cc6e4fbd752bc9894462c96db
 import { BottomBar } from "../bottom_bar/bottom_bar";
 import { ComposerFocusStore } from "../composer/composer_focus_store";
 import { SpreadsheetDashboard } from "../dashboard/dashboard";

@@ -1,4 +1,5 @@
 import { Client, ClientWithColor, Model } from "../../src";
+import { DEBOUNCE_TIME } from "../../src/constants";
 import { MockTransportService } from "../__mocks__/transport_service";
 import {
   addColumns,

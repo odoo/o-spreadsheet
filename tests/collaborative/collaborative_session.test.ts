@@ -1,6 +1,12 @@
 import { Model } from "../../src";
+<<<<<<< 8490ed8d266544079acdc5678894e96e8bfd8a58
 import { Session } from "../../src/collaborative/session";
 import { MESSAGE_VERSION } from "../../src/constants";
+||||||| 45e20d4f992094d0d495cf73ffb15774c2b2e405
+=======
+import { Session } from "../../src/collaborative/session";
+import { DEBOUNCE_TIME, MESSAGE_VERSION } from "../../src/constants";
+>>>>>>> 00785254412bf55cc6e4fbd752bc9894462c96db
 import { lazy } from "../../src/helpers";
 import { buildRevisionLog } from "../../src/history/factory";
 import { Client, CommandResult, WorkbookData } from "../../src/types";

@@ -2,13 +2,27 @@ import { Component, useState } from "@odoo/owl";
 import { isMultipleElementMatrix, toScalar } from "../../../../functions/helper_matrices";
 import { tryToNumber } from "../../../../functions/helpers";
 import { deepCopy } from "../../../../helpers/index";
+<<<<<<< 8490ed8d266544079acdc5678894e96e8bfd8a58
 import { _t } from "../../../../translation";
 import { GaugeChartDefinition, SectionRule } from "../../../../types/chart/gauge_chart";
 import { Color, CommandResult, ValueAndLabel } from "../../../../types/index";
 import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
+||||||| 45e20d4f992094d0d495cf73ffb15774c2b2e405
+import { Color, CommandResult } from "../../../../types/index";
+=======
+import { _t } from "../../../../translation";
+import { GaugeChartDefinition, SectionRule } from "../../../../types/chart/gauge_chart";
+import { Color, CommandResult } from "../../../../types/index";
+import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
+>>>>>>> 00785254412bf55cc6e4fbd752bc9894462c96db
 import { StandaloneComposer } from "../../../composer/standalone_composer/standalone_composer";
+<<<<<<< 8490ed8d266544079acdc5678894e96e8bfd8a58
 import { Select } from "../../../select/select";
 import { ChartTerms } from "../../../translations_terms";
+||||||| 45e20d4f992094d0d495cf73ffb15774c2b2e405
+=======
+import { ChartTerms } from "../../../translations_terms";
+>>>>>>> 00785254412bf55cc6e4fbd752bc9894462c96db
 import { SidePanelCollapsible } from "../../components/collapsible/side_panel_collapsible";
 import { RoundColorPicker } from "../../components/round_color_picker/round_color_picker";
 import { Section } from "../../components/section/section";

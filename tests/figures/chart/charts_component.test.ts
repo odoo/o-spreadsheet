@@ -2,8 +2,18 @@ import { App } from "@odoo/owl";
 import { CommandResult, Model, Spreadsheet } from "../../../src";
 import { ChartPanel } from "../../../src/components/side_panel/chart/main_chart_panel/main_chart_panel";
 import { SidePanelStore } from "../../../src/components/side_panel/side_panel/side_panel_store";
+<<<<<<< 8490ed8d266544079acdc5678894e96e8bfd8a58
 import { ChartTerms } from "../../../src/components/translations_terms";
 import { LINE_DATA_POINT_RADIUS } from "../../../src/constants";
+||||||| 45e20d4f992094d0d495cf73ffb15774c2b2e405
+=======
+import { ChartTerms } from "../../../src/components/translations_terms";
+import {
+  BACKGROUND_CHART_COLOR,
+  DEBOUNCE_TIME,
+  LINE_DATA_POINT_RADIUS,
+} from "../../../src/constants";
+>>>>>>> 00785254412bf55cc6e4fbd752bc9894462c96db
 import { toHex, toZone } from "../../../src/helpers";
 import { GaugeChart, ScorecardChart } from "../../../src/helpers/figures/charts";
 import { getChartColorsGenerator } from "../../../src/helpers/figures/charts/runtime";
@@ -17,6 +27,7 @@ import {
   UID,
 } from "../../../src/types";
 import {
+<<<<<<< 8490ed8d266544079acdc5678894e96e8bfd8a58
   GaugeChartDefinition,
   PieChartRuntime,
   ScorecardChartDefinition,
@@ -28,6 +39,19 @@ import { LineChartDefinition } from "../../../src/types/chart/line_chart";
 import { SpreadsheetChildEnv } from "../../../src/types/spreadsheet_env";
 import { xmlEscape } from "../../../src/xlsx/helpers/xml_helpers";
 import {
+||||||| 45e20d4f992094d0d495cf73ffb15774c2b2e405
+=======
+  GaugeChartDefinition,
+  PieChartRuntime,
+  ScorecardChartDefinition,
+  TrendConfiguration,
+} from "../../../src/types/chart";
+import { BarChartDefinition, BarChartRuntime } from "../../../src/types/chart/bar_chart";
+import { LineChartDefinition } from "../../../src/types/chart/line_chart";
+import { SpreadsheetChildEnv } from "../../../src/types/spreadsheet_env";
+import { xmlEscape } from "../../../src/xlsx/helpers/xml_helpers";
+import {
+>>>>>>> 00785254412bf55cc6e4fbd752bc9894462c96db
   getChartConfiguration,
   openChartConfigSidePanel,
   openChartDesignSidePanel,

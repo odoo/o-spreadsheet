@@ -1,8 +1,17 @@
 import { CoreCommand, CorePlugin, Model } from "../../src";
+<<<<<<< 8490ed8d266544079acdc5678894e96e8bfd8a58
 import { LINK_COLOR } from "../../src/constants";
 import { buildSheetLink } from "../../src/helpers";
 import { urlRepresentation } from "../../src/helpers/links";
 import { corePluginRegistry } from "../../src/plugins";
+||||||| 45e20d4f992094d0d495cf73ffb15774c2b2e405
+import { buildSheetLink, toZone } from "../../src/helpers";
+=======
+import { LINK_COLOR } from "../../src/constants";
+import { buildSheetLink, toZone } from "../../src/helpers";
+import { urlRepresentation } from "../../src/helpers/links";
+import { corePluginRegistry } from "../../src/plugins";
+>>>>>>> 00785254412bf55cc6e4fbd752bc9894462c96db
 import { CellValueType, CommandResult, UID } from "../../src/types";
 import {
   addColumns,

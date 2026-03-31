@@ -1,3 +1,11 @@
+<<<<<<< 8490ed8d266544079acdc5678894e96e8bfd8a58
+||||||| 45e20d4f992094d0d495cf73ffb15774c2b2e405
+import { ConditionalFormatPlugin } from "@odoo/o-spreadsheet-engine/plugins/core/conditional_format";
+import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
+import { Component } from "@odoo/owl";
+=======
+import { Component } from "@odoo/owl";
+>>>>>>> 00785254412bf55cc6e4fbd752bc9894462c96db
 import { Model } from "../../src";
 import { ComposerFocusStore } from "../../src/components/composer/composer_focus_store";
 import { ConditionalFormattingEditor } from "../../src/components/side_panel/conditional_formatting/cf_editor/cf_editor";

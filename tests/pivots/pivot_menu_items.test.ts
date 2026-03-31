@@ -1,7 +1,13 @@
 import { Model, PivotCustomGroup, SortDirection, SpreadsheetPivotTable } from "../../src";
 import { Action } from "../../src/actions/action";
+<<<<<<< 8490ed8d266544079acdc5678894e96e8bfd8a58
 import { getPivotTooBigErrorMessage } from "../../src/components/translations_terms";
 import { PIVOT_INSERT_TABLE_STYLE_ID } from "../../src/constants";
+||||||| 45e20d4f992094d0d495cf73ffb15774c2b2e405
+=======
+import { getPivotTooBigErrorMessage } from "../../src/components/translations_terms";
+import { PIVOT_TABLE_CONFIG } from "../../src/constants";
+>>>>>>> 00785254412bf55cc6e4fbd752bc9894462c96db
 import { toCartesian, toZone } from "../../src/helpers";
 import { cellMenuRegistry, topbarMenuRegistry } from "../../src/registries/menus";
 import { SpreadsheetChildEnv } from "../../src/types/spreadsheet_env";

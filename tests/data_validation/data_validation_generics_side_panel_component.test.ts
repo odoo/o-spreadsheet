@@ -1,6 +1,15 @@
+<<<<<<< 8490ed8d266544079acdc5678894e96e8bfd8a58
 import { Model, UID } from "../../src";
 import { SidePanels } from "../../src/components/side_panel/side_panels/side_panels";
 import { SpreadsheetChildEnv } from "../../src/types/spreadsheet_env";
+||||||| 45e20d4f992094d0d495cf73ffb15774c2b2e405
+import { Model } from "../../src";
+import { DataValidationPanel } from "../../src/components/side_panel/data_validation/data_validation_panel";
+import { UID } from "../../src/types";
+=======
+import { Model, UID } from "../../src";
+import { DataValidationPanel } from "../../src/components/side_panel/data_validation/data_validation_panel";
+>>>>>>> 00785254412bf55cc6e4fbd752bc9894462c96db
 import {
   activateSheet,
   addDataValidation,

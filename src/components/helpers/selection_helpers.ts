@@ -1,6 +1,12 @@
+<<<<<<< 8490ed8d266544079acdc5678894e96e8bfd8a58
 import { getZoneArea } from "../../helpers";
 import { Direction, Getters, Position, Zone } from "../../types";
 import { SelectionStreamProcessor } from "../../types/selection_stream_processor";
+||||||| 45e20d4f992094d0d495cf73ffb15774c2b2e405
+import { SelectionStreamProcessor } from "@odoo/o-spreadsheet-engine/types/selection_stream_processor";
+=======
+import { SelectionStreamProcessor } from "../../types/selection_stream_processor";
+>>>>>>> 00785254412bf55cc6e4fbd752bc9894462c96db
 import { isCtrlKey } from "./dom_helpers";
 
 const arrowMap = {

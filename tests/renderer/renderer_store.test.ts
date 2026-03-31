@@ -1,5 +1,11 @@
+<<<<<<< 8490ed8d266544079acdc5678894e96e8bfd8a58
 import { LiteralCell, Model } from "../../src";
 import { HoveredTableStore } from "../../src/components/tables/hovered_table_store";
+||||||| 45e20d4f992094d0d495cf73ffb15774c2b2e405
+=======
+import { Model } from "../../src";
+import { HoveredTableStore } from "../../src/components/tables/hovered_table_store";
+>>>>>>> 00785254412bf55cc6e4fbd752bc9894462c96db
 import {
   BACKGROUND_HEADER_ACTIVE_COLOR,
   BACKGROUND_HEADER_SELECTED_COLOR,
@@ -14,6 +20,7 @@ import {
   NEWLINE,
   SELECTION_BORDER_COLOR,
   TABLE_HOVER_BACKGROUND_COLOR,
+<<<<<<< 8490ed8d266544079acdc5678894e96e8bfd8a58
 } from "../../src/constants";
 import {
   blendColors,
@@ -22,6 +29,16 @@ import {
   toHex,
   toZone,
 } from "../../src/helpers";
+||||||| 45e20d4f992094d0d495cf73ffb15774c2b2e405
+} from "@odoo/o-spreadsheet-engine/constants";
+import { Mode } from "@odoo/o-spreadsheet-engine/types/model";
+import { Model } from "../../src";
+import { HoveredTableStore } from "../../src/components/tables/hovered_table_store";
+import { fontSizeInPixels, getContextFontSize, toHex, toZone } from "../../src/helpers";
+=======
+} from "../../src/constants";
+import { fontSizeInPixels, getContextFontSize, toHex, toZone } from "../../src/helpers";
+>>>>>>> 00785254412bf55cc6e4fbd752bc9894462c96db
 import { FormulaFingerprintStore } from "../../src/stores/formula_fingerprints_store";
 import { GridRenderer } from "../../src/stores/grid_renderer_store";
 import { RendererStore } from "../../src/stores/renderer_store";

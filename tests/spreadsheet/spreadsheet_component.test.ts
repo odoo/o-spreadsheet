@@ -3,15 +3,33 @@ import { CommandResult, Model, setDefaultSheetViewSize, Spreadsheet } from "../.
 import { OPEN_CF_SIDEPANEL_ACTION } from "../../src/actions/menu_items_actions";
 import { CellComposerStore } from "../../src/components/composer/composer/cell_composer_store";
 import { useScreenWidth } from "../../src/components/helpers/screen_width_hook";
+<<<<<<< 8490ed8d266544079acdc5678894e96e8bfd8a58
 import {
   DEFAULT_CELL_HEIGHT,
   DEFAULT_CELL_WIDTH,
   getDefaultSheetViewSize,
 } from "../../src/constants";
 import { functionRegistry } from "../../src/functions/function_registry";
+||||||| 45e20d4f992094d0d495cf73ffb15774c2b2e405
+=======
+import {
+  DEBOUNCE_TIME,
+  DEFAULT_CELL_HEIGHT,
+  DEFAULT_CELL_WIDTH,
+  getDefaultSheetViewSize,
+} from "../../src/constants";
+import { functionRegistry } from "../../src/functions/function_registry";
+>>>>>>> 00785254412bf55cc6e4fbd752bc9894462c96db
 import { toZone } from "../../src/helpers";
 import { HighlightStore } from "../../src/stores/highlight_store";
+<<<<<<< 8490ed8d266544079acdc5678894e96e8bfd8a58
 import { SpreadsheetChildEnv } from "../../src/types/spreadsheet_env";
+||||||| 45e20d4f992094d0d495cf73ffb15774c2b2e405
+import { unPatchSessionMove } from "../setup/session_debounce_mock";
+=======
+import { SpreadsheetChildEnv } from "../../src/types/spreadsheet_env";
+import { unPatchSessionMove } from "../setup/session_debounce_mock";
+>>>>>>> 00785254412bf55cc6e4fbd752bc9894462c96db
 import {
   addDataValidation,
   addRows,

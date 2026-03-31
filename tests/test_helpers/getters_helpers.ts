@@ -1,6 +1,16 @@
+<<<<<<< 8490ed8d266544079acdc5678894e96e8bfd8a58
 import { toCartesian, toXC, toZone, zoneToXc } from "../../src/helpers/index";
 import { Model } from "../../src/model";
 import { ClipboardPlugin } from "../../src/plugins/ui_stateful/clipboard";
+||||||| 45e20d4f992094d0d495cf73ffb15774c2b2e405
+import { Model } from "@odoo/o-spreadsheet-engine/model";
+import { ClipboardPlugin } from "@odoo/o-spreadsheet-engine/plugins/ui_stateful/clipboard";
+import { toCartesian, toXC, toZone } from "../../src/helpers/index";
+=======
+import { toCartesian, toXC, toZone } from "../../src/helpers/index";
+import { Model } from "../../src/model";
+import { ClipboardPlugin } from "../../src/plugins/ui_stateful/clipboard";
+>>>>>>> 00785254412bf55cc6e4fbd752bc9894462c96db
 import {
   Border,
   Cell,

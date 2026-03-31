@@ -1,6 +1,17 @@
+<<<<<<< 8490ed8d266544079acdc5678894e96e8bfd8a58
 import { MergeErrorMessage, RemoveDuplicateTerms } from "../../components/translations_terms";
 import { getCurrentVersion } from "../../migrations/data";
 import { _t } from "../../translation";
+||||||| 45e20d4f992094d0d495cf73ffb15774c2b2e405
+import { RemoveDuplicateTerms } from "@odoo/o-spreadsheet-engine/components/translations_terms";
+import { getCurrentVersion } from "@odoo/o-spreadsheet-engine/migrations/data";
+import { _t } from "@odoo/o-spreadsheet-engine/translation";
+import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
+=======
+import { RemoveDuplicateTerms } from "../../components/translations_terms";
+import { getCurrentVersion } from "../../migrations/data";
+import { _t } from "../../translation";
+>>>>>>> 00785254412bf55cc6e4fbd752bc9894462c96db
 import {
   ClipboardPasteOptions,
   CommandResult,
@@ -12,6 +23,7 @@ import {
   ParsedOsClipboardContentWithImageData,
   Zone,
 } from "../../types";
+<<<<<<< 8490ed8d266544079acdc5678894e96e8bfd8a58
 import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 
 export const handleCopyPasteResult = (
@@ -23,6 +35,10 @@ export const handleCopyPasteResult = (
     env.raiseError(MergeErrorMessage);
   }
 };
+||||||| 45e20d4f992094d0d495cf73ffb15774c2b2e405
+=======
+import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
+>>>>>>> 00785254412bf55cc6e4fbd752bc9894462c96db
 
 export const PasteInteractiveContent = {
   wrongPasteSelection: _t("This operation is not allowed with multiple selections."),

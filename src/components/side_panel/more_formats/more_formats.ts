@@ -1,11 +1,18 @@
 import { Component, onWillStart, onWillUpdateProps } from "@odoo/owl";
 import { currenciesRegistry } from "../../../registries/currencies_registry";
 import { useLocalStore } from "../../../store_engine";
+<<<<<<< 8490ed8d266544079acdc5678894e96e8bfd8a58
 import { ValueAndLabel } from "../../../types";
 import { Currency } from "../../../types/currency";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
 import { Store } from "../../../types/store_engine";
 import { Select } from "../../select/select";
+||||||| 45e20d4f992094d0d495cf73ffb15774c2b2e405
+=======
+import { Currency } from "../../../types/currency";
+import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
+import { Store } from "../../../types/store_engine";
+>>>>>>> 00785254412bf55cc6e4fbd752bc9894462c96db
 import { TextInput } from "../../text_input/text_input";
 import { BadgeSelection } from "../components/badge_selection/badge_selection";
 import { Checkbox } from "../components/checkbox/checkbox";

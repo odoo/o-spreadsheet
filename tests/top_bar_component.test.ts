@@ -4,7 +4,12 @@ import { CellComposerStore } from "../src/components/composer/composer/cell_comp
 import { PaintFormatStore } from "../src/components/paint_format_button/paint_format_store";
 import { TopBar } from "../src/components/top_bar/top_bar";
 import { topBarToolBarRegistry } from "../src/components/top_bar/top_bar_tools_registry";
+<<<<<<< 8490ed8d266544079acdc5678894e96e8bfd8a58
 import { DEFAULT_FONT_SIZE } from "../src/constants";
+||||||| 45e20d4f992094d0d495cf73ffb15774c2b2e405
+=======
+import { DEBOUNCE_TIME, DEFAULT_FONT_SIZE } from "../src/constants";
+>>>>>>> 00785254412bf55cc6e4fbd752bc9894462c96db
 import { toZone, zoneToXc } from "../src/helpers";
 import { topbarMenuRegistry } from "../src/registries/menus";
 import { topbarComponentRegistry } from "../src/registries/topbar_component_registry";

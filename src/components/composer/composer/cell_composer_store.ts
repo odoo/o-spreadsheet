@@ -1,6 +1,24 @@
+<<<<<<< 8490ed8d266544079acdc5678894e96e8bfd8a58
 import { prettify } from "../../../formulas/formula_formatter";
 import { isMultipleElementMatrix, toScalar } from "../../../functions/helper_matrices";
 import { parseLiteral } from "../../../helpers/cells/cell_evaluation";
+||||||| 45e20d4f992094d0d495cf73ffb15774c2b2e405
+import { parseTokens } from "@odoo/o-spreadsheet-engine";
+import { prettify } from "@odoo/o-spreadsheet-engine/formulas/formula_formatter";
+import {
+  isMultipleElementMatrix,
+  toScalar,
+} from "@odoo/o-spreadsheet-engine/functions/helper_matrices";
+import { parseLiteral } from "@odoo/o-spreadsheet-engine/helpers/cells/cell_evaluation";
+import { getDateTimeFormat, localizeFormula } from "@odoo/o-spreadsheet-engine/helpers/locale";
+import { criterionEvaluatorRegistry } from "@odoo/o-spreadsheet-engine/registries/criterion_registry";
+import { _t } from "@odoo/o-spreadsheet-engine/translation";
+=======
+import { prettify } from "../../../formulas/formula_formatter";
+import { parseTokens } from "../../../formulas/parser";
+import { isMultipleElementMatrix, toScalar } from "../../../functions/helper_matrices";
+import { parseLiteral } from "../../../helpers/cells/cell_evaluation";
+>>>>>>> 00785254412bf55cc6e4fbd752bc9894462c96db
 import {
   detectDateFormat,
   formatValue,
