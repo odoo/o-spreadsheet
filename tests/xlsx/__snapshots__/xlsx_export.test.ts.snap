@@ -27646,6 +27646,8 @@ exports[`Test XLSX export Generic sheets (style, hidden, size, cf) Simple model 
     <sheets>
         <sheet state="visible" name="Sheet1" sheetId="1" r:id="rId1"/>
         <sheet state="visible" name="&lt;Sheet2&gt;" sheetId="2" r:id="rId2"/>
+        <sheet state="visible" name="ColRowDefaults" sheetId="3" r:id="rId3"/>
+        <sheet state="visible" name="SheetDefaults" sheetId="4" r:id="rId4"/>
     </sheets>
 </workbook>",
       "contentType": "workbook",
@@ -28023,6 +28025,90 @@ exports[`Test XLSX export Generic sheets (style, hidden, size, cf) Simple model 
       "path": "xl/worksheets/sheet1.xml",
     },
     {
+      "content": "<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">
+    <sheetViews>
+        <sheetView showGridLines="1" workbookViewId="0">
+        </sheetView>
+    </sheetViews>
+    <sheetFormatPr defaultRowHeight="17.25" defaultColWidth="13.73"/>
+    <cols>
+        <col min="1" max="1" width="13.73" customWidth="1" hidden="0"/>
+        <col min="2" max="2" width="13.73" customWidth="1" hidden="0"/>
+        <col min="3" max="3" width="13.73" customWidth="1" hidden="0"/>
+        <col min="4" max="4" width="13.73" customWidth="1" hidden="0" style="5"/>
+        <col min="5" max="5" width="13.73" customWidth="1" hidden="0"/>
+        <col min="6" max="6" width="13.73" customWidth="1" hidden="0"/>
+        <col min="7" max="7" width="13.73" customWidth="1" hidden="0"/>
+        <col min="8" max="8" width="13.73" customWidth="1" hidden="0" style="1"/>
+        <col min="9" max="9" width="13.73" customWidth="1" hidden="0" style="1"/>
+        <col min="10" max="10" width="13.73" customWidth="1" hidden="0"/>
+        <col min="11" max="11" width="13.73" customWidth="1" hidden="0"/>
+        <col min="12" max="12" width="13.73" customWidth="1" hidden="0"/>
+        <col min="13" max="13" width="13.73" customWidth="1" hidden="0"/>
+        <col min="14" max="14" width="13.73" customWidth="1" hidden="0"/>
+        <col min="15" max="15" width="13.73" customWidth="1" hidden="0"/>
+        <col min="16" max="16" width="13.73" customWidth="1" hidden="0"/>
+        <col min="17" max="17" width="13.73" customWidth="1" hidden="0"/>
+        <col min="18" max="18" width="13.73" customWidth="1" hidden="0"/>
+        <col min="19" max="19" width="13.73" customWidth="1" hidden="0"/>
+        <col min="20" max="20" width="13.73" customWidth="1" hidden="0"/>
+        <col min="21" max="21" width="13.73" customWidth="1" hidden="0"/>
+        <col min="22" max="22" width="13.73" customWidth="1" hidden="0"/>
+        <col min="23" max="23" width="13.73" customWidth="1" hidden="0"/>
+        <col min="24" max="24" width="13.73" customWidth="1" hidden="0"/>
+        <col min="25" max="25" width="13.73" customWidth="1" hidden="0"/>
+        <col min="26" max="26" width="13.73" customWidth="1" hidden="0"/>
+    </cols>
+    <sheetData>
+        <row r="1" s="1" customFormat="1">
+        </row>
+    </sheetData>
+</worksheet>",
+      "contentType": "sheet",
+      "path": "xl/worksheets/sheet2.xml",
+    },
+    {
+      "content": "<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">
+    <sheetViews>
+        <sheetView showGridLines="1" workbookViewId="0">
+        </sheetView>
+    </sheetViews>
+    <sheetFormatPr defaultRowHeight="17.25" defaultColWidth="13.73"/>
+    <cols>
+        <col min="1" max="1" width="13.73" customWidth="1" hidden="0" style="1"/>
+        <col min="2" max="2" width="13.73" customWidth="1" hidden="0" style="1"/>
+        <col min="3" max="3" width="13.73" customWidth="1" hidden="0" style="1"/>
+        <col min="4" max="4" width="13.73" customWidth="1" hidden="0" style="1"/>
+        <col min="5" max="5" width="13.73" customWidth="1" hidden="0" style="1"/>
+        <col min="6" max="6" width="13.73" customWidth="1" hidden="0" style="1"/>
+        <col min="7" max="7" width="13.73" customWidth="1" hidden="0" style="1"/>
+        <col min="8" max="8" width="13.73" customWidth="1" hidden="0" style="1"/>
+        <col min="9" max="9" width="13.73" customWidth="1" hidden="0" style="1"/>
+        <col min="10" max="10" width="13.73" customWidth="1" hidden="0" style="1"/>
+        <col min="11" max="11" width="13.73" customWidth="1" hidden="0" style="1"/>
+        <col min="12" max="12" width="13.73" customWidth="1" hidden="0" style="1"/>
+        <col min="13" max="13" width="13.73" customWidth="1" hidden="0" style="1"/>
+        <col min="14" max="14" width="13.73" customWidth="1" hidden="0" style="1"/>
+        <col min="15" max="15" width="13.73" customWidth="1" hidden="0" style="1"/>
+        <col min="16" max="16" width="13.73" customWidth="1" hidden="0" style="1"/>
+        <col min="17" max="17" width="13.73" customWidth="1" hidden="0" style="1"/>
+        <col min="18" max="18" width="13.73" customWidth="1" hidden="0" style="1"/>
+        <col min="19" max="19" width="13.73" customWidth="1" hidden="0" style="1"/>
+        <col min="20" max="20" width="13.73" customWidth="1" hidden="0" style="1"/>
+        <col min="21" max="21" width="13.73" customWidth="1" hidden="0" style="1"/>
+        <col min="22" max="22" width="13.73" customWidth="1" hidden="0" style="1"/>
+        <col min="23" max="23" width="13.73" customWidth="1" hidden="0" style="1"/>
+        <col min="24" max="24" width="13.73" customWidth="1" hidden="0" style="1"/>
+        <col min="25" max="25" width="13.73" customWidth="1" hidden="0" style="1"/>
+        <col min="26" max="26" width="13.73" customWidth="1" hidden="0" style="1"/>
+    </cols>
+    <sheetData>
+    </sheetData>
+</worksheet>",
+      "contentType": "sheet",
+      "path": "xl/worksheets/sheet3.xml",
+    },
+    {
       "content": "<metadata xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:xda="http://schemas.microsoft.com/office/spreadsheetml/2017/dynamicarray">
     <metadataTypes count="1">
         <metadataType name="XLDAPR" minSupportedVersion="120000" copy="1" pasteAll="1" pasteValues="1" merge="1" splitFirst="1" rowColShift="1" clearFormats="1" clearComments="1" assign="1" coerce="1" cellMeta="1"/>
@@ -28199,7 +28285,9 @@ exports[`Test XLSX export Generic sheets (style, hidden, size, cf) Simple model 
         <xf numFmtId="0" fillId="0" fontId="0" borderId="0"/>
         <xf numFmtId="0" fillId="0" fontId="1" borderId="0"/>
         <xf numFmtId="0" fillId="0" fontId="2" borderId="0"/>
-        <xf numFmtId="0" fillId="0" fontId="3" borderId="0"/>
+        <xf numFmtId="0" fillId="0" fontId="3" borderId="0" applyAlignment="1">
+            <alignment horizontal="left"/>
+        </xf>
         <xf numFmtId="0" fillId="0" fontId="0" borderId="4"/>
         <xf numFmtId="0" fillId="2" fontId="0" borderId="0"/>
         <xf numFmtId="0" fillId="0" fontId="4" borderId="0"/>
@@ -28416,9 +28504,11 @@ exports[`Test XLSX export Generic sheets (style, hidden, size, cf) Simple model 
       "content": "<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
     <Relationship Id="rId1" Target="worksheets/sheet0.xml" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet"/>
     <Relationship Id="rId2" Target="worksheets/sheet1.xml" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet"/>
-    <Relationship Id="rId3" Target="sharedStrings.xml" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/sharedStrings"/>
-    <Relationship Id="rId4" Target="styles.xml" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles"/>
-    <Relationship Id="rId5" Target="metadata.xml" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/sheetMetadata"/>
+    <Relationship Id="rId3" Target="worksheets/sheet2.xml" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet"/>
+    <Relationship Id="rId4" Target="worksheets/sheet3.xml" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet"/>
+    <Relationship Id="rId5" Target="sharedStrings.xml" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/sharedStrings"/>
+    <Relationship Id="rId6" Target="styles.xml" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles"/>
+    <Relationship Id="rId7" Target="metadata.xml" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/sheetMetadata"/>
 </Relationships>",
       "contentType": undefined,
       "path": "xl/_rels/workbook.xml.rels",
@@ -28438,6 +28528,8 @@ exports[`Test XLSX export Generic sheets (style, hidden, size, cf) Simple model 
     <Override ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml" PartName="/xl/workbook.xml"/>
     <Override ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml" PartName="/xl/worksheets/sheet0.xml"/>
     <Override ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml" PartName="/xl/worksheets/sheet1.xml"/>
+    <Override ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml" PartName="/xl/worksheets/sheet2.xml"/>
+    <Override ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml" PartName="/xl/worksheets/sheet3.xml"/>
     <Override ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheetMetadata+xml" PartName="/xl/metadata.xml"/>
     <Override ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml" PartName="/xl/styles.xml"/>
     <Override ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sharedStrings+xml" PartName="/xl/sharedStrings.xml"/>

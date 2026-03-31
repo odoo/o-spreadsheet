@@ -1,3 +1,4 @@
+import { defaultValue } from "../plugins/core/default";
 import { SquishedCell } from "../plugins/core/squisher";
 import { CellValue } from "./cells";
 import { ExcelChartDefinition } from "./chart";
@@ -7,7 +8,7 @@ import { Format } from "./format";
 import { Image } from "./image";
 import { Locale } from "./locale";
 import {
-  Border,
+  BorderOrNull,
   Color,
   Dimension,
   HeaderGroup,
@@ -50,8 +51,11 @@ export interface SheetData {
   rowNumber: number;
   cells: { [key: string]: string | undefined | SquishedCell };
   styles: { [zone: string]: number };
+  defaultStyle?: defaultValue<number>;
   formats: { [zone: string]: number };
+  defaultFormat?: defaultValue<number>;
   borders: { [zone: string]: number };
+  defaultBorder?: defaultValue<number>;
   merges: string[];
   figures: FigureData<any>[];
   cols: { [key: number]: HeaderData };
@@ -79,7 +83,7 @@ export interface WorkbookData {
   sheets: SheetData[];
   styles: { [key: number]: Style };
   formats: { [key: number]: Format };
-  borders: { [key: number]: Border };
+  borders: { [key: number]: BorderOrNull };
   pivots: { [key: string]: PivotData };
   pivotNextId: number;
   revisionId: UID;

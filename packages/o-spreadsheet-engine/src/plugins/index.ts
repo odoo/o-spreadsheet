@@ -12,7 +12,6 @@ import { HeaderSizePlugin } from "./core/header_size";
 import { HeaderVisibilityPlugin } from "./core/header_visibility";
 import { ImagePlugin } from "./core/image";
 import { MergePlugin } from "./core/merge";
-import { NamedRangesPlugin } from "./core/named_range";
 import { PivotCorePlugin } from "./core/pivot";
 import { SettingsPlugin } from "./core/settings";
 import { SheetPlugin } from "./core/sheet";
@@ -31,7 +30,6 @@ import { EvaluationDataValidationPlugin } from "./ui_core_views/evaluation_data_
 import { FormulaTrackerPlugin } from "./ui_core_views/formula_tracker";
 import { HeaderSizeUIPlugin } from "./ui_core_views/header_sizes_ui";
 import { PivotUIPlugin } from "./ui_core_views/pivot_ui";
-import { DataCleanupPlugin } from "./ui_feature";
 import { AutofillPlugin } from "./ui_feature/autofill";
 import { AutomaticSumPlugin } from "./ui_feature/automatic_sum";
 import { CellComputedStylePlugin } from "./ui_feature/cell_computed_style";
@@ -79,7 +77,6 @@ export const corePluginRegistry = new Registry<CorePluginConstructor>()
   .add("chart", ChartPlugin)
   .add("carousel", CarouselPlugin)
   .add("image", ImagePlugin)
-  .add("named_ranges", NamedRangesPlugin)
   .add("pivot_core", PivotCorePlugin)
   .add("spreadsheet_pivot_core", SpreadsheetPivotCorePlugin)
   .add("tableStyle", TableStylePlugin);
@@ -103,8 +100,7 @@ export const featurePluginRegistry = new Registry<UIPluginConstructor>()
   .add("datavalidation_insert", DataValidationInsertionPlugin)
   .add("checkbox_toggle", CheckboxTogglePlugin)
   .add("dynamic_translate", DynamicTranslate)
-  .add("geo_features", GeoFeaturePlugin)
-  .add("data_cleanup", DataCleanupPlugin);
+  .add("geo_features", GeoFeaturePlugin);
 
 // Plugins which have a state, but which should not be shared in collaborative
 export const statefulUIPluginRegistry = new Registry<UIPluginConstructor>()

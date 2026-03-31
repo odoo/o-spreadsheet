@@ -8,7 +8,7 @@ import { isMarkdownLink, isSheetUrl, parseMarkdownLink, parseSheetUrl } from "..
 import { isInside, toZone } from "../../helpers/zones";
 import { CellErrorType } from "../../types/errors";
 import { HeaderIndex } from "../../types/misc";
-import { ExcelHeaderData, ExcelSheetData, ExcelWorkbookData } from "../../types/workbook_data";
+import { ExcelSheetData, ExcelWorkbookData } from "../../types/workbook_data";
 import { XLSXStructure, XMLAttributes, XMLString } from "../../types/xlsx";
 import { XLSX_RELATION_TYPE } from "../constants";
 import { toXlsxHexColor } from "../helpers/colors";
@@ -22,11 +22,19 @@ import {
 import { escapeXml, formatAttributes, joinXmlNodes } from "../helpers/xml_helpers";
 import { addContent, addFormula } from "./cells";
 
-export function addColumns(cols: { [key: number]: ExcelHeaderData }): XMLString {
+export function addColumns(
+  construct: XLSXStructure,
+  data: ExcelWorkbookData,
+  sheet: ExcelSheetData
+): XMLString {
+  const cols = sheet.cols;
   if (!Object.values(cols).length) {
     return escapeXml``;
   }
   const colNodes: XMLString[] = [];
+  const sheetStyle = sheet.defaultStyle?.sheetDefault;
+  const sheetBorder = sheet.defaultBorder?.sheetDefault;
+  const sheetFormat = sheet.defaultFormat?.sheetDefault;
   for (const [id, col] of Object.entries(cols)) {
     // Always force our own col width
     const attributes: XMLAttributes = [
@@ -42,15 +50,23 @@ export function addColumns(cols: { [key: number]: ExcelHeaderData }): XMLString 
     if (col.collapsed) {
       attributes.push(["collapsed", 1]);
     }
-    colNodes.push(escapeXml/*xml*/ `
-      <col ${formatAttributes(attributes)}/>
-    `);
+    const colStyle = sheet.defaultStyle?.colDefault?.[id] ?? sheetStyle;
+    const colBorder = sheet.defaultBorder?.colDefault?.[id] ?? sheetBorder;
+    const colFormat = sheet.defaultFormat?.colDefault?.[id] ?? sheetFormat;
+    if (colStyle || colFormat || colBorder) {
+      const styleId = normalizeStyle(
+        construct,
+        extractStyle(data, undefined, colStyle, colFormat, colBorder)
+      );
+      if (styleId) {
+        attributes.push(["style", styleId]);
+      }
+    }
+    colNodes.push(escapeXml/*xml*/ `<col ${formatAttributes(attributes)}/>`);
   }
-  return escapeXml/*xml*/ `
-    <cols>
+  return escapeXml/*xml*/ `<cols>
       ${joinXmlNodes(colNodes)}
-    </cols>
-  `;
+    </cols>`;
 }
 
 export function addRows(
@@ -76,6 +92,19 @@ export function addRows(
     }
     if (row.collapsed) {
       rowAttrs.push(["collapsed", 1]);
+    }
+    const rowStyle = sheet.defaultStyle?.rowDefault?.[r];
+    const rowBorder = sheet.defaultBorder?.rowDefault?.[r];
+    const rowFormat = sheet.defaultFormat?.rowDefault?.[r];
+    if (rowStyle || rowFormat || rowBorder) {
+      const id = normalizeStyle(
+        construct,
+        extractStyle(data, undefined, rowStyle, rowFormat, rowBorder)
+      );
+      if (id) {
+        rowAttrs.push(["s", id]);
+        rowAttrs.push(["customFormat", 1]);
+      }
     }
     const cellNodes: XMLString[] = [];
     for (let c = 0; c < sheet.colNumber; c++) {
@@ -133,7 +162,9 @@ export function addRows(
       row.size !== DEFAULT_CELL_HEIGHT ||
       row.isHidden ||
       row.outlineLevel ||
-      row.collapsed
+      row.collapsed ||
+      rowStyle ||
+      rowFormat
     ) {
       rowNodes.push(escapeXml/*xml*/ `
         <row ${formatAttributes(rowAttrs)}>

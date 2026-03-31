@@ -805,3 +805,31 @@ export function getMissingHeadersForSpreadResult(
   const missingCols = col + evaluated.length - numberOfCols;
   return { missingRows, missingCols };
 }
+
+export function isObjectEmpty(obj: any) {
+  if (!obj || Object.keys(obj).length === 0) {
+    return true;
+  }
+  for (const value of Object.values(obj)) {
+    if (value !== undefined && (typeof value !== "object" || !isObjectEmpty(value))) {
+      return false;
+    }
+  }
+  return true;
+}
+
+export function defaultDict<T>(def: T) {
+  const state: Record<string, T> = {};
+  return {
+    state,
+    get: (key: string): T => {
+      if (!(key in state)) {
+        state[key] = deepCopy(def);
+      }
+      return state[key];
+    },
+    set: (key: string, value: T) => {
+      state[key] = value;
+    },
+  };
+}

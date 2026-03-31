@@ -97,6 +97,7 @@ export interface ZoneDimension {
 }
 
 export type Align = "left" | "right" | "center" | undefined;
+export type StyleAlign = Align | "default";
 
 export type VerticalAlign = "top" | "middle" | "bottom" | undefined;
 
@@ -107,7 +108,7 @@ export interface Style {
   italic?: boolean;
   strikethrough?: boolean;
   underline?: boolean;
-  align?: Align;
+  align?: StyleAlign;
   wrapping?: Wrapping;
   verticalAlign?: VerticalAlign;
   fillColor?: Color;
@@ -126,7 +127,7 @@ export interface UpdateCellData {
   content?: string;
   formula?: string;
   style?: Style | null;
-  format?: Format;
+  format?: Format | null;
 }
 
 export interface Sheet {
@@ -147,6 +148,8 @@ export interface CellPosition {
   sheetId: UID;
 }
 
+export type Column<T> = (T | undefined)[] | undefined;
+
 export const borderStyles = ["thin", "medium", "thick", "dashed", "dotted"] as const;
 export type BorderStyle = (typeof borderStyles)[number];
 // A complete border description is a pair [style, color]
@@ -166,6 +169,18 @@ export interface Border {
   left?: BorderDescr;
   bottom?: BorderDescr;
   right?: BorderDescr;
+}
+
+export interface BorderOrNull {
+  top?: BorderDescr | null;
+  left?: BorderDescr | null;
+  bottom?: BorderDescr | null;
+  right?: BorderDescr | null;
+}
+
+export interface BorderTopLeft {
+  top?: BorderDescr;
+  left?: BorderDescr;
 }
 
 export type ReferenceDenormalizer = (range: Range, isMeta: boolean) => FunctionResultObject;
@@ -360,11 +375,11 @@ export interface MenuMouseEvent extends MouseEvent {
 // https://github.com/Microsoft/TypeScript/issues/13923#issuecomment-557509399
 // prettier-ignore
 export type Immutable<T> =
-    T extends ImmutablePrimitive ? T :
-    T extends Array<infer U> ? ImmutableArray<U> :
-    T extends Map<infer K, infer V> ? ImmutableMap<K, V> :
-    T extends Set<infer M> ? ImmutableSet<M> :
-    ImmutableObject<T>;
+  T extends ImmutablePrimitive ? T :
+  T extends Array<infer U> ? ImmutableArray<U> :
+  T extends Map<infer K, infer V> ? ImmutableMap<K, V> :
+  T extends Set<infer M> ? ImmutableSet<M> :
+  ImmutableObject<T>;
 
 type ImmutablePrimitive = undefined | null | boolean | string | number | Function;
 type ImmutableArray<T> = ReadonlyArray<Immutable<T>>;
