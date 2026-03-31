@@ -12,6 +12,7 @@ import { Figure, Pixel, Position, SpreadsheetChildEnv, UID } from "../../src/typ
 
 import { FigureComponent } from "../../src/components/figures/figure/figure";
 import { downloadFile } from "../../src/components/helpers/dom_helpers";
+import { toHex } from "../../src/helpers";
 import { figureRegistry } from "../../src/registries/figures_registry";
 import { ClipboardMIMEType } from "../../src/types/clipboard";
 import {
@@ -682,31 +683,31 @@ describe("figures", () => {
     test("Border for figure", async () => {
       createFigure(model);
       await nextTick();
-      expect(getElStyle(".o-figure-border", "border")).toEqual(`1px solid ${FIGURE_BORDER_COLOR}`);
+      expect(toHex("rgb(201, 204, 210)")).toEqual(toHex(FIGURE_BORDER_COLOR));
+      expect(getElStyle(".o-figure-border", "border")).toEqual(`1px solid rgb(201, 204, 210)`);
     });
 
     test("Border for selected figure", async () => {
       createFigure(model, { id: "figureId" });
       model.dispatch("SELECT_FIGURE", { figureId: "figureId" });
       await nextTick();
-      expect(getElStyle(".o-figure-border", "border")).toEqual(
-        `2px solid ${SELECTION_BORDER_COLOR}`
-      );
+      expect(toHex("rgb(50, 102, 202)")).toEqual(toHex(SELECTION_BORDER_COLOR));
+      expect(getElStyle(".o-figure-border", "border")).toEqual(`2px solid rgb(50, 102, 202)`);
     });
 
     test("Border for image figure", async () => {
       createImage(model, { figureId: "figureId" });
       await nextTick();
-      expect(getElStyle(".o-figure-border", "border")).toEqual(`0px solid ${FIGURE_BORDER_COLOR}`);
+      expect(toHex("rgb(201, 204, 210)")).toEqual(toHex(FIGURE_BORDER_COLOR));
+      expect(getElStyle(".o-figure-border", "border")).toEqual(`0px solid rgb(201, 204, 210)`);
     });
 
     test("Border for selected image figure", async () => {
       createImage(model, { figureId: "figureId" });
       model.dispatch("SELECT_FIGURE", { figureId: "figureId" });
       await nextTick();
-      expect(getElStyle(".o-figure-border", "border")).toEqual(
-        `2px solid ${SELECTION_BORDER_COLOR}`
-      );
+      expect(toHex("rgb(50, 102, 202)")).toEqual(toHex(SELECTION_BORDER_COLOR));
+      expect(getElStyle(".o-figure-border", "border")).toEqual(`2px solid rgb(50, 102, 202)`);
     });
 
     test("No border in dashboard mode", async () => {
