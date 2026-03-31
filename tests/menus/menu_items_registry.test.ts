@@ -81,16 +81,16 @@ describe("Top Bar MenuPopover Item Registry", () => {
   test("Menu registry items have unique ActionSpec path", () => {
     addToRegistry(registry, "root", { name: "rootNode" });
     registry.addChild("child", ["root"], { id: "unique", name: "child" });
-    expect(() =>
-      registry.addChild("child", ["root"], { id: "unique", name: "child" })
-    ).toThrowError('A child with the id "unique" already exists.');
+    expect(() => registry.addChild("child", ["root"], { id: "unique", name: "child" })).toThrow(
+      'A child with the id "unique" already exists.'
+    );
   });
   test("Menu registry entries can be overriden explicitely", () => {
     addToRegistry(registry, "root", { name: "rootNode" });
     registry.addChild("child", ["root"], { id: "unique", name: "child" });
     expect(() =>
       registry.replaceChild("child", ["root"], { id: "unique", name: "child" })
-    ).not.toThrowError();
+    ).not.toThrow();
   });
   test("Menu items can have the same id with different parent nodes", () => {
     addToRegistry(registry, "root1", { name: "rootNode1" });
@@ -98,7 +98,7 @@ describe("Top Bar MenuPopover Item Registry", () => {
     registry.addChild("child", ["root1"], { id: "unique", name: "child" });
     expect(() =>
       registry.addChild("child", ["root2"], { id: "unique", name: "child" })
-    ).not.toThrowError();
+    ).not.toThrow();
   });
 });
 
