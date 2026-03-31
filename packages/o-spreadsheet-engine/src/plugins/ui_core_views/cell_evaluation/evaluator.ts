@@ -169,7 +169,7 @@ export class Evaluator {
     return new PositionSet(sheetSizes);
   }
 
-  evaluateCells(positions: CellPosition[]) {
+  evaluateCells(positions: CellPosition[]): RangeSet {
     const start = performance.now();
     const rangesToCompute = new RangeSet();
     rangesToCompute.addManyPositions(positions);
@@ -179,6 +179,7 @@ export class Evaluator {
     rangesToCompute.addMany(this.getCellsDependingOn(arrayFormulasPositions));
     this.evaluate(rangesToCompute);
     console.debug("evaluate Cells", performance.now() - start, "ms");
+    return rangesToCompute;
   }
 
   private getArrayFormulasImpactedByChangesOf(positions: Iterable<CellPosition>): RangeSet {

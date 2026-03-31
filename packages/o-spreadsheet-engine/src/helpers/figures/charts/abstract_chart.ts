@@ -103,6 +103,12 @@ export abstract class AbstractChart {
    */
   abstract getContextCreation(): ChartCreationContext;
 
+  /**
+   * Returns all the data ranges the chart reads from (datasets and label range).
+   * Used to determine if a chart runtime needs to be invalidated when cells are re-evaluated.
+   */
+  abstract getDataRanges(): Range[];
+
   protected getCommonDataSetAttributesForExcel(
     labelRange: Range | undefined,
     dataSets: DataSet[],
