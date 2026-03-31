@@ -1,3 +1,4 @@
+import { MatchImageSnapshotOptions, configureToMatchImageSnapshot } from "jest-image-snapshot";
 import { Model } from "../../src";
 import { isSameColor } from "../../src/helpers/color";
 import { toXC } from "../../src/helpers/coordinates";
@@ -32,6 +33,7 @@ declare global {
       /** Check if a number is between 2 values (inclusive) */
       toBeBetween(lower: number, upper: number): R;
       toBeSameColorAs(expected: string, tolerance?: number): R;
+      toMatchImageSnapshot(options?: MatchImageSnapshotOptions): R;
     }
   }
 }
@@ -46,7 +48,12 @@ function getPrettyEvaluatedCells(model: Model, sheetId: string, zone: Zone) {
   });
 }
 
+const toMatchImageSnapshot = configureToMatchImageSnapshot({
+  dumpDiffToConsole: false, // allows to copy-paste the diff from Runbot logs
+});
+
 expect.extend({
+  toMatchImageSnapshot,
   toExport(model: Model, expected: any) {
     const exportData = model.exportData();
     if (
@@ -55,7 +62,7 @@ expect.extend({
       ])
     ) {
       return {
-        pass: this.isNot,
+        pass: !!this.isNot,
         message: () =>
           `Diff: ${this.utils.printDiffOrStringify(
             expected,
@@ -74,7 +81,7 @@ expect.extend({
       if (!this.equals(result, expected, [this.utils.iterableEquality])) {
         const userId = user.getters.getClient().name;
         return {
-          pass: this.isNot,
+          pass: !!this.isNot,
           message: () =>
             `${userId} does not have the expected value: \nReceived: ${this.utils.printReceived(
               result
@@ -98,7 +105,7 @@ expect.extend({
           const prettyValuesUserA = getPrettyEvaluatedCells(a, sheetId, sheetZone);
           const prettyValuesUserB = getPrettyEvaluatedCells(b, sheetId, sheetZone);
           return {
-            pass: this.isNot,
+            pass: !!this.isNot,
             message: () =>
               `${clientA} and ${clientB} are not synchronized: \n${this.utils.printDiffOrStringify(
                 prettyValuesUserA,
@@ -123,7 +130,7 @@ expect.extend({
         const clientA = a.getters.getClient().id;
         const clientB = b.getters.getClient().id;
         return {
-          pass: this.isNot,
+          pass: !!this.isNot,
           message: () =>
             `${clientA} and ${clientB} are not synchronized: \n${this.utils.printDiffOrStringify(
               exportA,

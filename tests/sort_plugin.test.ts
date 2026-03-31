@@ -370,7 +370,7 @@ describe("Trigger sort generic errors", () => {
         anchor: "A6",
         direction: "ascending",
       });
-    }).toThrowError();
+    }).toThrow();
   });
 });
 

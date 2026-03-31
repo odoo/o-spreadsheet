@@ -25,7 +25,7 @@ describe("expression compiler", () => {
   });
 
   test("simple values that throw error", () => {
-    expect(() => compiledBaseFunction(`='abc'`)).toThrowError();
+    expect(() => compiledBaseFunction(`='abc'`)).toThrow();
   });
 
   test.each(["=1 + 3", "=2 * 3", "=2 - 3", "=2 / 3", "=-3", "=(3 + 1) * (-1 + 4)"])(
@@ -272,18 +272,16 @@ describe("compile functions", () => {
         returns: ["STRING"],
       });
 
-      expect(() => compiledBaseFunction("=RANGEEXPECTED(42)")).toThrowError(
+      expect(() => compiledBaseFunction("=RANGEEXPECTED(42)")).toThrow(
         "Function RANGEEXPECTED expects the parameter 1 to be reference to a cell or range, not a number."
       );
-      expect(() => compiledBaseFunction('=RANGEEXPECTED("test")')).toThrowError(
+      expect(() => compiledBaseFunction('=RANGEEXPECTED("test")')).toThrow(
         "Function RANGEEXPECTED expects the parameter 1 to be reference to a cell or range, not a string."
       );
-      expect(() => compiledBaseFunction("=RANGEEXPECTED(TRUE)")).toThrowError(
+      expect(() => compiledBaseFunction("=RANGEEXPECTED(TRUE)")).toThrow(
         "Function RANGEEXPECTED expects the parameter 1 to be reference to a cell or range, not a boolean."
       );
-      expect(() =>
-        compiledBaseFunction("=RANGEEXPECTED(FORMULA_NOT_RETURNING_RANGE())")
-      ).toThrowError(
+      expect(() => compiledBaseFunction("=RANGEEXPECTED(FORMULA_NOT_RETURNING_RANGE())")).toThrow(
         "Function RANGEEXPECTED expects the parameter 1 to be reference to a cell or range, not a funcall."
       );
 
@@ -466,10 +464,10 @@ describe("compile functions", () => {
       expect(() => compiledBaseFunction("=USEMETAARG(Sheet42!$D$3:$Z$9)")).not.toThrow();
       expect(() => compiledBaseFunction("=USEMETAARG('Sheet 42'!D3:Z9)")).not.toThrow();
 
-      expect(() => compiledBaseFunction('=USEMETAARG("kikou")')).toThrowError();
-      expect(() => compiledBaseFunction('=USEMETAARG("")')).toThrowError();
-      expect(() => compiledBaseFunction("=USEMETAARG(TRUE)")).toThrowError();
-      expect(() => compiledBaseFunction("=USEMETAARG(SUM(1,2,3))")).toThrowError();
+      expect(() => compiledBaseFunction('=USEMETAARG("kikou")')).toThrow();
+      expect(() => compiledBaseFunction('=USEMETAARG("")')).toThrow();
+      expect(() => compiledBaseFunction("=USEMETAARG(TRUE)")).toThrow();
+      expect(() => compiledBaseFunction("=USEMETAARG(SUM(1,2,3))")).toThrow();
     });
 
     test("do not care about the value of the cell / range passed as a reference", () => {
