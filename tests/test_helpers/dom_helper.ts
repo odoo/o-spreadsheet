@@ -183,8 +183,8 @@ export function triggerMouseEvent(
     bubbles: true,
     ...extra,
   });
-  (ev as any).offsetX = offsetX;
-  (ev as any).offsetY = offsetY;
+  Object.defineProperty(ev, "offsetX", { value: offsetX });
+  Object.defineProperty(ev, "offsetY", { value: offsetY });
   const target = getTarget(selector);
   target.dispatchEvent(ev);
   return ev;

@@ -59,6 +59,7 @@ beforeEach(() => {
       }
       return 0;
     });
+  HTMLElement.prototype.scrollIntoView = () => {};
 });
 
 afterEach(() => {
