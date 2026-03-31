@@ -1,4 +1,4 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`compile functions same symbol twice 1`] = `
 "function anonymous(deps,ref,range,getSymbolValue,ctx
