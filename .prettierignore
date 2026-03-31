@@ -19,3 +19,4 @@ tests/**/xlsx_demo_data
 **/*.png
 **/*.xlsx
 tools/parse_message.mjs
+*.png
