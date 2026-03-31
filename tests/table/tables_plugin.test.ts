@@ -40,12 +40,9 @@ import {
   toRangesData,
 } from "../test_helpers/helpers";
 
-import { DEFAULT_BORDER_DESC } from "@odoo/o-spreadsheet-engine/constants";
-import {
-  DEFAULT_TABLE_CONFIG,
-  TABLE_PRESETS,
-} from "@odoo/o-spreadsheet-engine/helpers/table_presets";
-import { EvaluationPlugin } from "@odoo/o-spreadsheet-engine/plugins/ui_core_views/cell_evaluation";
+import { DEFAULT_BORDER_DESC } from "../../src/constants";
+import { DEFAULT_TABLE_CONFIG, TABLE_PRESETS } from "../../src/helpers/table_presets";
+import { EvaluationPlugin } from "../../src/plugins/ui_core_views/cell_evaluation";
 import { TABLE_STYLE_ALL_RED } from "../test_helpers/constants";
 
 beforeEach(() => {

@@ -1,9 +1,9 @@
-import { ALL_PERIODS } from "@odoo/o-spreadsheet-engine/helpers/pivot/pivot_helpers";
-import { PivotDimension } from "@odoo/o-spreadsheet-engine/types/pivot";
 import { Component } from "@odoo/owl";
+import { ALL_PERIODS } from "../../../../../helpers/pivot/pivot_helpers";
+import { PivotDimension } from "../../../../../types/pivot";
 
-import { ValueAndLabel } from "@odoo/o-spreadsheet-engine";
-import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
+import { ValueAndLabel } from "../../../../../types";
+import { SpreadsheetChildEnv } from "../../../../../types/spreadsheet_env";
 import { Select } from "../../../../select/select";
 
 interface Props {

@@ -1,5 +1,5 @@
-import { _t } from "@odoo/o-spreadsheet-engine";
 import { onWillStart, onWillUpdateProps, useState } from "@odoo/owl";
+import { _t } from "../../../../translation";
 import { Color, IsValueInListCriterion, ValueAndLabel } from "../../../../types";
 import { Select } from "../../../select/select";
 import { RoundColorPicker } from "../../components/round_color_picker/round_color_picker";

@@ -1,8 +1,8 @@
-import { cssPropertiesToCss } from "@odoo/o-spreadsheet-engine/components/helpers/css";
-import { AUTOFILL_EDGE_LENGTH } from "@odoo/o-spreadsheet-engine/constants";
-import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { Component } from "@odoo/owl";
+import { AUTOFILL_EDGE_LENGTH } from "../../../constants";
 import { Color, ResizeDirection, Zone } from "../../../types";
+import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
+import { cssPropertiesToCss } from "../../helpers/css";
 
 const MOBILE_HANDLER_WIDTH = 40;
 

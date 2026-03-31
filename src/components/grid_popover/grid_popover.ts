@@ -1,9 +1,9 @@
-import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
-import { Store } from "@odoo/o-spreadsheet-engine/types/store_engine";
 import { Component } from "@odoo/owl";
 import { useStore } from "../../store_engine/store_hooks";
 import { Rect } from "../../types";
 import { ClosedCellPopover, PositionedCellPopoverComponent } from "../../types/cell_popovers";
+import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
+import { Store } from "../../types/store_engine";
 import { getZoomedRect } from "../helpers/zoom";
 import { CellPopoverStore } from "../popover";
 import { Popover } from "../popover/popover";

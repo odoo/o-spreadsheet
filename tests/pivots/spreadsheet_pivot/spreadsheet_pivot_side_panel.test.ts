@@ -1,17 +1,17 @@
-import { getPivotTooBigErrorMessage } from "@odoo/o-spreadsheet-engine/components/translations_terms";
+import { Model, PivotSortedColumn, SpreadsheetPivotTable } from "../../../src";
+import { SidePanels } from "../../../src/components/side_panel/side_panels/side_panels";
+import { getPivotTooBigErrorMessage } from "../../../src/components/translations_terms";
 import {
   DEFAULT_TOKEN_COLOR,
   PIVOT_INSERT_TABLE_STYLE_ID,
   PIVOT_TOKEN_COLOR,
-} from "@odoo/o-spreadsheet-engine/constants";
-import { datetimeGranularities } from "@odoo/o-spreadsheet-engine/helpers/pivot/pivot_registry";
-import { SpreadsheetPivot } from "@odoo/o-spreadsheet-engine/helpers/pivot/spreadsheet_pivot/spreadsheet_pivot";
-import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
-import { Model, PivotSortedColumn, SpreadsheetPivotTable } from "../../../src";
-import { SidePanels } from "../../../src/components/side_panel/side_panels/side_panels";
+} from "../../../src/constants";
 import { toXC, toZone } from "../../../src/helpers";
+import { datetimeGranularities } from "../../../src/helpers/pivot/pivot_registry";
+import { SpreadsheetPivot } from "../../../src/helpers/pivot/spreadsheet_pivot/spreadsheet_pivot";
 import { topbarMenuRegistry } from "../../../src/registries/menus/topbar_menu_registry";
 import { NotificationStore } from "../../../src/stores/notification_store";
+import { SpreadsheetChildEnv } from "../../../src/types/spreadsheet_env";
 import {
   activateSheet,
   createSheet,

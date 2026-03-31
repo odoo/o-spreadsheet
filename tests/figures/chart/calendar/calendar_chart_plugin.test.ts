@@ -1,10 +1,10 @@
-import {
-  CalendarChartGranularity,
-  CalendarChartRuntime,
-} from "@odoo/o-spreadsheet-engine/types/chart/calendar_chart";
 import { ScaleChartOptions } from "chart.js";
 import { ChartCreationContext, Model } from "../../../../src";
 import { CalendarChart } from "../../../../src/helpers/figures/charts/calendar_chart";
+import {
+  CalendarChartGranularity,
+  CalendarChartRuntime,
+} from "../../../../src/types/chart/calendar_chart";
 import { createCalendarChart, createSheet, setCellContent, setFormat } from "../../../test_helpers";
 import { GENERAL_CHART_CREATION_CONTEXT } from "../../../test_helpers/chart_helpers";
 

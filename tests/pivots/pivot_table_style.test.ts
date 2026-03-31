@@ -1,5 +1,5 @@
-import { PIVOT_TABLE_PRESETS } from "@odoo/o-spreadsheet-engine/helpers/pivot_table_presets";
 import { Model, Style, TableStyle, UID } from "../../src";
+import { PIVOT_TABLE_PRESETS } from "../../src/helpers/pivot_table_presets";
 import { getTables, hideColumns, hideRows, setCellContent } from "../test_helpers";
 import { getGridStyle } from "../test_helpers/helpers";
 import { createModelWithPivot, updatePivot } from "../test_helpers/pivot_helpers";

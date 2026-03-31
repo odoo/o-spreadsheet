@@ -1,16 +1,16 @@
-import { NOW, TODAY } from "@odoo/o-spreadsheet-engine/functions/module_date";
-import { RAND, RANDARRAY, RANDBETWEEN } from "@odoo/o-spreadsheet-engine/functions/module_math";
-import { DEFAULT_TABLE_CONFIG } from "@odoo/o-spreadsheet-engine/helpers/table_presets";
-import { Model } from "@odoo/o-spreadsheet-engine/model";
-import { XLSXExportXMLFile, XMLString } from "@odoo/o-spreadsheet-engine/types/xlsx";
-import { hexaToInt } from "@odoo/o-spreadsheet-engine/xlsx/conversion";
-import { adaptFormulaToExcel } from "@odoo/o-spreadsheet-engine/xlsx/functions/cells";
-import { escapeXml, parseXML } from "@odoo/o-spreadsheet-engine/xlsx/helpers/xml_helpers";
+import { NOW, TODAY } from "../../src/functions/module_date";
+import { RAND, RANDARRAY, RANDBETWEEN } from "../../src/functions/module_math";
 import { buildSheetLink, toXC } from "../../src/helpers";
+import { DEFAULT_TABLE_CONFIG } from "../../src/helpers/table_presets";
+import { Model } from "../../src/model";
 import { CellIsRule, ConditionalFormatRule, CustomizedDataSet, Dimension } from "../../src/types";
+import { XLSXExportXMLFile, XMLString } from "../../src/types/xlsx";
+import { hexaToInt } from "../../src/xlsx/conversion";
+import { adaptFormulaToExcel } from "../../src/xlsx/functions/cells";
+import { escapeXml, parseXML } from "../../src/xlsx/helpers/xml_helpers";
 
-import { arg } from "@odoo/o-spreadsheet-engine/functions/arguments";
-import { functionRegistry } from "@odoo/o-spreadsheet-engine/functions/function_registry";
+import { arg } from "../../src/functions/arguments";
+import { functionRegistry } from "../../src/functions/function_registry";
 import {
   addCfRule,
   createChart,

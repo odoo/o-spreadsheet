@@ -1,10 +1,10 @@
-import { _t } from "@odoo/o-spreadsheet-engine/translation";
-import { Dimension } from "@odoo/o-spreadsheet-engine/types/misc";
-import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { SidePanelStore } from "../components/side_panel/side_panel/side_panel_store";
 import { numberToLetters } from "../helpers";
 import { interactiveFreezeColumnsRows } from "../helpers/ui/freeze_interactive";
 import { FormulaFingerprintStore } from "../stores/formula_fingerprints_store";
+import { _t } from "../translation";
+import { Dimension } from "../types/misc";
+import { SpreadsheetChildEnv } from "../types/spreadsheet_env";
 import { ActionSpec } from "./action";
 import * as ACTIONS from "./menu_items_actions";
 

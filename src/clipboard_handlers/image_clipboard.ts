@@ -1,5 +1,3 @@
-import { AbstractFigureClipboardHandler } from "@odoo/o-spreadsheet-engine/clipboard_handlers/abstract_figure_clipboard_handler";
-import { Image } from "@odoo/o-spreadsheet-engine/types/image";
 import { UuidGenerator, deepCopy } from "../helpers";
 import {
   ClipboardFigureData,
@@ -10,6 +8,8 @@ import {
   UID,
   Zone,
 } from "../types";
+import { Image } from "../types/image";
+import { AbstractFigureClipboardHandler } from "./abstract_figure_clipboard_handler";
 
 type ClipboardContent = {
   figureId: UID;

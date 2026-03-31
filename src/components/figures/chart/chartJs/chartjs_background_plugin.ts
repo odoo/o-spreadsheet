@@ -1,5 +1,5 @@
-import { BACKGROUND_CHART_COLOR } from "@odoo/o-spreadsheet-engine/constants";
 import { ChartType, Plugin } from "chart.js";
+import { BACKGROUND_CHART_COLOR } from "../../../../constants";
 
 export interface ChartBackgroundPluginOptions {
   color: string | undefined;

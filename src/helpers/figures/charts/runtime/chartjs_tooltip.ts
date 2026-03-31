@@ -1,14 +1,7 @@
-import { toNumber } from "@odoo/o-spreadsheet-engine/functions/helpers";
-import { setColorAlpha } from "@odoo/o-spreadsheet-engine/helpers/color";
-import {
-  formatChartDatasetValue,
-  isTrendLineAxis,
-} from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_common";
-import {
-  formatOrHumanizeValue,
-  humanizeNumber,
-} from "@odoo/o-spreadsheet-engine/helpers/format/format";
-import { isNumber } from "@odoo/o-spreadsheet-engine/helpers/numbers";
+import { BubbleDataPoint, Chart, Point, TooltipItem, TooltipModel, TooltipOptions } from "chart.js";
+import { _DeepPartialObject } from "chart.js/dist/types/utils";
+import { toNumber } from "../../../../functions/helpers";
+import { CellValue } from "../../../../types";
 import {
   BarChartDefinition,
   ChartRuntimeGenerationArgs,
@@ -19,14 +12,15 @@ import {
   SunburstChartDefinition,
   SunburstChartRawData,
   WaterfallChartDefinition,
-} from "@odoo/o-spreadsheet-engine/types/chart";
-import { CalendarChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/calendar_chart";
-import { GeoChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/geo_chart";
-import { RadarChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/radar_chart";
-import { TreeMapChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/tree_map_chart";
-import { BubbleDataPoint, Chart, Point, TooltipItem, TooltipModel, TooltipOptions } from "chart.js";
-import { _DeepPartialObject } from "chart.js/dist/types/utils";
-import { CellValue } from "../../../../types";
+} from "../../../../types/chart";
+import { CalendarChartDefinition } from "../../../../types/chart/calendar_chart";
+import { GeoChartDefinition } from "../../../../types/chart/geo_chart";
+import { RadarChartDefinition } from "../../../../types/chart/radar_chart";
+import { TreeMapChartDefinition } from "../../../../types/chart/tree_map_chart";
+import { setColorAlpha } from "../../../color";
+import { formatOrHumanizeValue, humanizeNumber } from "../../../format/format";
+import { isNumber } from "../../../numbers";
+import { formatChartDatasetValue, isTrendLineAxis } from "../chart_common";
 import { renderToString } from "./chart_custom_tooltip";
 import { GHOST_SUNBURST_VALUE } from "./chartjs_dataset";
 

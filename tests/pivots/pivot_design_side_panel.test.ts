@@ -1,6 +1,6 @@
-import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { Model } from "../../src";
 import { SidePanels } from "../../src/components/side_panel/side_panels/side_panels";
+import { SpreadsheetChildEnv } from "../../src/types/spreadsheet_env";
 import { setCellContent } from "../test_helpers/commands_helpers";
 import { click, setInputValueAndTrigger, simulateClick } from "../test_helpers/dom_helper";
 import { mountComponentWithPortalTarget, nextTick, setGrid } from "../test_helpers/helpers";

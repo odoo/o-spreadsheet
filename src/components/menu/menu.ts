@@ -1,8 +1,8 @@
-import { cssPropertiesToCss } from "@odoo/o-spreadsheet-engine/components/helpers/css";
-import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { Component, onWillUnmount } from "@odoo/owl";
 import { Action, isRootMenu } from "../../actions/action";
 import { Pixel } from "../../types";
+import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
+import { cssPropertiesToCss } from "../helpers/css";
 
 //------------------------------------------------------------------------------
 // Context Menu Component

@@ -9,7 +9,7 @@ import {
   rgbaToHSLA,
   setColorAlpha,
   toHex,
-} from "@odoo/o-spreadsheet-engine/helpers/color";
+} from "../../src/helpers/color";
 import { Color, HSLA, RGBA } from "../../src/types";
 
 const testColors: { input: Color; hex: Color; rgba: RGBA; hsla: HSLA }[] = [

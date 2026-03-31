@@ -1,4 +1,4 @@
-import { DependenciesRTree } from "@odoo/o-spreadsheet-engine/plugins/ui_core_views/cell_evaluation/dependencies_r_tree";
+import { DependenciesRTree } from "../../src/plugins/ui_core_views/cell_evaluation/dependencies_r_tree";
 import { toBoundedRange } from "../test_helpers/helpers";
 
 describe("DependenciesRTree", () => {

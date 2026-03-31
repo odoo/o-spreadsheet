@@ -1,5 +1,5 @@
-import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { Color } from "../types";
+import { SpreadsheetChildEnv } from "../types/spreadsheet_env";
 
 export type MenuItemOrSeparator = Action | "separator";
 

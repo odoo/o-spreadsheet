@@ -1,4 +1,4 @@
-import type { ChartConfiguration, ChartDataset } from "chart.js";
+import { ChartConfiguration, ChartDataset } from "chart.js";
 import { Color } from "../misc";
 import { ChartStyle, CustomizedDataSet, TitleDesign } from "./chart";
 import { LegendPosition } from "./common_chart";

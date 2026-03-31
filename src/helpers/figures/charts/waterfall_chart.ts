@@ -1,5 +1,29 @@
-import { CoreGetters, RangeAdapterFunctions, Validator } from "@odoo/o-spreadsheet-engine";
-import { AbstractChart } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/abstract_chart";
+import type { ChartConfiguration } from "chart.js";
+import {
+  Color,
+  CommandResult,
+  Getters,
+  Range,
+  RangeAdapter,
+  RangeAdapterFunctions,
+  UID,
+} from "../../../types";
+import {
+  AxesDesign,
+  ChartCreationContext,
+  CustomizedDataSet,
+  DataSet,
+  ExcelChartDefinition,
+} from "../../../types/chart/chart";
+import { LegendPosition, VerticalAxisPosition } from "../../../types/chart/common_chart";
+import {
+  WaterfallChartDefinition,
+  WaterfallChartRuntime,
+} from "../../../types/chart/waterfall_chart";
+import { CoreGetters } from "../../../types/core_getters";
+import { Validator } from "../../../types/validator";
+import { createValidRange } from "../../range";
+import { AbstractChart } from "./abstract_chart";
 import {
   checkDataset,
   checkLabelRange,
@@ -8,26 +32,8 @@ import {
   duplicateLabelRangeInDuplicatedSheet,
   transformChartDefinitionWithDataSetsWithZone,
   updateChartRangesWithDataSets,
-} from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_common";
-import { CHART_COMMON_OPTIONS } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_ui_common";
-import { createValidRange } from "@odoo/o-spreadsheet-engine/helpers/range";
-import {
-  AxesDesign,
-  ChartCreationContext,
-  CustomizedDataSet,
-  DataSet,
-  ExcelChartDefinition,
-} from "@odoo/o-spreadsheet-engine/types/chart/chart";
-import {
-  LegendPosition,
-  VerticalAxisPosition,
-} from "@odoo/o-spreadsheet-engine/types/chart/common_chart";
-import {
-  WaterfallChartDefinition,
-  WaterfallChartRuntime,
-} from "@odoo/o-spreadsheet-engine/types/chart/waterfall_chart";
-import type { ChartConfiguration } from "chart.js";
-import { Color, CommandResult, Getters, Range, RangeAdapter, UID } from "../../../types";
+} from "./chart_common";
+import { CHART_COMMON_OPTIONS } from "./chart_ui_common";
 import {
   getBarChartData,
   getChartTitle,

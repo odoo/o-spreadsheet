@@ -1,4 +1,4 @@
-import { NotificationStoreMethods } from "@odoo/o-spreadsheet-engine/types/stores/notification_store_methods";
+import { NotificationStoreMethods } from "../types/stores/notification_store_methods";
 
 export class NotificationStore {
   mutators = [

@@ -1,5 +1,5 @@
-import { astToFormula } from "@odoo/o-spreadsheet-engine/formulas/formula_formatter";
 import { CellErrorType, parse, tokenize } from "../../src";
+import { astToFormula } from "../../src/formulas/formula_formatter";
 
 describe("parser", () => {
   test("can parse a function call with no argument", () => {

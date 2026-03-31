@@ -3,7 +3,7 @@ import {
   canonicalizeContent,
   localizeCFRule,
   localizeContent,
-} from "@odoo/o-spreadsheet-engine/helpers/locale";
+} from "../../src/helpers/locale";
 import {
   CellIsRule,
   ColorScaleRule,

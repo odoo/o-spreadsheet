@@ -1,5 +1,5 @@
-import { createRangeFromXc } from "@odoo/o-spreadsheet-engine/helpers/range";
-import { Model } from "@odoo/o-spreadsheet-engine/model";
+import { createRangeFromXc } from "../../src/helpers/range";
+import { Model } from "../../src/model";
 import { createSheet } from "../test_helpers";
 import { createModelFromGrid } from "../test_helpers/helpers";
 

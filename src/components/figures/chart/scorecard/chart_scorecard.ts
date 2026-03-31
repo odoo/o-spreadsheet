@@ -1,9 +1,9 @@
-import { drawScoreChart } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/scorecard_chart";
-import { getScorecardConfiguration } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/scorecard_chart_config_builder";
-import { ScorecardChartRuntime } from "@odoo/o-spreadsheet-engine/types/chart/scorecard_chart";
-import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { Component, useEffect, useRef } from "@odoo/owl";
+import { drawScoreChart } from "../../../../helpers/figures/charts/scorecard_chart";
+import { getScorecardConfiguration } from "../../../../helpers/figures/charts/scorecard_chart_config_builder";
 import { UID } from "../../../../types";
+import { ScorecardChartRuntime } from "../../../../types/chart/scorecard_chart";
+import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
 import { getZoomedRect } from "../../../helpers/zoom";
 
 interface Props {

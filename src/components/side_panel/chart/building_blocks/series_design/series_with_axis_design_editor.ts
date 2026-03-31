@@ -1,9 +1,8 @@
-import { _t } from "@odoo/o-spreadsheet-engine";
-import { DEFAULT_WINDOW_SIZE } from "@odoo/o-spreadsheet-engine/constants";
-import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { Component } from "@odoo/owl";
+import { DEFAULT_WINDOW_SIZE } from "../../../../../constants";
 import { getColorsPalette, getNthColor, range, setColorAlpha, toHex } from "../../../../../helpers";
 import { CHART_AXIS_CHOICES } from "../../../../../helpers/figures/charts";
+import { _t } from "../../../../../translation";
 import {
   ChartJSRuntime,
   ChartWithDataSetDefinition,
@@ -11,6 +10,7 @@ import {
   TrendConfiguration,
   ValueAndLabel,
 } from "../../../../../types";
+import { SpreadsheetChildEnv } from "../../../../../types/spreadsheet_env";
 import { NumberInput } from "../../../../number_input/number_input";
 import { Select } from "../../../../select/select";
 import { Checkbox } from "../../../components/checkbox/checkbox";

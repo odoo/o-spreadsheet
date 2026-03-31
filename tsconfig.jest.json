@@ -1,11 +1,7 @@
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
-    "outDir": "dist",
-    "paths": {
-      "@odoo/o-spreadsheet-engine": ["./packages/o-spreadsheet-engine/src/index.ts"],
-      "@odoo/o-spreadsheet-engine/*": ["./packages/o-spreadsheet-engine/src/*"]
-    }
+    "outDir": "dist"
   },
   "include": ["src", "tests"],
   "exclude": ["packages"],

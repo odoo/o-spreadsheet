@@ -1,6 +1,5 @@
-import { inverseCommand } from "@odoo/o-spreadsheet-engine/helpers/inverse_command";
-import { LineChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/line_chart";
 import { toZone } from "../../src/helpers";
+import { inverseCommand } from "../../src/helpers/inverse_command";
 import {
   AddColumnsRowsCommand,
   AddMergeCommand,
@@ -24,6 +23,7 @@ import {
   UpdateChartCommand,
   UpdateFigureCommand,
 } from "../../src/types";
+import { LineChartDefinition } from "../../src/types/chart/line_chart";
 import { target } from "../test_helpers/helpers";
 
 describe("Inverses commands", () => {

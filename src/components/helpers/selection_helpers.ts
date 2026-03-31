@@ -1,6 +1,6 @@
-import { SelectionStreamProcessor } from "@odoo/o-spreadsheet-engine/types/selection_stream_processor";
 import { getZoneArea } from "../../helpers";
 import { Direction, Getters, Position, Zone } from "../../types";
+import { SelectionStreamProcessor } from "../../types/selection_stream_processor";
 import { isCtrlKey } from "./dom_helpers";
 
 const arrowMap = {
