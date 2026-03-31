@@ -1606,7 +1606,7 @@ describe("conditional formats types", () => {
 
     test("Operator dateIsAfter", () => {
       jest.useFakeTimers();
-      jest.setSystemTime(new Date("01/01/2021 12:00:00"));
+      jest.setSystemTime(new Date("01/01/2021 12:00:00").getTime());
 
       addCfRule(model, "A1", {
         type: "CellIsRule",
@@ -1626,7 +1626,7 @@ describe("conditional formats types", () => {
 
     test("Operator dateIsBefore", () => {
       jest.useFakeTimers();
-      jest.setSystemTime(new Date("01/01/2021 12:00:00"));
+      jest.setSystemTime(new Date("01/01/2021 12:00:00").getTime());
 
       addCfRule(model, "A1", {
         type: "CellIsRule",
@@ -1646,7 +1646,7 @@ describe("conditional formats types", () => {
 
     test("Operator dateIsOnOrBefore", () => {
       jest.useFakeTimers();
-      jest.setSystemTime(new Date("01/01/2021 12:00:00"));
+      jest.setSystemTime(new Date("01/01/2021 12:00:00").getTime());
 
       addCfRule(model, "A1", {
         type: "CellIsRule",
@@ -1666,7 +1666,7 @@ describe("conditional formats types", () => {
 
     test("Operator dateIsOnOrAfter", () => {
       jest.useFakeTimers();
-      jest.setSystemTime(new Date("01/01/2021 12:00:00"));
+      jest.setSystemTime(new Date("01/01/2021 12:00:00").getTime());
 
       addCfRule(model, "A1", {
         type: "CellIsRule",
