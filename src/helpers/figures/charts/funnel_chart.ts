@@ -1,6 +1,32 @@
-import { CoreGetters, RangeAdapterFunctions, Validator } from "@odoo/o-spreadsheet-engine";
-import { BACKGROUND_CHART_COLOR } from "@odoo/o-spreadsheet-engine/constants";
-import { AbstractChart } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/abstract_chart";
+import { ChartConfiguration } from "chart.js";
+import { BACKGROUND_CHART_COLOR } from "../../../constants";
+import {
+  Color,
+  CommandResult,
+  Getters,
+  Range,
+  RangeAdapter,
+  RangeAdapterFunctions,
+  UID,
+} from "../../../types";
+import {
+  FunnelChartColors,
+  FunnelChartDefinition,
+  FunnelChartRuntime,
+  LegendPosition,
+} from "../../../types/chart";
+import {
+  AxesDesign,
+  ChartCreationContext,
+  CustomizedDataSet,
+  DataSet,
+  DatasetDesign,
+  ExcelChartDefinition,
+} from "../../../types/chart/chart";
+import { CoreGetters } from "../../../types/core_getters";
+import { Validator } from "../../../types/validator";
+import { createValidRange } from "../../range";
+import { AbstractChart } from "./abstract_chart";
 import {
   checkDataset,
   checkLabelRange,
@@ -9,25 +35,8 @@ import {
   duplicateLabelRangeInDuplicatedSheet,
   transformChartDefinitionWithDataSetsWithZone,
   updateChartRangesWithDataSets,
-} from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_common";
-import { CHART_COMMON_OPTIONS } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_ui_common";
-import { createValidRange } from "@odoo/o-spreadsheet-engine/helpers/range";
-import {
-  FunnelChartColors,
-  FunnelChartDefinition,
-  FunnelChartRuntime,
-  LegendPosition,
-} from "@odoo/o-spreadsheet-engine/types/chart";
-import {
-  AxesDesign,
-  ChartCreationContext,
-  CustomizedDataSet,
-  DataSet,
-  DatasetDesign,
-  ExcelChartDefinition,
-} from "@odoo/o-spreadsheet-engine/types/chart/chart";
-import { ChartConfiguration } from "chart.js";
-import { Color, CommandResult, Getters, Range, RangeAdapter, UID } from "../../../types";
+} from "./chart_common";
+import { CHART_COMMON_OPTIONS } from "./chart_ui_common";
 import {
   getChartShowValues,
   getChartTitle,

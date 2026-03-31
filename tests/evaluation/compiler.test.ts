@@ -1,6 +1,6 @@
-import { functionRegistry } from "@odoo/o-spreadsheet-engine/functions/function_registry";
-import { compile, functionCache, Model } from "../../src";
-
+import { functionCache, Model } from "../../src";
+import { compile } from "../../src/formulas/compiler";
+import { functionRegistry } from "../../src/functions/function_registry";
 import { createValidRange } from "../../src/helpers";
 import { CompiledFormula } from "../../src/types";
 import { addToRegistry, evaluateCell, evaluateCellFormat } from "../test_helpers/helpers";

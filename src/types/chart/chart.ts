@@ -21,10 +21,10 @@ import {
 } from "./tree_map_chart";
 import { WaterfallChartDefinition, WaterfallChartRuntime } from "./waterfall_chart";
 
-import { Align, Color, VerticalAlign } from "../..";
 import { COLORSCHEMES } from "../../helpers/color";
 import { Format } from "../format";
 import { Locale } from "../locale";
+import { Align, Color, VerticalAlign } from "../misc";
 import { Range } from "../range";
 export const CHART_TYPES = [
   "line",

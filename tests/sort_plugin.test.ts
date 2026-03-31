@@ -1,6 +1,6 @@
-import { parseDateTime } from "@odoo/o-spreadsheet-engine/helpers/dates";
-import { Model } from "@odoo/o-spreadsheet-engine/model";
+import { parseDateTime } from "../src/helpers/dates";
 import { toZone, zoneToXc } from "../src/helpers/index";
+import { Model } from "../src/model";
 import { CellErrorType, CellValueType, CommandResult, DEFAULT_LOCALE, UID } from "../src/types";
 import { merge, redo, setCellContent, sort, undo } from "./test_helpers/commands_helpers";
 import { getEvaluatedCell } from "./test_helpers/getters_helpers";

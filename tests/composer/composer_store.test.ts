@@ -1,4 +1,3 @@
-import { Model } from "@odoo/o-spreadsheet-engine/model";
 import { CellComposerStore } from "../../src/components/composer/composer/cell_composer_store";
 import {
   DateTime,
@@ -8,6 +7,7 @@ import {
   toXC,
   toZone,
 } from "../../src/helpers";
+import { Model } from "../../src/model";
 import { DependencyContainer, Store } from "../../src/store_engine";
 import { HighlightStore } from "../../src/stores/highlight_store";
 import { NotificationStore } from "../../src/stores/notification_store";

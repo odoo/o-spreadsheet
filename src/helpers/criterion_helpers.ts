@@ -1,8 +1,8 @@
-import { DateTime, getDaysInMonth, jsDateToNumber, valueToDateNumber } from "../helpers/dates";
-import { formatValue } from "../helpers/format/format";
 import { DateCriterionValue, EvaluatedDateCriterion } from "../types/generic_criterion";
 import { Locale } from "../types/locale";
 import { parseLiteral } from "./cells/cell_evaluation";
+import { DateTime, getDaysInMonth, jsDateToNumber, valueToDateNumber } from "./dates";
+import { formatValue } from "./format/format";
 
 function toCriterionDateNumber(dateValue: Exclude<DateCriterionValue, "exactDate">): number {
   const today = DateTime.now();

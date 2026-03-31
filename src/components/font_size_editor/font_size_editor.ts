@@ -1,6 +1,6 @@
-import { FONT_SIZES } from "@odoo/o-spreadsheet-engine/constants";
-import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { Component } from "@odoo/owl";
+import { FONT_SIZES } from "../../constants";
+import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 import { NumberEditor } from "../number_editor/number_editor";
 
 interface Props {

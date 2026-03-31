@@ -1,5 +1,5 @@
-import { _t, deepCopy, findNextDefinedValue, isNumber, range } from "@odoo/o-spreadsheet-engine";
-import { ChartTerms } from "@odoo/o-spreadsheet-engine/components/translations_terms";
+import { Point } from "chart.js";
+import { ChartTerms } from "../../../../components/translations_terms";
 import {
   evaluatePolynomial,
   expM,
@@ -7,13 +7,19 @@ import {
   logM,
   polynomialRegression,
   predictLinearValues,
-} from "@odoo/o-spreadsheet-engine/functions/helper_statistical";
-import { isEvaluationError, toNumber } from "@odoo/o-spreadsheet-engine/functions/helpers";
-import { shouldRemoveFirstLabel } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_common";
-import { DAYS, isDateTimeFormat, MONTHS } from "@odoo/o-spreadsheet-engine/helpers/format/format";
-import { createDate } from "@odoo/o-spreadsheet-engine/helpers/pivot/spreadsheet_pivot/date_spreadsheet_pivot";
-import { recomputeZones } from "@odoo/o-spreadsheet-engine/helpers/recompute_zones";
-import { positions } from "@odoo/o-spreadsheet-engine/helpers/zones";
+} from "../../../../functions/helper_statistical";
+import { isEvaluationError, toNumber } from "../../../../functions/helpers";
+import { _t } from "../../../../translation";
+import {
+  CellValue,
+  DEFAULT_LOCALE,
+  Format,
+  FormattedValue,
+  GenericDefinition,
+  Getters,
+  Locale,
+  Range,
+} from "../../../../types";
 import {
   AxisType,
   BarChartDefinition,
@@ -27,29 +33,25 @@ import {
   PyramidChartDefinition,
   SunburstChartDefinition,
   TrendConfiguration,
-} from "@odoo/o-spreadsheet-engine/types/chart";
+} from "../../../../types/chart";
 import {
   CalendarChartDefinition,
   CalendarChartGranularity,
-} from "@odoo/o-spreadsheet-engine/types/chart/calendar_chart";
+} from "../../../../types/chart/calendar_chart";
 import {
   GeoChartDefinition,
   GeoChartRuntimeGenerationArgs,
-} from "@odoo/o-spreadsheet-engine/types/chart/geo_chart";
-import { RadarChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/radar_chart";
-import { TreeMapChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/tree_map_chart";
-import { Point } from "chart.js";
-import {
-  CellValue,
-  DEFAULT_LOCALE,
-  Format,
-  FormattedValue,
-  GenericDefinition,
-  Getters,
-  Locale,
-  Range,
-} from "../../../../types";
+} from "../../../../types/chart/geo_chart";
+import { RadarChartDefinition } from "../../../../types/chart/radar_chart";
+import { TreeMapChartDefinition } from "../../../../types/chart/tree_map_chart";
 import { timeFormatLuxonCompatible } from "../../../chart_date";
+import { DAYS, isDateTimeFormat, MONTHS } from "../../../format/format";
+import { deepCopy, findNextDefinedValue, range } from "../../../misc";
+import { isNumber } from "../../../numbers";
+import { createDate } from "../../../pivot/spreadsheet_pivot/date_spreadsheet_pivot";
+import { recomputeZones } from "../../../recompute_zones";
+import { positions } from "../../../zones";
+import { shouldRemoveFirstLabel } from "../chart_common";
 
 export function getBarChartData(
   definition: GenericDefinition<BarChartDefinition>,

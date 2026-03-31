@@ -1,5 +1,5 @@
-import { DEFAULT_BORDER_DESC } from "@odoo/o-spreadsheet-engine/constants";
-import { Model } from "@odoo/o-spreadsheet-engine/model";
+import { DEFAULT_BORDER_DESC } from "../../src/constants";
+import { Model } from "../../src/model";
 import { BorderDescr, CommandResult } from "../../src/types/index";
 import {
   addColumns,

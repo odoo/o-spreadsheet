@@ -1,6 +1,6 @@
-import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { Component, xml } from "@odoo/owl";
 import { TextInput } from "../../src/components/text_input/text_input";
+import { SpreadsheetChildEnv } from "../../src/types/spreadsheet_env";
 import {
   click,
   keyDown,

@@ -1,3 +1,5 @@
+import { Model } from "../../src";
+import { CellComposerStore } from "../../src/components/composer/composer/cell_composer_store";
 import {
   DEFAULT_CELL_HEIGHT,
   DEFAULT_CELL_WIDTH,
@@ -5,12 +7,10 @@ import {
   GRID_ICON_EDGE_LENGTH,
   GRID_ICON_MARGIN,
   MIN_CELL_TEXT_MARGIN,
-} from "@odoo/o-spreadsheet-engine/constants";
-import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
-import { Model } from "../../src";
-import { CellComposerStore } from "../../src/components/composer/composer/cell_composer_store";
+} from "../../src/constants";
 import { toZone } from "../../src/helpers";
 import { IsValueInListCriterion, UID } from "../../src/types";
+import { SpreadsheetChildEnv } from "../../src/types/spreadsheet_env";
 import {
   addDataValidation,
   createTableWithFilter,

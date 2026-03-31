@@ -1,6 +1,6 @@
-import { _t } from "@odoo/o-spreadsheet-engine/translation";
-import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
+import { _t } from "../../translation";
 import { CommandResult } from "../../types";
+import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 
 export function interactiveCut(env: SpreadsheetChildEnv) {
   const result = env.model.dispatch("CUT");

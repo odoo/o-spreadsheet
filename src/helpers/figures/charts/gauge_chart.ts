@@ -1,40 +1,11 @@
 import {
-  BasePlugin,
-  CoreGetters,
-  RangeAdapterFunctions,
-  rangeReference,
-  Validation,
-  Validator,
-} from "@odoo/o-spreadsheet-engine";
-import {
   DEFAULT_GAUGE_LOWER_COLOR,
   DEFAULT_GAUGE_MIDDLE_COLOR,
   DEFAULT_GAUGE_UPPER_COLOR,
-} from "@odoo/o-spreadsheet-engine/constants";
-import {
-  isMultipleElementMatrix,
-  toScalar,
-} from "@odoo/o-spreadsheet-engine/functions/helper_matrices";
-import { tryToNumber } from "@odoo/o-spreadsheet-engine/functions/helpers";
-import { AbstractChart } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/abstract_chart";
-import {
-  adaptChartRange,
-  duplicateLabelRangeInDuplicatedSheet,
-} from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_common";
-import {
-  adaptFormulaStringRanges,
-  adaptStringRange,
-} from "@odoo/o-spreadsheet-engine/helpers/formulas";
-import { createValidRange } from "@odoo/o-spreadsheet-engine/helpers/range";
-import { ChartCreationContext } from "@odoo/o-spreadsheet-engine/types/chart/chart";
-import {
-  GaugeChartDefinition,
-  GaugeChartRuntime,
-  GaugeInflectionValue,
-  SectionRule,
-  SectionThreshold,
-} from "@odoo/o-spreadsheet-engine/types/chart/gauge_chart";
-import { CellErrorType } from "@odoo/o-spreadsheet-engine/types/errors";
+} from "../../../constants";
+import { isMultipleElementMatrix, toScalar } from "../../../functions/helper_matrices";
+import { tryToNumber } from "../../../functions/helpers";
+import { BasePlugin } from "../../../plugins/base_plugin";
 import {
   CellValueType,
   Color,
@@ -43,9 +14,26 @@ import {
   Getters,
   Range,
   RangeAdapter,
+  RangeAdapterFunctions,
   UID,
+  Validation,
 } from "../../../types";
-import { clip, formatOrHumanizeValue, humanizeNumber } from "../../index";
+import { ChartCreationContext } from "../../../types/chart/chart";
+import {
+  GaugeChartDefinition,
+  GaugeChartRuntime,
+  GaugeInflectionValue,
+  SectionRule,
+  SectionThreshold,
+} from "../../../types/chart/gauge_chart";
+import { CoreGetters } from "../../../types/core_getters";
+import { CellErrorType } from "../../../types/errors";
+import { Validator } from "../../../types/validator";
+import { adaptFormulaStringRanges, adaptStringRange } from "../../formulas";
+import { clip, formatOrHumanizeValue, humanizeNumber, rangeReference } from "../../index";
+import { createValidRange } from "../../range";
+import { AbstractChart } from "./abstract_chart";
+import { adaptChartRange, duplicateLabelRangeInDuplicatedSheet } from "./chart_common";
 
 type RangeLimitsValidation = (rangeLimit: string, rangeLimitName: string) => CommandResult;
 type InflectionPointValueValidation = (

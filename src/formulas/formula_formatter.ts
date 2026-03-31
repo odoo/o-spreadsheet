@@ -1,6 +1,6 @@
-import { AST, ASTOperation, ASTUnaryOperation, OP_PRIORITY } from "../formulas/parser";
 import { argTargeting } from "../functions/arguments";
 import { functionRegistry } from "../functions/function_registry";
+import { AST, ASTOperation, ASTUnaryOperation, OP_PRIORITY } from "./parser";
 
 import { memoize } from "../helpers/misc";
 import { DEBUGGER_CHAR } from "./tokenizer";

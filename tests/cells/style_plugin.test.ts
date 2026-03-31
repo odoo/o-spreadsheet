@@ -1,12 +1,12 @@
+import { CommandResult } from "../../src";
 import {
   DATA_VALIDATION_CHIP_MARGIN,
   DEFAULT_FONT_SIZE,
   PADDING_AUTORESIZE_HORIZONTAL,
-} from "@odoo/o-spreadsheet-engine/constants";
-import { Model } from "@odoo/o-spreadsheet-engine/model";
-import { DEFAULT_STYLE_NO_ALIGN } from "@odoo/o-spreadsheet-engine/plugins/core/style";
-import { CommandResult } from "../../src";
+} from "../../src/constants";
 import { fontSizeInPixels, toCartesian } from "../../src/helpers";
+import { Model } from "../../src/model";
+import { DEFAULT_STYLE_NO_ALIGN } from "../../src/plugins/core/style";
 import {
   addDataValidation,
   createSheet,

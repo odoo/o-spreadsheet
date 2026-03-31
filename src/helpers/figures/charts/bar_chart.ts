@@ -1,6 +1,24 @@
-import { CoreGetters, RangeAdapterFunctions, Validator } from "@odoo/o-spreadsheet-engine";
-import { BACKGROUND_CHART_COLOR } from "@odoo/o-spreadsheet-engine/constants";
-import { AbstractChart } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/abstract_chart";
+import type { ChartConfiguration } from "chart.js";
+import { BACKGROUND_CHART_COLOR } from "../../../constants";
+import { BarChartDefinition, BarChartRuntime } from "../../../types/chart/bar_chart";
+import {
+  AxesDesign,
+  ChartCreationContext,
+  CustomizedDataSet,
+  DataSet,
+  DatasetDesign,
+  ExcelChartDefinition,
+} from "../../../types/chart/chart";
+import { LegendPosition } from "../../../types/chart/common_chart";
+import { CommandResult } from "../../../types/commands";
+import { CoreGetters } from "../../../types/core_getters";
+import { Getters } from "../../../types/getters";
+import { Color, RangeAdapter, RangeAdapterFunctions, UID } from "../../../types/misc";
+import { Range } from "../../../types/range";
+import { Validator } from "../../../types/validator";
+import { toXlsxHexColor } from "../../../xlsx/helpers/colors";
+import { createValidRange } from "../../range";
+import { AbstractChart } from "./abstract_chart";
 import {
   chartFontColor,
   checkDataset,
@@ -12,28 +30,8 @@ import {
   shouldRemoveFirstLabel,
   transformChartDefinitionWithDataSetsWithZone,
   updateChartRangesWithDataSets,
-} from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_common";
-import { CHART_COMMON_OPTIONS } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_ui_common";
-import { createValidRange } from "@odoo/o-spreadsheet-engine/helpers/range";
-import {
-  BarChartDefinition,
-  BarChartRuntime,
-} from "@odoo/o-spreadsheet-engine/types/chart/bar_chart";
-import {
-  AxesDesign,
-  ChartCreationContext,
-  CustomizedDataSet,
-  DataSet,
-  DatasetDesign,
-  ExcelChartDefinition,
-} from "@odoo/o-spreadsheet-engine/types/chart/chart";
-import { LegendPosition } from "@odoo/o-spreadsheet-engine/types/chart/common_chart";
-import { CommandResult } from "@odoo/o-spreadsheet-engine/types/commands";
-import { Getters } from "@odoo/o-spreadsheet-engine/types/getters";
-import { Color, RangeAdapter, UID } from "@odoo/o-spreadsheet-engine/types/misc";
-import { Range } from "@odoo/o-spreadsheet-engine/types/range";
-import { toXlsxHexColor } from "@odoo/o-spreadsheet-engine/xlsx/helpers/colors";
-import type { ChartConfiguration } from "chart.js";
+} from "./chart_common";
+import { CHART_COMMON_OPTIONS } from "./chart_ui_common";
 import {
   getBarChartData,
   getBarChartDatasets,

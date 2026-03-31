@@ -1,12 +1,12 @@
+import { ChartDefinition, CustomizedDataSet, Model } from "../../../src";
 import {
   DEFAULT_CELL_HEIGHT,
   DEFAULT_CELL_WIDTH,
   DEFAULT_FIGURE_HEIGHT,
   DEFAULT_FIGURE_WIDTH,
-} from "@odoo/o-spreadsheet-engine/constants";
-import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
-import { ChartDefinition, CustomizedDataSet, Model } from "../../../src";
+} from "../../../src/constants";
 import { toXC, zoneToXc } from "../../../src/helpers";
+import { SpreadsheetChildEnv } from "../../../src/types/spreadsheet_env";
 import {
   addColumns,
   addRows,

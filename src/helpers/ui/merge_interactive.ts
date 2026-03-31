@@ -1,6 +1,6 @@
-import { _t } from "@odoo/o-spreadsheet-engine/translation";
-import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
+import { _t } from "../../translation";
 import { CommandResult, UID, Zone } from "../../types";
+import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 
 export const AddMergeInteractiveContent = {
   MergeIsDestructive: _t(

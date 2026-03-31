@@ -1,10 +1,10 @@
-import { cssPropertiesToCss } from "@odoo/o-spreadsheet-engine/components/helpers/css";
-import { Token } from "@odoo/o-spreadsheet-engine/formulas/tokenizer";
-import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { Component, onMounted } from "@odoo/owl";
+import { Token } from "../../../formulas/tokenizer";
 import { AutoCompleteProviderDefinition } from "../../../registries/auto_completes";
 import { Store, useLocalStore, useStore } from "../../../store_engine";
 import { Color, ComposerFocusType, UID } from "../../../types/index";
+import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
+import { cssPropertiesToCss } from "../../helpers/css";
 import { useSpreadsheetRect } from "../../helpers/position_hook";
 import { ComposerSelection } from "../composer/abstract_composer_store";
 import { Composer } from "../composer/composer";

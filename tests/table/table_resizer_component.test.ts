@@ -1,8 +1,8 @@
-import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "@odoo/o-spreadsheet-engine/constants";
-import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { Model, UID } from "../../src";
 import { Grid } from "../../src/components/grid/grid";
+import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../../src/constants";
 import { toZone, zoneToXc } from "../../src/helpers";
+import { SpreadsheetChildEnv } from "../../src/types/spreadsheet_env";
 import { createDynamicTable, createTable, setCellContent } from "../test_helpers/commands_helpers";
 import { clickAndDrag, triggerMouseEvent } from "../test_helpers/dom_helper";
 import { getCell } from "../test_helpers/getters_helpers";

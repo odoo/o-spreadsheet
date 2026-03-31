@@ -1,4 +1,5 @@
-import { _t, setTranslationMethod } from "@odoo/o-spreadsheet-engine";
+import { setTranslationMethod } from "../../src";
+import { _t } from "../../src/translation";
 
 describe("Translations", () => {
   beforeEach(() => {

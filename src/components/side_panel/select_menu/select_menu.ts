@@ -1,8 +1,8 @@
-import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { Component, useRef, useState } from "@odoo/owl";
 import { Action } from "../../../actions/action";
 import { UuidGenerator } from "../../../helpers";
 import { MenuMouseEvent, Rect } from "../../../types";
+import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
 import { getRefBoundingRect } from "../../helpers/dom_helpers";
 import { MenuPopover } from "../../menu_popover/menu_popover";
 

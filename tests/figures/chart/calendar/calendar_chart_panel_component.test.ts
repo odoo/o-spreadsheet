@@ -1,8 +1,8 @@
-import { CalendarChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/calendar_chart";
-import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { Model, UID } from "../../../../src";
 import { SidePanels } from "../../../../src/components/side_panel/side_panels/side_panels";
 import { schemeToColorScale } from "../../../../src/types";
+import { CalendarChartDefinition } from "../../../../src/types/chart/calendar_chart";
+import { SpreadsheetChildEnv } from "../../../../src/types/spreadsheet_env";
 import {
   changeRoundColorPickerColor,
   click,

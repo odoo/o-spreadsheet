@@ -1,14 +1,14 @@
-import { getUniquePivotGroupName } from "@odoo/o-spreadsheet-engine/helpers/pivot/pivot_helpers";
-import { _t } from "@odoo/o-spreadsheet-engine/translation";
-import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { Component } from "@odoo/owl";
 import { deepCopy } from "../../../../helpers";
+import { getUniquePivotGroupName } from "../../../../helpers/pivot/pivot_helpers";
+import { _t } from "../../../../translation";
 import {
   PivotCoreDefinition,
   PivotCustomGroup,
   PivotCustomGroupedField,
   UID,
 } from "../../../../types";
+import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
 import { TextInput } from "../../../text_input/text_input";
 import { Checkbox } from "../../components/checkbox/checkbox";
 import { SidePanelCollapsible } from "../../components/collapsible/side_panel_collapsible";

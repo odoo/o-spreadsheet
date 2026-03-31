@@ -1,4 +1,4 @@
-import { Disposable, Get, StoreConstructor } from "@odoo/o-spreadsheet-engine/types/store_engine";
+import { Disposable, Get, StoreConstructor } from "../types/store_engine";
 
 /**
  * Create a store to expose an external resource (which is not a store itself)

@@ -1,4 +1,4 @@
-import type { ChartConfiguration } from "chart.js";
+import { ChartConfiguration } from "chart.js";
 import { Color } from "../misc";
 import { CommonChartDefinition, VerticalAxisPosition } from "./common_chart";
 

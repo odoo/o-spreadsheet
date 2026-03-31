@@ -1,5 +1,3 @@
-import { cssPropertiesToCss } from "@odoo/o-spreadsheet-engine/components/helpers/css";
-import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { Component, useEffect, useRef, useState } from "@odoo/owl";
 import { figureRegistry } from "../../../registries/figures_registry";
 import {
@@ -11,6 +9,8 @@ import {
   ResizeDirection,
   UID,
 } from "../../../types/index";
+import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
+import { cssPropertiesToCss } from "../../helpers/css";
 import { getRefBoundingRect, keyboardEventToShortcutString } from "../../helpers/dom_helpers";
 import { withZoom } from "../../helpers/zoom";
 import { MenuPopover, MenuState } from "../../menu_popover/menu_popover";

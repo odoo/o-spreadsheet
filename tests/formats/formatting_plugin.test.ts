@@ -9,18 +9,18 @@ import {
   NEWLINE,
   PADDING_AUTORESIZE_HORIZONTAL,
   PADDING_AUTORESIZE_VERTICAL,
-} from "@odoo/o-spreadsheet-engine/constants";
-import { arg } from "@odoo/o-spreadsheet-engine/functions/arguments";
-import { functionRegistry } from "@odoo/o-spreadsheet-engine/functions/function_registry";
-import { toScalar } from "@odoo/o-spreadsheet-engine/functions/helper_matrices";
-import { toString } from "@odoo/o-spreadsheet-engine/functions/helpers";
-import { Model } from "@odoo/o-spreadsheet-engine/model";
+} from "../../src/constants";
+import { arg } from "../../src/functions/arguments";
+import { functionRegistry } from "../../src/functions/function_registry";
+import { toScalar } from "../../src/functions/helper_matrices";
+import { toString } from "../../src/functions/helpers";
 import {
   fontSizeInPixels,
   getCellContentHeight,
   positionToZone,
   toCartesian,
 } from "../../src/helpers";
+import { Model } from "../../src/model";
 import { CommandResult, Format, SetDecimalStep, UID } from "../../src/types";
 import {
   createSheet,

@@ -1,6 +1,6 @@
-import { ZOOM_VALUES } from "@odoo/o-spreadsheet-engine/constants";
-import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { Component } from "@odoo/owl";
+import { ZOOM_VALUES } from "../../../constants";
+import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
 import { ToolBarDropdownStore, useToolBarDropdownStore } from "../../helpers/top_bar_tool_hook";
 import { NumberEditor } from "../../number_editor/number_editor";
 

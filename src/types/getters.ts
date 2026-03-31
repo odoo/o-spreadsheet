@@ -1,4 +1,3 @@
-import { CoreGetters, PluginGetters } from "../index";
 import { TableStylePlugin } from "../plugins/core/table_style";
 import { EvaluationPlugin } from "../plugins/ui_core_views/cell_evaluation";
 import { CellIconPlugin } from "../plugins/ui_core_views/cell_icon_plugin";
@@ -31,6 +30,7 @@ import { FilterEvaluationPlugin } from "../plugins/ui_stateful/filter_evaluation
 import { HeaderPositionsUIPlugin } from "../plugins/ui_stateful/header_positions";
 import { GridSelectionPlugin } from "../plugins/ui_stateful/selection";
 import { SheetViewPlugin } from "../plugins/ui_stateful/sheetview";
+import { CoreGetters, PluginGetters } from "./core_getters";
 // -----------------------------------------------------------------------------
 // Getters
 // -----------------------------------------------------------------------------

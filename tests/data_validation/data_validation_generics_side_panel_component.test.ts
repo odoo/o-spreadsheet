@@ -1,6 +1,5 @@
-import { Model } from "../../src";
+import { Model, UID } from "../../src";
 import { DataValidationPanel } from "../../src/components/side_panel/data_validation/data_validation_panel";
-import { UID } from "../../src/types";
 import {
   activateSheet,
   addDataValidation,

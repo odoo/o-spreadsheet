@@ -1,7 +1,6 @@
-import { groupConsecutive } from "@odoo/o-spreadsheet-engine";
-import { AbstractCellClipboardHandler } from "@odoo/o-spreadsheet-engine/clipboard_handlers/abstract_cell_clipboard_handler";
-import { splitZoneForPaste } from "@odoo/o-spreadsheet-engine/helpers/clipboard/clipboard_helpers";
-import { ZoneStyle } from "@odoo/o-spreadsheet-engine/plugins/core/style";
+import { groupConsecutive } from "../helpers";
+import { splitZoneForPaste } from "../helpers/clipboard/clipboard_helpers";
+import { ZoneStyle } from "../plugins/core/style";
 import {
   ClipboardCellData,
   ClipboardOptions,
@@ -9,6 +8,7 @@ import {
   HeaderIndex,
   UID,
 } from "../types";
+import { AbstractCellClipboardHandler } from "./abstract_cell_clipboard_handler";
 
 type ClipboardContent = {
   styles: ZoneStyle[];

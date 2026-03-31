@@ -1,3 +1,6 @@
+import { Point } from "chart.js";
+import { CommandResult, Model } from "../../../src";
+import { ChartDefinition } from "../../../src/types";
 import {
   BarChartDefinition,
   BarChartRuntime,
@@ -6,10 +9,7 @@ import {
   LineChartDefinition,
   LineChartRuntime,
   PieChartRuntime,
-} from "@odoo/o-spreadsheet-engine/types/chart";
-import { Point } from "chart.js";
-import { CommandResult, Model } from "../../../src";
-import { ChartDefinition } from "../../../src/types";
+} from "../../../src/types/chart";
 import {
   activateSheet,
   addColumns,
@@ -48,19 +48,19 @@ import {
   target,
 } from "../../test_helpers/helpers";
 
-import { ChartTerms } from "@odoo/o-spreadsheet-engine/components/translations_terms";
+import { ChartTerms } from "../../../src/components/translations_terms";
 import {
   CHART_PADDING,
   CHART_PADDING_BOTTOM,
   CHART_PADDING_TOP,
   FIGURE_ID_SPLITTER,
-} from "@odoo/o-spreadsheet-engine/constants";
-import { toNumber } from "@odoo/o-spreadsheet-engine/functions/helpers";
-import { ChartPlugin } from "@odoo/o-spreadsheet-engine/plugins/core/chart";
-import { FigurePlugin } from "@odoo/o-spreadsheet-engine/plugins/core/figures";
-import { ScatterChartRuntime } from "@odoo/o-spreadsheet-engine/types/chart/scatter_chart";
+} from "../../../src/constants";
+import { toNumber } from "../../../src/functions/helpers";
 import { zoneToXc } from "../../../src/helpers";
 import { BarChart } from "../../../src/helpers/figures/charts";
+import { ChartPlugin } from "../../../src/plugins/core/chart";
+import { FigurePlugin } from "../../../src/plugins/core/figures";
+import { ScatterChartRuntime } from "../../../src/types/chart/scatter_chart";
 import {
   getCategoryAxisTickLabels,
   getChartConfiguration,
