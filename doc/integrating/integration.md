@@ -45,7 +45,7 @@ Spreadsheet component takes the following props:
 
 - `notifyUser`
   A function used to notify the user. It supports several levels of severity as well as a sticky behaviour.
-  See its [`interface`](../../packages/o-spreadsheet-engine/src/types/spreadsheetChildEnv.ts)
+  See its [`interface`](../../src/types/stores/notification_store_methods.ts)
 - `askConfirmation`
   A function used to ask the user confirmation before applying a callback
 - `raiseError`
