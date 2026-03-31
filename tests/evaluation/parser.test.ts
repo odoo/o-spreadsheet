@@ -182,7 +182,7 @@ describe("parser", () => {
   });
 
   test("Cannot parse empty string", () => {
-    expect(() => parse("")).toThrowError("Invalid expression");
+    expect(() => parse("")).toThrow("Invalid expression");
   });
 
   test("AND", () => {

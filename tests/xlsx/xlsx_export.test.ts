@@ -1904,7 +1904,7 @@ describe("XML parser", () => {
   });
 
   test("error on the first line", () => {
-    expect(() => parseXML(escapeXml`<hello>Raoul/hello>`)).toThrowError(
+    expect(() => parseXML(escapeXml`<hello>Raoul/hello>`)).toThrow(
       `XML string could not be parsed: 1:19: unclosed tag: hello\n<hello>Raoul/hello>`
     );
   });
@@ -1925,7 +1925,7 @@ describe("XML parser", () => {
         <hello>3</WRONG_TAG>
         <hello>4</hello>
         <hello>5</hello>`;
-    expect(() => parseXML(xmlString)).toThrowError(errorMessage);
+    expect(() => parseXML(xmlString)).toThrow(errorMessage);
   });
 
   test("error at the end", () => {
@@ -1939,6 +1939,6 @@ describe("XML parser", () => {
         <hello>2</hello>
         <hello>3</hello>
       </WRONG_TAG>`;
-    expect(() => parseXML(xmlString)).toThrowError(errorMessage);
+    expect(() => parseXML(xmlString)).toThrow(errorMessage);
   });
 });
