@@ -627,7 +627,7 @@ describe("BottomBar component", () => {
 
     test("Selecting a sheet from the context menu scrolls to that sheet", async () => {
       const mockScrollIntoView = jest.fn();
-      HTMLElement.prototype.scrollIntoView = mockScrollIntoView;
+      jest.spyOn(HTMLElement.prototype, "scrollIntoView").mockImplementation(mockScrollIntoView);
 
       expect(model.getters.getActiveSheetId()).toBe("Sheet1");
 
