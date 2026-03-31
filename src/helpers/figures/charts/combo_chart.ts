@@ -87,7 +87,7 @@ export const ComboChart: ChartTypeBuilder<"combo"> = {
     const data = extractData();
     const chartData = getBarChartData(definition, data, getters);
 
-    const config: ChartConfiguration = {
+    const config: ChartConfiguration<"bar" | "line"> = {
       type: "bar",
       data: {
         labels: chartData.labels,
