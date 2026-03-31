@@ -33,6 +33,7 @@ export function getChartLegendLabels(model: Model, chartId: UID) {
   const fakeChart = {
     ...runtime.chartJsConfig,
     isDatasetVisible: (index) => true,
+    getDataVisibility: (index) => true,
     getDatasetMeta: (index) => runtime.chartJsConfig.data!.datasets![index],
   };
   return runtime.chartJsConfig.options?.plugins?.legend?.labels?.generateLabels?.(fakeChart as any);
