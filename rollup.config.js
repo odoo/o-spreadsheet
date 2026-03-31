@@ -1,7 +1,5 @@
-import alias from "@rollup/plugin-alias";
 import { nodeResolve } from "@rollup/plugin-node-resolve";
 import terser from "@rollup/plugin-terser";
-import path from "path";
 import dts from "rollup-plugin-dts";
 import typescript from "rollup-plugin-typescript2";
 import { fileURLToPath } from "url";
@@ -39,12 +37,7 @@ const __dirname = fileURLToPath(new URL(".", import.meta.url));
 export default (commandLineArgs) => {
   let output = [];
   let input = "";
-  let plugins = [
-    alias({
-      entries: [],
-    }),
-    nodeResolve(),
-  ];
+  let plugins = [nodeResolve()];
   let config = {};
 
   if (commandLineArgs.format) {
@@ -64,14 +57,9 @@ export default (commandLineArgs) => {
           format: commandLineArgs.format,
         },
       ],
-      plugins: [
-        alias({
-          entries: [],
-        }),
-        nodeResolve(),
-      ],
+      plugins: [nodeResolve()],
       watch: {
-        include: ["build/js/**", "./packages/o-spreadsheet-engine/build/**"],
+        include: ["build/js/**"],
       },
     };
   } else {
@@ -94,28 +82,7 @@ export default (commandLineArgs) => {
         input: "dist/types/index.d.ts",
         output: [{ file: "dist/o-spreadsheet.d.ts", format: "es" }],
         external: ["chart.js"],
-        plugins: [
-          dts({ respectExternal: true }),
-          nodeResolve(),
-          alias({
-            entries: [
-              {
-                find: "@odoo/o-spreadsheet-engine",
-                replacement: path.resolve(
-                  __dirname,
-                  "./packages/o-spreadsheet-engine/build/js/o-spreadsheet-engine/src"
-                ),
-              },
-              {
-                find: "@odoo/o-spreadsheet-engine/*",
-                replacement: path.resolve(
-                  __dirname,
-                  "./packages/o-spreadsheet-engine/build/js/o-spreadsheet-engine/src/*"
-                ),
-              },
-            ],
-          }),
-        ],
+        plugins: [dts({ respectExternal: true }), nodeResolve()],
       },
     ];
   }
