@@ -46,7 +46,7 @@ export class ChartClipboardHandler extends AbstractFigureClipboardHandler<Clipbo
     content: ClipboardContent,
     options?: ClipboardOptions
   ): ClipboardPasteTarget {
-    const newId = new UuidGenerator().smallUuid();
+    const newId = UuidGenerator.smallUuid();
     return { zones: [], figureId: newId, sheetId };
   }
 
@@ -71,7 +71,7 @@ export class ChartClipboardHandler extends AbstractFigureClipboardHandler<Clipbo
     }
     this.dispatch("CREATE_CHART", {
       figureId,
-      chartId: new UuidGenerator().smallUuid(),
+      chartId: UuidGenerator.smallUuid(),
       sheetId,
       definition: copy.getDefinition(),
       col,

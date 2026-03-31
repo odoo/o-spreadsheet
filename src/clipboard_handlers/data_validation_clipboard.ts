@@ -25,7 +25,6 @@ export class DataValidationClipboardHandler extends AbstractCellClipboardHandler
   ClipboardContent,
   Maybe<ClipboardDataValidationRule>
 > {
-  private readonly uuidGenerator = new UuidGenerator();
   private queuedChanges: Record<
     UID,
     { toAdd: Zone[]; toRemove: Zone[]; rule: DataValidationRule }[]
@@ -146,7 +145,7 @@ export class DataValidationClipboardHandler extends AbstractCellClipboardHandler
     return (
       targetRule || {
         ...originRule,
-        id: newId ? this.uuidGenerator.smallUuid() : originRule.id,
+        id: newId ? UuidGenerator.smallUuid() : originRule.id,
         ranges: [],
       }
     );

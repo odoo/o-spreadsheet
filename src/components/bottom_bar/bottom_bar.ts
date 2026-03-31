@@ -1,7 +1,7 @@
 import { _t } from "@odoo/o-spreadsheet-engine/translation";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { Component, onWillUpdateProps, useRef, useState } from "@odoo/owl";
-import { deepEquals } from "../../helpers";
+import { deepEquals, UuidGenerator } from "../../helpers";
 import { MenuItemRegistry } from "../../registries/menu_items_registry";
 import { MenuMouseEvent, Pixel, Rect, UID } from "../../types";
 import { Ripple } from "../animation/ripple";
@@ -72,7 +72,7 @@ export class BottomBar extends Component<Props, SpreadsheetChildEnv> {
     const activeSheetId = this.env.model.getters.getActiveSheetId();
     const position =
       this.env.model.getters.getSheetIds().findIndex((sheetId) => sheetId === activeSheetId) + 1;
-    const sheetId = this.env.model.uuidGenerator.smallUuid();
+    const sheetId = UuidGenerator.smallUuid();
     const name = this.env.model.getters.getNextSheetName(_t("Sheet"));
     this.env.model.dispatch("CREATE_SHEET", { sheetId, position, name });
     this.env.model.dispatch("ACTIVATE_SHEET", { sheetIdFrom: activeSheetId, sheetIdTo: sheetId });

@@ -1,3 +1,4 @@
+import { UuidGenerator } from "@odoo/o-spreadsheet-engine";
 import {
   CalendarChartGranularity,
   CalendarChartRuntime,
@@ -189,7 +190,7 @@ describe("calendar chart", () => {
       setCellContent(model, "A1", "=DATE(1,1,1) + SEQUENCE(365,1,1,1) + SEQUENCE(365,1, 0, 1/366)");
       setFormat(model, "A1:A365", "mm/dd/yyyy hh:mm:ss");
       setCellContent(model, "B1", "=RANDARRAY(365,1)");
-      const chartId = model.uuidGenerator.uuidv4();
+      const chartId = UuidGenerator.uuidv4();
       createCalendarChart(
         model,
         {
@@ -216,7 +217,7 @@ describe("calendar chart", () => {
       setCellContent(model, "A1", "=DATE(1,1,1) + SEQUENCE(365,1,1,1) + SEQUENCE(365,1, 0, 1/366)");
       setFormat(model, "A1:A365", "mm/dd/yyyy hh:mm:ss");
       setCellContent(model, "B1", "=RANDARRAY(365,1)");
-      const chartId = model.uuidGenerator.uuidv4();
+      const chartId = UuidGenerator.uuidv4();
       createCalendarChart(
         model,
         {

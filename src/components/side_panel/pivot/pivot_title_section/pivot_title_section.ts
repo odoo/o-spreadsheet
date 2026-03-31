@@ -1,3 +1,4 @@
+import { UuidGenerator } from "@odoo/o-spreadsheet-engine";
 import { _t } from "@odoo/o-spreadsheet-engine/translation";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { Component } from "@odoo/owl";
@@ -52,8 +53,8 @@ export class PivotTitleSection extends Component<Props, SpreadsheetChildEnv> {
   }
 
   duplicatePivot() {
-    const newPivotId = this.env.model.uuidGenerator.smallUuid();
-    const newSheetId = this.env.model.uuidGenerator.smallUuid();
+    const newPivotId = UuidGenerator.smallUuid();
+    const newSheetId = UuidGenerator.smallUuid();
     const result = this.env.model.dispatch("DUPLICATE_PIVOT_IN_NEW_SHEET", {
       pivotId: this.props.pivotId,
       newPivotId,

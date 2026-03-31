@@ -30,7 +30,6 @@ function undoTransformation(toTransform: Command, cancelled: Command): Command {
 class MiniEditor {
   private revisionIds: Set<UID> = new Set();
   private state = "";
-  private uuidGenerator = new UuidGenerator();
 
   private undoTransformation: (toTransform: Command, cancelled: Command) => Command;
   private redoTransformation: (toTransform: Command, cancelled: Command) => Command;
@@ -109,13 +108,13 @@ class MiniEditor {
     this.history.append(commandId, command);
   }
 
-  undo(commandId: UID, undoId: UID = this.uuidGenerator.uuidv4()) {
+  undo(commandId: UID, undoId: UID = UuidGenerator.uuidv4()) {
     const last = [...this.revisionIds].pop()!;
     this.revisionIds.add(undoId);
     this.history.undo(commandId, undoId, last);
   }
 
-  redo(commandId: UID, redoId: UID = this.uuidGenerator.uuidv4()) {
+  redo(commandId: UID, redoId: UID = UuidGenerator.uuidv4()) {
     const last = [...this.revisionIds].pop()!;
     this.revisionIds.add(redoId);
     this.history.redo(commandId, redoId, last);

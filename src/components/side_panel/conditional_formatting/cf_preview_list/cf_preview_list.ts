@@ -1,7 +1,7 @@
 import { localizeCFRule } from "@odoo/o-spreadsheet-engine/helpers/locale";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { Component, useRef } from "@odoo/owl";
-import { zoneToXc } from "../../../../helpers";
+import { UuidGenerator, zoneToXc } from "../../../../helpers";
 import { ConditionalFormat, UID } from "../../../../types";
 import { getBoundingRectAsPOJO } from "../../../helpers/dom_helpers";
 import { useDragAndDropListItems } from "../../../helpers/drag_and_drop_dom_items_hook";
@@ -60,7 +60,7 @@ export class ConditionalFormatPreviewList extends Component<Props, SpreadsheetCh
     const sheetId = this.env.model.getters.getActiveSheetId();
     const zones = this.env.model.getters.getSelectedZones();
     const cf: Omit<ConditionalFormat, "ranges"> = {
-      id: this.env.model.uuidGenerator.smallUuid(),
+      id: UuidGenerator.smallUuid(),
       rule: {
         type: "CellIsRule",
         operator: "isNotEmpty",

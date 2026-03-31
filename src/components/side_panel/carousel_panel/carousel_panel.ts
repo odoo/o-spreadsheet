@@ -7,7 +7,7 @@ import { _t } from "@odoo/o-spreadsheet-engine/translation";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { Component, onWillUpdateProps, useRef } from "@odoo/owl";
 import { ActionSpec } from "../../../actions/action";
-import { deepEquals } from "../../../helpers";
+import { deepEquals, UuidGenerator } from "../../../helpers";
 import { CarouselItem, TitleDesign, UID } from "../../../types";
 import { getBoundingRectAsPOJO } from "../../helpers/dom_helpers";
 import { useDragAndDropListItems } from "../../helpers/drag_and_drop_dom_items_hook";
@@ -136,7 +136,7 @@ export class CarouselPanel extends Component<Props, SpreadsheetChildEnv> {
       sheetId: this.carouselSheetId,
       carouselId: this.props.figureId,
       chartId: item.chartId,
-      duplicatedChartId: this.env.model.uuidGenerator.smallUuid(),
+      duplicatedChartId: UuidGenerator.smallUuid(),
     });
   }
 
