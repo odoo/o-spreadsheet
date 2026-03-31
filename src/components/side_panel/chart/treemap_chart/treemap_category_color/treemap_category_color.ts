@@ -1,14 +1,14 @@
+import { Component } from "@odoo/owl";
+import { ChartConfiguration } from "chart.js";
+import { DispatchResult, UID } from "../../../../..";
+import { deepCopy } from "../../../../../helpers";
 import {
   TreeMapCategoryColorOptions,
   TreeMapChartDefaults,
   TreeMapChartDefinition,
   TreeMapChartRuntime,
-} from "@odoo/o-spreadsheet-engine/types/chart/tree_map_chart";
-import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
-import { Component } from "@odoo/owl";
-import { ChartConfiguration } from "chart.js";
-import { DispatchResult, UID } from "../../../../..";
-import { deepCopy } from "../../../../../helpers";
+} from "../../../../../types/chart/tree_map_chart";
+import { SpreadsheetChildEnv } from "../../../../../types/spreadsheet_env";
 import { Checkbox } from "../../../components/checkbox/checkbox";
 import { RoundColorPicker } from "../../../components/round_color_picker/round_color_picker";
 

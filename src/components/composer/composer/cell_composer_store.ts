@@ -1,13 +1,7 @@
-import { parseTokens } from "@odoo/o-spreadsheet-engine";
-import { prettify } from "@odoo/o-spreadsheet-engine/formulas/formula_formatter";
-import {
-  isMultipleElementMatrix,
-  toScalar,
-} from "@odoo/o-spreadsheet-engine/functions/helper_matrices";
-import { parseLiteral } from "@odoo/o-spreadsheet-engine/helpers/cells/cell_evaluation";
-import { getDateTimeFormat, localizeFormula } from "@odoo/o-spreadsheet-engine/helpers/locale";
-import { criterionEvaluatorRegistry } from "@odoo/o-spreadsheet-engine/registries/criterion_registry";
-import { _t } from "@odoo/o-spreadsheet-engine/translation";
+import { prettify } from "../../../formulas/formula_formatter";
+import { parseTokens } from "../../../formulas/parser";
+import { isMultipleElementMatrix, toScalar } from "../../../functions/helper_matrices";
+import { parseLiteral } from "../../../helpers/cells/cell_evaluation";
 import {
   formatValue,
   isDateTimeFormat,
@@ -20,6 +14,9 @@ import {
   updateSelectionOnDeletion,
   updateSelectionOnInsertion,
 } from "../../../helpers/index";
+import { getDateTimeFormat, localizeFormula } from "../../../helpers/locale";
+import { criterionEvaluatorRegistry } from "../../../registries/criterion_registry";
+import { _t } from "../../../translation";
 import {
   AddColumnsRowsCommand,
   CellPosition,

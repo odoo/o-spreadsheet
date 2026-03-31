@@ -1,16 +1,11 @@
+import { Chart, Color, LegendItem, LegendOptions } from "chart.js";
+import { DeepPartial } from "chart.js/dist/types/utils";
 import {
   CHART_WATERFALL_NEGATIVE_COLOR,
   CHART_WATERFALL_POSITIVE_COLOR,
   CHART_WATERFALL_SUBTOTAL_COLOR,
-} from "@odoo/o-spreadsheet-engine/constants";
-import { ColorGenerator } from "@odoo/o-spreadsheet-engine/helpers/color";
-import {
-  chartFontColor,
-  getPieColors,
-  isTrendLineAxis,
-  truncateLabel,
-} from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_common";
-import { _t } from "@odoo/o-spreadsheet-engine/translation";
+} from "../../../../constants";
+import { _t } from "../../../../translation";
 import {
   BarChartDefinition,
   ChartRuntimeGenerationArgs,
@@ -20,11 +15,11 @@ import {
   SunburstChartDefinition,
   SunburstChartJSDataset,
   WaterfallChartDefinition,
-} from "@odoo/o-spreadsheet-engine/types/chart";
-import { ComboChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/combo_chart";
-import { RadarChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/radar_chart";
-import { Chart, Color, LegendItem, LegendOptions } from "chart.js";
-import { DeepPartial } from "chart.js/dist/types/utils";
+} from "../../../../types/chart";
+import { ComboChartDefinition } from "../../../../types/chart/combo_chart";
+import { RadarChartDefinition } from "../../../../types/chart/radar_chart";
+import { ColorGenerator } from "../../../color";
+import { chartFontColor, getPieColors, isTrendLineAxis, truncateLabel } from "../chart_common";
 
 type ChartLegend = DeepPartial<LegendOptions<any>>;
 

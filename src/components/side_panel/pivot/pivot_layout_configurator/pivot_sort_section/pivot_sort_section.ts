@@ -1,13 +1,13 @@
+import { Component } from "@odoo/owl";
+import { formatValue } from "../../../../../helpers";
 import {
   getFieldDisplayName,
   isSortedColumnValid,
-} from "@odoo/o-spreadsheet-engine/helpers/pivot/pivot_helpers";
-import { PivotRuntimeDefinition } from "@odoo/o-spreadsheet-engine/helpers/pivot/pivot_runtime_definition";
-import { _t } from "@odoo/o-spreadsheet-engine/translation";
-import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
-import { Component } from "@odoo/owl";
-import { formatValue } from "../../../../../helpers";
+} from "../../../../../helpers/pivot/pivot_helpers";
+import { PivotRuntimeDefinition } from "../../../../../helpers/pivot/pivot_runtime_definition";
+import { _t } from "../../../../../translation";
 import { PivotDomain, UID } from "../../../../../types";
+import { SpreadsheetChildEnv } from "../../../../../types/spreadsheet_env";
 import { Section } from "../../../components/section/section";
 
 interface Props {

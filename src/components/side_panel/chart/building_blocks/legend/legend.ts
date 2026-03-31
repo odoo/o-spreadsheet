@@ -1,6 +1,6 @@
-import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { Component } from "@odoo/owl";
 import { ChartWithDataSetDefinition } from "../../../../../types";
+import { SpreadsheetChildEnv } from "../../../../../types/spreadsheet_env";
 import { Section } from "../../../components/section/section";
 import { ChartSidePanelProps, ChartSidePanelPropsObject } from "../../common";
 

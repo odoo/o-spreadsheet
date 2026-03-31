@@ -1,4 +1,4 @@
-import { CollaborationMessage } from "@odoo/o-spreadsheet-engine/types/collaborative/transport_service";
+import { CollaborationMessage } from "../../src/types/collaborative/transport_service";
 import { MockTransportService } from "./transport_service";
 
 export class MockTransportServiceAsync extends MockTransportService {

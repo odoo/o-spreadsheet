@@ -1,6 +1,6 @@
-import { tokenColors } from "@odoo/o-spreadsheet-engine/constants";
-import { EnrichedToken } from "@odoo/o-spreadsheet-engine/formulas/composer_tokenizer";
 import { CellComposerStore } from "../components/composer/composer/cell_composer_store";
+import { tokenColors } from "../constants";
+import { EnrichedToken } from "../formulas/composer_tokenizer";
 import {
   AutoCompleteProposal,
   autoCompleteProviders,
@@ -87,5 +87,5 @@ export function insertTokenAtArgStartingPosition(
   this.composer.replaceComposerCursorSelection(value);
 }
 
-import { functionRegistry } from "@odoo/o-spreadsheet-engine/functions/function_registry";
+import { functionRegistry } from "./function_registry";
 functionRegistry.getAll().forEach((x) => createAutocompleteArgumentsProvider(x.name, x.args));

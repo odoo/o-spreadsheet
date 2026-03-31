@@ -1,16 +1,16 @@
-import { ConditionalFormatPlugin } from "@odoo/o-spreadsheet-engine/plugins/core/conditional_format";
-import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { Component } from "@odoo/owl";
 import { Model } from "../../src";
 import { ComposerFocusStore } from "../../src/components/composer/composer_focus_store";
 import { ConditionalFormattingPanel } from "../../src/components/side_panel/conditional_formatting/conditional_formatting";
 import { toHex, toZone } from "../../src/helpers";
+import { ConditionalFormatPlugin } from "../../src/plugins/core/conditional_format";
 import {
   CellIsRule,
   CommandResult,
   ConditionalFormattingOperatorValues,
   UID,
 } from "../../src/types";
+import { SpreadsheetChildEnv } from "../../src/types/spreadsheet_env";
 import {
   activateSheet,
   copy,

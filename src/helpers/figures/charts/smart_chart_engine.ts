@@ -2,11 +2,11 @@ import {
   DEFAULT_SCORECARD_BASELINE_COLOR_DOWN,
   DEFAULT_SCORECARD_BASELINE_COLOR_UP,
   DEFAULT_SCORECARD_BASELINE_MODE,
-} from "@odoo/o-spreadsheet-engine/constants";
-import { isDateTimeFormat } from "@odoo/o-spreadsheet-engine/helpers/format/format";
-import { getZoneArea, getZonesByColumns, zoneToXc } from "@odoo/o-spreadsheet-engine/helpers/zones";
-import { BarChartDefinition, LineChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart";
+} from "../../../constants";
 import { CellValueType, ChartDefinition, EvaluatedCell, Getters, Zone } from "../../../types";
+import { BarChartDefinition, LineChartDefinition } from "../../../types/chart";
+import { isDateTimeFormat } from "../../format/format";
+import { getZoneArea, getZonesByColumns, zoneToXc } from "../../zones";
 
 type ColumnType = "number" | "text" | "date" | "percentage" | "empty";
 

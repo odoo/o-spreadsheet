@@ -1,8 +1,8 @@
-import { deepCopy } from "@odoo/o-spreadsheet-engine";
+import { deepCopy } from "../helpers";
 import {
   genericRepeatsTransforms,
   repeatZoneDependantCommand,
-} from "@odoo/o-spreadsheet-engine/history/repeat_commands/repeat_commands_generic";
+} from "../history/repeat_commands/repeat_commands_generic";
 import {
   repeatAddColumnsRowsCommand,
   repeatAutoResizeCommand,
@@ -15,13 +15,13 @@ import {
   repeatInsertOrDeleteCellCommand,
   repeatPasteCommand,
   repeatSortCellsCommand,
-} from "@odoo/o-spreadsheet-engine/history/repeat_commands/repeat_commands_specific";
+} from "../history/repeat_commands/repeat_commands_specific";
+import { Getters } from "../types";
+import { Command } from "../types/commands";
 import {
   repeatCommandTransformRegistry,
   repeatLocalCommandTransformRegistry,
-} from "@odoo/o-spreadsheet-engine/registries/repeat_transform_registry";
-import { Command } from "@odoo/o-spreadsheet-engine/types/commands";
-import { Getters } from "../types";
+} from "./repeat_transform_registry";
 
 repeatCommandTransformRegistry.add("UPDATE_CELL", genericRepeat);
 repeatCommandTransformRegistry.add("CLEAR_CELL", genericRepeat);

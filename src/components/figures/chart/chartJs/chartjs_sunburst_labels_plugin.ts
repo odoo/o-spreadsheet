@@ -1,4 +1,3 @@
-import { SunburstChartRawData } from "@odoo/o-spreadsheet-engine/types/chart";
 import { ChartType, Plugin } from "chart.js";
 import {
   getDefaultContextFont,
@@ -8,6 +7,7 @@ import {
 } from "../../../../helpers";
 import { GHOST_SUNBURST_VALUE } from "../../../../helpers/figures/charts/runtime/chartjs_dataset";
 import { Style } from "../../../../types";
+import { SunburstChartRawData } from "../../../../types/chart";
 
 export interface ChartSunburstLabelsPluginOptions {
   showValues: boolean;

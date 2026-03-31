@@ -1,12 +1,12 @@
+import { Component, useSubEnv, xml } from "@odoo/owl";
+import { Model } from "../../src";
+import { Highlight } from "../../src/components/highlight/highlight/highlight";
 import {
   DEFAULT_CELL_HEIGHT,
   DEFAULT_CELL_WIDTH,
   getDefaultSheetViewSize,
   ZOOM_VALUES,
-} from "@odoo/o-spreadsheet-engine/constants";
-import { Component, useSubEnv, xml } from "@odoo/owl";
-import { Model } from "../../src";
-import { Highlight } from "../../src/components/highlight/highlight/highlight";
+} from "../../src/constants";
 import { toHex, toZone } from "../../src/helpers";
 import { Color, Pixel, Range } from "../../src/types";
 import { merge } from "../test_helpers/commands_helpers";

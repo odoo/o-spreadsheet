@@ -1,5 +1,3 @@
-import { _t } from "@odoo/o-spreadsheet-engine/translation";
-import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import {
   Component,
   onMounted,
@@ -10,7 +8,9 @@ import {
 } from "@odoo/owl";
 import { debounce, zoneToXc } from "../../../helpers";
 import { Store, useLocalStore } from "../../../store_engine";
+import { _t } from "../../../translation";
 import { DebouncedFunction } from "../../../types/index";
+import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
 import { keyboardEventToShortcutString } from "../../helpers/dom_helpers";
 import { SelectionInput } from "../../selection_input/selection_input";
 import { ValidationMessages } from "../../validation_messages/validation_messages";

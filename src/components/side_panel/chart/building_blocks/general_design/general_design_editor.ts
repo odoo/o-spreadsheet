@@ -1,7 +1,7 @@
-import { CHART_TITLE_FONT_SIZE } from "@odoo/o-spreadsheet-engine/constants";
-import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { Component, useState } from "@odoo/owl";
+import { CHART_TITLE_FONT_SIZE } from "../../../../../constants";
 import { ChartDefinition, Color, TitleDesign } from "../../../../../types";
+import { SpreadsheetChildEnv } from "../../../../../types/spreadsheet_env";
 import { SidePanelCollapsible } from "../../../components/collapsible/side_panel_collapsible";
 import { RadioSelection } from "../../../components/radio_selection/radio_selection";
 import { RoundColorPicker } from "../../../components/round_color_picker/round_color_picker";

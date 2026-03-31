@@ -1,4 +1,3 @@
-import { GaugeChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart";
 import {
   AddConditionalFormatCommand,
   AddDataValidationCommand,
@@ -8,6 +7,7 @@ import {
   UpdateCellCommand,
 } from "../../../src";
 import { deepCopy } from "../../../src/helpers";
+import { GaugeChartDefinition } from "../../../src/types/chart";
 import { TEST_COMMANDS } from "../../test_helpers/constants";
 
 export function getFormulaStringCommands(

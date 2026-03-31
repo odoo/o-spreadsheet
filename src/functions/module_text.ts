@@ -1,4 +1,4 @@
-import { escapeRegExp } from "../helpers/";
+import { escapeRegExp } from "../helpers";
 import { formatValue } from "../helpers/format/format";
 import { trimContent } from "../helpers/misc";
 import { _t } from "../translation";

@@ -1,4 +1,4 @@
-import { NEWLINE } from "@odoo/o-spreadsheet-engine/constants";
+import { NEWLINE } from "../../constants";
 import { deepEquals } from "../../helpers";
 import {
   getBoundingRectAsPOJO,

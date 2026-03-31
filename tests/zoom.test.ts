@@ -1,9 +1,5 @@
-import { Model } from "@odoo/o-spreadsheet-engine";
-import {
-  DEFAULT_CELL_HEIGHT,
-  DEFAULT_CELL_WIDTH,
-  ZOOM_VALUES,
-} from "@odoo/o-spreadsheet-engine/constants";
+import { Model } from "../src";
+import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH, ZOOM_VALUES } from "../src/constants";
 import { setCellContent } from "./test_helpers/commands_helpers";
 import { clickCell, clickHeader } from "./test_helpers/dom_helper";
 import { getSelectionAnchorCellXc } from "./test_helpers/getters_helpers";

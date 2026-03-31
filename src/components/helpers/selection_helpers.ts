@@ -1,4 +1,4 @@
-import { SelectionStreamProcessor } from "@odoo/o-spreadsheet-engine/types/selection_stream_processor";
+import { SelectionStreamProcessor } from "../../types/selection_stream_processor";
 import { isCtrlKey } from "./dom_helpers";
 
 const arrowMap = {

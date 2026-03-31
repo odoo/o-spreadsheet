@@ -1,31 +1,5 @@
-import { CoreGetters, RangeAdapterFunctions, Validator } from "@odoo/o-spreadsheet-engine";
-import { BACKGROUND_CHART_COLOR } from "@odoo/o-spreadsheet-engine/constants";
-import { AbstractChart } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/abstract_chart";
-import {
-  checkDataset,
-  checkLabelRange,
-  createDataSets,
-  duplicateDataSetsInDuplicatedSheet,
-  duplicateLabelRangeInDuplicatedSheet,
-  transformChartDefinitionWithDataSetsWithZone,
-  updateChartRangesWithDataSets,
-} from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_common";
-import { CHART_COMMON_OPTIONS } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_ui_common";
-import { createValidRange } from "@odoo/o-spreadsheet-engine/helpers/range";
-import {
-  BarChartDefinition,
-  ChartCreationContext,
-  CustomizedDataSet,
-  ExcelChartDefinition,
-  LegendPosition,
-} from "@odoo/o-spreadsheet-engine/types/chart";
-import {
-  CALENDAR_CHART_GRANULARITIES,
-  CalendarChartDefinition,
-  CalendarChartGranularity,
-  CalendarChartRuntime,
-} from "@odoo/o-spreadsheet-engine/types/chart/calendar_chart";
 import type { ChartConfiguration } from "chart.js";
+import { BACKGROUND_CHART_COLOR } from "../../../constants";
 import {
   AxesDesign,
   ChartColorScale,
@@ -35,8 +9,36 @@ import {
   Getters,
   Range,
   RangeAdapter,
+  RangeAdapterFunctions,
   UID,
 } from "../../../types";
+import {
+  BarChartDefinition,
+  ChartCreationContext,
+  CustomizedDataSet,
+  ExcelChartDefinition,
+  LegendPosition,
+} from "../../../types/chart";
+import {
+  CALENDAR_CHART_GRANULARITIES,
+  CalendarChartDefinition,
+  CalendarChartGranularity,
+  CalendarChartRuntime,
+} from "../../../types/chart/calendar_chart";
+import { CoreGetters } from "../../../types/core_getters";
+import { Validator } from "../../../types/validator";
+import { createValidRange } from "../../range";
+import { AbstractChart } from "./abstract_chart";
+import {
+  checkDataset,
+  checkLabelRange,
+  createDataSets,
+  duplicateDataSetsInDuplicatedSheet,
+  duplicateLabelRangeInDuplicatedSheet,
+  transformChartDefinitionWithDataSetsWithZone,
+  updateChartRangesWithDataSets,
+} from "./chart_common";
+import { CHART_COMMON_OPTIONS } from "./chart_ui_common";
 import {
   getCalendarChartData,
   getCalendarChartDatasetAndLabels,

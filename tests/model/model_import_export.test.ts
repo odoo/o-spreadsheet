@@ -1,3 +1,4 @@
+import { CellIsRule, Model } from "../../src";
 import {
   BACKGROUND_CHART_COLOR,
   DEFAULT_CELL_HEIGHT,
@@ -5,13 +6,10 @@ import {
   DEFAULT_REVISION_ID,
   FORBIDDEN_SHEETNAME_CHARS,
   MESSAGE_VERSION,
-} from "@odoo/o-spreadsheet-engine/constants";
-import { DEFAULT_TABLE_CONFIG } from "@odoo/o-spreadsheet-engine/helpers/table_presets";
-import { getCurrentVersion } from "@odoo/o-spreadsheet-engine/migrations/data";
-import { LineChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart";
-import { StateUpdateMessage } from "@odoo/o-spreadsheet-engine/types/collaborative/transport_service";
-import { CellIsRule, Model } from "../../src";
+} from "../../src/constants";
 import { toCartesian, toZone } from "../../src/helpers";
+import { DEFAULT_TABLE_CONFIG } from "../../src/helpers/table_presets";
+import { getCurrentVersion } from "../../src/migrations/data";
 import {
   BorderDescr,
   ColorScaleRule,
@@ -20,6 +18,8 @@ import {
   IconSetRule,
   schemeToColorScale,
 } from "../../src/types";
+import { LineChartDefinition } from "../../src/types/chart";
+import { StateUpdateMessage } from "../../src/types/collaborative/transport_service";
 import {
   activateSheet,
   resizeColumns,
