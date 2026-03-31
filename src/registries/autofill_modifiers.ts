@@ -32,8 +32,8 @@ autofillModifiersRegistry
       return {
         cellData: {
           border: data.border,
-          style: data.cell && data.cell.style,
-          format: data.cell && data.cell.format,
+          style: data.style,
+          format: data.format,
           content,
         },
         tooltip: { props: { content } },
@@ -49,8 +49,8 @@ autofillModifiersRegistry
       return {
         cellData: {
           border: data.border,
-          style: data.cell && data.cell.style,
-          format: data.cell && data.cell.format,
+          style: data.style,
+          format: data.format,
           content,
         },
         tooltip: content ? { props: { content: tooltipValue } } : undefined,
@@ -71,8 +71,8 @@ autofillModifiersRegistry
       return {
         cellData: {
           border: data.border,
-          style: data.cell && data.cell.style,
-          format: data.cell && data.cell.format,
+          style: data.style,
+          format: data.format,
           content: value.toString(),
         },
         tooltip: value ? { props: { content: tooltipValue } } : undefined,
@@ -85,11 +85,16 @@ autofillModifiersRegistry
         ? data.cell?.content || ""
         : data.cell?.compiledFormula.toFormulaString(getters);
       const localeFormat = { locale: getters.getLocale(), format: data.cell?.format };
+      const cellId = data.cell?.id;
+      if (cellId) {
+        const position = getters.getCellPosition(cellId);
+        localeFormat.format = getters.getCellFormat(position);
+      }
       return {
         cellData: {
           border: data.border,
-          style: data.cell && data.cell.style,
-          format: data.cell && data.cell.format,
+          style: data.style,
+          format: data.format,
           content,
         },
         tooltip: content
@@ -136,8 +141,8 @@ autofillModifiersRegistry
       return {
         cellData: {
           border: data.border,
-          style: cell.style,
-          format: cell.format,
+          style: data.style,
+          format: data.format,
           content,
         },
         tooltip: content ? { props: { content } } : undefined,
