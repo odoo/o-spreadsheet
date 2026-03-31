@@ -84,17 +84,23 @@ describe("renderer", () => {
 
     setCellContent(model, "A1", "1");
     const instructions: string[] = [];
-    let ctx = new MockGridRenderingContext(model, 1000, 1000, {
-      onSet: (key, value) => {
-        instructions.push(`context.${key}=${JSON.stringify(value)};`);
+    let ctx = new MockGridRenderingContext(
+      model,
+      1000,
+      1000,
+      {
+        onSet: (key, value) => {
+          instructions.push(`context.${key}=${JSON.stringify(value)};`);
+        },
+        onGet: (key) => {
+          instructions.push(`GET:${key}`);
+        },
+        onFunctionCall: (key, args) => {
+          instructions.push(`context.${key}(${args.map((a) => JSON.stringify(a)).join(", ")})`);
+        },
       },
-      onGet: (key) => {
-        instructions.push(`GET:${key}`);
-      },
-      onFunctionCall: (key, args) => {
-        instructions.push(`context.${key}(${args.map((a) => JSON.stringify(a)).join(", ")})`);
-      },
-    });
+      "nodeCanvas"
+    );
     model.dispatch("RESIZE_SHEETVIEW", {
       width: 1000 - HEADER_HEIGHT,
       height: 1000 - HEADER_WIDTH,
@@ -104,6 +110,7 @@ describe("renderer", () => {
 
     drawGridRenderer(model, ctx, ["Background", "Headers", "Selection"]);
     expect(instructions).toMatchSnapshot();
+    expect(ctx.screenshot()).toMatchImageSnapshot();
   });
 
   describe("Headers background color", () => {
@@ -1471,7 +1478,7 @@ describe("renderer", () => {
     const ctx = new MockGridRenderingContext(model, 1000, 1000, {
       onFunctionCall: (val, _, renderingContext) => {
         if (val === "strokeRect") {
-          strokeColors.push(renderingContext.ctx.strokeStyle as string);
+          strokeColors.push(toHex(renderingContext.ctx.strokeStyle as string));
         }
       },
     });
@@ -1479,8 +1486,8 @@ describe("renderer", () => {
     // Default Model displaying grid lines
     strokeColors = [];
     drawGridRenderer(model, ctx, ["Selection", "Background"]);
-    expect(strokeColors).toContain(CELL_BORDER_COLOR);
-    expect(strokeColors).toContain(SELECTION_BORDER_COLOR);
+    expect(strokeColors).toContain(toHex(SELECTION_BORDER_COLOR));
+    expect(strokeColors).toContain(toHex(SELECTION_BORDER_COLOR));
 
     // dashboard mode
     model.updateMode("dashboard");
@@ -1500,7 +1507,7 @@ describe("renderer", () => {
     const ctx = new MockGridRenderingContext(model, 1000, 1000, {
       onFunctionCall: (val, _, renderingContext) => {
         if (val === "strokeRect") {
-          strokeColors.push(renderingContext.ctx.strokeStyle as string);
+          strokeColors.push(toHex(renderingContext.ctx.strokeStyle as string));
         }
       },
     });
@@ -1508,16 +1515,16 @@ describe("renderer", () => {
     // Default Model displaying grid lines
     strokeColors = [];
     drawGridRenderer(model, ctx, ["Selection", "Background"]);
-    expect(strokeColors).toContain(CELL_BORDER_COLOR);
-    expect(strokeColors).toContain(SELECTION_BORDER_COLOR);
+    expect(strokeColors).toContain(toHex(CELL_BORDER_COLOR));
+    expect(strokeColors).toContain(toHex(SELECTION_BORDER_COLOR));
 
     // model without grid lines
     model.dispatch("SET_GRID_LINES_VISIBILITY", { sheetId: "Sheet1", areGridLinesVisible: false });
     strokeColors = [];
     drawGridRenderer(model, ctx, ["Selection", "Background"]);
     expect(strokeColors).toEqual([
-      SELECTION_BORDER_COLOR, // selection drawGrid
-      SELECTION_BORDER_COLOR, // selection drawGrid
+      toHex(SELECTION_BORDER_COLOR), // selection drawGrid
+      toHex(SELECTION_BORDER_COLOR), // selection drawGrid
     ]);
   });
 
