@@ -29,7 +29,7 @@ describe("Data validation registry", () => {
 
   beforeEach(() => {
     jest.useFakeTimers();
-    jest.setSystemTime(new Date("01/01/2021 12:00:00"));
+    jest.setSystemTime(new Date("01/01/2021 12:00:00").getTime());
   });
 
   afterEach(() => {
@@ -224,7 +224,7 @@ describe("Data validation registry", () => {
       };
 
       // Last day of month
-      jest.setSystemTime(new Date("2021-05-31 12:00:00"));
+      jest.setSystemTime(new Date("2021-05-31 12:00:00").getTime());
       testCriterion.dateValue = "lastMonth";
       expect(isValueValid("06/01/2021")).toEqual(false);
       expect(isValueValid("05/31/2021")).toEqual(true);
@@ -232,7 +232,7 @@ describe("Data validation registry", () => {
       expect(isValueValid("04/30/2021")).toEqual(false);
 
       // // Day in the end of march. There is no "31" in February, so last month is from today to March 1
-      jest.setSystemTime(new Date("2021-03-30 12:00:00"));
+      jest.setSystemTime(new Date("2021-03-30 12:00:00").getTime());
       testCriterion.dateValue = "lastMonth";
       expect(isValueValid("03/31/2021")).toEqual(false);
       expect(isValueValid("03/30/2021")).toEqual(true);
@@ -240,7 +240,7 @@ describe("Data validation registry", () => {
       expect(isValueValid("02/28/2021")).toEqual(false);
 
       // // Last day of year
-      jest.setSystemTime(new Date("2021-12-31 12:00:00"));
+      jest.setSystemTime(new Date("2021-12-31 12:00:00").getTime());
       testCriterion.dateValue = "lastYear";
       expect(isValueValid("12/31/2020")).toEqual(false);
       expect(isValueValid("01/01/2021")).toEqual(true);
@@ -248,7 +248,7 @@ describe("Data validation registry", () => {
       expect(isValueValid("01/01/2022")).toEqual(false);
 
       // Leap year. There is no 29 Feb in last year, so last year is from today to 28 Feb of last year
-      jest.setSystemTime(new Date("2020-02-29 12:00:00"));
+      jest.setSystemTime(new Date("2020-02-29 12:00:00").getTime());
       testCriterion.dateValue = "lastYear";
       expect(isValueValid("03/01/2020")).toEqual(false);
       expect(isValueValid("02/29/2020")).toEqual(true);

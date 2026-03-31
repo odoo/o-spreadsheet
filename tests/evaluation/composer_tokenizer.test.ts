@@ -297,7 +297,7 @@ describe("composerTokenizer base tests", () => {
     expect(composerTokenize('"hello"', DEFAULT_LOCALE)).toEqual([
       { start: 0, end: 7, length: 7, type: "STRING", value: '"hello"', parenthesesCode: "" },
     ]);
-    //expect(() => composerTokenize("'hello'")).toThrowError("kikou");
+    //expect(() => composerTokenize("'hello'")).toThrow("kikou");
     expect(composerTokenize("'hello'", DEFAULT_LOCALE)).toEqual([
       { start: 0, end: 7, length: 7, type: "SYMBOL", value: "'hello'", parenthesesCode: "" },
     ]);
