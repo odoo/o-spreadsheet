@@ -2,7 +2,7 @@
   <t t-name="o-spreadsheet-DataValidationPanel">
     <div class="o-dv">
       <t t-foreach="validationRules" t-as="rule" t-key="rule.id">
-        <DataValidationPreview rule="localizeDVRule(rule)"/>
+        <DataValidationPreview rule="rule"/>
       </t>
       <div class="o-dv-add o-button-link p-4 float-end" t-on-click="addDataValidationRule">
         + Add another rule

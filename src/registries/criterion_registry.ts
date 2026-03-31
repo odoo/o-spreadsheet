@@ -140,7 +140,13 @@ criterionEvaluatorRegistry.add("isEqualText", {
   criterionValueErrorString: DVTerms.CriterionError.notEmptyValue,
   numberOfValues: () => 1,
   name: _t("Text is exactly"),
-  getPreview: (criterion) => _t('Text is exactly "%s"', criterion.values[0]),
+  getPreview: (criterion: EvaluatedCriterion, getters: Getters) => {
+    const locale = getters.getLocale();
+    const localizedValue = criterion.values[0]
+      ? localizeContent(criterion.values[0]?.toString(), locale)
+      : "";
+    return _t('Text is exactly "%s"', localizedValue);
+  },
 });
 
 /** Note: this regex doesn't allow for all the RFC-compliant mail addresses but should be enough for our purpose. */
@@ -197,6 +203,7 @@ criterionEvaluatorRegistry.add("dateIs", {
   numberOfValues: (criterion: DateIsCriterion) => (criterion.dateValue === "exactDate" ? 1 : 0),
   name: _t("Date is"),
   getPreview: (criterion: DateIsCriterion, getters: Getters) => {
+    //ici
     return criterion.dateValue === "exactDate"
       ? _t("Date is %s", getDateCriterionFormattedValues(criterion.values, getters.getLocale())[0])
       : _t("Date is %s", DVTerms.DateIs[criterion.dateValue]);
@@ -429,7 +436,11 @@ criterionEvaluatorRegistry.add("isEqual", {
   criterionValueErrorString: DVTerms.CriterionError.numberValue,
   numberOfValues: () => 1,
   name: _t("Is equal to"),
-  getPreview: (criterion) => _t("Value is equal to %s", criterion.values[0]),
+  getPreview: (criterion: EvaluatedCriterion, getters: Getters) => {
+    const locale = getters.getLocale();
+    const values = getNumberCriterionlocalizedValues(criterion, locale);
+    return _t("Value is equal to %s", values[0]);
+  },
 });
 
 criterionEvaluatorRegistry.add("isNotEqual", {

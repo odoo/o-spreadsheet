@@ -1,6 +1,5 @@
 import { Component, useRef } from "@odoo/owl";
 import { zoneToXc } from "../../../../helpers";
-import { localizeCFRule } from "../../../../helpers/locale";
 import { ConditionalFormat, UID } from "../../../../types";
 import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
 import { getBoundingRectAsPOJO } from "../../../helpers/dom_helpers";
@@ -22,13 +21,7 @@ export class ConditionalFormatPreviewList extends Component<Props, SpreadsheetCh
   private cfListRef = useRef("cfList");
 
   get conditionalFormats(): ConditionalFormat[] {
-    const cfs = this.env.model.getters.getConditionalFormats(
-      this.env.model.getters.getActiveSheetId()
-    );
-    return cfs.map((cf) => ({
-      ...cf,
-      rule: localizeCFRule(cf.rule, this.env.model.getters.getLocale()),
-    }));
+    return this.env.model.getters.getConditionalFormats(this.env.model.getters.getActiveSheetId());
   }
 
   getPreviewDivStyle(cf: ConditionalFormat): string {

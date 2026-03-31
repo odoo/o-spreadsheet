@@ -1,5 +1,5 @@
 import { DateCriterionValue, EvaluatedDateCriterion } from "../types/generic_criterion";
-import { Locale } from "../types/locale";
+import { DEFAULT_LOCALE, Locale } from "../types/locale";
 import { parseLiteral } from "./cells/cell_evaluation";
 import { DateTime, getDaysInMonth, jsDateToNumber, valueToDateNumber } from "./dates";
 import { formatValue } from "./format/format";
@@ -61,7 +61,7 @@ export function getDateCriterionFormattedValues(values: string[], locale: Locale
     if (valueStr.startsWith("=")) {
       return valueStr;
     }
-    const value = parseLiteral(valueStr, locale);
+    const value = parseLiteral(valueStr, DEFAULT_LOCALE);
     if (typeof value === "number") {
       return formatValue(value, { format: locale.dateFormat, locale });
     }

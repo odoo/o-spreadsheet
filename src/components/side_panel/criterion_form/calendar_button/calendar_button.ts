@@ -1,3 +1,4 @@
+import { DEFAULT_LOCALE } from "@odoo/o-spreadsheet-engine";
 import { parseDateTime } from "@odoo/o-spreadsheet-engine/helpers/dates";
 import { formatValue } from "@odoo/o-spreadsheet-engine/helpers/format/format";
 import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
@@ -26,16 +27,19 @@ export class CalendarButton extends Component<Props, SpreadsheetChildEnv> {
   }
 
   formatDateForInput(value: string) {
-    const locale = this.env.model.getters.getLocale();
-    const dateValue = parseDateTime(value, locale);
-    return dateValue ? formatValue(dateValue.value, { format: "yyyy-mm-dd", locale }) : "";
+    const dateValue = parseDateTime(value, DEFAULT_LOCALE);
+    return dateValue
+      ? formatValue(dateValue.value, { format: "yyyy-mm-dd", locale: DEFAULT_LOCALE })
+      : "";
   }
 
   onDateInputValueChanged(value: string) {
-    const locale = this.env.model.getters.getLocale();
-    const dateValue = parseDateTime(value, locale);
+    const dateValue = parseDateTime(value, DEFAULT_LOCALE);
     if (dateValue) {
-      const formatedValue = formatValue(dateValue.value, { format: locale.dateFormat, locale });
+      const formatedValue = formatValue(dateValue.value, {
+        format: DEFAULT_LOCALE.dateFormat,
+        locale: DEFAULT_LOCALE,
+      });
       this.props.onChange(formatedValue);
     }
   }
