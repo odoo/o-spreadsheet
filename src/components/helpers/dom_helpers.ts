@@ -1,6 +1,6 @@
-import { Ref } from "@odoo/o-spreadsheet-engine/types/misc";
-import { DOMCoordinates, Rect } from "@odoo/o-spreadsheet-engine/types/rendering";
 import { whenReady } from "@odoo/owl";
+import { Ref } from "../../types/misc";
+import { DOMCoordinates, Rect } from "../../types/rendering";
 
 const macRegex = /Mac/i;
 

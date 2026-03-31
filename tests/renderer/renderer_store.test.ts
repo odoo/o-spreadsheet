@@ -1,3 +1,5 @@
+import { LiteralCell, Model } from "../../src";
+import { HoveredTableStore } from "../../src/components/tables/hovered_table_store";
 import {
   BACKGROUND_HEADER_ACTIVE_COLOR,
   BACKGROUND_HEADER_SELECTED_COLOR,
@@ -12,10 +14,7 @@ import {
   NEWLINE,
   SELECTION_BORDER_COLOR,
   TABLE_HOVER_BACKGROUND_COLOR,
-} from "@odoo/o-spreadsheet-engine/constants";
-import { Mode } from "@odoo/o-spreadsheet-engine/types/model";
-import { LiteralCell, Model } from "../../src";
-import { HoveredTableStore } from "../../src/components/tables/hovered_table_store";
+} from "../../src/constants";
 import {
   blendColors,
   fontSizeInPixels,
@@ -35,6 +34,7 @@ import {
   Viewport,
   Zone,
 } from "../../src/types";
+import { Mode } from "../../src/types/model";
 import { MockCanvasRenderingContext2D } from "../setup/canvas.mock";
 import {
   addColumns,

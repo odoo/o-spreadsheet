@@ -1,7 +1,7 @@
-import { Model } from "@odoo/o-spreadsheet-engine/model";
-import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { CellComposerStore } from "../../src/components/composer/composer/cell_composer_store";
+import { Model } from "../../src/model";
 import { Store } from "../../src/store_engine";
+import { SpreadsheetChildEnv } from "../../src/types/spreadsheet_env";
 import { setCellContent, setFormat, updateLocale } from "../test_helpers/commands_helpers";
 import { FR_LOCALE } from "../test_helpers/constants";
 import { click, getElStyle, keyDown, triggerMouseEvent } from "../test_helpers/dom_helper";

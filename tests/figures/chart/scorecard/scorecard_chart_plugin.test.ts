@@ -1,15 +1,15 @@
+import { CommandResult, Model } from "../../../../src";
 import {
   DEFAULT_SCORECARD_BASELINE_COLOR_DOWN,
   DEFAULT_SCORECARD_BASELINE_COLOR_UP,
   DEFAULT_SCORECARD_BASELINE_MODE,
-} from "@odoo/o-spreadsheet-engine/constants";
+} from "../../../../src/constants";
+import { zoneToXc } from "../../../../src/helpers";
+import { ScorecardChart } from "../../../../src/helpers/figures/charts";
 import {
   ScorecardChartDefinition,
   ScorecardChartRuntime,
-} from "@odoo/o-spreadsheet-engine/types/chart/scorecard_chart";
-import { CommandResult, Model } from "../../../../src";
-import { zoneToXc } from "../../../../src/helpers";
-import { ScorecardChart } from "../../../../src/helpers/figures/charts";
+} from "../../../../src/types/chart/scorecard_chart";
 import { GENERAL_CHART_CREATION_CONTEXT } from "../../../test_helpers/chart_helpers";
 import {
   addColumns,

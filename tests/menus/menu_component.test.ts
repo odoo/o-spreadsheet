@@ -1,4 +1,4 @@
-import { Model } from "@odoo/o-spreadsheet-engine";
+import { Model } from "../../src";
 import { createActions } from "../../src/actions/action";
 import { Menu } from "../../src/components/menu/menu";
 import { MenuPopover } from "../../src/components/menu_popover/menu_popover";

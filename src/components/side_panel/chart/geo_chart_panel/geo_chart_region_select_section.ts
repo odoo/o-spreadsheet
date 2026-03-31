@@ -1,7 +1,7 @@
-import { GeoChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/geo_chart";
-import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { Component } from "@odoo/owl";
+import { GeoChartDefinition } from "../../../../types/chart/geo_chart";
 import { DispatchResult, UID, ValueAndLabel } from "../../../../types/index";
+import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
 import { Select } from "../../../select/select";
 import { Section } from "../../components/section/section";
 

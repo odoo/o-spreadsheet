@@ -1,6 +1,7 @@
-import { _t, ValueAndLabel } from "@odoo/o-spreadsheet-engine";
-import { Top10Criterion } from "@odoo/o-spreadsheet-engine/types/data_validation";
 import { deepCopy } from "../../../../helpers";
+import { _t } from "../../../../translation";
+import { ValueAndLabel } from "../../../../types";
+import { Top10Criterion } from "../../../../types/data_validation";
 import { Select } from "../../../select/select";
 import { CriterionForm } from "../criterion_form";
 import { CriterionInput } from "../criterion_input/criterion_input";

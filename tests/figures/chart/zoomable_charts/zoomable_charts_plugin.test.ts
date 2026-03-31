@@ -1,7 +1,7 @@
-import { LineChartRuntime, ScatterChartRuntime } from "@odoo/o-spreadsheet-engine/types/chart";
 import { Scale } from "chart.js";
 import { Model } from "../../../../src";
 import { TREND_LINE_XAXIS_ID } from "../../../../src/helpers/figures/charts";
+import { LineChartRuntime, ScatterChartRuntime } from "../../../../src/types/chart";
 import { createChart, setCellContent } from "../../../test_helpers/commands_helpers";
 
 let model: Model;

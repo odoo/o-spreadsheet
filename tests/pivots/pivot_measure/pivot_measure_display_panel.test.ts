@@ -1,10 +1,8 @@
-import { UID } from "@odoo/o-spreadsheet-engine";
-import { PivotCoreMeasure, PREVIOUS_VALUE } from "@odoo/o-spreadsheet-engine/types/pivot";
-import { Model } from "../../../src";
-
-import { toZone } from "@odoo/o-spreadsheet-engine/helpers/zones";
-import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
+import { Model, UID } from "../../../src";
 import { PivotMeasureDisplayPanel } from "../../../src/components/side_panel/pivot/pivot_measure_display_panel/pivot_measure_display_panel";
+import { toZone } from "../../../src/helpers/zones";
+import { PivotCoreMeasure, PREVIOUS_VALUE } from "../../../src/types/pivot";
+import { SpreadsheetChildEnv } from "../../../src/types/spreadsheet_env";
 import { setCellContent, setFormat } from "../../test_helpers";
 import { click, editSelectComponent } from "../../test_helpers/dom_helper";
 import {

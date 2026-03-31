@@ -1,23 +1,3 @@
-import { chartRegistry } from "@odoo/o-spreadsheet-engine/registries/chart_registry";
-import { chartSubtypeRegistry } from "@odoo/o-spreadsheet-engine/registries/chart_subtype_registry";
-import { _t } from "@odoo/o-spreadsheet-engine/translation";
-import {
-  BarChartDefinition,
-  FunnelChartDefinition,
-  GaugeChartDefinition,
-  LineChartDefinition,
-  PieChartDefinition,
-  PyramidChartDefinition,
-  ScatterChartDefinition,
-  ScorecardChartDefinition,
-  SunburstChartDefinition,
-  WaterfallChartDefinition,
-} from "@odoo/o-spreadsheet-engine/types/chart";
-import { CalendarChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/calendar_chart";
-import { ComboChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/combo_chart";
-import { GeoChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/geo_chart";
-import { RadarChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/radar_chart";
-import { TreeMapChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/tree_map_chart";
 import {
   BarChart,
   createBarChartRuntime,
@@ -47,6 +27,26 @@ import {
   SunburstChart,
 } from "../helpers/figures/charts/sunburst_chart";
 import { createTreeMapChartRuntime, TreeMapChart } from "../helpers/figures/charts/tree_map_chart";
+import { _t } from "../translation";
+import {
+  BarChartDefinition,
+  FunnelChartDefinition,
+  GaugeChartDefinition,
+  LineChartDefinition,
+  PieChartDefinition,
+  PyramidChartDefinition,
+  ScatterChartDefinition,
+  ScorecardChartDefinition,
+  SunburstChartDefinition,
+  WaterfallChartDefinition,
+} from "../types/chart";
+import { CalendarChartDefinition } from "../types/chart/calendar_chart";
+import { ComboChartDefinition } from "../types/chart/combo_chart";
+import { GeoChartDefinition } from "../types/chart/geo_chart";
+import { RadarChartDefinition } from "../types/chart/radar_chart";
+import { TreeMapChartDefinition } from "../types/chart/tree_map_chart";
+import { chartRegistry } from "./chart_registry";
+import { chartSubtypeRegistry } from "./chart_subtype_registry";
 
 //------------------------------------------------------------------------------
 // Chart Registry

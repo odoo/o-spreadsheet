@@ -1,6 +1,5 @@
-import { transform } from "@odoo/o-spreadsheet-engine/collaborative/ot/ot";
-import { toZone } from "@odoo/o-spreadsheet-engine/helpers/zones";
-import { BarChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart";
+import { transform } from "../../../src/collaborative/ot/ot";
+import { toZone } from "../../../src/helpers/zones";
 import {
   AddColumnsRowsCommand,
   CreateChartCommand,
@@ -11,6 +10,7 @@ import {
   UpdateChartCommand,
   UpdateTableCommand,
 } from "../../../src/types";
+import { BarChartDefinition } from "../../../src/types/chart";
 import {
   OT_TESTS_HEADER_GROUP_COMMANDS,
   OT_TESTS_SINGLE_CELL_COMMANDS,

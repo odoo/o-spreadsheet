@@ -1,8 +1,8 @@
-import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { Component } from "@odoo/owl";
 import { deepEquals, positionToZone } from "../../helpers";
 import { CellPosition, CellValueType } from "../../types";
 import { CellPopoverComponent, PopoverBuilders } from "../../types/cell_popovers";
+import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 
 const ERROR_TOOLTIP_MAX_HEIGHT = 80;
 

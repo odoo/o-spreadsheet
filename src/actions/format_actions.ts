@@ -5,13 +5,13 @@ import {
   DEFAULT_WRAPPING_MODE,
   FONT_SIZES,
   ROTATION_EPSILON,
-} from "@odoo/o-spreadsheet-engine/constants";
-import { parseLiteral } from "@odoo/o-spreadsheet-engine/helpers/cells/cell_evaluation";
-import { getDateTimeFormat } from "@odoo/o-spreadsheet-engine/helpers/locale";
-import { _t } from "@odoo/o-spreadsheet-engine/translation";
-import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
+} from "../constants";
 import { createAccountingFormat, createCurrencyFormat, formatValue, roundFormat } from "../helpers";
+import { parseLiteral } from "../helpers/cells/cell_evaluation";
+import { getDateTimeFormat } from "../helpers/locale";
+import { _t } from "../translation";
 import { Align, CellValue, DEFAULT_LOCALE, Format, VerticalAlign, Wrapping } from "../types";
+import { SpreadsheetChildEnv } from "../types/spreadsheet_env";
 import { ActionSpec } from "./action";
 import * as ACTIONS from "./menu_items_actions";
 import { setFormatter, setStyle } from "./menu_items_actions";

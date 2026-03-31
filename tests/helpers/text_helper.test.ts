@@ -1,6 +1,6 @@
-import { Style } from "@odoo/o-spreadsheet-engine";
-import { MIN_CELL_TEXT_MARGIN } from "@odoo/o-spreadsheet-engine/constants";
-import { computeRotationPosition } from "@odoo/o-spreadsheet-engine/helpers/text_helper";
+import { Style } from "../../src";
+import { MIN_CELL_TEXT_MARGIN } from "../../src/constants";
+import { computeRotationPosition } from "../../src/helpers/text_helper";
 
 describe("computeRotationPosition", () => {
   const rotate = (x, y, rotation) => {

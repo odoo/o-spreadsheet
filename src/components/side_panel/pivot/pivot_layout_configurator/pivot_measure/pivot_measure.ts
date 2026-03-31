@@ -1,16 +1,16 @@
-import { _t } from "@odoo/o-spreadsheet-engine";
-import { measureDisplayTerms } from "@odoo/o-spreadsheet-engine/components/translations_terms";
-import { PIVOT_TOKEN_COLOR } from "@odoo/o-spreadsheet-engine/constants";
-import { CompiledFormula } from "@odoo/o-spreadsheet-engine/formulas/compiler";
-import { Token } from "@odoo/o-spreadsheet-engine/formulas/tokenizer";
-import { getFieldDisplayName } from "@odoo/o-spreadsheet-engine/helpers/pivot/pivot_helpers";
-import { PivotRuntimeDefinition } from "@odoo/o-spreadsheet-engine/helpers/pivot/pivot_runtime_definition";
 import { Component } from "@odoo/owl";
+import { PIVOT_TOKEN_COLOR } from "../../../../../constants";
+import { CompiledFormula } from "../../../../../formulas/compiler";
+import { Token } from "../../../../../formulas/tokenizer";
 import { unquote } from "../../../../../helpers";
+import { getFieldDisplayName } from "../../../../../helpers/pivot/pivot_helpers";
+import { PivotRuntimeDefinition } from "../../../../../helpers/pivot/pivot_runtime_definition";
 import { createMeasureAutoComplete } from "../../../../../registries/auto_completes/pivot_dimension_auto_complete";
+import { _t } from "../../../../../translation";
 import { Color, PivotMeasure, ValueAndLabel } from "../../../../../types";
 import { StandaloneComposer } from "../../../../composer/standalone_composer/standalone_composer";
 import { Select } from "../../../../select/select";
+import { measureDisplayTerms } from "../../../../translations_terms";
 import { PivotDimension } from "../pivot_dimension/pivot_dimension";
 
 interface Props {

@@ -1,8 +1,8 @@
-import { _t } from "@odoo/o-spreadsheet-engine";
-import { TABLE_STYLE_CATEGORIES } from "@odoo/o-spreadsheet-engine/helpers/table_presets";
-import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
-import { TableConfig, TableStyle } from "@odoo/o-spreadsheet-engine/types/table";
 import { Component, useExternalListener, useRef, useState } from "@odoo/owl";
+import { TABLE_STYLE_CATEGORIES } from "../../../helpers/table_presets";
+import { _t } from "../../../translation";
+import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
+import { TableConfig, TableStyle } from "../../../types/table";
 import { isChildEvent } from "../../helpers/dom_helpers";
 import { Popover, PopoverProps } from "../../popover/popover";
 import { TableStylePreview } from "../table_style_preview/table_style_preview";

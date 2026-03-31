@@ -1,9 +1,9 @@
-import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { Component, onMounted, onWillUnmount, useExternalListener, useRef } from "@odoo/owl";
 import { deepEquals, positionToZone } from "../../helpers";
 import { isPointInsideRect } from "../../helpers/rectangle";
 import { Store, useStore } from "../../store_engine";
 import { DOMCoordinates, GridClickModifiers, HeaderIndex, Pixel, Position, Ref } from "../../types";
+import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 import { FiguresContainer } from "../figures/figure_container/figure_container";
 import { DelayedHoveredCellStore } from "../grid/delayed_hovered_cell_store";
 import { GridAddRowsFooter } from "../grid_add_rows_footer/grid_add_rows_footer";

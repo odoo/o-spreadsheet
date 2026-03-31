@@ -1,8 +1,8 @@
+import { ClipboardMIMEType, OSClipboardContent } from "../../src/types";
 import {
   ClipboardInterface,
   ClipboardReadResult,
-} from "@odoo/o-spreadsheet-engine/types/clipboard/clipboard_interface";
-import { ClipboardMIMEType, OSClipboardContent } from "../../src/types";
+} from "../../src/types/clipboard/clipboard_interface";
 
 export class MockClipboard implements ClipboardInterface {
   content: OSClipboardContent = {};

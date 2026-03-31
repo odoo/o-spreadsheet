@@ -1,6 +1,6 @@
-import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { Component } from "@odoo/owl";
 import { SidePanelContent } from "../../../registries/side_panel_registry";
+import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
 import { useSpreadsheetRect } from "../../helpers/position_hook";
 import { SidePanelComponentProps } from "./side_panel_store";
 

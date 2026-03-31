@@ -1,8 +1,8 @@
-import { _t } from "@odoo/o-spreadsheet-engine";
-import { formatLargeNumber, formatValue } from "@odoo/o-spreadsheet-engine/helpers/format/format";
-import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { Component } from "@odoo/owl";
+import { formatLargeNumber, formatValue } from "../../../../../helpers/format/format";
+import { _t } from "../../../../../translation";
 import { ChartWithDataSetDefinition } from "../../../../../types";
+import { SpreadsheetChildEnv } from "../../../../../types/spreadsheet_env";
 import { Checkbox } from "../../../components/checkbox/checkbox";
 import { ChartSidePanelProps, ChartSidePanelPropsObject } from "../../common";
 

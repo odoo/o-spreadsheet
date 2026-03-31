@@ -2,12 +2,12 @@ import { Component, useState } from "@odoo/owl";
 import { getZoneArea, positionToZone } from "../../../helpers";
 import { CommandResult, CoreTable, DispatchResult, Range, TableConfig, Zone } from "../../../types";
 
-import { TableTerms } from "@odoo/o-spreadsheet-engine/components/translations_terms";
-import { getTableTopLeft } from "@odoo/o-spreadsheet-engine/helpers/table_helpers";
-import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
+import { getTableTopLeft } from "../../../helpers/table_helpers";
+import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
 import { NumberInput } from "../../number_input/number_input";
 import { SelectionInput } from "../../selection_input/selection_input";
 import { TableStylePicker } from "../../tables/table_style_picker/table_style_picker";
+import { TableTerms } from "../../translations_terms";
 import { ValidationMessages } from "../../validation_messages/validation_messages";
 import { Checkbox } from "../components/checkbox/checkbox";
 import { Section } from "../components/section/section";

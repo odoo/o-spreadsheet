@@ -1,8 +1,8 @@
-import { _t } from "@odoo/o-spreadsheet-engine/translation";
-import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { Component, useExternalListener, useRef, useState } from "@odoo/owl";
 import { Store, useStore } from "../../store_engine";
 import { DOMFocusableElementStore } from "../../stores/DOM_focus_store";
+import { _t } from "../../translation";
+import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 import { cssPropertiesToCss } from "../helpers";
 import { ValidationMessages } from "../validation_messages/validation_messages";
 

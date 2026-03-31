@@ -1,9 +1,9 @@
-import { parseLiteral } from "@odoo/o-spreadsheet-engine/helpers/cells/cell_evaluation";
+import { Model } from "../../src";
+import { parseLiteral } from "../../src/helpers/cells/cell_evaluation";
 import {
   CriterionEvaluator,
   criterionEvaluatorRegistry,
-} from "@odoo/o-spreadsheet-engine/registries/criterion_registry";
-import { Model } from "../../src";
+} from "../../src/registries/criterion_registry";
 import {
   DataValidationCriterion,
   DateCriterionValue,

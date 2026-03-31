@@ -1,8 +1,8 @@
-import { arg } from "@odoo/o-spreadsheet-engine/functions/arguments";
-import { functionRegistry } from "@odoo/o-spreadsheet-engine/functions/function_registry";
-import { toMatrix } from "@odoo/o-spreadsheet-engine/functions/helpers";
-import { toCartesian } from "@odoo/o-spreadsheet-engine/helpers/coordinates";
-import { Model } from "@odoo/o-spreadsheet-engine/model";
+import { arg } from "../../src/functions/arguments";
+import { functionRegistry } from "../../src/functions/function_registry";
+import { toMatrix } from "../../src/functions/helpers";
+import { toCartesian } from "../../src/helpers/coordinates";
+import { Model } from "../../src/model";
 import { CellErrorType, CellValueType, ErrorCell, EvaluationError, UID } from "../../src/types";
 import {
   activateSheet,
