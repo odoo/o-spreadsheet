@@ -19,7 +19,7 @@
       </div>
 
       <t t-set="definition" t-value="getChartDefinition(this.chartId)"/>
-      <div class="o-panel-content overflow-y-hidden">
+      <div class="o-panel-content h-100 overflow-y-hidden">
         <div class="h-100" t-att-class="store.panel !== 'configuration' ? 'd-none' : ''">
           <div class="h-100 overflow-y-auto">
             <ChartTypePicker chartId="chartId" chartPanelStore="store"/>
