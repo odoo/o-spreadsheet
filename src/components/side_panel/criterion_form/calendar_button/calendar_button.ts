@@ -1,8 +1,7 @@
-import { DEFAULT_LOCALE } from "@odoo/o-spreadsheet-engine";
-import { parseDateTime } from "@odoo/o-spreadsheet-engine/helpers/dates";
-import { formatValue } from "@odoo/o-spreadsheet-engine/helpers/format/format";
-import { SpreadsheetChildEnv } from "@odoo/o-spreadsheet-engine/types/spreadsheet_env";
 import { Component, useRef } from "@odoo/owl";
+import { formatValue, parseDateTime } from "../../../../helpers";
+import { DEFAULT_LOCALE } from "../../../../types";
+import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
 
 interface Props {
   value: string;

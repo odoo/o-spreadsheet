@@ -36,5 +36,9 @@
         </div>
       </t>
     </div>
+    <div>
+      this.props.value is
+      <t t-out="this.props.value"/>
+    </div>
   </t>
 </templates>
