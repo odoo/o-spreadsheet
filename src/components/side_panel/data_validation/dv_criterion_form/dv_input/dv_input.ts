@@ -1,5 +1,5 @@
 import { Component, useEffect, useRef, useState } from "@odoo/owl";
-import { canonicalizeContent } from "../../../../../helpers/locale";
+import { canonicalizeContent, localizeContent } from "../../../../../helpers/locale";
 import { dataValidationEvaluatorRegistry } from "../../../../../registries/data_validation_registry";
 import { _t } from "../../../../../translation";
 import { DataValidationCriterionType, SpreadsheetChildEnv } from "../../../../../types";
@@ -80,9 +80,17 @@ export class DataValidationInput extends Component<Props, SpreadsheetChildEnv> {
     return evaluator.allowedValues ?? "any";
   }
 
+  get localeInputValue(): string {
+    const locale = this.env.model.getters.getLocale();
+    return localizeContent(this.props.value, locale);
+  }
+
   onInputValueChanged(ev: Event) {
     this.state.shouldDisplayError = true;
-    this.props.onValueChanged((ev.target as HTMLInputElement).value);
+    const value = (ev.target as HTMLInputElement).value;
+    const locale = this.env.model.getters.getLocale();
+    const canonicalizedValue = canonicalizeContent(value, locale);
+    this.props.onValueChanged(canonicalizedValue);
   }
 
   onChangeComposerValue(str: string) {

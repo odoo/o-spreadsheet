@@ -13,7 +13,9 @@ import {
   setCellContent,
   setSelection,
   setStyle,
+  updateLocale,
 } from "../test_helpers/commands_helpers";
+import { FR_LOCALE } from "../test_helpers/constants";
 import { click, keyDown, setInputValueAndTrigger } from "../test_helpers/dom_helper";
 import { getCellContent } from "../test_helpers/getters_helpers";
 import {
@@ -404,5 +406,36 @@ describe("Selection arrow icon in grid", () => {
     ({ fixture } = await mountSpreadsheet({ model }));
     expect(fixture.querySelector(".o-dv-list-icon")).toBeNull();
     expect(fixture.querySelector(".o-filter-icon")).not.toBeNull();
+  });
+});
+
+describe("Localization in sidepanel", () => {
+  test("Date value is localized in the edition composer", async () => {
+    updateLocale(model, FR_LOCALE);
+    addDataValidation(model, "A1", "id", {
+      type: "dateIs",
+      values: ["3/5/2021"],
+      dateValue: "exactDate",
+    });
+    await nextTick();
+    ({ fixture } = await mountDataValidationPanel(model));
+    await click(fixture, ".o-dv-preview");
+    expect(".o-dv-settings .o-composer").toHaveText("05/03/2021");
+  });
+
+  test("values in list are localized in the edition composer", async () => {
+    addDataValidation(model, "A1", "id", {
+      type: "isValueInList",
+      values: ["1.1", "2.3"],
+      displayStyle: "arrow",
+    });
+    updateLocale(model, FR_LOCALE);
+    ({ fixture } = await mountDataValidationPanel(model));
+    expect(".o-dv-preview-description").toHaveText("Value one of: 1,1; 2,3");
+    await click(fixture, ".o-dv-preview");
+    const inputs = fixture.querySelectorAll<HTMLInputElement>(".o-dv-list-values .o-input");
+    expect(inputs).toHaveLength(2);
+    expect(inputs[0].value).toBe("1,1");
+    expect(inputs[1].value).toBe("2,3");
   });
 });
