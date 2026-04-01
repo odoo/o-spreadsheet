@@ -808,8 +808,13 @@ function _createLargeNumberFormat<T extends InternalFormat>(
     return format;
   }
 
+  // Large number formatting drops decimal digit placeholders, but some formats
+  // keep literal suffixes in the decimal part (for example ")" for negative
+  // numbers or a trailing space for positive accounting numbers). Round first
+  // so those non-digit tokens are moved to the integer part and preserved.
+  const roundedFormat = _roundFormat(format) as NumberInternalFormat & T;
   const postFixToken: FormatToken = { type: "STRING", value: postFix };
-  let newIntegerPart = [...format.integerPart];
+  let newIntegerPart = [...roundedFormat.integerPart];
 
   const lastDigitIndex = newIntegerPart.findLastIndex((token) => token.type === "DIGIT");
   if (lastDigitIndex === -1) {
@@ -835,11 +840,11 @@ function _createLargeNumberFormat<T extends InternalFormat>(
   }
 
   const missingPercents =
-    format.percentSymbols - newIntegerPart.filter((tk) => tk.type === "PERCENT").length;
+    roundedFormat.percentSymbols - newIntegerPart.filter((tk) => tk.type === "PERCENT").length;
 
   newIntegerPart.push(...new Array(missingPercents).fill({ type: "PERCENT", value: "%" }));
 
-  return { ...format, integerPart: newIntegerPart, decimalPart: undefined, magnitude };
+  return { ...roundedFormat, integerPart: newIntegerPart, magnitude };
 }
 
 export function changeDecimalPlaces(format: Format, step: number) {
