@@ -1,4 +1,5 @@
 import { Model } from "../../src";
+import { createAccountingFormat } from "../../src/helpers";
 import { setCellContent, setCellFormat, setFormat } from "../test_helpers/commands_helpers";
 import { getCellContent, getCellError } from "../test_helpers/getters_helpers";
 import { evaluateCellText } from "../test_helpers/helpers";
@@ -136,6 +137,15 @@ describe("FORMAT.LARGE.NUMBER formula", () => {
     setFormat(model, "A1", "#,##0[$€]");
     setCellContent(model, "A2", "=FORMAT.LARGE.NUMBER(A1)");
     expect(getCellContent(model, "A2")).toBe("100k€");
+  });
+
+  test("Accounting negative format keeps its closing parenthesis", () => {
+    const model = new Model();
+    setCellContent(model, "A1", "-200000");
+    setFormat(model, "A1", createAccountingFormat({ symbol: "$" }));
+    setCellContent(model, "A2", "=FORMAT.LARGE.NUMBER(A1)");
+
+    expect(getCellContent(model, "A2")).toBe("$(200k)");
   });
 
   test("Chaining FORMAT.LARGE.NUMBER does nothing with automatic/same unit", () => {
