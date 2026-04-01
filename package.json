@@ -42,6 +42,7 @@
     "postdist": " npm run bundle:xml -- --outDir dist && npm run bundle:css -- --out dist",
     "test": "tsc --noEmit --project tsconfig.jest.json && jest",
     "monkey": "SPREADSHEET_MONKEY_COUNT=$npm_config_monkey_count jest 'tests/collaborative/collaborative_monkey_party.test.ts'",
+    "model-in-node": "npm run dist && node tools/run_in_node.cjs",
     "zipXlsx": "node tools/bundle_xlsx/zip_xlsx_demo.cjs",
     "unzipXlsx": "node tools/bundle_xlsx/unzip_xlsx_demo.cjs"
   },
