@@ -35,89 +35,92 @@
         </Section>
 
         <Section title.translate="Thresholds">
-          <t t-call="o-spreadsheet-GaugeChartColorSectionTemplate">
-            <t t-set="sectionRule" t-value="state.sectionRule"/>
-          </t>
+          <div class="o-gauge-color-set">
+            <table>
+              <tr>
+                <th class="o-gauge-color-set-colorPicker"/>
+                <th class="o-gauge-color-set-text"/>
+                <th class="o-gauge-color-set-operator"/>
+                <th class="o-gauge-color-set-value">Value</th>
+                <th class="o-gauge-color-set-type">Type</th>
+              </tr>
+
+              <tr>
+                <td>
+                  <RoundColorPicker
+                    currentColor="state.sectionRule.colors.lowerColor"
+                    onColorPicked="(color) => this.updateSectionColor('lowerColor', color)"
+                  />
+                </td>
+                <td>When value is</td>
+                <td class="pe-2">
+                  <Select
+                    selectedValue="state.sectionRule['lowerInflectionPoint'].operator"
+                    name="'operatorType'"
+                    values="inflectionPointOperators"
+                    onChange.bind="(value) => this.updateSectionRuleOperator('lowerInflectionPoint', value)"
+                  />
+                </td>
+                <td class="pe-2">
+                  <StandaloneComposer t-props="getGaugeInflectionComposerProps('lowerColor')"/>
+                </td>
+                <td>
+                  <Select
+                    selectedValue="state.sectionRule['lowerInflectionPoint'].type"
+                    name="'valueType'"
+                    values="inflectionPointTypes"
+                    onChange.bind="(value) => this.updateSectionRulePointType('lowerInflectionPoint', value)"
+                  />
+                </td>
+              </tr>
+
+              <tr>
+                <td>
+                  <RoundColorPicker
+                    currentColor="state.sectionRule.colors.middleColor"
+                    onColorPicked="(color) => this.updateSectionColor('middleColor', color)"
+                  />
+                </td>
+                <td>When value is</td>
+                <td class="pe-2">
+                  <Select
+                    selectedValue="state.sectionRule['upperInflectionPoint'].operator"
+                    name="'operatorType'"
+                    values="inflectionPointOperators"
+                    onChange.bind="(value) => this.updateSectionRuleOperator('upperInflectionPoint', value)"
+                  />
+                </td>
+                <td class="pe-2">
+                  <StandaloneComposer t-props="getGaugeInflectionComposerProps('middleColor')"/>
+                </td>
+                <td>
+                  <Select
+                    selectedValue="state.sectionRule['upperInflectionPoint'].type"
+                    name="'valueType'"
+                    values="inflectionPointTypes"
+                    onChange.bind="(value) => this.updateSectionRulePointType('upperInflectionPoint', value)"
+                  />
+                </td>
+              </tr>
+
+              <tr>
+                <td>
+                  <RoundColorPicker
+                    currentColor="state.sectionRule.colors.upperColor"
+                    onColorPicked="(color) => this.updateSectionColor('upperColor', color)"
+                  />
+                </td>
+                <td>Else</td>
+                <td/>
+                <td/>
+                <td/>
+              </tr>
+            </table>
+          </div>
         </Section>
 
         <ChartErrorSection t-if="designErrorMessages.length" messages="designErrorMessages"/>
       </t>
     </SidePanelCollapsible>
-  </t>
-
-  <t t-name="o-spreadsheet-GaugeChartColorSectionTemplate">
-    <div class="o-gauge-color-set">
-      <table>
-        <tr>
-          <th class="o-gauge-color-set-colorPicker"/>
-          <th class="o-gauge-color-set-text"/>
-          <th class="o-gauge-color-set-operator"/>
-          <th class="o-gauge-color-set-value">Value</th>
-          <th class="o-gauge-color-set-type">Type</th>
-        </tr>
-
-        <t t-call="o-spreadsheet-GaugeChartColorSectionTemplateRow">
-          <t t-set="sectionColor" t-value="sectionRule.colors.lowerColor"/>
-          <t t-set="sectionType" t-value="'lowerColor'"/>
-          <t t-set="inflectionPoint" t-value="'lowerInflectionPoint'"/>
-          <t t-set="isInvalid" t-value="isLowerInflectionPointInvalid"/>
-          <t t-set="inflectionPointName" t-value="'lowerInflectionPoint'"/>
-        </t>
-
-        <t t-call="o-spreadsheet-GaugeChartColorSectionTemplateRow">
-          <t t-set="sectionColor" t-value="sectionRule.colors.middleColor"/>
-          <t t-set="sectionType" t-value="'middleColor'"/>
-          <t t-set="inflectionPoint" t-value="'upperInflectionPoint'"/>
-          <t t-set="isInvalid" t-value="isUpperInflectionPointInvalid"/>
-          <t t-set="inflectionPointName" t-value="'upperInflectionPoint'"/>
-        </t>
-
-        <tr>
-          <td>
-            <RoundColorPicker
-              currentColor="sectionRule.colors.upperColor"
-              onColorPicked="(color) => this.updateSectionColor('upperColor', color)"
-            />
-          </td>
-          <td>Else</td>
-          <td/>
-          <td/>
-          <td/>
-        </tr>
-      </table>
-    </div>
-  </t>
-
-  <t t-name="o-spreadsheet-GaugeChartColorSectionTemplateRow">
-    <tr>
-      <td>
-        <RoundColorPicker
-          currentColor="sectionColor"
-          onColorPicked="(color) => this.updateSectionColor(sectionType, color)"
-        />
-      </td>
-      <td>When value is</td>
-      <td class="pe-2">
-        <t t-set="below">below</t>
-        <t t-set="belowOrEqualTo">below or equal to</t>
-        <Select
-          selectedValue="sectionRule[inflectionPoint].operator"
-          name="'operatorType'"
-          values="inflectionPointOperators"
-          onChange.bind="(value) => this.updateSectionRuleOperator(inflectionPoint, value)"
-        />
-      </td>
-      <td class="pe-2">
-        <StandaloneComposer t-props="getGaugeInflectionComposerProps(sectionType)"/>
-      </td>
-      <td>
-        <Select
-          selectedValue="sectionRule[inflectionPoint].type"
-          name="'valueType'"
-          values="inflectionPointTypes"
-          onChange.bind="(value) => this.updateSectionRulePointType(inflectionPoint, value)"
-        />
-      </td>
-    </tr>
   </t>
 </templates>
