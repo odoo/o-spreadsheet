@@ -7,6 +7,10 @@ export class WebsocketTransport {
   isConnected = false;
   socket = null;
 
+  constructor(wsUrl) {
+    this.wsUrl = wsUrl || `ws://${window.location.hostname}:9090`;
+  }
+
   /**
    * Open a connection to the collaborative server.
    *
@@ -14,7 +18,7 @@ export class WebsocketTransport {
    */
   connect() {
     return new Promise((resolve, reject) => {
-      const socket = new WebSocket(`ws://${window.location.hostname}:9090`);
+      const socket = new WebSocket(this.wsUrl);
       socket.addEventListener("open", () => {
         this.socket = socket;
         this.isConnected = true;

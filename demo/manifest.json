@@ -1,0 +1,24 @@
+{
+  "short_name": "o-spreadsheet",
+  "name": "Odoo Spreadsheet",
+  "theme_color": "#3730a3",
+  "background_color": "#ffffff",
+  "display": "standalone",
+  "start_url": "./index.html",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ],
+  "file_handlers": [
+    {
+      "action": "./index.html",
+      "accept": {
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": [".xlsx"],
+        "application/json": [".json"]
+      }
+    }
+  ]
+}

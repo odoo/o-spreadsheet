@@ -5,6 +5,7 @@ import { BorderDescr, Color, Style } from "./types/misc";
 export const CANVAS_SHIFT = 0.5;
 
 // Colors
+
 export const HIGHLIGHT_COLOR = "#017E84";
 export const BACKGROUND_HEADER_COLOR = "#F8F9FA";
 export const BACKGROUND_HEADER_SELECTED_COLOR = "#E8EAED";
