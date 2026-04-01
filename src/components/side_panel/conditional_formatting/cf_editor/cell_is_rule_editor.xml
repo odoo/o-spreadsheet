@@ -1,89 +1,80 @@
 <templates>
-  <t t-name="o-spreadsheet-CellIsRuleEditorPreview">
-    <div
-      class="o-cf-preview-display border"
-      t-attf-style="font-weight:{{currentStyle.bold ?'bold':'normal'}};
-                       text-decoration:{{getTextDecoration(currentStyle)}};
-                       font-style:{{currentStyle.italic?'italic':'normal'}};
-                       color:{{currentStyle.textColor || '#000'}};
-                       background-color:{{currentStyle.fillColor}};">
-      <t t-if="previewText" t-out="previewText"/>
-      <t t-else="">Preview text</t>
-    </div>
-  </t>
-
   <t t-name="o-spreadsheet-CellIsRuleEditor">
-    <t t-set="fill_color">Fill Color</t>
-    <t t-set="text_color">Text Color</t>
-    <t t-set="state" t-value="store.state"/>
     <div class="o-cf-cell-is-rule">
       <div class="o-section-subtitle">Format cells if...</div>
       <Select
         class="'o-cell-is-operator mb-2'"
-        values="store.cfCriterions"
-        selectedValue="state.rules.cellIs.operator"
-        onChange="(operator) => store.editOperator(operator)"
+        values="this.props.store.cfCriterions"
+        selectedValue="this.rule.operator"
+        onChange="(operator) => this.props.store.editOperator(operator)"
       />
 
       <t
-        t-if="store.criterionComponent"
-        t-component="store.criterionComponent"
-        t-key="state.rules.cellIs.operator"
-        criterion="store.genericCriterion"
-        onCriterionChanged="(rule) => store.onRuleValuesChanged(rule)"
-        autofocus="store.state.hasEditedCf"
+        t-if="this.props.store.criterionComponent"
+        t-component="this.props.store.criterionComponent"
+        t-key="this.rule.operator"
+        criterion="this.props.store.genericCriterion"
+        onCriterionChanged="(rule) => this.props.store.onRuleValuesChanged(rule)"
+        autofocus="this.props.store.state.hasEditedCf"
       />
 
       <div class="o-section-subtitle pt-3">Formatting style</div>
 
-      <t t-call="o-spreadsheet-CellIsRuleEditorPreview">
-        <t t-set="currentStyle" t-value="rule.style"/>
-      </t>
+      <div
+        class="o-cf-preview-display border"
+        t-attf-style="font-weight:{{this.rule.style.bold ?'bold':'normal'}};
+                       text-decoration:{{this.getTextDecoration(this.rule.style)}};
+                       font-style:{{this.rule.style.italic?'italic':'normal'}};
+                       color:{{this.rule.style.textColor || '#000'}};
+                       background-color:{{this.rule.style.fillColor}};">
+        <t t-if="previewText" t-out="previewText"/>
+        <t t-else="">Preview text</t>
+      </div>
       <div class="o-sidePanel-tools d-flex">
         <div
           class="o-hoverable-button o-menu-item-button"
           title="Bold"
-          t-att-class="{active:rule.style.bold}"
-          t-on-click="() => store.toggleStyle('bold')">
+          t-att-class="{active:this.rule.style.bold}"
+          t-on-click="() => this.props.store.toggleStyle('bold')">
           <t t-call="o-spreadsheet-Icon.BOLD"/>
         </div>
         <div
           class="o-hoverable-button o-menu-item-button"
           title="Italic"
-          t-att-class="{active:rule.style.italic}"
-          t-on-click="() => store.toggleStyle('italic')">
+          t-att-class="{active:this.rule.style.italic}"
+          t-on-click="() => this.props.store.toggleStyle('italic')">
           <t t-call="o-spreadsheet-Icon.ITALIC"/>
         </div>
         <div
           class="o-hoverable-button o-menu-item-button"
           title="Underline"
-          t-att-class="{active:rule.style.underline}"
-          t-on-click="(ev) => store.toggleStyle('underline', ev)">
+          t-att-class="{active:this.rule.style.underline}"
+          t-on-click="(ev) => this.props.store.toggleStyle('underline', ev)">
           <t t-call="o-spreadsheet-Icon.UNDERLINE"/>
         </div>
         <div
           class="o-hoverable-button o-menu-item-button"
           title="Strikethrough"
-          t-att-class="{active:rule.style.strikethrough}"
-          t-on-click="(ev) => store.toggleStyle('strikethrough', ev)">
+          t-att-class="{active:this.rule.style.strikethrough}"
+          t-on-click="(ev) => this.props.store.toggleStyle('strikethrough', ev)">
           <t t-call="o-spreadsheet-Icon.STRIKE"/>
         </div>
         <ColorPickerWidget
-          currentColor="rule.style.textColor || '#000000'"
-          toggleColorPicker="() => store.toggleMenu('cellIsRule-textColor')"
-          showColorPicker="state.openedMenu === 'cellIsRule-textColor'"
-          onColorPicked="(color) => store.setColor('textColor', color)"
-          title="text_color"
+          currentColor="this.rule.style.textColor || '#000000'"
+          toggleColorPicker="() => this.props.store.toggleMenu('cellIsRule-textColor')"
+          showColorPicker="this.props.store.state.openedMenu === 'cellIsRule-textColor'"
+          onColorPicked="(color) => this.props.store.setColor('textColor', color)"
+          title.translate="Text Color"
           icon="'o-spreadsheet-Icon.TEXT_COLOR'"
           class="'o-hoverable-button o-menu-item-button'"
         />
         <div class="o-divider border-end"/>
         <ColorPickerWidget
-          currentColor="rule.style.fillColor"
-          toggleColorPicker="() => store.toggleMenu('cellIsRule-fillColor')"
-          showColorPicker="state.openedMenu === 'cellIsRule-fillColor'"
-          onColorPicked="(color) => store.setColor('fillColor', color)"
-          title="fill_color"
+          currentColor="this.rule.style.fillColor"
+          toggleColorPicker="() => this.props.store.toggleMenu('cellIsRule-fillColor')"
+          showColorPicker="this.props.store.state.openedMenu === 'cellIsRule-fillColor'"
+          onColorPicked="(color) => this.props.store.setColor('fillColor', color)"
+          title.translate="Fill Color"
           icon="'o-spreadsheet-Icon.FILL_COLOR'"
           class="'o-hoverable-button o-menu-item-button'"
         />
