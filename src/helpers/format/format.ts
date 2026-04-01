@@ -744,8 +744,9 @@ function _createLargeNumberFormat<T extends InternalFormat>(
     return format;
   }
 
+  const roundedFormat = _roundFormat(format) as NumberInternalFormat & T;
   const postFixToken: FormatToken = { type: "STRING", value: postFix };
-  let newIntegerPart = [...format.integerPart];
+  let newIntegerPart = [...roundedFormat.integerPart];
 
   const lastDigitIndex = newIntegerPart.findLastIndex((token) => token.type === "DIGIT");
   if (lastDigitIndex === -1) {
@@ -771,11 +772,11 @@ function _createLargeNumberFormat<T extends InternalFormat>(
   }
 
   const missingPercents =
-    format.percentSymbols - newIntegerPart.filter((tk) => tk.type === "PERCENT").length;
+    roundedFormat.percentSymbols - newIntegerPart.filter((tk) => tk.type === "PERCENT").length;
 
   newIntegerPart.push(...new Array(missingPercents).fill({ type: "PERCENT", value: "%" }));
 
-  return { ...format, integerPart: newIntegerPart, decimalPart: undefined, magnitude };
+  return { ...roundedFormat, integerPart: newIntegerPart, magnitude };
 }
 
 export function changeDecimalPlaces(format: Format, step: number) {
