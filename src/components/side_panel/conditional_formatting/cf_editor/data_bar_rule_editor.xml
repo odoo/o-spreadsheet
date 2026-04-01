@@ -1,20 +1,20 @@
 <templates>
-  <t t-name="o-spreadsheet-DataBarEditor">
+  <t t-name="o-spreadsheet-DataBarRuleEditor">
     <div class="o-cf-data-bar-editor">
       <div class="o-section-subtitle">Color</div>
       <RoundColorPicker
-        currentColor="colorNumberToHex(rule.color)"
-        onColorPicked="(color) => store.updateDataBarColor(color)"
+        currentColor="this.colorNumberToHex(this.rule.color)"
+        onColorPicked="(color) => this.props.store.updateDataBarColor(color)"
         disableNoColor="true"
       />
       <div class="o-section-subtitle">Range of values</div>
       <SelectionInput
-        ranges="store.rangeValues"
+        ranges="this.props.store.rangeValues"
         class="'o-range'"
         isInvalid="false"
         hasSingleRange="true"
-        onSelectionChanged="(ranges) => store.onDataBarRangeUpdate(ranges)"
-        onSelectionConfirmed="() => store.onDataBarRangeChange()"
+        onSelectionChanged="(ranges) => this.props.store.onDataBarRangeUpdate(ranges)"
+        onSelectionConfirmed="() => this.props.store.onDataBarRangeChange()"
         required="false"
       />
     </div>

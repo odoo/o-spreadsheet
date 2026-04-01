@@ -1,69 +1,16 @@
 <templates>
-  <t t-name="o-spreadsheet-ColorScaleRuleEditorThreshold">
-    <t t-set="fill_color">Fill Color</t>
-    <div
-      t-attf-class="o-threshold o-threshold-{{thresholdType}} d-flex align-items-center flex-row">
-      <t t-if="thresholdType === 'midpoint'">
-        <Select
-          selectedValue="threshold?.type || 'none'"
-          class="'me-2'  + (threshold and threshold.type !== 'value' ? ' o-select-with-input' : '')"
-          name="'valueType'"
-          values="getThresholdTypeSelectOptions(thresholdType)"
-          onChange.bind="(value) => store.onMidpointChange(value)"
-        />
-      </t>
-      <t t-else="">
-        <Select
-          selectedValue="threshold?.type || 'none'"
-          class="'me-2'  + (threshold and threshold.type !== 'value' ? ' o-select-with-input' : '')"
-          name="'valueType'"
-          values="getThresholdTypeSelectOptions(thresholdType)"
-          onChange.bind="(value) => store.updateThresholdType(thresholdType, value)"
-        />
-      </t>
-      <div class="o-threshold-value me-2" t-if="threshold and threshold.type !== 'value'">
-        <input
-          t-if="threshold.type !== 'formula'"
-          type="text"
-          class="o-input"
-          t-att-value="threshold.value"
-          t-on-change="(ev) => store.updateThresholdValue(thresholdType, ev.target.value)"
-          t-att-class="{ 'o-invalid': isValueInvalid(thresholdType), 'invisible': threshold === undefined }"
-        />
-        <StandaloneComposer t-else="" t-props="getColorScaleComposerProps(thresholdType)"/>
-      </div>
-      <div t-attf-class="flex-shrink-0 ms-1 {{ threshold === undefined ? 'invisible' : ''}}">
-        <RoundColorPicker
-          currentColor="getThresholdColor(threshold)"
-          onColorPicked="(color) => store.setColorScaleColor(thresholdType, color)"
-          title="fill_color"
-          disableNoColor="true"
-        />
-      </div>
-    </div>
-  </t>
-
   <t t-name="o-spreadsheet-ColorScaleRuleEditor">
     <div class="o-cf-color-scale-editor">
       <div class="o-section-subtitle">Preview</div>
-      <div class="o-cf-preview-display mb-4" t-attf-style="{{store.previewGradient}}">
+      <div class="o-cf-preview-display mb-4" t-attf-style="{{this.props.store.previewGradient}}">
         Preview text
       </div>
       <div class="o-section-subtitle">Minpoint</div>
-      <t t-call="o-spreadsheet-ColorScaleRuleEditorThreshold">
-        <t t-set="threshold" t-value="rule.minimum"/>
-        <t t-set="thresholdType" t-value="'minimum'"/>
-      </t>
+      <ColorScaleRuleEditorThreshold store="this.props.store" thresholdType="'minimum'"/>
       <div class="o-section-subtitle">MidPoint</div>
-      <t t-call="o-spreadsheet-ColorScaleRuleEditorThreshold">
-        <t t-set="threshold" t-value="rule.midpoint"/>
-        <t t-set="thresholdType" t-value="'midpoint'"/>
-      </t>
+      <ColorScaleRuleEditorThreshold store="this.props.store" thresholdType="'midpoint'"/>
       <div class="o-section-subtitle">MaxPoint</div>
-      <t t-call="o-spreadsheet-ColorScaleRuleEditorThreshold">
-        <t t-set="threshold" t-value="rule.maximum"/>
-        <t t-set="thresholdType" t-value="'maximum'"/>
-      </t>
+      <ColorScaleRuleEditorThreshold store="this.props.store" thresholdType="'maximum'"/>
     </div>
   </t>
 </templates>

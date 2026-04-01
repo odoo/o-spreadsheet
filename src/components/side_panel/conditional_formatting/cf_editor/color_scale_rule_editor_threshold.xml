@@ -1,0 +1,44 @@
+<templates>
+  <t t-name="o-spreadsheet-ColorScaleRuleEditorThreshold">
+    <div
+      t-attf-class="o-threshold o-threshold-{{this.props.thresholdType}} d-flex align-items-center flex-row">
+      <t t-if="this.props.thresholdType === 'midpoint'">
+        <Select
+          selectedValue="this.threshold?.type || 'none'"
+          class="'me-2'  + (this.threshold and this.threshold.type !== 'value' ? ' o-select-with-input' : '')"
+          name="'valueType'"
+          values="this.getThresholdTypeSelectOptions()"
+          onChange.bind="(value) => this.props.store.onMidpointChange(value)"
+        />
+      </t>
+      <t t-else="">
+        <Select
+          selectedValue="this.threshold?.type || 'none'"
+          class="'me-2'  + (this.threshold and this.threshold.type !== 'value' ? ' o-select-with-input' : '')"
+          name="'valueType'"
+          values="this.getThresholdTypeSelectOptions()"
+          onChange.bind="(value) => this.props.store.updateThresholdType(this.props.thresholdType, value)"
+        />
+      </t>
+      <div class="o-threshold-value me-2" t-if="this.threshold and this.threshold.type !== 'value'">
+        <input
+          t-if="this.threshold.type !== 'formula'"
+          type="text"
+          class="o-input"
+          t-att-value="this.threshold.value"
+          t-on-change="(ev) => this.props.store.updateThresholdValue(this.props.thresholdType, ev.target.value)"
+          t-att-class="{ 'o-invalid': this.isValueInvalid(), 'invisible': this.threshold === undefined }"
+        />
+        <StandaloneComposer t-else="" t-props="this.getColorScaleComposerProps()"/>
+      </div>
+      <div t-attf-class="flex-shrink-0 ms-1 {{ this.threshold === undefined ? 'invisible' : ''}}">
+        <RoundColorPicker
+          currentColor="this.getThresholdColor(this.threshold)"
+          onColorPicked="(color) => this.props.store.setColorScaleColor(this.props.thresholdType, color)"
+          title.translate="Fill Color"
+          disableNoColor="true"
+        />
+      </div>
+    </div>
+  </t>
+</templates>
