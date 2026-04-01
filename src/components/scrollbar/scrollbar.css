@@ -1,4 +1,7 @@
 .o-spreadsheet {
+  .o-scrollbar-container {
+    background-color: var(--os-background-gray-color);
+  }
   .o-scrollbar {
     position: absolute;
     overflow: auto;
