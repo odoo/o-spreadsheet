@@ -6,7 +6,7 @@
           type="text"
           t-ref="input"
           t-on-input="onInputValueChanged"
-          t-att-value="props.value"
+          t-att-value="this.localeInputValue"
           class="o-input"
           t-att-class="{
               'o-invalid border-danger position-relative': errorMessage,

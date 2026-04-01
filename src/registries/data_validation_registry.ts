@@ -103,7 +103,13 @@ dataValidationEvaluatorRegistry.add("textContains", {
   criterionValueErrorString: DVTerms.CriterionError.notEmptyValue,
   numberOfValues: () => 1,
   name: _t("Text contains"),
-  getPreview: (criterion) => _t('Text contains "%s"', criterion.values[0]),
+  getPreview: (criterion: TextContainsCriterion, getters: Getters) => {
+    const locale = getters.getLocale();
+    const localizedValue = criterion.values[0]
+      ? localizeContent(criterion.values[0]?.toString(), locale)
+      : "";
+    return _t('Text contains "%s"', localizedValue);
+  },
 });
 
 dataValidationEvaluatorRegistry.add("textNotContains", {
@@ -119,7 +125,13 @@ dataValidationEvaluatorRegistry.add("textNotContains", {
   criterionValueErrorString: DVTerms.CriterionError.notEmptyValue,
   numberOfValues: () => 1,
   name: _t("Text does not contains"),
-  getPreview: (criterion) => _t('Text does not contain "%s"', criterion.values[0]),
+  getPreview: (criterion: TextNotContainsCriterion, getters: Getters) => {
+    const locale = getters.getLocale();
+    const localizedValue = criterion.values[0]
+      ? localizeContent(criterion.values[0]?.toString(), locale)
+      : "";
+    return _t('Text does not contain "%s"', localizedValue);
+  },
 });
 
 dataValidationEvaluatorRegistry.add("textIs", {
@@ -135,7 +147,13 @@ dataValidationEvaluatorRegistry.add("textIs", {
   criterionValueErrorString: DVTerms.CriterionError.notEmptyValue,
   numberOfValues: () => 1,
   name: _t("Text is exactly"),
-  getPreview: (criterion) => _t('Text is exactly "%s"', criterion.values[0]),
+  getPreview: (criterion: TextContainsCriterion, getters: Getters) => {
+    const locale = getters.getLocale();
+    const localizedValue = criterion.values[0]
+      ? localizeContent(criterion.values[0]?.toString(), locale)
+      : "";
+    return _t('Text is exactly "%s"', localizedValue);
+  },
 });
 
 /** Note: this regex doesn't allow for all the RFC-compliant mail addresses but should be enough for our purpose. */
@@ -430,7 +448,11 @@ dataValidationEvaluatorRegistry.add("isEqual", {
   criterionValueErrorString: DVTerms.CriterionError.numberValue,
   numberOfValues: () => 1,
   name: _t("Is equal to"),
-  getPreview: (criterion) => _t("Value is equal to %s", criterion.values[0]),
+  getPreview: (criterion: IsEqualCriterion, getters: Getters) => {
+    const locale = getters.getLocale();
+    const values = getNumberCriterionlocalizedValues(criterion, locale);
+    return _t("Value is equal to %s", values[0]);
+  },
 });
 
 dataValidationEvaluatorRegistry.add("isNotEqual", {
@@ -455,7 +477,11 @@ dataValidationEvaluatorRegistry.add("isNotEqual", {
   criterionValueErrorString: DVTerms.CriterionError.numberValue,
   numberOfValues: () => 1,
   name: _t("Is not equal to"),
-  getPreview: (criterion) => _t("Value is not equal to %s", criterion.values[0]),
+  getPreview: (criterion: IsEqualCriterion, getters: Getters) => {
+    const locale = getters.getLocale();
+    const values = getNumberCriterionlocalizedValues(criterion, locale);
+    return _t("Value is not equal to %s", values[0]);
+  },
 });
 
 dataValidationEvaluatorRegistry.add("isGreaterThan", {
@@ -480,7 +506,11 @@ dataValidationEvaluatorRegistry.add("isGreaterThan", {
   criterionValueErrorString: DVTerms.CriterionError.numberValue,
   numberOfValues: () => 1,
   name: _t("Is greater than"),
-  getPreview: (criterion) => _t("Value is greater than %s", criterion.values[0]),
+  getPreview: (criterion: IsGreaterThanCriterion, getters: Getters) => {
+    const locale = getters.getLocale();
+    const values = getNumberCriterionlocalizedValues(criterion, locale);
+    return _t("Value is greater than %s", values[0]);
+  },
 });
 
 dataValidationEvaluatorRegistry.add("isGreaterOrEqualTo", {
@@ -505,7 +535,11 @@ dataValidationEvaluatorRegistry.add("isGreaterOrEqualTo", {
   criterionValueErrorString: DVTerms.CriterionError.numberValue,
   numberOfValues: () => 1,
   name: _t("Is greater or equal to"),
-  getPreview: (criterion) => _t("Value is greater or equal to %s", criterion.values[0]),
+  getPreview: (criterion: IsGreaterOrEqualToCriterion, getters: Getters) => {
+    const locale = getters.getLocale();
+    const values = getNumberCriterionlocalizedValues(criterion, locale);
+    return _t("Value is greater or equal to %s", values[0]);
+  },
 });
 
 dataValidationEvaluatorRegistry.add("isLessThan", {
@@ -530,7 +564,11 @@ dataValidationEvaluatorRegistry.add("isLessThan", {
   criterionValueErrorString: DVTerms.CriterionError.numberValue,
   numberOfValues: () => 1,
   name: _t("Is less than"),
-  getPreview: (criterion) => _t("Value is less than %s", criterion.values[0]),
+  getPreview: (criterion: IsLessThanCriterion, getters: Getters) => {
+    const locale = getters.getLocale();
+    const values = getNumberCriterionlocalizedValues(criterion, locale);
+    return _t("Value is less than %s", values[0]);
+  },
 });
 
 dataValidationEvaluatorRegistry.add("isLessOrEqualTo", {
@@ -555,7 +593,11 @@ dataValidationEvaluatorRegistry.add("isLessOrEqualTo", {
   criterionValueErrorString: DVTerms.CriterionError.numberValue,
   numberOfValues: () => 1,
   name: _t("Is less or equal to"),
-  getPreview: (criterion) => _t("Value is less or equal to %s", criterion.values[0]),
+  getPreview: (criterion: IsLessOrEqualToCriterion, getters: Getters) => {
+    const locale = getters.getLocale();
+    const values = getNumberCriterionlocalizedValues(criterion, locale);
+    return _t("Value is less or equal to %s", values[0]);
+  },
 });
 
 dataValidationEvaluatorRegistry.add("isBetween", {
@@ -580,8 +622,11 @@ dataValidationEvaluatorRegistry.add("isBetween", {
   criterionValueErrorString: DVTerms.CriterionError.numberValue,
   numberOfValues: () => 2,
   name: _t("Is between"),
-  getPreview: (criterion) =>
-    _t("Value is between %s and %s", criterion.values[0], criterion.values[1]),
+  getPreview: (criterion: IsBetweenCriterion, getters: Getters) => {
+    const locale = getters.getLocale();
+    const values = getNumberCriterionlocalizedValues(criterion, locale);
+    return _t("Value is between %s and %s", values[0], values[1]);
+  },
 });
 
 dataValidationEvaluatorRegistry.add("isNotBetween", {
@@ -606,8 +651,11 @@ dataValidationEvaluatorRegistry.add("isNotBetween", {
   criterionValueErrorString: DVTerms.CriterionError.numberValue,
   numberOfValues: () => 2,
   name: _t("Is not between"),
-  getPreview: (criterion) =>
-    _t("Value is not between %s and %s", criterion.values[0], criterion.values[1]),
+  getPreview: (criterion: IsNotBetweenCriterion, getters: Getters) => {
+    const locale = getters.getLocale();
+    const values = getNumberCriterionlocalizedValues(criterion, locale);
+    return _t("Value is not between %s and %s", values[0], values[1]);
+  },
 });
 
 dataValidationEvaluatorRegistry.add("isBoolean", {
@@ -631,14 +679,23 @@ dataValidationEvaluatorRegistry.add("isValueInList", {
       .map((str) => str.toLowerCase())
       .includes(value.toString().toLowerCase());
   },
-  getErrorString: (criterion: IsValueInListCriterion) =>
-    _t("The value must be one of: %s", criterion.values.join(", ")),
+  getErrorString: (criterion: IsValueInListCriterion, getters: Getters) => {
+    const locale = getters.getLocale();
+    const values = getNumberCriterionlocalizedValues(criterion, locale);
+    const separator = `${locale.formulaArgSeparator || ","} `;
+    return _t("The value must be one of: %s", values.join(separator));
+  },
   isCriterionValueValid: () => true,
   criterionValueErrorString: "",
   numberOfValues: () => undefined,
   allowedValues: "onlyLiterals",
   name: _t("Value in list"),
-  getPreview: (criterion) => _t("Value one of: %s", criterion.values.join(", ")),
+  getPreview: (criterion: IsValueInListCriterion, getters: Getters) => {
+    const locale = getters.getLocale();
+    const values = getNumberCriterionlocalizedValues(criterion, locale);
+    const separator = `${locale.formulaArgSeparator || ","} `;
+    return _t("Value one of: %s", values.join(separator));
+  },
 });
 
 dataValidationEvaluatorRegistry.add("isValueInRange", {

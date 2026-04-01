@@ -10,7 +10,11 @@ import {
   updateSelectionOnDeletion,
   updateSelectionOnInsertion,
 } from "../../../helpers/index";
-import { getDateTimeFormat, localizeFormula } from "../../../helpers/locale";
+import {
+  canonicalizeNumberContent,
+  getDateTimeFormat,
+  localizeFormula,
+} from "../../../helpers/locale";
 import { dataValidationEvaluatorRegistry } from "../../../registries/data_validation_registry";
 import { _t } from "../../../translation";
 import {
@@ -295,5 +299,9 @@ export class CellComposerStore extends AbstractComposerStore {
       return false;
     }
     return true;
+  }
+
+  protected getCurrentCanonicalContent(): string {
+    return canonicalizeNumberContent(this._currentContent, this.getters.getLocale());
   }
 }
