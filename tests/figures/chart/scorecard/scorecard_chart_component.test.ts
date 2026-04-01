@@ -3,7 +3,7 @@ import {
   DEFAULT_SCORECARD_BASELINE_COLOR_DOWN,
   DEFAULT_SCORECARD_BASELINE_COLOR_UP,
 } from "../../../../src/constants";
-import { getContextFontSize } from "../../../../src/helpers";
+import { createAccountingFormat, getContextFontSize } from "../../../../src/helpers";
 import { chartMutedFontColor, drawScoreChart } from "../../../../src/helpers/figures/charts";
 import {
   ScorecardChartConfig,
@@ -237,6 +237,23 @@ describe("Scorecard charts computation", () => {
 
     expect(chartDesign.key?.text).toBe("123m");
     expect(chartDesign.baseline?.text).toBe("122m");
+  });
+
+  test("Humanized negative accounting values keep their closing parenthesis", () => {
+    const accountingFormat = createAccountingFormat({ symbol: "$" });
+    setCellContent(model, "A1", "-200000");
+    setFormat(model, "A1", accountingFormat);
+    setCellContent(model, "B1", "-150000");
+    setFormat(model, "B1", accountingFormat);
+    createScorecardChart(
+      model,
+      { keyValue: "A1", baseline: "B1", humanize: true, baselineMode: "text" },
+      chartId
+    );
+    const chartDesign = getChartDesign(model, chartId, sheetId);
+
+    expect(chartDesign.key?.text).toBe("$(200k)");
+    expect(chartDesign.baseline?.text).toBe("$(150k)");
   });
 
   test("Key < baseline display in red with down arrow", () => {
