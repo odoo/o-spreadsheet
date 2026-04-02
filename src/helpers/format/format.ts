@@ -750,7 +750,7 @@ function _createLargeNumberFormat<T extends InternalFormat>(
 
   const lastDigitIndex = newIntegerPart.findLastIndex((token) => token.type === "DIGIT");
   if (lastDigitIndex === -1) {
-    throw new Error("Cannot create a large number format from a format with no digit.");
+    return roundedFormat;
   }
   while (newIntegerPart[lastDigitIndex + 1]?.type === "THOUSANDS_SEPARATOR") {
     newIntegerPart = removeIndexesFromArray(newIntegerPart, [lastDigitIndex + 1]);
