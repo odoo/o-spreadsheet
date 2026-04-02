@@ -1,6 +1,6 @@
 import { Spreadsheet } from "../../src";
 import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../../src/constants";
-import { range, zoneToXc } from "../../src/helpers";
+import { MAX_ROW, range, zoneToXc } from "../../src/helpers";
 import { Model } from "../../src/model";
 import { Mode } from "../../src/types/model";
 import {
@@ -356,12 +356,12 @@ describe("Adding rows footer at the end of sheet", () => {
     expect(model.getters.getNumberRows(sheetId)).toEqual(numberOfRows);
   });
 
-  test("cannot input a number greater than 10000", async () => {
+  test("cannot input a number greater than MAXROW - Current Sheet Size", async () => {
     await scrollGrid({ deltaY: 10000 });
     const sheetId = model.getters.getActiveSheetId();
     const numberOfRows = model.getters.getNumberRows(sheetId);
     const input = fixture.querySelector(".o-grid-add-rows input")!;
-    await setInputValueAndTrigger(input, "10001");
+    await setInputValueAndTrigger(input, MAX_ROW.toString());
     await click(fixture, ".o-grid-add-rows button");
     expect(fixture.querySelector(".o-validation-error")).toBeTruthy();
     expect(model.getters.getNumberRows(sheetId)).toEqual(numberOfRows);
