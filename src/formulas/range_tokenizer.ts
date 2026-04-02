@@ -4,7 +4,7 @@ import {
   isRowHeader,
   isRowReference,
   isSingleCellReference,
-} from "../helpers";
+} from "../helpers/references";
 import { DEFAULT_LOCALE } from "../types/locale";
 import { Token, tokenize } from "./tokenizer";
 
