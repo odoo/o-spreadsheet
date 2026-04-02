@@ -510,7 +510,7 @@ describe("formatValue on date and time", () => {
     expect(isDateTimeFormat(format)).toBe(true);
   });
 
-  test.each(["", "a", "[$€]#,##0.0", "[$m-d-yyyy]#,##0.0", "#,##0.0"])(
+  test.each(["", "a", "[$€]#,##0.0", "[$m-d-yyyy]#,##0.0", "#,##0.0", '"a"', "[$]"])(
     "dont detect wrong date time format %s",
     (format) => {
       expect(isDateTimeFormat(format)).toBe(false);
