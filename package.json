@@ -27,6 +27,7 @@
     "build:watch": "npm-run-all --parallel  type-check:watch bundle:iife:watch bundle:xml:watch bundle:css:watch",
     "transpile-js": "tsc --build --incremental --preserveWatchOutput",
     "type-check:watch": "npm run transpile-js -- --watch --noEmit",
+    "perf": "tsc --module es6 --declaration --declarationDir dist/types && rolldown -c --perf",
     "bundle:cjs": "rolldown -c --format cjs",
     "bundle:esm": "rolldown -c --format esm",
     "bundle:iife": "rolldown -c --format iife",

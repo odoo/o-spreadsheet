@@ -44,7 +44,22 @@ function getConfigForFormat(format, minified = false) {
   };
 }
 
+function getConfigForPerf() {
+  return {
+    input: "src/index.ts",
+    external: ["chart.js", "luxon"],
+    checks: {
+      circularDependency: true,
+    },
+    plugins: [canvasMockPlugin()],
+    output: [getConfigForFormat("esm")],
+  };
+}
+
 export default defineConfig((cliArgs) => {
+  if (cliArgs.perf) {
+    return getConfigForPerf();
+  }
   const format = cliArgs.format;
   if (format) {
     const extension = EXTENSION[format];
