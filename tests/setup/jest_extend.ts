@@ -63,7 +63,7 @@ expect.extend({
       ])
     ) {
       return {
-        pass: this.isNot,
+        pass: !!this.isNot,
         message: () =>
           `Diff: ${this.utils.printDiffOrStringify(
             expected,
@@ -82,7 +82,7 @@ expect.extend({
       if (!this.equals(result, expected, [this.utils.iterableEquality])) {
         const userId = user.getters.getCurrentClient().name;
         return {
-          pass: this.isNot,
+          pass: !!this.isNot,
           message: () =>
             `${userId} does not have the expected value: \nReceived: ${this.utils.printReceived(
               result
@@ -106,7 +106,7 @@ expect.extend({
           const prettyValuesUserA = getPrettyEvaluatedCells(a, sheetId, sheetZone);
           const prettyValuesUserB = getPrettyEvaluatedCells(b, sheetId, sheetZone);
           return {
-            pass: this.isNot,
+            pass: !!this.isNot,
             message: () =>
               `${clientA} and ${clientB} are not synchronized: \n${this.utils.printDiffOrStringify(
                 prettyValuesUserA,
@@ -131,7 +131,7 @@ expect.extend({
         const clientA = a.getters.getCurrentClient().id;
         const clientB = b.getters.getCurrentClient().id;
         return {
-          pass: this.isNot,
+          pass: !!this.isNot,
           message: () =>
             `${clientA} and ${clientB} are not synchronized: \n${this.utils.printDiffOrStringify(
               exportA,
