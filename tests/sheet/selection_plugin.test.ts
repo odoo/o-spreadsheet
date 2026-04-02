@@ -1,13 +1,7 @@
 import { CoreCommand, CorePlugin } from "../../src";
 import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../../src/constants";
-import {
-  numberToLetters,
-  positionToZone,
-  toCartesian,
-  toXC,
-  toZone,
-  zoneToXc,
-} from "../../src/helpers";
+import { numberToLetters, toCartesian, toXC } from "../../src/helpers/coordinates";
+import { positionToZone, toZone, zoneToXc } from "../../src/helpers/zones";
 import { Model } from "../../src/model";
 import { corePluginRegistry } from "../../src/plugins";
 import { CommandResult, Direction } from "../../src/types";

@@ -1,6 +1,8 @@
 import { Component, onWillUpdateProps, useRef, useState } from "@odoo/owl";
-import { deepEquals, positions, toTrimmedLowerCase } from "../../../helpers";
+import { deepEquals } from "../../../helpers/misc";
 import { fuzzyLookup } from "../../../helpers/search";
+import { toTrimmedLowerCase } from "../../../helpers/text_helper";
+import { positions } from "../../../helpers/zones";
 import { Position } from "../../../types";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
 import { FilterMenuValueItem } from "../filter_menu_item/filter_menu_value_item";

@@ -1,5 +1,5 @@
 import { Component, useState } from "@odoo/owl";
-import { deepCopy } from "../../../../helpers";
+import { deepCopy } from "../../../../helpers/misc";
 import { ValueAndLabel } from "../../../../types";
 import { PieChartDefinition, PieChartRuntime } from "../../../../types/chart";
 import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";

@@ -1,8 +1,7 @@
 import { CompiledFormula } from "../../formulas/compiler";
 import { astToFormula } from "../../formulas/formula_formatter";
 import { toScalar } from "../../functions/helper_matrices";
-import { deepCopy } from "../../helpers";
-import { deepEquals, getUniqueText } from "../../helpers/misc";
+import { deepCopy, deepEquals, getUniqueText } from "../../helpers/misc";
 import {
   getFirstPivotFunction,
   getNumberOfPivotFunctions,

@@ -1,9 +1,9 @@
 import { astToFormula } from "../../formulas/formula_formatter";
 import { AST, ASTFuncall, ASTString, convertAstNodes, parse } from "../../formulas/parser";
 import { functionRegistry } from "../../functions/function_registry";
-import { isNumber } from "../../helpers";
 import { mdyDateRegexp, parseDateTime, timeRegexp, ymdDateRegexp } from "../../helpers/dates";
 import { formatValue } from "../../helpers/format/format";
+import { isNumber } from "../../helpers/numbers";
 import { CellValue } from "../../types/cells";
 import { CellErrorType } from "../../types/errors";
 import { Format } from "../../types/format";

@@ -1,5 +1,6 @@
 import { DispatchResult, Model, UID } from "../../src";
-import { deepCopy, toZone } from "../../src/helpers";
+import { deepCopy } from "../../src/helpers/misc";
+import { toZone } from "../../src/helpers/zones";
 import { PivotMeasureDisplay, SpreadsheetPivotCoreDefinition } from "../../src/types/pivot";
 import { pivotModelData } from "../pivots/pivot_data";
 import { setCellContent } from "./commands_helpers";

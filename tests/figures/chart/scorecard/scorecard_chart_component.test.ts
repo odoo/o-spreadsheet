@@ -4,12 +4,12 @@ import {
   DEFAULT_SCORECARD_BASELINE_COLOR_DOWN,
   DEFAULT_SCORECARD_BASELINE_COLOR_UP,
 } from "../../../../src/constants";
-import { getContextFontSize } from "../../../../src/helpers";
 import { chartMutedFontColor, drawScoreChart } from "../../../../src/helpers/figures/charts";
 import {
   ScorecardChartConfig,
   getScorecardConfiguration,
 } from "../../../../src/helpers/figures/charts/scorecard_chart_config_builder";
+import { getContextFontSize } from "../../../../src/helpers/text_helper";
 import { CellIsRule, Pixel, UID } from "../../../../src/types";
 import {
   ScorecardChartDefinition,

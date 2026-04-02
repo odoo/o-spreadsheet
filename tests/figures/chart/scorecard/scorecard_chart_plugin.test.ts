@@ -4,8 +4,8 @@ import {
   DEFAULT_SCORECARD_BASELINE_COLOR_UP,
   DEFAULT_SCORECARD_BASELINE_MODE,
 } from "../../../../src/constants";
-import { zoneToXc } from "../../../../src/helpers";
 import { ScorecardChart } from "../../../../src/helpers/figures/charts";
+import { zoneToXc } from "../../../../src/helpers/zones";
 import {
   ScorecardChartDefinition,
   ScorecardChartRuntime,

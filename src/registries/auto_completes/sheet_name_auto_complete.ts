@@ -1,4 +1,4 @@
-import { getCanonicalSymbolName } from "../../helpers";
+import { getCanonicalSymbolName } from "../../helpers/misc";
 import { autoCompleteProviders } from "./auto_complete_registry";
 
 autoCompleteProviders.add("sheet_names", {

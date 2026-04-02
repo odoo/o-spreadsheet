@@ -9,7 +9,8 @@ import {
   PADDING_AUTORESIZE_HORIZONTAL,
   ZOOM_VALUES,
 } from "../../src/constants";
-import { lettersToNumber, toXC, toZone } from "../../src/helpers/index";
+import { lettersToNumber, toXC } from "../../src/helpers/coordinates";
+import { toZone } from "../../src/helpers/zones";
 import { Model } from "../../src/model";
 import { SpreadsheetChildEnv } from "../../src/types/spreadsheet_env";
 import {

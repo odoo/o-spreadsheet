@@ -1,4 +1,4 @@
-import { numberToLetters, toCartesian, toXC } from "../../src/helpers/index";
+import { numberToLetters, toCartesian, toXC } from "../../src/helpers/coordinates";
 import { Position } from "../../src/types";
 
 function toPosition(col: number, row: number): Position {

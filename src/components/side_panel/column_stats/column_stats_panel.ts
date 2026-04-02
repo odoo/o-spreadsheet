@@ -1,11 +1,9 @@
 import { Component, onWillUnmount, useEffect, useRef, useState } from "@odoo/owl";
 import { Chart, ChartConfiguration } from "chart.js/auto";
-import {
-  clipTextWithEllipsis,
-  FIRST_CHART_COLOR,
-  numberToLetters,
-  positionToZone,
-} from "../../../helpers";
+import { FIRST_CHART_COLOR } from "../../../helpers/color";
+import { numberToLetters } from "../../../helpers/coordinates";
+import { clipTextWithEllipsis } from "../../../helpers/text_helper";
+import { positionToZone } from "../../../helpers/zones";
 import { Store, useStore } from "../../../store_engine";
 import { _t } from "../../../translation";
 import { Highlight } from "../../../types";

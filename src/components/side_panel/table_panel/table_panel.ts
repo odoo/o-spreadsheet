@@ -1,5 +1,5 @@
 import { Component, useState } from "@odoo/owl";
-import { getZoneArea, positionToZone } from "../../../helpers";
+import { getZoneArea, positionToZone } from "../../../helpers/zones";
 import { CommandResult, CoreTable, DispatchResult, Range, TableConfig, Zone } from "../../../types";
 
 import { getTableTopLeft } from "../../../helpers/table_helpers";

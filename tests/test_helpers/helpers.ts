@@ -12,18 +12,11 @@ import { SidePanelStore } from "../../src/components/side_panel/side_panel/side_
 import { Spreadsheet, SpreadsheetProps } from "../../src/components/spreadsheet/spreadsheet";
 import { functionRegistry } from "../../src/functions/function_registry";
 import { matrixMap } from "../../src/functions/helpers";
+import { toCartesian, toXC } from "../../src/helpers/coordinates";
 import { ImageProvider } from "../../src/helpers/figures/images/image_provider";
-import {
-  batched,
-  createRangeFromXc,
-  positions,
-  range,
-  toCartesian,
-  toUnboundedZone,
-  toXC,
-  toZone,
-  zoneToXc,
-} from "../../src/helpers/index";
+import { batched, range } from "../../src/helpers/misc";
+import { createRangeFromXc } from "../../src/helpers/range";
+import { positions, toUnboundedZone, toZone, zoneToXc } from "../../src/helpers/zones";
 import { createEmptyExcelWorkbookData } from "../../src/migrations/data";
 import { Model } from "../../src/model";
 import { BasePlugin } from "../../src/plugins/base_plugin";

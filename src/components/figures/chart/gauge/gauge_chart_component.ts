@@ -1,6 +1,6 @@
 import { Component, useEffect, useRef } from "@odoo/owl";
-import { deepEquals } from "../../../../helpers";
 import { drawGaugeChart } from "../../../../helpers/figures/charts/gauge_chart_rendering";
+import { deepEquals } from "../../../../helpers/misc";
 import { EASING_FN } from "../../../../registries/cell_animation_registry";
 import { Store, useStore } from "../../../../store_engine";
 import { UID } from "../../../../types";

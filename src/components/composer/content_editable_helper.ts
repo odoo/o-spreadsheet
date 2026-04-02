@@ -1,5 +1,5 @@
 import { NEWLINE } from "../../constants";
-import { deepEquals } from "../../helpers";
+import { deepEquals } from "../../helpers/misc";
 import {
   getBoundingRectAsPOJO,
   getCurrentSelection,

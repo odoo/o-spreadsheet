@@ -1,11 +1,11 @@
 import { useRef } from "@odoo/owl";
 import { Chart, ChartConfiguration } from "chart.js/auto";
 import { MASTER_CHART_HEIGHT } from "../../../../../constants";
-import { clip } from "../../../../../helpers";
 import {
   MOVING_AVERAGE_TREND_LINE_XAXIS_ID,
   TREND_LINE_XAXIS_ID,
 } from "../../../../../helpers/figures/charts/chart_common";
+import { clip } from "../../../../../helpers/misc";
 import { Store, useStore } from "../../../../../store_engine";
 import { ChartJSRuntime } from "../../../../../types";
 import { withZoom } from "../../../../helpers/zoom";

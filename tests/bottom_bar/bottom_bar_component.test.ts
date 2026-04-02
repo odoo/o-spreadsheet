@@ -1,6 +1,6 @@
 import { Component } from "@odoo/owl";
 import { BottomBar } from "../../src/components/bottom_bar/bottom_bar";
-import { toHex } from "../../src/helpers";
+import { toHex } from "../../src/helpers/color";
 import { interactiveRenameSheet } from "../../src/helpers/ui/sheet_interactive";
 import { Model } from "../../src/model";
 import { DOMFocusableElementStore } from "../../src/stores/DOM_focus_store";

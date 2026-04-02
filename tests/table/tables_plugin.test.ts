@@ -1,5 +1,5 @@
 import { CommandResult, Model } from "../../src";
-import { toUnboundedZone, toZone, zoneToXc } from "../../src/helpers";
+import { toUnboundedZone, toZone, zoneToXc } from "../../src/helpers/zones";
 import { UID } from "../../src/types";
 import {
   activateSheet,

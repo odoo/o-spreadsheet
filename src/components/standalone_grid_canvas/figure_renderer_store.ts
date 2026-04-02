@@ -1,6 +1,7 @@
 import { BACKGROUND_CHART_COLOR, DEFAULT_CAROUSEL_TITLE_STYLE, GRAY_400 } from "../../constants";
-import { chartStyleToCellStyle, computeTextFont, deepCopy } from "../../helpers";
 import { drawChartOnCanvas } from "../../helpers/figures/charts";
+import { chartStyleToCellStyle, deepCopy } from "../../helpers/misc";
+import { computeTextFont } from "../../helpers/text_helper";
 import { DisposableStore, Get, Store } from "../../store_engine";
 import { ModelStore } from "../../stores";
 import { RendererStore } from "../../stores/renderer_store";

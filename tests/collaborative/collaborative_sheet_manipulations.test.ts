@@ -1,6 +1,8 @@
 import { CellIsRule, FormulaCell, LiteralCell, Model } from "../../src";
 import { BACKGROUND_CHART_COLOR } from "../../src/constants";
-import { lettersToNumber, numberToLetters, range, toZone } from "../../src/helpers";
+import { lettersToNumber, numberToLetters } from "../../src/helpers/coordinates";
+import { range } from "../../src/helpers/misc";
+import { toZone } from "../../src/helpers/zones";
 import { BarChartDefinition } from "../../src/types/chart/bar_chart";
 import { MockTransportService } from "../__mocks__/transport_service";
 import {

@@ -1,7 +1,7 @@
 import { Component } from "@odoo/owl";
 import { ChartConfiguration } from "chart.js";
 import { DeepPartial, DispatchResult, UID } from "../../../../..";
-import { deepCopy } from "../../../../../helpers";
+import { deepCopy } from "../../../../../helpers/misc";
 import {
   TreeMapCategoryColorOptions,
   TreeMapChartDefaults,

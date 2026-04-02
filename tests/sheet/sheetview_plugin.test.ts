@@ -7,7 +7,9 @@ import {
   MESSAGE_VERSION,
   getDefaultSheetViewSize,
 } from "../../src/constants";
-import { isDefined, numberToLetters, range, toXC, toZone, zoneToXc } from "../../src/helpers";
+import { numberToLetters, toXC } from "../../src/helpers/coordinates";
+import { isDefined, range } from "../../src/helpers/misc";
+import { toZone, zoneToXc } from "../../src/helpers/zones";
 import { Model } from "../../src/model";
 import { SheetViewPlugin } from "../../src/plugins/ui_stateful/sheetview";
 import { Zone } from "../../src/types";

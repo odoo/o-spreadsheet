@@ -30,9 +30,11 @@ import {
 import { CoreGetters } from "../../../types/core_getters";
 import { CellErrorType } from "../../../types/errors";
 import { Validator } from "../../../types/validator";
+import { formatOrHumanizeValue, humanizeNumber } from "../../format/format";
 import { adaptFormulaString, adaptStringRange } from "../../formulas";
-import { clip, formatOrHumanizeValue, humanizeNumber, rangeReference } from "../../index";
+import { clip } from "../../misc";
 import { createValidRange } from "../../range";
+import { rangeReference } from "../../references";
 import { AbstractChart } from "./abstract_chart";
 import { adaptChartRange, duplicateLabelRangeInDuplicatedSheet } from "./chart_common";
 

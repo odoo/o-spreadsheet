@@ -1,7 +1,9 @@
-import { deepEquals, formatValue, isZoneInside } from "../helpers";
 import { getPasteZones } from "../helpers/clipboard/clipboard_helpers";
+import { formatValue } from "../helpers/format/format";
 import { canonicalizeNumberValue } from "../helpers/locale";
+import { deepEquals } from "../helpers/misc";
 import { createPivotFormula } from "../helpers/pivot/pivot_helpers";
+import { isZoneInside } from "../helpers/zones";
 import {
   CellPosition,
   ClipboardCell,

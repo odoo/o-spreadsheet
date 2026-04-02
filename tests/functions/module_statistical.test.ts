@@ -1,4 +1,4 @@
-import { toXC } from "../../src/helpers";
+import { toXC } from "../../src/helpers/coordinates";
 import { ErrorCell } from "../../src/types";
 import { setCellContent } from "../test_helpers/commands_helpers";
 import { getEvaluatedCell } from "../test_helpers/getters_helpers";

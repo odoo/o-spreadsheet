@@ -1,4 +1,4 @@
-import { UuidGenerator } from "../../src/helpers";
+import { UuidGenerator } from "../../src/helpers/uuid";
 import { SelectiveHistory } from "../../src/history/selective_history";
 import { UID } from "../../src/types";
 

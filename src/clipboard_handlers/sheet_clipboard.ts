@@ -1,5 +1,5 @@
-import { doesAnyZoneCrossFrozenPane } from "../helpers";
 import { getPasteZones } from "../helpers/clipboard/clipboard_helpers";
+import { doesAnyZoneCrossFrozenPane } from "../helpers/zones";
 import { ClipboardOptions, CommandResult, UID, Zone } from "../types";
 import { AbstractCellClipboardHandler } from "./abstract_cell_clipboard_handler";
 

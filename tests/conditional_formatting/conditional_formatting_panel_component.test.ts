@@ -3,7 +3,8 @@ import { ComposerFocusStore } from "../../src/components/composer/composer_focus
 import { ConditionalFormattingEditor } from "../../src/components/side_panel/conditional_formatting/cf_editor/cf_editor";
 import { ConditionalFormatPreviewList } from "../../src/components/side_panel/conditional_formatting/cf_preview_list/cf_preview_list";
 import { SidePanels } from "../../src/components/side_panel/side_panels/side_panels";
-import { toHex, toZone } from "../../src/helpers";
+import { toHex } from "../../src/helpers/color";
+import { toZone } from "../../src/helpers/zones";
 import { ConditionalFormatPlugin } from "../../src/plugins/core/conditional_format";
 import {
   CellIsRule,

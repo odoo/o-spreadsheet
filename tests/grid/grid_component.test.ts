@@ -18,8 +18,10 @@ import {
   MIN_CELL_TEXT_MARGIN,
   SCROLLBAR_WIDTH,
 } from "../../src/constants";
-import { buildSheetLink, toCartesian, toZone, zoneToXc } from "../../src/helpers";
+import { toCartesian } from "../../src/helpers/coordinates";
+import { buildSheetLink } from "../../src/helpers/misc";
 import { handleCopyPasteResult } from "../../src/helpers/ui/paste_interactive";
+import { toZone, zoneToXc } from "../../src/helpers/zones";
 import { createEmptyWorkbookData } from "../../src/migrations/data";
 import { Model } from "../../src/model";
 import { ClipboardPlugin } from "../../src/plugins/ui_stateful/clipboard";

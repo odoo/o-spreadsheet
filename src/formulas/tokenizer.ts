@@ -1,10 +1,6 @@
-import {
-  TokenizingChars,
-  getFormulaNumberRegex,
-  rangeReference,
-  replaceNewLines,
-  specialWhiteSpaceRegexp,
-} from "../helpers";
+import { TokenizingChars, replaceNewLines, specialWhiteSpaceRegexp } from "../helpers/misc";
+import { getFormulaNumberRegex } from "../helpers/numbers";
+import { rangeReference } from "../helpers/references";
 import { CellErrorType } from "../types/errors";
 import { DEFAULT_LOCALE, type Locale } from "../types/locale";
 

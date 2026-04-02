@@ -2,7 +2,7 @@ import { Component } from "@odoo/owl";
 import { PIVOT_TOKEN_COLOR } from "../../../../../constants";
 import { CompiledFormula } from "../../../../../formulas/compiler";
 import { Token } from "../../../../../formulas/tokenizer";
-import { unquote } from "../../../../../helpers";
+import { unquote } from "../../../../../helpers/misc";
 import { getFieldDisplayName } from "../../../../../helpers/pivot/pivot_helpers";
 import { PivotRuntimeDefinition } from "../../../../../helpers/pivot/pivot_runtime_definition";
 import { createMeasureAutoComplete } from "../../../../../registries/auto_completes/pivot_dimension_auto_complete";

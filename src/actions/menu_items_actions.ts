@@ -9,20 +9,14 @@ import {
   getOSheetClipboardIdFromHTML,
   parseOSClipboardContent,
 } from "../helpers/clipboard/clipboard_helpers";
+import { numberToLetters } from "../helpers/coordinates";
 import { getSmartChartDefinition } from "../helpers/figures/charts/smart_chart_engine";
 import { centerFigurePosition, getMaxFigureSize } from "../helpers/figures/figure/figure";
-import {
-  areZonesContinuous,
-  getZoneArea,
-  isConsecutive,
-  isEqual,
-  largeMax,
-  largeMin,
-  numberToLetters,
-} from "../helpers/index";
+import { isConsecutive, largeMax, largeMin } from "../helpers/misc";
 import { DEFAULT_TABLE_CONFIG } from "../helpers/table_presets";
 import { interactivePaste, interactivePasteFromOS } from "../helpers/ui/paste_interactive";
 import { interactiveCreateTable } from "../helpers/ui/table_interactive";
+import { areZonesContinuous, getZoneArea, isEqual } from "../helpers/zones";
 import { _t } from "../translation";
 import { ClipboardMIMEType, ClipboardPasteOptions } from "../types/clipboard";
 import { Dimension, Format, Style } from "../types/index";

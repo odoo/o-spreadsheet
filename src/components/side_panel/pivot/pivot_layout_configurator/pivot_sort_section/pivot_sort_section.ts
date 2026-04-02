@@ -1,5 +1,5 @@
 import { Component } from "@odoo/owl";
-import { formatValue } from "../../../../../helpers";
+import { formatValue } from "../../../../../helpers/format/format";
 import {
   getFieldDisplayName,
   isSortedColumnValid,

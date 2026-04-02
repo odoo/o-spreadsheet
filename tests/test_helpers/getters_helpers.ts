@@ -1,4 +1,5 @@
-import { toCartesian, toXC, toZone, zoneToXc } from "../../src/helpers/index";
+import { toCartesian, toXC } from "../../src/helpers/coordinates";
+import { toZone, zoneToXc } from "../../src/helpers/zones";
 import { Model } from "../../src/model";
 import { ClipboardPlugin } from "../../src/plugins/ui_stateful/clipboard";
 import {

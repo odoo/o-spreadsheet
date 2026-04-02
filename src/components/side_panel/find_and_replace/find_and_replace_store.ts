@@ -1,4 +1,5 @@
-import { getSearchRegex, isInside, positionToZone } from "../../../helpers";
+import { getSearchRegex } from "../../../helpers/misc";
+import { isInside, positionToZone } from "../../../helpers/zones";
 import { HighlightProvider, HighlightStore } from "../../../stores/highlight_store";
 import { CellPosition, Color, Command, Highlight } from "../../../types";
 

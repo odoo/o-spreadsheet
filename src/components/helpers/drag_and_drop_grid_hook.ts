@@ -1,5 +1,5 @@
 import { onWillUnmount, useEffect } from "@odoo/owl";
-import { MAX_DELAY } from "../../helpers";
+import { MAX_DELAY } from "../../helpers/edge_scrolling";
 import { HeaderIndex, Pixel } from "../../types/misc";
 import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 import { gridOverlayPosition } from "./dom_helpers";

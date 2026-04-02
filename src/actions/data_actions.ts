@@ -1,5 +1,5 @@
-import { getZoneArea } from "../helpers/index";
 import { interactiveSortSelection } from "../helpers/sort_interactive";
+import { getZoneArea } from "../helpers/zones";
 import { _t } from "../translation";
 import { ActionSpec } from "./action";
 import * as ACTIONS from "./menu_items_actions";

@@ -1,6 +1,7 @@
 import { Component } from "@odoo/owl";
 import { TEXT_BODY_MUTED } from "../../../constants";
-import { blendColors, computeTextFontSizeInPixels } from "../../../helpers";
+import { blendColors } from "../../../helpers/color";
+import { computeTextFontSizeInPixels } from "../../../helpers/text_helper";
 import { Store, useStore } from "../../../store_engine";
 import { CellPosition, Color, SortDirection, Style } from "../../../types";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";

@@ -1,5 +1,5 @@
 import { Component } from "@odoo/owl";
-import { deepCopy } from "../../../../helpers";
+import { deepCopy } from "../../../../helpers/misc";
 import {
   SunburstChartDefaults,
   SunburstChartDefinition,

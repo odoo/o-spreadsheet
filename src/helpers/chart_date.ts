@@ -1,6 +1,7 @@
 import type { TimeScaleOptions } from "chart.js";
-import { largeMax, largeMin, parseDateTime } from ".";
 import { Alias, DeepPartial, Format, Locale } from "../types";
+import { parseDateTime } from "./dates";
+import { largeMax, largeMin } from "./misc";
 
 // -----------------------------------------------------------------------------
 // File for helpers needed to use time axis in ChartJS

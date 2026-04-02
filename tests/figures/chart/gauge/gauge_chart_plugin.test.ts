@@ -1,6 +1,7 @@
 import { CellErrorType, CommandResult, Model } from "../../../../src";
-import { deepCopy, zoneToXc } from "../../../../src/helpers";
 import { GaugeChart } from "../../../../src/helpers/figures/charts";
+import { deepCopy } from "../../../../src/helpers/misc";
+import { zoneToXc } from "../../../../src/helpers/zones";
 import {
   GaugeChartDefinition,
   GaugeChartRuntime,

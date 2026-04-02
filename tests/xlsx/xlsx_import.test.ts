@@ -1,12 +1,9 @@
 import { ICON_SETS } from "../../src/components/icons/icons";
-import {
-  buildSheetLink,
-  formatValue,
-  lettersToNumber,
-  markdownLink,
-  toZone,
-} from "../../src/helpers";
+import { lettersToNumber } from "../../src/helpers/coordinates";
+import { formatValue } from "../../src/helpers/format/format";
+import { buildSheetLink, markdownLink } from "../../src/helpers/misc";
 import { DEFAULT_TABLE_CONFIG } from "../../src/helpers/table_presets";
+import { toZone } from "../../src/helpers/zones";
 import { CellIsRule, DEFAULT_LOCALE, IconSetRule } from "../../src/types";
 import { BarChartDefinition } from "../../src/types/chart/bar_chart";
 import { ComboChartDefinition } from "../../src/types/chart/combo_chart";

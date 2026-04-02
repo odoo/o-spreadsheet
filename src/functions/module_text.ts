@@ -1,6 +1,5 @@
-import { escapeRegExp } from "../helpers";
 import { formatLargeNumber, formatValue } from "../helpers/format/format";
-import { trimContent } from "../helpers/misc";
+import { escapeRegExp, trimContent } from "../helpers/misc";
 import { _t } from "../translation";
 import { CellErrorType, EvaluationError, NotAvailableError } from "../types/errors";
 import { AddFunctionDescription } from "../types/functions";

@@ -1,5 +1,6 @@
 import { Component } from "@odoo/owl";
-import { deepEquals, getMissingHeadersForSpreadResult, positionToZone } from "../../helpers";
+import { deepEquals, getMissingHeadersForSpreadResult } from "../../helpers/misc";
+import { positionToZone } from "../../helpers/zones";
 import { _t } from "../../translation";
 import { CellErrorType, CellPosition, CellValueType } from "../../types";
 import { CellPopoverComponent, PopoverBuilders } from "../../types/cell_popovers";

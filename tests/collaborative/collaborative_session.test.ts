@@ -2,7 +2,7 @@ import { CoreCommand, Model } from "../../src";
 import { ICommandSquisher, SquishedCoreCommand } from "../../src/collaborative/command_squisher";
 import { Session } from "../../src/collaborative/session";
 import { DEFAULT_REVISION_ID, MESSAGE_VERSION } from "../../src/constants";
-import { lazy } from "../../src/helpers";
+import { lazy } from "../../src/helpers/misc";
 import { buildRevisionLog } from "../../src/history/factory";
 import { Client, CommandResult, WorkbookData } from "../../src/types";
 import { MockTransportService } from "../__mocks__/transport_service";

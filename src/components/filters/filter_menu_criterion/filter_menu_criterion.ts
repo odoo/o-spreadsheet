@@ -1,5 +1,5 @@
 import { Component, ComponentConstructor, onWillUpdateProps, useState } from "@odoo/owl";
-import { deepCopy, deepEquals } from "../../../helpers";
+import { deepCopy, deepEquals } from "../../../helpers/misc";
 import {
   criterionComponentRegistry,
   getCriterionValueAndLabels,

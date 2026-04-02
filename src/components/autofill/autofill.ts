@@ -1,5 +1,5 @@
 import { Component, useState, xml } from "@odoo/owl";
-import { clip } from "../../helpers";
+import { clip } from "../../helpers/misc";
 import { DOMCoordinates, HeaderIndex } from "../../types";
 import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 import { cssPropertiesToCss } from "../helpers/css";

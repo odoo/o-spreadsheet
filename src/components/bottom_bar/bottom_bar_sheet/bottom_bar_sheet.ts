@@ -8,7 +8,7 @@ import {
   useRef,
   useState,
 } from "@odoo/owl";
-import { throttle } from "../../../helpers";
+import { throttle } from "../../../helpers/misc";
 import { interactiveRenameSheet } from "../../../helpers/ui/sheet_interactive";
 import { MenuItemRegistry } from "../../../registries/menu_items_registry";
 import { getSheetMenuRegistry } from "../../../registries/menus";

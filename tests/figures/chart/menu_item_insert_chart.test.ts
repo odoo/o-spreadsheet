@@ -5,7 +5,8 @@ import {
   DEFAULT_FIGURE_HEIGHT,
   DEFAULT_FIGURE_WIDTH,
 } from "../../../src/constants";
-import { toXC, zoneToXc } from "../../../src/helpers";
+import { toXC } from "../../../src/helpers/coordinates";
+import { zoneToXc } from "../../../src/helpers/zones";
 import { SpreadsheetChildEnv } from "../../../src/types/spreadsheet_env";
 import {
   addColumns,

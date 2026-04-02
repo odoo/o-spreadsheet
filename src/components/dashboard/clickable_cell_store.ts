@@ -1,5 +1,6 @@
 import { ComponentConstructor, markRaw } from "@odoo/owl";
-import { positionToZone, toXC } from "../../helpers";
+import { toXC } from "../../helpers/coordinates";
+import { positionToZone } from "../../helpers/zones";
 import { CellClickableItem, clickableCellRegistry } from "../../registries/cell_clickable_registry";
 import { SpreadsheetStore } from "../../stores/spreadsheet_store";
 import { CellPosition, Command, Rect, UID, invalidateEvaluationCommands } from "../../types";

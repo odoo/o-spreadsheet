@@ -7,8 +7,8 @@ import {
   FORBIDDEN_SHEETNAME_CHARS,
   MESSAGE_VERSION,
 } from "../../src/constants";
-import { toZone } from "../../src/helpers";
 import { DEFAULT_TABLE_CONFIG } from "../../src/helpers/table_presets";
+import { toZone } from "../../src/helpers/zones";
 import { getCurrentVersion } from "../../src/migrations/data";
 import {
   BorderDescr,

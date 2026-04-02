@@ -1,5 +1,5 @@
 import { Component, useState } from "@odoo/owl";
-import { getColorsPalette, getNthColor, toHex } from "../../../../../helpers";
+import { getColorsPalette, getNthColor, toHex } from "../../../../../helpers/color";
 import { isTrendLineAxis } from "../../../../../helpers/figures/charts";
 import { ChartWithDataSetDefinition, ValueAndLabel } from "../../../../../types";
 import { SpreadsheetChildEnv } from "../../../../../types/spreadsheet_env";

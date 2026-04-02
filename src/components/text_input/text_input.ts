@@ -1,4 +1,4 @@
-import { isDefined } from "../../helpers";
+import { isDefined } from "../../helpers/misc";
 import { GenericInput, GenericInputProps } from "../generic_input/generic_input";
 
 interface Props extends GenericInputProps {

@@ -1,6 +1,8 @@
 import "../test_helpers/helpers";
 
-import { buildSheetLink, toCartesian, toZone } from "../../src/helpers";
+import { toCartesian } from "../../src/helpers/coordinates";
+import { buildSheetLink } from "../../src/helpers/misc";
+import { toZone } from "../../src/helpers/zones";
 import { Border, Style } from "../../src/types";
 import {
   addDataValidation,

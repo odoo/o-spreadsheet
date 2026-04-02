@@ -1,4 +1,6 @@
-import { UuidGenerator, deepEquals, positionToZone } from "../helpers";
+import { deepEquals } from "../helpers/misc";
+import { UuidGenerator } from "../helpers/uuid";
+import { positionToZone } from "../helpers/zones";
 import {
   CellPosition,
   ClipboardCellData,

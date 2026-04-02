@@ -19,27 +19,28 @@ import {
   MIN_CELL_TEXT_MARGIN,
   TEXT_HEADER_COLOR,
 } from "../constants";
+import { blendColors } from "../helpers/color";
+import { numberToLetters } from "../helpers/coordinates";
+import { formatHasRepeatedChar } from "../helpers/format/format";
+import { deepCopy, deepEquals } from "../helpers/misc";
+import { recomputeZones } from "../helpers/recompute_zones";
 import {
-  blendColors,
   computeRotationPosition,
   computeTextFont,
   computeTextFontSizeInPixels,
   computeTextLinesHeight,
-  deepCopy,
-  deepEquals,
   drawDecoratedText,
-  formatHasRepeatedChar,
+} from "../helpers/text_helper";
+import { ViewportCollection } from "../helpers/viewport_collection";
+import {
   getZonesCols,
   getZonesRows,
   isZoneInside,
-  numberToLetters,
   overlap,
   positionToZone,
-  recomputeZones,
   union,
   zoneToXc,
-} from "../helpers/index";
-import { ViewportCollection } from "../helpers/viewport_collection";
+} from "../helpers/zones";
 import { Model } from "../model";
 import { cellAnimationRegistry } from "../registries/cell_animation_registry";
 import { DisposableStore, Get, Store } from "../store_engine";

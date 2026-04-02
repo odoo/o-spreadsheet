@@ -1,4 +1,4 @@
-import { positionToZone } from "../../helpers";
+import { positionToZone } from "../../helpers/zones";
 import { cellPopoverRegistry } from "../../registries/cell_popovers_registry";
 import { SpreadsheetStore } from "../../stores";
 import { CellPosition, Command, Position, Rect } from "../../types";

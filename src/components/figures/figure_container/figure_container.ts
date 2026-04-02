@@ -1,6 +1,6 @@
 import { Component, onMounted, onWillUpdateProps, useState } from "@odoo/owl";
 import { DRAG_THRESHOLD, MIN_FIG_SIZE } from "../../../constants";
-import { isDefined } from "../../../helpers";
+import { isDefined } from "../../../helpers/misc";
 import { rectUnion } from "../../../helpers/rectangle";
 import { figureRegistry } from "../../../registries/figures_registry";
 import { AnchorOffset, Figure, FigureUI, Rect, ResizeDirection, UID } from "../../../types/index";

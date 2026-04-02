@@ -1,4 +1,5 @@
-import { positionToZone, recomputeZones } from "../helpers";
+import { recomputeZones } from "../helpers/recompute_zones";
+import { positionToZone } from "../helpers/zones";
 import {
   Border,
   CellPosition,

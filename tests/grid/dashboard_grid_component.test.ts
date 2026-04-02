@@ -7,7 +7,7 @@ import {
   GRID_ICON_MARGIN,
   MIN_CELL_TEXT_MARGIN,
 } from "../../src/constants";
-import { toZone } from "../../src/helpers";
+import { toZone } from "../../src/helpers/zones";
 import { Model } from "../../src/model";
 import { clickableCellRegistry } from "../../src/registries/cell_clickable_registry";
 import { GridIcon, iconsOnCellRegistry } from "../../src/registries/icons_on_cell_registry";

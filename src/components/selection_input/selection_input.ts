@@ -1,5 +1,5 @@
 import { Component, onWillUpdateProps, useEffect, useRef, useState } from "@odoo/owl";
-import { deepEquals, range } from "../../helpers";
+import { deepEquals, range } from "../../helpers/misc";
 import { Store, useLocalStore, useStore } from "../../store_engine";
 import { DOMFocusableElementStore } from "../../stores/DOM_focus_store";
 import { Color } from "../../types";

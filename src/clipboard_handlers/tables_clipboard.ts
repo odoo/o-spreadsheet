@@ -1,4 +1,5 @@
-import { isZoneInside, removeFalsyAttributes, zoneToDimension } from "../helpers";
+import { removeFalsyAttributes } from "../helpers/misc";
+import { isZoneInside, zoneToDimension } from "../helpers/zones";
 import {
   Border,
   CellPosition,

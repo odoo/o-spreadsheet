@@ -1,6 +1,7 @@
 import { Spreadsheet } from "../../src";
 import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../../src/constants";
-import { range, zoneToXc } from "../../src/helpers";
+import { range } from "../../src/helpers/misc";
+import { zoneToXc } from "../../src/helpers/zones";
 import { Model } from "../../src/model";
 import { Mode } from "../../src/types/model";
 import {

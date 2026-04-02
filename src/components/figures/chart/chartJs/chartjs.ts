@@ -1,10 +1,10 @@
 import { Component, onMounted, onWillUnmount, useEffect, useRef } from "@odoo/owl";
 import { Chart, ChartConfiguration } from "chart.js/auto";
-import { deepCopy, deepEquals } from "../../../../helpers";
 import {
   chartJsExtensionRegistry,
   registerChartJSExtensions,
 } from "../../../../helpers/figures/charts/chart_js_extension";
+import { deepCopy, deepEquals } from "../../../../helpers/misc";
 import { Store, useStore } from "../../../../store_engine";
 import { UID } from "../../../../types";
 import { ChartJSRuntime } from "../../../../types/chart/chart";

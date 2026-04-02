@@ -9,7 +9,7 @@ import {
   getDefaultSheetViewSize,
 } from "../../src/constants";
 import { functionRegistry } from "../../src/functions/function_registry";
-import { toZone } from "../../src/helpers";
+import { toZone } from "../../src/helpers/zones";
 import { HighlightStore } from "../../src/stores/highlight_store";
 import { SpreadsheetChildEnv } from "../../src/types/spreadsheet_env";
 import {

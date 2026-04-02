@@ -1,6 +1,6 @@
 import { FORMULA_REF_IDENTIFIER } from "../constants";
 import { rangeTokenize } from "../formulas/range_tokenizer";
-import { cellReference } from "../helpers";
+import { cellReference } from "../helpers/references";
 
 type LegacyNormalizedFormula = {
   // if the content is a formula (ex. =sum(  a1:b3, 3) + a1, should be stored as

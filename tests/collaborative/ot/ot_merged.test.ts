@@ -1,5 +1,5 @@
 import { transform } from "../../../src/collaborative/ot/ot";
-import { toZone } from "../../../src/helpers";
+import { toZone } from "../../../src/helpers/zones";
 import { AddMergeCommand } from "../../../src/types";
 import { OT_TESTS_SINGLE_CELL_COMMANDS, TEST_COMMANDS } from "../../test_helpers/constants";
 import { target } from "../../test_helpers/helpers";

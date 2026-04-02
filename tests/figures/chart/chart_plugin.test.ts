@@ -60,9 +60,9 @@ import {
   FIGURE_ID_SPLITTER,
 } from "../../../src/constants";
 import { toNumber } from "../../../src/functions/helpers";
-import { zoneToXc } from "../../../src/helpers";
 import { convertDateFormatForLuxon } from "../../../src/helpers/chart_date";
 import { BarChart } from "../../../src/helpers/figures/charts";
+import { zoneToXc } from "../../../src/helpers/zones";
 import { ChartPlugin } from "../../../src/plugins/core/chart";
 import { FigurePlugin } from "../../../src/plugins/core/figures";
 import { ScatterChartRuntime } from "../../../src/types/chart/scatter_chart";

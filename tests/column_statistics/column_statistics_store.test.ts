@@ -1,6 +1,6 @@
 import { Model } from "../../src";
 import { ColumnStatisticsStore } from "../../src/components/side_panel/column_stats/column_stats_store";
-import { formatValue } from "../../src/helpers";
+import { formatValue } from "../../src/helpers/format/format";
 import { SpreadsheetChildEnv } from "../../src/types/spreadsheet_env";
 import { Store } from "../../src/types/store_engine";
 import {

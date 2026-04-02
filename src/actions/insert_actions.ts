@@ -1,5 +1,5 @@
 import { functionRegistry } from "../functions/function_registry";
-import { isDefined } from "../helpers";
+import { isDefined } from "../helpers/misc";
 import { handlePasteResult } from "../helpers/ui/paste_interactive";
 import { _t } from "../translation";
 import { ActionBuilder, ActionSpec } from "./action";

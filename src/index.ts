@@ -67,53 +67,45 @@ import {
   SCROLLBAR_WIDTH,
 } from "./constants";
 import { isEvaluationError, toBoolean, toJsDate, toNumber, toString } from "./functions/helpers";
+import { ColorGenerator, colorToRGBA, rgbaToHex } from "./helpers/color";
+import { lettersToNumber, numberToLetters, toCartesian, toXC } from "./helpers/coordinates";
+import { DateTime, isDateTime, jsDateToNumber, numberToJsDate } from "./helpers/dates";
+import { createCurrencyFormat, formatValue, isDateTimeFormat } from "./helpers/format/format";
+import { openLink, urlRegistry, urlRepresentation } from "./helpers/links";
 import {
-  ColorGenerator,
-  DateTime,
-  UuidGenerator,
-  colorToRGBA,
-  computeTextWidth,
-  createCurrencyFormat,
   deepCopy,
   deepEquals,
-  expandZoneOnInsertion,
-  formatValue,
   getUniqueText,
-  isDateTime,
-  isDateTimeFormat,
   isDefined,
   isFormula,
-  isInside,
   isMarkdownLink,
-  isNumber,
-  jsDateToNumber,
   lazy,
-  lettersToNumber,
   markdownLink,
-  mergeContiguousZones,
-  numberToJsDate,
-  numberToLetters,
-  overlap,
   parseMarkdownLink,
-  positionToZone,
-  reduceZoneOnDeletion,
-  rgbaToHex,
   sanitizeSheetName,
-  splitReference,
-  toCartesian,
-  toUnboundedZone,
-  toXC,
-  toZone,
-  union,
   unquote,
-} from "./helpers/index";
-import { openLink, urlRegistry, urlRepresentation } from "./helpers/links";
+} from "./helpers/misc";
+import { isNumber } from "./helpers/numbers";
 import {
   insertTokenAfterArgSeparator,
   insertTokenAfterLeftParenthesis,
   makeFieldProposal,
 } from "./helpers/pivot/pivot_composer_helpers";
 import { supportedPivotPositionalFormulaRegistry } from "./helpers/pivot/pivot_positional_formula_registry";
+import { splitReference } from "./helpers/references";
+import { computeTextWidth } from "./helpers/text_helper";
+import { UuidGenerator } from "./helpers/uuid";
+import {
+  expandZoneOnInsertion,
+  isInside,
+  mergeContiguousZones,
+  overlap,
+  positionToZone,
+  reduceZoneOnDeletion,
+  toUnboundedZone,
+  toZone,
+  union,
+} from "./helpers/zones";
 
 import { CellComposerStore } from "./components/composer/composer/cell_composer_store";
 import { ClickableCellSortIcon } from "./components/dashboard/clickable_cell_sort_icon/clickable_cell_sort_icon";

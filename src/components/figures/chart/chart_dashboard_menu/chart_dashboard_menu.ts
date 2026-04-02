@@ -1,7 +1,7 @@
 import { Component, useState } from "@odoo/owl";
 import { getChartMenuActions } from "../../../../actions/figure_menu_actions";
 import { BACKGROUND_CHART_COLOR } from "../../../../constants";
-import { isDefined } from "../../../../helpers";
+import { isDefined } from "../../../../helpers/misc";
 import { Store, useStore } from "../../../../store_engine";
 import { _t } from "../../../../translation";
 import { UID, ValueAndLabel } from "../../../../types";

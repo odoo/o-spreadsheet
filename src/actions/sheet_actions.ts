@@ -1,4 +1,4 @@
-import { buildSheetLink, markdownLink } from "../helpers";
+import { buildSheetLink, markdownLink } from "../helpers/misc";
 import { _t } from "../translation";
 import { ActionSpec } from "./action";
 

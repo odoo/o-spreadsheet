@@ -1,6 +1,6 @@
 import { Component } from "@odoo/owl";
 import { LINK_COLOR } from "../../../constants";
-import { toXC } from "../../../helpers";
+import { toXC } from "../../../helpers/coordinates";
 import { openLink, urlRepresentation } from "../../../helpers/links";
 import { Store, useStore } from "../../../store_engine";
 import { EvaluatedCell, Link, Position } from "../../../types";

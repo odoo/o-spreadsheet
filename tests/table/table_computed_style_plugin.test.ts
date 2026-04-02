@@ -1,6 +1,7 @@
 import { Model } from "../../src";
-import { toXC, toZone } from "../../src/helpers";
+import { toXC } from "../../src/helpers/coordinates";
 import { TABLE_PRESETS } from "../../src/helpers/table_presets";
+import { toZone } from "../../src/helpers/zones";
 import { Style, UID } from "../../src/types";
 import {
   createTable,

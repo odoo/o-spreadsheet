@@ -1,5 +1,5 @@
 import { Model } from "../../src";
-import { toZone } from "../../src/helpers";
+import { toZone } from "../../src/helpers/zones";
 import { BorderDescr, UID } from "../../src/types";
 import {
   copy,

@@ -1,6 +1,6 @@
 import { functionRegistry } from "../../../functions/function_registry";
-import { getFullReference } from "../../../helpers";
 import { toXC } from "../../../helpers/coordinates";
+import { getFullReference } from "../../../helpers/references";
 import { intersection, isZoneValid, zoneToXc } from "../../../helpers/zones";
 import { _t } from "../../../translation";
 import { EvaluatedCell } from "../../../types/cells";

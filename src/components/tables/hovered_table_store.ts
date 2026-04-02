@@ -1,6 +1,6 @@
 import { TABLE_HOVER_BACKGROUND_COLOR } from "../../constants";
-import { range } from "../../helpers";
 import { PositionMap } from "../../helpers/cells/position_map";
+import { range } from "../../helpers/misc";
 import { SpreadsheetStore } from "../../stores";
 import { Color, Command, Position } from "../../types";
 

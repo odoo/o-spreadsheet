@@ -1,5 +1,5 @@
 import { TableTerms } from "../../src/components/translations_terms";
-import { toCartesian, toXC, toZone, zoneToXc } from "../../src/helpers/index";
+import { toCartesian, toXC } from "../../src/helpers/coordinates";
 import { interactiveSortSelection } from "../../src/helpers/sort_interactive";
 import { interactiveCut } from "../../src/helpers/ui/cut_interactive";
 import { interactiveFreezeColumnsRows } from "../../src/helpers/ui/freeze_interactive";
@@ -18,6 +18,7 @@ import {
   ToggleGroupInteractiveContent,
   interactiveToggleGroup,
 } from "../../src/helpers/ui/toggle_group_interactive";
+import { toZone, zoneToXc } from "../../src/helpers/zones";
 import { Model } from "../../src/model";
 import { CommandResult, Dimension, Position, UID } from "../../src/types";
 import { SpreadsheetChildEnv } from "../../src/types/spreadsheet_env";

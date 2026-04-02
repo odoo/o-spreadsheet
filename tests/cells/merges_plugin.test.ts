@@ -1,5 +1,6 @@
 import { DEFAULT_BORDER_DESC } from "../../src/constants";
-import { toCartesian, toXC, toZone } from "../../src/helpers/index";
+import { toCartesian, toXC } from "../../src/helpers/coordinates";
+import { toZone } from "../../src/helpers/zones";
 import { Model } from "../../src/model";
 import { CommandResult } from "../../src/types/index";
 import {

@@ -1,6 +1,8 @@
 import { CellComposerStore } from "../../src/components/composer/composer/cell_composer_store";
 import { DEFAULT_TOKEN_COLOR, tokenColors } from "../../src/constants";
-import { colors, toCartesian, toZone } from "../../src/helpers/index";
+import { colors } from "../../src/helpers/color";
+import { toCartesian } from "../../src/helpers/coordinates";
+import { toZone } from "../../src/helpers/zones";
 import { Model } from "../../src/model";
 import { Store } from "../../src/store_engine";
 import { MockClipboardData, getClipboardEvent } from "../test_helpers/clipboard";

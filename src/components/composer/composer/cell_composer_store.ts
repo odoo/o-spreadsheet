@@ -1,21 +1,21 @@
 import { prettify } from "../../../formulas/formula_formatter";
 import { isMultipleElementMatrix, toScalar } from "../../../functions/helper_matrices";
 import { parseLiteral } from "../../../helpers/cells/cell_evaluation";
+import { toXC } from "../../../helpers/coordinates";
+import { parseDateTime } from "../../../helpers/dates";
 import {
   detectDateFormat,
   formatValue,
-  getMissingHeadersForSpreadResult,
   isDateTimeFormat,
-  isFormula,
-  markdownLink,
   numberToString,
-  parseDateTime,
+} from "../../../helpers/format/format";
+import { getDateTimeFormat, localizeFormula } from "../../../helpers/locale";
+import { getMissingHeadersForSpreadResult, isFormula, markdownLink } from "../../../helpers/misc";
+import {
   positionToZone,
-  toXC,
   updateSelectionOnDeletion,
   updateSelectionOnInsertion,
-} from "../../../helpers/index";
-import { getDateTimeFormat, localizeFormula } from "../../../helpers/locale";
+} from "../../../helpers/zones";
 import { criterionEvaluatorRegistry } from "../../../registries/criterion_registry";
 import { _t } from "../../../translation";
 import {

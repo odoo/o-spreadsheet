@@ -1,6 +1,6 @@
 import { Component, useRef } from "@odoo/owl";
 import { HIGHLIGHT_COLOR, TEXT_BODY } from "../../../../constants";
-import { colorNumberToHex } from "../../../../helpers";
+import { colorNumberToHex } from "../../../../helpers/color";
 import { criterionEvaluatorRegistry } from "../../../../registries/criterion_registry";
 import { ConditionalFormat, Highlight } from "../../../../types";
 import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";

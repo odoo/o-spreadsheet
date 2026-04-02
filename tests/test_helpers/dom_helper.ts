@@ -1,15 +1,10 @@
 import { Color, Model } from "../../src";
 import { iterateChildren } from "../../src/components/helpers/dom_helpers";
 import { HEADER_HEIGHT, HEADER_WIDTH } from "../../src/constants";
-import {
-  MIN_DELAY,
-  lettersToNumber,
-  positionToZone,
-  scrollDelay,
-  toCartesian,
-  toHex,
-  toZone,
-} from "../../src/helpers";
+import { toHex } from "../../src/helpers/color";
+import { lettersToNumber, toCartesian } from "../../src/helpers/coordinates";
+import { MIN_DELAY, scrollDelay } from "../../src/helpers/edge_scrolling";
+import { positionToZone, toZone } from "../../src/helpers/zones";
 import { DOMCoordinates, HeaderIndex, Pixel } from "../../src/types";
 import { nextTick } from "./helpers";
 

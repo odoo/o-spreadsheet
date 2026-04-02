@@ -2,7 +2,7 @@ import { Component, xml } from "@odoo/owl";
 import { Model } from "../../src";
 import { ComposerFocusStore } from "../../src/components/composer/composer_focus_store";
 import { StandaloneComposer } from "../../src/components/composer/standalone_composer/standalone_composer";
-import { zoneToXc } from "../../src/helpers";
+import { zoneToXc } from "../../src/helpers/zones";
 import { sidePanelRegistry } from "../../src/registries/side_panel_registry";
 import { Store } from "../../src/store_engine";
 import { SpreadsheetChildEnv } from "../../src/types/spreadsheet_env";

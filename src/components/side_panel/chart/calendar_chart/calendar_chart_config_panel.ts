@@ -1,8 +1,9 @@
 import { toJsDate } from "../../../../functions/helpers";
-import { createValidRange, isDateTime } from "../../../../helpers";
+import { isDateTime } from "../../../../helpers/dates";
 import { createDataSets } from "../../../../helpers/figures/charts";
 import { getBarChartData } from "../../../../helpers/figures/charts/runtime";
 import { ALL_PERIODS } from "../../../../helpers/pivot/pivot_helpers";
+import { createValidRange } from "../../../../helpers/range";
 import { DEFAULT_LOCALE, ValueAndLabel } from "../../../../types";
 import {
   CALENDAR_CHART_GRANULARITIES,

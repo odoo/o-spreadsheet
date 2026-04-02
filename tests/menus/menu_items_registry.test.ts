@@ -1,4 +1,4 @@
-import { toUnboundedZone, toZone, zoneToXc } from "../../src/helpers";
+import { toUnboundedZone, toZone, zoneToXc } from "../../src/helpers/zones";
 import { DEFAULT_LOCALES, UID } from "../../src/types";
 import {
   copy,

@@ -1,15 +1,15 @@
 import { Component, useState } from "@odoo/owl";
 import { COLOR_PICKER_DEFAULTS, ICON_EDGE_LENGTH } from "../../constants";
 import {
-  clip,
   hexToHSLA,
   hslaToHex,
   isColorValid,
   isHSLAValid,
   isSameColor,
   toHex,
-} from "../../helpers";
+} from "../../helpers/color";
 import { chartFontColor } from "../../helpers/figures/charts";
+import { clip } from "../../helpers/misc";
 import { Color, HSLA, Pixel, PixelPosition, Rect } from "../../types";
 import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 import { cssPropertiesToCss } from "../helpers/css";

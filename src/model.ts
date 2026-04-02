@@ -3,9 +3,9 @@ import { LocalTransportService } from "./collaborative/local_transport_service";
 import { ReadonlyTransportFilter } from "./collaborative/readonly_transport_filter";
 import { Session } from "./collaborative/session";
 import { DEFAULT_REVISION_ID } from "./constants";
-import { deepEquals, UuidGenerator } from "./helpers";
 import { EventBus } from "./helpers/event_bus";
-import { deepCopy, lazy } from "./helpers/misc";
+import { deepCopy, deepEquals, lazy } from "./helpers/misc";
+import { UuidGenerator } from "./helpers/uuid";
 import { buildRevisionLog } from "./history/factory";
 import {
   createEmptyExcelWorkbookData,

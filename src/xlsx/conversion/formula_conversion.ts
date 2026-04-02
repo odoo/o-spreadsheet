@@ -1,5 +1,5 @@
-import { cellReference } from "../../helpers";
 import { toCartesian, toXC } from "../../helpers/coordinates";
+import { cellReference } from "../../helpers/references";
 import { isSheetNameEqual } from "../../helpers/sheet";
 import { RangePart } from "../../types/range";
 import { XLSXImportData, XLSXSharedFormula, XLSXWorksheet } from "../../types/xlsx";

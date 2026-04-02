@@ -1,5 +1,5 @@
 import { PIVOT_TOKEN_COLOR } from "../../constants";
-import { getCanonicalSymbolName } from "../../helpers";
+import { getCanonicalSymbolName } from "../../helpers/misc";
 import { PivotRuntimeDefinition } from "../../helpers/pivot/pivot_runtime_definition";
 import { PivotMeasure } from "../../types";
 import { AutoCompleteProviderDefinition } from "./auto_complete_registry";

@@ -1,5 +1,5 @@
 import { Model } from "../../src";
-import { formatValue } from "../../src/helpers";
+import { formatValue } from "../../src/helpers/format/format";
 import { DEFAULT_LOCALE } from "../../src/types";
 import { setCellContent, updateLocale } from "../test_helpers/commands_helpers";
 import { FR_LOCALE } from "../test_helpers/constants";

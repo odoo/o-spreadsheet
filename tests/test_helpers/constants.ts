@@ -1,7 +1,7 @@
 import { SpreadsheetPivotTable } from "../../src";
 import { BACKGROUND_CHART_COLOR, DEFAULT_BORDER_DESC } from "../../src/constants";
-import { toZone } from "../../src/helpers";
 import { DEFAULT_TABLE_CONFIG } from "../../src/helpers/table_presets";
+import { toZone } from "../../src/helpers/zones";
 import {
   CoreCommand,
   CoreCommandTypes,

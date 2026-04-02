@@ -1,5 +1,5 @@
 import { transform } from "../../../src/collaborative/ot/ot";
-import { toZone } from "../../../src/helpers";
+import { toZone } from "../../../src/helpers/zones";
 import {
   AddColumnsRowsCommand,
   CreateChartCommand,

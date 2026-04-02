@@ -1,6 +1,6 @@
 import type { ChartMeta, ChartType, Plugin } from "chart.js";
-import { computeTextWidth } from "../../../../helpers";
 import { chartFontColor, isTrendLineAxis } from "../../../../helpers/figures/charts/chart_common";
+import { computeTextWidth } from "../../../../helpers/text_helper";
 import { Color } from "../../../../types";
 import type { ChartType as AllChartType } from "../../../../types/chart";
 

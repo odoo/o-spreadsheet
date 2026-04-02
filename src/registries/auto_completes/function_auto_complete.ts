@@ -1,7 +1,7 @@
 import { getHtmlContentFromPattern } from "../../components/helpers/html_content_helpers";
 import { COMPOSER_ASSISTANT_COLOR } from "../../constants";
 import { functionRegistry } from "../../functions/function_registry";
-import { isFormula } from "../../helpers";
+import { isFormula } from "../../helpers/misc";
 import { AutoCompleteProposal, autoCompleteProviders } from "./auto_complete_registry";
 
 type FunctionAutoCompleteProposal = AutoCompleteProposal & { type: "function" | "named_range" };

@@ -4,9 +4,10 @@ import { ChartPanel } from "../../../src/components/side_panel/chart/main_chart_
 import { SidePanelStore } from "../../../src/components/side_panel/side_panel/side_panel_store";
 import { ChartTerms } from "../../../src/components/translations_terms";
 import { LINE_DATA_POINT_RADIUS } from "../../../src/constants";
-import { toHex, toZone } from "../../../src/helpers";
+import { toHex } from "../../../src/helpers/color";
 import { GaugeChart, ScorecardChart } from "../../../src/helpers/figures/charts";
 import { getChartColorsGenerator } from "../../../src/helpers/figures/charts/runtime";
+import { toZone } from "../../../src/helpers/zones";
 import { chartSubtypeRegistry } from "../../../src/registries/chart_subtype_registry";
 import { HighlightStore } from "../../../src/stores/highlight_store";
 import {

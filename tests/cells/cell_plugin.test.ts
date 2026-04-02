@@ -1,7 +1,7 @@
 import { CoreCommand, CorePlugin, Model } from "../../src";
 import { LINK_COLOR } from "../../src/constants";
-import { buildSheetLink } from "../../src/helpers";
 import { urlRepresentation } from "../../src/helpers/links";
+import { buildSheetLink } from "../../src/helpers/misc";
 import { corePluginRegistry } from "../../src/plugins";
 import { CellValueType, CommandResult } from "../../src/types";
 import {

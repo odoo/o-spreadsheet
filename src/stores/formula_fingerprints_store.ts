@@ -1,11 +1,7 @@
-import {
-  AlternatingColorGenerator,
-  isFullColRange,
-  isFullRowRange,
-  reorderZone,
-  setColorAlpha,
-} from "../helpers";
 import { PositionMap } from "../helpers/cells/position_map";
+import { AlternatingColorGenerator, setColorAlpha } from "../helpers/color";
+import { isFullColRange, isFullRowRange } from "../helpers/range";
+import { reorderZone } from "../helpers/zones";
 import {
   Cell,
   CellPosition,

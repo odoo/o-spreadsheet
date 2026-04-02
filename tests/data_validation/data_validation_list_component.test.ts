@@ -7,7 +7,8 @@ import {
   GRAY_200,
   MIN_CELL_TEXT_MARGIN,
 } from "../../src/constants";
-import { computeTextFontSizeInPixels, toZone } from "../../src/helpers";
+import { computeTextFontSizeInPixels } from "../../src/helpers/text_helper";
+import { toZone } from "../../src/helpers/zones";
 import { IsValueInListCriterion, UID } from "../../src/types";
 import { SpreadsheetChildEnv } from "../../src/types/spreadsheet_env";
 import {

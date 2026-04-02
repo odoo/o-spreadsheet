@@ -1,4 +1,6 @@
-import { ColorGenerator, isEqual, positionToZone, splitReference } from "../../helpers/index";
+import { ColorGenerator } from "../../helpers/color";
+import { splitReference } from "../../helpers/references";
+import { isEqual, positionToZone } from "../../helpers/zones";
 import { Get } from "../../store_engine";
 import { SpreadsheetStore } from "../../stores";
 import { HighlightStore } from "../../stores/highlight_store";

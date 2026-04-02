@@ -1,8 +1,8 @@
 import { EnrichedToken } from "../../../formulas/composer_tokenizer";
 import { rangeTokenize } from "../../../formulas/range_tokenizer";
 import { Token } from "../../../formulas/tokenizer";
-import { setXcToFixedReferenceType } from "../../../helpers";
 import { localizeContent } from "../../../helpers/locale";
+import { setXcToFixedReferenceType } from "../../../helpers/references";
 import { AutoCompleteProviderDefinition } from "../../../registries/auto_completes";
 import { Get } from "../../../store_engine";
 import { Color, UID, UnboundedZone, Zone } from "../../../types";

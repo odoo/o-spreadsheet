@@ -1,6 +1,6 @@
 import { CollaborationMessage, CommandResult, CorePlugin } from "../../src";
 import { MESSAGE_VERSION } from "../../src/constants";
-import { toZone } from "../../src/helpers";
+import { toZone } from "../../src/helpers/zones";
 import { Model } from "../../src/model";
 import { corePluginRegistry, featurePluginRegistry } from "../../src/plugins";
 import { UIPlugin } from "../../src/plugins/ui_plugin";

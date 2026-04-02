@@ -1,6 +1,6 @@
 import { Model } from "../../src";
 import { ColorPicker, ColorPickerProps } from "../../src/components/color_picker/color_picker";
-import { toHex } from "../../src/helpers";
+import { toHex } from "../../src/helpers/color";
 import { Color } from "../../src/types";
 import { setFormatting } from "../test_helpers/commands_helpers";
 import {

@@ -1,7 +1,7 @@
 import { Component, useState } from "@odoo/owl";
 import { isMultipleElementMatrix, toScalar } from "../../../../functions/helper_matrices";
 import { tryToNumber } from "../../../../functions/helpers";
-import { deepCopy } from "../../../../helpers/index";
+import { deepCopy } from "../../../../helpers/misc";
 import { _t } from "../../../../translation";
 import { GaugeChartDefinition, SectionRule } from "../../../../types/chart/gauge_chart";
 import { Color, CommandResult, ValueAndLabel } from "../../../../types/index";

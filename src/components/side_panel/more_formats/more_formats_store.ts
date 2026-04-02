@@ -5,9 +5,9 @@ import {
   formatValue,
   getNumberOfFormatParts,
   isDateTimeFormat,
-  isDefined,
   isFormatValid,
-} from "../../../helpers";
+} from "../../../helpers/format/format";
+import { isDefined } from "../../../helpers/misc";
 import { currenciesRegistry } from "../../../registries/currencies_registry";
 import { SpreadsheetStore } from "../../../stores";
 import { _t } from "../../../translation";

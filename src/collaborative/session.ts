@@ -1,7 +1,7 @@
 import { DEFAULT_REVISION_ID, MESSAGE_VERSION } from "../constants";
-import { UuidGenerator } from "../helpers";
 import { EventBus } from "../helpers/event_bus";
 import { isDefined } from "../helpers/misc";
+import { UuidGenerator } from "../helpers/uuid";
 import { SelectiveHistory as RevisionLog } from "../history/selective_history";
 import {
   Client,

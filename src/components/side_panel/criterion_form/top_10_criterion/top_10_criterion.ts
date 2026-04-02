@@ -1,4 +1,4 @@
-import { deepCopy } from "../../../../helpers";
+import { deepCopy } from "../../../../helpers/misc";
 import { _t } from "../../../../translation";
 import { ValueAndLabel } from "../../../../types";
 import { Top10Criterion } from "../../../../types/data_validation";

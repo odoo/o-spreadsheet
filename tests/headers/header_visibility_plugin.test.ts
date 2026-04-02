@@ -1,6 +1,7 @@
 import { CommandResult, Model } from "../../src";
 import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../../src/constants";
-import { numberToLetters, toZone } from "../../src/helpers";
+import { numberToLetters } from "../../src/helpers/coordinates";
+import { toZone } from "../../src/helpers/zones";
 import { HeaderSizePlugin } from "../../src/plugins/core/header_size";
 import {
   addColumns,

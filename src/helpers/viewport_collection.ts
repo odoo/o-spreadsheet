@@ -1,4 +1,3 @@
-import { clip, isDefined, range } from ".";
 import { getDefaultSheetViewSize, SCROLLBAR_WIDTH } from "../constants";
 import { CommandResult, ResizeViewportCommand, SetViewportOffsetCommand } from "../types/commands";
 import { AnchorOffset, Figure, FigureUI } from "../types/figure";
@@ -26,6 +25,7 @@ import {
 } from "../types/rendering";
 import { scrollDelay } from "./edge_scrolling";
 import { InternalViewport } from "./internal_viewport";
+import { clip, isDefined, range } from "./misc";
 import { positionToZone } from "./zones";
 
 type SheetViewports = {

@@ -5,7 +5,7 @@ import { PaintFormatStore } from "../src/components/paint_format_button/paint_fo
 import { TopBar } from "../src/components/top_bar/top_bar";
 import { topBarToolBarRegistry } from "../src/components/top_bar/top_bar_tools_registry";
 import { DEFAULT_FONT_SIZE } from "../src/constants";
-import { toZone, zoneToXc } from "../src/helpers";
+import { toZone, zoneToXc } from "../src/helpers/zones";
 import { topbarMenuRegistry } from "../src/registries/menus";
 import { topbarComponentRegistry } from "../src/registries/topbar_component_registry";
 import { Currency, Pixel, Style } from "../src/types";

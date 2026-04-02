@@ -1,4 +1,4 @@
-import { toUnboundedZone, toZone } from "../../src/helpers";
+import { toUnboundedZone, toZone } from "../../src/helpers/zones";
 import { ZoneSet } from "../../src/plugins/ui_core_views/cell_evaluation/zone_set";
 
 describe("ZoneSet", () => {

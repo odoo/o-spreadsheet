@@ -1,6 +1,7 @@
 import { Model } from "../../src";
 import { LINK_COLOR } from "../../src/constants";
-import { buildSheetLink, toZone } from "../../src/helpers";
+import { buildSheetLink } from "../../src/helpers/misc";
+import { toZone } from "../../src/helpers/zones";
 import {
   Align,
   BorderDescr,

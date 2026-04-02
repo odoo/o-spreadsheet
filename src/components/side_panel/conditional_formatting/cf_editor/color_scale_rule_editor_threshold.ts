@@ -1,6 +1,6 @@
 import { Component } from "@odoo/owl";
 import { DEFAULT_COLOR_SCALE_MIDPOINT_COLOR } from "../../../../constants";
-import { colorNumberToHex } from "../../../../helpers";
+import { colorNumberToHex } from "../../../../helpers/color";
 import { _t } from "../../../../translation";
 import { ColorScaleThreshold, CommandResult, ValueAndLabel } from "../../../../types";
 import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";

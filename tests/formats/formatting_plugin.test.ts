@@ -14,7 +14,8 @@ import { arg } from "../../src/functions/arguments";
 import { functionRegistry } from "../../src/functions/function_registry";
 import { toScalar } from "../../src/functions/helper_matrices";
 import { toString } from "../../src/functions/helpers";
-import { fontSizeInPixels, getCellContentHeight, toCartesian } from "../../src/helpers";
+import { toCartesian } from "../../src/helpers/coordinates";
+import { fontSizeInPixels, getCellContentHeight } from "../../src/helpers/text_helper";
 import { Model } from "../../src/model";
 import { CommandResult, Format, UID } from "../../src/types";
 import {

@@ -1,4 +1,4 @@
-import { toCartesian, toXC } from "../../src/helpers";
+import { toCartesian, toXC } from "../../src/helpers/coordinates";
 import { Model } from "../../src/model";
 import { CommandResult, Direction, Viewport } from "../../src/types";
 import {

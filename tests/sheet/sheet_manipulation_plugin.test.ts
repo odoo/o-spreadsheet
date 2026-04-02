@@ -1,5 +1,6 @@
 import { DEFAULT_BORDER_DESC, DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../../src/constants";
-import { lettersToNumber, toXC, toZone } from "../../src/helpers";
+import { lettersToNumber, toXC } from "../../src/helpers/coordinates";
+import { toZone } from "../../src/helpers/zones";
 import { Model } from "../../src/model";
 import { Border, CellErrorType, CommandResult } from "../../src/types";
 import {

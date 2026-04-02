@@ -1,6 +1,6 @@
 import { Model, UID } from "../../../../src";
 import { SidePanels } from "../../../../src/components/side_panel/side_panels/side_panels";
-import { ColorGenerator } from "../../../../src/helpers";
+import { ColorGenerator } from "../../../../src/helpers/color";
 import { SunburstChartDefinition } from "../../../../src/types/chart";
 import { SpreadsheetChildEnv } from "../../../../src/types/spreadsheet_env";
 import {

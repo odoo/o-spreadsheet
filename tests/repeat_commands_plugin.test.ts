@@ -1,6 +1,6 @@
 import { Model } from "../src";
 import { DEFAULT_CELL_HEIGHT } from "../src/constants";
-import { toZone } from "../src/helpers";
+import { toZone } from "../src/helpers/zones";
 import {
   AddColumnsRowsCommand,
   CreateChartCommand,

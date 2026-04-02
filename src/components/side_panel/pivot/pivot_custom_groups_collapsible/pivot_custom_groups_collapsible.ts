@@ -1,5 +1,5 @@
 import { Component } from "@odoo/owl";
-import { deepCopy } from "../../../../helpers";
+import { deepCopy } from "../../../../helpers/misc";
 import { getUniquePivotGroupName } from "../../../../helpers/pivot/pivot_helpers";
 import { _t } from "../../../../translation";
 import {

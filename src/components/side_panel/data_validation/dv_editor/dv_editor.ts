@@ -1,6 +1,6 @@
 import { Component, ComponentConstructor, useState } from "@odoo/owl";
-import { zoneToXc } from "../../../../helpers";
 import { canonicalizeContent, localizeDataValidationRule } from "../../../../helpers/locale";
+import { zoneToXc } from "../../../../helpers/zones";
 import {
   criterionComponentRegistry,
   getCriterionValueAndLabels,

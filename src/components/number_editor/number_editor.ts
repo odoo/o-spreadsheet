@@ -6,7 +6,7 @@ import {
   useRef,
   useState,
 } from "@odoo/owl";
-import { clip } from "../../helpers/index";
+import { clip } from "../../helpers/misc";
 import { Store, useStore } from "../../store_engine";
 import { DOMFocusableElementStore } from "../../stores/DOM_focus_store";
 import { Ref } from "../../types";

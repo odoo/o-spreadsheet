@@ -1,5 +1,5 @@
 import { Component, useEffect, useExternalListener } from "@odoo/owl";
-import { deepCopy } from "../../../../helpers";
+import { deepCopy } from "../../../../helpers/misc";
 import { useLocalStore } from "../../../../store_engine";
 import { _t } from "../../../../translation";
 import { ConditionalFormat, UID } from "../../../../types";

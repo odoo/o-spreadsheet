@@ -1,7 +1,8 @@
 import { ComponentConstructor, useState } from "@odoo/owl";
 import { DEFAULT_COLOR_SCALE_MIDPOINT_COLOR } from "../../../../constants";
-import { colorNumberToHex, colorToNumber, isColorValid, rangeReference } from "../../../../helpers";
+import { colorNumberToHex, colorToNumber, isColorValid } from "../../../../helpers/color";
 import { canonicalizeCFRule } from "../../../../helpers/locale";
+import { rangeReference } from "../../../../helpers/references";
 import {
   criterionComponentRegistry,
   getCriterionValueAndLabels,

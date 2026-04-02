@@ -1,4 +1,4 @@
-import { UuidGenerator } from "../helpers";
+import { UuidGenerator } from "../helpers/uuid";
 import { UID } from "../types";
 import { SpreadsheetChildEnv } from "../types/spreadsheet_env";
 import { Registry } from "./registry";

@@ -1,6 +1,6 @@
 import { Component, useRef } from "@odoo/owl";
-import { zoneToXc } from "../../../../helpers";
 import { localizeCFRule } from "../../../../helpers/locale";
+import { zoneToXc } from "../../../../helpers/zones";
 import { ConditionalFormat, UID } from "../../../../types";
 import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
 import { getBoundingRectAsPOJO } from "../../../helpers/dom_helpers";

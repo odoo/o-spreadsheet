@@ -1,6 +1,6 @@
 import { DEFAULT_FONT_SIZE, NEWLINE } from "../../constants";
-import { splitReference } from "../../helpers";
 import { getCanonicalRepresentation } from "../../helpers/data_normalization";
+import { splitReference } from "../../helpers/references";
 import { isSheetNameEqual } from "../../helpers/sheet";
 import { toUnboundedZone } from "../../helpers/zones";
 import { ConditionalFormattingOperatorValues } from "../../types/conditional_formatting";

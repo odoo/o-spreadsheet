@@ -1,5 +1,5 @@
-import { UuidGenerator } from "../helpers";
 import { AbstractChart } from "../helpers/figures/charts";
+import { UuidGenerator } from "../helpers/uuid";
 import {
   ClipboardFigureData,
   ClipboardOptions,

@@ -1,8 +1,9 @@
 import { Component, useState } from "@odoo/owl";
 import { CHART_AXIS_TITLE_FONT_SIZE } from "../../../../../constants";
 import { toNumber } from "../../../../../functions/helpers";
-import { deepCopy, formatValue } from "../../../../../helpers";
 import { getDefinedAxis } from "../../../../../helpers/figures/charts";
+import { formatValue } from "../../../../../helpers/format/format";
+import { deepCopy } from "../../../../../helpers/misc";
 import { _t } from "../../../../../translation";
 import {
   AxisDesign,

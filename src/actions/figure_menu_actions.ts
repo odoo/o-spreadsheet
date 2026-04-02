@@ -1,8 +1,8 @@
 import { UID } from "..";
 import { downloadFile } from "../components/helpers/dom_helpers";
-import { deepEquals } from "../helpers";
 import { chartToImageFile, chartToImageUrl } from "../helpers/figures/charts";
 import { getMaxFigureSize } from "../helpers/figures/figure/figure";
+import { deepEquals } from "../helpers/misc";
 import { _t } from "../translation";
 import { SpreadsheetChildEnv } from "../types/spreadsheet_env";
 import { Action, ActionSpec, createActions } from "./action";

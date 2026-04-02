@@ -1,4 +1,5 @@
-import { doesCellContainFunction, splitReference } from "../helpers";
+import { doesCellContainFunction } from "../helpers/misc";
+import { splitReference } from "../helpers/references";
 import { toZone } from "../helpers/zones";
 import { _t } from "../translation";
 import { EvaluatedCell } from "../types/cells";

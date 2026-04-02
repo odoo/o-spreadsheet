@@ -6,9 +6,10 @@ import {
   PIVOT_INSERT_TABLE_STYLE_ID,
   PIVOT_TOKEN_COLOR,
 } from "../../../src/constants";
-import { toXC, toZone } from "../../../src/helpers";
+import { toXC } from "../../../src/helpers/coordinates";
 import { datetimeGranularities } from "../../../src/helpers/pivot/pivot_registry";
 import { SpreadsheetPivot } from "../../../src/helpers/pivot/spreadsheet_pivot/spreadsheet_pivot";
+import { toZone } from "../../../src/helpers/zones";
 import { topbarMenuRegistry } from "../../../src/registries/menus/topbar_menu_registry";
 import { NotificationStore } from "../../../src/stores/notification_store";
 import { SpreadsheetChildEnv } from "../../../src/types/spreadsheet_env";

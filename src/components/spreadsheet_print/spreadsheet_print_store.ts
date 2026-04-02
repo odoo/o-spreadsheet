@@ -1,5 +1,5 @@
-import { cellPositions, intersection } from "../../helpers";
 import { ViewportCollection } from "../../helpers/viewport_collection";
+import { cellPositions, intersection } from "../../helpers/zones";
 import { SpreadsheetStore } from "../../stores";
 import { _t } from "../../translation";
 import {

@@ -7,7 +7,8 @@ import {
   getDefaultSheetViewSize,
   ZOOM_VALUES,
 } from "../../src/constants";
-import { toHex, toZone } from "../../src/helpers";
+import { toHex } from "../../src/helpers/color";
+import { toZone } from "../../src/helpers/zones";
 import { Color, Pixel, Range } from "../../src/types";
 import { merge, resizeSheetView, setZoom } from "../test_helpers/commands_helpers";
 import { edgeScrollDelay, triggerMouseEvent } from "../test_helpers/dom_helper";

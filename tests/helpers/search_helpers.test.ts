@@ -1,4 +1,4 @@
-import { fuzzyLookup, fuzzyMatch } from "../../src/helpers";
+import { fuzzyLookup, fuzzyMatch } from "../../src/helpers/search";
 
 function fuzzyTest(pattern: string, string: string) {
   return fuzzyMatch(pattern, string) !== 0;

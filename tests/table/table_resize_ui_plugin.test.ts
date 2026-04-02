@@ -1,5 +1,5 @@
 import { CommandResult, Model, UID } from "../../src";
-import { toZone } from "../../src/helpers";
+import { toZone } from "../../src/helpers/zones";
 import {
   createDynamicTable,
   createTable,

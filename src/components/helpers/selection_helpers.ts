@@ -1,4 +1,4 @@
-import { getZoneArea } from "../../helpers";
+import { getZoneArea } from "../../helpers/zones";
 import { Direction, Getters, Position, Zone } from "../../types";
 import { SelectionStreamProcessor } from "../../types/selection_stream_processor";
 import { isCtrlKey } from "./dom_helpers";

@@ -1,8 +1,10 @@
 import { Model, UIPlugin } from "../../src";
 import { DEFAULT_REVISION_ID, MESSAGE_VERSION } from "../../src/constants";
 import { functionRegistry } from "../../src/functions/function_registry";
-import { getDefaultCellHeight, range, toZone, zoneToXc } from "../../src/helpers";
+import { range } from "../../src/helpers/misc";
 import { DEFAULT_TABLE_CONFIG } from "../../src/helpers/table_presets";
+import { getDefaultCellHeight } from "../../src/helpers/text_helper";
+import { toZone, zoneToXc } from "../../src/helpers/zones";
 import { featurePluginRegistry } from "../../src/plugins";
 import {
   Command,

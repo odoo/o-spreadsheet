@@ -1,4 +1,4 @@
-import { debounce } from "../../src/helpers";
+import { debounce } from "../../src/helpers/misc";
 
 describe("Debounce Helper", () => {
   beforeAll(() => {

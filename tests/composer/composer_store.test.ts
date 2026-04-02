@@ -1,12 +1,9 @@
 import { CellComposerStore } from "../../src/components/composer/composer/cell_composer_store";
-import {
-  DateTime,
-  colors,
-  getCanonicalSymbolName,
-  jsDateToRoundNumber,
-  toXC,
-  toZone,
-} from "../../src/helpers";
+import { colors } from "../../src/helpers/color";
+import { toXC } from "../../src/helpers/coordinates";
+import { DateTime, jsDateToRoundNumber } from "../../src/helpers/dates";
+import { getCanonicalSymbolName } from "../../src/helpers/misc";
+import { toZone } from "../../src/helpers/zones";
 import { Model } from "../../src/model";
 import { DependencyContainer, Store } from "../../src/store_engine";
 import { HighlightStore } from "../../src/stores/highlight_store";

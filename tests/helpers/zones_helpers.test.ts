@@ -1,3 +1,4 @@
+import { toCartesian } from "../../src/helpers/coordinates";
 import {
   createAdaptedZone,
   excludeTopLeft,
@@ -5,12 +6,10 @@ import {
   mergeContiguousZones,
   overlap,
   positions,
-  toCartesian,
   toUnboundedZone,
   toZone,
   zoneToXc,
-} from "../../src/helpers/index";
-
+} from "../../src/helpers/zones";
 import { Zone } from "../../src/types";
 import { target } from "../test_helpers/helpers";
 

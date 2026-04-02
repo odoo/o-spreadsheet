@@ -1,4 +1,5 @@
-import { UuidGenerator, deepCopy } from "../helpers";
+import { deepCopy } from "../helpers/misc";
+import { UuidGenerator } from "../helpers/uuid";
 import {
   ClipboardFigureData,
   ClipboardOptions,

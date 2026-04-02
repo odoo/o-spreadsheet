@@ -1,6 +1,6 @@
 import { DEFAULT_WINDOW_SIZE, FIGURE_BORDER_WIDTH } from "../../constants";
-import { getFullReference, splitReference } from "../../helpers";
 import { isDefined } from "../../helpers/misc";
+import { getFullReference, splitReference } from "../../helpers/references";
 import { toUnboundedZone, zoneToXc } from "../../helpers/zones";
 import { chartRegistry } from "../../registries/chart_registry";
 import {

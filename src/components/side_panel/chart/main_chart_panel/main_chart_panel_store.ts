@@ -1,4 +1,4 @@
-import { deepEquals } from "../../../../helpers";
+import { deepEquals } from "../../../../helpers/misc";
 import { chartRegistry } from "../../../../registries/chart_registry";
 import { chartSubtypeRegistry } from "../../../../registries/chart_subtype_registry";
 import { SpreadsheetStore } from "../../../../stores";

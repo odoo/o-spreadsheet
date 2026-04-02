@@ -1,6 +1,7 @@
 import { NOW, TODAY } from "../../src/functions/module_date";
 import { RAND, RANDARRAY, RANDBETWEEN } from "../../src/functions/module_math";
-import { buildSheetLink, toXC } from "../../src/helpers";
+import { toXC } from "../../src/helpers/coordinates";
+import { buildSheetLink } from "../../src/helpers/misc";
 import { DEFAULT_TABLE_CONFIG } from "../../src/helpers/table_presets";
 import { Model } from "../../src/model";
 import { CellIsRule, ConditionalFormatRule, CustomizedDataSet, Dimension } from "../../src/types";

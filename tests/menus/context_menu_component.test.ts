@@ -9,7 +9,7 @@ import {
   MENU_VERTICAL_PADDING,
   MENU_WIDTH,
 } from "../../src/constants";
-import { toXC } from "../../src/helpers";
+import { toXC } from "../../src/helpers/coordinates";
 import { Model } from "../../src/model";
 import { cellMenuRegistry } from "../../src/registries/menus/cell_menu_registry";
 import { resizeSheetView, setCellContent } from "../test_helpers/commands_helpers";

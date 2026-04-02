@@ -1,5 +1,6 @@
 import { CorePlugin, coreTypes, Model } from "../src";
-import { duplicateRangeInDuplicatedSheet, zoneToXc } from "../src/helpers";
+import { duplicateRangeInDuplicatedSheet } from "../src/helpers/range";
+import { zoneToXc } from "../src/helpers/zones";
 import { corePluginRegistry } from "../src/plugins";
 import { CellErrorType, Command, Range, RangeAdapterFunctions, UID } from "../src/types";
 import {

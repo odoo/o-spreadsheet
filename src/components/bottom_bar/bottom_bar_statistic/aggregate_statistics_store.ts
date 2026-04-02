@@ -1,6 +1,6 @@
 import { sum } from "../../../functions/helper_math";
 import { average, countAny, countNumbers, max, min } from "../../../functions/helper_statistical";
-import { recomputeZones } from "../../../helpers";
+import { recomputeZones } from "../../../helpers/recompute_zones";
 import {
   SelectionStatisticFunction,
   StatisticFnResults,

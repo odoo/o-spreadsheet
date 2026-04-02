@@ -1,6 +1,6 @@
 import { CoreCommand, Model, RemoteRevisionMessage } from "../../src";
 import { CommandSquisher, SquishedCoreCommand } from "../../src/collaborative/command_squisher";
-import { toZone } from "../../src/helpers";
+import { toZone } from "../../src/helpers/zones";
 import { MockTransportService } from "../__mocks__/transport_service";
 import { addRows, autofill, deleteRows, getCellContent, undo } from "../test_helpers";
 import { setCellContent } from "../test_helpers/commands_helpers";

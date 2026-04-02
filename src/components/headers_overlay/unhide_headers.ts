@@ -1,6 +1,6 @@
 import { Component } from "@odoo/owl";
 import { HEADER_HEIGHT, HEADER_WIDTH } from "../../constants";
-import { positionToZone } from "../../helpers";
+import { positionToZone } from "../../helpers/zones";
 import { ConsecutiveIndexes, HeaderIndex } from "../../types";
 import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 import { cssPropertiesToCss } from "../helpers";

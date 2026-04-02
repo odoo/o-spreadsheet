@@ -1,5 +1,6 @@
 import { Component, onWillUpdateProps, useState } from "@odoo/owl";
-import { numberToLetters, zoneToDimension } from "../../../helpers";
+import { numberToLetters } from "../../../helpers/coordinates";
+import { zoneToDimension } from "../../../helpers/zones";
 import { _t } from "../../../translation";
 import { HeaderIndex } from "../../../types/index";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";

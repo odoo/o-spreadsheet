@@ -1,7 +1,8 @@
 import { tokenColors } from "../../constants";
 import { EnrichedToken } from "../../formulas/composer_tokenizer";
 import { insertTokenAtArgStartingPosition } from "../../functions/autocomplete_arguments_provider";
-import { MONTHS, isDefined, range } from "../../helpers";
+import { MONTHS } from "../../helpers/format/format";
+import { isDefined, range } from "../../helpers/misc";
 import {
   extractFormulaIdFromToken,
   makeFieldProposal,

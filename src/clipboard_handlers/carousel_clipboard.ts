@@ -1,5 +1,6 @@
-import { deepCopy, UuidGenerator } from "../helpers";
 import { AbstractChart } from "../helpers/figures/charts";
+import { deepCopy } from "../helpers/misc";
+import { UuidGenerator } from "../helpers/uuid";
 import {
   Carousel,
   ClipboardFigureData,

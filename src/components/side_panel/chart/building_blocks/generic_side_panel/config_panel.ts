@@ -1,17 +1,17 @@
 import { Component, useState } from "@odoo/owl";
+import { numberToLetters } from "../../../../../helpers/coordinates";
+import { createDataSets } from "../../../../../helpers/figures/charts";
+import { getChartColorsGenerator } from "../../../../../helpers/figures/charts/runtime";
+import { isDefined } from "../../../../../helpers/misc";
+import { createValidRange } from "../../../../../helpers/range";
+import { splitReference } from "../../../../../helpers/references";
 import {
-  createValidRange,
-  isDefined,
   isXcRepresentation,
   mergeContiguousZones,
-  numberToLetters,
-  splitReference,
   toUnboundedZone,
   toZone,
   zoneToXc,
-} from "../../../../../helpers";
-import { createDataSets } from "../../../../../helpers/figures/charts";
-import { getChartColorsGenerator } from "../../../../../helpers/figures/charts/runtime";
+} from "../../../../../helpers/zones";
 import { chartRegistry } from "../../../../../registries/chart_registry";
 import { _t } from "../../../../../translation";
 import {

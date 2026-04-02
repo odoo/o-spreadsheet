@@ -1,6 +1,7 @@
 import { Component, onMounted, onWillUnmount, useEffect, useRef, useState } from "@odoo/owl";
 import { NEWLINE, SCROLLBAR_WIDTH } from "../../../constants";
-import { debounce, deepEquals, isFormula, setColorAlpha } from "../../../helpers/index";
+import { setColorAlpha } from "../../../helpers/color";
+import { debounce, deepEquals, isFormula } from "../../../helpers/misc";
 
 import { DEFAULT_TOKEN_COLOR } from "../../../constants";
 import { EnrichedToken } from "../../../formulas/composer_tokenizer";

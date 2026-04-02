@@ -1,6 +1,6 @@
 import { Model, UID } from "../../../../src";
 import { COLOR_TRANSPARENT } from "../../../../src/constants";
-import { ColorGenerator } from "../../../../src/helpers";
+import { ColorGenerator } from "../../../../src/helpers/color";
 import { GHOST_SUNBURST_VALUE } from "../../../../src/helpers/figures/charts/runtime";
 import { SunburstChart } from "../../../../src/helpers/figures/charts/sunburst_chart";
 import {

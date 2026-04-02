@@ -4,13 +4,6 @@ import {
   HEADER_HEIGHT,
   HEADER_WIDTH,
 } from "../../src/constants";
-import {
-  colorToNumber,
-  isInside,
-  lettersToNumber,
-  toCartesian,
-  toZone,
-} from "../../src/helpers/index";
 import { DEFAULT_TABLE_CONFIG } from "../../src/helpers/table_presets";
 import { Model } from "../../src/model";
 import {
@@ -49,6 +42,9 @@ import {
 import { createEqualCF, target, toRangeData, toRangesData } from "./helpers";
 
 import { ICON_SETS } from "../../src/components/icons/icons";
+import { colorToNumber } from "../../src/helpers/color";
+import { lettersToNumber, toCartesian } from "../../src/helpers/coordinates";
+import { isInside, toZone } from "../../src/helpers/zones";
 import { SunburstChartDefinition } from "../../src/types/chart";
 import { CalendarChartDefinition } from "../../src/types/chart/calendar_chart";
 import { ComboChartDefinition } from "../../src/types/chart/combo_chart";

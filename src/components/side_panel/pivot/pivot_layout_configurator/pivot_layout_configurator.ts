@@ -1,5 +1,5 @@
 import { Component, useRef } from "@odoo/owl";
-import { isDefined } from "../../../../helpers";
+import { isDefined } from "../../../../helpers/misc";
 import {
   AGGREGATORS,
   changeCalculatedMeasuresOnMeasureChange,

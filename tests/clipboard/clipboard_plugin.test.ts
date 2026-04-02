@@ -1,12 +1,14 @@
 import { UIPlugin } from "../../src";
 import { DEFAULT_BORDER_DESC, LINK_COLOR } from "../../src/constants";
-import { markdownLink, toCartesian, toZone, zoneToXc } from "../../src/helpers";
 import {
   getClipboardDataPositions,
   getOSheetClipboardIdFromHTML,
   parseOSClipboardContent,
 } from "../../src/helpers/clipboard/clipboard_helpers";
+import { toCartesian } from "../../src/helpers/coordinates";
 import { urlRepresentation } from "../../src/helpers/links";
+import { markdownLink } from "../../src/helpers/misc";
+import { toZone, zoneToXc } from "../../src/helpers/zones";
 import { Model } from "../../src/model";
 import { featurePluginRegistry } from "../../src/plugins";
 import { ClipboardPlugin, MAX_FILE_SIZE } from "../../src/plugins/ui_stateful/clipboard";

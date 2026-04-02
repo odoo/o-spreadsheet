@@ -1,5 +1,5 @@
 import { PIVOT_MAX_NUMBER_OF_CELLS } from "../../../../constants";
-import { deepCopy, deepEquals } from "../../../../helpers";
+import { deepCopy, deepEquals } from "../../../../helpers/misc";
 import { isDateOrDatetimeField } from "../../../../helpers/pivot/pivot_helpers";
 import { pivotRegistry } from "../../../../helpers/pivot/pivot_registry";
 import { Get } from "../../../../store_engine";

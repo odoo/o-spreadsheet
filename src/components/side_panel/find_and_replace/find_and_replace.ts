@@ -6,7 +6,8 @@ import {
   useRef,
   useState,
 } from "@odoo/owl";
-import { debounce, zoneToXc } from "../../../helpers";
+import { debounce } from "../../../helpers/misc";
+import { zoneToXc } from "../../../helpers/zones";
 import { Store, useLocalStore } from "../../../store_engine";
 import { _t } from "../../../translation";
 import { SearchOptions } from "../../../types/find_and_replace";

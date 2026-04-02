@@ -1,5 +1,5 @@
 import { SidePanelStore } from "../components/side_panel/side_panel/side_panel_store";
-import { numberToLetters } from "../helpers";
+import { numberToLetters } from "../helpers/coordinates";
 import { interactiveFreezeColumnsRows } from "../helpers/ui/freeze_interactive";
 import { FormulaFingerprintStore } from "../stores/formula_fingerprints_store";
 import { _t } from "../translation";

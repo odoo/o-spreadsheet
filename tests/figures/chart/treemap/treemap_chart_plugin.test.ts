@@ -1,5 +1,5 @@
 import { ChartCreationContext, Model, UID } from "../../../../src";
-import { ColorGenerator, lightenColor } from "../../../../src/helpers";
+import { ColorGenerator, lightenColor } from "../../../../src/helpers/color";
 import { TreeMapChart } from "../../../../src/helpers/figures/charts/tree_map_chart";
 import { TreeMapChartRuntime } from "../../../../src/types/chart/tree_map_chart";
 import {

@@ -21,7 +21,6 @@ import {
   getOSheetClipboardIdFromHTML,
   parseOSClipboardContent,
 } from "../../helpers/clipboard/clipboard_helpers";
-import { isInside } from "../../helpers/index";
 import { openLink } from "../../helpers/links";
 import { isStaticTable } from "../../helpers/table_helpers";
 import { interactiveCut } from "../../helpers/ui/cut_interactive";
@@ -30,6 +29,7 @@ import {
   interactivePaste,
   interactivePasteFromOS,
 } from "../../helpers/ui/paste_interactive";
+import { isInside } from "../../helpers/zones";
 import { cellMenuRegistry } from "../../registries/menus/cell_menu_registry";
 import { colMenuRegistry } from "../../registries/menus/col_menu_registry";
 import {

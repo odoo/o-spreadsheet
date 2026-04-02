@@ -1,6 +1,7 @@
 import { Component, onWillStart } from "@odoo/owl";
-import { DAYS, deepEquals, formatValue } from "../../../helpers";
+import { DAYS, formatValue } from "../../../helpers/format/format";
 import { getDateTimeFormat, isValidLocale } from "../../../helpers/locale";
+import { deepEquals } from "../../../helpers/misc";
 import { Locale, LocaleCode, ValueAndLabel } from "../../../types";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
 import { Select } from "../../select/select";

@@ -1,6 +1,7 @@
 import { sum } from "../../../functions/helper_math";
 import { average, max, median, min } from "../../../functions/helper_statistical";
-import { formatValue, isDefined } from "../../../helpers";
+import { formatValue } from "../../../helpers/format/format";
+import { isDefined } from "../../../helpers/misc";
 import {
   computeStatisticFnResults,
   SelectionStatisticFunction,

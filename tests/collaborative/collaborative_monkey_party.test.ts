@@ -1,7 +1,8 @@
 import seedrandom from "seedrandom";
 import { Model } from "../../src";
 import { FunctionCodeBuilder } from "../../src/formulas/code_builder";
-import { deepCopy, deepEquals, range, reorderZone } from "../../src/helpers";
+import { deepCopy, deepEquals, range } from "../../src/helpers/misc";
+import { reorderZone } from "../../src/helpers/zones";
 import {
   Command,
   CoreCommand,

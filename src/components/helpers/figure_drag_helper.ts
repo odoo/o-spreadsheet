@@ -1,4 +1,4 @@
-import { clip } from "../../helpers";
+import { clip } from "../../helpers/misc";
 import { FigureUI, PixelPosition, SheetDOMScrollInfo } from "../../types";
 
 export function dragFigureForMove(

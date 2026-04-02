@@ -1,5 +1,5 @@
-import { zoneToDimension } from "../helpers";
 import { drawHighlight } from "../helpers/rendering";
+import { zoneToDimension } from "../helpers/zones";
 import { Get } from "../store_engine";
 import { GridRenderingContext, Highlight, LayerName } from "../types";
 import { SpreadsheetStore } from "./spreadsheet_store";

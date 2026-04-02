@@ -1,6 +1,6 @@
 import { Component, useExternalListener, useRef, useState } from "@odoo/owl";
 import { COMPOSER_ASSISTANT_COLOR } from "../../../../../constants";
-import { fuzzyLookup } from "../../../../../helpers";
+import { fuzzyLookup } from "../../../../../helpers/search";
 import {
   AutoCompleteProposal,
   AutoCompleteProvider,

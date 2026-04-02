@@ -1,6 +1,6 @@
 import { Component } from "@odoo/owl";
-import { replaceItemAtIndex } from "../../../../helpers";
 import { getFunnelLabelColors } from "../../../../helpers/figures/charts/runtime";
+import { replaceItemAtIndex } from "../../../../helpers/misc";
 import { _t } from "../../../../translation";
 import { FunnelChartDefinition, FunnelChartRuntime } from "../../../../types/chart";
 import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";

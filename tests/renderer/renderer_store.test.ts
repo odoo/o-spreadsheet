@@ -15,13 +15,9 @@ import {
   SELECTION_BORDER_COLOR,
   TABLE_HOVER_BACKGROUND_COLOR,
 } from "../../src/constants";
-import {
-  blendColors,
-  fontSizeInPixels,
-  getContextFontSize,
-  toHex,
-  toZone,
-} from "../../src/helpers";
+import { blendColors, toHex } from "../../src/helpers/color";
+import { fontSizeInPixels, getContextFontSize } from "../../src/helpers/text_helper";
+import { toZone } from "../../src/helpers/zones";
 import { FormulaFingerprintStore } from "../../src/stores/formula_fingerprints_store";
 import { GridRenderer } from "../../src/stores/grid_renderer_store";
 import { RendererStore } from "../../src/stores/renderer_store";

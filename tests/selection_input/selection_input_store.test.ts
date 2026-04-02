@@ -1,6 +1,6 @@
 import { CellComposerStore } from "../../src/components/composer/composer/cell_composer_store";
 import { SelectionInputStore } from "../../src/components/selection_input/selection_input_store";
-import { toZone, zoneToXc } from "../../src/helpers";
+import { toZone, zoneToXc } from "../../src/helpers/zones";
 import { DependencyContainer } from "../../src/store_engine";
 import { HighlightStore } from "../../src/stores/highlight_store";
 import {

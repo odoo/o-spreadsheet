@@ -1,4 +1,4 @@
-import { toZone } from "../../src/helpers";
+import { toZone } from "../../src/helpers/zones";
 import { Model } from "../../src/model";
 import { CommandResult, DEFAULT_LOCALE, UID } from "../../src/types";
 import {

@@ -7,9 +7,10 @@ import {
   TableStyle,
 } from "../../../src";
 import { GRID_ICON_MARGIN, PIVOT_INDENT } from "../../../src/constants";
-import { positions, removeFalsyAttributes, toZone } from "../../../src/helpers";
+import { removeFalsyAttributes } from "../../../src/helpers/misc";
 import { resetMapValueDimensionDate } from "../../../src/helpers/pivot/spreadsheet_pivot/date_spreadsheet_pivot";
 import { PIVOT_TABLE_PRESETS } from "../../../src/helpers/pivot_table_presets";
+import { positions, toZone } from "../../../src/helpers/zones";
 import { CellValue, CellValueType } from "../../../src/types/cells";
 import {
   addRows,

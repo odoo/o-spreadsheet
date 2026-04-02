@@ -1,4 +1,4 @@
-import { deepCopy } from "../../../../helpers";
+import { deepCopy } from "../../../../helpers/misc";
 import { getFieldDisplayName } from "../../../../helpers/pivot/pivot_helpers";
 import { Get } from "../../../../store_engine";
 import { SpreadsheetStore } from "../../../../stores";

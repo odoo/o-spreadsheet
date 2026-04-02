@@ -1,5 +1,5 @@
-import { toZone } from "../../src/helpers";
 import { inverseCommand } from "../../src/helpers/inverse_command";
+import { toZone } from "../../src/helpers/zones";
 import {
   AddColumnsRowsCommand,
   AddMergeCommand,

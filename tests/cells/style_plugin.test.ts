@@ -5,7 +5,8 @@ import {
   DEFAULT_STYLE,
   PADDING_AUTORESIZE_HORIZONTAL,
 } from "../../src/constants";
-import { fontSizeInPixels, toCartesian } from "../../src/helpers";
+import { toCartesian } from "../../src/helpers/coordinates";
+import { fontSizeInPixels } from "../../src/helpers/text_helper";
 import { Model } from "../../src/model";
 import {
   addDataValidation,

@@ -1,11 +1,13 @@
 import { Component, useRef, useState } from "@odoo/owl";
 import { Action, ActionSpec, createActions } from "../../actions/action";
 import { HIGHLIGHT_COLOR } from "../../constants";
-import { fuzzyLookup, rangeReference, zoneToXc } from "../../helpers";
+import { rangeReference } from "../../helpers/references";
+import { fuzzyLookup } from "../../helpers/search";
 import {
   interactiveCreateNamedRange,
   interactiveUpdateNamedRange,
 } from "../../helpers/ui/named_range_interactive";
+import { zoneToXc } from "../../helpers/zones";
 import { Store, useStore } from "../../store_engine";
 import { DOMFocusableElementStore } from "../../stores/DOM_focus_store";
 import { HighlightStore } from "../../stores/highlight_store";

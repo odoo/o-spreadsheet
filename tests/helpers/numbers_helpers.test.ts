@@ -1,4 +1,4 @@
-import { isNumber, parseNumber } from "../../src/helpers/index";
+import { isNumber, parseNumber } from "../../src/helpers/numbers";
 import { DEFAULT_LOCALE } from "../../src/types";
 import { FR_LOCALE } from "../test_helpers/constants";
 

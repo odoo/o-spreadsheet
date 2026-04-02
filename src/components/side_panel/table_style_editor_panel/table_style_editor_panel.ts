@@ -1,5 +1,5 @@
 import { Component, useExternalListener, useState } from "@odoo/owl";
-import { isColorValid } from "../../../helpers";
+import { isColorValid } from "../../../helpers/color";
 import { TABLE_STYLES_TEMPLATES, buildTableStyle } from "../../../helpers/table_presets";
 import { Color, TableConfig, TableStyle, TableStyleTemplateName } from "../../../types";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";

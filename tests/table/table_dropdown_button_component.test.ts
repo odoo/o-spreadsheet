@@ -2,7 +2,7 @@ import { Component, xml } from "@odoo/owl";
 import { Model } from "../../src";
 import { SidePanels } from "../../src/components/side_panel/side_panels/side_panels";
 import { TableDropdownButton } from "../../src/components/tables/table_dropdown_button/table_dropdown_button";
-import { toZone, zoneToXc } from "../../src/helpers";
+import { toZone, zoneToXc } from "../../src/helpers/zones";
 import { UID } from "../../src/types";
 import { SpreadsheetChildEnv } from "../../src/types/spreadsheet_env";
 import { createTable, setSelection } from "../test_helpers/commands_helpers";

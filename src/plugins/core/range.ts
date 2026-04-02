@@ -1,5 +1,4 @@
 import { CompiledFormula } from "../../formulas/compiler";
-import { rangeReference, splitReference } from "../../helpers";
 import { adaptFormulaString, adaptStringRange } from "../../helpers/formulas";
 import {
   createInvalidRange,
@@ -15,6 +14,7 @@ import {
   orderRange,
 } from "../../helpers/range";
 import { recomputeZones } from "../../helpers/recompute_zones";
+import { rangeReference, splitReference } from "../../helpers/references";
 
 import { isZoneValid, unionUnboundedZones } from "../../helpers/zones";
 import { Command, CommandHandler, CommandResult, CoreCommand } from "../../types/commands";

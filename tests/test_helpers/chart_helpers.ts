@@ -1,6 +1,7 @@
 import { TooltipItem } from "chart.js";
 import { ChartCreationContext, ChartJSRuntime, Model, UID } from "../../src";
-import { range, toHex } from "../../src/helpers";
+import { toHex } from "../../src/helpers/color";
+import { range } from "../../src/helpers/misc";
 import { SpreadsheetChildEnv } from "../../src/types/spreadsheet_env";
 import { selectFigure } from "./commands_helpers";
 import { click, simulateClick } from "./dom_helper";

@@ -1,5 +1,5 @@
 import { Model } from "../../src";
-import { buildSheetLink } from "../../src/helpers";
+import { buildSheetLink } from "../../src/helpers/misc";
 import { DEFAULT_LOCALE } from "../../src/types";
 import { CellValueType } from "../../src/types/cells";
 import {

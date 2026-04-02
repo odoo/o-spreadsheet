@@ -1,4 +1,4 @@
-import { deepCopy } from "../../src/helpers";
+import { deepCopy } from "../../src/helpers/misc";
 import { getComputedTableStyle } from "../../src/helpers/table_helpers";
 import { Border, BorderDescr, Style } from "../../src/types";
 import { ComputedTableStyle, TableConfig, TableMetaData, TableStyle } from "../../src/types/table";

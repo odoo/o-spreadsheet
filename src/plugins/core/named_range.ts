@@ -1,4 +1,6 @@
-import { deepEquals, isNumber, rangeReference } from "../../helpers";
+import { deepEquals } from "../../helpers/misc";
+import { isNumber } from "../../helpers/numbers";
+import { rangeReference } from "../../helpers/references";
 import { Command, CommandResult, CoreCommand } from "../../types/commands";
 import { DEFAULT_LOCALE } from "../../types/locale";
 import { NamedRange, RangeAdapterFunctions, UID, UnboundedZone, Zone } from "../../types/misc";
