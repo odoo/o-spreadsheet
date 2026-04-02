@@ -5,7 +5,7 @@ import {
   DEFAULT_FONT,
 } from "../../../constants";
 import { Canvas2DContext, CanvasSurface } from "../../../types/canvas";
-import { GaugeAnimatedRuntime } from "../../../types/chart";
+import { GaugeAnimatedRuntime } from "../../../types/chart/gauge_chart";
 import { Color, PixelPosition } from "../../../types/misc";
 import { DOMDimension, Rect } from "../../../types/rendering";
 import { clip } from "../../misc";

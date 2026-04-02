@@ -1,8 +1,8 @@
 import { Component, onWillStart, onWillUpdateProps } from "@odoo/owl";
 import { currenciesRegistry } from "../../../registries/currencies_registry";
-import { useLocalStore } from "../../../store_engine";
-import { ValueAndLabel } from "../../../types";
+import { useLocalStore } from "../../../store_engine/store_hooks";
 import { Currency } from "../../../types/currency";
+import { ValueAndLabel } from "../../../types/misc";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
 import { Store } from "../../../types/store_engine";
 import { Select } from "../../select/select";

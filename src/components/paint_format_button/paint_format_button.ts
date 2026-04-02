@@ -1,6 +1,7 @@
 import { Component } from "@odoo/owl";
-import { Store, useStore } from "../../store_engine";
+import { useStore } from "../../store_engine/store_hooks";
 import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
+import { Store } from "../../types/store_engine";
 import { PaintFormatStore } from "./paint_format_store";
 
 interface Props {

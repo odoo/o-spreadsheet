@@ -21,7 +21,6 @@ import {
   getOSheetClipboardIdFromHTML,
   parseOSClipboardContent,
 } from "../../helpers/clipboard/clipboard_helpers";
-import { isInside } from "../../helpers/index";
 import { openLink } from "../../helpers/links";
 import { isStaticTable } from "../../helpers/table_helpers";
 import { interactiveCut } from "../../helpers/ui/cut_interactive";
@@ -30,6 +29,7 @@ import {
   interactivePaste,
   interactivePasteFromOS,
 } from "../../helpers/ui/paste_interactive";
+import { isInside } from "../../helpers/zones";
 import { cellMenuRegistry } from "../../registries/menus/cell_menu_registry";
 import { colMenuRegistry } from "../../registries/menus/col_menu_registry";
 import {
@@ -37,29 +37,28 @@ import {
   unGroupHeadersMenuRegistry,
 } from "../../registries/menus/header_group_registry";
 import { rowMenuRegistry } from "../../registries/menus/row_menu_registry";
-import { Store, useStore } from "../../store_engine";
+import { useStore } from "../../store_engine/store_hooks";
 import { DOMFocusableElementStore } from "../../stores/DOM_focus_store";
 import { ArrayFormulaHighlight } from "../../stores/array_formula_highlight";
 import { ClientFocusStore } from "../../stores/client_focus_store";
 import { HighlightStore } from "../../stores/highlight_store";
+import { CellValueType } from "../../types/cells";
+import { ClipboardMIMEType } from "../../types/clipboard";
+import { Client } from "../../types/collaborative/session";
 import { AllowedImageMimeTypes } from "../../types/image";
 import {
   Align,
-  CellValueType,
-  Client,
-  ClipboardMIMEType,
-  DOMCoordinates,
-  DOMDimension,
   Dimension,
   Direction,
   GridClickModifiers,
   HeaderIndex,
   Pixel,
-  Rect,
   Ref,
-  Table,
-} from "../../types/index";
+} from "../../types/misc";
+import { DOMCoordinates, DOMDimension, Rect } from "../../types/rendering";
 import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
+import { Store } from "../../types/store_engine";
+import { Table } from "../../types/table";
 import { Autofill } from "../autofill/autofill";
 import { ClientTag } from "../collaborative_client_tag/collaborative_client_tag";
 import { ComposerSelection } from "../composer/composer/abstract_composer_store";
@@ -68,7 +67,7 @@ import { GridComposer } from "../composer/grid_composer/grid_composer";
 import { GridOverlay } from "../grid_overlay/grid_overlay";
 import { GridPopover } from "../grid_popover/grid_popover";
 import { HeadersOverlay } from "../headers_overlay/headers_overlay";
-import { cssPropertiesToCss } from "../helpers";
+import { cssPropertiesToCss } from "../helpers/css";
 import { getRefBoundingRect, keyboardEventToShortcutString } from "../helpers/dom_helpers";
 import { useDragAndDropBeyondTheViewport } from "../helpers/drag_and_drop_grid_hook";
 import { useGridDrawing } from "../helpers/draw_grid_hook";
@@ -82,9 +81,10 @@ import { ZoomedMouseEvent } from "../helpers/zoom";
 import { Highlight } from "../highlight/highlight/highlight";
 import { MenuPopover, MenuState } from "../menu_popover/menu_popover";
 import { PaintFormatStore } from "../paint_format_button/paint_format_store";
-import { CellPopoverStore } from "../popover";
+import { CellPopoverStore } from "../popover/cell_popover_store";
 import { Popover } from "../popover/popover";
-import { HorizontalScrollBar, VerticalScrollBar } from "../scrollbar/";
+import { HorizontalScrollBar } from "../scrollbar/scrollbar_horizontal";
+import { VerticalScrollBar } from "../scrollbar/scrollbar_vertical";
 import { Selection } from "../selection/selection";
 import { SidePanelStore } from "../side_panel/side_panel/side_panel_store";
 import { TableResizer } from "../tables/table_resizer/table_resizer";

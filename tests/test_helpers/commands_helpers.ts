@@ -1,20 +1,4 @@
 import {
-  DEFAULT_SCORECARD_BASELINE_COLOR_DOWN,
-  DEFAULT_SCORECARD_BASELINE_COLOR_UP,
-  HEADER_HEIGHT,
-  HEADER_WIDTH,
-} from "../../src/constants";
-import {
-  colorToNumber,
-  isInside,
-  lettersToNumber,
-  toCartesian,
-  toZone,
-  UuidGenerator,
-} from "../../src/helpers/index";
-import { DEFAULT_TABLE_CONFIG } from "../../src/helpers/table_presets";
-import { Model } from "../../src/model";
-import {
   AnchorZone,
   Border,
   BorderData,
@@ -50,14 +34,25 @@ import {
   UID,
   UpdateCellCommand,
   UpdateFigureCommand,
-} from "../../src/types";
+} from "../../src";
+import {
+  DEFAULT_SCORECARD_BASELINE_COLOR_DOWN,
+  DEFAULT_SCORECARD_BASELINE_COLOR_UP,
+  HEADER_HEIGHT,
+  HEADER_WIDTH,
+} from "../../src/constants";
+import { DEFAULT_TABLE_CONFIG } from "../../src/helpers/table_presets";
+import { Model } from "../../src/model";
 import { createEqualCF, target, toRangeData, toRangesData } from "./helpers";
 
 import { ICON_SETS } from "../../src/components/icons/icons";
+import { colorToNumber } from "../../src/helpers/color";
+import { lettersToNumber, toCartesian } from "../../src/helpers/coordinates";
 import { SpreadsheetChart } from "../../src/helpers/figures/chart";
+import { UuidGenerator } from "../../src/helpers/uuid";
+import { isInside, toZone } from "../../src/helpers/zones";
 import { chartDataSourceRegistry } from "../../src/registries/chart_data_source_registry";
 import { chartTypeRegistry } from "../../src/registries/chart_registry";
-import { SunburstChartDefinition } from "../../src/types/chart";
 import { CalendarChartDefinition } from "../../src/types/chart/calendar_chart";
 import { ComboChartDefinition } from "../../src/types/chart/combo_chart";
 import { FunnelChartDefinition } from "../../src/types/chart/funnel_chart";
@@ -65,6 +60,7 @@ import { GaugeChartDefinition } from "../../src/types/chart/gauge_chart";
 import { GeoChartDefinition } from "../../src/types/chart/geo_chart";
 import { RadarChartDefinition } from "../../src/types/chart/radar_chart";
 import { ScorecardChartDefinition } from "../../src/types/chart/scorecard_chart";
+import { SunburstChartDefinition } from "../../src/types/chart/sunburst_chart";
 import { TreeMapChartDefinition } from "../../src/types/chart/tree_map_chart";
 import { WaterfallChartDefinition } from "../../src/types/chart/waterfall_chart";
 import { CarouselItem, FigureSize } from "../../src/types/figure";

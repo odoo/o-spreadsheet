@@ -1,6 +1,6 @@
-import { zoneToXc } from "../../src/helpers";
+import { CommandResult, coreTypes, UID } from "../../src";
+import { zoneToXc } from "../../src/helpers/zones";
 import { Model } from "../../src/model";
-import { CommandResult, coreTypes, UID } from "../../src/types";
 import {
   activateSheet,
   addColumns,

@@ -2,9 +2,10 @@ import { Model, StoreConstructor, UID, Zone } from "../../src";
 import { SpreadsheetPrint } from "../../src/components/spreadsheet_print/spreadsheet_print";
 import { SpreadsheetPrintStore } from "../../src/components/spreadsheet_print/spreadsheet_print_store";
 import { FigureRendererStore } from "../../src/components/standalone_grid_canvas/figure_renderer_store";
-import { recomputeZones, toZone } from "../../src/helpers";
-import { Store } from "../../src/store_engine";
+import { recomputeZones } from "../../src/helpers/recompute_zones";
+import { toZone } from "../../src/helpers/zones";
 import { GridRenderer } from "../../src/stores/grid_renderer_store";
+import { Store } from "../../src/types/store_engine";
 import { registerCleanup } from "../setup/jest.setup";
 import {
   createChart,

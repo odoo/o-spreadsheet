@@ -6,7 +6,7 @@ import { getMaxObjectId } from "../helpers/pivot/pivot_helpers";
 import { DEFAULT_TABLE_CONFIG } from "../helpers/table_presets";
 import { overlap, toZone, zoneToXc } from "../helpers/zones";
 import { Registry } from "../registry";
-import { CustomizedDataSet, schemeToColorScale } from "../types/chart";
+import { CustomizedDataSet, schemeToColorScale } from "../types/chart/chart";
 import { Format } from "../types/format";
 import { DEFAULT_LOCALE } from "../types/locale";
 import { Zone } from "../types/misc";

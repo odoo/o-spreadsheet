@@ -1,11 +1,13 @@
 import { Component, onMounted, onWillUpdateProps, useState } from "@odoo/owl";
 import { DRAG_THRESHOLD, MIN_FIG_SIZE } from "../../../constants";
-import { isDefined } from "../../../helpers";
+import { isDefined } from "../../../helpers/misc";
 import { rectUnion } from "../../../helpers/rectangle";
 import { figureRegistry } from "../../../registries/figures_registry";
-import { AnchorOffset, Figure, FigureUI, Rect, ResizeDirection, UID } from "../../../types/index";
+import { AnchorOffset, Figure, FigureUI, ResizeDirection } from "../../../types/figure";
+import { UID } from "../../../types/misc";
+import { Rect } from "../../../types/rendering";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
-import { cssPropertiesToCss } from "../../helpers";
+import { cssPropertiesToCss } from "../../helpers/css";
 import { startDnd } from "../../helpers/drag_and_drop";
 import { dragFigureForMove, dragFigureForResize } from "../../helpers/figure_drag_helper";
 import {

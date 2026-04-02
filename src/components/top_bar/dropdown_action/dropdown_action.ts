@@ -3,7 +3,7 @@ import { ActionSpec } from "../../../actions/action";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
 import { ActionButton } from "../../action_button/action_button";
 import { ToolBarDropdownStore, useToolBarDropdownStore } from "../../helpers/top_bar_tool_hook";
-import { Popover, PopoverProps } from "../../popover";
+import { Popover, PopoverProps } from "../../popover/popover";
 
 interface Props {
   parentAction: ActionSpec;

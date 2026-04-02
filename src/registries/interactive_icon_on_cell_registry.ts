@@ -1,5 +1,5 @@
 import { getDataFilterIcon } from "../components/icons/icons";
-import { CellPopoverStore } from "../components/popover";
+import { CellPopoverStore } from "../components/popover/cell_popover_store";
 import { GRID_ICON_EDGE_LENGTH, GRID_ICON_MARGIN } from "../constants";
 import { relativeLuminance } from "../helpers/color";
 import { iconsOnCellRegistry } from "./icons_on_cell_registry";

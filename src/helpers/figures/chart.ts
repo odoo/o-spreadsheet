@@ -10,7 +10,7 @@ import {
   ChartDataSource,
   ChartDefinition,
   ChartType,
-} from "../../types/chart";
+} from "../../types/chart/chart";
 import { CoreGetters } from "../../types/core_getters";
 import { Getters } from "../../types/getters";
 import { Range } from "../../types/range";

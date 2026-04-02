@@ -1,5 +1,6 @@
-import { canChartParseLabels } from "../../../../helpers/figures/charts/runtime";
-import { AxesDesign, LineChartDefinition } from "../../../../types/chart";
+import { canChartParseLabels } from "../../../../helpers/figures/charts/runtime/chart_data_extractor";
+import { AxesDesign } from "../../../../types/chart/chart";
+import { LineChartDefinition } from "../../../../types/chart/line_chart";
 import { GenericChartConfigPanel } from "../building_blocks/generic_side_panel/config_panel";
 
 export class LineConfigPanel extends GenericChartConfigPanel {

@@ -1,4 +1,4 @@
-import { ChartDefinition } from "../../../../types/index";
+import { ChartDefinition } from "../../../../types/chart/chart";
 import { Checkbox } from "../../components/checkbox/checkbox";
 import { ChartWithAxisDesignPanel } from "../chart_with_axis/design_panel";
 import { ChartSidePanelProps } from "../common";

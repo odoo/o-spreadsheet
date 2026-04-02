@@ -1,15 +1,17 @@
 import { ChartMeta } from "chart.js";
 import { ChartShowValuesPluginOptions } from "../../../../components/figures/chart/chartJs/chartjs_show_values_plugin";
 import { ChartSunburstLabelsPluginOptions } from "../../../../components/figures/chart/chartJs/chartjs_sunburst_labels_plugin";
+import { CalendarChartDefinition } from "../../../../types/chart/calendar_chart";
 import {
   ChartDefinitionWithDataSource,
   ChartRuntimeGenerationArgs,
   schemeToColorScale,
+} from "../../../../types/chart/chart";
+import {
   SunburstChartDefaults,
   SunburstChartDefinition,
-  WaterfallChartDefinition,
-} from "../../../../types/chart";
-import { CalendarChartDefinition } from "../../../../types/chart/calendar_chart";
+} from "../../../../types/chart/sunburst_chart";
+import { WaterfallChartDefinition } from "../../../../types/chart/waterfall_chart";
 import { isNumberResult } from "../../../cells/cell_evaluation";
 import { humanizeNumber } from "../../../format/format";
 import { chartFontColor, formatChartDatasetValue } from "../chart_common";

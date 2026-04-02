@@ -1,10 +1,10 @@
+import { AddFunctionDescription } from "../../src";
 import {
   addMetaInfoFromArg,
   arg,
   argTargeting,
   validateArguments,
 } from "../../src/functions/arguments";
-import { AddFunctionDescription } from "../../src/types";
 
 describe("args", () => {
   test("various", () => {

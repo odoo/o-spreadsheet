@@ -1,6 +1,6 @@
-import { toCartesian, toXC } from "../../src/helpers";
+import { CommandResult, Direction, Viewport } from "../../src";
+import { toCartesian, toXC } from "../../src/helpers/coordinates";
 import { Model } from "../../src/model";
-import { CommandResult, Direction, Viewport } from "../../src/types";
 import {
   hideColumns,
   hideRows,

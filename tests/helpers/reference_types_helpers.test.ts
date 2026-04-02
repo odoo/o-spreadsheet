@@ -1,5 +1,5 @@
 import { Token } from "../../src/formulas/tokenizer";
-import { loopThroughReferenceType, setXcToFixedReferenceType } from "../../src/helpers";
+import { loopThroughReferenceType, setXcToFixedReferenceType } from "../../src/helpers/references";
 
 function refToken(referenceString: string): Token {
   return { type: "REFERENCE", value: referenceString };

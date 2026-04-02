@@ -1,7 +1,7 @@
 import { ActiveDataPoint, ChartType, Plugin } from "chart.js";
-import { lightenColor } from "../../../../helpers";
+import { lightenColor } from "../../../../helpers/color";
 import { GHOST_SUNBURST_VALUE } from "../../../../helpers/figures/charts/runtime/chartjs_dataset";
-import { SunburstChartRawData } from "../../../../types/chart";
+import { SunburstChartRawData } from "../../../../types/chart/sunburst_chart";
 
 export interface ChartSunburstHoverPluginOptions {
   enabled: boolean;

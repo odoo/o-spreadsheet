@@ -8,11 +8,12 @@ import {
   Model,
   UID,
 } from "../../src";
-import { deepCopy, range, toHex } from "../../src/helpers";
+import { toHex } from "../../src/helpers/color";
 import {
   areChartJSExtensionsLoaded,
   registerChartJSExtensions,
 } from "../../src/helpers/figures/charts/chart_js_extension";
+import { deepCopy, range } from "../../src/helpers/misc";
 import { SpreadsheetChildEnv } from "../../src/types/spreadsheet_env";
 import { selectFigure } from "./commands_helpers";
 import { click, simulateClick } from "./dom_helper";

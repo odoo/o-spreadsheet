@@ -24,12 +24,12 @@ import {
 import { CellPosition, HeaderIndex, RangeAdapterFunctions, UID } from "../../types/misc";
 
 import { CompiledFormula, SerializedCompiledFormula } from "../../formulas/compiler";
-import { isNumber } from "../../helpers";
 import {
   createCell,
   createFormulaCellFromCompiledFormula,
 } from "../../helpers/cells/cell_evaluation";
 import { isExcelCompatible } from "../../helpers/format/format";
+import { isNumber } from "../../helpers/numbers";
 import { recomputeZones } from "../../helpers/recompute_zones";
 import { Format } from "../../types/format";
 import { DEFAULT_LOCALE } from "../../types/locale";

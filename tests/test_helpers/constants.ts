@@ -1,7 +1,3 @@
-import { SpreadsheetPivotTable } from "../../src";
-import { BACKGROUND_CHART_COLOR, DEFAULT_BORDER_DESC } from "../../src/constants";
-import { toZone } from "../../src/helpers";
-import { DEFAULT_TABLE_CONFIG } from "../../src/helpers/table_presets";
 import {
   CoreCommand,
   CoreCommandTypes,
@@ -10,8 +6,12 @@ import {
   isTargetDependent,
   isZoneDependent,
   Locale,
+  SpreadsheetPivotTable,
   TableStyle,
-} from "../../src/types";
+} from "../../src";
+import { BACKGROUND_CHART_COLOR, DEFAULT_BORDER_DESC } from "../../src/constants";
+import { DEFAULT_TABLE_CONFIG } from "../../src/helpers/table_presets";
+import { toZone } from "../../src/helpers/zones";
 import { PivotCoreDefinition } from "../../src/types/pivot";
 import { toChartDataSource } from "./chart_helpers";
 import { target, toRangesData } from "./helpers";

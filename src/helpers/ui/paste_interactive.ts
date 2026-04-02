@@ -3,15 +3,17 @@ import { getCurrentVersion } from "../../migrations/data";
 import { _t } from "../../translation";
 import {
   ClipboardPasteOptions,
+  ParsedOSClipboardContent,
+  ParsedOsClipboardContentWithImageData,
+} from "../../types/clipboard";
+import {
   CommandResult,
   CopyPasteCellsAboveCommand,
   CopyPasteCellsOnLeftCommand,
   CopyPasteCellsOnZoneCommand,
   DispatchResult,
-  ParsedOSClipboardContent,
-  ParsedOsClipboardContentWithImageData,
-  Zone,
-} from "../../types";
+} from "../../types/commands";
+import { Zone } from "../../types/misc";
 import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 
 export const handleCopyPasteResult = (

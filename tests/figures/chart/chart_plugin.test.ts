@@ -1,15 +1,12 @@
 import { Point } from "chart.js";
-import { CommandResult, Model } from "../../../src";
-import { ChartDefinition } from "../../../src/types";
 import {
-  BarChartDefinition,
-  BarChartRuntime,
+  ChartDefinition,
   ChartDefinitionWithDataSource,
   ChartWithAxisDefinition,
-  LineChartRuntime,
-  PieChartDefinition,
-  PieChartRuntime,
-} from "../../../src/types/chart";
+  CommandResult,
+  Model,
+} from "../../../src";
+
 import {
   activateSheet,
   addColumns,
@@ -63,6 +60,9 @@ import { toNumber } from "../../../src/functions/helpers";
 import { convertDateFormatForLuxon } from "../../../src/helpers/chart_date";
 import { ChartPlugin } from "../../../src/plugins/core/chart";
 import { FigurePlugin } from "../../../src/plugins/core/figures";
+import { BarChartDefinition, BarChartRuntime } from "../../../src/types/chart/bar_chart";
+import { LineChartRuntime } from "../../../src/types/chart/line_chart";
+import { PieChartDefinition, PieChartRuntime } from "../../../src/types/chart/pie_chart";
 import { ScatterChartRuntime } from "../../../src/types/chart/scatter_chart";
 import { getChartDataSource } from "../../test_helpers";
 import {

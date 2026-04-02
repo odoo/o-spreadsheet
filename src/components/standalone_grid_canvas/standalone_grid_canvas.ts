@@ -1,8 +1,10 @@
 import { Component, onWillStart, onWillUpdateProps, useRef } from "@odoo/owl";
-import { Store, useLocalStore } from "../../store_engine";
+import { useLocalStore } from "../../store_engine/store_hooks";
 import { RendererStore } from "../../stores/renderer_store";
-import { GridRenderingContext, UID, Zone } from "../../types";
+import { UID, Zone } from "../../types/misc";
+import { GridRenderingContext } from "../../types/rendering";
 import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
+import { Store } from "../../types/store_engine";
 import { useGridDrawing } from "../helpers/draw_grid_hook";
 import { FigureRendererStore } from "./figure_renderer_store";
 

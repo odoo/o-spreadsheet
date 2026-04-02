@@ -1,18 +1,16 @@
 import type { ChartConfiguration, ChartOptions } from "chart.js";
 import { ChartTypeBuilder } from "../../../registries/chart_registry";
-import { CommandResult } from "../../../types";
-import { SunburstChartRuntime } from "../../../types/chart";
+import { SunburstChartRuntime } from "../../../types/chart/sunburst_chart";
+import { CommandResult } from "../../../types/commands";
 import { AbstractChart } from "./abstract_chart";
 import { CHART_COMMON_OPTIONS } from "./chart_ui_common";
-import {
-  getChartTitle,
-  getHierarchalChartData,
-  getSunburstChartDatasets,
-  getSunburstChartLegend,
-  getSunburstChartTooltip,
-  getSunburstShowValues,
-} from "./runtime";
+import { getHierarchalChartData } from "./runtime/chart_data_extractor";
+import { getSunburstChartDatasets } from "./runtime/chartjs_dataset";
 import { getChartLayout } from "./runtime/chartjs_layout";
+import { getSunburstChartLegend } from "./runtime/chartjs_legend";
+import { getSunburstShowValues } from "./runtime/chartjs_show_values";
+import { getChartTitle } from "./runtime/chartjs_title";
+import { getSunburstChartTooltip } from "./runtime/chartjs_tooltip";
 
 export const SunburstChart: ChartTypeBuilder<"sunburst"> = {
   sequence: 30,

@@ -4,7 +4,7 @@ import {
   createCanvas,
 } from "canvas";
 import { DEFAULT_FONT_SIZE } from "../../src/constants";
-import { fontSizeInPixels, getContextFontSize } from "../../src/helpers";
+import { fontSizeInPixels, getContextFontSize } from "../../src/helpers/text_helper";
 
 export class MockCanvasRenderingContext2D {
   font: string = "";

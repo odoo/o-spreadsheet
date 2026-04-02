@@ -1,7 +1,7 @@
 import { Model, UID } from "../../../../src";
 import { SidePanels } from "../../../../src/components/side_panel/side_panels/side_panels";
-import { ColorGenerator } from "../../../../src/helpers";
-import { SunburstChartDefinition } from "../../../../src/types/chart";
+import { ColorGenerator } from "../../../../src/helpers/color";
+import { SunburstChartDefinition } from "../../../../src/types/chart/sunburst_chart";
 import { SpreadsheetChildEnv } from "../../../../src/types/spreadsheet_env";
 import {
   changeColorPickerWidgetColor,

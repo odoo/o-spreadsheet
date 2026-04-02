@@ -1,8 +1,10 @@
 import { Component, toRaw, useChildSubEnv, useRef } from "@odoo/owl";
-import { Store, useLocalStore, useStore } from "../../store_engine";
+import { useLocalStore, useStore } from "../../store_engine/store_hooks";
 import { RendererStore } from "../../stores/renderer_store";
-import { DOMCoordinates, DOMDimension, OrderedLayers, Pixel, Rect, Ref } from "../../types/index";
+import { Pixel, Ref } from "../../types/misc";
+import { DOMCoordinates, DOMDimension, OrderedLayers, Rect } from "../../types/rendering";
 import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
+import { Store } from "../../types/store_engine";
 import { DelayedHoveredCellStore } from "../grid/delayed_hovered_cell_store";
 import { GridOverlay } from "../grid_overlay/grid_overlay";
 import { GridPopover } from "../grid_popover/grid_popover";
@@ -12,9 +14,10 @@ import { useGridDrawing } from "../helpers/draw_grid_hook";
 import { useTouchHandlers } from "../helpers/touch_handlers_hook";
 import { useWheelHandler } from "../helpers/wheel_hook";
 import { getZoomedRect } from "../helpers/zoom";
-import { CellPopoverStore } from "../popover";
+import { CellPopoverStore } from "../popover/cell_popover_store";
 import { Popover } from "../popover/popover";
-import { HorizontalScrollBar, VerticalScrollBar } from "../scrollbar/";
+import { HorizontalScrollBar } from "../scrollbar/scrollbar_horizontal";
+import { VerticalScrollBar } from "../scrollbar/scrollbar_vertical";
 import { ClickableCell, ClickableCellsStore } from "./clickable_cell_store";
 
 interface Props {

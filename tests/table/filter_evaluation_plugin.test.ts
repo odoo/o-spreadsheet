@@ -1,7 +1,6 @@
-import { Model } from "../../src";
-import { range } from "../../src/helpers";
+import { CommandResult, FilterCriterionType, Model, UID } from "../../src";
+import { range } from "../../src/helpers/misc";
 import { DEFAULT_TABLE_CONFIG } from "../../src/helpers/table_presets";
-import { CommandResult, FilterCriterionType, UID } from "../../src/types";
 import {
   addRows,
   createSheet,

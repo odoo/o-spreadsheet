@@ -1,5 +1,5 @@
 import { Component } from "@odoo/owl";
-import { Color, HeaderIndex } from "../../types";
+import { Color, HeaderIndex } from "../../types/misc";
 import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 import { cssPropertiesToCss } from "../helpers/css";
 

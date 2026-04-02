@@ -1,5 +1,5 @@
 import { CellComposerStore } from "../../../src/components/composer/composer/cell_composer_store";
-import { autoCompleteProviders } from "../../../src/registries/auto_completes";
+import { autoCompleteProviders } from "../../../src/registries/auto_completes/auto_complete_registry";
 import { registerCleanup } from "../../setup/jest.setup";
 import { nextTick } from "../../test_helpers/helpers";
 import { makeStore } from "../../test_helpers/stores";

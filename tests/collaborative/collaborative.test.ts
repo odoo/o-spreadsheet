@@ -1,16 +1,19 @@
-import { Model, UIPlugin } from "../../src";
-import { DEFAULT_REVISION_ID, MESSAGE_VERSION } from "../../src/constants";
-import { functionRegistry } from "../../src/functions/function_registry";
-import { getDefaultCellHeight, range, toZone, zoneToXc } from "../../src/helpers";
-import { DEFAULT_TABLE_CONFIG } from "../../src/helpers/table_presets";
-import { featurePluginRegistry } from "../../src/plugins";
 import {
   Command,
   CommandResult,
   CoreCommand,
   DataValidationCriterion,
   DEFAULT_LOCALE,
-} from "../../src/types";
+  Model,
+  UIPlugin,
+} from "../../src";
+import { DEFAULT_REVISION_ID, MESSAGE_VERSION } from "../../src/constants";
+import { functionRegistry } from "../../src/functions/function_registry";
+import { range } from "../../src/helpers/misc";
+import { DEFAULT_TABLE_CONFIG } from "../../src/helpers/table_presets";
+import { getDefaultCellHeight } from "../../src/helpers/text_helper";
+import { toZone, zoneToXc } from "../../src/helpers/zones";
+import { featurePluginRegistry } from "../../src/plugins/plugin_registries";
 import { CollaborationMessage } from "../../src/types/collaborative/transport_service";
 import { MockTransportService } from "../__mocks__/transport_service";
 import { toChartDataSource } from "../test_helpers/chart_helpers";

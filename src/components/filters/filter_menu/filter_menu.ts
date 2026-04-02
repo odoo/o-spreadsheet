@@ -1,18 +1,18 @@
 import { Component, onWillUpdateProps } from "@odoo/owl";
-import { deepEquals, isDateTimeFormat } from "../../../helpers";
+import { isDateTimeFormat } from "../../../helpers/format/format";
+import { deepEquals } from "../../../helpers/misc";
 import { interactiveSort } from "../../../helpers/sort_interactive";
+import { CellPopoverComponent, PopoverBuilders } from "../../../types/cell_popovers";
+import { CellValueType } from "../../../types/cells";
+import { Position, SortDirection } from "../../../types/misc";
+import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
 import {
-  CellValueType,
   CriterionFilter,
   DataFilterValue,
-  Position,
-  SortDirection,
   filterDateCriterionOperators,
   filterNumberCriterionOperators,
   filterTextCriterionOperators,
-} from "../../../types";
-import { CellPopoverComponent, PopoverBuilders } from "../../../types/cell_popovers";
-import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
+} from "../../../types/table";
 import { SidePanelCollapsible } from "../../side_panel/components/collapsible/side_panel_collapsible";
 import { FilterMenuCriterion } from "../filter_menu_criterion/filter_menu_criterion";
 import { FilterMenuValueList } from "../filter_menu_value_list/filter_menu_value_list";

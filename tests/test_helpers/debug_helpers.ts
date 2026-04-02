@@ -1,8 +1,8 @@
-import { Model } from "../../src";
-import { concat, zoneToXc } from "../../src/helpers";
+import { Model, UID } from "../../src";
+import { concat } from "../../src/helpers/misc";
+import { zoneToXc } from "../../src/helpers/zones";
 import { Branch } from "../../src/history/branch";
 import { Tree } from "../../src/history/tree";
-import { UID } from "../../src/types";
 import { getEvaluatedGrid } from "./getters_helpers";
 import { toCellPosition } from "./helpers";
 

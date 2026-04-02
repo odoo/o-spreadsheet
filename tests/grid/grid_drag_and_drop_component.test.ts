@@ -1,9 +1,8 @@
 import { App, Component, xml } from "@odoo/owl";
-import { Model } from "../../src";
+import { Model, UID } from "../../src";
 import { useDragAndDropBeyondTheViewport } from "../../src/components/helpers/drag_and_drop_grid_hook";
 import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../../src/constants";
-import { numberToLetters } from "../../src/helpers";
-import { UID } from "../../src/types";
+import { numberToLetters } from "../../src/helpers/coordinates";
 import { SpreadsheetChildEnv } from "../../src/types/spreadsheet_env";
 import {
   addColumns,

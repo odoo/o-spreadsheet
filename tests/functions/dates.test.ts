@@ -1,5 +1,5 @@
+import { DEFAULT_LOCALE } from "../../src";
 import { DateTime, parseDateTime } from "../../src/helpers/dates";
-import { DEFAULT_LOCALE } from "../../src/types";
 
 const CURRENT_YEAR = DateTime.now().getFullYear();
 const locale = DEFAULT_LOCALE;

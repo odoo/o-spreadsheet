@@ -1,14 +1,15 @@
-import { Model } from "../../src";
-import { LINK_COLOR } from "../../src/constants";
-import { buildSheetLink, toZone } from "../../src/helpers";
 import {
   Align,
   BorderDescr,
   ConditionalFormatRule,
+  Model,
   Style,
   VerticalAlign,
   Wrapping,
-} from "../../src/types";
+} from "../../src";
+import { LINK_COLOR } from "../../src/constants";
+import { buildSheetLink } from "../../src/helpers/misc";
+import { toZone } from "../../src/helpers/zones";
 import { isXLSXExportXMLFile } from "../../src/xlsx/helpers/xlsx_helper";
 import { toChartDataSource } from "../test_helpers/chart_helpers";
 import {

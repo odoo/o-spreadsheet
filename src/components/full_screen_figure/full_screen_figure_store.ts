@@ -1,5 +1,6 @@
-import { SpreadsheetStore } from "../../stores";
-import { FigureUI, UID } from "../../types";
+import { SpreadsheetStore } from "../../stores/spreadsheet_store";
+import { FigureUI } from "../../types/figure";
+import { UID } from "../../types/misc";
 
 export class FullScreenFigureStore extends SpreadsheetStore {
   mutators = ["toggleFullScreenFigure"] as const;

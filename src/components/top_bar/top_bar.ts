@@ -2,20 +2,21 @@ import { Component, useEffect, useExternalListener, useRef, useState } from "@od
 import { Action } from "../../actions/action";
 import { setStyle } from "../../actions/menu_items_actions";
 import { DEFAULT_FONT_SIZE } from "../../constants";
-import { formatNumberMenuItemSpec } from "../../registries/menus";
+import { formatNumberMenuItemSpec } from "../../registries/menus/number_format_menu_registry";
 import { topbarMenuRegistry } from "../../registries/menus/topbar_menu_registry";
 import { topbarComponentRegistry } from "../../registries/topbar_component_registry";
-import { Store, useStore } from "../../store_engine";
+import { useStore } from "../../store_engine/store_hooks";
 import { FormulaFingerprintStore } from "../../stores/formula_fingerprints_store";
-import { Color, Pixel, UID } from "../../types/index";
+import { Color, Pixel, UID } from "../../types/misc";
 import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
+import { Store } from "../../types/store_engine";
 import { ComposerFocusStore } from "../composer/composer_focus_store";
 import { TopBarComposer } from "../composer/top_bar_composer/top_bar_composer";
 import { getBoundingRectAsPOJO, getRefBoundingRect } from "../helpers/dom_helpers";
 import { useSpreadsheetRect } from "../helpers/position_hook";
 import { MenuPopover, MenuState } from "../menu_popover/menu_popover";
 import { NamedRangeSelector } from "../named_range_selector/named_range_selector";
-import { Popover, PopoverProps } from "../popover";
+import { Popover, PopoverProps } from "../popover/popover";
 import { TopBarToolStore } from "./top_bar_tool_store";
 import { topBarToolBarRegistry } from "./top_bar_tools_registry";
 

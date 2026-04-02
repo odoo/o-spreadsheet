@@ -1,5 +1,5 @@
-import { toUnboundedZone, toZone, zoneToXc } from "../../src/helpers";
-import { Table, UID } from "../../src/types";
+import { Table, UID } from "../../src";
+import { toUnboundedZone, toZone, zoneToXc } from "../../src/helpers/zones";
 import {
   createTable,
   createTableStyle,

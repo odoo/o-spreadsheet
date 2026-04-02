@@ -1,8 +1,7 @@
-import { CommandResult, Model } from "../../src";
+import { CommandResult, Model, UID } from "../../src";
 import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../../src/constants";
-import { UuidGenerator } from "../../src/helpers";
 import { parseOSClipboardContent } from "../../src/helpers/clipboard/clipboard_helpers";
-import { UID } from "../../src/types";
+import { UuidGenerator } from "../../src/helpers/uuid";
 import { toChartDataSource } from "../test_helpers/chart_helpers";
 import {
   activateSheet,

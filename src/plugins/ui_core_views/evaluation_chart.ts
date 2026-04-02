@@ -4,7 +4,7 @@ import { SpreadsheetChart } from "../../helpers/figures/chart";
 import { chartFontColor } from "../../helpers/figures/charts/chart_common";
 import { chartToImageUrl } from "../../helpers/figures/charts/chart_ui_common";
 import { generateMasterChartConfig } from "../../helpers/figures/charts/runtime/chart_zoom";
-import { ChartRuntime, ExcelChartDefinition } from "../../types/chart";
+import { ChartRuntime, ExcelChartDefinition } from "../../types/chart/chart";
 import {
   CoreViewCommand,
   invalidateCFEvaluationCommands,

@@ -1,6 +1,6 @@
 import { Model } from "../model";
-import { Get } from "../store_engine";
 import { GridRenderingContext, LayerName, OrderedLayers } from "../types/rendering";
+import { Get } from "../types/store_engine";
 import { ModelStore } from "./model_store";
 
 export interface Renderer {

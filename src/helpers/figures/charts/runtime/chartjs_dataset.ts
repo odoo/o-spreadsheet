@@ -11,31 +11,32 @@ import {
 } from "../../../../constants";
 import { tryToNumber } from "../../../../functions/helpers";
 import { _t } from "../../../../translation";
-import { ChartRuntimeGenerationArgs, Color, GenericDefinition } from "../../../../types";
+import { BarChartDefinition } from "../../../../types/chart/bar_chart";
+import { CalendarChartDefinition } from "../../../../types/chart/calendar_chart";
 import {
-  BarChartDefinition,
+  ChartRuntimeGenerationArgs,
   DataSetStyle,
   DatasetValues,
-  FunnelChartColors,
-  FunnelChartDefinition,
-  LineChartDefinition,
-  PieChartDefinition,
-  ScatterChartDefinition,
-  SunburstChartDefinition,
-  SunburstChartJSDataset,
-  SunburstChartRawData,
-  SunburstTreeNode,
+  GenericDefinition,
   TitleDesign,
   TrendConfiguration,
-  WaterfallChartDefinition,
-} from "../../../../types/chart";
-import { CalendarChartDefinition } from "../../../../types/chart/calendar_chart";
+} from "../../../../types/chart/chart";
 import { ComboChartDefinition } from "../../../../types/chart/combo_chart";
+import { FunnelChartColors, FunnelChartDefinition } from "../../../../types/chart/funnel_chart";
 import {
   GeoChartDefinition,
   GeoChartRuntimeGenerationArgs,
 } from "../../../../types/chart/geo_chart";
+import { LineChartDefinition } from "../../../../types/chart/line_chart";
+import { PieChartDefinition } from "../../../../types/chart/pie_chart";
 import { RadarChartDefinition } from "../../../../types/chart/radar_chart";
+import { ScatterChartDefinition } from "../../../../types/chart/scatter_chart";
+import {
+  SunburstChartDefinition,
+  SunburstChartJSDataset,
+  SunburstChartRawData,
+  SunburstTreeNode,
+} from "../../../../types/chart/sunburst_chart";
 import {
   TreeMapCategoryColorOptions,
   TreeMapChartDefaults,
@@ -44,6 +45,8 @@ import {
   TreeMapDataset,
   TreeMapGroupColor,
 } from "../../../../types/chart/tree_map_chart";
+import { WaterfallChartDefinition } from "../../../../types/chart/waterfall_chart";
+import { Color } from "../../../../types/misc";
 import { isNumberResult } from "../../../cells/cell_evaluation";
 import {
   ColorGenerator,

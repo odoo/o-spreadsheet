@@ -1,4 +1,5 @@
-import { CommandResult, DispatchResult, UID } from "../../types";
+import { CommandResult, DispatchResult } from "../../types/commands";
+import { UID } from "../../types/misc";
 
 import { TableTerms } from "../../components/translations_terms";
 import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";

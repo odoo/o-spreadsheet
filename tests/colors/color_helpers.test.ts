@@ -1,3 +1,4 @@
+import { Color, HSLA, RGBA } from "../../src";
 import {
   colorToNumber,
   colorToRGBA,
@@ -10,7 +11,6 @@ import {
   setColorAlpha,
   toHex,
 } from "../../src/helpers/color";
-import { Color, HSLA, RGBA } from "../../src/types";
 
 const testColors: { input: Color; hex: Color; rgba: RGBA; hsla: HSLA }[] = [
   {

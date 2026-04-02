@@ -1,6 +1,5 @@
-import { Model } from "../../src";
+import { DEFAULT_LOCALE, Model } from "../../src";
 import { toNumber } from "../../src/functions/helpers";
-import { DEFAULT_LOCALE } from "../../src/types";
 import {
   createTableWithFilter,
   hideRows,

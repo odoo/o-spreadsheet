@@ -2,7 +2,7 @@ import { deepCopy, deepEquals } from "../helpers/misc";
 import { isEqual, isInside, positionToZone, reorderZone, union } from "../helpers/zones";
 import { CellValueType } from "../types/cells";
 import { CommandResult, DispatchResult } from "../types/commands";
-import { SelectionEvent, SelectionEventOptions } from "../types/event_stream";
+import { SelectionEvent, SelectionEventOptions } from "../types/event_stream/selection_events";
 import { Getters } from "../types/getters";
 import {
   AnchorZone,

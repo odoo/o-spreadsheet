@@ -3,51 +3,43 @@ import { composerTokenize, EnrichedToken } from "../../../formulas/composer_toke
 import { AST, iterateAstNodes, parseTokens } from "../../../formulas/parser";
 import { POSTFIX_UNARY_OPERATORS } from "../../../formulas/tokenizer";
 import { functionRegistry } from "../../../functions/function_registry";
+import { colors } from "../../../helpers/color";
 import { KeepLast } from "../../../helpers/concurrency";
-import {
-  clip,
-  colors,
-  concat,
-  fuzzyLookup,
-  getZoneArea,
-  isEqual,
-  isFormula,
-  isNumber,
-  isSheetNameEqual,
-  positionToZone,
-  splitReference,
-  zoneToDimension,
-} from "../../../helpers/index";
 import { canonicalizeNumberContent } from "../../../helpers/locale";
 import { evaluationResultToDisplayString } from "../../../helpers/matrix";
+import { clip, concat, isFormula } from "../../../helpers/misc";
+import { isNumber } from "../../../helpers/numbers";
 import { cycleFixedReference } from "../../../helpers/reference_type";
+import { splitReference } from "../../../helpers/references";
+import { fuzzyLookup } from "../../../helpers/search";
+import { isSheetNameEqual } from "../../../helpers/sheet";
+import { getZoneArea, isEqual, positionToZone, zoneToDimension } from "../../../helpers/zones";
 import {
   AutoCompleteProposal,
   AutoCompleteProvider,
   AutoCompleteProviderDefinition,
   autoCompleteProviders,
 } from "../../../registries/auto_completes/auto_complete_registry";
-import { Get, Store } from "../../../store_engine";
-import { SpreadsheetStore } from "../../../stores";
 import { HighlightStore } from "../../../stores/highlight_store";
 import { NotificationStore } from "../../../stores/notification_store";
+import { SpreadsheetStore } from "../../../stores/spreadsheet_store";
 import { _t } from "../../../translation";
+import { Command } from "../../../types/commands";
+import { EvaluationError } from "../../../types/errors";
+import { SelectionEvent } from "../../../types/event_stream/selection_events";
 import {
   CellPosition,
   Color,
-  Command,
   Direction,
   EditionMode,
   HeaderIndex,
   Highlight,
-  Range,
-  RangePart,
   UID,
   UnboundedZone,
   Zone,
-} from "../../../types";
-import { EvaluationError } from "../../../types/errors";
-import { SelectionEvent } from "../../../types/event_stream";
+} from "../../../types/misc";
+import { Range, RangePart } from "../../../types/range";
+import { Get, Store } from "../../../types/store_engine";
 import { AutoCompleteStore } from "../autocomplete_dropdown/autocomplete_dropdown_store";
 
 export interface ComposerSelection {

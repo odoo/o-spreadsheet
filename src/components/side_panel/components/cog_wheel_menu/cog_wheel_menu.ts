@@ -1,7 +1,7 @@
 import { Component, useRef, useState } from "@odoo/owl";
 import { ActionSpec, createActions } from "../../../../actions/action";
-import { UuidGenerator } from "../../../../helpers";
-import { MenuMouseEvent } from "../../../../types";
+import { UuidGenerator } from "../../../../helpers/uuid";
+import { MenuMouseEvent } from "../../../../types/misc";
 import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
 import { getBoundingRectAsPOJO } from "../../../helpers/dom_helpers";
 import { MenuPopover, MenuState } from "../../../menu_popover/menu_popover";

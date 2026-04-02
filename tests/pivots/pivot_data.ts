@@ -1,4 +1,4 @@
-import { toZone } from "../../src/helpers/index";
+import { toZone } from "../../src/helpers/zones";
 
 export const pivotModelData = function (xc: string) {
   return {

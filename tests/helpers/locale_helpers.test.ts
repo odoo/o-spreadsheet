@@ -1,15 +1,15 @@
 import {
+  CellIsRule,
+  ColorScaleRule,
+  ConditionalFormattingOperatorValues,
+  IconSetRule,
+} from "../../src";
+import {
   canonicalizeCFRule,
   canonicalizeContent,
   localizeCFRule,
   localizeContent,
 } from "../../src/helpers/locale";
-import {
-  CellIsRule,
-  ColorScaleRule,
-  ConditionalFormattingOperatorValues,
-  IconSetRule,
-} from "../../src/types";
 import { FR_LOCALE } from "./../test_helpers/constants";
 
 describe("Locale helpers", () => {

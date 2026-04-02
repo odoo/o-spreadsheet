@@ -1,22 +1,18 @@
 import { Component, useEffect, useRef, useState } from "@odoo/owl";
 import { ActionSpec, createActions } from "../../../actions/action";
 import { BACKGROUND_CHART_COLOR, DEFAULT_CAROUSEL_TITLE_STYLE } from "../../../constants";
-import { chartStyleToCellStyle, deepEquals } from "../../../helpers";
 import { getCarouselItemTitle } from "../../../helpers/carousel_helpers";
+import { chartStyleToCellStyle, deepEquals } from "../../../helpers/misc";
 import { chartComponentRegistry } from "../../../registries/chart_component_registry";
-import { Store, useStore } from "../../../store_engine";
+import { useStore } from "../../../store_engine/store_hooks";
 import { _t } from "../../../translation";
-import {
-  Carousel,
-  CarouselItem,
-  CSSProperties,
-  FigureUI,
-  MenuMouseEvent,
-  Rect,
-} from "../../../types";
+import { Carousel, CarouselItem, FigureUI } from "../../../types/figure";
+import { CSSProperties, MenuMouseEvent } from "../../../types/misc";
+import { Rect } from "../../../types/rendering";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
+import { Store } from "../../../types/store_engine";
 import { FullScreenFigureStore } from "../../full_screen_figure/full_screen_figure_store";
-import { cellTextStyleToCss, cssPropertiesToCss } from "../../helpers";
+import { cellTextStyleToCss, cssPropertiesToCss } from "../../helpers/css";
 import { getBoundingRectAsPOJO, getRefBoundingRect } from "../../helpers/dom_helpers";
 import { MenuPopover, MenuState } from "../../menu_popover/menu_popover";
 import { ChartAnimationStore } from "../chart/chartJs/chartjs_animation_store";

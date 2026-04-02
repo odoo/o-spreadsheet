@@ -7,9 +7,10 @@ import {
   HEADER_HEIGHT,
   HEADER_WIDTH,
 } from "../../src/constants";
-import { colors, toHex, toZone } from "../../src/helpers";
-import { Store } from "../../src/store_engine";
+import { colors, toHex } from "../../src/helpers/color";
+import { toZone } from "../../src/helpers/zones";
 import { SpreadsheetChildEnv } from "../../src/types/spreadsheet_env";
+import { Store } from "../../src/types/store_engine";
 import {
   activateSheet,
   addCfRule,

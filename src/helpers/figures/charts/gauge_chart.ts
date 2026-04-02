@@ -7,16 +7,7 @@ import { isMultipleElementMatrix, toScalar } from "../../../functions/helper_mat
 import { tryToNumber } from "../../../functions/helpers";
 import { BasePlugin } from "../../../plugins/base_plugin";
 import { ChartTypeBuilder } from "../../../registries/chart_registry";
-import {
-  CellValueType,
-  Color,
-  CommandResult,
-  Format,
-  Getters,
-  Range,
-  UID,
-  Validation,
-} from "../../../types";
+import { CellValueType } from "../../../types/cells";
 import {
   GaugeChartDefinition,
   GaugeChartRuntime,
@@ -24,9 +15,16 @@ import {
   SectionRule,
   SectionThreshold,
 } from "../../../types/chart/gauge_chart";
+import { CommandResult } from "../../../types/commands";
 import { CellErrorType } from "../../../types/errors";
-import { clip, formatOrHumanizeValue, humanizeNumber, rangeReference } from "../../index";
+import { Format } from "../../../types/format";
+import { Getters } from "../../../types/getters";
+import { Color, UID, Validation } from "../../../types/misc";
+import { Range } from "../../../types/range";
+import { formatOrHumanizeValue, humanizeNumber } from "../../format/format";
+import { clip } from "../../misc";
 import { createValidRange } from "../../range";
+import { rangeReference } from "../../references";
 import { AbstractChart } from "./abstract_chart";
 import { adaptChartRange, duplicateLabelRangeInDuplicatedSheet } from "./chart_common";
 

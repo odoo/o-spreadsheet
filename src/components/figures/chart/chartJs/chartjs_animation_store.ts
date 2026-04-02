@@ -1,5 +1,6 @@
 import { SpreadsheetStore } from "../../../../stores/spreadsheet_store";
-import { ChartType, UID } from "../../../../types";
+import { ChartType } from "../../../../types/chart/chart";
+import { UID } from "../../../../types/misc";
 
 export class ChartAnimationStore extends SpreadsheetStore {
   mutators = ["disableAnimationForChart", "enableAnimationForChart"] as const;

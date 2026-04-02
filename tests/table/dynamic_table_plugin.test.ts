@@ -1,6 +1,5 @@
-import { Model } from "../../src";
-import { toZone } from "../../src/helpers";
-import { BorderDescr, UID } from "../../src/types";
+import { BorderDescr, Model, UID } from "../../src";
+import { toZone } from "../../src/helpers/zones";
 import {
   copy,
   createDynamicTable,

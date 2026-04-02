@@ -1,4 +1,5 @@
-import { GridRenderingContext, Highlight, Rect } from "../types";
+import { Highlight } from "../types/misc";
+import { GridRenderingContext, Rect } from "../types/rendering";
 import { toHex } from "./color";
 
 import { HIGHLIGHT_COLOR } from "../constants";

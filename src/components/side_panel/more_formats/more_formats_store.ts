@@ -5,14 +5,14 @@ import {
   formatValue,
   getNumberOfFormatParts,
   isDateTimeFormat,
-  isDefined,
   isFormatValid,
-} from "../../../helpers";
+} from "../../../helpers/format/format";
+import { isDefined } from "../../../helpers/misc";
 import { currenciesRegistry } from "../../../registries/currencies_registry";
-import { SpreadsheetStore } from "../../../stores";
+import { SpreadsheetStore } from "../../../stores/spreadsheet_store";
 import { _t } from "../../../translation";
-import { Format } from "../../../types";
 import { Currency } from "../../../types/currency";
+import { Format } from "../../../types/format";
 import { Get } from "../../../types/store_engine";
 import { CustomCurrencyTerms } from "../../translations_terms";
 

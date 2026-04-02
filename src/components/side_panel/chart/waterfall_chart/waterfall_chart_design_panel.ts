@@ -4,10 +4,10 @@ import {
   CHART_WATERFALL_POSITIVE_COLOR,
   CHART_WATERFALL_SUBTOTAL_COLOR,
 } from "../../../../constants";
-import { CHART_AXIS_CHOICES } from "../../../../helpers/figures/charts";
+import { CHART_AXIS_CHOICES } from "../../../../helpers/figures/charts/chart_common";
 import { _t } from "../../../../translation";
-import { Color } from "../../../../types";
 import { WaterfallChartDefinition } from "../../../../types/chart/waterfall_chart";
+import { Color } from "../../../../types/misc";
 import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
 import { SidePanelCollapsible } from "../../components/collapsible/side_panel_collapsible";
 import { RadioSelection } from "../../components/radio_selection/radio_selection";

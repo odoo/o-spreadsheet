@@ -1,10 +1,9 @@
-import { setTranslationMethod } from "../../src";
+import { DEFAULT_LOCALE, setTranslationMethod } from "../../src";
 import { CellComposerStore } from "../../src/components/composer/composer/cell_composer_store";
 import { arg } from "../../src/functions/arguments";
 import { functionRegistry } from "../../src/functions/function_registry";
-import { Store } from "../../src/store_engine";
 import { _t } from "../../src/translation";
-import { DEFAULT_LOCALE } from "../../src/types";
+import { Store } from "../../src/types/store_engine";
 import { registerCleanup } from "../setup/jest.setup";
 import { updateLocale } from "../test_helpers/commands_helpers";
 import { click, getTextNodes, keyDown, keyUp } from "../test_helpers/dom_helper";

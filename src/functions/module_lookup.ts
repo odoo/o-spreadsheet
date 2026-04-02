@@ -1,12 +1,12 @@
 import { getPivotTooBigErrorMessage } from "../components/translations_terms";
 import { PIVOT_MAX_NUMBER_OF_CELLS } from "../constants";
-import { getFullReference } from "../helpers";
 import { toXC } from "../helpers/coordinates";
 import { range } from "../helpers/misc";
 import {
   addAlignFormatToPivotHeader,
   getPivotStyleFromFnArgs,
 } from "../helpers/pivot/pivot_helpers";
+import { getFullReference } from "../helpers/references";
 import { _t } from "../translation";
 import {
   CellErrorType,

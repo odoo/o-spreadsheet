@@ -2,7 +2,7 @@ import { CHART_AXIS_TITLE_FONT_SIZE, CHART_TITLE_FONT_SIZE } from "../../constan
 import { ColorGenerator, lightenColor } from "../../helpers/color";
 import { chartMutedFontColor } from "../../helpers/figures/charts/chart_common";
 import { largeMax, range } from "../../helpers/misc";
-import { ExcelChartDataset, ExcelChartDefinition, TitleDesign } from "../../types/chart";
+import { ExcelChartDataset, ExcelChartDefinition, TitleDesign } from "../../types/chart/chart";
 import { Color } from "../../types/misc";
 import { ExcelWorkbookData, FigureData } from "../../types/workbook_data";
 import { XlsxHexColor, XMLAttributes, XMLString } from "../../types/xlsx";

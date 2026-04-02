@@ -23,7 +23,7 @@ import {
   XLSXWorksheet,
 } from "../../types/xlsx";
 import { EXCEL_DEFAULT_COL_WIDTH, EXCEL_DEFAULT_ROW_HEIGHT } from "../constants";
-import { CELL_TYPE_CONVERSION_MAP } from "../conversion";
+import { CELL_TYPE_CONVERSION_MAP } from "../conversion/conversion_maps";
 import { getRelativePath } from "../helpers/misc";
 import { XLSXImportWarningManager } from "../helpers/xlsx_parser_error_manager";
 import { XlsxBaseExtractor } from "./base_extractor";

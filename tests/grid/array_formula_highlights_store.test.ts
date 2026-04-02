@@ -1,4 +1,4 @@
-import { toZone } from "../../src/helpers";
+import { toZone } from "../../src/helpers/zones";
 import { ArrayFormulaHighlight } from "../../src/stores/array_formula_highlight";
 import { selectCell, setCellContent } from "../test_helpers/commands_helpers";
 import { flattenHighlightRange, getHighlightsFromStore, setGrid } from "../test_helpers/helpers";

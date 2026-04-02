@@ -1,5 +1,4 @@
-import { CommandResult, Model } from "../../src";
-import { DataValidationCriterion, UID } from "../../src/types";
+import { CommandResult, DataValidationCriterion, Model, UID } from "../../src";
 import {
   addColumns,
   addDataValidation,

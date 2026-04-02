@@ -7,10 +7,12 @@ import {
   selectPastedZone,
 } from "../../helpers/clipboard/clipboard_helpers";
 import { clipboardHandlersRegistries } from "../../registries/clipboardHandlersRegistries";
-import { Get } from "../../store_engine";
-import { SpreadsheetStore } from "../../stores";
 import { HighlightStore } from "../../stores/highlight_store";
-import { ClipboardCell, ClipboardOptions, Command, Highlight, UID, Zone } from "../../types";
+import { SpreadsheetStore } from "../../stores/spreadsheet_store";
+import { ClipboardOptions } from "../../types/clipboard";
+import { Command } from "../../types/commands";
+import { ClipboardCell, Highlight, UID, Zone } from "../../types/misc";
+import { Get } from "../../types/store_engine";
 
 interface ClipboardContent {
   cells: ClipboardCell[][];

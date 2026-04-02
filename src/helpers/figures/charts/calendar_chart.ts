@@ -1,25 +1,22 @@
 import type { ChartConfiguration } from "chart.js";
 import { ChartTypeBuilder } from "../../../registries/chart_registry";
-import { CommandResult } from "../../../types";
-import { LegendPosition } from "../../../types/chart";
 import {
   CALENDAR_CHART_GRANULARITIES,
   CalendarChartDefinition,
   CalendarChartRuntime,
 } from "../../../types/chart/calendar_chart";
+import { LegendPosition } from "../../../types/chart/common_chart";
+import { CommandResult } from "../../../types/commands";
 import { Validator } from "../../../types/validator";
 import { AbstractChart } from "./abstract_chart";
 import { CHART_COMMON_OPTIONS } from "./chart_ui_common";
-import {
-  getCalendarChartData,
-  getCalendarChartDatasetAndLabels,
-  getCalendarChartLayout,
-  getCalendarChartScales,
-  getCalendarChartShowValues,
-  getCalendarChartTooltip,
-  getCalendarColorScale,
-  getChartTitle,
-} from "./runtime";
+import { getCalendarChartData } from "./runtime/chart_data_extractor";
+import { getCalendarChartDatasetAndLabels } from "./runtime/chartjs_dataset";
+import { getCalendarChartLayout } from "./runtime/chartjs_layout";
+import { getCalendarChartScales, getCalendarColorScale } from "./runtime/chartjs_scales";
+import { getCalendarChartShowValues } from "./runtime/chartjs_show_values";
+import { getChartTitle } from "./runtime/chartjs_title";
+import { getCalendarChartTooltip } from "./runtime/chartjs_tooltip";
 
 function checkDateGranularity(definition: CalendarChartDefinition<string>): CommandResult {
   if (!CALENDAR_CHART_GRANULARITIES.includes(definition.horizontalGroupBy)) {

@@ -1,8 +1,8 @@
 import type { ChartMeta, ChartType, Plugin } from "chart.js";
-import { computeTextWidth } from "../../../../helpers";
 import { chartFontColor, isTrendLineAxis } from "../../../../helpers/figures/charts/chart_common";
-import { Color } from "../../../../types";
-import type { ChartType as AllChartType } from "../../../../types/chart";
+import { computeTextWidth } from "../../../../helpers/text_helper";
+import type { ChartType as AllChartType } from "../../../../types/chart/chart";
+import { Color } from "../../../../types/misc";
 
 export interface ChartShowValuesPluginOptions {
   type: AllChartType;

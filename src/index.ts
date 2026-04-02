@@ -13,28 +13,26 @@ import { GridOverlay } from "./components/grid_overlay/grid_overlay";
 import { useDragAndDropListItems } from "./components/helpers/drag_and_drop_dom_items_hook";
 import { useHighlights, useHighlightsOnHover } from "./components/helpers/highlight_hook";
 import { MenuPopover } from "./components/menu_popover/menu_popover";
-import { Popover } from "./components/popover";
 import { CellPopoverStore } from "./components/popover/cell_popover_store";
+import { Popover } from "./components/popover/popover";
 import { SelectionInput } from "./components/selection_input/selection_input";
 import { SelectionInputStore } from "./components/selection_input/selection_input_store";
-import {
-  BarConfigPanel,
-  ChartWithAxisDesignPanel,
-  GaugeChartConfigPanel,
-  GaugeChartDesignPanel,
-  GenericChartConfigPanel,
-  LineConfigPanel,
-  ScorecardChartConfigPanel,
-  ScorecardChartDesignPanel,
-  chartSidePanelComponentRegistry,
-} from "./components/side_panel/chart";
+import { BarConfigPanel } from "./components/side_panel/chart/bar_chart/bar_chart_config_panel";
 import { ChartTitle } from "./components/side_panel/chart/building_blocks/chart_title/chart_title";
 import { ChartDataSeries } from "./components/side_panel/chart/building_blocks/data_series/data_series";
 import { ChartErrorSection } from "./components/side_panel/chart/building_blocks/error_section/error_section";
+import { GenericChartConfigPanel } from "./components/side_panel/chart/building_blocks/generic_side_panel/config_panel";
 import { ChartLabelRange } from "./components/side_panel/chart/building_blocks/label_range/label_range";
+import { chartSidePanelComponentRegistry } from "./components/side_panel/chart/chart_side_panel_registry";
 import { ChartTypePicker } from "./components/side_panel/chart/chart_type_picker/chart_type_picker";
+import { ChartWithAxisDesignPanel } from "./components/side_panel/chart/chart_with_axis/design_panel";
+import { GaugeChartConfigPanel } from "./components/side_panel/chart/gauge_chart_panel/gauge_chart_config_panel";
+import { GaugeChartDesignPanel } from "./components/side_panel/chart/gauge_chart_panel/gauge_chart_design_panel";
+import { LineConfigPanel } from "./components/side_panel/chart/line_chart/line_chart_config_panel";
 import { ChartPanel } from "./components/side_panel/chart/main_chart_panel/main_chart_panel";
 import { PieChartDesignPanel } from "./components/side_panel/chart/pie_chart/pie_chart_design_panel";
+import { ScorecardChartConfigPanel } from "./components/side_panel/chart/scorecard_chart_panel/scorecard_chart_config_panel";
+import { ScorecardChartDesignPanel } from "./components/side_panel/chart/scorecard_chart_panel/scorecard_chart_design_panel";
 import { Checkbox } from "./components/side_panel/components/checkbox/checkbox";
 import { CogWheelMenu } from "./components/side_panel/components/cog_wheel_menu/cog_wheel_menu";
 import { RoundColorPicker } from "./components/side_panel/components/round_color_picker/round_color_picker";
@@ -67,53 +65,45 @@ import {
   SCROLLBAR_WIDTH,
 } from "./constants";
 import { isEvaluationError, toBoolean, toJsDate, toNumber, toString } from "./functions/helpers";
+import { ColorGenerator, colorToRGBA, rgbaToHex } from "./helpers/color";
+import { lettersToNumber, numberToLetters, toCartesian, toXC } from "./helpers/coordinates";
+import { DateTime, isDateTime, jsDateToNumber, numberToJsDate } from "./helpers/dates";
+import { createCurrencyFormat, formatValue, isDateTimeFormat } from "./helpers/format/format";
+import { openLink, urlRegistry, urlRepresentation } from "./helpers/links";
 import {
-  ColorGenerator,
-  DateTime,
-  UuidGenerator,
-  colorToRGBA,
-  computeTextWidth,
-  createCurrencyFormat,
   deepCopy,
   deepEquals,
-  expandZoneOnInsertion,
-  formatValue,
   getUniqueText,
-  isDateTime,
-  isDateTimeFormat,
   isDefined,
   isFormula,
-  isInside,
   isMarkdownLink,
-  isNumber,
-  jsDateToNumber,
   lazy,
-  lettersToNumber,
   markdownLink,
-  mergeContiguousZones,
-  numberToJsDate,
-  numberToLetters,
-  overlap,
   parseMarkdownLink,
-  positionToZone,
-  reduceZoneOnDeletion,
-  rgbaToHex,
   sanitizeSheetName,
-  splitReference,
-  toCartesian,
-  toUnboundedZone,
-  toXC,
-  toZone,
-  union,
   unquote,
-} from "./helpers/index";
-import { openLink, urlRegistry, urlRepresentation } from "./helpers/links";
+} from "./helpers/misc";
+import { isNumber } from "./helpers/numbers";
 import {
   insertTokenAfterArgSeparator,
   insertTokenAfterLeftParenthesis,
   makeFieldProposal,
 } from "./helpers/pivot/pivot_composer_helpers";
 import { supportedPivotPositionalFormulaRegistry } from "./helpers/pivot/pivot_positional_formula_registry";
+import { splitReference } from "./helpers/references";
+import { computeTextWidth } from "./helpers/text_helper";
+import { UuidGenerator } from "./helpers/uuid";
+import {
+  expandZoneOnInsertion,
+  isInside,
+  mergeContiguousZones,
+  overlap,
+  positionToZone,
+  reduceZoneOnDeletion,
+  toUnboundedZone,
+  toZone,
+  union,
+} from "./helpers/zones";
 
 import { CellComposerStore } from "./components/composer/composer/cell_composer_store";
 import { ClickableCellSortIcon } from "./components/dashboard/clickable_cell_sort_icon/clickable_cell_sort_icon";
@@ -141,9 +131,10 @@ import { TextInput } from "./components/text_input/text_input";
 import { ChartTerms } from "./components/translations_terms";
 import { arg } from "./functions/arguments";
 import { functionRegistry } from "./functions/function_registry";
-import * as CHART_HELPERS from "./helpers/figures/charts";
 import { chartJsExtensionRegistry } from "./helpers/figures/charts/chart_js_extension";
-import * as CHART_RUNTIME_HELPERS from "./helpers/figures/charts/runtime";
+import * as CHART_HELPERS from "./helpers/figures/charts/helpers_index";
+import * as CHART_RUNTIME_HELPERS from "./helpers/figures/charts/runtime/helpers_index";
+
 import {
   areDomainArgsFieldsValid,
   collapseHierarchicalDisplayName,
@@ -171,15 +162,15 @@ import {
   createEmptyWorkbookData,
 } from "./migrations/data";
 import { migrationStepRegistry } from "./migrations/migration_steps";
-import "./plugins";
+
 import {
   corePluginRegistry,
   coreViewsPluginRegistry,
   featurePluginRegistry,
   statefulUIPluginRegistry,
-} from "./plugins/index";
+} from "./plugins/plugin_registries";
 import { UNDO_REDO_PIVOT_COMMANDS } from "./plugins/ui_core_views/pivot_ui";
-import { autoCompleteProviders } from "./registries/auto_completes";
+import { autoCompleteProviders } from "./registries/auto_completes/auto_complete_registry";
 import { autofillModifiersRegistry } from "./registries/autofill_modifiers";
 import { autofillRulesRegistry } from "./registries/autofill_rules";
 import { clickableCellRegistry } from "./registries/cell_clickable_registry";
@@ -188,15 +179,12 @@ import { chartComponentRegistry } from "./registries/chart_component_registry";
 import { chartTypeRegistry } from "./registries/chart_registry";
 import { figureRegistry } from "./registries/figures_registry";
 import { iconsOnCellRegistry } from "./registries/icons_on_cell_registry";
-import "./registries/interactive_icon_on_cell_registry";
 import { inverseCommandRegistry } from "./registries/inverse_command_registry";
-import {
-  cellMenuRegistry,
-  colMenuRegistry,
-  numberFormatMenuRegistry,
-  rowMenuRegistry,
-  topbarMenuRegistry,
-} from "./registries/menus";
+import { cellMenuRegistry } from "./registries/menus/cell_menu_registry";
+import { colMenuRegistry } from "./registries/menus/col_menu_registry";
+import { numberFormatMenuRegistry } from "./registries/menus/number_format_menu_registry";
+import { rowMenuRegistry } from "./registries/menus/row_menu_registry";
+import { topbarMenuRegistry } from "./registries/menus/topbar_menu_registry";
 import { otRegistry } from "./registries/ot_registry";
 import { genericRepeat } from "./registries/repeat_commands_registry";
 import {
@@ -207,17 +195,19 @@ import { errorTypes } from "./types/errors";
 
 import { sidePanelRegistry } from "./registries/side_panel_registry";
 import { topbarComponentRegistry } from "./registries/topbar_component_registry";
-import { useLocalStore, useStore, useStoreProvider } from "./store_engine";
 import { DependencyContainer } from "./store_engine/dependency_container";
-import { SpreadsheetStore } from "./stores";
+import { useLocalStore, useStore, useStoreProvider } from "./store_engine/store_hooks";
 import { ClientFocusStore } from "./stores/client_focus_store";
 import { GridRenderer } from "./stores/grid_renderer_store";
 import { HighlightStore } from "./stores/highlight_store";
 import { ModelStore } from "./stores/model_store";
 import { NotificationStore } from "./stores/notification_store";
 import { RendererStore } from "./stores/renderer_store";
-import { AddFunctionDescription, CHART_TYPES, isMatrix, schemeToColorScale } from "./types";
+import { SpreadsheetStore } from "./stores/spreadsheet_store";
+import { CHART_TYPES, schemeToColorScale } from "./types/chart/chart";
+import { AddFunctionDescription } from "./types/functions";
 import { DEFAULT_LOCALE } from "./types/locale";
+import { isMatrix } from "./types/misc";
 
 /**
  * We export here all entities that needs to be accessed publicly by Odoo.
@@ -231,13 +221,13 @@ export const __info__ = {};
 export { LocalTransportService } from "./collaborative/local_transport_service";
 export { Revision } from "./collaborative/revisions";
 export { ClientDisconnectedError } from "./collaborative/session";
-export { Spreadsheet } from "./components/index";
+export { Spreadsheet } from "./components/spreadsheet/spreadsheet";
 export { setDefaultSheetViewSize, tokenColors } from "./constants";
 export { CompiledFormula, functionCache } from "./formulas/compiler";
 export { astToFormula } from "./formulas/formula_formatter";
 export { convertAstNodes, iterateAstNodes, parse, parseTokens } from "./formulas/parser";
 export { tokenize } from "./formulas/tokenizer";
-export { AbstractChart } from "./helpers/figures/charts";
+export { AbstractChart } from "./helpers/figures/charts/abstract_chart";
 export { findCellInNewZone } from "./helpers/zones";
 export { load } from "./migrations/data";
 export { Model } from "./model";
@@ -246,8 +236,6 @@ export { CoreViewPlugin } from "./plugins/core_view_plugin";
 export { UIPlugin } from "./plugins/ui_plugin";
 export { Registry } from "./registries/registry";
 export { setTranslationMethod } from "./translation";
-export { CommandResult, DispatchResult, addRenderingLayer } from "./types";
-export type { CancelledReason } from "./types";
 export type { Client } from "./types/collaborative/session";
 export type {
   ClientJoinedMessage,
@@ -261,7 +249,9 @@ export type {
 } from "./types/collaborative/transport_service";
 export {
   canExecuteInReadonly,
+  CommandResult,
   coreTypes,
+  DispatchResult,
   invalidateCFEvaluationCommands,
   invalidateChartEvaluationCommands,
   invalidateDependenciesCommands,
@@ -271,7 +261,9 @@ export {
   lockedSheetAllowedCommands,
   readonlyAllowedCommands,
 } from "./types/commands";
+export type { CancelledReason } from "./types/commands";
 export { CellErrorType, EvaluationError } from "./types/errors";
+export { addRenderingLayer } from "./types/rendering";
 
 export const SPREADSHEET_DIMENSIONS = {
   MIN_ROW_HEIGHT,
@@ -327,10 +319,15 @@ export const registries = {
   chartJsExtensionRegistry,
 };
 
+/** Registries Population */
+import "./clipboard_handlers/clipboard_handler_registrations";
+import "./components/popover/popover_builders";
 import "./helpers/figures/charts/chart_data_sources";
+import "./plugins/plugin_registries";
+import "./registries/auto_completes/autocompelete_registration";
 import "./registries/chart_types";
+import "./registries/interactive_icon_on_cell_registry";
 
-import "./clipboard_handlers";
 import { Composer } from "./components/composer/composer/composer";
 import { Select } from "./components/select/select";
 import { ChartRangeDataSourceComponent } from "./components/side_panel/chart/building_blocks/range_data_source/range_data_source";
@@ -525,7 +522,7 @@ export { getCaretDownSvg, getCaretUpSvg } from "./components/icons/icons";
 export { createAutocompleteArgumentsProvider } from "./functions/autocomplete_arguments_provider";
 export type { FunctionRegistry } from "./functions/function_registry";
 export { categories } from "./functions/function_registry_population";
-export type { StoreConstructor, StoreParams } from "./store_engine";
+export type { StoreConstructor, StoreParams } from "./types/store_engine";
 export function addFunction(functionName: string, functionDescription: AddFunctionDescription) {
   functionRegistry.add(functionName, functionDescription);
   return {
@@ -553,11 +550,42 @@ export const chartHelpers: typeof CHART_HELPERS & typeof CHART_RUNTIME_HELPERS =
 
 export { SpreadsheetPivotTable } from "./helpers/pivot/table_spreadsheet_pivot";
 
-export type { EnrichedToken } from "./formulas/composer_tokenizer";
-export type { AST, ASTFuncall } from "./formulas/parser";
-export type * from "./types";
-export { DEFAULT_LOCALE, DEFAULT_LOCALES } from "./types";
-
 export { AbstractCellClipboardHandler } from "./clipboard_handlers/abstract_cell_clipboard_handler";
 export { AbstractFigureClipboardHandler } from "./clipboard_handlers/abstract_figure_clipboard_handler";
+export type { EnrichedToken } from "./formulas/composer_tokenizer";
+export type { AST, ASTFuncall } from "./formulas/parser";
 export { PivotRuntimeDefinition } from "./helpers/pivot/pivot_runtime_definition";
+export type * from "./types/autofill";
+export * from "./types/cells";
+export * from "./types/chart/chart";
+export * from "./types/clipboard";
+export type * from "./types/collaborative/revisions";
+export type * from "./types/collaborative/session";
+export * from "./types/commands";
+export * from "./types/conditional_formatting";
+export type * from "./types/currency";
+export * from "./types/data_validation";
+export type * from "./types/env";
+export * from "./types/errors";
+export type * from "./types/figure";
+export type * from "./types/format";
+export type * from "./types/functions";
+export type * from "./types/generic_criterion";
+export type * from "./types/getters";
+export type * from "./types/history";
+export type {
+  CreateRevisionOptions,
+  HistoryChange,
+  OperationSequenceNode,
+  Transformation,
+  TransformationFactory,
+} from "./types/history";
+export * from "./types/locale";
+export { DEFAULT_LOCALE, DEFAULT_LOCALES } from "./types/locale";
+export * from "./types/misc";
+export * from "./types/pivot";
+export type * from "./types/pivot_runtime";
+export type * from "./types/range";
+export * from "./types/rendering";
+export * from "./types/table";
+export type * from "./types/workbook_data";

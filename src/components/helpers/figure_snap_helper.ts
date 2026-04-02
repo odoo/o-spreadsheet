@@ -1,5 +1,7 @@
 import { FIGURE_BORDER_WIDTH } from "../../constants";
-import { FigureUI, Getters, Pixel, PixelPosition, UID } from "../../types";
+import { FigureUI } from "../../types/figure";
+import { Getters } from "../../types/getters";
+import { Pixel, PixelPosition, UID } from "../../types/misc";
 
 const SNAP_MARGIN: Pixel = 5;
 

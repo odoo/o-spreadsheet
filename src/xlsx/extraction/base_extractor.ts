@@ -9,7 +9,7 @@ import {
   XLSXTheme,
   XMLFile,
 } from "../../types/xlsx";
-import { DEFAULT_SYSTEM_COLOR } from "../conversion";
+import { DEFAULT_SYSTEM_COLOR } from "../conversion/color_conversion";
 import { fixXlsxUnicode } from "../helpers/misc";
 import { XLSXImportWarningManager } from "../helpers/xlsx_parser_error_manager";
 import { escapeQueryNameSpaces } from "../helpers/xml_helpers";

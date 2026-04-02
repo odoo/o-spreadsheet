@@ -1,7 +1,7 @@
 import { CompiledFormula } from "../../formulas/compiler";
-import { deepCopy, deepEquals } from "../../helpers";
 import { createCell } from "../../helpers/cells/cell_evaluation";
 import { toCartesian, toXC } from "../../helpers/coordinates";
+import { deepCopy, deepEquals } from "../../helpers/misc";
 import { getRangeString } from "../../helpers/range";
 import { Cell } from "../../types/cells";
 import { UpdateCellCommand } from "../../types/commands";

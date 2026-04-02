@@ -1,6 +1,5 @@
-import { Model, UIPlugin } from "../../src";
-import { featurePluginRegistry } from "../../src/plugins";
-import { Command, DataValidationCriterion, UID } from "../../src/types";
+import { Command, DataValidationCriterion, Model, UID, UIPlugin } from "../../src";
+import { featurePluginRegistry } from "../../src/plugins/plugin_registries";
 import {
   activateSheet,
   addDataValidation,

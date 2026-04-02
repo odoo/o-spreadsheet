@@ -1,11 +1,11 @@
 import { Component } from "@odoo/owl";
 import { useStore } from "../../store_engine/store_hooks";
-import { Rect } from "../../types";
 import { ClosedCellPopover, PositionedCellPopoverComponent } from "../../types/cell_popovers";
+import { Rect } from "../../types/rendering";
 import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 import { Store } from "../../types/store_engine";
 import { getZoomedRect } from "../helpers/zoom";
-import { CellPopoverStore } from "../popover";
+import { CellPopoverStore } from "../popover/cell_popover_store";
 import { Popover } from "../popover/popover";
 
 interface Props {

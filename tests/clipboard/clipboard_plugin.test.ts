@@ -1,16 +1,3 @@
-import { UIPlugin } from "../../src";
-import { DEFAULT_BORDER_DESC, LINK_COLOR } from "../../src/constants";
-import { markdownLink, toCartesian, toZone, zoneToXc } from "../../src/helpers";
-import {
-  getClipboardDataPositions,
-  getOSheetClipboardIdFromHTML,
-  parseOSClipboardContent,
-} from "../../src/helpers/clipboard/clipboard_helpers";
-import { urlRepresentation } from "../../src/helpers/links";
-import { Model } from "../../src/model";
-import { featurePluginRegistry } from "../../src/plugins";
-import { ClipboardPlugin, MAX_FILE_SIZE } from "../../src/plugins/ui_stateful/clipboard";
-import { clipboardHandlersRegistries } from "../../src/registries/clipboardHandlersRegistries";
 import {
   ClipboardMIMEType,
   ClipboardPasteTarget,
@@ -18,7 +5,22 @@ import {
   CommandResult,
   DEFAULT_LOCALE,
   DEFAULT_LOCALES,
-} from "../../src/types/index";
+  UIPlugin,
+} from "../../src";
+import { DEFAULT_BORDER_DESC, LINK_COLOR } from "../../src/constants";
+import {
+  getClipboardDataPositions,
+  getOSheetClipboardIdFromHTML,
+  parseOSClipboardContent,
+} from "../../src/helpers/clipboard/clipboard_helpers";
+import { toCartesian } from "../../src/helpers/coordinates";
+import { urlRepresentation } from "../../src/helpers/links";
+import { markdownLink } from "../../src/helpers/misc";
+import { toZone, zoneToXc } from "../../src/helpers/zones";
+import { Model } from "../../src/model";
+import { featurePluginRegistry } from "../../src/plugins/plugin_registries";
+import { ClipboardPlugin, MAX_FILE_SIZE } from "../../src/plugins/ui_stateful/clipboard";
+import { clipboardHandlersRegistries } from "../../src/registries/clipboardHandlersRegistries";
 import { XMLString } from "../../src/types/xlsx";
 import { parseXML, xmlEscape } from "../../src/xlsx/helpers/xml_helpers";
 import { FileStore as MockFileStore } from "../__mocks__/mock_file_store";

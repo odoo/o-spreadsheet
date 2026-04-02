@@ -1,20 +1,16 @@
 import { sum } from "../../../functions/helper_math";
 import { average, countAny, countNumbers, max, min } from "../../../functions/helper_statistical";
-import { recomputeZones } from "../../../helpers";
+import { recomputeZones } from "../../../helpers/recompute_zones";
 import {
   SelectionStatisticFunction,
   StatisticFnResults,
   computeStatisticFnResults,
 } from "../../../helpers/selection_statistic_functions";
-import { Get } from "../../../store_engine";
-import { SpreadsheetStore } from "../../../stores";
+import { SpreadsheetStore } from "../../../stores/spreadsheet_store";
 import { _t } from "../../../translation";
-import {
-  CellValueType,
-  Command,
-  EvaluatedCell,
-  invalidateEvaluationCommands,
-} from "../../../types";
+import { CellValueType, EvaluatedCell } from "../../../types/cells";
+import { Command, invalidateEvaluationCommands } from "../../../types/commands";
+import { Get } from "../../../types/store_engine";
 
 const selectionStatisticFunctions: SelectionStatisticFunction[] = [
   {

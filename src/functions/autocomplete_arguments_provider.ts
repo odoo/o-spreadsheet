@@ -5,7 +5,7 @@ import {
   AutoCompleteProposal,
   autoCompleteProviders,
 } from "../registries/auto_completes/auto_complete_registry";
-import { ArgDefinition } from "../types";
+import { ArgDefinition } from "../types/functions";
 
 export function createAutocompleteArgumentsProvider(formulaName: string, args: ArgDefinition[]) {
   for (let i = 0; i < args.length; i++) {

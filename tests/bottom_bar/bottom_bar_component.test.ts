@@ -1,10 +1,10 @@
 import { Component } from "@odoo/owl";
+import { CommandResult, DispatchResult, Pixel, UID } from "../../src";
 import { BottomBar } from "../../src/components/bottom_bar/bottom_bar";
-import { toHex } from "../../src/helpers";
+import { toHex } from "../../src/helpers/color";
 import { interactiveRenameSheet } from "../../src/helpers/ui/sheet_interactive";
 import { Model } from "../../src/model";
 import { DOMFocusableElementStore } from "../../src/stores/DOM_focus_store";
-import { CommandResult, DispatchResult, Pixel, UID } from "../../src/types";
 import { SpreadsheetChildEnv } from "../../src/types/spreadsheet_env";
 import {
   activateSheet,

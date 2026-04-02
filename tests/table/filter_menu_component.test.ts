@@ -1,10 +1,10 @@
-import { Model } from "../../src";
 import {
   filterDateCriterionOperators,
   filterNumberCriterionOperators,
   filterTextCriterionOperators,
+  Model,
   UID,
-} from "../../src/types";
+} from "../../src";
 import {
   createDynamicTable,
   createTableWithFilter,

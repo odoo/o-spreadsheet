@@ -1,6 +1,6 @@
 import { Model } from "../src";
 import { DEFAULT_CELL_HEIGHT } from "../src/constants";
-import { toZone } from "../src/helpers";
+import { toZone } from "../src/helpers/zones";
 import {
   AddColumnsRowsCommand,
   CreateChartCommand,
@@ -15,12 +15,12 @@ import {
   UnGroupHeadersCommand,
 } from "../src/types/commands";
 
+import { CoreCommand, Dimension, UID } from "../src";
 import {
   repeatCommandTransformRegistry,
   repeatCoreCommand,
   repeatLocalCommandTransformRegistry,
 } from "../src/registries/repeat_transform_registry";
-import { CoreCommand, Dimension, UID } from "../src/types";
 import {
   activateSheet,
   addEqualCf,

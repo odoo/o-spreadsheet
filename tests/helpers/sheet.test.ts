@@ -1,4 +1,4 @@
-import { isSheetNameEqual } from "../../src/helpers";
+import { isSheetNameEqual } from "../../src/helpers/sheet";
 
 test("sheet equality", () => {
   expect(isSheetNameEqual("Sheet1", "Sheet1")).toBeTruthy();

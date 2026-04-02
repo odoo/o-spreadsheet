@@ -1,8 +1,8 @@
-import { ExcelChartDefinition } from "../../types/chart";
+import { ExcelChartDefinition } from "../../types/chart/chart";
 import { ExcelFigureSize } from "../../types/figure";
 import { ExcelImage } from "../../types/image";
 import { XLSXFigure, XLSXFigureAnchor } from "../../types/xlsx";
-import { IMAGE_EXTENSION_TO_MIMETYPE_MAPPING } from "../conversion";
+import { IMAGE_EXTENSION_TO_MIMETYPE_MAPPING } from "../conversion/conversion_maps";
 import { removeTagEscapedNamespaces } from "../helpers/xml_helpers";
 import { XlsxBaseExtractor } from "./base_extractor";
 import { XlsxChartExtractor } from "./chart_extractor";

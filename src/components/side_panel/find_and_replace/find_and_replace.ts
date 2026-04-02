@@ -6,12 +6,14 @@ import {
   useRef,
   useState,
 } from "@odoo/owl";
-import { debounce, zoneToXc } from "../../../helpers";
-import { Store, useLocalStore } from "../../../store_engine";
+import { debounce } from "../../../helpers/misc";
+import { zoneToXc } from "../../../helpers/zones";
+import { useLocalStore } from "../../../store_engine/store_hooks";
 import { _t } from "../../../translation";
 import { SearchOptions } from "../../../types/find_and_replace";
-import { DebouncedFunction, ValueAndLabel } from "../../../types/index";
+import { DebouncedFunction, ValueAndLabel } from "../../../types/misc";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
+import { Store } from "../../../types/store_engine";
 import { keyboardEventToShortcutString } from "../../helpers/dom_helpers";
 import { Select } from "../../select/select";
 import { SelectionInput } from "../../selection_input/selection_input";

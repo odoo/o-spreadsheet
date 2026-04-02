@@ -1,9 +1,9 @@
 import { Component, onMounted, useExternalListener, useRef, useState } from "@odoo/owl";
 import { Action, getMenuItemsAndSeparators } from "../../../actions/action";
-import { topbarMenuRegistry } from "../../../registries/menus";
+import { topbarMenuRegistry } from "../../../registries/menus/topbar_menu_registry";
 import { _t } from "../../../translation";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
-import { cssPropertiesToCss } from "../../helpers";
+import { cssPropertiesToCss } from "../../helpers/css";
 import { Menu, MenuProps } from "../../menu/menu";
 
 export const itemHeight = 40;

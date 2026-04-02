@@ -1,10 +1,11 @@
+import { DEFAULT_LOCALE, ErrorCell, UID } from "../../src";
 import { arg } from "../../src/functions/arguments";
 import { functionRegistry } from "../../src/functions/function_registry";
 import { toScalar } from "../../src/functions/helper_matrices";
 import { toMatrix, toNumber } from "../../src/functions/helpers";
-import { toCartesian, toZone } from "../../src/helpers";
+import { toCartesian } from "../../src/helpers/coordinates";
+import { toZone } from "../../src/helpers/zones";
 import { Model } from "../../src/model";
-import { DEFAULT_LOCALE, ErrorCell, UID } from "../../src/types";
 import {
   addColumns,
   addRows,

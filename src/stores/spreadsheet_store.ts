@@ -1,6 +1,8 @@
 import { Model } from "../model";
-import { DisposableStore, Get } from "../store_engine";
-import { Command, GridRenderingContext, LayerName } from "../types";
+import { DisposableStore } from "../store_engine/store";
+import { Command } from "../types/commands";
+import { GridRenderingContext, LayerName } from "../types/rendering";
+import { Get } from "../types/store_engine";
 import { ModelStore } from "./model_store";
 import { RendererStore } from "./renderer_store";
 

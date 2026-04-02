@@ -1,9 +1,10 @@
 import { Component, onMounted, useEffect, useState } from "@odoo/owl";
 import { NEWLINE } from "../../../constants";
 import { interactiveSplitToColumns } from "../../../helpers/ui/split_to_columns_interactive";
-import { useStore } from "../../../store_engine";
+import { useStore } from "../../../store_engine/store_hooks";
 import { _t } from "../../../translation";
-import { CommandResult, ValueAndLabel } from "../../../types/index";
+import { CommandResult } from "../../../types/commands";
+import { ValueAndLabel } from "../../../types/misc";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
 import { Select } from "../../select/select";
 import { SplitToColumnsTerms } from "../../translations_terms";

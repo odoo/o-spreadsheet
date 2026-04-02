@@ -3,7 +3,6 @@ import { matrixMap } from "../../../functions/helpers";
 import { toXC } from "../../../helpers/coordinates";
 import { getItemId } from "../../../helpers/data_normalization";
 import { positions } from "../../../helpers/zones";
-import { CellErrorType } from "../../../types";
 import { CellValue, CellValueType, EvaluatedCell, FormulaCell } from "../../../types/cells";
 import {
   Command,
@@ -11,6 +10,7 @@ import {
   invalidateDependenciesCommands,
   invalidateEvaluationCommands,
 } from "../../../types/commands";
+import { CellErrorType } from "../../../types/errors";
 import { Format } from "../../../types/format";
 import {
   CellPosition,

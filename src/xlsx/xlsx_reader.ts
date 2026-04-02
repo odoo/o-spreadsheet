@@ -13,15 +13,13 @@ import {
   XMLString,
 } from "../types/xlsx";
 import { CONTENT_TYPES } from "./constants";
-import {
-  convertBorders,
-  convertFormats,
-  convertSheets,
-  convertStyles,
-  convertTables,
-} from "./conversion";
-import { XlsxMiscExtractor, XlsxSheetExtractor, XlsxStyleExtractor } from "./extraction";
+import { convertSheets } from "./conversion/sheet_conversion";
+import { convertBorders, convertFormats, convertStyles } from "./conversion/style_conversion";
+import { convertTables } from "./conversion/table_conversion";
 import { XlsxExternalBookExtractor } from "./extraction/external_book_extractor";
+import { XlsxMiscExtractor } from "./extraction/misc_extractor";
+import { XlsxSheetExtractor } from "./extraction/sheet_extractor";
+import { XlsxStyleExtractor } from "./extraction/style_extractor";
 import { getXLSXFilesOfType } from "./helpers/xlsx_helper";
 import { XLSXImportWarningManager } from "./helpers/xlsx_parser_error_manager";
 import { escapeTagNamespaces, parseXML } from "./helpers/xml_helpers";

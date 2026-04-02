@@ -1,6 +1,6 @@
-import { UuidGenerator } from "../../src/helpers";
+import { UID } from "../../src";
+import { UuidGenerator } from "../../src/helpers/uuid";
 import { SelectiveHistory } from "../../src/history/selective_history";
-import { UID } from "../../src/types";
 
 interface Command {
   position: number;

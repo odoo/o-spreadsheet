@@ -1,12 +1,12 @@
 import { PIVOT_MAX_NUMBER_OF_CELLS } from "../../../../constants";
-import { deepCopy, deepEquals } from "../../../../helpers";
+import { deepCopy, deepEquals } from "../../../../helpers/misc";
 import { isDateOrDatetimeField } from "../../../../helpers/pivot/pivot_helpers";
 import { pivotRegistry } from "../../../../helpers/pivot/pivot_registry";
-import { Get } from "../../../../store_engine";
 import { NotificationStore } from "../../../../stores/notification_store";
 import { SpreadsheetStore } from "../../../../stores/spreadsheet_store";
 import { _t } from "../../../../translation";
-import { Command, UID } from "../../../../types";
+import { Command } from "../../../../types/commands";
+import { UID } from "../../../../types/misc";
 import {
   PivotCoreDefinition,
   PivotCoreDimension,
@@ -17,6 +17,7 @@ import {
   PivotFields,
   PivotMeasure,
 } from "../../../../types/pivot";
+import { Get } from "../../../../types/store_engine";
 
 import { getFirstPivotFunction } from "../../../../helpers/pivot/pivot_composer_helpers";
 import { getPivotTooBigErrorMessage } from "../../../translations_terms";

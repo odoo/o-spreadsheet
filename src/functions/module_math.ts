@@ -1,4 +1,4 @@
-import { doesCellContainFunction } from "../helpers";
+import { doesCellContainFunction } from "../helpers/misc";
 import { _t } from "../translation";
 import { DivisionByZeroError, EvaluationError, InvalidReferenceError } from "../types/errors";
 import { AddFunctionDescription } from "../types/functions";

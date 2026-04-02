@@ -1,16 +1,17 @@
-import { Model } from "../../../../src";
+import { CellIsRule, Model, Pixel, UID } from "../../../../src";
 import { SidePanels } from "../../../../src/components/side_panel/side_panels/side_panels";
 import {
   DEFAULT_SCORECARD_BASELINE_COLOR_DOWN,
   DEFAULT_SCORECARD_BASELINE_COLOR_UP,
 } from "../../../../src/constants";
-import { createAccountingFormat, getContextFontSize } from "../../../../src/helpers";
-import { chartMutedFontColor, drawScoreChart } from "../../../../src/helpers/figures/charts";
+import { chartMutedFontColor } from "../../../../src/helpers/figures/charts/chart_common";
+import { drawScoreChart } from "../../../../src/helpers/figures/charts/scorecard_chart";
 import {
   ScorecardChartConfig,
   getScorecardConfiguration,
 } from "../../../../src/helpers/figures/charts/scorecard_chart_config_builder";
-import { CellIsRule, Pixel, UID } from "../../../../src/types";
+import { createAccountingFormat } from "../../../../src/helpers/format/format";
+import { getContextFontSize } from "../../../../src/helpers/text_helper";
 import {
   ScorecardChartDefinition,
   ScorecardChartRuntime,

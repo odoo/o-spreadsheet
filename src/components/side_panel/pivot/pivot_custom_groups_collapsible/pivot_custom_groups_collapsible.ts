@@ -1,13 +1,13 @@
 import { Component } from "@odoo/owl";
-import { deepCopy } from "../../../../helpers";
+import { deepCopy } from "../../../../helpers/misc";
 import { getUniquePivotGroupName } from "../../../../helpers/pivot/pivot_helpers";
 import { _t } from "../../../../translation";
+import { UID } from "../../../../types/misc";
 import {
   PivotCoreDefinition,
   PivotCustomGroup,
   PivotCustomGroupedField,
-  UID,
-} from "../../../../types";
+} from "../../../../types/pivot";
 import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
 import { TextInput } from "../../../text_input/text_input";
 import { Checkbox } from "../../components/checkbox/checkbox";

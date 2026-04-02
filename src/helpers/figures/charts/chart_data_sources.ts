@@ -11,7 +11,7 @@ import {
   DatasetValues,
   ExcelChartDataset,
   LabelValues,
-} from "../../../types/chart";
+} from "../../../types/chart/chart";
 import { CommandResult } from "../../../types/commands";
 import { CellErrorType } from "../../../types/errors";
 import { Getters } from "../../../types/getters";

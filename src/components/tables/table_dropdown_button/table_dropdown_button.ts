@@ -4,7 +4,7 @@ import { DEFAULT_TABLE_CONFIG } from "../../../helpers/table_presets";
 import { interactiveCreateTable } from "../../../helpers/ui/table_interactive";
 import { positions } from "../../../helpers/zones";
 import { _t } from "../../../translation";
-import { UID } from "../../../types";
+import { UID } from "../../../types/misc";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
 import { TableConfig } from "../../../types/table";
 import { ActionButton } from "../../action_button/action_button";

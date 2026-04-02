@@ -1,4 +1,4 @@
-import { ExcelChartDefinition } from "./chart";
+import { ExcelChartDefinition } from "./chart/chart";
 import { ExcelFigureSize } from "./figure";
 import { Format } from "./format";
 import { ExcelImage } from "./image";

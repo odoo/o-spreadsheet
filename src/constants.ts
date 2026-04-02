@@ -1,4 +1,4 @@
-import { ChartColorScale, ChartStyle } from "./types/chart";
+import { ChartColorScale, ChartStyle } from "./types/chart/chart";
 import { Currency } from "./types/currency";
 import { BorderDescr, Color, Style } from "./types/misc";
 

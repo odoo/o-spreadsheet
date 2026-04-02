@@ -1,9 +1,6 @@
-import {
-  BarChartDefinition,
-  BarChartRuntime,
-  LineChartDefinition,
-  PieChartDefinition,
-} from "../../../src/types/chart";
+import { BarChartDefinition, BarChartRuntime } from "../../../src/types/chart/bar_chart";
+import { LineChartDefinition } from "../../../src/types/chart/line_chart";
+import { PieChartDefinition } from "../../../src/types/chart/pie_chart";
 import { drawChartOnNodeCanvas, toChartDataSource } from "../../test_helpers/chart_helpers";
 import { createChart } from "../../test_helpers/commands_helpers";
 import { createModelFromGrid } from "../../test_helpers/helpers";

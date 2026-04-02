@@ -1,12 +1,13 @@
 import { Component, useState } from "@odoo/owl";
 import { getChartMenuActions } from "../../../../actions/figure_menu_actions";
 import { BACKGROUND_CHART_COLOR } from "../../../../constants";
-import { isDefined } from "../../../../helpers";
-import { Store, useStore } from "../../../../store_engine";
+import { isDefined } from "../../../../helpers/misc";
+import { useStore } from "../../../../store_engine/store_hooks";
 import { _t } from "../../../../translation";
-import { UID, ValueAndLabel } from "../../../../types";
 import { GeoChartDefinition } from "../../../../types/chart/geo_chart";
+import { UID, ValueAndLabel } from "../../../../types/misc";
 import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
+import { Store } from "../../../../types/store_engine";
 import { FullScreenFigureStore } from "../../../full_screen_figure/full_screen_figure_store";
 import { getBoundingRectAsPOJO } from "../../../helpers/dom_helpers";
 import { MenuPopover, MenuState } from "../../../menu_popover/menu_popover";

@@ -1,20 +1,18 @@
-import {
-  BarChart,
-  GaugeChart,
-  LineChart,
-  PieChart,
-  ScorecardChart,
-  WaterfallChart,
-} from "../helpers/figures/charts";
+import { BarChart } from "../helpers/figures/charts/bar_chart";
 import { CalendarChart } from "../helpers/figures/charts/calendar_chart";
 import { ComboChart } from "../helpers/figures/charts/combo_chart";
 import { FunnelChart } from "../helpers/figures/charts/funnel_chart";
+import { GaugeChart } from "../helpers/figures/charts/gauge_chart";
 import { GeoChart } from "../helpers/figures/charts/geo_chart";
+import { LineChart } from "../helpers/figures/charts/line_chart";
+import { PieChart } from "../helpers/figures/charts/pie_chart";
 import { PyramidChart } from "../helpers/figures/charts/pyramid_chart";
 import { RadarChart } from "../helpers/figures/charts/radar_chart";
 import { ScatterChart } from "../helpers/figures/charts/scatter_chart";
+import { ScorecardChart } from "../helpers/figures/charts/scorecard_chart";
 import { SunburstChart } from "../helpers/figures/charts/sunburst_chart";
 import { TreeMapChart } from "../helpers/figures/charts/tree_map_chart";
+import { WaterfallChart } from "../helpers/figures/charts/waterfall_chart";
 import { _t } from "../translation";
 import { chartTypeRegistry } from "./chart_registry";
 import { chartSubtypeRegistry } from "./chart_subtype_registry";

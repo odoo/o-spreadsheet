@@ -1,5 +1,5 @@
-import { SpreadsheetStore } from "../../stores";
-import { CellPosition } from "../../types";
+import { SpreadsheetStore } from "../../stores/spreadsheet_store";
+import { CellPosition } from "../../types/misc";
 
 interface HoveredIcon {
   id: string;

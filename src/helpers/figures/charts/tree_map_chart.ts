@@ -1,16 +1,14 @@
 import { ChartConfiguration } from "chart.js";
 import { ChartTypeBuilder } from "../../../registries/chart_registry";
-import { CommandResult } from "../../../types";
 import { TreeMapChartRuntime } from "../../../types/chart/tree_map_chart";
+import { CommandResult } from "../../../types/commands";
 import { AbstractChart } from "./abstract_chart";
 import { CHART_COMMON_OPTIONS } from "./chart_ui_common";
-import {
-  getChartTitle,
-  getHierarchalChartData,
-  getTreeMapChartDatasets,
-  getTreeMapChartTooltip,
-} from "./runtime";
+import { getHierarchalChartData } from "./runtime/chart_data_extractor";
+import { getTreeMapChartDatasets } from "./runtime/chartjs_dataset";
 import { getChartLayout } from "./runtime/chartjs_layout";
+import { getChartTitle } from "./runtime/chartjs_title";
+import { getTreeMapChartTooltip } from "./runtime/chartjs_tooltip";
 
 export const TreeMapChart: ChartTypeBuilder<"treemap"> = {
   sequence: 100,

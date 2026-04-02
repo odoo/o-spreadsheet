@@ -1,3 +1,5 @@
+import { Zone } from "../../src";
+import { toCartesian } from "../../src/helpers/coordinates";
 import {
   createAdaptedZone,
   excludeTopLeft,
@@ -5,13 +7,10 @@ import {
   mergeContiguousZones,
   overlap,
   positions,
-  toCartesian,
   toUnboundedZone,
   toZone,
   zoneToXc,
-} from "../../src/helpers/index";
-
-import { Zone } from "../../src/types";
+} from "../../src/helpers/zones";
 import { target } from "../test_helpers/helpers";
 
 describe("overlap", () => {

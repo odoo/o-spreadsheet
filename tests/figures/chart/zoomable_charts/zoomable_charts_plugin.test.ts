@@ -1,7 +1,8 @@
 import { Scale } from "chart.js";
 import { Model } from "../../../../src";
-import { TREND_LINE_XAXIS_ID } from "../../../../src/helpers/figures/charts";
-import { LineChartRuntime, ScatterChartRuntime } from "../../../../src/types/chart";
+import { TREND_LINE_XAXIS_ID } from "../../../../src/helpers/figures/charts/chart_common";
+import { LineChartRuntime } from "../../../../src/types/chart/line_chart";
+import { ScatterChartRuntime } from "../../../../src/types/chart/scatter_chart";
 import { toChartDataSource } from "../../../test_helpers/chart_helpers";
 import { createChart, setCellContent } from "../../../test_helpers/commands_helpers";
 

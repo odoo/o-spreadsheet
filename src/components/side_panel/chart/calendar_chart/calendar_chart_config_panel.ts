@@ -1,15 +1,17 @@
+import { ChartRangeDataSource } from "../../../..";
 import { toJsDate } from "../../../../functions/helpers";
-import { isDateTime } from "../../../../helpers";
+import { isDateTime } from "../../../../helpers/dates";
 import { SpreadsheetChart } from "../../../../helpers/figures/chart";
 import { getChartData } from "../../../../helpers/figures/charts/chart_data_sources";
-import { getBarChartData } from "../../../../helpers/figures/charts/runtime";
+import { getBarChartData } from "../../../../helpers/figures/charts/runtime/chart_data_extractor";
 import { ALL_PERIODS } from "../../../../helpers/pivot/pivot_helpers";
-import { ChartRangeDataSource, DEFAULT_LOCALE, ValueAndLabel } from "../../../../types";
 import {
   CALENDAR_CHART_GRANULARITIES,
   CalendarChartDefinition,
   CalendarChartGranularity,
 } from "../../../../types/chart/calendar_chart";
+import { DEFAULT_LOCALE } from "../../../../types/locale";
+import { ValueAndLabel } from "../../../../types/misc";
 import { Select } from "../../../select/select";
 import { GenericChartConfigPanel } from "../building_blocks/generic_side_panel/config_panel";
 import { ChartSidePanelProps } from "../common";

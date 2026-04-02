@@ -1,17 +1,15 @@
 import { ChartConfiguration } from "chart.js";
 import { ChartTypeBuilder } from "../../../registries/chart_registry";
-import { CommandResult } from "../../../types";
 import { GeoChartRuntime } from "../../../types/chart/geo_chart";
+import { CommandResult } from "../../../types/commands";
 import { AbstractChart } from "./abstract_chart";
 import { CHART_COMMON_OPTIONS } from "./chart_ui_common";
-import {
-  getChartTitle,
-  getGeoChartData,
-  getGeoChartDatasets,
-  getGeoChartScales,
-  getGeoChartTooltip,
-} from "./runtime";
+import { getGeoChartData } from "./runtime/chart_data_extractor";
+import { getGeoChartDatasets } from "./runtime/chartjs_dataset";
 import { getChartLayout } from "./runtime/chartjs_layout";
+import { getGeoChartScales } from "./runtime/chartjs_scales";
+import { getChartTitle } from "./runtime/chartjs_title";
+import { getGeoChartTooltip } from "./runtime/chartjs_tooltip";
 
 export const GeoChart: ChartTypeBuilder<"geo"> = {
   sequence: 90,

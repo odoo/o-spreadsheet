@@ -1,4 +1,4 @@
-import { doesCellContainFunction } from "../../helpers";
+import { doesCellContainFunction } from "../../helpers/misc";
 import { Command } from "../../types/commands";
 import { UID } from "../../types/misc";
 import { CoreViewPlugin } from "../core_view_plugin";

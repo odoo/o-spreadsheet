@@ -1,5 +1,5 @@
-import { toXC } from "../../src/helpers";
-import { ErrorCell } from "../../src/types";
+import { ErrorCell } from "../../src";
+import { toXC } from "../../src/helpers/coordinates";
 import { setCellContent } from "../test_helpers/commands_helpers";
 import { getEvaluatedCell } from "../test_helpers/getters_helpers";
 import {

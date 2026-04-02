@@ -6,7 +6,10 @@ import {
   DEFAULT_SCORECARD_KEY_VALUE_FONT_SIZE,
   SCORECARD_CHART_TITLE_FONT_SIZE,
 } from "../../../constants";
-import { BaselineArrowDirection, ScorecardChartRuntime } from "../../../types/chart";
+import {
+  BaselineArrowDirection,
+  ScorecardChartRuntime,
+} from "../../../types/chart/scorecard_chart";
 import { Color, Pixel, PixelPosition } from "../../../types/misc";
 import { DOMDimension } from "../../../types/rendering";
 import { getDefaultContextFont } from "../../text_helper";

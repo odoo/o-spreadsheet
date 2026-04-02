@@ -1,11 +1,12 @@
 import { Component, useEffect, useRef } from "@odoo/owl";
-import { deepEquals } from "../../../../helpers";
 import { drawGaugeChart } from "../../../../helpers/figures/charts/gauge_chart_rendering";
+import { deepEquals } from "../../../../helpers/misc";
 import { EASING_FN } from "../../../../registries/cell_animation_registry";
-import { Store, useStore } from "../../../../store_engine";
-import { UID } from "../../../../types";
-import { GaugeChartRuntime } from "../../../../types/chart";
+import { useStore } from "../../../../store_engine/store_hooks";
+import { GaugeChartRuntime } from "../../../../types/chart/gauge_chart";
+import { UID } from "../../../../types/misc";
 import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
+import { Store } from "../../../../types/store_engine";
 import { ChartAnimationStore } from "../chartJs/chartjs_animation_store";
 
 const ANIMATION_DURATION = 1000;

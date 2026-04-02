@@ -1,34 +1,31 @@
 import { ComponentConstructor, useState } from "@odoo/owl";
 import { DEFAULT_COLOR_SCALE_MIDPOINT_COLOR } from "../../../../constants";
-import { colorNumberToHex, colorToNumber, isColorValid, rangeReference } from "../../../../helpers";
+import { colorNumberToHex, colorToNumber, isColorValid } from "../../../../helpers/color";
 import { canonicalizeCFRule } from "../../../../helpers/locale";
+import { rangeReference } from "../../../../helpers/references";
 import {
   criterionComponentRegistry,
   getCriterionValueAndLabels,
 } from "../../../../registries/criterion_component_registry";
-import { Get } from "../../../../store_engine";
-import { SpreadsheetStore } from "../../../../stores";
+import { SpreadsheetStore } from "../../../../stores/spreadsheet_store";
+import { CancelledReason, CommandResult } from "../../../../types/commands";
 import {
   availableConditionalFormatOperators,
-  CancelledReason,
   CellIsRule,
-  Color,
   ColorScaleRule,
-  CommandResult,
   ConditionalFormat,
   ConditionalFormatRule,
   ConditionalFormattingOperatorValues,
   DataBarRule,
-  GenericCriterion,
-  GenericDateCriterion,
   IconSetRule,
   IconThreshold,
   ThresholdType,
-  UID,
-  ValueAndLabel,
-} from "../../../../types";
-import { hexaToInt } from "../../../../xlsx/conversion";
-import { cssPropertiesToCss } from "../../../helpers";
+} from "../../../../types/conditional_formatting";
+import { GenericCriterion, GenericDateCriterion } from "../../../../types/generic_criterion";
+import { Color, UID, ValueAndLabel } from "../../../../types/misc";
+import { Get } from "../../../../types/store_engine";
+import { hexaToInt } from "../../../../xlsx/conversion/color_conversion";
+import { cssPropertiesToCss } from "../../../helpers/css";
 import { ICON_SETS, ICONS } from "../../../icons/icons";
 import { CfTerms } from "../../../translations_terms";
 

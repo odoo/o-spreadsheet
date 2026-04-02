@@ -1,4 +1,4 @@
-import { deepCopy } from "../../src/helpers";
+import { deepCopy } from "../../src/helpers/misc";
 import { Model } from "../../src/model";
 import { MockTransportService } from "../__mocks__/transport_service";
 interface CollaborativeEnv {

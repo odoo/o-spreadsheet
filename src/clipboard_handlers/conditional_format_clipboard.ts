@@ -1,15 +1,9 @@
-import { UuidGenerator, deepEquals, positionToZone } from "../helpers";
-import {
-  CellPosition,
-  ClipboardCellData,
-  ClipboardOptions,
-  ClipboardPasteTarget,
-  ConditionalFormat,
-  HeaderIndex,
-  Maybe,
-  UID,
-  Zone,
-} from "../types";
+import { deepEquals } from "../helpers/misc";
+import { UuidGenerator } from "../helpers/uuid";
+import { positionToZone } from "../helpers/zones";
+import { ClipboardCellData, ClipboardOptions, ClipboardPasteTarget } from "../types/clipboard";
+import { ConditionalFormat } from "../types/conditional_formatting";
+import { CellPosition, HeaderIndex, Maybe, UID, Zone } from "../types/misc";
 import { AbstractCellClipboardHandler } from "./abstract_cell_clipboard_handler";
 
 interface ClipboardConditionalFormat {

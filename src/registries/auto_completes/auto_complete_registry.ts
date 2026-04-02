@@ -1,6 +1,7 @@
 import { HtmlContent } from "../../components/composer/composer/composer";
 import { EnrichedToken } from "../../formulas/composer_tokenizer";
-import { CellPosition, Getters } from "../../types";
+import { Getters } from "../../types/getters";
+import { CellPosition } from "../../types/misc";
 import { Registry } from "../registry";
 
 export interface AutoCompleteProposal {

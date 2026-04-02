@@ -1,6 +1,6 @@
-import { deepCopy } from "../../src/helpers";
+import { Border, BorderDescr, Style } from "../../src";
+import { deepCopy } from "../../src/helpers/misc";
 import { getComputedTableStyle } from "../../src/helpers/table_helpers";
-import { Border, BorderDescr, Style } from "../../src/types";
 import { ComputedTableStyle, TableConfig, TableMetaData, TableStyle } from "../../src/types/table";
 
 const TEST_TABLE_STYLE: TableStyle = {

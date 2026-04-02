@@ -1,9 +1,12 @@
-import { ColorGenerator, isEqual, positionToZone, splitReference } from "../../helpers/index";
-import { Get } from "../../store_engine";
-import { SpreadsheetStore } from "../../stores";
+import { ColorGenerator } from "../../helpers/color";
+import { splitReference } from "../../helpers/references";
+import { isEqual, positionToZone } from "../../helpers/zones";
 import { HighlightStore } from "../../stores/highlight_store";
-import { SelectionEvent } from "../../types/event_stream";
-import { Color, Command, Highlight, UID } from "../../types/index";
+import { SpreadsheetStore } from "../../stores/spreadsheet_store";
+import { Command } from "../../types/commands";
+import { SelectionEvent } from "../../types/event_stream/selection_events";
+import { Color, Highlight, UID } from "../../types/misc";
+import { Get } from "../../types/store_engine";
 import { FocusStore } from "../focus_store";
 
 export interface RangeInputValue {

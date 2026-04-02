@@ -1,7 +1,7 @@
 import { Component, onWillUpdateProps, useState } from "@odoo/owl";
 import { getPivotHighlights } from "../../../../helpers/pivot/pivot_highlight";
 import { pivotSidePanelRegistry } from "../../../../helpers/pivot/pivot_side_panel_registry";
-import { UID } from "../../../../types";
+import { UID } from "../../../../types/misc";
 import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
 import { useHighlights } from "../../../helpers/highlight_hook";
 import { Section } from "../../components/section/section";

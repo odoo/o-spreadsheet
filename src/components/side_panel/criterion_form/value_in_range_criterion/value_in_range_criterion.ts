@@ -1,6 +1,7 @@
 import { onWillStart, onWillUpdateProps } from "@odoo/owl";
 import { _t } from "../../../../translation";
-import { Color, IsValueInRangeCriterion, ValueAndLabel } from "../../../../types";
+import { IsValueInRangeCriterion } from "../../../../types/data_validation";
+import { Color, ValueAndLabel } from "../../../../types/misc";
 import { Select } from "../../../select/select";
 import { SelectionInput } from "../../../selection_input/selection_input";
 import { RoundColorPicker } from "../../components/round_color_picker/round_color_picker";

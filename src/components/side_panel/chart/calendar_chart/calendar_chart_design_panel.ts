@@ -1,8 +1,8 @@
 import { Component } from "@odoo/owl";
 import { _t } from "../../../../translation";
-import { LegendPosition } from "../../../../types/chart";
 import { CalendarChartDefinition } from "../../../../types/chart/calendar_chart";
-import { Color, ValueAndLabel } from "../../../../types/index";
+import { LegendPosition } from "../../../../types/chart/common_chart";
+import { Color, ValueAndLabel } from "../../../../types/misc";
 import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
 import { Select } from "../../../select/select";
 import { SidePanelCollapsible } from "../../components/collapsible/side_panel_collapsible";

@@ -1,6 +1,7 @@
 import { Component, useEffect, useRef } from "@odoo/owl";
 import { Action, isMenuItemEnabled, isRootMenu, MenuItemOrSeparator } from "../../actions/action";
-import { Pixel, Rect } from "../../types";
+import { Pixel } from "../../types/misc";
+import { Rect } from "../../types/rendering";
 import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 import { cssPropertiesToCss } from "../helpers/css";
 

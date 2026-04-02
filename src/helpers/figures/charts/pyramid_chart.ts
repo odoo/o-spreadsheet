@@ -1,24 +1,22 @@
 import { ChartConfiguration } from "chart.js";
 import { BACKGROUND_CHART_COLOR } from "../../../constants";
 import { ChartTypeBuilder } from "../../../registries/chart_registry";
-import { CommandResult } from "../../../types";
 import { PyramidChartRuntime } from "../../../types/chart/pyramid_chart";
+import { CommandResult } from "../../../types/commands";
 import { toXlsxHexColor } from "../../../xlsx/helpers/colors";
 import { isNumberResult } from "../../cells/cell_evaluation";
 import { AbstractChart } from "./abstract_chart";
 import { chartFontColor, getDefinedAxis } from "./chart_common";
 import { getChartData } from "./chart_data_sources";
 import { CHART_COMMON_OPTIONS } from "./chart_ui_common";
-import {
-  getBarChartDatasets,
-  getBarChartLegend,
-  getChartTitle,
-  getPyramidChartData,
-  getPyramidChartScales,
-  getPyramidChartShowValues,
-  getPyramidChartTooltip,
-} from "./runtime";
+import { getPyramidChartData } from "./runtime/chart_data_extractor";
+import { getBarChartDatasets } from "./runtime/chartjs_dataset";
 import { getChartLayout } from "./runtime/chartjs_layout";
+import { getBarChartLegend } from "./runtime/chartjs_legend";
+import { getPyramidChartScales } from "./runtime/chartjs_scales";
+import { getPyramidChartShowValues } from "./runtime/chartjs_show_values";
+import { getChartTitle } from "./runtime/chartjs_title";
+import { getPyramidChartTooltip } from "./runtime/chartjs_tooltip";
 
 export const PyramidChart: ChartTypeBuilder<"pyramid"> = {
   sequence: 80,

@@ -1,17 +1,22 @@
 import { Component, useRef, useState } from "@odoo/owl";
 import { Action, ActionSpec, createActions } from "../../actions/action";
 import { HIGHLIGHT_COLOR } from "../../constants";
-import { fuzzyLookup, rangeReference, zoneToXc } from "../../helpers";
+import { rangeReference } from "../../helpers/references";
+import { fuzzyLookup } from "../../helpers/search";
 import {
   interactiveCreateNamedRange,
   interactiveUpdateNamedRange,
 } from "../../helpers/ui/named_range_interactive";
-import { Store, useStore } from "../../store_engine";
+import { zoneToXc } from "../../helpers/zones";
+import { useStore } from "../../store_engine/store_hooks";
 import { DOMFocusableElementStore } from "../../stores/DOM_focus_store";
 import { HighlightStore } from "../../stores/highlight_store";
 import { _t } from "../../translation";
-import { CommandResult, Highlight, Range } from "../../types";
+import { CommandResult } from "../../types/commands";
+import { Highlight } from "../../types/misc";
+import { Range } from "../../types/range";
 import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
+import { Store } from "../../types/store_engine";
 import { getRefBoundingRect } from "../helpers/dom_helpers";
 import { ToolBarDropdownStore, useToolBarDropdownStore } from "../helpers/top_bar_tool_hook";
 import { MenuPopover, MenuState } from "../menu_popover/menu_popover";

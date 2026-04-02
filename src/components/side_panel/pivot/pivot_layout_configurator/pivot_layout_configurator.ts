@@ -1,14 +1,14 @@
 import { Component, useRef } from "@odoo/owl";
-import { isDefined } from "../../../../helpers";
+import { isDefined } from "../../../../helpers/misc";
 import {
   AGGREGATORS,
   changeCalculatedMeasuresOnMeasureChange,
   isDateOrDatetimeField,
 } from "../../../../helpers/pivot/pivot_helpers";
 import { PivotRuntimeDefinition } from "../../../../helpers/pivot/pivot_runtime_definition";
-import { Store, useStore } from "../../../../store_engine";
+import { useStore } from "../../../../store_engine/store_hooks";
 import { _t } from "../../../../translation";
-import { SortDirection, UID } from "../../../../types";
+import { SortDirection, UID } from "../../../../types/misc";
 import {
   Aggregator,
   Granularity,
@@ -20,6 +20,7 @@ import {
   PivotMeasure,
 } from "../../../../types/pivot";
 import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
+import { Store } from "../../../../types/store_engine";
 import { ComposerFocusStore } from "../../../composer/composer_focus_store";
 import { useDragAndDropListItems } from "../../../helpers/drag_and_drop_dom_items_hook";
 import { PivotCustomGroupsCollapsible } from "../pivot_custom_groups_collapsible/pivot_custom_groups_collapsible";

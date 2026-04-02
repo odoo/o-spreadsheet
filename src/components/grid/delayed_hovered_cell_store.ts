@@ -1,5 +1,6 @@
-import { SpreadsheetStore } from "../../stores";
-import { Command, Position } from "../../types";
+import { SpreadsheetStore } from "../../stores/spreadsheet_store";
+import { Command } from "../../types/commands";
+import { Position } from "../../types/misc";
 
 export class DelayedHoveredCellStore extends SpreadsheetStore {
   mutators = ["clear", "hover"] as const;

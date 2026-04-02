@@ -1,4 +1,4 @@
-import { FigureSize } from "../../src/types";
+import { FigureSize } from "../../src";
 import { FileStore, ImageProviderInterface } from "../../src/types/files";
 import { Image } from "../../src/types/image";
 

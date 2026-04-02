@@ -2,7 +2,7 @@ import { Component } from "@odoo/owl";
 import { ALL_PERIODS } from "../../../../../helpers/pivot/pivot_helpers";
 import { PivotDimension } from "../../../../../types/pivot";
 
-import { ValueAndLabel } from "../../../../../types";
+import { ValueAndLabel } from "../../../../../types/misc";
 import { SpreadsheetChildEnv } from "../../../../../types/spreadsheet_env";
 import { Select } from "../../../../select/select";
 

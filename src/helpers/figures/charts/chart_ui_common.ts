@@ -1,11 +1,8 @@
 import { ChartConfiguration, ChartOptions } from "chart.js";
 import { DOMDimension } from "../../..";
-import {
-  ChartRuntime,
-  ChartType,
-  GaugeChartRuntime,
-  ScorecardChartRuntime,
-} from "../../../types/chart";
+import { ChartRuntime, ChartType } from "../../../types/chart/chart";
+import { GaugeChartRuntime } from "../../../types/chart/gauge_chart";
+import { ScorecardChartRuntime } from "../../../types/chart/scorecard_chart";
 import { Figure } from "../../../types/figure";
 import { deepCopy } from "../../misc";
 import {

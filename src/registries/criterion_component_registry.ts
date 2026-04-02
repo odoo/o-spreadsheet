@@ -5,7 +5,8 @@ import { SingleInputCriterionForm } from "../components/side_panel/criterion_for
 import { Top10CriterionForm } from "../components/side_panel/criterion_form/top_10_criterion/top_10_criterion";
 import { ListCriterionForm } from "../components/side_panel/criterion_form/value_in_list_criterion/value_in_list_criterion";
 import { ValueInRangeCriterionForm } from "../components/side_panel/criterion_form/value_in_range_criterion/value_in_range_criterion";
-import { GenericCriterionType, ValueAndLabel } from "../types";
+import { GenericCriterionType } from "../types/generic_criterion";
+import { ValueAndLabel } from "../types/misc";
 import { criterionEvaluatorRegistry } from "./criterion_registry";
 import { Registry } from "./registry";
 

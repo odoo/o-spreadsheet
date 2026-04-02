@@ -3,8 +3,12 @@ import {
   DEFAULT_SCORECARD_BASELINE_COLOR_UP,
   DEFAULT_SCORECARD_BASELINE_MODE,
 } from "../../../constants";
-import { CellValueType, ChartDefinition, EvaluatedCell, Getters, Zone } from "../../../types";
-import { BarChartDefinition, LineChartDefinition } from "../../../types/chart";
+import { CellValueType, EvaluatedCell } from "../../../types/cells";
+import { BarChartDefinition } from "../../../types/chart/bar_chart";
+import { ChartDefinition } from "../../../types/chart/chart";
+import { LineChartDefinition } from "../../../types/chart/line_chart";
+import { Getters } from "../../../types/getters";
+import { Zone } from "../../../types/misc";
 import { isDateTimeFormat } from "../../format/format";
 import { getZoneArea, getZonesByColumns, zoneToXc } from "../../zones";
 

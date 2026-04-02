@@ -1,18 +1,16 @@
 import { ChartConfiguration } from "chart.js";
 import { ChartTypeBuilder } from "../../../registries/chart_registry";
-import { CommandResult } from "../../../types";
-import { FunnelChartRuntime } from "../../../types/chart";
+import { FunnelChartRuntime } from "../../../types/chart/funnel_chart";
+import { CommandResult } from "../../../types/commands";
 import { AbstractChart } from "./abstract_chart";
 import { CHART_COMMON_OPTIONS } from "./chart_ui_common";
-import {
-  getChartShowValues,
-  getChartTitle,
-  getFunnelChartData,
-  getFunnelChartDatasets,
-  getFunnelChartScales,
-  getFunnelChartTooltip,
-} from "./runtime";
+import { getFunnelChartData } from "./runtime/chart_data_extractor";
+import { getFunnelChartDatasets } from "./runtime/chartjs_dataset";
 import { getChartLayout } from "./runtime/chartjs_layout";
+import { getFunnelChartScales } from "./runtime/chartjs_scales";
+import { getChartShowValues } from "./runtime/chartjs_show_values";
+import { getChartTitle } from "./runtime/chartjs_title";
+import { getFunnelChartTooltip } from "./runtime/chartjs_tooltip";
 
 export const FunnelChart: ChartTypeBuilder<"funnel"> = {
   sequence: 100,

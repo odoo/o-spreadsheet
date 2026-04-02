@@ -1,18 +1,16 @@
 import { Component, onWillUpdateProps } from "@odoo/owl";
 import { SELECTION_BORDER_COLOR } from "../../../constants";
-import {
-  deepEquals,
-  fontSizeInPixels,
-  getFullReference,
-  isFormula,
-  positionToZone,
-  toXC,
-} from "../../../helpers";
-import { Store, useStore } from "../../../store_engine";
-import { CellPosition, ComposerFocusType, DOMDimension, Rect } from "../../../types/index";
+import { toXC } from "../../../helpers/coordinates";
+import { deepEquals, isFormula } from "../../../helpers/misc";
+import { getFullReference } from "../../../helpers/references";
+import { fontSizeInPixels } from "../../../helpers/text_helper";
+import { positionToZone } from "../../../helpers/zones";
+import { useStore } from "../../../store_engine/store_hooks";
+import { CellPosition, ComposerFocusType } from "../../../types/misc";
+import { DOMDimension, Rect } from "../../../types/rendering";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
-import { getTextDecoration } from "../../helpers";
-import { cssPropertiesToCss } from "../../helpers/css";
+import { Store } from "../../../types/store_engine";
+import { cssPropertiesToCss, getTextDecoration } from "../../helpers/css";
 import { CellComposerStore } from "../composer/cell_composer_store";
 import { CellComposerProps, Composer } from "../composer/composer";
 import { ComposerFocusStore, ComposerInterface } from "../composer_focus_store";

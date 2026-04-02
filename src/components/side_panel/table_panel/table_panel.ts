@@ -1,6 +1,9 @@
 import { Component, useState } from "@odoo/owl";
-import { getZoneArea, positionToZone } from "../../../helpers";
-import { CommandResult, CoreTable, DispatchResult, Range, TableConfig, Zone } from "../../../types";
+import { getZoneArea, positionToZone } from "../../../helpers/zones";
+import { CommandResult, DispatchResult } from "../../../types/commands";
+import { Zone } from "../../../types/misc";
+import { Range } from "../../../types/range";
+import { CoreTable, TableConfig } from "../../../types/table";
 
 import { getTableTopLeft } from "../../../helpers/table_helpers";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";

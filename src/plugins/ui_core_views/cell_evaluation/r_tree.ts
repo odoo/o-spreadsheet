@@ -1,6 +1,6 @@
 import RBush from "rbush";
 
-import { deepEquals } from "../../../helpers";
+import { deepEquals } from "../../../helpers/misc";
 import { UID, Zone } from "../../../types/misc";
 
 /**

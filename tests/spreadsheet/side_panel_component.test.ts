@@ -7,7 +7,7 @@ import {
   SidePanelStore,
 } from "../../src/components/side_panel/side_panel/side_panel_store";
 import { SidePanelContent, sidePanelRegistry } from "../../src/registries/side_panel_registry";
-import { Store } from "../../src/store_engine";
+import { Store } from "../../src/types/store_engine";
 import { createSheet } from "../test_helpers/commands_helpers";
 import { click, clickAndDrag, doubleClick, simulateClick } from "../test_helpers/dom_helper";
 import { addToRegistry, doAction, mountSpreadsheet, nextTick } from "../test_helpers/helpers";

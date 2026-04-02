@@ -21,7 +21,9 @@ import {
 } from "../components/side_panel/table_style_editor_panel/table_style_editor_panel";
 import { getTableTopLeft } from "../helpers/table_helpers";
 import { _t } from "../translation";
-import { ConditionalFormat, Getters, UID } from "../types";
+import { ConditionalFormat } from "../types/conditional_formatting";
+import { Getters } from "../types/getters";
+import { UID } from "../types/misc";
 import { SpreadsheetChildEnv } from "../types/spreadsheet_env";
 import { Registry } from "./registry";
 

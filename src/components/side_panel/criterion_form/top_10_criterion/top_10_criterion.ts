@@ -1,7 +1,7 @@
-import { deepCopy } from "../../../../helpers";
+import { deepCopy } from "../../../../helpers/misc";
 import { _t } from "../../../../translation";
-import { ValueAndLabel } from "../../../../types";
 import { Top10Criterion } from "../../../../types/data_validation";
+import { ValueAndLabel } from "../../../../types/misc";
 import { Select } from "../../../select/select";
 import { CriterionForm } from "../criterion_form";
 import { CriterionInput } from "../criterion_input/criterion_input";

@@ -2,7 +2,7 @@ import { Component } from "@odoo/owl";
 import { PivotDimension } from "../../../../../types/pivot";
 
 import { _t } from "../../../../../translation";
-import { ValueAndLabel } from "../../../../../types";
+import { ValueAndLabel } from "../../../../../types/misc";
 import { SpreadsheetChildEnv } from "../../../../../types/spreadsheet_env";
 import { Select } from "../../../../select/select";
 

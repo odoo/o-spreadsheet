@@ -1,4 +1,5 @@
-import { buildSheetLink, markdownLink, UuidGenerator } from "../helpers";
+import { buildSheetLink, markdownLink } from "../helpers/misc";
+import { UuidGenerator } from "../helpers/uuid";
 import { _t } from "../translation";
 import { ActionSpec } from "./action";
 

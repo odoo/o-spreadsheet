@@ -1,4 +1,5 @@
-import { modifyProfiles, recomputeZones, toUnboundedZone, zoneToXc } from "../../src/helpers";
+import { modifyProfiles, recomputeZones } from "../../src/helpers/recompute_zones";
+import { toUnboundedZone, zoneToXc } from "../../src/helpers/zones";
 
 const recomputeZonesFromXC = function (xcs: string[], xcsToRemove: string[]): string[] {
   return recomputeZones(xcs.map(toUnboundedZone), xcsToRemove.map(toUnboundedZone)).map(zoneToXc);

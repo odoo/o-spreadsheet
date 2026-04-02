@@ -1,5 +1,5 @@
-import { isNumber, parseNumber } from "../../src/helpers/index";
-import { DEFAULT_LOCALE } from "../../src/types";
+import { DEFAULT_LOCALE } from "../../src";
+import { isNumber, parseNumber } from "../../src/helpers/numbers";
 import { FR_LOCALE } from "../test_helpers/constants";
 
 const locale = DEFAULT_LOCALE;

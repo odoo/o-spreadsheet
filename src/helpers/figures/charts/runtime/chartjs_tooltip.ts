@@ -1,21 +1,21 @@
 import { BubbleDataPoint, Chart, Point, TooltipItem, TooltipModel, TooltipOptions } from "chart.js";
 import { toNumber } from "../../../../functions/helpers";
-import { CellValue, DeepPartial } from "../../../../types";
+import { CellValue } from "../../../../types/cells";
+import { BarChartDefinition } from "../../../../types/chart/bar_chart";
+import { CalendarChartDefinition } from "../../../../types/chart/calendar_chart";
+import { ChartRuntimeGenerationArgs, GenericDefinition } from "../../../../types/chart/chart";
+import { GeoChartDefinition } from "../../../../types/chart/geo_chart";
+import { LineChartDefinition } from "../../../../types/chart/line_chart";
+import { PieChartDefinition } from "../../../../types/chart/pie_chart";
+import { PyramidChartDefinition } from "../../../../types/chart/pyramid_chart";
+import { RadarChartDefinition } from "../../../../types/chart/radar_chart";
 import {
-  BarChartDefinition,
-  ChartRuntimeGenerationArgs,
-  GenericDefinition,
-  LineChartDefinition,
-  PieChartDefinition,
-  PyramidChartDefinition,
   SunburstChartDefinition,
   SunburstChartRawData,
-  WaterfallChartDefinition,
-} from "../../../../types/chart";
-import { CalendarChartDefinition } from "../../../../types/chart/calendar_chart";
-import { GeoChartDefinition } from "../../../../types/chart/geo_chart";
-import { RadarChartDefinition } from "../../../../types/chart/radar_chart";
+} from "../../../../types/chart/sunburst_chart";
 import { TreeMapChartDefinition } from "../../../../types/chart/tree_map_chart";
+import { WaterfallChartDefinition } from "../../../../types/chart/waterfall_chart";
+import { DeepPartial } from "../../../../types/misc";
 import { setColorAlpha } from "../../../color";
 import { formatOrHumanizeValue, humanizeNumber } from "../../../format/format";
 import { isNumber } from "../../../numbers";

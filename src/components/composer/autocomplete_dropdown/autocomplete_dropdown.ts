@@ -1,5 +1,5 @@
 import { Component, useEffect, useRef } from "@odoo/owl";
-import { AutoCompleteProposal } from "../../../registries/auto_completes";
+import { AutoCompleteProposal } from "../../../registries/auto_completes/auto_complete_registry";
 import { cssPropertiesToCss } from "../../helpers/css";
 import { HtmlContent } from "../composer/composer";
 

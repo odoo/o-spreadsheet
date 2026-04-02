@@ -1,8 +1,9 @@
 import { Component, useEffect, useExternalListener } from "@odoo/owl";
-import { deepCopy } from "../../../../helpers";
-import { useLocalStore } from "../../../../store_engine";
+import { deepCopy } from "../../../../helpers/misc";
+import { useLocalStore } from "../../../../store_engine/store_hooks";
 import { _t } from "../../../../translation";
-import { ConditionalFormat, UID } from "../../../../types";
+import { ConditionalFormat } from "../../../../types/conditional_formatting";
+import { UID } from "../../../../types/misc";
 import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
 import { Store } from "../../../../types/store_engine";
 import { SelectionInput } from "../../../selection_input/selection_input";

@@ -1,16 +1,15 @@
 import { Component } from "@odoo/owl";
 import { DEFAULT_WINDOW_SIZE } from "../../../../../constants";
-import { getColorsPalette, getNthColor, range, setColorAlpha, toHex } from "../../../../../helpers";
-import { CHART_AXIS_CHOICES } from "../../../../../helpers/figures/charts";
+import { getColorsPalette, getNthColor, setColorAlpha, toHex } from "../../../../../helpers/color";
+import { CHART_AXIS_CHOICES } from "../../../../../helpers/figures/charts/chart_common";
+import { range } from "../../../../../helpers/misc";
 import { _t } from "../../../../../translation";
 import {
   ChartDefinitionWithDataSource,
-  Color,
   CustomizableSeriesChartRuntime,
   TrendConfiguration,
-  UID,
-  ValueAndLabel,
-} from "../../../../../types";
+} from "../../../../../types/chart/chart";
+import { Color, UID, ValueAndLabel } from "../../../../../types/misc";
 import { SpreadsheetChildEnv } from "../../../../../types/spreadsheet_env";
 import { NumberInput } from "../../../../number_input/number_input";
 import { Select } from "../../../../select/select";

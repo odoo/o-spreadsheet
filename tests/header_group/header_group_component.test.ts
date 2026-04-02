@@ -1,4 +1,4 @@
-import { Model } from "../../src";
+import { Dimension, Model, UID } from "../../src";
 import { HeaderGroupContainer } from "../../src/components/header_group/header_group_container";
 import {
   DEFAULT_CELL_HEIGHT,
@@ -7,7 +7,6 @@ import {
   HEADER_HEIGHT,
   HEADER_WIDTH,
 } from "../../src/constants";
-import { Dimension, UID } from "../../src/types";
 import {
   foldHeaderGroup,
   freezeColumns,

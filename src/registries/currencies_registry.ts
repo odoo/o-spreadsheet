@@ -1,4 +1,4 @@
-import { Currency } from "../types";
+import { Currency } from "../types/currency";
 import { Registry } from "./registry";
 
 /**

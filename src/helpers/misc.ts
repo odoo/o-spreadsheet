@@ -3,7 +3,7 @@
 //------------------------------------------------------------------------------
 import { FORBIDDEN_SHEETNAME_CHARS_IN_EXCEL_REGEX, NEWLINE } from "../constants";
 import { Cell } from "../types/cells";
-import { ChartStyle } from "../types/chart";
+import { ChartStyle } from "../types/chart/chart";
 import { SearchOptions } from "../types/find_and_replace";
 import { Getters } from "../types/getters";
 import {

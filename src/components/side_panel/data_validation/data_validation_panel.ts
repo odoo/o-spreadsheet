@@ -1,7 +1,7 @@
 import { Component } from "@odoo/owl";
-import { UuidGenerator } from "../../../helpers";
 import { localizeDataValidationRule } from "../../../helpers/locale";
-import { DataValidationRule } from "../../../types";
+import { UuidGenerator } from "../../../helpers/uuid";
+import { DataValidationRule } from "../../../types/data_validation";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
 import { DataValidationPreview } from "./dv_preview/dv_preview";
 

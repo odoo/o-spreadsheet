@@ -1,5 +1,8 @@
-import { AutoCompleteProposal, AutoCompleteProvider } from "../../../registries/auto_completes";
-import { SpreadsheetStore } from "../../../stores";
+import {
+  AutoCompleteProposal,
+  AutoCompleteProvider,
+} from "../../../registries/auto_completes/auto_complete_registry";
+import { SpreadsheetStore } from "../../../stores/spreadsheet_store";
 
 export class AutoCompleteStore extends SpreadsheetStore {
   mutators = ["useProvider", "moveSelection", "hide", "selectIndex"] as const;

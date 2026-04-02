@@ -1,7 +1,8 @@
 import { Component } from "@odoo/owl";
 import { PivotCoreMeasure, UID, ValueAndLabel } from "../../../..";
-import { Store, useLocalStore } from "../../../../store_engine";
+import { useLocalStore } from "../../../../store_engine/store_hooks";
 import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
+import { Store } from "../../../../types/store_engine";
 import { Select } from "../../../select/select";
 import { measureDisplayTerms } from "../../../translations_terms";
 import { Checkbox } from "../../components/checkbox/checkbox";

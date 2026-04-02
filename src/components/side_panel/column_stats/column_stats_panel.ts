@@ -1,15 +1,14 @@
 import { Component, onWillUnmount, useEffect, useRef, useState } from "@odoo/owl";
 import { Chart, ChartConfiguration } from "chart.js/auto";
-import {
-  clipTextWithEllipsis,
-  FIRST_CHART_COLOR,
-  numberToLetters,
-  positionToZone,
-} from "../../../helpers";
-import { Store, useStore } from "../../../store_engine";
+import { FIRST_CHART_COLOR } from "../../../helpers/color";
+import { numberToLetters } from "../../../helpers/coordinates";
+import { clipTextWithEllipsis } from "../../../helpers/text_helper";
+import { positionToZone } from "../../../helpers/zones";
+import { useStore } from "../../../store_engine/store_hooks";
 import { _t } from "../../../translation";
-import { Highlight } from "../../../types";
+import { Highlight } from "../../../types/misc";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
+import { Store } from "../../../types/store_engine";
 import { useHighlights } from "../../helpers/highlight_hook";
 import { NumberInput } from "../../number_input/number_input";
 import { BadgeSelection } from "../components/badge_selection/badge_selection";

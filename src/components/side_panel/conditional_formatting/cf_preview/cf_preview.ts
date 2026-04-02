@@ -1,10 +1,11 @@
 import { Component, useRef } from "@odoo/owl";
 import { HIGHLIGHT_COLOR, TEXT_BODY } from "../../../../constants";
-import { colorNumberToHex } from "../../../../helpers";
+import { colorNumberToHex } from "../../../../helpers/color";
 import { criterionEvaluatorRegistry } from "../../../../registries/criterion_registry";
-import { ConditionalFormat, Highlight } from "../../../../types";
+import { ConditionalFormat } from "../../../../types/conditional_formatting";
+import { Highlight } from "../../../../types/misc";
 import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
-import { cellStyleToCss, cssPropertiesToCss } from "../../../helpers";
+import { cellStyleToCss, cssPropertiesToCss } from "../../../helpers/css";
 import { useHighlightsOnHover } from "../../../helpers/highlight_hook";
 import { ICONS } from "../../../icons/icons";
 import { CfTerms } from "../../../translations_terms";

@@ -1,8 +1,8 @@
-import { deepCopy } from "../../../../helpers";
+import { deepCopy } from "../../../../helpers/misc";
 import { getFieldDisplayName } from "../../../../helpers/pivot/pivot_helpers";
-import { Get } from "../../../../store_engine";
-import { SpreadsheetStore } from "../../../../stores";
+import { SpreadsheetStore } from "../../../../stores/spreadsheet_store";
 import { _t } from "../../../../translation";
+import { UID } from "../../../../types/misc";
 import {
   NEXT_VALUE,
   PivotCoreDefinition,
@@ -10,8 +10,8 @@ import {
   PivotMeasureDisplay,
   PivotMeasureDisplayType,
   PREVIOUS_VALUE,
-  UID,
-} from "../../../../types";
+} from "../../../../types/pivot";
+import { Get } from "../../../../types/store_engine";
 
 export class PivotMeasureDisplayPanelStore extends SpreadsheetStore {
   mutators = [

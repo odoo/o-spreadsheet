@@ -6,8 +6,8 @@ import {
   UID,
   UpdateCellCommand,
 } from "../../../src";
-import { deepCopy } from "../../../src/helpers";
-import { GaugeChartDefinition } from "../../../src/types/chart";
+import { deepCopy } from "../../../src/helpers/misc";
+import { GaugeChartDefinition } from "../../../src/types/chart/gauge_chart";
 import { TEST_COMMANDS } from "../../test_helpers/constants";
 
 export function getFormulaStringCommands(

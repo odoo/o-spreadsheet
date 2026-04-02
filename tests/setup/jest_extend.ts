@@ -1,10 +1,9 @@
 import { MatchImageSnapshotOptions, configureToMatchImageSnapshot } from "jest-image-snapshot";
-import { Model } from "../../src";
+import { CancelledReason, DispatchResult, Model, Zone } from "../../src";
 import { isSameColor, toHex } from "../../src/helpers/color";
 import { toXC } from "../../src/helpers/coordinates";
 import { deepEquals } from "../../src/helpers/misc";
 import { positions } from "../../src/helpers/zones";
-import { CancelledReason, DispatchResult, Zone } from "../../src/types";
 
 type DOMTarget = string | Element | Document | Window | null;
 type ExpectResult = { pass: boolean; message: () => string };

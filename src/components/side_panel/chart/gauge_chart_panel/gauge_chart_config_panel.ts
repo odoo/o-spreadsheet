@@ -1,6 +1,6 @@
 import { Component, useState } from "@odoo/owl";
 import { GaugeChartDefinition } from "../../../../types/chart/gauge_chart";
-import { CommandResult, DispatchResult } from "../../../../types/index";
+import { CommandResult, DispatchResult } from "../../../../types/commands";
 import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
 import { ChartTerms } from "../../../translations_terms";
 import { ChartDataSeries } from "../building_blocks/data_series/data_series";

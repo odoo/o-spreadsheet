@@ -1,6 +1,6 @@
+import { DEFAULT_LOCALE } from "../../src";
 import { DEFAULT_REVISION_ID } from "../../src/constants";
 import { getCurrentVersion, load } from "../../src/migrations/data";
-import { DEFAULT_LOCALE } from "../../src/types";
 import { toChartDataSource } from "../test_helpers/chart_helpers";
 
 describe("load data", () => {

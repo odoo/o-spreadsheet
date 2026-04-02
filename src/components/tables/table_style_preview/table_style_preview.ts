@@ -1,5 +1,5 @@
 import { Component, onWillUpdateProps, useEffect, useRef, useState } from "@odoo/owl";
-import { deepEquals } from "../../../helpers";
+import { deepEquals } from "../../../helpers/misc";
 import { getComputedTableStyle } from "../../../helpers/table_helpers";
 import { createTableStyleContextMenuActions } from "../../../registries/menus/table_style_menu_registry";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";

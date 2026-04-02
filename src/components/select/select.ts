@@ -1,5 +1,5 @@
 import { Component, useEffect, useExternalListener, useRef, useState } from "@odoo/owl";
-import { ValueAndLabel } from "../../types";
+import { ValueAndLabel } from "../../types/misc";
 import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 import { getRefBoundingRect, isChildEvent } from "../helpers/dom_helpers";
 import { Popover, PopoverProps } from "../popover/popover";

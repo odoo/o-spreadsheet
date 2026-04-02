@@ -18,7 +18,7 @@ import {
   RELATIONSHIP_NSR,
   XLSX_RELATION_TYPE,
 } from "./constants";
-import { IMAGE_MIMETYPE_TO_EXTENSION_MAPPING } from "./conversion";
+import { IMAGE_MIMETYPE_TO_EXTENSION_MAPPING } from "./conversion/conversion_maps";
 import { createChart } from "./functions/charts";
 import { addConditionalFormatting } from "./functions/conditional_formatting";
 import { addDataValidationRules } from "./functions/data_validation";

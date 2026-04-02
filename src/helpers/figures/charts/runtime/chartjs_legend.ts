@@ -5,20 +5,22 @@ import {
   CHART_WATERFALL_SUBTOTAL_COLOR,
 } from "../../../../constants";
 import { _t } from "../../../../translation";
-import { DeepPartial } from "../../../../types";
+import { BarChartDefinition } from "../../../../types/chart/bar_chart";
 import {
-  BarChartDefinition,
   ChartDefinitionWithDataSource,
   ChartRuntimeGenerationArgs,
   GenericDefinition,
-  LineChartDefinition,
-  PieChartDefinition,
+} from "../../../../types/chart/chart";
+import { ComboChartDefinition } from "../../../../types/chart/combo_chart";
+import { LineChartDefinition } from "../../../../types/chart/line_chart";
+import { PieChartDefinition } from "../../../../types/chart/pie_chart";
+import { RadarChartDefinition } from "../../../../types/chart/radar_chart";
+import {
   SunburstChartDefinition,
   SunburstChartJSDataset,
-  WaterfallChartDefinition,
-} from "../../../../types/chart";
-import { ComboChartDefinition } from "../../../../types/chart/combo_chart";
-import { RadarChartDefinition } from "../../../../types/chart/radar_chart";
+} from "../../../../types/chart/sunburst_chart";
+import { WaterfallChartDefinition } from "../../../../types/chart/waterfall_chart";
+import { DeepPartial } from "../../../../types/misc";
 import { ColorGenerator } from "../../../color";
 import { chartFontColor, getPieColors, isTrendLineAxis, truncateLabel } from "../chart_common";
 

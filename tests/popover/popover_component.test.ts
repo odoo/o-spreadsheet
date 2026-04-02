@@ -1,7 +1,6 @@
 import { App, Component, useSubEnv, xml } from "@odoo/owl";
-import { Model } from "../../src";
+import { Model, Pixel, Rect } from "../../src";
 import { Popover, PopoverProps } from "../../src/components/popover/popover";
-import { Pixel, Rect } from "../../src/types";
 import { getStylePropertyInPx, mountComponent } from "../test_helpers/helpers";
 import { extendMockGetBoundingClientRect } from "../test_helpers/mock_helpers";
 

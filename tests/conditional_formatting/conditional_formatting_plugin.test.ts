@@ -1,11 +1,6 @@
+import { CellPosition, CommandResult, ConditionalFormattingOperatorValues, UID } from "../../src";
 import { ICON_SETS } from "../../src/components/icons/icons";
 import { Model } from "../../src/model";
-import {
-  CellPosition,
-  CommandResult,
-  ConditionalFormattingOperatorValues,
-  UID,
-} from "../../src/types";
 import {
   ConditionalFormat,
   ConditionalFormatRule,

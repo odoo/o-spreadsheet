@@ -1,6 +1,6 @@
 import { DEFAULT_WINDOW_SIZE, FIGURE_BORDER_WIDTH } from "../../constants";
-import { getFullReference, splitReference } from "../../helpers";
 import { isDefined } from "../../helpers/misc";
+import { getFullReference, splitReference } from "../../helpers/references";
 import { toUnboundedZone, zoneToXc } from "../../helpers/zones";
 import { chartDataSourceRegistry } from "../../registries/chart_data_source_registry";
 import { chartTypeRegistry } from "../../registries/chart_registry";
@@ -11,7 +11,7 @@ import {
   ExcelChartDefinition,
   ExcelChartTrendConfiguration,
   TrendConfiguration,
-} from "../../types/chart";
+} from "../../types/chart/chart";
 import { AnchorOffset } from "../../types/figure";
 import { ExcelImage } from "../../types/image";
 import { HeaderIndex, PixelPosition } from "../../types/misc";

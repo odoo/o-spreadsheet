@@ -1,5 +1,5 @@
 import { Component } from "@odoo/owl";
-import { Zone } from "../../../types";
+import { Zone } from "../../../types/misc";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
 import { cssPropertiesToCss } from "../../helpers/css";
 

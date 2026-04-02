@@ -1,4 +1,3 @@
-import { transform } from "../../../src/collaborative/ot/ot";
 import {
   AddColumnsRowsCommand,
   DeleteChartCommand,
@@ -9,7 +8,8 @@ import {
   UpdateChartCommand,
   UpdateFigureCommand,
   UpdateNamedRangeCommand,
-} from "../../../src/types";
+} from "../../../src";
+import { transform } from "../../../src/collaborative/ot/ot";
 import { LineChartDefinition } from "../../../src/types/chart/line_chart";
 import { toRangeData } from "../../test_helpers/helpers";
 

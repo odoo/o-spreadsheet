@@ -1,7 +1,7 @@
-import { Model } from "../../../src";
+import { Color, Model, UID } from "../../../src";
 import { BACKGROUND_CHART_COLOR } from "../../../src/constants";
-import { Color, UID } from "../../../src/types";
-import { GaugeChartRuntime, ScorecardChartRuntime } from "../../../src/types/chart";
+import { GaugeChartRuntime } from "../../../src/types/chart/gauge_chart";
+import { ScorecardChartRuntime } from "../../../src/types/chart/scorecard_chart";
 import {
   activateSheet,
   addEqualCf,

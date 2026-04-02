@@ -1,5 +1,5 @@
 import { Component } from "@odoo/owl";
-import { ChartDefinitionWithDataSource } from "../../../../../types";
+import { ChartDefinitionWithDataSource } from "../../../../../types/chart/chart";
 import { SpreadsheetChildEnv } from "../../../../../types/spreadsheet_env";
 import { Checkbox } from "../../../components/checkbox/checkbox";
 import { ChartSidePanelProps, ChartSidePanelPropsObject } from "../../common";

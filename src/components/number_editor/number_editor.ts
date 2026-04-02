@@ -6,13 +6,14 @@ import {
   useRef,
   useState,
 } from "@odoo/owl";
-import { clip } from "../../helpers/index";
-import { Store, useStore } from "../../store_engine";
+import { clip } from "../../helpers/misc";
+import { useStore } from "../../store_engine/store_hooks";
 import { DOMFocusableElementStore } from "../../stores/DOM_focus_store";
-import { Ref } from "../../types";
+import { Ref } from "../../types/misc";
 import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
+import { Store } from "../../types/store_engine";
 import { isChildEvent } from "../helpers/dom_helpers";
-import { Popover, PopoverProps } from "../popover";
+import { Popover, PopoverProps } from "../popover/popover";
 
 interface State {
   isOpen: boolean;

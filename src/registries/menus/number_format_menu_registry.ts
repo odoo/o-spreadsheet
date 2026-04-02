@@ -1,8 +1,9 @@
 import { ActionSpec } from "../../actions/action";
 import * as ACTION_FORMAT from "../../actions/format_actions";
-import { isDateTimeFormat, memoize } from "../../helpers";
+import { isDateTimeFormat } from "../../helpers/format/format";
+import { memoize } from "../../helpers/misc";
 import { _t } from "../../translation";
-import { Format } from "../../types";
+import { Format } from "../../types/format";
 import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 import { Registry } from "../registry";
 

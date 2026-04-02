@@ -1,12 +1,14 @@
 import { Component, ComponentConstructor, onWillUpdateProps, useState } from "@odoo/owl";
-import { deepCopy, deepEquals } from "../../../helpers";
+import { deepCopy, deepEquals } from "../../../helpers/misc";
 import {
   criterionComponentRegistry,
   getCriterionValueAndLabels,
 } from "../../../registries/criterion_component_registry";
 import { _t } from "../../../translation";
-import { CriterionFilter, GenericCriterionType, Position, ValueAndLabel } from "../../../types";
+import { GenericCriterionType } from "../../../types/generic_criterion";
+import { Position, ValueAndLabel } from "../../../types/misc";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
+import { CriterionFilter } from "../../../types/table";
 import { Select } from "../../select/select";
 
 interface Props {

@@ -1,17 +1,21 @@
 import { Component, useState } from "@odoo/owl";
 import { CHART_AXIS_TITLE_FONT_SIZE } from "../../../../../constants";
 import { toNumber } from "../../../../../functions/helpers";
-import { deepCopy, formatValue } from "../../../../../helpers";
-import { getDefinedAxis } from "../../../../../helpers/figures/charts";
+import { getDefinedAxis } from "../../../../../helpers/figures/charts/chart_common";
+import { formatValue } from "../../../../../helpers/format/format";
+import { deepCopy } from "../../../../../helpers/misc";
 import { _t } from "../../../../../translation";
 import {
   AxisDesign,
+  AxisGridType,
+  AxisId,
+  AxisType,
   ChartWithAxisDefinition,
-  DispatchResult,
   TitleDesign,
-  UID,
-} from "../../../../../types";
-import { AxisGridType, AxisId, AxisType, LineChartRuntime } from "../../../../../types/chart";
+} from "../../../../../types/chart/chart";
+import { LineChartRuntime } from "../../../../../types/chart/line_chart";
+import { DispatchResult } from "../../../../../types/commands";
+import { UID } from "../../../../../types/misc";
 import { SpreadsheetChildEnv } from "../../../../../types/spreadsheet_env";
 import { DateInput } from "../../../../date_input/date_input";
 import { NumberInput } from "../../../../number_input/number_input";

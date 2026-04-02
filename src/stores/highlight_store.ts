@@ -1,7 +1,8 @@
-import { zoneToDimension } from "../helpers";
 import { drawHighlight } from "../helpers/rendering";
-import { Get } from "../store_engine";
-import { GridRenderingContext, Highlight, LayerName } from "../types";
+import { zoneToDimension } from "../helpers/zones";
+import { Highlight } from "../types/misc";
+import { GridRenderingContext, LayerName } from "../types/rendering";
+import { Get } from "../types/store_engine";
 import { SpreadsheetStore } from "./spreadsheet_store";
 
 export interface HighlightProvider {

@@ -1,9 +1,9 @@
 import { AbstractCellClipboardHandler } from "../../clipboard_handlers/abstract_cell_clipboard_handler";
 import { SELECTION_BORDER_COLOR } from "../../constants";
-import { getFullReference, splitReference } from "../../helpers";
 import { getClipboardDataPositions } from "../../helpers/clipboard/clipboard_helpers";
 import { clip, deepCopy, range } from "../../helpers/misc";
 import { createRange, isFullColRange, isFullRowRange } from "../../helpers/range";
+import { getFullReference, splitReference } from "../../helpers/references";
 import {
   isEqual,
   isInside,
@@ -26,7 +26,7 @@ import {
   RemoveColumnsRowsCommand,
   UpdateFigureCommand,
 } from "../../types/commands";
-import { SelectionEvent } from "../../types/event_stream";
+import { SelectionEvent } from "../../types/event_stream/selection_events";
 import {
   AnchorZone,
   CellPosition,

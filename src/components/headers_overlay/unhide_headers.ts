@@ -1,9 +1,9 @@
 import { Component } from "@odoo/owl";
 import { HEADER_HEIGHT, HEADER_WIDTH } from "../../constants";
-import { positionToZone } from "../../helpers";
-import { ConsecutiveIndexes, HeaderIndex } from "../../types";
+import { positionToZone } from "../../helpers/zones";
+import { ConsecutiveIndexes, HeaderIndex } from "../../types/misc";
 import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
-import { cssPropertiesToCss } from "../helpers";
+import { cssPropertiesToCss } from "../helpers/css";
 
 interface Props {
   headersGroups: ConsecutiveIndexes[];

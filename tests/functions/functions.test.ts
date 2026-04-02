@@ -1,10 +1,9 @@
-import { Model } from "../../src";
+import { Arg, CellErrorType, DEFAULT_LOCALE, EvaluationError, Model } from "../../src";
 import { arg } from "../../src/functions/arguments";
 import { functionRegistry } from "../../src/functions/function_registry";
 import { toScalar } from "../../src/functions/helper_matrices";
 import { isEvaluationError, toBoolean, toNumber } from "../../src/functions/helpers";
-import { toXC } from "../../src/helpers";
-import { Arg, CellErrorType, DEFAULT_LOCALE, EvaluationError } from "../../src/types";
+import { toXC } from "../../src/helpers/coordinates";
 import { setCellContent, setCellFormat } from "../test_helpers/commands_helpers";
 import { getCellError, getEvaluatedCell } from "../test_helpers/getters_helpers";
 import { addToRegistry, clearFunctions, evaluateCell } from "../test_helpers/helpers";

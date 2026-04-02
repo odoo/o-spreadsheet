@@ -1,8 +1,9 @@
 import { Component } from "@odoo/owl";
 import { ActionSpec } from "../../../../actions/action";
-import { UuidGenerator } from "../../../../helpers";
+import { UuidGenerator } from "../../../../helpers/uuid";
 import { _t } from "../../../../translation";
-import { CommandResult, UID } from "../../../../types";
+import { CommandResult } from "../../../../types/commands";
+import { UID } from "../../../../types/misc";
 import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
 import { TextInput } from "../../../text_input/text_input";
 import { CogWheelMenu } from "../../components/cog_wheel_menu/cog_wheel_menu";

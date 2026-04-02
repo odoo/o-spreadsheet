@@ -1,10 +1,10 @@
-import { Spreadsheet, TransportService } from "../../src";
+import { Align, ClipboardMIMEType, Spreadsheet, TransportService } from "../../src";
 import { CellComposerStore } from "../../src/components/composer/composer/cell_composer_store";
 import { ComposerFocusStore } from "../../src/components/composer/composer_focus_store";
 import { resetTimeoutDuration } from "../../src/components/helpers/touch_handlers_hook";
 import { getDataFilterIcon } from "../../src/components/icons/icons";
 import { PaintFormatStore } from "../../src/components/paint_format_button/paint_format_store";
-import { CellPopoverStore } from "../../src/components/popover";
+import { CellPopoverStore } from "../../src/components/popover/cell_popover_store";
 import {
   DEFAULT_BORDER_DESC,
   DEFAULT_CELL_HEIGHT,
@@ -18,17 +18,18 @@ import {
   MIN_CELL_TEXT_MARGIN,
   SCROLLBAR_WIDTH,
 } from "../../src/constants";
-import { buildSheetLink, toCartesian, toZone, zoneToXc } from "../../src/helpers";
+import { toCartesian } from "../../src/helpers/coordinates";
+import { buildSheetLink } from "../../src/helpers/misc";
 import { handleCopyPasteResult } from "../../src/helpers/ui/paste_interactive";
+import { toZone, zoneToXc } from "../../src/helpers/zones";
 import { createEmptyWorkbookData } from "../../src/migrations/data";
 import { Model } from "../../src/model";
 import { ClipboardPlugin } from "../../src/plugins/ui_stateful/clipboard";
-import { Store } from "../../src/store_engine";
 import { ClientFocusStore } from "../../src/stores/client_focus_store";
 import { HighlightStore } from "../../src/stores/highlight_store";
 import { NotificationStore } from "../../src/stores/notification_store";
-import { Align, ClipboardMIMEType } from "../../src/types";
 import { SpreadsheetChildEnv } from "../../src/types/spreadsheet_env";
+import { Store } from "../../src/types/store_engine";
 import { xmlEscape } from "../../src/xlsx/helpers/xml_helpers";
 import { FileStore } from "../__mocks__/mock_file_store";
 import { MockTransportService } from "../__mocks__/transport_service";

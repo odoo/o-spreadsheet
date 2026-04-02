@@ -1,7 +1,9 @@
+import { Border, Color, ConditionalFormat, Style } from "../../src";
 import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../../src/constants";
-import { isSheetNameEqual, toCartesian, toXC, toZone } from "../../src/helpers";
+import { toCartesian, toXC } from "../../src/helpers/coordinates";
+import { isSheetNameEqual } from "../../src/helpers/sheet";
+import { toZone } from "../../src/helpers/zones";
 import { SquishedContent } from "../../src/plugins/core/squisher";
-import { Border, Color, ConditionalFormat, Style } from "../../src/types";
 import { DataValidationRuleData, SheetData, WorkbookData } from "../../src/types/workbook_data";
 
 export function getWorkbookSheet(sheetName: string, data: WorkbookData): SheetData | undefined {

@@ -11,23 +11,20 @@ import {
   useSubEnv,
 } from "@odoo/owl";
 import { GROUP_LAYER_WIDTH, MAXIMAL_FREEZABLE_RATIO } from "../../constants";
-import { batched } from "../../helpers";
 import { unregisterChartJsExtensions } from "../../helpers/figures/charts/chart_js_extension";
 import { ImageProvider } from "../../helpers/figures/images/image_provider";
+import { batched } from "../../helpers/misc";
 import { Model } from "../../model";
-import { Store, useStore, useStoreProvider } from "../../store_engine";
-import { ModelStore } from "../../stores";
+import { useStore, useStoreProvider } from "../../store_engine/store_hooks";
+import { ModelStore } from "../../stores/model_store";
 import { NotificationStore } from "../../stores/notification_store";
 import { ScreenWidthStore } from "../../stores/screen_width_store";
 import { _t } from "../../translation";
-import {
-  CommandResult,
-  CSSProperties,
-  HeaderGroup,
-  InformationNotification,
-  Pixel,
-} from "../../types";
+import { CommandResult } from "../../types/commands";
+import { InformationNotification } from "../../types/env";
+import { CSSProperties, HeaderGroup, Pixel } from "../../types/misc";
 import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
+import { Store } from "../../types/store_engine";
 import { NotificationStoreMethods } from "../../types/stores/notification_store_methods";
 import { BottomBar } from "../bottom_bar/bottom_bar";
 import { ComposerFocusStore } from "../composer/composer_focus_store";

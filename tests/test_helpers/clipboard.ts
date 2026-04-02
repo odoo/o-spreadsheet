@@ -1,4 +1,4 @@
-import { ClipboardMIMEType, OSClipboardContent } from "../../src/types";
+import { ClipboardMIMEType, OSClipboardContent } from "../../src";
 import {
   ClipboardInterface,
   ClipboardReadResult,

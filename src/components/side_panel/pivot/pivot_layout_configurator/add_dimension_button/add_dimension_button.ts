@@ -1,18 +1,19 @@
 import { Component, useExternalListener, useRef, useState } from "@odoo/owl";
 import { COMPOSER_ASSISTANT_COLOR } from "../../../../../constants";
-import { fuzzyLookup } from "../../../../../helpers";
+import { fuzzyLookup } from "../../../../../helpers/search";
 import {
   AutoCompleteProposal,
   AutoCompleteProvider,
-} from "../../../../../registries/auto_completes";
-import { Store, useLocalStore } from "../../../../../store_engine";
+} from "../../../../../registries/auto_completes/auto_complete_registry";
+import { useLocalStore } from "../../../../../store_engine/store_hooks";
 import { PivotField } from "../../../../../types/pivot";
 import { SpreadsheetChildEnv } from "../../../../../types/spreadsheet_env";
+import { Store } from "../../../../../types/store_engine";
 import { TextValueProvider } from "../../../../composer/autocomplete_dropdown/autocomplete_dropdown";
 import { AutoCompleteStore } from "../../../../composer/autocomplete_dropdown/autocomplete_dropdown_store";
 import { useAutofocus } from "../../../../helpers/autofocus_hook";
 import { getHtmlContentFromPattern } from "../../../../helpers/html_content_helpers";
-import { Popover } from "../../../../popover";
+import { Popover } from "../../../../popover/popover";
 
 interface Props {
   onFieldPicked: (field: string) => void;

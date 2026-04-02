@@ -1,10 +1,13 @@
 import { Component, onWillUpdateProps, useRef } from "@odoo/owl";
 import { ActionSpec } from "../../../actions/action";
 import { DEFAULT_CAROUSEL_TITLE_STYLE } from "../../../constants";
-import { deepEquals, UuidGenerator } from "../../../helpers";
 import { getCarouselItemPreview, getCarouselItemTitle } from "../../../helpers/carousel_helpers";
+import { deepEquals } from "../../../helpers/misc";
+import { UuidGenerator } from "../../../helpers/uuid";
 import { _t } from "../../../translation";
-import { CarouselItem, TitleDesign, UID } from "../../../types";
+import { TitleDesign } from "../../../types/chart/chart";
+import { CarouselItem } from "../../../types/figure";
+import { UID } from "../../../types/misc";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
 import { getBoundingRectAsPOJO } from "../../helpers/dom_helpers";
 import { useDragAndDropListItems } from "../../helpers/drag_and_drop_dom_items_hook";

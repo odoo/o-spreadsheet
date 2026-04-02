@@ -1,5 +1,5 @@
+import { UID, WorkbookData } from "../../src";
 import { DEFAULT_REVISION_ID } from "../../src/constants";
-import { UID, WorkbookData } from "../../src/types";
 import {
   CollaborationMessage,
   NewMessageCallback,

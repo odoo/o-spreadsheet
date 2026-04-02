@@ -1,5 +1,3 @@
-import { toZone } from "../../src/helpers";
-import { inverseCommand } from "../../src/helpers/inverse_command";
 import {
   AddColumnsRowsCommand,
   AddMergeCommand,
@@ -22,7 +20,9 @@ import {
   UpdateCellPositionCommand,
   UpdateChartCommand,
   UpdateFigureCommand,
-} from "../../src/types";
+} from "../../src";
+import { inverseCommand } from "../../src/helpers/inverse_command";
+import { toZone } from "../../src/helpers/zones";
 import { LineChartDefinition } from "../../src/types/chart/line_chart";
 import { target } from "../test_helpers/helpers";
 

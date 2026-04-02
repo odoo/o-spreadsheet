@@ -1,20 +1,10 @@
-import {
-  AlternatingColorGenerator,
-  isFullColRange,
-  isFullRowRange,
-  reorderZone,
-  setColorAlpha,
-} from "../helpers";
 import { PositionMap } from "../helpers/cells/position_map";
-import {
-  Cell,
-  CellPosition,
-  CellValueType,
-  Color,
-  Command,
-  FormulaCell,
-  isCoreCommand,
-} from "../types/index";
+import { AlternatingColorGenerator, setColorAlpha } from "../helpers/color";
+import { isFullColRange, isFullRowRange } from "../helpers/range";
+import { reorderZone } from "../helpers/zones";
+import { Cell, CellValueType, FormulaCell } from "../types/cells";
+import { Command, isCoreCommand } from "../types/commands";
+import { CellPosition, Color } from "../types/misc";
 import { SpreadsheetStore } from "./spreadsheet_store";
 
 /**

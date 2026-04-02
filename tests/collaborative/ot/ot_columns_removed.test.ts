@@ -1,5 +1,3 @@
-import { transform } from "../../../src/collaborative/ot/ot";
-import { toZone } from "../../../src/helpers";
 import {
   AddColumnsRowsCommand,
   CreateChartCommand,
@@ -9,8 +7,10 @@ import {
   ResizeColumnsRowsCommand,
   UpdateChartCommand,
   UpdateTableCommand,
-} from "../../../src/types";
-import { BarChartDefinition } from "../../../src/types/chart";
+} from "../../../src";
+import { transform } from "../../../src/collaborative/ot/ot";
+import { toZone } from "../../../src/helpers/zones";
+import { BarChartDefinition } from "../../../src/types/chart/bar_chart";
 import { toChartDataSource } from "../../test_helpers/chart_helpers";
 import {
   OT_TESTS_HEADER_GROUP_COMMANDS,

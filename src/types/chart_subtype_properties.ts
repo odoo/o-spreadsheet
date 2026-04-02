@@ -1,5 +1,5 @@
 import { _t } from "../translation";
-import { ChartDefinition, ChartType } from "./chart";
+import { ChartDefinition, ChartType } from "./chart/chart";
 
 export const chartCategories = {
   line: _t("Line"),

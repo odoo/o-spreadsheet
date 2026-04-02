@@ -1,6 +1,5 @@
-import { Model } from "../../src";
-import { formatValue } from "../../src/helpers";
-import { DEFAULT_LOCALE } from "../../src/types";
+import { DEFAULT_LOCALE, Model } from "../../src";
+import { formatValue } from "../../src/helpers/format/format";
 import { setCellContent, updateLocale } from "../test_helpers/commands_helpers";
 import { FR_LOCALE } from "../test_helpers/constants";
 import { getEvaluatedCell } from "../test_helpers/getters_helpers";
