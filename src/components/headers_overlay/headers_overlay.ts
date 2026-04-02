@@ -1,5 +1,6 @@
 import { Component, useRef, useState } from "@odoo/owl";
 import { MIN_COL_WIDTH, MIN_ROW_HEIGHT } from "../../constants";
+import { ConsecutiveSet } from "../../helpers/consecutiveSet";
 import { Store, useStore } from "../../store_engine";
 import {
   CommandResult,
@@ -103,7 +104,7 @@ abstract class AbstractResizer extends Component<ResizerProps, SpreadsheetChildE
 
   abstract _getType(): ContextMenuType;
 
-  abstract _getActiveElements(): Set<HeaderIndex>;
+  abstract _getActiveElements(): ConsecutiveSet;
 
   abstract _getPreviousVisibleElement(index: HeaderIndex): HeaderIndex;
 
@@ -463,7 +464,7 @@ export class ColResizer extends AbstractResizer {
     return "COL";
   }
 
-  _getActiveElements(): Set<HeaderIndex> {
+  _getActiveElements(): ConsecutiveSet {
     return this.env.model.getters.getActiveCols();
   }
 
@@ -641,7 +642,7 @@ export class RowResizer extends AbstractResizer {
     return "ROW";
   }
 
-  _getActiveElements(): Set<HeaderIndex> {
+  _getActiveElements(): ConsecutiveSet {
     return this.env.model.getters.getActiveRows();
   }
 

@@ -395,8 +395,8 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
       const activeCols = this.env.model.getters.getActiveCols();
       const activeRows = this.env.model.getters.getActiveRows();
       const isSingleSelection = this.env.model.getters.getSelectedZones().length === 1;
-      const areFullCols = activeCols.size > 0 && isSingleSelection;
-      const areFullRows = activeRows.size > 0 && isSingleSelection;
+      const areFullCols = !activeCols.isEmpty && isSingleSelection;
+      const areFullRows = !activeRows.isEmpty && isSingleSelection;
       if (areFullCols && !areFullRows) {
         INSERT_COLUMNS_BEFORE_ACTION(this.env);
       } else if (areFullRows && !areFullCols) {
@@ -404,21 +404,21 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
       }
     },
     "Ctrl+Alt+-": () => {
-      const columns = [...this.env.model.getters.getActiveCols()];
-      const rows = [...this.env.model.getters.getActiveRows()];
-      if (columns.length > 0 && rows.length === 0) {
+      const columns = this.env.model.getters.getActiveCols();
+      const rows = this.env.model.getters.getActiveRows();
+      if (!columns.isEmpty && rows.isEmpty) {
         this.env.model.dispatch("REMOVE_COLUMNS_ROWS", {
           sheetId: this.env.model.getters.getActiveSheetId(),
           sheetName: this.env.model.getters.getActiveSheetName(),
           dimension: "COL",
-          elements: columns,
+          elements: [...columns],
         });
-      } else if (rows.length > 0 && columns.length === 0) {
+      } else if (!rows.isEmpty && columns.isEmpty) {
         this.env.model.dispatch("REMOVE_COLUMNS_ROWS", {
           sheetId: this.env.model.getters.getActiveSheetId(),
           sheetName: this.env.model.getters.getActiveSheetName(),
           dimension: "ROW",
-          elements: rows,
+          elements: [...rows],
         });
       }
     },

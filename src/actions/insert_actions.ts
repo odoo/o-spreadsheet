@@ -148,9 +148,8 @@ export const insertCell: ActionSpec = {
   name: _t("Insert cells"),
   isVisible: (env) =>
     ACTIONS.IS_ONLY_ONE_RANGE(env) &&
-    env.model.getters.getActiveCols().size === 0 &&
-    env.model.getters.getActiveRows().size === 0,
-
+    env.model.getters.getActiveCols().isEmpty &&
+    env.model.getters.getActiveRows().isEmpty,
   icon: "o-spreadsheet-Icon.INSERT_CELL",
 };
 
@@ -162,7 +161,7 @@ export const insertCellShiftDown: ActionSpec = {
     handlePasteResult(env, result);
   },
   isVisible: (env) =>
-    env.model.getters.getActiveRows().size === 0 && env.model.getters.getActiveCols().size === 0,
+    env.model.getters.getActiveRows().isEmpty && env.model.getters.getActiveCols().isEmpty,
   icon: "o-spreadsheet-Icon.INSERT_CELL_SHIFT_DOWN",
 };
 
@@ -174,7 +173,7 @@ export const insertCellShiftRight: ActionSpec = {
     handlePasteResult(env, result);
   },
   isVisible: (env) =>
-    env.model.getters.getActiveRows().size === 0 && env.model.getters.getActiveCols().size === 0,
+    env.model.getters.getActiveRows().isEmpty && env.model.getters.getActiveCols().isEmpty,
   icon: "o-spreadsheet-Icon.INSERT_CELL_SHIFT_RIGHT",
 };
 

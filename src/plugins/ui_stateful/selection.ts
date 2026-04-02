@@ -2,6 +2,7 @@ import { AbstractCellClipboardHandler } from "../../clipboard_handlers/abstract_
 import { SELECTION_BORDER_COLOR } from "../../constants";
 import { getFullReference, splitReference } from "../../helpers";
 import { getClipboardDataPositions } from "../../helpers/clipboard/clipboard_helpers";
+import { ConsecutiveSet } from "../../helpers/consecutiveSet";
 import { clip, deepCopy, range } from "../../helpers/misc";
 import { createRange, isFullColRange, isFullRowRange } from "../../helpers/range";
 import {
@@ -51,8 +52,8 @@ interface SheetInfo {
 export interface SelectionState {
   sheetId: UID;
   selectedZones: Zone[];
-  activeCols: Set<number>;
-  activeRows: Set<number>;
+  activeCols: ConsecutiveSet;
+  activeRows: ConsecutiveSet;
   activePosition: CellPosition | undefined;
 }
 
@@ -330,29 +331,25 @@ export class GridSelectionPlugin extends UIPlugin {
     return this.getters.getEvaluatedCell(this.getActivePosition());
   }
 
-  getActiveCols(): Set<number> {
-    const activeCols = new Set<number>();
+  getActiveCols(): ConsecutiveSet {
+    const activeCols = new ConsecutiveSet();
     for (const zone of this.gridSelection.zones) {
       if (
         zone.top === 0 &&
         zone.bottom === this.getters.getNumberRows(this.getters.getActiveSheetId()) - 1
       ) {
-        for (let i = zone.left; i <= zone.right; i++) {
-          activeCols.add(i);
-        }
+        activeCols.addRange(zone.left, zone.right);
       }
     }
     return activeCols;
   }
 
-  getActiveRows(): Set<number> {
-    const activeRows = new Set<number>();
+  getActiveRows(): ConsecutiveSet {
+    const activeRows = new ConsecutiveSet();
     const sheetId = this.getters.getActiveSheetId();
     for (const zone of this.gridSelection.zones) {
       if (zone.left === 0 && zone.right === this.getters.getNumberCols(sheetId) - 1) {
-        for (let i = zone.top; i <= zone.bottom; i++) {
-          activeRows.add(i);
-        }
+        activeRows.addRange(zone.top, zone.bottom);
       }
     }
     return activeRows;
@@ -438,10 +435,10 @@ export class GridSelectionPlugin extends UIPlugin {
    * if dimension === "ROW" => [2,3,4,5]
    */
   getElementsFromSelection(dimension: Dimension): number[] {
-    if (dimension === "COL" && this.getters.getActiveCols().size === 0) {
+    if (dimension === "COL" && this.getters.getActiveCols().isEmpty) {
       return [];
     }
-    if (dimension === "ROW" && this.getters.getActiveRows().size === 0) {
+    if (dimension === "ROW" && this.getters.getActiveRows().isEmpty) {
       return [];
     }
     const zones = this.getters.getSelectedZones();

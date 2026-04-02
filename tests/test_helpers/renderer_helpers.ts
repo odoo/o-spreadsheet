@@ -1,5 +1,6 @@
 import { Model, RenderingGetters, UID } from "../../src";
 import { getDefaultSheetViewSize, HEADER_HEIGHT, HEADER_WIDTH } from "../../src/constants";
+import { ConsecutiveSet } from "../../src/helpers/consecutiveSet";
 import { GridRenderingContext, Viewport, Zone } from "../../src/types";
 import { MockCanvasRenderingContext2D } from "../setup/canvas.mock";
 import { resizeSheetView } from "./commands_helpers";
@@ -65,11 +66,11 @@ export class MockGridRenderingContext implements GridRenderingContext {
     return this.model.getters.getSelectionState().selectedZones;
   }
 
-  get activeCols(): Set<number> {
+  get activeCols(): ConsecutiveSet {
     return this.model.getters.getSelectionState().activeCols;
   }
 
-  get activeRows(): Set<number> {
+  get activeRows(): ConsecutiveSet {
     return this.model.getters.getSelectionState().activeRows;
   }
 

@@ -1,4 +1,5 @@
 import { cellPositions, intersection } from "../../helpers";
+import { ConsecutiveSet } from "../../helpers/consecutiveSet";
 import { ViewportCollection } from "../../helpers/viewport_collection";
 import { SpreadsheetStore } from "../../stores";
 import { _t } from "../../translation";
@@ -193,8 +194,8 @@ export class SpreadsheetPrintStore extends SpreadsheetStore {
       hideGridLines: this.hideGridLines,
       dpr: 3, // Increase the canvas' dpr on print so the image is of better quality
       selectedZones: [],
-      activeCols: new Set(),
-      activeRows: new Set(),
+      activeCols: new ConsecutiveSet(),
+      activeRows: new ConsecutiveSet(),
       activePosition: undefined,
     };
   }

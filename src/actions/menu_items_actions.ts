@@ -204,8 +204,8 @@ export const CAN_REMOVE_COLUMNS_ROWS = (
   env: SpreadsheetChildEnv
 ): boolean => {
   if (
-    (dimension === "COL" && env.model.getters.getActiveRows().size > 0) ||
-    (dimension === "ROW" && env.model.getters.getActiveCols().size > 0)
+    (dimension === "COL" && !env.model.getters.getActiveRows().isEmpty) ||
+    (dimension === "ROW" && !env.model.getters.getActiveCols().isEmpty)
   ) {
     return false;
   }
