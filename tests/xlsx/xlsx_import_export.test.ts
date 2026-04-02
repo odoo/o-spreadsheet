@@ -1,6 +1,6 @@
 import { Model } from "../../src";
 import { LINK_COLOR } from "../../src/constants";
-import { buildSheetLink, toZone } from "../../src/helpers";
+import { buildSheetLink, toCartesian, toZone } from "../../src/helpers";
 import {
   Align,
   BorderDescr,
@@ -513,5 +513,88 @@ describe("Export data to xlsx then import it", () => {
     const importedModel = await exportToXlsxThenImport(model);
     const newFigure = importedModel.getters.getFigures(sheetId)[0];
     expect(newFigure.height).toBe(figure.height);
+  });
+});
+
+describe("Col/row default styles round-trip", () => {
+  let model: Model;
+  let sheetId: string;
+
+  beforeEach(() => {
+    model = new Model();
+    sheetId = model.getters.getActiveSheetId();
+  });
+
+  function getCellStyle(importedModel: Model, xc: string) {
+    const importedSheetId = importedModel.getters.getActiveSheetId();
+    const { col, row } = toCartesian(xc);
+    return importedModel.getters.getCellStyle({ sheetId: importedSheetId, col, row });
+  }
+
+  function getCellFormat(importedModel: Model, xc: string) {
+    const importedSheetId = importedModel.getters.getActiveSheetId();
+    const { col, row } = toCartesian(xc);
+    return importedModel.getters.getCellFormat({ sheetId: importedSheetId, col, row });
+  }
+
+  test("column default style survives export/import round-trip", async () => {
+    // A zone taller than half the sheet rows triggers a colDefault in DefaultPlugin
+    const { numberOfRows } = model.getters.getSheetSize(sheetId);
+    model.dispatch("SET_FORMATTING", {
+      sheetId,
+      target: [{ left: 1, right: 1, top: 0, bottom: numberOfRows - 1 }],
+      style: { bold: true },
+    });
+
+    const importedModel = await exportToXlsxThenImport(model);
+
+    expect(getCellStyle(importedModel, "B1").bold).toBe(true);
+    expect(getCellStyle(importedModel, "B5").bold).toBe(true);
+    // Other columns should not be affected
+    expect(getCellStyle(importedModel, "A1").bold).toBeUndefined();
+    expect(getCellStyle(importedModel, "C1").bold).toBeUndefined();
+  });
+
+  test("row default format survives export/import round-trip", async () => {
+    // A zone wider than half the sheet cols triggers a rowDefault in DefaultPlugin
+    const { numberOfCols } = model.getters.getSheetSize(sheetId);
+    model.dispatch("SET_FORMATTING", {
+      sheetId,
+      target: [{ left: 0, right: numberOfCols - 1, top: 2, bottom: 2 }],
+      format: "0.00%",
+    });
+
+    const importedModel = await exportToXlsxThenImport(model);
+
+    expect(getCellFormat(importedModel, "A3")).toBe("0.00%");
+    expect(getCellFormat(importedModel, "D3")).toBe("0.00%");
+    // Other rows should not be affected
+    expect(getCellFormat(importedModel, "A1")).toBeUndefined();
+    expect(getCellFormat(importedModel, "A4")).toBeUndefined();
+  });
+
+  test("cell style overriding a column default survives export/import round-trip", async () => {
+    const { numberOfRows } = model.getters.getSheetSize(sheetId);
+    // Set bold as column B default
+    model.dispatch("SET_FORMATTING", {
+      sheetId,
+      target: [{ left: 1, right: 1, top: 0, bottom: numberOfRows - 1 }],
+      style: { bold: true },
+    });
+    // Override B2 individually to italic (no bold)
+    setCellContent(model, "B2", "hello");
+    model.dispatch("SET_FORMATTING", {
+      sheetId,
+      target: [{ left: 1, right: 1, top: 1, bottom: 1 }],
+      style: { bold: false, italic: true },
+    });
+
+    const importedModel = await exportToXlsxThenImport(model);
+
+    // B1 still gets the column default
+    expect(getCellStyle(importedModel, "B1").bold).toBe(true);
+    // B2 has its own style: italic, bold overridden to false
+    expect(getCellStyle(importedModel, "B2").italic).toBe(true);
+    expect(getCellStyle(importedModel, "B2").bold).not.toBe(true);
   });
 });

@@ -15,7 +15,8 @@ import { PieChartDefinition } from "../../src/types/chart/pie_chart";
 import { ScatterChartDefinition } from "../../src/types/chart/scatter_chart";
 import { Image } from "../../src/types/image";
 import { SheetData, WorkbookData } from "../../src/types/workbook_data";
-import { XLSXSharedFormula } from "../../src/types/xlsx";
+import { XLSXImportData, XLSXSharedFormula, XLSXStyle, XLSXWorksheet } from "../../src/types/xlsx";
+import { convertSheets } from "../../src/xlsx/conversion";
 import { hexaToInt } from "../../src/xlsx/conversion/color_conversion";
 import {
   BORDER_STYLE_CONVERSION_MAP,
@@ -1128,4 +1129,153 @@ test.each([
   const convertedData = reader.convertXlsx();
 
   expect(convertedData.sheets[0].cells["A1"]).toEqual("Hello World !");
+});
+
+describe("Import col/row default styles", () => {
+  const warningManager = new XLSXImportWarningManager();
+
+  // Styles at index 0 (default) and index 1 (custom: bold font with a custom numFmt).
+  // Indices are 0-based in this array; SheetData IDs are stored as styleIndex+1.
+  const TEST_STYLES: XLSXStyle[] = [
+    { fontId: 0, fillId: 0, borderId: 0, numFmtId: 0 }, // index 0: default
+    { fontId: 1, fillId: 0, borderId: 0, numFmtId: 164 }, // index 1: custom, numFmt 164
+  ];
+
+  function buildImportData(
+    sheetOverrides: Partial<XLSXWorksheet>,
+    styles: XLSXStyle[] = TEST_STYLES
+  ): XLSXImportData {
+    return {
+      sheets: [
+        {
+          sheetName: "Sheet1",
+          isVisible: true,
+          sheetViews: [],
+          cols: [],
+          rows: [],
+          cfs: [],
+          dataValidations: [],
+          sharedFormulas: [],
+          merges: [],
+          figures: [],
+          hyperlinks: [],
+          tables: [],
+          pivotTables: [],
+          isLocked: false,
+          ...sheetOverrides,
+        },
+      ],
+      sharedStrings: [],
+      fonts: [],
+      fills: [],
+      borders: [],
+      numFmts: [],
+      styles,
+      dxfs: [],
+      chartIds: [],
+      imageIds: [],
+      externalBooks: [],
+    };
+  }
+
+  describe("Row default style", () => {
+    test("row styleIndex is stored in defaultStyle.rowDefault, not expanded into cells", () => {
+      // Excel row index is 1-based; row.index=3 maps to SheetData row 2 (0-based)
+      const data = buildImportData({ rows: [{ index: 3, cells: [], styleIndex: 1 }] });
+      const [sheetData] = convertSheets(data, warningManager);
+
+      expect(sheetData.defaultStyle?.rowDefault?.[2]).toBe(2); // styleIndex + 1
+      // Cells in that row must NOT receive an expanded style entry
+      expect(sheetData.styles["A3"]).toBeUndefined();
+    });
+
+    test("row numFmtId is stored in defaultFormat.rowDefault, not expanded into cells", () => {
+      const data = buildImportData({ rows: [{ index: 3, cells: [], styleIndex: 1 }] });
+      const [sheetData] = convertSheets(data, warningManager);
+
+      expect(sheetData.defaultFormat?.rowDefault?.[2]).toBe(165); // numFmtId + 1
+      expect(sheetData.formats?.["A3"]).toBeUndefined();
+    });
+
+    test("multiple rows each get their own rowDefault entry", () => {
+      const data = buildImportData({
+        rows: [
+          { index: 1, cells: [], styleIndex: 1 },
+          { index: 5, cells: [], styleIndex: 1 },
+        ],
+      });
+      const [sheetData] = convertSheets(data, warningManager);
+
+      expect(sheetData.defaultStyle?.rowDefault?.[0]).toBe(2);
+      expect(sheetData.defaultStyle?.rowDefault?.[4]).toBe(2);
+      expect(sheetData.defaultStyle?.rowDefault?.[1]).toBeUndefined();
+    });
+  });
+
+  describe("Col default style", () => {
+    test("col styleIndex is stored in defaultStyle.colDefault, not expanded into cells", () => {
+      // Excel col indices are 1-based; min=2,max=3 maps to colDefault[1] and colDefault[2]
+      const data = buildImportData({ cols: [{ min: 2, max: 3, styleIndex: 1 }] });
+      const [sheetData] = convertSheets(data, warningManager);
+
+      expect(sheetData.defaultStyle?.colDefault?.[1]).toBe(2); // styleIndex + 1
+      expect(sheetData.defaultStyle?.colDefault?.[2]).toBe(2);
+      // Cells in those cols must NOT receive an expanded style entry
+      expect(sheetData.styles["B1"]).toBeUndefined();
+      expect(sheetData.styles["C1"]).toBeUndefined();
+    });
+
+    test("col numFmtId is stored in defaultFormat.colDefault, not expanded into cells", () => {
+      const data = buildImportData({ cols: [{ min: 2, max: 2, styleIndex: 1 }] });
+      const [sheetData] = convertSheets(data, warningManager);
+
+      expect(sheetData.defaultFormat?.colDefault?.[1]).toBe(165); // numFmtId + 1
+      expect(sheetData.formats?.["B1"]).toBeUndefined();
+    });
+
+    test("col spanning the full sheet width is stored as sheetDefault", () => {
+      // sheetDims[0] is at least EXCEL_IMPORT_DEFAULT_NUMBER_OF_COLS (30), so max=50 covers it
+      const data = buildImportData({ cols: [{ min: 1, max: 50, styleIndex: 1 }] });
+      const [sheetData] = convertSheets(data, warningManager);
+
+      expect(sheetData.defaultStyle?.sheetDefault).toBe(2);
+      expect(sheetData.defaultFormat?.sheetDefault).toBe(165);
+      // Should not also populate colDefault entries
+      expect(sheetData.defaultStyle?.colDefault).toEqual([]);
+    });
+
+    test("col not spanning full width does not become sheetDefault", () => {
+      const data = buildImportData({ cols: [{ min: 1, max: 10, styleIndex: 1 }] });
+      const [sheetData] = convertSheets(data, warningManager);
+
+      expect(sheetData.defaultStyle?.sheetDefault).toBeUndefined();
+      expect(sheetData.defaultStyle?.colDefault?.[0]).toBe(2);
+    });
+  });
+
+  test("individual cell styleIndex is preserved even when its row has a default style", () => {
+    const styles: XLSXStyle[] = [
+      { fontId: 0, fillId: 0, borderId: 0, numFmtId: 0 }, // index 0: default
+      { fontId: 1, fillId: 0, borderId: 0, numFmtId: 0 }, // index 1: row default
+      { fontId: 2, fillId: 0, borderId: 0, numFmtId: 0 }, // index 2: cell override
+    ];
+    const data = buildImportData(
+      {
+        rows: [
+          {
+            index: 3,
+            styleIndex: 1,
+            cells: [{ xc: "A3", styleIndex: 2, type: "number", value: "42" }],
+          },
+        ],
+      },
+      styles
+    );
+    const [sheetData] = convertSheets(data, warningManager);
+
+    // Row default is stored correctly
+    expect(sheetData.defaultStyle?.rowDefault?.[2]).toBe(2);
+    // Cell's own style override is preserved (styleIndex 2 → id 3)
+    expect(sheetData.styles["A3"]).toBe(3);
+  });
 });
