@@ -1,6 +1,7 @@
 import { Component, onWillUpdateProps, useRef, useState } from "@odoo/owl";
 import { DEFAULT_BORDER_DESC } from "../../constants";
-import { BorderPosition, BorderStyle, Color, Pixel, Rect } from "../../types";
+import { BorderPosition, BorderStyle, Color, Pixel } from "../../types/misc";
+import { Rect } from "../../types/rendering";
 import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 import { ToolBarDropdownStore, useToolBarDropdownStore } from "../helpers/top_bar_tool_hook";
 import { BorderEditor } from "./border_editor";

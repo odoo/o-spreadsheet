@@ -1,13 +1,10 @@
 import { ChartType, Plugin } from "chart.js";
-import {
-  getDefaultContextFont,
-  isDefined,
-  relativeLuminance,
-  sliceTextToFitWidth,
-} from "../../../../helpers";
+import { relativeLuminance } from "../../../../helpers/color";
 import { GHOST_SUNBURST_VALUE } from "../../../../helpers/figures/charts/runtime/chartjs_dataset";
-import { Style } from "../../../../types";
-import { SunburstChartRawData } from "../../../../types/chart";
+import { isDefined } from "../../../../helpers/misc";
+import { getDefaultContextFont, sliceTextToFitWidth } from "../../../../helpers/text_helper";
+import { SunburstChartRawData } from "../../../../types/chart/sunburst_chart";
+import { Style } from "../../../../types/misc";
 
 export interface ChartSunburstLabelsPluginOptions {
   showValues: boolean;

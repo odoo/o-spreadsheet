@@ -1,6 +1,6 @@
+import { BorderDescr, CommandResult } from "../../src";
 import { DEFAULT_BORDER_DESC } from "../../src/constants";
 import { Model } from "../../src/model";
-import { BorderDescr, CommandResult } from "../../src/types/index";
 import {
   activateSheet,
   addColumns,

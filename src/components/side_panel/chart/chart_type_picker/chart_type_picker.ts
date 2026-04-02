@@ -1,14 +1,15 @@
 import { Component, useExternalListener, useRef, useState } from "@odoo/owl";
 import { chartSubtypeRegistry } from "../../../../registries/chart_subtype_registry";
+import { ChartDefinition, ChartType } from "../../../../types/chart/chart";
 import {
   chartCategories,
   ChartSubtypeProperties,
 } from "../../../../types/chart_subtype_properties";
-import { ChartDefinition, ChartType, UID } from "../../../../types/index";
+import { UID } from "../../../../types/misc";
 import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
 import { cssPropertiesToCss } from "../../../helpers/css";
 import { isChildEvent } from "../../../helpers/dom_helpers";
-import { Popover, PopoverProps } from "../../../popover";
+import { Popover, PopoverProps } from "../../../popover/popover";
 import { Section } from "../../components/section/section";
 import { MainChartPanelStore } from "../main_chart_panel/main_chart_panel_store";
 

@@ -1,14 +1,9 @@
-import { UuidGenerator } from "../helpers";
 import { SpreadsheetChart } from "../helpers/figures/chart";
-import {
-  ClipboardFigureData,
-  ClipboardOptions,
-  ClipboardPasteTarget,
-  CommandResult,
-  Figure,
-  UID,
-  Zone,
-} from "../types";
+import { UuidGenerator } from "../helpers/uuid";
+import { ClipboardFigureData, ClipboardOptions, ClipboardPasteTarget } from "../types/clipboard";
+import { CommandResult } from "../types/commands";
+import { Figure } from "../types/figure";
+import { UID, Zone } from "../types/misc";
 import { AbstractFigureClipboardHandler } from "./abstract_figure_clipboard_handler";
 
 type ClipboardContent = {

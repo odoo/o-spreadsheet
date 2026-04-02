@@ -1,8 +1,9 @@
 import { SquishedCoreCommand } from "../collaborative/command_squisher";
 import { DEFAULT_REVISION_ID } from "../constants";
-import { deepCopy, UuidGenerator } from "../helpers";
 import { isValidLocale } from "../helpers/locale";
+import { deepCopy } from "../helpers/misc";
 import { getDuplicateSheetName, getNextSheetName } from "../helpers/sheet";
+import { UuidGenerator } from "../helpers/uuid";
 import { StateUpdateMessage } from "../types/collaborative/transport_service";
 import { CoreCommand } from "../types/commands";
 import { DEFAULT_LOCALE } from "../types/locale";

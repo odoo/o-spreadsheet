@@ -1,5 +1,5 @@
 import { Component, useState } from "@odoo/owl";
-import { FunctionDescription } from "../../../types";
+import { FunctionDescription } from "../../../types/functions";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
 import { Collapse } from "../../side_panel/components/collapse/collapse";
 

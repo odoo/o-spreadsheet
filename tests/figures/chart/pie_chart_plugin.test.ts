@@ -1,5 +1,5 @@
 import { ChartCreationContext, Model } from "../../../src";
-import { PieChartRuntime } from "../../../src/types/chart";
+import { PieChartRuntime } from "../../../src/types/chart/pie_chart";
 import { createChart, createChartDefinitionFromContext } from "../../test_helpers";
 import {
   GENERAL_CHART_CREATION_CONTEXT,

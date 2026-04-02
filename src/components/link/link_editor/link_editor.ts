@@ -1,10 +1,10 @@
 import { Component, onMounted, useRef, useState } from "@odoo/owl";
-import { fuzzyLookup } from "../../../helpers";
 import { urlRegistry, urlRepresentation } from "../../../helpers/links";
 import { canonicalizeNumberContent } from "../../../helpers/locale";
 import { markdownLink } from "../../../helpers/misc";
-import { Link, Position } from "../../../types";
+import { fuzzyLookup } from "../../../helpers/search";
 import { CellPopoverComponent, PopoverBuilders } from "../../../types/cell_popovers";
+import { Link, Position } from "../../../types/misc";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
 import { MenuPopover } from "../../menu_popover/menu_popover";
 

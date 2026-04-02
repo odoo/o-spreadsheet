@@ -1,13 +1,15 @@
-import { positionToZone } from "../../helpers";
+import { positionToZone } from "../../helpers/zones";
 import { cellPopoverRegistry } from "../../registries/cell_popovers_registry";
-import { SpreadsheetStore } from "../../stores";
-import { CellPosition, Command, Position, Rect } from "../../types";
+import { SpreadsheetStore } from "../../stores/spreadsheet_store";
 import {
   CellPopoverType,
   ClosedCellPopover,
   OpenCellPopover,
   PositionedCellPopoverComponent,
 } from "../../types/cell_popovers";
+import { Command } from "../../types/commands";
+import { CellPosition, Position } from "../../types/misc";
+import { Rect } from "../../types/rendering";
 import { DelayedHoveredCellStore } from "../grid/delayed_hovered_cell_store";
 
 export class CellPopoverStore extends SpreadsheetStore {

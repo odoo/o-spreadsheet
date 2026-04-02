@@ -1,10 +1,12 @@
 import { Component } from "@odoo/owl";
 import { TEXT_BODY_MUTED } from "../../../constants";
-import { blendColors, computeTextFontSizeInPixels } from "../../../helpers";
-import { Store, useStore } from "../../../store_engine";
-import { CellPosition, Color, SortDirection, Style } from "../../../types";
+import { blendColors } from "../../../helpers/color";
+import { computeTextFontSizeInPixels } from "../../../helpers/text_helper";
+import { useStore } from "../../../store_engine/store_hooks";
+import { CellPosition, Color, SortDirection, Style } from "../../../types/misc";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
-import { cssPropertiesToCss } from "../../helpers";
+import { Store } from "../../../types/store_engine";
+import { cssPropertiesToCss } from "../../helpers/css";
 import { HoveredTableStore } from "../../tables/hovered_table_store";
 
 interface Props {

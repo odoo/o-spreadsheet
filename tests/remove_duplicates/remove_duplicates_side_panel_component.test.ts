@@ -1,5 +1,5 @@
 import { Model, Spreadsheet } from "../../src";
-import { toZone } from "../../src/helpers";
+import { toZone } from "../../src/helpers/zones";
 import { click, merge, setCellContent, setSelection } from "../test_helpers";
 import { getRangeValuesAsMatrix, mountSpreadsheet, nextTick } from "../test_helpers/helpers";
 

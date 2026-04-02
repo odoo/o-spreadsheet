@@ -8,29 +8,30 @@ import {
   DEFAULT_CHART_COLOR_SCALE,
   GRAY_300,
 } from "../../../../constants";
-import { Color, DeepPartial, LocaleFormat } from "../../../../types";
+import { BarChartDefinition } from "../../../../types/chart/bar_chart";
+import { CalendarChartDefinition } from "../../../../types/chart/calendar_chart";
 import {
   AxisDesign,
   AxisType,
-  BarChartDefinition,
   ChartColorScale,
   ChartRuntimeGenerationArgs,
   ChartWithAxisDefinition,
-  FunnelChartDefinition,
   GenericDefinition,
-  LegendPosition,
-  LineChartDefinition,
-  PyramidChartDefinition,
-  ScatterChartDefinition,
-  WaterfallChartDefinition,
-} from "../../../../types/chart";
-import { CalendarChartDefinition } from "../../../../types/chart/calendar_chart";
+} from "../../../../types/chart/chart";
+import { LegendPosition } from "../../../../types/chart/common_chart";
+import { FunnelChartDefinition } from "../../../../types/chart/funnel_chart";
 import {
   GeoChartDefinition,
   GeoChartProjection,
   GeoChartRuntimeGenerationArgs,
 } from "../../../../types/chart/geo_chart";
+import { LineChartDefinition } from "../../../../types/chart/line_chart";
+import { PyramidChartDefinition } from "../../../../types/chart/pyramid_chart";
 import { RadarChartDefinition } from "../../../../types/chart/radar_chart";
+import { ScatterChartDefinition } from "../../../../types/chart/scatter_chart";
+import { WaterfallChartDefinition } from "../../../../types/chart/waterfall_chart";
+import { LocaleFormat } from "../../../../types/format";
+import { Color, DeepPartial } from "../../../../types/misc";
 import { isNumberResult } from "../../../cells/cell_evaluation";
 import { getChartTimeOptions } from "../../../chart_date";
 import { COLORSCHEMES, getColorScale, relativeLuminance } from "../../../color";

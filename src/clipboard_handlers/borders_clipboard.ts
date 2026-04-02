@@ -1,14 +1,7 @@
-import { positionToZone, recomputeZones } from "../helpers";
-import {
-  Border,
-  CellPosition,
-  ClipboardCellData,
-  ClipboardOptions,
-  ClipboardPasteTarget,
-  HeaderIndex,
-  UID,
-  Zone,
-} from "../types";
+import { recomputeZones } from "../helpers/recompute_zones";
+import { positionToZone } from "../helpers/zones";
+import { ClipboardCellData, ClipboardOptions, ClipboardPasteTarget } from "../types/clipboard";
+import { Border, CellPosition, HeaderIndex, UID, Zone } from "../types/misc";
 import { AbstractCellClipboardHandler } from "./abstract_cell_clipboard_handler";
 
 type ClipboardContent = {

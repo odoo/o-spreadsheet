@@ -16,7 +16,7 @@ import {
   Zone,
 } from "./misc";
 
-import { ChartDefinition } from "./chart";
+import { ChartDefinition } from "./chart/chart";
 
 import { ConditionalFormat } from "./conditional_formatting";
 

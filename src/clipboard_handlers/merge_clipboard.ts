@@ -1,14 +1,6 @@
-import { isDefined } from "../helpers";
-import {
-  CellPosition,
-  ClipboardCellData,
-  ClipboardOptions,
-  ClipboardPasteTarget,
-  HeaderIndex,
-  Maybe,
-  Merge,
-  UID,
-} from "../types";
+import { isDefined } from "../helpers/misc";
+import { ClipboardCellData, ClipboardOptions, ClipboardPasteTarget } from "../types/clipboard";
+import { CellPosition, HeaderIndex, Maybe, Merge, UID } from "../types/misc";
 import { AbstractCellClipboardHandler } from "./abstract_cell_clipboard_handler";
 
 interface ClipboardContent {

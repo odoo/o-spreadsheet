@@ -1,13 +1,13 @@
-import { Model, UID } from "../../../../src";
+import { ChartCreationContext, Model, UID } from "../../../../src";
 import { COLOR_TRANSPARENT } from "../../../../src/constants";
-import { ColorGenerator } from "../../../../src/helpers";
-import { GHOST_SUNBURST_VALUE } from "../../../../src/helpers/figures/charts/runtime";
+import { ColorGenerator } from "../../../../src/helpers/color";
+import { GHOST_SUNBURST_VALUE } from "../../../../src/helpers/figures/charts/runtime/chartjs_dataset";
 import {
-  ChartCreationContext,
   SunburstChartJSDataset,
   SunburstChartRawData,
   SunburstChartRuntime,
-} from "../../../../src/types/chart";
+} from "../../../../src/types/chart/sunburst_chart";
+
 import {
   GENERAL_CHART_CREATION_CONTEXT,
   toChartDataSource,

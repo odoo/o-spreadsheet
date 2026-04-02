@@ -1,5 +1,6 @@
 import { IconSetType } from "../../components/icons/icons";
-import { ExcelChartType, LegendPosition } from "../../types/chart";
+import { ExcelChartType } from "../../types/chart/chart";
+import { LegendPosition } from "../../types/chart/common_chart";
 import {
   ConditionalFormattingOperatorValues,
   ThresholdType,

@@ -1,4 +1,3 @@
-import { Immutable } from "../types";
 import {
   AddFunctionDescription,
   ArgDefinition,
@@ -6,6 +5,7 @@ import {
   ArgType,
   FunctionDescription,
 } from "../types/functions";
+import { Immutable } from "../types/misc";
 
 //------------------------------------------------------------------------------
 // Arg description DSL

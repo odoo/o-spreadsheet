@@ -1,6 +1,6 @@
 import { StreamCallbacks } from "../selection_stream/event_stream";
 import { DispatchResult } from "./commands";
-import { SelectionEvent, SelectionEventOptions } from "./event_stream";
+import { SelectionEvent, SelectionEventOptions } from "./event_stream/selection_events";
 import { AnchorZone, Direction, SelectionStep } from "./misc";
 
 type StatefulStream<Event, State> = {

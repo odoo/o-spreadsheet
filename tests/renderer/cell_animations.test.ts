@@ -6,7 +6,7 @@ import {
   DEFAULT_CELL_WIDTH,
   MIN_CELL_TEXT_MARGIN,
 } from "../../src/constants";
-import { toZone } from "../../src/helpers";
+import { toZone } from "../../src/helpers/zones";
 import { EASING_FN, cellAnimationRegistry } from "../../src/registries/cell_animation_registry";
 import { CELL_ANIMATION_DURATION, GridRenderer } from "../../src/stores/grid_renderer_store";
 import { RendererStore } from "../../src/stores/renderer_store";

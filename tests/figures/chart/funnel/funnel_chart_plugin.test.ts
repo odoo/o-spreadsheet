@@ -1,5 +1,5 @@
 import { ChartCreationContext, Model, UID } from "../../../../src";
-import { ColorGenerator } from "../../../../src/helpers";
+import { ColorGenerator } from "../../../../src/helpers/color";
 import { FunnelChartRuntime } from "../../../../src/types/chart/funnel_chart";
 import {
   createChartDefinitionFromContext,

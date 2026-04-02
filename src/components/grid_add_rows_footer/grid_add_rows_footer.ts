@@ -1,9 +1,10 @@
 import { Component, useExternalListener, useRef, useState } from "@odoo/owl";
-import { Store, useStore } from "../../store_engine";
+import { useStore } from "../../store_engine/store_hooks";
 import { DOMFocusableElementStore } from "../../stores/DOM_focus_store";
 import { _t } from "../../translation";
 import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
-import { cssPropertiesToCss } from "../helpers";
+import { Store } from "../../types/store_engine";
+import { cssPropertiesToCss } from "../helpers/css";
 import { ValidationMessages } from "../validation_messages/validation_messages";
 
 interface Props {}

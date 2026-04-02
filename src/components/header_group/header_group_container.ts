@@ -2,10 +2,10 @@ import { Component, useState } from "@odoo/owl";
 import { Action } from "../../actions/action";
 import { GROUP_LAYER_WIDTH, HEADER_HEIGHT, HEADER_WIDTH } from "../../constants";
 import { createHeaderGroupContainerContextMenu } from "../../registries/menus/header_group_registry";
-import { DOMCoordinates } from "../../types";
 import { CSSProperties, Dimension, HeaderGroup, Pixel } from "../../types/misc";
+import { DOMCoordinates } from "../../types/rendering";
 import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
-import { cssPropertiesToCss } from "../helpers";
+import { cssPropertiesToCss } from "../helpers/css";
 import { MenuPopover, MenuState } from "../menu_popover/menu_popover";
 import { ColGroup, RowGroup } from "./header_group";
 

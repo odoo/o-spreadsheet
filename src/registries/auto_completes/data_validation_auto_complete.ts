@@ -1,5 +1,6 @@
 import { GRAY_200 } from "../../constants";
-import { chipTextColor, isFormula } from "../../helpers";
+import { chipTextColor } from "../../helpers/color";
+import { isFormula } from "../../helpers/misc";
 import { autoCompleteProviders } from "./auto_complete_registry";
 
 autoCompleteProviders.add("dataValidation", {

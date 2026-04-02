@@ -1,22 +1,20 @@
 import { ChartConfiguration } from "chart.js";
 import { BACKGROUND_CHART_COLOR } from "../../../constants";
 import { ChartTypeBuilder } from "../../../registries/chart_registry";
-import { CommandResult } from "../../../types";
 import { ScatterChartRuntime } from "../../../types/chart/scatter_chart";
+import { CommandResult } from "../../../types/commands";
 import { toXlsxHexColor } from "../../../xlsx/helpers/colors";
 import { AbstractChart } from "./abstract_chart";
 import { chartFontColor, getDefinedAxis } from "./chart_common";
 import { CHART_COMMON_OPTIONS } from "./chart_ui_common";
-import {
-  getChartShowValues,
-  getChartTitle,
-  getLineChartData,
-  getLineChartTooltip,
-  getScatterChartDatasets,
-  getScatterChartLegend,
-  getScatterChartScales,
-} from "./runtime";
+import { getLineChartData } from "./runtime/chart_data_extractor";
+import { getScatterChartDatasets } from "./runtime/chartjs_dataset";
 import { getChartLayout } from "./runtime/chartjs_layout";
+import { getScatterChartLegend } from "./runtime/chartjs_legend";
+import { getScatterChartScales } from "./runtime/chartjs_scales";
+import { getChartShowValues } from "./runtime/chartjs_show_values";
+import { getChartTitle } from "./runtime/chartjs_title";
+import { getLineChartTooltip } from "./runtime/chartjs_tooltip";
 
 export const ScatterChart: ChartTypeBuilder<"scatter"> = {
   sequence: 60,

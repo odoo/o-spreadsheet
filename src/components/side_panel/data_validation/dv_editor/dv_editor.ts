@@ -1,23 +1,21 @@
 import { Component, ComponentConstructor, useState } from "@odoo/owl";
-import { zoneToXc } from "../../../../helpers";
 import { canonicalizeContent, localizeDataValidationRule } from "../../../../helpers/locale";
+import { zoneToXc } from "../../../../helpers/zones";
 import {
   criterionComponentRegistry,
   getCriterionValueAndLabels,
 } from "../../../../registries/criterion_component_registry";
 import { criterionEvaluatorRegistry } from "../../../../registries/criterion_registry";
 import { _t } from "../../../../translation";
+import { AddDataValidationCommand, CancelledReason } from "../../../../types/commands";
 import {
-  AddDataValidationCommand,
   availableDataValidationOperators,
-  CancelledReason,
   DataValidationCriterion,
   DataValidationCriterionType,
-  DataValidationRuleData,
-  UID,
-  ValueAndLabel,
-} from "../../../../types";
+} from "../../../../types/data_validation";
+import { UID, ValueAndLabel } from "../../../../types/misc";
 import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
+import { DataValidationRuleData } from "../../../../types/workbook_data";
 import { Select } from "../../../select/select";
 import { SelectionInput } from "../../../selection_input/selection_input";
 import { DVTerms } from "../../../translations_terms";

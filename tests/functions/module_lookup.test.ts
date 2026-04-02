@@ -1,4 +1,4 @@
-import { range } from "../../src/helpers";
+import { range } from "../../src/helpers/misc";
 import { Model } from "../../src/model";
 import {
   activateSheet,

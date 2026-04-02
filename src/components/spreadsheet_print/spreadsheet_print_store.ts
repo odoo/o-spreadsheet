@@ -1,18 +1,11 @@
-import { cellPositions, intersection } from "../../helpers";
 import { ViewportCollection } from "../../helpers/viewport_collection";
-import { SpreadsheetStore } from "../../stores";
+import { cellPositions, intersection } from "../../helpers/zones";
+import { SpreadsheetStore } from "../../stores/spreadsheet_store";
 import { _t } from "../../translation";
-import {
-  CellValueType,
-  Dimension,
-  DOMDimension,
-  FigureUI,
-  GridRenderingContext,
-  HeaderIndex,
-  UID,
-  ValueAndLabel,
-  Zone,
-} from "../../types";
+import { CellValueType } from "../../types/cells";
+import { FigureUI } from "../../types/figure";
+import { Dimension, HeaderIndex, UID, ValueAndLabel, Zone } from "../../types/misc";
+import { DOMDimension, GridRenderingContext } from "../../types/rendering";
 
 // Page layouts in millimeters
 const PRINT_PAGES_LAYOUTS = {

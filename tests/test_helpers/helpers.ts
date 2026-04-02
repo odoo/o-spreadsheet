@@ -1,7 +1,7 @@
 import { App, Component, ComponentConstructor, useState, xml } from "@odoo/owl";
 import { type ChartConfiguration } from "chart.js";
 import format from "xml-formatter";
-import { functionCache } from "../../src";
+import { functionCache, type StoreConstructor } from "../../src";
 import { Action } from "../../src/actions/action";
 import { ComposerSelection } from "../../src/components/composer/composer/abstract_composer_store";
 import { CellComposerStore } from "../../src/components/composer/composer/cell_composer_store";
@@ -12,20 +12,11 @@ import { SidePanelStore } from "../../src/components/side_panel/side_panel/side_
 import { Spreadsheet, SpreadsheetProps } from "../../src/components/spreadsheet/spreadsheet";
 import { functionRegistry } from "../../src/functions/function_registry";
 import { matrixMap } from "../../src/functions/helpers";
+import { toCartesian, toXC } from "../../src/helpers/coordinates";
 import { ImageProvider } from "../../src/helpers/figures/images/image_provider";
-import {
-  batched,
-  createRangeFromXc,
-  detectDateFormat,
-  getItemId,
-  positions,
-  range,
-  toCartesian,
-  toUnboundedZone,
-  toXC,
-  toZone,
-  zoneToXc,
-} from "../../src/helpers/index";
+import { batched, range } from "../../src/helpers/misc";
+import { createRangeFromXc } from "../../src/helpers/range";
+import { positions, toUnboundedZone, toZone, zoneToXc } from "../../src/helpers/zones";
 import { createEmptyExcelWorkbookData } from "../../src/migrations/data";
 import { Model } from "../../src/model";
 import { BasePlugin } from "../../src/plugins/base_plugin";
@@ -34,21 +25,8 @@ import { CorePluginConstructor } from "../../src/plugins/core_plugin";
 import { SheetUIPlugin } from "../../src/plugins/ui_feature/ui_sheet";
 import { UIPluginConstructor } from "../../src/plugins/ui_plugin";
 import { MenuItemRegistry } from "../../src/registries/menu_items_registry";
-import { topbarMenuRegistry } from "../../src/registries/menus";
 import { Registry } from "../../src/registries/registry";
-import {
-  DependencyContainer,
-  Store,
-  StoreConstructor,
-  proxifyStoreMutation,
-  useStore,
-} from "../../src/store_engine";
-import { ModelStore } from "../../src/stores";
-import { FormulaFingerprintStore } from "../../src/stores/formula_fingerprints_store";
-import { HighlightProvider, HighlightStore } from "../../src/stores/highlight_store";
-import { NotificationStore } from "../../src/stores/notification_store";
-import { RendererStore } from "../../src/stores/renderer_store";
-import { _t } from "../../src/translation";
+
 import {
   CellPosition,
   CellValue,
@@ -72,11 +50,23 @@ import {
   Style,
   UID,
   Zone,
-} from "../../src/types";
+} from "../../src";
+import { getItemId } from "../../src/helpers/data_normalization";
+import { detectDateFormat } from "../../src/helpers/format/format";
+import { topbarMenuRegistry } from "../../src/registries/menus/topbar_menu_registry";
+import { DependencyContainer } from "../../src/store_engine/dependency_container";
+import { proxifyStoreMutation, useStore } from "../../src/store_engine/store_hooks";
+import { FormulaFingerprintStore } from "../../src/stores/formula_fingerprints_store";
+import { HighlightProvider, HighlightStore } from "../../src/stores/highlight_store";
+import { ModelStore } from "../../src/stores/model_store";
+import { NotificationStore } from "../../src/stores/notification_store";
+import { RendererStore } from "../../src/stores/renderer_store";
+import { _t } from "../../src/translation";
 import { GeoChartRegion } from "../../src/types/chart/geo_chart";
 import { Image } from "../../src/types/image";
 import { ModelExternalConfig } from "../../src/types/model";
 import { SpreadsheetChildEnv } from "../../src/types/spreadsheet_env";
+import { Store } from "../../src/types/store_engine";
 import { XLSXExport } from "../../src/types/xlsx";
 import { isXLSXExportXMLFile } from "../../src/xlsx/helpers/xlsx_helper";
 import { fixLengthySheetNames, purgeSingleRowTables } from "../../src/xlsx/xlsx_writer";

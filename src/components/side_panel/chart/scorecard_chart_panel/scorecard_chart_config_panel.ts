@@ -1,7 +1,8 @@
 import { Component, useState } from "@odoo/owl";
 import { _t } from "../../../../translation";
 import { BaselineMode, ScorecardChartDefinition } from "../../../../types/chart/scorecard_chart";
-import { CommandResult, DispatchResult, ValueAndLabel } from "../../../../types/index";
+import { CommandResult, DispatchResult } from "../../../../types/commands";
+import { ValueAndLabel } from "../../../../types/misc";
 import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
 import { Select } from "../../../select/select";
 import { SelectionInput } from "../../../selection_input/selection_input";

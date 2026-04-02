@@ -1,8 +1,10 @@
 import { Component } from "@odoo/owl";
 import { DEFAULT_COLOR_SCALE_MIDPOINT_COLOR } from "../../../../constants";
-import { colorNumberToHex } from "../../../../helpers";
+import { colorNumberToHex } from "../../../../helpers/color";
 import { _t } from "../../../../translation";
-import { ColorScaleThreshold, CommandResult, ValueAndLabel } from "../../../../types";
+import { CommandResult } from "../../../../types/commands";
+import { ColorScaleThreshold } from "../../../../types/conditional_formatting";
+import { ValueAndLabel } from "../../../../types/misc";
 import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
 import { Store } from "../../../../types/store_engine";
 import { StandaloneComposer } from "../../../composer/standalone_composer/standalone_composer";

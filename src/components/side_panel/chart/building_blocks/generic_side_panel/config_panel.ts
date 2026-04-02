@@ -1,5 +1,5 @@
 import { Component, useState } from "@odoo/owl";
-import { ChartDefinitionWithDataSource } from "../../../../../types";
+import { ChartDefinitionWithDataSource } from "../../../../..";
 import { SpreadsheetChildEnv } from "../../../../../types/spreadsheet_env";
 import { ChartTerms } from "../../../../translations_terms";
 import { Checkbox } from "../../../components/checkbox/checkbox";

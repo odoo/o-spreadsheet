@@ -1,5 +1,5 @@
 import { onMounted, onPatched, useComponent, useState } from "@odoo/owl";
-import { Rect } from "../../types";
+import { Rect } from "../../types/rendering";
 
 /**
  * Return the o-spreadsheet element position relative

@@ -1,7 +1,8 @@
 import { TitleOptions } from "chart.js";
 import { CHART_PADDING, CHART_TITLE_FONT_SIZE } from "../../../../constants";
-import { ChartDefinitionWithDataSource, DeepPartial } from "../../../../types";
+import { ChartDefinitionWithDataSource } from "../../../../types/chart/chart";
 import { Getters } from "../../../../types/getters";
+import { DeepPartial } from "../../../../types/misc";
 import { chartMutedFontColor } from "../chart_common";
 
 export function getChartTitle(

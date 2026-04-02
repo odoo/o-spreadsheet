@@ -1,4 +1,3 @@
-import { Getters, Range } from "../types";
 import {
   ChartCreationContext,
   ChartData,
@@ -6,10 +5,12 @@ import {
   ChartType,
   ChartTypeDefinition,
   ExcelChartDefinition,
-} from "../types/chart";
+} from "../types/chart/chart";
 import { CommandResult } from "../types/commands";
 import { CoreGetters } from "../types/core_getters";
+import { Getters } from "../types/getters";
 import { RangeAdapterFunctions, UID } from "../types/misc";
+import { Range } from "../types/range";
 import { Validator } from "../types/validator";
 import { ChartDataSourceBuilder } from "./chart_data_source_registry";
 import { Registry } from "./registry";

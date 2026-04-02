@@ -1,5 +1,5 @@
 import { Component, xml } from "@odoo/owl";
-import { Model, Spreadsheet } from "../../src";
+import { Figure, Model, Pixel, Position, Spreadsheet, UID } from "../../src";
 import {
   DEFAULT_CELL_HEIGHT,
   DEFAULT_CELL_WIDTH,
@@ -9,7 +9,6 @@ import {
   MENU_WIDTH,
   ZOOM_VALUES,
 } from "../../src/constants";
-import { Figure, Pixel, Position, UID } from "../../src/types";
 
 import { FigureComponent } from "../../src/components/figures/figure/figure";
 import { ChartFigure } from "../../src/components/figures/figure_chart/figure_chart";

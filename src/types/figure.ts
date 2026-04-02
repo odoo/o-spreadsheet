@@ -1,4 +1,4 @@
-import { TitleDesign } from "./chart";
+import { TitleDesign } from "./chart/chart";
 import { HeaderIndex, Pixel, PixelPosition, UID } from "./misc";
 import { DOMCoordinates } from "./rendering";
 

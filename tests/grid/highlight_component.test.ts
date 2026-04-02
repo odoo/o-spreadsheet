@@ -1,5 +1,5 @@
 import { Component, useSubEnv, xml } from "@odoo/owl";
-import { Model } from "../../src";
+import { Color, Model, Pixel, Range } from "../../src";
 import { Highlight } from "../../src/components/highlight/highlight/highlight";
 import {
   DEFAULT_CELL_HEIGHT,
@@ -7,8 +7,8 @@ import {
   getDefaultSheetViewSize,
   ZOOM_VALUES,
 } from "../../src/constants";
-import { toHex, toZone } from "../../src/helpers";
-import { Color, Pixel, Range } from "../../src/types";
+import { toHex } from "../../src/helpers/color";
+import { toZone } from "../../src/helpers/zones";
 import { merge, resizeSheetView, setZoom } from "../test_helpers/commands_helpers";
 import { edgeScrollDelay, triggerMouseEvent } from "../test_helpers/dom_helper";
 import {

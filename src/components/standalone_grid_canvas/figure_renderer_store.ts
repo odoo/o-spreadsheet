@@ -1,10 +1,15 @@
 import { BACKGROUND_CHART_COLOR, DEFAULT_CAROUSEL_TITLE_STYLE, GRAY_400 } from "../../constants";
-import { chartStyleToCellStyle, computeTextFont, deepCopy } from "../../helpers";
-import { drawChartOnCanvas } from "../../helpers/figures/charts";
-import { DisposableStore, Get, Store } from "../../store_engine";
-import { ModelStore } from "../../stores";
+import { drawChartOnCanvas } from "../../helpers/figures/charts/chart_ui_common";
+import { chartStyleToCellStyle, deepCopy } from "../../helpers/misc";
+import { computeTextFont } from "../../helpers/text_helper";
+import { DisposableStore } from "../../store_engine/store";
+import { ModelStore } from "../../stores/model_store";
 import { RendererStore } from "../../stores/renderer_store";
-import { FigureUI, GridRenderingContext, Rect, RenderingGetters, UID } from "../../types";
+import { FigureUI } from "../../types/figure";
+import { RenderingGetters } from "../../types/getters";
+import { UID } from "../../types/misc";
+import { GridRenderingContext, Rect } from "../../types/rendering";
+import { Get, Store } from "../../types/store_engine";
 
 /** Store that draws the figures directly onto the canvas */
 export class FigureRendererStore extends DisposableStore {

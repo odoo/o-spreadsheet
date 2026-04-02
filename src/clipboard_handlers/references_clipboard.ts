@@ -1,4 +1,5 @@
-import { ClipboardCellData, ClipboardOptions, ClipboardPasteTarget, UID, Zone } from "../types";
+import { ClipboardCellData, ClipboardOptions, ClipboardPasteTarget } from "../types/clipboard";
+import { UID, Zone } from "../types/misc";
 import { AbstractCellClipboardHandler } from "./abstract_cell_clipboard_handler";
 
 interface ClipboardContent {

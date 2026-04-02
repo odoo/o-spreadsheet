@@ -1,6 +1,6 @@
 import { CellClipboardHandler } from "../../clipboard_handlers/cell_clipboard";
-import { deepEquals, range, trimContent } from "../../helpers";
 import { getClipboardDataPositions } from "../../helpers/clipboard/clipboard_helpers";
+import { deepEquals, range, trimContent } from "../../helpers/misc";
 import { recomputeZones } from "../../helpers/recompute_zones";
 import { positions, zoneToDimension } from "../../helpers/zones";
 import { _t } from "../../translation";

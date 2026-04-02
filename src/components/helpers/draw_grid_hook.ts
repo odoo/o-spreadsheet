@@ -1,9 +1,10 @@
 import { useEffect, useRef } from "@odoo/owl";
 import { CANVAS_SHIFT } from "../../constants";
-import { Store, useLocalStore, useStore } from "../../store_engine";
+import { useLocalStore, useStore } from "../../store_engine/store_hooks";
 import { GridRenderer } from "../../stores/grid_renderer_store";
 import { RendererStore } from "../../stores/renderer_store";
-import { GridRenderingContext } from "../../types";
+import { GridRenderingContext } from "../../types/rendering";
+import { Store } from "../../types/store_engine";
 import { cssPropertiesToCss } from "./css";
 
 interface GridDrawingArgs {

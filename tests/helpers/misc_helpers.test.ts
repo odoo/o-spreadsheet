@@ -1,4 +1,5 @@
 import seedrandom from "seedrandom";
+import { DateTime } from "../../src/helpers/dates";
 import {
   deepCopy,
   deepEquals,
@@ -8,9 +9,8 @@ import {
   lazy,
   memoize,
   range,
-  UuidGenerator,
-} from "../../src/helpers";
-import { DateTime } from "../../src/helpers/dates";
+} from "../../src/helpers/misc";
+import { UuidGenerator } from "../../src/helpers/uuid";
 
 describe("Misc", () => {
   test("range", () => {

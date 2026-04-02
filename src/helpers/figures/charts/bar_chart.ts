@@ -7,16 +7,14 @@ import { toXlsxHexColor } from "../../../xlsx/helpers/colors";
 import { AbstractChart } from "./abstract_chart";
 import { chartFontColor, getDefinedAxis } from "./chart_common";
 import { CHART_COMMON_OPTIONS } from "./chart_ui_common";
-import {
-  getBarChartData,
-  getBarChartDatasets,
-  getBarChartLegend,
-  getBarChartScales,
-  getBarChartTooltip,
-  getChartShowValues,
-  getChartTitle,
-} from "./runtime";
+import { getBarChartData } from "./runtime/chart_data_extractor";
+import { getBarChartDatasets } from "./runtime/chartjs_dataset";
 import { getChartLayout } from "./runtime/chartjs_layout";
+import { getBarChartLegend } from "./runtime/chartjs_legend";
+import { getBarChartScales } from "./runtime/chartjs_scales";
+import { getChartShowValues } from "./runtime/chartjs_show_values";
+import { getChartTitle } from "./runtime/chartjs_title";
+import { getBarChartTooltip } from "./runtime/chartjs_tooltip";
 
 export const BarChart: ChartTypeBuilder<"bar"> = {
   sequence: 10,

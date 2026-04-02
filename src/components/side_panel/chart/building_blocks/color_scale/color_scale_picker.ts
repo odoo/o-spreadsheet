@@ -1,10 +1,11 @@
 import { Component, useExternalListener, useRef, useState } from "@odoo/owl";
 import { DEFAULT_CHART_COLOR_SCALE } from "../../../../../constants";
-import { ColorScale, COLORSCALES, COLORSCHEMES } from "../../../../../helpers";
-import { ChartColorScale, Color, schemeToColorScale } from "../../../../../types";
+import { ColorScale, COLORSCALES, COLORSCHEMES } from "../../../../../helpers/color";
+import { ChartColorScale, schemeToColorScale } from "../../../../../types/chart/chart";
+import { Color } from "../../../../../types/misc";
 import { SpreadsheetChildEnv } from "../../../../../types/spreadsheet_env";
-import { cssPropertiesToCss } from "../../../../helpers";
-import { Popover, PopoverProps } from "../../../../popover";
+import { cssPropertiesToCss } from "../../../../helpers/css";
+import { Popover, PopoverProps } from "../../../../popover/popover";
 import { ChartTerms } from "../../../../translations_terms";
 import { RoundColorPicker } from "../../../components/round_color_picker/round_color_picker";
 import { Section } from "../../../components/section/section";

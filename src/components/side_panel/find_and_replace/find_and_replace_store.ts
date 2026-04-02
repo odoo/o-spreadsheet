@@ -1,13 +1,15 @@
-import { getSearchRegex, isInside, positionToZone } from "../../../helpers";
+import { getSearchRegex } from "../../../helpers/misc";
+import { isInside, positionToZone } from "../../../helpers/zones";
 import { HighlightProvider, HighlightStore } from "../../../stores/highlight_store";
-import { CellPosition, Color, Command, Highlight } from "../../../types";
+import { Command } from "../../../types/commands";
+import { CellPosition, Color, Highlight } from "../../../types/misc";
 
 import { canonicalizeNumberContent } from "../../../helpers/locale";
-import { Get } from "../../../store_engine";
-import { SpreadsheetStore } from "../../../stores";
 import { NotificationStore } from "../../../stores/notification_store";
+import { SpreadsheetStore } from "../../../stores/spreadsheet_store";
 import { _t } from "../../../translation";
 import { SearchOptions } from "../../../types/find_and_replace";
+import { Get } from "../../../types/store_engine";
 
 const FIND_AND_REPLACE_HIGHLIGHT_COLOR: Color = "#8B008B";
 

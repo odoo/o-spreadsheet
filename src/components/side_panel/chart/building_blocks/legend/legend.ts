@@ -1,7 +1,8 @@
 import { Component } from "@odoo/owl";
 import { _t } from "../../../../../translation";
-import { ValueAndLabel } from "../../../../../types";
-import { ChartDefinitionWithDataSource, LegendPosition } from "../../../../../types/chart";
+import { ChartDefinitionWithDataSource } from "../../../../../types/chart/chart";
+import { LegendPosition } from "../../../../../types/chart/common_chart";
+import { ValueAndLabel } from "../../../../../types/misc";
 import { SpreadsheetChildEnv } from "../../../../../types/spreadsheet_env";
 import { Select } from "../../../../select/select";
 import { Section } from "../../../components/section/section";

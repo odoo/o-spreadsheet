@@ -1,5 +1,4 @@
-import { Model } from "../../src";
-import { ErrorCell } from "../../src/types";
+import { ErrorCell, Model } from "../../src";
 import { setCellContent, setFormat } from "../test_helpers/commands_helpers";
 import { getCellContent, getEvaluatedCell, getRangeValues } from "../test_helpers/getters_helpers";
 import {

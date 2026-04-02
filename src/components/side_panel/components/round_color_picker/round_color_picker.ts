@@ -1,8 +1,8 @@
 import { Component, useExternalListener, useRef, useState } from "@odoo/owl";
-import { Rect } from "../../../../types";
+import { Rect } from "../../../../types/rendering";
 import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
 import { ColorPicker } from "../../../color_picker/color_picker";
-import { cssPropertiesToCss } from "../../../helpers";
+import { cssPropertiesToCss } from "../../../helpers/css";
 import { getBoundingRectAsPOJO } from "../../../helpers/dom_helpers";
 import { Section } from "../section/section";
 

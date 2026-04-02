@@ -3,9 +3,8 @@ import {
   CanvasRenderingContext2D as NodeCanvasRenderingContext2D,
   createCanvas,
 } from "canvas";
-import { Model, RenderingGetters, UID } from "../../src";
+import { GridRenderingContext, Model, RenderingGetters, UID, Viewport, Zone } from "../../src";
 import { getDefaultSheetViewSize } from "../../src/constants";
-import { GridRenderingContext, Viewport, Zone } from "../../src/types";
 import { MockCanvasRenderingContext2D } from "../setup/canvas.mock";
 import { resizeSheetView } from "./commands_helpers";
 

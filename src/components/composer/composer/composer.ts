@@ -1,24 +1,20 @@
 import { Component, onMounted, onWillUnmount, useEffect, useRef, useState } from "@odoo/owl";
 import { NEWLINE, SCROLLBAR_WIDTH } from "../../../constants";
-import { debounce, deepEquals, isFormula, setColorAlpha } from "../../../helpers/index";
+import { setColorAlpha } from "../../../helpers/color";
+import { debounce, deepEquals, isFormula } from "../../../helpers/misc";
 
 import { DEFAULT_TOKEN_COLOR } from "../../../constants";
 import { EnrichedToken } from "../../../formulas/composer_tokenizer";
 import { argTargeting } from "../../../functions/arguments";
 import { functionRegistry } from "../../../functions/function_registry";
-import { AutoCompleteProposal } from "../../../registries/auto_completes";
-import { Store, useStore } from "../../../store_engine";
+import { AutoCompleteProposal } from "../../../registries/auto_completes/auto_complete_registry";
+import { useStore } from "../../../store_engine/store_hooks";
 import { DOMFocusableElementStore } from "../../../stores/DOM_focus_store";
-import {
-  CSSProperties,
-  Color,
-  ComposerFocusType,
-  DOMDimension,
-  Direction,
-  FunctionDescription,
-  Rect,
-} from "../../../types/index";
+import { FunctionDescription } from "../../../types/functions";
+import { CSSProperties, Color, ComposerFocusType, Direction } from "../../../types/misc";
+import { DOMDimension, Rect } from "../../../types/rendering";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
+import { Store } from "../../../types/store_engine";
 import { cssPropertiesToCss } from "../../helpers/css";
 import { isIOS, keyboardEventToShortcutString } from "../../helpers/dom_helpers";
 import { useSpreadsheetRect } from "../../helpers/position_hook";

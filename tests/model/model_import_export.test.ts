@@ -1,4 +1,13 @@
-import { CellIsRule, Model } from "../../src";
+import {
+  BorderDescr,
+  CellIsRule,
+  ColorScaleRule,
+  DEFAULT_LOCALE,
+  DEFAULT_LOCALES,
+  IconSetRule,
+  Model,
+  schemeToColorScale,
+} from "../../src";
 import {
   BACKGROUND_CHART_COLOR,
   DEFAULT_CELL_HEIGHT,
@@ -7,17 +16,9 @@ import {
   FORBIDDEN_SHEETNAME_CHARS,
   MESSAGE_VERSION,
 } from "../../src/constants";
-import { toZone } from "../../src/helpers";
 import { DEFAULT_TABLE_CONFIG } from "../../src/helpers/table_presets";
+import { toZone } from "../../src/helpers/zones";
 import { getCurrentVersion } from "../../src/migrations/data";
-import {
-  BorderDescr,
-  ColorScaleRule,
-  DEFAULT_LOCALE,
-  DEFAULT_LOCALES,
-  IconSetRule,
-  schemeToColorScale,
-} from "../../src/types";
 import { StateUpdateMessage } from "../../src/types/collaborative/transport_service";
 import { toChartDataSource } from "../test_helpers/chart_helpers";
 import {

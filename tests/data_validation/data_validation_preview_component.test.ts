@@ -1,9 +1,8 @@
 import { Component } from "@odoo/owl";
-import { Model } from "../../src";
+import { DataValidationRuleData, DEFAULT_LOCALE, Model } from "../../src";
 import { DataValidationPreview } from "../../src/components/side_panel/data_validation/dv_preview/dv_preview";
-import { toZone } from "../../src/helpers";
+import { toZone } from "../../src/helpers/zones";
 import { criterionEvaluatorRegistry } from "../../src/registries/criterion_registry";
-import { DataValidationRuleData, DEFAULT_LOCALE } from "../../src/types";
 import { DataValidationCriterion } from "../../src/types/data_validation";
 import { SpreadsheetChildEnv } from "../../src/types/spreadsheet_env";
 import { updateLocale } from "../test_helpers/commands_helpers";

@@ -1,6 +1,7 @@
 import { functionRegistry } from "../functions/function_registry";
-import { isDefined, UuidGenerator } from "../helpers";
+import { isDefined } from "../helpers/misc";
 import { handlePasteResult } from "../helpers/ui/paste_interactive";
+import { UuidGenerator } from "../helpers/uuid";
 import { _t } from "../translation";
 import { ActionBuilder, ActionSpec } from "./action";
 import * as ACTIONS from "./menu_items_actions";

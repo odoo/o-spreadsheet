@@ -1,5 +1,5 @@
 import { Component } from "@odoo/owl";
-import { getUniqueText } from "../../../helpers";
+import { getUniqueText } from "../../../helpers/misc";
 import { _t } from "../../../translation";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
 import { SelectionInput } from "../../selection_input/selection_input";

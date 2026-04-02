@@ -1,16 +1,17 @@
 import seedrandom from "seedrandom";
-import { Model } from "../../src";
-import { FunctionCodeBuilder } from "../../src/formulas/code_builder";
-import { deepCopy, deepEquals, range, reorderZone } from "../../src/helpers";
 import {
   Command,
   CoreCommand,
+  Model,
   UnboundedZone,
   isPositionDependent,
   isRangeDependant,
   isSheetDependent,
   isTargetDependent,
-} from "../../src/types";
+} from "../../src";
+import { FunctionCodeBuilder } from "../../src/formulas/code_builder";
+import { deepCopy, deepEquals, range } from "../../src/helpers/misc";
+import { reorderZone } from "../../src/helpers/zones";
 import { MockTransportService } from "../__mocks__/transport_service";
 import { TEST_COMMANDS } from "../test_helpers/constants";
 import { setupCollaborativeEnv } from "./collaborative_helpers";

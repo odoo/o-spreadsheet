@@ -1,5 +1,5 @@
 import { SpreadsheetStore } from "../../stores/spreadsheet_store";
-import { ComposerFocusType, EditionMode } from "../../types";
+import { ComposerFocusType, EditionMode } from "../../types/misc";
 import { ComposerSelection } from "./composer/abstract_composer_store";
 
 export interface ComposerInterface {

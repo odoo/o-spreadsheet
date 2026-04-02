@@ -1,8 +1,8 @@
 import { onMounted, useEffect } from "@odoo/owl";
-import { deepEquals } from "../../helpers";
-import { useLocalStore, useStoreProvider } from "../../store_engine";
+import { deepEquals } from "../../helpers/misc";
+import { useLocalStore, useStoreProvider } from "../../store_engine/store_hooks";
 import { HighlightProvider, HighlightStore } from "../../stores/highlight_store";
-import { Ref } from "../../types";
+import { Ref } from "../../types/misc";
 import { useHoveredElement } from "./listener_hook";
 
 export function useHighlightsOnHover(ref: Ref<HTMLElement>, highlightProvider: HighlightProvider) {

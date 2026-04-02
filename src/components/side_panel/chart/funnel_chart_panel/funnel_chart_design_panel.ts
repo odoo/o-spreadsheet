@@ -1,8 +1,8 @@
 import { Component } from "@odoo/owl";
-import { replaceItemAtIndex } from "../../../../helpers";
-import { getFunnelLabelColors } from "../../../../helpers/figures/charts/runtime";
+import { getFunnelLabelColors } from "../../../../helpers/figures/charts/runtime/chartjs_dataset";
+import { replaceItemAtIndex } from "../../../../helpers/misc";
 import { _t } from "../../../../translation";
-import { FunnelChartDefinition, FunnelChartRuntime } from "../../../../types/chart";
+import { FunnelChartDefinition, FunnelChartRuntime } from "../../../../types/chart/funnel_chart";
 import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
 import { SidePanelCollapsible } from "../../components/collapsible/side_panel_collapsible";
 import { RoundColorPicker } from "../../components/round_color_picker/round_color_picker";

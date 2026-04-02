@@ -1,5 +1,5 @@
 import { CellErrorType, CommandResult, Model } from "../../../../src";
-import { deepCopy } from "../../../../src/helpers";
+import { deepCopy } from "../../../../src/helpers/misc";
 import {
   GaugeChartDefinition,
   GaugeChartRuntime,

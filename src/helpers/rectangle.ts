@@ -1,4 +1,5 @@
-import { Rect, Zone } from "../types";
+import { Zone } from "../types/misc";
+import { Rect } from "../types/rendering";
 import { intersection, union } from "./zones";
 
 /**

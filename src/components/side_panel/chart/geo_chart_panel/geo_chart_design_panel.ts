@@ -1,7 +1,8 @@
 import { _t } from "../../../../translation";
-import { Color, ValueAndLabel } from "../../../../types";
-import { ChartColorScale, LegendPosition } from "../../../../types/chart";
+import { ChartColorScale } from "../../../../types/chart/chart";
+import { LegendPosition } from "../../../../types/chart/common_chart";
 import { GeoChartDefinition } from "../../../../types/chart/geo_chart";
+import { Color, ValueAndLabel } from "../../../../types/misc";
 import { Select } from "../../../select/select";
 import { RoundColorPicker } from "../../components/round_color_picker/round_color_picker";
 import { ColorScalePicker } from "../building_blocks/color_scale/color_scale_picker";

@@ -1,6 +1,5 @@
-import { CommandResult, Model } from "../../src";
-import { toUnboundedZone, toZone, zoneToXc } from "../../src/helpers";
-import { UID } from "../../src/types";
+import { CommandResult, Model, UID } from "../../src";
+import { toUnboundedZone, toZone, zoneToXc } from "../../src/helpers/zones";
 import {
   activateSheet,
   addColumns,
@@ -43,7 +42,7 @@ import {
 
 import { DEFAULT_BORDER_DESC } from "../../src/constants";
 import { DEFAULT_TABLE_CONFIG, TABLE_PRESETS } from "../../src/helpers/table_presets";
-import { EvaluationPlugin } from "../../src/plugins/ui_core_views/cell_evaluation";
+import { EvaluationPlugin } from "../../src/plugins/ui_core_views/cell_evaluation/evaluation_plugin";
 import { TABLE_STYLE_ALL_RED } from "../test_helpers/constants";
 
 beforeEach(() => {

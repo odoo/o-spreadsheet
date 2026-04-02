@@ -1,5 +1,5 @@
 import { Component } from "@odoo/owl";
-import { TitleDesign } from "../../../../../types";
+import { TitleDesign } from "../../../../../types/chart/chart";
 import { SpreadsheetChildEnv } from "../../../../../types/spreadsheet_env";
 import { TextInput } from "../../../../text_input/text_input";
 import { Section } from "../../../components/section/section";

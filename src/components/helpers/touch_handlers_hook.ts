@@ -1,5 +1,5 @@
 import { useExternalListener } from "@odoo/owl";
-import { Ref } from "../../types";
+import { Ref } from "../../types/misc";
 import { useRefListener } from "./listener_hook";
 
 const friction = 0.95;

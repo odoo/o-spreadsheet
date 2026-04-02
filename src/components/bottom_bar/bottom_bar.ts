@@ -1,8 +1,10 @@
 import { Component, onWillUpdateProps, useRef, useState } from "@odoo/owl";
-import { deepEquals, UuidGenerator } from "../../helpers";
+import { deepEquals } from "../../helpers/misc";
+import { UuidGenerator } from "../../helpers/uuid";
 import { MenuItemRegistry } from "../../registries/menu_items_registry";
 import { _t } from "../../translation";
-import { MenuMouseEvent, Pixel, Rect, UID } from "../../types";
+import { MenuMouseEvent, Pixel, UID } from "../../types/misc";
+import { Rect } from "../../types/rendering";
 import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 import { Ripple } from "../animation/ripple";
 import { useDragAndDropListItems } from "../helpers/drag_and_drop_dom_items_hook";

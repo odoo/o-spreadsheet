@@ -1,9 +1,12 @@
 import { Component } from "@odoo/owl";
 import { DEFAULT_PIVOT_STYLE } from "../../../../../helpers/pivot/pivot_helpers";
 import { PIVOT_TABLE_PRESETS } from "../../../../../helpers/pivot_table_presets";
-import { Store, useLocalStore } from "../../../../../store_engine";
-import { PivotStyle, TableConfig, TableStyle, UID } from "../../../../../types";
+import { useLocalStore } from "../../../../../store_engine/store_hooks";
+import { UID } from "../../../../../types/misc";
+import { PivotStyle } from "../../../../../types/pivot";
 import { SpreadsheetChildEnv } from "../../../../../types/spreadsheet_env";
+import { Store } from "../../../../../types/store_engine";
+import { TableConfig, TableStyle } from "../../../../../types/table";
 import { NumberInput } from "../../../../number_input/number_input";
 import { TableStylePicker } from "../../../../tables/table_style_picker/table_style_picker";
 import { Checkbox } from "../../../components/checkbox/checkbox";

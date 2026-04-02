@@ -1,12 +1,13 @@
+import { CommandResult, DEFAULT_LOCALE, Sheet, Wrapping } from "../../src";
 import {
   DEFAULT_CELL_HEIGHT,
   DEFAULT_CELL_WIDTH,
   MIN_CELL_TEXT_MARGIN,
   PADDING_AUTORESIZE_VERTICAL,
 } from "../../src/constants";
-import { getDefaultCellHeight as getDefaultCellHeightHelper, toXC } from "../../src/helpers";
+import { toXC } from "../../src/helpers/coordinates";
+import { getDefaultCellHeight as getDefaultCellHeightHelper } from "../../src/helpers/text_helper";
 import { Model } from "../../src/model";
-import { CommandResult, DEFAULT_LOCALE, Sheet, Wrapping } from "../../src/types";
 import {
   activateSheet,
   addColumns,

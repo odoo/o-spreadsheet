@@ -1,7 +1,7 @@
 import { CellComposerStore } from "../../src/components/composer/composer/cell_composer_store";
 import { Model } from "../../src/model";
-import { Store } from "../../src/store_engine";
 import { SpreadsheetChildEnv } from "../../src/types/spreadsheet_env";
+import { Store } from "../../src/types/store_engine";
 import {
   addEqualCf,
   setCellContent,

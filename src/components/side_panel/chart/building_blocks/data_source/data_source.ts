@@ -1,7 +1,8 @@
 import { Component } from "@odoo/owl";
 
 import { chartDataSourceSidePanelComponentRegistry } from "../../../../../registries/chart_data_source_component_registry";
-import { ChartDefinitionWithDataSource, UID } from "../../../../../types";
+import { ChartDefinitionWithDataSource } from "../../../../../types/chart/chart";
+import { UID } from "../../../../../types/misc";
 import { SpreadsheetChildEnv } from "../../../../../types/spreadsheet_env";
 import { ChartSidePanelProps } from "../../common";
 import { ChartDataSeries } from "../data_series/data_series";

@@ -7,7 +7,7 @@ import {
   invalidateEvaluationCommands,
   LocalCommand,
 } from "../../types/commands";
-import { SelectionEvent } from "../../types/event_stream";
+import { SelectionEvent } from "../../types/event_stream/selection_events";
 import { AnchorOffset, Figure, FigureUI } from "../../types/figure";
 import {
   CellPosition,

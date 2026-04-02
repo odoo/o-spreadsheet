@@ -1,5 +1,5 @@
 import { Model, Spreadsheet } from "../../src";
-import { buildSheetLink } from "../../src/helpers";
+import { buildSheetLink } from "../../src/helpers/misc";
 import {
   clearCell,
   createSheet,

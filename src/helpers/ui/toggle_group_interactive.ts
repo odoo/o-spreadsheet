@@ -1,5 +1,6 @@
 import { _t } from "../../translation";
-import { CommandResult, Dimension, HeaderIndex, UID } from "../../types";
+import { CommandResult } from "../../types/commands";
+import { Dimension, HeaderIndex, UID } from "../../types/misc";
 import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 
 export const ToggleGroupInteractiveContent = {

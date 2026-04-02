@@ -1,5 +1,6 @@
 import { _t } from "../../../../translation";
-import { DateCriterionValue, GenericDateCriterion, ValueAndLabel } from "../../../../types";
+import { DateCriterionValue, GenericDateCriterion } from "../../../../types/generic_criterion";
+import { ValueAndLabel } from "../../../../types/misc";
 import { Select } from "../../../select/select";
 import { CriterionForm } from "../criterion_form";
 import { CriterionInput } from "../criterion_input/criterion_input";

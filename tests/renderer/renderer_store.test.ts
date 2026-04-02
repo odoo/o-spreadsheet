@@ -1,4 +1,15 @@
-import { LiteralCell, Model } from "../../src";
+import {
+  Align,
+  BorderPosition,
+  Box,
+  CellIsRule,
+  DataValidationCriterion,
+  GridRenderingContext,
+  LayerName,
+  LiteralCell,
+  Model,
+  Zone,
+} from "../../src";
 import { HoveredTableStore } from "../../src/components/tables/hovered_table_store";
 import {
   BACKGROUND_HEADER_ACTIVE_COLOR,
@@ -15,26 +26,12 @@ import {
   SELECTION_BORDER_COLOR,
   TABLE_HOVER_BACKGROUND_COLOR,
 } from "../../src/constants";
-import {
-  blendColors,
-  fontSizeInPixels,
-  getContextFontSize,
-  toHex,
-  toZone,
-} from "../../src/helpers";
+import { blendColors, toHex } from "../../src/helpers/color";
+import { fontSizeInPixels, getContextFontSize } from "../../src/helpers/text_helper";
+import { toZone } from "../../src/helpers/zones";
 import { FormulaFingerprintStore } from "../../src/stores/formula_fingerprints_store";
 import { GridRenderer } from "../../src/stores/grid_renderer_store";
 import { RendererStore } from "../../src/stores/renderer_store";
-import {
-  Align,
-  BorderPosition,
-  Box,
-  CellIsRule,
-  DataValidationCriterion,
-  GridRenderingContext,
-  LayerName,
-  Zone,
-} from "../../src/types";
 import { Mode } from "../../src/types/model";
 import { MockCanvasRenderingContext2D } from "../setup/canvas.mock";
 import {

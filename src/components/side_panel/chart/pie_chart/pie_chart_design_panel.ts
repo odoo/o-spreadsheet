@@ -1,7 +1,7 @@
 import { Component, useState } from "@odoo/owl";
-import { deepCopy } from "../../../../helpers";
-import { ValueAndLabel } from "../../../../types";
-import { PieChartDefinition, PieChartRuntime } from "../../../../types/chart";
+import { deepCopy } from "../../../../helpers/misc";
+import { PieChartDefinition, PieChartRuntime } from "../../../../types/chart/pie_chart";
+import { ValueAndLabel } from "../../../../types/misc";
 import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
 import { DEFAULT_DOUGHNUT_CHART_HOLE_SIZE } from "../../../../xlsx/constants";
 import { Select } from "../../../select/select";

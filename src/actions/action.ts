@@ -1,4 +1,4 @@
-import { Color } from "../types";
+import { Color } from "../types/misc";
 import { SpreadsheetChildEnv } from "../types/spreadsheet_env";
 
 export type MenuItemOrSeparator = Action | "separator";

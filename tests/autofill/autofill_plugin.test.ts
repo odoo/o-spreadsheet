@@ -1,7 +1,9 @@
 import "../test_helpers/helpers";
 
-import { buildSheetLink, toCartesian, toZone } from "../../src/helpers";
-import { Border, Style } from "../../src/types";
+import { Border, Style } from "../../src";
+import { toCartesian } from "../../src/helpers/coordinates";
+import { buildSheetLink } from "../../src/helpers/misc";
+import { toZone } from "../../src/helpers/zones";
 import {
   addDataValidation,
   addEqualCf,
@@ -39,10 +41,9 @@ import {
   makeTestComposerStore,
 } from "../test_helpers/helpers";
 
-import { Model } from "../../src";
+import { DIRECTION, Model } from "../../src";
 import { functionRegistry } from "../../src/functions/function_registry";
 import { AutofillPlugin } from "../../src/plugins/ui_feature/autofill";
-import { DIRECTION } from "../../src/types/index";
 
 let autoFill: AutofillPlugin;
 let model: Model;

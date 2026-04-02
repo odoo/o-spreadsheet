@@ -1,5 +1,5 @@
-import { Get } from "../store_engine";
-import { ClientId } from "../types";
+import { ClientId } from "../types/collaborative/session";
+import { Get } from "../types/store_engine";
 import { SpreadsheetStore } from "./spreadsheet_store";
 
 export class ClientFocusStore extends SpreadsheetStore {

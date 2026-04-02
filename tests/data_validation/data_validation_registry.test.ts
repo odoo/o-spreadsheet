@@ -1,9 +1,3 @@
-import { Model } from "../../src";
-import { parseLiteral } from "../../src/helpers/cells/cell_evaluation";
-import {
-  CriterionEvaluator,
-  criterionEvaluatorRegistry,
-} from "../../src/registries/criterion_registry";
 import {
   DataValidationCriterion,
   DateCriterionValue,
@@ -13,10 +7,16 @@ import {
   GenericCriterion,
   GenericDateCriterion,
   Getters,
+  Model,
   Top10Criterion,
   UID,
   UniqueValuesCriterion,
-} from "../../src/types";
+} from "../../src";
+import { parseLiteral } from "../../src/helpers/cells/cell_evaluation";
+import {
+  CriterionEvaluator,
+  criterionEvaluatorRegistry,
+} from "../../src/registries/criterion_registry";
 import { addDataValidation, setCellContent, updateLocale } from "../test_helpers/commands_helpers";
 import { FR_LOCALE } from "../test_helpers/constants";
 import { setGrid, toCellPosition } from "../test_helpers/helpers";

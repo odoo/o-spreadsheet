@@ -1,9 +1,9 @@
 import { CompiledFormula } from "../../formulas/compiler";
 import { isMultipleElementMatrix, toScalar } from "../../functions/helper_matrices";
-import { percentile } from "../../helpers";
 import { parseLiteral } from "../../helpers/cells/cell_evaluation";
 import { colorNumberToHex, getColorScale } from "../../helpers/color";
 import { clip, largeMax, largeMin, lazy } from "../../helpers/misc";
+import { percentile } from "../../helpers/numbers";
 import { isInside } from "../../helpers/zones";
 import { criterionEvaluatorRegistry } from "../../registries/criterion_registry";
 import { CellValueType, EvaluatedCell, NumberCell } from "../../types/cells";

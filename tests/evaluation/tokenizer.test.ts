@@ -1,6 +1,5 @@
-import { tokenize } from "../../src";
+import { DEFAULT_LOCALE, tokenize } from "../../src";
 import { NEWLINE } from "../../src/constants";
-import { DEFAULT_LOCALE } from "../../src/types";
 
 describe("tokenizer", () => {
   test("simple token", () => {

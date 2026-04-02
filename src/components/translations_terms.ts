@@ -1,6 +1,6 @@
 import { formatValue } from "../helpers/format/format";
 import { _t } from "../translation";
-import { ChartColorScale } from "../types/chart";
+import { ChartColorScale } from "../types/chart/chart";
 import { CommandResult } from "../types/commands";
 import { Locale } from "../types/locale";
 import { NEXT_VALUE, PREVIOUS_VALUE } from "../types/pivot";

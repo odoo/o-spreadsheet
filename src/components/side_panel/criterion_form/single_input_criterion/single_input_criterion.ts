@@ -1,4 +1,4 @@
-import { deepCopy } from "../../../../helpers";
+import { deepCopy } from "../../../../helpers/misc";
 import { CriterionForm } from "../criterion_form";
 import { CriterionInput } from "../criterion_input/criterion_input";
 

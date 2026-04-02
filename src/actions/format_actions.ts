@@ -6,11 +6,19 @@ import {
   FONT_SIZES,
   ROTATION_EPSILON,
 } from "../constants";
-import { createAccountingFormat, createCurrencyFormat, formatValue, roundFormat } from "../helpers";
 import { parseLiteral } from "../helpers/cells/cell_evaluation";
+import {
+  createAccountingFormat,
+  createCurrencyFormat,
+  formatValue,
+  roundFormat,
+} from "../helpers/format/format";
 import { getDateTimeFormat } from "../helpers/locale";
 import { _t } from "../translation";
-import { Align, CellValue, DEFAULT_LOCALE, Format, VerticalAlign, Wrapping } from "../types";
+import { CellValue } from "../types/cells";
+import { Format } from "../types/format";
+import { DEFAULT_LOCALE } from "../types/locale";
+import { Align, VerticalAlign, Wrapping } from "../types/misc";
 import { SpreadsheetChildEnv } from "../types/spreadsheet_env";
 import { ActionSpec } from "./action";
 import * as ACTIONS from "./menu_items_actions";

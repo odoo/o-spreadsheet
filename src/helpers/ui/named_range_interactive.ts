@@ -4,7 +4,7 @@ import {
   CreateNamedRangeCommand,
   DispatchResult,
   UpdateNamedRangeCommand,
-} from "../../types";
+} from "../../types/commands";
 import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 
 export function interactiveCreateNamedRange(

@@ -1,4 +1,4 @@
-import { deepCopy } from "../helpers";
+import { deepCopy } from "../helpers/misc";
 import {
   genericRepeatsTransforms,
   repeatZoneDependantCommand,
@@ -16,8 +16,8 @@ import {
   repeatPasteCommand,
   repeatSortCellsCommand,
 } from "../history/repeat_commands/repeat_commands_specific";
-import { Getters } from "../types";
 import { Command } from "../types/commands";
+import { Getters } from "../types/getters";
 import {
   repeatCommandTransformRegistry,
   repeatLocalCommandTransformRegistry,

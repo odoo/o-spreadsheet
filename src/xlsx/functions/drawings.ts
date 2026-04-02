@@ -1,5 +1,5 @@
 import { FIGURE_BORDER_WIDTH } from "../../constants";
-import { ExcelChartDefinition } from "../../types/chart";
+import { ExcelChartDefinition } from "../../types/chart/chart";
 import { Image } from "../../types/image";
 import { HeaderIndex } from "../../types/misc";
 import { FigureData, HeaderData, SheetData } from "../../types/workbook_data";

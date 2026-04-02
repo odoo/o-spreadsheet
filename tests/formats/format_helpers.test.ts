@@ -1,12 +1,12 @@
+import { Currency, DEFAULT_LOCALE, LocaleFormat } from "../../src";
+import { parseDateTime } from "../../src/helpers/dates";
 import {
   createAccountingFormat,
   createCurrencyFormat,
   formatValue,
   isDateTimeFormat,
-  parseDateTime,
   roundFormat,
-} from "../../src/helpers";
-import { Currency, DEFAULT_LOCALE, LocaleFormat } from "../../src/types";
+} from "../../src/helpers/format/format";
 import { FR_LOCALE } from "../test_helpers/constants";
 
 const locale = DEFAULT_LOCALE;

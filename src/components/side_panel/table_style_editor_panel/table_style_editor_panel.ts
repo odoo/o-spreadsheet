@@ -1,9 +1,11 @@
 import { Component, useExternalListener, useState } from "@odoo/owl";
-import { isColorValid, UuidGenerator } from "../../../helpers";
-import { buildTableStyle, TABLE_STYLES_TEMPLATES } from "../../../helpers/table_presets";
-import { Color, TableConfig, TableStyle, TableStyleTemplateName } from "../../../types";
+import { isColorValid } from "../../../helpers/color";
+import { TABLE_STYLES_TEMPLATES, buildTableStyle } from "../../../helpers/table_presets";
+import { UuidGenerator } from "../../../helpers/uuid";
+import { Color } from "../../../types/misc";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
-import { cssPropertiesToCss } from "../../helpers";
+import { TableConfig, TableStyle, TableStyleTemplateName } from "../../../types/table";
+import { cssPropertiesToCss } from "../../helpers/css";
 import { TableStylePreview } from "../../tables/table_style_preview/table_style_preview";
 import { RoundColorPicker } from "../components/round_color_picker/round_color_picker";
 import { Section } from "../components/section/section";

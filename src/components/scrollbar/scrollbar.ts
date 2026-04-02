@@ -1,7 +1,7 @@
 import { Component, onMounted, useEffect, useRef, xml } from "@odoo/owl";
-import { CSSProperties, Pixel, Ref } from "../../types";
+import { CSSProperties, Pixel, Ref } from "../../types/misc";
 import { ScrollDirection } from "../../types/scroll_direction";
-import { cssPropertiesToCss } from "../helpers";
+import { cssPropertiesToCss } from "../helpers/css";
 import { ScrollBar as ScrollBarElement } from "../scrollbar";
 
 interface Props {

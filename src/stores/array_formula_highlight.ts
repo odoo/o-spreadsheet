@@ -1,5 +1,5 @@
-import { Get } from "../store_engine";
-import { Highlight } from "../types";
+import { Highlight } from "../types/misc";
+import { Get } from "../types/store_engine";
 import { HighlightStore } from "./highlight_store";
 import { SpreadsheetStore } from "./spreadsheet_store";
 

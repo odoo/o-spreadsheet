@@ -1,6 +1,7 @@
 import { Component } from "@odoo/owl";
 import { _t } from "../../../../translation";
-import { CommandResult, ValueAndLabel } from "../../../../types";
+import { CommandResult } from "../../../../types/commands";
+import { ValueAndLabel } from "../../../../types/misc";
 import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
 import { Store } from "../../../../types/store_engine";
 import { StandaloneComposer } from "../../../composer/standalone_composer/standalone_composer";

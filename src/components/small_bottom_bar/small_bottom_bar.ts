@@ -1,13 +1,15 @@
 import { Component, useEffect, useRef, useState } from "@odoo/owl";
-import { Store, useStore } from "../../store_engine";
-import { ComposerFocusType, Rect } from "../../types";
+import { useStore } from "../../store_engine/store_hooks";
+import { ComposerFocusType } from "../../types/misc";
+import { Rect } from "../../types/rendering";
 import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
+import { Store } from "../../types/store_engine";
 import { Ripple } from "../animation/ripple";
 import { BottomBar } from "../bottom_bar/bottom_bar";
 import { CellComposerStore } from "../composer/composer/cell_composer_store";
 import { CellComposerProps, Composer } from "../composer/composer/composer";
 import { ComposerFocusStore, ComposerInterface } from "../composer/composer_focus_store";
-import { cssPropertiesToCss } from "../helpers";
+import { cssPropertiesToCss } from "../helpers/css";
 import { getBoundingRectAsPOJO } from "../helpers/dom_helpers";
 import { RibbonMenu } from "./ribbon_menu/ribbon_menu";
 

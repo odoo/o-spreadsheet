@@ -1,5 +1,4 @@
-import { Model } from "../../src";
-import { CellPosition, DataValidationCriterion, UID } from "../../src/types";
+import { CellPosition, DataValidationCriterion, Model, UID } from "../../src";
 import {
   addDataValidation,
   duplicateSheet,

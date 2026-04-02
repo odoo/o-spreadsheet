@@ -1,4 +1,4 @@
-import { CellPopoverStore } from "../components/popover";
+import { CellPopoverStore } from "../components/popover/cell_popover_store";
 import { getPivotTooBigErrorMessage } from "../components/translations_terms";
 import {
   DEFAULT_FIGURE_HEIGHT,
@@ -9,24 +9,19 @@ import {
   getOSheetClipboardIdFromHTML,
   parseOSClipboardContent,
 } from "../helpers/clipboard/clipboard_helpers";
+import { numberToLetters } from "../helpers/coordinates";
 import { getSmartChartDefinition } from "../helpers/figures/charts/smart_chart_engine";
 import { centerFigurePosition, getMaxFigureSize } from "../helpers/figures/figure/figure";
-import {
-  areZonesContinuous,
-  getZoneArea,
-  isConsecutive,
-  isEqual,
-  largeMax,
-  largeMin,
-  numberToLetters,
-  UuidGenerator,
-} from "../helpers/index";
+import { isConsecutive, largeMax, largeMin } from "../helpers/misc";
 import { DEFAULT_TABLE_CONFIG } from "../helpers/table_presets";
 import { interactivePaste, interactivePasteFromOS } from "../helpers/ui/paste_interactive";
 import { interactiveCreateTable } from "../helpers/ui/table_interactive";
+import { UuidGenerator } from "../helpers/uuid";
+import { areZonesContinuous, getZoneArea, isEqual } from "../helpers/zones";
 import { _t } from "../translation";
 import { ClipboardMIMEType, ClipboardPasteOptions } from "../types/clipboard";
-import { Dimension, Format, Style } from "../types/index";
+import { Format } from "../types/format";
+import { Dimension, Style } from "../types/misc";
 import { SpreadsheetChildEnv } from "../types/spreadsheet_env";
 import { ActionSpec } from "./action";
 

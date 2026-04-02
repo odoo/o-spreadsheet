@@ -1,7 +1,7 @@
 import { DEFAULT_FIGURE_HEIGHT, DEFAULT_FIGURE_WIDTH, FIGURE_ID_SPLITTER } from "../../constants";
 import { SpreadsheetChart } from "../../helpers/figures/chart";
 import { deepEquals } from "../../helpers/misc";
-import { ChartCreationContext, ChartDefinition, ChartType } from "../../types/chart";
+import { ChartCreationContext, ChartDefinition, ChartType } from "../../types/chart/chart";
 import {
   Command,
   CommandResult,

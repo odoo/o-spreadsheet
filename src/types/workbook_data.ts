@@ -1,6 +1,6 @@
 import { SquishedContent } from "../plugins/core/squisher";
 import { CellValue } from "./cells";
-import { ExcelChartDefinition } from "./chart";
+import { ExcelChartDefinition } from "./chart/chart";
 import { ConditionalFormat } from "./conditional_formatting";
 import { DataValidationRule } from "./data_validation";
 import { Format } from "./format";

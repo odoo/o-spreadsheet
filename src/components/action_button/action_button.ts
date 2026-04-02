@@ -1,7 +1,7 @@
 import { Component, onWillUpdateProps } from "@odoo/owl";
 import { ActionSpec, createAction } from "../../actions/action";
 import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
-import { cssPropertiesToCss } from "../helpers";
+import { cssPropertiesToCss } from "../helpers/css";
 
 interface Props {
   action: ActionSpec;

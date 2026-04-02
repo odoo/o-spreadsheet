@@ -1,6 +1,6 @@
 import { chartSubtypeRegistry } from "../registries/chart_subtype_registry";
 import { _t } from "../translation";
-import { ChartDefinition } from "../types/chart";
+import { ChartDefinition } from "../types/chart/chart";
 import { CarouselItem } from "../types/figure";
 import { Getters } from "../types/getters";
 

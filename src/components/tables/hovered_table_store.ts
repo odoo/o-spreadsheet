@@ -1,8 +1,9 @@
 import { TABLE_HOVER_BACKGROUND_COLOR } from "../../constants";
-import { range } from "../../helpers";
 import { PositionMap } from "../../helpers/cells/position_map";
-import { SpreadsheetStore } from "../../stores";
-import { Color, Command, Position } from "../../types";
+import { range } from "../../helpers/misc";
+import { SpreadsheetStore } from "../../stores/spreadsheet_store";
+import { Command } from "../../types/commands";
+import { Color, Position } from "../../types/misc";
 
 export class HoveredTableStore extends SpreadsheetStore {
   mutators = ["clear", "hover"] as const;

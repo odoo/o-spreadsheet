@@ -1,22 +1,20 @@
 import { ChartConfiguration } from "chart.js";
 import { BACKGROUND_CHART_COLOR } from "../../../constants";
 import { ChartTypeBuilder } from "../../../registries/chart_registry";
-import { CommandResult } from "../../../types";
 import { RadarChartRuntime } from "../../../types/chart/radar_chart";
+import { CommandResult } from "../../../types/commands";
 import { toXlsxHexColor } from "../../../xlsx/helpers/colors";
 import { AbstractChart } from "./abstract_chart";
 import { chartFontColor } from "./chart_common";
 import { CHART_COMMON_OPTIONS } from "./chart_ui_common";
-import {
-  getChartShowValues,
-  getChartTitle,
-  getRadarChartData,
-  getRadarChartDatasets,
-  getRadarChartLegend,
-  getRadarChartScales,
-  getRadarChartTooltip,
-} from "./runtime";
+import { getRadarChartData } from "./runtime/chart_data_extractor";
+import { getRadarChartDatasets } from "./runtime/chartjs_dataset";
 import { getChartLayout } from "./runtime/chartjs_layout";
+import { getRadarChartLegend } from "./runtime/chartjs_legend";
+import { getRadarChartScales } from "./runtime/chartjs_scales";
+import { getChartShowValues } from "./runtime/chartjs_show_values";
+import { getChartTitle } from "./runtime/chartjs_title";
+import { getRadarChartTooltip } from "./runtime/chartjs_tooltip";
 
 export const RadarChart: ChartTypeBuilder<"radar"> = {
   sequence: 80,

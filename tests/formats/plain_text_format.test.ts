@@ -1,5 +1,4 @@
-import { Model } from "../../src";
-import { CellValueType, DEFAULT_LOCALE } from "../../src/types";
+import { CellValueType, DEFAULT_LOCALE, Model } from "../../src";
 import { setCellContent, setFormat, updateLocale } from "../test_helpers/commands_helpers";
 import {
   getCell,

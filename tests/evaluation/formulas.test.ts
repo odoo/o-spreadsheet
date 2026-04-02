@@ -1,5 +1,4 @@
-import { Model } from "../../src";
-import { CellErrorType, FormulaCell } from "../../src/types";
+import { CellErrorType, FormulaCell, Model } from "../../src";
 import {
   createSheetWithName,
   deleteColumns,

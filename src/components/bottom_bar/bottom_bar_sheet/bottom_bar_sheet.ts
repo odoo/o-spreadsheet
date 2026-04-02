@@ -8,14 +8,16 @@ import {
   useRef,
   useState,
 } from "@odoo/owl";
-import { throttle } from "../../../helpers";
+import { throttle } from "../../../helpers/misc";
 import { interactiveRenameSheet } from "../../../helpers/ui/sheet_interactive";
 import { MenuItemRegistry } from "../../../registries/menu_items_registry";
-import { getSheetMenuRegistry } from "../../../registries/menus";
-import { Store, useStore } from "../../../store_engine";
+import { getSheetMenuRegistry } from "../../../registries/menus/sheet_menu_registry";
+import { useStore } from "../../../store_engine/store_hooks";
 import { DOMFocusableElementStore } from "../../../stores/DOM_focus_store";
-import { Command, CommandResult, DispatchResult, isSheetDependent, Rect } from "../../../types";
+import { Command, CommandResult, DispatchResult, isSheetDependent } from "../../../types/commands";
+import { Rect } from "../../../types/rendering";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
+import { Store } from "../../../types/store_engine";
 import { Ripple } from "../../animation/ripple";
 import { ColorPicker } from "../../color_picker/color_picker";
 import { cssPropertiesToCss } from "../../helpers/css";

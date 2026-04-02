@@ -1,7 +1,7 @@
 import { Component, useRef, useState } from "@odoo/owl";
 import { Action, createAction } from "../../../actions/action";
-import { formatNumberMenuItemSpec } from "../../../registries/menus";
-import { Rect } from "../../../types";
+import { formatNumberMenuItemSpec } from "../../../registries/menus/number_format_menu_registry";
+import { Rect } from "../../../types/rendering";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
 import { ActionButton } from "../../action_button/action_button";
 import { getBoundingRectAsPOJO } from "../../helpers/dom_helpers";

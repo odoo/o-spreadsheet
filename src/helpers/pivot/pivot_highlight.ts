@@ -1,5 +1,6 @@
 import { HIGHLIGHT_COLOR } from "../../constants";
-import { CellPosition, Getters, Highlight, UID } from "../../types";
+import { Getters } from "../../types/getters";
+import { CellPosition, Highlight, UID } from "../../types/misc";
 import { mergeContiguousZones, positionToZone } from "../zones";
 
 export function getPivotHighlights(getters: Getters, pivotId: UID): Highlight[] {

@@ -1,4 +1,4 @@
-import { createEmptyStructure } from "./helpers";
+import { createEmptyStructure } from "./helpers/state_manager_helpers";
 import { CoreCommand } from "./types/commands";
 
 import { HistoryChange } from "./types/history";

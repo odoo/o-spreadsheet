@@ -1,10 +1,9 @@
-import { DEFAULT_LOCALE, Model } from "../../src";
+import { DEFAULT_LOCALE, Model, UID } from "../../src";
 import { FindAndReplaceStore } from "../../src/components/side_panel/find_and_replace/find_and_replace_store";
 import { functionRegistry } from "../../src/functions/function_registry";
-import { toZone, zoneToXc } from "../../src/helpers";
-import { DependencyContainer } from "../../src/store_engine";
+import { toZone, zoneToXc } from "../../src/helpers/zones";
+import { DependencyContainer } from "../../src/store_engine/dependency_container";
 import { NotificationStore } from "../../src/stores/notification_store";
-import { UID } from "../../src/types";
 import { SearchOptions } from "../../src/types/find_and_replace";
 import {
   activateSheet,

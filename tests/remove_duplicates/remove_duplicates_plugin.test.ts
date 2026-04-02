@@ -1,5 +1,5 @@
 import { CommandResult } from "../../src";
-import { toZone } from "../../src/helpers";
+import { toZone } from "../../src/helpers/zones";
 import { getCellRawContent, getEvaluatedCell } from "../test_helpers";
 import { merge, removeDuplicates, setFormat, setSelection } from "../test_helpers/commands_helpers";
 import {

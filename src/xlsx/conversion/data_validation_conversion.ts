@@ -1,5 +1,5 @@
-import { rangeReference } from "../../helpers";
 import { getDateCriterionFormattedValues } from "../../helpers/criterion_helpers";
+import { rangeReference } from "../../helpers/references";
 import {
   DataValidationDateCriterion,
   DateIsBetweenCriterion,

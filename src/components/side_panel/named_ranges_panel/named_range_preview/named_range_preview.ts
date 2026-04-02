@@ -1,7 +1,7 @@
 import { Component, useRef, useState } from "@odoo/owl";
 import { HIGHLIGHT_COLOR } from "../../../../constants";
 import { interactiveUpdateNamedRange } from "../../../../helpers/ui/named_range_interactive";
-import { Highlight, NamedRange } from "../../../../types";
+import { Highlight, NamedRange } from "../../../../types/misc";
 import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
 import { useHighlightsOnHover } from "../../../helpers/highlight_hook";
 import { SelectionInput } from "../../../selection_input/selection_input";

@@ -1,9 +1,11 @@
 import { Component } from "@odoo/owl";
-import { ChartSidePanel, chartSidePanelComponentRegistry } from "..";
-import { Store, useLocalStore } from "../../../../store_engine";
-import { ChartDefinition, ChartType, UID } from "../../../../types/index";
+import { useLocalStore } from "../../../../store_engine/store_hooks";
+import { ChartDefinition, ChartType } from "../../../../types/chart/chart";
+import { UID } from "../../../../types/misc";
 import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
+import { Store } from "../../../../types/store_engine";
 import { Section } from "../../components/section/section";
+import { ChartSidePanel, chartSidePanelComponentRegistry } from "../chart_side_panel_registry";
 import { ChartTypePicker } from "../chart_type_picker/chart_type_picker";
 import { MainChartPanelStore } from "./main_chart_panel_store";
 

@@ -1,7 +1,9 @@
 import { Component, useRef } from "@odoo/owl";
-import { UuidGenerator, zoneToXc } from "../../../../helpers";
 import { localizeCFRule } from "../../../../helpers/locale";
-import { ConditionalFormat, UID } from "../../../../types";
+import { UuidGenerator } from "../../../../helpers/uuid";
+import { zoneToXc } from "../../../../helpers/zones";
+import { ConditionalFormat } from "../../../../types/conditional_formatting";
+import { UID } from "../../../../types/misc";
 import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
 import { getBoundingRectAsPOJO } from "../../../helpers/dom_helpers";
 import { useDragAndDropListItems } from "../../../helpers/drag_and_drop_dom_items_hook";

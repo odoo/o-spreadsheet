@@ -1,4 +1,6 @@
-import { CellValueType, EvaluatedCell, Lazy, Locale } from "../types";
+import { CellValueType, EvaluatedCell } from "../types/cells";
+import { Locale } from "../types/locale";
+import { Lazy } from "../types/misc";
 import { lazy, memoize } from "./misc";
 
 export interface StatisticFnResults {

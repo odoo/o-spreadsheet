@@ -6,7 +6,7 @@ import {
   ChartType,
   DataSetStyle,
   ExcelChartDefinition,
-} from "../types/chart";
+} from "../types/chart/chart";
 import { CommandResult } from "../types/commands";
 import { CoreGetters } from "../types/core_getters";
 import { Getters } from "../types/getters";

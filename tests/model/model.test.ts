@@ -1,10 +1,18 @@
-import { CollaborationMessage, CommandResult, CorePlugin } from "../../src";
+import {
+  CollaborationMessage,
+  Command,
+  CommandResult,
+  CommandTypes,
+  CoreCommand,
+  CorePlugin,
+  DispatchResult,
+  coreTypes,
+} from "../../src";
 import { MESSAGE_VERSION } from "../../src/constants";
-import { toZone } from "../../src/helpers";
+import { toZone } from "../../src/helpers/zones";
 import { Model } from "../../src/model";
-import { corePluginRegistry, featurePluginRegistry } from "../../src/plugins";
+import { corePluginRegistry, featurePluginRegistry } from "../../src/plugins/plugin_registries";
 import { UIPlugin } from "../../src/plugins/ui_plugin";
-import { Command, CommandTypes, CoreCommand, DispatchResult, coreTypes } from "../../src/types";
 import { ModelConfig } from "../../src/types/model";
 import { MockTransportService } from "../__mocks__/transport_service";
 import { getTextXlsxFiles } from "../__xlsx__/read_demo_xlsx";

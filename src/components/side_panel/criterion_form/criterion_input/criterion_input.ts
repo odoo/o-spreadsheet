@@ -2,7 +2,7 @@ import { Component, useEffect, useRef, useState } from "@odoo/owl";
 import { canonicalizeContent } from "../../../../helpers/locale";
 import { criterionEvaluatorRegistry } from "../../../../registries/criterion_registry";
 import { _t } from "../../../../translation";
-import { DataValidationCriterionType } from "../../../../types";
+import { DataValidationCriterionType } from "../../../../types/data_validation";
 import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
 import { StandaloneComposer } from "../../../composer/standalone_composer/standalone_composer";
 

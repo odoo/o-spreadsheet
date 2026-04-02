@@ -1,5 +1,4 @@
-import { CommandResult, Model } from "../../src";
-import { UID } from "../../src/types";
+import { CommandResult, Model, UID } from "../../src";
 import { Dimension, HeaderIndex } from "../../src/types/misc";
 import {
   addColumns,

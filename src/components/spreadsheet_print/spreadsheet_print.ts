@@ -1,7 +1,8 @@
 import { Component, onWillUnmount, useExternalListener } from "@odoo/owl";
-import { Store, useLocalStore } from "../../store_engine";
+import { useLocalStore } from "../../store_engine/store_hooks";
 import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
-import { cssPropertiesToCss } from "../helpers";
+import { Store } from "../../types/store_engine";
+import { cssPropertiesToCss } from "../helpers/css";
 import { Select } from "../select/select";
 import { BadgeSelection } from "../side_panel/components/badge_selection/badge_selection";
 import { Checkbox } from "../side_panel/components/checkbox/checkbox";

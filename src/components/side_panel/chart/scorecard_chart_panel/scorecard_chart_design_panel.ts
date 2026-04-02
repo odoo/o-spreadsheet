@@ -5,8 +5,9 @@ import {
   SCORECARD_CHART_TITLE_FONT_SIZE,
 } from "../../../../constants";
 import { _t } from "../../../../translation";
+import { TitleDesign } from "../../../../types/chart/chart";
 import { ScorecardChartDefinition } from "../../../../types/chart/scorecard_chart";
-import { Color, TitleDesign } from "../../../../types/index";
+import { Color } from "../../../../types/misc";
 import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
 import { Checkbox } from "../../components/checkbox/checkbox";
 import { SidePanelCollapsible } from "../../components/collapsible/side_panel_collapsible";

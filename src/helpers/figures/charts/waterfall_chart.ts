@@ -1,19 +1,17 @@
 import type { ChartConfiguration } from "chart.js";
 import { ChartTypeBuilder } from "../../../registries/chart_registry";
-import { CommandResult } from "../../../types";
 import { WaterfallChartRuntime } from "../../../types/chart/waterfall_chart";
+import { CommandResult } from "../../../types/commands";
 import { AbstractChart } from "./abstract_chart";
 import { CHART_COMMON_OPTIONS } from "./chart_ui_common";
-import {
-  getBarChartData,
-  getChartTitle,
-  getWaterfallChartLegend,
-  getWaterfallChartScales,
-  getWaterfallChartShowValues,
-  getWaterfallChartTooltip,
-  getWaterfallDatasetAndLabels,
-} from "./runtime";
+import { getBarChartData } from "./runtime/chart_data_extractor";
+import { getWaterfallDatasetAndLabels } from "./runtime/chartjs_dataset";
 import { getChartLayout } from "./runtime/chartjs_layout";
+import { getWaterfallChartLegend } from "./runtime/chartjs_legend";
+import { getWaterfallChartScales } from "./runtime/chartjs_scales";
+import { getWaterfallChartShowValues } from "./runtime/chartjs_show_values";
+import { getChartTitle } from "./runtime/chartjs_title";
+import { getWaterfallChartTooltip } from "./runtime/chartjs_tooltip";
 
 export const WaterfallChart: ChartTypeBuilder<"waterfall"> = {
   sequence: 70,

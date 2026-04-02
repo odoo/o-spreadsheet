@@ -1,5 +1,5 @@
 import { onWillUnmount, useComponent } from "@odoo/owl";
-import { useStore } from "../../store_engine";
+import { useStore } from "../../store_engine/store_hooks";
 import { TopBarToolStore } from "../top_bar/top_bar_tool_store";
 
 export type ToolBarDropdownStore = ReturnType<typeof useToolBarDropdownStore>;

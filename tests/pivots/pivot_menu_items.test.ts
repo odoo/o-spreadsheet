@@ -2,8 +2,10 @@ import { Model, PivotCustomGroup, SortDirection, SpreadsheetPivotTable } from ".
 import { Action } from "../../src/actions/action";
 import { getPivotTooBigErrorMessage } from "../../src/components/translations_terms";
 import { PIVOT_INSERT_TABLE_STYLE_ID } from "../../src/constants";
-import { toCartesian, toZone } from "../../src/helpers";
-import { cellMenuRegistry, topbarMenuRegistry } from "../../src/registries/menus";
+import { toCartesian } from "../../src/helpers/coordinates";
+import { toZone } from "../../src/helpers/zones";
+import { cellMenuRegistry } from "../../src/registries/menus/cell_menu_registry";
+import { topbarMenuRegistry } from "../../src/registries/menus/topbar_menu_registry";
 import { SpreadsheetChildEnv } from "../../src/types/spreadsheet_env";
 import {
   createSheet,

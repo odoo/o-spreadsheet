@@ -1,5 +1,6 @@
 import { Component, useRef } from "@odoo/owl";
-import { Pixel, Rect } from "../../types";
+import { Pixel } from "../../types/misc";
+import { Rect } from "../../types/rendering";
 import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 import { ColorPicker } from "./color_picker";
 

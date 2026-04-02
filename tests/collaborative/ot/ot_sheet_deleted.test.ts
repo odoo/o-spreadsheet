@@ -1,5 +1,3 @@
-import { transform } from "../../../src/collaborative/ot/ot";
-import { toZone } from "../../../src/helpers";
 import {
   AddColumnsRowsCommand,
   DeleteSheetCommand,
@@ -7,7 +5,9 @@ import {
   MoveRangeCommand,
   RemoveColumnsRowsCommand,
   ResizeColumnsRowsCommand,
-} from "../../../src/types";
+} from "../../../src";
+import { transform } from "../../../src/collaborative/ot/ot";
+import { toZone } from "../../../src/helpers/zones";
 import {
   OT_TESTS_SINGLE_CELL_COMMANDS,
   TEST_COMMANDS,

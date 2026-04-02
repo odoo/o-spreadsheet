@@ -1,7 +1,6 @@
-import { Model } from "../../../src";
+import { Model, UID } from "../../../src";
 import { ChartPanel } from "../../../src/components/side_panel/chart/main_chart_panel/main_chart_panel";
 import { parseDateTime } from "../../../src/helpers/dates";
-import { UID } from "../../../src/types";
 import { LineChartDefinition } from "../../../src/types/chart/line_chart";
 import { SpreadsheetChildEnv } from "../../../src/types/spreadsheet_env";
 import { openChartDesignSidePanel, toChartDataSource } from "../../test_helpers/chart_helpers";

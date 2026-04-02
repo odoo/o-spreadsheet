@@ -1,9 +1,10 @@
 import { Component, onWillUpdateProps, useEffect, useRef, useState } from "@odoo/owl";
-import { deepEquals, range } from "../../helpers";
-import { Store, useLocalStore, useStore } from "../../store_engine";
+import { deepEquals, range } from "../../helpers/misc";
+import { useLocalStore, useStore } from "../../store_engine/store_hooks";
 import { DOMFocusableElementStore } from "../../stores/DOM_focus_store";
-import { Color } from "../../types";
+import { Color } from "../../types/misc";
 import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
+import { Store } from "../../types/store_engine";
 import { cssPropertiesToCss } from "../helpers/css";
 import { useDragAndDropListItems } from "../helpers/drag_and_drop_dom_items_hook";
 import { updateSelectionWithArrowKeys } from "../helpers/selection_helpers";

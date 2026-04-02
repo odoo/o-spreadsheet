@@ -1,6 +1,6 @@
+import { AddMergeCommand } from "../../../src";
 import { transform } from "../../../src/collaborative/ot/ot";
-import { toZone } from "../../../src/helpers";
-import { AddMergeCommand } from "../../../src/types";
+import { toZone } from "../../../src/helpers/zones";
 import { OT_TESTS_SINGLE_CELL_COMMANDS, TEST_COMMANDS } from "../../test_helpers/constants";
 import { target } from "../../test_helpers/helpers";
 

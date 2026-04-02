@@ -1,11 +1,13 @@
 import { Component } from "@odoo/owl";
 import { LINK_COLOR } from "../../../constants";
-import { toXC } from "../../../helpers";
+import { toXC } from "../../../helpers/coordinates";
 import { openLink, urlRepresentation } from "../../../helpers/links";
-import { Store, useStore } from "../../../store_engine";
-import { EvaluatedCell, Link, Position } from "../../../types";
-import { CellPopoverComponent, PopoverBuilders } from "../../../types/cell_popovers";
+import { useStore } from "../../../store_engine/store_hooks";
+import type { CellPopoverComponent, PopoverBuilders } from "../../../types/cell_popovers";
+import { EvaluatedCell } from "../../../types/cells";
+import { Link, Position } from "../../../types/misc";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
+import { Store } from "../../../types/store_engine";
 import { isMiddleClickOrCtrlClick } from "../../helpers/dom_helpers";
 import { CellPopoverStore } from "../../popover/cell_popover_store";
 

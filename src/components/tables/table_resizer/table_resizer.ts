@@ -1,7 +1,8 @@
 import { Component, useState } from "@odoo/owl";
-import { HeaderIndex, Highlight, Table, Zone } from "../../../types";
+import { HeaderIndex, Highlight, Zone } from "../../../types/misc";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
-import { cssPropertiesToCss } from "../../helpers";
+import { Table } from "../../../types/table";
+import { cssPropertiesToCss } from "../../helpers/css";
 import { useDragAndDropBeyondTheViewport } from "../../helpers/drag_and_drop_grid_hook";
 import { useHighlights } from "../../helpers/highlight_hook";
 import { withZoom } from "../../helpers/zoom";

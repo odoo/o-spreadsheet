@@ -9,40 +9,37 @@ import {
 } from "../../../../functions/helper_statistical";
 import { toNumber } from "../../../../functions/helpers";
 import { _t } from "../../../../translation";
-import {
-  CellValue,
-  DEFAULT_LOCALE,
-  Format,
-  FunctionResultObject,
-  GenericDefinition,
-  Getters,
-  Locale,
-} from "../../../../types";
-import {
-  AxisType,
-  BarChartDefinition,
-  ChartData,
-  ChartRuntimeGenerationArgs,
-  DataSetStyle,
-  DatasetValues,
-  FunnelChartDefinition,
-  LabelValues,
-  LineChartDefinition,
-  PieChartDefinition,
-  PyramidChartDefinition,
-  SunburstChartDefinition,
-  TrendConfiguration,
-} from "../../../../types/chart";
+import { CellValue } from "../../../../types/cells";
+import { BarChartDefinition } from "../../../../types/chart/bar_chart";
 import {
   CalendarChartDefinition,
   CalendarChartGranularity,
 } from "../../../../types/chart/calendar_chart";
 import {
+  AxisType,
+  ChartData,
+  ChartRuntimeGenerationArgs,
+  DataSetStyle,
+  DatasetValues,
+  GenericDefinition,
+  LabelValues,
+  TrendConfiguration,
+} from "../../../../types/chart/chart";
+import { FunnelChartDefinition } from "../../../../types/chart/funnel_chart";
+import {
   GeoChartDefinition,
   GeoChartRuntimeGenerationArgs,
 } from "../../../../types/chart/geo_chart";
+import { LineChartDefinition } from "../../../../types/chart/line_chart";
+import { PieChartDefinition } from "../../../../types/chart/pie_chart";
+import { PyramidChartDefinition } from "../../../../types/chart/pyramid_chart";
 import { RadarChartDefinition } from "../../../../types/chart/radar_chart";
+import { SunburstChartDefinition } from "../../../../types/chart/sunburst_chart";
 import { TreeMapChartDefinition } from "../../../../types/chart/tree_map_chart";
+import { Format } from "../../../../types/format";
+import { Getters } from "../../../../types/getters";
+import { DEFAULT_LOCALE, Locale } from "../../../../types/locale";
+import { FunctionResultObject } from "../../../../types/misc";
 import { isNumberResult } from "../../../cells/cell_evaluation";
 import { timeFormatLuxonCompatible } from "../../../chart_date";
 import { DAYS, formatValue, isDateTimeFormat, MONTHS } from "../../../format/format";

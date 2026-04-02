@@ -1,7 +1,8 @@
 import { tokenColors } from "../../constants";
 import { EnrichedToken } from "../../formulas/composer_tokenizer";
 import { insertTokenAtArgStartingPosition } from "../../functions/autocomplete_arguments_provider";
-import { MONTHS, isDefined, range } from "../../helpers";
+import { MONTHS } from "../../helpers/format/format";
+import { isDefined, range } from "../../helpers/misc";
 import {
   extractFormulaIdFromToken,
   makeFieldProposal,
@@ -9,7 +10,7 @@ import {
 } from "../../helpers/pivot/pivot_composer_helpers";
 import { supportedPivotPositionalFormulaRegistry } from "../../helpers/pivot/pivot_positional_formula_registry";
 import { _t } from "../../translation";
-import { Granularity, PivotDimension } from "../../types";
+import { Granularity, PivotDimension } from "../../types/pivot";
 import { autoCompleteProviders } from "./auto_complete_registry";
 
 autoCompleteProviders.add("pivot_ids", {

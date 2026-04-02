@@ -1,5 +1,5 @@
 import { Model, SpreadsheetPivotCoreDefinition } from "../../src";
-import { toZone, zoneToXc } from "../../src/helpers";
+import { toZone, zoneToXc } from "../../src/helpers/zones";
 import { HighlightStore } from "../../src/stores/highlight_store";
 import { SpreadsheetChildEnv } from "../../src/types/spreadsheet_env";
 import { createSheet, deleteSheet } from "../test_helpers/commands_helpers";

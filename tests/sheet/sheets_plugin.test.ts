@@ -1,12 +1,9 @@
+import { CommandResult } from "../../src";
 import { FORBIDDEN_SHEETNAME_CHARS } from "../../src/constants";
-import {
-  getCanonicalSymbolName,
-  numberToLetters,
-  toUnboundedZone,
-  toZone,
-} from "../../src/helpers";
+import { numberToLetters } from "../../src/helpers/coordinates";
+import { getCanonicalSymbolName } from "../../src/helpers/misc";
+import { toUnboundedZone, toZone } from "../../src/helpers/zones";
 import { Model } from "../../src/model";
-import { CommandResult } from "../../src/types";
 import { toChartDataSource } from "../test_helpers/chart_helpers";
 import {
   activateSheet,

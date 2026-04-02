@@ -1,5 +1,5 @@
-import { toUnboundedZone, toZone, zoneToXc } from "../../src/helpers";
-import { DEFAULT_LOCALES, UID } from "../../src/types";
+import { DEFAULT_LOCALES, UID } from "../../src";
+import { toUnboundedZone, toZone, zoneToXc } from "../../src/helpers/zones";
 import {
   copy,
   createDynamicTable,
@@ -58,12 +58,10 @@ import { FONT_SIZES } from "../../src/constants";
 import { functionRegistry } from "../../src/functions/function_registry";
 import { interactivePaste } from "../../src/helpers/ui/paste_interactive";
 import { MenuItemRegistry } from "../../src/registries/menu_items_registry";
-import {
-  cellMenuRegistry,
-  colMenuRegistry,
-  rowMenuRegistry,
-  topbarMenuRegistry,
-} from "../../src/registries/menus";
+import { cellMenuRegistry } from "../../src/registries/menus/cell_menu_registry";
+import { colMenuRegistry } from "../../src/registries/menus/col_menu_registry";
+import { rowMenuRegistry } from "../../src/registries/menus/row_menu_registry";
+import { topbarMenuRegistry } from "../../src/registries/menus/topbar_menu_registry";
 import { SpreadsheetChildEnv } from "../../src/types/spreadsheet_env";
 import { FR_LOCALE } from "../test_helpers/constants";
 

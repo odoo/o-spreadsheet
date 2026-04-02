@@ -1,12 +1,13 @@
 import { Component } from "@odoo/owl";
-import { formatValue } from "../../../../../helpers";
+import { formatValue } from "../../../../../helpers/format/format";
 import {
   getFieldDisplayName,
   isSortedColumnValid,
 } from "../../../../../helpers/pivot/pivot_helpers";
 import { PivotRuntimeDefinition } from "../../../../../helpers/pivot/pivot_runtime_definition";
 import { _t } from "../../../../../translation";
-import { PivotDomain, UID } from "../../../../../types";
+import { UID } from "../../../../../types/misc";
+import { PivotDomain } from "../../../../../types/pivot";
 import { SpreadsheetChildEnv } from "../../../../../types/spreadsheet_env";
 import { Section } from "../../../components/section/section";
 

@@ -1,8 +1,8 @@
 import { Component, onMounted, onWillUnmount, useEffect, useRef } from "@odoo/owl";
 import { rectIntersection } from "../../helpers/rectangle";
-import { DOMCoordinates, DOMDimension, Pixel, Rect } from "../../types";
 import { PopoverPropsPosition } from "../../types/cell_popovers";
-import { CSSProperties } from "../../types/misc";
+import { CSSProperties, Pixel } from "../../types/misc";
+import { DOMCoordinates, DOMDimension, Rect } from "../../types/rendering";
 import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 import { usePopoverContainer, useSpreadsheetRect } from "../helpers/position_hook";
 

@@ -1,30 +1,29 @@
 import { Component, useState } from "@odoo/owl";
+
+import { numberToLetters } from "../../../../../helpers/coordinates";
+import { createDataSets } from "../../../../../helpers/figures/charts/helpers_index";
+import { getChartColorsGenerator } from "../../../../../helpers/figures/charts/runtime/chartjs_dataset";
+import { isDefined } from "../../../../../helpers/misc";
+import { createValidRange } from "../../../../../helpers/range";
+import { splitReference } from "../../../../../helpers/references";
+import { UuidGenerator } from "../../../../../helpers/uuid";
 import {
-  createValidRange,
-  isDefined,
   isXcRepresentation,
   mergeContiguousZones,
-  numberToLetters,
-  splitReference,
   toUnboundedZone,
   toZone,
-  UuidGenerator,
   zoneToXc,
-} from "../../../../../helpers";
-import { createDataSets } from "../../../../../helpers/figures/charts";
-import { getChartColorsGenerator } from "../../../../../helpers/figures/charts/runtime";
+} from "../../../../../helpers/zones";
 import { chartTypeRegistry } from "../../../../../registries/chart_registry";
 import { _t } from "../../../../../translation";
 import {
   ChartDatasetOrientation,
   ChartDefinitionWithDataSource,
   ChartRangeDataSource as ChartRangeDataSourceType,
-  CommandResult,
   DataSetStyle,
-  DispatchResult,
-  UID,
-  Zone,
-} from "../../../../../types";
+} from "../../../../../types/chart/chart";
+import { CommandResult, DispatchResult } from "../../../../../types/commands";
+import { UID, Zone } from "../../../../../types/misc";
 import { SpreadsheetChildEnv } from "../../../../../types/spreadsheet_env";
 import { ChartTerms } from "../../../../translations_terms";
 import { ChartSidePanelProps } from "../../common";

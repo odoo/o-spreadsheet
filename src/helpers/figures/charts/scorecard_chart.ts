@@ -12,7 +12,7 @@ import {
   BaselineMode,
   ScorecardChartDefinition,
   ScorecardChartRuntime,
-} from "../../../types/chart";
+} from "../../../types/chart/scorecard_chart";
 import { CommandResult } from "../../../types/commands";
 import { Locale } from "../../../types/locale";
 import { Color, RangeAdapterFunctions } from "../../../types/misc";

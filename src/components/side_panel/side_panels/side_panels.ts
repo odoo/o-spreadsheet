@@ -1,8 +1,9 @@
 import { Component, useEffect } from "@odoo/owl";
 import { sidePanelRegistry } from "../../../registries/side_panel_registry";
-import { Store, useStore } from "../../../store_engine";
+import { useStore } from "../../../store_engine/store_hooks";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
-import { cssPropertiesToCss } from "../../helpers";
+import { Store } from "../../../types/store_engine";
+import { cssPropertiesToCss } from "../../helpers/css";
 import { startDnd } from "../../helpers/drag_and_drop";
 import { useSpreadsheetRect } from "../../helpers/position_hook";
 import { SidePanel, SidePanelProps } from "../side_panel/side_panel";

@@ -1,14 +1,8 @@
 import { Component, useEffect, useRef, useState } from "@odoo/owl";
 import { figureRegistry } from "../../../registries/figures_registry";
-import {
-  AnchorOffset,
-  CSSProperties,
-  FigureUI,
-  Pixel,
-  Rect,
-  ResizeDirection,
-  UID,
-} from "../../../types/index";
+import { AnchorOffset, FigureUI, ResizeDirection } from "../../../types/figure";
+import { CSSProperties, Pixel, UID } from "../../../types/misc";
+import { Rect } from "../../../types/rendering";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
 import { cssPropertiesToCss } from "../../helpers/css";
 import { getRefBoundingRect, keyboardEventToShortcutString } from "../../helpers/dom_helpers";

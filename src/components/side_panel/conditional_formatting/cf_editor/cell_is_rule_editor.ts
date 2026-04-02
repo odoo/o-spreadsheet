@@ -2,7 +2,7 @@ import { Component } from "@odoo/owl";
 import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
 import { Store } from "../../../../types/store_engine";
 import { ColorPickerWidget } from "../../../color_picker/color_picker_widget";
-import { getTextDecoration } from "../../../helpers";
+import { getTextDecoration } from "../../../helpers/css";
 import { Select } from "../../../select/select";
 import { ConditionalFormattingEditorStore } from "./cf_editor_store";
 

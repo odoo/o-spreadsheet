@@ -1,9 +1,9 @@
-import { deepEquals } from "../../../../helpers";
 import { SpreadsheetChart } from "../../../../helpers/figures/chart";
+import { deepEquals } from "../../../../helpers/misc";
 import { chartDataSourceRegistry } from "../../../../registries/chart_data_source_registry";
 import { chartTypeRegistry } from "../../../../registries/chart_registry";
 import { chartSubtypeRegistry } from "../../../../registries/chart_subtype_registry";
-import { SpreadsheetStore } from "../../../../stores";
+import { SpreadsheetStore } from "../../../../stores/spreadsheet_store";
 import {
   ChartCreationContext,
   ChartDataSource,
@@ -11,8 +11,8 @@ import {
   ChartRangeDataSource,
   CustomizedDataSet,
   DataSetStyle,
-  UID,
-} from "../../../../types";
+} from "../../../../types/chart/chart";
+import { UID } from "../../../../types/misc";
 
 export class MainChartPanelStore extends SpreadsheetStore {
   mutators = ["activatePanel", "changeChartType"] as const;

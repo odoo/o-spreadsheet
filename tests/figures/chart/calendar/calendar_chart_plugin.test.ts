@@ -1,6 +1,6 @@
 import { ScaleChartOptions } from "chart.js";
 import { ChartCreationContext, Model } from "../../../../src";
-import { UuidGenerator } from "../../../../src/helpers";
+import { UuidGenerator } from "../../../../src/helpers/uuid";
 import {
   CalendarChartGranularity,
   CalendarChartRuntime,

@@ -9,7 +9,7 @@ import {
   ChartDefinitionWithDataSource,
   ChartRuntimeGenerationArgs,
   GenericDefinition,
-} from "../../../../types/chart";
+} from "../../../../types/chart/chart";
 
 type ChartLayout = ChartOptions["layout"];
 

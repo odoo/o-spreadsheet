@@ -1,6 +1,6 @@
-import { toZone } from "../../src/helpers";
+import { CommandResult, DEFAULT_LOCALE, UID } from "../../src";
+import { toZone } from "../../src/helpers/zones";
 import { Model } from "../../src/model";
-import { CommandResult, DEFAULT_LOCALE, UID } from "../../src/types";
 import {
   merge,
   redo,

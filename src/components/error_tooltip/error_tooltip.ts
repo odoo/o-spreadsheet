@@ -1,8 +1,11 @@
 import { Component } from "@odoo/owl";
-import { deepEquals, getMissingHeadersForSpreadResult, positionToZone } from "../../helpers";
+import { deepEquals, getMissingHeadersForSpreadResult } from "../../helpers/misc";
+import { positionToZone } from "../../helpers/zones";
 import { _t } from "../../translation";
-import { CellErrorType, CellPosition, CellValueType } from "../../types";
 import { CellPopoverComponent, PopoverBuilders } from "../../types/cell_popovers";
+import { CellValueType } from "../../types/cells";
+import { CellErrorType } from "../../types/errors";
+import { CellPosition } from "../../types/misc";
 import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 
 const ERROR_TOOLTIP_MAX_HEIGHT = 80;

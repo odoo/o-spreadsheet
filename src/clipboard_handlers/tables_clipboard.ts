@@ -1,19 +1,14 @@
-import { isZoneInside, removeFalsyAttributes, zoneToDimension } from "../helpers";
+import { removeFalsyAttributes } from "../helpers/misc";
+import { isZoneInside, zoneToDimension } from "../helpers/zones";
 import {
-  Border,
-  CellPosition,
   ClipboardCellData,
   ClipboardCopyOptions,
   ClipboardOptions,
   ClipboardPasteTarget,
-  CoreTableType,
-  HeaderIndex,
-  RangeData,
-  Style,
-  TableConfig,
-  UID,
-  Zone,
-} from "../types";
+} from "../types/clipboard";
+import { Border, CellPosition, HeaderIndex, Style, UID, Zone } from "../types/misc";
+import { RangeData } from "../types/range";
+import { CoreTableType, TableConfig } from "../types/table";
 import { AbstractCellClipboardHandler } from "./abstract_cell_clipboard_handler";
 
 interface TableStyle {

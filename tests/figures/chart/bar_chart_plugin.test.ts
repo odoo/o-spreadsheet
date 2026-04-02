@@ -1,7 +1,7 @@
 import { ChartConfiguration } from "chart.js";
 import { ChartCreationContext, Model } from "../../../src";
 import { BACKGROUND_CHART_COLOR } from "../../../src/constants";
-import { BarChartRuntime } from "../../../src/types/chart";
+import { BarChartRuntime } from "../../../src/types/chart/bar_chart";
 import {
   GENERAL_CHART_CREATION_CONTEXT,
   getChartConfiguration,

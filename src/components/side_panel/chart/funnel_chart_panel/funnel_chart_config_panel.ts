@@ -1,4 +1,4 @@
-import { FunnelChartDefinition } from "../../../../types/chart";
+import { FunnelChartDefinition } from "../../../../types/chart/funnel_chart";
 import { GenericChartConfigPanel } from "../building_blocks/generic_side_panel/config_panel";
 
 export class FunnelChartConfigPanel extends GenericChartConfigPanel {

@@ -1,23 +1,19 @@
 import { sum } from "../../../functions/helper_math";
 import { average, max, median, min } from "../../../functions/helper_statistical";
-import { formatValue, isDefined } from "../../../helpers";
+import { formatValue } from "../../../helpers/format/format";
+import { isDefined } from "../../../helpers/misc";
 import {
   computeStatisticFnResults,
   SelectionStatisticFunction,
   StatisticFnResults,
 } from "../../../helpers/selection_statistic_functions";
-import { Get } from "../../../store_engine";
-import { SpreadsheetStore } from "../../../stores";
+import { SpreadsheetStore } from "../../../stores/spreadsheet_store";
 import { _t } from "../../../translation";
-import {
-  CellValue,
-  CellValueType,
-  Command,
-  EvaluatedCell,
-  invalidateEvaluationCommands,
-  LocaleFormat,
-  Position,
-} from "../../../types";
+import { CellValue, CellValueType, EvaluatedCell } from "../../../types/cells";
+import { Command, invalidateEvaluationCommands } from "../../../types/commands";
+import { LocaleFormat } from "../../../types/format";
+import { Position } from "../../../types/misc";
+import { Get } from "../../../types/store_engine";
 
 const columnStatisticFunctions: SelectionStatisticFunction[] = [
   {

@@ -1,4 +1,4 @@
-import { Model } from "../../src";
+import { IsValueInListCriterion, Model, UID } from "../../src";
 import { CellComposerStore } from "../../src/components/composer/composer/cell_composer_store";
 import { SidePanels } from "../../src/components/side_panel/side_panels/side_panels";
 import {
@@ -7,8 +7,8 @@ import {
   GRAY_200,
   MIN_CELL_TEXT_MARGIN,
 } from "../../src/constants";
-import { computeTextFontSizeInPixels, toZone } from "../../src/helpers";
-import { IsValueInListCriterion, UID } from "../../src/types";
+import { computeTextFontSizeInPixels } from "../../src/helpers/text_helper";
+import { toZone } from "../../src/helpers/zones";
 import { SpreadsheetChildEnv } from "../../src/types/spreadsheet_env";
 import {
   addDataValidation,

@@ -1,15 +1,10 @@
-import { UuidGenerator, deepEquals, positionToZone, recomputeZones } from "../helpers";
-import {
-  CellPosition,
-  ClipboardCellData,
-  ClipboardOptions,
-  ClipboardPasteTarget,
-  DataValidationRule,
-  HeaderIndex,
-  Maybe,
-  UID,
-  Zone,
-} from "../types";
+import { deepEquals } from "../helpers/misc";
+import { recomputeZones } from "../helpers/recompute_zones";
+import { UuidGenerator } from "../helpers/uuid";
+import { positionToZone } from "../helpers/zones";
+import { ClipboardCellData, ClipboardOptions, ClipboardPasteTarget } from "../types/clipboard";
+import { DataValidationRule } from "../types/data_validation";
+import { CellPosition, HeaderIndex, Maybe, UID, Zone } from "../types/misc";
 import { AbstractCellClipboardHandler } from "./abstract_cell_clipboard_handler";
 
 interface ClipboardDataValidationRule {

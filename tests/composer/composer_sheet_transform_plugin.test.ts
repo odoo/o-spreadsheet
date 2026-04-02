@@ -1,7 +1,7 @@
 import { Model } from "../../src";
 import type { CellComposerStore } from "../../src/components/composer/composer/cell_composer_store";
-import { Store } from "../../src/store_engine";
 import { NotificationStore } from "../../src/stores/notification_store";
+import { Store } from "../../src/types/store_engine";
 import {
   activateSheet,
   addColumns,

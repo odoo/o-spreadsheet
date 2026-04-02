@@ -1,6 +1,3 @@
-import { toCartesian, toXC, toZone, zoneToXc } from "../../src/helpers/index";
-import { Model } from "../../src/model";
-import { ClipboardPlugin } from "../../src/plugins/ui_stateful/clipboard";
 import {
   Border,
   Cell,
@@ -13,7 +10,11 @@ import {
   Style,
   UID,
   Zone,
-} from "../../src/types";
+} from "../../src";
+import { toCartesian, toXC } from "../../src/helpers/coordinates";
+import { toZone, zoneToXc } from "../../src/helpers/zones";
+import { Model } from "../../src/model";
+import { ClipboardPlugin } from "../../src/plugins/ui_stateful/clipboard";
 import { setSelection } from "./commands_helpers";
 import { getPlugin } from "./helpers";
 

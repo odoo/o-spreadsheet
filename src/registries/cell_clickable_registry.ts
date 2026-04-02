@@ -3,7 +3,8 @@ import { ClickableCellSortIcon } from "../components/dashboard/clickable_cell_so
 import { openLink } from "../helpers/links";
 import { canSortPivot, sortPivot } from "../helpers/pivot/pivot_menu_items";
 import { _t } from "../translation";
-import { CellPosition, Getters, SortDirection } from "../types";
+import { Getters } from "../types/getters";
+import { CellPosition, SortDirection } from "../types/misc";
 import { SpreadsheetChildEnv } from "../types/spreadsheet_env";
 import { Registry } from "./registry";
 

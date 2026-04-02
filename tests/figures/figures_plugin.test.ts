@@ -1,6 +1,7 @@
 import { CommandResult } from "../../src";
 import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../../src/constants";
-import { numberToLetters, range } from "../../src/helpers";
+import { numberToLetters } from "../../src/helpers/coordinates";
+import { range } from "../../src/helpers/misc";
 import { Model } from "../../src/model";
 import {
   activateSheet,

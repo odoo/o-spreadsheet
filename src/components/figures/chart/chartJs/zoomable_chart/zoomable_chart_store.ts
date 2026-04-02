@@ -3,7 +3,7 @@ import {
   MOVING_AVERAGE_TREND_LINE_XAXIS_ID,
   TREND_LINE_XAXIS_ID,
 } from "../../../../../helpers/figures/charts/chart_common";
-import { SpreadsheetStore } from "../../../../../stores";
+import { SpreadsheetStore } from "../../../../../stores/spreadsheet_store";
 
 const TREND_LINE_AXES_IDS = [TREND_LINE_XAXIS_ID, MOVING_AVERAGE_TREND_LINE_XAXIS_ID] as const;
 const ZOOMABLE_AXIS_IDS = ["x", ...TREND_LINE_AXES_IDS] as const;

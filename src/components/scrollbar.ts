@@ -1,4 +1,4 @@
-import { Pixel } from "../types";
+import { Pixel } from "../types/misc";
 import { ScrollDirection } from "../types/scroll_direction";
 
 export class ScrollBar {

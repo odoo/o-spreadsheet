@@ -4,9 +4,12 @@ import {
   ExcelChartDefinition,
   ExcelChartTrendConfiguration,
   ExcelTrendlineType,
-} from "../../types/chart";
+} from "../../types/chart/chart";
 import { XLSX_CHART_TYPES, XLSXChartType } from "../../types/xlsx";
-import { CHART_TYPE_CONVERSION_MAP, DRAWING_LEGEND_POSITION_CONVERSION_MAP } from "../conversion";
+import {
+  CHART_TYPE_CONVERSION_MAP,
+  DRAWING_LEGEND_POSITION_CONVERSION_MAP,
+} from "../conversion/conversion_maps";
 import { removeTagEscapedNamespaces } from "../helpers/xml_helpers";
 import { XlsxBaseExtractor } from "./base_extractor";
 

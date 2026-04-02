@@ -1,6 +1,7 @@
 import { Component } from "@odoo/owl";
 import { AUTOFILL_EDGE_LENGTH } from "../../../constants";
-import { Color, ResizeDirection, Zone } from "../../../types";
+import { ResizeDirection } from "../../../types/figure";
+import { Color, Zone } from "../../../types/misc";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
 import { cssPropertiesToCss } from "../../helpers/css";
 

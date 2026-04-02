@@ -1,5 +1,5 @@
 import { Model } from "../../src";
-import { createAccountingFormat } from "../../src/helpers";
+import { createAccountingFormat } from "../../src/helpers/format/format";
 import { setCellContent, setCellFormat, setFormat } from "../test_helpers/commands_helpers";
 import { getCellContent, getCellError, getEvaluatedCell } from "../test_helpers/getters_helpers";
 import { evaluateCellText } from "../test_helpers/helpers";

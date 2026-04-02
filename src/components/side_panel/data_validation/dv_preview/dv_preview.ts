@@ -1,7 +1,8 @@
 import { Component, useRef } from "@odoo/owl";
 import { HIGHLIGHT_COLOR } from "../../../../constants";
 import { criterionEvaluatorRegistry } from "../../../../registries/criterion_registry";
-import { DataValidationRule, Highlight } from "../../../../types";
+import { DataValidationRule } from "../../../../types/data_validation";
+import { Highlight } from "../../../../types/misc";
 import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
 import { useHighlightsOnHover } from "../../../helpers/highlight_hook";
 

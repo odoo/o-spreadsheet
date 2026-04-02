@@ -1,5 +1,5 @@
 import { ComponentConstructor } from "@odoo/owl";
-import { Getters } from "./index";
+import { Getters } from "./getters";
 import { CellPosition } from "./misc";
 import { PropsOf } from "./props_of";
 

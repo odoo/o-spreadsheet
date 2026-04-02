@@ -3,9 +3,9 @@ import { LocalTransportService } from "./collaborative/local_transport_service";
 import { ReadonlyTransportFilter } from "./collaborative/readonly_transport_filter";
 import { Session } from "./collaborative/session";
 import { DEFAULT_REVISION_ID } from "./constants";
-import { deepEquals, UuidGenerator } from "./helpers";
 import { EventBus } from "./helpers/event_bus";
-import { deepCopy, lazy } from "./helpers/misc";
+import { deepCopy, deepEquals, lazy } from "./helpers/misc";
+import { UuidGenerator } from "./helpers/uuid";
 import { buildRevisionLog } from "./history/factory";
 import {
   createEmptyExcelWorkbookData,
@@ -13,16 +13,16 @@ import {
   load,
   repairInitialMessages,
 } from "./migrations/data";
+import { BasePlugin } from "./plugins/base_plugin";
+import { RangeAdapterPlugin } from "./plugins/core/range";
+import { CorePlugin, CorePluginConfig, CorePluginConstructor } from "./plugins/core_plugin";
+import { CoreViewPluginConfig, CoreViewPluginConstructor } from "./plugins/core_view_plugin";
 import {
   corePluginRegistry,
   coreViewsPluginRegistry,
   featurePluginRegistry,
   statefulUIPluginRegistry,
-} from "./plugins";
-import { BasePlugin } from "./plugins/base_plugin";
-import { RangeAdapterPlugin } from "./plugins/core/range";
-import { CorePlugin, CorePluginConfig, CorePluginConstructor } from "./plugins/core_plugin";
-import { CoreViewPluginConfig, CoreViewPluginConstructor } from "./plugins/core_view_plugin";
+} from "./plugins/plugin_registries";
 import { UIPlugin, UIPluginConfig, UIPluginConstructor } from "./plugins/ui_plugin";
 import { SelectionStreamProcessorImpl } from "./selection_stream/selection_stream_processor";
 import { StateObserver } from "./state_observer";

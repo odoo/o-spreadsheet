@@ -1,6 +1,6 @@
 import { ChartConfiguration } from "chart.js";
 import { Range } from "../range";
-import { CommonChartDefinition } from "./index";
+import { CommonChartDefinition } from "./common_chart";
 
 export interface BarChartDefinition<T extends string | Range = Range>
   extends CommonChartDefinition<T> {

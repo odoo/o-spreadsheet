@@ -1,19 +1,17 @@
-import { deepEquals, formatValue, isZoneInside } from "../helpers";
 import { getPasteZones } from "../helpers/clipboard/clipboard_helpers";
+import { formatValue } from "../helpers/format/format";
 import { canonicalizeNumberValue } from "../helpers/locale";
+import { deepEquals } from "../helpers/misc";
 import { createPivotFormula } from "../helpers/pivot/pivot_helpers";
+import { isZoneInside } from "../helpers/zones";
 import {
-  CellPosition,
-  ClipboardCell,
   ClipboardCellData,
   ClipboardCopyOptions,
   ClipboardOptions,
   ClipboardPasteTarget,
-  CommandResult,
-  HeaderIndex,
-  UID,
-  Zone,
-} from "../types";
+} from "../types/clipboard";
+import { CommandResult } from "../types/commands";
+import { CellPosition, ClipboardCell, HeaderIndex, UID, Zone } from "../types/misc";
 import { AbstractCellClipboardHandler } from "./abstract_cell_clipboard_handler";
 
 interface ClipboardContent {

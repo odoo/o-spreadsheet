@@ -1,6 +1,6 @@
 import { Component } from "@odoo/owl";
-import { useStore } from "../../../store_engine";
-import { GenericCriterion } from "../../../types";
+import { useStore } from "../../../store_engine/store_hooks";
+import { GenericCriterion } from "../../../types/generic_criterion";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
 import { ComposerFocusStore } from "../../composer/composer_focus_store";
 

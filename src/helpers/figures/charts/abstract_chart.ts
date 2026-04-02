@@ -1,4 +1,4 @@
-import { ChartDefinition } from "../../../types/chart";
+import { ChartDefinition } from "../../../types/chart/chart";
 
 export abstract class AbstractChart {
   static commonKeys: readonly (keyof ChartDefinition)[] = [

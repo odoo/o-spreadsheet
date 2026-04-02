@@ -1,6 +1,7 @@
-import { Model } from "../../src";
-import { DependencyContainer, StoreConstructor, StoreParams } from "../../src/store_engine";
-import { ModelStore } from "../../src/stores";
+import { Model, StoreConstructor, StoreParams } from "../../src";
+import { DependencyContainer } from "../../src/store_engine/dependency_container";
+
+import { ModelStore } from "../../src/stores/model_store";
 import { NotificationStore } from "../../src/stores/notification_store";
 import { registerCleanup } from "../setup/jest.setup";
 import { makeTestNotificationStore } from "./helpers";

@@ -1,4 +1,4 @@
-import { BarChartDefinition } from "../../../../types/chart";
+import { BarChartDefinition } from "../../../../types/chart/bar_chart";
 import { GenericChartConfigPanel } from "../building_blocks/generic_side_panel/config_panel";
 
 export class BarConfigPanel extends GenericChartConfigPanel {

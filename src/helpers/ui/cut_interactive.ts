@@ -1,5 +1,5 @@
 import { _t } from "../../translation";
-import { CommandResult } from "../../types";
+import { CommandResult } from "../../types/commands";
 import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 
 export function interactiveCut(env: SpreadsheetChildEnv) {

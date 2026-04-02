@@ -1,10 +1,10 @@
 import { Component, useState } from "@odoo/owl";
-import { getColorsPalette, getNthColor, toHex } from "../../../../../helpers";
+import { getColorsPalette, getNthColor, toHex } from "../../../../../helpers/color";
 import {
   ChartDefinitionWithDataSource,
   CustomizableSeriesChartRuntime,
-  ValueAndLabel,
-} from "../../../../../types";
+} from "../../../../../types/chart/chart";
+import { ValueAndLabel } from "../../../../../types/misc";
 import { SpreadsheetChildEnv } from "../../../../../types/spreadsheet_env";
 import { Select } from "../../../../select/select";
 import { SidePanelCollapsible } from "../../../components/collapsible/side_panel_collapsible";

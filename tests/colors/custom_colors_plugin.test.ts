@@ -1,6 +1,5 @@
-import { Model } from "../../src";
+import { Model, TableStyle, UID } from "../../src";
 import { TABLE_PRESETS } from "../../src/helpers/table_presets";
-import { TableStyle, UID } from "../../src/types";
 import { toChartDataSource } from "../test_helpers/chart_helpers";
 import {
   addCfRule,

@@ -1,13 +1,16 @@
 import { Component, onMounted, onWillUnmount, useExternalListener, useRef } from "@odoo/owl";
-import { deepEquals, positionToZone } from "../../helpers";
+import { deepEquals } from "../../helpers/misc";
 import { isPointInsideRect } from "../../helpers/rectangle";
-import { Store, useStore } from "../../store_engine";
-import { DOMCoordinates, GridClickModifiers, HeaderIndex, Pixel, Position, Ref } from "../../types";
+import { positionToZone } from "../../helpers/zones";
+import { useStore } from "../../store_engine/store_hooks";
+import { GridClickModifiers, HeaderIndex, Pixel, Position, Ref } from "../../types/misc";
+import { DOMCoordinates } from "../../types/rendering";
 import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
+import { Store } from "../../types/store_engine";
 import { FiguresContainer } from "../figures/figure_container/figure_container";
 import { DelayedHoveredCellStore } from "../grid/delayed_hovered_cell_store";
 import { GridAddRowsFooter } from "../grid_add_rows_footer/grid_add_rows_footer";
-import { cssPropertiesToCss } from "../helpers";
+import { cssPropertiesToCss } from "../helpers/css";
 import {
   getBoundingRectAsPOJO,
   getRefBoundingRect,
@@ -18,7 +21,7 @@ import { useRefListener } from "../helpers/listener_hook";
 import { useInterval } from "../helpers/time_hooks";
 import { withZoom, ZoomedMouseEvent } from "../helpers/zoom";
 import { PaintFormatStore } from "../paint_format_button/paint_format_store";
-import { CellPopoverStore } from "../popover";
+import { CellPopoverStore } from "../popover/cell_popover_store";
 import { HoveredTableStore } from "../tables/hovered_table_store";
 import { HoveredIconStore } from "./hovered_icon_store";
 

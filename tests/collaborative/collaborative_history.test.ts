@@ -1,7 +1,6 @@
-import { Model } from "../../src";
+import { CommandResult, Model, UpdateCellCommand } from "../../src";
 import { DEFAULT_REVISION_ID, MESSAGE_VERSION } from "../../src/constants";
-import { toZone } from "../../src/helpers";
-import { CommandResult, UpdateCellCommand } from "../../src/types";
+import { toZone } from "../../src/helpers/zones";
 import { StateUpdateMessage } from "../../src/types/collaborative/transport_service";
 import { MockTransportService } from "../__mocks__/transport_service";
 import {

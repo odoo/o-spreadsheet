@@ -1,7 +1,7 @@
+import { CellErrorType, CellValueType, CommandResult, DEFAULT_LOCALE, UID } from "../src";
 import { parseDateTime } from "../src/helpers/dates";
-import { toZone, zoneToXc } from "../src/helpers/index";
+import { toZone, zoneToXc } from "../src/helpers/zones";
 import { Model } from "../src/model";
-import { CellErrorType, CellValueType, CommandResult, DEFAULT_LOCALE, UID } from "../src/types";
 import { merge, redo, setCellContent, sort, undo } from "./test_helpers/commands_helpers";
 import { getEvaluatedCell } from "./test_helpers/getters_helpers";
 import { getCellsObject } from "./test_helpers/helpers";

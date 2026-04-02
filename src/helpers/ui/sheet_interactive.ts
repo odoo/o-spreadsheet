@@ -1,6 +1,7 @@
 import { FORBIDDEN_SHEETNAME_CHARS } from "../../constants";
 import { _t } from "../../translation";
-import { CommandResult, UID } from "../../types";
+import { CommandResult } from "../../types/commands";
+import { UID } from "../../types/misc";
 import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 
 export function interactiveRenameSheet(

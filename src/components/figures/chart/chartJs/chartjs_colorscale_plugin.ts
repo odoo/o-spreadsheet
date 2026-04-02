@@ -5,7 +5,8 @@ import {
   CHART_COLORSCALE_WIDTH,
   CHART_PADDING,
 } from "../../../../constants";
-import { getDefaultContextFont, humanizeNumber } from "../../../../helpers";
+import { humanizeNumber } from "../../../../helpers/format/format";
+import { getDefaultContextFont } from "../../../../helpers/text_helper";
 
 export interface ChartColorScalePluginOptions {
   position: "left" | "right" | "none";

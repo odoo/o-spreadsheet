@@ -1,4 +1,4 @@
-import { LineChartDefinition } from "../../../../types/chart";
+import { LineChartDefinition } from "../../../../types/chart/line_chart";
 import { ChartShowDataMarkers } from "../building_blocks/show_data_markers/show_data_markers";
 import { ChartSidePanelProps } from "../common";
 import { GenericZoomableChartDesignPanel } from "../zoomable_chart/design_panel";

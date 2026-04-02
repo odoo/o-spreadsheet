@@ -1,4 +1,3 @@
-import { ModelStore } from ".";
 import { HoveredIconStore } from "../components/grid_overlay/hovered_icon_store";
 import { getPath2D } from "../components/icons/icons";
 import { HoveredTableStore } from "../components/tables/hovered_table_store";
@@ -19,48 +18,46 @@ import {
   MIN_CELL_TEXT_MARGIN,
   TEXT_HEADER_COLOR,
 } from "../constants";
+import { blendColors } from "../helpers/color";
+import { numberToLetters } from "../helpers/coordinates";
+import { formatHasRepeatedChar } from "../helpers/format/format";
+import { deepCopy, deepEquals } from "../helpers/misc";
+import { recomputeZones } from "../helpers/recompute_zones";
 import {
-  blendColors,
   computeRotationPosition,
   computeTextFont,
   computeTextFontSizeInPixels,
   computeTextLinesHeight,
-  deepCopy,
-  deepEquals,
   drawDecoratedText,
-  formatHasRepeatedChar,
+} from "../helpers/text_helper";
+import { ViewportCollection } from "../helpers/viewport_collection";
+import {
   getZonesCols,
   getZonesRows,
   isZoneInside,
-  numberToLetters,
   overlap,
   positionToZone,
-  recomputeZones,
   union,
   zoneToXc,
-} from "../helpers/index";
-import { ViewportCollection } from "../helpers/viewport_collection";
+} from "../helpers/zones";
 import { Model } from "../model";
 import { cellAnimationRegistry } from "../registries/cell_animation_registry";
-import { DisposableStore, Get, Store } from "../store_engine";
+import { DisposableStore } from "../store_engine/store";
+import { CellValueType } from "../types/cells";
+import { Command } from "../types/commands";
+import { RenderingGetters } from "../types/getters";
+import { Align, CellPosition, HeaderIndex, Pixel, UID, Zone } from "../types/misc";
 import {
-  Align,
   BorderDescrWithOpacity,
   Box,
-  CellPosition,
-  CellValueType,
-  Command,
   GridRenderingContext,
-  HeaderIndex,
   LayerName,
-  Pixel,
   RenderingBox,
-  RenderingGetters,
-  UID,
   Viewport,
-  Zone,
-} from "../types/index";
+} from "../types/rendering";
+import { Get, Store } from "../types/store_engine";
 import { FormulaFingerprintStore } from "./formula_fingerprints_store";
+import { ModelStore } from "./model_store";
 import { RendererStore } from "./renderer_store";
 
 export const CELL_BACKGROUND_GRIDLINE_STROKE_STYLE = "#111";
