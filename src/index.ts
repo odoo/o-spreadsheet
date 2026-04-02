@@ -518,8 +518,8 @@ export const stores = {
 export { getCaretDownSvg, getCaretUpSvg } from "./components/icons/icons";
 
 export { createAutocompleteArgumentsProvider } from "./functions/autocomplete_arguments_provider";
-export { categories } from "./functions/function_registry";
 export type { FunctionRegistry } from "./functions/function_registry";
+export { categories } from "./functions/function_registry_population";
 export type { StoreConstructor, StoreParams } from "./store_engine";
 export function addFunction(functionName: string, functionDescription: AddFunctionDescription) {
   functionRegistry.add(functionName, functionDescription);

@@ -1,7 +1,8 @@
 import { argTargeting } from "../functions/arguments";
 import { functionRegistry } from "../functions/function_registry";
-import { concat, parseNumber, unquote } from "../helpers";
 import { canBeNamedRangeToken } from "../helpers/formulas";
+import { concat, unquote } from "../helpers/misc";
+import { parseNumber } from "../helpers/numbers";
 import { _t } from "../translation";
 import { CoreGetters } from "../types/core_getters";
 import { BadExpressionError, UnknownFunctionError } from "../types/errors";

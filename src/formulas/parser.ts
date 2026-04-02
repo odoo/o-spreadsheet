@@ -1,4 +1,5 @@
-import { parseNumber, unquote } from "../helpers";
+import { unquote } from "../helpers/misc";
+import { parseNumber } from "../helpers/numbers";
 import { _t } from "../translation";
 import { BadExpressionError, CellErrorType } from "../types/errors";
 import { DEFAULT_LOCALE } from "../types/locale";
