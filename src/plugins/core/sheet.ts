@@ -112,7 +112,12 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
         return CommandResult.Success;
       }
       case "CREATE_SHEET": {
-        return this.checkValidations(cmd, this.checkSheetName, this.checkSheetPosition);
+        return this.checkValidations(
+          cmd,
+          this.createSheetHasName,
+          this.checkSheetName,
+          this.checkSheetPosition
+        );
       }
       case "DUPLICATE_SHEET": {
         if (this.sheets[cmd.sheetIdTo]) {
@@ -662,6 +667,13 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
       return currentIndex;
     }
     throw new Error("There is not enough visible sheets");
+  }
+
+  private createSheetHasName(cmd: CreateSheetCommand): CommandResult {
+    if (cmd.name !== undefined && !cmd.name.trim()) {
+      return CommandResult.MissingSheetName;
+    }
+    return CommandResult.Success;
   }
 
   private checkSheetName(cmd: RenameSheetCommand | CreateSheetCommand): CommandResult {
