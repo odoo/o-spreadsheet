@@ -25,10 +25,10 @@ import {
   CreateSheetCommand,
   FreezeColumnsCommand,
   FreezeRowsCommand,
-  isRangeDependant,
-  isTargetDependent,
   RenameSheetCommand,
   UpdateCellPositionCommand,
+  isRangeDependant,
+  isTargetDependent,
 } from "../../types/commands";
 import {
   CellPosition,
@@ -104,6 +104,30 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     if (genericChecks !== CommandResult.Success) {
       return genericChecks;
     }
+
+    let sheetNameMissing = false;
+    switch (cmd.type) {
+      case "CREATE_SHEET":
+        if (cmd.name === undefined) {
+          sheetNameMissing = true;
+        }
+        break;
+      case "DELETE_SHEET":
+      case "ADD_COLUMNS_ROWS":
+      case "REMOVE_COLUMNS_ROWS":
+      case "MOVE_RANGES":
+        if (cmd.sheetName === undefined) {
+          sheetNameMissing = true;
+        }
+        break;
+    }
+    if (sheetNameMissing) {
+      console.warn(
+        "Deprecation Warning: Sheet name is missing in the command %s payload.",
+        cmd.type
+      );
+    }
+
     switch (cmd.type) {
       case "HIDE_SHEET": {
         if (this.getVisibleSheetIds().length === 1) {

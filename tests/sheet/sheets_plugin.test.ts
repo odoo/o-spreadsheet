@@ -52,7 +52,7 @@ import {
   getStyle,
 } from "../test_helpers/getters_helpers";
 import "../test_helpers/helpers";
-import { testUndoRedo } from "../test_helpers/helpers";
+import { target, testUndoRedo } from "../test_helpers/helpers";
 
 describe("sheets", () => {
   test("can create a new sheet, then undo, then redo", () => {
@@ -876,8 +876,9 @@ describe("sheets", () => {
 
   test("Can undo-redo a sheet deletion", () => {
     const model = new Model();
-    createSheet(model, { sheetId: "42" });
-    testUndoRedo(model, expect, "DELETE_SHEET", { sheetId: "42" });
+    const sheetName = "newSheetName";
+    createSheet(model, { sheetId: "42", name: sheetName });
+    testUndoRedo(model, expect, "DELETE_SHEET", { sheetId: "42", sheetName });
   });
 
   test("Can undo-redo a sheet renaming", () => {
@@ -1247,5 +1248,51 @@ describe("sheets", () => {
     expect(createSheet(model, { sheetId: "new-sheet", name: "   " })).toBeCancelledBecause(
       CommandResult.MissingSheetName
     );
+  });
+
+  test("Deprecation warning on legacy commands that miss sheet name", () => {
+    const spy = jest.spyOn(console, "warn").mockImplementation(); // Avoid unwanted logs spam
+    const model = new Model();
+    const sheetId = model.getters.getActiveSheetId();
+    // @ts-ignore -- Testing legacy commands without sheet Name
+    let result = model.dispatch("CREATE_SHEET", { sheetId: "new-sheet", position: 0 });
+    expect(result).toBeSuccessfullyDispatched();
+    expect(spy).toHaveBeenCalled();
+
+    // @ts-ignore
+    result = model.dispatch("DELETE_SHEET", { sheetId: "new-sheet" });
+    expect(result).toBeSuccessfullyDispatched();
+    expect(spy).toHaveBeenCalledTimes(2);
+
+    // @ts-ignore
+    result = model.dispatch("ADD_COLUMNS_ROWS", {
+      sheetId,
+      dimension: "COL",
+      base: 0,
+      quantity: 1,
+    });
+    expect(result).toBeSuccessfullyDispatched();
+    expect(spy).toHaveBeenCalledTimes(3);
+
+    // @ts-ignore
+    result = model.dispatch("REMOVE_COLUMNS_ROWS", {
+      sheetId,
+      dimension: "ROW",
+      elements: [1],
+    });
+    expect(result).toBeSuccessfullyDispatched();
+    expect(spy).toHaveBeenCalledTimes(4);
+
+    // @ts-ignore
+    result = model.dispatch("MOVE_RANGES", {
+      target: target("A1"),
+      sheetId,
+      targetSheetId: sheetId,
+      col: 1,
+      row: 1,
+    });
+    expect(result).toBeSuccessfullyDispatched();
+    expect(spy).toHaveBeenCalledTimes(5);
+    spy.mockRestore();
   });
 });
