@@ -804,7 +804,7 @@ function _createLargeNumberFormat<T extends InternalFormat>(
   magnitude: number,
   postFix: string
 ): T {
-  if (format.type !== "number") {
+  if (format.type !== "number" || format.scientific) {
     return format;
   }
 
