@@ -1064,6 +1064,14 @@ describe("Import xlsx data", () => {
       { start: 11, end: 13, isFolded: true },
     ]);
   });
+
+  test("Can import named ranges", () => {
+    expect(convertedData.namedRanges).toEqual({
+      My_Named_Range: "jestMiscTest!$A$8:$B$10",
+      Table_Col_Named_Range: "jestMiscTest!A8:A12", // Converted from table formula `Table10[Col1]`
+      Table_Named_Range: "jestMiscTest!A8:B12", // Converted from table formula `Table10`
+    });
+  });
 });
 
 test.each([

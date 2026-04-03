@@ -2,7 +2,7 @@ import { deepEquals, isNumber, rangeReference } from "../../helpers";
 import { Command, CommandResult, CoreCommand } from "../../types/commands";
 import { DEFAULT_LOCALE } from "../../types/locale";
 import { NamedRange, RangeAdapterFunctions, UID, UnboundedZone, Zone } from "../../types/misc";
-import { WorkbookData } from "../../types/workbook_data";
+import { ExcelWorkbookData, WorkbookData } from "../../types/workbook_data";
 import { CorePlugin } from "../core_plugin";
 
 interface NamedRangeState {
@@ -14,7 +14,7 @@ interface NamedRangeState {
   - \p{N} is for any number
   - the u flag at the end is for unicode, which enables the `\p{...}` syntax
  */
-const validNamedRangeNameRegex = /^[\p{L}\p{N}_.]+$/u;
+export const validNamedRangeNameRegex = /^[\p{L}\p{N}_.]+$/u;
 
 export class NamedRangesPlugin extends CorePlugin<NamedRangeState> implements NamedRangeState {
   static getters = ["getNamedRange", "getNamedRangeFromZone", "getNamedRanges"] as const;
@@ -129,6 +129,10 @@ export class NamedRangesPlugin extends CorePlugin<NamedRangeState> implements Na
       const xc = this.getters.getRangeString(namedRange.range);
       data.namedRanges[namedRange.name] = xc;
     }
+  }
+
+  exportForExcel(data: ExcelWorkbookData) {
+    this.export(data);
   }
 
   private checkValidNewNamedRangeName(name: string): CommandResult {
