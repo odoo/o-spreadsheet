@@ -1,4 +1,4 @@
-import { ChartDataset, ChartType, Plugin } from "chart.js";
+import { Chart, ChartDataset, ChartType, Plugin } from "chart.js";
 import { computeTextWidth } from "../../../../helpers";
 import {
   TREND_LINE_XAXIS_ID,
@@ -70,8 +70,7 @@ function drawLineOrBarChartValues(
   options: ChartShowValuesPluginOptions,
   ctx: CanvasRenderingContext2D
 ) {
-  const yMax = chart.chartArea.bottom;
-  const yMin = chart.chartArea.top;
+  const { top: yMin, bottom: yMax, left: xMin, right: xMax } = chart.chartArea;
   const textsPositions: Record<number, number[]> = {};
 
   for (const dataset of chart._metasets) {
@@ -82,12 +81,28 @@ function drawLineOrBarChartValues(
     for (let i = 0; i < dataset._parsed.length; i++) {
       const value = dataset._parsed[i].y;
       const point = dataset.data[i];
-
-      const xPosition = point.x;
-
+      const valueToDisplay = options.callback(Number(value), dataset, i);
+      let xPosition = point.x;
       let yPosition = 0;
       if (chart.config.type === "line") {
-        yPosition = point.y - 10;
+        const textHeight = Chart.defaults.font.size ?? 12;
+        const textWidth = computeTextWidth(ctx, valueToDisplay, { fontSize: textHeight }, "px");
+
+        // --- Vertical positioning ---
+        const above = point.y - 10;
+        const below = point.y + 10;
+        yPosition = above - textHeight / 2 < yMin ? below : above;
+
+        // --- Horizontal overflow handling ---
+        if (xPosition - textWidth / 2 < xMin) {
+          ctx.textAlign = "left";
+          xPosition = xMin + 2;
+        } else if (xPosition + textWidth / 2 > xMax) {
+          ctx.textAlign = "right";
+          xPosition = xMax - 2;
+        } else {
+          ctx.textAlign = "center";
+        }
       } else {
         yPosition = value < 0 ? point.y - point.height / 2 : point.y + point.height / 2;
       }
@@ -107,7 +122,6 @@ function drawLineOrBarChartValues(
 
       ctx.fillStyle = point.options.backgroundColor;
       ctx.strokeStyle = options.background || "#ffffff";
-      const valueToDisplay = options.callback(Number(value), dataset, i);
       drawTextWithBackground(valueToDisplay, xPosition, yPosition, ctx);
     }
   }
@@ -175,7 +189,7 @@ function drawPieChartValues(
       const y = bar.y + midRadius * Math.sin(midAngle);
       const displayValue = options.callback(value, dataset, i);
 
-      const textHeight = 12; // ChartJS default
+      const textHeight = Chart.defaults.font.size ?? 12;
       const textWidth = computeTextWidth(ctx, displayValue, { fontSize: textHeight }, "px");
 
       const radius = outerRadius - innerRadius;
