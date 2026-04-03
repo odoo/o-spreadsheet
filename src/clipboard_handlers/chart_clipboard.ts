@@ -1,5 +1,5 @@
 import { UuidGenerator } from "../helpers";
-import { AbstractChart } from "../helpers/figures/charts";
+import { SpreadsheetChart } from "../helpers/figures/chart";
 import {
   ClipboardFigureData,
   ClipboardOptions,
@@ -14,7 +14,7 @@ import { AbstractFigureClipboardHandler } from "./abstract_figure_clipboard_hand
 type ClipboardContent = {
   figureId: UID;
   copiedFigure: Figure;
-  copiedChart: AbstractChart;
+  copiedChart: SpreadsheetChart;
 };
 
 export class ChartClipboardHandler extends AbstractFigureClipboardHandler<ClipboardContent> {
@@ -32,7 +32,7 @@ export class ChartClipboardHandler extends AbstractFigureClipboardHandler<Clipbo
     if (!chart) {
       throw new Error(`No chart for the given id: ${data.figureId}`);
     }
-    const copiedChart = chart.copyInSheetId(sheetId);
+    const copiedChart = chart;
     return {
       figureId: data.figureId,
       copiedFigure,
@@ -57,7 +57,19 @@ export class ChartClipboardHandler extends AbstractFigureClipboardHandler<Clipbo
     const { zones, figureId } = target;
     const sheetId = target.sheetId;
     const { width, height } = clippedContent.copiedFigure;
-    const copy = clippedContent.copiedChart.copyInSheetId(sheetId);
+    const copy = clippedContent.copiedChart;
+    let copiedDefinition = SpreadsheetChart.fromDefinition(
+      this.getters,
+      sheetId,
+      copy.copyInSheetId(sheetId)
+    ).getDefinition();
+
+    // parse the definition to filter out ranges that became invalid since the copy.
+    copiedDefinition = SpreadsheetChart.fromStrDefinition(
+      this.getters,
+      sheetId,
+      copiedDefinition
+    ).getDefinition();
     const maxPosition = this.getters.getMaxAnchorOffset(sheetId, height, width);
     let { left: col, top: row } = zones[0];
     const offset = { x: 0, y: 0 };
@@ -73,13 +85,12 @@ export class ChartClipboardHandler extends AbstractFigureClipboardHandler<Clipbo
       figureId,
       chartId: new UuidGenerator().smallUuid(),
       sheetId,
-      definition: copy.getDefinition(),
+      definition: copiedDefinition,
       col,
       row,
       offset,
       size: { height, width },
     });
-
     if (options.isCutOperation) {
       this.dispatch("DELETE_FIGURE", {
         sheetId: clippedContent.copiedChart.sheetId,

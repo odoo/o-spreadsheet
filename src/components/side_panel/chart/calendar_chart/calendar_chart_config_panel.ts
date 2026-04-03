@@ -1,9 +1,10 @@
 import { toJsDate } from "../../../../functions/helpers";
-import { createValidRange, isDateTime } from "../../../../helpers";
-import { createDataSets } from "../../../../helpers/figures/charts";
+import { isDateTime } from "../../../../helpers";
+import { SpreadsheetChart } from "../../../../helpers/figures/chart";
+import { getChartData } from "../../../../helpers/figures/charts/chart_data_sources";
 import { getBarChartData } from "../../../../helpers/figures/charts/runtime";
 import { ALL_PERIODS } from "../../../../helpers/pivot/pivot_helpers";
-import { DEFAULT_LOCALE, ValueAndLabel } from "../../../../types";
+import { ChartRangeDataSource, DEFAULT_LOCALE, ValueAndLabel } from "../../../../types";
 import {
   CALENDAR_CHART_GRANULARITIES,
   CalendarChartDefinition,
@@ -14,7 +15,7 @@ import { GenericChartConfigPanel } from "../building_blocks/generic_side_panel/c
 import { ChartSidePanelProps } from "../common";
 
 export class CalendarChartConfigPanel extends GenericChartConfigPanel<
-  ChartSidePanelProps<CalendarChartDefinition>
+  ChartSidePanelProps<CalendarChartDefinition<string>>
 > {
   static template = "o-spreadsheet-CalendarChartConfigPanel";
   static components = { ...GenericChartConfigPanel.components, Select };
@@ -24,39 +25,18 @@ export class CalendarChartConfigPanel extends GenericChartConfigPanel<
     label: ALL_PERIODS[value],
   }));
 
-  getLabelRangeOptions() {
-    return [
-      {
-        name: "dataSetsHaveTitle",
-        label: this.dataSetsHaveTitleLabel,
-        value: this.props.definition.dataSetsHaveTitle,
-        onChange: this.onUpdateDataSetsHaveTitle.bind(this),
-      },
-    ];
-  }
-
   getGroupByOptions(): ValueAndLabel[] {
     const sheetId = this.env.model.getters.getFigureSheetId(
       this.env.model.getters.getFigureIdFromChartId(this.props.chartId)
     )!;
-    const dataSets = createDataSets(
-      this.env.model.getters,
-      this.props.definition.dataSets,
-      sheetId,
-      this.props.definition.dataSetsHaveTitle
-    );
-    if (dataSets.length === 0) {
-      return [];
-    }
-    const labelRange = createValidRange(
+    const definition = SpreadsheetChart.fromStrDefinition(
       this.env.model.getters,
       sheetId,
-      this.props.definition.labelRange
-    );
+      this.props.definition
+    ).getRangeDefinition() as CalendarChartDefinition;
     const data = getBarChartData(
-      this.props.definition,
-      dataSets,
-      labelRange,
+      definition,
+      getChartData(this.env.model.getters, definition.dataSource as ChartRangeDataSource),
       this.env.model.getters
     );
     const labels = data.labels.filter((l) => isDateTime(l, DEFAULT_LOCALE));

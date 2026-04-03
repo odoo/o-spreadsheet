@@ -6,15 +6,15 @@ import {
   CHART_PADDING_TOP,
 } from "../../../../constants";
 import {
+  ChartDefinitionWithDataSource,
   ChartRuntimeGenerationArgs,
-  ChartWithDataSetDefinition,
   GenericDefinition,
 } from "../../../../types/chart";
 
 type ChartLayout = ChartOptions["layout"];
 
 export function getChartLayout(
-  definition: GenericDefinition<ChartWithDataSetDefinition>,
+  definition: GenericDefinition<ChartDefinitionWithDataSource>,
   args: ChartRuntimeGenerationArgs
 ): ChartLayout {
   return {
@@ -28,7 +28,7 @@ export function getChartLayout(
 }
 
 export function getCalendarChartLayout(
-  definition: GenericDefinition<ChartWithDataSetDefinition>,
+  definition: GenericDefinition<ChartDefinitionWithDataSource>,
   args: ChartRuntimeGenerationArgs
 ): ChartLayout {
   const legendPosition = definition.legendPosition;

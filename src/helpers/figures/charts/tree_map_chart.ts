@@ -1,40 +1,8 @@
 import { ChartConfiguration } from "chart.js";
-import { BACKGROUND_CHART_COLOR } from "../../../constants";
-import {
-  Color,
-  CommandResult,
-  Getters,
-  Range,
-  RangeAdapter,
-  RangeAdapterFunctions,
-  UID,
-} from "../../../types";
-import {
-  ChartCreationContext,
-  CustomizedDataSet,
-  DataSet,
-  ExcelChartDefinition,
-  TitleDesign,
-} from "../../../types/chart/chart";
-import { LegendPosition } from "../../../types/chart/common_chart";
-import {
-  TreeMapChartDefinition,
-  TreeMapChartRuntime,
-  TreeMapColoringOptions,
-} from "../../../types/chart/tree_map_chart";
-import { CoreGetters } from "../../../types/core_getters";
-import { Validator } from "../../../types/validator";
-import { createValidRange } from "../../range";
+import { ChartTypeBuilder } from "../../../registries/chart_registry";
+import { CommandResult } from "../../../types";
+import { TreeMapChartRuntime } from "../../../types/chart/tree_map_chart";
 import { AbstractChart } from "./abstract_chart";
-import {
-  checkDataset,
-  checkLabelRange,
-  createDataSets,
-  duplicateDataSetsInDuplicatedSheet,
-  duplicateLabelRangeInDuplicatedSheet,
-  transformChartDefinitionWithDataSetsWithZone,
-  updateChartRangesWithDataSets,
-} from "./chart_common";
 import { CHART_COMMON_OPTIONS } from "./chart_ui_common";
 import {
   getChartTitle,
@@ -44,77 +12,43 @@ import {
 } from "./runtime";
 import { getChartLayout } from "./runtime/chartjs_layout";
 
-export class TreeMapChart extends AbstractChart {
-  static defaults = {
-    background: BACKGROUND_CHART_COLOR,
-    legendPosition: "top",
-    dataSetsHaveTitle: false,
-    showHeaders: true,
-    headersColor: "#000000",
-  };
-  readonly dataSets: DataSet[];
-  readonly labelRange?: Range | undefined;
-  readonly background?: Color;
-  readonly legendPosition: LegendPosition;
-  readonly type = "treemap";
-  readonly dataSetsHaveTitle: boolean;
-  readonly showHeaders?: boolean;
-  readonly headerDesign?: TitleDesign;
-  readonly showValues?: boolean;
-  readonly showLabels?: boolean;
-  readonly valuesDesign?: TitleDesign;
-  readonly coloringOptions?: TreeMapColoringOptions;
+export const TreeMapChart: ChartTypeBuilder<"treemap"> = {
+  sequence: 100,
+  allowedDefinitionKeys: [
+    ...AbstractChart.commonKeys,
+    "dataSource",
+    "legendPosition",
+    "dataSetStyles",
+    "showHeaders",
+    "headerDesign",
+    "showLabels",
+    "valuesDesign",
+    "coloringOptions",
+    "showValues",
+  ],
 
-  constructor(definition: TreeMapChartDefinition, sheetId: UID, getters: CoreGetters) {
-    super(definition, sheetId, getters);
-    this.dataSets = createDataSets(
-      getters,
-      definition.dataSets,
-      sheetId,
-      definition.dataSetsHaveTitle
-    );
-    this.labelRange = createValidRange(getters, sheetId, definition.labelRange);
-    this.background = definition.background;
-    this.legendPosition = definition.legendPosition;
-    this.dataSetsHaveTitle = definition.dataSetsHaveTitle;
-    this.showHeaders = definition.showHeaders;
-    this.headerDesign = definition.headerDesign;
-    this.showValues = definition.showValues;
-    this.showLabels = definition.showLabels;
-    this.valuesDesign = definition.valuesDesign;
-    this.coloringOptions = definition.coloringOptions;
-  }
+  fromStrDefinition: (definition) => definition,
 
-  static transformDefinition(
-    chartSheetId: UID,
-    definition: TreeMapChartDefinition,
-    applyChange: RangeAdapter
-  ): TreeMapChartDefinition {
-    return transformChartDefinitionWithDataSetsWithZone(chartSheetId, definition, applyChange);
-  }
+  toStrDefinition: (definition) => definition,
 
-  static validateChartDefinition(
-    validator: Validator,
-    definition: TreeMapChartDefinition
-  ): CommandResult | CommandResult[] {
-    return validator.checkValidations(definition, checkDataset, checkLabelRange);
-  }
+  copyInSheetId: (definition) => definition,
 
-  static getDefinitionFromContextCreation(context: ChartCreationContext): TreeMapChartDefinition {
-    const dataSets: CustomizedDataSet[] = [];
-    if (context.hierarchicalRanges?.length) {
-      dataSets.push(...context.hierarchicalRanges);
-    } else if (context.auxiliaryRange) {
-      dataSets.push({ ...context.range?.[0], dataRange: context.auxiliaryRange });
-    }
+  duplicateInDuplicatedSheet: (definition) => definition,
+
+  transformDefinition: (definition) => definition,
+
+  validateDefinition: () => CommandResult.Success,
+
+  updateRanges: (definition) => definition,
+
+  getDefinitionFromContextCreation(context, dataSourceBuilder) {
     return {
       background: context.background,
-      dataSets,
-      dataSetsHaveTitle: context.dataSetsHaveTitle ?? false,
+      dataSetStyles: context.dataSetStyles ?? {},
+      dataSource: dataSourceBuilder.fromHierarchicalContextCreation(context),
       legendPosition: context.legendPosition ?? "top",
       title: context.title || { text: "" },
       type: "treemap",
-      labelRange: context.range?.[0]?.dataRange,
       showValues: context.showValues,
       showHeaders: context.showHeaders,
       headerDesign: context.headerDesign,
@@ -123,116 +57,47 @@ export class TreeMapChart extends AbstractChart {
       coloringOptions: context.treemapColoringOptions,
       humanize: context.humanize,
     };
-  }
+  },
 
-  getContextCreation(): ChartCreationContext {
-    const leafRange = this.dataSets.at(-1)?.dataRange;
+  getContextCreation(definition, dataSourceBuilder, dataSource) {
     return {
-      ...this,
-      range: this.labelRange
-        ? [{ dataRange: this.getters.getRangeString(this.labelRange, this.sheetId) }]
-        : [],
-      auxiliaryRange: leafRange ? this.getters.getRangeString(leafRange, this.sheetId) : undefined,
-      hierarchicalRanges: this.dataSets.map((ds: DataSet) => ({
-        dataRange: this.getters.getRangeString(ds.dataRange, this.sheetId),
-      })),
+      ...definition,
+      treemapColoringOptions: definition.coloringOptions,
+      ...dataSourceBuilder.getHierarchicalContextCreation(dataSource),
     };
-  }
+  },
 
-  duplicateInDuplicatedSheet(newSheetId: UID): TreeMapChart {
-    const dataSets = duplicateDataSetsInDuplicatedSheet(this.sheetId, newSheetId, this.dataSets);
-    const labelRange = duplicateLabelRangeInDuplicatedSheet(
-      this.sheetId,
-      newSheetId,
-      this.labelRange
-    );
-    const definition = this.getDefinitionWithSpecificDataSets(dataSets, labelRange, newSheetId);
-    return new TreeMapChart(definition, newSheetId, this.getters);
-  }
+  getDefinitionForExcel: () => undefined,
 
-  copyInSheetId(sheetId: UID): TreeMapChart {
-    const definition = this.getDefinitionWithSpecificDataSets(
-      this.dataSets,
-      this.labelRange,
-      sheetId
-    );
-    return new TreeMapChart(definition, sheetId, this.getters);
-  }
-  getDefinition(): TreeMapChartDefinition {
-    return this.getDefinitionWithSpecificDataSets(this.dataSets, this.labelRange);
-  }
+  getRuntime(
+    getters,
+    definition,
+    { extractHierarchicalData },
+    sheetId,
+    eventHandlers
+  ): TreeMapChartRuntime {
+    const data = extractHierarchicalData();
+    const chartData = getHierarchalChartData(definition, data, getters);
 
-  private getDefinitionWithSpecificDataSets(
-    dataSets: DataSet[],
-    labelRange: Range | undefined,
-    targetSheetId?: UID
-  ): TreeMapChartDefinition {
-    const ranges: CustomizedDataSet[] = dataSets.map((dataSet) => ({
-      dataRange: this.getters.getRangeString(dataSet.dataRange, targetSheetId || this.sheetId),
-    }));
-    return {
+    const config: ChartConfiguration = {
       type: "treemap",
-      dataSetsHaveTitle: dataSets.length ? Boolean(dataSets[0].labelCell) : false,
-      background: this.background,
-      dataSets: ranges,
-      legendPosition: this.legendPosition,
-      labelRange: labelRange
-        ? this.getters.getRangeString(labelRange, targetSheetId || this.sheetId)
-        : undefined,
-      title: this.title,
-      showValues: this.showValues,
-      showHeaders: this.showHeaders,
-      headerDesign: this.headerDesign,
-      showLabels: this.showLabels,
-      valuesDesign: this.valuesDesign,
-      coloringOptions: this.coloringOptions,
-      humanize: this.humanize,
-    };
-  }
-
-  getDefinitionForExcel(): ExcelChartDefinition | undefined {
-    return undefined;
-  }
-
-  updateRanges({ applyChange }: RangeAdapterFunctions): TreeMapChart {
-    const { dataSets, labelRange, isStale } = updateChartRangesWithDataSets(
-      this.getters,
-      applyChange,
-      this.dataSets,
-      this.labelRange
-    );
-    if (!isStale) {
-      return this;
-    }
-    const definition = this.getDefinitionWithSpecificDataSets(dataSets, labelRange);
-    return new TreeMapChart(definition, this.sheetId, this.getters);
-  }
-}
-
-export function createTreeMapChartRuntime(
-  chart: TreeMapChart,
-  getters: Getters
-): TreeMapChartRuntime {
-  const definition = chart.getDefinition();
-  const chartData = getHierarchalChartData(definition, chart.dataSets, chart.labelRange, getters);
-
-  const config: ChartConfiguration = {
-    type: "treemap",
-    data: {
-      labels: chartData.labels,
-      datasets: getTreeMapChartDatasets(definition, chartData),
-    },
-    options: {
-      ...CHART_COMMON_OPTIONS,
-      layout: getChartLayout(definition, chartData),
-      plugins: {
-        title: getChartTitle(definition, getters),
-        legend: { display: false },
-        tooltip: getTreeMapChartTooltip(definition, chartData),
-        background: { color: chart.background },
+      data: {
+        labels: chartData.labels,
+        datasets: getTreeMapChartDatasets(definition, chartData),
       },
-    },
-  };
+      options: {
+        ...CHART_COMMON_OPTIONS,
+        layout: getChartLayout(definition, chartData),
+        plugins: {
+          title: getChartTitle(definition, getters),
+          legend: { display: false },
+          tooltip: getTreeMapChartTooltip(definition, chartData),
+          background: { color: definition.background },
+        },
+        ...eventHandlers,
+      },
+    };
 
-  return { chartJsConfig: config };
-}
+    return { chartJsConfig: config };
+  },
+};

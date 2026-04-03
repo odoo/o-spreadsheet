@@ -1,6 +1,7 @@
 import { ChartConfiguration } from "chart.js";
 import { Color } from "../misc";
 import { Granularity } from "../pivot";
+import { Range } from "../range";
 import { ChartColorScale, CommonChartDefinition } from "./index";
 
 export const CALENDAR_CHART_GRANULARITIES = [
@@ -17,7 +18,8 @@ export const CALENDAR_CHART_GRANULARITIES = [
 
 export type CalendarChartGranularity = (typeof CALENDAR_CHART_GRANULARITIES)[number];
 
-export interface CalendarChartDefinition extends CommonChartDefinition {
+export interface CalendarChartDefinition<T extends string | Range = Range>
+  extends CommonChartDefinition<T> {
   readonly type: "calendar";
   readonly horizontalGroupBy: CalendarChartGranularity;
   readonly verticalGroupBy: CalendarChartGranularity;

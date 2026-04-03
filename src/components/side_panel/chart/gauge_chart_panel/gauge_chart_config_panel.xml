@@ -3,6 +3,7 @@
     <div>
       <ChartDataSeries
         ranges="[this.getDataRange()]"
+        dataSetStyles="{}"
         onSelectionChanged="(ranges) => this.onDataRangeChanged(ranges)"
         onSelectionConfirmed="() => this.updateDataRange()"
         hasSingleRange="true"

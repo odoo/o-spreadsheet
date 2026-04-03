@@ -185,7 +185,7 @@ import { autofillRulesRegistry } from "./registries/autofill_rules";
 import { clickableCellRegistry } from "./registries/cell_clickable_registry";
 import { cellPopoverRegistry } from "./registries/cell_popovers_registry";
 import { chartComponentRegistry } from "./registries/chart_component_registry";
-import { chartRegistry } from "./registries/chart_registry";
+import { chartTypeRegistry } from "./registries/chart_registry";
 import { figureRegistry } from "./registries/figures_registry";
 import { iconsOnCellRegistry } from "./registries/icons_on_cell_registry";
 import "./registries/interactive_icon_on_cell_registry";
@@ -217,7 +217,7 @@ import { HighlightStore } from "./stores/highlight_store";
 import { ModelStore } from "./stores/model_store";
 import { NotificationStore } from "./stores/notification_store";
 import { RendererStore } from "./stores/renderer_store";
-import { AddFunctionDescription, isMatrix, schemeToColorScale } from "./types";
+import { AddFunctionDescription, CHART_TYPES, isMatrix, schemeToColorScale } from "./types";
 import { DEFAULT_LOCALE } from "./types/locale";
 
 /**
@@ -303,9 +303,11 @@ export const registries = {
   sidePanelRegistry,
   figureRegistry,
   chartSidePanelComponentRegistry,
+  chartDataSourceSidePanelComponentRegistry,
   chartComponentRegistry,
-  chartRegistry,
+  chartTypeRegistry,
   chartSubtypeRegistry,
+  chartDataSourceRegistry,
   topbarMenuRegistry,
   topbarComponentRegistry,
   clickableCellRegistry,
@@ -327,11 +329,13 @@ export const registries = {
   chartJsExtensionRegistry,
 };
 
+import "./helpers/figures/charts/chart_data_sources";
 import "./registries/chart_types";
 
 import "./clipboard_handlers";
 import { Composer } from "./components/composer/composer/composer";
 import { Select } from "./components/select/select";
+import { ChartRangeDataSourceComponent } from "./components/side_panel/chart/building_blocks/range_data_source/range_data_source";
 import { TopBar } from "./components/top_bar/top_bar";
 import { parseFormat } from "./helpers/format/format_parser";
 import {
@@ -339,6 +343,8 @@ import {
   getNumberOfPivotFunctions,
 } from "./helpers/pivot/pivot_composer_helpers";
 import { domainToColRowDomain } from "./helpers/pivot/pivot_domain_helpers";
+import { chartDataSourceSidePanelComponentRegistry } from "./registries/chart_data_source_component_registry";
+import { chartDataSourceRegistry } from "./registries/chart_data_source_registry";
 import { chartSubtypeRegistry } from "./registries/chart_subtype_registry";
 import { clipboardHandlersRegistries } from "./registries/clipboardHandlersRegistries";
 
@@ -431,6 +437,7 @@ export const components = {
   ChartDataSeries,
   ChartErrorSection,
   ChartLabelRange,
+  ChartRangeDataSourceComponent,
   ChartTitle,
   ChartPanel,
   ChartFigure,
@@ -538,6 +545,7 @@ export const constants = {
   FIGURE_ID_SPLITTER,
   GRID_ICON_EDGE_LENGTH,
   GRID_ICON_MARGIN,
+  CHART_TYPES,
 };
 
 export const chartHelpers: typeof CHART_HELPERS & typeof CHART_RUNTIME_HELPERS = {

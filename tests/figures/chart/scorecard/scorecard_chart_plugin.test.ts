@@ -4,8 +4,6 @@ import {
   DEFAULT_SCORECARD_BASELINE_COLOR_UP,
   DEFAULT_SCORECARD_BASELINE_MODE,
 } from "../../../../src/constants";
-import { zoneToXc } from "../../../../src/helpers";
-import { ScorecardChart } from "../../../../src/helpers/figures/charts";
 import {
   ScorecardChartDefinition,
   ScorecardChartRuntime,
@@ -13,6 +11,7 @@ import {
 import { GENERAL_CHART_CREATION_CONTEXT } from "../../../test_helpers/chart_helpers";
 import {
   addColumns,
+  createChartDefinitionFromContext,
   createScorecardChart,
   createSheet,
   deleteFigure,
@@ -83,7 +82,8 @@ describe("datasource tests", function () {
   });
 
   test("create scorecard from creation context", () => {
-    const definition = ScorecardChart.getDefinitionFromContextCreation(
+    const definition = createChartDefinitionFromContext(
+      "scorecard",
       GENERAL_CHART_CREATION_CONTEXT
     );
     expect(definition).toEqual({
@@ -212,12 +212,12 @@ describe("datasource tests", function () {
     const duplicatedFigure = model.getters.getFigures(secondSheetId)[0];
     const duplicatedChartId = model.getters.getChartIds(secondSheetId)[0];
 
-    const newChart = model.getters.getChart(duplicatedChartId) as ScorecardChart;
+    const newChart = model.getters
+      .getChart(duplicatedChartId)
+      ?.getDefinition() as ScorecardChartDefinition;
     expect(newChart.title.text).toEqual("test");
-    expect(newChart.keyValue?.sheetId).toEqual(secondSheetId);
-    expect(zoneToXc(newChart.keyValue!.zone)).toEqual("B1:B4");
-    expect(newChart.baseline?.sheetId).toEqual(secondSheetId);
-    expect(zoneToXc(newChart.baseline!.zone)).toEqual("A1");
+    expect(newChart.keyValue).toEqual("B1:B4");
+    expect(newChart.baseline).toEqual("A1");
 
     expect(duplicatedFigure).toMatchObject({ ...figure, id: expect.any(String) });
     expect(duplicatedFigure.id).not.toBe(figure?.id);

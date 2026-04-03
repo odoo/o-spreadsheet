@@ -13,7 +13,7 @@ import { ChartShowValues } from "../building_blocks/show_values/show_values";
 import { ChartSidePanelProps } from "../common";
 
 export class FunnelChartDesignPanel extends Component<
-  ChartSidePanelProps<FunnelChartDefinition>,
+  ChartSidePanelProps<FunnelChartDefinition<string>>,
   SpreadsheetChildEnv
 > {
   static template = "o-spreadsheet-FunnelChartDesignPanel";

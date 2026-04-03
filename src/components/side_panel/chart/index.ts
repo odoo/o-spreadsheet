@@ -1,8 +1,10 @@
 import { Component } from "@odoo/owl";
+import { chartDataSourceSidePanelComponentRegistry } from "../../../registries/chart_data_source_component_registry";
 import { Registry } from "../../../registries/registry";
 import { BarConfigPanel } from "./bar_chart/bar_chart_config_panel";
 import { BarChartDesignPanel } from "./bar_chart/bar_chart_design_panel";
 import { GenericChartConfigPanel } from "./building_blocks/generic_side_panel/config_panel";
+import { ChartRangeDataSourceComponent } from "./building_blocks/range_data_source/range_data_source";
 import { CalendarChartConfigPanel } from "./calendar_chart/calendar_chart_config_panel";
 import { CalendarChartDesignPanel } from "./calendar_chart/calendar_chart_design_panel";
 import { ChartWithAxisDesignPanel } from "./chart_with_axis/design_panel";
@@ -40,6 +42,8 @@ export interface ChartSidePanel {
 }
 
 export const chartSidePanelComponentRegistry = new Registry<ChartSidePanel>();
+
+chartDataSourceSidePanelComponentRegistry.add("range", ChartRangeDataSourceComponent);
 
 chartSidePanelComponentRegistry
   .add("line", {

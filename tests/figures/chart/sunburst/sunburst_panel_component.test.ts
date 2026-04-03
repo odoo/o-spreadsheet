@@ -8,6 +8,7 @@ import {
   changeRoundColorPickerColor,
   createSunburstChart,
   editSelectComponent,
+  getChartDataSource,
   getColorPickerWidgetColor,
   getHTMLCheckboxValue,
   getHTMLInputValue,
@@ -18,6 +19,7 @@ import {
 import {
   openChartConfigSidePanel,
   openChartDesignSidePanel,
+  toChartDataSource,
 } from "../../../test_helpers/chart_helpers";
 import { mountComponentWithPortalTarget, setGrid } from "../../../test_helpers/helpers";
 
@@ -25,8 +27,8 @@ let model: Model;
 let fixture: HTMLElement;
 let env: SpreadsheetChildEnv;
 
-function getSunburstDefinition(chartId: UID): SunburstChartDefinition {
-  return model.getters.getChartDefinition(chartId) as SunburstChartDefinition;
+function getSunburstDefinition(chartId: UID): SunburstChartDefinition<string> {
+  return model.getters.getChartDefinition(chartId) as SunburstChartDefinition<string>;
 }
 
 describe("Sunburst chart side panel", () => {
@@ -38,9 +40,11 @@ describe("Sunburst chart side panel", () => {
   describe("Config panel", () => {
     test("Sunburst config panel is correctly initialized", async () => {
       const chartId = createSunburstChart(model, {
-        dataSets: [{ dataRange: "A1:A3" }],
-        labelRange: "B1:B3",
-        dataSetsHaveTitle: true,
+        ...toChartDataSource({
+          dataSets: [{ dataRange: "A1:A3" }],
+          labelRange: "B1:B3",
+          dataSetsHaveTitle: true,
+        }),
       });
       await openChartConfigSidePanel(model, env, chartId);
 
@@ -51,22 +55,28 @@ describe("Sunburst chart side panel", () => {
 
     test("Can change chart values in config side panel", async () => {
       const chartId = createSunburstChart(model, {
-        dataSets: [{ dataRange: "A1:A3" }],
-        labelRange: "B1:B3",
-        dataSetsHaveTitle: true,
+        ...toChartDataSource({
+          dataSets: [{ dataRange: "A1:A3" }],
+          labelRange: "B1:B3",
+          dataSetsHaveTitle: true,
+        }),
       });
       await openChartConfigSidePanel(model, env, chartId);
 
       await setInputValueAndTrigger(".o-data-labels input", "C1:C3");
       await simulateClick(".o-data-labels .o-selection-ok");
-      expect(getSunburstDefinition(chartId)?.labelRange).toEqual("C1:C3");
+      expect(getChartDataSource(model, chartId)?.labelRange).toEqual("C1:C3");
 
       await setInputValueAndTrigger(".o-data-series input", "B1:B3");
       await simulateClick(".o-data-series .o-selection-ok");
-      expect(getSunburstDefinition(chartId)?.dataSets).toEqual([{ dataRange: "B1:B3" }]);
+      expect(getSunburstDefinition(chartId)).toMatchObject(
+        toChartDataSource({
+          dataSets: [{ dataRange: "B1:B3" }],
+        })
+      );
 
       await simulateClick('input[name="dataSetsHaveTitle"]');
-      expect(getSunburstDefinition(chartId)?.dataSetsHaveTitle).toEqual(false);
+      expect(getChartDataSource(model, chartId)?.dataSetsHaveTitle).toEqual(false);
     });
   });
 
@@ -157,8 +167,10 @@ describe("Sunburst chart side panel", () => {
     test("Can change sunburst colors", async () => {
       setGrid(model, { A2: "G1", A3: "G2", B2: "30", B3: "20" });
       const chartId = createSunburstChart(model, {
-        dataSets: [{ dataRange: "A1:A3" }],
-        labelRange: "B1:B3",
+        ...toChartDataSource({
+          dataSets: [{ dataRange: "A1:A3" }],
+          labelRange: "B1:B3",
+        }),
         groupColors: [undefined, "#00FF00"],
       });
       await openChartDesignSidePanel(model, env, fixture, chartId);

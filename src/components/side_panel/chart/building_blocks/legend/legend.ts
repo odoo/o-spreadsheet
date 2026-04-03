@@ -1,14 +1,14 @@
 import { Component } from "@odoo/owl";
 import { _t } from "../../../../../translation";
-import { ChartWithDataSetDefinition, ValueAndLabel } from "../../../../../types";
-import { LegendPosition } from "../../../../../types/chart";
+import { ValueAndLabel } from "../../../../../types";
+import { ChartDefinitionWithDataSource, LegendPosition } from "../../../../../types/chart";
 import { SpreadsheetChildEnv } from "../../../../../types/spreadsheet_env";
 import { Select } from "../../../../select/select";
 import { Section } from "../../../components/section/section";
 import { ChartSidePanelProps, ChartSidePanelPropsObject } from "../../common";
 
 export class ChartLegend extends Component<
-  ChartSidePanelProps<ChartWithDataSetDefinition> & { isDisabled?: boolean },
+  ChartSidePanelProps<ChartDefinitionWithDataSource<string>> & { isDisabled?: boolean },
   SpreadsheetChildEnv
 > {
   static template = "o-spreadsheet-ChartLegend";

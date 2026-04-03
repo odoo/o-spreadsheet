@@ -66,7 +66,7 @@ export class FigureRendererStore extends DisposableStore {
     const { x, y, width, height } = rect;
     const chartCanvas = new OffscreenCanvas(width, height);
 
-    const chart = this.getters.getChart(chartId);
+    const chart = this.getters.getChartDefinition(chartId);
     if (!chart) {
       return;
     }

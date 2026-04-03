@@ -3,7 +3,7 @@ import { ZoomableChartStore } from "../../../../src/components/figures/chart/cha
 import { ChartPanel } from "../../../../src/components/side_panel/chart/main_chart_panel/main_chart_panel";
 import { LineChartDefinition } from "../../../../src/types/chart";
 import { SpreadsheetChildEnv } from "../../../../src/types/spreadsheet_env";
-import { openChartDesignSidePanel } from "../../../test_helpers/chart_helpers";
+import { openChartDesignSidePanel, toChartDataSource } from "../../../test_helpers/chart_helpers";
 import {
   createChart,
   evaluateCharts,
@@ -27,15 +27,17 @@ extendMockGetBoundingClientRect({
 function createTestChart(
   newChartId: UID = chartId,
   partialFigure: Partial<CreateFigureCommand> = {},
-  partialDefinition: Partial<LineChartDefinition> = {}
+  partialDefinition: Partial<LineChartDefinition<string>> = {}
 ) {
   createChart(
     model,
     {
       ...TEST_CHART_DATA.basicChart,
-      labelRange: "C2:C4",
-      dataSets: [{ dataRange: "B2:B4" }],
-      dataSetsHaveTitle: false,
+      ...toChartDataSource({
+        labelRange: "C2:C4",
+        dataSets: [{ dataRange: "B2:B4" }],
+        dataSetsHaveTitle: false,
+      }),
       ...partialDefinition,
     },
     newChartId,
@@ -103,16 +105,18 @@ describe("zoom", () => {
     await openChartDesignSidePanel(model, env, fixture, chartId);
 
     expect(
-      (model.getters.getChartDefinition(chartId) as LineChartDefinition).zoomable
+      (model.getters.getChartDefinition(chartId) as LineChartDefinition<string>).zoomable
     ).toBeUndefined();
 
     await simulateClick("input[name='zoomable']");
     expect(
-      (model.getters.getChartDefinition(chartId) as LineChartDefinition).zoomable
+      (model.getters.getChartDefinition(chartId) as LineChartDefinition<string>).zoomable
     ).toBeTruthy();
 
     await simulateClick("input[name='zoomable']");
-    expect((model.getters.getChartDefinition(chartId) as LineChartDefinition).zoomable).toBeFalsy();
+    expect(
+      (model.getters.getChartDefinition(chartId) as LineChartDefinition<string>).zoomable
+    ).toBeFalsy();
   });
 
   test("Allowing zoom changes the definition and shows the master chart", async () => {
@@ -121,12 +125,12 @@ describe("zoom", () => {
     await openChartDesignSidePanel(model, env, fixture, chartId);
 
     expect(
-      (model.getters.getChartDefinition(chartId) as LineChartDefinition).zoomable
+      (model.getters.getChartDefinition(chartId) as LineChartDefinition<string>).zoomable
     ).toBeUndefined();
 
     await simulateClick("input[name='zoomable']");
     expect(
-      (model.getters.getChartDefinition(chartId) as LineChartDefinition).zoomable
+      (model.getters.getChartDefinition(chartId) as LineChartDefinition<string>).zoomable
     ).toBeTruthy();
     expect(fixture.querySelector(".o-master-chart-container")).not.toBeNull();
   });
@@ -137,11 +141,13 @@ describe("zoom", () => {
     await openChartDesignSidePanel(model, env, fixture, chartId);
 
     expect(
-      (model.getters.getChartDefinition(chartId) as LineChartDefinition).zoomable
+      (model.getters.getChartDefinition(chartId) as LineChartDefinition<string>).zoomable
     ).toBeDefined();
 
     await simulateClick("input[name='zoomable']");
-    expect((model.getters.getChartDefinition(chartId) as LineChartDefinition).zoomable).toBeFalsy();
+    expect(
+      (model.getters.getChartDefinition(chartId) as LineChartDefinition<string>).zoomable
+    ).toBeFalsy();
     expect(fixture.querySelector(".o-master-chart-container")).toBeNull();
   });
 
@@ -476,7 +482,11 @@ describe("zoom", () => {
     let style = container?.getAttribute("style");
     expect(style).toEqual("");
 
-    updateChart(model, chartId, { dataSets: [{ dataRange: "B2:B2" }], labelRange: "C2:C2" });
+    updateChart(
+      model,
+      chartId,
+      toChartDataSource({ dataSets: [{ dataRange: "B2:B2" }], labelRange: "C2:C2" })
+    );
     await nextTick();
     container = fixture.querySelector(".o-master-chart-container");
     style = container?.getAttribute("style");
