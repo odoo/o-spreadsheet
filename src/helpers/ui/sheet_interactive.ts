@@ -9,6 +9,9 @@ export function interactiveRenameSheet(
   name: string,
   errorCallback: () => void
 ) {
+  if (env.model.getters.isReadonly()) {
+    return;
+  }
   const result = env.model.dispatch("RENAME_SHEET", {
     sheetId,
     newName: name,

@@ -443,6 +443,28 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     "Alt+Shift+ArrowDown": () => this.processHeaderGroupingKey("down"),
   };
 
+  private readonlyAllowedShortcuts = new Set([
+    "Tab",
+    "Shift+Tab",
+    "Escape",
+    "Ctrl+A",
+    "Ctrl+Z",
+    "Ctrl+Y",
+    "F4",
+    "Alt+Enter",
+    "Ctrl+Home",
+    "Ctrl+End",
+    "Shift+ ",
+    "Ctrl+ ",
+    "Ctrl+H",
+    "Ctrl+F",
+    "Ctrl+Shift+ ",
+    "Alt+Shift+ArrowRight",
+    "Alt+Shift+ArrowLeft",
+    "Alt+Shift+ArrowUp",
+    "Alt+Shift+ArrowDown",
+  ]);
+
   private focusComposerFromActiveCell() {
     const cell = this.env.model.getters.getActiveCell();
     cell.type === CellValueType.empty
@@ -644,6 +666,9 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
 
   onKeydown(ev: KeyboardEvent) {
     const keyDownString = keyboardEventToShortcutString(ev);
+    if (this.env.model.getters.isReadonly() && !this.readonlyAllowedShortcuts.has(keyDownString)) {
+      return;
+    }
     const handler = this.keyDownMapping[keyDownString];
     if (handler) {
       ev.preventDefault();
