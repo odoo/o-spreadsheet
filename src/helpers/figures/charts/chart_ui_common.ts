@@ -83,7 +83,7 @@ export async function chartToImageUrl(
       drawScoreChart(design, canvas);
       imageUrl = await canvasToObjectUrl(canvas);
     } else if (type === "gauge") {
-      drawGaugeChart(canvas, runtime as GaugeChartRuntime, figure);
+      drawGaugeChart(canvas, runtime as GaugeChartRuntime, 1, figure);
       imageUrl = await canvasToObjectUrl(canvas);
     }
   }
@@ -139,7 +139,7 @@ export async function chartToImageFile(
       drawScoreChart(design, canvas);
       chartBlob = await canvasToBlob(canvas);
     } else if (type === "gauge") {
-      drawGaugeChart(canvas, runtime as GaugeChartRuntime, figure);
+      drawGaugeChart(canvas, runtime as GaugeChartRuntime, 1, figure);
       chartBlob = await canvasToBlob(canvas);
     }
   }
