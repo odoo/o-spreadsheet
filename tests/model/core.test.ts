@@ -587,9 +587,14 @@ describe("history", () => {
             colNumber: 10,
             rowNumber: 10,
             cells: {
-              A1: { content: "1000", format: "#,##0" },
-              A3: { content: "2000", format: "#,##0" },
-              B2: { content: "TRUE", format: "#,##0" },
+              A1: { content: "1000" },
+              A3: { content: "2000" },
+              B2: { content: "TRUE" },
+            },
+            formats: {
+              A1: 1,
+              A3: 1,
+              B2: 1,
             },
           },
           {
@@ -597,12 +602,21 @@ describe("history", () => {
             colNumber: 10,
             rowNumber: 10,
             cells: {
-              A1: { content: "21000", format: "#,##0" },
-              A3: { content: "12-31-2020", format: "mm/dd/yyyy" },
-              B2: { content: "TRUE", format: "#,##0" },
+              A1: { content: "21000" },
+              A3: { content: "12-31-2020" },
+              B2: { content: "TRUE" },
+            },
+            formats: {
+              A1: 1,
+              A3: 2,
+              B2: 1,
             },
           },
         ],
+        formats: {
+          "1": "#,##0",
+          "2": "mm-dd-yyyy",
+        },
       });
       expect(getRangeValues(model, "A1:A3", sheet1Id)).toEqual([1000, null, 2000]);
       expect(getRangeValues(model, "$A$1:$A$3", sheet1Id)).toEqual([1000, null, 2000]);
