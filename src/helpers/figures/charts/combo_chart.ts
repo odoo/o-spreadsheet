@@ -146,6 +146,8 @@ export class ComboChart extends AbstractChart {
       hideDataMarkers: this.hideDataMarkers,
       zoomable: this.zoomable,
       humanize: this.humanize,
+      annotationText: this.annotationText,
+      annotationLink: this.annotationLink,
     };
   }
 
@@ -199,6 +201,8 @@ export class ComboChart extends AbstractChart {
       hideDataMarkers: context.hideDataMarkers,
       zoomable: context.zoomable,
       humanize: context.humanize,
+      annotationText: context.annotationText,
+      annotationLink: context.annotationLink,
     };
   }
 

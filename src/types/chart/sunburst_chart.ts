@@ -5,18 +5,20 @@ import { LegendPosition } from "./common_chart";
 
 export interface SunburstChartDefinition {
   readonly type: "sunburst";
+  readonly title: TitleDesign;
+  readonly background?: Color;
+  readonly humanize?: boolean;
   readonly dataSets: CustomizedDataSet[];
   readonly dataSetsHaveTitle: boolean;
   readonly labelRange?: string;
-  readonly title: TitleDesign;
-  readonly background?: Color;
   readonly legendPosition: LegendPosition;
   readonly showValues?: boolean;
   readonly showLabels?: boolean;
   readonly valuesDesign?: ChartStyle;
   readonly groupColors?: (Color | undefined | null)[];
   readonly pieHolePercentage?: number;
-  readonly humanize?: boolean;
+  readonly annotationText?: string;
+  readonly annotationLink?: string;
 }
 
 export type SunburstChartRuntime = {

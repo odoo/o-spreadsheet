@@ -178,6 +178,8 @@ describe("calendar chart", () => {
       horizontalGroupBy: "day_of_week",
       verticalGroupBy: "month_number",
       axesDesign: {},
+      annotationLink: "https://www.odoo.com",
+      annotationText: "This is an annotation text",
     });
   });
 

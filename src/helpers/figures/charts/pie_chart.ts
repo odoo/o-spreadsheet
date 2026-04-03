@@ -101,6 +101,8 @@ export class PieChart extends AbstractChart {
       showValues: context.showValues,
       humanize: context.humanize,
       slicesColors: context.slicesColors,
+      annotationLink: context.annotationLink,
+      annotationText: context.annotationText,
     };
   }
 
@@ -143,6 +145,8 @@ export class PieChart extends AbstractChart {
       pieHolePercentage: this.pieHolePercentage,
       humanize: this.humanize,
       slicesColors: this.slicesColors,
+      annotationText: this.annotationText,
+      annotationLink: this.annotationLink,
     };
   }
 

@@ -110,6 +110,8 @@ export class BarChart extends AbstractChart {
       horizontal: context.horizontal,
       zoomable: context.zoomable,
       humanize: context.humanize,
+      annotationLink: context.annotationLink,
+      annotationText: context.annotationText,
     };
   }
 
@@ -183,6 +185,8 @@ export class BarChart extends AbstractChart {
       showValues: this.showValues,
       zoomable: this.horizontal ? undefined : this.zoomable,
       humanize: this.humanize,
+      annotationText: this.annotationText,
+      annotationLink: this.annotationLink,
     };
   }
 

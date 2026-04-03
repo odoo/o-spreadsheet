@@ -122,5 +122,6 @@
         <ChartErrorSection t-if="designErrorMessages.length" messages="designErrorMessages"/>
       </t>
     </SidePanelCollapsible>
+    <ChartAnnotation t-props="this.props"/>
   </t>
 </templates>

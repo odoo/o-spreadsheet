@@ -5,10 +5,12 @@ import { TitleDesign } from "./chart";
 export interface GaugeChartDefinition {
   readonly type: "gauge";
   readonly title: TitleDesign;
-  readonly dataRange?: string;
-  readonly sectionRule: SectionRule;
   readonly background?: Color;
   readonly humanize?: boolean;
+  readonly dataRange?: string;
+  readonly sectionRule: SectionRule;
+  readonly annotationText?: string;
+  readonly annotationLink?: string;
 }
 
 export interface SectionRule {
