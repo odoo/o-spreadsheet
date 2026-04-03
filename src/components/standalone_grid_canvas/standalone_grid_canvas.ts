@@ -1,4 +1,5 @@
-import { Component, onWillStart, onWillUpdateProps, useRef } from "@odoo/owl";
+import { onWillStart, onWillUpdateProps } from "@odoo/owl";
+import { Component, useRef } from "../../owl3_compatibility_layer";
 import { Store, useLocalStore } from "../../store_engine";
 import { RendererStore } from "../../stores/renderer_store";
 import { GridRenderingContext, UID, Zone } from "../../types";

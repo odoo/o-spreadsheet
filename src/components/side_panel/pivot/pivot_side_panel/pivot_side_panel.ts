@@ -1,6 +1,7 @@
-import { Component, onWillUpdateProps, useState } from "@odoo/owl";
+import { onWillUpdateProps, proxy } from "@odoo/owl";
 import { getPivotHighlights } from "../../../../helpers/pivot/pivot_highlight";
 import { pivotSidePanelRegistry } from "../../../../helpers/pivot/pivot_side_panel_registry";
+import { Component } from "../../../../owl3_compatibility_layer";
 import { UID } from "../../../../types";
 import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
 import { useHighlights } from "../../../helpers/highlight_hook";
@@ -32,7 +33,7 @@ export class PivotSidePanel extends Component<Props, SpreadsheetChildEnv> {
     PivotDesignPanel,
   };
 
-  state = useState<State>({ panel: this.props.openTab || "configuration" });
+  state = proxy<State>({ panel: this.props.openTab || "configuration" });
 
   setup() {
     useHighlights(this);

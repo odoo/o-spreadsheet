@@ -128,7 +128,7 @@ export async function pointerUp(target: DOMTarget) {
 
 /**
  * Simulate hovering a cell for a given amount of time.
- * Don't forget to use `jest.useFakeTimers();` when using
+ * Don't forget to use `useJestFakeTimers();` when using
  * this helper.
  */
 export async function hoverCell(model: Model, xc: string, delay: number) {

@@ -7,7 +7,7 @@ import { buildRevisionLog } from "../../src/history/factory";
 import { Client, CommandResult, WorkbookData } from "../../src/types";
 import { MockTransportService } from "../__mocks__/transport_service";
 import { selectCell, setCellContent } from "../test_helpers/commands_helpers";
-import { nextTick } from "../test_helpers/helpers";
+import { nextTick, useJestFakeTimers } from "../test_helpers/helpers";
 
 class MockCommandSquisher implements ICommandSquisher {
   public squish(
@@ -28,7 +28,7 @@ describe("Collaborative session", () => {
   let client: Client;
 
   beforeEach(() => {
-    jest.useFakeTimers();
+    useJestFakeTimers();
 
     transport = new MockTransportService();
     client = {

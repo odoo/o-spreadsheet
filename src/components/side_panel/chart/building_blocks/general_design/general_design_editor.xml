@@ -4,20 +4,20 @@
       <t t-set-slot="content">
         <Section class="'o-chart-background-color pt-0 pb-0'" title.translate="Background color">
           <RoundColorPicker
-            currentColor="props.definition.background"
-            onColorPicked.bind="updateBackgroundColor"
+            currentColor="this.props.definition.background"
+            onColorPicked.bind="this.updateBackgroundColor"
           />
         </Section>
         <ChartTitle
-          title="title.text"
-          updateTitle.bind="updateTitle"
+          title="this.title.text"
+          updateTitle.bind="this.updateTitle"
           name.translate="Chart title"
           placeholder.translate="Add a Title"
-          updateStyle.bind="updateChartTitleStyle"
-          style="title"
+          updateStyle.bind="this.updateChartTitleStyle"
+          style="this.title"
           defaultStyle="{align: 'left', fontSize: this.props.defaultChartTitleFontSize}"
         />
-        <t t-slot="general-extension"/>
+        <t t-call-slot="general-extension"/>
       </t>
     </SidePanelCollapsible>
   </t>

@@ -1,4 +1,3 @@
-import { Component } from "@odoo/owl";
 import { DESKTOP_TOPBAR_TOOLBAR_HEIGHT } from "../../../constants";
 import { Store, useStore } from "../../../store_engine";
 import { CSSProperties, ComposerFocusType } from "../../../types/index";
@@ -9,6 +8,7 @@ import { CellComposerStore } from "../composer/cell_composer_store";
 import { Composer } from "../composer/composer";
 import { ComposerFocusStore, ComposerInterface } from "../composer_focus_store";
 
+import { Component } from "../../../owl3_compatibility_layer";
 const COMPOSER_MAX_HEIGHT = 300;
 
 export class TopBarComposer extends Component<any, SpreadsheetChildEnv> {

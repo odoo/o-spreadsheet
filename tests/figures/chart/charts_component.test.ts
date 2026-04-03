@@ -1,4 +1,3 @@
-import { App } from "@odoo/owl";
 import { CommandResult, Model, Spreadsheet } from "../../../src";
 import { ChartPanel } from "../../../src/components/side_panel/chart/main_chart_panel/main_chart_panel";
 import { SidePanelStore } from "../../../src/components/side_panel/side_panel/side_panel_store";
@@ -7,6 +6,7 @@ import { LINE_DATA_POINT_RADIUS } from "../../../src/constants";
 import { toHex, toZone } from "../../../src/helpers";
 import { GaugeChart, ScorecardChart } from "../../../src/helpers/figures/charts";
 import { getChartColorsGenerator } from "../../../src/helpers/figures/charts/runtime";
+import { App } from "../../../src/owl3_compatibility_layer";
 import { chartSubtypeRegistry } from "../../../src/registries/chart_subtype_registry";
 import { HighlightStore } from "../../../src/stores/highlight_store";
 import {
@@ -1289,7 +1289,7 @@ describe("charts", () => {
     expect(highlightStore.highlights.length).toBe(1);
 
     await openChartDesignSidePanel(model, env, fixture, chartId);
-    await nextTick(); // the check is done in a `useEffect`, we need to wait for the next render
+    await nextTick(); // the check is done in a `useLayoutEffect`, we need to wait for the next render
 
     expect(".o-selection-ok").toHaveCount(0);
     expect(highlightStore.highlights.length).toBe(0);
@@ -1308,7 +1308,7 @@ describe("charts", () => {
     expect(".o-selection-ok").toHaveCount(2);
 
     await openChartDesignSidePanel(model, env, fixture, chartId);
-    await nextTick(); // the check is done in a `useEffect`, we need to wait for the next render
+    await nextTick(); // the check is done in a `useLayoutEffect`, we need to wait for the next render
 
     expect(".o-selection-ok").toHaveCount(0);
   });

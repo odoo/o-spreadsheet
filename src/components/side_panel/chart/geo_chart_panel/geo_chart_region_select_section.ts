@@ -1,10 +1,10 @@
-import { Component } from "@odoo/owl";
 import { GeoChartDefinition } from "../../../../types/chart/geo_chart";
 import { DispatchResult, UID, ValueAndLabel } from "../../../../types/index";
 import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
 import { Select } from "../../../select/select";
 import { Section } from "../../components/section/section";
 
+import { Component } from "../../../../owl3_compatibility_layer";
 interface Props {
   chartId: UID;
   definition: GeoChartDefinition;

@@ -1,6 +1,7 @@
-import { Component, onWillUpdateProps, useRef, useState } from "@odoo/owl";
+import { onWillUpdateProps, proxy } from "@odoo/owl";
 import { deepEquals, positions, toTrimmedLowerCase } from "../../../helpers";
 import { fuzzyLookup } from "../../../helpers/search";
+import { Component, useRef } from "../../../owl3_compatibility_layer";
 import { Position } from "../../../types";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
 import { FilterMenuValueItem } from "../filter_menu_item/filter_menu_value_item";
@@ -33,7 +34,7 @@ export class FilterMenuValueList extends Component<Props, SpreadsheetChildEnv> {
   };
   static components = { FilterMenuValueItem };
 
-  private state: State = useState({
+  private state: State = proxy({
     values: [],
     displayedValues: [],
     textFilter: "",

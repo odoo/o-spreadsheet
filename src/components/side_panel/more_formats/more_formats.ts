@@ -1,4 +1,5 @@
-import { Component, onWillStart, onWillUpdateProps } from "@odoo/owl";
+import { onWillStart, onWillUpdateProps } from "@odoo/owl";
+import { Component } from "../../../owl3_compatibility_layer";
 import { currenciesRegistry } from "../../../registries/currencies_registry";
 import { useLocalStore } from "../../../store_engine";
 import { ValueAndLabel } from "../../../types";

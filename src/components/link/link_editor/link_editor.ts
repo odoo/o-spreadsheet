@@ -1,7 +1,8 @@
-import { Component, onMounted, useRef, useState } from "@odoo/owl";
+import { onMounted, proxy } from "@odoo/owl";
 import { markdownLink } from "../../../helpers";
 import { detectLink, urlRepresentation } from "../../../helpers/links";
 import { canonicalizeNumberContent } from "../../../helpers/locale";
+import { Component, useRef } from "../../../owl3_compatibility_layer";
 import { linkMenuRegistry } from "../../../registries/menus/link_menu_registry";
 import { Link, Position, Rect } from "../../../types";
 import { CellPopoverComponent, PopoverBuilders } from "../../../types/cell_popovers";
@@ -28,8 +29,8 @@ export class LinkEditor extends Component<LinkEditorProps, SpreadsheetChildEnv> 
   };
   static components = { MenuPopover };
   menuItems = linkMenuRegistry.getMenuItems();
-  private link: State = useState(this.defaultState);
-  private menu = useState({
+  private link: State = proxy(this.defaultState);
+  private menu = proxy({
     isOpen: false,
   });
   private linkEditorMenuButtonRef = useRef("linkEditorMenuButton");

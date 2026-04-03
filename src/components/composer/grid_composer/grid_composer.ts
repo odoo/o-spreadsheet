@@ -1,4 +1,4 @@
-import { Component, onWillUpdateProps } from "@odoo/owl";
+import { onWillUpdateProps } from "@odoo/owl";
 import { SELECTION_BORDER_COLOR } from "../../../constants";
 import {
   deepEquals,
@@ -8,6 +8,7 @@ import {
   positionToZone,
   toXC,
 } from "../../../helpers";
+import { Component } from "../../../owl3_compatibility_layer";
 import { Store, useStore } from "../../../store_engine";
 import { CellPosition, ComposerFocusType, DOMDimension, Rect } from "../../../types/index";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";

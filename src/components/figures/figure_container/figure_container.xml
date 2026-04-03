@@ -1,7 +1,7 @@
 <templates>
   <t t-name="o-spreadsheet-FiguresContainer">
     <div class="position-absolute">
-      <t t-foreach="containers" t-as="container" t-key="container.type">
+      <t t-foreach="this.containers" t-as="container" t-key="container.type">
         <div
           class="o-figure-container position-absolute pe-none overflow-hidden"
           t-att-style="container.style"
@@ -12,8 +12,8 @@
             <t t-foreach="container.figures" t-as="figureUI" t-key="figureUI.id">
               <FigureComponent
                 figureUI="figureUI"
-                style="getFigureStyle(figureUI)"
-                class="getFigureClass(figureUI)"
+                style="this.getFigureStyle(figureUI)"
+                class="this.getFigureClass(figureUI)"
                 onMouseDown="(ev) => this.startDraggingFigure(figureUI, ev)"
                 onClickAnchor="(dirX, dirY, ev) => this.startResize(figureUI, dirX, dirY, ev)"
               />
@@ -24,17 +24,17 @@
     </div>
     <div
       class="o-figure-container position-absolute pe-none overflow-hidden"
-      t-if="dnd.horizontalSnap"
-      t-att-style="dnd.horizontalSnap.containerStyle"
+      t-if="this.dnd.horizontalSnap"
+      t-att-style="this.dnd.horizontalSnap.containerStyle"
       t-att-data-id="'HorizontalSnapContainer'">
-      <div class="o-figure-snap-line horizontal" t-att-style="dnd.horizontalSnap.lineStyle"/>
+      <div class="o-figure-snap-line horizontal" t-att-style="this.dnd.horizontalSnap.lineStyle"/>
     </div>
     <div
       class="o-figure-container position-absolute pe-none overflow-hidden"
-      t-if="dnd.verticalSnap"
-      t-att-style="dnd.verticalSnap.containerStyle"
+      t-if="this.dnd.verticalSnap"
+      t-att-style="this.dnd.verticalSnap.containerStyle"
       t-att-data-id="'VerticalSnapContainer'">
-      <div class="o-figure-snap-line vertical" t-att-style="dnd.verticalSnap.lineStyle"/>
+      <div class="o-figure-snap-line vertical" t-att-style="this.dnd.verticalSnap.lineStyle"/>
     </div>
   </t>
 </templates>

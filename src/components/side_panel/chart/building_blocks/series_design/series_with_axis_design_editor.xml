@@ -1,28 +1,28 @@
 <templates>
   <t t-name="o-spreadsheet-SeriesWithAxisDesignEditor">
-    <SeriesDesignEditor t-props="props">
+    <SeriesDesignEditor t-props="this.props">
       <t t-set-slot="data-series-extension" t-slot-scope="scope">
         <t t-set="index" t-value="scope.index"/>
-        <t t-slot="general-extension" index="index"/>
+        <t t-call-slot="general-extension" index="index"/>
         <Section class="'pt-0 pb-0'">
           <Section
             class="'pt-0 px-0 o-vertical-axis-selection'"
-            t-if="canHaveTwoVerticalAxis"
+            t-if="this.canHaveTwoVerticalAxis"
             title.translate="Vertical axis">
             <RadioSelection
-              choices="axisChoices"
-              selectedValue="getDataSerieAxis(index)"
+              choices="this.axisChoices"
+              selectedValue="this.getDataSerieAxis(index)"
               name="'axis'"
               onChange="(value) => this.updateDataSeriesAxis(index, value)"
             />
           </Section>
           <Section
             class="'pt-0 px-0 o-show-trend-line'"
-            t-if="!props.definition.horizontal"
+            t-if="!this.props.definition.horizontal"
             title.translate="Trend line">
             <t t-set="showTrendLineLabel">Show trend line</t>
-            <t t-set="trend" t-value="getTrendLineConfiguration(index)"/>
-            <t t-set="trendType" t-value="getTrendType(trend)"/>
+            <t t-set="trend" t-value="this.getTrendLineConfiguration(index)"/>
+            <t t-set="trendType" t-value="this.getTrendType(trend)"/>
             <Checkbox
               name="'showTrendLine'"
               label="showTrendLineLabel"
@@ -35,7 +35,7 @@
                   <span class="o-section-subtitle">Type</span>
                   <Select
                     selectedValue="trendType"
-                    values="trendOptions"
+                    values="this.trendOptions"
                     class="'trend-type-selector'"
                     onChange="(value) => this.onChangeTrendType(index, value)"
                   />
@@ -53,7 +53,7 @@
                   <span class="o-section-subtitle">Degree</span>
                   <Select
                     selectedValue="trend.order.toString()"
-                    values="getPolynomialDegrees(index)"
+                    values="this.getPolynomialDegrees(index)"
                     class="'trend-order-input'"
                     onChange="(value) => this.onChangePolynomialDegree(index, value)"
                   />
@@ -62,7 +62,7 @@
               <div class="d-flex align-items-center">
                 <span class="o-section-subtitle my-0 pe-2">Trend line color</span>
                 <RoundColorPicker
-                  currentColor="getTrendLineColor(index)"
+                  currentColor="this.getTrendLineColor(index)"
                   onColorPicked="(ev) => this.updateTrendLineColor(index, ev)"
                 />
               </div>

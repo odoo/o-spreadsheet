@@ -1,8 +1,9 @@
 import { debounce } from "../../src/helpers";
+import { useJestFakeTimers } from "../test_helpers/helpers";
 
 describe("Debounce Helper", () => {
   beforeAll(() => {
-    jest.useFakeTimers();
+    useJestFakeTimers();
   });
 
   afterAll(() => {

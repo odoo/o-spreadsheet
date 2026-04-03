@@ -1,6 +1,7 @@
-import { Component, onMounted, onWillUnmount, useExternalListener, useRef } from "@odoo/owl";
+import { onMounted, onWillUnmount } from "@odoo/owl";
 import { deepEquals, positionToZone } from "../../helpers";
 import { isPointInsideRect } from "../../helpers/rectangle";
+import { Component, useExternalListener, useRef } from "../../owl3_compatibility_layer";
 import { Store, useStore } from "../../store_engine";
 import { DOMCoordinates, GridClickModifiers, HeaderIndex, Pixel, Position, Ref } from "../../types";
 import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";

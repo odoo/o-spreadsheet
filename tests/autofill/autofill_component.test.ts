@@ -1,7 +1,8 @@
-import { Component, xml } from "@odoo/owl";
+import { xml } from "@odoo/owl";
 import { Spreadsheet } from "../../src";
 import { DEFAULT_CELL_WIDTH, HEADER_HEIGHT, HEADER_WIDTH } from "../../src/constants";
 import { Model } from "../../src/model";
+import { Component } from "../../src/owl3_compatibility_layer";
 import { setCellContent, setSelection, setViewportOffset } from "../test_helpers/commands_helpers";
 import {
   clickCell,
@@ -15,6 +16,7 @@ import {
   mountSpreadsheet,
   nextTick,
   spyDispatch,
+  useJestFakeTimers,
 } from "../test_helpers/helpers";
 
 let fixture: HTMLElement;
@@ -205,7 +207,7 @@ describe("Autofill component", () => {
     const autofill = fixture.querySelector(".o-autofill");
     class CustomTooltip extends Component {
       static template = xml/* xml */ `
-        <div class="custom_tooltip" t-out="props.content"/>
+        <div class="custom_tooltip" t-out="this.props.content"/>
       `;
       static props = { content: String };
     }
@@ -266,7 +268,7 @@ describe("Autofill component", () => {
 
 describe("Autofill edge scrolling", () => {
   beforeEach(async () => {
-    jest.useFakeTimers();
+    useJestFakeTimers();
     ({ parent, model, fixture } = await mountSpreadsheet());
   });
 

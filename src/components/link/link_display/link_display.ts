@@ -1,5 +1,3 @@
-import { Component } from "@odoo/owl";
-import { LINK_COLOR } from "../../../constants";
 import { toXC } from "../../../helpers";
 import { openLink, urlRepresentation } from "../../../helpers/links";
 import { Store, useStore } from "../../../store_engine";
@@ -9,6 +7,8 @@ import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
 import { isMiddleClickOrCtrlClick } from "../../helpers/dom_helpers";
 import { CellPopoverStore } from "../../popover/cell_popover_store";
 
+import { LINK_COLOR } from "../../../constants";
+import { Component } from "../../../owl3_compatibility_layer";
 interface LinkDisplayProps {
   cellPosition: Position;
 }

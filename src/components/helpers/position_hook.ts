@@ -1,4 +1,5 @@
-import { onMounted, onPatched, useComponent, useState } from "@odoo/owl";
+import { onMounted, onPatched, proxy } from "@odoo/owl";
+import { useComponent } from "../../owl3_compatibility_layer";
 import { Rect } from "../../types";
 
 /**
@@ -6,7 +7,7 @@ import { Rect } from "../../types";
  * to the browser viewport.
  */
 export function useSpreadsheetRect(): Rect {
-  const position = useState({ x: 0, y: 0, width: 0, height: 0 });
+  const position = proxy({ x: 0, y: 0, width: 0, height: 0 });
   let spreadsheetElement: Element | null = null;
   function updatePosition() {
     if (!spreadsheetElement) {
@@ -33,7 +34,7 @@ export function useSpreadsheetRect(): Rect {
  * Coordinates are expressed expressed as absolute DOM position.
  */
 export function usePopoverContainer(): Rect {
-  const container = useState({ x: 0, y: 0, width: 0, height: 0 });
+  const container = proxy({ x: 0, y: 0, width: 0, height: 0 });
   const component = useComponent();
   const spreadsheetRect = useSpreadsheetRect();
   function updateRect() {

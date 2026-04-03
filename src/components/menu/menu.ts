@@ -1,5 +1,6 @@
-import { Component, onWillUnmount } from "@odoo/owl";
+import { onWillUnmount } from "@odoo/owl";
 import { Action, isRootMenu } from "../../actions/action";
+import { Component } from "../../owl3_compatibility_layer";
 import { Pixel } from "../../types";
 import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 import { cssPropertiesToCss } from "../helpers/css";

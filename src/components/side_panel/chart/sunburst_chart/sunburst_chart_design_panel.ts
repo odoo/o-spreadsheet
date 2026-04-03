@@ -1,4 +1,3 @@
-import { Component } from "@odoo/owl";
 import { deepCopy } from "../../../../helpers";
 import {
   SunburstChartDefaults,
@@ -19,6 +18,7 @@ import { ChartShowValues } from "../building_blocks/show_values/show_values";
 import { TextStyler } from "../building_blocks/text_styler/text_styler";
 import { ChartSidePanelProps, ChartSidePanelPropsObject } from "../common";
 
+import { Component } from "../../../../owl3_compatibility_layer";
 export class SunburstChartDesignPanel extends Component<
   ChartSidePanelProps<SunburstChartDefinition>,
   SpreadsheetChildEnv

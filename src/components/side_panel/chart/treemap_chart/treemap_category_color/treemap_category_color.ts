@@ -1,4 +1,3 @@
-import { Component } from "@odoo/owl";
 import { ChartConfiguration } from "chart.js";
 import { DeepPartial, DispatchResult, UID } from "../../../../..";
 import { deepCopy } from "../../../../../helpers";
@@ -13,6 +12,7 @@ import { SpreadsheetChildEnv } from "../../../../../types/spreadsheet_env";
 import { Checkbox } from "../../../components/checkbox/checkbox";
 import { RoundColorPicker } from "../../../components/round_color_picker/round_color_picker";
 
+import { Component } from "../../../../../owl3_compatibility_layer";
 interface Props {
   chartId: UID;
   definition: TreeMapChartDefinition;

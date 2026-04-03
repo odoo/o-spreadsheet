@@ -1,8 +1,9 @@
-import { App, Component, useSubEnv, xml } from "@odoo/owl";
+import { App, xml } from "@odoo/owl";
 import { Model } from "../../src";
 import { OPEN_CF_SIDEPANEL_ACTION } from "../../src/actions/menu_items_actions";
 import { SelectionInput } from "../../src/components/selection_input/selection_input";
 import { ColorGenerator, toCartesian, toZone } from "../../src/helpers";
+import { Component, useSubEnv } from "../../src/owl3_compatibility_layer";
 import { useStoreProvider } from "../../src/store_engine";
 import { ModelStore } from "../../src/stores";
 import { HighlightStore } from "../../src/stores/highlight_store";
@@ -60,11 +61,11 @@ interface SelectionInputTestConfig {
 class Parent extends Component<any> {
   static template = xml/* xml */ `
     <SelectionInput
-      ranges="initialRanges || []"
-      hasSingleRange="hasSingleRange"
+      ranges="this.initialRanges || []"
+      hasSingleRange="this.hasSingleRange"
       onSelectionChanged="(ranges) => this.onChanged(ranges)"
-      onSelectionConfirmed="onConfirmed"
-      colors="colors || []"
+      onSelectionConfirmed="this.onConfirmed"
+      colors="this.colors || []"
     />
   `;
   static components = { SelectionInput };

@@ -1,4 +1,3 @@
-import { Component } from "@odoo/owl";
 import { _t } from "../../../../translation";
 import { LegendPosition } from "../../../../types/chart";
 import { CalendarChartDefinition } from "../../../../types/chart/calendar_chart";
@@ -17,6 +16,7 @@ import { GeneralDesignEditor } from "../building_blocks/general_design/general_d
 import { ChartShowValues } from "../building_blocks/show_values/show_values";
 import { ChartSidePanelProps, ChartSidePanelPropsObject } from "../common";
 
+import { Component } from "../../../../owl3_compatibility_layer";
 export class CalendarChartDesignPanel extends Component<
   ChartSidePanelProps<CalendarChartDefinition>,
   SpreadsheetChildEnv

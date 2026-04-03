@@ -2,7 +2,7 @@
   <t t-name="o-spreadsheet-TreeMapCategoryColors">
     <div class="mt-3">
       <div class="o-fw-bold mb-2">Category</div>
-      <t t-foreach="getTreeGroupAndColors()" t-as="group" t-key="group_index">
+      <t t-foreach="this.getTreeGroupAndColors()" t-as="group" t-key="group_index">
         <div class="d-flex align-items-center mb-2" t-att-data-id="group.label">
           <RoundColorPicker
             currentColor="group.color"
@@ -18,8 +18,8 @@
       <Checkbox
         name="'useValueBasedGradient'"
         label.translate="Use value-based gradient"
-        value="coloringOptions.useValueBasedGradient"
-        onChange.bind="useValueBasedGradient"
+        value="this.coloringOptions.useValueBasedGradient"
+        onChange.bind="this.useValueBasedGradient"
         className="'mt-4'"
       />
     </div>

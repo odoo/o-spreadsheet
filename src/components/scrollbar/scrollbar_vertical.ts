@@ -1,4 +1,5 @@
-import { Component, xml } from "@odoo/owl";
+import { xml } from "@odoo/owl";
+import { Component } from "../../owl3_compatibility_layer";
 import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 import { isBrowserFirefox } from "../helpers/dom_helpers";
 import { ScrollBar } from "./scrollbar";
@@ -14,12 +15,12 @@ export class VerticalScrollBar extends Component<Props, SpreadsheetChildEnv> {
   static components = { ScrollBar };
   static template = xml/*xml*/ `
     <ScrollBar
-      t-if="isDisplayed"
-      height="height"
-      position="position"
-      offset="offset"
+      t-if="this.isDisplayed"
+      height="this.height"
+      position="this.position"
+      offset="this.offset"
       direction="'vertical'"
-      onScroll.bind="onScroll"
+      onScroll.bind="(offset) => this.onScroll(offset)"
     />`;
   static defaultProps = {
     topOffset: 0,

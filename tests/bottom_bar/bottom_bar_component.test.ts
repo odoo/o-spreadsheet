@@ -1,4 +1,3 @@
-import { Component } from "@odoo/owl";
 import { BottomBar } from "../../src/components/bottom_bar/bottom_bar";
 import { toHex } from "../../src/helpers";
 import { interactiveRenameSheet } from "../../src/helpers/ui/sheet_interactive";
@@ -36,9 +35,11 @@ import {
   mountSpreadsheet,
   nextTick,
   setMobileMode,
+  useJestFakeTimers,
 } from "../test_helpers/helpers";
 import { extendMockGetBoundingClientRect } from "../test_helpers/mock_helpers";
 
+import { Component } from "../../src/owl3_compatibility_layer";
 let fixture: HTMLElement;
 
 function isDragAndDropActive(): boolean {
@@ -783,7 +784,7 @@ describe("BottomBar component", () => {
         "o-sheet-list": () => ({ x: 0, width: 500 }),
       });
 
-      jest.useFakeTimers();
+      useJestFakeTimers();
       model = new Model({ sheets: sheetIds.map((sheetId) => ({ id: sheetId })) });
       await mountBottomBar(model);
     });

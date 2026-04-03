@@ -2,11 +2,11 @@
   <t t-name="o-spreadsheet-GridAddRowsFooter">
     <div
       class="o-grid-add-rows mt-2 ms-2 w-100 d-flex position-relative align-items-center"
-      t-att-style="addRowsPosition"
+      t-att-style="this.addRowsPosition"
       t-on-pointerdown.stop.prevent="">
       <button
-        t-on-click="onConfirm"
-        t-att-disabled="state.errorFlag"
+        t-on-click="this.onConfirm"
+        t-att-disabled="this.state.errorFlag"
         class="o-button flex-grow-0 me-2"
         tabindex="-1">
         Add
@@ -14,16 +14,20 @@
       <input
         type="text"
         class="o-grid-add-rows-input o-input mt-0 me-2"
-        t-ref="inputRef"
+        t-custom-ref="inputRef"
         value="100"
         t-on-click.stop=""
-        t-on-keydown.stop="onKeydown"
+        t-on-keydown.stop="this.onKeydown"
         t-on-pointerdown.stop=""
-        t-on-input.stop="onInput"
+        t-on-input.stop="this.onInput"
         tabindex="-1"
       />
       <span>more rows at the bottom</span>
-      <ValidationMessages t-if="state.errorFlag" messages="errorMessages" msgType="'error'"/>
+      <ValidationMessages
+        t-if="this.state.errorFlag"
+        messages="this.errorMessages"
+        msgType="'error'"
+      />
     </div>
   </t>
 </templates>

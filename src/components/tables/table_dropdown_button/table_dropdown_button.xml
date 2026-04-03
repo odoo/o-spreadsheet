@@ -1,19 +1,19 @@
 <templates>
   <t t-name="o-spreadsheet-TableDropdownButton">
-    <div class="o-table-widget d-flex align-item-center" t-att-class="class">
+    <div class="o-table-widget d-flex align-item-center" t-att-class="this.class">
       <ActionButton
-        action="action"
+        action="this.action"
         hasTriangleDownIcon="true"
-        t-on-click="onClick"
+        t-on-click="this.onClick"
         class="'opacity-100'"
       />
     </div>
     <TableStylesPopover
-      tableConfig="tableConfig"
-      onStylePicked.bind="onStylePicked"
-      popoverProps="state.popoverProps"
-      closePopover.bind="closePopover"
-      tableStyles="tableStyles"
+      tableConfig="this.tableConfig"
+      onStylePicked.bind="this.onStylePicked"
+      popoverProps="this.state.popoverProps"
+      closePopover.bind="this.closePopover"
+      tableStyles="this.tableStyles"
       type="'table'"
     />
   </t>
