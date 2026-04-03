@@ -35,19 +35,40 @@
  * The end goal is to eliminate all compatibility shims.
  */
 
-import * as owl from "@odoo/owl";
+import {
+  __ODOO_COMPATIBILITY_LAYER_ADDED__,
+  blockDom,
+  config,
+  onMounted,
+  onPatched, // Exported by Odoo compat layer
+  onWillUnmount,
+  App as OwlApp,
+  Component as OwlComponent, // Exported by Odoo compat layer
+  EnvPlugin as OwlEnvPlugin, // Exported by Odoo compat layer
+  useChildEnv as OwlUseChildEnv, // Exported by Odoo compat layer
+  useChildSubEnv as OwlUseChildSubEnv,
+  useComponent as OwlUseComponent, // Exported by Odoo compat layer
+  useEnv as OwlUseEnv, // Exported by Odoo compat layer
+  useExternalListener as OwlUseExternalListener, // Exported by Odoo compat layer
+  useLayoutEffect as OwlUseLayoutEffect, // Exported by Odoo compat layer
+  useRef as OwlUseRef,
+  useSubEnv as OwlUseSubEnv, // Exported by Odoo compat layer
+  Plugin,
+  plugin,
+  props,
+  providePlugins, // Exported by Odoo compat layer
+  useScope,
+  xml,
+} from "@odoo/owl";
+
+const isOdooCompatLoaded = __ODOO_COMPATIBILITY_LAYER_ADDED__ === true;
 
 export interface ComponentConstructor<Props = any, Env = any> {
   new (...args: any[]): Component<Props, Env>;
   template: string;
 }
 
-/**
- * @type {any}
- */
-let currentNode = null;
-
-export class Component<Props = any, Env = any> extends owl.Component {
+class _Component<Props = any, Env = any> extends OwlComponent {
   static template = "";
   static props = {};
   static defaultProps = {};
@@ -58,10 +79,9 @@ export class Component<Props = any, Env = any> extends owl.Component {
 
   constructor(node) {
     super(node);
-    this.props = owl.props(null, this.constructor.defaultProps);
+    this.props = props(null, this.constructor.defaultProps);
     this.env = useChildEnv();
     this.__owl__ = node;
-    currentNode = node;
   }
 
   setup() {}
@@ -71,38 +91,38 @@ export class Component<Props = any, Env = any> extends owl.Component {
   }
 }
 
-function getCurrentNode() {
-  if (!currentNode) {
-    throw new Error("No current node");
-  }
-  return currentNode;
-}
-
-export function useRef<T extends HTMLElement = HTMLElement>(name: string): { el: T | null } {
-  const node = getCurrentNode();
+function _useRef<T extends HTMLElement = HTMLElement>(name: string): { el: T | null } {
+  const node = useScope();
   if (!node.__refs__) {
     node.__refs__ = {};
   }
+  if (!node.__refs__[name]) {
+    node.__refs__[name] = { lastSetId: null, values: {} };
+  }
   return {
     get el(): T | null {
-      return node.__refs__[name] || null;
+      const info = node.__refs__[name];
+      if (!info.lastSetId) {
+        return null;
+      }
+      return info.values[info.lastSetId];
     },
   };
 }
 
-export function useComponent() {
-  return getCurrentNode().component;
+function _useComponent() {
+  return useScope().component;
 }
 
-export function useExternalListener(target, eventName, handler, eventParams?) {
-  const node = getCurrentNode();
+function _useExternalListener(target, eventName, handler, eventParams?) {
+  const node = useScope();
   const boundHandler = handler.bind(node.component);
-  owl.onMounted(() => target.addEventListener(eventName, boundHandler, eventParams));
-  owl.onWillUnmount(() => target.removeEventListener(eventName, boundHandler, eventParams));
+  onMounted(() => target.addEventListener(eventName, boundHandler, eventParams));
+  onWillUnmount(() => target.removeEventListener(eventName, boundHandler, eventParams));
 }
 
 function onWillRender(cb) {
-  const node = getCurrentNode();
+  const node = useScope();
   const renderFn = node.renderFn;
   node.renderFn = () => {
     cb.call(node.component);
@@ -110,12 +130,12 @@ function onWillRender(cb) {
   };
 }
 
-export function useLayoutEffect(effect, computeDependencies: () => any = () => [NaN]) {
+function _useLayoutEffect(effect, computeDependencies: () => any = () => [NaN]) {
   /** @type {Function} */
   let cleanup;
   /** @type {any[]} */
   let dependencies;
-  owl.onMounted(() => {
+  onMounted(() => {
     dependencies = computeDependencies();
     cleanup = effect(...dependencies);
   });
@@ -126,7 +146,7 @@ export function useLayoutEffect(effect, computeDependencies: () => any = () => [
       // just need to read dependencies to subscribe to signals
     }
   });
-  owl.onPatched(() => {
+  onPatched(() => {
     const newDeps = computeDependencies();
     const shouldReapply = newDeps.some((val, i) => val !== dependencies[i]);
     if (shouldReapply) {
@@ -137,29 +157,23 @@ export function useLayoutEffect(effect, computeDependencies: () => any = () => [
       cleanup = effect(...dependencies);
     }
   });
-  owl.onWillUnmount(() => cleanup && cleanup());
+  onWillUnmount(() => cleanup && cleanup());
 }
 
-export class EnvPlugin extends owl.Plugin {
+class _EnvPlugin extends Plugin {
   static id = "__ENV__";
-  env = owl.config("env") ?? {};
+  env = config("env") ?? {};
 }
 
-export function useEnv() {
-  return getCurrentNode().component.env;
+function _useEnv() {
+  return useScope().component.env;
 }
 
-/**
- * @param {object} env
- */
 function provideEnv(env) {
-  owl.providePlugins([EnvPlugin], { env });
+  providePlugins([_EnvPlugin], { env });
   return env;
 }
 
-/**
- * @param {object} extension
- */
 function extendEnv(extension) {
   const env = useChildEnv();
   const subEnv = Object.create(env);
@@ -167,20 +181,20 @@ function extendEnv(extension) {
   return provideEnv(subEnv);
 }
 
-export function useSubEnv(extension) {
-  const component = getCurrentNode().component;
+function _useSubEnv(extension) {
+  const component = useScope().component;
   component.env = extendEnv(extension);
 }
 
-export function useChildSubEnv(extension) {
+function _useChildSubEnv(extension) {
   extendEnv(extension);
 }
 
-export function useChildEnv() {
-  return owl.plugin(EnvPlugin).env;
+function _useChildEnv() {
+  return plugin(_EnvPlugin).env;
 }
 
-class VPortal extends owl.blockDom.text("").constructor {
+class VPortal extends blockDom.text("").constructor {
   /**
    * @param {any} selector
    * @param {any} content
@@ -232,8 +246,8 @@ class VPortal extends owl.blockDom.text("").constructor {
   }
 }
 
-class Portal extends owl.Component {
-  static template = owl.xml`<t t-call-slot="default"/>`;
+class Portal extends OwlComponent {
+  static template = xml`<t t-call-slot="default"/>`;
   static props = { selector: String, slots: true };
 
   setup() {
@@ -242,7 +256,7 @@ class Portal extends owl.Component {
     node.renderFn = (/** @type {any[]} */ ...args) =>
       new VPortal(node.props.selector, renderContent(...args));
 
-    owl.onMounted(() => {
+    onMounted(() => {
       const portal = node.bdom;
       if (!portal.target) {
         const target = document.querySelector(node.props.selector);
@@ -254,13 +268,14 @@ class Portal extends owl.Component {
       }
     });
 
-    owl.onWillUnmount(() => {
+    onWillUnmount(() => {
       const portal = node.bdom;
       portal.remove();
     });
   }
 }
 
+let refId = 0;
 const customDirectives = {
   /**
    * @param {HTMLElement} node
@@ -268,7 +283,7 @@ const customDirectives = {
    */
   ref: (node, value) => {
     const refName = `"` + value.replaceAll(/\{\{(.+?)\}\}/g, `" + $1 + "`) + `"`;
-    node.setAttribute("t-ref", `__globals__.createRefSignal(this, ${refName})`);
+    node.setAttribute("t-ref", `__globals__.createRefSignal(this, ${refName}, ${++refId})`);
   },
   /**
    * @param {HTMLElement} node
@@ -301,16 +316,28 @@ const globalValues = {
   /**
    * @param {any} component
    * @param {string} refName
+   * @param {number} refId
    */
-  createRefSignal: (component, refName) => ({
-    /** @param {HTMLElement | null} value */
-    set(value) {
-      if (!component.__owl__.__refs__) {
-        component.__owl__.__refs__ = {};
-      }
-      component.__owl__.__refs__[refName] = value;
-    },
-  }),
+  createRefSignal: (component, refName, refId) => {
+    const node = component.__owl__;
+    if (!node.__refs__) {
+      node.__refs__ = {};
+    }
+    if (!node.__refs__[refName]) {
+      node.__refs__[refName] = { lastSetId: null, values: {} };
+    }
+    const refInfo = node.__refs__[refName];
+
+    return {
+      /** @param {HTMLElement | null} value */
+      set(value) {
+        if (value) {
+          refInfo.lastSetId = refId;
+        }
+        refInfo.values[refId] = value;
+      },
+    };
+  },
   /**
    * @param {Function} getter
    * @param {Function} setter
@@ -319,7 +346,7 @@ const globalValues = {
   Portal,
 };
 
-export class App extends owl.App {
+class _App extends OwlApp {
   /**
    * @param {any} config
    */
@@ -340,7 +367,7 @@ export class App extends owl.App {
           })
         : { env: config.env },
     });
-    this.pluginManager.startPlugins([EnvPlugin]);
+    this.pluginManager.startPlugins([_EnvPlugin]);
     this.env = config.env ?? {};
   }
 
@@ -358,3 +385,46 @@ export class App extends owl.App {
     return super.createRoot(component, config);
   }
 }
+
+const Component = isOdooCompatLoaded ? (OwlComponent as typeof _Component) : _Component;
+const useRef = isOdooCompatLoaded ? (OwlUseRef as typeof _useRef) : _useRef;
+const useComponent = isOdooCompatLoaded ? (OwlUseComponent as typeof _useComponent) : _useComponent;
+const useExternalListener = isOdooCompatLoaded
+  ? (OwlUseExternalListener as typeof _useExternalListener)
+  : _useExternalListener;
+const useLayoutEffect = isOdooCompatLoaded
+  ? (OwlUseLayoutEffect as typeof _useLayoutEffect)
+  : _useLayoutEffect;
+const EnvPlugin = isOdooCompatLoaded ? (OwlEnvPlugin as typeof _EnvPlugin) : _EnvPlugin;
+const useEnv = isOdooCompatLoaded ? (OwlUseEnv as typeof _useEnv) : _useEnv;
+const useSubEnv = isOdooCompatLoaded ? (OwlUseSubEnv as typeof _useSubEnv) : _useSubEnv;
+const useChildEnv = isOdooCompatLoaded ? (OwlUseChildEnv as typeof _useChildEnv) : _useChildEnv;
+const useChildSubEnv = isOdooCompatLoaded
+  ? (OwlUseChildSubEnv as typeof _useChildSubEnv)
+  : _useChildSubEnv;
+const App = isOdooCompatLoaded ? (OwlApp as typeof _App) : _App;
+
+export {
+  App,
+  Component,
+  EnvPlugin,
+  useChildEnv,
+  useChildSubEnv,
+  useComponent,
+  useEnv,
+  useExternalListener,
+  useLayoutEffect,
+  useRef,
+  useSubEnv,
+};
+export type Component<Props = any, Env = any> = _Component<Props, Env>;
+export type useRef<T extends HTMLElement = HTMLElement> = (name: string) => { el: T | null };
+export type useComponent = () => any;
+export type useExternalListener = (target, eventName, handler, eventParams?) => void;
+export type useLayoutEffect = (effect, computeDependencies: () => any) => void;
+export type EnvPlugin = _EnvPlugin;
+export type useEnv = () => any;
+export type useSubEnv = () => any;
+export type useChildEnv = () => any;
+export type useChildSubEnv = () => any;
+export type App = _App;
