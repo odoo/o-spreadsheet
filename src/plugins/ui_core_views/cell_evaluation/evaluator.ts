@@ -40,9 +40,7 @@ import { ModelConfig } from "../../../types/model";
 import { BoundedRange, Range } from "../../../types/range";
 
 const MAX_ITERATION = 30;
-const ERROR_CYCLE_CELL = Object.freeze(
-  createEvaluatedCell({ ...new CircularDependencyError(), origin: undefined })
-);
+
 const EMPTY_CELL = Object.freeze(createEvaluatedCell({ value: null }));
 
 export class Evaluator {
@@ -123,7 +121,7 @@ export class Evaluator {
   private computeDependencies(dependencies: Range[]) {
     for (const range of dependencies) {
       // ensure that all ranges are computed
-      this.compilationParams.ensureRange(range, false);
+      this.compilationParams.ensureRange(range);
     }
   }
 
@@ -305,7 +303,7 @@ export class Evaluator {
               continue;
             }
             const evaluatedCell = this.computeCell(position);
-            if (evaluatedCell !== EMPTY_CELL) {
+            if (evaluatedCell.value !== null || evaluatedCell.format !== undefined) {
               this.evaluatedCells.set(position, evaluatedCell);
             }
           }
@@ -345,14 +343,15 @@ export class Evaluator {
 
     const cell = this.getters.getCell(position);
     if (cell === undefined) {
-      return EMPTY_CELL;
+      // EMPTY_CELL is the only evaluatedCell without position (for perf reasons). We need to add it here.
+      return { ...EMPTY_CELL, position };
     }
 
     const cellId = cell.id;
     const localeFormat = { format: cell.format, locale: this.getters.getLocale() };
     try {
       if (this.cellsBeingComputed.has(cellId)) {
-        return ERROR_CYCLE_CELL;
+        return errorCycleCell(position);
       }
       this.cellsBeingComputed.add(cellId);
       return cell.isFormula
@@ -363,7 +362,7 @@ export class Evaluator {
       e.message = e?.message || implementationErrorMessage;
       e.origin = position;
       e.errorOriginPosition = e?.errorOriginPosition;
-      return createEvaluatedCell(e);
+      return createEvaluatedCell(e, localeFormat.locale, position);
     } finally {
       this.cellsBeingComputed.delete(cellId);
     }
@@ -389,8 +388,8 @@ export class Evaluator {
       const evaluatedCell = createEvaluatedCell(
         validateNumberValue(formulaReturn),
         this.getters.getLocale(),
-        cellData,
-        formulaPosition
+        formulaPosition,
+        cellData
       );
       if (evaluatedCell.type === CellValueType.error) {
         evaluatedCell.errorOriginPosition = formulaReturn.errorOriginPosition ?? formulaPosition;
@@ -404,13 +403,14 @@ export class Evaluator {
     const nbRows = formulaReturn[0].length;
     if (nbRows === 0) {
       // empty matrix
-      return createEvaluatedCell({ value: 0 }, this.getters.getLocale(), cellData);
+      return createEvaluatedCell({ value: 0 }, this.getters.getLocale(), formulaPosition, cellData);
     }
     if (nbRows === 1 && nbColumns === 1) {
       // single value matrix
       return createEvaluatedCell(
         validateNumberValue(formulaReturn[0][0]),
         this.getters.getLocale(),
+        formulaPosition,
         cellData
       );
     }
@@ -434,6 +434,7 @@ export class Evaluator {
     return createEvaluatedCell(
       validateNumberValue(formulaReturn[0][0]),
       this.getters.getLocale(),
+      formulaPosition,
       cellData
     );
   }
@@ -514,8 +515,8 @@ export class Evaluator {
       const evaluatedCell = createEvaluatedCell(
         validateNumberValue(matrixResult[i][j]),
         this.getters.getLocale(),
-        cell,
-        position
+        position,
+        cell
       );
       if (evaluatedCell.type === CellValueType.error) {
         evaluatedCell.errorOriginPosition = matrixResult[i][j].errorOriginPosition ?? position;
@@ -552,9 +553,9 @@ export class Evaluator {
    * and error handling.
    */
   private buildSafeGetSymbolValue(getContextualSymbolValue?: GetSymbolValue): GetSymbolValue {
-    const getSymbolValue = (symbolName: string, isRange: boolean, isMeta: boolean) => {
+    const getSymbolValue = (symbolName: string, isRange: boolean) => {
       if (this.symbolsBeingComputed.has(symbolName)) {
-        return ERROR_CYCLE_CELL;
+        return errorCycleCell(this.compilationParams.evalContext.__originCellPosition);
       }
       this.symbolsBeingComputed.add(symbolName);
       try {
@@ -567,10 +568,10 @@ export class Evaluator {
 
           const isMultiCellZone = getZoneArea(namedRange.range.zone) > 1;
           return isMultiCellZone || isRange
-            ? this.compilationParams.ensureRange(namedRange.range, isMeta)
-            : this.compilationParams.referenceDenormalizer(namedRange.range, isMeta);
+            ? this.compilationParams.ensureRange(namedRange.range)
+            : this.compilationParams.referenceDenormalizer(namedRange.range);
         }
-        const symbolValue = getContextualSymbolValue?.(symbolName, isRange, isMeta);
+        const symbolValue = getContextualSymbolValue?.(symbolName, isRange);
         if (symbolValue) {
           return symbolValue;
         }
@@ -658,4 +659,12 @@ export function updateEvalContextAndExecute(
   evalContext.__originCellPosition = currentCellPosition;
   evalContext.__originSheetId = currentSheetId;
   return result;
+}
+
+function errorCycleCell(position?: CellPosition) {
+  return createEvaluatedCell(
+    { ...new CircularDependencyError(), origin: undefined },
+    undefined,
+    position
+  );
 }
