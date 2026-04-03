@@ -1,3 +1,4 @@
+import { ChartConfiguration } from "chart.js";
 import { Model } from "../../src";
 import { ColumnStatisticsStore } from "../../src/components/side_panel/column_stats/column_stats_store";
 import { SidePanels } from "../../src/components/side_panel/side_panels/side_panels";
@@ -125,5 +126,32 @@ describe("column statistics sidePanel component", () => {
 
     labels = Array.from(fixture.querySelectorAll(".frequency-label")).map((el) => el.textContent);
     expect(labels).toEqual(["c", "b", "a"]);
+  });
+
+  test("Chart is re-created when switching from distribution to count when there are no distribution chart to display", async () => {
+    setGrid(model, { A1: "Alice", A2: "Alice" });
+    env.openSidePanel("ColumnStats");
+    const ChartMock = window.Chart;
+    window.Chart = jest
+      .fn()
+      .mockImplementation(function (ctx: CanvasRenderingContext2D, config: ChartConfiguration) {
+        return new ChartMock(ctx, config);
+      }) as any;
+
+    await nextTick();
+
+    expect(".o-column-stats-chart canvas").toHaveCount(1);
+    expect(".o-column-stats-no-data").toHaveCount(0);
+    expect(window.Chart).toHaveBeenCalledTimes(1);
+
+    await click(fixture, '.o-button[data-id="histogram"]');
+    expect(".o-column-stats-chart canvas").toHaveCount(0);
+    expect(".o-column-stats-no-data").toHaveText("No numeric values to display.");
+    expect(window.Chart).toHaveBeenCalledTimes(1);
+
+    await click(fixture, '.o-button[data-id="count"]');
+    expect(".o-column-stats-chart canvas").toHaveCount(1);
+    expect(".o-column-stats-no-data").toHaveCount(0);
+    expect(window.Chart).toHaveBeenCalledTimes(2);
   });
 });
