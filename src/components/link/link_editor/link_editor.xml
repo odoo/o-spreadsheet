@@ -53,7 +53,7 @@
         </div>
       </div>
 
-      <div class="suggestions border rounded" t-ref="suggestionList">
+      <div class="suggestions border rounded user-select-none" t-ref="suggestionList">
         <t t-foreach="this.state.linksByCategory" t-as="proposalCategory" t-key="proposalCategory">
           <t t-set="categoryTitle" t-value="proposalCategory"/>
           <t t-set="proposals" t-value="proposalCategory_value"/>
@@ -65,15 +65,16 @@
               t-key="categoryTitle + proposal_index"
               t-att-data-index="proposal.index"
               class="suggestion-item ps-3 d-flex align-items-center justify-content-start"
-              t-att-class="{ 'selected' : proposal.index === state.selectedIndex }"
-              t-on-click="proposal.onSelect">
+              t-att-class="{ 'selected' : proposal.index === this.state.selectedIndex }"
+              t-on-click="proposal.onSelect"
+              t-on-dblclick="save">
               <span class="me-1" t-if="proposal.icon" t-call="{{proposal.icon}}"/>
               <span class="text-truncate" t-esc="proposal.text"/>
             </div>
           </div>
         </t>
         <div
-          t-if="!state.linksList.length"
+          t-if="!this.state.linksList.length"
           class="o-filter-menu-no-values d-flex align-items-center justify-content-center w-100 h-100 text-muted fst-italic">
           No results
         </div>

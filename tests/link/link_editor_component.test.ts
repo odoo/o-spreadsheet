@@ -1,5 +1,5 @@
 import { Model } from "../../src";
-import { buildSheetLink } from "../../src/helpers";
+import { buildSheetLink } from "../../src/helpers/misc";
 import { DEFAULT_LOCALE } from "../../src/types";
 import { CellValueType } from "../../src/types/cells";
 import {
@@ -15,6 +15,7 @@ import {
   rightClickCell,
   setInputValueAndTrigger,
   simulateClick,
+  triggerMouseEvent,
 } from "../test_helpers/dom_helper";
 import { getCell, getEvaluatedCell } from "../test_helpers/getters_helpers";
 import { mountSpreadsheet, nextTick } from "../test_helpers/helpers";
@@ -185,6 +186,17 @@ describe("link editor component", () => {
     expect(urlInput().disabled).toBe(true);
   });
 
+  test("selecting a proposal does not reset the suggestions", async () => {
+    const sheetId = "42";
+    const sheetName = "tabouret";
+    createSheet(model, { sheetId, name: sheetName });
+    await openLinkEditor(model, "A1");
+    await setInputValueAndTrigger(urlInput(), "tabou");
+    expect(fixture.querySelectorAll(".suggestion-item").length).toBe(1);
+    await simulateClick(".suggestion-item");
+    expect(fixture.querySelectorAll(".suggestion-item").length).toBe(1);
+  });
+
   test("label is changed to canonical form in model", async () => {
     updateLocale(model, {
       ...DEFAULT_LOCALE,
@@ -235,6 +247,30 @@ describe("link editor component", () => {
     await simulateClick(".suggestion-item");
     await simulateClick(".o-remove-url");
     expect(fixture.querySelectorAll(".suggestion-item").length).toBe(2);
+  });
+
+  test("clicking the cross button resets the search suggestions", async () => {
+    const sheetId = "42";
+    const sheetName = "tabouret";
+    createSheet(model, { sheetId, name: sheetName });
+    await openLinkEditor(model, "A1");
+    expect(fixture.querySelectorAll(".suggestion-item").length).toBe(2);
+    await setInputValueAndTrigger(urlInput(), "tabou");
+    expect(fixture.querySelectorAll(".suggestion-item").length).toBe(1);
+    await simulateClick(".o-remove-url");
+    expect(fixture.querySelectorAll(".suggestion-item").length).toBe(2);
+  });
+
+  test("Double clicking a proposal saves the link", async () => {
+    const sheetId = "42";
+    const sheetName = "tabouret";
+    createSheet(model, { sheetId, name: sheetName });
+    await openLinkEditor(model, "A1");
+    await simulateClick(".suggestion-item[data-index='1']");
+    triggerMouseEvent(fixture.querySelector(".suggestion-item[data-index='1']"), "dblclick");
+    const link = getEvaluatedCell(model, "A1").link;
+    expect(link?.label).toBe("tabouret");
+    expect(link?.url).toBe("o-spreadsheet://42");
   });
 
   test("save button is disabled while url input is empty", async () => {

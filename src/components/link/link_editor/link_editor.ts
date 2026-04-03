@@ -2,11 +2,11 @@ import { Component, onMounted, useRef, useState } from "@odoo/owl";
 import { fuzzyLookup } from "../../../helpers";
 import { urlRegistry, urlRepresentation } from "../../../helpers/links";
 import { canonicalizeNumberContent } from "../../../helpers/locale";
+import { markdownLink } from "../../../helpers/misc";
 import { Link, Position } from "../../../types";
 import { CellPopoverComponent, PopoverBuilders } from "../../../types/cell_popovers";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
 import { MenuPopover } from "../../menu_popover/menu_popover";
-import { markdownLink } from "../../../helpers/misc";
 
 interface LinkEditorProps {
   cellPosition: Position;
@@ -24,9 +24,9 @@ interface LinkState {
   label: string;
   url: string;
   isUrlEditable: boolean;
+  selectedIndex: number | null;
   linksByCategory: Record<string, LinkProposal>;
   linksList: LinkProposal[];
-  selectedIndex: number | null;
 }
 
 export class LinkEditor extends Component<LinkEditorProps, SpreadsheetChildEnv> {
@@ -58,16 +58,14 @@ export class LinkEditor extends Component<LinkEditorProps, SpreadsheetChildEnv> 
   get linkProposalByCategory(): Record<string, LinkProposal> {
     const proposals = {};
     let counter = -1;
-    const inputVal = (this.urlInput?.el as HTMLInputElement)?.value || "";
+    const inputVal = this.state.url;
     for (const category of urlRegistry.getKeys()) {
       const spec = urlRegistry.get(category);
       const linkProposals = spec.getLinkProposals?.(this.env) || [];
       const links =
         inputVal && this.state.isUrlEditable
-          ? fuzzyLookup(
-              inputVal,
-              linkProposals,
-              (link) => spec.title + spec.urlRepresentation(link.url, this.env.model.getters)
+          ? fuzzyLookup(inputVal, linkProposals, (link) =>
+              spec.urlRepresentation(link.url, this.env.model.getters)
             )
           : linkProposals;
 
@@ -104,18 +102,18 @@ export class LinkEditor extends Component<LinkEditorProps, SpreadsheetChildEnv> 
         url: cell.link.url,
         label: cell.formattedValue,
         isUrlEditable: cell.link.isUrlEditable,
-        selectedIndex: -1,
-        linksByCategory: this.linkProposalByCategory,
-        linksList: Object.values(this.linkProposalByCategory).flat(),
+        selectedIndex: null,
+        linksByCategory: {},
+        linksList: [],
       };
     }
     return {
       label: cell.formattedValue,
       url: "",
       isUrlEditable: true,
-      selectedIndex: -1,
-      linksByCategory: this.linkProposalByCategory,
-      linksList: Object.values(this.linkProposalByCategory).flat(),
+      selectedIndex: null,
+      linksByCategory: {},
+      linksList: [],
     };
   }
 
