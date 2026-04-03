@@ -153,6 +153,34 @@ describe("IF formula", () => {
       [42, 42, 42],
     ]);
   });
+
+  test("propagate errors per cell when logical expression matrix contains errors", () => {
+    //prettier-ignore
+    const model = createModelFromGrid({
+      A1: "=1/0", B1: "true",
+      A2: "true", B2: "=1/0",
+    });
+
+    setCellContent(model, "A3", "=IF(A1:A2, TRUE, FALSE)");
+    expect(getRangeValuesAsMatrix(model, "A3:A4")).toEqual([["#DIV/0!"], [true]]);
+
+    setCellContent(model, "A3", "=IF(B1:B2, TRUE, FALSE)");
+    expect(getRangeValuesAsMatrix(model, "A3:A4")).toEqual([[true], ["#DIV/0!"]]);
+  });
+
+  test("propagate errors per cell when logical expression matrix contains invalid non-boolean values", () => {
+    //prettier-ignore
+    const model = createModelFromGrid({
+      A1: "text", B1: "true",
+      A2: "true", B2: "text",
+    });
+
+    setCellContent(model, "A3", "=IF(A1:A2, TRUE, FALSE)");
+    expect(getRangeValuesAsMatrix(model, "A3:A4")).toEqual([["#ERROR"], [true]]);
+
+    setCellContent(model, "A3", "=IF(B1:B2, TRUE, FALSE)");
+    expect(getRangeValuesAsMatrix(model, "A3:A4")).toEqual([[true], ["#ERROR"]]);
+  });
 });
 
 describe("IFERROR formula", () => {
@@ -480,6 +508,20 @@ describe("IFS formula", () => {
       [42, 42, 42],
       [24, 24, 24],
     ]);
+  });
+
+  test("propagate errors per cell when condition matrix contains errors", () => {
+    //prettier-ignore
+    const model = createModelFromGrid({
+      A1: "=1/0", B1: "true",
+      A2: "true", B2: "=1/0",
+    });
+
+    setCellContent(model, "A3", "=IFS(A1:A2, 42, true, 99)");
+    expect(getRangeValuesAsMatrix(model, "A3:A4")).toEqual([["#DIV/0!"], [42]]);
+
+    setCellContent(model, "A3", "=IFS(B1:B2, 42, true, 99)");
+    expect(getRangeValuesAsMatrix(model, "A3:A4")).toEqual([[42], ["#DIV/0!"]]);
   });
 });
 

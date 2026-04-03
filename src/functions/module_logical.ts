@@ -3,6 +3,7 @@ import { CellErrorType, EvaluationError } from "../types/errors";
 import { AddFunctionDescription } from "../types/functions";
 import { Arg, FunctionResultObject, Maybe } from "../types/misc";
 import { arg } from "./arguments";
+import { createErrorHandlingCompute } from "./create_compute_function";
 import { boolAnd, boolOr } from "./helper_logical";
 import { isMultipleElementMatrix, toScalar } from "./helper_matrices";
 import {
@@ -72,13 +73,19 @@ export const IF = {
   ],
   compute: function (logicalExpression: Arg, valueIfTrue: Arg, valueIfFalse: Arg) {
     if (isMultipleElementMatrix(logicalExpression)) {
-      return applyVectorization(IF.compute, [logicalExpression, valueIfTrue, valueIfFalse]);
+      return applyVectorization(IF_errorHandlingCompute.bind(this), [
+        logicalExpression,
+        valueIfTrue,
+        valueIfFalse,
+      ]);
     }
     const result = toBoolean(toScalar(logicalExpression)) ? valueIfTrue : valueIfFalse;
     return result ?? { value: 0 };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
+
+const IF_errorHandlingCompute = createErrorHandlingCompute(IF, "IF");
 
 // -----------------------------------------------------------------------------
 // IFERROR
@@ -149,7 +156,7 @@ export const IFS = {
     }
     while (values.length > 0) {
       if (isMultipleElementMatrix(values[0])) {
-        return applyVectorization(IFS.compute, values);
+        return applyVectorization(IFS_errorHandlingCompute.bind(this), values);
       }
       const condition = toBoolean(toScalar(values.shift()));
       const valueIfTrue = values.shift();
@@ -161,6 +168,8 @@ export const IFS = {
   },
   isExported: true,
 } satisfies AddFunctionDescription;
+
+const IFS_errorHandlingCompute = createErrorHandlingCompute(IFS, "IFS");
 
 // -----------------------------------------------------------------------------
 // NOT
