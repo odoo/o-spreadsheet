@@ -1,6 +1,6 @@
 import { Model } from "../../src";
 import { DataValidationPanel } from "../../src/components/side_panel/data_validation/data_validation_panel";
-import { UID } from "../../src/types";
+import { DataValidationCriterion, DataValidationCriterionType, UID } from "../../src/types";
 import {
   activateSheet,
   addDataValidation,
@@ -299,9 +299,15 @@ describe("data validation sidePanel component", () => {
   });
 
   describe("Locale", () => {
-    test("Number preview is localized", async () => {
+    test.each<DataValidationCriterionType>([
+      "isEqual",
+      "isNotEqual",
+      "isGreaterThan",
+      "isLessThan",
+    ])("Number preview is localized", async (type) => {
       updateLocale(model, FR_LOCALE);
-      addDataValidation(model, "A1", "id", { type: "isEqual", values: ["5.5"] });
+      const criterion = { type, values: ["5.5"] };
+      addDataValidation(model, "A1", "id", criterion as DataValidationCriterion);
       await nextTick();
       expect(fixture.querySelector(".o-dv-preview-description")?.textContent).toContain("5,5");
     });
@@ -392,5 +398,22 @@ describe("data validation sidePanel component", () => {
         },
       ]);
     });
+  });
+
+  test("Input values in list should be canonicalized in model", async () => {
+    updateLocale(model, FR_LOCALE);
+    await click(fixture, ".o-dv-add");
+    await nextTick();
+    await changeCriterionType("isValueInList");
+    setInputValueAndTrigger(".o-dv-input input", "1,1");
+    await simulateClick(".o-dv-save");
+
+    expect(getDataValidationRules(model, sheetId)).toEqual([
+      {
+        id: expect.any(String),
+        criterion: { type: "isValueInList", values: ["1.1"], displayStyle: "arrow" },
+        ranges: ["A1"],
+      },
+    ]);
   });
 });

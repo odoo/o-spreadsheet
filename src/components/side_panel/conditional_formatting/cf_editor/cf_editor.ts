@@ -13,7 +13,6 @@ import {
   isColorValid,
   rangeReference,
 } from "../../../../helpers";
-import { canonicalizeCFRule } from "../../../../helpers/locale";
 import { cycleFixedReference } from "../../../../helpers/reference_type";
 import { _t } from "../../../../translation";
 import {
@@ -252,11 +251,10 @@ export class ConditionalFormattingEditor extends Component<Props, SpreadsheetChi
       return [CommandResult.InvalidRange];
     }
     const sheetId = this.env.model.getters.getActiveSheetId();
-    const locale = this.env.model.getters.getLocale();
     const rule = newCf.rule || this.getEditedRule(this.state.currentCFType);
     const result = this.env.model.dispatch("ADD_CONDITIONAL_FORMAT", {
       cf: {
-        rule: canonicalizeCFRule(rule, locale),
+        rule,
         id: this.props.editedCf.id,
       },
       ranges: ranges.map((xc) => this.env.model.getters.getRangeDataFromXc(sheetId, xc)),

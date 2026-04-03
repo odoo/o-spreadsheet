@@ -13,7 +13,6 @@ import {
   splitReference,
   zoneToDimension,
 } from "../../../helpers/index";
-import { canonicalizeNumberContent } from "../../../helpers/locale";
 import { cycleFixedReference } from "../../../helpers/reference_type";
 import {
   AutoCompleteProvider,
@@ -98,6 +97,7 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
   }
   protected abstract confirmEdition(content: string): void;
   protected abstract getComposerContent(position: CellPosition): string;
+  protected abstract getCurrentCanonicalContent(): string;
 
   abstract stopEdition(direction?: Direction): void;
 
@@ -359,10 +359,6 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
       }
       this.confirmEdition(content);
     }
-  }
-
-  protected getCurrentCanonicalContent(): string {
-    return canonicalizeNumberContent(this._currentContent, this.getters.getLocale());
   }
 
   protected cancelEditionAndActivateSheet() {
