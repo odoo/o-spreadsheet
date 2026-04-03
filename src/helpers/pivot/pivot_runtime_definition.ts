@@ -107,6 +107,7 @@ export class PivotRuntimeDefinition {
       format: measure.format,
       computedBy: measure.computedBy,
       display: measure.display,
+      //currency_field: field?.currency_field,
     };
   }
 
