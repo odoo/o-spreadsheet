@@ -2,6 +2,7 @@ import { ChartMeta } from "chart.js";
 import { ChartShowValuesPluginOptions } from "../../../../components/figures/chart/chartJs/chartjs_show_values_plugin";
 import { ChartSunburstLabelsPluginOptions } from "../../../../components/figures/chart/chartJs/chartjs_sunburst_labels_plugin";
 import {
+  ChartDefinition,
   ChartRuntimeGenerationArgs,
   ChartWithDataSetDefinition,
   schemeToColorScale,
@@ -15,7 +16,7 @@ import { chartFontColor, formatChartDatasetValue } from "../chart_common";
 import { getRuntimeColorScale } from "./chartjs_scales";
 
 export function getChartShowValues(
-  definition: ChartWithDataSetDefinition,
+  definition: ChartDefinition,
   args: ChartRuntimeGenerationArgs
 ): ChartShowValuesPluginOptions {
   const { axisFormats, locale } = args;
@@ -139,7 +140,7 @@ export function getWaterfallChartShowValues(
   };
 }
 
-function getDatasetAxisId(definition: ChartWithDataSetDefinition, dataset: ChartMeta): string {
+function getDatasetAxisId(definition: ChartDefinition, dataset: ChartMeta): string {
   if (dataset.rAxisID) {
     return dataset.rAxisID;
   }

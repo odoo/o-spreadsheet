@@ -8,7 +8,7 @@ import {
   polynomialRegression,
   predictLinearValues,
 } from "../../../../functions/helper_statistical";
-import { isEvaluationError, toNumber } from "../../../../functions/helpers";
+import { isEvaluationError, toNumber, tryToNumber } from "../../../../functions/helpers";
 import { _t } from "../../../../translation";
 import {
   CellValue,
@@ -51,6 +51,7 @@ import { isNumber } from "../../../numbers";
 import { createDate } from "../../../pivot/spreadsheet_pivot/date_spreadsheet_pivot";
 import { recomputeZones } from "../../../recompute_zones";
 import { positions } from "../../../zones";
+import { BubbleChart, BubbleChartData } from "../bubble_chart";
 import { shouldRemoveFirstLabel } from "../chart_common";
 
 export function getBarChartData(
@@ -455,6 +456,65 @@ export function getHierarchalChartData(
     axisFormats: { y: getChartLabelFormat(getters, labelRange, removeFirstLabel) },
     labels,
     locale: getters.getLocale(),
+  };
+}
+
+export function getBubbleChartData(chart: BubbleChart, getters: Getters): BubbleChartData {
+  const data = getLineChartData(chart.getDefinition(), chart.dataSets, chart.xRange, getters);
+
+  const labelsFormatted = chart.labelRange ? getters.getRangeFormattedValues(chart.labelRange) : [];
+  const labelsRaw = chart.labelRange ? getters.getRangeValues(chart.labelRange) : [];
+  const sizeValues = chart.sizeRange ? getters.getRangeValues(chart.sizeRange) : [];
+  const removeFirstLabel = shouldRemoveFirstLabel(
+    chart.xRange,
+    chart.dataSets[0],
+    chart.dataSetsHaveTitle || false
+  );
+  if (removeFirstLabel) {
+    labelsFormatted.shift();
+    labelsRaw.shift();
+    sizeValues.shift();
+  }
+
+  const bubbleLabels: string[] = [];
+  const bubbleSizes: (number | undefined)[] = [];
+
+  for (let index = 0; index < data.dataSetsValues[0].data.length; index++) {
+    const rawSize = sizeValues[index];
+    const label = labelsFormatted[index] ?? labelsRaw[index];
+    let sizeNumber = rawSize === null ? undefined : tryToNumber(rawSize, data.locale);
+    if (sizeNumber !== undefined && sizeNumber < 0) {
+      sizeNumber = undefined;
+    }
+    bubbleLabels.push(label ? String(label) : "");
+    bubbleSizes.push(sizeNumber);
+  }
+
+  const order = range(0, bubbleSizes.length).sort((a, b) => {
+    const sizeA = bubbleSizes[a];
+    const sizeB = bubbleSizes[b];
+    if (sizeA === undefined && sizeB === undefined) {
+      return 0;
+    }
+    if (sizeA === undefined) {
+      return 1;
+    }
+    if (sizeB === undefined) {
+      return -1;
+    }
+    return sizeB - sizeA;
+  });
+
+  data.dataSetsValues[0] = {
+    ...data.dataSetsValues[0],
+    data: order.map((i) => data.dataSetsValues[0].data[i]),
+  };
+
+  return {
+    ...data,
+    labels: order.map((i) => data.labels[i]),
+    bubbleLabels: order.map((i) => bubbleLabels[i]),
+    bubbleSizes: order.map((i) => bubbleSizes[i]),
   };
 }
 
@@ -1033,13 +1093,24 @@ function getChartDatasetFormat(
 ): Format | undefined {
   const dataSets = allDataSets.filter((ds) => (axis === "right") === !!ds.rightYAxis);
   for (const ds of dataSets) {
-    const formatsInDataset = getters.getRangeFormats(ds.dataRange);
-    const format = formatsInDataset.find((f) => f !== undefined && !isDateTimeFormat(f));
+    const format = getFirstNonDateFormat(getters, ds.dataRange);
     if (format) {
       return format;
     }
   }
   return undefined;
+}
+
+/**
+ * Get the format to apply to the the range values. This format is defined as the first format
+ * found in the range that isn't a date format.
+ */
+function getFirstNonDateFormat(getters: Getters, range?: Range): Format | undefined {
+  if (!range) {
+    return undefined;
+  }
+  const formats = getters.getRangeFormats(range);
+  return formats.find((format) => format && !isDateTimeFormat(format));
 }
 
 function getChartDatasetValues(getters: Getters, dataSets: DataSet[]): DatasetValues[] {

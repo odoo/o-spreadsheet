@@ -6,7 +6,7 @@ import { Getters } from "../../../../types/getters";
 import { chartMutedFontColor } from "../chart_common";
 
 export function getChartTitle(
-  definition: ChartWithDataSetDefinition,
+  definition: Pick<ChartWithDataSetDefinition, "title" | "legendPosition" | "background">,
   getters: Getters
 ): DeepPartial<TitleOptions> {
   const chartTitle = definition.title;
