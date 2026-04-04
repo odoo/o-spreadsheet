@@ -1,6 +1,6 @@
 import { Component, useEffect, useRef, useState } from "@odoo/owl";
 import { ActionSpec, createActions } from "../../../actions/action";
-import { BACKGROUND_CHART_COLOR, DEFAULT_CAROUSEL_TITLE_STYLE } from "../../../constants";
+import { DEFAULT_CAROUSEL_TITLE_STYLE } from "../../../constants";
 import { chartStyleToCellStyle, deepEquals } from "../../../helpers";
 import { getCarouselItemTitle } from "../../../helpers/carousel_helpers";
 import { chartComponentRegistry } from "../../../registries/chart_component_registry";
@@ -111,16 +111,17 @@ export class CarouselFigure extends Component<Props, SpreadsheetChildEnv> {
 
   get headerStyle(): string {
     const cssProperties: CSSProperties = {};
+    const backgroundColor = this.env.model.getters.getSpreadsheetTheme().backgroundColor;
     if (this.selectedCarouselItem?.type === "chart") {
       const chart = this.env.model.getters.getChartRuntime(this.selectedCarouselItem.chartId);
       if ("background" in chart && chart.background) {
         cssProperties["background-color"] = chart.background;
       } else if ("chartJsConfig" in chart) {
         cssProperties["background-color"] =
-          chart.chartJsConfig.options?.plugins?.background?.color || BACKGROUND_CHART_COLOR;
+          chart.chartJsConfig.options?.plugins?.background?.color || backgroundColor;
       }
     } else {
-      cssProperties["background-color"] = BACKGROUND_CHART_COLOR;
+      cssProperties["background-color"] = backgroundColor;
     }
     return cssPropertiesToCss(cssProperties);
   }

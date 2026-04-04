@@ -1,6 +1,5 @@
 import { ChartDataset, Point } from "chart.js";
 import {
-  BACKGROUND_CHART_COLOR,
   CHART_WATERFALL_NEGATIVE_COLOR,
   CHART_WATERFALL_POSITIVE_COLOR,
   CHART_WATERFALL_SUBTOTAL_COLOR,
@@ -68,7 +67,7 @@ export function getBarChartDatasets(
   definition: GenericDefinition<BarChartDefinition>,
   args: ChartRuntimeGenerationArgs
 ): ChartDataset<"bar" | "line">[] {
-  const { dataSetsValues } = args;
+  const { dataSetsValues, background } = args;
 
   const dataSets: ChartDataset<"bar" | "line">[] = [];
   const colors = getChartColorsGenerator(definition, dataSetsValues.length);
@@ -83,7 +82,7 @@ export function getBarChartDatasets(
       label,
       data,
       hidden,
-      borderColor: definition.background || BACKGROUND_CHART_COLOR,
+      borderColor: definition.background || background,
       borderWidth: definition.stacked ? 1 : 0,
       backgroundColor,
       yAxisID: definition.horizontal ? "y" : definition.dataSets?.[index].yAxisId || "y",
@@ -114,7 +113,7 @@ export function getCalendarChartDatasetAndLabels(
   datasets: ChartDataset<"calendar">[];
   labels: string[];
 } {
-  const { labels, dataSetsValues } = args;
+  const { labels, dataSetsValues, background } = args;
 
   const values = dataSetsValues
     .map((ds) => ds.data)
@@ -137,7 +136,7 @@ export function getCalendarChartDatasetAndLabels(
       backgroundColor: dataSetValues.data.map((v) =>
         v !== undefined ? colorMap(v) : definition.missingValueColor || COLOR_TRANSPARENT
       ),
-      borderColor: definition.background || BACKGROUND_CHART_COLOR,
+      borderColor: definition.background || background,
       borderSkipped: false,
       borderWidth: 1,
       barPercentage: 1,
@@ -434,7 +433,7 @@ export function getFunnelChartDatasets(
   args: ChartRuntimeGenerationArgs
 ): ChartDataset<"bar">[] {
   const dataSetsValues = args.dataSetsValues[0];
-  const labels = args.labels;
+  const { labels, background } = args;
   if (!dataSetsValues) {
     return [];
   }
@@ -450,7 +449,7 @@ export function getFunnelChartDatasets(
     xAxisID: "x",
     barPercentage: 1,
     categoryPercentage: 1,
-    borderColor: definition.background || BACKGROUND_CHART_COLOR,
+    borderColor: definition.background || background,
     borderWidth: 3,
   };
 
@@ -466,7 +465,7 @@ export function getSunburstChartDatasets(
   definition: GenericDefinition<SunburstChartDefinition>,
   args: ChartRuntimeGenerationArgs
 ): SunburstChartJSDataset[] {
-  const { dataSetsValues, labels } = args;
+  const { dataSetsValues, labels, background } = args;
 
   const tree = getSunburstTree(dataSetsValues, labels);
   const data = pyramidizeTree(tree);
@@ -489,7 +488,7 @@ export function getSunburstChartDatasets(
         if (!data || data.label === GHOST_SUNBURST_VALUE) {
           return COLOR_TRANSPARENT;
         }
-        return definition.background || BACKGROUND_CHART_COLOR;
+        return definition.background || background;
       },
       backgroundColor: (ctx) => {
         const data = ctx.type === "data" ? (ctx.raw as SunburstChartRawData) : undefined;

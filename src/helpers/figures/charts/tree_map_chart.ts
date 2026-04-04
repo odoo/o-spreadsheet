@@ -1,5 +1,4 @@
 import { ChartConfiguration } from "chart.js";
-import { BACKGROUND_CHART_COLOR } from "../../../constants";
 import {
   Color,
   CommandResult,
@@ -45,13 +44,6 @@ import {
 import { getChartLayout } from "./runtime/chartjs_layout";
 
 export class TreeMapChart extends AbstractChart {
-  static defaults = {
-    background: BACKGROUND_CHART_COLOR,
-    legendPosition: "top",
-    dataSetsHaveTitle: false,
-    showHeaders: true,
-    headersColor: "#000000",
-  };
   readonly dataSets: DataSet[];
   readonly labelRange?: Range | undefined;
   readonly background?: Color;
@@ -229,7 +221,7 @@ export function createTreeMapChartRuntime(
         title: getChartTitle(definition, getters),
         legend: { display: false },
         tooltip: getTreeMapChartTooltip(definition, chartData),
-        background: { color: chart.background },
+        background: { color: chartData.background },
       },
     },
   };

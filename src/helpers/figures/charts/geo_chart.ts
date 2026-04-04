@@ -205,7 +205,7 @@ export function createGeoChartRuntime(chart: GeoChart, getters: Getters): GeoCha
         title: getChartTitle(definition, getters),
         tooltip: getGeoChartTooltip(definition, chartData),
         legend: { display: false },
-        background: { color: chart.background },
+        background: { color: chartData.background },
       },
     },
   };

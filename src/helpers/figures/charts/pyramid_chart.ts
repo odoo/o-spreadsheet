@@ -1,5 +1,4 @@
 import { ChartConfiguration } from "chart.js";
-import { BACKGROUND_CHART_COLOR } from "../../../constants";
 import {
   Color,
   CommandResult,
@@ -200,7 +199,7 @@ export class PyramidChart extends AbstractChart {
     return {
       ...definition,
       horizontal: true,
-      backgroundColor: toXlsxHexColor(this.background || BACKGROUND_CHART_COLOR),
+      backgroundColor: toXlsxHexColor(this.background || "#FFFFFF"),
       fontColor: toXlsxHexColor(chartFontColor(this.background)),
       dataSets,
       labelRange,
@@ -247,7 +246,7 @@ export function createPyramidChartRuntime(
         legend: getBarChartLegend(definition, chartData),
         tooltip: getPyramidChartTooltip(definition, chartData),
         chartShowValuesPlugin: getPyramidChartShowValues(definition, chartData),
-        background: { color: chart.background },
+        background: { color: chartData.background },
       },
     },
   };

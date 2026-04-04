@@ -9,7 +9,7 @@
             <t t-out="currentColorScaleLabel"/>
           </span>
           <div
-            class="color-scale-preview w-100"
+            class="color-scale-preview w-100 os-theme-dependant"
             t-att-data-test-colorscale="selectedColorScale"
             t-att-style="currentColorScaleStyle"
           />
@@ -25,7 +25,7 @@
               <td class="p-1 text-end">Custom</td>
               <td class="w-100 p-1">
                 <div
-                  class="color-scale-preview o-checkers-background"
+                  class="color-scale-preview o-checkers-background os-theme-dependant"
                   data-test-id="custom-color-scale"
                 />
               </td>
@@ -40,7 +40,7 @@
                 </td>
                 <td class="w-100 p-1">
                   <div
-                    class="color-scale-preview"
+                    class="color-scale-preview os-theme-dependant"
                     t-att-data-test-id="colorScale.className"
                     t-att-style="colorScalePreviewStyle(colorScale.value)"
                   />

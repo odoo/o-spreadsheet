@@ -1,4 +1,4 @@
-import { BACKGROUND_CHART_COLOR, FORMULA_REF_IDENTIFIER } from "../constants";
+import { FORMULA_REF_IDENTIFIER } from "../constants";
 import { toXC } from "../helpers/coordinates";
 import { getItemId } from "../helpers/data_normalization";
 import { getUniqueText, sanitizeSheetName } from "../helpers/misc";
@@ -166,7 +166,7 @@ migrationStepRegistry
     migrate(data: any): any {
       for (const sheet of data.sheets || []) {
         for (const chart of sheet.figures || []) {
-          chart.data.background = BACKGROUND_CHART_COLOR;
+          chart.data.background = "#FFFFFF";
           chart.data.verticalAxisPosition = "left";
           chart.data.legendPosition = "top";
           chart.data.stacked = false;

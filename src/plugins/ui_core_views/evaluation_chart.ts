@@ -1,4 +1,3 @@
-import { BACKGROUND_CHART_COLOR } from "../../constants";
 import { chartFontColor } from "../../helpers/figures/charts/chart_common";
 import { chartRuntimeFactory } from "../../helpers/figures/charts/chart_factory";
 import { chartToImageUrl } from "../../helpers/figures/charts/chart_ui_common";
@@ -77,20 +76,21 @@ export class EvaluationChartPlugin extends CoreViewPlugin<EvaluationChartState> 
     chartBackground: Color | undefined,
     mainRange: Range | undefined
   ): EvaluationChartStyle {
+    const themeBackground = this.getters.getSpreadsheetTheme().backgroundColor;
     if (chartBackground) {
       return { background: chartBackground, fontColor: chartFontColor(chartBackground) };
     }
     if (!mainRange) {
       return {
-        background: BACKGROUND_CHART_COLOR,
-        fontColor: chartFontColor(BACKGROUND_CHART_COLOR),
+        background: themeBackground,
+        fontColor: chartFontColor(themeBackground),
       };
     }
     const col = mainRange.zone.left;
     const row = mainRange.zone.top;
     const sheetId = mainRange.sheetId;
     const style = this.getters.getCellComputedStyle({ sheetId, col, row });
-    const background = style.fillColor || BACKGROUND_CHART_COLOR;
+    const background = style.fillColor || themeBackground;
     return {
       background,
       fontColor: style.textColor || chartFontColor(background),

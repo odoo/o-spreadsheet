@@ -228,7 +228,7 @@ export function createFunnelChartRuntime(chart: FunnelChart, getters: Getters): 
         legend: { display: false },
         tooltip: getFunnelChartTooltip(definition, chartData),
         chartShowValuesPlugin: getChartShowValues(definition, chartData),
-        background: { color: chart.background },
+        background: { color: chartData.background },
       },
     },
   };

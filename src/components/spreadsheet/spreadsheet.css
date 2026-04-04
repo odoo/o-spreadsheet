@@ -194,20 +194,21 @@
   .o-grid {
     position: relative;
     overflow: hidden;
-    background-color: var(--os-background-gray-color);
+    background-color: light-dark(var(--os-background-gray-color), #1e1f29);
     &:focus {
       outline: none;
     }
 
     > canvas {
       box-sizing: content-box;
-      border-bottom: 1px solid var(--os-grid-border-color);
-      border-right: 1px solid var(--os-grid-border-color);
+      border-bottom: 1px solid var(--os-canvas-border-color);
+      border-right: 1px solid var(--os-canvas-border-color);
     }
 
     .o-grid-overlay {
       position: absolute;
       outline: none;
+      z-index: 1;
     }
   }
 
@@ -291,5 +292,10 @@
 
   .o-checkers-background {
     background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='10'><path fill='#d9d9d9' d='M5 5h5v5H5zH0V0h5'/></svg>");
+  }
+  &.dark {
+    .os-theme-dependant {
+      filter: invert(1) hue-rotate(180deg) contrast(0.9) brightness(1.5);
+    }
   }
 }

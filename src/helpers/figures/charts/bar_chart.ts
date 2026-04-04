@@ -1,5 +1,4 @@
 import type { ChartConfiguration } from "chart.js";
-import { BACKGROUND_CHART_COLOR } from "../../../constants";
 import { BarChartDefinition, BarChartRuntime } from "../../../types/chart/bar_chart";
 import {
   AxesDesign,
@@ -195,7 +194,7 @@ export class BarChart extends AbstractChart {
     const definition = this.getDefinition();
     return {
       ...definition,
-      backgroundColor: toXlsxHexColor(this.background || BACKGROUND_CHART_COLOR),
+      backgroundColor: toXlsxHexColor(this.background || "#FFFFFF"),
       fontColor: toXlsxHexColor(chartFontColor(this.background)),
       dataSets,
       labelRange,
@@ -238,7 +237,7 @@ export function createBarChartRuntime(chart: BarChart, getters: Getters): BarCha
         legend: getBarChartLegend(definition, chartData),
         tooltip: getBarChartTooltip(definition, chartData),
         chartShowValuesPlugin: getChartShowValues(definition, chartData),
-        background: { color: chart.background },
+        background: { color: chartData.background },
       },
     },
   };

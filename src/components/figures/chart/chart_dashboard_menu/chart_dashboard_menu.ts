@@ -1,6 +1,5 @@
 import { Component, useState } from "@odoo/owl";
 import { getChartMenuActions } from "../../../../actions/figure_menu_actions";
-import { BACKGROUND_CHART_COLOR } from "../../../../constants";
 import { isDefined } from "../../../../helpers";
 import { Store, useStore } from "../../../../store_engine";
 import { _t } from "../../../../translation";
@@ -45,7 +44,9 @@ export class ChartDashboardMenu extends Component<Props, SpreadsheetChildEnv> {
 
   get backgroundColor() {
     const color = this.env.model.getters.getChartDefinition(this.props.chartId).background;
-    return "background-color: " + (color || BACKGROUND_CHART_COLOR);
+    return (
+      "background-color: " + (color || this.env.model.getters.getSpreadsheetTheme().backgroundColor)
+    );
   }
 
   openContextMenu(ev: MouseEvent) {

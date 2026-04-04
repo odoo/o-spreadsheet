@@ -51,7 +51,7 @@ import { isNumber } from "../../../numbers";
 import { createDate } from "../../../pivot/spreadsheet_pivot/date_spreadsheet_pivot";
 import { recomputeZones } from "../../../recompute_zones";
 import { positions } from "../../../zones";
-import { shouldRemoveFirstLabel } from "../chart_common";
+import { getChartBackgroundColor, shouldRemoveFirstLabel } from "../chart_common";
 
 export function getBarChartData(
   definition: GenericDefinition<BarChartDefinition>,
@@ -98,6 +98,7 @@ export function getBarChartData(
     labels,
     locale: getters.getLocale(),
     topPadding: getTopPaddingForDashboard(definition, getters),
+    background: getChartBackgroundColor(definition, getters),
   };
 }
 
@@ -216,6 +217,7 @@ export function getCalendarChartData(
     labels,
     locale: getters.getLocale(),
     topPadding: getTopPaddingForDashboard(definition, getters),
+    background: getChartBackgroundColor(definition, getters),
   };
 }
 
@@ -301,6 +303,7 @@ export function getLineChartData(
     trendDataSetsValues,
     axisType,
     topPadding: getTopPaddingForDashboard(definition, getters),
+    background: getChartBackgroundColor(definition, getters),
   };
 }
 
@@ -333,6 +336,7 @@ export function getPieChartData(
     labels,
     locale: getters.getLocale(),
     topPadding: getTopPaddingForDashboard(definition, getters),
+    background: getChartBackgroundColor(definition, getters),
   };
 }
 
@@ -364,6 +368,7 @@ export function getRadarChartData(
     axisFormats,
     labels,
     locale: getters.getLocale(),
+    background: getChartBackgroundColor(definition, getters),
   };
 }
 
@@ -394,6 +399,7 @@ export function getGeoChartData(
     availableRegions: getters.getGeoChartAvailableRegions(),
     geoFeatureNameToId: getters.geoFeatureNameToId,
     getGeoJsonFeatures: getters.getGeoJsonFeatures,
+    background: getChartBackgroundColor(definition, getters),
   };
 }
 
@@ -427,6 +433,7 @@ export function getFunnelChartData(
     axisFormats: { x: format },
     labels,
     locale: getters.getLocale(),
+    background: getChartBackgroundColor(definition, getters),
   };
 }
 
@@ -455,6 +462,7 @@ export function getHierarchalChartData(
     axisFormats: { y: getChartLabelFormat(getters, labelRange, removeFirstLabel) },
     labels,
     locale: getters.getLocale(),
+    background: getChartBackgroundColor(definition, getters),
   };
 }
 
