@@ -96,6 +96,8 @@ beforeAll(() => {
 
   // @ts-ignore
   window.PointerEvent = PointerEventPolyfill;
+
+  Element.prototype.scrollIntoView = () => {};
 });
 
 beforeEach(() => {
