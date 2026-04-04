@@ -1,15 +1,22 @@
 import { Component } from "@odoo/owl";
 import { collapseHierarchicalDisplayName } from "../../../../../helpers/pivot/pivot_helpers";
-import { PivotDimension as PivotDimensionType, PivotMeasure } from "../../../../../types/pivot";
+import {
+  PivotDimension as PivotDimensionType,
+  PivotFilter,
+  PivotMeasure,
+} from "../../../../../types/pivot";
 import { SpreadsheetChildEnv } from "../../../../../types/spreadsheet_env";
 import { TextInput } from "../../../../text_input/text_input";
 import { CogWheelMenu } from "../../../components/cog_wheel_menu/cog_wheel_menu";
 
 interface Props {
-  dimension: PivotDimensionType | PivotMeasure;
-  onRemoved: (dimension: PivotDimensionType | PivotMeasure) => void;
-  onNameUpdated?: (dimension: PivotDimensionType | PivotMeasure, name?: string) => void;
-  type: "row" | "col" | "measure";
+  dimension: PivotDimensionType | PivotMeasure | PivotFilter;
+  onRemoved: (dimension: PivotDimensionType | PivotMeasure | PivotFilter) => void;
+  onNameUpdated?: (
+    dimension: PivotDimensionType | PivotMeasure | PivotFilter,
+    name?: string
+  ) => void;
+  type: "row" | "col" | "measure" | "filter";
 }
 
 export class PivotDimension extends Component<Props, SpreadsheetChildEnv> {

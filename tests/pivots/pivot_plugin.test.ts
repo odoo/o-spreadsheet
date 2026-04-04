@@ -240,6 +240,7 @@ describe("Pivot plugin", () => {
         columns: [],
         rows: [],
         measures: [],
+        filters: [],
         name: "Pivot",
         type: "SPREADSHEET",
       },
