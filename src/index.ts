@@ -332,6 +332,7 @@ import "./registries/chart_types";
 import "./clipboard_handlers";
 import { Composer } from "./components/composer/composer/composer";
 import { Select } from "./components/select/select";
+import { CalendarButton } from "./components/side_panel/criterion_form/calendar_button/calendar_button";
 import { TopBar } from "./components/top_bar/top_bar";
 import { parseFormat } from "./helpers/format/format_parser";
 import {
@@ -483,6 +484,7 @@ export const components = {
   NumberInput,
   TopBar,
   Composer,
+  CalendarButton,
 };
 
 export const hooks = {

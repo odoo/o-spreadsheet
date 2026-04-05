@@ -2,18 +2,19 @@
   <t t-name="o-spreadsheet-DataValidationDateCriterion">
     <Select
       class="'o-dv-date-value mb-4'"
-      values="dateValues"
-      selectedValue="currentDateValue"
-      onChange.bind="onDateValueChanged"
+      values="this.dateValues"
+      selectedValue="this.currentDateValue"
+      onChange.bind="this.onDateValueChanged"
     />
 
     <CriterionInput
-      t-if="currentDateValue === 'exactDate'"
-      value="props.criterion.values[0]"
-      onValueChanged.bind="onValueChanged"
-      criterionType="props.criterion.type"
-      disableFormulas="props.disableFormulas"
-      focused="props.autofocus"
+      t-if="this.currentDateValue === 'exactDate'"
+      value="this.props.criterion.values[0]"
+      onValueChanged.bind="this.onValueChanged"
+      criterionType="this.props.criterion.type"
+      disableFormulas="this.props.disableFormulas"
+      focused="this.props.autofocus"
+      isDateType="true"
     />
   </t>
 </templates>

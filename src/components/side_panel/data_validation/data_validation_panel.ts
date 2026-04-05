@@ -1,6 +1,4 @@
 import { Component } from "@odoo/owl";
-import { localizeDataValidationRule } from "../../../helpers/locale";
-import { DataValidationRule } from "../../../types";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
 import { DataValidationPreview } from "./dv_preview/dv_preview";
 
@@ -19,14 +17,6 @@ export class DataValidationPanel extends Component<Props, SpreadsheetChildEnv> {
     this.env.replaceSidePanel("DataValidationEditor", "DataValidation", {
       ruleId: this.env.model.uuidGenerator.smallUuid(),
     });
-  }
-
-  localizeDVRule(rule?: DataValidationRule): DataValidationRule | undefined {
-    if (!rule) {
-      return rule;
-    }
-    const locale = this.env.model.getters.getLocale();
-    return localizeDataValidationRule(rule, locale);
   }
 
   get validationRules() {

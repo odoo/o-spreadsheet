@@ -1,6 +1,6 @@
 import { Component, ComponentConstructor, useState } from "@odoo/owl";
 import { zoneToXc } from "../../../../helpers";
-import { canonicalizeContent, localizeDataValidationRule } from "../../../../helpers/locale";
+import { canonicalizeContent } from "../../../../helpers/locale";
 import {
   criterionComponentRegistry,
   getCriterionValueAndLabels,
@@ -59,9 +59,8 @@ export class DataValidationEditor extends Component<Props, SpreadsheetChildEnv> 
       this.props.ruleId
     );
     if (rule) {
-      const locale = this.env.model.getters.getLocale();
       this.state.rule = {
-        ...localizeDataValidationRule(rule, locale),
+        ...rule,
         ranges: rule.ranges.map((range) =>
           this.env.model.getters.getRangeString(range, this.editingSheetId)
         ),
