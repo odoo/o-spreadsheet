@@ -53,6 +53,15 @@ describe("Named range plugin", () => {
       expect(result).not.toBeSuccessfullyDispatched();
     });
 
+    test.each(["TRUE", "false"])(
+      "Cannot create a named range with a boolean literal name %s",
+      (name) => {
+        expect(createNamedRange(model, name, "A1")).toBeCancelledBecause(
+          CommandResult.NamedRangeInvalidName
+        );
+      }
+    );
+
     test("Cannot update a named range that does not exist", () => {
       expect(updateNamedRange(model, "NonExistentRange", "NewName", "C3:D4")).toBeCancelledBecause(
         CommandResult.NamedRangeNotFound
@@ -67,9 +76,19 @@ describe("Named range plugin", () => {
         CommandResult.NamedRangeNameAlreadyExists
       );
       expect(updateNamedRange(model, "RangeTwo", "Invalid Name", "C3:D4")).toBeCancelledBecause(
-        CommandResult.NamedRangeNameWithInvalidCharacter
+        CommandResult.NamedRangeInvalidName
       );
     });
+
+    test.each(["TRUE", "FALSE"])(
+      "Cannot update a named range to a boolean literal name %s",
+      (newName) => {
+        createNamedRange(model, "RangeOne", "A1");
+        expect(updateNamedRange(model, "RangeOne", newName, "C3:D4")).toBeCancelledBecause(
+          CommandResult.NamedRangeInvalidName
+        );
+      }
+    );
 
     test("Cannot delete a named range that does not exist", () => {
       createNamedRange(model, "RangeOne", "A1");

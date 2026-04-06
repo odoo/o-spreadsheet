@@ -71,7 +71,7 @@ describe("Named ranges side panel", () => {
 
     expect(raiseError).toHaveBeenCalledTimes(1);
     expect(raiseError).toHaveBeenCalledWith(
-      "The named range name contains invalid characters. Valid characters are letters, numbers, underscores, and periods."
+      "The named range name is invalid. Valid names can contain letters, digits, underscores, and periods. The name cannot be only a number, TRUE, or FALSE."
     );
     expect(model.getters.getNamedRanges()[0].name).toBe("MyRange");
     expect(".o-named-range-preview .os-input").toHaveValue("MyRange");

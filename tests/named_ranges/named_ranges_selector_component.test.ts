@@ -73,7 +73,7 @@ describe("Named ranges topbar selector", () => {
     await mountRangeSelector();
     await setInputValueAndTrigger(".o-named-range-selector input", "Wrong name !");
     expect(raiseError).toHaveBeenCalledWith(
-      "The named range name contains invalid characters. Valid characters are letters, numbers, underscores, and periods."
+      "The named range name is invalid. Valid names can contain letters, digits, underscores, and periods. The name cannot be only a number, TRUE, or FALSE."
     );
     expect(model.getters.getNamedRanges()).toHaveLength(0);
   });

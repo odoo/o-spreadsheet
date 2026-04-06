@@ -27,10 +27,10 @@ function handleResult(env: SpreadsheetChildEnv, result: DispatchResult) {
   if (!result.isSuccessful) {
     if (result.isCancelledBecause(CommandResult.NamedRangeNameAlreadyExists)) {
       env.raiseError(_t("A named range with this name already exists."));
-    } else if (result.isCancelledBecause(CommandResult.NamedRangeNameWithInvalidCharacter)) {
+    } else if (result.isCancelledBecause(CommandResult.NamedRangeInvalidName)) {
       env.raiseError(
         _t(
-          "The named range name contains invalid characters. Valid characters are letters, numbers, underscores, and periods."
+          "The named range name is invalid. Valid names can contain letters, digits, underscores, and periods. The name cannot be only a number, TRUE, or FALSE."
         )
       );
     } else if (result.isCancelledBecause(CommandResult.NamedRangeNameLooksLikeCellReference)) {
