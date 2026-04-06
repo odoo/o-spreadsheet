@@ -1,11 +1,12 @@
 import { SquishedCoreCommand } from "../../collaborative/command_squisher";
 import { CompiledFormula } from "../../formulas/compiler";
+import { createLiteralCell } from "../../helpers/cells/cell_evaluation";
 import { toCartesian } from "../../helpers/coordinates";
 import { expandRange, expandXc } from "../../helpers/expand_range";
-import { isNumber, parseNumber } from "../../helpers/numbers";
+import { formatValue } from "../../helpers/format/format";
+import { Format } from "../../types";
 import { CoreCommand, UpdateCellCommand } from "../../types/commands";
 import { CoreGetters } from "../../types/core_getters";
-import { DEFAULT_LOCALE } from "../../types/locale";
 import { Position, UID } from "../../types/misc";
 import { Range } from "../../types/range";
 import { NO_CHANGE, SEPARATOR, SquishedContent, SquishedFormula } from "./squisher";
@@ -25,6 +26,7 @@ export class Unsquisher {
   private alreadyAppliedReferenceOffset: Range[] = [];
   private previousOffset: SquishedFormula | undefined = undefined;
   private previousNumber: number | undefined = undefined;
+  private previousNumberFormat?: Format;
 
   rebase() {
     this.previousFormula = undefined;
@@ -33,6 +35,7 @@ export class Unsquisher {
     this.alreadyAppliedReferenceOffset = [];
     this.previousOffset = undefined;
     this.previousNumber = undefined;
+    this.previousNumberFormat = undefined;
   }
 
   /**
@@ -160,13 +163,18 @@ export class Unsquisher {
         this.alreadyAppliedReferenceOffset = [...compiled.rangeDependencies];
         this.previousOffset = undefined;
         this.previousNumber = undefined;
-      } else if (isNumber(current, DEFAULT_LOCALE)) {
-        strategy = "NEW_NUMBER";
-        this.rebase();
-        this.previousNumber = parseNumber(current, DEFAULT_LOCALE);
+        this.previousNumberFormat = undefined;
       } else {
-        this.rebase();
-        strategy = "NOT_A_FORMULA";
+        const squishableLiteral = this.parseSquishableLiteral(current, getters);
+        if (squishableLiteral) {
+          strategy = "NEW_NUMBER";
+          this.rebase();
+          this.previousNumber = squishableLiteral.value;
+          this.previousNumberFormat = squishableLiteral.format;
+        } else {
+          this.rebase();
+          strategy = "NOT_A_FORMULA";
+        }
       }
     } else {
       // the current cell is an object, let's see if there is a transformation
@@ -266,13 +274,31 @@ export class Unsquisher {
           );
         }
         const offsetValue = parseFloat(offset);
-
+        const format = { format: this.previousNumberFormat, locale: getters.getLocale() };
         for (const position of targetPositions) {
-          yield { position, content: (this.previousNumber += offsetValue).toString() };
+          this.previousNumber += offsetValue;
+          yield {
+            position,
+            content: formatValue(this.previousNumber, format),
+          };
         }
         break;
       }
     }
+  }
+
+  private parseSquishableLiteral(
+    content: string,
+    getters: CoreGetters
+  ): { value: number; format?: Format } | undefined {
+    const cell = createLiteralCell(getters, -1, content, undefined, undefined);
+    if (typeof cell.parsedValue !== "number" || cell.parsedValue % 1 !== 0) {
+      return undefined;
+    }
+    return {
+      value: cell.parsedValue,
+      format: cell.format,
+    };
   }
 
   /**

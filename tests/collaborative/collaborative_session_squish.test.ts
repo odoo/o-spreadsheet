@@ -77,6 +77,45 @@ describe("Collaborative session", () => {
     expect(getCellContent(model, "A4")).toBe("Hello");
     expect(getCellContent(model, "A5")).toBe("Hello");
   });
+
+  test("loading previously squished date messages should unsquish them", () => {
+    const model = new Model(
+      {
+        revisionId: "START_REVISION",
+        sheets: [{ id: "sheet1", name: "Sheet 1", cells: { A1: "Date" } }],
+      },
+      { transportService: new MockTransportService(), client: { id: "alice", name: "Alice" } },
+      [
+        {
+          clientId: "bob",
+          commands: [
+            {
+              sheetId: "sheet1",
+              col: 0,
+              row: 1,
+              content: "2026-01-02",
+              type: "UPDATE_CELL",
+            },
+            {
+              targetRange: "A3:A4",
+              sheetId: "sheet1",
+              content: { N: "+1" },
+              type: "SQUISHED_UPDATE_CELL",
+            },
+          ],
+          nextRevisionId: "1",
+          serverRevisionId: "START_REVISION",
+          type: "REMOTE_REVISION",
+          version: 1,
+        },
+      ]
+    );
+
+    expect(getCellContent(model, "A1")).toBe("Date");
+    expect(getCellContent(model, "A2")).toBe("2026-01-02");
+    expect(getCellContent(model, "A3")).toBe("2026-01-03");
+    expect(getCellContent(model, "A4")).toBe("2026-01-04");
+  });
 });
 
 describe("commands", () => {
@@ -172,6 +211,64 @@ describe("commands", () => {
     ];
     const result: (CoreCommand | SquishedCoreCommand)[] = [
       { sheetId: "Sheet1", col: 0, row: 0, content: "1", type: "UPDATE_CELL" },
+      {
+        sheetId: "Sheet1",
+        targetRange: "A2:A3",
+        content: { N: "+1" },
+        type: "SQUISHED_UPDATE_CELL",
+      },
+    ];
+    const model = new Model();
+    expect(new CommandSquisher(model.getters).squish(commands)).toStrictEqual(result);
+    expect(new CommandSquisher(model.getters).unsquish(result)).toStrictEqual(commands);
+  });
+
+  test("squish consecutive dates and keep raw literal commands", () => {
+    const commands: readonly CoreCommand[] = [
+      { sheetId: "Sheet1", col: 0, row: 0, content: "2026-01-02", type: "UPDATE_CELL" },
+      { sheetId: "Sheet1", col: 0, row: 1, content: "2026-01-03", type: "UPDATE_CELL" },
+      { sheetId: "Sheet1", col: 0, row: 2, content: "2026-01-04", type: "UPDATE_CELL" },
+    ];
+    const result: (CoreCommand | SquishedCoreCommand)[] = [
+      { sheetId: "Sheet1", col: 0, row: 0, content: "2026-01-02", type: "UPDATE_CELL" },
+      {
+        sheetId: "Sheet1",
+        targetRange: "A2:A3",
+        content: { N: "+1" },
+        type: "SQUISHED_UPDATE_CELL",
+      },
+    ];
+    const model = new Model();
+    expect(new CommandSquisher(model.getters).squish(commands)).toStrictEqual(result);
+    expect(new CommandSquisher(model.getters).unsquish(result)).toStrictEqual(commands);
+  });
+
+  test("squish repeated formatted literals without losing the raw command content", () => {
+    const commands: readonly CoreCommand[] = [
+      { sheetId: "Sheet1", col: 0, row: 0, content: "$100", type: "UPDATE_CELL" },
+      { sheetId: "Sheet1", col: 0, row: 1, content: "$100", type: "UPDATE_CELL" },
+    ];
+    const result: (CoreCommand | SquishedCoreCommand)[] = [
+      {
+        sheetId: "Sheet1",
+        targetRange: "A1:A2",
+        content: "$100",
+        type: "SQUISHED_UPDATE_CELL",
+      },
+    ];
+    const model = new Model();
+    expect(new CommandSquisher(model.getters).squish(commands)).toStrictEqual(result);
+    expect(new CommandSquisher(model.getters).unsquish(result)).toStrictEqual(commands);
+  });
+
+  test("squish consecutive formatted literals and rebuild offsets with formatting", () => {
+    const commands: readonly CoreCommand[] = [
+      { sheetId: "Sheet1", col: 0, row: 0, content: "$100", type: "UPDATE_CELL" },
+      { sheetId: "Sheet1", col: 0, row: 1, content: "$101", type: "UPDATE_CELL" },
+      { sheetId: "Sheet1", col: 0, row: 2, content: "$102", type: "UPDATE_CELL" },
+    ];
+    const result: (CoreCommand | SquishedCoreCommand)[] = [
+      { sheetId: "Sheet1", col: 0, row: 0, content: "$100", type: "UPDATE_CELL" },
       {
         sheetId: "Sheet1",
         targetRange: "A2:A3",
