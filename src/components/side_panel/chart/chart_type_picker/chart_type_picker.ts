@@ -32,13 +32,13 @@ css/* scss */ `
     background: #fff;
     .o-chart-type-item {
       cursor: pointer;
-      padding: 3px 6px;
+      padding: 2px 5px;
       margin: 1px 2px;
+      border: 1px solid transparent;
       &.selected,
       &:hover {
-        border: 1px solid ${ACTION_COLOR};
+        border-color: ${ACTION_COLOR};
         background: ${BADGE_SELECTED_COLOR};
-        padding: 2px 5px;
       }
       .o-chart-preview {
         width: 48px;
