@@ -136,8 +136,12 @@ export class NamedRangesPlugin extends CorePlugin<NamedRangeState> implements Na
       return CommandResult.NamedRangeNameAlreadyExists;
     }
 
-    if (!validNamedRangeNameRegex.test(name) || isNumber(name, DEFAULT_LOCALE)) {
-      return CommandResult.NamedRangeNameWithInvalidCharacter;
+    if (
+      !validNamedRangeNameRegex.test(name) ||
+      isNumber(name, DEFAULT_LOCALE) ||
+      ["TRUE", "FALSE"].includes(name.toUpperCase())
+    ) {
+      return CommandResult.NamedRangeInvalidName;
     }
 
     if (rangeReference.test(name)) {

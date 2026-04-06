@@ -1550,7 +1550,7 @@ export const enum CommandResult {
   SheetLocked = "SheetLocked",
   InvalidZoomLevel = "InvalidZoomLevel",
   NamedRangeNameAlreadyExists = "NamedRangeNameAlreadyExists",
-  NamedRangeNameWithInvalidCharacter = "NamedRangeNameWithInvalidCharacter",
+  NamedRangeInvalidName = "NamedRangeInvalidName",
   NamedRangeNameLooksLikeCellReference = "NamedRangeNameLooksLikeCellReference",
   NamedRangeNotFound = "NamedRangeNotFound",
 }
