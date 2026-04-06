@@ -173,7 +173,12 @@ export class Squisher {
         command.style ?? undefined,
         command.sheetId
       );
-      return this.squish(cell, command.sheetId);
+      const squished = this.squish(cell, command.sheetId);
+      // Otherwise, cell.content might be different from command.content.
+      // For example, if command.content is "$100", cell.content becomes "100"
+      // and the format is stored separately. Here we want to keep the original
+      // command.content so the collaborative history stays lossless.
+      return typeof squished === "string" ? command.content : squished;
     }
     return command.content;
   }
