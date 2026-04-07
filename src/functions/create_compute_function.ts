@@ -14,6 +14,10 @@ export function createComputeFunction(
     this: EvalContext,
     ...args: Arg[]
   ): FunctionResultObject | Matrix<FunctionResultObject> {
+    let start = 0;
+    if (this.__timingEntries) {
+      start = performance.now();
+    }
     const acceptToVectorize: boolean[] = [];
 
     const argsToFocus = argTargeting(descr, args.length);
@@ -34,9 +38,18 @@ export function createComputeFunction(
       acceptToVectorize.push(!argDefinition.acceptMatrix);
     }
 
-    return replaceErrorPlaceholderInResult(
+    const result = replaceErrorPlaceholderInResult(
       applyVectorization(errorHandlingCompute.bind(this), args, acceptToVectorize)
     );
+    if (this.__timingEntries && this.__originCellPosition) {
+      const end = performance.now();
+      this.__timingEntries.push({
+        functionName: descr.name,
+        position: this.__originCellPosition,
+        time: end - start,
+      });
+    }
+    return result;
   }
 
   function replaceErrorPlaceholderInResult(

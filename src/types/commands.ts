@@ -985,6 +985,7 @@ export interface ActivateSheetCommand {
 export interface EvaluateCellsCommand {
   type: "EVALUATE_CELLS";
   cellIds?: number[];
+  profiling?: boolean;
 }
 
 export interface EvaluateChartsCommand {
