@@ -1,0 +1,14 @@
+.o-spreadsheet {
+  .o-perf-range-entry {
+    cursor: pointer;
+  }
+  .o-perf-bar {
+    background-color: color-mix(in srgb, var(--os-selection-border-color) 25%, transparent);
+  }
+  .o-perf-range-entry:hover .o-perf-bar {
+    background-color: color-mix(in srgb, var(--os-selection-border-color) 35%, transparent);
+  }
+  .o-perf-entry-selected {
+    background-color: color-mix(in srgb, var(--os-selection-border-color) 10%, transparent);
+  }
+}

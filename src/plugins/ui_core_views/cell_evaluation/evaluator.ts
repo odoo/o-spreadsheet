@@ -1,4 +1,4 @@
-import { CompiledFormula } from "../../../formulas/compiler";
+import { CompiledFormula, OPERATOR_MAP, UNARY_OPERATOR_MAP } from "../../../formulas/compiler";
 
 import { createEvaluatedCell, evaluateLiteral } from "../../../helpers/cells/cell_evaluation";
 
@@ -26,6 +26,12 @@ import { lazy } from "../../../helpers/misc";
 import { excludeTopLeft, getZoneArea, positionToZone, union } from "../../../helpers/zones";
 import { onIterationEndEvaluationRegistry } from "../../../registries/evaluation_registry";
 import { _t } from "../../../translation";
+import {
+  FunctionTimingEntry,
+  FunctionTimingLog,
+  PerfProfile,
+  RangeTiming,
+} from "../../../types/functions";
 import { Getters } from "../../../types/getters";
 import {
   CellPosition,
@@ -43,6 +49,14 @@ const MAX_ITERATION = 30;
 
 const EMPTY_CELL = Object.freeze(createEvaluatedCell({ value: null }));
 
+const FUNCTION_TO_OPERATOR: Record<string, string> = {};
+for (const [op, fn] of Object.entries(OPERATOR_MAP)) {
+  FUNCTION_TO_OPERATOR[fn] = op;
+}
+for (const [op, fn] of Object.entries(UNARY_OPERATOR_MAP)) {
+  FUNCTION_TO_OPERATOR[fn] = op;
+}
+
 export class Evaluator {
   private readonly getters: Getters;
   private compilationParams: CompilationParameters;
@@ -51,6 +65,7 @@ export class Evaluator {
   private formulaDependencies = lazy(new FormulaDependencyGraph());
   private blockedArrayFormulas = new PositionSet({});
   private spreadingRelations = new SpreadingRelation();
+  private perfProfile: PerfProfile | undefined;
 
   constructor(private readonly context: ModelConfig["custom"], getters: Getters) {
     this.getters = getters;
@@ -59,6 +74,10 @@ export class Evaluator {
       this.getters,
       this.computeAndSave.bind(this)
     );
+  }
+
+  getPerfProfile(): PerfProfile | undefined {
+    return this.perfProfile;
   }
 
   getEvaluatedCell(position: CellPosition): EvaluatedCell {
@@ -141,7 +160,7 @@ export class Evaluator {
     };
   }
 
-  private updateCompilationParameters() {
+  private updateCompilationParameters(functionTimingLog?: FunctionTimingLog) {
     // rebuild the compilation parameters (with a clean cache)
     this.compilationParams = buildCompilationParameters(
       this.context,
@@ -150,6 +169,7 @@ export class Evaluator {
     );
     this.compilationParams.evalContext.updateDependencies = this.updateDependencies.bind(this);
     this.compilationParams.evalContext.addDependencies = this.addDependencies.bind(this);
+    this.compilationParams.evalContext.__timingEntries = functionTimingLog;
     this.compilationParams.evalContext.lookupCaches = {
       forwardSearch: new Map(),
       reverseSearch: new Map(),
@@ -217,7 +237,7 @@ export class Evaluator {
     });
   }
 
-  evaluateAllCells() {
+  evaluateAllCells(profiling?: boolean) {
     const start = performance.now();
     this.evaluatedCells = new PositionMap();
     const ranges: BoundedRange[] = [];
@@ -225,7 +245,7 @@ export class Evaluator {
       const zone = this.getters.getSheetZone(sheetId);
       ranges.push({ sheetId, zone });
     }
-    this.evaluate(ranges);
+    this.evaluate(ranges, profiling);
     console.debug("evaluate all cells", performance.now() - start, "ms");
   }
 
@@ -284,13 +304,17 @@ export class Evaluator {
   private cellsBeingComputed = new Set<number>();
   private symbolsBeingComputed = new Set<string>();
 
-  private evaluate(ranges: Iterable<BoundedRange>) {
+  private evaluate(ranges: Iterable<BoundedRange>, profiling?: boolean) {
+    if (profiling) {
+      this.perfProfile = undefined;
+    }
     this.cellsBeingComputed = new Set<number>();
     this.nextRangesToUpdate = new RangeSet(ranges);
 
     let currentIteration = 0;
+    const functionTimingLog = profiling ? [] : undefined;
     while (!this.nextRangesToUpdate.isEmpty() && currentIteration++ < MAX_ITERATION) {
-      this.updateCompilationParameters();
+      this.updateCompilationParameters(functionTimingLog);
       const ranges = [...this.nextRangesToUpdate];
       this.nextRangesToUpdate.clear();
       this.clearEvaluatedRanges(ranges);
@@ -313,6 +337,9 @@ export class Evaluator {
     }
     if (currentIteration >= MAX_ITERATION) {
       console.warn("Maximum iteration reached while evaluating cells");
+    }
+    if (profiling) {
+      this.processPerfProfile();
     }
   }
 
@@ -384,6 +411,35 @@ export class Evaluator {
       this.buildSafeGetSymbolValue(),
       formulaPosition
     );
+    const timeLog = this.compilationParams.evalContext.__timingEntries;
+
+    // Only measure post-processing for array formulas (spreading values). Scalar formulas have negligible post-processing.
+    const start = timeLog && isMatrix(formulaReturn) ? performance.now() : 0;
+    const evaluatedCell = this.postProcessFormulaReturn(formulaPosition, cellData, formulaReturn);
+    if (start) {
+      // The last entry is the outermost function of this formula (e.g. MUNIT in =MUNIT(MAX(A1, A5))).
+      // because arguments (including dependency evaluations) resolve
+      // before the function call, so the outermost function always logs last.
+      const lastEntry = timeLog?.at(-1);
+      if (
+        lastEntry &&
+        // For formulas without function calls (e.g. =A1:B2), it may be empty or the last entry
+        // belongs to a different cell.
+        lastEntry.position.sheetId === formulaPosition.sheetId &&
+        lastEntry.position.col === formulaPosition.col &&
+        lastEntry.position.row === formulaPosition.row
+      ) {
+        lastEntry.time += performance.now() - start;
+      }
+    }
+    return evaluatedCell;
+  }
+
+  private postProcessFormulaReturn(
+    formulaPosition: CellPosition,
+    cellData: FormulaCell,
+    formulaReturn: FunctionResultObject | Matrix<FunctionResultObject>
+  ) {
     if (!isMatrix(formulaReturn)) {
       const evaluatedCell = createEvaluatedCell(
         validateNumberValue(formulaReturn),
@@ -581,6 +637,67 @@ export class Evaluator {
       }
     };
     return getSymbolValue;
+  }
+
+  private processPerfProfile() {
+    const timingEntries = this.compilationParams.evalContext.__timingEntries ?? [];
+
+    const byFunction = Object.groupBy(timingEntries, (e) => e.functionName);
+    let totalTime = 0;
+    const rangeTimings: RangeTiming[] = [];
+    for (const rawName in byFunction) {
+      const functionName = FUNCTION_TO_OPERATOR[rawName] ?? rawName;
+      const byFingerprint = Object.groupBy(byFunction[rawName]!, ({ position }) => {
+        const cell = this.getters.getCell(position);
+        const fingerprint = cell ? this.getters.getCellFingerprint(cell) : undefined;
+        return fingerprint ?? "";
+      });
+      for (const fingerprint in byFingerprint) {
+        for (const entry of this.mergeIntoRangeTimings(functionName, byFingerprint[fingerprint]!)) {
+          totalTime += entry.time;
+          rangeTimings.push(entry);
+        }
+      }
+    }
+
+    rangeTimings.sort((a, b) => b.time - a.time);
+    this.perfProfile = {
+      totalTime,
+      totalCells: this.evaluatedCells.keys().length,
+      totalFunctionCalls: timingEntries.length,
+      entries: rangeTimings,
+    };
+  }
+
+  /**
+   * Merge timing entries into RangeTimings by combining adjacent cell
+   * positions into contiguous ranges and summing their times.
+   */
+  private mergeIntoRangeTimings(
+    functionName: string,
+    entries: FunctionTimingEntry[]
+  ): RangeTiming[] {
+    const timeByPosition = new PositionMap<number>();
+    const positions = new RangeSet();
+    for (const { position, time } of entries) {
+      timeByPosition.set(position, (timeByPosition.get(position) ?? 0) + time);
+      positions.addPosition(position);
+    }
+    const rangeTimings: RangeTiming[] = [];
+    for (const { sheetId, zone } of positions) {
+      let time = 0;
+      for (let col = zone.left; col <= zone.right; col++) {
+        for (let row = zone.top; row <= zone.bottom; row++) {
+          time += timeByPosition.get({ sheetId, col, row }) ?? 0;
+        }
+      }
+      rangeTimings.push({
+        functionName,
+        range: this.getters.getRangeFromZone(sheetId, zone),
+        time,
+      });
+    }
+    return rangeTimings;
   }
 
   // ----------------------------------------------------------
