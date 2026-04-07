@@ -180,6 +180,37 @@ describe("Edit criterion in side panel", () => {
         {}
       );
     });
+
+    test("changing color on empty value should not be saved", async () => {
+      await click(fixture, ".o-dv-list-add-value");
+
+      // select color for that empty input
+      const colorBtns = fixture.querySelectorAll(".o-round-color-picker-button");
+      await click(colorBtns[colorBtns.length - 1]);
+      await click(fixture, ".o-color-picker-line-item[data-color='#CFE2F3'");
+      await click(fixture, ".o-dv-save");
+
+      // no color should be stored because value is empty
+      expect((getDataValidationRules(model)[0].criterion as IsValueInListCriterion).colors).toEqual(
+        {}
+      );
+    });
+
+    test("color should follow updated value", async () => {
+      // set color for "ok"
+      await click(fixture.querySelectorAll(".o-round-color-picker-button")[0]);
+      await click(fixture, ".o-color-picker-line-item[data-color='#CFE2F3'");
+
+      // change "ok" to "bye"
+      const inputs = fixture.querySelectorAll<HTMLInputElement>(".o-dv-list-values .o-input");
+      await setInputValueAndTrigger(inputs[0], "bye");
+
+      await click(fixture, ".o-dv-save");
+      const { values, colors } = getDataValidationRules(model)[0]
+        .criterion as IsValueInListCriterion;
+      expect(values[0]).toBe("bye");
+      expect(colors).toEqual({ bye: "#CFE2F3" });
+    });
   });
 
   describe("Value in range", () => {
