@@ -1,3 +1,4 @@
+import { PerfProfile } from "../../..";
 import { CompiledFormula } from "../../../formulas/compiler";
 import { matrixMap } from "../../../functions/helpers";
 import { toXC } from "../../../helpers/coordinates";
@@ -157,6 +158,7 @@ export class EvaluationPlugin extends CoreViewPlugin {
     "getArrayFormulaSpreadingOn",
     "isArrayFormulaSpillBlocked",
     "isEmpty",
+    "getPerfProfile",
   ] as const;
 
   private shouldRebuildDependenciesGraph = true;
@@ -201,7 +203,7 @@ export class EvaluationPlugin extends CoreViewPlugin {
             this.positionsToUpdate.push(this.getters.getCellPosition(cmd.cellIds[i]));
           }
         } else {
-          this.evaluator.evaluateAllCells();
+          this.evaluator.evaluateAllCells(cmd.profiling);
         }
         break;
     }
@@ -303,6 +305,10 @@ export class EvaluationPlugin extends CoreViewPlugin {
     return positions(zone)
       .map(({ col, row }) => this.getEvaluatedCell({ sheetId, col, row }))
       .every((cell) => cell.type === CellValueType.empty);
+  }
+
+  getPerfProfile(): PerfProfile | undefined {
+    return this.evaluator.getPerfProfile();
   }
 
   /**
