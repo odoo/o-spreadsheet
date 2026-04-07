@@ -6,6 +6,7 @@ import { DynamicTablesPlugin } from "../plugins/ui_core_views/dynamic_tables";
 import { EvaluationChartPlugin } from "../plugins/ui_core_views/evaluation_chart";
 import { EvaluationConditionalFormatPlugin } from "../plugins/ui_core_views/evaluation_conditional_format";
 import { EvaluationDataValidationPlugin } from "../plugins/ui_core_views/evaluation_data_validation";
+import { FingerprintPlugin } from "../plugins/ui_core_views/fingerprint";
 import { FormulaTrackerPlugin } from "../plugins/ui_core_views/formula_tracker";
 import { HeaderSizeUIPlugin } from "../plugins/ui_core_views/header_sizes_ui";
 import { PivotUIPlugin } from "../plugins/ui_core_views/pivot_ui";
@@ -60,6 +61,7 @@ export type RenderingGetters = {
   PluginGetters<typeof UIOptionsPlugin> &
   PluginGetters<typeof SheetUIPlugin> &
   PluginGetters<typeof FilterEvaluationPlugin> &
+  PluginGetters<typeof FingerprintPlugin> &
   PluginGetters<typeof SplitToColumnsPlugin> &
   PluginGetters<typeof SubtotalEvaluationPlugin> &
   PluginGetters<typeof HeaderSizeUIPlugin> &
