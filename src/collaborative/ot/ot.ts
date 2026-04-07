@@ -1,11 +1,5 @@
-import { adaptFormulaString, adaptStringRange } from "../../helpers/formulas";
 import { getAddHeaderStartIndex, isDefined } from "../../helpers/misc";
-import {
-  getIdentityRangeAdapter,
-  getNamedRangeAdapter,
-  getRangeAdapter,
-  rangeAdapterRegistry,
-} from "../../helpers/range";
+import { getRangeAdapterFunctions, rangeAdapterRegistry } from "../../helpers/range";
 import {
   moveHeaderIndexesOnHeaderAddition,
   moveHeaderIndexesOnHeaderDeletion,
@@ -31,7 +25,7 @@ import {
   isTargetDependent,
   isZoneDependent,
 } from "../../types/commands";
-import { HeaderIndex, RangeAdapterFunctions, UID, Zone } from "../../types/misc";
+import { HeaderIndex, Zone } from "../../types/misc";
 import { transformRangeData, transformZone } from "./ot_helpers";
 import "./ot_specific";
 import "./srt_specific";
@@ -83,20 +77,8 @@ function adaptTransform(toTransform: CoreCommand, executed: CoreCommand): CoreCo
   if (!adaptFn) {
     return toTransform;
   }
-  const rangeAdapterMaybe = getRangeAdapter(executed);
-  const namedRangeAdapterMaybe = getNamedRangeAdapter(executed);
-  if (rangeAdapterMaybe || namedRangeAdapterMaybe) {
-    const rangeAdapter = rangeAdapterMaybe || getIdentityRangeAdapter();
-    const namedRangeAdapter = namedRangeAdapterMaybe || ((name) => name);
-    const adapterFunctions: RangeAdapterFunctions = {
-      applyChange: rangeAdapter.applyChange,
-      adaptRangeString: (defaultSheetId: UID, sheetXC: string) =>
-        adaptStringRange(defaultSheetId, sheetXC, rangeAdapter),
-      adaptFormulaString: (defaultSheetId: UID, formula: string) =>
-        adaptFormulaString(defaultSheetId, formula, rangeAdapter, namedRangeAdapter),
-      adaptCompiledFormula: (compiledFormula) =>
-        compiledFormula.adaptCompiledFormula(rangeAdapter.applyChange, namedRangeAdapter),
-    };
+  const adapterFunctions = getRangeAdapterFunctions(executed);
+  if (adapterFunctions) {
     return adaptFn(toTransform, adapterFunctions);
   }
   return toTransform;
