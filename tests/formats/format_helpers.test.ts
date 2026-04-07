@@ -6,7 +6,7 @@ import {
   parseDateTime,
   roundFormat,
 } from "../../src/helpers";
-import { Currency, DEFAULT_LOCALE } from "../../src/types";
+import { Currency, DEFAULT_LOCALE, LocaleFormat } from "../../src/types";
 import { FR_LOCALE } from "../test_helpers/constants";
 
 const locale = DEFAULT_LOCALE;
@@ -408,6 +408,44 @@ describe("formatValue on number", () => {
     expect(() => formatValue(1234, { format: "@ dd", locale })).toThrow();
     expect(() => formatValue(1234, { format: "# @", locale })).toThrow();
     expect(() => formatValue(1234, { format: "@0", locale })).toThrow();
+  });
+
+  test("Can format values using different digit groupings", () => {
+    const localeFormat: LocaleFormat = { format: "#,##0", locale: { ...DEFAULT_LOCALE } };
+    expect(formatValue(123456789, localeFormat)).toBe("123,456,789");
+
+    localeFormat.locale.digitGrouping = "[2, 0]"; // Group digits 2 by 2
+    expect(formatValue(123456789, localeFormat)).toBe("1,23,45,67,89");
+
+    localeFormat.locale.digitGrouping = "[3, 2, 0]"; // Group first 3 digits, then group digits 2 by 2
+    expect(formatValue(123456789, localeFormat)).toBe("12,34,56,789");
+
+    localeFormat.locale.digitGrouping = "[2, 3]"; // Group first 2 digits, then 3 next digits, then no group
+    expect(formatValue(123456789, localeFormat)).toBe("1234,567,89");
+
+    localeFormat.locale.digitGrouping = "[4]"; // Single group of 5 digits
+    expect(formatValue(123456789, localeFormat)).toBe("12345,6789");
+
+    localeFormat.locale.digitGrouping = "[2, 0, 5]"; // Part after 0 (repeated grouping) is ignored
+    expect(formatValue(123456789, localeFormat)).toBe("1,23,45,67,89");
+
+    localeFormat.locale.digitGrouping = "   [      3      ,2,0    ]  "; // Spaces are ignored
+    expect(formatValue(123456789, localeFormat)).toBe("12,34,56,789");
+  });
+
+  test("Invalid groupings", () => {
+    const localeFormat: LocaleFormat = { format: "#,##0", locale: { ...DEFAULT_LOCALE } };
+    localeFormat.locale.digitGrouping = "[0]"; // Nothing to repeat
+    expect(() => formatValue(123456789, localeFormat)).toThrow('Invalid digit grouping: "[0]"');
+
+    localeFormat.locale.digitGrouping = "[]"; // No grouping
+    expect(() => formatValue(123456789, localeFormat)).toThrow('Invalid digit grouping: "[]"');
+
+    localeFormat.locale.digitGrouping = "ok"; // Invalid grouping
+    expect(() => formatValue(123456789, localeFormat)).toThrow('Invalid digit grouping: "ok"');
+
+    localeFormat.locale.digitGrouping = "{3,0}"; // Invalid grouping
+    expect(() => formatValue(123456789, localeFormat)).toThrow('Invalid digit grouping: "{3,0}"');
   });
 });
 
