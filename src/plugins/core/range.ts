@@ -1,14 +1,11 @@
 import { CompiledFormula } from "../../formulas/compiler";
 import { rangeReference, splitReference } from "../../helpers";
-import { adaptFormulaString, adaptStringRange } from "../../helpers/formulas";
 import {
   createInvalidRange,
   createRange,
   createRangeFromXc,
   duplicateRangeInDuplicatedSheet,
-  getIdentityRangeAdapter,
-  getNamedRangeAdapter,
-  getRangeAdapter,
+  getRangeAdapterFunctions,
   getRangeString,
   isFullColRange,
   isFullRowRange,
@@ -21,12 +18,7 @@ import { Command, CommandHandler, CommandResult, CoreCommand } from "../../types
 import { CoreGetters } from "../../types/core_getters";
 import { CellErrorType } from "../../types/errors";
 import {
-  AdaptSheetName,
-  ApplyRangeChange,
-  ApplyRangeChangeResult,
-  ApplyRenameNamedRange,
   Dimension,
-  RangeAdapter,
   RangeAdapterFunctions,
   RangeProvider,
   UID,
@@ -75,59 +67,15 @@ export class RangeAdapterPlugin implements CommandHandler<CoreCommand> {
     if (this.isAdaptingRanges) {
       throw new Error("Plugins cannot dispatch commands during adaptRanges phase");
     }
-
-    let rangeAdapter: RangeAdapter | undefined;
-    let applyRenameNamedRange: ApplyRenameNamedRange | undefined;
-
-    switch (cmd.type) {
-      case "UPDATE_NAMED_RANGE":
-        rangeAdapter = getIdentityRangeAdapter();
-        applyRenameNamedRange = getNamedRangeAdapter(cmd);
-        break;
-      default: {
-        rangeAdapter = getRangeAdapter(cmd);
-        applyRenameNamedRange = (name) => name;
-      }
-    }
-
-    if (rangeAdapter && applyRenameNamedRange) {
-      const applyChange = this.verifyRangeRemoved(rangeAdapter.applyChange);
-      const adapterFunctions: RangeAdapterFunctions = {
-        applyChange,
-        adaptRangeString: (defaultSheetId: UID, sheetXC: string) =>
-          adaptStringRange(defaultSheetId, sheetXC, rangeAdapter),
-        adaptFormulaString: (defaultSheetId: UID, formula: string) =>
-          adaptFormulaString(defaultSheetId, formula, rangeAdapter, applyRenameNamedRange),
-        adaptCompiledFormula: (compiledFormula) =>
-          compiledFormula.adaptCompiledFormula(applyChange, applyRenameNamedRange),
-      };
-      this.executeOnAllRanges(adapterFunctions, rangeAdapter.sheetId, rangeAdapter.sheetName);
+    const adapterFunctions = getRangeAdapterFunctions(cmd);
+    if (adapterFunctions) {
+      this.executeOnAllRanges(adapterFunctions);
     }
   }
 
   finalize() {}
 
-  /**
-   * Return a modified adapting function that verifies that after adapting a range, the range is still valid.
-   * Any range that gets adapted by the function adaptRange in parameter does so
-   * without caring if the start and end of the range in both row and column
-   * direction can be incorrect. This function ensure that an incorrect range gets removed.
-   */
-  private verifyRangeRemoved(adaptRange: ApplyRangeChange): ApplyRangeChange {
-    return (range: Range) => {
-      const result: ApplyRangeChangeResult<Range> = adaptRange(range);
-      if (result.changeType !== "NONE" && !isZoneValid(result.range.zone)) {
-        return { range: result.range, changeType: "REMOVE" };
-      }
-      return result;
-    };
-  }
-
-  private executeOnAllRanges(
-    adapterFunctions: RangeAdapterFunctions,
-    sheetId: UID,
-    sheetName: AdaptSheetName
-  ) {
+  private executeOnAllRanges(adapterFunctions: RangeAdapterFunctions) {
     this.isAdaptingRanges = true;
     for (const provider of this.providers) {
       provider(adapterFunctions);
