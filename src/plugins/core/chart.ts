@@ -80,7 +80,7 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
           )
         );
       case "DELETE_CHART":
-        return this.checkChartExists(cmd);
+        return CommandResult.SubCommandOnly;
       default:
         return CommandResult.Success;
     }
