@@ -1,3 +1,4 @@
+import { CellIsOperators } from "../../components/translations_terms";
 import { compile } from "../../formulas/compiler";
 import { deepEquals, isInside, recomputeZones, toUnboundedZone } from "../../helpers/index";
 import {
@@ -445,6 +446,9 @@ export class ConditionalFormatPlugin
     const rule = cmd.cf.rule;
     switch (rule.type) {
       case "CellIsRule":
+        if (!CellIsOperators[rule.operator]) {
+          return CommandResult.InvalidConditionalFormatType;
+        }
         return this.checkValidations(
           rule,
           this.checkOperatorArgsNumber(2, ["Between", "NotBetween"]),
@@ -488,8 +492,10 @@ export class ConditionalFormatPlugin
           this.chainValidations(this.checkInflectionPoints(this.checkFormulaCompilation))
         );
       }
+      case "DataBarRule":
+        return CommandResult.Success;
     }
-    return CommandResult.Success;
+    return CommandResult.InvalidConditionalFormatType;
   }
 
   private checkCFHasChanged(cmd: AddConditionalFormatCommand) {
