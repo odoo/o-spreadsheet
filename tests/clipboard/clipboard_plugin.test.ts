@@ -3023,6 +3023,23 @@ describe("cross spreadsheet copy/paste", () => {
     pasteFromOSClipboard(modelB, "D2", content);
     expect(getCellContent(modelB, "D2")).toBe("newContent");
   });
+
+  test("should only paste text content if there is a version mismatch", () => {
+    const modelA = new Model();
+    const modelB = new Model();
+
+    setCellContent(modelA, "B2", "Hello");
+    setStyle(modelA, "B2", { bold: true });
+
+    copy(modelA, "B2");
+    const clipboardContent = modelA.getters.getClipboardContent();
+    const parsedContent = parseOSClipboardContent(clipboardContent);
+    parsedContent.data!.version = 3; // Version mismatch
+    pasteFromOSClipboard(modelB, "D2", parsedContent);
+
+    expect(getCellContent(modelB, "D2")).toBe("Hello");
+    expect(getStyle(modelB, "D2")).toEqual({});
+  });
 });
 
 test("Can use clipboard handlers to paste in a sheet other than the active sheet", () => {
