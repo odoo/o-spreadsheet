@@ -19,6 +19,7 @@ import {
   ConditionalFormatInternal,
   IconSetRule,
   IconThreshold,
+  availableConditionalFormatOperators,
 } from "../../types/conditional_formatting";
 import { RangeAdapterFunctions, UID, UnboundedZone, Validation, Zone } from "../../types/misc";
 import { RangeData } from "../../types/range";
@@ -448,6 +449,9 @@ export class ConditionalFormatPlugin
     const rule = cmd.cf.rule;
     switch (rule.type) {
       case "CellIsRule":
+        if (!availableConditionalFormatOperators.has(rule.operator)) {
+          return CommandResult.InvalidConditionalFormatType;
+        }
         return this.checkValidations(rule, this.checkOperatorArgsNumber, this.checkCFValues);
       case "ColorScaleRule": {
         return this.checkValidations(
@@ -474,8 +478,10 @@ export class ConditionalFormatPlugin
           this.chainValidations(this.checkInflectionPoints(this.checkFormulaCompilation))
         );
       }
+      case "DataBarRule":
+        return CommandResult.Success;
     }
-    return CommandResult.Success;
+    return CommandResult.InvalidConditionalFormatType;
   }
 
   private checkCFHasChanged(cmd: AddConditionalFormatCommand) {
