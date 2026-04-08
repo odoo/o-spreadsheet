@@ -1,5 +1,6 @@
 import { getAddHeaderStartIndex, isDefined } from "../../helpers/misc";
-import { getRangeAdapterFunctions, rangeAdapterRegistry } from "../../helpers/range";
+import { rangeAdapterRegistry } from "../../helpers/range";
+import { getRangeAdapterFunctions } from "../../helpers/range_adapter_functions";
 import {
   moveHeaderIndexesOnHeaderAddition,
   moveHeaderIndexesOnHeaderDeletion,
