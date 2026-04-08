@@ -5,12 +5,12 @@ import {
   createRange,
   createRangeFromXc,
   duplicateRangeInDuplicatedSheet,
-  getRangeAdapterFunctions,
   getRangeString,
   isFullColRange,
   isFullRowRange,
   orderRange,
 } from "../../helpers/range";
+import { getRangeAdapterFunctions } from "../../helpers/range_adapter_functions";
 import { recomputeZones } from "../../helpers/recompute_zones";
 
 import { isZoneValid, unionUnboundedZones } from "../../helpers/zones";
