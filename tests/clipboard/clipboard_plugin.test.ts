@@ -3127,6 +3127,23 @@ describe("cross spreadsheet copy/paste", () => {
     ).toBe(clipboardId);
     expect(getOSheetClipboardIdFromHTML(`<div data-osheet-clipboard='{}'>x</div>`)).toBeUndefined();
   });
+
+  test("should only paste text content if there is a version mismatch", async () => {
+    const modelA = new Model();
+    const modelB = new Model();
+
+    setCellContent(modelA, "B2", "Hello");
+    setFormatting(modelA, "B2", { bold: true });
+
+    copy(modelA, "B2");
+    const clipboardContent = await modelA.getters.getClipboardTextAndImageContent();
+    const parsedContent = parseOSClipboardContent(clipboardContent);
+    parsedContent.data!.version = "3"; // Version mismatch
+    pasteFromOSClipboard(modelB, "D2", parsedContent);
+
+    expect(getCellContent(modelB, "D2")).toBe("Hello");
+    expect(getStyle(modelB, "D2")).toEqual({});
+  });
 });
 
 test("Can use clipboard handlers to paste in a sheet other than the active sheet", () => {
