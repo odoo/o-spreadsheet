@@ -47,34 +47,19 @@ export function interactivePasteFromOS(
   clipboardContent: ParsedOSClipboardContent,
   pasteOption?: ClipboardPasteOptions
 ) {
-  let result: DispatchResult;
-  // We do not trust the clipboard content to be accurate and comprehensive.
-  // Therefore, to ensure reliability, we handle unexpected errors that may
-  // arise from content that would not be suitable for the current version.
-  try {
-    result = env.model.dispatch("PASTE_FROM_OS_CLIPBOARD", {
-      target,
-      clipboardContent,
-      pasteOption,
-    });
-  } catch (error) {
-    const parsedSpreadsheetContent = clipboardContent.data;
-
-    if (parsedSpreadsheetContent?.version !== CURRENT_VERSION) {
-      env.raiseError(
-        _t(
-          "An unexpected error occurred while pasting content.\
-          This is probably due to a spreadsheet version mismatch."
-        )
-      );
-    }
-    result = env.model.dispatch("PASTE_FROM_OS_CLIPBOARD", {
-      target,
-      clipboardContent: {
-        text: clipboardContent.text,
-      },
-      pasteOption,
+  if (clipboardContent.data && clipboardContent.data.version !== CURRENT_VERSION) {
+    env.notifyUser({
+      type: "warning",
+      text: _t(
+        "You copied content from a different version of the application. Only text content will be pasted."
+      ),
+      sticky: false,
     });
   }
+  const result = env.model.dispatch("PASTE_FROM_OS_CLIPBOARD", {
+    target,
+    clipboardContent,
+    pasteOption,
+  });
   handlePasteResult(env, result);
 }
