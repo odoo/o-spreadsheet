@@ -22,6 +22,7 @@ import {
   Validation,
   WorkbookData,
   Zone,
+  availableConditionalFormatOperators,
 } from "../../types";
 import { RangeAdapterFunctions } from "../../types/misc";
 import { CorePlugin } from "../core_plugin";
@@ -445,6 +446,9 @@ export class ConditionalFormatPlugin
     const rule = cmd.cf.rule;
     switch (rule.type) {
       case "CellIsRule":
+        if (!availableConditionalFormatOperators.has(rule.operator)) {
+          return CommandResult.InvalidConditionalFormatType;
+        }
         return this.checkValidations(rule, this.checkOperatorArgsNumber, this.checkCFValues);
       case "ColorScaleRule": {
         return this.checkValidations(
@@ -471,8 +475,10 @@ export class ConditionalFormatPlugin
           this.chainValidations(this.checkInflectionPoints(this.checkFormulaCompilation))
         );
       }
+      case "DataBarRule":
+        return CommandResult.Success;
     }
-    return CommandResult.Success;
+    return CommandResult.InvalidConditionalFormatType;
   }
 
   private checkCFHasChanged(cmd: AddConditionalFormatCommand) {
