@@ -1326,6 +1326,7 @@ export const enum CommandResult {
   ViewportScrollLimitsReached = "ViewportScrollLimitsReached",
   FigureDoesNotExist = "FigureDoesNotExist",
   InvalidConditionalFormatId = "InvalidConditionalFormatId",
+  InvalidConditionalFormatType = "InvalidConditionalFormatType",
   InvalidCellPopover = "InvalidCellPopover",
   EmptyTarget = "EmptyTarget",
   InvalidFreezeQuantity = "InvalidFreezeQuantity",
