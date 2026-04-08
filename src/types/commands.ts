@@ -1306,6 +1306,7 @@ export const enum CommandResult {
   InvalidScrollingDirection = "InvalidScrollingDirection",
   FigureDoesNotExist = "FigureDoesNotExist",
   InvalidConditionalFormatId = "InvalidConditionalFormatId",
+  InvalidConditionalFormatType = "InvalidConditionalFormatType",
   InvalidCellPopover = "InvalidCellPopover",
   EmptyTarget = "EmptyTarget",
   InvalidFreezeQuantity = "InvalidFreezeQuantity",
