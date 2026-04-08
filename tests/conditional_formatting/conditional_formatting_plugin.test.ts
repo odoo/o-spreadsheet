@@ -1074,6 +1074,29 @@ describe("conditional format", () => {
       fillColor: "#0000FF",
     });
   });
+
+  test("wrong conditional format type or operator is refused", () => {
+    const rule: any = {
+      values: ["0"],
+      operator: "Equal",
+      type: "CellIsRule",
+      style: { fillColor: "#FF0FFF" },
+    };
+
+    let result = model.dispatch("ADD_CONDITIONAL_FORMAT", {
+      cf: { rule: { ...rule, type: "WrongType" }, id: "11" },
+      ranges: toRangesData(sheetId, "A1"),
+      sheetId,
+    });
+    expect(result).toBeCancelledBecause(CommandResult.InvalidConditionalFormatType);
+
+    result = model.dispatch("ADD_CONDITIONAL_FORMAT", {
+      cf: { rule: { ...rule, operator: "WrongOperator" }, id: "11" },
+      ranges: toRangesData(sheetId, "A1"),
+      sheetId,
+    });
+    expect(result).toBeCancelledBecause(CommandResult.InvalidConditionalFormatType);
+  });
 });
 
 describe("conditional formats types", () => {
