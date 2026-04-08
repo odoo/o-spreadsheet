@@ -60,56 +60,34 @@ export async function interactivePasteFromOS(
   parsedClipboardContent: ParsedOSClipboardContent,
   pasteOption?: ClipboardPasteOptions
 ) {
-  let result: DispatchResult;
-  // We do not trust the clipboard content to be accurate and comprehensive.
-  // Therefore, to ensure reliability, we handle unexpected errors that may
-  // arise from content that would not be suitable for the current version.
-  try {
-    const clipboarContent: ParsedOsClipboardContentWithImageData = parsedClipboardContent;
-
-    if (parsedClipboardContent.imageBlob) {
-      try {
-        const imageData = await env.imageProvider?.uploadFile(parsedClipboardContent.imageBlob);
-        clipboarContent.imageData = imageData;
-      } catch (e) {
-        const msg = _t("An error occurred while uploading the image. %s", e.message);
-        console.error(e);
-        env.raiseError(msg);
-      }
-      delete parsedClipboardContent.imageBlob;
-    }
-
-    result = env.model.dispatch("PASTE_FROM_OS_CLIPBOARD", {
-      target,
-      clipboardContent: parsedClipboardContent,
-      pasteOption,
-    });
-  } catch (error) {
-    const parsedSpreadsheetContent = parsedClipboardContent.data;
-
-    if (parsedSpreadsheetContent?.version !== getCurrentVersion()) {
-      env.raiseError(
-        _t(
-          "An unexpected error occurred while pasting content.\
-          This is probably due to a spreadsheet version mismatch."
-        )
-      );
-    } else {
-      env.raiseError(
-        _t(
-          "An unexpected error occurred while pasting content.\
-          Additional information can be found in the browser console."
-        )
-      );
-      console.error(error);
-    }
-    result = env.model.dispatch("PASTE_FROM_OS_CLIPBOARD", {
-      target,
-      clipboardContent: {
-        text: parsedClipboardContent.text,
-      },
-      pasteOption,
+  if (parsedClipboardContent.data && parsedClipboardContent.data.version !== getCurrentVersion()) {
+    env.notifyUser({
+      type: "warning",
+      text: _t(
+        "You copied content from a different version of the application. Only text and image content will be pasted."
+      ),
+      sticky: false,
     });
   }
+
+  if (parsedClipboardContent.imageBlob) {
+    const clipboardContent: ParsedOsClipboardContentWithImageData = parsedClipboardContent;
+    try {
+      const imageData = await env.imageProvider?.uploadFile(parsedClipboardContent.imageBlob);
+      clipboardContent.imageData = imageData;
+    } catch (e) {
+      const msg = _t("An error occurred while uploading the image. %s", e.message);
+      console.error(e);
+      env.raiseError(msg);
+    }
+    delete parsedClipboardContent.imageBlob;
+  }
+
+  const result = env.model.dispatch("PASTE_FROM_OS_CLIPBOARD", {
+    target,
+    clipboardContent: parsedClipboardContent,
+    pasteOption,
+  });
+
   handlePasteResult(env, result);
 }

@@ -150,12 +150,19 @@ export class ClipboardPlugin extends UIPlugin {
       case "PASTE_FROM_OS_CLIPBOARD": {
         this._isCutOperation = false;
 
-        const htmlData = cmd.clipboardContent.data;
+        let contentToPaste = cmd.clipboardContent;
+
+        // Only paste the spreadsheet data in the clipboard if the versions match
+        if (contentToPaste.data?.version !== getCurrentVersion()) {
+          contentToPaste = { ...contentToPaste };
+          delete contentToPaste.data;
+        }
+
         // TODO: support multiple image import
-        if (cmd.clipboardContent.imageData) {
+        if (contentToPaste.imageData) {
           const sheetId = this.getters.getActiveSheetId();
           const figureId = this.uuidGenerator.uuidv4();
-          const definition = cmd.clipboardContent.imageData;
+          const definition = contentToPaste.imageData;
 
           const size = getMaxFigureSize(this.getters, definition.size);
           this.dispatch("CREATE_IMAGE", {
@@ -168,10 +175,10 @@ export class ClipboardPlugin extends UIPlugin {
             figureId,
           });
         }
-        if (htmlData) {
-          this.copiedData = htmlData;
+        if (contentToPaste.data) {
+          this.copiedData = contentToPaste.data;
         } else {
-          this.copiedData = this.convertTextToClipboardData(cmd.clipboardContent.text ?? "");
+          this.copiedData = this.convertTextToClipboardData(contentToPaste.text ?? "");
         }
         const pasteOption = cmd.pasteOption;
         this.paste(cmd.target, this.copiedData, {
