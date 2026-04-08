@@ -1517,6 +1517,7 @@ export const enum CommandResult {
   InvalidCarouselItem = "InvalidCarouselItem",
   SheetLocked = "SheetLocked",
   InvalidZoomLevel = "InvalidZoomLevel",
+  SubCommandOnly = "SubCommandOnly",
 }
 
 export interface CommandHandler<T> {

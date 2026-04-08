@@ -1288,6 +1288,16 @@ describe("datasource tests", function () {
   });
 });
 
+test("Top level command DELETE_CHART does not delete chart", () => {
+  const sheetId = model.getters.getActiveSheetId();
+  createChart(model, { type: "line" }, "chartId");
+  expect(model.dispatch("DELETE_CHART", { sheetId, chartId: "chartId" })).toBeCancelledBecause(
+    CommandResult.SubCommandOnly
+  );
+  expect(model.getters.getFigures(sheetId).length).toBe(1);
+  expect(model.getters.getChart("chartId")).toBeDefined();
+});
+
 describe("title", function () {
   test("change title manually", () => {
     createChart(
