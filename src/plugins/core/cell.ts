@@ -363,7 +363,9 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
 
   importCell(sheetId: UID, content?: string, style?: Style, format?: Format): Cell {
     const cellId = this.getNextUid();
-    return this.createCell(cellId, content || "", format, style, sheetId);
+    return this.createCell(cellId, content || "", format, style, sheetId, {
+      avoidAutomaticDateFormat: true,
+    });
   }
 
   exportForExcel(data: ExcelWorkbookData) {
@@ -656,10 +658,11 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
     content: string,
     format: Format | undefined,
     style: Style | undefined,
-    sheetId: UID
+    sheetId: UID,
+    options?: { avoidAutomaticDateFormat: boolean }
   ): Cell {
     if (!content.startsWith("=")) {
-      return this.createLiteralCell(id, content, format, style);
+      return this.createLiteralCell(id, content, format, style, options);
     }
     return this.createFormulaCell(id, content, format, style, sheetId);
   }
@@ -668,16 +671,29 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
     id: UID,
     content: string,
     format: Format | undefined,
-    style: Style | undefined
+    style: Style | undefined,
+    options?: { avoidAutomaticDateFormat: boolean }
   ): LiteralCell {
     const locale = this.getters.getLocale();
-    const parsedValue = parseLiteral(content, locale);
+    let parsedValue = parseLiteral(content, locale);
 
-    format =
-      format ||
-      (typeof parsedValue === "number"
-        ? detectDateFormat(content, locale) || detectNumberFormat(content)
-        : undefined);
+    if (!format && typeof parsedValue === "number") {
+      const dateFormat = detectDateFormat(content, locale);
+      if (options?.avoidAutomaticDateFormat && dateFormat) {
+        return {
+          id,
+          content,
+          style,
+          format,
+          isFormula: false,
+          parsedValue: content,
+        };
+      }
+      format = dateFormat || detectNumberFormat(content);
+    } else {
+      format ||= undefined;
+    }
+
     if (!isTextFormat(format) && !isEvaluationError(content)) {
       content = toString(parsedValue);
     }

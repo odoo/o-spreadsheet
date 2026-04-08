@@ -832,7 +832,7 @@ test("import then export (figures)", () => {
   expect(model).toExport(modelData);
 });
 
-test("import date as string and detect the format", () => {
+test("don't import string as date", () => {
   const model = new Model({
     sheets: [
       {
@@ -840,12 +840,12 @@ test("import date as string and detect the format", () => {
       },
     ],
   });
-  expect(getCell(model, "A1")?.format).toBe("m/d/yyyy");
-  expect(getCell(model, "A1")?.content).toBe("44196");
+  expect(getCell(model, "A1")?.format).toBeUndefined();
+  expect(getCell(model, "A1")?.content).toBe("12/31/2020");
   expect(getEvaluatedCell(model, "A1")?.formattedValue).toBe("12/31/2020");
 });
 
-test("import localized date as string and detect the format", () => {
+test("don't import string as localized date", () => {
   const model = new Model({
     sheets: [
       {
@@ -854,8 +854,8 @@ test("import localized date as string and detect the format", () => {
     ],
     settings: { locale: FR_LOCALE },
   });
-  expect(getCell(model, "A1")?.format).toBe("d/m/yyyy");
-  expect(getCell(model, "A1")?.content).toBe("44196");
+  expect(getCell(model, "A1")?.format).toBeUndefined();
+  expect(getCell(model, "A1")?.content).toBe("31/12/2020");
   expect(getEvaluatedCell(model, "A1")?.formattedValue).toBe("31/12/2020");
 });
 

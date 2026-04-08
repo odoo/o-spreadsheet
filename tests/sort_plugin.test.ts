@@ -88,15 +88,21 @@ describe("Basic Sorting", () => {
           colNumber: 1,
           rowNumber: 6,
           cells: {
-            A1: { content: "11/24/1991", format: dateFormat },
-            A2: { content: "06/06/1944", format: dateFormat },
-            A3: { content: "11/08/2016", format: dateFormat },
-            A4: { content: "09/05/1946", format: dateFormat },
-            A5: { content: "08/18/1969", format: dateFormat },
-            A6: { content: "08/15/1969", format: dateFormat },
+            A1: { content: "11/24/1991" },
+            A2: { content: "06/06/1944" },
+            A3: { content: "11/08/2016" },
+            A4: { content: "09/05/1946" },
+            A5: { content: "08/18/1969" },
+            A6: { content: "08/15/1969" },
+          },
+          formats: {
+            "A1:A6": 1,
           },
         },
       ],
+      formats: {
+        "1": dateFormat,
+      },
     });
     sort(model, {
       zone: "A1:A6",
@@ -172,8 +178,14 @@ describe("Basic Sorting", () => {
             A10: { content: "2020/09/01" },
             A11: { content: "=B1/B2" },
           },
+          formats: {
+            A10: 1,
+          },
         },
       ],
+      formats: {
+        1: "yyyy/mm/dd",
+      },
     });
     sort(model, {
       zone: "A1:A11",
@@ -521,8 +533,10 @@ describe("Sort adjacent columns with headers", () => {
             C3: { content: "09/14/2020" },
             C4: { content: "09/15/2020" },
           },
+          formats: { "C2:C4": 1 },
         },
       ],
+      formats: { 1: "mm/dd/yyyy" },
     });
   });
   test("Presence of header", () => {
@@ -656,6 +670,7 @@ describe("Sort Merges", () => {
           D5: { content: "08/20/2020" },
           D8: { content: "07/20/2020" },
         },
+        formats: { D2: 1, D5: 1, D8: 1 },
         merges: [
           "B2:B4",
           "B5:B7",
@@ -669,6 +684,9 @@ describe("Sort Merges", () => {
         ],
       },
     ],
+    formats: {
+      1: "mm/dd/yyyy",
+    },
   };
   beforeEach(() => {
     model = new Model(modelData);
