@@ -51,9 +51,19 @@ function getConfigForPerf() {
     checks: {
       circularDependency: true,
     },
+    onLog,
     plugins: [canvasMockPlugin()],
     output: [getConfigForFormat("esm")],
   };
+}
+
+function onLog(level, log, defaultHandler) {
+  if (level === "warn") {
+    // escalate all warnings to errors
+    defaultHandler("error", log);
+  } else {
+    defaultHandler(level, log);
+  }
 }
 
 export default defineConfig((cliArgs) => {
@@ -70,6 +80,7 @@ export default defineConfig((cliArgs) => {
       checks: {
         circularDependency: true,
       },
+      onLog,
       plugins: [canvasMockPlugin()],
       output: {
         name: "o_spreadsheet",
@@ -95,6 +106,7 @@ export default defineConfig((cliArgs) => {
       circularDependency: true,
     },
     plugins: [canvasMockPlugin()],
+    onLog,
     output: [
       getConfigForFormat("esm"),
       getConfigForFormat("cjs"),
