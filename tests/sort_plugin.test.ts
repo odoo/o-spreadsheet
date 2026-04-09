@@ -180,8 +180,14 @@ describe("Basic Sorting", () => {
             A10: "2020/09/01",
             A11: "=B1/B2",
           },
+          formats: {
+            A10: 1,
+          },
         },
       ],
+      formats: {
+        1: "yyyy/mm/dd",
+      },
     });
     sort(model, {
       zone: "A1:A11",
@@ -550,8 +556,10 @@ describe("Sort adjacent columns with headers", () => {
             C3: "09/14/2020",
             C4: "09/15/2020",
           },
+          formats: { "C2:C4": 1 },
         },
       ],
+      formats: { 1: "mm/dd/yyyy" },
     });
   });
   test("Presence of header", () => {
@@ -685,6 +693,7 @@ describe("Sort Merges", () => {
           D5: "08/20/2020",
           D8: "07/20/2020",
         },
+        formats: { D2: 1, D5: 1, D8: 1 },
         merges: [
           "B2:B4",
           "B5:B7",
@@ -698,6 +707,9 @@ describe("Sort Merges", () => {
         ],
       },
     ],
+    formats: {
+      1: "mm/dd/yyyy",
+    },
   };
   beforeEach(() => {
     model = new Model(modelData);

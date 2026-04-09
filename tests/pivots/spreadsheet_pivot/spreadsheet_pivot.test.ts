@@ -97,6 +97,12 @@ describe("Spreadsheet Pivot", () => {
     const model = new Model({
       sheets: [
         {
+          formats: {
+            "A2:A3": 1,
+            A4: 2,
+            E2: 1,
+            H4: 1,
+          },
           cells: {
             A1: "Date",
             A2: "04/01/2024",
@@ -136,6 +142,10 @@ describe("Spreadsheet Pivot", () => {
           },
         },
       ],
+      formats: {
+        "1": "mm/dd/yyyy",
+        "2": "mm/dd/yyyy hh:mm:ss a",
+      },
     });
     addPivot(model, "A1:I4", {});
     const fields = model.getters.getPivot("1").getFields();

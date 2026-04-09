@@ -16,6 +16,8 @@ import { ImageProvider } from "../../src/helpers/figures/images/image_provider";
 import {
   batched,
   createRangeFromXc,
+  detectDateFormat,
+  getItemId,
   positions,
   range,
   toCartesian,
@@ -89,6 +91,7 @@ import {
   setFormatting,
   undo,
 } from "./commands_helpers";
+import { EN_LOCALE } from "./constants";
 import { DOMTarget, click, getTarget, getTextNodes, keyDown, keyUp } from "./dom_helper";
 import { getCellContent, getEvaluatedCell } from "./getters_helpers";
 
@@ -471,7 +474,18 @@ export function setGridStyle(model: Model, grid: GridStyleDescr) {
  *   {B5: "5", D8: "2.6", W4: "=round(A2)"} => {B5: 5, D8: 2.6, W4: 3}
  */
 export function evaluateGrid(grid: GridDescr): GridResult {
-  const model = new Model({ sheets: [{ cells: grid }] });
+  const sheetFormats = {};
+  const modelFormats = {};
+  for (const xc in grid) {
+    const format = detectDateFormat(grid[xc] ?? "", EN_LOCALE);
+    if (format) {
+      sheetFormats[xc] = getItemId(format, modelFormats);
+    }
+  }
+  const model = new Model({
+    sheets: [{ cells: grid, formats: sheetFormats }],
+    formats: modelFormats,
+  });
   const result = {};
   for (const xc in grid) {
     result[xc] = getEvaluatedCell(model, xc).value;

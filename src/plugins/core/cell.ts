@@ -341,7 +341,9 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
     if (compiledFormula) {
       return createFormulaCellFromCompiledFormula(cellId, compiledFormula, format, style);
     }
-    return createCell(this.getters, cellId, content || "", format, style, sheetId);
+    return createCell(this.getters, cellId, content || "", format, style, sheetId, {
+      avoidAutomaticDateFormat: true,
+    });
   }
 
   exportForExcel(data: ExcelWorkbookData) {

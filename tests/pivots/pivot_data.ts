@@ -179,6 +179,7 @@ export const pivotModelData = function (xc: string) {
         styles: {},
         formats: {
           "F2:F22": 1,
+          "A2:A22": 2,
         },
         isVisible: true,
         areGridLinesVisible: true,
@@ -186,6 +187,7 @@ export const pivotModelData = function (xc: string) {
     ],
     formats: {
       "1": "[$$]#,##0.00",
+      "2": "m/d/yyyy",
     },
     borders: {},
     revisionId: "fbf5c369-70ff-4a05-929e-859e0608c53a",
