@@ -13,7 +13,7 @@ import { pivotRegistry } from "../../helpers/pivot/pivot_registry";
 import { resetMapValueDimensionDate } from "../../helpers/pivot/spreadsheet_pivot/date_spreadsheet_pivot";
 import { EMPTY_PIVOT_CELL } from "../../helpers/pivot/table_spreadsheet_pivot";
 import { _t } from "../../translation";
-import { FormulaCell } from "../../types/cells";
+import { CellValueType, FormulaCell } from "../../types/cells";
 import {
   AddPivotCommand,
   Command,
@@ -211,22 +211,22 @@ export class PivotUIPlugin extends CoreViewPlugin {
     if (functionName === "PIVOT" && !this.isMainFunctionPivotSpreadFunction(cell)) {
       return EMPTY_PIVOT_CELL;
     }
-    if (functionName === "PIVOT") {
-      const pivotStyle = getPivotStyleFromFnArgs(
-        this.getters.getPivotCoreDefinition(pivotId),
-        toScalar(args[1]),
-        toScalar(args[2]),
-        toScalar(args[3]),
-        toScalar(args[4]),
-        toScalar(args[5]),
-        this.getters.getLocale()
-      );
-      const pivotCells = pivot.getCollapsedTableStructure().getPivotCells(pivotStyle);
-      const pivotCol = position.col - mainPosition.col;
-      const pivotRow = position.row - mainPosition.row;
-      return pivotCells[pivotCol][pivotRow];
-    }
     try {
+      if (functionName === "PIVOT") {
+        const pivotStyle = getPivotStyleFromFnArgs(
+          this.getters.getPivotCoreDefinition(pivotId),
+          toScalar(args[1]),
+          toScalar(args[2]),
+          toScalar(args[3]),
+          toScalar(args[4]),
+          toScalar(args[5]),
+          this.getters.getLocale()
+        );
+        const pivotCells = pivot.getCollapsedTableStructure().getPivotCells(pivotStyle);
+        const pivotCol = position.col - mainPosition.col;
+        const pivotRow = position.row - mainPosition.row;
+        return pivotCells[pivotCol][pivotRow];
+      }
       const offsetRow = position.row - mainPosition.row;
       const offsetCol = position.col - mainPosition.col;
       args = args.map((arg) => (isMatrix(arg) ? arg[offsetCol][offsetRow] : arg));
@@ -357,6 +357,10 @@ export class PivotUIPlugin extends CoreViewPlugin {
     const result: { position: CellPosition; pivotStyle: Required<PivotStyle>; pivotId: UID }[] = [];
     for (const cellId of this.getters.getCellsWithTrackedFormula("PIVOT")) {
       const position = this.getters.getCellPosition(cellId);
+      const evaluatedCell = this.getters.getEvaluatedCell(position);
+      if (evaluatedCell.type === CellValueType.error) {
+        continue;
+      }
       const pivotInfo = this.getPivotStyleAtPosition(position);
       if (pivotInfo) {
         result.push({ position, ...pivotInfo });
