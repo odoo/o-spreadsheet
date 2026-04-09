@@ -16,7 +16,9 @@
     "esModuleInterop": true,
     "allowJs": true,
     "sourceMap": true,
-    "strictBindCallApply": true
+    "strictBindCallApply": true,
+    "noImplicitAny": false,
+    "strict": false
   },
   "include": ["src"]
 }

@@ -41,7 +41,7 @@
     "server": "node tools/server/main.cjs",
     "dist": "tsc --module es6 --declaration --declarationDir dist/types && rolldown -c",
     "postdist": " npm run bundle:xml -- --outDir dist && npm run bundle:css -- --out dist",
-    "test": "tsc --noEmit --project tsconfig.jest.json && jest",
+    "test": "tsc --noEmit --project tests/tsconfig.json && jest",
     "monkey": "SPREADSHEET_MONKEY_COUNT=$npm_config_monkey_count jest 'tests/collaborative/collaborative_monkey_party.test.ts'",
     "zipXlsx": "node tools/bundle_xlsx/zip_xlsx_demo.cjs",
     "unzipXlsx": "node tools/bundle_xlsx/unzip_xlsx_demo.cjs"
@@ -101,7 +101,7 @@
     "prettier-plugin-organize-imports": "^3.2.2",
     "rolldown": "^1.0.0-rc.12",
     "seedrandom": "^3.0.5",
-    "typescript": "^5.8.2",
+    "typescript": "^6.0.2",
     "typescript-eslint": "^8.30.1",
     "wait-on": "^9.0.1",
     "xml-formatter": "^2.4.0"

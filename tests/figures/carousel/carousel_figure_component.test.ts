@@ -354,7 +354,7 @@ describe("Carousel figure component", () => {
       }
       const clipboardContent = clipboard.content;
 
-      const imgData = new window.Chart("test", mockChartData).toBase64Image();
+      const imgData = new window.Chart("test", mockChartData as any).toBase64Image();
 
       expect(clipboardContent).toMatchObject({
         "text/html": `<img src="${xmlEscape(imgData)}" />`,
