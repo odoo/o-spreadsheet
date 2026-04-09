@@ -217,22 +217,22 @@ export class PivotUIPlugin extends CoreViewPlugin {
     ) {
       return EMPTY_PIVOT_CELL;
     }
-    if (functionName === "PIVOT") {
-      const pivotStyle = getPivotStyleFromFnArgs(
-        this.getters.getPivotCoreDefinition(pivotId),
-        toScalar(args[1]),
-        toScalar(args[2]),
-        toScalar(args[3]),
-        toScalar(args[4]),
-        toScalar(args[5]),
-        this.getters.getLocale()
-      );
-      const pivotCells = pivot.getCollapsedTableStructure().getPivotCells(pivotStyle);
-      const pivotCol = position.col - mainPosition.col;
-      const pivotRow = position.row - mainPosition.row;
-      return pivotCells[pivotCol][pivotRow];
-    }
     try {
+      if (functionName === "PIVOT") {
+        const pivotStyle = getPivotStyleFromFnArgs(
+          this.getters.getPivotCoreDefinition(pivotId),
+          toScalar(args[1]),
+          toScalar(args[2]),
+          toScalar(args[3]),
+          toScalar(args[4]),
+          toScalar(args[5]),
+          this.getters.getLocale()
+        );
+        const pivotCells = pivot.getCollapsedTableStructure().getPivotCells(pivotStyle);
+        const pivotCol = position.col - mainPosition.col;
+        const pivotRow = position.row - mainPosition.row;
+        return pivotCells[pivotCol][pivotRow];
+      }
       const offsetRow = position.row - mainPosition.row;
       const offsetCol = position.col - mainPosition.col;
       args = args.map((arg) => (isMatrix(arg) ? arg[offsetCol][offsetRow] : arg));
