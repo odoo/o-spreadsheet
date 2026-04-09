@@ -1,10 +1,11 @@
-import { CommandResult, Model } from "../../src";
+import { CellErrorType, CommandResult, Model } from "../../src";
 import { FORBIDDEN_SHEETNAME_CHARS } from "../../src/constants";
 import { EMPTY_PIVOT_CELL } from "../../src/helpers/pivot/table_spreadsheet_pivot";
 import { toZone } from "../../src/helpers/zones";
+import { getEvaluatedCell } from "../test_helpers";
 import { renameSheet, selectCell, setCellContent } from "../test_helpers/commands_helpers";
 import { createModelFromGrid, toCellPosition } from "../test_helpers/helpers";
-import { addPivot, updatePivot } from "../test_helpers/pivot_helpers";
+import { addPivot, createModelWithPivot, updatePivot } from "../test_helpers/pivot_helpers";
 
 describe("Pivot plugin", () => {
   test("isSpillPivotFormula", () => {
@@ -441,5 +442,16 @@ describe("Pivot plugin", () => {
       pivotId: "pivot1",
     });
     expect(result).toBeCancelledBecause(CommandResult.PivotInError);
+  });
+
+  test("getPivotCellFromPosition shouldn't throw if the pivot formula is invalid", () => {
+    const model = createModelWithPivot("A1:I5");
+    setCellContent(model, "A40", "=PIVOT(1, 10, false.false)");
+    expect(getEvaluatedCell(model, "A40").value).toBe(CellErrorType.BadExpression);
+
+    const sheetId = model.getters.getActiveSheetId();
+    expect(model.getters.getPivotCellFromPosition(toCellPosition(sheetId, "A40"))).toEqual(
+      EMPTY_PIVOT_CELL
+    );
   });
 });
