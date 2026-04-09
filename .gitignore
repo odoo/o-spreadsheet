@@ -13,5 +13,6 @@ debug.log
 tests/__xlsx__/xlsx_demo_data/*
 # Excel temp file
 tests/__xlsx__/~$xlsx_demo_data.xlsx
+tests/**/__diff_output__
 
 tools/owl_templates/_compiled/*
