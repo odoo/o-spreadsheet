@@ -217,20 +217,20 @@ export class PivotUIPlugin extends UIPlugin {
     ) {
       return EMPTY_PIVOT_CELL;
     }
-    if (functionName === "PIVOT") {
-      const includeTotal = toScalar(args[2]);
-      const shouldIncludeTotal = includeTotal === undefined ? true : toBoolean(includeTotal);
-      const includeColumnHeaders = toScalar(args[3]);
-      const shouldIncludeColumnHeaders =
-        includeColumnHeaders === undefined ? true : toBoolean(includeColumnHeaders);
-      const pivotCells = pivot
-        .getTableStructure()
-        .getPivotCells(shouldIncludeTotal, shouldIncludeColumnHeaders);
-      const pivotCol = position.col - mainPosition.col;
-      const pivotRow = position.row - mainPosition.row;
-      return pivotCells[pivotCol][pivotRow];
-    }
     try {
+      if (functionName === "PIVOT") {
+        const includeTotal = toScalar(args[2]);
+        const shouldIncludeTotal = includeTotal === undefined ? true : toBoolean(includeTotal);
+        const includeColumnHeaders = toScalar(args[3]);
+        const shouldIncludeColumnHeaders =
+          includeColumnHeaders === undefined ? true : toBoolean(includeColumnHeaders);
+        const pivotCells = pivot
+          .getTableStructure()
+          .getPivotCells(shouldIncludeTotal, shouldIncludeColumnHeaders);
+        const pivotCol = position.col - mainPosition.col;
+        const pivotRow = position.row - mainPosition.row;
+        return pivotCells[pivotCol][pivotRow];
+      }
       const offsetRow = position.row - mainPosition.row;
       const offsetCol = position.col - mainPosition.col;
       args = args.map((arg) => (isMatrix(arg) ? arg[offsetCol][offsetRow] : arg));
