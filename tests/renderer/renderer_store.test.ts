@@ -31,7 +31,6 @@ import {
   Box,
   DataValidationCriterion,
   GridRenderingContext,
-  Viewport,
   Zone,
 } from "../../src/types";
 import { Mode } from "../../src/types/model";
@@ -59,7 +58,7 @@ import {
 import { getCell } from "../test_helpers/getters_helpers";
 import { createEqualCF, getFingerprint, target, toRangesData } from "../test_helpers/helpers";
 import { createModelWithTestPivotDataset } from "../test_helpers/pivot_helpers";
-import { watchClipboardOutline } from "../test_helpers/renderer_helpers";
+import { MockGridRenderingContext, watchClipboardOutline } from "../test_helpers/renderer_helpers";
 import { makeStoreWithModel } from "../test_helpers/stores";
 
 MockCanvasRenderingContext2D.prototype.measureText = function (text: string) {
@@ -98,12 +97,6 @@ function removeOffsetOfFillStyles(fillStyles: any[]): any[] {
   }));
 }
 
-interface ContextObserver {
-  onSet?(key, val): void;
-  onGet?(key): void;
-  onFunctionCall?(fn: string, args: any[], renderingContext: MockGridRenderingContext): void;
-}
-
 const layerNames = {
   Background: 0,
   Highlights: 1,
@@ -132,45 +125,6 @@ function setRenderer(
   return { model, gridRendererStore, drawGridRenderer, container };
 }
 
-class MockGridRenderingContext implements GridRenderingContext {
-  _context = document.createElement("canvas").getContext("2d");
-  ctx: CanvasRenderingContext2D;
-  viewport: Viewport;
-  dpr = 1;
-  thinLineWidth = 0.4;
-
-  constructor(model: Model, width: number, height: number, observer: ContextObserver) {
-    model.dispatch("RESIZE_SHEETVIEW", { width, height, gridOffsetX: 0, gridOffsetY: 0 });
-    this.viewport = model.getters.getActiveMainViewport();
-
-    const handler = {
-      get: (target, val) => {
-        // roundRect isn't implemented
-        if (val in (this._context as any).__proto__ || val === "roundRect") {
-          return (...args) => {
-            if (observer.onFunctionCall) {
-              observer.onFunctionCall(val, args, this);
-            }
-          };
-        } else {
-          if (observer.onGet) {
-            observer.onGet(val);
-          }
-        }
-        return target[val];
-      },
-      set: (target, key, val) => {
-        if (observer.onSet) {
-          observer.onSet(key, val);
-        }
-        target[key] = val;
-        return true;
-      },
-    };
-    this.ctx = new Proxy({}, handler);
-  }
-}
-
 describe("renderer", () => {
   test("snapshot for a simple grid rendering", () => {
     const { drawGridRenderer, model } = setRenderer(new Model(), [
@@ -180,18 +134,7 @@ describe("renderer", () => {
     ]);
 
     setCellContent(model, "A1", "1");
-    const instructions: string[] = [];
-    const ctx = new MockGridRenderingContext(model, 1000, 1000, {
-      onSet: (key, value) => {
-        instructions.push(`context.${key}=${JSON.stringify(value)};`);
-      },
-      onGet: (key) => {
-        instructions.push(`GET:${key}`);
-      },
-      onFunctionCall: (key, args) => {
-        instructions.push(`context.${key}(${args.map((a) => JSON.stringify(a)).join(", ")})`);
-      },
-    });
+    const ctx = new MockGridRenderingContext(model, 1000, 1000, {}, "nodeCanvas");
     model.dispatch("RESIZE_SHEETVIEW", {
       width: 1000 - HEADER_HEIGHT,
       height: 1000 - HEADER_WIDTH,
@@ -200,8 +143,7 @@ describe("renderer", () => {
     });
 
     drawGridRenderer(ctx);
-
-    expect(instructions).toMatchSnapshot();
+    expect(ctx.screenshot()).toMatchImageSnapshot();
   });
 
   describe("Headers background color", () => {
@@ -1716,7 +1658,7 @@ describe("renderer", () => {
     const ctx = new MockGridRenderingContext(model, 1000, 1000, {
       onFunctionCall: (val, _, renderingContext) => {
         if (val === "strokeRect") {
-          strokeColors.push(renderingContext.ctx.strokeStyle as string);
+          strokeColors.push(toHex(renderingContext.ctx.strokeStyle as string));
         }
       },
     });
@@ -1724,8 +1666,8 @@ describe("renderer", () => {
     // Default Model displaying grid lines
     strokeColors = [];
     drawGridRenderer(ctx);
-    expect(strokeColors).toContain(CELL_BORDER_COLOR);
-    expect(strokeColors).toContain(SELECTION_BORDER_COLOR);
+    expect(strokeColors).toContain(toHex(SELECTION_BORDER_COLOR));
+    expect(strokeColors).toContain(toHex(SELECTION_BORDER_COLOR));
 
     // dashboard mode
     model.updateMode("dashboard");
@@ -1749,7 +1691,7 @@ describe("renderer", () => {
     const ctx = new MockGridRenderingContext(model, 1000, 1000, {
       onFunctionCall: (val, _, renderingContext) => {
         if (val === "strokeRect") {
-          strokeColors.push(renderingContext.ctx.strokeStyle as string);
+          strokeColors.push(toHex(renderingContext.ctx.strokeStyle as string));
         }
       },
     });
@@ -1757,9 +1699,8 @@ describe("renderer", () => {
     // Default Model displaying grid lines
     strokeColors = [];
     drawGridRenderer(ctx);
-
-    expect(strokeColors).toContain(CELL_BORDER_COLOR);
-    expect(strokeColors).toContain(SELECTION_BORDER_COLOR);
+    expect(strokeColors).toContain(toHex(CELL_BORDER_COLOR));
+    expect(strokeColors).toContain(toHex(SELECTION_BORDER_COLOR));
 
     // model without grid lines
     model.dispatch("SET_GRID_LINES_VISIBILITY", { sheetId: "Sheet1", areGridLinesVisible: false });
@@ -1767,8 +1708,8 @@ describe("renderer", () => {
     drawGridRenderer(ctx);
 
     expect(strokeColors).toEqual([
-      SELECTION_BORDER_COLOR, // selection drawGrid
-      SELECTION_BORDER_COLOR, // selection drawGrid
+      toHex(SELECTION_BORDER_COLOR), // selection drawGrid
+      toHex(SELECTION_BORDER_COLOR), // selection drawGrid
     ]);
   });
 
