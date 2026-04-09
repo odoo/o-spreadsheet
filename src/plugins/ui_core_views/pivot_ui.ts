@@ -220,26 +220,26 @@ export class PivotUIPlugin extends CoreViewPlugin {
     ) {
       return EMPTY_PIVOT_CELL;
     }
-    if (functionName === "PIVOT") {
-      const includeTotal = toScalar(args[2]);
-      const shouldIncludeTotal = includeTotal === undefined ? true : toBoolean(includeTotal);
-      const includeColumnHeaders = toScalar(args[3]);
-      const includeMeasures = toScalar(args[5]);
-      const shouldIncludeMeasures =
-        includeMeasures === undefined ? true : toBoolean(includeMeasures);
-      const shouldIncludeColumnHeaders =
-        includeColumnHeaders === undefined ? true : toBoolean(includeColumnHeaders);
-      const visibilityOptions: PivotVisibilityOptions = {
-        displayColumnHeaders: shouldIncludeColumnHeaders,
-        displayTotals: shouldIncludeTotal,
-        displayMeasuresRow: shouldIncludeMeasures,
-      };
-      const pivotCells = pivot.getCollapsedTableStructure().getPivotCells(visibilityOptions);
-      const pivotCol = position.col - mainPosition.col;
-      const pivotRow = position.row - mainPosition.row;
-      return pivotCells[pivotCol][pivotRow];
-    }
     try {
+      if (functionName === "PIVOT") {
+        const includeTotal = toScalar(args[2]);
+        const shouldIncludeTotal = includeTotal === undefined ? true : toBoolean(includeTotal);
+        const includeColumnHeaders = toScalar(args[3]);
+        const includeMeasures = toScalar(args[5]);
+        const shouldIncludeMeasures =
+          includeMeasures === undefined ? true : toBoolean(includeMeasures);
+        const shouldIncludeColumnHeaders =
+          includeColumnHeaders === undefined ? true : toBoolean(includeColumnHeaders);
+        const visibilityOptions: PivotVisibilityOptions = {
+          displayColumnHeaders: shouldIncludeColumnHeaders,
+          displayTotals: shouldIncludeTotal,
+          displayMeasuresRow: shouldIncludeMeasures,
+        };
+        const pivotCells = pivot.getCollapsedTableStructure().getPivotCells(visibilityOptions);
+        const pivotCol = position.col - mainPosition.col;
+        const pivotRow = position.row - mainPosition.row;
+        return pivotCells[pivotCol][pivotRow];
+      }
       const offsetRow = position.row - mainPosition.row;
       const offsetCol = position.col - mainPosition.col;
       args = args.map((arg) => (isMatrix(arg) ? arg[offsetCol][offsetRow] : arg));
