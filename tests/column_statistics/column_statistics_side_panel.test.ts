@@ -135,7 +135,7 @@ describe("column statistics sidePanel component", () => {
     window.Chart = jest
       .fn()
       .mockImplementation(function (ctx: CanvasRenderingContext2D, config: ChartConfiguration) {
-        return new ChartMock(ctx, config);
+        return new ChartMock(ctx, config as any);
       }) as any;
 
     await nextTick();

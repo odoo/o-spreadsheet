@@ -126,7 +126,10 @@ export function drawChartOnCanvas(
       throw new Error(`Chart of type "${config.type}" is not registered in Chart.js library.`);
     }
 
-    const chart = new globalThis.Chart(canvas as HTMLCanvasElement, config as ChartConfiguration);
+    const chart = new globalThis.Chart(
+      canvas as HTMLCanvasElement,
+      config as ChartConfiguration<any>
+    );
     return () => {
       chart.destroy();
       if (!extensionsLoaded) {
