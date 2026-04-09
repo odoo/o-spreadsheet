@@ -47,10 +47,11 @@ export function createCell(
   content: string,
   format: Format | undefined,
   style: Style | undefined,
-  sheetId: UID
+  sheetId: UID,
+  options?: { avoidAutomaticDateFormat: boolean }
 ): Cell {
   if (!content.startsWith("=")) {
-    return createLiteralCell(getters, id, content, format, style);
+    return createLiteralCell(getters, id, content, format, style, options);
   }
   return createFormulaCell(getters, id, content, format, style, sheetId);
 }
@@ -60,16 +61,29 @@ export function createLiteralCell(
   id: number,
   content: string,
   format: Format | undefined,
-  style: Style | undefined
+  style: Style | undefined,
+  options?: { avoidAutomaticDateFormat: boolean }
 ): LiteralCell {
   const locale = getters.getLocale();
   const parsedValue = parseLiteral(content, locale);
 
-  format =
-    format ||
-    (typeof parsedValue === "number"
-      ? detectDateFormat(content, locale) || detectNumberFormat(content)
-      : undefined);
+  if (!format && typeof parsedValue === "number") {
+    const dateFormat = detectDateFormat(content, locale);
+    if (options?.avoidAutomaticDateFormat && dateFormat) {
+      return {
+        id,
+        content,
+        style,
+        format,
+        isFormula: false,
+        parsedValue: content,
+      };
+    }
+    format = dateFormat || detectNumberFormat(content);
+  } else {
+    format ||= undefined;
+  }
+
   if (!isTextFormat(format) && !content.startsWith("'") && !isEvaluationError(content)) {
     content = toString(parsedValue);
   }

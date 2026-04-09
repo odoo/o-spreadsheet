@@ -580,6 +580,11 @@ describe("history", () => {
               A3: "2000",
               B2: "TRUE",
             },
+            formats: {
+              A1: 1,
+              A3: 1,
+              B2: 1,
+            },
           },
           {
             id: sheet2Id,
@@ -590,8 +595,17 @@ describe("history", () => {
               A3: "12-31-2020",
               B2: "TRUE",
             },
+            formats: {
+              A1: 1,
+              A3: 2,
+              B2: 1,
+            },
           },
         ],
+        formats: {
+          "1": "#,##0",
+          "2": "mm-dd-yyyy",
+        },
       });
       expect(getRangeValues(model, "A1:A3", sheet1Id)).toEqual([1000, null, 2000]);
       expect(getRangeValues(model, "$A$1:$A$3", sheet1Id)).toEqual([1000, null, 2000]);
