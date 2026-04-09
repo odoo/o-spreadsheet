@@ -8,18 +8,6 @@ export class UuidGenerator {
     if (typeof globalThis !== "undefined" && globalThis.crypto) {
       return globalThis.crypto;
     }
-    // Node.js: try to require('crypto').webcrypto
-    if (typeof require === "function") {
-      try {
-        const askKindly = require; // prevent odoo bundler to try to resolve 'crypto' module
-        const nodeCrypto = askKindly("crypto");
-        if (nodeCrypto.webcrypto) {
-          return nodeCrypto.webcrypto;
-        }
-      } catch (e) {
-        // ignore
-      }
-    }
     return undefined;
   }
 
