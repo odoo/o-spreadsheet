@@ -1,5 +1,6 @@
 import { Component } from "@odoo/owl";
 import { ActionSpec } from "../../../../actions/action";
+import { UuidGenerator } from "../../../../helpers";
 import { _t } from "../../../../translation";
 import { CommandResult, UID } from "../../../../types";
 import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
@@ -52,8 +53,8 @@ export class PivotTitleSection extends Component<Props, SpreadsheetChildEnv> {
   }
 
   duplicatePivot() {
-    const newPivotId = this.env.model.uuidGenerator.smallUuid();
-    const newSheetId = this.env.model.uuidGenerator.smallUuid();
+    const newPivotId = UuidGenerator.smallUuid();
+    const newSheetId = UuidGenerator.smallUuid();
     const result = this.env.model.dispatch("DUPLICATE_PIVOT_IN_NEW_SHEET", {
       pivotId: this.props.pivotId,
       newPivotId,

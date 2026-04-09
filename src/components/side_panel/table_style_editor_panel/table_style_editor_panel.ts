@@ -1,6 +1,6 @@
 import { Component, useExternalListener, useState } from "@odoo/owl";
-import { isColorValid } from "../../../helpers";
-import { TABLE_STYLES_TEMPLATES, buildTableStyle } from "../../../helpers/table_presets";
+import { isColorValid, UuidGenerator } from "../../../helpers";
+import { buildTableStyle, TABLE_STYLES_TEMPLATES } from "../../../helpers/table_presets";
 import { Color, TableConfig, TableStyle, TableStyleTemplateName } from "../../../types";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
 import { cssPropertiesToCss } from "../../helpers";
@@ -67,7 +67,7 @@ export class TableStyleEditorPanel extends Component<
   }
 
   onConfirm() {
-    const tableStyleId = this.props.styleId || this.env.model.uuidGenerator.smallUuid();
+    const tableStyleId = this.props.styleId || UuidGenerator.smallUuid();
     this.env.model.dispatch("CREATE_TABLE_STYLE", {
       tableStyleId,
       tableStyleName: this.state.styleName,

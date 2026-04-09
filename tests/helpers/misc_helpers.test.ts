@@ -283,12 +283,11 @@ describe("UUID", () => {
   test("Can generate UUID on environnement missing window.crypto", () => {
     jest.spyOn(window, "crypto", "get").mockReturnValue(undefined as unknown as Crypto);
 
-    const uuidGenerator = new UuidGenerator();
-    expect(uuidGenerator.uuidv4()).toEqual(expect.any(String));
-    expect(uuidGenerator.uuidv4()).toEqual(expect.any(String));
+    expect(UuidGenerator.uuidv4()).toEqual(expect.any(String));
+    expect(UuidGenerator.uuidv4()).toEqual(expect.any(String));
 
-    expect(uuidGenerator.smallUuid()).toEqual(expect.any(String));
-    expect(uuidGenerator.smallUuid()).toEqual(expect.any(String));
+    expect(UuidGenerator.smallUuid()).toEqual(expect.any(String));
+    expect(UuidGenerator.smallUuid()).toEqual(expect.any(String));
   });
 
   test("Can generate UUID on environnement with window.crypto", () => {
@@ -303,12 +302,11 @@ describe("UUID", () => {
     };
     jest.spyOn(window, "crypto", "get").mockReturnValue(mockCrypto as Crypto);
 
-    const uuidGenerator = new UuidGenerator();
-    expect(uuidGenerator.uuidv4()).toBe("17698da6-740c-4ed3-bde7-60faf206d0e5");
-    expect(uuidGenerator.uuidv4()).toBe("b69741c8-91fd-4ed2-8724-8a56cc8c66db");
+    expect(UuidGenerator.uuidv4()).toBe("17698da6-740c-4ed3-bde7-60faf206d0e5");
+    expect(UuidGenerator.uuidv4()).toBe("b69741c8-91fd-4ed2-8724-8a56cc8c66db");
 
-    expect(uuidGenerator.smallUuid()).toBe("61025c5c-7a2d");
-    expect(uuidGenerator.smallUuid()).toBe("2262468c-923d");
+    expect(UuidGenerator.smallUuid()).toBe("61025c5c-7a2d");
+    expect(UuidGenerator.smallUuid()).toBe("2262468c-923d");
   });
 });
 

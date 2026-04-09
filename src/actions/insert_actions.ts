@@ -1,5 +1,5 @@
 import { functionRegistry } from "../functions/function_registry";
-import { isDefined } from "../helpers";
+import { isDefined, UuidGenerator } from "../helpers";
 import { handlePasteResult } from "../helpers/ui/paste_interactive";
 import { _t } from "../translation";
 import { ActionBuilder, ActionSpec } from "./action";
@@ -299,7 +299,7 @@ export const insertCheckbox: ActionSpec = {
       ranges,
       sheetId,
       rule: {
-        id: env.model.uuidGenerator.smallUuid(),
+        id: UuidGenerator.smallUuid(),
         criterion: {
           type: "isBoolean",
           values: [],
@@ -317,7 +317,7 @@ export const insertDropdown: ActionSpec = {
     const zones = env.model.getters.getSelectedZones();
     const sheetId = env.model.getters.getActiveSheetId();
     const ranges = zones.map((zone) => env.model.getters.getRangeDataFromZone(sheetId, zone));
-    const ruleId = env.model.uuidGenerator.smallUuid();
+    const ruleId = UuidGenerator.smallUuid();
     env.model.dispatch("ADD_DATA_VALIDATION_RULE", {
       ranges,
       sheetId,
@@ -351,7 +351,7 @@ export const insertSheet: ActionSpec = {
   execute: (env) => {
     const activeSheetId = env.model.getters.getActiveSheetId();
     const position = env.model.getters.getSheetIds().indexOf(activeSheetId) + 1;
-    const sheetId = env.model.uuidGenerator.smallUuid();
+    const sheetId = UuidGenerator.smallUuid();
     env.model.dispatch("CREATE_SHEET", {
       sheetId,
       position,

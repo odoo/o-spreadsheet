@@ -8,6 +8,7 @@ import {
   splitReference,
   toUnboundedZone,
   toZone,
+  UuidGenerator,
   zoneToXc,
 } from "../../../../../helpers";
 import { createDataSets } from "../../../../../helpers/figures/charts";
@@ -244,7 +245,7 @@ export class ChartRangeDataSourceComponent extends Component<Props, SpreadsheetC
    */
   onDataSeriesRangesChanged(ranges: string[]) {
     this.dataSets = ranges.map((dataRange, i) => ({
-      dataSetId: this.dataSets?.[i]?.dataSetId ?? this.env.model.uuidGenerator.smallUuid(),
+      dataSetId: this.dataSets?.[i]?.dataSetId ?? UuidGenerator.smallUuid(),
       dataRange,
     }));
     this.state.datasetDispatchResult = this.props.canUpdateChart(this.props.chartId, {
@@ -475,12 +476,10 @@ export class ChartRangeDataSourceComponent extends Component<Props, SpreadsheetC
     datasetOrientation: ChartDatasetOrientation | undefined
   ): { dataRange: string; dataSetId: UID }[] {
     const getters = this.env.model.getters;
-    const uuidGenerator = this.env.model.uuidGenerator;
-    const smallUuid = uuidGenerator.smallUuid.bind(uuidGenerator);
     if (datasetOrientation === undefined) {
       return dataRanges
         .filter(isDefined)
-        .map((dataRange) => ({ dataRange, dataSetId: smallUuid() }));
+        .map((dataRange) => ({ dataRange, dataSetId: UuidGenerator.smallUuid() }));
     }
     const zonesBySheetName = {};
     const transposedDatasets: ChartRangeDataSourceType<string>["dataSets"] = [];
@@ -497,7 +496,7 @@ export class ChartRangeDataSourceComponent extends Component<Props, SpreadsheetC
       if (!isXcRepresentation(dataRange)) {
         return dataRanges
           .filter(isDefined)
-          .map((dataRange) => ({ dataRange, dataSetId: smallUuid() }));
+          .map((dataRange) => ({ dataRange, dataSetId: UuidGenerator.smallUuid() }));
       }
       let { sheetName, xc } = splitReference(dataRange);
       sheetName = sheetName ?? name;
@@ -517,7 +516,7 @@ export class ChartRangeDataSourceComponent extends Component<Props, SpreadsheetC
               left: col,
               right: col,
             })}`;
-            transposedDatasets.push({ dataRange, dataSetId: smallUuid() });
+            transposedDatasets.push({ dataRange, dataSetId: UuidGenerator.smallUuid() });
           }
         }
       } else {
@@ -528,7 +527,7 @@ export class ChartRangeDataSourceComponent extends Component<Props, SpreadsheetC
               top: row,
               bottom: row,
             })}`;
-            transposedDatasets.push({ dataRange, dataSetId: smallUuid() });
+            transposedDatasets.push({ dataRange, dataSetId: UuidGenerator.smallUuid() });
           }
         }
       }

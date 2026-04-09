@@ -4,7 +4,7 @@
 
 export class UuidGenerator {
   // Helper to get a crypto object in any environment
-  private getCrypto(): Crypto | undefined {
+  private static getCrypto(): Crypto | undefined {
     if (typeof globalThis !== "undefined" && globalThis.crypto) {
       return globalThis.crypto;
     }
@@ -32,7 +32,7 @@ export class UuidGenerator {
    * as they will appear several times in the revisions and local history.
    *
    */
-  smallUuid(): string {
+  static smallUuid(): string {
     const cryptoObj = this.getCrypto();
     if (cryptoObj) {
       return "10000000-1000".replace(/[01]/g, (c) => {
@@ -55,7 +55,7 @@ export class UuidGenerator {
    * Generates an UUIDV4, has astronomically low chance of collision, but is larger in size than the smallUuid.
    * This method should be used when you need to avoid collisions at all costs, like the id of a revision.
    */
-  uuidv4(): string {
+  static uuidv4(): string {
     const cryptoObj = this.getCrypto();
     if (cryptoObj) {
       return "10000000-1000-4000-8000-100000000000".replace(/[018]/g, (c) => {

@@ -52,7 +52,7 @@ export class CarouselClipboardHandler extends AbstractFigureClipboardHandler<Cli
   }
 
   getPasteTarget(sheetId: UID): ClipboardPasteTarget {
-    const newId = new UuidGenerator().smallUuid();
+    const newId = UuidGenerator.smallUuid();
     return { zones: [], figureId: newId, sheetId };
   }
 
@@ -84,14 +84,13 @@ export class CarouselClipboardHandler extends AbstractFigureClipboardHandler<Cli
       size: { height, width },
     });
 
-    const uuidGenerator = new UuidGenerator();
     const items = deepCopy(clippedContent.copiedCarousel.items);
     for (const item of items) {
       if (item.type !== "chart") {
         continue;
       }
       const chart = clippedContent.copiedCharts[item.chartId];
-      const newId = uuidGenerator.smallUuid();
+      const newId = UuidGenerator.smallUuid();
       const definition = SpreadsheetChart.fromDefinition(
         this.getters,
         sheetId,
