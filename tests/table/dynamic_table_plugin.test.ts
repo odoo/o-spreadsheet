@@ -336,6 +336,13 @@ describe("Dynamic tables", () => {
       expect(pivotTables[0].zone).toBe("A3:B5");
     });
 
+    test("Pivot formulas in error do not create a dynamic table", () => {
+      updatePivot(model, "1", { style: { tableStyleId: "PivotTableStyleMedium9" } });
+      setCellContent(model, "A3", "=PIVOT(1, 10, false.false)");
+
+      expect(getTables(model, sheetId)).toHaveLength(0);
+    });
+
     test("Tables from pivots are not exported", async () => {
       updatePivot(model, "1", { style: { tableStyleId: "PivotTableStyleMedium9" } });
       expect(getTables(model, sheetId)).toHaveLength(1);
