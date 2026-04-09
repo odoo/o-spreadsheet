@@ -1,3 +1,4 @@
+import { MatchImageSnapshotOptions, configureToMatchImageSnapshot } from "jest-image-snapshot";
 import { Model } from "../../src";
 import { isSameColor, toHex } from "../../src/helpers/color";
 import { toXC } from "../../src/helpers/coordinates";
@@ -41,6 +42,7 @@ declare global {
       toHaveClass(className: string): R;
       toHaveAttribute(attribute: string, value: string): R;
       toHaveStyle(style: Record<string, string>): R;
+      toMatchImageSnapshot(options?: MatchImageSnapshotOptions): R;
     }
     interface Expect {
       toBeBetween(lower: number, upper: number): ExpectResult;
@@ -60,7 +62,12 @@ function getPrettyEvaluatedCells(model: Model, sheetId: string, zone: Zone) {
   });
 }
 
+const toMatchImageSnapshot = configureToMatchImageSnapshot({
+  dumpDiffToConsole: false, // Print the base64 dif in the console. Can be useful for remote tests.
+});
+
 expect.extend({
+  toMatchImageSnapshot,
   toExport(model: Model, expected: any) {
     const exportData = model.exportData();
     if (

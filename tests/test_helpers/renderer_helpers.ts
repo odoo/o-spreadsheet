@@ -1,3 +1,8 @@
+import {
+  Canvas as NodeCanvas,
+  CanvasRenderingContext2D as NodeCanvasRenderingContext2D,
+  createCanvas,
+} from "canvas";
 import { Model, RenderingGetters, UID } from "../../src";
 import { getDefaultSheetViewSize } from "../../src/constants";
 import { GridRenderingContext, Viewport, Zone } from "../../src/types";
@@ -18,24 +23,34 @@ interface ContextObserver {
  * A mock rendering context for testing purposes. By default it has no gridOffset to draw headers.
  */
 export class MockGridRenderingContext implements GridRenderingContext {
-  _context = document.createElement("canvas").getContext("2d");
+  _context: NodeCanvasRenderingContext2D | RenderingContext;
   ctx: CanvasRenderingContext2D;
   viewport: Viewport;
   dpr = 1;
   thinLineWidth = 0.4;
   getters: RenderingGetters;
+  private canvas: NodeCanvas | HTMLCanvasElement;
 
-  constructor(private model: Model, width: number, height: number, observer: ContextObserver) {
+  constructor(
+    private model: Model,
+    width: number,
+    height: number,
+    observer: ContextObserver,
+    private mode: "nodeCanvas" | "mockCanvas" = "mockCanvas"
+  ) {
     this.getters = model.getters;
-    resizeSheetView(model, height, width, 0, 0);
+    resizeSheetView(model, width, height, 0, 0);
     this.viewport = model.getters.getActiveMainViewport();
 
     const handler = {
       get: (target, val) => {
-        if (val in (this._context as any).__proto__ || val === "roundRect") {
+        if (typeof target[val] === "function") {
           return (...args) => {
             if (observer.onFunctionCall) {
               observer.onFunctionCall(val, args, this);
+            }
+            if (val !== "drawImage") {
+              return target[val].apply(target, args);
             }
           };
         } else {
@@ -53,7 +68,20 @@ export class MockGridRenderingContext implements GridRenderingContext {
         return true;
       },
     };
-    this.ctx = new Proxy({}, handler);
+
+    this.canvas =
+      mode === "nodeCanvas" ? createCanvas(width, height) : document.createElement("canvas");
+    this.canvas = createCanvas(width, height);
+
+    this._context = this.canvas.getContext("2d")!;
+    this.ctx = new Proxy(this._context, handler);
+  }
+
+  screenshot() {
+    if (this.mode === "mockCanvas") {
+      throw new Error("screenshot is not available with a mockCanvas");
+    }
+    return (this.canvas as NodeCanvas).toBuffer("image/png");
   }
 
   get sheetId(): UID {
