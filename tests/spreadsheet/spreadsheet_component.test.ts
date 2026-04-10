@@ -1,4 +1,4 @@
-import { Component, useSubEnv, xml } from "@odoo/owl";
+import { xml } from "@odoo/owl";
 import { CommandResult, Model, setDefaultSheetViewSize, Spreadsheet } from "../../src";
 import { OPEN_CF_SIDEPANEL_ACTION } from "../../src/actions/menu_items_actions";
 import { CellComposerStore } from "../../src/components/composer/composer/cell_composer_store";
@@ -10,6 +10,7 @@ import {
 } from "../../src/constants";
 import { functionRegistry } from "../../src/functions/function_registry";
 import { toZone } from "../../src/helpers";
+import { Component, useSubEnv } from "../../src/owl3_compatibility_layer";
 import { HighlightStore } from "../../src/stores/highlight_store";
 import { SpreadsheetChildEnv } from "../../src/types/spreadsheet_env";
 import { toChartDataSource } from "../test_helpers/chart_helpers";
@@ -43,6 +44,7 @@ import {
   startGridComposition,
   typeInComposerGrid,
   typeInComposerTopBar,
+  useJestFakeTimers,
 } from "../test_helpers/helpers";
 import { extendMockGetBoundingClientRect } from "../test_helpers/mock_helpers";
 
@@ -446,7 +448,7 @@ test("cell icon takes over a focused selection input", async () => {
 });
 
 test("cell popovers to be closed on clicking outside grid", async () => {
-  jest.useFakeTimers();
+  useJestFakeTimers();
   ({ model, fixture } = await mountSpreadsheet());
 
   setCellContent(model, "A1", "=SUM(");

@@ -1,10 +1,11 @@
-import { Component, onMounted, onWillUnmount, useEffect, useRef } from "@odoo/owl";
+import { onMounted, onWillUnmount } from "@odoo/owl";
 import { Chart, ChartConfiguration } from "chart.js/auto";
 import { deepCopy, deepEquals } from "../../../../helpers";
 import {
   chartJsExtensionRegistry,
   registerChartJSExtensions,
 } from "../../../../helpers/figures/charts/chart_js_extension";
+import { Component, useLayoutEffect, useRef } from "../../../../owl3_compatibility_layer";
 import { Store, useStore } from "../../../../store_engine";
 import { UID } from "../../../../types";
 import { ChartJSRuntime } from "../../../../types/chart/chart";
@@ -114,7 +115,7 @@ export class ChartJsComponent extends Component<Props, SpreadsheetChildEnv> {
       this.createChart(deepCopy(runtime));
     });
     onWillUnmount(this.unmount.bind(this));
-    useEffect(() => {
+    useLayoutEffect(() => {
       const runtime = this.chartRuntime;
       if (runtime !== this.currentRuntime) {
         if (runtime.chartJsConfig.type !== this.currentRuntime.chartJsConfig.type) {

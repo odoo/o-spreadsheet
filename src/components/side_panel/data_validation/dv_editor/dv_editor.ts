@@ -1,6 +1,7 @@
-import { Component, ComponentConstructor, useState } from "@odoo/owl";
+import { proxy } from "@odoo/owl";
 import { zoneToXc } from "../../../../helpers";
 import { canonicalizeContent, localizeDataValidationRule } from "../../../../helpers/locale";
+import { Component, ComponentConstructor } from "../../../../owl3_compatibility_layer";
 import {
   criterionComponentRegistry,
   getCriterionValueAndLabels,
@@ -45,7 +46,7 @@ export class DataValidationEditor extends Component<Props, SpreadsheetChildEnv> 
     onCloseSidePanel: Function,
   };
 
-  state = useState<State>({
+  state = proxy<State>({
     rule: this.defaultDataValidationRule,
     errors: [],
     isTypeUpdated: false,

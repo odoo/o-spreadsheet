@@ -8,7 +8,7 @@ exports[`Grid component simple rendering snapshot 1`] = `
 >
   <div
     class="position-absolute"
-    style="top:26px; left:48px; height:calc(100% - 41px); width:calc(100% - 63px); cursor:default; "
+    style="top: 26px; left: 48px; height: calc(100% - 41px); width: calc(100% - 63px); cursor: default;"
   >
     <div
       class="position-absolute"
@@ -20,12 +20,12 @@ exports[`Grid component simple rendering snapshot 1`] = `
   </div>
   <div
     class="o-grid-overlay overflow-hidden o-zoomable"
-    style="top:26px; left:48px; height:calc(100% - 41px); width:calc(100% - 63px); cursor:default; "
+    style="top: 26px; left: 48px; height: calc(100% - 41px); width: calc(100% - 63px); cursor: default;"
   >
     
     <div
       class="o-grid-add-rows mt-2 ms-2 w-100 d-flex position-relative align-items-center"
-      style="top:2300px; "
+      style="top: 2300px;"
     >
       <button
         class="o-button flex-grow-0 me-2"
@@ -112,11 +112,11 @@ exports[`Grid component simple rendering snapshot 1`] = `
   
   <div
     class="o-autofill"
-    style="top:45px; left:140px; visibility:visible; "
+    style="top: 45px; left: 140px; visibility: visible;"
   />
   <div
     class="o-autofill-handler"
-    style="top:45px; left:140px; "
+    style="top: 45px; left: 140px;"
   />
   
   
@@ -128,19 +128,19 @@ exports[`Grid component simple rendering snapshot 1`] = `
   
   <div
     class="o-scrollbar vertical"
-    style="top:26px; right:0px; width:15px; bottom:0; "
+    style="top: 26px; right: 0px; width: 15px; bottom: 0px;"
   >
     <div
-      style="width:1px; height:2346px; "
+      style="width: 1px; height: 2346px;"
     />
   </div>
   
   <div
     class="o-scrollbar horizontal"
-    style="left:48px; bottom:0px; height:15px; right:0; "
+    style="left: 48px; bottom: 0px; height: 15px; right: 0px;"
   >
     <div
-      style="width:2496px; height:1px; "
+      style="width: 2496px; height: 1px;"
     />
   </div>
   

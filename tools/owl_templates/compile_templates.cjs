@@ -7,7 +7,9 @@ const TEMPLATE_FILE_PATH = path.join(__dirname, "./_compiled/owl_compiled_templa
 function importOwl() {
   // Owl need some web globals to work properly. Import them from JSDOM if we are in node and that JSDOM is not loaded.
   if (global.window) {
-    return require("@odoo/owl");
+    const owl = require("@odoo/owl");
+    const { App } = require("../../src/owl3_compatibility_layer.ts");
+    return { ...owl, App };
   }
   const jsdom = require("jsdom");
   const defaultHtml =
@@ -24,7 +26,9 @@ function importOwl() {
   global.DOMParser = window.DOMParser;
   window.requestAnimationFrame = () => {};
 
-  return require("@odoo/owl");
+  const owl = require("@odoo/owl");
+  const { App } = require("../../src/owl3_compatibility_layer.ts");
+  return { ...owl, App };
 }
 
 // Taken from OWL repo
@@ -43,7 +47,7 @@ function slugify(str) {
 function compileTemplates() {
   const owl = importOwl();
   const parsedXMl = getParsedOwlTemplateBundle();
-  const app = new owl.App(owl.Component, { test: true });
+  const app = new owl.App({ test: true });
   const compiledTemplates = {};
   for (const template of parsedXMl.querySelectorAll("[t-name]")) {
     const name = template.getAttribute("t-name");

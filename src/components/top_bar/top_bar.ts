@@ -1,15 +1,13 @@
-import {
-  Component,
-  onWillStart,
-  onWillUpdateProps,
-  useEffect,
-  useExternalListener,
-  useRef,
-  useState,
-} from "@odoo/owl";
+import { onWillStart, onWillUpdateProps, proxy } from "@odoo/owl";
 import { Action } from "../../actions/action";
 import { setStyle } from "../../actions/menu_items_actions";
 import { DEFAULT_FONT_SIZE } from "../../constants";
+import {
+  Component,
+  useExternalListener,
+  useLayoutEffect,
+  useRef,
+} from "../../owl3_compatibility_layer";
 import { formatNumberMenuItemSpec } from "../../registries/menus";
 import { topbarMenuRegistry } from "../../registries/menus/topbar_menu_registry";
 import { topbarComponentRegistry } from "../../registries/topbar_component_registry";
@@ -57,7 +55,7 @@ export class TopBar extends Component<Props, SpreadsheetChildEnv> {
 
   toolsCategories = topBarToolBarRegistry.getCategories();
 
-  state: State = useState({
+  state: State = proxy({
     menuState: { isOpen: false, anchorRect: null, menuItems: [] },
     invisibleToolsCategories: [],
     toolsPopoverState: { isOpen: false },
@@ -91,7 +89,7 @@ export class TopBar extends Component<Props, SpreadsheetChildEnv> {
     onWillStart(() => this.updateCellState());
     onWillUpdateProps(() => this.updateCellState());
 
-    useEffect(
+    useLayoutEffect(
       () => {
         this.state.toolsPopoverState.isOpen = false;
         this.setVisibilityToolsGroups();

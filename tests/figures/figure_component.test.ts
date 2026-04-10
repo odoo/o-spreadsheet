@@ -1,4 +1,4 @@
-import { Component, xml } from "@odoo/owl";
+import { xml } from "@odoo/owl";
 import { Model, Spreadsheet } from "../../src";
 import {
   DEFAULT_CELL_HEIGHT,
@@ -9,6 +9,7 @@ import {
   MENU_WIDTH,
   ZOOM_VALUES,
 } from "../../src/constants";
+import { Component } from "../../src/owl3_compatibility_layer";
 import { Figure, Pixel, Position, UID } from "../../src/types";
 
 import { FigureComponent } from "../../src/components/figures/figure/figure";

@@ -1,5 +1,4 @@
-import { Component } from "@odoo/owl";
-
+import { Component } from "../../../../../owl3_compatibility_layer";
 import { chartDataSourceSidePanelComponentRegistry } from "../../../../../registries/chart_data_source_component_registry";
 import { ChartDefinitionWithDataSource, UID } from "../../../../../types";
 import { SpreadsheetChildEnv } from "../../../../../types/spreadsheet_env";

@@ -3,12 +3,11 @@
 exports[`figures selected figure snapshot 1`] = `
 <div
   class="o-figure-wrapper o-figure-selected"
-  style="left:1px; top:1px; width:100px; height:100px; "
+  style="left: 1px; top: 1px; width: 100px; height: 100px;"
 >
   <div
     class="o-figure w-100 h-100"
     data-id="someuuid"
-    style=""
     tabindex="0"
   >
     <div
@@ -79,35 +78,35 @@ exports[`figures selected figure snapshot 1`] = `
   </div>
   <div
     class="o-fig-anchor o-top pe-auto"
-    style="top:-3px; right:calc(50% - 3px); "
+    style="top: -3px; right: calc(50% - 3px);"
   />
   <div
     class="o-fig-anchor o-topRight pe-auto"
-    style="top:-3px; right:-3px; "
+    style="top: -3px; right: -3px;"
   />
   <div
     class="o-fig-anchor o-right pe-auto"
-    style="bottom:calc(50% - 3px); right:-3px; "
+    style="bottom: calc(50% - 3px); right: -3px;"
   />
   <div
     class="o-fig-anchor o-bottomRight pe-auto"
-    style="bottom:-3px; right:-3px; "
+    style="bottom: -3px; right: -3px;"
   />
   <div
     class="o-fig-anchor o-bottom pe-auto"
-    style="bottom:-3px; right:calc(50% - 3px); "
+    style="bottom: -3px; right: calc(50% - 3px);"
   />
   <div
     class="o-fig-anchor o-bottomLeft pe-auto"
-    style="bottom:-3px; left:-3px; "
+    style="bottom: -3px; left: -3px;"
   />
   <div
     class="o-fig-anchor o-left pe-auto"
-    style="bottom:calc(50% - 3px); left:-3px; "
+    style="bottom: calc(50% - 3px); left: -3px;"
   />
   <div
     class="o-fig-anchor o-topLeft pe-auto"
-    style="top:-3px; left:-3px; "
+    style="top: -3px; left: -3px;"
   />
   
 </div>

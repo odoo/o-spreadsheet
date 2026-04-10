@@ -1,4 +1,5 @@
-import { Component, onMounted, onWillUnmount, useRef, useState } from "@odoo/owl";
+import { onMounted, onWillUnmount, proxy } from "@odoo/owl";
+import { Component, useRef } from "../../owl3_compatibility_layer";
 import { Rect } from "../../types";
 import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 import { cssPropertiesToCss, getElementMargins } from "../helpers/css";
@@ -138,7 +139,7 @@ export class Ripple extends Component<RippleProps, SpreadsheetChildEnv> {
 
   private childContainer = useRef("childContainer");
 
-  private state = useState<RippleState>({ ripples: [] });
+  private state = proxy<RippleState>({ ripples: [] });
 
   private currentId = 1;
 

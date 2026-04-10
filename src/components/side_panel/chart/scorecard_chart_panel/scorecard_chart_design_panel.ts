@@ -1,4 +1,3 @@
-import { Component } from "@odoo/owl";
 import {
   DEFAULT_SCORECARD_BASELINE_FONT_SIZE,
   DEFAULT_SCORECARD_KEY_VALUE_FONT_SIZE,
@@ -17,6 +16,7 @@ import { GeneralDesignEditor } from "../building_blocks/general_design/general_d
 import { ChartHumanizeNumbers } from "../building_blocks/humanize_numbers/humanize_numbers";
 import { ChartSidePanelProps, ChartSidePanelPropsObject } from "../common";
 
+import { Component } from "../../../../owl3_compatibility_layer";
 type ColorPickerId = undefined | "backgroundColor" | "baselineColorUp" | "baselineColorDown";
 
 export class ScorecardChartDesignPanel extends Component<

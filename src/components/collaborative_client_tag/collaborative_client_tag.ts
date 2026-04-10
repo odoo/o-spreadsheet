@@ -1,8 +1,8 @@
-import { Component } from "@odoo/owl";
 import { Color, HeaderIndex } from "../../types";
 import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 import { cssPropertiesToCss } from "../helpers/css";
 
+import { Component } from "../../owl3_compatibility_layer";
 interface ClientTagProps {
   active: boolean;
   name: string;

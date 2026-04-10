@@ -1,4 +1,3 @@
-import { Component } from "@odoo/owl";
 import { deepCopy } from "../../../../helpers";
 import { getUniquePivotGroupName } from "../../../../helpers/pivot/pivot_helpers";
 import { _t } from "../../../../translation";
@@ -13,6 +12,7 @@ import { TextInput } from "../../../text_input/text_input";
 import { Checkbox } from "../../components/checkbox/checkbox";
 import { SidePanelCollapsible } from "../../components/collapsible/side_panel_collapsible";
 
+import { Component } from "../../../../owl3_compatibility_layer";
 export interface Props {
   pivotId: UID;
   customField: PivotCustomGroupedField;

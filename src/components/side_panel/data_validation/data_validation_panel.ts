@@ -1,9 +1,9 @@
-import { Component } from "@odoo/owl";
 import { localizeDataValidationRule } from "../../../helpers/locale";
 import { DataValidationRule } from "../../../types";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
 import { DataValidationPreview } from "./dv_preview/dv_preview";
 
+import { Component } from "../../../owl3_compatibility_layer";
 interface Props {
   onCloseSidePanel: () => void;
 }

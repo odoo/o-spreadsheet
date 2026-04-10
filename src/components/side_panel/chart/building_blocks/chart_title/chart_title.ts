@@ -1,10 +1,10 @@
-import { Component } from "@odoo/owl";
-import { TitleDesign } from "../../../../../types";
 import { SpreadsheetChildEnv } from "../../../../../types/spreadsheet_env";
 import { TextInput } from "../../../../text_input/text_input";
 import { Section } from "../../../components/section/section";
 import { TextStyler } from "../text_styler/text_styler";
 
+import { Component } from "../../../../../owl3_compatibility_layer";
+import { TitleDesign } from "../../../../../types";
 interface Props {
   title?: string;
   placeholder?: string;

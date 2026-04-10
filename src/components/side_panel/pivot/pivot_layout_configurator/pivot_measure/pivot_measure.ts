@@ -1,4 +1,3 @@
-import { Component } from "@odoo/owl";
 import { PIVOT_TOKEN_COLOR } from "../../../../../constants";
 import { CompiledFormula } from "../../../../../formulas/compiler";
 import { Token } from "../../../../../formulas/tokenizer";
@@ -13,6 +12,7 @@ import { Select } from "../../../../select/select";
 import { measureDisplayTerms } from "../../../../translations_terms";
 import { PivotDimension } from "../pivot_dimension/pivot_dimension";
 
+import { Component } from "../../../../../owl3_compatibility_layer";
 interface Props {
   pivotId: string;
   definition: PivotRuntimeDefinition;

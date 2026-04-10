@@ -1,11 +1,11 @@
 <templates>
   <t t-name="o-spreadsheet-SingleInputCriterionForm">
     <CriterionInput
-      value="props.criterion.values[0]"
-      onValueChanged.bind="onValueChanged"
-      criterionType="props.criterion.type"
-      disableFormulas="props.disableFormulas"
-      focused="props.autofocus"
+      value="this.props.criterion.values[0]"
+      onValueChanged.bind="this.onValueChanged"
+      criterionType="this.props.criterion.type"
+      disableFormulas="this.props.disableFormulas"
+      focused="this.props.autofocus"
     />
   </t>
 </templates>

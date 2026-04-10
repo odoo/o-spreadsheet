@@ -1,4 +1,5 @@
-import { Component, useState } from "@odoo/owl";
+import { proxy } from "@odoo/owl";
+import { Component } from "../../../../../owl3_compatibility_layer";
 import { ChartDefinitionWithDataSource } from "../../../../../types";
 import { SpreadsheetChildEnv } from "../../../../../types/spreadsheet_env";
 import { ChartTerms } from "../../../../translations_terms";
@@ -27,7 +28,7 @@ export class GenericChartConfigPanel<
   static props = ChartSidePanelPropsObject;
 
   protected chartTerms = ChartTerms;
-  protected state: GenericChartPanelState = useState({
+  protected state: GenericChartPanelState = proxy({
     errorMessages: [],
   });
 

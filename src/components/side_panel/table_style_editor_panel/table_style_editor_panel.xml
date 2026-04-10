@@ -2,22 +2,22 @@
   <t t-name="o-spreadsheet-TableStyleEditorPanel">
     <div class="o-table-style-editor-panel">
       <Section title.translate="Style name">
-        <input type="text" class="o-input" t-model="state.styleName"/>
+        <input type="text" class="o-input" t-custom-model="this.state.styleName"/>
       </Section>
       <Section class="'pt-1'" title.translate="Style color">
         <RoundColorPicker
-          currentColor="state.primaryColor"
-          onColorPicked.bind="onColorPicked"
+          currentColor="this.state.primaryColor"
+          onColorPicked.bind="this.onColorPicked"
           disableNoColor="true"
         />
       </Section>
       <Section class="'pt-1'" title.translate="Style template">
         <div class="d-flex flex-wrap">
-          <t t-foreach="tableTemplates" t-as="templateName" t-key="templateName">
+          <t t-foreach="this.tableTemplates" t-as="templateName" t-key="templateName">
             <TableStylePreview
-              selected="templateName === state.selectedTemplateName"
-              tableConfig="previewTableConfig"
-              tableStyle="computeTableStyle(templateName)"
+              selected="templateName === this.state.selectedTemplateName"
+              tableConfig="this.previewTableConfig"
+              tableStyle="this.computeTableStyle(templateName)"
               onClick="() => this.onTemplatePicked(templateName)"
               type="'table'"
             />
@@ -27,13 +27,13 @@
       <Section>
         <div class="o-sidePanelButtons">
           <button
-            t-if="props.styleId"
-            t-on-click="onDelete"
+            t-if="this.props.styleId"
+            t-on-click="this.onDelete"
             class="o-delete o-button-danger o-button">
             Delete
           </button>
-          <button t-on-click="onCancel" class="o-cancel o-button">Discard</button>
-          <button t-on-click="onConfirm" class="o-confirm o-button primary">Confirm</button>
+          <button t-on-click="this.onCancel" class="o-cancel o-button">Discard</button>
+          <button t-on-click="this.onConfirm" class="o-confirm o-button primary">Confirm</button>
         </div>
       </Section>
     </div>

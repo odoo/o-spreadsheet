@@ -7,7 +7,6 @@ exports[`Panel color picker Can render a panel color picker component 1`] = `
   >
     <div
       class="o-round-color-picker-button rounded-circle border"
-      style=""
     />
     
   </div>

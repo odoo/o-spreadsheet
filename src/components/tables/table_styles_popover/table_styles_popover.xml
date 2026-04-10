@@ -1,39 +1,39 @@
 <templates>
   <t t-name="o-spreadsheet-TableStylesPopover">
-    <Popover t-if="props.popoverProps" t-props="props.popoverProps">
+    <Popover t-if="this.props.popoverProps" t-props="this.props.popoverProps">
       <div
         class="o-table-style-popover d-flex flex-column py-3"
-        t-ref="tableStyleList"
+        t-custom-ref="tableStyleList"
         t-on-contextmenu.prevent="">
         <div class="d-flex o-notebook ps-4 mb-3">
           <div
-            t-foreach="Object.keys(categories)"
+            t-foreach="Object.keys(this.categories)"
             t-as="category"
             t-key="category"
             class="o-notebook-tab d-flex align-items-center border"
-            t-att-class="{ 'selected': state.selectedCategory === category }"
-            t-on-click="() => state.selectedCategory = category"
+            t-att-class="{ 'selected': this.state.selectedCategory === category }"
+            t-on-click="() => this.state.selectedCategory = category"
             t-att-data-id="category"
-            t-out="categories[category_value]"
+            t-out="this.categories[category_value]"
           />
         </div>
         <div
           class="d-flex flex-wrap px-4"
-          t-att-class="props.type === 'pivot' ? 'o-pivot-previews' : 'o-table-previews'">
-          <t t-foreach="displayedStyles" t-as="styleId" t-key="styleId">
+          t-att-class="this.props.type === 'pivot' ? 'o-pivot-previews' : 'o-table-previews'">
+          <t t-foreach="this.displayedStyles" t-as="styleId" t-key="styleId">
             <TableStylePreview
               styleId="styleId"
-              selected="styleId === props.selectedStyleId"
-              tableConfig="props.tableConfig"
-              tableStyle="props.tableStyles[styleId]"
+              selected="styleId === this.props.selectedStyleId"
+              tableConfig="this.props.tableConfig"
+              tableStyle="this.props.tableStyles[styleId]"
               onClick="() => this.props.onStylePicked(styleId)"
-              type="props.type"
+              type="this.props.type"
             />
           </t>
           <div
-            t-if="state.selectedCategory === 'custom'"
+            t-if="this.state.selectedCategory === 'custom'"
             class="o-new-table-style o-table-style-list-item o-table-style-popover-preview d-flex justify-content-center align-items-center"
-            t-on-click="newTableStyle">
+            t-on-click="this.newTableStyle">
             +
           </div>
         </div>

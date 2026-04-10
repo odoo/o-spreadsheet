@@ -1,5 +1,6 @@
-import { Component, onMounted, useExternalListener, useRef, useState } from "@odoo/owl";
+import { onMounted, proxy } from "@odoo/owl";
 import { Action, getMenuItemsAndSeparators } from "../../../actions/action";
+import { Component, useExternalListener, useRef } from "../../../owl3_compatibility_layer";
 import { topbarMenuRegistry } from "../../../registries/menus";
 import { _t } from "../../../translation";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
@@ -30,7 +31,7 @@ export class RibbonMenu extends Component<RibbonMenuProps, SpreadsheetChildEnv> 
   private menuRef = useRef("menu");
   private containerRef = useRef("container");
 
-  state: State = useState({
+  state: State = proxy({
     menuItems: this.rootItems,
     title: _t("Menu Bar"),
     parentState: undefined,

@@ -3,7 +3,12 @@ import { SidePanels } from "../../src/components/side_panel/side_panels/side_pan
 import { SpreadsheetChildEnv } from "../../src/types/spreadsheet_env";
 import { setCellContent } from "../test_helpers/commands_helpers";
 import { click, setInputValueAndTrigger, simulateClick } from "../test_helpers/dom_helper";
-import { mountComponentWithPortalTarget, nextTick, setGrid } from "../test_helpers/helpers";
+import {
+  mountComponentWithPortalTarget,
+  nextTick,
+  setGrid,
+  useJestFakeTimers,
+} from "../test_helpers/helpers";
 import { addPivot, updatePivot } from "../test_helpers/pivot_helpers";
 
 describe("Spreadsheet pivot side panel", () => {
@@ -115,7 +120,7 @@ describe("Spreadsheet pivot side panel", () => {
     updatePivot(model, "1", { style: { numberOfRows: 5, numberOfColumns: 10 } });
     await nextTick();
 
-    jest.useFakeTimers();
+    useJestFakeTimers();
     await setInputValueAndTrigger("input.o-pivot-n-of-rows", "olà");
     await setInputValueAndTrigger("input.o-pivot-n-of-columns", "");
     jest.advanceTimersByTime(1000);

@@ -1,4 +1,3 @@
-import { ComponentConstructor } from "@odoo/owl";
 import { DateCriterionForm } from "../components/side_panel/criterion_form/date_criterion/date_criterion";
 import { DoubleInputCriterionForm } from "../components/side_panel/criterion_form/double_input_criterion/double_input_criterion";
 import { SingleInputCriterionForm } from "../components/side_panel/criterion_form/single_input_criterion/single_input_criterion";
@@ -9,6 +8,7 @@ import { GenericCriterionType, ValueAndLabel } from "../types";
 import { criterionEvaluatorRegistry } from "./criterion_registry";
 import { Registry } from "./registry";
 
+import { ComponentConstructor } from "../owl3_compatibility_layer";
 export type CriterionCategory = "text" | "date" | "number" | "misc" | "list" | "relative";
 export const criterionCategoriesSequences: Record<CriterionCategory, number> = {
   list: 10,

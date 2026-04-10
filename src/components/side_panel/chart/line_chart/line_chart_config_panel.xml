@@ -4,28 +4,28 @@
       <Section class="'pt-0'">
         <Checkbox
           name="'stacked'"
-          label="stackedLabel"
-          value="props.definition.stacked"
-          onChange.bind="onUpdateStacked"
+          label="this.stackedLabel"
+          value="this.props.definition.stacked"
+          onChange.bind="this.onUpdateStacked"
           className="'mb-2'"
         />
         <Checkbox
           name="'cumulative'"
-          label="chartTerms.CumulativeData"
-          value="props.definition.cumulative"
-          onChange.bind="onUpdateCumulative"
+          label="this.chartTerms.CumulativeData"
+          value="this.props.definition.cumulative"
+          onChange.bind="this.onUpdateCumulative"
         />
       </Section>
       <ChartDataSourceComponent
-        chartId="props.chartId"
-        definition="props.definition"
-        updateChart="props.updateChart"
-        canUpdateChart="props.canUpdateChart"
-        onErrorMessagesChanged.bind="onErrorMessagesChanged"
-        getLabelRangeOptions.bind="getLabelRangeOptions"
+        chartId="this.props.chartId"
+        definition="this.props.definition"
+        updateChart="this.props.updateChart"
+        canUpdateChart="this.props.canUpdateChart"
+        onErrorMessagesChanged.bind="this.onErrorMessagesChanged"
+        getLabelRangeOptions.bind="this.getLabelRangeOptions"
       />
 
-      <ChartErrorSection t-if="errorMessages.length" messages="errorMessages"/>
+      <ChartErrorSection t-if="this.errorMessages.length" messages="this.errorMessages"/>
     </div>
   </t>
 </templates>

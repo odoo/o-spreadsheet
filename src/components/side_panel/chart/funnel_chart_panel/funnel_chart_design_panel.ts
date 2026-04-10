@@ -1,4 +1,3 @@
-import { Component } from "@odoo/owl";
 import { replaceItemAtIndex } from "../../../../helpers";
 import { getFunnelLabelColors } from "../../../../helpers/figures/charts/runtime";
 import { _t } from "../../../../translation";
@@ -12,6 +11,7 @@ import { ChartHumanizeNumbers } from "../building_blocks/humanize_numbers/humani
 import { ChartShowValues } from "../building_blocks/show_values/show_values";
 import { ChartSidePanelProps } from "../common";
 
+import { Component } from "../../../../owl3_compatibility_layer";
 export class FunnelChartDesignPanel extends Component<
   ChartSidePanelProps<FunnelChartDefinition<string>>,
   SpreadsheetChildEnv

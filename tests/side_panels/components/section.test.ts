@@ -1,5 +1,6 @@
-import { Component, xml } from "@odoo/owl";
+import { xml } from "@odoo/owl";
 import { Section } from "../../../src/components/side_panel/components/section/section";
+import { Component } from "../../../src/owl3_compatibility_layer";
 import { SpreadsheetChildEnv } from "../../../src/types/spreadsheet_env";
 import { mountComponent } from "../../test_helpers/helpers";
 
@@ -12,7 +13,7 @@ describe("Section", () => {
     class SectionContainer extends Component<Props, SpreadsheetChildEnv> {
       static template = xml/* xml */ `
     <div class="container">
-      <Section t-props="props">
+      <Section t-props="this.props">
         <div class="content">My content</div>
       </Section>
     </div>
@@ -29,7 +30,7 @@ describe("Section", () => {
     class SectionContainer extends Component<Props, SpreadsheetChildEnv> {
       static template = xml/* xml */ `
     <div class="container">
-      <Section t-props="props">
+      <Section t-props="this.props">
         <t t-set-slot="title">My title</t>
         <div class="content">My content</div>
       </Section>
@@ -47,7 +48,7 @@ describe("Section", () => {
     class SectionContainer extends Component<Props, SpreadsheetChildEnv> {
       static template = xml/* xml */ `
     <div class="container">
-      <Section t-props="props" title.translate="My title">
+      <Section t-props="this.props" title.translate="My title">
         <div class="content">My content</div>
       </Section>
     </div>
@@ -64,7 +65,7 @@ describe("Section", () => {
     class SectionContainer extends Component<Props, SpreadsheetChildEnv> {
       static template = xml/* xml */ `
     <div class="container">
-      <Section t-props="props" title.translate="My title from props">
+      <Section t-props="this.props" title.translate="My title from props">
       <t t-set-slot="title">My title from slot</t>
         <div class="content">My content</div>
       </Section>

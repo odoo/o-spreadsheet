@@ -1,4 +1,3 @@
-import { Component } from "@odoo/owl";
 import { getDefinedAxis } from "../../../../helpers/figures/charts";
 import { _t } from "../../../../translation";
 import { ChartDefinitionWithDataSource } from "../../../../types";
@@ -16,6 +15,7 @@ import { SeriesWithAxisDesignEditor } from "../building_blocks/series_design/ser
 import { ChartShowValues } from "../building_blocks/show_values/show_values";
 import { ChartSidePanelProps, ChartSidePanelPropsObject } from "../common";
 
+import { Component } from "../../../../owl3_compatibility_layer";
 export class ChartWithAxisDesignPanel<
   P extends ChartSidePanelProps<ChartDefinitionWithDataSource<string>>
 > extends Component<P, SpreadsheetChildEnv> {

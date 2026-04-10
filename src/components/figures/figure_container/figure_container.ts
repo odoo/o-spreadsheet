@@ -1,7 +1,8 @@
-import { Component, onMounted, onWillUpdateProps, useState } from "@odoo/owl";
+import { onMounted, onWillUpdateProps, proxy } from "@odoo/owl";
 import { DRAG_THRESHOLD, MIN_FIG_SIZE } from "../../../constants";
 import { isDefined } from "../../../helpers";
 import { rectUnion } from "../../../helpers/rectangle";
+import { Component } from "../../../owl3_compatibility_layer";
 import { figureRegistry } from "../../../registries/figures_registry";
 import { AnchorOffset, Figure, FigureUI, Rect, ResizeDirection, UID } from "../../../types/index";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
@@ -107,7 +108,7 @@ export class FiguresContainer extends Component<Props, SpreadsheetChildEnv> {
   static props = {};
   static components = { FigureComponent };
 
-  dnd = useState<DndState>({
+  dnd = proxy<DndState>({
     draggedFigure: undefined,
     horizontalSnap: undefined,
     verticalSnap: undefined,

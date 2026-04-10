@@ -1,4 +1,5 @@
-import { Component, useState } from "@odoo/owl";
+import { proxy } from "@odoo/owl";
+import { Component } from "../../../../owl3_compatibility_layer";
 import { GaugeChartDefinition } from "../../../../types/chart/gauge_chart";
 import { CommandResult, DispatchResult } from "../../../../types/index";
 import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
@@ -19,7 +20,7 @@ export class GaugeChartConfigPanel extends Component<
   static components = { ChartErrorSection, ChartDataSeries };
   static props = ChartSidePanelPropsObject;
 
-  private state: PanelState = useState({
+  private state: PanelState = proxy({
     dataRangeDispatchResult: undefined,
   });
 

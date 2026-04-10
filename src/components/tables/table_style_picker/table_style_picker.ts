@@ -1,4 +1,5 @@
-import { Component, useState } from "@odoo/owl";
+import { proxy } from "@odoo/owl";
+import { Component } from "../../../owl3_compatibility_layer";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
 import { TableConfig, TableStyle } from "../../../types/table";
 import { PopoverProps } from "../../popover/popover";
@@ -29,7 +30,7 @@ export class TableStylePicker extends Component<TableStylePickerProps, Spreadshe
     type: String,
   };
 
-  state = useState<TableStylePickerState>({ popoverProps: undefined });
+  state = proxy<TableStylePickerState>({ popoverProps: undefined });
 
   getDisplayedTableStyles(): string[] {
     const allStyles = this.props.tableStyles;

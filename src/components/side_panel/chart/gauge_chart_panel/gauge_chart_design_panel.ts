@@ -1,7 +1,8 @@
-import { Component, useState } from "@odoo/owl";
+import { proxy } from "@odoo/owl";
 import { isMultipleElementMatrix, toScalar } from "../../../../functions/helper_matrices";
 import { tryToNumber } from "../../../../functions/helpers";
 import { deepCopy } from "../../../../helpers/index";
+import { Component } from "../../../../owl3_compatibility_layer";
 import { _t } from "../../../../translation";
 import { GaugeChartDefinition, SectionRule } from "../../../../types/chart/gauge_chart";
 import { Color, CommandResult, ValueAndLabel } from "../../../../types/index";
@@ -42,7 +43,7 @@ export class GaugeChartDesignPanel extends Component<
   protected state!: PanelState;
 
   setup() {
-    this.state = useState<PanelState>({
+    this.state = proxy<PanelState>({
       sectionRuleCancelledReasons: this.checkSectionRuleFormulasAreValid(
         this.props.definition.sectionRule
       ),

@@ -4,40 +4,40 @@
       <Section title.translate="Separator">
         <Select
           class="'mb-3'"
-          values="separators"
-          selectedValue="state.separatorValue"
-          onChange.bind="onSeparatorChange"
+          values="this.separators"
+          selectedValue="this.state.separatorValue"
+          onChange.bind="this.onSeparatorChange"
         />
 
         <input
           class="o-input mb-3"
           type="text"
-          t-if="state.separatorValue === 'custom'"
-          t-att-value="state.customSeparator"
-          t-on-input="updateCustomSeparator"
+          t-if="this.state.separatorValue === 'custom'"
+          t-att-value="this.state.customSeparator"
+          t-on-input="this.updateCustomSeparator"
           placeholder="Add any characters or symbol"
         />
 
         <t t-set="addColumnsLabel">Add new columns to avoid overwriting cells</t>
         <Checkbox
-          value="state.addNewColumns"
+          value="this.state.addNewColumns"
           label="addColumnsLabel"
-          onChange.bind="updateAddNewColumnsCheckbox"
+          onChange.bind="this.updateAddNewColumnsCheckbox"
         />
       </Section>
       <Section>
         <div class="o-sidePanelButtons">
           <button
             class="o-button primary"
-            t-att-class="{'o-disabled': isConfirmDisabled}"
-            t-on-click="confirm">
+            t-att-class="{'o-disabled': this.isConfirmDisabled}"
+            t-on-click="this.confirm">
             Confirm
           </button>
         </div>
       </Section>
-      <Section t-if="errorMessages.length || warningMessages.length" class="'pb-0 pt-2'">
-        <ValidationMessages messages="errorMessages" msgType="'error'"/>
-        <ValidationMessages messages="warningMessages" msgType="'warning'"/>
+      <Section t-if="this.errorMessages.length || this.warningMessages.length" class="'pb-0 pt-2'">
+        <ValidationMessages messages="this.errorMessages" msgType="'error'"/>
+        <ValidationMessages messages="this.warningMessages" msgType="'warning'"/>
       </Section>
     </div>
   </t>

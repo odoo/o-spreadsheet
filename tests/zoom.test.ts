@@ -3,12 +3,12 @@ import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH, ZOOM_VALUES } from "../src/con
 import { setCellContent, setZoom } from "./test_helpers/commands_helpers";
 import { clickCell, clickHeader, hoverCell } from "./test_helpers/dom_helper";
 import { getSelectionAnchorCellXc } from "./test_helpers/getters_helpers";
-import { mountSpreadsheet, nextTick } from "./test_helpers/helpers";
+import { mountSpreadsheet, nextTick, useJestFakeTimers } from "./test_helpers/helpers";
 
 let fixture: HTMLElement;
 let model: Model;
 
-jest.useFakeTimers();
+useJestFakeTimers();
 
 afterAll(() => {
   jest.useRealTimers();

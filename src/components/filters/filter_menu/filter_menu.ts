@@ -1,6 +1,7 @@
-import { Component, onWillUpdateProps } from "@odoo/owl";
+import { onWillUpdateProps } from "@odoo/owl";
 import { deepEquals, isDateTimeFormat } from "../../../helpers";
 import { interactiveSort } from "../../../helpers/sort_interactive";
+import { Component } from "../../../owl3_compatibility_layer";
 import {
   CellValueType,
   CriterionFilter,

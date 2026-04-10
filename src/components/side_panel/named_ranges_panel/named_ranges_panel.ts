@@ -1,4 +1,3 @@
-import { Component } from "@odoo/owl";
 import { getUniqueText } from "../../../helpers";
 import { _t } from "../../../translation";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
@@ -6,6 +5,7 @@ import { SelectionInput } from "../../selection_input/selection_input";
 import { TextInput } from "../../text_input/text_input";
 import { NamedRangePreview } from "./named_range_preview/named_range_preview";
 
+import { Component } from "../../../owl3_compatibility_layer";
 interface Props {
   onCloseSidePanel: () => void;
 }

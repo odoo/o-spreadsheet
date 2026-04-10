@@ -1,4 +1,4 @@
-import { Component, xml } from "@odoo/owl";
+import { xml } from "@odoo/owl";
 import { Action, ActionSpec, createActions } from "../../src/actions/action";
 import { MenuPopover } from "../../src/components/menu_popover/menu_popover";
 import {
@@ -11,6 +11,7 @@ import {
 } from "../../src/constants";
 import { toXC } from "../../src/helpers";
 import { Model } from "../../src/model";
+import { Component } from "../../src/owl3_compatibility_layer";
 import { cellMenuRegistry } from "../../src/registries/menus/cell_menu_registry";
 import { resizeSheetView, setCellContent } from "../test_helpers/commands_helpers";
 import {
@@ -33,6 +34,7 @@ import {
   mountComponent,
   mountSpreadsheet,
   nextTick,
+  useJestFakeTimers,
 } from "../test_helpers/helpers";
 import { extendMockGetBoundingClientRect } from "../test_helpers/mock_helpers";
 
@@ -43,7 +45,7 @@ let fixture: HTMLElement;
 let model: Model;
 let parent: Component;
 
-jest.useFakeTimers();
+useJestFakeTimers();
 
 async function mouseOverMenuElement(target: DOMTarget) {
   const element = getTarget(target);
@@ -165,15 +167,23 @@ const subMenu: Action[] = createActions([
   }),
 ]);
 
-class ContextMenuParent extends Component {
+interface Props {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  config: any;
+}
+
+class ContextMenuParent extends Component<Props> {
   static template = xml/* xml */ `
     <div class="o-spreadsheet">
       <MenuPopover
         onClose="() => this.onClose()"
-        anchorRect="anchorRect"
-        menuItems="menus"
-        width="props.config.menuWidth"
-        popoverPositioning="props.config.popoverPositioning"
+        anchorRect="this.anchorRect"
+        menuItems="this.menus"
+        width="this.props.config.menuWidth"
+        popoverPositioning="this.props.config.popoverPositioning"
       />
     </div>
   `;
@@ -183,8 +193,8 @@ class ContextMenuParent extends Component {
   anchorRect: Rect;
   onClose!: () => void;
 
-  constructor(props, env, node) {
-    super(props, env, node);
+  constructor(props) {
+    super(props);
     this.onClose = this.props.config.onClose || (() => {});
     this.anchorRect = this.props.config.anchorRect || {
       x: this.props.x,
@@ -193,7 +203,7 @@ class ContextMenuParent extends Component {
       height: 0,
     };
     this.menus = this.props.config.menuItems || createActions([makeTestMenuItem("Action")]);
-    resizeSheetView(this.env.model, this.props.heigth, this.props.width);
+    resizeSheetView(this.env.model, this.props.height, this.props.width);
   }
 }
 

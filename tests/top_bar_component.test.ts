@@ -1,4 +1,4 @@
-import { Component, xml } from "@odoo/owl";
+import { xml } from "@odoo/owl";
 import { Model } from "../src";
 import { CellComposerStore } from "../src/components/composer/composer/cell_composer_store";
 import { PaintFormatStore } from "../src/components/paint_format_button/paint_format_store";
@@ -6,6 +6,7 @@ import { TopBar } from "../src/components/top_bar/top_bar";
 import { topBarToolBarRegistry } from "../src/components/top_bar/top_bar_tools_registry";
 import { DEFAULT_FONT_SIZE } from "../src/constants";
 import { toZone, zoneToXc } from "../src/helpers";
+import { Component } from "../src/owl3_compatibility_layer";
 import { topbarMenuRegistry } from "../src/registries/menus";
 import { topbarComponentRegistry } from "../src/registries/topbar_component_registry";
 import { Currency, Pixel, Style } from "../src/types";
@@ -102,7 +103,7 @@ class Parent extends Component<any, SpreadsheetChildEnv> {
     <div class="o-spreadsheet">
       <TopBar
         onClick="() => {}"
-        dropdownMaxHeight="gridHeight"/>
+        dropdownMaxHeight="this.gridHeight"/>
     </div>
   `;
   static components = { TopBar };
@@ -686,7 +687,7 @@ describe("TopBar component", () => {
     expect(fixture.querySelectorAll(".o-topbar-test2")).toHaveLength(1);
 
     comp1Visibility = true;
-    parent.render();
+    parent.render(true);
     await nextTick();
     expect(fixture.querySelectorAll(".o-topbar-test1")).toHaveLength(1);
     expect(fixture.querySelectorAll(".o-topbar-test2")).toHaveLength(1);

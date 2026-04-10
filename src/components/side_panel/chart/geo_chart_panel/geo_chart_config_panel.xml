@@ -2,22 +2,22 @@
   <t t-name="o-spreadsheet-GeoChartConfigPanel">
     <div>
       <GeoChartRegionSelectSection
-        chartId="props.chartId"
-        definition="props.definition"
-        updateChart="props.updateChart"
+        chartId="this.props.chartId"
+        definition="this.props.definition"
+        updateChart="this.props.updateChart"
       />
 
       <ChartDataSourceComponent
-        chartId="props.chartId"
-        definition="props.definition"
-        updateChart="props.updateChart"
-        canUpdateChart="props.canUpdateChart"
-        onErrorMessagesChanged.bind="onErrorMessagesChanged"
-        getLabelRangeOptions.bind="getLabelRangeOptions"
+        chartId="this.props.chartId"
+        definition="this.props.definition"
+        updateChart="this.props.updateChart"
+        canUpdateChart="this.props.canUpdateChart"
+        onErrorMessagesChanged.bind="this.onErrorMessagesChanged"
+        getLabelRangeOptions.bind="this.getLabelRangeOptions"
         labelRangeTitle.translate="Territories"
       />
 
-      <ChartErrorSection t-if="errorMessages.length" messages="errorMessages"/>
+      <ChartErrorSection t-if="this.errorMessages.length" messages="this.errorMessages"/>
     </div>
   </t>
 </templates>

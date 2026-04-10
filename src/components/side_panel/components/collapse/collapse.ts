@@ -1,4 +1,5 @@
-import { Component, onMounted, onWillUpdateProps, useRef } from "@odoo/owl";
+import { onMounted, onWillUpdateProps } from "@odoo/owl";
+import { Component, useRef } from "../../../../owl3_compatibility_layer";
 
 import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
 

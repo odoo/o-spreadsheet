@@ -1,4 +1,4 @@
-import { Component, useSubEnv, xml } from "@odoo/owl";
+import { xml } from "@odoo/owl";
 import { Model } from "../../src";
 import { Highlight } from "../../src/components/highlight/highlight/highlight";
 import {
@@ -8,6 +8,7 @@ import {
   ZOOM_VALUES,
 } from "../../src/constants";
 import { toHex, toZone } from "../../src/helpers";
+import { Component, useSubEnv } from "../../src/owl3_compatibility_layer";
 import { Color, Pixel, Range } from "../../src/types";
 import { merge, resizeSheetView, setZoom } from "../test_helpers/commands_helpers";
 import { edgeScrollDelay, triggerMouseEvent } from "../test_helpers/dom_helper";
@@ -17,6 +18,7 @@ import {
   nextTick,
   startGridComposition,
   typeInComposerGrid,
+  useJestFakeTimers,
 } from "../test_helpers/helpers";
 
 // As we test an isolated component, grid and gridOverlay won't exist
@@ -128,7 +130,7 @@ interface Props {
 class Parent extends Component<Props> {
   static components = { Highlight };
   static template = xml/*xml*/ `
-    <Highlight range="props.range" color="props.color"/>
+    <Highlight range="this.props.range" color="this.props.color"/>
   `;
   static props = { ...Highlight.props, model: Object };
 
@@ -763,7 +765,7 @@ describe.each(ZOOM_VALUES)(
     let width: Pixel;
     let height: Pixel;
     beforeEach(async () => {
-      jest.useFakeTimers();
+      useJestFakeTimers();
       ({ model, fixture } = await mountSpreadsheet());
       zoom = zoomValue / 100;
       setZoom(model, zoom);

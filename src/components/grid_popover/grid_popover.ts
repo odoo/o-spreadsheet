@@ -1,4 +1,3 @@
-import { Component } from "@odoo/owl";
 import { useStore } from "../../store_engine/store_hooks";
 import { Rect } from "../../types";
 import { ClosedCellPopover, PositionedCellPopoverComponent } from "../../types/cell_popovers";
@@ -8,6 +7,7 @@ import { getZoomedRect } from "../helpers/zoom";
 import { CellPopoverStore } from "../popover";
 import { Popover } from "../popover/popover";
 
+import { Component } from "../../owl3_compatibility_layer";
 interface Props {
   gridRect: Rect;
   onClosePopover: () => void;

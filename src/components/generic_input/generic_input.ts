@@ -1,4 +1,5 @@
-import { Component, onMounted, onWillUpdateProps, useExternalListener, useRef } from "@odoo/owl";
+import { onMounted, onWillUpdateProps } from "@odoo/owl";
+import { Component, useExternalListener, useRef } from "../../owl3_compatibility_layer";
 import { Ref } from "../../types";
 import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 import { useAutofocus } from "../helpers/autofocus_hook";
