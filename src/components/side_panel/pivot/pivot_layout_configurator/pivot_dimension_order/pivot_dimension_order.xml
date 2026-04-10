@@ -5,9 +5,9 @@
         <div class="pivot-dim-operator-label">Order by</div>
         <Select
           class="'flex-grow-1'"
-          values="orderSelectOptions"
-          selectedValue="props.dimension.order || ''"
-          onChange="(value) => props.onUpdated(props.dimension, value)"
+          values="this.orderSelectOptions"
+          selectedValue="this.props.dimension.order || ''"
+          onChange="(value) => this.props.onUpdated(this.props.dimension, value)"
         />
       </div>
     </div>

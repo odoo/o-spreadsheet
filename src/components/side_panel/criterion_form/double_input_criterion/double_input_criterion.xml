@@ -1,17 +1,17 @@
 <templates>
   <t t-name="o-spreadsheet-DoubleInputCriterionForm">
     <CriterionInput
-      value="props.criterion.values[0]"
-      onValueChanged.bind="onFirstValueChanged"
-      criterionType="props.criterion.type"
-      disableFormulas="props.disableFormulas"
-      focused="props.autofocus"
+      value="this.props.criterion.values[0]"
+      onValueChanged.bind="this.onFirstValueChanged"
+      criterionType="this.props.criterion.type"
+      disableFormulas="this.props.disableFormulas"
+      focused="this.props.autofocus"
     />
     <CriterionInput
-      value="props.criterion.values[1]"
-      onValueChanged.bind="onSecondValueChanged"
-      criterionType="props.criterion.type"
-      disableFormulas="props.disableFormulas"
+      value="this.props.criterion.values[1]"
+      onValueChanged.bind="this.onSecondValueChanged"
+      criterionType="this.props.criterion.type"
+      disableFormulas="this.props.disableFormulas"
     />
   </t>
 </templates>

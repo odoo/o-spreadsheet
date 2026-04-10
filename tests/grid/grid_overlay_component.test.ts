@@ -37,7 +37,13 @@ import {
   triggerMouseEvent,
 } from "../test_helpers/dom_helper";
 import { getEvaluatedCell, getSelectionAnchorCellXc } from "../test_helpers/getters_helpers";
-import { mountSpreadsheet, nextTick, target, typeInComposerGrid } from "../test_helpers/helpers";
+import {
+  mountSpreadsheet,
+  nextTick,
+  target,
+  typeInComposerGrid,
+  useJestFakeTimers,
+} from "../test_helpers/helpers";
 
 let fixture: HTMLElement;
 let model: Model;
@@ -935,7 +941,7 @@ describe("Hide/show rows", () => {
 
 describe("Edge-Scrolling on mouseMove in selection", () => {
   beforeEach(async () => {
-    jest.useFakeTimers();
+    useJestFakeTimers();
 
     ({ model, fixture } = await mountSpreadsheet());
   });

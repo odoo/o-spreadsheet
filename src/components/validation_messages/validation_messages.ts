@@ -1,7 +1,6 @@
-import { Component } from "@odoo/owl";
-
 import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 
+import { Component } from "../../owl3_compatibility_layer";
 interface Props {
   messages: string[];
   msgType: "warning" | "error" | "info";

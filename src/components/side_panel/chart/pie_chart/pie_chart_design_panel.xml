@@ -1,18 +1,18 @@
 <templates>
   <t t-name="o-spreadsheet-PieChartDesignPanel">
-    <GeneralDesignEditor t-props="props">
+    <GeneralDesignEditor t-props="this.props">
       <t t-set-slot="general-extension">
-        <ChartLegend t-props="props" isDisabled="isLegendDisabled"/>
+        <ChartLegend t-props="this.props" isDisabled="this.isLegendDisabled"/>
         <Section class="'pt-0'" title.translate="Values">
-          <ChartShowValues t-props="props"/>
+          <ChartShowValues t-props="this.props"/>
         </Section>
         <Section class="'pt-0'" title.translate="Number formatting">
-          <ChartHumanizeNumbers t-props="props"/>
+          <ChartHumanizeNumbers t-props="this.props"/>
         </Section>
         <PieHoleSize
-          t-if="props.definition.isDoughnut"
-          value="props.definition.pieHolePercentage ?? this.defaultHoleSize"
-          onValueChange.bind="onPieHoleSizeChange"
+          t-if="this.props.definition.isDoughnut"
+          value="this.props.definition.pieHolePercentage ?? this.defaultHoleSize"
+          onValueChange.bind="this.onPieHoleSizeChange"
         />
       </t>
     </GeneralDesignEditor>
@@ -22,15 +22,18 @@
         <Section class="'py-0'">
           <Select
             class="'o-pie-slice-selector'"
-            selectedValue="state.index.toString()"
-            values="pieSliceOptions"
+            selectedValue="this.state.index.toString()"
+            values="this.pieSliceOptions"
             onChange="(value) => this.updateEditedValues(value)"
           />
         </Section>
         <Section class="'py-4'">
           <div class="d-flex align-items-center">
             <span class="o-section-title mb-0 pe-2">Series color</span>
-            <RoundColorPicker currentColor="sliceColor" onColorPicked.bind="updateSliceColor"/>
+            <RoundColorPicker
+              currentColor="this.sliceColor"
+              onColorPicked.bind="this.updateSliceColor"
+            />
           </div>
         </Section>
       </t>

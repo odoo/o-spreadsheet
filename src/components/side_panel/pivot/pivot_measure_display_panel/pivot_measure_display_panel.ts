@@ -1,4 +1,3 @@
-import { Component } from "@odoo/owl";
 import { useLocalStore } from "../../../../store_engine/store_hooks";
 import { UID, ValueAndLabel } from "../../../../types/misc";
 import { PivotCoreMeasure } from "../../../../types/pivot";
@@ -11,6 +10,7 @@ import { RadioSelection } from "../../components/radio_selection/radio_selection
 import { Section } from "../../components/section/section";
 import { PivotMeasureDisplayPanelStore } from "./pivot_measure_display_panel_store";
 
+import { Component } from "../../../../owl3_compatibility_layer";
 interface Props {
   onCloseSidePanel: () => void;
   pivotId: UID;

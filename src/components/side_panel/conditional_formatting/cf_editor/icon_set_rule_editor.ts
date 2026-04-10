@@ -1,4 +1,4 @@
-import { Component } from "@odoo/owl";
+import { Component } from "../../../../owl3_compatibility_layer";
 import { _t } from "../../../../translation";
 import { CommandResult } from "../../../../types/commands";
 import { ValueAndLabel } from "../../../../types/misc";

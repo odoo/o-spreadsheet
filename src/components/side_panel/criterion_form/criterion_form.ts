@@ -1,9 +1,9 @@
-import { Component } from "@odoo/owl";
 import { useStore } from "../../../store_engine/store_hooks";
 import { GenericCriterion } from "../../../types/generic_criterion";
-import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
 import { ComposerFocusStore } from "../../composer/composer_focus_store";
 
+import { Component } from "../../../owl3_compatibility_layer";
+import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
 interface Props<T extends GenericCriterion> {
   criterion: T;
   onCriterionChanged: (criterion: T) => void;

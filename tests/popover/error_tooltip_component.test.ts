@@ -26,6 +26,7 @@ import {
   mountSpreadsheet,
   nextTick,
   toCellPosition,
+  useJestFakeTimers,
 } from "../test_helpers/helpers";
 
 mockChart();
@@ -155,7 +156,7 @@ describe("Grid integration", () => {
   let fixture: HTMLElement;
 
   beforeEach(async () => {
-    jest.useFakeTimers();
+    useJestFakeTimers();
     ({ model, fixture } = await mountSpreadsheet());
   });
 

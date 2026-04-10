@@ -2,17 +2,17 @@
   <t t-name="o-spreadsheet-FilterMenuCriterion">
     <Select
       class="'o-filter-criterion-type m-1 mb-2'"
-      values="criterionOptions"
-      selectedValue="state.criterion.type"
-      onChange.bind="onCriterionTypeChange"
+      values="this.criterionOptions"
+      selectedValue="this.state.criterion.type"
+      onChange.bind="this.onCriterionTypeChange"
     />
 
     <t
-      t-if="criterionComponent"
-      t-component="criterionComponent"
-      t-key="selectedCriterionName"
-      criterion="state.criterion"
-      onCriterionChanged.bind="onCriterionChanged"
+      t-if="this.criterionComponent"
+      t-component="this.criterionComponent"
+      t-key="this.selectedCriterionName"
+      criterion="this.state.criterion"
+      onCriterionChanged.bind="this.onCriterionChanged"
       disableFormulas="true"
       autofocus="true"
     />

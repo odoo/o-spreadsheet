@@ -1,6 +1,7 @@
-import { Component, onMounted, onWillUnmount, useEffect, useRef } from "@odoo/owl";
+import { onMounted, onWillUnmount } from "@odoo/owl";
 import { drawGaugeChart } from "../../../../helpers/figures/charts/gauge_chart_rendering";
 import { deepEquals } from "../../../../helpers/misc";
+import { Component, useLayoutEffect, useRef } from "../../../../owl3_compatibility_layer";
 import { EASING_FN } from "../../../../registries/cell_animation_registry";
 import { useStore } from "../../../../store_engine/store_hooks";
 import { GaugeChartRuntime } from "../../../../types/chart/gauge_chart";
@@ -38,7 +39,7 @@ export class GaugeChartComponent extends Component<Props, SpreadsheetChildEnv> {
 
     let animation: Animation | null = null;
     let lastRuntime: GaugeChartRuntime | undefined = undefined;
-    useEffect(
+    useLayoutEffect(
       () => {
         if (
           this.env.isDashboard() &&

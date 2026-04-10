@@ -21,7 +21,11 @@ import {
   openChartDesignSidePanel,
   toChartDataSource,
 } from "../../../test_helpers/chart_helpers";
-import { mountComponentWithPortalTarget, setGrid } from "../../../test_helpers/helpers";
+import {
+  mountComponentWithPortalTarget,
+  setGrid,
+  useJestFakeTimers,
+} from "../../../test_helpers/helpers";
 
 let model: Model;
 let fixture: HTMLElement;
@@ -192,7 +196,7 @@ describe("Sunburst chart side panel", () => {
     await openChartDesignSidePanel(model, env, fixture, chartId);
 
     expect(".o-pie-hole-size-input").toHaveValue("25");
-    jest.useFakeTimers();
+    useJestFakeTimers();
     await setInputValueAndTrigger(".o-pie-hole-size-input", "50");
     await setInputValueAndTrigger(".o-pie-hole-size-input", "51");
     await setInputValueAndTrigger(".o-pie-hole-size-input", "52");

@@ -3,9 +3,9 @@
     <Checkbox
       name="'humanizeNumbers'"
       label.translate="Use compact format"
-      title="title"
-      value="props.definition.humanize ?? true"
-      onChange="(humanize) => props.updateChart(this.props.chartId, { humanize })"
+      title="this.title"
+      value="this.props.definition.humanize ?? true"
+      onChange="(humanize) => this.props.updateChart(this.props.chartId, { humanize })"
     />
   </t>
 </templates>

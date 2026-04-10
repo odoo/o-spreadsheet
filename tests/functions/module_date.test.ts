@@ -7,6 +7,7 @@ import {
   evaluateCellFormat,
   evaluateGrid,
   evaluateGridText,
+  useJestFakeTimers,
 } from "../test_helpers/helpers";
 
 // All these tests should pass no matter the machine timezone.
@@ -585,14 +586,14 @@ describe("NETWORKDAYS.INTL formula", () => {
 
 describe("NOW formula", () => {
   test("functional tests on simple arguments", async () => {
-    jest.useFakeTimers();
+    useJestFakeTimers();
     jest.setSystemTime(new Date(2042, 3, 2, 4, 7, 30, 999).getTime());
     expect(evaluateCell("A1", { A1: "=NOW()" })).toBe(51958.171875);
     jest.useRealTimers();
   });
 
   test("return value with formatting", async () => {
-    jest.useFakeTimers();
+    useJestFakeTimers();
     jest.setSystemTime(new Date(2042, 3, 2, 4, 7, 30, 999).getTime());
     expect(evaluateCellFormat("A1", { A1: "=NOW()" })).toBe("m/d/yyyy hh:mm:ss a");
     jest.useRealTimers();
@@ -684,14 +685,14 @@ describe("TIMEVALUE formula", () => {
 
 describe("TODAY formula", () => {
   test("functional tests on simple arguments", async () => {
-    jest.useFakeTimers();
+    useJestFakeTimers();
     jest.setSystemTime(new Date(2042, 3, 2, 4, 7, 30, 999).getTime());
     expect(evaluateCell("A1", { A1: "=TODAY()" })).toBe(51958);
     jest.useRealTimers();
   });
 
   test("return value with formatting", async () => {
-    jest.useFakeTimers();
+    useJestFakeTimers();
     jest.setSystemTime(new Date(2042, 3, 2, 4, 7, 30, 999).getTime());
     expect(evaluateCellFormat("A1", { A1: "=TODAY()" })).toBe("m/d/yyyy");
     jest.useRealTimers();

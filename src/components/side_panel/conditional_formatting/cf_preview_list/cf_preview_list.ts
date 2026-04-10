@@ -1,7 +1,7 @@
-import { Component, useRef } from "@odoo/owl";
 import { localizeCFRule } from "../../../../helpers/locale";
 import { UuidGenerator } from "../../../../helpers/uuid";
 import { zoneToXc } from "../../../../helpers/zones";
+import { Component, useRef } from "../../../../owl3_compatibility_layer";
 import { ConditionalFormat } from "../../../../types/conditional_formatting";
 import { UID } from "../../../../types/misc";
 import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";

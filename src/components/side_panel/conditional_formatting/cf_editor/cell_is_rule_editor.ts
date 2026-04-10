@@ -1,4 +1,4 @@
-import { Component } from "@odoo/owl";
+import { Component } from "../../../../owl3_compatibility_layer";
 import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
 import { Store } from "../../../../types/store_engine";
 import { ColorPickerWidget } from "../../../color_picker/color_picker_widget";

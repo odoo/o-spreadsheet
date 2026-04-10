@@ -1,5 +1,4 @@
-import { Component, useState } from "@odoo/owl";
-
+import { proxy } from "@odoo/owl";
 import { numberToLetters } from "../../../../../helpers/coordinates";
 import { createDataSets } from "../../../../../helpers/figures/charts/helpers_index";
 import { getChartColorsGenerator } from "../../../../../helpers/figures/charts/runtime/chartjs_dataset";
@@ -14,6 +13,7 @@ import {
   toZone,
   zoneToXc,
 } from "../../../../../helpers/zones";
+import { Component } from "../../../../../owl3_compatibility_layer";
 import { chartTypeRegistry } from "../../../../../registries/chart_registry";
 import { _t } from "../../../../../translation";
 import {
@@ -70,7 +70,7 @@ export class ChartRangeDataSourceComponent extends Component<Props, SpreadsheetC
     getLabelRangeOptions: { type: Function, optional: true },
   };
 
-  protected state: ChartRangeDataSourceState = useState({
+  protected state: ChartRangeDataSourceState = proxy({
     datasetDispatchResult: undefined,
     labelsDispatchResult: undefined,
   });

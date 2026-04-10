@@ -1,4 +1,3 @@
-import { Component } from "@odoo/owl";
 import { _t } from "../../../../translation";
 import {
   TreeMapCategoryColorOptions,
@@ -20,6 +19,7 @@ import { ChartSidePanelProps, ChartSidePanelPropsObject } from "../common";
 import { TreeMapCategoryColors } from "./treemap_category_color/treemap_category_color";
 import { TreeMapColorScale } from "./treemap_color_scale/treemap_color_scale";
 
+import { Component } from "../../../../owl3_compatibility_layer";
 const DEFAULT_COLOR_SCALE: TreeMapColorScaleOptions = {
   type: "colorScale",
   minColor: "#FFF5EB",

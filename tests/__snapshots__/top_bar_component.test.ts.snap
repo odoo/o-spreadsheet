@@ -7,7 +7,6 @@ exports[`TopBar component simple rendering 1`] = `
   <div
     class="o-topbar-top d-flex justify-content-between border-bottom"
   >
-    <!-- Menus -->
     <div
       class="o-topbar-topleft d-flex"
     >
@@ -56,14 +55,12 @@ exports[`TopBar component simple rendering 1`] = `
     </div>
   </div>
   
-  <!-- Toolbar and Cell Content -->
   <div
     class="d-flex o-topbar-responsive"
   >
     <div
       class="o-topbar-toolbar d-flex flex-grow-1"
     >
-      <!-- Toolbar -->
       
       <div
         class="o-toolbar-tools d-flex flex-grow-1 align-items-center"
@@ -110,9 +107,7 @@ exports[`TopBar component simple rendering 1`] = `
             class="o-menu-item-button o-disabled o-hoverable-button o-toolbar-button"
             title="Undo (Ctrl+Z)"
           >
-            <span
-              style=""
-            >
+            <span>
               <svg
                 class="o-icon"
                 viewBox="0 0 18 18"
@@ -131,9 +126,7 @@ exports[`TopBar component simple rendering 1`] = `
             class="o-menu-item-button o-disabled o-hoverable-button o-toolbar-button"
             title="Redo (Ctrl+Y)"
           >
-            <span
-              style=""
-            >
+            <span>
               <svg
                 class="o-icon"
                 viewBox="0 0 18 18"
@@ -170,9 +163,7 @@ exports[`TopBar component simple rendering 1`] = `
             class="o-menu-item-button o-hoverable-button o-toolbar-button"
             title="Clear formatting (Ctrl+<)"
           >
-            <span
-              style=""
-            >
+            <span>
               <svg
                 class="o-icon"
                 viewBox="0 0 18 18"
@@ -231,9 +222,7 @@ exports[`TopBar component simple rendering 1`] = `
             class="o-menu-item-button o-hoverable-button o-toolbar-button"
             title="Format as percent"
           >
-            <span
-              style=""
-            >
+            <span>
               <span
                 class="o-text-icon"
               >
@@ -247,9 +236,7 @@ exports[`TopBar component simple rendering 1`] = `
             class="o-menu-item-button o-hoverable-button o-toolbar-button"
             title="Decrease decimal places"
           >
-            <span
-              style=""
-            >
+            <span>
               <span
                 class="o-text-icon"
               >
@@ -263,9 +250,7 @@ exports[`TopBar component simple rendering 1`] = `
             class="o-menu-item-button o-hoverable-button o-toolbar-button"
             title="Increase decimal places"
           >
-            <span
-              style=""
-            >
+            <span>
               <span
                 class="o-text-icon"
               >
@@ -280,9 +265,7 @@ exports[`TopBar component simple rendering 1`] = `
               class="o-menu-item-button o-hoverable-button o-toolbar-button"
               title="More formats"
             >
-              <span
-                style=""
-              >
+              <span>
                 <svg
                   class="o-icon"
                   fill="currentColor"
@@ -360,9 +343,7 @@ exports[`TopBar component simple rendering 1`] = `
             class="o-menu-item-button o-hoverable-button o-toolbar-button"
             title="Bold (Ctrl+B)"
           >
-            <span
-              style=""
-            >
+            <span>
               <svg
                 class="o-icon"
                 viewBox="0 0 18 18"
@@ -381,9 +362,7 @@ exports[`TopBar component simple rendering 1`] = `
             class="o-menu-item-button o-hoverable-button o-toolbar-button"
             title="Italic (Ctrl+I)"
           >
-            <span
-              style=""
-            >
+            <span>
               <svg
                 class="o-icon"
                 viewBox="0 0 18 18"
@@ -402,9 +381,7 @@ exports[`TopBar component simple rendering 1`] = `
             class="o-menu-item-button o-hoverable-button o-toolbar-button"
             title="Strikethrough"
           >
-            <span
-              style=""
-            >
+            <span>
               <svg
                 class="o-icon"
                 viewBox="0 0 18 18"
@@ -445,7 +422,7 @@ exports[`TopBar component simple rendering 1`] = `
                   
                   <div
                     class="o-colored-border position-absolute bottom-0 w-100 os-theme-dependant"
-                    style="border-color: #000000"
+                    style="border-color: rgb(0, 0, 0);"
                   />
                 </div>
               </span>
@@ -489,7 +466,7 @@ exports[`TopBar component simple rendering 1`] = `
                   
                   <div
                     class="o-colored-border position-absolute bottom-0 w-100 os-theme-dependant"
-                    style="border-color: #ffffff"
+                    style="border-color: rgb(255, 255, 255);"
                   />
                 </div>
               </span>
@@ -522,9 +499,7 @@ exports[`TopBar component simple rendering 1`] = `
             class="o-menu-item-button o-disabled o-hoverable-button o-toolbar-button"
             title="Merge cells"
           >
-            <span
-              style=""
-            >
+            <span>
               <svg
                 class="o-icon"
                 viewBox="0 0 18 18"
@@ -557,9 +532,7 @@ exports[`TopBar component simple rendering 1`] = `
               class="o-menu-item-button o-hoverable-button o-toolbar-button"
               title="Horizontal align"
             >
-              <span
-                style=""
-              >
+              <span>
                 <svg
                   class="o-icon align-left"
                   viewBox="0 0 18 18"
@@ -591,9 +564,7 @@ exports[`TopBar component simple rendering 1`] = `
               class="o-menu-item-button o-hoverable-button o-toolbar-button"
               title="Vertical align"
             >
-              <span
-                style=""
-              >
+              <span>
                 <svg
                   class="o-icon align-bottom"
                   viewBox="0 0 18 18"
@@ -625,9 +596,7 @@ exports[`TopBar component simple rendering 1`] = `
               class="o-menu-item-button o-hoverable-button o-toolbar-button"
               title="Wrapping"
             >
-              <span
-                style=""
-              >
+              <span>
                 <svg
                   class="o-icon wrapping-overflow"
                   viewBox="0 0 18 18"
@@ -659,9 +628,7 @@ exports[`TopBar component simple rendering 1`] = `
               class="o-menu-item-button o-hoverable-button o-toolbar-button"
               title="Rotation"
             >
-              <span
-                style=""
-              >
+              <span>
                 <svg
                   class="o-icon"
                   viewBox="0 0 18 18"
@@ -704,9 +671,7 @@ exports[`TopBar component simple rendering 1`] = `
               class="o-menu-item-button opacity-100"
               title="Insert table"
             >
-              <span
-                style=""
-              >
+              <span>
                 <svg
                   class="o-icon"
                   viewBox="0 0 18 18"
@@ -735,9 +700,7 @@ exports[`TopBar component simple rendering 1`] = `
             class="o-menu-item-button o-hoverable-button o-toolbar-button"
             title="Add filters"
           >
-            <span
-              style=""
-            >
+            <span>
               <div
                 class="o-icon filter-icon-active"
               >
@@ -806,7 +769,7 @@ exports[`TopBar component simple rendering 1`] = `
               contenteditable="plaintext-only"
               inputmode="text"
               spellcheck="false"
-              style="padding:5px 0px 5px 8px; max-height:300px; line-height:24px; height:34px; "
+              style="padding: 5px 0px 5px 8px; max-height: 300px; line-height: 24px; height: 34px;"
               tabindex="1"
             />
           </div>

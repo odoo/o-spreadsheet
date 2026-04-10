@@ -3,22 +3,22 @@
     <div class="o-top-10-criterion d-flex flex-row align-items-center gap-2 w-100 mt-2">
       <Select
         class="'o-top-10-select-values flex-shrink-0'"
-        values="isBottomSelectOptions"
-        selectedValue="props.criterion.isBottom ? 'bottom' : 'top'"
-        onChange.bind="updateIsBottom"
+        values="this.isBottomSelectOptions"
+        selectedValue="this.props.criterion.isBottom ? 'bottom' : 'top'"
+        onChange.bind="this.updateIsBottom"
       />
       <CriterionInput
-        value="props.criterion.values[0]"
-        onValueChanged.bind="onValueChanged"
-        criterionType="props.criterion.type"
+        value="this.props.criterion.values[0]"
+        onValueChanged.bind="this.onValueChanged"
+        criterionType="this.props.criterion.type"
         disableFormulas="true"
-        focused="props.autofocus"
+        focused="this.props.autofocus"
       />
       <Select
         class="'o-top-10-select-mode flex-shrink-0'"
-        values="isPercentSelectOptions"
-        selectedValue="props.criterion.isPercent ? 'percent' : 'values'"
-        onChange.bind="updateIsPercent"
+        values="this.isPercentSelectOptions"
+        selectedValue="this.props.criterion.isPercent ? 'percent' : 'values'"
+        onChange.bind="this.updateIsPercent"
       />
     </div>
   </t>

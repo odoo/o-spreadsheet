@@ -34,9 +34,7 @@ exports[`Chart title Can render a chart title component 1`] = `
           class="o-menu-item-button o-hoverable-button"
           title="Bold"
         >
-          <span
-            style=""
-          >
+          <span>
             <svg
               class="o-icon"
               viewBox="0 0 18 18"
@@ -56,9 +54,7 @@ exports[`Chart title Can render a chart title component 1`] = `
           class="o-menu-item-button o-hoverable-button"
           title="Italic"
         >
-          <span
-            style=""
-          >
+          <span>
             <svg
               class="o-icon"
               viewBox="0 0 18 18"
@@ -85,9 +81,7 @@ exports[`Chart title Can render a chart title component 1`] = `
             class="o-menu-item-button o-hoverable-button"
             title="Horizontal alignment"
           >
-            <span
-              style=""
-            >
+            <span>
               <svg
                 class="o-icon align-left"
                 viewBox="0 0 18 18"
@@ -172,7 +166,6 @@ exports[`Chart title Can render a chart title component 1`] = `
               
               <div
                 class="o-colored-border position-absolute bottom-0 w-100 os-theme-dependant"
-                style="border-bottom-style: hidden"
               />
             </div>
           </span>

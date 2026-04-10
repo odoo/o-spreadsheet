@@ -3,10 +3,10 @@
     <span
       class="o-menu-item-button"
       title="Paint Format"
-      t-att-class="{'active': isActive, 'o-disabled': env.model.getters.isCurrentSheetLocked()}"
-      t-attf-class="{{props.class}}"
-      t-on-click="togglePaintFormat"
-      t-on-dblclick="onDblClick">
+      t-att-class="{'active': this.isActive, 'o-disabled': this.env.model.getters.isCurrentSheetLocked()}"
+      t-attf-class="{{this.props.class}}"
+      t-on-click="this.togglePaintFormat"
+      t-on-dblclick="this.onDblClick">
       <span>
         <t t-call="o-spreadsheet-Icon.PAINT_FORMAT"/>
       </span>

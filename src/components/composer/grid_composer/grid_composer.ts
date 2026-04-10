@@ -1,10 +1,11 @@
-import { Component, onWillUpdateProps } from "@odoo/owl";
+import { onWillUpdateProps } from "@odoo/owl";
 import { SELECTION_BORDER_COLOR } from "../../../constants";
 import { toXC } from "../../../helpers/coordinates";
 import { deepEquals, isFormula } from "../../../helpers/misc";
 import { getFullReference } from "../../../helpers/references";
 import { fontSizeInPixels } from "../../../helpers/text_helper";
 import { positionToZone } from "../../../helpers/zones";
+import { Component } from "../../../owl3_compatibility_layer";
 import { useStore } from "../../../store_engine/store_hooks";
 import { CellPosition, ComposerFocusType } from "../../../types/misc";
 import { DOMDimension, Rect } from "../../../types/rendering";

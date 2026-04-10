@@ -1,5 +1,6 @@
-import { Component, onMounted } from "@odoo/owl";
+import { onMounted } from "@odoo/owl";
 import { Token } from "../../../formulas/tokenizer";
+import { Component } from "../../../owl3_compatibility_layer";
 import { AutoCompleteProviderDefinition } from "../../../registries/auto_completes/auto_complete_registry";
 import { useLocalStore, useStore } from "../../../store_engine/store_hooks";
 import { Color, ComposerFocusType, UID } from "../../../types/misc";

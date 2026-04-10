@@ -1,4 +1,5 @@
-import { Component, useEffect, useRef, useState } from "@odoo/owl";
+import { proxy } from "@odoo/owl";
+import { Component, useLayoutEffect, useRef } from "../../owl3_compatibility_layer";
 import { useStore } from "../../store_engine/store_hooks";
 import { ComposerFocusType } from "../../types/misc";
 import { Rect } from "../../types/rendering";
@@ -29,7 +30,7 @@ export class SmallBottomBar extends Component<Props, SpreadsheetChildEnv> {
   private composerInterface!: ComposerInterface;
   private composerRef = useRef("bottombarComposer");
 
-  private menuState = useState({
+  private menuState = proxy({
     isOpen: false,
   });
 
@@ -47,7 +48,7 @@ export class SmallBottomBar extends Component<Props, SpreadsheetChildEnv> {
       stopEdition: this.composerStore.stopEdition,
     };
 
-    useEffect(() => {
+    useLayoutEffect(() => {
       if (
         // we hide the grid composer on mobile so we need to autofocus this composer
         this.env.isMobile() &&

@@ -1,5 +1,6 @@
-import { Component, xml } from "@odoo/owl";
+import { xml } from "@odoo/owl";
 import { NumberInput } from "../../src/components/number_input/number_input";
+import { Component } from "../../src/owl3_compatibility_layer";
 import { SpreadsheetChildEnv } from "../../src/types/spreadsheet_env";
 import {
   click,
@@ -7,7 +8,7 @@ import {
   setInputValueAndTrigger,
   triggerMouseEvent,
 } from "../test_helpers/dom_helper";
-import { mountComponent, nextTick } from "../test_helpers/helpers";
+import { mountComponent, nextTick, useJestFakeTimers } from "../test_helpers/helpers";
 
 let fixture: HTMLElement;
 let parent: Component;
@@ -16,7 +17,7 @@ type Props = NumberInput["props"];
 class NumberInputContainer extends Component<Props, SpreadsheetChildEnv> {
   static template = xml/* xml */ `
     <div class="container">
-      <NumberInput t-props="props"/>
+      <NumberInput t-props="this.props"/>
     </div>
   `;
   static components = { NumberInput };
@@ -29,7 +30,7 @@ async function mountNumberInput(props: Props) {
 
 describe("NumberInput", () => {
   beforeAll(() => {
-    jest.useFakeTimers();
+    useJestFakeTimers();
   });
 
   afterAll(() => {

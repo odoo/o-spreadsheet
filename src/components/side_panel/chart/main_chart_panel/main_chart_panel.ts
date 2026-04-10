@@ -1,4 +1,4 @@
-import { Component } from "@odoo/owl";
+import { Component } from "../../../../owl3_compatibility_layer";
 import { useLocalStore } from "../../../../store_engine/store_hooks";
 import { ChartDefinition, ChartType } from "../../../../types/chart/chart";
 import { UID } from "../../../../types/misc";

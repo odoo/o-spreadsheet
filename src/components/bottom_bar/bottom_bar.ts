@@ -1,6 +1,7 @@
-import { Component, onWillUpdateProps, useRef, useState } from "@odoo/owl";
+import { onWillUpdateProps, proxy } from "@odoo/owl";
 import { deepEquals } from "../../helpers/misc";
 import { UuidGenerator } from "../../helpers/uuid";
+import { Component, useRef } from "../../owl3_compatibility_layer";
 import { MenuItemRegistry } from "../../registries/menu_items_registry";
 import { _t } from "../../translation";
 import { MenuMouseEvent, Pixel, UID } from "../../types/misc";
@@ -42,14 +43,14 @@ export class BottomBar extends Component<Props, SpreadsheetChildEnv> {
 
   private dragAndDrop = useDragAndDropListItems();
   private targetScroll: number | undefined = undefined;
-  private state = useState({
+  private state = proxy({
     isSheetListScrollableLeft: false,
     isSheetListScrollableRight: false,
   });
 
   menuMaxHeight = MENU_MAX_HEIGHT;
 
-  menuState: BottomBarMenuState = useState({
+  menuState: BottomBarMenuState = proxy({
     isOpen: false,
     menuId: undefined,
     anchorRect: null,

@@ -1,8 +1,8 @@
-import { Component } from "@odoo/owl";
 import { FONT_SIZES } from "../../constants";
 import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 import { NumberEditor } from "../number_editor/number_editor";
 
+import { Component } from "../../owl3_compatibility_layer";
 interface Props {
   currentFontSize: number;
   class: string;

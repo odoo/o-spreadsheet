@@ -1,14 +1,14 @@
 <templates>
   <t t-name="o-spreadsheet-FontSizeEditor">
     <NumberEditor
-      currentValue="props.currentFontSize"
-      onValueChange="props.onFontSizeChanged"
-      class="props.class"
-      onToggle="props.onToggle"
-      onFocusInput="props.onFocusInput"
+      currentValue="this.props.currentFontSize"
+      onValueChange="this.props.onFontSizeChanged"
+      class="this.props.class"
+      onToggle="this.props.onToggle"
+      onFocusInput="this.props.onFocusInput"
       min="1"
       max="400"
-      valueList="fontSizes"
+      valueList="this.fontSizes"
       title.translate="Font Size"
     />
   </t>

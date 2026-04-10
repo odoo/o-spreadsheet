@@ -3,7 +3,7 @@
 exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
 <div
   class="o-spreadsheet h-100 w-100"
-  style="--os-scrollbar-width:15px; --os-dark-mode-filter:invert(1) hue-rotate(170deg) contrast(0.85) brightness(1.2); color-scheme:light; grid-template-rows:min-content auto min-content; grid-template-columns:auto auto; "
+  style="--os-scrollbar-width: 15px; --os-dark-mode-filter: invert(1) hue-rotate(170deg) contrast(0.85) brightness(1.2); color-scheme: light; grid-template-rows: min-content auto min-content; grid-template-columns: auto auto;"
 >
   
   
@@ -16,7 +16,6 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
       <div
         class="o-topbar-top d-flex justify-content-between border-bottom"
       >
-        <!-- Menus -->
         <div
           class="o-topbar-topleft d-flex"
         >
@@ -65,14 +64,12 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
         </div>
       </div>
       
-      <!-- Toolbar and Cell Content -->
       <div
         class="d-flex o-topbar-responsive"
       >
         <div
           class="o-topbar-toolbar d-flex flex-grow-1"
         >
-          <!-- Toolbar -->
           
           <div
             class="o-toolbar-tools d-flex flex-grow-1 align-items-center"
@@ -119,9 +116,7 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
                 class="o-menu-item-button o-disabled o-hoverable-button o-toolbar-button"
                 title="Undo (Ctrl+Z)"
               >
-                <span
-                  style=""
-                >
+                <span>
                   <svg
                     class="o-icon"
                     viewBox="0 0 18 18"
@@ -140,9 +135,7 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
                 class="o-menu-item-button o-disabled o-hoverable-button o-toolbar-button"
                 title="Redo (Ctrl+Y)"
               >
-                <span
-                  style=""
-                >
+                <span>
                   <svg
                     class="o-icon"
                     viewBox="0 0 18 18"
@@ -179,9 +172,7 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
                 class="o-menu-item-button o-hoverable-button o-toolbar-button"
                 title="Clear formatting (Ctrl+<)"
               >
-                <span
-                  style=""
-                >
+                <span>
                   <svg
                     class="o-icon"
                     viewBox="0 0 18 18"
@@ -240,9 +231,7 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
                 class="o-menu-item-button o-hoverable-button o-toolbar-button"
                 title="Format as percent"
               >
-                <span
-                  style=""
-                >
+                <span>
                   <span
                     class="o-text-icon"
                   >
@@ -256,9 +245,7 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
                 class="o-menu-item-button o-hoverable-button o-toolbar-button"
                 title="Decrease decimal places"
               >
-                <span
-                  style=""
-                >
+                <span>
                   <span
                     class="o-text-icon"
                   >
@@ -272,9 +259,7 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
                 class="o-menu-item-button o-hoverable-button o-toolbar-button"
                 title="Increase decimal places"
               >
-                <span
-                  style=""
-                >
+                <span>
                   <span
                     class="o-text-icon"
                   >
@@ -289,9 +274,7 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
                   class="o-menu-item-button o-hoverable-button o-toolbar-button"
                   title="More formats"
                 >
-                  <span
-                    style=""
-                  >
+                  <span>
                     <svg
                       class="o-icon"
                       fill="currentColor"
@@ -369,9 +352,7 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
                 class="o-menu-item-button o-hoverable-button o-toolbar-button"
                 title="Bold (Ctrl+B)"
               >
-                <span
-                  style=""
-                >
+                <span>
                   <svg
                     class="o-icon"
                     viewBox="0 0 18 18"
@@ -390,9 +371,7 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
                 class="o-menu-item-button o-hoverable-button o-toolbar-button"
                 title="Italic (Ctrl+I)"
               >
-                <span
-                  style=""
-                >
+                <span>
                   <svg
                     class="o-icon"
                     viewBox="0 0 18 18"
@@ -411,9 +390,7 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
                 class="o-menu-item-button o-hoverable-button o-toolbar-button"
                 title="Strikethrough"
               >
-                <span
-                  style=""
-                >
+                <span>
                   <svg
                     class="o-icon"
                     viewBox="0 0 18 18"
@@ -454,7 +431,7 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
                       
                       <div
                         class="o-colored-border position-absolute bottom-0 w-100 os-theme-dependant"
-                        style="border-color: #000000"
+                        style="border-color: rgb(0, 0, 0);"
                       />
                     </div>
                   </span>
@@ -498,7 +475,7 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
                       
                       <div
                         class="o-colored-border position-absolute bottom-0 w-100 os-theme-dependant"
-                        style="border-color: #ffffff"
+                        style="border-color: rgb(255, 255, 255);"
                       />
                     </div>
                   </span>
@@ -531,9 +508,7 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
                 class="o-menu-item-button o-disabled o-hoverable-button o-toolbar-button"
                 title="Merge cells"
               >
-                <span
-                  style=""
-                >
+                <span>
                   <svg
                     class="o-icon"
                     viewBox="0 0 18 18"
@@ -566,9 +541,7 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
                   class="o-menu-item-button o-hoverable-button o-toolbar-button"
                   title="Horizontal align"
                 >
-                  <span
-                    style=""
-                  >
+                  <span>
                     <svg
                       class="o-icon align-left"
                       viewBox="0 0 18 18"
@@ -600,9 +573,7 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
                   class="o-menu-item-button o-hoverable-button o-toolbar-button"
                   title="Vertical align"
                 >
-                  <span
-                    style=""
-                  >
+                  <span>
                     <svg
                       class="o-icon align-bottom"
                       viewBox="0 0 18 18"
@@ -634,9 +605,7 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
                   class="o-menu-item-button o-hoverable-button o-toolbar-button"
                   title="Wrapping"
                 >
-                  <span
-                    style=""
-                  >
+                  <span>
                     <svg
                       class="o-icon wrapping-overflow"
                       viewBox="0 0 18 18"
@@ -668,9 +637,7 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
                   class="o-menu-item-button o-hoverable-button o-toolbar-button"
                   title="Rotation"
                 >
-                  <span
-                    style=""
-                  >
+                  <span>
                     <svg
                       class="o-icon"
                       viewBox="0 0 18 18"
@@ -713,9 +680,7 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
                   class="o-menu-item-button opacity-100"
                   title="Insert table"
                 >
-                  <span
-                    style=""
-                  >
+                  <span>
                     <svg
                       class="o-icon"
                       viewBox="0 0 18 18"
@@ -744,9 +709,7 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
                 class="o-menu-item-button o-hoverable-button o-toolbar-button"
                 title="Add filters"
               >
-                <span
-                  style=""
-                >
+                <span>
                   <div
                     class="o-icon filter-icon-active"
                   >
@@ -815,7 +778,7 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
                   contenteditable="plaintext-only"
                   inputmode="text"
                   spellcheck="false"
-                  style="padding:5px 0px 5px 8px; max-height:300px; line-height:24px; height:34px; "
+                  style="padding: 5px 0px 5px 8px; max-height: 300px; line-height: 24px; height: 34px;"
                   tabindex="1"
                 />
               </div>
@@ -849,7 +812,7 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
   </div>
   <div
     class="o-grid-container o-two-columns"
-    style="grid-template-columns:0px auto; grid-template-rows:0px auto; zoom:1; "
+    style="grid-template-columns: 0px auto; grid-template-rows: 0px auto;"
   >
     <div
       class="o-top-left"
@@ -874,7 +837,7 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
       >
         <div
           class="position-absolute"
-          style="top:26px; left:48px; height:calc(100% - 41px); width:calc(100% - 63px); cursor:default; "
+          style="top: 26px; left: 48px; height: calc(100% - 41px); width: calc(100% - 63px); cursor: default;"
         >
           <div
             class="position-absolute"
@@ -886,12 +849,12 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
         </div>
         <div
           class="o-grid-overlay overflow-hidden o-zoomable"
-          style="top:26px; left:48px; height:calc(100% - 41px); width:calc(100% - 63px); cursor:default; "
+          style="top: 26px; left: 48px; height: calc(100% - 41px); width: calc(100% - 63px); cursor: default;"
         >
           
           <div
             class="o-grid-add-rows mt-2 ms-2 w-100 d-flex position-relative align-items-center os-theme-dependant"
-            style="top:2300px; "
+            style="top: 2300px;"
           >
             <button
               class="o-button flex-grow-0 me-2"
@@ -979,11 +942,11 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
         
         <div
           class="o-autofill"
-          style="top:45px; left:140px; visibility:visible; "
+          style="top: 45px; left: 140px; visibility: visible;"
         />
         <div
           class="o-autofill-handler"
-          style="top:45px; left:140px; "
+          style="top: 45px; left: 140px;"
         />
         
         
@@ -995,19 +958,19 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
         
         <div
           class="o-scrollbar vertical"
-          style="top:26px; right:0px; width:15px; bottom:0; "
+          style="top: 26px; right: 0px; width: 15px; bottom: 0px;"
         >
           <div
-            style="width:1px; height:2346px; "
+            style="width: 1px; height: 2346px;"
           />
         </div>
         
         <div
           class="o-scrollbar horizontal"
-          style="left:48px; bottom:0px; height:15px; right:0; "
+          style="left: 48px; bottom: 0px; height: 15px; right: 0px;"
         >
           <div
-            style="width:2496px; height:1px; "
+            style="width: 2496px; height: 1px;"
           />
         </div>
         
@@ -1122,7 +1085,6 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
                 class="o-sheet d-flex align-items-center user-select-none text-nowrap border-start border-end active"
                 composerfocusableelement="true"
                 data-id="sh1"
-                style=""
                 tabindex="-1"
                 title="Sheet1"
               >
@@ -1168,7 +1130,7 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
 exports[`components take the small screen into account 1`] = `
 <div
   class="o-spreadsheet h-100 w-100 o-spreadsheet-mobile"
-  style="--os-scrollbar-width:15px; --os-dark-mode-filter:invert(1) hue-rotate(170deg) contrast(0.85) brightness(1.2); color-scheme:light; grid-template-rows:min-content auto min-content; grid-template-columns:auto auto; "
+  style="--os-scrollbar-width: 15px; --os-dark-mode-filter: invert(1) hue-rotate(170deg) contrast(0.85) brightness(1.2); color-scheme: light; grid-template-rows: min-content auto min-content; grid-template-columns: auto auto;"
 >
   
   
@@ -1179,14 +1141,12 @@ exports[`components take the small screen into account 1`] = `
       class="o-spreadsheet-topbar d-flex flex-column user-select-none bg-white"
     >
       
-      <!-- Toolbar and Cell Content -->
       <div
         class="d-flex o-topbar-responsive"
       >
         <div
           class="o-topbar-toolbar d-flex flex-grow-1"
         >
-          <!-- Toolbar -->
           
           <div
             class="o-toolbar-tools d-flex flex-grow-1 align-items-center"
@@ -1233,9 +1193,7 @@ exports[`components take the small screen into account 1`] = `
                 class="o-menu-item-button o-disabled o-hoverable-button o-toolbar-button"
                 title="Undo (Ctrl+Z)"
               >
-                <span
-                  style=""
-                >
+                <span>
                   <svg
                     class="o-icon"
                     viewBox="0 0 18 18"
@@ -1254,9 +1212,7 @@ exports[`components take the small screen into account 1`] = `
                 class="o-menu-item-button o-disabled o-hoverable-button o-toolbar-button"
                 title="Redo (Ctrl+Y)"
               >
-                <span
-                  style=""
-                >
+                <span>
                   <svg
                     class="o-icon"
                     viewBox="0 0 18 18"
@@ -1293,9 +1249,7 @@ exports[`components take the small screen into account 1`] = `
                 class="o-menu-item-button o-hoverable-button o-toolbar-button"
                 title="Clear formatting (Ctrl+<)"
               >
-                <span
-                  style=""
-                >
+                <span>
                   <svg
                     class="o-icon"
                     viewBox="0 0 18 18"
@@ -1354,9 +1308,7 @@ exports[`components take the small screen into account 1`] = `
                 class="o-menu-item-button o-hoverable-button o-toolbar-button"
                 title="Format as percent"
               >
-                <span
-                  style=""
-                >
+                <span>
                   <span
                     class="o-text-icon"
                   >
@@ -1370,9 +1322,7 @@ exports[`components take the small screen into account 1`] = `
                 class="o-menu-item-button o-hoverable-button o-toolbar-button"
                 title="Decrease decimal places"
               >
-                <span
-                  style=""
-                >
+                <span>
                   <span
                     class="o-text-icon"
                   >
@@ -1386,9 +1336,7 @@ exports[`components take the small screen into account 1`] = `
                 class="o-menu-item-button o-hoverable-button o-toolbar-button"
                 title="Increase decimal places"
               >
-                <span
-                  style=""
-                >
+                <span>
                   <span
                     class="o-text-icon"
                   >
@@ -1403,9 +1351,7 @@ exports[`components take the small screen into account 1`] = `
                   class="o-menu-item-button o-hoverable-button o-toolbar-button"
                   title="More formats"
                 >
-                  <span
-                    style=""
-                  >
+                  <span>
                     <svg
                       class="o-icon"
                       fill="currentColor"
@@ -1483,9 +1429,7 @@ exports[`components take the small screen into account 1`] = `
                 class="o-menu-item-button o-hoverable-button o-toolbar-button"
                 title="Bold (Ctrl+B)"
               >
-                <span
-                  style=""
-                >
+                <span>
                   <svg
                     class="o-icon"
                     viewBox="0 0 18 18"
@@ -1504,9 +1448,7 @@ exports[`components take the small screen into account 1`] = `
                 class="o-menu-item-button o-hoverable-button o-toolbar-button"
                 title="Italic (Ctrl+I)"
               >
-                <span
-                  style=""
-                >
+                <span>
                   <svg
                     class="o-icon"
                     viewBox="0 0 18 18"
@@ -1525,9 +1467,7 @@ exports[`components take the small screen into account 1`] = `
                 class="o-menu-item-button o-hoverable-button o-toolbar-button"
                 title="Strikethrough"
               >
-                <span
-                  style=""
-                >
+                <span>
                   <svg
                     class="o-icon"
                     viewBox="0 0 18 18"
@@ -1568,7 +1508,7 @@ exports[`components take the small screen into account 1`] = `
                       
                       <div
                         class="o-colored-border position-absolute bottom-0 w-100 os-theme-dependant"
-                        style="border-color: #000000"
+                        style="border-color: rgb(0, 0, 0);"
                       />
                     </div>
                   </span>
@@ -1612,7 +1552,7 @@ exports[`components take the small screen into account 1`] = `
                       
                       <div
                         class="o-colored-border position-absolute bottom-0 w-100 os-theme-dependant"
-                        style="border-color: #ffffff"
+                        style="border-color: rgb(255, 255, 255);"
                       />
                     </div>
                   </span>
@@ -1645,9 +1585,7 @@ exports[`components take the small screen into account 1`] = `
                 class="o-menu-item-button o-disabled o-hoverable-button o-toolbar-button"
                 title="Merge cells"
               >
-                <span
-                  style=""
-                >
+                <span>
                   <svg
                     class="o-icon"
                     viewBox="0 0 18 18"
@@ -1680,9 +1618,7 @@ exports[`components take the small screen into account 1`] = `
                   class="o-menu-item-button o-hoverable-button o-toolbar-button"
                   title="Horizontal align"
                 >
-                  <span
-                    style=""
-                  >
+                  <span>
                     <svg
                       class="o-icon align-left"
                       viewBox="0 0 18 18"
@@ -1714,9 +1650,7 @@ exports[`components take the small screen into account 1`] = `
                   class="o-menu-item-button o-hoverable-button o-toolbar-button"
                   title="Vertical align"
                 >
-                  <span
-                    style=""
-                  >
+                  <span>
                     <svg
                       class="o-icon align-bottom"
                       viewBox="0 0 18 18"
@@ -1748,9 +1682,7 @@ exports[`components take the small screen into account 1`] = `
                   class="o-menu-item-button o-hoverable-button o-toolbar-button"
                   title="Wrapping"
                 >
-                  <span
-                    style=""
-                  >
+                  <span>
                     <svg
                       class="o-icon wrapping-overflow"
                       viewBox="0 0 18 18"
@@ -1782,9 +1714,7 @@ exports[`components take the small screen into account 1`] = `
                   class="o-menu-item-button o-hoverable-button o-toolbar-button"
                   title="Rotation"
                 >
-                  <span
-                    style=""
-                  >
+                  <span>
                     <svg
                       class="o-icon"
                       viewBox="0 0 18 18"
@@ -1827,9 +1757,7 @@ exports[`components take the small screen into account 1`] = `
                   class="o-menu-item-button opacity-100"
                   title="Insert table"
                 >
-                  <span
-                    style=""
-                  >
+                  <span>
                     <svg
                       class="o-icon"
                       viewBox="0 0 18 18"
@@ -1858,9 +1786,7 @@ exports[`components take the small screen into account 1`] = `
                 class="o-menu-item-button o-hoverable-button o-toolbar-button"
                 title="Add filters"
               >
-                <span
-                  style=""
-                >
+                <span>
                   <div
                     class="o-icon filter-icon-active"
                   >
@@ -1920,7 +1846,7 @@ exports[`components take the small screen into account 1`] = `
   </div>
   <div
     class="o-grid-container o-two-columns"
-    style="grid-template-columns:0px auto; grid-template-rows:0px auto; zoom:1; "
+    style="grid-template-columns: 0px auto; grid-template-rows: 0px auto;"
   >
     <div
       class="o-top-left"
@@ -1945,7 +1871,7 @@ exports[`components take the small screen into account 1`] = `
       >
         <div
           class="position-absolute"
-          style="top:26px; left:48px; height:calc(100% - 41px); width:calc(100% - 63px); cursor:default; "
+          style="top: 26px; left: 48px; height: calc(100% - 41px); width: calc(100% - 63px); cursor: default;"
         >
           <div
             class="position-absolute"
@@ -1957,12 +1883,12 @@ exports[`components take the small screen into account 1`] = `
         </div>
         <div
           class="o-grid-overlay overflow-hidden o-zoomable"
-          style="top:26px; left:48px; height:calc(100% - 41px); width:calc(100% - 63px); cursor:default; "
+          style="top: 26px; left: 48px; height: calc(100% - 41px); width: calc(100% - 63px); cursor: default;"
         >
           
           <div
             class="o-grid-add-rows mt-2 ms-2 w-100 d-flex position-relative align-items-center os-theme-dependant"
-            style="top:2300px; "
+            style="top: 2300px;"
           >
             <button
               class="o-button flex-grow-0 me-2"
@@ -2050,11 +1976,11 @@ exports[`components take the small screen into account 1`] = `
         
         <div
           class="o-autofill"
-          style="top:45px; left:140px; visibility:visible; "
+          style="top: 45px; left: 140px; visibility: visible;"
         />
         <div
           class="o-autofill-handler"
-          style="top:45px; left:140px; "
+          style="top: 45px; left: 140px;"
         />
         
         
@@ -2066,19 +1992,19 @@ exports[`components take the small screen into account 1`] = `
         
         <div
           class="o-scrollbar vertical"
-          style="top:26px; right:0px; width:15px; bottom:0; "
+          style="top: 26px; right: 0px; width: 15px; bottom: 0px;"
         >
           <div
-            style="width:1px; height:2346px; "
+            style="width: 1px; height: 2346px;"
           />
         </div>
         
         <div
           class="o-scrollbar horizontal"
-          style="left:48px; bottom:0px; height:15px; right:0; "
+          style="left: 48px; bottom: 0px; height: 15px; right: 0px;"
         >
           <div
-            style="width:2496px; height:1px; "
+            style="width: 2496px; height: 1px;"
           />
         </div>
         
@@ -2114,7 +2040,7 @@ exports[`components take the small screen into account 1`] = `
                 contenteditable="plaintext-only"
                 inputmode="text"
                 spellcheck="false"
-                style="height:26px; max-height:130px; "
+                style="height: 26px; max-height: 130px;"
                 tabindex="1"
               />
             </div>
@@ -2265,7 +2191,6 @@ exports[`components take the small screen into account 1`] = `
                     class="o-sheet d-flex align-items-center user-select-none text-nowrap border-start border-end active"
                     composerfocusableelement="true"
                     data-id="Sheet1"
-                    style=""
                     tabindex="-1"
                     title="Sheet1"
                   >

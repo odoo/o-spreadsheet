@@ -1,4 +1,5 @@
-import { onWillUnmount, status, useComponent, useEnv, useSubEnv } from "@odoo/owl";
+import { onWillUnmount, status } from "@odoo/owl";
+import { useComponent, useEnv, useSubEnv } from "../owl3_compatibility_layer";
 import { LocalStoreConstructor, Store, StoreConstructor, StoreParams } from "../types/store_engine";
 import { DependencyContainer } from "./dependency_container";
 

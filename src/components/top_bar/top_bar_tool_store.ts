@@ -1,4 +1,4 @@
-import { Component } from "@odoo/owl";
+import { Component } from "../../owl3_compatibility_layer";
 
 /**
  * This store is used to manage the dropdown that is currently

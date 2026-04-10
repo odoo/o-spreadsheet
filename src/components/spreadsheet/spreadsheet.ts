@@ -1,21 +1,17 @@
-import {
-  Component,
-  onMounted,
-  onPatched,
-  onWillUnmount,
-  onWillUpdateProps,
-  useEffect,
-  useExternalListener,
-  useRef,
-  useState,
-  useSubEnv,
-} from "@odoo/owl";
+import { onMounted, onPatched, onWillUnmount, onWillUpdateProps, proxy } from "@odoo/owl";
 import { GROUP_LAYER_WIDTH, MAXIMAL_FREEZABLE_RATIO } from "../../constants";
 import { DARK_MODE_FILTER_STRING } from "../../helpers/color";
 import { unregisterChartJsExtensions } from "../../helpers/figures/charts/chart_js_extension";
 import { ImageProvider } from "../../helpers/figures/images/image_provider";
 import { batched } from "../../helpers/misc";
 import { Model } from "../../model";
+import {
+  Component,
+  useExternalListener,
+  useLayoutEffect,
+  useRef,
+  useSubEnv,
+} from "../../owl3_compatibility_layer";
 import { useStore, useStoreProvider } from "../../store_engine/store_hooks";
 import { ModelStore } from "../../stores/model_store";
 import { NotificationStore } from "../../stores/notification_store";
@@ -87,7 +83,7 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
   spreadsheetRef = useRef("spreadsheet");
   spreadsheetRect = useSpreadsheetRect();
 
-  state = useState({ printModeEnabled: false });
+  state = proxy({ printModeEnabled: false });
 
   private _focusGrid?: () => void;
 
@@ -168,7 +164,7 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
 
     this.notificationStore.updateNotificationCallbacks({ ...this.props });
 
-    useEffect(() => {
+    useLayoutEffect(() => {
       /**
        * Only refocus the grid if the active element is not a child of the spreadsheet
        * (i.e. activeElement is outside of the spreadsheetRef component)

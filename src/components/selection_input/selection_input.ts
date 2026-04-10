@@ -1,5 +1,6 @@
-import { Component, onWillUpdateProps, useEffect, useRef, useState } from "@odoo/owl";
+import { onWillStart, onWillUpdateProps, proxy } from "@odoo/owl";
 import { deepEquals, range } from "../../helpers/misc";
+import { Component, useLayoutEffect, useRef } from "../../owl3_compatibility_layer";
 import { useLocalStore, useStore } from "../../store_engine/store_hooks";
 import { DOMFocusableElementStore } from "../../stores/DOM_focus_store";
 import { Color } from "../../types/misc";
@@ -63,7 +64,7 @@ export class SelectionInput extends Component<Props, SpreadsheetChildEnv> {
     disabledRanges: { type: Array, optional: true, default: [] },
     disabledRangeTitle: { type: String, optional: true },
   };
-  private state: State = useState({
+  private state: State = proxy({
     isMissing: false,
   });
   private dragAndDrop = useDragAndDropListItems();
@@ -97,11 +98,27 @@ export class SelectionInput extends Component<Props, SpreadsheetChildEnv> {
   }
 
   setup() {
-    useEffect(
-      () => this.focusedInput.el?.focus(),
+    /**
+     * TODO Remove this empty onWillStart
+     * This onWillStart empty is here following the update to OWL3
+     * (due to this commit: https://github.com/odoo/owl/commit/16a65d545e1f8aa1b5f0a404f685a98ca6d6814a)
+     */
+    onWillStart(() => {});
+    /**
+     * TODO Remove this empty onWillUpdateProps
+     * This onWillUpdateProps empty is here following the update to OWL3
+     * (due to this commit: https://github.com/odoo/owl/commit/076b1f09079f8263a84afa4e412d395190a693db)
+     */
+    onWillUpdateProps(async () => {});
+    useLayoutEffect(
+      () => {
+        if (this.store.hasFocus) {
+          this.focusedInput.el?.focus();
+        }
+      },
       () => [this.focusedInput.el]
     );
-    useEffect(() => {
+    useLayoutEffect(() => {
       // Check the offsetParent to know if the input or an ancestor is `display: none` (eg. when changing side panel tab)
       if (
         (this.store.isResettable || this.store.hasFocus) &&

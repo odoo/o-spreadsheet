@@ -1,7 +1,8 @@
-import { Component, onMounted, onWillUnmount, useExternalListener, useRef } from "@odoo/owl";
+import { onMounted, onWillUnmount } from "@odoo/owl";
 import { deepEquals } from "../../helpers/misc";
 import { isPointInsideRect } from "../../helpers/rectangle";
 import { positionToZone } from "../../helpers/zones";
+import { Component, useExternalListener, useRef } from "../../owl3_compatibility_layer";
 import { useStore } from "../../store_engine/store_hooks";
 import { GridClickModifiers, HeaderIndex, Pixel, Position, Ref } from "../../types/misc";
 import { DOMCoordinates } from "../../types/rendering";

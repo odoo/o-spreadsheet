@@ -2,8 +2,8 @@
   <t t-name="o-spreadsheet-GeoChartRegionSelectSection">
     <Section class="'o-geo-region'" title.translate="Region">
       <Select
-        selectedValue="selectedRegion"
-        values="regionOptions"
+        selectedValue="this.selectedRegion"
+        values="this.regionOptions"
         onChange.bind="this.updateSelectedRegion"
       />
     </Section>

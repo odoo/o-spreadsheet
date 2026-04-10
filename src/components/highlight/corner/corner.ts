@@ -1,10 +1,10 @@
-import { Component } from "@odoo/owl";
 import { AUTOFILL_EDGE_LENGTH } from "../../../constants";
 import { ResizeDirection } from "../../../types/figure";
 import { Color, Zone } from "../../../types/misc";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
 import { cssPropertiesToCss } from "../../helpers/css";
 
+import { Component } from "../../../owl3_compatibility_layer";
 const MOBILE_HANDLER_WIDTH = 40;
 
 type Orientation = "nw" | "ne" | "sw" | "se" | "n" | "s" | "e" | "w";

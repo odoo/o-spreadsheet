@@ -1,8 +1,9 @@
-import { Component, onMounted, useRef, useState } from "@odoo/owl";
+import { onMounted, proxy } from "@odoo/owl";
 import { urlRegistry, urlRepresentation } from "../../../helpers/links";
 import { canonicalizeNumberContent } from "../../../helpers/locale";
 import { markdownLink } from "../../../helpers/misc";
 import { fuzzyLookup } from "../../../helpers/search";
+import { Component, useRef } from "../../../owl3_compatibility_layer";
 import { CellPopoverComponent, PopoverBuilders } from "../../../types/cell_popovers";
 import { Link, Position } from "../../../types/misc";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
@@ -42,7 +43,7 @@ export class LinkEditor extends Component<LinkEditorProps, SpreadsheetChildEnv> 
   suggestionListRef = useRef("suggestionList");
   urlInputContainer = useRef("urlInputContainer");
 
-  private state: LinkState = useState(this.defaultState);
+  private state: LinkState = proxy(this.defaultState);
 
   setup() {
     this.computeLinks();

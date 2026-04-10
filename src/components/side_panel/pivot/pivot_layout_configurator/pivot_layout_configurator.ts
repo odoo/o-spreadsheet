@@ -1,4 +1,3 @@
-import { Component, useRef } from "@odoo/owl";
 import { isDefined } from "../../../../helpers/misc";
 import {
   AGGREGATORS,
@@ -6,6 +5,7 @@ import {
   isDateOrDatetimeField,
 } from "../../../../helpers/pivot/pivot_helpers";
 import { PivotRuntimeDefinition } from "../../../../helpers/pivot/pivot_runtime_definition";
+import { Component, useRef } from "../../../../owl3_compatibility_layer";
 import { useStore } from "../../../../store_engine/store_hooks";
 import { _t } from "../../../../translation";
 import { SortDirection, UID } from "../../../../types/misc";

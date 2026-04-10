@@ -1,4 +1,4 @@
-import { Component, xml } from "@odoo/owl";
+import { xml } from "@odoo/owl";
 import { Currency, Model, Pixel, Style } from "../src";
 import { CellComposerStore } from "../src/components/composer/composer/cell_composer_store";
 import { PaintFormatStore } from "../src/components/paint_format_button/paint_format_store";
@@ -6,6 +6,7 @@ import { TopBar } from "../src/components/top_bar/top_bar";
 import { topBarToolBarRegistry } from "../src/components/top_bar/top_bar_tools_registry";
 import { DEFAULT_FONT_SIZE } from "../src/constants";
 import { toZone, zoneToXc } from "../src/helpers/zones";
+import { Component } from "../src/owl3_compatibility_layer";
 import { topbarMenuRegistry } from "../src/registries/menus/topbar_menu_registry";
 import { topbarComponentRegistry } from "../src/registries/topbar_component_registry";
 import { DOMFocusableElementStore } from "../src/stores/DOM_focus_store";
@@ -47,6 +48,7 @@ import {
   nextTick,
   target,
   typeInComposerTopBar,
+  useJestFakeTimers,
 } from "./test_helpers/helpers";
 import { extendMockGetBoundingClientRect } from "./test_helpers/mock_helpers";
 
@@ -103,7 +105,7 @@ class Parent extends Component<any, SpreadsheetChildEnv> {
     <div class="o-spreadsheet">
       <TopBar
         onClick="() => {}"
-        dropdownMaxHeight="gridHeight"/>
+        dropdownMaxHeight="this.gridHeight"/>
     </div>
   `;
   static components = { TopBar };
@@ -701,7 +703,7 @@ describe("TopBar component", () => {
     expect(fixture.querySelectorAll(".o-topbar-test2")).toHaveLength(1);
 
     comp1Visibility = true;
-    parent.render();
+    parent.render(true);
     await nextTick();
     expect(fixture.querySelectorAll(".o-topbar-test1")).toHaveLength(1);
     expect(fixture.querySelectorAll(".o-topbar-test2")).toHaveLength(1);
@@ -1287,7 +1289,7 @@ describe("Keyboard navigation in topbar", () => {
   });
 
   test("Opening a sub menu with the keyboard focuses the first item, opening it with the mouse does not", async () => {
-    jest.useFakeTimers();
+    useJestFakeTimers();
     await mountParent();
 
     await simulateClick(".o-spreadsheet-topbar [data-id='insert']");
@@ -1314,7 +1316,7 @@ describe("Keyboard navigation in topbar", () => {
   });
 
   test("Can go back to keyboard navigation after using the mouse", async () => {
-    jest.useFakeTimers();
+    useJestFakeTimers();
     await mountParent();
 
     await simulateClick(".o-spreadsheet-topbar [data-id='insert']");

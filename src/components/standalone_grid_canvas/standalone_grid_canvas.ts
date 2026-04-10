@@ -1,4 +1,5 @@
-import { Component, onWillStart, onWillUpdateProps, useRef } from "@odoo/owl";
+import { onWillStart, onWillUpdateProps } from "@odoo/owl";
+import { Component, useRef } from "../../owl3_compatibility_layer";
 import { useLocalStore } from "../../store_engine/store_hooks";
 import { RendererStore } from "../../stores/renderer_store";
 import { UID, Zone } from "../../types/misc";

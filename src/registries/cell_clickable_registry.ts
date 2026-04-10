@@ -1,4 +1,3 @@
-import { ComponentConstructor } from "@odoo/owl";
 import { ClickableCellSortIcon } from "../components/dashboard/clickable_cell_sort_icon/clickable_cell_sort_icon";
 import { openLink } from "../helpers/links";
 import { canSortPivot, sortPivot } from "../helpers/pivot/pivot_menu_items";
@@ -8,6 +7,7 @@ import { CellPosition, SortDirection } from "../types/misc";
 import { SpreadsheetChildEnv } from "../types/spreadsheet_env";
 import { Registry } from "./registry";
 
+import { ComponentConstructor } from "../owl3_compatibility_layer";
 export interface CellClickableItem {
   condition: (position: CellPosition, getters: Getters) => boolean;
   execute: (position: CellPosition, env: SpreadsheetChildEnv, isMiddleClick?: boolean) => void;

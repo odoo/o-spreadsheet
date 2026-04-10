@@ -3,13 +3,12 @@
 exports[`Context MenuPopover integration tests context menu simple rendering 1`] = `
 <div
   class="o-menu"
-  style="width:250px; "
+  style="width: 250px;"
 >
   
   <div
     class="o-menu-item d-flex justify-content-between align-items-center"
     data-name="cut"
-    style=""
     tabindex="-1"
     title="Cut"
   >
@@ -18,7 +17,6 @@ exports[`Context MenuPopover integration tests context menu simple rendering 1`]
     >
       <div
         class="o-menu-item-icon d-flex align-items-center flex-shrink-0"
-        style=""
       >
         <svg
           class="o-icon"
@@ -50,7 +48,6 @@ exports[`Context MenuPopover integration tests context menu simple rendering 1`]
   <div
     class="o-menu-item d-flex justify-content-between align-items-center"
     data-name="copy"
-    style=""
     tabindex="-1"
     title="Copy"
   >
@@ -59,7 +56,6 @@ exports[`Context MenuPopover integration tests context menu simple rendering 1`]
     >
       <div
         class="o-menu-item-icon d-flex align-items-center flex-shrink-0"
-        style=""
       >
         <div
           class="o-icon"
@@ -88,7 +84,6 @@ exports[`Context MenuPopover integration tests context menu simple rendering 1`]
   <div
     class="o-menu-item d-flex justify-content-between align-items-center"
     data-name="paste"
-    style=""
     tabindex="-1"
     title="Paste"
   >
@@ -97,7 +92,6 @@ exports[`Context MenuPopover integration tests context menu simple rendering 1`]
     >
       <div
         class="o-menu-item-icon d-flex align-items-center flex-shrink-0"
-        style=""
       >
         <svg
           class="o-icon"
@@ -129,7 +123,6 @@ exports[`Context MenuPopover integration tests context menu simple rendering 1`]
   <div
     class="o-menu-item d-flex justify-content-between align-items-center"
     data-name="paste_special"
-    style=""
     tabindex="-1"
     title="Paste special"
   >
@@ -138,7 +131,6 @@ exports[`Context MenuPopover integration tests context menu simple rendering 1`]
     >
       <div
         class="o-menu-item-icon d-flex align-items-center flex-shrink-0"
-        style=""
       >
         <svg
           class="o-icon"
@@ -182,7 +174,6 @@ exports[`Context MenuPopover integration tests context menu simple rendering 1`]
   <div
     class="o-menu-item d-flex justify-content-between align-items-center"
     data-name="add_row_before"
-    style=""
     tabindex="-1"
     title="Insert row"
   >
@@ -191,7 +182,6 @@ exports[`Context MenuPopover integration tests context menu simple rendering 1`]
     >
       <div
         class="o-menu-item-icon d-flex align-items-center flex-shrink-0"
-        style=""
       >
         <svg
           class="o-icon"
@@ -218,7 +208,6 @@ exports[`Context MenuPopover integration tests context menu simple rendering 1`]
   <div
     class="o-menu-item d-flex justify-content-between align-items-center"
     data-name="add_column_before"
-    style=""
     tabindex="-1"
     title="Insert column"
   >
@@ -227,7 +216,6 @@ exports[`Context MenuPopover integration tests context menu simple rendering 1`]
     >
       <div
         class="o-menu-item-icon d-flex align-items-center flex-shrink-0"
-        style=""
       >
         <svg
           class="o-icon"
@@ -254,7 +242,6 @@ exports[`Context MenuPopover integration tests context menu simple rendering 1`]
   <div
     class="o-menu-item d-flex justify-content-between align-items-center"
     data-name="insert_cell"
-    style=""
     tabindex="-1"
     title="Insert cells"
   >
@@ -263,7 +250,6 @@ exports[`Context MenuPopover integration tests context menu simple rendering 1`]
     >
       <div
         class="o-menu-item-icon d-flex align-items-center flex-shrink-0"
-        style=""
       >
         <svg
           class="o-icon"
@@ -307,7 +293,6 @@ exports[`Context MenuPopover integration tests context menu simple rendering 1`]
   <div
     class="o-menu-item d-flex justify-content-between align-items-center"
     data-name="delete_row"
-    style=""
     tabindex="-1"
     title="Delete row 8"
   >
@@ -316,7 +301,6 @@ exports[`Context MenuPopover integration tests context menu simple rendering 1`]
     >
       <div
         class="o-menu-item-icon d-flex align-items-center flex-shrink-0"
-        style=""
       >
         <div
           class="o-icon"
@@ -340,7 +324,6 @@ exports[`Context MenuPopover integration tests context menu simple rendering 1`]
   <div
     class="o-menu-item d-flex justify-content-between align-items-center"
     data-name="delete_column"
-    style=""
     tabindex="-1"
     title="Delete column C"
   >
@@ -349,7 +332,6 @@ exports[`Context MenuPopover integration tests context menu simple rendering 1`]
     >
       <div
         class="o-menu-item-icon d-flex align-items-center flex-shrink-0"
-        style=""
       >
         <div
           class="o-icon"
@@ -373,7 +355,6 @@ exports[`Context MenuPopover integration tests context menu simple rendering 1`]
   <div
     class="o-menu-item d-flex justify-content-between align-items-center"
     data-name="delete_cell"
-    style=""
     tabindex="-1"
     title="Delete cells"
   >
@@ -382,7 +363,6 @@ exports[`Context MenuPopover integration tests context menu simple rendering 1`]
     >
       <div
         class="o-menu-item-icon d-flex align-items-center flex-shrink-0"
-        style=""
       >
         <div
           class="o-icon"
@@ -423,7 +403,6 @@ exports[`Context MenuPopover integration tests context menu simple rendering 1`]
   <div
     class="o-menu-item d-flex justify-content-between align-items-center"
     data-name="insert_link"
-    style=""
     tabindex="-1"
     title="Insert link"
   >
@@ -432,7 +411,6 @@ exports[`Context MenuPopover integration tests context menu simple rendering 1`]
     >
       <div
         class="o-menu-item-icon d-flex align-items-center flex-shrink-0"
-        style=""
       >
         <div
           class="o-icon"

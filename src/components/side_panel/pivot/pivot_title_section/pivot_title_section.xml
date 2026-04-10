@@ -4,13 +4,13 @@
       <t t-set-slot="title">
         <div class="d-flex flex-row justify-content-between align-items-center">
           Name
-          <CogWheelMenu items="cogWheelMenuItems"/>
+          <CogWheelMenu items="this.cogWheelMenuItems"/>
         </div>
       </t>
       <TextInput
         class="'os-pivot-title'"
-        value="name"
-        onChange.bind="onNameChanged"
+        value="this.name"
+        onChange.bind="this.onNameChanged"
         selectContentOnFocus="true"
       />
     </Section>

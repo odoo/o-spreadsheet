@@ -1,5 +1,6 @@
-import { Component, useState } from "@odoo/owl";
+import { proxy } from "@odoo/owl";
 import { getZoneArea, positionToZone } from "../../../helpers/zones";
+import { Component } from "../../../owl3_compatibility_layer";
 import { CommandResult, DispatchResult } from "../../../types/commands";
 import { Zone } from "../../../types/misc";
 import { Range } from "../../../types/range";
@@ -44,7 +45,7 @@ export class TablePanel extends Component<Props, SpreadsheetChildEnv> {
 
   setup() {
     const sheetId = this.env.model.getters.getActiveSheetId();
-    this.state = useState({
+    this.state = proxy({
       tableZoneErrors: [],
       tableXc: this.env.model.getters.getRangeString(this.props.table.range, sheetId),
       filtersEnabledIfPossible: this.props.table.config.hasFilters,

@@ -1,10 +1,10 @@
-import { Component } from "@odoo/owl";
 import { HEADER_HEIGHT, HEADER_WIDTH } from "../../constants";
 import { positionToZone } from "../../helpers/zones";
 import { ConsecutiveIndexes, HeaderIndex } from "../../types/misc";
 import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 import { cssPropertiesToCss } from "../helpers/css";
 
+import { Component } from "../../owl3_compatibility_layer";
 interface Props {
   headersGroups: ConsecutiveIndexes[];
   offset: number;

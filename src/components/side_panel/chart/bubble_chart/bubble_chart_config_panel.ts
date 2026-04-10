@@ -1,6 +1,7 @@
-import { Component, useState } from "@odoo/owl";
+import { proxy } from "@odoo/owl";
 import { numberToLetters } from "../../../../helpers/coordinates";
 import { createValidRange } from "../../../../helpers/range";
+import { Component } from "../../../../owl3_compatibility_layer";
 import { _t } from "../../../../translation";
 import { BubbleChartDefinition } from "../../../../types/chart/bubble_chart";
 import { CommandResult, DispatchResult } from "../../../../types/commands";
@@ -29,7 +30,7 @@ export class BubbleChartConfigPanel extends Component<Props, SpreadsheetChildEnv
   };
   static props = ChartSidePanelPropsObject;
 
-  protected state: BubbleChartPanelState = useState({
+  protected state: BubbleChartPanelState = proxy({
     datasetDispatchResult: undefined,
     labelsDispatchResult: undefined,
     xRangeDispatchResult: undefined,

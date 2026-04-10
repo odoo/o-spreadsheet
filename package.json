@@ -138,7 +138,7 @@
     "xmlSelfClosingSpace": false
   },
   "dependencies": {
-    "@odoo/owl": "2.8.3",
+    "@odoo/owl": "3.0.0-alpha.31",
     "bootstrap": "5.3.3",
     "font-awesome": "^4.7.0",
     "rbush": "^3.0.1"
@@ -166,7 +166,7 @@
     ],
     "workerIdleMemoryLimit": "800MB",
     "transformIgnorePatterns": [
-      "/node_modules/(?!chartjs-adapter-luxon)"
+      "/node_modules/(?!(chartjs-adapter-luxon|@odoo/owl)/)"
     ],
     "globalSetup": "<rootDir>/tests/setup/jest_global_setup.ts",
     "globalTeardown": "<rootDir>/tests/setup/jest_global_teardown.ts",

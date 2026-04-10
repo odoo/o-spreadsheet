@@ -4,8 +4,8 @@
       <t t-set-slot="content">
         <Section class="'pt-0 pb-0'">
           <Select
-            selectedValue="state.dataSetId"
-            values="selectOptions"
+            selectedValue="this.state.dataSetId"
+            values="this.selectOptions"
             class="'data-series-selector'"
             onChange.bind="this.updateEditedSeries"
           />
@@ -13,8 +13,8 @@
             <div class="d-flex align-items-center">
               <span class="o-section-title mb-0 pe-2">Series color</span>
               <RoundColorPicker
-                currentColor="getDataSeriesColor()"
-                onColorPicked.bind="updateDataSeriesColor"
+                currentColor="this.getDataSeriesColor()"
+                onColorPicked.bind="this.updateDataSeriesColor"
               />
             </div>
           </Section>
@@ -22,12 +22,12 @@
             <input
               class="o-input o-serie-label-editor"
               type="text"
-              t-att-value="getDataSeriesLabel()"
+              t-att-value="this.getDataSeriesLabel()"
               t-on-change="(ev) => this.updateDataSeriesLabel(ev)"
             />
           </Section>
         </Section>
-        <t t-slot="data-series-extension" dataSetId="state.dataSetId"/>
+        <t t-call-slot="data-series-extension" dataSetId="this.state.dataSetId"/>
       </t>
     </SidePanelCollapsible>
   </t>

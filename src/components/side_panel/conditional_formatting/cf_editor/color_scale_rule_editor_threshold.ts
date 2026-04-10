@@ -1,6 +1,6 @@
-import { Component } from "@odoo/owl";
 import { DEFAULT_COLOR_SCALE_MIDPOINT_COLOR } from "../../../../constants";
 import { colorNumberToHex } from "../../../../helpers/color";
+import { Component } from "../../../../owl3_compatibility_layer";
 import { _t } from "../../../../translation";
 import { CommandResult } from "../../../../types/commands";
 import { ColorScaleThreshold } from "../../../../types/conditional_formatting";

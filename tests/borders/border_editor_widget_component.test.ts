@@ -1,8 +1,9 @@
-import { Component, useState, xml } from "@odoo/owl";
+import { proxy, xml } from "@odoo/owl";
 import { BorderPosition, BorderStyle, Color, Model } from "../../src";
 import { BorderEditorWidget } from "../../src/components/border_editor/border_editor_widget";
 import { toHex } from "../../src/helpers/color";
 import { toZone } from "../../src/helpers/zones";
+import { Component } from "../../src/owl3_compatibility_layer";
 import { SpreadsheetChildEnv } from "../../src/types/spreadsheet_env";
 import { click, simulateClick } from "../test_helpers/dom_helper";
 import { mountComponent } from "../test_helpers/helpers";
@@ -38,7 +39,7 @@ class BorderWidgetContainer extends Component<Props, SpreadsheetChildEnv> {
   static template = xml/* xml */ `
     <div class="o-spreadsheet">
       <div class="container">
-        <BorderEditorWidget t-props="borderWidgetProps"/>
+        <BorderEditorWidget t-props="this.borderWidgetProps"/>
       </div>
     </div>
   `;
@@ -47,7 +48,7 @@ class BorderWidgetContainer extends Component<Props, SpreadsheetChildEnv> {
   state!: { showBorderEditor: boolean };
 
   setup() {
-    this.state = useState({
+    this.state = proxy({
       showBorderEditor: false,
     });
   }

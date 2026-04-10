@@ -4,30 +4,30 @@
       <div
         class="o-named-range-preview p-3 pb-1 border-bottom"
         t-att-class="{
-          'o-focused': state.isSelectionInputFocused
+          'o-focused': this.state.isSelectionInputFocused
         }"
-        t-ref="namedRangePreview">
+        t-custom-ref="namedRangePreview">
         <div class="d-flex justify-content-between">
           <div class="o-named-range-container w-100 d-flex flex-column">
             <TextInput
               class="'o-fw-bold'"
-              value="props.namedRange.name"
-              onChange.bind="updateNamedRangeName"
+              value="this.props.namedRange.name"
+              onChange.bind="this.updateNamedRangeName"
               selectContentOnFocus="true"
             />
             <SelectionInput
-              ranges="[rangeString]"
+              ranges="[this.rangeString]"
               hasSingleRange="true"
               required="true"
-              onSelectionChanged.bind="onSelectionInputChanged"
-              onSelectionConfirmed.bind="onSelectionInputConfirmed"
-              onInputFocused.bind="onSelectionInputFocused"
+              onSelectionChanged.bind="this.onSelectionInputChanged"
+              onSelectionConfirmed.bind="this.onSelectionInputConfirmed"
+              onInputFocused.bind="this.onSelectionInputFocused"
             />
           </div>
           <div
             class="o-named-range-edit d-none align-items-center o-button-icon px-3"
             title="Delete named range"
-            t-on-click.stop="deleteNamedRange">
+            t-on-click.stop="this.deleteNamedRange">
             <t t-call="o-spreadsheet-Icon.TRASH_FILLED"/>
           </div>
         </div>

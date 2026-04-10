@@ -1,6 +1,7 @@
-import { Component, useState } from "@odoo/owl";
+import { proxy } from "@odoo/owl";
 import { getChartMenuActions } from "../../../../actions/figure_menu_actions";
 import { isDefined } from "../../../../helpers/misc";
+import { Component } from "../../../../owl3_compatibility_layer";
 import { useStore } from "../../../../store_engine/store_hooks";
 import { _t } from "../../../../translation";
 import { GeoChartDefinition } from "../../../../types/chart/geo_chart";
@@ -33,7 +34,7 @@ export class ChartDashboardMenu extends Component<Props, SpreadsheetChildEnv> {
 
   private fullScreenFigureStore!: Store<FullScreenFigureStore>;
 
-  private menuState: MenuState = useState({ isOpen: false, anchorRect: null, menuItems: [] });
+  private menuState: MenuState = proxy({ isOpen: false, anchorRect: null, menuItems: [] });
   setup() {
     super.setup();
     this.fullScreenFigureStore = useStore(FullScreenFigureStore);

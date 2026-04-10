@@ -3,71 +3,71 @@
     <t t-set="editor_label">Axis title</t>
     <Section class="'py-0'">
       <BadgeSelection
-        choices="badgeAxes"
-        onChange.bind="(value) => state.currentAxis = value"
-        selectedValue="state.currentAxis"
+        choices="this.badgeAxes"
+        onChange.bind="(value) => this.state.currentAxis = value"
+        selectedValue="this.state.currentAxis"
       />
     </Section>
     <ChartTitle
       title="this.getAxisTitle()"
-      updateTitle.bind="updateAxisTitle"
-      updateStyle.bind="updateAxisTitleStyle"
+      updateTitle.bind="this.updateAxisTitle"
+      updateStyle.bind="this.updateAxisTitleStyle"
       name="editor_label"
-      style="axisTitleStyle"
+      style="this.axisTitleStyle"
       placeholder.translate="Add a Title"
-      defaultStyle="{align: 'center', color: '', fontSize: defaultFontSize}"
+      defaultStyle="{align: 'center', color: '', fontSize: this.defaultFontSize}"
     />
     <Section
-      t-if="!isCategoricalAxis"
+      t-if="!this.isCategoricalAxis"
       class="'pt-0 o-axis-bounds-section'"
       title.translate="Axis range">
       <div class="d-flex">
         <div class="w-50">
           <span class="o-section-subtitle my-0">Minimum</span>
           <DateInput
-            t-if="isTimeAxis"
+            t-if="this.isTimeAxis"
             class="'o-input w-100 time-axis-min-input'"
-            value="axisMin"
-            onChange.bind="updateTimeAxisMin"
+            value="this.axisMin"
+            onChange.bind="this.updateTimeAxisMin"
           />
           <NumberInput
             t-else=""
             class="'o-input w-100 axis-min-input'"
-            value="axisMin"
-            onChange.bind="updateAxisMin"
+            value="this.axisMin"
+            onChange.bind="this.updateAxisMin"
             placeholder.translate="Lower bound value"
           />
         </div>
         <div class="w-50 ms-3">
           <span class="o-section-subtitle my-0">Maximum</span>
           <DateInput
-            t-if="isTimeAxis"
+            t-if="this.isTimeAxis"
             class="'o-input w-100 time-axis-max-input'"
-            value="axisMax"
-            onChange.bind="updateTimeAxisMax"
+            value="this.axisMax"
+            onChange.bind="this.updateTimeAxisMax"
           />
           <NumberInput
             t-else=""
             class="'o-input w-100 axis-max-input'"
-            value="axisMax"
-            onChange.bind="updateAxisMax"
+            value="this.axisMax"
+            onChange.bind="this.updateAxisMax"
             placeholder.translate="Upper bound value"
           />
         </div>
       </div>
     </Section>
-    <Section class="'pt-0'" t-if="!isCategoricalAxis" title.translate="Gridlines">
+    <Section class="'pt-0'" t-if="!this.isCategoricalAxis" title.translate="Gridlines">
       <Checkbox
         className="'o-axis-grid-major'"
-        label="majorGridLabel"
-        value="isMajorGridEnabled"
-        onChange.bind="toggleMajorGrid"
+        label="this.majorGridLabel"
+        value="this.isMajorGridEnabled"
+        onChange.bind="this.toggleMajorGrid"
       />
       <Checkbox
         className="'o-axis-grid-minor'"
-        label="minorGridLabel"
-        value="isMinorGridEnabled"
-        onChange.bind="toggleMinorGrid"
+        label="this.minorGridLabel"
+        value="this.isMinorGridEnabled"
+        onChange.bind="this.toggleMinorGrid"
       />
     </Section>
   </t>

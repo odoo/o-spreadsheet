@@ -4,7 +4,7 @@
       <Section class="'o-data-series'" title.translate="Key value">
         <SelectionInput
           ranges="[this.getKeyValueRange()]"
-          isInvalid="isKeyValueInvalid"
+          isInvalid="this.isKeyValueInvalid"
           hasSingleRange="true"
           required="true"
           onSelectionChanged="(ranges) => this.onKeyValueRangeChanged(ranges)"
@@ -15,20 +15,20 @@
         <div class="o-section-subtitle">Value</div>
         <SelectionInput
           ranges="[this.getBaselineRange()]"
-          isInvalid="isBaselineInvalid"
+          isInvalid="this.isBaselineInvalid"
           hasSingleRange="true"
           onSelectionChanged="(ranges) => this.onBaselineRangeChanged(ranges)"
           onSelectionConfirmed="() => this.updateBaselineRange()"
         />
         <div class="o-section-subtitle">Format</div>
         <Select
-          selectedValue="props.definition.baselineMode"
-          values="baselineModeOptions"
+          selectedValue="this.props.definition.baselineMode"
+          values="this.baselineModeOptions"
           onChange.bind="this.updateBaselineMode"
         />
       </Section>
 
-      <ChartErrorSection t-if="errorMessages.length" messages="errorMessages"/>
+      <ChartErrorSection t-if="this.errorMessages.length" messages="this.errorMessages"/>
     </div>
   </t>
 </templates>

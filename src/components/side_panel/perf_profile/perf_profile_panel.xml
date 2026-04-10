@@ -24,19 +24,19 @@
             </div>
             <div class="d-flex justify-content-between">
               <span class="text-muted">Total time</span>
-              <span class="fw-bold" t-esc="this.formatTime(this.perfProfile.totalTime)"/>
+              <span class="fw-bold" t-out="this.formatTime(this.perfProfile.totalTime)"/>
             </div>
             <div class="d-flex justify-content-between">
               <span class="text-muted">Cells</span>
               <span
-                t-esc="this.humanize(this.perfProfile.totalCells)"
+                t-out="this.humanize(this.perfProfile.totalCells)"
                 t-att-title="this.perfProfile.totalCells"
               />
             </div>
             <div class="d-flex justify-content-between">
               <span class="text-muted">Function calls</span>
               <span
-                t-esc="this.humanize(this.perfProfile.totalFunctionCalls)"
+                t-out="this.humanize(this.perfProfile.totalFunctionCalls)"
                 t-att-title="this.perfProfile.totalFunctionCalls"
               />
             </div>
@@ -57,13 +57,13 @@
                   <div
                     class="position-relative d-flex justify-content-between py-1 px-2 text-nowrap">
                     <span class="text-truncate me-2">
-                      <t t-esc="entry.functionName"/>
-                      <small class="text-muted ms-1" t-esc="this.stringifyRange(entry)"/>
+                      <t t-out="entry.functionName"/>
+                      <small class="text-muted ms-1" t-out="this.stringifyRange(entry)"/>
                     </span>
                     <small class="flex-shrink-0 text-muted">
-                      <t t-esc="this.formatTime(entry.time)"/>
+                      <t t-out="this.formatTime(entry.time)"/>
                       (
-                      <t t-esc="this.formatPercent(entry.time)"/>
+                      <t t-out="this.formatPercent(entry.time)"/>
                       )
                     </small>
                   </div>
