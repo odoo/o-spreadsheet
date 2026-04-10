@@ -404,7 +404,10 @@ export class SpreadsheetPivot implements Pivot<SpreadsheetPivotRuntimeDefinition
     if (nonEmptyCells.every((cell) => cell.type === CellValueType.boolean)) {
       return "boolean";
     }
-    if (nonEmptyCells.some((cell) => cell.type === CellValueType.text)) {
+    if (
+      nonEmptyCells.some((cell) => cell.type === CellValueType.text) ||
+      nonEmptyCells.some((cell) => cell.type === CellValueType.boolean)
+    ) {
       return "char";
     }
     return "integer";

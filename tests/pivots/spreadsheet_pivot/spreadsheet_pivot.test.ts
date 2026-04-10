@@ -236,6 +236,50 @@ describe("Spreadsheet Pivot", () => {
     expect(getEvaluatedGrid(model, "B26:D26")).toEqual([["2024", "Total", ""]]);
   });
 
+  test("Pivot columns handle dimension values in error", () => {
+    // prettier-ignore
+    const grid = {
+      A1: "Dates",        B1: "Revenue", C1: "=PIVOT(1)",
+      A2: "01/01/2026",   B2: "100",
+      A3: "01/02/2026",   B3: "200",
+      A4: "=NA()",        B4: "300",
+    };
+    const model = createModelFromGrid(grid);
+    addPivot(model, "A1:B4", {
+      columns: [{ fieldName: "Dates", order: "asc" }],
+      rows: [],
+      measures: [{ id: "Revenue:sum", fieldName: "Revenue", aggregator: "sum" }],
+    });
+
+    expect(getEvaluatedGrid(model, "C1:F3")).toEqual([
+      ["(#1) Pivot", "01/01/2026", "01/02/2026", "#N/A"],
+      ["", "Revenue", "Revenue", "Revenue"],
+      ["Total", "100", "200", "300"],
+    ]);
+  });
+
+  test("Pivot columns handle mixed number and boolean dimension values", () => {
+    // prettier-ignore
+    const grid = {
+      A1: "Amount", B1: "Revenue", C1: "=PIVOT(1)",
+      A2: "100",    B2: "200",
+      A3: "200",    B3: "300",
+      A4: "TRUE",   B4: "400",
+    };
+    const model = createModelFromGrid(grid);
+    addPivot(model, "A1:B4", {
+      columns: [{ fieldName: "Amount", order: "asc" }],
+      rows: [],
+      measures: [{ id: "Revenue:sum", fieldName: "Revenue", aggregator: "sum" }],
+    });
+
+    expect(getEvaluatedGrid(model, "C1:G3")).toEqual([
+      ["(#1) Pivot", "100", "200", "TRUE", "Total"],
+      ["", "Revenue", "Revenue", "Revenue", "Revenue"],
+      ["Total", "200", "300", "400", "900"],
+    ]);
+  });
+
   test("Pivot Rows are ordered", () => {
     const model = createModelWithPivot("A1:I5");
     setCellContent(model, "A26", `=pivot(1)`);

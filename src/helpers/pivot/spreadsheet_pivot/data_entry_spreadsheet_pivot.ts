@@ -1,4 +1,4 @@
-import { toNumber } from "../../../functions/helpers";
+import { isEvaluationError, toNumber } from "../../../functions/helpers";
 import { CellValue, DEFAULT_LOCALE, EvaluatedCell } from "../../../types";
 import {
   DimensionTree,
@@ -252,6 +252,14 @@ function compareDimensionValues(dimension: PivotDimension, a: string, b: string)
     return dimension.order === "asc" ? -1 : 1;
   }
   if (dimension.type === "integer" || dimension.type === "datetime") {
+    if (isEvaluationError(a) && isEvaluationError(b)) {
+      return dimension.order === "asc" ? a.localeCompare(b) : b.localeCompare(a);
+    }
+    if (isEvaluationError(a)) {
+      return dimension.order === "asc" ? 1 : -1;
+    } else if (isEvaluationError(b)) {
+      return dimension.order === "asc" ? -1 : 1;
+    }
     return dimension.order === "asc"
       ? toNumber(a, DEFAULT_LOCALE) - toNumber(b, DEFAULT_LOCALE)
       : toNumber(b, DEFAULT_LOCALE) - toNumber(a, DEFAULT_LOCALE);
