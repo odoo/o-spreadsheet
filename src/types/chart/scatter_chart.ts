@@ -9,4 +9,4 @@ export interface ScatterChartDefinition<T extends string | Range = Range>
   readonly type: "scatter";
 }
 
-export type ScatterChartRuntime = LineChartRuntime;
+export type ScatterChartRuntime = Omit<LineChartRuntime, "masterChartConfig">;

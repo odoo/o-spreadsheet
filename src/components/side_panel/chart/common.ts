@@ -1,4 +1,5 @@
-import { ChartDefinition, DispatchResult, UID } from "../../..";
+import { ChartDatasetOrientation, ChartDefinition, DispatchResult, UID } from "../../..";
+import { isXcRepresentation, toUnboundedZone } from "../../../helpers";
 
 export interface ChartSidePanelProps<T extends ChartDefinition<string>> {
   chartId: UID;
@@ -13,3 +14,22 @@ export const ChartSidePanelPropsObject = {
   canUpdateChart: Function,
   updateChart: Function,
 };
+
+export function computeRangeOrientation(
+  range: string | undefined
+): ChartDatasetOrientation | undefined {
+  if (!range || !isXcRepresentation(range)) {
+    return undefined;
+  }
+  const zone = toUnboundedZone(range);
+  if (zone.bottom === undefined || zone.right === undefined) {
+    return undefined;
+  }
+  if (zone.top === zone.bottom) {
+    return "rows";
+  }
+  if (zone.left === zone.right) {
+    return "columns";
+  }
+  return undefined;
+}

@@ -1,9 +1,11 @@
 import { ChartMeta } from "chart.js";
+import { Range } from "../../../..";
 import { ChartShowValuesPluginOptions } from "../../../../components/figures/chart/chartJs/chartjs_show_values_plugin";
 import { ChartSunburstLabelsPluginOptions } from "../../../../components/figures/chart/chartJs/chartjs_sunburst_labels_plugin";
 import {
-  ChartDefinitionWithDataSource,
+  ChartDefinition,
   ChartRuntimeGenerationArgs,
+  PyramidChartDefinition,
   schemeToColorScale,
   SunburstChartDefaults,
   SunburstChartDefinition,
@@ -16,7 +18,7 @@ import { chartFontColor, formatChartDatasetValue } from "../chart_common";
 import { getRuntimeColorScale } from "./chartjs_scales";
 
 export function getChartShowValues(
-  definition: ChartDefinitionWithDataSource,
+  definition: ChartDefinition<Range>,
   args: ChartRuntimeGenerationArgs
 ): ChartShowValuesPluginOptions {
   const { axisFormats, locale } = args;
@@ -90,7 +92,7 @@ export function getSunburstShowValues(
 }
 
 export function getPyramidChartShowValues(
-  definition: ChartDefinitionWithDataSource,
+  definition: PyramidChartDefinition,
   args: ChartRuntimeGenerationArgs
 ): ChartShowValuesPluginOptions {
   const { axisFormats, locale } = args;
@@ -139,7 +141,7 @@ export function getWaterfallChartShowValues(
   };
 }
 
-function getDatasetAxisId(definition: ChartDefinitionWithDataSource, dataset: ChartMeta): string {
+function getDatasetAxisId(definition: ChartDefinition<Range>, dataset: ChartMeta): string {
   if (dataset.rAxisID) {
     return dataset.rAxisID;
   }

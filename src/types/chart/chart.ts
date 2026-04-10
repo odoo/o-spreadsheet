@@ -26,6 +26,7 @@ import { Format } from "../format";
 import { Locale } from "../locale";
 import { Align, Color, FunctionResultObject, UID, VerticalAlign } from "../misc";
 import { Range } from "../range";
+import { BubbleChartDefinition, BubbleChartRuntime, BubbleColorMode } from "./bubble_chart";
 export const CHART_TYPES = [
   "line",
   "bar",
@@ -33,6 +34,7 @@ export const CHART_TYPES = [
   "scorecard",
   "gauge",
   "scatter",
+  "bubble",
   "combo",
   "waterfall",
   "pyramid",
@@ -63,7 +65,8 @@ export type ChartDefinitionWithDataSource<T extends string | Range = Range> =
 export type ChartDefinition<T extends string | Range = string> =
   | ChartDefinitionWithDataSource<T>
   | ScorecardChartDefinition<T>
-  | GaugeChartDefinition<T>;
+  | GaugeChartDefinition<T>
+  | BubbleChartDefinition<T>;
 
 /**
  * `ChartTypeDefinition<"bar", Range>`
@@ -91,6 +94,7 @@ export type ChartJSRuntime =
   | BarChartRuntime
   | ComboChartRuntime
   | ScatterChartRuntime
+  | BubbleChartRuntime
   | WaterfallChartRuntime
   | PyramidChartRuntime
   | RadarChartRuntime
@@ -264,6 +268,9 @@ export interface ChartCreationContext {
   readonly zoomable?: boolean;
   readonly humanize?: boolean;
   readonly slicesColors?: Color[];
+  readonly bubbleLabelRange?: string;
+  readonly bubbleSizeRange?: string;
+  readonly bubbleColorMode?: BubbleColorMode;
 }
 
 export type ChartAxisFormats = { [axisId: string]: Format | undefined } | undefined;

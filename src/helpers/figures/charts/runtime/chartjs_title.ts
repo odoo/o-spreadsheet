@@ -1,30 +1,32 @@
 import { TitleOptions } from "chart.js";
 import { CHART_PADDING, CHART_TITLE_FONT_SIZE } from "../../../../constants";
-import { ChartDefinitionWithDataSource, DeepPartial } from "../../../../types";
+import { DeepPartial, TitleDesign } from "../../../../types";
 import { Getters } from "../../../../types/getters";
 import { chartMutedFontColor } from "../chart_common";
 
 export function getChartTitle(
-  definition: ChartDefinitionWithDataSource,
+  {
+    title,
+    legendPosition,
+    background,
+  }: { title: TitleDesign; legendPosition: string; background?: string },
   getters: Getters
 ): DeepPartial<TitleOptions> {
-  const chartTitle = definition.title;
-  const fontColor = chartMutedFontColor(definition.background);
+  const fontColor = chartMutedFontColor(background);
   return {
-    display: !!chartTitle.text,
-    text: chartTitle.text ? getters.dynamicTranslate(chartTitle.text) : "",
-    color: chartTitle?.color ?? fontColor,
-    align:
-      chartTitle.align === "center" ? "center" : chartTitle.align === "right" ? "end" : "start",
+    display: !!title.text,
+    text: title.text ? getters.dynamicTranslate(title.text) : "",
+    color: title?.color ?? fontColor,
+    align: title.align === "center" ? "center" : title.align === "right" ? "end" : "start",
     font: {
-      size: definition.title.fontSize ?? CHART_TITLE_FONT_SIZE,
-      weight: chartTitle.bold ? "bold" : "normal",
-      style: chartTitle.italic ? "italic" : "normal",
+      size: title.fontSize ?? CHART_TITLE_FONT_SIZE,
+      weight: title.bold ? "bold" : "normal",
+      style: title.italic ? "italic" : "normal",
     },
     padding: {
       // Disable title top/left/right padding to use the chart padding instead.
       // The legend already has a top padding, so bottom padding is useless for the title there.
-      bottom: definition.legendPosition === "top" ? 0 : CHART_PADDING,
+      bottom: legendPosition === "top" ? 0 : CHART_PADDING,
     },
   };
 }

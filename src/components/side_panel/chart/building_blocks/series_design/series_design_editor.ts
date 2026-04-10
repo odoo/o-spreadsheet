@@ -60,7 +60,7 @@ export class SeriesDesignEditor extends Component<Props, SpreadsheetChildEnv> {
 
   getDataSeriesColor() {
     const dataSetStyles = this.props.definition.dataSetStyles;
-    const color = dataSetStyles[this.state.dataSetId]?.backgroundColor;
+    const color = dataSetStyles?.[this.state.dataSetId]?.backgroundColor;
     const dataSeries = this.getDataSeries();
     const index = dataSeries.findIndex((series) => series.dataSetId === this.state.dataSetId);
     return color ? toHex(color) : getNthColor(index, getColorsPalette(dataSeries.length));
@@ -79,7 +79,7 @@ export class SeriesDesignEditor extends Component<Props, SpreadsheetChildEnv> {
   getDataSeriesLabel(): string {
     const dataSetStyles = this.props.definition.dataSetStyles;
     return (
-      dataSetStyles[this.state.dataSetId]?.label ||
+      dataSetStyles?.[this.state.dataSetId]?.label ||
       this.getDataSeries().find((series) => series.dataSetId === this.state.dataSetId)?.label ||
       ""
     );

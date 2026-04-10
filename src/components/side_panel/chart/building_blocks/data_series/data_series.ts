@@ -7,7 +7,7 @@ import { Section } from "../../../components/section/section";
 
 interface Props {
   ranges: { dataRange: string; dataSetId: UID }[];
-  dataSetStyles: DataSetStyle;
+  dataSetStyles?: DataSetStyle;
   hasSingleRange?: boolean;
   onSelectionChanged: (ranges: string[]) => void;
   onSelectionReordered?: (indexes: number[]) => void;
@@ -25,7 +25,7 @@ export class ChartDataSeries extends Component<Props, SpreadsheetChildEnv> {
   static components = { SelectionInput, Section };
   static props = {
     ranges: Array,
-    dataSetStyles: Object,
+    dataSetStyles: { type: Object, optional: true },
     hasSingleRange: { type: Boolean, optional: true },
     onSelectionChanged: Function,
     onSelectionReordered: { type: Function, optional: true },
