@@ -54,9 +54,27 @@ export type FunctionDescription = AddFunctionDescription & {
   nbrOptionalNonRepeatingArgs: number;
 };
 
+export type FunctionTimingEntry = { functionName: string; position: CellPosition; time: number };
+
+export type FunctionTimingLog = FunctionTimingEntry[];
+
+export interface RangeTiming {
+  functionName: string;
+  range: Range;
+  time: number;
+}
+
+export interface PerfProfile {
+  totalTime: number;
+  totalCells: number;
+  totalFunctionCalls: number;
+  entries: RangeTiming[];
+}
+
 export type EvalContext = {
   __originSheetId: UID;
   __originCellPosition?: CellPosition;
+  __timingEntries?: FunctionTimingLog;
   locale: Locale;
   getters: Getters;
   getFormulaResult: (position: CellPosition) => FunctionResultObject;

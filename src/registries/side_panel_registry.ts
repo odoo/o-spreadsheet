@@ -8,6 +8,7 @@ import { DataValidationEditor } from "../components/side_panel/data_validation/d
 import { FindAndReplacePanel } from "../components/side_panel/find_and_replace/find_and_replace";
 import { MoreFormatsPanel } from "../components/side_panel/more_formats/more_formats";
 import { NamedRangesPanel } from "../components/side_panel/named_ranges_panel/named_ranges_panel";
+import { PerfProfilePanel } from "../components/side_panel/perf_profile/perf_profile_panel";
 import { PivotMeasureDisplayPanel } from "../components/side_panel/pivot/pivot_measure_display_panel/pivot_measure_display_panel";
 import { PivotSidePanel } from "../components/side_panel/pivot/pivot_side_panel/pivot_side_panel";
 import { RemoveDuplicatesPanel } from "../components/side_panel/remove_duplicates/remove_duplicates";
@@ -200,4 +201,9 @@ sidePanelRegistry.add("CarouselPanel", {
 sidePanelRegistry.add("NamedRangesPanel", {
   title: _t("Named Ranges"),
   Body: NamedRangesPanel,
+});
+
+sidePanelRegistry.add("PerfProfile", {
+  title: _t("Performance"),
+  Body: PerfProfilePanel,
 });

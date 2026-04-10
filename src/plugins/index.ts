@@ -27,6 +27,7 @@ import { DynamicTablesPlugin } from "./ui_core_views/dynamic_tables";
 import { EvaluationChartPlugin } from "./ui_core_views/evaluation_chart";
 import { EvaluationConditionalFormatPlugin } from "./ui_core_views/evaluation_conditional_format";
 import { EvaluationDataValidationPlugin } from "./ui_core_views/evaluation_data_validation";
+import { FingerprintPlugin } from "./ui_core_views/fingerprint";
 import { FormulaTrackerPlugin } from "./ui_core_views/formula_tracker";
 import { HeaderSizeUIPlugin } from "./ui_core_views/header_sizes_ui";
 import { PivotUIPlugin } from "./ui_core_views/pivot_ui";
@@ -121,6 +122,7 @@ export const statefulUIPluginRegistry = new Registry<UIPluginConstructor>()
 export const coreViewsPluginRegistry = new Registry<CoreViewPluginConstructor>()
   .add("evaluation", EvaluationPlugin)
   .add("evaluation_chart", EvaluationChartPlugin)
+  .add("fingerprints", FingerprintPlugin)
   .add("evaluation_cf", EvaluationConditionalFormatPlugin)
   .add("row_size", HeaderSizeUIPlugin)
   .add("data_validation_ui", EvaluationDataValidationPlugin)

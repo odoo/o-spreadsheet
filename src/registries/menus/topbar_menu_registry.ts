@@ -224,6 +224,14 @@ topbarMenuRegistry
   .addChild("view_irregularity_map", ["view"], {
     ...ACTION_VIEW.irregularityMap,
     sequence: 40,
+  })
+  .addChild("perf_profile", ["view"], {
+    name: _t("Performance"),
+    sequence: 45,
+    execute: (env) => env.openSidePanel("PerfProfile"),
+    isVisible: (env) => !env.isSmall,
+    isEnabledOnLockedSheet: true,
+    icon: "o-spreadsheet-Icon.COG",
     separator: true,
   })
 
