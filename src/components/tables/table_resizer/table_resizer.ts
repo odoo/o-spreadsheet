@@ -1,4 +1,5 @@
-import { Component, useState } from "@odoo/owl";
+import { proxy } from "@odoo/owl";
+import { Component } from "../../../owl3_compatibility_layer";
 import { HeaderIndex, Highlight, Zone } from "../../../types/misc";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
 import { Table } from "../../../types/table";
@@ -22,7 +23,7 @@ export class TableResizer extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-TableResizer";
   static props = { table: Object };
 
-  state = useState<State>({ highlightZone: undefined });
+  state = proxy<State>({ highlightZone: undefined });
   dragNDropGrid = useDragAndDropBeyondTheViewport(this.env);
 
   setup(): void {

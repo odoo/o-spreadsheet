@@ -1,4 +1,4 @@
-import { Component, useRef, useState } from "@odoo/owl";
+import { proxy } from "@odoo/owl";
 import { Action, ActionSpec, createActions } from "../../actions/action";
 import { HIGHLIGHT_COLOR } from "../../constants";
 import { rangeReference } from "../../helpers/references";
@@ -8,6 +8,7 @@ import {
   interactiveUpdateNamedRange,
 } from "../../helpers/ui/named_range_interactive";
 import { zoneToXc } from "../../helpers/zones";
+import { Component, useRef } from "../../owl3_compatibility_layer";
 import { useStore } from "../../store_engine/store_hooks";
 import { DOMFocusableElementStore } from "../../stores/DOM_focus_store";
 import { HighlightStore } from "../../stores/highlight_store";
@@ -36,7 +37,7 @@ export class NamedRangeSelector extends Component<Props, SpreadsheetChildEnv> {
   private DOMFocusableElementStore!: Store<DOMFocusableElementStore>;
 
   topBarToolStore!: ToolBarDropdownStore;
-  menuState = useState<State>({ anchorRect: null, menuItems: [] });
+  menuState = proxy<State>({ anchorRect: null, menuItems: [] });
 
   private namedRangeSelectorRef = useRef("namedRangeSelectorRef");
 

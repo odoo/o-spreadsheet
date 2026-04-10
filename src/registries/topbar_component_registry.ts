@@ -16,6 +16,11 @@ export interface TopbarComponent {
 class TopBarComponentRegistry extends Registry<TopbarComponent> {
   mapping: { [key: string]: Function } = {};
 
+  add(name: string, value: Omit<TopbarComponent, "id">) {
+    const component: TopbarComponent = { ...value, id: UuidGenerator.uuidv4() };
+    return super.add(name, component);
+  }
+
   replace(name: string, value: Omit<TopbarComponent, "id">) {
     const component: TopbarComponent = { ...value, id: UuidGenerator.uuidv4() };
     return super.replace(name, component);

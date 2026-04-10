@@ -1,4 +1,5 @@
-import { Component, onWillPatch, useRef } from "@odoo/owl";
+import { onWillPatch } from "@odoo/owl";
+import { Component, useRef } from "../../../owl3_compatibility_layer";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
 import { Checkbox } from "../../side_panel/components/checkbox/checkbox";
 

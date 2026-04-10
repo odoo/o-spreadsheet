@@ -4,41 +4,41 @@
       <ChartDataSeries
         ranges="this.getDataSeriesRanges()"
         dataSetStyles="{}"
-        onSelectionChanged.bind="onDataSeriesRangesChanged"
-        onSelectionConfirmed.bind="onDataSeriesConfirmed"
-        onSelectionReordered.bind="onDataSeriesReordered"
-        onSelectionRemoved.bind="onDataSeriesRemoved"
-        maxNumberOfUsedRanges="maxNumberOfUsedRanges"
-        datasetOrientation="datasetOrientation"
+        onSelectionChanged.bind="this.onDataSeriesRangesChanged"
+        onSelectionConfirmed.bind="this.onDataSeriesConfirmed"
+        onSelectionReordered.bind="this.onDataSeriesReordered"
+        onSelectionRemoved.bind="this.onDataSeriesRemoved"
+        maxNumberOfUsedRanges="this.maxNumberOfUsedRanges"
+        datasetOrientation="this.datasetOrientation"
         canChangeDatasetOrientation="false"
       />
       <ChartLabelRange
         title.translate="Horizontal axis values"
-        range="xRange || ''"
-        isInvalid="isXDataInvalid"
-        onSelectionChanged.bind="onXDataRangeChanged"
-        onSelectionConfirmed.bind="onXDataRangeConfirmed"
+        range="this.xRange || ''"
+        isInvalid="this.isXDataInvalid"
+        onSelectionChanged.bind="this.onXDataRangeChanged"
+        onSelectionConfirmed.bind="this.onXDataRangeConfirmed"
         class="'pt-0'"
       />
       <ChartLabelRange
         title.translate="Bubble labels"
-        range="labelRange || ''"
-        isInvalid="isLabelInvalid"
-        onSelectionChanged.bind="onLabelRangeChanged"
-        onSelectionConfirmed.bind="onLabelRangeConfirmed"
+        range="this.labelRange || ''"
+        isInvalid="this.isLabelInvalid"
+        onSelectionChanged.bind="this.onLabelRangeChanged"
+        onSelectionConfirmed.bind="this.onLabelRangeConfirmed"
         class="'pt-0'"
       />
       <ChartLabelRange
         title.translate="Bubble sizes"
-        range="sizeRange || ''"
-        isInvalid="isBubbleSizeRangeInvalid"
-        onSelectionChanged.bind="onBubbleSizeRangeChanged"
-        onSelectionConfirmed.bind="onBubbleSizeRangeConfirmed"
+        range="this.sizeRange || ''"
+        isInvalid="this.isBubbleSizeRangeInvalid"
+        onSelectionChanged.bind="this.onBubbleSizeRangeChanged"
+        onSelectionConfirmed.bind="this.onBubbleSizeRangeConfirmed"
         class="'pt-0'"
         options="this.getLabelRangeOptions()"
       />
 
-      <ChartErrorSection t-if="errorMessages.length" messages="errorMessages"/>
+      <ChartErrorSection t-if="this.errorMessages.length" messages="this.errorMessages"/>
     </div>
   </t>
 </templates>

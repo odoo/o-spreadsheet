@@ -1,6 +1,7 @@
-import { Component, onWillUpdateProps, useState } from "@odoo/owl";
+import { onWillUpdateProps, proxy } from "@odoo/owl";
 import { numberToLetters } from "../../../helpers/coordinates";
 import { zoneToDimension } from "../../../helpers/zones";
+import { Component } from "../../../owl3_compatibility_layer";
 import { _t } from "../../../translation";
 import { HeaderIndex } from "../../../types/misc";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
@@ -22,7 +23,7 @@ export class RemoveDuplicatesPanel extends Component<Props, SpreadsheetChildEnv>
   static components = { ValidationMessages, Section, Checkbox };
   static props = { onCloseSidePanel: Function };
 
-  state: RemoveDuplicatesState = useState({
+  state: RemoveDuplicatesState = proxy({
     hasHeader: false,
     columns: {},
   });

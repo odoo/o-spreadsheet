@@ -1,4 +1,5 @@
-import { Component, toRaw, useChildSubEnv, useRef } from "@odoo/owl";
+import { toRaw } from "@odoo/owl";
+import { Component, useChildSubEnv, useRef } from "../../owl3_compatibility_layer";
 import { useLocalStore, useStore } from "../../store_engine/store_hooks";
 import { RendererStore } from "../../stores/renderer_store";
 import { Pixel, Ref } from "../../types/misc";

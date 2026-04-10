@@ -1,7 +1,8 @@
-import { Component, onMounted, onWillUnmount, useEffect, useRef, useState } from "@odoo/owl";
+import { onMounted, onWillUnmount, proxy } from "@odoo/owl";
 import { NEWLINE, SCROLLBAR_WIDTH } from "../../../constants";
 import { setColorAlpha } from "../../../helpers/color";
 import { debounce, deepEquals, isFormula } from "../../../helpers/misc";
+import { Component, useLayoutEffect, useRef } from "../../../owl3_compatibility_layer";
 
 import { DEFAULT_TOKEN_COLOR } from "../../../constants";
 import { EnrichedToken } from "../../../formulas/composer_tokenizer";
@@ -104,19 +105,19 @@ export class Composer extends Component<CellComposerProps, SpreadsheetChildEnv> 
 
   contentHelper: ContentEditableHelper = new ContentEditableHelper(this.composerRef.el!);
 
-  composerState: ComposerState = useState({
+  composerState: ComposerState = proxy({
     positionStart: 0,
     positionEnd: 0,
     hoveredRect: undefined,
   });
 
-  functionDescriptionState: FunctionDescriptionState = useState({
+  functionDescriptionState: FunctionDescriptionState = proxy({
     showDescription: false,
     functionDescription: {} as FunctionDescription,
     argsToFocus: [],
     repeatingArgGroupIndex: 0,
   });
-  assistant = useState({
+  assistant = proxy({
     forcedClosed: false,
   });
   private compositionActive: boolean = false;
@@ -225,7 +226,7 @@ export class Composer extends Component<CellComposerProps, SpreadsheetChildEnv> 
     onWillUnmount(() => {
       this.debouncedHover.stopDebounce();
     });
-    useEffect(() => {
+    useLayoutEffect(() => {
       this.processContent();
       if (
         document.activeElement === this.contentHelper.el &&
@@ -236,14 +237,14 @@ export class Composer extends Component<CellComposerProps, SpreadsheetChildEnv> 
       }
     });
 
-    useEffect(
+    useLayoutEffect(
       () => {
         this.processTokenAtCursor();
       },
       () => [this.props.composerStore.editionMode !== "inactive"]
     );
 
-    useEffect(
+    useLayoutEffect(
       () => {
         this.contentHelper.scrollSelectionIntoView();
       },

@@ -1,5 +1,6 @@
-import { Component, xml } from "@odoo/owl";
+import { xml } from "@odoo/owl";
 import { TextInput } from "../../src/components/text_input/text_input";
+import { Component } from "../../src/owl3_compatibility_layer";
 import { SpreadsheetChildEnv } from "../../src/types/spreadsheet_env";
 import {
   click,
@@ -16,7 +17,7 @@ type Props = TextInput["props"];
 class TextInputContainer extends Component<Props, SpreadsheetChildEnv> {
   static template = xml/* xml */ `
     <div class="container">
-      <TextInput t-props="props"/>
+      <TextInput t-props="this.props"/>
     </div>
   `;
   static components = { TextInput };

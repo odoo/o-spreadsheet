@@ -1,17 +1,17 @@
 <templates>
   <t t-name="o-spreadsheet-SpreadsheetPrint">
     <div class="o-spreadsheet-print d-flex flex-column h-100 w-100">
-      <t t-set="pages" t-value="printStore.printPages"/>
+      <t t-set="pages" t-value="this.printStore.printPages"/>
       <div class="o-print-header flex-shrink-0 d-flex align-items-center d-print-none">
         <h3 class="m-0 p-3 ps-4 text-white">Print Preview</h3>
         <span class="text-white">
-          <t t-esc="pages.length"/>
+          <t t-out="pages.length"/>
           pages
         </span>
-        <button class="o-button ms-auto me-2 flex-grow-0" t-on-click="props.onExitPrintMode">
+        <button class="o-button ms-auto me-2 flex-grow-0" t-on-click="this.props.onExitPrintMode">
           Cancel
         </button>
-        <button class="o-button primary flex-grow-0 me-4" t-on-click="onPrint">Next</button>
+        <button class="o-button primary flex-grow-0 me-4" t-on-click="this.onPrint">Next</button>
       </div>
       <div class="o-print-container d-flex flex-grow-1 overflow-hidden">
         <div class="o-print-preview w-100 overflow-auto d-flex flex-column">
@@ -19,7 +19,7 @@
             <div
               t-if="pages.length === 0"
               class="o-print-page o-empty-print-page m-4 shadow d-flex flex-column align-items-center justify-content-center flex-shrink-0"
-              t-att-style="pageStyle">
+              t-att-style="this.pageStyle">
               <h4 class="fst-italic text-muted">No content to print</h4>
             </div>
             <div
@@ -28,7 +28,7 @@
               t-as="page"
               t-key="page_index"
               class="o-print-page m-4 shadow d-flex justify-content-center flex-shrink-0"
-              t-att-style="pageStyle">
+              t-att-style="this.pageStyle">
               <StandaloneGridCanvas
                 sheetId="page.sheetId"
                 zone="page.zone"
@@ -42,8 +42,8 @@
             <Section t-if="!this.env.isDashboard()">
               <div class="o-section-title">Print content</div>
               <Select
-                selectedValue="printStore.printSelection"
-                values="printStore.printSelectionOptions"
+                selectedValue="this.printStore.printSelection"
+                values="this.printStore.printSelectionOptions"
                 class="'o-print-selection'"
                 onChange.bind="this.onPrintSelectionChange"
               />
@@ -52,8 +52,8 @@
             <Section>
               <div class="o-section-title">Scale</div>
               <Select
-                selectedValue="printStore.printScale"
-                values="printStore.printScaleOptions"
+                selectedValue="this.printStore.printScale"
+                values="this.printStore.printScaleOptions"
                 class="'o-print-scale'"
                 onChange.bind="this.onPrintScaleChange"
               />
@@ -62,8 +62,8 @@
             <Section>
               <div class="o-section-title">Paper</div>
               <Select
-                selectedValue="printStore.pageLayout"
-                values="printStore.layoutOptions"
+                selectedValue="this.printStore.pageLayout"
+                values="this.printStore.layoutOptions"
                 class="'o-print-layout'"
                 onChange.bind="this.onLayoutChange"
               />
@@ -72,9 +72,9 @@
             <Section>
               <div class="o-section-title">Orientation</div>
               <BadgeSelection
-                choices="printStore.orientationChoices"
+                choices="this.printStore.orientationChoices"
                 onChange.bind="this.changeOrientation"
-                selectedValue="printStore.orientation"
+                selectedValue="this.printStore.orientation"
               />
             </Section>
 

@@ -1,9 +1,9 @@
-import { Component } from "@odoo/owl";
 import { FigureUI } from "../../../types/figure";
 import { CSSProperties, UID } from "../../../types/misc";
 import { Rect } from "../../../types/rendering";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
 
+import { Component } from "../../../owl3_compatibility_layer";
 interface Props {
   figureUI: FigureUI;
   editFigureStyle?: (properties: CSSProperties) => void;

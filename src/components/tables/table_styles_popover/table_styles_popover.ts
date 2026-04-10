@@ -1,5 +1,6 @@
-import { Component, useExternalListener, useRef, useState } from "@odoo/owl";
+import { proxy } from "@odoo/owl";
 import { TABLE_STYLE_CATEGORIES } from "../../../helpers/table_presets";
+import { Component, useExternalListener, useRef } from "../../../owl3_compatibility_layer";
 import { _t } from "../../../translation";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
 import { TableConfig, TableStyle } from "../../../types/table";
@@ -37,7 +38,7 @@ export class TableStylesPopover extends Component<TableStylesPopoverProps, Sprea
   };
 
   private tableStyleListRef = useRef("tableStyleList");
-  state = useState<State>({ selectedCategory: this.initialSelectedCategory });
+  state = proxy<State>({ selectedCategory: this.initialSelectedCategory });
 
   setup(): void {
     useExternalListener(window, "click", this.onExternalClick, { capture: true });

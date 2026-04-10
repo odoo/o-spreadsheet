@@ -1,8 +1,8 @@
-import { Component } from "@odoo/owl";
 import { DEFAULT_WINDOW_SIZE } from "../../../../../constants";
 import { getColorsPalette, getNthColor, setColorAlpha, toHex } from "../../../../../helpers/color";
 import { CHART_AXIS_CHOICES } from "../../../../../helpers/figures/charts/chart_common";
 import { range } from "../../../../../helpers/misc";
+import { Component } from "../../../../../owl3_compatibility_layer";
 import { _t } from "../../../../../translation";
 import {
   ChartDefinitionWithDataSource,

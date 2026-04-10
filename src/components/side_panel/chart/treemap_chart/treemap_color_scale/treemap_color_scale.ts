@@ -1,4 +1,3 @@
-import { Component } from "@odoo/owl";
 import {
   TreeMapChartDefaults,
   TreeMapChartDefinition,
@@ -9,6 +8,7 @@ import { UID } from "../../../../../types/misc";
 import { SpreadsheetChildEnv } from "../../../../../types/spreadsheet_env";
 import { RoundColorPicker } from "../../../components/round_color_picker/round_color_picker";
 
+import { Component } from "../../../../../owl3_compatibility_layer";
 interface Props {
   chartId: UID;
   definition: TreeMapChartDefinition;

@@ -3,11 +3,11 @@
     <Section class="'pt-0'" title.translate="Center radius">
       <div class="d-flex flex-row">
         <NumberInput
-          value="props.value"
+          value="this.props.value"
           class="'o-pie-hole-size-input'"
           min="0"
           max="95"
-          onChange.bind="onChange"
+          onChange.bind="this.onChange"
         />
         %
       </div>

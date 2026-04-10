@@ -157,7 +157,6 @@ exports[`Filter menu component Filter Tests Filter menu is correctly rendered 1`
             <div
               class="o-filter-menu-item o-filter-menu-value"
             >
-              <!-- toString because t-set with a body creates a LazyValue instead of a string -->
               <label
                 class="o-checkbox d-flex align-items-center p-2 w-100 pe-auto"
                 role="button"
@@ -175,12 +174,10 @@ exports[`Filter menu component Filter Tests Filter menu is correctly rendered 1`
                 </span>
                 
               </label>
-              
             </div>
             <div
               class="o-filter-menu-item o-filter-menu-value"
             >
-              <!-- toString because t-set with a body creates a LazyValue instead of a string -->
               <label
                 class="o-checkbox d-flex align-items-center p-2 w-100 pe-auto"
                 role="button"
@@ -198,12 +195,10 @@ exports[`Filter menu component Filter Tests Filter menu is correctly rendered 1`
                 </span>
                 
               </label>
-              
             </div>
             <div
               class="o-filter-menu-item o-filter-menu-value"
             >
-              <!-- toString because t-set with a body creates a LazyValue instead of a string -->
               <label
                 class="o-checkbox d-flex align-items-center p-2 w-100 pe-auto"
                 role="button"
@@ -221,7 +216,6 @@ exports[`Filter menu component Filter Tests Filter menu is correctly rendered 1`
                 </span>
                 
               </label>
-              
             </div>
             
             
@@ -239,7 +233,7 @@ exports[`Filter menu component Filter Tests Filter menu is correctly rendered 1`
       <button
         class="o-button o-filter-menu-cancel me-2"
       >
-        Discard
+         Discard 
       </button>
       <button
         class="o-button primary o-filter-menu-confirm"

@@ -1,4 +1,3 @@
-import { useRef } from "@odoo/owl";
 import { Chart, ChartConfiguration } from "chart.js/auto";
 import { MASTER_CHART_HEIGHT } from "../../../../../constants";
 import {
@@ -13,6 +12,7 @@ import { withZoom } from "../../../../helpers/zoom";
 import { ChartJsComponent } from "../chartjs";
 import { Boundaries, ZoomableChartStore } from "./zoomable_chart_store";
 
+import { useRef } from "../../../../../owl3_compatibility_layer";
 export class ZoomableChartJsComponent extends ChartJsComponent {
   static template = "o-spreadsheet-ZoomableChartJsComponent";
 

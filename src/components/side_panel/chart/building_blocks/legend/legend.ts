@@ -1,4 +1,3 @@
-import { Component } from "@odoo/owl";
 import { _t } from "../../../../../translation";
 import { ChartDefinitionWithDataSource } from "../../../../../types/chart/chart";
 import { LegendPosition } from "../../../../../types/chart/common_chart";
@@ -8,6 +7,7 @@ import { Select } from "../../../../select/select";
 import { Section } from "../../../components/section/section";
 import { ChartSidePanelProps, ChartSidePanelPropsObject } from "../../common";
 
+import { Component } from "../../../../../owl3_compatibility_layer";
 export class ChartLegend extends Component<
   ChartSidePanelProps<ChartDefinitionWithDataSource<string>> & { isDisabled?: boolean },
   SpreadsheetChildEnv

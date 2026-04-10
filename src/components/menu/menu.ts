@@ -1,5 +1,5 @@
-import { Component, useEffect, useRef } from "@odoo/owl";
 import { Action, isMenuItemEnabled, isRootMenu, MenuItemOrSeparator } from "../../actions/action";
+import { Component, useLayoutEffect, useRef } from "../../owl3_compatibility_layer";
 import { Pixel } from "../../types/misc";
 import { Rect } from "../../types/rendering";
 import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
@@ -55,7 +55,7 @@ export class Menu extends Component<MenuProps, SpreadsheetChildEnv> {
   private menuRef = useRef("menu");
 
   setup(): void {
-    useEffect(() => {
+    useLayoutEffect(() => {
       if (
         this.props.hoveredMenuId &&
         this.props.isHoveredMenuFocused &&

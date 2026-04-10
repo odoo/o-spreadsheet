@@ -1,4 +1,3 @@
-import { Component } from "@odoo/owl";
 import { LINK_COLOR } from "../../../constants";
 import { toXC } from "../../../helpers/coordinates";
 import { openLink, urlRepresentation } from "../../../helpers/links";
@@ -11,6 +10,7 @@ import { Store } from "../../../types/store_engine";
 import { isMiddleClickOrCtrlClick } from "../../helpers/dom_helpers";
 import { CellPopoverStore } from "../../popover/cell_popover_store";
 
+import { Component } from "../../../owl3_compatibility_layer";
 interface LinkDisplayProps {
   cellPosition: Position;
 }

@@ -1,5 +1,6 @@
-import { Component, useState } from "@odoo/owl";
+import { proxy } from "@odoo/owl";
 import { formatValue, humanizeNumber } from "../../../helpers/format/format";
+import { Component } from "../../../owl3_compatibility_layer";
 import { _t } from "../../../translation";
 import { PerfProfile, RangeTiming } from "../../../types/functions";
 import { Highlight } from "../../../types/misc";
@@ -18,7 +19,7 @@ export class PerfProfilePanel extends Component<Props, SpreadsheetChildEnv> {
   static components = { Section };
   static props = { onCloseSidePanel: Function };
 
-  private state = useState({
+  private state = proxy({
     selectedIndex: undefined as number | undefined,
     lastProfiledTime: 0,
   });

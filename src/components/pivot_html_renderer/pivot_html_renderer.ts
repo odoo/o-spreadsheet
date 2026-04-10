@@ -1,9 +1,9 @@
-import { Component, useState } from "@odoo/owl";
+import { proxy } from "@odoo/owl";
+import { FunctionResultObject, Maybe, SpreadsheetPivotTable, UID } from "../..";
 import { toString } from "../../functions/helpers";
 import { formatValue } from "../../helpers/format/format";
 import { generatePivotArgs } from "../../helpers/pivot/pivot_helpers";
-import { SpreadsheetPivotTable } from "../../helpers/pivot/table_spreadsheet_pivot";
-import { FunctionResultObject, Maybe, UID } from "../../types/misc";
+import { Component } from "../../owl3_compatibility_layer";
 import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 import { Checkbox } from "../side_panel/components/checkbox/checkbox";
 
@@ -57,7 +57,7 @@ export class PivotHTMLRenderer extends Component<Props, SpreadsheetChildEnv> {
     rows: [],
     values: [],
   };
-  private state: State = useState({
+  private state: State = proxy({
     showMissingValuesOnly: false,
   });
 

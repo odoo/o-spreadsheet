@@ -1,4 +1,5 @@
-import { Component, useExternalListener, useRef, useState } from "@odoo/owl";
+import { proxy } from "@odoo/owl";
+import { Component, useExternalListener, useRef } from "../../../../owl3_compatibility_layer";
 import { chartDataSourceRegistry } from "../../../../registries/chart_data_source_registry";
 import { chartSubtypeRegistry } from "../../../../registries/chart_subtype_registry";
 import { CHART_TYPES, ChartDefinition, ChartType } from "../../../../types/chart/chart";
@@ -35,7 +36,7 @@ export class ChartTypePicker extends Component<Props, SpreadsheetChildEnv> {
   popoverRef = useRef("popoverRef");
   selectRef = useRef("selectRef");
 
-  state = useState<ChartTypePickerState>({ popoverProps: undefined, popoverStyle: "" });
+  state = proxy<ChartTypePickerState>({ popoverProps: undefined, popoverStyle: "" });
 
   setup(): void {
     useExternalListener(window, "pointerdown", this.onExternalClick, { capture: true });

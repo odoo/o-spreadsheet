@@ -1,18 +1,18 @@
 <templates>
   <t t-name="o-spreadsheet-BubbleChartDesignPanel">
-    <GeneralDesignEditor t-props="props">
+    <GeneralDesignEditor t-props="this.props">
       <t t-set-slot="general-extension">
-        <ChartLegend t-props="props" isDisabled="colorMode == 'single'"/>
+        <ChartLegend t-props="this.props" isDisabled="this.colorMode == 'single'"/>
         <Section class="'o-vertical-axis-selection pt-0'" title.translate="Vertical axis position">
           <RadioSelection
-            choices="axisChoices"
-            selectedValue="verticalAxisPosition"
+            choices="this.axisChoices"
+            selectedValue="this.verticalAxisPosition"
             name="'axis'"
-            onChange.bind="updateVerticalAxisPosition"
+            onChange.bind="this.updateVerticalAxisPosition"
           />
         </Section>
         <Section class="'pt-0'" title.translate="Values">
-          <ChartShowValues t-props="props"/>
+          <ChartShowValues t-props="this.props"/>
         </Section>
       </t>
     </GeneralDesignEditor>
@@ -20,23 +20,23 @@
       <t t-set-slot="content">
         <Section class="'pt-0'" title.translate="Color mode">
           <RadioSelection
-            choices="colorModeChoices"
-            selectedValue="colorMode"
+            choices="this.colorModeChoices"
+            selectedValue="this.colorMode"
             name="'bubble-color-mode'"
-            onChange.bind="onColorModeChange"
+            onChange.bind="this.onColorModeChange"
           />
           <Checkbox
             name="'areBubblesTransparent'"
-            value="areBubblesTransparent"
-            onChange.bind="updateBubbleTransparency"
+            value="this.areBubblesTransparent"
+            onChange.bind="this.updateBubbleTransparency"
             className="'w-100 pt-2'"
             label.translate="Show semi-transparent bubbles"
           />
         </Section>
-        <Section t-if="colorMode == 'single'" class="'pt-0'" title.translate="Bubble color">
+        <Section t-if="this.colorMode == 'single'" class="'pt-0'" title.translate="Bubble color">
           <RoundColorPicker
-            currentColor="currentBubbleColor"
-            onColorPicked.bind="updateBubbleColor"
+            currentColor="this.currentBubbleColor"
+            onColorPicked.bind="this.updateBubbleColor"
           />
         </Section>
       </t>
@@ -44,10 +44,10 @@
     <SidePanelCollapsible isInitiallyCollapsed="true" title.translate="Axes">
       <t t-set-slot="content">
         <AxisDesignEditor
-          axesList="axesList"
-          chartId="props.chartId"
-          definition="props.definition"
-          updateChart="props.updateChart"
+          axesList="this.axesList"
+          chartId="this.props.chartId"
+          definition="this.props.definition"
+          updateChart="this.props.updateChart"
         />
       </t>
     </SidePanelCollapsible>

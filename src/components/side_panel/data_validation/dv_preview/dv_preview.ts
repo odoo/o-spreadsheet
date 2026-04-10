@@ -1,5 +1,5 @@
-import { Component, useRef } from "@odoo/owl";
 import { HIGHLIGHT_COLOR } from "../../../../constants";
+import { Component, useRef } from "../../../../owl3_compatibility_layer";
 import { criterionEvaluatorRegistry } from "../../../../registries/criterion_registry";
 import { DataValidationRule } from "../../../../types/data_validation";
 import { Highlight } from "../../../../types/misc";

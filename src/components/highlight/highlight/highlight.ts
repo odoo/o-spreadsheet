@@ -1,6 +1,7 @@
-import { Component, useState } from "@odoo/owl";
+import { proxy } from "@odoo/owl";
 import { clip } from "../../../helpers/misc";
 import { isEqual } from "../../../helpers/zones";
+import { Component } from "../../../owl3_compatibility_layer";
 import { ResizeDirection } from "../../../types/figure";
 import { Color, HeaderIndex, Zone } from "../../../types/misc";
 import { Range } from "../../../types/range";
@@ -33,7 +34,7 @@ export class Highlight extends Component<HighlightProps, SpreadsheetChildEnv> {
     Border,
   };
 
-  highlightState: HighlightState = useState({
+  highlightState: HighlightState = proxy({
     shiftingMode: "none",
   });
   dragNDropGrid = useDragAndDropBeyondTheViewport(this.env);

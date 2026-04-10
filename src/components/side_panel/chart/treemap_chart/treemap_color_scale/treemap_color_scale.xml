@@ -2,7 +2,7 @@
   <t t-name="o-spreadsheet-TreeMapColorScale">
     <div class="o-min-color d-flex align-items-center mb-2 mt-4">
       <RoundColorPicker
-        currentColor="coloringOptions.minColor"
+        currentColor="this.coloringOptions.minColor"
         onColorPicked="(color) => this.setColorScaleColor('minColor', color)"
         disableNoColor="true"
       />
@@ -10,14 +10,14 @@
     </div>
     <div class="o-mid-color d-flex align-items-center mb-2">
       <RoundColorPicker
-        currentColor="coloringOptions.midColor"
+        currentColor="this.coloringOptions.midColor"
         onColorPicked="(color) => this.setColorScaleColor('midColor', color)"
       />
       <span class="ps-2">Color of middle values</span>
     </div>
     <div class="o-max-color d-flex align-items-center">
       <RoundColorPicker
-        currentColor="coloringOptions.maxColor"
+        currentColor="this.coloringOptions.maxColor"
         onColorPicked="(color) => this.setColorScaleColor('maxColor', color)"
         disableNoColor="true"
       />

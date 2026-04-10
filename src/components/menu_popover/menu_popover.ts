@@ -1,14 +1,12 @@
-import {
-  Component,
-  onWillUnmount,
-  onWillUpdateProps,
-  useEffect,
-  useExternalListener,
-  useRef,
-  useState,
-} from "@odoo/owl";
+import { onWillUnmount, onWillUpdateProps, proxy } from "@odoo/owl";
 import { Action, getMenuItemsAndSeparators, isMenuItemEnabled } from "../../actions/action";
 import { DESKTOP_MENU_ITEM_HEIGHT, MENU_VERTICAL_PADDING, MENU_WIDTH } from "../../constants";
+import {
+  Component,
+  useExternalListener,
+  useLayoutEffect,
+  useRef,
+} from "../../owl3_compatibility_layer";
 import { useStore } from "../../store_engine/store_hooks";
 import { DOMFocusableElementStore } from "../../stores/DOM_focus_store";
 import { PopoverPropsPosition } from "../../types/cell_popovers";
@@ -86,14 +84,14 @@ export class MenuPopover extends Component<Props, SpreadsheetChildEnv> {
     depth: 0,
     popoverPositioning: "top-right",
   };
-  private subMenu: MenuState = useState({
+  private subMenu: MenuState = proxy({
     isOpen: false,
     anchorRect: null,
     scrollOffset: 0,
     menuItems: [],
     isHoveringChild: false,
   });
-  private state: State = useState({
+  private state: State = proxy({
     hoveredMenu: this.props.autoSelectFirstItem ? this.getNextEnabledMenuItem() : undefined,
   });
   private menuRef = useRef("menu");
@@ -103,7 +101,7 @@ export class MenuPopover extends Component<Props, SpreadsheetChildEnv> {
   setup() {
     const domFocusableElementStore = useStore(DOMFocusableElementStore);
 
-    useEffect(() => {
+    useLayoutEffect(() => {
       if (
         !this.props.disableKeyboardNavigation &&
         !this.state.hoveredMenu &&

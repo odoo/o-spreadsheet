@@ -34,7 +34,6 @@ exports[`Data Series Can render a data series component 1`] = `
             class="o-input mb-2"
             placeholder="e.g. A1:A2"
             spellcheck="false"
-            style=""
             type="text"
           />
           

@@ -1,4 +1,3 @@
-import { Component } from "@odoo/owl";
 import { deepEquals, getMissingHeadersForSpreadResult } from "../../helpers/misc";
 import { positionToZone } from "../../helpers/zones";
 import { _t } from "../../translation";
@@ -8,6 +7,7 @@ import { CellErrorType } from "../../types/errors";
 import { CellPosition } from "../../types/misc";
 import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 
+import { Component } from "../../owl3_compatibility_layer";
 const ERROR_TOOLTIP_MAX_HEIGHT = 80;
 
 interface ErrorToolTipProps {

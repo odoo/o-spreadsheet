@@ -7,23 +7,12 @@ import { WebsocketTransport } from "./transport.js";
 import { FileStore } from "./file_store.js";
 import { geoJsonService } from "./geo_json/geo_json_service.js";
 
-const {
-  xml,
-  Component,
-  whenReady,
-  onWillStart,
-  onMounted,
-  useState,
-  onWillUnmount,
-  useExternalListener,
-  onError,
-  markRaw,
-} = owl;
-
+const { xml, whenReady, onWillStart, onMounted, proxy, onWillUnmount, onError, markRaw } = owl;
 const { Spreadsheet, Model } = o_spreadsheet;
 const { topbarMenuRegistry } = o_spreadsheet.registries;
 const { useStoreProvider } = o_spreadsheet.stores;
 const { UuidGenerator } = o_spreadsheet.helpers;
+const { Component, useExternalListener, App } = o_spreadsheet.compatibility;
 
 topbarMenuRegistry.addChild("reload", ["file"], {
   name: "Clear & reload demo",
@@ -62,7 +51,7 @@ let start;
 
 class Demo extends Component {
   setup() {
-    this.state = useState({ key: 0, displayHeader: false });
+    this.state = proxy({ key: 0, displayHeader: false });
     this.stateUpdateMessages = [];
     this.client = {
       id: UuidGenerator.uuidv4(),
@@ -407,14 +396,14 @@ class Demo extends Component {
 }
 
 Demo.template = xml/* xml */ `
-  <div t-if="state.displayHeader" class="d-flex flex flex-column justify-content w-100 h-100">
+  <div t-if="this.state.displayHeader" class="d-flex flex flex-column justify-content w-100 h-100">
     <div class="p-3 border-bottom">A header</div>
     <div class="flex-fill">
-      <Spreadsheet model="model" notifyUser="notifyUser" t-key="state.key"/>
+      <Spreadsheet model="this.model" notifyUser="this.notifyUser" t-key="this.state.key"/>
     </div>
   </div>
   <div t-else="" class="w-100 h-100">
-    <Spreadsheet model="model" t-key="state.key" notifyUser="notifyUser"/>
+    <Spreadsheet model="this.model" t-key="this.state.key" notifyUser="this.notifyUser"/>
   </div>
 `;
 Demo.components = { Spreadsheet };
@@ -425,9 +414,10 @@ async function setup() {
   const templates = await (await fetch("../build/o_spreadsheet.xml")).text();
   start = Date.now();
 
-  const rootApp = new owl.App(Demo, { dev: true, warnIfNoStaticProps: true });
-  rootApp.addTemplates(templates);
-  rootApp.mount(document.body);
+  const app = new App({ dev: true, warnIfNoStaticProps: true });
+  app.addTemplates(templates);
+  const root = app.createRoot(Demo);
+  root.mount(document.body);
 }
 
 whenReady(setup);

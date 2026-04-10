@@ -1,5 +1,6 @@
-import { Component, onWillUpdateProps } from "@odoo/owl";
+import { onWillUpdateProps, proxy } from "@odoo/owl";
 import { formatValue } from "../../../helpers/format/format";
+import { Component } from "../../../owl3_compatibility_layer";
 import { MenuItemRegistry } from "../../../registries/menu_items_registry";
 import { useStore } from "../../../store_engine/store_hooks";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
@@ -24,7 +25,7 @@ export class BottomBarStatistic extends Component<Props, SpreadsheetChildEnv> {
   };
   static components = { Ripple };
 
-  selectedStatisticFn: string = "";
+  private state = proxy({ selectedStatisticFn: "" });
   private store!: Store<AggregateStatisticsStore>;
 
   setup() {
@@ -45,10 +46,10 @@ export class BottomBarStatistic extends Component<Props, SpreadsheetChildEnv> {
     ) {
       return undefined;
     }
-    if (this.selectedStatisticFn === "") {
-      this.selectedStatisticFn = Object.keys(this.store.statisticFnResults)[0];
+    if (this.state.selectedStatisticFn === "") {
+      this.state.selectedStatisticFn = Object.keys(this.store.statisticFnResults)[0];
     }
-    return this.getComposedFnName(this.selectedStatisticFn);
+    return this.getComposedFnName(this.state.selectedStatisticFn);
   }
 
   listSelectionStatistics(ev: MouseEvent) {
@@ -60,7 +61,7 @@ export class BottomBarStatistic extends Component<Props, SpreadsheetChildEnv> {
         sequence: i,
         isReadonlyAllowed: true,
         execute: () => {
-          this.selectedStatisticFn = fnName;
+          this.state.selectedStatisticFn = fnName;
         },
       });
       i++;

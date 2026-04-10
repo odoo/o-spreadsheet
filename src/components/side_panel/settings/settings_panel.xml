@@ -3,26 +3,26 @@
     <div class="o-settings-panel">
       <Section title.translate="Locale">
         <Select
-          selectedValue="currentLocale.code"
-          values="selectOptions"
+          selectedValue="this.currentLocale.code"
+          values="this.selectOptions"
           onChange="(value) => this.onLocaleChange(value)"
         />
         <div class="o-locale-preview mt-4 p-3 rounded border">
           <div>
             <span class="o-fw-bold me-1">Number:</span>
-            <span t-out="numberFormatPreview"/>
+            <span t-out="this.numberFormatPreview"/>
           </div>
           <div>
             <span class="o-fw-bold me-1">Date:</span>
-            <span t-out="dateFormatPreview"/>
+            <span t-out="this.dateFormatPreview"/>
           </div>
           <div>
             <span class="o-fw-bold me-1">Date time:</span>
-            <span t-out="dateTimeFormatPreview"/>
+            <span t-out="this.dateTimeFormatPreview"/>
           </div>
           <div>
             <span class="o-fw-bold me-1">First day of week:</span>
-            <span t-out="firstDayOfWeek"/>
+            <span t-out="this.firstDayOfWeek"/>
           </div>
         </div>
       </Section>

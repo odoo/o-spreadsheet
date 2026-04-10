@@ -1,6 +1,6 @@
-import { Component } from "@odoo/owl";
 import { FIRST_CHART_COLOR } from "../../../../helpers/color";
 import { CHART_AXIS_CHOICES } from "../../../../helpers/figures/charts/chart_common";
+import { Component } from "../../../../owl3_compatibility_layer";
 import { _t } from "../../../../translation";
 import { BubbleChartDefinition } from "../../../../types/chart/bubble_chart";
 import { VerticalAxisPosition } from "../../../../types/chart/common_chart";

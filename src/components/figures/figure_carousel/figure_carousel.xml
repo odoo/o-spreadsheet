@@ -1,61 +1,65 @@
 <templates>
   <t t-name="o-spreadsheet-CarouselFigure">
-    <div class="o-carousel w-100 h-100 d-flex flex-column" t-on-dblclick="onCarouselDoubleClick">
-      <t t-set="selectedItem" t-value="selectedCarouselItem"/>
+    <div
+      class="o-carousel w-100 h-100 d-flex flex-column"
+      t-on-dblclick="this.onCarouselDoubleClick">
+      <t t-set="selectedItem" t-value="this.selectedCarouselItem"/>
       <div
         class="o-carousel-header d-flex align-items-baseline flex-shrink-0 pe-1 pe-auto"
         t-att-class="{
-          'border-bottom': env.isDashboard(),
-          'o-carousel-header-floating': !env.isDashboard() and selectedItem?.type === 'carouselDataView',
+          'border-bottom': this.env.isDashboard(),
+          'o-carousel-header-floating': !this.env.isDashboard() and selectedItem?.type === 'carouselDataView',
          }"
-        t-att-style="headerStyle">
+        t-att-style="this.headerStyle">
         <div
           class="o-carousel-title text-truncate flex-shrink-0 pe-2"
-          t-out="title"
-          t-att-title="title"
-          t-att-style="titleStyle"
+          t-out="this.title"
+          t-att-title="this.title"
+          t-att-style="this.titleStyle"
         />
-        <div class="o-carousel-tabs d-flex flex-fill justify-content-end" t-ref="carouselTabs">
-          <t t-foreach="visibleCarouselItems" t-as="item" t-key="item_index">
+        <div
+          class="o-carousel-tabs d-flex flex-fill justify-content-end"
+          t-custom-ref="carouselTabs">
+          <t t-foreach="this.visibleCarouselItems" t-as="item" t-key="item_index">
             <div
               class="o-carousel-tab text-truncate px-2 mt-1 flex-shrink-0"
-              t-att-class="{ 'selected': isItemSelected(item) }"
+              t-att-class="{ 'selected': this.isItemSelected(item) }"
               t-att-data-type="item.type"
-              t-out="getItemTitle(item)"
+              t-out="this.getItemTitle(item)"
               t-on-click.stop="() => this.onCarouselTabClick(item)"
             />
           </t>
         </div>
         <div
           class="o-carousel-tabs-dropdown o-carousel-button flex-shrink-0 rounded p-1"
-          t-att-class="{'active': menuState.isOpen}"
-          t-ref="carouselTabsDropdown"
-          t-on-click="toggleMenu">
+          t-att-class="{'active': this.menuState.isOpen}"
+          t-custom-ref="carouselTabsDropdown"
+          t-on-click="this.toggleMenu">
           <div class="fa fa-angle-down"/>
           <MenuPopover
-            t-if="menuState.isOpen"
-            menuId="menuId"
-            anchorRect="menuState.anchorRect"
-            menuItems="menuState.menuItems"
+            t-if="this.menuState.isOpen"
+            menuId="this.menuId"
+            anchorRect="this.menuState.anchorRect"
+            menuItems="this.menuState.menuItems"
             onClose="() => this.menuState.isOpen=false"
             popoverPositioning="'bottom-left'"
           />
         </div>
         <div
-          t-if="env.isDashboard()"
-          t-att-title="fullScreenButtonTitle"
+          t-if="this.env.isDashboard()"
+          t-att-title="this.fullScreenButtonTitle"
           class="o-carousel-full-screen-button fa o-carousel-button rounded p-1 ms-1"
           t-att-class="{
-            'fa-compress': props.isFullScreen,
-            'fa-expand': !props.isFullScreen,
-            'invisible': selectedCarouselItem?.type !== 'chart',
+            'fa-compress': this.props.isFullScreen,
+            'fa-expand': !this.props.isFullScreen,
+            'invisible': this.selectedCarouselItem?.type !== 'chart',
           }"
-          t-on-click="toggleFullScreen"
+          t-on-click="this.toggleFullScreen"
         />
         <div
-          t-if="!env.isDashboard()"
+          t-if="!this.env.isDashboard()"
           class="o-carousel-menu-button o-carousel-button fa fa-ellipsis-v rounded ms-1"
-          t-on-click="openContextMenu"
+          t-on-click="this.openContextMenu"
         />
       </div>
       <div
@@ -68,14 +72,14 @@
         class="o-carousel-content w-100 flex-fill position-relative">
         <div class="o-chart-container w-100 h-100">
           <t
-            t-component="chartComponent"
+            t-component="this.chartComponent"
             chartId="selectedItem.chartId"
-            isFullScreen="props.isFullScreen"
+            isFullScreen="this.props.isFullScreen"
             t-key="selectedItem.chartId"
           />
         </div>
         <ChartDashboardMenu
-          t-if="env.isDashboard()"
+          t-if="this.env.isDashboard()"
           chartId="selectedItem.chartId"
           hasFullScreenButton="false"
           t-key="selectedItem.chartId"

@@ -1,5 +1,6 @@
-import { onMounted, useEffect } from "@odoo/owl";
+import { onMounted } from "@odoo/owl";
 import { deepEquals } from "../../helpers/misc";
+import { useLayoutEffect } from "../../owl3_compatibility_layer";
 import { useLocalStore, useStoreProvider } from "../../store_engine/store_hooks";
 import { HighlightProvider, HighlightStore } from "../../stores/highlight_store";
 import { Ref } from "../../types/misc";
@@ -21,7 +22,7 @@ export function useHighlights(highlightProvider: HighlightProvider) {
     store.register(highlightProvider);
   });
   let currentHighlights = highlightProvider.highlights;
-  useEffect(
+  useLayoutEffect(
     (highlights) => {
       if (!deepEquals(highlights, currentHighlights)) {
         currentHighlights = highlights;

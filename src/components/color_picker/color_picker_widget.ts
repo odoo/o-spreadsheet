@@ -1,4 +1,4 @@
-import { Component, useRef } from "@odoo/owl";
+import { Component, useRef } from "../../owl3_compatibility_layer";
 import { Pixel } from "../../types/misc";
 import { Rect } from "../../types/rendering";
 import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";

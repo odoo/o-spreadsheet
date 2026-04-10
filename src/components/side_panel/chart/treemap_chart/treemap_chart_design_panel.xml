@@ -1,28 +1,28 @@
 <templates>
   <t t-name="o-spreadsheet-TreeMapChartDesignPanel">
-    <GeneralDesignEditor t-props="props"/>
+    <GeneralDesignEditor t-props="this.props"/>
 
     <SidePanelCollapsible isInitiallyCollapsed="false" title.translate="Tree map colors">
       <t t-set-slot="content">
         <Section class="'pt-0'">
           <BadgeSelection
-            choices="coloringOptionChoices"
-            onChange.bind="changeColoringOption"
-            selectedValue="coloringOptions.type"
+            choices="this.coloringOptionChoices"
+            onChange.bind="this.changeColoringOption"
+            selectedValue="this.coloringOptions.type"
           />
 
-          <t t-if="coloringOptions.type === 'categoryColor'">
+          <t t-if="this.coloringOptions.type === 'categoryColor'">
             <TreeMapCategoryColors
-              chartId="props.chartId"
-              definition="props.definition"
-              onColorChanged.bind="onCategoryColorChange"
+              chartId="this.props.chartId"
+              definition="this.props.definition"
+              onColorChanged.bind="this.onCategoryColorChange"
             />
           </t>
           <t t-else="">
             <TreeMapColorScale
-              chartId="props.chartId"
-              definition="props.definition"
-              onColorChanged.bind="onColorScaleChange"
+              chartId="this.props.chartId"
+              definition="this.props.definition"
+              onColorChanged.bind="this.onColorScaleChange"
             />
           </t>
         </Section>
@@ -35,16 +35,16 @@
           <Checkbox
             name="'showHeaders'"
             label.translate="Show headers"
-            value="showHeaders"
-            onChange="(showHeaders) => props.updateChart(this.props.chartId, { showHeaders })"
+            value="this.showHeaders"
+            onChange="(showHeaders) => this.props.updateChart(this.props.chartId, { showHeaders })"
           />
         </Section>
-        <Section class="'pt-0'" t-if="showHeaders">
+        <Section class="'pt-0'" t-if="this.showHeaders">
           <TextStyler
             class="'pt-0 o-header-style'"
-            updateStyle="(headerDesign) => props.updateChart(this.props.chartId, { headerDesign })"
-            style="props.definition.headerDesign || {}"
-            defaultStyle="defaults.headerDesign"
+            updateStyle="(headerDesign) => this.props.updateChart(this.props.chartId, { headerDesign })"
+            style="this.props.definition.headerDesign || {}"
+            defaultStyle="this.defaults.headerDesign"
             hasBackgroundColor="true"
           />
         </Section>
@@ -54,23 +54,23 @@
             <Checkbox
               name="'showLabels'"
               label.translate="Show labels"
-              value="showLabels"
-              onChange="(showLabels) => props.updateChart(this.props.chartId, { showLabels })"
+              value="this.showLabels"
+              onChange="(showLabels) => this.props.updateChart(this.props.chartId, { showLabels })"
             />
-            <ChartShowValues t-props="props" defaultValue="defaults.showValues"/>
+            <ChartShowValues t-props="this.props" defaultValue="this.defaults.showValues"/>
           </div>
         </Section>
-        <Section class="'pt-0'" t-if="showValues || showLabels">
+        <Section class="'pt-0'" t-if="this.showValues || this.showLabels">
           <TextStyler
             class="'pt-0 o-values-style'"
-            updateStyle="(valuesDesign) => props.updateChart(this.props.chartId, { valuesDesign })"
-            style="props.definition.valuesDesign || {}"
-            defaultStyle="defaults.valuesDesign"
+            updateStyle="(valuesDesign) => this.props.updateChart(this.props.chartId, { valuesDesign })"
+            style="this.props.definition.valuesDesign || {}"
+            defaultStyle="this.defaults.valuesDesign"
             hasVerticalAlign="true"
           />
         </Section>
         <Section class="'pt-0'" title.translate="Number formatting">
-          <ChartHumanizeNumbers t-props="props"/>
+          <ChartHumanizeNumbers t-props="this.props"/>
         </Section>
       </t>
     </SidePanelCollapsible>

@@ -1,5 +1,5 @@
-import { useEffect, useRef } from "@odoo/owl";
 import { CANVAS_SHIFT } from "../../constants";
+import { useLayoutEffect, useRef } from "../../owl3_compatibility_layer";
 import { useLocalStore, useStore } from "../../store_engine/store_hooks";
 import { GridRenderer } from "../../stores/grid_renderer_store";
 import { RendererStore } from "../../stores/renderer_store";
@@ -21,7 +21,7 @@ export function useGridDrawing({
   changeCanvasSizeOnZoom,
 }: GridDrawingArgs) {
   const canvasRef = useRef(refName);
-  useEffect(drawGrid);
+  useLayoutEffect(drawGrid);
   const renderer = rendererStore || useStore(RendererStore);
   useLocalStore(GridRenderer, renderer);
 

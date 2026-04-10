@@ -1,7 +1,8 @@
-import { Component, onWillUpdateProps } from "@odoo/owl";
+import { onWillUpdateProps } from "@odoo/owl";
 import { isDateTimeFormat } from "../../../helpers/format/format";
 import { deepEquals } from "../../../helpers/misc";
 import { interactiveSort } from "../../../helpers/sort_interactive";
+import { Component } from "../../../owl3_compatibility_layer";
 import { CellPopoverComponent, PopoverBuilders } from "../../../types/cell_popovers";
 import { CellValueType } from "../../../types/cells";
 import { Position, SortDirection } from "../../../types/misc";

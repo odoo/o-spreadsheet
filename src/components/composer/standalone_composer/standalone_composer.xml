@@ -3,15 +3,15 @@
     <div
       class="o-standalone-composer border-bottom"
       t-on-click.stop=""
-      t-att-class="containerClass"
-      t-att-title="props.title">
+      t-att-class="this.containerClass"
+      t-att-title="this.props.title">
       <Composer
-        focus="focus"
-        inputStyle="composerStyle"
-        onComposerContentFocused.bind="onFocus"
-        composerStore="standaloneComposerStore"
-        placeholder="props.placeholder"
-        delimitation="spreadsheetRect"
+        focus="this.focus"
+        inputStyle="this.composerStyle"
+        onComposerContentFocused.bind="this.onFocus"
+        composerStore="this.standaloneComposerStore"
+        placeholder="this.props.placeholder"
+        delimitation="this.spreadsheetRect"
       />
     </div>
   </t>

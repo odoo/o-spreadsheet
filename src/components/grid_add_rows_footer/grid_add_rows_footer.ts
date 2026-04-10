@@ -1,4 +1,5 @@
-import { Component, useExternalListener, useRef, useState } from "@odoo/owl";
+import { proxy } from "@odoo/owl";
+import { Component, useExternalListener, useRef } from "../../owl3_compatibility_layer";
 import { useStore } from "../../store_engine/store_hooks";
 import { DOMFocusableElementStore } from "../../stores/DOM_focus_store";
 import { _t } from "../../translation";
@@ -17,7 +18,7 @@ export class GridAddRowsFooter extends Component<Props, SpreadsheetChildEnv> {
   private DOMFocusableElementStore!: Store<DOMFocusableElementStore>;
 
   inputRef = useRef<HTMLInputElement>("inputRef");
-  state = useState({
+  state = proxy({
     inputValue: "100",
     errorFlag: false,
   });

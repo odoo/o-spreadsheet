@@ -2,13 +2,13 @@
   <t t-name="o-spreadsheet-BottomBar">
     <div
       class="o-spreadsheet-bottom-bar o-two-columns d-flex flex-fill align-items-center overflow-hidden border-top"
-      t-on-click="props.onClick"
-      t-ref="bottomBar">
+      t-on-click="this.props.onClick"
+      t-custom-ref="bottomBar">
       <Ripple class="'add-sheet-container'">
         <div
           class="o-sheet-item o-add-sheet me-2 p-1"
-          t-if="!env.model.getters.isReadonly()"
-          t-on-click="clickAddSheet">
+          t-if="!this.env.model.getters.isReadonly()"
+          t-on-click="this.clickAddSheet">
           <t t-call="o-spreadsheet-Icon.PLUS"/>
         </div>
       </Ripple>
@@ -17,23 +17,23 @@
           class="o-sheet-item o-list-sheets me-2 p-1"
           composerFocusableElement="true"
           tabindex="-1"
-          t-on-click="clickListSheets">
+          t-on-click="this.clickListSheets">
           <t t-call="o-spreadsheet-Icon.LIST"/>
         </div>
       </Ripple>
       <div class="o-all-sheets position-relative d-flex h-100 flex-fill overflow-hidden">
         <div
           class="o-bottom-bar-fade-in position-absolute h-100 w-100 pe-none"
-          t-if="state.isSheetListScrollableLeft"
+          t-if="this.state.isSheetListScrollableLeft"
         />
         <div
           class="o-sheet-list d-flex w-100 px-1"
-          t-ref="sheetList"
-          t-on-wheel="onWheel"
-          t-on-scroll="onScroll">
-          <t t-foreach="getVisibleSheets()" t-as="sheet" t-key="sheet.id">
+          t-custom-ref="sheetList"
+          t-on-wheel="this.onWheel"
+          t-on-scroll="this.onScroll">
+          <t t-foreach="this.getVisibleSheets()" t-as="sheet" t-key="sheet.id">
             <BottomBarSheet
-              style="getSheetStyle(sheet.id)"
+              style="this.getSheetStyle(sheet.id)"
               sheetId="sheet.id"
               openContextMenu="(registry, ev) => this.onSheetContextMenu(sheet.id, registry, ev)"
               onMouseDown="(ev) => this.onSheetMouseDown(sheet.id, ev)"
@@ -42,24 +42,24 @@
         </div>
         <div
           class="o-bottom-bar-fade-out position-absolute h-100 w-100 pe-none"
-          t-if="state.isSheetListScrollableRight"
+          t-if="this.state.isSheetListScrollableRight"
         />
       </div>
-      <t t-if="!env.isSmall">
+      <t t-if="!this.env.isSmall">
         <div
           class="o-bottom-bar-arrows d-flex h-100 me-4 align-items-center ms-3"
-          t-if="state.isSheetListScrollableLeft || state.isSheetListScrollableRight">
+          t-if="this.state.isSheetListScrollableLeft || this.state.isSheetListScrollableRight">
           <Ripple
             ignoreClickPosition="true"
             width="20"
             height="20"
             offsetX="1"
             allowOverflow="true"
-            enabled="state.isSheetListScrollableLeft">
+            enabled="this.state.isSheetListScrollableLeft">
             <div
               class="o-bottom-bar-arrow o-bottom-bar-arrow-left d-flex align-items-center"
-              t-att-class="{'o-disabled': !state.isSheetListScrollableLeft}"
-              t-on-click="onArrowLeft">
+              t-att-class="{'o-disabled': !this.state.isSheetListScrollableLeft}"
+              t-on-click="this.onArrowLeft">
               <t t-call="o-spreadsheet-Icon.CARET_LEFT"/>
             </div>
           </Ripple>
@@ -69,11 +69,11 @@
             height="20"
             offsetX="-1"
             allowOverflow="true"
-            enabled="state.isSheetListScrollableRight">
+            enabled="this.state.isSheetListScrollableRight">
             <div
               class="o-bottom-bar-arrow o-bottom-bar-arrow-right d-flex align-items-center"
-              t-att-class="{'o-disabled': !state.isSheetListScrollableRight}"
-              t-on-click="onArrowRight">
+              t-att-class="{'o-disabled': !this.state.isSheetListScrollableRight}"
+              t-on-click="this.onArrowRight">
               <t t-call="o-spreadsheet-Icon.CARET_RIGHT"/>
             </div>
           </Ripple>
@@ -85,12 +85,12 @@
       </t>
 
       <MenuPopover
-        t-if="menuState.isOpen"
-        anchorRect="menuState.anchorRect"
-        menuItems="menuState.menuItems"
-        maxHeight="menuMaxHeight"
+        t-if="this.menuState.isOpen"
+        anchorRect="this.menuState.anchorRect"
+        menuItems="this.menuState.menuItems"
+        maxHeight="this.menuMaxHeight"
         onClose="() => this.closeMenu()"
-        menuId="menuState.menuId"
+        menuId="this.menuState.menuId"
       />
     </div>
   </t>

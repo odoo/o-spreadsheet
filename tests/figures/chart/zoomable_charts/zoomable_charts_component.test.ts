@@ -480,7 +480,7 @@ describe("zoom", () => {
     await openChartDesignSidePanel(model, env, fixture, chartId);
     let container = fixture.querySelector(".o-master-chart-container");
     let style = container?.getAttribute("style");
-    expect(style).toEqual("");
+    expect(style).toBeNull();
 
     updateChart(
       model,

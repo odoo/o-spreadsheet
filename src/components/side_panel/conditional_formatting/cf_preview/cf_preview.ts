@@ -1,6 +1,6 @@
-import { Component, useRef } from "@odoo/owl";
 import { HIGHLIGHT_COLOR, TEXT_BODY } from "../../../../constants";
 import { colorNumberToHex } from "../../../../helpers/color";
+import { Component, useRef } from "../../../../owl3_compatibility_layer";
 import { criterionEvaluatorRegistry } from "../../../../registries/criterion_registry";
 import { ConditionalFormat } from "../../../../types/conditional_formatting";
 import { Highlight } from "../../../../types/misc";

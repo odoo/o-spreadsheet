@@ -2,14 +2,14 @@
   <t t-name="o-spreadsheet-CogWheelMenu">
     <span
       class="fa fa-cog os-cog-wheel-menu-icon o-button-icon"
-      t-on-click="toggleMenu"
-      t-ref="button"
+      t-on-click="this.toggleMenu"
+      t-custom-ref="button"
     />
     <MenuPopover
-      t-if="menuState.isOpen"
-      menuId="menuId"
-      anchorRect="menuState.anchorRect"
-      menuItems="menuState.menuItems"
+      t-if="this.menuState.isOpen"
+      menuId="this.menuId"
+      anchorRect="this.menuState.anchorRect"
+      menuItems="this.menuState.menuItems"
       onClose="() => this.menuState.isOpen=false"
       width="160"
     />

@@ -1,5 +1,6 @@
-import { Component, useState, xml } from "@odoo/owl";
+import { proxy, xml } from "@odoo/owl";
 import { clip } from "../../helpers/misc";
+import { Component } from "../../owl3_compatibility_layer";
 import { HeaderIndex } from "../../types/misc";
 import { DOMCoordinates } from "../../types/rendering";
 import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
@@ -27,7 +28,7 @@ export class Autofill extends Component<Props, SpreadsheetChildEnv> {
     position: Object,
     isVisible: Boolean,
   };
-  state: State = useState({
+  state: State = proxy({
     position: { x: 0, y: 0 },
     handler: false,
   });
@@ -111,6 +112,6 @@ class TooltipComponent extends Component<Props> {
     content: String,
   };
   static template = xml/* xml */ `
-    <div t-out="props.content"/>
+    <div t-out="this.props.content"/>
   `;
 }

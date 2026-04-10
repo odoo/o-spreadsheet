@@ -1,17 +1,17 @@
 <templates>
   <t t-name="o-spreadsheet-ChartDashboardMenu">
     <div class="o-dashboard-chart-select position-absolute top-0 end-0" t-on-click.stop="">
-      <div class="d-flex align-items-center gap-1 p-1 rounded" t-att-style="backgroundColor">
-        <t t-if="regionOptions.length > 1">
+      <div class="d-flex align-items-center gap-1 p-1 rounded" t-att-style="this.backgroundColor">
+        <t t-if="this.regionOptions.length > 1">
           <Select
             class="'o-chart-dashboard-item w-auto py-0 px-1 text-muted text-nowrap rounded border-0'"
             popoverClass="'w-auto'"
-            values="regionOptions"
-            selectedValue="selectedRegion"
-            onChange.bind="onRegionSelected"
+            values="this.regionOptions"
+            selectedValue="this.selectedRegion"
+            onChange.bind="this.onRegionSelected"
           />
         </t>
-        <t t-foreach="getMenuItems()" t-as="item" t-key="item.id">
+        <t t-foreach="this.getMenuItems()" t-as="item" t-key="item.id">
           <div
             t-attf-class=" {{item.class}}"
             class="o-chart-dashboard-item btn border-0 lh-1 p-1 d-flex align-items-center justify-content-center"
@@ -23,13 +23,13 @@
         </t>
         <button
           class="o-chart-dashboard-item btn text-muted lh-1 p-1 fa fa-ellipsis-v"
-          t-on-click="openContextMenu"
+          t-on-click="this.openContextMenu"
         />
       </div>
       <MenuPopover
-        t-if="menuState.isOpen"
-        anchorRect="menuState.anchorRect"
-        menuItems="menuState.menuItems"
+        t-if="this.menuState.isOpen"
+        anchorRect="this.menuState.anchorRect"
+        menuItems="this.menuState.menuItems"
         onClose="() => this.menuState.isOpen=false"
       />
     </div>

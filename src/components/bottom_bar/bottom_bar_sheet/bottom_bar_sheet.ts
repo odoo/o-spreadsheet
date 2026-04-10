@@ -1,20 +1,18 @@
-import {
-  Component,
-  onMounted,
-  onPatched,
-  onWillUnmount,
-  useEffect,
-  useExternalListener,
-  useRef,
-  useState,
-} from "@odoo/owl";
+import { onMounted, onPatched, onWillUnmount, proxy } from "@odoo/owl";
 import { throttle } from "../../../helpers/misc";
 import { interactiveRenameSheet } from "../../../helpers/ui/sheet_interactive";
+import {
+  Component,
+  useExternalListener,
+  useLayoutEffect,
+  useRef,
+} from "../../../owl3_compatibility_layer";
 import { MenuItemRegistry } from "../../../registries/menu_items_registry";
 import { getSheetMenuRegistry } from "../../../registries/menus/sheet_menu_registry";
 import { useStore } from "../../../store_engine/store_hooks";
 import { DOMFocusableElementStore } from "../../../stores/DOM_focus_store";
 import { Command, CommandResult, DispatchResult, isSheetDependent } from "../../../types/commands";
+import { UID } from "../../../types/misc";
 import { Rect } from "../../../types/rendering";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
 import { Store } from "../../../types/store_engine";
@@ -63,7 +61,7 @@ export class BottomBarSheet extends Component<Props, SpreadsheetChildEnv> {
     style: "",
   };
 
-  private state = useState<State>({ isEditing: false, pickerOpened: false });
+  private state = proxy<State>({ isEditing: false, pickerOpened: false });
 
   private sheetDivRef = useRef("sheetDiv");
   private iconRef = useRef("icon");
@@ -73,17 +71,26 @@ export class BottomBarSheet extends Component<Props, SpreadsheetChildEnv> {
 
   private DOMFocusableElementStore!: Store<DOMFocusableElementStore>;
   setup() {
+    this.DOMFocusableElementStore = useStore(DOMFocusableElementStore);
+    useExternalListener(window, "click", () => (this.state.pickerOpened = false));
+
+    // Subscribe BottomBarSheet to isEditing so onPatched fires when it changes.
+    // (Without this, isEditing is read inside Ripple's slot render, which subscribes
+    // Ripple's signalComputation instead of ours, so our onPatched never fires.)
+    useLayoutEffect(
+      () => {},
+      () => [this.state.isEditing]
+    );
+
     onPatched(() => {
       if (this.sheetNameRef.el && this.state.isEditing && this.editionState === "initializing") {
         this.editionState = "editing";
         this.focusInputAndSelectContent();
       }
     });
-    this.DOMFocusableElementStore = useStore(DOMFocusableElementStore);
-    useExternalListener(window, "click", () => (this.state.pickerOpened = false));
 
-    useEffect(
-      (sheetId) => {
+    useLayoutEffect(
+      (sheetId: UID) => {
         if (this.props.sheetId === sheetId) {
           this.scrollToSheet();
         }

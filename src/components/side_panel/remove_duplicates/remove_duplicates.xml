@@ -2,15 +2,15 @@
   <t t-name="o-spreadsheet-RemoveDuplicatesPanel">
     <div class="o-remove-duplicates">
       <Section>
-        <ValidationMessages messages="[selectionStatisticalInformation]" msgType="'info'"/>
+        <ValidationMessages messages="[this.selectionStatisticalInformation]" msgType="'info'"/>
       </Section>
       <Section class="'pt-0'">
         <t t-set="dataHasHeaderLabel">Data has header row</t>
         <Checkbox
           name="'dataHasHeader'"
-          value="state.hasHeader"
+          value="this.state.hasHeader"
           label="dataHasHeaderLabel"
-          onChange.bind="toggleHasHeader"
+          onChange.bind="this.toggleHasHeader"
         />
       </Section>
 
@@ -18,15 +18,15 @@
         <div class="o-checkbox-selection overflow-auto">
           <t t-set="selectAllLabel">Select all</t>
           <Checkbox
-            value="isEveryColumnSelected"
+            value="this.isEveryColumnSelected"
             label="selectAllLabel"
-            onChange.bind="toggleAllColumns"
+            onChange.bind="this.toggleAllColumns"
           />
 
-          <t t-foreach="Object.keys(state.columns)" t-as="colIndex" t-key="colIndex">
+          <t t-foreach="Object.keys(this.state.columns)" t-as="colIndex" t-key="colIndex">
             <Checkbox
-              value="state.columns[colIndex]"
-              label="getColLabel(colIndex)"
+              value="this.state.columns[colIndex]"
+              label="this.getColLabel(colIndex)"
               onChange="() => this.toggleColumn(colIndex)"
             />
           </t>
@@ -37,14 +37,14 @@
         <div class="o-sidePanelButtons">
           <button
             class="o-button primary"
-            t-att-class="{'o-disabled': !canConfirm}"
-            t-on-click="onRemoveDuplicates">
+            t-att-class="{'o-disabled': !this.canConfirm}"
+            t-on-click="this.onRemoveDuplicates">
             Remove duplicates
           </button>
         </div>
       </Section>
-      <Section t-if="errorMessages.length">
-        <ValidationMessages messages="errorMessages" msgType="'error'"/>
+      <Section t-if="this.errorMessages.length">
+        <ValidationMessages messages="this.errorMessages" msgType="'error'"/>
       </Section>
     </div>
   </t>

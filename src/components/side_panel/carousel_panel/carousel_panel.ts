@@ -1,9 +1,10 @@
-import { Component, onWillUpdateProps, useRef } from "@odoo/owl";
+import { onWillUpdateProps } from "@odoo/owl";
 import { ActionSpec } from "../../../actions/action";
 import { DEFAULT_CAROUSEL_TITLE_STYLE } from "../../../constants";
 import { getCarouselItemPreview, getCarouselItemTitle } from "../../../helpers/carousel_helpers";
 import { deepEquals } from "../../../helpers/misc";
 import { UuidGenerator } from "../../../helpers/uuid";
+import { Component, useRef } from "../../../owl3_compatibility_layer";
 import { _t } from "../../../translation";
 import { TitleDesign } from "../../../types/chart/chart";
 import { CarouselItem } from "../../../types/figure";
