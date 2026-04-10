@@ -4,7 +4,7 @@ import { CellValue } from "../../types/cells";
 import { Currency } from "../../types/currency";
 import { EvaluationError } from "../../types/errors";
 import { Format, FormattedValue, LocaleFormat } from "../../types/format";
-import { DEFAULT_LOCALE, Locale } from "../../types/locale";
+import { DEFAULT_LOCALE, DEFAULT_LOCALE_DIGIT_GROUPING, Locale } from "../../types/locale";
 import { FunctionResultObject, Maybe } from "../../types/misc";
 import { DateTime, INITIAL_1900_DAY, isDateTime, numberToJsDate, parseDateTime } from "../dates";
 import {
@@ -254,7 +254,8 @@ function applyInternalNumberFormat(value: number, format: NumberInternalFormat, 
   let formattedValue = applyIntegerFormat(
     integerDigits,
     format,
-    format.thousandsSeparator ? locale.thousandsSeparator : undefined
+    format.thousandsSeparator ? locale.thousandsSeparator : undefined,
+    locale
   );
 
   if (format.decimalPart !== undefined) {
@@ -273,7 +274,8 @@ function applyInternalNumberFormat(value: number, format: NumberInternalFormat, 
 function applyIntegerFormat(
   integerDigits: string,
   internalFormat: NumberInternalFormat,
-  thousandsSeparator: string | undefined
+  thousandsSeparator: string | undefined,
+  locale: Locale
 ): string {
   let tokens = internalFormat.integerPart;
   if (!tokens.some((token) => token.type === "DIGIT")) {
@@ -296,7 +298,10 @@ function applyIntegerFormat(
     }
 
     const digitIndex = integerDigits.length - 1 - indexInIntegerString;
-    if (thousandsSeparator && digitIndex > 0 && digitIndex % 3 === 0) {
+    const groups = getIndexesOfDigitsWithThousandSeparator(
+      locale.digitGrouping || DEFAULT_LOCALE_DIGIT_GROUPING
+    );
+    if (thousandsSeparator && groups.has(digitIndex - 1)) {
       formattedInteger = digit + thousandsSeparator + formattedInteger;
     } else {
       formattedInteger = digit + formattedInteger;
@@ -990,3 +995,42 @@ export function isFormatValid(format: Format): boolean {
 export function getNumberOfFormatParts(format: Format): number {
   return tokenizeFormat(format).length;
 }
+
+/**
+ * Return a set with the indexes of all the digits that should have a thousand separator based on the given grouping.
+ *
+ * The grouping is a string of the form `[3,2,0]`. It means that:
+ * - the first 3 digits are grouped together, then a thousand separator is added
+ * - then the next 2 digits are grouped together, then a thousand separator is added
+ * - 0 means that the previous grouping (in this case 2) is repeated
+ *
+ * The standard international grouping is [3,0] (grouping together the thousands). But some locales (eg. India) use
+ * different grouping methods.
+ */
+const getIndexesOfDigitsWithThousandSeparator = memoize(
+  function _getIndexesOfDigitsWithThousandSeparator(grouping: string): Set<number> {
+    const trimmedGrouping = grouping.trim();
+    if (!trimmedGrouping.startsWith("[") || !trimmedGrouping.endsWith("]")) {
+      throw new Error(`Invalid digit grouping: "${grouping}"`);
+    }
+    const groups = trimmedGrouping
+      .slice(1, -1)
+      .split(",")
+      .map((g) => Number(g));
+    if (groups.length === 0 || groups.some((g) => isNaN(g) || g < 0) || groups[0] === 0) {
+      throw new Error(`Invalid digit grouping: "${grouping}"`);
+    }
+    const maxNumberOfDigits = 30;
+    const groupIndexes = new Set<number>();
+    let currentGroupIndex = 0;
+    let currentDigit = -1;
+    do {
+      currentDigit += groups[currentGroupIndex];
+      groupIndexes.add(currentDigit);
+      currentGroupIndex =
+        groups[currentGroupIndex + 1] === 0 ? currentGroupIndex : currentGroupIndex + 1;
+    } while (currentDigit <= maxNumberOfDigits && groups[currentGroupIndex] !== undefined);
+
+    return groupIndexes;
+  }
+);
