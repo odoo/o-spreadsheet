@@ -404,10 +404,10 @@ export class SpreadsheetPivot implements Pivot<SpreadsheetPivotRuntimeDefinition
     if (nonEmptyCells.every((cell) => cell.type === CellValueType.boolean)) {
       return "boolean";
     }
-    if (nonEmptyCells.some((cell) => cell.type === CellValueType.text)) {
-      return "char";
+    if (nonEmptyCells.every((cell) => cell.type === CellValueType.number)) {
+      return "integer";
     }
-    return "integer";
+    return "char";
   }
 
   private assertCellIsValidField(col: number, row: number, cell: EvaluatedCell) {
