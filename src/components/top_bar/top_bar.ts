@@ -1,12 +1,4 @@
-import {
-  Component,
-  onWillStart,
-  onWillUpdateProps,
-  useEffect,
-  useExternalListener,
-  useRef,
-  useState,
-} from "@odoo/owl";
+import { Component, onWillStart, onWillUpdateProps, useEffect, useRef, useState } from "@odoo/owl";
 import { Action } from "../../actions/action";
 import { setStyle } from "../../actions/menu_items_actions";
 import { DEFAULT_FONT_SIZE } from "../../constants";
@@ -87,7 +79,6 @@ export class TopBar extends Component<Props, SpreadsheetChildEnv> {
     this.composerFocusStore = useStore(ComposerFocusStore);
     this.fingerprints = useStore(FormulaFingerprintStore);
     this.topBarToolStore = useStore(TopBarToolStore);
-    useExternalListener(window, "click", this.onExternalClick);
     onWillStart(() => this.updateCellState());
     onWillUpdateProps(() => this.updateCellState());
 
@@ -149,18 +140,6 @@ export class TopBar extends Component<Props, SpreadsheetChildEnv> {
 
   get currentFontSize(): number {
     return this.env.model.getters.getCurrentStyle().fontSize || DEFAULT_FONT_SIZE;
-  }
-
-  onExternalClick(ev: MouseEvent) {
-    // TODO : manage click events better. We need this piece of code
-    // otherwise the event opening the menu would close it on the same frame.
-    // And we cannot stop the event propagation because it's used in an
-    // external listener of the MenuPopover component to close the context menu when
-    // clicking on the top bar
-    if (this.openedEl === ev.target) {
-      return;
-    }
-    this.closeMenus();
   }
 
   onClick() {
@@ -244,6 +223,8 @@ export class TopBar extends Component<Props, SpreadsheetChildEnv> {
       verticalOffset: 0,
       class: "rounded",
       maxWidth: 300,
+      rootElement: this.moreToolsButtonRef.el,
+      onClose: this.closeMenus.bind(this),
     };
   }
 

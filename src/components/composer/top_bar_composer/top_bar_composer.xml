@@ -7,8 +7,7 @@
           'o-topbar-composer-readonly': env.model.getters.isReadonly(),
           'o-topbar-composer-active': focus !== 'inactive',
           'o-topbar-composer-inactive': focus === 'inactive',
-        }"
-        t-on-click.stop="">
+        }">
         <Composer
           focus="focus"
           inputStyle="composerStyle"

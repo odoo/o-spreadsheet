@@ -4,7 +4,6 @@ import {
   onPatched,
   onWillUnmount,
   useEffect,
-  useExternalListener,
   useRef,
   useState,
 } from "@odoo/owl";
@@ -78,7 +77,6 @@ export class BottomBarSheet extends Component<Props, SpreadsheetChildEnv> {
       }
     });
     this.DOMFocusableElementStore = useStore(DOMFocusableElementStore);
-    useExternalListener(window, "click", () => (this.state.pickerOpened = false));
 
     useEffect(
       (sheetId) => {
@@ -118,6 +116,10 @@ export class BottomBarSheet extends Component<Props, SpreadsheetChildEnv> {
     onWillUnmount(() => {
       this.env.model.off("command-rejected", this);
     });
+  }
+
+  closePicker() {
+    this.state.pickerOpened = false;
   }
 
   private focusInputAndSelectContent() {

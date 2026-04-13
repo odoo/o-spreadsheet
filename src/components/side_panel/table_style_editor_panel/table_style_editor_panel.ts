@@ -1,4 +1,4 @@
-import { Component, useExternalListener, useState } from "@odoo/owl";
+import { Component, useState } from "@odoo/owl";
 import { isColorValid } from "../../../helpers";
 import { TABLE_STYLES_TEMPLATES, buildTableStyle } from "../../../helpers/table_presets";
 import { Color, TableConfig, TableStyle, TableStyleTemplateName } from "../../../types";
@@ -36,10 +36,6 @@ export class TableStyleEditorPanel extends Component<
   };
 
   state = useState<State>(this.getInitialState());
-
-  setup() {
-    useExternalListener(window as any, "click", () => (this.state.pickerOpened = false));
-  }
 
   getInitialState(): State {
     const editedStyle = this.props.styleId

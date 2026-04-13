@@ -10,9 +10,11 @@
     <ColorPicker
       t-if="state.pickerOpened"
       anchorRect="colorPickerAnchorRect"
+      rootElement="colorPickerButtonRef.el"
       onColorPicked.bind="onColorPicked"
       currentColor="props.currentColor"
       disableNoColor="props.disableNoColor"
+      onClose="props.onClose || (() => this.closePicker())"
     />
   </t>
 </templates>

@@ -1081,6 +1081,16 @@ describe("Grid component", () => {
       await clickGridIcon(model, "A1");
       expect(fixture.querySelectorAll(".o-filter-menu")).toHaveLength(1);
     });
+
+    test("Opening another menu closes the filter popover", async () => {
+      createTableWithFilter(model, "A1:A2");
+      await nextTick();
+      await clickGridIcon(model, "A1");
+      expect(".o-filter-menu").toHaveCount(1);
+
+      await simulateClick(".o-topbar-menu[data-id='insert']");
+      expect(".o-filter-menu").toHaveCount(0);
+    });
   });
 
   describe("Grid Scroll", () => {
