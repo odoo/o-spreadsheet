@@ -9,6 +9,7 @@ import {
   VerticalAlign,
   Wrapping,
 } from "../../src/types";
+import { BarChartDefinition } from "../../src/types/chart";
 import { isXLSXExportXMLFile } from "../../src/xlsx/helpers/xlsx_helper";
 import { toChartDataSource } from "../test_helpers/chart_helpers";
 import {
@@ -447,6 +448,45 @@ describe("Export data to xlsx then import it", () => {
     const newChartId = importedModel.getters.getChartIds(sheetId)[0];
     const newChart = importedModel.getters.getChartDefinition(newChartId);
     expect(newChart).toMatchObject(chartDef);
+  });
+
+  test("Chart title style is preserved after export/import", async () => {
+    const title = { text: "My Chart", color: "#FF0000", fontSize: 18, bold: true, italic: true };
+    createChart(
+      model,
+      {
+        dataSets: [{ dataRange: "Sheet1!B1:B4" }],
+        type: "bar",
+        title,
+      },
+      "1"
+    );
+    const importedModel = await exportToXlsxThenImport(model);
+    const newChartId = importedModel.getters.getChartIds(sheetId)[0];
+    const definition = importedModel.getters.getChartDefinition(newChartId);
+    expect(definition.title).toEqual(title);
+    /*expect(definition.title.text).toBe("My Chart");
+    expect(definition.title.color?.toUpperCase()).toBe("#FF0000");*/
+  });
+
+  test("Chart axis title color is preserved after export/import", async () => {
+    createChart(
+      model,
+      {
+        dataSets: [{ dataRange: "Sheet1!B1:B4" }],
+        type: "bar",
+        axesDesign: {
+          x: { title: { text: "X axis", color: "#ff0000" } },
+          y: { title: { text: "Y axis", color: "#00ff00" } },
+        },
+      },
+      "1"
+    );
+    const importedModel = await exportToXlsxThenImport(model);
+    const newChartId = importedModel.getters.getChartIds(sheetId)[0];
+    const definition = importedModel.getters.getChartDefinition(newChartId) as BarChartDefinition;
+    expect(definition.axesDesign?.x?.title?.color?.toUpperCase()).toBe("#FF0000");
+    expect(definition.axesDesign?.y?.title?.color?.toUpperCase()).toBe("#00FF00");
   });
 
   test("hyperlinks", async () => {
