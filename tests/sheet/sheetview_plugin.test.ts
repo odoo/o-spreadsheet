@@ -1094,6 +1094,32 @@ describe("Multi Panes viewport", () => {
     expect(getPanesEntries()).toEqual(["topLeft", "topRight", "bottomLeft", "bottomRight"]);
   });
 
+  test("Undo and redo keep frozen panes in sync with history", () => {
+    const sheetId = model.getters.getActiveSheetId();
+    const getPanesEntries = () => Object.keys(getPanes());
+
+    freezeColumns(model, 4);
+    freezeRows(model, 5);
+    expect(model.getters.getPaneDivisions(sheetId)).toEqual({ xSplit: 4, ySplit: 5 });
+    expect(getPanesEntries()).toEqual(["topLeft", "topRight", "bottomLeft", "bottomRight"]);
+
+    undo(model);
+    expect(model.getters.getPaneDivisions(sheetId)).toEqual({ xSplit: 4, ySplit: 0 });
+    expect(getPanesEntries()).toEqual(["bottomLeft", "bottomRight"]);
+
+    undo(model);
+    expect(model.getters.getPaneDivisions(sheetId)).toEqual({ xSplit: 0, ySplit: 0 });
+    expect(getPanesEntries()).toEqual(["bottomRight"]);
+
+    redo(model);
+    expect(model.getters.getPaneDivisions(sheetId)).toEqual({ xSplit: 4, ySplit: 0 });
+    expect(getPanesEntries()).toEqual(["bottomLeft", "bottomRight"]);
+
+    redo(model);
+    expect(model.getters.getPaneDivisions(sheetId)).toEqual({ xSplit: 4, ySplit: 5 });
+    expect(getPanesEntries()).toEqual(["topLeft", "topRight", "bottomLeft", "bottomRight"]);
+  });
+
   test("vertical scrolling only impacts 'bottomLeft' and 'bottomRight'", () => {
     freezeColumns(model, 4);
     freezeRows(model, 5);

@@ -192,7 +192,6 @@ export class SheetViewPlugin extends UIPlugin {
       case "FREEZE_ROWS":
       case "UNFREEZE_COLUMNS_ROWS":
         this.sheetsWithDirtyViewports.add(cmd.sheetId);
-        this.viewports.setPaneDivision(cmd.sheetId, this.getters.getPaneDivisions(cmd.sheetId));
         break;
       case "REMOVE_TABLE":
       case "UPDATE_TABLE":
@@ -238,6 +237,9 @@ export class SheetViewPlugin extends UIPlugin {
 
   finalize() {
     for (const sheetId of this.sheetsWithDirtyViewports) {
+      // History restores sheet panes directly in the core state, so we must refresh
+      // the viewport cache before rebuilding the panes.
+      this.viewports.setPaneDivision(sheetId, this.getters.getPaneDivisions(sheetId));
       this.viewports.resetViewports(sheetId);
       if (this.shouldAdjustViewports) {
         const position = this.getters.getSheetPosition(sheetId);
