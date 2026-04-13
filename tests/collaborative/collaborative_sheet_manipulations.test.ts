@@ -10,7 +10,7 @@ import {
   addColumns,
   addDataValidation,
   addRows,
-  colorSheet,
+  colorSheetTab,
   createChart,
   createFigure,
   createSheet,
@@ -73,7 +73,7 @@ describe("Collaborative Sheet manipulation", () => {
     const sheet1 = alice.getters.getActiveSheetId();
     createSheet(alice, { sheetId: "42" });
     network.concurrent(() => {
-      colorSheet(alice, "42", "#FF0000");
+      colorSheetTab(alice, "42", "#FF0000");
       deleteSheet(bob, "42");
     });
     expect([alice, bob, charlie]).toHaveSynchronizedValue(

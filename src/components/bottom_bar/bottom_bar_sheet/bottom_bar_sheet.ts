@@ -30,7 +30,7 @@ interface Props {
 
 interface State {
   isEditing: boolean;
-  pickerOpened: boolean;
+  openPicker: "tabColor" | "backgroundColor" | undefined;
 }
 
 const getSheetLockAnimation = (
@@ -61,7 +61,7 @@ export class BottomBarSheet extends Component<Props, SpreadsheetChildEnv> {
     style: "",
   };
 
-  private state = useState<State>({ isEditing: false, pickerOpened: false });
+  private state = useState<State>({ isEditing: false, openPicker: undefined });
 
   private sheetDivRef = useRef("sheetDiv");
   private iconRef = useRef("icon");
@@ -78,7 +78,7 @@ export class BottomBarSheet extends Component<Props, SpreadsheetChildEnv> {
       }
     });
     this.DOMFocusableElementStore = useStore(DOMFocusableElementStore);
-    useExternalListener(window, "click", () => (this.state.pickerOpened = false));
+    useExternalListener(window, "click", () => (this.state.openPicker = undefined));
 
     useEffect(
       (sheetId) => {
@@ -256,8 +256,12 @@ export class BottomBarSheet extends Component<Props, SpreadsheetChildEnv> {
   }
 
   onColorPicked(color: string) {
-    this.state.pickerOpened = false;
-    this.env.model.dispatch("COLOR_SHEET", { sheetId: this.props.sheetId, color });
+    if (this.state.openPicker === "tabColor") {
+      this.env.model.dispatch("COLOR_SHEET", { sheetId: this.props.sheetId, color });
+    } else if (this.state.openPicker === "backgroundColor") {
+      this.env.model.dispatch("SET_SHEET_BACKGROUND_COLOR", { sheetId: this.props.sheetId, color });
+    }
+    this.state.openPicker = undefined;
   }
 
   get colorPickerAnchorRect(): Rect {
@@ -271,8 +275,11 @@ export class BottomBarSheet extends Component<Props, SpreadsheetChildEnv> {
         this.scrollToSheet();
         this.startEdition();
       },
-      openSheetColorPickerCallback: () => {
-        this.state.pickerOpened = true;
+      openSheetTabColorPickerCallback: () => {
+        this.state.openPicker = "tabColor";
+      },
+      openSheetBackgroundColorPickerCallback: () => {
+        this.state.openPicker = "backgroundColor";
       },
     });
   }

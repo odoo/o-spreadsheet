@@ -999,30 +999,44 @@ describe("BottomBar component", () => {
   });
 
   describe("Sheet colors", () => {
-    function getSheetColor(): string {
+    function getSheetTabColor(): string {
       return fixture.querySelector<HTMLElement>(`.o-sheet-color`)?.style.background || "";
     }
 
-    test("Can color a sheet", async () => {
+    test("Can color a sheet tab", async () => {
       const { model } = await mountBottomBar();
-      expect(getSheetColor()).toBe("");
+      expect(getSheetTabColor()).toBe("");
 
       triggerMouseEvent(".o-sheet", "contextmenu");
       await nextTick();
-      await click(fixture, ".o-menu-item[data-name='change_color'");
+      await click(fixture, ".o-menu-item[data-name='change_tab_color'");
       await click(fixture, ".o-color-picker-line-item[data-color='#FFFF00'");
 
-      expect(getSheetColor()).toBeSameColorAs("#FFFF00");
+      expect(getSheetTabColor()).toBeSameColorAs("#FFFF00");
       expect(model.getters.getSheet(model.getters.getActiveSheetId()).color).toBe("#FFFF00");
+    });
+
+    test("Can color a sheet background", async () => {
+      const { model } = await mountBottomBar();
+      expect(getSheetTabColor()).toBe("");
+
+      triggerMouseEvent(".o-sheet", "contextmenu");
+      await nextTick();
+      await click(fixture, ".o-menu-item[data-name='change_sheet_background'");
+      await click(fixture, ".o-color-picker-line-item[data-color='#FFFF00'");
+
+      expect(model.getters.getSheet(model.getters.getActiveSheetId()).backgroundColor).toBe(
+        "#FFFF00"
+      );
     });
 
     test("Clicking outside sheet color picker closes it", async () => {
       await mountBottomBar();
-      expect(getSheetColor()).toBe("");
+      expect(getSheetTabColor()).toBe("");
 
       triggerMouseEvent(".o-sheet", "contextmenu");
       await nextTick();
-      await click(fixture, ".o-menu-item[data-name='change_color'");
+      await click(fixture, ".o-menu-item[data-name='change_tab_color'");
 
       expect(fixture.querySelector(".o-color-picker")).toBeTruthy();
       await click(document.body);

@@ -13,7 +13,7 @@ import {
   addColumns,
   addEqualCf,
   addRows,
-  colorSheet,
+  colorSheetTab,
   createChart,
   createSheet,
   createSheetWithName,
@@ -35,6 +35,7 @@ import {
   resizeRows,
   setCellContent,
   setGridLinesVisibility,
+  setSheetBackgroundCommand,
   showSheet,
   unMerge,
   undo,
@@ -1186,15 +1187,15 @@ describe("sheets", () => {
     expect(result.reasons).toContain(CommandResult.EmptyRange);
   });
 
-  describe("Sheet color", () => {
-    test("Can change a sheet color", () => {
+  describe("Sheet tab color", () => {
+    test("Can change a sheet tab color", () => {
       const model = new Model();
       const sheetId = model.getters.getActiveSheetId();
 
-      colorSheet(model, sheetId, "#FF0000");
+      colorSheetTab(model, sheetId, "#FF0000");
       expect(model.getters.getSheet(sheetId).color).toBe("#FF0000");
 
-      colorSheet(model, sheetId, undefined);
+      colorSheetTab(model, sheetId, undefined);
       expect(model.getters.getSheet(sheetId).color).toBe(undefined);
 
       undo(model);
@@ -1204,22 +1205,63 @@ describe("sheets", () => {
       expect(model.getters.getSheet(sheetId).color).toBe(undefined);
     });
 
-    test("Cannot give an invalid color to a sheet", () => {
+    test("Cannot give an invalid color to a sheet tab", () => {
       const model = new Model();
       const sheetId = model.getters.getActiveSheetId();
-      expect(colorSheet(model, sheetId, "#PPP")).toBeCancelledBecause(CommandResult.InvalidColor);
+      expect(colorSheetTab(model, sheetId, "#PPP")).toBeCancelledBecause(
+        CommandResult.InvalidColor
+      );
     });
 
-    test("Can export and import sheet colors", () => {
+    test("Can export and import sheet tab colors", () => {
       const model = new Model();
       const sheetId = model.getters.getActiveSheetId();
 
-      colorSheet(model, sheetId, "#FF0000");
+      colorSheetTab(model, sheetId, "#FF0000");
       const exported = model.exportData();
       expect(exported.sheets[0].color).toBe("#FF0000");
 
       const newModel = new Model(exported);
       expect(newModel.getters.getSheet(sheetId).color).toBe("#FF0000");
+    });
+  });
+
+  describe("Sheet background color", () => {
+    test("Can change a sheet background color", () => {
+      const model = new Model();
+      const sheetId = model.getters.getActiveSheetId();
+
+      setSheetBackgroundCommand(model, sheetId, "#FF0000");
+      expect(model.getters.getSheet(sheetId).backgroundColor).toBe("#FF0000");
+
+      setSheetBackgroundCommand(model, sheetId, undefined);
+      expect(model.getters.getSheet(sheetId).backgroundColor).toBe(undefined);
+
+      undo(model);
+      expect(model.getters.getSheet(sheetId).backgroundColor).toBe("#FF0000");
+
+      redo(model);
+      expect(model.getters.getSheet(sheetId).backgroundColor).toBe(undefined);
+    });
+
+    test("Cannot give an invalid color to a sheet background", () => {
+      const model = new Model();
+      const sheetId = model.getters.getActiveSheetId();
+      expect(setSheetBackgroundCommand(model, sheetId, "#PPP")).toBeCancelledBecause(
+        CommandResult.InvalidColor
+      );
+    });
+
+    test("Can export and import sheet background colors", () => {
+      const model = new Model();
+      const sheetId = model.getters.getActiveSheetId();
+
+      setSheetBackgroundCommand(model, sheetId, "#FF0000");
+      const exported = model.exportData();
+      expect(exported.sheets[0].backgroundColor).toBe("#FF0000");
+
+      const newModel = new Model(exported);
+      expect(newModel.getters.getSheet(sheetId).backgroundColor).toBe("#FF0000");
     });
   });
 

@@ -282,6 +282,7 @@ export const coreTypes = new Set<CoreCommandTypes>([
   "MOVE_SHEET",
   "RENAME_SHEET",
   "COLOR_SHEET",
+  "SET_SHEET_BACKGROUND_COLOR",
   "HIDE_SHEET",
   "SHOW_SHEET",
   "LOCK_SHEET",
@@ -506,6 +507,11 @@ export interface RenameSheetCommand extends SheetDependentCommand {
 
 export interface ColorSheetCommand extends SheetDependentCommand {
   type: "COLOR_SHEET";
+  color?: Color;
+}
+
+export interface ColorSheetBackgroundCommand extends SheetDependentCommand {
+  type: "SET_SHEET_BACKGROUND_COLOR";
   color?: Color;
 }
 
@@ -1237,6 +1243,7 @@ export type CoreCommand =
   | MoveSheetCommand
   | RenameSheetCommand
   | ColorSheetCommand
+  | ColorSheetBackgroundCommand
   | HideSheetCommand
   | ShowSheetCommand
   | LockSheetCommand

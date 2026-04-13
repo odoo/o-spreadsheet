@@ -60,13 +60,23 @@ export const renameSheet = (args: { renameSheetCallback: () => void }): ActionSp
   };
 };
 
-export const changeSheetColor = (args: {
-  openSheetColorPickerCallback: () => void;
+export const changeSheetTabColor = (args: {
+  openSheetTabColorPickerCallback: () => void;
 }): ActionSpec => {
   return {
-    name: _t("Change color"),
-    execute: args.openSheetColorPickerCallback,
+    name: _t("Change tab color"),
+    execute: args.openSheetTabColorPickerCallback,
     icon: "o-spreadsheet-Icon.PAINT_FORMAT",
+  };
+};
+
+export const changeSheetBackgroundColor = (args: {
+  openSheetBackgroundColorPickerCallback: () => void;
+}): ActionSpec => {
+  return {
+    name: _t("Change grid color"),
+    execute: args.openSheetBackgroundColorPickerCallback,
+    icon: "o-spreadsheet-Icon.FILL_COLOR",
   };
 };
 

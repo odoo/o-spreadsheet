@@ -206,8 +206,7 @@ export class GridRenderer extends DisposableStore {
     const { ctx, viewports } = renderingContext;
     const { width, height } = viewports.getSheetViewDimensionWithHeaders();
 
-    // white background
-    ctx.fillStyle = "#ffffff";
+    ctx.fillStyle = this.getDefaultBackground(renderingContext);
     ctx.fillRect(0, 0, width + CANVAS_SHIFT, height + CANVAS_SHIFT);
   }
 
@@ -235,8 +234,8 @@ export class GridRenderer extends DisposableStore {
     const { ctx } = renderingContext;
     for (const box of boxes) {
       const style = box.style;
-      if (style.fillColor && style.fillColor !== "#ffffff") {
-        ctx.fillStyle = style.fillColor || "#ffffff";
+      if (style.fillColor && style.fillColor !== this.getDefaultBackground(renderingContext)) {
+        ctx.fillStyle = style.fillColor;
         // We shift the canvas by CANVAS_SHIFT to avoid blurry lines (lines are drawn between pixels), but fillRect
         // are drawn at the exact pixel position, so we need to compensate this shift here. We also want to extend
         // the fill by 1px to draw over the gridLines.
@@ -254,7 +253,10 @@ export class GridRenderer extends DisposableStore {
         ctx.fillRect(box.x, box.y, width, box.height);
       }
       if (box.overlayColor) {
-        ctx.fillStyle = blendColors(style.fillColor || "#ffffff", box.overlayColor);
+        ctx.fillStyle = blendColors(
+          style.fillColor || this.getDefaultBackground(renderingContext),
+          box.overlayColor
+        );
         ctx.fillRect(
           box.x - CANVAS_SHIFT,
           box.y - CANVAS_SHIFT,
@@ -307,7 +309,7 @@ export class GridRenderer extends DisposableStore {
             (box.clipRect?.x || box.x + box.width / 2 - box.content.width / 2) + thinLineWidth / 2;
           width = clipWidth - 2 * thinLineWidth;
         }
-        ctx.fillStyle = "#ffffff";
+        ctx.fillStyle = this.getDefaultBackground(renderingContext);
         ctx.fillRect(x, y, width, height);
       }
     }
@@ -517,6 +519,10 @@ export class GridRenderer extends DisposableStore {
     ctx.textBaseline = "middle";
     ctx.lineWidth = thinLineWidth;
     ctx.strokeStyle = "#333";
+
+    // Top-left corner background
+    ctx.fillStyle = "#ffffff";
+    ctx.fillRect(0, 0, HEADER_WIDTH, HEADER_HEIGHT);
 
     // Columns headers background
     for (const col of visibleCols) {
@@ -1061,5 +1067,10 @@ export class GridRenderer extends DisposableStore {
         this.animations.set(box.id, animation);
       }
     }
+  }
+
+  private getDefaultBackground(renderingContext: GridRenderingContext) {
+    const sheet = this.getters.getSheet(renderingContext.sheetId);
+    return sheet.backgroundColor || "#ffffff";
   }
 }

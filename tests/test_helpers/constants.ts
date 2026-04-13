@@ -248,6 +248,10 @@ export const TEST_COMMANDS: CommandMapping = {
     type: "COLOR_SHEET",
     sheetId: "Sheet1",
   },
+  SET_SHEET_BACKGROUND_COLOR: {
+    type: "SET_SHEET_BACKGROUND_COLOR",
+    sheetId: "Sheet1",
+  },
   SHOW_SHEET: {
     type: "SHOW_SHEET",
     sheetId: "Sheet1",

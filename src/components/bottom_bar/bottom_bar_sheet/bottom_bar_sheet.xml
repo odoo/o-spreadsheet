@@ -44,7 +44,7 @@
       </div>
     </Ripple>
     <ColorPicker
-      t-if="state.pickerOpened"
+      t-if="state.openPicker"
       anchorRect="colorPickerAnchorRect"
       onColorPicked.bind="onColorPicked"
       currentColor="props.currentColor"

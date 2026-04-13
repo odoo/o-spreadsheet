@@ -116,7 +116,7 @@ export function createSheet(
     activateSheet(model, sheetId);
   }
   if (data.color) {
-    colorSheet(model, sheetId, data.color);
+    colorSheetTab(model, sheetId, data.color);
   }
   return result;
 }
@@ -126,8 +126,20 @@ export function renameSheet(model: Model, sheetId: UID, newName: string): Dispat
   return model.dispatch("RENAME_SHEET", { sheetId, newName, oldName });
 }
 
-export function colorSheet(model: Model, sheetId: UID, color: Color | undefined): DispatchResult {
+export function colorSheetTab(
+  model: Model,
+  sheetId: UID,
+  color: Color | undefined
+): DispatchResult {
   return model.dispatch("COLOR_SHEET", { sheetId, color });
+}
+
+export function setSheetBackgroundCommand(
+  model: Model,
+  sheetId: UID,
+  color: Color | undefined
+): DispatchResult {
+  return model.dispatch("SET_SHEET_BACKGROUND_COLOR", { sheetId, color });
 }
 
 export function createSheetWithName(

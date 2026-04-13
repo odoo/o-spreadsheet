@@ -60,6 +60,7 @@ import {
   setFormulaVisibility,
   setGridLinesVisibility,
   setSelection,
+  setSheetBackgroundCommand,
   setSheetviewSize,
   setZoneBorders,
 } from "../test_helpers/commands_helpers";
@@ -2478,5 +2479,26 @@ describe("renderer", () => {
     drawGridRenderer(ctx);
 
     expect(strokeRectCalls.length).toBe(baseNumberOfStrokeRect - 4);
+  });
+
+  test("can draw a sheet with a custom background color", () => {
+    const { drawGridRenderer, model } = setRenderer(new Model(), [
+      "Background",
+      "Headers",
+      "Selection",
+    ]);
+
+    setCellContent(model, "A1", "1");
+    setSheetBackgroundCommand(model, "Sheet1", "#F2B2B7");
+    const ctx = new MockGridRenderingContext(model, 500, 300, {}, "nodeCanvas");
+    model.dispatch("RESIZE_SHEETVIEW", {
+      width: 500 - HEADER_HEIGHT,
+      height: 300 - HEADER_WIDTH,
+      gridOffsetX: HEADER_WIDTH,
+      gridOffsetY: HEADER_HEIGHT,
+    });
+
+    drawGridRenderer(ctx);
+    expect(ctx.screenshot()).toMatchImageSnapshot();
   });
 });
