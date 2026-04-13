@@ -70,6 +70,8 @@ export class TableDropdownButton extends Component<Props, SpreadsheetChildEnv> {
       anchorRect: { x: left, y: bottom, width: 0, height: 0 },
       positioning: "bottom-left",
       verticalOffset: 0,
+      rootElement: target,
+      onClose: this.closePopover.bind(this),
     };
   }
 

@@ -12,7 +12,7 @@
       t-on-pointermove="onPointerMove"
       t-on-click="onClick"
       t-on-dblclick.self="onDoubleClick"
-      t-on-contextmenu.stop.prevent="onContextMenu">
+      t-on-contextmenu.prevent="this.onContextMenu">
       <GridAddRowsFooter
         t-if="!env.model.getters.isReadonly()"
         t-key="env.model.getters.getActiveSheetId()"

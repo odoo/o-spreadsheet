@@ -491,6 +491,10 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     return this.gridRef.el;
   }
 
+  get popoverRootElement(): HTMLElement | undefined {
+    return this.gridRef.el?.querySelector<HTMLElement>(".o-grid-overlay") || undefined;
+  }
+
   getAutofillPosition() {
     const zone = this.env.model.getters.getSelectedZone();
     const rect = this.env.model.getters.getVisibleRect(zone);

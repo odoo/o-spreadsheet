@@ -1,4 +1,4 @@
-import { Component, useEffect, useExternalListener } from "@odoo/owl";
+import { Component, useEffect } from "@odoo/owl";
 import { deepCopy } from "../../../../helpers";
 import { useLocalStore } from "../../../../store_engine";
 import { _t } from "../../../../translation";
@@ -56,7 +56,6 @@ export class ConditionalFormattingEditor extends Component<Props, SpreadsheetChi
       },
       () => [this.env.model.getters.getActiveSheetId(), this.isEditedCfRemoved]
     );
-    useExternalListener(window as any, "click", () => this.store.closeMenus());
   }
 
   get isEditedCfRemoved() {

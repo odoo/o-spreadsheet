@@ -332,6 +332,14 @@ describe("UI of conditional formats", () => {
       expect(fixture.querySelector(".o-color-picker")).toBeFalsy();
     });
 
+    test("color-picker closes when right-click elsewhere", async () => {
+      await click(fixture.querySelectorAll(selectors.ruleEditor.editor.colorDropdown)[0]);
+      expect(fixture.querySelector(".o-color-picker")).toBeTruthy();
+      triggerMouseEvent(fixture, "contextmenu");
+      await nextTick();
+      expect(fixture.querySelector(".o-color-picker")).toBeFalsy();
+    });
+
     test("will not dispatch if minvalue > maxvalue", async () => {
       await click(fixture.querySelectorAll(selectors.cfTabSelector)[1]);
 

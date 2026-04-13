@@ -1,11 +1,4 @@
-import {
-  Component,
-  onWillUnmount,
-  onWillUpdateProps,
-  useExternalListener,
-  useRef,
-  useState,
-} from "@odoo/owl";
+import { Component, onWillUnmount, onWillUpdateProps, useRef, useState } from "@odoo/owl";
 import { Action, getMenuItemsAndSeparators } from "../../actions/action";
 import { DESKTOP_MENU_ITEM_HEIGHT, MENU_VERTICAL_PADDING, MENU_WIDTH } from "../../constants";
 import { MenuMouseEvent, Pixel, Rect, UID } from "../../types";
@@ -83,8 +76,6 @@ export class MenuPopover extends Component<Props, SpreadsheetChildEnv> {
   private openingTimeOut = useTimeOut();
 
   setup() {
-    useExternalListener(window, "click", this.onExternalClick, { capture: true });
-    useExternalListener(window, "contextmenu", this.onExternalClick, { capture: true });
     onWillUpdateProps((nextProps: Props) => {
       if (nextProps.menuItems !== this.props.menuItems) {
         this.closeSubMenu();
@@ -127,6 +118,7 @@ export class MenuPopover extends Component<Props, SpreadsheetChildEnv> {
       verticalOffset: isRoot ? 0 : MENU_VERTICAL_PADDING,
       onPopoverHidden: () => this.closeSubMenu(),
       onPopoverMoved: () => this.closeSubMenu(),
+      onClose: (ev) => this.onExternalClick(ev as MenuMouseEvent),
       maxHeight: this.props.maxHeight,
     };
   }

@@ -9,6 +9,7 @@
           currentColor="state.primaryColor"
           onColorPicked.bind="onColorPicked"
           disableNoColor="true"
+          onClose="() => this.state.pickerOpened = false"
         />
       </Section>
       <Section class="'pt-1'" title.translate="Style template">
