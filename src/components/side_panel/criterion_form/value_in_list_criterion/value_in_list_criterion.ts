@@ -12,8 +12,14 @@ css/* scss */ `
   }
 `;
 
+interface CriterionValue {
+  id: number;
+  value: string;
+  color?: Color;
+}
+
 interface State {
-  numberOfValues: number;
+  values: CriterionValue[];
   focusedValueIndex?: number;
 }
 
@@ -21,12 +27,24 @@ export class ListCriterionForm extends CriterionForm<IsValueInListCriterion> {
   static template = "o-spreadsheet-ListCriterionForm";
   static components = { CriterionInput, RoundColorPicker };
 
+  private nextId: number = 1;
   state = useState<State>({
-    numberOfValues: Math.max(this.props.criterion.values.length, 2),
+    values: [],
   });
 
   setup() {
     super.setup();
+    const values = this.props.criterion.values || [];
+    const colors = this.props.criterion.colors || {};
+    this.state.values = Array.from({ length: Math.max(values.length, 2) }, (_, i) => {
+      const value = values[i] || "";
+      return {
+        id: this.nextId++,
+        value,
+        color: colors[value],
+      };
+    });
+
     const setupDefault = (props: this["props"]) => {
       if (props.criterion.displayStyle === undefined) {
         this.updateCriterion({ displayStyle: "chip" });
@@ -36,27 +54,35 @@ export class ListCriterionForm extends CriterionForm<IsValueInListCriterion> {
     onWillStart(() => setupDefault(this.props));
   }
 
-  onValueChanged(value: string, index: number) {
-    const values = [...this.displayedValues];
-    values[index] = value;
-    this.updateCriterion({ values });
+  private syncCriterion() {
+    const values = this.state.values.map((item) => item.value);
+    const colors: Record<string, Color> = {};
+    for (const { value, color } of this.state.values) {
+      const trimmed = value?.trim();
+      if (trimmed && color) {
+        colors[trimmed] = color;
+      }
+    }
+    this.updateCriterion({ values, colors });
   }
 
-  onColorChanged(color: Color, value: string) {
-    const colors = { ...this.props.criterion.colors };
-    colors[value] = color || undefined;
-    this.updateCriterion({ colors });
+  onValueChanged(item: CriterionValue, value: string) {
+    item.value = value;
+    this.syncCriterion();
+  }
+
+  onColorChanged(item: CriterionValue, color: Color) {
+    item.color = color;
+    this.syncCriterion();
   }
 
   onAddAnotherValue() {
-    this.state.numberOfValues++;
+    this.state.values.push({ id: this.nextId++, value: "" });
   }
 
   removeItem(index: number) {
-    const values = [...this.displayedValues];
-    values.splice(index, 1);
-    this.state.numberOfValues--;
-    this.updateCriterion({ values });
+    this.state.values.splice(index, 1);
+    this.syncCriterion();
   }
 
   onChangedDisplayStyle(ev: Event) {
@@ -65,7 +91,7 @@ export class ListCriterionForm extends CriterionForm<IsValueInListCriterion> {
   }
 
   onKeyDown(ev: KeyboardEvent, index: number) {
-    if ((ev.key === "Enter" || ev.key === "Tab") && index === this.state.numberOfValues - 1) {
+    if ((ev.key === "Enter" || ev.key === "Tab") && index === this.state.values.length - 1) {
       this.onAddAnotherValue();
       this.state.focusedValueIndex = index + 1;
       ev.preventDefault();
@@ -76,13 +102,5 @@ export class ListCriterionForm extends CriterionForm<IsValueInListCriterion> {
 
   onBlurInput() {
     this.state.focusedValueIndex = undefined;
-  }
-
-  get displayedValues(): string[] {
-    const values: string[] = [];
-    for (let i = 0; i < this.state.numberOfValues; i++) {
-      values.push(this.props.criterion.values[i] || "");
-    }
-    return values;
   }
 }
