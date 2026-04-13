@@ -2,15 +2,15 @@
   <t t-name="o-spreadsheet-Ripple">
     <div
       class="o-ripple-container position-relative"
-      t-att-class="props.class"
-      t-on-click="onClick">
+      t-att-class="this.props.class"
+      t-on-click="this.onClick">
       <div class="position-absolute w-100 h-100">
-        <t t-foreach="state.ripples" t-as="ripple" t-key="ripple.id">
-          <RippleEffect t-props="getRippleEffectProps(ripple.id)"/>
+        <t t-foreach="this.state.ripples" t-as="ripple" t-key="ripple.id">
+          <RippleEffect t-props="this.getRippleEffectProps(ripple.id)"/>
         </t>
       </div>
-      <div class="position-relative" t-ref="childContainer">
-        <t t-slot="default"/>
+      <div class="position-relative" t-custom-ref="childContainer">
+        <t t-call-slot="default"/>
       </div>
     </div>
   </t>
@@ -18,9 +18,13 @@
   <t t-name="o-spreadsheet-RippleEffect">
     <div
       class="position-absolute"
-      t-att-class="{ 'overflow-hidden': !props.allowOverflow }"
-      t-att-style="props.style">
-      <div class="o-ripple position-relative pe-none" t-ref="ripple" t-att-style="rippleStyle"/>
+      t-att-class="{ 'overflow-hidden': !this.props.allowOverflow }"
+      t-att-style="this.props.style">
+      <div
+        class="o-ripple position-relative pe-none"
+        t-custom-ref="ripple"
+        t-att-style="this.rippleStyle"
+      />
     </div>
   </t>
 </templates>

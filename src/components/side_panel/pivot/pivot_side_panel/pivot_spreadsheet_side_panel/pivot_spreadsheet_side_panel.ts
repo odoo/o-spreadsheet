@@ -1,6 +1,7 @@
-import { Component, useRef, useState } from "@odoo/owl";
+import { proxy } from "@odoo/owl";
 import { SpreadsheetPivotRuntimeDefinition } from "../../../../../helpers/pivot/spreadsheet_pivot/runtime_definition_spreadsheet_pivot";
 import { SpreadsheetPivot } from "../../../../../helpers/pivot/spreadsheet_pivot/spreadsheet_pivot";
+import { Component, useRef } from "../../../../../owl3_compatibility_layer";
 import { Store, useLocalStore } from "../../../../../store_engine";
 import { Ref, UID } from "../../../../../types";
 import { SpreadsheetPivotCoreDefinition } from "../../../../../types/pivot";
@@ -40,7 +41,7 @@ export class PivotSpreadsheetSidePanel extends Component<Props, SpreadsheetChild
 
   setup() {
     this.store = useLocalStore(PivotSidePanelStore, this.props.pivotId);
-    this.state = useState({
+    this.state = proxy({
       range: undefined,
       rangeHasChanged: false,
     });

@@ -1,5 +1,6 @@
-import { Component, ComponentConstructor, onWillUpdateProps, useState } from "@odoo/owl";
+import { onWillUpdateProps, proxy } from "@odoo/owl";
 import { deepCopy, deepEquals } from "../../../helpers";
+import { Component, ComponentConstructor } from "../../../owl3_compatibility_layer";
 import {
   criterionComponentRegistry,
   getCriterionValueAndLabels,
@@ -37,7 +38,7 @@ export class FilterMenuCriterion extends Component<Props, SpreadsheetChildEnv> {
       }
     });
 
-    this.state = useState({
+    this.state = proxy({
       criterion: this.getFilterCriterionValue(this.props.filterPosition),
     });
   }

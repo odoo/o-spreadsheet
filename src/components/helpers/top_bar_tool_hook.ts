@@ -1,4 +1,5 @@
-import { onWillUnmount, useComponent } from "@odoo/owl";
+import { onWillUnmount } from "@odoo/owl";
+import { useComponent } from "../../owl3_compatibility_layer";
 import { useStore } from "../../store_engine";
 import { TopBarToolStore } from "../top_bar/top_bar_tool_store";
 

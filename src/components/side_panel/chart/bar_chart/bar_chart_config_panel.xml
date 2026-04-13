@@ -4,20 +4,20 @@
       <Section class="'pt-0'">
         <Checkbox
           name="'stacked'"
-          label="stackedLabel"
-          value="props.definition.stacked"
-          onChange.bind="onUpdateStacked"
+          label="this.stackedLabel"
+          value="this.props.definition.stacked"
+          onChange.bind="this.onUpdateStacked"
         />
       </Section>
       <ChartDataSourceComponent
-        chartId="props.chartId"
-        definition="props.definition"
-        updateChart="props.updateChart"
-        canUpdateChart="props.canUpdateChart"
-        onErrorMessagesChanged.bind="onErrorMessagesChanged"
+        chartId="this.props.chartId"
+        definition="this.props.definition"
+        updateChart="this.props.updateChart"
+        canUpdateChart="this.props.canUpdateChart"
+        onErrorMessagesChanged.bind="this.onErrorMessagesChanged"
       />
 
-      <ChartErrorSection t-if="errorMessages.length" messages="errorMessages"/>
+      <ChartErrorSection t-if="this.errorMessages.length" messages="this.errorMessages"/>
     </div>
   </t>
 </templates>

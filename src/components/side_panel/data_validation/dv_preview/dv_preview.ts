@@ -1,5 +1,5 @@
-import { Component, useRef } from "@odoo/owl";
 import { HIGHLIGHT_COLOR } from "../../../../constants";
+import { Component, useRef } from "../../../../owl3_compatibility_layer";
 import { criterionEvaluatorRegistry } from "../../../../registries/criterion_registry";
 import { DataValidationRule, Highlight } from "../../../../types";
 import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";

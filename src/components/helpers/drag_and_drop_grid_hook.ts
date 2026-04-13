@@ -1,5 +1,6 @@
-import { onWillUnmount, useEffect } from "@odoo/owl";
+import { onWillUnmount } from "@odoo/owl";
 import { MAX_DELAY } from "../../helpers";
+import { useLayoutEffect } from "../../owl3_compatibility_layer";
 import { HeaderIndex, Pixel } from "../../types/misc";
 import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 import { gridOverlayPosition } from "./dom_helpers";
@@ -171,7 +172,7 @@ export function useDragAndDropBeyondTheViewport(env: SpreadsheetChildEnv) {
     cleanUp();
   });
 
-  useEffect(
+  useLayoutEffect(
     () => {
       cleanUp();
     },

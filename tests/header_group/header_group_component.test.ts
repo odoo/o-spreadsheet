@@ -258,7 +258,7 @@ describe("Header group component test", () => {
 
       hideColumns(model, ["F"]);
       await nextTick();
-      expect(group.style["border-right"]).toBeFalsy();
+      expect(group.style.cssText).not.toContain("border-right");
     });
   });
 
@@ -382,7 +382,7 @@ describe("Header group component test", () => {
 
       hideRows(model, [5]);
       await nextTick();
-      expect(group.style["border-bottom"]).toBeFalsy();
+      expect(group.style.cssText).not.toContain("border-bottom");
     });
   });
 

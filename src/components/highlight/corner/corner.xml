@@ -2,18 +2,18 @@
   <t t-name="o-spreadsheet-Corner">
     <div
       class="o-corner d-flex justify-content-center align-items-center"
-      t-on-pointerdown.prevent.stop="onMouseDown"
+      t-on-pointerdown.prevent.stop="this.onMouseDown"
       t-on-touchstart.prevent.stop=""
-      t-att-style="handlerStyle">
+      t-att-style="this.handlerStyle">
       <div
-        t-att-style="buttonLook"
+        t-att-style="this.buttonLook"
         class="o-corner-button"
         t-att-class="{
-          'o-resizing': props.isResizing,
-          'o-corner-nw': props.orientation === 'nw',
-          'o-corner-ne': props.orientation === 'ne',
-          'o-corner-sw': props.orientation === 'sw',
-          'o-corner-se': props.orientation === 'se',
+          'o-resizing': this.props.isResizing,
+          'o-corner-nw': this.props.orientation === 'nw',
+          'o-corner-ne': this.props.orientation === 'ne',
+          'o-corner-sw': this.props.orientation === 'sw',
+          'o-corner-se': this.props.orientation === 'se',
         }"
       />
     </div>

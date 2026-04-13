@@ -7,11 +7,11 @@
       t-on-pointerup.stop=""
       t-on-keydown.stop=""
       t-on-click.stop="">
-      <t t-set="context" t-value="getContext()"/>
+      <t t-set="context" t-value="this.getContext()"/>
       <div class="o-formula-assistant bg-white" t-if="context.functionDescription.name">
         <div class="o-formula-assistant-head d-flex flex-row justify-content-between">
           <div>
-            <t t-foreach="formulaHeaderContent" t-as="part" t-key="part_index">
+            <t t-foreach="this.formulaHeaderContent" t-as="part" t-key="part_index">
               <span
                 t-out="part.content"
                 t-att-class="part.focused ? 'o-formula-assistant-focus' : ''"
@@ -20,7 +20,7 @@
           </div>
           <div
             class="collapsor px-2 d-flex align-items-center rounded"
-            t-att-class="state.isCollapsed ? 'collapsed' : ''"
+            t-att-class="this.state.isCollapsed ? 'collapsed' : ''"
             t-on-pointerdown.prevent=""
             t-on-click="() => this.toggle()">
             <span class="collapsor-arrow d-inline-block">
@@ -29,7 +29,7 @@
           </div>
         </div>
 
-        <Collapse isCollapsed="state.isCollapsed">
+        <Collapse isCollapsed="this.state.isCollapsed">
           <div class="o-formula-assistant-core pb-3 m-3 border-bottom">
             <div class="o-formula-assistant-gray">ABOUT</div>
             <div t-out="context.functionDescription.description"/>

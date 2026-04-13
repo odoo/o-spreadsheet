@@ -1,5 +1,6 @@
-import { Component, useState } from "@odoo/owl";
+import { proxy } from "@odoo/owl";
 import { getColorsPalette, getNthColor, toHex } from "../../../../../helpers";
+import { Component } from "../../../../../owl3_compatibility_layer";
 import {
   ChartDefinitionWithDataSource,
   CustomizableSeriesChartRuntime,
@@ -29,7 +30,7 @@ export class SeriesDesignEditor extends Component<Props, SpreadsheetChildEnv> {
     slots: { type: Object, optional: true },
   };
 
-  protected state = useState({ dataSetId: this.getDataSeries()[0]?.dataSetId || "" });
+  protected state = proxy({ dataSetId: this.getDataSeries()[0]?.dataSetId || "" });
 
   private getRuntime(): CustomizableSeriesChartRuntime {
     const runtime = this.env.model.getters.getChartRuntime(this.props.chartId);

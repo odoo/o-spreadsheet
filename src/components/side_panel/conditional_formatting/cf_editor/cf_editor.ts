@@ -1,5 +1,9 @@
-import { Component, useEffect, useExternalListener } from "@odoo/owl";
 import { deepCopy } from "../../../../helpers";
+import {
+  Component,
+  useExternalListener,
+  useLayoutEffect,
+} from "../../../../owl3_compatibility_layer";
 import { useLocalStore } from "../../../../store_engine";
 import { _t } from "../../../../translation";
 import { ConditionalFormat, UID } from "../../../../types";
@@ -45,7 +49,7 @@ export class ConditionalFormattingEditor extends Component<Props, SpreadsheetChi
       deepCopy(this.props.cf),
       this.props.isNewCf
     );
-    useEffect(
+    useLayoutEffect(
       (sheetId, isCfRemoved) => {
         if (this.activeSheetId !== sheetId || isCfRemoved) {
           this.env.replaceSidePanel(

@@ -15,7 +15,7 @@ import {
   triggerMouseEvent,
 } from "../test_helpers/dom_helper";
 import { getCellContent, getCellRawContent } from "../test_helpers/getters_helpers";
-import { mountSpreadsheet, nextTick } from "../test_helpers/helpers";
+import { mountSpreadsheet, nextTick, useJestFakeTimers } from "../test_helpers/helpers";
 
 const selectors = {
   closeSidepanel: ".o-sidePanel .o-sidePanelClose",
@@ -86,7 +86,7 @@ describe("find and replace sidePanel component", () => {
   let model: Model;
 
   beforeEach(async () => {
-    jest.useFakeTimers();
+    useJestFakeTimers();
     ({ parent, model, fixture } = await mountSpreadsheet());
     parent.env.openSidePanel("FindAndReplace");
     await nextTick();

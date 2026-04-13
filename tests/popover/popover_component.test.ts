@@ -1,6 +1,7 @@
-import { App, Component, useSubEnv, xml } from "@odoo/owl";
+import { App, xml } from "@odoo/owl";
 import { Model } from "../../src";
 import { Popover, PopoverProps } from "../../src/components/popover/popover";
+import { Component, useSubEnv } from "../../src/owl3_compatibility_layer";
 import { Pixel, Rect } from "../../src/types";
 import { getStylePropertyInPx, mountComponent } from "../test_helpers/helpers";
 import { extendMockGetBoundingClientRect } from "../test_helpers/mock_helpers";
@@ -22,7 +23,7 @@ async function mountTestPopover(args: MountPopoverArgs) {
   class Parent extends Component<any, any> {
     static template = xml/* xml */ `
         <div class="o-spreadsheet">
-          <Popover t-props="popoverProps">
+          <Popover t-props="this.popoverProps">
             <div style="height:${args.childHeight}px;width:${args.childWidth}px;"/>
           </Popover>
         </div>

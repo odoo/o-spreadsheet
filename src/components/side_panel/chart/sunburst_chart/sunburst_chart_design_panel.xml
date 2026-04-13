@@ -1,10 +1,10 @@
 <templates>
   <t t-name="o-spreadsheet-SunburstChartDesignPanel">
-    <GeneralDesignEditor t-props="props">
+    <GeneralDesignEditor t-props="this.props">
       <t t-set-slot="general-extension">
-        <ChartLegend t-props="props"/>
+        <ChartLegend t-props="this.props"/>
         <Section class="'pt-0'" title.translate="Number formatting">
-          <ChartHumanizeNumbers t-props="props"/>
+          <ChartHumanizeNumbers t-props="this.props"/>
         </Section>
       </t>
     </GeneralDesignEditor>
@@ -12,7 +12,7 @@
     <SidePanelCollapsible isInitiallyCollapsed="false" title.translate="Sunburst options">
       <t t-set-slot="content">
         <Section class="'pt-0 o-sunburst-colors'" title.translate="Colors">
-          <t t-foreach="groupColors" t-as="item" t-key="item.label">
+          <t t-foreach="this.groupColors" t-as="item" t-key="item.label">
             <div class="d-flex align-items-center mb-2" t-att-data-id="item.label">
               <RoundColorPicker
                 currentColor="item.color"
@@ -30,23 +30,23 @@
             <Checkbox
               name="'showLabels'"
               label.translate="Show labels"
-              value="showLabels"
-              onChange="(showLabels) => props.updateChart(this.props.chartId, { showLabels })"
+              value="this.showLabels"
+              onChange="(showLabels) => this.props.updateChart(this.props.chartId, { showLabels })"
             />
-            <ChartShowValues t-props="props" defaultValue="defaults.showValues"/>
+            <ChartShowValues t-props="this.props" defaultValue="this.defaults.showValues"/>
           </div>
         </Section>
-        <Section class="'pt-0'" t-if="showValues || showLabels">
+        <Section class="'pt-0'" t-if="this.showValues || this.showLabels">
           <TextStyler
             class="'o-values-style'"
-            updateStyle="(valuesDesign) => props.updateChart(this.props.chartId, { valuesDesign })"
-            style="props.definition.valuesDesign || {}"
-            defaultStyle="defaults.valuesDesign"
+            updateStyle="(valuesDesign) => this.props.updateChart(this.props.chartId, { valuesDesign })"
+            style="this.props.definition.valuesDesign || {}"
+            defaultStyle="this.defaults.valuesDesign"
           />
         </Section>
         <PieHoleSize
-          value="props.definition.pieHolePercentage ?? 25"
-          onValueChange.bind="onPieHoleSizeChange"
+          value="this.props.definition.pieHolePercentage ?? 25"
+          onValueChange.bind="this.onPieHoleSizeChange"
         />
       </t>
     </SidePanelCollapsible>

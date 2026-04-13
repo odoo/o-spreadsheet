@@ -2,15 +2,15 @@
   <t t-name="o-spreadsheet-GenericChartConfigPanel">
     <div>
       <ChartDataSourceComponent
-        chartId="props.chartId"
-        definition="props.definition"
-        updateChart="props.updateChart"
-        canUpdateChart="props.canUpdateChart"
-        getLabelRangeOptions.bind="getLabelRangeOptions"
-        onErrorMessagesChanged.bind="onErrorMessagesChanged"
+        chartId="this.props.chartId"
+        definition="this.props.definition"
+        updateChart="this.props.updateChart"
+        canUpdateChart="this.props.canUpdateChart"
+        getLabelRangeOptions.bind="this.getLabelRangeOptions"
+        onErrorMessagesChanged.bind="this.onErrorMessagesChanged"
       />
 
-      <ChartErrorSection t-if="errorMessages.length" messages="errorMessages"/>
+      <ChartErrorSection t-if="this.errorMessages.length" messages="this.errorMessages"/>
     </div>
   </t>
 </templates>

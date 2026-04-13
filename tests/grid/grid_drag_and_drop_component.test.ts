@@ -1,8 +1,9 @@
-import { App, Component, xml } from "@odoo/owl";
+import { App, xml } from "@odoo/owl";
 import { Model } from "../../src";
 import { useDragAndDropBeyondTheViewport } from "../../src/components/helpers/drag_and_drop_grid_hook";
 import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../../src/constants";
 import { numberToLetters } from "../../src/helpers";
+import { Component } from "../../src/owl3_compatibility_layer";
 import { UID } from "../../src/types";
 import { SpreadsheetChildEnv } from "../../src/types/spreadsheet_env";
 import {
@@ -20,7 +21,7 @@ import {
   triggerKeyboardEvent,
   triggerMouseEvent,
 } from "../test_helpers/dom_helper";
-import { mountComponent, nextTick } from "../test_helpers/helpers";
+import { mountComponent, nextTick, useJestFakeTimers } from "../test_helpers/helpers";
 
 // As we test an isolated component, grid and gridOverlay won't exist
 jest.mock("../../src/components/helpers/dom_helpers", () => {
@@ -36,7 +37,7 @@ let app: App;
 
 //Test Component required
 const TEMPLATE = xml/* xml */ `
-  <div class="o-fake-grid" t-on-pointerdown="onMouseDown">
+  <div class="o-fake-grid" t-on-pointerdown="this.onMouseDown">
     coucou
   </div>
 `;
@@ -70,11 +71,11 @@ class FakeGridComponent extends Component<Props, SpreadsheetChildEnv> {
   }
 }
 beforeAll(() => {
-  jest.useFakeTimers();
+  useJestFakeTimers();
 });
 
 afterAll(() => {
-  jest.useFakeTimers();
+  useJestFakeTimers();
 });
 
 beforeEach(async () => {

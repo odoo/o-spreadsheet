@@ -1,6 +1,7 @@
-import { Component, useExternalListener, useState } from "@odoo/owl";
+import { proxy } from "@odoo/owl";
 import { ActionSpec } from "../../../../../actions/action";
 import { DEFAULT_STYLE } from "../../../../../constants";
+import { Component, useExternalListener } from "../../../../../owl3_compatibility_layer";
 import { _t } from "../../../../../translation";
 import { Align, ChartStyle, Color, VerticalAlign } from "../../../../../types";
 import { SpreadsheetChildEnv } from "../../../../../types/spreadsheet_env";
@@ -40,7 +41,7 @@ export class TextStyler extends Component<Props, SpreadsheetChildEnv> {
     useExternalListener(window, "click", this.onExternalClick);
   }
 
-  state = useState({
+  state = proxy({
     activeTool: "",
   });
 

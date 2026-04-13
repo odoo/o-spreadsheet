@@ -1,4 +1,5 @@
-import { Component, useEffect, useRef, useState } from "@odoo/owl";
+import { proxy } from "@odoo/owl";
+import { Component, useLayoutEffect, useRef } from "../../../owl3_compatibility_layer";
 import { figureRegistry } from "../../../registries/figures_registry";
 import {
   AnchorOffset,
@@ -55,7 +56,7 @@ export class FigureComponent extends Component<Props, SpreadsheetChildEnv> {
     onClickAnchor: () => {},
   };
 
-  private menuState: MenuState = useState({ isOpen: false, anchorRect: null, menuItems: [] });
+  private menuState: MenuState = proxy({ isOpen: false, anchorRect: null, menuItems: [] });
 
   private figureRef = useRef("figure");
   private figureWrapperRef = useRef("figureWrapper");
@@ -116,7 +117,7 @@ export class FigureComponent extends Component<Props, SpreadsheetChildEnv> {
   setup() {
     const borderWidth = figureRegistry.get(this.props.figureUI.tag).borderWidth;
     this.borderWidth = borderWidth !== undefined ? borderWidth : BORDER_WIDTH;
-    useEffect(
+    useLayoutEffect(
       (selectedFigureId: UID | null, thisFigureId: UID, el: HTMLElement | null) => {
         if (selectedFigureId === thisFigureId) {
           /** Scrolling on a newly inserted figure that overflows outside the viewport

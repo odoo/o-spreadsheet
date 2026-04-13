@@ -1,33 +1,33 @@
 <templates>
   <t t-name="o-spreadsheet-ComboChartDesignPanel">
-    <GeneralDesignEditor t-props="props">
+    <GeneralDesignEditor t-props="this.props">
       <t t-set-slot="general-extension">
-        <ChartLegend t-props="props"/>
+        <ChartLegend t-props="this.props"/>
         <Section class="'pt-0'" title.translate="Values">
-          <ChartShowValues t-props="props"/>
-          <ChartShowDataMarkers t-props="props"/>
+          <ChartShowValues t-props="this.props"/>
+          <ChartShowDataMarkers t-props="this.props"/>
         </Section>
         <Section class="'pt-0'" title.translate="Zoom">
           <Checkbox
             name="'zoomable'"
             label.translate="Show slicer"
-            value="props.definition.zoomable"
-            onChange.bind="onToggleZoom"
+            value="this.props.definition.zoomable"
+            onChange.bind="this.onToggleZoom"
             className="'mb-2'"
           />
         </Section>
         <Section class="'pt-0'" title.translate="Number formatting">
-          <ChartHumanizeNumbers t-props="props"/>
+          <ChartHumanizeNumbers t-props="this.props"/>
         </Section>
       </t>
     </GeneralDesignEditor>
-    <SeriesWithAxisDesignEditor t-props="props">
+    <SeriesWithAxisDesignEditor t-props="this.props">
       <t t-set-slot="general-extension" t-slot-scope="scope">
         <t t-set="dataSetId" t-value="scope.dataSetId"/>
         <Section class="'pt-0 o-series-type-selection'" title.translate="Serie type">
           <RadioSelection
-            choices="seriesTypeChoices"
-            selectedValue="getDataSeriesType(dataSetId)"
+            choices="this.seriesTypeChoices"
+            selectedValue="this.getDataSeriesType(dataSetId)"
             name="'seriesType'"
             onChange="(type) => this.updateDataSeriesType(dataSetId, type)"
           />
@@ -37,10 +37,10 @@
     <SidePanelCollapsible isInitiallyCollapsed="true" title.translate="Axes">
       <t t-set-slot="content">
         <AxisDesignEditor
-          axesList="axesList"
-          chartId="props.chartId"
-          definition="props.definition"
-          updateChart="props.updateChart"
+          axesList="this.axesList"
+          chartId="this.props.chartId"
+          definition="this.props.definition"
+          updateChart="this.props.updateChart"
         />
       </t>
     </SidePanelCollapsible>

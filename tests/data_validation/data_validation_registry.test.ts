@@ -19,7 +19,7 @@ import {
 } from "../../src/types";
 import { addDataValidation, setCellContent, updateLocale } from "../test_helpers/commands_helpers";
 import { FR_LOCALE } from "../test_helpers/constants";
-import { setGrid, toCellPosition } from "../test_helpers/helpers";
+import { setGrid, toCellPosition, useJestFakeTimers } from "../test_helpers/helpers";
 
 describe("Data validation registry", () => {
   let model: Model;
@@ -32,7 +32,7 @@ describe("Data validation registry", () => {
   });
 
   beforeEach(() => {
-    jest.useFakeTimers();
+    useJestFakeTimers();
     jest.setSystemTime(new Date("01/01/2021 12:00:00").getTime());
   });
 

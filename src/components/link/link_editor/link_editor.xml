@@ -4,7 +4,7 @@
       class="o-link-editor rounded h-100"
       t-on-scroll.stop=""
       t-on-wheel.stop=""
-      t-on-keydown="onKeyDown">
+      t-on-keydown="this.onKeyDown">
       <div class="o-section mb-4 h-100">
         <div class="o-section-title">Text</div>
         <div class="d-flex">
@@ -13,14 +13,14 @@
             title="Link label"
             placeholder="e.g. 'Link label'"
             class="o-input"
-            t-model="this.state.label"
+            t-custom-model="this.state.label"
           />
         </div>
 
         <div class="o-section-title mt-3">Link</div>
         <div
           class="o-link-url"
-          t-ref="urlInputContainer"
+          t-custom-ref="urlInputContainer"
           tabindex="-1"
           t-on-keydown="this.onInputKeyDown">
           <t t-if="this.state.isUrlEditable">
@@ -29,8 +29,8 @@
               type="text"
               placeholder="e.g. 'http://www.odoo.com'"
               title="Link URL"
-              t-ref="urlInput"
-              t-model="this.state.url"
+              t-custom-ref="urlInput"
+              t-custom-model="this.state.url"
               t-on-input="this.computeLinks"
             />
           </t>
@@ -53,12 +53,12 @@
         </div>
       </div>
 
-      <div class="suggestions border rounded user-select-none" t-ref="suggestionList">
+      <div class="suggestions border rounded user-select-none" t-custom-ref="suggestionList">
         <t t-foreach="this.state.linksByCategory" t-as="proposalCategory" t-key="proposalCategory">
           <t t-set="categoryTitle" t-value="proposalCategory"/>
           <t t-set="proposals" t-value="proposalCategory_value"/>
           <div class="o-section my-1">
-            <div class="o-section-title ps-2" t-esc="categoryTitle"/>
+            <div class="o-section-title ps-2" t-out="categoryTitle"/>
             <div
               t-foreach="proposals"
               t-as="proposal"
@@ -68,8 +68,10 @@
               t-att-class="{ 'selected' : proposal.index === this.state.selectedIndex }"
               t-on-click="proposal.onSelect"
               t-on-dblclick="this.save">
-              <span class="me-1" t-if="proposal.icon" t-call="{{proposal.icon}}"/>
-              <span class="text-truncate" t-esc="proposal.text"/>
+              <span class="me-1" t-if="proposal.icon">
+                <t t-call="{{proposal.icon}}"/>
+              </span>
+              <span class="text-truncate" t-out="proposal.text"/>
             </div>
           </div>
         </t>

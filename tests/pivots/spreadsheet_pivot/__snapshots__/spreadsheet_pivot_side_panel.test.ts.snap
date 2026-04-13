@@ -163,7 +163,6 @@ exports[`Spreadsheet pivot side panel It should correctly be displayed 1`] = `
                             class="o-input mb-2"
                             placeholder="e.g. A1:A2"
                             spellcheck="false"
-                            style=""
                             type="text"
                           />
                           
@@ -194,7 +193,7 @@ exports[`Spreadsheet pivot side panel It should correctly be displayed 1`] = `
                       <button
                         class="add-dimension o-button"
                       >
-                        Add
+                         Add 
                       </button>
                       
                       
@@ -208,7 +207,7 @@ exports[`Spreadsheet pivot side panel It should correctly be displayed 1`] = `
                       <button
                         class="add-dimension o-button"
                       >
-                        Add
+                         Add 
                       </button>
                       
                       
@@ -222,7 +221,7 @@ exports[`Spreadsheet pivot side panel It should correctly be displayed 1`] = `
                       <button
                         class="add-dimension o-button"
                       >
-                        Add
+                         Add 
                       </button>
                       
                       
@@ -1133,7 +1132,6 @@ exports[`Spreadsheet pivot side panel It should display only the selection input
                             class="o-input mb-2 o-focused o-invalid border-danger position-relative"
                             placeholder="e.g. A1:A2"
                             spellcheck="false"
-                            style=""
                             type="text"
                           />
                           <span

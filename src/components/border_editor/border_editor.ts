@@ -1,4 +1,5 @@
-import { Component, useRef, useState } from "@odoo/owl";
+import { proxy } from "@odoo/owl";
+import { Component, useRef } from "../../owl3_compatibility_layer";
 import { BorderPosition, BorderStyle, Color, Pixel, Rect, borderStyles } from "../../types/index";
 import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 import { ColorPickerWidget } from "../color_picker/color_picker_widget";
@@ -66,7 +67,7 @@ export class BorderEditor extends Component<BorderEditorProps, SpreadsheetChildE
 
   lineStyleButtonRef = useRef("lineStyleButton");
   borderStyles = borderStyles;
-  state: State = useState({
+  state: State = proxy({
     activeTool: undefined,
   });
 

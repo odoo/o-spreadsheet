@@ -1,10 +1,10 @@
 <templates>
   <t t-name="o-spreadsheet-UnhideRowHeaders">
-    <t t-foreach="props.headersGroups" t-as="hiddenItem" t-key="hiddenItem_index">
-      <t t-if="isVisible(hiddenItem[0]-1)">
+    <t t-foreach="this.props.headersGroups" t-as="hiddenItem" t-key="hiddenItem_index">
+      <t t-if="this.isVisible(hiddenItem[0]-1)">
         <div
           class="position-absolute w-100 pe-none"
-          t-att-style="getUnhidePreviousButtonStyle(hiddenItem[0]-1)">
+          t-att-style="this.getUnhidePreviousButtonStyle(hiddenItem[0]-1)">
           <div
             class="o-unhide rounded end-0 position-absolute pe-auto"
             t-att-data-index="hiddenItem_index"
@@ -15,10 +15,10 @@
           </div>
         </div>
       </t>
-      <t t-if="isVisible(hiddenItem.at(-1)+1)">
+      <t t-if="this.isVisible(hiddenItem.at(-1)+1)">
         <div
           class="position-absolute w-100 pe-none"
-          t-att-style="getUnhideNextButtonStyle(hiddenItem.at(-1)+1)">
+          t-att-style="this.getUnhideNextButtonStyle(hiddenItem.at(-1)+1)">
           <div
             class="o-unhide rounded end-0 position-absolute pe-auto"
             t-att-data-index="hiddenItem_index"
@@ -33,11 +33,11 @@
   </t>
 
   <t t-name="o-spreadsheet-UnhideColumnHeaders">
-    <t t-foreach="props.headersGroups" t-as="hiddenItem" t-key="hiddenItem_index">
-      <t t-if="isVisible(hiddenItem[0]-1)">
+    <t t-foreach="this.props.headersGroups" t-as="hiddenItem" t-key="hiddenItem_index">
+      <t t-if="this.isVisible(hiddenItem[0]-1)">
         <div
           class="position-absolute d-flex align-items-center pe-none h-100"
-          t-att-style="getUnhidePreviousButtonStyle(hiddenItem[0]-1)">
+          t-att-style="this.getUnhidePreviousButtonStyle(hiddenItem[0]-1)">
           <div
             class="o-unhide position-absolute rounded pe-auto"
             t-att-data-index="hiddenItem_index"
@@ -48,10 +48,10 @@
           </div>
         </div>
       </t>
-      <t t-if="isVisible(hiddenItem.at(-1)+1)">
+      <t t-if="this.isVisible(hiddenItem.at(-1)+1)">
         <div
           class="position-absolute d-flex align-items-center pe-none h-100"
-          t-att-style="getUnhideNextButtonStyle(hiddenItem.at(-1)+1)">
+          t-att-style="this.getUnhideNextButtonStyle(hiddenItem.at(-1)+1)">
           <div
             class="o-unhide position-absolute rounded pe-auto"
             t-att-data-index="hiddenItem_index"

@@ -1,4 +1,3 @@
-import { Component } from "@odoo/owl";
 import { TEXT_BODY_MUTED } from "../../../constants";
 import { blendColors, computeTextFontSizeInPixels } from "../../../helpers";
 import { Store, useStore } from "../../../store_engine";
@@ -7,6 +6,7 @@ import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
 import { cssPropertiesToCss } from "../../helpers";
 import { HoveredTableStore } from "../../tables/hovered_table_store";
 
+import { Component } from "../../../owl3_compatibility_layer";
 interface Props {
   position: CellPosition;
   sortDirection: SortDirection | "none";

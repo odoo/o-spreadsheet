@@ -223,7 +223,7 @@ describe("UI of conditional formats", () => {
 
       const previews = document.querySelectorAll(selectors.listPreview);
       const line = previews[2].querySelector(selectors.previewImage);
-      expect(line!.getAttribute("style")).toMatch("font-weight:bold;");
+      expect(line!.getAttribute("style")).toMatch("font-weight: bold;");
     });
 
     test("displayed range is updated if range changes", async () => {

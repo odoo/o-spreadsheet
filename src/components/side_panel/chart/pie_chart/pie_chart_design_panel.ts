@@ -1,5 +1,6 @@
-import { Component, useState } from "@odoo/owl";
+import { proxy } from "@odoo/owl";
 import { deepCopy } from "../../../../helpers";
+import { Component } from "../../../../owl3_compatibility_layer";
 import { ValueAndLabel } from "../../../../types";
 import { PieChartDefinition, PieChartRuntime } from "../../../../types/chart";
 import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
@@ -35,7 +36,7 @@ export class PieChartDesignPanel extends Component<
   };
   static props = ChartSidePanelPropsObject;
 
-  protected state = useState({ index: 0 });
+  protected state = proxy({ index: 0 });
 
   get runtime() {
     return this.env.model.getters.getChartRuntime(this.props.chartId) as PieChartRuntime;

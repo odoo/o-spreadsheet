@@ -1,4 +1,4 @@
-import { Component, xml } from "@odoo/owl";
+import { xml } from "@odoo/owl";
 import { Model, Spreadsheet } from "../../src";
 import {
   COLLAPSED_SIDE_PANEL_SIZE,
@@ -6,6 +6,7 @@ import {
   MIN_SHEET_VIEW_WIDTH,
   SidePanelStore,
 } from "../../src/components/side_panel/side_panel/side_panel_store";
+import { Component } from "../../src/owl3_compatibility_layer";
 import { SidePanelContent, sidePanelRegistry } from "../../src/registries/side_panel_registry";
 import { Store } from "../../src/store_engine";
 import { createSheet } from "../test_helpers/commands_helpers";
@@ -32,8 +33,8 @@ class Body extends Component<any, any> {
   static template = xml`
     <div>
       <div class="main_body">test</div>
-      <div class="props_body" t-if="props.text"><t t-out="props.text"/></div>
-      <input type="text" class="input" t-if="props.input" />
+      <div class="props_body" t-if="this.props.text"><t t-out="this.props.text"/></div>
+      <input type="text" class="input" t-if="this.props.input" />
     </div>`;
   static props = {
     text: { type: String, optional: true },
@@ -46,7 +47,7 @@ class Body2 extends Component<any, any> {
   static template = xml`
     <div>
       <div class="main_body_2">Hello</div>
-      <div class="props_body_2" t-if="props.field"><t t-out="props.field"/></div>
+      <div class="props_body_2" t-if="this.props.field"><t t-out="this.props.field"/></div>
     </div>`;
   static props = { field: { type: String, optional: true }, onCloseSidePanel: Function };
 }

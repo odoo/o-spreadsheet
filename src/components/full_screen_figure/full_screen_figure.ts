@@ -1,4 +1,5 @@
-import { Component, onWillUpdateProps, useEffect, useRef } from "@odoo/owl";
+import { onWillUpdateProps } from "@odoo/owl";
+import { Component, useLayoutEffect, useRef } from "../../owl3_compatibility_layer";
 import { figureRegistry } from "../../registries/figures_registry";
 import { Store, useStore } from "../../store_engine";
 import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
@@ -31,7 +32,7 @@ export class FullScreenFigure extends Component<{}, SpreadsheetChildEnv> {
       lastFigureId = this.figureUI?.id;
     });
 
-    useEffect(
+    useLayoutEffect(
       (el) => el?.focus(),
       () => [this.ref.el]
     );

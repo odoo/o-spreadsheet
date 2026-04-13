@@ -2,12 +2,12 @@
   <t t-name="o-spreadsheet-CalendarChartConfigPanel">
     <div>
       <ChartDataSourceComponent
-        chartId="props.chartId"
-        definition="props.definition"
-        updateChart="props.updateChart"
-        canUpdateChart="props.canUpdateChart"
-        onErrorMessagesChanged.bind="onErrorMessagesChanged"
-        getLabelRangeOptions.bind="getLabelRangeOptions"
+        chartId="this.props.chartId"
+        definition="this.props.definition"
+        updateChart="this.props.updateChart"
+        canUpdateChart="this.props.canUpdateChart"
+        onErrorMessagesChanged.bind="this.onErrorMessagesChanged"
+        getLabelRangeOptions.bind="this.getLabelRangeOptions"
         labelRangeTitle.translate="Date range"
       />
 
@@ -15,8 +15,8 @@
         <div class="d-flex">
           <span class="w-100">Horizontal axis</span>
           <Select
-            selectedValue="getGroupByType('horizontal') || ''"
-            values="getGroupByOptions()"
+            selectedValue="this.getGroupByType('horizontal') || ''"
+            values="this.getGroupByOptions()"
             class="'o-horizontal-group-by'"
             onChange="(value) => this.updateGroupBy('horizontal', value)"
           />
@@ -24,15 +24,15 @@
         <div class="d-flex">
           <span class="w-100">Vertical axis</span>
           <Select
-            selectedValue="getGroupByType('vertical') || ''"
-            values="getGroupByOptions()"
+            selectedValue="this.getGroupByType('vertical') || ''"
+            values="this.getGroupByOptions()"
             class="'o-vertical-group-by'"
             onChange="(value) => this.updateGroupBy('vertical', value)"
           />
         </div>
       </Section>
 
-      <ChartErrorSection t-if="errorMessages.length" messages="errorMessages"/>
+      <ChartErrorSection t-if="this.errorMessages.length" messages="this.errorMessages"/>
     </div>
   </t>
 </templates>

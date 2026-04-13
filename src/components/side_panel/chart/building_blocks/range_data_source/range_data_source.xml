@@ -3,23 +3,23 @@
     <ChartDataSeries
       ranges="this.getDataSeriesRanges()"
       dataSetStyles="this.props.definition.dataSetStyles"
-      onSelectionChanged.bind="onDataSeriesRangesChanged"
-      onSelectionConfirmed.bind="onDataSeriesConfirmed"
-      onSelectionReordered.bind="onDataSeriesReordered"
-      onSelectionRemoved.bind="onDataSeriesRemoved"
-      maxNumberOfUsedRanges="maxNumberOfUsedRanges"
-      datasetOrientation="datasetOrientation"
-      canChangeDatasetOrientation="canChangeDatasetOrientation"
-      onFlipAxis.bind="setDatasetOrientation"
-      title="props.dataSeriesTitle"
+      onSelectionChanged.bind="this.onDataSeriesRangesChanged"
+      onSelectionConfirmed.bind="this.onDataSeriesConfirmed"
+      onSelectionReordered.bind="this.onDataSeriesReordered"
+      onSelectionRemoved.bind="this.onDataSeriesRemoved"
+      maxNumberOfUsedRanges="this.maxNumberOfUsedRanges"
+      datasetOrientation="this.datasetOrientation"
+      canChangeDatasetOrientation="this.canChangeDatasetOrientation"
+      onFlipAxis.bind="this.setDatasetOrientation"
+      title="this.props.dataSeriesTitle"
     />
     <ChartLabelRange
       range="this.getLabelRange()"
-      isInvalid="isLabelInvalid"
-      onSelectionChanged.bind="onLabelRangeChanged"
-      onSelectionConfirmed.bind="onLabelRangeConfirmed"
+      isInvalid="this.isLabelInvalid"
+      onSelectionChanged.bind="this.onLabelRangeChanged"
+      onSelectionConfirmed.bind="this.onLabelRangeConfirmed"
       options="this.getLabelRangeOptions()"
-      title="props.labelRangeTitle"
+      title="this.props.labelRangeTitle"
     />
   </t>
 </templates>

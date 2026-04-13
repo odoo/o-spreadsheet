@@ -28,13 +28,11 @@ exports[`Functions autocomplete autocomplete simple snapshot with =S 1`] = `
       >
         <span
           class="o-semi-bold"
-          style="color:light-dark(#9B359B, #B972A6); "
+          style="color: light-dark(#9B359B, #B972A6);"
         >
           S
         </span>
-        <span
-          style=""
-        >
+        <span>
           UM
         </span>
         
@@ -71,13 +69,11 @@ exports[`Functions autocomplete autocomplete simple snapshot with =S 1`] = `
       >
         <span
           class="o-semi-bold"
-          style="color:light-dark(#9B359B, #B972A6); "
+          style="color: light-dark(#9B359B, #B972A6);"
         >
           S
         </span>
-        <span
-          style=""
-        >
+        <span>
           ZZ
         </span>
         
@@ -92,7 +88,7 @@ exports[`Functions autocomplete autocomplete simple snapshot with =S 1`] = `
 exports[`composer Assistant render above the cell when not enough place below 1`] = `
 <div
   class="o-composer-assistant overflow-auto"
-  style="max-height:141px; width:300px; min-width:96px; "
+  style="max-height: 141px; width: 300px; min-width: 96px;"
 >
   
   
@@ -123,13 +119,11 @@ exports[`composer Assistant render above the cell when not enough place below 1`
         >
           <span
             class="o-semi-bold"
-            style="color:light-dark(#9B359B, #B972A6); "
+            style="color: light-dark(#9B359B, #B972A6);"
           >
             S
           </span>
-          <span
-            style=""
-          >
+          <span>
             UM
           </span>
           
@@ -166,13 +160,11 @@ exports[`composer Assistant render above the cell when not enough place below 1`
         >
           <span
             class="o-semi-bold"
-            style="color:light-dark(#9B359B, #B972A6); "
+            style="color: light-dark(#9B359B, #B972A6);"
           >
             S
           </span>
-          <span
-            style=""
-          >
+          <span>
             ZZ
           </span>
           
@@ -189,7 +181,7 @@ exports[`composer Assistant render above the cell when not enough place below 1`
 exports[`composer Assistant render below the cell by default 1`] = `
 <div
   class="o-composer-assistant overflow-auto"
-  style="max-height:327px; width:300px; min-width:96px; "
+  style="max-height: 327px; width: 300px; min-width: 96px;"
 >
   
   
@@ -220,13 +212,11 @@ exports[`composer Assistant render below the cell by default 1`] = `
         >
           <span
             class="o-semi-bold"
-            style="color:light-dark(#9B359B, #B972A6); "
+            style="color: light-dark(#9B359B, #B972A6);"
           >
             S
           </span>
-          <span
-            style=""
-          >
+          <span>
             UM
           </span>
           
@@ -263,13 +253,11 @@ exports[`composer Assistant render below the cell by default 1`] = `
         >
           <span
             class="o-semi-bold"
-            style="color:light-dark(#9B359B, #B972A6); "
+            style="color: light-dark(#9B359B, #B972A6);"
           >
             S
           </span>
-          <span
-            style=""
-          >
+          <span>
             ZZ
           </span>
           

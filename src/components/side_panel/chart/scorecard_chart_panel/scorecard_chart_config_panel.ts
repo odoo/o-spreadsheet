@@ -1,4 +1,5 @@
-import { Component, useState } from "@odoo/owl";
+import { proxy } from "@odoo/owl";
+import { Component } from "../../../../owl3_compatibility_layer";
 import { _t } from "../../../../translation";
 import { BaselineMode, ScorecardChartDefinition } from "../../../../types/chart/scorecard_chart";
 import { CommandResult, DispatchResult, ValueAndLabel } from "../../../../types/index";
@@ -23,7 +24,7 @@ export class ScorecardChartConfigPanel extends Component<
   static components = { SelectionInput, ChartErrorSection, Section, Select };
   static props = ChartSidePanelPropsObject;
 
-  private state: PanelState = useState({
+  private state: PanelState = proxy({
     keyValueDispatchResult: undefined,
     baselineDispatchResult: undefined,
   });

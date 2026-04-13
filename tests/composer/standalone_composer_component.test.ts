@@ -1,8 +1,9 @@
-import { Component, xml } from "@odoo/owl";
+import { xml } from "@odoo/owl";
 import { Model } from "../../src";
 import { ComposerFocusStore } from "../../src/components/composer/composer_focus_store";
 import { StandaloneComposer } from "../../src/components/composer/standalone_composer/standalone_composer";
 import { zoneToXc } from "../../src/helpers";
+import { Component } from "../../src/owl3_compatibility_layer";
 import { sidePanelRegistry } from "../../src/registries/side_panel_registry";
 import { Store } from "../../src/store_engine";
 import { SpreadsheetChildEnv } from "../../src/types/spreadsheet_env";
@@ -27,12 +28,12 @@ class SidePanelWithComposer extends Component<any, any> {
   static template = xml/*xml*/ `
       <div>
         <StandaloneComposer
-          onConfirm="props.onConfirm"
-          composerContent="props.composerContent"
-          defaultRangeSheetId="props.defaultRangeSheetId"
-          defaultStatic="props.defaultStatic"
-          title="props.title"
-          placeholder="props.placeholder"
+          onConfirm="this.props.onConfirm"
+          composerContent="this.props.composerContent"
+          defaultRangeSheetId="this.props.defaultRangeSheetId"
+          defaultStatic="this.props.defaultStatic"
+          title="this.props.title"
+          placeholder="this.props.placeholder"
         />
       </div>`;
   static props = { "*": Object };

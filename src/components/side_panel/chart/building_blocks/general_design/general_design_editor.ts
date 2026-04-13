@@ -1,5 +1,6 @@
-import { Component, useState } from "@odoo/owl";
+import { proxy } from "@odoo/owl";
 import { CHART_TITLE_FONT_SIZE } from "../../../../../constants";
+import { Component } from "../../../../../owl3_compatibility_layer";
 import { ChartDefinition, Color, TitleDesign } from "../../../../../types";
 import { SpreadsheetChildEnv } from "../../../../../types/spreadsheet_env";
 import { SidePanelCollapsible } from "../../../components/collapsible/side_panel_collapsible";
@@ -38,7 +39,7 @@ export class GeneralDesignEditor extends Component<Props, SpreadsheetChildEnv> {
   private state!: GeneralDesignEditorState;
 
   setup() {
-    this.state = useState<GeneralDesignEditorState>({
+    this.state = proxy<GeneralDesignEditorState>({
       activeTool: "",
     });
   }

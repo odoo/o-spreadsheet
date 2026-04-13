@@ -105,6 +105,7 @@ import {
   spyModelDispatch,
   target,
   typeInComposerGrid,
+  useJestFakeTimers,
 } from "../test_helpers/helpers";
 import { extendMockGetBoundingClientRect } from "../test_helpers/mock_helpers";
 
@@ -129,7 +130,7 @@ let parent: Spreadsheet;
 let composerStore: Store<CellComposerStore>;
 let composerFocusStore: Store<ComposerFocusStore>;
 
-jest.useFakeTimers();
+useJestFakeTimers();
 mockChart();
 
 describe("Grid component", () => {
@@ -1451,7 +1452,7 @@ describe("Multi User selection", () => {
   });
 
   test("Jump to client switch to correct sheet", async () => {
-    jest.useFakeTimers();
+    useJestFakeTimers();
     const clientFocusStore = env.getStore(ClientFocusStore);
     createSheet(model, { sheetId: "AliceSheet", name: "Alice Sheet", position: 1 });
     createSheet(model, { sheetId: "BobSheet", name: "Bob Sheet", position: 2 });
@@ -1488,7 +1489,7 @@ describe("Multi User selection", () => {
   });
 
   test("Render collaborative user with commands", async () => {
-    jest.useFakeTimers();
+    useJestFakeTimers();
     const sheetId = model.getters.getActiveSheetId();
     const clientFocusStore = env.getStore(ClientFocusStore);
     await transportService.sendMessage({
@@ -1796,7 +1797,7 @@ describe("Events on Grid update viewport correctly", () => {
 
 describe("Edge-Scrolling on mouseMove in selection", () => {
   beforeEach(async () => {
-    jest.useFakeTimers();
+    useJestFakeTimers();
     ({ parent, model, fixture } = await mountSpreadsheet());
   });
 
