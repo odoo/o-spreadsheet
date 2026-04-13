@@ -155,6 +155,7 @@ export class SheetViewPlugin extends UIPlugin {
         this.viewports.cleanViewports();
         for (const sheetId of this.getters.getSheetIds()) {
           this.sheetsWithDirtyViewports.add(sheetId);
+          this.syncPaneDivision(sheetId);
         }
         this.shouldAdjustViewports = true;
         break;
@@ -191,16 +192,20 @@ export class SheetViewPlugin extends UIPlugin {
       case "FREEZE_COLUMNS":
       case "FREEZE_ROWS":
       case "UNFREEZE_COLUMNS_ROWS":
+      case "REMOVE_COLUMNS_ROWS":
+      case "ADD_COLUMNS_ROWS":
         this.sheetsWithDirtyViewports.add(cmd.sheetId);
-        this.viewports.setPaneDivision(cmd.sheetId, this.getters.getPaneDivisions(cmd.sheetId));
+        this.syncPaneDivision(cmd.sheetId);
+        break;
+      case "DUPLICATE_SHEET":
+        this.sheetsWithDirtyViewports.add(cmd.sheetIdTo);
+        this.syncPaneDivision(cmd.sheetIdTo);
         break;
       case "REMOVE_TABLE":
       case "UPDATE_TABLE":
       case "UPDATE_FILTER":
-      case "REMOVE_COLUMNS_ROWS":
       case "RESIZE_COLUMNS_ROWS":
       case "HIDE_COLUMNS_ROWS":
-      case "ADD_COLUMNS_ROWS":
       case "UNHIDE_COLUMNS_ROWS":
       case "UNGROUP_HEADERS":
       case "GROUP_HEADERS":
@@ -258,6 +263,10 @@ export class SheetViewPlugin extends UIPlugin {
         this.viewports.resetViewports(sheetId);
       }
     }
+  }
+
+  private syncPaneDivision(sheetId: UID) {
+    this.viewports.setPaneDivision(sheetId, this.getters.getPaneDivisions(sheetId));
   }
 
   // ---------------------------------------------------------------------------

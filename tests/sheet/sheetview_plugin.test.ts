@@ -20,6 +20,7 @@ import {
   createTableWithFilter,
   deleteColumns,
   deleteRows,
+  duplicateSheet,
   foldHeaderGroup,
   freezeColumns,
   freezeRows,
@@ -1092,6 +1093,62 @@ describe("Multi Panes viewport", () => {
     freezeColumns(model, 4);
     freezeRows(model, 5);
     expect(getPanesEntries()).toEqual(["topLeft", "topRight", "bottomLeft", "bottomRight"]);
+  });
+
+  test("Undo and redo keep frozen panes in sync with history", () => {
+    const sheetId = model.getters.getActiveSheetId();
+    const getPanesEntries = () => Object.keys(getPanes());
+
+    freezeColumns(model, 4);
+    freezeRows(model, 5);
+    expect(model.getters.getPaneDivisions(sheetId)).toEqual({ xSplit: 4, ySplit: 5 });
+    expect(getPanesEntries()).toEqual(["topLeft", "topRight", "bottomLeft", "bottomRight"]);
+
+    undo(model);
+    expect(model.getters.getPaneDivisions(sheetId)).toEqual({ xSplit: 4, ySplit: 0 });
+    expect(getPanesEntries()).toEqual(["bottomLeft", "bottomRight"]);
+
+    undo(model);
+    expect(model.getters.getPaneDivisions(sheetId)).toEqual({ xSplit: 0, ySplit: 0 });
+    expect(getPanesEntries()).toEqual(["bottomRight"]);
+
+    redo(model);
+    expect(model.getters.getPaneDivisions(sheetId)).toEqual({ xSplit: 4, ySplit: 0 });
+    expect(getPanesEntries()).toEqual(["bottomLeft", "bottomRight"]);
+
+    redo(model);
+    expect(model.getters.getPaneDivisions(sheetId)).toEqual({ xSplit: 4, ySplit: 5 });
+    expect(getPanesEntries()).toEqual(["topLeft", "topRight", "bottomLeft", "bottomRight"]);
+  });
+
+  test("Adding and removing headers before frozen panes keeps viewports in sync", () => {
+    const sheetId = model.getters.getActiveSheetId();
+
+    freezeColumns(model, 4);
+    freezeRows(model, 5);
+
+    addColumns(model, "before", "A", 1);
+    addRows(model, "before", 0, 1);
+    expect(model.getters.getPaneDivisions(sheetId)).toEqual({ xSplit: 5, ySplit: 6 });
+    expect(getPanes().topLeft).toMatchObject({ right: 4, bottom: 5 });
+
+    deleteColumns(model, ["A"]);
+    deleteRows(model, [0]);
+    expect(model.getters.getPaneDivisions(sheetId)).toEqual({ xSplit: 4, ySplit: 5 });
+    expect(getPanes().topLeft).toMatchObject({ right: 3, bottom: 4 });
+  });
+
+  test("Duplicated sheets keep frozen pane viewports", () => {
+    const sheetId = model.getters.getActiveSheetId();
+    const duplicatedSheetId = "duplicateSheetId";
+
+    freezeColumns(model, 4);
+    freezeRows(model, 5);
+    duplicateSheet(model, sheetId, duplicatedSheetId, "Duplicate");
+    activateSheet(model, duplicatedSheetId);
+
+    expect(model.getters.getPaneDivisions(duplicatedSheetId)).toEqual({ xSplit: 4, ySplit: 5 });
+    expect(Object.keys(getPanes())).toEqual(["topLeft", "topRight", "bottomLeft", "bottomRight"]);
   });
 
   test("vertical scrolling only impacts 'bottomLeft' and 'bottomRight'", () => {
