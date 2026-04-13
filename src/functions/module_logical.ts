@@ -3,10 +3,11 @@ import { CellErrorType, EvaluationError } from "../types/errors";
 import { AddFunctionDescription } from "../types/functions";
 import { Arg, FunctionResultObject, Maybe } from "../types/misc";
 import { arg } from "./arguments";
+import { applyVectorization } from "./create_compute_function";
+import { functionRegistry } from "./function_registry";
 import { boolAnd, boolOr } from "./helper_logical";
 import { isMultipleElementMatrix, toScalar } from "./helper_matrices";
 import {
-  applyVectorization,
   conditionalVisitBoolean,
   isEvaluationError,
   noValidInputErrorMessage,
@@ -72,7 +73,11 @@ export const IF = {
   ],
   compute: function (logicalExpression: Arg, valueIfTrue: Arg, valueIfFalse: Arg) {
     if (isMultipleElementMatrix(logicalExpression)) {
-      return applyVectorization(IF.compute, [logicalExpression, valueIfTrue, valueIfFalse]);
+      return applyVectorization(this, functionRegistry.get("IF"), [
+        logicalExpression,
+        valueIfTrue,
+        valueIfFalse,
+      ]);
     }
     const result = toBoolean(toScalar(logicalExpression)) ? valueIfTrue : valueIfFalse;
     return result ?? { value: 0 };
@@ -94,7 +99,7 @@ export const IFERROR = {
   ],
   compute: function (value: Arg, valueIfError: Arg) {
     if (isMultipleElementMatrix(value)) {
-      return applyVectorization(IFERROR.compute, [value, valueIfError]);
+      return applyVectorization(this, functionRegistry.get("IFERROR"), [value, valueIfError]);
     }
     const result = isEvaluationError(toScalar(value)?.value) ? valueIfError : value;
     return result ?? { value: 0 };
@@ -116,7 +121,7 @@ export const IFNA = {
   ],
   compute: function (value: Arg, valueIfError: Arg) {
     if (isMultipleElementMatrix(value)) {
-      return applyVectorization(IFNA.compute, [value, valueIfError]);
+      return applyVectorization(this, functionRegistry.get("IFNA"), [value, valueIfError]);
     }
     const result = toScalar(value)?.value === CellErrorType.NotAvailable ? valueIfError : value;
     return result ?? { value: 0 };
@@ -149,7 +154,7 @@ export const IFS = {
     }
     while (values.length > 0) {
       if (isMultipleElementMatrix(values[0])) {
-        return applyVectorization(IFS.compute, values);
+        return applyVectorization(this, functionRegistry.get("IFS"), values);
       }
       const condition = toBoolean(toScalar(values.shift()));
       const valueIfTrue = values.shift();
