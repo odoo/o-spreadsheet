@@ -3,4 +3,8 @@
     position: absolute;
     cursor: pointer;
   }
+
+  .o-grid.o-dashboard-grid {
+    background-color: transparent;
+  }
 }

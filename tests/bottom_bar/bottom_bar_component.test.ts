@@ -7,6 +7,7 @@ import { DOMFocusableElementStore } from "../../src/stores/DOM_focus_store";
 import { SpreadsheetChildEnv } from "../../src/types/spreadsheet_env";
 import {
   activateSheet,
+  colorSheetTab,
   createSheet,
   deleteSheet,
   hideSheet,
@@ -17,6 +18,7 @@ import {
   resizeRows,
   selectCell,
   setCellContent,
+  setSheetBackground,
   undo,
 } from "../test_helpers/commands_helpers";
 import {
@@ -1000,30 +1002,44 @@ describe("BottomBar component", () => {
   });
 
   describe("Sheet colors", () => {
-    function getSheetColor(): string {
+    function getSheetTabColor(): string {
       return fixture.querySelector<HTMLElement>(`.o-sheet-color`)?.style.background || "";
     }
 
-    test("Can color a sheet", async () => {
+    test("Can color a sheet tab", async () => {
       const { model } = await mountBottomBar();
-      expect(getSheetColor()).toBe("");
+      expect(getSheetTabColor()).toBe("");
 
       triggerMouseEvent(".o-sheet", "contextmenu");
       await nextTick();
-      await click(fixture, ".o-menu-item[data-name='change_color'");
+      await click(fixture, ".o-menu-item[data-name='change_tab_color'");
       await click(fixture, ".o-color-picker-line-item[data-color='#FFFF00'");
 
-      expect(getSheetColor()).toBeSameColorAs("#FFFF00");
+      expect(getSheetTabColor()).toBeSameColorAs("#FFFF00");
       expect(model.getters.getSheet(model.getters.getActiveSheetId()).color).toBe("#FFFF00");
+    });
+
+    test("Can color a sheet background", async () => {
+      const { model } = await mountBottomBar();
+      expect(getSheetTabColor()).toBe("");
+
+      triggerMouseEvent(".o-sheet", "contextmenu");
+      await nextTick();
+      await click(fixture, ".o-menu-item[data-name='change_sheet_background'");
+      await click(fixture, ".o-color-picker-line-item[data-color='#FFFF00'");
+
+      expect(model.getters.getSheet(model.getters.getActiveSheetId()).backgroundColor).toBe(
+        "#FFFF00"
+      );
     });
 
     test("Clicking outside sheet color picker closes it", async () => {
       await mountBottomBar();
-      expect(getSheetColor()).toBe("");
+      expect(getSheetTabColor()).toBe("");
 
       triggerMouseEvent(".o-sheet", "contextmenu");
       await nextTick();
-      await click(fixture, ".o-menu-item[data-name='change_color'");
+      await click(fixture, ".o-menu-item[data-name='change_tab_color'");
 
       expect(fixture.querySelector(".o-color-picker")).toBeTruthy();
       await click(document.body);
@@ -1041,6 +1057,24 @@ describe("BottomBar component", () => {
       expect(menuItemsIcons[0]?.children).toHaveLength(0);
       expect(getElComputedStyle(menuItemsIcons[1], "color")).toBeSameColorAs("#FFFF00");
       expect(getElComputedStyle(menuItemsIcons[2], "color")).toBeSameColorAs("#FF0000");
+    });
+
+    test("Color picker has the correct color selected when opening it", async () => {
+      const { model } = await mountBottomBar();
+
+      // Tab color
+      colorSheetTab(model, model.getters.getActiveSheetId(), "#FFFF00");
+      triggerMouseEvent(".o-sheet", "contextmenu");
+      await nextTick();
+      await click(fixture, ".o-menu-item[data-name='change_tab_color'");
+      expect(".o-color-picker-line-item[data-color='#FFFF00']").toHaveText(" ✓ ");
+
+      // Sheet background color
+      setSheetBackground(model, "#FF00FF");
+      triggerMouseEvent(".o-sheet", "contextmenu");
+      await nextTick();
+      await click(fixture, ".o-menu-item[data-name='change_sheet_background'");
+      expect(".o-color-picker-line-item[data-color='#FF00FF']").toHaveText(" ✓ ");
     });
   });
 

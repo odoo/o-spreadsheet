@@ -16,6 +16,7 @@ import {
   evaluateCells,
   selectCell,
   setCellContent,
+  setSheetBackground,
   setViewportOffset,
 } from "../test_helpers/commands_helpers";
 import { clickGridIcon, keyDown, simulateClick } from "../test_helpers/dom_helper";
@@ -308,5 +309,12 @@ describe("Grid component in dashboard mode", () => {
       width: DEFAULT_CELL_WIDTH + "px",
       height: DEFAULT_CELL_HEIGHT + "px",
     });
+  });
+
+  test("Sheet background is applied to the whole dashboard", async () => {
+    setSheetBackground(model, "#FF0000");
+    model.updateMode("dashboard");
+    await nextTick();
+    expect(".o-dashboard-background").toHaveStyle({ "background-color": "#FF0000" });
   });
 });

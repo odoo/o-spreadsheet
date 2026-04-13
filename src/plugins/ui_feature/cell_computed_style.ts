@@ -90,7 +90,9 @@ export class CellComputedStylePlugin extends UIPlugin {
     const cfStyle = this.getters.getCellConditionalFormatStyle(position);
     const tableStyle = this.getters.getCellTableStyle(position);
     const dataValidationStyle = this.getters.getDataValidationCellStyle(position);
+    const sheet = this.getters.getSheet(position.sheetId);
     return {
+      ...removeFalsyAttributes({ fillColor: sheet?.backgroundColor }),
       ...removeFalsyAttributes(tableStyle),
       ...removeFalsyAttributes(dataValidationStyle),
       ...removeFalsyAttributes(cell?.style),

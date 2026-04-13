@@ -29,6 +29,7 @@ import {
   setCellContent,
   setFormat,
   setFormatting,
+  setSheetBackground,
   setViewportOffset,
   undo,
   updateTableConfig,
@@ -462,6 +463,26 @@ describe("Individual animation tests", () => {
 
     animationFrameCallback(CELL_ANIMATION_DURATION / 2);
     expect(getBoxFromXc("A1").style.fillColor).toEqual("#8080FF");
+
+    animationFrameCallback(CELL_ANIMATION_DURATION);
+    expect(getBoxFromXc("A1").style.fillColor).toEqual("#0000FF");
+  });
+
+  test("Background change animation take the sheet background into account", () => {
+    setSheetBackground(model, "#FF0000");
+    addEqualCf(model, "A1", { fillColor: "#0000FF" }, "15");
+    setCellContent(model, "A1", "=A2");
+    drawGrid();
+
+    setCellContent(model, "A2", "15");
+    drawGrid();
+    expect(getBoxFromXc("A1").style.fillColor).toEqual("#FF0000");
+
+    animationFrameCallback(0);
+    expect(getBoxFromXc("A1").style.fillColor).toEqual("#FF0000");
+
+    animationFrameCallback(CELL_ANIMATION_DURATION / 2);
+    expect(getBoxFromXc("A1").style.fillColor).toEqual("#800080");
 
     animationFrameCallback(CELL_ANIMATION_DURATION);
     expect(getBoxFromXc("A1").style.fillColor).toEqual("#0000FF");
