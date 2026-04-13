@@ -17,6 +17,7 @@ import {
   ClipboardOptions,
   MinimalClipboardData,
   OSClipboardContent,
+  ParsedOSClipboardContent,
 } from "../../types/clipboard";
 import {
   Command,
@@ -127,9 +128,16 @@ export class ClipboardPlugin extends UIPlugin {
       case "PASTE_FROM_OS_CLIPBOARD": {
         this._isCutOperation = false;
 
+        let contentToPaste: ParsedOSClipboardContent = cmd.clipboardContent;
+
+        // Only paste the spreadsheet data in the clipboard if the versions match
+        if (contentToPaste.data?.version !== CURRENT_VERSION) {
+          contentToPaste = { ...contentToPaste };
+          delete contentToPaste.data;
+        }
+
         this.copiedData =
-          cmd.clipboardContent.data ||
-          this.convertTextToClipboardData(cmd.clipboardContent.text ?? "");
+          contentToPaste.data || this.convertTextToClipboardData(contentToPaste.text ?? "");
 
         const pasteOption = cmd.pasteOption;
         this.paste(cmd.target, this.copiedData, {
