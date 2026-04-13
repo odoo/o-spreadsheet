@@ -969,21 +969,31 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
         
         
         <div
-          class="o-scrollbar vertical"
+          class="o-scrollbar-container position-absolute"
           style="top:26px; right:0px; width:15px; bottom:0; "
         >
           <div
-            style="width:1px; height:2346px; "
-          />
+            class="o-scrollbar vertical"
+            style="top:0px; width:15px; bottom:0; "
+          >
+            <div
+              style="width:1px; height:2346px; "
+            />
+          </div>
         </div>
         
         <div
-          class="o-scrollbar horizontal"
+          class="o-scrollbar-container position-absolute"
           style="left:48px; bottom:0px; height:15px; right:0; "
         >
           <div
-            style="width:2496px; height:1px; "
-          />
+            class="o-scrollbar horizontal"
+            style="left:0px; height:15px; right:0; "
+          >
+            <div
+              style="width:2496px; height:1px; "
+            />
+          </div>
         </div>
         
         <div
@@ -2015,21 +2025,31 @@ exports[`components take the small screen into account 1`] = `
         
         
         <div
-          class="o-scrollbar vertical"
+          class="o-scrollbar-container position-absolute"
           style="top:26px; right:0px; width:15px; bottom:0; "
         >
           <div
-            style="width:1px; height:2346px; "
-          />
+            class="o-scrollbar vertical"
+            style="top:0px; width:15px; bottom:0; "
+          >
+            <div
+              style="width:1px; height:2346px; "
+            />
+          </div>
         </div>
         
         <div
-          class="o-scrollbar horizontal"
+          class="o-scrollbar-container position-absolute"
           style="left:48px; bottom:0px; height:15px; right:0; "
         >
           <div
-            style="width:2496px; height:1px; "
-          />
+            class="o-scrollbar horizontal"
+            style="left:0px; height:15px; right:0; "
+          >
+            <div
+              style="width:2496px; height:1px; "
+            />
+          </div>
         </div>
         
         <div

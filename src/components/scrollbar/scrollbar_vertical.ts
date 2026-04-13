@@ -1,5 +1,6 @@
 import { Component, xml } from "@odoo/owl";
 import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
+import { cssPropertiesToCss } from "../helpers";
 import { isBrowserFirefox } from "../helpers/dom_helpers";
 import { ScrollBar } from "./scrollbar";
 
@@ -13,14 +14,16 @@ export class VerticalScrollBar extends Component<Props, SpreadsheetChildEnv> {
   };
   static components = { ScrollBar };
   static template = xml/*xml*/ `
-    <ScrollBar
-      t-if="isDisplayed"
-      height="height"
-      position="position"
-      offset="offset"
-      direction="'vertical'"
-      onScroll.bind="onScroll"
-    />`;
+    <div class="o-scrollbar-container position-absolute" t-att-style="containerStyle">
+      <ScrollBar
+        t-if="isDisplayed"
+        height="height"
+        position="position"
+        offset="offset"
+        direction="'vertical'"
+        onScroll.bind="onScroll"
+      />
+    </div>`;
   static defaultProps = {
     topOffset: 0,
   };
@@ -40,12 +43,21 @@ export class VerticalScrollBar extends Component<Props, SpreadsheetChildEnv> {
     return yRatio < 1;
   }
 
+  get containerStyle() {
+    const scrollbarWidth = this.env.model.getters.getScrollBarWidth();
+    return cssPropertiesToCss({
+      top: `${this.props.topOffset}px`,
+      right: "0px",
+      width: `${scrollbarWidth}px`,
+      bottom: isBrowserFirefox() ? `${scrollbarWidth}px` : "0",
+    });
+  }
+
   get position() {
     const { y } = this.env.model.getters.getMainViewportRect();
     const scrollbarWidth = this.env.model.getters.getScrollBarWidth();
     return {
-      top: `${this.props.topOffset + y}px`,
-      right: "0px",
+      top: `${y}px`,
       width: `${scrollbarWidth}px`,
       bottom: isBrowserFirefox() ? `${scrollbarWidth}px` : "0",
     };
