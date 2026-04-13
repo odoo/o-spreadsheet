@@ -9,12 +9,19 @@
       height: 28px;
     }
 
-    .o-chart-dashboard-item {
+    .o-chart-item {
       &.active,
       &:hover,
       &:target {
+        cursor: pointer;
         color: var(--os-gray-900) !important;
         background-color: var(--os-background-gray-color-hover);
+      }
+
+      .o-icon {
+        width: 14px;
+        height: 14px;
+        font-size: 14px !important;
       }
 
       .o-chart-preview {

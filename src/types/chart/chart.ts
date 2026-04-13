@@ -264,6 +264,8 @@ export interface ChartCreationContext {
   readonly zoomable?: boolean;
   readonly humanize?: boolean;
   readonly slicesColors?: Color[];
+  readonly annotationText?: string;
+  readonly annotationLink?: string;
 }
 
 export type ChartAxisFormats = { [axisId: string]: Format | undefined } | undefined;

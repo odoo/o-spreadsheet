@@ -68,6 +68,8 @@ export const WaterfallChart: ChartTypeBuilder<"waterfall"> = {
       showValues: context.showValues,
       zoomable: context.zoomable ?? false,
       humanize: context.humanize,
+      annotationLink: context.annotationLink,
+      annotationText: context.annotationText,
     };
   },
 

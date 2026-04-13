@@ -566,6 +566,16 @@
     </svg>
   </t>
 
+  <t t-name="o-spreadsheet-Icon.FULLSCREEN_OUT">
+    <div class="o-icon">
+      <i class="fa fa-compress"/>
+    </div>
+  </t>
+  <t t-name="o-spreadsheet-Icon.FULLSCREEN_IN">
+    <div class="o-icon">
+      <i class="fa fa-expand"/>
+    </div>
+  </t>
   <t t-name="o-spreadsheet-Icon.EDIT">
     <div class="o-icon">
       <i class="fa fa-pencil-square-o"/>
@@ -937,6 +947,11 @@
         d="M9 .55a8.4 8.4 0 1 0 8.4 8.4A8.4 8.4 0 0 0 9 .55M7.6 4.155a1.4 1.4 0 1 1 1.4 1.4 1.4 1.4 0 0 1-1.4-1.4m4.9 8.995a.7.7 0 0 1-.7.7H6.9a.7.7 0 1 1 0-1.4h1.4v-4.2h-.7a.7.7 0 0 1 0-1.4h2.8v5.6h1.4a.7.7 0 0 1 .7.7"
       />
     </svg>
+  </t>
+  <t t-name="o-spreadsheet-Icon.INFO">
+    <div class="o-icon">
+      <i class="fa fa-info"/>
+    </div>
   </t>
   <t t-name="o-spreadsheet-Icon.PIVOT">
     <svg class="o-icon" width="100%" height="100%" viewBox="0 0 18 18">

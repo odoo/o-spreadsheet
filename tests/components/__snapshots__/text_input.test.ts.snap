@@ -10,6 +10,7 @@ exports[`TextInput Can render a text input 1`] = `
     >
       <input
         class="w-100 os-input"
+        maxlength="this.props.maxLength"
         type="text"
       />
       

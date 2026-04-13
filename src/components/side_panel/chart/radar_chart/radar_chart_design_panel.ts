@@ -3,6 +3,7 @@ import { RadarChartDefinition } from "../../../../types/chart/radar_chart";
 import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
 import { Checkbox } from "../../components/checkbox/checkbox";
 import { Section } from "../../components/section/section";
+import { ChartAnnotation } from "../building_blocks/annotation/annotation";
 import { GeneralDesignEditor } from "../building_blocks/general_design/general_design_editor";
 import { ChartHumanizeNumbers } from "../building_blocks/humanize_numbers/humanize_numbers";
 import { ChartLegend } from "../building_blocks/legend/legend";
@@ -18,6 +19,7 @@ export class RadarChartDesignPanel extends Component<
   static template = "o-spreadsheet-RadarChartDesignPanel";
   static components = {
     GeneralDesignEditor,
+    ChartAnnotation,
     SeriesDesignEditor,
     Section,
     ChartLegend,

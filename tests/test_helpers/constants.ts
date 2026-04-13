@@ -34,6 +34,8 @@ export const TEST_CHART_DATA = {
     stacked: false,
     legendPosition: "top" as const,
     humanize: true,
+    annotationText: "This is an annotation text",
+    annotationLink: "https://www.odoo.com",
   },
   combo: {
     type: "combo" as const,
@@ -41,6 +43,7 @@ export const TEST_CHART_DATA = {
       dataSets: [
         {
           dataRange: "B1:B4",
+          yAxisId: "y",
         },
       ],
       labelRange: "A2:A4",
@@ -50,6 +53,7 @@ export const TEST_CHART_DATA = {
     background: BACKGROUND_CHART_COLOR,
     legendPosition: "top" as const,
     humanize: true,
+    annotationText: "This is an annotation text",
   },
   scorecard: {
     type: "scorecard" as const,
@@ -59,6 +63,16 @@ export const TEST_CHART_DATA = {
     baselineDescr: { text: "description" },
     baselineMode: "difference" as const,
     humanize: true,
+    annotationLink: "https://www.odoo.com",
+  },
+  funnel: {
+    type: "funnel" as const,
+    keyValue: "B1:B4",
+    baseline: "A2:A4",
+    title: { text: "hello" },
+    baselineDescr: { text: "description" },
+    baselineMode: "difference" as const,
+    annotationLink: "javascript:alert('hello world')",
   },
   gauge: {
     type: "gauge" as const,
@@ -84,6 +98,8 @@ export const TEST_CHART_DATA = {
         operator: "<=" as const,
       },
     },
+    annotationText: "This is an annotation text",
+    annotationLink: "https://www.odoo.com",
   },
   calendar: {
     type: "calendar" as const,

@@ -1,8 +1,10 @@
-import { Component } from "@odoo/owl";
+import { Component, useRef, useState } from "@odoo/owl";
 import { chartComponentRegistry } from "../../../registries/chart_component_registry";
-import { ChartType, CSSProperties, FigureUI, Rect, UID } from "../../../types";
+import { ChartType, CSSProperties, FigureUI, MenuMouseEvent, Rect, UID } from "../../../types";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
-import { ChartDashboardMenu } from "../chart/chart_dashboard_menu/chart_dashboard_menu";
+import { getRefBoundingRect } from "../../helpers/dom_helpers";
+import { InfoPopover } from "../../info_popover/info_popover";
+import { ChartMenu } from "../chart/chart_menu/chart_menu";
 
 interface Props {
   // props figure is currently necessary scorecards, we need the chart dimension at render to avoid having to force the
@@ -13,6 +15,11 @@ interface Props {
   openContextMenu?: (anchorRect: Rect, onClose?: () => void) => void;
 }
 
+interface InfoState {
+  isOpen: boolean;
+  anchorRect: null | Rect;
+}
+
 export class ChartFigure extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-ChartFigure";
   static props = {
@@ -21,7 +28,10 @@ export class ChartFigure extends Component<Props, SpreadsheetChildEnv> {
     isFullScreen: { type: Boolean, optional: true },
     openContextMenu: { type: Function, optional: true },
   };
-  static components = { ChartDashboardMenu };
+  static components = { ChartMenu, InfoPopover };
+
+  private infoState: InfoState = useState({ isOpen: false, anchorRect: null });
+  private infoButtonRef = useRef("infoButton");
 
   onDoubleClick() {
     this.env.model.dispatch("SELECT_FIGURE", { figureId: this.props.figureUI.id });
@@ -30,6 +40,10 @@ export class ChartFigure extends Component<Props, SpreadsheetChildEnv> {
 
   get chartType(): ChartType {
     return this.env.model.getters.getChartType(this.chartId);
+  }
+
+  get chartDefinition() {
+    return this.env.model.getters.getChartDefinition(this.props.figureUI.id);
   }
 
   get chartId(): UID {
@@ -47,5 +61,22 @@ export class ChartFigure extends Component<Props, SpreadsheetChildEnv> {
       throw new Error(`Component is not defined for type ${type}`);
     }
     return component;
+  }
+
+  showInfo(ev: MenuMouseEvent) {
+    if (ev.closedMenuId === "info-popover") {
+      this.infoState.isOpen = false;
+      return;
+    }
+    this.infoState.isOpen = true;
+    this.infoState.anchorRect = getRefBoundingRect(this.infoButtonRef);
+  }
+
+  getAnnotationText() {
+    return this.chartDefinition?.annotationText;
+  }
+
+  getAnnotationLink() {
+    return this.chartDefinition?.annotationLink;
   }
 }

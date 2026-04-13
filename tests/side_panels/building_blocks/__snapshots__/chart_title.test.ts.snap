@@ -22,6 +22,7 @@ exports[`Chart title Can render a chart title component 1`] = `
       >
         <input
           class="w-100 os-input o-input-border"
+          maxlength="this.props.maxLength"
           placeholder=""
           type="text"
         />

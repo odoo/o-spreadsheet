@@ -52,6 +52,8 @@ export const GeoChart: ChartTypeBuilder<"geo"> = {
       title: context.title || { text: "" },
       type: "geo",
       humanize: context.humanize,
+      annotationLink: context.annotationLink,
+      annotationText: context.annotationText,
     };
   },
 

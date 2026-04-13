@@ -69,6 +69,8 @@ export const PyramidChart: ChartTypeBuilder<"pyramid"> = {
       stacked: true,
       showValues: context.showValues,
       humanize: context.humanize,
+      annotationLink: context.annotationLink,
+      annotationText: context.annotationText,
     };
   },
 
