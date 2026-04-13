@@ -39,6 +39,7 @@ exports[`Chart title Can render a chart title component 1`] = `
           >
             <svg
               class="o-icon"
+              viewBox="0 0 18 18"
               xmlns="http://www.w3.org/2000/svg"
             >
               <path
@@ -60,6 +61,7 @@ exports[`Chart title Can render a chart title component 1`] = `
           >
             <svg
               class="o-icon"
+              viewBox="0 0 18 18"
               xmlns="http://www.w3.org/2000/svg"
             >
               <path
@@ -88,6 +90,7 @@ exports[`Chart title Can render a chart title component 1`] = `
             >
               <svg
                 class="o-icon align-left"
+                viewBox="0 0 18 18"
                 xmlns="http://www.w3.org/2000/svg"
               >
                 <path
@@ -158,6 +161,7 @@ exports[`Chart title Can render a chart title component 1`] = `
             >
               <svg
                 class="o-icon"
+                viewBox="0 0 18 18"
                 xmlns="http://www.w3.org/2000/svg"
               >
                 <path
