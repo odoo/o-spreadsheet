@@ -30,7 +30,8 @@ export class CellComputedStylePlugin extends UIPlugin {
       cmd.type === "CLEAR_FORMATTING" ||
       cmd.type === "ADD_DATA_VALIDATION_RULE" ||
       cmd.type === "REMOVE_DATA_VALIDATION_RULE" ||
-      cmd.type === "EVALUATE_CELLS"
+      cmd.type === "EVALUATE_CELLS" ||
+      cmd.type === "SET_SHEET_BACKGROUND_COLOR"
     ) {
       this.styles = new PositionMap();
       this.borders = new PositionMap();
@@ -90,7 +91,9 @@ export class CellComputedStylePlugin extends UIPlugin {
     const cfStyle = this.getters.getCellConditionalFormatStyle(position);
     const tableStyle = this.getters.getCellTableStyle(position);
     const dataValidationStyle = this.getters.getDataValidationCellStyle(position);
+    const sheet = this.getters.getSheet(position.sheetId);
     return {
+      ...removeFalsyAttributes({ fillColor: sheet?.backgroundColor }),
       ...removeFalsyAttributes(tableStyle),
       ...removeFalsyAttributes(dataValidationStyle),
       ...removeFalsyAttributes(cellStyle),

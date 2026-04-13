@@ -5,6 +5,7 @@ import {
   MIN_CELL_TEXT_MARGIN,
   PADDING_AUTORESIZE_HORIZONTAL,
 } from "../../constants";
+import { isColorValid } from "../../helpers/color";
 import { formatValue } from "../../helpers/format/format";
 import { localizeFormula } from "../../helpers/locale";
 import { groupConsecutive, largeMax, range } from "../../helpers/misc";
@@ -49,6 +50,9 @@ export class SheetUIPlugin extends UIPlugin {
   // ---------------------------------------------------------------------------
 
   allowDispatch(cmd: LocalCommand): CommandResult | CommandResult[] {
+    if (cmd.type === "SET_BACKGROUND_FOR_ALL_CELLS" && cmd.color && !isColorValid(cmd.color)) {
+      return CommandResult.InvalidColor;
+    }
     return this.chainValidations(this.checkSheetExists, this.checkZonesAreInSheet)(cmd);
   }
 
@@ -82,6 +86,14 @@ export class SheetUIPlugin extends UIPlugin {
           }
         }
         this.dispatch("DELETE_CONTENT", { sheetId: cmd.sheetId, target: newTarget });
+        break;
+      case "SET_BACKGROUND_FOR_ALL_CELLS":
+        this.dispatch("SET_FORMATTING", {
+          sheetId: cmd.sheetId,
+          target: [this.getters.getSheetZone(cmd.sheetId)],
+          style: { fillColor: undefined },
+        });
+        this.dispatch("SET_SHEET_BACKGROUND_COLOR", { sheetId: cmd.sheetId, color: cmd.color });
         break;
     }
   }

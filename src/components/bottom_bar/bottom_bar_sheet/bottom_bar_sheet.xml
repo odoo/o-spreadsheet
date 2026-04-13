@@ -44,10 +44,10 @@
       </div>
     </Ripple>
     <ColorPicker
-      t-if="this.state.pickerOpened"
+      t-if="this.state.openedPicker"
       anchorRect="this.colorPickerAnchorRect"
       onColorPicked.bind="this.onColorPicked"
-      currentColor="this.props.currentColor"
+      currentColor="this.state.currentPickerColor"
     />
   </t>
 </templates>

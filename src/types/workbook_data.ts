@@ -67,6 +67,7 @@ export interface SheetData {
   panes?: PaneDivision;
   headerGroups?: Record<Dimension, HeaderGroup[]>;
   color?: Color;
+  backgroundColor?: Color;
   isLocked?: boolean;
 }
 

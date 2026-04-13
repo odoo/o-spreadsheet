@@ -1,4 +1,5 @@
 import { proxy, signal } from "@odoo/owl";
+import { FOOTER_HEIGHT } from "../../constants";
 import { Component, useExternalListener } from "../../owl3_compatibility_layer";
 import { useStore } from "../../store_engine/store_hooks";
 import { DOMFocusableElementStore } from "../../stores/DOM_focus_store";
@@ -26,14 +27,12 @@ export class GridAddRowsFooter extends Component<SpreadsheetChildEnv> {
   }
 
   get addRowsPosition() {
-    const activeSheetId = this.env.model.getters.getActiveSheetId();
-    const { numberOfRows } = this.env.model.getters.getSheetSize(activeSheetId);
     const { scrollY } = this.env.model.getters.getActiveSheetScrollInfo();
-    const rowDimensions = this.env.model.getters.getRowDimensions(activeSheetId, numberOfRows - 1);
-    const top = rowDimensions.end - scrollY;
+    const { y, height } = this.env.model.getters.getMainViewportRect();
 
     return cssPropertiesToCss({
-      top: `${top}px`,
+      top: `${y + height - scrollY - FOOTER_HEIGHT}px`,
+      height: `${FOOTER_HEIGHT}px`,
     });
   }
 

@@ -8,14 +8,13 @@ const FROZEN_PANE_BORDER_COLOR = "#DADFE8";
 const HEADER_BORDER_COLOR = "#C0C0C0";
 const TEXT_HEADER_COLOR = "#666666";
 const BACKGROUND_HEADER_COLOR = "#F8F9FA";
-export const CELL_BORDER_COLOR = "#E2E3E3";
 export const BACKGROUND_HEADER_SELECTED_COLOR = "#E8EAED";
 export const BACKGROUND_HEADER_ACTIVE_COLOR = "#595959";
 
 export const COLOR_THEMES: Record<string, GridRenderingTheme> = {
   light: {
     backgroundColor: "#FFFFFF",
-    gridBorderColor: CELL_BORDER_COLOR,
+    gridBorderColor: "#CECFCF",
     headerBackgroundColor: BACKGROUND_HEADER_COLOR,
     headerActiveBackgroundColor: BACKGROUND_HEADER_ACTIVE_COLOR,
     headerSelectedBackgroundColor: BACKGROUND_HEADER_SELECTED_COLOR,
@@ -28,7 +27,7 @@ export const COLOR_THEMES: Record<string, GridRenderingTheme> = {
   },
   dark: {
     backgroundColor: adaptForDarkMode("#1A1C2E"),
-    gridBorderColor: adaptForDarkMode("#4A4E55"),
+    gridBorderColor: adaptForDarkMode("#6B706F"),
     headerBackgroundColor: adaptForDarkMode("#262A36"),
     headerActiveBackgroundColor: adaptForDarkMode("#3A4052"),
     headerSelectedBackgroundColor: adaptForDarkMode("#4E566E"),

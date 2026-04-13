@@ -18,7 +18,7 @@ import { BottomBarStatistic } from "./bottom_bar_statistic/bottom_bar_statistic"
 // SpreadSheet
 // -----------------------------------------------------------------------------
 
-const MENU_MAX_HEIGHT = 250;
+const SHEET_LIST_MENU_MAX_HEIGHT = 250;
 
 interface BottomBarSheetItem {
   id: UID;
@@ -27,6 +27,7 @@ interface BottomBarSheetItem {
 
 interface BottomBarMenuState extends MenuState {
   menuId: UID | undefined;
+  maxHeight?: Pixel;
 }
 
 export class BottomBar extends Component<SpreadsheetChildEnv> {
@@ -45,8 +46,6 @@ export class BottomBar extends Component<SpreadsheetChildEnv> {
     isSheetListScrollableLeft: false,
     isSheetListScrollableRight: false,
   });
-
-  menuMaxHeight = MENU_MAX_HEIGHT;
 
   menuState: BottomBarMenuState = proxy({
     isOpen: false,
@@ -121,6 +120,7 @@ export class BottomBar extends Component<SpreadsheetChildEnv> {
     this.menuState.menuId = menuId;
     this.menuState.menuItems = registry.getMenuItems();
     this.menuState.anchorRect = { x, y, width: 0, height: 0 };
+    this.menuState.maxHeight = menuId === "listSheets" ? SHEET_LIST_MENU_MAX_HEIGHT : undefined;
   }
 
   onSheetContextMenu(sheetId: UID, registry: MenuItemRegistry, ev: MenuMouseEvent) {

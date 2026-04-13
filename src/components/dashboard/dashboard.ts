@@ -164,4 +164,11 @@ export class SpreadsheetDashboard extends Component<SpreadsheetChildEnv> {
     const zoomLevel = this.env.model.getters.getViewportZoomLevel();
     return cssPropertiesToCss({ zoom: `${zoomLevel}` });
   }
+
+  get backgroundStyle() {
+    const sheet = this.env.model.getters.getActiveSheet();
+    return cssPropertiesToCss({
+      "background-color": sheet.backgroundColor || "var(--os-white-bg)",
+    });
+  }
 }
