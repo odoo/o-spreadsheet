@@ -584,18 +584,18 @@ describe("NETWORKDAYS.INTL formula", () => {
 });
 
 describe("NOW formula", () => {
-  const MockDate = require("mockdate");
-
   test("functional tests on simple arguments", async () => {
-    MockDate.set(new Date(2042, 3, 2, 4, 7, 30, 999));
+    jest.useFakeTimers();
+    jest.setSystemTime(new Date(2042, 3, 2, 4, 7, 30, 999).getTime());
     expect(evaluateCell("A1", { A1: "=NOW()" })).toBe(51958.171875);
-    MockDate.reset();
+    jest.useRealTimers();
   });
 
   test("return value with formatting", async () => {
-    MockDate.set(new Date(2042, 3, 2, 4, 7, 30, 999));
+    jest.useFakeTimers();
+    jest.setSystemTime(new Date(2042, 3, 2, 4, 7, 30, 999).getTime());
     expect(evaluateCellFormat("A1", { A1: "=NOW()" })).toBe("m/d/yyyy hh:mm:ss a");
-    MockDate.reset();
+    jest.useRealTimers();
   });
 
   test("Return format is locale dependant", () => {
@@ -683,17 +683,18 @@ describe("TIMEVALUE formula", () => {
 });
 
 describe("TODAY formula", () => {
-  const MockDate = require("mockdate");
   test("functional tests on simple arguments", async () => {
-    MockDate.set(new Date(2042, 3, 2, 4, 7, 30, 999));
+    jest.useFakeTimers();
+    jest.setSystemTime(new Date(2042, 3, 2, 4, 7, 30, 999).getTime());
     expect(evaluateCell("A1", { A1: "=TODAY()" })).toBe(51958);
-    MockDate.reset();
+    jest.useRealTimers();
   });
 
   test("return value with formatting", async () => {
-    MockDate.set(new Date(2042, 3, 2, 4, 7, 30, 999));
+    jest.useFakeTimers();
+    jest.setSystemTime(new Date(2042, 3, 2, 4, 7, 30, 999).getTime());
     expect(evaluateCellFormat("A1", { A1: "=TODAY()" })).toBe("m/d/yyyy");
-    MockDate.reset();
+    jest.useRealTimers();
   });
 
   test("Return format is locale dependant", () => {
