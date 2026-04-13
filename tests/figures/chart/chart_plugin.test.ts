@@ -1288,6 +1288,13 @@ describe("datasource tests", function () {
   });
 });
 
+test("Delete single chart also delete figure", () => {
+  const sheetId = model.getters.getActiveSheetId();
+  createChart(model, { type: "line" }, "chartId");
+  model.dispatch("DELETE_CHART", { sheetId, chartId: "chartId" });
+  expect(model.getters.getFigures(sheetId).length).toBe(0);
+});
+
 describe("title", function () {
   test("change title manually", () => {
     createChart(

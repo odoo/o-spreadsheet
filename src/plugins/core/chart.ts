@@ -143,11 +143,20 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
           }
         }
         break;
-      case "DELETE_CHART":
+      case "DELETE_CHART": {
+        const figureId = this.charts[cmd.chartId]?.figureId;
         if (this.isChartDefined(cmd.chartId)) {
           this.history.update("charts", cmd.chartId, undefined);
         }
+        if (
+          figureId &&
+          !this.getters.doesCarouselExist(figureId) &&
+          this.getters.getFigure(cmd.sheetId, figureId)
+        ) {
+          this.dispatch("DELETE_FIGURE", { sheetId: cmd.sheetId, figureId });
+        }
         break;
+      }
       case "DELETE_SHEET":
         for (const id of this.getChartIds(cmd.sheetId)) {
           this.history.update("charts", id, undefined);
