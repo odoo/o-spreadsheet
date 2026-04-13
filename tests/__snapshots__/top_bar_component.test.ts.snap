@@ -115,6 +115,7 @@ exports[`TopBar component simple rendering 1`] = `
             >
               <svg
                 class="o-icon"
+                viewBox="0 0 18 18"
                 xmlns="http://www.w3.org/2000/svg"
               >
                 <path
@@ -135,6 +136,7 @@ exports[`TopBar component simple rendering 1`] = `
             >
               <svg
                 class="o-icon"
+                viewBox="0 0 18 18"
                 xmlns="http://www.w3.org/2000/svg"
               >
                 <path
@@ -153,6 +155,7 @@ exports[`TopBar component simple rendering 1`] = `
             <span>
               <svg
                 class="o-icon"
+                viewBox="0 0 18 18"
                 xmlns="http://www.w3.org/2000/svg"
               >
                 <path
@@ -172,6 +175,7 @@ exports[`TopBar component simple rendering 1`] = `
             >
               <svg
                 class="o-icon"
+                viewBox="0 0 18 18"
                 xmlns="http://www.w3.org/2000/svg"
               >
                 <path
@@ -282,6 +286,7 @@ exports[`TopBar component simple rendering 1`] = `
                 <svg
                   class="o-icon"
                   fill="currentColor"
+                  viewBox="0 0 18 18"
                   xmlns="http://www.w3.org/2000/svg"
                 >
                   <path
@@ -360,6 +365,7 @@ exports[`TopBar component simple rendering 1`] = `
             >
               <svg
                 class="o-icon"
+                viewBox="0 0 18 18"
                 xmlns="http://www.w3.org/2000/svg"
               >
                 <path
@@ -380,6 +386,7 @@ exports[`TopBar component simple rendering 1`] = `
             >
               <svg
                 class="o-icon"
+                viewBox="0 0 18 18"
                 xmlns="http://www.w3.org/2000/svg"
               >
                 <path
@@ -400,6 +407,7 @@ exports[`TopBar component simple rendering 1`] = `
             >
               <svg
                 class="o-icon"
+                viewBox="0 0 18 18"
                 xmlns="http://www.w3.org/2000/svg"
               >
                 <path
@@ -426,6 +434,7 @@ exports[`TopBar component simple rendering 1`] = `
                 >
                   <svg
                     class="o-icon"
+                    viewBox="0 0 18 18"
                     xmlns="http://www.w3.org/2000/svg"
                   >
                     <path
@@ -464,6 +473,7 @@ exports[`TopBar component simple rendering 1`] = `
                 >
                   <svg
                     class="o-icon"
+                    viewBox="0 0 18 18"
                     xmlns="http://www.w3.org/2000/svg"
                   >
                     <path
@@ -486,6 +496,7 @@ exports[`TopBar component simple rendering 1`] = `
               <span>
                 <svg
                   class="o-icon"
+                  viewBox="0 0 18 18"
                   xmlns="http://www.w3.org/2000/svg"
                 >
                   <path
@@ -506,6 +517,7 @@ exports[`TopBar component simple rendering 1`] = `
             >
               <svg
                 class="o-icon"
+                viewBox="0 0 18 18"
                 xmlns="http://www.w3.org/2000/svg"
               >
                 <path
@@ -540,6 +552,7 @@ exports[`TopBar component simple rendering 1`] = `
               >
                 <svg
                   class="o-icon align-left"
+                  viewBox="0 0 18 18"
                   xmlns="http://www.w3.org/2000/svg"
                 >
                   <path
@@ -573,6 +586,7 @@ exports[`TopBar component simple rendering 1`] = `
               >
                 <svg
                   class="o-icon align-bottom"
+                  viewBox="0 0 18 18"
                   xmlns="http://www.w3.org/2000/svg"
                 >
                   <path
@@ -606,6 +620,7 @@ exports[`TopBar component simple rendering 1`] = `
               >
                 <svg
                   class="o-icon wrapping-overflow"
+                  viewBox="0 0 18 18"
                   xmlns="http://www.w3.org/2000/svg"
                 >
                   <path
@@ -684,8 +699,7 @@ exports[`TopBar component simple rendering 1`] = `
               >
                 <svg
                   class="o-icon"
-                  height="18"
-                  width="18"
+                  viewBox="0 0 18 18"
                   xmlns="http://www.w3.org/2000/svg"
                 >
                   <path
