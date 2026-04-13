@@ -120,6 +120,7 @@ export interface Style {
 export interface DataBarFill {
   color: Color;
   percentage: number;
+  isGradient: boolean;
 }
 
 export interface UpdateCellData {

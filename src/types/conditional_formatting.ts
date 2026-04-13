@@ -94,6 +94,7 @@ export interface DataBarRule {
   type: "DataBarRule";
   color: number;
   rangeValues?: string;
+  isGradient?: boolean;
 }
 
 export interface DataBarRuleInternal extends Omit<DataBarRule, "rangeValues"> {

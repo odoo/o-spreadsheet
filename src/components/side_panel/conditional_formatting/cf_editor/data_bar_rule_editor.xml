@@ -17,6 +17,12 @@
         onSelectionConfirmed="() => this.props.store.onDataBarRangeChange()"
         required="false"
       />
+      <Checkbox
+        name="'gradient'"
+        label.translate="Use gradient"
+        value="!!this.rule.isGradient"
+        onChange="(value) => this.props.store.updateDataBarIsGradient(value)"
+      />
     </div>
   </t>
 </templates>

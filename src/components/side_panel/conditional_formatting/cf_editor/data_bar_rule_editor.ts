@@ -3,6 +3,7 @@ import { colorNumberToHex } from "../../../../helpers";
 import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
 import { Store } from "../../../../types/store_engine";
 import { SelectionInput } from "../../../selection_input/selection_input";
+import { Checkbox } from "../../components/checkbox/checkbox";
 import { RoundColorPicker } from "../../components/round_color_picker/round_color_picker";
 import { ConditionalFormattingEditorStore } from "./cf_editor_store";
 
@@ -15,6 +16,7 @@ export class DataBarRuleEditor extends Component<Props, SpreadsheetChildEnv> {
   static components = {
     SelectionInput,
     RoundColorPicker,
+    Checkbox,
   };
   static props = { store: Object };
 

@@ -338,6 +338,11 @@ export class ConditionalFormattingEditorStore extends SpreadsheetStore {
     this.updateConditionalFormat({ rule: this.state.rules.dataBar });
   }
 
+  updateDataBarIsGradient(value: boolean) {
+    this.state.rules.dataBar.isGradient = value;
+    this.updateConditionalFormat({ rule: this.state.rules.dataBar });
+  }
+
   onDataBarRangeUpdate(ranges: string[]) {
     this.state.rules.dataBar.rangeValues = ranges[0];
   }

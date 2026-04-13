@@ -332,6 +332,7 @@ export class EvaluationConditionalFormatPlugin extends CoreViewPlugin {
         computedDataBars[col][row] = {
           color: colorNumberToHex(color),
           percentage: (cell.value * 100) / max,
+          isGradient: !!rule.isGradient,
         };
       }
     }

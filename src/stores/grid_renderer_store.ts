@@ -248,9 +248,17 @@ export class GridRenderer extends DisposableStore {
         );
       }
       if (box.dataBarFill) {
-        ctx.fillStyle = box.dataBarFill.color;
         const percentage = box.dataBarFill.percentage;
         const width = box.width * (percentage / 100);
+        if (box.dataBarFill.isGradient) {
+          const gradient = ctx.createLinearGradient(box.x, box.y, box.x + width, box.y);
+          gradient.addColorStop(0, box.dataBarFill.color);
+          gradient.addColorStop(0.6, box.dataBarFill.color);
+          gradient.addColorStop(1, style.fillColor || "#ffffff");
+          ctx.fillStyle = gradient;
+        } else {
+          ctx.fillStyle = box.dataBarFill.color;
+        }
         ctx.fillRect(box.x, box.y, width, box.height);
       }
       if (box.overlayColor) {

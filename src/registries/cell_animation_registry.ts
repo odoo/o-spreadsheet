@@ -70,6 +70,7 @@ cellAnimationRegistry.add("animatedDataBar", {
     animatedBox.dataBarFill = {
       color: newBox.dataBarFill?.color || oldBox.dataBarFill?.color || "#ffffff",
       percentage: percentage,
+      isGradient: newBox.dataBarFill?.isGradient ?? oldBox.dataBarFill?.isGradient ?? false,
     };
   },
 });
