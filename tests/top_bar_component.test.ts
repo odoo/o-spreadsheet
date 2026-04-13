@@ -24,8 +24,10 @@ import {
   selectCell,
   setAnchorCorner,
   setCellContent,
+  setCellStyle,
   setFormatting,
   setSelection,
+  setSheetBackground,
   setZoneBorders,
 } from "./test_helpers/commands_helpers";
 import {
@@ -433,6 +435,34 @@ describe("TopBar component", () => {
       const selection = model.getters.getSelectedZone();
       expect(zoneToXc(selection)).toEqual("A1:D4");
       expect(getTable(model, "A1")!.range.zone).toEqual(toZone("A1:D4"));
+    });
+  });
+
+  describe("Cell background button", () => {
+    test("Color picker takes sheet background into account", async () => {
+      const { model } = await mountParent();
+      setSheetBackground(model, "#FF0000");
+      await nextTick();
+
+      expect('.o-menu-item-button[title="Fill Color"] .o-colored-border').toHaveStyle({
+        "border-color": "#FF0000",
+      });
+      await click(fixture, '.o-menu-item-button[title="Fill Color"]');
+      expect('.o-popover [data-color="#FF0000"]').toHaveText(" ✓ ");
+    });
+
+    test("When the whole sheet is selected, set the sheet background instead of individual cell background", async () => {
+      const { model } = await mountParent();
+      const sheetId = model.getters.getActiveSheetId();
+      setCellStyle(model, "A1", { fillColor: "#00FF00" });
+
+      setSelection(model, [zoneToXc(model.getters.getSheetZone(sheetId))]);
+      await nextTick();
+      await click(fixture, '.o-menu-item-button[title="Fill Color"]');
+      await click(fixture, '.o-popover [data-color="#0000FF"]');
+
+      expect(model.getters.getSheet(sheetId).backgroundColor).toBe("#0000FF");
+      expect(getCellStyle(model, "A1")?.fillColor).toBeUndefined();
     });
   });
 

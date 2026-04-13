@@ -854,8 +854,8 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
         >
           
           <div
-            class="o-grid-add-rows mt-2 ms-2 w-100 d-flex position-relative align-items-center os-theme-dependant"
-            style="top: 2300px;"
+            class="o-grid-add-rows bg-white pt-2 ps-2 w-100 d-flex position-relative align-items-center os-theme-dependant"
+            style="top: 2300px; height: 46px;"
           >
             <button
               class="o-button flex-grow-0 me-2"
@@ -1889,8 +1889,8 @@ exports[`components take the small screen into account 1`] = `
         >
           
           <div
-            class="o-grid-add-rows mt-2 ms-2 w-100 d-flex position-relative align-items-center os-theme-dependant"
-            style="top: 2300px;"
+            class="o-grid-add-rows bg-white pt-2 ps-2 w-100 d-flex position-relative align-items-center os-theme-dependant"
+            style="top: 2300px; height: 46px;"
           >
             <button
               class="o-button flex-grow-0 me-2"

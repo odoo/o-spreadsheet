@@ -3,7 +3,8 @@ import { MenuItemRegistry } from "../menu_items_registry";
 
 export function getSheetMenuRegistry(args: {
   renameSheetCallback: () => void;
-  openSheetColorPickerCallback: () => void;
+  openSheetTabColorPickerCallback: () => void;
+  openSheetBackgroundColorPickerCallback: () => void;
 }): MenuItemRegistry {
   const sheetMenuRegistry = new MenuItemRegistry();
 
@@ -25,8 +26,12 @@ export function getSheetMenuRegistry(args: {
       ...ACTION_SHEET.renameSheet(args),
       sequence: 40,
     })
-    .add("change_color", {
-      ...ACTION_SHEET.changeSheetColor(args),
+    .add("change_tab_color", {
+      ...ACTION_SHEET.changeSheetTabColor(args),
+      sequence: 50,
+    })
+    .add("change_sheet_background", {
+      ...ACTION_SHEET.changeSheetBackgroundColor(args),
       sequence: 50,
       separator: true,
     })

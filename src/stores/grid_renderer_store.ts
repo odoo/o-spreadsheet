@@ -10,7 +10,7 @@ import {
   HEADER_WIDTH,
   MIN_CELL_TEXT_MARGIN,
 } from "../constants";
-import { blendColors, toHex } from "../helpers/color";
+import { blendColors, setColorAlpha, toHex } from "../helpers/color";
 import { numberToLetters } from "../helpers/coordinates";
 import { formatHasRepeatedChar } from "../helpers/format/format";
 import { deepCopy, deepEquals } from "../helpers/misc";
@@ -195,8 +195,7 @@ export class GridRenderer extends DisposableStore {
     const { ctx, viewports } = renderingContext;
     const { width, height } = viewports.getSheetViewDimensionWithHeaders();
 
-    // white background
-    ctx.fillStyle = this.getters.getSpreadsheetTheme().backgroundColor;
+    ctx.fillStyle = this.getBackgroundColor(renderingContext);
     ctx.fillRect(0, 0, width + CANVAS_SHIFT, height + CANVAS_SHIFT);
   }
 
@@ -210,12 +209,14 @@ export class GridRenderer extends DisposableStore {
 
     if (areGridLinesVisible) {
       const theme = this.getters.getSpreadsheetTheme();
-      ctx.strokeStyle = theme.gridBorderColor;
+      const background = this.getBackgroundColor(renderingContext);
+      const blendedGridColor = blendColors(theme.gridBorderColor + "aa", background + "50");
+      ctx.strokeStyle = setColorAlpha(blendedGridColor, 1);
+      ctx.lineWidth = thinLineWidth;
       for (const box of boxes) {
         if (box.style.hideGridLines) {
           continue;
         }
-        ctx.lineWidth = thinLineWidth;
         ctx.strokeRect(box.x + inset, box.y + inset, box.width - 2 * inset, box.height - 2 * inset);
       }
     }
@@ -225,9 +226,11 @@ export class GridRenderer extends DisposableStore {
     const { ctx } = renderingContext;
     for (const box of boxes) {
       const style = box.style;
-      const fillColor = toHex(style.fillColor || "#ffffff");
-      if (fillColor !== "#FFFFFF") {
-        ctx.fillStyle = fillColor;
+      if (
+        style.fillColor &&
+        toHex(style.fillColor) !== toHex(this.getBackgroundColor(renderingContext))
+      ) {
+        ctx.fillStyle = toHex(style.fillColor);
         // We shift the canvas by CANVAS_SHIFT to avoid blurry lines (lines are drawn between pixels), but fillRect
         // are drawn at the exact pixel position, so we need to compensate this shift here. We also want to extend
         // the fill by 1px to draw over the gridLines.
@@ -245,7 +248,10 @@ export class GridRenderer extends DisposableStore {
         ctx.fillRect(box.x, box.y, width, box.height);
       }
       if (box.overlayColor) {
-        ctx.fillStyle = blendColors(fillColor, box.overlayColor);
+        ctx.fillStyle = blendColors(
+          style.fillColor || this.getBackgroundColor(renderingContext),
+          box.overlayColor
+        );
         ctx.fillRect(
           box.x - CANVAS_SHIFT,
           box.y - CANVAS_SHIFT,
@@ -298,7 +304,7 @@ export class GridRenderer extends DisposableStore {
             (box.clipRect?.x || box.x + box.width / 2 - box.content.width / 2) + thinLineWidth / 2;
           width = clipWidth - 2 * thinLineWidth;
         }
-        ctx.fillStyle = this.getters.getSpreadsheetTheme().backgroundColor;
+        ctx.fillStyle = this.getBackgroundColor(renderingContext);
         ctx.fillRect(x, y, width, height);
       }
     }
@@ -509,6 +515,11 @@ export class GridRenderer extends DisposableStore {
     ctx.textBaseline = "middle";
     ctx.lineWidth = thinLineWidth;
     ctx.strokeStyle = theme.headerTextColor;
+
+    // Background for headers to separate from possible grid background color
+    ctx.fillStyle = this.getters.getSpreadsheetTheme().backgroundColor;
+    ctx.fillRect(0, 0, HEADER_WIDTH, height);
+    ctx.fillRect(0, 0, width, HEADER_HEIGHT);
 
     // Columns headers background
     for (const col of visibleCols) {
@@ -1056,5 +1067,12 @@ export class GridRenderer extends DisposableStore {
         this.animations.set(box.id, animation);
       }
     }
+  }
+
+  private getBackgroundColor(renderingContext: GridRenderingContext) {
+    return (
+      this.getters.getSheet(renderingContext.sheetId).backgroundColor ||
+      this.getters.getSpreadsheetTheme().backgroundColor
+    );
   }
 }

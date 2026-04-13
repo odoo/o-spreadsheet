@@ -386,6 +386,11 @@ export class GridSelectionPlugin extends UIPlugin {
         col: zone.left,
         row: zone.top,
       });
+
+      if (!this.currentStyle.fillColor) {
+        const sheet = this.getters.getSheet(sheetId);
+        this.currentStyle = { ...this.currentStyle, fillColor: sheet.backgroundColor };
+      }
     }
     return this.currentStyle;
   }

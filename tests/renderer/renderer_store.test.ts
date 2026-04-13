@@ -29,7 +29,6 @@ import { toZone } from "../../src/helpers/zones";
 import {
   BACKGROUND_HEADER_ACTIVE_COLOR,
   BACKGROUND_HEADER_SELECTED_COLOR,
-  CELL_BORDER_COLOR,
 } from "../../src/plugins/ui_feature/color_theme";
 import { FormulaFingerprintStore } from "../../src/stores/formula_fingerprints_store";
 import { GridRenderer } from "../../src/stores/grid_renderer_store";
@@ -59,6 +58,7 @@ import {
   setFormulaVisibility,
   setGridLinesVisibility,
   setSelection,
+  setSheetBackground,
   setSheetviewSize,
   setZoneBorders,
 } from "../test_helpers/commands_helpers";
@@ -1669,7 +1669,7 @@ describe("renderer", () => {
     // Default Model displaying grid lines
     strokeColors = [];
     drawGridRenderer(ctx);
-    expect(strokeColors).toContain(toHex(CELL_BORDER_COLOR));
+    expect(strokeColors).toContain(toHex("#E2E3E3"));
     expect(strokeColors).toContain(toHex(SELECTION_BORDER_COLOR));
 
     // model without grid lines
@@ -2477,5 +2477,25 @@ describe("renderer", () => {
     drawGridRenderer(ctx);
 
     expect(strokeRectCalls.length).toBe(baseNumberOfStrokeRect - 4);
+  });
+
+  test("can draw a sheet with a custom background color", () => {
+    const { drawGridRenderer, model } = setRenderer(
+      new Model({ sheets: [{ colNumber: 4, rowNumber: 8 }] }),
+      ["Background", "Headers", "Selection"]
+    );
+
+    setCellContent(model, "A1", "1");
+    setSheetBackground(model, "#F2B2B7", "Sheet1");
+    const ctx = new MockGridRenderingContext(model, 500, 300, {}, "nodeCanvas");
+    model.dispatch("RESIZE_SHEETVIEW", {
+      width: 500 - HEADER_HEIGHT,
+      height: 300 - HEADER_WIDTH,
+      gridOffsetX: HEADER_WIDTH,
+      gridOffsetY: HEADER_HEIGHT,
+    });
+
+    drawGridRenderer(ctx);
+    expect(ctx.screenshot()).toMatchImageSnapshot();
   });
 });

@@ -140,6 +140,7 @@ export interface Sheet {
   panes: PaneDivision;
   color?: Color;
   isLocked?: boolean;
+  backgroundColor?: Color;
 }
 
 export interface CellPosition {

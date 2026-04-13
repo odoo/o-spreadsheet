@@ -1,7 +1,11 @@
 <templates>
   <t t-name="o-spreadsheet-SpreadsheetDashboard">
     <div
-      class="o-grid o-two-columns o-zoomable bg-white"
+      class="o-dashboard-background position-absolute w-100 h-100 z-0 os-theme-dependant"
+      t-att-style="this.backgroundStyle"
+    />
+    <div
+      class="o-grid o-dashboard-grid o-two-columns o-zoomable z-1"
       tabindex="-1"
       t-on-wheel="this.onMouseWheel"
       t-att-style="this.dashboardStyle">

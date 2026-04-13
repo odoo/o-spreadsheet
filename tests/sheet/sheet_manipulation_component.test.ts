@@ -1,5 +1,5 @@
 import { Spreadsheet } from "../../src";
-import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../../src/constants";
+import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH, FOOTER_HEIGHT } from "../../src/constants";
 import { range } from "../../src/helpers/misc";
 import { zoneToXc } from "../../src/helpers/zones";
 import { Model } from "../../src/model";
@@ -304,25 +304,19 @@ describe("Adding rows footer at the end of sheet", () => {
     }
   );
 
-  test("will be just below the last row, if the sheet is too short to scroll", async () => {
+  test("will at the bottom of the sheet view, if the sheet is too short to scroll", async () => {
     const sheetId = model.getters.getActiveSheetId();
     const { height } = model.getters.getSheetViewDimension();
     const numberOfRows = model.getters.getNumberRows(sheetId);
-    let top = parseInt(getElStyle(".o-grid-add-rows", "top"));
-    expect(top).toBeGreaterThan(height);
+    expect(".o-grid-add-rows").toHaveStyle({ top: `${numberOfRows * DEFAULT_CELL_HEIGHT}px` });
 
     deleteRows(model, range(0, numberOfRows - 3)); // only leave 3 rows
     await nextTick();
-    let end = model.getters.getRowDimensions(sheetId, 2).end;
-    top = parseInt(getElStyle(".o-grid-add-rows", "top"));
-    expect(top).toBeLessThan(height);
-    expect(top).toEqual(end);
+    expect(".o-grid-add-rows").toHaveStyle({ top: `${height - FOOTER_HEIGHT}px` });
 
     deleteRows(model, range(0, 2));
     await nextTick();
-    end = model.getters.getRowDimensions(sheetId, 0).end;
-    top = parseInt(getElStyle(".o-grid-add-rows", "top"));
-    expect(top).toEqual(end);
+    expect(".o-grid-add-rows").toHaveStyle({ top: `${height - FOOTER_HEIGHT}px` });
   });
 
   test("can add the specified number of rows at the end of sheet by clicking ADD button", async () => {
