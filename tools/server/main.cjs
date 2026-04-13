@@ -4,14 +4,23 @@
  */
 const formData = require("express-form-data");
 const express = require("express");
-const cors = require("cors");
 const fs = require("fs");
 const path = require("path"); // magic
 const expressWS = require("express-ws")(express());
 const app = expressWS.app;
 
 //add middleware
-app.use(cors());
+app.use((req, res, next) => {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+  res.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
+
+  if (req.method === "OPTIONS") {
+    return res.sendStatus(200);
+  }
+
+  next();
+});
 app.use(express.json());
 // parse data with connect-multiparty.
 app.use(formData.parse(/* options */));
