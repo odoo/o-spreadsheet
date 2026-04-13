@@ -37,6 +37,7 @@ import {
   DispatchResult,
   HeaderIndex,
   Locale,
+  MoveFiguresPayload,
   ParsedOsClipboardContentWithImageData,
   Pixel,
   PixelPosition,
@@ -1816,9 +1817,9 @@ export function addChartFigureToCarousel(
   chartFigureId: UID,
   sheetId: UID = model.getters.getActiveSheetId()
 ): DispatchResult {
-  return model.dispatch("ADD_FIGURE_CHART_TO_CAROUSEL", {
+  return model.dispatch("ADD_FIGURES_CHART_TO_CAROUSEL", {
     carouselFigureId: carouselId,
-    chartFigureId,
+    chartFigureIds: [chartFigureId],
     sheetId,
   });
 }
@@ -1934,8 +1935,20 @@ export function autofillAuto(model: Model) {
   return model.dispatch("AUTOFILL_AUTO");
 }
 
-export function selectFigure(model: Model, figureId: UID) {
-  return model.dispatch("SELECT_FIGURE", { figureId });
+export function selectFigure(model: Model, figureId: UID, selectMultiple?: boolean) {
+  return model.dispatch("SELECT_FIGURE", { figureId, selectMultiple });
+}
+
+export function unselectFigure(model: Model, figureId: UID) {
+  return model.dispatch("UNSELECT_FIGURE", { figureId });
+}
+
+export function deleteFigures(model: Model, sheetId: UID, figureIds: UID[]) {
+  return model.dispatch("DELETE_FIGURES", { sheetId, figureIds });
+}
+
+export function moveFigures(model: Model, payloads: MoveFiguresPayload[]) {
+  return model.dispatch("MOVE_FIGURES", { figures: payloads });
 }
 
 export function shiftViewportDown(model: Model) {

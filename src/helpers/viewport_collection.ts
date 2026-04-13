@@ -683,10 +683,17 @@ export class ViewportCollection {
     const { scrollX, scrollY } = this.getSheetScrollInfo(sheetId);
     const x = position.x - scrollX;
     const y = position.y - scrollY;
-    const col =
+    let col =
       x >= 0 ? this.getColIndex(sheetId, x) : this.getColIndexLeftOfMainViewport(sheetId, x);
-    const row =
-      y >= 0 ? this.getRowIndex(sheetId, y) : this.getRowIndexTopOfMainViewport(sheetId, y);
+    if (col < 0) {
+      // If the position is not visible in any viewport, we take the position in the main viewport
+      col = this.getMainInternalViewport(sheetId).searchHeaderIndex("COL", x);
+    }
+    let row = y >= 0 ? this.getRowIndex(sheetId, y) : this.getRowIndexTopOfMainViewport(sheetId, y);
+    if (row < 0) {
+      // If the position is not visible in any viewport, we take the position in the main viewport
+      row = this.getMainInternalViewport(sheetId).searchHeaderIndex("ROW", y);
+    }
     const { x: colX, y: rowY } = this.getRect(sheetId, positionToZone({ col, row }));
     return {
       col,
