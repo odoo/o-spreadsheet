@@ -23,6 +23,7 @@ export class CellComputedStylePlugin extends UIPlugin {
       invalidateEvaluationCommands.has(cmd.type) ||
       cmd.type === "UPDATE_CELL" ||
       cmd.type === "SET_FORMATTING" ||
+      cmd.type === "CLEAR_FORMATTING" ||
       cmd.type === "ADD_DATA_VALIDATION_RULE" ||
       cmd.type === "REMOVE_DATA_VALIDATION_RULE" ||
       cmd.type === "EVALUATE_CELLS"
