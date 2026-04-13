@@ -996,6 +996,22 @@ describe("Multi users synchronisation", () => {
     );
   });
 
+  test("delete the style of a cell is updated for each client", () => {
+    setStyle(alice, "A1", { fillColor: "#FF0000" });
+    expect([alice, bob, charlie]).toHaveSynchronizedValue(
+      (user) => getStyle(user, "A1").fillColor,
+      "#FF0000"
+    );
+    alice.dispatch("CLEAR_FORMATTING", {
+      sheetId: alice.getters.getActiveSheetId(),
+      target: [toZone("A1")],
+    });
+    expect([alice, bob, charlie]).toHaveSynchronizedValue(
+      (user) => getStyle(user, "A1")!.fillColor,
+      undefined
+    );
+  });
+
   test.each(["COL", "ROW"] as const)("Can group headers concurrently", (dimension) => {
     const sheetId = alice.getters.getActiveSheetId();
 
