@@ -5,6 +5,7 @@ import {
   filterTextCriterionOperators,
   UID,
 } from "../../src/types";
+import { getCellContent } from "../test_helpers";
 import {
   createDynamicTable,
   createTableWithFilter,
@@ -370,18 +371,23 @@ describe("Filter menu component", () => {
     });
   });
 
-  test("cannot sort filter table in readonly mode", async () => {
-    createTableWithFilter(model, "A10:B15");
+  test("can sort filter table in readonly mode", async () => {
+    createTableWithFilter(model, "A1:A3");
+    setCellContent(model, "A2", "1");
+    setCellContent(model, "A3", "-2");
     await nextTick();
-    await openFilterMenu("A10");
+    await openFilterMenu("A1");
     expect(
       [...fixture.querySelectorAll(".o-filter-menu-item")].map((el) => el.textContent?.trim())
-    ).toEqual(["Sort ascending (A ⟶ Z)", "Sort descending (Z ⟶ A)", "(Blanks)"]);
+    ).toEqual(["Sort ascending (A ⟶ Z)", "Sort descending (Z ⟶ A)", "-2", "1"]);
     model.updateMode("readonly");
     await nextTick();
     expect(
       [...fixture.querySelectorAll(".o-filter-menu-item")].map((el) => el.textContent?.trim())
-    ).toEqual(["(Blanks)"]);
+    ).toEqual(["Sort ascending (A ⟶ Z)", "Sort descending (Z ⟶ A)", "-2", "1"]);
+    await simulateClick(".o-filter-menu-item:nth-of-type(1)");
+    expect(getCellContent(model, "A2")).toBe("-2");
+    expect(getCellContent(model, "A3")).toBe("1");
   });
 
   test("cannot sort dynamic table", async () => {

@@ -84,6 +84,9 @@ export class CarouselFigure extends Component<Props, SpreadsheetChildEnv> {
   }
 
   onCarouselDoubleClick() {
+    if (this.env.model.getters.isReadonly()) {
+      return;
+    }
     this.env.model.dispatch("SELECT_FIGURE", { figureId: this.props.figureUI.id });
     this.env.openSidePanel("CarouselPanel", { figureId: this.props.figureUI.id });
   }
