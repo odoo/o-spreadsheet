@@ -11,6 +11,7 @@
         title="props.title"
         icon="props.icon"
         class="props.class"
+        onClose="() => this.topBarToolStore.closeDropdowns()"
       />
     </div>
   </t>

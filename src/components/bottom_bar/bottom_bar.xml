@@ -79,7 +79,7 @@
           </Ripple>
         </div>
         <BottomBarStatistic
-          openContextMenu="(x, y, registry) => this.openContextMenu(x, y, 'listSelectionStatistics', registry)"
+          openContextMenu="(x, y, registry) => this.toggleContextMenu(x, y, 'listSelectionStatistics', registry)"
           closeContextMenu="() => this.closeContextMenuWithId('listSelectionStatistics')"
         />
       </t>

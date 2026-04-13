@@ -34,11 +34,12 @@
               currentColor="props.currentBorderColor"
               toggleColorPicker="(ev) => this.toggleDropdownTool('borderColorTool')"
               showColorPicker="state.activeTool === 'borderColorTool'"
-              onColorPicked="(color) => this.setBorderColor(color)"
+              onColorPicked.bind="this.setBorderColor"
               title="border_color"
               icon="props.currentBorderColor === '' ? 'o-spreadsheet-Icon.BORDER_NO_COLOR' : 'o-spreadsheet-Icon.BORDER_COLOR'"
               dropdownMaxHeight="this.props.dropdownMaxHeight"
               class="'o-dropdown-button o-border-picker-button'"
+              onClose.bind="this.closeDropdown"
             />
             <t t-call="o-spreadsheet-Icon.CARET_DOWN"/>
           </div>

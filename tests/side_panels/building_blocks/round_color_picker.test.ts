@@ -1,6 +1,6 @@
 import { RoundColorPicker } from "../../../src/components/side_panel/components/round_color_picker/round_color_picker";
-import { click } from "../../test_helpers/dom_helper";
-import { mountComponentWithPortalTarget } from "../../test_helpers/helpers";
+import { click, triggerMouseEvent } from "../../test_helpers/dom_helper";
+import { mountComponentWithPortalTarget, nextTick } from "../../test_helpers/helpers";
 
 let fixture: HTMLElement;
 
@@ -40,5 +40,15 @@ describe("Panel color picker", () => {
     await click(fixture, ".o-round-color-picker-button");
     await click(fixture, ".o-color-picker-line-item[data-color='#EFEFEF'");
     expect(onColorPicked).toHaveBeenCalledWith("#EFEFEF");
+  });
+
+  test("Right-click outside color picker should close it", async () => {
+    await mountChartColor({ onColorPicked: () => {} });
+    await click(fixture, ".o-round-color-picker-button");
+    expect(".o-color-picker").toHaveCount(1);
+
+    triggerMouseEvent(".o-spreadsheet", "contextmenu");
+    await nextTick();
+    expect(".o-color-picker").toHaveCount(0);
   });
 });

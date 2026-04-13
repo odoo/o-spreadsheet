@@ -10,7 +10,7 @@
       t-if="isActive"
       anchorRect="state.anchorRect"
       menuItems="state.menuItems"
-      onClose="() => {}"
+      onClose.bind="toggleMenu"
       popoverPositioning="'bottom-left'"
     />
   </div>

@@ -50,6 +50,8 @@ export class DropdownAction extends Component<Props, SpreadsheetChildEnv> {
       positioning: "bottom-left",
       verticalOffset: 0,
       class: "rounded",
+      onClose: () => this.topBarToolStore.closeDropdowns(),
+      rootElement: this.actionRef.el,
     };
   }
 }

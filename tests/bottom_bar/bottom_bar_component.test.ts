@@ -142,6 +142,20 @@ describe("BottomBar component", () => {
     expect(fixture.querySelectorAll(".o-menu")).toHaveLength(0);
   });
 
+  test("Right-click on the bottom bar closes the sheet color picker", async () => {
+    await mountBottomBar();
+    expect(fixture.querySelectorAll(".o-menu")).toHaveLength(0);
+    triggerMouseEvent(".o-sheet", "contextmenu");
+    await nextTick();
+    expect(fixture.querySelectorAll(".o-menu")).toHaveLength(1);
+    await click(fixture, "div[title='Change color']");
+    expect(fixture.querySelectorAll(".o-color-picker")).toHaveLength(1);
+
+    triggerMouseEvent(".o-spreadsheet-bottom-bar", "contextmenu");
+    await nextTick();
+    expect(fixture.querySelectorAll(".o-color-picker")).toHaveLength(0);
+  });
+
   test("Can open context menu of a sheet with the arrow if another menu is already open", async () => {
     await mountBottomBar();
 

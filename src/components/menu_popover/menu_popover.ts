@@ -3,7 +3,6 @@ import {
   onWillUnmount,
   onWillUpdateProps,
   useEffect,
-  useExternalListener,
   useRef,
   useState,
 } from "@odoo/owl";
@@ -112,8 +111,6 @@ export class MenuPopover extends Component<Props, SpreadsheetChildEnv> {
       }
     });
 
-    useExternalListener(window, "click", this.onExternalClick, { capture: true });
-    useExternalListener(window, "contextmenu", this.onExternalClick, { capture: true });
     onWillUpdateProps((nextProps: Props) => {
       if (nextProps.menuItems !== this.props.menuItems) {
         this.closeSubMenu();
@@ -165,6 +162,7 @@ export class MenuPopover extends Component<Props, SpreadsheetChildEnv> {
       verticalOffset: isRoot ? 0 : MENU_VERTICAL_PADDING,
       onPopoverHidden: () => this.closeSubMenu(),
       onPopoverMoved: () => this.closeSubMenu(),
+      onClose: (ev) => this.onExternalClick(ev as MenuMouseEvent),
       maxHeight: this.props.maxHeight,
     };
   }

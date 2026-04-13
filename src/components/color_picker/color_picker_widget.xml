@@ -18,6 +18,8 @@
         onColorPicked="props.onColorPicked"
         currentColor="props.currentColor"
         maxHeight="props.dropdownMaxHeight"
+        rootElement="this.props.rootElement || this.colorPickerRootElement"
+        onClose="this.props.onClose"
       />
     </div>
   </t>

@@ -112,10 +112,14 @@ export class BottomBar extends Component<Props, SpreadsheetChildEnv> {
     const target = ev.currentTarget as HTMLElement;
     const { left } = target.getBoundingClientRect();
     const top = this.bottomBarRef.el!.getBoundingClientRect().top;
-    this.openContextMenu(left, top, "listSheets", registry);
+    this.toggleContextMenu(left, top, "listSheets", registry);
   }
 
-  openContextMenu(x: Pixel, y: Pixel, menuId: UID, registry: MenuItemRegistry) {
+  toggleContextMenu(x: Pixel, y: Pixel, menuId: UID, registry: MenuItemRegistry) {
+    if (this.menuState.isOpen && this.menuState.menuId === menuId) {
+      this.closeMenu();
+      return;
+    }
     this.menuState.isOpen = true;
     this.menuState.menuId = menuId;
     this.menuState.menuItems = registry.getMenuItems();
@@ -129,7 +133,7 @@ export class BottomBar extends Component<Props, SpreadsheetChildEnv> {
       this.closeMenu();
       return;
     }
-    this.openContextMenu(left, top, sheetId, registry);
+    this.toggleContextMenu(left, top, sheetId, registry);
   }
 
   closeMenu() {

@@ -62,6 +62,8 @@ export class TableStylePicker extends Component<TableStylePickerProps, Spreadshe
       anchorRect: { x: right, y: bottom, width: 0, height: 0 },
       positioning: "top-right",
       verticalOffset: 0,
+      rootElement: target,
+      onClose: this.closePopover.bind(this),
     };
   }
 

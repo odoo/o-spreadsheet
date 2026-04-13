@@ -10,6 +10,7 @@ import { Popover } from "../popover/popover";
 
 interface Props {
   gridRect: Rect;
+  rootElement?: HTMLElement | null;
   onClosePopover: () => void;
   onMouseWheel: (ev: WheelEvent) => void;
 }
@@ -19,6 +20,7 @@ export class GridPopover extends Component<Props, SpreadsheetChildEnv> {
     onClosePopover: Function,
     onMouseWheel: Function,
     gridRect: Object,
+    rootElement: { type: HTMLElement, optional: true },
   };
   static components = { Popover };
   protected cellPopovers!: Store<CellPopoverStore>;
