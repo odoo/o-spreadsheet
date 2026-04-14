@@ -2,6 +2,7 @@
  * This file will be run before each test file
  */
 import { App } from "@odoo/owl";
+import Chart from "chart.js/auto"; /* Need to be imported before Path2D is mocked in window by canvas.mock.ts */
 import { setDefaultSheetViewSize } from "../../src/constants";
 import { getCompiledTemplates } from "../../tools/owl_templates/compile_templates.cjs";
 import { ContentEditableHelper } from "../__mocks__/content_editable_helper";
@@ -10,6 +11,8 @@ import "./jest_extend";
 import "./polyfill";
 import "./resize_observer.mock";
 import { Resizers } from "./resize_observer.mock";
+
+window.Chart = Chart;
 
 declare global {
   interface Window {
