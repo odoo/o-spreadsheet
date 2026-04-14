@@ -1,5 +1,4 @@
 import type { ChartConfiguration, ChartDataset, Chart as ChartType, LegendOptions } from "chart.js";
-import { DeepPartial } from "chart.js/dist/types/utils";
 import {
   BACKGROUND_CHART_COLOR,
   INCORRECT_RANGE_STRING,
@@ -11,6 +10,7 @@ import {
   Color,
   CommandResult,
   CoreGetters,
+  DeepPartial,
   Getters,
   LocaleFormat,
   Range,

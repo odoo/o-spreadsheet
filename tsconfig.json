@@ -3,7 +3,7 @@
     "module": "ES6",
     "preserveConstEnums": true,
     "noImplicitThis": true,
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "removeComments": false,
     "target": "es2022",
     "outDir": "build/js",
