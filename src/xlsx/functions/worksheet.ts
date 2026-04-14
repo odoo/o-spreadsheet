@@ -139,10 +139,9 @@ export function addHyperlinks(
       if (isSheetUrl(url)) {
         const sheetId = parseSheetUrl(url);
         const sheet = data.sheets.find((sheet) => sheet.id === sheetId);
-        const location = sheet ? `${sheet.name}!A1` : INCORRECT_RANGE_STRING;
         const hyperlinkAttributes: XMLAttributes = [
           ["display", label],
-          ["location", location],
+          ["location", sheet ? `${sheet.name}!A1` : INCORRECT_RANGE_STRING],
           ["ref", xc],
         ];
         linkNodes.push(escapeXml/*xml*/ `
