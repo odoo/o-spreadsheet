@@ -1,6 +1,7 @@
 import { Component, useRef } from "@odoo/owl";
 import { CF_ICON_EDGE_LENGTH, GRAY_200, GRAY_300, HIGHLIGHT_COLOR } from "../../../../constants";
 import { colorNumberString } from "../../../../helpers";
+import { localizeContent } from "../../../../helpers/locale";
 import { _t } from "../../../../translation";
 import { ConditionalFormat, Highlight, SpreadsheetChildEnv } from "../../../../types";
 import { cellStyleToCss, css, cssPropertiesToCss } from "../../../helpers";
@@ -111,10 +112,15 @@ export class ConditionalFormatPreview extends Component<Props, SpreadsheetChildE
       case "CellIsRule":
         const description = CellIsOperators[cf.rule.operator];
         if (cf.rule.values.length === 1) {
-          return `${description} ${cf.rule.values[0]}`;
+          const locale = this.env.model.getters.getLocale();
+          const localizedValue = localizeContent(cf.rule.values[0], locale);
+          return `${description} ${localizedValue}`;
         }
         if (cf.rule.values.length === 2) {
-          return _t("%s %s and %s", description, cf.rule.values[0], cf.rule.values[1]);
+          const locale = this.env.model.getters.getLocale();
+          const localizedValue1 = localizeContent(cf.rule.values[0], locale);
+          const localizedValue2 = localizeContent(cf.rule.values[1], locale);
+          return _t("%s %s and %s", description, localizedValue1, localizedValue2);
         }
         return description;
       case "ColorScaleRule":

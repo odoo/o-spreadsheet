@@ -94,7 +94,7 @@ export class DataValidationEditor extends Component<Props, SpreadsheetChildEnv> 
 
     const values = criterion.values
       .slice(0, criterionEvaluator.numberOfValues(criterion))
-      .filter((value) => value && value.trim() !== "")
+      .filter((value) => value && value.trim() !== "");
     rule.criterion = { ...criterion, values };
     return {
       sheetId: this.editingSheetId,

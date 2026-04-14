@@ -97,6 +97,7 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
   }
   protected abstract confirmEdition(content: string): void;
   protected abstract getComposerContent(position: CellPosition): string;
+  // We need to use different canonicalize method in the standalone composer and the cell composer where dates should not be converted (they are not canonicals on UPDATE_CELL)
   protected abstract getCurrentCanonicalContent(): string;
 
   abstract stopEdition(direction?: Direction): void;

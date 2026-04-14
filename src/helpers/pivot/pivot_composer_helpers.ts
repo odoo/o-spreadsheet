@@ -2,7 +2,7 @@ import { tokenColors } from "../../components/composer/composer/abstract_compose
 import { CellComposerStore } from "../../components/composer/composer/cell_composer_store";
 import { Token, getFunctionsFromTokens } from "../../formulas";
 import { EnrichedToken } from "../../formulas/composer_tokenizer";
-import { Granularity, PivotField, PivotMeasure } from "../../types";
+import { Getters, Granularity, PivotField, PivotMeasure } from "../../types";
 
 const PIVOT_FUNCTIONS = ["PIVOT.VALUE", "PIVOT.HEADER", "PIVOT"];
 
@@ -42,7 +42,7 @@ export function makeMeasureProposal(measure: PivotMeasure) {
  * Must be bound to the autocomplete provider.
  */
 export function insertTokenAfterArgSeparator(
-  this: { composer: CellComposerStore },
+  this: { composer: CellComposerStore; getters: Getters },
   tokenAtCursor: EnrichedToken,
   value: string
 ) {
@@ -64,7 +64,7 @@ export function insertTokenAfterArgSeparator(
  * @param {string} value
  */
 export function insertTokenAfterLeftParenthesis(
-  this: { composer: CellComposerStore },
+  this: { composer: CellComposerStore; getters: Getters },
   tokenAtCursor: EnrichedToken,
   value: string
 ) {

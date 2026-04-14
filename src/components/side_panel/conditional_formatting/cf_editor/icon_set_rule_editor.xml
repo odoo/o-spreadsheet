@@ -57,7 +57,7 @@
             t-if="inflectionPointValue.type !== 'formula'"
             class="o-input"
             t-att-class="{ 'o-invalid': isInflectionPointInvalid(inflectionPoint) }"
-            t-att-value="rule[inflectionPoint].value"
+            t-att-value="this.localizeValue(rule[inflectionPoint].value)"
             t-on-change="(ev) => this.setInflectionValue(inflectionPoint, ev.target.value)"
           />
           <StandaloneComposer t-else="" t-props="getColorIconSetComposerProps(inflectionPoint)"/>

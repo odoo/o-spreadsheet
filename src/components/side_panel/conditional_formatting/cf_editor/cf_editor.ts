@@ -13,6 +13,7 @@ import {
   isColorValid,
   rangeReference,
 } from "../../../../helpers";
+import { canonicalizeContent, localizeContent } from "../../../../helpers/locale";
 import { cycleFixedReference } from "../../../../helpers/reference_type";
 import { _t } from "../../../../translation";
 import {
@@ -370,6 +371,11 @@ export class ConditionalFormattingEditor extends Component<Props, SpreadsheetChi
     this.state.openedMenu = undefined;
   }
 
+  localizeValue(value: string | undefined): string {
+    const locale = this.env.model.getters.getLocale();
+    return value ? localizeContent(value, locale) : "";
+  }
+
   /*****************************************************************************
    * Cell Is Rule
    ****************************************************************************/
@@ -503,7 +509,9 @@ export class ConditionalFormattingEditor extends Component<Props, SpreadsheetChi
   }
 
   updateThresholdValue(threshold: "minimum" | "midpoint" | "maximum", value: string) {
-    this.state.rules.colorScale[threshold]!.value = value;
+    const locale = this.env.model.getters.getLocale();
+    const canonicalizedValue = canonicalizeContent(value, locale);
+    this.state.rules.colorScale[threshold]!.value = canonicalizedValue;
     this.updateConditionalFormat({ rule: this.state.rules.colorScale });
   }
 
@@ -565,7 +573,9 @@ export class ConditionalFormattingEditor extends Component<Props, SpreadsheetChi
     inflectionPoint: "lowerInflectionPoint" | "upperInflectionPoint",
     value: string
   ) {
-    this.state.rules.iconSet[inflectionPoint].value = value;
+    const locale = this.env.model.getters.getLocale();
+    const canonicalizedValue = canonicalizeContent(value, locale);
+    this.state.rules.iconSet[inflectionPoint].value = canonicalizedValue;
     this.updateConditionalFormat({ rule: this.state.rules.iconSet });
   }
 
