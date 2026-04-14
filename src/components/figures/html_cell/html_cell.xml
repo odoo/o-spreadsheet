@@ -1,0 +1,7 @@
+<templates>
+  <t t-name="o-spreadsheet-HTMLCell">
+    <div class="o-html-cell d-flex" t-att-style="style">
+      <t t-out="content"/>
+    </div>
+  </t>
+</templates>

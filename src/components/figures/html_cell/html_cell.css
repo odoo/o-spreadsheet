@@ -1,0 +1,8 @@
+.o-spreadsheet {
+  .o-html-cell {
+    /* TODO */
+    pointer-events: all;
+    white-space: nowrap;
+    overflow: hidden;
+  }
+}

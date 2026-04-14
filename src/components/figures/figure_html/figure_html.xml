@@ -1,0 +1,34 @@
+<templates>
+  <t t-name="o-spreadsheet-HTMLFigure">
+    <div
+      class="o-html-grid bg-white d-flex flex-column"
+      t-if="firstTableInSheet"
+      t-att-style="containerStyle">
+      <div class="">
+        <table class="w-100">
+          <thead>
+            <tr class="d-none">
+              <th
+                t-foreach="tableColumnStyles"
+                t-as="columnStyle"
+                t-key="columnStyle_index"
+                t-att-style="columnStyle"
+              />
+            </tr>
+          </thead>
+          <tbody>
+            <tr t-foreach="rowsToDisplay()" t-as="row" t-key="row_index">
+              <td
+                t-foreach="row.cells"
+                t-as="position"
+                t-key="position_index"
+                t-att-style="row.rowStyle">
+                <HTMLCell position="position"/>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </t>
+</templates>

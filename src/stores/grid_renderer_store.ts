@@ -28,7 +28,6 @@ import {
   deepCopy,
   deepEquals,
   drawDecoratedText,
-  formatHasRepeatedChar,
   getZonesCols,
   getZonesRows,
   isZoneInside,
@@ -44,10 +43,8 @@ import { Model } from "../model";
 import { cellAnimationRegistry } from "../registries/cell_animation_registry";
 import { DisposableStore, Get, Store } from "../store_engine";
 import {
-  Align,
   BorderDescrWithOpacity,
   Box,
-  CellPosition,
   CellValueType,
   Command,
   GridRenderingContext,
@@ -707,22 +704,6 @@ export class GridRenderer extends DisposableStore {
     return col;
   }
 
-  private computeCellAlignment(position: CellPosition, isOverflowing: boolean): Align {
-    const cell = this.getters.getCell(position);
-    if (cell?.isFormula && this.getters.shouldShowFormulas()) {
-      return "left";
-    }
-    const { align } = this.getters.getCellStyle(position);
-    const evaluatedCell = this.getters.getEvaluatedCell(position);
-    if (!align && formatHasRepeatedChar(evaluatedCell.value, evaluatedCell.format)) {
-      return "left";
-    }
-    if (isOverflowing && evaluatedCell.type === CellValueType.number) {
-      return align !== "center" ? "left" : align;
-    }
-    return align || evaluatedCell.defaultAlign;
-  }
-
   private createZoneBox(
     viewports: ViewportCollection,
     sheetId: UID,
@@ -802,7 +783,7 @@ export class GridRenderer extends DisposableStore {
     const rightIconWidth = box.icons.right ? box.icons.right.size + box.icons.right.margin : 0;
     const rightMargin = rightIconWidth + chipMargin;
     const contentWidth = leftMargin + contentSize.width + rightMargin + MIN_CELL_TEXT_MARGIN;
-    const align = this.computeCellAlignment(position, contentWidth > width);
+    const align = this.getters.getComputedCellAlign(position, contentWidth > width);
 
     // compute vertical align start point parameter:
     const numberOfLines = multiLineText.length;

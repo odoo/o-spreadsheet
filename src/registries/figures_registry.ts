@@ -6,6 +6,7 @@ import {
 } from "../actions/figure_menu_actions";
 import { CarouselFigure } from "../components/figures/figure_carousel/figure_carousel";
 import { ChartFigure } from "../components/figures/figure_chart/figure_chart";
+import { HTMLFigure } from "../components/figures/figure_html/figure_html";
 import { ImageFigure } from "../components/figures/figure_image/figure_image";
 import { UID } from "../types";
 import { SpreadsheetChildEnv } from "../types/spreadsheet_env";
@@ -47,4 +48,8 @@ figureRegistry.add("image", {
 figureRegistry.add("carousel", {
   Component: CarouselFigure,
   menuBuilder: getCarouselMenuActions,
+});
+figureRegistry.add("html", {
+  Component: HTMLFigure,
+  menuBuilder: () => [],
 });
