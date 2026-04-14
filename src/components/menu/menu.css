@@ -18,11 +18,6 @@
           background-color: var(--os-hovered-menu-item-color);
           color: var(--os-button-active-text-color);
         }
-        .o-menu-item-icon {
-          .o-icon {
-            color: var(--os-icons-color);
-          }
-        }
         .o-menu-item-description {
           color: grey;
         }
