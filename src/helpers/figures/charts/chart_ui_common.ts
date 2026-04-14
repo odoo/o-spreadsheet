@@ -60,7 +60,7 @@ export async function chartToImageUrl(
 
     const chart = new globalThis.Chart(
       canvas as unknown as HTMLCanvasElement,
-      config as ChartConfiguration
+      config as ChartConfiguration<any>
     );
     try {
       imageUrl = await canvasToObjectUrl(canvas);
@@ -118,7 +118,7 @@ export async function chartToImageFile(
 
     const chart = new globalThis.Chart(
       canvas as unknown as HTMLCanvasElement,
-      config as ChartConfiguration
+      config as ChartConfiguration<any>
     );
     try {
       chartBlob = await canvasToBlob(canvas);
