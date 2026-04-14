@@ -456,7 +456,7 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
     }
     this.composer.topBarFocus = "inactive";
     this.composer.gridFocusMode = "cellFocus";
-    this.setComposerContent({ content, selection } || {});
+    this.setComposerContent({ content, selection });
   }
 
   /**
