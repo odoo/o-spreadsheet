@@ -94,7 +94,7 @@
     "prettier": "^2.8.0",
     "prettier-plugin-organize-imports": "^3.2.2",
     "sass": "^1.62.1",
-    "rolldown": "^1.0.0-rc.12",
+    "rolldown": "^1.0.0-rc.15",
     "seedrandom": "^3.0.5",
     "typescript": "^5.8.2",
     "typescript-eslint": "^8.30.1",
