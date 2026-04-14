@@ -280,4 +280,12 @@ export class FigureComponent extends Component<Props, SpreadsheetChildEnv> {
       !this.env.model.getters.isCurrentSheetLocked()
     );
   }
+
+  get figureClasses() {
+    const classes = [this.props.class];
+    if (this.env.isDashboard()) {
+      classes.push("rounded-3", "overflow-hidden");
+    }
+    return classes.join(" ");
+  }
 }
