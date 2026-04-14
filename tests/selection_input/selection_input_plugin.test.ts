@@ -576,7 +576,7 @@ describe("selection input plugin", () => {
       rangeId: idOfRange(model, id, 0),
       value: "A1, Sheet2!B3",
     });
-    let [range1, range2] = model.getters.getSelectionInput(id);
+    const [range1, range2] = model.getters.getSelectionInput(id);
     expect(highlightedZones(model)).toEqual(["A1"]);
     expect(range1.xc).toBe("A1");
     expect(range2.xc).toBe("Sheet2!B3");
@@ -590,7 +590,7 @@ describe("selection input plugin", () => {
       rangeId: idOfRange(model, id, 0),
       value: "Sheet2!B3, A1",
     });
-    let [range1, range2] = model.getters.getSelectionInput(id);
+    const [range1, range2] = model.getters.getSelectionInput(id);
     expect(highlightedZones(model)).toEqual(["B3"]);
     expect(model.getters.getSelectionInput(id)).toHaveLength(2);
     expect(range1.xc).toBe("Sheet2!B3");

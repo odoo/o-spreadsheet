@@ -30,8 +30,8 @@ import {
 
 function getExportedExcelData(model: Model): ExcelWorkbookData {
   model.dispatch("EVALUATE_CELLS");
-  let data = createEmptyExcelWorkbookData();
-  for (let handler of model["handlers"]) {
+  const data = createEmptyExcelWorkbookData();
+  for (const handler of model["handlers"]) {
     if (handler instanceof BasePlugin) {
       handler.exportForExcel(data);
     }

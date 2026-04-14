@@ -174,7 +174,7 @@ export function toBoolean(value: string | number | boolean | null | undefined): 
       return value;
     case "string":
       if (value) {
-        let uppercaseVal = value.toUpperCase();
+        const uppercaseVal = value.toUpperCase();
         if (uppercaseVal === "TRUE") {
           return true;
         }
@@ -214,7 +214,7 @@ function visitArgs<T extends ValueAndFormat | CellValue>(
   cellCb: (a: T) => void,
   dataCb: (a: T | undefined) => void
 ): void {
-  for (let arg of args) {
+  for (const arg of args) {
     if (isMatrix(arg)) {
       // arg is ref to a Cell/Range
       const lenRow = arg.length;
@@ -264,7 +264,7 @@ function reduceArgs<T, M>(
   dir: "rowFirst" | "colFirst" = "rowFirst"
 ): M {
   let val = initialValue;
-  for (let arg of args) {
+  for (const arg of args) {
     if (isMatrix(arg)) {
       // arg is ref to a Cell/Range
       const numberOfCols = arg.length;
@@ -397,7 +397,7 @@ function conditionalVisitArgs(
   cellCb: (a: CellValue | undefined) => boolean,
   dataCb: (a: Maybe<CellValue>) => boolean
 ): void {
-  for (let arg of args) {
+  for (const arg of args) {
     if (isMatrix(arg)) {
       // arg is ref to a Cell/Range
       const lenRow = arg.length;
@@ -490,7 +490,7 @@ function operandToRegExp(operand: string): RegExp {
   }
   let exp = "";
   let predecessor = "";
-  for (let char of operand) {
+  for (const char of operand) {
     if (char === "?" && predecessor !== "~") {
       exp += ".";
     } else if (char === "*" && predecessor !== "~") {
@@ -597,7 +597,7 @@ export function visitMatchingRanges(
   const dimRow = (args[0] as Matrix<CellValue>).length;
   const dimCol = (args[0] as Matrix<CellValue>)[0].length;
 
-  let predicates: Predicate[] = [];
+  const predicates: Predicate[] = [];
 
   for (let i = 0; i < countArg - 1; i += 2) {
     const criteriaRange = args[i];

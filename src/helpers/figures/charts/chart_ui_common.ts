@@ -238,7 +238,7 @@ export function getChartDatasetValues(getters: Getters, dataSets: DataSet[]): Da
     } else {
       label = label = `${ChartTerms.Series} ${parseInt(dsIndex) + 1}`;
     }
-    let data = ds.dataRange ? getData(getters, ds) : [];
+    const data = ds.dataRange ? getData(getters, ds) : [];
     datasetValues.push({ data, label });
   }
   return datasetValues;

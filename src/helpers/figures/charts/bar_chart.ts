@@ -266,7 +266,7 @@ export function createBarChartRuntime(chart: BarChart, getters: Getters): BarCha
   const config = getBarConfiguration(chart, labels, { format: dataSetFormat, locale });
   const colors = new ChartColors();
 
-  for (let { label, data } of dataSetsValues) {
+  for (const { label, data } of dataSetsValues) {
     const color = colors.next();
     const dataset: ChartDataset = {
       label,

@@ -85,7 +85,7 @@ function getMatchingCells(
   let matchingRows: Set<number> = new Set();
   const dimColDB = database[0].length;
   for (let indexRow = 1; indexRow < dimColCriteria; indexRow++) {
-    let args: ArgValue[] = [];
+    const args: ArgValue[] = [];
     let existColNameDB = true;
     for (let indexCol = 0; indexCol < criteria.length; indexCol++) {
       const currentName = toString(criteria[indexCol][0]).toUpperCase();

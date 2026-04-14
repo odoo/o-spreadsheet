@@ -140,7 +140,7 @@ function centile(
     () => (isInclusive ? 0 <= _percent && _percent <= 1 : 0 < _percent && _percent < 1),
     _t("Function [[FUNCTION_NAME]] parameter 2 value is out of range.")
   );
-  let sortedArray: number[] = [];
+  const sortedArray: number[] = [];
   let index: number;
   let count = 0;
   visitAny(data, (d) => {
@@ -205,7 +205,7 @@ function fullLinearRegression(
   const nDeg = n - nVar - (computeIntercept ? 1 : 0);
   const yMatrix = [y];
   const xMatrix: Matrix<number> = transposeMatrix(_X.reverse());
-  let avgX: number[] = [];
+  const avgX: number[] = [];
   for (let i = 0; i < nVar; i++) {
     avgX.push(0);
     if (computeIntercept) {
@@ -470,16 +470,16 @@ export const AVERAGE_WEIGHTED = {
       if (isMatrix(value)) {
         assert(() => isMatrix(weight), rangeError);
 
-        let dimColValue = value.length;
-        let dimLinValue = value[0].length;
+        const dimColValue = value.length;
+        const dimLinValue = value[0].length;
         assert(() => dimColValue === weight.length && dimLinValue === weight[0].length, rangeError);
 
         for (let i = 0; i < dimColValue; i++) {
           for (let j = 0; j < dimLinValue; j++) {
-            let subValue = value[i][j];
-            let subWeight = weight[i][j];
-            let subValueIsNumber = typeof subValue === "number";
-            let subWeightIsNumber = typeof subWeight === "number";
+            const subValue = value[i][j];
+            const subWeight = weight[i][j];
+            const subValueIsNumber = typeof subValue === "number";
+            const subWeightIsNumber = typeof subWeight === "number";
             // typeof subValue or subWeight can be 'number' or 'undefined'
             assert(
               () => subValueIsNumber === subWeightIsNumber,
@@ -657,10 +657,10 @@ export const COUNT = {
   returns: ["NUMBER"],
   compute: function (...values: ArgValue[]): number {
     let count = 0;
-    for (let n of values) {
+    for (const n of values) {
       if (isMatrix(n)) {
-        for (let i of n) {
-          for (let j of i) {
+        for (const i of n) {
+          for (const j of i) {
             if (typeof j === "number") {
               count += 1;
             }
@@ -878,7 +878,7 @@ export const LARGE = {
   returns: ["NUMBER"],
   computeValueAndFormat: function (data: Arg, n: Maybe<ValueAndFormat>): ValueAndFormat {
     const _n = Math.trunc(toNumber(n?.value, this.locale));
-    let largests: ValueAndFormat[] = [];
+    const largests: ValueAndFormat[] = [];
     let index: number;
     let count = 0;
     visitAny([data], (d) => {
@@ -1166,7 +1166,7 @@ export const MEDIAN = {
     return isMatrix(value1) ? value1[0][0]?.format : value1?.format;
   },
   compute: function (...values: ArgValue[]): number {
-    let data: ArgValue[] = [];
+    const data: ArgValue[] = [];
     visitNumbers(
       values,
       (arg) => {
@@ -1636,7 +1636,7 @@ export const SMALL = {
   returns: ["NUMBER"],
   computeValueAndFormat: function (data: Arg, n: Maybe<ValueAndFormat>): ValueAndFormat {
     const _n = Math.trunc(toNumber(n?.value, this.locale));
-    let largests: ValueAndFormat[] = [];
+    const largests: ValueAndFormat[] = [];
     let index: number;
     let count = 0;
     visitAny([data], (d) => {

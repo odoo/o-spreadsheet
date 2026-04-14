@@ -1191,7 +1191,7 @@ export const IRR = {
 
     let positive = false;
     let negative = false;
-    let amounts: number[] = [];
+    const amounts: number[] = [];
 
     visitNumbers(
       [cashFlowAmounts],
@@ -1601,8 +1601,8 @@ export const PMT = {
     const n = toNumber(numberOfPeriods, this.locale);
     const r = toNumber(rate, this.locale);
     const t = toBoolean(endOrBeginning) ? 1 : 0;
-    let fv = toNumber(futureValue, this.locale);
-    let pv = toNumber(presentValue, this.locale);
+    const fv = toNumber(futureValue, this.locale);
+    const pv = toNumber(presentValue, this.locale);
 
     assertNumberOfPeriodsStrictlyPositive(n);
 

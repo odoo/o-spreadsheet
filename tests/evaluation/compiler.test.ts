@@ -8,7 +8,7 @@ import { getCellError, setCellContent } from "../test_helpers";
 import { evaluateCell, evaluateCellFormat, restoreDefaultFunctions } from "../test_helpers/helpers";
 
 function compiledBaseFunction(formula: string): CompiledFormula {
-  for (let f in functionCache) {
+  for (const f in functionCache) {
     delete functionCache[f];
   }
   return compileFromCompleteFormula(formula);
@@ -294,7 +294,7 @@ describe("compile functions", () => {
     });
 
     test("reject range when expecting only non-range argument", () => {
-      for (let typeExpected of ["ANY", "BOOLEAN", "DATE", "NUMBER", "STRING"] as ArgType[]) {
+      for (const typeExpected of ["ANY", "BOOLEAN", "DATE", "NUMBER", "STRING"] as ArgType[]) {
         functionRegistry.add(typeExpected + "EXPECTED", {
           description: "function expect number in 1st arg",
           compute: () => {
@@ -478,8 +478,8 @@ describe("compile functions", () => {
 
       const m = new Model();
 
-      let refFn = jest.fn();
-      let ensureRange = jest.fn();
+      const refFn = jest.fn();
+      const ensureRange = jest.fn();
 
       const ctx = { USEMETAARG: () => {}, NOTUSEMETAARG: () => {} };
 

@@ -142,7 +142,7 @@ function applyInternalFormat(
   }
 
   let formattedValue: FormattedValue = value < 0 ? "-" : "";
-  for (let part of internalFormat) {
+  for (const part of internalFormat) {
     switch (part.type) {
       case "NUMBER":
         formattedValue += applyInternalNumberFormat(Math.abs(value), part.format, locale);
@@ -302,7 +302,7 @@ function limitDecimalDigits(
 
   // Note : we'd want to simply use number.toFixed() to handle the max digits & rounding,
   // but it has very strange behaviour. Ex: 12.345.toFixed(2) => "12.35", but 1.345.toFixed(2) => "1.34"
-  let slicedDecimalDigits = decimalDigits.slice(0, maxDecimals);
+  const slicedDecimalDigits = decimalDigits.slice(0, maxDecimals);
   const i = maxDecimals;
 
   if (Number(decimalDigits[i]) < 5) {
@@ -434,7 +434,7 @@ function formatJSDate(jsDate: DateTime, format: Format): FormattedValue {
 }
 
 function formatJSTime(jsDate: DateTime, format: Format): FormattedValue {
-  let parts = format.split(/:|\s/);
+  const parts = format.split(/:|\s/);
 
   const dateHours = jsDate.getHours();
   const isMeridian = parts[parts.length - 1] === "a";
@@ -647,7 +647,7 @@ function convertFormatToInternalFormat(format: Format): InternalFormat {
     throw new Error("A format cannot be empty");
   }
   let currentIndex = 0;
-  let result: InternalFormat = [];
+  const result: InternalFormat = [];
   while (currentIndex < format.length) {
     let closingIndex: number;
     if (format.charAt(currentIndex) === "[") {
@@ -740,7 +740,7 @@ function containsInvalidNumberChars(format: Format): boolean {
 
 function convertInternalFormatToFormat(internalFormat: InternalFormat): Format {
   let format: Format = "";
-  for (let part of internalFormat) {
+  for (const part of internalFormat) {
     let currentFormat: string;
     switch (part.type) {
       case "NUMBER":

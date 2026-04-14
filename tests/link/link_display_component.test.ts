@@ -186,7 +186,7 @@ describe("link display component", () => {
     expect(fixture.querySelector(".o-link-tool")).toBeFalsy();
     const editor = fixture.querySelector(".o-link-editor");
     expect(editor).toBeTruthy();
-    const inputs = editor?.querySelectorAll("input")!;
+    const inputs = editor!.querySelectorAll("input")!;
     expect(inputs[0].value).toBe("label");
     expect(inputs[1].value).toBe("https://url.com");
   });

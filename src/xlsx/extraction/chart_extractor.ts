@@ -80,7 +80,7 @@ export class XlsxChartExtractor extends XlsxBaseExtractor {
     if (!plotAreaElement) {
       throw new Error("Missing plot area in the chart definition.");
     }
-    for (let child of plotAreaElement.children) {
+    for (const child of plotAreaElement.children) {
       const tag = removeTagEscapedNamespaces(child.tagName);
       if (XLSX_CHART_TYPES.some((chartType) => chartType === tag)) {
         return tag as XLSXChartType;

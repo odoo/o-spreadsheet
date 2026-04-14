@@ -32,7 +32,7 @@ function useCellHovered(
   gridRef: Ref<HTMLElement>,
   callback: (position: Partial<Position>) => void
 ): Partial<Position> {
-  let hoveredPosition: Partial<Position> = {
+  const hoveredPosition: Partial<Position> = {
     col: undefined,
     row: undefined,
   };
