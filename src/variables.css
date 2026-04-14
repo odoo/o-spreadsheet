@@ -47,7 +47,6 @@
   --os-background-gray-color-hover: light-dark(rgba(0, 0, 0, 0.08), #ffffff40);
   --os-frozen-pane-header-border-color: #bcbcbc; /* FROZEN_PANE_HEADER_BORDER_COLOR */
   --os-grid-border-color: light-dark(#e2e3e3, var(--os-gray-200));
-  --os-separator-color: var(--os-gray-300);
   --os-green-arrow-color: #6aa84f; /* Same color as CF arrow icon */
   --os-red-arrow-color: #e06666; /* Same color as CF arrow icon */
   --os-active-sheet-bg: light-dark(#ffffff, var(--os-gray-300));
