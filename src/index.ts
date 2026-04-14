@@ -461,7 +461,10 @@ export const constants = {
   ChartTerms,
 };
 
-export const chartHelpers = { ...CHART_HELPERS, ...CHART_RUNTIME_HELPERS };
+export const chartHelpers: typeof CHART_HELPERS & typeof CHART_RUNTIME_HELPERS = {
+  ...CHART_HELPERS,
+  ...CHART_RUNTIME_HELPERS,
+};
 
 export { PivotRuntimeDefinition } from "./helpers/pivot/pivot_runtime_definition";
 export { SpreadsheetPivotTable } from "./helpers/pivot/table_spreadsheet_pivot";
