@@ -92,7 +92,6 @@
 
   .o-grid-container {
     display: grid;
-    background-color: var(--os-header-grouping-background-color);
 
     .o-top-left {
       border: 1px solid var(--os-grid-border-color);
