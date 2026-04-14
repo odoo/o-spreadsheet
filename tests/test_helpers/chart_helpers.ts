@@ -1,6 +1,11 @@
-import { TooltipItem } from "chart.js";
+import { Canvas } from "canvas";
+import { ChartConfiguration, TooltipItem } from "chart.js";
 import { ChartCreationContext, ChartJSRuntime, Model, UID } from "../../src";
-import { range, toHex } from "../../src/helpers";
+import { deepCopy, range, toHex } from "../../src/helpers";
+import {
+  areChartJSExtensionsLoaded,
+  registerChartJSExtensions,
+} from "../../src/helpers/figures/charts/chart_js_extension";
 import { SpreadsheetChildEnv } from "../../src/types/spreadsheet_env";
 import { click, simulateClick } from "./dom_helper";
 import { nextTick } from "./helpers";
@@ -61,6 +66,31 @@ export async function openChartDesignSidePanel(
     await openChartConfigSidePanel(model, env, chartId);
   }
   await simulateClick(".o-sidePanel-tab.inactive");
+}
+
+export function drawChartOnNodeCanvas(runtime: ChartJSRuntime) {
+  if (!areChartJSExtensionsLoaded()) {
+    registerChartJSExtensions();
+  }
+  const config = deepCopy(runtime.chartJsConfig);
+  config.options!.responsive = false;
+
+  const canvas = new Canvas(400, 400);
+  canvas["getAttribute"] = (attribute) => {
+    if (attribute === "height") {
+      return 400;
+    }
+    if (attribute === "width") {
+      return 400;
+    }
+    throw new Error(`Attribute ${attribute} not implemented in mock`);
+  };
+  canvas["style"] = new CSSStyleDeclaration();
+  canvas["addEventListener"] = () => {};
+  const ctx = canvas.getContext("2d")! as unknown as CanvasRenderingContext2D;
+  const chart = new window.Chart(ctx, config as ChartConfiguration<any>);
+  chart.draw();
+  return canvas.toBuffer("image/png");
 }
 
 export function getColorPickerValue(fixture: HTMLElement, selector: string) {
