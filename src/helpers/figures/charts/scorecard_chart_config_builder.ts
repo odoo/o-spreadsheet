@@ -229,7 +229,7 @@ class ScorecardChartConfigBuilder {
       baseFontSize,
       (fontSize: number) => widestElement.getElementWidth(fontSize, this.context, this)
     );
-    let scalingFactor = fontSizeMatchingWidth / baseFontSize;
+    const scalingFactor = fontSizeMatchingWidth / baseFontSize;
 
     // Fonts sizes in px
     const keyFontSize =

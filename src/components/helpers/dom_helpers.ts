@@ -15,7 +15,7 @@ export function isChildEvent(parent: HTMLElement, ev: Event): boolean {
 export function gridOverlayPosition() {
   const spreadsheetElement = document.querySelector(".o-grid-overlay");
   if (spreadsheetElement) {
-    const { top, left } = spreadsheetElement?.getBoundingClientRect();
+    const { top, left } = spreadsheetElement.getBoundingClientRect();
     return { top, left };
   }
   throw new Error("Can't find spreadsheet position");
@@ -37,7 +37,7 @@ export function getBoundingRectAsPOJO(el: Element): Rect {
 export function* iterateChildren(el: Node): Generator<Node> {
   yield el;
   if (el.hasChildNodes()) {
-    for (let child of el.childNodes) {
+    for (const child of el.childNodes) {
       yield* iterateChildren(child);
     }
   }

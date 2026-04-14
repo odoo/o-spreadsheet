@@ -165,7 +165,7 @@ describe("UI of conditional formats", () => {
     });
     test("the list of CF has a correct preview", () => {
       // check the html of the list (especially the colors)
-      let previews = document.querySelectorAll(selectors.listPreview);
+      const previews = document.querySelectorAll(selectors.listPreview);
       expect(previews).toHaveLength(2);
 
       // --> should be the style for CellIsRule
@@ -191,7 +191,7 @@ describe("UI of conditional formats", () => {
       });
       await nextTick();
 
-      let previews = document.querySelectorAll(selectors.listPreview);
+      const previews = document.querySelectorAll(selectors.listPreview);
       expect(previews[2].querySelector(selectors.description.ruletype.rule)!.textContent).toBe(
         "Is equal to 1,5"
       );
@@ -297,8 +297,8 @@ describe("UI of conditional formats", () => {
 
       await nextTick();
 
-      let previews = document.querySelectorAll(selectors.listPreview);
-      let line = previews[2].querySelector(selectors.previewImage);
+      const previews = document.querySelectorAll(selectors.listPreview);
+      const line = previews[2].querySelector(selectors.previewImage);
       expect(line!.getAttribute("style")).toMatch("font-weight:bold;");
     });
 

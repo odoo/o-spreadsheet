@@ -53,7 +53,7 @@ export function load(data?: any, verboseImport?: boolean): WorkbookData {
     const reader = new XlsxReader(data);
     data = reader.convertXlsx();
     if (verboseImport) {
-      for (let parsingError of reader.warningManager.warnings.sort()) {
+      for (const parsingError of reader.warningManager.warnings.sort()) {
         console.warn(parsingError);
       }
     }
@@ -107,7 +107,7 @@ const MIGRATIONS: Migration[] = [
     to: 3,
     applyMigration(data: any): any {
       if (data.sheets && data.sheets.length) {
-        for (let sheet of data.sheets) {
+        for (const sheet of data.sheets) {
           sheet.id = sheet.id || sheet.name;
         }
       }
@@ -131,7 +131,7 @@ const MIGRATIONS: Migration[] = [
     from: 4,
     to: 5,
     applyMigration(data: any): any {
-      for (let sheet of data.sheets || []) {
+      for (const sheet of data.sheets || []) {
         sheet.figures = sheet.figures || [];
       }
       return data;
@@ -143,8 +143,8 @@ const MIGRATIONS: Migration[] = [
     from: 5,
     to: 6,
     applyMigration(data: any): any {
-      for (let sheet of data.sheets || []) {
-        for (let xc in sheet.cells || []) {
+      for (const sheet of data.sheets || []) {
+        for (const xc in sheet.cells || []) {
           const cell = sheet.cells[xc];
           if (cell.content && cell.content.startsWith("=")) {
             cell.formula = normalizeV9(cell.content);
@@ -159,11 +159,11 @@ const MIGRATIONS: Migration[] = [
     from: 6,
     to: 7,
     applyMigration(data: any): any {
-      for (let sheet of data.sheets || []) {
-        for (let f in sheet.figures || []) {
+      for (const sheet of data.sheets || []) {
+        for (const f in sheet.figures || []) {
           const { dataSets, ...newData } = sheet.figures[f].data;
           const newDataSets: string[] = [];
-          for (let ds of dataSets) {
+          for (const ds of dataSets) {
             if (ds.labelCell) {
               const dataRange = toZone(ds.dataRange);
               const newRange = ds.labelCell + ":" + toXC(dataRange.right, dataRange.bottom);
@@ -187,7 +187,7 @@ const MIGRATIONS: Migration[] = [
     applyMigration(data: any): any {
       const namesTaken: string[] = [];
       const globalForbiddenInExcel = new RegExp(FORBIDDEN_IN_EXCEL_REGEX, "g");
-      for (let sheet of data.sheets || []) {
+      for (const sheet of data.sheets || []) {
         if (!sheet.name) {
           continue;
         }
@@ -216,14 +216,14 @@ const MIGRATIONS: Migration[] = [
           return currentString;
         };
         //cells
-        for (let xc in sheet.cells) {
+        for (const xc in sheet.cells) {
           const cell = sheet.cells[xc];
           if (cell.formula) {
             cell.formula.dependencies = cell.formula.dependencies.map(replaceName);
           }
         }
         //charts
-        for (let figure of sheet.figures || []) {
+        for (const figure of sheet.figures || []) {
           if (figure.type === "chart") {
             const dataSets = figure.data.dataSets.map(replaceName);
             const labelRange = replaceName(figure.data.labelRange);
@@ -231,7 +231,7 @@ const MIGRATIONS: Migration[] = [
           }
         }
         //ConditionalFormats
-        for (let cf of sheet.conditionalFormats || []) {
+        for (const cf of sheet.conditionalFormats || []) {
           cf.ranges = cf.ranges.map(replaceName);
           for (const thresholdName of [
             "minimum",
@@ -270,12 +270,12 @@ const MIGRATIONS: Migration[] = [
     from: 9,
     to: 10,
     applyMigration(data: any): any {
-      for (let sheet of data.sheets || []) {
-        for (let xc in sheet.cells || []) {
+      for (const sheet of data.sheets || []) {
+        for (const xc in sheet.cells || []) {
           const cell = sheet.cells[xc];
           if (cell.formula) {
             let { text, dependencies } = cell.formula;
-            for (let [index, d] of Object.entries(dependencies)) {
+            for (const [index, d] of Object.entries(dependencies)) {
               const stringPosition = `\\${FORMULA_REF_IDENTIFIER}${index}\\${FORMULA_REF_IDENTIFIER}`;
               text = text.replace(new RegExp(stringPosition, "g"), d);
             }
@@ -293,8 +293,8 @@ const MIGRATIONS: Migration[] = [
     to: 11,
     applyMigration(data: any): any {
       const formats: { [formatId: number]: Format } = {};
-      for (let sheet of data.sheets || []) {
-        for (let xc in sheet.cells || []) {
+      for (const sheet of data.sheets || []) {
+        for (const xc in sheet.cells || []) {
           const cell = sheet.cells[xc];
           if (cell.format) {
             cell.format = getItemId(cell.format, formats);
@@ -310,7 +310,7 @@ const MIGRATIONS: Migration[] = [
     from: 11,
     to: 12,
     applyMigration(data: any): any {
-      for (let sheet of data.sheets || []) {
+      for (const sheet of data.sheets || []) {
         sheet.isVisible = true;
       }
       return data;
@@ -540,9 +540,9 @@ function fixChartDefinitions(data: Partial<WorkbookData>, initialMessages: State
 }
 
 function fixOverlappingFilters(data: any): any {
-  for (let sheet of data.sheets || []) {
-    let knownDataFilterZones: Zone[] = [];
-    for (let filterTable of sheet.filterTables || []) {
+  for (const sheet of data.sheets || []) {
+    const knownDataFilterZones: Zone[] = [];
+    for (const filterTable of sheet.filterTables || []) {
       const zone = toZone(filterTable.range);
       // See commit message of https://github.com/odoo/o-spreadsheet/pull/3632 of more details
       const intersectZoneIndex = knownDataFilterZones.findIndex((knownZone) =>

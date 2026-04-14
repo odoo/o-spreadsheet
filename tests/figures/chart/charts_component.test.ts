@@ -363,7 +363,7 @@ describe("charts", () => {
       const colorpickerItems = fixture.querySelectorAll(
         ".o-color-picker-line-item"
       ) as NodeListOf<HTMLElement>;
-      for (let el of colorpickerItems) {
+      for (const el of colorpickerItems) {
         if (toHex(el.style.backgroundColor) === "#000000") {
           await simulateClick(el);
           break;
@@ -932,7 +932,7 @@ describe("charts", () => {
       const colorpickerUpItems = fixture.querySelectorAll(
         ".o-color-picker-line-item"
       ) as NodeListOf<HTMLElement>;
-      for (let el of colorpickerUpItems) {
+      for (const el of colorpickerUpItems) {
         if (toHex(el.style.backgroundColor) === "#0000FF") {
           await simulateClick(el);
           break;
@@ -955,7 +955,7 @@ describe("charts", () => {
       const colorpickerDownItems = fixture.querySelectorAll(
         ".o-color-picker-line-item"
       ) as NodeListOf<HTMLElement>;
-      for (let el of colorpickerDownItems) {
+      for (const el of colorpickerDownItems) {
         if (toHex(el.style.backgroundColor) === "#FF0000") {
           await simulateClick(el);
           break;

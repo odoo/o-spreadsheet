@@ -70,7 +70,7 @@ export class FiltersPlugin extends CorePlugin<FiltersState> implements FiltersSt
         };
         const checkMergeInFilter = () => {
           const mergesInTarget = this.getters.getMergesInZone(cmd.sheetId, zone);
-          for (let merge of mergesInTarget) {
+          for (const merge of mergesInTarget) {
             if (overlap(zone, merge)) {
               return CommandResult.MergeInFilter;
             }
@@ -80,8 +80,8 @@ export class FiltersPlugin extends CorePlugin<FiltersState> implements FiltersSt
         return this.checkValidations(cmd, checkFilterOverlap, checkMergeInFilter);
         break;
       case "ADD_MERGE":
-        for (let merge of cmd.target) {
-          for (let filterTable of this.getFilterTables(cmd.sheetId)) {
+        for (const merge of cmd.target) {
+          for (const filterTable of this.getFilterTables(cmd.sheetId)) {
             if (overlap(filterTable.zone, merge)) {
               return CommandResult.MergeInFilter;
             }
@@ -136,7 +136,7 @@ export class FiltersPlugin extends CorePlugin<FiltersState> implements FiltersSt
       }
       case "UPDATE_CELL": {
         const sheetId = cmd.sheetId;
-        for (let table of this.getFilterTables(sheetId)) {
+        for (const table of this.getFilterTables(sheetId)) {
           if (this.canUpdateCellCmdExtendTable(cmd, table)) {
             this.extendTableDown(sheetId, table);
           }
@@ -190,7 +190,7 @@ export class FiltersPlugin extends CorePlugin<FiltersState> implements FiltersSt
 
   getFilterHeaders(sheetId: UID): Position[] {
     const headers: Position[] = [];
-    for (let filterTable of this.getFilterTables(sheetId)) {
+    for (const filterTable of this.getFilterTables(sheetId)) {
       const zone = filterTable.zone;
       const row = zone.top;
       for (let col = zone.left; col <= zone.right; col++) {

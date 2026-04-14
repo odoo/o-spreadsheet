@@ -75,7 +75,7 @@ function convertChartData(chartData: ExcelChartDefinition): ChartDefinition | un
   const labelRange = chartData.labelRange
     ? convertExcelRangeToSheetXC(chartData.labelRange, dataSetsHaveTitle)
     : undefined;
-  let dataSets = chartData.dataSets.map((data) =>
+  const dataSets = chartData.dataSets.map((data) =>
     convertExcelRangeToSheetXC(data.range, dataSetsHaveTitle)
   );
   // For doughnut charts, in chartJS first dataset = outer dataset, in excel first dataset = inner dataset

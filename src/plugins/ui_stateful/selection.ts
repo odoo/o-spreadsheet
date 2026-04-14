@@ -327,7 +327,7 @@ export class GridSelectionPlugin extends UIPlugin {
 
   getActiveCols(): Set<number> {
     const activeCols = new Set<number>();
-    for (let zone of this.gridSelection.zones) {
+    for (const zone of this.gridSelection.zones) {
       if (
         zone.top === 0 &&
         zone.bottom === this.getters.getNumberRows(this.getters.getActiveSheetId()) - 1
@@ -343,7 +343,7 @@ export class GridSelectionPlugin extends UIPlugin {
   getActiveRows(): Set<number> {
     const activeRows = new Set<number>();
     const sheetId = this.getters.getActiveSheetId();
-    for (let zone of this.gridSelection.zones) {
+    for (const zone of this.gridSelection.zones) {
       if (zone.left === 0 && zone.right === this.getters.getNumberCols(sheetId) - 1) {
         for (let i = zone.top; i <= zone.bottom; i++) {
           activeRows.add(i);
@@ -424,17 +424,17 @@ export class GridSelectionPlugin extends UIPlugin {
       }
     }
 
-    let cellsTypes = new Set<CellValueType>();
-    let cellsValues: (string | number | boolean)[] = [];
-    for (let cell of cells) {
+    const cellsTypes = new Set<CellValueType>();
+    const cellsValues: (string | number | boolean)[] = [];
+    for (const cell of cells) {
       cellsTypes.add(cell.type);
       cellsValues.push(cell.value);
     }
 
     const locale = this.getters.getLocale();
 
-    let statisticFnResults: { [name: string]: number | undefined } = {};
-    for (let fn of selectionStatisticFunctions) {
+    const statisticFnResults: { [name: string]: number | undefined } = {};
+    for (const fn of selectionStatisticFunctions) {
       // We don't want to display statistical information when there is no interest:
       // We set the statistical result to undefined if the data handled by the selection
       // does not match the data handled by the function.

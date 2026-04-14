@@ -7,7 +7,7 @@ export function getTextXlsxFiles(): ImportedFiles {
   const importedFilesPaths = importDir(PATH);
 
   const importedFiles = {};
-  for (let path of Object.keys(importedFilesPaths)) {
+  for (const path of Object.keys(importedFilesPaths)) {
     const cleanPath = path.substring(PATH.length);
     importedFiles[cleanPath] = importedFilesPaths[path];
   }

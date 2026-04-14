@@ -250,11 +250,11 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     // we need to fill the sheetIds mapping first, because otherwise formulas
     // that depends on a sheet not already imported will not be able to be
     // compiled
-    for (let sheet of data.sheets) {
+    for (const sheet of data.sheets) {
       this.sheetIdsMapName[sheet.name] = sheet.id;
     }
 
-    for (let sheetData of data.sheets) {
+    for (const sheetData of data.sheets) {
       const name = sheetData.name || _t("Sheet") + (Object.keys(this.sheets).length + 1);
       const { colNumber, rowNumber } = this.getImportedSheetSize(sheetData);
       const sheet: Sheet = {
@@ -587,7 +587,7 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
   }
 
   private clearZones(sheetId: UID, zones: Zone[]) {
-    for (let zone of zones) {
+    for (const zone of zones) {
       for (let col = zone.left; col <= zone.right; col++) {
         for (let row = zone.top; row <= zone.bottom; row++) {
           const cell = this.sheets[sheetId]!.rows[row].cells[col];
@@ -635,13 +635,13 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     const orderedSheetIds = this.orderedSheetIds.slice();
     const currentIndex = orderedSheetIds.findIndex((id) => id === sheetId);
     const sheet = orderedSheetIds.splice(currentIndex, 1);
-    let index = this.findIndexOfTargetSheet(currentIndex, delta);
+    const index = this.findIndexOfTargetSheet(currentIndex, delta);
     orderedSheetIds.splice(index, 0, sheet[0]);
     this.history.update("orderedSheetIds", orderedSheetIds);
   }
 
   private findIndexOfTargetSheet(currentIndex: HeaderIndex, deltaIndex: number): number {
-    while (deltaIndex != 0 && 0 <= currentIndex && currentIndex <= this.orderedSheetIds.length) {
+    while (deltaIndex !== 0 && 0 <= currentIndex && currentIndex <= this.orderedSheetIds.length) {
       if (deltaIndex > 0) {
         currentIndex++;
         if (this.isSheetVisible(this.orderedSheetIds[currentIndex])) {
@@ -702,7 +702,7 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
 
   private checkRowFreezeOverlapMerge(cmd: FreezeRowsCommand): CommandResult {
     const merges = this.getters.getMerges(cmd.sheetId);
-    for (let merge of merges) {
+    for (const merge of merges) {
       if (merge.top < cmd.quantity && cmd.quantity <= merge.bottom) {
         return CommandResult.MergeOverlap;
       }
@@ -712,7 +712,7 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
 
   private checkColFreezeOverlapMerge(cmd: FreezeColumnsCommand): CommandResult {
     const merges = this.getters.getMerges(cmd.sheetId);
-    for (let merge of merges) {
+    for (const merge of merges) {
       if (merge.left < cmd.quantity && cmd.quantity <= merge.right) {
         return CommandResult.MergeOverlap;
       }
@@ -815,7 +815,7 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     // This is necessary because we have to delete elements in correct order:
     // begin with the end.
     columns.sort((a, b) => b - a);
-    for (let column of columns) {
+    for (const column of columns) {
       // Move the cells.
       this.moveCellOnColumnsDeletion(sheet, column);
     }
@@ -843,7 +843,7 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     // begin with the end.
     rows.sort((a, b) => b - a);
 
-    for (let group of groupConsecutive(rows)) {
+    for (const group of groupConsecutive(rows)) {
       // indexes are sorted in the descending order
       const from = group[group.length - 1];
       const to = group[0];
@@ -902,7 +902,7 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
 
     for (let rowIndex = 0; rowIndex < sheet.rows.length; rowIndex++) {
       const row = sheet.rows[rowIndex];
-      for (let i in row.cells) {
+      for (const i in row.cells) {
         const colIndex = Number(i);
         const cellId = row.cells[i];
         if (cellId) {
@@ -927,7 +927,7 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     for (let rowIndex = 0; rowIndex < sheet.rows.length; rowIndex++) {
       const row = sheet.rows[rowIndex];
       if (dimension !== "rows" || rowIndex >= addedElement) {
-        for (let i in row.cells) {
+        for (const i in row.cells) {
           const colIndex = Number(i);
           const cellId = row.cells[i];
           if (cellId) {
@@ -944,7 +944,7 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
         }
       }
     }
-    for (let update of updates.reverse()) {
+    for (const update of updates.reverse()) {
       this.updateCellPosition(update);
     }
   }
@@ -978,7 +978,7 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     for (let rowIndex = 0; rowIndex < sheet.rows.length; rowIndex++) {
       const row = sheet.rows[rowIndex];
       if (rowIndex > deleteToRow) {
-        for (let i in row.cells) {
+        for (const i in row.cells) {
           const colIndex = Number(i);
           const cellId = row.cells[i];
           if (cellId) {
@@ -996,7 +996,7 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
   ) {
     const rows: Row[] = [];
     const cellsQueue = sheet.rows.map((row) => row.cells).reverse();
-    for (let i in sheet.rows) {
+    for (const i in sheet.rows) {
       const row = Number(i);
       if (row >= deleteFromRow && row <= deleteToRow) {
         continue;
@@ -1029,7 +1029,7 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
 
     let rowNumber = data.rowNumber;
     let colNumber = data.colNumber;
-    for (let { col, row } of positions) {
+    for (const { col, row } of positions) {
       rowNumber = Math.max(rowNumber, row + 1);
       colNumber = Math.max(colNumber, col + 1);
     }

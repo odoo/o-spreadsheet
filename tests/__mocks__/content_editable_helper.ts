@@ -52,9 +52,9 @@ export class ContentEditableHelper {
   insertText(value: string, { color, className }: { color?: string; className?: string } = {}) {
     const text = this.el!.textContent!;
     if (this.manualRange) {
-      let start = text.substring(0, this.currentState.cursorStart);
-      let end = text.substring(this.currentState.cursorEnd);
-      let newValue = start + value + end;
+      const start = text.substring(0, this.currentState.cursorStart);
+      const end = text.substring(this.currentState.cursorEnd);
+      const newValue = start + value + end;
       while (this.el!.firstChild) {
         this.el!.removeChild(this.el!.firstChild);
       }
