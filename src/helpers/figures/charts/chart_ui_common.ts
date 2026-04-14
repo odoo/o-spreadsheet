@@ -52,7 +52,10 @@ export function chartToImageUrl(
     }
     const config = deepCopy(runtime.chartJsConfig);
     config.plugins = [backgroundColorChartJSPlugin];
-    const chart = new window.Chart(canvas, config as ChartConfiguration);
+    const chart = new globalThis.Chart(
+      canvas as HTMLCanvasElement,
+      config as ChartConfiguration<any>
+    );
     imageContent = chart.toBase64Image() as string;
     chart.destroy();
     if (!extensionsLoaded) {
@@ -96,7 +99,10 @@ export async function chartToImageFile(
     }
     const config = deepCopy(runtime.chartJsConfig);
     config.plugins = [backgroundColorChartJSPlugin];
-    const chart = new window.Chart(canvas, config as ChartConfiguration);
+    const chart = new globalThis.Chart(
+      canvas as HTMLCanvasElement,
+      config as ChartConfiguration<any>
+    );
     chartBlob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, "image/png"));
     chart.destroy();
     if (!extensionsLoaded) {
