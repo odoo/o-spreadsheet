@@ -52,7 +52,7 @@ export default (commandLineArgs) => {
       plugins,
     };
   } else {
-    input = "src/index.ts";
+    input = "build/js/index.js";
     output = [
       getConfigForFormat("esm"),
       getConfigForFormat("cjs"),
