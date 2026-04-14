@@ -1,5 +1,4 @@
 import { ChartDataset, LegendOptions } from "chart.js";
-import { DeepPartial } from "chart.js/dist/types/utils";
 import { BACKGROUND_CHART_COLOR } from "../../../constants";
 import {
   AddColumnsRowsCommand,
@@ -9,6 +8,7 @@ import {
   CommandResult,
   CoreGetters,
   DataSet,
+  DeepPartial,
   ExcelChartDefinition,
   Getters,
   Range,

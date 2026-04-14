@@ -1,6 +1,5 @@
 import type { BasePlatform, ChartConfiguration, ChartOptions, ChartType } from "chart.js";
 import { LegendOptions } from "chart.js";
-import { DeepPartial } from "chart.js/dist/types/utils";
 import { chartShowValuesPlugin } from "../../../components/figures/chart/chartJs/chartjs_show_values_plugin";
 import { waterfallLinesPlugin } from "../../../components/figures/chart/chartJs/chartjs_waterfall_plugin";
 import { ChartTerms } from "../../../components/translations_terms";
@@ -11,6 +10,7 @@ import {
   CellValue,
   Color,
   DEFAULT_LOCALE,
+  DeepPartial,
   Figure,
   Format,
   Getters,
