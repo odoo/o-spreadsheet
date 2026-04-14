@@ -4,7 +4,8 @@
 // @ts-ignore
 
 import { App } from "@odoo/owl";
-import * as Chart from "chart.js";
+import * as ChartHelpers from "chart.js";
+import Chart from "chart.js/auto"; /* Need to be imported before Path2D is mocked in window by canvas.mock.ts */
 import { HEADER_HEIGHT, HEADER_WIDTH, setDefaultSheetViewSize } from "../../src/constants";
 import "../../src/types/chart/chartjs_tree_map_type";
 import { getCompiledTemplates } from "../../tools/owl_templates/compile_templates.cjs";
@@ -34,12 +35,12 @@ jest.mock("../../src/helpers/figures/charts/chart_ui_common", () => {
   };
 });
 
-window.Chart = Object.assign(Chart.Chart, Chart);
+window.Chart = Object.assign(Chart, ChartHelpers);
 
 declare global {
   interface Window {
     resizers: Resizers;
-    Chart: typeof Chart.Chart;
+    Chart: typeof Chart & typeof ChartHelpers;
   }
 }
 
