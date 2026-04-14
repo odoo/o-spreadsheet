@@ -1,7 +1,7 @@
-export * from "./bar_chart";
-export * from "./chart";
-export * from "./common_chart";
-export * from "./gauge_chart";
-export * from "./line_chart";
-export * from "./pie_chart";
-export * from "./scorecard_chart";
+export type * from "./bar_chart";
+export type * from "./chart";
+export type * from "./common_chart";
+export type * from "./gauge_chart";
+export type * from "./line_chart";
+export type * from "./pie_chart";
+export type * from "./scorecard_chart";

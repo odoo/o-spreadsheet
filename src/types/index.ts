@@ -8,24 +8,24 @@
  * - interface GridState: the internal type of the state managed by the model
  */
 
-export * from "./autofill";
+export type * from "./autofill";
 export * from "./cells";
-export * from "./chart/chart";
+export type * from "./chart/chart";
 export * from "./clipboard";
-export * from "./collaborative/revisions";
-export * from "./collaborative/session";
+export type * from "./collaborative/revisions";
+export type * from "./collaborative/session";
 export * from "./commands";
-export * from "./conditional_formatting";
-export * from "./currency";
-export * from "./data_validation";
-export * from "./env";
-export * from "./figure";
-export * from "./format";
-export * from "./functions";
-export * from "./getters";
-export * from "./history";
+export type * from "./conditional_formatting";
+export type * from "./currency";
+export type * from "./data_validation";
+export type * from "./env";
+export type * from "./figure";
+export type * from "./format";
+export type * from "./functions";
+export type * from "./getters";
+export type * from "./history";
 export * from "./locale";
 export * from "./misc";
-export * from "./range";
+export type * from "./range";
 export * from "./rendering";
-export * from "./workbook_data";
+export type * from "./workbook_data";
