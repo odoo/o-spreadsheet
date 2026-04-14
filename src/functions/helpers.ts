@@ -13,7 +13,13 @@ import {
   Maybe,
   isMatrix,
 } from "../types";
-import { CellErrorType, EvaluationError, NotAvailableError, errorTypes } from "../types/errors";
+import {
+  CellErrorType,
+  ErrorValue,
+  EvaluationError,
+  NotAvailableError,
+  errorTypes,
+} from "../types/errors";
 import { LookupCaches } from "../types/functions";
 
 const SORT_TYPES_ORDER = ["number", "string", "boolean", "undefined"];
@@ -35,7 +41,7 @@ export function inferFormat(data: Arg | undefined): string | undefined {
   return data.format;
 }
 
-export function isEvaluationError(error: Maybe<CellValue>): error is string {
+export function isEvaluationError(error: Maybe<CellValue>): error is ErrorValue {
   return typeof error === "string" && errorTypes.has(error);
 }
 
