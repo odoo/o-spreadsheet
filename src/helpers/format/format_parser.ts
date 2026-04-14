@@ -85,7 +85,9 @@ function convertFormatToInternalFormat(format: Format): MultiPartInternalFormat 
 
   // A format can only have a single REPEATED_CHAR token. The rest are converted to simple CHAR tokens.
   for (const part of formatParts) {
-    const repeatedCharTokens = part.filter((token) => token.type === "REPEATED_CHAR");
+    const repeatedCharTokens: FormatToken[] = part.filter(
+      (token) => token.type === "REPEATED_CHAR"
+    );
     for (const repeatedCharToken of repeatedCharTokens.slice(1)) {
       repeatedCharToken.type = "CHAR";
     }
