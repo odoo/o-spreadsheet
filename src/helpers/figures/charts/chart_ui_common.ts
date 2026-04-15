@@ -289,7 +289,7 @@ export function getChartDatasetValues(getters: Getters, dataSets: DataSet[]): Da
     } else {
       label = `${ChartTerms.Series} ${parseInt(dsIndex) + 1}`;
     }
-    let data = ds.dataRange ? getData(getters, ds) : [];
+    const data = ds.dataRange ? getData(getters, ds) : [];
     if (
       data.every((e) => typeof e === "string" && !isEvaluationError(e)) &&
       data.some((e) => e !== "")

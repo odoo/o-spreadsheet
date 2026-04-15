@@ -41,7 +41,7 @@ class PluginTestRange extends CorePlugin {
 
   adaptRanges(applyChange: ApplyRangeChange, sheetId?: UID) {
     for (let i = 0; i < this.ranges.length; i++) {
-      let range = this.ranges[i];
+      const range = this.ranges[i];
       const change = applyChange(range);
       switch (change.changeType) {
         case "REMOVE":
@@ -59,12 +59,12 @@ class PluginTestRange extends CorePlugin {
   handle(cmd: TestCommands) {
     switch (cmd.type) {
       case "USE_RANGE":
-        for (let r of cmd.rangesXC) {
+        for (const r of cmd.rangesXC) {
           this.ranges.push(this.getters.getRangeFromSheetXC(cmd.sheetId, r));
         }
         break;
       case "USE_TRANSIENT_RANGE":
-        for (let r of cmd.rangesXC) {
+        for (const r of cmd.rangesXC) {
           this.ranges.push(this.getters.getRangeFromSheetXC(cmd.sheetId, r));
         }
         break;
@@ -421,20 +421,20 @@ describe("range plugin", () => {
 
   describe("restoring a range as string", () => {
     test("range created from right to left have correct left (smaller) and right (bigger)", () => {
-      let r = m.getters.getRangeFromSheetXC("s2", "c1:a1");
+      const r = m.getters.getRangeFromSheetXC("s2", "c1:a1");
       expect(m.getters.getRangeString(r, "s1")).toBe("'s 2'!A1:C1");
     });
     test("range created from bottom to top have correct top (smaller) and bottom (bigger)", () => {
-      let r = m.getters.getRangeFromSheetXC("s2", "a10:a1");
+      const r = m.getters.getRangeFromSheetXC("s2", "a10:a1");
       expect(m.getters.getRangeString(r, "s1")).toBe("'s 2'!A1:A10");
     });
     test("test withing a sheet that has a space", () => {
-      let r = m.getters.getRangeFromSheetXC("s2", "a1");
+      const r = m.getters.getRangeFromSheetXC("s2", "a1");
       expect(m.getters.getRangeString(r, "s1")).toBe("'s 2'!A1");
     });
 
     test.each([["A:B"], ["1:2"], ["A2:B"], ["B2:3"]])("test full column/row", (range) => {
-      let r = m.getters.getRangeFromSheetXC("s1", range);
+      const r = m.getters.getRangeFromSheetXC("s1", range);
       expect(m.getters.getRangeString(r, "s1")).toBe(range);
     });
 
@@ -482,7 +482,7 @@ describe("range plugin", () => {
       ["#REF"],
       ["invalid xc"],
     ])("test withing a fixed row", (range) => {
-      let r = m.getters.getRangeFromSheetXC("s1", range);
+      const r = m.getters.getRangeFromSheetXC("s1", range);
       expect(m.getters.getRangeString(r, "s1")).toBe(range);
     });
 
@@ -523,12 +523,12 @@ describe("range plugin", () => {
       ["#REF", "#REF"],
       ["invalid xc", "invalid xc"],
     ])("test withing a fixed row, displayed for another sheet", (range, expectedString) => {
-      let r = m.getters.getRangeFromSheetXC("s1", range);
+      const r = m.getters.getRangeFromSheetXC("s1", range);
       expect(m.getters.getRangeString(r, "s2")).toBe(expectedString);
     });
 
     test("can create a range from a sheet that doesn't exist", () => {
-      let r = m.getters.getRangeFromSheetXC("s2", "NOTTHERE!a1");
+      const r = m.getters.getRangeFromSheetXC("s2", "NOTTHERE!a1");
       expect(m.getters.getRangeString(r, "s1")).toBe("NOTTHERE!A1");
     });
 

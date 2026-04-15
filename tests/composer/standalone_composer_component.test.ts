@@ -15,7 +15,7 @@ jest.mock("../../src/components/composer/content_editable_helper.ts", () =>
 );
 
 let env: SpreadsheetChildEnv;
-let onConfirm = jest.fn();
+const onConfirm = jest.fn();
 let fixture: HTMLElement;
 let composerEl: HTMLElement;
 let composerFocusStore: Store<ComposerFocusStore>;

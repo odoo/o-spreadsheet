@@ -7,7 +7,7 @@ import { mountComponentWithPortalTarget, nextTick } from "../../test_helpers/hel
 import { makeStoreWithModel } from "../../test_helpers/stores";
 
 let model: Model;
-let chartId = "chartId";
+const chartId = "chartId";
 let chartPanelStore: MainChartPanelStore;
 let fixture: HTMLElement;
 

@@ -157,7 +157,7 @@ export class PivotUIPlugin extends UIPlugin {
     }
     const { functionName, args } = pivotFunction;
     const evaluatedArgs = args.map((argAst) => {
-      if (argAst.type == "EMPTY") {
+      if (argAst.type === "EMPTY") {
         return undefined;
       } else if (
         argAst.type === "STRING" ||

@@ -451,7 +451,7 @@ export class Composer extends Component<CellComposerProps, SpreadsheetChildEnv> 
       this.processArrowKeys(ev);
       return;
     }
-    let handler =
+    const handler =
       this.keyMapping[keyboardEventToShortcutString(ev)] ||
       this.keyCodeMapping[keyboardEventToShortcutString(ev, "code")];
     if (handler) {
@@ -491,7 +491,7 @@ export class Composer extends Component<CellComposerProps, SpreadsheetChildEnv> 
       return this.props.onComposerCellFocused?.(content);
     }
 
-    let selection = this.contentHelper.getCurrentSelection();
+    const selection = this.contentHelper.getCurrentSelection();
     this.props.composerStore.stopComposerRangeSelection();
     this.props.composerStore.setCurrentContent(content, selection);
     this.processTokenAtCursor();
@@ -660,7 +660,7 @@ export class Composer extends Component<CellComposerProps, SpreadsheetChildEnv> 
    * Get the HTML content corresponding to the current composer token, divided by lines.
    */
   private getContentLines(): HtmlContent[][] {
-    let value = this.props.composerStore.currentContent;
+    const value = this.props.composerStore.currentContent;
     const isValidFormula = value.startsWith("=");
 
     if (value === "") {
@@ -793,7 +793,7 @@ export class Composer extends Component<CellComposerProps, SpreadsheetChildEnv> 
    * the autocomplete engine otherwise we initialize the formula assistant.
    */
   private processTokenAtCursor(): void {
-    let content = this.props.composerStore.currentContent;
+    const content = this.props.composerStore.currentContent;
     if (this.autoCompleteState.provider) {
       this.autoCompleteState.hide();
     }

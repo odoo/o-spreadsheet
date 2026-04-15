@@ -514,7 +514,7 @@ function weekendToDayNumber(data: Maybe<FunctionResultObject>): number[] {
       if (weekend.length !== 7) {
         return false;
       }
-      for (let day of weekend) {
+      for (const day of weekend) {
         if (day !== "0" && day !== "1") {
           return false;
         }
@@ -522,7 +522,7 @@ function weekendToDayNumber(data: Maybe<FunctionResultObject>): number[] {
       return true;
     }, _t('When weekend is a string (%s) it must be composed of "0" or "1".', weekend));
 
-    let result: number[] = [];
+    const result: number[] = [];
     for (let i = 0; i < 7; i++) {
       if (weekend[i] === "1") {
         result.push((i + 1) % 7);
@@ -591,7 +591,7 @@ export const NETWORKDAYS_INTL = {
     const _startDate = toJsDate(startDate, this.locale);
     const _endDate = toJsDate(endDate, this.locale);
     const daysWeekend = weekendToDayNumber(weekend);
-    let timesHoliday = new Set();
+    const timesHoliday = new Set();
     if (holidays !== undefined) {
       visitAny([holidays], (h) => {
         const holiday = toJsDate(h, this.locale);
@@ -601,7 +601,7 @@ export const NETWORKDAYS_INTL = {
 
     const invertDate = _startDate.getTime() > _endDate.getTime();
     const stopDate = DateTime.fromTimestamp((invertDate ? _startDate : _endDate).getTime());
-    let stepDate = DateTime.fromTimestamp((invertDate ? _endDate : _startDate).getTime());
+    const stepDate = DateTime.fromTimestamp((invertDate ? _endDate : _startDate).getTime());
     const timeStopDate = stopDate.getTime();
     let timeStepDate = stepDate.getTime();
 
@@ -876,8 +876,8 @@ export const WORKDAY_INTL = {
     weekend: Maybe<FunctionResultObject> = { value: DEFAULT_WEEKEND },
     holidays: Arg
   ): FunctionResultNumber {
-    let _startDate = toJsDate(startDate, this.locale);
-    let _numDays = Math.trunc(toNumber(numDays, this.locale));
+    const _startDate = toJsDate(startDate, this.locale);
+    const _numDays = Math.trunc(toNumber(numDays, this.locale));
     if (typeof weekend.value === "string") {
       assert(
         () => weekend.value !== "1111111",
@@ -887,7 +887,7 @@ export const WORKDAY_INTL = {
 
     const daysWeekend = weekendToDayNumber(weekend);
 
-    let timesHoliday = new Set();
+    const timesHoliday = new Set();
     if (holidays !== undefined) {
       visitAny([holidays], (h) => {
         const holiday = toJsDate(h, this.locale);
@@ -895,7 +895,7 @@ export const WORKDAY_INTL = {
       });
     }
 
-    let stepDate = DateTime.fromTimestamp(_startDate.getTime());
+    const stepDate = DateTime.fromTimestamp(_startDate.getTime());
     let timeStepDate = stepDate.getTime();
 
     const unitDay = Math.sign(_numDays);
@@ -960,8 +960,8 @@ export const YEARFRAC = {
     endDate: Maybe<FunctionResultObject>,
     dayCountConvention: Maybe<FunctionResultObject> = { value: DEFAULT_DAY_COUNT_CONVENTION }
   ): number {
-    let _startDate = Math.trunc(toNumber(startDate, this.locale));
-    let _endDate = Math.trunc(toNumber(endDate, this.locale));
+    const _startDate = Math.trunc(toNumber(startDate, this.locale));
+    const _endDate = Math.trunc(toNumber(endDate, this.locale));
     const _dayCountConvention = Math.trunc(toNumber(dayCountConvention, this.locale));
 
     assert(

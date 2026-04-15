@@ -212,7 +212,7 @@ export function toBoolean(data: FunctionResultObject | CellValue | undefined): b
       return value;
     case "string":
       if (value) {
-        let uppercaseVal = value.toUpperCase();
+        const uppercaseVal = value.toUpperCase();
         if (uppercaseVal === "TRUE") {
           return true;
         }
@@ -266,7 +266,7 @@ function visitArgs<T extends FunctionResultObject | CellValue>(
   cellCb: (a: T) => void,
   dataCb: (a: T | undefined) => void
 ): void {
-  for (let arg of args) {
+  for (const arg of args) {
     if (isMatrix(arg)) {
       // arg is ref to a Cell/Range
       const lenRow = arg.length;
@@ -334,7 +334,7 @@ function reduceArgs<T, M>(
   dir: "rowFirst" | "colFirst" = "rowFirst"
 ): M {
   let val = initialValue;
-  for (let arg of args) {
+  for (const arg of args) {
     if (isMatrix(arg)) {
       // arg is ref to a Cell/Range
       const numberOfCols = arg.length;
@@ -602,7 +602,7 @@ function conditionalVisitArgs(
   cellCb: (a: FunctionResultObject | undefined) => boolean,
   dataCb: (a: Maybe<FunctionResultObject>) => boolean
 ): void {
-  for (let arg of args) {
+  for (const arg of args) {
     if (isMatrix(arg)) {
       // arg is ref to a Cell/Range
       const lenRow = arg.length;
@@ -697,7 +697,7 @@ const wildcardToRegExp = memoize(function wildcardToRegExp(operand: string): Reg
   }
   let exp = "";
   let predecessor = "";
-  for (let char of operand) {
+  for (const char of operand) {
     if (char === "?" && predecessor !== "~") {
       exp += ".";
     } else if (char === "*" && predecessor !== "~") {
@@ -805,7 +805,7 @@ export function visitMatchingRanges(
   const dimRow = firstArg.length;
   const dimCol = firstArg[0].length;
 
-  let predicates: Predicate[] = [];
+  const predicates: Predicate[] = [];
 
   for (let i = 0; i < countArg - 1; i += 2) {
     const criteriaRange = toMatrix(args[i]);

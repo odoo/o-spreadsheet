@@ -819,7 +819,7 @@ describe("Change selection to next clusters", () => {
     ["A1", "left", ["A1", "A1"]],
   ])("Move selection horizontally", (startPosition: string, direction, targetXCs: string[]) => {
     selectCell(model, startPosition);
-    for (let targetXC of targetXCs) {
+    for (const targetXC of targetXCs) {
       moveAnchorCell(model, direction as Direction, "end");
       expect(model.getters.getSelectedZone()).toEqual(toZone(targetXC));
     }
@@ -840,7 +840,7 @@ describe("Change selection to next clusters", () => {
     ["A1", "up", ["A1", "A1"]],
   ])("Move selection vertically", (startPosition: string, direction, targetXCs: string[]) => {
     selectCell(model, startPosition);
-    for (let targetXC of targetXCs) {
+    for (const targetXC of targetXCs) {
       moveAnchorCell(model, direction as Direction, "end");
       expect(model.getters.getSelectedZone()).toEqual(toZone(targetXC));
     }
@@ -863,7 +863,7 @@ describe("Change selection to next clusters", () => {
     "Alter selection horizontally",
     (anchor: string, selection: string, direction, targetXCs: string[]) => {
       setSelection(model, [selection], { anchor });
-      for (let targetXC of targetXCs) {
+      for (const targetXC of targetXCs) {
         resizeAnchorZone(model, direction as Direction, "end");
         expect(model.getters.getSelectedZone()).toEqual(toZone(targetXC));
       }
@@ -889,7 +889,7 @@ describe("Change selection to next clusters", () => {
     "Alter selection vertically",
     (anchor: string, selection: string, direction, targetXCs: string[]) => {
       setSelection(model, [selection], { anchor });
-      for (let targetXC of targetXCs) {
+      for (const targetXC of targetXCs) {
         resizeAnchorZone(model, direction as Direction, "end");
         expect(model.getters.getSelectedZone()).toEqual(toZone(targetXC));
       }
@@ -925,7 +925,7 @@ describe("Alter Selection with content in selection", () => {
     "Alter selection horizontally",
     (anchor: string, selection: string, direction, targetXCs: string[]) => {
       setSelection(model, [selection], { anchor });
-      for (let targetXC of targetXCs) {
+      for (const targetXC of targetXCs) {
         resizeAnchorZone(model, direction as Direction, "end");
         expect(model.getters.getSelectedZone()).toEqual(toZone(targetXC));
       }
@@ -943,7 +943,7 @@ describe("Alter Selection with content in selection", () => {
     "Alter selection vertically",
     (anchor: string, selection: string, direction, targetXCs: string[]) => {
       setSelection(model, [selection], { anchor });
-      for (let targetXC of targetXCs) {
+      for (const targetXC of targetXCs) {
         resizeAnchorZone(model, direction as Direction, "end");
         expect(model.getters.getSelectedZone()).toEqual(toZone(targetXC));
       }

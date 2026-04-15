@@ -47,7 +47,7 @@ export function fixEmptyLabelsForDateCharts(
   for (let i = 0; i < newLabels.length; i++) {
     if (!newLabels[i]) {
       newLabels[i] = findNextDefinedValue(newLabels, i);
-      for (let ds of newDatasets) {
+      for (const ds of newDatasets) {
         ds.data[i] = undefined;
       }
     }
@@ -350,7 +350,7 @@ export function createLineOrScatterChartRuntime(
   const colors = getChartColorsGenerator(definition, dataSetsValues.length);
   for (let [index, { label, data, hidden }] of dataSetsValues.entries()) {
     const color = colors.next();
-    let backgroundRGBA = colorToRGBA(color);
+    const backgroundRGBA = colorToRGBA(color);
     if (areaChart) {
       backgroundRGBA.a = LINE_FILL_TRANSPARENCY;
     }
