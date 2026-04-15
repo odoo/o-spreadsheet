@@ -119,6 +119,14 @@ describe("Edit criterion in side panel", () => {
         (getDataValidationRules(model)[0].criterion as IsValueInListCriterion).displayStyle
       ).toEqual("plainText");
     });
+
+    test("Can store values with leading and trailing spaces", async () => {
+      await click(fixture, ".o-dv-list-add-value");
+      const inputs = fixture.querySelectorAll<HTMLInputElement>(".o-dv-list-values .o-input");
+      setInputValueAndTrigger(inputs[0], "  hello  ");
+      click(fixture, ".o-dv-save");
+      expect(getDataValidationRules(model)[0].criterion.values[0]).toEqual("  hello  ");
+    });
   });
 
   describe("Value in range", () => {
