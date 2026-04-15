@@ -267,7 +267,7 @@ export function isObjectEmptyRecursive<T extends object>(argument: T | undefined
     return true;
   }
   return Object.values(argument).every((value) =>
-    typeof value === "object" ? isObjectEmptyRecursive(value) : !value
+    typeof value === "object" ? isObjectEmptyRecursive(value) : value === undefined
   );
 }
 
@@ -806,18 +806,11 @@ export function getMissingHeadersForSpreadResult(
   return { missingRows, missingCols };
 }
 
-export function isObjectEmpty(obj: Object) {
-  if (Object.keys(obj).length === 0) {
-    return true;
-  }
-  for (const value of Object.values(obj)) {
-    if (value !== undefined && (typeof value !== "object" || !isObjectEmpty(value))) {
-      return false;
-    }
-  }
-  return true;
-}
-
+/*
+ * Simple object that mimic the defaultDict behaviour in python
+ * It is a dictionary with the get function setting returning a copy of the default value
+ * if when accessing previously unset values
+ */
 export function defaultDict<T>(def: T) {
   const state: Record<string, T> = {};
   return {

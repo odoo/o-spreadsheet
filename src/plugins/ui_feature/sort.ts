@@ -167,8 +167,8 @@ export class SortPlugin extends UIPlugin {
         };
         if (cell) {
           let content: string;
+          const position = this.getters.getCellPosition(cell.id);
           if (cell.isFormula) {
-            const position = this.getters.getCellPosition(cell.id);
             // we only have a vertical offset
             content = this.getters.getTranslatedCellFormula(
               sheetId,
@@ -179,10 +179,9 @@ export class SortPlugin extends UIPlugin {
           } else {
             content = cell.content;
           }
-          // TODO default
-          newCellValues.style = cell.style;
+          newCellValues.style = this.getters.getCellStyle(position, cell);
           newCellValues.content = content;
-          newCellValues.format = cell.format;
+          newCellValues.format = this.getters.getCellFormat(position, cell);
         }
         updateCellCommands.push(newCellValues);
       }

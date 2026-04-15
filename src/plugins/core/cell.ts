@@ -5,7 +5,7 @@ import {
   groupItemIdsByZones,
   iterateItemIdsPositions,
 } from "../../helpers/data_normalization";
-import { deepEquals, isObjectEmpty, range, replaceNewLines } from "../../helpers/misc";
+import { deepEquals, isObjectEmptyRecursive, range, replaceNewLines } from "../../helpers/misc";
 
 import { toXC } from "../../helpers/coordinates";
 import { CorePlugin } from "../core_plugin";
@@ -337,10 +337,10 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
   }
 
   private extractCustomStyle(position: CellPosition, cell: Cell): Style {
-    const cleanedStyle = this.getters.getCellStyle(position, cell);
     if (!cell) {
       return {};
     }
+    const cleanedStyle = this.getters.getCellStyle(position, cell);
     const defaultStyle = DEFAULT_STYLE;
     for (const property in cleanedStyle) {
       if (
@@ -545,7 +545,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
           delete after.style[key];
         }
       }
-      if (!after.style || isObjectEmpty(after.style)) {
+      if (!after.style || isObjectEmptyRecursive(after.style)) {
         style = undefined;
       } else {
         style = after.style;

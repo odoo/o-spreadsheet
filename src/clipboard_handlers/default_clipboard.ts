@@ -1,5 +1,5 @@
 import { DEFAULT_STYLE } from "../constants";
-import { defaultDict, isObjectEmpty } from "../helpers";
+import { defaultDict, isObjectEmptyRecursive } from "../helpers";
 import { splitZoneForPaste } from "../helpers/clipboard/clipboard_helpers";
 import { defaultValue } from "../plugins/core/default";
 import {
@@ -187,7 +187,7 @@ export class DefaultClipboardHandler extends AbstractCellClipboardHandler<
     const commands: [number, Zone, Style][] = [];
     for (const [zoneStr, [zone, priority]] of Object.entries(zones)) {
       const style = updateCells.get(zoneStr);
-      if (isObjectEmpty(style)) {
+      if (isObjectEmptyRecursive(style)) {
         continue;
       }
       commands.push([priority, zone, style]);

@@ -1,6 +1,12 @@
-import { CellPosition, Dimension, Format, HeaderIndex, Style, UID, Zone } from "../..";
+import { CellPosition, Color, Dimension, Format, HeaderIndex, Style, UID, Zone } from "../..";
 import { DEFAULT_STYLE } from "../../constants";
-import { deepCopy, deepEquals, defaultDict, groupConsecutive, isObjectEmpty } from "../../helpers";
+import {
+  deepCopy,
+  deepEquals,
+  defaultDict,
+  groupConsecutive,
+  isObjectEmptyRecursive,
+} from "../../helpers";
 import { PositionMap } from "../../helpers/cells/position_map";
 import { getItemId, ItemsDic } from "../../helpers/data_normalization";
 import { recomputeZones } from "../../helpers/recompute_zones";
@@ -14,6 +20,11 @@ export type defaultValue<T> = {
   sheetDefault?: T | undefined;
   colDefault?: (T | undefined)[];
   rowDefault?: (T | undefined)[];
+};
+export type sparseDefaultValue<T> = {
+  sheetDefault?: T | undefined;
+  colDefault?: Record<number, T | undefined>;
+  rowDefault?: Record<number, T | undefined>;
 };
 export type defaultValues<T> = Record<UID, defaultValue<T> | undefined>;
 export type defaultStyle = { [J in keyof Style]: defaultValue<Style[J]> };
@@ -32,6 +43,7 @@ export class DefaultPlugin extends CorePlugin<defaultState> implements defaultSt
     "getCellFormat",
     "getCellDefaultFormat",
     "getDefaultFormat",
+    "getDefaultStyleColors",
   ] as const;
   public readonly style: defaultStyles = {};
   public readonly format: defaultValues<Format> = {};
@@ -171,19 +183,21 @@ export class DefaultPlugin extends CorePlugin<defaultState> implements defaultSt
     const horizontalZone = this.getters.getRowsZone(sheetId, zone.top, zone.bottom);
     const externalHorizontalZones = recomputeZones([horizontalZone], [zone]);
     const defaults = this.getDefaultFormatInCell(sheetId, externalHorizontalZones, {
-      sheet: true,
-      row: true,
+      shouldUseDefaultSheet: true,
+      shouldUseDefaultRow: true,
     });
     const verticalZone = this.getters.getColsZone(sheetId, zone.left, zone.right);
     const externalVerticalZones = recomputeZones([verticalZone], [zone]);
     defaults.push(
       ...this.getDefaultFormatInCell(sheetId, externalVerticalZones, {
-        sheet: true,
-        col: true,
+        shouldUseDefaultSheet: true,
+        shouldUseDefaultCol: true,
       })
     );
     const externalCornerZones = recomputeZones([sheetZone], [horizontalZone, verticalZone]);
-    defaults.push(...this.getDefaultFormatInCell(sheetId, externalCornerZones, { sheet: true }));
+    defaults.push(
+      ...this.getDefaultFormatInCell(sheetId, externalCornerZones, { shouldUseDefaultSheet: true })
+    );
     this.history.update("format", sheetId, "sheetDefault", format ?? undefined);
     const rows = Object.keys(this.format[sheetId]?.rowDefault ?? {});
     for (const rowIdx of rows) {
@@ -211,8 +225,8 @@ export class DefaultPlugin extends CorePlugin<defaultState> implements defaultSt
       [zone]
     );
     const defaults = this.getDefaultFormatInCell(sheetId, leftoverZones, {
-      sheet: true,
-      col: true,
+      shouldUseDefaultSheet: true,
+      shouldUseDefaultCol: true,
     });
     const rowOverlap = Object.keys(this.format[sheetId]?.rowDefault ?? {});
     const colFormat = format !== (this.format[sheetId]?.sheetDefault ?? "") ? format : undefined;
@@ -237,9 +251,9 @@ export class DefaultPlugin extends CorePlugin<defaultState> implements defaultSt
       [zone]
     );
     const defaults = this.getDefaultFormatInCell(sheetId, leftoverZones, {
-      sheet: true,
-      col: true,
-      row: true,
+      shouldUseDefaultSheet: true,
+      shouldUseDefaultCol: true,
+      shouldUseDefaultRow: true,
     });
     for (let row = zone.top; row <= zone.bottom; row++) {
       this.history.update("format", sheetId, "rowDefault", row, format);
@@ -249,28 +263,16 @@ export class DefaultPlugin extends CorePlugin<defaultState> implements defaultSt
     }
   }
 
-  private updateCellsFormat(
-    sheetId: UID,
-    zone: Zone,
-    format: Format | null,
-    option?: { cellPriority?: boolean; force?: boolean }
-  ) {
+  private updateCellsFormat(sheetId: UID, zone: Zone, format: Format | null) {
     for (let col = zone.left; col <= zone.right; col++) {
       for (let row = zone.top; row <= zone.bottom; row++) {
-        this.updateCellFormat({ sheetId, col, row }, format, option);
+        this.updateCellFormat({ sheetId, col, row }, format);
       }
     }
   }
 
-  private updateCellFormat(
-    position: CellPosition,
-    format: Format | null,
-    option?: { cellPriority?: boolean; force?: boolean }
-  ) {
-    if (option?.cellPriority && this.getters.getCell(position)?.format) {
-      return;
-    }
-    if (option?.force || (format ?? "") !== (this.getCellDefaultFormat(position) ?? "")) {
+  private updateCellFormat(position: CellPosition, format: Format | null) {
+    if ((format ?? "") !== (this.getCellDefaultFormat(position) ?? "")) {
       this.dispatch("UPDATE_CELL", {
         sheetId: position.sheetId,
         col: position.col,
@@ -290,7 +292,11 @@ export class DefaultPlugin extends CorePlugin<defaultState> implements defaultSt
   private getDefaultFormatInCell(
     sheetId: UID,
     zones: Zone[],
-    newHasPriorityOver: { col?: boolean; row?: boolean; sheet?: boolean }
+    priorities: {
+      shouldUseDefaultCol?: boolean;
+      shouldUseDefaultRow?: boolean;
+      shouldUseDefaultSheet?: boolean;
+    }
   ): [CellPosition, Format][] {
     const defaults: [CellPosition, Format][] = [];
     for (const position of zones.flatMap((zone) => cellPositions(sheetId, zone))) {
@@ -300,21 +306,21 @@ export class DefaultPlugin extends CorePlugin<defaultState> implements defaultSt
       }
       const rowDefault = this.format[sheetId]?.rowDefault?.[position.row];
       if (rowDefault) {
-        if (newHasPriorityOver.row) {
+        if (priorities.shouldUseDefaultRow) {
           defaults.push([position, rowDefault]);
         }
         continue;
       }
       const colDefault = this.format[sheetId]?.colDefault?.[position.col];
       if (colDefault) {
-        if (newHasPriorityOver.col) {
+        if (priorities.shouldUseDefaultCol) {
           defaults.push([position, colDefault]);
         }
         continue;
       }
       const sheetDefault = this.format[sheetId]?.sheetDefault;
       if (sheetDefault) {
-        if (newHasPriorityOver.sheet) {
+        if (priorities.shouldUseDefaultSheet) {
           defaults.push([position, sheetDefault]);
         }
         continue;
@@ -352,20 +358,22 @@ export class DefaultPlugin extends CorePlugin<defaultState> implements defaultSt
     const horizontalZone = this.getters.getRowsZone(sheetId, zone.top, zone.bottom);
     const externalHorizontalZones = recomputeZones([horizontalZone], [zone]);
     const defaults = this.getPartialDefaultStyleInCell(sheetId, externalHorizontalZones, style, {
-      sheet: true,
-      row: true,
+      shouldUseDefaultSheet: true,
+      shouldUseDefaultRow: true,
     });
     const verticalZone = this.getters.getColsZone(sheetId, zone.left, zone.right);
     const externalVerticalZones = recomputeZones([verticalZone], [zone]);
     defaults.push(
       ...this.getPartialDefaultStyleInCell(sheetId, externalVerticalZones, style, {
-        sheet: true,
-        col: true,
+        shouldUseDefaultSheet: true,
+        shouldUseDefaultCol: true,
       })
     );
     const externalCornerZones = recomputeZones([sheetZone], [horizontalZone, verticalZone]);
     defaults.push(
-      ...this.getPartialDefaultStyleInCell(sheetId, externalCornerZones, style, { sheet: true })
+      ...this.getPartialDefaultStyleInCell(sheetId, externalCornerZones, style, {
+        shouldUseDefaultSheet: true,
+      })
     );
     for (const key in style) {
       if (style[key] !== DEFAULT_STYLE[key]) {
@@ -400,8 +408,8 @@ export class DefaultPlugin extends CorePlugin<defaultState> implements defaultSt
       [zone]
     );
     const defaults = this.getPartialDefaultStyleInCell(sheetId, leftoverZones, style, {
-      sheet: true,
-      col: true,
+      shouldUseDefaultSheet: true,
+      shouldUseDefaultCol: true,
     });
     const overlapUpdate = new PositionMap<Style>();
     for (const key in style) {
@@ -443,9 +451,9 @@ export class DefaultPlugin extends CorePlugin<defaultState> implements defaultSt
       [zone]
     );
     const defaults = this.getPartialDefaultStyleInCell(sheetId, leftoverZones, style, {
-      sheet: true,
-      col: true,
-      row: true,
+      shouldUseDefaultSheet: true,
+      shouldUseDefaultCol: true,
+      shouldUseDefaultRow: true,
     });
     for (const key in style) {
       const hasColStyle = Object.keys(this.style[sheetId]?.[key]?.colDefault ?? {}).length !== 0;
@@ -530,7 +538,11 @@ export class DefaultPlugin extends CorePlugin<defaultState> implements defaultSt
     sheetId: UID,
     zones: Zone[],
     newDefaultStyle: Style,
-    newHasPriorityOver: { col?: boolean; row?: boolean; sheet?: boolean }
+    priorities: {
+      shouldUseDefaultCol?: boolean;
+      shouldUseDefaultRow?: boolean;
+      shouldUseDefaultSheet?: boolean;
+    }
   ): [CellPosition, Style][] {
     const partialDefaults: [CellPosition, Style][] = [];
     for (const position of zones.flatMap((zone) => cellPositions(sheetId, zone))) {
@@ -551,7 +563,7 @@ export class DefaultPlugin extends CorePlugin<defaultState> implements defaultSt
         }
         const rowDefault = defaults.rowDefault?.[position.row];
         if (rowDefault !== undefined) {
-          if (newHasPriorityOver.row) {
+          if (priorities.shouldUseDefaultRow) {
             deltaStyle[key] = rowDefault;
             hasDelta = true;
           }
@@ -559,7 +571,7 @@ export class DefaultPlugin extends CorePlugin<defaultState> implements defaultSt
         }
         const colDefault = defaults.colDefault?.[position.col];
         if (colDefault !== undefined) {
-          if (newHasPriorityOver.col) {
+          if (priorities.shouldUseDefaultCol) {
             deltaStyle[key] = colDefault;
             hasDelta = true;
           }
@@ -567,7 +579,7 @@ export class DefaultPlugin extends CorePlugin<defaultState> implements defaultSt
         }
         const sheetDefault = defaults.sheetDefault;
         if (sheetDefault !== undefined) {
-          if (newHasPriorityOver.sheet) {
+          if (priorities.shouldUseDefaultSheet) {
             deltaStyle[key] = sheetDefault;
             hasDelta = true;
           }
@@ -591,11 +603,11 @@ export class DefaultPlugin extends CorePlugin<defaultState> implements defaultSt
 
   getCellStyle(position: CellPosition, cell?: Cell): Style {
     cell = cell || this.getters.getCell(position);
-    const style = { ...cell?.style };
     const styleSheet = this.style[position.sheetId];
     if (!styleSheet) {
-      return style;
+      return cell?.style ?? {};
     }
+    const style = { ...cell?.style };
     for (const key in styleSheet) {
       if (!(key in style)) {
         const defaults = styleSheet[key];
@@ -653,6 +665,36 @@ export class DefaultPlugin extends CorePlugin<defaultState> implements defaultSt
     }
   }
 
+  getDefaultStyleColors(): Color[] {
+    const colors = new Set<Color>();
+    for (const sheetId in this.style) {
+      const styleSheet = this.style[sheetId];
+      if (!styleSheet) {
+        continue;
+      }
+      for (const key of ["fillColor", "textColor"]) {
+        const defaults: defaultValue<Color> = styleSheet[key];
+        if (!defaults) {
+          continue;
+        }
+        if (defaults.sheetDefault) {
+          colors.add(defaults.sheetDefault);
+        }
+        for (const value of Object.values(defaults.colDefault ?? [])) {
+          if (value) {
+            colors.add(value);
+          }
+        }
+        for (const value of Object.values(defaults.rowDefault ?? [])) {
+          if (value) {
+            colors.add(value);
+          }
+        }
+      }
+    }
+    return [...colors];
+  }
+
   getDefaultFormat<D extends "COL" | "ROW" | "SHEET">(
     sheetId: UID,
     dimension: D,
@@ -695,10 +737,10 @@ export class DefaultPlugin extends CorePlugin<defaultState> implements defaultSt
   // Export
   // ---------------------------------------------------------------------------
 
-  mapToId<T>(defaults: defaultValue<T>, dict: ItemsDic<T>): defaultValue<number> {
-    const defaultsIds: defaultValue<number> = {
-      colDefault: [],
-      rowDefault: [],
+  mapToId<T>(defaults: defaultValue<T>, dict: ItemsDic<T>): sparseDefaultValue<number> {
+    const defaultsIds: sparseDefaultValue<number> = {
+      colDefault: {},
+      rowDefault: {},
     };
     if (defaults.sheetDefault) {
       defaultsIds.sheetDefault = getItemId(defaults.sheetDefault, dict);
@@ -712,7 +754,7 @@ export class DefaultPlugin extends CorePlugin<defaultState> implements defaultSt
     return defaultsIds;
   }
 
-  mapToValue<T>(defaultIds: defaultValue<number>, dict: ItemsDic<T>): defaultValue<T> {
+  mapToValue<T>(defaultIds: sparseDefaultValue<number>, dict: ItemsDic<T>): defaultValue<T> {
     const defaults: defaultValue<T> = {
       colDefault: [],
       rowDefault: [],
@@ -729,7 +771,7 @@ export class DefaultPlugin extends CorePlugin<defaultState> implements defaultSt
     return defaults;
   }
 
-  mapStyleToId(defaults: defaultStyle, dict: ItemsDic<Style>): defaultValue<number> {
+  mapStyleToId(defaults: defaultStyle, dict: ItemsDic<Style>): sparseDefaultValue<number> {
     const colDefaultDict = defaultDict({});
     const rowDefaultDict = defaultDict({});
     const sheetDefault = {};
@@ -770,12 +812,12 @@ export class DefaultPlugin extends CorePlugin<defaultState> implements defaultSt
     for (const sheet of data.sheets) {
       const sheetFormat = this.format[sheet.id];
       sheet.defaultFormat =
-        sheetFormat && !isObjectEmpty(sheetFormat)
+        sheetFormat && !isObjectEmptyRecursive(sheetFormat)
           ? this.mapToId(sheetFormat, data.formats)
           : undefined;
       const sheetStyle = this.style[sheet.id];
       sheet.defaultStyle =
-        sheetStyle && !isObjectEmpty(sheetStyle)
+        sheetStyle && !isObjectEmptyRecursive(sheetStyle)
           ? this.mapStyleToId(sheetStyle, data.styles)
           : undefined;
     }
