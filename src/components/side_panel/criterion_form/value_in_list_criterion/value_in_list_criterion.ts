@@ -50,9 +50,8 @@ export class ListCriterionForm extends CriterionForm<IsValueInListCriterion> {
     const values = this.state.items.map((item) => item.value);
     const colors: Record<string, Color> = {};
     for (const { value, color } of this.state.items) {
-      const trimmed = value?.trim();
-      if (trimmed && color) {
-        colors[trimmed] = color;
+      if (value?.trim() !== "" && color) {
+        colors[value] = color;
       }
     }
     this.updateCriterion({ values, colors });
