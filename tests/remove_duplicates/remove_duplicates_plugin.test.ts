@@ -238,8 +238,8 @@ describe("notify user", () => {
       A1: "42",
       A2: "42",
     });
-    const notifyUserTextSpy = jest.fn();
-    jest.spyOn(model.config, "notifyUI").mockImplementation(notifyUserTextSpy);
+    const notifyUserTextSpy = vi.fn();
+    vi.spyOn(model.config, "notifyUI").mockImplementation(notifyUserTextSpy);
     setSelection(model, ["A1:A2"]);
     model.dispatch("REMOVE_DUPLICATES", { columns: [0], hasHeader: false });
     expect(notifyUserTextSpy).toHaveBeenCalledWith({
@@ -254,8 +254,8 @@ describe("notify user", () => {
       A1: "42",
       A2: "24",
     });
-    const notifyUserTextSpy = jest.fn();
-    jest.spyOn(model.config, "notifyUI").mockImplementation(notifyUserTextSpy);
+    const notifyUserTextSpy = vi.fn();
+    vi.spyOn(model.config, "notifyUI").mockImplementation(notifyUserTextSpy);
     setSelection(model, ["A1:A2"]);
     model.dispatch("REMOVE_DUPLICATES", { columns: [0], hasHeader: false });
     expect(notifyUserTextSpy).toHaveBeenCalledWith({

@@ -478,8 +478,8 @@ describe("compile functions", () => {
 
       const m = new Model();
 
-      const refFn = jest.fn();
-      const ensureRange = jest.fn();
+      const refFn = vi.fn();
+      const ensureRange = vi.fn();
 
       const ctx = { USEMETAARG: () => {}, NOTUSEMETAARG: () => {} };
 

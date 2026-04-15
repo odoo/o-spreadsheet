@@ -32,8 +32,8 @@ import {
 } from "../test_helpers/dom_helper";
 import { getEvaluatedCell, getSelectionAnchorCellXc } from "../test_helpers/getters_helpers";
 import { mountSpreadsheet, nextTick, typeInComposerGrid } from "../test_helpers/helpers";
-jest.mock("../../src/components/composer/content_editable_helper", () =>
-  require("../__mocks__/content_editable_helper")
+vi.mock("../../src/components/composer/content_editable_helper", async () =>
+  await import("../__mocks__/content_editable_helper")
 );
 let fixture: HTMLElement;
 let model: Model;
@@ -903,7 +903,7 @@ describe("Hide/show rows", () => {
 
 describe("Edge-Scrolling on mouseMove in selection", () => {
   beforeEach(async () => {
-    jest.useFakeTimers();
+    vi.useFakeTimers();
 
     ({ model, fixture } = await mountSpreadsheet());
   });
@@ -917,7 +917,7 @@ describe("Edge-Scrolling on mouseMove in selection", () => {
     // we want 5 ticks of setTimeout
     const advanceTimer = edgeScrollDelay(0.5 * width, 5);
 
-    jest.advanceTimersByTime(advanceTimer);
+    vi.advanceTimersByTime(advanceTimer);
     triggerMouseEvent(".o-col-resizer", "mouseup", 1.5 * width, y);
 
     expect(model.getters.getActiveMainViewport()).toMatchObject({
@@ -932,7 +932,7 @@ describe("Edge-Scrolling on mouseMove in selection", () => {
     // we want 2 ticks of setTimeout
     const advanceTimer2 = edgeScrollDelay(0.5 * width, 2);
 
-    jest.advanceTimersByTime(advanceTimer2);
+    vi.advanceTimersByTime(advanceTimer2);
     triggerMouseEvent(".o-col-resizer", "mouseup", -0.5 * width, y);
 
     expect(model.getters.getActiveMainViewport()).toMatchObject({
@@ -950,7 +950,7 @@ describe("Edge-Scrolling on mouseMove in selection", () => {
     triggerMouseEvent(".o-row-resizer", "mousemove", x, 1.5 * height);
     const advanceTimer = edgeScrollDelay(0.5 * height, 5);
 
-    jest.advanceTimersByTime(advanceTimer);
+    vi.advanceTimersByTime(advanceTimer);
     triggerMouseEvent(".o-row-resizer", "mouseup", x, 1.5 * height);
 
     expect(model.getters.getActiveMainViewport()).toMatchObject({
@@ -964,7 +964,7 @@ describe("Edge-Scrolling on mouseMove in selection", () => {
     triggerMouseEvent(".o-row-resizer", "mousemove", x, -0.5 * height);
     const advanceTimer2 = edgeScrollDelay(0.5 * height, 2);
 
-    jest.advanceTimersByTime(advanceTimer2);
+    vi.advanceTimersByTime(advanceTimer2);
     triggerMouseEvent(".o-row-resizer", "mouseup", x, -0.5 * height);
 
     expect(model.getters.getActiveMainViewport()).toMatchObject({

@@ -3,7 +3,7 @@ import { arg, functionRegistry } from "../../src/functions/index";
 import { Model } from "../../src/model";
 import { _t } from "../../src/translation";
 import { DEFAULT_LOCALE } from "../../src/types";
-import { registerCleanup } from "../setup/jest.setup";
+import { registerCleanup } from "../setup/vitest.setup";
 import { updateLocale } from "../test_helpers/commands_helpers";
 import { keyDown, keyUp } from "../test_helpers/dom_helper";
 import {
@@ -14,8 +14,8 @@ import {
   restoreDefaultFunctions,
   typeInComposerHelper,
 } from "../test_helpers/helpers";
-jest.mock("../../src/components/composer/content_editable_helper.ts", () =>
-  require("../__mocks__/content_editable_helper")
+vi.mock("../../src/components/composer/content_editable_helper.ts", async () =>
+  await import("../__mocks__/content_editable_helper")
 );
 
 let model: Model;

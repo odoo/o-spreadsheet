@@ -58,7 +58,7 @@ describe("Grid component in dashboard mode", () => {
     await nextTick();
     const cells = fixture.querySelectorAll(".o-dashboard-clickable-cell");
     expect(cells).toHaveLength(1);
-    const spy = jest.spyOn(window, "open").mockImplementation();
+    const spy = vi.spyOn(window, "open").mockImplementation();
     await simulateClick(cells[0]);
     expect(spy).toHaveBeenCalled();
   });
@@ -124,7 +124,7 @@ describe("Grid component in dashboard mode", () => {
   });
 
   test("Clickable cells actions are properly udpated on viewport scroll", async () => {
-    const fn = jest.fn();
+    const fn = vi.fn();
     clickableCellRegistry.add("fake", {
       condition: (position, env) => !!env.model.getters.getCell(position)?.content.startsWith("__"),
       execute: (position) => fn(position.col, position.row),

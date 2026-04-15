@@ -44,15 +44,15 @@ async function mountBorderEditor(
   ({ fixture } = await mountComponent(BorderEditorTestParent, { model, props }));
 }
 
-let onBorderColorPicked: jest.Mock;
-let onBorderStylePicked: jest.Mock;
-let onBorderPositionPicked: jest.Mock;
+let onBorderColorPicked: Mock;
+let onBorderStylePicked: Mock;
+let onBorderPositionPicked: Mock;
 
 beforeEach(() => {
   fixture = makeTestFixture();
-  onBorderColorPicked = jest.fn();
-  onBorderStylePicked = jest.fn();
-  onBorderPositionPicked = jest.fn();
+  onBorderColorPicked = vi.fn();
+  onBorderStylePicked = vi.fn();
+  onBorderPositionPicked = vi.fn();
 });
 
 afterEach(() => {

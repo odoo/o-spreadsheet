@@ -27,8 +27,8 @@ describe("trim whitespace", () => {
       A3: "  Space Cowboys   ",
       A4: "   Space Cake  ???    ",
     });
-    const notifyUserTextSpy = jest.fn();
-    jest.spyOn(model.config, "notifyUI").mockImplementation(notifyUserTextSpy);
+    const notifyUserTextSpy = vi.fn();
+    vi.spyOn(model.config, "notifyUI").mockImplementation(notifyUserTextSpy);
     setSelection(model, ["A1:A2", "A2:A3", "A4"]);
     model.dispatch("TRIM_WHITESPACE");
     expect(getCellContent(model, "A1")).toBe("Space Opera");
@@ -78,8 +78,8 @@ describe("notify user", () => {
       A2: "  SPACES   INVADERS   !  ",
       A3: "NO SPACES INVADERS",
     });
-    const notifyUserTextSpy = jest.fn();
-    jest.spyOn(model.config, "notifyUI").mockImplementation(notifyUserTextSpy);
+    const notifyUserTextSpy = vi.fn();
+    vi.spyOn(model.config, "notifyUI").mockImplementation(notifyUserTextSpy);
     setSelection(model, ["A1:A3"]);
     model.dispatch("TRIM_WHITESPACE");
     expect(notifyUserTextSpy).toHaveBeenCalledWith({
@@ -95,8 +95,8 @@ describe("notify user", () => {
       A2: "Space invaders",
       A3: "Space mountain",
     });
-    const notifyUserTextSpy = jest.fn();
-    jest.spyOn(model.config, "notifyUI").mockImplementation(notifyUserTextSpy);
+    const notifyUserTextSpy = vi.fn();
+    vi.spyOn(model.config, "notifyUI").mockImplementation(notifyUserTextSpy);
     setSelection(model, ["A1:A3"]);
     model.dispatch("TRIM_WHITESPACE");
     expect(notifyUserTextSpy).toHaveBeenCalledWith({

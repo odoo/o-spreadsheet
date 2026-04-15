@@ -7,7 +7,7 @@ import { FR_LOCALE } from "../test_helpers/constants";
 import { click, setInputValueAndTrigger } from "../test_helpers/dom_helper";
 import { mountComponent, nextTick, spyModelDispatch } from "../test_helpers/helpers";
 
-jest.useFakeTimers();
+vi.useFakeTimers();
 
 const selectors = {
   availableCurrencies: ".o-custom-currency .o-available-currencies",
@@ -44,7 +44,7 @@ const loadCurrencies = async () => {
   return currenciesData;
 };
 
-let dispatch: jest.SpyInstance;
+let dispatch: MockInstance;
 let currenciesContent: { [key: string]: Currency };
 let model: Model;
 let fixture: HTMLElement;

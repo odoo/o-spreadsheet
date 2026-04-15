@@ -5,8 +5,8 @@ import { FR_LOCALE } from "../test_helpers/constants";
 import { keyDown } from "../test_helpers/dom_helper";
 import { getCellContent } from "../test_helpers/getters_helpers";
 import { makeTestEnv, mountSpreadsheet, typeInComposerGrid } from "../test_helpers/helpers";
-jest.mock("../../src/components/composer/content_editable_helper", () =>
-  require("../__mocks__/content_editable_helper")
+vi.mock("../../src/components/composer/content_editable_helper", async () =>
+  await import("../__mocks__/content_editable_helper")
 );
 
 describe("Data validation with blocking rule", () => {
@@ -19,7 +19,7 @@ describe("Data validation with blocking rule", () => {
   });
 
   test("Interactive raiseError on inputting invalid value", async () => {
-    const raiseError = jest.fn();
+    const raiseError = vi.fn();
     const env = makeTestEnv({ raiseError });
     await mountSpreadsheet({ model }, env);
     addDataValidation(model, "A1", "id", { type: "textContains", values: ["ok"] }, "blocking");

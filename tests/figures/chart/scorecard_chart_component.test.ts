@@ -423,7 +423,7 @@ describe("Scorecard charts rendering", () => {
      * that have the same text (ie baseline text = baselineDescr text = title text, ...).
      * Be sure, when using this, to have all elements that are different in the test.
      */
-    jest
+    vi
       .spyOn(MockCanvasRenderingContext2D.prototype, "fillText")
       .mockImplementation(function (this: MockCanvasRenderingContext2D, text: string) {
         const { baselineDisplay, keyValue, title, baselineDescr } = model.getters.getChartRuntime(
@@ -454,7 +454,7 @@ describe("Scorecard charts rendering", () => {
   });
 
   afterEach(() => {
-    jest.spyOn(MockCanvasRenderingContext2D.prototype, "fillText").mockRestore();
+    vi.spyOn(MockCanvasRenderingContext2D.prototype, "fillText").mockRestore();
   });
 
   test("Baseline with mode 'text' is plainly displayed", () => {

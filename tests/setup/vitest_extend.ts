@@ -1,4 +1,5 @@
-import { MatchImageSnapshotOptions, configureToMatchImageSnapshot } from "jest-image-snapshot";
+import "vitest";
+import { imageMatcher } from "vitest-image-snapshot";
 import { Model } from "../../src";
 import { isSameColor } from "../../src/helpers/color";
 import { toXC } from "../../src/helpers/coordinates";
@@ -6,35 +7,32 @@ import { deepEquals } from "../../src/helpers/misc";
 import { positions } from "../../src/helpers/zones";
 import { CancelledReason, DispatchResult, Zone } from "../../src/types";
 
-declare global {
-  namespace jest {
-    interface Matchers<R> {
-      /**
-       * Check that the given models are synchronized, i.e. they have the same
-       * exportData
-       */
-      toHaveSynchronizedExportedData(): R;
-      /*
-       * Check that the evaluation of the given models are synchronized
-       */
-      toHaveSynchronizedEvaluation(): R;
-      /**
-       * Check that the same callback on each users give the same expected value
-       */
-      toHaveSynchronizedValue<T>(callback: (model: Model) => T, expected: T): R;
-      /**
-       * Check that the export data of the model is the same as the expected.
-       * Note that it ignore the revisionId, as it's intended that it should be
-       * different
-       */
-      toExport<T>(expected: T): R;
-      toBeCancelledBecause(...expected: CancelledReason[]): R;
-      toBeSuccessfullyDispatched(): R;
-      /** Check if a number is between 2 values (inclusive) */
-      toBeBetween(lower: number, upper: number): R;
-      toBeSameColorAs(expected: string, tolerance?: number): R;
-      toMatchImageSnapshot(options?: MatchImageSnapshotOptions): R;
-    }
+declare module "vitest" {
+  interface CustomMatchers<R = unknown> {
+    /**
+     * Check that the given models are synchronized, i.e. they have the same
+     * exportData
+     */
+    toHaveSynchronizedExportedData(): R;
+    /*
+     * Check that the evaluation of the given models are synchronized
+     */
+    toHaveSynchronizedEvaluation(): R;
+    /**
+     * Check that the same callback on each users give the same expected value
+     */
+    toHaveSynchronizedValue<T>(callback: (model: Model) => T, expected: T): R;
+    /**
+     * Check that the export data of the model is the same as the expected.
+     * Note that it ignore the revisionId, as it's intended that it should be
+     * different
+     */
+    toExport<T>(expected: T): R;
+    toBeCancelledBecause(...expected: CancelledReason[]): R;
+    toBeSuccessfullyDispatched(): R;
+    /** Check if a number is between 2 values (inclusive) */
+    toBeBetween(lower: number, upper: number): R;
+    toBeSameColorAs(expected: string, tolerance?: number): R;
   }
 }
 
@@ -48,12 +46,7 @@ function getPrettyEvaluatedCells(model: Model, sheetId: string, zone: Zone) {
   });
 }
 
-const toMatchImageSnapshot = configureToMatchImageSnapshot({
-  dumpDiffToConsole: false, // Print the base64 dif in the console. Can be useful for remote tests.
-});
-
 expect.extend({
-  toMatchImageSnapshot,
   toExport(model: Model, expected: any) {
     const exportData = model.exportData();
     if (
@@ -196,3 +189,5 @@ CancelledReasons: ${this.utils.printReceived(dispatchResult.reasons)}
     };
   },
 });
+
+imageMatcher();

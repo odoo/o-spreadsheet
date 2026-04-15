@@ -2,10 +2,11 @@
  * This file will be run before each test file
  */
 import { App } from "@odoo/owl";
+import { vi } from "vitest";
 import { setDefaultSheetViewSize } from "../../src/constants";
 import { getCompiledTemplates } from "../../tools/owl_templates/compile_templates.cjs";
 import "./canvas.mock";
-import "./jest_extend";
+import "./vitest_extend";
 import "./resize_observer.mock";
 
 function registerOwlTemplates() {
@@ -30,23 +31,23 @@ beforeAll(() => {
 });
 
 beforeEach(() => {
-  jest
-    .spyOn(HTMLDivElement.prototype, "clientHeight", "get")
-    .mockImplementation(function (this: HTMLDivElement) {
-      const grid = this.className.includes("o-grid-overlay");
-      if (grid) {
-        return 985;
-      }
-      return 0;
-    });
-  jest
-    .spyOn(HTMLDivElement.prototype, "clientWidth", "get")
-    .mockImplementation(function (this: HTMLDivElement) {
-      if (this.className.includes("o-grid-overlay")) {
-        return 985;
-      }
-      return 0;
-    });
+  vi.spyOn(HTMLDivElement.prototype, "clientHeight", "get").mockImplementation(function (
+    this: HTMLDivElement
+  ) {
+    const grid = this.className.includes("o-grid-overlay");
+    if (grid) {
+      return 985;
+    }
+    return 0;
+  });
+  vi.spyOn(HTMLDivElement.prototype, "clientWidth", "get").mockImplementation(function (
+    this: HTMLDivElement
+  ) {
+    if (this.className.includes("o-grid-overlay")) {
+      return 985;
+    }
+    return 0;
+  });
   HTMLElement.prototype.scrollIntoView = () => {};
 });
 

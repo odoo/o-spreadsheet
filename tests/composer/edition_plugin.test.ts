@@ -865,7 +865,7 @@ describe("edition", () => {
 
   test("write too long formulas raises an error", async () => {
     const model = new Model({});
-    const spyNotify = jest.spyOn(model["config"], "raiseBlockingErrorUI");
+    const spyNotify = vi.spyOn(model["config"], "raiseBlockingErrorUI");
     model.dispatch("START_EDITION");
     const content = // 101 tokens
       "=1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1";

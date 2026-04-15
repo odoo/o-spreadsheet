@@ -92,7 +92,7 @@ describe("renderer", () => {
     });
 
     drawGridRenderer(model, ctx, ["Background", "Headers", "Selection"]);
-    expect(ctx.screenshot()).toMatchImageSnapshot();
+    expect(ctx.screenshot()).toMatchImage();
   });
 
   describe("Headers background color", () => {
@@ -676,7 +676,7 @@ describe("renderer", () => {
       },
     });
 
-    const getCellTextMock = jest.fn(() => "=SUM(1,2)");
+    const getCellTextMock = vi.fn(() => "=SUM(1,2)");
     model.getters.getCellText = getCellTextMock;
 
     drawGridRenderer(model, ctx);
@@ -707,7 +707,7 @@ describe("renderer", () => {
       },
     });
 
-    const getCellTextMock = jest.fn(() => "=SUM(1,2)");
+    const getCellTextMock = vi.fn(() => "=SUM(1,2)");
     model.getters.getCellText = getCellTextMock;
 
     drawGridRenderer(model, ctx);
@@ -2049,7 +2049,7 @@ describe("renderer", () => {
     setCellContent(model, "A1", "1");
     freezeColumns(model, 2);
     freezeRows(model, 1);
-    const spyFn = jest.fn();
+    const spyFn = vi.fn();
     const ctx = new MockGridRenderingContext(model, 1000, 1000, {
       onFunctionCall: (key, args) => {
         if (["rect", "clip"].includes(key)) {

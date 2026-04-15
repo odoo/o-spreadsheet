@@ -32,7 +32,7 @@ import {
   restoreDefaultFunctions,
   target,
 } from "../test_helpers/helpers";
-import resetAllMocks = jest.resetAllMocks;
+const resetAllMocks = vi.resetAllMocks.bind(vi);
 
 describe("evaluateCells", () => {
   test("Simple Evaluation", () => {
@@ -124,7 +124,7 @@ describe("evaluateCells", () => {
   });
 
   test("compute cell only once when references multiple times", () => {
-    const mock = jest.fn().mockReturnValue(42);
+    const mock = vi.fn().mockReturnValue(42);
     functionRegistry.add("MY.FUNC", {
       description: "any function",
       compute: mock,
@@ -1168,7 +1168,7 @@ describe("evaluate formula getter", () => {
   });
 
   test.skip("EVALUATE_CELLS with no argument re-evaluates do not reevaluate the cells if they are not modified", () => {
-    const mockCompute = jest.fn();
+    const mockCompute = vi.fn();
 
     functionRegistry.add("GETVALUE", {
       description: "Get value",
@@ -1183,7 +1183,7 @@ describe("evaluate formula getter", () => {
     expect(mockCompute).toHaveBeenCalledTimes(0);
   });
   test("cells are re-evaluated if one of their dependency changes", () => {
-    const mockCompute = jest.fn().mockReturnValue("Hi");
+    const mockCompute = vi.fn().mockReturnValue("Hi");
 
     functionRegistry.add("GETVALUE", {
       description: "Get value",

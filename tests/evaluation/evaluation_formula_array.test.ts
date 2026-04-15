@@ -634,7 +634,7 @@ describe("evaluate formulas that return an array", () => {
     });
 
     test("formulas with cross spread dependencies depends on a cycle limit", () => {
-      const spy = jest.spyOn(console, "warn").mockImplementation(); // Avoid unwanted logs spam
+      const spy = vi.spyOn(console, "warn").mockImplementation(); // Avoid unwanted logs spam
       setCellContent(model, "A1", "=MFILL(2,1,D1+1)");
       setCellContent(model, "C1", "=MFILL(2,1,B1+1)");
       expect(getEvaluatedCell(model, "A1").value).toBe(31);
@@ -669,7 +669,7 @@ describe("evaluate formulas that return an array", () => {
     });
 
     test("array formula depending on array formula result is evaluated once", () => {
-      const mockCompute = jest.fn().mockImplementation((values) => values);
+      const mockCompute = vi.fn().mockImplementation((values) => values);
 
       functionRegistry.add("RANGE_IDENTITY", {
         description: "returns the input. Like transpose(transpose(range))",

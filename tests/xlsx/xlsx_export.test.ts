@@ -688,7 +688,7 @@ describe("Test XLSX export", () => {
       expect(await exportPrettifiedXlsx(model)).toMatchSnapshot();
     });
     test("Conditional formatting with formula cannot be exported (for now)", async () => {
-      jest.spyOn(global.console, "warn").mockImplementation();
+      vi.spyOn(global.console, "warn").mockImplementation();
       const model = new Model({
         sheets: [
           {

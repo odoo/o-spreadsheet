@@ -18,15 +18,14 @@ import {
   typeInComposerGrid,
 } from "../test_helpers/helpers";
 
-jest.mock("../../src/components/composer/content_editable_helper.ts", () =>
-  require("../__mocks__/content_editable_helper")
+vi.mock("../../src/components/composer/content_editable_helper.ts", async () =>
+  await import("../__mocks__/content_editable_helper")
 );
 // As we test an isolated component, grid and gridOverlay won't exist
-jest.mock("../../src/components/helpers/dom_helpers", () => {
-  return {
-    ...jest.requireActual("../../src/components/helpers/dom_helpers"),
-    ...jest.requireActual("../__mocks__/dom_helpers"),
-  };
+vi.mock("../../src/components/helpers/dom_helpers", async () => {
+  const actual = await vi.importActual("../../src/components/helpers/dom_helpers");
+  const mocks = await import("../__mocks__/dom_helpers");
+  return { ...actual, ...mocks };
 });
 
 function getColStartPosition(col: number) {
@@ -103,8 +102,8 @@ let model: Model;
 let fixture: HTMLElement;
 let cornerEl: Element;
 let borderEl: Element;
-let spyDispatch: jest.SpyInstance;
-let spyHandleEvent: jest.Mock;
+let spyDispatch: MockInstance;
+let spyHandleEvent: Mock;
 
 interface Props {
   zone: Zone;
@@ -118,8 +117,8 @@ class Parent extends Component<Props> {
     <Highlight zone="props.zone" color="props.color"/>
   `;
   setup() {
-    spyDispatch = jest.spyOn(model, "dispatch");
-    spyHandleEvent = jest.fn();
+    spyDispatch = vi.spyOn(model, "dispatch");
+    spyHandleEvent = vi.fn();
     // register component to listen to selection changes
 
     model.selection.capture(
@@ -747,7 +746,7 @@ describe("Border component", () => {
 
 describe("Edge-Scrolling on mouseMove of hightlights", () => {
   beforeEach(async () => {
-    jest.useFakeTimers();
+    vi.useFakeTimers();
     ({ model, fixture } = await mountSpreadsheet());
     // ensure that highlights exist
     await startGridComposition();
@@ -762,7 +761,7 @@ describe("Edge-Scrolling on mouseMove of hightlights", () => {
     triggerMouseEvent(".o-border-n", "mousemove", 1.5 * width, y);
     const advanceTimer = edgeScrollDelay(0.5 * width, 5);
 
-    jest.advanceTimersByTime(advanceTimer);
+    vi.advanceTimersByTime(advanceTimer);
     triggerMouseEvent(".o-border-n", "mouseup", 1.5 * width, y);
     expect(model.getters.getActiveMainViewport()).toMatchObject({
       left: 6,
@@ -778,7 +777,7 @@ describe("Edge-Scrolling on mouseMove of hightlights", () => {
     triggerMouseEvent(".o-border-n", "mousemove", -0.5 * width, y);
     const advanceTimer2 = edgeScrollDelay(0.5 * width, 2);
 
-    jest.advanceTimersByTime(advanceTimer2);
+    vi.advanceTimersByTime(advanceTimer2);
     triggerMouseEvent(".o-border-n", "mouseup", -0.5 * width, y);
 
     expect(model.getters.getActiveMainViewport()).toMatchObject({
@@ -796,7 +795,7 @@ describe("Edge-Scrolling on mouseMove of hightlights", () => {
     triggerMouseEvent(".o-border-n", "mousemove", x, 1.5 * height);
     const advanceTimer = edgeScrollDelay(0.5 * height, 5);
 
-    jest.advanceTimersByTime(advanceTimer);
+    vi.advanceTimersByTime(advanceTimer);
     triggerMouseEvent(".o-border-n", "mouseup", x, 1.5 * height);
 
     expect(model.getters.getActiveMainViewport()).toMatchObject({
@@ -813,7 +812,7 @@ describe("Edge-Scrolling on mouseMove of hightlights", () => {
     triggerMouseEvent(".o-border-n", "mousemove", x, -0.5 * height);
     const advanceTimer2 = edgeScrollDelay(0.5 * height, 2);
 
-    jest.advanceTimersByTime(advanceTimer2);
+    vi.advanceTimersByTime(advanceTimer2);
     triggerMouseEvent(".o-border-n", "mouseup", x, -0.5 * height);
 
     expect(model.getters.getActiveMainViewport()).toMatchObject({
@@ -832,7 +831,7 @@ describe("Edge-Scrolling on mouseMove of hightlights", () => {
     triggerMouseEvent(".o-corner-nw", "mousemove", 1.5 * width, y);
     const advanceTimer = edgeScrollDelay(0.5 * width, 5);
 
-    jest.advanceTimersByTime(advanceTimer);
+    vi.advanceTimersByTime(advanceTimer);
     triggerMouseEvent(".o-corner-nw", "mouseup", 1.5 * width, y);
     expect(model.getters.getActiveMainViewport()).toMatchObject({
       left: 6,
@@ -848,7 +847,7 @@ describe("Edge-Scrolling on mouseMove of hightlights", () => {
     triggerMouseEvent(".o-corner-nw", "mousemove", -0.5 * width, y);
     const advanceTimer2 = edgeScrollDelay(0.5 * width, 2);
 
-    jest.advanceTimersByTime(advanceTimer2);
+    vi.advanceTimersByTime(advanceTimer2);
     triggerMouseEvent(".o-corner-nw", "mouseup", -0.5 * width, y);
 
     expect(model.getters.getActiveMainViewport()).toMatchObject({
@@ -866,7 +865,7 @@ describe("Edge-Scrolling on mouseMove of hightlights", () => {
     triggerMouseEvent(".o-corner-nw", "mousemove", x, 1.5 * height);
     const advanceTimer = edgeScrollDelay(0.5 * height, 5);
 
-    jest.advanceTimersByTime(advanceTimer);
+    vi.advanceTimersByTime(advanceTimer);
     triggerMouseEvent(".o-corner-nw", "mouseup", x, 1.5 * height);
 
     expect(model.getters.getActiveMainViewport()).toMatchObject({
@@ -883,7 +882,7 @@ describe("Edge-Scrolling on mouseMove of hightlights", () => {
     triggerMouseEvent(".o-corner-nw", "mousemove", x, -0.5 * height);
     const advanceTimer2 = edgeScrollDelay(0.5 * height, 2);
 
-    jest.advanceTimersByTime(advanceTimer2);
+    vi.advanceTimersByTime(advanceTimer2);
     triggerMouseEvent(".o-corner-nw", "mouseup", x, -0.5 * height);
 
     expect(model.getters.getActiveMainViewport()).toMatchObject({

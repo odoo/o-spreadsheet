@@ -38,11 +38,11 @@ import {
 } from "./test_helpers/helpers";
 import { mockGetBoundingClientRect } from "./test_helpers/mock_helpers";
 
-jest.mock("../src/components/composer/content_editable_helper", () =>
-  require("./__mocks__/content_editable_helper")
+vi.mock("../src/components/composer/content_editable_helper", async () =>
+  await import("./__mocks__/content_editable_helper")
 );
-jest.mock("../src/helpers/figures/images/image_provider", () =>
-  require("./__mocks__/mock_image_provider")
+vi.mock("../src/helpers/figures/images/image_provider", async () =>
+  await import("./__mocks__/mock_image_provider")
 );
 
 mockGetBoundingClientRect({
@@ -344,7 +344,7 @@ describe("TopBar component", () => {
     const fontSizeInput = fixture.querySelector("input.o-font-size") as HTMLInputElement;
 
     const event = new WheelEvent("wheel", { deltaY: 100 });
-    const preventDefaultSpy = jest.spyOn(event, "preventDefault");
+    const preventDefaultSpy = vi.spyOn(event, "preventDefault");
 
     fontSizeInput.dispatchEvent(event);
 

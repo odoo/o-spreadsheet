@@ -1,3 +1,4 @@
+import MockDate from "mockdate";
 import { Model } from "../../src";
 import { setCellContent, updateLocale } from "../test_helpers/commands_helpers";
 import { FR_LOCALE } from "../test_helpers/constants";
@@ -584,7 +585,7 @@ describe("NETWORKDAYS.INTL formula", () => {
 });
 
 describe("NOW formula", () => {
-  const MockDate = require("mockdate");
+
 
   test("functional tests on simple arguments", async () => {
     MockDate.set(new Date(2042, 3, 2, 4, 7, 30, 999));
@@ -683,7 +684,7 @@ describe("TIMEVALUE formula", () => {
 });
 
 describe("TODAY formula", () => {
-  const MockDate = require("mockdate");
+
   test("functional tests on simple arguments", async () => {
     MockDate.set(new Date(2042, 3, 2, 4, 7, 30, 999));
     expect(evaluateCell("A1", { A1: "=TODAY()" })).toBe(51958);

@@ -46,8 +46,8 @@ async function writeInput(index: number, text: string) {
 interface SelectionInputTestConfig {
   initialRanges?: string[];
   hasSingleRange?: boolean;
-  onChanged?: jest.Mock<void, [any]>;
-  onConfirmed?: jest.Mock<void, []>;
+  onChanged?: Mock<void, [any]>;
+  onConfirmed?: Mock<void, []>;
 }
 
 class Parent extends Component<any> {
@@ -62,8 +62,8 @@ class Parent extends Component<any> {
   model!: Model;
   initialRanges: string[] | undefined;
   hasSingleRange: boolean | undefined;
-  onChanged!: jest.Mock<void, [any]>;
-  onConfirmed!: jest.Mock<void, []>;
+  onChanged!: Mock<void, [any]>;
+  onConfirmed!: Mock<void, []>;
 
   get id(): string {
     const selectionInput = getChildFromComponent(this, SelectionInput);
@@ -77,8 +77,8 @@ class Parent extends Component<any> {
     this.initialRanges = this.props.config.initialRanges;
     this.hasSingleRange = this.props.config.hasSingleRange;
     this.model = model;
-    this.onChanged = this.props.config.onChanged || jest.fn();
-    this.onConfirmed = this.props.config.onConfirmed || jest.fn();
+    this.onChanged = this.props.config.onChanged || vi.fn();
+    this.onConfirmed = this.props.config.onConfirmed || vi.fn();
     onMounted(() => {
       this.model.on("update", this, () => this.render(true));
       this.render(true);
@@ -167,7 +167,7 @@ describe("Selection Input", () => {
 
   test("hitting enter key acts the same as clicking confirm button", async () => {
     let isConfirmed = false;
-    const onConfirmed = jest.fn(() => {
+    const onConfirmed = vi.fn(() => {
       isConfirmed = true;
     });
     await createSelectionInput({ onConfirmed });
@@ -348,7 +348,7 @@ describe("Selection Input", () => {
 
   test("changed event is triggered when input changed", async () => {
     let newRanges;
-    const onChanged = jest.fn((ranges) => {
+    const onChanged = vi.fn((ranges) => {
       newRanges = ranges;
     });
     await createSelectionInput({ onChanged });
@@ -359,7 +359,7 @@ describe("Selection Input", () => {
 
   test("changed event is triggered when cell is selected", async () => {
     let newRanges;
-    const onChanged = jest.fn((ranges) => {
+    const onChanged = vi.fn((ranges) => {
       newRanges = ranges;
     });
     const { model } = await createSelectionInput({ onChanged });

@@ -58,12 +58,12 @@ describe("Grid integration", () => {
   let fixture: HTMLElement;
 
   beforeEach(async () => {
-    jest.useFakeTimers();
+    vi.useFakeTimers();
     ({ model, fixture } = await mountSpreadsheet());
   });
 
   afterEach(() => {
-    jest.useRealTimers();
+    vi.useRealTimers();
   });
 
   test("can display error on A1", async () => {
@@ -87,23 +87,23 @@ describe("Grid integration", () => {
   });
 
   test("don't display error on #N/A", async () => {
-    Date.now = jest.fn(() => 0);
+    Date.now = vi.fn(() => 0);
     setCellContent(model, "A1", "=NA()");
     await nextTick();
     gridMouseEvent(model, "mousemove", "A1");
-    Date.now = jest.fn(() => 500);
-    jest.advanceTimersByTime(300);
+    Date.now = vi.fn(() => 500);
+    vi.advanceTimersByTime(300);
     await nextTick();
     expect(document.querySelector(".o-error-tooltip")).toBeNull();
   });
 
   test("Display error on #N/A 'non-silent' ", async () => {
-    Date.now = jest.fn(() => 0);
+    Date.now = vi.fn(() => 0);
     setCellContent(model, "A1", "=VLOOKUP(6,A1:A2,B2:B4)");
     await nextTick();
     gridMouseEvent(model, "mousemove", "A1");
-    Date.now = jest.fn(() => 500);
-    jest.advanceTimersByTime(300);
+    Date.now = vi.fn(() => 500);
+    vi.advanceTimersByTime(300);
     await nextTick();
     expect(document.querySelector(".o-error-tooltip")).not.toBeNull();
   });
@@ -142,7 +142,7 @@ describe("Grid integration", () => {
     setCellContent(model, "C3", "[label](url.com)");
 
     triggerMouseEvent(".o-figure", "mousemove", DEFAULT_CELL_WIDTH * 2, DEFAULT_CELL_HEIGHT * 2);
-    jest.advanceTimersByTime(400);
+    vi.advanceTimersByTime(400);
     await nextTick();
 
     expect(fixture.querySelector(".o-popover")).toBeNull();

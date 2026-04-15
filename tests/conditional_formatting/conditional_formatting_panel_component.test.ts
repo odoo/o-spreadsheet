@@ -1217,7 +1217,7 @@ describe("UI of conditional formats", () => {
       await click(fixture.querySelectorAll(selectors.cfTabSelector)[2]);
 
       const cfPlugin = getPlugin(model, ConditionalFormatPlugin);
-      cfPlugin.allowDispatch = jest.fn(() => error);
+      cfPlugin.allowDispatch = vi.fn(() => error);
 
       await click(fixture, selectors.buttonSave);
       const rows = document.querySelectorAll(selectors.ruleEditor.editor.iconSetRule.rows);
@@ -1239,7 +1239,7 @@ describe("UI of conditional formats", () => {
       await click(fixture.querySelectorAll(selectors.cfTabSelector)[2]);
 
       const cfPlugin = getPlugin(model, ConditionalFormatPlugin);
-      cfPlugin.allowDispatch = jest.fn(() => error);
+      cfPlugin.allowDispatch = vi.fn(() => error);
 
       await click(fixture, selectors.buttonSave);
       const rows = document.querySelectorAll(selectors.ruleEditor.editor.iconSetRule.rows);

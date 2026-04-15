@@ -973,7 +973,7 @@ export function updateLocale(model: Model, locale: Locale) {
 }
 
 /**
- * Group the given columns. The groupId isn't part of the command, but we'll use jest to mock the uuid generator to
+ * Group the given columns. The groupId isn't part of the command, but we'll use vi to mock the uuid generator to
  * return the given groupId, to make the writing of the tests easier.
  */
 export function groupColumns(
@@ -986,7 +986,7 @@ export function groupColumns(
 }
 
 /**
- * Group the given rows. The groupId isn't part of the command, but we'll use jest to mock the uuid generator to
+ * Group the given rows. The groupId isn't part of the command, but we'll use vi to mock the uuid generator to
  * return the given groupId, to make the writing of the tests easier.
  */
 export function groupRows(
@@ -999,7 +999,7 @@ export function groupRows(
 }
 
 /**
- * Group the given headers. The groupId isn't part of the command, but we'll use jest to mock the uuid generator to
+ * Group the given headers. The groupId isn't part of the command, but we'll use vi to mock the uuid generator to
  * return the given groupId, to make the writing of the tests easier.
  */
 export function groupHeaders(

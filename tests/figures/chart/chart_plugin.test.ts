@@ -2356,7 +2356,7 @@ test("Duplicating a sheet dispatches `CREATE_CHART` for each chart", () => {
   );
   const chartPlugin = getPlugin(model, ChartPlugin);
   // @ts-ignore
-  const spyDispatch = jest.spyOn(chartPlugin, "dispatch");
+  const spyDispatch = vi.spyOn(chartPlugin, "dispatch");
   const sheetId = model.getters.getActiveSheetId();
   model.dispatch("DUPLICATE_SHEET", {
     sheetId,

@@ -96,7 +96,7 @@ describe("range plugin", () => {
     m.dispatch("USE_RANGE", { sheetId: m.getters.getActiveSheetId(), rangesXC: ["B2:D4"] });
   });
   afterEach(() => {
-    jest.restoreAllMocks();
+    vi.restoreAllMocks();
   });
 
   describe("adapting the ranges to changes", () => {
@@ -624,7 +624,7 @@ describe("full column range", () => {
     m.dispatch("USE_RANGE", { sheetId: m.getters.getActiveSheetId(), rangesXC: ["B:C"] });
   });
   afterEach(() => {
-    jest.restoreAllMocks();
+    vi.restoreAllMocks();
   });
   test("delete col before range", () => {
     deleteColumns(m, ["A"]);
@@ -675,7 +675,7 @@ describe("full row range", () => {
     m.dispatch("USE_RANGE", { sheetId: m.getters.getActiveSheetId(), rangesXC: ["2:3"] });
   });
   afterEach(() => {
-    jest.restoreAllMocks();
+    vi.restoreAllMocks();
   });
   test("delete row before range", () => {
     deleteRows(m, [0]);

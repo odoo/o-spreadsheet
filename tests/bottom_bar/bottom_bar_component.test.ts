@@ -79,7 +79,7 @@ describe("BottomBar component", () => {
 
   test("Can create a new sheet", async () => {
     const { model } = await mountBottomBar();
-    const dispatch = jest.spyOn(model, "dispatch");
+    const dispatch = vi.spyOn(model, "dispatch");
     const activeSheetId = model.getters.getActiveSheetId();
     await click(fixture, ".o-add-sheet");
     const newSheetId = model.getters.getSheetIds()[1];
@@ -104,7 +104,7 @@ describe("BottomBar component", () => {
   test("create a second sheet while the first one is called Sheet2", async () => {
     const model = new Model({ sheets: [{ name: "Sheet2" }] });
     await mountBottomBar(model);
-    const dispatch = jest.spyOn(model, "dispatch");
+    const dispatch = vi.spyOn(model, "dispatch");
     expect(model.getters.getSheetIds().map(model.getters.getSheetName)).toEqual(["Sheet2"]);
     await click(fixture, ".o-add-sheet");
     expect(dispatch).toHaveBeenNthCalledWith(1, "CREATE_SHEET", {
@@ -117,7 +117,7 @@ describe("BottomBar component", () => {
   test("Can activate a sheet", async () => {
     const model = new Model({ sheets: [{ id: "Sheet1" }, { id: "Sheet2" }] });
     await mountBottomBar(model);
-    const dispatch = jest.spyOn(model, "dispatch");
+    const dispatch = vi.spyOn(model, "dispatch");
     triggerMouseEvent(`.o-sheet[data-id="Sheet2"]`, "mousedown");
     expect(dispatch).toHaveBeenCalledWith("ACTIVATE_SHEET", {
       sheetIdFrom: "Sheet1",
@@ -180,7 +180,7 @@ describe("BottomBar component", () => {
     const model = new Model();
     createSheet(model, { sheetId: "42" });
     await mountBottomBar(model);
-    const dispatch = jest.spyOn(model, "dispatch");
+    const dispatch = vi.spyOn(model, "dispatch");
 
     triggerMouseEvent(".o-sheet", "contextmenu");
     await nextTick();
@@ -196,7 +196,7 @@ describe("BottomBar component", () => {
     const model = new Model();
     createSheet(model, { sheetId: "42", activate: true });
     await mountBottomBar(model);
-    const dispatch = jest.spyOn(model, "dispatch");
+    const dispatch = vi.spyOn(model, "dispatch");
 
     const target = fixture.querySelectorAll(".o-sheet")[1]!;
     triggerMouseEvent(target, "contextmenu");
@@ -213,7 +213,7 @@ describe("BottomBar component", () => {
     const model = new Model();
     createSheet(model, { sheetId: "42" });
     await mountBottomBar(model);
-    const dispatch = jest.spyOn(model, "dispatch");
+    const dispatch = vi.spyOn(model, "dispatch");
 
     triggerMouseEvent(".o-sheet", "contextmenu");
     await nextTick();
@@ -247,14 +247,14 @@ describe("BottomBar component", () => {
 
   describe("Rename a sheet", () => {
     let model: Model;
-    let raiseError: jest.Mock;
+    let raiseError: Mock;
     let env: SpreadsheetChildEnv;
     beforeEach(async () => {
-      raiseError = jest.fn((string, callback) => {
+      raiseError = vi.fn((string, callback) => {
         callback();
       });
       ({ model, env } = await mountBottomBar(new Model(), { raiseError }));
-      env.focusableElement.focus = jest.fn();
+      env.focusableElement.focus = vi.fn();
     });
 
     test("Double click on the sheet name make it editable and give it the focus", async () => {
@@ -393,7 +393,7 @@ describe("BottomBar component", () => {
 
   test("Can't rename a sheet in readonly mode", async () => {
     const sheetName = "New name";
-    const raiseError = jest.fn();
+    const raiseError = vi.fn();
     const model = new Model({}, { mode: "readonly" });
     const env = makeTestEnv({ model, raiseError });
     interactiveRenameSheet(env, model.getters.getActiveSheetId(), sheetName, raiseError);
@@ -403,7 +403,7 @@ describe("BottomBar component", () => {
 
   test("Can duplicate a sheet", async () => {
     const { model } = await mountBottomBar();
-    const dispatch = jest.spyOn(model, "dispatch");
+    const dispatch = vi.spyOn(model, "dispatch");
 
     triggerMouseEvent(".o-sheet", "contextmenu");
     await nextTick();
@@ -418,9 +418,9 @@ describe("BottomBar component", () => {
 
   test("Can delete a sheet", async () => {
     const { model } = await mountBottomBar(new Model(), {
-      askConfirmation: jest.fn((title, callback) => callback()),
+      askConfirmation: vi.fn((title, callback) => callback()),
     });
-    const dispatch = jest.spyOn(model, "dispatch");
+    const dispatch = vi.spyOn(model, "dispatch");
     createSheet(model, { sheetId: "42" });
 
     triggerMouseEvent(".o-sheet", "contextmenu");
@@ -462,7 +462,7 @@ describe("BottomBar component", () => {
 
   test("Can activate a sheet from the list of sheets", async () => {
     const { model } = await mountBottomBar();
-    const dispatch = jest.spyOn(model, "dispatch");
+    const dispatch = vi.spyOn(model, "dispatch");
     const sheet = model.getters.getActiveSheetId();
     createSheet(model, { sheetId: "42" });
 
@@ -479,7 +479,7 @@ describe("BottomBar component", () => {
     let parent: Parent;
     let sheetListEl: HTMLElement;
 
-    jest
+    vi
       .spyOn(Element.prototype, "clientWidth", "get")
       .mockImplementation(function (this: HTMLDivElement) {
         if (this.classList.contains("o-sheet-list")) return 300;
@@ -518,8 +518,8 @@ describe("BottomBar component", () => {
     });
 
     test("Enough space to display all the sheets: no scroll arrow nor fade effect", async () => {
-      jest.spyOn(sheetListEl, "clientWidth", "get").mockReturnValue(300);
-      jest.spyOn(sheetListEl, "scrollWidth", "get").mockReturnValue(300);
+      vi.spyOn(sheetListEl, "clientWidth", "get").mockReturnValue(300);
+      vi.spyOn(sheetListEl, "scrollWidth", "get").mockReturnValue(300);
       await nextTick();
       expect(fixture.querySelector(".o-bottom-bar-arrow-left")).toBeNull();
       expect(fixture.querySelector(".o-bottom-bar-arrow-right")).toBeNull();
@@ -528,8 +528,8 @@ describe("BottomBar component", () => {
     });
 
     test("Can scroll to the right: scroll arrow right enabled and fade-out effect", async () => {
-      jest.spyOn(sheetListEl, "clientWidth", "get").mockReturnValue(300);
-      jest.spyOn(sheetListEl, "scrollWidth", "get").mockReturnValue(500);
+      vi.spyOn(sheetListEl, "clientWidth", "get").mockReturnValue(300);
+      vi.spyOn(sheetListEl, "scrollWidth", "get").mockReturnValue(500);
       parent.render();
       await nextTick();
 
@@ -540,8 +540,8 @@ describe("BottomBar component", () => {
     });
 
     test("Can scroll to the left: scroll arrow left enabled and fade-in effect", async () => {
-      jest.spyOn(sheetListEl, "clientWidth", "get").mockReturnValue(300);
-      jest.spyOn(sheetListEl, "scrollWidth", "get").mockReturnValue(500);
+      vi.spyOn(sheetListEl, "clientWidth", "get").mockReturnValue(300);
+      vi.spyOn(sheetListEl, "scrollWidth", "get").mockReturnValue(500);
       sheetListEl.scrollLeft = 200;
       parent.render();
       await nextTick();
@@ -552,8 +552,8 @@ describe("BottomBar component", () => {
     });
 
     test("Can scroll in both direction: scroll arrows enabled and fade effects", async () => {
-      jest.spyOn(sheetListEl, "clientWidth", "get").mockReturnValue(300);
-      jest.spyOn(sheetListEl, "scrollWidth", "get").mockReturnValue(500);
+      vi.spyOn(sheetListEl, "clientWidth", "get").mockReturnValue(300);
+      vi.spyOn(sheetListEl, "scrollWidth", "get").mockReturnValue(500);
       sheetListEl.scrollLeft = 100;
       parent.render();
       await nextTick();
@@ -564,8 +564,8 @@ describe("BottomBar component", () => {
     });
 
     test("Scroll to the right with the arrow button", async () => {
-      jest.spyOn(sheetListEl, "clientWidth", "get").mockReturnValue(100);
-      jest.spyOn(sheetListEl, "scrollWidth", "get").mockReturnValue(250);
+      vi.spyOn(sheetListEl, "clientWidth", "get").mockReturnValue(100);
+      vi.spyOn(sheetListEl, "scrollWidth", "get").mockReturnValue(250);
       parent.render();
       await nextTick();
       simulateClick(".o-bottom-bar-arrow-right");
@@ -578,8 +578,8 @@ describe("BottomBar component", () => {
     });
 
     test("Scroll to the left with the arrow button", async () => {
-      jest.spyOn(sheetListEl, "clientWidth", "get").mockReturnValue(100);
-      jest.spyOn(sheetListEl, "scrollWidth", "get").mockReturnValue(250);
+      vi.spyOn(sheetListEl, "clientWidth", "get").mockReturnValue(100);
+      vi.spyOn(sheetListEl, "scrollWidth", "get").mockReturnValue(250);
       sheetListEl.scrollLeft = 150;
       parent.render();
       await nextTick();
@@ -599,8 +599,8 @@ describe("BottomBar component", () => {
         scrollTo = arg.left!;
       };
 
-      jest.spyOn(sheetListEl, "clientWidth", "get").mockReturnValue(100);
-      jest.spyOn(sheetListEl, "scrollWidth", "get").mockReturnValue(800);
+      vi.spyOn(sheetListEl, "clientWidth", "get").mockReturnValue(100);
+      vi.spyOn(sheetListEl, "scrollWidth", "get").mockReturnValue(800);
       parent.render();
       await nextTick();
 
@@ -622,8 +622,8 @@ describe("BottomBar component", () => {
     });
 
     test("Selecting a sheet from the context menu scrolls to that sheet", async () => {
-      const mockScrollIntoView = jest.fn();
-      jest.spyOn(HTMLElement.prototype, "scrollIntoView").mockImplementation(mockScrollIntoView);
+      const mockScrollIntoView = vi.fn();
+      vi.spyOn(HTMLElement.prototype, "scrollIntoView").mockImplementation(mockScrollIntoView);
 
       expect(model.getters.getActiveSheetId()).toBe("Sheet1");
 
@@ -741,7 +741,7 @@ describe("BottomBar component", () => {
         "o-sheet-list": () => ({ x: 0, width: 500 }),
       });
 
-      jest.useFakeTimers();
+      vi.useFakeTimers();
       model = new Model({ sheets: sheetIds.map((sheetId) => ({ id: sheetId })) });
       await mountBottomBar(model);
     });
@@ -822,7 +822,7 @@ describe("BottomBar component", () => {
       await nextTick();
 
       await dragSheet("Sheet1", { mouseMoveX: 600, mouseUp: false, mouseInitialX: 0 });
-      jest.advanceTimersByTime(5000);
+      vi.advanceTimersByTime(5000);
       const sheetList = fixture.querySelector(".o-sheet-list")!;
       sheetList.dispatchEvent(new Event("scroll")); // JSDOm don't trigger scroll event when the scrollLeft is changed...
 
@@ -842,7 +842,7 @@ describe("BottomBar component", () => {
       await nextTick();
 
       await dragSheet("Sheet10", { mouseMoveX: -500, mouseUp: false, mouseInitialX: 400 });
-      jest.advanceTimersByTime(5000);
+      vi.advanceTimersByTime(5000);
       const sheetList = fixture.querySelector(".o-sheet-list")!;
       sheetList.dispatchEvent(new Event("scroll")); // JSDOm don't trigger scroll event when the scrollLeft is changed...
 
