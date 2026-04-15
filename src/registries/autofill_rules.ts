@@ -47,7 +47,7 @@ function getGroup(
 ) {
   let group: EvaluatedCell[] = [];
   let found: boolean = false;
-  for (let x of cells) {
+  for (const x of cells) {
     if (x === cell) {
       found = true;
     }

@@ -142,8 +142,8 @@ function convertCells(
     return map;
   }, {} as HyperlinkMap);
 
-  for (let row of sheet.rows) {
-    for (let cell of row.cells) {
+  for (const row of sheet.rows) {
+    for (const cell of row.cells) {
       cells[cell.xc] = getCellValue(cell, hyperlinkMap, sharedStrings, warningManager);
       if (cell.styleIndex) {
         // + 1 : our indexes for normalized values begin at 1 and not 0
@@ -155,7 +155,7 @@ function convertCells(
   }
 
   // Apply row style
-  for (let row of sheet.rows.filter((row) => row.styleIndex)) {
+  for (const row of sheet.rows.filter((row) => row.styleIndex)) {
     for (let colIndex = 1; colIndex <= sheetDims[0]; colIndex++) {
       const xc = toXC(colIndex - 1, row.index - 1); // Excel indexes start at 1
       styles[xc] ??= row.styleIndex! + 1;
@@ -165,7 +165,7 @@ function convertCells(
   }
 
   // Apply col style
-  for (let col of sheet.cols.filter((col) => col.styleIndex)) {
+  for (const col of sheet.cols.filter((col) => col.styleIndex)) {
     for (let colIndex = col.min; colIndex <= Math.min(col.max, sheetDims[0]); colIndex++) {
       for (let rowIndex = 1; rowIndex <= sheetDims[1]; rowIndex++) {
         const xc = toXC(colIndex - 1, rowIndex - 1); // Excel indexes start at 1
@@ -232,7 +232,7 @@ function convertHyperlink(
 function getSheetDims(sheet: XLSXWorksheet): number[] {
   const dims = [0, 0];
 
-  for (let row of sheet.rows) {
+  for (const row of sheet.rows) {
     dims[0] = Math.max(dims[0], largeMax(row.cells.map((cell) => toCartesian(cell.xc).col)));
     dims[1] = Math.max(dims[1], row.index);
   }

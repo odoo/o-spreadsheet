@@ -105,10 +105,10 @@ export class EvaluationConditionalFormatPlugin extends CoreViewPlugin {
    */
   private getComputedStyles(sheetId: UID): ComputedStyles {
     const computedStyle: ComputedStyles = {};
-    for (let cf of this.getters.getConditionalFormats(sheetId).reverse()) {
+    for (const cf of this.getters.getConditionalFormats(sheetId).reverse()) {
       switch (cf.rule.type) {
         case "ColorScaleRule":
-          for (let range of cf.ranges) {
+          for (const range of cf.ranges) {
             this.applyColorScale(sheetId, range, cf.rule, computedStyle);
           }
           break;
@@ -116,7 +116,7 @@ export class EvaluationConditionalFormatPlugin extends CoreViewPlugin {
           const formulas = cf.rule.values.map((value) =>
             value.startsWith("=") ? compile(value) : undefined
           );
-          for (let ref of cf.ranges) {
+          for (const ref of cf.ranges) {
             const zone: Zone = this.getters.getRangeFromSheetXC(sheetId, ref).zone;
             for (let row = zone.top; row <= zone.bottom; row++) {
               for (let col = zone.left; col <= zone.right; col++) {
@@ -153,10 +153,10 @@ export class EvaluationConditionalFormatPlugin extends CoreViewPlugin {
 
   private getComputedIcons(sheetId: UID): ComputedIcons {
     const computedIcons = {};
-    for (let cf of this.getters.getConditionalFormats(sheetId).reverse()) {
+    for (const cf of this.getters.getConditionalFormats(sheetId).reverse()) {
       if (cf.rule.type !== "IconSetRule") continue;
 
-      for (let range of cf.ranges) {
+      for (const range of cf.ranges) {
         this.applyIcon(sheetId, range, cf.rule, computedIcons);
       }
     }
@@ -165,10 +165,10 @@ export class EvaluationConditionalFormatPlugin extends CoreViewPlugin {
 
   private getComputedDataBars(sheetId: UID): ComputedDataBars {
     const computedDataBars: ComputedDataBars = {};
-    for (let cf of this.getters.getConditionalFormats(sheetId).reverse()) {
+    for (const cf of this.getters.getConditionalFormats(sheetId).reverse()) {
       if (cf.rule.type !== "DataBarRule") continue;
 
-      for (let range of cf.ranges) {
+      for (const range of cf.ranges) {
         this.applyDataBar(sheetId, range, cf.rule, computedDataBars);
       }
     }

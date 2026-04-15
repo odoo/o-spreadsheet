@@ -55,7 +55,7 @@ export function processSheet(str: string): string {
     }
   }
   while (tokens.length) {
-    let token = tokens.shift()!;
+    const token = tokens.shift()!;
     if (token === "}") {
       generateRules();
       selectorStack.pop();

@@ -588,7 +588,7 @@ describe("Chart design configuration", () => {
       },
     };
     createGaugeChart(model, defaultChart, "chartId");
-    let chart = model.getters.getChartRuntime("chartId") as GaugeChartRuntime;
+    const chart = model.getters.getChartRuntime("chartId") as GaugeChartRuntime;
     expect(chart.inflectionValues).toEqual([
       { value: 22, label: "22", operator: "<=" },
       { value: 42, label: "42", operator: "<=" },
@@ -656,7 +656,7 @@ describe("Chart design configuration", () => {
       },
     };
     createGaugeChart(model, defaultChart, "chartId");
-    let chart = model.getters.getChartRuntime("chartId") as GaugeChartRuntime;
+    const chart = model.getters.getChartRuntime("chartId") as GaugeChartRuntime;
     expect(chart.inflectionValues).toMatchObject([{ value: 100 }, { value: 200 }]);
     expect(chart.colors).toStrictEqual([lowerColor, middleColor, upperColor]);
   });
@@ -671,7 +671,7 @@ describe("Chart design configuration", () => {
       },
     };
     createGaugeChart(model, defaultChart, "chartId");
-    let chart = model.getters.getChartRuntime("chartId") as GaugeChartRuntime;
+    const chart = model.getters.getChartRuntime("chartId") as GaugeChartRuntime;
     expect(chart.inflectionValues).toMatchObject([
       { value: 10, operator: "<" },
       { value: 30, operator: "<=" },

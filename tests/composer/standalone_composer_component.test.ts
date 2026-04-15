@@ -11,7 +11,7 @@ import { click, getTextNodes, keyDown, simulateClick } from "../test_helpers/dom
 import { editStandaloneComposer, mountSpreadsheet, nextTick } from "../test_helpers/helpers";
 
 let env: SpreadsheetChildEnv;
-let onConfirm = jest.fn();
+const onConfirm = jest.fn();
 let fixture: HTMLElement;
 let composerEl: HTMLElement;
 let composerFocusStore: Store<ComposerFocusStore>;

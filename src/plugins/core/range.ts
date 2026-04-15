@@ -83,9 +83,9 @@ export class RangeAdapter implements CommandHandler<CoreCommand> {
     }
     switch (cmd.type) {
       case "REMOVE_COLUMNS_ROWS": {
-        let start: "left" | "top" = cmd.dimension === "COL" ? "left" : "top";
-        let end: "right" | "bottom" = cmd.dimension === "COL" ? "right" : "bottom";
-        let dimension: "columns" | "rows" = cmd.dimension === "COL" ? "columns" : "rows";
+        const start: "left" | "top" = cmd.dimension === "COL" ? "left" : "top";
+        const end: "right" | "bottom" = cmd.dimension === "COL" ? "right" : "bottom";
+        const dimension: "columns" | "rows" = cmd.dimension === "COL" ? "columns" : "rows";
 
         const elements = [...cmd.elements];
         elements.sort((a, b) => b - a);
@@ -97,7 +97,7 @@ export class RangeAdapter implements CommandHandler<CoreCommand> {
           }
           let newRange = range;
           let changeType: ChangeType = "NONE";
-          for (let group of groups) {
+          for (const group of groups) {
             const min = largeMin(group);
             const max = largeMax(group);
             if (range.zone[start] <= min && min <= range.zone[end]) {
@@ -130,9 +130,9 @@ export class RangeAdapter implements CommandHandler<CoreCommand> {
         break;
       }
       case "ADD_COLUMNS_ROWS": {
-        let start: "left" | "top" = cmd.dimension === "COL" ? "left" : "top";
-        let end: "right" | "bottom" = cmd.dimension === "COL" ? "right" : "bottom";
-        let dimension: "columns" | "rows" = cmd.dimension === "COL" ? "columns" : "rows";
+        const start: "left" | "top" = cmd.dimension === "COL" ? "left" : "top";
+        const end: "right" | "bottom" = cmd.dimension === "COL" ? "right" : "bottom";
+        const dimension: "columns" | "rows" = cmd.dimension === "COL" ? "columns" : "rows";
 
         this.executeOnAllRanges((range: RangeImpl) => {
           if (range.sheetId !== cmd.sheetId) {
@@ -406,7 +406,7 @@ export class RangeAdapter implements CommandHandler<CoreCommand> {
       return CellErrorType.InvalidReference;
     }
     const rangeImpl = RangeImpl.fromRange(range, this.getters);
-    let prefixSheet =
+    const prefixSheet =
       rangeImpl.sheetId !== forSheetId || rangeImpl.invalidSheetName || rangeImpl.prefixSheet;
     let sheetName: string = "";
     if (prefixSheet) {
