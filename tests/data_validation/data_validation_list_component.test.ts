@@ -210,6 +210,19 @@ describe("Edit criterion in side panel", () => {
       expect(values[0]).toBe("bye");
       expect(colors).toEqual({ bye: "#CFE2F3" });
     });
+
+    test("Can store values and color with leading and trailing spaces", async () => {
+      const inputs = fixture.querySelectorAll<HTMLInputElement>(".o-dv-list-values .o-input");
+      setInputValueAndTrigger(inputs[0], "  hello  ");
+      await click(fixture.querySelector(".o-round-color-picker-button")!);
+      await click(fixture, ".o-color-picker-line-item[data-color='#CFE2F3'");
+      await click(fixture, ".o-dv-save");
+
+      const { values, colors } = getDataValidationRules(model)[0]
+        .criterion as IsValueInListCriterion;
+      expect(values[0]).toBe("  hello  ");
+      expect(colors).toEqual({ "  hello  ": "#CFE2F3" });
+    });
   });
 
   describe("Value in range", () => {

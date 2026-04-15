@@ -103,8 +103,7 @@ export class DataValidationEditor extends Component<Props, SpreadsheetChildEnv> 
 
     const values = criterion.values
       .slice(0, criterionEvaluator.numberOfValues(criterion))
-      .map((value) => value?.trim())
-      .filter((value) => value !== "" && value !== undefined)
+      .filter((value) => value && value.trim() !== "")
       .map((value) => canonicalizeContent(value, locale));
     rule.criterion = { ...criterion, values };
     return {
