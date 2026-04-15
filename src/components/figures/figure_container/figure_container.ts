@@ -320,7 +320,7 @@ export class FiguresContainer extends Component<Props, SpreadsheetChildEnv> {
       if (!this.dnd.draggedFigure) {
         return;
       }
-      let { x, y } = screenFigureToInternal(this.env.model.getters, this.dnd.draggedFigure);
+      const { x, y } = screenFigureToInternal(this.env.model.getters, this.dnd.draggedFigure);
       this.dnd.draggedFigure = undefined;
       this.dnd.horizontalSnap = undefined;
       this.dnd.verticalSnap = undefined;
@@ -377,7 +377,7 @@ export class FiguresContainer extends Component<Props, SpreadsheetChildEnv> {
       if (!this.dnd.draggedFigure) {
         return;
       }
-      let { x, y } = screenFigureToInternal(this.env.model.getters, this.dnd.draggedFigure);
+      const { x, y } = screenFigureToInternal(this.env.model.getters, this.dnd.draggedFigure);
       const update: Partial<Figure> = { x, y };
       if (dirX) {
         update.width = this.dnd.draggedFigure.width;

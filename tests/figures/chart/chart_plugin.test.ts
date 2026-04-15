@@ -428,7 +428,7 @@ describe("datasource tests", function () {
       },
       "1"
     );
-    const title = getChartConfiguration(model, "1").options!.plugins?.tooltip!.callbacks!.title!;
+    const title = getChartConfiguration(model, "1").options!.plugins!.tooltip!.callbacks!.title!;
     // @ts-ignore `title` should be binded to the TooltipModel
     expect(title([{ dataset: { label: "dataset 1" } }])).toBe("dataset 1");
     // @ts-ignore `title` should be binded to the TooltipModel
@@ -2559,7 +2559,7 @@ describe("Linear/Time charts", () => {
       },
       chartId
     );
-    let chart = model.getters.getChartRuntime(chartId) as LineChartRuntime;
+    const chart = model.getters.getChartRuntime(chartId) as LineChartRuntime;
     expect(chart.chartJsConfig.options?.scales?.x?.type).toEqual("time");
 
     updateChart(model, chartId, { type: "bar" });
@@ -3465,7 +3465,7 @@ describe("trending line", () => {
     function roundToFourDecimals(value) {
       return Math.round(value * 10000) / 10000;
     }
-    let runtime = model.getters.getChartRuntime("1") as LineChartRuntime;
+    const runtime = model.getters.getChartRuntime("1") as LineChartRuntime;
     // We round up to 4 decimals to avoid floating point errors
     expect(
       // @ts-ignore
@@ -3503,7 +3503,7 @@ describe("trending line", () => {
     function roundToFourDecimals(value) {
       return Math.round(value * 10000) / 10000;
     }
-    let runtime = model.getters.getChartRuntime("1") as LineChartRuntime;
+    const runtime = model.getters.getChartRuntime("1") as LineChartRuntime;
     // We round up to 4 decimals to avoid floating point errors
     expect(
       // @ts-ignore
@@ -3540,7 +3540,7 @@ describe("trending line", () => {
     function roundToFourDecimals(value) {
       return Math.round(value * 10000) / 10000;
     }
-    let runtime = model.getters.getChartRuntime("1") as LineChartRuntime;
+    const runtime = model.getters.getChartRuntime("1") as LineChartRuntime;
     // We round up to 4 decimals to avoid floating point errors
     expect(
       // @ts-ignore

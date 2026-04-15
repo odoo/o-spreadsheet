@@ -246,7 +246,7 @@ abstract class AbstractResizer extends Component<ResizerProps, SpreadsheetChildE
     this.state.draggerShadowPosition = defaultPosition;
     this.state.draggerShadowThickness = endDimensions.end - startDimensions.start;
     const mouseMoveMovement = (col: HeaderIndex, row: HeaderIndex) => {
-      let elementIndex = this._getType() === "COL" ? col : row;
+      const elementIndex = this._getType() === "COL" ? col : row;
       if (elementIndex >= 0) {
         // define draggerLinePosition
         const dimensions = this._getDimensionsInViewport(elementIndex);
@@ -287,7 +287,7 @@ abstract class AbstractResizer extends Component<ResizerProps, SpreadsheetChildE
     this.lastSelectedElementIndex = index;
 
     const mouseMoveSelect = (col: HeaderIndex, row: HeaderIndex) => {
-      let newIndex = this._getType() === "COL" ? col : row;
+      const newIndex = this._getType() === "COL" ? col : row;
       if (newIndex !== this.lastSelectedElementIndex && newIndex !== -1) {
         this._increaseSelection(newIndex);
         this.lastSelectedElementIndex = newIndex;

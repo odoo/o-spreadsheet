@@ -316,7 +316,7 @@ export function createComboChartRuntime(chart: ComboChart, getters: Getters): Co
   let maxLength = 0;
   const trendDatasets: any[] = [];
 
-  for (let [index, { label, data, hidden }] of dataSetsValues.entries()) {
+  for (const [index, { label, data, hidden }] of dataSetsValues.entries()) {
     const design = definition.dataSets[index];
     const color = colors.next();
     const type = design?.type ?? "line";

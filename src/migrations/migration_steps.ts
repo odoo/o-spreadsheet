@@ -31,7 +31,7 @@ migrationStepRegistry
     versionFrom: "2",
     migrate(data: any): any {
       if (data.sheets && data.sheets.length) {
-        for (let sheet of data.sheets) {
+        for (const sheet of data.sheets) {
           sheet.id = sheet.id || sheet.name;
         }
       }
@@ -53,7 +53,7 @@ migrationStepRegistry
     // add figures object in each sheets
     versionFrom: "4",
     migrate(data: any): any {
-      for (let sheet of data.sheets || []) {
+      for (const sheet of data.sheets || []) {
         sheet.figures = sheet.figures || [];
       }
       return data;
@@ -63,8 +63,8 @@ migrationStepRegistry
     // normalize the content of the cell if it is a formula to avoid parsing all the formula that vary only by the cells they use
     versionFrom: "5",
     migrate(data: any): any {
-      for (let sheet of data.sheets || []) {
-        for (let xc in sheet.cells || []) {
+      for (const sheet of data.sheets || []) {
+        for (const xc in sheet.cells || []) {
           const cell = sheet.cells[xc];
           if (cell.content && cell.content.startsWith("=")) {
             cell.formula = normalizeV9(cell.content);
@@ -78,11 +78,11 @@ migrationStepRegistry
     // transform chart data structure
     versionFrom: "6",
     migrate(data: any): any {
-      for (let sheet of data.sheets || []) {
-        for (let f in sheet.figures || []) {
+      for (const sheet of data.sheets || []) {
+        for (const f in sheet.figures || []) {
           const { dataSets, ...newData } = sheet.figures[f].data;
           const newDataSets: string[] = [];
-          for (let ds of dataSets) {
+          for (const ds of dataSets) {
             if (ds.labelCell) {
               const dataRange = toZone(ds.dataRange);
               const newRange = ds.labelCell + ":" + toXC(dataRange.right, dataRange.bottom);
@@ -104,7 +104,7 @@ migrationStepRegistry
     versionFrom: "7",
     migrate(data: any): any {
       const namesTaken: string[] = [];
-      for (let sheet of data.sheets || []) {
+      for (const sheet of data.sheets || []) {
         if (!sheet.name) {
           continue;
         }
@@ -134,14 +134,14 @@ migrationStepRegistry
           return currentString;
         };
         //cells
-        for (let xc in sheet.cells) {
+        for (const xc in sheet.cells) {
           const cell = sheet.cells[xc];
           if (cell.formula) {
             cell.formula.dependencies = cell.formula.dependencies.map(replaceName);
           }
         }
         //charts
-        for (let figure of sheet.figures || []) {
+        for (const figure of sheet.figures || []) {
           if (figure.type === "chart") {
             const dataSets = figure.data.dataSets.map(replaceName);
             const labelRange = replaceName(figure.data.labelRange);
@@ -149,7 +149,7 @@ migrationStepRegistry
           }
         }
         //ConditionalFormats
-        for (let cf of sheet.conditionalFormats || []) {
+        for (const cf of sheet.conditionalFormats || []) {
           cf.ranges = cf.ranges.map(replaceName);
           for (const thresholdName of [
             "minimum",
@@ -186,12 +186,12 @@ migrationStepRegistry
     // de-normalize formula to reduce exported json size (~30%)
     versionFrom: "9",
     migrate(data: any): any {
-      for (let sheet of data.sheets || []) {
-        for (let xc in sheet.cells || []) {
+      for (const sheet of data.sheets || []) {
+        for (const xc in sheet.cells || []) {
           const cell = sheet.cells[xc];
           if (cell.formula) {
             let { text, dependencies } = cell.formula;
-            for (let [index, d] of Object.entries(dependencies)) {
+            for (const [index, d] of Object.entries(dependencies)) {
               const stringPosition = `\\${FORMULA_REF_IDENTIFIER}${index}\\${FORMULA_REF_IDENTIFIER}`;
               text = text.replace(new RegExp(stringPosition, "g"), d);
             }
@@ -208,8 +208,8 @@ migrationStepRegistry
     versionFrom: "10",
     migrate(data: any): any {
       const formats: { [formatId: number]: Format } = {};
-      for (let sheet of data.sheets || []) {
-        for (let xc in sheet.cells || []) {
+      for (const sheet of data.sheets || []) {
+        for (const xc in sheet.cells || []) {
           const cell = sheet.cells[xc];
           if (cell.format) {
             cell.format = getItemId(cell.format, formats);
@@ -224,7 +224,7 @@ migrationStepRegistry
     // Add isVisible to sheets
     versionFrom: "11",
     migrate(data: any): any {
-      for (let sheet of data.sheets || []) {
+      for (const sheet of data.sheets || []) {
         sheet.isVisible = true;
       }
       return data;
@@ -419,9 +419,9 @@ migrationStepRegistry
   });
 
 function fixOverlappingFilters(data: any): any {
-  for (let sheet of data.sheets || []) {
-    let knownDataFilterZones: Zone[] = [];
-    for (let filterTable of sheet.filterTables || []) {
+  for (const sheet of data.sheets || []) {
+    const knownDataFilterZones: Zone[] = [];
+    for (const filterTable of sheet.filterTables || []) {
       const zone = toZone(filterTable.range);
       // See commit message of https://github.com/odoo/o-spreadsheet/pull/3632 of more details
       const intersectZoneIndex = knownDataFilterZones.findIndex((knownZone) =>
