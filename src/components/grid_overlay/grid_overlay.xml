@@ -3,7 +3,11 @@
     <div class="position-absolute" t-att-style="style">
       <FiguresContainer/>
     </div>
-    <t t-foreach="htmlContentStore.htmlContentTables" t-as="content" t-key="content_index">
+    <t
+      t-if="this.env.isDashboard()"
+      t-foreach="htmlContentStore.htmlContentTables"
+      t-as="content"
+      t-key="content_index">
       <HTMLGridContent content="content"/>
     </t>
     <div

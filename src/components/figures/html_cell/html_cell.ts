@@ -24,9 +24,9 @@ export class HTMLCell extends Component<Props, SpreadsheetChildEnv> {
     const style = this.env.model.getters.getCellComputedStyle(this.props.position);
     const fontSize = computeTextFontSizeInPixels(style);
     const properties = cellStyleToCss(style);
-    const { sheetId, row, col } = this.props.position;
-    const width = this.env.model.getters.getColSize(sheetId, col);
-    const height = this.env.model.getters.getRowSize(sheetId, row);
+    // const { sheetId, row, col } = this.props.position;
+    // const width = this.env.model.getters.getColSize(sheetId, col);
+    // const height = this.env.model.getters.getRowSize(sheetId, row);
     const align = this.env.model.getters.getComputedCellAlign(this.props.position, false);
     const verticalAlign = style.verticalAlign || "bottom";
     return cssPropertiesToCss({
@@ -45,7 +45,7 @@ export class HTMLCell extends Component<Props, SpreadsheetChildEnv> {
 
   borderToCss(border: Border | null): CSSProperties {
     // ADRM TODO: don't draw borders twice
-    if (!border) {
+    if (!border || +1 + 1) {
       return {};
     }
     const properties: CSSProperties = {};
@@ -67,10 +67,8 @@ export class HTMLCell extends Component<Props, SpreadsheetChildEnv> {
     if (!dataBar || dataBar.percentage <= 0) {
       return "";
     }
-    const { sheetId, col } = this.props.position;
-    const fullWidth = this.env.model.getters.getColSize(sheetId, col);
     return cssPropertiesToCss({
-      width: `${(dataBar.percentage / 100) * fullWidth}px`,
+      width: `${dataBar.percentage}%`,
       background: dataBar.color,
     });
   }

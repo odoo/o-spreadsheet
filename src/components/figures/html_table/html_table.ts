@@ -12,7 +12,7 @@ interface Props {
 const PADDING = 20;
 const TITLE_HEIGHT = 18;
 const TITLE_BOTTOM_PADDING = 16;
-const TITLE_BOTTOM_MARGIN = 16;
+const TITLE_BOTTOM_MARGIN = 8;
 
 export class HTMLGridContent extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-HTMLGridContent";
@@ -34,6 +34,7 @@ export class HTMLGridContent extends Component<Props, SpreadsheetChildEnv> {
   }
 
   get titleStyle(): string {
+    // ADRM TODO: do it in CSS
     return cssPropertiesToCss({
       height: `${TITLE_HEIGHT + TITLE_BOTTOM_PADDING}px`,
       "line-height": `${TITLE_HEIGHT}px`,
@@ -43,52 +44,92 @@ export class HTMLGridContent extends Component<Props, SpreadsheetChildEnv> {
     });
   }
 
-  get tableStyle(): string {
-    const gridRect = this.env.model.getters.getRect(this.props.content.contentZone);
-    const containerRect = this.env.model.getters.getRect(this.props.content.displayZone);
-    const titleHeight = this.props.content.title
-      ? TITLE_HEIGHT + TITLE_BOTTOM_PADDING + TITLE_BOTTOM_MARGIN
-      : 0;
-    const targetWidth = containerRect.width - PADDING * 2;
-    const targetHeight = containerRect.height - titleHeight - PADDING * 2;
-    const widthRatio = targetWidth / gridRect.width;
-    const heightRatio = targetHeight / gridRect.height;
-    const scale = Math.min(widthRatio, heightRatio);
-    return cssPropertiesToCss({
-      // transform: `scale(${scale})`,
-      // "transform-origin": "top left",
-      width: `${targetWidth}px`,
-      height: `${targetHeight}px`,
-      "table-layout": "fixed",
-    });
-  }
+  // get tableStyle(): string {
+  //   const gridRect = this.env.model.getters.getRect(this.props.content.contentZone);
+  //   const containerRect = this.env.model.getters.getRect(this.props.content.displayZone);
+  //   const titleHeight = this.props.content.title
+  //     ? TITLE_HEIGHT + TITLE_BOTTOM_PADDING + TITLE_BOTTOM_MARGIN
+  //     : 0;
+  //   const targetWidth = containerRect.width - PADDING * 2;
+  //   const targetHeight = containerRect.height - titleHeight - PADDING * 2;
+  //   const widthRatio = targetWidth / gridRect.width;
+  //   const heightRatio = targetHeight / gridRect.height;
+  //   const scale = Math.min(widthRatio, heightRatio);
+  //   return cssPropertiesToCss({
+  //     // transform: `scale(${scale})`,
+  //     // "transform-origin": "top left",
+  //     width: `${targetWidth}px`,
+  //     height: `${targetHeight}px`,
+  //     "table-layout": "fixed",
+  //   });
+  // }
 
-  rowsToDisplay(): { rowStyle: string; cells: CellPosition[] }[] {
-    const positions: { rowStyle: string; cells: CellPosition[] }[] = [];
+  // rowsToDisplay(): { rowStyle: string; cells: CellPosition[] }[] {
+  //   const positions: { rowStyle: string; cells: CellPosition[] }[] = [];
+  //   const sheetId = this.env.model.getters.getActiveSheetId();
+  //   const zone = this.props.content.contentZone;
+  //   for (let row = zone.top; row <= zone.bottom; row++) {
+  //     const rowPositions: CellPosition[] = [];
+  //     for (let col = zone.left; col <= zone.right; col++) {
+  //       rowPositions.push({ col, row, sheetId });
+  //     }
+  //     const rowSize = this.env.model.getters.getRowSize(sheetId, row);
+  //     positions.push({
+  //       rowStyle: cssPropertiesToCss({ height: `${rowSize}px`, overflow: "hidden" }),
+  //       cells: rowPositions,
+  //     });
+  //   }
+  //   return positions;
+  // }
+
+  // get tableColumnStyles() {
+  //   const sheetId = this.env.model.getters.getActiveSheetId();
+  //   const columnStyles: string[] = [];
+  //   const zone = this.props.content.contentZone;
+  //   for (let col = zone.left; col <= zone.right; col++) {
+  //     const width = this.env.model.getters.getColSize(sheetId, col);
+  //     columnStyles.push(cssPropertiesToCss({ width: `${width}px` }));
+  //   }
+  //   return columnStyles;
+  // }
+
+  get positions(): CellPosition[] {
     const sheetId = this.env.model.getters.getActiveSheetId();
+    const positions: CellPosition[] = [];
     const zone = this.props.content.contentZone;
     for (let row = zone.top; row <= zone.bottom; row++) {
-      const rowPositions: CellPosition[] = [];
       for (let col = zone.left; col <= zone.right; col++) {
-        rowPositions.push({ col, row, sheetId });
+        positions.push({ sheetId, row, col });
       }
-      const rowSize = this.env.model.getters.getRowSize(sheetId, row);
-      positions.push({
-        rowStyle: cssPropertiesToCss({ height: `${rowSize}px`, overflow: "hidden" }),
-        cells: rowPositions,
-      });
     }
     return positions;
   }
 
-  get tableColumnStyles() {
+  get gridStyle(): string {
     const sheetId = this.env.model.getters.getActiveSheetId();
-    const columnStyles: string[] = [];
     const zone = this.props.content.contentZone;
+    const width =
+      this.env.model.getters.getColDimensions(sheetId, zone.right).end -
+      this.env.model.getters.getColDimensions(sheetId, zone.left).start;
+    const height =
+      this.env.model.getters.getRowDimensions(sheetId, zone.bottom).end -
+      this.env.model.getters.getRowDimensions(sheetId, zone.top).start;
+
+    const colPercentages: number[] = [];
     for (let col = zone.left; col <= zone.right; col++) {
-      const width = this.env.model.getters.getColSize(sheetId, col);
-      columnStyles.push(cssPropertiesToCss({ width: `${width}px` }));
+      const colWidth = this.env.model.getters.getColSize(sheetId, col);
+      colPercentages.push((colWidth / width) * 100);
     }
-    return columnStyles;
+
+    const rowPercentages: number[] = [];
+    for (let row = zone.top; row <= zone.bottom; row++) {
+      const rowHeight = this.env.model.getters.getRowSize(sheetId, row);
+      rowPercentages.push((rowHeight / height) * 100);
+    }
+
+    return cssPropertiesToCss({
+      "grid-template-columns": colPercentages.map((v) => `${Math.floor(v)}fr`).join(" "),
+      "grid-template-rows": rowPercentages.map((v) => `${Math.floor(v)}fr`).join(" "),
+    });
   }
 }

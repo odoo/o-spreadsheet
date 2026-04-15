@@ -26,8 +26,8 @@ export class HTMLContentStore extends SpreadsheetStore {
           : undefined;
       return {
         contentZone: tableZone,
-        // title,
-        title: "",
+        title,
+        // title: "",
         displayZone: title ? { ...tableZone, top: tableZone.top - 1 } : tableZone,
       };
     });

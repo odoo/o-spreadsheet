@@ -1,34 +1,22 @@
 <templates>
   <t t-name="o-spreadsheet-HTMLGridContent">
     <div
-      class="o-html-grid bg-white d-flex flex-column position-absolute"
+      class="o-html-grid bg-white d-flex flex-column position-absolute rounded-3 overflow-hidden"
       t-att-style="containerStyle">
-      <div class="d-flex flex-column">
+      <div class="d-flex flex-column h-100">
         <div
           t-if="this.props.content.title"
           class="o-html-grid-title border-bottom o-fw-bold"
           t-att-style="titleStyle">
           <span t-esc="this.props.content.title"/>
         </div>
-        <table class="" t-att-style="tableStyle">
-          <thead>
-            <tr class="d-none">
-              <th
-                t-foreach="tableColumnStyles"
-                t-as="columnStyle"
-                t-key="columnStyle_index"
-                t-att-style="columnStyle"
-              />
-            </tr>
-          </thead>
-          <tbody>
-            <tr t-foreach="rowsToDisplay()" t-as="row" t-key="row_index" t-att-style="row.rowStyle">
-              <td t-foreach="row.cells" t-as="position" t-key="position_index">
-                <HTMLCell position="position"/>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+        <div class="flex-grow-1 overflow-hidden">
+          <div class="o-html-grid-content d-grid h-100 w-100" t-att-style="gridStyle">
+            <t t-foreach="this.positions" t-as="position" t-key="position_index">
+              <HTMLCell position="position"/>
+            </t>
+          </div>
+        </div>
       </div>
     </div>
   </t>
