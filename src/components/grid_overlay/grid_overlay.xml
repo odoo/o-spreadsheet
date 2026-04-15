@@ -3,8 +3,8 @@
     <div class="position-absolute" t-att-style="style">
       <FiguresContainer/>
     </div>
-    <t t-foreach="htmlContentStore.htmlContentTables" t-as="zone" t-key="zone_index">
-      <HTMLGridContent zone="zone"/>
+    <t t-foreach="htmlContentStore.htmlContentTables" t-as="content" t-key="content_index">
+      <HTMLGridContent content="content"/>
     </t>
     <div
       t-ref="gridOverlay"

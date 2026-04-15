@@ -32,8 +32,8 @@ export class HTMLCell extends Component<Props, SpreadsheetChildEnv> {
     return cssPropertiesToCss({
       ...properties,
       color: style.textColor || "black",
-      width: `${width}px`,
-      height: `${height}px`,
+      // width: `${width}px`,
+      // height: `${height}px`,
       "font-size": `${fontSize}px`,
       "justify-content": align === "left" ? "start" : align === "right" ? "end" : "center",
       "align-items":

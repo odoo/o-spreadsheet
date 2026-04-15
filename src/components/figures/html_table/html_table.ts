@@ -1,37 +1,72 @@
 import { Component } from "@odoo/owl";
-import { CellPosition, Zone } from "../../../types";
+import { CellPosition } from "../../../types";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
 import { cssPropertiesToCss } from "../../helpers";
 import { HTMLCell } from "../html_cell/html_cell";
+import { HTMLContentDescr } from "./html_content_store";
 
 interface Props {
-  zone: Zone;
+  content: HTMLContentDescr;
 }
+
+const PADDING = 20;
+const TITLE_HEIGHT = 18;
+const TITLE_BOTTOM_PADDING = 16;
+const TITLE_BOTTOM_MARGIN = 16;
 
 export class HTMLGridContent extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-HTMLGridContent";
   static props = {
-    zone: Object,
+    content: Object,
   };
   static components = { HTMLCell };
 
   get containerStyle(): string {
-    // ADRM TODO do it in the figure instead
-    const tableZone = this.props.zone;
-    const rect = this.env.model.getters.getRect(tableZone);
+    const rect = this.env.model.getters.getRect(this.props.content.displayZone);
     return cssPropertiesToCss({
       width: `${rect.width}px`,
       height: `${rect.height}px`,
       left: `${rect.x}px`,
       top: `${rect.y}px`,
       "z-index": "2",
+      padding: `${PADDING}px`,
+    });
+  }
+
+  get titleStyle(): string {
+    return cssPropertiesToCss({
+      height: `${TITLE_HEIGHT + TITLE_BOTTOM_PADDING}px`,
+      "line-height": `${TITLE_HEIGHT}px`,
+      "font-size": `${TITLE_HEIGHT}px`,
+      "padding-bottom": `${TITLE_BOTTOM_PADDING}px`,
+      "margin-bottom": `${TITLE_BOTTOM_MARGIN}px`,
+    });
+  }
+
+  get tableStyle(): string {
+    const gridRect = this.env.model.getters.getRect(this.props.content.contentZone);
+    const containerRect = this.env.model.getters.getRect(this.props.content.displayZone);
+    const titleHeight = this.props.content.title
+      ? TITLE_HEIGHT + TITLE_BOTTOM_PADDING + TITLE_BOTTOM_MARGIN
+      : 0;
+    const targetWidth = containerRect.width - PADDING * 2;
+    const targetHeight = containerRect.height - titleHeight - PADDING * 2;
+    const widthRatio = targetWidth / gridRect.width;
+    const heightRatio = targetHeight / gridRect.height;
+    const scale = Math.min(widthRatio, heightRatio);
+    return cssPropertiesToCss({
+      // transform: `scale(${scale})`,
+      // "transform-origin": "top left",
+      width: `${targetWidth}px`,
+      height: `${targetHeight}px`,
+      "table-layout": "fixed",
     });
   }
 
   rowsToDisplay(): { rowStyle: string; cells: CellPosition[] }[] {
     const positions: { rowStyle: string; cells: CellPosition[] }[] = [];
     const sheetId = this.env.model.getters.getActiveSheetId();
-    const zone = this.props.zone;
+    const zone = this.props.content.contentZone;
     for (let row = zone.top; row <= zone.bottom; row++) {
       const rowPositions: CellPosition[] = [];
       for (let col = zone.left; col <= zone.right; col++) {
@@ -49,7 +84,8 @@ export class HTMLGridContent extends Component<Props, SpreadsheetChildEnv> {
   get tableColumnStyles() {
     const sheetId = this.env.model.getters.getActiveSheetId();
     const columnStyles: string[] = [];
-    for (let col = this.props.zone.left; col <= this.props.zone.right; col++) {
+    const zone = this.props.content.contentZone;
+    for (let col = zone.left; col <= zone.right; col++) {
       const width = this.env.model.getters.getColSize(sheetId, col);
       columnStyles.push(cssPropertiesToCss({ width: `${width}px` }));
     }

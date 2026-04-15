@@ -3,8 +3,14 @@
     <div
       class="o-html-grid bg-white d-flex flex-column position-absolute"
       t-att-style="containerStyle">
-      <div class="">
-        <table class="w-100">
+      <div class="d-flex flex-column">
+        <div
+          t-if="this.props.content.title"
+          class="o-html-grid-title border-bottom o-fw-bold"
+          t-att-style="titleStyle">
+          <span t-esc="this.props.content.title"/>
+        </div>
+        <table class="" t-att-style="tableStyle">
           <thead>
             <tr class="d-none">
               <th
@@ -16,12 +22,8 @@
             </tr>
           </thead>
           <tbody>
-            <tr t-foreach="rowsToDisplay()" t-as="row" t-key="row_index">
-              <td
-                t-foreach="row.cells"
-                t-as="position"
-                t-key="position_index"
-                t-att-style="row.rowStyle">
+            <tr t-foreach="rowsToDisplay()" t-as="row" t-key="row_index" t-att-style="row.rowStyle">
+              <td t-foreach="row.cells" t-as="position" t-key="position_index">
                 <HTMLCell position="position"/>
               </td>
             </tr>
