@@ -1,4 +1,3 @@
-import { Component } from "@odoo/owl";
 import { CogWheelMenu } from "../src/components/side_panel/components/cog_wheel_menu/cog_wheel_menu";
 import { click } from "./test_helpers/dom_helper";
 import { mountComponentWithPortalTarget } from "./test_helpers/helpers";
@@ -6,15 +5,13 @@ import { mountComponentWithPortalTarget } from "./test_helpers/helpers";
 async function mountCogWheelMenu(
   props: Partial<CogWheelMenu["props"]>
 ): Promise<{ component: CogWheelMenu; fixture: HTMLElement }> {
-  let parent: Component;
-  let fixture: HTMLElement;
-  ({ parent, fixture } = await mountComponentWithPortalTarget(CogWheelMenu, {
+  const { parent, fixture } = await mountComponentWithPortalTarget(CogWheelMenu, {
     props: {
       items: [],
       ...props,
     },
-  }));
-  return { component: parent as CogWheelMenu, fixture };
+  });
+  return { component: parent as unknown as CogWheelMenu, fixture };
 }
 
 const SELECTORS = {
