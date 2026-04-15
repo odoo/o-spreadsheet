@@ -14,6 +14,7 @@ import { NotificationStore } from "../../../src/stores/notification_store";
 import { SpreadsheetChildEnv } from "../../../src/types/spreadsheet_env";
 import {
   activateSheet,
+  createNamedRange,
   createSheet,
   selectCell,
   setCellContent,
@@ -178,12 +179,24 @@ describe("Spreadsheet pivot side panel", () => {
     ]);
   });
 
-  test("Invalid calculated measure formula have an invalid class on the composer", async () => {
+  test.each(["=abcdefg()", "=InvalidMeasureName", "=1/0a", "=NotAnExistingSheetName!a1"])(
+    "Invalid calculated measure formula have an invalid class on the composer",
+    async (formula) => {
+      await click(fixture.querySelectorAll(".add-dimension")[2]);
+      expect(fixture.querySelector(".o-popover")).toBeDefined();
+      await click(fixture, ".add-calculated-measure");
+      await editStandaloneComposer(".pivot-dimension .o-composer", formula);
+      expect(".o-standalone-composer.o-invalid").toHaveCount(1);
+    }
+  );
+
+  test("Calculated measure formula with a named range does not have an invalid class on the composer", async () => {
+    createNamedRange(model, "MyRange", "A1");
     await click(fixture.querySelectorAll(".add-dimension")[2]);
     expect(fixture.querySelector(".o-popover")).toBeDefined();
     await click(fixture, ".add-calculated-measure");
-    await editStandaloneComposer(".pivot-dimension .o-composer", "=abcdefg()");
-    expect(fixture.querySelector(".o-standalone-composer")).toHaveClass("o-invalid");
+    await editStandaloneComposer(".pivot-dimension .o-composer", "=MyRange");
+    expect(".o-standalone-composer.o-invalid").toHaveCount(0);
   });
 
   test("can have a computed measure without aggregate", async () => {

@@ -2,6 +2,7 @@ import { Component } from "@odoo/owl";
 import { PIVOT_TOKEN_COLOR } from "../../../../../constants";
 import { CompiledFormula } from "../../../../../formulas/compiler";
 import { Token } from "../../../../../formulas/tokenizer";
+import { functionRegistry } from "../../../../../functions/function_registry";
 import { unquote } from "../../../../../helpers";
 import { getFieldDisplayName } from "../../../../../helpers/pivot/pivot_helpers";
 import { PivotRuntimeDefinition } from "../../../../../helpers/pivot/pivot_runtime_definition";
@@ -110,7 +111,37 @@ export class PivotMeasureEditor extends Component<Props> {
   }
 
   get isCalculatedMeasureInvalid(): boolean {
-    return CompiledFormula.IsBadExpression(this.props.measure.computedBy?.formula ?? "");
+    const sheetId = this.env.model.getters.getActiveSheetId();
+    const compiledFormula = CompiledFormula.Compile(
+      this.props.measure.computedBy?.formula ?? "",
+      sheetId,
+      this.env.model.getters
+    );
+    if (compiledFormula.isBadExpression) {
+      return true;
+    }
+    const measures = new Set(this.props.definition.measures.map((m) => m.id));
+    const dimensions = new Set([
+      ...this.props.definition.columns.map((d) => d.nameWithGranularity),
+      ...this.props.definition.rows.map((d) => d.nameWithGranularity),
+    ]);
+    const namedRanges = new Set(this.env.model.getters.getNamedRanges().map((nr) => nr.name));
+    for (const symbol of compiledFormula.symbols) {
+      if (
+        !measures.has(symbol) &&
+        !dimensions.has(symbol) &&
+        !namedRanges.has(symbol) &&
+        !functionRegistry.contains(symbol)
+      ) {
+        return true;
+      }
+    }
+    for (const range of compiledFormula.rangeDependencies) {
+      if (range.invalidSheetName) {
+        return true;
+      }
+    }
+    return false;
   }
 
   get aggregatorOptions(): ValueAndLabel[] {
