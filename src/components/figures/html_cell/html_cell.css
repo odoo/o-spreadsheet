@@ -1,8 +1,13 @@
 .o-spreadsheet {
   .o-html-cell {
+    font-family: Roboto, arial;
     /* TODO */
     pointer-events: all;
     white-space: nowrap;
     overflow: hidden;
+
+    .o-html-cell-data-bar {
+      z-index: -1;
+    }
   }
 }

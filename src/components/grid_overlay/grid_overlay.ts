@@ -5,6 +5,8 @@ import { Store, useStore } from "../../store_engine";
 import { DOMCoordinates, GridClickModifiers, HeaderIndex, Pixel, Position, Ref } from "../../types";
 import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 import { FiguresContainer } from "../figures/figure_container/figure_container";
+import { HTMLContentStore } from "../figures/html_table/html_content_store";
+import { HTMLGridContent } from "../figures/html_table/html_table";
 import { DelayedHoveredCellStore } from "../grid/delayed_hovered_cell_store";
 import { GridAddRowsFooter } from "../grid_add_rows_footer/grid_add_rows_footer";
 import { cssPropertiesToCss } from "../helpers";
@@ -156,6 +158,7 @@ export class GridOverlay extends Component<Props, SpreadsheetChildEnv> {
   static components = {
     FiguresContainer,
     GridAddRowsFooter,
+    HTMLGridContent,
   };
   static defaultProps = {
     onCellDoubleClicked: () => {},
@@ -167,6 +170,7 @@ export class GridOverlay extends Component<Props, SpreadsheetChildEnv> {
   private cellPopovers!: Store<CellPopoverStore>;
   private paintFormatStore!: Store<PaintFormatStore>;
   private hoveredIconStore!: Store<HoveredIconStore>;
+  htmlContentStore!: Store<HTMLContentStore>;
 
   setup() {
     useCellHovered(this.env, this.gridOverlay);
@@ -183,6 +187,7 @@ export class GridOverlay extends Component<Props, SpreadsheetChildEnv> {
     this.cellPopovers = useStore(CellPopoverStore);
     this.paintFormatStore = useStore(PaintFormatStore);
     this.hoveredIconStore = useStore(HoveredIconStore);
+    this.htmlContentStore = useStore(HTMLContentStore);
   }
 
   get gridOverlayEl(): HTMLElement {

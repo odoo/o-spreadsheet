@@ -1,42 +1,29 @@
 import { Component } from "@odoo/owl";
-import { CellPosition, CSSProperties, FigureUI, Rect, UID } from "../../../types";
+import { CellPosition, Zone } from "../../../types";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
 import { cssPropertiesToCss } from "../../helpers";
 import { HTMLCell } from "../html_cell/html_cell";
 
 interface Props {
-  figureUI: FigureUI;
-  editFigureStyle?: (properties: CSSProperties) => void;
-  openContextMenu?: (anchorRect: Rect, onClose?: () => void) => void;
+  zone: Zone;
 }
 
-export class HTMLFigure extends Component<Props, SpreadsheetChildEnv> {
-  static template = "o-spreadsheet-HTMLFigure";
+export class HTMLGridContent extends Component<Props, SpreadsheetChildEnv> {
+  static template = "o-spreadsheet-HTMLGridContent";
   static props = {
-    figureUI: Object,
-    editFigureStyle: { type: Function, optional: true },
-    openContextMenu: { type: Function, optional: true },
+    zone: Object,
   };
   static components = { HTMLCell };
 
-  get figureId(): UID {
-    return this.props.figureUI.id;
-  }
-
-  get firstTableInSheet() {
-    const sheetId = this.env.model.getters.getActiveSheetId();
-    const tables = this.env.model.getters.getTables(sheetId);
-    return tables[0];
-  }
-
   get containerStyle(): string {
     // ADRM TODO do it in the figure instead
-    const tableZone = this.firstTableInSheet.range.zone;
+    const tableZone = this.props.zone;
     const rect = this.env.model.getters.getRect(tableZone);
     return cssPropertiesToCss({
       width: `${rect.width}px`,
       height: `${rect.height}px`,
-      position: "relative",
+      left: `${rect.x}px`,
+      top: `${rect.y}px`,
       "z-index": "2",
     });
   }
@@ -44,7 +31,7 @@ export class HTMLFigure extends Component<Props, SpreadsheetChildEnv> {
   rowsToDisplay(): { rowStyle: string; cells: CellPosition[] }[] {
     const positions: { rowStyle: string; cells: CellPosition[] }[] = [];
     const sheetId = this.env.model.getters.getActiveSheetId();
-    const zone = this.firstTableInSheet.range.zone;
+    const zone = this.props.zone;
     for (let row = zone.top; row <= zone.bottom; row++) {
       const rowPositions: CellPosition[] = [];
       for (let col = zone.left; col <= zone.right; col++) {
@@ -61,9 +48,8 @@ export class HTMLFigure extends Component<Props, SpreadsheetChildEnv> {
 
   get tableColumnStyles() {
     const sheetId = this.env.model.getters.getActiveSheetId();
-    const table = this.firstTableInSheet;
     const columnStyles: string[] = [];
-    for (let col = table.range.zone.left; col <= table.range.zone.right; col++) {
+    for (let col = this.props.zone.left; col <= this.props.zone.right; col++) {
       const width = this.env.model.getters.getColSize(sheetId, col);
       columnStyles.push(cssPropertiesToCss({ width: `${width}px` }));
     }

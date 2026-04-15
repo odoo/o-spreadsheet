@@ -5,7 +5,6 @@ import * as ACTION_INSERT from "../../actions/insert_actions";
 import * as ACTIONS from "../../actions/menu_items_actions";
 import * as ACTION_VIEW from "../../actions/view_actions";
 import { ZOOM_VALUES } from "../../constants";
-import { centerFigurePosition } from "../../helpers/figures/figure/figure";
 import { getPivotHighlights } from "../../helpers/pivot/pivot_highlight";
 import { HighlightStore } from "../../stores/highlight_store";
 import { _t } from "../../translation";
@@ -294,25 +293,6 @@ topbarMenuRegistry
   .addChild("insert_image", ["insert"], {
     ...ACTION_INSERT.insertImage,
     sequence: 55,
-  })
-  .addChild("insert_html", ["insert"], {
-    name: _t("HTML"),
-    execute: (env) => {
-      const sheetId = env.model.getters.getActiveSheetId();
-      const figureId = env.model.uuidGenerator.smallUuid();
-      const size = { width: 500, height: 500 };
-      const { col, row, offset } = centerFigurePosition(env.model.getters, size);
-      env.model.dispatch("CREATE_FIGURE", {
-        sheetId,
-        figureId,
-        col,
-        row,
-        offset,
-        size,
-        tag: "html",
-      });
-    },
-    icon: "o-spreadsheet-Icon.INSERT_IMAGE",
   })
   .addChild("insert_table", ["insert"], {
     ...ACTION_INSERT.insertTable,

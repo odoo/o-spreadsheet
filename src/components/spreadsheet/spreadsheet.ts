@@ -15,6 +15,7 @@ import { batched } from "../../helpers";
 import { unregisterChartJsExtensions } from "../../helpers/figures/charts/chart_js_extension";
 import { ImageProvider } from "../../helpers/figures/images/image_provider";
 import { Model } from "../../model";
+import { topbarMenuRegistry } from "../../registries/menus";
 import { Store, useStore, useStoreProvider } from "../../store_engine";
 import { ModelStore } from "../../stores";
 import { NotificationStore } from "../../stores/notification_store";
@@ -220,6 +221,29 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
 
     const render = batched(this.render.bind(this, true));
     onMounted(() => {
+      setTimeout(() => {
+        if (!this.model.getters.isDashboard()) {
+          const a = topbarMenuRegistry
+            .get("file")
+            .children?.find((menu) => menu.name.toString().includes("dashboard"));
+          (a as any)?.execute?.(this.env);
+        }
+      }, 50);
+
+      // const sheetId = this.env.model.getters.getActiveSheetId();
+      // const chartId = this.env.model.getters.getFigures(sheetId)[0]?.id;
+      // if (chartId) {
+      //   this.env.model.dispatch("SELECT_FIGURE", { id: chartId });
+      //   this.sidePanel.open("ChartPanel");
+      //   setTimeout(() => {
+      //     document.querySelector<HTMLElement>(".o-panel-design")?.click();
+      //   }, 60);
+      // }
+
+      // const pivotId = this.model.getters.getPivotIds()[0];
+      // if (pivotId) {
+      //   this.sidePanel.open("PivotSidePanel", { pivotId: "1" });
+      // }
       this.bindModelEvents();
       this.checkViewportSize();
       stores.on("store-updated", this, render);

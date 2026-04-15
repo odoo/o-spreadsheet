@@ -1,7 +1,13 @@
 <templates>
   <t t-name="o-spreadsheet-HTMLCell">
-    <div class="o-html-cell d-flex" t-att-style="style">
-      <t t-out="content"/>
+    <div class="o-html-cell d-flex position-relative" t-att-style="style">
+      <t t-set="dataBarStyle" t-value="this.dataBarBackgroundStyle"/>
+      <div
+        t-if="dataBarStyle"
+        class="o-html-cell-data-bar position-absolute h-100 start-0"
+        t-att-style="dataBarStyle"
+      />
+      <span t-out="content"/>
     </div>
   </t>
 </templates>

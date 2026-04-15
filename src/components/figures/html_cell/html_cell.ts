@@ -31,6 +31,7 @@ export class HTMLCell extends Component<Props, SpreadsheetChildEnv> {
     const verticalAlign = style.verticalAlign || "bottom";
     return cssPropertiesToCss({
       ...properties,
+      color: style.textColor || "black",
       width: `${width}px`,
       height: `${height}px`,
       "font-size": `${fontSize}px`,
@@ -59,5 +60,18 @@ export class HTMLCell extends Component<Props, SpreadsheetChildEnv> {
     }
 
     return properties;
+  }
+
+  get dataBarBackgroundStyle(): string {
+    const dataBar = this.env.model.getters.getConditionalDataBar(this.props.position);
+    if (!dataBar || dataBar.percentage <= 0) {
+      return "";
+    }
+    const { sheetId, col } = this.props.position;
+    const fullWidth = this.env.model.getters.getColSize(sheetId, col);
+    return cssPropertiesToCss({
+      width: `${(dataBar.percentage / 100) * fullWidth}px`,
+      background: dataBar.color,
+    });
   }
 }
