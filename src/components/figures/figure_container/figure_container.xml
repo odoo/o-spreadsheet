@@ -3,7 +3,7 @@
     <div class="position-absolute">
       <t t-foreach="containers" t-as="container" t-key="container.type">
         <div
-          class="o-figure-container position-absolute pe-none overflow-hidden"
+          class="o-figure-container position-absolute pe-none"
           t-att-style="container.style"
           t-att-data-id="container.type + 'Container'">
           <div

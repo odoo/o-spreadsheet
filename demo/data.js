@@ -5136,7 +5136,7 @@ export const dashboardDemoData = {
       },
     },
   },
-  revisionId: "e4ff249c-c596-466a-bfa4-2ec6f3d3923f",
+  revisionId: "START_REVISION",
   uniqueFigureIds: true,
   settings: {
     locale: {

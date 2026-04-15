@@ -1,7 +1,15 @@
 import { Component, toRaw, useChildSubEnv, useRef } from "@odoo/owl";
 import { Store, useLocalStore, useStore } from "../../store_engine";
 import { RendererStore } from "../../stores/renderer_store";
-import { DOMCoordinates, DOMDimension, OrderedLayers, Pixel, Rect, Ref } from "../../types/index";
+import {
+  CSSProperties,
+  DOMCoordinates,
+  DOMDimension,
+  OrderedLayers,
+  Pixel,
+  Rect,
+  Ref,
+} from "../../types/index";
 import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 import { DelayedHoveredCellStore } from "../grid/delayed_hovered_cell_store";
 import { GridOverlay } from "../grid_overlay/grid_overlay";
@@ -158,6 +166,12 @@ export class SpreadsheetDashboard extends Component<Props, SpreadsheetChildEnv> 
 
   get dashboardStyle() {
     const zoomLevel = this.env.model.getters.getViewportZoomLevel();
-    return cssPropertiesToCss({ zoom: `${zoomLevel}` });
+    const cssProperties: CSSProperties = { zoom: `${zoomLevel}` };
+    const sheetId = this.env.model.getters.getActiveSheetId();
+    const sheetBackground = this.env.model.getters.getSheet(sheetId)?.backgroundColor;
+    if (sheetBackground) {
+      cssProperties["background-color"] = sheetBackground;
+    }
+    return cssPropertiesToCss(cssProperties);
   }
 }
