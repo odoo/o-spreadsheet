@@ -154,7 +154,7 @@ function createWorksheets(data: ExcelWorkbookData, construct: XLSXStructure): XL
       // only support exporting images with mimetypes specified in the mapping
       if (extension === undefined) continue;
       const xlsxImageId = convertImageId(image.id);
-      let imageFileName = `image${xlsxImageId}.${extension}`;
+      const imageFileName = `image${xlsxImageId}.${extension}`;
 
       const imageRelId = addRelsToFile(
         construct.relsFiles,

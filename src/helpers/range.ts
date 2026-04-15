@@ -43,7 +43,7 @@ export class RangeImpl implements Range {
     this.sheetId = args.sheetId;
     this.invalidSheetName = args.invalidSheetName;
 
-    let _fixedParts = [...args.parts];
+    const _fixedParts = [...args.parts];
     if (args.parts.length === 1 && getZoneArea(this.zone) > 1) {
       _fixedParts.push({ ...args.parts[0] });
     } else if (args.parts.length === 2 && getZoneArea(this.zone) === 1) {
@@ -125,7 +125,7 @@ export class RangeImpl implements Range {
     const zone = { ...this._zone };
     let parts = this.parts;
     if (zone.right !== undefined && zone.right < zone.left) {
-      let right = zone.right;
+      const right = zone.right;
       zone.right = zone.left;
       zone.left = right;
       parts = [
@@ -141,7 +141,7 @@ export class RangeImpl implements Range {
     }
 
     if (zone.bottom !== undefined && zone.bottom < zone.top) {
-      let bottom = zone.bottom;
+      const bottom = zone.bottom;
       zone.bottom = zone.top;
       zone.top = bottom;
       parts = [
@@ -222,7 +222,7 @@ export function spreadRange(getters: Getters, ranges: string[]): string[] {
     const { sheetName } = splitReference(range);
     const sheetPrefix = sheetName ? `${sheetName}!` : "";
     const zone = toUnboundedZone(range);
-    if (zone.bottom !== zone.top && zone.left != zone.right) {
+    if (zone.bottom !== zone.top && zone.left !== zone.right) {
       if (zone.right) {
         for (let j = zone.left; j <= zone.right; ++j) {
           postProcessedRanges.push(

@@ -153,8 +153,8 @@ export class CustomColorsPlugin extends UIPlugin<CustomColorState> {
 
   private getChartColors(sheetId: UID): Color[] {
     const charts = this.getters.getChartIds(sheetId).map((cid) => this.getters.getChart(cid));
-    let chartsColors = new Set<Color>();
-    for (let chart of charts) {
+    const chartsColors = new Set<Color>();
+    for (const chart of charts) {
       if (chart === undefined) {
         continue;
       }

@@ -422,7 +422,7 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
     }
     keyDownString += ev.key.toUpperCase();
 
-    let handler = this.keyDownMapping[keyDownString];
+    const handler = this.keyDownMapping[keyDownString];
     if (handler) {
       ev.preventDefault();
       ev.stopPropagation();
@@ -456,7 +456,7 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
     }
     this.composer.topBarFocus = "inactive";
     this.composer.gridFocusMode = "cellFocus";
-    this.setComposerContent({ content, selection } || {});
+    this.setComposerContent({ content, selection });
   }
 
   /**

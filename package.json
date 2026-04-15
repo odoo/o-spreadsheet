@@ -6,33 +6,34 @@
   "main": "dist/o-spreadsheet.cjs.js",
   "browser": "dist/o-spreadsheet.iife.js",
   "module": "dist/o-spreadsheet.esm.js",
-  "types": "dist/o-spreadsheet.d.ts",
+  "types": "dist/types/index.d.ts",
   "files": [
     "dist/*.js",
-    "dist/*.d.ts",
+    "dist/types",
     "dist/*.xml"
   ],
   "scripts": {
-    "serve-static": "live-server --host=127.0.0.1 --open=demo --watch=build/o_spreadsheet.js,build/o_spreadsheet.xml,demo",
+    "serve-static": "live-server --host=127.0.0.1 --open=demo --watch=build/o-spreadsheet.iife.js,build/o_spreadsheet.xml,demo",
     "dev": "npm-run-all --print-label build --parallel server serve-static watch:*",
     "server": "node tools/server/main.cjs",
     "build:js": "tsc --module es6 --incremental",
-    "build:bundleJs": "rollup -c -m --configDev",
+    "build:bundleJs": "rolldown -c --format iife",
     "build:bundleXml": "node tools/bundle_xml/main.cjs",
     "build": "npm-run-all build:js build:bundleJs \"build:bundleXml -- --outDir build\"",
     "precommit": "npm run prettier && npm run doc",
     "monkey": "SPREADSHEET_MONKEY_COUNT=$npm_config_monkey_count jest 'tests/collaborative/collaborative_monkey_party.test.ts'",
-    "test": "tsc --noEmit --project tsconfig.jest.json && jest",
+    "test": "tsc --noEmit --project tests/tsconfig.json && jest",
     "test:watch": "jest --watch",
     "prettier": "prettier . --write",
     "check-formatting": "prettier . --check",
-    "dist": "tsc --module es6 --declaration --declarationDir dist/types && rollup -c && npm run build:bundleXml -- --outDir dist",
+    "dist": "tsc --module es6 --declaration --declarationDir dist/types && rolldown -c && npm run build:bundleXml -- --outDir dist",
     "prepare": "husky install",
     "watch:bundle": "npm run build:bundleJs -- --watch",
     "watch:ts": "npm run build:js -- --watch",
     "watch:xml": "node tools/bundle_xml/watch_xml_templates.cjs",
     "unzipXlsx": "node tools/bundle_xlsx/unzip_xlsx_demo.cjs",
-    "zipXlsx": "node tools/bundle_xlsx/zip_xlsx_demo.cjs"
+    "zipXlsx": "node tools/bundle_xlsx/zip_xlsx_demo.cjs",
+    "lint": "eslint --fix"
   },
   "browserslist": [
     "last 1 Chrome versions"
@@ -55,14 +56,13 @@
   "homepage": "https://github.com/odoo/o-spreadsheet#readme",
   "devDependencies": {
     "@prettier/plugin-xml": "^2.2.0",
-    "@rollup/plugin-node-resolve": "^15.2.0",
-    "@rollup/plugin-terser": "^0.4.3",
     "@swc/jest": "0.2.36",
     "@swc/core": "1.6.7",
     "@types/jest": "^30.0.0",
     "@types/jest-image-snapshot": "^6.4.1",
-    "@types/node": "^13.13.23",
+    "@types/node": "^20.17.24",
     "@types/rbush": "^3.0.3",
+    "@typescript-eslint/eslint-plugin": "^8.30.1",
     "body-parser": "^1.19.0",
     "canvas": "^3.0.0",
     "chart.js": "4.3.0",
@@ -87,11 +87,10 @@
     "npm-run-all": "^4.1.5",
     "prettier": "^2.8.0",
     "prettier-plugin-organize-imports": "^3.2.2",
-    "rollup": "^3.28.0",
-    "rollup-plugin-dts": "^5.3.1",
-    "rollup-plugin-typescript2": "^0.35.0",
+    "rolldown": "^1.0.0-rc.15",
     "seedrandom": "^3.0.5",
-    "typescript": "^5.4.3",
+    "typescript": "^6.0.2",
+    "typescript-eslint": "^8.30.1",
     "xml-formatter": "^2.4.0"
   },
   "optionalDependencies": {
@@ -104,7 +103,22 @@
     "@swc/core-linux-x64-musl": "1.6.7",
     "@swc/core-win32-arm64-msvc": "1.6.7",
     "@swc/core-win32-ia32-msvc": "1.6.7",
-    "@swc/core-win32-x64-msvc": "1.6.7"
+    "@swc/core-win32-x64-msvc": "1.6.7",
+    "@rolldown/binding-android-arm64": "1.0.0-rc.15",
+    "@rolldown/binding-darwin-arm64": "1.0.0-rc.15",
+    "@rolldown/binding-darwin-x64": "1.0.0-rc.15",
+    "@rolldown/binding-freebsd-x64": "1.0.0-rc.15",
+    "@rolldown/binding-linux-arm-gnueabihf": "1.0.0-rc.15",
+    "@rolldown/binding-linux-arm64-gnu": "1.0.0-rc.15",
+    "@rolldown/binding-linux-arm64-musl": "1.0.0-rc.15",
+    "@rolldown/binding-linux-ppc64-gnu": "1.0.0-rc.15",
+    "@rolldown/binding-linux-s390x-gnu": "1.0.0-rc.15",
+    "@rolldown/binding-linux-x64-gnu": "1.0.0-rc.15",
+    "@rolldown/binding-linux-x64-musl": "1.0.0-rc.15",
+    "@rolldown/binding-openharmony-arm64": "1.0.0-rc.15",
+    "@rolldown/binding-wasm32-wasi": "1.0.0-rc.15",
+    "@rolldown/binding-win32-arm64-msvc": "1.0.0-rc.15",
+    "@rolldown/binding-win32-x64-msvc": "1.0.0-rc.15"
   },
   "prettier": {
     "printWidth": 100,
@@ -146,7 +160,10 @@
     ]
   },
   "lint-staged": {
-    "*": "prettier --write"
+    "*": [
+      "prettier --write",
+      "eslint --fix"
+    ]
   },
   "publishConfig": {
     "tag": "17-0"

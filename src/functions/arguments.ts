@@ -25,20 +25,20 @@ export function arg(definition: string, description: string = ""): ArgDefinition
 }
 
 function makeArg(str: string, description: string): ArgDefinition {
-  let parts = str.match(ARG_REGEXP)!;
-  let name = parts[1].trim();
+  const parts = str.match(ARG_REGEXP)!;
+  const name = parts[1].trim();
   if (!name) {
     throw new Error(`Function argument definition is missing a name: '${str}'.`);
   }
-  let types: ArgType[] = [];
+  const types: ArgType[] = [];
   let isOptional = false;
   let isRepeating = false;
   let isLazy = false;
   let defaultValue;
 
-  for (let param of parts[2].split(",")) {
+  for (const param of parts[2].split(",")) {
     const key = param.trim().toUpperCase();
-    let type = ARG_TYPES.find((t) => key === t);
+    const type = ARG_TYPES.find((t) => key === t);
     if (type) {
       types.push(type);
     } else if (key === "RANGE<ANY>") {
@@ -87,7 +87,7 @@ export function addMetaInfoFromArg(addDescr: AddFunctionDescription): FunctionDe
   let countArg = 0;
   let minArg = 0;
   let repeatingArg = 0;
-  for (let arg of addDescr.args) {
+  for (const arg of addDescr.args) {
     countArg++;
     if (!arg.optional && !arg.repeating && !arg.default) {
       minArg++;
@@ -156,7 +156,7 @@ export function validateArguments(args: ArgDefinition[]) {
   let previousArgRepeating: boolean | undefined = false;
   let previousArgOptional: boolean | undefined = false;
   let previousArgDefault: boolean | undefined = false;
-  for (let current of args) {
+  for (const current of args) {
     if (current.type.includes("META") && current.type.length > 1) {
       throw new Error(
         _t(

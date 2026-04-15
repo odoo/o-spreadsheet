@@ -1,5 +1,4 @@
 import type { ChartConfiguration, ChartDataset, Chart as ChartType, LegendOptions } from "chart.js";
-import { DeepPartial } from "chart.js/dist/types/utils";
 import {
   BACKGROUND_CHART_COLOR,
   INCORRECT_RANGE_STRING,
@@ -11,6 +10,7 @@ import {
   Color,
   CommandResult,
   CoreGetters,
+  DeepPartial,
   Getters,
   LocaleFormat,
   Range,
@@ -226,7 +226,7 @@ function fixEmptyLabelsForDateCharts(
   for (let i = 0; i < newLabels.length; i++) {
     if (!newLabels[i]) {
       newLabels[i] = findNextDefinedValue(newLabels, i);
-      for (let ds of newDatasets) {
+      for (const ds of newDatasets) {
         ds.data[i] = undefined;
       }
     }
@@ -418,7 +418,7 @@ export function createLineChartRuntime(chart: LineChart, getters: Getters): Line
       data = data.map((y, index) => ({ x: labels[index] || undefined, y }));
     }
     const color = colors.next();
-    let backgroundRGBA = colorToRGBA(color);
+    const backgroundRGBA = colorToRGBA(color);
     if (chart.stacked) {
       backgroundRGBA.a = LINE_FILL_TRANSPARENCY;
     }

@@ -169,7 +169,7 @@ export function addRelsToFile(
   path: string,
   rel: Omit<XLSXRel, "id">
 ): string {
-  let relsFile = relsFiles.find((file) => file.path === path);
+  const relsFile = relsFiles.find((file) => file.path === path);
   // the id is a one-based int casted as string
   let id: string;
   if (!relsFile) {
@@ -186,7 +186,7 @@ export function addRelsToFile(
 }
 
 export function pushElement<T>(property: T, propertyList: T[]): number {
-  let len = propertyList.length;
+  const len = propertyList.length;
   const operator = typeof property === "object" ? deepEquals : (a: T, b: T) => a === b;
   for (let i = 0; i < len; i++) {
     if (operator(property, propertyList[i])) {

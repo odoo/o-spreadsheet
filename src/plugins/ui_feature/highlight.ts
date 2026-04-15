@@ -64,7 +64,7 @@ export class HighlightPlugin extends UIPlugin {
      * opacity, we filter highlights to remove duplicates.
      */
     const highlights = this.getHighlights();
-    for (let h of highlights.filter(
+    for (const h of highlights.filter(
       (highlight, index) =>
         // For every highlight in the sheet, deduplicated by zone
         highlights.findIndex((h) => isEqual(h.zone, highlight.zone) && h.sheetId === sheetId) ===

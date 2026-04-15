@@ -140,7 +140,7 @@ export class XlsxBaseExtractor {
     }
 
     if (elements) {
-      for (let element of elements) {
+      for (const element of elements) {
         try {
           ret.push(fct(element));
         } catch (e) {
@@ -270,7 +270,7 @@ export class XlsxBaseExtractor {
       throw new Error("extractTextContent default value should be a string");
     }
 
-    let child = this.querySelector(e, childRef);
+    const child = this.querySelector(e, childRef);
 
     if (!child) {
       this.handleMissingValue(e, `child <${childRef}>`, optionalArgs);

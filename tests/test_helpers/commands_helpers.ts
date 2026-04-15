@@ -83,7 +83,7 @@ export function createSheetWithName(
   data: Partial<CreateSheetCommand & { activate: boolean }>,
   name: string
 ): DispatchResult {
-  let createResult = createSheet(model, data);
+  const createResult = createSheet(model, data);
   if (!createResult.isSuccessful) {
     return createResult;
   }
@@ -663,7 +663,7 @@ export function setSelection(
   } = { anchor: undefined, strict: false }
 ) {
   const sheetId = model.getters.getActiveSheetId();
-  let zones = xcs
+  const zones = xcs
     .reverse()
     .map(toZone)
     .map((z) => model.getters.expandZone(sheetId, z));

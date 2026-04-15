@@ -95,9 +95,9 @@ export class ClipboardCellsState extends ClipboardCellsAbstractState {
     const cellsInClipboard: ClipboardCell[][] = [];
     const sheetId = getters.getActiveSheetId();
 
-    for (let row of rowsIndex) {
-      let cellsInRow: ClipboardCell[] = [];
-      for (let col of columnsIndex) {
+    for (const row of rowsIndex) {
+      const cellsInRow: ClipboardCell[] = [];
+      for (const col of columnsIndex) {
         const position = { col, row, sheetId };
         const spreader = getters.getArrayFormulaSpreadingOn(position);
         let cell = getters.getCell(position);
@@ -165,7 +165,7 @@ export class ClipboardCellsState extends ClipboardCellsAbstractState {
 
     const clipboardHeight = this.cells.length;
     const clipboardWidth = this.cells[0].length;
-    for (let zone of this.getPasteZones(target)) {
+    for (const zone of this.getPasteZones(target)) {
       if (this.getters.doesIntersectMerge(sheetId, zone)) {
         if (
           target.length > 1 ||
@@ -557,7 +557,7 @@ export class ClipboardCellsState extends ClipboardCellsAbstractState {
     if (!this.zones) {
       return false;
     }
-    for (let zone of this.zones) {
+    for (const zone of this.zones) {
       if (dimension === "COL" && position <= zone.right) {
         return true;
       }
@@ -587,8 +587,8 @@ export class ClipboardCellsState extends ClipboardCellsAbstractState {
   private pasteCf(origin: CellPosition, target: CellPosition) {
     const zone = positionToZone(target);
     const originZone = positionToZone(origin);
-    for (let rule of this.getters.getConditionalFormats(origin.sheetId)) {
-      for (let range of rule.ranges) {
+    for (const rule of this.getters.getConditionalFormats(origin.sheetId)) {
+      for (const range of rule.ranges) {
         if (
           isInside(
             origin.col,

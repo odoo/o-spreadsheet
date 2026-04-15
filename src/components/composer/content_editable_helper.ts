@@ -18,7 +18,7 @@ export class ContentEditableHelper {
    * select the text at position start to end, no matter the children
    */
   selectRange(start: number, end: number) {
-    let selection = window.getSelection()!;
+    const selection = window.getSelection()!;
     const { start: currentStart, end: currentEnd } = this.getCurrentSelection();
 
     if (currentStart === start && currentEnd === end) {
@@ -46,8 +46,8 @@ export class ContentEditableHelper {
         if (end > textLength) end = textLength;
         if (start > textLength) start = textLength;
       }
-      let startNode = this.findChildAtCharacterIndex(start);
-      let endNode = this.findChildAtCharacterIndex(end);
+      const startNode = this.findChildAtCharacterIndex(start);
+      const endNode = this.findChildAtCharacterIndex(end);
       range.setStart(startNode.node, startNode.offset);
       selection.extend(endNode.node, endNode.offset);
     }
@@ -57,7 +57,7 @@ export class ContentEditableHelper {
    * finds the dom element that contains the character at `offset`
    */
   private findChildAtCharacterIndex(offset: number): { node: Node; offset: number } {
-    let it = iterateChildren(this.el);
+    const it = iterateChildren(this.el);
     let current, previous;
     let usedCharacters = offset;
     let isFirstParagraph = true;
@@ -197,7 +197,7 @@ export class ContentEditableHelper {
    * remove the current selection of the user
    * */
   removeSelection() {
-    let selection = window.getSelection()!;
+    const selection = window.getSelection()!;
     selection.removeAllRanges();
   }
 
@@ -213,10 +213,10 @@ export class ContentEditableHelper {
    * finds the indexes of the current selection.
    * */
   getCurrentSelection() {
-    let { startElement, endElement, startSelectionOffset, endSelectionOffset } =
+    const { startElement, endElement, startSelectionOffset, endSelectionOffset } =
       this.getStartAndEndSelection();
-    let startSizeBefore = this.findSelectionIndex(startElement!, startSelectionOffset);
-    let endSizeBefore = this.findSelectionIndex(endElement!, endSelectionOffset);
+    const startSizeBefore = this.findSelectionIndex(startElement!, startSelectionOffset);
+    const endSizeBefore = this.findSelectionIndex(endElement!, endSelectionOffset);
 
     return {
       start: startSizeBefore,
@@ -244,7 +244,7 @@ export class ContentEditableHelper {
   private findSelectionIndex(nodeToFind: Node, nodeOffset: number): number {
     let usedCharacters = 0;
 
-    let it = iterateChildren(this.el);
+    const it = iterateChildren(this.el);
     let current = it.next();
     let isFirstParagraph = true;
     while (!current.done && current.value !== nodeToFind) {
@@ -315,7 +315,7 @@ export class ContentEditableHelper {
   getText(): string {
     let text = "";
 
-    let it = iterateChildren(this.el);
+    const it = iterateChildren(this.el);
     let current = it.next();
     let isFirstParagraph = true;
     while (!current.done) {

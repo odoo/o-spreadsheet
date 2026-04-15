@@ -169,7 +169,7 @@ export class FigureComponent extends Component<Props, SpreadsheetChildEnv> {
 
   getResizerPosition(resizer: ResizeAnchor): string {
     const anchorCenteringOffset = (ANCHOR_SIZE - ACTIVE_BORDER_WIDTH) / 2;
-    let style: CSSProperties = {};
+    const style: CSSProperties = {};
     if (resizer.includes("top")) {
       style.top = `${-anchorCenteringOffset}px`;
     } else if (resizer.includes("bottom")) {

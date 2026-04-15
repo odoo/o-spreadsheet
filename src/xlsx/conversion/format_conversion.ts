@@ -17,7 +17,7 @@ export function convertXlsxFormat(
   warningManager: XLSXImportWarningManager
 ): string | undefined {
   // Format is either defined in the imported data, or the formatId is defined in openXML §18.8.30
-  let format =
+  const format =
     XLSX_FORMATS_CONVERSION_MAP[numFmtId] || formats.find((f) => f.id === numFmtId)?.format;
 
   if (format === "General") {

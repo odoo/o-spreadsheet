@@ -118,7 +118,7 @@ export class FilterEvaluationPlugin extends UIPlugin {
   getCellBorderWithFilterBorder(position: CellPosition): Border | null {
     const { sheetId, col, row } = position;
     let filterBorder: Border | undefined = undefined;
-    for (let filters of this.getters.getFilterTables(sheetId)) {
+    for (const filters of this.getters.getFilterTables(sheetId)) {
       const zone = filters.zone;
       if (isInside(col, row, zone)) {
         // The borders should be at the edges of the visible zone of the filter
@@ -175,7 +175,7 @@ export class FilterEvaluationPlugin extends UIPlugin {
       .sort((filter1, filter2) => filter1.zoneWithHeaders.top - filter2.zoneWithHeaders.top);
 
     const hiddenRows = new Set<number>();
-    for (let filter of filters) {
+    for (const filter of filters) {
       // Disable filters whose header are hidden
       if (
         hiddenRows.has(filter.zoneWithHeaders.top) ||

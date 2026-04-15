@@ -552,7 +552,7 @@ export const COUNTUNIQUEIFS = {
   ],
   returns: ["NUMBER"],
   compute: function (range: Matrix<CellValue>, ...argsValues: ArgValue[]): number {
-    let uniqueValues = new Set();
+    const uniqueValues = new Set();
     visitMatchingRanges(
       argsValues,
       (i, j) => {
@@ -994,10 +994,10 @@ export const PRODUCT = {
   compute: function (...factors: ArgValue[]): number {
     let count = 0;
     let acc = 1;
-    for (let n of factors) {
+    for (const n of factors) {
       if (isMatrix(n)) {
-        for (let i of n) {
-          for (let j of i) {
+        for (const i of n) {
+          for (const j of i) {
             if (typeof j === "number") {
               acc *= j;
               count += 1;

@@ -132,7 +132,7 @@ export class SpreadsheetRTree<T> {
 
   rtreeItemComparer(left: RTreeItem<T>, right: RTreeItem<T>) {
     return (
-      left.data == right.data &&
+      left.data === right.data &&
       left.boundingBox.sheetId === right.boundingBox.sheetId &&
       left.boundingBox?.zone.left === right.boundingBox.zone.left &&
       left.boundingBox?.zone.top === right.boundingBox.zone.top &&

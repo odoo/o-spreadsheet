@@ -260,7 +260,7 @@ export class EvaluationPlugin extends UIPlugin {
   getEvaluatedCells(sheetId: UID): Record<UID, EvaluatedCell> {
     const rawCells = this.getters.getCells(sheetId) || {};
     const record: Record<UID, EvaluatedCell> = {};
-    for (let cellId of Object.keys(rawCells)) {
+    for (const cellId of Object.keys(rawCells)) {
       const position = this.getters.getCellPosition(cellId);
       record[cellId] = this.getEvaluatedCell(position);
     }

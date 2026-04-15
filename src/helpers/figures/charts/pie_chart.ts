@@ -5,7 +5,6 @@ import type {
   LegendOptions,
   Point,
 } from "chart.js";
-import { DeepPartial } from "chart.js/dist/types/utils";
 import { BACKGROUND_CHART_COLOR, INCORRECT_RANGE_STRING } from "../../../constants";
 import {
   AddColumnsRowsCommand,
@@ -13,6 +12,7 @@ import {
   Color,
   CommandResult,
   CoreGetters,
+  DeepPartial,
   Getters,
   LocaleFormat,
   Range,
@@ -276,7 +276,7 @@ export function createPieChartRuntime(chart: PieChart, getters: Getters): PieCha
   const locale = getters.getLocale();
   const config = getPieConfiguration(chart, labels, { format: dataSetFormat, locale });
   const colors = new ChartColors();
-  for (let { label, data } of dataSetsValues) {
+  for (const { label, data } of dataSetsValues) {
     const backgroundColor = getPieColors(colors, dataSetsValues);
     const dataset: ChartDataset = {
       label,

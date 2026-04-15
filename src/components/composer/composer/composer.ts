@@ -352,7 +352,7 @@ export class Composer extends Component<ComposerProps, SpreadsheetChildEnv> {
     if (this.env.model.getters.getEditionMode() === "inactive") {
       return;
     }
-    let handler = this.keyMapping[ev.key] || this.keyCodeMapping[ev.code];
+    const handler = this.keyMapping[ev.key] || this.keyCodeMapping[ev.code];
     if (handler) {
       handler.call(this, ev);
     } else {
@@ -571,7 +571,7 @@ export class Composer extends Component<ComposerProps, SpreadsheetChildEnv> {
    * Get the HTML content corresponding to the current composer token, divided by lines.
    */
   private getContentLines(): HtmlContent[][] {
-    let value = this.env.model.getters.getCurrentContent();
+    const value = this.env.model.getters.getCurrentContent();
     const isValidFormula = value.startsWith("=");
 
     if (value === "") {
@@ -704,7 +704,7 @@ export class Composer extends Component<ComposerProps, SpreadsheetChildEnv> {
    * the autocomplete engine otherwise we initialize the formula assistant.
    */
   private processTokenAtCursor(): void {
-    let content = this.env.model.getters.getCurrentContent();
+    const content = this.env.model.getters.getCurrentContent();
     this.autoCompleteState.showProvider = false;
     this.functionDescriptionState.showDescription = false;
 

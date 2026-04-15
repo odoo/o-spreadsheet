@@ -221,7 +221,7 @@ export class SelectionStreamProcessorImpl implements SelectionStreamProcessor {
     const { col: anchorCol, row: anchorRow } = anchor.cell;
     const { left, right, top, bottom } = anchor.zone;
     const starting = this.getStartingPosition(direction);
-    let [deltaCol, deltaRow] = this.deltaToTarget(starting, direction, step);
+    const [deltaCol, deltaRow] = this.deltaToTarget(starting, direction, step);
     if (deltaCol === 0 && deltaRow === 0) {
       return DispatchResult.Success;
     }
@@ -605,7 +605,7 @@ export class SelectionStreamProcessorImpl implements SelectionStreamProcessor {
 
     // If both the current cell and the next cell are not empty, we want to go to the end of the cluster
     const nextCellPosition = this.getNextCellPosition(startPosition, dim, dir);
-    let mode: "endOfCluster" | "nextCluster" =
+    const mode: "endOfCluster" | "nextCluster" =
       !this.isEvaluatedCellEmpty(currentPosition) && !this.isEvaluatedCellEmpty(nextCellPosition)
         ? "endOfCluster"
         : "nextCluster";

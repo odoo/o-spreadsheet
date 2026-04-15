@@ -1,5 +1,4 @@
 import type { ChartConfiguration, ChartDataset, LegendOptions } from "chart.js";
-import { DeepPartial } from "chart.js/dist/types/utils";
 import { BACKGROUND_CHART_COLOR, INCORRECT_RANGE_STRING } from "../../../constants";
 import {
   AddColumnsRowsCommand,
@@ -7,6 +6,7 @@ import {
   Color,
   CommandResult,
   CoreGetters,
+  DeepPartial,
   Getters,
   LocaleFormat,
   Range,
@@ -266,7 +266,7 @@ export function createBarChartRuntime(chart: BarChart, getters: Getters): BarCha
   const config = getBarConfiguration(chart, labels, { format: dataSetFormat, locale });
   const colors = new ChartColors();
 
-  for (let { label, data } of dataSetsValues) {
+  for (const { label, data } of dataSetsValues) {
     const color = colors.next();
     const dataset: ChartDataset = {
       label,

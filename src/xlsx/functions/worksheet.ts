@@ -28,7 +28,7 @@ export function addColumns(cols: { [key: number]: HeaderData }): XMLString {
     return escapeXml``;
   }
   const colNodes: XMLString[] = [];
-  for (let [id, col] of Object.entries(cols)) {
+  for (const [id, col] of Object.entries(cols)) {
     // Always force our own col width
     const attributes: XMLAttributes = [
       ["min", parseInt(id) + 1],
@@ -139,10 +139,9 @@ export function addHyperlinks(
       if (isSheetUrl(url)) {
         const sheetId = parseSheetUrl(url);
         const sheet = data.sheets.find((sheet) => sheet.id === sheetId);
-        const location = sheet ? `${sheet.name}!A1` : INCORRECT_RANGE_STRING;
         const hyperlinkAttributes: XMLAttributes = [
           ["display", label],
-          ["location", location],
+          ["location", sheet ? `${sheet.name}!A1` : INCORRECT_RANGE_STRING],
           ["ref", xc],
         ];
         linkNodes.push(escapeXml/*xml*/ `
@@ -220,7 +219,7 @@ export function addSheetViews(sheet: ExcelSheetData) {
     ["workbookViewId", 0],
   ];
 
-  let sheetView = escapeXml/*xml*/ `
+  const sheetView = escapeXml/*xml*/ `
       <sheetViews>
         <sheetView ${formatAttributes(sheetViewAttrs)}>
           ${splitPanes}

@@ -206,7 +206,7 @@ export class ClipboardPlugin extends UIPlugin {
         if (this.state?.operation !== "CUT" || cmd.sheetId !== this.state?.sheetId) {
           return;
         }
-        for (let el of cmd.elements) {
+        for (const el of cmd.elements) {
           const isClipboardDirty = this.state.isColRowDirtyingClipboard(el, cmd.dimension);
           if (isClipboardDirty) {
             this.state = undefined;

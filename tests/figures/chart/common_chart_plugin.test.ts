@@ -14,7 +14,7 @@ import { createEqualCF, target, toRangesData } from "../../test_helpers/helpers"
 describe("Single cell chart background color", () => {
   let model: Model;
   let sheetId: UID;
-  let chartId = "thisIsAnId";
+  const chartId = "thisIsAnId";
 
   beforeEach(() => {
     model = new Model();

@@ -330,7 +330,7 @@ describe("datasource tests", function () {
       "1"
     );
     const title = (model.getters.getChartRuntime("1") as PieChartRuntime).chartJsConfig!.options!
-      .plugins?.tooltip!.callbacks!.title!;
+      .plugins!.tooltip!.callbacks!.title!;
     // @ts-ignore `title` should be binded to the TooltipModel
     expect(title([{ dataset: { label: "dataset 1" } }])).toBe("dataset 1");
     // @ts-ignore `title` should be binded to the TooltipModel
@@ -1933,7 +1933,7 @@ describe("Linear/Time charts", () => {
       },
       chartId
     );
-    let chart = model.getters.getChartRuntime(chartId) as LineChartRuntime;
+    const chart = model.getters.getChartRuntime(chartId) as LineChartRuntime;
     expect(chart.chartJsConfig.options?.scales?.x?.type).toEqual("time");
 
     updateChart(model, chartId, { type: "bar" });
