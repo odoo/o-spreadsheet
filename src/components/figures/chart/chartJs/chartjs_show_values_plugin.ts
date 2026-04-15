@@ -31,10 +31,6 @@ export const chartShowValuesPlugin: Plugin = {
     }
     const ctx = chart.ctx as CanvasRenderingContext2D;
     ctx.save();
-    const { left, top, height, width } = chart.chartArea;
-    ctx.beginPath();
-    ctx.rect(left, top, width, height);
-    ctx.clip();
 
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
@@ -83,8 +79,6 @@ function drawLineOrBarOrRadarChartValues(
   options: ChartShowValuesPluginOptions,
   ctx: CanvasRenderingContext2D
 ) {
-  const yMax = chart.chartArea.bottom;
-  const yMin = chart.chartArea.top;
   const textsPositions: Record<number, number[]> = {};
   for (const dataset of chart._metasets) {
     if (isTrendLineAxis(dataset.xAxisID) || dataset.hidden) {
@@ -115,9 +109,6 @@ function drawLineOrBarOrRadarChartValues(
           yPosition = value < 0 ? point.y - point.height / 2 : point.y + point.height / 2;
         }
       }
-
-      yPosition = Math.min(yPosition, yMax);
-      yPosition = Math.max(yPosition, yMin);
 
       // Avoid overlapping texts with same X
       if (!textsPositions[xPosition]) {
@@ -194,8 +185,6 @@ function drawHorizontalBarChartValues(
   options: ChartShowValuesPluginOptions,
   ctx: CanvasRenderingContext2D
 ) {
-  const xMax = chart.chartArea.right;
-  const xMin = chart.chartArea.left;
   const textsPositions: Record<number, number[]> = {};
 
   for (const dataset of chart._metasets) {
@@ -229,8 +218,6 @@ function drawHorizontalBarChartValues(
           value < 0 ? xZeroLine - textWidth / 2 - PADDING : xZeroLine + textWidth / 2 + PADDING;
       } else {
         xPosition = value < 0 ? point.x + point.width / 2 : point.x - point.width / 2;
-        xPosition = Math.min(xPosition, xMax);
-        xPosition = Math.max(xPosition, xMin);
       }
 
       // Avoid overlapping texts with same Y
