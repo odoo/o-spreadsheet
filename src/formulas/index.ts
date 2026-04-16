@@ -11,4 +11,5 @@ export { compile } from "./compiler";
 export * from "./helpers";
 export { parse } from "./parser";
 export { rangeTokenize } from "./range_tokenizer";
-export { Token, tokenize } from "./tokenizer";
+export { tokenize } from "./tokenizer";
+export type { Token } from "./tokenizer";
