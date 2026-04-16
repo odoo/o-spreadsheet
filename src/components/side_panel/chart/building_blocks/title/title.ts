@@ -1,4 +1,4 @@
-import { Component, useExternalListener, useState } from "@odoo/owl";
+import { Component, onWillUpdateProps, useExternalListener, useState } from "@odoo/owl";
 import { GRAY_300 } from "../../../../../constants";
 import { Color, SpreadsheetChildEnv, TitleDesign } from "../../../../../types";
 import { ColorPickerWidget } from "../../../../color_picker/color_picker_widget";
@@ -73,14 +73,24 @@ export class ChartTitle extends Component<Props, SpreadsheetChildEnv> {
 
   setup() {
     useExternalListener(window, "click", this.onExternalClick);
+    onWillUpdateProps((nextProps: Props) => {
+      if (nextProps.title !== this.props.title) {
+        this.state.inputTitle = nextProps.title ?? "";
+      }
+    });
   }
 
   state = useState({
     activeTool: "",
+    inputTitle: this.props.title ?? "",
   });
 
-  updateTitle(ev: InputEvent) {
-    this.props.updateTitle((ev.target as HTMLInputElement).value);
+  onInputTitle(ev: InputEvent) {
+    this.state.inputTitle = (ev.target as HTMLInputElement).value;
+  }
+
+  updateTitle() {
+    this.props.updateTitle(this.state.inputTitle);
   }
 
   toggleDropdownTool(tool: string, ev: MouseEvent) {
