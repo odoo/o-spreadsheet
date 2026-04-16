@@ -145,7 +145,7 @@ export class GridRenderer {
   private drawCellBackground(renderingContext: GridRenderingContext, boxes: Box[]) {
     const { ctx } = renderingContext;
     for (const box of boxes) {
-      let style = box.style;
+      const style = box.style;
       if (style.fillColor && style.fillColor !== "#ffffff") {
         ctx.fillStyle = style.fillColor || "#ffffff";
         ctx.fillRect(box.x, box.y, box.width, box.height);
@@ -196,7 +196,7 @@ export class GridRenderer {
 
   private drawBorders(renderingContext: GridRenderingContext, boxes: Box[]) {
     const { ctx } = renderingContext;
-    for (let box of boxes) {
+    for (const box of boxes) {
       const border = box.border;
       if (border) {
         const { x, y, width, height } = box;
@@ -283,7 +283,7 @@ export class GridRenderer {
     const { ctx } = renderingContext;
     ctx.textBaseline = "top";
     let currentFont;
-    for (let box of boxes) {
+    for (const box of boxes) {
       if (box.content) {
         const style = box.style || {};
         const align = box.content.align || "left";
@@ -328,7 +328,7 @@ export class GridRenderer {
 
         // use the horizontal and the vertical start points to:
         // fill text / fill strikethrough / fill underline
-        for (let brokenLine of box.content.textLines) {
+        for (const brokenLine of box.content.textLines) {
           drawDecoratedText(
             ctx,
             brokenLine,
@@ -462,7 +462,7 @@ export class GridRenderer {
       const colSize = this.getters.getColSize(sheetId, col);
       const colName = numberToLetters(col);
       ctx.fillStyle = activeCols.has(col) ? "#fff" : TEXT_HEADER_COLOR;
-      let colStart = this.getHeaderOffset("COL", left, col);
+      const colStart = this.getHeaderOffset("COL", left, col);
       ctx.fillText(colName, colStart + colSize / 2, HEADER_HEIGHT / 2);
       ctx.moveTo(colStart + colSize, 0);
       ctx.lineTo(colStart + colSize, HEADER_HEIGHT);
@@ -472,7 +472,7 @@ export class GridRenderer {
       const rowSize = this.getters.getRowSize(sheetId, row);
       ctx.fillStyle = activeRows.has(row) ? "#fff" : TEXT_HEADER_COLOR;
 
-      let rowStart = this.getHeaderOffset("ROW", top, row);
+      const rowStart = this.getHeaderOffset("ROW", top, row);
       ctx.fillText(String(row + 1), HEADER_WIDTH / 2, rowStart + rowSize / 2);
       ctx.moveTo(0, rowStart + rowSize);
       ctx.lineTo(HEADER_WIDTH, rowStart + rowSize);

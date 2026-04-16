@@ -280,7 +280,7 @@ export class BordersPlugin extends CorePlugin<BordersPluginState> implements Bor
       const rightBorder = this.getCellBorder({ sheetId, col: rightColumn, row });
       if (leftBorder && rightBorder) {
         const commonSides = this.getCommonSides(leftBorder, rightBorder);
-        for (let col of targetCols) {
+        for (const col of targetCols) {
           this.addBorder(sheetId, col, row, commonSides);
         }
       }
@@ -299,7 +299,7 @@ export class BordersPlugin extends CorePlugin<BordersPluginState> implements Bor
       const belowBorder = this.getCellBorder({ sheetId, col, row: bottomRow });
       if (aboveBorder && belowBorder) {
         const commonSides = this.getCommonSides(aboveBorder, belowBorder);
-        for (let row of targetRows) {
+        for (const row of targetRows) {
           this.addBorder(sheetId, col, row, commonSides);
         }
       }
@@ -312,7 +312,7 @@ export class BordersPlugin extends CorePlugin<BordersPluginState> implements Bor
    */
   private getCommonSides(border1: Border, border2: Border): Border {
     const commonBorder = {};
-    for (let side of ["top", "bottom", "left", "right"]) {
+    for (const side of ["top", "bottom", "left", "right"]) {
       if (border1[side] && deepEquals(border1[side], border2[side])) {
         commonBorder[side] = border1[side];
       }
@@ -512,7 +512,7 @@ export class BordersPlugin extends CorePlugin<BordersPluginState> implements Bor
    * Remove the borders of a zone
    */
   private clearBorders(sheetId: UID, zones: Zone[]) {
-    for (let zone of recomputeZones(zones)) {
+    for (const zone of recomputeZones(zones)) {
       for (let row = zone.top; row <= zone.bottom; row++) {
         this.history.update("borders", sheetId, zone.right + 1, row, "vertical", undefined);
         for (let col = zone.left; col <= zone.right; col++) {
@@ -529,7 +529,7 @@ export class BordersPlugin extends CorePlugin<BordersPluginState> implements Bor
    * Remove the borders inside of a zone
    */
   private clearInsideBorders(sheetId: UID, zones: Zone[]) {
-    for (let zone of zones) {
+    for (const zone of zones) {
       for (let row = zone.top; row <= zone.bottom; row++) {
         for (let col = zone.left; col <= zone.right; col++) {
           this.history.update("borders", sheetId, col, row, undefined);
@@ -561,7 +561,7 @@ export class BordersPlugin extends CorePlugin<BordersPluginState> implements Bor
     if (position === "clear") {
       return this.clearBorders(sheetId, zones);
     }
-    for (let zone of recomputeZones(zones)) {
+    for (const zone of recomputeZones(zones)) {
       if (position === "h" || position === "hv" || position === "all") {
         for (let row = zone.top + 1; row <= zone.bottom; row++) {
           for (let col = zone.left; col <= zone.right; col++) {
@@ -642,7 +642,7 @@ export class BordersPlugin extends CorePlugin<BordersPluginState> implements Bor
   import(data: WorkbookData) {
     // Borders
     if (Object.keys(data.borders || {}).length) {
-      for (let sheet of data.sheets) {
+      for (const sheet of data.sheets) {
         for (const zoneXc in sheet.borders) {
           const borderId = sheet.borders[zoneXc];
           const border = data.borders[borderId];
@@ -656,9 +656,9 @@ export class BordersPlugin extends CorePlugin<BordersPluginState> implements Bor
       }
     }
     // Merges
-    for (let sheetData of data.sheets) {
+    for (const sheetData of data.sheets) {
       if (sheetData.merges) {
-        for (let merge of sheetData.merges) {
+        for (const merge of sheetData.merges) {
           this.addBordersToMerge(sheetData.id, toZone(merge));
         }
       }
@@ -667,7 +667,7 @@ export class BordersPlugin extends CorePlugin<BordersPluginState> implements Bor
 
   export(data: WorkbookData) {
     const borders: { [borderId: number]: Border } = {};
-    for (let sheet of data.sheets) {
+    for (const sheet of data.sheets) {
       const positionsByBorder: Record<number, CellPosition[]> = {};
       for (let col: HeaderIndex = 0; col < sheet.colNumber; col++) {
         for (let row: HeaderIndex = 0; row < sheet.rowNumber; row++) {

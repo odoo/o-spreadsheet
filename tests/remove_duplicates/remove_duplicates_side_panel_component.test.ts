@@ -102,10 +102,10 @@ describe("remove duplicates", () => {
     setSelection(model, ["A1:B2"]);
     await nextTick();
 
-    let checkBoxes = fixture.querySelectorAll(selectors.checkBoxColumnsInput);
-    let checkBoxAll = checkBoxes[0];
-    let checkBoxA = checkBoxes[1];
-    let checkBoxB = checkBoxes[2];
+    const checkBoxes = fixture.querySelectorAll(selectors.checkBoxColumnsInput);
+    const checkBoxAll = checkBoxes[0];
+    const checkBoxA = checkBoxes[1];
+    const checkBoxB = checkBoxes[2];
 
     // at the beginning --> expect all checkbox to be selected
     expect((checkBoxAll as HTMLInputElement).checked).toBe(true);
@@ -146,10 +146,10 @@ describe("remove duplicates", () => {
     setSelection(model, ["A1:B2"]);
     await nextTick();
 
-    let checkBoxes = fixture.querySelectorAll(selectors.checkBoxColumnsInput);
-    let checkBoxAll = checkBoxes[0];
-    let checkBoxA = checkBoxes[1];
-    let checkBoxB = checkBoxes[2];
+    const checkBoxes = fixture.querySelectorAll(selectors.checkBoxColumnsInput);
+    const checkBoxAll = checkBoxes[0];
+    const checkBoxA = checkBoxes[1];
+    const checkBoxB = checkBoxes[2];
 
     // unselect B
     await click(checkBoxB);
@@ -165,7 +165,7 @@ describe("remove duplicates", () => {
     expect((checkBoxA as HTMLInputElement).checked).toBe(true);
     expect((checkBoxB as HTMLInputElement).checked).toBe(false);
 
-    let checkBoxC = fixture.querySelectorAll(selectors.checkBoxColumnsInput)[3];
+    const checkBoxC = fixture.querySelectorAll(selectors.checkBoxColumnsInput)[3];
     expect((checkBoxC as HTMLInputElement).checked).toBe(true);
   });
 

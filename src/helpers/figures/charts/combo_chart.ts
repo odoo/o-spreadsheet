@@ -1,5 +1,4 @@
 import { ChartDataset, LegendOptions } from "chart.js";
-import { DeepPartial } from "chart.js/dist/types/utils";
 import { BACKGROUND_CHART_COLOR } from "../../../constants";
 import {
   AddColumnsRowsCommand,
@@ -9,6 +8,7 @@ import {
   CommandResult,
   CoreGetters,
   DataSet,
+  DeepPartial,
   ExcelChartDefinition,
   Getters,
   Range,
@@ -316,7 +316,7 @@ export function createComboChartRuntime(chart: ComboChart, getters: Getters): Co
   let maxLength = 0;
   const trendDatasets: any[] = [];
 
-  for (let [index, { label, data, hidden }] of dataSetsValues.entries()) {
+  for (const [index, { label, data, hidden }] of dataSetsValues.entries()) {
     const design = definition.dataSets[index];
     const color = colors.next();
     const type = design?.type ?? "line";

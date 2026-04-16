@@ -5,7 +5,6 @@ import type {
   LegendOptions,
   Point,
 } from "chart.js";
-import { DeepPartial } from "chart.js/dist/types/utils";
 import { BACKGROUND_CHART_COLOR } from "../../../constants";
 import {
   AddColumnsRowsCommand,
@@ -13,6 +12,7 @@ import {
   Color,
   CommandResult,
   CoreGetters,
+  DeepPartial,
   Getters,
   LocaleFormat,
   Range,

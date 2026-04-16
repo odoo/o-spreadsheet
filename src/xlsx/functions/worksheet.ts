@@ -31,7 +31,7 @@ export function addColumns(cols: { [key: number]: ExcelHeaderData }): XMLString 
     return escapeXml``;
   }
   const colNodes: XMLString[] = [];
-  for (let [id, col] of Object.entries(cols)) {
+  for (const [id, col] of Object.entries(cols)) {
     // Always force our own col width
     const attributes: XMLAttributes = [
       ["min", parseInt(id) + 1],
@@ -258,7 +258,7 @@ export function addSheetViews(sheet: ExcelSheetData) {
     ["workbookViewId", 0],
   ];
 
-  let sheetView = escapeXml/*xml*/ `
+  const sheetView = escapeXml/*xml*/ `
       <sheetViews>
         <sheetView ${formatAttributes(sheetViewAttrs)}>
           ${splitPanes}
@@ -273,7 +273,7 @@ export function addSheetProperties(sheet: ExcelSheetData) {
     return "";
   }
 
-  let sheetView = escapeXml/*xml*/ `
+  const sheetView = escapeXml/*xml*/ `
       <sheetPr>
         <tabColor ${formatAttributes([["rgb", toXlsxHexColor(sheet.color)]])} />
       </sheetPr>

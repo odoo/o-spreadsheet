@@ -516,7 +516,7 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
     }
     keyDownString += ev.key.toUpperCase();
 
-    let handler = this.keyDownMapping[keyDownString];
+    const handler = this.keyDownMapping[keyDownString];
     if (handler) {
       ev.preventDefault();
       ev.stopPropagation();

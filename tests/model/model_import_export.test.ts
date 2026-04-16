@@ -428,8 +428,8 @@ describe("Migrations", () => {
   });
 
   test("migrate version 14: set locale of spreadsheet to en_US", () => {
-    let model = new Model({ version: 13 });
-    let data = model.exportData();
+    const model = new Model({ version: 13 });
+    const data = model.exportData();
     expect(data.settings).toEqual({ locale: DEFAULT_LOCALE });
   });
 
@@ -460,7 +460,7 @@ describe("Migrations", () => {
       ],
     });
     expect(model.getters.getTables("1")).toMatchObject([{ range: { zone: toZone("A1:B2") } }]);
-    let data = model.exportData();
+    const data = model.exportData();
     expect(data.version).toBe(CURRENT_VERSION);
     expect(data.sheets[0].tables).toEqual([{ range: "A1:B2", type: "static" }]);
   });

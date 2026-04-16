@@ -727,12 +727,12 @@ describe("composer", () => {
     await moveToEnd();
     expect(composerStore.editionMode).toBe("editing");
     expect(composerStore.composerSelection).toEqual({ start: 5, end: 5 });
-    for (let _ in [1, 2, 3]) {
+    for (const _ in [1, 2, 3]) {
       await keyDown({ key: "ArrowLeft" });
     }
     await keyUp({ key: "ArrowLeft" });
     expect(composerStore.composerSelection).toEqual({ start: 2, end: 2 });
-    for (let _ in [1, 2]) {
+    for (const _ in [1, 2]) {
       await keyDown({ key: "ArrowRight" });
     }
     await keyUp({ key: "ArrowRight" });

@@ -1,8 +1,7 @@
 import { ChartConfiguration, ChartDataset, LegendOptions } from "chart.js";
-import { DeepPartial } from "chart.js/dist/types/utils";
 import { BACKGROUND_CHART_COLOR, LINE_FILL_TRANSPARENCY } from "../../../constants";
 import { toNumber } from "../../../functions/helpers";
-import { Color, Getters, Locale } from "../../../types";
+import { Color, DeepPartial, Getters, Locale } from "../../../types";
 import { AxisType, DatasetValues, TrendConfiguration } from "../../../types/chart/chart";
 import { getChartTimeOptions, timeFormatLuxonCompatible } from "../../chart_date";
 import { colorToRGBA, rgbaToHex } from "../../color";
@@ -48,7 +47,7 @@ export function fixEmptyLabelsForDateCharts(
   for (let i = 0; i < newLabels.length; i++) {
     if (!newLabels[i]) {
       newLabels[i] = findNextDefinedValue(newLabels, i);
-      for (let ds of newDatasets) {
+      for (const ds of newDatasets) {
         ds.data[i] = undefined;
       }
     }
@@ -351,7 +350,7 @@ export function createLineOrScatterChartRuntime(
   const colors = getChartColorsGenerator(definition, dataSetsValues.length);
   for (let [index, { label, data, hidden }] of dataSetsValues.entries()) {
     const color = colors.next();
-    let backgroundRGBA = colorToRGBA(color);
+    const backgroundRGBA = colorToRGBA(color);
     if (areaChart) {
       backgroundRGBA.a = LINE_FILL_TRANSPARENCY;
     }

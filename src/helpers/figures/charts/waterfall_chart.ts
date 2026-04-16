@@ -1,5 +1,4 @@
 import type { ChartConfiguration, ChartDataset, LegendOptions } from "chart.js";
-import { DeepPartial } from "chart.js/dist/types/utils";
 import {
   BACKGROUND_CHART_COLOR,
   CHART_WATERFALL_NEGATIVE_COLOR,
@@ -13,6 +12,7 @@ import {
   Color,
   CommandResult,
   CoreGetters,
+  DeepPartial,
   Getters,
   LocaleFormat,
   Range,

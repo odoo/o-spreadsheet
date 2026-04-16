@@ -442,8 +442,13 @@ export default function (PivotClass: PivotUIConstructor) {
         return { value: "" };
       }
 
-      let comparedValue = this.getComparisonValue(measure, domain, fieldNameWithGranularity, value);
-      let numberValue = this.strictMeasureValueToNumber(rawValue);
+      const comparedValue = this.getComparisonValue(
+        measure,
+        domain,
+        fieldNameWithGranularity,
+        value
+      );
+      const numberValue = this.strictMeasureValueToNumber(rawValue);
 
       if (comparedValue === 0 || (comparedValue === "sameValue" && numberValue === 0)) {
         return { value: CellErrorType.DivisionByZero };
@@ -495,7 +500,12 @@ export default function (PivotClass: PivotUIConstructor) {
         return { value: "" };
       }
 
-      let comparedValue = this.getComparisonValue(measure, domain, fieldNameWithGranularity, value);
+      const comparedValue = this.getComparisonValue(
+        measure,
+        domain,
+        fieldNameWithGranularity,
+        value
+      );
       const numberValue = this.strictMeasureValueToNumber(rawValue);
 
       if (comparedValue === 0) {

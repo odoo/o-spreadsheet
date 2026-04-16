@@ -193,7 +193,7 @@ export function createPyramidChartRuntime(
   const barRuntime = createBarChartRuntime(barChart, getters);
   // align design with filtered datasets
   const config = barRuntime.chartJsConfig;
-  let datasets = config.data?.datasets.filter((dataSet) => !dataSet.hidden);
+  const datasets = config.data?.datasets.filter((dataSet) => !dataSet.hidden);
   if (datasets && datasets[0]) {
     datasets[0].data = datasets[0].data.map((value: number) => (value > 0 ? value : 0));
   }
@@ -202,7 +202,7 @@ export function createPyramidChartRuntime(
   }
 
   const maxValue = Math.max(
-    ...config.data?.datasets.map((dataSet) => Math.max(...dataSet.data.map(Math.abs)))
+    ...config.data!.datasets.map((dataSet) => Math.max(...dataSet.data.map(Math.abs)))
   );
 
   const scales = config.options!.scales;

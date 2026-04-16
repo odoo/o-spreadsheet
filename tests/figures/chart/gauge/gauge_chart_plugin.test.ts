@@ -195,7 +195,7 @@ describe("datasource tests", function () {
   });
 
   test("create gauge chart with invalid ranges", () => {
-    let result = createGaugeChart(
+    const result = createGaugeChart(
       model,
       {
         dataRange: "this is invalid",
@@ -604,7 +604,7 @@ describe("Chart design configuration", () => {
       },
     };
     createGaugeChart(model, defaultChart, "1");
-    let chart = model.getters.getChartRuntime("1") as GaugeChartRuntime;
+    const chart = model.getters.getChartRuntime("1") as GaugeChartRuntime;
     expect(chart.inflectionValues).toEqual([
       { value: 22, label: "22", operator: "<=" },
       { value: 42, label: "42", operator: "<=" },
@@ -672,7 +672,7 @@ describe("Chart design configuration", () => {
       },
     };
     createGaugeChart(model, defaultChart, "1");
-    let chart = model.getters.getChartRuntime("1") as GaugeChartRuntime;
+    const chart = model.getters.getChartRuntime("1") as GaugeChartRuntime;
     expect(chart.inflectionValues).toMatchObject([{ value: 100 }, { value: 200 }]);
     expect(chart.colors).toStrictEqual([lowerColor, middleColor, upperColor]);
   });
@@ -687,7 +687,7 @@ describe("Chart design configuration", () => {
       },
     };
     createGaugeChart(model, defaultChart, "1");
-    let chart = model.getters.getChartRuntime("1") as GaugeChartRuntime;
+    const chart = model.getters.getChartRuntime("1") as GaugeChartRuntime;
     expect(chart.inflectionValues).toMatchObject([
       { value: 10, operator: "<" },
       { value: 30, operator: "<=" },

@@ -30,7 +30,7 @@ export function dragFigureForResize(
 ): Figure {
   let { x, y, width, height } = initialFigure;
 
-  if (keepRatio && dirX != 0 && dirY != 0) {
+  if (keepRatio && dirX !== 0 && dirY !== 0) {
     const deltaX = Math.min(dirX * (mouseInitialX - mouseX), initialFigure.width - minFigSize);
     const deltaY = Math.min(dirY * (mouseInitialY - mouseY), initialFigure.height - minFigSize);
     const fraction = Math.min(deltaX / initialFigure.width, deltaY / initialFigure.height);
