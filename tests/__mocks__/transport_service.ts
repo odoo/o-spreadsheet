@@ -55,7 +55,7 @@ export class MockTransportService implements TransportService<CollaborationMessa
   concurrent(concurrentExecutionCallback: () => void) {
     this.isConcurrent = true;
     concurrentExecutionCallback();
-    for (let message of this.pendingMessages) {
+    for (const message of this.pendingMessages) {
       this.notifyListeners(message);
     }
     this.isConcurrent = false;

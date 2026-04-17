@@ -85,7 +85,9 @@ function convertFormatToInternalFormat(format: Format): MultiPartInternalFormat 
 
   // A format can only have a single REPEATED_CHAR token. The rest are converted to simple CHAR tokens.
   for (const part of formatParts) {
-    const repeatedCharTokens = part.filter((token) => token.type === "REPEATED_CHAR");
+    const repeatedCharTokens: FormatToken[] = part.filter(
+      (token) => token.type === "REPEATED_CHAR"
+    );
     for (const repeatedCharToken of repeatedCharTokens.slice(1)) {
       repeatedCharToken.type = "CHAR";
     }
@@ -319,7 +321,7 @@ function internalFormatPartToFormat(
     internalFormat.type !== "number"
       ? internalFormat.tokens
       : numberInternalFormatToTokenList(internalFormat);
-  for (let token of tokens) {
+  for (const token of tokens) {
     switch (token.type) {
       case "STRING":
         format += `[$${token.value}]`;
@@ -341,7 +343,7 @@ function internalFormatPartToFormat(
 }
 
 function numberInternalFormatToTokenList(internalFormat: NumberInternalFormat): FormatToken[] {
-  let tokens: FormatToken[] = [...internalFormat.integerPart];
+  const tokens: FormatToken[] = [...internalFormat.integerPart];
 
   if (internalFormat.decimalPart) {
     tokens.push({ type: "DECIMAL_POINT", value: "." });

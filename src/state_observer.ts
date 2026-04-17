@@ -26,7 +26,7 @@ export class StateObserver {
     const val: any = args.pop();
     const root = args[0];
     let value = root as any;
-    let key = args.at(-1);
+    const key = args.at(-1);
     const pathLength = args.length - 2;
     for (let pathIndex = 1; pathIndex <= pathLength; pathIndex++) {
       const p = args[pathIndex];

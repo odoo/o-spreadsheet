@@ -137,7 +137,7 @@ export class FilterEvaluationPlugin extends UIPlugin {
       );
 
     const hiddenRows = new Set<number>();
-    for (let filter of filters) {
+    for (const filter of filters) {
       // Disable filters whose header are hidden
       if (
         hiddenRows.has(filter.rangeWithHeaders.zone.top) ||

@@ -209,9 +209,9 @@ export function hslaToRGBA(hsla: HSLA): RGBA {
   hsla.s /= 100;
   hsla.l /= 100;
 
-  let c = (1 - Math.abs(2 * hsla.l - 1)) * hsla.s;
-  let x = c * (1 - Math.abs(((hsla.h / 60) % 2) - 1));
-  let m = hsla.l - c / 2;
+  const c = (1 - Math.abs(2 * hsla.l - 1)) * hsla.s;
+  const x = c * (1 - Math.abs(((hsla.h / 60) % 2) - 1));
+  const m = hsla.l - c / 2;
   let r = 0;
   let g = 0;
   let b = 0;
@@ -260,9 +260,9 @@ export function rgbaToHSLA(rgba: RGBA): HSLA {
   const b = rgba.b / 255;
 
   // Find greatest and smallest channel values
-  let cMin = Math.min(r, g, b);
-  let cMax = Math.max(r, g, b);
-  let delta = cMax - cMin;
+  const cMin = Math.min(r, g, b);
+  const cMax = Math.max(r, g, b);
+  const delta = cMax - cMin;
   let h = 0;
   let s = 0;
   let l = 0;

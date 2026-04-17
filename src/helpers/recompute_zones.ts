@@ -190,7 +190,7 @@ function findIndexAndCreateProfile(
     return profilesStartingPosition.length - 1;
   }
   const predecessorIndex = binaryPredecessorSearch(profilesStartingPosition, value, startIndex);
-  if (value != profilesStartingPosition[predecessorIndex]) {
+  if (value !== profilesStartingPosition[predecessorIndex]) {
     // mean that the value is not ending/starting at the same position as the previous/next profile
     // --> it's a new profile
     // --> we need to add it
