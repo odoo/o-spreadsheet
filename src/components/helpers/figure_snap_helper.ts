@@ -62,8 +62,11 @@ export function snapForMove(
     const isBaseFigFrozenY = figureToSnap.y < viewportY;
     const isSnappedFrozenY = snappedFigure.y < viewportY;
 
-    if (isBaseFigFrozenY && !isSnappedFrozenY) snappedFigure.y += scrollY;
-    else if (!isBaseFigFrozenY && isSnappedFrozenY) snappedFigure.y -= scrollY;
+    if (isBaseFigFrozenY && !isSnappedFrozenY) {
+      snappedFigure.y += scrollY;
+    } else if (!isBaseFigFrozenY && isSnappedFrozenY) {
+      snappedFigure.y -= scrollY;
+    }
   }
 
   if (verticalSnapLine) {
@@ -72,8 +75,11 @@ export function snapForMove(
     const isBaseFigFrozenX = figureToSnap.x < viewportX;
     const isSnappedFrozenX = snappedFigure.x < viewportX;
 
-    if (isBaseFigFrozenX && !isSnappedFrozenX) snappedFigure.x += scrollX;
-    else if (!isBaseFigFrozenX && isSnappedFrozenX) snappedFigure.x -= scrollX;
+    if (isBaseFigFrozenX && !isSnappedFrozenX) {
+      snappedFigure.x += scrollX;
+    } else if (!isBaseFigFrozenX && isSnappedFrozenX) {
+      snappedFigure.x -= scrollX;
+    }
   }
 
   return { snappedFigure, verticalSnapLine, horizontalSnapLine };
@@ -179,14 +185,18 @@ function isAxisVisible<T extends HFigureAxisType | VFigureAxisType>(
     case "top":
     case "bottom":
     case "vCenter":
-      if (figure.y < mainViewportY) return true;
+      if (figure.y < mainViewportY) {
+        return true;
+      }
       axisStartEndPositions.push({ x: figure.x, y: axis.position });
       axisStartEndPositions.push({ x: figure.x + figure.width, y: axis.position });
       break;
     case "left":
     case "right":
     case "hCenter":
-      if (figure.x < mainViewportX) return true;
+      if (figure.x < mainViewportX) {
+        return true;
+      }
       axisStartEndPositions.push({ x: axis.position, y: figure.y });
       axisStartEndPositions.push({ x: axis.position, y: figure.y + figure.height });
       break;
@@ -220,7 +230,9 @@ function getSnapLine<T extends HFigureAxisType[] | VFigureAxisType[]>(
 
     for (const axisOfFigure of axesOfFigure) {
       for (const axisOfOtherFig of axesOfOtherFig) {
-        if (!canSnap(axisOfFigure.position, axisOfOtherFig.position)) continue;
+        if (!canSnap(axisOfFigure.position, axisOfOtherFig.position)) {
+          continue;
+        }
 
         const snapOffset = axisOfFigure.position - axisOfOtherFig.position;
 

@@ -31,8 +31,12 @@ export function convertTables(convertedData: WorkbookData, xlsxData: XLSXImportD
   for (const xlsxSheet of xlsxData.sheets) {
     for (const table of xlsxSheet.tables) {
       const sheet = convertedData.sheets.find((sheet) => sheet.name === xlsxSheet.sheetName);
-      if (!sheet || !table.autoFilter) continue;
-      if (!sheet.filterTables) sheet.filterTables = [];
+      if (!sheet || !table.autoFilter) {
+        continue;
+      }
+      if (!sheet.filterTables) {
+        sheet.filterTables = [];
+      }
       sheet.filterTables.push({ range: table.ref });
     }
   }
@@ -56,7 +60,9 @@ function applyTableStyle(convertedData: WorkbookData, xlsxData: XLSXImportData) 
   for (const xlsxSheet of xlsxData.sheets) {
     for (const table of xlsxSheet.tables) {
       const sheet = convertedData.sheets.find((sheet) => sheet.name === xlsxSheet.sheetName);
-      if (!sheet) continue;
+      if (!sheet) {
+        continue;
+      }
       const tableZone = toZone(table.ref);
 
       // Table style

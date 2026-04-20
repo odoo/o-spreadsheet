@@ -273,21 +273,27 @@ export function getGridStyle(model: Model): GridStyleDescr {
 
 export function setGrid(model: Model, grid: GridDescr) {
   for (const [xc, value] of Object.entries(grid)) {
-    if (value === undefined) continue;
+    if (value === undefined) {
+      continue;
+    }
     setCellContent(model, xc, value);
   }
 }
 
 export function setGridFormat(model: Model, grid: GridFormatDescr) {
   for (const [xc, format] of Object.entries(grid)) {
-    if (format === undefined) continue;
+    if (format === undefined) {
+      continue;
+    }
     setFormat(model, format, target(xc));
   }
 }
 
 export function setGridStyle(model: Model, grid: GridStyleDescr) {
   for (const [xc, style] of Object.entries(grid)) {
-    if (style === undefined) continue;
+    if (style === undefined) {
+      continue;
+    }
     setStyle(model, xc, style);
   }
 }
@@ -487,7 +493,9 @@ export function XCToMergeCellMap(
   for (const mergeXC of mergeXCList) {
     const { col, row } = toCartesian(mergeXC);
     const merge = model.getters.getMerge({ sheetId, col, row });
-    if (!mergeCellMap[col]) mergeCellMap[col] = [];
+    if (!mergeCellMap[col]) {
+      mergeCellMap[col] = [];
+    }
     mergeCellMap[col][row] = merge ? merge.id : undefined;
   }
   return mergeCellMap;
@@ -580,7 +588,9 @@ export async function startGridComposition(key?: string) {
  */
 export function textContentAll(cssSelector: string): string[] {
   const nodes = document.querySelectorAll(cssSelector);
-  if (!nodes) return [];
+  if (!nodes) {
+    return [];
+  }
   return [...nodes].map((node) => node.textContent).filter((text): text is string => text !== null);
 }
 
@@ -723,7 +733,9 @@ export function getFigureDefinition(
 /** Extract a property of the style of the given html element and return its size in pixel */
 export function getStylePropertyInPx(el: HTMLElement, property: string): number | undefined {
   const styleProperty = el.style[property] as string;
-  if (!styleProperty) return undefined;
+  if (!styleProperty) {
+    return undefined;
+  }
   return Number(styleProperty.replace("px", ""));
 }
 

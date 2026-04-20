@@ -698,7 +698,9 @@ export class EditionPlugin extends UIPlugin {
     const usedIndexes = new Set(Object.values(colorsToKeep));
     let currentIndex = 0;
     const nextIndex = () => {
-      while (usedIndexes.has(currentIndex)) currentIndex++;
+      while (usedIndexes.has(currentIndex)) {
+        currentIndex++;
+      }
       usedIndexes.add(currentIndex);
       return currentIndex;
     };

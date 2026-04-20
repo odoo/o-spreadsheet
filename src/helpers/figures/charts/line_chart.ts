@@ -336,7 +336,9 @@ function getLineConfiguration(
         color: fontColor,
         callback: (value) => {
           value = Number(value);
-          if (isNaN(value)) return value;
+          if (isNaN(value)) {
+            return value;
+          }
           const { locale, format } = options;
           return formatValue(value, {
             locale,

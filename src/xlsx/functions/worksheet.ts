@@ -185,7 +185,9 @@ export function addMerges(merges: string[]): XMLString {
         ${joinXmlNodes(mergeNodes)}
       </mergeCells>
     `;
-  } else return escapeXml``;
+  } else {
+    return escapeXml``;
+  }
 }
 
 export function addSheetViews(sheet: ExcelSheetData) {

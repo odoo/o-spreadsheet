@@ -65,9 +65,15 @@ export function keyboardEventToShortcutString(
 ): string {
   let keyDownString = "";
   if (!MODIFIER_KEYS.includes(ev.key)) {
-    if (isCtrlKey(ev)) keyDownString += "Ctrl+";
-    if (ev.altKey) keyDownString += "Alt+";
-    if (ev.shiftKey) keyDownString += "Shift+";
+    if (isCtrlKey(ev)) {
+      keyDownString += "Ctrl+";
+    }
+    if (ev.altKey) {
+      keyDownString += "Alt+";
+    }
+    if (ev.shiftKey) {
+      keyDownString += "Shift+";
+    }
   }
   const key = mode === "key" ? ev.key : ev.code;
   keyDownString += letterRegex.test(key) ? key.toUpperCase() : key;

@@ -523,9 +523,15 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
   onKeydown(ev: KeyboardEvent) {
     let keyDownString = "";
     if (!MODIFIER_KEYS.includes(ev.key)) {
-      if (isCtrlKey(ev)) keyDownString += "CTRL+";
-      if (ev.altKey) keyDownString += "ALT+";
-      if (ev.shiftKey) keyDownString += "SHIFT+";
+      if (isCtrlKey(ev)) {
+        keyDownString += "CTRL+";
+      }
+      if (ev.altKey) {
+        keyDownString += "ALT+";
+      }
+      if (ev.shiftKey) {
+        keyDownString += "SHIFT+";
+      }
     }
     keyDownString += ev.key.toUpperCase();
 

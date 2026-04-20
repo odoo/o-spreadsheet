@@ -751,7 +751,9 @@ export const DDB = {
     assertPeriodSmallerOrEqualToLife(_period, _life);
     assertDeprecationFactorStrictlyPositive(_factor);
 
-    if (_cost === 0 || _salvage >= _cost) return 0;
+    if (_cost === 0 || _salvage >= _cost) {
+      return 0;
+    }
 
     const deprecFactor = _factor / _life;
     if (deprecFactor > 1) {
@@ -1196,8 +1198,12 @@ export const IRR = {
     visitNumbers(
       [cashFlowAmounts],
       (amount) => {
-        if (amount > 0) positive = true;
-        if (amount < 0) negative = true;
+        if (amount > 0) {
+          positive = true;
+        }
+        if (amount < 0) {
+          negative = true;
+        }
         amounts.push(amount);
       },
       this.locale
@@ -1670,7 +1676,9 @@ export const PPMT = {
 
     const payment = PMT.compute.bind(this)(r, n, pv, fv, endOrBeginning);
 
-    if (type === 1 && period === 1) return payment;
+    if (type === 1 && period === 1) {
+      return payment;
+    }
     const eqPeriod = type === 0 ? period - 1 : period - 2;
     const eqPv = pv + payment * type;
 
@@ -2431,7 +2439,9 @@ export const VDB = {
     assertStartAndEndPeriodAreValid(_startPeriod, _endPeriod, _life);
     assertDeprecationFactorStrictlyPositive(_factor);
 
-    if (_cost === 0) return 0;
+    if (_cost === 0) {
+      return 0;
+    }
     if (_salvage >= _cost) {
       return _startPeriod < 1 ? _cost - _salvage : 0;
     }
@@ -2512,8 +2522,11 @@ export const XIRR = {
     const map = new Map<number, number>();
     for (const i of range(0, _dates.length)) {
       const date = _dates[i];
-      if (map.has(date)) map.set(date, map.get(date)! + _cashFlows[i]);
-      else map.set(date, _cashFlows[i]);
+      if (map.has(date)) {
+        map.set(date, map.get(date)! + _cashFlows[i]);
+      } else {
+        map.set(date, _cashFlows[i]);
+      }
     }
     const dates = Array.from(map.keys());
     const values = dates.map((date) => map.get(date)!);
@@ -2552,7 +2565,9 @@ export const XIRR = {
     };
     const nanFallback = (previousFallback: number | undefined) => {
       // -0.9 => -0.99 => -0.999 => ...
-      if (!previousFallback) return -0.9;
+      if (!previousFallback) {
+        return -0.9;
+      }
       return previousFallback / 10 - 0.9;
     };
 
@@ -2603,14 +2618,19 @@ export const XNPV = {
     assertEveryDateGreaterThanFirstDateOfCashFlowDates(_dates);
     assertRateStrictlyPositive(rate);
 
-    if (_cashFlows.length === 1) return _cashFlows[0];
+    if (_cashFlows.length === 1) {
+      return _cashFlows[0];
+    }
 
     // aggregate values of the same date
     const map = new Map<number, number>();
     for (const i of range(0, _dates.length)) {
       const date = _dates[i];
-      if (map.has(date)) map.set(date, map.get(date)! + _cashFlows[i]);
-      else map.set(date, _cashFlows[i]);
+      if (map.has(date)) {
+        map.set(date, map.get(date)! + _cashFlows[i]);
+      } else {
+        map.set(date, _cashFlows[i]);
+      }
     }
     const dates = Array.from(map.keys());
     const values = dates.map((date) => map.get(date)!);

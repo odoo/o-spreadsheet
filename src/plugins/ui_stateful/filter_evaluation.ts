@@ -143,7 +143,9 @@ export class FilterEvaluationPlugin extends UIPlugin {
   getFilterValues(position: CellPosition): string[] {
     const id = this.getters.getFilterId(position);
     const sheetId = position.sheetId;
-    if (!id || !this.filterValues[sheetId]) return [];
+    if (!id || !this.filterValues[sheetId]) {
+      return [];
+    }
     return this.filterValues[sheetId][id] || [];
   }
 
@@ -164,8 +166,12 @@ export class FilterEvaluationPlugin extends UIPlugin {
 
   private updateFilter({ col, row, hiddenValues, sheetId }: UpdateFilterCommand) {
     const id = this.getters.getFilterId({ sheetId, col, row });
-    if (!id) return;
-    if (!this.filterValues[sheetId]) this.filterValues[sheetId] = {};
+    if (!id) {
+      return;
+    }
+    if (!this.filterValues[sheetId]) {
+      this.filterValues[sheetId] = {};
+    }
     this.filterValues[sheetId][id] = hiddenValues;
   }
 
@@ -184,7 +190,9 @@ export class FilterEvaluationPlugin extends UIPlugin {
         continue;
       }
       const filteredValues = this.filterValues[sheetId]?.[filter.id]?.map(toLowerCase);
-      if (!filteredValues || !filter.filteredZone) continue;
+      if (!filteredValues || !filter.filteredZone) {
+        continue;
+      }
       const filteredValuesSet = new Set(filteredValues);
       for (let row = filter.filteredZone.top; row <= filter.filteredZone.bottom; row++) {
         const value = this.getCellValueAsString(sheetId, filter.col, row);
@@ -217,7 +225,9 @@ export class FilterEvaluationPlugin extends UIPlugin {
           const filteredValues: string[] = this.getFilterValues(position);
 
           const filter = this.getters.getFilter(position);
-          if (!filter) continue;
+          if (!filter) {
+            continue;
+          }
 
           const valuesInFilterZone = filter.filteredZone
             ? positions(filter.filteredZone).map(

@@ -229,7 +229,9 @@ export class EvaluationPlugin extends UIPlugin {
    */
   getRangeFormattedValues(range: Range): FormattedValue[] {
     const sheet = this.getters.tryGetSheet(range.sheetId);
-    if (sheet === undefined) return [];
+    if (sheet === undefined) {
+      return [];
+    }
     return this.getters
       .getEvaluatedCellsInZone(sheet.id, range.zone)
       .map((cell) => cell.formattedValue);
@@ -240,7 +242,9 @@ export class EvaluationPlugin extends UIPlugin {
    */
   getRangeValues(range: Range): CellValue[] {
     const sheet = this.getters.tryGetSheet(range.sheetId);
-    if (sheet === undefined) return [];
+    if (sheet === undefined) {
+      return [];
+    }
     return this.getters.getEvaluatedCellsInZone(sheet.id, range.zone).map((cell) => cell.value);
   }
 
@@ -249,7 +253,9 @@ export class EvaluationPlugin extends UIPlugin {
    */
   getRangeFormats(range: Range): (Format | undefined)[] {
     const sheet = this.getters.tryGetSheet(range.sheetId);
-    if (sheet === undefined) return [];
+    if (sheet === undefined) {
+      return [];
+    }
     return this.getters.getEvaluatedCellsInZone(sheet.id, range.zone).map((cell) => cell.format);
   }
 

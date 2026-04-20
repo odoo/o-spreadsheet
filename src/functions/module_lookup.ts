@@ -302,7 +302,9 @@ export const LOOKUP = {
       getElement
     );
 
-    if (index === -1) assertAvailable(undefined, searchKey?.value);
+    if (index === -1) {
+      assertAvailable(undefined, searchKey?.value);
+    }
 
     verticalSearch
       ? assertAvailable(_searchArray[0][index], searchKey?.value)

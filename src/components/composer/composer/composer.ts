@@ -500,7 +500,9 @@ export class Composer extends Component<ComposerProps, SpreadsheetChildEnv> {
     if (isValidFormula) {
       const tokens = this.env.model.getters.getCurrentTokens();
       const currentSelection = this.contentHelper.getCurrentSelection();
-      if (currentSelection.start === currentSelection.end) return;
+      if (currentSelection.start === currentSelection.end) {
+        return;
+      }
 
       const currentSelectedText = composerContent.substring(
         currentSelection.start,
@@ -688,7 +690,9 @@ export class Composer extends Component<ComposerProps, SpreadsheetChildEnv> {
       : this.env.model.getters.getCurrentEditedCell()?.sheetId;
 
     const highlight = highlights.find((highlight) => {
-      if (highlight.sheetId !== refSheet) return false;
+      if (highlight.sheetId !== refSheet) {
+        return false;
+      }
 
       const range = this.env.model.getters.getRangeFromSheetXC(refSheet, xc);
       let zone = range.zone;

@@ -234,7 +234,9 @@ export class Menu extends Component<Props, SpreadsheetChildEnv> {
    */
   openSubMenu(menu: Action, menuIndex: number, ev: MouseEvent) {
     const parentMenuEl = ev.currentTarget as HTMLElement;
-    if (!parentMenuEl) return;
+    if (!parentMenuEl) {
+      return;
+    }
     const y = parentMenuEl.getBoundingClientRect().top;
 
     this.subMenu.position = {

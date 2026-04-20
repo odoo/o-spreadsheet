@@ -71,8 +71,9 @@ export class EvaluationChartPlugin extends UIPlugin<EvaluationChartState> {
     chartBackground: Color | undefined,
     mainRange: Range | undefined
   ): EvaluationChartStyle {
-    if (chartBackground)
+    if (chartBackground) {
       return { background: chartBackground, fontColor: chartFontColor(chartBackground) };
+    }
     if (!mainRange) {
       return {
         background: BACKGROUND_CHART_COLOR,

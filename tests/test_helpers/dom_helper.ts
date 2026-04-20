@@ -191,7 +191,9 @@ export function triggerKeyboardEvent(
 function dispatchEvent(selector: string | EventTarget, ev: Event) {
   if (typeof selector === "string") {
     const el = document.querySelector(selector);
-    if (!el) throw new Error(`"${selector}" does not match any element.`);
+    if (!el) {
+      throw new Error(`"${selector}" does not match any element.`);
+    }
     el.dispatchEvent(ev);
   } else {
     selector.dispatchEvent(ev);
@@ -263,13 +265,17 @@ export async function focusAndKeyUp(
 
 export function getElComputedStyle(selector: string, style: string): string {
   const element = document.querySelector(selector);
-  if (!element) throw new Error(`No element matching selector "${selector}"`);
+  if (!element) {
+    throw new Error(`No element matching selector "${selector}"`);
+  }
   return window.getComputedStyle(element)[style];
 }
 
 export function getElStyle(selector: string, style: string): string {
   const element = document.querySelector<HTMLElement>(selector);
-  if (!element) throw new Error(`No element matching selector "${selector}"`);
+  if (!element) {
+    throw new Error(`No element matching selector "${selector}"`);
+  }
   return element.style[style];
 }
 
@@ -368,7 +374,9 @@ export function triggerTouchEvent(
   extra: Partial<Touch>
 ) {
   const target = typeof selector === "string" ? document.querySelector(selector) : selector;
-  if (!target) throw new Error(`"${selector}" does not match any element.`);
+  if (!target) {
+    throw new Error(`"${selector}" does not match any element.`);
+  }
 
   const ev = new TouchEvent(type, {
     cancelable: true,

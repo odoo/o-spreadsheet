@@ -13,7 +13,9 @@ type FixedReferenceType = "col" | "row" | "colrow" | "none";
  *   A1:$B$1 => $A$1:B$1 => A$1:$B1 => $A1:B1 => A1:$B$1
  */
 export function loopThroughReferenceType(token: Readonly<Token>): Token {
-  if (token.type !== "REFERENCE") return token;
+  if (token.type !== "REFERENCE") {
+    return token;
+  }
   const { xc, sheetName } = splitReference(token.value);
   const [left, right] = xc.split(":") as [string, string | undefined];
 
