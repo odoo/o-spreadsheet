@@ -5,7 +5,7 @@ import { Getters } from "../../types/getters";
 import { Pixel, PixelPosition, UID } from "../../types/misc";
 import { Rect } from "../../types/rendering";
 
-const SNAP_MARGIN: Pixel = 5;
+export const SNAP_MARGIN: Pixel = 5;
 
 export type HFigureAxisType = "top" | "bottom" | "vCenter";
 export type VFigureAxisType = "right" | "left" | "hCenter";
@@ -61,9 +61,9 @@ export function snapForMove(
   // If the snap cause the figure to change pane, we need to also apply the scroll as an offset
   for (const figureToSnap of figuresToSnap) {
     if (horizontalSnapLine) {
-      figureToSnap.y -= horizontalSnapLine.snapOffset;
-
       const isBaseFigFrozenY = figureToSnap.y < viewportY;
+
+      figureToSnap.y -= horizontalSnapLine.snapOffset;
       const isSnappedFrozenY = figureToSnap.y < viewportY;
 
       if (isBaseFigFrozenY && !isSnappedFrozenY) {
@@ -74,9 +74,9 @@ export function snapForMove(
     }
 
     if (verticalSnapLine) {
-      figureToSnap.x -= verticalSnapLine.snapOffset;
-
       const isBaseFigFrozenX = figureToSnap.x < viewportX;
+
+      figureToSnap.x -= verticalSnapLine.snapOffset;
       const isSnappedFrozenX = figureToSnap.x < viewportX;
 
       if (isBaseFigFrozenX && !isSnappedFrozenX) {

@@ -14,6 +14,7 @@ import { Component } from "../../src/owl3_compatibility_layer";
 import { FigureComponent } from "../../src/components/figures/figure/figure";
 import { ChartFigure } from "../../src/components/figures/figure_chart/figure_chart";
 import { downloadFile } from "../../src/components/helpers/dom_helpers";
+import { SNAP_MARGIN } from "../../src/components/helpers/figure_snap_helper";
 import { figureRegistry } from "../../src/registries/figures_registry";
 import { ClipboardMIMEType } from "../../src/types/clipboard";
 import { SpreadsheetChildEnv } from "../../src/types/spreadsheet_env";
@@ -1310,6 +1311,116 @@ describe("figures", () => {
           });
         }
       );
+
+      describe("Snap across frozen pane boundary", () => {
+        test("Snapping figure from frozen rows to main viewport applies scroll offset", async () => {
+          freezeRows(model, 5);
+          setViewportOffset(model, 0, SNAP_MARGIN - 1);
+          // f1 in frozen zone (row 3, y=69). After toBottomRightViewport: y=73.
+          createFigure(model, {
+            id: "f1",
+            anchor: { col: 2, row: 3 },
+            offset: { x: 0, y: 0 },
+            width: 26,
+            height: 26,
+          });
+          // f2 at start of visible main viewport (row 5, offset.y=4 → y=119)
+          createFigure(model, {
+            id: "f2",
+            anchor: { col: 2, row: 5 },
+            offset: { x: 0, y: 4 },
+            width: 26,
+            height: 26,
+          });
+          await nextTick();
+          // Drag 41px → y=114 (just below viewportY=115 (5 * 23), still frozen).
+          await clickAndDrag(".o-figure[data-id=f1]", { x: 0, y: 41 }, undefined, true);
+          const figure = model.getters.getFigure(sheetId, "f1")!;
+          expect(figure.row).toBe(5);
+          expect(figure.offset!.y).toBe(8); // scroll (4) + figure2.offsetY (4)
+        });
+
+        test("Snapping figure from main viewport to frozen rows applies scroll offset", async () => {
+          freezeRows(model, 5);
+          setViewportOffset(model, 0, SNAP_MARGIN - 1);
+          // f1 at row 5, offset.y=0 (y=115, main viewport). No normalization.
+          createFigure(model, {
+            id: "f1",
+            anchor: { col: 2, row: 5 },
+            offset: { x: 0, y: 0 },
+            width: 26,
+            height: 26,
+          });
+          // f2 in frozen zone (row 4, offset.y=18 → y=110, axis top=110+4=114)
+          createFigure(model, {
+            id: "f2",
+            anchor: { col: 2, row: 4 },
+            offset: { x: 0, y: 18 },
+            width: 26,
+            height: 26,
+          });
+          await nextTick();
+          // Drag 1px horizontally to trigger DnD; Y snap crosses boundary
+          await clickAndDrag(".o-figure[data-id=f1]", { x: 1, y: 0 }, undefined, true);
+          const figure = model.getters.getFigure(sheetId, "f1")!;
+          expect(figure.row).toBe(4);
+          expect(figure.offset!.y).toBe(14); // figure2.offsetY (18) - scroll offset (4)
+        });
+
+        test("Snapping figure from frozen cols to main viewport applies scroll offset", async () => {
+          freezeColumns(model, 5);
+          setViewportOffset(model, SNAP_MARGIN - 1, 0);
+          // f1 in frozen zone (col 3, x=288). After normalization: x=292.
+          createFigure(model, {
+            id: "f1",
+            anchor: { col: 3, row: 2 },
+            offset: { x: 0, y: 0 },
+            width: 26,
+            height: 26,
+          });
+          // f2 at start of visible main viewport (col 5, offset.x=4 → x=484)
+          createFigure(model, {
+            id: "f2",
+            anchor: { col: 5, row: 2 },
+            offset: { x: 4, y: 0 },
+            width: 26,
+            height: 26,
+          });
+          await nextTick();
+          // Drag 187px → x=479 (just below viewportX=480, still frozen).
+          await clickAndDrag(".o-figure[data-id=f1]", { x: 187, y: 0 }, undefined, true);
+          const figure = model.getters.getFigure(sheetId, "f1")!;
+          expect(figure.col).toBe(5);
+          expect(figure.offset!.x).toBe(8); // scroll (4) + figure2.offsetX (4)
+        });
+
+        test("Snapping figure from main viewport to frozen cols applies scroll offset", async () => {
+          freezeColumns(model, 5);
+          setViewportOffset(model, SNAP_MARGIN - 1, 0);
+          // f1 at col 5, offset.x=0 (x=480, main viewport). No normalization.
+          createFigure(model, {
+            id: "f1",
+            anchor: { col: 5, row: 2 },
+            offset: { x: 0, y: 0 },
+            width: 26,
+            height: 26,
+          });
+          // f2 in frozen zone (col 4, offset.x=90 → x=474, axis left=474+4=478)
+          createFigure(model, {
+            id: "f2",
+            anchor: { col: 4, row: 2 },
+            offset: { x: 90, y: 0 },
+            width: 26,
+            height: 26,
+          });
+          await nextTick();
+          // Drag 1px vertically to trigger DnD; X snap crosses boundary
+          await clickAndDrag(".o-figure[data-id=f1]", { x: 0, y: 1 }, undefined, true);
+          const figure = model.getters.getFigure(sheetId, "f1")!;
+          expect(figure.col).toBe(4);
+          expect(figure.offset!.x).toBe(86); // figure2.offsetX (90) - scroll offset (4)
+        });
+      });
     });
 
     describe("Move multiple figures", () => {
