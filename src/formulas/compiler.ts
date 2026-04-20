@@ -97,7 +97,7 @@ function compileTokensOrThrow(tokens: Token[]): CompiledFormula {
     code.append(`// ${cacheKey}`);
     code.append(compiledAST);
     code.append(`return ${compiledAST.returnExpression};`);
-    let baseFunction = new Function(
+    const baseFunction = new Function(
       "deps", // the dependencies in the current formula
       "ref", // a function to access a certain dependency at a given index
       "range", // same as above, but guarantee that the result is in the form of a range

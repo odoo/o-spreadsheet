@@ -44,7 +44,7 @@ export class EvaluationChartPlugin extends CoreViewPlugin<EvaluationChartState> 
         this.charts[cmd.figureId] = undefined;
         break;
       case "DELETE_SHEET":
-        for (let chartId in this.charts) {
+        for (const chartId in this.charts) {
           if (!this.getters.isChartDefined(chartId)) {
             this.charts[chartId] = undefined;
           }

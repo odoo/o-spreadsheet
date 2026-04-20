@@ -287,7 +287,7 @@ export class GridSelectionPlugin extends UIPlugin {
 
   getActiveCols(): Set<number> {
     const activeCols = new Set<number>();
-    for (let zone of this.gridSelection.zones) {
+    for (const zone of this.gridSelection.zones) {
       if (
         zone.top === 0 &&
         zone.bottom === this.getters.getNumberRows(this.getters.getActiveSheetId()) - 1
@@ -303,7 +303,7 @@ export class GridSelectionPlugin extends UIPlugin {
   getActiveRows(): Set<number> {
     const activeRows = new Set<number>();
     const sheetId = this.getters.getActiveSheetId();
-    for (let zone of this.gridSelection.zones) {
+    for (const zone of this.gridSelection.zones) {
       if (zone.left === 0 && zone.right === this.getters.getNumberCols(sheetId) - 1) {
         for (let i = zone.top; i <= zone.bottom; i++) {
           activeRows.add(i);
@@ -590,7 +590,7 @@ export class GridSelectionPlugin extends UIPlugin {
     for (const element of toRemove) {
       const size = originalSize[element];
       const currentSize = this.getters.getHeaderSize(cmd.sheetId, cmd.dimension, currentIndex);
-      if (size != currentSize) {
+      if (size !== currentSize) {
         resizingGroups[size] ??= [];
         resizingGroups[size].push(currentIndex);
       }
@@ -623,7 +623,7 @@ export class GridSelectionPlugin extends UIPlugin {
       moveDict[cmd.elements[index]] = base + index;
     }
     for (const figure of this.getters.getFigures(cmd.sheetId)) {
-      if (cmd.dimension == "COL" && figure.col in moveDict) {
+      if (cmd.dimension === "COL" && figure.col in moveDict) {
         cmds.push({
           type: "UPDATE_FIGURE",
           sheetId: cmd.sheetId,
@@ -632,7 +632,7 @@ export class GridSelectionPlugin extends UIPlugin {
           row: figure.row,
         });
       }
-      if (cmd.dimension == "ROW" && figure.row in moveDict) {
+      if (cmd.dimension === "ROW" && figure.row in moveDict) {
         cmds.push({
           type: "UPDATE_FIGURE",
           sheetId: cmd.sheetId,

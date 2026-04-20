@@ -46,7 +46,7 @@ export function load(data?: any, verboseImport?: boolean): WorkbookData {
     const reader = new XlsxReader(data);
     data = reader.convertXlsx();
     if (verboseImport) {
-      for (let parsingError of reader.warningManager.warnings.sort()) {
+      for (const parsingError of reader.warningManager.warnings.sort()) {
         console.warn(parsingError);
       }
     }

@@ -7,7 +7,7 @@ import { CompiledFormula } from "../../src/types";
 import { addToRegistry, evaluateCell, evaluateCellFormat } from "../test_helpers/helpers";
 
 function compiledBaseFunction(formula: string): CompiledFormula {
-  for (let f in functionCache) {
+  for (const f in functionCache) {
     delete functionCache[f];
   }
   return compileFromCompleteFormula(formula);
@@ -253,9 +253,9 @@ describe("compile functions", () => {
 
       const m = new Model();
 
-      let refFn = jest.fn();
-      let ensureRange = jest.fn();
-      let getSymbolValue = jest.fn();
+      const refFn = jest.fn();
+      const ensureRange = jest.fn();
+      const getSymbolValue = jest.fn();
 
       const ctx = { USEMETAARG: () => {}, NOTUSEMETAARG: () => {} };
 

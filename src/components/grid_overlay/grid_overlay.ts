@@ -37,7 +37,7 @@ css/* scss */ `
 function useCellHovered(env: SpreadsheetChildEnv, gridRef: Ref<HTMLElement>): Partial<Position> {
   const delayedHoveredCell = useStore(DelayedHoveredCellStore);
   const hoveredTable = useStore(HoveredTableStore);
-  let hoveredPosition: Partial<Position> = {
+  const hoveredPosition: Partial<Position> = {
     col: undefined,
     row: undefined,
   };

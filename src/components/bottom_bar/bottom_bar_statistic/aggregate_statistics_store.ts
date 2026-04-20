@@ -126,13 +126,13 @@ export class AggregateStatisticsStore extends SpreadsheetStore {
       }
     }
     const locale = getters.getLocale();
-    let statisticFnResults: StatisticFnResults = {};
+    const statisticFnResults: StatisticFnResults = {};
 
     const getCells = memoize((typeStr: string) => {
       const types = typeStr.split(",");
       return cells.filter((c) => types.includes(c.type));
     });
-    for (let fn of selectionStatisticFunctions) {
+    for (const fn of selectionStatisticFunctions) {
       // We don't want to display statistical information when there is no interest:
       // We set the statistical result to undefined if the data handled by the selection
       // does not match the data handled by the function.

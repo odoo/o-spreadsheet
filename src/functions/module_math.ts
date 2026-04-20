@@ -543,7 +543,7 @@ export const COUNTUNIQUEIFS = {
     arg("criterion2 (string, repeating)", _t("The pattern or test to apply to criteria_range2.")),
   ],
   compute: function (range: Matrix<FunctionResultObject>, ...args: Arg[]): number {
-    let uniqueValues = new Set();
+    const uniqueValues = new Set();
     visitMatchingRanges(
       args,
       (i, j) => {
@@ -996,10 +996,10 @@ export const PRODUCT = {
   compute: function (...factors: Arg[]) {
     let count = 0;
     let acc = 1;
-    for (let n of factors) {
+    for (const n of factors) {
       if (isMatrix(n)) {
-        for (let i of n) {
-          for (let j of i) {
+        for (const i of n) {
+          for (const j of i) {
             const f = j.value;
             if (typeof f === "number") {
               acc *= f;

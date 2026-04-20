@@ -154,7 +154,7 @@ describe("line chart", () => {
       },
       "chartId"
     );
-    let runtime = model.getters.getChartRuntime("chartId") as any;
+    const runtime = model.getters.getChartRuntime("chartId") as any;
     expect(runtime.chartJsConfig.data.datasets[0].fill).toBe("origin");
     expect(runtime.chartJsConfig.data.datasets[1].fill).toBe(false);
   });
