@@ -216,7 +216,9 @@ export class XlsxSheetExtractor extends XlsxBaseExtractor {
 
   private extractSheetFormat(worksheet: Element): XLSXSheetFormat | undefined {
     const formatElement = this.querySelector(worksheet, "sheetFormatPr");
-    if (!formatElement) return undefined;
+    if (!formatElement) {
+      return undefined;
+    }
 
     return {
       defaultColWidth: this.extractAttr(formatElement, "defaultColWidth", {
@@ -292,7 +294,9 @@ export class XlsxSheetExtractor extends XlsxBaseExtractor {
 
   private extractCellFormula(cellElement: Element): XLSXFormula | undefined {
     const formulaElement = this.querySelector(cellElement, "f");
-    if (!formulaElement) return undefined;
+    if (!formulaElement) {
+      return undefined;
+    }
     const content = this.extractTextContent(formulaElement);
     const sharedIndex = this.extractAttr(formulaElement, "si")?.asNum();
     const ref = this.extractAttr(formulaElement, "ref")?.asString();

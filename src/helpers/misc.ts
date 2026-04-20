@@ -246,7 +246,9 @@ export function isNotNull<T>(argument: T | null): argument is T {
  * Check if all the values of an object, and all the values of the objects inside of it, are undefined.
  */
 export function isObjectEmptyRecursive<T extends object>(argument: T | undefined): boolean {
-  if (argument === undefined) return true;
+  if (argument === undefined) {
+    return true;
+  }
   return Object.values(argument).every((value) =>
     typeof value === "object" ? isObjectEmptyRecursive(value) : !value
   );
@@ -356,10 +358,18 @@ export function getAddHeaderStartIndex(position: "before" | "after", base: numbe
  * Compares two objects.
  */
 export function deepEquals(o1: any, o2: any): boolean {
-  if (o1 === o2) return true;
-  if ((o1 && !o2) || (o2 && !o1)) return false;
-  if (typeof o1 !== typeof o2) return false;
-  if (typeof o1 !== "object") return false;
+  if (o1 === o2) {
+    return true;
+  }
+  if ((o1 && !o2) || (o2 && !o1)) {
+    return false;
+  }
+  if (typeof o1 !== typeof o2) {
+    return false;
+  }
+  if (typeof o1 !== "object") {
+    return false;
+  }
 
   // Objects can have different keys if the values are undefined
   for (const key in o2) {
@@ -369,11 +379,17 @@ export function deepEquals(o1: any, o2: any): boolean {
   }
 
   for (const key in o1) {
-    if (typeof o1[key] !== typeof o2[key]) return false;
+    if (typeof o1[key] !== typeof o2[key]) {
+      return false;
+    }
     if (typeof o1[key] === "object") {
-      if (!deepEquals(o1[key], o2[key])) return false;
+      if (!deepEquals(o1[key], o2[key])) {
+        return false;
+      }
     } else {
-      if (o1[key] !== o2[key]) return false;
+      if (o1[key] !== o2[key]) {
+        return false;
+      }
     }
   }
 
@@ -449,7 +465,9 @@ const newLineRegexp = /(\r\n|\r)/g;
  * Replace all different newlines characters by \n
  */
 export function replaceNewLines(text: string | undefined): string {
-  if (!text) return "";
+  if (!text) {
+    return "";
+  }
   return text.replace(newLineRegexp, NEWLINE);
 }
 
@@ -544,7 +562,9 @@ export function isNumberBetween(value: number, min: number, max: number): boolea
 export function largeMax(array: number[]) {
   let len = array.length;
 
-  if (len < 100_000) return Math.max(...array);
+  if (len < 100_000) {
+    return Math.max(...array);
+  }
 
   let max: number = -Infinity;
   while (len--) {
@@ -560,7 +580,9 @@ export function largeMax(array: number[]) {
 export function largeMin(array: number[]) {
   let len = array.length;
 
-  if (len < 100_000) return Math.min(...array);
+  if (len < 100_000) {
+    return Math.min(...array);
+  }
 
   let min: number = +Infinity;
   while (len--) {

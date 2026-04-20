@@ -241,7 +241,9 @@ function splitNumber(
   maxDecimals: number = MAX_DECIMAL_PLACES
 ): { integerDigits: string; decimalDigits: string | undefined } {
   const asString = value.toString();
-  if (asString.includes("e")) return splitNumberIntl(value, maxDecimals);
+  if (asString.includes("e")) {
+    return splitNumberIntl(value, maxDecimals);
+  }
 
   if (Number.isInteger(value)) {
     return { integerDigits: asString, decimalDigits: undefined };
@@ -491,7 +493,9 @@ export const getDecimalNumberRegex = memoize(function getDecimalNumberRegex(loca
  */
 export function createDefaultFormat(value: number): Format {
   let { integerDigits, decimalDigits } = splitNumber(value);
-  if (!decimalDigits) return "0";
+  if (!decimalDigits) {
+    return "0";
+  }
 
   const digitsInIntegerPart = integerDigits.replace("-", "").length;
 

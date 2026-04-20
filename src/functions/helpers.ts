@@ -404,12 +404,16 @@ function conditionalVisitArgs(
       const lenCol = arg[0].length;
       for (let y = 0; y < lenCol; y++) {
         for (let x = 0; x < lenRow; x++) {
-          if (!cellCb(arg[x][y] ?? undefined)) return;
+          if (!cellCb(arg[x][y] ?? undefined)) {
+            return;
+          }
         }
       }
     } else {
       // arg is set directly in the formula function
-      if (!dataCb(arg)) return;
+      if (!dataCb(arg)) {
+        return;
+      }
     }
   }
 }
@@ -768,7 +772,9 @@ export function linearSearch<T>(
   getValueInData: (data: T, index: number) => CellValue | undefined,
   reverseSearch = false
 ): number {
-  if (target === null || target === undefined) return -1;
+  if (target === null || target === undefined) {
+    return -1;
+  }
 
   const _target = normalizeValue(target);
   const getValue = reverseSearch

@@ -389,7 +389,9 @@ describe("Autofill edge scrolling", () => {
 });
 
 function isVisibleInViewport(element: HTMLElement | null, model: Model) {
-  if (element === null) return false;
+  if (element === null) {
+    return false;
+  }
   const activeSheetViewDimension = model.getters.getSheetViewDimensionWithHeaders();
   const top = getStylePropertyInPx(element, "top") || -Infinity;
   const left = getStylePropertyInPx(element, "left") || -Infinity;

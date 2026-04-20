@@ -404,7 +404,9 @@ export class FiguresContainer extends Component<Props, SpreadsheetChildEnv> {
 
   private getDndFigure(): Figure {
     const figure = this.getVisibleFigures().find((fig) => fig.id === this.dnd.draggedFigure?.id);
-    if (!figure) throw new Error("Dnd figure not found");
+    if (!figure) {
+      throw new Error("Dnd figure not found");
+    }
     return {
       ...figure,
       ...this.dnd.draggedFigure,
@@ -412,7 +414,9 @@ export class FiguresContainer extends Component<Props, SpreadsheetChildEnv> {
   }
 
   getFigureStyle(figure: Figure): string {
-    if (figure.id !== this.dnd.draggedFigure?.id) return "";
+    if (figure.id !== this.dnd.draggedFigure?.id) {
+      return "";
+    }
     return cssPropertiesToCss({
       opacity: "0.9",
       cursor: "grabbing",
@@ -422,7 +426,9 @@ export class FiguresContainer extends Component<Props, SpreadsheetChildEnv> {
   private getSnap<T extends HFigureAxisType | VFigureAxisType>(
     snapLine: SnapLine<T> | undefined
   ): Snap<T> | undefined {
-    if (!snapLine || !this.dnd.draggedFigure) return undefined;
+    if (!snapLine || !this.dnd.draggedFigure) {
+      return undefined;
+    }
 
     const figureVisibleRects = snapLine.matchedFigIds
       .map((id) => this.getVisibleFigures().find((fig) => fig.id === id))
@@ -447,7 +453,9 @@ export class FiguresContainer extends Component<Props, SpreadsheetChildEnv> {
     snapLine: SnapLine<HFigureAxisType | VFigureAxisType> | undefined,
     containerRect: Rect
   ): string {
-    if (!snapLine) return "";
+    if (!snapLine) {
+      return "";
+    }
     if (["top", "vCenter", "bottom"].includes(snapLine.snappedAxisType)) {
       return cssPropertiesToCss({
         top: `${snapLine.position - containerRect.y}px`,

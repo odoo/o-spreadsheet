@@ -52,7 +52,9 @@ mockGetBoundingClientRect({
     const parentPosition = getElPosition(el.parentElement!);
     let offset = MENU_VERTICAL_PADDING;
     for (const e of el.parentElement!.children) {
-      if (e === el) break;
+      if (e === el) {
+        break;
+      }
 
       if (el.classList.contains("o-menu-item")) {
         offset += MENU_ITEM_HEIGHT;

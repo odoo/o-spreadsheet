@@ -125,7 +125,9 @@ function useTouchMove(
   let y = null as number | null;
 
   function onTouchStart(ev: TouchEvent) {
-    if (ev.touches.length !== 1) return;
+    if (ev.touches.length !== 1) {
+      return;
+    }
     x = ev.touches[0].clientX;
     y = ev.touches[0].clientY;
   }
@@ -136,7 +138,9 @@ function useTouchMove(
   }
 
   function onTouchMove(ev: TouchEvent) {
-    if (ev.touches.length !== 1) return;
+    if (ev.touches.length !== 1) {
+      return;
+    }
     // On mobile browsers, swiping down is often associated with "pull to refresh".
     // We only want this behavior if the grid is already at the top.
     // Otherwise we only want to move the canvas up, without triggering any refresh.

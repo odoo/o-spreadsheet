@@ -59,9 +59,13 @@ function convertCols(sheet: XLSXWorksheet, numberOfCols: number): Record<number,
   for (let i = 1; i < numberOfCols + 1; i++) {
     const col = sheet.cols.find((col) => col.min <= i && i <= col.max);
     let colSize: number;
-    if (col && col.width) colSize = col.width;
-    else if (sheet.sheetFormat?.defaultColWidth) colSize = sheet.sheetFormat.defaultColWidth;
-    else colSize = EXCEL_DEFAULT_COL_WIDTH;
+    if (col && col.width) {
+      colSize = col.width;
+    } else if (sheet.sheetFormat?.defaultColWidth) {
+      colSize = sheet.sheetFormat.defaultColWidth;
+    } else {
+      colSize = EXCEL_DEFAULT_COL_WIDTH;
+    }
     cols[i - 1] = { size: convertWidthFromExcel(colSize), isHidden: col?.hidden };
   }
   return cols;
@@ -73,9 +77,13 @@ function convertRows(sheet: XLSXWorksheet, numberOfRows: number): Record<number,
   for (let i = 1; i < numberOfRows + 1; i++) {
     const row = sheet.rows.find((row) => row.index === i);
     let rowSize: number;
-    if (row && row.height) rowSize = row.height;
-    else if (sheet.sheetFormat?.defaultRowHeight) rowSize = sheet.sheetFormat.defaultRowHeight;
-    else rowSize = EXCEL_DEFAULT_ROW_HEIGHT;
+    if (row && row.height) {
+      rowSize = row.height;
+    } else if (sheet.sheetFormat?.defaultRowHeight) {
+      rowSize = sheet.sheetFormat.defaultRowHeight;
+    } else {
+      rowSize = EXCEL_DEFAULT_ROW_HEIGHT;
+    }
     rows[i - 1] = { size: convertHeightFromExcel(rowSize), isHidden: row?.hidden };
   }
   return rows;

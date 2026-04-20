@@ -305,9 +305,13 @@ export class ConditionalFormatPlugin
   }
 
   private checkValidPriorityChange(cfId: string, delta: number, sheetId: string) {
-    if (!this.cfRules[sheetId]) return CommandResult.InvalidSheetId;
+    if (!this.cfRules[sheetId]) {
+      return CommandResult.InvalidSheetId;
+    }
     const ruleIndex = this.cfRules[sheetId].findIndex((cf) => cf.id === cfId);
-    if (ruleIndex === -1) return CommandResult.InvalidConditionalFormatId;
+    if (ruleIndex === -1) {
+      return CommandResult.InvalidConditionalFormatId;
+    }
 
     const cfIndex2 = ruleIndex - delta;
     if (cfIndex2 < 0 || cfIndex2 >= this.cfRules[sheetId].length) {
@@ -425,7 +429,9 @@ export class ConditionalFormatPlugin
     threshold: ColorScaleThreshold | ColorScaleMidPointThreshold | IconThreshold,
     thresholdName: string
   ) {
-    if (threshold.type !== "formula") return CommandResult.Success;
+    if (threshold.type !== "formula") {
+      return CommandResult.Success;
+    }
     try {
       compile(threshold.value || "");
     } catch (error) {
