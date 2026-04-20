@@ -56,7 +56,6 @@ export async function interactivePasteFromOS(
       sticky: false,
     });
   }
-  let result: DispatchResult;
 
   if (parsedClipboardContent.imageBlob) {
     const clipboardContent: ParsedOsClipboardContentWithImageData = parsedClipboardContent;
@@ -71,7 +70,7 @@ export async function interactivePasteFromOS(
     delete parsedClipboardContent.imageBlob;
   }
 
-  result = env.model.dispatch("PASTE_FROM_OS_CLIPBOARD", {
+  const result = env.model.dispatch("PASTE_FROM_OS_CLIPBOARD", {
     target,
     clipboardContent: parsedClipboardContent,
     pasteOption,

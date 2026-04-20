@@ -274,7 +274,7 @@ export class ClipboardPlugin extends UIPlugin {
         if (!this._isCutOperation || cmd.sheetId !== this.copiedData?.sheetId) {
           return;
         }
-        for (let el of cmd.elements) {
+        for (const el of cmd.elements) {
           const isClipboardDirty = this.isColRowDirtyingClipboard(el, cmd.dimension);
           if (isClipboardDirty) {
             this.copiedData = undefined;
@@ -312,7 +312,7 @@ export class ClipboardPlugin extends UIPlugin {
     const handlers = this.selectClipboardHandlers({ figureId: true }).concat(
       this.selectClipboardHandlers({})
     );
-    let copiedData = {};
+    const copiedData = {};
     for (const { handlerName, handler } of handlers) {
       const data = handler.convertTextToClipboardData(clipboardData);
       copiedData[handlerName] = data;
@@ -368,7 +368,7 @@ export class ClipboardPlugin extends UIPlugin {
       return false;
     }
     const { zones } = this.copiedData;
-    for (let zone of zones) {
+    for (const zone of zones) {
       if (dimension === "COL" && position <= zone.right) {
         return true;
       }
@@ -380,7 +380,7 @@ export class ClipboardPlugin extends UIPlugin {
   }
 
   private copy(zones: Zone[], mode: ClipboardCopyOptions = "copyPaste"): MinimalClipboardData {
-    let copiedData = {};
+    const copiedData = {};
     const clipboardData = this.getClipboardData(zones);
     for (const { handlerName, handler } of this.selectClipboardHandlers(clipboardData)) {
       const data = handler.copy(clipboardData, this._isCutOperation, mode);
@@ -540,7 +540,7 @@ export class ClipboardPlugin extends UIPlugin {
         const figureId = this.copiedData.figureId;
         const figureSheetId = this.getters.getFigureSheetId(figureId)!;
         const figure = this.getters.getFigure(figureSheetId, figureId)!;
-        if (figure.tag == "image") {
+        if (figure.tag === "image") {
           innerHTML = await this.craftImageHTML(figureId);
         } else {
           innerHTML = "\t";
@@ -607,7 +607,7 @@ export class ClipboardPlugin extends UIPlugin {
     const figureSheetId = this.getters.getFigureSheetId(figureId)!;
     const figure = this.getters.getFigure(figureSheetId, figureId)!;
     let file: File | Blob | null | undefined;
-    if (figure.tag == "image") {
+    if (figure.tag === "image") {
       if (!this.fileStore) {
         return;
       }

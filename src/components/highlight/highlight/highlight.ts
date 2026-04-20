@@ -64,7 +64,7 @@ export class Highlight extends Component<Props, SpreadsheetChildEnv> {
           this.env.model.getters.getNumberRows(activeSheetId) - 1
         );
 
-        let newZone: Zone = {
+        const newZone: Zone = {
           left: Math.min(pivotCol, lastCol),
           top: Math.min(pivotRow, lastRow),
           right: Math.max(pivotCol, lastCol),
@@ -119,7 +119,7 @@ export class Highlight extends Component<Props, SpreadsheetChildEnv> {
 
         const deltaCol = clip(lastCol - initCol, deltaColMin, deltaColMax);
         const deltaRow = clip(lastRow - initRow, deltaRowMin, deltaRowMax);
-        let newZone: Zone = {
+        const newZone: Zone = {
           left: z.left + deltaCol,
           top: z.top + deltaRow,
           right: z.right + deltaCol,

@@ -142,8 +142,8 @@ export function getPasteTargetFromHandlers(
   selectedZones: Zone[];
 } {
   let zone: Zone | undefined = undefined;
-  let selectedZones: Zone[] = [];
-  let target: ClipboardPasteTarget = {
+  const selectedZones: Zone[] = [];
+  const target: ClipboardPasteTarget = {
     sheetId,
     zones,
   };

@@ -47,7 +47,7 @@ import { toRangesData } from "../test_helpers/helpers";
 function exportToXlsxThenImport(model: Model) {
   const exported = model.exportXLSX();
   const dataToImport = {};
-  for (let file of exported.files) {
+  for (const file of exported.files) {
     if (isXLSXExportXMLFile(file)) {
       dataToImport[file.path] = file.content;
       continue;

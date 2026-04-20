@@ -885,7 +885,7 @@ export function setSelection(
   } = { anchor: undefined, strict: false }
 ) {
   const sheetId = model.getters.getActiveSheetId();
-  let zones = xcs
+  const zones = xcs
     .reverse()
     .map(toZone)
     .map((z) => model.getters.expandZone(sheetId, z));

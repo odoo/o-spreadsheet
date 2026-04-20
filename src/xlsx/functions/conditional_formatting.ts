@@ -171,7 +171,7 @@ function addColorScaleRule(cf: ConditionalFormat, rule: ColorScaleRule): XMLStri
     const colors: XMLAttributes[] = [];
 
     let canExport = true;
-    for (let position of ["minimum", "midpoint", "maximum"] as const) {
+    for (const position of ["minimum", "midpoint", "maximum"] as const) {
       const threshold: ColorScaleThreshold | ColorScaleMidPointThreshold | undefined =
         rule[position];
       if (!threshold) {
@@ -229,7 +229,7 @@ function addIconSetRule(cf: ConditionalFormat, rule: IconSetRule): XMLString {
       ],
     ];
     let canExport = true;
-    for (let position of ["lowerInflectionPoint", "upperInflectionPoint"] as const) {
+    for (const position of ["lowerInflectionPoint", "upperInflectionPoint"] as const) {
       if (rule[position].type === "formula") {
         canExport = false;
         continue;

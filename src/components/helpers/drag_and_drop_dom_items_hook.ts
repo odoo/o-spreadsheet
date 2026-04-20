@@ -161,7 +161,7 @@ class DOMDndHelper {
 
   getItemStyles(): Record<UID, string> {
     const styles: Record<UID, string> = {};
-    for (let item of this.items) {
+    for (const item of this.items) {
       styles[item.id] = this.getItemStyle(item.id);
     }
     return styles;
@@ -289,7 +289,7 @@ class DOMDndHelper {
 
   private getItemsPositions(): Record<UID, Pixel> {
     const positions: Record<UID, Pixel> = {};
-    for (let item of this.items) {
+    for (const item of this.items) {
       if (item.id !== this.draggedItemId) {
         positions[item.id] = item.position - item.positionAtStart;
         continue;

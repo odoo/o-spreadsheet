@@ -47,7 +47,7 @@ export class SheetUIPlugin extends UIPlugin {
   handle(cmd: Command) {
     switch (cmd.type) {
       case "AUTORESIZE_COLUMNS":
-        for (let col of cmd.cols) {
+        for (const col of cmd.cols) {
           const size = this.getColMaxWidth(cmd.sheetId, col);
           if (size !== 0) {
             this.dispatch("RESIZE_COLUMNS_ROWS", {

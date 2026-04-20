@@ -336,7 +336,7 @@ describe("Waterfall chart", () => {
     const runtime = getWaterfallRuntime(chartId);
     const dataset = runtime.chartJsConfig.data.datasets[0];
     const mockDataset = { _dataset: dataset, yAxisID: "y" } as unknown as ChartMeta;
-    const callback = runtime.chartJsConfig.options?.plugins?.chartShowValuesPlugin?.callback!;
+    const callback = runtime.chartJsConfig.options!.plugins!.chartShowValuesPlugin!.callback!;
     expect(callback(0, mockDataset, 0)).toEqual("+10$");
     expect(callback(0, mockDataset, 1)).toEqual("+20$");
     expect(callback(0, mockDataset, 2)).toEqual("-15$");

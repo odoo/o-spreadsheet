@@ -64,7 +64,7 @@ function convertPivotTableConfig(pivotTable: XLSXPivotTable): TableConfig {
 function convertTableFormulaReferences(convertedSheets: SheetData[], xlsxSheets: XLSXWorksheet[]) {
   let deconstructedSheets: DeconstructedSheets | null = null;
 
-  for (let tableSheet of convertedSheets) {
+  for (const tableSheet of convertedSheets) {
     const tables = xlsxSheets.find((s) => isSheetNameEqual(s.sheetName, tableSheet.name))!.tables;
     if (!tables || tables.length === 0) {
       continue;
@@ -75,10 +75,10 @@ function convertTableFormulaReferences(convertedSheets: SheetData[], xlsxSheets:
       deconstructedSheets = deconstructSheets(convertedSheets);
     }
 
-    for (let table of tables) {
-      for (let sheetId in deconstructedSheets) {
+    for (const table of tables) {
+      for (const sheetId in deconstructedSheets) {
         const sheet = convertedSheets.find((s) => s.id === sheetId)!;
-        for (let xc in deconstructedSheets[sheetId]) {
+        for (const xc in deconstructedSheets[sheetId]) {
           const deconstructedCell = deconstructedSheets[sheetId][xc];
 
           for (let i = deconstructedCell.length - 3; i >= 0; i -= 2) {
@@ -105,9 +105,9 @@ function convertTableFormulaReferences(convertedSheets: SheetData[], xlsxSheets:
     return;
   }
 
-  for (let sheetId in deconstructedSheets) {
+  for (const sheetId in deconstructedSheets) {
     const sheet = convertedSheets.find((s) => s.id === sheetId)!;
-    for (let xc in deconstructedSheets[sheetId]) {
+    for (const xc in deconstructedSheets[sheetId]) {
       const deconstructedCell = deconstructedSheets[sheetId][xc];
 
       if (deconstructedCell.length === 1) {
@@ -134,8 +134,8 @@ type DeconstructedSheets = { [sheetId: string]: { [xc: string]: string[] } };
  */
 function deconstructSheets(convertedSheets: SheetData[]): DeconstructedSheets {
   const deconstructedSheets: DeconstructedSheets = {};
-  for (let sheet of convertedSheets) {
-    for (let xc in sheet.cells) {
+  for (const sheet of convertedSheets) {
+    for (const xc in sheet.cells) {
       const cellContent = sheet.cells[xc];
       if (!cellContent || !cellContent.startsWith("=")) {
         continue;
