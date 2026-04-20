@@ -1,7 +1,6 @@
 import { BubbleDataPoint, Chart, Point, TooltipItem, TooltipModel, TooltipOptions } from "chart.js";
-import { _DeepPartialObject } from "chart.js/dist/types/utils";
 import { toNumber } from "../../../../functions/helpers";
-import { CellValue } from "../../../../types";
+import { CellValue, _DeepPartialObject } from "../../../../types";
 import {
   BarChartDefinition,
   ChartRuntimeGenerationArgs,

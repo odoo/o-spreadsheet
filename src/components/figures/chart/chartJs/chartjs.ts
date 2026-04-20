@@ -184,7 +184,9 @@ export class ChartJsComponent extends Component<Props, SpreadsheetChildEnv> {
     );
   }
 
-  protected enableAnimationInChartData(chartData: ChartConfiguration<any>) {
+  protected enableAnimationInChartData(
+    chartData: ChartConfiguration<any>
+  ): ChartConfiguration<any> {
     return {
       ...chartData,
       options: { ...chartData.options, animation: { animateRotate: true } },
