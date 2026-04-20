@@ -69,6 +69,7 @@
     "@swc/core": "1.6.7",
     "@swc/jest": "0.2.36",
     "@types/jest": "^30.0.0",
+    "@types/jest-image-snapshot": "^6.4.1",
     "@types/node": "^20.17.24",
     "@types/rbush": "^3.0.3",
     "@typescript-eslint/eslint-plugin": "^8.30.1",
