@@ -1,8 +1,8 @@
 import { TitleOptions } from "chart.js";
-import { _DeepPartialObject } from "chart.js/dist/types/utils";
 import { CHART_PADDING, CHART_TITLE_FONT_SIZE } from "../../../../constants";
 import { _t } from "../../../../translation";
 import { ChartWithDataSetDefinition } from "../../../../types/chart";
+import { _DeepPartialObject } from "../../../../types/misc";
 import { chartMutedFontColor } from "../chart_common";
 
 export function getChartTitle(
