@@ -30,7 +30,7 @@ export function dragFigureForResize(
 ): FigureUI {
   let { x, y, width, height } = initialFigure;
 
-  if (keepRatio && dirX != 0 && dirY != 0) {
+  if (keepRatio && dirX !== 0 && dirY !== 0) {
     const deltaX = Math.min(
       dirX * (mouseInitialX - mouseX + scrollX - initialScrollX),
       width - minFigSize

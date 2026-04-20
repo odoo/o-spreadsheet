@@ -1,6 +1,6 @@
 import { FigureSize } from "../../../types";
 import { FileStore, ImageProviderInterface } from "../../../types/files";
-import { Image } from "../../../types/image";
+import { type Image } from "../../../types/image";
 
 export class ImageProvider implements ImageProviderInterface {
   private fileStore: FileStore;
@@ -28,7 +28,7 @@ export class ImageProvider implements ImageProviderInterface {
       input.setAttribute("type", "file");
       input.setAttribute("accept", "image/*");
       input.addEventListener("change", async () => {
-        if (input.files === null || input.files.length != 1) {
+        if (input.files === null || input.files.length !== 1) {
           reject();
         } else {
           resolve(input.files[0]);

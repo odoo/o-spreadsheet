@@ -145,7 +145,7 @@ export class ConditionalFormatPlugin
         const change = applyChange(range);
         switch (change.changeType) {
           case "REMOVE":
-            let copy = rule.ranges.slice();
+            const copy = rule.ranges.slice();
             copy.splice(rule.ranges.indexOf(range), 1);
             if (copy.length >= 1) {
               this.history.update(
@@ -242,7 +242,7 @@ export class ConditionalFormatPlugin
   }
 
   import(data: WorkbookData) {
-    for (let sheet of data.sheets) {
+    for (const sheet of data.sheets) {
       this.cfRules[sheet.id] = sheet.conditionalFormats.map((rule) =>
         this.mapToConditionalFormatInternal(sheet.id, rule)
       );
@@ -251,7 +251,7 @@ export class ConditionalFormatPlugin
 
   export(data: Partial<WorkbookData>) {
     if (data.sheets) {
-      for (let sheet of data.sheets) {
+      for (const sheet of data.sheets) {
         if (this.cfRules[sheet.id]) {
           sheet.conditionalFormats = this.cfRules[sheet.id].map((rule) =>
             this.mapToConditionalFormat(sheet.id, rule)
@@ -263,7 +263,7 @@ export class ConditionalFormatPlugin
 
   exportForExcel(data: ExcelWorkbookData) {
     if (data.sheets) {
-      for (let sheet of data.sheets) {
+      for (const sheet of data.sheets) {
         if (this.cfRules[sheet.id]) {
           sheet.conditionalFormats = this.cfRules[sheet.id].map((rule) =>
             this.mapToConditionalFormat(sheet.id, rule, { useBoundedReference: true })
@@ -310,8 +310,8 @@ export class ConditionalFormatPlugin
 
   getRulesByCell(sheetId: UID, cellCol: number, cellRow: number): Set<ConditionalFormat> {
     const rules: ConditionalFormatInternal[] = [];
-    for (let cf of this.cfRules[sheetId]) {
-      for (let range of cf.ranges) {
+    for (const cf of this.cfRules[sheetId]) {
+      for (const range of cf.ranges) {
         if (isInside(cellCol, cellRow, range.zone)) {
           rules.push(cf);
         }

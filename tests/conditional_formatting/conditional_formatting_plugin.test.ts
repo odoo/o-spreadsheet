@@ -1935,7 +1935,7 @@ describe("conditional formats types", () => {
       ["Between", ["1", "1"]],
       ["NotBetween", ["1", "1"]],
     ])("%s operator with valid number of arguments: %s", (operator: string, values: string[]) => {
-      let result = model.dispatch("ADD_CONDITIONAL_FORMAT", {
+      const result = model.dispatch("ADD_CONDITIONAL_FORMAT", {
         cf: {
           rule: {
             type: "CellIsRule",
@@ -1976,7 +1976,7 @@ describe("conditional formats types", () => {
       ["Between", ["", "1"]],
       ["NotBetween", ["", "1"]],
     ])("%s operator with missing first argument %s", (operator: string, values: string[]) => {
-      let result = model.dispatch("ADD_CONDITIONAL_FORMAT", {
+      const result = model.dispatch("ADD_CONDITIONAL_FORMAT", {
         cf: {
           rule: {
             type: "CellIsRule",

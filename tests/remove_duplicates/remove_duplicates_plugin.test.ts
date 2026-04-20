@@ -242,7 +242,7 @@ describe("notify user", () => {
       A1: "42",
       A2: "42",
     });
-    let notifyUserTextSpy = jest.fn();
+    const notifyUserTextSpy = jest.fn();
     jest.spyOn(model.config, "notifyUI").mockImplementation(notifyUserTextSpy);
     setSelection(model, ["A1:A2"]);
     model.dispatch("REMOVE_DUPLICATES", { columns: [0], hasHeader: false });
@@ -258,7 +258,7 @@ describe("notify user", () => {
       A1: "42",
       A2: "24",
     });
-    let notifyUserTextSpy = jest.fn();
+    const notifyUserTextSpy = jest.fn();
     jest.spyOn(model.config, "notifyUI").mockImplementation(notifyUserTextSpy);
     setSelection(model, ["A1:A2"]);
     model.dispatch("REMOVE_DUPLICATES", { columns: [0], hasHeader: false });

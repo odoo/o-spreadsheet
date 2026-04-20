@@ -59,7 +59,7 @@ export class ImageClipboardHandler extends AbstractFigureClipboardHandler<Clipbo
     const copy = deepCopy(clippedContent.copiedImage);
     const maxPosition = this.getters.getMaxAnchorOffset(sheetId, height, width);
     let { left: col, top: row } = zones[0];
-    let offset = { x: 0, y: 0 };
+    const offset = { x: 0, y: 0 };
     if (col > maxPosition.col) {
       col = maxPosition.col;
       offset.x = maxPosition.offset.x;

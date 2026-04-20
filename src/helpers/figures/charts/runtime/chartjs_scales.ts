@@ -1,5 +1,4 @@
 import { LinearScaleOptions, ScaleChartOptions } from "chart.js";
-import { DeepPartial } from "chart.js/dist/types/utils";
 import {
   CHART_AXIS_TITLE_FONT_SIZE,
   CHART_PADDING,
@@ -7,7 +6,7 @@ import {
   CHART_PADDING_TOP,
   GRAY_300,
 } from "../../../../constants";
-import { LocaleFormat } from "../../../../types";
+import { DeepPartial, LocaleFormat } from "../../../../types";
 import {
   AxisDesign,
   BarChartDefinition,

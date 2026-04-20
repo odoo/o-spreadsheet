@@ -135,7 +135,7 @@ export function getRangeString(
   if (range.zone.left < 0 || range.zone.top < 0) {
     return CellErrorType.InvalidReference;
   }
-  let prefixSheet = range.sheetId !== forSheetId || range.invalidSheetName || range.prefixSheet;
+  const prefixSheet = range.sheetId !== forSheetId || range.invalidSheetName || range.prefixSheet;
   let sheetName: string = "";
   if (prefixSheet) {
     if (range.invalidSheetName) {
@@ -210,7 +210,7 @@ export function spreadRange(getters: Getters, dataSets: CustomizedDataSet[]): Cu
     const { sheetName } = splitReference(range);
     const sheetPrefix = sheetName ? `${sheetName}!` : "";
     const zone = toUnboundedZone(range);
-    if (zone.bottom !== zone.top && zone.left != zone.right) {
+    if (zone.bottom !== zone.top && zone.left !== zone.right) {
       if (zone.right) {
         for (let j = zone.left; j <= zone.right; ++j) {
           const datasetOptions = j === zone.left ? dataSet : { yAxisId: dataSet.yAxisId };
@@ -294,7 +294,7 @@ export function orderRange(range: Range): Range {
   const zone = { ...range.zone };
   let parts = range.parts;
   if (unboundedZone.right !== undefined && unboundedZone.right < unboundedZone.left) {
-    let right = unboundedZone.right;
+    const right = unboundedZone.right;
     unboundedZone.right = unboundedZone.left;
     unboundedZone.left = right;
     zone.right = zone.left;
@@ -312,7 +312,7 @@ export function orderRange(range: Range): Range {
   }
 
   if (unboundedZone.bottom !== undefined && unboundedZone.bottom < unboundedZone.top) {
-    let bottom = unboundedZone.bottom;
+    const bottom = unboundedZone.bottom;
     unboundedZone.bottom = unboundedZone.top;
     unboundedZone.top = bottom;
     zone.bottom = zone.top;
@@ -388,9 +388,9 @@ rangeAdapterRegistry
   }));
 
 function getApplyRangeChangeRemoveColRow(cmd: RemoveColumnsRowsCommand): ApplyRangeChange {
-  let start: "left" | "top" = cmd.dimension === "COL" ? "left" : "top";
-  let end: "right" | "bottom" = cmd.dimension === "COL" ? "right" : "bottom";
-  let dimension: "columns" | "rows" = cmd.dimension === "COL" ? "columns" : "rows";
+  const start: "left" | "top" = cmd.dimension === "COL" ? "left" : "top";
+  const end: "right" | "bottom" = cmd.dimension === "COL" ? "right" : "bottom";
+  const dimension: "columns" | "rows" = cmd.dimension === "COL" ? "columns" : "rows";
 
   const elements = [...cmd.elements];
   elements.sort((a, b) => b - a);
@@ -402,7 +402,7 @@ function getApplyRangeChangeRemoveColRow(cmd: RemoveColumnsRowsCommand): ApplyRa
     }
     let newRange = range;
     let changeType: ChangeType = "NONE";
-    for (let group of groups) {
+    for (const group of groups) {
       const min = largeMin(group);
       const max = largeMax(group);
       if (range.zone[start] <= min && min <= range.zone[end]) {
@@ -427,9 +427,9 @@ function getApplyRangeChangeRemoveColRow(cmd: RemoveColumnsRowsCommand): ApplyRa
 }
 
 function getApplyRangeChangeAddColRow(cmd: AddColumnsRowsCommand): ApplyRangeChange {
-  let start: "left" | "top" = cmd.dimension === "COL" ? "left" : "top";
-  let end: "right" | "bottom" = cmd.dimension === "COL" ? "right" : "bottom";
-  let dimension: "columns" | "rows" = cmd.dimension === "COL" ? "columns" : "rows";
+  const start: "left" | "top" = cmd.dimension === "COL" ? "left" : "top";
+  const end: "right" | "bottom" = cmd.dimension === "COL" ? "right" : "bottom";
+  const dimension: "columns" | "rows" = cmd.dimension === "COL" ? "columns" : "rows";
 
   return (range: Range) => {
     if (range.sheetId !== cmd.sheetId) {

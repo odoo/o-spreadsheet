@@ -20,7 +20,7 @@ const cellRegex = new RegExp(cellReference.source, "ig");
 export function convertFormulasContent(sheet: XLSXWorksheet, data: XLSXImportData) {
   const sfMap = getSharedFormulasMap(sheet);
 
-  for (let cell of sheet.rows.map((row) => row.cells).flat()) {
+  for (const cell of sheet.rows.map((row) => row.cells).flat()) {
     if (cell?.formula) {
       cell.formula.content =
         cell.formula.sharedIndex !== undefined && !cell.formula.content
@@ -33,8 +33,8 @@ export function convertFormulasContent(sheet: XLSXWorksheet, data: XLSXImportDat
 
 function getSharedFormulasMap(sheet: XLSXWorksheet): SharedFormulasMap {
   const formulas: SharedFormulasMap = {};
-  for (let row of sheet.rows) {
-    for (let cell of row.cells) {
+  for (const row of sheet.rows) {
+    for (const cell of row.cells) {
       if (cell.formula && cell.formula.sharedIndex !== undefined && cell.formula.content) {
         formulas[cell.formula.sharedIndex] = { refCellXc: cell.xc, formula: cell.formula.content };
       }

@@ -260,7 +260,7 @@ describe("Repeat command transform specifics", () => {
 
   test("Create sheet transform", () => {
     createSheet(model, { sheetId: "sheetId", name: "sheetName" });
-    let command: CreateSheetCommand = {
+    const command: CreateSheetCommand = {
       ...TEST_COMMANDS.CREATE_SHEET,
       sheetId: "sheetId",
       name: "sheetName",
