@@ -3,6 +3,7 @@ import {
   ClipboardData,
   ClipboardOptions,
   ClipboardPasteTarget,
+  ClipboardPositions,
 } from "../types/clipboard";
 import { CommandDispatcher, CommandResult } from "../types/commands";
 import { Getters } from "../types/getters";
@@ -15,11 +16,16 @@ export class ClipboardHandler<T> {
     data: ClipboardData,
     isCutOperation: boolean,
     mode: ClipboardCopyOptions = "copyPaste"
-  ): T | undefined {
+  ): unknown {
     return;
   }
 
-  paste(target: ClipboardPasteTarget, clippedContent: T, options: ClipboardOptions) {}
+  paste(
+    target: ClipboardPasteTarget,
+    clippedContent: T,
+    options: ClipboardOptions,
+    positions: ClipboardPositions
+  ) {}
 
   isPasteAllowed(
     sheetId: UID,
@@ -45,5 +51,14 @@ export class ClipboardHandler<T> {
 
   convertTextToClipboardData(data: string): T | undefined {
     return;
+  }
+
+  /**
+   * Expand data that was previously compacted during copy() back to the
+   * full in-memory representation expected by paste / isPasteAllowed.
+   * The default implementation is an identity (no expansion needed).
+   */
+  expand(data: unknown): T {
+    return data as T;
   }
 }

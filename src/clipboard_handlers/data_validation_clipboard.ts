@@ -1,48 +1,51 @@
+import { expandCompactDVCells, makeIndexer } from "../helpers/clipboard/clipboard_helpers";
 import { deepEquals } from "../helpers/misc";
 import { recomputeZones } from "../helpers/recompute_zones";
 import { UuidGenerator } from "../helpers/uuid";
 import { positionToZone } from "../helpers/zones";
-import { ClipboardCellData, ClipboardOptions, ClipboardPasteTarget } from "../types/clipboard";
+import {
+  ClipboardCellData,
+  ClipboardDV,
+  ClipboardOptions,
+  ClipboardPasteTarget,
+  ClipboardPositions,
+  CompactDVHandlerData,
+} from "../types/clipboard";
 import { DataValidationRule } from "../types/data_validation";
-import { CellPosition, HeaderIndex, Maybe, UID, Zone } from "../types/misc";
+import { CellPosition, HeaderIndex, UID, Zone } from "../types/misc";
 import { AbstractCellClipboardHandler } from "./abstract_cell_clipboard_handler";
 
-interface ClipboardDataValidationRule {
-  position: CellPosition;
-  rule: Maybe<DataValidationRule>;
-}
-
-interface ClipboardContent {
-  dvRules: Maybe<ClipboardDataValidationRule>[][];
-}
-
 export class DataValidationClipboardHandler extends AbstractCellClipboardHandler<
-  ClipboardContent,
-  Maybe<ClipboardDataValidationRule>
+  ClipboardDV,
+  CompactDVHandlerData
 > {
   private queuedChanges: Record<
     UID,
     { toAdd: Zone[]; toRemove: Zone[]; rule: DataValidationRule }[]
   > = {};
 
-  copy(data: ClipboardCellData): ClipboardContent | undefined {
+  copy(data: ClipboardCellData): CompactDVHandlerData | undefined {
     const { rowsIndexes, columnsIndexes } = data;
     const sheetId = data.sheetId;
-    const dvRules: Maybe<ClipboardDataValidationRule>[][] = [];
+    const dvRules: ClipboardDV[][] = [];
 
     for (const row of rowsIndexes) {
-      const dvRuleInRow: Maybe<ClipboardDataValidationRule>[] = [];
+      const dvRuleInRow: ClipboardDV[] = [];
       for (const col of columnsIndexes) {
-        const position = { sheetId, col, row };
-        const rule = this.getters.getValidationRuleForCell(position);
-        dvRuleInRow.push({ position, rule });
+        const rule = this.getters.getValidationRuleForCell({ sheetId, col, row });
+        dvRuleInRow.push({ rule });
       }
       dvRules.push(dvRuleInRow);
     }
-    return { dvRules };
+    return this.compact(dvRules);
   }
 
-  paste(target: ClipboardPasteTarget, clippedContent: ClipboardContent, options: ClipboardOptions) {
+  paste(
+    target: ClipboardPasteTarget,
+    clippedContent: ClipboardDV[][],
+    options: ClipboardOptions,
+    positions: ClipboardPositions
+  ) {
     this.queuedChanges = {};
     if (options.pasteOption) {
       return;
@@ -51,43 +54,50 @@ export class DataValidationClipboardHandler extends AbstractCellClipboardHandler
     const sheetId = target.sheetId;
 
     if (!options.isCutOperation) {
-      this.pasteFromCopy(sheetId, zones, clippedContent.dvRules);
+      this.pasteFromCopy(sheetId, zones, clippedContent, options, positions);
     } else {
-      this.pasteFromCut(sheetId, zones, clippedContent);
+      this.pasteFromCut(sheetId, zones, clippedContent, options, positions);
     }
     this.executeQueuedChanges();
   }
 
-  private pasteFromCut(sheetId: UID, target: Zone[], content: ClipboardContent) {
+  private pasteFromCut(
+    sheetId: UID,
+    target: Zone[],
+    content: ClipboardDV[][],
+    options: ClipboardOptions,
+    positions: ClipboardPositions
+  ) {
     const selection = target[0];
-    this.pasteZone(sheetId, selection.left, selection.top, content.dvRules, {
-      isCutOperation: true,
-    });
+    this.pasteZone(sheetId, selection.left, selection.top, content, options, positions);
   }
 
   pasteZone(
     sheetId: UID,
     col: HeaderIndex,
     row: HeaderIndex,
-    dvRules: Maybe<ClipboardDataValidationRule>[][],
-    clipboardOptions?: ClipboardOptions
+    dvRules: ClipboardDV[][],
+    clipboardOptions: ClipboardOptions,
+    clipboardPositions: ClipboardPositions
   ) {
     for (const [r, rowCells] of dvRules.entries()) {
       for (const [c, origin] of rowCells.entries()) {
-        const position = { col: col + c, row: row + r, sheetId };
-        this.pasteDataValidation(origin, position, clipboardOptions?.isCutOperation);
+        const target = { col: col + c, row: row + r, sheetId };
+        const originPosition = this.getOriginPosition(r, c, clipboardPositions);
+        this.pasteDataValidation(origin, target, originPosition, clipboardOptions?.isCutOperation);
       }
     }
   }
 
   private pasteDataValidation(
-    origin: Maybe<ClipboardDataValidationRule>,
+    origin: ClipboardDV,
     target: CellPosition,
+    originPosition: CellPosition,
     isCutOperation?: boolean
   ) {
     if (origin) {
       const zone = positionToZone(target);
-      const originZone = positionToZone(origin.position);
+      const originZone = positionToZone(originPosition);
       const rule = origin.rule;
       if (!rule) {
         const targetRule = this.getters.getValidationRuleForCell(target);
@@ -101,13 +111,13 @@ export class DataValidationClipboardHandler extends AbstractCellClipboardHandler
       if (isCutOperation) {
         toRemoveZone.push(originZone);
       }
-      if (origin.position.sheetId === target.sheetId) {
+      if (originPosition.sheetId === target.sheetId) {
         const copyToRule = this.getDataValidationRuleToCopyTo(target.sheetId, rule, false);
-        this.adaptDataValidationRule(origin.position.sheetId, copyToRule, [zone], toRemoveZone);
+        this.adaptDataValidationRule(originPosition.sheetId, copyToRule, [zone], toRemoveZone);
       } else {
-        const originRule = this.getters.getValidationRuleForCell(origin.position);
+        const originRule = this.getters.getValidationRuleForCell(originPosition);
         if (originRule) {
-          this.adaptDataValidationRule(origin.position.sheetId, originRule, [], toRemoveZone);
+          this.adaptDataValidationRule(originPosition.sheetId, originRule, [], toRemoveZone);
         }
         const copyToRule = this.getDataValidationRuleToCopyTo(target.sheetId, rule);
         this.adaptDataValidationRule(target.sheetId, copyToRule, [zone], []);
@@ -186,5 +196,28 @@ export class DataValidationClipboardHandler extends AbstractCellClipboardHandler
         });
       }
     }
+  }
+
+  protected compact(data: ClipboardDV[][]): CompactDVHandlerData {
+    const rows = data.length;
+    const cols = data[0]?.length ?? 0;
+    const { index: ruleIndex, table: ruleTable } = makeIndexer<DataValidationRule>((r) => r.id);
+    const items: CompactDVHandlerData["items"] = [];
+    for (let r = 0; r < rows; r++) {
+      for (let c = 0; c < (data[r]?.length ?? 0); c++) {
+        const cell = data[r][c];
+        if (cell?.rule !== undefined) {
+          items.push({ r, c, ruleIdx: ruleIndex(cell.rule!) });
+        }
+      }
+    }
+    return { rows, cols, ruleTable, items };
+  }
+
+  expand(data: unknown): ClipboardDV[][] {
+    if (Array.isArray(data)) {
+      return data as ClipboardDV[][];
+    }
+    return expandCompactDVCells(data as CompactDVHandlerData);
   }
 }
