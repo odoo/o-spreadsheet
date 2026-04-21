@@ -332,6 +332,8 @@ import "./registries/chart_types";
 
 import "./clipboard_handlers";
 import { Composer } from "./components/composer/composer/composer";
+import { HTMLGridContent } from "./components/figures/html_table/html_table";
+import { Spreadsheet } from "./components/index";
 import { Select } from "./components/select/select";
 import { ChartRangeDataSourceComponent } from "./components/side_panel/chart/building_blocks/range_data_source/range_data_source";
 import { TopBar } from "./components/top_bar/top_bar";
@@ -488,6 +490,8 @@ export const components = {
   NumberInput,
   TopBar,
   Composer,
+  Spreadsheet,
+  HTMLGridContent,
 };
 
 export const hooks = {
