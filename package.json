@@ -21,8 +21,8 @@
     "build:bundleXml": "node tools/bundle_xml/main.cjs",
     "build": "npm-run-all build:js build:bundleJs \"build:bundleXml -- --outDir build\"",
     "precommit": "npm run prettier && npm run doc",
-    "monkey": "SPREADSHEET_MONKEY_COUNT=$npm_config_monkey_count jest 'tests/collaborative/collaborative_monkey_party.test.ts'",
-    "test": "tsc --noEmit --project tests/tsconfig.json && jest",
+    "monkey": "SPREADSHEET_MONKEY_COUNT=$npm_config_monkey_count vitest run 'tests/collaborative/collaborative_monkey_party.test.ts'",
+    "test": "tsc --noEmit --project tests/tsconfig.json && vitest run",
     "test:watch": "jest --watch",
     "prettier": "prettier . --write",
     "check-formatting": "prettier . --check",
@@ -56,13 +56,10 @@
   "homepage": "https://github.com/odoo/o-spreadsheet#readme",
   "devDependencies": {
     "@prettier/plugin-xml": "^2.2.0",
-    "@swc/jest": "0.2.36",
-    "@swc/core": "1.6.7",
-    "@types/jest": "^30.0.0",
-    "@types/jest-image-snapshot": "^6.4.1",
     "@types/node": "^20.17.24",
     "@types/rbush": "^3.0.3",
     "@typescript-eslint/eslint-plugin": "^8.30.1",
+    "@vitest/expect": "^4.1.4",
     "body-parser": "^1.19.0",
     "canvas": "^3.0.0",
     "chart.js": "4.3.0",
@@ -74,7 +71,6 @@
     "file-saver": "^2.0.5",
     "fs": "^0.0.1-security",
     "husky": "^7.0.4",
-    "jest": "^30.2.0",
     "jest-environment-jsdom": "^30.2.0",
     "jest-image-snapshot": "^6.5.2",
     "jszip": "^3.6.0",
@@ -91,19 +87,11 @@
     "seedrandom": "^3.0.5",
     "typescript": "^6.0.2",
     "typescript-eslint": "^8.30.1",
+    "vitest": "^4.1.4",
+    "vitest-image-snapshot": "^0.6.50",
     "xml-formatter": "^2.4.0"
   },
   "optionalDependencies": {
-    "@swc/core-darwin-arm64": "1.6.7",
-    "@swc/core-darwin-x64": "1.6.7",
-    "@swc/core-linux-arm-gnueabihf": "1.6.7",
-    "@swc/core-linux-arm64-gnu": "1.6.7",
-    "@swc/core-linux-arm64-musl": "1.6.7",
-    "@swc/core-linux-x64-gnu": "1.6.7",
-    "@swc/core-linux-x64-musl": "1.6.7",
-    "@swc/core-win32-arm64-msvc": "1.6.7",
-    "@swc/core-win32-ia32-msvc": "1.6.7",
-    "@swc/core-win32-x64-msvc": "1.6.7",
     "@rolldown/binding-android-arm64": "1.0.0-rc.15",
     "@rolldown/binding-darwin-arm64": "1.0.0-rc.15",
     "@rolldown/binding-darwin-x64": "1.0.0-rc.15",
@@ -118,7 +106,17 @@
     "@rolldown/binding-openharmony-arm64": "1.0.0-rc.15",
     "@rolldown/binding-wasm32-wasi": "1.0.0-rc.15",
     "@rolldown/binding-win32-arm64-msvc": "1.0.0-rc.15",
-    "@rolldown/binding-win32-x64-msvc": "1.0.0-rc.15"
+    "@rolldown/binding-win32-x64-msvc": "1.0.0-rc.15",
+    "@swc/core-darwin-arm64": "1.6.7",
+    "@swc/core-darwin-x64": "1.6.7",
+    "@swc/core-linux-arm-gnueabihf": "1.6.7",
+    "@swc/core-linux-arm64-gnu": "1.6.7",
+    "@swc/core-linux-arm64-musl": "1.6.7",
+    "@swc/core-linux-x64-gnu": "1.6.7",
+    "@swc/core-linux-x64-musl": "1.6.7",
+    "@swc/core-win32-arm64-msvc": "1.6.7",
+    "@swc/core-win32-ia32-msvc": "1.6.7",
+    "@swc/core-win32-x64-msvc": "1.6.7"
   },
   "prettier": {
     "printWidth": 100,
@@ -130,34 +128,6 @@
     "@odoo/owl": "2.8.1",
     "bootstrap": "^5.1.3",
     "rbush": "^3.0.1"
-  },
-  "jest": {
-    "roots": [
-      "<rootDir>/src",
-      "<rootDir>/tests"
-    ],
-    "transform": {
-      "^.+\\.ts?$": [
-        "@swc/jest"
-      ]
-    },
-    "verbose": false,
-    "testEnvironment": "jsdom",
-    "testRegex": "(/tests/.*(test|spec))\\.ts?$",
-    "moduleFileExtensions": [
-      "ts",
-      "tsx",
-      "js",
-      "jsx",
-      "json",
-      "node"
-    ],
-    "workerIdleMemoryLimit": "800MB",
-    "globalSetup": "<rootDir>/tests/setup/jest_global_setup.ts",
-    "globalTeardown": "<rootDir>/tests/setup/jest_global_teardown.ts",
-    "setupFilesAfterEnv": [
-      "<rootDir>/tests/setup/jest.setup.ts"
-    ]
   },
   "lint-staged": {
     "*": [

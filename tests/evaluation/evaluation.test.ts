@@ -32,7 +32,6 @@ import {
   restoreDefaultFunctions,
   target,
 } from "../test_helpers/helpers";
-import resetAllMocks = jest.resetAllMocks;
 
 describe("evaluateCells", () => {
   test("Simple Evaluation", () => {
@@ -124,7 +123,7 @@ describe("evaluateCells", () => {
   });
 
   test("compute cell only once when references multiple times", () => {
-    const mock = jest.fn().mockReturnValue(42);
+    const mock = vi.fn().mockReturnValue(42);
     functionRegistry.add("MY.FUNC", {
       description: "any function",
       compute: mock,
@@ -1168,7 +1167,7 @@ describe("evaluate formula getter", () => {
   });
 
   test.skip("EVALUATE_CELLS with no argument re-evaluates do not reevaluate the cells if they are not modified", () => {
-    const mockCompute = jest.fn();
+    const mockCompute = vi.fn();
 
     functionRegistry.add("GETVALUE", {
       description: "Get value",
@@ -1178,12 +1177,12 @@ describe("evaluate formula getter", () => {
     });
     setCellContent(model, "A1", "=GETVALUE()");
     expect(mockCompute).toHaveBeenCalledTimes(1);
-    resetAllMocks();
+    vi.resetAllMocks();
     model.dispatch("EVALUATE_CELLS", { sheetId: model.getters.getActiveSheetId() });
     expect(mockCompute).toHaveBeenCalledTimes(0);
   });
   test("cells are re-evaluated if one of their dependency changes", () => {
-    const mockCompute = jest.fn().mockReturnValue("Hi");
+    const mockCompute = vi.fn().mockReturnValue("Hi");
 
     functionRegistry.add("GETVALUE", {
       description: "Get value",
@@ -1194,7 +1193,7 @@ describe("evaluate formula getter", () => {
     setCellContent(model, "A1", "=GETVALUE(A2)");
     expect(getCellContent(model, "A1")).toBe("Hi");
     expect(mockCompute).toHaveBeenCalledTimes(1);
-    resetAllMocks();
+    vi.resetAllMocks();
     mockCompute.mockReturnValue("Hello");
     setCellContent(model, "A2", "1");
     expect(getCellContent(model, "A1")).toBe("Hello");

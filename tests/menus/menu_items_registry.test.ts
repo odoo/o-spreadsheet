@@ -1,3 +1,4 @@
+import { MockInstance } from "vitest";
 import { Model } from "../../src";
 import { createActions } from "../../src/actions/action";
 import { FONT_SIZES } from "../../src/constants";
@@ -106,7 +107,7 @@ describe("Menu Item actions", () => {
   let model: Model;
   let sheetId: UID;
   let env: SpreadsheetChildEnv;
-  let dispatch: jest.SpyInstance;
+  let dispatch: MockInstance;
 
   beforeEach(async () => {
     env = makeTestEnv();
@@ -126,14 +127,14 @@ describe("Menu Item actions", () => {
   });
 
   test("Edit -> copy", () => {
-    const spyWriteClipboard = jest.spyOn(env.clipboard, "write");
+    const spyWriteClipboard = vi.spyOn(env.clipboard, "write");
     doAction(["edit", "copy"], env);
     expect(dispatch).toHaveBeenCalledWith("COPY");
     expect(spyWriteClipboard).toHaveBeenCalledWith(model.getters.getClipboardContent());
   });
 
   test("Edit -> cut", () => {
-    const spyWriteClipboard = jest.spyOn(env.clipboard, "write");
+    const spyWriteClipboard = vi.spyOn(env.clipboard, "write");
     doAction(["edit", "cut"], env);
     expect(dispatch).toHaveBeenCalledWith("CUT");
     expect(spyWriteClipboard).toHaveBeenCalledWith(model.getters.getClipboardContent());
@@ -920,7 +921,7 @@ describe("Menu Item actions", () => {
   });
 
   test("Insert -> Function", () => {
-    const spyStartCell = jest.spyOn(env, "startCellEdition");
+    const spyStartCell = vi.spyOn(env, "startCellEdition");
     doAction(["insert", "insert_function", "insert_function_sum"], env);
     expect(spyStartCell).toHaveBeenCalled();
   });
@@ -1109,7 +1110,7 @@ describe("Menu Item actions", () => {
     });
 
     test("Custom currency", async () => {
-      const spyOpenSidePanel = jest.spyOn(env, "openSidePanel");
+      const spyOpenSidePanel = vi.spyOn(env, "openSidePanel");
       doAction(["format", "format_number", "format_custom_currency"], env);
       expect(spyOpenSidePanel).toHaveBeenCalledWith("CustomCurrency", {});
     });
@@ -1270,7 +1271,7 @@ describe("Menu Item actions", () => {
   });
 
   test("Data -> Split to columns action", () => {
-    const spyOpenSidePanel = jest.spyOn(env, "openSidePanel");
+    const spyOpenSidePanel = vi.spyOn(env, "openSidePanel");
     doAction(["data", "split_to_columns"], env);
     expect(spyOpenSidePanel).toHaveBeenCalledWith("SplitToColumns", {});
   });

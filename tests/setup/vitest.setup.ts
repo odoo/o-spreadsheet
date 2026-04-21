@@ -5,7 +5,7 @@ import { App } from "@odoo/owl";
 import { setDefaultSheetViewSize } from "../../src/constants";
 import { getCompiledTemplates } from "../../tools/owl_templates/compile_templates.cjs";
 import "./canvas.mock";
-import "./jest_extend";
+import "./vitest_extend";
 import "./resize_observer.mock";
 
 function registerOwlTemplates() {
@@ -30,7 +30,7 @@ beforeAll(() => {
 });
 
 beforeEach(() => {
-  jest
+  vitest
     .spyOn(HTMLDivElement.prototype, "clientHeight", "get")
     .mockImplementation(function (this: HTMLDivElement) {
       const grid = this.className.includes("o-grid-overlay");
@@ -39,7 +39,7 @@ beforeEach(() => {
       }
       return 0;
     });
-  jest
+  vitest
     .spyOn(HTMLDivElement.prototype, "clientWidth", "get")
     .mockImplementation(function (this: HTMLDivElement) {
       if (this.className.includes("o-grid-overlay")) {

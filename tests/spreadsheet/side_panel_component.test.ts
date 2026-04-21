@@ -139,7 +139,7 @@ describe("Side Panel", () => {
   });
 
   test("Closing a side panel executes the onCloseSidePanel callback", async () => {
-    const onCloseSidePanel = jest.fn();
+    const onCloseSidePanel = vi.fn();
     sidePanelRegistry.add("CUSTOM_PANEL", {
       title: "Custom Panel",
       Body: Body,
@@ -152,7 +152,7 @@ describe("Side Panel", () => {
   });
 
   test("Switching from one sidepanel to another executes the onCloseSidePanel callback", async () => {
-    const onCloseSidePanel = jest.fn();
+    const onCloseSidePanel = vi.fn();
     sidePanelRegistry.add("CUSTOM_PANEL_1", {
       title: "Custom Panel 1",
       Body: Body,

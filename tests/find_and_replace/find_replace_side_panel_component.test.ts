@@ -75,7 +75,7 @@ describe("find and replace sidePanel component", () => {
     let dispatch;
 
     beforeEach(async () => {
-      jest.useFakeTimers();
+      vi.useFakeTimers();
       ({ parent, model, fixture } = await mountSpreadsheet());
       parent.env.openSidePanel("FindAndReplace");
       await nextTick();
@@ -83,13 +83,13 @@ describe("find and replace sidePanel component", () => {
     });
 
     afterEach(() => {
-      jest.useRealTimers();
+      vi.useRealTimers();
     });
 
     test("simple search", async () => {
       /** Fake timers use to control debounceSearch in Find and Replace */
       setInputValueAndTrigger(selectors.inputSearch, "1");
-      jest.runOnlyPendingTimers();
+      vi.runOnlyPendingTimers();
       await nextTick();
       expect(dispatch).toHaveBeenCalledWith("UPDATE_SEARCH", {
         searchOptions: { exactMatch: false, matchCase: false, searchFormulas: false },
@@ -117,7 +117,7 @@ describe("find and replace sidePanel component", () => {
 
     test("search on empty string", async () => {
       setInputValueAndTrigger(selectors.inputSearch, "");
-      jest.runOnlyPendingTimers();
+      vi.runOnlyPendingTimers();
       await nextTick();
       expect(dispatch).toHaveBeenCalledWith("UPDATE_SEARCH", {
         searchOptions: { exactMatch: false, matchCase: false, searchFormulas: false },
@@ -128,7 +128,7 @@ describe("find and replace sidePanel component", () => {
     test("Closing the sidepanel cancels the search", async () => {
       setInputValueAndTrigger(selectors.inputSearch, "g");
       await simulateClick(".o-sidePanelClose");
-      jest.runOnlyPendingTimers();
+      vi.runOnlyPendingTimers();
       await nextTick();
       expect(dispatch).not.toHaveBeenCalledWith("UPDATE_SEARCH", expect.any(Object));
     });
@@ -136,20 +136,20 @@ describe("find and replace sidePanel component", () => {
 
   describe("search count match", () => {
     beforeEach(async () => {
-      jest.useFakeTimers();
+      vi.useFakeTimers();
       ({ parent, model, fixture } = await mountSpreadsheet());
       parent.env.openSidePanel("FindAndReplace");
       await nextTick();
     });
 
     afterEach(() => {
-      jest.useRealTimers();
+      vi.useRealTimers();
     });
     test("search match count is displayed", async () => {
       setCellContent(model, "A1", "Hello");
       expect(fixture.querySelector(".o-input-count")).toBeNull();
       setInputValueAndTrigger(selectors.inputSearch, "Hel");
-      jest.runOnlyPendingTimers();
+      vi.runOnlyPendingTimers();
       await nextTick();
       expect(fixture.querySelector(".o-input-count")?.innerHTML).toBe("1 / 1");
     });
@@ -158,11 +158,11 @@ describe("find and replace sidePanel component", () => {
       setCellContent(model, "A1", "Hello");
       await setInputValueAndTrigger(selectors.inputSearch, "Hel"); // wait the next render to check if the count is displayed
       expect(fixture.querySelector(".o-input-count")).toBeNull();
-      jest.runOnlyPendingTimers();
+      vi.runOnlyPendingTimers();
       await nextTick();
       expect(fixture.querySelector(".o-input-count")?.innerHTML).toBe("1 / 1");
       setInputValueAndTrigger(selectors.inputSearch, "");
-      jest.runOnlyPendingTimers();
+      vi.runOnlyPendingTimers();
       await nextTick();
       expect(fixture.querySelector(".o-input-count")).toBeNull();
     });
@@ -170,7 +170,7 @@ describe("find and replace sidePanel component", () => {
     test("search without match displays no match count", async () => {
       expect(fixture.querySelector(".o-input-count")).toBeNull();
       setInputValueAndTrigger(selectors.inputSearch, "a search term");
-      jest.runOnlyPendingTimers();
+      vi.runOnlyPendingTimers();
       await nextTick();
       expect(fixture.querySelector(".o-input-count")?.innerHTML).toBe("0 / 0");
     });

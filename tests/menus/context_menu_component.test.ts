@@ -517,7 +517,7 @@ describe("Context Menu internal tests", () => {
   });
 
   test("menu closed when sub menu item is clicked", async () => {
-    const mockCallback = jest.fn(() => {});
+    const mockCallback = vi.fn(() => {});
     await renderContextMenu(300, 300, {
       onClose: mockCallback,
       menuItems: subMenu,

@@ -36,7 +36,7 @@ import {
   nextTick,
   typeInComposerHelper,
 } from "../test_helpers/helpers";
-jest.mock("../../src/components/composer/content_editable_helper.ts", () =>
+vi.mock("../../src/components/composer/content_editable_helper.ts", () =>
   require("../__mocks__/content_editable_helper")
 );
 
@@ -1089,7 +1089,7 @@ describe("Composer string is correctly translated to HtmlContents[][] for the co
 
 describe("Copy/paste in composer", () => {
   test("Can copy random content inside the composer", async () => {
-    const pasteFn = jest.fn();
+    const pasteFn = vi.fn();
     const parentPasteFn = () => pasteFn();
     fixture.addEventListener("paste", parentPasteFn);
     const clipboardData = new MockClipboardData();

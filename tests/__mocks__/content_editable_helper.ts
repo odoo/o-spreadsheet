@@ -7,6 +7,7 @@ const initialSelectionState = {
   isSelectingRange: false,
   position: -1,
 };
+console.trace("mock content helper loaded")
 export class ContentEditableHelper {
   currentState = {
     cursorStart: 0,
@@ -17,6 +18,10 @@ export class ContentEditableHelper {
   manualRange: boolean = false;
   selectionState: { isSelectingRange: boolean; position: number } = initialSelectionState;
   contents: HtmlContent[][] = [];
+  constructor() {
+    debugger
+    console.log("trucmuch")
+  }
 
   updateEl(el: HTMLElement) {
     this.el = el;
@@ -106,8 +111,10 @@ export class ContentEditableHelper {
   private attachEventHandlers() {
     if (this.el === null) return;
     this.el.addEventListener("keydown", (ev: KeyboardEvent) => this.onKeyDown(this.el!, ev));
-    // @ts-ignore
-    this.el.addEventListener("focus", (ev: FocusEvent) => (window.mockContentHelper = this));
+    this.el.addEventListener("focus", (ev: FocusEvent) => {
+      debugger;
+      // @ts-ignore
+      window.mockContentHelper = this});
   }
 
   /**

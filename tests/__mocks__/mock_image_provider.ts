@@ -10,7 +10,9 @@ export class ImageProvider implements ImageProviderInterface {
   };
   private mimetype = "image/jpeg";
 
-  constructor(_fileStore: FileStore) {}
+  constructor(_fileStore: FileStore) {
+    console.log("tadam")
+  }
 
   async requestImage(): Promise<Image> {
     return { path: this.path, size: this.size, mimetype: this.mimetype };

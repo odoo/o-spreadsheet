@@ -272,7 +272,7 @@ describe("Memoize", () => {
 describe("UUID", () => {
   test("Can generate UUID on environnement missing window.crypto", () => {
     seedrandom("seed", { global: true });
-    jest.spyOn(window, "crypto", "get").mockReturnValue(undefined as unknown as Crypto);
+    vi.spyOn(window, "crypto", "get").mockReturnValue(undefined as unknown as Crypto);
 
     const uuidGenerator = new UuidGenerator();
     expect(uuidGenerator.uuidv4()).toBe("9d28f280-be50-4a0c-a166-9ba361b2fb6b");
@@ -292,7 +292,7 @@ describe("UUID", () => {
         return array;
       },
     };
-    jest.spyOn(window, "crypto", "get").mockReturnValue(mockCrypto as Crypto);
+    vi.spyOn(window, "crypto", "get").mockReturnValue(mockCrypto as Crypto);
 
     const uuidGenerator = new UuidGenerator();
     expect(uuidGenerator.uuidv4()).toBe("17698da6-740c-4ed3-bde7-60faf206d0e5");

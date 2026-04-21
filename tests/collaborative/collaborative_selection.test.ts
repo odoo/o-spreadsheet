@@ -17,14 +17,14 @@ describe("Collaborative selection", () => {
   let network: MockTransportService;
 
   beforeEach(() => {
-    jest.useFakeTimers();
+    vi.useFakeTimers();
 
     ({ alice, bob, charlie, network } = setupCollaborativeEnv());
   });
 
   test("Everyone starts in A1", () => {
     const sheetId = alice.getters.getActiveSheetId();
-    jest.advanceTimersByTime(DEBOUNCE_TIME + 100);
+    vi.advanceTimersByTime(DEBOUNCE_TIME + 100);
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
       (user) => user.getters.getConnectedClients(),
       new Set([
@@ -51,7 +51,7 @@ describe("Collaborative selection", () => {
     selectCell(alice, "C3");
     moveAnchorCell(bob, "down");
     moveAnchorCell(bob, "right");
-    jest.advanceTimersByTime(DEBOUNCE_TIME + 100);
+    vi.advanceTimersByTime(DEBOUNCE_TIME + 100);
     const sheetId = alice.getters.getActiveSheetId();
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
       (user) => user.getters.getConnectedClients(),
@@ -77,8 +77,8 @@ describe("Collaborative selection", () => {
 
   test("Select the same cell does not notify other users", () => {
     selectCell(alice, "B1");
-    jest.advanceTimersByTime(DEBOUNCE_TIME + 100);
-    const spy = jest.spyOn(network, "sendMessage");
+    vi.advanceTimersByTime(DEBOUNCE_TIME + 100);
+    const spy = vi.spyOn(network, "sendMessage");
     selectCell(alice, "B1");
     expect(spy).not.toHaveBeenCalled();
   });
@@ -86,9 +86,9 @@ describe("Collaborative selection", () => {
   test("Cell selected is updated after insert column", () => {
     const sheetId = alice.getters.getActiveSheetId();
     selectCell(alice, "B1");
-    jest.advanceTimersByTime(DEBOUNCE_TIME + 100);
+    vi.advanceTimersByTime(DEBOUNCE_TIME + 100);
     addColumns(bob, "before", "B", 2);
-    jest.advanceTimersByTime(DEBOUNCE_TIME + 100);
+    vi.advanceTimersByTime(DEBOUNCE_TIME + 100);
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
       (user) => user.getters.getConnectedClients(),
       new Set([
@@ -116,7 +116,7 @@ describe("Collaborative selection", () => {
     selectCell(bob, "B1");
     selectCell(alice, "B1");
     addColumns(alice, "before", "B", 2);
-    jest.advanceTimersByTime(DEBOUNCE_TIME + 100);
+    vi.advanceTimersByTime(DEBOUNCE_TIME + 100);
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
       (user) => user.getters.getConnectedClients(),
       new Set([
@@ -142,7 +142,7 @@ describe("Collaborative selection", () => {
   test("Cell selected is updated select an entire column", () => {
     const sheetId = alice.getters.getActiveSheetId();
     selectColumn(bob, 1, "overrideSelection");
-    jest.advanceTimersByTime(DEBOUNCE_TIME + 100);
+    vi.advanceTimersByTime(DEBOUNCE_TIME + 100);
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
       (user) => user.getters.getConnectedClients(),
       new Set([
@@ -167,7 +167,7 @@ describe("Collaborative selection", () => {
 
   test("Position is remove on client left", () => {
     const sheetId = alice.getters.getActiveSheetId();
-    jest.advanceTimersByTime(DEBOUNCE_TIME + 100);
+    vi.advanceTimersByTime(DEBOUNCE_TIME + 100);
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
       (user) => user.getters.getConnectedClients(),
       new Set([
@@ -192,7 +192,7 @@ describe("Collaborative selection", () => {
       transportService: network,
       client: { id: "david", name: "David" },
     });
-    jest.advanceTimersByTime(DEBOUNCE_TIME + 100);
+    vi.advanceTimersByTime(DEBOUNCE_TIME + 100);
     expect([alice, bob, charlie, david]).toHaveSynchronizedValue(
       (user) => user.getters.getConnectedClients(),
       new Set([
@@ -245,7 +245,7 @@ describe("Collaborative selection", () => {
     const sheetId = alice.getters.getActiveSheetId();
     createSheet(alice, { sheetId: "42" });
     alice.dispatch("DELETE_SHEET", { sheetId });
-    jest.advanceTimersByTime(DEBOUNCE_TIME + 100);
+    vi.advanceTimersByTime(DEBOUNCE_TIME + 100);
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
       (user) => user.getters.getConnectedClients(),
       new Set([
@@ -271,7 +271,7 @@ describe("Collaborative selection", () => {
   test("Client positions are updated when changing their active sheet", () => {
     const sheetId = alice.getters.getActiveSheetId();
     createSheet(alice, { sheetId: "42", activate: true });
-    jest.advanceTimersByTime(DEBOUNCE_TIME + 100);
+    vi.advanceTimersByTime(DEBOUNCE_TIME + 100);
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
       (user) => user.getters.getConnectedClients(),
       new Set([
@@ -300,7 +300,7 @@ describe("Collaborative selection", () => {
       transportService: network,
       client: { id: "david", name: "David", customId: "1" } as Client,
     });
-    jest.advanceTimersByTime(DEBOUNCE_TIME + 100);
+    vi.advanceTimersByTime(DEBOUNCE_TIME + 100);
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
       (user) => user.getters.getConnectedClients(),
       new Set([

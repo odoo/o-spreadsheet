@@ -1,3 +1,4 @@
+import { Mock, MockInstance } from "vitest";
 import { Model } from "../../../src";
 import {
   DEFAULT_CELL_HEIGHT,
@@ -79,11 +80,11 @@ describe("Insert chart menu item", () => {
     ],
   };
 
-  let dispatchSpy: jest.SpyInstance;
+  let dispatchSpy: MockInstance;
   let defaultPayload: any;
   let model: Model;
   let env: SpreadsheetChildEnv;
-  let openSidePanelSpy: jest.Mock<any, any>;
+  let openSidePanelSpy: Mock;
 
   function insertChart() {
     doAction(["insert", "insert_chart"], env);
@@ -95,7 +96,7 @@ describe("Insert chart menu item", () => {
   }
 
   beforeEach(async () => {
-    openSidePanelSpy = jest.fn();
+    openSidePanelSpy = vi.fn();
     env = makeTestEnv({
       model: new Model(data),
       openSidePanel: (type, props) => openSidePanelSpy(type, props),

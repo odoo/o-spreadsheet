@@ -454,7 +454,7 @@ describe("Scorecard charts rendering", () => {
   });
 
   afterEach(() => {
-    jest.spyOn(MockCanvasRenderingContext2D.prototype, "fillText").mockRestore();
+    vi.spyOn(MockCanvasRenderingContext2D.prototype, "fillText").mockRestore();
   });
 
   test("Baseline with mode 'text' is plainly displayed", () => {

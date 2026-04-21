@@ -52,7 +52,7 @@ import {
   typeInComposerTopBar as typeInComposerTopBarHelper,
 } from "../test_helpers/helpers";
 
-jest.mock("../../src/components/composer/content_editable_helper.ts", () =>
+vi.mock("../../src/components/composer/content_editable_helper.ts", () =>
   require("../__mocks__/content_editable_helper")
 );
 
@@ -172,7 +172,7 @@ describe("Composer interactions", () => {
     await keyDown({ key: "Enter" });
     const topBarComposer = document.querySelector(".o-spreadsheet-topbar .o-composer")!;
     const gridComposerContainer = document.querySelector(".o-grid-composer")! as HTMLElement;
-    const spy = jest.spyOn(gridComposerContainer.style, "width", "set");
+    const spy = vi.spyOn(gridComposerContainer.style, "width", "set");
     await typeInComposerGrid("=SU");
     await nextTick();
     await click(topBarComposer);
@@ -185,7 +185,7 @@ describe("Composer interactions", () => {
     const gridComposerContainer = document.querySelector(".o-grid-composer")! as HTMLElement;
     // Type in top bar composer
     await typeInComposerTopBar("=");
-    const spy = jest.spyOn(gridComposerContainer.style, "width", "set");
+    const spy = vi.spyOn(gridComposerContainer.style, "width", "set");
     await nextTick();
     selectCell(model, "B2");
     await nextTick();
@@ -556,16 +556,16 @@ describe("Grid composer", () => {
   test("Wheel event on the composer should not scroll the viewport if the composer has a scrollbar", async () => {
     const viewport = model.getters.getActiveMainViewport();
     // Describes a div that has a scrollbar - the scrollHeight is greater than the clientHeight
-    jest.spyOn(HTMLDivElement.prototype, "clientHeight", "get").mockImplementation(() => 50);
-    jest.spyOn(HTMLDivElement.prototype, "scrollHeight", "get").mockImplementation(() => 150);
+    vi.spyOn(HTMLDivElement.prototype, "clientHeight", "get").mockImplementation(() => 50);
+    vi.spyOn(HTMLDivElement.prototype, "scrollHeight", "get").mockImplementation(() => 150);
     await startComposition("5");
     triggerWheelEvent(document.activeElement!, { deltaY: 4 * DEFAULT_CELL_HEIGHT });
     await nextTick();
     expect(model.getters.getActiveMainViewport()).toMatchObject(viewport);
 
     // Describes a div without a scrollbar, the scrollHeight matches the clientheight
-    jest.spyOn(HTMLDivElement.prototype, "clientHeight", "get").mockImplementation(() => 50);
-    jest.spyOn(HTMLDivElement.prototype, "scrollHeight", "get").mockImplementation(() => 50);
+    vi.spyOn(HTMLDivElement.prototype, "clientHeight", "get").mockImplementation(() => 50);
+    vi.spyOn(HTMLDivElement.prototype, "scrollHeight", "get").mockImplementation(() => 50);
     await nextTick();
     triggerWheelEvent(document.activeElement!, { deltaY: 4 * DEFAULT_CELL_HEIGHT });
     expect(model.getters.getActiveMainViewport()).toMatchObject({

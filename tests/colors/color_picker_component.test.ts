@@ -46,7 +46,7 @@ test("Color picker is correctly positioned", async () => {
 
 describe("Color Picker buttons", () => {
   test("Click on 'reset' button reset the cell style", async () => {
-    const onColorPicked = jest.fn();
+    const onColorPicked = vi.fn();
     await mountColorPicker({ currentColor: "#45818e", onColorPicked });
     await simulateClick(".o-cancel");
     expect(onColorPicked).toHaveBeenCalledWith("");
@@ -70,14 +70,14 @@ describe("Color Picker buttons", () => {
   });
 
   test("Can pick a standard color", async () => {
-    const onColorPicked = jest.fn();
+    const onColorPicked = vi.fn();
     await mountColorPicker({ onColorPicked });
     await simulateClick("div[data-color='#FF9900']");
     expect(onColorPicked).toHaveBeenCalledWith("#FF9900");
   });
 
   test("Can pick a custom color in the gradient", async () => {
-    const onColorPicked = jest.fn();
+    const onColorPicked = vi.fn();
     await mountColorPicker({ onColorPicked });
     await simulateClick(".o-color-picker-toggler");
     await simulateClick(".o-gradient");
@@ -90,7 +90,7 @@ describe("Color Picker buttons", () => {
   });
 
   test("Can choose a custom color with the input", async () => {
-    const onColorPicked = jest.fn();
+    const onColorPicked = vi.fn();
     await mountColorPicker({ onColorPicked });
     await simulateClick(".o-color-picker-toggler");
     await simulateClick(".o-gradient");
@@ -105,7 +105,7 @@ describe("Color Picker buttons", () => {
   });
 
   test("Color from the input is sanitized", async () => {
-    const onColorPicked = jest.fn();
+    const onColorPicked = vi.fn();
     await mountColorPicker({ onColorPicked });
     await simulateClick(".o-color-picker-toggler");
     await simulateClick(".o-gradient");
@@ -116,7 +116,7 @@ describe("Color Picker buttons", () => {
   });
 
   test("Cannot input an invalid color code", async () => {
-    const onColorPicked = jest.fn();
+    const onColorPicked = vi.fn();
     await mountColorPicker({ onColorPicked });
     await simulateClick(".o-color-picker-toggler");
     const target = document.querySelector(".o-custom-input-preview input");
@@ -130,7 +130,7 @@ describe("Color Picker buttons", () => {
   });
 
   test("warning border of invalid color disappears when selecting on the gradient", async () => {
-    const onColorPicked = jest.fn();
+    const onColorPicked = vi.fn();
     await mountColorPicker({ onColorPicked });
     await simulateClick(".o-color-picker-toggler");
     await setInputValueAndTrigger(".o-custom-input-preview input", "this is not a color");

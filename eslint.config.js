@@ -20,7 +20,8 @@ export default tseslint.config(
         // `allowDefaultProject` covers files that are not included in any
         // tsconfig `include` glob and would otherwise be silently skipped:
         //   - global.d.ts: root-level declaration file, not part of any project
-        projectService: fastMode ? false : { allowDefaultProject: ["global.d.ts"] },
+        //   - vitest.config.ts: vitest configuration file, not part of any project
+        projectService: fastMode ? false : { allowDefaultProject: ["global.d.ts", "vitest.config.ts"] },
       },
     },
     rules: {

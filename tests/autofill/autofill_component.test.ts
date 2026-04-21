@@ -208,7 +208,7 @@ describe("Autofill component", () => {
       `;
     }
     expect(fixture.querySelector(".o-autofill-nextvalue")).toBeNull();
-    model.getters.getAutofillTooltip = jest.fn(() => {
+    model.getters.getAutofillTooltip = vi.fn(() => {
       return {
         props: { content: "blabla" },
         component: CustomTooltip,
@@ -254,12 +254,12 @@ describe("Autofill component", () => {
 
 describe("Autofill edge scrolling", () => {
   beforeEach(async () => {
-    jest.useFakeTimers();
+    vi.useFakeTimers();
     ({ parent, model, fixture } = await mountSpreadsheet());
   });
 
   afterEach(() => {
-    jest.useRealTimers();
+    vi.useRealTimers();
   });
 
   test("Can edge scroll horizontally", () => {
@@ -270,7 +270,7 @@ describe("Autofill edge scrolling", () => {
     triggerMouseEvent(autofill, "mousemove", 1.5 * width, y);
     const advanceTimer = edgeScrollDelay(0.5 * width, 5);
 
-    jest.advanceTimersByTime(advanceTimer);
+    vi.advanceTimersByTime(advanceTimer);
     triggerMouseEvent(autofill, "mouseup", 1.5 * width, y);
     expect(model.getters.getActiveMainViewport()).toMatchObject({
       left: 6,
@@ -283,7 +283,7 @@ describe("Autofill edge scrolling", () => {
     triggerMouseEvent(autofill, "mousemove", -0.5 * width, y);
     const advanceTimer2 = edgeScrollDelay(0.5 * width, 2);
 
-    jest.advanceTimersByTime(advanceTimer2);
+    vi.advanceTimersByTime(advanceTimer2);
     triggerMouseEvent(autofill, "mouseup", -0.5 * width, y);
 
     expect(model.getters.getActiveMainViewport()).toMatchObject({
@@ -302,7 +302,7 @@ describe("Autofill edge scrolling", () => {
     triggerMouseEvent(autofill, "mousemove", x, 1.5 * height);
     const advanceTimer = edgeScrollDelay(0.5 * height, 5);
 
-    jest.advanceTimersByTime(advanceTimer);
+    vi.advanceTimersByTime(advanceTimer);
     triggerMouseEvent(autofill, "mouseup", x, 1.5 * height);
 
     expect(model.getters.getActiveMainViewport()).toMatchObject({
@@ -316,7 +316,7 @@ describe("Autofill edge scrolling", () => {
     triggerMouseEvent(autofill, "mousemove", x, -0.5 * height);
     const advanceTimer2 = edgeScrollDelay(0.5 * height, 2);
 
-    jest.advanceTimersByTime(advanceTimer2);
+    vi.advanceTimersByTime(advanceTimer2);
     triggerMouseEvent(autofill, "mouseup", x, -0.5 * height);
 
     expect(model.getters.getActiveMainViewport()).toMatchObject({
@@ -336,7 +336,7 @@ describe("Autofill edge scrolling", () => {
     triggerMouseEvent(autofill, "mousedown", width / 2, 0);
     triggerMouseEvent(autofill, "mousemove", width * 1.5, 0);
     const advanceTimer = edgeScrollDelay(width / 2, 5);
-    jest.advanceTimersByTime(advanceTimer);
+    vi.advanceTimersByTime(advanceTimer);
     await nextTick(); // now the cursor is out of the sheet
     const tooltipElement = fixture.querySelector(".o-autofill-nextvalue")! as HTMLElement;
     expect(tooltipElement).not.toBeNull();
@@ -345,7 +345,7 @@ describe("Autofill edge scrolling", () => {
 
     triggerMouseEvent(autofill, "mousemove", width / 2, 0);
     const advanceTimer2 = edgeScrollDelay(width / 2, 5);
-    jest.advanceTimersByTime(advanceTimer2);
+    vi.advanceTimersByTime(advanceTimer2);
     await nextTick();
     expect(isVisibleInViewport(tooltipElement, model)).toBeTruthy();
 
@@ -363,7 +363,7 @@ describe("Autofill edge scrolling", () => {
     triggerMouseEvent(autofill, "mousedown", 0, height / 2);
     triggerMouseEvent(autofill, "mousemove", 0, height * 1.5);
     const advanceTimer = edgeScrollDelay(height / 2, 5);
-    jest.advanceTimersByTime(advanceTimer);
+    vi.advanceTimersByTime(advanceTimer);
     await nextTick(); // now the cursor is out of the viewport
 
     const tooltipElement = fixture.querySelector(".o-autofill-nextvalue")! as HTMLElement;
@@ -378,7 +378,7 @@ describe("Autofill edge scrolling", () => {
      * so we need to wait for the time out
      */
     const timerToTriggerLastMouseMove = edgeScrollDelay(height / 2, 0);
-    jest.advanceTimersByTime(timerToTriggerLastMouseMove);
+    vi.advanceTimersByTime(timerToTriggerLastMouseMove);
     await nextTick();
     expect(isVisibleInViewport(tooltipElement, model)).toBeTruthy();
 

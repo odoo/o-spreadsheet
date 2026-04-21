@@ -5,7 +5,7 @@ import { FileStore } from "../../__mocks__/mock_file_store";
 describe("image file store", () => {
   test("created image is not deleted from file store", () => {
     const fileStore = new FileStore();
-    fileStore.delete = jest.fn();
+    fileStore.delete = vi.fn();
     const data = createEmptyWorkbookData();
     const size = { width: 100, height: 100 };
     new Model(
@@ -39,7 +39,7 @@ describe("image file store", () => {
 
   test("deleted image is deleted from file store", () => {
     const fileStore = new FileStore();
-    fileStore.delete = jest.fn();
+    fileStore.delete = vi.fn();
     const data = createEmptyWorkbookData();
     const sheetId = data.sheets[0].id;
     const size = { width: 100, height: 100 };
@@ -75,7 +75,7 @@ describe("image file store", () => {
 
   test("undo image is deleted from file store", () => {
     const fileStore = new FileStore();
-    fileStore.delete = jest.fn();
+    fileStore.delete = vi.fn();
     const data = createEmptyWorkbookData();
     const sheetId = data.sheets[0].id;
     const size = { width: 100, height: 100 };
@@ -117,7 +117,7 @@ describe("image file store", () => {
 
   test("undo/redo image is not deleted from file store", () => {
     const fileStore = new FileStore();
-    fileStore.delete = jest.fn();
+    fileStore.delete = vi.fn();
     const data = createEmptyWorkbookData();
     const sheetId = data.sheets[0].id;
     const size = { width: 100, height: 100 };
@@ -166,7 +166,7 @@ describe("image file store", () => {
 
   test("deleted copied image is not deleted from file store", () => {
     const fileStore = new FileStore();
-    fileStore.delete = jest.fn();
+    fileStore.delete = vi.fn();
     const data = createEmptyWorkbookData();
     const sheetId = data.sheets[0].id;
     const size = { width: 100, height: 100 };
@@ -210,7 +210,7 @@ describe("image file store", () => {
 
   test("deleting sheet deletes image from file store", () => {
     const fileStore = new FileStore();
-    fileStore.delete = jest.fn();
+    fileStore.delete = vi.fn();
     const data = createEmptyWorkbookData();
     const size = { width: 100, height: 100 };
     new Model(
@@ -246,7 +246,7 @@ describe("image file store", () => {
 
   test("undo sheet creation deletes image from file store", () => {
     const fileStore = new FileStore();
-    fileStore.delete = jest.fn();
+    fileStore.delete = vi.fn();
     const data = createEmptyWorkbookData();
     const size = { width: 100, height: 100 };
     new Model(
@@ -288,7 +288,7 @@ describe("image file store", () => {
 
   test("delete snapshotted image", () => {
     const fileStore = new FileStore();
-    fileStore.delete = jest.fn();
+    fileStore.delete = vi.fn();
     const data = createEmptyWorkbookData();
     const sheetId = data.sheets[0].id;
     data.sheets[0].figures = [

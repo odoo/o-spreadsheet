@@ -40,7 +40,7 @@ import {
   typeInComposerTopBar,
 } from "../test_helpers/helpers";
 
-jest.mock("../../src/components/composer/content_editable_helper.ts", () =>
+vi.mock("../../src/components/composer/content_editable_helper.ts", () =>
   require("../__mocks__/content_editable_helper")
 );
 
@@ -50,11 +50,11 @@ let model: Model;
 let env: SpreadsheetChildEnv;
 
 beforeEach(() => {
-  jest.useFakeTimers();
+  vi.useFakeTimers();
 });
 
 afterEach(() => {
-  jest.useRealTimers();
+  vi.useRealTimers();
 });
 describe("Simple Spreadsheet Component", () => {
   test("simple rendering snapshot", async () => {
@@ -164,7 +164,7 @@ describe("Simple Spreadsheet Component", () => {
     ({ model, parent, fixture } = await mountSpreadsheet({
       model: new Model({ sheets: [{ id: "sh1" }] }),
     }));
-    const mockUserAgent = jest.spyOn(navigator, "userAgent", "get");
+    const mockUserAgent = vi.spyOn(navigator, "userAgent", "get");
     mockUserAgent.mockImplementation(
       () => "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:109.0) Gecko/20100101 Firefox/119.0"
     );
@@ -173,11 +173,11 @@ describe("Simple Spreadsheet Component", () => {
     await nextTick();
     await keyDown({ key: "F", metaKey: true, bubbles: true });
     expect(document.querySelectorAll(".o-sidePanel").length).toBe(1);
-    jest.restoreAllMocks();
+    vi.restoreAllMocks();
   });
 
   test("Z-indexes of the various spreadsheet components", async () => {
-    jest.useFakeTimers();
+    vi.useFakeTimers();
     ({ model, fixture } = await mountSpreadsheet());
     const getZIndex = (selector: string) => Number(getElComputedStyle(selector, "zIndex")) || 0;
     mockChart();
@@ -225,16 +225,16 @@ describe("Simple Spreadsheet Component", () => {
     expect(dropDownZIndex).toBeLessThan(topBarComposerZIndex);
     expect(topBarComposerZIndex).toBeLessThan(popoverZIndex);
     expect(popoverZIndex).toBeLessThan(figureAnchorZIndex);
-    jest.useRealTimers();
+    vi.useRealTimers();
   });
 
   test("Keydown is ineffective in dashboard mode", async () => {
     ({ model, parent, fixture } = await mountSpreadsheet());
-    const spreadsheetKeyDown = jest.spyOn(parent, "onKeydown");
+    const spreadsheetKeyDown = vi.spyOn(parent, "onKeydown");
     // const spreadsheetDiv = fixture.querySelector(".o-spreadsheet")!;
     keyDown({ key: "H", ctrlKey: true });
     expect(spreadsheetKeyDown).toHaveBeenCalled();
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     model.updateMode("dashboard");
     await nextTick();
     keyDown({ key: "H", ctrlKey: true });
@@ -272,7 +272,7 @@ test("Can instantiate a spreadsheet with a given client id-name", async () => {
 
   // Validate that after the move debounce has run, the client has a position ad
   // additional property
-  jest.advanceTimersByTime(DEBOUNCE_TIME + 1);
+  vi.advanceTimersByTime(DEBOUNCE_TIME + 1);
   expect(model.getters.getClient()).toEqual({
     id: "alice",
     name: "Alice",
@@ -285,7 +285,7 @@ test("Can instantiate a spreadsheet with a given client id-name", async () => {
 });
 
 test("Spreadsheet detects frozen panes that exceed the limit size at start", async () => {
-  const notifyUser = jest.fn();
+  const notifyUser = vi.fn();
   const model = new Model({ sheets: [{ panes: { xSplit: 12, ySplit: 50 } }] });
   ({ parent, fixture } = await mountSpreadsheet({ model }, { notifyUser }));
   expect(notifyUser).toHaveBeenCalled();
@@ -296,7 +296,7 @@ test("Warns user when viewport is too small for frozen panes but stops warning a
 
   // Setting the sheet viewport size to 0 to represent the "real life" scenario where the default size is 0
   setDefaultSheetViewSize(0);
-  const notifyUser = jest.fn();
+  const notifyUser = vi.fn();
   const model = new Model({ sheets: [{ panes: { xSplit: 0, ySplit: 20 } }] });
   ({ parent, fixture } = await mountSpreadsheet({ model }, { notifyUser }));
   expect(notifyUser).toHaveBeenCalledTimes(0);
@@ -305,7 +305,7 @@ test("Warns user when viewport is too small for frozen panes but stops warning a
 });
 
 test("Warn user only once when the viewport is too small for its frozen panes", async () => {
-  const notifyUser = jest.fn();
+  const notifyUser = vi.fn();
   ({ parent, model, fixture } = await mountSpreadsheet(undefined, { notifyUser }));
   expect(notifyUser).not.toHaveBeenCalled();
   freezeRows(model, 51);
@@ -328,7 +328,7 @@ test("Warn user only once when the viewport is too small for its frozen panes", 
 });
 
 test("Raise error to ui use 'raiseError' in the env", async () => {
-  const raiseError = jest.fn();
+  const raiseError = vi.fn();
   ({ model, fixture } = await mountSpreadsheet(undefined, { raiseError }));
   model["config"].raiseBlockingErrorUI("windows has detected that your monitor is not plugged in");
   expect(raiseError).toHaveBeenCalledWith(
@@ -337,7 +337,7 @@ test("Raise error to ui use 'raiseError' in the env", async () => {
 });
 
 test("Notify ui correctly, with type notification correctly use notifyUser in the env", async () => {
-  const notifyUser = jest.fn();
+  const notifyUser = vi.fn();
   ({ model, fixture } = await mountSpreadsheet(undefined, { notifyUser }));
   model["config"].notifyUI({
     text: "hello",
@@ -468,7 +468,7 @@ describe("Composer / selectionInput interactions", () => {
   });
 });
 test("cell popovers to be closed on clicking outside grid", async () => {
-  jest.useFakeTimers();
+  vi.useFakeTimers();
   ({ model, fixture } = await mountSpreadsheet());
 
   setCellContent(model, "A1", "=SUM(");
@@ -477,5 +477,5 @@ test("cell popovers to be closed on clicking outside grid", async () => {
   expect(fixture.querySelector(".o-popover .o-error-tooltip")).not.toBeNull();
   await simulateClick(".o-topbar-menu");
   expect(fixture.querySelector(".o-popover .o-error-tooltip")).toBeNull();
-  jest.useRealTimers();
+  vi.useRealTimers();
 });

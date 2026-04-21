@@ -5,7 +5,7 @@ export function mockGetBoundingClientRect(
 ) {
   const mockedClasses = Object.keys(classesWithMocks);
 
-  jest
+  vitest
     .spyOn(HTMLElement.prototype, "getBoundingClientRect")
     .mockImplementation(function (this: HTMLElement) {
       const mockedClass = mockedClasses.find((className) => this.classList.contains(className));

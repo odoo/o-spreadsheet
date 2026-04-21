@@ -14,7 +14,7 @@ describe("Collaborative session", () => {
   let client: Client;
 
   beforeEach(() => {
-    jest.useFakeTimers();
+    vi.useFakeTimers();
 
     transport = new MockTransportService();
     client = {
@@ -32,13 +32,13 @@ describe("Collaborative session", () => {
 
   test("local client move", () => {
     session.move({ sheetId: "sheetId", col: 0, row: 0 });
-    jest.advanceTimersByTime(DEBOUNCE_TIME + 100);
-    const spy = jest.spyOn(transport, "sendMessage");
+    vi.advanceTimersByTime(DEBOUNCE_TIME + 100);
+    const spy = vi.spyOn(transport, "sendMessage");
 
     session.move({ sheetId: "sheetId", col: 1, row: 2 });
     expect(spy).not.toHaveBeenCalled(); // Wait for debounce
 
-    jest.advanceTimersByTime(DEBOUNCE_TIME + 100);
+    vi.advanceTimersByTime(DEBOUNCE_TIME + 100);
     expect(spy).toHaveBeenCalledWith({
       type: "CLIENT_MOVED",
       version: MESSAGE_VERSION,
@@ -51,7 +51,7 @@ describe("Collaborative session", () => {
   });
 
   test("local client leaves", () => {
-    const spy = jest.spyOn(transport, "sendMessage");
+    const spy = vi.spyOn(transport, "sendMessage");
     session.leave(lazy({} as WorkbookData));
     expect(spy).toHaveBeenCalledTimes(1);
     expect(spy).toHaveBeenCalledWith({
@@ -71,7 +71,7 @@ describe("Collaborative session", () => {
       commands: [],
       serverRevisionId: transport["serverRevisionId"],
     });
-    const spy = jest.spyOn(transport, "sendMessage");
+    const spy = vi.spyOn(transport, "sendMessage");
     const data = { sheets: [{}] } as WorkbookData;
     session.leave(lazy(data));
     expect(spy).toHaveBeenCalledWith({
@@ -92,7 +92,7 @@ describe("Collaborative session", () => {
       }
     );
     setCellContent(model, "A1", "hello"); // send a revision
-    const spy = jest.spyOn(transport, "sendMessage");
+    const spy = vi.spyOn(transport, "sendMessage");
     transport.concurrent(() => {
       // send another revision
       setCellContent(model, "A2", "world");
@@ -122,7 +122,7 @@ describe("Collaborative session", () => {
       commands: [],
       serverRevisionId: transport["serverRevisionId"],
     });
-    const spy = jest.spyOn(transport, "sendMessage");
+    const spy = vi.spyOn(transport, "sendMessage");
     model.leaveSession();
     await nextTick();
     expect(spy).toHaveBeenCalledTimes(1);
@@ -149,7 +149,7 @@ describe("Collaborative session", () => {
       commands: [],
       serverRevisionId: transport["serverRevisionId"],
     });
-    const spy = jest.spyOn(transport, "sendMessage");
+    const spy = vi.spyOn(transport, "sendMessage");
     const data = { sheets: [{}] } as WorkbookData;
     session.leave(lazy(data));
     expect(spy).toHaveBeenCalledTimes(1);
@@ -186,8 +186,8 @@ describe("Collaborative session", () => {
 
   test("remote client joins", () => {
     session.move({ sheetId: "sheetId", col: 0, row: 0 });
-    jest.advanceTimersByTime(DEBOUNCE_TIME + 100);
-    const spy = jest.spyOn(transport, "sendMessage");
+    vi.advanceTimersByTime(DEBOUNCE_TIME + 100);
+    const spy = vi.spyOn(transport, "sendMessage");
     transport.sendMessage({
       type: "CLIENT_JOINED",
       version: MESSAGE_VERSION,
@@ -201,9 +201,9 @@ describe("Collaborative session", () => {
   });
 
   test("local client joins", () => {
-    const spy = jest.spyOn(transport, "sendMessage");
+    const spy = vi.spyOn(transport, "sendMessage");
     session.move({ sheetId: "sheetId", col: 1, row: 2 });
-    jest.advanceTimersByTime(DEBOUNCE_TIME + 100);
+    vi.advanceTimersByTime(DEBOUNCE_TIME + 100);
     expect(spy).toHaveBeenCalledWith({
       type: "CLIENT_JOINED",
       version: MESSAGE_VERSION,
@@ -212,7 +212,7 @@ describe("Collaborative session", () => {
   });
 
   test("Can send custom data in client", () => {
-    const spy = jest.spyOn(transport, "sendMessage");
+    const spy = vi.spyOn(transport, "sendMessage");
     const model = new Model(
       {},
       {
@@ -221,7 +221,7 @@ describe("Collaborative session", () => {
       }
     );
     const sheetId = model.getters.getActiveSheetId();
-    jest.advanceTimersByTime(DEBOUNCE_TIME + 100);
+    vi.advanceTimersByTime(DEBOUNCE_TIME + 100);
     expect(spy).toHaveBeenCalledWith({
       type: "CLIENT_JOINED",
       version: MESSAGE_VERSION,
@@ -233,7 +233,7 @@ describe("Collaborative session", () => {
       },
     });
     selectCell(model, "B1");
-    jest.advanceTimersByTime(DEBOUNCE_TIME + 100);
+    vi.advanceTimersByTime(DEBOUNCE_TIME + 100);
     expect(spy).toHaveBeenCalledWith({
       type: "CLIENT_MOVED",
       version: MESSAGE_VERSION,
@@ -249,7 +249,7 @@ describe("Collaborative session", () => {
   test("Leave the session do not crash", () => {
     session.move({ sheetId: "sheetId", col: 1, row: 2 });
     session.leave(lazy({} as WorkbookData));
-    jest.advanceTimersByTime(DEBOUNCE_TIME + 100);
+    vi.advanceTimersByTime(DEBOUNCE_TIME + 100);
   });
 
   const messages = [
@@ -284,7 +284,7 @@ describe("Collaborative session", () => {
   ] as const;
 
   test.each(messages)("Receiving a bad revision id should trigger", (message) => {
-    const spy = jest.spyOn(session, "trigger");
+    const spy = vi.spyOn(session, "trigger");
     // simulate a revision not in sync with the server
     // e.g. the session missed a revision or received a revision from the past
     transport["serverRevisionId"] = message.serverRevisionId;

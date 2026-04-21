@@ -1159,7 +1159,7 @@ describe("charts", () => {
   });
 
   test("Chart is re-rendered if it's label format change", async () => {
-    const updateChart = jest.spyOn((window as any).Chart.prototype, "update");
+    const updateChart = vi.spyOn((window as any).Chart.prototype, "update");
     createTestChart("basicChart");
     await nextTick();
     setCellFormat(model, "B2", "#.##0.00");

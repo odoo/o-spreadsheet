@@ -3,6 +3,7 @@ import { iterateChildren } from "../helpers/dom_helpers";
 import { NEWLINE } from "./../../constants";
 import { HtmlContent } from "./composer/composer";
 
+console.trace("original contenteditable helper")
 export class ContentEditableHelper {
   // todo make el private and expose dedicated methods
   el: HTMLElement;

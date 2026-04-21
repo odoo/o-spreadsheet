@@ -87,7 +87,7 @@ export async function doubleClick(el: Element, selector: string = "") {
 
 /**
  * Simulate hovering a cell for a given amount of time.
- * Don't forget to use `jest.useFakeTimers();` when using
+ * Don't forget to use `vi.useFakeTimers();` when using
  * this helper.
  */
 export async function hoverCell(model: Model, xc: string, delay: number) {
@@ -98,7 +98,7 @@ export async function hoverCell(model: Model, xc: string, delay: number) {
     y -= HEADER_HEIGHT;
   }
   triggerMouseEvent(".o-grid-overlay", "mousemove", x, y);
-  jest.advanceTimersByTime(delay);
+  vi.advanceTimersByTime(delay);
   await nextTick();
 }
 

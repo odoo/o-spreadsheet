@@ -57,13 +57,13 @@ function getCellsObject(model: Model, sheetId: UID) {
 
 describe("Interactive rename sheet", () => {
   let env: SpreadsheetChildEnv;
-  let raiseErrorSpy: jest.Mock;
-  let errorTextSpy: jest.Mock;
+  let raiseErrorSpy: vi.mock;
+  let errorTextSpy: vi.mock;
   let model: Model;
 
   beforeEach(() => {
-    errorTextSpy = jest.fn();
-    raiseErrorSpy = jest.fn().mockImplementation((error, callback) => {
+    errorTextSpy = vi.fn();
+    raiseErrorSpy = vi.fn().mockImplementation((error, callback) => {
       errorTextSpy(error.toString());
       callback();
     });
@@ -81,7 +81,7 @@ describe("Interactive rename sheet", () => {
   ])(
     "Rename a sheet with interaction with wrong name %s",
     async (sheetName, expectedErrorMessage) => {
-      const errorCallback = jest.fn();
+      const errorCallback = vi.fn();
       interactiveRenameSheet(env, model.getters.getActiveSheetId(), sheetName, errorCallback);
       expect(raiseErrorSpy).toHaveBeenCalledTimes(1);
       expect(errorCallback).toHaveBeenCalled();
@@ -92,7 +92,7 @@ describe("Interactive rename sheet", () => {
   test("Rename a sheet with interaction with same name as other sheet", async () => {
     const sheetName = "ThisSheetExistsAlready";
     createSheet(model, { name: sheetName });
-    const errorCallback = jest.fn();
+    const errorCallback = vi.fn();
     interactiveRenameSheet(env, model.getters.getActiveSheetId(), sheetName, errorCallback);
     expect(raiseErrorSpy).toHaveBeenCalledTimes(1);
     expect(errorCallback).toHaveBeenCalled();
@@ -109,7 +109,7 @@ describe("Interactive Freeze columns/rows", () => {
   ])("freeze %s through a merge", (name, dimension) => {
     const model = new Model();
     merge(model, "A1:D4");
-    const raiseError = jest.fn();
+    const raiseError = vi.fn();
     const env = makeTestEnv({ model, raiseError });
     interactiveFreezeColumnsRows(env, dimension as Dimension, 2);
     expect(raiseError).toHaveBeenCalled();
@@ -118,16 +118,16 @@ describe("Interactive Freeze columns/rows", () => {
 
 describe("UI Helpers", () => {
   let env: SpreadsheetChildEnv;
-  let notifyUserTextSpy: jest.Mock<any, any>;
-  let askConfirmationTextSpy: jest.Mock<any, any>;
+  let notifyUserTextSpy: vi.mock<any, any>;
+  let askConfirmationTextSpy: vi.mock<any, any>;
   let model: Model;
   let sheetId: UID;
 
   beforeEach(() => {
     model = new Model();
     sheetId = model.getters.getActiveSheetId();
-    notifyUserTextSpy = jest.fn();
-    askConfirmationTextSpy = jest.fn();
+    notifyUserTextSpy = vi.fn();
+    askConfirmationTextSpy = vi.fn();
     const raiseError = (content: string) => {
       notifyUserTextSpy(content.toString());
     };
@@ -357,7 +357,7 @@ describe("UI Helpers", () => {
   });
 
   describe("Sort multi adjacent columns", () => {
-    let askConfirmation: jest.Mock;
+    let askConfirmation: vi.mock;
     const sheetId: UID = "sheet3";
     let anchor: Position;
     const modelData = {
@@ -382,7 +382,7 @@ describe("UI Helpers", () => {
       ],
     };
     test("Sort with adjacent values to the selection ask for confirmation", () => {
-      askConfirmation = jest.fn();
+      askConfirmation = vi.fn();
       model = new Model(modelData);
       const zone = toZone("A2:A3");
       anchor = toCartesian("A2");
@@ -391,7 +391,7 @@ describe("UI Helpers", () => {
       expect(askConfirmation).toHaveBeenCalled();
     });
     test("Sort without adjacent values to the selection does not ask for confirmation", () => {
-      askConfirmation = jest.fn();
+      askConfirmation = vi.fn();
       model = new Model(modelData);
       const zone = toZone("A2:A3");
       const contiguousZone = model.getters.getContiguousZone(sheetId, zone);
@@ -401,7 +401,7 @@ describe("UI Helpers", () => {
     });
 
     test("Sort on first column w/ confirming contiguous", () => {
-      askConfirmation = jest.fn((text, confirm, cancel) => confirm());
+      askConfirmation = vi.fn((text, confirm, cancel) => confirm());
       model = new Model(modelData);
       const zone = toZone("A3:A4");
       anchor = toCartesian("A3");
@@ -421,7 +421,7 @@ describe("UI Helpers", () => {
       });
     });
     test("Sort on first column w/ refusing contiguous", () => {
-      askConfirmation = jest.fn((text, confirm, cancel) => cancel());
+      askConfirmation = vi.fn((text, confirm, cancel) => cancel());
       model = new Model(modelData);
       const zone = toZone("A3:A4");
       anchor = toCartesian("A3");
@@ -443,7 +443,7 @@ describe("UI Helpers", () => {
   });
 
   describe("Sort Merges", () => {
-    const raiseError = jest.fn();
+    const raiseError = vi.fn();
     const sheetId: UID = "sheet5";
     let anchor: Position;
     const modelData = {

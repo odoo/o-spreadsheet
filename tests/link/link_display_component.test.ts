@@ -11,7 +11,7 @@ describe("link display component", () => {
   let parent: Spreadsheet;
 
   beforeEach(async () => {
-    jest.useFakeTimers();
+    vi.useFakeTimers();
     ({ parent, model, fixture } = await mountSpreadsheet());
   });
 
@@ -116,12 +116,12 @@ describe("link display component", () => {
     // i.e hover the link component itself
     await hoverCell(model, "A2", 100);
     fixture.querySelector(".o-grid-overlay")?.dispatchEvent(new Event("mouseleave"));
-    jest.advanceTimersByTime(10000);
+    vi.advanceTimersByTime(10000);
     await nextTick();
     expect(fixture.querySelector(".o-link-tool")).toBeTruthy();
 
     fixture.querySelector(".o-grid-overlay")?.dispatchEvent(new Event("mouseenter"));
-    jest.advanceTimersByTime(400);
+    vi.advanceTimersByTime(400);
     await nextTick();
     expect(fixture.querySelector(".o-link-tool")).toBeFalsy();
   });
@@ -192,7 +192,7 @@ describe("link display component", () => {
   });
 
   test("click on a web link opens the page", async () => {
-    const spy = jest.spyOn(window, "open").mockImplementation();
+    const spy = vi.spyOn(window, "open").mockImplementation();
     setCellContent(model, "A1", "[label](url.com)");
     await hoverCell(model, "A1", 400);
     await simulateClick("a");

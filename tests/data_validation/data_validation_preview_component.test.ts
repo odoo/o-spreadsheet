@@ -47,7 +47,7 @@ describe("Data validation preview", () => {
   });
 
   test("onClick callback is triggered", async () => {
-    const onClick = jest.fn();
+    const onClick = vi.fn();
     await mountDataValidationPreview(testDataValidationRule, onClick);
     click(fixture, ".o-dv-preview");
     expect(onClick).toHaveBeenCalled();

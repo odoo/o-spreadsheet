@@ -73,7 +73,7 @@ import {
   typeInComposerGrid,
 } from "../test_helpers/helpers";
 import { mockGetBoundingClientRect } from "../test_helpers/mock_helpers";
-jest.mock("../../src/components/composer/content_editable_helper", () =>
+vi.mock("../../src/components/composer/content_editable_helper", () =>
   require("../__mocks__/content_editable_helper")
 );
 
@@ -96,7 +96,7 @@ let fixture: HTMLElement;
 let model: Model;
 let parent: Spreadsheet;
 
-jest.useFakeTimers();
+vi.useFakeTimers();
 
 describe("Grid component", () => {
   beforeEach(async () => {
@@ -170,7 +170,7 @@ describe("Grid component", () => {
     expect(getHorizontalScroll()).toBe(0);
     expect(getVerticalScroll()).toBe(0);
 
-    const mockCallback = jest.fn(() => {});
+    const mockCallback = vi.fn(() => {});
     fixture.addEventListener("touchmove", mockCallback);
 
     triggerTouchEvent(grid, "touchstart", { clientX: 0, clientY: 150, identifier: 1 });
@@ -325,7 +325,7 @@ describe("Grid component", () => {
         }),
       });
 
-      const requestImage = jest.spyOn(env.imageProvider!, "requestImage");
+      const requestImage = vi.spyOn(env.imageProvider!, "requestImage");
       document.activeElement!.dispatchEvent(
         new KeyboardEvent("keydown", { key: "O", ctrlKey: true, bubbles: true })
       );
@@ -396,7 +396,7 @@ describe("Grid component", () => {
     });
 
     test("open a web link with ALT+ENTER", async () => {
-      const windowOpen = jest.spyOn(window, "open").mockImplementation();
+      const windowOpen = vi.spyOn(window, "open").mockImplementation(() => null);
       setCellContent(model, "A1", "[label](url.com)");
       selectCell(model, "A1");
       document.activeElement!.dispatchEvent(
@@ -804,7 +804,7 @@ describe("Grid component", () => {
 
     test("A1 is not set as hovered by default when opening the spreadsheet without mouse events", async () => {
       setCellContent(model, "A1", "=1/0");
-      jest.advanceTimersByTime(400);
+      vi.advanceTimersByTime(400);
       await nextTick();
       expect(fixture.querySelector(".o-error-tooltip")).toBeNull();
     });
@@ -973,7 +973,7 @@ describe("Grid component", () => {
   });
 
   test("Mac user use metaKey, not CtrlKey", async () => {
-    const mockUserAgent = jest.spyOn(navigator, "userAgent", "get");
+    const mockUserAgent = vi.spyOn(navigator, "userAgent", "get");
     mockUserAgent.mockImplementation(
       () => "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:109.0) Gecko/20100101 Firefox/119.0"
     );
@@ -982,7 +982,7 @@ describe("Grid component", () => {
     await nextTick();
     await keyDown({ key: "A", metaKey: true, bubbles: true });
     expect(model.getters.getSelectedZone()).toEqual(toZone("A1:Z100"));
-    jest.restoreAllMocks();
+    vi.restoreAllMocks();
   });
 });
 
@@ -1267,8 +1267,8 @@ describe("Events on Grid update viewport correctly", () => {
       height: 1000 - SCROLLBAR_WIDTH,
     });
     // mock a resizing of the grid DOM element. can occur if resizing the browser or opening the sidePanel
-    jest.spyOn(HTMLDivElement.prototype, "clientWidth", "get").mockImplementation(() => 800);
-    jest.spyOn(HTMLDivElement.prototype, "clientHeight", "get").mockImplementation(() => 650);
+    vi.spyOn(HTMLDivElement.prototype, "clientWidth", "get").mockImplementation(() => 800);
+    vi.spyOn(HTMLDivElement.prototype, "clientHeight", "get").mockImplementation(() => 650);
     // force a triggering of all resizeObservers to ensure the grid is resized
     //@ts-ignore
     window.resizers.resize();
@@ -1297,7 +1297,7 @@ describe("Events on Grid update viewport correctly", () => {
 
 describe("Edge-Scrolling on mouseMove in selection", () => {
   beforeEach(async () => {
-    jest.useFakeTimers();
+    vi.useFakeTimers();
     ({ parent, model, fixture } = await mountSpreadsheet());
   });
 
@@ -1308,7 +1308,7 @@ describe("Edge-Scrolling on mouseMove in selection", () => {
     triggerMouseEvent(".o-grid-overlay", "mousemove", 1.5 * width, y);
     const advanceTimer = edgeScrollDelay(0.5 * width, 5);
 
-    jest.advanceTimersByTime(advanceTimer);
+    vi.advanceTimersByTime(advanceTimer);
     triggerMouseEvent(".o-grid-overlay", "mouseup", 1.5 * width, y);
 
     expect(model.getters.getActiveMainViewport()).toMatchObject({
@@ -1322,7 +1322,7 @@ describe("Edge-Scrolling on mouseMove in selection", () => {
     triggerMouseEvent(".o-grid-overlay", "mousemove", -0.5 * width, y);
     const advanceTimer2 = edgeScrollDelay(0.5 * width, 2);
 
-    jest.advanceTimersByTime(advanceTimer2);
+    vi.advanceTimersByTime(advanceTimer2);
     triggerMouseEvent(".o-grid-overlay", "mouseup", -0.5 * width, y);
 
     expect(model.getters.getActiveMainViewport()).toMatchObject({
@@ -1340,7 +1340,7 @@ describe("Edge-Scrolling on mouseMove in selection", () => {
     triggerMouseEvent(".o-grid-overlay", "mousemove", x, 1.5 * height);
     const advanceTimer = edgeScrollDelay(0.5 * height, 5);
 
-    jest.advanceTimersByTime(advanceTimer);
+    vi.advanceTimersByTime(advanceTimer);
     triggerMouseEvent(".o-grid-overlay", "mouseup", x, 1.5 * height);
 
     expect(model.getters.getActiveMainViewport()).toMatchObject({
@@ -1354,7 +1354,7 @@ describe("Edge-Scrolling on mouseMove in selection", () => {
     triggerMouseEvent(".o-grid-overlay", "mousemove", x, -0.5 * height);
     const advanceTimer2 = edgeScrollDelay(0.5 * height, 2);
 
-    jest.advanceTimersByTime(advanceTimer2);
+    vi.advanceTimersByTime(advanceTimer2);
     triggerMouseEvent(".o-grid-overlay", "mouseup", x, -0.5 * height);
 
     expect(model.getters.getActiveMainViewport()).toMatchObject({

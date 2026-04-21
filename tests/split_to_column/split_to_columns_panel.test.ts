@@ -9,6 +9,7 @@ import {
   setInputValueAndTrigger,
 } from "../test_helpers/dom_helper";
 import { mountComponent, nextTick, setGrid, spyModelDispatch } from "../test_helpers/helpers";
+import { Mock, MockInstance } from "vitest";
 
 interface ParentProps {
   onCloseSidePanel: () => void;
@@ -27,13 +28,13 @@ class Parent extends Component<ParentProps, SpreadsheetChildEnv> {
 describe("split to columns sidePanel component", () => {
   let model: Model;
   let fixture: HTMLElement;
-  let dispatch: jest.SpyInstance;
+  let dispatch: MockInstance;
   let confirmButton: HTMLButtonElement;
   let checkBox: HTMLInputElement;
-  let onCloseSidePanel: jest.Mock;
+  let onCloseSidePanel: Mock;
 
   beforeEach(async () => {
-    onCloseSidePanel = jest.fn();
+    onCloseSidePanel = vi.fn();
     ({ model, fixture } = await mountComponent(Parent, {
       props: { onCloseSidePanel: () => onCloseSidePanel() },
     }));

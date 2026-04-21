@@ -55,10 +55,11 @@ import { Image } from "../../src/types/image";
 import { XLSXExport } from "../../src/types/xlsx";
 import { isXLSXExportXMLFile } from "../../src/xlsx/helpers/xlsx_helper";
 import { FileStore } from "../__mocks__/mock_file_store";
-import { registerCleanup } from "../setup/jest.setup";
+import { registerCleanup } from "../setup/vitest.setup";
 import { MockClipboard } from "./clipboard";
 import { redo, setCellContent, setFormat, setStyle, undo } from "./commands_helpers";
 import { getCellContent, getEvaluatedCell } from "./getters_helpers";
+import { ExpectStatic } from "vitest";
 
 const functionsContent = functionRegistry.content;
 const functionMap = functionRegistry.mapping;
@@ -66,16 +67,16 @@ const functionMap = functionRegistry.mapping;
 const functionsContentRestore = { ...functionsContent };
 const functionMapRestore = { ...functionMap };
 
-export function spyDispatch(parent: Spreadsheet): jest.SpyInstance {
-  return jest.spyOn(parent.props.model, "dispatch");
+export function spyDispatch(parent: Spreadsheet) {
+  return vi.spyOn(parent.props.model, "dispatch");
 }
 
-export function spyModelDispatch(model: Model): jest.SpyInstance {
-  return jest.spyOn(model, "dispatch");
+export function spyModelDispatch(model: Model) {
+  return vi.spyOn(model, "dispatch");
 }
 
-export function spyUiPluginHandle(model: Model): jest.SpyInstance {
-  return jest.spyOn(getPlugin(model, SheetUIPlugin), "handle");
+export function spyUiPluginHandle(model: Model) {
+  return vi.spyOn(getPlugin(model, SheetUIPlugin), "handle");
 }
 
 export function getPlugin<T extends new (...args: any) => any>(
@@ -155,7 +156,7 @@ export function makeTestEnv(mockEnv: Partial<SpreadsheetChildEnv> = {}): Spreads
   };
 }
 
-export function testUndoRedo(model: Model, expect: jest.Expect, command: CommandTypes, args: any) {
+export function testUndoRedo(model: Model, expect: ExpectStatic, command: CommandTypes, args: any) {
   const before = model.exportData();
   model.dispatch(command, args);
   const after = model.exportData();
