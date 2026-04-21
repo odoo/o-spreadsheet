@@ -1119,26 +1119,26 @@ describe("Test XLSX export", () => {
     beforeEach(() => {
       addToRegistry(functionRegistry, "NOW", {
         ...NOW,
-        compute: () => 1,
+        compute: () => ({ value: 1 }),
       });
       addToRegistry(functionRegistry, "RAND", {
         ...RAND,
-        compute: () => 1,
+        compute: () => ({ value: 1 }),
       });
       addToRegistry(functionRegistry, "TODAY", {
         ...TODAY,
-        compute: () => 1,
+        compute: () => ({ value: 1 }),
       });
       addToRegistry(functionRegistry, "RANDARRAY", {
         ...RANDARRAY,
         compute: () => [
-          [1, 1],
-          [1, 1],
+          [{ value: 1 }, { value: 1 }],
+          [{ value: 1 }, { value: 1 }],
         ],
       });
       addToRegistry(functionRegistry, "RANDBETWEEN", {
         ...RANDBETWEEN,
-        compute: () => 1,
+        compute: () => ({ value: 1 }),
       });
     });
 
