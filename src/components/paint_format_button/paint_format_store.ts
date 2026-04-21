@@ -2,11 +2,12 @@ import { ClipboardHandler } from "../../clipboard_handlers/abstract_clipboard_ha
 import { SELECTION_BORDER_COLOR } from "../../constants";
 import {
   applyClipboardHandlersPaste,
+  expandHandlerData,
   getClipboardDataPositions,
   getPasteTargetFromHandlers,
   selectPastedZone,
 } from "../../helpers/clipboard/clipboard_helpers";
-import { clipboardHandlersRegistries } from "../../registries/clipboardHandlersRegistries";
+import { clipboardHandlersRegistries } from "../../registries/clipboard_handlers_registries";
 import { HighlightStore } from "../../stores/highlight_store";
 import { SpreadsheetStore } from "../../stores/spreadsheet_store";
 import { ClipboardOptions } from "../../types/clipboard";
@@ -107,14 +108,18 @@ export class PaintFormatStore extends SpreadsheetStore {
       isCutOperation: false,
       pasteOption: "onlyFormat",
     };
+    const expandedData = expandHandlerData(this.clipboardHandlers, this.copiedData);
     const { target: pasteTarget, selectedZones } = getPasteTargetFromHandlers(
       sheetId,
       target,
-      this.copiedData,
       this.clipboardHandlers,
+      expandedData,
       options
     );
-    applyClipboardHandlersPaste(this.clipboardHandlers, this.copiedData, pasteTarget, options);
+    applyClipboardHandlersPaste(this.clipboardHandlers, expandedData, pasteTarget, options, {
+      sheetId: this.copiedData.sheetId,
+      zones: this.copiedData.zones,
+    });
     selectPastedZone(this.model.selection, target, selectedZones);
 
     if (this.status === "oneOff") {
