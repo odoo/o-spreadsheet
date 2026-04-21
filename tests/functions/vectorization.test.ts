@@ -27,7 +27,7 @@ describe("vectorization", () => {
         { name: "arg2", description: "", type: ["ANY"] },
       ],
       compute: function (arg1, arg2) {
-        return toString(toScalar(arg1)) + toString(toScalar(arg2));
+        return { value: toString(toScalar(arg1)) + toString(toScalar(arg2)) };
       },
     });
 
@@ -35,7 +35,7 @@ describe("vectorization", () => {
       description: "a function that spreads a matrix",
       args: [{ name: "arg1", description: "", type: ["ANY"] }],
       compute: function (arg1) {
-        const value = toString(toScalar(arg1));
+        const value = { value: toString(toScalar(arg1)) };
         return [
           [value, value],
           [value, value],

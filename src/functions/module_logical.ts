@@ -33,7 +33,7 @@ export const AND = {
     if (!foundBoolean) {
       return new EvaluationError(noValidInputErrorMessage);
     }
-    return result;
+    return { value: result };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -44,8 +44,8 @@ export const AND = {
 export const FALSE: AddFunctionDescription = {
   description: _t("Logical value `false`."),
   args: [],
-  compute: function (): boolean {
-    return false;
+  compute: function () {
+    return { value: false };
   },
   isExported: true,
 };
@@ -195,8 +195,8 @@ export const NOT = {
       )
     ),
   ],
-  compute: function (logicalExpression: Maybe<FunctionResultObject>): boolean {
-    return !toBoolean(logicalExpression);
+  compute: function (logicalExpression: Maybe<FunctionResultObject>) {
+    return { value: !toBoolean(logicalExpression) };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -219,7 +219,7 @@ export const OR = {
     if (!foundBoolean) {
       return new EvaluationError(noValidInputErrorMessage);
     }
-    return result;
+    return { value: result };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -272,8 +272,8 @@ export const SWITCH = {
 export const TRUE: AddFunctionDescription = {
   description: _t("Logical value `true`."),
   args: [],
-  compute: function (): boolean {
-    return true;
+  compute: function () {
+    return { value: true };
   },
   isExported: true,
 };
@@ -302,7 +302,7 @@ export const XOR = {
     if (!foundBoolean) {
       return new EvaluationError(noValidInputErrorMessage);
     }
-    return acc;
+    return { value: acc };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
