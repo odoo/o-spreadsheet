@@ -36,9 +36,7 @@ export type ArgProposal = { value: CellValue; label?: string };
 export type ComputeFunction<R> = (this: EvalContext, ...args: Arg[]) => R;
 
 export interface AddFunctionDescription {
-  compute: ComputeFunction<
-    FunctionResultObject | Matrix<FunctionResultObject> | CellValue | Matrix<CellValue>
-  >;
+  compute: ComputeFunction<FunctionResultObject | Matrix<FunctionResultObject>>;
   description: string;
   category?: string;
   args: ArgDefinition[];
