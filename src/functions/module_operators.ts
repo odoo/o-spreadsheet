@@ -42,11 +42,8 @@ export const CONCAT = {
     arg("value1 (string)", _t("The value to which value2 will be appended.")),
     arg("value2 (string)", _t("The value to append to value1.")),
   ],
-  compute: function (
-    value1: Maybe<FunctionResultObject>,
-    value2: Maybe<FunctionResultObject>
-  ): string {
-    return toString(value1) + toString(value2);
+  compute: function (value1: Maybe<FunctionResultObject>, value2: Maybe<FunctionResultObject>) {
+    return { value: toString(value1) + toString(value2) };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -385,8 +382,8 @@ export const UMINUS = {
 export const UNARY_PERCENT = {
   description: _t("Value interpreted as a percentage."),
   args: [arg("percentage (number)", _t("The value to interpret as a percentage."))],
-  compute: function (percentage: Maybe<FunctionResultObject>): number {
-    return toNumber(percentage, this.locale) / 100;
+  compute: function (percentage: Maybe<FunctionResultObject>) {
+    return { value: toNumber(percentage, this.locale) / 100 };
   },
 } satisfies AddFunctionDescription;
 

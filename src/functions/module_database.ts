@@ -184,7 +184,7 @@ export const DCOUNT = {
     database: Matrix<FunctionResultObject>,
     field: Maybe<FunctionResultObject>,
     criteria: Matrix<FunctionResultObject>
-  ): number {
+  ) {
     const cells = getMatchingCells(database, field, criteria, this.locale);
     return COUNT.compute.bind(this)([cells]);
   },
@@ -201,7 +201,7 @@ export const DCOUNTA = {
     database: Matrix<FunctionResultObject>,
     field: Maybe<FunctionResultObject>,
     criteria: Matrix<FunctionResultObject>
-  ): number {
+  ) {
     const cells = getMatchingCells(database, field, criteria, this.locale);
     return COUNTA.compute.bind(this)([cells]);
   },
@@ -289,7 +289,7 @@ export const DSTDEV = {
     database: Matrix<FunctionResultObject>,
     field: Maybe<FunctionResultObject>,
     criteria: Matrix<FunctionResultObject>
-  ): number {
+  ) {
     const cells = getMatchingCells(database, field, criteria, this.locale);
     return STDEV.compute.bind(this)([cells]);
   },
@@ -306,7 +306,7 @@ export const DSTDEVP = {
     database: Matrix<FunctionResultObject>,
     field: Maybe<FunctionResultObject>,
     criteria: Matrix<FunctionResultObject>
-  ): number {
+  ) {
     const cells = getMatchingCells(database, field, criteria, this.locale);
     return STDEVP.compute.bind(this)([cells]);
   },
@@ -340,7 +340,7 @@ export const DVAR = {
     database: Matrix<FunctionResultObject>,
     field: Maybe<FunctionResultObject>,
     criteria: Matrix<FunctionResultObject>
-  ): number {
+  ) {
     const cells = getMatchingCells(database, field, criteria, this.locale);
     return VAR.compute.bind(this)([cells]);
   },
@@ -357,7 +357,7 @@ export const DVARP = {
     database: Matrix<FunctionResultObject>,
     field: Maybe<FunctionResultObject>,
     criteria: Matrix<FunctionResultObject>
-  ): number {
+  ) {
     const cells = getMatchingCells(database, field, criteria, this.locale);
     return VARP.compute.bind(this)([cells]);
   },
