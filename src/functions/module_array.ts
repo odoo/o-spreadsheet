@@ -10,6 +10,7 @@ import {
   flattenRowFirst,
   generateMatrix,
   isEvaluationError,
+  matrixMap,
   toBoolean,
   toInteger,
   toMatrix,
@@ -314,10 +315,7 @@ export const FREQUENCY = {
     arg("data (range<number>)", _t("The array of ranges containing the values to be counted.")),
     arg("classes (number, range<number>)", _t("The range containing the set of classes.")),
   ],
-  compute: function (
-    data: Matrix<FunctionResultObject>,
-    classes: Matrix<FunctionResultObject>
-  ): Matrix<number> {
+  compute: function (data: Matrix<FunctionResultObject>, classes: Matrix<FunctionResultObject>) {
     const _data = flattenRowFirst([data], (data) => data.value).filter(
       (val): val is number => typeof val === "number"
     );
@@ -359,7 +357,7 @@ export const FREQUENCY = {
 
     const result = sortedClasses
       .sort((a, b) => a.initialIndex - b.initialIndex)
-      .map((val) => val.count);
+      .map((val) => ({ value: val.count }));
     return [result];
   },
   isExported: true,
@@ -397,7 +395,7 @@ export const MDETERM = {
         _t("The argument square_matrix must have the same number of columns and rows.")
       );
     }
-    return invertMatrix(_matrix).determinant;
+    return { value: invertMatrix(_matrix).determinant };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -426,7 +424,7 @@ export const MINVERSE = {
     if (!inverted) {
       return new EvaluationError(_t("The matrix is not invertible."));
     }
-    return inverted;
+    return matrixMap(inverted, (value) => ({ value }));
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -467,7 +465,7 @@ export const MMULT = {
       );
     }
 
-    return multiplyMatrices(_matrix1, _matrix2);
+    return matrixMap(multiplyMatrices(_matrix1, _matrix2), (value) => ({ value }));
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -505,7 +503,7 @@ export const SUMPRODUCT = {
         result += product;
       }
     }
-    return result;
+    return { value: result };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -570,7 +568,11 @@ export const SUMX2MY2 = {
     ),
   ],
   compute: function (arrayX: Arg, arrayY: Arg) {
-    return getSumXAndY(arrayX, arrayY, (x, y) => x ** 2 - y ** 2);
+    const result = getSumXAndY(arrayX, arrayY, (x, y) => x ** 2 - y ** 2);
+    if (result instanceof EvaluationError) {
+      return result;
+    }
+    return { value: result };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -595,7 +597,11 @@ export const SUMX2PY2 = {
     ),
   ],
   compute: function (arrayX: Arg, arrayY: Arg) {
-    return getSumXAndY(arrayX, arrayY, (x, y) => x ** 2 + y ** 2);
+    const result = getSumXAndY(arrayX, arrayY, (x, y) => x ** 2 + y ** 2);
+    if (result instanceof EvaluationError) {
+      return result;
+    }
+    return { value: result };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -620,7 +626,11 @@ export const SUMXMY2 = {
     ),
   ],
   compute: function (arrayX: Arg, arrayY: Arg) {
-    return getSumXAndY(arrayX, arrayY, (x, y) => (x - y) ** 2);
+    const result = getSumXAndY(arrayX, arrayY, (x, y) => (x - y) ** 2);
+    if (result instanceof EvaluationError) {
+      return result;
+    }
+    return { value: result };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -865,7 +875,7 @@ export const ARRAYTOTEXT = {
     const _format = toNumber(format, this.locale);
     const _array = toMatrix(array);
     if (_format === 1) {
-      return evaluationResultToDisplayString(_array, "", this.locale);
+      return { value: evaluationResultToDisplayString(_array, "", this.locale) };
     } else if (_format === 0) {
       const rowSeparator = this.locale.decimalSeparator === "," ? "/" : ",";
       const arrayStr = transposeMatrix(_array)
@@ -875,7 +885,7 @@ export const ARRAYTOTEXT = {
           })
         )
         .join(rowSeparator);
-      return arrayStr;
+      return { value: arrayStr };
     } else {
       return new EvaluationError(_t("Format must be 0 or 1"));
     }

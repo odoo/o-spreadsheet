@@ -38,9 +38,7 @@ export type ComputeFunction<R> = (ctx: EvalContext, ...args: Arg[]) => R;
 type BindedComputeFunction<R> = (this: EvalContext, ...args: Arg[]) => R;
 
 export interface AddFunctionDescription {
-  compute: BindedComputeFunction<
-    FunctionResultObject | Matrix<FunctionResultObject> | CellValue | Matrix<CellValue>
-  >;
+  compute: BindedComputeFunction<FunctionResultObject | Matrix<FunctionResultObject>>;
   description: string;
   category?: string;
   args: ArgDefinition[];

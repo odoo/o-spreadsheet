@@ -321,7 +321,7 @@ describe("evaluateCells", () => {
     addToRegistry(functionRegistry, "RANGE.COUNT.FUNCTION", {
       description: "any function",
       compute: function (range) {
-        return toMatrix(range).flat().length;
+        return { value: toMatrix(range).flat().length };
       },
       args: [{ name: "range", description: "", type: ["RANGE"], acceptMatrix: true }],
     });
@@ -1399,7 +1399,7 @@ describe("evaluate formula getter", () => {
     let value = 1;
     addToRegistry(functionRegistry, "GETVALUE", {
       description: "Get value",
-      compute: () => value,
+      compute: () => ({ value }),
       args: [],
     });
     setCellContent(model, "A1", "=GETVALUE()");
@@ -1420,7 +1420,7 @@ describe("evaluate formula getter", () => {
   });
 
   test("cells are re-evaluated if one of their dependency changes", () => {
-    const mockCompute = jest.fn().mockReturnValue("Hi");
+    const mockCompute = jest.fn().mockReturnValue({ value: "Hi" });
 
     addToRegistry(functionRegistry, "GETVALUE", {
       description: "Get value",
@@ -1431,7 +1431,7 @@ describe("evaluate formula getter", () => {
     expect(getCellContent(model, "A1")).toBe("Hi");
     expect(mockCompute).toHaveBeenCalledTimes(1);
     resetAllMocks();
-    mockCompute.mockReturnValue("Hello");
+    mockCompute.mockReturnValue({ value: "Hello" });
     setCellContent(model, "A2", "1");
     expect(getCellContent(model, "A1")).toBe("Hello");
     expect(mockCompute).toHaveBeenCalledTimes(1);
@@ -1441,7 +1441,7 @@ describe("evaluate formula getter", () => {
     let value: string | number = "LOADING...";
     addToRegistry(functionRegistry, "GETVALUE", {
       description: "Get value",
-      compute: () => value,
+      compute: () => ({ value }),
       args: [],
     });
     setCellContent(model, "A1", "=SUM(A2)");
@@ -1458,7 +1458,7 @@ describe("evaluate formula getter", () => {
     let value: string | number = "LOADING...";
     addToRegistry(functionRegistry, "GETVALUE", {
       description: "Get value",
-      compute: () => value,
+      compute: () => ({ value }),
       args: [],
     });
     createSheet(model, { sheetId: "sheet2" });

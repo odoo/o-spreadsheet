@@ -1041,7 +1041,7 @@ describe("Menu Item actions", () => {
   test("Insert -> Function -> All includes new functions", () => {
     addToRegistry(functionRegistry, "TEST.FUNC", {
       args: [],
-      compute: () => 42,
+      compute: () => ({ value: 42 }),
       description: "Test function",
     });
     const env = makeTestEnv();
@@ -1065,7 +1065,7 @@ describe("Menu Item actions", () => {
     clearFunctions();
     addToRegistry(functionRegistry, "HIDDEN.FUNC", {
       args: [],
-      compute: () => 42,
+      compute: () => ({ value: 42 }),
       description: "Test function",
       hidden: true,
       category: "hidden",
