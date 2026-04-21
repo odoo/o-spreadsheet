@@ -18,10 +18,10 @@ export const DELTA = {
   compute: function (
     number1: Maybe<FunctionResultObject>,
     number2: Maybe<FunctionResultObject> = { value: DEFAULT_DELTA_ARG }
-  ): number {
+  ) {
     const _number1 = toNumber(number1, this.locale);
     const _number2 = toNumber(number2, this.locale);
-    return _number1 === _number2 ? 1 : 0;
+    return { value: _number1 === _number2 ? 1 : 0 };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
