@@ -47,22 +47,22 @@ beforeEach(() => {
     .add("IF", {
       description: "do if",
       args: [],
-      compute: () => 1,
+      compute: () => ({ value: 1 }),
     })
     .add("SUM", {
       description: "do sum",
       args: [],
-      compute: () => 1,
+      compute: () => ({ value: 1 }),
     })
     .add("SZZ", {
       description: "do something",
       args: [],
-      compute: () => 1,
+      compute: () => ({ value: 1 }),
     })
     .add("HIDDEN", {
       description: "do something",
       args: [],
-      compute: () => 1,
+      compute: () => ({ value: 1 }),
       hidden: true,
     });
 });
@@ -189,7 +189,7 @@ describe("Functions autocomplete", () => {
         addToRegistry(functionRegistry, `SUM${i + 1}`, {
           description: "do sum",
           args: [],
-          compute: () => 1,
+          compute: () => ({ value: 1 }),
         });
       }
 
@@ -217,7 +217,7 @@ describe("Functions autocomplete", () => {
         addToRegistry(functionRegistry, f, {
           description: "",
           args: [],
-          compute: () => 1,
+          compute: () => ({ value: 1 }),
         });
       }
       await typeInComposer("=FUZZY");
@@ -233,7 +233,7 @@ describe("Functions autocomplete", () => {
       addToRegistry(functionRegistry, "FUZZY", {
         description: "",
         args: [],
-        compute: () => 1,
+        compute: () => ({ value: 1 }),
       });
       await typeInComposer("=FUZZY");
       expect(fixture.querySelectorAll(".o-autocomplete-value")).toHaveLength(0);
@@ -661,12 +661,12 @@ describe("autocomplete boolean functions", () => {
     addToRegistry(functionRegistry, "TRUE", {
       description: "TRUE",
       args: [],
-      compute: () => true,
+      compute: () => ({ value: true }),
     });
     addToRegistry(functionRegistry, "FALSE", {
       description: "FALSE",
       args: [],
-      compute: () => false,
+      compute: () => ({ value: false }),
     });
     ({ model, fixture, parent } = await mountComposerWrapper());
     parent.startComposition();
@@ -703,37 +703,37 @@ describe("composer entries", () => {
       .add("SEC", {
         description: "",
         args: [],
-        compute: () => 1,
+        compute: () => ({ value: 1 }),
       })
       .add("SUPER", {
         description: "",
         args: [],
-        compute: () => 1,
+        compute: () => ({ value: 1 }),
       })
       .add("SIN", {
         description: "",
         args: [],
-        compute: () => 1,
+        compute: () => ({ value: 1 }),
       })
       .add("SLNT", {
         description: "",
         args: [],
-        compute: () => 1,
+        compute: () => ({ value: 1 }),
       })
       .add("SECQ", {
         description: "",
         args: [],
-        compute: () => 1,
+        compute: () => ({ value: 1 }),
       })
       .add("SAPER", {
         description: "",
         args: [],
-        compute: () => 1,
+        compute: () => ({ value: 1 }),
       })
       .add("SLN", {
         description: "",
         args: [],
-        compute: () => 1,
+        compute: () => ({ value: 1 }),
       });
   });
   test("Autocomplente entries are sorted by length and then alphanumerically", async () => {

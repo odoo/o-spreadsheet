@@ -1,11 +1,10 @@
-import { CellValue } from "../types/cells";
 import { BadExpressionError, EvaluationError } from "../types/errors";
 
 import { _t } from "../translation";
 import { ComputeFunction, EvalContext, FunctionDescription } from "../types/functions";
 import { Arg, FunctionResultObject, isMatrix, Matrix } from "../types/misc";
 import { argTargeting } from "./arguments";
-import { applyVectorization, isEvaluationError, matrixForEach, matrixMap } from "./helpers";
+import { applyVectorization, isEvaluationError, matrixForEach } from "./helpers";
 
 export function createComputeFunction(
   descr: FunctionDescription
@@ -67,36 +66,15 @@ export function createComputeFunction(
       }
     }
     try {
-      return computeFunctionToObject.apply(this, args);
+      if (this.debug) {
+        // eslint-disable-next-line no-debugger
+        debugger;
+        this.debug = false;
+      }
+      return descr.compute.apply(this, args);
     } catch (e) {
       return handleError(e, descr.name);
     }
-  }
-
-  function computeFunctionToObject(
-    this: EvalContext,
-    ...args: Arg[]
-  ): FunctionResultObject | Matrix<FunctionResultObject> {
-    if (this.debug) {
-      // eslint-disable-next-line no-debugger
-      debugger;
-      this.debug = false;
-    }
-    const result = descr.compute.apply(this, args);
-
-    if (!isMatrix(result)) {
-      if (typeof result === "object" && result !== null && "value" in result) {
-        return result;
-      }
-      descr.name;
-      return { value: result };
-    }
-
-    if (typeof result[0][0] === "object" && result[0][0] !== null && "value" in result[0][0]) {
-      return result as Matrix<FunctionResultObject>;
-    }
-
-    return matrixMap(result as Matrix<CellValue>, (row) => ({ value: row }));
   }
 
   return vectorizedCompute;

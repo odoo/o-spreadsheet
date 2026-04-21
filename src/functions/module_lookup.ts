@@ -118,9 +118,9 @@ export const ADDRESS = {
       cellReference = rowPart + colPart;
     }
     if (sheet !== undefined) {
-      return getFullReference(toString(sheet), cellReference);
+      return { value: getFullReference(toString(sheet), cellReference) };
     }
-    return cellReference;
+    return { value: cellReference };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -148,7 +148,7 @@ export const COLUMN = {
           )
         );
       }
-      return this.__originCellPosition.col + 1;
+      return { value: this.__originCellPosition.col + 1 };
     }
     const _cellReference = toMatrix(cellReference);
     const firstCell = _cellReference[0][0];
@@ -161,7 +161,7 @@ export const COLUMN = {
     }
     const left = firstCell.position.col;
     if (_cellReference.length === 1) {
-      return left + 1;
+      return { value: left + 1 };
     }
     return generateMatrix(_cellReference.length, 1, (col) => ({ value: left + col + 1 }));
   },
@@ -183,7 +183,7 @@ export const COLUMNS = {
     if (_range[0][0].value === CellErrorType.InvalidReference) {
       return _range[0][0];
     }
-    return _range.length;
+    return { value: _range.length };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -507,7 +507,7 @@ export const MATCH = {
     ) {
       return valueNotAvailable(searchKey);
     }
-    return index + 1;
+    return { value: index + 1 };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -535,7 +535,7 @@ export const ROW = {
           )
         );
       }
-      return this.__originCellPosition.row + 1;
+      return { value: this.__originCellPosition.row + 1 };
     }
     const _cellReference = toMatrix(cellReference);
     const firstCell = _cellReference[0][0];
@@ -548,7 +548,7 @@ export const ROW = {
     }
     const top = firstCell.position.row;
     if (_cellReference[0].length === 1) {
-      return top + 1;
+      return { value: top + 1 };
     }
     return generateMatrix(1, _cellReference[0].length, (col, row) => ({ value: top + row + 1 }));
   },
@@ -570,7 +570,7 @@ export const ROWS = {
     if (_range[0][0].value === CellErrorType.InvalidReference) {
       return _range[0][0];
     }
-    return _range[0].length;
+    return { value: _range[0].length };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -1225,7 +1225,7 @@ export const FORMULATEXT = {
     }
     const cell = this.getters.getCell(cellReference.position);
     if (cell?.isFormula) {
-      return cell.compiledFormula.toFormulaString(this.getters);
+      return { value: cell.compiledFormula.toFormulaString(this.getters) };
     } else {
       return new NotAvailableError(_t("The cell does not contain a formula."));
     }
