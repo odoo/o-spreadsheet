@@ -1,51 +1,54 @@
+import { expandCompactCFCells, makeIndexer } from "../helpers/clipboard/clipboard_helpers";
 import { deepEquals } from "../helpers/misc";
 import { UuidGenerator } from "../helpers/uuid";
 import { positionToZone } from "../helpers/zones";
-import { ClipboardCellData, ClipboardOptions, ClipboardPasteTarget } from "../types/clipboard";
+import {
+  ClipboardCellData,
+  ClipboardCF,
+  ClipboardOptions,
+  ClipboardPasteTarget,
+  ClipboardPositions,
+  CompactCFHandlerData,
+} from "../types/clipboard";
 import { ConditionalFormat } from "../types/conditional_formatting";
-import { CellPosition, HeaderIndex, Maybe, UID, Zone } from "../types/misc";
+import { CellPosition, HeaderIndex, UID, Zone } from "../types/misc";
 import { AbstractCellClipboardHandler } from "./abstract_cell_clipboard_handler";
 
-interface ClipboardConditionalFormat {
-  position: CellPosition;
-  rules: ConditionalFormat[];
-}
-
-interface ClipboardContent {
-  cfRules: Maybe<ClipboardConditionalFormat>[][];
-}
-
 export class ConditionalFormatClipboardHandler extends AbstractCellClipboardHandler<
-  ClipboardContent,
-  Maybe<ClipboardConditionalFormat>
+  ClipboardCF,
+  CompactCFHandlerData
 > {
   private queuedChanges: Record<UID, { toAdd: Zone[]; toRemove: Zone[]; cf: ConditionalFormat }[]> =
     {};
 
-  copy(data: ClipboardCellData): ClipboardContent | undefined {
+  copy(data: ClipboardCellData): CompactCFHandlerData | undefined {
     if (!data.zones.length) {
       return;
     }
 
     const { rowsIndexes, columnsIndexes } = data;
     const sheetId = data.sheetId;
-    const cfRules: Maybe<ClipboardConditionalFormat>[][] = [];
+    const cfRules: ClipboardCF[][] = [];
 
     for (const row of rowsIndexes) {
-      const cfRuleInRow: Maybe<ClipboardConditionalFormat>[] = [];
+      const cfRuleInRow: ClipboardCF[] = [];
       for (const col of columnsIndexes) {
         const cfRules = Array.from(this.getters.getRulesByCell(sheetId, col, row));
         cfRuleInRow.push({
-          position: { col, row, sheetId },
           rules: cfRules,
         });
       }
       cfRules.push(cfRuleInRow);
     }
-    return { cfRules };
+    return this.compact(cfRules);
   }
 
-  paste(target: ClipboardPasteTarget, clippedContent: ClipboardContent, options: ClipboardOptions) {
+  paste(
+    target: ClipboardPasteTarget,
+    clippedContent: ClipboardCF[][],
+    options: ClipboardOptions,
+    positions: ClipboardPositions
+  ) {
     this.queuedChanges = {};
     if (options.pasteOption === "asValue") {
       return;
@@ -54,43 +57,50 @@ export class ConditionalFormatClipboardHandler extends AbstractCellClipboardHand
     const sheetId = target.sheetId;
 
     if (!options.isCutOperation) {
-      this.pasteFromCopy(sheetId, zones, clippedContent.cfRules, options);
+      this.pasteFromCopy(sheetId, zones, clippedContent, options, positions);
     } else {
-      this.pasteFromCut(sheetId, zones, clippedContent);
+      this.pasteFromCut(sheetId, zones, clippedContent, options, positions);
     }
 
     this.executeQueuedChanges();
   }
 
-  private pasteFromCut(sheetId: UID, target: Zone[], content: ClipboardContent) {
+  private pasteFromCut(
+    sheetId: UID,
+    target: Zone[],
+    content: ClipboardCF[][],
+    options: ClipboardOptions,
+    positions: ClipboardPositions
+  ) {
     const selection = target[0];
-    this.pasteZone(sheetId, selection.left, selection.top, content.cfRules, {
-      isCutOperation: true,
-    });
+    this.pasteZone(sheetId, selection.left, selection.top, content, options, positions);
   }
 
   pasteZone(
     sheetId: UID,
     col: HeaderIndex,
     row: HeaderIndex,
-    cfRules: Maybe<ClipboardConditionalFormat>[][],
-    clipboardOptions?: ClipboardOptions
+    cfRules: ClipboardCF[][],
+    clipboardOptions: ClipboardOptions,
+    clipboardPositions: ClipboardPositions
   ) {
     for (const [r, rowCells] of cfRules.entries()) {
       for (const [c, origin] of rowCells.entries()) {
-        const position = { col: col + c, row: row + r, sheetId };
-        this.pasteCf(origin, position, clipboardOptions?.isCutOperation);
+        const target = { col: col + c, row: row + r, sheetId };
+        const originPosition = this.getOriginPosition(r, c, clipboardPositions);
+        this.pasteCf(origin, target, originPosition, clipboardOptions?.isCutOperation);
       }
     }
   }
 
   private pasteCf(
-    origin: Maybe<ClipboardConditionalFormat>,
+    origin: ClipboardCF,
     target: CellPosition,
+    originPosition: CellPosition,
     isCutOperation?: boolean
   ) {
     if (origin?.rules && origin.rules.length > 0) {
-      const originZone = positionToZone(origin.position);
+      const originZone = positionToZone(originPosition);
       const zone = positionToZone(target);
       for (const rule of origin.rules) {
         const toRemoveZones: Zone[] = [];
@@ -98,10 +108,10 @@ export class ConditionalFormatClipboardHandler extends AbstractCellClipboardHand
           //remove from current rule
           toRemoveZones.push(originZone);
         }
-        if (origin.position.sheetId === target.sheetId) {
-          this.adaptCFRules(origin.position.sheetId, rule, [zone], toRemoveZones);
+        if (originPosition.sheetId === target.sheetId) {
+          this.adaptCFRules(originPosition.sheetId, rule, [zone], toRemoveZones);
         } else {
-          this.adaptCFRules(origin.position.sheetId, rule, [], toRemoveZones);
+          this.adaptCFRules(originPosition.sheetId, rule, [], toRemoveZones);
           const cfToCopyTo = this.getCFToCopyTo(target.sheetId, rule);
           this.adaptCFRules(target.sheetId, cfToCopyTo, [zone], []);
         }
@@ -163,5 +173,28 @@ export class ConditionalFormatClipboardHandler extends AbstractCellClipboardHand
     }
 
     return targetCF || { ...originCF, id: UuidGenerator.smallUuid(), ranges: [] };
+  }
+
+  protected compact(data: ClipboardCF[][]): CompactCFHandlerData {
+    const rows = data.length;
+    const cols = data[0]?.length ?? 0;
+    const { index: cfIndex, table: cfTable } = makeIndexer<ConditionalFormat>((cf) => cf.id);
+    const items: CompactCFHandlerData["items"] = [];
+    for (let r = 0; r < rows; r++) {
+      for (let c = 0; c < (data[r]?.length ?? 0); c++) {
+        const rules = data[r][c]?.rules;
+        if (rules && rules.length > 0) {
+          items.push({ r, c, cfIndices: rules.map(cfIndex) });
+        }
+      }
+    }
+    return { rows, cols, cfTable, items };
+  }
+
+  expand(data: unknown): ClipboardCF[][] {
+    if (Array.isArray(data)) {
+      return data as ClipboardCF[][];
+    }
+    return expandCompactCFCells(data as CompactCFHandlerData);
   }
 }

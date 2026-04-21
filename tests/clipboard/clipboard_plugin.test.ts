@@ -29,6 +29,7 @@ import {
   activateSheet,
   addCellToSelection,
   addColumns,
+  addDataValidation,
   addEqualCf,
   addRows,
   cleanClipBoardHighlight,
@@ -3040,6 +3041,111 @@ describe("cross spreadsheet copy/paste", () => {
     expect(tableB.config).toEqual(tableA.config);
   });
 
+  test("should copy/paste a large column of similar formulas with correctly translated references", async () => {
+    const modelA = new Model();
+    const modelB = new Model();
+    const rowCount = 30;
+
+    for (let row = 1; row <= rowCount; row++) {
+      setCellContent(modelA, `B${row}`, `=A${row}+1`);
+    }
+
+    copy(modelA, `B1:B${rowCount}`);
+    const clipboardContent = await modelA.getters.getClipboardTextAndImageContent();
+    const osClipboardContent = await parseOSClipboardContent(clipboardContent);
+    pasteFromOSClipboard(modelB, "D1", osClipboardContent);
+
+    for (let row = 1; row <= rowCount; row++) {
+      expect(getCellRawContent(modelB, `D${row}`)).toBe(`=C${row}+1`);
+    }
+  });
+
+  test("should copy/paste a large range of cells sharing the same literal value", async () => {
+    const modelA = new Model();
+    const modelB = new Model();
+    const rowCount = 30;
+
+    for (let row = 1; row <= rowCount; row++) {
+      setCellContent(modelA, `A${row}`, "same value");
+    }
+
+    copy(modelA, `A1:A${rowCount}`);
+    const clipboardContent = await modelA.getters.getClipboardTextAndImageContent();
+    const osClipboardContent = await parseOSClipboardContent(clipboardContent);
+    pasteFromOSClipboard(modelB, "C1", osClipboardContent);
+
+    for (let row = 1; row <= rowCount; row++) {
+      expect(getCellContent(modelB, `C${row}`)).toBe("same value");
+    }
+  });
+
+  test("should copy/paste a large sparse range keeping only the filled cells", async () => {
+    const modelA = new Model();
+    const modelB = new Model();
+
+    setCellContent(modelA, "A1", "first");
+    setCellContent(modelA, "A20", "middle");
+    setCellContent(modelA, "A40", "last");
+
+    copy(modelA, "A1:A40");
+    const clipboardContent = await modelA.getters.getClipboardTextAndImageContent();
+    const osClipboardContent = await parseOSClipboardContent(clipboardContent);
+    pasteFromOSClipboard(modelB, "C1", osClipboardContent);
+
+    expect(getCellContent(modelB, "C1")).toBe("first");
+    expect(getCellContent(modelB, "C20")).toBe("middle");
+    expect(getCellContent(modelB, "C40")).toBe("last");
+    expect(getCell(modelB, "C10")).toBeUndefined();
+  });
+
+  test("should copy/paste a large range sharing the same border and style", async () => {
+    const modelA = new Model();
+    const modelB = new Model();
+    const range = "A1:A30";
+
+    setZoneBorders(modelA, { position: "all" }, [range]);
+    for (let row = 1; row <= 30; row++) {
+      setCellContent(modelA, `A${row}`, "1");
+      setFormatting(modelA, `A${row}`, { bold: true });
+    }
+
+    copy(modelA, range);
+    const clipboardContent = await modelA.getters.getClipboardTextAndImageContent();
+    const osClipboardContent = await parseOSClipboardContent(clipboardContent);
+    pasteFromOSClipboard(modelB, "C1", osClipboardContent);
+
+    const b = DEFAULT_BORDER_DESC;
+    for (const row of [1, 15, 30]) {
+      expect(getBorder(modelB, `C${row}`)).toEqual({ top: b, bottom: b, left: b, right: b });
+      expect(getStyle(modelB, `C${row}`)).toMatchObject({ bold: true });
+    }
+  });
+
+  test("should copy/paste a large range sharing the same conditional format and data validation rule", async () => {
+    const modelA = new Model();
+    const modelB = new Model();
+    const range = "A1:A30";
+
+    for (let row = 1; row <= 30; row++) {
+      setCellContent(modelA, `A${row}`, "1");
+    }
+    addEqualCf(modelA, range, { fillColor: "#FF0000" }, "1");
+    addDataValidation(modelA, range, "dv1");
+
+    copy(modelA, range);
+    const clipboardContent = await modelA.getters.getClipboardTextAndImageContent();
+    const osClipboardContent = await parseOSClipboardContent(clipboardContent);
+    pasteFromOSClipboard(modelB, "C1", osClipboardContent);
+
+    const sheetId = modelB.getters.getActiveSheetId();
+    for (const row of [0, 14, 29]) {
+      expect(modelB.getters.getRulesByCell(sheetId, 2, row)).toBeTruthy();
+      expect(modelB.getters.getValidationRuleForCell({ sheetId, col: 2, row })).toMatchObject({
+        criterion: { type: "containsText", values: ["test"] },
+      });
+    }
+  });
+
   test("should copy/paste a cell with the cell content and format copied last from an external spreadsheet", async () => {
     const modelA = new Model();
     const modelB = new Model();
@@ -3172,19 +3278,28 @@ test("Can use clipboard handlers to paste in a sheet other than the active sheet
   addEqualCf(model, "A1", { fillColor: "#FF0000" }, "1");
   createTable(model, "A1");
 
-  const handlers = clipboardHandlersRegistries.cellHandlers
-    .getAll()
-    .map((handler) => new handler(model.getters, model.dispatch));
+  const handlerNames = clipboardHandlersRegistries.cellHandlers.getKeys();
+  const handlers = handlerNames.map((name) => {
+    const Handler = clipboardHandlersRegistries.cellHandlers.get(name);
+    return { name, handler: new Handler(model.getters, model.dispatch) };
+  });
 
-  let copiedData = {};
+  const copiedData: Record<string, any> = {};
   const clipboardData = getClipboardDataPositions(sheetId, [toZone("A1")]);
-  for (const handler of handlers) {
-    copiedData = { ...copiedData, ...handler.copy(clipboardData, false) };
+  for (const { name, handler } of handlers) {
+    copiedData[name] = handler.copy(clipboardData, false);
   }
 
   const pasteTarget: ClipboardPasteTarget = { sheetId: "sh2", zones: target("A1") };
-  for (const handler of handlers) {
-    handler.paste(pasteTarget, copiedData, { isCutOperation: false });
+  for (const { name, handler } of handlers) {
+    if (copiedData[name]) {
+      handler.paste(
+        pasteTarget,
+        handler.expand(copiedData[name]),
+        { isCutOperation: false },
+        { sheetId: "sh2", zones: target("A1") }
+      );
+    }
   }
 
   expect(getCellContent(model, "A1", "sh2")).toBe("1");
