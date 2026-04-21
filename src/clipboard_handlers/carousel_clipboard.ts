@@ -2,7 +2,12 @@ import { SpreadsheetChart } from "../helpers/figures/chart";
 import { boundColRowOffsetInSheet } from "../helpers/figures/figure/figure";
 import { deepCopy } from "../helpers/misc";
 import { UuidGenerator } from "../helpers/uuid";
-import { ClipboardFigureData, ClipboardOptions, ClipboardPasteTarget } from "../types/clipboard";
+import {
+  ClipboardFigureData,
+  ClipboardOptions,
+  ClipboardPasteTarget,
+  ClipboardPositions,
+} from "../types/clipboard";
 import { CommandResult } from "../types/commands";
 import { Carousel, Figure } from "../types/figure";
 import { PixelPosition, UID, Zone } from "../types/misc";
@@ -73,7 +78,12 @@ export class CarouselClipboardHandler extends AbstractFigureClipboardHandler<Cli
     return { zones: [], figureIds, sheetId };
   }
 
-  paste(target: ClipboardPasteTarget, clippedContent: ClipboardContent, options: ClipboardOptions) {
+  paste(
+    target: ClipboardPasteTarget,
+    clippedContent: ClipboardContent,
+    options: ClipboardOptions,
+    positions: ClipboardPositions
+  ) {
     if (!target.figureIds) {
       return;
     }

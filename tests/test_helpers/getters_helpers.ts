@@ -280,7 +280,7 @@ export function getFilter(
 export function getClipboardVisibleZones(model: Model): Zone[] {
   const clipboardPlugin = getPlugin(model, ClipboardPlugin);
   return clipboardPlugin["status"] === "visible"
-    ? clipboardPlugin["copiedData"]?.["zones"] ?? []
+    ? (clipboardPlugin["copiedData"]?.["zones"] as Zone[]) ?? []
     : [];
 }
 

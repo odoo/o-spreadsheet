@@ -1,55 +1,45 @@
+import {
+  compactBorderCell,
+  expandBorderCell,
+  expandCompactTableCells,
+  makeIndexer,
+} from "../helpers/clipboard/clipboard_helpers";
 import { removeFalsyAttributes } from "../helpers/misc";
 import { isZoneInside, zoneToDimension } from "../helpers/zones";
 import {
   ClipboardCellData,
+  ClipboardCopiedTable,
   ClipboardCopyOptions,
   ClipboardOptions,
   ClipboardPasteTarget,
+  ClipboardPositions,
+  ClipboardTableCell,
+  ClipboardTableStyle,
+  CompactBorderCell,
+  CompactClipboardTableCell,
+  CompactTableHandlerData,
+  CompactTableStyle,
 } from "../types/clipboard";
-import { Border, CellPosition, HeaderIndex, Style, UID, Zone } from "../types/misc";
-import { RangeData } from "../types/range";
-import { CoreTableType, TableConfig } from "../types/table";
+import { BorderDescr, CellPosition, HeaderIndex, UID, Zone } from "../types/misc";
 import { AbstractCellClipboardHandler } from "./abstract_cell_clipboard_handler";
 
-interface TableStyle {
-  style?: Style;
-  border?: Border;
-}
-
-interface CopiedTable {
-  range: RangeData;
-  config: TableConfig;
-  type: CoreTableType;
-}
-
-interface TableCell {
-  style?: TableStyle;
-  table?: CopiedTable;
-  isWholeTableCopied?: boolean;
-}
-
-interface ClipboardContent {
-  tableCells: TableCell[][];
-  sheetId: UID;
-}
-
 export class TableClipboardHandler extends AbstractCellClipboardHandler<
-  ClipboardContent,
-  TableCell
+  ClipboardTableCell,
+  CompactTableHandlerData
 > {
   copy(
     data: ClipboardCellData,
     isCutOperation: boolean,
     mode: ClipboardCopyOptions = "copyPaste"
-  ): ClipboardContent {
+  ): CompactTableHandlerData | undefined {
     const sheetId = data.sheetId;
 
     const { rowsIndexes, columnsIndexes, zones } = data;
 
     const copiedTablesIds = new Set<UID>();
-    const tableCells: TableCell[][] = [];
+    const tableCells: ClipboardTableCell[][] = [];
     for (const row of rowsIndexes) {
-      const tableCellsInRow: TableCell[] = [];
+      const tableCellsInRow: ClipboardTableCell[] = [];
       tableCells.push(tableCellsInRow);
       for (const col of columnsIndexes) {
         const position = { col, row, sheetId };
@@ -60,7 +50,7 @@ export class TableClipboardHandler extends AbstractCellClipboardHandler<
         }
         const coreTable = this.getters.getCoreTable(position);
         const tableZone = coreTable?.range.zone;
-        let copiedTable: CopiedTable | undefined = undefined;
+        let copiedTable: ClipboardCopiedTable | undefined = undefined;
         // Copy whole table
         if (
           !copiedTablesIds.has(table.id) &&
@@ -104,17 +94,14 @@ export class TableClipboardHandler extends AbstractCellClipboardHandler<
       }
     }
 
-    return {
-      tableCells,
-      sheetId: data.sheetId,
-    };
+    return this.compact(tableCells);
   }
 
   /**
    * Get the style to copy for a cell. We need to copy both the table style and the cell style, because
    * UPDATE_CELL replace the whole style of the cell with the style of the command, it doesn't merge the two.
    */
-  private getTableStyleToCopy(cellPosition: CellPosition): TableStyle {
+  private getTableStyleToCopy(cellPosition: CellPosition): ClipboardTableStyle {
     const styleFromTable = removeFalsyAttributes({
       ...this.getters.getCellTableStyle(cellPosition),
       hideGridLines: false,
@@ -130,42 +117,49 @@ export class TableClipboardHandler extends AbstractCellClipboardHandler<
     };
   }
 
-  paste(target: ClipboardPasteTarget, content: ClipboardContent, options: ClipboardOptions) {
+  paste(
+    target: ClipboardPasteTarget,
+    content: ClipboardTableCell[][],
+    options: ClipboardOptions,
+    positions: ClipboardPositions
+  ) {
     const zones = target.zones;
     const sheetId = target.sheetId;
     if (!options.isCutOperation) {
-      this.pasteFromCopy(sheetId, zones, content.tableCells, options);
+      this.pasteFromCopy(sheetId, zones, content, options, positions);
     } else {
-      this.pasteFromCut(sheetId, zones, content, options);
+      this.pasteFromCut(sheetId, zones, content, options, positions);
     }
   }
 
   private pasteFromCut(
     sheetId: UID,
     target: Zone[],
-    content: ClipboardContent,
-    options?: ClipboardOptions
+    content: ClipboardTableCell[][],
+    options: ClipboardOptions,
+    positions: ClipboardPositions
   ) {
-    for (const row of content.tableCells) {
+    for (const row of content) {
       for (const tableCell of row) {
         if (tableCell.table) {
           this.dispatch("REMOVE_TABLE", {
-            sheetId: content.sheetId,
+            sheetId: positions.sheetId,
             target: [this.getters.getRangeFromRangeData(tableCell.table.range).zone],
           });
         }
       }
     }
     const selection = target[0];
-    this.pasteZone(sheetId, selection.left, selection.top, content.tableCells, options);
+    this.pasteZone(sheetId, selection.left, selection.top, content, options);
   }
 
   protected pasteZone(
     sheetId: UID,
     col: HeaderIndex,
     row: HeaderIndex,
-    tableCells: TableCell[][],
-    clipboardOptions?: ClipboardOptions
+    tableCells: ClipboardTableCell[][],
+    clipboardOptions?: ClipboardOptions,
+    _positions?: ClipboardPositions
   ) {
     for (let r = 0; r < tableCells.length; r++) {
       const rowCells = tableCells[r];
@@ -188,7 +182,7 @@ export class TableClipboardHandler extends AbstractCellClipboardHandler<
 
   private pasteTableCell(
     sheetId: UID,
-    tableCell: TableCell,
+    tableCell: ClipboardTableCell,
     position: CellPosition,
     options?: ClipboardOptions
   ) {
@@ -225,5 +219,76 @@ export class TableClipboardHandler extends AbstractCellClipboardHandler<
         this.dispatch("SET_BORDER", { ...position, border: tableCell.style.border });
       }
     }
+  }
+
+  protected compact(array2D: ClipboardTableCell[][]): CompactTableHandlerData {
+    const { index: tableIndex, table: tables } = makeIndexer<ClipboardCopiedTable>((t) =>
+      JSON.stringify(t.range)
+    );
+    const { index: descrIndex, table: borderDescrTable } = makeIndexer<BorderDescr>(
+      (d) => `${d.style}|${d.color}`
+    );
+    const { index: indexCompactStyle, table: styleTable } = makeIndexer<CompactTableStyle>(
+      JSON.stringify
+    );
+
+    const styleIndex = (style: ClipboardTableStyle): number => {
+      const compactStyle: CompactTableStyle = {};
+      if (style.style) {
+        compactStyle.style = style.style;
+      }
+      if (style.border) {
+        compactStyle.border = compactBorderCell(style.border, descrIndex);
+      }
+      return indexCompactStyle(compactStyle);
+    };
+
+    const rows = array2D.length;
+    const cols = array2D[0]?.length ?? 0;
+    const items: { r: number; c: number; v: CompactClipboardTableCell }[] = [];
+    for (let r = 0; r < rows; r++) {
+      for (let c = 0; c < (array2D[r]?.length ?? 0); c++) {
+        const cell = array2D[r][c];
+        if (!cell) {
+          continue;
+        }
+        const compact: CompactClipboardTableCell = {};
+        if (cell.table) {
+          compact.tableIdx = tableIndex(cell.table);
+        }
+        if (cell.style) {
+          compact.styleIdx = styleIndex(cell.style);
+        }
+        if (cell.isWholeTableCopied) {
+          compact.isWholeTableCopied = true;
+        }
+        if (Object.keys(compact).length === 0) {
+          continue;
+        }
+        items.push({ r, c, v: compact });
+      }
+    }
+    return { rows, cols, tables, borderDescrTable, styleTable, items };
+  }
+
+  expand(data: unknown): ClipboardTableCell[][] {
+    if (Array.isArray(data)) {
+      return data as ClipboardTableCell[][];
+    }
+    const tableData = data as CompactTableHandlerData;
+    const borderDescrTable: BorderDescr[] = tableData.borderDescrTable;
+
+    const expandStyle = (cs: CompactTableStyle): ClipboardTableStyle => {
+      const s: ClipboardTableStyle = {};
+      if (cs.style) {
+        s.style = cs.style;
+      }
+      if (cs.border) {
+        s.border = expandBorderCell(cs.border as CompactBorderCell, borderDescrTable);
+      }
+      return s;
+    };
+
+    return expandCompactTableCells(tableData, expandStyle);
   }
 }
