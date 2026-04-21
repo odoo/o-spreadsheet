@@ -669,6 +669,16 @@ migrationStepRegistry
       }
       return data;
     },
+  })
+  .add("20.0.0", {
+    /* Fake empty migration to increase the version without making any changes
+     * This version number increase is needed to avoid copying data from the new clipboard structure
+     * to previous spreadsheet version that also have the 19.5.1 version.
+     * TODO: This migration should be removed as soon as a real new migration step will be added.
+     */
+    migrate(data: WorkbookData): any {
+      return data;
+    },
   });
 
 function fixOverlappingFilters(data: any): any {

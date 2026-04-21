@@ -2,7 +2,12 @@ import { PixelPosition, UID, Zone } from "..";
 import { boundColRowOffsetInSheet } from "../helpers/figures/figure/figure";
 import { deepCopy } from "../helpers/misc";
 import { UuidGenerator } from "../helpers/uuid";
-import { ClipboardFigureData, ClipboardOptions, ClipboardPasteTarget } from "../types/clipboard";
+import {
+  ClipboardFigureData,
+  ClipboardOptions,
+  ClipboardPasteTarget,
+  ClipboardPositions,
+} from "../types/clipboard";
 import { CommandResult } from "../types/commands";
 import { Figure } from "../types/figure";
 import { Image } from "../types/image";
@@ -62,7 +67,12 @@ export class ImageClipboardHandler extends AbstractFigureClipboardHandler<Clipbo
     return { sheetId, zones: [], figureIds };
   }
 
-  paste(target: ClipboardPasteTarget, clippedContent: ClipboardContent, options: ClipboardOptions) {
+  paste(
+    target: ClipboardPasteTarget,
+    clippedContent: ClipboardContent,
+    options: ClipboardOptions,
+    positions: ClipboardPositions
+  ) {
     if (!target.figureIds) {
       return;
     }

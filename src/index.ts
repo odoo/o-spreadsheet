@@ -385,7 +385,7 @@ import { NotificationPlugin } from "./owl_plugins/notification_owl_plugin";
 import { chartDataSourceSidePanelComponentRegistry } from "./registries/chart_data_source_component_registry";
 import { chartDataSourceRegistry } from "./registries/chart_data_source_registry";
 import { chartSubtypeRegistry } from "./registries/chart_subtype_registry";
-import { clipboardHandlersRegistries } from "./registries/clipboardHandlersRegistries";
+import { clipboardHandlersRegistries } from "./registries/clipboard_handlers_registries";
 import { unusedDataSourceRegistry } from "./registries/data_source_registry";
 import { onIterationEndEvaluationRegistry } from "./registries/evaluation_registry";
 import { performanceRegistry } from "./registries/performance_registry";
