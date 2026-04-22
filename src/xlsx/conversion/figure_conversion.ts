@@ -124,6 +124,7 @@ function convertChartData(chartData: ExcelChartDefinition): ChartDefinition<stri
     pieHolePercentage: chartData.pieHolePercentage,
     showValues: chartData.showValues,
     axesDesign: chartData.axesDesign,
+    slicesColors: chartData.slicesColors,
   };
   try {
     const ChartTypeBuilder = chartTypeRegistry.get(chartData.type);

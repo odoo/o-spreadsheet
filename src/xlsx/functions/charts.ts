@@ -975,7 +975,7 @@ function addDoughnutChart(
   const maxLength = largeMax(
     chart.dataSets.map((ds) => getRangeSize(ds.range, chartSheetIndex, data))
   );
-  const colors = new ColorGenerator(maxLength);
+  const colors = new ColorGenerator(maxLength, chart.slicesColors);
   const doughnutColors: string[] = range(0, maxLength).map(() => toXlsxHexColor(colors.next()));
 
   const dataSetsNodes: XMLString[] = [];

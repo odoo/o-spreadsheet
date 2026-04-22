@@ -234,6 +234,7 @@ export interface ExcelChartDefinition {
   readonly isDoughnut?: boolean;
   readonly pieHolePercentage?: number;
   readonly maxValue?: number;
+  readonly slicesColors?: Color[];
 }
 
 export interface ChartCreationContext {
