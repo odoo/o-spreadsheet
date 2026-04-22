@@ -66,6 +66,7 @@ import { FigurePlugin } from "../../../src/plugins/core/figures";
 import { ScatterChartRuntime } from "../../../src/types/chart/scatter_chart";
 import { getChartDataSource } from "../../test_helpers";
 import {
+  drawChartOnNodeCanvas,
   getCategoryAxisTickLabels,
   getChartConfiguration,
   getChartLegendLabels,
@@ -3064,10 +3065,6 @@ describe("Chart aggregate labels", () => {
 describe("Linear/Time charts", () => {
   const chartId = "1";
 
-  beforeEach(() => {
-    mockChart(); // mock chart.js with luxon time adapter installed
-  });
-
   test("linear axis for line chart with numbers labels/dataset", () => {
     createChart(
       model,
@@ -3179,7 +3176,7 @@ describe("Linear/Time charts", () => {
     expect(data.labels![1]).toEqual("1/17/1900");
     expect(data.datasets![0].data![1]).toEqual({
       y: NaN,
-      x: toNumber("1/17/1900", model.getters.getLocale()),
+      x: "1/17/1900",
     });
   });
 
@@ -3202,8 +3199,8 @@ describe("Linear/Time charts", () => {
 
     const chart = (model.getters.getChartRuntime(chartId) as LineChartRuntime).chartJsConfig;
     expect(chart.data!.datasets![0].data).toEqual([
-      { y: 1, x: 2 },
-      { y: 10, x: toNumber("01/02/1900", model.getters.getLocale()) },
+      { y: 1, x: "2" },
+      { y: 10, x: "01/02/1900" },
     ]);
     expect(chart.options?.scales?.x?.type).toEqual("time");
   });
@@ -3229,8 +3226,8 @@ describe("Linear/Time charts", () => {
     const data = getChartConfiguration(model, chartId).data;
     expect(data.labels).toEqual(["0", "1"]);
     expect(data.datasets![0].data).toEqual([
-      { y: 0, x: 0 },
-      { y: 1, x: 1 },
+      { y: 0, x: "0" },
+      { y: 1, x: "1" },
     ]);
   });
 
@@ -3272,7 +3269,7 @@ describe("Linear/Time charts", () => {
     const chart = (model.getters.getChartRuntime(chartId) as LineChartRuntime).chartJsConfig;
     expect(chart.options?.scales?.x?.type).toEqual("linear");
     expect(chart.data!.labels).toEqual(["1"]);
-    expect(chart.data!.datasets![0].data).toEqual([{ y: 10, x: 1 }]);
+    expect(chart.data!.datasets![0].data).toEqual([{ y: 10, x: "1" }]);
   });
 
   test("ChartJS configuration for linear chart", () => {
@@ -3296,10 +3293,10 @@ describe("Linear/Time charts", () => {
       datasets: [
         {
           data: [
-            { x: 20, y: 10 },
-            { x: 19, y: 11 },
-            { x: 18, y: 12 },
-            { x: 17, y: 13 },
+            { x: "20", y: 10 },
+            { x: "19", y: 11 },
+            { x: "18", y: 12 },
+            { x: "17", y: 13 },
           ],
         },
       ],
@@ -3336,14 +3333,15 @@ describe("Linear/Time charts", () => {
       datasets: [
         {
           data: [
-            { x: toNumber("1/19/1900", model.getters.getLocale()), y: 10 },
-            { x: toNumber("1/18/1900", model.getters.getLocale()), y: 11 },
-            { x: toNumber("1/17/1900", model.getters.getLocale()), y: 12 },
-            { x: toNumber("1/16/1900", model.getters.getLocale()), y: 13 },
+            { x: "1/19/1900", y: 10 },
+            { x: "1/18/1900", y: 11 },
+            { x: "1/17/1900", y: 12 },
+            { x: "1/16/1900", y: 13 },
           ],
         },
       ],
     });
+    expect(drawChartOnNodeCanvas(runtime)).toMatchImageSnapshot();
   });
 
   test("font color is white with a dark background color", () => {
@@ -3664,8 +3662,8 @@ describe("Cumulative Data line chart", () => {
 
     const runtime = model.getters.getChartRuntime("chartId") as LineChartRuntime;
     expect(runtime.chartJsConfig.data!.datasets![0].data).toEqual([
-      { x: 1, y: 10 },
-      { x: 2, y: 30 },
+      { x: "1", y: 10 },
+      { x: "2", y: 30 },
     ]);
   });
 });
