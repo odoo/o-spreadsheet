@@ -179,6 +179,6 @@
     ]
   },
   "publishConfig": {
-    "tag": "latest"
+    "tag": "19-2"
   }
 }
