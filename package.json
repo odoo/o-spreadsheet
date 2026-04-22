@@ -148,7 +148,7 @@
       "<rootDir>/tests"
     ],
     "transform": {
-      "^.+\\.ts?$": [
+      "^.+\\.(ts|js)?$": [
         "@swc/jest"
       ]
     },
@@ -164,6 +164,9 @@
       "node"
     ],
     "workerIdleMemoryLimit": "800MB",
+    "transformIgnorePatterns": [
+      "/node_modules/(?!chartjs-adapter-luxon)"
+    ],
     "globalSetup": "<rootDir>/tests/setup/jest_global_setup.ts",
     "globalTeardown": "<rootDir>/tests/setup/jest_global_teardown.ts",
     "setupFilesAfterEnv": [
