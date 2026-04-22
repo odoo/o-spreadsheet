@@ -8,7 +8,6 @@ import {
   LINE_DATA_POINT_RADIUS,
   LINE_FILL_TRANSPARENCY,
 } from "../../../../constants";
-import { tryToNumber } from "../../../../functions/helpers";
 import { _t } from "../../../../translation";
 import { BarChartDefinition } from "../../../../types/chart/bar_chart";
 import { CalendarChartDefinition } from "../../../../types/chart/calendar_chart";
@@ -228,13 +227,13 @@ export function getLineChartDatasets(
   for (let index = 0; index < dataSetsValues.length; index++) {
     let { label, data, hidden, dataSetId } = dataSetsValues[index];
     label = definition.dataSetStyles?.[dataSetId]?.label ?? label;
-    let dataValues: (number | { x: number; y: number })[] = [];
+    let dataValues: (number | { x: number | string; y: number })[] = [];
 
     const color = colors.next();
     if (axisType && ["linear", "time"].includes(axisType)) {
       // Replace empty string labels by undefined to make sure chartJS doesn't decide that "" is the same as 0
       dataValues = data.map((y, index) => ({
-        x: labels[index] === "" ? NaN : tryToNumber(labels[index], args.locale) ?? NaN,
+        x: labels[index] === "" ? NaN : labels[index] ?? NaN,
         y: isNumberResult(y) ? y.value : NaN,
       }));
     } else {
@@ -243,6 +242,8 @@ export function getLineChartDatasets(
     const dataSetStyle = definition.dataSetStyles?.[dataSetId];
     const dataset: ChartDataset<"line"> = {
       label,
+      // @ts-expect-error - Chart.js does not allow strings as x values although it is supported
+      // and even mentionned in the documentation:https://www.chartjs.org/docs/4.5.0/axes/cartesian/time.html#min-max-configuration
       data: dataValues,
       hidden,
       tension: 0, // 0 -> render straight lines, which is much faster
