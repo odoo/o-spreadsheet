@@ -293,7 +293,7 @@ function getChartDatasetValues(getters: Getters, dataSets: DataSet[]): DatasetVa
       data.filter(isTextResult).length > 1
     ) {
       // Convert categorical data into counts
-      data = data.map((cell) => (!isErrorResult(cell) ? ONE : EMPTY));
+      data = data.map((cell) => (cell.value && isErrorResult(cell) ? ONE : EMPTY));
     } else if (data.every((cell) => !isNumberResult(cell))) {
       hidden = true;
     }
