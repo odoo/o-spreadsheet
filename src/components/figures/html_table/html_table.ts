@@ -22,12 +22,12 @@ export class HTMLGridContent extends Component<Props, SpreadsheetChildEnv> {
   static components = { HTMLCell };
 
   get containerStyle(): string {
-    const rect = this.env.model.getters.getRect(this.props.content.displayZone);
+    // const rect = this.env.model.getters.getRect(this.props.content.displayZone);
     return cssPropertiesToCss({
-      width: `${rect.width}px`,
-      height: `${rect.height}px`,
-      left: `${rect.x}px`,
-      top: `${rect.y}px`,
+      // width: `${rect.width}px`,
+      // height: `${rect.height}px`,
+      // left: `${rect.x}px`,
+      // top: `${rect.y}px`,
       "z-index": "2",
       padding: `${PADDING}px`,
     });
@@ -66,7 +66,7 @@ export class HTMLGridContent extends Component<Props, SpreadsheetChildEnv> {
 
   // rowsToDisplay(): { rowStyle: string; cells: CellPosition[] }[] {
   //   const positions: { rowStyle: string; cells: CellPosition[] }[] = [];
-  //   const sheetId = this.env.model.getters.getActiveSheetId();
+  //   const sheetId = this.props.content.sheetId;
   //   const zone = this.props.content.contentZone;
   //   for (let row = zone.top; row <= zone.bottom; row++) {
   //     const rowPositions: CellPosition[] = [];
@@ -83,7 +83,7 @@ export class HTMLGridContent extends Component<Props, SpreadsheetChildEnv> {
   // }
 
   // get tableColumnStyles() {
-  //   const sheetId = this.env.model.getters.getActiveSheetId();
+  //   const sheetId = this.props.content.sheetId;
   //   const columnStyles: string[] = [];
   //   const zone = this.props.content.contentZone;
   //   for (let col = zone.left; col <= zone.right; col++) {
@@ -94,7 +94,7 @@ export class HTMLGridContent extends Component<Props, SpreadsheetChildEnv> {
   // }
 
   get positions(): CellPosition[] {
-    const sheetId = this.env.model.getters.getActiveSheetId();
+    const sheetId = this.props.content.sheetId;
     const positions: CellPosition[] = [];
     const zone = this.props.content.contentZone;
     for (let row = zone.top; row <= zone.bottom; row++) {
@@ -106,7 +106,7 @@ export class HTMLGridContent extends Component<Props, SpreadsheetChildEnv> {
   }
 
   get gridStyle(): string {
-    const sheetId = this.env.model.getters.getActiveSheetId();
+    const sheetId = this.props.content.sheetId;
     const zone = this.props.content.contentZone;
     const width =
       this.env.model.getters.getColDimensions(sheetId, zone.right).end -

@@ -1,7 +1,9 @@
 import { SpreadsheetStore } from "../../../stores";
-import { CellValueType, Zone } from "../../../types";
+import { CellValueType, UID, Zone } from "../../../types";
 
+// ADRM TODO: use ranges and remove title ?
 export interface HTMLContentDescr {
+  sheetId: UID;
   contentZone: Zone;
   displayZone: Zone;
   title: string | undefined;
@@ -11,8 +13,10 @@ export class HTMLContentStore extends SpreadsheetStore {
   get htmlContentTables(): HTMLContentDescr[] {
     const sheetId = this.getters.getActiveSheetId();
     if (this.getters.getEvaluatedCell({ sheetId, col: 0, row: 0 }).formattedValue) {
+      console.log("no");
       return [];
     }
+    console.log("yes");
     return this.getters.getTables(sheetId).map((table) => {
       const tableZone = table.range.zone;
       const titleCell = this.getters.getEvaluatedCell({
@@ -25,6 +29,7 @@ export class HTMLContentStore extends SpreadsheetStore {
           ? titleCell.formattedValue
           : undefined;
       return {
+        sheetId,
         contentZone: tableZone,
         title,
         // title: "",
