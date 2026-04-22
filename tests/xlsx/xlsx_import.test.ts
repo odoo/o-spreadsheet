@@ -13,7 +13,7 @@ import { ScatterChartDefinition } from "../../src/types/chart/scatter_chart";
 import { Image } from "../../src/types/image";
 import { SheetData, WorkbookData } from "../../src/types/workbook_data";
 import { XLSXImportData, XLSXSharedFormula, XLSXStyle, XLSXWorksheet } from "../../src/types/xlsx";
-import { hexaToInt } from "../../src/xlsx/conversion/color_conversion";
+import { applyLumModOff, hexaToInt } from "../../src/xlsx/conversion/color_conversion";
 import {
   BORDER_STYLE_CONVERSION_MAP,
   CF_OPERATOR_TYPE_CONVERSION_MAP,
@@ -198,12 +198,14 @@ describe("Import xlsx data", () => {
   });
 
   test.each([
-    [undefined, "F19"], // overflow is the default, no style is needed
+    ["overflow", "F19"],
     ["wrap", "F20"],
   ])("Can import wrapping mode %s", (wrapType, cellXc) => {
     const testSheet = getWorkbookSheet("jestStyles", convertedData)!;
     const cellStyle = getWorkbookCellStyle(testSheet.styles[cellXc], convertedData);
-    expect(cellStyle?.wrapping).toEqual(wrapType);
+    // "overflow" is the default wrapping style, but depending on the Excel version used to create the xlsx,
+    // it can be explicitly set or not, so we consider both cases as correct
+    expect(cellStyle?.wrapping ?? "overflow").toEqual(wrapType);
   });
 
   test.each([
@@ -937,14 +939,14 @@ describe("Import xlsx data", () => {
         { dataRange: "Sheet1!C26:C35", backgroundColor: "#C65911" },
       ],
     ],
-    ["pie chart", "pie", "#fff", [{ dataRange: "Sheet1!B26:B35", backgroundColor: "#1F77B4" }]],
+    ["pie chart", "pie", "#fff", [{ dataRange: "Sheet1!B26:B35", backgroundColor: "#FF0000" }]],
     [
       "doughnut chart",
       "pie",
       "#fff",
       [
-        { dataRange: "Sheet1!B26:B35", backgroundColor: "#1F77B4", dataSetId: "1" },
-        { dataRange: "Sheet1!C26:C35", backgroundColor: "#1F77B4", dataSetId: "0" },
+        { dataRange: "Sheet1!B26:B35", backgroundColor: "#FF0000", dataSetId: "1" },
+        { dataRange: "Sheet1!C26:C35", backgroundColor: "#FF0000", dataSetId: "0" },
       ],
     ],
   ])(
@@ -965,6 +967,17 @@ describe("Import xlsx data", () => {
       );
     }
   );
+
+  test.each(["pie", "doughnut"])("Can import %s chart custom slice colors", (chartType) => {
+    const testSheet = getWorkbookSheet("jestCharts", convertedData)!;
+    const figure = testSheet.figures.find(
+      (figure) => figure.data.title.text === `${chartType} chart`
+    )!;
+    const chartData = figure.data as PieChartDefinition;
+    expect(standardizeColor(chartData.background!)).toEqual(standardizeColor("#fff"));
+    expect(chartData.slicesColors?.[0]).toBe("#FF0000");
+    expect(chartData.slicesColors?.[1]).toBe("#FFC000");
+  });
 
   test("Can import scatter plot", () => {
     const testSheet = getWorkbookSheet("jestCharts", convertedData)!;
@@ -1304,5 +1317,23 @@ describe("Import col/row default styles", () => {
     expect(sheetData.defaultStyle?.rowDefault?.[2]).toBe(2);
     // Cell's own style override is preserved (styleIndex 2 → id 3)
     expect(sheetData.styles["A3"]).toBe(3);
+  });
+});
+
+describe("applyLumModOff", () => {
+  test("lumOff lifts black to 50% grey", () => {
+    expect(applyLumModOff("#000000", 1, 0.5)).toBe("#808080");
+  });
+
+  test("lumMod darkens white to 50% grey", () => {
+    expect(applyLumModOff("#FFFFFF", 0.5, 0)).toBe("#808080");
+  });
+
+  test("luminance is clamped to 100%", () => {
+    expect(applyLumModOff("#FFFFFF", 2, 0)).toBe("#FFFFFF");
+  });
+
+  test("luminance is clamped to 0%", () => {
+    expect(applyLumModOff("#000000", 0, 0)).toBe("#000000");
   });
 });
