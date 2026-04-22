@@ -8,6 +8,7 @@ import { NotificationStoreMethods } from "./stores/notification_store_methods";
 
 export interface SpreadsheetChildEnv extends NotificationStoreMethods {
   model: Model;
+  parentPopoverId?: string;
   imageProvider?: ImageProviderInterface;
   isDashboard: () => boolean;
   openSidePanel: (panel: string, panelProps?: any) => void;

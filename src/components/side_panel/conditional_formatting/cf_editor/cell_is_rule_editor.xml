@@ -67,6 +67,7 @@
           title.translate="Text Color"
           icon="'o-spreadsheet-Icon.TEXT_COLOR'"
           class="'o-hoverable-button o-menu-item-button'"
+          onClose="() => this.props.store.closeMenus()"
         />
         <div class="o-divider border-end"/>
         <ColorPickerWidget
@@ -77,6 +78,7 @@
           title.translate="Fill Color"
           icon="'o-spreadsheet-Icon.FILL_COLOR'"
           class="'o-hoverable-button o-menu-item-button'"
+          onClose="() => this.props.store.closeMenus()"
         />
       </div>
     </div>

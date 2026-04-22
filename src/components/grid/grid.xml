@@ -38,6 +38,7 @@
       <GridPopover
         t-if="!menuState.isOpen"
         gridRect="getGridRect()"
+        rootElement="popoverRootElement || undefined"
         onMouseWheel.bind="onMouseWheel"
         onClosePopover.bind="onClosePopover"
       />

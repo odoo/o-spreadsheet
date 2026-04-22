@@ -32,8 +32,10 @@ export interface ColorPickerProps {
   anchorRect: Rect;
   maxHeight?: Pixel;
   onColorPicked: (color: Color) => void;
+  onClose?: () => void;
   currentColor: Color;
   disableNoColor?: boolean;
+  rootElement?: HTMLElement | null;
 }
 
 interface State {
@@ -46,10 +48,12 @@ export class ColorPicker extends Component<ColorPickerProps, SpreadsheetChildEnv
   static template = "o-spreadsheet-ColorPicker";
   static props = {
     onColorPicked: Function,
+    onClose: { type: Function, optional: true },
     currentColor: { type: String, optional: true },
     maxHeight: { type: Number, optional: true },
     anchorRect: Object,
     disableNoColor: { type: Boolean, optional: true },
+    rootElement: { type: HTMLElement, optional: true },
   };
   static defaultProps = { currentColor: "" };
   static components = { Popover };
@@ -77,6 +81,8 @@ export class ColorPicker extends Component<ColorPickerProps, SpreadsheetChildEnv
       maxHeight: this.props.maxHeight,
       positioning: "bottom-left",
       verticalOffset: 0,
+      onClose: this.props.onClose,
+      rootElement: this.props.rootElement,
     };
   }
 

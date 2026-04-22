@@ -1,4 +1,4 @@
-import { Component, useExternalListener, useRef, useState } from "@odoo/owl";
+import { Component, useRef, useState } from "@odoo/owl";
 import { COMPOSER_ASSISTANT_COLOR } from "../../../../../constants";
 import { fuzzyLookup } from "../../../../../helpers";
 import {
@@ -37,12 +37,11 @@ export class AddDimensionButton extends Component<Props, SpreadsheetChildEnv> {
   setup() {
     this.autoComplete = useLocalStore(AutoCompleteStore);
     this.autoComplete.useProvider(this.getProvider());
-    useExternalListener(window, "click", (ev) => {
-      if (ev.target !== this.buttonRef.el) {
-        this.popover.isOpen = false;
-      }
-    });
     useAutofocus({ refName: "autofocus" });
+  }
+
+  private closePopover() {
+    this.popover.isOpen = false;
   }
 
   getProvider(): AutoCompleteProvider {
@@ -83,10 +82,13 @@ export class AddDimensionButton extends Component<Props, SpreadsheetChildEnv> {
   }
 
   get popoverProps() {
-    const { x, y, width, height } = this.buttonRef.el!.getBoundingClientRect();
+    const rootElement = this.buttonRef.el;
+    const { x, y, width, height } = rootElement!.getBoundingClientRect();
     return {
       anchorRect: { x, y, width, height },
       positioning: "bottom-left",
+      onClose: () => this.closePopover(),
+      rootElement,
     };
   }
 
