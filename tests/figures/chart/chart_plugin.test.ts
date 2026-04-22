@@ -1411,6 +1411,25 @@ describe("datasource tests", function () {
       })
     );
   });
+
+  test("empty entries of a dataset are skipped", () => {
+    setCellContent(model, "J1", "test1");
+    setCellContent(model, "J2", "test2");
+    setCellContent(model, "J3", "test3");
+    createChart(
+      model,
+      {
+        ...toChartDataSource({
+          dataSets: [{ dataRange: "J:J", dataSetId: "1" }],
+          dataSetsHaveTitle: false,
+        }),
+        type: "bar",
+      },
+      "1"
+    );
+    const { chartJsConfig } = model.getters.getChartRuntime("1") as BarChartRuntime;
+    expect(chartJsConfig.data.datasets[0].data.length).toBe(0);
+  });
 });
 
 describe("title", function () {
