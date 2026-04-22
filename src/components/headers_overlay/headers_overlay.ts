@@ -522,7 +522,7 @@ export class ColResizer extends AbstractResizer {
     const hiddenGroups = this.env.model.getters.getHiddenColsGroups(this.sheetId);
     const index = hiddenGroups.findIndex((group) => group[0] >= xSplit - 1);
     return {
-      headersGroups: hiddenGroups.slice(index),
+      headersGroups: index === -1 ? [] : hiddenGroups.slice(index),
       offset: this.env.model.getters.getMainViewportCoordinates().x,
       headerRange: { start: left, end: right },
     };
@@ -534,7 +534,7 @@ export class ColResizer extends AbstractResizer {
     const index = hiddenGroups.findIndex((group) => group[0] >= xSplit - 1);
 
     return {
-      headersGroups: hiddenGroups.slice(0, index + 1),
+      headersGroups: index === -1 ? hiddenGroups : hiddenGroups.slice(0, index + 1),
       headerRange: { start: 0, end: xSplit - 1 },
     };
   }
@@ -744,7 +744,7 @@ export class RowResizer extends AbstractResizer {
     const hiddenGroups = this.env.model.getters.getHiddenRowsGroups(this.sheetId);
     const index = hiddenGroups.findIndex((group) => group[0] >= ySplit - 1);
     return {
-      headersGroups: hiddenGroups.slice(index),
+      headersGroups: index === -1 ? [] : hiddenGroups.slice(index),
       offset: this.env.model.getters.getMainViewportCoordinates().y,
       headerRange: { start: top, end: bottom },
     };
@@ -756,7 +756,7 @@ export class RowResizer extends AbstractResizer {
     const index = hiddenGroups.findIndex((group) => group[0] >= ySplit - 1);
 
     return {
-      headersGroups: hiddenGroups.slice(0, index + 1),
+      headersGroups: index === -1 ? hiddenGroups : hiddenGroups.slice(0, index + 1),
       headerRange: { start: 0, end: ySplit - 1 },
     };
   }
