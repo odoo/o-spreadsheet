@@ -746,6 +746,15 @@ describe("Hide/show columns", () => {
       expect(getUnhideColumnButtons()).toHaveLength(0);
     });
 
+    test("buttons are visible if hidden columns are freezed", async () => {
+      freezeColumns(model, 5);
+      hideColumns(model, ["B", "C"]);
+      await nextTick();
+      const unhideButtons = getUnhideColumnButtons();
+      expect(unhideButtons).toHaveLength(2);
+      expect(unhideButtons.some((el) => el.classList.contains("invisible"))).toBeFalsy();
+    });
+
     test("left button is hidden if the column before the hidden group is not in the viewport", async () => {
       freezeColumns(model, 1);
       hideColumns(model, ["D"]);
@@ -866,6 +875,15 @@ describe("Hide/show rows", () => {
       setViewportOffset(model, 0, 5 * DEFAULT_CELL_HEIGHT);
       await nextTick();
       expect(getUnhideRowButtons()).toHaveLength(0);
+    });
+
+    test("buttons are visible if hidden rows are freezed", async () => {
+      freezeRows(model, 5);
+      hideRows(model, [1, 2]);
+      await nextTick();
+      const unhideButtons = getUnhideRowButtons();
+      expect(unhideButtons).toHaveLength(2);
+      expect(unhideButtons.some((el) => el.classList.contains("invisible"))).toBeFalsy();
     });
 
     test("top button is hidden if the row before the hidden group is not in the viewport", async () => {
