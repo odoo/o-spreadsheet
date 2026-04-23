@@ -13,10 +13,8 @@ export class HTMLContentStore extends SpreadsheetStore {
   get htmlContentTables(): HTMLContentDescr[] {
     const sheetId = this.getters.getActiveSheetId();
     if (this.getters.getEvaluatedCell({ sheetId, col: 0, row: 0 }).formattedValue) {
-      console.log("no");
       return [];
     }
-    console.log("yes");
     return this.getters.getTables(sheetId).map((table) => {
       const tableZone = table.range.zone;
       const titleCell = this.getters.getEvaluatedCell({

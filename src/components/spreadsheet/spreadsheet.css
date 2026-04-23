@@ -1,22 +1,22 @@
 .o-spreadsheet {
   .border {
-    border: 1px solid var(--os-border-color) !important;
+    --border-color: var(--os-border-color);
   }
 
   .border-bottom {
-    border-bottom: 1px solid var(--os-border-color) !important;
+    --border-color: var(--os-border-color);
   }
 
   .border-top {
-    border-top: 1px solid var(--os-border-color) !important;
+    --border-color: var(--os-border-color);
   }
 
   .border-start {
-    border-left: 1px solid var(--os-border-color) !important;
+    --border-color: var(--os-border-color);
   }
 
   .border-end {
-    border-right: 1px solid var(--os-border-color) !important;
+    --border-color: var(--os-border-color);
   }
   touch-action: pan-y;
   color: var(--os-text-body);

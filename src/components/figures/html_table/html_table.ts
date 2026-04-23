@@ -1,5 +1,5 @@
 import { Component } from "@odoo/owl";
-import { CellPosition } from "../../../types";
+import { CellPosition, Zone } from "../../../types";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
 import { cssPropertiesToCss } from "../../helpers";
 import { HTMLCell } from "../html_cell/html_cell";
@@ -9,7 +9,7 @@ interface Props {
   content: HTMLContentDescr;
 }
 
-const PADDING = 20;
+// const PADDING = 20;
 const TITLE_HEIGHT = 18;
 const TITLE_BOTTOM_PADDING = 16;
 const TITLE_BOTTOM_MARGIN = 8;
@@ -28,8 +28,8 @@ export class HTMLGridContent extends Component<Props, SpreadsheetChildEnv> {
       // height: `${rect.height}px`,
       // left: `${rect.x}px`,
       // top: `${rect.y}px`,
-      "z-index": "2",
-      padding: `${PADDING}px`,
+      // "z-index": "2",
+      // padding: `${PADDING}px`,
     });
   }
 
@@ -42,6 +42,30 @@ export class HTMLGridContent extends Component<Props, SpreadsheetChildEnv> {
       "padding-bottom": `${TITLE_BOTTOM_PADDING}px`,
       "margin-bottom": `${TITLE_BOTTOM_MARGIN}px`,
     });
+  }
+
+  private getLastUsedRow(): number {
+    const zone = this.props.content.contentZone;
+    const sheetId = this.props.content.sheetId;
+    let lastUsedRow = zone.top;
+
+    for (let row = zone.top; row <= zone.bottom; row++) {
+      for (let col = zone.left; col <= zone.right; col++) {
+        const cell = this.env.model.getters.getEvaluatedCell({ sheetId, row, col });
+        if (cell.formattedValue) {
+          lastUsedRow = row;
+          break;
+        }
+      }
+    }
+
+    return lastUsedRow;
+  }
+
+  get nonEmptyZone(): Zone {
+    const zone = this.props.content.contentZone;
+    const lastUsedRow = this.getLastUsedRow();
+    return { ...zone, bottom: lastUsedRow };
   }
 
   // get tableStyle(): string {
@@ -96,7 +120,7 @@ export class HTMLGridContent extends Component<Props, SpreadsheetChildEnv> {
   get positions(): CellPosition[] {
     const sheetId = this.props.content.sheetId;
     const positions: CellPosition[] = [];
-    const zone = this.props.content.contentZone;
+    const zone = this.nonEmptyZone;
     for (let row = zone.top; row <= zone.bottom; row++) {
       for (let col = zone.left; col <= zone.right; col++) {
         positions.push({ sheetId, row, col });
@@ -107,7 +131,7 @@ export class HTMLGridContent extends Component<Props, SpreadsheetChildEnv> {
 
   get gridStyle(): string {
     const sheetId = this.props.content.sheetId;
-    const zone = this.props.content.contentZone;
+    const zone = this.nonEmptyZone;
     const width =
       this.env.model.getters.getColDimensions(sheetId, zone.right).end -
       this.env.model.getters.getColDimensions(sheetId, zone.left).start;
