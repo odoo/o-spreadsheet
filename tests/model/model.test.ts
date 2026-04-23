@@ -398,4 +398,18 @@ describe("Model", () => {
     });
     expect(messages.map((m) => m.type)).not.toContain("SNAPSHOT_CREATED");
   });
+
+  test("it should not snapshot when the session is left is shouldSnapshot false", async () => {
+    const transport = new MockTransportService();
+    const spy = jest.spyOn(transport, "sendMessage");
+    const xlsxData = await getTextXlsxFiles();
+    const model = new Model(xlsxData, {
+      transportService: transport,
+      client: { id: "test", name: "Test" },
+    });
+    await model.leaveSession({ shouldSnapshot: false });
+    expect(spy).not.toHaveBeenCalledWith({
+      type: "SNAPSHOT",
+    });
+  });
 });
