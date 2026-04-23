@@ -74,6 +74,7 @@ import {
   deepCopy,
   deepEquals,
   doesCellContainFunction,
+  getCanonicalSymbolName,
   getUniqueText,
   isDefined,
   isFormula,
@@ -320,6 +321,7 @@ export const registries = {
   pivotToFunctionValueRegistry,
   migrationStepRegistry,
   chartJsExtensionRegistry,
+  onIterationEndEvaluationRegistry,
 };
 
 /** Registries Population */
@@ -332,20 +334,24 @@ import "./registries/chart_types";
 import "./registries/interactive_icon_on_cell_registry";
 
 import { Composer } from "./components/composer/composer/composer";
+import { StandaloneComposer } from "./components/composer/standalone_composer/standalone_composer";
 import { Select } from "./components/select/select";
 import { ChartRangeDataSourceComponent } from "./components/side_panel/chart/building_blocks/range_data_source/range_data_source";
 import { TopBar } from "./components/top_bar/top_bar";
 import { topBarToolBarRegistry } from "./components/top_bar/top_bar_tools_registry";
 import { parseFormat } from "./helpers/format/format_parser";
+import { replaceSymbolInFormula } from "./helpers/formulas";
 import {
   getFirstPivotFunction,
   getNumberOfPivotFunctions,
 } from "./helpers/pivot/pivot_composer_helpers";
 import { domainToColRowDomain } from "./helpers/pivot/pivot_domain_helpers";
+import { fuzzyLookup } from "./helpers/search";
 import { chartDataSourceSidePanelComponentRegistry } from "./registries/chart_data_source_component_registry";
 import { chartDataSourceRegistry } from "./registries/chart_data_source_registry";
 import { chartSubtypeRegistry } from "./registries/chart_subtype_registry";
 import { clipboardHandlersRegistries } from "./registries/clipboardHandlersRegistries";
+import { onIterationEndEvaluationRegistry } from "./registries/evaluation_registry";
 
 export const helpers = {
   arg,
@@ -419,6 +425,9 @@ export const helpers = {
   isFormula,
   domainToColRowDomain,
   collapseHierarchicalDisplayName,
+  getCanonicalSymbolName,
+  fuzzyLookup,
+  replaceSymbolInFormula,
 };
 
 export const links = {
@@ -471,6 +480,7 @@ export const components = {
   MenuPopover,
   Popover,
   SelectionInput,
+  StandaloneComposer,
   ValidationMessages,
   AddDimensionButton,
   PivotDimensionGranularity,
