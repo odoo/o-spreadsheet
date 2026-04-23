@@ -256,8 +256,9 @@ export class Model extends EventBus<any> implements CommandDispatcher {
     this.session.join(this.config.client);
   }
 
-  async leaveSession() {
-    const snapshot = this.getters.isReadonly() ? undefined : lazy(() => this.exportData());
+  async leaveSession({ shouldSnapshot }: { shouldSnapshot?: boolean } = { shouldSnapshot: true }) {
+    const snapshot =
+      shouldSnapshot && !this.getters.isReadonly() ? lazy(() => this.exportData()) : undefined;
     await this.session.leave(snapshot);
   }
 
