@@ -22,13 +22,17 @@ const VOID_COMPOSER: ComposerInterface = {
     return "inactive";
   },
   startEdition: () => {
-    throw new Error("No composer is registered");
+    // ADRM TODO
+    console.warn("No composer is registered");
+    // throw new Error("No composer is registered");
   },
   stopEdition: () => {
-    throw new Error("No composer is registered");
+    console.warn("No composer is registered");
+    // throw new Error("No composer is registered");
   },
   setCurrentContent: () => {
-    throw new Error("No composer is registered");
+    console.warn("No composer is registered");
+    // throw new Error("No composer is registered");
   },
 };
 

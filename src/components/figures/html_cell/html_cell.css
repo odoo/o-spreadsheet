@@ -5,6 +5,7 @@
     pointer-events: all;
     white-space: nowrap;
     overflow: hidden;
+    z-index: 0;
 
     .o-html-cell-data-bar {
       z-index: -1;
