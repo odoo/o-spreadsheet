@@ -385,7 +385,7 @@ export class MergePlugin extends CorePlugin<MergeState> implements MergeState {
     if (tl === br) {
       return;
     }
-    const topLeft = this.getters.getCell({ sheetId, col: left, row: top });
+    const topLeftStyle = this.getters.getCellStyle({ sheetId, col: left, row: top });
 
     const id = this.nextId++;
     this.history.update(
@@ -402,7 +402,8 @@ export class MergePlugin extends CorePlugin<MergeState> implements MergeState {
             sheetId,
             col,
             row,
-            style: topLeft ? topLeft.style : null,
+            style: null,
+            format: null,
             content: "",
           });
         }
@@ -412,6 +413,13 @@ export class MergePlugin extends CorePlugin<MergeState> implements MergeState {
         }
         this.history.update("mergeCellMap", sheetId, col, row, id);
       }
+    }
+    if (topLeftStyle) {
+      this.dispatch("SET_FORMATTING", {
+        sheetId,
+        target: [zone],
+        style: topLeftStyle,
+      });
     }
 
     for (const mergeId of previousMerges) {

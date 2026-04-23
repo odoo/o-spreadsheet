@@ -1,6 +1,7 @@
 import { replaceNewLines, splitReference } from "../../helpers";
 import { toCartesian, toXC } from "../../helpers/coordinates";
 import { buildSheetLink, largeMax, markdownLink } from "../../helpers/misc";
+import { defaultValue } from "../../plugins/core/default";
 import { Dimension, HeaderGroup } from "../../types/misc";
 import { HeaderData, SheetData } from "../../types/workbook_data";
 import {
@@ -48,6 +49,7 @@ export function convertSheets(
       merges: sheet.merges,
       cols: convertCols(sheet, sheetDims[0], colHeaderGroups),
       rows: convertRows(sheet, sheetDims[1], rowHeaderGroups),
+      ...convertDefaults(sheet, data, sheetDims),
       conditionalFormats: convertConditionalFormats(sheet.cfs, data.dxfs, warningManager),
       dataValidationRules: convertDataValidationRules(sheet.dataValidations, warningManager),
       figures: convertFigures(sheet),
@@ -125,6 +127,45 @@ function convertRows(
   return rows;
 }
 
+function convertDefaults(
+  sheet: XLSXWorksheet,
+  data: XLSXImportData,
+  sheetDims: number[]
+): {
+  defaultFormat?: defaultValue<number>;
+  defaultStyle?: defaultValue<number>;
+} {
+  const defaultStyle: defaultValue<number> = {
+    rowDefault: [],
+    colDefault: [],
+  };
+  const defaultFormat: defaultValue<number> = {
+    rowDefault: [],
+    colDefault: [],
+  };
+
+  for (const row of sheet.rows.filter((row) => row.styleIndex)) {
+    // Excel indexes start at 1
+    defaultStyle.rowDefault![row.index - 1] = row.styleIndex! + 1;
+    defaultFormat.rowDefault![row.index - 1] = data.styles[row.styleIndex!].numFmtId + 1;
+  }
+
+  for (const col of sheet.cols.filter((col) => col.styleIndex)) {
+    if (col.min === 1 && col.max >= sheetDims[0]) {
+      defaultStyle.sheetDefault = col.styleIndex! + 1;
+      defaultFormat.sheetDefault = data.styles[col.styleIndex!].numFmtId + 1;
+    } else {
+      for (let colIndex = col.min; colIndex <= col.max; colIndex++) {
+        // Excel indexes start at 1
+        defaultStyle.colDefault![colIndex - 1] = col.styleIndex! + 1;
+        defaultFormat.colDefault![colIndex - 1] = data.styles[col.styleIndex!].numFmtId + 1;
+      }
+    }
+  }
+
+  return { defaultFormat, defaultStyle };
+}
+
 function convertSharedStrings(xlsxSharedStrings: string[]): string[] {
   return xlsxSharedStrings.map(replaceNewLines);
 }
@@ -162,9 +203,7 @@ function convertCells(
   for (const row of sheet.rows.filter((row) => row.styleIndex)) {
     for (let colIndex = 1; colIndex <= sheetDims[0]; colIndex++) {
       const xc = toXC(colIndex - 1, row.index - 1); // Excel indexes start at 1
-      styles[xc] ??= row.styleIndex! + 1;
       borders[xc] ??= data.styles[row.styleIndex!].borderId + 1;
-      formats[xc] ??= data.styles[row.styleIndex!].numFmtId + 1;
     }
   }
 
@@ -173,9 +212,7 @@ function convertCells(
     for (let colIndex = col.min; colIndex <= Math.min(col.max, sheetDims[0]); colIndex++) {
       for (let rowIndex = 1; rowIndex <= sheetDims[1]; rowIndex++) {
         const xc = toXC(colIndex - 1, rowIndex - 1); // Excel indexes start at 1
-        styles[xc] ??= col.styleIndex! + 1;
         borders[xc] ??= data.styles[col.styleIndex!].borderId + 1;
-        formats[xc] ??= data.styles[col.styleIndex!].numFmtId + 1;
       }
     }
   }

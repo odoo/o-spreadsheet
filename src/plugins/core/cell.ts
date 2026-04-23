@@ -1,11 +1,10 @@
-import { DEFAULT_NUMBER_STYLE, DEFAULT_STYLE } from "../../constants";
 import { PositionMap } from "../../helpers/cells/position_map";
 import {
   getItemId,
   groupItemIdsByZones,
   iterateItemIdsPositions,
 } from "../../helpers/data_normalization";
-import { deepEquals, range, replaceNewLines } from "../../helpers/misc";
+import { deepEquals, isObjectEmptyRecursive, range, replaceNewLines } from "../../helpers/misc";
 
 import { toXC } from "../../helpers/coordinates";
 import { CorePlugin } from "../core_plugin";
@@ -18,13 +17,11 @@ import {
   CommandResult,
   CoreCommand,
   PositionDependentCommand,
-  SetFormattingCommand,
   UpdateCellCommand,
 } from "../../types/commands";
 import { CellPosition, HeaderIndex, RangeAdapterFunctions, UID } from "../../types/misc";
 
 import { CompiledFormula, SerializedCompiledFormula } from "../../formulas/compiler";
-import { isNumber } from "../../helpers";
 import {
   createCell,
   createFormulaCellFromCompiledFormula,
@@ -32,7 +29,6 @@ import {
 import { isExcelCompatible } from "../../helpers/format/format";
 import { recomputeZones } from "../../helpers/recompute_zones";
 import { Format } from "../../types/format";
-import { DEFAULT_LOCALE } from "../../types/locale";
 import { Style, UpdateCellData, Zone } from "../../types/misc";
 import { Range, RangePart } from "../../types/range";
 import { ExcelWorkbookData, WorkbookData } from "../../types/workbook_data";
@@ -56,7 +52,6 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
     "zoneToXC",
     "getCells",
     "getTranslatedCellFormula",
-    "getCellStyle",
     "getCellById",
     "getFormulaString",
     "getFormulaMovedInSheet",
@@ -97,8 +92,6 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
         return !cmd.cellId || this.cells[cmd.sheetId]?.[cmd.cellId]
           ? CommandResult.Success
           : CommandResult.InvalidCellId;
-      case "SET_FORMATTING":
-        return this.checkUselessSetFormatting(cmd);
       default:
         return CommandResult.Success;
     }
@@ -106,12 +99,6 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
 
   handle(cmd: CoreCommand) {
     switch (cmd.type) {
-      case "SET_FORMATTING":
-        this.setStyleFormat(cmd.sheetId, cmd.target, cmd.style, cmd.format);
-        break;
-      case "CLEAR_FORMATTING":
-        this.clearFormatting(cmd.sheetId, cmd.target);
-        break;
       case "ADD_COLUMNS_ROWS":
         if (cmd.dimension === "COL") {
           this.handleAddColumnsRows(cmd, this.copyColumnStyle.bind(this));
@@ -130,7 +117,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
           row: cmd.row,
           content: "",
           style: null,
-          format: "",
+          format: null,
         });
         break;
 
@@ -166,25 +153,6 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
   }
 
   /**
-   * Clear the styles and format of zones
-   */
-  private clearFormatting(sheetId: UID, zones: Zone[]) {
-    for (const zone of recomputeZones(zones)) {
-      for (let col = zone.left; col <= zone.right; col++) {
-        for (let row = zone.top; row <= zone.bottom; row++) {
-          this.dispatch("UPDATE_CELL", {
-            sheetId,
-            col,
-            row,
-            style: null,
-            format: "",
-          });
-        }
-      }
-    }
-  }
-
-  /**
    * Clear the styles, the format and the content of zones
    */
   private clearCells(sheetId: UID, zones: Zone[]) {
@@ -197,7 +165,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
             row,
             content: "",
             style: null,
-            format: "",
+            format: null,
           });
         }
       }
@@ -302,9 +270,9 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
         .sort((a, b) => (a.col === b.col ? a.row - b.row : a.col - b.col));
       for (const position of positions) {
         const cell = this.getters.getCell(position)!;
-        const style = this.extractCustomStyle(cell);
-        if (Object.keys(style).length) {
-          const styleId = getItemId<Style>(style, styles);
+        const xc = toXC(position.col, position.row);
+        if (cell.style && Object.keys(cell.style).length) {
+          const styleId = getItemId<Style>(cell.style, styles);
           positionsByStyle[styleId] ??= [];
           positionsByStyle[styleId].push(position);
         }
@@ -313,7 +281,6 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
           positionsByFormat[formatId] ??= [];
           positionsByFormat[formatId].push(position);
         }
-        const xc = toXC(position.col, position.row);
         if (cell.isFormula) {
           cells[xc] = shouldSquish
             ? squisher.squish(cell, _sheet.id)
@@ -365,23 +332,6 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
         }
       }
     }
-  }
-
-  private extractCustomStyle(cell: Cell): Style {
-    const cleanedStyle = { ...cell.style };
-    const defaultStyle =
-      !cell.isFormula && isNumber(cell.content, DEFAULT_LOCALE)
-        ? DEFAULT_NUMBER_STYLE
-        : DEFAULT_STYLE;
-    for (const property in cleanedStyle) {
-      if (
-        (property !== "align" || !cell.isFormula) &&
-        cleanedStyle[property] === defaultStyle[property]
-      ) {
-        delete cleanedStyle[property];
-      }
-    }
-    return cleanedStyle;
   }
 
   // ---------------------------------------------------------------------------
@@ -450,10 +400,6 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
     ).toFormulaString(this.getters);
   }
 
-  getCellStyle(position: CellPosition): Style {
-    return this.getters.getCell(position)?.style || {};
-  }
-
   /**
    * Converts a zone to a XC coordinate system
    *
@@ -498,31 +444,6 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
     }
 
     return topLeft;
-  }
-
-  private setStyleFormat(
-    sheetId: UID,
-    target: Zone[],
-    style: Style | undefined,
-    format: Format | undefined
-  ) {
-    if (style === undefined && format === undefined) {
-      return;
-    }
-    for (const zone of recomputeZones(target)) {
-      for (let col = zone.left; col <= zone.right; col++) {
-        for (let row = zone.top; row <= zone.bottom; row++) {
-          const cell = this.getters.getCell({ sheetId, col, row });
-          this.dispatch("UPDATE_CELL", {
-            sheetId,
-            col,
-            row,
-            style: style ? { ...cell?.style, ...style } : undefined,
-            format,
-          });
-        }
-      }
-    }
   }
 
   /**
@@ -582,7 +503,8 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
   }
 
   private updateCell(sheetId: UID, col: HeaderIndex, row: HeaderIndex, after: UpdateCellData) {
-    const before = this.getters.getCell({ sheetId, col, row });
+    const position = { sheetId, col, row };
+    const before = this.getters.getCell(position);
     const hasContent = after.content !== undefined || "formula" in after;
 
     // Compute the new cell properties
@@ -596,11 +518,31 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
     }
     let style: Style | undefined;
     if (after.style !== undefined) {
-      style = after.style || undefined;
+      for (const key in after.style) {
+        if (
+          after.style[key] === this.getters.getCellDefaultStyleValue(position, key as keyof Style)
+        ) {
+          delete after.style[key];
+        }
+      }
+      if (!after.style || isObjectEmptyRecursive(after.style)) {
+        style = undefined;
+      } else {
+        style = after.style;
+      }
     } else {
-      style = before ? before.style : undefined;
+      style = before?.style;
     }
-    const format = after.format !== undefined ? after.format : before && before.format;
+    let format: Format | undefined;
+    if (after.format !== undefined) {
+      const defaultFormat = this.getters.getCellDefaultFormat(position);
+      format = after.format === null ? undefined : after.format;
+      if ((format ?? "") === (defaultFormat ?? "")) {
+        format = undefined;
+      }
+    } else {
+      format = before?.format;
+    }
 
     /* Read the following IF as:
      * we need to remove the cell if it is completely empty, but we can know if it is completely empty if:
@@ -613,7 +555,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
       ((hasContent && !afterContent && !after.formula) ||
         (!hasContent && (!before || (!before.isFormula && before.content === "")))) &&
       !style &&
-      !format
+      format === undefined
     ) {
       if (before) {
         this.history.update("cells", sheetId, before.id, undefined);
@@ -669,29 +611,5 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
       return CommandResult.NoChanges;
     }
     return CommandResult.Success;
-  }
-
-  private checkUselessSetFormatting(cmd: SetFormattingCommand) {
-    const { sheetId, target } = cmd;
-    const hasStyle = "style" in cmd;
-    const hasFormat = "format" in cmd;
-    if (!hasStyle && !hasFormat) {
-      return CommandResult.NoChanges;
-    }
-    for (const zone of recomputeZones(target)) {
-      for (let col = zone.left; col <= zone.right; col++) {
-        for (let row = zone.top; row <= zone.bottom; row++) {
-          const position = { sheetId, col, row };
-          const cell = this.getters.getCell(position);
-          if (
-            (hasStyle && !deepEquals(cell?.style, cmd.style)) ||
-            (hasFormat && cell?.format !== cmd.format)
-          ) {
-            return CommandResult.Success;
-          }
-        }
-      }
-    }
-    return CommandResult.NoChanges;
   }
 }
