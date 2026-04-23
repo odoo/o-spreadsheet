@@ -1,10 +1,10 @@
 import { isFuncallToken } from "../formulas/parser";
 import { rangeTokenize } from "../formulas/range_tokenizer";
-import { Token } from "../formulas/tokenizer";
+import { Token, tokenize } from "../formulas/tokenizer";
 import { CellErrorType } from "../types/errors";
 import { ApplyRangeChangeResult, ApplyRenameNamedRange, RangeAdapter, UID } from "../types/misc";
 import { Range } from "../types/range";
-import { concat } from "./misc";
+import { concat, getCanonicalSymbolName } from "./misc";
 import { createInvalidRange, createRangeFromXc, getRangeString } from "./range";
 import { rangeReference, splitReference } from "./references";
 import { isSheetNameEqual } from "./sheet";
@@ -103,4 +103,20 @@ function getRange(sheetXC: string, sheetId: UID): Range {
     return createInvalidRange(sheetXC);
   }
   return createRangeFromXc({ xc: sheetXC, sheetId }, defaultGetSheetSize);
+}
+
+export function replaceSymbolInFormula(
+  formula: string,
+  oldSymbol: string,
+  newSymbol: string
+): string {
+  const oldCanonicalSymbol = getCanonicalSymbolName(oldSymbol);
+  const newCanonicalSymbol = getCanonicalSymbolName(newSymbol);
+  return tokenize(formula)
+    .map((token) =>
+      token.type === "SYMBOL" && token.value === oldCanonicalSymbol
+        ? newCanonicalSymbol
+        : token.value
+    )
+    .join("");
 }

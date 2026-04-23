@@ -1,4 +1,3 @@
-import { tokenize } from "../../formulas/tokenizer";
 import { boolAnd, boolOr } from "../../functions/helper_logical";
 import { countUnique, sum } from "../../functions/helper_math";
 import { average, countAny, max, min } from "../../functions/helper_statistical";
@@ -32,7 +31,8 @@ import {
 } from "../../types/pivot";
 import { Pivot } from "../../types/pivot_runtime";
 import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
-import { deepEquals, getCanonicalSymbolName, getUniqueText, isDefined } from "../misc";
+import { replaceSymbolInFormula } from "../formulas";
+import { deepEquals, getUniqueText, isDefined } from "../misc";
 import { PivotRuntimeDefinition } from "./pivot_runtime_definition";
 import { pivotTimeAdapter } from "./pivot_time_adapter";
 
@@ -544,13 +544,11 @@ export function changeCalculatedMeasuresOnMeasureChange(
     } else if (!measure.computedBy || oldMeasure.id === newMeasure.id) {
       return measure;
     }
-    const newFormula = tokenize(measure.computedBy.formula)
-      .map((token) =>
-        token.type === "SYMBOL" && token.value === getCanonicalSymbolName(oldMeasure.id)
-          ? getCanonicalSymbolName(newMeasure.id)
-          : token.value
-      )
-      .join("");
+    const newFormula = replaceSymbolInFormula(
+      measure.computedBy.formula,
+      oldMeasure.id,
+      newMeasure.id
+    );
 
     return {
       ...measure,
