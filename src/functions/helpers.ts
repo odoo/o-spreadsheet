@@ -888,7 +888,7 @@ export function dichotomicSearch<T>(
       : (i: number) => normalizeValue(getValueInData(data, i));
 
   while (indexRight - indexLeft >= 0) {
-    indexMedian = Math.floor((indexLeft + indexRight) / 2);
+    indexMedian = indexLeft + ((indexRight - indexLeft) >> 1);
 
     currentIndex = indexMedian;
     currentVal = getValue(currentIndex);
