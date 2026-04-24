@@ -23,8 +23,7 @@ const {
 const { Spreadsheet, Model } = o_spreadsheet;
 const { topbarMenuRegistry } = o_spreadsheet.registries;
 const { useStoreProvider } = o_spreadsheet.stores;
-
-const uuidGenerator = new o_spreadsheet.helpers.UuidGenerator();
+const { UuidGenerator } = o_spreadsheet.helpers;
 
 topbarMenuRegistry.addChild("reload", ["file"], {
   name: "Clear & reload demo",
@@ -66,7 +65,7 @@ class Demo extends Component {
     this.state = useState({ key: 0, displayHeader: false, colorScheme: "light" });
     this.stateUpdateMessages = [];
     this.client = {
-      id: uuidGenerator.uuidv4(),
+      id: UuidGenerator.uuidv4(),
       name: "Local",
     };
     this.fileStore = new FileStore();
