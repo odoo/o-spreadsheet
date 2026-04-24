@@ -244,4 +244,63 @@ describe("async evaluation", () => {
       expect(getEvaluatedCell(model, "A1").value).toBe(2);
     });
   });
+
+  describe("shouldSkipAnimation", () => {
+    test("all cells evaluated for the first time skip animation", async () => {
+      // Load a model that already has cells — the very first async eval sees an
+      // empty live buffer, so every evaluated position is brand-new.
+      const data = {
+        sheets: [{ cells: { A1: "1", B1: "=A1+1" } }],
+      };
+      const model = new Model(data, { asyncEvaluation: true });
+      await model.startModel();
+      await model.waitForEvaluation();
+
+      const sheetId = model.getters.getActiveSheetId();
+      expect(model.getters.shouldSkipAnimation({ sheetId, col: 0, row: 0 })).toBe(true); // A1
+      expect(model.getters.shouldSkipAnimation({ sheetId, col: 1, row: 0 })).toBe(true); // B1
+    });
+
+    test("cells that had a previous value do not skip animation on re-evaluation", async () => {
+      const data = { sheets: [{ cells: { A1: "1" } }] };
+      const model = new Model(data, { asyncEvaluation: true });
+      await model.startModel();
+      await model.waitForEvaluation();
+      // A1 now has a known previous value in the live buffer.
+      // A second evaluation changes A1 — shouldSkipAnimation must be false.
+      setCellContent(model, "A1", "2");
+      await model.waitForEvaluation();
+
+      const sheetId = model.getters.getActiveSheetId();
+      expect(model.getters.shouldSkipAnimation({ sheetId, col: 0, row: 0 })).toBe(false);
+    });
+
+    test("a brand-new cell added in a subsequent evaluation skips animation", async () => {
+      const data = { sheets: [{ cells: { A1: "1" } }] };
+      const model = new Model(data, { asyncEvaluation: true });
+      await model.startModel();
+      await model.waitForEvaluation();
+      // B1 did not exist in the live buffer after the first eval.
+      setCellContent(model, "B1", "=A1+1");
+      await model.waitForEvaluation();
+
+      const sheetId = model.getters.getActiveSheetId();
+      expect(model.getters.shouldSkipAnimation({ sheetId, col: 1, row: 0 })).toBe(true); // B1 is new
+      expect(model.getters.shouldSkipAnimation({ sheetId, col: 0, row: 0 })).toBe(false); // A1 had a value
+    });
+
+    test("empty cells (never evaluated) never skip animation", async () => {
+      const model = await createAsyncModel();
+      const sheetId = model.getters.getActiveSheetId();
+      // C1 has never been evaluated
+      expect(model.getters.shouldSkipAnimation({ sheetId, col: 2, row: 0 })).toBe(false);
+    });
+
+    test("shouldSkipAnimation is always false in sync mode", async () => {
+      const model = await createModel();
+      setCellContent(model, "A1", "1");
+      const sheetId = model.getters.getActiveSheetId();
+      expect(model.getters.shouldSkipAnimation({ sheetId, col: 0, row: 0 })).toBe(false);
+    });
+  });
 });

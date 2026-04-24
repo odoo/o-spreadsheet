@@ -728,9 +728,11 @@ export class GridRenderer extends SpreadsheetStore {
         (cell.type === CellValueType.error && !!cell.message) ||
         this.getters.isDataValidationInvalid(position),
       icons: cellIcons,
-      disabledAnimation: this.zonesWithPreventedAnimationsInNextFrame.some(
-        (z) => isZoneInside(zone, z) || overlap(zone, z)
-      ),
+      disabledAnimation:
+        this.getters.shouldSkipAnimation(position) ||
+        this.zonesWithPreventedAnimationsInNextFrame.some(
+          (z) => isZoneInside(zone, z) || overlap(zone, z)
+        ),
     };
 
     const fontSizePX = computeTextFontSizeInPixels(box.style);

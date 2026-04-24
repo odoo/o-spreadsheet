@@ -64,6 +64,7 @@ export class Evaluator {
   private workingCells: PositionMap<EvaluatedCell> = this.evaluatedCells;
   private workingSpreading: SpreadingRelation = this.spreadingRelations;
   private workingBlocked: PositionSet = this.blockedArrayFormulas;
+  private noAnimationPositions: PositionMap<true> = new PositionMap<true>();
 
   constructor(private readonly context: ModelConfig["custom"], getters: Getters) {
     this.getters = getters;
@@ -76,6 +77,10 @@ export class Evaluator {
 
   getEvaluatedCell(position: CellPosition): EvaluatedCell {
     return this.evaluatedCells.get(position) || EMPTY_CELL;
+  }
+
+  shouldSkipAnimation(position: CellPosition): boolean {
+    return this.noAnimationPositions.has(position);
   }
 
   getSpreadZone(position: CellPosition, options = { ignoreSpillError: false }): Zone | undefined {
@@ -268,6 +273,17 @@ export class Evaluator {
       // Do not restore working refs — that would clobber the newer evaluation's shadow.
       return;
     }
+
+    // Build no-animation set before swapping buffers: every position that exists
+    // in the shadow but was absent from the live buffer is brand-new (no previous
+    // value to animate from). Useful for the first evaluation
+    const noAnimationPositions = new PositionMap<true>();
+    for (const pos of this.workingCells.keys()) {
+      if (!this.evaluatedCells.has(pos)) {
+        noAnimationPositions.set(pos, true);
+      }
+    }
+    this.noAnimationPositions = noAnimationPositions;
 
     // Commit: swap shadow -> live
     this.evaluatedCells = this.workingCells;

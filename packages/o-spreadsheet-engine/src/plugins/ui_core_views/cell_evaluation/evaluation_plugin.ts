@@ -159,6 +159,7 @@ export class EvaluationPlugin extends CoreViewPlugin {
     "getArrayFormulaSpreadingOn",
     "isArrayFormulaSpillBlocked",
     "isEmpty",
+    "shouldSkipAnimation",
   ] as const;
 
   private shouldRebuildDependenciesGraph = true;
@@ -359,6 +360,10 @@ export class EvaluationPlugin extends CoreViewPlugin {
 
   isArrayFormulaSpillBlocked(position: CellPosition): boolean {
     return this.evaluator.isArrayFormulaSpillBlocked(position);
+  }
+
+  shouldSkipAnimation(position: CellPosition): boolean {
+    return this.evaluator.shouldSkipAnimation(position);
   }
 
   /**
