@@ -1,20 +1,36 @@
-import { toNumber } from "../../functions/helpers";
-import { DEFAULT_LOCALE } from "../../types/locale";
-import { DataValidationRuleData } from "../../types/workbook_data";
-import { XMLAttributes, XMLString } from "../../types/xlsx";
+import { toNumber } from "../../../functions/helpers";
+import { DEFAULT_LOCALE } from "../../../types/locale";
+import { DataValidationRuleData } from "../../../types/workbook_data";
 import {
-  convertDateCriterionTypeToExcelOperator,
-  convertDecimalCriterionTypeToExcelOperator,
-} from "../helpers/content_helpers";
-import { escapeXml, formatAttributes } from "../helpers/xml_helpers";
-import { adaptFormulaToExcel } from "./cells";
+  XLSXDataValidationDateOperatorType,
+  XLSXDataValidationOperatorType,
+  XMLAttributes,
+  XMLString,
+} from "../../../types/xlsx";
+import {
+  XLSX_DV_DATE_OPERATOR_TO_DV_TYPE_MAPPING,
+  XLSX_DV_DECIMAL_OPERATOR_MAPPING,
+} from "../../conversion/conversion_maps";
+import { adaptFormulaToExcel } from "../cells/cell_construction";
+import { escapeXml, formatAttributes } from "../xlsx_xml";
 
-export function addDataValidationRules(dataValidationRules: DataValidationRuleData[]): XMLString[] {
-  const dvRulesCount = dataValidationRules.length;
-  if (dvRulesCount === 0) {
+/**
+ * Phase-2: emit `<dataValidations>` block for a sheet.
+ *
+ * Data-validation export still reads directly from the internal
+ * `DataValidationRuleData[]` — a dedicated `XLSXDataValidation`
+ * intermediate wouldn't buy anything here since the internal shape is
+ * already nearly a 1:1 map to the XML.
+ */
+export function serializeDataValidations(
+  dataValidationRules: DataValidationRuleData[]
+): XMLString[] {
+  if (dataValidationRules.length === 0) {
     return [];
   }
-  const dvNodes: XMLString[] = [new XMLString(`<dataValidations count="${dvRulesCount}">`)];
+  const nodes: XMLString[] = [
+    new XMLString(`<dataValidations count="${dataValidationRules.length}">`),
+  ];
   for (const dvRule of dataValidationRules) {
     switch (dvRule.criterion.type) {
       case "dateIs":
@@ -24,7 +40,7 @@ export function addDataValidationRules(dataValidationRules: DataValidationRuleDa
       case "dateIsOnOrAfter":
       case "dateIsBetween":
       case "dateIsNotBetween":
-        dvNodes.push(addDateRule(dvRule));
+        nodes.push(renderDateRule(dvRule));
         break;
       case "isEqual":
       case "isNotEqual":
@@ -34,25 +50,25 @@ export function addDataValidationRules(dataValidationRules: DataValidationRuleDa
       case "isLessOrEqualTo":
       case "isBetween":
       case "isNotBetween":
-        dvNodes.push(addDecimalRule(dvRule));
+        nodes.push(renderDecimalRule(dvRule));
         break;
       case "isValueInRange":
       case "isValueInList":
-        dvNodes.push(addListRule(dvRule));
+        nodes.push(renderListRule(dvRule));
         break;
       case "customFormula":
-        dvNodes.push(addCustomFormulaRule(dvRule));
+        nodes.push(renderCustomFormulaRule(dvRule));
         break;
       default:
         console.warn(`Data validation ${dvRule.criterion.type} is not supported in xlsx.`);
         break;
     }
   }
-  dvNodes.push(new XMLString("</dataValidations>"));
-  return dvNodes;
+  nodes.push(new XMLString("</dataValidations>"));
+  return nodes;
 }
 
-function addDateRule(dvRule: DataValidationRuleData): XMLString {
+function renderDateRule(dvRule: DataValidationRuleData): XMLString {
   const rule = dvRule.criterion;
   const formula1 = adaptFormulaToExcel(rule.values[0]);
   const formula2 = rule.values[1] ? adaptFormulaToExcel(rule.values[1]) : undefined;
@@ -74,7 +90,7 @@ function addDateRule(dvRule: DataValidationRuleData): XMLString {
   `;
 }
 
-function addDecimalRule(dvRule: DataValidationRuleData): XMLString {
+function renderDecimalRule(dvRule: DataValidationRuleData): XMLString {
   const rule = dvRule.criterion;
   const formula1 = adaptFormulaToExcel(rule.values[0]);
   const formula2 = rule.values[1] ? adaptFormulaToExcel(rule.values[1]) : undefined;
@@ -96,7 +112,7 @@ function addDecimalRule(dvRule: DataValidationRuleData): XMLString {
   `;
 }
 
-function addListRule(dvRule: DataValidationRuleData): XMLString {
+function renderListRule(dvRule: DataValidationRuleData): XMLString {
   const rule = dvRule.criterion;
   const formula1 =
     dvRule.criterion.type === "isValueInRange"
@@ -111,7 +127,7 @@ function addListRule(dvRule: DataValidationRuleData): XMLString {
   `;
 }
 
-function addCustomFormulaRule(dvRule: DataValidationRuleData): XMLString {
+function renderCustomFormulaRule(dvRule: DataValidationRuleData): XMLString {
   const rule = dvRule.criterion;
   const formula1 = adaptFormulaToExcel(rule.values[0]);
   const attributes = commonDataValidationAttributes(dvRule);
@@ -131,4 +147,16 @@ function commonDataValidationAttributes(dvRule: DataValidationRuleData): XMLAttr
     ["errorStyle", !dvRule.isBlocking ? "warning" : ""],
     ["sqref", dvRule.ranges.join(" ")],
   ];
+}
+
+function convertDecimalCriterionTypeToExcelOperator(operator: string) {
+  return Object.keys(XLSX_DV_DECIMAL_OPERATOR_MAPPING).find(
+    (key) => XLSX_DV_DECIMAL_OPERATOR_MAPPING[key] === operator
+  ) as XLSXDataValidationOperatorType;
+}
+
+function convertDateCriterionTypeToExcelOperator(operator: string) {
+  return Object.keys(XLSX_DV_DATE_OPERATOR_TO_DV_TYPE_MAPPING).find(
+    (key) => XLSX_DV_DATE_OPERATOR_TO_DV_TYPE_MAPPING[key] === operator
+  ) as XLSXDataValidationDateOperatorType;
 }

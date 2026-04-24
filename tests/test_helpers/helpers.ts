@@ -69,7 +69,7 @@ import { SpreadsheetChildEnv } from "../../src/types/spreadsheet_env";
 import { Store } from "../../src/types/store_engine";
 import { XLSXExport } from "../../src/types/xlsx";
 import { isXLSXExportXMLFile } from "../../src/xlsx/helpers/xlsx_helper";
-import { fixLengthySheetNames, purgeSingleRowTables } from "../../src/xlsx/xlsx_writer";
+import { sanitizeExcelData } from "../../src/xlsx/xlsx_sanitize";
 import { FileStore } from "../__mocks__/mock_file_store";
 import { registerCleanup } from "../setup/jest.setup";
 import { MockClipboard } from "./clipboard";
@@ -907,14 +907,13 @@ export async function exportPrettifiedXlsx(model: Model): Promise<XLSXExport> {
 
 export async function getExportedExcelData(model: Model): Promise<ExcelWorkbookData> {
   evaluateCells(model);
-  let data = createEmptyExcelWorkbookData();
+  const data = createEmptyExcelWorkbookData();
   for (const handler of model["handlers"]) {
     if (handler instanceof BasePlugin) {
       await handler.exportForExcel(data);
     }
   }
-  data = fixLengthySheetNames(data);
-  return purgeSingleRowTables(data);
+  return sanitizeExcelData(data);
 }
 
 export const mockChart = (options: any = {}) => {

@@ -1,32 +1,12 @@
-// -------------------------------------
-//            XML HELPERS
-// -------------------------------------
-
-import { DEFAULT_FONT_SIZE } from "../../constants";
 import { concat } from "../../helpers/misc";
-import { BorderDescr } from "../../types/misc";
-import { ExcelWorkbookData } from "../../types/workbook_data";
-import {
-  XLSXBorder,
-  XLSXBorderDescr,
-  XLSXExportXMLFile,
-  XLSXStructure,
-  XMLAttributes,
-  XMLAttributeValue,
-  XMLString,
-} from "../../types/xlsx";
+import { XMLAttributeValue, XMLString } from "../../types/xlsx";
 
-export function createXMLFile(
-  doc: XMLDocument,
-  path: string,
-  contentType?: string
-): XLSXExportXMLFile {
-  return {
-    content: new XMLSerializer().serializeToString(doc),
-    path,
-    contentType,
-  };
-}
+/**
+ * XML primitives shared between import, export, the clipboard plugin and
+ * tests. Export-only helpers (`createXMLFile`, `formatAttributes`,
+ * `joinXmlNodes`, `createOverride`, `createDefaultXMLElement`) live in
+ * `src/xlsx/export/xlsx_xml.ts` next to the serializers.
+ */
 
 export function xmlEscape(str: XMLAttributeValue): string {
   return (
@@ -36,14 +16,10 @@ export function xmlEscape(str: XMLAttributeValue): string {
       .replace(/\>/g, "&gt;")
       .replace(/\"/g, "&quot;")
       .replace(/\'/g, "&apos;")
-      // Delete all ASCII control characters except for TAB (\x09), LF (\x0A) and CR (\x0D)
-      // They are not valid at all in XML 1.0 (even escaped)
+      // Strip ASCII control characters except TAB / LF / CR — they are
+      // invalid in XML 1.0 even when escaped.
       .replace(/[\x00-\x08\x0B\x0C\x0E-\x1F]/g, "")
   );
-}
-
-export function formatAttributes(attrs: XMLAttributes): XMLString {
-  return new XMLString(attrs.map(([key, val]) => `${key}="${xmlEscape(val)}"`).join(" "));
 }
 
 export function parseXML(
@@ -64,75 +40,9 @@ export function parseXML(
   return document;
 }
 
-function convertBorderDescr(descr: BorderDescr | undefined): XLSXBorderDescr | undefined {
-  if (!descr) {
-    return undefined;
-  }
-  return {
-    style: descr.style,
-    color: { rgb: descr.color },
-  };
-}
-
-export function getDefaultXLSXStructure(data: ExcelWorkbookData): XLSXStructure {
-  const xlsxBorders: XLSXBorder[] = Object.values(data.borders).map((border) => {
-    return {
-      left: convertBorderDescr(border.left),
-      right: convertBorderDescr(border.right),
-      bottom: convertBorderDescr(border.bottom),
-      top: convertBorderDescr(border.top),
-    };
-  });
-  const borders = [{}, ...xlsxBorders];
-  return {
-    relsFiles: [],
-    sharedStrings: [],
-    chartIds: [],
-    imageIds: [],
-    // default Values that will always be part of the style sheet
-    styles: [
-      {
-        fontId: 0,
-        fillId: 0,
-        numFmtId: 0,
-        borderId: 0,
-        alignment: {},
-      },
-    ],
-    fonts: [
-      {
-        size: DEFAULT_FONT_SIZE,
-        family: 2,
-        color: { rgb: "000000" },
-        name: "Arial",
-      },
-    ],
-    fills: [{ reservedAttribute: "none" }, { reservedAttribute: "gray125" }],
-    borders,
-    numFmts: [],
-    dxfs: [],
-  };
-}
-
-export function createOverride(partName: string, contentType: string): XMLString {
-  return escapeXml/*xml*/ `
-    <Override ContentType="${contentType}" PartName="${partName}" />
-  `;
-}
-
-export function createDefaultXMLElement(extension: string, contentType: string): XMLString {
-  return escapeXml/*xml*/ `
-    <Default Extension="${extension}" ContentType="${contentType}" />
-  `;
-}
-
-export function joinXmlNodes(xmlNodes: XMLString[]): XMLString {
-  return new XMLString(xmlNodes.join("\n"));
-}
-
 /**
- * Escape interpolated values except if the value is already
- * a properly escaped XML string.
+ * Tagged-template helper that escapes interpolated values, except those that
+ * are already a properly-escaped `XMLString`.
  *
  * ```
  * escapeXml`<t>${"This will be escaped"}</t>`
@@ -157,12 +67,13 @@ export function removeTagEscapedNamespaces(tag: string): string {
 }
 
 /**
- * Encase the namespaces in the element's tags with NAMESPACE string
+ * Encase the namespaces in the element's tags with the literal "NAMESPACE"
+ * marker.
  *
  * e.g. <x:foo> becomes <NAMESPACExNAMESPACEFoo>
  *
- * That's useful because namespaces aren't supported by the HTML specification, so it's arbitrary whether a HTML parser/querySelector
- * implementation will support namespaces in the tags or not.
+ * Useful because namespaces aren't supported by the HTML specification, so
+ * a HTML parser/`querySelector` may or may not handle them.
  */
 export function escapeTagNamespaces(str: string): string {
   return str.replaceAll(

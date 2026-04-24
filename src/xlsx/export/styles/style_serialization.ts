@@ -1,20 +1,44 @@
-import { isObjectEmptyRecursive } from "../../helpers/misc";
+import { isObjectEmptyRecursive } from "../../../helpers/misc";
 import {
   XLSXBorder,
   XLSXBorderDescr,
   XLSXDxf,
+  XLSXExportFile,
   XLSXFill,
   XLSXFont,
   XLSXNumFormat,
+  XLSXStructure,
   XLSXStyle,
   XMLAttributes,
   XMLString,
-} from "../../types/xlsx";
-import { FIRST_NUMFMT_ID } from "../constants";
-import { toXlsxHexColor } from "../helpers/colors";
-import { escapeXml, formatAttributes, joinXmlNodes } from "../helpers/xml_helpers";
+} from "../../../types/xlsx";
+import { FIRST_NUMFMT_ID, NAMESPACE, RELATIONSHIP_NSR } from "../../constants";
+import { toXlsxHexColor } from "../../helpers/colors";
+import { createXMLFile, escapeXml, formatAttributes, joinXmlNodes, parseXML } from "../xlsx_xml";
 
-export function addNumberFormats(numFmts: XLSXNumFormat[]): XMLString {
+/**
+ * Phase-2: build `xl/styles.xml` from the already-populated style primitives
+ * on the `XLSXStructure` accumulator.
+ */
+export function serializeStyles(structure: XLSXStructure): XLSXExportFile {
+  const namespaces: XMLAttributes = [
+    ["xmlns", NAMESPACE["styleSheet"]],
+    ["xmlns:r", RELATIONSHIP_NSR],
+  ];
+  const xml = escapeXml/*xml*/ `
+    <styleSheet ${formatAttributes(namespaces)}>
+      ${addNumberFormats(structure.numFmts)}
+      ${addFonts(structure.fonts)}
+      ${addFills(structure.fills)}
+      ${addBorders(structure.borders)}
+      ${addStyles(structure.styles)}
+      ${addCellWiseConditionalFormatting(structure.dxfs)}
+    </styleSheet>
+  `;
+  return createXMLFile(parseXML(xml), "xl/styles.xml", "styles");
+}
+
+function addNumberFormats(numFmts: XLSXNumFormat[]): XMLString {
   const numFmtNodes: XMLString[] = [];
   for (const [index, numFmt] of Object.entries(numFmts)) {
     const numFmtAttrs: XMLAttributes = [
@@ -32,7 +56,7 @@ export function addNumberFormats(numFmts: XLSXNumFormat[]): XMLString {
   `;
 }
 
-function addFont(font: Partial<XLSXFont>): XMLString {
+export function renderFont(font: Partial<XLSXFont>): XMLString {
   if (isObjectEmptyRecursive(font)) {
     return escapeXml/*xml*/ ``;
   }
@@ -53,15 +77,15 @@ function addFont(font: Partial<XLSXFont>): XMLString {
   `;
 }
 
-export function addFonts(fonts: XLSXFont[]): XMLString {
+function addFonts(fonts: XLSXFont[]): XMLString {
   return escapeXml/*xml*/ `
     <fonts count="${fonts.length}">
-      ${joinXmlNodes(Object.values(fonts).map(addFont))}
+      ${joinXmlNodes(Object.values(fonts).map(renderFont))}
     </fonts>
   `;
 }
 
-export function addFills(fills: XLSXFill[]): XMLString {
+function addFills(fills: XLSXFill[]): XMLString {
   const fillNodes: XMLString[] = [];
   for (const fill of Object.values(fills)) {
     if (fill.reservedAttribute !== undefined) {
@@ -88,7 +112,7 @@ export function addFills(fills: XLSXFill[]): XMLString {
   `;
 }
 
-export function addBorders(borders: XLSXBorder[]): XMLString {
+function addBorders(borders: XLSXBorder[]): XMLString {
   const borderNodes: XMLString[] = [];
   for (const border of Object.values(borders)) {
     borderNodes.push(escapeXml/*xml*/ `
@@ -134,7 +158,7 @@ function addBorderColor(description: XLSXBorderDescr | undefined): XMLString {
   `;
 }
 
-export function addStyles(styles: XLSXStyle[]): XMLString {
+function addStyles(styles: XLSXStyle[]): XMLString {
   const styleNodes: XMLString[] = [];
   for (const style of styles) {
     const attributes: XMLAttributes = [
@@ -143,7 +167,6 @@ export function addStyles(styles: XLSXStyle[]): XMLString {
       ["fontId", style.fontId],
       ["borderId", style.borderId],
     ];
-    // Note: the apply${substyleName} does not seem to be required
     const alignAttrs: XMLAttributes = [];
     if (style.alignment && style.alignment.vertical) {
       alignAttrs.push(["vertical", style.alignment.vertical]);
@@ -180,16 +203,14 @@ export function addStyles(styles: XLSXStyle[]): XMLString {
 }
 
 /**
- * DXFS : Differential Formatting Records - Conditional formats
+ * DXFS : Differential Formatting Records — conditional formats.
  */
-export function addCellWiseConditionalFormatting(
-  dxfs: XLSXDxf[] // cell-wise CF
-): XMLString {
+function addCellWiseConditionalFormatting(dxfs: XLSXDxf[]): XMLString {
   const dxfNodes: XMLString[] = [];
   for (const dxf of dxfs) {
     let fontNode: XMLString = escapeXml``;
     if (dxf.font) {
-      fontNode = addFont(dxf.font);
+      fontNode = renderFont(dxf.font);
     }
     let fillNode: XMLString = escapeXml``;
     if (dxf.fill) {

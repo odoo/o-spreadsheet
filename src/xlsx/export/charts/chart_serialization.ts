@@ -1,20 +1,31 @@
-import { CHART_AXIS_TITLE_FONT_SIZE, CHART_TITLE_FONT_SIZE } from "../../constants";
-import { ColorGenerator, lightenColor } from "../../helpers/color";
-import { chartMutedFontColor } from "../../helpers/figures/charts/chart_common";
-import { largeMax, range } from "../../helpers/misc";
-import { ExcelChartDataset, ExcelChartDefinition, TitleDesign } from "../../types/chart/chart";
-import { Color } from "../../types/misc";
-import { ExcelWorkbookData, FigureData } from "../../types/workbook_data";
-import { XlsxHexColor, XMLAttributes, XMLString } from "../../types/xlsx";
+import { ExcelChartDataset, ExcelChartDefinition, TitleDesign } from "../../..";
+import { CHART_AXIS_TITLE_FONT_SIZE, CHART_TITLE_FONT_SIZE } from "../../../constants";
+import { ColorGenerator, lightenColor } from "../../../helpers/color";
+import { chartMutedFontColor } from "../../../helpers/figures/charts/chart_common";
+import { largeMax, range } from "../../../helpers/misc";
+import { Color } from "../../../types/misc";
+import { ExcelWorkbookData, FigureData } from "../../../types/workbook_data";
+import { XlsxHexColor, XMLAttributes, XMLString } from "../../../types/xlsx";
 import {
   DEFAULT_DOUGHNUT_CHART_HOLE_SIZE,
   DRAWING_NS_A,
   DRAWING_NS_C,
   RELATIONSHIP_NSR,
-} from "../constants";
-import { toXlsxHexColor } from "../helpers/colors";
-import { convertDotValueToEMU, getRangeSize } from "../helpers/content_helpers";
-import { escapeXml, formatAttributes, joinXmlNodes, parseXML } from "../helpers/xml_helpers";
+} from "../../constants";
+import { toXlsxHexColor } from "../../helpers/colors";
+import { getRangeSize } from "../../helpers/content_helpers";
+import { convertDotValueToEMU } from "../xlsx_units";
+import { escapeXml, formatAttributes, joinXmlNodes, parseXML } from "../xlsx_xml";
+
+/**
+ * Phase-2 serializer for `xl/charts/chartN.xml`.
+ *
+ * Pass-through pattern: reads `ExcelChartDefinition` directly rather than
+ * going through a dedicated `XLSXChart` intermediate. The chart's "construct"
+ * step would mostly be field-copying — every chart variant has its own XML
+ * structure (bar, combo, pyramid, line, scatter, radar, doughnut), so an
+ * intermediate would mirror the XML 1:1 without buying decoupling.
+ */
 
 type ElementPosition = "t" | "b" | "l" | "r" | "none";
 
@@ -46,7 +57,7 @@ const secondaryCatAxId = 17781238;
 const valAxId = 88853993;
 const secondaryValAxId = 88853994;
 
-export function createChart(
+export function serializeChart(
   chart: FigureData<ExcelChartDefinition>,
   chartSheetIndex: string,
   data: ExcelWorkbookData
@@ -61,7 +72,6 @@ export function createChart(
     backgroundColor: chart.data.backgroundColor,
     line: { color: "000000" },
   });
-  // <manualLayout/> to manually position the chart in the figure container
   let title = escapeXml``;
   if (chart.data.title?.text) {
     const titleColor = toXlsxHexColor(chartMutedFontColor(chart.data.backgroundColor));
@@ -74,7 +84,6 @@ export function createChart(
     `;
   }
 
-  // switch on chart type
   let plot = escapeXml``;
   switch (chart.data.type) {
     case "bar":
@@ -117,13 +126,11 @@ export function createChart(
   const xml = escapeXml/*xml*/ `
     <c:chartSpace ${formatAttributes(namespaces)}>
       <c:roundedCorners val="0" />
-      <!-- <manualLayout/> to manually position the chart in the figure container -->
       ${chartShapeProperty}
       <c:chart>
         ${title}
         <c:autoTitleDeleted val="0" />
         <c:plotArea>
-          <!-- how the chart element is placed on the chart -->
           <c:layout />
           ${plot}
           ${shapeProperty({ backgroundColor: chart.data.backgroundColor })}
@@ -184,7 +191,7 @@ function insertText(
               <a:latin typeface="+mn-lt"/>
             </a:defRPr>
           </a:pPr>
-          <a:r> <!-- Runs -->
+          <a:r>
             <a:rPr b="${style?.bold ? 1 : 0}" i="${style?.italic ? 1 : 0}" sz="${fontsize * 100}"/>
             <a:t>${text}</a:t>
           </a:r>
@@ -306,12 +313,6 @@ function extractDataSetLabel(label: ExcelChartDataset["label"]): XMLString {
 }
 
 function addBarChart(chart: ExcelChartDefinition): XMLString {
-  // gapWitdh and overlap that define the space between clusters (in %) and the overlap between datasets (from -100: completely scattered to 100, completely overlapped)
-  // see gapWidth : https://c-rex.net/projects/samples/ooxml/e1/Part4/OOXML_P4_DOCX_gapWidth_topic_ID0EFVEQB.html#topic_ID0EFVEQB
-  // see overlap : https://c-rex.net/projects/samples/ooxml/e1/Part4/OOXML_P4_DOCX_overlap_topic_ID0ELYQQB.html#topic_ID0ELYQQB
-  //
-  // overlap and gapWitdh seems to be by default at -20 and 20 in chart.js.
-  // See https://www.chartjs.org/docs/latest/charts/bar.html and https://www.chartjs.org/docs/latest/charts/bar.html#barpercentage-vs-categorypercentage
   const chartDirection = chart.horizontal ? "bar" : "col";
   const dataSetsColors = chart.dataSets.map((ds) => ds.backgroundColor ?? "");
   const colors = new ColorGenerator(chart.dataSets.length, dataSetsColors);
@@ -332,10 +333,8 @@ function addBarChart(chart: ExcelChartDefinition): XMLString {
         ${extractDataSetLabel(dataset.label)}
         ${insertDataLabels({ showValues: chart.showValues })}
         ${dataShapeProperty}
-        ${
-          chart.labelRange ? escapeXml/*xml*/ `<c:cat>${stringRef(chart.labelRange!)}</c:cat>` : ""
-        } <!-- x-coordinate values -->
-        <c:val> <!-- x-coordinate values -->
+        ${chart.labelRange ? escapeXml/*xml*/ `<c:cat>${stringRef(chart.labelRange!)}</c:cat>` : ""}
+        <c:val>
           ${numberRef(dataset.range)}
         </c:val>
       </c:ser>
@@ -358,7 +357,6 @@ function addBarChart(chart: ExcelChartDefinition): XMLString {
           <c:grouping val="${grouping}"/>
           <c:overlap val="${overlap}"/>
           <c:gapWidth val="70"/>
-          <!-- each data marker in the series does not have a different color -->
           <c:varyColors val="0"/>
           ${joinXmlNodes(leftDataSetsNodes)}
           ${insertDataLabels({ showValues: chart.showValues })}
@@ -405,7 +403,6 @@ function addBarChart(chart: ExcelChartDefinition): XMLString {
           <c:grouping val="${grouping}"/>
           <c:overlap val="${overlap}"/>
           <c:gapWidth val="70"/>
-          <!-- each data marker in the series does not have a different color -->
           <c:varyColors val="0"/>
           ${joinXmlNodes(rightDataSetsNodes)}
           <c:axId val="${catAxId + 1}" />
@@ -434,12 +431,6 @@ function addBarChart(chart: ExcelChartDefinition): XMLString {
 }
 
 function addComboChart(chart: ExcelChartDefinition): XMLString {
-  // gapWitdh and overlap that define the space between clusters (in %) and the overlap between datasets (from -100: completely scattered to 100, completely overlapped)
-  // see gapWidth : https://c-rex.net/projects/samples/ooxml/e1/Part4/OOXML_P4_DOCX_gapWidth_topic_ID0EFVEQB.html#topic_ID0EFVEQB
-  // see overlap : https://c-rex.net/projects/samples/ooxml/e1/Part4/OOXML_P4_DOCX_overlap_topic_ID0ELYQQB.html#topic_ID0ELYQQB
-  //
-  // overlap and gapWitdh seems to be by default at -20 and 20 in chart.js.
-  // See https://www.chartjs.org/docs/latest/charts/bar.html and https://www.chartjs.org/docs/latest/charts/bar.html#barpercentage-vs-categorypercentage
   const dataSets = chart.dataSets;
   const dataSetsColors = dataSets.map((ds) => ds.backgroundColor ?? "");
   const colors = new ColorGenerator(dataSets.length, dataSetsColors);
@@ -458,7 +449,6 @@ function addComboChart(chart: ExcelChartDefinition): XMLString {
         line: { color: firstColor },
       })}
       ${chart.labelRange ? escapeXml/*xml*/ `<c:cat>${stringRef(chart.labelRange)}</c:cat>` : ""}
-      <!-- x-coordinate values -->
       <c:val>
         ${numberRef(dataSet.range)}
       </c:val>
@@ -489,7 +479,6 @@ function addComboChart(chart: ExcelChartDefinition): XMLString {
         ${insertDataLabels({ showValues: chart.showValues })}
         ${dataShapeProperty}
         ${chart.labelRange ? escapeXml`<c:cat>${stringRef(chart.labelRange)}</c:cat>` : ""}
-        <!-- x-coordinate values -->
         <c:val>
           ${numberRef(dataSet.range)}
         </c:val>
@@ -509,7 +498,6 @@ function addComboChart(chart: ExcelChartDefinition): XMLString {
       <c:grouping val="clustered"/>
       <c:overlap val="${overlap}"/>
       <c:gapWidth val="70"/>
-      <!-- each data marker in the series does not have a different color -->
       <c:varyColors val="0"/>
       ${barDataSetNode}
       ${insertDataLabels({ showValues: chart.showValues })}
@@ -521,7 +509,6 @@ function addComboChart(chart: ExcelChartDefinition): XMLString {
         ? escapeXml/*xml*/ `
         <c:lineChart>
           <c:grouping val="standard"/>
-          <!-- each data marker in the series does not have a different color -->
           <c:varyColors val="0"/>
           ${insertDataLabels({ showValues: chart.showValues })}
           ${joinXmlNodes(leftDataSetsNodes)}
@@ -536,7 +523,6 @@ function addComboChart(chart: ExcelChartDefinition): XMLString {
         ? escapeXml/*xml*/ `
         <c:lineChart>
           <c:grouping val="standard"/>
-          <!-- each data marker in the series does not have a different color -->
           <c:varyColors val="0"/>
           ${insertDataLabels({ showValues: chart.showValues })}
           ${joinXmlNodes(rightDataSetsNodes)}
@@ -604,7 +590,6 @@ function addPyramidChart(chart: ExcelChartDefinition): XMLString {
       line: { color: firstColor },
     })}
     ${labelRangeEl}
-    <!-- x-coordinate values -->
     <c:val>
       ${numberRef(leftDataSet.range)}
     </c:val>
@@ -622,7 +607,6 @@ function addPyramidChart(chart: ExcelChartDefinition): XMLString {
       line: { color: secondColor },
     })}
     ${chart.labelRange ? escapeXml/*xml*/ `<c:cat>${stringRef(chart.labelRange)}</c:cat>` : ""}
-    <!-- x-coordinate values -->
     <c:val>
       ${numberRef(rightDataSet.range)}
     </c:val>
@@ -743,10 +727,8 @@ function addLineChart(chart: ExcelChartDefinition): XMLString {
         ${extractDataSetLabel(dataset.label)}
         ${insertDataLabels({ showValues: chart.showValues })}
         ${dataShapeProperty}
-        ${
-          chart.labelRange ? escapeXml`<c:cat>${stringRef(chart.labelRange!)}</c:cat>` : ""
-        } <!-- x-coordinate values -->
-        <c:val> <!-- x-coordinate values -->
+        ${chart.labelRange ? escapeXml`<c:cat>${stringRef(chart.labelRange!)}</c:cat>` : ""}
+        <c:val>
           ${numberRef(dataset.range)}
         </c:val>
       </c:ser>
@@ -766,7 +748,6 @@ function addLineChart(chart: ExcelChartDefinition): XMLString {
         ? escapeXml/*xml*/ `
         <c:lineChart>
           <c:grouping val="${grouping}"/>
-          <!-- each data marker in the series does not have a different color -->
           <c:varyColors val="0"/>
           ${joinXmlNodes(leftDataSetsNodes)}
           ${insertDataLabels({ showValues: chart.showValues })}
@@ -783,7 +764,6 @@ function addLineChart(chart: ExcelChartDefinition): XMLString {
         ? escapeXml/*xml*/ `
         <c:lineChart>
           <c:grouping val="${grouping}"/>
-          <!-- each data marker in the series does not have a different color -->
           <c:varyColors val="0"/>
           ${joinXmlNodes(rightDataSetsNodes)}
           ${insertDataLabels({ showValues: chart.showValues })}
@@ -842,12 +822,12 @@ function addScatterChart(chart: ExcelChartDefinition): XMLString {
         ${insertDataLabels({ showValues: chart.showValues })}
         ${
           chart.labelRange
-            ? escapeXml/*xml*/ `<c:xVal> <!-- x-coordinate values -->
+            ? escapeXml/*xml*/ `<c:xVal>
               ${numberRef(chart.labelRange)}
             </c:xVal>`
             : ""
         }
-        <c:yVal> <!-- y-coordinate values -->
+        <c:yVal>
           ${numberRef(dataset.range)}
         </c:yVal>
       </c:ser>
@@ -863,7 +843,6 @@ function addScatterChart(chart: ExcelChartDefinition): XMLString {
     leftDataSetsNodes.length
       ? escapeXml/*xml*/ `
       <c:scatterChart>
-        <!-- each data marker in the series does not have a different color -->
         <c:varyColors val="0"/>
         <c:scatterStyle val="lineMarker"/>
         ${joinXmlNodes(leftDataSetsNodes)}
@@ -880,7 +859,6 @@ function addScatterChart(chart: ExcelChartDefinition): XMLString {
     rightDataSetsNodes.length
       ? escapeXml/*xml*/ `
       <c:scatterChart>
-        <!-- each data marker in the series does not have a different color -->
         <c:varyColors val="0"/>
         <c:scatterStyle val="lineMarker"/>
         ${joinXmlNodes(rightDataSetsNodes)}
@@ -937,10 +915,8 @@ function addRadarChart(chart: ExcelChartDefinition): XMLString {
         ${extractDataSetLabel(dataset.label)}
         ${insertDataLabels({ showValues: chart.showValues })}
         ${dataShapeProperty}
-        ${
-          chart.labelRange ? escapeXml`<c:cat>${stringRef(chart.labelRange!)}</c:cat>` : ""
-        } <!-- x-coordinate values -->
-        <c:val> <!-- x-coordinate values -->
+        ${chart.labelRange ? escapeXml`<c:cat>${stringRef(chart.labelRange!)}</c:cat>` : ""}
+        <c:val>
           ${numberRef(dataset.range)}
         </c:val>
       </c:ser>
@@ -977,7 +953,6 @@ function addDoughnutChart(
 
   const dataSetsNodes: XMLString[] = [];
   for (const [dsIndex, dataset] of Object.entries(chart.dataSets).reverse()) {
-    //dataset slice labels
     const dsSize = getRangeSize(dataset.range, chartSheetIndex, data);
     const dataPoints: XMLString[] = [];
     for (const index of range(0, dsSize)) {
@@ -1053,8 +1028,6 @@ function addAx(
   majorUnit?: number,
   format: "General" | "#0;#0" = "General"
 ): XMLString {
-  // Each Axis present inside a graph needs to be identified by an unsigned integer in order to be referenced by its crossAxis.
-  // I.e. x-axis, will reference y-axis and vice-versa.
   const color = title?.color ? toXlsxHexColor(title.color) : defaultFontColor;
   const fontSize = title?.fontSize ?? CHART_AXIS_TITLE_FONT_SIZE;
   const crossBetweenEl = axisName === "c:valAx" ? escapeXml`<c:crossBetween val="between" />` : "";
@@ -1064,11 +1037,11 @@ function addAx(
   return escapeXml/*xml*/ `
     <${axisName}>
       <c:axId val="${axId}"/>
-      <c:crossAx val="${crossAxId}"/> <!-- reference to the other axe of the chart -->
+      <c:crossAx val="${crossAxId}"/>
       <c:crosses val="${crossPosition || (position === "b" || position === "l" ? "min" : "max")}"/>
       <c:auto val="1"/>
       ${crossBetweenEl}
-      <c:delete val="${deleteAxis}"/> <!-- by default, axis are not displayed -->
+      <c:delete val="${deleteAxis}"/>
       <c:scaling>
         <c:orientation  val="${orientation}" />
         ${maxValueEl}
@@ -1086,7 +1059,6 @@ function addAx(
       </c:title>
       ${insertTextProperties(10, defaultFontColor)}
     </${axisName}>
-    <!-- <tickLblPos/> omitted -->
   `;
 }
 

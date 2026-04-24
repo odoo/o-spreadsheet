@@ -6,8 +6,7 @@ import { buildSheetLink } from "../../src/helpers/misc";
 import { DEFAULT_TABLE_CONFIG } from "../../src/helpers/table_presets";
 import { Model } from "../../src/model";
 import { XLSXExportXMLFile, XMLString } from "../../src/types/xlsx";
-import { hexaToInt } from "../../src/xlsx/conversion/color_conversion";
-import { adaptFormulaToExcel } from "../../src/xlsx/functions/cells";
+import { adaptFormulaToExcel } from "../../src/xlsx/export/cells/cell_construction";
 import { escapeXml, parseXML } from "../../src/xlsx/helpers/xml_helpers";
 
 import { arg } from "../../src/functions/arguments";
@@ -39,6 +38,7 @@ import {
   getExportedExcelData,
   mockChart,
 } from "../test_helpers/helpers";
+import { hexaToInt } from "../../src/xlsx/conversion/color_conversion";
 
 mockChart();
 

@@ -48,7 +48,7 @@ import { GridRenderingContext, LayerName } from "./types/rendering";
 import { SelectionStreamProcessor } from "./types/selection_stream_processor";
 import { WorkbookData } from "./types/workbook_data";
 import { XLSXExport } from "./types/xlsx";
-import { getXLSX } from "./xlsx/xlsx_writer";
+import { getXLSX } from "./xlsx/xlsx_export";
 
 const enum Status {
   Ready,

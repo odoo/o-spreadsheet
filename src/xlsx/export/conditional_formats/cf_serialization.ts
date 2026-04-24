@@ -1,48 +1,58 @@
-import { ICON_SETS, IconSetType } from "../../components/icons/icons";
-import { parseLiteral } from "../../helpers/cells/cell_evaluation";
-import { colorNumberToHex } from "../../helpers/color";
+import { ICON_SETS, IconSetType } from "../../../components/icons/icons";
+import { parseLiteral } from "../../../helpers/cells/cell_evaluation";
+import { colorNumberToHex } from "../../../helpers/color";
 import {
   CellIsRule,
   ColorScaleMidPointThreshold,
   ColorScaleRule,
   ColorScaleThreshold,
   ConditionalFormat,
+  ConditionalFormattingOperatorValues,
   DataBarRule,
   IconSet,
   IconSetRule,
   IconThreshold,
   ThresholdType,
-} from "../../types/conditional_formatting";
-import { DEFAULT_LOCALE } from "../../types/locale";
-import { ExcelIconSet, XLSXDxf, XMLAttributes, XMLString } from "../../types/xlsx";
-import { XLSX_ICONSET_MAP } from "../constants";
-import { toXlsxHexColor } from "../helpers/colors";
-import { convertOperator, pushElement } from "../helpers/content_helpers";
-import { escapeXml, formatAttributes, joinXmlNodes } from "../helpers/xml_helpers";
-import { adaptFormulaToExcel } from "./cells";
+} from "../../../types/conditional_formatting";
+import { DEFAULT_LOCALE } from "../../../types/locale";
+import { ExcelIconSet, XLSXDxf, XMLAttributes, XMLString } from "../../../types/xlsx";
+import { XLSX_ICONSET_MAP } from "../../constants";
+import { toXlsxHexColor } from "../../helpers/colors";
+import { adaptFormulaToExcel } from "../cells/cell_construction";
+import { pushElement } from "../styles/style_construction";
+import { escapeXml, formatAttributes, joinXmlNodes } from "../xlsx_xml";
 
 type CFExcelPointType = "formula" | "max" | "min" | "num" | "percent" | "percentile";
 
-export function addConditionalFormatting(
+/**
+ * Phase-2: emit `<conditionalFormatting>` nodes for a sheet.
+ *
+ * Mutates `dxfs` for CellIs rules: each rule registers a differential
+ * formatting record (font + fill) which is later emitted inside
+ * `xl/styles.xml` alongside cellXfs.
+ *
+ * Conditional formatting construction is still a pass-through of the
+ * internal `ConditionalFormat[]` — the XML shape is close enough to the
+ * source that a dedicated XLSX intermediate would be churn.
+ */
+export function serializeConditionalFormats(
   dxfs: XLSXDxf[],
   conditionalFormats: ConditionalFormat[]
 ): XMLString[] {
-  // Conditional Formats
-  const cfNodes: XMLString[] = [];
+  const nodes: XMLString[] = [];
   for (const cf of conditionalFormats) {
-    // Special case for each type of rule: might be better to extract that logic in dedicated functions
     switch (cf.rule.type) {
       case "CellIsRule":
-        cfNodes.push(addCellIsRule(cf, cf.rule, dxfs));
+        nodes.push(serializeCellIsRule(cf, cf.rule, dxfs));
         break;
       case "ColorScaleRule":
-        cfNodes.push(addColorScaleRule(cf, cf.rule));
+        nodes.push(serializeColorScaleRule(cf, cf.rule));
         break;
       case "IconSetRule":
-        cfNodes.push(addIconSetRule(cf, cf.rule));
+        nodes.push(serializeIconSetRule(cf, cf.rule));
         break;
       case "DataBarRule":
-        cfNodes.push(addDataBarRule(cf, cf.rule));
+        nodes.push(serializeDataBarRule(cf, cf.rule));
         break;
       default:
         // @ts-ignore Typescript knows it will never happen at compile time
@@ -50,14 +60,10 @@ export function addConditionalFormatting(
         break;
     }
   }
-  return cfNodes;
+  return nodes;
 }
 
-// ----------------------
-//         RULES
-// ----------------------
-
-function addCellIsRule(cf: ConditionalFormat, rule: CellIsRule, dxfs: XLSXDxf[]): XMLString {
+function serializeCellIsRule(cf: ConditionalFormat, rule: CellIsRule, dxfs: XLSXDxf[]): XMLString {
   const ruleAttributes = commonCfAttributes(cf);
   const operator = convertOperator(rule.operator);
   ruleAttributes.push(...cellRuleTypeAttributes(rule));
@@ -216,7 +222,7 @@ function cellRuleTypeAttributes(rule: CellIsRule): XMLAttributes {
   }
 }
 
-function addDataBarRule(cf: ConditionalFormat, rule: DataBarRule): XMLString {
+function serializeDataBarRule(cf: ConditionalFormat, rule: DataBarRule): XMLString {
   const ruleAttributes = commonCfAttributes(cf);
   ruleAttributes.push(["type", "dataBar"]);
 
@@ -235,12 +241,9 @@ function addDataBarRule(cf: ConditionalFormat, rule: DataBarRule): XMLString {
   `;
 }
 
-function addColorScaleRule(cf: ConditionalFormat, rule: ColorScaleRule): XMLString {
+function serializeColorScaleRule(cf: ConditionalFormat, rule: ColorScaleRule): XMLString {
   const ruleAttributes = commonCfAttributes(cf);
   ruleAttributes.push(["type", "colorScale"]);
-  /** mimic our flow:
-   * for a given ColorScale CF, each range of the "ranges set" has its own behaviour.
-   */
   const conditionalFormats: XMLString[] = [];
   for (const range of cf.ranges) {
     const cfValueObject: XMLAttributes[] = [];
@@ -251,7 +254,6 @@ function addColorScaleRule(cf: ConditionalFormat, rule: ColorScaleRule): XMLStri
       const threshold: ColorScaleThreshold | ColorScaleMidPointThreshold | undefined =
         rule[position];
       if (!threshold) {
-        // pass midpoint if not defined
         continue;
       }
       if (threshold.type === "formula") {
@@ -289,16 +291,12 @@ function addColorScaleRule(cf: ConditionalFormat, rule: ColorScaleRule): XMLStri
   return joinXmlNodes(conditionalFormats);
 }
 
-function addIconSetRule(cf: ConditionalFormat, rule: IconSetRule): XMLString {
+function serializeIconSetRule(cf: ConditionalFormat, rule: IconSetRule): XMLString {
   const ruleAttributes = commonCfAttributes(cf);
   ruleAttributes.push(["type", "iconSet"]);
-  /** mimic our flow:
-   * for a given IconSet CF, each range of the "ranges set" has its own behaviour.
-   */
   const conditionalFormats: XMLString[] = [];
   for (const range of cf.ranges) {
     const cfValueObject: XMLAttributes[] = [
-      // It looks like they always want 3 cfvo and they add a dummy entry
       [
         ["type", "percent"],
         ["val", 0],
@@ -343,10 +341,6 @@ function addIconSetRule(cf: ConditionalFormat, rule: IconSetRule): XMLString {
   return joinXmlNodes(conditionalFormats);
 }
 
-// ----------------------
-//         MISC
-// ----------------------
-
 function commonCfAttributes(cf: ConditionalFormat): XMLAttributes {
   return [
     ["priority", 1],
@@ -363,11 +357,6 @@ function getIconSet(iconSet: IconSet): ExcelIconSet {
   return XLSX_ICONSET_MAP[detectIconsType(iconSet)];
 }
 
-/**
- * Partial detection based on "upper" point only.
- * We support any arbitrary icon in the set, while excel doesn't allow
- * mixing icons from different types.
- */
 function detectIconsType(iconSet: IconSet): IconSetType {
   const type =
     Object.keys(ICON_SETS).find((type: IconSetType) =>
@@ -383,30 +372,19 @@ function thresholdAttributes(
   const type = getExcelThresholdType(threshold.type, position);
   const attrs: XMLAttributes = [["type", type]];
   if (type !== "min" && type !== "max") {
-    // what if the formula is not correct
-    // references cannot be relative :/
     let val = threshold.value!;
     if (type === "formula") {
       try {
-        // Relative references are not supported in formula
         val = adaptFormulaToExcel(threshold.value!);
       } catch (error) {
         val = threshold.value!;
       }
     }
-    attrs.push(["val", val]); // value is undefined only for type="value")
+    attrs.push(["val", val]);
   }
   return attrs;
 }
 
-/**
- * This function adapts our Threshold types to their Excel equivalents.
- *
- * if type === "value" ,then we must replace it by min or max according to the position
- * if type === "number", then it becomes num
- * if type === "percentage", it becomes "percent"
- * rest of the time, the type is unchanged
- */
 function getExcelThresholdType(
   type: ThresholdType,
   position: "minimum" | "midpoint" | "maximum" | "lowerInflectionPoint" | "upperInflectionPoint"
@@ -420,5 +398,61 @@ function getExcelThresholdType(
       return "percent";
     default:
       return type;
+  }
+}
+
+/**
+ * Convert the o-spreadsheet conditional formatting operator to the
+ * corresponding excel operator. (Previously lived in content_helpers.ts; no
+ * external callers other than this file, so it moves in as a private helper.)
+ */
+function convertOperator(operator: ConditionalFormattingOperatorValues): string {
+  switch (operator) {
+    case "isNotEmpty":
+      return "notContainsBlanks";
+    case "isEmpty":
+      return "containsBlanks";
+    case "notContainsText":
+      return "notContainsBlanks";
+    case "containsText":
+      return "containsText";
+    case "beginsWithText":
+      return "beginsWith";
+    case "endsWithText":
+      return "endsWith";
+    case "isGreaterThan":
+      return "greaterThan";
+    case "isGreaterOrEqualTo":
+      return "greaterThanOrEqual";
+    case "isLessThan":
+      return "lessThan";
+    case "isLessOrEqualTo":
+      return "lessThanOrEqual";
+    case "isBetween":
+      return "between";
+    case "isNotBetween":
+      return "notBetween";
+    case "isEqual":
+      return "equal";
+    case "isNotEqual":
+      return "notEqual";
+    case "customFormula":
+      return "";
+    case "dateIs":
+      return "";
+    case "dateIsBefore":
+      return "lessThan";
+    case "dateIsAfter":
+      return "greaterThan";
+    case "dateIsOnOrAfter":
+      return "greaterThanOrEqual";
+    case "dateIsOnOrBefore":
+      return "lessThanOrEqual";
+    case "top10":
+      return "top10";
+    case "uniqueValues":
+      return "uniqueValues";
+    case "duplicateValues":
+      return "duplicateValues";
   }
 }

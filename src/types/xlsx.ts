@@ -2,7 +2,7 @@ import { ExcelChartDefinition } from "./chart/chart";
 import { ExcelFigureSize } from "./figure";
 import { Format } from "./format";
 import { ExcelImage } from "./image";
-import { Alias, PaneDivision, UID } from "./misc";
+import { Alias, PaneDivision } from "./misc";
 
 /**
  * Most of the times we tried to create Objects that matched quite closely with the data in the XLSX files.
@@ -77,25 +77,22 @@ import { Alias, PaneDivision, UID } from "./misc";
  */
 
 /**
- * This structure covers all the necessary "assets" to generate an XLSX file.
- * Those assets consist of:
- *  - a rel file including metadata specifying how the others files form the final document
- *    (this currently includes sheets, styles, shared content (string))
- *  - a sharedStrings file that regroups all static string values found in the cells
- *  - a style file including all the normalized style elements for cells,
- *    including cell-specific conditional formatting
+ * Intermediate XLSX representation shared by export (phase-1 construction
+ * output) and import (extraction output, via `XLSXImportData`).
  *
- * @param rels: a list of files and their specific type/role in the final document
- * @param sharedStrings: regroups all static string values found in the cells.
- * @param fonts: All normalized fonts
- * @param fills: " normalized fills
- * @param borders: " normalized borders
- * @param NumFmts: " normalized number formats
- * @param styles: " combinations of font-fill-border, number format found in the cells
- * @param dxf: " Conditional Formatting of type "CellIsRule"
+ *  - `sheets`: per-sheet XLSX data (rows / cells / merges / ...).
+ *  - `sharedStrings`: every static string referenced by cells.
+ *  - `fonts` / `fills` / `borders` / `numFmts` / `styles`: deduplicated style
+ *    primitives. Cells/rows/cols reference them by integer index.
+ *  - `dxfs`: conditional-formatting differential styles.
+ *
+ * Packaging concerns (`.rels` files, file paths, chart/image numeric ids)
+ * are NOT in this intermediate. They are owned by phase-2 serialization,
+ * where the `XLSXRelsBuilder` and per-workbook `XLSXInterned<UID>` instances
+ * resolve them as files are emitted.
  */
 export interface XLSXStructure {
-  relsFiles: XLSXRelFile[];
+  sheets: XLSXWorksheet[];
   sharedStrings: string[];
   fonts: XLSXFont[];
   fills: XLSXFill[];
@@ -103,12 +100,9 @@ export interface XLSXStructure {
   numFmts: XLSXNumFormat[];
   styles: XLSXStyle[];
   dxfs: XLSXDxf[];
-  chartIds: UID[];
-  imageIds: UID[];
 }
 
-export interface XLSXImportData extends Omit<XLSXStructure, "relsFiles"> {
-  sheets: XLSXWorksheet[];
+export interface XLSXImportData extends XLSXStructure {
   externalBooks: XLSXExternalBook[];
 }
 
@@ -678,6 +672,8 @@ export interface XLSXFilterColumn {
   colId: number;
   hiddenButton?: boolean;
   filters: XLSXSimpleFilter[];
+  /** Export-only: emit `blank="1"` on the `<filters>` element. */
+  displayBlanks?: boolean;
 }
 
 export interface XLSXSimpleFilter {
