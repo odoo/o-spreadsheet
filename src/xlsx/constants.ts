@@ -89,10 +89,10 @@ export const FIRST_NUMFMT_ID = 164;
 
 export const DEFAULT_DOUGHNUT_CHART_HOLE_SIZE = 50;
 
-interface functionDefaultArg {
+type functionDefaultArg = {
   type: "NUMBER";
   value: number;
-}
+};
 
 export const FORCE_DEFAULT_ARGS_FUNCTIONS: Record<string, functionDefaultArg[]> = {
   FLOOR: [{ type: "NUMBER", value: 1 }],
@@ -100,6 +100,7 @@ export const FORCE_DEFAULT_ARGS_FUNCTIONS: Record<string, functionDefaultArg[]> 
   ROUND: [{ type: "NUMBER", value: 0 }],
   ROUNDUP: [{ type: "NUMBER", value: 0 }],
   ROUNDDOWN: [{ type: "NUMBER", value: 0 }],
+  IFERROR: [{ type: "NUMBER", value: 0 }],
 };
 
 /**

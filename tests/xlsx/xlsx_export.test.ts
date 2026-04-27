@@ -454,7 +454,12 @@ describe("Test XLSX export", () => {
     test("formula with dependencies", () => {
       expect(adaptFormulaToExcel("=SUM(A1, A2)")).toEqual("SUM(A1,A2)");
     });
+
+    test("formula with default arguments required by Excel", () => {
+      expect(adaptFormulaToExcel("=IFERROR(1/0)")).toEqual("IFERROR(1/0,0)");
+    });
   });
+
   describe("Generic sheets (style, hidden, size, cf)", () => {
     test("Simple model data with default style", async () => {
       const model = new Model(simpleData);
