@@ -73,6 +73,7 @@ import { openLink, urlRegistry, urlRepresentation } from "./helpers/links";
 import {
   deepCopy,
   deepEquals,
+  doesCellContainFunction,
   getUniqueText,
   isDefined,
   isFormula,
@@ -366,6 +367,7 @@ export const helpers = {
   createEmptyWorkbookData,
   createEmptySheet,
   createEmptyExcelSheet,
+  doesCellContainFunction,
   rgbaToHex,
   colorToRGBA,
   positionToZone,
