@@ -72,10 +72,37 @@
             value="this.searchOptions.searchFormulas"
             label="searchFormulasLabel"
             onChange.bind="this.searchFormulas"
+            className="'mb-1'"
+          />
+          <t t-set="includeHiddenLabel">Include hidden results</t>
+          <Checkbox
+            value="this.searchOptions.includeHidden"
+            label="includeHiddenLabel"
+            onChange.bind="this.searchIncludeHidden"
           />
         </div>
         <div class="o-matches-count mt-4" t-if="this.searchInfo.length">
-          <ValidationMessages msgType="'info'" messages="this.searchInfo" singleBox="true"/>
+          <ValidationMessages msgType="'info'">
+            <t t-set-slot="info-text">
+              <div class="ps-2" t-foreach="this.searchInfo" t-as="infoLine" t-key="infoLine">
+                <span t-out="infoLine"/>
+              </div>
+            </t>
+          </ValidationMessages>
+        </div>
+        <div
+          class="o-matches-count mt-4"
+          t-if="this.searchOptions.includeHidden and this.hiddenSheetsWithMatchesInfo.length">
+          <ValidationMessages msgType="'info'">
+            <t t-set-slot="info-text">
+              <t t-out="this.hiddenSheetsWithMatchesTooltip"/>
+              <ul class="mb-0">
+                <li t-foreach="this.hiddenSheetsWithMatchesInfo" t-as="sheetName" t-key="sheetName">
+                  <span t-out="sheetName"/>
+                </li>
+              </ul>
+            </t>
+          </ValidationMessages>
         </div>
       </Section>
       <t t-if="!this.env.model.getters.isReadonly()">
