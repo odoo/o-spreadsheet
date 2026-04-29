@@ -687,7 +687,7 @@ describe("Alter selection starting from hidden cells", () => {
     [[0], "A1:A2", "A1:B2"],
     [[0, 1], "A1:A2", "A1:A2"], // won't move
     [[0, 2], "A1:A3", "A1:B3"],
-  ])("Alter selection horizontally from hidden col", (hiddenRows, startPosition, endPosition) => {
+  ])("Alter selection horizontally from hidden row", (hiddenRows, startPosition, endPosition) => {
     const model = new Model();
     setSelection(model, [startPosition]);
     hideRows(model, hiddenRows);

@@ -2,7 +2,7 @@ import { getSearchRegex } from "../../../helpers/misc";
 import { isInside, positionToZone } from "../../../helpers/zones";
 import { HighlightProvider, HighlightStore } from "../../../stores/highlight_store";
 import { Command } from "../../../types/commands";
-import { CellPosition, Color, Highlight } from "../../../types/misc";
+import { CellPosition, Color, Highlight, UID } from "../../../types/misc";
 
 import { canonicalizeNumberContent } from "../../../helpers/locale";
 import { NotificationStore } from "../../../stores/notification_store";
@@ -37,6 +37,10 @@ export class FindAndReplaceStore extends SpreadsheetStore implements HighlightPr
   private activeSheetMatches: CellPosition[] = [];
   private specificRangeMatches: CellPosition[] = [];
   private selectedMatchPosition: CellPosition | null = null;
+  private allSheetsHiddenMatches: CellPosition[] = [];
+  private activeSheetHiddenMatches: CellPosition[] = [];
+  private specificRangeHiddenMatches: CellPosition[] = [];
+  hiddenSheetsWithMatches: UID[] = [];
 
   private currentSearchRegex: RegExp | null = null;
   private initialShowFormulaState: boolean;
@@ -56,6 +60,7 @@ export class FindAndReplaceStore extends SpreadsheetStore implements HighlightPr
     matchCase: false,
     exactMatch: false,
     searchFormulas: false,
+    includeHidden: false,
     searchScope: "activeSheet",
     specificRange: undefined,
   };
@@ -169,7 +174,7 @@ export class FindAndReplaceStore extends SpreadsheetStore implements HighlightPr
     }
   }
 
-  get allSheetMatchesCount(): number {
+  get allSheetsMatchesCount(): number {
     return this.allSheetsMatches.length;
   }
 
@@ -181,6 +186,17 @@ export class FindAndReplaceStore extends SpreadsheetStore implements HighlightPr
     return this.specificRangeMatches.length;
   }
 
+  get allSheetsHiddenMatchesCount(): number {
+    return this.allSheetsHiddenMatches.length;
+  }
+
+  get activeSheetHiddenMatchesCount(): number {
+    return this.activeSheetHiddenMatches.length;
+  }
+
+  get specificRangeHiddenMatchesCount(): number {
+    return this.specificRangeHiddenMatches.length;
+  }
   // ---------------------------------------------------------------------------
   // Search
   // ---------------------------------------------------------------------------
@@ -250,9 +266,19 @@ export class FindAndReplaceStore extends SpreadsheetStore implements HighlightPr
    */
   private findMatches() {
     const matches: CellPosition[] = [];
+    const sheetIdsWithHiddenMatches: UID[] = [];
     if (this.toSearch) {
-      for (const sheetId of this.getters.getSheetIds()) {
+      for (const sheetId of this.getters.getVisibleSheetIds()) {
         matches.push(...this.findMatchesInSheet(sheetId));
+      }
+      if (this.searchOptions.includeHidden) {
+        for (const sheetId of this.getters.getInvisibleSheetIds()) {
+          const hiddenMatches = this.findMatchesInSheet(sheetId);
+          matches.push(...hiddenMatches);
+          if (hiddenMatches.length) {
+            sheetIdsWithHiddenMatches.push(sheetId);
+          }
+        }
       }
     }
 
@@ -261,14 +287,28 @@ export class FindAndReplaceStore extends SpreadsheetStore implements HighlightPr
     this.activeSheetMatches = matches.filter(
       (match) => match.sheetId === this.getters.getActiveSheetId()
     );
+    this.allSheetsHiddenMatches = matches.filter((match) => {
+      const isSheetHidden = this.getters.getInvisibleSheetIds().includes(match.sheetId);
+      const isColHidden = this.getters.isColHidden(match.sheetId, match.col);
+      const isRowHidden = this.getters.isRowHidden(match.sheetId, match.row);
+      return isSheetHidden || isColHidden || isRowHidden;
+    });
+    this.activeSheetHiddenMatches = this.allSheetsHiddenMatches.filter(
+      (match) => match.sheetId === this.getters.getActiveSheetId()
+    );
     if (this.searchOptions.specificRange) {
       const { sheetId, zone } = this.searchOptions.specificRange;
       this.specificRangeMatches = matches.filter(
         (match) => match.sheetId === sheetId && isInside(match.col, match.row, zone)
       );
+      this.specificRangeHiddenMatches = this.allSheetsHiddenMatches.filter(
+        (match) => match.sheetId === sheetId && isInside(match.col, match.row, zone)
+      );
     } else {
       this.specificRangeMatches = [];
+      this.specificRangeHiddenMatches = [];
     }
+    this.hiddenSheetsWithMatches = sheetIdsWithHiddenMatches;
   }
 
   private findMatchesInSheet(sheetId: string) {
@@ -278,9 +318,10 @@ export class FindAndReplaceStore extends SpreadsheetStore implements HighlightPr
 
     for (let row = top; row <= bottom; row++) {
       for (let col = left; col <= right; col++) {
+        const isSheetHidden = this.getters.getInvisibleSheetIds().includes(sheetId);
         const isColHidden = this.getters.isColHidden(sheetId, col);
         const isRowHidden = this.getters.isRowHidden(sheetId, row);
-        if (isColHidden || isRowHidden) {
+        if (!this.searchOptions.includeHidden && (isSheetHidden || isColHidden || isRowHidden)) {
           continue;
         }
         const cellPosition: CellPosition = { sheetId, col, row };
@@ -340,7 +381,9 @@ export class FindAndReplaceStore extends SpreadsheetStore implements HighlightPr
     // we want grid selection to capture the selection stream
     this.model.selection.getBackToDefault();
     if (options.updateSelection) {
-      this.model.selection.selectCell(selectedMatch.col, selectedMatch.row);
+      this.model.selection.selectCell(selectedMatch.col, selectedMatch.row, {
+        allowsHiddenSelection: true,
+      });
     }
   }
 

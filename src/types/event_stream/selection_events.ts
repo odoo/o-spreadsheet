@@ -3,6 +3,7 @@ import { AnchorZone } from "../misc";
 export type SelectionEventOptions = {
   scrollIntoView?: boolean;
   unbounded?: boolean;
+  allowsHiddenSelection?: boolean;
 };
 
 export interface SelectionEvent {

@@ -1,19 +1,29 @@
 <templates>
   <t t-name="o-spreadsheet-ValidationMessages">
-    <t t-foreach="this.alertBoxes" t-as="box" t-key="'box' + box_index">
+    <t t-if="this.props.messages">
+      <t t-foreach="this.props.messages" t-as="msg" t-key="msg_index">
+        <div t-att-class="this.divClasses" class="d-flex flex-column p-3 m-1 o-validation">
+          <div class="d-flex align-items-center">
+            <div class="flex-shrink-0">
+              <t t-if="this.props.msgType === 'info'" t-call="o-spreadsheet-Icon.CIRCLE_INFO"/>
+              <t t-else="" t-call="o-spreadsheet-Icon.TRIANGLE_EXCLAMATION"/>
+            </div>
+            <div class="d-flex flex-column overflow-hidden">
+              <span class="ps-2 text-truncate" t-out="msg"/>
+            </div>
+          </div>
+        </div>
+      </t>
+    </t>
+    <t t-if="this.props.slots and this.props.slots['info-text']">
       <div t-att-class="this.divClasses" class="d-flex flex-column p-3 m-1 o-validation">
         <div class="d-flex align-items-center">
-          <t t-if="this.props.msgType === 'info'" t-call="o-spreadsheet-Icon.CIRCLE_INFO"/>
-          <t t-else="" t-call="o-spreadsheet-Icon.TRIANGLE_EXCLAMATION"/>
+          <div class="flex-shrink-0">
+            <t t-if="this.props.msgType === 'info'" t-call="o-spreadsheet-Icon.CIRCLE_INFO"/>
+            <t t-else="" t-call="o-spreadsheet-Icon.TRIANGLE_EXCLAMATION"/>
+          </div>
           <div class="d-flex flex-column overflow-hidden">
-            <span
-              t-foreach="box"
-              t-as="msg"
-              t-key="msg_index"
-              class="ps-2"
-              t-att-class="{'text-truncate': this.props.singleBox }"
-              t-out="msg"
-            />
+            <span class="ps-2" t-slot="info-text"/>
           </div>
         </div>
       </div>

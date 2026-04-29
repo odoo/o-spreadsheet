@@ -12,24 +12,27 @@ exports[`Chart error section Can render a chart error section component 1`] = `
       <div
         class="d-flex align-items-center"
       >
-        
         <div
-          class="o-icon fa-small"
+          class="flex-shrink-0"
         >
-          <i
-            class="fa fa-exclamation-triangle"
-          />
+          
+          <div
+            class="o-icon fa-small"
+          >
+            <i
+              class="fa fa-exclamation-triangle"
+            />
+          </div>
+          
         </div>
-        
         <div
           class="d-flex flex-column overflow-hidden"
         >
           <span
-            class="ps-2"
+            class="ps-2 text-truncate"
           >
             error_1
           </span>
-          
         </div>
       </div>
     </div>
@@ -39,27 +42,31 @@ exports[`Chart error section Can render a chart error section component 1`] = `
       <div
         class="d-flex align-items-center"
       >
-        
         <div
-          class="o-icon fa-small"
+          class="flex-shrink-0"
         >
-          <i
-            class="fa fa-exclamation-triangle"
-          />
+          
+          <div
+            class="o-icon fa-small"
+          >
+            <i
+              class="fa fa-exclamation-triangle"
+            />
+          </div>
+          
         </div>
-        
         <div
           class="d-flex flex-column overflow-hidden"
         >
           <span
-            class="ps-2"
+            class="ps-2 text-truncate"
           >
             error_2
           </span>
-          
         </div>
       </div>
     </div>
+    
     
     
   </div>

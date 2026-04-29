@@ -933,9 +933,20 @@ export class GridSelectionPlugin extends UIPlugin {
       if (!isDarkMode) {
         ctx.globalCompositeOperation = "multiply";
       }
-      ctx.fillRect(x, y, width, height);
-      ctx.globalCompositeOperation = "source-over";
-      ctx.strokeRect(x, y, width, height);
+      if (height === 0 || width === 0) {
+        ctx.lineWidth = 3 * thinLineWidth;
+      }
+      if (height === 0 && width === 0) {
+        ctx.beginPath();
+        ctx.arc(x, y, 3, 0, 2 * Math.PI);
+        ctx.fill();
+        ctx.globalCompositeOperation = "source-over";
+        ctx.stroke();
+      } else {
+        ctx.fillRect(x, y, width, height);
+        ctx.globalCompositeOperation = "source-over";
+        ctx.strokeRect(x, y, width, height);
+      }
     }
 
     ctx.globalCompositeOperation = "source-over";
