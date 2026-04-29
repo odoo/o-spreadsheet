@@ -1,4 +1,4 @@
-import { props, proxy } from "@odoo/owl";
+import { onWillUpdateProps, props, proxy } from "@odoo/owl";
 import { getZoneArea, positionToZone } from "../../../helpers/zones";
 import { Component } from "../../../owl3_compatibility_layer";
 import { CommandResult, DispatchResult } from "../../../types/commands";
@@ -6,8 +6,10 @@ import { Zone } from "../../../types/misc";
 import { Range } from "../../../types/range";
 import { TableConfig } from "../../../types/table";
 
+import { HIGHLIGHT_COLOR } from "../../../constants";
 import { getTableTopLeft } from "../../../helpers/table_helpers";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
+import { useHighlights } from "../../helpers/highlight_hook";
 import { NumberInput } from "../../number_input/number_input";
 import { types } from "../../props_validation";
 import { SelectionInput } from "../../selection_input/selection_input";
@@ -44,11 +46,23 @@ export class TablePanel extends Component<SpreadsheetChildEnv> {
 
   setup() {
     const sheetId = this.env.model.getters.getActiveSheetId();
+    useHighlights(this);
     this.state = proxy({
       tableZoneErrors: [],
       tableXc: this.env.model.getters.getRangeString(this.props.table.range, sheetId),
       filtersEnabledIfPossible: this.props.table.config.hasFilters,
     });
+    onWillUpdateProps((nextProps) => {
+      if (nextProps.table.range !== this.props.table.range) {
+        this.state.tableXc = this.env.model.getters.getRangeString(nextProps.table.range, sheetId);
+        this.state.tableZoneErrors = [];
+        this.state.filtersEnabledIfPossible = nextProps.table.config.hasFilters;
+      }
+    });
+  }
+
+  get highlights() {
+    return [{ range: this.props.table.range, noFill: true, color: HIGHLIGHT_COLOR }];
   }
 
   updateHasFilters(hasFilters: boolean) {

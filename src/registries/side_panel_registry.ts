@@ -131,7 +131,7 @@ sidePanelRegistry.add("TableSidePanel", {
   computeState: (getters: Getters, props: PropsOf<TablePanel>) => {
     const sheetId = props.table.range.sheetId;
     const table = getters.getCoreTableById(sheetId, props.table.id);
-    if (!table) {
+    if (sheetId !== getters.getActiveSheetId() || !table) {
       return { isOpen: false };
     }
     return { isOpen: true, props: { ...props, table }, key: props.table.id };
