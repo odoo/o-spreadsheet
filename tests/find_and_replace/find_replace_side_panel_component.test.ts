@@ -5,6 +5,8 @@ import { toZone } from "../../src/helpers/zones";
 import { SearchOptions } from "../../src/types/find_and_replace";
 import {
   createSheet,
+  hideColumns,
+  hideRows,
   selectCell,
   setCellContent,
   setFormulaVisibility,
@@ -34,6 +36,8 @@ const selectors = {
     ".o-sidePanel .o-find-and-replace .o-section:nth-child(1) .o-checkbox:nth-child(2) input",
   checkBoxSearchFormulas:
     ".o-sidePanel .o-find-and-replace .o-section:nth-child(1) .o-checkbox:nth-child(3) input",
+  checkboxIncludeHidden:
+    ".o-sidePanel .o-find-and-replace .o-section:nth-child(1) .o-checkbox:nth-child(4) input",
   checkBoxReplaceFormulas:
     ".o-sidePanel .o-find-and-replace .o-section:nth-child(3) .o-far-item:nth-child(3) input",
   searchRangeSelection:
@@ -439,6 +443,36 @@ describe("find and replace sidePanel component", () => {
         "2 matches in range A1:B2 of Sheet1",
         "3 matches in Sheet1",
         "5 matches in all sheets",
+      ]);
+    });
+
+    test("match counts return number of search in allSheet, currentSheet and selected range with includeHidden option", async () => {
+      createSheet(model, { sheetId: "sheet2" });
+      setCellContent(model, "A1", "Hello");
+      setCellContent(model, "A3", "Hello");
+      setCellContent(model, "B1", "Hello");
+      hideColumns(model, ["B"]);
+      setCellContent(model, "A1", "Hello", "sheet2");
+      setCellContent(model, "A2", "Hello", "sheet2");
+      hideRows(model, [1], "sheet2");
+      expect(fixture.querySelector(".o-matches-count")).toBeNull();
+      expect(getMatchesCountContent()).toEqual([]);
+      await inputSearchValue("hello");
+      await simulateClick(selectors.checkboxIncludeHidden);
+      expect(getMatchesCountContent()).toEqual([
+        "3 matches in Sheet1 (1 is hidden)",
+        "5 matches in all sheets (2 are hidden)",
+      ]);
+      await changeSearchScope("specificRange");
+      await nextTick();
+      await simulateClick(selectors.searchRange);
+      await setInputValueAndTrigger(selectors.searchRange, "A1:B2");
+      await nextTick();
+      await click(fixture, selectors.confirmSearchRange);
+      expect(getMatchesCountContent()).toEqual([
+        "2 matches in range A1:B2 of Sheet1 (1 is hidden)",
+        "3 matches in Sheet1 (1 is hidden)",
+        "5 matches in all sheets (2 are hidden)",
       ]);
     });
   });

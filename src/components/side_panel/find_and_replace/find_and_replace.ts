@@ -38,14 +38,36 @@ export class FindAndReplacePanel extends Component<SpreadsheetChildEnv> {
   }
 
   get allSheetsMatchesCount() {
-    return _t("%s matches in all sheets", this.store.allSheetMatchesCount);
+    const {
+      allSheetsMatchesCount: count,
+      allSheetsHiddenMatchesCount: hidden,
+      searchOptions,
+    } = this.store;
+    let label =
+      count === 1 ? _t("1 match in all sheets") : _t("%(count)s matches in all sheets", { count });
+    if (searchOptions.includeHidden) {
+      label += this.hiddenLabel(hidden);
+    }
+    return label;
   }
 
   get currentSheetMatchesCount() {
-    return _t("%(matches)s matches in %(sheetName)s", {
-      matches: this.store.activeSheetMatchesCount,
-      sheetName: this.env.model.getters.getSheetName(this.env.model.getters.getActiveSheetId()),
-    });
+    const {
+      activeSheetMatchesCount: count,
+      activeSheetHiddenMatchesCount: hidden,
+      searchOptions,
+    } = this.store;
+    const sheetName = this.env.model.getters.getSheetName(
+      this.env.model.getters.getActiveSheetId()
+    );
+    let label =
+      count === 1
+        ? _t("1 match in %(sheetName)s", { sheetName })
+        : _t("%(count)s matches in %(sheetName)s", { count, sheetName });
+    if (searchOptions.includeHidden) {
+      label += this.hiddenLabel(hidden);
+    }
+    return label;
   }
 
   get specificRangeMatchesCount() {
@@ -53,12 +75,33 @@ export class FindAndReplacePanel extends Component<SpreadsheetChildEnv> {
     if (!range) {
       return "";
     }
+    const {
+      specificRangeMatchesCount: count,
+      specificRangeHiddenMatchesCount: hidden,
+      searchOptions,
+    } = this.store;
     const { sheetId, zone } = range;
-    return _t("%(matches)s matches in range %(range)s of %(sheetName)s", {
-      matches: this.store.specificRangeMatchesCount,
-      range: zoneToXc(zone),
-      sheetName: this.env.model.getters.getSheetName(sheetId),
-    });
+    let label =
+      count === 1
+        ? _t("1 match in range %(range)s of %(sheetName)s", {
+            range: zoneToXc(zone),
+            sheetName: this.env.model.getters.getSheetName(sheetId),
+          })
+        : _t("%(count)s matches in range %(range)s of %(sheetName)s", {
+            count,
+            range: zoneToXc(zone),
+            sheetName: this.env.model.getters.getSheetName(sheetId),
+          });
+    if (searchOptions.includeHidden) {
+      label += this.hiddenLabel(hidden);
+    }
+    return label;
+  }
+
+  private hiddenLabel(hidden: number) {
+    return hidden === 1
+      ? ` (${_t("1 is hidden")})`
+      : ` (${_t("%(hidden)s are hidden", { hidden })})`;
   }
 
   get searchInfo(): string[] {
@@ -69,7 +112,13 @@ export class FindAndReplacePanel extends Component<SpreadsheetChildEnv> {
       this.specificRangeMatchesCount,
       this.currentSheetMatchesCount,
       this.allSheetsMatchesCount,
-    ];
+    ].filter(Boolean);
+  }
+
+  get hiddenSheetsWithMatchesInfo(): string[] {
+    return this.store.hiddenSheetsWithMatches.map((sheetId) =>
+      this.env.model.getters.getSheetName(sheetId)
+    );
   }
 
   setup() {
@@ -135,6 +184,10 @@ export class FindAndReplacePanel extends Component<SpreadsheetChildEnv> {
 
   searchMatchCase(matchCase: boolean) {
     this.store.updateSearchOptions({ matchCase });
+  }
+
+  searchIncludeHidden(includeHidden: boolean) {
+    this.store.updateSearchOptions({ includeHidden });
   }
 
   changeSearchScope(searchScope: SearchOptions["searchScope"]) {
