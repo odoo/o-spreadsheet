@@ -1,6 +1,6 @@
 import { CellPosition, CellValue, Getters } from "../..";
 import { positions } from "../../helpers";
-import { canonicalizeContent, localizeContent } from "../../helpers/locale";
+import { localizeContent } from "../../helpers/locale";
 import { autoCompleteProviders } from "./auto_complete_registry";
 
 autoCompleteProviders.add("dataValidation", {
@@ -22,8 +22,8 @@ autoCompleteProviders.add("dataValidation", {
   },
   selectProposal(tokenAtCursor, value) {
     const locale = this.getters.getLocale();
-    const canonicalizedValue = canonicalizeContent(value, locale);
-    this.composer.setCurrentContent(canonicalizedValue);
+    const localizedValue = localizeContent(value, locale) ?? "";
+    this.composer.setCurrentContent(localizedValue);
     this.composer.stopEdition();
   },
 });

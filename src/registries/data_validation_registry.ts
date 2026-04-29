@@ -46,6 +46,7 @@ import {
   IsValueInRangeCriterion,
   Locale,
   TextContainsCriterion,
+  TextIsCriterion,
   TextNotContainsCriterion,
   UID,
 } from "../types";
@@ -105,9 +106,7 @@ dataValidationEvaluatorRegistry.add("textContains", {
   name: _t("Text contains"),
   getPreview: (criterion: TextContainsCriterion, getters: Getters) => {
     const locale = getters.getLocale();
-    const localizedValue = criterion.values[0]
-      ? localizeContent(criterion.values[0]?.toString(), locale)
-      : "";
+    const localizedValue = criterion.values[0] ? localizeContent(criterion.values[0], locale) : "";
     return _t('Text contains "%s"', localizedValue);
   },
 });
@@ -127,31 +126,27 @@ dataValidationEvaluatorRegistry.add("textNotContains", {
   name: _t("Text does not contains"),
   getPreview: (criterion: TextNotContainsCriterion, getters: Getters) => {
     const locale = getters.getLocale();
-    const localizedValue = criterion.values[0]
-      ? localizeContent(criterion.values[0]?.toString(), locale)
-      : "";
+    const localizedValue = criterion.values[0] ? localizeContent(criterion.values[0], locale) : "";
     return _t('Text does not contain "%s"', localizedValue);
   },
 });
 
 dataValidationEvaluatorRegistry.add("textIs", {
   type: "textIs",
-  isValueValid: (value: CellValue, criterion: TextContainsCriterion) => {
+  isValueValid: (value: CellValue, criterion: TextIsCriterion) => {
     const strValue = String(value);
     return strValue.toLowerCase() === criterion.values[0].toLowerCase();
   },
-  getErrorString: (criterion: TextContainsCriterion) => {
+  getErrorString: (criterion: TextIsCriterion) => {
     return _t('The value must be exactly "%s"', criterion.values[0]);
   },
   isCriterionValueValid: (value: string) => !!value,
   criterionValueErrorString: DVTerms.CriterionError.notEmptyValue,
   numberOfValues: () => 1,
   name: _t("Text is exactly"),
-  getPreview: (criterion: TextContainsCriterion, getters: Getters) => {
+  getPreview: (criterion: TextIsCriterion, getters: Getters) => {
     const locale = getters.getLocale();
-    const localizedValue = criterion.values[0]
-      ? localizeContent(criterion.values[0]?.toString(), locale)
-      : "";
+    const localizedValue = criterion.values[0] ? localizeContent(criterion.values[0], locale) : "";
     return _t('Text is exactly "%s"', localizedValue);
   },
 });
@@ -441,7 +436,7 @@ dataValidationEvaluatorRegistry.add("isEqual", {
   },
   getErrorString: (criterion: IsEqualCriterion, getters: Getters) => {
     const locale = getters.getLocale();
-    const values = getNumberCriterionlocalizedValues(criterion, locale);
+    const values = getCriterionLocalizedValues(criterion, locale);
     return _t("The value must be equal to %s", values[0]);
   },
   isCriterionValueValid: (value) => checkValueIsNumber(value),
@@ -450,7 +445,7 @@ dataValidationEvaluatorRegistry.add("isEqual", {
   name: _t("Is equal to"),
   getPreview: (criterion: IsEqualCriterion, getters: Getters) => {
     const locale = getters.getLocale();
-    const values = getNumberCriterionlocalizedValues(criterion, locale);
+    const values = getCriterionLocalizedValues(criterion, locale);
     return _t("Value is equal to %s", values[0]);
   },
 });
@@ -470,7 +465,7 @@ dataValidationEvaluatorRegistry.add("isNotEqual", {
   },
   getErrorString: (criterion: IsNotEqualCriterion, getters: Getters) => {
     const locale = getters.getLocale();
-    const values = getNumberCriterionlocalizedValues(criterion, locale);
+    const values = getCriterionLocalizedValues(criterion, locale);
     return _t("The value must not be equal to %s", values[0]);
   },
   isCriterionValueValid: (value) => checkValueIsNumber(value),
@@ -479,7 +474,7 @@ dataValidationEvaluatorRegistry.add("isNotEqual", {
   name: _t("Is not equal to"),
   getPreview: (criterion: IsEqualCriterion, getters: Getters) => {
     const locale = getters.getLocale();
-    const values = getNumberCriterionlocalizedValues(criterion, locale);
+    const values = getCriterionLocalizedValues(criterion, locale);
     return _t("Value is not equal to %s", values[0]);
   },
 });
@@ -499,7 +494,7 @@ dataValidationEvaluatorRegistry.add("isGreaterThan", {
   },
   getErrorString: (criterion: IsGreaterThanCriterion, getters: Getters) => {
     const locale = getters.getLocale();
-    const values = getNumberCriterionlocalizedValues(criterion, locale);
+    const values = getCriterionLocalizedValues(criterion, locale);
     return _t("The value must be greater than %s", values[0]);
   },
   isCriterionValueValid: (value) => checkValueIsNumber(value),
@@ -508,7 +503,7 @@ dataValidationEvaluatorRegistry.add("isGreaterThan", {
   name: _t("Is greater than"),
   getPreview: (criterion: IsGreaterThanCriterion, getters: Getters) => {
     const locale = getters.getLocale();
-    const values = getNumberCriterionlocalizedValues(criterion, locale);
+    const values = getCriterionLocalizedValues(criterion, locale);
     return _t("Value is greater than %s", values[0]);
   },
 });
@@ -528,7 +523,7 @@ dataValidationEvaluatorRegistry.add("isGreaterOrEqualTo", {
   },
   getErrorString: (criterion: IsGreaterOrEqualToCriterion, getters: Getters) => {
     const locale = getters.getLocale();
-    const values = getNumberCriterionlocalizedValues(criterion, locale);
+    const values = getCriterionLocalizedValues(criterion, locale);
     return _t("The value must be greater or equal to %s", values[0]);
   },
   isCriterionValueValid: (value) => checkValueIsNumber(value),
@@ -537,7 +532,7 @@ dataValidationEvaluatorRegistry.add("isGreaterOrEqualTo", {
   name: _t("Is greater or equal to"),
   getPreview: (criterion: IsGreaterOrEqualToCriterion, getters: Getters) => {
     const locale = getters.getLocale();
-    const values = getNumberCriterionlocalizedValues(criterion, locale);
+    const values = getCriterionLocalizedValues(criterion, locale);
     return _t("Value is greater or equal to %s", values[0]);
   },
 });
@@ -557,7 +552,7 @@ dataValidationEvaluatorRegistry.add("isLessThan", {
   },
   getErrorString: (criterion: IsLessThanCriterion, getters: Getters) => {
     const locale = getters.getLocale();
-    const values = getNumberCriterionlocalizedValues(criterion, locale);
+    const values = getCriterionLocalizedValues(criterion, locale);
     return _t("The value must be less than %s", values[0]);
   },
   isCriterionValueValid: (value) => checkValueIsNumber(value),
@@ -566,7 +561,7 @@ dataValidationEvaluatorRegistry.add("isLessThan", {
   name: _t("Is less than"),
   getPreview: (criterion: IsLessThanCriterion, getters: Getters) => {
     const locale = getters.getLocale();
-    const values = getNumberCriterionlocalizedValues(criterion, locale);
+    const values = getCriterionLocalizedValues(criterion, locale);
     return _t("Value is less than %s", values[0]);
   },
 });
@@ -586,7 +581,7 @@ dataValidationEvaluatorRegistry.add("isLessOrEqualTo", {
   },
   getErrorString: (criterion: IsLessOrEqualToCriterion, getters: Getters) => {
     const locale = getters.getLocale();
-    const values = getNumberCriterionlocalizedValues(criterion, locale);
+    const values = getCriterionLocalizedValues(criterion, locale);
     return _t("The value must be less or equal to %s", values[0]);
   },
   isCriterionValueValid: (value) => checkValueIsNumber(value),
@@ -595,7 +590,7 @@ dataValidationEvaluatorRegistry.add("isLessOrEqualTo", {
   name: _t("Is less or equal to"),
   getPreview: (criterion: IsLessOrEqualToCriterion, getters: Getters) => {
     const locale = getters.getLocale();
-    const values = getNumberCriterionlocalizedValues(criterion, locale);
+    const values = getCriterionLocalizedValues(criterion, locale);
     return _t("Value is less or equal to %s", values[0]);
   },
 });
@@ -615,7 +610,7 @@ dataValidationEvaluatorRegistry.add("isBetween", {
   },
   getErrorString: (criterion: IsBetweenCriterion, getters: Getters) => {
     const locale = getters.getLocale();
-    const values = getNumberCriterionlocalizedValues(criterion, locale);
+    const values = getCriterionLocalizedValues(criterion, locale);
     return _t("The value must be between %s and %s", values[0], values[1]);
   },
   isCriterionValueValid: (value) => checkValueIsNumber(value),
@@ -624,7 +619,7 @@ dataValidationEvaluatorRegistry.add("isBetween", {
   name: _t("Is between"),
   getPreview: (criterion: IsBetweenCriterion, getters: Getters) => {
     const locale = getters.getLocale();
-    const values = getNumberCriterionlocalizedValues(criterion, locale);
+    const values = getCriterionLocalizedValues(criterion, locale);
     return _t("Value is between %s and %s", values[0], values[1]);
   },
 });
@@ -644,7 +639,7 @@ dataValidationEvaluatorRegistry.add("isNotBetween", {
   },
   getErrorString: (criterion: IsNotBetweenCriterion, getters: Getters) => {
     const locale = getters.getLocale();
-    const values = getNumberCriterionlocalizedValues(criterion, locale);
+    const values = getCriterionLocalizedValues(criterion, locale);
     return _t("The value must not be between %s and %s", values[0], values[1]);
   },
   isCriterionValueValid: (value) => checkValueIsNumber(value),
@@ -653,7 +648,7 @@ dataValidationEvaluatorRegistry.add("isNotBetween", {
   name: _t("Is not between"),
   getPreview: (criterion: IsNotBetweenCriterion, getters: Getters) => {
     const locale = getters.getLocale();
-    const values = getNumberCriterionlocalizedValues(criterion, locale);
+    const values = getCriterionLocalizedValues(criterion, locale);
     return _t("Value is not between %s and %s", values[0], values[1]);
   },
 });
@@ -681,7 +676,7 @@ dataValidationEvaluatorRegistry.add("isValueInList", {
   },
   getErrorString: (criterion: IsValueInListCriterion, getters: Getters) => {
     const locale = getters.getLocale();
-    const values = getNumberCriterionlocalizedValues(criterion, locale);
+    const values = getCriterionLocalizedValues(criterion, locale);
     const separator = `${locale.formulaArgSeparator || ","} `;
     return _t("The value must be one of: %s", values.join(separator));
   },
@@ -692,7 +687,7 @@ dataValidationEvaluatorRegistry.add("isValueInList", {
   name: _t("Value in list"),
   getPreview: (criterion: IsValueInListCriterion, getters: Getters) => {
     const locale = getters.getLocale();
-    const values = getNumberCriterionlocalizedValues(criterion, locale);
+    const values = getCriterionLocalizedValues(criterion, locale);
     const separator = `${locale.formulaArgSeparator || ","} `;
     return _t("Value one of: %s", values.join(separator));
   },
@@ -744,10 +739,7 @@ dataValidationEvaluatorRegistry.add("customFormula", {
   getPreview: (criterion) => _t("Custom formula %s", criterion.values[0]),
 });
 
-function getNumberCriterionlocalizedValues(
-  criterion: DataValidationCriterion,
-  locale: Locale
-): string[] {
+function getCriterionLocalizedValues(criterion: DataValidationCriterion, locale: Locale): string[] {
   return criterion.values.map((value) =>
     value !== undefined ? localizeContent(value, locale) : CellErrorType.InvalidReference
   );

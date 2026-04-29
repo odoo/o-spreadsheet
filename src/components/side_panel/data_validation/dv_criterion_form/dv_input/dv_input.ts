@@ -1,4 +1,4 @@
-import { Component, useEffect, useRef, useState } from "@odoo/owl";
+import { Component, onWillUpdateProps, useEffect, useRef, useState } from "@odoo/owl";
 import { canonicalizeContent, localizeContent } from "../../../../../helpers/locale";
 import { dataValidationEvaluatorRegistry } from "../../../../../registries/data_validation_registry";
 import { _t } from "../../../../../translation";
@@ -57,10 +57,16 @@ export class DataValidationInput extends Component<Props, SpreadsheetChildEnv> {
       },
       () => [this.props.focused, this.inputRef.el]
     );
+    onWillUpdateProps((nextProps: Props) => {
+      if (nextProps.value !== this.props.value) {
+        this.state.textInput = localizeContent(nextProps.value, this.env.model.getters.getLocale());
+      }
+    });
   }
 
   state = useState({
     shouldDisplayError: !!this.props.value, // Don't display error if user inputted nothing yet
+    textInput: localizeContent(this.props.value, this.env.model.getters.getLocale()),
   });
 
   get placeholder(): string {
@@ -80,16 +86,14 @@ export class DataValidationInput extends Component<Props, SpreadsheetChildEnv> {
     return evaluator.allowedValues ?? "any";
   }
 
-  get localeInputValue(): string {
-    const locale = this.env.model.getters.getLocale();
-    return localizeContent(this.props.value, locale);
-  }
-
   onInputValueChanged(ev: Event) {
     this.state.shouldDisplayError = true;
-    const value = (ev.target as HTMLInputElement).value;
+    this.state.textInput = (ev.target as HTMLInputElement).value;
+  }
+
+  onInputValueConfirmed() {
     const locale = this.env.model.getters.getLocale();
-    const canonicalizedValue = canonicalizeContent(value, locale);
+    const canonicalizedValue = canonicalizeContent(this.state.textInput, locale);
     this.props.onValueChanged(canonicalizedValue);
   }
 
@@ -115,7 +119,7 @@ export class DataValidationInput extends Component<Props, SpreadsheetChildEnv> {
     }
     return this.env.model.getters.getDataValidationInvalidCriterionValueMessage(
       this.props.criterionType,
-      canonicalizeContent(this.props.value, this.env.model.getters.getLocale())
+      canonicalizeContent(this.state.textInput, this.env.model.getters.getLocale())
     );
   }
 }
