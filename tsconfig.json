@@ -4,7 +4,10 @@
     "rootDir": "src",
     "outDir": "build/js/src",
     "types": ["node"],
-    "preserveWatchOutput": true
+    "preserveWatchOutput": true,
+    "paths": {
+      "@src/*": ["./src/*"]
+    }
   },
   "include": ["src"]
 }
