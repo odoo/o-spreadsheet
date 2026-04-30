@@ -1,103 +1,105 @@
 <templates>
   <t t-name="o-spreadsheet-PivotDesignPanel">
-    <Section class="'o-pivot-design h-100 overflow-y-auto'" title.translate="Display options">
-      <div>
-        <div class="container-fluid p-0 pt-2">
-          <div class="row mb-2 align-items-center">
-            <div class="col-6">Max rows:</div>
-            <div class="col-6 d-flex align-items-center">
-              <NumberInput
-                value="pivotStyle.numberOfRows ?? ''"
-                class="'o-pivot-n-of-rows'"
-                placeholder.translate="e.g. 10"
-                onChange="(value) => this.updatePivotStyleNumberProperty(value, 'numberOfRows')"
-              />
+    <div class="h-100 overflow-y-auto">
+      <Section class="'o-pivot-design'" title.translate="Display options">
+        <div>
+          <div class="container-fluid p-0 pt-2">
+            <div class="row mb-2 align-items-center">
+              <div class="col-6">Max rows:</div>
+              <div class="col-6 d-flex align-items-center">
+                <NumberInput
+                  value="pivotStyle.numberOfRows ?? ''"
+                  class="'o-pivot-n-of-rows'"
+                  placeholder.translate="e.g. 10"
+                  onChange="(value) => this.updatePivotStyleNumberProperty(value, 'numberOfRows')"
+                />
+              </div>
             </div>
-          </div>
-          <div class="row mb-2 align-items-center">
-            <div class="col-6">Max columns:</div>
-            <div class="col-6 d-flex align-items-center">
-              <NumberInput
-                value="pivotStyle.numberOfColumns ?? ''"
-                class="'o-pivot-n-of-columns'"
-                placeholder.translate="e.g. 5"
-                onChange="(value) => this.updatePivotStyleNumberProperty(value, 'numberOfColumns')"
-              />
+            <div class="row mb-2 align-items-center">
+              <div class="col-6">Max columns:</div>
+              <div class="col-6 d-flex align-items-center">
+                <NumberInput
+                  value="pivotStyle.numberOfColumns ?? ''"
+                  class="'o-pivot-n-of-columns'"
+                  placeholder.translate="e.g. 5"
+                  onChange="(value) => this.updatePivotStyleNumberProperty(value, 'numberOfColumns')"
+                />
+              </div>
             </div>
-          </div>
-          <div class="row mb-2 align-items-center">
-            <div class="col-6">Show totals:</div>
-            <div class="col-6 d-flex align-items-center">
-              <Checkbox
-                name="'displayTotals'"
-                value="pivotStyle.displayTotals ?? defaultStyle.displayTotals"
-                onChange="(val) => this.updatePivotStyleProperty('displayTotals', val)"
-              />
+            <div class="row mb-2 align-items-center">
+              <div class="col-6">Show totals:</div>
+              <div class="col-6 d-flex align-items-center">
+                <Checkbox
+                  name="'displayTotals'"
+                  value="pivotStyle.displayTotals ?? defaultStyle.displayTotals"
+                  onChange="(val) => this.updatePivotStyleProperty('displayTotals', val)"
+                />
+              </div>
             </div>
-          </div>
-          <div class="row mb-2 align-items-center">
-            <div class="col-6">Show column titles:</div>
-            <div class="col-6 d-flex align-items-center">
-              <Checkbox
-                name="'displayColumnHeaders'"
-                value="pivotStyle.displayColumnHeaders ?? defaultStyle.displayColumnHeaders"
-                onChange="(val) => this.updatePivotStyleProperty('displayColumnHeaders', val)"
-              />
+            <div class="row mb-2 align-items-center">
+              <div class="col-6">Show column titles:</div>
+              <div class="col-6 d-flex align-items-center">
+                <Checkbox
+                  name="'displayColumnHeaders'"
+                  value="pivotStyle.displayColumnHeaders ?? defaultStyle.displayColumnHeaders"
+                  onChange="(val) => this.updatePivotStyleProperty('displayColumnHeaders', val)"
+                />
+              </div>
             </div>
-          </div>
-          <div class="row mb-2 align-items-center">
-            <div class="col-6">Show measure titles:</div>
-            <div class="col-6 d-flex align-items-center">
-              <Checkbox
-                name="'displayMeasuresRow'"
-                value="pivotStyle.displayMeasuresRow ?? defaultStyle.displayMeasuresRow"
-                onChange="(val) => this.updatePivotStyleProperty('displayMeasuresRow', val)"
-              />
+            <div class="row mb-2 align-items-center">
+              <div class="col-6">Show measure titles:</div>
+              <div class="col-6 d-flex align-items-center">
+                <Checkbox
+                  name="'displayMeasuresRow'"
+                  value="pivotStyle.displayMeasuresRow ?? defaultStyle.displayMeasuresRow"
+                  onChange="(val) => this.updatePivotStyleProperty('displayMeasuresRow', val)"
+                />
+              </div>
             </div>
           </div>
         </div>
-      </div>
-    </Section>
+      </Section>
 
-    <Section class="'o-pivot-table-style'" title.translate="Pivot table style">
-      <div class="row mb-2 align-items-center pt-2">
-        <div class="col-6">Banded rows:</div>
-        <div class="col-6 d-flex align-items-center">
-          <Checkbox
-            name="'bandedRows'"
-            value="pivotStyle.bandedRows ?? defaultStyle.bandedRows"
-            onChange="(val) => this.updatePivotStyleProperty('bandedRows', val)"
+      <Section class="'o-pivot-table-style'" title.translate="Pivot table style">
+        <div class="row mb-2 align-items-center pt-2">
+          <div class="col-6">Banded rows:</div>
+          <div class="col-6 d-flex align-items-center">
+            <Checkbox
+              name="'bandedRows'"
+              value="pivotStyle.bandedRows ?? defaultStyle.bandedRows"
+              onChange="(val) => this.updatePivotStyleProperty('bandedRows', val)"
+            />
+          </div>
+        </div>
+        <div class="row mb-2 align-items-center">
+          <div class="col-6">Banded columns</div>
+          <div class="col-6 d-flex align-items-center">
+            <Checkbox
+              name="'bandedColumns'"
+              value="pivotStyle.bandedColumns ?? defaultStyle.bandedColumns"
+              onChange="(val) => this.updatePivotStyleProperty('bandedColumns', val)"
+            />
+          </div>
+        </div>
+        <div class="row mb-2 align-items-center">
+          <div class="col-6">Filter button</div>
+          <div class="col-6 d-flex align-items-center">
+            <Checkbox
+              name="'hasFilters'"
+              value="pivotStyle.hasFilters ?? defaultStyle.hasFilters"
+              onChange="(val) => this.updatePivotStyleProperty('hasFilters', val)"
+            />
+          </div>
+        </div>
+        <div class="mt-4">
+          <TableStylePicker
+            tableConfig="tableConfig"
+            onStylePicked.bind="onStylePicked"
+            tableStyles="tableStyles"
+            type="'pivot'"
           />
         </div>
-      </div>
-      <div class="row mb-2 align-items-center">
-        <div class="col-6">Banded columns</div>
-        <div class="col-6 d-flex align-items-center">
-          <Checkbox
-            name="'bandedColumns'"
-            value="pivotStyle.bandedColumns ?? defaultStyle.bandedColumns"
-            onChange="(val) => this.updatePivotStyleProperty('bandedColumns', val)"
-          />
-        </div>
-      </div>
-      <div class="row mb-2 align-items-center">
-        <div class="col-6">Filter button</div>
-        <div class="col-6 d-flex align-items-center">
-          <Checkbox
-            name="'hasFilters'"
-            value="pivotStyle.hasFilters ?? defaultStyle.hasFilters"
-            onChange="(val) => this.updatePivotStyleProperty('hasFilters', val)"
-          />
-        </div>
-      </div>
-      <div class="mt-4">
-        <TableStylePicker
-          tableConfig="tableConfig"
-          onStylePicked.bind="onStylePicked"
-          tableStyles="tableStyles"
-          type="'pivot'"
-        />
-      </div>
-    </Section>
+      </Section>
+    </div>
   </t>
 </templates>
