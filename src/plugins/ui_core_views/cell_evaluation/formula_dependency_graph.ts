@@ -1,5 +1,5 @@
-import { CellPosition, HeaderIndex, UID } from "../../..";
 import { positionToZone } from "../../../helpers/zones";
+import { CellPosition, HeaderIndex, UID } from "../../../types/misc";
 import { BoundedRange, Range } from "../../../types/range";
 import { IntervalTree } from "./interval_tree";
 import { RangeSet } from "./range_set";

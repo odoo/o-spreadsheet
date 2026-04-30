@@ -1,4 +1,3 @@
-import { RangeAdapterFunctions, UID } from "../..";
 import {
   ChartDataSourceBuilder,
   chartDataSourceRegistry,
@@ -13,6 +12,7 @@ import {
 } from "../../types/chart/chart";
 import { CoreGetters } from "../../types/core_getters";
 import { Getters } from "../../types/getters";
+import { RangeAdapterFunctions, UID } from "../../types/misc";
 import { Range } from "../../types/range";
 import { Validator } from "../../types/validator";
 

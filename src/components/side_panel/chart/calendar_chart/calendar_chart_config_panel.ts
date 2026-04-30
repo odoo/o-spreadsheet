@@ -1,4 +1,3 @@
-import { ChartRangeDataSource } from "../../../..";
 import { toJsDate } from "../../../../functions/helpers";
 import { isDateTime } from "../../../../helpers/dates";
 import { SpreadsheetChart } from "../../../../helpers/figures/chart";
@@ -10,6 +9,7 @@ import {
   CalendarChartDefinition,
   CalendarChartGranularity,
 } from "../../../../types/chart/calendar_chart";
+import { ChartRangeDataSource } from "../../../../types/chart/chart";
 import { DEFAULT_LOCALE } from "../../../../types/locale";
 import { ValueAndLabel } from "../../../../types/misc";
 import { Select } from "../../../select/select";

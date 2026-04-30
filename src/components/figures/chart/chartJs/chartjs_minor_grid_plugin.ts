@@ -1,5 +1,5 @@
 import type { Chart } from "chart.js";
-import { Color } from "../../../..";
+import { Color } from "../../../../types/misc";
 
 interface MinorGridOptions {
   display?: boolean;

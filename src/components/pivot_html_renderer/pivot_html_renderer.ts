@@ -1,8 +1,9 @@
 import { Component, useState } from "@odoo/owl";
-import { FunctionResultObject, Maybe, SpreadsheetPivotTable, UID } from "../..";
 import { toString } from "../../functions/helpers";
 import { formatValue } from "../../helpers/format/format";
 import { generatePivotArgs } from "../../helpers/pivot/pivot_helpers";
+import { SpreadsheetPivotTable } from "../../helpers/pivot/table_spreadsheet_pivot";
+import { FunctionResultObject, Maybe, UID } from "../../types/misc";
 import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 import { Checkbox } from "../side_panel/components/checkbox/checkbox";
 

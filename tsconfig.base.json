@@ -20,5 +20,6 @@
     "noImplicitAny": false,
     "strict": false
   },
-  "include": ["src"]
+  "include": ["src"],
+  "autoImportFileExcludePatterns": ["src/index.ts"]
 }

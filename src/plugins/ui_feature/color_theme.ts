@@ -1,6 +1,6 @@
-import { GridRenderingTheme } from "../..";
 import { adaptForDarkMode } from "../../helpers/color";
 import { Command } from "../../types/commands";
+import { GridRenderingTheme } from "../../types/rendering";
 import { UIPlugin, UIPluginConfig } from "../ui_plugin";
 
 const FROZEN_PANE_HEADER_BORDER_COLOR = "#BCBCBC";

@@ -1,4 +1,3 @@
-import { PerfProfile } from "../../..";
 import { CompiledFormula } from "../../../formulas/compiler";
 import { matrixMap } from "../../../functions/helpers";
 import { toXC } from "../../../helpers/coordinates";
@@ -13,6 +12,7 @@ import {
 } from "../../../types/commands";
 import { CellErrorType } from "../../../types/errors";
 import { Format } from "../../../types/format";
+import { PerfProfile } from "../../../types/functions";
 import {
   CellPosition,
   FunctionResultObject,

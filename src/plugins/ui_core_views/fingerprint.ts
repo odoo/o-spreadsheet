@@ -1,7 +1,7 @@
-import { CellPosition } from "../..";
 import { isFullColRange, isFullRowRange } from "../../helpers/range";
 import { reorderZone } from "../../helpers/zones";
 import { Cell, CellValueType, FormulaCell } from "../../types/cells";
+import { CellPosition } from "../../types/misc";
 import { CoreViewPlugin } from "../core_view_plugin";
 
 /**

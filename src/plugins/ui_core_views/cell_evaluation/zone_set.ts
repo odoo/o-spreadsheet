@@ -1,9 +1,9 @@
-import { UnboundedZone, Zone } from "../../..";
 import {
   constructZonesFromProfiles,
   modifyProfiles,
   profilesContainsZone,
 } from "../../../helpers/recompute_zones";
+import { UnboundedZone, Zone } from "../../../types/misc";
 
 export class ZoneSet {
   private profilesStartingPosition: number[] = [0];
