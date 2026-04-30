@@ -90,10 +90,6 @@ export class SpreadsheetChart {
     } as ChartDefinition<string>;
   }
 
-  getSupportedChartTypes(): Set<ChartType> {
-    return new Set(this.dataSourceBuilder.supportedChartTypes);
-  }
-
   getRangeDefinition(): ChartDefinition<Range> {
     return {
       ...this.definition,
