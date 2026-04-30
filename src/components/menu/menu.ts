@@ -21,6 +21,7 @@ export interface MenuProps {
   isHoveredMenuFocused?: boolean;
   width?: number;
   onKeyDown?: (ev: KeyboardEvent) => void;
+  disableKeyboardNavigation?: boolean;
 }
 
 export interface MenuState {
@@ -44,6 +45,7 @@ export class Menu extends Component<MenuProps, SpreadsheetChildEnv> {
     isHoveredMenuFocused: { type: Boolean, optional: true },
     onScroll: { type: Function, optional: true },
     onKeyDown: { type: Function, optional: true },
+    disableKeyboardNavigation: { type: Boolean, optional: true },
   };
 
   static components = {};
@@ -53,7 +55,12 @@ export class Menu extends Component<MenuProps, SpreadsheetChildEnv> {
 
   setup(): void {
     useEffect(() => {
-      if (this.props.hoveredMenuId && this.props.isHoveredMenuFocused && this.menuRef.el) {
+      if (
+        this.props.hoveredMenuId &&
+        this.props.isHoveredMenuFocused &&
+        this.menuRef.el &&
+        !this.props.disableKeyboardNavigation
+      ) {
         const selector = `[data-name='${this.props.hoveredMenuId}']`;
         const menuItemElement = this.menuRef.el.querySelector(selector) as HTMLElement;
         menuItemElement?.focus();

@@ -211,4 +211,17 @@ describe("Named ranges topbar selector", () => {
       { name: "MyRange", range: { zone: toZone("A1") } },
     ]);
   });
+
+  test("Hovering a menu item does not close the dropdown", async () => {
+    createNamedRange(model, "MyRange", "A1:B3");
+    await mountRangeSelector();
+    const input = fixture.querySelector<HTMLInputElement>(".o-named-range-selector input")!;
+    input.focus();
+    await nextTick();
+
+    expect(".o-menu-item").toHaveCount(2); // 1 named range + "Manage named ranges"
+    triggerMouseEvent(".o-menu-item", "mouseenter");
+    await nextTick();
+    expect(".o-menu-item").toHaveCount(2);
+  });
 });

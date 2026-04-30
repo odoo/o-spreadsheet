@@ -143,6 +143,7 @@ export class MenuPopover extends Component<Props, SpreadsheetChildEnv> {
       onKeyDown: this.onKeydown.bind(this),
       hoveredMenuId,
       isHoveredMenuFocused: !this.subMenu.isOpen,
+      disableKeyboardNavigation: this.props.disableKeyboardNavigation,
     };
   }
 
