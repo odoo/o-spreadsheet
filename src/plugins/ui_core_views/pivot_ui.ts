@@ -55,6 +55,7 @@ export class PivotUIPlugin extends CoreViewPlugin {
   private unusedPivots?: UID[];
   private custom: UIPluginConfig["custom"];
   private pivotPositionCache: PositionMap<UID> = new PositionMap();
+  private shouldInvalidateCache: boolean = false;
 
   constructor(config: CoreViewPluginConfig) {
     super(config);
@@ -76,6 +77,9 @@ export class PivotUIPlugin extends CoreViewPlugin {
       for (const pivotId of this.getters.getPivotIds()) {
         this.setupPivot(pivotId, { recreate: true });
       }
+    }
+    if (cmd.type === "UPDATE_CELL" && !this.shouldInvalidateCache) {
+      this.shouldInvalidateCache = true;
     }
     switch (cmd.type) {
       case "REFRESH_PIVOT":
@@ -120,6 +124,13 @@ export class PivotUIPlugin extends CoreViewPlugin {
          */
         resetMapValueDimensionDate();
         break;
+    }
+  }
+
+  finalize() {
+    if (this.shouldInvalidateCache) {
+      this.pivotPositionCache = new PositionMap();
+      this.shouldInvalidateCache = false;
     }
   }
 
