@@ -1,4 +1,3 @@
-import { CellPosition, FilterId, TableId, UID, Zone } from "../..";
 import { toXC } from "../../helpers/coordinates";
 import { getItemId } from "../../helpers/data_normalization";
 import { deepEquals, isObjectEmptyRecursive } from "../../helpers/misc";
@@ -15,6 +14,7 @@ import {
 } from "../../helpers/zones";
 import { Command, invalidateEvaluationCommands } from "../../types/commands";
 import { CellErrorType } from "../../types/errors";
+import { CellPosition, FilterId, TableId, UID, Zone } from "../../types/misc";
 import { PivotStyle } from "../../types/pivot";
 import { CoreTable, DynamicTable, Filter, Table, TableConfig } from "../../types/table";
 import { ExcelTableData, ExcelWorkbookData } from "../../types/workbook_data";

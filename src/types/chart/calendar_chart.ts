@@ -1,8 +1,8 @@
 import { ChartConfiguration } from "chart.js";
-import { ChartColorScale } from "../..";
 import { Color } from "../misc";
 import { Granularity } from "../pivot";
 import { Range } from "../range";
+import { ChartColorScale } from "./chart";
 import { CommonChartDefinition } from "./common_chart";
 
 export const CALENDAR_CHART_GRANULARITIES = [

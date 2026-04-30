@@ -1,4 +1,4 @@
-import { Pixel } from "../../..";
+import { Pixel } from "../../../types/misc";
 import { ComputedTableStyle, TableMetaData } from "../../../types/table";
 
 interface DrawTableParams extends TableMetaData {

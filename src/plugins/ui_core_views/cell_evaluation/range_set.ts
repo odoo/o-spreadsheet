@@ -1,5 +1,5 @@
-import { CellPosition, UID } from "../../..";
 import { positionToBoundedRange } from "../../../helpers/range";
+import { CellPosition, UID } from "../../../types/misc";
 import { BoundedRange } from "../../../types/range";
 import { ZoneSet } from "./zone_set";
 

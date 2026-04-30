@@ -1,6 +1,7 @@
-import { CustomizableSeriesChartRuntime, UID } from "../../../..";
 import { _t } from "../../../../translation";
+import { CustomizableSeriesChartRuntime } from "../../../../types/chart/chart";
 import { ComboChartDefinition } from "../../../../types/chart/combo_chart";
+import { UID } from "../../../../types/misc";
 import { RadioSelection } from "../../components/radio_selection/radio_selection";
 import { ChartShowDataMarkers } from "../building_blocks/show_data_markers/show_data_markers";
 import { ChartSidePanelProps } from "../common";

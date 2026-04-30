@@ -1,6 +1,7 @@
 import { Component } from "@odoo/owl";
-import { PivotCoreMeasure, UID, ValueAndLabel } from "../../../..";
 import { useLocalStore } from "../../../../store_engine/store_hooks";
+import { UID, ValueAndLabel } from "../../../../types/misc";
+import { PivotCoreMeasure } from "../../../../types/pivot";
 import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
 import { Store } from "../../../../types/store_engine";
 import { Select } from "../../../select/select";

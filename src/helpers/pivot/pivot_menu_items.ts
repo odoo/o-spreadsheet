@@ -1,7 +1,9 @@
+import { ActionSpec } from "../../actions/action";
+import { _t } from "../../translation";
+import { CellValue, CellValueType } from "../../types/cells";
+import { Getters } from "../../types/getters";
+import { CellPosition, SortDirection, UID } from "../../types/misc";
 import {
-  CellPosition,
-  CellValue,
-  Getters,
   PivotCoreDefinition,
   PivotCustomGroup,
   PivotCustomGroupedField,
@@ -9,12 +11,7 @@ import {
   PivotField,
   PivotFields,
   PivotHeaderCell,
-  SortDirection,
-  UID,
-} from "../..";
-import { ActionSpec } from "../../actions/action";
-import { _t } from "../../translation";
-import { CellValueType } from "../../types/cells";
+} from "../../types/pivot";
 import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 import { deepCopy, deepEquals } from "../misc";
 import { cellPositions } from "../zones";

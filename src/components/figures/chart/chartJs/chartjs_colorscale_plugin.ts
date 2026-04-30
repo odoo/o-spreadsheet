@@ -1,5 +1,4 @@
 import { ChartType, Plugin } from "chart.js";
-import { Color, Locale } from "../../../..";
 import {
   CHART_AXIS_TITLE_FONT_SIZE,
   CHART_COLORSCALE_WIDTH,
@@ -7,6 +6,8 @@ import {
 } from "../../../../constants";
 import { humanizeNumber } from "../../../../helpers/format/format";
 import { getDefaultContextFont } from "../../../../helpers/text_helper";
+import { Locale } from "../../../../types/locale";
+import { Color } from "../../../../types/misc";
 
 export interface ChartColorScalePluginOptions {
   position: "left" | "right" | "none";

@@ -1,4 +1,5 @@
-import { DOMCoordinates, Pixel, Rect } from "../..";
+import { Pixel } from "../../types/misc";
+import { DOMCoordinates, Rect } from "../../types/rendering";
 import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 import { zoomCorrectedElementRect } from "./dom_helpers";
 

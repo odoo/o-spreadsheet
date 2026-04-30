@@ -1,6 +1,5 @@
 import { Component } from "@odoo/owl";
 import { ChartConfiguration } from "chart.js";
-import { DeepPartial, DispatchResult, UID } from "../../../../..";
 import { deepCopy } from "../../../../../helpers/misc";
 import {
   TreeMapCategoryColorOptions,
@@ -9,6 +8,8 @@ import {
   TreeMapChartRuntime,
   TreeMapGroupColor,
 } from "../../../../../types/chart/tree_map_chart";
+import { DispatchResult } from "../../../../../types/commands";
+import { DeepPartial, UID } from "../../../../../types/misc";
 import { SpreadsheetChildEnv } from "../../../../../types/spreadsheet_env";
 import { Checkbox } from "../../../components/checkbox/checkbox";
 import { RoundColorPicker } from "../../../components/round_color_picker/round_color_picker";
