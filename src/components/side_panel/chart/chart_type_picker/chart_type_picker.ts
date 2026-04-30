@@ -1,6 +1,7 @@
 import { Component, useExternalListener, useRef, useState } from "@odoo/owl";
+import { chartDataSourceRegistry } from "../../../../registries/chart_data_source_registry";
 import { chartSubtypeRegistry } from "../../../../registries/chart_subtype_registry";
-import { ChartDefinition, ChartType } from "../../../../types/chart/chart";
+import { CHART_TYPES, ChartDefinition, ChartType } from "../../../../types/chart/chart";
 import {
   chartCategories,
   ChartSubtypeProperties,
@@ -38,8 +39,9 @@ export class ChartTypePicker extends Component<Props, SpreadsheetChildEnv> {
 
   setup(): void {
     useExternalListener(window, "pointerdown", this.onExternalClick, { capture: true });
-    const chart = this.env.model.getters.getChart(this.props.chartId);
-    const supportedTypes = chart?.getSupportedChartTypes() ?? new Set<ChartType>();
+
+    const definition = this.env.model.getters.getChartDefinition(this.props.chartId);
+    const supportedTypes = this.getSupportedChartTypes(definition);
 
     for (const subtypeProperties of chartSubtypeRegistry.getAll()) {
       if (!supportedTypes.has(subtypeProperties.chartType)) {
@@ -51,6 +53,26 @@ export class ChartTypePicker extends Component<Props, SpreadsheetChildEnv> {
         this.chartTypeByCategories[subtypeProperties.category] = [subtypeProperties];
       }
     }
+  }
+
+  private getSupportedChartTypes(definition: ChartDefinition): Set<ChartType> {
+    let supportedTypes: Set<ChartType>;
+
+    if (definition.dataSource) {
+      const dataSourceBuilder = chartDataSourceRegistry.get(definition.dataSource.type);
+      supportedTypes = new Set(dataSourceBuilder.supportedChartTypes);
+    } else if (
+      !definition.dataSource &&
+      (definition.type === "scorecard" ||
+        definition.type === "gauge" ||
+        definition.type === "bubble")
+    ) {
+      // Scorecard and gauge don't have a data source but can still be converted to other types of charts
+      supportedTypes = new Set(CHART_TYPES);
+    } else {
+      throw new Error("Missing chart data source for a chart type that requires it");
+    }
+    return supportedTypes;
   }
 
   onExternalClick(ev: MouseEvent) {
