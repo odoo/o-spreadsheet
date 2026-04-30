@@ -23,6 +23,7 @@
         width="props.width"
         autoSelectFirstItem="subMenu.autoSelectFirstItem"
         onKeyboardNavigation.bind="this.onKeydown"
+        disableKeyboardNavigation="this.props.disableKeyboardNavigation"
       />
     </Popover>
   </t>
