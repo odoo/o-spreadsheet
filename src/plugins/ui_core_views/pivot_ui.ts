@@ -2,6 +2,7 @@ import { CompiledFormula } from "../../formulas/compiler";
 import { astToFormula } from "../../formulas/formula_formatter";
 import { toScalar } from "../../functions/helper_matrices";
 import { deepCopy } from "../../helpers";
+import { PositionMap } from "../../helpers/cells/position_map";
 import { deepEquals, getUniqueText, isDefined } from "../../helpers/misc";
 import {
   getNumberOfPivotFunctions,
@@ -64,6 +65,8 @@ export class PivotUIPlugin extends CoreViewPlugin {
   private pivots: Record<UID, Pivot> = {};
   private unusedPivotsInFormulas?: UID[];
   private custom: UIPluginConfig["custom"];
+  private pivotPositionCache: PositionMap<UID[]> = new PositionMap();
+  private shouldInvalidateCache: boolean = false;
 
   constructor(config: CoreViewPluginConfig) {
     super(config);
@@ -81,9 +84,13 @@ export class PivotUIPlugin extends CoreViewPlugin {
 
   handle(cmd: Command) {
     if (invalidateEvaluationCommands.has(cmd.type)) {
+      this.shouldInvalidateCache = true;
       for (const pivotId of this.getters.getPivotIds()) {
         this.setupPivot(pivotId, { recreate: true });
       }
+    }
+    if (cmd.type === "UPDATE_CELL") {
+      this.shouldInvalidateCache = true;
     }
     switch (cmd.type) {
       case "REFRESH_PIVOT":
@@ -133,6 +140,13 @@ export class PivotUIPlugin extends CoreViewPlugin {
     }
   }
 
+  finalize() {
+    if (this.shouldInvalidateCache) {
+      this.pivotPositionCache = new PositionMap();
+      this.shouldInvalidateCache = false;
+    }
+  }
+
   // ---------------------------------------------------------------------
   // Getters
   // ---------------------------------------------------------------------
@@ -149,11 +163,14 @@ export class PivotUIPlugin extends CoreViewPlugin {
    * Get all of the ids of the pivot present in the formula at the given position.
    */
   getPivotIdsFromPosition(position: CellPosition): UID[] {
-    const cell = this.getters.getCorrespondingFormulaCell(position);
-    if (cell && cell.isFormula) {
-      return this.getPivotIdsFromFormula(position.sheetId, cell.compiledFormula);
+    if (!this.pivotPositionCache.has(position)) {
+      const cell = this.getters.getCorrespondingFormulaCell(position);
+      if (cell && cell.isFormula) {
+        const pivotIds = this.getPivotIdsFromFormula(position.sheetId, cell.compiledFormula);
+        this.pivotPositionCache.set(position, pivotIds);
+      }
     }
-    return [];
+    return this.pivotPositionCache.get(position) || [];
   }
 
   private getPivotIdsFromFormula(sheetId: UID, formula: CompiledFormula): UID[] {
