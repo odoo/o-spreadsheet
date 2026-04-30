@@ -451,7 +451,7 @@ exports[`Context MenuPopover integration tests context menu simple rendering 1`]
       <div
         class="o-menu-item-description ms-auto text-truncate"
       >
-        Ctrl+K
+        Ctrl+Shift+K
       </div>
       
       

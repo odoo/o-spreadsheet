@@ -1028,7 +1028,7 @@ describe("Grid component", () => {
     });
 
     test("pressing Ctrl+K opens the link editor", async () => {
-      await keyDown({ key: "k", ctrlKey: true });
+      await keyDown({ key: "k", shiftKey: true, ctrlKey: true });
       expect(fixture.querySelector(".o-link-editor")).not.toBeNull();
     });
 

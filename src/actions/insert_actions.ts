@@ -285,7 +285,7 @@ export const categoriesFunctionListMenuBuilder: ActionBuilder = () => {
 
 export const insertLink: ActionSpec = {
   name: _t("Link"),
-  description: "Ctrl+K",
+  description: "Ctrl+Shift+K",
   execute: ACTIONS.INSERT_LINK,
   icon: "o-spreadsheet-Icon.INSERT_LINK",
 };
