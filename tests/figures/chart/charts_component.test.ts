@@ -3312,4 +3312,12 @@ describe("Change chart type", () => {
     expect(model.getters.getChartDefinition(chartId)).toMatchObject({ fillArea: false });
     expect(select.textContent).toBe("Radar");
   });
+
+  test("Can change chart type from a gauge chart to a bar chart", async () => {
+    createGaugeChart(model, {}, chartId);
+    await mountChartSidePanel(chartId);
+
+    await changeChartType("bar");
+    expect(model.getters.getChartDefinition(chartId)).toMatchObject({ type: "bar" });
+  });
 });
