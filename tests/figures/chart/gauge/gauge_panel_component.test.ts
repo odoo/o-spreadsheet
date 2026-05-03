@@ -158,6 +158,12 @@ describe("update chart with invalid section rule", () => {
     );
   });
 
+  test("error message is only displayed once", async () => {
+    await openChartDesignSidePanel(model, env, fixture, chartId);
+    await editStandaloneComposer(".lowerInflectionPoint .o-composer", "bla bla bla");
+    expect(".o-validation-error").toHaveCount(1);
+  });
+
   test.each(["bla bla bla", "=#ERROR"])("NaN rangeMin %s", async (content) => {
     await openChartDesignSidePanel(model, env, fixture, chartId);
     await editStandaloneComposer(".upperInflectionPoint .o-composer", "bla bla bla");
