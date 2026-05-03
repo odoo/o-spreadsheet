@@ -62,7 +62,7 @@ css/* scss */ `
 `;
 
 interface PanelState {
-  sectionRuleCancelledReasons?: CommandResult[];
+  sectionRuleCancelledReasons?: Set<CommandResult>;
   sectionRule: SectionRule;
 }
 
@@ -95,8 +95,8 @@ export class GaugeChartDesignPanel extends Component<Props, SpreadsheetChildEnv>
 
   setup() {
     this.state = useState<PanelState>({
-      sectionRuleCancelledReasons: this.checkSectionRuleFormulasAreValid(
-        this.props.definition.sectionRule
+      sectionRuleCancelledReasons: new Set(
+        this.checkSectionRuleFormulasAreValid(this.props.definition.sectionRule)
       ),
       sectionRule: deepCopy(this.props.definition.sectionRule),
     });
@@ -113,15 +113,15 @@ export class GaugeChartDesignPanel extends Component<Props, SpreadsheetChildEnv>
 
   get isRangeMinInvalid() {
     return !!(
-      this.state.sectionRuleCancelledReasons?.includes(CommandResult.EmptyGaugeRangeMin) ||
-      this.state.sectionRuleCancelledReasons?.includes(CommandResult.GaugeRangeMinNaN)
+      this.state.sectionRuleCancelledReasons?.has(CommandResult.EmptyGaugeRangeMin) ||
+      this.state.sectionRuleCancelledReasons?.has(CommandResult.GaugeRangeMinNaN)
     );
   }
 
   get isRangeMaxInvalid() {
     return !!(
-      this.state.sectionRuleCancelledReasons?.includes(CommandResult.EmptyGaugeRangeMax) ||
-      this.state.sectionRuleCancelledReasons?.includes(CommandResult.GaugeRangeMaxNaN)
+      this.state.sectionRuleCancelledReasons?.has(CommandResult.EmptyGaugeRangeMax) ||
+      this.state.sectionRuleCancelledReasons?.has(CommandResult.GaugeRangeMaxNaN)
     );
   }
 
@@ -130,13 +130,13 @@ export class GaugeChartDesignPanel extends Component<Props, SpreadsheetChildEnv>
   // ---------------------------------------------------------------------------
 
   get isLowerInflectionPointInvalid() {
-    return !!this.state.sectionRuleCancelledReasons?.includes(
+    return !!this.state.sectionRuleCancelledReasons?.has(
       CommandResult.GaugeLowerInflectionPointNaN
     );
   }
 
   get isUpperInflectionPointInvalid() {
-    return !!this.state.sectionRuleCancelledReasons?.includes(
+    return !!this.state.sectionRuleCancelledReasons?.has(
       CommandResult.GaugeUpperInflectionPointNaN
     );
   }
@@ -148,9 +148,8 @@ export class GaugeChartDesignPanel extends Component<Props, SpreadsheetChildEnv>
   }
 
   updateSectionRule(sectionRule: SectionRule) {
-    this.state.sectionRuleCancelledReasons = [];
-    this.state.sectionRuleCancelledReasons.push(
-      ...this.checkSectionRuleFormulasAreValid(this.state.sectionRule)
+    this.state.sectionRuleCancelledReasons = new Set(
+      this.checkSectionRuleFormulasAreValid(this.state.sectionRule)
     );
 
     const dispatchResult = this.props.updateChart(this.props.chartId, {
@@ -159,7 +158,9 @@ export class GaugeChartDesignPanel extends Component<Props, SpreadsheetChildEnv>
     if (dispatchResult.isSuccessful) {
       this.state.sectionRule = deepCopy(sectionRule);
     } else {
-      this.state.sectionRuleCancelledReasons.push(...dispatchResult.reasons);
+      for (const reason of dispatchResult.reasons) {
+        this.state.sectionRuleCancelledReasons.add(reason);
+      }
     }
   }
 
@@ -194,19 +195,19 @@ export class GaugeChartDesignPanel extends Component<Props, SpreadsheetChildEnv>
     };
   }
 
-  private checkSectionRuleFormulasAreValid(sectionRule: SectionRule): CommandResult[] {
-    const reasons: CommandResult[] = [];
+  private checkSectionRuleFormulasAreValid(sectionRule: SectionRule): Set<CommandResult> {
+    const reasons = new Set<CommandResult>();
     if (!this.valueIsValidNumber(sectionRule.rangeMin)) {
-      reasons.push(CommandResult.GaugeRangeMinNaN);
+      reasons.add(CommandResult.GaugeRangeMinNaN);
     }
     if (!this.valueIsValidNumber(sectionRule.rangeMax)) {
-      reasons.push(CommandResult.GaugeRangeMaxNaN);
+      reasons.add(CommandResult.GaugeRangeMaxNaN);
     }
     if (!this.valueIsValidNumber(sectionRule.lowerInflectionPoint.value)) {
-      reasons.push(CommandResult.GaugeLowerInflectionPointNaN);
+      reasons.add(CommandResult.GaugeLowerInflectionPointNaN);
     }
     if (!this.valueIsValidNumber(sectionRule.upperInflectionPoint.value)) {
-      reasons.push(CommandResult.GaugeUpperInflectionPointNaN);
+      reasons.add(CommandResult.GaugeUpperInflectionPointNaN);
     }
     return reasons;
   }
