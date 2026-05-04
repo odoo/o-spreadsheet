@@ -21,7 +21,14 @@ import {
   UpdatePivotCommand,
   invalidateEvaluationCommands,
 } from "../../types/commands";
-import { CellPosition, FunctionResultObject, SortDirection, UID, isMatrix } from "../../types/misc";
+import {
+  CellPosition,
+  FunctionResultObject,
+  RangeCompiledFormula,
+  SortDirection,
+  UID,
+  isMatrix,
+} from "../../types/misc";
 import { PivotCoreMeasure, PivotTableCell } from "../../types/pivot";
 import { Pivot } from "../../types/pivot_runtime";
 import { CoreViewPlugin, CoreViewPluginConfig } from "../core_view_plugin";
@@ -126,14 +133,16 @@ export class PivotUIPlugin extends CoreViewPlugin {
   getPivotIdFromPosition(position: CellPosition) {
     const cell = this.getters.getCorrespondingFormulaCell(position);
     if (cell && cell.isFormula) {
-      const pivotFunction = this.getFirstPivotFunction(
-        position.sheetId,
-        cell.compiledFormula.tokens
-      );
-      if (pivotFunction) {
-        const pivotId = pivotFunction.args[0]?.toString();
-        return pivotId && this.getters.getPivotId(pivotId);
-      }
+      return this.getPivotIdFromFormula(position.sheetId, cell.compiledFormula);
+    }
+    return undefined;
+  }
+
+  private getPivotIdFromFormula(sheetId: UID, formula: RangeCompiledFormula) {
+    const pivotFunction = this.getFirstPivotFunction(sheetId, formula.tokens);
+    if (pivotFunction) {
+      const pivotId = pivotFunction.args[0]?.toString();
+      return pivotId && this.getters.getPivotId(pivotId);
     }
     return undefined;
   }
@@ -346,6 +355,25 @@ export class PivotUIPlugin extends CoreViewPlugin {
         }
       }
     }
+
+    for (const pivotId of this.getters.getPivotIds()) {
+      const pivot = this.getters.getPivot(pivotId);
+      for (const measure of pivot.definition.measures) {
+        if (measure.computedBy) {
+          const { sheetId } = measure.computedBy;
+          const formula = this.getters.getMeasureCompiledFormula(pivotId, measure);
+          const relatedPivotId = this.getPivotIdFromFormula(sheetId, formula);
+          if (relatedPivotId) {
+            unusedPivots.delete(relatedPivotId);
+            if (!unusedPivots.size) {
+              this.unusedPivotsInFormulas = [];
+              return [];
+            }
+          }
+        }
+      }
+    }
+
     this.unusedPivotsInFormulas = [...unusedPivots];
     return this.unusedPivotsInFormulas;
   }
