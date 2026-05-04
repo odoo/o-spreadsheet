@@ -111,7 +111,9 @@ export class XlsxCfExtractor extends XlsxBaseExtractor {
     theme: XLSXTheme | undefined
   ): XLSXColorScale | undefined {
     const colorScaleElement = this.querySelector(cfRulesElement, "colorScale");
-    if (!colorScaleElement) return undefined;
+    if (!colorScaleElement) {
+      return undefined;
+    }
 
     return {
       colors: this.mapOnElements(
@@ -126,7 +128,9 @@ export class XlsxCfExtractor extends XlsxBaseExtractor {
 
   private extractCfIconSet(cfRulesElement: Element): XLSXIconSet | undefined {
     const iconSetElement = this.querySelector(cfRulesElement, "iconSet, x14:iconSet");
-    if (!iconSetElement) return undefined;
+    if (!iconSetElement) {
+      return undefined;
+    }
 
     return {
       iconSet: this.extractAttr(iconSetElement, "iconSet", {

@@ -298,7 +298,9 @@ function getWaterfallConfiguration(
         color: fontColor,
         callback: (value) => {
           value = Number(value);
-          if (isNaN(value)) return value;
+          if (isNaN(value)) {
+            return value;
+          }
           return formatValue(value, {
             locale,
             format: !format && Math.abs(value) > 1000 ? "#,##" : format,

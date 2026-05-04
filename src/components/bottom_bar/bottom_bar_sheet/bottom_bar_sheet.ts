@@ -117,7 +117,9 @@ export class BottomBarSheet extends Component<Props, SpreadsheetChildEnv> {
   }
 
   private focusInputAndSelectContent() {
-    if (!this.state.isEditing || !this.sheetNameRef.el) return;
+    if (!this.state.isEditing || !this.sheetNameRef.el) {
+      return;
+    }
 
     this.sheetNameRef.el.focus();
     const selection = window.getSelection();
@@ -165,7 +167,9 @@ export class BottomBarSheet extends Component<Props, SpreadsheetChildEnv> {
   }
 
   onKeyDown(ev: KeyboardEvent) {
-    if (!this.state.isEditing) return;
+    if (!this.state.isEditing) {
+      return;
+    }
     if (ev.key === "Enter") {
       ev.preventDefault();
       this.stopEdition();
@@ -178,7 +182,9 @@ export class BottomBarSheet extends Component<Props, SpreadsheetChildEnv> {
   }
 
   onMouseEventSheetName(ev: MouseEvent) {
-    if (this.state.isEditing) ev.stopPropagation();
+    if (this.state.isEditing) {
+      ev.stopPropagation();
+    }
   }
 
   private startEdition() {
@@ -187,7 +193,9 @@ export class BottomBarSheet extends Component<Props, SpreadsheetChildEnv> {
   }
 
   private stopEdition() {
-    if (!this.state.isEditing || !this.sheetNameRef.el) return;
+    if (!this.state.isEditing || !this.sheetNameRef.el) {
+      return;
+    }
 
     this.state.isEditing = false;
     this.editionState = "initializing";
@@ -224,7 +232,9 @@ export class BottomBarSheet extends Component<Props, SpreadsheetChildEnv> {
   }
 
   private setInputContent(content: string) {
-    if (this.sheetNameRef.el) this.sheetNameRef.el.textContent = content;
+    if (this.sheetNameRef.el) {
+      this.sheetNameRef.el.textContent = content;
+    }
   }
 
   onColorPicked(color: string) {

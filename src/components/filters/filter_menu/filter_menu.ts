@@ -227,7 +227,9 @@ export class FilterMenu extends Component<Props, SpreadsheetChildEnv> {
   onKeyDown(ev: KeyboardEvent) {
     const displayedValues = this.displayedValues;
 
-    if (displayedValues.length === 0) return;
+    if (displayedValues.length === 0) {
+      return;
+    }
 
     let selectedIndex: number | undefined = undefined;
     if (this.state.selectedValue !== undefined) {
