@@ -1,5 +1,6 @@
 import { useStore } from "../../../store_engine/store_hooks";
 import { GenericCriterion } from "../../../types/generic_criterion";
+import { UID } from "../../../types/misc";
 import { ComposerFocusStore } from "../../composer/composer_focus_store";
 import { OSComponent } from "../../os_component";
 
@@ -11,6 +12,7 @@ interface CriterionFormProps<T extends GenericCriterion> {
   onCriterionChanged: (criterion: T) => void;
   disableFormulas?: boolean;
   autofocus?: boolean;
+  sheetId: UID;
 }
 
 export abstract class CriterionForm<
@@ -21,6 +23,7 @@ export abstract class CriterionForm<
     onCriterionChanged: types.function<(criterion: T) => void>(),
     disableFormulas: types.boolean().optional(),
     autofocus: types.boolean().optional(),
+    sheetId: types.UID(),
   }) as unknown as CriterionFormProps<T>;
 
   setup() {

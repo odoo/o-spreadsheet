@@ -6,6 +6,7 @@ import { _t } from "../../../../translation";
 import { PropsOf } from "../../../../types/props_of";
 import { StandaloneComposer } from "../../../composer/standalone_composer/standalone_composer";
 import { OSComponent } from "../../../os_component";
+import { adaptFormulaToSheet } from "../../../helpers/formula";
 import { types } from "../../../props_validation";
 
 export class CriterionInput extends OSComponent {
@@ -13,6 +14,7 @@ export class CriterionInput extends OSComponent {
   static components = { StandaloneComposer: StandaloneComposer };
 
   protected props = useProps({
+    sheetId: types.UID(),
     value: types.string().optional(""),
     criterionType: types.DataValidationCriterionType(),
     onValueChanged: types.function<(value: string) => void>(),
@@ -82,7 +84,14 @@ export class CriterionInput extends OSComponent {
 
   onChangeComposerValue(str: string) {
     this.state.shouldDisplayError = true;
-    this.props.onValueChanged(str);
+    this.props.onValueChanged(
+      adaptFormulaToSheet(
+        this.env.model.getters,
+        str,
+        this.props.sheetId,
+        this.env.model.getters.getActiveSheetId()
+      )
+    );
   }
 
   getDataValidationRuleInputComposerProps(): PropsOf<StandaloneComposer> {
@@ -91,7 +100,7 @@ export class CriterionInput extends OSComponent {
       composerContent: this.props.value,
       placeholder: this.placeholder,
       class: "o-sidePanel-composer",
-      defaultRangeSheetId: this.env.model.getters.getActiveSheetId(),
+      defaultRangeSheetId: this.props.sheetId,
       invalid: this.state.shouldDisplayError && !!this.errorMessage,
       defaultStatic: true,
       autofocus: this.props.focused,
