@@ -486,12 +486,16 @@ export class FiguresContainer extends Component<Props, SpreadsheetChildEnv> {
 
   private getDndFigure(): FigureUI {
     const figure = this.dnd.draggedFigure;
-    if (!figure) throw new Error("Dnd figure not found");
+    if (!figure) {
+      throw new Error("Dnd figure not found");
+    }
     return figure;
   }
 
   getFigureStyle(figureUI: FigureUI): string {
-    if (figureUI.id !== this.dnd.draggedFigure?.id) return "";
+    if (figureUI.id !== this.dnd.draggedFigure?.id) {
+      return "";
+    }
     return cssPropertiesToCss({
       opacity: this.dnd.overlappingCarousel?.id ? "0.6" : "0.9",
       cursor: "grabbing",
@@ -499,14 +503,18 @@ export class FiguresContainer extends Component<Props, SpreadsheetChildEnv> {
   }
 
   getFigureClass(figureUI: FigureUI): string {
-    if (figureUI.id !== this.dnd.overlappingCarousel?.id) return "";
+    if (figureUI.id !== this.dnd.overlappingCarousel?.id) {
+      return "";
+    }
     return "o-add-to-carousel";
   }
 
   private getSnap<T extends HFigureAxisType | VFigureAxisType>(
     snapLine: SnapLine<T> | undefined
   ): Snap<T> | undefined {
-    if (!snapLine || !this.dnd.draggedFigure) return undefined;
+    if (!snapLine || !this.dnd.draggedFigure) {
+      return undefined;
+    }
     const { scrollX, scrollY } = this.env.model.getters.getActiveSheetScrollInfo();
     const figureVisibleRects = snapLine.matchedFigIds
       .map((id) => this.getVisibleFigures().find((figureUI) => figureUI.id === id))
@@ -539,7 +547,9 @@ export class FiguresContainer extends Component<Props, SpreadsheetChildEnv> {
     snapLine: SnapLine<HFigureAxisType | VFigureAxisType> | undefined,
     containerRect: Rect
   ): string {
-    if (!snapLine) return "";
+    if (!snapLine) {
+      return "";
+    }
     const { scrollX, scrollY } = this.env.model.getters.getActiveSheetScrollInfo();
     if (["top", "vCenter", "bottom"].includes(snapLine.snappedAxisType)) {
       return cssPropertiesToCss({

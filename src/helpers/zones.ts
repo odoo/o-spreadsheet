@@ -299,7 +299,9 @@ export function reduceZoneOnDeletion<Z extends UnboundedZone | Zone>(
   for (const removedElement of elements.sort((a, b) => b - a)) {
     if (zone[start] > removedElement) {
       newStart--;
-      if (newEnd !== undefined) newEnd--;
+      if (newEnd !== undefined) {
+        newEnd--;
+      }
     }
     if (
       zoneEnd !== undefined &&
@@ -669,7 +671,9 @@ export function boundUnboundedZone(
  * including cells outside the zones
  * */
 export function areZonesContinuous(zones: Zone[]): boolean {
-  if (zones.length < 2) return true;
+  if (zones.length < 2) {
+    return true;
+  }
   return recomputeZones(zones).length === 1;
 }
 

@@ -836,7 +836,9 @@ export class SheetViewPlugin extends UIPlugin {
    * It returns -1 if no col is found.
    */
   private getColIndexLeftOfMainViewport(x: Pixel): HeaderIndex {
-    if (x >= 0) return -1;
+    if (x >= 0) {
+      return -1;
+    }
     const sheetId = this.getters.getActiveSheetId();
     let col = this.getActiveMainViewport().left;
     let colStart =
@@ -853,7 +855,9 @@ export class SheetViewPlugin extends UIPlugin {
    * It returns -1 if no row is found.
    */
   private getRowIndexTopOfMainViewport(y: Pixel): HeaderIndex {
-    if (y >= 0) return -1;
+    if (y >= 0) {
+      return -1;
+    }
     const sheetId = this.getters.getActiveSheetId();
     let row = this.getActiveMainViewport().top;
     let rowStart =
