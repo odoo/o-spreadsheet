@@ -1,10 +1,10 @@
 import { useStore } from "../../../store_engine/store_hooks";
 import { GenericCriterion } from "../../../types/generic_criterion";
+import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
 import { ComposerFocusStore } from "../../composer/composer_focus_store";
 
 import { props } from "@odoo/owl";
 import { Component } from "../../../owl3_compatibility_layer";
-import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
 import { types } from "../../props_validation";
 
 export abstract class CriterionForm<
@@ -15,6 +15,7 @@ export abstract class CriterionForm<
     onCriterionChanged: types.function<(criterion: T) => void>(),
     "disableFormulas?": types.boolean(),
     "autofocus?": types.boolean(),
+    sheetId: types.UID(),
   });
 
   setup() {
