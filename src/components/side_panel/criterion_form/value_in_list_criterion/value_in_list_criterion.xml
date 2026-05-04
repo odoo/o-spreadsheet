@@ -9,6 +9,7 @@
           />
         </div>
         <CriterionInput
+          sheetId="props.sheetId"
           value="item.value"
           onValueChanged="(v) => this.onValueChanged(item_index, v)"
           criterionType="this.props.criterion.type"
