@@ -62,7 +62,9 @@ type FixedReferenceType = "col" | "row" | "colrow" | "none";
  *   A1:$B$1 => $A$1:B$1 => A$1:$B1 => $A1:B1 => A1:$B$1
  */
 export function loopThroughReferenceType(token: Readonly<Token>): Token {
-  if (token.type !== "REFERENCE") return token;
+  if (token.type !== "REFERENCE") {
+    return token;
+  }
   const { xc, sheetName } = splitReference(token.value);
   const [left, right] = xc.split(":") as [string, string | undefined];
 
@@ -121,13 +123,19 @@ function _setXcToFixedReferenceType(xc: string, referenceType: FixedReferenceTyp
   const hasRow = indexOfNumber >= 0;
   switch (referenceType) {
     case "col":
-      if (!hasCol) return xc;
+      if (!hasCol) {
+        return xc;
+      }
       return "$" + xc;
     case "row":
-      if (!hasRow) return xc;
+      if (!hasRow) {
+        return xc;
+      }
       return xc.slice(0, indexOfNumber) + "$" + xc.slice(indexOfNumber);
     case "colrow":
-      if (!hasRow || !hasCol) return "$" + xc;
+      if (!hasRow || !hasCol) {
+        return "$" + xc;
+      }
       return "$" + xc.slice(0, indexOfNumber) + "$" + xc.slice(indexOfNumber);
     case "none":
       return xc;

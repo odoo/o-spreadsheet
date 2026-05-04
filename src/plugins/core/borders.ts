@@ -265,7 +265,9 @@ export class BordersPlugin extends CorePlugin<BordersPluginState> implements Bor
    */
   private getColumnsWithBorders(sheetId: UID): HeaderIndex[] {
     const sheetBorders = this.borders[sheetId];
-    if (!sheetBorders) return [];
+    if (!sheetBorders) {
+      return [];
+    }
     return Object.keys(sheetBorders).map((index) => parseInt(index, 10));
   }
 
@@ -274,7 +276,9 @@ export class BordersPlugin extends CorePlugin<BordersPluginState> implements Bor
    */
   private getRowsWithBorders(sheetId: UID): number[] {
     const sheetBorders = this.borders[sheetId]?.filter(isDefined);
-    if (!sheetBorders) return [];
+    if (!sheetBorders) {
+      return [];
+    }
     const rowsWithBorders = new Set<number>();
     for (const rowBorders of sheetBorders) {
       for (const rowBorder in rowBorders) {
@@ -289,7 +293,9 @@ export class BordersPlugin extends CorePlugin<BordersPluginState> implements Bor
    */
   private getRowsRange(sheetId: UID): HeaderIndex[] {
     const sheetBorders = this.borders[sheetId];
-    if (!sheetBorders) return [];
+    if (!sheetBorders) {
+      return [];
+    }
     return range(0, this.getters.getNumberRows(sheetId) + 1);
   }
 
@@ -301,7 +307,9 @@ export class BordersPlugin extends CorePlugin<BordersPluginState> implements Bor
    */
   private shiftBordersHorizontally(sheetId: UID, start: HeaderIndex, delta: number) {
     const borders = this.borders[sheetId];
-    if (!borders) return;
+    if (!borders) {
+      return;
+    }
     this.getColumnsWithBorders(sheetId)
       .filter((col) => col >= start)
       .sort((a, b) => (delta < 0 ? a - b : b - a)) // start by the end when moving up
@@ -318,7 +326,9 @@ export class BordersPlugin extends CorePlugin<BordersPluginState> implements Bor
    */
   private shiftBordersVertically(sheetId: UID, start: HeaderIndex, delta: number) {
     const borders = this.borders[sheetId];
-    if (!borders) return;
+    if (!borders) {
+      return;
+    }
     if (delta < 0) {
       this.moveBordersOfRow(sheetId, start, delta, {
         destructive: false,
@@ -350,7 +360,9 @@ export class BordersPlugin extends CorePlugin<BordersPluginState> implements Bor
     { destructive }: { destructive: boolean } = { destructive: true }
   ) {
     const borders = this.borders[sheetId];
-    if (!borders) return;
+    if (!borders) {
+      return;
+    }
     this.getColumnsWithBorders(sheetId).forEach((col) => {
       const targetBorder = borders[col]?.[row + delta];
       const movedBorder = borders[col]?.[row];
@@ -383,7 +395,9 @@ export class BordersPlugin extends CorePlugin<BordersPluginState> implements Bor
     { destructive }: { destructive: boolean } = { destructive: true }
   ) {
     const borders = this.borders[sheetId];
-    if (!borders) return;
+    if (!borders) {
+      return;
+    }
     this.getRowsRange(sheetId).forEach((row) => {
       const targetBorder = borders[col + delta]?.[row];
       const movedBorder = borders[col]?.[row];

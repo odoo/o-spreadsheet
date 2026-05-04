@@ -10,13 +10,17 @@ export const genericRepeatsTransforms = [
 ];
 
 export function repeatSheetDependantCommand<T extends Command>(getters: Getters, command: T): T {
-  if (!("sheetId" in command)) return command;
+  if (!("sheetId" in command)) {
+    return command;
+  }
 
   return { ...deepCopy(command), sheetId: getters.getActiveSheetId() };
 }
 
 export function repeatTargetDependantCommand<T extends Command>(getters: Getters, command: T): T {
-  if (!("target" in command) || !Array.isArray(command.target)) return command;
+  if (!("target" in command) || !Array.isArray(command.target)) {
+    return command;
+  }
 
   return {
     ...deepCopy(command),
@@ -25,7 +29,9 @@ export function repeatTargetDependantCommand<T extends Command>(getters: Getters
 }
 
 export function repeatZoneDependantCommand<T extends Command>(getters: Getters, command: T): T {
-  if (!("zone" in command)) return command;
+  if (!("zone" in command)) {
+    return command;
+  }
 
   return {
     ...deepCopy(command),
@@ -34,14 +40,18 @@ export function repeatZoneDependantCommand<T extends Command>(getters: Getters, 
 }
 
 export function repeatPositionDependantCommand<T extends Command>(getters: Getters, command: T): T {
-  if (!("row" in command) || !("col" in command)) return command;
+  if (!("row" in command) || !("col" in command)) {
+    return command;
+  }
 
   const { col, row } = getters.getActivePosition();
   return { ...deepCopy(command), col, row };
 }
 
 export function repeatRangeDependantCommand<T extends Command>(getters: Getters, command: T): T {
-  if (!("ranges" in command)) return command;
+  if (!("ranges" in command)) {
+    return command;
+  }
 
   return {
     ...deepCopy(command),

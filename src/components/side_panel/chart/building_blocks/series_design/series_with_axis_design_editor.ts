@@ -141,7 +141,9 @@ export class SeriesWithAxisDesignEditor extends Component<Props, SpreadsheetChil
 
   getDataSeriesColor(index: number) {
     const dataSets = this.props.definition.dataSets;
-    if (!dataSets?.[index]) return "";
+    if (!dataSets?.[index]) {
+      return "";
+    }
     const color = dataSets[index].backgroundColor;
     return color
       ? toHex(color)

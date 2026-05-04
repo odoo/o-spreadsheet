@@ -158,15 +158,23 @@ export class BottomBar extends Component<Props, SpreadsheetChildEnv> {
   }
 
   onArrowLeft(ev: MouseEvent) {
-    if (!this.state.isSheetListScrollableLeft) return;
-    if (!this.targetScroll) this.targetScroll = this.sheetListCurrentScroll;
+    if (!this.state.isSheetListScrollableLeft) {
+      return;
+    }
+    if (!this.targetScroll) {
+      this.targetScroll = this.sheetListCurrentScroll;
+    }
     const newScroll = this.targetScroll - this.sheetListWidth;
     this.scrollSheetListTo(Math.max(0, newScroll));
   }
 
   onArrowRight(ev: MouseEvent) {
-    if (!this.state.isSheetListScrollableRight) return;
-    if (!this.targetScroll) this.targetScroll = this.sheetListCurrentScroll;
+    if (!this.state.isSheetListScrollableRight) {
+      return;
+    }
+    if (!this.targetScroll) {
+      this.targetScroll = this.sheetListCurrentScroll;
+    }
     const newScroll = this.targetScroll + this.sheetListWidth;
     this.scrollSheetListTo(Math.min(this.sheetListMaxScroll, newScroll));
   }
@@ -177,13 +185,17 @@ export class BottomBar extends Component<Props, SpreadsheetChildEnv> {
   }
 
   private scrollSheetListTo(scroll: number) {
-    if (!this.sheetListRef.el) return;
+    if (!this.sheetListRef.el) {
+      return;
+    }
     this.targetScroll = scroll;
     this.sheetListRef.el.scrollTo({ top: 0, left: scroll, behavior: "smooth" });
   }
 
   onSheetMouseDown(sheetId: UID, event: MouseEvent) {
-    if (event.button !== 0 || this.env.model.getters.isReadonly()) return;
+    if (event.button !== 0 || this.env.model.getters.isReadonly()) {
+      return;
+    }
     this.closeMenu();
 
     if (this.env.isMobile()) {
@@ -234,17 +246,23 @@ export class BottomBar extends Component<Props, SpreadsheetChildEnv> {
   }
 
   get sheetListCurrentScroll() {
-    if (!this.sheetListRef.el) return 0;
+    if (!this.sheetListRef.el) {
+      return 0;
+    }
     return this.sheetListRef.el.scrollLeft;
   }
 
   get sheetListWidth() {
-    if (!this.sheetListRef.el) return 0;
+    if (!this.sheetListRef.el) {
+      return 0;
+    }
     return this.sheetListRef.el.clientWidth;
   }
 
   get sheetListMaxScroll() {
-    if (!this.sheetListRef.el) return 0;
+    if (!this.sheetListRef.el) {
+      return 0;
+    }
     return this.sheetListRef.el.scrollWidth - this.sheetListRef.el.clientWidth;
   }
 }

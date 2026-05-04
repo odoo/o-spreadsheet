@@ -21,9 +21,13 @@ export class SubtotalEvaluationPlugin extends UIPlugin {
         break;
       }
       case "UPDATE_CELL": {
-        if (!("content" in cmd)) return;
+        if (!("content" in cmd)) {
+          return;
+        }
         const cell = this.getters.getCell(cmd);
-        if (!cell) return;
+        if (!cell) {
+          return;
+        }
         if (isSubtotalCell(cell)) {
           this.subtotalCells.add(cell.id);
         } else {

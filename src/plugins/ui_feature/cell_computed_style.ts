@@ -79,7 +79,9 @@ export class CellComputedStylePlugin extends UIPlugin {
     for (let col = zone.left; col <= zone.right; col++) {
       for (let row = zone.top; row <= zone.bottom; row++) {
         const position = { sheetId, col, row };
-        if (this.styles.get(position) !== undefined) continue;
+        if (this.styles.get(position) !== undefined) {
+          continue;
+        }
         const computedStyle = {
           ...removeFalsyAttributes(tableStyles.get(position)),
           ...removeFalsyAttributes(this.getters.getDataValidationCellStyle(position)),
