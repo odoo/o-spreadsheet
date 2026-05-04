@@ -37,6 +37,7 @@ export class DataValidationEditor extends Component<SpreadsheetChildEnv> {
     ruleId: types.UID(),
     "onCancel?": types.function(),
     onCloseSidePanel: types.function(),
+    sheetId: types.UID(),
   });
 
   state = proxy<State>({
@@ -44,12 +45,10 @@ export class DataValidationEditor extends Component<SpreadsheetChildEnv> {
     errors: [],
     isTypeUpdated: false,
   });
-  private editingSheetId!: UID;
 
   setup() {
-    this.editingSheetId = this.env.model.getters.getActiveSheetId();
     const rule = this.env.model.getters.getDataValidationRule(
-      this.editingSheetId,
+      this.props.sheetId,
       this.props.ruleId
     );
     if (rule) {
@@ -57,7 +56,7 @@ export class DataValidationEditor extends Component<SpreadsheetChildEnv> {
       this.state.rule = {
         ...localizeDataValidationRule(rule, locale),
         ranges: rule.ranges.map((range) =>
-          this.env.model.getters.getRangeString(range, this.editingSheetId)
+          this.env.model.getters.getRangeString(range, this.props.sheetId)
         ),
       };
     }
@@ -82,6 +81,10 @@ export class DataValidationEditor extends Component<SpreadsheetChildEnv> {
 
   onCancel() {
     this.props.onCancel?.();
+    this.env.model.dispatch("ACTIVATE_SHEET", {
+      sheetIdTo: this.props.sheetId,
+      sheetIdFrom: this.env.model.getters.getActiveSheetId(),
+    });
     this.env.replaceSidePanel("DataValidation", `DataValidationEditor_${this.props.ruleId}`);
   }
 
@@ -91,6 +94,10 @@ export class DataValidationEditor extends Component<SpreadsheetChildEnv> {
       this.state.errors = result.reasons;
       return;
     }
+    this.env.model.dispatch("ACTIVATE_SHEET", {
+      sheetIdTo: this.props.sheetId,
+      sheetIdFrom: this.env.model.getters.getActiveSheetId(),
+    });
     this.env.replaceSidePanel("DataValidation", `DataValidationEditor_${this.props.ruleId}`);
   }
 
@@ -107,9 +114,9 @@ export class DataValidationEditor extends Component<SpreadsheetChildEnv> {
       .map((value) => canonicalizeContent(value, locale));
     rule.criterion = { ...criterion, values };
     return {
-      sheetId: this.editingSheetId,
+      sheetId: this.props.sheetId,
       ranges: this.state.rule.ranges.map((xc) =>
-        this.env.model.getters.getRangeDataFromXc(this.editingSheetId, xc)
+        this.env.model.getters.getRangeDataFromXc(this.props.sheetId, xc)
       ),
       rule,
     };
