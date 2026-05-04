@@ -13,7 +13,7 @@
           t-on-pointermove="() => this.props.onValueHovered(proposal_index)">
           <div class="d-flex align-items-center gap-2">
             <div t-if="proposal.icon" t-call="{{proposal.icon}}"/>
-            <div class="o-autocomplete-value text-truncate">
+            <div class="o-autocomplete-value text-truncate flex-grow-1">
               <t t-set="htmlContent" t-value="proposal.htmlContent || [{ value: proposal.text}]"/>
               <span
                 t-foreach="htmlContent"
