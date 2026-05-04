@@ -44,6 +44,8 @@ export const FunnelChart: ChartTypeBuilder<"funnel"> = {
 
   getContextCreation: (definition) => definition,
 
+  getFormulas: () => [],
+
   getDefinitionFromContextCreation(context, dataSourceBuilder) {
     return {
       background: context.background,

@@ -52,6 +52,8 @@ export const PyramidChart: ChartTypeBuilder<"pyramid"> = {
 
   getContextCreation: (definition) => definition,
 
+  getFormulas: () => [],
+
   getDefinitionFromContextCreation(context, dataSourceBuilder) {
     return {
       background: context.background,

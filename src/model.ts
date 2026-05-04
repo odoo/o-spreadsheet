@@ -14,6 +14,7 @@ import {
   repairInitialMessages,
 } from "./migrations/data";
 import { BasePlugin } from "./plugins/base_plugin";
+import { FormulaProviderAggregator } from "./plugins/core/formulas_provider";
 import { RangeAdapterPlugin } from "./plugins/core/range";
 import { CorePlugin, CorePluginConfig, CorePluginConstructor } from "./plugins/core_plugin";
 import { CoreViewPluginConfig, CoreViewPluginConstructor } from "./plugins/core_view_plugin";
@@ -87,6 +88,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
   private statefulUIPlugins: UIPlugin[] = [];
 
   private range: RangeAdapterPlugin;
+  private formulasPlugin: FormulaProviderAggregator;
 
   private session: Session;
 
@@ -184,6 +186,8 @@ export class Model extends EventBus<any> implements CommandDispatcher {
     this.coreGetters.copyFormulaStringForSheet = this.range.copyFormulaStringForSheet.bind(
       this.range
     );
+    this.formulasPlugin = new FormulaProviderAggregator();
+    this.coreGetters.getAllFormulas = this.formulasPlugin.getAllFormulas.bind(this.formulasPlugin);
 
     // Initiate stream processor
     this.selection = new SelectionStreamProcessorImpl(this.getters);
@@ -408,6 +412,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
       getters: this.coreGetters,
       stateObserver: this.state,
       range: this.range,
+      formulasPlugin: this.formulasPlugin,
       dispatch: this.dispatchFromCorePlugin,
       canDispatch: this.canDispatch,
       custom: this.config.custom,

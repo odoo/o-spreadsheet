@@ -1195,6 +1195,11 @@ export interface PivotStopPresenceTracking {
   type: "PIVOT_STOP_PRESENCE_TRACKING";
 }
 
+export interface DeleteDataSourcesCommand {
+  type: "DELETE_DATA_SOURCES";
+  dataSources: { type: string; id: UID }[];
+}
+
 export interface ToggleCheckboxCommand extends TargetDependentCommand {
   type: "TOGGLE_CHECKBOX";
 }
@@ -1371,6 +1376,7 @@ export type LocalCommand =
   | DuplicateCarouselChartCommand
   | UpdateCarouselActiveItemCommand
   | PopOutChartFromCarouselCommand
+  | DeleteDataSourcesCommand
   | UpdateChartRegionCommand
   | UpdateColorSchemeCommand
   | MoveFiguresCommand

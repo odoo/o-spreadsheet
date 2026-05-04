@@ -482,6 +482,10 @@ topbarMenuRegistry
     ...ACTION_DATA.trimWhitespace,
     sequence: 20,
   })
+  .addChild("data_sources_cleanup", ["data", "data_cleanup"], {
+    ...ACTION_DATA.cleanupDataSources,
+    sequence: 30,
+  })
   .addChild("split_to_columns", ["data"], {
     ...ACTION_DATA.splitToColumns,
     sequence: 20,
@@ -532,10 +536,6 @@ topbarMenuRegistry
     name: _t("Pivot"),
     sequence: 50,
     icon: "o-spreadsheet-Icon.PIVOT",
-    secondaryIcon: (env) =>
-      env.model.getters.getPivotIds().some((pivotId) => env.model.getters.isPivotUnused(pivotId))
-        ? "o-spreadsheet-Icon.UNUSED_PIVOT_WARNING"
-        : "",
     children: [
       (env) => {
         const { getters } = env.model;
@@ -555,10 +555,6 @@ topbarMenuRegistry
             isEnabled: () => !env.isSmall,
             onStartHover: () => env.getStore(HighlightStore).register(highlightProvider),
             onStopHover: () => env.getStore(HighlightStore).unRegister(highlightProvider),
-            secondaryIcon: () =>
-              getters.isPivotUnused(pivotId)
-                ? "o-spreadsheet-Icon.UNUSED_PIVOT_WARNING"
-                : undefined,
           };
         });
       },
