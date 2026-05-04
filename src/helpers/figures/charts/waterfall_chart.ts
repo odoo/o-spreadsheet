@@ -49,6 +49,8 @@ export const WaterfallChart: ChartTypeBuilder<"waterfall"> = {
 
   getContextCreation: (definition) => definition,
 
+  getFormulas: () => [],
+
   getDefinitionFromContextCreation(context, dataSourceBuilder) {
     return {
       background: context.background,

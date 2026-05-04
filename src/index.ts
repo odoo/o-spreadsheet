@@ -319,6 +319,7 @@ export const registries = {
   pivotToFunctionValueRegistry,
   migrationStepRegistry,
   chartJsExtensionRegistry,
+  unusedDataSourceRegistry,
 };
 
 /** Registries Population */
@@ -344,6 +345,7 @@ import { chartDataSourceSidePanelComponentRegistry } from "./registries/chart_da
 import { chartDataSourceRegistry } from "./registries/chart_data_source_registry";
 import { chartSubtypeRegistry } from "./registries/chart_subtype_registry";
 import { clipboardHandlersRegistries } from "./registries/clipboardHandlersRegistries";
+import { unusedDataSourceRegistry } from "./registries/data_source_registry";
 
 export const helpers = {
   arg,

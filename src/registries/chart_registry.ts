@@ -1,3 +1,4 @@
+import { CompiledFormula } from "..";
 import {
   ChartCreationContext,
   ChartData,
@@ -100,6 +101,12 @@ export interface ChartTypeBuilder<T extends ChartType> {
     sheetId: UID,
     eventHandlers: ChartJsEventHandlers
   ): ChartRuntime;
+  /** Get all the formulas used in the chart */
+  getFormulas(
+    getters: CoreGetters,
+    sheetId: UID,
+    definition: ChartTypeDefinition<T, Range>
+  ): CompiledFormula[];
   allowedDefinitionKeys: readonly string[];
   sequence: number;
   dataSeriesLimit?: number;

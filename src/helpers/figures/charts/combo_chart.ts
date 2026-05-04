@@ -45,6 +45,8 @@ export const ComboChart: ChartTypeBuilder<"combo"> = {
 
   getContextCreation: (definition) => definition,
 
+  getFormulas: () => [],
+
   getDefinitionForExcel(getters, definition, { dataSets, labelRange }) {
     return {
       ...definition,
