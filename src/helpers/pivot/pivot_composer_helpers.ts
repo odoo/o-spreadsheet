@@ -97,6 +97,10 @@ export function getFirstPivotFunction(tokens: Token[]) {
   return getFunctionsFromTokens(tokens, PIVOT_FUNCTIONS)[0];
 }
 
+export function getPivotFunctions(tokens: Token[]) {
+  return getFunctionsFromTokens(tokens, PIVOT_FUNCTIONS);
+}
+
 /**
  * Parse a spreadsheet formula and detect the number of PIVOT functions that are
  * present in the given formula.
