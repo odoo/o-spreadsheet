@@ -268,7 +268,9 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
   }
 
   toggleEditionMode() {
-    if (this.editionMode === "inactive") return;
+    if (this.editionMode === "inactive") {
+      return;
+    }
     const start = Math.min(this.selectionStart, this.selectionEnd);
     const end = Math.max(this.selectionStart, this.selectionEnd);
     const refToken = [...this.currentTokens]
@@ -662,7 +664,9 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
     const refSheet = sheetName ? this.model.getters.getSheetIdByName(sheetName) : this.sheetId;
 
     const highlight = this.highlights.find((highlight) => {
-      if (highlight.sheetId !== refSheet) return false;
+      if (highlight.sheetId !== refSheet) {
+        return false;
+      }
 
       const range = this.model.getters.getRangeFromSheetXC(refSheet, xc);
       let zone = range.zone;
@@ -769,7 +773,9 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
     const usedIndexes = new Set(Object.values(colorsToKeep));
     let currentIndex = 0;
     const nextIndex = () => {
-      while (usedIndexes.has(currentIndex)) currentIndex++;
+      while (usedIndexes.has(currentIndex)) {
+        currentIndex++;
+      }
       usedIndexes.add(currentIndex);
       return currentIndex;
     };

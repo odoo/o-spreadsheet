@@ -50,7 +50,9 @@ export function useDragAndDropListItems() {
   const start = (direction: Direction, args: DndPartialArgs) => {
     const onChange = () => {
       document.body.style.cursor = "move";
-      if (!dndHelper) return;
+      if (!dndHelper) {
+        return;
+      }
       Object.assign(state.itemsStyle, dndHelper.getItemStyles());
       args.onChange?.();
     };
@@ -265,7 +267,9 @@ class DOMDndHelper {
   }
 
   private startEdgeScroll(direction: -1 | 1) {
-    if (this.edgeScrollIntervalId) return;
+    if (this.edgeScrollIntervalId) {
+      return;
+    }
     this.edgeScrollIntervalId = window.setInterval(() => {
       const offset = direction * 3;
       this.container.scroll += offset;
@@ -282,8 +286,12 @@ class DOMDndHelper {
    * If the mouse is outside the container, return the first or last item index.
    */
   private getHoveredItemIndex(mousePosition: Pixel, items: DragAndDropItems[]): number {
-    if (mousePosition <= this.minPosition) return 0;
-    if (mousePosition >= this.maxPosition) return items.length - 1;
+    if (mousePosition <= this.minPosition) {
+      return 0;
+    }
+    if (mousePosition >= this.maxPosition) {
+      return items.length - 1;
+    }
     return items.findIndex((item) => item.position + item.size >= mousePosition);
   }
 
