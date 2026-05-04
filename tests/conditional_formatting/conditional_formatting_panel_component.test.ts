@@ -301,7 +301,7 @@ describe("UI of conditional formats", () => {
       const ranges = ["A1:A2"];
 
       ({ model, fixture } = await mountComponentWithPortalTarget(ConditionalFormattingEditor, {
-        props: { cf: { ...cf, ranges }, isNewCf: false, onCloseSidePanel: () => {} },
+        props: { cf: { ...cf, ranges }, isNewCf: false, sheetId, onCloseSidePanel: () => {} },
       }));
       sheetId = model.getters.getActiveSheetId();
       addEqualCf(model, "A1:A2", { fillColor: "#FF0000" }, "2", "1");
@@ -1650,25 +1650,27 @@ describe("Integration tests", () => {
     expect((ranges[1] as HTMLInputElement).value).toBe("C3");
   });
 
-  test("switching sheet resets CF Editor to list", async () => {
+  test("switching sheet keeps CF Editor open", async () => {
     const cf = createEqualCF("2", { bold: true, fillColor: "#ff0000" }, "99");
     const range = "A1:A2";
+    const cfSheetId = model.getters.getActiveSheetId();
     addEqualCf(model, range, { bold: true, fillColor: "#ff0000" }, "2", "99");
     createSheet(model, { sheetId: "42" });
     env.openSidePanel("ConditionalFormattingEditor", {
       cf: { ...cf, ranges: [range] },
       isNewCf: true,
+      sheetId: cfSheetId,
     });
     await nextTick();
     expect(fixture.querySelector(selectors.listPreview)).toBeNull();
     expect(fixture.querySelector(selectors.ruleEditor.range! as "input")!.value).toBe("A1:A2");
     activateSheet(model, "42");
     await nextTick();
-    expect(fixture.querySelector(selectors.ruleEditor.range)).toBeNull();
-    expect(fixture.querySelector(selectors.listPreview)).toBeDefined();
+    expect(fixture.querySelector(selectors.ruleEditor.range)).not.toBeNull();
+    expect(fixture.querySelector(selectors.listPreview)).toBeNull();
   });
 
-  test("CF standalone composer becomes inactive on sheet change", async () => {
+  test("CF Editor composer does not becomes inactive on sheet change", async () => {
     const cf = createEqualCF("2", { bold: true, fillColor: "#ff0000" }, "99");
     const range = "A1:A2";
     addEqualCf(model, range, { bold: true, fillColor: "#ff0000" }, "2", "99");
@@ -1676,6 +1678,7 @@ describe("Integration tests", () => {
     env.openSidePanel("ConditionalFormattingEditor", {
       cf: { ...cf, ranges: [range] },
       isNewCf: true,
+      sheetId: model.getters.getActiveSheetId(),
     });
     await nextTick();
     await editStandaloneComposer(selectors.ruleEditor.editor.valueInput, "=", {
@@ -1686,7 +1689,79 @@ describe("Integration tests", () => {
     expect(composerFocusStore.activeComposer.editionMode).toBe("selecting");
     activateSheet(model, "42");
     await nextTick();
+    expect(fixture.querySelector(selectors.editorPanel)).not.toBeNull();
+  });
+
+  test("CF Editor range title shows sheet name when on a different sheet", async () => {
+    const range = "A1:A2";
+    const cfSheetId = model.getters.getActiveSheetId();
+    const cfSheetName = model.getters.getSheetName(cfSheetId);
+    createSheet(model, { sheetId: "sh2" });
+
+    addEqualCf(model, range, { bold: false, fillColor: "#ff0000" }, "2");
+    const cf = model.getters.getConditionalFormats(cfSheetId)[0];
+    env.openSidePanel("ConditionalFormattingEditor", {
+      cf,
+      isNewCf: false,
+      sheetId: cfSheetId,
+    });
+
     await nextTick();
-    expect(composerFocusStore.activeComposer.editionMode).toBe("inactive");
+    const titleBefore = fixture.querySelector(".o-cf-range .o-section-title")!.textContent;
+    expect(titleBefore).not.toContain(cfSheetName);
+    activateSheet(model, "sh2");
+    await nextTick();
+    const titleAfter = fixture.querySelector(".o-cf-range .o-section-title")!.textContent;
+    expect(titleAfter).toContain(cfSheetName);
+  });
+
+  test("CF Editor saves to its original sheet when saving from a different sheet", async () => {
+    const range = "A1:A2";
+    const cfSheetId = model.getters.getActiveSheetId();
+    createSheet(model, { sheetId: "sh2" });
+
+    addEqualCf(model, range, { bold: false, fillColor: "#ff0000" }, "2");
+    const cf = model.getters.getConditionalFormats(cfSheetId)[0];
+    env.openSidePanel("ConditionalFormattingEditor", {
+      cf,
+      isNewCf: false,
+      sheetId: cfSheetId,
+    });
+
+    await nextTick();
+    activateSheet(model, "sh2");
+    await nextTick();
+    await click(fixture, selectors.ruleEditor.editor.bold);
+    await click(fixture, selectors.buttonSave);
+    expect(model.getters.getConditionalFormats(cfSheetId)[0].rule).toMatchObject({
+      style: { bold: true },
+    });
+    expect(model.getters.getConditionalFormats("sh2")).toHaveLength(0);
+    expect(model.getters.getActiveSheetId()).toBe(cfSheetId);
+  });
+
+  test("CF Editor cancels to its original sheet when cancelling from a different sheet", async () => {
+    const range = "A1:A2";
+    const cfSheetId = model.getters.getActiveSheetId();
+    createSheet(model, { sheetId: "sh2" });
+
+    addEqualCf(model, range, { bold: false, fillColor: "#ff0000" }, "2");
+    const cf = model.getters.getConditionalFormats(cfSheetId)[0];
+    env.openSidePanel("ConditionalFormattingEditor", {
+      cf,
+      isNewCf: false,
+      sheetId: cfSheetId,
+    });
+
+    await nextTick();
+    activateSheet(model, "sh2");
+    await nextTick();
+    await click(fixture, selectors.ruleEditor.editor.bold);
+    await click(fixture, selectors.buttonCancel);
+    expect(model.getters.getConditionalFormats(cfSheetId)[0].rule).toMatchObject({
+      style: { bold: false },
+    });
+    expect(model.getters.getConditionalFormats("sh2")).toHaveLength(0);
+    expect(model.getters.getActiveSheetId()).toBe(cfSheetId);
   });
 });

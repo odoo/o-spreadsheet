@@ -550,6 +550,7 @@ export const OPEN_CF_SIDEPANEL_ACTION = (env: SpreadsheetChildEnv) => {
     return env.openSidePanel("ConditionalFormattingEditor", {
       cf: rules.find((r) => r.id === ruleIds[0]),
       isNewCf: false,
+      sheetId,
     });
   }
   return env.openSidePanel("ConditionalFormatting");
