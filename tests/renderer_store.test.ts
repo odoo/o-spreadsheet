@@ -1661,7 +1661,9 @@ describe("renderer", () => {
     function getCellOverflowingBackgroundDims() {
       // first draw of white rectangle is the spreadsheet's background
       const instruction = fillWhiteRectInstructions[1];
-      if (!instruction) return undefined;
+      if (!instruction) {
+        return undefined;
+      }
       return {
         x: instruction[0],
         y: instruction[1],
@@ -1681,7 +1683,9 @@ describe("renderer", () => {
           drawingWhiteBackground = key === "fillStyle" && toHex(value) === "#FFFFFF";
         },
         onFunctionCall: (key, args) => {
-          if (key !== "fillRect" || !drawingWhiteBackground) return;
+          if (key !== "fillRect" || !drawingWhiteBackground) {
+            return;
+          }
           fillWhiteRectInstructions.push(args);
         },
       });

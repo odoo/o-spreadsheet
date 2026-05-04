@@ -27,7 +27,7 @@
     "test": "tsc --noEmit --project tests/tsconfig.json && jest",
     "test:watch": "jest --watch",
     "prettier": "prettier . --write",
-    "check-formatting": "prettier . --check",
+    "check-formatting": "prettier . --check && eslint",
     "dist": "tsc --module es6 --declaration --declarationDir dist/types && rolldown -c && npm run build:bundleXml -- --outDir dist",
     "prepare": "husky install",
     "watch:bundle": "npm run build:bundleJsDev -- --watch",
@@ -164,8 +164,8 @@
   },
   "lint-staged": {
     "*": [
-      "prettier --write",
-      "eslint --fix"
+      "eslint --fix",
+      "prettier --write"
     ]
   },
   "publishConfig": {

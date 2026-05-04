@@ -178,8 +178,12 @@ export function splitTextToWidth(
   style: Style | undefined,
   width: number | undefined
 ): string[] {
-  if (!style) style = {};
-  if (isMarkdownLink(text)) text = parseMarkdownLink(text).label;
+  if (!style) {
+    style = {};
+  }
+  if (isMarkdownLink(text)) {
+    text = parseMarkdownLink(text).label;
+  }
   const brokenText: string[] = [];
 
   // Checking if text contains NEWLINE before split makes it very slightly slower if text contains it,
@@ -254,8 +258,12 @@ export function getFontSizeMatchingWidth(
   precision = 0.25
 ) {
   let minFontSize = 1;
-  if (getTextWidth(minFontSize) > lineWidth) return minFontSize;
-  if (getTextWidth(maxFontSize) < lineWidth) return maxFontSize;
+  if (getTextWidth(minFontSize) > lineWidth) {
+    return minFontSize;
+  }
+  if (getTextWidth(maxFontSize) < lineWidth) {
+    return maxFontSize;
+  }
 
   // Dichotomic search
   let fontSize = (minFontSize + maxFontSize) / 2;

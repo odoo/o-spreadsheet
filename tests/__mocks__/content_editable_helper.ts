@@ -30,7 +30,9 @@ export class ContentEditableHelper {
   selectRange(start: number, end: number) {
     this.manualRange = true;
     // We cannot set the cursor position beyond the text of the editor
-    if (!this.el || !this.el.textContent || start < 0 || end > this.el.textContent.length) return;
+    if (!this.el || !this.el.textContent || start < 0 || end > this.el.textContent.length) {
+      return;
+    }
     this.currentState.cursorStart = start;
     this.currentState.cursorEnd = end;
   }
@@ -104,7 +106,9 @@ export class ContentEditableHelper {
   }
 
   private attachEventHandlers() {
-    if (this.el === null) return;
+    if (this.el === null) {
+      return;
+    }
     this.el.addEventListener("keydown", (ev: KeyboardEvent) => this.onKeyDown(this.el!, ev));
     this.el.addEventListener("focus", (ev: FocusEvent) => (window.mockContentHelper = this));
   }
