@@ -187,7 +187,9 @@ export class DataValidationPlugin
 
   cellHasListDataValidationIcon(cellPosition: CellPosition): boolean {
     const rule = this.getValidationRuleForCell(cellPosition);
-    if (!rule) return false;
+    if (!rule) {
+      return false;
+    }
 
     return (
       (rule.criterion.type === "isValueInList" || rule.criterion.type === "isValueInRange") &&

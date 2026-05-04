@@ -719,14 +719,18 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
   private checkCellOutOfSheet(cmd: PositionDependentCommand): CommandResult {
     const { sheetId, col, row } = cmd;
     const sheet = this.getters.tryGetSheet(sheetId);
-    if (!sheet) return CommandResult.InvalidSheetId;
+    if (!sheet) {
+      return CommandResult.InvalidSheetId;
+    }
     const sheetZone = this.getters.getSheetZone(sheetId);
     return isInside(col, row, sheetZone) ? CommandResult.Success : CommandResult.TargetOutOfSheet;
   }
 
   private checkUselessClearCell(cmd: ClearCellCommand): CommandResult {
     const cell = this.getters.getCell(cmd);
-    if (!cell) return CommandResult.NoChanges;
+    if (!cell) {
+      return CommandResult.NoChanges;
+    }
     if (!cell.content && !cell.style && !cell.format) {
       return CommandResult.NoChanges;
     }

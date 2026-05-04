@@ -231,7 +231,9 @@ export class XlsxSheetExtractor extends XlsxBaseExtractor {
 
   private extractSheetFormat(worksheet: Element): XLSXSheetFormat | undefined {
     const formatElement = this.querySelector(worksheet, "sheetFormatPr");
-    if (!formatElement) return undefined;
+    if (!formatElement) {
+      return undefined;
+    }
 
     return {
       defaultColWidth: this.extractAttr(formatElement, "defaultColWidth", {
@@ -245,7 +247,9 @@ export class XlsxSheetExtractor extends XlsxBaseExtractor {
 
   private extractSheetProperties(worksheet: Element): XLSXSheetProperties | undefined {
     const propertiesElement = this.querySelector(worksheet, "sheetPr");
-    if (!propertiesElement) return undefined;
+    if (!propertiesElement) {
+      return undefined;
+    }
 
     return {
       outlinePr: this.extractSheetOutlineProperties(propertiesElement),
@@ -257,7 +261,9 @@ export class XlsxSheetExtractor extends XlsxBaseExtractor {
     sheetProperties: Element
   ): XLSXOutlineProperties | undefined {
     const properties = this.querySelector(sheetProperties, "outlinePr");
-    if (!properties) return undefined;
+    if (!properties) {
+      return undefined;
+    }
 
     return {
       summaryBelow: this.extractAttr(properties, "summaryBelow", { default: true }).asBool()!,
@@ -332,7 +338,9 @@ export class XlsxSheetExtractor extends XlsxBaseExtractor {
 
   private extractCellFormula(cellElement: Element): XLSXFormula | undefined {
     const formulaElement = this.querySelector(cellElement, "f");
-    if (!formulaElement) return undefined;
+    if (!formulaElement) {
+      return undefined;
+    }
     const content = this.extractTextContent(formulaElement);
     const sharedIndex = this.extractAttr(formulaElement, "si")?.asNum();
     const ref = this.extractAttr(formulaElement, "ref")?.asString();

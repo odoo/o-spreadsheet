@@ -82,7 +82,9 @@ export class Popover extends Component<PopoverProps, SpreadsheetChildEnv> {
     // useEffect occurs after the DOM is created and the element width/height are computed, but before
     // the element in rendered, so we can still set its position
     useEffect(() => {
-      if (!this.containerRect) throw new Error("Popover container is not defined");
+      if (!this.containerRect) {
+        throw new Error("Popover container is not defined");
+      }
       const el = this.popoverRef.el!;
 
       const anchor = rectIntersection(this.props.anchorRect, this.containerRect);
@@ -93,7 +95,9 @@ export class Popover extends Component<PopoverProps, SpreadsheetChildEnv> {
       el.style.display = newDisplay;
       this.currentDisplayValue = newDisplay;
 
-      if (!anchor) return;
+      if (!anchor) {
+        return;
+      }
 
       const propsMaxSize = { width: this.props.maxWidth, height: this.props.maxHeight };
       let elDims = {
@@ -214,9 +218,15 @@ abstract class PopoverPositionContext {
     const shouldRenderAtBottom = this.shouldRenderAtBottom(elDims.height);
     const shouldRenderAtRight = this.shouldRenderAtRight(elDims.width);
 
-    if (shouldRenderAtBottom && shouldRenderAtRight) return "BottomRight";
-    if (shouldRenderAtBottom && !shouldRenderAtRight) return "BottomLeft";
-    if (!shouldRenderAtBottom && shouldRenderAtRight) return "TopRight";
+    if (shouldRenderAtBottom && shouldRenderAtRight) {
+      return "BottomRight";
+    }
+    if (shouldRenderAtBottom && !shouldRenderAtRight) {
+      return "BottomLeft";
+    }
+    if (!shouldRenderAtBottom && shouldRenderAtRight) {
+      return "TopRight";
+    }
     return "TopLeft";
   }
 }
