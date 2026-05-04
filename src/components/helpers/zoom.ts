@@ -26,7 +26,9 @@ export function withZoom<T extends MouseEvent>(
   if (originalTargetPosition === undefined) {
     originalTargetPosition = getZoomTargetPosition(ev, zoomLevel);
   }
-  if (!originalTargetPosition) return withNoZoom(ev);
+  if (!originalTargetPosition) {
+    return withNoZoom(ev);
+  }
   const baseOffsetX = ev.clientX - originalTargetPosition.x;
   const baseOffsetY = ev.clientY - originalTargetPosition.y;
   const offsetX = baseOffsetX / zoomLevel;

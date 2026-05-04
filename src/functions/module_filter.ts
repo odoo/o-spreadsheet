@@ -350,7 +350,9 @@ export const UNIQUE = {
       result.push(row.data);
     }
 
-    if (!result.length) return new EvaluationError(_t("No unique values found"));
+    if (!result.length) {
+      return new EvaluationError(_t("No unique values found"));
+    }
 
     return _byColumn ? result : transposeMatrix(result);
   },

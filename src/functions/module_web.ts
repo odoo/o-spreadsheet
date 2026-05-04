@@ -23,7 +23,9 @@ export const HYPERLINK = {
   ): string {
     const processedUrl = toString(url).trim();
     const processedLabel = toString(linkLabel) || processedUrl;
-    if (processedUrl === "") return processedLabel;
+    if (processedUrl === "") {
+      return processedLabel;
+    }
     return markdownLink(processedLabel, processedUrl);
   },
   isExported: true,

@@ -26,7 +26,9 @@ clickableCellRegistry.add("link", {
     openLink(env.model.getters.getEvaluatedCell(position).link!, env, isMiddleClick),
   title: (position, getters) => {
     const link = getters.getEvaluatedCell(position).link;
-    if (!link) return "";
+    if (!link) {
+      return "";
+    }
     if (link.isExternal) {
       return _t("Go to url: %(url)s", { url: link.url });
     } else {

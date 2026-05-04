@@ -99,7 +99,9 @@ export class SortPlugin extends UIPlugin {
    *
    */
   private hasHeader(sheetId: UID, items: Position[][]): boolean {
-    if (items[0].length === 1) return false;
+    if (items[0].length === 1) {
+      return false;
+    }
     let cells: CellValueType[][] = items.map((col) =>
       col.map(({ col, row }) => this.getters.getEvaluatedCell({ sheetId, col, row }).type)
     );

@@ -155,10 +155,14 @@ function createWorksheets(data: ExcelWorkbookData, construct: XLSXStructure): XL
 
     for (const image of sheet.images) {
       const mimeType = image.data.mimetype;
-      if (mimeType === undefined) continue;
+      if (mimeType === undefined) {
+        continue;
+      }
       const extension = IMAGE_MIMETYPE_TO_EXTENSION_MAPPING[mimeType];
       // only support exporting images with mimetypes specified in the mapping
-      if (extension === undefined) continue;
+      if (extension === undefined) {
+        continue;
+      }
       const xlsxImageId = convertImageId(image.id);
       const imageFileName = `image${xlsxImageId}.${extension}`;
 
@@ -266,7 +270,9 @@ function createTablesForSheet(
   files: XLSXExportFile[]
 ): XMLString {
   let currentTableId = startingTableId;
-  if (!sheetData.tables.length) return new XMLString("");
+  if (!sheetData.tables.length) {
+    return new XMLString("");
+  }
 
   const sheetRelFile = `xl/worksheets/_rels/sheet${sheetId}.xml.rels`;
 

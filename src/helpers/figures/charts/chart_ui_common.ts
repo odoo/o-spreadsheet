@@ -74,10 +74,11 @@ export async function chartToImageUrl(
   }
   // TODO: make a registry of chart types to their rendering functions
   else {
-    if (!globalThis.OffscreenCanvas)
+    if (!globalThis.OffscreenCanvas) {
       throw new Error(
         `converting a ${type} chart to an image using OffscreenCanvas is not supported in this environment`
       );
+    }
     if (type === "scorecard") {
       const design = getScorecardConfiguration(figure, runtime as ScorecardChartRuntime);
       drawScoreChart(design, canvas);
@@ -130,10 +131,11 @@ export async function chartToImageFile(
       }
     }
   } else {
-    if (!globalThis.OffscreenCanvas)
+    if (!globalThis.OffscreenCanvas) {
       throw new Error(
         `converting a ${type} chart to an image using OffscreenCanvas is not supported in this environment`
       );
+    }
     if (type === "scorecard") {
       const design = getScorecardConfiguration(figure, runtime as ScorecardChartRuntime);
       drawScoreChart(design, canvas);

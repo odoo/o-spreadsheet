@@ -1400,8 +1400,12 @@ export const IRR = {
     visitNumbers(
       [cashFlowAmounts],
       ({ value: amount }) => {
-        if (amount > 0) positive = true;
-        if (amount < 0) negative = true;
+        if (amount > 0) {
+          positive = true;
+        }
+        if (amount < 0) {
+          negative = true;
+        }
         amounts.push(amount);
       },
       this.locale
@@ -1843,7 +1847,9 @@ function ppmt(
     throw new EvaluationError(expectPeriodBetweenOneAndNumberOfPeriods(n));
   }
   const payment = pmt(r, n, pValue, fValue, t);
-  if (t === 1 && per === 1) return payment;
+  if (t === 1 && per === 1) {
+    return payment;
+  }
   const eqPeriod = t === 0 ? per - 1 : per - 2;
   const eqPv = pValue + payment * t;
   const capitalAtPeriod = -fv(r, eqPeriod, payment, eqPv, 0);
@@ -2750,7 +2756,9 @@ export const VDB = {
       return new EvaluationError(expectDeprecationFactorStrictlyPositive(_factor));
     }
 
-    if (_cost === 0) return 0;
+    if (_cost === 0) {
+      return 0;
+    }
     if (_salvage >= _cost) {
       return _startPeriod < 1 ? _cost - _salvage : 0;
     }
@@ -2838,8 +2846,11 @@ export const XIRR = {
     const map = new Map<number, number>();
     for (const i of range(0, _dates.length)) {
       const date = _dates[i];
-      if (map.has(date)) map.set(date, map.get(date)! + _cashFlows[i]);
-      else map.set(date, _cashFlows[i]);
+      if (map.has(date)) {
+        map.set(date, map.get(date)! + _cashFlows[i]);
+      } else {
+        map.set(date, _cashFlows[i]);
+      }
     }
     const dates = Array.from(map.keys());
     const values = dates.map((date) => map.get(date)!);
@@ -2878,7 +2889,9 @@ export const XIRR = {
     };
     const nanFallback = (previousFallback: number | undefined) => {
       // -0.9 => -0.99 => -0.999 => ...
-      if (!previousFallback) return -0.9;
+      if (!previousFallback) {
+        return -0.9;
+      }
       return previousFallback / 10 - 0.9;
     };
 
@@ -2928,14 +2941,19 @@ export const XNPV = {
       return new EvaluationError(expectRateStrictlyPositive(rate));
     }
 
-    if (_cashFlows.length === 1) return _cashFlows[0];
+    if (_cashFlows.length === 1) {
+      return _cashFlows[0];
+    }
 
     // aggregate values of the same date
     const map = new Map<number, number>();
     for (const i of range(0, _dates.length)) {
       const date = _dates[i];
-      if (map.has(date)) map.set(date, map.get(date)! + _cashFlows[i]);
-      else map.set(date, _cashFlows[i]);
+      if (map.has(date)) {
+        map.set(date, map.get(date)! + _cashFlows[i]);
+      } else {
+        map.set(date, _cashFlows[i]);
+      }
     }
     const dates = Array.from(map.keys());
     const values = dates.map((date) => map.get(date)!);

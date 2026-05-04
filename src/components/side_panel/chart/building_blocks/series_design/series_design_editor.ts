@@ -42,7 +42,9 @@ export class SeriesDesignEditor extends Component<Props, SpreadsheetChildEnv> {
 
   updateDataSeriesColor(color: string) {
     const dataSets = this.props.definition.dataSets;
-    if (!dataSets?.[this.state.index]) return;
+    if (!dataSets?.[this.state.index]) {
+      return;
+    }
     dataSets[this.state.index] = {
       ...dataSets[this.state.index],
       backgroundColor: color,
@@ -52,7 +54,9 @@ export class SeriesDesignEditor extends Component<Props, SpreadsheetChildEnv> {
 
   getDataSeriesColor() {
     const dataSets = this.props.definition.dataSets;
-    if (!dataSets?.[this.state.index]) return "";
+    if (!dataSets?.[this.state.index]) {
+      return "";
+    }
     const color = dataSets[this.state.index].backgroundColor;
     return color
       ? toHex(color)
@@ -62,7 +66,9 @@ export class SeriesDesignEditor extends Component<Props, SpreadsheetChildEnv> {
   updateDataSeriesLabel(ev: Event) {
     const label = (ev.target as HTMLInputElement).value;
     const dataSets = this.props.definition.dataSets;
-    if (!dataSets?.[this.state.index]) return;
+    if (!dataSets?.[this.state.index]) {
+      return;
+    }
     dataSets[this.state.index] = {
       ...dataSets[this.state.index],
       label,

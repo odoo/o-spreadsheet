@@ -64,7 +64,9 @@ export class MenuItemRegistry extends Registry<ActionSpec> {
     if ("id" in value) {
       const valueIndex = children.findIndex((elt) => "id" in elt && elt.id === value.id);
       if (valueIndex > -1) {
-        if (!options.force) throw new Error(`A child with the id "${value.id}" already exists.`);
+        if (!options.force) {
+          throw new Error(`A child with the id "${value.id}" already exists.`);
+        }
         node.children.splice(valueIndex, 1, value);
         return this;
       }

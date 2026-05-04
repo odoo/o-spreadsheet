@@ -54,7 +54,9 @@ function convertBorderDescr(
   borderDescr: XLSXBorderDescr | undefined,
   warningManager: XLSXImportWarningManager
 ): BorderDescr | undefined {
-  if (!borderDescr) return undefined;
+  if (!borderDescr) {
+    return undefined;
+  }
 
   addBorderDescrWarnings(borderDescr, warningManager);
 

@@ -36,8 +36,12 @@ class AttributeValue {
   }
 
   asBool(): boolean {
-    if (this.value === "true") return true; // for files exported from Libre Office
-    if (this.value === "false") return false;
+    if (this.value === "true") {
+      return true;
+    } // for files exported from Libre Office
+    if (this.value === "false") {
+      return false;
+    }
     return Boolean(Number(this.value));
   }
 
@@ -179,7 +183,9 @@ export class XlsxBaseExtractor {
   ): ExtractAttrType<T> {
     const attribute = e.attributes[attName];
 
-    if (!attribute) this.handleMissingValue(e, `attribute "${attName}"`, optionalArgs);
+    if (!attribute) {
+      this.handleMissingValue(e, `attribute "${attName}"`, optionalArgs);
+    }
 
     const value = attribute?.value ? attribute.value : optionalArgs?.default;
     return (value === undefined ? undefined : new AttributeValue(value)) as ExtractAttrType<T>;
@@ -341,11 +347,15 @@ export class XlsxBaseExtractor {
    * Returns the xml file targeted by a relationship.
    */
   protected getTargetXmlFile(relationship: XLSXRel): XLSXImportFile {
-    if (!relationship) throw new Error("Undefined target file");
+    if (!relationship) {
+      throw new Error("Undefined target file");
+    }
     const target = this.processRelationshipTargetName(relationship.target);
     // Use "endsWith" because targets are relative paths, and we know the files by their absolute path.
     const f = this.getListOfXMLFiles().find((f) => f.file.fileName.endsWith(target));
-    if (!f || !f.file) throw new Error("Cannot find target file");
+    if (!f || !f.file) {
+      throw new Error("Cannot find target file");
+    }
     return f;
   }
 
@@ -353,11 +363,15 @@ export class XlsxBaseExtractor {
    * Returns the image parameters targeted by a relationship.
    */
   protected getTargetImageFile(relationship: XLSXRel): XLSXImageFile {
-    if (!relationship) throw new Error("Undefined target file");
+    if (!relationship) {
+      throw new Error("Undefined target file");
+    }
     const target = this.processRelationshipTargetName(relationship.target);
     // Use "endsWith" because targets are relative paths, and we know the files by their absolute path.
     const f = this.xlsxFileStructure.images.find((f) => f.fileName.endsWith(target));
-    if (!f) throw new Error("Cannot find target file");
+    if (!f) {
+      throw new Error("Cannot find target file");
+    }
     return f;
   }
 

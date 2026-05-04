@@ -107,7 +107,9 @@ export class FilterEvaluationPlugin extends UIPlugin {
   getFilterHiddenValues(position: CellPosition): string[] {
     const id = this.getters.getFilterId(position);
     const sheetId = position.sheetId;
-    if (!id || !this.filterValues[sheetId]) return [];
+    if (!id || !this.filterValues[sheetId]) {
+      return [];
+    }
     const value = this.filterValues[sheetId][id] || [];
     return value.filterType === "values" ? value.hiddenValues : [];
   }
@@ -115,17 +117,23 @@ export class FilterEvaluationPlugin extends UIPlugin {
   getFilterCriterionValue(position: CellPosition): CriterionFilter {
     const id = this.getters.getFilterId(position);
     const sheetId = position.sheetId;
-    if (!id || !this.filterValues[sheetId]) return EMPTY_CRITERION;
+    if (!id || !this.filterValues[sheetId]) {
+      return EMPTY_CRITERION;
+    }
     const value = this.filterValues[sheetId][id];
     return value && value.filterType === "criterion" ? value : EMPTY_CRITERION;
   }
 
   isFilterActive(position: CellPosition): boolean {
     const id = this.getters.getFilterId(position);
-    if (!id) return false;
+    if (!id) {
+      return false;
+    }
     const sheetId = position.sheetId;
     const value = this.filterValues[sheetId]?.[id];
-    if (!value) return false;
+    if (!value) {
+      return false;
+    }
     return value.filterType === "values" ? value.hiddenValues.length > 0 : value.type !== "none";
   }
 
@@ -137,8 +145,12 @@ export class FilterEvaluationPlugin extends UIPlugin {
 
   private updateFilter({ col, row, value, sheetId }: UpdateFilterCommand) {
     const id = this.getters.getFilterId({ sheetId, col, row });
-    if (!id) return;
-    if (!this.filterValues[sheetId]) this.filterValues[sheetId] = {};
+    if (!id) {
+      return;
+    }
+    if (!this.filterValues[sheetId]) {
+      this.filterValues[sheetId] = {};
+    }
     this.filterValues[sheetId][id] = value;
   }
 
@@ -164,7 +176,9 @@ export class FilterEvaluationPlugin extends UIPlugin {
       }
       if (filterValue.filterType === "values") {
         const filteredValues = filterValue.hiddenValues?.map(toLowerCase);
-        if (!filteredValues) continue;
+        if (!filteredValues) {
+          continue;
+        }
         const filteredValuesSet = new Set(filteredValues);
         for (let row = filteredZone.top; row <= filteredZone.bottom; row++) {
           const value = this.getCellValueAsString(sheetId, filter.col, row);
@@ -173,7 +187,9 @@ export class FilterEvaluationPlugin extends UIPlugin {
           }
         }
       } else {
-        if (filterValue.type === "none") continue;
+        if (filterValue.type === "none") {
+          continue;
+        }
         const evaluator = criterionEvaluatorRegistry.get(filterValue.type);
 
         const evaluatedCriterionValues = filterValue.values.map((value) => {

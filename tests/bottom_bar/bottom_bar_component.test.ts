@@ -500,7 +500,9 @@ describe("BottomBar component", () => {
     jest
       .spyOn(Element.prototype, "clientWidth", "get")
       .mockImplementation(function (this: HTMLDivElement) {
-        if (this.classList.contains("o-sheet-list")) return 300;
+        if (this.classList.contains("o-sheet-list")) {
+          return 300;
+        }
         return 0;
       });
 
@@ -893,8 +895,11 @@ describe("BottomBar component", () => {
       extendMockGetBoundingClientRect({
         "o-sheet-list": () => ({ x: 0, width: 500 }),
         "o-sheet": (el: HTMLElement) => {
-          if (el.dataset.id === "Sheet1") return { x: 0, width: 100 };
-          else if (el.dataset.id === "Sheet2") return { x: 100, width: 300 };
+          if (el.dataset.id === "Sheet1") {
+            return { x: 0, width: 100 };
+          } else if (el.dataset.id === "Sheet2") {
+            return { x: 100, width: 300 };
+          }
           return { x: model.getters.getSheetIds().indexOf(el.dataset.id!) * 100 + 200, width: 100 };
         },
       });

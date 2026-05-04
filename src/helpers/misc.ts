@@ -252,7 +252,9 @@ export function isNotNull<T>(argument: T | null): argument is T {
  * Check if all the values of an object, and all the values of the objects inside of it, are undefined.
  */
 export function isObjectEmptyRecursive<T extends object>(argument: T | undefined): boolean {
-  if (argument === undefined) return true;
+  if (argument === undefined) {
+    return true;
+  }
   return Object.values(argument).every((value) =>
     typeof value === "object" ? isObjectEmptyRecursive(value) : !value
   );
@@ -385,18 +387,30 @@ export function getAddHeaderStartIndex(position: "before" | "after", base: numbe
  */
 
 export function deepEquals(...o: any[]): boolean {
-  if (o.length <= 1) return true;
+  if (o.length <= 1) {
+    return true;
+  }
   for (let index = 1; index < o.length; index++) {
-    if (!_deepEquals(o[0], o[index])) return false;
+    if (!_deepEquals(o[0], o[index])) {
+      return false;
+    }
   }
   return true;
 }
 
 function _deepEquals(o1: any, o2: any): boolean {
-  if (o1 === o2) return true;
-  if ((o1 && !o2) || (o2 && !o1)) return false;
-  if (typeof o1 !== typeof o2) return false;
-  if (typeof o1 !== "object") return false;
+  if (o1 === o2) {
+    return true;
+  }
+  if ((o1 && !o2) || (o2 && !o1)) {
+    return false;
+  }
+  if (typeof o1 !== typeof o2) {
+    return false;
+  }
+  if (typeof o1 !== "object") {
+    return false;
+  }
 
   // Objects can have different keys if the values are undefined
   for (const key in o2) {
@@ -406,11 +420,17 @@ function _deepEquals(o1: any, o2: any): boolean {
   }
 
   for (const key in o1) {
-    if (typeof o1[key] !== typeof o2[key]) return false;
+    if (typeof o1[key] !== typeof o2[key]) {
+      return false;
+    }
     if (typeof o1[key] === "object") {
-      if (!_deepEquals(o1[key], o2[key])) return false;
+      if (!_deepEquals(o1[key], o2[key])) {
+        return false;
+      }
     } else {
-      if (o1[key] !== o2[key]) return false;
+      if (o1[key] !== o2[key]) {
+        return false;
+      }
     }
   }
 
@@ -451,7 +471,9 @@ export function includesAll<T>(arr: T[], values: T[]): boolean {
  * Return an object with all the keys in the object that have a falsy value removed.
  */
 export function removeFalsyAttributes<T extends Object | undefined | null>(obj: T): T {
-  if (!obj) return obj;
+  if (!obj) {
+    return obj;
+  }
   const cleanObject = { ...obj };
   Object.keys(cleanObject).forEach((key) => !cleanObject[key] && delete cleanObject[key]);
   return cleanObject;
@@ -488,7 +510,9 @@ export const whiteSpaceCharacters = specialWhiteSpaceSpecialCharacters.concat(["
  * Replace all different newlines characters by \n.
  */
 export function replaceNewLines(text: string | undefined): string {
-  if (!text) return "";
+  if (!text) {
+    return "";
+  }
   return text.replace(newLineRegexp, NEWLINE);
 }
 
@@ -577,7 +601,9 @@ export function getSearchRegex(searchStr: string, searchOptions: SearchOptions):
 export function largeMax(array: number[]) {
   let len = array.length;
 
-  if (len < 100_000) return Math.max(...array);
+  if (len < 100_000) {
+    return Math.max(...array);
+  }
 
   let max: number = -Infinity;
   while (len--) {
@@ -593,7 +619,9 @@ export function largeMax(array: number[]) {
 export function largeMin(array: number[]) {
   let len = array.length;
 
-  if (len < 100_000) return Math.min(...array);
+  if (len < 100_000) {
+    return Math.min(...array);
+  }
 
   let min: number = +Infinity;
   while (len--) {
