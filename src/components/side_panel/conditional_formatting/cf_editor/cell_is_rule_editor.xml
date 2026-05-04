@@ -16,6 +16,7 @@
         criterion="this.cfEditorPlugin.genericCriterion"
         onCriterionChanged="(rule) => this.cfEditorPlugin.onRuleValuesChanged(rule)"
         autofocus="this.cfEditorPlugin.state.hasEditedCf"
+        sheetId="this.cfEditorPlugin.state.cfSheetId"
       />
 
       <div class="o-section-subtitle pt-3">Formatting style</div>

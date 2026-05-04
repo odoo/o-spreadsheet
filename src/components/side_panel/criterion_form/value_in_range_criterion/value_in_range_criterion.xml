@@ -6,6 +6,7 @@
       required="true"
       hasSingleRange="true"
       autofocus="this.props.autofocus"
+      goBackToSheet="false"
     />
     <t t-foreach="this.values" t-as="value" t-key="value_index">
       <div class="o-dv-list-values p-1 d-flex align-items-center">

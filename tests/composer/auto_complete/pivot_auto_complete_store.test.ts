@@ -49,7 +49,7 @@ describe("spreadsheet pivot auto complete", () => {
       // range selection stops
       expect(composer.isSelectingRange).toBeFalsy();
       expect(composer.isAutoCompleteDisplayed).toBe(false);
-      composer.cancelEdition();
+      composer.cancelEdition({ resetContent: true, activateSheet: true });
     }
   });
 
@@ -66,13 +66,13 @@ describe("spreadsheet pivot auto complete", () => {
       composer.startEdition(`=${func}(1`);
       await nextTick();
       expect(composer.isAutoCompleteDisplayed).toBe(false);
-      composer.cancelEdition();
+      composer.cancelEdition({ resetContent: true, activateSheet: true });
 
       // id as a string
       composer.startEdition(`=${func}("1"`);
       await nextTick();
       expect(composer.isAutoCompleteDisplayed).toBe(false);
-      composer.cancelEdition();
+      composer.cancelEdition({ resetContent: true, activateSheet: true });
     }
   });
 

@@ -2,6 +2,7 @@ import { isFuncallToken } from "../formulas/parser";
 import { rangeTokenize } from "../formulas/range_tokenizer";
 import { Token, tokenize } from "../formulas/tokenizer";
 import { CellErrorType } from "../types/errors";
+import { Getters } from "../types/getters";
 import { ApplyRangeChangeResult, ApplyRenameNamedRange, RangeAdapter, UID } from "../types/misc";
 import { Range } from "../types/range";
 import { concat, getCanonicalSymbolName } from "./misc";
@@ -118,5 +119,26 @@ export function replaceSymbolInFormula(
         ? newCanonicalSymbol
         : token.value
     )
+    .join("");
+}
+
+/*
+ * Adapt string `formula` representation on `fromSheetId`
+ * to ensure they are correctly represented on `toSheetId`.
+ */
+export function adaptFormulaToSheet(
+  getters: Getters,
+  formula: string,
+  toSheetId: UID,
+  fromSheetId: UID
+) {
+  return rangeTokenize(formula)
+    .map((token) => {
+      if (token.type === "REFERENCE") {
+        const range = getters.getRangeFromSheetXC(fromSheetId, token.value);
+        return getters.getRangeString(range, toSheetId);
+      }
+      return token.value;
+    })
     .join("");
 }

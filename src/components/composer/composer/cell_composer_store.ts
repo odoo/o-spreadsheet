@@ -51,7 +51,7 @@ export class CellComposerStore extends AbstractComposerStore {
     const canStopEdition = this.canStopEdition();
     if (canStopEdition) {
       const { col, row } = this.currentEditedCell;
-      this._stopEdition();
+      this._stopEdition({ activateSheet: true });
       if (direction) {
         if (this.getters.isSingleCellOrMerge(this.sheetId, this.getters.getSelectedZone())) {
           this.model.selection.selectCell(col, row);
@@ -79,14 +79,14 @@ export class CellComposerStore extends AbstractComposerStore {
         errorStr
       )
     );
-    this.cancelEdition();
+    this.cancelEdition({ resetContent: true, activateSheet: true });
   }
 
   handle(cmd: Command) {
     super.handle(cmd);
     switch (cmd.type) {
       case "SET_FORMATTING":
-        this.cancelEdition();
+        this.cancelEdition({ resetContent: true, activateSheet: true });
         break;
       case "ADD_COLUMNS_ROWS":
         this.onAddElements(cmd);
@@ -120,8 +120,7 @@ export class CellComposerStore extends AbstractComposerStore {
         const sheetIdExists = !!this.getters.tryGetSheet(this.sheetId);
         if (!sheetIdExists && this.editionMode !== "inactive") {
           this.sheetId = this.getters.getActiveSheetId();
-          this.resetContent();
-          this.cancelEditionAndActivateSheet();
+          this.cancelEdition({ resetContent: true, activateSheet: true });
           this.notificationPlugin.raiseError(CELL_DELETED_MESSAGE);
         }
         break;
@@ -151,7 +150,7 @@ export class CellComposerStore extends AbstractComposerStore {
 
   private onColumnsRemoved(cmd: RemoveColumnsRowsCommand) {
     if (cmd.elements.includes(this.col) && this.editionMode !== "inactive") {
-      this.cancelEdition();
+      this.cancelEdition({ resetContent: true, activateSheet: true });
       this.notificationPlugin.raiseError(CELL_DELETED_MESSAGE);
       return;
     }
@@ -166,7 +165,7 @@ export class CellComposerStore extends AbstractComposerStore {
 
   private onRowsRemoved(cmd: RemoveColumnsRowsCommand) {
     if (cmd.elements.includes(this.row) && this.editionMode !== "inactive") {
-      this.cancelEdition();
+      this.cancelEdition({ resetContent: true, activateSheet: true });
       this.notificationPlugin.raiseError(CELL_DELETED_MESSAGE);
       return;
     }

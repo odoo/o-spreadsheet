@@ -1,0 +1,61 @@
+import {
+  CommandResult,
+  DispatchResult,
+  UpdateConditionalFormatsCommand,
+} from "../../types/commands";
+import { UIPlugin } from "../ui_plugin";
+
+export class ConditionalFormatUIPlugin extends UIPlugin {
+  validators = {
+    UPDATE_CONDITIONAL_FORMATS: this.checkUpdateConditionalFormats,
+  };
+
+  handlers = {
+    UPDATE_CONDITIONAL_FORMATS: this.onUpdateConditionalFormats,
+  };
+
+  private checkUpdateConditionalFormats(command: UpdateConditionalFormatsCommand) {
+    const results: DispatchResult[] = [];
+    for (const sheetId of command.sheetIdsToRemove || []) {
+      results.push(
+        this.canDispatch("REMOVE_CONDITIONAL_FORMAT", {
+          sheetId,
+          id: command.cfId,
+        })
+      );
+    }
+    for (const sheetId in command.rulesBySheetId) {
+      results.push(
+        this.canDispatch("ADD_CONDITIONAL_FORMAT", {
+          sheetId,
+          cf: command.rulesBySheetId[sheetId].cf,
+          ranges: command.rulesBySheetId[sheetId].ranges,
+        })
+      );
+    }
+    const reasons = results
+      .map((result) => result.reasons)
+      .flat()
+      .filter((r) => r !== CommandResult.NoChanges);
+    if (reasons.length) {
+      return reasons;
+    }
+    return CommandResult.Success;
+  }
+
+  private onUpdateConditionalFormats(cmd: UpdateConditionalFormatsCommand) {
+    for (const sheetId of cmd.sheetIdsToRemove || []) {
+      this.dispatch("REMOVE_CONDITIONAL_FORMAT", {
+        sheetId,
+        id: cmd.cfId,
+      });
+    }
+    for (const sheetId in cmd.rulesBySheetId) {
+      this.dispatch("ADD_CONDITIONAL_FORMAT", {
+        sheetId,
+        cf: cmd.rulesBySheetId[sheetId].cf,
+        ranges: cmd.rulesBySheetId[sheetId].ranges,
+      });
+    }
+  }
+}

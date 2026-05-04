@@ -1,4 +1,5 @@
 import { onWillUpdateProps, proxy, signal, useOnChange, useProps } from "@odoo/owl";
+import { adaptFormulaToSheet } from "../../../../helpers/formulas";
 import { canonicalizeContent, localizeContent } from "../../../../helpers/locale";
 import { criterionEvaluatorRegistry } from "../../../../registries/criterion_registry";
 import { _t } from "../../../../translation";
@@ -12,6 +13,7 @@ export class CriterionInput extends OSComponent {
   static components = { StandaloneComposer: StandaloneComposer };
 
   protected props = useProps({
+    sheetId: types.UID(),
     value: types.string().optional(""),
     criterionType: types.DataValidationCriterionType(),
     onValueChanged: types.function<(value: string) => void>(),
@@ -81,7 +83,14 @@ export class CriterionInput extends OSComponent {
 
   onChangeComposerValue(str: string) {
     this.state.shouldDisplayError = true;
-    this.props.onValueChanged(str);
+    this.props.onValueChanged(
+      adaptFormulaToSheet(
+        this.model().getters,
+        str,
+        this.props.sheetId,
+        this.model().getters.getActiveSheetId()
+      )
+    );
   }
 
   getDataValidationRuleInputComposerProps(): PropsOf<StandaloneComposer> {
@@ -90,7 +99,7 @@ export class CriterionInput extends OSComponent {
       composerContent: this.props.value,
       placeholder: this.placeholder,
       class: "o-sidePanel-composer",
-      defaultRangeSheetId: this.model().getters.getActiveSheetId(),
+      defaultRangeSheetId: this.props.sheetId,
       invalid: this.state.shouldDisplayError && !!this.errorMessage,
       defaultStatic: true,
       autofocus: this.props.focused,
