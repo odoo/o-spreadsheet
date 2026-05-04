@@ -128,11 +128,16 @@ export class PivotUIPlugin extends CoreViewPlugin {
   getPivotIdFromPosition(position: CellPosition) {
     const cell = this.getters.getCorrespondingFormulaCell(position);
     if (cell && cell.isFormula) {
-      const pivotFunction = this.getFirstPivotFunction(position.sheetId, cell.compiledFormula);
-      if (pivotFunction) {
-        const pivotId = pivotFunction.args[0]?.toString();
-        return pivotId && this.getters.getPivotId(pivotId);
-      }
+      return this.getPivotIdFromFormula(position.sheetId, cell.compiledFormula);
+    }
+    return undefined;
+  }
+
+  private getPivotIdFromFormula(sheetId: UID, formula: CompiledFormula) {
+    const pivotFunction = this.getFirstPivotFunction(sheetId, formula);
+    if (pivotFunction) {
+      const pivotId = pivotFunction.args[0]?.toString();
+      return pivotId && this.getters.getPivotId(pivotId);
     }
     return undefined;
   }
@@ -345,6 +350,25 @@ export class PivotUIPlugin extends CoreViewPlugin {
         }
       }
     }
+
+    for (const pivotId of this.getters.getPivotIds()) {
+      const pivot = this.getters.getPivot(pivotId);
+      for (const measure of pivot.definition.measures) {
+        if (measure.computedBy) {
+          const { sheetId } = measure.computedBy;
+          const formula = this.getters.getMeasureCompiledFormula(pivotId, measure);
+          const relatedPivotId = this.getPivotIdFromFormula(sheetId, formula);
+          if (relatedPivotId) {
+            unusedPivots.delete(relatedPivotId);
+            if (!unusedPivots.size) {
+              this.unusedPivotsInFormulas = [];
+              return [];
+            }
+          }
+        }
+      }
+    }
+
     this.unusedPivotsInFormulas = [...unusedPivots];
     return this.unusedPivotsInFormulas;
   }

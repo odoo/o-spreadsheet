@@ -454,4 +454,36 @@ describe("Pivot plugin", () => {
       EMPTY_PIVOT_CELL
     );
   });
+
+  describe("isPivotUnused getter", () => {
+    test("Can use getter to detect unused pivot", () => {
+      const model = createModelWithPivot("A1:I5");
+      setCellContent(model, "A40", "=PIVOT(1)");
+      addPivot(model, "A1:I5", { name: "Unused Pivot" }, "2");
+      expect(model.getters.isPivotUnused("1")).toBe(false);
+      expect(model.getters.isPivotUnused("2")).toBe(true);
+    });
+
+    test("Pivot used in another pivot calculated measure is marked as used", () => {
+      const model = createModelWithPivot("A1:I5");
+      setCellContent(model, "A40", "=PIVOT(1)");
+      addPivot(model, "A1:I5", { name: "Unused Pivot" }, "2");
+      updatePivot(model, "1", {
+        measures: [
+          {
+            id: "Calculated",
+            fieldName: "Calculated",
+            aggregator: "sum",
+            computedBy: {
+              formula: "=PIVOT(2)",
+              sheetId: model.getters.getActiveSheetId(),
+            },
+          },
+        ],
+      });
+
+      expect(model.getters.isPivotUnused("1")).toBe(false);
+      expect(model.getters.isPivotUnused("2")).toBe(false);
+    });
+  });
 });
