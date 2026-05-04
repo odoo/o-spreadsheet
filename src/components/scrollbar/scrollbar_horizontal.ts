@@ -1,5 +1,6 @@
 import { Component, xml } from "@odoo/owl";
 import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
+import { cssPropertiesToCss } from "../helpers";
 import { isBrowserFirefox } from "../helpers/dom_helpers";
 import { ScrollBar } from "./scrollbar";
 
@@ -13,6 +14,7 @@ export class HorizontalScrollBar extends Component<Props, SpreadsheetChildEnv> {
   };
   static components = { ScrollBar };
   static template = xml/*xml*/ `
+  <div class="o-scrollbar-container position-absolute" t-att-style="containerStyle">
       <ScrollBar
         t-if="isDisplayed"
         width="width"
@@ -20,7 +22,8 @@ export class HorizontalScrollBar extends Component<Props, SpreadsheetChildEnv> {
         offset="offset"
         direction="'horizontal'"
         onScroll.bind="onScroll"
-      />`;
+      />
+  </div>`;
   static defaultProps = {
     leftOffset: 0,
   };
@@ -40,12 +43,21 @@ export class HorizontalScrollBar extends Component<Props, SpreadsheetChildEnv> {
     return xRatio < 1;
   }
 
+  get containerStyle() {
+    const scrollbarWidth = this.env.model.getters.getScrollBarWidth();
+    return cssPropertiesToCss({
+      left: `${this.props.leftOffset}px`,
+      bottom: "0px",
+      height: `${scrollbarWidth}px`,
+      right: isBrowserFirefox() ? `${scrollbarWidth}px` : "0",
+    });
+  }
+
   get position() {
     const { x } = this.env.model.getters.getMainViewportRect();
     const scrollbarWidth = this.env.model.getters.getScrollBarWidth();
     return {
-      left: `${this.props.leftOffset + x}px`,
-      bottom: "0px",
+      left: `${x}px`,
       height: `${scrollbarWidth}px`,
       right: isBrowserFirefox() ? `${scrollbarWidth}px` : "0",
     };
