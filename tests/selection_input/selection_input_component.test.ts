@@ -1,5 +1,5 @@
 import { App, Component, useSubEnv, xml } from "@odoo/owl";
-import { Color, Model } from "../../src";
+import { Color, Model, UID } from "../../src";
 import { OPEN_CF_SIDEPANEL_ACTION } from "../../src/actions/menu_items_actions";
 import { SelectionInput } from "../../src/components/selection_input/selection_input";
 import { ColorGenerator } from "../../src/helpers/color";
@@ -56,6 +56,7 @@ interface SelectionInputTestConfig {
   onChanged?: jest.Mock<void, [any]>;
   onConfirmed?: jest.Mock<void, []>;
   colors?: Color[];
+  availableOnSheetId?: UID;
 }
 
 class Parent extends Component<any> {
@@ -66,6 +67,7 @@ class Parent extends Component<any> {
       onSelectionChanged="(ranges) => this.onChanged(ranges)"
       onSelectionConfirmed="onConfirmed"
       colors="colors || []"
+      availableOnSheetId="availableOnSheetId"
     />
   `;
   static components = { SelectionInput };
@@ -76,6 +78,7 @@ class Parent extends Component<any> {
   onChanged!: jest.Mock<void, [any]>;
   onConfirmed!: jest.Mock<void, []>;
   colors: Color[] | undefined;
+  availableOnSheetId: UID | undefined;
 
   get id(): string {
     const selectionInput = getChildFromComponent(this, SelectionInput);
@@ -94,6 +97,7 @@ class Parent extends Component<any> {
     this.model = model;
     this.onChanged = this.props.config.onChanged || jest.fn();
     this.onConfirmed = this.props.config.onConfirmed || jest.fn();
+    this.availableOnSheetId = this.props.config.availableOnSheetId;
   }
 }
 
@@ -122,9 +126,10 @@ class MultiParent extends Component<any> {
 
 async function createSelectionInput(
   config: SelectionInputTestConfig = {},
-  fixtureEl?: HTMLElement
+  fixtureEl?: HTMLElement,
+  existingModel?: Model
 ) {
-  model = new Model();
+  model = existingModel ?? new Model();
   let parent: Component;
   let app: App;
   ({ fixture, parent, app } = await mountComponent(Parent, {
@@ -857,5 +862,58 @@ describe("Selection Input", () => {
     expect(input.value).toBe("C4");
 
     expect(model.getters.isGridSelectionActive()).toBeTruthy();
+  });
+
+  describe("isReadonly behaviour when availableOnSheetId differs from the active sheet id", () => {
+    let sheet1Id: UID;
+
+    beforeEach(async () => {
+      model = new Model();
+      sheet1Id = model.getters.getActiveSheetId();
+      await createSelectionInput(
+        { initialRanges: ["A1", "B2"], availableOnSheetId: sheet1Id },
+        undefined,
+        model
+      );
+      createSheet(model, { sheetId: "sheet2" });
+      activateSheet(model, "sheet2");
+      await nextTick();
+    });
+
+    test("input is disabled", async () => {
+      expect(fixture.querySelector("input")!.disabled).toBe(true);
+    });
+
+    test("remove button is hidden", async () => {
+      expect(fixture.querySelector(".o-remove-selection")).toBeNull();
+    });
+
+    test("add range button is hidden", async () => {
+      expect(fixture.querySelector(".o-add-selection")).toBeNull();
+    });
+
+    test("confirm and reset buttons are hidden", async () => {
+      expect(fixture.querySelector(".o-selection-ok")).toBeNull();
+      expect(fixture.querySelector(".o-selection-ko")).toBeNull();
+    });
+
+    test("input does not receive o-focused class when readonly", async () => {
+      await simulateClick(fixture.querySelector("input")!);
+      expect(fixture.querySelector("input")!.classList.contains("o-focused")).toBe(false);
+    });
+
+    test("empty range rows are hidden", async () => {
+      await createSelectionInput(
+        { initialRanges: ["A1", ""], availableOnSheetId: sheet1Id },
+        undefined,
+        model
+      );
+      await nextTick();
+
+      const inputs = fixture.querySelectorAll("input");
+      // The empty range row should be hidden; only the filled range row remains
+      expect(inputs.length).toBe(1);
+      expect(inputs[0].value).toBe("A1");
+    });
   });
 });
