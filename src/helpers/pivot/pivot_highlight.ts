@@ -15,8 +15,8 @@ function getVisiblePivotCellPositions(getters: Getters, pivotId: UID) {
   for (const col of getters.getSheetViewVisibleCols()) {
     for (const row of getters.getSheetViewVisibleRows()) {
       const position = { sheetId, col, row };
-      const cellPivotId = getters.getPivotIdFromPosition(position);
-      if (pivotId === cellPivotId) {
+      const cellPivotIds = getters.getPivotIdsFromPosition(position);
+      if (cellPivotIds.includes(pivotId)) {
         positions.push(position);
       }
     }
