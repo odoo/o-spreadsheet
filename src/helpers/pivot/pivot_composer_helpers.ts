@@ -12,7 +12,7 @@ const PIVOT_FUNCTIONS = ["PIVOT.VALUE", "PIVOT.HEADER", "PIVOT"];
  * Get the first Pivot function description of the given formula.
  */
 export function getFirstPivotFunction(compiledFormula: CompiledFormula, getters: CoreGetters) {
-  return compiledFormula.getFunctionsFromTokens(PIVOT_FUNCTIONS, getters)[0];
+  return getPivotFunctions(compiledFormula, getters)[0];
 }
 
 export function getPivotFunctions(compiledFormula: CompiledFormula, getters: CoreGetters) {

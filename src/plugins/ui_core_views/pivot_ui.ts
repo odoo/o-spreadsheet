@@ -21,6 +21,7 @@ import {
   CoreCommand,
   UpdatePivotCommand,
   invalidateEvaluationCommands,
+  isCoreCommand,
 } from "../../types/commands";
 import {
   CellPosition,
@@ -82,6 +83,10 @@ export class PivotUIPlugin extends CoreViewPlugin {
   }
 
   handle(cmd: Command) {
+    if (isCoreCommand(cmd) || cmd.type === "UNDO" || cmd.type === "REDO") {
+      this.unusedPivotsInFormulas = undefined;
+    }
+
     if (invalidateEvaluationCommands.has(cmd.type)) {
       this.shouldInvalidateCache = true;
       for (const pivotId of this.getters.getPivotIds()) {
@@ -109,15 +114,8 @@ export class PivotUIPlugin extends CoreViewPlugin {
         this.setupPivot(cmd.pivotId, { recreate: true });
         break;
       }
-      case "DELETE_SHEET":
-      case "UPDATE_CELL": {
-        this.unusedPivotsInFormulas = undefined;
-        break;
-      }
       case "UNDO":
       case "REDO": {
-        this.unusedPivotsInFormulas = undefined;
-
         const pivotCommands = cmd.commands.filter(isPivotCommand);
 
         for (const cmd of pivotCommands) {
@@ -165,15 +163,15 @@ export class PivotUIPlugin extends CoreViewPlugin {
     if (!this.pivotPositionCache.has(position)) {
       const cell = this.getters.getCorrespondingFormulaCell(position);
       if (cell && cell.isFormula) {
-        const pivotIds = this.getPivotIdsFromFormula(position.sheetId, cell.compiledFormula);
+        const pivotIds = this.getPivotIdsFromFormula(cell.compiledFormula);
         this.pivotPositionCache.set(position, pivotIds);
       }
     }
     return this.pivotPositionCache.get(position) || [];
   }
 
-  private getPivotIdsFromFormula(sheetId: UID, formula: CompiledFormula): UID[] {
-    return this.getPivotFunctions(sheetId, formula)
+  private getPivotIdsFromFormula(formula: CompiledFormula): UID[] {
+    return this.getPivotFunctions(formula.sheetId, formula)
       .map((pivotFunction) => {
         const pivotId = pivotFunction.args[0]?.toString();
         return pivotId && this.getters.getPivotId(pivotId);
@@ -384,34 +382,13 @@ export class PivotUIPlugin extends CoreViewPlugin {
       return this.unusedPivotsInFormulas;
     }
     const unusedPivots = new Set(this.getters.getPivotIds());
-    for (const sheetId of this.getters.getSheetIds()) {
-      for (const cell of this.getters.getCells(sheetId)) {
-        const position = this.getters.getCellPosition(cell.id);
-        const pivotIds = this.getPivotIdsFromPosition(position);
-        for (const pivotId of pivotIds) {
-          unusedPivots.delete(pivotId);
-          if (!unusedPivots.size) {
-            this.unusedPivotsInFormulas = [];
-            return [];
-          }
-        }
-      }
-    }
-
-    for (const pivotId of this.getters.getPivotIds()) {
-      const pivot = this.getters.getPivotCoreDefinition(pivotId);
-      for (const measure of pivot.measures) {
-        if (measure.computedBy) {
-          const { sheetId } = measure.computedBy;
-          const formula = this.getters.getMeasureCompiledFormula(pivotId, measure);
-          const relatedPivotIds = this.getPivotIdsFromFormula(sheetId, formula);
-          for (const relatedPivotId of relatedPivotIds) {
-            unusedPivots.delete(relatedPivotId);
-            if (!unusedPivots.size) {
-              this.unusedPivotsInFormulas = [];
-              return [];
-            }
-          }
+    for (const formula of this.getters.getAllFormulas()) {
+      const pivotIds = this.getPivotIdsFromFormula(formula);
+      for (const pivotId of pivotIds) {
+        unusedPivots.delete(pivotId);
+        if (!unusedPivots.size) {
+          this.unusedPivotsInFormulas = [];
+          return [];
         }
       }
     }

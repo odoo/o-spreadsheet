@@ -449,6 +449,18 @@ export class PivotCorePlugin extends CorePlugin<CoreState> implements CoreState 
     return CommandResult.Success;
   }
 
+  getFormulas(): CompiledFormula[] {
+    return Object.keys(this.pivots).flatMap((pivotId) => {
+      const pivot = this.pivots[pivotId];
+      if (!pivot) {
+        return [];
+      }
+      return pivot.definition.measures
+        .filter((measure) => measure.computedBy)
+        .map((measure) => this.getMeasureCompiledFormula(pivotId, measure));
+    });
+  }
+
   // ---------------------------------------------------------------------
   // Import/Export
   // ---------------------------------------------------------------------
