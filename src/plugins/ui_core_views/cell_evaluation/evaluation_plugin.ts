@@ -257,7 +257,9 @@ export class EvaluationPlugin extends CoreViewPlugin {
    */
   getRangeFormattedValues(range: Range): FormattedValue[] {
     const sheet = this.getters.tryGetSheet(range.sheetId);
-    if (sheet === undefined) return [];
+    if (sheet === undefined) {
+      return [];
+    }
     return this.mapVisiblePositions(range, (p) => this.getters.getEvaluatedCell(p).formattedValue);
   }
 
@@ -266,7 +268,9 @@ export class EvaluationPlugin extends CoreViewPlugin {
    */
   getRangeValues(range: Range): CellValue[] {
     const sheet = this.getters.tryGetSheet(range.sheetId);
-    if (sheet === undefined) return [];
+    if (sheet === undefined) {
+      return [];
+    }
     return this.mapVisiblePositions(range, (p) => this.getters.getEvaluatedCell(p).value);
   }
 
@@ -275,7 +279,9 @@ export class EvaluationPlugin extends CoreViewPlugin {
    */
   getRangeFormats(range: Range): (Format | undefined)[] {
     const sheet = this.getters.tryGetSheet(range.sheetId);
-    if (sheet === undefined) return [];
+    if (sheet === undefined) {
+      return [];
+    }
     return this.getters.getEvaluatedCellsInZone(sheet.id, range.zone).map((cell) => cell.format);
   }
 

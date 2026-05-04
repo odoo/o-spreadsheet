@@ -187,7 +187,9 @@ export function createValidRange(
   sheetId: UID,
   xc?: string
 ): Range | undefined {
-  if (!xc) return;
+  if (!xc) {
+    return;
+  }
   const range = getters.getRangeFromSheetXC(sheetId, xc);
   return !(range.invalidSheetName || range.invalidXc) ? range : undefined;
 }

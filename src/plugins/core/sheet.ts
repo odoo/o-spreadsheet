@@ -110,9 +110,12 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
         return this.checkValidations(cmd, this.checkSheetName, this.checkSheetPosition);
       }
       case "DUPLICATE_SHEET": {
-        if (this.sheets[cmd.sheetIdTo]) return CommandResult.DuplicatedSheetId;
-        if (this.orderedSheetIds.map(this.getSheetName.bind(this)).includes(cmd.sheetNameTo))
+        if (this.sheets[cmd.sheetIdTo]) {
+          return CommandResult.DuplicatedSheetId;
+        }
+        if (this.orderedSheetIds.map(this.getSheetName.bind(this)).includes(cmd.sheetNameTo)) {
           return CommandResult.DuplicatedSheetName;
+        }
         return CommandResult.Success;
       }
       case "MOVE_SHEET":
@@ -529,7 +532,9 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
    * not outside the sheet.
    */
   checkZonesExistInSheet(sheetId: UID, zones: Zone[]): CommandResult {
-    if (!zones.every(isZoneValid)) return CommandResult.InvalidRange;
+    if (!zones.every(isZoneValid)) {
+      return CommandResult.InvalidRange;
+    }
 
     if (zones.length) {
       const sheetZone = this.getSheetZone(sheetId);
@@ -1030,7 +1035,9 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
    * not outside the sheet.
    */
   private checkZonesAreInSheet(cmd: CoreCommand): CommandResult {
-    if (!("sheetId" in cmd)) return CommandResult.Success;
+    if (!("sheetId" in cmd)) {
+      return CommandResult.Success;
+    }
     if (
       "ranges" in cmd &&
       cmd.ranges.some(

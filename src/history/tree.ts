@@ -147,7 +147,9 @@ export class Tree<T = unknown> {
    */
   redo(branch: Branch<T>) {
     const removedBranch = this.nextBranch(branch);
-    if (!removedBranch) return;
+    if (!removedBranch) {
+      return;
+    }
     const nextBranch = this.nextBranch(removedBranch);
     this.removeBranchFromTree(removedBranch);
 
@@ -204,7 +206,9 @@ export class Tree<T = unknown> {
    */
   private rebaseUp(branch: Branch<T>) {
     const { previousBranch, branchingOperation } = this.findPreviousBranchingOperation(branch);
-    if (!previousBranch || !branchingOperation) return;
+    if (!previousBranch || !branchingOperation) {
+      return;
+    }
     const rebaseTransformation = this.buildTransformation.without(branchingOperation.data);
     const newBranch = previousBranch.fork(branchingOperation.id);
     this.branchingOperationIds.set(newBranch, this.branchingOperationIds.get(branch));
@@ -312,7 +316,9 @@ export class Tree<T = unknown> {
    */
   private insertPrevious(branch: Branch<T>, newOperation: Operation<T>, insertAfter: UID) {
     const { previousBranch, branchingOperation } = this.findPreviousBranchingOperation(branch);
-    if (!previousBranch || !branchingOperation) return;
+    if (!previousBranch || !branchingOperation) {
+      return;
+    }
     const transformation = this.buildTransformation.with(branchingOperation.data);
     const branchTail = branch.fork(insertAfter);
     branchTail.transform(transformation);
@@ -327,9 +333,13 @@ export class Tree<T = unknown> {
     branchingOperation?: Operation<T>;
   } {
     const previousBranch = this.previousBranch(branch);
-    if (!previousBranch) return { previousBranch: undefined, branchingOperation: undefined };
+    if (!previousBranch) {
+      return { previousBranch: undefined, branchingOperation: undefined };
+    }
     const previousBranchingId = this.branchingOperationIds.get(previousBranch);
-    if (!previousBranchingId) return { previousBranch: undefined, branchingOperation: undefined };
+    if (!previousBranchingId) {
+      return { previousBranch: undefined, branchingOperation: undefined };
+    }
     return {
       previousBranch,
       branchingOperation: previousBranch.getOperation(previousBranchingId),
