@@ -24,7 +24,7 @@ exports[`Functions autocomplete autocomplete simple snapshot with =S 1`] = `
       </div>
       
       <div
-        class="o-autocomplete-value text-truncate"
+        class="o-autocomplete-value text-truncate flex-grow-1"
       >
         <span
           class="o-semi-bold"
@@ -67,7 +67,7 @@ exports[`Functions autocomplete autocomplete simple snapshot with =S 1`] = `
       </div>
       
       <div
-        class="o-autocomplete-value text-truncate"
+        class="o-autocomplete-value text-truncate flex-grow-1"
       >
         <span
           class="o-semi-bold"
@@ -119,7 +119,7 @@ exports[`composer Assistant render above the cell when not enough place below 1`
         </div>
         
         <div
-          class="o-autocomplete-value text-truncate"
+          class="o-autocomplete-value text-truncate flex-grow-1"
         >
           <span
             class="o-semi-bold"
@@ -162,7 +162,7 @@ exports[`composer Assistant render above the cell when not enough place below 1`
         </div>
         
         <div
-          class="o-autocomplete-value text-truncate"
+          class="o-autocomplete-value text-truncate flex-grow-1"
         >
           <span
             class="o-semi-bold"
@@ -216,7 +216,7 @@ exports[`composer Assistant render below the cell by default 1`] = `
         </div>
         
         <div
-          class="o-autocomplete-value text-truncate"
+          class="o-autocomplete-value text-truncate flex-grow-1"
         >
           <span
             class="o-semi-bold"
@@ -259,7 +259,7 @@ exports[`composer Assistant render below the cell by default 1`] = `
         </div>
         
         <div
-          class="o-autocomplete-value text-truncate"
+          class="o-autocomplete-value text-truncate flex-grow-1"
         >
           <span
             class="o-semi-bold"
