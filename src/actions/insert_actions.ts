@@ -338,6 +338,7 @@ export const insertDropdown: ActionSpec = {
     }
     env.getStore(SidePanelStore).open("DataValidationEditor", {
       ruleId,
+      sheetId,
       onCancel: () => {
         env.model.dispatch("REMOVE_DATA_VALIDATION_RULE", { sheetId, id: ruleId });
       },
