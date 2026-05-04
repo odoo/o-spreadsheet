@@ -14,7 +14,7 @@ import {
   DataValidationCriterion,
   DataValidationCriterionType,
 } from "../../../../types/data_validation";
-import { UID, ValueAndLabel } from "../../../../types/misc";
+import { ValueAndLabel } from "../../../../types/misc";
 import { Store } from "../../../../types/store_engine";
 import { DataValidationRuleData } from "../../../../types/workbook_data";
 import { OSComponent } from "../../../os_component";
@@ -39,6 +39,7 @@ export class DataValidationEditor extends OSComponent {
     ruleId: types.UID(),
     onCancel: types.function().optional(),
     onCloseSidePanel: types.function(),
+    sheetId: types.UID(),
   });
 
   state = proxy<State>({
@@ -46,18 +47,16 @@ export class DataValidationEditor extends OSComponent {
     errors: [],
     isTypeUpdated: false,
   });
-  private editingSheetId!: UID;
   private sidePanelStore!: Store<SidePanelStore>;
 
   setup() {
-    this.editingSheetId = this.model().getters.getActiveSheetId();
     this.sidePanelStore = useStore(SidePanelStore);
-    const rule = this.model().getters.getDataValidationRule(this.editingSheetId, this.props.ruleId);
+    const rule = this.model().getters.getDataValidationRule(this.props.sheetId, this.props.ruleId);
     if (rule) {
       this.state.rule = {
         ...rule,
         ranges: rule.ranges.map((range) =>
-          this.model().getters.getRangeString(range, this.editingSheetId)
+          this.model().getters.getRangeString(range, this.props.sheetId)
         ),
       };
     }
@@ -82,6 +81,10 @@ export class DataValidationEditor extends OSComponent {
 
   onCancel() {
     this.props.onCancel?.();
+    this.model().dispatch("ACTIVATE_SHEET", {
+      sheetIdTo: this.props.sheetId,
+      sheetIdFrom: this.model().getters.getActiveSheetId(),
+    });
     this.sidePanelStore.replace("DataValidation", `DataValidationEditor_${this.props.ruleId}`);
   }
 
@@ -91,6 +94,10 @@ export class DataValidationEditor extends OSComponent {
       this.state.errors = result.reasons;
       return;
     }
+    this.model().dispatch("ACTIVATE_SHEET", {
+      sheetIdTo: this.props.sheetId,
+      sheetIdFrom: this.model().getters.getActiveSheetId(),
+    });
     this.sidePanelStore.replace("DataValidation", `DataValidationEditor_${this.props.ruleId}`);
   }
 
@@ -105,9 +112,9 @@ export class DataValidationEditor extends OSComponent {
       .filter((value) => value && value.trim() !== "");
     rule.criterion = { ...criterion, values };
     return {
-      sheetId: this.editingSheetId,
+      sheetId: this.props.sheetId,
       ranges: this.state.rule.ranges.map((xc) =>
-        this.model().getters.getRangeDataFromXc(this.editingSheetId, xc)
+        this.model().getters.getRangeDataFromXc(this.props.sheetId, xc)
       ),
       rule,
     };
