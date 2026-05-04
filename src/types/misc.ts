@@ -322,6 +322,10 @@ export interface RangeProvider {
   adaptRanges: (adapterFunctions: RangeAdapterFunctions) => void;
 }
 
+export interface FormulaProvider {
+  getFormulas: () => CompiledFormula[];
+}
+
 export type Validation<T> = (toValidate: T) => CommandResult | CommandResult[];
 
 export type Increment = 1 | -1 | 0;

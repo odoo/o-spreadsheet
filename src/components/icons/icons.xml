@@ -946,11 +946,6 @@
       />
     </svg>
   </t>
-  <t t-name="o-spreadsheet-Icon.UNUSED_PIVOT_WARNING">
-    <div class="o-unused-pivot-icon text-warning" title="This pivot is not used">
-      <t t-call="o-spreadsheet-Icon.TRIANGLE_EXCLAMATION"/>
-    </div>
-  </t>
   <t t-name="o-spreadsheet-Icon.ANGLE_DOWN">
     <div class="o-icon">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 224 256">

@@ -1,0 +1,29 @@
+<templates>
+  <t t-name="o-spreadsheet-DataSourcesCleanup">
+    <div class="o-data-source-cleanup">
+      <Section
+        t-foreach="this.store.unusedDataSourcesCategories"
+        t-as="category"
+        t-key="category.type"
+        title="category.label">
+        <t t-foreach="category.dataSources" t-as="dataSource" t-key="dataSource_index">
+          <Checkbox
+            name="dataSource.id"
+            label="dataSource.label"
+            value="this.isDataSourceChecked(category.type, dataSource.id)"
+            onChange="(checked) => this.onToggleDataSource(category.type, dataSource.id, checked)"
+            className="'mb-2'"
+          />
+        </t>
+        <div t-if="!category.dataSources.length" class="w-100 d-flex fst-italic text-muted">
+          No unused data source in this category.
+        </div>
+      </Section>
+      <Section t-if="this.dataSourcesToDelete.length" class="'pt-0'">
+        <button class="o-button o-button-danger" t-on-click="this.onRemoveUnusedDataSources">
+          Delete selected items
+        </button>
+      </Section>
+    </div>
+  </t>
+</templates>

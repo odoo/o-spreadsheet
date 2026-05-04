@@ -1,3 +1,4 @@
+import { CompiledFormula } from "../../formulas/compiler";
 import {
   ChartDataSourceBuilder,
   chartDataSourceRegistry,
@@ -183,6 +184,10 @@ export class SpreadsheetChart {
     return dataSource
       ? this.dataSourceBuilder.extractData(dataSource, chartId, getters)
       : { dataSetsValues: [], labelValues: [] };
+  }
+
+  getFormulas(getters: CoreGetters): CompiledFormula[] {
+    return this.chartTypeBuilder.getFormulas(getters, this.sheetId, this.definition);
   }
 
   getRuntime(getters: Getters, chartId: UID) {
