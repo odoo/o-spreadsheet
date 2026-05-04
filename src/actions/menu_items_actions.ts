@@ -558,6 +558,7 @@ export const OPEN_CF_SIDEPANEL_ACTION = (env: SpreadsheetActionEnv) => {
     return env.getStore(SidePanelStore).open("ConditionalFormattingEditor", {
       cf: rules.find((r) => r.id === ruleIds[0]),
       isNewCf: false,
+      sheetId,
     });
   }
   return env.getStore(SidePanelStore).open("ConditionalFormatting");

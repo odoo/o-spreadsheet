@@ -80,6 +80,7 @@ export class ConditionalFormatPreview extends OSComponent {
     this.sidePanelStore.replace("ConditionalFormattingEditor", "ConditionalFormatting", {
       cf: this.props.conditionalFormat,
       isNewCf: false,
+      sheetId: this.env.model.getters.getActiveSheetId(),
     });
   }
 

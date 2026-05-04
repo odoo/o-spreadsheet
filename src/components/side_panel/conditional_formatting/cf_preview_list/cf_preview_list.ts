@@ -89,6 +89,7 @@ export class ConditionalFormatPreviewList extends OSComponent {
           zoneToXc(this.env.model.getters.getUnboundedZone(sheetId, zone))
         ),
       },
+      sheetId,
       isNewCf: true,
     });
   }
