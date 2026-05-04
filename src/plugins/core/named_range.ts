@@ -34,7 +34,7 @@ export class NamedRangesPlugin extends CorePlugin<NamedRangeState> implements Na
           break;
         case "RESIZE":
         case "MOVE":
-        case "CHANGE":
+        case "RENAME":
           hasChanges = true;
           newNamedRanges.push({ ...namedRange, range: change.range });
           break;
