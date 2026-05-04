@@ -61,6 +61,16 @@ describe("Color Picker buttons", () => {
     expect(onColorPicked).toHaveBeenCalledWith("#FF9900");
   });
 
+  test("Clicking a custom color picks it without opening the gradient", async () => {
+    const model = new Model();
+    setStyle(model, "A1", { fillColor: "#123456" });
+    const onColorPicked = jest.fn();
+    await mountColorPicker({ onColorPicked }, model);
+    await simulateClick("div[data-color='#123456']");
+    expect(onColorPicked).toHaveBeenCalledWith("#123456");
+    expect(fixture.querySelector(".o-custom-selector")).toBeNull();
+  });
+
   test("Can pick a custom color in the gradient", async () => {
     const onColorPicked = jest.fn();
     await mountColorPicker({ onColorPicked });
