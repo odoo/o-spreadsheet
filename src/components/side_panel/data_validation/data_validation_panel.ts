@@ -19,6 +19,7 @@ export class DataValidationPanel extends Component<Props, SpreadsheetChildEnv> {
   addDataValidationRule() {
     this.env.replaceSidePanel("DataValidationEditor", "DataValidation", {
       ruleId: UuidGenerator.smallUuid(),
+      sheetId: this.env.model.getters.getActiveSheetId(),
     });
   }
 

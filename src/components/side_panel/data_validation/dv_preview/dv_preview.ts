@@ -25,6 +25,7 @@ export class DataValidationPreview extends Component<Props, SpreadsheetChildEnv>
   onPreviewClick() {
     this.env.replaceSidePanel("DataValidationEditor", "DataValidation", {
       ruleId: this.props.rule.id,
+      sheetId: this.env.model.getters.getActiveSheetId(),
     });
   }
 
