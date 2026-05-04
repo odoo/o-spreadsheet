@@ -15,6 +15,7 @@
       onCriterionChanged.bind="onCriterionChanged"
       disableFormulas="true"
       autofocus="true"
+      sheetId="this.env.model.getters.getActiveSheetId()"
     />
   </t>
 </templates>

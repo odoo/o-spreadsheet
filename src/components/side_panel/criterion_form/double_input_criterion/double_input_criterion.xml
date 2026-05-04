@@ -1,6 +1,7 @@
 <templates>
   <t t-name="o-spreadsheet-DoubleInputCriterionForm">
     <CriterionInput
+      sheetId="props.sheetId"
       value="props.criterion.values[0]"
       onValueChanged.bind="onFirstValueChanged"
       criterionType="props.criterion.type"
@@ -8,6 +9,7 @@
       focused="props.autofocus"
     />
     <CriterionInput
+      sheetId="props.sheetId"
       value="props.criterion.values[1]"
       onValueChanged.bind="onSecondValueChanged"
       criterionType="props.criterion.type"
