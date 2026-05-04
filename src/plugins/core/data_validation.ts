@@ -83,7 +83,7 @@ export class DataValidationPlugin
             break;
           case "RESIZE":
           case "MOVE":
-          case "CHANGE":
+          case "RENAME":
             this.history.update("rules", sheetId, ruleIndex, "ranges", rangeIndex, change.range);
             break;
         }
