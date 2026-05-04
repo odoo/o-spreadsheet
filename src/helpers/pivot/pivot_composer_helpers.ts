@@ -14,6 +14,10 @@ export function getFirstPivotFunction(compiledFormula: CompiledFormula, getters:
   return compiledFormula.getFunctionsFromTokens(PIVOT_FUNCTIONS, getters)[0];
 }
 
+export function getPivotFunctions(compiledFormula: CompiledFormula, getters: CoreGetters) {
+  return compiledFormula.getFunctionsFromTokens(PIVOT_FUNCTIONS, getters);
+}
+
 /**
  * Parse a spreadsheet formula and detect the number of PIVOT functions that are
  * present in the given formula.
