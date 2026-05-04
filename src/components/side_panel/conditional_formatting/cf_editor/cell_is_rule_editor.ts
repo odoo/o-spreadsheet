@@ -1,4 +1,5 @@
 import { Component } from "@odoo/owl";
+import { UID } from "../../../../types/misc";
 import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
 import { Store } from "../../../../types/store_engine";
 import { ColorPickerWidget } from "../../../color_picker/color_picker_widget";
@@ -8,6 +9,7 @@ import { ConditionalFormattingEditorStore } from "./cf_editor_store";
 
 interface Props {
   store: Store<ConditionalFormattingEditorStore>;
+  sheetId: UID;
 }
 
 export class CellIsRuleEditor extends Component<Props, SpreadsheetChildEnv> {
@@ -16,7 +18,7 @@ export class CellIsRuleEditor extends Component<Props, SpreadsheetChildEnv> {
     ColorPickerWidget,
     Select,
   };
-  static props = { store: Object };
+  static props = { store: Object, sheetId: String };
 
   getTextDecoration = getTextDecoration;
 

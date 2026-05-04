@@ -20,6 +20,7 @@ interface Props {
   cf: ConditionalFormat;
   isNewCf: boolean;
   onCloseSidePanel: () => void;
+  sheetId: UID;
 }
 
 export class ConditionalFormattingEditor extends Component<Props, SpreadsheetChildEnv> {
@@ -34,28 +35,24 @@ export class ConditionalFormattingEditor extends Component<Props, SpreadsheetChi
     IconSetRuleEditor,
     DataBarRuleEditor,
   };
-  static props = { cf: Object, isNewCf: Boolean, onCloseSidePanel: Function };
+  static props = { cf: Object, isNewCf: Boolean, onCloseSidePanel: Function, sheetId: String };
 
-  private activeSheetId!: UID;
   private store!: Store<ConditionalFormattingEditorStore>;
 
   setup() {
-    this.activeSheetId = this.env.model.getters.getActiveSheetId();
     this.store = useLocalStore(
       ConditionalFormattingEditorStore,
       deepCopy(this.props.cf),
-      this.props.isNewCf
+      this.props.isNewCf,
+      this.props.sheetId
     );
     useEffect(
-      (sheetId, isCfRemoved) => {
-        if (this.activeSheetId !== sheetId || isCfRemoved) {
-          this.env.replaceSidePanel(
-            "ConditionalFormatting",
-            `ConditionalFormattingEditor_${this.props.cf.id}`
-          );
+      (isCfRemoved) => {
+        if (isCfRemoved) {
+          this.closeSidePanel();
         }
       },
-      () => [this.env.model.getters.getActiveSheetId(), this.isEditedCfRemoved]
+      () => [this.isEditedCfRemoved]
     );
     useExternalListener(window as any, "click", () => this.store.closeMenus());
   }
@@ -63,7 +60,7 @@ export class ConditionalFormattingEditor extends Component<Props, SpreadsheetChi
   get isEditedCfRemoved() {
     return !Boolean(
       this.env.model.getters
-        .getConditionalFormats(this.activeSheetId)
+        .getConditionalFormats(this.props.sheetId)
         .find((cf) => cf.id === this.props.cf.id)
     );
   }
@@ -77,14 +74,21 @@ export class ConditionalFormattingEditor extends Component<Props, SpreadsheetChi
     ];
   }
 
+  get rangeTitle(): string {
+    if (this.env.model.getters.getActiveSheetId() !== this.props.sheetId) {
+      return _t(
+        "Apply to ranges: (on %s)",
+        this.env.model.getters.getSheetName(this.props.sheetId)
+      );
+    }
+    return _t("Apply to ranges:");
+  }
+
   onSave() {
     this.store.updateConditionalFormat({});
     const isSuccessful = this.store.state.errors.length === 0;
     if (isSuccessful) {
-      this.env.replaceSidePanel(
-        "ConditionalFormatting",
-        `ConditionalFormattingEditor_${this.props.cf.id}`
-      );
+      this.closeSidePanel();
     }
   }
 
@@ -92,19 +96,27 @@ export class ConditionalFormattingEditor extends Component<Props, SpreadsheetChi
     if (this.store.state.hasEditedCf) {
       if (this.props.isNewCf) {
         this.env.model.dispatch("REMOVE_CONDITIONAL_FORMAT", {
-          sheetId: this.activeSheetId,
+          sheetId: this.props.sheetId,
           id: this.props.cf.id,
         });
       } else {
         this.env.model.dispatch("ADD_CONDITIONAL_FORMAT", {
           cf: this.props.cf,
           ranges: this.props.cf.ranges.map((range) =>
-            this.env.model.getters.getRangeDataFromXc(this.activeSheetId, range)
+            this.env.model.getters.getRangeDataFromXc(this.props.sheetId, range)
           ),
-          sheetId: this.activeSheetId,
+          sheetId: this.props.sheetId,
         });
       }
     }
+    this.closeSidePanel();
+  }
+
+  closeSidePanel() {
+    this.env.model.dispatch("ACTIVATE_SHEET", {
+      sheetIdTo: this.props.sheetId,
+      sheetIdFrom: this.env.model.getters.getActiveSheetId(),
+    });
     this.env.replaceSidePanel(
       "ConditionalFormatting",
       `ConditionalFormattingEditor_${this.props.cf.id}`

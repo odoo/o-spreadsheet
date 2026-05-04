@@ -82,6 +82,7 @@ export class ConditionalFormatPreviewList extends Component<Props, SpreadsheetCh
           zoneToXc(this.env.model.getters.getUnboundedZone(sheetId, zone))
         ),
       },
+      sheetId,
       isNewCf: true,
     });
   }

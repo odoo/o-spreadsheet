@@ -55,6 +55,7 @@ interface State {
   openedMenu?: CFMenu;
   ranges: string[];
   hasEditedCf: boolean;
+  cfSheetId: UID;
 }
 
 export class ConditionalFormattingEditorStore extends SpreadsheetStore {
@@ -66,7 +67,7 @@ export class ConditionalFormattingEditorStore extends SpreadsheetStore {
   state: State;
   private cfId: UID;
 
-  constructor(get: Get, cf: ConditionalFormat, isNewCf: boolean) {
+  constructor(get: Get, cf: ConditionalFormat, isNewCf: boolean, sheetId: UID) {
     super(get);
     this.cfId = cf.id;
     this.state = useState<State>({
@@ -75,6 +76,7 @@ export class ConditionalFormattingEditorStore extends SpreadsheetStore {
       ranges: cf.ranges,
       rules: this.getDefaultRules(),
       hasEditedCf: isNewCf,
+      cfSheetId: sheetId,
     });
     switch (cf.rule.type) {
       case "CellIsRule":
@@ -101,7 +103,7 @@ export class ConditionalFormattingEditorStore extends SpreadsheetStore {
       }
       return;
     }
-    const sheetId = this.model.getters.getActiveSheetId();
+    const sheetId = this.state.cfSheetId;
     const locale = this.model.getters.getLocale();
     const rule = newCf.rule || this.getEditedRule(this.state.currentCFType);
     const result = this.model.dispatch("ADD_CONDITIONAL_FORMAT", {
