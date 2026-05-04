@@ -75,6 +75,7 @@ export class ConditionalFormatPreview extends Component<SpreadsheetChildEnv> {
     this.env.replaceSidePanel("ConditionalFormattingEditor", "ConditionalFormatting", {
       cf: this.props.conditionalFormat,
       isNewCf: false,
+      sheetId: this.env.model.getters.getActiveSheetId(),
     });
   }
 
