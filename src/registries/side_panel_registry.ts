@@ -107,7 +107,7 @@ sidePanelRegistry.add("DataValidation", {
 sidePanelRegistry.add("DataValidationEditor", {
   title: _t("Data validation"),
   Body: DataValidationEditor,
-  computeState: (getters: Getters, props: { ruleId: UID }) => {
+  computeState: (getters: Getters, props: { ruleId: UID; sheetId: UID }) => {
     return {
       isOpen: true,
       props,
