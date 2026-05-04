@@ -1,6 +1,7 @@
 import { CellErrorType, CommandResult, Model } from "../../src";
 import { FORBIDDEN_SHEETNAME_CHARS } from "../../src/constants";
 import { toZone } from "../../src/helpers";
+import { getPivotHighlights } from "../../src/helpers/pivot/pivot_highlight";
 import { EMPTY_PIVOT_CELL } from "../../src/helpers/pivot/table_spreadsheet_pivot";
 import { getEvaluatedCell } from "../test_helpers";
 import { renameSheet, selectCell, setCellContent } from "../test_helpers/commands_helpers";
@@ -452,5 +453,27 @@ describe("Pivot plugin", () => {
       expect(model.getters.isPivotUnused("1")).toBe(false);
       expect(model.getters.isPivotUnused("2")).toBe(false);
     });
+
+    test("Can detect unused pivots with multiple pivot formulas in the same cell", () => {
+      const model = createModelWithPivot("A1:I5");
+      addPivot(model, "A1:I5", { name: "Unused Pivot" }, "2");
+      setCellContent(model, "A40", "=PIVOT(1) + PIVOT(2)");
+
+      expect(model.getters.isPivotUnused("1")).toBe(false);
+      expect(model.getters.isPivotUnused("2")).toBe(false);
+    });
+  });
+
+  test("Pivot highlights works with multiple pivot formulas in the same cell", () => {
+    const model = createModelWithPivot("A1:I5");
+    addPivot(model, "A1:I5", { name: "Unused Pivot" }, "2");
+    setCellContent(model, "A40", "=SUM(PIVOT(1) + PIVOT(2))");
+
+    expect(getPivotHighlights(model.getters, "1")).toMatchObject([
+      { range: { zone: toZone("A40") } },
+    ]);
+    expect(getPivotHighlights(model.getters, "2")).toMatchObject([
+      { range: { zone: toZone("A40") } },
+    ]);
   });
 });
