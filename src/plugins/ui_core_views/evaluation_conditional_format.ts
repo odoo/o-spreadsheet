@@ -134,7 +134,9 @@ export class EvaluationConditionalFormatPlugin extends CoreViewPlugin {
                   return value;
                 });
                 if (this.getRuleResultForTarget(target, { ...cf.rule, values })) {
-                  if (!computedStyle[col]) computedStyle[col] = [];
+                  if (!computedStyle[col]) {
+                    computedStyle[col] = [];
+                  }
                   // we must combine all the properties of all the CF rules applied to the given cell
                   computedStyle[col][row] = Object.assign(
                     computedStyle[col]?.[row] || {},
@@ -153,7 +155,9 @@ export class EvaluationConditionalFormatPlugin extends CoreViewPlugin {
   private getComputedIcons(sheetId: UID): ComputedIcons {
     const computedIcons = {};
     for (const cf of this.getters.getConditionalFormats(sheetId).reverse()) {
-      if (cf.rule.type !== "IconSetRule") continue;
+      if (cf.rule.type !== "IconSetRule") {
+        continue;
+      }
 
       for (const range of cf.ranges) {
         this.applyIcon(sheetId, range, cf.rule, computedIcons);
@@ -165,7 +169,9 @@ export class EvaluationConditionalFormatPlugin extends CoreViewPlugin {
   private getComputedDataBars(sheetId: UID): ComputedDataBars {
     const computedDataBars: ComputedDataBars = {};
     for (const cf of this.getters.getConditionalFormats(sheetId).reverse()) {
-      if (cf.rule.type !== "DataBarRule") continue;
+      if (cf.rule.type !== "DataBarRule") {
+        continue;
+      }
 
       for (const range of cf.ranges) {
         this.applyDataBar(sheetId, range, cf.rule, computedDataBars);
@@ -307,7 +313,9 @@ export class EvaluationConditionalFormatPlugin extends CoreViewPlugin {
           // values negatives or 0 are ignored
           continue;
         }
-        if (!computedDataBars[col]) computedDataBars[col] = [];
+        if (!computedDataBars[col]) {
+          computedDataBars[col] = [];
+        }
         computedDataBars[col][row] = {
           color: colorNumberToHex(color),
           percentage: (cell.value * 100) / max,
@@ -348,7 +356,9 @@ export class EvaluationConditionalFormatPlugin extends CoreViewPlugin {
         const cell = this.getters.getEvaluatedCell({ sheetId, col, row });
         if (cell.type === CellValueType.number) {
           const value = clip(cell.value, minValue, maxValue);
-          if (!computedStyle[col]) computedStyle[col] = [];
+          if (!computedStyle[col]) {
+            computedStyle[col] = [];
+          }
           computedStyle[col][row] = computedStyle[col]?.[row] || {};
           computedStyle[col][row]!.fillColor = colorScale(value);
         }

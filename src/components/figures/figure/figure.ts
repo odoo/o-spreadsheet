@@ -146,7 +146,9 @@ export class FigureComponent extends Component<Props, SpreadsheetChildEnv> {
   }
 
   private getBorderWidth(): Pixel {
-    if (this.env.isDashboard()) return 0;
+    if (this.env.isDashboard()) {
+      return 0;
+    }
     return this.isSelected ? ACTIVE_BORDER_WIDTH : this.borderWidth;
   }
 
@@ -316,7 +318,9 @@ export class FigureComponent extends Component<Props, SpreadsheetChildEnv> {
   }
 
   onContextMenu(ev: MouseEvent) {
-    if (this.env.isDashboard()) return;
+    if (this.env.isDashboard()) {
+      return;
+    }
     this.openContextMenu({ x: ev.clientX, y: ev.clientY, width: 0, height: 0 });
   }
 

@@ -749,8 +749,12 @@ export const WEEKDAY = {
       return new EvaluationError(_t("The type (%s) must be 1, 2 or 3.", _type));
     }
 
-    if (_type === 1) return m + 1;
-    if (_type === 2) return m === 0 ? 7 : m;
+    if (_type === 1) {
+      return m + 1;
+    }
+    if (_type === 2) {
+      return m === 0 ? 7 : m;
+    }
     return m === 0 ? 6 : m - 1;
   },
   isExported: true,

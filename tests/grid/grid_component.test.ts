@@ -1844,7 +1844,9 @@ describe("Copy paste keyboard shortcut", () => {
     document.body.dispatchEvent(getClipboardEvent("copy", clipboardData));
     await nextTick();
     const clipboard = await parent.env.clipboard.read!();
-    if (clipboard.status === "ok") clipboardData.content = clipboard.content;
+    if (clipboard.status === "ok") {
+      clipboardData.content = clipboard.content;
+    }
     const clipboardContent = clipboardData.content;
     const cbPlugin = getPlugin(model, ClipboardPlugin);
     //@ts-ignore
@@ -1865,7 +1867,9 @@ describe("Copy paste keyboard shortcut", () => {
     document.body.dispatchEvent(getClipboardEvent("cut", clipboardData));
     await nextTick();
     const clipboard = await parent.env.clipboard.read!();
-    if (clipboard.status === "ok") clipboardData.content = clipboard.content;
+    if (clipboard.status === "ok") {
+      clipboardData.content = clipboard.content;
+    }
     const clipboardContent = clipboardData.content;
     const cbPlugin = getPlugin(model, ClipboardPlugin);
     //@ts-ignore
@@ -1888,7 +1892,9 @@ describe("Copy paste keyboard shortcut", () => {
     document.body.dispatchEvent(getClipboardEvent("cut", clipboardData));
     await nextTick();
     const clipboard = await parent.env.clipboard.read!();
-    if (clipboard.status === "ok") clipboardData.content = clipboard.content;
+    if (clipboard.status === "ok") {
+      clipboardData.content = clipboard.content;
+    }
     setCellContent(model, "A1", "new content");
     setStyle(model, "A1", { bold: false });
     selectCell(model, "A2");
@@ -1906,7 +1912,9 @@ describe("Copy paste keyboard shortcut", () => {
     document.body.dispatchEvent(getClipboardEvent("cut", clipboardData));
     await nextTick();
     const clipboard = await parent.env.clipboard.read!();
-    if (clipboard.status === "ok") clipboardData.content = clipboard.content;
+    if (clipboard.status === "ok") {
+      clipboardData.content = clipboard.content;
+    }
     const clipboardContent = clipboardData.content;
     expect(clipboardContent[ClipboardMIMEType.PlainText]).toEqual(getCellContent(model, "A1"));
     model.dispatch("SET_FORMULA_VISIBILITY", { show: false });
@@ -1922,7 +1930,9 @@ describe("Copy paste keyboard shortcut", () => {
     document.body.dispatchEvent(getClipboardEvent("cut", clipboardData));
     await nextTick();
     let clipboard = await parent.env.clipboard.read!();
-    if (clipboard.status === "ok") clipboardData.content = clipboard.content;
+    if (clipboard.status === "ok") {
+      clipboardData.content = clipboard.content;
+    }
     let clipboardContent = clipboardData.content;
     expect(clipboardContent[ClipboardMIMEType.PlainText]).toEqual(
       getEvaluatedCell(model, "A1").formattedValue
@@ -1938,7 +1948,9 @@ describe("Copy paste keyboard shortcut", () => {
     document.body.dispatchEvent(getClipboardEvent("cut", clipboardData));
     await nextTick();
     clipboard = await parent.env.clipboard.read!();
-    if (clipboard.status === "ok") clipboardData.content = clipboard.content;
+    if (clipboard.status === "ok") {
+      clipboardData.content = clipboard.content;
+    }
     clipboardContent = clipboardData.content;
     expect(clipboardContent[ClipboardMIMEType.PlainText]).toEqual(
       getEvaluatedCell(model, "B1").formattedValue
@@ -1959,7 +1971,9 @@ describe("Copy paste keyboard shortcut", () => {
     document.body.dispatchEvent(ev);
     await nextTick();
     const clipboard = await parent.env.clipboard.read!();
-    if (clipboard.status === "ok") clipboardData.content = clipboard.content;
+    if (clipboard.status === "ok") {
+      clipboardData.content = clipboard.content;
+    }
     // Fake OS clipboard should have the same content
     // to make paste come from spreadsheet clipboard
     // which support paste as values
@@ -2061,7 +2075,9 @@ describe("Copy paste keyboard shortcut", () => {
     document.body.dispatchEvent(getClipboardEvent("copy", clipboardData));
     await nextTick();
     const clipboard = await parent.env.clipboard.read!();
-    if (clipboard.status === "ok") clipboardData.content = clipboard.content;
+    if (clipboard.status === "ok") {
+      clipboardData.content = clipboard.content;
+    }
     const clipboardContent = clipboardData.content;
     expect(clipboardContent).toMatchObject({
       "text/plain": "\t",
@@ -2078,7 +2094,9 @@ describe("Copy paste keyboard shortcut", () => {
     document.body.dispatchEvent(getClipboardEvent("cut", clipboardData));
     await nextTick();
     const clipboard = await parent.env.clipboard.read!();
-    if (clipboard.status === "ok") clipboardData.content = clipboard.content;
+    if (clipboard.status === "ok") {
+      clipboardData.content = clipboard.content;
+    }
     const clipboardContent = clipboardData.content;
     expect(clipboardContent).toMatchObject({
       "text/plain": "\t",

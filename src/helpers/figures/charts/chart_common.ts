@@ -307,7 +307,9 @@ export function toExcelLabelRange(
   labelRange: Range | undefined,
   shouldRemoveFirstLabel?: boolean
 ) {
-  if (!labelRange) return undefined;
+  if (!labelRange) {
+    return undefined;
+  }
   const zone = {
     ...labelRange.zone,
   };
@@ -409,9 +411,15 @@ export function shouldRemoveFirstLabel(
   dataset: DataSet | undefined,
   dataSetsHaveTitle: boolean
 ) {
-  if (!dataSetsHaveTitle) return false;
-  if (!labelRange) return false;
-  if (!dataset) return true;
+  if (!dataSetsHaveTitle) {
+    return false;
+  }
+  if (!labelRange) {
+    return false;
+  }
+  if (!dataset) {
+    return true;
+  }
   const datasetLength = getZoneArea(dataset.dataRange.zone);
   const labelLength = getZoneArea(labelRange.zone);
   if (labelLength < datasetLength) {
@@ -464,7 +472,9 @@ export function formatChartDatasetValue(axisFormats: ChartAxisFormats, locale: L
 export function formatTickValue(localeFormat: LocaleFormat) {
   return (value: any) => {
     value = Number(value);
-    if (isNaN(value)) return value;
+    if (isNaN(value)) {
+      return value;
+    }
     const { locale, format } = localeFormat;
     const formattedValue = formatValue(value, {
       locale,

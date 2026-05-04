@@ -34,7 +34,9 @@ export function useTouchScroll(
   }
 
   function onTouchMove(event: TouchEvent) {
-    if (!isMouseDown) return;
+    if (!isMouseDown) {
+      return;
+    }
 
     if (resetTimeout) {
       clearTimeout(resetTimeout);
