@@ -94,7 +94,9 @@ export class ChartDashboardMenu extends Component<Props, SpreadsheetChildEnv> {
       const newChartInfo = chartSubtypeRegistry.get(type);
       const ChartClass = chartRegistry.get(newChartInfo.chartType);
       const chartCreationContext = this.env.model.getters.getContextCreationChart(figureId);
-      if (!chartCreationContext) return;
+      if (!chartCreationContext) {
+        return;
+      }
       definition = {
         ...ChartClass.getChartDefinitionFromContextCreation(chartCreationContext),
         ...newChartInfo.subtypeDefinition,

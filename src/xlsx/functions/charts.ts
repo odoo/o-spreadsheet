@@ -215,7 +215,9 @@ function extractTrendline(
   trend: ExcelChartDataset["trend"],
   dataSetColor: XlsxHexColor
 ): XMLString {
-  if (!trend) return escapeXml/*xml*/ ``;
+  if (!trend) {
+    return escapeXml/*xml*/ ``;
+  }
   const { type, order, window } = trend;
   const trendLineNodes: XMLString[] = [];
   switch (type) {

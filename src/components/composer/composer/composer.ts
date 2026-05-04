@@ -610,7 +610,9 @@ export class Composer extends Component<CellComposerProps, SpreadsheetChildEnv> 
     if (isValidFormula) {
       const tokens = this.props.composerStore.currentTokens;
       const currentSelection = this.contentHelper.getCurrentSelection();
-      if (currentSelection.start === currentSelection.end) return;
+      if (currentSelection.start === currentSelection.end) {
+        return;
+      }
 
       const currentSelectedText = composerContent.substring(
         currentSelection.start,
@@ -638,12 +640,16 @@ export class Composer extends Component<CellComposerProps, SpreadsheetChildEnv> 
   }
 
   closeAssistant() {
-    if (!this.props.composerStore.canBeToggled) return;
+    if (!this.props.composerStore.canBeToggled) {
+      return;
+    }
     this.assistant.forcedClosed = true;
   }
 
   openAssistant() {
-    if (!this.props.composerStore.canBeToggled) return;
+    if (!this.props.composerStore.canBeToggled) {
+      return;
+    }
     this.assistant.forcedClosed = false;
   }
 

@@ -55,7 +55,9 @@ export class FullScreenChart extends Component<{}, SpreadsheetChildEnv> {
   }
 
   get chartComponent(): (new (...args: any) => Component) | undefined {
-    if (!this.figureUI) return undefined;
+    if (!this.figureUI) {
+      return undefined;
+    }
     const type = this.env.model.getters.getChartType(this.figureUI.id);
     const component = chartComponentRegistry.get(type);
     if (!component) {
