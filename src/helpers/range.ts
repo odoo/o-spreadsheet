@@ -433,19 +433,19 @@ function getApplyRangeChangeDeleteSheet(cmd: DeleteSheetCommand): ApplyRangeChan
 function getApplyRangeChangeRenameSheet(cmd: RenameSheetCommand): ApplyRangeChange {
   return (range: Range) => {
     if (range.sheetId === cmd.sheetId) {
-      return { changeType: "CHANGE", range };
+      return { changeType: "RENAME", range };
     }
     if (cmd.newName && range.invalidSheetName === cmd.newName) {
       const invalidSheetName = undefined;
       const sheetId = cmd.sheetId;
       const newRange = { ...range, sheetId, invalidSheetName };
-      return { changeType: "CHANGE", range: newRange };
+      return { changeType: "RENAME", range: newRange };
     }
     if (cmd.oldName && range.invalidSheetName === cmd.oldName) {
       const invalidSheetName = undefined;
       const sheetId = cmd.sheetId;
       const newRange = { ...range, sheetId, invalidSheetName };
-      return { changeType: "CHANGE", range: newRange };
+      return { changeType: "RENAME", range: newRange };
     }
     return { changeType: "NONE", range };
   };
