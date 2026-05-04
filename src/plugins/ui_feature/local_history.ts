@@ -101,7 +101,9 @@ export class HistoryPlugin extends UIPlugin {
   }
 
   canRedo(): boolean {
-    if (this.redoStack.length > 0) return true;
+    if (this.redoStack.length > 0) {
+      return true;
+    }
     const lastNonRedoRevision = this.getPossibleRevisionToRepeat();
     return canRepeatRevision(lastNonRedoRevision);
   }

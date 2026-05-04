@@ -23,7 +23,9 @@ function rectToZone(rect: Rect): Zone {
 }
 
 function zoneToRect(zone: Zone | undefined): Rect | undefined {
-  if (!zone) return undefined;
+  if (!zone) {
+    return undefined;
+  }
   return {
     x: zone.left,
     y: zone.top,
