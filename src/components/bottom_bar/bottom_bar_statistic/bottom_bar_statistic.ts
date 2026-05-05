@@ -48,6 +48,8 @@ export class BottomBarStatistic extends Component<Props, SpreadsheetChildEnv> {
     }
     if (this.state.selectedStatisticFn === "") {
       this.state.selectedStatisticFn = Object.keys(this.store.statisticFnResults)[0];
+    } else if (!this.store.statisticFnResults[this.state.selectedStatisticFn]) {
+      return this.getComposedFnName(Object.keys(this.store.statisticFnResults)[0]);
     }
     return this.getComposedFnName(this.state.selectedStatisticFn);
   }
@@ -74,10 +76,9 @@ export class BottomBarStatistic extends Component<Props, SpreadsheetChildEnv> {
   private getComposedFnName(fnName: string): string {
     const locale = this.env.model.getters.getLocale();
     const fnValue = this.store.statisticFnResults[fnName];
-    return (
-      fnName +
-      ": " +
-      (fnValue?.value !== undefined ? formatValue(fnValue.value(), { locale }) : "__")
-    );
+    if (!fnValue?.value) {
+      return "";
+    }
+    return fnName + ": " + formatValue(fnValue.value(), { locale, format: fnValue.format() });
   }
 }

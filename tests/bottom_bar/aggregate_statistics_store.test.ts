@@ -37,6 +37,59 @@ describe("Aggregate statistic functions", () => {
     expect(statisticFnResults["Count"]?.value?.()).toBe(3);
   });
 
+  test.each(["Count", "Count Numbers"])("%s aggregate does not inherit format", (statName) => {
+    const { store, model } = makeStore(AggregateStatisticsStore);
+    setCellContent(model, "A1", "1");
+    setCellContent(model, "A2", "2");
+    setCellContent(model, "A3", "3");
+
+    setFormat(model, "A1:A3", "0.00%");
+
+    setSelection(model, ["A1:A3"]);
+    const statisticFnResults = store.statisticFnResults;
+    expect(statisticFnResults[statName]?.format()).toBe("");
+  });
+
+  test.each(["Avg", "Min", "Max"])("%s aggregate inherits first found format", (statName) => {
+    const { store, model } = makeStore(AggregateStatisticsStore);
+    setCellContent(model, "A1", "Hello");
+    setCellContent(model, "A2", "1");
+    setCellContent(model, "A3", "2");
+
+    setFormat(model, "A2", "0.00%");
+
+    setSelection(model, ["A1:A3"]);
+    const statisticFnResults = store.statisticFnResults;
+    expect(statisticFnResults[statName]?.format()).toBe("0.00%");
+  });
+
+  test("Sum inherits first found format that is not a date", () => {
+    const { store, model } = makeStore(AggregateStatisticsStore);
+    setCellContent(model, "A1", "Hello");
+    setCellContent(model, "A2", "1");
+    setCellContent(model, "A3", "2");
+
+    setFormat(model, "A2", "mm/dd/yyyy");
+    setFormat(model, "A3", "0.00%");
+
+    setSelection(model, ["A1:A3"]);
+    const statisticFnResults = store.statisticFnResults;
+    expect(statisticFnResults["Sum"]?.format()).toBe("0.00%");
+  });
+
+  test("Sum is not visible when only selecting numbers that are dates", () => {
+    const { store, model } = makeStore(AggregateStatisticsStore);
+    setCellContent(model, "A1", "Hello");
+    setCellContent(model, "A2", "1");
+    setCellContent(model, "A3", "2");
+
+    setFormat(model, "A2:A3", "mm/dd/yyyy");
+
+    setSelection(model, ["A1:A3"]);
+    const statisticFnResults = store.statisticFnResults;
+    expect(statisticFnResults["Sum"]).toBeUndefined();
+  });
+
   test("statistic function should not include hidden rows/columns in calculations", () => {
     const { store, model } = makeStore(AggregateStatisticsStore);
     setCellContent(model, "A1", "1");

@@ -1,6 +1,6 @@
 import { sum } from "../../../functions/helper_math";
 import { average, max, median, min } from "../../../functions/helper_statistical";
-import { formatValue } from "../../../helpers/format/format";
+import { formatValue, isDateTimeFormat } from "../../../helpers/format/format";
 import { isDefined } from "../../../helpers/misc";
 import {
   computeStatisticFnResults,
@@ -20,7 +20,7 @@ const columnStatisticFunctions: SelectionStatisticFunction[] = [
     name: _t("Total rows"),
     types: Object.values(CellValueType),
     compute: (values, locale) => values.length,
-    format: "0",
+    computeFormat: (values, locale) => "0",
   },
   {
     name: _t("Unique values"),
@@ -32,32 +32,40 @@ const columnStatisticFunctions: SelectionStatisticFunction[] = [
       }
       return uniqueValues.size;
     },
-    format: "0",
+    computeFormat: (values, locale) => "0",
   },
   {
     name: _t("Sum"),
     types: [CellValueType.number],
     compute: (values, locale) => sum([[values]], locale),
+    visible: (values, locale) =>
+      values.some((cell) => !cell.format || !isDateTimeFormat(cell.format)),
+    computeFormat: (values, locale) =>
+      values.find((cell) => !cell.format || !isDateTimeFormat(cell.format))?.format ?? "0.00",
   },
   {
     name: _t("Average"),
     types: [CellValueType.number],
     compute: (values, locale) => average([[values]], locale),
+    computeFormat: (values, locale) => values[0]?.format ?? "0.00",
   },
   {
     name: _t("Median"),
     types: [CellValueType.number],
     compute: (values, locale) => median([[values]], locale) ?? "",
+    computeFormat: (values, locale) => values[0]?.format ?? "0.00",
   },
   {
     name: _t("Minimum value"),
     types: [CellValueType.number],
     compute: (values, locale) => min([[values]], locale).value,
+    computeFormat: (values, locale) => values[0]?.format ?? "0.00",
   },
   {
     name: _t("Maximum value"),
     types: [CellValueType.number],
     compute: (values, locale) => max([[values]], locale).value,
+    computeFormat: (values, locale) => values[0]?.format ?? "0.00",
   },
 ];
 
@@ -335,7 +343,7 @@ export class ColumnStatisticsStore extends SpreadsheetStore {
         name,
         value: formatValue(fnValue.value(), {
           locale: localeFormat.locale,
-          format: fnValue.format ?? localeFormat.format,
+          format: fnValue.format() ?? localeFormat.format,
         }),
       };
     });
