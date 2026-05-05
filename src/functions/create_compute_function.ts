@@ -7,7 +7,7 @@ import {
   EvalContext,
   FunctionDescription,
 } from "../types/functions";
-import { Arg, FunctionResultObject, isMatrix, Matrix } from "../types/misc";
+import { Arg, FunctionResultObject, isMatrix, Matrix, UnboundedZone } from "../types/misc";
 import { argTargeting } from "./arguments";
 import { isEvaluationError, matrixForEach } from "./helpers";
 
@@ -160,16 +160,43 @@ export function applyVectorization(
 export function createComputeFunction(
   descr: FunctionDescription
 ): ComputeFunction | ComputeArrayFunction {
-  function computeFn(
-    this: EvalContext,
-    ...args: Arg[]
-  ): FunctionResultObject | Matrix<FunctionResultObject> {
+  if (descr.computeArray !== undefined) {
+    function computeArrayFn(
+      this: EvalContext,
+      zone: UnboundedZone,
+      ...args: Arg[]
+    ): FunctionResultObject | Matrix<FunctionResultObject> {
+      let start = 0;
+      if (this.__timingEntries) {
+        start = performance.now();
+      }
+
+      const result = replaceErrorPlaceholderInResult(
+        errorHandlingComputeArray(descr!, this, zone, args),
+        descr
+      );
+
+      if (this.__timingEntries && this.__originCellPosition) {
+        const end = performance.now();
+        this.__timingEntries.push({
+          functionName: descr.name,
+          position: this.__originCellPosition,
+          time: end - start,
+        });
+      }
+      return result;
+    }
+
+    return computeArrayFn;
+  }
+
+  function computeFn(this: EvalContext, ...args: Arg[]): FunctionResultObject {
     let start = 0;
     if (this.__timingEntries) {
       start = performance.now();
     }
 
-    const result = replaceErrorPlaceholderInResult(errorHandlingCompute(descr, this, args), descr);
+    const result = replaceErrorPlaceholderInResult(errorHandlingCompute(descr!, this, args), descr);
 
     if (this.__timingEntries && this.__originCellPosition) {
       const end = performance.now();
@@ -185,10 +212,9 @@ export function createComputeFunction(
   return computeFn;
 }
 
-function replaceErrorPlaceholderInResult(
-  result: FunctionResultObject | Matrix<FunctionResultObject>,
-  descr: FunctionDescription
-): FunctionResultObject | Matrix<FunctionResultObject> {
+function replaceErrorPlaceholderInResult<
+  T extends FunctionResultObject | Matrix<FunctionResultObject>
+>(result: T, descr: FunctionDescription): T {
   if (!isMatrix(result)) {
     replaceFunctionNamePlaceholder(result, descr.name);
   } else {
@@ -197,44 +223,86 @@ function replaceErrorPlaceholderInResult(
   return result;
 }
 
-function errorHandlingCompute(
+function errorHandlingComputeArray(
   descr: FunctionDescription,
   context: EvalContext,
+  zone: UnboundedZone,
   args: Arg[]
 ): Matrix<FunctionResultObject> | FunctionResultObject {
-  const argsToFocus = argTargeting(descr, args.length);
-  for (let i = 0; i < args.length; i++) {
-    const arg = args[i];
-    const argDefinition = descr.args[argsToFocus[i].index];
-
-    // Early exit if the argument is an error and the function does not accept errors.
-    // We only check scalar arguments, not matrix arguments for performance reasons.
-    // Casting helpers are responsible for handling errors in matrix arguments.
-    if (!argDefinition.acceptErrors && !isMatrix(arg) && isEvaluationError(arg?.value)) {
-      return arg;
-    }
+  const possibleArgsError = argsError(args, descr);
+  if (possibleArgsError) {
+    return possibleArgsError;
   }
+
   try {
-    const computeFormula = descr.compute !== undefined ? descr.compute : descr.computeArray;
     let result: FunctionResultObject | Matrix<FunctionResultObject>;
     switch (args.length) {
       case 1:
-        result = computeFormula.call(context, args[0]);
+        result = descr.computeArray!.call(context, zone, args[0]);
         break;
       case 2:
-        result = computeFormula.call(context, args[0], args[1]);
+        result = descr.computeArray!.call(context, zone, args[0], args[1]);
         break;
       case 3:
-        result = computeFormula.call(context, args[0], args[1], args[2]);
+        result = descr.computeArray!.call(context, zone, args[0], args[1], args[2]);
         break;
       default:
         // fallback to a generic apply for functions with more than 3 arguments
-        result = computeFormula.apply(context, args);
+        result = descr.computeArray!.apply(context, [zone, ...args]);
     }
     return result;
   } catch (e) {
     return handleError(e, descr.name);
   }
+}
+
+function errorHandlingCompute(
+  descr: FunctionDescription,
+  context: EvalContext,
+  args: Arg[]
+): FunctionResultObject {
+  const possibleArgsError = argsError(args, descr);
+  if (possibleArgsError) {
+    return possibleArgsError;
+  }
+
+  try {
+    let result: FunctionResultObject | Matrix<FunctionResultObject>;
+    switch (args.length) {
+      case 1:
+        result = descr.compute!.call(context, args[0]);
+        break;
+      case 2:
+        result = descr.compute!.call(context, args[0], args[1]);
+        break;
+      case 3:
+        result = descr.compute!.call(context, args[0], args[1], args[2]);
+        break;
+      default:
+        // fallback to a generic apply for functions with more than 3 arguments
+        result = descr.compute!.apply(context, args);
+    }
+    return result;
+  } catch (e) {
+    return handleError(e, descr.name);
+  }
+}
+
+/**
+ * Early exit if the argument is an error and the function does not accept errors
+ * We only check scalar arguments, not matrix arguments for performance reasons.
+ * Casting helpers are responsible for handling errors in matrix arguments.
+ */
+function argsError(args: Arg[], descr: FunctionDescription): FunctionResultObject | undefined {
+  const argsToFocus = argTargeting(descr, args.length);
+  for (let i = 0; i < args.length; i++) {
+    const arg = args[i];
+    const argDefinition = descr.args[argsToFocus[i].index];
+    if (!argDefinition.acceptErrors && !isMatrix(arg) && isEvaluationError(arg?.value)) {
+      return arg;
+    }
+  }
+  return undefined;
 }
 
 export function handleError(e: unknown, functionName: string): FunctionResultObject {

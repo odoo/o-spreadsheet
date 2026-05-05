@@ -5,6 +5,10 @@ export interface FunctionCode {
   readonly returnExpression: JsString;
   readonly returnARange: boolean;
   /**
+   * Return the same function code but wrapped in a closure.
+   */
+  wrapInClosure(isArrayFormula: boolean): FunctionCode;
+  /**
    * Return the same function code but with the return expression assigned to a variable.
    */
   assignResultToVariable(): FunctionCode;
@@ -88,6 +92,20 @@ class FunctionCodeImpl implements FunctionCode {
     readonly returnExpression: JsString,
     readonly returnARange: boolean
   ) {}
+
+  wrapInClosure(waitingForArrayFormula: boolean): FunctionCode {
+    const closureName = this.scope.nextVariableName();
+    const code = new FunctionCodeBuilder(this.scope);
+    if (waitingForArrayFormula) {
+      code.append(jsStr`const ${closureName} = (zone) => {`);
+    } else {
+      code.append(jsStr`const ${closureName} = () => {`);
+    }
+    code.append(...this.code);
+    code.append(jsStr`return ${this.returnExpression};`);
+    code.append(jsStr`}`);
+    return code.return(closureName);
+  }
 
   assignResultToVariable(): FunctionCode {
     if (this.scope.isAlreadyDeclared(this.returnExpression)) {

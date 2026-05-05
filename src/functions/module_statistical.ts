@@ -9,6 +9,7 @@ import {
   FunctionResultObject,
   Matrix,
   Maybe,
+  UnboundedZone,
   isMatrix,
 } from "../types/misc";
 import { arg } from "./arguments";
@@ -30,6 +31,7 @@ import {
 import {
   dichotomicSearch,
   emptyDataErrorMessage,
+  generateSubMatrix,
   inferFormat,
   matrixMap,
   noValidInputErrorMessage,
@@ -543,6 +545,7 @@ export const FORECAST: AddFunctionDescription = {
     ),
   ],
   computeArray: function (
+    zone: UnboundedZone,
     x: Arg,
     dataY: Matrix<FunctionResultObject>,
     dataX: Matrix<FunctionResultObject>
@@ -552,15 +555,17 @@ export const FORECAST: AddFunctionDescription = {
       return new NotAvailableError(noValidInputErrorMessage);
     }
 
-    return matrixMap(
-      predictLinearValues(
-        [flatDataY],
-        [flatDataX],
-        matrixMap(toMatrix(x), (value) => toNumber(value, this.locale)),
-        true
-      ),
-      (value) => ({ value })
+    // TODO: use zone directly to only compute the necessary linear values
+    const linearValues = predictLinearValues(
+      [flatDataY],
+      [flatDataX],
+      matrixMap(toMatrix(x), (value) => toNumber(value, this.locale)),
+      true
     );
+
+    return generateSubMatrix(zone, linearValues.length, linearValues[0].length, (i, j) => ({
+      value: linearValues[i][j],
+    }));
   },
   isExported: true,
 };
@@ -594,6 +599,7 @@ export const GROWTH: AddFunctionDescription = {
     ),
   ],
   computeArray: function (
+    zone: UnboundedZone,
     knownDataY: Matrix<FunctionResultObject>,
     knownDataX: Matrix<FunctionResultObject> = [[]],
     newDataX: Matrix<FunctionResultObject> = [[]],
@@ -602,16 +608,24 @@ export const GROWTH: AddFunctionDescription = {
     if (knownDataY.length === 0 || knownDataY[0].length === 0) {
       return new EvaluationError(emptyDataErrorMessage("known_data_y"));
     }
-    return matrixMap(
-      expM(
-        predictLinearValues(
-          logM(toNumberMatrix(knownDataY, "known_data_y")),
-          toNumberMatrix(knownDataX, "known_data_x"),
-          toNumberMatrix(newDataX, "new_data_y"),
-          toBoolean(b)
-        )
-      ),
-      (value) => ({ value })
+
+    // TODO: use zone directly to only compute the necessary exponential growth values
+    const exponentialGrowthValues = expM(
+      predictLinearValues(
+        logM(toNumberMatrix(knownDataY, "known_data_y")),
+        toNumberMatrix(knownDataX, "known_data_x"),
+        toNumberMatrix(newDataX, "new_data_y"),
+        toBoolean(b)
+      )
+    );
+
+    return generateSubMatrix(
+      zone,
+      exponentialGrowthValues.length,
+      exponentialGrowthValues[0].length,
+      (i, j) => ({
+        value: exponentialGrowthValues[i][j],
+      })
     );
   },
 };
@@ -718,6 +732,7 @@ export const LINEST: AddFunctionDescription = {
     ),
   ],
   computeArray: function (
+    zone: UnboundedZone,
     dataY: Matrix<FunctionResultObject>,
     dataX: Matrix<FunctionResultObject> = [[]],
     calculateB: Maybe<FunctionResultObject> = { value: true },
@@ -726,15 +741,17 @@ export const LINEST: AddFunctionDescription = {
     if (dataY.length === 0 || dataY[0].length === 0) {
       return new EvaluationError(emptyDataErrorMessage("data_y"));
     }
-    return matrixMap(
-      fullLinearRegression(
-        toNumberMatrix(dataX, "data_x"),
-        toNumberMatrix(dataY, "data_y"),
-        toBoolean(calculateB),
-        toBoolean(verbose)
-      ),
-      (value) => ({ value })
+
+    const linearValues = fullLinearRegression(
+      toNumberMatrix(dataX, "data_x"),
+      toNumberMatrix(dataY, "data_y"),
+      toBoolean(calculateB),
+      toBoolean(verbose)
     );
+
+    return generateSubMatrix(zone, linearValues.length, linearValues[0].length, (i, j) => ({
+      value: linearValues[i][j],
+    }));
   },
   isExported: true,
 };
@@ -769,6 +786,7 @@ export const LOGEST: AddFunctionDescription = {
     ),
   ],
   computeArray: function (
+    zone: UnboundedZone,
     dataY: Matrix<FunctionResultObject>,
     dataX: Matrix<FunctionResultObject> = [[]],
     calculateB: Maybe<FunctionResultObject> = { value: true },
@@ -786,7 +804,9 @@ export const LOGEST: AddFunctionDescription = {
     for (let i = 0; i < coeffs.length; i++) {
       coeffs[i][0] = Math.exp(coeffs[i][0] as number);
     }
-    return matrixMap(coeffs, (value) => ({ value }));
+    return generateSubMatrix(zone, coeffs.length, coeffs[0].length, (i, j) => ({
+      value: coeffs[i][j],
+    }));
   },
   isExported: true,
 };
@@ -1150,6 +1170,7 @@ export const POLYFIT_COEFFS: AddFunctionDescription = {
     ),
   ],
   computeArray: function (
+    zone: UnboundedZone,
     dataY: Matrix<FunctionResultObject>,
     dataX: Matrix<FunctionResultObject>,
     order: Maybe<FunctionResultObject>,
@@ -1159,15 +1180,15 @@ export const POLYFIT_COEFFS: AddFunctionDescription = {
     if (flatDataX.length === 0 || flatDataY.length === 0) {
       return new NotAvailableError(noValidInputErrorMessage);
     }
-    return matrixMap(
-      polynomialRegression(
-        flatDataY,
-        flatDataX,
-        toNumber(order, this.locale),
-        toBoolean(intercept)
-      ),
-      (value) => ({ value })
+    const polynomialCoeffs = polynomialRegression(
+      flatDataY,
+      flatDataX,
+      toNumber(order, this.locale),
+      toBoolean(intercept)
     );
+    return generateSubMatrix(zone, polynomialCoeffs.length, 1, (i) => ({
+      value: polynomialCoeffs[i][0],
+    }));
   },
   isExported: false,
 };
@@ -1199,6 +1220,7 @@ export const POLYFIT_FORECAST: AddFunctionDescription = {
     ),
   ],
   computeArray: function (
+    zone: UnboundedZone,
     x: Arg,
     dataY: Matrix<FunctionResultObject>,
     dataX: Matrix<FunctionResultObject>,
@@ -1211,9 +1233,14 @@ export const POLYFIT_FORECAST: AddFunctionDescription = {
       return new NotAvailableError(noValidInputErrorMessage);
     }
     const coeffs = polynomialRegression(flatDataY, flatDataX, _order, toBoolean(intercept)).flat();
-    return matrixMap(toMatrix(x), (xij) => ({
-      value: evaluatePolynomial(coeffs, toNumber(xij, this.locale), _order),
-    }));
+
+    x = toMatrix(x);
+    return generateSubMatrix(zone, x.length, x[0].length, (i, j) => {
+      const xij = toNumber(x[i][j], this.locale);
+      return {
+        value: evaluatePolynomial(coeffs, xij, _order),
+      };
+    });
   },
   isExported: false,
 };
@@ -1610,6 +1637,7 @@ export const TREND: AddFunctionDescription = {
     ),
   ],
   computeArray: function (
+    zone: UnboundedZone,
     knownDataY: Matrix<FunctionResultObject>,
     knownDataX: Matrix<FunctionResultObject> = [[]],
     newDataX: Matrix<FunctionResultObject> = [[]],
@@ -1618,15 +1646,16 @@ export const TREND: AddFunctionDescription = {
     if (knownDataY.length === 0 || knownDataY[0].length === 0) {
       return new EvaluationError(emptyDataErrorMessage("known_data_y"));
     }
-    return matrixMap(
-      predictLinearValues(
-        toNumberMatrix(knownDataY, "known_data_y"),
-        toNumberMatrix(knownDataX, "known_data_x"),
-        toNumberMatrix(newDataX, "new_data_y"),
-        toBoolean(b)
-      ),
-      (value) => ({ value })
+    // TODO: use zone directly to only compute the necessary newDataX values
+    const linearValues = predictLinearValues(
+      toNumberMatrix(knownDataY, "known_data_y"),
+      toNumberMatrix(knownDataX, "known_data_x"),
+      toNumberMatrix(newDataX, "new_data_x"),
+      toBoolean(b)
     );
+    return generateSubMatrix(zone, linearValues.length, linearValues[0].length, (i, j) => ({
+      value: linearValues[i][j],
+    }));
   },
 };
 

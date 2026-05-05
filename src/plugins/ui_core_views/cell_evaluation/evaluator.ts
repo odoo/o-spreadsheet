@@ -39,6 +39,7 @@ import {
   isMatrix,
   Matrix,
   UID,
+  UnboundedZone,
   Zone,
 } from "../../../types/misc";
 import { ModelConfig } from "../../../types/model";
@@ -137,7 +138,8 @@ export class Evaluator {
   private computeDependencies(dependencies: Range[]) {
     for (const range of dependencies) {
       // ensure that all ranges are computed
-      this.compilationParams.ensureRange(range);
+      const fullZone = { top: 0, left: 0, bottom: undefined, right: undefined };
+      this.compilationParams.ensureRange(fullZone, range);
     }
   }
 
@@ -597,7 +599,7 @@ export class Evaluator {
    * and error handling.
    */
   private buildSafeGetSymbolValue(getContextualSymbolValue?: GetSymbolValue): GetSymbolValue {
-    const getSymbolValue = (symbolName: string, isRange: boolean) => {
+    const getSymbolValue = (zone: UnboundedZone, symbolName: string, isRange: boolean) => {
       if (this.symbolsBeingComputed.has(symbolName)) {
         return errorCycleCell(this.compilationParams.evalContext.__originCellPosition);
       }
@@ -612,10 +614,10 @@ export class Evaluator {
 
           const isMultiCellZone = getZoneArea(namedRange.range.zone) > 1;
           return isMultiCellZone || isRange
-            ? this.compilationParams.ensureRange(namedRange.range)
+            ? this.compilationParams.ensureRange(zone, namedRange.range)
             : this.compilationParams.referenceDenormalizer(namedRange.range);
         }
-        const symbolValue = getContextualSymbolValue?.(symbolName, isRange);
+        const symbolValue = getContextualSymbolValue?.(zone, symbolName, isRange);
         if (symbolValue) {
           return symbolValue;
         }

@@ -3,16 +3,22 @@ import { escapeRegExp, trimContent } from "../helpers/misc";
 import { _t } from "../translation";
 import { CellErrorType, EvaluationError, NotAvailableError } from "../types/errors";
 import { AddFunctionDescription } from "../types/functions";
-import { Arg, FunctionResultNumber, FunctionResultObject, Maybe } from "../types/misc";
+import {
+  Arg,
+  FunctionResultNumber,
+  FunctionResultObject,
+  Maybe,
+  UnboundedZone,
+} from "../types/misc";
 import { arg } from "./arguments";
 import {
-  matrixMap,
+  generateSubMatrix,
   reduceAny,
   toBoolean,
   toMatrix,
   toNumber,
   toString,
-  transposeMatrix,
+  toSubMatrix,
 } from "./helpers";
 
 const DEFAULT_STARTING_AT = 1;
@@ -396,6 +402,7 @@ export const REGEXEXTRACT = {
     ),
   ],
   computeArray: function (
+    zone: UnboundedZone,
     text: Maybe<FunctionResultObject>,
     pattern: Maybe<FunctionResultObject>,
     return_mode: Maybe<FunctionResultObject> = { value: REGEXEXTRACT_DEFAULT_MODE },
@@ -407,7 +414,7 @@ export const REGEXEXTRACT = {
     const _caseSensitivity = toNumber(newText, this.locale);
 
     if (_text === "" || _pattern === "") {
-      return { value: "" };
+      return toSubMatrix(zone, { value: "" });
     }
     if (_returnMode < 0 || _returnMode > 2) {
       return new EvaluationError(_t("The return_mode (%s) must be 0, 1 or 2.", _returnMode));
@@ -426,18 +433,20 @@ export const REGEXEXTRACT = {
     const matches = [..._text.matchAll(regex)];
 
     if (matches.length === 0) {
-      return { value: CellErrorType.NotAvailable, message: _t("No matches found.") };
+      return new NotAvailableError(_t("No matches found."));
     }
 
     if (_returnMode === 0) {
-      return { value: matches[0][0] };
+      return toSubMatrix(zone, { value: matches[0][0] });
     } else if (_returnMode === 1) {
-      return matches.map((match) => [{ value: match[0] }]);
+      return generateSubMatrix(zone, matches.length, 1, (col) => ({ value: matches[col][0] }));
     } else {
       if (matches[0].length < 2) {
         return new EvaluationError(_t("No capturing groups found."));
       }
-      return matches[0].slice(1).map((s) => [{ value: s }]);
+      return generateSubMatrix(zone, matches[0].length - 1, 1, (col) => ({
+        value: matches[0][col + 1],
+      }));
     }
   },
   isExported: true,
@@ -648,6 +657,7 @@ export const SPLIT = {
     ),
   ],
   computeArray: function (
+    zone: UnboundedZone,
     text: Maybe<FunctionResultObject>,
     delimiter: Maybe<FunctionResultObject>,
     splitByEach: Maybe<FunctionResultObject> = { value: SPLIT_DEFAULT_SPLIT_BY_EACH },
@@ -669,7 +679,9 @@ export const SPLIT = {
       result = result.filter((text) => text !== "");
     }
 
-    return matrixMap(transposeMatrix([result]), (value) => ({ value }));
+    return generateSubMatrix(zone, result.length, 1, (col, row) => {
+      return { value: result[col] };
+    });
   },
   isExported: false,
 } satisfies AddFunctionDescription;
@@ -808,12 +820,13 @@ export const TEXTSPLIT = {
     ),
   ],
   computeArray: function (
+    zone: UnboundedZone,
     text: FunctionResultObject,
     colDelimiter: Arg,
     rowDelimiter: Arg,
     ignoreEmpty: Maybe<FunctionResultObject> = { value: TEXTSPLIT_DEFAULT_IGNORE_EMPTY },
     matchMode: Maybe<FunctionResultObject> = { value: TEXTSPLIT_DEFAULT_MATCH_MODE },
-    padWith: Maybe<FunctionResultObject> = new NotAvailableError()
+    padWith: Maybe<FunctionResultObject>
   ) {
     const _text = toString(text);
     if (_text.length <= 0) {
@@ -842,7 +855,7 @@ export const TEXTSPLIT = {
       return new EvaluationError(_t("match_mode should be a value of 0 or 1."));
     }
 
-    const cells: FunctionResultObject[][] = [];
+    const cells: string[][] = [];
     const regexpFlags = _matchMode === 1 ? "gi" : "g";
 
     // only keep the row delimiters that are not in the column delimiters to prioritize spliting by columns
@@ -862,17 +875,15 @@ export const TEXTSPLIT = {
       if (_ignoreEmpty) {
         columns = columns.filter((v) => v !== "");
       }
-      cells.push(columns.map((value) => ({ value })));
+      cells.push(columns);
     }
 
     const maxLength = Math.max(...cells.map((row) => row.length));
-    for (const row of cells) {
-      while (row.length < maxLength) {
-        row.push(padWith);
-      }
-    }
+    const _padWith = padWith !== undefined ? toString(padWith) : CellErrorType.NotAvailable;
 
-    return transposeMatrix(cells);
+    return generateSubMatrix(zone, maxLength, cells.length, (col, row) => ({
+      value: cells[row]?.[col] ?? _padWith,
+    }));
   },
   isExported: true,
 } satisfies AddFunctionDescription;
