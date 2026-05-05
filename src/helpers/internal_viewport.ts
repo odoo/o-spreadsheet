@@ -177,6 +177,10 @@ export class InternalViewport {
     this.adjustViewportZoneY();
   }
 
+  isZoneVisible(zone: Zone): boolean {
+    return intersection(zone, this) !== undefined;
+  }
+
   /**
    *
    * Computes the visible coordinates & dimensions of a given zone inside the viewport

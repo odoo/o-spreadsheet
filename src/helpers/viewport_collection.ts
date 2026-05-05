@@ -231,6 +231,10 @@ export class ViewportCollection {
     return this.getSubViewports(sheetId).some((pane) => pane.isVisible(col, row));
   }
 
+  isZoneVisibleInViewport(sheetId: UID, zone: Zone): boolean {
+    return this.getSubViewports(sheetId).some((pane) => pane.isZoneVisible(zone));
+  }
+
   getScrollBarWidth(): Pixel {
     return SCROLLBAR_WIDTH / this.zoomLevel;
   }
