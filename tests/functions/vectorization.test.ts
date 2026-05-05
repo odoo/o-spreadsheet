@@ -1,7 +1,7 @@
 import { OPERATOR_MAP, UNARY_OPERATOR_MAP } from "../../src/formulas/compiler";
 import { functionRegistry } from "../../src/functions/function_registry";
 import { toScalar } from "../../src/functions/helper_matrices";
-import { toString } from "../../src/functions/helpers";
+import { toString, toSubMatrix } from "../../src/functions/helpers";
 import { setCellContent } from "../test_helpers/commands_helpers";
 import { getEvaluatedCell } from "../test_helpers/getters_helpers";
 import {
@@ -34,12 +34,12 @@ describe("vectorization", () => {
     addToRegistry(functionRegistry, "FUNCTION.THAT.SPREADS", {
       description: "a function that spreads a matrix",
       args: [{ name: "arg1", description: "", type: ["ANY"] }],
-      computeArray: function (arg1) {
+      computeArray: function (zone, arg1) {
         const value = { value: toString(toScalar(arg1)) };
-        return [
+        return toSubMatrix(zone, [
           [value, value],
           [value, value],
-        ];
+        ]);
       },
     });
   });
@@ -145,7 +145,7 @@ describe("vectorization", () => {
     ]);
     expect(checkFunctionDoesntSpreadBeyondRange(model, "D1:E2")).toBeTruthy();
 
-    setCellContent(model, "D1", "=FUNCTION.THAT.SPREADS(A1:B2)");
+    setCellContent(model, "D1", "=?FUNCTION.THAT.SPREADS(A1:B2)");
     expect(getRangeValuesAsMatrix(model, "D1:E2")).toEqual([
       ["A1", "B1"],
       ["A2", "B2"],

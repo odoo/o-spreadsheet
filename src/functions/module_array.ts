@@ -2,13 +2,14 @@ import { evaluationResultToDisplayString } from "../helpers/matrix";
 import { _t } from "../translation";
 import { EvaluationError, NotAvailableError } from "../types/errors";
 import { AddFunctionDescription } from "../types/functions";
-import { Arg, FunctionResultObject, Matrix, Maybe } from "../types/misc";
+import { Arg, FunctionResultObject, Matrix, Maybe, UnboundedZone } from "../types/misc";
 import { arg } from "./arguments";
 import { areSameDimensions, isSingleColOrRow, isSquareMatrix } from "./helper_assert";
 import { invertMatrix, multiplyMatrices } from "./helper_matrices";
 import {
   flattenRowFirst,
   generateMatrix,
+  generateSubMatrix,
   isEvaluationError,
   matrixMap,
   toBoolean,
@@ -17,6 +18,7 @@ import {
   toNumber,
   toNumberMatrix,
   toString,
+  toSubMatrix,
   transposeMatrix,
 } from "./helpers";
 
@@ -103,6 +105,7 @@ export const ARRAY_CONSTRAIN = {
     arg("columns (number)", _t("The number of columns in the constrained array.")),
   ],
   computeArray: function (
+    zone: UnboundedZone,
     array: Arg,
     rows: Maybe<FunctionResultObject>,
     columns: Maybe<FunctionResultObject>
@@ -125,7 +128,7 @@ export const ARRAY_CONSTRAIN = {
     const _nbRows = Math.min(_rowsArg, _array[0].length);
     const _nbColumns = Math.min(_columnsArg, _array.length);
 
-    return generateMatrix(_nbColumns, _nbRows, (col, row) => _array[col][row]);
+    return generateSubMatrix(zone, _nbColumns, _nbRows, (col, row) => _array[col][row]);
   },
   isExported: false,
 } satisfies AddFunctionDescription;
@@ -138,8 +141,9 @@ export const ARRAY_LITERAL = {
     "Appends ranges vertically and in sequence to return a larger array. All ranges must have the same number of columns."
   ),
   args: [arg("range (any, range<any>, repeating)", _t("The range to be appended."))],
-  computeArray: function (...ranges: Arg[]) {
-    return stackVertically(ranges, { requireSameColCount: true });
+  computeArray: function (zone: UnboundedZone, ...ranges: Arg[]) {
+    // TODO: optimize zone
+    return toSubMatrix(zone, stackVertically(ranges, { requireSameColCount: true }));
   },
   isExported: false,
   hidden: true,
@@ -153,8 +157,9 @@ export const ARRAY_ROW = {
     "Appends ranges horizontally and in sequence to return a larger array. All ranges must have the same number of rows."
   ),
   args: [arg("range (any, range<any>, repeating)", _t("The range to be appended."))],
-  computeArray: function (...ranges: Arg[]) {
-    return stackHorizontally(ranges, { requireSameRowCount: true });
+  computeArray: function (zone: UnboundedZone, ...ranges: Arg[]) {
+    // TODO: optimize zone
+    return toSubMatrix(zone, stackHorizontally(ranges, { requireSameRowCount: true }));
   },
   isExported: false,
   hidden: true,
@@ -172,7 +177,7 @@ export const CHOOSECOLS = {
       _t("The column index of the column to be returned.")
     ),
   ],
-  computeArray: function (array: Arg, ...columns: Arg[]) {
+  computeArray: function (zone: UnboundedZone, array: Arg, ...columns: Arg[]) {
     const _array = toMatrix(array);
     const _columns = flattenRowFirst(columns, (item) => toInteger(item?.value, this.locale));
 
@@ -197,7 +202,7 @@ export const CHOOSECOLS = {
       }
     }
 
-    return result;
+    return toSubMatrix(zone, result);
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -214,7 +219,7 @@ export const CHOOSEROWS = {
       _t("The row index of the row to be returned.")
     ),
   ],
-  computeArray: function (array: Arg, ...rows: Arg[]) {
+  computeArray: function (zone: UnboundedZone, array: Arg, ...rows: Arg[]) {
     const _array = toMatrix(array);
     const _rows = flattenRowFirst(rows, (item) => toInteger(item?.value, this.locale));
     const _nbColumns = _array.length;
@@ -231,7 +236,7 @@ export const CHOOSEROWS = {
       );
     }
 
-    return generateMatrix(_nbColumns, _rows.length, (col, row) => {
+    return generateSubMatrix(zone, _nbColumns, _rows.length, (col, row) => {
       if (_rows[row] > 0) {
         return _array[col][_rows[row] - 1]; // -1 because columns arguments are 1-indexed
       }
@@ -259,6 +264,7 @@ export const EXPAND = {
     arg("pad_with (any, default=0)", _t("The value with which to pad.")), // @compatibility: on Excel, pad with #N/A
   ],
   computeArray: function (
+    zone: UnboundedZone,
     arg: Arg,
     rows: Maybe<FunctionResultObject>,
     columns?: Maybe<FunctionResultObject>,
@@ -287,7 +293,7 @@ export const EXPAND = {
       );
     }
 
-    return generateMatrix(_nbColumns, _nbRows, (col, row) =>
+    return generateSubMatrix(zone, _nbColumns, _nbRows, (col, row) =>
       col >= _array.length || row >= _array[col].length ? padWith : _array[col][row]
     );
   },
@@ -300,8 +306,10 @@ export const EXPAND = {
 export const FLATTEN = {
   description: _t("Flattens all the values from one or more ranges into a single column."),
   args: [arg("range (any, range<any>, repeating)", _t("The range to flatten."))],
-  computeArray: function (...ranges: Arg[]): Matrix<FunctionResultObject> {
-    return [flattenRowFirst(ranges, (val) => (val === undefined ? { value: "" } : val))];
+  computeArray: function (zone: UnboundedZone, ...ranges: Arg[]) {
+    return toSubMatrix(zone, [
+      flattenRowFirst(ranges, (val) => (val === undefined ? { value: "" } : val)),
+    ]);
   },
   isExported: false,
 } satisfies AddFunctionDescription;
@@ -316,6 +324,7 @@ export const FREQUENCY = {
     arg("classes (number, range<number>)", _t("The range containing the set of classes.")),
   ],
   computeArray: function (
+    zone: UnboundedZone,
     data: Matrix<FunctionResultObject>,
     classes: Matrix<FunctionResultObject>
   ) {
@@ -361,7 +370,7 @@ export const FREQUENCY = {
     const result = sortedClasses
       .sort((a, b) => a.initialIndex - b.initialIndex)
       .map((val) => ({ value: val.count }));
-    return [result];
+    return toSubMatrix(zone, [result]);
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -372,8 +381,8 @@ export const FREQUENCY = {
 export const HSTACK = {
   description: _t("Appends ranges horizontally and in sequence to return a larger array."),
   args: [arg("range (any, range<any>, repeating)", _t("The range to be appended."))],
-  computeArray: function (...ranges: Arg[]) {
-    return stackHorizontally(ranges);
+  computeArray: function (zone: UnboundedZone, ...ranges: Arg[]) {
+    return toSubMatrix(zone, stackHorizontally(ranges));
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -416,7 +425,7 @@ export const MINVERSE = {
       )
     ),
   ],
-  computeArray: function (matrix: Arg) {
+  computeArray: function (zone: UnboundedZone, matrix: Arg) {
     const _matrix = toNumberMatrix(matrix, "square_matrix");
     if (!isSquareMatrix(_matrix)) {
       return new EvaluationError(
@@ -427,7 +436,10 @@ export const MINVERSE = {
     if (!inverted) {
       return new EvaluationError(_t("The matrix is not invertible."));
     }
-    return matrixMap(inverted, (value) => ({ value }));
+    return toSubMatrix(
+      zone,
+      matrixMap(inverted, (value) => ({ value }))
+    );
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -447,7 +459,7 @@ export const MMULT = {
       _t("The second matrix in the matrix multiplication operation.")
     ),
   ],
-  computeArray: function (matrix1: Arg, matrix2: Arg) {
+  computeArray: function (zone: UnboundedZone, matrix1: Arg, matrix2: Arg) {
     const _matrix1 = toNumberMatrix(matrix1, "matrix1");
     const _matrix2 = toNumberMatrix(matrix2, "matrix2");
 
@@ -468,7 +480,10 @@ export const MMULT = {
       );
     }
 
-    return matrixMap(multiplyMatrices(_matrix1, _matrix2), (value) => ({ value }));
+    return toSubMatrix(
+      zone,
+      matrixMap(multiplyMatrices(_matrix1, _matrix2), (value) => ({ value }))
+    );
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -686,6 +701,7 @@ export const TOCOL = {
   description: _t("Transforms a range of cells into a single column."),
   args: TO_COL_ROW_ARGS,
   computeArray: function (
+    zone: UnboundedZone,
     array: Arg,
     ignore: Maybe<FunctionResultObject> = { value: TO_COL_ROW_DEFAULT_IGNORE },
     scanByColumn: Maybe<FunctionResultObject> = { value: TO_COL_ROW_DEFAULT_SCAN }
@@ -700,7 +716,7 @@ export const TOCOL = {
     if (result.length === 0) {
       return new NotAvailableError(_t("No results for the given arguments of TOCOL."));
     }
-    return [result];
+    return toSubMatrix(zone, [result]);
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -712,6 +728,7 @@ export const TOROW = {
   description: _t("Transforms a range of cells into a single row."),
   args: TO_COL_ROW_ARGS,
   computeArray: function (
+    zone: UnboundedZone,
     array: Arg,
     ignore: Maybe<FunctionResultObject> = { value: TO_COL_ROW_DEFAULT_IGNORE },
     scanByColumn: Maybe<FunctionResultObject> = { value: TO_COL_ROW_DEFAULT_SCAN }
@@ -727,7 +744,7 @@ export const TOROW = {
     if (result.length === 0 || result[0].length === 0) {
       return new NotAvailableError(_t("No results for the given arguments of TOROW."));
     }
-    return result;
+    return toSubMatrix(zone, result);
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -738,12 +755,12 @@ export const TOROW = {
 export const TRANSPOSE = {
   description: _t("Transposes the rows and columns of a range."),
   args: [arg("range (any, range<any>)", _t("The range to be transposed."))],
-  computeArray: function (arg: Arg): Matrix<FunctionResultObject> {
+  computeArray: function (zone: UnboundedZone, arg: Arg) {
     const _array = toMatrix(arg);
     const nbColumns = _array[0].length;
     const nbRows = _array.length;
 
-    return generateMatrix(nbColumns, nbRows, (col, row) => _array[row][col]);
+    return generateSubMatrix(zone, nbColumns, nbRows, (col, row) => _array[row][col]);
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -754,8 +771,8 @@ export const TRANSPOSE = {
 export const VSTACK = {
   description: _t("Appends ranges vertically and in sequence to return a larger array."),
   args: [arg("range (any, range<any>, repeating)", _t("The range to be appended."))],
-  computeArray: function (...ranges: Arg[]) {
-    return stackVertically(ranges);
+  computeArray: function (zone: UnboundedZone, ...ranges: Arg[]) {
+    return toSubMatrix(zone, stackVertically(ranges));
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -779,6 +796,7 @@ export const WRAPCOLS = {
     ),
   ],
   computeArray: function (
+    zone: UnboundedZone,
     range: Arg,
     wrapCount: Maybe<FunctionResultObject>,
     padWith: Maybe<FunctionResultObject> = { value: 0 }
@@ -793,7 +811,7 @@ export const WRAPCOLS = {
     const array = _array.flat();
     const nbColumns = Math.ceil(array.length / nbRows);
 
-    return generateMatrix(nbColumns, nbRows, (col, row) => {
+    return generateSubMatrix(zone, nbColumns, nbRows, (col, row) => {
       const index = col * nbRows + row;
       return index < array.length ? array[index] : padWith;
     });
@@ -820,6 +838,7 @@ export const WRAPROWS = {
     ),
   ],
   computeArray: function (
+    zone: UnboundedZone,
     range: Arg,
     wrapCount: Maybe<FunctionResultObject>,
     padWith: Maybe<FunctionResultObject> = { value: 0 }
@@ -834,7 +853,7 @@ export const WRAPROWS = {
     const array = _array.flat();
     const nbRows = Math.ceil(array.length / nbColumns);
 
-    return generateMatrix(nbColumns, nbRows, (col, row) => {
+    return generateSubMatrix(zone, nbColumns, nbRows, (col, row) => {
       const index = row * nbColumns + col;
       return index < array.length ? array[index] : padWith;
     });

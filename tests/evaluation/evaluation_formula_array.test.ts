@@ -1,7 +1,7 @@
 import { arg } from "../../src/functions/arguments";
 import { functionRegistry } from "../../src/functions/function_registry";
 import { toScalar } from "../../src/functions/helper_matrices";
-import { toMatrix, toNumber } from "../../src/functions/helpers";
+import { generateSubMatrix, toNumber, toSubMatrix } from "../../src/functions/helpers";
 import { toCartesian, toZone } from "../../src/helpers";
 import { Model } from "../../src/model";
 import { DEFAULT_LOCALE, ErrorCell, UID } from "../../src/types";
@@ -36,13 +36,11 @@ describe("evaluate formulas that use/return an array", () => {
         arg("m (number)", "number of row of the matrix"),
         arg("v (number)", "value to fill matrix"),
       ],
-      computeArray: function (n, m, v) {
+      computeArray: function (zone, n, m, v) {
         const _n = toNumber(toScalar(n), DEFAULT_LOCALE);
         const _m = toNumber(toScalar(m), DEFAULT_LOCALE);
         const _v = toNumber(toScalar(v), DEFAULT_LOCALE);
-        return Array.from({ length: _n }, (_, i) =>
-          Array.from({ length: _m }, (_, j) => ({ value: _v }))
-        );
+        return generateSubMatrix(zone, _n, _m, () => ({ value: _v }));
       },
     });
   });
@@ -179,8 +177,8 @@ describe("evaluate formulas that use/return an array", () => {
       addToRegistry(functionRegistry, "MATRIX", {
         description: "Return the matrix passed as argument",
         args: [arg("matrix (range<number>)", "a matrix")],
-        computeArray: function (matrix) {
-          return toMatrix(matrix);
+        computeArray: function (zone, matrix) {
+          return toSubMatrix(zone, matrix || { value: 1 });
         },
       });
 

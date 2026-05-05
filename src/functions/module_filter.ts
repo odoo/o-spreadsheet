@@ -5,11 +5,19 @@ import { CellValue, CellValueType } from "../types/cells";
 import { EvaluationError, NotAvailableError } from "../types/errors";
 import { AddFunctionDescription } from "../types/functions";
 import { Locale } from "../types/locale";
-import { Arg, FunctionResultObject, isMatrix, Matrix, Maybe, SortDirection } from "../types/misc";
+import {
+  Arg,
+  FunctionResultObject,
+  isMatrix,
+  Matrix,
+  Maybe,
+  SortDirection,
+  UnboundedZone,
+} from "../types/misc";
 import { arg } from "./arguments";
 import { areSameDimensions, assert, isSingleColOrRow } from "./helper_assert";
 import { toScalar } from "./helper_matrices";
-import { matrixMap, toBoolean, toMatrix, toNumber, transposeMatrix } from "./helpers";
+import { matrixMap, toBoolean, toMatrix, toNumber, toSubMatrix, transposeMatrix } from "./helpers";
 
 function sortMatrix(
   matrix: Matrix<FunctionResultObject>,
@@ -106,7 +114,7 @@ export const FILTER = {
       _t("Column or row containing true or false values corresponding to the range.")
     ),
   ],
-  computeArray: function (range: Arg, ...conditions: Arg[]) {
+  computeArray: function (zone: UnboundedZone, range: Arg, ...conditions: Arg[]) {
     let _array = toMatrix(range);
     const _conditionsMatrices = conditions.map((cond) =>
       matrixMap(toMatrix(cond), (data) => data.value)
@@ -141,7 +149,8 @@ export const FILTER = {
       return new NotAvailableError(_t("No match found in FILTER evaluation"));
     }
 
-    return mode === "row" ? transposeMatrix(result) : result;
+    // TODO: rewrite to use zone directly in the previous process instead of creating a new matrix and then converting it back to a submatrix
+    return toSubMatrix(zone, mode === "row" ? transposeMatrix(result) : result);
   },
   isExported: false,
 } satisfies AddFunctionDescription;
@@ -171,11 +180,12 @@ export const SORT: AddFunctionDescription = {
     ),
   ],
   computeArray: function (
+    zone: UnboundedZone,
     range: Matrix<FunctionResultObject>,
     ...sortingCriteria: Arg[]
-  ): Matrix<FunctionResultObject> {
+  ) {
     const _range = transposeMatrix(range);
-    return transposeMatrix(sortMatrix(_range, this.locale, ...sortingCriteria));
+    return toSubMatrix(zone, transposeMatrix(sortMatrix(_range, this.locale, ...sortingCriteria)));
   },
   isExported: true,
 };
@@ -316,6 +326,7 @@ export const UNIQUE = {
     ),
   ],
   computeArray: function (
+    zone: UnboundedZone,
     range: Arg = { value: "" },
     byColumn: Maybe<FunctionResultObject>,
     exactlyOnce: Maybe<FunctionResultObject>
@@ -354,7 +365,7 @@ export const UNIQUE = {
       return new EvaluationError(_t("No unique values found"));
     }
 
-    return _byColumn ? result : transposeMatrix(result);
+    return toSubMatrix(zone, _byColumn ? result : transposeMatrix(result));
   },
   isExported: true,
 } satisfies AddFunctionDescription;
