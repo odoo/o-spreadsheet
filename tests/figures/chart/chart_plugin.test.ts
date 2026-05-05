@@ -54,7 +54,7 @@ import {
   FIGURE_ID_SPLITTER,
 } from "../../../src/constants";
 import { toNumber } from "../../../src/functions/helpers";
-import { zoneToXc } from "../../../src/helpers";
+import { fontSizeInPixels, zoneToXc } from "../../../src/helpers";
 import { BarChart } from "../../../src/helpers/figures/charts";
 import { ChartPlugin } from "../../../src/plugins/core";
 import { ScatterChartRuntime } from "../../../src/types/chart/scatter_chart";
@@ -1330,6 +1330,28 @@ describe("title", function () {
     }
   );
 
+  test.each(["line", "bar", "pyramid", "pie", "combo", "waterfall", "scatter"] as const)(
+    "Title font size is converted from points to pixels for %s chart",
+    (type) => {
+      createChart(
+        model,
+        {
+          dataSets: [{ dataRange: "A1:B1" }],
+          labelRange: "A2:B2",
+          title: {
+            text: "title",
+            fontSize: 24,
+          },
+          type,
+        },
+        "1"
+      );
+      expect(getChartConfiguration(model, "1").options?.plugins?.title?.font).toMatchObject({
+        size: fontSizeInPixels(24),
+      });
+    }
+  );
+
   test.each(["line", "bar", "pyramid", "combo", "waterfall", "scatter"] as const)(
     "Axis title alignment is taken into account for %s chart",
     (type) => {
@@ -1387,6 +1409,31 @@ describe("title", function () {
       });
       scales = getChartConfiguration(model, "1").options.scales;
       expect(scales.x!["title"].align).toEqual("end");
+    }
+  );
+
+  test.each(["line", "bar", "pyramid", "combo", "waterfall", "scatter"] as const)(
+    "Axis title font size is converted from points to pixels for %s chart",
+    (type) => {
+      createChart(
+        model,
+        {
+          dataSets: [{ dataRange: "A1:B1" }],
+          labelRange: "A2:B2",
+          type,
+          axesDesign: {
+            x: {
+              title: {
+                text: "test",
+                fontSize: 24,
+              },
+            },
+          },
+        },
+        "1"
+      );
+      const scales = getChartConfiguration(model, "1").options.scales;
+      expect(scales.x!["title"].font.size).toEqual(fontSizeInPixels(24));
     }
   );
 

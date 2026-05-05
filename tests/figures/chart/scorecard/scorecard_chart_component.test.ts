@@ -3,7 +3,11 @@ import {
   DEFAULT_SCORECARD_BASELINE_COLOR_DOWN,
   DEFAULT_SCORECARD_BASELINE_COLOR_UP,
 } from "../../../../src/constants";
-import { createAccountingFormat, getContextFontSize } from "../../../../src/helpers";
+import {
+  createAccountingFormat,
+  fontSizeInPixels,
+  getContextFontSize,
+} from "../../../../src/helpers";
 import { chartMutedFontColor, drawScoreChart } from "../../../../src/helpers/figures/charts";
 import {
   ScorecardChartConfig,
@@ -137,6 +141,17 @@ describe("Scorecard charts computation", () => {
     expect(chartDesign.baselineDescr?.[0].text).toEqual(" desc");
     expect(chartDesign.key?.text).toEqual("2");
     expect(chartDesign.baselineDescr?.length).toEqual(1);
+  });
+
+  test("Title font size is converted from points to pixels", () => {
+    createScorecardChart(
+      model,
+      { keyValue: "A1", baseline: "B1", title: { text: "hello", fontSize: 24 } },
+      chartId
+    );
+    const chartDesign = getChartDesign(model, chartId, sheetId);
+
+    expect(getContextFontSize(chartDesign.title!.style.font)).toEqual(fontSizeInPixels(24));
   });
 
   test("Baseline = 0 correctly displayed", () => {

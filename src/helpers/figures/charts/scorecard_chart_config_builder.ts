@@ -2,7 +2,7 @@ import { Color } from "chart.js";
 import { SCORECARD_CHART_TITLE_FONT_SIZE } from "../../../constants";
 import { DOMDimension, Pixel, PixelPosition } from "../../../types";
 import { BaselineArrowDirection, ScorecardChartRuntime } from "../../../types/chart";
-import { getDefaultContextFont } from "../../text_helper";
+import { fontSizeInPixels, getDefaultContextFont } from "../../text_helper";
 import { chartMutedFontColor } from "./chart_common";
 
 /* Padding at the border of the chart */
@@ -270,7 +270,7 @@ class ScorecardChartConfigBuilder {
     return {
       title: {
         font: getDefaultContextFont(
-          this.runtime.title.fontSize ?? SCORECARD_CHART_TITLE_FONT_SIZE,
+          fontSizeInPixels(this.runtime.title.fontSize ?? SCORECARD_CHART_TITLE_FONT_SIZE),
           this.runtime.title.bold,
           this.runtime.title.italic
         ),

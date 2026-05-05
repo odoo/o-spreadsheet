@@ -1,8 +1,10 @@
 import { CHART_PADDING, CHART_TITLE_FONT_SIZE } from "../../../../src/constants";
+import { fontSizeInPixels, getContextFontSize } from "../../../../src/helpers";
 import { chartMutedFontColor } from "../../../../src/helpers/figures/charts";
 import {
   GAUGE_DEFAULT_VALUE_FONT_SIZE,
   GAUGE_LABELS_FONT_SIZE,
+  drawGaugeChart,
   getGaugeRenderingConfig,
 } from "../../../../src/helpers/figures/charts/gauge_chart_rendering";
 import { Rect } from "../../../../src/types";
@@ -218,5 +220,24 @@ describe("Gauge rendering config", () => {
     expect(config.gaugeValue.color).toEqual(chartMutedFontColor("#000000"));
     expect(config.inflectionValues[0].color).toEqual(chartMutedFontColor("#000000"));
     expect(config.inflectionValues[1].color).toEqual(chartMutedFontColor("#000000"));
+  });
+
+  test("Chart title font size is converted from points to pixels when rendered", () => {
+    const ctx = Object.assign(new MockCanvasRenderingContext2D(), {
+      arc() {},
+    });
+    const canvas = {
+      width: 0,
+      height: 0,
+      getBoundingClientRect: () => testChartRect,
+      getContext: () => ctx,
+    } as unknown as HTMLCanvasElement;
+
+    drawGaugeChart(canvas, {
+      ...testRuntime,
+      title: { text: "This is a title", fontSize: 24 },
+    });
+
+    expect(getContextFontSize(ctx.font)).toEqual(fontSizeInPixels(24));
   });
 });

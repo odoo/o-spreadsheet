@@ -10,6 +10,7 @@ import { clip } from "../../misc";
 import {
   computeTextDimension,
   computeTextWidth,
+  fontSizeInPixels,
   getDefaultContextFont,
   getFontSizeMatchingWidth,
 } from "../../text_helper";
@@ -159,7 +160,7 @@ function drawInflectionValues(ctx: CanvasRenderingContext2D, config: RenderingPa
 function drawTitle(ctx: CanvasRenderingContext2D, config: RenderingParams) {
   ctx.save();
   const title = config.title;
-  ctx.font = getDefaultContextFont(title.fontSize, title.bold, title.italic);
+  ctx.font = getDefaultContextFont(fontSizeInPixels(title.fontSize), title.bold, title.italic);
   ctx.textBaseline = "middle";
   ctx.fillStyle = title.color;
   ctx.fillText(title.label, title.textPosition.x, title.textPosition.y);
@@ -225,7 +226,7 @@ export function getGaugeRenderingConfig(
     ({ width: titleWidth, height: titleHeight } = computeTextDimension(
       ctx,
       runtime.title.text,
-      { fontSize: CHART_TITLE_FONT_SIZE, ...runtime.title },
+      { fontSize: fontSizeInPixels(runtime.title.fontSize ?? CHART_TITLE_FONT_SIZE) },
       "px"
     ));
   }

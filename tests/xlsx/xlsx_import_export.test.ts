@@ -356,6 +356,25 @@ describe("Export data to xlsx then import it", () => {
     expect(newChart).toMatchObject(chartDef);
   });
 
+  test("chart title font size is preserved through xlsx roundtrip", () => {
+    createChart(
+      model,
+      {
+        title: { text: "demo chart", fontSize: 24 },
+        dataSets: [{ dataRange: "Sheet1!B26:B35" }, { dataRange: "Sheet1!C26:C35" }],
+        labelRange: "Sheet1!A27:A35",
+        type: "line",
+      },
+      "1"
+    );
+
+    const importedModel = exportToXlsxThenImport(model);
+    const newChartId = importedModel.getters.getChartIds(sheetId)[0];
+    const newChart = importedModel.getters.getChartDefinition(newChartId);
+
+    expect(newChart.title).toMatchObject({ text: "demo chart", fontSize: 24 });
+  });
+
   test("hyperlinks", () => {
     createSheet(model, { sheetId: "42", name: "she!et2" });
     const sheetLink = buildSheetLink("42");

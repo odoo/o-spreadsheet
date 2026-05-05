@@ -17,20 +17,12 @@ export class XlsxChartExtractor extends XlsxBaseExtractor {
         if (CHART_TYPE_CONVERSION_MAP[chartType] === "combo") {
           return this.extractComboChart(rootChartElement);
         }
-
-        // Title can be separated into multiple xml elements (for styling and such), we only import the text
-        const chartTitle = this.mapOnElements(
-          { parent: rootChartElement, query: "c:chart > c:title a:t" },
-          (textElement): string => {
-            return textElement.textContent || "";
-          }
-        ).join("");
         const barChartGrouping = this.extractChildAttr(rootChartElement, "c:grouping", "val", {
           default: "clustered",
         }).asString();
 
         return {
-          title: { text: chartTitle },
+          title: this.extractChartTitle(rootChartElement),
           type: CHART_TYPE_CONVERSION_MAP[chartType]!,
           dataSets: this.extractChartDatasets(
             this.querySelectorAll(rootChartElement, `c:${chartType}`)!,
@@ -69,19 +61,12 @@ export class XlsxChartExtractor extends XlsxBaseExtractor {
   }
 
   private extractComboChart(chartElement: Element): ExcelChartDefinition {
-    // Title can be separated into multiple xml elements (for styling and such), we only import the text
-    const chartTitle = this.mapOnElements(
-      { parent: chartElement, query: "c:title a:t" },
-      (textElement): string => {
-        return textElement.textContent || "";
-      }
-    ).join("");
     const barChartGrouping = this.extractChildAttr(chartElement, "c:grouping", "val", {
       default: "clustered",
     }).asString();
 
     return {
-      title: { text: chartTitle },
+      title: this.extractChartTitle(chartElement),
       type: "combo",
       dataSets: [
         ...this.extractChartDatasets(
@@ -110,6 +95,23 @@ export class XlsxChartExtractor extends XlsxBaseExtractor {
         ],
       stacked: barChartGrouping === "stacked",
       fontColor: "000000",
+    };
+  }
+
+  private extractChartTitle(chartElement: Element) {
+    const titleElement = this.querySelector(chartElement, "c:chart > c:title");
+    const text = titleElement
+      ? this.mapOnElements({ parent: titleElement, query: "a:t" }, (textElement): string => {
+          return textElement.textContent || "";
+        }).join("")
+      : "";
+    const fontSizeElement = titleElement
+      ? this.querySelector(titleElement, "a:rPr") || this.querySelector(titleElement, "a:defRPr")
+      : undefined;
+    const fontSize = fontSizeElement?.getAttribute("sz");
+    return {
+      text,
+      fontSize: fontSize ? Number(fontSize) / 100 : undefined,
     };
   }
 
