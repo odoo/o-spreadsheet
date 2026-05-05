@@ -511,7 +511,6 @@ export const demoData = {
           data: {
             type: "pie",
             dataSetsHaveTitle: true,
-            background: "#FFFFFF",
             dataSets: [
               {
                 dataRange: "Sheet1!B26:B35",
@@ -548,7 +547,6 @@ export const demoData = {
               text: "Scorecard",
             },
             type: "scorecard",
-            background: "#FFFFFF",
             baseline: "Sheet1!B28",
             baselineDescr: {
               text: "Descr",
@@ -570,7 +568,6 @@ export const demoData = {
           width: 465,
           tag: "chart",
           data: {
-            background: "#FFFFFF",
             sectionRule: {
               colors: {
                 lowerColor: "#cc0000",
@@ -613,7 +610,6 @@ export const demoData = {
           data: {
             type: "scatter",
             dataSetsHaveTitle: true,
-            background: "#FFFFFF",
             dataSets: [
               {
                 dataRange: "Sheet1!C26:C35",
@@ -642,7 +638,6 @@ export const demoData = {
           data: {
             type: "combo",
             dataSetsHaveTitle: true,
-            background: "#FFFFFF",
             dataSets: [
               {
                 dataRange: "Sheet1!B26:B35",
@@ -677,7 +672,6 @@ export const demoData = {
           data: {
             type: "radar",
             dataSetsHaveTitle: true,
-            background: "#FFFFFF",
             dataSets: [
               {
                 dataRange: "Sheet1!B26:B35",
@@ -710,7 +704,6 @@ export const demoData = {
           data: {
             type: "geo",
             dataSetsHaveTitle: true,
-            background: "#FFFFFF",
             dataSets: [
               {
                 dataRange: "S:S",
@@ -771,7 +764,6 @@ export const demoData = {
           data: {
             type: "funnel",
             dataSetsHaveTitle: true,
-            background: "#FFFFFF",
             dataSets: [
               {
                 dataRange: "W27:W32",
@@ -834,7 +826,6 @@ export const demoData = {
           data: {
             type: "pyramid",
             dataSetsHaveTitle: true,
-            background: "#FFFFFF",
             dataSets: [
               {
                 dataRange: "Sheet1!B26:B35",
@@ -876,7 +867,6 @@ export const demoData = {
               1: {
                 type: "line",
                 dataSetsHaveTitle: true,
-                background: "#FFFFFF",
                 dataSets: [
                   {
                     dataRange: "Sheet1!B26:B35",
@@ -896,7 +886,6 @@ export const demoData = {
               2: {
                 type: "bar",
                 dataSetsHaveTitle: false,
-                background: "#FFFFFF",
                 dataSets: [
                   {
                     dataRange: "Sheet1!B27:B35",
@@ -916,7 +905,6 @@ export const demoData = {
               8: {
                 type: "waterfall",
                 dataSetsHaveTitle: true,
-                background: "#FFFFFF",
                 dataSets: [
                   {
                     dataRange: "Sheet1!B26:B29",

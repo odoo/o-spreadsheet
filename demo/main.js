@@ -331,6 +331,7 @@ class Demo extends Component {
   }
 
   createModel(data) {
+    const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
     this.model = new Model(
       data,
       {
@@ -343,6 +344,7 @@ class Demo extends Component {
         transportService: this.transportService,
         client: this.client,
         mode: "normal",
+        colorScheme: prefersDark ? "dark" : "light",
       },
       this.stateUpdateMessages
     );
