@@ -929,7 +929,11 @@ export class GridSelectionPlugin extends UIPlugin {
     ctx.lineWidth = 1.5 * thinLineWidth;
     const isDarkMode = this.getters.isDarkMode();
     for (const zone of zones) {
+      if (!viewports.isZoneVisibleInViewport(sheetId, zone)) {
+        continue;
+      }
       const { x, y, width, height } = viewports.getVisibleRect(sheetId, zone);
+      const currentLineWidth = ctx.lineWidth;
       if (!isDarkMode) {
         ctx.globalCompositeOperation = "multiply";
       }
@@ -947,6 +951,7 @@ export class GridSelectionPlugin extends UIPlugin {
         ctx.globalCompositeOperation = "source-over";
         ctx.strokeRect(x, y, width, height);
       }
+      ctx.lineWidth = currentLineWidth;
     }
 
     ctx.globalCompositeOperation = "source-over";
