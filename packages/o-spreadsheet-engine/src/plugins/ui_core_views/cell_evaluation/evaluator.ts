@@ -42,6 +42,7 @@ import { BoundedRange, Range } from "../../../types/range";
 
 const MAX_ITERATION = 30;
 const YIELD_INTERVAL_MS = 200;
+const CELLS_PER_TIME_CHECK = 1000;
 const ERROR_CYCLE_CELL = Object.freeze(
   createEvaluatedCell({ ...new CircularDependencyError(), origin: undefined })
 );
@@ -417,18 +418,19 @@ export class Evaluator {
               this.workingCells.set(position, evaluatedCell);
             }
 
-            cellCount++;
-            const now = performance.now();
-            if (now - lastYieldTime >= YIELD_INTERVAL_MS) {
-              const progress = Math.min(cellCount / Math.max(totalCells, 1), 0.99);
-              if (progress - lastReportedProgress >= 0.01) {
-                onProgress(progress);
-                lastReportedProgress = progress;
-              }
-              await new Promise<void>((resolve) => setTimeout(resolve, 0));
-              lastYieldTime = performance.now();
-              if (!isCurrent()) {
-                return;
+            if (++cellCount % CELLS_PER_TIME_CHECK === 0) {
+              const now = performance.now();
+              if (now - lastYieldTime >= YIELD_INTERVAL_MS) {
+                const progress = Math.min(cellCount / Math.max(totalCells, 1), 0.99);
+                if (progress - lastReportedProgress >= 0.01) {
+                  onProgress(progress);
+                  lastReportedProgress = progress;
+                }
+                await new Promise<void>((resolve) => setTimeout(resolve, 0));
+                lastYieldTime = performance.now();
+                if (!isCurrent()) {
+                  return;
+                }
               }
             }
           }

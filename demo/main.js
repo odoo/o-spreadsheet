@@ -318,9 +318,9 @@ class Demo extends Component {
       this.stateUpdateMessages = [];
     }
     // await this.createModel(data || demoData);
-    await this.createModel(makePivotDataset(10_000));
+    //await this.createModel(makePivotDataset(10_000));
     // await this.createModel(makeLargeDataset(26, 10_000, ["numbers"]));
-    // await this.createModel(makeLargeDataset(26, 10_000, ["formulasSquished"]));
+    await this.createModel(makeLargeDataset(260, 10_000, ["formulasSquished"]));
     // await this.createModel(makeLargeDataset(26, 10_000, ["arrayFormulas"]));
     // await this.createModel(makeLargeDataset(26, 10_000, ["vectorizedFormulas"]));
     // await this.createModel({});
