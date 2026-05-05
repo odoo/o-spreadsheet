@@ -3,10 +3,13 @@ import { NamedRangeSelector } from "../../src/components/named_range_selector/na
 import { HIGHLIGHT_COLOR } from "../../src/constants";
 import { toZone } from "../../src/helpers/zones";
 import { HighlightStore } from "../../src/stores/highlight_store";
+import { NotificationStore } from "../../src/stores/notification_store";
 import { SpreadsheetChildEnv } from "../../src/types/spreadsheet_env";
 import {
   createNamedRange,
   createSheet,
+  hideColumns,
+  hideSheet,
   setInputValueAndTrigger,
   setSelection,
   simulateClick,
@@ -210,5 +213,42 @@ describe("Named ranges topbar selector", () => {
     expect(model.getters.getNamedRanges()).toMatchObject([
       { name: "MyRange", range: { zone: toZone("A1") } },
     ]);
+  });
+
+  test("select a named range from the dropdown select the zone even if it's hidden", async () => {
+    createSheet(model, { name: "Sheet1", sheetId: "Sheet1" });
+    createNamedRange(model, "MyRange", "B1:B2");
+    await mountRangeSelector();
+
+    hideColumns(model, ["B"]);
+
+    await simulateClick(".o-named-range-selector .fa-caret-down");
+    const menuItems = [...document.querySelectorAll<HTMLElement>(".o-menu-item")];
+
+    await simulateClick(menuItems[0]);
+    expect(model.getters.getActiveSheetId()).toEqual("Sheet1");
+    expect(model.getters.getSelectedZone()).toEqual(toZone("B1:B2"));
+  });
+
+  test("select a named range from the dropdown notify the user if the sheet is hidden", async () => {
+    createSheet(model, { name: "Sheet1", sheetId: "Sheet1" });
+    createSheet(model, { name: "Sheet2", sheetId: "Sheet2" });
+    createNamedRange(model, "MyRange", "B1:B2");
+    await mountRangeSelector();
+    const notificationStore = env.getStore(NotificationStore);
+    const spyNotify = jest.spyOn(notificationStore, "notifyUser");
+    hideSheet(model, "Sheet1");
+
+    await simulateClick(".o-named-range-selector .fa-caret-down");
+    const menuItems = [...document.querySelectorAll<HTMLElement>(".o-menu-item")];
+
+    await simulateClick(menuItems[0]);
+    expect(model.getters.getActiveSheetId()).toEqual("Sheet2");
+    expect(model.getters.getSelectedZone()).toEqual(toZone("A1"));
+    expect(spyNotify).toHaveBeenCalledWith({
+      type: "info",
+      sticky: false,
+      text: "The sheet on which the range is defined is hidden.",
+    });
   });
 });
