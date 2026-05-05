@@ -2,14 +2,14 @@ import seedrandom from "seedrandom";
 import {
   Command,
   CoreCommand,
-  Model,
-  UnboundedZone,
   isPositionDependent,
   isRangeDependant,
   isSheetDependent,
   isTargetDependent,
+  Model,
+  UnboundedZone,
 } from "../../src";
-import { FunctionCodeBuilder } from "../../src/formulas/code_builder";
+import { dangerouslyCreateJsStr, FunctionCodeBuilder } from "../../src/formulas/code_builder";
 import { deepCopy, deepEquals, range } from "../../src/helpers/misc";
 import { reorderZone } from "../../src/helpers/zones";
 import { MockTransportService } from "../__mocks__/transport_service";
@@ -111,37 +111,40 @@ function assignUser(commands: CoreCommand[], users: Model[]): UserAction[] {
 }
 
 function actionsToTestCode(testTitle: string, actions: UserAction[][]) {
-  const code = new FunctionCodeBuilder();
-  code.append(`test("${testTitle}", () => {`);
-  code.append("const { network, alice, bob, charlie } = setupCollaborativeEnv();");
+  const code: string[] = [];
+  code.push(`test("${testTitle}", () => {`);
+  code.push("const { network, alice, bob, charlie } = setupCollaborativeEnv();");
   for (const commandGroup of actions) {
     if (commandGroup.length === 1) {
       appendCommand(code, commandGroup[0]);
     } else {
-      code.append("network.concurrent(() => {");
+      code.push("network.concurrent(() => {");
       for (const action of commandGroup) {
         appendCommand(code, action);
       }
-      code.append("});");
+      code.push("});");
     }
   }
-  code.append(
+  code.push(
     "expect([alice, bob, charlie]).toHaveSynchronizedEvaluation();",
     "expect([alice, bob, charlie]).toHaveSynchronizedExportedData();",
     "});"
   );
-  return code.toString();
+  // format the code with the code builder
+  const builder = new FunctionCodeBuilder();
+  builder.append(...code.map(dangerouslyCreateJsStr));
+  return builder.toString();
 }
 
-function appendCommand(code: FunctionCodeBuilder, { user, command }: UserAction) {
+function appendCommand(code: string[], { user, command }: UserAction) {
   const userName = user.getters.getCurrentClient().name.toLowerCase();
   if (command.type === "REQUEST_UNDO") {
-    code.append(`undo(${userName});`);
+    code.push(`undo(${userName});`);
   } else if (command.type === "REQUEST_REDO") {
-    code.append(`redo(${userName});`);
+    code.push(`redo(${userName});`);
   } else {
     const cmdPayload = JSON.stringify({ ...command, type: undefined });
-    code.append(`${userName}.dispatch("${command.type}", ${cmdPayload});`);
+    code.push(`${userName}.dispatch("${command.type}", ${cmdPayload});`);
   }
 }
 

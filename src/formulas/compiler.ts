@@ -5,7 +5,7 @@ import { concat, unquote } from "../helpers/misc";
 import { parseNumber } from "../helpers/numbers";
 import { _t } from "../translation";
 import { CoreGetters } from "../types/core_getters";
-import { BadExpressionError, UnknownFunctionError } from "../types/errors";
+import { BadExpressionError, EvaluationError, UnknownFunctionError } from "../types/errors";
 import { DEFAULT_LOCALE } from "../types/locale";
 import {
   ApplyRangeChange,
@@ -16,7 +16,13 @@ import {
   UID,
 } from "../types/misc";
 import { Range, RangeStringOptions } from "../types/range";
-import { FunctionCode, FunctionCodeBuilder, Scope } from "./code_builder";
+import {
+  dangerouslyCreateJsStr,
+  FunctionCode,
+  FunctionCodeBuilder,
+  jsStr,
+  Scope,
+} from "./code_builder";
 import { AST, ASTFuncall, iterateAstNodes, parseTokens } from "./parser";
 import { rangeTokenize } from "./range_tokenizer";
 import { Token } from "./tokenizer";
@@ -364,6 +370,9 @@ function compileTokens(tokens: Token[]): ICompiledFormula {
   try {
     return compileTokensOrThrow(tokens);
   } catch (error) {
+    if (!(error instanceof EvaluationError)) {
+      throw error;
+    }
     return {
       tokens,
       literalValues: { numbers: [], strings: [] },
@@ -398,7 +407,7 @@ function compileTokensOrThrow(tokens: Token[]): ICompiledFormula {
     const compiledAST = compileAST(ast);
     const code = new FunctionCodeBuilder();
     code.append(compiledAST);
-    code.append(`return ${compiledAST.returnExpression};`);
+    code.append(jsStr`return ${compiledAST.returnExpression};`);
     const baseFunction = new Function(
       "deps", // the dependencies in the current formula
       "ref", // a function to access a certain dependency at a given index
@@ -455,25 +464,31 @@ function compileTokensOrThrow(tokens: Token[]): ICompiledFormula {
     function compileAST(ast: AST, hasRange = false): FunctionCode {
       const code = new FunctionCodeBuilder(scope);
       if (ast.debug) {
-        code.append("debugger;");
-        code.append(`ctx["debug"] = true;`);
+        code.append(jsStr`debugger;`);
+        code.append(jsStr`ctx["debug"] = true;`);
       }
       switch (ast.type) {
         case "BOOLEAN":
-          return code.return(`{ value: ${ast.value} }`);
+          return code.return(jsStr`{ value: ${ast.value} }`);
         case "NUMBER":
-          return code.return(`this.literalValues.numbers[${numberCount++}]`);
+          return code.return(jsStr`this.literalValues.numbers[${numberCount++}]`);
         case "STRING":
-          return code.return(`this.literalValues.strings[${stringCount++}]`);
+          return code.return(jsStr`this.literalValues.strings[${stringCount++}]`);
         case "REFERENCE":
           return code.return(
-            `${ast.value.includes(":") || hasRange ? `range` : `ref`}(deps[${dependencyCount++}])`
+            jsStr`${
+              ast.value.includes(":") || hasRange ? jsStr`range` : jsStr`ref`
+            }(deps[${dependencyCount++}])`
           );
         case "FUNCALL":
           const args = compileFunctionArgs(ast).map((arg) => arg.assignResultToVariable());
           code.append(...args);
           const fnName = ast.value.toUpperCase();
-          return code.return(`ctx['${fnName}'](${args.map((arg) => arg.returnExpression)})`);
+          if (!Object.hasOwn(functions, fnName)) {
+            throw new Error(`Unknown function: "${fnName}"`);
+          }
+          const jsFnName = dangerouslyCreateJsStr(fnName); // validated with known functions
+          return code.return(jsStr`ctx['${jsFnName}'](${args.map((arg) => arg.returnExpression)})`);
         case "ARRAY": {
           // a literal array is compiled into function calls
           const arrayFunctionCall: ASTFuncall = {
@@ -492,26 +507,32 @@ function compileTokensOrThrow(tokens: Token[]): ICompiledFormula {
           return compileAST(arrayFunctionCall);
         }
         case "UNARY_OPERATION": {
-          const fnName = UNARY_OPERATOR_MAP[ast.value];
+          if (!Object.hasOwn(UNARY_OPERATOR_MAP, ast.value)) {
+            throw new Error(`Unknown operator: "${ast.value}"`);
+          }
+          const fnName = dangerouslyCreateJsStr(UNARY_OPERATOR_MAP[ast.value]); // validated with known operators
           const operand = compileAST(ast.operand, ast.value === "#").assignResultToVariable(); // hasRange is true to avoid vectorization of SPILLED.RANGE
           code.append(operand);
-          return code.return(`ctx['${fnName}'](${operand.returnExpression})`);
+          return code.return(jsStr`ctx['${fnName}'](${operand.returnExpression})`);
         }
         case "BIN_OPERATION": {
-          const fnName = OPERATOR_MAP[ast.value];
+          if (!Object.hasOwn(OPERATOR_MAP, ast.value)) {
+            throw new Error(`Unknown operator: "${ast.value}"`);
+          }
+          const fnName = dangerouslyCreateJsStr(OPERATOR_MAP[ast.value]); // validated with known operators
           const left = compileAST(ast.left, false).assignResultToVariable();
           const right = compileAST(ast.right, false).assignResultToVariable();
           code.append(left);
           code.append(right);
           return code.return(
-            `ctx['${fnName}'](${left.returnExpression}, ${right.returnExpression})`
+            jsStr`ctx['${fnName}'](${left.returnExpression}, ${right.returnExpression})`
           );
         }
         case "SYMBOL":
           const symbolIndex = symbols.indexOf(ast.value);
-          return code.return(`getSymbolValue(this.symbols[${symbolIndex}], ${hasRange})`);
+          return code.return(jsStr`getSymbolValue(this.symbols[${symbolIndex}], ${hasRange})`);
         case "EMPTY":
-          return code.return("undefined");
+          return code.return(jsStr`undefined`);
       }
     }
   }
