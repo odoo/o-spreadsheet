@@ -663,13 +663,13 @@ describe("BottomBar component", () => {
     expect(fixture.querySelector(".o-selection-statistic")?.textContent).toBe("Sum: 0");
   });
 
-  test("Display empty information if the statistic function doesn't handle the types of the selected cells", async () => {
+  test("Only the statistic function which handle the types of the selected cells", async () => {
     const { model } = await mountBottomBar();
     setCellContent(model, "A2", "I am not a number");
 
     selectCell(model, "A2");
     await nextTick();
-    expect(fixture.querySelector(".o-selection-statistic")?.textContent).toBe("Sum: __");
+    expect(fixture.querySelector(".o-selection-statistic")?.textContent).toBe("Count: 1");
   });
 
   test("Can open the list of statistics", async () => {
