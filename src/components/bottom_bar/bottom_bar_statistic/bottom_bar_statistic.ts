@@ -76,7 +76,9 @@ export class BottomBarStatistic extends Component<Props, SpreadsheetChildEnv> {
     return (
       fnName +
       ": " +
-      (fnValue?.value !== undefined ? formatValue(fnValue.value(), { locale }) : "__")
+      (fnValue?.value !== undefined
+        ? formatValue(fnValue.value(), { locale, format: fnValue.format })
+        : "__")
     );
   }
 }

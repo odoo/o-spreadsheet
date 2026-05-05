@@ -33,12 +33,14 @@ export function computeStatisticFnResults(
   for (const fn of selectionStatisticFunctions) {
     let fnResult: Lazy<number | string> | undefined = undefined;
     const evaluatedCells = getCells(fn.types.sort().join(","));
+    let format = fn.format;
     if (evaluatedCells.length) {
       fnResult = lazy(() => fn.compute(evaluatedCells, locale));
+      format ??= evaluatedCells[0].format;
     }
     statisticFnResults[fn.name] = {
       value: fnResult,
-      format: fn.format,
+      format,
     };
   }
   return statisticFnResults;

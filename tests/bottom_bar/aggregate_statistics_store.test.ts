@@ -37,6 +37,35 @@ describe("Aggregate statistic functions", () => {
     expect(statisticFnResults["Count"]?.value?.()).toBe(3);
   });
 
+  test.each(["Count", "Count Numbers"])("Count functions does not inherit format", (statName) => {
+    const { store, model } = makeStore(AggregateStatisticsStore);
+    setCellContent(model, "A1", "1");
+    setCellContent(model, "A2", "2");
+    setCellContent(model, "A3", "3");
+
+    setFormat(model, "A1:A3", "0.00%");
+
+    setSelection(model, ["A1:A3"]);
+    const statisticFnResults = store.statisticFnResults;
+    expect(statisticFnResults[statName]?.format).toBe("");
+  });
+
+  test.each(["Sum", "Avg", "Min", "Max"])(
+    "Non-count function inherits first found format",
+    (statName) => {
+      const { store, model } = makeStore(AggregateStatisticsStore);
+      setCellContent(model, "A1", "Hello");
+      setCellContent(model, "A2", "1");
+      setCellContent(model, "A3", "2");
+
+      setFormat(model, "A2", "0.00%");
+
+      setSelection(model, ["A1:A3"]);
+      const statisticFnResults = store.statisticFnResults;
+      expect(statisticFnResults[statName]?.format).toBe("0.00%");
+    }
+  );
+
   test("statistic function should not include hidden rows/columns in calculations", () => {
     const { store, model } = makeStore(AggregateStatisticsStore);
     setCellContent(model, "A1", "1");
