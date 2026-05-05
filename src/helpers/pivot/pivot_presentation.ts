@@ -7,7 +7,13 @@ import { CellValue } from "../../types/cells";
 import { CellErrorType, NotAvailableError } from "../../types/errors";
 import { Getters } from "../../types/getters";
 import { DEFAULT_LOCALE } from "../../types/locale";
-import { FunctionResultObject, isMatrix, SortDirection, UID } from "../../types/misc";
+import {
+  FunctionResultObject,
+  isMatrix,
+  SortDirection,
+  UID,
+  UnboundedZone,
+} from "../../types/misc";
 import { ModelConfig } from "../../types/model";
 import {
   DimensionTree,
@@ -125,7 +131,7 @@ export default function (PivotClass: PivotUIConstructor) {
         }
       }
       const formula = this.getters.getMeasureCompiledFormula(this.pivotId, measure);
-      const getSymbolValue = (symbolName: string) => {
+      const getSymbolValue = (zone: UnboundedZone, symbolName: string) => {
         const { columns, rows } = this.definition;
         if (columns.find((col) => col.nameWithGranularity === symbolName)) {
           const { colDomain } = domainToColRowDomain(this, domain);

@@ -1,7 +1,6 @@
 import { getPivotTooBigErrorMessage } from "../components/translations_terms";
 import { PIVOT_MAX_NUMBER_OF_CELLS } from "../constants";
 import { toXC } from "../helpers/coordinates";
-import { range } from "../helpers/misc";
 import {
   addAlignFormatToPivotHeader,
   getPivotStyleFromFnArgs,
@@ -15,7 +14,7 @@ import {
   NotAvailableError,
 } from "../types/errors";
 import { AddFunctionDescription } from "../types/functions";
-import { Arg, FunctionResultObject, Matrix, Maybe, Zone } from "../types/misc";
+import { Arg, FunctionResultObject, Matrix, Maybe, UnboundedZone, Zone } from "../types/misc";
 import { arg } from "./arguments";
 import { expectNumberGreaterThanOrEqualToOne } from "./helper_assert";
 import {
@@ -28,7 +27,7 @@ import {
   dichotomicSearch,
   expectNumberRangeError,
   expectReferenceError,
-  generateMatrix,
+  generateSubMatrix,
   linearSearch,
   LinearSearchMode,
   strictToInteger,
@@ -36,6 +35,7 @@ import {
   toMatrix,
   toNumber,
   toString,
+  toSubMatrix,
   valueNotAvailable,
 } from "./helpers";
 
@@ -139,7 +139,7 @@ export const COLUMN = {
       )
     ),
   ],
-  computeArray: function (cellReference: Arg) {
+  computeArray: function (zone: UnboundedZone, cellReference: Arg) {
     if (cellReference === undefined) {
       if (this.__originCellPosition === undefined) {
         return new EvaluationError(
@@ -148,7 +148,7 @@ export const COLUMN = {
           )
         );
       }
-      return { value: this.__originCellPosition.col + 1 };
+      return toSubMatrix(zone, { value: this.__originCellPosition.col + 1 });
     }
     const _cellReference = toMatrix(cellReference);
     const firstCell = _cellReference[0][0];
@@ -160,10 +160,9 @@ export const COLUMN = {
       return new InvalidReferenceError(expectReferenceError);
     }
     const left = firstCell.position.col;
-    if (_cellReference.length === 1) {
-      return { value: left + 1 };
-    }
-    return generateMatrix(_cellReference.length, 1, (col) => ({ value: left + col + 1 }));
+    return generateSubMatrix(zone, _cellReference.length, 1, (col, row) => ({
+      value: left + col + 1,
+    }));
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -270,6 +269,7 @@ export const INDEX: AddFunctionDescription = {
     ),
   ],
   computeArray: function (
+    zone: UnboundedZone,
     reference: Arg,
     row: Maybe<FunctionResultObject> = { value: 0 },
     column: Maybe<FunctionResultObject> = { value: 0 }
@@ -286,7 +286,7 @@ export const INDEX: AddFunctionDescription = {
       return new EvaluationError(_t("Index out of range."));
     }
     if (_row === 0 && _column === 0) {
-      return _reference;
+      return toSubMatrix(zone, _reference);
     }
     if (_row === 0) {
       return [_reference[_column - 1]];
@@ -315,6 +315,7 @@ export const INDIRECT: AddFunctionDescription = {
     ),
   ],
   computeArray: function (
+    zone: UnboundedZone,
     reference: Maybe<FunctionResultObject>,
     useA1Notation: Maybe<FunctionResultObject> = { value: true }
   ): FunctionResultObject | Matrix<FunctionResultObject> {
@@ -346,16 +347,19 @@ export const INDIRECT: AddFunctionDescription = {
       this.addDependencies?.(originPosition, [range]);
     }
 
-    const values: FunctionResultObject[][] = [];
-    for (let col = range.zone.left; col <= range.zone.right; col++) {
-      const colValues: FunctionResultObject[] = [];
-      for (let row = range.zone.top; row <= range.zone.bottom; row++) {
-        const position = { sheetId: range.sheetId, col, row };
-        colValues.push(this.getFormulaResult(position));
+    return generateSubMatrix(
+      zone,
+      range.zone.right - range.zone.left + 1,
+      range.zone.bottom - range.zone.top + 1,
+      (col, row) => {
+        const position = {
+          sheetId: range.sheetId,
+          col: range.zone.left + col,
+          row: range.zone.top + row,
+        };
+        return this.getFormulaResult(position);
       }
-      values.push(colValues);
-    }
-    return values.length === 1 && values[0].length === 1 ? values[0][0] : values;
+    );
   },
   isExported: true,
 };
@@ -536,7 +540,7 @@ export const ROW = {
       )
     ),
   ],
-  computeArray: function (cellReference: Arg) {
+  computeArray: function (zone: UnboundedZone, cellReference: Arg) {
     if (cellReference === undefined) {
       if (this.__originCellPosition?.row === undefined) {
         return new EvaluationError(
@@ -545,7 +549,7 @@ export const ROW = {
           )
         );
       }
-      return { value: this.__originCellPosition.row + 1 };
+      return toSubMatrix(zone, { value: this.__originCellPosition.row + 1 });
     }
     const _cellReference = toMatrix(cellReference);
     const firstCell = _cellReference[0][0];
@@ -557,10 +561,10 @@ export const ROW = {
       return new InvalidReferenceError(expectReferenceError);
     }
     const top = firstCell.position.row;
-    if (_cellReference[0].length === 1) {
-      return { value: top + 1 };
-    }
-    return generateMatrix(1, _cellReference[0].length, (col, row) => ({ value: top + row + 1 }));
+
+    return generateSubMatrix(zone, 1, _cellReference[0].length, (col, row) => ({
+      value: top + row + 1,
+    }));
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -707,6 +711,7 @@ export const XLOOKUP = {
     ),
   ],
   computeArray: function (
+    zone: UnboundedZone,
     searchKey: Maybe<FunctionResultObject>,
     lookupRange: Arg,
     returnRange: Arg,
@@ -778,13 +783,18 @@ export const XLOOKUP = {
 
     if (index !== -1) {
       return lookupDirection === "col"
-        ? _returnRange.map((col) => [col[index]])
-        : [_returnRange[index]];
+        ? generateSubMatrix(zone, _returnRange.length, 1, (col, row) => _returnRange[col][index])
+        : generateSubMatrix(
+            zone,
+            1,
+            _returnRange[0].length,
+            (col, row) => _returnRange[index][row]
+          );
     }
     if (defaultValue === undefined) {
       return valueNotAvailable(searchKey);
     }
-    return [[defaultValue]];
+    return toSubMatrix(zone, defaultValue);
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -914,6 +924,7 @@ export const PIVOT = {
     ),
   ],
   computeArray: function (
+    zone: UnboundedZone,
     pivotFormulaId: Maybe<FunctionResultObject>,
     rowCount: Maybe<FunctionResultObject>,
     includeTotal: Maybe<FunctionResultObject>,
@@ -958,42 +969,38 @@ export const PIVOT = {
     const pivotTitle = this.getters.getPivotName(pivotId);
     const { numberOfCols, numberOfRows } = table.getPivotTableDimensions(pivotStyle);
     if (numberOfRows === 0) {
-      return [[{ value: pivotTitle }]];
+      return toSubMatrix(zone, { value: pivotTitle });
     }
-    const result: Matrix<FunctionResultObject> = [];
-    for (const col of range(0, numberOfCols)) {
-      result[col] = [];
-      for (const row of range(0, numberOfRows)) {
-        const pivotCell = cells[col][row];
-        switch (pivotCell.type) {
-          case "EMPTY":
-            result[col].push({ value: "" });
-            break;
-          case "HEADER":
-            const valueAndFormat = pivot.getPivotHeaderValueAndFormat(pivotCell.domain);
-            result[col].push(addAlignFormatToPivotHeader(pivotCell.domain, valueAndFormat));
-            break;
-          case "MEASURE_HEADER":
-            result[col].push(pivot.getPivotMeasureValue(pivotCell.measure, pivotCell.domain));
-            break;
-          case "VALUE":
-            result[col].push(pivot.getPivotCellValueAndFormat(pivotCell.measure, pivotCell.domain));
-            break;
-          case "ROW_GROUP_NAME":
-            const fieldName = pivot.definition.rows.find(
-              (row) => row.nameWithGranularity === pivotCell.rowField
-            )?.displayName;
-            result[col].push({ value: fieldName || "" });
-            break;
-        }
+
+    const result = generateSubMatrix(zone, numberOfCols, numberOfRows, (col, row) => {
+      const pivotCell = cells[col][row];
+      switch (pivotCell.type) {
+        case "EMPTY":
+          return { value: "" };
+        case "HEADER":
+          const valueAndFormat = pivot.getPivotHeaderValueAndFormat(pivotCell.domain);
+          return addAlignFormatToPivotHeader(pivotCell.domain, valueAndFormat);
+        case "MEASURE_HEADER":
+          return pivot.getPivotMeasureValue(pivotCell.measure, pivotCell.domain);
+        case "VALUE":
+          return pivot.getPivotCellValueAndFormat(pivotCell.measure, pivotCell.domain);
+        case "ROW_GROUP_NAME":
+          const fieldName = pivot.definition.rows.find(
+            (row) => row.nameWithGranularity === pivotCell.rowField
+          )?.displayName;
+          return { value: fieldName || "" };
       }
-    }
+    });
+
     if (
-      (pivotStyle.displayColumnHeaders || pivotStyle.displayMeasuresRow) &&
-      cells[0][0].type === "EMPTY"
+      zone.left === 0 &&
+      zone.top === 0 &&
+      cells[0][0].type === "EMPTY" &&
+      (pivotStyle.displayColumnHeaders || pivotStyle.displayMeasuresRow)
     ) {
       result[0][0] = { value: pivotTitle };
     }
+
     return result;
   },
 } satisfies AddFunctionDescription;
@@ -1023,6 +1030,7 @@ export const OFFSET = {
     ),
   ],
   computeArray: function (
+    zone: UnboundedZone,
     cellReference: Arg,
     offsetRows: Maybe<FunctionResultObject>,
     offsetColumns: Maybe<FunctionResultObject>,
@@ -1098,7 +1106,8 @@ export const OFFSET = {
       this.addDependencies?.(originPosition, [range]);
     }
 
-    return generateMatrix(
+    return generateSubMatrix(
+      zone,
       offsetWidth,
       offsetHeight,
       (col: number, row: number): FunctionResultObject =>
@@ -1123,7 +1132,11 @@ export const CHOOSE = {
       _t("A potential value to return. May be a reference to a cell or an individual value.")
     ),
   ],
-  computeArray: function (index: Maybe<FunctionResultObject>, ...choices: Arg[]) {
+  computeArray: function (
+    zone: UnboundedZone,
+    index: Maybe<FunctionResultObject>,
+    ...choices: Arg[]
+  ) {
     const _index = Math.floor(toNumber(index, this.locale)) - 1;
     if (_index < 0 || _index >= choices.length) {
       return new EvaluationError(
@@ -1133,7 +1146,10 @@ export const CHOOSE = {
       );
     }
     const result = choices[_index];
-    return result ?? new EvaluationError(_t("Choice is undefined."));
+    if (result === undefined) {
+      return new EvaluationError(_t("Choice is undefined."));
+    }
+    return toSubMatrix(zone, result);
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -1157,13 +1173,14 @@ export const DROP = {
     ),
   ],
   computeArray: function (
-    array: Matrix<{ value: string }>,
+    zone: UnboundedZone,
+    array: Matrix<FunctionResultObject>,
     rows: Maybe<FunctionResultObject>,
     columns: Maybe<FunctionResultObject>
   ) {
     const _rows = toNumber(rows, this.locale);
     const _columns = toNumber(columns, this.locale);
-    let result = array;
+    const result = array;
     if (Math.abs(_columns) >= array.length || Math.abs(_rows) >= array[0].length) {
       return new EvaluationError(
         _t(
@@ -1171,19 +1188,14 @@ export const DROP = {
         )
       );
     }
-    if (_columns >= 0) {
-      result = result.slice(_columns);
-    } else {
-      result = result.slice(0, result.length + _columns);
-    }
-    for (let i = 0; i < result.length; i++) {
-      if (_rows >= 0) {
-        result[i] = result[i].slice(_rows);
-      } else {
-        result[i] = result[i].slice(0, result[i].length + _rows);
-      }
-    }
-    return result;
+    const newLeft = _columns >= 0 ? zone.left + _columns : zone.left;
+    const newRight =
+      _columns >= 0 ? zone.right : zone.right === undefined ? undefined : zone.right + _columns;
+    const newTop = _rows >= 0 ? zone.top + _rows : zone.top;
+    const newBottom =
+      _rows >= 0 ? zone.bottom : zone.bottom === undefined ? undefined : zone.bottom + _rows;
+    const newZone = { left: newLeft, right: newRight, top: newTop, bottom: newBottom };
+    return toSubMatrix(newZone, result);
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -1208,7 +1220,8 @@ export const TAKE = {
     ),
   ],
   computeArray: function (
-    array: Matrix<{ value: string }>,
+    zone: UnboundedZone,
+    array: Matrix<FunctionResultObject>,
     rows: Maybe<FunctionResultObject>,
     columns: Maybe<FunctionResultObject>
   ) {
@@ -1236,7 +1249,7 @@ export const TAKE = {
         result[i] = result[i].slice(result[i].length + _rows, result[i].length);
       }
     }
-    return result;
+    return toSubMatrix(zone, result);
   },
   isExported: true,
 } satisfies AddFunctionDescription;

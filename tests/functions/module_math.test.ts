@@ -3040,7 +3040,7 @@ describe("SUBTOTAL formula", () => {
         A2: "2",
         A3: "3",
         A4: `="42`,
-        B1: "=SUBTOTAL(1, A1:A4)", // AVERAGE
+        B1: "=?SUBTOTAL(1, A1:A4)", // AVERAGE
         C1: "=SUBTOTAL(2, A1:A4)", // COUNT
         D1: "=SUBTOTAL(3, A1:A4)", // COUNTA
         E1: "=SUBTOTAL(4, A1:A4)", // MAX
@@ -3133,7 +3133,7 @@ describe("SUBTOTAL formula", () => {
       A1: "1",
       A2: "1",
       A3: "=SUBTOTAL(9, A1:A2) + A1:A2",
-      A5: "=SUBTOTAL(9, A4)",
+      A5: "=?SUBTOTAL(9, A4)",
     };
     const gridResult = evaluateGrid(grid);
     expect(gridResult.A3).toBe(3);

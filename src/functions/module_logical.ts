@@ -1,7 +1,7 @@
 import { _t } from "../translation";
 import { CellErrorType, EvaluationError } from "../types/errors";
 import { AddFunctionDescription } from "../types/functions";
-import { Arg, FunctionResultObject, Maybe } from "../types/misc";
+import { Arg, FunctionResultObject, Maybe, UnboundedZone } from "../types/misc";
 import { arg } from "./arguments";
 import { applyVectorization, getFunctionArgDefinitions } from "./create_compute_function";
 import { functionRegistry } from "./function_registry";
@@ -12,6 +12,7 @@ import {
   isEvaluationError,
   noValidInputErrorMessage,
   toBoolean,
+  toSubMatrix,
   valueNotAvailable,
 } from "./helpers";
 
@@ -71,19 +72,27 @@ export const IF = {
       _t("The value the function returns if logical_expression is FALSE.")
     ),
   ],
-  computeArray: function (logicalExpression: Arg, valueIfTrue: Arg, valueIfFalse: Arg) {
+  computeArray: function (
+    zone: UnboundedZone,
+    logicalExpression: Arg,
+    valueIfTrue: Arg,
+    valueIfFalse: Arg
+  ) {
     if (isMultipleElementMatrix(logicalExpression)) {
       const IF = functionRegistry.get("IF");
       return applyVectorization(
         this,
         IF,
+        zone,
         [logicalExpression, valueIfTrue, valueIfFalse],
         getFunctionArgDefinitions(IF, 3),
-        getMatrixArgIndices([logicalExpression, valueIfTrue, valueIfFalse])
+        getMatrixArgIndices([logicalExpression, valueIfTrue, valueIfFalse]),
+        true
       );
     }
-    const result = toBoolean(toScalar(logicalExpression)) ? valueIfTrue : valueIfFalse;
-    return result ?? { value: 0 };
+    return toBoolean(toScalar(logicalExpression))
+      ? toSubMatrix(zone, valueIfTrue || { value: 0 })
+      : toSubMatrix(zone, valueIfFalse || { value: 0 });
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -100,19 +109,22 @@ export const IFERROR = {
       _t("The value the function returns if value is an error.")
     ),
   ],
-  computeArray: function (value: Arg, valueIfError: Arg) {
+  computeArray: function (zone: UnboundedZone, value: Arg, valueIfError: Arg) {
     if (isMultipleElementMatrix(value)) {
       const IFERROR = functionRegistry.get("IFERROR");
       return applyVectorization(
         this,
         IFERROR,
+        zone,
         [value, valueIfError],
         getFunctionArgDefinitions(IFERROR, 2),
-        getMatrixArgIndices([value, valueIfError])
+        getMatrixArgIndices([value, valueIfError]),
+        true
       );
     }
-    const result = isEvaluationError(toScalar(value)?.value) ? valueIfError : value;
-    return result ?? { value: 0 };
+    return isEvaluationError(toScalar(value)?.value)
+      ? toSubMatrix(zone, valueIfError || { value: 0 })
+      : toSubMatrix(zone, value || { value: 0 });
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -129,19 +141,22 @@ export const IFNA = {
       _t("The value the function returns if value is an #N/A error.")
     ),
   ],
-  computeArray: function (value: Arg, valueIfError: Arg) {
+  computeArray: function (zone: UnboundedZone, value: Arg, valueIfError: Arg) {
     if (isMultipleElementMatrix(value)) {
       const IFNA = functionRegistry.get("IFNA");
       return applyVectorization(
         this,
         IFNA,
+        zone,
         [value, valueIfError],
         getFunctionArgDefinitions(IFNA, 2),
-        getMatrixArgIndices([value, valueIfError])
+        getMatrixArgIndices([value, valueIfError]),
+        true
       );
     }
-    const result = toScalar(value)?.value === CellErrorType.NotAvailable ? valueIfError : value;
-    return result ?? { value: 0 };
+    return toScalar(value)?.value === CellErrorType.NotAvailable
+      ? valueIfError || { value: 0 }
+      : toSubMatrix(zone, value || { value: 0 });
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -163,7 +178,7 @@ export const IFS = {
       _t("The value to be returned if its corresponding condition is TRUE.")
     ),
   ],
-  computeArray: function (...values: Arg[]) {
+  computeArray: function (zone: UnboundedZone, ...values: Arg[]) {
     if (values.length % 2 !== 0) {
       return new EvaluationError(
         _t("Wrong number of arguments. Expected an even number of arguments.")
@@ -175,15 +190,17 @@ export const IFS = {
         return applyVectorization(
           this,
           IFS,
+          zone,
           values,
           getFunctionArgDefinitions(IFS, values.length),
-          getMatrixArgIndices(values)
+          getMatrixArgIndices(values),
+          true
         );
       }
       const condition = toBoolean(toScalar(values.shift()));
       const valueIfTrue = values.shift();
       if (condition) {
-        return valueIfTrue ?? { value: 0 };
+        return toSubMatrix(zone, valueIfTrue ?? { value: 0 });
       }
     }
     return new EvaluationError(_t("No match."));
