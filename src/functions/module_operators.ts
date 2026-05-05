@@ -1,11 +1,17 @@
 import { _t } from "../translation";
 import { DivisionByZeroError, EvaluationError, InvalidReferenceError } from "../types/errors";
 import { AddFunctionDescription } from "../types/functions";
-import { Arg, FunctionResultNumber, FunctionResultObject, Maybe } from "../types/misc";
+import {
+  Arg,
+  FunctionResultNumber,
+  FunctionResultObject,
+  Maybe,
+  UnboundedZone,
+} from "../types/misc";
 import { arg } from "./arguments";
 import {
   expectReferenceError,
-  generateMatrix,
+  generateSubMatrix,
   isEvaluationError,
   toMatrix,
   toNumber,
@@ -305,7 +311,7 @@ export const POW = {
 export const SPILLED_RANGE = {
   description: _t("Gets the spilled range of an array formula."),
   args: [arg("ref (any, range<any>)", _t("The reference to get the spilled range from."))],
-  computeArray: function (ref: Arg) {
+  computeArray: function (zone: UnboundedZone, ref: Arg) {
     if (ref === undefined) {
       return new InvalidReferenceError(expectReferenceError);
     }
@@ -331,10 +337,11 @@ export const SPILLED_RANGE = {
       return new InvalidReferenceError();
     }
 
-    return generateMatrix(
+    return generateSubMatrix(
+      zone,
       spilledZone.right - spilledZone.left + 1,
       spilledZone.bottom - spilledZone.top + 1,
-      (col: number, row: number): FunctionResultObject =>
+      (col: number, row: number) =>
         this.getFormulaResult({
           sheetId: this.__originSheetId,
           col: spilledZone.left + col,

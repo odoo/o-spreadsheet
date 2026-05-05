@@ -7,28 +7,43 @@ import {
   EvalContext,
   FunctionDescription,
 } from "../types/functions";
-import { Arg, FunctionResultObject, isMatrix, Matrix } from "../types/misc";
+import { Arg, FunctionResultObject, isMatrix, Matrix, UnboundedZone } from "../types/misc";
 import { argTargeting } from "./arguments";
 import { isEvaluationError, matrixForEach } from "./helpers";
 
 export function createComputeFunction(
   descr: FunctionDescription
 ): ComputeFunction | ComputeArrayFunction {
-  function errorHandlingCompute(
-    this: EvalContext,
-    ...args: Arg[]
-  ): Matrix<FunctionResultObject> | FunctionResultObject {
-    const argsToFocus = argTargeting(descr, args.length);
-    for (let i = 0; i < args.length; i++) {
-      const arg = args[i];
-      const argDefinition = descr.args[argsToFocus[i].index];
-
-      // Early exit if the argument is an error and the function does not accept errors
-      // We only check scalar arguments, not matrix arguments for performance reasons.
-      // Casting helpers are responsible for handling errors in matrix arguments.
-      if (!argDefinition.acceptErrors && !isMatrix(arg) && isEvaluationError(arg?.value)) {
-        return arg;
+  if (descr.computeArray !== undefined) {
+    function errorHandlingComputeArray(
+      this: EvalContext,
+      zone: UnboundedZone,
+      ...args: Arg[]
+    ): Matrix<FunctionResultObject> | FunctionResultObject {
+      const errorResult = argsError(args, descr);
+      if (errorResult) {
+        return errorResult;
       }
+      try {
+        if (this.debug) {
+          // eslint-disable-next-line no-debugger
+          debugger;
+          this.debug = false;
+        }
+        const result = descr.computeArray!.apply(this, [zone, ...args]);
+        return replaceErrorPlaceholderInResult(result, descr);
+      } catch (e) {
+        return handleError(e, descr.name);
+      }
+    }
+
+    return errorHandlingComputeArray;
+  }
+
+  function errorHandlingCompute(this: EvalContext, ...args: Arg[]): FunctionResultObject {
+    const errorResult = argsError(args, descr);
+    if (errorResult) {
+      return errorResult;
     }
     try {
       if (this.debug) {
@@ -37,12 +52,7 @@ export function createComputeFunction(
         this.debug = false;
       }
 
-      let result: FunctionResultObject | Matrix<FunctionResultObject>;
-      if (descr.compute !== undefined) {
-        result = descr.compute.apply(this, args);
-      } else {
-        result = descr.computeArray.apply(this, args);
-      }
+      const result = descr.compute!.apply(this, args);
       return replaceErrorPlaceholderInResult(result, descr);
     } catch (e) {
       return handleError(e, descr.name);
@@ -52,10 +62,26 @@ export function createComputeFunction(
   return errorHandlingCompute;
 }
 
-function replaceErrorPlaceholderInResult(
-  result: FunctionResultObject | Matrix<FunctionResultObject>,
-  descr: FunctionDescription
-): FunctionResultObject | Matrix<FunctionResultObject> {
+/**
+ * Early exit if the argument is an error and the function does not accept errors
+ * We only check scalar arguments, not matrix arguments for performance reasons.
+ * Casting helpers are responsible for handling errors in matrix arguments.
+ */
+function argsError(args: Arg[], descr: FunctionDescription): FunctionResultObject | undefined {
+  const argsToFocus = argTargeting(descr, args.length);
+  for (let i = 0; i < args.length; i++) {
+    const arg = args[i];
+    const argDefinition = descr.args[argsToFocus[i].index];
+    if (!argDefinition.acceptErrors && !isMatrix(arg) && isEvaluationError(arg?.value)) {
+      return arg;
+    }
+  }
+  return undefined;
+}
+
+function replaceErrorPlaceholderInResult<
+  T extends FunctionResultObject | Matrix<FunctionResultObject>
+>(result: T, descr: FunctionDescription): T {
   if (!isMatrix(result)) {
     replaceFunctionNamePlaceholder(result, descr.name);
   } else {

@@ -20,6 +20,7 @@ import {
   Matrix,
   Maybe,
   SortDirection,
+  UnboundedZone,
   isMatrix,
 } from "../types/misc";
 
@@ -438,6 +439,44 @@ export function generateMatrix<T>(
     }
   }
   return returned;
+}
+
+export function toSubMatrix(
+  zone: UnboundedZone,
+  arg: Matrix<FunctionResultObject> | FunctionResultObject
+) {
+  if (!Array.isArray(arg)) {
+    return generateSubMatrix(zone, 1, 1, () => arg);
+  }
+  return generateSubMatrix(zone, arg.length, arg[0].length, (col, row) => {
+    return arg[col][row];
+  });
+}
+
+/**
+ * Generate a matrix of size nColumns x nRows and apply a callback on each position
+ */
+export function generateSubMatrix<T>(
+  zone: UnboundedZone,
+  nColumns: number,
+  nRows: number,
+  callback: (col: number, row: number) => T
+): Matrix<T> {
+  const subWidth = (zone.right === undefined ? nColumns - 1 : zone.right) - zone.left + 1;
+  const subHeight = (zone.bottom === undefined ? nRows - 1 : zone.bottom) - zone.top + 1;
+
+  if (subWidth < 1 || subHeight < 1) {
+    throw new ReferenceError(
+      _t(
+        "Index out of range: The function [[FUNCTION_NAME]] operates on a matrix of %(nColumns)s columns and %(nRows)s rows; the parent formula attempts to access values outside these bounds.",
+        { nColumns, nRows }
+      )
+    );
+  }
+
+  return generateMatrix(subWidth, subHeight, (col, row) => {
+    return callback(col + zone.left, row + zone.top);
+  });
 }
 
 export function matrixMap<T, M>(matrix: Matrix<T>, callback: (value: T) => M): Matrix<M> {
@@ -1124,6 +1163,18 @@ export function toMatrix<T>(data: T | Matrix<T> | undefined): Matrix<T> {
     return [[]];
   }
   return isMatrix(data) ? data : [[data]];
+}
+export function toMatrix2<T>(data: T | Matrix<T> | undefined, zone: UnboundedZone): Matrix<T> {
+  if (data === undefined) {
+    return [[]];
+  }
+  if (isMatrix(data)) {
+    return data;
+  }
+  if (zone) {
+    return generateSubMatrix(zone, 1, 1, () => data);
+  }
+  return [[data]];
 }
 
 /**

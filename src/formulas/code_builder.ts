@@ -5,6 +5,10 @@ export interface FunctionCode {
   readonly returnExpression: string;
   readonly returnARange: boolean;
   /**
+   * Return the same function code but wrapped in a closure.
+   */
+  wrapInClosure(isArrayFormula: boolean): FunctionCode;
+  /**
    * Return the same function code but with the return expression assigned to a variable.
    */
   assignResultToVariable(): FunctionCode;
@@ -41,6 +45,20 @@ class FunctionCodeImpl implements FunctionCode {
 
   toString(): string {
     return this.code;
+  }
+
+  wrapInClosure(waitingForArrayFormula: boolean): FunctionCode {
+    const closureName = this.scope.nextVariableName();
+    const code = new FunctionCodeBuilder(this.scope);
+    if (waitingForArrayFormula) {
+      code.append(`const ${closureName} = (zone) => {`);
+    } else {
+      code.append(`const ${closureName} = () => {`);
+    }
+    code.append(this.code);
+    code.append(`return ${this.returnExpression};`);
+    code.append(`}`);
+    return code.return(closureName);
   }
 
   assignResultToVariable(): FunctionCode {

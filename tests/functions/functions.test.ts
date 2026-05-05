@@ -164,8 +164,9 @@ describe("functions", () => {
       addToRegistry(functionRegistry, "GET.VALUE", {
         args: [arg("cell (any)", "blabla")],
         description: "Get the value of a cell",
-        computeArray: function (arg) {
-          return arg || { value: 0 };
+        compute: function (arg) {
+          const _arg = toScalar(arg);
+          return _arg || { value: 0 };
         },
       });
       addToRegistry(functionRegistry, "GET.POSITION", {
