@@ -3,16 +3,18 @@
 exports[`compile functions same symbol twice 1`] = `
 "function anonymous(deps,ref,range,vectorize,getSymbolValue,ctx
 ) {
-const _1 = getSymbolValue(this.symbols[0], false);
-const _2 = getSymbolValue(this.symbols[0], false);
-return vectorize(ctx['ADD'], [_1,_2], [true,true]);
+const fullZone = {top: 0, left: 0, bottom: undefined, right: undefined};
+const _1 = getSymbolValue(fullZone, this.symbols[0], false);
+const _2 = getSymbolValue(fullZone, this.symbols[0], false);
+return vectorize(ctx['ADD'], fullZone, [_1,_2], [true,true], false);
 }"
 `;
 
 exports[`compile functions simple in a function 1`] = `
 "function anonymous(deps,ref,range,vectorize,getSymbolValue,ctx
 ) {
-const _1 = getSymbolValue(this.symbols[1], true);
+const fullZone = {top: 0, left: 0, bottom: undefined, right: undefined};
+const _1 = getSymbolValue(fullZone, this.symbols[1], true);
 return ctx['SUM'](_1);
 }"
 `;
@@ -20,77 +22,85 @@ return ctx['SUM'](_1);
 exports[`compile functions simple symbol 1`] = `
 "function anonymous(deps,ref,range,vectorize,getSymbolValue,ctx
 ) {
-return getSymbolValue(this.symbols[0], false);
+const fullZone = {top: 0, left: 0, bottom: undefined, right: undefined};
+return getSymbolValue(fullZone, this.symbols[0], false);
 }"
 `;
 
 exports[`compile functions symbol with optional single quotes 1`] = `
 "function anonymous(deps,ref,range,vectorize,getSymbolValue,ctx
 ) {
-return getSymbolValue(this.symbols[0], false);
+const fullZone = {top: 0, left: 0, bottom: undefined, right: undefined};
+return getSymbolValue(fullZone, this.symbols[0], false);
 }"
 `;
 
 exports[`compile functions symbol with space and with single quotes 1`] = `
 "function anonymous(deps,ref,range,vectorize,getSymbolValue,ctx
 ) {
-return getSymbolValue(this.symbols[0], false);
+const fullZone = {top: 0, left: 0, bottom: undefined, right: undefined};
+return getSymbolValue(fullZone, this.symbols[0], false);
 }"
 `;
 
 exports[`compile functions two different symbols 1`] = `
 "function anonymous(deps,ref,range,vectorize,getSymbolValue,ctx
 ) {
-const _1 = getSymbolValue(this.symbols[0], false);
-const _2 = getSymbolValue(this.symbols[1], false);
-return vectorize(ctx['ADD'], [_1,_2], [true,true]);
+const fullZone = {top: 0, left: 0, bottom: undefined, right: undefined};
+const _1 = getSymbolValue(fullZone, this.symbols[0], false);
+const _2 = getSymbolValue(fullZone, this.symbols[1], false);
+return vectorize(ctx['ADD'], fullZone, [_1,_2], [true,true], false);
 }"
 `;
 
 exports[`expression compiler array literal expression 1`] = `
 "function anonymous(deps,ref,range,vectorize,getSymbolValue,ctx
 ) {
+const fullZone = {top: 0, left: 0, bottom: undefined, right: undefined};
 const _1 = this.literalValues.numbers[0];
 const _2 = this.literalValues.numbers[1];
-const _5 = ctx['ARRAY.ROW'](_1,_2);
+const _5 = ctx['ARRAY.ROW'](fullZone, _1,_2);
 const _3 = this.literalValues.numbers[2];
 const _4 = this.literalValues.numbers[3];
-const _6 = ctx['ARRAY.ROW'](_3,_4);
-return ctx['ARRAY.LITERAL'](_5,_6);
+const _6 = ctx['ARRAY.ROW'](fullZone, _3,_4);
+return ctx['ARRAY.LITERAL'](fullZone, _5,_6);
 }"
 `;
 
 exports[`expression compiler array literal expression with one column only 1`] = `
 "function anonymous(deps,ref,range,vectorize,getSymbolValue,ctx
 ) {
+const fullZone = {top: 0, left: 0, bottom: undefined, right: undefined};
 const _1 = this.literalValues.numbers[0];
-const _5 = ctx['ARRAY.ROW'](_1);
+const _5 = ctx['ARRAY.ROW'](fullZone, _1);
 const _2 = this.literalValues.numbers[1];
-const _6 = ctx['ARRAY.ROW'](_2);
+const _6 = ctx['ARRAY.ROW'](fullZone, _2);
 const _3 = this.literalValues.numbers[2];
-const _7 = ctx['ARRAY.ROW'](_3);
+const _7 = ctx['ARRAY.ROW'](fullZone, _3);
 const _4 = this.literalValues.numbers[3];
-const _8 = ctx['ARRAY.ROW'](_4);
-return ctx['ARRAY.LITERAL'](_5,_6,_7,_8);
+const _8 = ctx['ARRAY.ROW'](fullZone, _4);
+return ctx['ARRAY.LITERAL'](fullZone, _5,_6,_7,_8);
 }"
 `;
 
 exports[`expression compiler array literal expression with one row only 1`] = `
 "function anonymous(deps,ref,range,vectorize,getSymbolValue,ctx
 ) {
+const fullZone = {top: 0, left: 0, bottom: undefined, right: undefined};
 const _1 = this.literalValues.numbers[0];
 const _2 = this.literalValues.numbers[1];
 const _3 = this.literalValues.numbers[2];
 const _4 = this.literalValues.numbers[3];
-const _5 = ctx['ARRAY.ROW'](_1,_2,_3,_4);
-return ctx['ARRAY.LITERAL'](_5);
+const _5 = ctx['ARRAY.ROW'](fullZone, _1,_2,_3,_4);
+return ctx['ARRAY.LITERAL'](fullZone, _5);
 }"
 `;
 
 exports[`expression compiler cells are converted to ranges if function require a range 1`] = `
 "function anonymous(deps,ref,range,vectorize,getSymbolValue,ctx
 ) {
-const _1 = range(deps[0]);
+const fullZone = {top: 0, left: 0, bottom: undefined, right: undefined};
+const _1 = range(fullZone, deps[0]);
 return ctx['SUM'](_1);
 }"
 `;
@@ -98,6 +108,7 @@ return ctx['SUM'](_1);
 exports[`expression compiler expression with $ref 1`] = `
 "function anonymous(deps,ref,range,vectorize,getSymbolValue,ctx
 ) {
+const fullZone = {top: 0, left: 0, bottom: undefined, right: undefined};
 const _1 = ref(deps[0]);
 const _2 = ref(deps[1]);
 const _3 = ctx['ADD'](_1,_2);
@@ -109,22 +120,25 @@ return ctx['ADD'](_3,_4);
 exports[`expression compiler expression with cell# 1`] = `
 "function anonymous(deps,ref,range,vectorize,getSymbolValue,ctx
 ) {
-const _1 = range(deps[0]);
-return ctx['SPILLED.RANGE'](_1);
+const fullZone = {top: 0, left: 0, bottom: undefined, right: undefined};
+const _1 = range(fullZone, deps[0]);
+return ctx['SPILLED.RANGE'](fullZone, _1);
 }"
 `;
 
 exports[`expression compiler expression with range# 1`] = `
 "function anonymous(deps,ref,range,vectorize,getSymbolValue,ctx
 ) {
-const _1 = range(deps[0]);
-return ctx['SPILLED.RANGE'](_1);
+const fullZone = {top: 0, left: 0, bottom: undefined, right: undefined};
+const _1 = range(fullZone, deps[0]);
+return ctx['SPILLED.RANGE'](fullZone, _1);
 }"
 `;
 
 exports[`expression compiler expression with references with a sheet 1`] = `
 "function anonymous(deps,ref,range,vectorize,getSymbolValue,ctx
 ) {
+const fullZone = {top: 0, left: 0, bottom: undefined, right: undefined};
 return ref(deps[0]);
 }"
 `;
@@ -132,6 +146,7 @@ return ref(deps[0]);
 exports[`expression compiler expressions with a debugger 1`] = `
 "function anonymous(deps,ref,range,vectorize,getSymbolValue,ctx
 ) {
+const fullZone = {top: 0, left: 0, bottom: undefined, right: undefined};
 debugger;
 ctx["debug"] = true;
 const _1 = ref(deps[0]);
@@ -143,8 +158,9 @@ return ctx['DIVIDE'](_1,_2);
 exports[`expression compiler read some values and functions 1`] = `
 "function anonymous(deps,ref,range,vectorize,getSymbolValue,ctx
 ) {
+const fullZone = {top: 0, left: 0, bottom: undefined, right: undefined};
 const _2 = ref(deps[0]);
-const _1 = range(deps[1]);
+const _1 = range(fullZone, deps[1]);
 const _3 = ctx['SUM'](_1);
 return ctx['ADD'](_2,_3);
 }"
@@ -153,6 +169,7 @@ return ctx['ADD'](_2,_3);
 exports[`expression compiler some arithmetic expressions 1`] = `
 "function anonymous(deps,ref,range,vectorize,getSymbolValue,ctx
 ) {
+const fullZone = {top: 0, left: 0, bottom: undefined, right: undefined};
 return this.literalValues.numbers[0];
 }"
 `;
@@ -160,6 +177,7 @@ return this.literalValues.numbers[0];
 exports[`expression compiler some arithmetic expressions 2`] = `
 "function anonymous(deps,ref,range,vectorize,getSymbolValue,ctx
 ) {
+const fullZone = {top: 0, left: 0, bottom: undefined, right: undefined};
 return { value: true };
 }"
 `;
@@ -167,6 +185,7 @@ return { value: true };
 exports[`expression compiler some arithmetic expressions 3`] = `
 "function anonymous(deps,ref,range,vectorize,getSymbolValue,ctx
 ) {
+const fullZone = {top: 0, left: 0, bottom: undefined, right: undefined};
 return this.literalValues.strings[0];
 }"
 `;
@@ -174,6 +193,7 @@ return this.literalValues.strings[0];
 exports[`expression compiler some arithmetic expressions 4`] = `
 "function anonymous(deps,ref,range,vectorize,getSymbolValue,ctx
 ) {
+const fullZone = {top: 0, left: 0, bottom: undefined, right: undefined};
 const _1 = this.literalValues.numbers[0];
 const _2 = this.literalValues.numbers[1];
 return ctx['ADD'](_1,_2);
@@ -183,6 +203,7 @@ return ctx['ADD'](_1,_2);
 exports[`expression compiler some arithmetic expressions 5`] = `
 "function anonymous(deps,ref,range,vectorize,getSymbolValue,ctx
 ) {
+const fullZone = {top: 0, left: 0, bottom: undefined, right: undefined};
 const _1 = this.literalValues.numbers[0];
 const _2 = this.literalValues.numbers[1];
 return ctx['MULTIPLY'](_1,_2);
@@ -192,6 +213,7 @@ return ctx['MULTIPLY'](_1,_2);
 exports[`expression compiler some arithmetic expressions 6`] = `
 "function anonymous(deps,ref,range,vectorize,getSymbolValue,ctx
 ) {
+const fullZone = {top: 0, left: 0, bottom: undefined, right: undefined};
 const _1 = this.literalValues.numbers[0];
 const _2 = this.literalValues.numbers[1];
 return ctx['MINUS'](_1,_2);
@@ -201,6 +223,7 @@ return ctx['MINUS'](_1,_2);
 exports[`expression compiler some arithmetic expressions 7`] = `
 "function anonymous(deps,ref,range,vectorize,getSymbolValue,ctx
 ) {
+const fullZone = {top: 0, left: 0, bottom: undefined, right: undefined};
 const _1 = this.literalValues.numbers[0];
 const _2 = this.literalValues.numbers[1];
 return ctx['DIVIDE'](_1,_2);
@@ -210,6 +233,7 @@ return ctx['DIVIDE'](_1,_2);
 exports[`expression compiler some arithmetic expressions 8`] = `
 "function anonymous(deps,ref,range,vectorize,getSymbolValue,ctx
 ) {
+const fullZone = {top: 0, left: 0, bottom: undefined, right: undefined};
 const _1 = this.literalValues.numbers[0];
 return ctx['UMINUS'](_1);
 }"
@@ -218,6 +242,7 @@ return ctx['UMINUS'](_1);
 exports[`expression compiler some arithmetic expressions 9`] = `
 "function anonymous(deps,ref,range,vectorize,getSymbolValue,ctx
 ) {
+const fullZone = {top: 0, left: 0, bottom: undefined, right: undefined};
 const _1 = this.literalValues.numbers[0];
 const _2 = this.literalValues.numbers[1];
 const _6 = ctx['ADD'](_1,_2);
@@ -232,6 +257,7 @@ return ctx['MULTIPLY'](_6,_7);
 exports[`expression compiler some arithmetic expressions 10`] = `
 "function anonymous(deps,ref,range,vectorize,getSymbolValue,ctx
 ) {
+const fullZone = {top: 0, left: 0, bottom: undefined, right: undefined};
 const _1 = this.literalValues.numbers[0];
 const _2 = this.literalValues.numbers[1];
 return ctx['SUM'](_1,_2);
@@ -241,6 +267,7 @@ return ctx['SUM'](_1,_2);
 exports[`expression compiler some arithmetic expressions 11`] = `
 "function anonymous(deps,ref,range,vectorize,getSymbolValue,ctx
 ) {
+const fullZone = {top: 0, left: 0, bottom: undefined, right: undefined};
 const _1 = { value: true };
 const _2 = this.literalValues.strings[0];
 return ctx['SUM'](_1,_2);
@@ -250,6 +277,7 @@ return ctx['SUM'](_1,_2);
 exports[`expression compiler some arithmetic expressions 12`] = `
 "function anonymous(deps,ref,range,vectorize,getSymbolValue,ctx
 ) {
+const fullZone = {top: 0, left: 0, bottom: undefined, right: undefined};
 const _1 = this.literalValues.numbers[0];
 const _2 = undefined;
 const _3 = this.literalValues.numbers[1];
@@ -260,6 +288,7 @@ return ctx['SUM'](_1,_2,_3);
 exports[`expression compiler some arithmetic expressions 13`] = `
 "function anonymous(deps,ref,range,vectorize,getSymbolValue,ctx
 ) {
+const fullZone = {top: 0, left: 0, bottom: undefined, right: undefined};
 const _1 = this.literalValues.numbers[0];
 return ctx['UNARY.PERCENT'](_1);
 }"
@@ -268,6 +297,7 @@ return ctx['UNARY.PERCENT'](_1);
 exports[`expression compiler some arithmetic expressions 14`] = `
 "function anonymous(deps,ref,range,vectorize,getSymbolValue,ctx
 ) {
+const fullZone = {top: 0, left: 0, bottom: undefined, right: undefined};
 const _1 = this.literalValues.numbers[0];
 const _2 = this.literalValues.numbers[1];
 const _3 = ctx['ADD'](_1,_2);
@@ -278,6 +308,7 @@ return ctx['UNARY.PERCENT'](_3);
 exports[`expression compiler some arithmetic expressions 15`] = `
 "function anonymous(deps,ref,range,vectorize,getSymbolValue,ctx
 ) {
+const fullZone = {top: 0, left: 0, bottom: undefined, right: undefined};
 const _1 = ref(deps[0]);
 return ctx['UNARY.PERCENT'](_1);
 }"
@@ -286,9 +317,10 @@ return ctx['UNARY.PERCENT'](_1);
 exports[`expression compiler with the same reference multiple times 1`] = `
 "function anonymous(deps,ref,range,vectorize,getSymbolValue,ctx
 ) {
-const _1 = range(deps[0]);
-const _2 = range(deps[1]);
-const _3 = range(deps[2]);
+const fullZone = {top: 0, left: 0, bottom: undefined, right: undefined};
+const _1 = range(fullZone, deps[0]);
+const _2 = range(fullZone, deps[1]);
+const _3 = range(fullZone, deps[2]);
 return ctx['SUM'](_1,_2,_3);
 }"
 `;

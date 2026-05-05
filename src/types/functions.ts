@@ -1,7 +1,7 @@
 import { CellValue } from "./cells";
 import { Getters } from "./getters";
 import { Locale } from "./locale";
-import { Arg, CellPosition, FunctionResultObject, Matrix, UID } from "./misc";
+import { Arg, CellPosition, FunctionResultObject, Matrix, UID, UnboundedZone } from "./misc";
 import { Range } from "./range";
 
 export type ArgType =
@@ -23,6 +23,7 @@ export interface ArgDefinition {
   acceptErrors?: boolean;
   repeating?: boolean;
   optional?: boolean;
+  lazy?: boolean;
   description: string;
   name: string;
   type: ArgType[];
@@ -45,8 +46,20 @@ export type ComputeFunction = (this: EvalContext, ...args: Arg[]) => FunctionRes
 
 export type ComputeArrayFunction = (
   this: EvalContext,
-  ...args: Arg[]
+  zone: UnboundedZone,
+  ...args: (Arg | LazyArg)[]
 ) => FunctionResultObject | Matrix<FunctionResultObject>;
+
+export type ComputeFunctionNoThis = (...args: Arg[]) => FunctionResultObject;
+
+export type ComputeArrayFunctionNoThis = (
+  zone: UnboundedZone,
+  ...args: (Arg | LazyArg)[]
+) => FunctionResultObject | Matrix<FunctionResultObject>;
+
+export type LazyArg =
+  | undefined
+  | ((zone: UnboundedZone) => FunctionResultObject | Matrix<FunctionResultObject>);
 
 type ComputeVariant =
   | { compute: ComputeFunction; computeArray?: undefined }

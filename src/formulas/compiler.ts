@@ -408,6 +408,7 @@ function compileTokensOrThrow(tokens: Token[]): ICompiledFormula {
     }
     const compiledAST = compileAST(ast);
     const code = new FunctionCodeBuilder();
+    code.append(jsStr`const fullZone = {top: 0, left: 0, bottom: undefined, right: undefined};`);
     code.append(compiledAST);
     code.append(jsStr`return ${compiledAST.returnExpression};`);
     const baseFunction = new Function(
@@ -443,13 +444,13 @@ function compileTokensOrThrow(tokens: Token[]): ICompiledFormula {
       assertEnoughArgs(ast);
 
       const compiledArgs: CompiledArg[] = [];
-
       const argToFocus = argTargeting(functionDefinition, args.length);
 
       for (let i = 0; i < args.length; i++) {
         const argDefinition = functionDefinition.args[argToFocus[i].index];
         const currentArg = args[i];
-        const argAST = compileAST(currentArg, argDefinition.acceptMatrix);
+        const isLazy = argDefinition.lazy;
+        const argAST = compileAST(currentArg, argDefinition.acceptMatrix, isLazy);
 
         if (argDefinition.acceptMatrixOnly && !argAST.returnARange) {
           throw new BadExpressionError(
@@ -461,7 +462,11 @@ function compileTokensOrThrow(tokens: Token[]): ICompiledFormula {
           );
         }
         const toVectorize = !argDefinition.acceptMatrix && argAST.returnARange;
-        compiledArgs.push({ argAST, toVectorize });
+
+        compiledArgs.push({
+          argAST: isLazy ? argAST.wrapInClosure(argDefinition.acceptMatrix === true) : argAST,
+          toVectorize,
+        });
       }
 
       return compiledArgs;
@@ -472,7 +477,7 @@ function compileTokensOrThrow(tokens: Token[]): ICompiledFormula {
      * executable code for the evaluation of the cells content. It uses a cache to
      * not reevaluate identical code structures.
      */
-    function compileAST(ast: AST, acceptMatrix = false): FunctionCode {
+    function compileAST(ast: AST, acceptMatrix = false, isLazy = false): FunctionCode {
       const code = new FunctionCodeBuilder(scope);
       if (ast.debug) {
         code.append(jsStr`debugger;`);
@@ -486,11 +491,12 @@ function compileTokensOrThrow(tokens: Token[]): ICompiledFormula {
         case "STRING":
           return code.return(jsStr`this.literalValues.strings[${stringCount++}]`);
         case "REFERENCE":
-          const isRange = ast.value.includes(":") || acceptMatrix;
-          return code.return(
-            jsStr`${isRange ? jsStr`range` : jsStr`ref`}(deps[${dependencyCount++}])`,
-            isRange
-          );
+          const evaluateAsRange = ast.value.includes(":") || acceptMatrix;
+          if (evaluateAsRange) {
+            const zoneExpression = isLazy ? jsStr`zone` : jsStr`fullZone`;
+            return code.return(jsStr`range(${zoneExpression}, deps[${dependencyCount++}])`, true);
+          }
+          return code.return(jsStr`ref(deps[${dependencyCount++}])`);
         case "FUNCALL":
           const compiledArgs = compileFunctionArgs(ast);
           const args = compiledArgs.map((compiledArg) =>
@@ -503,20 +509,25 @@ function compileTokensOrThrow(tokens: Token[]): ICompiledFormula {
           }
           const jsFnName = dangerouslyCreateJsStr(fnName); // validated with known functions
           const argsToVectorize = compiledArgs.map((compiledArg) => compiledArg.toVectorize);
+          const argsExpression = args.map((arg) => arg.returnExpression);
+          const zoneExpression = isLazy ? jsStr`zone` : jsStr`fullZone`;
+          const isArrayFunction = functions[fnName].computeArray !== undefined;
           if (argsToVectorize.includes(true)) {
             // if at least one argument needs to be vectorized, we apply vectorization to the function call
             return code.return(
-              jsStr`vectorize(ctx['${jsFnName}'], [${args.map(
-                (arg) => arg.returnExpression
-              )}], [${argsToVectorize}])`,
+              jsStr`vectorize(ctx['${jsFnName}'], ${zoneExpression}, [${argsExpression}], [${argsToVectorize}], ${
+                isArrayFunction ? jsStr`true` : jsStr`false`
+              })`,
               true
             );
           }
-          const returnARange = functions[fnName].computeArray !== undefined;
-          return code.return(
-            jsStr`ctx['${jsFnName}'](${args.map((arg) => arg.returnExpression)})`,
-            returnARange
-          );
+          if (isArrayFunction) {
+            return code.return(
+              jsStr`ctx['${jsFnName}'](${zoneExpression}, ${argsExpression})`,
+              true
+            );
+          }
+          return code.return(jsStr`ctx['${jsFnName}'](${argsExpression})`);
         case "ARRAY": {
           // a literal array is compiled into function calls
           // use a function call AST to reuse the vectorization logic in compileFunctionArgs
@@ -524,7 +535,9 @@ function compileTokensOrThrow(tokens: Token[]): ICompiledFormula {
             toFuncall(
               "ARRAY.LITERAL",
               ast.value.map((row) => toFuncall("ARRAY.ROW", row))
-            )
+            ),
+            true,
+            isLazy
           );
         }
         case "UNARY_OPERATION": {
@@ -532,19 +545,25 @@ function compileTokensOrThrow(tokens: Token[]): ICompiledFormula {
             throw new Error(`Unknown operator: "${ast.value}"`);
           }
           // use a function call AST to reuse the vectorization logic in compileFunctionArgs
-          return compileAST(toFuncall(UNARY_OPERATOR_MAP[ast.value], [ast.operand]));
+          return compileAST(toFuncall(UNARY_OPERATOR_MAP[ast.value], [ast.operand]), false, isLazy);
         }
         case "BIN_OPERATION": {
           if (!Object.hasOwn(OPERATOR_MAP, ast.value)) {
             throw new Error(`Unknown operator: "${ast.value}"`);
           }
           // use a function call AST to reuse the vectorization logic in compileFunctionArgs
-          return compileAST(toFuncall(OPERATOR_MAP[ast.value], [ast.left, ast.right]));
+          return compileAST(
+            toFuncall(OPERATOR_MAP[ast.value], [ast.left, ast.right]),
+            false,
+            isLazy
+          );
         }
         case "SYMBOL":
           const symbolIndex = symbols.indexOf(ast.value);
           return code.return(
-            jsStr`getSymbolValue(this.symbols[${symbolIndex}], ${acceptMatrix})`,
+            jsStr`getSymbolValue(${
+              isLazy ? jsStr`zone` : jsStr`fullZone`
+            }, this.symbols[${symbolIndex}], ${acceptMatrix})`,
             true
           );
         case "EMPTY":

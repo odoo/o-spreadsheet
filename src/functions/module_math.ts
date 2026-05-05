@@ -8,19 +8,18 @@ import {
   FunctionResultObject,
   Matrix,
   Maybe,
+  UnboundedZone,
   isMatrix,
 } from "../types/misc";
 import { arg } from "./arguments";
 import { assertNotZero } from "./helper_assert";
 import { countUnique, sum } from "./helper_math";
-import { getUnitMatrix } from "./helper_matrices";
 import {
   expectReferenceError,
-  generateMatrix,
+  generateSubMatrix,
   inferFormat,
   isDataNonEmpty,
   isEvaluationError,
-  matrixMap,
   reduceAny,
   strictToNumber,
   toBoolean,
@@ -900,12 +899,14 @@ export const MUNIT = {
       _t("An integer specifying the dimension size of the unit matrix. It must be positive.")
     ),
   ],
-  computeArray: function (n: Maybe<FunctionResultObject>) {
+  computeArray: function (zone: UnboundedZone, n: Maybe<FunctionResultObject>) {
     const _n = toInteger(n, this.locale);
     if (_n < 1) {
       return new EvaluationError(_t("The argument dimension must be positive"));
     }
-    return matrixMap(getUnitMatrix(_n), (value) => ({ value }));
+    return generateSubMatrix(zone, _n, _n, (row, col) => ({
+      value: row === col ? 1 : 0,
+    }));
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -1032,6 +1033,7 @@ export const RANDARRAY = {
     ]),
   ],
   computeArray: function (
+    zone: UnboundedZone,
     rows: Maybe<FunctionResultObject> = { value: 1 },
     columns: Maybe<FunctionResultObject> = { value: 1 },
     min: Maybe<FunctionResultObject> = { value: 0 },
@@ -1067,18 +1069,12 @@ export const RANDARRAY = {
       }
     }
 
-    const result: number[][] = Array(_cols);
-    for (let col = 0; col < _cols; col++) {
-      result[col] = Array(_rows);
-      for (let row = 0; row < _rows; row++) {
-        if (!_whole_number) {
-          result[col][row] = _min + Math.random() * (_max - _min);
-        } else {
-          result[col][row] = Math.floor(Math.random() * (_max - _min + 1) + _min);
-        }
+    return generateSubMatrix(zone, _cols, _rows, (col, row) => {
+      if (!_whole_number) {
+        return { value: _min + Math.random() * (_max - _min) };
       }
-    }
-    return matrixMap(result, (value) => ({ value }));
+      return { value: Math.floor(Math.random() * (_max - _min + 1) + _min) };
+    });
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -1269,6 +1265,7 @@ export const SEQUENCE = {
     ),
   ],
   computeArray: function (
+    zone: UnboundedZone,
     rows: Maybe<FunctionResultObject>,
     columns: FunctionResultObject = { value: 1 },
     start: FunctionResultObject = { value: 1 },
@@ -1284,7 +1281,7 @@ export const SEQUENCE = {
     if (_rows < 1) {
       return new EvaluationError(_t("The number of rows (%s) must be positive.", _rows));
     }
-    return generateMatrix(_columns, _rows, (col, row) => {
+    return generateSubMatrix(zone, _columns, _rows, (col, row) => {
       return {
         value: _start + row * _columns * _step + col * _step,
       };
