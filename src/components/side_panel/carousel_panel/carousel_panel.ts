@@ -2,7 +2,7 @@ import { Component, onWillUpdateProps, useRef } from "@odoo/owl";
 import { ActionSpec } from "../../../actions/action";
 import { DEFAULT_CAROUSEL_TITLE_STYLE } from "../../../constants";
 import { getCarouselItemPreview, getCarouselItemTitle } from "../../../helpers/carousel_helpers";
-import { deepEquals } from "../../../helpers/misc";
+import { deepEquals, getCanonicalSymbolName } from "../../../helpers/misc";
 import { UuidGenerator } from "../../../helpers/uuid";
 import { zoneToXc } from "../../../helpers/zones";
 import { _t } from "../../../translation";
@@ -12,6 +12,7 @@ import { UID } from "../../../types/misc";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
 import { getBoundingRectAsPOJO } from "../../helpers/dom_helpers";
 import { useDragAndDropListItems } from "../../helpers/drag_and_drop_dom_items_hook";
+import { SelectionInput } from "../../selection_input/selection_input";
 import { TextInput } from "../../text_input/text_input";
 import { TextStyler } from "../chart/building_blocks/text_styler/text_styler";
 import { CogWheelMenu } from "../components/cog_wheel_menu/cog_wheel_menu";
@@ -25,7 +26,7 @@ interface Props {
 export class CarouselPanel extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-CarouselPanel";
   static props = { onCloseSidePanel: Function, figureId: String };
-  static components = { Section, TextInput, TextStyler, CogWheelMenu };
+  static components = { Section, TextInput, TextStyler, CogWheelMenu, SelectionInput };
 
   DEFAULT_CAROUSEL_TITLE_STYLE = DEFAULT_CAROUSEL_TITLE_STYLE;
 
@@ -293,5 +294,41 @@ export class CarouselPanel extends Component<Props, SpreadsheetChildEnv> {
 
   get carouselDataViewMessage(): string {
     return _t("The data view makes the carousel transparent, revealing the data underneath.");
+  }
+
+  get activeDataLayerItem(): (CarouselItem & { type: "dataLayer" }) | undefined {
+    const activeItem = this.env.model.getters.getSelectedCarouselItem(this.props.figureId);
+    return activeItem?.type === "dataLayer" ? activeItem : undefined;
+  }
+
+  getDataLayerRangeString(item: CarouselItem & { type: "dataLayer" }): string {
+    const sheetName = this.env.model.getters.getSheetName(item.sheetId);
+    return `${getCanonicalSymbolName(sheetName)}!${item.rangeXc}`;
+  }
+
+  private pendingDataLayerRange: string | undefined;
+
+  onDataLayerRangeChanged(ranges: string[]) {
+    this.pendingDataLayerRange = ranges[0];
+  }
+
+  onDataLayerRangeConfirmed() {
+    const activeItem = this.activeDataLayerItem;
+    if (!activeItem || !this.pendingDataLayerRange) {
+      return;
+    }
+    const range = this.env.model.getters.getRangeFromSheetXC(
+      activeItem.sheetId,
+      this.pendingDataLayerRange
+    );
+    const newRangeXc = zoneToXc(range.zone);
+
+    const items = [...this.carouselItems];
+    const itemIndex = items.findIndex((itm) => deepEquals(itm, activeItem));
+    if (itemIndex !== -1) {
+      items[itemIndex] = { ...activeItem, rangeXc: newRangeXc, sheetId: range.sheetId };
+      this.updateItems(items);
+    }
+    this.pendingDataLayerRange = undefined;
   }
 }

@@ -67,6 +67,17 @@
           </div>
         </t>
       </div>
+      <t t-if="activeDataLayerItem">
+        <Section title.translate="Data Range">
+          <SelectionInput
+            t-key="getItemId(activeDataLayerItem)"
+            ranges="[getDataLayerRangeString(activeDataLayerItem)]"
+            hasSingleRange="true"
+            onSelectionChanged="(ranges) => this.onDataLayerRangeChanged(ranges)"
+            onSelectionConfirmed.bind="onDataLayerRangeConfirmed"
+          />
+        </Section>
+      </t>
       <div
         class="o-button-link o-carousel-add-chart float-end d-flex align-items-center py-4 pe-4 gap-2"
         t-on-click="addNewChartToCarousel"

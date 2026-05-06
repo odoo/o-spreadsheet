@@ -157,9 +157,9 @@ export class CarouselFigure extends Component<Props, SpreadsheetChildEnv> {
 
   getRowItemStyle(index: number): string {
     const count = this.carousel.items.length;
-    const widthPercent = 100 / count;
+    const totalGap = (count - 1) * 16;
     return cssPropertiesToCss({
-      width: `${widthPercent}%`,
+      width: `calc((100% - ${totalGap}px) / ${count})`,
       height: "100%",
       "flex-shrink": "0",
     });
