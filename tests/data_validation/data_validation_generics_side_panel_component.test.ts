@@ -337,6 +337,21 @@ describe("data validation sidePanel component", () => {
     expect(getDataValidationRules(model, "sh2")).toHaveLength(0);
   });
 
+  test("A rule with ranges on multiple sheets create duplicate rules for each sheet", async () => {
+    createSheet(model, { sheetId: "sh2", name: "Sheet2" });
+    await simulateClick(".o-dv-add");
+    await nextTick();
+    await setInputValueAndTrigger(".o-selection-input input", "Sheet1!A1");
+    await simulateClick(".o-add-selection");
+    const range2 = document.querySelectorAll(".o-selection-input input")[1];
+    await setInputValueAndTrigger(range2, "Sheet2!B1");
+    await editStandaloneComposer(".o-dv-settings .o-composer", "Random text");
+    await simulateClick(".o-dv-save");
+
+    expect(getDataValidationRules(model, sheetId)).toMatchObject([{ ranges: ["A1"] }]);
+    expect(getDataValidationRules(model, "sh2")).toMatchObject([{ ranges: ["B1"] }]);
+  });
+
   describe("Locale", () => {
     test("Number preview is localized", async () => {
       updateLocale(model, FR_LOCALE);

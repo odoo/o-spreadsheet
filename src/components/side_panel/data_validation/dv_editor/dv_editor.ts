@@ -89,16 +89,26 @@ export class DataValidationEditor extends Component<Props, SpreadsheetChildEnv> 
   }
 
   onSave() {
-    const result = this.env.model.dispatch("ADD_DATA_VALIDATION_RULE", this.dispatchPayload);
-    if (!result.isSuccessful) {
-      this.state.errors = result.reasons;
-      return;
+    for (const payload of this.dispatchPayload) {
+      const result = this.env.model.dispatch("ADD_DATA_VALIDATION_RULE", payload);
+      if (!result.isSuccessful) {
+        this.state.errors = result.reasons;
+        return;
+      }
     }
     this.env.replaceSidePanel("DataValidation", `DataValidationEditor_${this.props.ruleId}`);
   }
 
-  get dispatchPayload(): Omit<AddDataValidationCommand, "type"> {
+  get dispatchPayload(): Omit<AddDataValidationCommand, "type">[] {
     const rule = { ...this.state.rule, ranges: undefined };
+    const ranges = this.state.rule.ranges.map((xc) =>
+      this.env.model.getters.getRangeDataFromXc(this.editingSheetId, xc)
+    );
+    if (!ranges.length) {
+      return [{ sheetId: this.editingSheetId, ranges: [], rule }];
+    }
+    const rangesBySheet = Object.groupBy(ranges, (range) => range._sheetId);
+
     const locale = this.env.model.getters.getLocale();
 
     const criterion = rule.criterion;
@@ -109,13 +119,12 @@ export class DataValidationEditor extends Component<Props, SpreadsheetChildEnv> 
       .filter((value) => value && value.trim() !== "")
       .map((value) => canonicalizeContent(value, locale));
     rule.criterion = { ...criterion, values };
-    return {
-      sheetId: this.editingSheetId,
-      ranges: this.state.rule.ranges.map((xc) =>
-        this.env.model.getters.getRangeDataFromXc(this.editingSheetId, xc)
-      ),
+
+    return Object.entries(rangesBySheet).map(([sheetId, sheetRanges]) => ({
+      sheetId,
+      ranges: sheetRanges!,
       rule,
-    };
+    }));
   }
 
   get dvCriterionOptions(): ValueAndLabel[] {
