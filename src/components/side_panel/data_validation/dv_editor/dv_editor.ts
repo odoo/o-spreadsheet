@@ -1,4 +1,5 @@
 import { proxy, useProps } from "@odoo/owl";
+import { splitReference } from "../../../../helpers/references";
 import { zoneToXc } from "../../../../helpers/zones";
 import { ComponentConstructor } from "../../../../owl3_compatibility_layer";
 import {
@@ -8,13 +9,15 @@ import {
 import { criterionEvaluatorRegistry } from "../../../../registries/criterion_registry";
 import { useStore } from "../../../../store_engine/store_hooks";
 import { _t } from "../../../../translation";
-import { AddDataValidationCommand, CancelledReason } from "../../../../types/commands";
+import { CancelledReason, CommandResult } from "../../../../types/commands";
 import {
   availableDataValidationOperators,
   DataValidationCriterion,
   DataValidationCriterionType,
+  DataValidationRule,
 } from "../../../../types/data_validation";
-import { ValueAndLabel } from "../../../../types/misc";
+import { UID, ValueAndLabel } from "../../../../types/misc";
+import { RangeData } from "../../../../types/range";
 import { Store } from "../../../../types/store_engine";
 import { DataValidationRuleData } from "../../../../types/workbook_data";
 import { OSComponent } from "../../../os_component";
@@ -79,30 +82,62 @@ export class DataValidationEditor extends OSComponent {
     this.state.rule.isBlocking = isBlocking === "true";
   }
 
+  switchSheetOnClose() {
+    const currentSheetName = this.model().getters.getActiveSheetName();
+    const hasCurrentSheetName = this.state.rule.ranges.some((xc) => {
+      const { sheetName } = splitReference(xc);
+      return sheetName === currentSheetName;
+    });
+    if (!hasCurrentSheetName) {
+      this.model().dispatch("ACTIVATE_SHEET", {
+        sheetIdTo: this.props.sheetId,
+        sheetIdFrom: this.model().getters.getActiveSheetId(),
+      });
+    }
+  }
+
   onCancel() {
     this.props.onCancel?.();
-    this.model().dispatch("ACTIVATE_SHEET", {
-      sheetIdTo: this.props.sheetId,
-      sheetIdFrom: this.model().getters.getActiveSheetId(),
-    });
+    this.switchSheetOnClose();
     this.sidePanelStore.replace("DataValidation", `DataValidationEditor_${this.props.ruleId}`);
   }
 
   onSave() {
-    const result = this.model().dispatch("ADD_DATA_VALIDATION_RULE", this.dispatchPayload);
+    const rulesBySheetId = this.rulesBySheetId;
+    if (!rulesBySheetId) {
+      return;
+    }
+    const result = this.model().dispatch("ADD_DATA_VALIDATION_RULES", {
+      rulesBySheetId,
+    });
     if (!result.isSuccessful) {
       this.state.errors = result.reasons;
       return;
     }
-    this.model().dispatch("ACTIVATE_SHEET", {
-      sheetIdTo: this.props.sheetId,
-      sheetIdFrom: this.model().getters.getActiveSheetId(),
-    });
+    this.switchSheetOnClose();
     this.sidePanelStore.replace("DataValidation", `DataValidationEditor_${this.props.ruleId}`);
   }
 
-  get dispatchPayload(): Omit<AddDataValidationCommand, "type"> {
+  get rulesBySheetId():
+    | undefined
+    | {
+        [key: UID]: { rule: Omit<DataValidationRule, "ranges">; ranges: RangeData[] };
+      } {
     const rule = { ...this.state.rule, ranges: undefined };
+    const ranges = this.state.rule.ranges.map((xc) => {
+      const { sheetName } = splitReference(xc);
+      const sheetId = this.model().getters.getSheetIdByName(sheetName);
+      if (sheetName && !sheetId) {
+        return this.model().getters.getRangeDataFromXc(undefined, xc);
+      }
+      return this.model().getters.getRangeDataFromXc(this.props.sheetId, xc);
+    });
+    if (!ranges.length) {
+      this.state.errors = [CommandResult.EmptyRange];
+      return;
+    }
+    this.state.errors = [];
+    const rangesBySheet = Object.groupBy(ranges, (range) => range._sheetId);
 
     const criterion = rule.criterion;
     const criterionEvaluator = criterionEvaluatorRegistry.get(criterion.type);
@@ -111,13 +146,13 @@ export class DataValidationEditor extends OSComponent {
       .slice(0, criterionEvaluator.numberOfValues(criterion))
       .filter((value) => value && value.trim() !== "");
     rule.criterion = { ...criterion, values };
-    return {
-      sheetId: this.props.sheetId,
-      ranges: this.state.rule.ranges.map((xc) =>
-        this.model().getters.getRangeDataFromXc(this.props.sheetId, xc)
-      ),
-      rule,
-    };
+
+    const payload = {};
+    for (const sheetId in rangesBySheet) {
+      payload[sheetId] = { ranges: rangesBySheet[sheetId], rule };
+    }
+
+    return payload;
   }
 
   get dvCriterionOptions(): ValueAndLabel[] {
