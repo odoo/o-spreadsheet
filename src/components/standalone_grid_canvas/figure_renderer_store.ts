@@ -118,17 +118,19 @@ export class FigureRendererStore extends DisposableStore {
     const headerPadding = 4;
     const headerSize = title.fontSize + headerPadding * 2;
 
+    const headerBackground =
+      chartDefinition?.background || this.getters.getSpreadsheetTheme().backgroundColor;
+
     if (!title.text && chartId) {
       const chartRect = { x, y, width: figure.width, height: figure.height };
       this.drawChart(renderingCtx, chartId, chartRect);
     } else if (!title.text && selectedItem?.type === "dataLayer") {
       const contentRect = { x, y, width: figure.width, height: figure.height };
-      this.drawDataLayer(ctx, selectedItem, contentRect);
+      this.drawDataLayer(ctx, selectedItem, contentRect, headerBackground);
     } else if (title.text) {
       ctx.save();
 
-      ctx.fillStyle =
-        chartDefinition?.background || this.getters.getSpreadsheetTheme().backgroundColor;
+      ctx.fillStyle = headerBackground;
       ctx.fillRect(x, y, figure.width, headerSize);
 
       const font = computeTextFont(chartStyleToCellStyle(title));
@@ -147,7 +149,7 @@ export class FigureRendererStore extends DisposableStore {
       if (chartId) {
         this.drawChart(renderingCtx, chartId, contentRect);
       } else if (selectedItem?.type === "dataLayer") {
-        this.drawDataLayer(ctx, selectedItem, contentRect);
+        this.drawDataLayer(ctx, selectedItem, contentRect, headerBackground);
       } else if (!this.getters.isDashboard()) {
         // Border below the carousel header for data view
         ctx.strokeStyle = GRAY_400;
@@ -234,9 +236,10 @@ export class FigureRendererStore extends DisposableStore {
   private drawDataLayer(
     ctx: CanvasRenderingContext2D,
     item: CarouselItem & { type: "dataLayer" },
-    rect: Rect
+    rect: Rect,
+    paddingBackground?: string
   ) {
     const zone = toZone(item.rangeXc);
-    this.dataLayerRenderer.render(ctx, item.sheetId, zone, rect);
+    this.dataLayerRenderer.render(ctx, item.sheetId, zone, rect, paddingBackground);
   }
 }

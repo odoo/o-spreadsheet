@@ -223,7 +223,8 @@ export class CarouselFigure extends Component<Props, SpreadsheetChildEnv> {
   }
 
   toggleFullScreen() {
-    if (this.selectedCarouselItem?.type === "chart") {
+    const type = this.selectedCarouselItem?.type;
+    if (type === "chart" || type === "dataLayer") {
       this.fullScreenFigureStore.toggleFullScreenFigure(this.props.figureUI.id);
     }
   }
@@ -309,11 +310,13 @@ export class CarouselFigure extends Component<Props, SpreadsheetChildEnv> {
     }
     ctx.scale(dpr, dpr);
     const zone = toZone(item.rangeXc);
-    this.dataLayerRenderer.render(ctx, item.sheetId, zone, {
-      x: 0,
-      y: 0,
-      width: rect.width,
-      height: rect.height,
-    });
+    const paddingBg = this.env.model.getters.getSpreadsheetTheme().backgroundColor;
+    this.dataLayerRenderer.render(
+      ctx,
+      item.sheetId,
+      zone,
+      { x: 0, y: 0, width: rect.width, height: rect.height },
+      paddingBg
+    );
   }
 }

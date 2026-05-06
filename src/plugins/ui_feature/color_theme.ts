@@ -25,7 +25,7 @@ export const COLOR_THEMES: Record<string, GridRenderingTheme> = {
     frozenPaneHeaderBorderColor: FROZEN_PANE_HEADER_BORDER_COLOR,
     singleCellSelectionBackgroundColor: "#F3F7FE",
     multipleCellsSelectionBackgroundColor: "#E9F0FF",
-    dashboardBackgroundColor: "#F5F5F5",
+    dashboardBackgroundColor: "#FAFAFA",
   },
   dark: {
     backgroundColor: adaptForDarkMode("#1A1C2E"),

@@ -90,7 +90,7 @@
             t-att-class="{
               'fa-compress': props.isFullScreen,
               'fa-expand': !props.isFullScreen,
-              'invisible': selectedCarouselItem?.type !== 'chart',
+              'invisible': selectedCarouselItem?.type !== 'chart' and selectedCarouselItem?.type !== 'dataLayer',
             }"
             t-on-click="toggleFullScreen"
           />

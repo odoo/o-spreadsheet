@@ -21,6 +21,8 @@ import { ModelStore } from "./model_store";
  * Given a pixel position (x, y) relative to the rect origin, returns the
  * CellPosition within the zone, or undefined if outside.
  */
+const DATA_LAYER_PADDING = 8;
+
 export function getDataLayerCellPosition(
   getters: RenderingGetters,
   sheetId: UID,
@@ -29,6 +31,12 @@ export function getDataLayerCellPosition(
   x: Pixel,
   y: Pixel
 ): CellPosition | undefined {
+  const paddedRect = {
+    x: rect.x + DATA_LAYER_PADDING,
+    y: rect.y,
+    width: rect.width - DATA_LAYER_PADDING * 2,
+    height: rect.height - DATA_LAYER_PADDING,
+  };
   const originX = getters.getColDimensions(sheetId, zone.left).start;
   const originY = getters.getRowDimensions(sheetId, zone.top).start;
 
@@ -38,7 +46,7 @@ export function getDataLayerCellPosition(
       continue;
     }
     const dim = getters.getColDimensions(sheetId, c);
-    const cellX = rect.x + (dim.start - originX);
+    const cellX = paddedRect.x + (dim.start - originX);
     if (x >= cellX && x < cellX + dim.size) {
       col = c;
       break;
@@ -51,7 +59,7 @@ export function getDataLayerCellPosition(
       continue;
     }
     const dim = getters.getRowDimensions(sheetId, r);
-    const cellY = rect.y + (dim.start - originY);
+    const cellY = paddedRect.y + (dim.start - originY);
     if (y >= cellY && y < cellY + dim.size) {
       row = r;
       break;
@@ -84,10 +92,30 @@ export class DataLayerRenderer extends DisposableStore {
   /**
    * Render cells from `zone` on `sheetId` into the given `rect` on the canvas.
    */
-  render(ctx: CanvasRenderingContext2D, sheetId: UID, zone: Zone, rect: Rect) {
+  render(
+    ctx: CanvasRenderingContext2D,
+    sheetId: UID,
+    zone: Zone,
+    rect: Rect,
+    paddingBackground?: string
+  ) {
+    const paddedRect = {
+      x: rect.x + DATA_LAYER_PADDING,
+      y: rect.y,
+      width: rect.width - DATA_LAYER_PADDING * 2,
+      height: rect.height - DATA_LAYER_PADDING,
+    };
+
     ctx.save();
+
+    // Fill padding area with the header background
+    if (paddingBackground) {
+      ctx.fillStyle = paddingBackground;
+      ctx.fillRect(rect.x, rect.y, rect.width, rect.height);
+    }
+
     ctx.beginPath();
-    ctx.rect(rect.x, rect.y, rect.width, rect.height);
+    ctx.rect(paddedRect.x, paddedRect.y, paddedRect.width, paddedRect.height);
     ctx.clip();
 
     // Fill background
@@ -95,7 +123,7 @@ export class DataLayerRenderer extends DisposableStore {
     ctx.fillStyle = backgroundColor;
     ctx.fillRect(rect.x, rect.y, rect.width, rect.height);
 
-    const boxes = this.getBoxesForZone(sheetId, zone, rect);
+    const boxes = this.getBoxesForZone(sheetId, zone, paddedRect);
     this.drawGridLines(ctx, boxes, sheetId);
     this.drawCellBackgrounds(ctx, boxes);
     this.drawBorders(ctx, boxes);
