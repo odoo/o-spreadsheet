@@ -11,6 +11,7 @@
     position: absolute;
     height: var(--os-autofill-edge-length);
     width: var(--os-autofill-edge-length);
+    z-index: var(--os-components-importance-grid-overlay);
     &:hover {
       cursor: crosshair;
     }

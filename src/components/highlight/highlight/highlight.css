@@ -1,5 +1,5 @@
 .o-spreadsheet {
-  .o-highlight {
+  .o-highlight > * {
     z-index: var(--os-components-importance-highlight);
   }
 }

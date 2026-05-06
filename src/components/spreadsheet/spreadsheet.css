@@ -207,7 +207,7 @@
     .o-grid-overlay {
       position: absolute;
       outline: none;
-      z-index: 1;
+      z-index: var(--os-components-importance-grid-overlay);
     }
   }
 

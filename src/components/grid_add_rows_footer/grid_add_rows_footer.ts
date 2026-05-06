@@ -36,7 +36,6 @@ export class GridAddRowsFooter extends Component<Props, SpreadsheetChildEnv> {
 
     return cssPropertiesToCss({
       top: `${top}px`,
-      ["z-index"]: "1",
     });
   }
 

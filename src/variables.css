@@ -113,6 +113,7 @@
   --os-menu-separator-padding: 5px;
 
   --os-components-importance-grid: 0;
+  --os-components-importance-grid-overlay: 1;
   --os-components-importance-highlight: 5;
   --os-components-importance-header-grouping-button: 6;
   --os-components-importance-figure: 10;
