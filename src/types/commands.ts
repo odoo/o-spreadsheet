@@ -1247,6 +1247,11 @@ export interface UpdateColorSchemeCommand {
   colorScheme: ColorThemeName;
 }
 
+export interface AddDataValidationsCommand {
+  type: "ADD_DATA_VALIDATION_RULES";
+  rulesBySheetId: { [key: UID]: { rule: Omit<DataValidationRule, "ranges">; ranges: RangeData[] } };
+}
+
 export type CoreCommand =
   // /** History */
   // | SelectiveUndoCommand
@@ -1421,7 +1426,8 @@ export type LocalCommand =
   | DeleteFiguresCommand
   | MergeIntoCarouselCommand
   | CreateChartAndMergeIntoCarouselCommand
-  | ColorAllCellsBackground;
+  | ColorAllCellsBackground
+  | AddDataValidationsCommand;
 
 export type Command = CoreCommand | LocalCommand;
 

@@ -3,7 +3,6 @@ import { deepCopy } from "../../../../helpers/misc";
 import { useLayoutEffect } from "../../../../owl3_compatibility_layer";
 import { useLocalStore, useStore } from "../../../../store_engine/store_hooks";
 import { _t } from "../../../../translation";
-import { UID } from "../../../../types/misc";
 import { Store } from "../../../../types/store_engine";
 import { OSComponent } from "../../../os_component";
 import { types } from "../../../props_validation";
