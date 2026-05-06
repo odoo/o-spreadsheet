@@ -279,6 +279,18 @@ export class CarouselPanel extends Component<Props, SpreadsheetChildEnv> {
     return sheetId;
   }
 
+  get layout(): "tabs" | "row" {
+    return this.carousel.layout || "tabs";
+  }
+
+  setLayout(layout: "tabs" | "row") {
+    this.env.model.dispatch("UPDATE_CAROUSEL", {
+      figureId: this.props.figureId,
+      sheetId: this.carouselSheetId,
+      definition: { ...this.carousel, layout },
+    });
+  }
+
   get carouselDataViewMessage(): string {
     return _t("The data view makes the carousel transparent, revealing the data underneath.");
   }

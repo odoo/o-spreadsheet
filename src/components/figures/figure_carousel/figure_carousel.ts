@@ -135,6 +135,32 @@ export class CarouselFigure extends Component<Props, SpreadsheetChildEnv> {
     return this.selectedCarouselItem?.type === "dataLayer";
   }
 
+  get isRowLayout(): boolean {
+    return this.carousel.layout === "row";
+  }
+
+  getRowItemStyle(index: number): string {
+    const count = this.carousel.items.length;
+    const widthPercent = 100 / count;
+    return cssPropertiesToCss({
+      width: `${widthPercent}%`,
+      height: "100%",
+      "flex-shrink": "0",
+    });
+  }
+
+  getRowItemChartComponent(item: CarouselItem): new (...args: any) => Component {
+    if (item.type !== "chart") {
+      throw new Error("Item is not a chart");
+    }
+    const type = this.env.model.getters.getChartType(item.chartId);
+    const component = chartComponentRegistry.get(type);
+    if (!component) {
+      throw new Error(`Component is not defined for type ${type}`);
+    }
+    return component;
+  }
+
   get title(): string {
     return this.carousel.title?.text ?? "";
   }

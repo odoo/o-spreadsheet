@@ -122,6 +122,7 @@ export class CarouselPlugin extends CorePlugin<CarouselState> implements Carouse
         this.history.update("carousels", sheet.id, carousel.id, {
           items: carousel.data.items,
           title: carousel.data.title,
+          layout: carousel.data.layout,
         });
       }
     }

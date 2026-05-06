@@ -13,6 +13,21 @@
     }
   }
 
+  .o-carousel-row-content {
+    height: 0; /* To make flex-fill work */
+    gap: 16px;
+  }
+
+  .o-carousel-row-item {
+    overflow: hidden;
+
+    &.o-dashboard-row-item {
+      border-radius: 8px;
+      border: 1px solid #d0d0d0;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    }
+  }
+
   .o-carousel-header {
     z-index: 1;
 

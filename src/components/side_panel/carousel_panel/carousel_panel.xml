@@ -16,6 +16,22 @@
           hasHorizontalAlign="false"
         />
       </Section>
+      <Section title.translate="Layout">
+        <div class="d-flex gap-2">
+          <div
+            class="o-button px-3 py-1"
+            t-att-class="{'o-button-active': layout === 'tabs'}"
+            t-on-click="() => this.setLayout('tabs')">
+            Tabs
+          </div>
+          <div
+            class="o-button px-3 py-1"
+            t-att-class="{'o-button-active': layout === 'row'}"
+            t-on-click="() => this.setLayout('row')">
+            Row
+          </div>
+        </div>
+      </Section>
       <div class="o-section pb-1 pt-0">
         <div class="o-section-title">Carousel Sections</div>
       </div>

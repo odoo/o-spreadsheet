@@ -61,6 +61,20 @@ export class FigureComponent extends Component<Props, SpreadsheetChildEnv> {
     return this.env.model.getters.getSelectedFigureId() === this.props.figureUI.id;
   }
 
+  get isDashboardFigure(): boolean {
+    if (!this.env.isDashboard()) {
+      return false;
+    }
+    if (
+      this.props.figureUI.tag === "carousel" &&
+      this.env.model.getters.doesCarouselExist(this.props.figureUI.id) &&
+      this.env.model.getters.getCarousel(this.props.figureUI.id).layout === "row"
+    ) {
+      return false;
+    }
+    return true;
+  }
+
   get figureRegistry() {
     return figureRegistry;
   }

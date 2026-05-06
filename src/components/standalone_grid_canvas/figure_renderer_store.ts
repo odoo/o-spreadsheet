@@ -7,7 +7,7 @@ import { DisposableStore } from "../../store_engine/store";
 import { DataLayerRenderer } from "../../stores/data_layer_renderer_store";
 import { ModelStore } from "../../stores/model_store";
 import { RendererStore } from "../../stores/renderer_store";
-import { CarouselItem, FigureUI } from "../../types/figure";
+import { Carousel, CarouselItem, FigureUI } from "../../types/figure";
 import { RenderingGetters } from "../../types/getters";
 import { UID } from "../../types/misc";
 import { GridRenderingContext, Rect } from "../../types/rendering";
@@ -63,9 +63,11 @@ export class FigureRendererStore extends DisposableStore {
         this.drawCarousel(renderingCtx, figure);
       }
 
-      if (this.getters.isDashboard()) {
+      const isRowCarousel =
+        figure.tag === "carousel" && this.getters.getCarousel(figure.id)?.layout === "row";
+      if (this.getters.isDashboard() && !isRowCarousel) {
         this.drawDashboardFigureBorder(ctx, x, y, figure.width, figure.height);
-      } else {
+      } else if (!this.getters.isDashboard()) {
         ctx.strokeStyle = GRAY_400;
         ctx.lineWidth = 1;
         ctx.strokeRect(x, y, figure.width, figure.height);
@@ -100,11 +102,17 @@ export class FigureRendererStore extends DisposableStore {
     const y = figure.y - offsetY;
 
     const carousel = this.getters.getCarousel(figure.id);
-    const selectedItem = this.getters.getSelectedCarouselItem(figure.id);
-    const chartId = this.getters.getChartIdFromFigureId(figure.id);
     if (!carousel) {
       return;
     }
+
+    if (carousel.layout === "row") {
+      this.drawCarouselRow(renderingCtx, figure, carousel, x, y);
+      return;
+    }
+
+    const selectedItem = this.getters.getSelectedCarouselItem(figure.id);
+    const chartId = this.getters.getChartIdFromFigureId(figure.id);
     const chartDefinition = chartId ? this.getters.getChartDefinition(chartId) : undefined;
     const title = { ...DEFAULT_CAROUSEL_TITLE_STYLE, ...carousel.title };
     const headerPadding = 4;
@@ -148,6 +156,57 @@ export class FigureRendererStore extends DisposableStore {
         ctx.moveTo(x, y + headerSize);
         ctx.lineTo(x + figure.width, y + headerSize);
         ctx.stroke();
+      }
+    }
+  }
+
+  private drawCarouselRow(
+    renderingCtx: GridRenderingContext,
+    figure: FigureUI,
+    carousel: Carousel,
+    x: number,
+    y: number
+  ) {
+    const { ctx } = renderingCtx;
+    const title = { ...DEFAULT_CAROUSEL_TITLE_STYLE, ...carousel.title };
+    const headerPadding = 4;
+    const headerSize = title.text ? title.fontSize + headerPadding * 2 : 0;
+
+    if (title.text) {
+      ctx.save();
+      ctx.fillStyle = this.getters.getSpreadsheetTheme().backgroundColor;
+      ctx.fillRect(x, y, figure.width, headerSize);
+
+      const font = computeTextFont(chartStyleToCellStyle(title));
+      ctx.font = font;
+      ctx.fillStyle = title.color;
+      ctx.fillText(title.text, x + headerPadding, y + headerPadding + title.fontSize);
+      ctx.restore();
+    }
+
+    const items = carousel.items;
+    if (items.length === 0) {
+      return;
+    }
+    const gap = 16;
+    const totalGap = gap * (items.length - 1);
+    const itemWidth = (figure.width - totalGap) / items.length;
+    const contentY = y + headerSize;
+    const contentHeight = figure.height - headerSize;
+
+    for (let i = 0; i < items.length; i++) {
+      const item = items[i];
+      const itemX = x + i * (itemWidth + gap);
+      const itemRect = { x: itemX, y: contentY, width: itemWidth, height: contentHeight };
+
+      if (item.type === "chart") {
+        this.drawChart(renderingCtx, item.chartId, itemRect);
+      } else if (item.type === "dataLayer") {
+        this.drawDataLayer(ctx, item, itemRect);
+      }
+
+      if (this.getters.isDashboard()) {
+        this.drawDashboardFigureBorder(ctx, itemX, contentY, itemWidth, contentHeight);
       }
     }
   }
