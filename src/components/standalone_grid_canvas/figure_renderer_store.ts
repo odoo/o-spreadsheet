@@ -63,7 +63,9 @@ export class FigureRendererStore extends DisposableStore {
         this.drawCarousel(renderingCtx, figure);
       }
 
-      if (!this.getters.isDashboard()) {
+      if (this.getters.isDashboard()) {
+        this.drawDashboardFigureBorder(ctx, x, y, figure.width, figure.height);
+      } else {
         ctx.strokeStyle = GRAY_400;
         ctx.lineWidth = 1;
         ctx.strokeRect(x, y, figure.width, figure.height);
@@ -148,6 +150,26 @@ export class FigureRendererStore extends DisposableStore {
         ctx.stroke();
       }
     }
+  }
+
+  private drawDashboardFigureBorder(
+    ctx: CanvasRenderingContext2D,
+    x: number,
+    y: number,
+    width: number,
+    height: number
+  ) {
+    const radius = 8;
+    ctx.save();
+    ctx.shadowColor = "rgba(0, 0, 0, 0.15)";
+    ctx.shadowBlur = 8;
+    ctx.shadowOffsetY = 2;
+    ctx.beginPath();
+    ctx.roundRect(x, y, width, height, radius);
+    ctx.strokeStyle = "#D0D0D0";
+    ctx.lineWidth = 1;
+    ctx.stroke();
+    ctx.restore();
   }
 
   private drawDataLayer(

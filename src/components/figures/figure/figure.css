@@ -28,6 +28,13 @@
     pointer-events: auto;
     z-index: var(--os-components-importance-figure);
 
+    &.o-dashboard-figure {
+      border-radius: 8px;
+      border: 1px solid #d0d0d0;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+      overflow: hidden;
+    }
+
     &.o-figure-selected {
       z-index: var(--os-components-importance-figure-selected);
     }

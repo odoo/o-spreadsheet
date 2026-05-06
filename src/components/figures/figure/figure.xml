@@ -2,7 +2,7 @@
   <t t-name="o-spreadsheet-FigureComponent">
     <div
       class="o-figure-wrapper os-theme-dependant"
-      t-att-class="{'o-figure-selected': isSelected}"
+      t-att-class="{'o-figure-selected': isSelected, 'o-dashboard-figure': env.isDashboard()}"
       t-att-style="wrapperStyle"
       t-ref="figureWrapper">
       <div
