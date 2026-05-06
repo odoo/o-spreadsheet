@@ -213,7 +213,7 @@ export class RangeAdapterPlugin implements CommandHandler<CoreCommand> {
     return getRangeString(range, forSheetId, this.getters.getSheetName, options);
   }
 
-  getRangeDataFromXc(sheetId: UID, xc: string): RangeData {
+  getRangeDataFromXc(sheetId: UID | undefined, xc: string): RangeData {
     const range = this.getters.getRangeFromSheetXC(sheetId, xc);
     return this.getRangeDataFromZone(range.sheetId, range.unboundedZone);
   }
