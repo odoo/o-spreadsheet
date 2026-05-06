@@ -4,7 +4,7 @@ import { deepEquals } from "../../../helpers/misc";
 import { interactiveSort } from "../../../helpers/sort_interactive";
 import { CellPopoverComponent, PopoverBuilders } from "../../../types/cell_popovers";
 import { CellValueType } from "../../../types/cells";
-import { Position, SortDirection } from "../../../types/misc";
+import { Position, SortDirection, UID } from "../../../types/misc";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
 import {
   CriterionFilter,
@@ -19,6 +19,7 @@ import { FilterMenuValueList } from "../filter_menu_value_list/filter_menu_value
 
 interface Props {
   filterPosition: Position;
+  sheetId?: UID;
   onClosed?: () => void;
 }
 
@@ -28,6 +29,7 @@ export class FilterMenu extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-FilterMenu";
   static props = {
     filterPosition: Object,
+    sheetId: { type: String, optional: true },
     onClosed: { type: Function, optional: true },
   };
   static components = { FilterMenuValueList, SidePanelCollapsible, FilterMenuCriterion };
@@ -45,6 +47,10 @@ export class FilterMenu extends Component<Props, SpreadsheetChildEnv> {
     this.criterionCategory = this.getCriterionCategory(this.props.filterPosition);
   }
 
+  private get sheetId(): UID {
+    return this.props.sheetId ?? this.env.model.getters.getActiveSheetId();
+  }
+
   get isSortable() {
     if (!this.table) {
       return false;
@@ -57,20 +63,20 @@ export class FilterMenu extends Component<Props, SpreadsheetChildEnv> {
   }
 
   get table() {
-    const sheetId = this.env.model.getters.getActiveSheetId();
+    const sheetId = this.sheetId;
     const position = this.props.filterPosition;
     return this.env.model.getters.getTable({ sheetId, ...position });
   }
 
   get filterValueType() {
-    const sheetId = this.env.model.getters.getActiveSheetId();
+    const sheetId = this.sheetId;
     const position = this.props.filterPosition;
     const filterValue = this.env.model.getters.getFilterValue({ sheetId, ...position });
     return filterValue?.filterType;
   }
 
   private getCriterionCategory(position: Position): CriterionCategory {
-    const sheetId = this.env.model.getters.getActiveSheetId();
+    const sheetId = this.sheetId;
     const filter = this.env.model.getters.getFilter({ sheetId, ...position });
     if (!filter || !filter.filteredRange) {
       return "text";
@@ -117,7 +123,7 @@ export class FilterMenu extends Component<Props, SpreadsheetChildEnv> {
     const position = this.props.filterPosition;
     this.env.model.dispatch("UPDATE_FILTER", {
       ...position,
-      sheetId: this.env.model.getters.getActiveSheetId(),
+      sheetId: this.sheetId,
       value: this.updatedCriterionValue,
     });
     this.props.onClosed?.();
@@ -143,7 +149,7 @@ export class FilterMenu extends Component<Props, SpreadsheetChildEnv> {
     if (!filterPosition || !tableZone || tableZone.top === tableZone.bottom) {
       return;
     }
-    const sheetId = this.env.model.getters.getActiveSheetId();
+    const sheetId = this.sheetId;
     const contentZone = { ...tableZone, top: tableZone.top + 1 };
     const sortAnchor = { col: filterPosition.col, row: contentZone.top };
     const sortOptions = { emptyCellAsZero: true, sortHeaders: true };

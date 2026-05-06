@@ -131,8 +131,20 @@
             class="w-100 h-100"
             t-on-click="onDataLayerClick"
             t-on-contextmenu.prevent="onDataLayerContextMenu"
-            style="cursor: pointer"
+            t-on-mousemove="onDataLayerMouseMove"
+            t-on-mouseleave="onDataLayerMouseLeave"
           />
+          <Popover
+            t-if="filterPopover.isOpen"
+            anchorRect="filterPopover.anchorRect"
+            positioning="'bottom-left'"
+            verticalOffset="0">
+            <FilterMenu
+              filterPosition="filterPopover.filterPosition"
+              sheetId="filterPopover.sheetId"
+              onClosed.bind="closeFilterPopover"
+            />
+          </Popover>
         </div>
       </t>
     </div>

@@ -1,6 +1,7 @@
 import { getPath2D } from "../components/icons/icons";
+import { HoveredTableStore } from "../components/tables/hovered_table_store";
 import { CANVAS_SHIFT, MIN_CELL_TEXT_MARGIN } from "../constants";
-import { toHex } from "../helpers/color";
+import { blendColors, toHex } from "../helpers/color";
 import { formatHasRepeatedChar } from "../helpers/format/format";
 import {
   computeTextFont,
@@ -14,7 +15,7 @@ import { CellValueType } from "../types/cells";
 import { RenderingGetters } from "../types/getters";
 import { Align, CellPosition, HeaderIndex, Pixel, UID, Zone } from "../types/misc";
 import { Box, Rect } from "../types/rendering";
-import { Get } from "../types/store_engine";
+import { Get, Store } from "../types/store_engine";
 import { ModelStore } from "./model_store";
 
 /**
@@ -83,10 +84,12 @@ export class DataLayerRenderer extends DisposableStore {
   mutators = ["render"] as const;
 
   private getters: RenderingGetters;
+  private hoveredTables: Store<HoveredTableStore>;
 
   constructor(get: Get) {
     super(get);
     this.getters = get(ModelStore).getters;
+    this.hoveredTables = get(HoveredTableStore);
   }
 
   /**
@@ -97,7 +100,7 @@ export class DataLayerRenderer extends DisposableStore {
     sheetId: UID,
     zone: Zone,
     rect: Rect,
-    paddingBackground?: string
+    options?: { paddingBackground?: string; hideGridLines?: boolean; hideFilterIcons?: boolean }
   ) {
     const paddedRect = {
       x: rect.x + DATA_LAYER_PADDING,
@@ -109,8 +112,8 @@ export class DataLayerRenderer extends DisposableStore {
     ctx.save();
 
     // Fill padding area with the header background
-    if (paddingBackground) {
-      ctx.fillStyle = paddingBackground;
+    if (options?.paddingBackground) {
+      ctx.fillStyle = options.paddingBackground;
       ctx.fillRect(rect.x, rect.y, rect.width, rect.height);
     }
 
@@ -123,8 +126,10 @@ export class DataLayerRenderer extends DisposableStore {
     ctx.fillStyle = backgroundColor;
     ctx.fillRect(rect.x, rect.y, rect.width, rect.height);
 
-    const boxes = this.getBoxesForZone(sheetId, zone, paddedRect);
-    this.drawGridLines(ctx, boxes, sheetId);
+    const boxes = this.getBoxesForZone(sheetId, zone, paddedRect, options?.hideFilterIcons);
+    if (!options?.hideGridLines) {
+      this.drawGridLines(ctx, boxes, sheetId);
+    }
     this.drawCellBackgrounds(ctx, boxes);
     this.drawBorders(ctx, boxes);
     this.drawTexts(ctx, boxes);
@@ -133,7 +138,7 @@ export class DataLayerRenderer extends DisposableStore {
     ctx.restore();
   }
 
-  private getBoxesForZone(sheetId: UID, zone: Zone, rect: Rect): Box[] {
+  private getBoxesForZone(sheetId: UID, zone: Zone, rect: Rect, hideFilterIcons?: boolean): Box[] {
     const boxes: Box[] = [];
 
     // Compute origin offset: the position of zone.left/zone.top in absolute sheet coords
@@ -159,7 +164,15 @@ export class DataLayerRenderer extends DisposableStore {
           ? this.getters.getMerge(position)!
           : positionToZone(position);
 
-        const box = this.createBox(sheetId, cellZone, zone, originX, originY, rect);
+        const box = this.createBox(
+          sheetId,
+          cellZone,
+          zone,
+          originX,
+          originY,
+          rect,
+          hideFilterIcons
+        );
         if (box) {
           boxes.push(box);
         }
@@ -174,7 +187,8 @@ export class DataLayerRenderer extends DisposableStore {
     viewportZone: Zone,
     originX: Pixel,
     originY: Pixel,
-    rect: Rect
+    rect: Rect,
+    hideFilterIcons?: boolean
   ): Box | undefined {
     const col = cellZone.left;
     const row = cellZone.top;
@@ -202,7 +216,10 @@ export class DataLayerRenderer extends DisposableStore {
     const style = this.getters.getCellComputedStyle(position);
     const border = this.getters.getCellComputedBorder(position) || undefined;
     const dataBarFill = this.getters.getConditionalDataBar(position);
-    const iconsList = this.getters.getCellIcons(position);
+    let iconsList = this.getters.getCellIcons(position);
+    if (hideFilterIcons) {
+      iconsList = iconsList.filter((icon) => icon?.type !== "filter_icon");
+    }
     const cellIcons = {
       left: iconsList.find((icon) => icon?.horizontalAlign === "left"),
       right: iconsList.find((icon) => icon?.horizontalAlign === "right"),
@@ -218,6 +235,7 @@ export class DataLayerRenderer extends DisposableStore {
       border,
       style,
       dataBarFill,
+      overlayColor: this.hoveredTables.overlayColors.get(position),
       isError:
         (cell.type === CellValueType.error && !!cell.message) ||
         this.getters.isDataValidationInvalid(position),
@@ -334,8 +352,8 @@ export class DataLayerRenderer extends DisposableStore {
   private drawCellBackgrounds(ctx: CanvasRenderingContext2D, boxes: Box[]) {
     for (const box of boxes) {
       const fillColor = toHex(box.style.fillColor || "#ffffff");
-      if (fillColor !== "#FFFFFF") {
-        ctx.fillStyle = fillColor;
+      if (fillColor !== "#FFFFFF" || box.overlayColor) {
+        ctx.fillStyle = box.overlayColor ? blendColors(fillColor, box.overlayColor) : fillColor;
         ctx.fillRect(
           box.x - CANVAS_SHIFT,
           box.y - CANVAS_SHIFT,
@@ -343,7 +361,7 @@ export class DataLayerRenderer extends DisposableStore {
           box.height + CANVAS_SHIFT * 2
         );
       }
-      if (box.dataBarFill) {
+      if (box.dataBarFill && !box.overlayColor) {
         ctx.fillStyle = box.dataBarFill.color;
         const percentage = box.dataBarFill.percentage;
         const barWidth = box.width * (percentage / 100);

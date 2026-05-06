@@ -240,6 +240,10 @@ export class FigureRendererStore extends DisposableStore {
     paddingBackground?: string
   ) {
     const zone = toZone(item.rangeXc);
-    this.dataLayerRenderer.render(ctx, item.sheetId, zone, rect, paddingBackground);
+    this.dataLayerRenderer.render(ctx, item.sheetId, zone, rect, {
+      paddingBackground,
+      hideGridLines: this.getters.isDashboard(),
+      hideFilterIcons: true,
+    });
   }
 }

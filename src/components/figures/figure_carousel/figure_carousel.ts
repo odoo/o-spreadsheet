@@ -4,6 +4,7 @@ import { DEFAULT_CAROUSEL_TITLE_STYLE } from "../../../constants";
 import { getCarouselItemTitle } from "../../../helpers/carousel_helpers";
 import { chartStyleToCellStyle, deepEquals } from "../../../helpers/misc";
 import { toZone } from "../../../helpers/zones";
+import { clickableCellRegistry } from "../../../registries/cell_clickable_registry";
 import { chartComponentRegistry } from "../../../registries/chart_component_registry";
 import { useStore } from "../../../store_engine/store_hooks";
 import {
@@ -16,10 +17,13 @@ import { CellPosition, CSSProperties, MenuMouseEvent } from "../../../types/misc
 import { Rect } from "../../../types/rendering";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
 import { Store } from "../../../types/store_engine";
+import { FilterMenu } from "../../filters/filter_menu/filter_menu";
 import { FullScreenFigureStore } from "../../full_screen_figure/full_screen_figure_store";
 import { cellTextStyleToCss, cssPropertiesToCss } from "../../helpers/css";
 import { getBoundingRectAsPOJO, getRefBoundingRect } from "../../helpers/dom_helpers";
 import { MenuPopover, MenuState } from "../../menu_popover/menu_popover";
+import { Popover } from "../../popover/popover";
+import { HoveredTableStore } from "../../tables/hovered_table_store";
 import { ChartAnimationStore } from "../chart/chartJs/chartjs_animation_store";
 import { ChartDashboardMenu } from "../chart/chart_dashboard_menu/chart_dashboard_menu";
 
@@ -38,23 +42,35 @@ export class CarouselFigure extends Component<Props, SpreadsheetChildEnv> {
     isFullScreen: { type: Boolean, optional: true },
     openContextMenu: { type: Function, optional: true },
   };
-  static components = { ChartDashboardMenu, MenuPopover };
+  static components = { ChartDashboardMenu, MenuPopover, FilterMenu, Popover };
 
   private carouselTabsRef = useRef("carouselTabs");
   private carouselTabsDropdownRef = useRef("carouselTabsDropdown");
   private dataLayerCanvasRef = useRef("dataLayerCanvas");
 
   private menuState = useState<MenuState>({ isOpen: false, anchorRect: null, menuItems: [] });
+  private filterPopover = useState<{
+    isOpen: boolean;
+    anchorRect: Rect;
+    filterPosition: { col: number; row: number };
+    sheetId?: string;
+  }>({
+    isOpen: false,
+    anchorRect: { x: 0, y: 0, width: 0, height: 0 },
+    filterPosition: { col: 0, row: 0 },
+  });
   private hiddenItems: CarouselItem[] = [];
 
   protected animationStore: Store<ChartAnimationStore> | undefined;
   private fullScreenFigureStore!: Store<FullScreenFigureStore>;
   private dataLayerRenderer!: Store<DataLayerRenderer>;
+  private hoveredTableStore!: Store<HoveredTableStore>;
 
   setup(): void {
     this.animationStore = useStore(ChartAnimationStore);
     this.fullScreenFigureStore = useStore(FullScreenFigureStore);
     this.dataLayerRenderer = useStore(DataLayerRenderer);
+    this.hoveredTableStore = useStore(HoveredTableStore);
 
     useEffect(() => {
       if (this.selectedCarouselItem?.type === "carouselDataView") {
@@ -265,13 +281,71 @@ export class CarouselFigure extends Component<Props, SpreadsheetChildEnv> {
 
   onDataLayerClick(event: MouseEvent) {
     const position = this.getDataLayerCellFromMouseEvent(event);
-    if (position) {
-      this.env.model.dispatch("ACTIVATE_SHEET", {
-        sheetIdFrom: this.env.model.getters.getActiveSheetId(),
-        sheetIdTo: position.sheetId,
-      });
-      this.env.model.selection.selectCell(position.col, position.row);
+    if (!position) {
+      return;
     }
+    // Check icon onClick (e.g. filter icon in fullscreen)
+    const icon = this.getClickableIconAtPosition(position);
+    if (icon?.onClick) {
+      if (icon.type === "filter_icon" && this.props.isFullScreen) {
+        this.filterPopover.isOpen = true;
+        this.filterPopover.anchorRect = {
+          x: event.clientX,
+          y: event.clientY,
+          width: 0,
+          height: 0,
+        };
+        this.filterPopover.filterPosition = { col: position.col, row: position.row };
+        this.filterPopover.sheetId = position.sheetId;
+      } else {
+        icon.onClick(position, this.env);
+      }
+      return;
+    }
+    const clickableItem = this.getClickableItemAtPosition(position);
+    if (clickableItem) {
+      clickableItem.execute(position, this.env);
+    }
+  }
+
+  onDataLayerMouseMove(event: MouseEvent) {
+    const canvas = this.dataLayerCanvasRef.el as HTMLCanvasElement | null;
+    if (!canvas) {
+      return;
+    }
+    const position = this.getDataLayerCellFromMouseEvent(event);
+    const icon = position ? this.getClickableIconAtPosition(position) : undefined;
+    const clickable = position
+      ? icon?.onClick || this.getClickableItemAtPosition(position)
+      : undefined;
+    canvas.style.cursor = clickable ? "pointer" : "";
+    if (position) {
+      this.hoveredTableStore.hover(position);
+    }
+  }
+
+  onDataLayerMouseLeave() {
+    this.hoveredTableStore.clear();
+  }
+
+  closeFilterPopover() {
+    this.filterPopover.isOpen = false;
+  }
+
+  private getClickableIconAtPosition(position: CellPosition) {
+    const icons = this.env.model.getters.getCellIcons(position);
+    return icons.find((icon) => icon?.onClick);
+  }
+
+  private getClickableItemAtPosition(position: CellPosition) {
+    const getters = this.env.model.getters;
+    const items = clickableCellRegistry.getAll().sort((a, b) => a.sequence - b.sequence);
+    for (const item of items) {
+      if (item.condition(position, getters)) {
+        return item;
+      }
+    }
+    return undefined;
   }
 
   onDataLayerContextMenu(event: MouseEvent) {
@@ -292,6 +366,10 @@ export class CarouselFigure extends Component<Props, SpreadsheetChildEnv> {
   }
 
   private renderDataLayer() {
+    // Read reactive state so OWL re-runs this effect when hover changes
+    void this.hoveredTableStore.col;
+    void this.hoveredTableStore.row;
+
     const item = this.selectedCarouselItem;
     if (item?.type !== "dataLayer") {
       return;
@@ -316,7 +394,11 @@ export class CarouselFigure extends Component<Props, SpreadsheetChildEnv> {
       item.sheetId,
       zone,
       { x: 0, y: 0, width: rect.width, height: rect.height },
-      paddingBg
+      {
+        paddingBackground: paddingBg,
+        hideGridLines: this.env.isDashboard(),
+        hideFilterIcons: !this.props.isFullScreen,
+      }
     );
   }
 }

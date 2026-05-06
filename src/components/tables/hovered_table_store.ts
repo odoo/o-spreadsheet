@@ -3,13 +3,14 @@ import { PositionMap } from "../../helpers/cells/position_map";
 import { range } from "../../helpers/misc";
 import { SpreadsheetStore } from "../../stores/spreadsheet_store";
 import { Command } from "../../types/commands";
-import { Color, Position } from "../../types/misc";
+import { Color, Position, UID } from "../../types/misc";
 
 export class HoveredTableStore extends SpreadsheetStore {
   mutators = ["clear", "hover"] as const;
 
   col: number | undefined;
   row: number | undefined;
+  sheetId: UID | undefined;
 
   overlayColors: PositionMap<Color> = new PositionMap();
 
@@ -20,12 +21,16 @@ export class HoveredTableStore extends SpreadsheetStore {
     }
   }
 
-  hover(position: Partial<Position>) {
-    if (!this.getters.isDashboard() || (position.col === this.col && position.row === this.row)) {
+  hover(position: Partial<Position> & { sheetId?: UID }) {
+    if (
+      !this.getters.isDashboard() ||
+      (position.col === this.col && position.row === this.row && position.sheetId === this.sheetId)
+    ) {
       return "noStateChange";
     }
     this.col = position.col;
     this.row = position.row;
+    this.sheetId = position.sheetId;
     this.computeOverlay();
     return;
   }
@@ -33,6 +38,7 @@ export class HoveredTableStore extends SpreadsheetStore {
   clear() {
     this.col = undefined;
     this.row = undefined;
+    this.sheetId = undefined;
   }
 
   private computeOverlay() {
@@ -41,7 +47,7 @@ export class HoveredTableStore extends SpreadsheetStore {
     if (col === undefined || row === undefined) {
       return;
     }
-    const sheetId = this.getters.getActiveSheetId();
+    const sheetId = this.sheetId ?? this.getters.getActiveSheetId();
     const table = this.getters.getTable({ sheetId, col, row });
     if (!table) {
       return;
