@@ -1,4 +1,5 @@
 import { props, proxy } from "@odoo/owl";
+import { getFullReference } from "../../../../helpers/references";
 import { zoneToXc } from "../../../../helpers/zones";
 import { Component, ComponentConstructor } from "../../../../owl3_compatibility_layer";
 import {
@@ -53,9 +54,7 @@ export class DataValidationEditor extends Component<SpreadsheetChildEnv> {
     if (rule) {
       this.state.rule = {
         ...rule,
-        ranges: rule.ranges.map((range) =>
-          this.env.model.getters.getRangeString(range, this.props.sheetId)
-        ),
+        ranges: rule.ranges.map((range) => this.env.model.getters.getRangeString(range)),
       };
     }
   }
@@ -123,10 +122,9 @@ export class DataValidationEditor extends Component<SpreadsheetChildEnv> {
   }
 
   get defaultDataValidationRule(): DataValidationRuleData {
-    const sheetId = this.env.model.getters.getActiveSheetId();
-    const ranges = this.env.model.getters
-      .getSelectedZones()
-      .map((zone) => zoneToXc(this.env.model.getters.getUnboundedZone(sheetId, zone)));
+    const sheetName = this.env.model.getters.getActiveSheetName();
+    const zones = this.env.model.getters.getSelectedZones();
+    const ranges = zones.map((zone) => getFullReference(sheetName, zoneToXc(zone)));
     return {
       id: this.props.ruleId,
       criterion: { type: "containsText", values: [""] },
