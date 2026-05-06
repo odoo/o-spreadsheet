@@ -5,5 +5,6 @@
     border-bottom: 3px solid var(--os-gray-500);
     border-right: 3px solid var(--os-gray-500);
     cursor: nwse-resize;
+    z-index: var(--os-components-importance-grid-overlay);
   }
 }
