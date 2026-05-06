@@ -235,6 +235,7 @@ export class EvaluationPlugin extends CoreViewPlugin {
         return {
           promise,
           cancel: () => {
+            console.info("Cancelling evaluation");
             this.evalGeneration++;
             this.shouldRebuildDependenciesGraph = true;
           },
@@ -252,6 +253,7 @@ export class EvaluationPlugin extends CoreViewPlugin {
         return {
           promise,
           cancel: () => {
+            console.info("Cancelling evaluation");
             this.evalGeneration++;
             this.shouldRebuildDependenciesGraph = true;
           },

@@ -42,7 +42,7 @@ import { BoundedRange, Range } from "../../../types/range";
 
 const MAX_ITERATION = 30;
 const YIELD_INTERVAL_MS = 200;
-const CELLS_PER_TIME_CHECK = 1000;
+const CELLS_PER_TIME_CHECK = 500;
 const ERROR_CYCLE_CELL = Object.freeze(
   createEvaluatedCell({ ...new CircularDependencyError(), origin: undefined })
 );
@@ -423,6 +423,7 @@ export class Evaluator {
               if (now - lastYieldTime >= YIELD_INTERVAL_MS) {
                 const progress = Math.min(cellCount / Math.max(totalCells, 1), 0.99);
                 if (progress - lastReportedProgress >= 0.01) {
+                  // change of more than 1%
                   onProgress(progress);
                   lastReportedProgress = progress;
                 }
