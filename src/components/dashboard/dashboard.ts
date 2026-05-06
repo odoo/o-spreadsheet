@@ -161,6 +161,11 @@ export class SpreadsheetDashboard extends Component<Props, SpreadsheetChildEnv> 
 
   get dashboardStyle() {
     const zoomLevel = this.env.model.getters.getViewportZoomLevel();
-    return cssPropertiesToCss({ zoom: `${zoomLevel}` });
+    const theme = this.env.model.getters.getSpreadsheetTheme();
+    const backgroundColor = theme.dashboardBackgroundColor || theme.backgroundColor;
+    return cssPropertiesToCss({
+      zoom: `${zoomLevel}`,
+      "background-color": backgroundColor,
+    });
   }
 }

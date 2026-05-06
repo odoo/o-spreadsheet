@@ -2,10 +2,12 @@ import { DEFAULT_CAROUSEL_TITLE_STYLE, GRAY_400 } from "../../constants";
 import { drawChartOnCanvas } from "../../helpers/figures/charts/chart_ui_common";
 import { chartStyleToCellStyle, deepCopy } from "../../helpers/misc";
 import { computeTextFont } from "../../helpers/text_helper";
+import { toZone } from "../../helpers/zones";
 import { DisposableStore } from "../../store_engine/store";
+import { DataLayerRenderer } from "../../stores/data_layer_renderer_store";
 import { ModelStore } from "../../stores/model_store";
 import { RendererStore } from "../../stores/renderer_store";
-import { FigureUI } from "../../types/figure";
+import { CarouselItem, FigureUI } from "../../types/figure";
 import { RenderingGetters } from "../../types/getters";
 import { UID } from "../../types/misc";
 import { GridRenderingContext, Rect } from "../../types/rendering";
@@ -16,10 +18,12 @@ export class FigureRendererStore extends DisposableStore {
   mutators = ["addLoadedImage"] as const;
 
   private getters: RenderingGetters = this.get(ModelStore).getters;
+  private dataLayerRenderer: Store<DataLayerRenderer>;
   loadedImages: Record<string, ImageBitmap> = {};
 
   constructor(get: Get, private renderer: Store<RendererStore> = get(RendererStore)) {
     super(get);
+    this.dataLayerRenderer = get(DataLayerRenderer);
 
     this.renderer.register(this);
     this.onDispose(() => {
@@ -94,6 +98,7 @@ export class FigureRendererStore extends DisposableStore {
     const y = figure.y - offsetY;
 
     const carousel = this.getters.getCarousel(figure.id);
+    const selectedItem = this.getters.getSelectedCarouselItem(figure.id);
     const chartId = this.getters.getChartIdFromFigureId(figure.id);
     if (!carousel) {
       return;
@@ -106,6 +111,9 @@ export class FigureRendererStore extends DisposableStore {
     if (!title.text && chartId) {
       const chartRect = { x, y, width: figure.width, height: figure.height };
       this.drawChart(renderingCtx, chartId, chartRect);
+    } else if (!title.text && selectedItem?.type === "dataLayer") {
+      const contentRect = { x, y, width: figure.width, height: figure.height };
+      this.drawDataLayer(ctx, selectedItem, contentRect);
     } else if (title.text) {
       ctx.save();
 
@@ -120,14 +128,16 @@ export class FigureRendererStore extends DisposableStore {
       ctx.fillText(title.text, x + headerPadding, y + headerPadding + title.fontSize);
       ctx.restore();
 
-      const chartRect = {
+      const contentRect = {
         x: x,
         y: y + headerSize,
         width: figure.width,
         height: figure.height - headerSize,
       };
       if (chartId) {
-        this.drawChart(renderingCtx, chartId, chartRect);
+        this.drawChart(renderingCtx, chartId, contentRect);
+      } else if (selectedItem?.type === "dataLayer") {
+        this.drawDataLayer(ctx, selectedItem, contentRect);
       } else if (!this.getters.isDashboard()) {
         // Border below the carousel header for data view
         ctx.strokeStyle = GRAY_400;
@@ -138,5 +148,14 @@ export class FigureRendererStore extends DisposableStore {
         ctx.stroke();
       }
     }
+  }
+
+  private drawDataLayer(
+    ctx: CanvasRenderingContext2D,
+    item: CarouselItem & { type: "dataLayer" },
+    rect: Rect
+  ) {
+    const zone = toZone(item.rangeXc);
+    this.dataLayerRenderer.render(ctx, item.sheetId, zone, rect);
   }
 }

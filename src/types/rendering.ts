@@ -95,6 +95,7 @@ export interface SheetDOMScrollInfo {
 
 export interface GridRenderingTheme {
   backgroundColor: string;
+  dashboardBackgroundColor?: string;
   gridBorderColor: string;
   headerBackgroundColor: string;
   headerActiveBackgroundColor: string;

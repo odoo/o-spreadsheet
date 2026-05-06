@@ -25,6 +25,7 @@ export const COLOR_THEMES: Record<string, GridRenderingTheme> = {
     frozenPaneHeaderBorderColor: FROZEN_PANE_HEADER_BORDER_COLOR,
     singleCellSelectionBackgroundColor: "#F3F7FE",
     multipleCellsSelectionBackgroundColor: "#E9F0FF",
+    dashboardBackgroundColor: "#F5F5F5",
   },
   dark: {
     backgroundColor: adaptForDarkMode("#1A1C2E"),
@@ -38,6 +39,7 @@ export const COLOR_THEMES: Record<string, GridRenderingTheme> = {
     frozenPaneHeaderBorderColor: adaptForDarkMode("#9FA5BD"),
     singleCellSelectionBackgroundColor: adaptForDarkMode("#696E8044"),
     multipleCellsSelectionBackgroundColor: adaptForDarkMode("#828AA044"),
+    dashboardBackgroundColor: adaptForDarkMode("#1A1C2E"),
   },
 };
 export class ColorThemeUIPlugin extends UIPlugin {

@@ -81,6 +81,17 @@
           t-key="selectedItem.chartId"
         />
       </div>
+      <div
+        t-elif="selectedItem.type === 'dataLayer'"
+        class="o-carousel-content o-data-layer w-100 flex-fill position-relative">
+        <canvas
+          t-ref="dataLayerCanvas"
+          class="w-100 h-100"
+          t-on-click="onDataLayerClick"
+          t-on-contextmenu.prevent="onDataLayerContextMenu"
+          style="cursor: pointer"
+        />
+      </div>
     </div>
   </t>
 </templates>

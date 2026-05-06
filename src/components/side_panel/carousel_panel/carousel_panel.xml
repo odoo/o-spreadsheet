@@ -64,6 +64,11 @@
         t-att-title="carouselDataViewMessage">
         + Add data view
       </div>
+      <div
+        class="o-button-link o-carousel-add-data-layer float-end py-4 pe-4"
+        t-on-click="onAddDataLayer">
+        + Add data layer
+      </div>
     </div>
   </t>
 </templates>

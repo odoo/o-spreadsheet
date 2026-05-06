@@ -3,11 +3,16 @@ import { ActionSpec, createActions } from "../../../actions/action";
 import { DEFAULT_CAROUSEL_TITLE_STYLE } from "../../../constants";
 import { getCarouselItemTitle } from "../../../helpers/carousel_helpers";
 import { chartStyleToCellStyle, deepEquals } from "../../../helpers/misc";
+import { toZone } from "../../../helpers/zones";
 import { chartComponentRegistry } from "../../../registries/chart_component_registry";
 import { useStore } from "../../../store_engine/store_hooks";
+import {
+  DataLayerRenderer,
+  getDataLayerCellPosition,
+} from "../../../stores/data_layer_renderer_store";
 import { _t } from "../../../translation";
 import { Carousel, CarouselItem, FigureUI } from "../../../types/figure";
-import { CSSProperties, MenuMouseEvent } from "../../../types/misc";
+import { CellPosition, CSSProperties, MenuMouseEvent } from "../../../types/misc";
 import { Rect } from "../../../types/rendering";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
 import { Store } from "../../../types/store_engine";
@@ -37,16 +42,19 @@ export class CarouselFigure extends Component<Props, SpreadsheetChildEnv> {
 
   private carouselTabsRef = useRef("carouselTabs");
   private carouselTabsDropdownRef = useRef("carouselTabsDropdown");
+  private dataLayerCanvasRef = useRef("dataLayerCanvas");
 
   private menuState = useState<MenuState>({ isOpen: false, anchorRect: null, menuItems: [] });
   private hiddenItems: CarouselItem[] = [];
 
   protected animationStore: Store<ChartAnimationStore> | undefined;
   private fullScreenFigureStore!: Store<FullScreenFigureStore>;
+  private dataLayerRenderer!: Store<DataLayerRenderer>;
 
   setup(): void {
     this.animationStore = useStore(ChartAnimationStore);
     this.fullScreenFigureStore = useStore(FullScreenFigureStore);
+    this.dataLayerRenderer = useStore(DataLayerRenderer);
 
     useEffect(() => {
       if (this.selectedCarouselItem?.type === "carouselDataView") {
@@ -55,6 +63,7 @@ export class CarouselFigure extends Component<Props, SpreadsheetChildEnv> {
         this.props.editFigureStyle?.({ "pointer-events": "auto" });
       }
       this.updateTabsVisibility();
+      this.renderDataLayer();
     });
   }
 
@@ -120,6 +129,10 @@ export class CarouselFigure extends Component<Props, SpreadsheetChildEnv> {
       cssProperties["background-color"] = backgroundColor;
     }
     return cssPropertiesToCss(cssProperties);
+  }
+
+  get isDataLayer(): boolean {
+    return this.selectedCarouselItem?.type === "dataLayer";
   }
 
   get title(): string {
@@ -204,5 +217,77 @@ export class CarouselFigure extends Component<Props, SpreadsheetChildEnv> {
     if (target) {
       this.props.openContextMenu?.(getBoundingRectAsPOJO(target));
     }
+  }
+
+  private getDataLayerCellFromMouseEvent(event: MouseEvent): CellPosition | undefined {
+    const item = this.selectedCarouselItem;
+    if (item?.type !== "dataLayer") {
+      return undefined;
+    }
+    const canvas = this.dataLayerCanvasRef.el as HTMLCanvasElement | null;
+    if (!canvas) {
+      return undefined;
+    }
+    const canvasRect = canvas.getBoundingClientRect();
+    const x = event.clientX - canvasRect.left;
+    const y = event.clientY - canvasRect.top;
+    const zone = toZone(item.rangeXc);
+    const rect = { x: 0, y: 0, width: canvasRect.width, height: canvasRect.height };
+    return getDataLayerCellPosition(this.env.model.getters, item.sheetId, zone, rect, x, y);
+  }
+
+  onDataLayerClick(event: MouseEvent) {
+    const position = this.getDataLayerCellFromMouseEvent(event);
+    if (position) {
+      this.env.model.dispatch("ACTIVATE_SHEET", {
+        sheetIdFrom: this.env.model.getters.getActiveSheetId(),
+        sheetIdTo: position.sheetId,
+      });
+      this.env.model.selection.selectCell(position.col, position.row);
+    }
+  }
+
+  onDataLayerContextMenu(event: MouseEvent) {
+    const position = this.getDataLayerCellFromMouseEvent(event);
+    if (position) {
+      this.env.model.dispatch("ACTIVATE_SHEET", {
+        sheetIdFrom: this.env.model.getters.getActiveSheetId(),
+        sheetIdTo: position.sheetId,
+      });
+      this.env.model.selection.selectCell(position.col, position.row);
+      this.props.openContextMenu?.({
+        x: event.clientX,
+        y: event.clientY,
+        width: 0,
+        height: 0,
+      });
+    }
+  }
+
+  private renderDataLayer() {
+    const item = this.selectedCarouselItem;
+    if (item?.type !== "dataLayer") {
+      return;
+    }
+    const canvas = this.dataLayerCanvasRef.el as HTMLCanvasElement | null;
+    if (!canvas) {
+      return;
+    }
+    const dpr = window.devicePixelRatio || 1;
+    const rect = canvas.getBoundingClientRect();
+    canvas.width = rect.width * dpr;
+    canvas.height = rect.height * dpr;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) {
+      return;
+    }
+    ctx.scale(dpr, dpr);
+    const zone = toZone(item.rangeXc);
+    this.dataLayerRenderer.render(ctx, item.sheetId, zone, {
+      x: 0,
+      y: 0,
+      width: rect.width,
+      height: rect.height,
+    });
   }
 }

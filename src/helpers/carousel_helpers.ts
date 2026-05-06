@@ -15,7 +15,7 @@ export const CAROUSEL_DEFAULT_CHART_DEFINITION: ChartDefinition = {
 };
 
 export function getCarouselItemPreview(getters: Getters, item: CarouselItem): string {
-  if (item.type === "carouselDataView") {
+  if (item.type === "carouselDataView" || item.type === "dataLayer") {
     return "o-spreadsheet-Icon.DATA";
   }
   const definition = getters.getChartDefinition(item.chartId);
@@ -31,6 +31,9 @@ export function getCarouselItemTitle(getters: Getters, item: CarouselItem): stri
   }
   if (item.type === "carouselDataView") {
     return _t("Data");
+  }
+  if (item.type === "dataLayer") {
+    return item.rangeXc;
   }
   const definition = getters.getChartDefinition(item.chartId);
   const matchedChart =

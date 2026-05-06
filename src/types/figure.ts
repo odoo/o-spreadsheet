@@ -38,4 +38,5 @@ export interface Carousel {
 
 export type CarouselItem =
   | { type: "chart"; chartId: UID; title?: string }
+  | { type: "dataLayer"; rangeXc: string; sheetId: UID; title?: string }
   | { type: "carouselDataView"; title?: string };

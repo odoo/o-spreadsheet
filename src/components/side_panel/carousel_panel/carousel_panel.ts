@@ -4,6 +4,7 @@ import { DEFAULT_CAROUSEL_TITLE_STYLE } from "../../../constants";
 import { getCarouselItemPreview, getCarouselItemTitle } from "../../../helpers/carousel_helpers";
 import { deepEquals } from "../../../helpers/misc";
 import { UuidGenerator } from "../../../helpers/uuid";
+import { zoneToXc } from "../../../helpers/zones";
 import { _t } from "../../../translation";
 import { TitleDesign } from "../../../types/chart/chart";
 import { CarouselItem } from "../../../types/figure";
@@ -58,7 +59,13 @@ export class CarouselPanel extends Component<Props, SpreadsheetChildEnv> {
   }
 
   getItemId(item: CarouselItem): string {
-    return item.type === "chart" ? item.chartId : "transparent-carousel";
+    if (item.type === "chart") {
+      return item.chartId;
+    }
+    if (item.type === "dataLayer") {
+      return `dataLayer_${item.sheetId}_${item.rangeXc}`;
+    }
+    return "transparent-carousel";
   }
 
   addNewChartToCarousel() {
@@ -80,6 +87,18 @@ export class CarouselPanel extends Component<Props, SpreadsheetChildEnv> {
   addDataViewToCarousel() {
     const carousel = this.env.model.getters.getCarousel(this.props.figureId);
     this.updateItems([...carousel.items, { type: "carouselDataView" }]);
+  }
+
+  addDataLayerToCarousel(rangeXc: string) {
+    const carousel = this.env.model.getters.getCarousel(this.props.figureId);
+    const sheetId = this.env.model.getters.getActiveSheetId();
+    this.updateItems([...carousel.items, { type: "dataLayer", rangeXc, sheetId }]);
+  }
+
+  onAddDataLayer() {
+    const zone = this.env.model.getters.getSelectedZone();
+    const rangeXc = zoneToXc(zone);
+    this.addDataLayerToCarousel(rangeXc);
   }
 
   activateCarouselItem(item: CarouselItem) {
