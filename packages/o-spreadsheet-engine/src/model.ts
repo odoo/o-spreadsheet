@@ -598,9 +598,16 @@ export class Model extends EventBus<any> implements CommandDispatcher {
       return new DispatchResult(CommandResult.WaitingSessionConfirmation);
     }
     switch (status) {
-      case Status.Evaluating:
+      case Status.Evaluating: {
         this.cancelEvaluationIfPending();
-        return this.dispatch(type, payload);
+        const result = this.dispatch(type, payload);
+        if (this.status === Status.Ready) {
+          // The dispatch was rejected (e.g. ValuesNotChanged) but we already cancelled the
+          // evaluation. Restart it since shouldRebuildDependenciesGraph was set by the cancel.
+          this.finalizeAndStartAsyncEvaluation();
+        }
+        return result;
+      }
       case Status.Ready: {
         const result = this.checkDispatchAllowed(command);
         if (!result.isSuccessful) {
