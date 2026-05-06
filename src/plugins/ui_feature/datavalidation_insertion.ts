@@ -1,11 +1,36 @@
 import { isBoolean } from "../../helpers/misc";
 import { getCellPositionsInRanges } from "../../helpers/range";
 import { CellValueType } from "../../types/cells";
-import { Command } from "../../types/commands";
+import { Command, CommandResult, DispatchResult } from "../../types/commands";
 import { isMatrix } from "../../types/misc";
 import { UIPlugin } from "../ui_plugin";
 
 export class DataValidationInsertionPlugin extends UIPlugin {
+  allowDispatch(command: Command): CommandResult | CommandResult[] {
+    switch (command.type) {
+      case "ADD_DATA_VALIDATION_RULES": {
+        const results: DispatchResult[] = [];
+        for (const sheetId in command.sheetIdsToAdd) {
+          results.push(
+            this.canDispatch("ADD_DATA_VALIDATION_RULE", {
+              sheetId,
+              rule: command.sheetIdsToAdd[sheetId].rule,
+              ranges: command.sheetIdsToAdd[sheetId].ranges,
+            })
+          );
+        }
+        const reasons = results
+          .map((result) => result.reasons)
+          .flat()
+          .filter((r) => r !== CommandResult.NoChanges);
+        if (reasons.length) {
+          return reasons;
+        }
+      }
+    }
+    return CommandResult.Success;
+  }
+
   handle(cmd: Command) {
     switch (cmd.type) {
       case "ADD_DATA_VALIDATION_RULE":
@@ -41,6 +66,16 @@ export class DataValidationInsertionPlugin extends UIPlugin {
             }
           }
         }
+        break;
+      case "ADD_DATA_VALIDATION_RULES":
+        for (const sheetId in cmd.sheetIdsToAdd) {
+          this.dispatch("ADD_DATA_VALIDATION_RULE", {
+            sheetId,
+            ranges: cmd.sheetIdsToAdd[sheetId].ranges,
+            rule: cmd.sheetIdsToAdd[sheetId].rule,
+          });
+        }
+        break;
     }
   }
 }
