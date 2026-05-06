@@ -1,5 +1,5 @@
 import { ColorGenerator } from "../../helpers/color";
-import { splitReference } from "../../helpers/references";
+import { getFullReference, splitReference } from "../../helpers/references";
 import { isEqual, positionToZone } from "../../helpers/zones";
 import { HighlightStore } from "../../stores/highlight_store";
 import { SpreadsheetStore } from "../../stores/spreadsheet_store";
@@ -50,7 +50,8 @@ export class SelectionInputStore extends SpreadsheetStore {
     private initialRanges: string[] = [],
     private readonly inputHasSingleRange: boolean = false,
     public colors: Color[] = [],
-    public disabledRanges: boolean[] = []
+    public disabledRanges: boolean[] = [],
+    private readonly prefixSheet: boolean = false
   ) {
     super(get);
     if (inputHasSingleRange && initialRanges.length > 1) {
@@ -77,7 +78,7 @@ export class SelectionInputStore extends SpreadsheetStore {
     const zone = event.options.unbounded
       ? this.getters.getUnboundedZone(activeSheetId, event.anchor.zone)
       : event.anchor.zone;
-    const range = this.getters.getRangeFromZone(activeSheetId, zone);
+    const range = this.getters.getRangeFromZone(activeSheetId, zone, this.prefixSheet);
 
     const willAddNewRange =
       event.mode === "newAnchor" &&
@@ -188,6 +189,15 @@ export class SelectionInputStore extends SpreadsheetStore {
   }
 
   confirm() {
+    if (this.prefixSheet) {
+      const activesheetName = this.getters.getActiveSheetName();
+      this.ranges = this.ranges.map((range) => {
+        return {
+          ...range,
+          xc: getFullReference(activesheetName, range.xc),
+        };
+      });
+    }
     for (const range of this.selectionInputs) {
       if (range.xc === "") {
         this.removeRange(range.id);
@@ -249,7 +259,10 @@ export class SelectionInputStore extends SpreadsheetStore {
   }
 
   get isConfirmable(): boolean {
-    return this.selectionInputs.every((range) => range.isValidRange);
+    return (
+      this.selectionInputs.some((range) => range.xc) &&
+      this.selectionInputs.every((range) => range.isValidRange)
+    );
   }
 
   get hasFocus(): boolean {

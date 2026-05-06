@@ -50,6 +50,10 @@ export function splitReference(ref: string): { sheetName?: string; xc: string } 
 }
 
 export function getFullReference(sheetName: string | undefined, xc: string): string {
+  const { sheetName: currentSheetName } = splitReference(xc);
+  if (currentSheetName) {
+    return xc;
+  }
   return sheetName !== undefined ? `${getCanonicalSymbolName(sheetName)}!${xc}` : xc;
 }
 type FixedReferenceType = "col" | "row" | "colrow" | "none";

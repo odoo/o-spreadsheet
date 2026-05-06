@@ -6,6 +6,7 @@
           ranges="state.rule.ranges"
           onSelectionChanged="(ranges) => this.onRangesChanged(ranges)"
           required="true"
+          prefixSheet="true"
         />
       </Section>
       <Section class="'pt-0'">

@@ -1176,6 +1176,7 @@ exports[`Spreadsheet pivot side panel It should display only the selection input
                           
                           <button
                             class="o-button primary ms-2 o-selection-ok"
+                            disabled=""
                           >
                              Confirm 
                           </button>

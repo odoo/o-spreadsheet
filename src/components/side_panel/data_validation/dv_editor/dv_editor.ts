@@ -1,5 +1,6 @@
 import { Component, ComponentConstructor, useState } from "@odoo/owl";
 import { canonicalizeContent, localizeDataValidationRule } from "../../../../helpers/locale";
+import { getFullReference } from "../../../../helpers/references";
 import { zoneToXc } from "../../../../helpers/zones";
 import {
   criterionComponentRegistry,
@@ -60,9 +61,7 @@ export class DataValidationEditor extends Component<Props, SpreadsheetChildEnv> 
       const locale = this.env.model.getters.getLocale();
       this.state.rule = {
         ...localizeDataValidationRule(rule, locale),
-        ranges: rule.ranges.map((range) =>
-          this.env.model.getters.getRangeString(range, this.editingSheetId)
-        ),
+        ranges: rule.ranges.map((range) => this.env.model.getters.getRangeString(range)),
       };
     }
   }
@@ -124,10 +123,9 @@ export class DataValidationEditor extends Component<Props, SpreadsheetChildEnv> 
   }
 
   get defaultDataValidationRule(): DataValidationRuleData {
-    const sheetId = this.env.model.getters.getActiveSheetId();
-    const ranges = this.env.model.getters
-      .getSelectedZones()
-      .map((zone) => zoneToXc(this.env.model.getters.getUnboundedZone(sheetId, zone)));
+    const sheetName = this.env.model.getters.getActiveSheetName();
+    const zones = this.env.model.getters.getSelectedZones();
+    const ranges = zones.map((zone) => getFullReference(sheetName, zoneToXc(zone)));
     return {
       id: this.props.ruleId,
       criterion: { type: "containsText", values: [""] },

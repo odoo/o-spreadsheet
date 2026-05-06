@@ -25,6 +25,7 @@ interface Props {
   colors?: Color[];
   disabledRanges?: boolean[];
   disabledRangeTitle?: string;
+  prefixSheet?: boolean;
 }
 
 interface State {
@@ -62,6 +63,7 @@ export class SelectionInput extends Component<Props, SpreadsheetChildEnv> {
     colors: { type: Array, optional: true, default: [] },
     disabledRanges: { type: Array, optional: true, default: [] },
     disabledRangeTitle: { type: String, optional: true },
+    prefixSheet: { type: Boolean, optional: true },
   };
   private state: State = useState({
     isMissing: false,
@@ -117,7 +119,8 @@ export class SelectionInput extends Component<Props, SpreadsheetChildEnv> {
       this.props.ranges,
       this.props.hasSingleRange || false,
       this.props.colors,
-      this.props.disabledRanges
+      this.props.disabledRanges,
+      this.props.prefixSheet || false
     );
     if (this.props.autofocus) {
       this.store.focusById(this.store.selectionInputs[0]?.id);

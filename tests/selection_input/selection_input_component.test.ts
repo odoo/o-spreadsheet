@@ -212,12 +212,13 @@ describe("Selection Input", () => {
     expect(fixture.querySelectorAll(".o-selection-ko").length).toBe(1);
   });
 
-  test("hitting enter key acts the same as clicking confirm button for valid dataset", async () => {
+  test("hitting enter key acts the same as clicking confirm button for valid selection", async () => {
     let isConfirmed = false;
     const onConfirmed = jest.fn(() => {
       isConfirmed = true;
     });
     await createSelectionInput({ onConfirmed });
+    await writeInput(0, "A1");
     expect(fixture.querySelector(".o-focused")).toBeTruthy();
     expect(isConfirmed).toBeFalsy();
     await keyDown({ key: "Enter" });
@@ -226,7 +227,7 @@ describe("Selection Input", () => {
     expect(isConfirmed).toBeTruthy();
   });
 
-  test("hitting enter key does nothing for an invalid dataset", async () => {
+  test("hitting enter key does nothing for an invalid selection", async () => {
     const onConfirmed = jest.fn();
     await createSelectionInput({ onConfirmed });
     await writeInput(0, "Kaboom");
