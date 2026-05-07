@@ -163,15 +163,28 @@ export class NamedRangeSelector extends Component<Props, SpreadsheetChildEnv> {
     }
     const activeSheetId = this.env.model.getters.getActiveSheetId();
     if (activeSheetId !== sheetId) {
+      if (!this.env.model.getters.getSheet(sheetId).isVisible) {
+        this.env.notifyUser({
+          text: _t("The sheet on which the range is defined is hidden."),
+          type: "info",
+          sticky: false,
+        });
+        return;
+      }
       this.env.model.dispatch("ACTIVATE_SHEET", { sheetIdFrom: activeSheetId, sheetIdTo: sheetId });
     }
 
     // First select the bottom-right cell to try to scroll the sheet so that the whole range is visible
-    this.env.model.selection.selectCell(zone.right, zone.bottom);
-    this.env.model.selection.selectZone({
-      cell: { col: zone.left, row: zone.top },
-      zone,
+    this.env.model.selection.selectCell(zone.right, zone.bottom, {
+      bypassSelectionOutOfBound: true,
     });
+    this.env.model.selection.selectZone(
+      {
+        cell: { col: zone.left, row: zone.top },
+        zone,
+      },
+      { bypassSelectionOutOfBound: true }
+    );
   }
 
   get selectionKey(): string {
