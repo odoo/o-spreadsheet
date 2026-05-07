@@ -13,13 +13,29 @@
       onFlipAxis.bind="this.setDatasetOrientation"
       title="this.props.dataSeriesTitle"
     />
-    <ChartLabelRange
-      range="this.getLabelRange()"
-      isInvalid="this.isLabelInvalid"
-      onSelectionChanged.bind="this.onLabelRangeChanged"
-      onSelectionConfirmed.bind="this.onLabelRangeConfirmed"
-      options="this.getLabelRangeOptions()"
-      title="this.props.labelRangeTitle"
-    />
+    <Section
+      t-if="!this.props.noLabelRange"
+      class="'o-data-labels pb-0'"
+      title="this.labelRangeTitle">
+      <SelectionInput
+        ranges="[this.getLabelRange()]"
+        isInvalid="this.isLabelInvalid"
+        hasSingleRange="true"
+        onSelectionChanged.bind="this.onLabelRangeChanged"
+        onSelectionConfirmed.bind="this.onLabelRangeConfirmed"
+      />
+    </Section>
+    <Section class="'o-chart-options pt-0'">
+      <t t-foreach="this.getLabelRangeOptions()" t-as="option" t-key="option.name">
+        <Checkbox
+          name="option.name"
+          label="option.label"
+          value="option.value"
+          onChange="option.onChange"
+          className="'mt-2'"
+          disabled="option.disabled"
+        />
+      </t>
+    </Section>
   </t>
 </templates>

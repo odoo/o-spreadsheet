@@ -19,7 +19,7 @@ import { DEFAULT_TABLE_CONFIG } from "../../src/helpers/table_presets";
 import { toZone } from "../../src/helpers/zones";
 import { getCurrentVersion } from "../../src/migrations/data";
 import { StateUpdateMessage } from "../../src/types/collaborative/transport_service";
-import { toChartDataSource } from "../test_helpers/chart_helpers";
+import { toChartDataSource, toChartRangeDataSource } from "../test_helpers/chart_helpers";
 import {
   activateSheet,
   deleteFigure,
@@ -904,6 +904,65 @@ test("migrate version 19.3.2: change datasets to dataSource", () => {
       labelRange: "Sheet1!E1:E3",
     })
   );
+});
+
+test("migrate version 19.4.1: add dataSource to gauge/scorecards", () => {
+  const model = new Model({
+    version: "19.3.1",
+    sheets: [
+      {
+        id: "sh1",
+        figures: [
+          {
+            id: "chartFigure1",
+            tag: "chart",
+            data: {
+              chartId: "chartFigure1",
+              type: "scorecard",
+              keyValue: "A1",
+              baseline: "B1",
+              title: { text: "Test Chart" },
+              background: "#FFFFFF",
+            },
+          },
+          {
+            id: "carouselFigure",
+            tag: "carousel",
+            data: {
+              chartDefinitions: {
+                carouselChart: {
+                  chartId: "carouselChart",
+                  type: "gauge",
+                  dataRange: "D1:D3",
+                },
+              },
+            },
+          },
+        ],
+      },
+    ],
+  });
+  const exportedData = model.exportData();
+
+  const scorecardDefinition = exportedData.sheets[0].figures[0].data;
+  expect(scorecardDefinition).toMatchObject({
+    dataSource: toChartRangeDataSource({
+      dataSets: ["A1"],
+      dataSetsHaveTitle: false,
+      labelRange: "B1",
+    }),
+  });
+  expect(scorecardDefinition.keyValue).toBeUndefined();
+  expect(scorecardDefinition.baseline).toBeUndefined();
+
+  const gaugeDefinition = exportedData.sheets[0].figures[1].data.chartDefinitions["carouselChart"];
+  expect(gaugeDefinition).toMatchObject({
+    dataSource: toChartRangeDataSource({
+      dataSets: ["D1:D3"],
+      dataSetsHaveTitle: false,
+    }),
+  });
+  expect(gaugeDefinition.dataRange).toBeUndefined();
 });
 
 describe("Import", () => {

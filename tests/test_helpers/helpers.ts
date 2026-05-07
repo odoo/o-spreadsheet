@@ -432,12 +432,12 @@ export function getGridStyle(model: Model, range?: string): GridStyleDescr {
   return result;
 }
 
-export function setGrid(model: Model, grid: GridDescr) {
+export function setGrid(model: Model, grid: GridDescr, sheetId = model.getters.getActiveSheetId()) {
   for (const [xc, value] of Object.entries(grid)) {
     if (value === undefined) {
       continue;
     }
-    setCellContent(model, xc, value);
+    setCellContent(model, xc, value, sheetId);
   }
 }
 

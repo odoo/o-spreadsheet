@@ -1497,10 +1497,7 @@ export const enum CommandResult {
   InvalidYRange = "InvalidYRange",
   InvalidXRange = "InvalidXRange",
   InvalidLabelRange = "InvalidLabelRange",
-  InvalidBubbleSizeRange = "InvalidBubbleSizeRange",
-  InvalidScorecardKeyValue = "InvalidScorecardKeyValue",
-  InvalidScorecardBaseline = "InvalidScorecardBaseline",
-  InvalidGaugeDataRange = "InvalidGaugeDataRange",
+  InvalidBubbleSizeRange = "InvalidBubbleSizeRange", // ADRM TODO
   EmptyGaugeRangeMin = "EmptyGaugeRangeMin",
   GaugeRangeMinNaN = "GaugeRangeMinNaN",
   EmptyGaugeRangeMax = "EmptyGaugeRangeMax",

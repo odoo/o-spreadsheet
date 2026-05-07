@@ -159,6 +159,7 @@ export class EvaluationPlugin extends CoreViewPlugin {
     "isArrayFormulaSpillBlocked",
     "isEmpty",
     "getPerfProfile",
+    "mapVisiblePositions",
   ] as const;
 
   private shouldRebuildDependenciesGraph = true;
@@ -317,7 +318,7 @@ export class EvaluationPlugin extends CoreViewPlugin {
    * @param evaluationCallback - the callback applied to the filtered positions
    * @returns the values filtered (ie we keep only the not hidden values)
    */
-  private mapVisiblePositions<T>(range: Range, evaluationCallback: (p: CellPosition) => T): T[] {
+  mapVisiblePositions<T>(range: Range, evaluationCallback: (p: CellPosition) => T): T[] {
     const { sheetId, zone } = range;
     const xcPositions = positions(zone);
     return xcPositions.reduce((acc, position) => {

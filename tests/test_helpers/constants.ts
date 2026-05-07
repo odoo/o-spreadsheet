@@ -13,7 +13,7 @@ import { DEFAULT_BORDER_DESC } from "../../src/constants";
 import { DEFAULT_TABLE_CONFIG } from "../../src/helpers/table_presets";
 import { toZone } from "../../src/helpers/zones";
 import { PivotCoreDefinition } from "../../src/types/pivot";
-import { toChartDataSource } from "./chart_helpers";
+import { toChartDataSource, toChartRangeDataSource } from "./chart_helpers";
 import { target, toRangesData } from "./helpers";
 
 export const TEST_CHART_DATA = {
@@ -53,8 +53,11 @@ export const TEST_CHART_DATA = {
   },
   scorecard: {
     type: "scorecard" as const,
-    keyValue: "B1:B4",
-    baseline: "A2:A4",
+    dataSource: toChartRangeDataSource({
+      dataSets: ["B1:B4"],
+      labelRange: "A2:A4",
+      dataSetsHaveTitle: false,
+    }),
     title: { text: "hello" },
     baselineDescr: { text: "description" },
     baselineMode: "difference" as const,
@@ -62,7 +65,10 @@ export const TEST_CHART_DATA = {
   },
   gauge: {
     type: "gauge" as const,
-    dataRange: "B1:B4",
+    dataSource: toChartRangeDataSource({
+      dataSets: ["B1:B4"],
+      dataSetsHaveTitle: false,
+    }),
     title: { text: "hello" },
     humanize: true,
     sectionRule: {

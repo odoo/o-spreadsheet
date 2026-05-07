@@ -8,6 +8,7 @@ import {
 } from "../../../src";
 import { deepCopy } from "../../../src/helpers/misc";
 import { GaugeChartDefinition } from "../../../src/types/chart/gauge_chart";
+import { toChartRangeDataSource } from "../../test_helpers/chart_helpers";
 import { TEST_COMMANDS } from "../../test_helpers/constants";
 
 export function getFormulaStringCommands(
@@ -68,7 +69,7 @@ function getGaugeCommand(sheetId: UID, formula: string) {
   const definition: GaugeChartDefinition = {
     type: "gauge",
     title: { text: "" },
-    dataRange: "Sheet1!B1:B4",
+    dataSource: toChartRangeDataSource({ dataSets: ["Sheet1!B1:B4"] }),
     sectionRule: {
       colors: {
         lowerColor: "#111111",

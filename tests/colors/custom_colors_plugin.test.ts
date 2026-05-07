@@ -125,7 +125,7 @@ describe("custom colors are correctly handled when editing charts", () => {
     createGaugeChart(model, {
       title: { text: "a title" },
       type: "gauge",
-      dataRange: "B1:B4",
+      dataSets: ["B1:B4"],
       sectionRule: {
         rangeMin: "0",
         rangeMax: "100",

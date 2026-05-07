@@ -24,7 +24,7 @@ import { WaterfallChartDefinition, WaterfallChartRuntime } from "./waterfall_cha
 import { COLORSCHEMES } from "../../helpers/color";
 import { Format } from "../format";
 import { Locale } from "../locale";
-import { Align, Color, FunctionResultObject, UID, VerticalAlign } from "../misc";
+import { Align, Color, FunctionResultObject, Style, UID, VerticalAlign } from "../misc";
 import { Range } from "../range";
 import { BubbleChartDefinition, BubbleChartRuntime, BubbleColorMode } from "./bubble_chart";
 export const CHART_TYPES = [
@@ -110,12 +110,16 @@ export type CustomizableSeriesChartRuntime = Extract<
   { customizableSeries: { dataSetId: string; label: string }[] }
 >;
 
-export type LabelValues = FunctionResultObject[];
+export interface FunctionResultWithStyle extends FunctionResultObject {
+  style?: Style | null;
+}
+
+export type LabelValues = FunctionResultWithStyle[];
 
 export interface DatasetValues {
   readonly dataSetId: UID;
   readonly label: string;
-  readonly data: FunctionResultObject[];
+  readonly data: FunctionResultWithStyle[];
   readonly hidden?: boolean;
 }
 

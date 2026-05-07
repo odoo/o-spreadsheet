@@ -98,6 +98,19 @@ export function toChartDataSource(args: ChartDataInput): ChartDataOutput {
   return result;
 }
 
+export function toChartRangeDataSource(args: {
+  dataSets: string[];
+  labelRange?: string;
+  dataSetsHaveTitle?: boolean;
+}): ChartRangeDataSource<string> {
+  return {
+    type: "range",
+    dataSets: args.dataSets.map((dataRange, i) => ({ dataRange, dataSetId: i.toString() })),
+    dataSetsHaveTitle: args.dataSetsHaveTitle ?? true,
+    labelRange: args.labelRange,
+  };
+}
+
 export async function openChartConfigSidePanel(
   model: Model,
   env: SpreadsheetChildEnv,

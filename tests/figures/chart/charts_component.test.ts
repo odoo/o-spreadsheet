@@ -34,6 +34,7 @@ import {
   openChartConfigSidePanel,
   openChartDesignSidePanel,
   toChartDataSource,
+  toChartRangeDataSource,
 } from "../../test_helpers/chart_helpers";
 import {
   copy,
@@ -295,10 +296,10 @@ describe("charts", () => {
         const baseline = fixture.querySelector(".o-data-labels");
         expect(panelChartType.textContent).toBe("Scorecard");
         expect((keyValue!.querySelector(" .o-selection input") as HTMLInputElement).value).toBe(
-          TEST_CHART_DATA.scorecard.keyValue
+          TEST_CHART_DATA.scorecard.dataSource.dataSets[0].dataRange
         );
         expect((baseline!.querySelector(".o-selection input") as HTMLInputElement).value).toBe(
-          TEST_CHART_DATA.scorecard.baseline
+          TEST_CHART_DATA.scorecard.dataSource.labelRange
         );
         break;
       }
@@ -351,16 +352,14 @@ describe("charts", () => {
         await setInputValueAndTrigger(dataSeriesValues, "B2:B4");
         await nextTick();
         await simulateClick(".o-data-series .o-selection-ok");
-        const definition = model.getters.getChartDefinition(chartId) as ScorecardChartDefinition;
-        expect(definition.keyValue).toEqual("B2:B4");
+        expect(getChartDataSource(model, chartId)?.dataSets[0].dataRange).toEqual("B2:B4");
         break;
       }
       case "gauge": {
         await setInputValueAndTrigger(dataSeriesValues, "B9");
         await nextTick();
         await simulateClick(".o-data-series .o-selection-ok");
-        const definition = model.getters.getChartDefinition(chartId) as GaugeChartDefinition;
-        expect(definition.dataRange).toEqual("B9");
+        expect(getChartDataSource(model, chartId)?.dataSets[0].dataRange).toEqual("B9");
         break;
       }
     }
@@ -1151,16 +1150,12 @@ describe("charts", () => {
     createTestChart("scorecard");
     await mountChartSidePanel();
 
-    expect(
-      (model.getters.getChartDefinition(chartId) as ScorecardChartDefinition)?.baseline
-    ).not.toBeUndefined();
+    expect(getChartDataSource(model, chartId)?.labelRange).not.toBeUndefined();
 
     await simulateClick(".o-data-labels input");
     await setInputValueAndTrigger(".o-data-labels input", "");
     await simulateClick(".o-data-labels .o-selection-ok");
-    expect(
-      (model.getters.getChartDefinition(chartId) as ScorecardChartDefinition).baseline
-    ).toBeUndefined();
+    expect(getChartDataSource(model, chartId)?.labelRange).toBeUndefined();
   });
 
   describe("reordering dataseries", () => {
@@ -2541,15 +2536,13 @@ describe("charts", () => {
       updateChartDataSource(model, chartId, { dataSetsHaveTitle: true });
       updateChart(model, chartId, { type: "pie" });
       await mountChartSidePanel();
-      let checkbox = document.querySelector("input[name='dataSetsHaveTitle']") as HTMLInputElement;
-      expect(checkbox.checked).toBe(true);
+      expect("input[name='dataSetsHaveTitle']").toHaveValue(true);
 
       await changeChartType("gauge");
-      expect(document.querySelector("input[name='dataSetsHaveTitle']")).toBeFalsy();
+      expect("input[name='dataSetsHaveTitle']").toHaveValue(true);
 
       await changeChartType("pie");
-      checkbox = document.querySelector("input[name='dataSetsHaveTitle']") as HTMLInputElement;
-      expect(checkbox.checked).toBe(true);
+      expect("input[name='dataSetsHaveTitle']").toHaveValue(true);
     });
 
     test("Context creation is not shared between charts", async () => {
@@ -2572,19 +2565,19 @@ describe("charts", () => {
     test("Chart datasets are kept when switching from a bar to a chart accepting a single dataset then back to a bar chart", async () => {
       createChart(model, {
         type: "bar",
-        ...toChartDataSource({ dataSets: [{ dataRange: "A1" }, { dataRange: "B1" }] }),
+        dataSource: toChartRangeDataSource({ dataSets: ["A1", "B1"] }),
       });
       const chartId = model.getters.getChartIds(sheetId)[0];
       await mountChartSidePanel(chartId);
 
       await changeChartType("gauge");
-      expect(model.getters.getChartDefinition(chartId)).toMatchObject({ dataRange: "A1" });
+      expect(model.getters.getChartDefinition(chartId)).toMatchObject({
+        dataSource: toChartRangeDataSource({ dataSets: ["A1", "B1"] }),
+      });
 
       await changeChartType("bar");
       expect(model.getters.getChartDefinition(chartId)).toMatchObject({
-        ...toChartDataSource({
-          dataSets: [{ dataRange: "A1" }, { dataRange: "B1" }],
-        }),
+        dataSource: toChartRangeDataSource({ dataSets: ["A1", "B1"] }),
       });
     });
 
@@ -2967,74 +2960,33 @@ describe("charts", () => {
 describe("charts with multiple sheets", () => {
   beforeEach(async () => {
     mockChartData = mockChart();
-    const data = {
-      sheets: [
-        {
-          name: "Sheet1",
-          cells: {
-            B1: "first dataset",
-            B2: "12",
-            B3: "13",
-            B4: "14",
-            C1: "second dataset",
-            C2: "2",
-            C3: "3",
-            C4: "4",
-            A2: "Emily Anderson (Emmy)",
-            A3: "Sophie Allen (Saffi)",
-            A4: "Chloe Adams",
-          },
-        },
-        {
-          name: "Sheet2",
-          figures: [
-            {
-              id: chartId,
-              tag: "chart",
-              width: 400,
-              height: 300,
-              col: 0,
-              row: 0,
-              offset: {
-                x: 100,
-                y: 100,
-              },
-              data: {
-                chartId,
-                type: "line",
-                title: { text: "demo chart" },
-                ...toChartDataSource({
-                  labelRange: "Sheet1!A2:A4",
-                  dataSets: [{ dataRange: "Sheet1!B1:B4" }, { dataRange: "Sheet1!C1:C4" }],
-                  dataSetsHaveTitle: true,
-                }),
-                background: "#FFFFFF",
-              },
-            },
-            {
-              id: "2",
-              tag: "chart",
-              width: 400,
-              height: 300,
-              col: 0,
-              row: 0,
-              offset: {
-                x: 500,
-                y: 300,
-              },
-              data: {
-                chartId: "2",
-                type: "scorecard",
-                title: { text: "demo scorecard" },
-                baseline: "Sheet1!A2:A4",
-                keyValue: "Sheet1!B1:B4",
-              },
-            },
-          ],
-        },
-      ],
-    };
-    model = new Model(data);
+    // prettier-ignore
+    model = createModelFromGrid({
+      A1: "",                       B1: "first dataset",  C1: "second dataset",
+      A2: "Emily Anderson (Emmy)",  B2: "12",             C2: "2",
+      A3: "Sophie Allen (Saffi)",   B3: "13",             C3: "3",
+      A4: "Chloe Adams",            B4: "14",             C4: "4",
+    });
+    createSheet(model, { sheetId: "sh2" });
+    createChart(
+      model,
+      {
+        type: "line",
+        ...toChartDataSource({
+          labelRange: "Sheet1!A2:A4",
+          dataSets: [{ dataRange: "Sheet1!B1:B4" }, { dataRange: "Sheet1!C1:C4" }],
+          dataSetsHaveTitle: true,
+        }),
+      },
+      chartId,
+      "sh2"
+    );
+    createScorecardChart(
+      model,
+      { dataSets: ["Sheet1!B1:B4"], labelRange: "Sheet1!A2:A4" },
+      "2",
+      "sh2"
+    );
     await mountSpreadsheet();
   });
 
@@ -3080,13 +3032,17 @@ describe("Default background on runtime tests", () => {
 
   test("Creating a 'basicChart' on a single cell with style and converting into scorecard should have cell background as chart background", () => {
     setFormatting(model, "A1", { fillColor: "#FA0000" }, sheetId);
+    setCellContent(model, "A1", "12", sheetId);
     createChart(
       model,
-      { type: "bar", ...toChartDataSource({ dataSets: [{ dataRange: "A1" }] }) },
+      {
+        type: "bar",
+        ...toChartDataSource({ dataSets: [{ dataRange: "A1" }], dataSetsHaveTitle: false }),
+      },
       chartId,
       sheetId
     );
-    updateChart(model, chartId, { type: "scorecard", keyValue: "A1" }, sheetId);
+    updateChart(model, chartId, { type: "scorecard" }, sheetId);
     const runtime = model.getters.getChartRuntime(chartId) as ScorecardChartRuntime;
     expect(model.getters.getChartDefinition(chartId)?.background).toBeUndefined();
     expect(runtime.background).toBe("#FA0000");
@@ -3323,7 +3279,7 @@ describe("Change chart type", () => {
 
     const def = model.getters.getChartDefinition(chartId) as ScorecardChartDefinition;
     expect(def.type).toBe("scorecard");
-    expect(def.keyValue).toBeUndefined();
+    expect(getChartDataSource(model, chartId)?.dataSets[0]).toBeUndefined();
   });
 
   test("Changing an empty bar chart to gauge does not crash and leaves data range undefined", async () => {
@@ -3337,7 +3293,7 @@ describe("Change chart type", () => {
 
     const def = model.getters.getChartDefinition(chartId) as GaugeChartDefinition;
     expect(def.type).toBe("gauge");
-    expect(def.dataRange).toBeUndefined();
+    expect(getChartDataSource(model, chartId)?.dataSets[0]).toBeUndefined();
   });
 
   test("Can change chart type between radar and filled radar chart", async () => {

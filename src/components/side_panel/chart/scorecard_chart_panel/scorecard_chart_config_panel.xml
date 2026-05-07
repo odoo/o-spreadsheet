@@ -1,25 +1,18 @@
 <templates>
   <t t-name="o-spreadsheet-ScorecardChartConfigPanel">
     <div>
-      <Section class="'o-data-series'" title.translate="Key value">
-        <SelectionInput
-          ranges="[this.getKeyValueRange()]"
-          isInvalid="this.isKeyValueInvalid"
-          hasSingleRange="true"
-          required="true"
-          onSelectionChanged="(ranges) => this.onKeyValueRangeChanged(ranges)"
-          onSelectionConfirmed="() => this.updateKeyValueRange()"
-        />
-      </Section>
-      <Section class="'o-data-labels'" title.translate="Baseline configuration">
-        <div class="o-section-subtitle">Value</div>
-        <SelectionInput
-          ranges="[this.getBaselineRange()]"
-          isInvalid="this.isBaselineInvalid"
-          hasSingleRange="true"
-          onSelectionChanged="(ranges) => this.onBaselineRangeChanged(ranges)"
-          onSelectionConfirmed="() => this.updateBaselineRange()"
-        />
+      <ChartDataSourceComponent
+        chartId="this.props.chartId"
+        definition="this.props.definition"
+        updateChart="this.props.updateChart"
+        canUpdateChart="this.props.canUpdateChart"
+        onErrorMessagesChanged.bind="this.onErrorMessagesChanged"
+        getLabelRangeOptions="() => []"
+        dataSeriesTitle.translate="Key value"
+        labelRangeTitle.translate="Baseline"
+      />
+
+      <Section class="'pt-0'">
         <div class="o-section-subtitle">Format</div>
         <Select
           selectedValue="this.props.definition.baselineMode"

@@ -22,6 +22,7 @@ import {
   ChartRuntimeGenerationArgs,
   DataSetStyle,
   DatasetValues,
+  FunctionResultWithStyle,
   GenericDefinition,
   LabelValues,
   TrendConfiguration,
@@ -50,8 +51,8 @@ import { createDate } from "../../../pivot/spreadsheet_pivot/date_spreadsheet_pi
 import { BubbleChartData } from "../bubble_chart";
 import { getChartBackgroundColor, shouldRemoveFirstLabel } from "../chart_common";
 
-const EMPTY = Object.freeze({ value: null });
-const ZERO = Object.freeze({ value: 0 });
+const EMPTY = Object.freeze({ value: null, style: null });
+const ZERO = Object.freeze({ value: 0, style: null });
 
 export function getBarChartData(
   definition: GenericDefinition<BarChartDefinition>,
@@ -122,13 +123,13 @@ function getDateTimeLabel(value: number, stamp: CalendarChartGranularity): strin
   }
 }
 
-function computeValuesAndLabels(
-  timeValues: FunctionResultObject[],
-  values: FunctionResultObject[],
+function computeCalendarValuesAndLabels(
+  timeValues: FunctionResultWithStyle[],
+  values: FunctionResultWithStyle[],
   horizontalGroupBy: CalendarChartGranularity,
   verticalGroupBy: CalendarChartGranularity,
   locale: Locale
-) {
+): { labels: LabelValues; dataSetsValues: DatasetValues[] } {
   const grouping: Record<string, Record<string, { value: number }>> = {};
   const xValues: number[] = [];
   const yValues: number[] = [];
@@ -171,7 +172,7 @@ function computeValuesAndLabels(
   yValues.sort((a, b) => b - a);
 
   const dataSetsValues = yValues.map((y) => ({
-    data: xValues.map((x) => grouping?.[x]?.[y]),
+    data: xValues.map((x) => ({ value: grouping?.[x]?.[y]?.value, style: null })),
     label: getDateTimeLabel(y, verticalGroupBy),
     hidden: false,
     dataSetId: "0",
@@ -179,7 +180,7 @@ function computeValuesAndLabels(
 
   return {
     dataSetsValues,
-    labels: xValues.map((v) => ({ value: getDateTimeLabel(v, horizontalGroupBy) })),
+    labels: xValues.map((v) => ({ value: getDateTimeLabel(v, horizontalGroupBy), style: null })),
   };
 }
 
@@ -197,7 +198,7 @@ export function getCalendarChartData(
     y: getChartDatasetFormat(definition.dataSetStyles, dataSetsValues, "left"),
   };
 
-  ({ labels, dataSetsValues } = computeValuesAndLabels(
+  ({ labels, dataSetsValues } = computeCalendarValuesAndLabels(
     labels,
     dataSetsValues[0]?.data ?? [],
     definition.horizontalGroupBy ?? "day_of_week",
@@ -236,7 +237,7 @@ export function getPyramidChartData(
   }
   if (barDataset[1]) {
     const pyramidData = barDataset[1].data.map((cell) =>
-      isNumberResult(cell) && cell.value > 0 ? { value: -cell.value } : ZERO
+      isNumberResult(cell) && cell.value > 0 ? { ...cell, value: -cell.value } : ZERO
     );
     pyramidDatasetValues.push({ ...barDataset[1], data: pyramidData });
   }
@@ -952,7 +953,7 @@ function aggregateDataForLabels(
 ): { labels: string[]; dataSetsValues: DatasetValues[] } {
   const parseNumber = (value: CellValue) => (typeof value === "number" ? value : 0);
   const labelSet = new Set(labels);
-  const labelMap: { [key: string]: { value: number; format?: Format }[] } = {};
+  const labelMap: { [key: string]: { value: number; format?: Format; style: null }[] } = {};
   labelSet.forEach((label) => {
     labelMap[label] = new Array(datasets.length);
   });
@@ -962,7 +963,7 @@ function aggregateDataForLabels(
     for (const indexOfDataset of range(0, datasets.length)) {
       const cell = datasets[indexOfDataset].data[indexOfLabel];
       if (!labelMap[label][indexOfDataset]) {
-        labelMap[label][indexOfDataset] = { ...cell, value: parseNumber(cell?.value) };
+        labelMap[label][indexOfDataset] = { ...cell, value: parseNumber(cell?.value), style: null };
       } else {
         labelMap[label][indexOfDataset].value += parseNumber(cell?.value);
       }
@@ -1008,7 +1009,7 @@ export function makeDatasetsCumulative(
   order: "asc" | "desc"
 ): DatasetValues[] {
   return datasets.map((dataset) => {
-    const data: { value: number | null; format?: Format }[] = [];
+    const data: FunctionResultWithStyle[] = [];
     let accumulator = 0;
     const indexes =
       order === "asc" ? range(0, dataset.data.length) : range(0, dataset.data.length).reverse();

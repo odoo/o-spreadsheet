@@ -3,7 +3,11 @@ import { SpreadsheetChart } from "../../helpers/figures/chart";
 import { chartFontColor } from "../../helpers/figures/charts/chart_common";
 import { chartToImageUrl } from "../../helpers/figures/charts/chart_ui_common";
 import { generateMasterChartConfig } from "../../helpers/figures/charts/runtime/chart_zoom";
-import { ChartRuntime, ExcelChartDefinition } from "../../types/chart/chart";
+import {
+  ChartRuntime,
+  ExcelChartDefinition,
+  FunctionResultWithStyle,
+} from "../../types/chart/chart";
 import {
   CoreViewCommand,
   invalidateCFEvaluationCommands,
@@ -11,7 +15,6 @@ import {
   invalidateEvaluationCommands,
 } from "../../types/commands";
 import { Color, UID } from "../../types/misc";
-import { Range } from "../../types/range";
 import { ExcelWorkbookData, FigureData } from "../../types/workbook_data";
 import { CoreViewPlugin } from "../core_view_plugin";
 
@@ -74,26 +77,23 @@ export class EvaluationChartPlugin extends CoreViewPlugin<EvaluationChartState> 
    */
   getStyleOfSingleCellChart(
     chartBackground: Color | undefined,
-    mainRange: Range | undefined
+    mainCell: FunctionResultWithStyle | undefined
   ): EvaluationChartStyle {
     const themeBackground = this.getters.getSpreadsheetTheme().backgroundColor;
     if (chartBackground) {
       return { background: chartBackground, fontColor: chartFontColor(chartBackground) };
     }
-    if (!mainRange) {
+    if (!mainCell) {
       return {
         background: themeBackground,
         fontColor: chartFontColor(themeBackground),
       };
     }
-    const col = mainRange.zone.left;
-    const row = mainRange.zone.top;
-    const sheetId = mainRange.sheetId;
-    const style = this.getters.getCellComputedStyle({ sheetId, col, row });
-    const background = style.fillColor || themeBackground;
+    const style = mainCell.style;
+    const background = style?.fillColor || themeBackground;
     return {
       background,
-      fontColor: style.textColor || chartFontColor(background),
+      fontColor: style?.textColor || chartFontColor(background),
     };
   }
 

@@ -62,13 +62,8 @@ export class ChartTypePicker extends Component<Props, SpreadsheetChildEnv> {
     if (definition.dataSource) {
       const dataSourceBuilder = chartDataSourceRegistry.get(definition.dataSource.type);
       supportedTypes = new Set(dataSourceBuilder.supportedChartTypes);
-    } else if (
-      !definition.dataSource &&
-      (definition.type === "scorecard" ||
-        definition.type === "gauge" ||
-        definition.type === "bubble")
-    ) {
-      // Scorecard and gauge don't have a data source but can still be converted to other types of charts
+    } else if (!definition.dataSource && definition.type === "bubble") {
+      // Bubble charts don't have a data source but can still be converted to other types of charts
       supportedTypes = new Set(CHART_TYPES);
     } else {
       throw new Error("Missing chart data source for a chart type that requires it");

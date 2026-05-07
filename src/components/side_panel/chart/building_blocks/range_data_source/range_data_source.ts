@@ -25,10 +25,12 @@ import {
 import { CommandResult, DispatchResult } from "../../../../../types/commands";
 import { UID, Zone } from "../../../../../types/misc";
 import { SpreadsheetChildEnv } from "../../../../../types/spreadsheet_env";
+import { SelectionInput } from "../../../../selection_input/selection_input";
 import { ChartTerms } from "../../../../translations_terms";
+import { Checkbox } from "../../../components/checkbox/checkbox";
+import { Section } from "../../../components/section/section";
 import { ChartSidePanelProps } from "../../common";
 import { ChartDataSeries } from "../data_series/data_series";
-import { ChartLabelRange } from "../label_range/label_range";
 
 interface ChartRangeDataSourceState {
   datasetDispatchResult?: DispatchResult;
@@ -56,7 +58,9 @@ export class ChartRangeDataSourceComponent extends Component<Props, SpreadsheetC
   static template = "o-spreadsheet-ChartRangeDataSource";
   static components = {
     ChartDataSeries,
-    ChartLabelRange,
+    Section,
+    Checkbox,
+    SelectionInput,
   };
   static props = {
     chartId: String,
@@ -68,6 +72,7 @@ export class ChartRangeDataSourceComponent extends Component<Props, SpreadsheetC
     dataSeriesTitle: { type: String, optional: true },
     labelRangeTitle: { type: String, optional: true },
     getLabelRangeOptions: { type: Function, optional: true },
+    noLabelRange: { type: Boolean, optional: true },
   };
 
   protected state: ChartRangeDataSourceState = proxy({
@@ -532,5 +537,9 @@ export class ChartRangeDataSourceComponent extends Component<Props, SpreadsheetC
       }
     }
     return transposedDatasets;
+  }
+
+  get labelRangeTitle(): string {
+    return this.props.labelRangeTitle || _t("Categories / Labels");
   }
 }

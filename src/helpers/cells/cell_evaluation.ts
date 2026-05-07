@@ -216,9 +216,9 @@ function _createEvaluatedCell(
   return textCell(value, format, formattedValue, position);
 }
 
-export function isNumberResult(
-  result: FunctionResultObject | undefined
-): result is { value: number } {
+export function isNumberResult<T extends { value: any }>(
+  result: T | undefined
+): result is T & { value: number } {
   return !!result && getEvaluatedCellType(result) === CellValueType.number;
 }
 

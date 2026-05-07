@@ -1,15 +1,13 @@
 import { proxy } from "@odoo/owl";
 import { Component } from "../../../../owl3_compatibility_layer";
 import { GaugeChartDefinition } from "../../../../types/chart/gauge_chart";
-import { CommandResult, DispatchResult } from "../../../../types/commands";
 import { SpreadsheetChildEnv } from "../../../../types/spreadsheet_env";
-import { ChartTerms } from "../../../translations_terms";
-import { ChartDataSeries } from "../building_blocks/data_series/data_series";
+import { ChartDataSourceComponent } from "../building_blocks/data_source/data_source";
 import { ChartErrorSection } from "../building_blocks/error_section/error_section";
 import { ChartSidePanelProps, ChartSidePanelPropsObject } from "../common";
 
 interface PanelState {
-  dataRangeDispatchResult?: DispatchResult;
+  errorMessages: string[];
 }
 
 export class GaugeChartConfigPanel extends Component<
@@ -17,44 +15,18 @@ export class GaugeChartConfigPanel extends Component<
   SpreadsheetChildEnv
 > {
   static template = "o-spreadsheet-GaugeChartConfigPanel";
-  static components = { ChartErrorSection, ChartDataSeries };
+  static components = { ChartDataSourceComponent, ChartErrorSection };
   static props = ChartSidePanelPropsObject;
 
-  private state: PanelState = proxy({
-    dataRangeDispatchResult: undefined,
+  protected state = proxy<PanelState>({
+    errorMessages: [],
   });
 
-  private dataRange: string | undefined = this.props.definition.dataRange;
-
-  get configurationErrorMessages(): string[] {
-    const cancelledReasons = [...(this.state.dataRangeDispatchResult?.reasons || [])].filter(
-      (reason) => reason !== CommandResult.NoChanges
-    );
-    return cancelledReasons.map(
-      (error) => ChartTerms.Errors[error] || ChartTerms.Errors.Unexpected
-    );
+  onErrorMessagesChanged(errorMessages: string[]) {
+    this.state.errorMessages = errorMessages;
   }
 
-  get isDataRangeInvalid(): boolean {
-    return !!this.state.dataRangeDispatchResult?.isCancelledBecause(
-      CommandResult.InvalidGaugeDataRange
-    );
-  }
-
-  onDataRangeChanged(ranges: string[]) {
-    this.dataRange = ranges[0];
-    this.state.dataRangeDispatchResult = this.props.canUpdateChart(this.props.chartId, {
-      dataRange: this.dataRange,
-    });
-  }
-
-  updateDataRange() {
-    this.state.dataRangeDispatchResult = this.props.updateChart(this.props.chartId, {
-      dataRange: this.dataRange,
-    });
-  }
-
-  getDataRange() {
-    return { dataRange: this.dataRange || "" };
+  get errorMessages(): string[] {
+    return this.state.errorMessages;
   }
 }
