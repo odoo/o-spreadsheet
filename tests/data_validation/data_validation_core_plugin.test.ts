@@ -559,71 +559,75 @@ describe("Data validation", () => {
   });
 
   describe("Grid manipulation", () => {
-    const criterion: DataValidationCriterion = { type: "containsText", values: ["1"] };
+    const criterion1: DataValidationCriterion = { type: "containsText", values: ["1"] };
+    const criterion2: DataValidationCriterion = { type: "containsText", values: ["2"] };
+    const criterion3: DataValidationCriterion = { type: "containsText", values: ["3"] };
+    const criterion4: DataValidationCriterion = { type: "containsText", values: ["4"] };
+    const criterion5: DataValidationCriterion = { type: "containsText", values: ["5"] };
 
     test("On row addition", () => {
-      addDataValidation(model, "A1", "id1", criterion);
-      addDataValidation(model, "B1:B2", "id2", criterion);
-      addDataValidation(model, "C4:D4", "id3", criterion);
-      addDataValidation(model, "F1, F7", "id4", criterion);
+      addDataValidation(model, "A1", "id1", criterion1);
+      addDataValidation(model, "B1:B2", "id2", criterion2);
+      addDataValidation(model, "C4:D4", "id3", criterion3);
+      addDataValidation(model, "F1, F7", "id4", criterion4);
 
       addRows(model, "after", 0, 2);
 
       expect(getDataValidationRules(model, sheetId)).toMatchObject([
-        { id: "id1", ranges: ["A1"], criterion, isBlocking: false },
-        { id: "id2", ranges: ["B1:B4"], criterion, isBlocking: false },
-        { id: "id3", ranges: ["C6:D6"], criterion, isBlocking: false },
-        { id: "id4", ranges: ["F1", "F9"], criterion, isBlocking: false },
+        { id: "id1", ranges: ["A1"], criterion: criterion1, isBlocking: false },
+        { id: "id2", ranges: ["B1:B4"], criterion: criterion2, isBlocking: false },
+        { id: "id3", ranges: ["C6:D6"], criterion: criterion3, isBlocking: false },
+        { id: "id4", ranges: ["F1", "F9"], criterion: criterion4, isBlocking: false },
       ]);
     });
 
     test("On column addition", () => {
-      addDataValidation(model, "A1", "id1", criterion);
-      addDataValidation(model, "A2:B2", "id2", criterion);
-      addDataValidation(model, "C4:D5", "id3", criterion);
-      addDataValidation(model, "A7, F7", "id4", criterion);
+      addDataValidation(model, "A1", "id1", criterion1);
+      addDataValidation(model, "A2:B2", "id2", criterion2);
+      addDataValidation(model, "C4:D5", "id3", criterion3);
+      addDataValidation(model, "A7, F7", "id4", criterion4);
 
       addColumns(model, "after", "A", 2);
 
       expect(getDataValidationRules(model, sheetId)).toMatchObject([
-        { id: "id1", ranges: ["A1"], criterion, isBlocking: false },
-        { id: "id2", ranges: ["A2:D2"], criterion, isBlocking: false },
-        { id: "id3", ranges: ["E4:F5"], criterion, isBlocking: false },
-        { id: "id4", ranges: ["A7", "H7"], criterion, isBlocking: false },
+        { id: "id1", ranges: ["A1"], criterion: criterion1, isBlocking: false },
+        { id: "id2", ranges: ["A2:D2"], criterion: criterion2, isBlocking: false },
+        { id: "id3", ranges: ["E4:F5"], criterion: criterion3, isBlocking: false },
+        { id: "id4", ranges: ["A7", "H7"], criterion: criterion4, isBlocking: false },
       ]);
     });
 
     test("On row deletion", () => {
-      addDataValidation(model, "A1", "id1", criterion);
-      addDataValidation(model, "B1:B2", "id2", criterion);
-      addDataValidation(model, "E2:E3", "id3", criterion);
-      addDataValidation(model, "C4:D4", "id4", criterion);
-      addDataValidation(model, "F2, F7", "id5", criterion);
+      addDataValidation(model, "A1", "id1", criterion1);
+      addDataValidation(model, "B1:B2", "id2", criterion2);
+      addDataValidation(model, "E2:E3", "id3", criterion3);
+      addDataValidation(model, "C4:D4", "id4", criterion4);
+      addDataValidation(model, "F2, F7", "id5", criterion5);
 
       deleteRows(model, [1, 2]);
 
       expect(getDataValidationRules(model, sheetId)).toMatchObject([
-        { id: "id1", ranges: ["A1"], criterion, isBlocking: false },
-        { id: "id2", ranges: ["B1"], criterion, isBlocking: false },
-        { id: "id4", ranges: ["C2:D2"], criterion, isBlocking: false },
-        { id: "id5", ranges: ["F5"], criterion, isBlocking: false },
+        { id: "id1", ranges: ["A1"], criterion: criterion1, isBlocking: false },
+        { id: "id2", ranges: ["B1"], criterion: criterion2, isBlocking: false },
+        { id: "id4", ranges: ["C2:D2"], criterion: criterion4, isBlocking: false },
+        { id: "id5", ranges: ["F5"], criterion: criterion5, isBlocking: false },
       ]);
     });
 
     test("On column deletion", () => {
-      addDataValidation(model, "A1", "id1", criterion);
-      addDataValidation(model, "A2:B2", "id2", criterion);
-      addDataValidation(model, "B3:C3", "id3", criterion);
-      addDataValidation(model, "D4:E5", "id4", criterion);
-      addDataValidation(model, "B7, F7", "id5", criterion);
+      addDataValidation(model, "A1", "id1", criterion1);
+      addDataValidation(model, "A2:B2", "id2", criterion2);
+      addDataValidation(model, "B3:C3", "id3", criterion3);
+      addDataValidation(model, "D4:E5", "id4", criterion4);
+      addDataValidation(model, "B7, F7", "id5", criterion5);
 
       deleteColumns(model, ["B", "C"]);
 
       expect(getDataValidationRules(model, sheetId)).toMatchObject([
-        { id: "id1", ranges: ["A1"], criterion, isBlocking: false },
-        { id: "id2", ranges: ["A2"], criterion, isBlocking: false },
-        { id: "id4", ranges: ["B4:C5"], criterion, isBlocking: false },
-        { id: "id5", ranges: ["D7"], criterion, isBlocking: false },
+        { id: "id1", ranges: ["A1"], criterion: criterion1, isBlocking: false },
+        { id: "id2", ranges: ["A2"], criterion: criterion2, isBlocking: false },
+        { id: "id4", ranges: ["B4:C5"], criterion: criterion4, isBlocking: false },
+        { id: "id5", ranges: ["D7"], criterion: criterion5, isBlocking: false },
       ]);
     });
   });
@@ -645,6 +649,16 @@ describe("Data validation", () => {
     expect(model.getters.isDataValidationInvalid(toCellPosition(sheetId, "A1"))).toBe(false);
     expect(model.getters.getDataValidationRules(sheetId)[0].criterion.values).toEqual([
       "=newRangeName",
+    ]);
+  });
+
+  test("Create a new rule with an existing criterion", () => {
+    const criterion: DataValidationCriterion = { type: "containsText", values: ["1"] };
+    addDataValidation(model, "A1", "id1", criterion);
+    addDataValidation(model, "B1:B2", "id2", criterion);
+
+    expect(getDataValidationRules(model, sheetId)).toMatchObject([
+      { id: "id1", ranges: ["A1", "B1:B2"], criterion: criterion, isBlocking: false },
     ]);
   });
 });
