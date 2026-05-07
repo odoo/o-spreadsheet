@@ -548,19 +548,28 @@ export function applyVectorization(
     return formula(...args);
   }
 
-  const getArgOffset: (i: number, j: number) => Arg[] = (i, j) =>
-    args.map((arg, index) => {
-      switch (vectorArgsType?.[index]) {
+  // Reused across every vectorized cell — avoids allocating a new args array per call.
+  const argsBuffer: Arg[] = new Array(args.length);
+
+  const fillArgsBuffer = (i: number, j: number): void => {
+    for (let k = 0; k < args.length; k++) {
+      const arg = args[k];
+      switch (vectorArgsType?.[k]) {
         case "matrix":
-          return arg![i][j];
+          argsBuffer[k] = (arg as Matrix<FunctionResultObject>)[i][j];
+          break;
         case "horizontal":
-          return arg![i][0];
+          argsBuffer[k] = (arg as Matrix<FunctionResultObject>)[i][0];
+          break;
         case "vertical":
-          return arg![0][j];
+          argsBuffer[k] = (arg as Matrix<FunctionResultObject>)[0][j];
+          break;
         case undefined:
-          return arg;
+          argsBuffer[k] = arg;
+          break;
       }
-    });
+    }
+  };
 
   return generateMatrix(countVectorizedCol, countVectorizedRow, (col, row) => {
     if (col > vectorizedColLimit - 1 || row > vectorizedRowLimit - 1) {
@@ -568,7 +577,8 @@ export function applyVectorization(
         _t("Array arguments to [[FUNCTION_NAME]] are of different size.")
       );
     }
-    const singleCellComputeResult = formula(...getArgOffset(col, row));
+    fillArgsBuffer(col, row);
+    const singleCellComputeResult = formula(...argsBuffer);
     // In the case where the user tries to vectorize arguments of an array formula, we will get an
     // array for every combination of the vectorized arguments, which will lead to a 3D matrix and
     // we won't be able to return the values.
