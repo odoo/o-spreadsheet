@@ -194,6 +194,19 @@ describe("Simple Spreadsheet Component", () => {
     mockUserAgent.mockReset();
   });
 
+  test("Mac user have ⌘ in menu instead of Ctrl", async () => {
+    const mockUserAgent = jest.spyOn(navigator, "userAgent", "get");
+    mockUserAgent.mockImplementation(
+      () => "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:109.0) Gecko/20100101 Firefox/119.0"
+    );
+    ({ model, parent, fixture } = await mountSpreadsheet({
+      model: new Model({ sheets: [{ id: "sh1" }] }),
+    }));
+    await click(fixture, ".o-topbar-menu[data-id='format']");
+    expect(document.querySelectorAll('span[title="Bold (⌘+B)"]').length).toBe(1);
+    mockUserAgent.mockReset();
+  });
+
   test("Insert a function properly sets the edition", async () => {
     ({ model, parent, fixture, env } = await mountSpreadsheet());
     const composerStore = env.getStore(CellComposerStore);
