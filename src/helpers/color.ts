@@ -47,6 +47,8 @@ export function colorToNumber(color: Color | number): number {
  * Converts any CSS color value to a standardized hex6 value.
  * Accepts: hex3, hex6, hex8, rgb[1] and rgba[1].
  *
+ * In the case of `light-dark(...)` colors, it will convert both light and dark colors to hex.
+ *
  * [1] under the form rgb(r, g, b, a?) or rgba(r, g, b, a?)
  * with r,g,b ∈ [0, 255] and a ∈ [0, 1]
  *
@@ -59,12 +61,21 @@ export function colorToNumber(color: Color | number): number {
  * toHex("rgb(30, 80, 16)")
  * >> "#1E5010"
  *
- *  * toHex("rgb(30, 80, 16, 0.5)")
+ * toHex("rgb(30, 80, 16, 0.5)")
  * >> "#1E501080"
  *
+ * toHex("light-dark(#aaa, #bbb)")
+ * >> "light-dark(#AAAAAA, #BBBBBB)"
  */
 export function toHex(color: Color): Color {
   let hexColor = color;
+  if (color.startsWith("light-dark")) {
+    const match = color.match(LIGHT_DARK_REGEX);
+    if (!match) {
+      throw new Error(`Invalid light-dark color: ${color}`);
+    }
+    return `light-dark(${toHex(match[1])}, ${toHex(match[2])})`;
+  }
   if (color.startsWith("rgb")) {
     hexColor = rgbaStringToHex(color);
   } else {
