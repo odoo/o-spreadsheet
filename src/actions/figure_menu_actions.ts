@@ -140,7 +140,7 @@ export function getCarouselMenuActions(figureId: UID, env: SpreadsheetChildEnv):
         }
         env.model.dispatch("POPOUT_CHART_FROM_CAROUSEL", {
           carouselId: figureId,
-          chartId: selectedItem.chartId,
+          chartId: selectedItem.id,
           sheetId: env.model.getters.getActiveSheetId(),
         });
       },
@@ -150,7 +150,7 @@ export function getCarouselMenuActions(figureId: UID, env: SpreadsheetChildEnv):
       id: "delete_carousel_item",
       name: (env) => {
         const item = env.model.getters.getSelectedCarouselItem(figureId);
-        return item?.type === "chart" ? _t("Delete chart") : _t("Delete data view");
+        return item?.type === "chart" ? _t("Delete chart") : _t("Delete item");
       },
       execute: () => {
         const item = env.model.getters.getSelectedCarouselItem(figureId);
@@ -168,6 +168,27 @@ export function getCarouselMenuActions(figureId: UID, env: SpreadsheetChildEnv):
       icon: "o-spreadsheet-Icon.TRASH",
       isVisible: (env) => env.model.getters.getCarousel(figureId).items.length >= 1,
     },
+  ];
+  return createActions(menuItemSpecs).filter((action) =>
+    env.model.getters.isReadonly() ? action.isReadonlyAllowed : true
+  );
+}
+
+export function getDataLayerMenuActions(figureId: UID, env: SpreadsheetChildEnv): Action[] {
+  const menuItemSpecs: ActionSpec[] = [
+    {
+      id: "edit",
+      name: _t("Edit"),
+      execute: () => {
+        env.model.dispatch("SELECT_FIGURE", { figureId });
+        env.openSidePanel("DataLayerPanel", { figureId });
+      },
+      icon: "o-spreadsheet-Icon.EDIT",
+      isEnabled: (env) => !env.isSmall,
+    },
+    getCopyMenuItem(figureId, env),
+    getCutMenuItem(figureId, env),
+    getDeleteMenuItem(figureId, env),
   ];
   return createActions(menuItemSpecs).filter((action) =>
     env.model.getters.isReadonly() ? action.isReadonlyAllowed : true

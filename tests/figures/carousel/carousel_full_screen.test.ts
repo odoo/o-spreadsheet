@@ -45,16 +45,21 @@ describe("full screen carousel", () => {
   });
 
   test("Cannot use the data view in full screen", async () => {
-    createCarousel(model, { items: [{ type: "carouselDataView" }] }, "carouselId");
+    createCarousel(model, { items: [], showDataView: true }, "carouselId");
     addNewChartToCarousel(model, "carouselId", { type: "radar" });
     model.updateMode("dashboard");
     await nextTick();
-    expect(".o-figure .o-carousel-full-screen-button").toHaveClass("invisible");
-
-    await click(fixture, ".o-figure .o-carousel-tab:nth-child(2)");
+    // Chart is selected by default, fullscreen button is visible
     expect(".o-figure .o-carousel-full-screen-button").not.toHaveClass("invisible");
 
+    // Switch to data view tab, fullscreen button becomes invisible
+    await click(fixture, ".o-figure .o-carousel-tab:last-child");
+    expect(".o-figure .o-carousel-full-screen-button").toHaveClass("invisible");
+
+    // Switch back to chart and enter fullscreen
+    await click(fixture, ".o-figure .o-carousel-tab:first-child");
     await click(fixture, ".o-figure .o-carousel-full-screen-button");
+    // In fullscreen, data view tab is hidden
     expect(".o-fullscreen-figure .o-carousel-tab").toHaveCount(1);
     expect(".o-fullscreen-figure .o-carousel-tab").toHaveText("Radar");
   });

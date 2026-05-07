@@ -1,0 +1,25 @@
+<templates>
+  <t t-name="o-spreadsheet-DataLayerFigure">
+    <div class="o-data-layer-figure w-100 h-100 position-relative" t-on-dblclick="onDoubleClick">
+      <canvas
+        t-ref="dataLayerCanvas"
+        class="w-100 h-100"
+        t-on-click="onClick"
+        t-on-contextmenu.prevent="onContextMenu"
+        t-on-mousemove="onMouseMove"
+        t-on-mouseleave="onMouseLeave"
+      />
+      <Popover
+        t-if="filterPopover.isOpen"
+        anchorRect="filterPopover.anchorRect"
+        positioning="'bottom-left'"
+        verticalOffset="0">
+        <FilterMenu
+          filterPosition="filterPopover.filterPosition"
+          sheetId="filterPopover.sheetId"
+          onClosed.bind="closeFilterPopover"
+        />
+      </Popover>
+    </div>
+  </t>
+</templates>

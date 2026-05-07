@@ -17,6 +17,7 @@ export class CarouselUIPlugin extends UIPlugin {
     "getSelectedCarouselItem",
     "getChartFromFigureId",
     "getChartIdFromFigureId",
+    "isDataViewActive",
   ] as const;
 
   carouselStates: Record<UID, string | undefined> = {};
@@ -36,7 +37,7 @@ export class CarouselUIPlugin extends UIPlugin {
           !this.getters.doesCarouselExist(cmd.carouselId) ||
           !this.getters
             .getCarousel(cmd.carouselId)
-            .items.some((item) => item.type === "chart" && item.chartId === cmd.chartId) ||
+            .items.some((item) => item.type === "chart" && item.id === cmd.chartId) ||
           this.getters.getChart(cmd.duplicatedChartId)
         ) {
           return CommandResult.InvalidFigureId;
@@ -51,7 +52,12 @@ export class CarouselUIPlugin extends UIPlugin {
       case "UPDATE_CAROUSEL_ACTIVE_ITEM":
         if (!this.getters.doesCarouselExist(cmd.figureId)) {
           return CommandResult.InvalidFigureId;
+        } else if (cmd.isDataView) {
+          if (!this.getters.getCarousel(cmd.figureId).showDataView) {
+            return CommandResult.InvalidCarouselItem;
+          }
         } else if (
+          !cmd.item ||
           !this.getters.getCarousel(cmd.figureId).items.some((item) => deepEquals(item, cmd.item))
         ) {
           return CommandResult.InvalidCarouselItem;
@@ -73,7 +79,11 @@ export class CarouselUIPlugin extends UIPlugin {
         this.duplicateCarouselChart(cmd);
         break;
       case "UPDATE_CAROUSEL_ACTIVE_ITEM":
-        this.carouselStates[cmd.figureId] = this.getCarouselItemId(cmd.item);
+        if (cmd.isDataView) {
+          this.carouselStates[cmd.figureId] = "__dataView__";
+        } else if (cmd.item) {
+          this.carouselStates[cmd.figureId] = cmd.item.id;
+        }
         break;
       case "POPOUT_CHART_FROM_CAROUSEL":
         this.popOutChartFromCarousel(cmd.carouselId, cmd.chartId, cmd.sheetId);
@@ -120,9 +130,7 @@ export class CarouselUIPlugin extends UIPlugin {
       size: { width: figure.width, height: figure.height },
       definition: { ...chartDefinition },
     });
-    const items = carousel.items.filter(
-      (item) => item.type !== "chart" || item.chartId !== chartId
-    );
+    const items = carousel.items.filter((item) => item.type !== "chart" || item.id !== chartId);
     this.dispatch("UPDATE_CAROUSEL", {
       sheetId,
       figureId: carouselId,
@@ -137,11 +145,16 @@ export class CarouselUIPlugin extends UIPlugin {
       return undefined;
     }
 
-    return this.carouselStates[figureId]
-      ? carousel.items.find(
-          (item) => this.getCarouselItemId(item) === this.carouselStates[figureId]
-        )
-      : carousel.items[0];
+    const state = this.carouselStates[figureId];
+    if (state === "__dataView__") {
+      return undefined;
+    }
+
+    return state ? carousel.items.find((item) => item.id === state) : carousel.items[0];
+  }
+
+  isDataViewActive(figureId: UID): boolean {
+    return this.carouselStates[figureId] === "__dataView__";
   }
 
   getChartFromFigureId(figureId: UID): SpreadsheetChart | undefined {
@@ -165,7 +178,7 @@ export class CarouselUIPlugin extends UIPlugin {
 
     if (figure.tag === "carousel") {
       const carouselItem = this.getSelectedCarouselItem(figureId);
-      return carouselItem?.type === "chart" ? carouselItem.chartId : undefined;
+      return carouselItem?.type === "chart" ? carouselItem.id : undefined;
     }
 
     return this.getters
@@ -180,14 +193,22 @@ export class CarouselUIPlugin extends UIPlugin {
     }
 
     const carousel = this.getters.getCarousel(figureId);
+    const state = this.carouselStates[figureId];
+
+    if (state === "__dataView__" && !carousel.showDataView) {
+      this.carouselStates[figureId] = carousel.items[0]?.id;
+      return;
+    }
+    if (state === "__dataView__") {
+      return;
+    }
+
     if (carousel.items.length === 0) {
       delete this.carouselStates[figureId];
-    } else if (!this.carouselStates[figureId]) {
-      this.carouselStates[figureId] = this.getCarouselItemId(carousel.items[0]);
-    } else if (
-      !carousel.items.some((item) => this.getCarouselItemId(item) === this.carouselStates[figureId])
-    ) {
-      this.carouselStates[figureId] = this.getCarouselItemId(carousel.items[0]);
+    } else if (!state) {
+      this.carouselStates[figureId] = carousel.items[0].id;
+    } else if (!carousel.items.some((item) => item.id === state)) {
+      this.carouselStates[figureId] = carousel.items[0].id;
     }
   }
 
@@ -203,7 +224,7 @@ export class CarouselUIPlugin extends UIPlugin {
 
     const definition: Carousel = {
       ...carousel,
-      items: [...carousel.items, { type: "chart", chartId }],
+      items: [...carousel.items, { type: "chart", id: chartId }],
     };
     this.dispatch("UPDATE_CAROUSEL", { sheetId, figureId, definition });
   }
@@ -217,7 +238,7 @@ export class CarouselUIPlugin extends UIPlugin {
 
     const definition: Carousel = {
       ...carousel,
-      items: [...carousel.items, { type: "chart", chartId }],
+      items: [...carousel.items, { type: "chart", id: chartId }],
     };
     this.dispatch("UPDATE_CAROUSEL", { sheetId, figureId, definition });
     this.dispatch("UPDATE_CHART", {
@@ -242,7 +263,7 @@ export class CarouselUIPlugin extends UIPlugin {
     const carousel = this.getters.getCarousel(carouselId);
 
     const duplicatedItemIndex = carousel.items.findIndex(
-      (item) => item.type === "chart" && item.chartId === chartId
+      (item) => item.type === "chart" && item.id === chartId
     );
     if (duplicatedItemIndex === -1) {
       return;
@@ -257,7 +278,7 @@ export class CarouselUIPlugin extends UIPlugin {
 
     const carouselItems = insertItemsAtIndex(
       carousel.items,
-      [{ type: "chart", chartId: duplicatedChartId }],
+      [{ type: "chart", id: duplicatedChartId }],
       duplicatedItemIndex + 1
     );
 
@@ -266,15 +287,5 @@ export class CarouselUIPlugin extends UIPlugin {
       figureId: carouselId,
       definition: { ...carousel, items: carouselItems },
     });
-  }
-
-  private getCarouselItemId(item: CarouselItem): UID {
-    if (item.type === "chart") {
-      return item.chartId;
-    }
-    if (item.type === "dataLayer") {
-      return `dataLayer_${item.sheetId}_${item.rangeXc}`;
-    }
-    return "carouselDataView";
   }
 }

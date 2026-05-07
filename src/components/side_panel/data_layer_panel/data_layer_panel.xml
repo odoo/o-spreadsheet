@@ -1,0 +1,15 @@
+<templates>
+  <t t-name="o-spreadsheet-DataLayerPanel">
+    <div class="o-data-layer-panel h-100 overflow-auto">
+      <Section title.translate="Data Range">
+        <SelectionInput
+          t-key="props.figureId"
+          ranges="[rangeString]"
+          hasSingleRange="true"
+          onSelectionChanged="(ranges) => this.onRangeChanged(ranges)"
+          onSelectionConfirmed.bind="onRangeConfirmed"
+        />
+      </Section>
+    </div>
+  </t>
+</templates>

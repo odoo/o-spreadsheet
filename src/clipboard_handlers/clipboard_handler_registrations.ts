@@ -4,6 +4,7 @@ import { CarouselClipboardHandler } from "./carousel_clipboard";
 import { CellClipboardHandler } from "./cell_clipboard";
 import { ChartClipboardHandler } from "./chart_clipboard";
 import { ConditionalFormatClipboardHandler } from "./conditional_format_clipboard";
+import { DataLayerClipboardHandler } from "./data_layer_clipboard";
 import { DataValidationClipboardHandler } from "./data_validation_clipboard";
 import { ImageClipboardHandler } from "./image_clipboard";
 import { MergeClipboardHandler } from "./merge_clipboard";
@@ -14,7 +15,8 @@ import { TableClipboardHandler } from "./tables_clipboard";
 clipboardHandlersRegistries.figureHandlers
   .add("chart", ChartClipboardHandler)
   .add("image", ImageClipboardHandler)
-  .add("carousel", CarouselClipboardHandler);
+  .add("carousel", CarouselClipboardHandler)
+  .add("dataLayer", DataLayerClipboardHandler);
 
 clipboardHandlersRegistries.cellHandlers
   .add("dataValidation", DataValidationClipboardHandler)

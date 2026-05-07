@@ -75,14 +75,14 @@ describe("Carousel figure", () => {
       let result = model.dispatch("UPDATE_CAROUSEL_ACTIVE_ITEM", {
         figureId: "wrongCarouselId",
         sheetId,
-        item: { type: "chart", chartId: "invalidChartId" },
+        item: { type: "chart", id: "invalidChartId" },
       });
       expect(result).toBeCancelledBecause(CommandResult.InvalidFigureId);
 
       result = model.dispatch("UPDATE_CAROUSEL_ACTIVE_ITEM", {
         figureId: "carouselId",
         sheetId,
-        item: { type: "chart", chartId: "invalidChartId" },
+        item: { type: "chart", id: "invalidChartId" },
       });
       expect(result).toBeCancelledBecause(CommandResult.InvalidCarouselItem);
 
@@ -96,7 +96,7 @@ describe("Carousel figure", () => {
       result = model.dispatch("UPDATE_CAROUSEL_ACTIVE_ITEM", {
         figureId: "carouselId",
         sheetId,
-        item: { type: "chart", chartId },
+        item: { type: "chart", id: chartId },
       });
       expect(result).toBeSuccessfullyDispatched();
     });
@@ -134,8 +134,9 @@ describe("Carousel figure", () => {
     createCarousel(model, { items: [] }, "carouselId");
     expect(model.getters.getCarousel("carouselId").items).toEqual([]);
 
-    updateCarousel(model, "carouselId", { items: [{ type: "carouselDataView" }] });
-    expect(model.getters.getCarousel("carouselId").items).toEqual([{ type: "carouselDataView" }]);
+    updateCarousel(model, "carouselId", { items: [], showDataView: true });
+    expect(model.getters.getCarousel("carouselId").items).toEqual([]);
+    expect(model.getters.getCarousel("carouselId").showDataView).toEqual(true);
   });
 
   test("Can add a new chart to a carousel", () => {
@@ -144,11 +145,11 @@ describe("Carousel figure", () => {
     addNewChartToCarousel(model, "carouselId");
 
     const carouselItems = model.getters.getCarousel("carouselId").items;
-    expect(carouselItems).toMatchObject([{ type: "chart", chartId: expect.any(String) }]);
-    expect(model.getters.getChartDefinition(carouselItems[0]["chartId"])).toEqual(
+    expect(carouselItems).toMatchObject([{ type: "chart", id: expect.any(String) }]);
+    expect(model.getters.getChartDefinition(carouselItems[0]["id"])).toEqual(
       CAROUSEL_DEFAULT_CHART_DEFINITION
     );
-    expect(model.getters.getFigureIdFromChartId(carouselItems[0]["chartId"])).toBe("carouselId");
+    expect(model.getters.getFigureIdFromChartId(carouselItems[0]["id"])).toBe("carouselId");
   });
 
   test("Can add an existing chart to a carousel", () => {
@@ -159,7 +160,7 @@ describe("Carousel figure", () => {
     addChartFigureToCarousel(model, "carouselId", "chartFigureId");
 
     expect(model.getters.getCarousel("carouselId").items).toEqual([
-      { type: "chart", chartId: "chartId" },
+      { type: "chart", id: "chartId" },
     ]);
     expect(model.getters.getChartDefinition("chartId")).toMatchObject({ type: "radar" });
     expect(model.getters.getFigureIdFromChartId("chartId")).toBe("carouselId");
@@ -172,7 +173,7 @@ describe("Carousel figure", () => {
     expect(model.getters.getFigures(sheetId)).toHaveLength(1);
     const carouselFigureId = model.getters.getFigures(sheetId)![0].id;
     const carousel = model.getters.getCarousel(carouselFigureId);
-    const chartId = carousel.items[0]["chartId"];
+    const chartId = carousel.items[0]["id"];
 
     popOutChartFromCarousel(model, sheetId, carouselFigureId, chartId);
     expect(model.getters.getCarousel(carouselFigureId).items).toHaveLength(0);
@@ -191,7 +192,7 @@ describe("Carousel figure", () => {
     duplicateSheet(model, sheetId, "newSheetId");
 
     const carouselItems = model.getters.getCarousel("carouselId").items;
-    expect(carouselItems).toMatchObject([{ type: "chart", chartId }]);
+    expect(carouselItems).toMatchObject([{ type: "chart", id: chartId }]);
     expect(model.getters.getChartDefinition(chartId)).toEqual(CAROUSEL_DEFAULT_CHART_DEFINITION);
     expect(model.getters.getFigureIdFromChartId(chartId)).toBe("carouselId");
 
@@ -200,7 +201,7 @@ describe("Carousel figure", () => {
     expect(model.getters.getFigures("newSheetId")).toHaveLength(1);
     expect(model.getters.getFigures("newSheetId")[0].tag).toBe("carousel");
     expect(model.getters.getCarousel(newCarouselId).items).toEqual([
-      { type: "chart", chartId: newChartId },
+      { type: "chart", id: newChartId },
     ]);
     expect(model.getters.getChartDefinition("newSheetId??" + chartId)).toEqual(
       CAROUSEL_DEFAULT_CHART_DEFINITION
@@ -212,7 +213,7 @@ describe("Carousel figure", () => {
     const title = { text: "Title1", fontSize: 20, bold: true };
     createCarousel(model, { items: [], title }, "carouselId");
     addNewChartToCarousel(model, "carouselId");
-    const chartId = model.getters.getCarousel("carouselId").items[0]["chartId"];
+    const chartId = model.getters.getCarousel("carouselId").items[0]["id"];
     updateChart(model, chartId, {
       type: "pyramid",
       ...toChartDataSource({ dataSets: [{ dataRange: "A1:A6" }] }),
@@ -225,8 +226,8 @@ describe("Carousel figure", () => {
     expect(newModel.getters.getFigures(sheetId)).toHaveLength(1);
     expect(newModel.getters.getCarousel("carouselId").title).toEqual(title);
     expect(newModel.getters.getCarousel("carouselId").items).toEqual([
-      { type: "chart", chartId },
-      { type: "chart", chartId: "chartId2" },
+      { type: "chart", id: chartId },
+      { type: "chart", id: "chartId2" },
     ]);
     expect(newModel.getters.getChartDefinition(chartId)).toMatchObject({
       type: "pyramid",
@@ -236,18 +237,22 @@ describe("Carousel figure", () => {
   });
 
   test("Carousel item is still selected when changing its name", () => {
-    createCarousel(model, { items: [{ type: "carouselDataView" }] }, "carouselId");
+    createCarousel(model, { items: [], showDataView: true }, "carouselId");
     const chartId = addNewChartToCarousel(model, "carouselId");
-    selectCarouselItem(model, "carouselId", { type: "chart", chartId });
+    selectCarouselItem(model, "carouselId", { type: "chart", id: chartId });
 
-    expect(model.getters.getSelectedCarouselItem("carouselId")).toEqual({ type: "chart", chartId });
+    expect(model.getters.getSelectedCarouselItem("carouselId")).toEqual({
+      type: "chart",
+      id: chartId,
+    });
 
     updateCarousel(model, "carouselId", {
-      items: [{ type: "carouselDataView" }, { type: "chart", chartId, title: "Title" }],
+      items: [{ type: "chart", id: chartId, title: "Title" }],
+      showDataView: true,
     });
     expect(model.getters.getSelectedCarouselItem("carouselId")).toEqual({
       type: "chart",
-      chartId,
+      id: chartId,
       title: "Title",
     });
   });

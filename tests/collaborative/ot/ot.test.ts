@@ -72,15 +72,15 @@ describe("OT with figures commands", () => {
         ...updateCarousel,
         definition: {
           items: [
-            { type: "chart", chartId: "chartId" },
-            { type: "chart", chartId: "otherId" },
+            { type: "chart", id: "chartId" },
+            { type: "chart", id: "otherId" },
           ],
         },
       };
       expect(transform(toTransform, deleteChart)).toEqual({
         ...toTransform,
         definition: {
-          items: [{ type: "chart", chartId: "otherId" }],
+          items: [{ type: "chart", id: "otherId" }],
         },
       });
     });

@@ -42,7 +42,7 @@ describe("Carousel panel component", () => {
 
     await click(fixture, ".o-carousel-add-chart");
     expect(model.getters.getCarousel("carouselId")).toMatchObject({
-      items: [{ type: "chart", chartId: expect.any(String) }],
+      items: [{ type: "chart", id: expect.any(String) }],
     });
   });
 
@@ -50,10 +50,8 @@ describe("Carousel panel component", () => {
     createCarousel(model, { items: [] }, "carouselId");
     await mountCarouselPanel(model, "carouselId");
 
-    await click(fixture, ".o-carousel-add-data-view");
-    expect(model.getters.getCarousel("carouselId")).toMatchObject({
-      items: [{ type: "carouselDataView" }],
-    });
+    await click(fixture, ".o-section input[type=checkbox]");
+    expect(model.getters.getCarousel("carouselId").showDataView).toBe(true);
   });
 
   test("Can edit a carousel item name", async () => {
@@ -116,9 +114,9 @@ describe("Carousel panel component", () => {
     const items = model.getters.getCarousel("carouselId").items;
     expect(items).toHaveLength(2);
 
-    expect(model.getters.getChartDefinition(items[0]["chartId"])).toMatchObject({ type: "radar" });
-    expect(items[1]["chartId"]).not.toEqual(items[0]["chartId"]);
-    expect(model.getters.getChartDefinition(items[1]["chartId"])).toMatchObject({ type: "radar" });
+    expect(model.getters.getChartDefinition(items[0]["id"])).toMatchObject({ type: "radar" });
+    expect(items[1]["id"]).not.toEqual(items[0]["id"]);
+    expect(model.getters.getChartDefinition(items[1]["id"])).toMatchObject({ type: "radar" });
   });
 
   test("Can drag & drop carousel items to re-order them", async () => {
@@ -127,14 +125,14 @@ describe("Carousel panel component", () => {
     const barId = addNewChartToCarousel(model, "carouselId", { type: "bar" });
     await mountCarouselPanel(model, "carouselId");
     expect(model.getters.getCarousel("carouselId").items).toMatchObject([
-      { chartId: radarId },
-      { chartId: barId },
+      { id: radarId },
+      { id: barId },
     ]);
 
     await clickAndDrag(".o-carousel-preview .o-drag-handle", { x: 0, y: 300 }, undefined, true);
     expect(model.getters.getCarousel("carouselId").items).toMatchObject([
-      { chartId: barId },
-      { chartId: radarId },
+      { id: barId },
+      { id: radarId },
     ]);
   });
 
@@ -157,17 +155,17 @@ describe("Carousel panel component", () => {
   });
 
   test("Selected carousel item is highlighted", async () => {
-    createCarousel(model, { items: [{ type: "carouselDataView" }] }, "carouselId");
-    const radarId = addNewChartToCarousel(model, "carouselId", { type: "radar" });
+    createCarousel(model, { items: [] }, "carouselId");
+    addNewChartToCarousel(model, "carouselId", { type: "radar" });
+    const barId = addNewChartToCarousel(model, "carouselId", { type: "bar" });
     await mountCarouselPanel(model, "carouselId");
 
-    await setInputValueAndTrigger(".o-carousel-preview .os-input", "New Chart Name");
-
     const previews = fixture.querySelectorAll(".o-carousel-preview");
+    expect(previews).toHaveLength(2);
     expect(previews[0]).toHaveClass("o-selected");
     expect(previews[1]).not.toHaveClass("o-selected");
 
-    selectCarouselItem(model, "carouselId", { type: "chart", chartId: radarId });
+    selectCarouselItem(model, "carouselId", { type: "chart", id: barId });
     await nextTick();
     expect(previews[0]).not.toHaveClass("o-selected");
     expect(previews[1]).toHaveClass("o-selected");

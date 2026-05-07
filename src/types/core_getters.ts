@@ -3,6 +3,7 @@ import { CarouselPlugin } from "../plugins/core/carousel";
 import { CellPlugin } from "../plugins/core/cell";
 import { ChartPlugin } from "../plugins/core/chart";
 import { ConditionalFormatPlugin } from "../plugins/core/conditional_format";
+import { DataLayerPlugin } from "../plugins/core/data_layer";
 import { DataValidationPlugin } from "../plugins/core/data_validation";
 import { FigurePlugin } from "../plugins/core/figures";
 import { HeaderGroupingPlugin } from "../plugins/core/header_grouping";
@@ -77,6 +78,7 @@ export type CoreGetters = PluginGetters<typeof SheetPlugin> &
   PluginGetters<typeof ChartPlugin> &
   PluginGetters<typeof ImagePlugin> &
   PluginGetters<typeof CarouselPlugin> &
+  PluginGetters<typeof DataLayerPlugin> &
   PluginGetters<typeof FigurePlugin> &
   RangeAdapterGetters &
   PluginGetters<typeof ConditionalFormatPlugin> &

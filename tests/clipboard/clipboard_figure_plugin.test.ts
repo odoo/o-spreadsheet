@@ -309,14 +309,14 @@ describe("Carousel clipboard test", () => {
     const copiedCarousel = model.getters.getCarousel(copiedFigure.id);
 
     expect(copiedCarousel.items).toEqual([
-      { type: "chart", chartId: expect.not.stringMatching(chartId) },
-      { type: "chart", chartId: expect.not.stringMatching(chartId2) },
+      { type: "chart", id: expect.not.stringMatching(chartId) },
+      { type: "chart", id: expect.not.stringMatching(chartId2) },
     ]);
-    expect(model.getters.getChartDefinition(copiedCarousel.items[0]["chartId"])).toMatchObject({
+    expect(model.getters.getChartDefinition(copiedCarousel.items[0]["id"])).toMatchObject({
       type: "radar",
       ...toChartDataSource({ dataSets: [{ dataRange: "A1:A5" }] }),
     });
-    expect(model.getters.getChartDefinition(copiedCarousel.items[1]["chartId"])).toMatchObject({
+    expect(model.getters.getChartDefinition(copiedCarousel.items[1]["id"])).toMatchObject({
       type: "bar",
       ...toChartDataSource({ labelRange: "B1", dataSets: [] }),
     });
@@ -337,14 +337,14 @@ describe("Carousel clipboard test", () => {
     expect(model.getters.getFigures("42")).toHaveLength(1);
     const copiedFigure = model.getters.getFigures("42")[0];
     const copiedCarousel = model.getters.getCarousel(copiedFigure.id);
-    expect(model.getters.getChartDefinition(copiedCarousel.items[0]["chartId"])).toMatchObject({
+    expect(model.getters.getChartDefinition(copiedCarousel.items[0]["id"])).toMatchObject({
       type: "line",
       ...toChartDataSource({ dataSets: [{ dataRange: "Sheet1!A1:A5" }] }),
     });
   });
 
   test("Can undo/redo a carousel copy/paste", () => {
-    createCarousel(model, { items: [{ type: "carouselDataView" }] }, "carouselId");
+    createCarousel(model, { items: [], showDataView: true }, "carouselId");
     const chartId = addNewChartToCarousel(model, "carouselId", {
       type: "line",
       ...toChartDataSource({ dataSets: [{ dataRange: "A1:A5" }] }),
@@ -362,8 +362,7 @@ describe("Carousel clipboard test", () => {
     const copiedFigure = model.getters.getFigures(sheetId)[1];
     const copiedCarousel = model.getters.getCarousel(copiedFigure.id);
     expect(copiedCarousel.items).toEqual([
-      { type: "carouselDataView" },
-      { type: "chart", chartId: expect.not.stringMatching(chartId) },
+      { type: "chart", id: expect.not.stringMatching(chartId) },
     ]);
   });
 });

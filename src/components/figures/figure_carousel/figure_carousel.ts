@@ -60,6 +60,7 @@ export class CarouselFigure extends Component<Props, SpreadsheetChildEnv> {
     filterPosition: { col: 0, row: 0 },
   });
   private hiddenItems: CarouselItem[] = [];
+  private isDataViewTabHidden = false;
 
   protected animationStore: Store<ChartAnimationStore> | undefined;
   private fullScreenFigureStore!: Store<FullScreenFigureStore>;
@@ -73,7 +74,7 @@ export class CarouselFigure extends Component<Props, SpreadsheetChildEnv> {
     this.hoveredTableStore = useStore(HoveredTableStore);
 
     useEffect(() => {
-      if (this.selectedCarouselItem?.type === "carouselDataView") {
+      if (this.isDataViewActive) {
         this.props.editFigureStyle?.({ "pointer-events": "none" });
       } else {
         this.props.editFigureStyle?.({ "pointer-events": "auto" });
@@ -96,7 +97,7 @@ export class CarouselFigure extends Component<Props, SpreadsheetChildEnv> {
     if (selectedItem?.type !== "chart") {
       throw new Error("Selected item is not a chart");
     }
-    const type = this.env.model.getters.getChartType(selectedItem.chartId);
+    const type = this.env.model.getters.getChartType(selectedItem.id);
     const component = chartComponentRegistry.get(type);
     if (!component) {
       throw new Error(`Component is not defined for type ${type}`);
@@ -114,6 +115,14 @@ export class CarouselFigure extends Component<Props, SpreadsheetChildEnv> {
     return deepEquals(selectedItem, item);
   }
 
+  get isDataViewActive(): boolean {
+    return this.env.model.getters.isDataViewActive(this.props.figureUI.id);
+  }
+
+  get showDataViewTab(): boolean {
+    return this.carousel.showDataView === true && !this.props.isFullScreen;
+  }
+
   getItemTitle(item: CarouselItem): string {
     return getCarouselItemTitle(this.env.model.getters, item);
   }
@@ -125,16 +134,24 @@ export class CarouselFigure extends Component<Props, SpreadsheetChildEnv> {
       item,
     });
     if (item.type === "chart") {
-      const animationChartId = item.chartId + (this.props.isFullScreen ? "-fullscreen" : "");
+      const animationChartId = item.id + (this.props.isFullScreen ? "-fullscreen" : "");
       this.animationStore?.enableAnimationForChart(animationChartId);
     }
+  }
+
+  onDataViewTabClick() {
+    this.env.model.dispatch("UPDATE_CAROUSEL_ACTIVE_ITEM", {
+      figureId: this.props.figureUI.id,
+      sheetId: this.env.model.getters.getActiveSheetId(),
+      isDataView: true,
+    });
   }
 
   get headerStyle(): string {
     const cssProperties: CSSProperties = {};
     const backgroundColor = this.env.model.getters.getSpreadsheetTheme().backgroundColor;
     if (this.selectedCarouselItem?.type === "chart") {
-      const chart = this.env.model.getters.getChartRuntime(this.selectedCarouselItem.chartId);
+      const chart = this.env.model.getters.getChartRuntime(this.selectedCarouselItem.id);
       if ("background" in chart && chart.background) {
         cssProperties["background-color"] = chart.background;
       } else if ("chartJsConfig" in chart) {
@@ -169,7 +186,7 @@ export class CarouselFigure extends Component<Props, SpreadsheetChildEnv> {
     if (item.type !== "chart") {
       throw new Error("Item is not a chart");
     }
-    const type = this.env.model.getters.getChartType(item.chartId);
+    const type = this.env.model.getters.getChartType(item.id);
     const component = chartComponentRegistry.get(type);
     if (!component) {
       throw new Error(`Component is not defined for type ${type}`);
@@ -194,6 +211,7 @@ export class CarouselFigure extends Component<Props, SpreadsheetChildEnv> {
     }
 
     this.hiddenItems = [];
+    this.isDataViewTabHidden = false;
 
     const containerRect = getBoundingRectAsPOJO(tabsContainerEl);
     const tabs = Array.from(tabsContainerEl.children) as HTMLElement[];
@@ -204,17 +222,23 @@ export class CarouselFigure extends Component<Props, SpreadsheetChildEnv> {
 
     const tabWidths = tabs.map((tab) => getBoundingRectAsPOJO(tab).width);
 
+    const items = this.carousel.items;
     let currentWidth = 0;
     for (let i = 0; i < tabs.length; i++) {
       const shouldBeHidden = currentWidth + tabWidths[i] > containerRect.width;
       currentWidth += tabWidths[i];
       if (shouldBeHidden) {
         tabs[i].style.display = "none";
-        this.hiddenItems.push(this.carousel.items[i]);
+        if (i < items.length) {
+          this.hiddenItems.push(items[i]);
+        } else {
+          this.isDataViewTabHidden = true;
+        }
       }
     }
 
-    dropDownEl.style.display = this.hiddenItems.length ? "block" : "none";
+    const hasHiddenTabs = this.hiddenItems.length > 0 || this.isDataViewTabHidden;
+    dropDownEl.style.display = hasHiddenTabs ? "block" : "none";
   }
 
   get menuId() {
@@ -233,6 +257,14 @@ export class CarouselFigure extends Component<Props, SpreadsheetChildEnv> {
       isActive: () => this.isItemSelected(item),
       isReadonlyAllowed: true,
     }));
+    if (this.isDataViewTabHidden) {
+      menuItems.push({
+        name: _t("Data"),
+        execute: () => this.onDataViewTabClick(),
+        isActive: () => this.isDataViewActive,
+        isReadonlyAllowed: true,
+      });
+    }
     this.menuState.isOpen = true;
     this.menuState.anchorRect = rect;
     this.menuState.menuItems = createActions(menuItems);
@@ -250,9 +282,7 @@ export class CarouselFigure extends Component<Props, SpreadsheetChildEnv> {
   }
 
   get visibleCarouselItems(): CarouselItem[] {
-    return this.carousel.items.filter((item) =>
-      item.type === "carouselDataView" && this.props.isFullScreen ? false : true
-    );
+    return this.carousel.items;
   }
 
   openContextMenu(event: MouseEvent) {
@@ -271,12 +301,13 @@ export class CarouselFigure extends Component<Props, SpreadsheetChildEnv> {
     if (!canvas) {
       return undefined;
     }
+    const def = this.env.model.getters.getDataLayer(item.id);
     const canvasRect = canvas.getBoundingClientRect();
     const x = event.clientX - canvasRect.left;
     const y = event.clientY - canvasRect.top;
-    const zone = toZone(item.rangeXc);
+    const zone = toZone(def.rangeXc);
     const rect = { x: 0, y: 0, width: canvasRect.width, height: canvasRect.height };
-    return getDataLayerCellPosition(this.env.model.getters, item.sheetId, zone, rect, x, y);
+    return getDataLayerCellPosition(this.env.model.getters, def.sheetId, zone, rect, x, y);
   }
 
   onDataLayerClick(event: MouseEvent) {
@@ -378,6 +409,7 @@ export class CarouselFigure extends Component<Props, SpreadsheetChildEnv> {
     if (!canvas) {
       return;
     }
+    const def = this.env.model.getters.getDataLayer(item.id);
     const dpr = window.devicePixelRatio || 1;
     const rect = canvas.getBoundingClientRect();
     canvas.width = rect.width * dpr;
@@ -387,11 +419,11 @@ export class CarouselFigure extends Component<Props, SpreadsheetChildEnv> {
       return;
     }
     ctx.scale(dpr, dpr);
-    const zone = toZone(item.rangeXc);
+    const zone = toZone(def.rangeXc);
     const paddingBg = this.env.model.getters.getSpreadsheetTheme().backgroundColor;
     this.dataLayerRenderer.render(
       ctx,
-      item.sheetId,
+      def.sheetId,
       zone,
       { x: 0, y: 0, width: rect.width, height: rect.height },
       {

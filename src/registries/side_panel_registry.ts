@@ -3,6 +3,7 @@ import { ChartPanel } from "../components/side_panel/chart/main_chart_panel/main
 import { ColumnStatsPanel } from "../components/side_panel/column_stats/column_stats_panel";
 import { ConditionalFormattingEditor } from "../components/side_panel/conditional_formatting/cf_editor/cf_editor";
 import { ConditionalFormatPreviewList } from "../components/side_panel/conditional_formatting/cf_preview_list/cf_preview_list";
+import { DataLayerPanel } from "../components/side_panel/data_layer_panel/data_layer_panel";
 import { DataValidationPanel } from "../components/side_panel/data_validation/data_validation_panel";
 import { DataValidationEditor } from "../components/side_panel/data_validation/dv_editor/dv_editor";
 import { FindAndReplacePanel } from "../components/side_panel/find_and_replace/find_and_replace";
@@ -196,6 +197,20 @@ sidePanelRegistry.add("CarouselPanel", {
       return { isOpen: false };
     }
 
+    return { isOpen: true, props: { figureId } };
+  },
+});
+
+sidePanelRegistry.add("DataLayerPanel", {
+  title: _t("Data Layer"),
+  Body: DataLayerPanel,
+  computeState: (getters: Getters, initialProps: { figureId: UID }) => {
+    const figureId = initialProps.figureId || getters.getSelectedFigureId();
+    const sheetId = figureId && getters.getFigureSheetId(figureId);
+    const isSheetLocked = sheetId ? getters.isSheetLocked(sheetId) : false;
+    if (!figureId || !getters.doesDataLayerExist(figureId) || isSheetLocked) {
+      return { isOpen: false };
+    }
     return { isOpen: true, props: { figureId } };
   },
 });

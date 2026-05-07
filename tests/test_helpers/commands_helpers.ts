@@ -1838,7 +1838,7 @@ export function addNewChartToCarousel(
     figureId: carouselId,
     sheetId: model.getters.getActiveSheetId(),
   });
-  const chartId = model.getters.getCarousel(carouselId).items.at(-1)!["chartId"];
+  const chartId = model.getters.getCarousel(carouselId).items.at(-1)!["id"];
   if (definition) {
     updateChart(model, chartId, definition);
   }

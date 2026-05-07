@@ -1,54 +1,46 @@
-import { SpreadsheetChart } from "../helpers/figures/chart";
 import { deepCopy } from "../helpers/misc";
 import { UuidGenerator } from "../helpers/uuid";
 import { ClipboardFigureData, ClipboardOptions, ClipboardPasteTarget } from "../types/clipboard";
 import { CommandResult } from "../types/commands";
-import { Carousel, Figure } from "../types/figure";
+import { DataLayerDefinition } from "../types/data_layer";
+import { Figure } from "../types/figure";
 import { UID, Zone } from "../types/misc";
 import { AbstractFigureClipboardHandler } from "./abstract_figure_clipboard_handler";
 
 type ClipboardContent = {
   figureId: UID;
-  copiedSheetId: UID;
   copiedFigure: Figure;
-  copiedCarousel: Carousel;
-  copiedCharts: { [chartId: UID]: SpreadsheetChart };
+  copiedDefinition: DataLayerDefinition;
+  sheetId: UID;
 };
 
-export class CarouselClipboardHandler extends AbstractFigureClipboardHandler<ClipboardContent> {
+export class DataLayerClipboardHandler extends AbstractFigureClipboardHandler<ClipboardContent> {
   copy(data: ClipboardFigureData): ClipboardContent | undefined {
     const sheetId = data.sheetId;
     const figure = this.getters.getFigure(sheetId, data.figureId);
     if (!figure) {
       throw new Error(`No figure for the given id: ${data.figureId}`);
     }
-    if (figure.tag !== "carousel") {
+    if (figure.tag !== "dataLayer") {
       return;
     }
-    const copiedFigure = { ...figure };
-    const copiedCarousel = this.getters.getCarousel(data.figureId);
-    const copiedCharts: { [chartId: UID]: SpreadsheetChart } = {};
-    for (const item of copiedCarousel.items) {
-      if (item.type === "chart") {
-        const chart = this.getters.getChart(item.id);
-        if (!chart) {
-          throw new Error(`No chart for the given id: ${item.id}`);
-        }
-        copiedCharts[item.id] = chart;
-      }
-    }
+    const definition = this.getters.getDataLayer(data.figureId);
     return {
       figureId: data.figureId,
-      copiedFigure,
-      copiedCarousel,
-      copiedCharts,
-      copiedSheetId: sheetId,
+      copiedFigure: { ...figure },
+      copiedDefinition: deepCopy(definition),
+      sheetId,
     };
   }
 
-  getPasteTarget(sheetId: UID): ClipboardPasteTarget {
+  getPasteTarget(
+    sheetId: UID,
+    target: Zone[],
+    content: ClipboardContent,
+    options?: ClipboardOptions
+  ): ClipboardPasteTarget {
     const newId = UuidGenerator.smallUuid();
-    return { zones: [], figureId: newId, sheetId };
+    return { sheetId, zones: [], figureId: newId };
   }
 
   paste(target: ClipboardPasteTarget, clippedContent: ClipboardContent, options: ClipboardOptions) {
@@ -56,8 +48,9 @@ export class CarouselClipboardHandler extends AbstractFigureClipboardHandler<Cli
       return;
     }
     const { zones, figureId } = target;
-    const sheetId = target.sheetId;
+    const sheetId = this.getters.getActiveSheetId();
     const { width, height } = clippedContent.copiedFigure;
+    const copy = deepCopy(clippedContent.copiedDefinition);
     const maxPosition = this.getters.getMaxAnchorOffset(sheetId, height, width);
     let { left: col, top: row } = zones[0];
     const offset = { x: 0, y: 0 };
@@ -69,48 +62,32 @@ export class CarouselClipboardHandler extends AbstractFigureClipboardHandler<Cli
       row = maxPosition.row;
       offset.y = maxPosition.offset.y;
     }
-    this.dispatch("CREATE_CAROUSEL", {
+    this.dispatch("CREATE_DATA_LAYER", {
       figureId,
+      dataLayerId: figureId,
       sheetId,
-      definition: { items: [] },
       col,
       row,
       offset,
       size: { height, width },
-    });
-
-    const items = deepCopy(clippedContent.copiedCarousel.items);
-    for (const item of items) {
-      if (item.type !== "chart") {
-        continue;
-      }
-      const chart = clippedContent.copiedCharts[item.id];
-      const newId = UuidGenerator.smallUuid();
-      const definition = SpreadsheetChart.fromDefinition(
-        this.getters,
-        sheetId,
-        chart.copyInSheetId(sheetId)
-      ).getDefinition();
-      this.dispatch("CREATE_CHART", { figureId, chartId: newId, sheetId, definition });
-      item.id = newId;
-    }
-
-    this.dispatch("UPDATE_CAROUSEL", {
-      sheetId,
-      figureId,
-      definition: { ...clippedContent.copiedCarousel, items },
+      definition: copy,
     });
 
     if (options.isCutOperation) {
       this.dispatch("DELETE_FIGURE", {
-        sheetId: clippedContent.copiedSheetId,
+        sheetId: clippedContent.sheetId,
         figureId: clippedContent.copiedFigure.id,
       });
     }
     this.dispatch("SELECT_FIGURE", { figureId });
   }
 
-  isPasteAllowed(sheetId: UID, target: Zone[], content: any, option?: ClipboardOptions) {
+  isPasteAllowed(
+    sheetId: UID,
+    target: Zone[],
+    content: ClipboardContent,
+    option?: ClipboardOptions
+  ) {
     if (target.length === 0) {
       return CommandResult.EmptyTarget;
     }

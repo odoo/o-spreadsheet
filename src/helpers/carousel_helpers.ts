@@ -1,5 +1,4 @@
 import { chartSubtypeRegistry } from "../registries/chart_subtype_registry";
-import { _t } from "../translation";
 import { ChartDefinition } from "../types/chart/chart";
 import { CarouselItem } from "../types/figure";
 import { Getters } from "../types/getters";
@@ -15,10 +14,10 @@ export const CAROUSEL_DEFAULT_CHART_DEFINITION: ChartDefinition = {
 };
 
 export function getCarouselItemPreview(getters: Getters, item: CarouselItem): string {
-  if (item.type === "carouselDataView" || item.type === "dataLayer") {
+  if (item.type === "dataLayer") {
     return "o-spreadsheet-Icon.DATA";
   }
-  const definition = getters.getChartDefinition(item.chartId);
+  const definition = getters.getChartDefinition(item.id);
   const matchedChart =
     chartSubtypeRegistry.getAll().find((c) => c.matcher?.(definition)) ||
     chartSubtypeRegistry.get(definition.type);
@@ -29,13 +28,10 @@ export function getCarouselItemTitle(getters: Getters, item: CarouselItem): stri
   if (item.title) {
     return item.title;
   }
-  if (item.type === "carouselDataView") {
-    return _t("Data");
-  }
   if (item.type === "dataLayer") {
-    return item.rangeXc;
+    return getters.getDataLayer(item.id).rangeXc;
   }
-  const definition = getters.getChartDefinition(item.chartId);
+  const definition = getters.getChartDefinition(item.id);
   const matchedChart =
     chartSubtypeRegistry.getAll().find((c) => c.matcher?.(definition)) ||
     chartSubtypeRegistry.get(definition.type);

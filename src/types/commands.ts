@@ -21,6 +21,7 @@ import { ChartDefinition } from "./chart/chart";
 import { ConditionalFormat } from "./conditional_formatting";
 
 import { ClipboardPasteOptions, ParsedOsClipboardContentWithImageData } from "./clipboard";
+import { DataLayerDefinition } from "./data_layer";
 import { DataValidationRule } from "./data_validation";
 import { Carousel, CarouselItem, Figure, FigureSize } from "./figure";
 import { SearchOptions } from "./find_and_replace";
@@ -301,6 +302,9 @@ export const coreTypes = new Set<CoreCommandTypes>([
   "UPDATE_FIGURE",
   "CREATE_CAROUSEL",
   "UPDATE_CAROUSEL",
+  "CREATE_DATA_LAYER",
+  "UPDATE_DATA_LAYER",
+  "DELETE_DATA_LAYER",
 
   /** FORMATTING */
   "SET_FORMATTING",
@@ -652,7 +656,8 @@ export interface DuplicateCarouselChartCommand extends SheetDependentCommand {
 export interface UpdateCarouselActiveItemCommand extends SheetDependentCommand {
   type: "UPDATE_CAROUSEL_ACTIVE_ITEM";
   figureId: UID;
-  item: CarouselItem;
+  item?: CarouselItem;
+  isDataView?: boolean;
 }
 
 export interface PopOutChartFromCarouselCommand extends SheetDependentCommand {
@@ -668,6 +673,28 @@ export interface PopOutChartFromCarouselCommand extends SheetDependentCommand {
 export interface CreateImageOverCommand extends BaseFigureCommand {
   type: "CREATE_IMAGE";
   definition: Image;
+}
+
+//------------------------------------------------------------------------------
+// Data Layer
+//------------------------------------------------------------------------------
+
+export interface CreateDataLayerCommand extends BaseFigureCommand {
+  type: "CREATE_DATA_LAYER";
+  dataLayerId: UID;
+  definition: DataLayerDefinition;
+}
+
+export interface UpdateDataLayerCommand extends SheetDependentCommand {
+  type: "UPDATE_DATA_LAYER";
+  dataLayerId: UID;
+  definition: DataLayerDefinition;
+}
+
+export interface DeleteDataLayerCommand {
+  type: "DELETE_DATA_LAYER";
+  dataLayerId: UID;
+  sheetId: UID;
 }
 
 //------------------------------------------------------------------------------
@@ -1277,6 +1304,11 @@ export type CoreCommand =
 
   /** IMAGE */
   | CreateImageOverCommand
+
+  /** DATA LAYER */
+  | CreateDataLayerCommand
+  | UpdateDataLayerCommand
+  | DeleteDataLayerCommand
 
   /** FILTERS */
   | CreateTableCommand

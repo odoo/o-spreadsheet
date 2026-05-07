@@ -70,7 +70,7 @@
       <t t-if="activeDataLayerItem">
         <Section title.translate="Data Range">
           <SelectionInput
-            t-key="getItemId(activeDataLayerItem)"
+            t-key="activeDataLayerItem.id"
             ranges="[getDataLayerRangeString(activeDataLayerItem)]"
             hasSingleRange="true"
             onSelectionChanged="(ranges) => this.onDataLayerRangeChanged(ranges)"
@@ -84,12 +84,9 @@
         t-att-title="carouselAddChartInfoMessage">
         + Add chart
       </div>
-      <div
-        t-if="!hasDataView"
-        class="o-button-link o-carousel-add-data-view float-end py-4 pe-4"
-        t-on-click="addDataViewToCarousel"
-        t-att-title="carouselDataViewMessage">
-        + Add data view
+      <div class="o-section px-4 py-2 d-flex align-items-center gap-2">
+        <input type="checkbox" t-att-checked="showDataView" t-on-change="toggleShowDataView"/>
+        <span t-att-title="carouselDataViewMessage">Show data view</span>
       </div>
       <div
         class="o-button-link o-carousel-add-data-layer float-end py-4 pe-4"

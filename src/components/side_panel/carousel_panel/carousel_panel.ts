@@ -18,6 +18,8 @@ import { TextStyler } from "../chart/building_blocks/text_styler/text_styler";
 import { CogWheelMenu } from "../components/cog_wheel_menu/cog_wheel_menu";
 import { Section } from "../components/section/section";
 
+type DataLayerCarouselItem = CarouselItem & { type: "dataLayer" };
+
 interface Props {
   onCloseSidePanel: () => void;
   figureId: UID;
@@ -60,13 +62,7 @@ export class CarouselPanel extends Component<Props, SpreadsheetChildEnv> {
   }
 
   getItemId(item: CarouselItem): string {
-    if (item.type === "chart") {
-      return item.chartId;
-    }
-    if (item.type === "dataLayer") {
-      return `dataLayer_${item.sheetId}_${item.rangeXc}`;
-    }
-    return "transparent-carousel";
+    return item.id;
   }
 
   addNewChartToCarousel() {
@@ -76,8 +72,16 @@ export class CarouselPanel extends Component<Props, SpreadsheetChildEnv> {
     });
   }
 
-  get hasDataView(): boolean {
-    return this.carouselItems.some((item) => item.type === "carouselDataView");
+  get showDataView(): boolean {
+    return this.carousel.showDataView === true;
+  }
+
+  toggleShowDataView() {
+    this.env.model.dispatch("UPDATE_CAROUSEL", {
+      figureId: this.props.figureId,
+      sheetId: this.carouselSheetId,
+      definition: { ...this.carousel, showDataView: !this.showDataView },
+    });
   }
 
   isCarouselItemActive(item: CarouselItem): boolean {
@@ -85,15 +89,23 @@ export class CarouselPanel extends Component<Props, SpreadsheetChildEnv> {
     return deepEquals(activeItem, item);
   }
 
-  addDataViewToCarousel() {
-    const carousel = this.env.model.getters.getCarousel(this.props.figureId);
-    this.updateItems([...carousel.items, { type: "carouselDataView" }]);
-  }
-
   addDataLayerToCarousel(rangeXc: string) {
     const carousel = this.env.model.getters.getCarousel(this.props.figureId);
     const sheetId = this.env.model.getters.getActiveSheetId();
-    this.updateItems([...carousel.items, { type: "dataLayer", rangeXc, sheetId }]);
+    const dataLayerId = UuidGenerator.smallUuid();
+    const carouselSheetId = this.carouselSheetId;
+    const fig = this.env.model.getters.getFigure(carouselSheetId, this.props.figureId)!;
+    this.env.model.dispatch("CREATE_DATA_LAYER", {
+      dataLayerId,
+      figureId: this.props.figureId,
+      sheetId: carouselSheetId,
+      col: fig.col,
+      row: fig.row,
+      offset: fig.offset,
+      size: { width: fig.width, height: fig.height },
+      definition: { rangeXc, sheetId },
+    });
+    this.updateItems([...carousel.items, { type: "dataLayer", id: dataLayerId }]);
   }
 
   onAddDataLayer() {
@@ -114,7 +126,7 @@ export class CarouselPanel extends Component<Props, SpreadsheetChildEnv> {
     if (item.type === "chart") {
       this.activateCarouselItem(item);
       this.env.model.dispatch("SELECT_FIGURE", { figureId: this.props.figureId });
-      this.env.openSidePanel("ChartPanel", { chartId: item.chartId });
+      this.env.openSidePanel("ChartPanel", { chartId: item.id });
     }
   }
 
@@ -144,7 +156,7 @@ export class CarouselPanel extends Component<Props, SpreadsheetChildEnv> {
     this.env.model.dispatch("POPOUT_CHART_FROM_CAROUSEL", {
       sheetId: this.carouselSheetId,
       carouselId: this.props.figureId,
-      chartId: item.chartId,
+      chartId: item.id,
     });
   }
 
@@ -155,7 +167,7 @@ export class CarouselPanel extends Component<Props, SpreadsheetChildEnv> {
     this.env.model.dispatch("DUPLICATE_CAROUSEL_CHART", {
       sheetId: this.carouselSheetId,
       carouselId: this.props.figureId,
-      chartId: item.chartId,
+      chartId: item.id,
       duplicatedChartId: UuidGenerator.smallUuid(),
     });
   }
@@ -296,14 +308,15 @@ export class CarouselPanel extends Component<Props, SpreadsheetChildEnv> {
     return _t("The data view makes the carousel transparent, revealing the data underneath.");
   }
 
-  get activeDataLayerItem(): (CarouselItem & { type: "dataLayer" }) | undefined {
+  get activeDataLayerItem(): DataLayerCarouselItem | undefined {
     const activeItem = this.env.model.getters.getSelectedCarouselItem(this.props.figureId);
-    return activeItem?.type === "dataLayer" ? activeItem : undefined;
+    return activeItem?.type === "dataLayer" ? (activeItem as DataLayerCarouselItem) : undefined;
   }
 
-  getDataLayerRangeString(item: CarouselItem & { type: "dataLayer" }): string {
-    const sheetName = this.env.model.getters.getSheetName(item.sheetId);
-    return `${getCanonicalSymbolName(sheetName)}!${item.rangeXc}`;
+  getDataLayerRangeString(item: DataLayerCarouselItem): string {
+    const def = this.env.model.getters.getDataLayer(item.id);
+    const sheetName = this.env.model.getters.getSheetName(def.sheetId);
+    return `${getCanonicalSymbolName(sheetName)}!${def.rangeXc}`;
   }
 
   private pendingDataLayerRange: string | undefined;
@@ -317,18 +330,18 @@ export class CarouselPanel extends Component<Props, SpreadsheetChildEnv> {
     if (!activeItem || !this.pendingDataLayerRange) {
       return;
     }
+    const currentDef = this.env.model.getters.getDataLayer(activeItem.id);
     const range = this.env.model.getters.getRangeFromSheetXC(
-      activeItem.sheetId,
+      currentDef.sheetId,
       this.pendingDataLayerRange
     );
     const newRangeXc = zoneToXc(range.zone);
 
-    const items = [...this.carouselItems];
-    const itemIndex = items.findIndex((itm) => deepEquals(itm, activeItem));
-    if (itemIndex !== -1) {
-      items[itemIndex] = { ...activeItem, rangeXc: newRangeXc, sheetId: range.sheetId };
-      this.updateItems(items);
-    }
+    this.env.model.dispatch("UPDATE_DATA_LAYER", {
+      dataLayerId: activeItem.id,
+      sheetId: this.carouselSheetId,
+      definition: { rangeXc: newRangeXc, sheetId: range.sheetId },
+    });
     this.pendingDataLayerRange = undefined;
   }
 }

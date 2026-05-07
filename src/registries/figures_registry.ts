@@ -2,10 +2,12 @@ import { Action } from "../actions/action";
 import {
   getCarouselMenuActions,
   getChartMenuActions,
+  getDataLayerMenuActions,
   getImageMenuActions,
 } from "../actions/figure_menu_actions";
 import { CarouselFigure } from "../components/figures/figure_carousel/figure_carousel";
 import { ChartFigure } from "../components/figures/figure_chart/figure_chart";
+import { DataLayerFigure } from "../components/figures/figure_data_layer/figure_data_layer";
 import { ImageFigure } from "../components/figures/figure_image/figure_image";
 import { UID } from "../types/misc";
 import { SpreadsheetChildEnv } from "../types/spreadsheet_env";
@@ -47,4 +49,9 @@ figureRegistry.add("image", {
 figureRegistry.add("carousel", {
   Component: CarouselFigure,
   menuBuilder: getCarouselMenuActions,
+});
+figureRegistry.add("dataLayer", {
+  Component: DataLayerFigure,
+  SidePanelComponent: "DataLayerPanel",
+  menuBuilder: getDataLayerMenuActions,
 });

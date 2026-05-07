@@ -4,6 +4,7 @@ import { CarouselPlugin } from "./core/carousel";
 import { CellPlugin } from "./core/cell";
 import { ChartPlugin } from "./core/chart";
 import { ConditionalFormatPlugin } from "./core/conditional_format";
+import { DataLayerPlugin } from "./core/data_layer";
 import { DataValidationPlugin } from "./core/data_validation";
 import { FigurePlugin } from "./core/figures";
 import { HeaderGroupingPlugin } from "./core/header_grouping";
@@ -79,6 +80,7 @@ export const corePluginRegistry = new Registry<CorePluginConstructor>()
   .add("chart", ChartPlugin)
   .add("carousel", CarouselPlugin)
   .add("image", ImagePlugin)
+  .add("dataLayer", DataLayerPlugin)
   .add("named_ranges", NamedRangesPlugin)
   .add("pivot_core", PivotCorePlugin)
   .add("spreadsheet_pivot_core", SpreadsheetPivotCorePlugin)

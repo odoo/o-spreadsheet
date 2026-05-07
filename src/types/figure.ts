@@ -35,9 +35,11 @@ export interface Carousel {
   readonly items: CarouselItem[];
   readonly title?: TitleDesign;
   readonly layout?: "tabs" | "row";
+  readonly showDataView?: boolean;
 }
 
-export type CarouselItem =
-  | { type: "chart"; chartId: UID; title?: string }
-  | { type: "dataLayer"; rangeXc: string; sheetId: UID; title?: string }
-  | { type: "carouselDataView"; title?: string };
+export interface CarouselItem {
+  type: string;
+  id: UID;
+  title?: string;
+}

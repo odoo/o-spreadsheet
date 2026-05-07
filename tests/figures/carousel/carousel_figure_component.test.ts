@@ -47,40 +47,46 @@ describe("Carousel figure component", () => {
     const barId = addNewChartToCarousel(model, "carouselId", { type: "bar" });
     const { fixture } = await mountSpreadsheet({ model });
 
-    expect(model.getters.getSelectedCarouselItem("carouselId")).toMatchObject({ chartId: radarId });
+    expect(model.getters.getSelectedCarouselItem("carouselId")).toMatchObject({ id: radarId });
     expect(model.getters.getChartIdFromFigureId("carouselId")).toBe(radarId);
 
     expect(".o-carousel-tab").toHaveCount(2);
     await click(fixture, ".o-carousel-tab:nth-child(2)");
-    expect(model.getters.getSelectedCarouselItem("carouselId")).toMatchObject({ chartId: barId });
+    expect(model.getters.getSelectedCarouselItem("carouselId")).toMatchObject({ id: barId });
     expect(model.getters.getChartIdFromFigureId("carouselId")).toBe(barId);
 
     await click(fixture, ".o-carousel-tab:nth-child(1)");
-    expect(model.getters.getSelectedCarouselItem("carouselId")).toMatchObject({ chartId: radarId });
+    expect(model.getters.getSelectedCarouselItem("carouselId")).toMatchObject({ id: radarId });
     expect(model.getters.getChartIdFromFigureId("carouselId")).toBe(radarId);
   });
 
   test("Carousel data view make the figure un-clickable", async () => {
-    createCarousel(model, { items: [{ type: "carouselDataView" }] }, "carouselId");
+    createCarousel(model, { items: [], showDataView: true }, "carouselId");
     addNewChartToCarousel(model, "carouselId", { type: "radar" });
 
     const { fixture } = await mountSpreadsheet({ model });
     expect(".o-carousel-header").toHaveClass("pe-auto");
+    // Chart is selected by default
+    expect(getElStyle(".o-figure-wrapper", "pointer-events")).toBe("auto");
+
+    // Click the Data tab (last tab) to activate data view
+    await click(fixture, ".o-carousel-tab:last-child");
     expect(getElStyle(".o-figure-wrapper", "pointer-events")).toBe("none");
 
-    await click(fixture, ".o-carousel-tab:nth-child(2)");
+    // Click back on chart tab
+    await click(fixture, ".o-carousel-tab:first-child");
     expect(getElStyle(".o-figure-wrapper", "pointer-events")).toBe("auto");
   });
 
   test("Carousel tabs have the correct name", async () => {
-    createCarousel(model, { items: [{ type: "carouselDataView" }] }, "carouselId");
+    createCarousel(model, { items: [], showDataView: true }, "carouselId");
     addNewChartToCarousel(model, "carouselId", { type: "radar" });
     const { fixture } = await mountSpreadsheet({ model });
 
     const tabs = fixture.querySelectorAll(".o-carousel-tab");
     expect(tabs).toHaveLength(2);
-    expect(tabs[0]).toHaveText("Data");
-    expect(tabs[1]).toHaveText("Radar");
+    expect(tabs[0]).toHaveText("Radar");
+    expect(tabs[1]).toHaveText("Data");
   });
 
   test("Can drag & drop a chart on a carousel to combine them", async () => {
@@ -109,7 +115,7 @@ describe("Carousel figure component", () => {
 
     triggerMouseEvent(".o-figure[data-id=chartFigureId]", "pointerup");
     expect(model.getters.getCarousel("carouselId")).toMatchObject({
-      items: [{ type: "chart", chartId: "chartId" }],
+      items: [{ type: "chart", id: "chartId" }],
     });
     expect(model.getters.getFigures(sheetId)).toHaveLength(1);
   });
@@ -157,7 +163,8 @@ describe("Carousel figure component", () => {
       "carouselId"
     );
     updateCarousel(model, "carouselId", {
-      items: [{ type: "carouselDataView" }],
+      items: [],
+      showDataView: true,
     });
     await mountSpreadsheet({ model });
 
@@ -174,25 +181,25 @@ describe("Carousel figure component", () => {
     expect(".o-carousel-header").toHaveStyle({ "background-color": "#FFFFFF" });
 
     // Carousel with data view
-    updateCarousel(model, "carouselId", { items: [{ type: "carouselDataView" }] });
+    updateCarousel(model, "carouselId", { items: [], showDataView: true });
     await nextTick();
     expect(".o-carousel-header").toHaveStyle({ "background-color": "#FFFFFF" });
 
     // Carousel with chart
     const chartId = addNewChartToCarousel(model, "carouselId", { background: "#123456" });
-    selectCarouselItem(model, "carouselId", { type: "chart", chartId });
+    selectCarouselItem(model, "carouselId", { type: "chart", id: chartId });
     await nextTick();
     expect(".o-carousel-header").toHaveStyle({ "background-color": "#123456" });
   });
 
   test("display chart menu", async () => {
-    createCarousel(model, { items: [{ type: "carouselDataView" }] }, "carouselId");
+    createCarousel(model, { items: [], showDataView: true }, "carouselId");
     addNewChartToCarousel(model, "carouselId", { type: "bar" });
     model.updateMode("dashboard");
     const { fixture } = await mountSpreadsheet({ model });
+    expect(".o-chart-dashboard-item").toHaveCount(1); // chart is selected by default
+    await click(fixture, ".o-carousel-tab:last-child"); // click Data tab
     expect(".o-chart-dashboard-item").toHaveCount(0); // nothing for the data view
-    await click(fixture, ".o-carousel-tab:nth-child(2)");
-    expect(".o-chart-dashboard-item").toHaveCount(1); // ellipsis, no full screen
   });
 
   test("Chart animation is played at each carousel tab change", async () => {
@@ -225,36 +232,36 @@ describe("Carousel figure component", () => {
         isHidden: tab.style.display === "none",
       }));
 
-    createCarousel(model, { items: [{ type: "carouselDataView" }] }, "carouselId");
+    createCarousel(model, { items: [], showDataView: true }, "carouselId");
     addNewChartToCarousel(model, "carouselId", { type: "pie" });
     const { fixture } = await mountSpreadsheet({ model });
 
     expect(getCarouselTabs()).toEqual([
-      { label: "Data", isHidden: false },
       { label: "Pie", isHidden: false },
+      { label: "Data", isHidden: false },
     ]);
     expect(".o-carousel-tabs-dropdown").toHaveStyle({ display: "none" });
 
-    const radarChartId = addNewChartToCarousel(model, "carouselId", { type: "radar" });
-    addNewChartToCarousel(model, "carouselId", { type: "line" });
+    addNewChartToCarousel(model, "carouselId", { type: "radar" });
+    const lineChartId = addNewChartToCarousel(model, "carouselId", { type: "line" });
     await nextTick();
 
     expect(getCarouselTabs()).toEqual([
-      { label: "Data", isHidden: false },
       { label: "Pie", isHidden: false },
-      { label: "Radar", isHidden: true },
+      { label: "Radar", isHidden: false },
       { label: "Line", isHidden: true },
+      { label: "Data", isHidden: true },
     ]);
     expect(".o-carousel-tabs-dropdown").toHaveStyle({ display: "block" });
 
     await click(fixture, ".o-carousel-tabs-dropdown");
     expect(".o-menu-item").toHaveCount(2);
-    expect(".o-menu-item:nth-child(1)").toHaveText("Radar");
-    expect(".o-menu-item:nth-child(2)").toHaveText("Line");
+    expect(".o-menu-item:nth-child(1)").toHaveText("Line");
+    expect(".o-menu-item:nth-child(2)").toHaveText("Data");
 
     await click(fixture, ".o-menu-item:nth-child(1)");
     expect(model.getters.getSelectedCarouselItem("carouselId")).toMatchObject({
-      chartId: radarChartId,
+      id: lineChartId,
     });
   });
 
@@ -295,7 +302,7 @@ describe("Carousel figure component", () => {
     });
 
     test("Can edit a carousel chart", () => {
-      createCarousel(model, { items: [{ type: "carouselDataView" }] }, "carouselId");
+      createCarousel(model, { items: [], showDataView: true }, "carouselId");
       addNewChartToCarousel(model, "carouselId", { type: "radar" });
 
       const action = getCarouselMenuItem("carouselId", "edit_chart");
@@ -312,7 +319,8 @@ describe("Carousel figure component", () => {
     });
 
     test("Can delete a carousel item", () => {
-      createCarousel(model, { items: [{ type: "carouselDataView" }] }, "carouselId");
+      createCarousel(model, { items: [] }, "carouselId");
+      addNewChartToCarousel(model, "carouselId", { type: "radar" });
 
       const action = getCarouselMenuItem("carouselId", "delete_carousel_item");
       expect(action?.isVisible(env)).toBe(true);

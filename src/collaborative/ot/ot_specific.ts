@@ -193,7 +193,7 @@ function updateCarouselOnChartDelete(
     definition: {
       ...toTransform.definition,
       items: toTransform.definition.items.filter(
-        (item) => !(item.type === "chart" && item.chartId === executed.chartId)
+        (item) => !(item.type === "chart" && item.id === executed.chartId)
       ),
     },
   };

@@ -32,8 +32,8 @@
                 <div class="o-chart-container w-100 h-100">
                   <t
                     t-component="getRowItemChartComponent(item)"
-                    chartId="item.chartId"
-                    t-key="item.chartId"
+                    chartId="item.id"
+                    t-key="item.id"
                   />
                 </div>
               </t>
@@ -48,7 +48,7 @@
           class="o-carousel-header d-flex align-items-baseline flex-shrink-0 pe-1 pe-auto"
           t-att-class="{
             'border-bottom': env.isDashboard(),
-            'o-carousel-header-floating': !env.isDashboard() and selectedItem?.type === 'carouselDataView',
+            'o-carousel-header-floating': !env.isDashboard() and isDataViewActive,
            }"
           t-att-style="headerStyle">
           <div
@@ -67,6 +67,14 @@
                 t-on-click.stop="() => this.onCarouselTabClick(item)"
               />
             </t>
+            <div
+              t-if="showDataViewTab"
+              class="o-carousel-tab text-truncate px-2 mt-1 flex-shrink-0"
+              t-att-class="{ 'selected': isDataViewActive }"
+              data-type="dataView"
+              t-on-click.stop="onDataViewTabClick">
+              Data
+            </div>
           </div>
           <div
             class="o-carousel-tabs-dropdown o-carousel-button flex-shrink-0 rounded p-1"
@@ -90,7 +98,7 @@
             t-att-class="{
               'fa-compress': props.isFullScreen,
               'fa-expand': !props.isFullScreen,
-              'invisible': selectedCarouselItem?.type !== 'chart' and selectedCarouselItem?.type !== 'dataLayer',
+              'invisible': !selectedCarouselItem or (selectedCarouselItem?.type !== 'chart' and selectedCarouselItem?.type !== 'dataLayer'),
             }"
             t-on-click="toggleFullScreen"
           />
@@ -111,16 +119,16 @@
           <div class="o-chart-container w-100 h-100">
             <t
               t-component="chartComponent"
-              chartId="selectedItem.chartId"
+              chartId="selectedItem.id"
               isFullScreen="props.isFullScreen"
-              t-key="selectedItem.chartId"
+              t-key="selectedItem.id"
             />
           </div>
           <ChartDashboardMenu
             t-if="env.isDashboard()"
-            chartId="selectedItem.chartId"
+            chartId="selectedItem.id"
             hasFullScreenButton="false"
-            t-key="selectedItem.chartId"
+            t-key="selectedItem.id"
           />
         </div>
         <div

@@ -7,7 +7,7 @@ import { DisposableStore } from "../../store_engine/store";
 import { DataLayerRenderer } from "../../stores/data_layer_renderer_store";
 import { ModelStore } from "../../stores/model_store";
 import { RendererStore } from "../../stores/renderer_store";
-import { Carousel, CarouselItem, FigureUI } from "../../types/figure";
+import { Carousel, FigureUI } from "../../types/figure";
 import { RenderingGetters } from "../../types/getters";
 import { UID } from "../../types/misc";
 import { GridRenderingContext, Rect } from "../../types/rendering";
@@ -61,6 +61,8 @@ export class FigureRendererStore extends DisposableStore {
         }
       } else if (figure.tag === "carousel") {
         this.drawCarousel(renderingCtx, figure);
+      } else if (figure.tag === "dataLayer") {
+        this.drawStandaloneDataLayer(ctx, figure, x, y);
       }
 
       const isRowCarousel =
@@ -126,7 +128,7 @@ export class FigureRendererStore extends DisposableStore {
       this.drawChart(renderingCtx, chartId, chartRect);
     } else if (!title.text && selectedItem?.type === "dataLayer") {
       const contentRect = { x, y, width: figure.width, height: figure.height };
-      this.drawDataLayer(ctx, selectedItem, contentRect, headerBackground);
+      this.drawDataLayer(ctx, selectedItem.id, contentRect, headerBackground);
     } else if (title.text) {
       ctx.save();
 
@@ -149,7 +151,7 @@ export class FigureRendererStore extends DisposableStore {
       if (chartId) {
         this.drawChart(renderingCtx, chartId, contentRect);
       } else if (selectedItem?.type === "dataLayer") {
-        this.drawDataLayer(ctx, selectedItem, contentRect, headerBackground);
+        this.drawDataLayer(ctx, selectedItem.id, contentRect, headerBackground);
       } else if (!this.getters.isDashboard()) {
         // Border below the carousel header for data view
         ctx.strokeStyle = GRAY_400;
@@ -202,9 +204,9 @@ export class FigureRendererStore extends DisposableStore {
       const itemRect = { x: itemX, y: contentY, width: itemWidth, height: contentHeight };
 
       if (item.type === "chart") {
-        this.drawChart(renderingCtx, item.chartId, itemRect);
+        this.drawChart(renderingCtx, item.id, itemRect);
       } else if (item.type === "dataLayer") {
-        this.drawDataLayer(ctx, item, itemRect);
+        this.drawDataLayer(ctx, item.id, itemRect);
       }
 
       if (this.getters.isDashboard()) {
@@ -235,13 +237,34 @@ export class FigureRendererStore extends DisposableStore {
 
   private drawDataLayer(
     ctx: CanvasRenderingContext2D,
-    item: CarouselItem & { type: "dataLayer" },
+    dataLayerId: UID,
     rect: Rect,
     paddingBackground?: string
   ) {
-    const zone = toZone(item.rangeXc);
-    this.dataLayerRenderer.render(ctx, item.sheetId, zone, rect, {
+    const definition = this.getters.getDataLayer(dataLayerId);
+    const zone = toZone(definition.rangeXc);
+    this.dataLayerRenderer.render(ctx, definition.sheetId, zone, rect, {
       paddingBackground,
+      hideGridLines: this.getters.isDashboard(),
+      hideFilterIcons: true,
+    });
+  }
+
+  private drawStandaloneDataLayer(
+    ctx: CanvasRenderingContext2D,
+    figure: FigureUI,
+    x: number,
+    y: number
+  ) {
+    if (!this.getters.doesDataLayerExist(figure.id)) {
+      return;
+    }
+    const definition = this.getters.getDataLayer(figure.id);
+    const zone = toZone(definition.rangeXc);
+    const rect = { x, y, width: figure.width, height: figure.height };
+    const paddingBg = this.getters.getSpreadsheetTheme().backgroundColor;
+    this.dataLayerRenderer.render(ctx, definition.sheetId, zone, rect, {
+      paddingBackground: paddingBg,
       hideGridLines: this.getters.isDashboard(),
       hideFilterIcons: true,
     });

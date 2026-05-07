@@ -1,4 +1,5 @@
 import { FIGURE_ID_SPLITTER } from "../../constants";
+import { deepCopy } from "../../helpers/misc";
 import { CommandResult, CoreCommand, UpdateCarouselCommand } from "../../types/commands";
 import { Carousel, CarouselItem } from "../../types/figure";
 import { UID } from "../../types/misc";
@@ -41,7 +42,7 @@ export class CarouselPlugin extends CorePlugin<CarouselState> implements Carouse
         this.history.update("carousels", cmd.sheetId, cmd.figureId, cmd.definition);
         break;
       case "UPDATE_CAROUSEL":
-        this.removeDeletedCharts(cmd, this.getters.getCarousel(cmd.figureId).items);
+        this.removeDeletedItems(cmd, this.getters.getCarousel(cmd.figureId).items);
         this.history.update("carousels", cmd.sheetId, cmd.figureId, cmd.definition);
         break;
       case "DUPLICATE_SHEET": {
@@ -61,13 +62,27 @@ export class CarouselPlugin extends CorePlugin<CarouselState> implements Carouse
                 row: fig.row,
                 size,
                 definition: {
+                  ...carousel,
                   items: carousel.items.map((item): CarouselItem => {
-                    if (item.type === "carouselDataView" || item.type === "dataLayer") {
-                      return { ...item };
+                    if (item.type === "dataLayer") {
+                      const dlIdBase = item.id.split(FIGURE_ID_SPLITTER).pop();
+                      const newDlId = `${cmd.sheetIdTo}${FIGURE_ID_SPLITTER}${dlIdBase}`;
+                      const definition = deepCopy(this.getters.getDataLayer(item.id));
+                      this.dispatch("CREATE_DATA_LAYER", {
+                        dataLayerId: newDlId,
+                        figureId: duplicatedFigureId,
+                        sheetId: cmd.sheetIdTo,
+                        col: fig.col,
+                        row: fig.row,
+                        offset: fig.offset,
+                        size,
+                        definition,
+                      });
+                      return { ...item, id: newDlId };
                     }
-                    const chartIdBase = item.chartId.split(FIGURE_ID_SPLITTER).pop();
+                    const chartIdBase = item.id.split(FIGURE_ID_SPLITTER).pop();
                     const newChartId = `${cmd.sheetIdTo}${FIGURE_ID_SPLITTER}${chartIdBase}`;
-                    return { ...item, chartId: newChartId };
+                    return { ...item, id: newChartId };
                   }),
                 },
               });
@@ -103,14 +118,18 @@ export class CarouselPlugin extends CorePlugin<CarouselState> implements Carouse
     throw new Error(`There is no carousel with the given figureId: ${figureId}`);
   }
 
-  private removeDeletedCharts(cmd: UpdateCarouselCommand, oldItems: CarouselItem[]) {
-    const newChartIds = new Set(
-      cmd.definition.items.filter((item) => item.type === "chart").map((item) => item.chartId)
-    );
+  private removeDeletedItems(cmd: UpdateCarouselCommand, oldItems: CarouselItem[]) {
+    const newIds = new Set(cmd.definition.items.map((item) => item.id));
 
     for (const item of oldItems) {
-      if (item.type === "chart" && !newChartIds.has(item.chartId)) {
-        this.dispatch("DELETE_CHART", { chartId: item.chartId, sheetId: cmd.sheetId });
+      if (newIds.has(item.id)) {
+        continue;
+      }
+      if (item.type === "chart") {
+        this.dispatch("DELETE_CHART", { chartId: item.id, sheetId: cmd.sheetId });
+      }
+      if (item.type === "dataLayer") {
+        this.dispatch("DELETE_DATA_LAYER", { dataLayerId: item.id, sheetId: cmd.sheetId });
       }
     }
   }
@@ -119,10 +138,26 @@ export class CarouselPlugin extends CorePlugin<CarouselState> implements Carouse
     for (const sheet of data.sheets) {
       const carousels = (sheet.figures || []).filter((figure) => figure.tag === "carousel");
       for (const carousel of carousels) {
+        // Migrate old carouselDataView items to showDataView setting
+        const oldItems = carousel.data.items || [];
+        const hasDataView = oldItems.some((item: any) => item.type === "carouselDataView");
+        const items = oldItems.filter((item: any) => item.type !== "carouselDataView");
+        // Migrate old item format: chartId/dataLayerId → id
+        for (const item of items) {
+          if (item.chartId && !item.id) {
+            item.id = item.chartId;
+            delete item.chartId;
+          }
+          if (item.dataLayerId && !item.id) {
+            item.id = item.dataLayerId;
+            delete item.dataLayerId;
+          }
+        }
         this.history.update("carousels", sheet.id, carousel.id, {
-          items: carousel.data.items,
+          items,
           title: carousel.data.title,
           layout: carousel.data.layout,
+          showDataView: hasDataView || carousel.data.showDataView || undefined,
         });
       }
     }
