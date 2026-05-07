@@ -42,6 +42,45 @@
         </div>
       </t>
 
+      <!-- GRID LAYOUT: items in a configurable grid -->
+      <t t-elif="isGridLayout">
+        <div
+          t-if="title"
+          class="o-carousel-header d-flex align-items-baseline flex-shrink-0 pe-1 pe-auto"
+          t-att-style="headerStyle">
+          <div
+            class="o-carousel-title text-truncate flex-shrink-0 pe-2"
+            t-out="title"
+            t-att-title="title"
+            t-att-style="titleStyle"
+          />
+          <div class="flex-fill"/>
+          <div
+            t-if="!env.isDashboard()"
+            class="o-carousel-menu-button o-carousel-button fa fa-ellipsis-v rounded ms-1"
+            t-on-click="openContextMenu"
+          />
+        </div>
+        <div class="o-carousel-grid-content flex-fill w-100" t-att-style="getGridContainerStyle()">
+          <t t-foreach="carousel.items" t-as="item" t-key="item_index">
+            <div
+              class="o-carousel-grid-item"
+              t-att-class="{'o-dashboard-grid-item': env.isDashboard()}"
+              t-att-style="getGridItemStyle(item)">
+              <t t-if="item.type === 'chart'">
+                <div class="o-chart-container w-100 h-100">
+                  <t
+                    t-component="getRowItemChartComponent(item)"
+                    chartId="item.id"
+                    t-key="item.id"
+                  />
+                </div>
+              </t>
+            </div>
+          </t>
+        </div>
+      </t>
+
       <!-- TABS LAYOUT (default): one item at a time with tab selector -->
       <t t-else="">
         <div

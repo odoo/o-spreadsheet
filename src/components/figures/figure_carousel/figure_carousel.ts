@@ -172,6 +172,37 @@ export class CarouselFigure extends Component<Props, SpreadsheetChildEnv> {
     return this.carousel.layout === "row";
   }
 
+  get isGridLayout(): boolean {
+    return this.carousel.layout === "grid";
+  }
+
+  get gridColumns(): number {
+    return this.carousel.columns ?? 2;
+  }
+
+  getGridContainerStyle(): string {
+    return cssPropertiesToCss({
+      display: "grid",
+      "grid-template-columns": `repeat(${this.gridColumns}, 1fr)`,
+      "grid-auto-rows": "1fr",
+      gap: "16px",
+      padding: "16px",
+      width: "100%",
+      height: "100%",
+      "box-sizing": "border-box",
+    });
+  }
+
+  getGridItemStyle(item: CarouselItem): string {
+    const colSpan = item.colSpan ?? 1;
+    const rowSpan = item.rowSpan ?? 1;
+    return cssPropertiesToCss({
+      "grid-column": `span ${colSpan}`,
+      "grid-row": `span ${rowSpan}`,
+      overflow: "hidden",
+    });
+  }
+
   getRowItemStyle(index: number): string {
     const count = this.carousel.items.length;
     const totalGap = (count - 1) * 16;

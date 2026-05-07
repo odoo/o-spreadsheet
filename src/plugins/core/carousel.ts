@@ -157,6 +157,7 @@ export class CarouselPlugin extends CorePlugin<CarouselState> implements Carouse
           items,
           title: carousel.data.title,
           layout: carousel.data.layout,
+          columns: carousel.data.columns,
           showDataView: hasDataView || carousel.data.showDataView || undefined,
         });
       }

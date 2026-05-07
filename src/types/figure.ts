@@ -34,7 +34,8 @@ export type ResizeDirection = -1 | 0 | 1;
 export interface Carousel {
   readonly items: CarouselItem[];
   readonly title?: TitleDesign;
-  readonly layout?: "tabs" | "row";
+  readonly layout?: "tabs" | "row" | "grid";
+  readonly columns?: number;
   readonly showDataView?: boolean;
 }
 
@@ -42,4 +43,6 @@ export interface CarouselItem {
   type: string;
   id: UID;
   title?: string;
+  colSpan?: number;
+  rowSpan?: number;
 }

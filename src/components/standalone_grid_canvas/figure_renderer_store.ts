@@ -1,4 +1,5 @@
 import { DEFAULT_CAROUSEL_TITLE_STYLE, GRAY_400 } from "../../constants";
+import { computeGridItemRects, computeGridLayout } from "../../helpers/carousel_grid_helpers";
 import { drawChartOnCanvas } from "../../helpers/figures/charts/chart_ui_common";
 import { chartStyleToCellStyle, deepCopy } from "../../helpers/misc";
 import { computeTextFont } from "../../helpers/text_helper";
@@ -65,9 +66,10 @@ export class FigureRendererStore extends DisposableStore {
         this.drawStandaloneDataLayer(ctx, figure, x, y);
       }
 
-      const isRowCarousel =
-        figure.tag === "carousel" && this.getters.getCarousel(figure.id)?.layout === "row";
-      if (this.getters.isDashboard() && !isRowCarousel) {
+      const carouselLayout =
+        figure.tag === "carousel" ? this.getters.getCarousel(figure.id)?.layout : undefined;
+      const isMultiItemCarousel = carouselLayout === "row" || carouselLayout === "grid";
+      if (this.getters.isDashboard() && !isMultiItemCarousel) {
         this.drawDashboardFigureBorder(ctx, x, y, figure.width, figure.height);
       } else if (!this.getters.isDashboard()) {
         ctx.strokeStyle = GRAY_400;
@@ -110,6 +112,11 @@ export class FigureRendererStore extends DisposableStore {
 
     if (carousel.layout === "row") {
       this.drawCarouselRow(renderingCtx, figure, carousel, x, y);
+      return;
+    }
+
+    if (carousel.layout === "grid") {
+      this.drawCarouselGrid(renderingCtx, figure, carousel, x, y);
       return;
     }
 
@@ -211,6 +218,67 @@ export class FigureRendererStore extends DisposableStore {
 
       if (this.getters.isDashboard()) {
         this.drawDashboardFigureBorder(ctx, itemX, contentY, itemWidth, contentHeight);
+      }
+    }
+  }
+
+  private drawCarouselGrid(
+    renderingCtx: GridRenderingContext,
+    figure: FigureUI,
+    carousel: Carousel,
+    x: number,
+    y: number
+  ) {
+    const { ctx } = renderingCtx;
+    const title = { ...DEFAULT_CAROUSEL_TITLE_STYLE, ...carousel.title };
+    const headerPadding = 4;
+    const headerSize = title.text ? title.fontSize + headerPadding * 2 : 0;
+
+    if (title.text) {
+      ctx.save();
+      ctx.fillStyle = this.getters.getSpreadsheetTheme().backgroundColor;
+      ctx.fillRect(x, y, figure.width, headerSize);
+      const font = computeTextFont(chartStyleToCellStyle(title));
+      ctx.font = font;
+      ctx.fillStyle = title.color;
+      ctx.fillText(title.text, x + headerPadding, y + headerPadding + title.fontSize);
+      ctx.restore();
+    }
+
+    const items = carousel.items;
+    if (items.length === 0) {
+      return;
+    }
+
+    const columns = carousel.columns ?? 2;
+    const gap = 16;
+    const padding = 16;
+    const contentRect = {
+      x: x + padding,
+      y: y + headerSize + padding,
+      width: figure.width - padding * 2,
+      height: figure.height - headerSize - padding * 2,
+    };
+
+    const { placements, totalRows } = computeGridLayout(items, columns);
+    const itemRects = computeGridItemRects(placements, totalRows, columns, contentRect, gap);
+
+    for (const rect of itemRects) {
+      const item = items[rect.itemIndex];
+      const itemRect = { x: rect.x, y: rect.y, width: rect.width, height: rect.height };
+
+      if (item.type === "chart") {
+        this.drawChart(renderingCtx, item.id, itemRect);
+      } else if (item.type === "dataLayer") {
+        this.drawDataLayer(ctx, item.id, itemRect);
+      }
+
+      if (this.getters.isDashboard()) {
+        this.drawDashboardFigureBorder(ctx, rect.x, rect.y, rect.width, rect.height);
+      } else {
+        ctx.strokeStyle = GRAY_400;
+        ctx.lineWidth = 1;
+        ctx.strokeRect(rect.x, rect.y, rect.width, rect.height);
       }
     }
   }

@@ -292,16 +292,51 @@ export class CarouselPanel extends Component<Props, SpreadsheetChildEnv> {
     return sheetId;
   }
 
-  get layout(): "tabs" | "row" {
+  get layout(): "tabs" | "row" | "grid" {
     return this.carousel.layout || "tabs";
   }
 
-  setLayout(layout: "tabs" | "row") {
+  setLayout(layout: "tabs" | "row" | "grid") {
+    const definition = { ...this.carousel, layout };
+    if (layout === "grid" && !this.carousel.columns) {
+      definition.columns = 2;
+    }
     this.env.model.dispatch("UPDATE_CAROUSEL", {
       figureId: this.props.figureId,
       sheetId: this.carouselSheetId,
-      definition: { ...this.carousel, layout },
+      definition,
     });
+  }
+
+  get gridColumns(): number {
+    return this.carousel.columns ?? 2;
+  }
+
+  setGridColumns(columns: number) {
+    const clamped = Math.max(1, Math.min(columns, 12));
+    this.env.model.dispatch("UPDATE_CAROUSEL", {
+      figureId: this.props.figureId,
+      sheetId: this.carouselSheetId,
+      definition: { ...this.carousel, columns: clamped },
+    });
+  }
+
+  setItemColSpan(item: CarouselItem, colSpan: number) {
+    const items = [...this.carouselItems];
+    const index = items.findIndex((itm) => itm.id === item.id);
+    if (index !== -1) {
+      items[index] = { ...item, colSpan: Math.max(1, colSpan) };
+      this.updateItems(items);
+    }
+  }
+
+  setItemRowSpan(item: CarouselItem, rowSpan: number) {
+    const items = [...this.carouselItems];
+    const index = items.findIndex((itm) => itm.id === item.id);
+    if (index !== -1) {
+      items[index] = { ...item, rowSpan: Math.max(1, rowSpan) };
+      this.updateItems(items);
+    }
   }
 
   get carouselDataViewMessage(): string {

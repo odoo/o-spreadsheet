@@ -28,6 +28,17 @@
     }
   }
 
+  .o-carousel-grid-item {
+    overflow: hidden;
+    border: 1px solid #ced4da;
+
+    &.o-dashboard-grid-item {
+      border-radius: 8px;
+      border: 1px solid #d0d0d0;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    }
+  }
+
   .o-carousel-header {
     z-index: 1;
 

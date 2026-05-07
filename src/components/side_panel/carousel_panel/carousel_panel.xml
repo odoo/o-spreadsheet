@@ -30,7 +30,27 @@
             t-on-click="() => this.setLayout('row')">
             Row
           </div>
+          <div
+            class="o-button px-3 py-1"
+            t-att-class="{'o-button-active': layout === 'grid'}"
+            t-on-click="() => this.setLayout('grid')">
+            Grid
+          </div>
         </div>
+        <t t-if="layout === 'grid'">
+          <div class="d-flex align-items-center gap-2 mt-2">
+            <span>Columns:</span>
+            <input
+              type="number"
+              class="o-input"
+              style="width: 60px;"
+              t-att-value="gridColumns"
+              min="1"
+              max="12"
+              t-on-change="(ev) => this.setGridColumns(parseInt(ev.target.value))"
+            />
+          </div>
+        </t>
       </Section>
       <div class="o-section pb-1 pt-0">
         <div class="o-section-title">Carousel Sections</div>
@@ -61,6 +81,28 @@
               />
             </div>
             <div class="ms-auto"/>
+            <t t-if="layout === 'grid'">
+              <div class="d-flex align-items-center gap-1 flex-shrink-0 ms-1">
+                <input
+                  type="number"
+                  class="o-input o-grid-span-input"
+                  title="Column span"
+                  t-att-value="item.colSpan ?? 1"
+                  min="1"
+                  t-att-max="gridColumns"
+                  t-on-change="(ev) => this.setItemColSpan(item, parseInt(ev.target.value))"
+                />
+                <span>x</span>
+                <input
+                  type="number"
+                  class="o-input o-grid-span-input"
+                  title="Row span"
+                  t-att-value="item.rowSpan ?? 1"
+                  min="1"
+                  t-on-change="(ev) => this.setItemRowSpan(item, parseInt(ev.target.value))"
+                />
+              </div>
+            </t>
             <div class="flex-shrink-0 d-flex me-1">
               <CogWheelMenu items="getCogWheelMenuItems(item)"/>
             </div>
