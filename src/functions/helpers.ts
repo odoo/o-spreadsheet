@@ -551,25 +551,33 @@ export function applyVectorization(
   // Reused across every vectorized cell — avoids allocating a new args array per call.
   const argsBuffer: Arg[] = new Array(args.length);
 
-  const fillArgsBuffer = (i: number, j: number): void => {
-    for (let k = 0; k < args.length; k++) {
-      const arg = args[k];
-      switch (vectorArgsType?.[k]) {
-        case "matrix":
-          argsBuffer[k] = (arg as Matrix<FunctionResultObject>)[i][j];
-          break;
-        case "horizontal":
-          argsBuffer[k] = (arg as Matrix<FunctionResultObject>)[i][0];
-          break;
-        case "vertical":
-          argsBuffer[k] = (arg as Matrix<FunctionResultObject>)[0][j];
-          break;
-        case undefined:
-          argsBuffer[k] = arg;
-          break;
+  // Resolve each arg's access pattern once, outside the inner loop. Each getter
+  // closes over its own `arg` and knows how to read it for given (col, row).
+  type ArgGetter = (i: number, j: number) => Arg;
+  const argGetters: ArgGetter[] = new Array(args.length);
+  for (let k = 0; k < args.length; k++) {
+    const arg = args[k];
+    switch (vectorArgsType?.[k]) {
+      case "matrix": {
+        const m = arg as Matrix<FunctionResultObject>;
+        argGetters[k] = (i, j) => m[i][j];
+        break;
       }
+      case "horizontal": {
+        const m = arg as Matrix<FunctionResultObject>;
+        argGetters[k] = (i) => m[i][0];
+        break;
+      }
+      case "vertical": {
+        const m = arg as Matrix<FunctionResultObject>;
+        argGetters[k] = (_i, j) => m[0][j];
+        break;
+      }
+      case undefined:
+        argGetters[k] = () => arg;
+        break;
     }
-  };
+  }
 
   return generateMatrix(countVectorizedCol, countVectorizedRow, (col, row) => {
     if (col > vectorizedColLimit - 1 || row > vectorizedRowLimit - 1) {
@@ -577,7 +585,9 @@ export function applyVectorization(
         _t("Array arguments to [[FUNCTION_NAME]] are of different size.")
       );
     }
-    fillArgsBuffer(col, row);
+    for (let k = 0; k < argGetters.length; k++) {
+      argsBuffer[k] = argGetters[k](col, row);
+    }
     const singleCellComputeResult = formula(...argsBuffer);
     // In the case where the user tries to vectorize arguments of an array formula, we will get an
     // array for every combination of the vectorized arguments, which will lead to a 3D matrix and
