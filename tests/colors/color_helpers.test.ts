@@ -80,6 +80,13 @@ describe("toHex", () => {
   test.each(testColors)("toHex() %s", ({ input, hex }) => {
     expect(toHex(input)).toBeSameColorAs(hex);
   });
+
+  test("toHex works with light-dark colors", () => {
+    expect(toHex("light-dark(#aaa, #bbb)")).toEqual("light-dark(#AAAAAA, #BBBBBB)");
+    expect(toHex("light-dark(rgb(0,0,0), rgba(0,255,255,0.5))")).toEqual(
+      "light-dark(#000000, #00FFFF80)"
+    );
+  });
 });
 
 describe("colorToRGBA", () => {
