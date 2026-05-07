@@ -1,3 +1,4 @@
+import { isMacOS } from "../components/helpers/dom_helpers";
 import { Color } from "../types/misc";
 import { SpreadsheetChildEnv } from "../types/spreadsheet_env";
 
@@ -111,13 +112,17 @@ export function createActions(menuItems: ActionSpec[]): Action[] {
   return menuItems.map(createAction).sort((a, b) => a.sequence - b.sequence);
 }
 
+function adaptShortcutMacOs(shortcut: string) {
+  return shortcut.replace("Ctrl", "⌘").replace("Alt", "⌃");
+}
+
 let nextItemId = 1;
 
 export function createAction(item: ActionSpec): Action {
   const name = item.name;
   const children = item.children;
   const description = item.description;
-  const shortcut = item.shortcut;
+  const shortcut = item.shortcut && isMacOS() ? adaptShortcutMacOs(item.shortcut) : item.shortcut;
   const icon = item.icon;
   const secondaryIcon = item.secondaryIcon;
   const itemId = item.id || nextItemId++;
