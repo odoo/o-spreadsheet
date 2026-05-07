@@ -1,5 +1,5 @@
 import { NEWLINE } from "../../constants";
-import { deepEquals } from "../../helpers";
+import { deepEquals, toHex } from "../../helpers";
 import {
   getBoundingRectAsPOJO,
   getCurrentSelection,
@@ -274,12 +274,12 @@ export class ContentEditableHelper {
 }
 
 function compareContentToSpanElement(content: HtmlContent, node: HTMLElement): boolean {
-  const contentColor = content.color || "";
-  const nodeColor = node.style?.color || "";
+  const contentColor = content.color ? toHex(content.color) : "";
+  const nodeColor = node.style?.color ? toHex(node.style?.color) : "";
 
   const sameColor = contentColor === nodeColor;
   const sameClass = deepEquals(content.classes, [...node.classList]);
-  const sameContent = node.innerText === content.value;
+  const sameContent = node.textContent === content.value;
   return sameColor && sameClass && sameContent;
 }
 
