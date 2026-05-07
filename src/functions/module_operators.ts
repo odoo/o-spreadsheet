@@ -1,17 +1,9 @@
 import { _t } from "../translation";
 import { DivisionByZeroError, EvaluationError, InvalidReferenceError } from "../types/errors";
 import { AddFunctionDescription } from "../types/functions";
-import {
-  Arg,
-  FunctionResultNumber,
-  FunctionResultObject,
-  Matrix,
-  Maybe,
-  isMatrix,
-} from "../types/misc";
+import { Arg, FunctionResultNumber, FunctionResultObject, Maybe } from "../types/misc";
 import { arg } from "./arguments";
 import {
-  applyVectorization,
   expectReferenceError,
   generateMatrix,
   isEvaluationError,
@@ -93,113 +85,31 @@ function areAlmostEqual(value1: number, value2: number, epsilon: number = 2e-16)
   return Math.abs(value1 - value2) < epsilon;
 }
 
-const TRUE_RESULT: FunctionResultObject = { value: true };
-const FALSE_RESULT: FunctionResultObject = { value: false };
-
-function eqScalar(
-  value1: Maybe<FunctionResultObject>,
-  value2: Maybe<FunctionResultObject>
-): FunctionResultObject {
-  if (isEvaluationError(value1?.value)) {
-    return value1!;
-  }
-  if (isEvaluationError(value2?.value)) {
-    return value2!;
-  }
-  let _value1 = isEmpty(value1) ? getNeutral[typeof value2?.value] : value1?.value;
-  let _value2 = isEmpty(value2) ? getNeutral[typeof value1?.value] : value2?.value;
-  if (typeof _value1 === "string") {
-    _value1 = _value1.toUpperCase();
-  }
-  if (typeof _value2 === "string") {
-    _value2 = _value2.toUpperCase();
-  }
-  if (typeof _value1 === "number" && typeof _value2 === "number") {
-    return areAlmostEqual(_value1, _value2) ? TRUE_RESULT : FALSE_RESULT;
-  }
-  return _value1 === _value2 ? TRUE_RESULT : FALSE_RESULT;
-}
-
 export const EQ = {
   description: _t("Equal."),
   args: [
-    arg("value1 (any, range<any>)", _t("The first value.")),
-    arg("value2 (any, range<any>)", _t("The value to test against value1 for equality.")),
+    arg("value1 (string, number, boolean)", _t("The first value.")),
+    arg("value2 (string, number, boolean)", _t("The value to test against value1 for equality.")),
   ],
-  compute: function (
-    value1: Arg,
-    value2: Arg
-  ): FunctionResultObject | Matrix<FunctionResultObject> {
-    // Unwrap 1x1 matrices so that `=EQ(A1, 5)` (FUNCALL form, where the compiler
-    // wraps single refs in a matrix) keeps returning a scalar like before.
-    let v1: Maybe<FunctionResultObject> | Matrix<FunctionResultObject> = value1;
-    let v2: Maybe<FunctionResultObject> | Matrix<FunctionResultObject> = value2;
-    if (isMatrix(v1) && v1.length === 1 && v1[0].length === 1) {
-      v1 = v1[0][0];
+  compute: function (value1: Maybe<FunctionResultObject>, value2: Maybe<FunctionResultObject>) {
+    if (isEvaluationError(value1?.value)) {
+      return value1;
     }
-    if (isMatrix(v2) && v2.length === 1 && v2[0].length === 1) {
-      v2 = v2[0][0];
+    if (isEvaluationError(value2?.value)) {
+      return value2;
     }
-
-    if (!isMatrix(v1) && !isMatrix(v2)) {
-      return eqScalar(v1, v2);
+    let _value1 = isEmpty(value1) ? getNeutral[typeof value2?.value] : value1?.value;
+    let _value2 = isEmpty(value2) ? getNeutral[typeof value1?.value] : value2?.value;
+    if (typeof _value1 === "string") {
+      _value1 = _value1.toUpperCase();
     }
-
-    if (isMatrix(v1) && !isMatrix(v2)) {
-      const cols = v1.length;
-      const rows = v1[0].length;
-      const result: Matrix<FunctionResultObject> = new Array(cols);
-      for (let c = 0; c < cols; c++) {
-        const src = v1[c];
-        const col = new Array(rows);
-        for (let r = 0; r < rows; r++) {
-          col[r] = eqScalar(src[r], v2);
-        }
-        result[c] = col;
-      }
-      return result;
+    if (typeof _value2 === "string") {
+      _value2 = _value2.toUpperCase();
     }
-
-    if (!isMatrix(v1) && isMatrix(v2)) {
-      const cols = v2.length;
-      const rows = v2[0].length;
-      const result: Matrix<FunctionResultObject> = new Array(cols);
-      for (let c = 0; c < cols; c++) {
-        const src = v2[c];
-        const col = new Array(rows);
-        for (let r = 0; r < rows; r++) {
-          col[r] = eqScalar(v1, src[r]);
-        }
-        result[c] = col;
-      }
-      return result;
+    if (typeof _value1 === "number" && typeof _value2 === "number") {
+      return { value: areAlmostEqual(_value1, _value2) };
     }
-
-    // both matrices
-    if (isMatrix(v1) && isMatrix(v2)) {
-      const cols1 = v1.length;
-      const rows1 = v1[0].length;
-      if (cols1 === v2.length && rows1 === v2[0].length) {
-        const result: Matrix<FunctionResultObject> = new Array(cols1);
-        for (let c = 0; c < cols1; c++) {
-          const src1 = v1[c];
-          const src2 = v2[c];
-          const col = new Array(rows1);
-          for (let r = 0; r < rows1; r++) {
-            col[r] = eqScalar(src1[r], src2[r]);
-          }
-          result[c] = col;
-        }
-        return result;
-      }
-    }
-
-    // Mismatched matrix shapes (broadcasting cases) → delegate.
-    return applyVectorization(
-      (a: Arg, b: Arg) =>
-        eqScalar(a as Maybe<FunctionResultObject>, b as Maybe<FunctionResultObject>),
-      [v1 as Arg, v2 as Arg]
-    );
+    return { value: _value1 === _value2 };
   },
 } satisfies AddFunctionDescription;
 
@@ -363,7 +273,7 @@ export const NE = {
     arg("value2 (string, number, boolean)", _t("The value to test against value1 for inequality.")),
   ],
   compute: function (value1: Maybe<FunctionResultObject>, value2: Maybe<FunctionResultObject>) {
-    const result = eqScalar(value1, value2);
+    const result = EQ.compute.bind(this)(value1, value2);
     if (isEvaluationError(result.value)) {
       return result;
     }
