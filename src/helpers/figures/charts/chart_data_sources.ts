@@ -57,7 +57,11 @@ export const ChartRangeDataSourceHandler: ChartDataSourceBuilder<
   },
 
   fromHierarchicalContextCreation(context) {
-    if (context.dataSource?.type !== "range" || context.hierarchicalDataSource?.type !== "range") {
+    if (
+      context.dataSource?.type !== "range" ||
+      (context.hierarchicalDataSource !== undefined &&
+        context.hierarchicalDataSource.type !== "range")
+    ) {
       return {
         type: "range",
         dataSets: [],

@@ -3197,6 +3197,23 @@ describe("Change chart type", () => {
     }
   );
 
+  test("Change chart type to sunburst for the first time does not result in empty chart", async () => {
+    createChart(
+      model,
+      { type: "bar", ...toChartDataSource({ dataSets: [{ dataRange: "A1:A4" }] }) },
+      chartId
+    );
+    await mountChartSidePanel(chartId);
+
+    await changeChartType("sunburst");
+    await nextTick();
+
+    const definition = model.getters.getChartDefinition(chartId);
+    expect(definition.dataSource).toMatchObject({
+      labelRange: "A1:A4",
+    });
+  });
+
   test("Can change chart type between bar and horizontal bar chart", async () => {
     createChart(model, { type: "bar", horizontal: false }, chartId);
     await mountChartSidePanel(chartId);
