@@ -397,7 +397,6 @@ function compileTokensOrThrow(tokens: Token[]): ICompiledFormula {
     }
     const compiledAST = compileAST(ast);
     const code = new FunctionCodeBuilder();
-    code.append(`// ${cacheKey}`);
     code.append(compiledAST);
     code.append(`return ${compiledAST.returnExpression};`);
     const baseFunction = new Function(
