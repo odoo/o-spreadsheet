@@ -370,8 +370,7 @@ export class Evaluator {
 
     const cell = this.getters.getCell(position);
     if (cell === undefined) {
-      // EMPTY_CELL is the only evaluatedCell without position (for perf reasons). We need to add it here.
-      return { ...EMPTY_CELL, position };
+      return EMPTY_CELL;
     }
 
     const cellId = cell.id;
@@ -479,6 +478,7 @@ export class Evaluator {
     };
     this.spreadingRelations.addRelation({ resultZone, arrayFormulaPosition: formulaPosition });
     this.assertNoMergedCellsInSpreadZone(formulaPosition, formulaReturn);
+    
     forEachSpreadPositionInMatrix(nbColumns, nbRows, this.checkCollision(formulaPosition));
     forEachSpreadPositionInMatrix(
       nbColumns,
@@ -742,7 +742,14 @@ function forEachSpreadPositionInMatrix(
 function nullValueToZeroValue(functionResult: FunctionResultObject): FunctionResultObject {
   if (functionResult.value === null || functionResult.value === undefined) {
     // 'functionResult.value === undefined' is supposed to never happen, it's a safety net for javascript use
-    return { ...functionResult, value: 0 };
+    return {
+      value: 0,
+      format: functionResult.format,
+      errorOriginPosition: functionResult.errorOriginPosition,
+      message: functionResult.message,
+      origin: functionResult.origin,
+      position: functionResult.position,
+    };
   }
   return functionResult;
 }

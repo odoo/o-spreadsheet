@@ -466,6 +466,8 @@ export function transposeMatrix<T>(matrix: Matrix<T>): Matrix<T> {
 
 type VectorArgType = "horizontal" | "vertical" | "matrix";
 
+export let insideVectorizationEval = false;
+
 /**
  * Enables a formula function to accept matrix or vector inputs instead of simple value, computing results across multiple dimensions.
  *
@@ -507,6 +509,10 @@ export function applyVectorization(
   args: Arg[],
   acceptToVectorize: boolean[] | undefined = undefined
 ): FunctionResultObject | Matrix<FunctionResultObject> {
+  if (insideVectorizationEval) {
+    debugger
+    return {value:1 }//formula(...args);
+  }
   let countVectorizedCol = 1;
   let countVectorizedRow = 1;
   let vectorizedColLimit = Infinity;
@@ -548,40 +554,50 @@ export function applyVectorization(
     return formula(...args);
   }
 
-  const getArgOffset: (i: number, j: number) => Arg[] = (i, j) =>
-    args.map((arg, index) => {
-      switch (vectorArgsType?.[index]) {
-        case "matrix":
-          return arg![i][j];
-        case "horizontal":
-          return arg![i][0];
-        case "vertical":
-          return arg![0][j];
-        case undefined:
-          return arg;
-      }
-    });
+  // Pre-allocate a reusable buffer; non-vectorized slots are filled once here and never touched again.
+  const argsBuffer = args.slice() as Arg[];
+  const updaters: Array<(col: number, row: number) => void> = [];
+  for (let k = 0; k < args.length; k++) {
+    const arg = args[k] as Matrix<FunctionResultObject>;
+    switch (vectorArgsType?.[k]) {
+      case "matrix":
+        updaters.push((col, row) => {
+          argsBuffer[k] = arg[col][row];
+        });
+        break;
+      case "horizontal":
+        updaters.push((col, _row) => {
+          argsBuffer[k] = arg[col][0];
+        });
+        break;
+      case "vertical":
+        updaters.push((_col, row) => {
+          argsBuffer[k] = arg[0][row];
+        });
+        break;
+    }
+  }
+  const getArgOffset = (col: number, row: number): Arg[] => {
+    for (const update of updaters) {
+      update(col, row);
+    }
+    return argsBuffer;
+  };
 
-  return generateMatrix(countVectorizedCol, countVectorizedRow, (col, row) => {
+  insideVectorizationEval = true;
+  const matrix = generateMatrix(countVectorizedCol, countVectorizedRow, (col, row) => {
     if (col > vectorizedColLimit - 1 || row > vectorizedRowLimit - 1) {
       return new NotAvailableError(
         _t("Array arguments to [[FUNCTION_NAME]] are of different size.")
       );
     }
-    const singleCellComputeResult = formula(...getArgOffset(col, row));
-    // In the case where the user tries to vectorize arguments of an array formula, we will get an
-    // array for every combination of the vectorized arguments, which will lead to a 3D matrix and
-    // we won't be able to return the values.
-    // In this case, we keep the first element of each spreading part, just as Excel does, and
-    // create an array with these parts.
-    // For exemple, we have MUNIT(x) that return an unitary matrix of x*x. If we use it with a
-    // range, like MUNIT(A1:A2), we will get two unitary matrices (one for the value in A1 and one
-    // for the value in A2). In this case, we will simply take the first value of each matrix and
-    // return the array [First value of MUNIT(A1), First value of MUNIT(A2)].
-    return isMatrix(singleCellComputeResult)
-      ? singleCellComputeResult[0][0]
-      : singleCellComputeResult;
+    const result = formula(...getArgOffset(col, row));
+    // A formula may naturally return a matrix (e.g. MUNIT). Keep only its first element
+    // since we are already building the output matrix cell-by-cell.
+    return isMatrix(result) ? result[0][0] : result;
   });
+  insideVectorizationEval = false;
+  return matrix;
 }
 // -----------------------------------------------------------------------------
 // CONDITIONAL EXPLORE FUNCTIONS

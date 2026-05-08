@@ -5,7 +5,13 @@ import { _t } from "../translation";
 import { ComputeFunction, EvalContext, FunctionDescription } from "../types/functions";
 import { Arg, FunctionResultObject, isMatrix, Matrix } from "../types/misc";
 import { argTargeting } from "./arguments";
-import { applyVectorization, isEvaluationError, matrixForEach, matrixMap } from "./helpers";
+import {
+  applyVectorization,
+  insideVectorizationEval,
+  isEvaluationError,
+  matrixForEach,
+  matrixMap,
+} from "./helpers";
 
 export function createComputeFunction(
   descr: FunctionDescription
@@ -18,29 +24,35 @@ export function createComputeFunction(
     if (this.__timingEntries) {
       start = performance.now();
     }
-    const acceptToVectorize: boolean[] = [];
+    let result: FunctionResultObject | Matrix<FunctionResultObject>;
+    if (!insideVectorizationEval) {
+      const acceptToVectorize: boolean[] = [];
 
-    const argsToFocus = argTargeting(descr, args.length);
-    //#region Compute vectorisation limits
-    for (let i = 0; i < args.length; i++) {
-      const argIndex = argsToFocus[i].index;
-      const argDefinition = descr.args[argIndex];
-      const arg = args[i];
-      if (!isMatrix(arg) && argDefinition.acceptMatrixOnly) {
-        throw new BadExpressionError(
-          _t(
-            "Function %s expects the parameter '%s' to be reference to a cell or range.",
-            descr.name,
-            (i + 1).toString()
-          )
-        );
+      const argsToFocus = argTargeting(descr, args.length);
+      //#region Compute vectorisation limits
+      for (let i = 0; i < args.length; i++) {
+        const argIndex = argsToFocus[i].index;
+        const argDefinition = descr.args[argIndex];
+        const arg = args[i];
+        if (!isMatrix(arg) && argDefinition.acceptMatrixOnly) {
+          throw new BadExpressionError(
+            _t(
+              "Function %s expects the parameter '%s' to be reference to a cell or range.",
+              descr.name,
+              (i + 1).toString()
+            )
+          );
+        }
+        acceptToVectorize.push(!argDefinition.acceptMatrix);
       }
-      acceptToVectorize.push(!argDefinition.acceptMatrix);
-    }
 
-    const result = replaceErrorPlaceholderInResult(
-      applyVectorization(errorHandlingCompute.bind(this), args, acceptToVectorize)
-    );
+      result = replaceErrorPlaceholderInResult(
+        applyVectorization(errorHandlingCompute.bind(this), args, acceptToVectorize)
+      );
+    } else {
+      debugger
+      result = replaceErrorPlaceholderInResult(errorHandlingCompute.apply(this, args));
+    }
     if (this.__timingEntries && this.__originCellPosition) {
       const end = performance.now();
       this.__timingEntries.push({

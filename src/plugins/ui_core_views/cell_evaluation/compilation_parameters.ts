@@ -76,7 +76,20 @@ class CompilationParametersBuilder {
     const position = { sheetId: range.sheetId, col: range.zone.left, row: range.zone.top };
     const result = this.computeCell(position);
     if (!result.position) {
-      return { ...result, position };
+      const withPosition = {
+        value: result.value,
+        format: result.format,
+        errorOriginPosition: result.errorOriginPosition,
+        message: result.message,
+        origin: result.origin,
+        formattedValue: result.formattedValue,
+        defaultAlign: result.defaultAlign,
+        isAutoSummable: result.isAutoSummable,
+        link: result.link,
+        type: result.type,
+        position,
+      };
+      return withPosition;
     }
     return result;
   }
@@ -131,7 +144,20 @@ class CompilationParametersBuilder {
   private getFormulaResult(position: CellPosition): FunctionResultObject {
     const result = this.computeCell(position);
     if (!result.position) {
-      return { ...result, position };
+      const withPosition = {
+        value: result.value,
+        format: result.format,
+        errorOriginPosition: result.errorOriginPosition,
+        message: result.message,
+        origin: result.origin,
+        formattedValue: result.formattedValue,
+        defaultAlign: result.defaultAlign,
+        isAutoSummable: result.isAutoSummable,
+        link: result.link,
+        type: result.type,
+        position,
+      };
+      return withPosition;
     }
     return result;
   }
