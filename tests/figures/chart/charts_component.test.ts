@@ -3205,6 +3205,23 @@ describe("Change chart type", () => {
     });
   });
 
+  test("When changing chart type from hierarchical to bar, the label range is not lost", async () => {
+    createChart(
+      model,
+      { type: "sunburst", ...toChartDataSource({ dataSets: [{ dataRange: "A1:A4" }] }) },
+      chartId
+    );
+    await mountChartSidePanel(chartId);
+
+    await changeChartType("bar");
+    await nextTick();
+
+    const definition = model.getters.getChartDefinition(chartId);
+    expect(definition.dataSource).toMatchObject({
+      labelRange: "A1:A4",
+    });
+  });
+
   test("Can change chart type between bar and horizontal bar chart", async () => {
     createChart(model, { type: "bar", horizontal: false }, chartId);
     await mountChartSidePanel(chartId);
