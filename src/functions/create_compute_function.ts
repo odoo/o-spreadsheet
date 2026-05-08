@@ -4,7 +4,7 @@ import { BadExpressionError, EvaluationError } from "../types/errors";
 import { _t } from "../translation";
 import { ComputeFunction, EvalContext, FunctionDescription } from "../types/functions";
 import { Arg, FunctionResultObject, isMatrix, Matrix } from "../types/misc";
-import { argTargeting } from "./arguments";
+import { argTargeting, ArgToFocus } from "./arguments";
 import { applyVectorization, isEvaluationError, matrixForEach, matrixMap } from "./helpers";
 
 export function createComputeFunction(
@@ -38,8 +38,13 @@ export function createComputeFunction(
       acceptToVectorize.push(!argDefinition.acceptMatrix);
     }
 
+    const ctx = this;
     const result = replaceErrorPlaceholderInResult(
-      applyVectorization(errorHandlingCompute.bind(this), args, acceptToVectorize)
+      applyVectorization(
+        (...cellArgs: Arg[]) => errorHandlingCompute.call(ctx, argsToFocus, ...cellArgs),
+        args,
+        acceptToVectorize
+      )
     );
     if (this.__timingEntries && this.__originCellPosition) {
       const end = performance.now();
@@ -65,9 +70,9 @@ export function createComputeFunction(
 
   function errorHandlingCompute(
     this: EvalContext,
+    argsToFocus: ArgToFocus,
     ...args: Arg[]
   ): Matrix<FunctionResultObject> | FunctionResultObject {
-    const argsToFocus = argTargeting(descr, args.length);
     for (let i = 0; i < args.length; i++) {
       const arg = args[i];
       const argDefinition = descr.args[argsToFocus[i].index];

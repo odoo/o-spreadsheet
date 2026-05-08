@@ -27,7 +27,8 @@ replaceErrorPlaceholderInResult → matrixForEach → replaceFunctionNamePlaceho
 - [x] **Tier 1 — Step 1** Reuse args buffer across cells (`e8f4e34ff`)
 - [x] **Tier 1 — Step 2** Precompute per-arg getters (`ad3dde0f9`)
 - [x] **Tier 1 — Step 3** Inline result-matrix construction
-- [ ] Tier 2 — Steps 4–6
+- [x] **Tier 2 — Step 4** Hoist `argTargeting` out of the cell loop
+- [ ] Tier 2 — Steps 5–6
 - [ ] Tier 3 — Steps 7–9
 
 ---

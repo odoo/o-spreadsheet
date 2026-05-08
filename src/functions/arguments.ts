@@ -127,7 +127,7 @@ export function addMetaInfoFromArg(
   return descr;
 }
 
-type ArgToFocus = Immutable<Record<number, { index: number; repeatingGroupIndex?: number }>>;
+export type ArgToFocus = Immutable<Record<number, { index: number; repeatingGroupIndex?: number }>>;
 const cacheArgTargeting: Record<string, Record<number, ArgToFocus>> = {};
 
 /**
