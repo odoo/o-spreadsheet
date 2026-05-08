@@ -40,7 +40,7 @@ export function createComputeFunction(
 
     const ctx = this;
     const result = applyVectorization(
-      (...cellArgs: Arg[]) => errorHandlingCompute.call(ctx, argsToFocus, ...cellArgs),
+      (...cellArgs: Arg[]) => errorHandlingCompute.call(ctx, argsToFocus, cellArgs),
       args,
       acceptToVectorize,
       descr.name
@@ -59,7 +59,7 @@ export function createComputeFunction(
   function errorHandlingCompute(
     this: EvalContext,
     argsToFocus: ArgToFocus,
-    ...args: Arg[]
+    args: Arg[]
   ): Matrix<FunctionResultObject> | FunctionResultObject {
     for (let i = 0; i < args.length; i++) {
       const arg = args[i];
