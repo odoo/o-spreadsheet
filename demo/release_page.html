@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Releases</title>
+  </head>
+  <body>
+    <div id="dashboard"></div>
+    <script>
+      const OWNER = "your-org";
+      const REPO = "your-repo";
+
+      async function fetchAll() {
+        let page = 1,
+          all = [];
+        while (true) {
+          const res = await fetch(
+            `https://api.github.com/repos/odoo/o-spreadsheet/releases?per_page=100&page=${page}`
+          );
+          const data = await res.json();
+          if (!data.length) break;
+          all = all.concat(data);
+          page++;
+        }
+        return all;
+      }
+
+      function majorVersion(tag) {
+        const m = tag.match(/$^(\d+)\./);
+        return m ? m[1] : "other";
+      }
+
+      fetchAll().then((releases) => {
+        const grouped = {};
+        releases.forEach((r) => {
+          const maj = majorVersion(r.tag_name);
+          (grouped[maj] = grouped[maj] || []).push(r);
+        });
+
+        // render grouped[maj] however you like
+        console.log(grouped);
+      });
+    </script>
+  </body>
+</html>
