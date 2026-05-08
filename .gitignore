@@ -2,6 +2,7 @@ node_modules/
 .idea/
 .vscode/
 dist/
+build/
 .npmrc
 /coverage/
 logs/
@@ -9,5 +10,7 @@ build/
 
 debug.log
 .git.cache
+**/.DS_Store
 *.xlsx
 tests/__xlsx__/xlsx_demo_data/xl/printerSettings
+tools/owl_templates/_compiled/*
