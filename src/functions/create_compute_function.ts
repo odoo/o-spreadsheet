@@ -39,12 +39,11 @@ export function createComputeFunction(
     }
 
     const ctx = this;
-    const result = replaceErrorPlaceholderInResult(
-      applyVectorization(
-        (...cellArgs: Arg[]) => errorHandlingCompute.call(ctx, argsToFocus, ...cellArgs),
-        args,
-        acceptToVectorize
-      )
+    const result = applyVectorization(
+      (...cellArgs: Arg[]) => errorHandlingCompute.call(ctx, argsToFocus, ...cellArgs),
+      args,
+      acceptToVectorize,
+      descr.name
     );
     if (this.__timingEntries && this.__originCellPosition) {
       const end = performance.now();
@@ -53,17 +52,6 @@ export function createComputeFunction(
         position: this.__originCellPosition,
         time: end - start,
       });
-    }
-    return result;
-  }
-
-  function replaceErrorPlaceholderInResult(
-    result: FunctionResultObject | Matrix<FunctionResultObject>
-  ): FunctionResultObject | Matrix<FunctionResultObject> {
-    if (!isMatrix(result)) {
-      replaceFunctionNamePlaceholder(result, descr.name);
-    } else {
-      matrixForEach(result, (result) => replaceFunctionNamePlaceholder(result, descr.name));
     }
     return result;
   }
@@ -103,18 +91,24 @@ export function createComputeFunction(
     const result = descr.compute.apply(this, args);
 
     if (!isMatrix(result)) {
+      let cell: FunctionResultObject;
       if (typeof result === "object" && result !== null && "value" in result) {
-        return result;
+        cell = result;
+      } else {
+        cell = { value: result };
       }
-      descr.name;
-      return { value: result };
+      replaceFunctionNamePlaceholder(cell, descr.name);
+      return cell;
     }
 
+    let matrix: Matrix<FunctionResultObject>;
     if (typeof result[0][0] === "object" && result[0][0] !== null && "value" in result[0][0]) {
-      return result as Matrix<FunctionResultObject>;
+      matrix = result as Matrix<FunctionResultObject>;
+    } else {
+      matrix = matrixMap(result as Matrix<CellValue>, (row) => ({ value: row }));
     }
-
-    return matrixMap(result as Matrix<CellValue>, (row) => ({ value: row }));
+    matrixForEach(matrix, (cell) => replaceFunctionNamePlaceholder(cell, descr.name));
+    return matrix;
   }
 
   return vectorizedCompute;

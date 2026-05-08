@@ -505,7 +505,8 @@ type VectorArgType = "horizontal" | "vertical" | "matrix";
 export function applyVectorization(
   formula: (...args: Arg[]) => Matrix<FunctionResultObject> | FunctionResultObject,
   args: Arg[],
-  acceptToVectorize: boolean[] | undefined = undefined
+  acceptToVectorize: boolean[] | undefined = undefined,
+  functionName?: string
 ): FunctionResultObject | Matrix<FunctionResultObject> {
   let countVectorizedCol = 1;
   let countVectorizedRow = 1;
@@ -585,15 +586,21 @@ export function applyVectorization(
   // dimension on either axis are filled with #N/A. For array-returning
   // formulas (MUNIT, SEQUENCE, …), only the [0][0] of each per-cell
   // result is kept, just as Excel does (otherwise we'd build a 3D matrix).
+  // Resolve the size-mismatch error message once. When the caller supplies a
+  // function name, [[FUNCTION_NAME]] is substituted up front so the per-cell
+  // NotAvailableError doesn't need a downstream placeholder pass.
+  let sizeMismatchMessage = _t("Array arguments to [[FUNCTION_NAME]] are of different size.");
+  if (functionName) {
+    sizeMismatchMessage = sizeMismatchMessage.replace("[[FUNCTION_NAME]]", functionName);
+  }
+
   const nArgs = argGetters.length;
   const result: Matrix<FunctionResultObject> = new Array(countVectorizedCol);
   for (let col = 0; col < countVectorizedCol; col++) {
     const colArr: FunctionResultObject[] = new Array(countVectorizedRow);
     for (let row = 0; row < countVectorizedRow; row++) {
       if (col >= vectorizedColLimit || row >= vectorizedRowLimit) {
-        colArr[row] = new NotAvailableError(
-          _t("Array arguments to [[FUNCTION_NAME]] are of different size.")
-        );
+        colArr[row] = new NotAvailableError(sizeMismatchMessage);
         continue;
       }
       for (let k = 0; k < nArgs; k++) {

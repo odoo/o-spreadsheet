@@ -28,7 +28,8 @@ replaceErrorPlaceholderInResult → matrixForEach → replaceFunctionNamePlaceho
 - [x] **Tier 1 — Step 2** Precompute per-arg getters (`ad3dde0f9`)
 - [x] **Tier 1 — Step 3** Inline result-matrix construction
 - [x] **Tier 2 — Step 4** Hoist `argTargeting` out of the cell loop
-- [ ] Tier 2 — Steps 5–6
+- [x] **Tier 2 — Step 5** Inline `[[FUNCTION_NAME]]` replacement in `computeFunctionToObject`
+- [ ] Tier 2 — Step 6
 - [ ] Tier 3 — Steps 7–9
 
 ---
