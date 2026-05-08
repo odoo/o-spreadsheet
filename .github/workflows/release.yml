@@ -1,35 +1,75 @@
 name: Release Workflow
+
 on:
   push:
     # Match LTS, saas releases >= 10 and master
-    branches: ['[1-9][0-9].[0-9]', 'saas-[1-9][0-9].[0-9]', 'master']
+    branches: ["[1-9][0-9].[0-9]", "saas-[1-9][0-9].[0-9]", "master"]
+
 jobs:
-  release:
+  build:
     if: contains(github.event.head_commit.message, '[REL]')
     runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.parse.outputs.version }}
+      body: ${{ steps.parse.outputs.body }}
+      prerelease: ${{ steps.parse.outputs.prerelease }}
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/setup-node@v6
         with:
-          registry-url: 'https://registry.npmjs.org'
+          registry-url: "https://registry.npmjs.org"
+
       - name: Parse
         id: parse
-        # should work with le latest stable node
-        # parse-message will fail on invalid commit title/body
         run: |
-          npm i @actions/core@3.0.0 @actions/github@9.0.0 --no-save &&\
+          npm i @actions/core@3.0.0 @actions/github@9.0.0 --no-save && \
           node tools/parse_message.mjs
-      # generate all builds
+
       - name: Build
         run: npm ci && npm run dist
+
+      - name: Upload dist artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: ./dist
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download dist artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: ./dist
+
       - name: Release
         uses: ncipollo/release-action@v1.12.0
         with:
-          tag: ${{ steps.parse.outputs.version }}
-          body: ${{ steps.parse.outputs.body }}
+          tag: ${{ needs.build.outputs.version }}
+          body: ${{ needs.build.outputs.body }}
           artifacts: "./dist/*.*"
           makeLatest: true
-          prerelease: ${{ steps.parse.outputs.prerelease }}
+          prerelease: ${{ needs.build.outputs.prerelease }}
+
+  publish:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v6
+        with:
+          registry-url: "https://registry.npmjs.org"
+
+      - name: Download dist artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: ./dist
+
       - name: Publish
         run: npm publish
         env:
