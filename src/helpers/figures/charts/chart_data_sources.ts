@@ -52,6 +52,7 @@ export const ChartRangeDataSourceHandler: ChartDataSourceBuilder<
       type: "range",
       dataSets: [],
       dataSetsHaveTitle: false,
+      labelRange: context.auxiliaryRange,
       ...context.dataSource,
     };
   },
