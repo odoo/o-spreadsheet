@@ -29,8 +29,16 @@
     "prettier": "prettier . --write",
     "check-formatting": "prettier . --check && eslint",
     "dist": "tsc --module es6 --declaration --declarationDir dist/types && rolldown -c && npm run build:bundleXml -- --outDir dist",
+<<<<<<< 97530187f2223b7197e9167d50c31fe39513331c
     "prepare": "husky install",
     "watch:bundle": "npm run build:bundleJsDev -- --watch",
+||||||| 42a264ef1e85c146a031ac58d1a039c686047093
+    "preinstall": "husky install",
+    "watch:bundle": "npm run build:bundleJs -- --watch",
+=======
+    "postinstall": "husky install",
+    "watch:bundle": "npm run build:bundleJs -- --watch",
+>>>>>>> 026a3f7194bf0e9cbf179ac447df771c6bba67e2
     "watch:ts": "npm run build:js -- --watch",
     "watch:xml": "node tools/bundle_xml/watch_xml_templates.cjs",
     "unzipXlsx": "node tools/bundle_xlsx/unzip_xlsx_demo.cjs",
