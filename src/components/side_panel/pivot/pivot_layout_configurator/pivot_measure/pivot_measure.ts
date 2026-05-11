@@ -1,8 +1,10 @@
 import { Component } from "@odoo/owl";
 import { compile } from "../../../../../formulas";
+import { InternalCompiledFormula } from "../../../../../formulas/compiler";
+import { functionRegistry } from "../../../../../functions";
 import { PivotRuntimeDefinition } from "../../../../../helpers/pivot/pivot_runtime_definition";
 import { createMeasureAutoComplete } from "../../../../../registries/auto_completes/pivot_dimension_auto_complete";
-import { PivotMeasure } from "../../../../../types";
+import { PivotMeasure, Range } from "../../../../../types";
 import { StandaloneComposer } from "../../../../composer/standalone_composer/standalone_composer";
 import { PivotDimension } from "../pivot_dimension/pivot_dimension";
 
@@ -84,6 +86,31 @@ export class PivotMeasureEditor extends Component<Props> {
   }
 
   get isCalculatedMeasureInvalid(): boolean {
-    return compile(this.props.measure.computedBy?.formula ?? "").isBadExpression;
+    const compiledFormula = compile(
+      this.props.measure.computedBy?.formula ?? ""
+    ) as InternalCompiledFormula;
+    if (compiledFormula.isBadExpression) {
+      return true;
+    }
+    const measures = new Set(this.props.definition.measures.map((m) => m.id));
+    const dimensions = new Set([
+      ...this.props.definition.columns.map((d) => d.nameWithGranularity),
+      ...this.props.definition.rows.map((d) => d.nameWithGranularity),
+    ]);
+    for (const symbol of compiledFormula.symbols) {
+      if (!measures.has(symbol) && !dimensions.has(symbol) && !functionRegistry.contains(symbol)) {
+        return true;
+      }
+    }
+    const sheetId = this.env.model.getters.getActiveSheetId();
+    const rangeDependencies: Range[] = compiledFormula.dependencies.map((xc) =>
+      this.env.model.getters.getRangeFromSheetXC(sheetId, xc)
+    );
+    for (const range of rangeDependencies) {
+      if (range.invalidSheetName) {
+        return true;
+      }
+    }
+    return false;
   }
 }
