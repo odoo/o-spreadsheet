@@ -1,4 +1,4 @@
-import { AddFunctionDescription } from "../../src";
+import { AddFunctionDescription, BaseFunctionDescription, ComputeFunction } from "../../src";
 import {
   addMetaInfoFromArg,
   arg,
@@ -126,7 +126,10 @@ describe("args", () => {
 });
 
 describe("arguments validation", () => {
-  const aRandomFunction: Omit<AddFunctionDescription, "args"> = {
+  const aRandomFunction: Omit<
+    BaseFunctionDescription & { compute: ComputeFunction; computeZone?: undefined },
+    "args"
+  > = {
     description: "a random function",
     compute: () => ({ value: 0 }),
   };

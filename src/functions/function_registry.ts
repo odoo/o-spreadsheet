@@ -1,6 +1,10 @@
 import { Registry } from "../registry";
-import { AddFunctionDescription, ComputeFunction, FunctionDescription } from "../types/functions";
-import { FunctionResultObject, Matrix } from "../types/misc";
+import {
+  AddFunctionDescription,
+  ComputeArrayFunction,
+  ComputeFunction,
+  FunctionDescription,
+} from "../types/functions";
 import { addMetaInfoFromArg, validateArguments } from "./arguments";
 import { createComputeFunction } from "./create_compute_function";
 
@@ -10,7 +14,7 @@ const functionNameRegex = /^[A-Z0-9\_\.]+$/;
 
 export class FunctionRegistry extends Registry<FunctionDescription> {
   mapping: {
-    [key: string]: ComputeFunction<Matrix<FunctionResultObject> | FunctionResultObject>;
+    [key: string]: ComputeFunction | ComputeArrayFunction;
   } = {};
 
   add(name: string, addDescr: AddFunctionDescription) {

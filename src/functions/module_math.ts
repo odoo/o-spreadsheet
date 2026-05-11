@@ -900,7 +900,7 @@ export const MUNIT = {
       _t("An integer specifying the dimension size of the unit matrix. It must be positive.")
     ),
   ],
-  compute: function (n: Maybe<FunctionResultObject>) {
+  computeArray: function (n: Maybe<FunctionResultObject>) {
     const _n = toInteger(n, this.locale);
     if (_n < 1) {
       return new EvaluationError(_t("The argument dimension must be positive"));
@@ -1031,7 +1031,7 @@ export const RANDARRAY = {
       { value: true, label: _t("Integer") },
     ]),
   ],
-  compute: function (
+  computeArray: function (
     rows: Maybe<FunctionResultObject> = { value: 1 },
     columns: Maybe<FunctionResultObject> = { value: 1 },
     min: Maybe<FunctionResultObject> = { value: 0 },
@@ -1268,7 +1268,7 @@ export const SEQUENCE = {
       _t("The amount to increment each value in the sequence")
     ),
   ],
-  compute: function (
+  computeArray: function (
     rows: Maybe<FunctionResultObject>,
     columns: FunctionResultObject = { value: 1 },
     start: FunctionResultObject = { value: 1 },

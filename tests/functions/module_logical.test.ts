@@ -165,7 +165,7 @@ describe("IF formula", () => {
       A2: "true", B2: "=1/0",
     });
 
-    setCellContent(model, "A3", "=IF(A1:A2, TRUE, FALSE)");
+    setCellContent(model, "A3", "=?IF(A1:A2, TRUE, FALSE)");
     expect(getRangeValuesAsMatrix(model, "A3:A4")).toEqual([["#DIV/0!"], [true]]);
 
     setCellContent(model, "A3", "=IF(B1:B2, TRUE, FALSE)");
