@@ -636,6 +636,7 @@ export function updateEvalContextAndExecute(
     compiledFormula.rangeDependencies,
     compilationParams.referenceDenormalizer,
     compilationParams.ensureRange,
+    compilationParams.vectorizedCompute,
     getSymbolValue,
     evalContext
   );

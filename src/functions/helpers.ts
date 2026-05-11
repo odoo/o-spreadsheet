@@ -564,9 +564,7 @@ export function applyVectorization(
 
   return generateMatrix(countVectorizedCol, countVectorizedRow, (col, row) => {
     if (col > vectorizedColLimit - 1 || row > vectorizedRowLimit - 1) {
-      return new NotAvailableError(
-        _t("Array arguments to [[FUNCTION_NAME]] are of different size.")
-      );
+      return new NotAvailableError(_t("Array arguments are of different size."));
     }
     const singleCellComputeResult = formula(...getArgOffset(col, row));
     // In the case where the user tries to vectorize arguments of an array formula, we will get an

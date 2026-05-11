@@ -36,7 +36,7 @@ describe("evaluate formulas that use/return an array", () => {
         arg("m (number)", "number of row of the matrix"),
         arg("v (number)", "value to fill matrix"),
       ],
-      compute: function (n, m, v) {
+      computeArray: function (n, m, v) {
         const _n = toNumber(toScalar(n), DEFAULT_LOCALE);
         const _m = toNumber(toScalar(m), DEFAULT_LOCALE);
         const _v = toNumber(toScalar(v), DEFAULT_LOCALE);
@@ -115,7 +115,7 @@ describe("evaluate formulas that use/return an array", () => {
   test("can interpolate function name when error is returned", () => {
     addToRegistry(functionRegistry, "GETERR", {
       description: "Get error",
-      compute: () => {
+      computeArray: () => {
         const error = {
           value: "#SPILL!",
           message: "Function [[FUNCTION_NAME]] failed",
@@ -157,7 +157,7 @@ describe("evaluate formulas that use/return an array", () => {
       addToRegistry(functionRegistry, "MATRIX.2.2", {
         description: "Return an 2*2 matrix with some values",
         args: [],
-        compute: function () {
+        computeArray: function () {
           return [
             [{ value: 1, format: "0.00" }, { value: 2 }],
             [{ value: 3, format: "0.00" }, { value: 4 }],
@@ -179,7 +179,7 @@ describe("evaluate formulas that use/return an array", () => {
       addToRegistry(functionRegistry, "MATRIX", {
         description: "Return the matrix passed as argument",
         args: [arg("matrix (range<number>)", "a matrix")],
-        compute: function (matrix) {
+        computeArray: function (matrix) {
           return toMatrix(matrix);
         },
       });

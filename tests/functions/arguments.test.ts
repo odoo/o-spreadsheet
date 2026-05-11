@@ -4,7 +4,7 @@ import {
   argTargeting,
   validateArguments,
 } from "../../src/functions/arguments";
-import { AddFunctionDescription } from "../../src/types";
+import { AddFunctionDescription, BaseFunctionDescription, ComputeFunction } from "../../src/types";
 
 describe("args", () => {
   test("various", () => {
@@ -126,7 +126,10 @@ describe("args", () => {
 });
 
 describe("arguments validation", () => {
-  const aRandomFunction: Omit<AddFunctionDescription, "args"> = {
+  const aRandomFunction: Omit<
+    BaseFunctionDescription & { compute: ComputeFunction; computeZone?: undefined },
+    "args"
+  > = {
     description: "a random function",
     compute: () => ({ value: 0 }),
   };

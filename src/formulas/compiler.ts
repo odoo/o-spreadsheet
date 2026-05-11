@@ -403,6 +403,7 @@ function compileTokensOrThrow(tokens: Token[]): ICompiledFormula {
       "deps", // the dependencies in the current formula
       "ref", // a function to access a certain dependency at a given index
       "range", // same as above, but guarantee that the result is in the form of a range
+      "vectorize", // a function that apply vectorization to a function call if at least one of the arguments is a range and doesn't accept range
       "getSymbolValue",
       "ctx",
       code.toString()
@@ -410,6 +411,8 @@ function compileTokensOrThrow(tokens: Token[]): ICompiledFormula {
 
     // @ts-ignore
     functionCache[cacheKey] = baseFunction;
+
+    type CompiledArg = { argAST: FunctionCode; toVectorize: boolean };
 
     /**
      * This function compile the function arguments. It is mostly straightforward,
@@ -419,7 +422,7 @@ function compileTokensOrThrow(tokens: Token[]): ICompiledFormula {
      * the cell value into a range. This allow the grid model to differentiate
      * between a cell value and a non cell value.
      */
-    function compileFunctionArgs(ast: ASTFuncall): FunctionCode[] {
+    function compileFunctionArgs(ast: ASTFuncall): CompiledArg[] {
       const { args } = ast;
       const functionName = ast.value.toUpperCase();
       const functionDefinition = functions[functionName];
@@ -430,21 +433,39 @@ function compileTokensOrThrow(tokens: Token[]): ICompiledFormula {
 
       assertEnoughArgs(ast);
 
-      const compiledArgs: FunctionCode[] = [];
+      const compiledArgs: CompiledArg[] = [];
 
       const argToFocus = argTargeting(functionDefinition, args.length);
 
       for (let i = 0; i < args.length; i++) {
         const argDefinition = functionDefinition.args[argToFocus[i].index];
         const currentArg = args[i];
-        const argTypes = argDefinition.type || [];
+        const argAST = compileAST(currentArg, argDefinition.acceptMatrix);
 
-        const hasRange = argTypes.some((t) => isRangeType(t));
-
-        compiledArgs.push(compileAST(currentArg, hasRange));
+        if (argDefinition.acceptMatrixOnly && !argAST.returnARange) {
+          throw new BadExpressionError(
+            _t(
+              "Function %s expects the parameter '%s' to be reference to a cell or range.",
+              functionName,
+              (i + 1).toString()
+            )
+          );
+        }
+        const toVectorize = !argDefinition.acceptMatrix && argAST.returnARange;
+        compiledArgs.push({ argAST, toVectorize });
       }
 
       return compiledArgs;
+    }
+
+    function toFuncall(fnName: string, args: AST[]): ASTFuncall {
+      return {
+        type: "FUNCALL",
+        value: fnName,
+        args: args,
+        tokenStartIndex: 0,
+        tokenEndIndex: 0,
+      };
     }
 
     /**
@@ -452,7 +473,7 @@ function compileTokensOrThrow(tokens: Token[]): ICompiledFormula {
      * executable code for the evaluation of the cells content. It uses a cache to
      * not reevaluate identical code structures.
      */
-    function compileAST(ast: AST, hasRange = false): FunctionCode {
+    function compileAST(ast: AST, acceptMatrix = false): FunctionCode {
       const code = new FunctionCodeBuilder(scope);
       if (ast.debug) {
         code.append("debugger;");
@@ -466,50 +487,51 @@ function compileTokensOrThrow(tokens: Token[]): ICompiledFormula {
         case "STRING":
           return code.return(`this.literalValues.strings[${stringCount++}]`);
         case "REFERENCE":
-          return code.return(
-            `${ast.value.includes(":") || hasRange ? `range` : `ref`}(deps[${dependencyCount++}])`
-          );
+          const isRange = ast.value.includes(":") || acceptMatrix;
+          return code.return(`${isRange ? `range` : `ref`}(deps[${dependencyCount++}])`, isRange);
         case "FUNCALL":
-          const args = compileFunctionArgs(ast).map((arg) => arg.assignResultToVariable());
+          const compiledArgs = compileFunctionArgs(ast);
+          const args = compiledArgs.map((compiledArg) =>
+            compiledArg.argAST.assignResultToVariable()
+          );
           code.append(...args);
           const fnName = ast.value.toUpperCase();
-          return code.return(`ctx['${fnName}'](${args.map((arg) => arg.returnExpression)})`);
+          const argsToVectorize = compiledArgs.map((compiledArg) => compiledArg.toVectorize);
+          if (argsToVectorize.includes(true)) {
+            // if at least one argument needs to be vectorized, we apply vectorization to the function call
+            return code.return(
+              `vectorize(ctx['${fnName}'], [${args.map(
+                (arg) => arg.returnExpression
+              )}], [${argsToVectorize}])`,
+              true
+            );
+          }
+          const returnARange = functions[fnName].computeArray !== undefined;
+          return code.return(
+            `ctx['${fnName}'](${args.map((arg) => arg.returnExpression)})`,
+            returnARange
+          );
         case "ARRAY": {
           // a literal array is compiled into function calls
-          const arrayFunctionCall: ASTFuncall = {
-            type: "FUNCALL",
-            value: "ARRAY.LITERAL",
-            args: ast.value.map((row) => ({
-              type: "FUNCALL",
-              value: "ARRAY.ROW",
-              args: row,
-              tokenStartIndex: 0,
-              tokenEndIndex: 0,
-            })),
-            tokenStartIndex: 0,
-            tokenEndIndex: 0,
-          };
-          return compileAST(arrayFunctionCall);
+          // use a function call AST to reuse the vectorization logic in compileFunctionArgs
+          return compileAST(
+            toFuncall(
+              "ARRAY.LITERAL",
+              ast.value.map((row) => toFuncall("ARRAY.ROW", row))
+            )
+          );
         }
         case "UNARY_OPERATION": {
-          const fnName = UNARY_OPERATOR_MAP[ast.value];
-          const operand = compileAST(ast.operand, ast.value === "#").assignResultToVariable(); // hasRange is true to avoid vectorization of SPILLED.RANGE
-          code.append(operand);
-          return code.return(`ctx['${fnName}'](${operand.returnExpression})`);
+          // use a function call AST to reuse the vectorization logic in compileFunctionArgs
+          return compileAST(toFuncall(UNARY_OPERATOR_MAP[ast.value], [ast.operand]));
         }
         case "BIN_OPERATION": {
-          const fnName = OPERATOR_MAP[ast.value];
-          const left = compileAST(ast.left, false).assignResultToVariable();
-          const right = compileAST(ast.right, false).assignResultToVariable();
-          code.append(left);
-          code.append(right);
-          return code.return(
-            `ctx['${fnName}'](${left.returnExpression}, ${right.returnExpression})`
-          );
+          // use a function call AST to reuse the vectorization logic in compileFunctionArgs
+          return compileAST(toFuncall(OPERATOR_MAP[ast.value], [ast.left, ast.right]));
         }
         case "SYMBOL":
           const symbolIndex = symbols.indexOf(ast.value);
-          return code.return(`getSymbolValue(this.symbols[${symbolIndex}], ${hasRange})`);
+          return code.return(`getSymbolValue(this.symbols[${symbolIndex}], ${acceptMatrix})`, true);
         case "EMPTY":
           return code.return("undefined");
       }
@@ -661,8 +683,4 @@ function assertEnoughArgs(ast: ASTFuncall) {
       );
     }
   }
-}
-
-function isRangeType(type: string) {
-  return type.startsWith("RANGE");
 }
