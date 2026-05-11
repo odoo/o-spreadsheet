@@ -163,6 +163,7 @@ export class EvaluationPlugin extends CoreViewPlugin {
   ] as const;
 
   private shouldRebuildDependenciesGraph = true;
+  private needsFullReeval = false;
 
   private evaluator: Evaluator;
   private positionsToUpdate: CellPosition[] = [];
@@ -226,6 +227,7 @@ export class EvaluationPlugin extends CoreViewPlugin {
     if (this.shouldRebuildDependenciesGraph) {
       this.evaluator.buildDependencyGraph();
       this.shouldRebuildDependenciesGraph = false;
+      this.needsFullReeval = false;
       if (this.asyncEvaluation) {
         const gen = ++this.evalGeneration;
         const isCurrent = () => gen === this.evalGeneration;
@@ -237,12 +239,13 @@ export class EvaluationPlugin extends CoreViewPlugin {
           cancel: () => {
             console.info("Cancelling evaluation");
             this.evalGeneration++;
-            this.shouldRebuildDependenciesGraph = true;
+            this.needsFullReeval = true;
           },
         };
       }
       this.evaluator.evaluateAllCells();
-    } else if (this.positionsToUpdate.length) {
+    } else if (this.positionsToUpdate.length || this.needsFullReeval) {
+      this.needsFullReeval = false;
       if (this.asyncEvaluation) {
         const gen = ++this.evalGeneration;
         const isCurrent = () => gen === this.evalGeneration;
@@ -255,13 +258,14 @@ export class EvaluationPlugin extends CoreViewPlugin {
           cancel: () => {
             console.info("Cancelling evaluation");
             this.evalGeneration++;
-            this.shouldRebuildDependenciesGraph = true;
+            this.needsFullReeval = true;
           },
         };
       }
       this.evaluator.evaluateCells(this.positionsToUpdate);
     }
     this.positionsToUpdate = [];
+    this.needsFullReeval = false;
   }
 
   // ---------------------------------------------------------------------------

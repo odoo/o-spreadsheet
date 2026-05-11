@@ -267,6 +267,16 @@ export class Evaluator {
       const zone = this.getters.getSheetZone(sheetId);
       ranges.push({ sheetId, zone });
     }
+    if (ranges.length === 1) {
+      console.info(
+        `evaluating 1 range of size ${
+          (ranges[0].zone.bottom - ranges[0].zone.top) *
+          (ranges[0].zone.right - ranges[0].zone.left)
+        }}} cells`
+      );
+    } else {
+      console.info(`evaluating ${ranges.length} ranges`);
+    }
     await this.evaluateAsync(ranges, isCurrent, onProgress);
 
     if (!isCurrent()) {
