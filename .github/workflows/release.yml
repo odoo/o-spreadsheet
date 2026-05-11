@@ -14,7 +14,7 @@ jobs:
       body: ${{ steps.parse.outputs.body }}
       prerelease: ${{ steps.parse.outputs.prerelease }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - uses: actions/setup-node@v6
         with:
@@ -30,7 +30,7 @@ jobs:
         run: npm ci && npm run dist
 
       - name: Upload dist artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: dist
           path: ./dist
@@ -40,13 +40,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Download dist artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v7
         with:
           name: dist
           path: ./dist
 
       - name: Release
-        uses: ncipollo/release-action@v1.12.0
+        uses: ncipollo/release-action@v1.21.0
         with:
           tag: ${{ needs.build.outputs.version }}
           commit: ${{ github.sha }}
@@ -63,14 +63,15 @@ jobs:
       contents: read
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - uses: actions/setup-node@v6
         with:
           registry-url: "https://registry.npmjs.org"
+          node-version: '24'
 
       - name: Download dist artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v7
         with:
           name: dist
           path: ./dist
