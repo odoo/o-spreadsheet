@@ -3,6 +3,7 @@
  */
 export interface FunctionCode {
   readonly returnExpression: string;
+  readonly returnARange: boolean;
   /**
    * Return the same function code but with the return expression assigned to a variable.
    */
@@ -18,8 +19,8 @@ export class FunctionCodeBuilder {
     this.code += lines.map((line) => line.toString()).join("\n") + "\n";
   }
 
-  return(expression: string): FunctionCode {
-    return new FunctionCodeImpl(this.scope, this.code, expression);
+  return(expression: string, returnARange: boolean = false): FunctionCode {
+    return new FunctionCodeImpl(this.scope, this.code, expression, returnARange);
   }
 
   toString(): string {
@@ -29,7 +30,12 @@ export class FunctionCodeBuilder {
 
 class FunctionCodeImpl implements FunctionCode {
   private readonly code: string;
-  constructor(private readonly scope: Scope, code: string, readonly returnExpression: string) {
+  constructor(
+    private readonly scope: Scope,
+    code: string,
+    readonly returnExpression: string,
+    readonly returnARange: boolean
+  ) {
     this.code = indentCode(code);
   }
 
