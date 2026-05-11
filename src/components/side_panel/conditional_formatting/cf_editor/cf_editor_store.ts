@@ -93,7 +93,7 @@ export class ConditionalFormattingEditorStore extends SpreadsheetStore {
   }
 
   updateConditionalFormat(newCf: Partial<ConditionalFormat> & { suppressErrors?: boolean }) {
-    const ranges = newCf.ranges || this.state.ranges;
+    const strRanges = newCf.ranges || this.state.ranges;
     const invalidRanges = this.state.ranges.some((xc) => !xc.match(rangeReference));
     if (invalidRanges) {
       if (!newCf.suppressErrors) {
@@ -104,20 +104,30 @@ export class ConditionalFormattingEditorStore extends SpreadsheetStore {
     const sheetId = this.model.getters.getActiveSheetId();
     const locale = this.model.getters.getLocale();
     const rule = newCf.rule || this.getEditedRule(this.state.currentCFType);
-    const result = this.model.dispatch("ADD_CONDITIONAL_FORMAT", {
-      cf: {
-        id: this.cfId,
-        rule: canonicalizeCFRule(rule, locale),
-      },
-      ranges: ranges.map((xc) => this.model.getters.getRangeDataFromXc(sheetId, xc)),
-      sheetId,
-    });
-    if (result.isSuccessful) {
-      this.state.hasEditedCf = true;
+    const ranges = strRanges.map((xc) => this.model.getters.getRangeDataFromXc(sheetId, xc));
+    if (!ranges.length) {
+      if (!newCf.suppressErrors) {
+        this.state.errors = [CommandResult.EmptyRange];
+      }
+      return;
     }
-    const reasons = result.reasons.filter((r) => r !== CommandResult.NoChanges);
-    if (!newCf.suppressErrors) {
-      this.state.errors = reasons;
+    const rangesBySheet = Object.groupBy(ranges, (range) => range._sheetId);
+    for (const sheetId in rangesBySheet) {
+      const result = this.model.dispatch("ADD_CONDITIONAL_FORMAT", {
+        cf: {
+          id: this.cfId,
+          rule: canonicalizeCFRule(rule, locale),
+        },
+        ranges: rangesBySheet[sheetId]!,
+        sheetId,
+      });
+      if (result.isSuccessful) {
+        this.state.hasEditedCf = true;
+      }
+      const reasons = result.reasons.filter((r) => r !== CommandResult.NoChanges);
+      if (!newCf.suppressErrors) {
+        this.state.errors = reasons;
+      }
     }
   }
 
