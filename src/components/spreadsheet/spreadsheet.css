@@ -203,12 +203,12 @@
       border-bottom: 1px solid var(--os-canvas-border-color);
       border-right: 1px solid var(--os-canvas-border-color);
     }
+  }
 
-    .o-grid-overlay {
-      position: absolute;
-      outline: none;
-      z-index: var(--os-components-importance-grid-overlay);
-    }
+  .o-grid-overlay {
+    position: absolute;
+    outline: none;
+    z-index: var(--os-components-importance-grid-overlay);
   }
 
   .o-button {

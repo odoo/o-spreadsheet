@@ -827,6 +827,10 @@ export function defaultDict<T>(def: T) {
   };
 }
 
+export function sumArray(array: number[]): number {
+  return array.reduce((acc, val) => acc + val, 0);
+}
+
 export function repeat<T>(array: T[], times: number): T[] {
   const len = array.length;
   const result = new Array<T>(len * times);

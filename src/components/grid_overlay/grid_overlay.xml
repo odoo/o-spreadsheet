@@ -1,8 +1,5 @@
 <templates>
   <t t-name="o-spreadsheet-GridOverlay">
-    <div class="position-absolute" t-att-style="this.style">
-      <FiguresContainer/>
-    </div>
     <div
       t-ref="this.gridOverlayRef"
       class="o-grid-overlay overflow-hidden o-zoomable"

@@ -2,7 +2,7 @@ import {
   AnchorZone,
   Border,
   BorderData,
-  Carousel,
+  CarouselData,
   ChartCreationContext,
   ChartDefinition,
   ChartDefinitionWithDataSource,
@@ -1807,7 +1807,7 @@ export function removeCF(model: Model, id: UID, sheetId: UID = model.getters.get
 
 export function createCarousel(
   model: Model,
-  data: Carousel = { items: [] },
+  data: CarouselData = { items: [] },
   carouselId?: UID,
   sheetId?: UID,
   figureData: Partial<CreateFigureCommand> = {}
@@ -1827,14 +1827,14 @@ export function createCarousel(
 export function updateCarousel(
   model: Model,
   carouselId: UID,
-  data: Partial<Carousel>,
+  data: Partial<CarouselData>,
   sheetId: UID = model.getters.getActiveSheetId()
 ): DispatchResult {
   return model.dispatch("UPDATE_CAROUSEL", {
     figureId: carouselId,
     sheetId,
     definition: {
-      ...model.getters.getCarousel(carouselId),
+      ...model.getters.carouselToCarouselData(model.getters.getCarousel(carouselId)),
       ...data,
     },
   });

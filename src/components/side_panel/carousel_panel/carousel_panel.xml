@@ -22,7 +22,7 @@
       <div class="o-carousel-preview-list overflow-auto bg-white" t-ref="this.previewListRef">
         <t t-foreach="this.carouselItems" t-as="item" t-key="this.getItemId(item)">
           <div
-            class="o-carousel-preview border-bottom pe-2 position-relative w-100 d-flex align-items-center"
+            class="o-carousel-preview border-bottom pe-2 position-relative w-100 d-flex flex-column"
             t-att-class="{
               'o-dragging border-top': this.dragAndDrop.draggedItemId === this.getItemId(item),
               'o-selected': this.isCarouselItemActive(item)
@@ -33,20 +33,31 @@
               t-on-pointerdown.stop.prevent="(ev) => this.onDragHandleMouseDown(item, ev)">
               <t t-call="o-spreadsheet-Icon.THIN_DRAG_HANDLE"/>
             </div>
-            <div
-              class="o-carousel-preview-icon ms-3 flex-shrink-0 d-flex align-items-center justify-content-center">
-              <t t-call="{{this.getItemPreview(item)}}"/>
+            <div class="d-flex o-preview-content align-items-center justify-content-center">
+              <div
+                class="o-carousel-preview-icon ms-3 flex-shrink-0 d-flex align-items-center justify-content-center">
+                <t t-call="{{this.getItemPreview(item)}}"/>
+              </div>
+              <div class="o-carousel-preview-title text-truncate ms-2">
+                <TextInput
+                  value="this.getItemTitle(item)"
+                  onChange="(newName) => this.renameCarouselItem(item, newName)"
+                  selectContentOnFocus="true"
+                />
+              </div>
+              <div class="ms-auto"/>
+              <div class="flex-shrink-0 d-flex me-1">
+                <CogWheelMenu items="this.getCogWheelMenuItems(item)"/>
+              </div>
             </div>
-            <div class="o-carousel-preview-title text-truncate ms-2">
-              <TextInput
-                value="this.getItemTitle(item)"
-                onChange="(newName) => this.renameCarouselItem(item, newName)"
-                selectContentOnFocus="true"
+            <div class="ms-4 mb-2" t-if="item.type === 'carouselDataView'">
+              <SelectionInput
+                ranges="[this.getItemRangeString(item)]"
+                hasSingleRange="true"
+                required="true"
+                onSelectionChanged.bind="this.onSelectionInputChanged"
+                onSelectionConfirmed.bind="this.onSelectionInputConfirmed"
               />
-            </div>
-            <div class="ms-auto"/>
-            <div class="flex-shrink-0 d-flex me-1">
-              <CogWheelMenu items="this.getCogWheelMenuItems(item)"/>
             </div>
           </div>
         </t>

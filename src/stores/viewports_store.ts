@@ -1,11 +1,14 @@
 import {
   CellPosition,
   FigureUI,
+  HeaderDimensions,
   HeaderIndex,
   PaneDivision,
   Pixel,
   SheetViewDimensions,
   UID,
+  ViewportsGetters,
+  Zone,
 } from "..";
 import { FOOTER_HEIGHT, getDefaultSheetViewSize, SCROLLBAR_WIDTH } from "../constants";
 import { ViewportCollection } from "../helpers/viewport_collection";
@@ -37,10 +40,15 @@ export class ViewportsStore extends SpreadsheetStore {
     "shiftViewportUp",
     "scrollToCell",
     "setDisplayedSheetId",
+    "setGetHeaderDimensionsCallback",
+    "setZoneToDisplay",
   ] as const;
 
+  private getHeaderDimensionsCallback = this.getters.getHeaderDimensions;
+  private zoneToDisplay: Zone | undefined = undefined;
+
   viewports: ViewportCollection = new ViewportCollection({
-    getters: this.getters,
+    getters: this.buildViewportGetters(this.getHeaderDimensionsCallback),
     paneDivision: this.getPaneDivisions(),
     sheetViewHeight: getDefaultSheetViewSize(),
     sheetViewWidth: getDefaultSheetViewSize(),
@@ -346,5 +354,62 @@ export class ViewportsStore extends SpreadsheetStore {
 
   private getFooterSize() {
     return this.getters.isReadonly() ? 0 : FOOTER_HEIGHT;
+  }
+
+  setGetHeaderDimensionsCallback(
+    callback: (sheetId: UID, dimension: "COL" | "ROW", index: number) => HeaderDimensions
+  ) {
+    this.getHeaderDimensionsCallback = callback;
+    this.rebuildViewports();
+  }
+
+  setZoneToDisplay(zone: Zone) {
+    this.zoneToDisplay = zone;
+    this.rebuildViewports();
+  }
+
+  private rebuildViewports() {
+    this.viewports = new ViewportCollection({
+      getters: this.buildViewportGetters(this.getHeaderDimensionsCallback),
+      paneDivision: this.getPaneDivisions(),
+      sheetViewHeight: this.viewports.getSheetViewDimension().height,
+      sheetViewWidth: this.viewports.getSheetViewDimension().width,
+      zoomLevel: this.viewports.getZoomLevel(),
+      getFooterSize: this.getFooterSize.bind(this),
+      zoneToDisplay: this.zoneToDisplay,
+    });
+  }
+
+  buildViewportGetters(
+    getHeaderDimensions: (sheetId: UID, dimension: "COL" | "ROW", index: number) => HeaderDimensions
+  ): ViewportsGetters {
+    return {
+      findLastVisibleColRowIndex: this.getters.findLastVisibleColRowIndex,
+      isReadonly: this.getters.isReadonly,
+      getMainCellPosition: this.getters.getMainCellPosition,
+      getNextVisibleCellPosition: this.getters.getNextVisibleCellPosition,
+      isColHidden: this.getters.isColHidden,
+      isRowHidden: this.getters.isRowHidden,
+      isHeaderHidden: this.getters.isHeaderHidden,
+      getNumberHeaders: this.getters.getNumberHeaders,
+      getSheetIds: this.getters.getSheetIds,
+      tryGetSheet: this.getters.tryGetSheet,
+      getNumberCols: this.getters.getNumberCols,
+      getNumberRows: this.getters.getNumberRows,
+      getFigures: this.getters.getFigures,
+
+      getColDimensions: (sheetId, index) => getHeaderDimensions(sheetId, "COL", index),
+      getRowDimensions: (sheetId, index) => getHeaderDimensions(sheetId, "ROW", index),
+      getHeaderSize: (sheetId, dim, index) =>
+        dim === "COL"
+          ? getHeaderDimensions(sheetId, "COL", index).size
+          : getHeaderDimensions(sheetId, "ROW", index).size,
+      getColSize: (sheetId, col) => getHeaderDimensions(sheetId, "COL", col).size,
+
+      getRowSize: (sheetId, row) => getHeaderDimensions(sheetId, "ROW", row).size,
+      getColRowOffset: (dim, refIndex, index, sheetId) =>
+        getHeaderDimensions(sheetId, dim, index).start -
+        getHeaderDimensions(sheetId, dim, refIndex).start,
+    };
   }
 }

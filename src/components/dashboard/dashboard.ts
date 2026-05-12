@@ -3,11 +3,12 @@ import { Component, useChildSubEnv } from "../../owl3_compatibility_layer";
 import { useLocalStore, useStore } from "../../store_engine/store_hooks";
 import { RendererStore } from "../../stores/renderer_store";
 import { ViewportsStore } from "../../stores/viewports_store";
-import { Pixel } from "../../types/misc";
+import { Pixel, PixelOffset } from "../../types/misc";
 import { DOMCoordinates, DOMDimension, OrderedLayers, Rect } from "../../types/rendering";
 import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 import { Store } from "../../types/store_engine";
 import { ClickableCellsOverlay } from "../clickable_cells_overlay/clickable_cells_overlay";
+import { FiguresContainer } from "../figures/figure_container/figure_container";
 import { DelayedHoveredCellStore } from "../grid/delayed_hovered_cell_store";
 import { GridOverlay } from "../grid_overlay/grid_overlay";
 import { GridPopover } from "../grid_popover/grid_popover";
@@ -33,6 +34,7 @@ export class SpreadsheetDashboard extends Component<SpreadsheetChildEnv> {
     VerticalScrollBar,
     HorizontalScrollBar,
     ClickableCellsOverlay,
+    FiguresContainer,
   };
 
   protected props = useProps({
@@ -60,6 +62,17 @@ export class SpreadsheetDashboard extends Component<SpreadsheetChildEnv> {
     useChildSubEnv({
       getPopoverContainerRect: () => getZoomedRect(this.viewStore.zoomLevel, this.getGridRect()),
     });
+    const model = this.env.model;
+    const self = this;
+    useChildSubEnv({
+      get viewports() {
+        return self.viewStore.viewports;
+      },
+      get sheetId() {
+        return model.getters.getActiveSheetId();
+      },
+    });
+
     useGridDrawing({
       canvasRef: this.canvasRef,
       rendererStore,
@@ -161,5 +174,9 @@ export class SpreadsheetDashboard extends Component<SpreadsheetChildEnv> {
           "background-color": sheet.backgroundColor,
         })
       : "";
+  }
+
+  onScroll(offset: PixelOffset) {
+    this.viewStore.setViewportOffset(offset);
   }
 }

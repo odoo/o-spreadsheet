@@ -1,6 +1,6 @@
 import { chartComponentRegistry } from "../../../registries/chart_component_registry";
 import { ChartType } from "../../../types/chart/chart";
-import { CSSProperties, UID } from "../../../types/misc";
+import { UID } from "../../../types/misc";
 import { Rect } from "../../../types/rendering";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
 import { ChartMenu } from "../chart/chart_menu/chart_menu";
@@ -15,7 +15,6 @@ export class ChartFigure extends Component<SpreadsheetChildEnv> {
 
   protected props = useProps({
     figureUI: types.FigureUI(),
-    editFigureStyle: types.function<(properties: CSSProperties) => void>().optional(),
     isFullScreen: types.boolean().optional(),
     openContextMenu: types.function<(anchorRect: Rect, onClose?: () => void) => void>().optional(),
   });
