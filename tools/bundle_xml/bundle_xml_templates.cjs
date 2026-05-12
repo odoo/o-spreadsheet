@@ -1,10 +1,9 @@
 const prettier = require("prettier");
 const fs = require("fs");
 const path = require("path");
-const { globSync } = require("glob");
 
 const config = require("../../package.json");
-const { writeToFile } = require("../utils/files.cjs");
+const { writeToFile, findFiles } = require("../utils/files.cjs");
 
 /**
  * Returns a bundle of all the xml templates, as a parsed xml Document
@@ -26,7 +25,7 @@ function getOwlTemplatesBundle(removeRootTags = false) {
 }
 
 function getXmlTemplatesFiles() {
-  return globSync("src/**/*.xml");
+  return findFiles("src", ".xml");
 }
 
 function createOwlTemplateBundle(files, removeRootTags) {
