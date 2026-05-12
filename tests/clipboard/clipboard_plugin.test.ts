@@ -663,6 +663,21 @@ describe("clipboard", () => {
         )}'>1</div>`
       );
     });
+
+    test("Copied cell content is html-escaped", async () => {
+      const model = new Model();
+      setCellContent(model, "A1", "<b>hello</b>");
+      copy(model, "A1");
+      const cbPlugin = getPlugin(model, ClipboardPlugin);
+      const clipboardId = model.getters.getClipboardId();
+      const clipboardData = JSON.stringify(cbPlugin["getSheetData"]());
+      const osClipboardContent = await model.getters.getClipboardTextAndImageContent();
+      expect(osClipboardContent[ClipboardMIMEType.Html]).toBe(
+        `<div data-osheet-clipboard-id='${clipboardId}' data-osheet-clipboard='${xmlEscape(
+          clipboardData
+        )}'>&lt;b&gt;hello&lt;/b&gt;</div>`
+      );
+    });
   });
 
   test("can copy a rectangular selection", () => {
