@@ -1,7 +1,9 @@
 import { expandZoneOnInsertion, reduceZoneOnDeletion } from "../../helpers/zones";
-import { CoreCommand } from "../../types/commands";
+import { CoreCommand, SheetDependentCommand } from "../../types/commands";
 import { UnboundedZone, Zone } from "../../types/misc";
 import { RangeData } from "../../types/range";
+
+export type TransformResult = "SKIP_TRANSFORMATION" | "IGNORE_COMMAND";
 
 export function transformZone<Z extends Zone | UnboundedZone>(
   zone: Z,
@@ -38,4 +40,26 @@ export function transformRangeData(range: RangeData, executed: CoreCommand): Ran
     }
   }
   return undefined;
+}
+
+export function transformSheetId(
+  toTransform: Extract<CoreCommand, SheetDependentCommand>,
+  executed: CoreCommand
+): CoreCommand | TransformResult {
+  if (!("sheetId" in executed)) {
+    return toTransform;
+  }
+
+  const deleteSheet = executed.type === "DELETE_SHEET" && executed.sheetId;
+  const lockSheet = executed.type === "LOCK_SHEET" && executed.sheetId;
+  if (toTransform.sheetId === deleteSheet || toTransform.sheetId === lockSheet) {
+    return "IGNORE_COMMAND";
+  } else if (
+    toTransform.type === "CREATE_SHEET" ||
+    executed.type === "CREATE_SHEET" ||
+    toTransform.sheetId !== executed.sheetId
+  ) {
+    return toTransform;
+  }
+  return "SKIP_TRANSFORMATION";
 }

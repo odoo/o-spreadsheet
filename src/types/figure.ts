@@ -1,5 +1,6 @@
 import { TitleDesign } from "./chart/chart";
 import { HeaderIndex, Pixel, PixelPosition, UID } from "./misc";
+import { Range, RangeData } from "./range";
 import { DOMCoordinates } from "./rendering";
 
 export interface FigureInfo {
@@ -36,6 +37,33 @@ export interface Carousel {
   readonly title?: TitleDesign;
 }
 
-export type CarouselItem =
+export interface CarouselDataViewItem {
+  type: "carouselDataView";
+  title?: string;
+  range?: Range;
+  // Type with never otherwise since both range/rangeData are optional, we could assign a CarouselItemData to a CarouselItem
+  rangeData?: never;
+  /**
+   * The weights of the columns define the ratio of the width of each column relative to the other columns and the figure width.
+   *
+   * For example if the carousel data view is 500px wide, and the weights are [250, 250, 500], the first two columns
+   * will be 125px wide and the last column will be 250px wide.
+   */
+  columnWeights?: number[];
+}
+
+export type CarouselItem = { type: "chart"; chartId: UID; title?: string } | CarouselDataViewItem;
+
+export interface CarouselData extends Omit<Carousel, "items"> {
+  readonly items: CarouselItemData[];
+}
+
+export interface CarouselDataViewItemData
+  extends Omit<CarouselDataViewItem, "range" | "rangeData"> {
+  rangeData?: RangeData;
+  range?: never;
+}
+
+export type CarouselItemData =
   | { type: "chart"; chartId: UID; title?: string }
-  | { type: "carouselDataView"; title?: string };
+  | CarouselDataViewItemData;

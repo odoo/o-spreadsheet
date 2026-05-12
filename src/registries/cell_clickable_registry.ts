@@ -2,7 +2,7 @@ import { ClickableCellSortIcon } from "../components/dashboard/clickable_cell_so
 import { openLink } from "../helpers/links";
 import { canSortPivot, sortPivot } from "../helpers/pivot/pivot_menu_items";
 import { _t } from "../translation";
-import { Getters } from "../types/getters";
+import { Getters, RenderingGetters } from "../types/getters";
 import { CellPosition, SortDirection } from "../types/misc";
 import { SpreadsheetChildEnv } from "../types/spreadsheet_env";
 import { Registry } from "./registry";
@@ -66,6 +66,9 @@ const NEXT_SORT_DIRECTION = {
   desc: "none",
 } as const;
 
-function getNextSortDirection(getters: Getters, position: CellPosition): SortDirection | "none" {
+function getNextSortDirection(
+  getters: RenderingGetters,
+  position: CellPosition
+): SortDirection | "none" {
   return NEXT_SORT_DIRECTION[getters.getPivotCellSortDirection(position) ?? "none"];
 }

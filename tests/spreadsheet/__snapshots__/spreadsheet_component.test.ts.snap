@@ -838,7 +838,7 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
       >
         <div
           class="position-absolute"
-          style="top: 26px; left: 48px; height: calc(100% - 41px); width: calc(100% - 63px); cursor: default;"
+          style="top: 26px; left: 48px; height: calc(100% - 41px); width: calc(100% - 63px);"
         >
           <div
             class="position-absolute"
@@ -1873,7 +1873,7 @@ exports[`components take the small screen into account 1`] = `
       >
         <div
           class="position-absolute"
-          style="top: 26px; left: 48px; height: calc(100% - 41px); width: calc(100% - 63px); cursor: default;"
+          style="top: 26px; left: 48px; height: calc(100% - 41px); width: calc(100% - 63px);"
         >
           <div
             class="position-absolute"

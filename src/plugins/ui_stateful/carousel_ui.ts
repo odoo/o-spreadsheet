@@ -130,7 +130,7 @@ export class CarouselUIPlugin extends UIPlugin {
     this.dispatch("UPDATE_CAROUSEL", {
       sheetId,
       figureId: carouselId,
-      definition: { ...carousel, items },
+      definition: this.getters.carouselToCarouselData({ ...carousel, items }),
     });
     this.dispatch("SELECT_FIGURE", { figureId: newChartFigureId });
   }
@@ -211,7 +211,11 @@ export class CarouselUIPlugin extends UIPlugin {
 
     const carouselItem: CarouselItem = { type: "chart", chartId };
     const definition: Carousel = { ...carousel, items: [...carousel.items, carouselItem] };
-    this.dispatch("UPDATE_CAROUSEL", { sheetId, figureId, definition });
+    this.dispatch("UPDATE_CAROUSEL", {
+      sheetId,
+      figureId,
+      definition: this.getters.carouselToCarouselData(definition),
+    });
     this.dispatch("UPDATE_CAROUSEL_ACTIVE_ITEM", { figureId, sheetId, item: carouselItem });
   }
 
@@ -227,7 +231,11 @@ export class CarouselUIPlugin extends UIPlugin {
       ...carousel,
       items: [...carousel.items, newItem],
     };
-    this.dispatch("UPDATE_CAROUSEL", { sheetId, figureId, definition });
+    this.dispatch("UPDATE_CAROUSEL", {
+      sheetId,
+      figureId,
+      definition: this.getters.carouselToCarouselData(definition),
+    });
     this.dispatch("UPDATE_CHART", {
       sheetId,
       chartId,
@@ -273,7 +281,7 @@ export class CarouselUIPlugin extends UIPlugin {
     this.dispatch("UPDATE_CAROUSEL", {
       sheetId,
       figureId: carouselId,
-      definition: { ...carousel, items: carouselItems },
+      definition: this.getters.carouselToCarouselData({ ...carousel, items: carouselItems }),
     });
   }
 

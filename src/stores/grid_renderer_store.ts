@@ -604,8 +604,8 @@ export class GridRenderer extends DisposableStore {
   private drawFrozenPanesHeaders(renderingContext: GridRenderingContext) {
     const { ctx, thinLineWidth, sheetId, viewports } = renderingContext;
 
-    const { x: offsetCorrectionX, y: offsetCorrectionY } =
-      viewports.getMainViewportCoordinates(sheetId);
+    const { paneWidth: offsetCorrectionX, paneHeight: offsetCorrectionY } =
+      viewports.getPanesDimensions(sheetId);
 
     const widthCorrection = viewports.getGridOffsetX();
     const heightCorrection = viewports.getGridOffsetY();

@@ -1,17 +1,23 @@
-import { CommandResult, Model, UID } from "../../../src";
+import { CarouselItemData, CommandResult, Model, UID } from "../../../src";
+import { toZone } from "../../../src/helpers/zones";
 import { toChartDataSource } from "../../test_helpers/chart_helpers";
 import {
   addChartFigureToCarousel,
+  addColumns,
   addNewChartToCarousel,
+  addRows,
   createCarousel,
+  createCarouselWithDataView,
   createChart,
   duplicateSheet,
   popOutChartFromCarousel,
   selectCarouselItem,
+  undo,
   updateCarousel,
   updateChart,
 } from "../../test_helpers/commands_helpers";
 import { TEST_CHART_DATA } from "../../test_helpers/constants";
+import { toRangeData } from "../../test_helpers/helpers";
 
 let model: Model;
 let sheetId: UID;
@@ -131,6 +137,27 @@ describe("Carousel figure", () => {
       });
       expect(result).toBeCancelledBecause(CommandResult.InvalidFigureId);
     });
+
+    test("Cannot add data view with wrong ranges", () => {
+      expect(
+        createCarouselWithDataView(model, toRangeData("notASheet", "A1"))
+      ).toBeCancelledBecause(CommandResult.InvalidRange);
+      expect(createCarouselWithDataView(model, toRangeData(sheetId, "AZ50"))).toBeCancelledBecause(
+        CommandResult.InvalidRange
+      );
+
+      createCarousel(model, { items: [] }, "id");
+      expect(
+        updateCarousel(model, "id", {
+          items: [{ type: "carouselDataView", rangeData: toRangeData("notASheet", "A1") }],
+        })
+      ).toBeCancelledBecause(CommandResult.InvalidRange);
+      expect(
+        updateCarousel(model, "id", {
+          items: [{ type: "carouselDataView", rangeData: toRangeData(sheetId, "A250") }],
+        })
+      ).toBeCancelledBecause(CommandResult.InvalidRange);
+    });
   });
 
   test("Can create a carousel figure", () => {
@@ -194,6 +221,48 @@ describe("Carousel figure", () => {
     expect(newFigures[1].tag).toBe("chart");
   });
 
+  test("Carousel data view range is adapted on sheet modification", () => {
+    createCarouselWithDataView(model, toRangeData(sheetId, "A1"), "carouselId");
+    expect(model.getters.getCarousel("carouselId").items[0]).toMatchObject({
+      range: { zone: toZone("A1") },
+    });
+
+    addRows(model, "before", 0, 2);
+    expect(model.getters.getCarousel("carouselId").items[0]).toMatchObject({
+      range: { zone: toZone("A3") },
+    });
+
+    undo(model);
+    expect(model.getters.getCarousel("carouselId").items[0]).toMatchObject({
+      range: { zone: toZone("A1") },
+    });
+  });
+
+  test("Column weights are removed when adding/removing columns inside the carousel range", () => {
+    const columnWeights = [500, 250];
+    createCarousel(
+      model,
+      {
+        items: [
+          { type: "carouselDataView", rangeData: toRangeData(sheetId, "A1:B1"), columnWeights },
+        ],
+      },
+      "carouselId"
+    );
+
+    addColumns(model, "before", "A", 1);
+    expect(model.getters.getCarousel("carouselId").items[0]).toMatchObject({
+      range: { zone: toZone("B1:C1") },
+      columnWeights,
+    });
+
+    addColumns(model, "after", "B", 1);
+    expect(model.getters.getCarousel("carouselId").items[0]).toMatchObject({
+      range: { zone: toZone("B1:D1") },
+      columnWeights: undefined,
+    });
+  });
+
   test("Can duplicate a sheet with a carousel", () => {
     createCarousel(model, { items: [] }, "carouselId");
     const chartId = addNewChartToCarousel(model, "carouselId", { type: "funnel" });
@@ -243,6 +312,43 @@ describe("Carousel figure", () => {
       ...toChartDataSource({ dataSets: [{ dataRange: "A1:A6" }] }),
     });
     expect(newModel.getters.getChartDefinition("chartId2")).toMatchObject({ type: "radar" });
+  });
+
+  test("Can import a model with a carousel with a chart, add a new chart, then re-export the model", () => {
+    // Note: we need to be a bit careful during the import/export, when the carousel plugin exports the carousel, we need to
+    // avoid overridding content that the chart plugin added to figure data
+    // Bug was: import carousel with a spread keeping all the POJO keys (it keeps figure.data.chartDefinitions) => add a new chart
+    // => export data => mistakenly overriding figure.data.chartDefinitions with the one originally imported
+    createCarousel(model, { items: [] }, "carouselId");
+    addNewChartToCarousel(model, "carouselId");
+
+    const data = model.exportData();
+    const model2 = new Model(data);
+    addNewChartToCarousel(model2, "carouselId");
+
+    const data2 = model2.exportData();
+    expect(Object.keys(data2.sheets[0].figures![0].data.chartDefinitions)).toHaveLength(2);
+    expect(new Model(data2).getters.getChartIds("Sheet1")).toHaveLength(2);
+  });
+
+  test("Can export/import a carousel and its ranges", () => {
+    const carouselItem: CarouselItemData = {
+      type: "carouselDataView",
+      title: "Range1",
+      rangeData: toRangeData(sheetId, "A1:B2"),
+    };
+    createCarousel(model, { items: [carouselItem] }, "carouselId");
+    const data = model.exportData();
+    expect(data.sheets[0].figures).toHaveLength(1);
+    expect(data.sheets[0].figures![0].data.items[0]).toEqual(carouselItem);
+
+    const newModel = new Model(data);
+    expect(newModel.getters.getFigures(sheetId)).toHaveLength(1);
+    expect(newModel.getters.getCarousel("carouselId").items[0]).toMatchObject({
+      type: "carouselDataView",
+      title: "Range1",
+      range: { zone: toZone("A1:B2") },
+    });
   });
 
   test("Carousel item is still selected when changing its name", () => {

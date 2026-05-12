@@ -167,7 +167,7 @@ export function getCarouselMenuActions(figureId: UID, env: SpreadsheetChildEnv):
         env.model.dispatch("UPDATE_CAROUSEL", {
           figureId,
           sheetId: env.model.getters.getActiveSheetId(),
-          definition: { ...carousel, items },
+          definition: env.model.getters.carouselToCarouselData({ ...carousel, items }),
         });
       },
       icon: "o-spreadsheet-Icon.TRASH",

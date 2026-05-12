@@ -814,3 +814,12 @@ export function splitZone(z1: Zone, z2: Zone): Zone[] {
   }
   return zones;
 }
+
+export function haveSameNumberOfCols(z1: Zone | UnboundedZone, z2: Zone | UnboundedZone): boolean {
+  if (z1.right === undefined && z2.right === undefined) {
+    return z1.left === z2.left;
+  } else if (z1.right === undefined || z2.right === undefined) {
+    return false;
+  }
+  return z1.right - z1.left === z2.right - z2.left;
+}

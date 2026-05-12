@@ -3,12 +3,16 @@ import { ActionSpec, createActions } from "../../../actions/action";
 import { DEFAULT_CAROUSEL_TITLE_STYLE } from "../../../constants";
 import { getCarouselItemTitle } from "../../../helpers/carousel_helpers";
 import { chartStyleToCellStyle, deepEquals } from "../../../helpers/misc";
+import { cellPositions } from "../../../helpers/zones";
 import { Component, useLayoutEffect } from "../../../owl3_compatibility_layer";
 import { chartComponentRegistry } from "../../../registries/chart_component_registry";
 import { useStore } from "../../../store_engine/store_hooks";
+import { ViewportsStore } from "../../../stores/viewports_store";
 import { _t } from "../../../translation";
+import { CellValueType } from "../../../types/cells";
 import { Carousel, CarouselItem } from "../../../types/figure";
 import { CSSProperties, MenuMouseEvent } from "../../../types/misc";
+import { Range } from "../../../types/range";
 import { Rect } from "../../../types/rendering";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
 import { Store } from "../../../types/store_engine";
@@ -17,12 +21,13 @@ import { cellTextStyleToCss, cssPropertiesToCss } from "../../helpers/css";
 import { getBoundingRectAsPOJO, getElBoundingRect } from "../../helpers/dom_helpers";
 import { MenuPopover, MenuState } from "../../menu_popover/menu_popover";
 import { types } from "../../props_validation";
+import { StandaloneViewport } from "../../standalone_viewport/standalone_viewport";
 import { ChartAnimationStore } from "../chart/chartJs/chartjs_animation_store";
 import { ChartMenu } from "../chart/chart_menu/chart_menu";
 
 export class CarouselFigure extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-CarouselFigure";
-  static components = { ChartMenu, MenuPopover };
+  static components = { ChartMenu, MenuPopover, StandaloneViewport };
 
   protected props = useProps({
     figureUI: types.FigureUI(),
@@ -39,17 +44,14 @@ export class CarouselFigure extends Component<SpreadsheetChildEnv> {
 
   protected animationStore: Store<ChartAnimationStore> | undefined;
   private fullScreenFigureStore!: Store<FullScreenFigureStore>;
+  viewStore!: Store<ViewportsStore>;
 
   setup(): void {
     this.animationStore = useStore(ChartAnimationStore);
     this.fullScreenFigureStore = useStore(FullScreenFigureStore);
+    this.viewStore = useStore(ViewportsStore);
 
     useLayoutEffect(() => {
-      if (this.selectedCarouselItem?.type === "carouselDataView") {
-        this.props.editFigureStyle?.({ "pointer-events": "none" });
-      } else {
-        this.props.editFigureStyle?.({ "pointer-events": "auto" });
-      }
       this.updateTabsVisibility();
     });
   }
@@ -110,7 +112,7 @@ export class CarouselFigure extends Component<SpreadsheetChildEnv> {
     }
   }
 
-  get headerStyle(): string {
+  get carouselStyle(): string {
     const cssProperties: CSSProperties = {};
     const backgroundColor = this.env.model.getters.getSpreadsheetTheme().backgroundColor;
     if (this.selectedCarouselItem?.type === "chart") {
@@ -189,19 +191,11 @@ export class CarouselFigure extends Component<SpreadsheetChildEnv> {
   }
 
   toggleFullScreen() {
-    if (this.selectedCarouselItem?.type === "chart") {
-      this.fullScreenFigureStore.toggleFullScreenFigure(this.props.figureUI.id);
-    }
+    this.fullScreenFigureStore.toggleFullScreenFigure(this.props.figureUI.id);
   }
 
   get fullScreenButtonTitle(): string {
     return this.props.isFullScreen ? _t("Exit Full Screen") : _t("Full Screen");
-  }
-
-  get visibleCarouselItems(): CarouselItem[] {
-    return this.carousel.items.filter((item) =>
-      item.type === "carouselDataView" && this.props.isFullScreen ? false : true
-    );
   }
 
   openContextMenu(event: MenuMouseEvent) {
@@ -212,5 +206,55 @@ export class CarouselFigure extends Component<SpreadsheetChildEnv> {
     if (target) {
       this.props.openContextMenu?.(getBoundingRectAsPOJO(target));
     }
+  }
+
+  removeEmptyHeadersFromRange(range: Range): Range {
+    if (range.invalidXc || range.invalidSheetName) {
+      const id = this.props.figureUI.id;
+      throw new Error(
+        `Invalid range provided to carousel ${id} data view ${JSON.stringify(this.carousel)}`
+      );
+    }
+    const zone = range.zone;
+    let lastUsedRow = zone.top;
+    const sheetId = range.sheetId;
+
+    for (const position of cellPositions(sheetId, zone)) {
+      if (this.env.model.getters.getEvaluatedCell(position).type === CellValueType.empty) {
+        continue;
+      }
+      lastUsedRow = Math.max(lastUsedRow, position.row);
+    }
+
+    const newZone = { ...range.zone, bottom: lastUsedRow };
+    return this.env.model.getters.getRangeFromZone(sheetId, newZone);
+  }
+
+  onResizeColumns(columnWeights: number[]) {
+    const selectedItem = this.selectedCarouselItem;
+    if (selectedItem?.type !== "carouselDataView") {
+      return;
+    }
+
+    const carousel = this.env.model.getters.getCarousel(this.props.figureUI.id);
+    const index = carousel.items.findIndex((item) => deepEquals(item, selectedItem));
+    if (index === -1) {
+      return;
+    }
+
+    const newItems = [...carousel.items];
+    newItems[index] = { ...selectedItem, columnWeights };
+    this.env.model.dispatch("UPDATE_CAROUSEL", {
+      figureId: this.props.figureUI.id,
+      sheetId: this.env.model.getters.getActiveSheetId(),
+      definition: this.env.model.getters.carouselToCarouselData({ ...carousel, items: newItems }),
+    });
+  }
+
+  get canResizeDataViewColumns() {
+    return (
+      !this.env.model.getters.isReadonly() &&
+      !this.env.model.getters.isSheetLocked(this.env.model.getters.getActiveSheetId())
+    );
   }
 }

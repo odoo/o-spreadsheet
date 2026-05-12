@@ -1,5 +1,6 @@
 import {
   AddColumnsRowsCommand,
+  CarouselData,
   DeleteSheetCommand,
   DuplicateSheetCommand,
   MoveRangeCommand,
@@ -15,7 +16,7 @@ import {
   TEST_COMMANDS_TARGET_DEPENDENT,
   TEST_COMMANDS_ZONE_DEPENDENT,
 } from "../../test_helpers/constants";
-import { toRangesData } from "../../test_helpers/helpers";
+import { toRangeData, toRangesData } from "../../test_helpers/helpers";
 import { getFormulaStringCommands } from "./ot_helper";
 
 describe("OT with DELETE_SHEET", () => {
@@ -201,4 +202,43 @@ describe("OT with DELETE_SHEET", () => {
       expect(result).toEqual(undefined);
     });
   });
+});
+
+describe("OT with delete sheet and carousel commands", () => {
+  const columnWeights = [500, 250, 250];
+  const carousel: CarouselData = {
+    items: [
+      { type: "carouselDataView", rangeData: toRangeData("sh1", "C3:E5"), columnWeights },
+      { type: "carouselDataView", rangeData: toRangeData("sh2", "C3:E5"), columnWeights },
+    ],
+  };
+
+  const deleteSheet: DeleteSheetCommand = {
+    type: "DELETE_SHEET",
+    sheetId: "sh2",
+    sheetName: "Sheet2",
+  };
+
+  test.each([TEST_COMMANDS.CREATE_CAROUSEL, TEST_COMMANDS.UPDATE_CAROUSEL])(
+    "command is removed when the carousel is on the deleted sheet",
+    (cmd) => {
+      const toTransform = { ...cmd, sheetId: "sh2", definition: carousel };
+      const result = transform(toTransform, deleteSheet) as any;
+      expect(result).toBeUndefined();
+    }
+  );
+
+  test.each([TEST_COMMANDS.CREATE_CAROUSEL, TEST_COMMANDS.UPDATE_CAROUSEL])(
+    "ranges are deleted on the same sheet as deleteSheet",
+    (cmd) => {
+      const toTransform = { ...cmd, sheetId: "sh1", definition: carousel };
+      const result = transform(toTransform, deleteSheet) as any;
+      expect(result?.definition).toMatchObject({
+        items: [
+          { type: "carouselDataView", rangeData: toRangeData("sh1", "C3:E5"), columnWeights },
+          { type: "carouselDataView", rangeData: undefined, columnWeights: undefined },
+        ],
+      });
+    }
+  );
 });
