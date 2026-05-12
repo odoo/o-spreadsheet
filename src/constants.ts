@@ -206,6 +206,8 @@ export const DEFAULT_FILTER_BORDER_DESC: BorderDescr = { style: "thin", color: F
 // Max Number of history steps kept in memory
 export const MAX_HISTORY_STEPS = 99;
 
+export const SAVE_VERSION_EVERY_N_MINUTES = 15;
+
 // Id of the first revision
 export const DEFAULT_REVISION_ID = "START_REVISION";
 
