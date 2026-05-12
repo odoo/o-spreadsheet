@@ -29,7 +29,7 @@
     "prettier": "prettier . --write",
     "check-formatting": "prettier . --check && eslint",
     "dist": "tsc --module es6 --declaration --declarationDir dist/types && rolldown -c && npm run build:bundleXml -- --outDir dist",
-    "postinstall": "husky install",
+    "prepare": "husky install",
     "watch:bundle": "npm run build:bundleJsDev -- --watch",
     "watch:ts": "npm run build:js -- --watch",
     "watch:xml": "node tools/bundle_xml/watch_xml_templates.cjs",
