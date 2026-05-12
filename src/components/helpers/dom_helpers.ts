@@ -29,7 +29,9 @@ export function isChildEvent(parent: HTMLElement | null | undefined, ev: Event):
 }
 
 export function gridOverlayPosition(zoom = 1): DOMCoordinates {
-  const spreadsheetElement = document.querySelector(".o-grid-overlay");
+  const spreadsheetElement = document.querySelector(
+    ".o-grid-overlay:not(.o-figure-container .o-grid-overlay)"
+  );
   const result = spreadsheetElement && zoomCorrectedElementRect(spreadsheetElement, zoom);
   if (!result) {
     throw new Error("Can't find spreadsheet position");

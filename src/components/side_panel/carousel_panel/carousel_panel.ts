@@ -23,6 +23,7 @@ import { getBoundingRectAsPOJO } from "../../helpers/dom_helpers";
 import { useDragAndDropListItems } from "../../helpers/drag_and_drop_dom_items_hook";
 import { Popover } from "../../popover/popover";
 import { types } from "../../props_validation";
+import { SelectionInput } from "../../selection_input/selection_input";
 import { TextInput } from "../../text_input/text_input";
 import { TextStyler } from "../chart/building_blocks/text_styler/text_styler";
 import { ChartTypePickerPopover } from "../chart/chart_type_picker_popover/chart_type_picker_popover";
@@ -31,11 +32,19 @@ import { Section } from "../components/section/section";
 
 interface CarouselPanelState {
   popoverProps: PropsOf<Popover> | undefined;
+  currentRange?: string;
 }
 
 export class CarouselPanel extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-CarouselPanel";
-  static components = { Section, TextInput, TextStyler, CogWheelMenu, ChartTypePickerPopover };
+  static components = {
+    Section,
+    TextInput,
+    TextStyler,
+    CogWheelMenu,
+    ChartTypePickerPopover,
+    SelectionInput,
+  };
 
   protected props = useProps({
     onCloseSidePanel: types.function(),
@@ -48,7 +57,7 @@ export class CarouselPanel extends Component<SpreadsheetChildEnv> {
   private previewListRef = signal<HTMLElement | null>(null);
   addChartButton = signal<HTMLElement | null>(null);
 
-  state = proxy<CarouselPanelState>({ popoverProps: undefined });
+  state = proxy<CarouselPanelState>({ popoverProps: undefined, currentRange: undefined });
 
   setup() {
     let lastCarouselItems: CarouselItem[] = [...this.carouselItems];
@@ -133,7 +142,15 @@ export class CarouselPanel extends Component<SpreadsheetChildEnv> {
 
   addDataViewToCarousel() {
     const carousel = this.env.model.getters.getCarousel(this.props.figureId);
-    this.updateItems([...carousel.items, { type: "carouselDataView" }]);
+    const selection = this.env.model.getters.getSelectedZone();
+    const sheetId = this.env.model.getters.getActiveSheetId();
+    this.updateItems([
+      ...carousel.items,
+      {
+        type: "carouselDataView",
+        range: this.env.model.getters.getRangeFromZone(sheetId, selection),
+      },
+    ]);
   }
 
   activateCarouselItem(item: CarouselItem) {
@@ -245,7 +262,7 @@ export class CarouselPanel extends Component<SpreadsheetChildEnv> {
     this.env.model.dispatch("UPDATE_CAROUSEL", {
       figureId: this.props.figureId,
       sheetId: this.carouselSheetId,
-      definition: { ...this.carousel, items },
+      definition: this.env.model.getters.carouselToCarouselData({ ...this.carousel, items }),
     });
   }
 
@@ -254,13 +271,13 @@ export class CarouselPanel extends Component<SpreadsheetChildEnv> {
     this.env.model.dispatch("UPDATE_CAROUSEL", {
       figureId: this.props.figureId,
       sheetId: this.carouselSheetId,
-      definition: {
+      definition: this.env.model.getters.carouselToCarouselData({
         ...carousel,
         title: {
           ...carousel.title,
           text: title,
         },
-      },
+      }),
     });
   }
 
@@ -269,13 +286,13 @@ export class CarouselPanel extends Component<SpreadsheetChildEnv> {
     this.env.model.dispatch("UPDATE_CAROUSEL", {
       figureId: this.props.figureId,
       sheetId: this.carouselSheetId,
-      definition: {
+      definition: this.env.model.getters.carouselToCarouselData({
         ...carousel,
         title: {
           ...carousel.title,
           ...style,
         },
-      },
+      }),
     });
   }
 
@@ -322,5 +339,32 @@ export class CarouselPanel extends Component<SpreadsheetChildEnv> {
 
   get carouselDataViewMessage(): string {
     return _t("The data view makes the carousel transparent, revealing the data underneath.");
+  }
+
+  getItemRangeString(item: CarouselItem): string {
+    if (item.type !== "carouselDataView" || !item.range) {
+      return "";
+    }
+    return this.env.model.getters.getRangeString(item.range);
+  }
+
+  onSelectionInputChanged(ranges: string[]) {
+    this.state.currentRange = ranges[0];
+  }
+
+  onSelectionInputConfirmed() {
+    const index = this.carouselItems.findIndex((item) => item.type === "carouselDataView");
+    if (index === -1 || !this.state.currentRange) {
+      return;
+    }
+    const items = [...this.carouselItems];
+    items[index] = {
+      ...(items[index] as Extract<CarouselItem, { type: "carouselDataView" }>),
+      range: this.env.model.getters.getRangeFromSheetXC(
+        this.env.model.getters.getActiveSheetId(),
+        this.state.currentRange
+      ),
+    };
+    this.updateItems(items);
   }
 }

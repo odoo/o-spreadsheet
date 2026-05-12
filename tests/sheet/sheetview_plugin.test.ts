@@ -1368,6 +1368,87 @@ describe("Multi Panes viewport", () => {
     expect(viewStore.viewports.getRowIndex(sheetId, DEFAULT_CELL_HEIGHT * 3 - 5)).toBe(2);
     expect(viewStore.viewports.getRowIndex(sheetId, DEFAULT_CELL_HEIGHT * 3 + 5)).toBe(3);
   });
+
+  test("Viewports are correctly formed when the zone to display intersects the frozen panes", () => {
+    freezeRows(model, 3);
+    freezeColumns(model, 3);
+
+    const internalViewports = () => {
+      const viewports = viewStore.viewports.viewports[model.getters.getActiveSheetId()]!;
+      return Object.fromEntries(
+        Object.entries(viewports).map(([key, viewport]) => [
+          key,
+          viewport
+            ? {
+                zone: zoneToXc(viewport),
+                height: viewport.viewportHeight,
+                width: viewport.viewportWidth,
+              }
+            : undefined,
+        ])
+      );
+    };
+
+    const cellHeight = DEFAULT_CELL_HEIGHT;
+    const cellWidth = DEFAULT_CELL_WIDTH;
+
+    // // Zone intersects all the viewports
+    viewStore.setViewportArgs({ zoneToDisplay: toZone("C3:D5") });
+    expect(internalViewports()).toEqual({
+      topLeft: { zone: "C3", height: cellHeight, width: cellWidth },
+      topRight: { zone: "D3", height: cellHeight, width: 1000 - cellWidth },
+      bottomLeft: { zone: "C4:C5", height: 1000 - cellHeight, width: cellWidth },
+      bottomRight: { zone: "D4:D5", height: 1000 - cellHeight, width: 1000 - cellWidth },
+    });
+
+    // Zone intersects only the main viewport and the top right viewport
+    viewStore.setViewportArgs({ zoneToDisplay: toZone("D3:E5") });
+    expect(internalViewports()).toEqual({
+      topRight: { zone: "D3:E3", height: cellHeight, width: 1000 },
+      bottomRight: { zone: "D4:E5", height: 1000 - cellHeight, width: 1000 },
+    });
+
+    // Zone intersects only the main viewport and the bottom left viewport
+    viewStore.setViewportArgs({ zoneToDisplay: toZone("C4:D5") });
+    expect(internalViewports()).toEqual({
+      bottomLeft: { zone: "C4:C5", height: 1000, width: cellWidth },
+      bottomRight: { zone: "D4:D5", height: 1000, width: 1000 - cellWidth },
+    });
+
+    // Zone is fully inside a single frozen pane (top left)
+    viewStore.setViewportArgs({ zoneToDisplay: toZone("A1:B2") });
+    expect(internalViewports()).toEqual({
+      bottomRight: { zone: "A1:B2", height: 1000, width: 1000 },
+    });
+
+    // Zone is fully inside a single frozen pane (top right)
+    viewStore.setViewportArgs({ zoneToDisplay: toZone("D1:E2") });
+    expect(internalViewports()).toEqual({
+      bottomRight: { zone: "D1:E2", height: 1000, width: 1000 },
+    });
+
+    // Zone is fully inside a single frozen pane (bottom left)
+    viewStore.setViewportArgs({ zoneToDisplay: toZone("A4:B5") });
+    expect(internalViewports()).toEqual({
+      bottomRight: { zone: "A4:B5", height: 1000, width: 1000 },
+    });
+
+    // Zone fully inside left frozen panes
+    viewStore.setViewportArgs({ zoneToDisplay: toZone("B2:B7") });
+    expect(internalViewports()).toEqual({
+      // left viewports transformed into right viewports to have bottomRight always defined
+      topRight: { zone: "B2:B3", height: cellHeight * 2, width: 1000 },
+      bottomRight: { zone: "B4:B7", height: 1000 - cellHeight * 2, width: 1000 },
+    });
+
+    // Zone fully inside top frozen panes
+    viewStore.setViewportArgs({ zoneToDisplay: toZone("A2:E2") });
+    expect(internalViewports()).toEqual({
+      // top viewports transformed into bottom viewports to have bottomRight always defined
+      bottomLeft: { zone: "A2:C2", height: 1000, width: cellWidth * 3 },
+      bottomRight: { zone: "D2:E2", height: 1000, width: 1000 - cellWidth * 3 },
+    });
+  });
 });
 
 describe("multi sheet with different sizes", () => {

@@ -26,14 +26,15 @@ export class VerticalScrollBar extends Component<SpreadsheetChildEnv> {
 
   protected props = useProps({
     topOffset: types.number().optional(0),
+    hasFooter: types.boolean().optional(true),
   });
 
   get offset() {
-    return this.viewStore.activeSheetScrollInfo.scrollY;
+    return this.viewStore.viewports.getSheetScrollInfo(this.viewStore.displayedSheetId).scrollY;
   }
 
   get height() {
-    return this.viewStore.mainViewportRect.height;
+    return this.viewStore.viewports.getMainViewportRect(this.viewStore.displayedSheetId).height;
   }
 
   get isDisplayed() {
@@ -44,18 +45,23 @@ export class VerticalScrollBar extends Component<SpreadsheetChildEnv> {
   }
 
   get position() {
-    const { y } = this.viewStore.mainViewportRect;
-    const scrollbarWidth = this.viewStore.scrollBarWidth;
+    const { y } = this.viewStore.viewports.getMainViewportRect(this.viewStore.displayedSheetId);
+    const scrollbarWidth = this.viewStore.viewports.getScrollBarWidth();
     return {
       top: `${this.props.topOffset + y}px`,
       right: "0px",
       width: `${scrollbarWidth}px`,
-      bottom: `${scrollbarWidth}px`,
+      bottom: this.props.hasFooter ? `${scrollbarWidth}px` : "0px",
     };
   }
 
   onScroll(offset) {
-    const { scrollX } = this.viewStore.activeSheetScrollInfo;
-    this.viewStore.setViewportOffset({ offsetX: scrollX, offsetY: offset });
+    const { scrollX } = this.viewStore.viewports.getSheetScrollInfo(
+      this.viewStore.displayedSheetId
+    );
+    this.viewStore.setViewportOffset({
+      offsetX: scrollX, // offsetX is the same
+      offsetY: offset,
+    });
   }
 }

@@ -4,7 +4,7 @@ import {
   moveHeaderIndexesOnHeaderDeletion,
 } from "../../helpers/sheet";
 import { DEFAULT_TABLE_CONFIG } from "../../helpers/table_presets";
-import { overlap } from "../../helpers/zones";
+import { haveSameNumberOfCols, overlap } from "../../helpers/zones";
 import { otRegistry } from "../../registries/ot_registry";
 import {
   AddColumnsRowsCommand,
@@ -38,6 +38,7 @@ import {
   UpdatePivotCommand,
   UpdateTableCommand,
 } from "../../types/commands";
+import { CarouselItemData } from "../../types/figure";
 import { HeaderIndex, Zone } from "../../types/misc";
 import { transformRangeData, transformZone } from "./ot_helpers";
 
@@ -56,6 +57,23 @@ otRegistry.addTransformation(
 );
 otRegistry.addTransformation("DELETE_CHART", ["UPDATE_CHART"], updateChartOnChartDelete);
 otRegistry.addTransformation("DELETE_CHART", ["UPDATE_CAROUSEL"], updateCarouselOnChartDelete);
+
+otRegistry.addTransformation(
+  "ADD_COLUMNS_ROWS",
+  ["CREATE_CAROUSEL", "UPDATE_CAROUSEL"],
+  updateCarouselRanges
+);
+otRegistry.addTransformation(
+  "REMOVE_COLUMNS_ROWS",
+  ["CREATE_CAROUSEL", "UPDATE_CAROUSEL"],
+  updateCarouselRanges
+);
+otRegistry.addTransformation(
+  "DELETE_SHEET",
+  ["CREATE_CAROUSEL", "UPDATE_CAROUSEL"],
+  updateCarouselRanges
+);
+
 otRegistry.addTransformation("CREATE_SHEET", ["CREATE_SHEET"], createSheetTransformation);
 otRegistry.addTransformation("ADD_MERGE", ["ADD_MERGE", "REMOVE_MERGE"], mergeTransformation);
 otRegistry.addTransformation(
@@ -374,4 +392,25 @@ function updateNamedRangeTransformation(
     return { ...toTransform, oldRangeName: executed.newRangeName };
   }
   return toTransform;
+}
+
+/**
+ * Update the zones of a carousel command if some headers were added/removed
+ */
+function updateCarouselRanges(
+  toTransform: CreateCarouselCommand | UpdateCarouselCommand,
+  executed: AddColumnsRowsCommand | RemoveColumnsRowsCommand | DeleteSheetCommand
+): CreateCarouselCommand | UpdateCarouselCommand | undefined {
+  const transformedItems: CarouselItemData[] = toTransform.definition.items.map((item) => {
+    if (item.type === "carouselDataView" && item.rangeData) {
+      const newRange = transformRangeData(item.rangeData, executed);
+      const columnWeights =
+        newRange && haveSameNumberOfCols(item.rangeData._zone, newRange?._zone)
+          ? item.columnWeights
+          : undefined;
+      return { ...item, rangeData: newRange, columnWeights };
+    }
+    return item;
+  });
+  return { ...toTransform, definition: { ...toTransform.definition, items: transformedItems } };
 }

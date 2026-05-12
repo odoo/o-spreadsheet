@@ -8,6 +8,9 @@
       t-on-keydown="this.onKeydown"
       t-on-wheel.prevent="this.onMouseWheel"
       t-ref="this.gridRef">
+      <div class="position-absolute" t-att-style="this.gridOverlayDimensions">
+        <FiguresContainer/>
+      </div>
       <GridOverlay
         onCellClicked.bind="this.onCellClicked"
         onCellDoubleClicked.bind="this.onCellDoubleClicked"

@@ -8,6 +8,7 @@ import { DOMCoordinates, DOMDimension, OrderedLayers, Rect } from "../../types/r
 import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 import { Store } from "../../types/store_engine";
 import { ClickableCellsOverlay } from "../clickable_cells_overlay/clickable_cells_overlay";
+import { FiguresContainer } from "../figures/figure_container/figure_container";
 import { DelayedHoveredCellStore } from "../grid/delayed_hovered_cell_store";
 import { GridOverlay } from "../grid_overlay/grid_overlay";
 import { GridPopover } from "../grid_popover/grid_popover";
@@ -32,6 +33,7 @@ export class SpreadsheetDashboard extends Component<SpreadsheetChildEnv> {
     VerticalScrollBar,
     HorizontalScrollBar,
     ClickableCellsOverlay,
+    FiguresContainer,
   };
 
   protected props = useProps({
@@ -57,6 +59,7 @@ export class SpreadsheetDashboard extends Component<SpreadsheetChildEnv> {
     useChildSubEnv({
       getPopoverContainerRect: () => getZoomedRect(this.viewStore.zoomLevel, this.getGridRect()),
     });
+
     useGridDrawing({
       canvasRef: this.canvasRef,
       rendererStore,

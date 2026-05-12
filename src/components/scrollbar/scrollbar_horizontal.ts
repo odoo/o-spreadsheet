@@ -29,11 +29,11 @@ export class HorizontalScrollBar extends Component<SpreadsheetChildEnv> {
   });
 
   get offset() {
-    return this.viewStore.activeSheetScrollInfo.scrollX;
+    return this.viewStore.viewports.getSheetScrollInfo(this.viewStore.displayedSheetId).scrollX;
   }
 
   get width() {
-    return this.viewStore.mainViewportRect.width;
+    return this.viewStore.viewports.getMainViewportRect(this.viewStore.displayedSheetId).width;
   }
 
   get isDisplayed() {
@@ -44,8 +44,8 @@ export class HorizontalScrollBar extends Component<SpreadsheetChildEnv> {
   }
 
   get position() {
-    const { x } = this.viewStore.mainViewportRect;
-    const scrollbarWidth = this.viewStore.scrollBarWidth;
+    const { x } = this.viewStore.viewports.getMainViewportRect(this.viewStore.displayedSheetId);
+    const scrollbarWidth = this.viewStore.viewports.getScrollBarWidth();
     return {
       left: `${this.props.leftOffset + x}px`,
       bottom: "0px",
@@ -55,7 +55,12 @@ export class HorizontalScrollBar extends Component<SpreadsheetChildEnv> {
   }
 
   onScroll(offset) {
-    const { scrollY } = this.viewStore.activeSheetScrollInfo;
-    this.viewStore.setViewportOffset({ offsetX: offset, offsetY: scrollY });
+    const { scrollY } = this.viewStore.viewports.getSheetScrollInfo(
+      this.viewStore.displayedSheetId
+    );
+    this.viewStore.setViewportOffset({
+      offsetX: offset,
+      offsetY: scrollY, // offsetY is the same
+    });
   }
 }

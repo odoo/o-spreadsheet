@@ -41,6 +41,7 @@ export class SheetUIPlugin extends UIPlugin {
     "getMultilineTextSize",
     "getContiguousZone",
     "computeTextYCoordinate",
+    "getZoneMaxWidth",
   ] as const;
 
   private ctx = getCanvas();
@@ -258,10 +259,14 @@ export class SheetUIPlugin extends UIPlugin {
     return this.getters.getEvaluatedCell(mainPosition).type === CellValueType.empty;
   }
 
-  private getColMaxWidth(sheetId: UID, index: HeaderIndex): number {
-    const cellsPositions = positions(this.getters.getColsZone(sheetId, index, index));
+  getZoneMaxWidth(sheetId: UID, zone: Zone): number {
+    const cellsPositions = positions(zone);
     const sizes = cellsPositions.map((position) => this.getCellWidth({ sheetId, ...position }));
     return Math.max(0, largeMax(sizes));
+  }
+
+  private getColMaxWidth(sheetId: UID, index: HeaderIndex): number {
+    return this.getZoneMaxWidth(sheetId, this.getters.getColsZone(sheetId, index, index));
   }
 
   /**
