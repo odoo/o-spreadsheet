@@ -593,7 +593,7 @@ export class ClipboardPlugin extends UIPlugin {
         innerHTML = "\t";
       }
     } else if (cells.length === 1 && cells[0].length === 1) {
-      innerHTML = `${this.getters.getCellText(cells[0][0].position)}`;
+      innerHTML = xmlEscape(`${this.getters.getCellText(cells[0][0].position)}`);
     } else if (!cells[0][0]) {
       return "";
     } else {
