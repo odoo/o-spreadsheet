@@ -17,7 +17,7 @@
     "node": ">=22.0.0"
   },
   "scripts": {
-    "postinstall": "husky install",
+    "perpare": "husky install",
     "prettier": "prettier . --write",
     "check-formatting": "prettier . --check && eslint",
     "lint": "eslint --fix",
