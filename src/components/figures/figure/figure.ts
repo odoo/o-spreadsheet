@@ -69,11 +69,11 @@ export class FigureComponent extends Component<Props, SpreadsheetChildEnv> {
     if (this.env.isDashboard()) {
       return 0;
     }
-    return this.isSelected ? ACTIVE_BORDER_WIDTH : this.borderWidth;
+    return this.isSelected ? ACTIVE_BORDER_WIDTH : 0;
   }
 
   getBorderStyle(position: "top" | "right" | "bottom" | "left"): string {
-    return `border-${position}-width: ${this.getBorderWidth()}px;`;
+    return `border-${position}-width: ${this.getBorderWidth()}px`;
   }
 
   get wrapperStyle() {
@@ -84,6 +84,25 @@ export class FigureComponent extends Component<Props, SpreadsheetChildEnv> {
       width: `${width}px`,
       height: `${height}px`,
     });
+  }
+
+  get figureStyle() {
+    const properties: CSSProperties = {
+      "border-width": `${this.borderWidth}px`,
+    };
+    if (this.isSelected) {
+      // ADRM TODO: wait for real carousel data view and improve this (we have 2 different borders handler, and it's ugly w/ data view)
+      properties["border-color"] = "transparent";
+    }
+    return cssPropertiesToCss(properties) + ";" + this.props.style;
+  }
+
+  get figureClass() {
+    return (
+      this.props.class +
+      (this.props.figureUI.roundedBorders ? " rounded-3" : "") +
+      (this.props.figureUI.shadow ? " shadow" : "")
+    );
   }
 
   getResizerPosition(resizer: ResizeAnchor): string {

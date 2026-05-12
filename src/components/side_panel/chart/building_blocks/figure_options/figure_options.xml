@@ -1,0 +1,24 @@
+<templates>
+  <t t-name="o-spreadsheet.FigureOptions">
+    <SidePanelCollapsible
+      isInitiallyCollapsed="!!this.props.isInitiallyCollapsed"
+      title.translate="Figure Options">
+      <t t-set-slot="content">
+        <Section class="'o-figure-options pt-0'" title.translate="Figure style">
+          <Checkbox
+            name="'roundedBorders'"
+            label.translate="Rounded Borders"
+            value="!!this.figure.roundedBorders"
+            onChange.bind="updateRoundedBorders"
+          />
+          <Checkbox
+            name="'shadow'"
+            label.translate="Shadow"
+            value="!!this.figure.shadow"
+            onChange.bind="updateShadow"
+          />
+        </Section>
+      </t>
+    </SidePanelCollapsible>
+  </t>
+</templates>

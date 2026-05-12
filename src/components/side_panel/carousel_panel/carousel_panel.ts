@@ -12,6 +12,7 @@ import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
 import { getBoundingRectAsPOJO } from "../../helpers/dom_helpers";
 import { useDragAndDropListItems } from "../../helpers/drag_and_drop_dom_items_hook";
 import { TextInput } from "../../text_input/text_input";
+import { FigureOptions } from "../chart/building_blocks/figure_options/figure_options";
 import { TextStyler } from "../chart/building_blocks/text_styler/text_styler";
 import { CogWheelMenu } from "../components/cog_wheel_menu/cog_wheel_menu";
 import { Section } from "../components/section/section";
@@ -24,7 +25,7 @@ interface Props {
 export class CarouselPanel extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-CarouselPanel";
   static props = { onCloseSidePanel: Function, figureId: String };
-  static components = { Section, TextInput, TextStyler, CogWheelMenu };
+  static components = { Section, TextInput, TextStyler, CogWheelMenu, FigureOptions };
 
   DEFAULT_CAROUSEL_TITLE_STYLE = DEFAULT_CAROUSEL_TITLE_STYLE;
 
