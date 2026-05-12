@@ -3,6 +3,7 @@ import {
   Border,
   BorderData,
   Carousel,
+  CarouselData,
   ChartCreationContext,
   ChartDefinition,
   ChartDefinitionWithDataSource,
@@ -1812,7 +1813,7 @@ export function removeCF(model: Model, id: UID, sheetId: UID = model.getters.get
 
 export function createCarousel(
   model: Model,
-  data: Carousel = { items: [] },
+  data: CarouselData = { items: [] },
   carouselId?: UID,
   sheetId?: UID,
   figureData: Partial<CreateFigureCommand> = {}

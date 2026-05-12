@@ -1,16 +1,11 @@
 <templates>
   <t t-name="o-spreadsheet-CarouselFigure">
     <div
-      class="o-carousel w-100 h-100 d-flex flex-column"
+      class="o-carousel w-100 h-100 d-flex flex-column px-4 py-2"
+      t-att-style="this.carouselStyle"
       t-on-dblclick="this.onCarouselDoubleClick">
       <t t-set="selectedItem" t-value="this.selectedCarouselItem"/>
-      <div
-        class="o-carousel-header d-flex align-items-baseline flex-shrink-0 pe-1 pe-auto"
-        t-att-class="{
-          'border-bottom': this.env.model.getters.isDashboard(),
-          'o-carousel-header-floating': !this.env.model.getters.isDashboard() and selectedItem?.type === 'carouselDataView',
-         }"
-        t-att-style="this.headerStyle">
+      <div class="o-carousel-header d-flex align-items-baseline flex-shrink-0 pt-1 pe-auto">
         <div
           class="o-carousel-title text-truncate flex-shrink-0 pe-2"
           t-out="this.title"
@@ -20,7 +15,11 @@
         <div
           class="o-carousel-tabs d-flex flex-fill justify-content-end"
           t-ref="this.carouselTabsRef">
-          <t t-foreach="this.visibleCarouselItems" t-as="item" t-key="item_index">
+          <t
+            t-foreach="this.carousel.items"
+            t-as="item"
+            t-key="item_index"
+            t-if="this.carousel.items.length > 1">
             <div
               class="o-carousel-tab text-truncate px-2 mt-1 flex-shrink-0"
               t-att-class="{ 'selected': this.isItemSelected(item) }"
@@ -52,7 +51,6 @@
           t-att-class="{
             'fa-compress': this.props.isFullScreen,
             'fa-expand': !this.props.isFullScreen,
-            'invisible': this.selectedCarouselItem?.type !== 'chart',
           }"
           t-on-click="this.toggleFullScreen"
         />
@@ -62,9 +60,10 @@
           t-on-click="this.openContextMenu"
         />
       </div>
+      <div t-if="this.title" class="w-100 mt-2 border-bottom"/>
       <div
         t-if="!selectedItem"
-        class="o-carousel-empty w-100 flex-fill d-flex align-items-center justify-content-center">
+        class="o-carousel-empty o-carousel-content w-100 flex-fill d-flex align-items-center justify-content-center">
         <t t-call="o-spreadsheet-Icon.CAROUSEL"/>
       </div>
       <div
@@ -86,6 +85,11 @@
           hasFullScreenButton="false"
           t-key="selectedItem.chartId"
         />
+      </div>
+      <div
+        t-elif="selectedItem.type === 'carouselDataView' and selectedItem.range"
+        class="o-carousel-content mb-2 mt-3 h-100 w-100 overflow-hidden">
+        <StandaloneViewport range="selectedItem.range"/>
       </div>
     </div>
   </t>

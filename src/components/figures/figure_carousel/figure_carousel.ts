@@ -17,12 +17,13 @@ import { cellTextStyleToCss, cssPropertiesToCss } from "../../helpers/css";
 import { getBoundingRectAsPOJO, getElBoundingRect } from "../../helpers/dom_helpers";
 import { MenuPopover, MenuState } from "../../menu_popover/menu_popover";
 import { types } from "../../props_validation";
+import { StandaloneViewport } from "../../standalone_viewport/standalone_viewport";
 import { ChartAnimationStore } from "../chart/chartJs/chartjs_animation_store";
 import { ChartDashboardMenu } from "../chart/chart_dashboard_menu/chart_dashboard_menu";
 
 export class CarouselFigure extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-CarouselFigure";
-  static components = { ChartDashboardMenu, MenuPopover };
+  static components = { ChartDashboardMenu, MenuPopover, StandaloneViewport };
 
   protected props = props({
     figureUI: types.FigureUI(),
@@ -45,11 +46,6 @@ export class CarouselFigure extends Component<SpreadsheetChildEnv> {
     this.fullScreenFigureStore = useStore(FullScreenFigureStore);
 
     useLayoutEffect(() => {
-      if (this.selectedCarouselItem?.type === "carouselDataView") {
-        this.props.editFigureStyle?.({ "pointer-events": "none" });
-      } else {
-        this.props.editFigureStyle?.({ "pointer-events": "auto" });
-      }
       this.updateTabsVisibility();
     });
   }
@@ -110,7 +106,7 @@ export class CarouselFigure extends Component<SpreadsheetChildEnv> {
     }
   }
 
-  get headerStyle(): string {
+  get carouselStyle(): string {
     const cssProperties: CSSProperties = {};
     const backgroundColor = this.env.model.getters.getSpreadsheetTheme().backgroundColor;
     if (this.selectedCarouselItem?.type === "chart") {
@@ -189,19 +185,11 @@ export class CarouselFigure extends Component<SpreadsheetChildEnv> {
   }
 
   toggleFullScreen() {
-    if (this.selectedCarouselItem?.type === "chart") {
-      this.fullScreenFigureStore.toggleFullScreenFigure(this.props.figureUI.id);
-    }
+    this.fullScreenFigureStore.toggleFullScreenFigure(this.props.figureUI.id);
   }
 
   get fullScreenButtonTitle(): string {
     return this.props.isFullScreen ? _t("Exit Full Screen") : _t("Full Screen");
-  }
-
-  get visibleCarouselItems(): CarouselItem[] {
-    return this.carousel.items.filter((item) =>
-      item.type === "carouselDataView" && this.props.isFullScreen ? false : true
-    );
   }
 
   openContextMenu(event: MouseEvent) {

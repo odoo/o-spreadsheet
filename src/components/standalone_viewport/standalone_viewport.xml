@@ -1,0 +1,22 @@
+<templates>
+  <t t-name="o-spreadsheet-StandaloneViewport">
+    <div
+      class="o-standalone-viewport h-100 w-100 overflow-hidden d-flex"
+      t-on-wheel="this.onMouseWheel">
+      <div class="position-relative flex-grow-1 overflow-hidden" t-ref="this.containerRef">
+        <GridOverlay
+          onCellClicked.bind="this.onCellClicked"
+          onGridResized="() => {}"
+          gridOverlayDimensions="this.gridOverlayDimensions"
+        />
+        <canvas class="" t-ref="this.canvasRef"/>
+      </div>
+      <div
+        class="position-relative"
+        t-if="this.hasVerticalScrollBar"
+        t-att-style="this.scrollBarContainerStyle">
+        <VerticalScrollBar onScroll.bind="this.onScroll" hasFooter="false"/>
+      </div>
+    </div>
+  </t>
+</templates>

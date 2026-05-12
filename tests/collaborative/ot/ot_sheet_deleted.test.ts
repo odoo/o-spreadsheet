@@ -1,5 +1,6 @@
 import {
   AddColumnsRowsCommand,
+  CarouselData,
   DeleteSheetCommand,
   DuplicateSheetCommand,
   MoveRangeCommand,
@@ -15,7 +16,7 @@ import {
   TEST_COMMANDS_TARGET_DEPENDENT,
   TEST_COMMANDS_ZONE_DEPENDENT,
 } from "../../test_helpers/constants";
-import { toRangesData } from "../../test_helpers/helpers";
+import { toRangeData, toRangesData } from "../../test_helpers/helpers";
 import { getFormulaStringCommands } from "./ot_helper";
 
 describe("OT with DELETE_SHEET", () => {
@@ -201,4 +202,33 @@ describe("OT with DELETE_SHEET", () => {
       expect(result).toEqual(undefined);
     });
   });
+});
+
+describe("OT with delete sheet and carousel commands", () => {
+  const carousel: CarouselData = {
+    items: [
+      { type: "carouselDataView", rangeData: toRangeData("sh1", "C3:E5"), title: "title1" },
+      { type: "carouselDataView", rangeData: toRangeData("sh2", "C3:E5"), title: "title2" },
+    ],
+  };
+
+  const deleteSheet: DeleteSheetCommand = {
+    type: "DELETE_SHEET",
+    sheetId: "sh2",
+    sheetName: "Sheet2",
+  };
+
+  test.each([TEST_COMMANDS.CREATE_CAROUSEL, TEST_COMMANDS.UPDATE_CAROUSEL])(
+    "ranges are deleted on the same sheet as deleteSheet",
+    (cmd) => {
+      const toTransform = { ...cmd, sheetId: "sh1", definition: carousel };
+      const result = transform(toTransform, deleteSheet) as any;
+      expect(result?.definition).toMatchObject({
+        items: [
+          { type: "carouselDataView", rangeData: toRangeData("sh1", "C3:E5"), title: "title1" },
+          { type: "carouselDataView", rangeData: undefined, title: "title2" },
+        ],
+      });
+    }
+  );
 });
