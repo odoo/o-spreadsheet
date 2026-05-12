@@ -64,6 +64,7 @@ import { ClientTag } from "../collaborative_client_tag/collaborative_client_tag"
 import { ComposerSelection } from "../composer/composer/abstract_composer_store";
 import { ComposerFocusStore } from "../composer/composer_focus_store";
 import { GridComposer } from "../composer/grid_composer/grid_composer";
+import { FiguresContainer } from "../figures/figure_container/figure_container";
 import { GridOverlay } from "../grid_overlay/grid_overlay";
 import { GridPopover } from "../grid_popover/grid_popover";
 import { HeadersOverlay } from "../headers_overlay/headers_overlay";
@@ -137,6 +138,7 @@ export class Grid extends Component<SpreadsheetChildEnv> {
     HorizontalScrollBar,
     TableResizer,
     Selection,
+    FiguresContainer,
   };
 
   protected props = useProps({

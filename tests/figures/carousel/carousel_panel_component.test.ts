@@ -1,12 +1,18 @@
-import { Model, UID } from "../../../src";
+import { CarouselData, Model, UID } from "../../../src";
 import { SidePanels } from "../../../src/components/side_panel/side_panels/side_panels";
+import { toZone } from "../../../src/helpers/zones";
 import { SpreadsheetChildEnv } from "../../../src/types/spreadsheet_env";
 import {
   addNewChartToCarousel,
   createCarousel,
   selectCarouselItem,
 } from "../../test_helpers/commands_helpers";
-import { click, clickAndDrag, setInputValueAndTrigger } from "../../test_helpers/dom_helper";
+import {
+  click,
+  clickAndDrag,
+  setInputValueAndTrigger,
+  simulateClick,
+} from "../../test_helpers/dom_helper";
 import { mockChart, mountComponentWithPortalTarget, nextTick } from "../../test_helpers/helpers";
 import { extendMockGetBoundingClientRect } from "../../test_helpers/mock_helpers";
 
@@ -57,6 +63,26 @@ describe("Carousel panel component", () => {
     await click(fixture, ".o-carousel-add-data-view");
     expect(model.getters.getCarousel("carouselId")).toMatchObject({
       items: [{ type: "carouselDataView" }],
+    });
+
+    await setInputValueAndTrigger(".o-carousel-preview .o-selection-input input", "C3:D4");
+    await simulateClick(".o-selection-ok");
+
+    expect(model.getters.getCarousel("carouselId")).toMatchObject({
+      items: [{ type: "carouselDataView", range: { zone: toZone("C3:D4") } }],
+    });
+  });
+
+  test("Editing the range of the data view item keep its title", async () => {
+    const carousel: CarouselData = { items: [{ type: "carouselDataView", title: "MyTitle" }] };
+    createCarousel(model, carousel, "carouselId");
+    await mountCarouselPanel(model, "carouselId");
+
+    await setInputValueAndTrigger(".o-carousel-preview .o-selection-input input", "C3:D4");
+    await simulateClick(".o-selection-ok");
+
+    expect(model.getters.getCarousel("carouselId")).toMatchObject({
+      items: [{ type: "carouselDataView", title: "MyTitle", range: { zone: toZone("C3:D4") } }],
     });
   });
 

@@ -1,5 +1,6 @@
 import {
   AddColumnsRowsCommand,
+  CarouselData,
   CreateChartCommand,
   FreezeColumnsCommand,
   FreezeRowsCommand,
@@ -673,4 +674,55 @@ describe("OT with AddColumns and UPDATE_CHART/CREATE_CHART", () => {
       }),
     });
   });
+});
+
+describe("OT with addColumns and carousel commands", () => {
+  const columnWeights = [500, 250, 250];
+  const carousel: CarouselData = {
+    items: [
+      { type: "carouselDataView", rangeData: toRangeData("sh1", "C3:E5"), columnWeights },
+      { type: "carouselDataView", rangeData: toRangeData("sh2", "C3:E5"), columnWeights },
+    ],
+  };
+
+  const addColsBefore: AddColumnsRowsCommand = {
+    ...TEST_COMMANDS.ADD_COLUMNS_ROWS,
+    dimension: "COL",
+    base: 1,
+    quantity: 2,
+    sheetId: "sh1",
+    sheetName: "Sheet1",
+  };
+
+  test.each([TEST_COMMANDS.CREATE_CAROUSEL, TEST_COMMANDS.UPDATE_CAROUSEL])(
+    "ranges are updated on the same sheet as addColumns",
+    (cmd) => {
+      const toTransform = { ...cmd, sheetId: "sh1", definition: carousel };
+      const result = transform(toTransform, addColsBefore) as any;
+      expect(result?.definition).toMatchObject({
+        items: [
+          { type: "carouselDataView", rangeData: toRangeData("sh1", "E3:G5"), columnWeights },
+          { type: "carouselDataView", rangeData: toRangeData("sh2", "C3:E5"), columnWeights },
+        ],
+      });
+    }
+  );
+
+  test.each([TEST_COMMANDS.CREATE_CAROUSEL, TEST_COMMANDS.UPDATE_CAROUSEL])(
+    "columns weight are removed when adding columns inside the carousel range",
+    (cmd) => {
+      const toTransform = { ...cmd, sheetId: "sh1", definition: carousel };
+      const result = transform(toTransform, { ...addColsBefore, base: 3 }) as any;
+      expect(result?.definition).toMatchObject({
+        items: [
+          {
+            type: "carouselDataView",
+            rangeData: toRangeData("sh1", "C3:G5"),
+            columnWeights: undefined,
+          },
+          { type: "carouselDataView", rangeData: toRangeData("sh2", "C3:E5"), columnWeights },
+        ],
+      });
+    }
+  );
 });

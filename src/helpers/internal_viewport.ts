@@ -1,10 +1,10 @@
-import { RenderingGetters } from "../types/getters";
+import { ViewportsGetters } from "../types/getters";
 import { Dimension, HeaderIndex, Pixel, Position, UID, Zone } from "../types/misc";
 import { DOMCoordinates, DOMDimension, Rect } from "../types/rendering";
 import { intersection, isInside } from "./zones";
 
 interface InternalViewportArgs {
-  getters: RenderingGetters;
+  getters: ViewportsGetters;
   sheetId: UID;
   boundaries: Zone;
   sizeInGrid: DOMDimension;
@@ -28,7 +28,7 @@ export class InternalViewport {
   boundaryLeftX: Pixel;
   boundaryTopY: Pixel;
 
-  private getters: RenderingGetters;
+  private getters: ViewportsGetters;
   private sheetId: UID;
   private boundaries: Zone;
   private getFooterSize: () => number;

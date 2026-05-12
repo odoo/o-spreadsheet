@@ -1,5 +1,6 @@
 import {
   AddColumnsRowsCommand,
+  CarouselData,
   CreateChartCommand,
   FreezeColumnsCommand,
   FreezeRowsCommand,
@@ -679,4 +680,35 @@ describe("OT with removeRows and UPDATE_CHART/CREATE_CHART", () => {
       }),
     });
   });
+});
+
+describe("OT with removeRows and carousel commands", () => {
+  const carousel: CarouselData = {
+    items: [
+      { type: "carouselDataView", rangeData: toRangeData("sh1", "C3:E5"), title: "title1" },
+      { type: "carouselDataView", rangeData: toRangeData("sh2", "C3:E5"), title: "title2" },
+    ],
+  };
+
+  const removeRows: RemoveColumnsRowsCommand = {
+    ...TEST_COMMANDS.REMOVE_COLUMNS_ROWS,
+    dimension: "ROW",
+    elements: [1],
+    sheetId: "sh1",
+    sheetName: "Sheet1",
+  };
+
+  test.each([TEST_COMMANDS.CREATE_CAROUSEL, TEST_COMMANDS.UPDATE_CAROUSEL])(
+    "ranges are updated on the same sheet as removeRows",
+    (cmd) => {
+      const toTransform = { ...cmd, sheetId: "sh1", definition: carousel };
+      const result = transform(toTransform, removeRows) as any;
+      expect(result?.definition).toMatchObject({
+        items: [
+          { type: "carouselDataView", rangeData: toRangeData("sh1", "C2:E4"), title: "title1" },
+          { type: "carouselDataView", rangeData: toRangeData("sh2", "C3:E5"), title: "title2" },
+        ],
+      });
+    }
+  );
 });

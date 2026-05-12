@@ -13,25 +13,22 @@ import {
   AddMergeCommand,
   CoreCommand,
   HeadersDependentCommand,
-  PositionDependentCommand,
-  RangesDependentCommand,
-  RemoveColumnsRowsCommand,
-  SheetDependentCommand,
-  TargetDependentCommand,
-  ZoneDependentCommand,
   isHeadersDependant,
   isPositionDependent,
   isRangeDependant,
   isSheetDependent,
   isTargetDependent,
   isZoneDependent,
+  PositionDependentCommand,
+  RangesDependentCommand,
+  RemoveColumnsRowsCommand,
+  TargetDependentCommand,
+  ZoneDependentCommand,
 } from "../../types/commands";
 import { HeaderIndex, Zone } from "../../types/misc";
-import { transformRangeData, transformZone } from "./ot_helpers";
+import { transformRangeData, TransformResult, transformSheetId, transformZone } from "./ot_helpers";
 import "./ot_specific";
 import "./srt_specific";
-
-type TransformResult = "SKIP_TRANSFORMATION" | "IGNORE_COMMAND";
 
 const transformations: {
   match: (t: CoreCommand) => boolean;
@@ -132,28 +129,6 @@ function genericTransform(cmd: CoreCommand, executed: CoreCommand): CoreCommand 
     }
   }
   return cmd;
-}
-
-function transformSheetId(
-  toTransform: Extract<CoreCommand, SheetDependentCommand>,
-  executed: CoreCommand
-): CoreCommand | TransformResult {
-  if (!("sheetId" in executed)) {
-    return toTransform;
-  }
-
-  const deleteSheet = executed.type === "DELETE_SHEET" && executed.sheetId;
-  const lockSheet = executed.type === "LOCK_SHEET" && executed.sheetId;
-  if (toTransform.sheetId === deleteSheet || toTransform.sheetId === lockSheet) {
-    return "IGNORE_COMMAND";
-  } else if (
-    toTransform.type === "CREATE_SHEET" ||
-    executed.type === "CREATE_SHEET" ||
-    toTransform.sheetId !== executed.sheetId
-  ) {
-    return toTransform;
-  }
-  return "SKIP_TRANSFORMATION";
 }
 
 function transformTarget(

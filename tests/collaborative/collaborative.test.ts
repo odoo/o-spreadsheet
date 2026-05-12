@@ -27,6 +27,7 @@ import {
   changeCFPriority,
   clearCell,
   copy,
+  createCarouselWithDataView,
   createChart,
   createFigure,
   createNamedRange,
@@ -71,7 +72,12 @@ import {
   getMerges,
   getStyle,
 } from "../test_helpers/getters_helpers";
-import { addToRegistry, getDataValidationRules, toCellPosition } from "../test_helpers/helpers";
+import {
+  addToRegistry,
+  getDataValidationRules,
+  toCellPosition,
+  toRangeData,
+} from "../test_helpers/helpers";
 import { addPivot, updatePivot } from "../test_helpers/pivot_helpers";
 import { makeStoreWithModel } from "../test_helpers/stores";
 import { setupCollaborativeEnv } from "./collaborative_helpers";
@@ -1184,6 +1190,18 @@ describe("Multi users synchronisation", () => {
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
       (user) => getCell(user, "A1")?.format,
       "%"
+    );
+  });
+
+  test("Undo the creation of a sheet targeted by a carousel data view", () => {
+    const sheetId = alice.getters.getActiveSheetId();
+    createSheet(alice, { sheetId: "sheet2" });
+    createCarouselWithDataView(bob, toRangeData("sheet2", "A1:A2"), "carouselId", sheetId);
+
+    undo(alice);
+    expect([alice, bob, charlie]).toHaveSynchronizedValue(
+      (user) => user.getters.getCarousel("carouselId").items,
+      [{ type: "carouselDataView", range: undefined }]
     );
   });
 });

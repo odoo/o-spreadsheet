@@ -825,6 +825,7 @@ test("migrate version 19.1.0: colorScale is changed to a colorScale", () => {
             id: "someuuid",
             tag: "carousel",
             data: {
+              items: [{ type: "chart", chartId: "chartId2" }],
               chartDefinitions: { chartId2: getChartDefinition("chartId2", "greens") },
             },
           },
@@ -870,6 +871,7 @@ test("migrate version 19.3.2: change datasets to dataSource", () => {
             id: "carouselFigure",
             tag: "carousel",
             data: {
+              items: [{ type: "chart", chartId: "carouselChart" }],
               chartDefinitions: {
                 carouselChart: {
                   chartId: "carouselChart",

@@ -17,17 +17,10 @@
     z-index: 1;
 
     overflow: hidden;
-    padding-left: 4px; /* Align with MIN_CELL_TEXT_MARGIN */
-
-    border: 1px solid transparent;
-
-    &.o-carousel-header-floating {
-      border: 1px solid var(--os-figure-border-color);
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    }
 
     .o-carousel-title {
       max-width: 60%;
+      font-weight: 500;
     }
 
     .o-carousel-tabs {
