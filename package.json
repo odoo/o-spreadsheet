@@ -86,7 +86,7 @@
     "jszip": "^3.6.0",
     "lint-staged": "^12.1.2",
     "live-server": "^1.2.1",
-    "luxon": "^3.5.0",
+    "luxon": "3.5.0",
     "minimist": "^1.2.8",
     "mockdate": "^3.0.2",
     "node-watch": "^0.7.3",
@@ -134,8 +134,8 @@
     "xmlSelfClosingSpace": false
   },
   "dependencies": {
-    "@odoo/owl": "2.8.1",
-    "bootstrap": "^5.3.3",
+    "@odoo/owl": "2.8.2",
+    "bootstrap": "5.3.3",
     "font-awesome": "^4.7.0",
     "rbush": "^3.0.1"
   },
