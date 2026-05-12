@@ -1,9 +1,8 @@
 const sass = require("sass");
-const { globSync } = require("glob");
 const fs = require("fs");
 const path = require("path");
 
-const { writeToFile } = require("../utils/files.cjs");
+const { writeToFile, findFiles } = require("../utils/files.cjs");
 const { bundle } = require("../bundle.cjs");
 
 const forbiddenPatterns = [/\@use\b/, /\@import\b/, /\@forward\b/];
@@ -14,7 +13,7 @@ function createScssBundle(target) {
   if (!target) {
     throw new Error("Missing target!!");
   }
-  const files = globSync("src/components/**/*.scss");
+  const files = findFiles("src/components", ".scss");
   const banner = bundle.cssBanner();
   const scssContentFiles = [];
   for (const file of files) {
