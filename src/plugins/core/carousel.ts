@@ -119,8 +119,19 @@ export class CarouselPlugin extends CorePlugin<CarouselState> implements Carouse
     for (const sheet of data.sheets) {
       const carousels = (sheet.figures || []).filter((figure) => figure.tag === "carousel");
       for (const carousel of carousels) {
+        // ADRM TODO: need an adaptRange + ot transformations
+        const items = carousel.data.items.map((item) =>
+          item.type === "chart"
+            ? item
+            : {
+                ...item,
+                range: item.range
+                  ? this.getters.getRangeFromSheetXC(undefined, item.range)
+                  : undefined,
+              }
+        );
         this.history.update("carousels", sheet.id, carousel.id, {
-          items: carousel.data.items,
+          items: items,
           title: carousel.data.title,
         });
       }
@@ -130,9 +141,15 @@ export class CarouselPlugin extends CorePlugin<CarouselState> implements Carouse
   export(data: WorkbookData) {
     for (const sheet of data.sheets) {
       const carousels = sheet.figures.filter((figure) => figure.tag === "carousel");
-      for (const carousel of carousels) {
-        if (this.carousels[sheet.id]?.[carousel.id]) {
-          carousel.data = { ...carousel.data, ...this.carousels[sheet.id]?.[carousel.id] };
+      for (const carouselData of carousels) {
+        const carousel = this.carousels[sheet.id]?.[carouselData.id];
+        if (carousel) {
+          const items = carousel.items.map((item) =>
+            item.type === "chart"
+              ? item
+              : { ...item, range: item.range ? this.getters.getRangeString(item.range) : undefined }
+          );
+          carouselData.data = { ...carouselData.data, ...carousel, items };
         }
       }
     }

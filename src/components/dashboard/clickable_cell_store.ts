@@ -113,4 +113,13 @@ export class ClickableCellsStore extends SpreadsheetStore {
 
     return clickableRect;
   }
+
+  // ADRM TODO: that's a very solid and very cool hack to have a getter in a store :)
+  get clickableCellsGetter() {
+    return {
+      get: (position: CellPosition): CellClickableItem | undefined => {
+        return this.getClickableItem(position);
+      },
+    };
+  }
 }

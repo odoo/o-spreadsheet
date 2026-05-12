@@ -1,0 +1,41 @@
+<templates>
+  <t t-name="o-spreadsheet-HTMLCell">
+    <div
+      class="o-html-cell-wrapper h-100 w-100 overflow-hidden"
+      t-att-style="this.containerStyle"
+      t-att-class="{
+          'clickable': this.isClickable,
+      }"
+      t-att-title="this.title"
+      t-on-pointerdown="this.onMouseDown"
+      t-on-mouseenter="this.props.onMouseEnter"
+      t-on-mouseleave="this.props.onMouseLeave"
+      t-on-click="this.onClick">
+      <div
+        class="o-html-cell d-flex position-relative align-items-center h-100 w-100"
+        t-att-class="{
+          'hovered': this.props.hovered,
+        }">
+        <t t-set="dataBarStyle" t-value="this.dataBarBackgroundStyle"/>
+        <div
+          t-if="dataBarStyle"
+          class="o-html-cell-data-bar position-absolute h-100 start-0"
+          t-att-style="this.dataBarStyle"
+        />
+        <div t-if="this.icons.left" class="flex-shrink-0 pe-1">
+          <HTMLIcon icon="this.icons.left"/>
+        </div>
+        <div class="d-flex flex-grow-1 flex-shrink-1 text-truncate" t-att-class="this.contentClass">
+          <HTMLIcon t-if="this.icons.center" icon="this.icons.center"/>
+          <span class="text-truncate" t-else="" t-out="this.content"/>
+        </div>
+        <div t-if="this.icons.right" class="flex-shrink-0 ps-1">
+          <HTMLIcon icon="this.icons.right"/>
+        </div>
+        <div t-if="this.clickableCell?.component" class="position-absolute h-100 w-100 start-0 z-1">
+          <t t-component="this.clickableCell.component" t-props="this.clickableCellProps"/>
+        </div>
+      </div>
+    </div>
+  </t>
+</templates>

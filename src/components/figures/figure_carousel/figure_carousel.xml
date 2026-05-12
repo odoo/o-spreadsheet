@@ -1,26 +1,23 @@
 <templates>
   <t t-name="o-spreadsheet-CarouselFigure">
     <div
-      class="o-carousel w-100 h-100 d-flex flex-column"
+      class="o-carousel w-100 h-100 d-flex flex-column px-4 py-2"
+      t-att-style="this.carouselStyle"
       t-on-dblclick="this.onCarouselDoubleClick">
       <t t-set="selectedItem" t-value="this.selectedCarouselItem"/>
-      <div
-        class="o-carousel-header d-flex align-items-baseline flex-shrink-0 pe-1 pe-auto"
-        t-att-class="{
-          'border-bottom': this.env.isDashboard(),
-          'o-carousel-header-floating': !this.env.isDashboard() and selectedItem?.type === 'carouselDataView',
-         }"
-        t-att-style="this.headerStyle">
+      <div class="o-carousel-header d-flex align-items-baseline flex-shrink-0 pt-1 pb-2 pe-auto">
         <div
           class="o-carousel-title text-truncate flex-shrink-0 pe-2"
           t-out="this.title"
           t-att-title="this.title"
           t-att-style="this.titleStyle"
         />
-        <div
-          class="o-carousel-tabs d-flex flex-fill justify-content-end"
-          t-ref="this.carouselTabsRef">
-          <t t-foreach="this.visibleCarouselItems" t-as="item" t-key="item_index">
+        <div class="o-carousel-tabs d-flex flex-fill justify-content-end" t-ref="this.carouselTabsRef">
+          <t
+            t-foreach="this.carousel.items"
+            t-as="item"
+            t-key="item_index"
+            t-if="this.carousel.items.length > 1">
             <div
               class="o-carousel-tab text-truncate px-2 mt-1 flex-shrink-0"
               t-att-class="{ 'selected': this.isItemSelected(item) }"
@@ -52,7 +49,6 @@
           t-att-class="{
             'fa-compress': this.props.isFullScreen,
             'fa-expand': !this.props.isFullScreen,
-            'invisible': this.selectedCarouselItem?.type !== 'chart',
           }"
           t-on-click="this.toggleFullScreen"
         />
@@ -62,6 +58,7 @@
           t-on-click="this.openContextMenu"
         />
       </div>
+      <div t-if="title" class="w-100 border-bottom"/>
       <div
         t-if="!selectedItem"
         class="o-carousel-empty w-100 flex-fill d-flex align-items-center justify-content-center">
@@ -84,6 +81,12 @@
           hasFullScreenButton="false"
           t-key="selectedItem.chartId"
         />
+      </div>
+      <div
+        t-elif="selectedItem.type === 'carouselDataView' and selectedItem.range"
+        class="my-2 h-100 w-100 overflow-auto"
+        t-on-wheel="this.onMouseWheel">
+        <HTMLGrid range="selectedItem.range"/>
       </div>
     </div>
   </t>

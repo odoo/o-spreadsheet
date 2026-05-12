@@ -3,8 +3,7 @@
     <div
       class="o-figure-wrapper os-theme-dependant"
       t-att-class="{'o-figure-selected': this.isSelected}"
-      t-att-style="this.wrapperStyle"
-      t-ref="this.figureWrapperRef">
+      t-att-style="this.wrapperStyle">
       <div
         class="o-figure w-100 h-100"
         t-att-class="this.props.class"
@@ -21,7 +20,6 @@
           t-component="this.figureRegistry.get(this.props.figureUI.tag).Component"
           t-key="this.props.figureUI.id"
           figureUI="this.props.figureUI"
-          editFigureStyle.bind="this.editWrapperStyle"
           openContextMenu.bind="this.openContextMenu"
         />
         <div class="o-figure-menu position-absolute m-2" t-if="!this.env.isDashboard()">

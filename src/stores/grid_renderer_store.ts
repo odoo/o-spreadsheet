@@ -12,7 +12,6 @@ import {
 } from "../constants";
 import { blendColors, toHex } from "../helpers/color";
 import { numberToLetters } from "../helpers/coordinates";
-import { formatHasRepeatedChar } from "../helpers/format/format";
 import { deepCopy, deepEquals } from "../helpers/misc";
 import { recomputeZones } from "../helpers/recompute_zones";
 import {
@@ -38,7 +37,7 @@ import { DisposableStore } from "../store_engine/store";
 import { CellValueType } from "../types/cells";
 import { Command } from "../types/commands";
 import { RenderingGetters } from "../types/getters";
-import { Align, CellPosition, HeaderIndex, Pixel, UID, Zone } from "../types/misc";
+import { HeaderIndex, Pixel, UID, Zone } from "../types/misc";
 import {
   BorderDescrWithOpacity,
   Box,
@@ -693,22 +692,6 @@ export class GridRenderer extends DisposableStore {
     return col;
   }
 
-  private computeCellAlignment(position: CellPosition, isOverflowing: boolean): Align {
-    const cell = this.getters.getCell(position);
-    if (cell?.isFormula && this.getters.shouldShowFormulas()) {
-      return "left";
-    }
-    const { align } = this.getters.getCellStyle(position);
-    const evaluatedCell = this.getters.getEvaluatedCell(position);
-    if (!align && formatHasRepeatedChar(evaluatedCell.value, evaluatedCell.format)) {
-      return "left";
-    }
-    if (isOverflowing && evaluatedCell.type === CellValueType.number) {
-      return align !== "center" ? "left" : align;
-    }
-    return align || evaluatedCell.defaultAlign;
-  }
-
   private createZoneBox(
     viewports: ViewportCollection,
     sheetId: UID,
@@ -788,7 +771,7 @@ export class GridRenderer extends DisposableStore {
     const rightIconWidth = box.icons.right ? box.icons.right.size + box.icons.right.margin : 0;
     const rightMargin = rightIconWidth + chipMargin;
     const contentWidth = leftMargin + contentSize.width + rightMargin + MIN_CELL_TEXT_MARGIN;
-    const align = this.computeCellAlignment(position, contentWidth > width);
+    const align = this.getters.getComputedCellAlign(position, contentWidth > width);
 
     // compute vertical align start point parameter:
     const numberOfLines = multiLineText.length;

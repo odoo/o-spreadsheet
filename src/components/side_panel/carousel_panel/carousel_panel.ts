@@ -1,4 +1,4 @@
-import { onWillUpdateProps, signal } from "@odoo/owl";
+import { onWillUpdateProps, proxy, signal } from "@odoo/owl";
 import { ActionSpec } from "../../../actions/action";
 import { DEFAULT_CAROUSEL_TITLE_STYLE } from "../../../constants";
 import { getCarouselItemPreview, getCarouselItemTitle } from "../../../helpers/carousel_helpers";
@@ -12,6 +12,7 @@ import { UID } from "../../../types/misc";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
 import { getBoundingRectAsPOJO } from "../../helpers/dom_helpers";
 import { useDragAndDropListItems } from "../../helpers/drag_and_drop_dom_items_hook";
+import { SelectionInput } from "../../selection_input/selection_input";
 import { TextInput } from "../../text_input/text_input";
 import { TextStyler } from "../chart/building_blocks/text_styler/text_styler";
 import { CogWheelMenu } from "../components/cog_wheel_menu/cog_wheel_menu";
@@ -22,15 +23,21 @@ interface Props {
   figureId: UID;
 }
 
+interface State {
+  currentRange?: string;
+}
+
 export class CarouselPanel extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-CarouselPanel";
   static props = { onCloseSidePanel: Function, figureId: String };
-  static components = { Section, TextInput, TextStyler, CogWheelMenu };
+  static components = { Section, TextInput, TextStyler, CogWheelMenu, SelectionInput };
 
   DEFAULT_CAROUSEL_TITLE_STYLE = DEFAULT_CAROUSEL_TITLE_STYLE;
 
   private dragAndDrop = useDragAndDropListItems();
   private previewListRef = signal<HTMLElement | null>(null);
+
+  state = proxy<State>({});
 
   setup() {
     let lastCarouselItems: CarouselItem[] = [...this.carouselItems];
@@ -267,5 +274,32 @@ export class CarouselPanel extends Component<Props, SpreadsheetChildEnv> {
 
   get carouselDataViewMessage(): string {
     return _t("The data view makes the carousel transparent, revealing the data underneath.");
+  }
+
+  getItemRangeString(item: CarouselItem): string {
+    if (item.type !== "carouselDataView" || !item.range) {
+      return "";
+    }
+    return this.env.model.getters.getRangeString(item.range);
+  }
+
+  onSelectionInputChanged(ranges: string[]) {
+    this.state.currentRange = ranges[0];
+  }
+
+  onSelectionInputConfirmed() {
+    const index = this.carouselItems.findIndex((item) => item.type === "carouselDataView");
+    if (index === -1 || !this.state.currentRange) {
+      return;
+    }
+    const items = [...this.carouselItems];
+    items[index] = {
+      type: "carouselDataView",
+      range: this.env.model.getters.getRangeFromSheetXC(
+        this.env.model.getters.getActiveSheetId(),
+        this.state.currentRange
+      ),
+    };
+    this.updateItems(items);
   }
 }

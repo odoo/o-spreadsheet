@@ -331,8 +331,10 @@ import "./registries/chart_types";
 import "./registries/interactive_icon_on_cell_registry";
 
 import { Composer } from "./components/composer/composer/composer";
+import { HTMLGrid } from "./components/figures/html_grid/html_grid";
 import { Select } from "./components/select/select";
 import { ChartRangeDataSourceComponent } from "./components/side_panel/chart/building_blocks/range_data_source/range_data_source";
+import { Spreadsheet } from "./components/spreadsheet/spreadsheet";
 import { TopBar } from "./components/top_bar/top_bar";
 import { parseFormat } from "./helpers/format/format_parser";
 import {
@@ -488,6 +490,8 @@ export const components = {
   NumberInput,
   TopBar,
   Composer,
+  Spreadsheet,
+  HTMLGrid,
 };
 
 export const hooks = {

@@ -1,0 +1,17 @@
+<templates>
+  <t t-name="o-spreadsheet-HTMLIcon">
+    <svg
+      t-if="this.svg"
+      class="o-html-icon"
+      t-on-mouseenter="this.onMouseEnter"
+      t-on-mouseleave="this.onMouseLeave"
+      t-on-click="this.onClick"
+      t-att-style="this.iconStyle"
+      t-att-viewBox="'0 0 ' + this.props.icon.svg.width + ' ' + this.props.icon.svg.height"
+      xmlns="http://www.w3.org/2000/svg">
+      <t t-foreach="this.svg.paths" t-as="p" t-key="p_index">
+        <path t-att-d="p.path" t-att-fill="p.fillColor"/>
+      </t>
+    </svg>
+  </t>
+</templates>
