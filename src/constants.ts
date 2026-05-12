@@ -294,7 +294,7 @@ export const DEFAULT_CURRENCY: Currency = {
 };
 
 export const DEFAULT_CAROUSEL_TITLE_STYLE = {
-  fontSize: CHART_TITLE_FONT_SIZE,
+  fontSize: 18,
   color: TEXT_BODY,
 } satisfies ChartStyle;
 

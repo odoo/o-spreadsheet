@@ -3,6 +3,7 @@ import { Model, UID } from "../../../src";
 import { getCarouselMenuActions } from "../../../src/actions/figure_menu_actions";
 import { ChartAnimationStore } from "../../../src/components/figures/chart/chartJs/chartjs_animation_store";
 import { downloadFile } from "../../../src/components/helpers/dom_helpers";
+import { toZone } from "../../../src/helpers/zones";
 import { SpreadsheetChildEnv } from "../../../src/types/spreadsheet_env";
 import { xmlEscape } from "../../../src/xlsx/helpers/xml_helpers";
 import {
@@ -22,14 +23,26 @@ import {
   getElStyle,
   triggerMouseEvent,
 } from "../../test_helpers/dom_helper";
-import { makeTestEnv, mockChart, mountSpreadsheet, nextTick } from "../../test_helpers/helpers";
+import {
+  makeTestEnv,
+  mockChart,
+  mountSpreadsheet,
+  nextTick,
+  setGrid,
+  toRangeData,
+} from "../../test_helpers/helpers";
 import { extendMockGetBoundingClientRect } from "../../test_helpers/mock_helpers";
+import { getLastZonesRendered, spyStoreCreation } from "../../test_helpers/stores";
 
 jest.mock("../../../src/components/helpers/dom_helpers", () => {
   return {
     ...jest.requireActual("../../../src/components/helpers/dom_helpers"),
     downloadFile: jest.fn(),
   };
+});
+
+extendMockGetBoundingClientRect({
+  "o-standalone-viewport-content": () => ({ width: 800, height: 600 }),
 });
 
 let model: Model;
@@ -68,16 +81,38 @@ describe("Carousel figure component", () => {
     expect(model.getters.getChartIdFromFigureId("carouselId")).toBe(radarId);
   });
 
-  test("Carousel data view make the figure un-clickable", async () => {
-    createCarousel(model, { items: [{ type: "carouselDataView" }] }, "carouselId");
-    addNewChartToCarousel(model, "carouselId", { type: "radar" });
+  test("Can display a carousel data view", async () => {
+    const sheetId = model.getters.getActiveSheetId();
+    setGrid(model, { A1: "Hello", A2: "World" });
+    createCarousel(
+      model,
+      { items: [{ type: "carouselDataView", rangeData: toRangeData(sheetId, "A1:A2") }] },
+      "carouselId"
+    );
+    const stores = spyStoreCreation();
 
-    const { fixture } = await mountSpreadsheet({ model });
-    expect(".o-carousel-header").toHaveClass("pe-auto");
-    expect(getElStyle(".o-figure-wrapper", "pointer-events")).toBe("none");
+    await mountSpreadsheet({ model });
+    expect(".o-carousel .o-standalone-viewport").toHaveCount(1);
+    await nextTick();
 
-    await click(fixture, ".o-carousel-tab:nth-child(2)");
-    expect(getElStyle(".o-figure-wrapper", "pointer-events")).toBe("auto");
+    expect(getLastZonesRendered(stores)).toEqual([{ sheetId, ...toZone("A1:A2") }]);
+  });
+
+  test("Empty col/rows are not rendered in the data view", async () => {
+    const sheetId = model.getters.getActiveSheetId();
+    setGrid(model, { A1: "Hello", C3: "World" });
+    createCarousel(
+      model,
+      { items: [{ type: "carouselDataView", rangeData: toRangeData(sheetId, "A1:G100") }] },
+      "carouselId"
+    );
+    const stores = spyStoreCreation();
+
+    await mountSpreadsheet({ model });
+    expect(".o-carousel .o-standalone-viewport").toHaveCount(1);
+    await nextTick();
+
+    expect(getLastZonesRendered(stores)).toEqual([{ sheetId, ...toZone("A1:C3") }]);
   });
 
   test("Carousel tabs have the correct name", async () => {
@@ -302,23 +337,23 @@ describe("Carousel figure component", () => {
     expect(getElStyle(".o-figure .o-carousel-title", "font-weight")).toBe("bold");
   });
 
-  test("Carousel header has the correct background color", async () => {
+  test("Carousel has the correct background color", async () => {
     createCarousel(model, { items: [], title: { text: "Title" } }, "carouselId");
     await mountSpreadsheet({ model });
 
     // Empty carousel
-    expect(".o-carousel-header").toHaveStyle({ "background-color": "#FFFFFF" });
+    expect(".o-carousel").toHaveStyle({ "background-color": "#FFFFFF" });
 
     // Carousel with data view
     updateCarousel(model, "carouselId", { items: [{ type: "carouselDataView" }] });
     await nextTick();
-    expect(".o-carousel-header").toHaveStyle({ "background-color": "#FFFFFF" });
+    expect(".o-carousel").toHaveStyle({ "background-color": "#FFFFFF" });
 
     // Carousel with chart
     const chartId = addNewChartToCarousel(model, "carouselId", { background: "#123456" });
     selectCarouselItem(model, "carouselId", { type: "chart", chartId });
     await nextTick();
-    expect(".o-carousel-header").toHaveStyle({ "background-color": "#123456" });
+    expect(".o-carousel").toHaveStyle({ "background-color": "#123456" });
   });
 
   test("display chart menu", async () => {
