@@ -2,11 +2,12 @@ import { props, signal } from "@odoo/owl";
 import { Component, useChildSubEnv } from "../../owl3_compatibility_layer";
 import { useLocalStore, useStore } from "../../store_engine/store_hooks";
 import { RendererStore } from "../../stores/renderer_store";
-import { Pixel } from "../../types/misc";
+import { Pixel, PixelOffset } from "../../types/misc";
 import { DOMCoordinates, DOMDimension, OrderedLayers, Rect } from "../../types/rendering";
 import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 import { Store } from "../../types/store_engine";
 import { ClickableCellsOverlay } from "../clickable_cells_overlay/clickable_cells_overlay";
+import { FiguresContainer } from "../figures/figure_container/figure_container";
 import { DelayedHoveredCellStore } from "../grid/delayed_hovered_cell_store";
 import { GridOverlay } from "../grid_overlay/grid_overlay";
 import { GridPopover } from "../grid_popover/grid_popover";
@@ -31,6 +32,7 @@ export class SpreadsheetDashboard extends Component<SpreadsheetChildEnv> {
     VerticalScrollBar,
     HorizontalScrollBar,
     ClickableCellsOverlay,
+    FiguresContainer,
   };
 
   protected props = props({
@@ -55,6 +57,16 @@ export class SpreadsheetDashboard extends Component<SpreadsheetChildEnv> {
       getPopoverContainerRect: () =>
         getZoomedRect(this.env.model.getters.getViewportZoomLevel(), this.getGridRect()),
     });
+    const model = this.env.model;
+    useChildSubEnv({
+      get viewports() {
+        return model.getters.getViewportCollection();
+      },
+      get sheetId() {
+        return model.getters.getActiveSheetId();
+      },
+    });
+
     useGridDrawing({
       canvasRef: this.canvasRef,
       rendererStore,
@@ -139,5 +151,9 @@ export class SpreadsheetDashboard extends Component<SpreadsheetChildEnv> {
   get dashboardStyle() {
     const zoomLevel = this.env.model.getters.getViewportZoomLevel();
     return cssPropertiesToCss({ zoom: `${zoomLevel}` });
+  }
+
+  onScroll(offset: PixelOffset) {
+    this.env.model.dispatch("SET_VIEWPORT_OFFSET", { ...offset });
   }
 }

@@ -415,6 +415,11 @@ export interface Offset {
   row: number;
 }
 
+export interface PixelOffset {
+  offsetX: Pixel;
+  offsetY: Pixel;
+}
+
 export type DebouncedFunction<T> = T & {
   stopDebounce: () => void;
   isDebouncePending: () => boolean;
