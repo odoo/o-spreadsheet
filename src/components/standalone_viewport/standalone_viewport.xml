@@ -1,0 +1,37 @@
+<templates>
+  <t t-name="o-spreadsheet-StandaloneViewport">
+    <div
+      class="o-standalone-viewport h-100 w-100 overflow-hidden d-flex"
+      t-on-wheel="this.onMouseWheel">
+      <div class="position-relative flex-grow-1 overflow-hidden" t-ref="this.containerRef">
+        <GridOverlay
+          onGridResized="() => {}"
+          onGridMoved="() => {}"
+          gridOverlayDimensions="this.gridOverlayDimensions">
+          <!-- <div
+              t-foreach="this.getClickableCells()"
+              t-as="clickableCell"
+              t-key="clickableCell_index"
+              class="o-dashboard-clickable-cell"
+              t-att-title="clickableCell.title"
+              t-on-click="(ev) => this.selectClickableCell(ev, clickableCell)"
+              t-on-auxclick="(ev) => this.selectClickableCell(ev, clickableCell)"
+              t-att-style="this.getCellClickableStyle(clickableCell.coordinates)">
+              <t
+                t-if="clickableCell.component"
+                t-component="clickableCell.component"
+                t-props="clickableCell.componentProps"
+              />
+            </div> -->
+        </GridOverlay>
+        <canvas class="" t-ref="this.canvasRef"/>
+      </div>
+      <div
+        class="position-relative"
+        t-if="this.hasVerticalScrollBar"
+        t-att-style="this.scrollBarContainerStyle">
+        <VerticalScrollBar onScroll.bind="this.onScroll" hasFooter="false"/>
+      </div>
+    </div>
+  </t>
+</templates>

@@ -22,7 +22,7 @@ import { ConditionalFormat } from "./conditional_formatting";
 
 import { ClipboardPasteOptions, ParsedOsClipboardContentWithImageData } from "./clipboard";
 import { DataValidationRule } from "./data_validation";
-import { Carousel, CarouselItem, Figure, FigureSize } from "./figure";
+import { CarouselData, CarouselItem, Figure, FigureSize } from "./figure";
 import { SearchOptions } from "./find_and_replace";
 import { Image } from "./image";
 import { Locale } from "./locale";
@@ -642,13 +642,13 @@ export interface UpdateChartRegionCommand {
 
 export interface CreateCarouselCommand extends BaseFigureCommand {
   type: "CREATE_CAROUSEL";
-  definition: Carousel;
+  definition: CarouselData;
 }
 
 export interface UpdateCarouselCommand extends SheetDependentCommand {
   type: "UPDATE_CAROUSEL";
   figureId: UID;
-  definition: Carousel;
+  definition: CarouselData;
 }
 
 export interface AddNewChartToCarouselCommand extends SheetDependentCommand {

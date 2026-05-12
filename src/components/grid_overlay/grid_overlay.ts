@@ -6,9 +6,8 @@ import { Component, useExternalListener } from "../../owl3_compatibility_layer";
 import { useStore } from "../../store_engine/store_hooks";
 import { GridClickModifiers, HeaderIndex, Position } from "../../types/misc";
 import { DOMCoordinates } from "../../types/rendering";
-import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
+import { SpreadsheetRenderingEnv } from "../../types/spreadsheet_env";
 import { Store } from "../../types/store_engine";
-import { FiguresContainer } from "../figures/figure_container/figure_container";
 import { DelayedHoveredCellStore } from "../grid/delayed_hovered_cell_store";
 import { GridAddRowsFooter } from "../grid_add_rows_footer/grid_add_rows_footer";
 import { cssPropertiesToCss } from "../helpers/css";
@@ -22,7 +21,7 @@ import { HoveredTableStore } from "../tables/hovered_table_store";
 import { HoveredIconStore } from "./hovered_icon_store";
 
 function useCellHovered(
-  env: SpreadsheetChildEnv,
+  env: SpreadsheetRenderingEnv,
   gridRef: Signal<HTMLElement | null>
 ): Partial<Position> {
   const delayedHoveredCell = useStore(DelayedHoveredCellStore);
@@ -40,8 +39,8 @@ function useCellHovered(
     if (x === undefined || y === undefined) {
       return { col: -1, row: -1 };
     }
-    const col = env.model.getters.getColIndex(x);
-    const row = env.model.getters.getRowIndex(y);
+    const col = env.viewports.getColIndex(env.sheetId, x);
+    const row = env.viewports.getRowIndex(env.sheetId, y);
     return { col, row };
   }
 
@@ -130,10 +129,9 @@ function useCellHovered(
   return hoveredPosition;
 }
 
-export class GridOverlay extends Component<SpreadsheetChildEnv> {
+export class GridOverlay extends Component<SpreadsheetRenderingEnv> {
   static template = "o-spreadsheet-GridOverlay";
   static components = {
-    FiguresContainer,
     GridAddRowsFooter,
   };
 
@@ -275,19 +273,19 @@ export class GridOverlay extends Component<SpreadsheetChildEnv> {
   private getCartesianCoordinates(
     zoomedMouseEvent: ZoomedMouseEvent<MouseEvent>
   ): [HeaderIndex, HeaderIndex] {
-    const colIndex = this.env.model.getters.getColIndex(zoomedMouseEvent.offsetX);
-    const rowIndex = this.env.model.getters.getRowIndex(zoomedMouseEvent.offsetY);
+    const colIndex = this.env.viewports.getColIndex(this.env.sheetId, zoomedMouseEvent.offsetX);
+    const rowIndex = this.env.viewports.getRowIndex(this.env.sheetId, zoomedMouseEvent.offsetY);
     return [colIndex, rowIndex];
   }
 
   private getInteractiveIconAtEvent(zoomedMouseEvent: ZoomedMouseEvent<MouseEvent>) {
     const gridOverLayRect = getElBoundingRect(this.gridOverlayRef());
-    const gridOffset = this.env.model.getters.getGridOffset();
+    const gridOffset = this.env.viewports.getGridOffset();
     const x = zoomedMouseEvent.clientX - gridOverLayRect.x + gridOffset.x;
     const y = zoomedMouseEvent.clientY - gridOverLayRect.y + gridOffset.y;
 
     const [col, row] = this.getCartesianCoordinates(zoomedMouseEvent);
-    const sheetId = this.env.model.getters.getActiveSheetId();
+    const sheetId = this.env.sheetId;
 
     let position = { col, row, sheetId };
     const merge = this.env.model.getters.getMerge(position);
@@ -299,7 +297,7 @@ export class GridOverlay extends Component<SpreadsheetChildEnv> {
     const icon = icons.find((icon) => {
       const merge = this.env.model.getters.getMerge(position);
       const zone = merge || positionToZone(position);
-      const cellRect = this.env.model.getters.getRect(zone);
+      const cellRect = this.env.viewports.getRect(this.env.sheetId, zone);
 
       return isPointInsideRect(x, y, this.env.model.getters.getCellIconRect(icon, cellRect));
     });
