@@ -1,5 +1,6 @@
 import { TitleDesign } from "./chart/chart";
 import { HeaderIndex, Pixel, PixelPosition, UID } from "./misc";
+import { Range, RangeData } from "./range";
 import { DOMCoordinates } from "./rendering";
 
 export interface FigureInfo {
@@ -38,4 +39,12 @@ export interface Carousel {
 
 export type CarouselItem =
   | { type: "chart"; chartId: UID; title?: string }
-  | { type: "carouselDataView"; title?: string };
+  | { type: "carouselDataView"; title?: string; range?: Range };
+
+export interface CarouselData extends Omit<Carousel, "items"> {
+  readonly items: CarouselItemData[];
+}
+
+export type CarouselItemData =
+  | { type: "chart"; chartId: UID; title?: string }
+  | { type: "carouselDataView"; title?: string; rangeData?: RangeData }; // ADRM TODO: type range to never so we don't assign items to items data

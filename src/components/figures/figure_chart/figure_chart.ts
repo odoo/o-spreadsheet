@@ -1,6 +1,6 @@
 import { chartComponentRegistry } from "../../../registries/chart_component_registry";
 import { ChartType } from "../../../types/chart/chart";
-import { CSSProperties, UID } from "../../../types/misc";
+import { UID } from "../../../types/misc";
 import { Rect } from "../../../types/rendering";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
 import { ChartDashboardMenu } from "../chart/chart_dashboard_menu/chart_dashboard_menu";
@@ -11,11 +11,15 @@ import { types } from "../../props_validation";
 
 export class ChartFigure extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-ChartFigure";
+  static props = {
+    figureUI: Object,
+    isFullScreen: { type: Boolean, optional: true },
+    openContextMenu: { type: Function, optional: true },
+  };
   static components = { ChartDashboardMenu };
 
   protected props = props({
     figureUI: types.FigureUI(),
-    "editFigureStyle?": types.function<(properties: CSSProperties) => void>(),
     "isFullScreen?": types.boolean(),
     "openContextMenu?": types.function<(anchorRect: Rect, onClose?: () => void) => void>(),
   });

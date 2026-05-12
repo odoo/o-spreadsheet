@@ -1,4 +1,4 @@
-import { CSSProperties, UID } from "../../../types/misc";
+import { UID } from "../../../types/misc";
 import { Rect } from "../../../types/rendering";
 import { SpreadsheetChildEnv } from "../../../types/spreadsheet_env";
 
@@ -12,7 +12,6 @@ export class ImageFigure extends Component<SpreadsheetChildEnv> {
 
   protected props = props({
     figureUI: types.FigureUI(),
-    "editFigureStyle?": types.function<(properties: CSSProperties) => void>(),
     "openContextMenu?": types.function<(anchorRect: Rect, onClose?: () => void) => void>(),
   });
 

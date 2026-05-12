@@ -6,12 +6,43 @@ import * as ACTIONS from "../../actions/menu_items_actions";
 import * as ACTION_VIEW from "../../actions/view_actions";
 import { ZOOM_VALUES } from "../../constants";
 import { getPivotHighlights } from "../../helpers/pivot/pivot_highlight";
+import { UuidGenerator } from "../../helpers/uuid";
+import { overlap } from "../../helpers/zones";
 import { HighlightStore } from "../../stores/highlight_store";
 import { _t } from "../../translation";
+import { CarouselItem, FigureUI } from "../../types/figure";
+import { UID, Zone } from "../../types/misc";
+import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 import { MenuItemRegistry } from "../menu_items_registry";
 import { formatNumberMenuItemSpec } from "./number_format_menu_registry";
 
 export const topbarMenuRegistry = new MenuItemRegistry();
+
+function getZoneContainingFigure(env: SpreadsheetChildEnv, sheetId: UID, figureUI: FigureUI): Zone {
+  const startCol = figureUI.col;
+  const startX = figureUI.x;
+  const endX = startX + figureUI.width;
+  let endCol = startCol;
+  while (
+    endCol < env.model.getters.getNumberCols(sheetId) - 1 &&
+    env.model.getters.getColDimensions(sheetId, endCol).end < endX
+  ) {
+    endCol++;
+  }
+
+  const startRow = figureUI.row;
+  const startY = figureUI.y;
+  const endY = startY + figureUI.height;
+  let endRow = startRow;
+  while (
+    endRow < env.model.getters.getNumberRows(sheetId) - 1 &&
+    env.model.getters.getRowDimensions(sheetId, endRow).end < endY
+  ) {
+    endRow++;
+  }
+
+  return { left: startCol, right: endCol, top: startRow, bottom: endRow };
+}
 
 topbarMenuRegistry
 
@@ -36,6 +67,83 @@ topbarMenuRegistry
     execute: (env) => env.openSidePanel("Settings"),
     isEnabled: (env) => !env.isSmall,
     isEnabledOnLockedSheet: true,
+    icon: "o-spreadsheet-Icon.COG",
+  })
+  // ADRM TODO: tool for Francois if we want to convert our current dashboards
+  // Don't merge this, add to a tooling extension instead (and improve the script)
+  .addChild("carouselize_dashboard", ["file"], {
+    name: _t("Carouselize Dashboard"),
+    sequence: 250,
+    execute: (env) => {
+      const dashboardSheetId = env.model.getters.getSheetIds()[0];
+      const newSheetId = UuidGenerator.smallUuid();
+      env.model.dispatch("DUPLICATE_SHEET", {
+        sheetId: dashboardSheetId,
+        sheetIdTo: newSheetId,
+        sheetNameTo: env.model.getters.getNextSheetName("Dashboard"),
+      });
+      const sheetZone = env.model.getters.getSheetZone(dashboardSheetId);
+      env.model.dispatch("CLEAR_CELLS", { sheetId: newSheetId, target: [sheetZone] });
+      env.model.dispatch("CLEAR_FORMATTING", { sheetId: newSheetId, target: [sheetZone] });
+      env.model.dispatch("REMOVE_TABLE", { sheetId: newSheetId, target: [sheetZone] });
+      const zones: Zone[] = [];
+      for (const table of env.model.getters.getTables(dashboardSheetId)) {
+        zones.push(table.range.zone);
+      }
+
+      const carouselsFigures = env.model.getters
+        .getFigures(newSheetId)
+        .filter((figure) => figure.tag === "carousel")
+        .map((figure) => env.model.getters.getFigureUI(dashboardSheetId, figure))
+        .map((figureUi) => ({
+          ...figureUi,
+          zone: getZoneContainingFigure(env, dashboardSheetId, figureUi),
+        }));
+
+      for (const zone of zones) {
+        // Clear "title" border
+        env.model.dispatch("SET_ZONE_BORDERS", {
+          sheetId: dashboardSheetId,
+          target: [zone],
+          border: { position: "clear" },
+        });
+        const rect = env.model.getters.getRect(zone);
+        const titlePosition = { sheetId: dashboardSheetId, col: zone.left, row: zone.top - 1 };
+        const item: CarouselItem = {
+          type: "carouselDataView",
+          range: env.model.getters.getRangeFromZone(dashboardSheetId, zone),
+        };
+
+        const overlappingCarousel = carouselsFigures.find((figure) => overlap(figure.zone, zone));
+        if (overlappingCarousel) {
+          const carousel = env.model.getters.getCarousel(overlappingCarousel.id)!;
+          const items = [...carousel.items].filter((item) => item.type !== "carouselDataView");
+          const carouselDefinition = { ...carousel, items: [...items, item] };
+          env.model.dispatch("UPDATE_CAROUSEL", {
+            figureId: overlappingCarousel.id,
+            definition: carouselDefinition,
+            sheetId: newSheetId,
+          });
+        } else {
+          const title =
+            env.model.getters.getEvaluatedCell(titlePosition).formattedValue || undefined;
+          const carouselDefinition = { items: [item], title: title ? { text: title } : undefined };
+          env.model.dispatch("CREATE_CAROUSEL", {
+            col: zone.left,
+            row: zone.top,
+            sheetId: newSheetId,
+            size: { width: rect.width, height: rect.height },
+            figureId: UuidGenerator.smallUuid(),
+            offset: { x: 0, y: 0 },
+            definition: carouselDefinition,
+          });
+        }
+      }
+      env.model.dispatch("ACTIVATE_SHEET", {
+        sheetIdFrom: dashboardSheetId,
+        sheetIdTo: newSheetId,
+      });
+    },
     icon: "o-spreadsheet-Icon.COG",
   })
 

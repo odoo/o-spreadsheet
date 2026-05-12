@@ -340,6 +340,7 @@ import { HoveredTablePlugin } from "./components/owl_plugins/hovered_table_plugi
 import { ModelPlugin } from "./components/owl_plugins/model_plugin";
 import { Select } from "./components/select/select";
 import { ChartRangeDataSourceComponent } from "./components/side_panel/chart/building_blocks/range_data_source/range_data_source";
+import { Spreadsheet } from "./components/spreadsheet/spreadsheet";
 import { TopBar } from "./components/top_bar/top_bar";
 import { topBarToolBarRegistry } from "./components/top_bar/top_bar_tools_registry";
 import { parseFormat } from "./helpers/format/format_parser";
@@ -504,6 +505,7 @@ export const components = {
   NumberInput,
   TopBar,
   Composer,
+  Spreadsheet,
 };
 
 export const hooks = {

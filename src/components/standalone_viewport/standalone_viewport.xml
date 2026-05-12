@@ -1,0 +1,17 @@
+<templates>
+  <t t-name="o-spreadsheet-StandaloneViewport">
+    <div
+      class="o-standalone-viewport h-100 w-100 overflow-hidden d-flex"
+      t-on-wheel="this.onMouseWheel">
+      <div class="flex-grow-1 overflow-hidden" t-ref="this.containerRef">
+        <canvas class="" t-ref="this.canvasRef"/>
+      </div>
+      <div
+        class="position-relative"
+        t-if="this.hasVerticalScrollBar"
+        t-att-style="this.scrollBarContainerStyle">
+        <VerticalScrollBar onScroll.bind="this.onScroll"/>
+      </div>
+    </div>
+  </t>
+</templates>

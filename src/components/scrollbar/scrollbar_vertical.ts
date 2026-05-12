@@ -1,10 +1,11 @@
 import { props, xml } from "@odoo/owl";
 import { Component } from "../../owl3_compatibility_layer";
-import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
+import { PixelOffset } from "../../types/misc";
+import { SpreadsheetRenderingEnv } from "../../types/spreadsheet_env";
 import { types } from "../props_validation";
 import { ScrollBar } from "./scrollbar";
 
-export class VerticalScrollBar extends Component<SpreadsheetChildEnv> {
+export class VerticalScrollBar extends Component<SpreadsheetRenderingEnv> {
   static components = { ScrollBar };
   static template = xml/*xml*/ `
     <ScrollBar
@@ -19,41 +20,42 @@ export class VerticalScrollBar extends Component<SpreadsheetChildEnv> {
   protected props = props(
     {
       "topOffset?": types.number(),
+      onScroll: types.function<(offset: PixelOffset) => void>(),
+      "hasFooter?": types.boolean(),
     },
     {
       topOffset: 0,
+      hasFooter: true,
     }
   );
 
   get offset() {
-    return this.env.model.getters.getActiveSheetScrollInfo().scrollY;
+    return this.env.viewports.getSheetScrollInfo(this.env.sheetId).scrollY;
   }
 
   get height() {
-    return this.env.model.getters.getMainViewportRect().height;
+    return this.env.viewports.getMainViewportRect(this.env.sheetId).height;
   }
 
   get isDisplayed() {
-    const { yRatio } = this.env.model.getters.getFrozenSheetViewRatio(
-      this.env.model.getters.getActiveSheetId()
-    );
+    const { yRatio } = this.env.viewports.getFrozenSheetViewRatio(this.env.sheetId);
     return yRatio < 1;
   }
 
   get position() {
-    const { y } = this.env.model.getters.getMainViewportRect();
-    const scrollbarWidth = this.env.model.getters.getScrollBarWidth();
+    const { y } = this.env.viewports.getMainViewportRect(this.env.sheetId);
+    const scrollbarWidth = this.env.viewports.getScrollBarWidth();
     return {
       top: `${this.props.topOffset + y}px`,
       right: "0px",
       width: `${scrollbarWidth}px`,
-      bottom: `${scrollbarWidth}px`,
+      bottom: this.props.hasFooter ? `${scrollbarWidth}px` : "0px",
     };
   }
 
   onScroll(offset) {
-    const { scrollX } = this.env.model.getters.getActiveSheetScrollInfo();
-    this.env.model.dispatch("SET_VIEWPORT_OFFSET", {
+    const { scrollX } = this.env.viewports.getSheetScrollInfo(this.env.sheetId);
+    this.props.onScroll({
       offsetX: scrollX, // offsetX is the same
       offsetY: offset,
     });

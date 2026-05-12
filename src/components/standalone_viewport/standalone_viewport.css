@@ -1,0 +1,21 @@
+.o-spreadsheet .o-standalone-viewport {
+  .o-scrollbar.vertical {
+    /*
+    ADRM TODO FIXME:
+
+    This is stupid.
+
+    In the grid, we have fake a scrollbar div that spans the entirety of the sheetView height. But we also want a small
+    empty corner bottom-right where the two scrollbar meet. How does it work ? Black magic.
+
+    We spawn a tall div inside a smaller div, which create a vertical scrollbar. But. On chrome, I'm 90% sure that because
+    the div is not wide enough, the browser also spawns a horizontal scrollbar. Which is not visible because the div is
+    not wide enough. But since it's there, it takes space and pushes the scrollbar up, leaving a gap. If we change
+    `SCROLLBAR_WIDTH` from 15px to 16px, the gap disappear. Obviously, it doesn't work the same way in firefox 🙃.
+
+    In my particular case, I only have a vertical scrollbar so I don't want the gap at the bottom. So overflow-x hidden
+    does the trick ... For chrome. We have a `isBrowserFirefox()` in the scrollbar that messes up my use case there.
+    */
+    overflow-x: hidden;
+  }
+}

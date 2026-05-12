@@ -55,7 +55,6 @@ export class FigureComponent extends Component<SpreadsheetChildEnv> {
   private menuState: MenuState = proxy({ isOpen: false, anchorRect: null, menuItems: [] });
 
   private figureRef = signal<HTMLElement | null>(null);
-  private figureWrapperRef = signal<HTMLElement | null>(null);
   private menuButtonRef = signal<HTMLElement | null>(null);
 
   private borderWidth!: number;
@@ -279,15 +278,6 @@ export class FigureComponent extends Component<SpreadsheetChildEnv> {
     this.menuState.menuItems = figureRegistry
       .get(this.props.figureUI.tag)
       .menuBuilder(this.props.figureUI.id, this.env);
-  }
-
-  editWrapperStyle(properties: CSSProperties) {
-    const el = this.figureWrapperRef();
-    if (el) {
-      for (const property in properties) {
-        el.style.setProperty(property, properties[property] || null);
-      }
-    }
   }
 
   get isFigureResizable(): boolean {

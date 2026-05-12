@@ -1,5 +1,6 @@
 import {
   AddColumnsRowsCommand,
+  CarouselData,
   CreateChartCommand,
   FreezeColumnsCommand,
   FreezeRowsCommand,
@@ -667,4 +668,36 @@ describe("OT with addRows and UPDATE_CHART/CREATE_CHART", () => {
       }),
     });
   });
+});
+
+describe("OT with addRows and carousel commands", () => {
+  const carousel: CarouselData = {
+    items: [
+      { type: "carouselDataView", rangeData: toRangeData("sh1", "C3:E5"), title: "title1" },
+      { type: "carouselDataView", rangeData: toRangeData("sh2", "C3:E5"), title: "title2" },
+    ],
+  };
+
+  const addRowsBefore: AddColumnsRowsCommand = {
+    ...TEST_COMMANDS.ADD_COLUMNS_ROWS,
+    dimension: "ROW",
+    base: 1,
+    quantity: 2,
+    sheetId: "sh1",
+    sheetName: "Sheet1",
+  };
+
+  test.each([TEST_COMMANDS.CREATE_CAROUSEL, TEST_COMMANDS.UPDATE_CAROUSEL])(
+    "ranges are updated on the same sheet as addRows",
+    (cmd) => {
+      const toTransform = { ...cmd, sheetId: "sh1", definition: carousel };
+      const result = transform(toTransform, addRowsBefore) as any;
+      expect(result?.definition).toMatchObject({
+        items: [
+          { type: "carouselDataView", rangeData: toRangeData("sh1", "C5:E7"), title: "title1" },
+          { type: "carouselDataView", rangeData: toRangeData("sh2", "C3:E5"), title: "title2" },
+        ],
+      });
+    }
+  );
 });

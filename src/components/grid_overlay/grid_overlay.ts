@@ -8,7 +8,6 @@ import { GridClickModifiers, HeaderIndex, Pixel, Position } from "../../types/mi
 import { DOMCoordinates } from "../../types/rendering";
 import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 import { Store } from "../../types/store_engine";
-import { FiguresContainer } from "../figures/figure_container/figure_container";
 import { GridAddRowsFooter } from "../grid_add_rows_footer/grid_add_rows_footer";
 import { cssPropertiesToCss } from "../helpers/css";
 import { getElBoundingRect, isChildEvent, isCtrlKey } from "../helpers/dom_helpers";
@@ -133,7 +132,6 @@ function useCellHovered(
 export class GridOverlay extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-GridOverlay";
   static components = {
-    FiguresContainer,
     GridAddRowsFooter,
   };
 

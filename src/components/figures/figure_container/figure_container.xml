@@ -3,7 +3,7 @@
     <div class="position-absolute">
       <t t-foreach="this.containers" t-as="container" t-key="container.type">
         <div
-          class="o-figure-container position-absolute pe-none overflow-hidden"
+          class="o-figure-container position-absolute pe-none"
           t-att-style="container.style"
           t-att-data-id="container.type + 'Container'">
           <div
@@ -29,7 +29,7 @@
       </t>
     </div>
     <div
-      class="o-figure-container position-absolute pe-none overflow-hidden"
+      class="o-figure-container position-absolute pe-none"
       t-if="this.dnd.horizontalSnap"
       t-att-style="this.dnd.horizontalSnap.containerStyle"
       t-att-data-id="'HorizontalSnapContainer'">

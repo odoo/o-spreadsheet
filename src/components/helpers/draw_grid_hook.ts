@@ -24,7 +24,7 @@ export function useGridDrawing({
   const renderer = rendererStore || useStore(RendererStore);
   useLocalStore(GridRenderer, renderer);
 
-  function drawGrid() {
+  const drawGrid = () => {
     const canvas = canvasRef() as HTMLCanvasElement;
     if (!canvas) {
       return;
@@ -61,7 +61,7 @@ export function useGridDrawing({
     ctx.scale(dpr * zoom, dpr * zoom);
 
     renderer.draw(renderingContext);
-  }
+  };
 
   const modelPlugin = plugin(ModelPlugin);
   useEffect(() => {

@@ -8,6 +8,9 @@
       t-on-keydown="this.onKeydown"
       t-on-wheel.prevent="this.onMouseWheel"
       t-ref="this.gridRef">
+      <div class="position-absolute" t-att-style="this.gridOverlayDimensions">
+        <FiguresContainer/>
+      </div>
       <GridOverlay
         onCellClicked.bind="this.onCellClicked"
         onCellDoubleClicked.bind="this.onCellDoubleClicked"
@@ -64,8 +67,8 @@
         t-key="table.id">
         <TableResizer table="table"/>
       </t>
-      <VerticalScrollBar topOffset="this.HEADER_HEIGHT"/>
-      <HorizontalScrollBar leftOffset="this.HEADER_WIDTH"/>
+      <VerticalScrollBar topOffset="this.HEADER_HEIGHT" onScroll.bind="this.onScroll"/>
+      <HorizontalScrollBar leftOffset="this.HEADER_WIDTH" onScroll.bind="this.onScroll"/>
       <div class="o-scrollbar corner border-top border-start"/>
     </div>
   </t>

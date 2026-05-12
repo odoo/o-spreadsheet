@@ -1,8 +1,11 @@
+import { ViewportCollection } from "../helpers/viewport_collection";
 import { Model } from "../model";
 import { ClipboardInterface } from "./clipboard/clipboard_interface";
 import { Currency } from "./currency";
 import { ImageProviderInterface } from "./files";
+import { RenderingGetters } from "./getters";
 import { Locale } from "./locale";
+import { UID } from "./misc";
 import { Get } from "./store_engine";
 import { NotificationStoreMethods } from "./stores/notification_store_methods";
 
@@ -20,4 +23,14 @@ export interface SpreadsheetChildEnv extends NotificationStoreMethods {
   isSmall: boolean;
   isMobile: () => boolean;
   printSpreadsheet: () => void;
+}
+
+export interface RenderingModel extends Omit<Model, "getters"> {
+  getters: RenderingGetters;
+}
+
+export interface SpreadsheetRenderingEnv extends Omit<SpreadsheetChildEnv, "model"> {
+  model: RenderingModel;
+  sheetId: UID;
+  viewports: ViewportCollection;
 }

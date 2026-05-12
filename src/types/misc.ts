@@ -444,3 +444,8 @@ export interface NamedRange {
   name: string;
   range: Range;
 }
+
+export interface PixelOffset {
+  offsetX: Pixel;
+  offsetY: Pixel;
+}
