@@ -44,18 +44,15 @@ describe("full screen carousel", () => {
     expect(".o-fullscreen-figure").toHaveCount(0);
   });
 
-  test("Cannot use the data view in full screen", async () => {
+  test("Can use the data view in full screen", async () => {
     createCarousel(model, { items: [{ type: "carouselDataView" }] }, "carouselId");
     addNewChartToCarousel(model, "carouselId", { type: "radar" });
     model.updateMode("dashboard");
     await nextTick();
-    expect(".o-figure .o-carousel-full-screen-button").toHaveClass("invisible");
-
-    await click(fixture, ".o-figure .o-carousel-tab:nth-child(2)");
-    expect(".o-figure .o-carousel-full-screen-button").not.toHaveClass("invisible");
 
     await click(fixture, ".o-figure .o-carousel-full-screen-button");
-    expect(".o-fullscreen-figure .o-carousel-tab").toHaveCount(1);
-    expect(".o-fullscreen-figure .o-carousel-tab").toHaveText("Radar");
+    expect(".o-fullscreen-figure .o-carousel-tab").toHaveCount(2);
+    expect(".o-fullscreen-figure .o-carousel-tab:nth-child(1)").toHaveText("Data");
+    expect(".o-fullscreen-figure .o-carousel-tab:nth-child(2)").toHaveText("Radar");
   });
 });

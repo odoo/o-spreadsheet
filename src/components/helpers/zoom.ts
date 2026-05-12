@@ -20,7 +20,7 @@ export type ZoomedMouseEvent<T extends MouseEvent | PointerEvent> = {
  * @returns a ZoomedMouseEvent
  */
 export function withZoom<T extends MouseEvent>(
-  env: SpreadsheetChildEnv,
+  env: SpreadsheetChildEnv | SpreadsheetChildEnv,
   ev: T,
   originalTargetPosition?: DOMCoordinates | null
 ): ZoomedMouseEvent<T> {

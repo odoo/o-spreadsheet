@@ -1,3 +1,4 @@
+import { CarouselItemData } from "../..";
 import { getAddHeaderStartIndex, range } from "../../helpers/misc";
 import {
   moveHeaderIndexesOnHeaderAddition,
@@ -56,6 +57,23 @@ otRegistry.addTransformation(
 );
 otRegistry.addTransformation("DELETE_CHART", ["UPDATE_CHART"], updateChartOnChartDelete);
 otRegistry.addTransformation("DELETE_CHART", ["UPDATE_CAROUSEL"], updateCarouselOnChartDelete);
+
+otRegistry.addTransformation(
+  "ADD_COLUMNS_ROWS",
+  ["CREATE_CAROUSEL", "UPDATE_CAROUSEL"],
+  updateCarouselRanges
+);
+otRegistry.addTransformation(
+  "REMOVE_COLUMNS_ROWS",
+  ["CREATE_CAROUSEL", "UPDATE_CAROUSEL"],
+  updateCarouselRanges
+);
+otRegistry.addTransformation(
+  "DELETE_SHEET",
+  ["CREATE_CAROUSEL", "UPDATE_CAROUSEL"],
+  updateCarouselRanges
+);
+
 otRegistry.addTransformation("CREATE_SHEET", ["CREATE_SHEET"], createSheetTransformation);
 otRegistry.addTransformation("ADD_MERGE", ["ADD_MERGE", "REMOVE_MERGE"], mergeTransformation);
 otRegistry.addTransformation(
@@ -374,4 +392,21 @@ function updateNamedRangeTransformation(
     return { ...toTransform, oldRangeName: executed.newRangeName };
   }
   return toTransform;
+}
+
+/**
+ * Update the zones of an UPDATE_TABLE command if some headers were added/removed
+ */
+function updateCarouselRanges(
+  toTransform: CreateCarouselCommand | UpdateCarouselCommand,
+  executed: AddColumnsRowsCommand | RemoveColumnsRowsCommand | DeleteSheetCommand
+): CreateCarouselCommand | UpdateCarouselCommand | undefined {
+  const transformedItems: CarouselItemData[] = toTransform.definition.items.map((item) => {
+    if (item.type === "carouselDataView" && item.rangeData) {
+      const newRange = transformRangeData(item.rangeData, executed);
+      return { ...item, rangeData: newRange };
+    }
+    return item;
+  });
+  return { ...toTransform, definition: { ...toTransform.definition, items: transformedItems } };
 }

@@ -4,6 +4,7 @@ import { HEADER_HEIGHT, HEADER_WIDTH } from "../../src/constants";
 import { toHex } from "../../src/helpers/color";
 import { lettersToNumber, toCartesian } from "../../src/helpers/coordinates";
 import { MIN_DELAY, scrollDelay } from "../../src/helpers/edge_scrolling";
+import { ViewportCollection } from "../../src/helpers/viewport_collection";
 import { positionToZone, toZone } from "../../src/helpers/zones";
 import { ViewportsStore } from "../../src/stores/viewports_store";
 import { SpreadsheetChildEnv } from "../../src/types/spreadsheet_env";
@@ -127,17 +128,22 @@ export async function pointerUp(target: DOMTarget) {
  * Don't forget to use `useJestFakeTimers();` when using
  * this helper.
  */
-export async function hoverCell(env: SpreadsheetChildEnv, xc: string, delay: number) {
+export async function hoverCell(
+  env: SpreadsheetChildEnv,
+  xc: string,
+  delay: number,
+  viewports?: ViewportCollection
+) {
   const model = env.model;
   const zone = toZone(xc);
-  const zoom = env.getStore(ViewportsStore).zoomLevel;
-  let { x, y, width, height } = env
-    .getStore(ViewportsStore)
-    .viewports.getVisibleRectWithZoom(model.getters.getActiveSheetId(), zone);
-  if (!model.getters.isDashboard()) {
-    x -= HEADER_WIDTH * zoom;
-    y -= HEADER_HEIGHT * zoom;
-  }
+  viewports = viewports || env.getStore(ViewportsStore).viewports;
+  const zoom = viewports.getZoomLevel();
+  let { x, y, width, height } = viewports.getVisibleRectWithZoom(
+    model.getters.getActiveSheetId(),
+    zone
+  );
+  x -= viewports.getGridOffsetX() * zoom;
+  y -= viewports.getGridOffsetY() * zoom;
   x += width / 2;
   y += height / 2;
   triggerMouseEvent(".o-grid-overlay", "pointermove", x, y);
@@ -149,32 +155,26 @@ export async function clickCell(
   env: SpreadsheetChildEnv,
   xc: string,
   extra: MouseEventInit = { bubbles: true },
-  option: { clickInMiddle?: boolean; offsetX?: number; offsetY?: number } = {
+  option: {
+    clickInMiddle?: boolean;
+    offsetX?: number;
+    offsetY?: number;
+  } = {
     clickInMiddle: false,
     offsetX: 0,
     offsetY: 0,
   }
 ) {
-  const model = env.model;
+  const viewStore = env.getStore(ViewportsStore);
   const zone = toZone(xc);
-  const sheetId = model.getters.getActiveSheetId();
-  const zoom = env.getStore(ViewportsStore).zoomLevel;
-  if (
-    !env.getStore(ViewportsStore).viewports.isVisibleInViewport({
-      sheetId,
-      col: zone.left,
-      row: zone.top,
-    })
-  ) {
+  const sheetId = env.model.getters.getActiveSheetId();
+  const zoom = viewStore.zoomLevel;
+  if (!viewStore.viewports.isVisibleInViewport({ sheetId, col: zone.left, row: zone.top })) {
     throw new Error(`You can't click on ${xc} because it is not visible`);
   }
-  let { x, y, width, height } = env
-    .getStore(ViewportsStore)
-    .viewports.getVisibleRectWithZoom(model.getters.getActiveSheetId(), zone);
-  if (!model.getters.isDashboard()) {
-    x -= HEADER_WIDTH * zoom;
-    y -= HEADER_HEIGHT * zoom;
-  }
+  let { x, y, width, height } = viewStore.viewports.getVisibleRectWithZoom(sheetId, zone);
+  x -= viewStore.gridOffset.x * zoom;
+  y -= viewStore.gridOffset.y * zoom;
   if (option.clickInMiddle) {
     x += width / 2;
     y += height / 2;
@@ -218,17 +218,17 @@ export async function clickHeader(
 
 export function getGridIconEventPosition(env: SpreadsheetChildEnv, xc: string) {
   const model = env.model;
-  const position = { ...toCartesian(xc), sheetId: model.getters.getActiveSheetId() };
+  const viewStore = env.getStore(ViewportsStore);
+  const sheetId = viewStore.displayedSheetId;
+  const position = { ...toCartesian(xc), sheetId };
   const icon = model.getters.getCellIcons(position)[0];
   if (!icon) {
     throw new Error(`No icon inside cell ${xc}`);
   }
-  const gridOffset = env.getStore(ViewportsStore).gridOffset;
+  const gridOffset = viewStore.gridOffset;
   const merge = model.getters.getMerge(position);
   const zone = merge || positionToZone(position);
-  const cellRect = env
-    .getStore(ViewportsStore)
-    .viewports.getRect(model.getters.getActiveSheetId(), zone);
+  const cellRect = viewStore.viewports.getRect(sheetId, zone);
   const rect = model.getters.getCellIconRect(icon, cellRect);
   const x = rect.x + rect.width / 2 - gridOffset.x;
   const y = rect.y + rect.height / 2 - gridOffset.y;

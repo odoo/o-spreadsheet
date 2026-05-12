@@ -117,7 +117,7 @@ export class CarouselClipboardHandler extends AbstractFigureClipboardHandler<Cli
       this.dispatch("UPDATE_CAROUSEL", {
         sheetId,
         figureId,
-        definition: { ...clippedFigure.copiedCarousel, items },
+        definition: this.getters.carouselToCarouselData({ ...clippedFigure.copiedCarousel, items }),
       });
 
       if (options.isCutOperation) {

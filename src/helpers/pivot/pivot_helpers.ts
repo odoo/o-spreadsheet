@@ -443,7 +443,10 @@ export function getCustomFieldWithParentField(
   );
 }
 
-export function togglePivotCollapse(position: CellPosition, env: SpreadsheetChildEnv) {
+export function togglePivotCollapse(
+  position: CellPosition,
+  env: SpreadsheetChildEnv | SpreadsheetChildEnv
+) {
   const pivotCell = env.model.getters.getPivotCellFromPosition(position);
   const pivotId = env.model.getters.getPivotIdFromPosition(position);
   if (!pivotId || pivotCell.type !== "HEADER") {

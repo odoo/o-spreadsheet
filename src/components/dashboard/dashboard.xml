@@ -13,6 +13,9 @@
         class="mx-auto h-100 position-relative"
         t-ref="this.gridRef"
         t-att-style="this.gridContainer">
+        <div class="position-absolute" t-att-style="this.gridOverlayDimensions">
+          <FiguresContainer/>
+        </div>
         <GridOverlay
           onGridResized.bind="this.onGridResized"
           gridOverlayDimensions="this.gridOverlayDimensions">

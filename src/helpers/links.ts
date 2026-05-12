@@ -35,7 +35,11 @@ export interface LinkSpec {
    * - a link to a sheet displays the sheet name
    */
   readonly urlRepresentation: (url: string, getters: CoreGetters) => string;
-  readonly open: (url: string, env: SpreadsheetChildEnv, isMiddleClick?: boolean) => void;
+  readonly open: (
+    url: string,
+    env: SpreadsheetChildEnv | SpreadsheetChildEnv,
+    isMiddleClick?: boolean
+  ) => void;
   readonly sequence: number;
   readonly title: string;
   readonly icon?: string;
@@ -117,7 +121,11 @@ export function urlRepresentation(link: Link, getters: CoreGetters): string {
   return findMatchingSpec(link.url).urlRepresentation(link.url, getters);
 }
 
-export function openLink(link: Link, env: SpreadsheetChildEnv, isMiddleClick?: boolean) {
+export function openLink(
+  link: Link,
+  env: SpreadsheetChildEnv | SpreadsheetChildEnv,
+  isMiddleClick?: boolean
+) {
   findMatchingSpec(link.url).open(link.url, env, isMiddleClick);
 }
 

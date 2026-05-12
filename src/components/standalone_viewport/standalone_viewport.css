@@ -1,0 +1,21 @@
+.o-spreadsheet .o-standalone-viewport {
+  .o-col-resizer {
+    margin-left: -5px;
+    width: 11px;
+    cursor: e-resize;
+
+    .o-col-resizer-handle {
+      display: none;
+    }
+
+    &:hover,
+    &.dragging {
+      .o-col-resizer-handle {
+        margin-left: 5px;
+        display: block;
+        width: 2px;
+        background-color: var(--os-selection-border-color);
+      }
+    }
+  }
+}

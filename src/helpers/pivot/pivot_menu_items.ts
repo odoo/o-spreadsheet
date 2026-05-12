@@ -366,7 +366,7 @@ export function canSortPivot(getters: Getters, position: CellPosition): boolean 
 }
 
 export function sortPivot(
-  env: SpreadsheetChildEnv,
+  env: SpreadsheetChildEnv | SpreadsheetChildEnv,
   position: CellPosition,
   order: SortDirection | "none"
 ) {

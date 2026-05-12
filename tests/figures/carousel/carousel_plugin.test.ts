@@ -1,17 +1,21 @@
-import { CommandResult, Model, UID } from "../../../src";
+import { CarouselItemData, CommandResult, Model, UID } from "../../../src";
 import { CAROUSEL_DEFAULT_CHART_DEFINITION } from "../../../src/helpers/carousel_helpers";
+import { toZone } from "../../../src/helpers/zones";
 import { toChartDataSource } from "../../test_helpers/chart_helpers";
 import {
   addChartFigureToCarousel,
   addNewChartToCarousel,
+  addRows,
   createCarousel,
   createChart,
   duplicateSheet,
   popOutChartFromCarousel,
   selectCarouselItem,
+  undo,
   updateCarousel,
   updateChart,
 } from "../../test_helpers/commands_helpers";
+import { toRangeData } from "../../test_helpers/helpers";
 
 let model: Model;
 let sheetId: UID;
@@ -184,6 +188,27 @@ describe("Carousel figure", () => {
     expect(newFigures[1].tag).toBe("chart");
   });
 
+  test("Carousel data view range is adapted on sheet modification", () => {
+    createCarousel(
+      model,
+      { items: [{ type: "carouselDataView", rangeData: toRangeData(sheetId, "A1") }] },
+      "carouselId"
+    );
+    expect(model.getters.getCarousel("carouselId").items[0]).toMatchObject({
+      range: { zone: toZone("A1") },
+    });
+
+    addRows(model, "before", 0, 2);
+    expect(model.getters.getCarousel("carouselId").items[0]).toMatchObject({
+      range: { zone: toZone("A3") },
+    });
+
+    undo(model);
+    expect(model.getters.getCarousel("carouselId").items[0]).toMatchObject({
+      range: { zone: toZone("A1") },
+    });
+  });
+
   test("Can duplicate a sheet with a carousel", () => {
     createCarousel(model, { items: [] }, "carouselId");
     const chartId = addNewChartToCarousel(model, "carouselId");
@@ -233,6 +258,26 @@ describe("Carousel figure", () => {
       ...toChartDataSource({ dataSets: [{ dataRange: "A1:A6" }] }),
     });
     expect(newModel.getters.getChartDefinition("chartId2")).toMatchObject({ type: "radar" });
+  });
+
+  test("Can export/import a carousel and its ranges", () => {
+    const carouselItem: CarouselItemData = {
+      type: "carouselDataView",
+      title: "Range1",
+      rangeData: toRangeData(sheetId, "A1:B2"),
+    };
+    createCarousel(model, { items: [carouselItem] }, "carouselId");
+    const data = model.exportData();
+    expect(data.sheets[0].figures).toHaveLength(1);
+    expect(data.sheets[0].figures![0].data.items[0]).toEqual(carouselItem);
+
+    const newModel = new Model(data);
+    expect(newModel.getters.getFigures(sheetId)).toHaveLength(1);
+    expect(newModel.getters.getCarousel("carouselId").items[0]).toMatchObject({
+      type: "carouselDataView",
+      title: "Range1",
+      range: { zone: toZone("A1:B2") },
+    });
   });
 
   test("Carousel item is still selected when changing its name", () => {

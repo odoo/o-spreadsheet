@@ -9,7 +9,6 @@ import { CellPosition, GridClickModifiers, HeaderIndex, Position } from "../../t
 import { DOMCoordinates } from "../../types/rendering";
 import { SpreadsheetChildEnv } from "../../types/spreadsheet_env";
 import { Store } from "../../types/store_engine";
-import { FiguresContainer } from "../figures/figure_container/figure_container";
 import { DelayedHoveredCellStore } from "../grid/delayed_hovered_cell_store";
 import { GridAddRowsFooter } from "../grid_add_rows_footer/grid_add_rows_footer";
 import { cssPropertiesToCss } from "../helpers/css";
@@ -136,7 +135,6 @@ function useCellHovered(
 export class GridOverlay extends Component<SpreadsheetChildEnv> {
   static template = "o-spreadsheet-GridOverlay";
   static components = {
-    FiguresContainer,
     GridAddRowsFooter,
   };
 
@@ -159,6 +157,7 @@ export class GridOverlay extends Component<SpreadsheetChildEnv> {
       .optional(() => () => {}),
     onGridResized: types.function().optional(() => () => {}),
     gridOverlayDimensions: types.string(),
+    hasFooter: types.boolean().optional(() => true),
   });
   private gridOverlayRef: Signal<HTMLElement | null> = signal(null);
   private cellPopovers!: Store<CellPopoverStore>;
@@ -288,7 +287,7 @@ export class GridOverlay extends Component<SpreadsheetChildEnv> {
 
   private getInteractiveIconAtEvent(zoomedMouseEvent: ZoomedMouseEvent<MouseEvent>) {
     const gridOverLayRect = getElBoundingRect(this.gridOverlayRef());
-    const gridOffset = this.viewStore.gridOffset;
+    const gridOffset = this.viewStore.viewports.getGridOffset();
     const x = zoomedMouseEvent.clientX - gridOverLayRect.x + gridOffset.x;
     const y = zoomedMouseEvent.clientY - gridOverLayRect.y + gridOffset.y;
 

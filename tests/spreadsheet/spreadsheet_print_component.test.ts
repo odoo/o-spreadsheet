@@ -1,10 +1,7 @@
-import { Model, StoreConstructor, UID, Zone } from "../../src";
+import { Model } from "../../src";
 import { SpreadsheetPrint } from "../../src/components/spreadsheet_print/spreadsheet_print";
 import { SpreadsheetPrintStore } from "../../src/components/spreadsheet_print/spreadsheet_print_store";
 import { FigureRendererStore } from "../../src/components/standalone_grid_canvas/figure_renderer_store";
-import { recomputeZones } from "../../src/helpers/recompute_zones";
-import { toZone } from "../../src/helpers/zones";
-import { GridRenderer } from "../../src/stores/grid_renderer_store";
 import { Store } from "../../src/types/store_engine";
 import { registerCleanup } from "../setup/jest.setup";
 import {
@@ -21,7 +18,7 @@ import {
   mountSpreadsheet,
   nextTick,
 } from "../test_helpers/helpers";
-import { spyStoreCreation } from "../test_helpers/stores";
+import { getLastZonesRendered, spyStoreCreation, StoreSpy } from "../test_helpers/stores";
 
 describe("Spreadsheet integration tests", () => {
   let mockWindowPrint: jest.Mock;
@@ -74,12 +71,12 @@ describe("Spreadsheet integration tests", () => {
 describe("Spreadsheet print rendering", () => {
   let model: Model;
   let sheetId: string;
-  let getStores: (Store: StoreConstructor) => any[];
+  let storeSpy: StoreSpy;
 
   beforeEach(async () => {
     model = new Model();
     sheetId = model.getters.getActiveSheetId();
-    ({ getStores } = spyStoreCreation());
+    storeSpy = spyStoreCreation();
   });
 
   afterEach(() => {
@@ -94,18 +91,7 @@ describe("Spreadsheet print rendering", () => {
   }
 
   function getPrintStore() {
-    return getStores(SpreadsheetPrintStore)[0] as Store<SpreadsheetPrintStore>;
-  }
-
-  function getLastZonesRendered() {
-    const drawnZones: (Zone & { sheetId: UID })[] = [];
-    for (const gridRenderer of getStores(GridRenderer) as GridRenderer[]) {
-      const boxesXcs = gridRenderer["lastRenderBoxes"].keys();
-      const sheetId = gridRenderer["lastRenderSheetId"]!;
-      const zones = recomputeZones(Array.from(boxesXcs).map((xc) => toZone(xc)));
-      drawnZones.push(...zones.map((zone) => ({ sheetId, ...zone })));
-    }
-    return drawnZones;
+    return storeSpy.getStores(SpreadsheetPrintStore)[0] as Store<SpreadsheetPrintStore>;
   }
 
   test("Can print change print scaling", async () => {
@@ -119,19 +105,23 @@ describe("Spreadsheet print rendering", () => {
   test("Printed pages includes the figures", async () => {
     setCellContent(model, "A1", "Hello");
     await mountSpreadsheetPrint();
-    const figureRendererStore = getStores(FigureRendererStore)[0];
+    const figureRendererStore = storeSpy.getStores(FigureRendererStore)[0];
     const drawChartSpy = jest.spyOn(figureRendererStore, "drawChart").mockImplementation(() => {});
     const figure = { figureId: "figureId", col: 0, row: 0, size: { width: 200, height: 200 } };
 
     expect(".o-print-page").toHaveCount(1);
-    expect(getLastZonesRendered()).toEqual([{ sheetId, left: 0, top: 0, right: 0, bottom: 0 }]);
+    expect(getLastZonesRendered(storeSpy)).toEqual([
+      { sheetId, left: 0, top: 0, right: 0, bottom: 0 },
+    ]);
     expect(drawChartSpy).not.toHaveBeenCalled();
 
     createChart(model, { type: "bar" }, "chartId", undefined, figure);
     await nextTick();
 
     expect(".o-print-page").toHaveCount(1);
-    expect(getLastZonesRendered()).toEqual([{ sheetId, left: 0, top: 0, right: 2, bottom: 8 }]);
+    expect(getLastZonesRendered(storeSpy)).toEqual([
+      { sheetId, left: 0, top: 0, right: 2, bottom: 8 },
+    ]);
     expect(drawChartSpy).toHaveBeenCalled();
   });
 
