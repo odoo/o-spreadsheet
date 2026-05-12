@@ -92,7 +92,7 @@
     "jszip": "^3.6.0",
     "lint-staged": "^12.1.2",
     "live-server": "^1.2.1",
-    "luxon": "^3.7.2",
+    "luxon": "3.7.2",
     "minimist": "^1.2.8",
     "mockdate": "^3.0.2",
     "node-watch": "^0.7.3",
@@ -141,7 +141,7 @@
   },
   "dependencies": {
     "@odoo/owl": "2.8.3",
-    "bootstrap": "^5.3.3",
+    "bootstrap": "5.3.3",
     "font-awesome": "^4.7.0",
     "rbush": "^3.0.1"
   },
