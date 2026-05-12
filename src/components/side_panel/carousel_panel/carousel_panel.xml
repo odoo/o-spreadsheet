@@ -51,19 +51,22 @@
           </div>
         </t>
       </div>
-      <div
-        class="o-button-link o-carousel-add-chart float-end d-flex align-items-center py-4 pe-4 gap-2"
-        t-on-click="addNewChartToCarousel"
-        t-att-title="carouselAddChartInfoMessage">
-        + Add chart
+      <div class="d-flex justify-content-end">
+        <div
+          class="o-button-link o-carousel-add-chart  d-flex align-items-center py-4 pe-4 gap-2"
+          t-on-click="addNewChartToCarousel"
+          t-att-title="carouselAddChartInfoMessage">
+          + Add chart
+        </div>
+        <div
+          t-if="!hasDataView"
+          class="o-button-link o-carousel-add-data-view py-4 pe-4"
+          t-on-click="addDataViewToCarousel"
+          t-att-title="carouselDataViewMessage">
+          + Add data view
+        </div>
       </div>
-      <div
-        t-if="!hasDataView"
-        class="o-button-link o-carousel-add-data-view float-end py-4 pe-4"
-        t-on-click="addDataViewToCarousel"
-        t-att-title="carouselDataViewMessage">
-        + Add data view
-      </div>
+      <FigureOptions figureId="this.props.figureId"/>
     </div>
   </t>
 </templates>

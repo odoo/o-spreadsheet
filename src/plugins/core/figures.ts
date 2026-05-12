@@ -277,6 +277,8 @@ export class FigurePlugin extends CorePlugin<FigureState> implements FigureState
         case "row":
         case "width":
         case "height":
+        case "roundedBorders":
+        case "shadow":
           if (value !== undefined) {
             this.history.update("figures", sheetId, figure.id, key, value as number);
           }

@@ -33,6 +33,7 @@ import {
   setCellContent,
   setViewportOffset,
   setZoom,
+  updateFigure,
 } from "../test_helpers/commands_helpers";
 import { TEST_CHART_DATA } from "../test_helpers/constants";
 import {
@@ -1853,6 +1854,26 @@ describe("figures", () => {
         });
       });
     });
+  });
+
+  test("Can display a figure with a shadow", async () => {
+    createFigure(model, { id: "figureId" });
+    await nextTick();
+    expect(".o-figure").not.toHaveClass("shadow");
+
+    updateFigure(model, { figureId: "figureId", shadow: true });
+    await nextTick();
+    expect(".o-figure").toHaveClass("shadow");
+  });
+
+  test("Can display a figure with rounded borders", async () => {
+    createFigure(model, { id: "figureId" });
+    await nextTick();
+    expect(".o-figure").not.toHaveClass("rounded-3");
+
+    updateFigure(model, { figureId: "figureId", roundedBorders: true });
+    await nextTick();
+    expect(".o-figure").toHaveClass("rounded-3");
   });
 });
 

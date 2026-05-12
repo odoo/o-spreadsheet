@@ -2,6 +2,7 @@
   div.o-figure {
     color-scheme: light;
     color: var(--os-text-body);
+    border: solid var(--os-figure-border-color);
 
     position: absolute;
     width: 100%;

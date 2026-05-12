@@ -9,6 +9,7 @@ import {
   AxisDefinition,
   AxisDesignEditor,
 } from "../building_blocks/axis_design/axis_design_editor";
+import { FigureOptions } from "../building_blocks/figure_options/figure_options";
 import { GeneralDesignEditor } from "../building_blocks/general_design/general_design_editor";
 import { ChartHumanizeNumbers } from "../building_blocks/humanize_numbers/humanize_numbers";
 import { ChartLegend } from "../building_blocks/legend/legend";
@@ -29,6 +30,7 @@ export class ChartWithAxisDesignPanel<
     ChartLegend,
     ChartShowValues,
     ChartHumanizeNumbers,
+    FigureOptions,
   };
   static props = ChartSidePanelPropsObject;
 
@@ -42,5 +44,9 @@ export class ChartWithAxisDesignPanel<
       axes.push({ id: "y1", name: useLeftAxis ? _t("Right axis") : _t("Vertical axis") });
     }
     return axes;
+  }
+
+  get figureId() {
+    return this.env.model.getters.getFigureIdFromChartId(this.props.chartId);
   }
 }

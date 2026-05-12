@@ -31,5 +31,6 @@
         />
       </t>
     </SidePanelCollapsible>
+    <FigureOptions isInitiallyCollapsed="true" figureId="this.figureId"/>
   </t>
 </templates>

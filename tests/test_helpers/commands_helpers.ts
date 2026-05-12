@@ -181,8 +181,13 @@ export function createFigure(
   });
 }
 
-export function updateFigure(model: Model, cmd: Omit<UpdateFigureCommand, "type">) {
-  return model.dispatch("UPDATE_FIGURE", cmd);
+export function updateFigure(
+  model: Model,
+  cmd: Partial<Omit<UpdateFigureCommand, "type" | "figureId">> & { figureId: UID }
+) {
+  const sheetId = model.getters.getFigureSheetId(cmd.figureId)!;
+  const figure = model.getters.getFigure(sheetId, cmd.figureId)!;
+  return model.dispatch("UPDATE_FIGURE", { ...figure, ...cmd, sheetId, figureId: cmd.figureId });
 }
 
 export function deleteFigure(

@@ -7,6 +7,8 @@ export interface FigureInfo {
   width: Pixel;
   height: Pixel;
   tag: string;
+  roundedBorders?: boolean;
+  shadow?: boolean;
 }
 
 export interface Figure extends FigureInfo, AnchorOffset {}
