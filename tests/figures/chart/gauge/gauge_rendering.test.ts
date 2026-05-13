@@ -293,3 +293,19 @@ describe("Gauge chart component animation", () => {
     readonlyAllowedCommands.delete("UPDATE_CELL");
   });
 });
+
+test("Gauge is re-render on element size change", async () => {
+  const model = new Model();
+  createGaugeChart(model, {});
+  const { fixture } = await mountSpreadsheet({ model });
+
+  const canvas = fixture.querySelector<HTMLCanvasElement>("canvas.o-gauge-chart")!;
+  const ctx = canvas.getContext("2d")!;
+
+  const spy = jest.spyOn(ctx, "scale"); // ctx.scale is the first thing the gauge rendering process calls
+  window.resizers.resize();
+  expect(spy).toHaveBeenCalledTimes(1);
+
+  window.resizers.resize();
+  expect(spy).toHaveBeenCalledTimes(2);
+});

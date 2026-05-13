@@ -40,8 +40,12 @@ export class MockCanvasRenderingContext2D {
 }
 
 const patch = {
+  _mockContext: null as MockCanvasRenderingContext2D | null,
   getContext: function () {
-    return new MockCanvasRenderingContext2D() as any as CanvasRenderingContext2D;
+    if (!this._mockContext) {
+      this._mockContext = new MockCanvasRenderingContext2D();
+    }
+    return this._mockContext;
   },
   toDataURL: function () {
     return "data:image/png;base64,randomDataThatIsActuallyABase64Image";
