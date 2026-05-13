@@ -83,7 +83,7 @@ export class ContentEditableHelper {
     const it = iterateChildren(this.el);
     let current, previous;
     let usedCharacters = offset;
-    let isFirstParagraph = true;
+    let isFirstLine = true;
     do {
       current = it.next();
       if (!current.done && !current.value.hasChildNodes()) {
@@ -97,10 +97,10 @@ export class ContentEditableHelper {
         }
         previous = current.value;
       }
-      // One new paragraph = one new line character, except for the first paragraph
-      if (!current.done && current.value.nodeName === "P") {
-        if (isFirstParagraph) {
-          isFirstParagraph = false;
+      // One new line = one new line character, except for the first
+      if (!current.done && current.value.nodeName === "DIV" && current.value !== this.el) {
+        if (isFirstLine) {
+          isFirstLine = false;
         } else {
           usedCharacters--;
         }
@@ -139,12 +139,12 @@ export class ContentEditableHelper {
       const childElement = childElements[i];
 
       let newChild = false;
-      let p: HTMLParagraphElement;
-      if (childElement && childElement.nodeName === "P") {
-        p = childElement as HTMLParagraphElement;
+      let p: HTMLDivElement;
+      if (childElement && childElement.nodeName === "DIV") {
+        p = childElement as HTMLDivElement;
       } else {
         newChild = true;
-        p = document.createElement("p");
+        p = document.createElement("div");
       }
 
       const lineLength = line.length;
@@ -251,15 +251,20 @@ export class ContentEditableHelper {
       return "";
     }
 
-    // Post-setText structure or block-element paste (<p> or <div> per line).
-    // Strip trailing \n from each block: browsers treat a trailing <br> as a rendering
-    // placeholder and exclude it from innerText, so we normalize to the same result.
-    if (children[0].nodeName === "P" || children[0].nodeName === "DIV") {
+    // Post-setText structure (div per line) or block-element clipboard paste (p or div).
+    // Strip trailing \n: browsers treat a trailing <br> as a placeholder and exclude it
+    // from innerText, so we normalize to the same result.
+    if (children[0].nodeName === "DIV" || children[0].nodeName === "P") {
       return children.map((p) => (p as HTMLElement).innerText.replace(/\n$/, "")).join(NEWLINE);
     }
 
-    // Flat structure: text nodes and <br> elements (clipboard paste without block wrapping)
-    return this.el.innerText;
+    // Flat structure: text nodes and <br> elements (clipboard paste without block wrapping).
+    // Map each node directly to avoid innerText stripping leading/trailing newlines.
+    return children
+      .map((n) =>
+        n.nodeName === "BR" ? NEWLINE : (n as HTMLElement).innerText ?? n.textContent ?? ""
+      )
+      .join("");
   }
 }
 

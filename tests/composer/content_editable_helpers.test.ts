@@ -87,7 +87,7 @@ describe("ContentEditableHelper", () => {
 
       const [, paragraphNodeAfter, spanNodeAfter] = childNodesAfter;
       // paragraph node is preserved
-      expect(paragraphNodeAfter.nodeName).toBe("P");
+      expect(paragraphNodeAfter.nodeName).toBe("DIV");
       expect(paragraphNodeAfter).toEqual(paragraphNode);
       // the first 'SPAN' node is preserved
       expect(spanNodeAfter.nodeName).toBe("SPAN");
@@ -115,7 +115,7 @@ describe("ContentEditableHelper", () => {
       expect(div).toMatchSnapshot();
 
       // paragraph node is preserved
-      expect(paragraphNodeAfter.nodeName).toBe("P");
+      expect(paragraphNodeAfter.nodeName).toBe("DIV");
       expect(paragraphNodeAfter).toEqual(paragraphNode);
       // the first 'SPAN' node is preserved
       expect(spanNodeAfter.nodeName).toBe("SPAN");
