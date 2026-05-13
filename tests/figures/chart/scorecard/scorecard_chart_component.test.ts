@@ -32,7 +32,11 @@ import {
 } from "../../../test_helpers/commands_helpers";
 import { FR_LOCALE } from "../../../test_helpers/constants";
 import { getCellContent } from "../../../test_helpers/getters_helpers";
-import { mountComponentWithPortalTarget, nextTick } from "../../../test_helpers/helpers";
+import {
+  mountComponentWithPortalTarget,
+  mountSpreadsheet,
+  nextTick,
+} from "../../../test_helpers/helpers";
 
 let model: Model;
 let chartId: string;
@@ -766,4 +770,20 @@ describe("Scorecard charts rendering", () => {
     renderScorecardChart(model, chartId, sheetId, canvas);
     expect(scorecardChartStyle.baseline.bold).not.toEqual(true);
   });
+});
+
+test("Scorecard is re-render on element size change", async () => {
+  const model = new Model();
+  createScorecardChart(model, {});
+  const { fixture } = await mountSpreadsheet({ model });
+
+  const canvas = fixture.querySelector<HTMLCanvasElement>("canvas.o-scorecard")!;
+  const ctx = canvas.getContext("2d")!;
+
+  const spy = jest.spyOn(ctx, "scale"); // ctx.scale is the first thing the scorecard rendering process calls
+  window.resizers.resize();
+  expect(spy).toHaveBeenCalledTimes(1);
+
+  window.resizers.resize();
+  expect(spy).toHaveBeenCalledTimes(2);
 });

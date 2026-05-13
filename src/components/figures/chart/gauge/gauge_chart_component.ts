@@ -1,4 +1,4 @@
-import { Component, useEffect, useRef } from "@odoo/owl";
+import { Component, onMounted, onWillUnmount, useEffect, useRef } from "@odoo/owl";
 import { drawGaugeChart } from "../../../../helpers/figures/charts/gauge_chart_rendering";
 import { deepEquals } from "../../../../helpers/misc";
 import { EASING_FN } from "../../../../registries/cell_animation_registry";
@@ -67,6 +67,15 @@ export class GaugeChartComponent extends Component<Props, SpreadsheetChildEnv> {
         return [rect.width, rect.height, this.runtime, this.canvas.el, window.devicePixelRatio];
       }
     );
+    const resizeObserver = new ResizeObserver(() => {
+      if (animation) {
+        animation.stop();
+        animation = null;
+      }
+      drawGaugeChart(this.canvasEl, this.runtime, this.env.model.getters.getViewportZoomLevel());
+    });
+    onMounted(() => resizeObserver.observe(this.canvas.el as HTMLCanvasElement));
+    onWillUnmount(() => resizeObserver.disconnect());
   }
 
   drawGaugeWithAnimation() {
