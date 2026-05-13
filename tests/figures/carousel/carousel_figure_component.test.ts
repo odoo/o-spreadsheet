@@ -85,7 +85,7 @@ describe("Carousel figure component", () => {
   });
 
   test("Can drag & drop a chart on a carousel to combine them", async () => {
-    createCarousel(model, { items: [] }, "carouselId", undefined, {
+    createCarousel(model, { items: [{ type: "carouselDataView" }] }, "carouselId", undefined, {
       col: 0,
       row: 0,
       size: { width: 200, height: 200 },
@@ -107,10 +107,17 @@ describe("Carousel figure component", () => {
       false
     );
     expect(".o-figure[data-id=carouselId]").toHaveClass("o-add-to-carousel");
+    expect(model.getters.getSelectedCarouselItem("carouselId")).toMatchObject({
+      type: "carouselDataView",
+    });
 
     triggerMouseEvent(".o-figure[data-id=chartFigureId]", "pointerup");
     expect(model.getters.getCarousel("carouselId")).toMatchObject({
-      items: [{ type: "chart", chartId: "chartId" }],
+      items: [{ type: "carouselDataView" }, { type: "chart", chartId: "chartId" }],
+    });
+    expect(model.getters.getSelectedCarouselItem("carouselId")).toMatchObject({
+      type: "chart",
+      chartId: "chartId",
     });
     expect(model.getters.getFigures(sheetId)).toHaveLength(1);
   });
