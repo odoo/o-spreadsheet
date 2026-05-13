@@ -3,6 +3,7 @@ import { astToFormula } from "../../formulas/formula_formatter";
 import { toScalar } from "../../functions/helper_matrices";
 import { toBoolean } from "../../functions/helpers";
 import { deepCopy, deepEquals, getUniqueText } from "../../helpers";
+import { PositionMap } from "../../helpers/cells/position_map";
 import {
   getFirstPivotFunction,
   getNumberOfPivotFunctions,
@@ -53,6 +54,8 @@ export class PivotUIPlugin extends CoreViewPlugin {
   private pivots: Record<UID, Pivot> = {};
   private unusedPivots?: UID[];
   private custom: UIPluginConfig["custom"];
+  private pivotPositionCache: PositionMap<UID> = new PositionMap();
+  private shouldInvalidateCache: boolean = false;
 
   constructor(config: CoreViewPluginConfig) {
     super(config);
@@ -70,9 +73,13 @@ export class PivotUIPlugin extends CoreViewPlugin {
 
   handle(cmd: Command) {
     if (invalidateEvaluationCommands.has(cmd.type)) {
+      this.pivotPositionCache = new PositionMap();
       for (const pivotId of this.getters.getPivotIds()) {
         this.setupPivot(pivotId, { recreate: true });
       }
+    }
+    if (cmd.type === "UPDATE_CELL" && !this.shouldInvalidateCache) {
+      this.shouldInvalidateCache = true;
     }
     switch (cmd.type) {
       case "REFRESH_PIVOT":
@@ -120,6 +127,13 @@ export class PivotUIPlugin extends CoreViewPlugin {
     }
   }
 
+  finalize() {
+    if (this.shouldInvalidateCache) {
+      this.pivotPositionCache = new PositionMap();
+      this.shouldInvalidateCache = false;
+    }
+  }
+
   // ---------------------------------------------------------------------
   // Getters
   // ---------------------------------------------------------------------
@@ -129,6 +143,9 @@ export class PivotUIPlugin extends CoreViewPlugin {
    * is no pivot at this position
    */
   getPivotIdFromPosition(position: CellPosition) {
+    if (this.pivotPositionCache.has(position)) {
+      return this.pivotPositionCache.get(position);
+    }
     const cell = this.getters.getCorrespondingFormulaCell(position);
     if (cell && cell.isFormula) {
       const pivotFunction = this.getFirstPivotFunction(
@@ -136,8 +153,12 @@ export class PivotUIPlugin extends CoreViewPlugin {
         cell.compiledFormula.tokens
       );
       if (pivotFunction) {
-        const pivotId = pivotFunction.args[0]?.toString();
-        return pivotId && this.getters.getPivotId(pivotId);
+        const pivotFormulaId = pivotFunction.args[0]?.toString();
+        const pivotId = pivotFormulaId && this.getters.getPivotId(pivotFormulaId);
+        if (pivotId) {
+          this.pivotPositionCache.set(position, pivotId);
+        }
+        return pivotId;
       }
     }
     return undefined;

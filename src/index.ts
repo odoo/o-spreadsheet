@@ -136,6 +136,7 @@ import { PivotMeasureDisplayPanelStore } from "./components/side_panel/pivot/piv
 import { HoveredTableStore } from "./components/tables/hovered_table_store";
 import { TextInput } from "./components/text_input/text_input";
 import { ChartTerms } from "./components/translations_terms";
+import { PositionMap } from "./helpers/cells/position_map";
 import * as CHART_HELPERS from "./helpers/figures/charts";
 import * as CHART_RUNTIME_HELPERS from "./helpers/figures/charts/runtime";
 import {
@@ -372,6 +373,7 @@ export const helpers = {
   isNumber,
   isDateTime,
   createCustomFields,
+  PositionMap,
 };
 
 export const links = {
