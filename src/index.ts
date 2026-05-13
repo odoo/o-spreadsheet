@@ -65,7 +65,7 @@ import {
   SCROLLBAR_WIDTH,
 } from "./constants";
 import { isEvaluationError, toBoolean, toJsDate, toNumber, toString } from "./functions/helpers";
-import { ColorGenerator, colorToRGBA, rgbaToHex } from "./helpers/color";
+import { ColorGenerator, colorToRGBA, DARK_MODE_FILTER_STRING, rgbaToHex } from "./helpers/color";
 import { lettersToNumber, numberToLetters, toCartesian, toXC } from "./helpers/coordinates";
 import { DateTime, isDateTime, jsDateToNumber, numberToJsDate } from "./helpers/dates";
 import { createCurrencyFormat, formatValue, isDateTimeFormat } from "./helpers/format/format";
@@ -543,6 +543,7 @@ export const constants = {
   GRID_ICON_EDGE_LENGTH,
   GRID_ICON_MARGIN,
   CHART_TYPES,
+  DARK_MODE_FILTER_STRING,
 };
 
 export const chartHelpers: typeof CHART_HELPERS & typeof CHART_RUNTIME_HELPERS = {
