@@ -219,9 +219,10 @@ export class CarouselUIPlugin extends UIPlugin {
     }
     const carousel = this.getters.getCarousel(figureId);
 
+    const newItem: CarouselItem = { type: "chart", chartId };
     const definition: Carousel = {
       ...carousel,
-      items: [...carousel.items, { type: "chart", chartId }],
+      items: [...carousel.items, newItem],
     };
     this.dispatch("UPDATE_CAROUSEL", { sheetId, figureId, definition });
     this.dispatch("UPDATE_CHART", {
@@ -231,6 +232,7 @@ export class CarouselUIPlugin extends UIPlugin {
       definition: this.getters.getChartDefinition(chartId),
     });
     this.dispatch("DELETE_FIGURE", { sheetId, figureId: chartFigureId });
+    this.dispatch("UPDATE_CAROUSEL_ACTIVE_ITEM", { figureId, sheetId, item: newItem });
   }
 
   private duplicateCarouselChart({
