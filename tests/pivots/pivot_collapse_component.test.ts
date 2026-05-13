@@ -1,7 +1,8 @@
 import { getPivotIconSvg } from "../../src/components/icons/icons";
+import { PIVOT_COLLAPSE_ICON_SIZE } from "../../src/constants";
 import { clickGridIcon } from "../test_helpers/dom_helper";
 import { getCellIcons } from "../test_helpers/getters_helpers";
-import { createModelFromGrid, mountSpreadsheet } from "../test_helpers/helpers";
+import { createModelFromGrid, mountSpreadsheet, nextTick } from "../test_helpers/helpers";
 import { addPivot } from "../test_helpers/pivot_helpers";
 
 const collapseIconSVG = getPivotIconSvg(false, false);
@@ -68,5 +69,25 @@ describe("Pivot collapse icon", () => {
       ROW: [],
       COL: [],
     });
+  });
+
+  test("Collapse icon is not visible when showing formulas", async () => {
+    // prettier-ignore
+    const grid = {
+        A1: "Customer", B1: "Price",  C1: "Year", D1: "=PIVOT(1)",
+        A2: "Alice",    B2: "10",     C2: "2020",
+        A3: "Alice",    B3: "20",     C3: "2021",
+    };
+    const model = createModelFromGrid(grid);
+    addPivot(model, "A1:C3", {
+      columns: [{ fieldName: "Customer" }, { fieldName: "Year" }],
+      measures: [{ id: "Price", fieldName: "Price", aggregator: "sum" }],
+    });
+    await mountSpreadsheet({ model });
+
+    expect(getCellIcons(model, "E1")[0].size).toBe(PIVOT_COLLAPSE_ICON_SIZE);
+    model.dispatch("SET_FORMULA_VISIBILITY", { show: true });
+    await nextTick();
+    expect(getCellIcons(model, "E1")[0].size).toBe(0);
   });
 });
