@@ -131,7 +131,8 @@ iconsOnCellRegistry.add("pivot_collapse", (getters, position) => {
     const isDashboard = getters.isDashboard();
 
     const fields = pivotCell.dimension === "COL" ? definition.columns : definition.rows;
-    const hasIcon = !isDashboard && pivotCell.domain.length !== fields.length;
+    const hasIcon =
+      !isDashboard && !getters.shouldShowFormulas() && pivotCell.domain.length !== fields.length;
 
     const domains = definition.collapsedDomains?.[pivotCell.dimension] ?? [];
     const isCollapsed = domains.some((domain) => deepEquals(domain, pivotCell.domain));
