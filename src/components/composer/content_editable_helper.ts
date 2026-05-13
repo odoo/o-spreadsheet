@@ -246,31 +246,20 @@ export class ContentEditableHelper {
   }
 
   getText(): string {
-    let text = "";
-    let isFirstParagraph = true;
-    let emptyParagraph = false;
-    const it = iterateChildren(this.el);
-    for (let current = it.next(); !current.done; current = it.next()) {
-      if (
-        current.value.nodeName === "P" ||
-        (current.value.nodeName === "DIV" && current.value !== this.el) // On paste, the HTML may contain <div> instead of <p>
-      ) {
-        if (isFirstParagraph) {
-          isFirstParagraph = false;
-        } else {
-          text += NEWLINE;
-        }
-        emptyParagraph = isEmptyParagraph(current.value);
-        continue;
-      }
-      if (!current.value.hasChildNodes()) {
-        if (current.value.nodeName === "BR" && !emptyParagraph) {
-          text += NEWLINE;
-        }
-        text += current.value.textContent;
-      }
+    const children = Array.from(this.el.childNodes);
+    if (children.length === 0) {
+      return "";
     }
-    return text;
+
+    // Post-setText structure or block-element paste (<p> or <div> per line).
+    // Strip trailing \n from each block: browsers treat a trailing <br> as a rendering
+    // placeholder and exclude it from innerText, so we normalize to the same result.
+    if (children[0].nodeName === "P" || children[0].nodeName === "DIV") {
+      return children.map((p) => (p as HTMLElement).innerText.replace(/\n$/, "")).join(NEWLINE);
+    }
+
+    // Flat structure: text nodes and <br> elements (clipboard paste without block wrapping)
+    return this.el.innerText;
   }
 }
 
@@ -282,24 +271,4 @@ function compareContentToSpanElement(content: HtmlContent, node: HTMLElement): b
   const sameClass = deepEquals(content.classes, [...node.classList]);
   const sameContent = node.textContent === content.value;
   return sameColor && sameClass && sameContent;
-}
-
-const doc = new DOMParser();
-const brNode = doc.parseFromString("<br>", "text/html").body.firstChild;
-const spanBrNode = doc.parseFromString("<span><br></span>", "text/html").body.firstChild;
-
-function isEmptyParagraph(node: Node) {
-  if (node.childNodes.length > 1) {
-    return false;
-  }
-  const node2 = node.firstChild?.cloneNode(true);
-  if (!node2) {
-    return true;
-  }
-  if (!(node2 instanceof Element)) {
-    return false;
-  }
-  node2.removeAttribute("class");
-  node2.removeAttribute("style");
-  return node2.isEqualNode(brNode) || node2.isEqualNode(spanBrNode) || false;
 }

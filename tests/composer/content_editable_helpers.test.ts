@@ -5,22 +5,26 @@ import { makeTestFixture } from "../test_helpers/helpers";
 /**
  * Mock innerText as it is not implemented in jsDom
  * See https://github.com/jsdom/jsdom/issues/1245
- *
- * This mock is not reflecting a 100% the reality
- * (textContent differs from innerText [1])
- *
- * As we never input the newline character directly in the
- * ContentEditableHelper (we provide an array of paragraphs),
- * The two properties are equivalent and can be 'safely' mocked.
- *
- * [1] https://kellegous.com/j/2013/02/27/innertext-vs-textcontent/
  */
 Object.defineProperty(HTMLElement.prototype, "innerText", {
   get: function () {
-    return this.textContent;
+    let text = "";
+    function collect(node: Node) {
+      for (const child of node.childNodes) {
+        if (child.nodeName === "BR") {
+          text += "\n";
+        } else if (child.nodeType === Node.TEXT_NODE) {
+          text += child.textContent;
+        } else {
+          collect(child);
+        }
+      }
+    }
+    collect(this);
+    return text;
   },
-  set: function (text) {
-    this.textContent = text;
+  set: function (value: string) {
+    this.textContent = value;
   },
 });
 
