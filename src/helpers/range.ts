@@ -388,8 +388,20 @@ function getApplyRangeChangeAddColRow(cmd: AddColumnsRowsCommand): ApplyRangeCha
     if (range.sheetId !== cmd.sheetId) {
       return { changeType: "NONE", range };
     }
+
+    const isUnboundedAtEnd = range.unboundedZone[end] === undefined;
+
+    // Full column/row ranges (e.g. A:A) are anchored at the sheet origin,
+    // so any insertion only expands them (RESIZE), never moves them.
+    if (isUnboundedAtEnd && !range.unboundedZone.hasHeader) {
+      return {
+        changeType: "RESIZE",
+        range: createAdaptedRange(range, dimension, "RESIZE", cmd.quantity),
+      };
+    }
+
     if (cmd.position === "after") {
-      if (range.zone[start] <= cmd.base && cmd.base < range.zone[end]) {
+      if (range.zone[start] <= cmd.base && (cmd.base < range.zone[end] || isUnboundedAtEnd)) {
         return {
           changeType: "RESIZE",
           range: createAdaptedRange(range, dimension, "RESIZE", cmd.quantity),
