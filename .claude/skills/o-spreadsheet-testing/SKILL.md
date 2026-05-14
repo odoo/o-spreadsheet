@@ -1,39 +1,43 @@
-# Writing tests
+---
+name: o-spreadsheet-testing
+description: Test-writing rules and conventions for the o-spreadsheet repo. ALWAYS use when writing or modifying tests under tests/**/*.ts .
+---
 
-When implementing a new feature in o-spreadsheet, you should test it. We use the [Jest](https://jestjs.io/) framework to write unit tests. The tests are located in the [`tests`](/tests/) folder, and you can run them by using `npm run test`.
+Tests use `jest` + `@swc/jest` + `jsdom`. `tests/setup/` contains global setup/teardown.
 
-## Guidelines
+Run them with:
 
-These are some loose guidelines that you should try to follow when writing tests in o-spreadsheet:
+```bash
+npm test # full type-check (tests/tsconfig.json) then jest
+npm test -- tests/path/to/file.test.ts # single file
+npm test -- -t "test name pattern" # single test by name
+```
 
-### Avoid beforeEach
+# Test-writing rules
+
+Follow these rules when writing or modifying tests in this repo.
+
+## Avoid beforeEach
 
 In Jest we can have `beforeEach` statements that are run before every test. They should be avoided, as they make the code hard to read (the `beforeEach` is often at the top of the file, far from the test) and tend to add parasitic data that are useful in some tests, but not others. Use a helper function to set up the test instead.
 
 ```js
 test("test1", () => {
-  // Setup the model inline rather than in a `beforeEach`
-  // If the setup is long and repeated, create a helper that is explicitly called in each test!
+  // Setup the model inline rather than in a `beforeEach`.
+  // If the setup is long and repeated, create a helper that is explicitly called in each test.
   const model = new Model();
   setCellContent(model, "B2", "content");
   selectCell(model, "B2");
 
-  // Test logic
-});
-
-test("test2", () => {
-  const model = new Model();
-  setCellContent(model, "B2", "content");
-  selectCell(model, "B2");
   // Test logic
 });
 ```
 
-### Use helpers rather than manual command dispatch
+## Use helpers rather than manual command dispatch
 
 Rather than calling `model.dispatch("UPDATE_CELL", {...})` use the helper functions inside [`commands_helpers.ts`](/tests/test_helpers/commands_helpers.ts). And if there is no helper for the command you need to dispatch, create one! It's easier to read in the test. It also decouples the test from the implementation: in the future if (when) the command changes, only this helper needs to be modified.
 
-### Use helpers rather than creating a model with raw JSON data
+## Use helpers rather than creating a model with raw JSON data
 
 Directly creating a model with JSON data should be avoided. It's harder to read, usually longer, and will need to be updated every time we alter the spreadsheet JSON data.
 
@@ -57,7 +61,7 @@ const model = new Model({
 const model = createModelFromGrid({ A1: "1", A2: "2" });
 ```
 
-### Keep tests minimal
+## Keep tests minimal
 
 Each test should contain only the setup and assertions strictly necessary to verify the behavior being tested. Avoid adding extra setup that is irrelevant to the actual feature being tested. A minimal test is easier to read, and when it fails, the cause is immediately obvious.
 
@@ -82,9 +86,9 @@ test("Test specific menu item action", async () => {
 });
 ```
 
-### Test behavior, not implementation details
+## Test behavior, not implementation details
 
-Tests should verify _what_ the code does, not _how_ it does it internally. Avoid asserting on internal state, private methods, or the specific structure of intermediate data. Instead, test through the public API and assert on observable outcomes: cell values, UI elements, dispatched command results, etc.
+**IMPORTANT.** Tests verify _what_ the code does, not _how_ it does it internally. Do not assert on internal plugin state, private methods, or the specific structure of intermediate data. Test through the public API and assert on observable outcomes: cell values, getter return values, UI elements, dispatched command results.
 
 A test coupled to implementation details can break every time the code is refactored, even if the functional result is unaltered.
 
@@ -108,7 +112,7 @@ test("adding a row increases the row count", () => {
 });
 ```
 
-### Use custom Jest matchers
+## Use custom Jest matchers
 
 We define custom jest matchers in [`jest_extend.ts`](/tests/setup/jest_extend.ts), use them!
 Some examples:
