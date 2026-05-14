@@ -1,0 +1,128 @@
+---
+name: o-spreadsheet-testing
+description: Test-writing rules and conventions for the o-spreadsheet repo. ALWAYS use when writing or modifying tests under tests/**/*.ts .
+---
+
+Tests use `jest` + `@swc/jest` + `jsdom`. `tests/setup/` contains global setup/teardown.
+
+Run them with:
+
+```bash
+npm test # full type-check (tests/tsconfig.json) then jest
+npm test -- tests/path/to/file.test.ts # single file
+npm test -- -t "test name pattern" # single test by name
+```
+
+# Test-writing rules
+
+Follow these rules when writing or modifying tests in this repo.
+
+## Avoid beforeEach
+
+In Jest we can have `beforeEach` statements that are run before every test. They should be avoided, as they make the code hard to read (the `beforeEach` is often at the top of the file, far from the test) and tend to add parasitic data that are useful in some tests, but not others. Use a helper function to set up the test instead.
+
+```js
+test("test1", () => {
+  // Setup the model inline rather than in a `beforeEach`.
+  // If the setup is long and repeated, create a helper that is explicitly called in each test.
+  const model = new Model();
+  setCellContent(model, "B2", "content");
+  selectCell(model, "B2");
+
+  // Test logic
+});
+```
+
+## Use helpers rather than manual command dispatch
+
+Rather than calling `model.dispatch("UPDATE_CELL", {...})` use the available helper functions inside [`commands_helpers.ts`](../../../tests/test_helpers/commands_helpers.ts). And if there is no helper for the command you need to dispatch, then and only then, you can manually dispatch the command. It's easier to read in the test. It also decouples the test from the implementation: in the future if (when) the command changes, only this helper needs to be modified.
+
+## Use helpers rather than creating a model with raw JSON data
+
+Directly creating a model with JSON data should be avoided. It's harder to read, usually longer, and will need to be updated every time we alter the spreadsheet JSON data.
+
+```js
+// Avoid this!
+const model = new Model({
+  sheets: [
+    {
+      id: "Sheet1",
+      cells: {
+        // Before 18.1, the cell content has the format { content: "1" }
+        // The test would have had to be changed at the same time as the JSON data was migrated
+        A1: "1",
+        A2: "2",
+      },
+    },
+  ],
+});
+
+// Use this instead:
+const model = createModelFromGrid({ A1: "1", A2: "2" });
+```
+
+## Keep tests minimal
+
+Each test should contain only the setup and assertions strictly necessary to verify the behavior being tested. Avoid adding extra setup that is irrelevant to the actual feature being tested. A minimal test is easier to read, and when it fails, the cause is immediately obvious.
+
+For component tests, mount as few components as possible for your testing you are testing rather than the entire `Spreadsheet`. Use `mountComponent` or `mountComponentWithPortalTarget` to mount an isolated component with a `Model`.
+
+```js
+// Avoid this: mounting the full Spreadsheet just to test some menu present in the spreadsheet
+test("Test specific menu item action", async () => {
+  const { fixture, model } = await mountSpreadsheet();
+  // ... interact with a menu to test its own behavior/aspect
+});
+
+// Better: mount only the Menu component
+test("Test specific menu item action", async () => {
+  const model = new Model();
+  const menuItems = []; // populate from a specific registry
+  const { fixture } = await mountComponent(Menu, {
+    props: { menuItems, onClose: () => {}, onClickMenu: () => callback() },
+    env: { model },
+  });
+  // ... interact with a menu to test its own behavior/aspect
+});
+```
+
+## Test behavior, not implementation details
+
+**IMPORTANT.** Tests verify _what_ the code does, not _how_ it does it internally. Do not assert on internal plugin state, private methods, or the specific structure of intermediate data. Test through the public API and assert on observable outcomes: cell values, getter return values, UI elements, dispatched command results.
+
+A test coupled to implementation details can break every time the code is refactored, even if the functional result is unaltered.
+
+```js
+// Avoid this: relies on internal plugin state
+test("adding a row updates the internal row map", () => {
+  const model = new Model();
+  const sheetId = model.getters.getActiveSheetId();
+  addRows(model, "after", 0, 1);
+  const plugin = getPlugin(model, SheetPlugin);
+  expect(plugin[sheetId].rows).toHaveLength(101);
+});
+
+// Better: test through the getter
+test("adding a row increases the row count", () => {
+  const model = new Model();
+  const sheetId = model.getters.getActiveSheetId();
+  expect(model.getters.getNumberRows(sheetId)).toBe(100);
+  addRows(model, "after", 0, 1);
+  expect(model.getters.getNumberRows(sheetId)).toBe(101);
+});
+```
+
+## Use custom Jest matchers
+
+We define custom jest matchers in [`jest_extend.ts`](/tests/setup/jest_extend.ts), use them!
+Some examples:
+
+```js
+test("test1", () => {
+  // Instead of: expect(fixture.querySelector(".o-spreadsheet")).not.toBeNull();
+  expect(".o-spreadsheet").toHaveCount(1);
+
+  // Instead of: expect(fixture.querySelector(".o-spreadsheet input")?.value).toBe("val");
+  expect(".o-spreadsheet input").toHaveValue("val");
+});
+```
