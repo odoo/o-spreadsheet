@@ -1,5 +1,5 @@
 import { CorePlugin, coreTypes, Model } from "../src";
-import { duplicateRangeInDuplicatedSheet, zoneToXc } from "../src/helpers";
+import { duplicateRangeInDuplicatedSheet, numberToLetters, zoneToXc } from "../src/helpers";
 import { corePluginRegistry } from "../src/plugins";
 import { CellErrorType, Command, Range, RangeAdapterFunctions, UID } from "../src/types";
 import {
@@ -34,7 +34,7 @@ coreTypes.add("USE_RANGE");
 coreTypes.add("USE_TRANSIENT_RANGE");
 
 class PluginTestRange extends CorePlugin {
-  static getters = ["getUsedRanges", "getRanges"];
+  static getters = ["getUsedRanges", "getRanges", "getRangeZoneEdge"];
 
   ranges: Range[] = [];
 
@@ -76,6 +76,10 @@ class PluginTestRange extends CorePlugin {
 
   getRanges() {
     return this.ranges;
+  }
+
+  getRangeZoneEdge(edge, index = 0) {
+    return this.ranges[index].zone[edge];
   }
 }
 
@@ -678,11 +682,25 @@ describe("full column range", () => {
   test("insert row before'", () => {
     addRows(m, "before", 0, 1);
     expect(m.getters.getUsedRanges()).toEqual(["B:C"]);
+    expect(m.getters.getRangeZoneEdge("top")).toBe(0);
   });
-  test("insert row before (2)", () => {
+  test("insert row at bottom expands range", () => {
+    const bottom = m.getters.getRangeZoneEdge("bottom");
+    addRows(m, "after", bottom, 1);
+    expect(m.getters.getRangeZoneEdge("bottom")).toBe(bottom + 1);
+  });
+  test("insert row before moves B1:C range (has header)", () => {
     useRange(m, "B1:C");
     addRows(m, "before", 0, 1);
     expect(m.getters.getUsedRanges()[1]).toEqual("B2:C");
+    expect(m.getters.getRangeZoneEdge("top", 1)).toBe(1);
+  });
+  test("insert row at bottom expands B1:C range (has header)", () => {
+    useRange(m, "B1:C");
+    const bottom = m.getters.getRangeZoneEdge("bottom");
+    addRows(m, "after", bottom, 1);
+    expect(m.getters.getUsedRanges()[1]).toEqual("B1:C");
+    expect(m.getters.getRangeZoneEdge("bottom", 1)).toBe(bottom + 1);
   });
 });
 
@@ -729,11 +747,26 @@ describe("full row range", () => {
   test("insert col before range", () => {
     addColumns(m, "before", "A", 1);
     expect(m.getters.getUsedRanges()).toEqual(["2:3"]);
+    expect(m.getters.getRangeZoneEdge("left")).toBe(0);
   });
-  test("insert col before range (1)", () => {
+  test("insert col at right expands range", () => {
+    const right = m.getters.getRangeZoneEdge("right");
+    addColumns(m, "after", numberToLetters(right), 1);
+    expect(m.getters.getUsedRanges()).toEqual(["2:3"]);
+    expect(m.getters.getRangeZoneEdge("right")).toBe(right + 1);
+  });
+  test("insert col before moves A2:3 range (has header)", () => {
     useRange(m, "A2:3");
     addColumns(m, "before", "A", 1);
     expect(m.getters.getUsedRanges()[1]).toEqual("B2:3");
+    expect(m.getters.getRangeZoneEdge("left", 1)).toBe(1);
+  });
+  test("insert col at right expands A2:3 range (has header)", () => {
+    useRange(m, "A2:3");
+    const right = m.getters.getRangeZoneEdge("right");
+    addColumns(m, "after", numberToLetters(right), 1);
+    expect(m.getters.getUsedRanges()[1]).toEqual("A2:3");
+    expect(m.getters.getRangeZoneEdge("right", 1)).toBe(right + 1);
   });
 });
 
