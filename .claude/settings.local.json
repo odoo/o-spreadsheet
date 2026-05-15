@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git cherry-pick *)",
+      "Bash(git commit *)",
+      "Bash(export GIT_AUTHOR_NAME=\"Lucas Lefèvre \\(lul\\)\" GIT_AUTHOR_EMAIL=\"lul@odoo.com\" GIT_COMMITTER_NAME=\"Lucas Lefèvre \\(lul\\)\" GIT_COMMITTER_EMAIL=\"lul@odoo.com\")",
+      "Bash(git tag *)",
+      "Bash(git reset *)",
+      "Skill(review-o-spreadsheet-pr)",
+      "Skill(o-spreadsheet-review)"
+    ]
+  }
+}

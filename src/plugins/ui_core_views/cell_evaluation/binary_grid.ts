@@ -36,15 +36,18 @@ export class BinaryGrid extends Uint32Array {
    * Returns the bit at given coordinates.
    */
   getValue(position: CellPosition): Bit {
-    const [bucket, bitPosition] = this.getCoordinates(position);
-    return ((this[bucket] >> bitPosition) & 1) as Bit;
+    const index = (position.row << this.columnOffset) + position.col;
+    const bucket = index >> 5;
+    return ((this[bucket] >> (index - (bucket << 5))) & 1) as Bit;
   }
 
   /**
    * Sets the bit at given coordinates.
    */
   setValue(position: CellPosition, value: Bit) {
-    const [bucket, bitPosition] = this.getCoordinates(position);
+    const index = (position.row << this.columnOffset) + position.col;
+    const bucket = index >> 5;
+    const bitPosition = index - (bucket << 5);
     const currentValue = (this[bucket] >> bitPosition) & 1;
     const hasBeenInserted = currentValue === 0 && value === 1;
     this[bucket] = (this[bucket] & ~(1 << bitPosition)) | (value << bitPosition);
@@ -76,13 +79,6 @@ export class BinaryGrid extends Uint32Array {
 
   clear() {
     this.fill(0);
-  }
-
-  private getCoordinates(position: CellPosition): [bucket: number, position: number] {
-    const { row, col } = position;
-    const index = (row << this.columnOffset) + col;
-    const bucket = index >> 5;
-    return [bucket, index - (bucket << 5)];
   }
 }
 
