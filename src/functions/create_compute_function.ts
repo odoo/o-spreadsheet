@@ -237,6 +237,11 @@ function isFunctionResultObject(obj: unknown): obj is FunctionResultObject {
 export function createComputeFunction(
   descr: FunctionDescription
 ): ComputeFunction<Matrix<FunctionResultObject> | FunctionResultObject> {
+  // Only a handful of functions declare `acceptMatrixOnly` args. Computing this
+  // once at registration lets the per-call hot path skip the validation loop
+  // entirely for the vast majority of functions.
+  const hasAcceptMatrixOnly = descr.args.some((a) => a.acceptMatrixOnly);
+
   function vectorizedCompute(
     this: EvalContext,
     ...args: Arg[]
@@ -247,16 +252,17 @@ export function createComputeFunction(
     }
     const argDefinitions = getArgDefinitions(descr, args.length);
     const acceptToVectorize = getAcceptToVectorize(descr, args.length);
-    //#region Compute vectorisation limits
-    for (let i = 0; i < args.length; i++) {
-      if (argDefinitions[i].acceptMatrixOnly && !isMatrix(args[i])) {
-        throw new BadExpressionError(
-          _t(
-            "Function %s expects the parameter '%s' to be reference to a cell or range.",
-            descr.name,
-            (i + 1).toString()
-          )
-        );
+    if (hasAcceptMatrixOnly) {
+      for (let i = 0; i < args.length; i++) {
+        if (argDefinitions[i].acceptMatrixOnly && !isMatrix(args[i])) {
+          throw new BadExpressionError(
+            _t(
+              "Function %s expects the parameter '%s' to be reference to a cell or range.",
+              descr.name,
+              (i + 1).toString()
+            )
+          );
+        }
       }
     }
 
