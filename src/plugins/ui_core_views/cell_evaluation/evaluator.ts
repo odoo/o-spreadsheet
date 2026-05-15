@@ -360,12 +360,15 @@ export class Evaluator {
       return evaluation; // already computed
     }
 
-    if (!this.blockedArrayFormulas.has(position)) {
-      this.invalidateSpreading(position);
-    }
-
-    if (this.spreadingRelations.isArrayFormula(position)) {
-      this.spreadingRelations.removeNode(position);
+    // For workloads without array formulas, both branches below are no-ops
+    // on every cell; skip the per-cell PositionMap lookups entirely.
+    if (!this.spreadingRelations.isEmpty()) {
+      if (!this.blockedArrayFormulas.has(position)) {
+        this.invalidateSpreading(position);
+      }
+      if (this.spreadingRelations.isArrayFormula(position)) {
+        this.spreadingRelations.removeNode(position);
+      }
     }
 
     const cell = this.getters.getCell(position);

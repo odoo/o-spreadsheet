@@ -48,6 +48,16 @@ export class SpreadingRelation {
    */
   private readonly resultsToArrayFormulas = new SpreadsheetRTree<CellPosition>();
   private readonly arrayFormulasToResults: PositionMap<Zone> = new PositionMap();
+  private size = 0;
+
+  /**
+   * True when no array formula has registered a spreading relation.
+   * Lets hot paths skip per-cell PositionMap lookups in workloads without
+   * array formulas.
+   */
+  isEmpty(): boolean {
+    return this.size === 0;
+  }
 
   searchFormulaPositionsSpreadingOn(sheetId: UID, zone: Zone): CellPosition[] {
     return (
@@ -73,6 +83,7 @@ export class SpreadingRelation {
       data: position,
     });
     this.arrayFormulasToResults.delete(position);
+    this.size--;
   }
 
   /**
@@ -89,6 +100,9 @@ export class SpreadingRelation {
       boundingBox: { sheetId: arrayFormulaPosition.sheetId, zone: resultPosition },
       data: arrayFormulaPosition,
     });
+    if (!this.arrayFormulasToResults.has(arrayFormulaPosition)) {
+      this.size++;
+    }
     this.arrayFormulasToResults.set(arrayFormulaPosition, resultPosition);
   }
 
