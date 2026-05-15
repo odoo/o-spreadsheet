@@ -611,11 +611,19 @@ export class Evaluator {
     this.nextRangesToUpdate.addMany(this.getArrayFormulasBlockedBy(sheetId, zone));
   }
 
+  private defaultSafeGetSymbolValue?: GetSymbolValue;
+
   /**
    * Wraps a GetSymbolValue function to add cycle detection
    * and error handling.
    */
   private buildSafeGetSymbolValue(getContextualSymbolValue?: GetSymbolValue): GetSymbolValue {
+    // The hot path (computeFormulaCell) calls this once per formula cell with
+    // no contextual resolver. Reuse a single closure in that case to avoid
+    // allocating one per cell.
+    if (getContextualSymbolValue === undefined && this.defaultSafeGetSymbolValue) {
+      return this.defaultSafeGetSymbolValue;
+    }
     const getSymbolValue = (symbolName: string, isRange: boolean) => {
       if (this.symbolsBeingComputed.has(symbolName)) {
         return errorCycleCell(this.compilationParams.evalContext.__originCellPosition);
@@ -643,6 +651,9 @@ export class Evaluator {
         this.symbolsBeingComputed.delete(symbolName);
       }
     };
+    if (getContextualSymbolValue === undefined) {
+      this.defaultSafeGetSymbolValue = getSymbolValue;
+    }
     return getSymbolValue;
   }
 
