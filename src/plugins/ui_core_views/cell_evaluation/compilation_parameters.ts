@@ -109,8 +109,8 @@ class CompilationParametersBuilder {
     const nCols = range.zone.right - range.zone.left + 1;
     const nRows = range.zone.bottom - range.zone.top + 1;
 
-    const subWidth = (zone.bottom === undefined ? nCols - 1 : zone.bottom) - zone.top + 1;
-    const subHeight = (zone.right === undefined ? nRows - 1 : zone.right) - zone.left + 1;
+    const subWidth = (zone.right === undefined ? nCols - 1 : zone.right) - zone.left + 1;
+    const subHeight = (zone.bottom === undefined ? nRows - 1 : zone.bottom) - zone.top + 1;
 
     if (subWidth < 1 || subHeight < 1) {
       throw new ReferenceError(

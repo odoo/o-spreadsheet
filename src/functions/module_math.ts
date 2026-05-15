@@ -904,8 +904,8 @@ export const MUNIT = {
     if (_n < 1) {
       return new EvaluationError(_t("The argument dimension must be positive"));
     }
-    return generateSubMatrix(zone, _n, _n, (row, col) => ({
-      value: row === col ? 1 : 0,
+    return generateSubMatrix(zone, _n, _n, (col, row) => ({
+      value: col === row ? 1 : 0,
     }));
   },
   isExported: true,

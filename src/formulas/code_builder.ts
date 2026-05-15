@@ -47,10 +47,10 @@ class FunctionCodeImpl implements FunctionCode {
     return this.code;
   }
 
-  wrapInClosure(waitingForArrayFormula: boolean): FunctionCode {
+  wrapInClosure(isArrayFormula: boolean): FunctionCode {
     const closureName = this.scope.nextVariableName();
     const code = new FunctionCodeBuilder(this.scope);
-    if (waitingForArrayFormula) {
+    if (isArrayFormula) {
       code.append(`const ${closureName} = (zone) => {`);
     } else {
       code.append(`const ${closureName} = () => {`);

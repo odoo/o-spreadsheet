@@ -67,7 +67,7 @@ export function createComputeFunction(
  * We only check scalar arguments, not matrix arguments for performance reasons.
  * Casting helpers are responsible for handling errors in matrix arguments.
  */
-function argsError(args: Arg[], descr): FunctionResultObject | undefined {
+function argsError(args: Arg[], descr: FunctionDescription): FunctionResultObject | undefined {
   const argsToFocus = argTargeting(descr, args.length);
   for (let i = 0; i < args.length; i++) {
     const arg = args[i];
