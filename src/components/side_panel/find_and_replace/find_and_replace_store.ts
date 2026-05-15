@@ -34,10 +34,10 @@ export class FindAndReplaceStore extends SpreadsheetStore implements HighlightPr
   private allSheetsMatches: CellPosition[] = [];
   private activeSheetMatches: CellPosition[] = [];
   private specificRangeMatches: CellPosition[] = [];
+  private selectedMatchPosition: CellPosition | null = null;
 
   private currentSearchRegex: RegExp | null = null;
   private initialShowFormulaState: boolean;
-  private preserveSelectedMatchIndex: boolean = false;
   private irreplaceableMatchCount: number = 0;
 
   private isSearchDirty = false;
@@ -190,6 +190,7 @@ export class FindAndReplaceStore extends SpreadsheetStore implements HighlightPr
     this.searchOptions = searchOptions;
     if (toSearch !== this.toSearch) {
       this.selectedMatchIndex = null;
+      this.selectedMatchPosition = null;
     }
     this.toSearch = toSearch;
     this.currentSearchRegex = getSearchRegex(this.toSearch, this.searchOptions);
@@ -200,10 +201,23 @@ export class FindAndReplaceStore extends SpreadsheetStore implements HighlightPr
    * refresh the matches according to the current search options
    */
   private refreshSearch(options: RefreshSearchOptions) {
-    if (!this.preserveSelectedMatchIndex) {
-      this.selectedMatchIndex = null;
-    }
     this.findMatches();
+    if (this.selectedMatchPosition) {
+      if (this.selectedMatchPosition.sheetId !== this.getters.getActiveSheetId()) {
+        this.selectedMatchIndex = null;
+        this.selectedMatchPosition = null;
+      } else {
+        const index = this.searchMatches.findIndex(
+          (match) =>
+            match.sheetId === this.selectedMatchPosition?.sheetId &&
+            match.col === this.selectedMatchPosition?.col &&
+            match.row === this.selectedMatchPosition?.row
+        );
+        if (index !== -1) {
+          this.selectedMatchIndex = index;
+        }
+      }
+    }
     this.selectNextCell(Direction.current, options);
   }
 
@@ -288,6 +302,7 @@ export class FindAndReplaceStore extends SpreadsheetStore implements HighlightPr
     const matches = this.searchMatches;
     if (!matches.length) {
       this.selectedMatchIndex = null;
+      this.selectedMatchPosition = null;
       return;
     }
     let nextIndex: number;
@@ -307,20 +322,15 @@ export class FindAndReplaceStore extends SpreadsheetStore implements HighlightPr
     // loop index value inside the array (index -1 => last index)
     nextIndex = (nextIndex + matches.length) % matches.length;
     this.selectedMatchIndex = nextIndex;
+    this.selectedMatchPosition = matches[this.selectedMatchIndex];
     const selectedMatch = matches[nextIndex];
 
     // Switch to the sheet where the match is located
     if (options.jumpToMatchSheet && this.getters.getActiveSheetId() !== selectedMatch.sheetId) {
-      // We set `preserveSelectedMatchIndex` to true to avoid resetting the selected search
-      // index in the `refreshSearch` function when a new sheet is activated. The reason being
-      // that, when we automatically go back to previous sheet while performing a search, the
-      // search index is reset to the first occurrence each time.
-      this.preserveSelectedMatchIndex = true;
       this.model.dispatch("ACTIVATE_SHEET", {
         sheetIdFrom: this.getters.getActiveSheetId(),
         sheetIdTo: selectedMatch.sheetId,
       });
-      this.preserveSelectedMatchIndex = false;
       // We do not want to reset the selection at finalize in this case
       this.isSearchDirty = false;
     }
@@ -338,7 +348,6 @@ export class FindAndReplaceStore extends SpreadsheetStore implements HighlightPr
     if (this.selectedMatchIndex === null) {
       return;
     }
-    this.preserveSelectedMatchIndex = true;
     this.shouldFinalizeUpdateSelection = true;
     this.model.dispatch("REPLACE_SEARCH", {
       searchString: this.toSearch,
@@ -346,7 +355,6 @@ export class FindAndReplaceStore extends SpreadsheetStore implements HighlightPr
       matches: [this.searchMatches[this.selectedMatchIndex]],
       searchOptions: this.searchOptions,
     });
-    this.preserveSelectedMatchIndex = false;
   }
   /**
    * Apply the replace function to all the matches one time.
