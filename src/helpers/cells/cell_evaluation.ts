@@ -276,6 +276,7 @@ function textCell(
     type: CellValueType.text,
     isAutoSummable: true,
     defaultAlign: "left",
+    origin: undefined,
   };
 }
 
@@ -293,6 +294,7 @@ function numberCell(
     type: CellValueType.number,
     isAutoSummable: true,
     defaultAlign: "right",
+    origin: undefined,
   };
 }
 
@@ -322,6 +324,7 @@ function dateTimeCell(
     type: CellValueType.number,
     isAutoSummable: false,
     defaultAlign: "right",
+    origin: undefined,
   };
 }
 
@@ -339,6 +342,7 @@ function booleanCell(
     type: CellValueType.boolean,
     isAutoSummable: false,
     defaultAlign: "center",
+    origin: undefined,
   };
 }
 
@@ -357,15 +361,13 @@ function errorCell(
     isAutoSummable: false,
     defaultAlign: "center",
     errorOriginPosition,
+    origin: undefined,
   };
 }
 
 function addOrigin(cell: EvaluatedCell, origin: CellPosition | undefined): EvaluatedCell {
   if (cell.value === null) {
     // ignore empty cells to allow sharing the same object instance
-    return cell;
-  }
-  if ("origin" in cell) {
     return cell;
   }
   cell.origin = origin;
