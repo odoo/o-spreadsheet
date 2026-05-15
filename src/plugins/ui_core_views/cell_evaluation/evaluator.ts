@@ -72,7 +72,8 @@ export class Evaluator {
     this.compilationParams = buildCompilationParameters(
       this.context,
       this.getters,
-      this.computeAndSave.bind(this)
+      this.computeAndSave.bind(this),
+      this.tryGetCachedResult
     );
   }
 
@@ -148,7 +149,8 @@ export class Evaluator {
     this.compilationParams = buildCompilationParameters(
       this.context,
       this.getters,
-      this.computeAndSave.bind(this)
+      this.computeAndSave.bind(this),
+      this.tryGetCachedResult
     );
     this.compilationParams.evalContext.__originCellPosition = originCellPosition;
     this.compilationParams.evalContext.updateDependencies = undefined;
@@ -165,7 +167,8 @@ export class Evaluator {
     this.compilationParams = buildCompilationParameters(
       this.context,
       this.getters,
-      this.computeAndSave.bind(this)
+      this.computeAndSave.bind(this),
+      this.tryGetCachedResult
     );
     this.compilationParams.evalContext.updateDependencies = this.updateDependencies.bind(this);
     this.compilationParams.evalContext.addDependencies = this.addDependencies.bind(this);
@@ -409,6 +412,16 @@ export class Evaluator {
     }
     return evaluatedCell;
   }
+
+  // Arrow form so the function reference is stable and we can pass it around
+  // without an extra .bind() allocation.
+  private tryGetCachedResult = (
+    sheetId: string,
+    col: number,
+    row: number
+  ): EvaluatedCell | undefined => {
+    return this.evaluatedCells.getByCoords(sheetId, col, row);
+  };
 
   private computeFormulaCell(formulaPosition: CellPosition, cellData: FormulaCell): EvaluatedCell {
     const formulaReturn = updateEvalContextAndExecute(

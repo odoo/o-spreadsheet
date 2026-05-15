@@ -31,9 +31,15 @@ const functionMap = functionRegistry.mapping;
 export function buildCompilationParameters(
   context: ModelConfig["custom"],
   getters: Getters,
-  computeCell: (position: CellPosition) => EvaluatedCell
+  computeCell: (position: CellPosition) => EvaluatedCell,
+  tryGetCachedResult?: (sheetId: string, col: number, row: number) => EvaluatedCell | undefined
 ): CompilationParameters {
-  const builder = new CompilationParametersBuilder(context, getters, computeCell);
+  const builder = new CompilationParametersBuilder(
+    context,
+    getters,
+    computeCell,
+    tryGetCachedResult
+  );
   return builder.getParameters();
 }
 
@@ -45,7 +51,12 @@ class CompilationParametersBuilder {
   constructor(
     context: ModelConfig["custom"],
     private getters: Getters,
-    private computeCell: (position: CellPosition) => EvaluatedCell
+    private computeCell: (position: CellPosition) => EvaluatedCell,
+    private tryGetCachedResult?: (
+      sheetId: string,
+      col: number,
+      row: number
+    ) => EvaluatedCell | undefined
   ) {
     this.evalContext = Object.assign(Object.create(functionMap), context, {
       getters: this.getters,
@@ -73,7 +84,19 @@ class CompilationParametersBuilder {
       return rangeError;
     }
     // the compiler guarantees only single cell ranges reach this part of the code
-    const position = { sheetId: range.sheetId, col: range.zone.left, row: range.zone.top };
+    const sheetId = range.sheetId;
+    const col = range.zone.left;
+    const row = range.zone.top;
+    // Fast path: most dependencies have already been evaluated by the outer
+    // col-major loop in the evaluator. Avoid allocating a CellPosition just to
+    // do a cache lookup.
+    if (this.tryGetCachedResult !== undefined) {
+      const cached = this.tryGetCachedResult(sheetId, col, row);
+      if (cached !== undefined && cached.position) {
+        return cached;
+      }
+    }
+    const position = { sheetId, col, row };
     const result = this.computeCell(position);
     if (!result.position) {
       return { ...result, position };

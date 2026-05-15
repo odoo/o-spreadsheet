@@ -30,6 +30,14 @@ export class PositionMap<T> {
     return this.map[sheetId]?.[col]?.[row];
   }
 
+  /**
+   * Like `get` but takes the position fields directly, avoiding the need to
+   * allocate a CellPosition object for callers that only have raw coordinates.
+   */
+  getByCoords(sheetId: UID, col: number, row: number): T | undefined {
+    return this.map[sheetId]?.[col]?.[row];
+  }
+
   getSheet(sheetId: UID): Record<number, Record<number, T>> | undefined {
     return this.map[sheetId];
   }
