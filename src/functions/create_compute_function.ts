@@ -10,7 +10,7 @@ import {
 } from "../types/functions";
 import { Arg, FunctionResultObject, isMatrix, Matrix } from "../types/misc";
 import { argTargeting } from "./arguments";
-import { generateMatrix, isEvaluationError, matrixForEach, matrixMap } from "./helpers";
+import { isEvaluationError, matrixForEach, matrixMap } from "./helpers";
 
 type VectorArgType = "horizontal" | "vertical" | "matrix";
 
@@ -135,34 +135,41 @@ export function applyVectorization(
   }
   const nbVectorized = vectorizedIndices.length;
 
-  return generateMatrix(countVectorizedCol, countVectorizedRow, (col, row) => {
-    if (col > vectorizedColLimit - 1 || row > vectorizedRowLimit - 1) {
-      return new NotAvailableError(
-        _t("Array arguments to [[FUNCTION_NAME]] are of different size.")
+  const result: Matrix<FunctionResultObject> = new Array(countVectorizedCol);
+  for (let col = 0; col < countVectorizedCol; col++) {
+    const column: FunctionResultObject[] = new Array(countVectorizedRow);
+    result[col] = column;
+    for (let row = 0; row < countVectorizedRow; row++) {
+      if (col > vectorizedColLimit - 1 || row > vectorizedRowLimit - 1) {
+        column[row] = new NotAvailableError(
+          _t("Array arguments to [[FUNCTION_NAME]] are of different size.")
+        );
+        continue;
+      }
+      for (let k = 0; k < nbVectorized; k++) {
+        argsBuffer[vectorizedIndices[k]] = argGetters[k](col, row);
+      }
+      const singleCellComputeResult = errorHandlingCompute(
+        descr,
+        context,
+        argsBuffer,
+        argDefinitions
       );
+      // In the case where the user tries to vectorize arguments of an array formula, we will get an
+      // array for every combination of the vectorized arguments, which will lead to a 3D matrix and
+      // we won't be able to return the values.
+      // In this case, we keep the first element of each spreading part, just as Excel does, and
+      // create an array with these parts.
+      // For exemple, we have MUNIT(x) that return an unitary matrix of x*x. If we use it with a
+      // range, like MUNIT(A1:A2), we will get two unitary matrices (one for the value in A1 and one
+      // for the value in A2). In this case, we will simply take the first value of each matrix and
+      // return the array [First value of MUNIT(A1), First value of MUNIT(A2)].
+      column[row] = isMatrix(singleCellComputeResult)
+        ? singleCellComputeResult[0][0]
+        : singleCellComputeResult;
     }
-    for (let k = 0; k < nbVectorized; k++) {
-      argsBuffer[vectorizedIndices[k]] = argGetters[k](col, row);
-    }
-    const singleCellComputeResult = errorHandlingCompute(
-      descr,
-      context,
-      argsBuffer,
-      argDefinitions
-    );
-    // In the case where the user tries to vectorize arguments of an array formula, we will get an
-    // array for every combination of the vectorized arguments, which will lead to a 3D matrix and
-    // we won't be able to return the values.
-    // In this case, we keep the first element of each spreading part, just as Excel does, and
-    // create an array with these parts.
-    // For exemple, we have MUNIT(x) that return an unitary matrix of x*x. If we use it with a
-    // range, like MUNIT(A1:A2), we will get two unitary matrices (one for the value in A1 and one
-    // for the value in A2). In this case, we will simply take the first value of each matrix and
-    // return the array [First value of MUNIT(A1), First value of MUNIT(A2)].
-    return isMatrix(singleCellComputeResult)
-      ? singleCellComputeResult[0][0]
-      : singleCellComputeResult;
-  });
+  }
+  return result;
 }
 
 function computeFunctionToObject(
