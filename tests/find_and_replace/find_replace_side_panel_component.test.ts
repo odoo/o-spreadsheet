@@ -1,8 +1,11 @@
 import { Model, Spreadsheet } from "../../src";
+import { CellComposerStore } from "../../src/components/composer/composer/cell_composer_store";
 import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../../src/constants";
+import { toZone } from "../../src/helpers/zones";
 import { SearchOptions } from "../../src/types/find_and_replace";
 import {
   createSheet,
+  selectCell,
   setCellContent,
   setFormulaVisibility,
 } from "../test_helpers/commands_helpers";
@@ -438,5 +441,17 @@ describe("find and replace sidePanel component", () => {
         "5 matches in all sheets",
       ]);
     });
+  });
+
+  test("Edit a cell and press enter selects the cell below the one edited and not B2", async () => {
+    setCellContent(model, "B1", "hello");
+    await inputSearchValue("hello");
+    await nextTick();
+    expect(model.getters.getSelectedZones()).toMatchObject([toZone("B1")]);
+    const composerStore = parent.env.getStore(CellComposerStore);
+    selectCell(model, "C11");
+    composerStore.startEdition("hello");
+    composerStore.stopEdition("down");
+    expect(model.getters.getSelectedZones()).toMatchObject([toZone("C12")]);
   });
 });
