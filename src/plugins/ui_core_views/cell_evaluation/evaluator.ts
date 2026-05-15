@@ -406,8 +406,15 @@ export class Evaluator {
   }
 
   private computeAndSave(position: CellPosition) {
+    // Hot path: when a dependency has already been evaluated (typical in
+    // col-major iteration where deps point upward), return the cached cell
+    // without going through cycle detection / cell-type dispatch in computeCell.
+    const cached = this.evaluatedCells.get(position);
+    if (cached !== undefined) {
+      return cached;
+    }
     const evaluatedCell = this.computeCell(position);
-    if (!this.evaluatedCells.has(position)) {
+    if (this.evaluatedCells.get(position) === undefined) {
       this.evaluatedCells.set(position, evaluatedCell);
     }
     return evaluatedCell;
