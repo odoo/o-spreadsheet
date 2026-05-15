@@ -44,8 +44,10 @@ export class CellComposerStore extends AbstractComposerStore {
   stopEdition(direction?: Direction) {
     const canStopEdition = this.canStopEdition();
     if (canStopEdition) {
+      const { col, row } = this.currentEditedCell;
       this._stopEdition();
       if (direction) {
+        this.model.selection.selectCell(col, row);
         this.model.selection.moveAnchorCell(direction, 1);
       }
       return;
