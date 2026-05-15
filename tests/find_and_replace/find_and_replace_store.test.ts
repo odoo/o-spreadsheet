@@ -348,7 +348,7 @@ describe("basic search", () => {
     expect(store.selectedMatchIndex).toStrictEqual(0);
     unhideRows(model, [1]);
     expect(store.searchMatches).toHaveLength(2);
-    expect(store.selectedMatchIndex).toStrictEqual(0);
+    expect(store.selectedMatchIndex).toStrictEqual(1);
   });
 
   test("Need to update search if updating or removing the filter", () => {
@@ -363,7 +363,7 @@ describe("basic search", () => {
     expect(store.selectedMatchIndex).toStrictEqual(0);
     deleteTable(model, "A1:A6");
     expect(store.searchMatches).toHaveLength(2);
-    expect(store.selectedMatchIndex).toStrictEqual(0);
+    expect(store.selectedMatchIndex).toStrictEqual(1);
   });
 
   test("Switching sheet properly recomputes search results and shows them in the viewport", () => {
@@ -984,4 +984,16 @@ describe("replace warnings", () => {
       text: "Match(es) cannot be replaced as they are part of a formula.",
     });
   });
+});
+
+test("edit a cell update the search but keep the selected match", () => {
+  setCellContent(model, "A1", "test");
+  setCellContent(model, "A2", "test");
+  updateSearch(model, "test", { searchScope: "activeSheet" });
+  store.selectNextMatch();
+  expect(store.searchMatches).toHaveLength(2);
+  expect(store.selectedMatchIndex).toStrictEqual(1);
+  setCellContent(model, "B1", "test");
+  expect(store.searchMatches).toHaveLength(3);
+  expect(store.selectedMatchIndex).toStrictEqual(2);
 });
