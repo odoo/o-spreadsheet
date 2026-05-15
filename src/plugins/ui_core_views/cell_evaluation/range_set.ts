@@ -43,6 +43,10 @@ export class RangeSet {
   }
 
   hasPosition(position: CellPosition): boolean {
+    const set = this.setsBySheetId[position.sheetId];
+    if (!set) {
+      return false;
+    }
     return this.has(positionToBoundedRange(position));
   }
 

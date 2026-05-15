@@ -375,21 +375,25 @@ export class Evaluator {
     }
 
     const cellId = cell.id;
-    const localeFormat = { format: cell.format, locale: this.getters.getLocale() };
     try {
       if (this.cellsBeingComputed.has(cellId)) {
         return errorCycleCell(position);
       }
       this.cellsBeingComputed.add(cellId);
-      return cell.isFormula
-        ? this.computeFormulaCell(position, cell)
-        : evaluateLiteral(cell, localeFormat, position);
+      if (cell.isFormula) {
+        return this.computeFormulaCell(position, cell);
+      }
+      return evaluateLiteral(
+        cell,
+        { format: cell.format, locale: this.getters.getLocale() },
+        position
+      );
     } catch (e) {
       e.value = e?.value || CellErrorType.GenericError;
       e.message = e?.message || implementationErrorMessage;
       e.origin = position;
       e.errorOriginPosition = e?.errorOriginPosition;
-      return createEvaluatedCell(e, localeFormat.locale, position);
+      return createEvaluatedCell(e, this.getters.getLocale(), position);
     } finally {
       this.cellsBeingComputed.delete(cellId);
     }
