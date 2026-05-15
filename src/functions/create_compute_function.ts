@@ -2,7 +2,12 @@ import { CellValue } from "../types/cells";
 import { BadExpressionError, EvaluationError, NotAvailableError } from "../types/errors";
 
 import { _t } from "../translation";
-import { ComputeFunction, EvalContext, FunctionDescription } from "../types/functions";
+import {
+  ArgDefinition,
+  ComputeFunction,
+  EvalContext,
+  FunctionDescription,
+} from "../types/functions";
 import { Arg, FunctionResultObject, isMatrix, Matrix } from "../types/misc";
 import { argTargeting } from "./arguments";
 import { generateMatrix, isEvaluationError, matrixForEach, matrixMap } from "./helpers";
@@ -87,9 +92,15 @@ export function applyVectorization(
     }
   }
 
+  const argsToFocus = argTargeting(descr, args.length);
+  const argDefinitions: ArgDefinition[] = new Array(args.length);
+  for (let k = 0; k < args.length; k++) {
+    argDefinitions[k] = descr.args[argsToFocus[k].index];
+  }
+
   if (countVectorizedCol === 1 && countVectorizedRow === 1) {
     // either this function is not vectorized or it ends up with a 1x1 dimension
-    return errorHandlingCompute(descr, context, args);
+    return errorHandlingCompute(descr, context, args, argDefinitions);
   }
 
   // Reused across every vectorized cell to avoid allocating a new args array per call.
@@ -128,7 +139,12 @@ export function applyVectorization(
     for (let k = 0; k < argGetters.length; k++) {
       argsBuffer[k] = argGetters[k](col, row);
     }
-    const singleCellComputeResult = errorHandlingCompute(descr, context, argsBuffer);
+    const singleCellComputeResult = errorHandlingCompute(
+      descr,
+      context,
+      argsBuffer,
+      argDefinitions
+    );
     // In the case where the user tries to vectorize arguments of an array formula, we will get an
     // array for every combination of the vectorized arguments, which will lead to a 3D matrix and
     // we won't be able to return the values.
@@ -170,17 +186,16 @@ function computeFunctionToObject(
 function errorHandlingCompute(
   descr: FunctionDescription,
   context: EvalContext,
-  args: Arg[]
+  args: Arg[],
+  argDefinitions: ArgDefinition[]
 ): Matrix<FunctionResultObject> | FunctionResultObject {
-  const argsToFocus = argTargeting(descr, args.length);
   for (let i = 0; i < args.length; i++) {
     const arg = args[i];
-    const argDefinition = descr.args[argsToFocus[i].index];
 
     // Early exit if the argument is an error and the function does not accept errors.
     // We only check scalar arguments, not matrix arguments for performance reasons.
     // Casting helpers are responsible for handling errors in matrix arguments.
-    if (!argDefinition.acceptErrors && !isMatrix(arg) && isEvaluationError(arg?.value)) {
+    if (!argDefinitions[i].acceptErrors && !isMatrix(arg) && isEvaluationError(arg?.value)) {
       return arg;
     }
   }
