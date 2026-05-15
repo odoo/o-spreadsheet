@@ -366,7 +366,18 @@ export class Evaluator {
   }
 
   private computeFormulaCell(formulaPosition: CellPosition, cellData: FormulaCell): EvaluatedCell {
-    const formulaReturn = updateEvalContextAndExecute(
+    const evalContext = this.compilationParams.evalContext;
+    const prevFormulaZone = evalContext.__formulaZone;
+    const nCols = this.getters.getNumberCols(formulaPosition.sheetId);
+    const nRows = this.getters.getNumberRows(formulaPosition.sheetId);
+    const formulaZone = {
+      left: 0,
+      top: 0,
+      right: nCols - formulaPosition.col - 1,
+      bottom: nRows - formulaPosition.row - 1,
+    };
+    evalContext.__formulaZone = formulaZone;
+    let formulaReturn = updateEvalContextAndExecute(
       cellData.compiledFormula,
       this.compilationParams,
       formulaPosition.sheetId,
@@ -374,6 +385,25 @@ export class Evaluator {
       formulaPosition,
       this.formulaDependencies
     );
+    // If the result fills the formula zone on any dimension, the function output may have been
+    // truncated by the zone. Re-evaluate with the full zone to get the true dimensions so the
+    // spill check can detect #SPILL errors correctly.
+    if (
+      isMatrix(formulaReturn) &&
+      (formulaReturn.length >= formulaZone.right + 1 ||
+        formulaReturn[0]?.length >= formulaZone.bottom + 1)
+    ) {
+      evalContext.__formulaZone = undefined;
+      formulaReturn = updateEvalContextAndExecute(
+        cellData.compiledFormula,
+        this.compilationParams,
+        formulaPosition.sheetId,
+        this.buildSafeGetSymbolValue(),
+        formulaPosition,
+        this.formulaDependencies
+      );
+    }
+    evalContext.__formulaZone = prevFormulaZone;
     if (!isMatrix(formulaReturn)) {
       const evaluatedCell = createEvaluatedCell(
         validateNumberValue(formulaReturn),

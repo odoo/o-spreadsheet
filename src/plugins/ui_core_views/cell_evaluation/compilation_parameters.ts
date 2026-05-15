@@ -109,8 +109,10 @@ class CompilationParametersBuilder {
     const nCols = range.zone.right - range.zone.left + 1;
     const nRows = range.zone.bottom - range.zone.top + 1;
 
-    const subWidth = (zone.right === undefined ? nCols - 1 : zone.right) - zone.left + 1;
-    const subHeight = (zone.bottom === undefined ? nRows - 1 : zone.bottom) - zone.top + 1;
+    const maxRight = zone.right === undefined ? nCols - 1 : Math.min(zone.right, nCols - 1);
+    const maxBottom = zone.bottom === undefined ? nRows - 1 : Math.min(zone.bottom, nRows - 1);
+    const subWidth = maxRight - zone.left + 1;
+    const subHeight = maxBottom - zone.top + 1;
 
     if (subWidth < 1 || subHeight < 1) {
       throw new ReferenceError(
@@ -126,22 +128,37 @@ class CompilationParametersBuilder {
     const bottom = top + subHeight - 1;
     const right = left + subWidth - 1;
 
+    // Clamp to actual sheet dimensions to avoid fetching out-of-bounds cells.
+    // Math.max(..., left/top) preserves at least one cell when the range starts
+    // beyond the sheet edge (needed for COLUMN(ABC2)-style position lookups).
+    const sheetCols = this.getters.getNumberCols(sheetId);
+    const sheetRows = this.getters.getNumberRows(sheetId);
+    const clampedRight = Math.max(Math.min(right, sheetCols - 1), left);
+    const clampedBottom = Math.max(Math.min(bottom, sheetRows - 1), top);
+    const actualWidth = clampedRight - left + 1;
+    const actualHeight = clampedBottom - top + 1;
+
     if (this.evalContext.__originCellPosition) {
-      const subRange = this.getters.getRangeFromZone(sheetId, { top, left, bottom, right });
+      const subRange = this.getters.getRangeFromZone(sheetId, {
+        top,
+        left,
+        bottom: clampedBottom,
+        right: clampedRight,
+      });
       this.evalContext.currentFormulaDependencies?.push(subRange);
     }
 
-    const cacheKey = `${sheetId}-${top}-${left}-${bottom}-${right}`;
+    const cacheKey = `${sheetId}-${top}-${left}-${clampedBottom}-${clampedRight}`;
     if (cacheKey in this.rangeCache) {
       return this.rangeCache[cacheKey];
     }
 
-    const matrix: Matrix<FunctionResultObject> = new Array(subWidth);
+    const matrix: Matrix<FunctionResultObject> = new Array(actualWidth);
     // Performance issue: nested loop is faster than a map here
-    for (let col = left; col <= right; col++) {
+    for (let col = left; col <= clampedRight; col++) {
       const colIndex = col - left;
-      matrix[colIndex] = new Array(subHeight);
-      for (let row = top; row <= bottom; row++) {
+      matrix[colIndex] = new Array(actualHeight);
+      for (let row = top; row <= clampedBottom; row++) {
         const rowIndex = row - top;
         const position = { sheetId, col, row };
         const result = this.computeCell(position);

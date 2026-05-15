@@ -394,7 +394,7 @@ function compileTokensOrThrow(tokens: Token[]): ICompiledFormula {
     if (ast.type === "EMPTY") {
       throw new BadExpressionError(_t("Invalid formula"));
     }
-    const compiledAST = compileAST(ast);
+    const compiledAST = compileAST(ast, false, false, true);
     const code = new FunctionCodeBuilder();
     code.append(`// ${cacheKey}`);
     code.append(`const fullZone = {top: 0, left: 0, bottom: undefined, right: undefined};`);
@@ -478,7 +478,12 @@ function compileTokensOrThrow(tokens: Token[]): ICompiledFormula {
      * executable code for the evaluation of the cells content. It uses a cache to
      * not reevaluate identical code structures.
      */
-    function compileAST(ast: AST, acceptMatrix = false, isLazy = false): FunctionCode {
+    function compileAST(
+      ast: AST,
+      acceptMatrix = false,
+      isLazy = false,
+      isRoot = false
+    ): FunctionCode {
       const code = new FunctionCodeBuilder(scope);
       if (ast.debug) {
         code.append("debugger;");
@@ -517,7 +522,11 @@ function compileTokensOrThrow(tokens: Token[]): ICompiledFormula {
           }
           const isArrayFunction = functions[fnName].computeArray !== undefined;
           if (isArrayFunction) {
-            return code.return(`ctx['${fnName}'](${zoneExpression}, ${argsExpression})`, true);
+            // Only the outermost (root) array function call uses the formula-zone — nested
+            // array functions (e.g. FILTER inside SORT) must see the full zone so that
+            // intermediate results are not prematurely truncated.
+            const arrayZone = isRoot && !isLazy ? `ctx.__formulaZone ?? fullZone` : zoneExpression;
+            return code.return(`ctx['${fnName}'](${arrayZone}, ${argsExpression})`, true);
           }
           return code.return(`ctx['${fnName}'](${argsExpression})`);
         case "ARRAY": {
@@ -528,16 +537,28 @@ function compileTokensOrThrow(tokens: Token[]): ICompiledFormula {
               "ARRAY.LITERAL",
               ast.value.map((row) => toFuncall("ARRAY.ROW", row))
             ),
-            isLazy
+            isLazy,
+            false,
+            isRoot
           );
         }
         case "UNARY_OPERATION": {
           // use a function call AST to reuse the vectorization logic in compileFunctionArgs
-          return compileAST(toFuncall(UNARY_OPERATOR_MAP[ast.value], [ast.operand]), isLazy);
+          return compileAST(
+            toFuncall(UNARY_OPERATOR_MAP[ast.value], [ast.operand]),
+            isLazy,
+            false,
+            isRoot
+          );
         }
         case "BIN_OPERATION": {
           // use a function call AST to reuse the vectorization logic in compileFunctionArgs
-          return compileAST(toFuncall(OPERATOR_MAP[ast.value], [ast.left, ast.right]), isLazy);
+          return compileAST(
+            toFuncall(OPERATOR_MAP[ast.value], [ast.left, ast.right]),
+            isLazy,
+            false,
+            isRoot
+          );
         }
         case "SYMBOL":
           const symbolIndex = symbols.indexOf(ast.value);

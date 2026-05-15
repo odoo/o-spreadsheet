@@ -70,7 +70,7 @@ const _5 = ctx['ARRAY.ROW'](fullZone, _1,_2);
 const _3 = this.literalValues.numbers[2];
 const _4 = this.literalValues.numbers[3];
 const _6 = ctx['ARRAY.ROW'](fullZone, _3,_4);
-return ctx['ARRAY.LITERAL'](fullZone, _5,_6);
+return ctx['ARRAY.LITERAL'](ctx.__formulaZone ?? fullZone, _5,_6);
 }"
 `;
 
@@ -87,7 +87,7 @@ const _3 = this.literalValues.numbers[2];
 const _7 = ctx['ARRAY.ROW'](fullZone, _3);
 const _4 = this.literalValues.numbers[3];
 const _8 = ctx['ARRAY.ROW'](fullZone, _4);
-return ctx['ARRAY.LITERAL'](fullZone, _5,_6,_7,_8);
+return ctx['ARRAY.LITERAL'](ctx.__formulaZone ?? fullZone, _5,_6,_7,_8);
 }"
 `;
 
@@ -101,7 +101,7 @@ const _2 = this.literalValues.numbers[1];
 const _3 = this.literalValues.numbers[2];
 const _4 = this.literalValues.numbers[3];
 const _5 = ctx['ARRAY.ROW'](fullZone, _1,_2,_3,_4);
-return ctx['ARRAY.LITERAL'](fullZone, _5);
+return ctx['ARRAY.LITERAL'](ctx.__formulaZone ?? fullZone, _5);
 }"
 `;
 
@@ -134,7 +134,7 @@ exports[`expression compiler expression with cell# 1`] = `
 // =|C|#
 const fullZone = {top: 0, left: 0, bottom: undefined, right: undefined};
 const _1 = range(fullZone, deps[0]);
-return ctx['SPILLED.RANGE'](fullZone, _1);
+return ctx['SPILLED.RANGE'](ctx.__formulaZone ?? fullZone, _1);
 }"
 `;
 
@@ -144,7 +144,7 @@ exports[`expression compiler expression with range# 1`] = `
 // =|R|#
 const fullZone = {top: 0, left: 0, bottom: undefined, right: undefined};
 const _1 = range(fullZone, deps[0]);
-return ctx['SPILLED.RANGE'](fullZone, _1);
+return ctx['SPILLED.RANGE'](ctx.__formulaZone ?? fullZone, _1);
 }"
 `;
 

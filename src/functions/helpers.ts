@@ -462,8 +462,10 @@ export function generateSubMatrix(
   nRows: number,
   callback: (col: number, row: number) => FunctionResultObject
 ): Matrix<FunctionResultObject> | FunctionResultObject {
-  const subWidth = (zone.right === undefined ? nColumns - 1 : zone.right) - zone.left + 1;
-  const subHeight = (zone.bottom === undefined ? nRows - 1 : zone.bottom) - zone.top + 1;
+  const maxRight = zone.right === undefined ? nColumns - 1 : Math.min(zone.right, nColumns - 1);
+  const maxBottom = zone.bottom === undefined ? nRows - 1 : Math.min(zone.bottom, nRows - 1);
+  const subWidth = maxRight - zone.left + 1;
+  const subHeight = maxBottom - zone.top + 1;
 
   if (subWidth < 1 || subHeight < 1) {
     throw new ReferenceError(
