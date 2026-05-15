@@ -129,6 +129,59 @@ export function addMetaInfoFromArg(
 
 type ArgToFocus = Immutable<Record<number, { index: number; repeatingGroupIndex?: number }>>;
 const cacheArgTargeting: Record<string, Record<number, ArgToFocus>> = {};
+const cacheArgDefinitions: Record<string, Record<number, ArgDefinition[]>> = {};
+const cacheAcceptToVectorize: Record<string, Record<number, boolean[]>> = {};
+
+/**
+ * Resolve the argument definitions for a given supplied count.
+ * Cached per (function, arity) — both inputs are constant for the lifetime
+ * of a function so the result can be reused across every call.
+ */
+export function getArgDefinitions(
+  descr: FunctionDescription,
+  nbrArgSupplied: number
+): ArgDefinition[] {
+  const name = descr.name;
+  let byArity = cacheArgDefinitions[name];
+  if (!byArity) {
+    byArity = cacheArgDefinitions[name] = {};
+  }
+  let result = byArity[nbrArgSupplied];
+  if (!result) {
+    const argsToFocus = argTargeting(descr, nbrArgSupplied);
+    result = new Array(nbrArgSupplied);
+    for (let i = 0; i < nbrArgSupplied; i++) {
+      result[i] = descr.args[argsToFocus[i].index];
+    }
+    byArity[nbrArgSupplied] = result;
+  }
+  return result;
+}
+
+/**
+ * Resolve which positional args are eligible for vectorization for a given
+ * supplied count. Cached per (function, arity).
+ */
+export function getAcceptToVectorize(
+  descr: FunctionDescription,
+  nbrArgSupplied: number
+): boolean[] {
+  const name = descr.name;
+  let byArity = cacheAcceptToVectorize[name];
+  if (!byArity) {
+    byArity = cacheAcceptToVectorize[name] = {};
+  }
+  let result = byArity[nbrArgSupplied];
+  if (!result) {
+    const argDefinitions = getArgDefinitions(descr, nbrArgSupplied);
+    result = new Array(nbrArgSupplied);
+    for (let i = 0; i < nbrArgSupplied; i++) {
+      result[i] = !argDefinitions[i].acceptMatrix;
+    }
+    byArity[nbrArgSupplied] = result;
+  }
+  return result;
+}
 
 /**
  * Returns a function that maps the position of a value in a function to its corresponding argument index.

@@ -9,7 +9,7 @@ import {
   FunctionDescription,
 } from "../types/functions";
 import { Arg, FunctionResultObject, isMatrix, Matrix } from "../types/misc";
-import { argTargeting } from "./arguments";
+import { getAcceptToVectorize, getArgDefinitions } from "./arguments";
 import { isEvaluationError, matrixForEach, matrixMap } from "./helpers";
 
 type VectorArgType = "horizontal" | "vertical" | "matrix";
@@ -92,11 +92,7 @@ export function applyVectorization(
     }
   }
 
-  const argsToFocus = argTargeting(descr, args.length);
-  const argDefinitions: ArgDefinition[] = new Array(args.length);
-  for (let k = 0; k < args.length; k++) {
-    argDefinitions[k] = descr.args[argsToFocus[k].index];
-  }
+  const argDefinitions = getArgDefinitions(descr, args.length);
 
   if (countVectorizedCol === 1 && countVectorizedRow === 1) {
     // either this function is not vectorized or it ends up with a 1x1 dimension
@@ -249,15 +245,11 @@ export function createComputeFunction(
     if (this.__timingEntries) {
       start = performance.now();
     }
-    const acceptToVectorize: boolean[] = [];
-
-    const argsToFocus = argTargeting(descr, args.length);
+    const argDefinitions = getArgDefinitions(descr, args.length);
+    const acceptToVectorize = getAcceptToVectorize(descr, args.length);
     //#region Compute vectorisation limits
     for (let i = 0; i < args.length; i++) {
-      const argIndex = argsToFocus[i].index;
-      const argDefinition = descr.args[argIndex];
-      const arg = args[i];
-      if (!isMatrix(arg) && argDefinition.acceptMatrixOnly) {
+      if (argDefinitions[i].acceptMatrixOnly && !isMatrix(args[i])) {
         throw new BadExpressionError(
           _t(
             "Function %s expects the parameter '%s' to be reference to a cell or range.",
@@ -266,7 +258,6 @@ export function createComputeFunction(
           )
         );
       }
-      acceptToVectorize.push(!argDefinition.acceptMatrix);
     }
 
     const result = replaceErrorPlaceholderInResult(
