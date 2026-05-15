@@ -182,7 +182,23 @@ function computeFunctionToObject(
     debugger;
     context.debug = false;
   }
-  const result = descr.compute.apply(context, args);
+  // Specialize the call for common arities for performance reasons
+  const compute = descr.compute;
+  let result: FunctionResultObject | Matrix<FunctionResultObject> | CellValue | Matrix<CellValue>;
+  switch (args.length) {
+    case 1:
+      result = compute.call(context, args[0]);
+      break;
+    case 2:
+      result = compute.call(context, args[0], args[1]);
+      break;
+    case 3:
+      result = compute.call(context, args[0], args[1], args[2]);
+      break;
+    default:
+      // fallback to a generic apply for functions with more than 3 arguments
+      result = compute.apply(context, args);
+  }
 
   if (!isMatrix(result)) {
     return isFunctionResultObject(result) ? result : { value: result };
