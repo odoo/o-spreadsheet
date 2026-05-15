@@ -47,9 +47,11 @@ export class CellComposerStore extends AbstractComposerStore {
   stopEdition(direction?: Direction) {
     const canStopEdition = this.canStopEdition();
     if (canStopEdition) {
+      const { col, row } = this.currentEditedCell;
       this._stopEdition();
       if (direction) {
         if (this.getters.isSingleCellOrMerge(this.sheetId, this.getters.getSelectedZone())) {
+          this.model.selection.selectCell(col, row);
           this.model.selection.moveAnchorCell(direction, 1);
         } else {
           moveAnchorWithinSelection(this.getters, this.model.selection, direction);
