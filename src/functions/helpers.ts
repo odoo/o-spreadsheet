@@ -703,11 +703,15 @@ export function visitMatchingRanges(
   }
 
   const nCriteria = predicates.length;
+  const criteriaRow: Matrix<FunctionResultObject>[number][] = new Array(nCriteria);
   for (let i = 0; i < dimRow; i++) {
+    for (let k = 0; k < nCriteria; k++) {
+      criteriaRow[k] = criteriaRanges[k][i];
+    }
     for (let j = 0; j < dimCol; j++) {
       let validatedPredicates = true;
       for (let k = 0; k < nCriteria; k++) {
-        const criteriaValue = criteriaRanges[k][i][j].value;
+        const criteriaValue = criteriaRow[k][j].value;
         validatedPredicates = evaluatePredicate(criteriaValue ?? undefined, predicates[k], locale);
         if (!validatedPredicates) {
           break;
