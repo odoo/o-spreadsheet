@@ -1,7 +1,7 @@
 import { evaluationResultToDisplayString } from "../helpers/matrix";
 import { _t } from "../translation";
 import { EvaluationError, NotAvailableError } from "../types/errors";
-import { AddFunctionDescription } from "../types/functions";
+import { AddFunctionDescription, LazyArg } from "../types/functions";
 import { Arg, FunctionResultObject, Matrix, Maybe, UnboundedZone } from "../types/misc";
 import { arg } from "./arguments";
 import { areSameDimensions, isSingleColOrRow, isSquareMatrix } from "./helper_assert";
@@ -15,6 +15,7 @@ import {
   toBoolean,
   toInteger,
   toMatrix,
+  toMatrix2,
   toNumber,
   toNumberMatrix,
   toString,
@@ -171,38 +172,52 @@ export const ARRAY_ROW = {
 export const CHOOSECOLS = {
   description: _t("Creates a new array from the selected columns in the existing range."),
   args: [
-    arg("array (any, range<any>)", _t("The array that contains the columns to be returned.")),
+    arg("array (any, range<any>, lazy)", _t("The array that contains the columns to be returned.")),
     arg(
       "col_num (number, range<number>, repeating)",
       _t("The column index of the column to be returned.")
     ),
   ],
-  computeArray: function (zone: UnboundedZone, array: Arg, ...columns: Arg[]) {
-    const _array = toMatrix(array);
+  computeArray: function (zone: UnboundedZone, array: LazyArg, ...columns: Arg[]) {
     const _columns = flattenRowFirst(columns, (item) => toInteger(item?.value, this.locale));
 
-    const argOutOfRange = _columns.filter((col) => col === 0 || _array.length < Math.abs(col));
-    if (argOutOfRange.length !== 0) {
+    if (array === undefined) {
+      array = () => [[]];
+    }
+
+    if (_columns.includes(0)) {
+      return new EvaluationError(
+        _t("The value of parameter 2 of function [[FUNCTION_NAME]] cannot be zero.")
+      );
+    }
+
+    if (
+      zone.left > _columns.length - 1 ||
+      (zone.right !== undefined && zone.right > _columns.length - 1)
+    ) {
       return new EvaluationError(
         _t(
-          "The columns arguments must be between -%s and %s (got %s), excluding 0.",
-          _array.length.toString(),
-          _array.length.toString(),
-          argOutOfRange.join(",")
+          "Index out of range: The function [[FUNCTION_NAME]] operates on a matrix of %(nColumns)s columns; the parent formula attempts to access values outside these bounds.",
+          { nColumns: _columns.length }
         )
       );
     }
 
+    const leftsIndex = _columns.map((col) => (col > 0 ? col - 1 : col));
+
     const result: Matrix<FunctionResultObject> = Array(_columns.length);
-    for (let col = 0; col < _columns.length; col++) {
-      if (_columns[col] > 0) {
-        result[col] = _array[_columns[col] - 1]; // -1 because columns arguments are 1-indexed
-      } else {
-        result[col] = _array[_array.length + _columns[col]];
-      }
+    for (
+      let widthIndex = zone.left;
+      widthIndex < (zone.right === undefined ? leftsIndex.length : zone.right);
+      widthIndex++
+    ) {
+      const left = leftsIndex[widthIndex];
+      const subZone = { left, right: left, top: zone.top, bottom: zone.bottom };
+      const res = array(subZone);
+      result[widthIndex] = toMatrix2(res, subZone)[0];
     }
 
-    return toSubMatrix(zone, result);
+    return result;
   },
   isExported: true,
 } satisfies AddFunctionDescription;
