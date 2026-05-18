@@ -682,6 +682,7 @@ export function visitMatchingRanges(
   const dimCol = firstArg[0].length;
 
   const predicates: Predicate[] = [];
+  const criteriaRanges: Matrix<FunctionResultObject>[] = [];
 
   for (let i = 0; i < countArg - 1; i += 2) {
     const criteriaRange = toMatrix(args[i]);
@@ -698,15 +699,16 @@ export function visitMatchingRanges(
       predicate.operand += "*";
     }
     predicates.push(predicate);
+    criteriaRanges.push(criteriaRange);
   }
 
+  const nCriteria = predicates.length;
   for (let i = 0; i < dimRow; i++) {
     for (let j = 0; j < dimCol; j++) {
       let validatedPredicates = true;
-      for (let k = 0; k < countArg - 1; k += 2) {
-        const criteriaValue = toMatrix(args[k])[i][j].value;
-        const criterion = predicates[k / 2];
-        validatedPredicates = evaluatePredicate(criteriaValue ?? undefined, criterion, locale);
+      for (let k = 0; k < nCriteria; k++) {
+        const criteriaValue = criteriaRanges[k][i][j].value;
+        validatedPredicates = evaluatePredicate(criteriaValue ?? undefined, predicates[k], locale);
         if (!validatedPredicates) {
           break;
         }
