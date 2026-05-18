@@ -15,6 +15,7 @@ export class PivotDimensionOrder extends Component<SpreadsheetChildEnv> {
       types.PivotDimension(),
       types.instanceOf(InputEvent),
     ]),
+    "isMeasureSorted?": types.boolean(),
   });
   static components = { Select };
 
@@ -23,9 +24,19 @@ export class PivotDimensionOrder extends Component<SpreadsheetChildEnv> {
       { value: "asc", label: _t("Ascending") },
       { value: "desc", label: _t("Descending") },
     ];
+    if (this.props.isMeasureSorted) {
+      options.unshift({ value: "measures", label: _t("Sorted by measure") });
+    }
     if (this.props.dimension.type === "date") {
       return options;
     }
     return [{ value: "", label: _t("Unsorted") }, ...options];
+  }
+
+  get selectedValue() {
+    if (this.props.isMeasureSorted) {
+      return "measures";
+    }
+    return this.props.dimension.order || "";
   }
 }
