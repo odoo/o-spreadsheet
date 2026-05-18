@@ -27,11 +27,6 @@
           <span>Custom</span>
         </div>
         <div class="colors-grid o-color-picker-toggler" t-on-click.stop="this.toggleColorPicker">
-          <div class="o-color-picker-line-item bg-white o-color-picker-toggler-button">
-            <div class="o-color-picker-toggler-sign">
-              <t t-call="o-spreadsheet-Icon.PLUS"/>
-            </div>
-          </div>
           <div
             t-foreach="this.env.model.getters.getCustomColors()"
             t-as="color"
@@ -46,6 +41,17 @@
               t-attf-style="color:{{this.checkmarkColor}}">
               ✓
             </div>
+          </div>
+          <div class="o-color-picker-line-item bg-white o-color-picker-toggler-button">
+            <div class="o-color-picker-toggler-sign">
+              <t t-call="o-spreadsheet-Icon.PLUS"/>
+            </div>
+          </div>
+          <div
+            class="eyedropper d-flex align-items-center justify-content-center rounded-circle"
+            t-if="this.canUseEyeDropper"
+            t-on-click.stop="this.activateEyedropper">
+            <i class="fa fa-eyedropper"/>
           </div>
         </div>
         <div t-if="this.state.showGradient" class="o-custom-selector">
