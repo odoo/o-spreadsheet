@@ -72,7 +72,11 @@
               availableGranularities="this.props.unusedGranularities[row.fieldName]"
               allGranularities="this.getGranularitiesFor(row)"
             />
-            <PivotDimensionOrder dimension="row" onUpdated.bind="this.updateOrder"/>
+            <PivotDimensionOrder
+              dimension="row"
+              onUpdated.bind="this.updateOrder"
+              isMeasureSorted="this.hasSortedColumn"
+            />
             <PivotCustomGroupsCollapsible
               t-if="row.isCustomField"
               pivotId="this.props.pivotId"

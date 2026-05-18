@@ -6,7 +6,7 @@
         <Select
           class="'flex-grow-1'"
           values="this.orderSelectOptions"
-          selectedValue="this.props.dimension.order || ''"
+          selectedValue="this.selectedValue"
           onChange="(value) => this.props.onUpdated(this.props.dimension, value)"
         />
       </div>

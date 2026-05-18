@@ -957,6 +957,24 @@ describe("Spreadsheet pivot side panel", () => {
       await click(column, ".fa-trash");
       expect(model.getters.getPivotCoreDefinition("2").sortedColumn).toBeUndefined();
     });
+
+    test("Pivot sorted columns is removed when changing the sorting of a row in the panel", async () => {
+      updatePivot(model, "2", {
+        rows: [{ fieldName: "Product", order: "asc" }],
+      });
+      await nextTick();
+
+      const row = fixture.querySelectorAll(".pivot-dimension")[1];
+      const select = row.querySelector(".o-select")!;
+      expect(model.getters.getPivotCoreDefinition("2").sortedColumn).toEqual(sortedColumn);
+      expect(select).toHaveText("Sorted by measure");
+
+      await editSelectComponent(select, "desc");
+      expect(model.getters.getPivotCoreDefinition("2").rows).toEqual([
+        { fieldName: "Product", order: "desc" },
+      ]);
+      expect(model.getters.getPivotCoreDefinition("2").sortedColumn).toBeUndefined();
+    });
   });
 
   test("Trying to load a very big pivot will raise an error message", async () => {

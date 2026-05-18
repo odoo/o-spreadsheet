@@ -283,7 +283,10 @@ export class PivotLayoutConfigurator extends Component<SpreadsheetChildEnv> {
   }
 
   updateOrder(updateDimension: PivotDimensionType, order?: SortDirection) {
-    const { rows, columns } = this.props.definition;
+    const { rows, columns, sortedColumn } = this.props.definition;
+    const isRow = rows.some(
+      (row) => row.nameWithGranularity === updateDimension.nameWithGranularity
+    );
     this.props.onDimensionsUpdated({
       rows: rows.map((row) => {
         if (row.nameWithGranularity === updateDimension.nameWithGranularity) {
@@ -297,6 +300,7 @@ export class PivotLayoutConfigurator extends Component<SpreadsheetChildEnv> {
         }
         return col;
       }),
+      sortedColumn: isRow ? undefined : sortedColumn,
     });
   }
 
@@ -327,5 +331,9 @@ export class PivotLayoutConfigurator extends Component<SpreadsheetChildEnv> {
           possibleValues.length
         )
       : undefined;
+  }
+
+  get hasSortedColumn() {
+    return !!this.props.definition.sortedColumn;
   }
 }
