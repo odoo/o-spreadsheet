@@ -58,6 +58,10 @@
       .alert-info {
         border-left: 3px solid var(--os-alert-info-border);
       }
+
+      .alert-warning {
+        border-left: 3px solid var(--os-alert-warning-border, #ffc107);
+      }
     }
 
     .o-topbar-composer {
