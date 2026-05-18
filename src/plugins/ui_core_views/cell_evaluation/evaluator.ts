@@ -320,20 +320,31 @@ export class Evaluator {
       this.clearEvaluatedRanges(ranges);
       for (const range of ranges) {
         const { sheetId } = range;
+        const sheet = this.getters.tryGetSheet(sheetId);
+        if (!sheet) {
+          continue;
+        }
+        const sheetRows = sheet.rows;
         const { left, bottom, right, top } = range.zone;
         for (let col = left; col <= right; col++) {
           for (let row = top; row <= bottom; row++) {
-            const position = { sheetId, col, row };
-            // Fast path: skip positions with no cell and no spread relation
-            // before even consulting nextRangesToUpdate (which allocates a
-            // range object). For sheets dominated by empty positions, this
-            // saves the bulk of the per-cell overhead.
-            if (
-              !this.getters.getCell(position) &&
-              !this.spreadingRelations.getArrayResultZone(position)
-            ) {
+            // Fast path: check raw cellId without the getCell → getCellById
+            // round-trip. Skip empty positions with no spread relation.
+            if (sheetRows[row]?.cells[col] === undefined) {
+              const position = { sheetId, col, row };
+              if (!this.spreadingRelations.getArrayResultZone(position)) {
+                continue;
+              }
+              if (this.nextRangesToUpdate.hasPosition(position)) {
+                continue;
+              }
+              const evaluatedCell = this.computeCell(position);
+              if (evaluatedCell.value !== null || evaluatedCell.format !== undefined) {
+                this.evaluatedCells.set(position, evaluatedCell);
+              }
               continue;
             }
+            const position = { sheetId, col, row };
             if (this.nextRangesToUpdate.hasPosition(position)) {
               continue;
             }
