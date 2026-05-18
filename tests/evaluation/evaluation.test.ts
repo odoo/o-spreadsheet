@@ -1526,3 +1526,84 @@ describe("evaluate formula getter", () => {
     expect(model.getters.getEvaluatedCells(sheetId)).toHaveLength(0);
   });
 });
+
+describe("Automatic evaluation", () => {
+  test("Can toggle automatic evaluation on and off", () => {
+    const model = new Model();
+    expect(model.getters.isAutomaticEvaluationEnabled()).toBe(true);
+    model.dispatch("SET_AUTOMATIC_EVALUATION", { enabled: false });
+    expect(model.getters.isAutomaticEvaluationEnabled()).toBe(false);
+    model.dispatch("SET_AUTOMATIC_EVALUATION", { enabled: true });
+    expect(model.getters.isAutomaticEvaluationEnabled()).toBe(true);
+  });
+
+  test("Directly modified cell is evaluated even when automatic evaluation is disabled", () => {
+    const model = new Model();
+    setCellContent(model, "A1", "1");
+    expect(getEvaluatedCell(model, "A1").value).toBe(1);
+
+    model.dispatch("SET_AUTOMATIC_EVALUATION", { enabled: false });
+    setCellContent(model, "A1", "=1+1");
+    // The modified cell itself should be evaluated
+    expect(getEvaluatedCell(model, "A1").value).toBe(2);
+  });
+
+  test("Dependent cells are not re-evaluated when automatic evaluation is disabled", () => {
+    const model = new Model();
+    setCellContent(model, "A1", "1");
+    setCellContent(model, "A2", "=A1");
+    expect(getEvaluatedCell(model, "A2").value).toBe(1);
+
+    model.dispatch("SET_AUTOMATIC_EVALUATION", { enabled: false });
+    setCellContent(model, "A1", "2");
+    // Directly modified cell A1 is evaluated
+    expect(getEvaluatedCell(model, "A1").value).toBe(2);
+    // Dependent cell A2 should still show the old value (no cascade)
+    expect(getEvaluatedCell(model, "A2").value).toBe(1);
+  });
+
+  test("F9 (EVALUATE_CELLS) forces evaluation even when automatic evaluation is disabled", () => {
+    const model = new Model();
+    setCellContent(model, "A1", "1");
+    setCellContent(model, "A2", "=A1");
+    expect(getEvaluatedCell(model, "A2").value).toBe(1);
+
+    model.dispatch("SET_AUTOMATIC_EVALUATION", { enabled: false });
+    setCellContent(model, "A1", "2");
+    expect(getEvaluatedCell(model, "A2").value).toBe(1);
+
+    // Force evaluation with F9
+    model.dispatch("EVALUATE_CELLS");
+    expect(getEvaluatedCell(model, "A2").value).toBe(2);
+  });
+
+  test("Re-enabling automatic evaluation triggers evaluation", () => {
+    const model = new Model();
+    setCellContent(model, "A1", "1");
+    setCellContent(model, "A2", "=A1");
+    expect(getEvaluatedCell(model, "A2").value).toBe(1);
+
+    model.dispatch("SET_AUTOMATIC_EVALUATION", { enabled: false });
+    setCellContent(model, "A1", "2");
+    expect(getEvaluatedCell(model, "A2").value).toBe(1);
+
+    // Re-enable automatic evaluation
+    model.dispatch("SET_AUTOMATIC_EVALUATION", { enabled: true });
+    expect(getEvaluatedCell(model, "A2").value).toBe(2);
+  });
+
+  test("EVALUATE_CELLS does a full rebuild when automatic evaluation is disabled", () => {
+    const model = new Model();
+    setCellContent(model, "A1", "1");
+    setCellContent(model, "A2", "=A1");
+
+    model.dispatch("SET_AUTOMATIC_EVALUATION", { enabled: false });
+    setCellContent(model, "A1", "2");
+    expect(getEvaluatedCell(model, "A2").value).toBe(1);
+
+    // Even with cellIds, a full rebuild is performed in manual mode
+    const cell = getCell(model, "A2");
+    model.dispatch("EVALUATE_CELLS", { cellIds: [cell!.id] });
+    expect(getEvaluatedCell(model, "A2").value).toBe(2);
+  });
+});

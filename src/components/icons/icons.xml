@@ -1200,4 +1200,9 @@
       />
     </svg>
   </t>
+  <t t-name="o-spreadsheet-Icon.CALCULATOR">
+    <div class="o-icon">
+      <i class="fa fa-calculator"/>
+    </div>
+  </t>
 </templates>

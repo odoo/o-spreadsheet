@@ -18,6 +18,7 @@ import {
   MIN_CELL_TEXT_MARGIN,
   SCROLLBAR_WIDTH,
 } from "../../src/constants";
+import { functionRegistry } from "../../src/functions/function_registry";
 import { toCartesian } from "../../src/helpers/coordinates";
 import { buildSheetLink } from "../../src/helpers/misc";
 import { handleCopyPasteResult } from "../../src/helpers/ui/paste_interactive";
@@ -98,6 +99,7 @@ import {
   getStyle,
 } from "../test_helpers/getters_helpers";
 import {
+  addToRegistry,
   flattenHighlightRange,
   getPlugin,
   mockChart,
@@ -1031,6 +1033,20 @@ describe("Grid component", () => {
     test("pressing Ctrl+K opens the link editor", async () => {
       await keyDown({ key: "k", shiftKey: true, ctrlKey: true });
       expect(fixture.querySelector(".o-link-editor")).not.toBeNull();
+    });
+
+    test("pressing F9 triggers a full re-evaluation of all cells", async () => {
+      let value = 1;
+      addToRegistry(functionRegistry, "GETVALUE", {
+        description: "Get value",
+        compute: () => value,
+        args: [],
+      });
+      setCellContent(model, "A1", "=GETVALUE()");
+      expect(getEvaluatedCell(model, "A1").value).toBe(1);
+      value = 2;
+      await keyDown({ key: "F9" });
+      expect(getEvaluatedCell(model, "A1").value).toBe(2);
     });
 
     test("Filter icon is correctly rendered", () => {
