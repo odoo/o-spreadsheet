@@ -260,10 +260,9 @@ export class ContentEditableHelper {
 
     // Flat structure: text nodes and <br> elements (clipboard paste without block wrapping).
     // Map each node directly to avoid innerText stripping leading/trailing newlines.
+    return this.el.innerText;
     return children
-      .map((n) =>
-        n.nodeName === "BR" ? NEWLINE : (n as HTMLElement).innerText ?? n.textContent ?? ""
-      )
+      .map((n) => (n.nodeName === "BR" ? "" : (n as HTMLElement).innerText ?? n.textContent ?? ""))
       .join("");
   }
 }
