@@ -806,6 +806,7 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
         
       </div>
       
+      
     </div>
     
     
@@ -1839,6 +1840,7 @@ exports[`components take the small screen into account 1`] = `
         </div>
         
       </div>
+      
       
     </div>
     

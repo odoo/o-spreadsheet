@@ -106,6 +106,25 @@
           </div>
         </div>
       </div>
+      <div
+        t-if="!this.env.model.getters.isAutomaticEvaluationEnabled()"
+        class="topbar-banner manual-evaluation d-flex align-items-center justify-content-between border-top">
+        <div class="h-100 d-flex align-items-center text-warning px-3">
+          <i class="fa fa-pause-circle me-1"/>
+          Manual calculation
+        </div>
+        <div
+          class="ps-3 h-100 flex-fill d-flex justify-content-between rounded-0 alert alert-warning ps-0 py-0 my-0">
+          <span class="d-flex align-items-center">
+            Automatic evaluation is disabled. Press F9 to recalculate.
+          </span>
+          <div
+            class="ps-3 btn btn-link flex-shrink-0"
+            t-on-click="() => this.env.model.dispatch('SET_AUTOMATIC_EVALUATION', { enabled: true })">
+            Re-enable
+          </div>
+        </div>
+      </div>
     </div>
     <MenuPopover
       t-if="this.state.menuState.isOpen"
