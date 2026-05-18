@@ -525,6 +525,8 @@ type Operator = ">" | ">=" | "<" | "<=" | "<>" | "=";
 interface Predicate {
   operator: Operator;
   operand: number | string | boolean;
+  operandHasWildcard: boolean;
+  lowerCaseOperand: string;
 }
 
 function getPredicate(descr: string, locale: Locale): Predicate {
@@ -553,7 +555,27 @@ function getPredicate(descr: string, locale: Locale): Predicate {
     operand = toBoolean(operand);
   }
 
-  return { operator, operand };
+  const predicate: Predicate = {
+    operator,
+    operand,
+    operandHasWildcard:
+      typeof operand === "string" &&
+      (operator === "=" || operator === "<>") &&
+      hasWildcard(operand),
+    lowerCaseOperand: typeof operand === "string" ? operand.toLowerCase() : "",
+  };
+  return predicate;
+}
+
+function hasWildcard(s: string): boolean {
+  for (let i = 0; i < s.length; i++) {
+    const c = s.charCodeAt(i);
+    if (c === 42 || c === 63) {
+      // '*' = 42, '?' = 63
+      return true;
+    }
+  }
+  return false;
 }
 
 /**
@@ -610,11 +632,14 @@ function evaluatePredicate(
   if (operator === "<>" || operator === "=") {
     let result: boolean;
     if (typeof value === typeof operand) {
-      if (value === "" && operand === "") {
-        // fast path to avoid regex evaluation
-        result = true;
-      } else if (typeof value === "string" && typeof operand === "string") {
-        result = wildcardToRegExp(operand).test(value);
+      if (typeof value === "string" && typeof operand === "string") {
+        // Skip regex when the operand has no wildcards.
+        if (criterion.operandHasWildcard) {
+          result = wildcardToRegExp(operand).test(value);
+        } else {
+          result =
+            value.length === operand.length && value.toLowerCase() === criterion.lowerCaseOperand;
+        }
       } else {
         result = value === operand;
       }
@@ -696,6 +721,7 @@ export function visitMatchingRanges(
     const predicate = getPredicate(description, locale);
     if (isQuery && typeof predicate.operand === "string") {
       predicate.operand += "*";
+      predicate.operandHasWildcard = true;
     }
     predicates.push(predicate);
   }
