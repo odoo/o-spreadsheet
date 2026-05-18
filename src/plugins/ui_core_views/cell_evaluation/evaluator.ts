@@ -319,11 +319,22 @@ export class Evaluator {
       this.nextRangesToUpdate.clear();
       this.clearEvaluatedRanges(ranges);
       for (const range of ranges) {
+        const { sheetId } = range;
         const { left, bottom, right, top } = range.zone;
         for (let col = left; col <= right; col++) {
           for (let row = top; row <= bottom; row++) {
-            const position = { sheetId: range.sheetId, col, row };
+            const position = { sheetId, col, row };
             if (this.nextRangesToUpdate.hasPosition(position)) {
+              continue;
+            }
+            // Fast path: skip positions with no cell and no spread relation.
+            // Otherwise computeCell would just return EMPTY_CELL and the caller
+            // would discard it. For sheets dominated by empty positions, the
+            // saved per-cell overhead (map lookups, allocation) is substantial.
+            if (
+              !this.getters.getCell(position) &&
+              !this.spreadingRelations.getArrayResultZone(position)
+            ) {
               continue;
             }
             const evaluatedCell = this.computeCell(position);
